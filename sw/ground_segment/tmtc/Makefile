@@ -42,6 +42,10 @@ receive.opt : modem.ml receive.ml
 	$(OCAMLOPT) $(INCLUDES) -o $@ str.cmxa unix.cmxa xml-light.cmxa glibivy-ocaml.cmxa -I +lablgtk2 lablgtk.cmxa lib.cmxa $^
 	strip $@
 
+listen.opt : listen.ml
+	$(OCAMLOPT) $(INCLUDES) -o $@ str.cmxa unix.cmxa xml-light.cmxa glibivy-ocaml.cmxa -I +lablgtk2 lablgtk.cmxa lib.cmxa $^
+	strip $@
+
 receive.out : modem.ml receive.ml
 	$(OCAMLC) -g $(INCLUDES) -o $@ str.cma unix.cma xml-light.cma glibivy-ocaml.cma -I +lablgtk2 lablgtk.cma lib.cma $^
 
