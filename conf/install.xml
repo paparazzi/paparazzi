@@ -15,8 +15,8 @@
    <file name="sw/ground_segment/tmtc/receive"/>
    <file name="sw/ground_segment/visu3d/mapGL"/>
    <file name="sw/logalizer/play"/>
-   <file name="sw/simulator/gen_downlink"/>
    <file name="sw/simulator/simsitl.pl"/>
+   <file name="sw/tools/gen_sim_downlink.out"/>
    <file name="sw/tools/gen_aircraft.out"/>
    <file name="sw/tools/gen_airframe.out"/>
    <file name="sw/tools/gen_calib.out"/>
@@ -115,7 +115,8 @@
 </section>
 
 <section name="main_makefiles" dest="share/paparazzi/">
-   <file name="Makefile"/>
+   <file name="Makefile.sys"/>
+   <file name="pprz_src_test.sh"/>
    <file name="Makefile.gen"/>
    <file name="Makefile.ac"/>
 </section>
@@ -141,6 +142,7 @@
 
 <section name="sw_tools" dest="share/paparazzi/sw/tools" comment="ocaml objects">
    <file name="sw/tools/gen_aircraft.ml"/>
+   <file name="sw/tools/gen_sim_downlink.ml"/>
    <file name="sw/tools/gen_airframe.ml"/>
    <file name="sw/tools/gen_calib.ml"/>
    <file name="sw/tools/gen_radio.ml"/>
@@ -182,29 +184,16 @@
 
 <section name="sw_simulator" dest="share/paparazzi/sw/simulator" comment="ocaml objects and C hooks for airborne code simulation">
    <file name="sw/simulator/Makefile"/>
-   <file name="sw/simulator/data.ml"/>
-   <file name="sw/simulator/events.ml"/>
-   <file name="sw/simulator/flightModel.ml"/>
-   <file name="sw/simulator/flightModel.mli"/>
    <file name="sw/simulator/flightModelHeli.ml.sav"/>
-   <file name="sw/simulator/gps.ml"/>
-   <file name="sw/simulator/gui.ml"/>
-   <file name="sw/simulator/hitl.ml"/>
-   <file name="sw/simulator/hitl.mli"/>
    <file name="sw/simulator/sim.cmi"/>
    <file name="sw/simulator/sim_ap.c"/>
    <file name="sw/simulator/sim_gps.c"/>
    <file name="sw/simulator/sim_ir.c"/>
-   <file name="sw/simulator/simhitl.ml"/>
    <file name="sw/simulator/simsitl.ml"/>
    <file name="sw/simulator/simsitl.pl"/>
-   <file name="sw/simulator/sirf.ml"/>
    <file name="sw/simulator/sitl.cma"/>
    <file name="sw/simulator/sitl.cmi"/>
-   <file name="sw/simulator/stdlib.ml"/>
    <file name="sw/simulator/timer.h"/>
-   <file name="sw/simulator/types.ml"/>
-   <file name="sw/simulator/gen_downlink.ml"/>
 </section>
 
 <section name="sw_include" dest="share/paparazzi/sw/include" comment="common headers for airborne code">
@@ -267,7 +256,13 @@
 </section>
 
 <section name="var_log" dest="share/paparazzi/var/logs">
-<!--   <file name="var/logs/04_12_29__15_11_08.log"/> -->
+   <file name="var/logs/04_12_29__15_11_08.log"/>
+</section>
+
+<section name="var_include" dest="share/paparazzi/var/include">
+   <file name="var/include/fbw_messages.h"/>
+   <file name="var/include/messages.h"/>
+   <file name="var/include/ubx_protocol.h"/>
 </section>
 
 <section name="var_Thon1_sim" dest="share/paparazzi/var/Thon1/sim">

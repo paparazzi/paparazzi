@@ -71,7 +71,7 @@ warn_conf :
 	@echo
 
 
-main.o .depend : $(ACINCLUDE)/radio.h $(ACINCLUDE)/airframe.h
+$(OBJDIR)/main.o $(OBJDIR)/.depend : $(ACINCLUDE)/radio.h $(ACINCLUDE)/airframe.h
 
 clean : avr_clean
 

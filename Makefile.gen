@@ -41,11 +41,13 @@ $(MESSAGES_H) : $(MESSAGES_XML) $(CONF_XML)
 	TMP_FILE=`mktemp`;\
         $(TOOLS)/gen_messages.out $< telemetry_ap > $$TMP_FILE;\
         mv $$TMP_FILE $@
+	chmod a+r $@
 
 $(FBW_MESSAGES_H) : $(MESSAGES_XML) $(CONF_XML) 
 	TMP_FILE=`mktemp`;\
         $(TOOLS)/gen_messages.out $< telemetry_fbw > $$TMP_FILE;\
         mv $$TMP_FILE $@
+	chmod a+r $@
 
 $(UBX_PROTOCOL_H) : $(UBX_XML) $(CONF_XML)
 	$(TOOLS)/gen_ubx.out $< > /tmp/ubx.h

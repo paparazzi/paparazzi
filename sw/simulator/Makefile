@@ -47,7 +47,7 @@ VARINCLUDE=$(PAPARAZZI_HOME)/var/include
 ACINCLUDE = $(PAPARAZZI_HOME)/var/$(AIRCRAFT)
 
 MESSAGES = ../../conf/messages.xml
-GEN_DOWNLINK = ./gen_downlink
+GEN_DOWNLINK = $(TOOLS)/gen_sim_downlink.out
 
 SIMDIR=$(shell echo `pwd`)
 
@@ -71,7 +71,7 @@ $(OBJDIR)/$(SIMSA) : $(SIMSO)
 	touch $(OBJDIR)/dummy.ml
 	cd $(OBJDIR); ocamlmklib -o sims $^ dummy.ml
 
-$(OBJDIR)/simsitl : $(OBJDIR)/$(SIMSA) sitl.cma $(OBJDIR)/simsitl.ml
+$(OBJDIR)/simsitl : $(OBJDIR)/$(SIMSA) $(OBJDIR)/simsitl.ml
 	$(OCAMLC) $(INCLUDES) -o $@ glibivy-ocaml.cma xml-light.cma unix.cma lib-pprz.cma lablgtk.cma gtkInit.cmo -I $(OBJDIR) $(SIMSA) sitl.cma $(OBJDIR)/simsitl.ml # To check
 	cat ../../pprz_src_test.sh > $@
 	echo 'lablgtk2 -I $$PAPARAZZI_SRC/sw/lib/ocaml -I $(OBJDIR) glibivy-ocaml.cma xml-light.cma lib-pprz.cma $(SIMSA) $$PAPARAZZI_SRC/sw/simulator/sitl.cma -I $$PAPARAZZI_SRC/sw/simulator $(OBJDIR)/simsitl.ml $$*' >> $@
@@ -89,19 +89,13 @@ $(OBJDIR)/%.o : $(AP)/%.c
 $(OBJDIR)/main.o : $(OBJDIR)/main.c
 	$(OCAMLCC) -c -o $@ -I $(SIMDIR) -I $(FBW) -I $(AP) -I ../include -I $(VARINCLUDE) $<
 
-sim_gps.o nav.o main.o sim_ir.o sim_ap.o pid.o estimator.o : $(ACINCLUDE)/flight_plan.h  $(ACINCLUDE)/airframe.h
+$(OBJDIR)/sim_gps.o $(OBJDIR)/nav.o $(OBJDIR)/main.o $(OBJDIR)/sim_ir.o $(OBJDIR)/sim_ap.o $(OBJDIR)/pid.o $(OBJDIR)/estimator.o : $(ACINCLUDE)/flight_plan.h  $(ACINCLUDE)/airframe.h
 
 $(OBJDIR)/main.c : $(OBJDIR)/downlink.h
 	cp $(AP)/main.c $(@)
 
 $(OBJDIR)/downlink.h : $(MESSAGES) $(GEN_DOWNLINK)
 	$(GEN_DOWNLINK) $< > $@
-
-$(GEN_DOWNLINK) : gen_downlink.ml
-	$(OCAMLC) $(INCLUDES) -o $@ str.cma xml-light.cma lib-pprz.cma $< # To check	
-	cat ../../pprz_src_test.sh > $@
-	echo 'ocaml -I $$PAPARAZZI_SRC/sw/lib/ocaml str.cma xml-light.cma lib-pprz.cma $$PAPARAZZI_SRC/sw/simulator/$< $$*' >> $@
-	chmod a+x $@
 
 $(OBJDIR)/simsitl.cmo : $(OBJDIR)/simsitl.ml
 	$(OCAMLC) $(INCLUDES) -c -o $@ $<
@@ -123,11 +117,12 @@ $(OBJDIR)/simsitl.ml : simsitl.ml
 	$(OCAMLC) $(INCLUDES) -c $<
 
 clean :
-	\rm -f *.cm* *~ *.out .depend *.o $(GEN_DOWNLINK)
+	\rm -f *.cm* *~ *.out .depend *.o
 
-.depend:
-	ocamldep *.ml* > .depend
-
-ifneq ($(MAKECMDGOALS),clean) 
--include .depend
-endif
+flightModel.cmo: flightModel.cmi 
+hitl.cmo: hitl.cmi 
+sim.cmo: flightModel.cmi sim.cmi 
+simhitl.cmo: hitl.cmi sim.cmi
+simsitl.cmo: sim.cmi sitl.cmi 
+sitl.cmo: sitl.cmi 
+sitl.cmi: sim.cmi 

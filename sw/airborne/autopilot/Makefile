@@ -82,11 +82,11 @@ warn_conf :
 	@echo
 
 
-.depend : $(VARINCLUDE)/messages.h $(ACINCLUDE)/flight_plan.h  $(VARINCLUDE)/ubx_protocol.h  $(ACINCLUDE)/inflight_calib.h $(ACINCLUDE)/airframe.h  $(ACINCLUDE)/radio.h 
-main.o : $(VARINCLUDE)/messages.h
-nav.o : $(ACINCLUDE)/flight_plan.h
-gps_ubx.o : $(VARINCLUDE)/ubx_protocol.h
-if_calib.o : $(ACINCLUDE)/inflight_calib.h
+$(OBJDIR)/.depend : $(VARINCLUDE)/messages.h $(ACINCLUDE)/flight_plan.h  $(VARINCLUDE)/ubx_protocol.h  $(ACINCLUDE)/inflight_calib.h $(ACINCLUDE)/airframe.h  $(ACINCLUDE)/radio.h 
+$(OBJDIR)/main.o : $(VARINCLUDE)/messages.h
+$(OBJDIR)/nav.o : $(ACINCLUDE)/flight_plan.h
+$(OBJDIR)/gps_ubx.o : $(VARINCLUDE)/ubx_protocol.h
+$(OBJDIR)/if_calib.o : $(ACINCLUDE)/inflight_calib.h
 
 clean : avr_clean
 	rm -f *.out *.cm* messages.h flight_plan.h ubx_protocol.h inflight_calib.h

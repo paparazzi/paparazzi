@@ -61,7 +61,7 @@ configurator: lib
 	cd $(CONFIGURATOR); $(MAKE)
 
 sim_static :
-	cd $(SIMULATOR); $(MAKE)
+	cd $(SIMULATOR); $(MAKE) PAPARAZZI_SRC=$(PAPARAZZI_SRC)
 
 sim_sitl :
 	cd $(SIMULATOR);  $(MAKE) sim_sitl PAPARAZZI_HOME=$(PAPARAZZI_SRC) PAPARAZZI_SRC=$(PAPARAZZI_SRC) AIRCRAFT=$(AIRCRAFT)

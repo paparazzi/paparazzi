@@ -11,7 +11,7 @@ let mkdir = fun d ->
 
 let _ =
   if Array.length Sys.argv <> 2 then
-    failwith (sprintf "Usage: %s <xml_airframe_file>" Sys.argv.(0));
+    failwith (sprintf "Usage: %s <A/C ident (conf.xml)>" Sys.argv.(0));
   let aircraft = Sys.argv.(1) in
   let conf = Xml.parse_file conf_xml in
   let aircraft_xml =

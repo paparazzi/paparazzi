@@ -1,0 +1,52 @@
+#   Paparazzi main $Id$
+#   Copyright (C) 2004 Pascal Brisset Antoine Drouin
+#
+# This file is part of paparazzi.
+#
+# paparazzi is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# paparazzi is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with paparazzi; see the file COPYING.  If not, write to
+# the Free Software Foundation, 59 Temple Place - Suite 330,
+# Boston, MA 02111-1307, USA.  
+
+PAPARAZZI_DIR=/usr/share/paparazzi
+ifeq ($(PAPARAZZI_HOME),)
+PAPARAZZI_HOME=$(HOME)/paparazzi
+endif
+
+ac: ac_h sim_ac ap fbw
+	
+sim_ac : sim_sitl
+
+ac_h :
+	$(PAPARAZZI_DIR)/bin/gen_aircraft.out $(AIRCRAFT)
+
+sim_sitl :
+	cd $(PAPARAZZI_DIR)/sw/simulator; $(MAKE) sim_sitl AIRCRAFT=$(AIRCRAFT)
+
+clean_ac :
+	rm -fr $(PAPARAZZI_HOME)/var/$(AIRCRAFT)
+
+run_sitl :
+	$(PAPARAZZI_HOME)/var/$(AIRCRAFT)/sim/simsitl
+
+ap:
+	cd $(PAPARAZZI_DIR)/sw/airborne/autopilot; $(MAKE) all
+
+fbw:
+	cd $(PAPARAZZI_DIR)/sw/airborne/fly_by_wire; $(MAKE) all
+
+upload_ap:
+	cd $(PAPARAZZI_DIR)/sw/airborne/autopilot; $(MAKE) upload
+
+upload_fbw:
+	cd $(PAPARAZZI_DIR)/sw/airborne/fly_by_wire; $(MAKE) upload
