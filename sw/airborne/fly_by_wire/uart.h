@@ -43,6 +43,16 @@ extern uint8_t           tx_buf[ TX_BUF_SIZE ];
 
 #define UART_CHECK_FREE_SPACE(_space) (tx_head>=tx_tail? _space < (TX_BUF_SIZE - (tx_head - tx_tail)) : _space < (tx_tail - tx_head))
 
+#define UART_PUT_1_BYTE(_byte) { \
+  tx_buf[tx_head] = _byte; \
+  tx_head++; \
+  if (tx_head >= TX_BUF_SIZE) tx_head = 0; \
+}
 
+#define UART_PUT_1_BYTE_BY_ADDR(_byte) { \
+    UART_PUT_1_BYTE(*(_byte));		 \
+}
+
+#define UART_CHECK_RUNNING() {}
 
 #endif

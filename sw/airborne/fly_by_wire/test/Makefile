@@ -53,7 +53,7 @@ endif
 
 rc_transmitter.srcs  = rc_transmitter.c ../ppm.c ../uart.c
 
-new_rc_transmitter.srcs  = new_rc_transmitter.c ../ppm.c ../uart.c
+new_rc_transmitter.srcs  = new_rc_transmitter.c ../ppm.c ../uart.c ../telemetry.c
 
 setup_servos.srcs  = setup_servos.c ../uart.c ../servo.c
 

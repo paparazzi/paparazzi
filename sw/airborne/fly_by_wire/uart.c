@@ -30,10 +30,9 @@
 #include "std.h"
 #include "uart.h"
 
-//#define TX_BUF_SIZE      256
-static uint8_t           tx_head; /* next free in buf */
-static volatile uint8_t  tx_tail; /* next char to send */
-static uint8_t           tx_buf[ TX_BUF_SIZE ];
+uint8_t           tx_head; /* next free in buf */
+volatile uint8_t  tx_tail; /* next char to send */
+uint8_t           tx_buf[ TX_BUF_SIZE ];
 
 /*
  * UART Baud rate generation settings:
