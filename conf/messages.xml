@@ -146,16 +146,29 @@
 
   <message name="RC" ID="0x01" period="1">
     <field name="nb_channels" type="uint8"/>
-   <block times="nb_channels">
-     <field name="ppm" type="uint16" unit="us"/>
-   </block>
+<!--    
+    <block times="nb_channels">
+      <field name="ppm" type="uint16" unit="us"/>
+    </block> 
+-->
+     <field name="ppm01" type="uint16" unit="us"/>
+     <field name="ppm02" type="uint16" unit="us"/>
+     <field name="ppm03" type="uint16" unit="us"/>
+     <field name="ppm04" type="uint16" unit="us"/>
+     <field name="ppm05" type="uint16" unit="us"/>
+     <field name="ppm06" type="uint16" unit="us"/>
+     <field name="ppm07" type="uint16" unit="us"/>
+     <field name="ppm08" type="uint16" unit="us"/>
+     <field name="ppm09" type="uint16" unit="us"/>
+     <field name="ppm10" type="uint16" unit="us"/>
   </message>
 
+<!--
   <message name="SERVOS" ID="0x02" period="1">
     <field name="nb_channels" type="uint8"/>
-   <block times="nb_channels">
-     <field name="ppm" type="uint16" unit="us"/>
-   </block>
+    <block times="nb_channels">
+      <field name="ppm" type="uint16" unit="us"/>
+    </block>
   </message>
 
   <message name="PPRZ" ID="0x03" period="1">
@@ -164,7 +177,7 @@
      <field name="pprz" type="int16" unit="pprz"/>
    </block>
   </message>
-
+-->
   <message name="FBW_STATUS" ID="0x04" period="1">
     <field name="nb_spi_err" type="uint8"/>
     <field name="rc_status" type="uint8" values="OK|LOST|REALLY_LOST"/>

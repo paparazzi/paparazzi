@@ -39,6 +39,14 @@ sub onSessionSelected {
 use constant LIST_WIDTH => 80;
 use constant LIST_HEIGHT => 20;
 
+
+sub onCompile {
+  my ($self) = @_;
+  my $paparazzi_src = Paparazzi::Environment::paparazzi_src();
+  print `cd $paparazzi_src; make`;
+
+}
+
 sub build_gui {
   my ($self) = @_;
   my $mw = MainWindow->new();
@@ -67,6 +75,7 @@ sub build_gui {
 		  -padx => 5, -pady => 5,
 		  -side => "top");
   $self->build_logo_page($notebook);
+  $self->build_compile_page($notebook);
   $self->build_list_page($notebook, "hosts", "Hosts", ["name", "ip", "status"], \&build_hosts_page);
   $self->build_list_page($notebook, "variables", "Variables", ["name", "value"], \&build_variables_page);
 #  $self->build_list_page($notebook, "programs", "Programs", ["name", "command", "args"], \&build_programs_page);
@@ -85,13 +94,48 @@ sub build_logo_page {
   my $logo_filename = $self->get('-logo_file');
   return unless defined $logo_filename;
   my $logo_page = $notebook->add("logo", -label => "Logo", -underline => 0);
-  my $image = $logo_page->Photo('logogif',
-				-format => 'GIF',
+  my $image = $logo_page->Photo('logogif', -format => 'GIF',
 				-file => $logo_filename);
   my $labelImage = $logo_page->Label('-image' => 'logogif')->pack();
   return $logo_page;
 }
 
+sub build_compile_page {
+  my ($self, $notebook) = @_;
+  my $compile_page = $notebook->add("compile", -label => "Compile", -underline => 0);
+  my $paparazzi_src = Paparazzi::Environment::paparazzi_src();
+  my(@pl) = qw/-side top -expand yes -padx 10 -pady 10 -fill both/;
+  my $ground_frame = $compile_page->Frame(-label => 'Ground', -borderwidth => 2, - relief =>'groove')->pack(@pl);
+#  my $airborne_frame = $compile_page->Frame(-label => "Air", -borderwidth => 2, - relief =>'groove')->pack(@pl);
+#  my $ground_frame = $compile_page->Frame(-borderwidth => 2, - relief =>'groove')->pack(@pl);
+  my $airborne_frame = $compile_page->Frame(-borderwidth => 2, - relief =>'groove')->pack(@pl);
+  @pl = qw/-side top -expand yes -pady 2 -anchor w/;
+  my $mode_txt = 'Mode : '. (defined $paparazzi_src ? "Source tree" : "System install");
+  my $mode_label = $ground_frame->Label(-text => $mode_txt)->pack(@pl);
+  my $paparazzi_src_txt = 'location : '.$paparazzi_src;
+  my $paparazzi_src_label = $ground_frame->Label(-text => $paparazzi_src_txt)->pack(@pl);
+  my $make_button = $ground_frame->Button(
+					  -text    => "Compile",
+					  -width   => 10,
+					  -command => [\&onCompile, $self],
+					 );
+  $make_button->pack(qw/-side top -expand yes -pady 2/);
+
+  my @header = ("name", "airframe", "radio", "flight plan");
+  my $hlist = $airborne_frame->Scrolled ('HList',
+				   #			       -selectmode => 'extended',
+				   -header => 1,
+				   #			       -columns => $#header + 1,
+				   -width => LIST_WIDTH,
+#				   -height => LIST_HEIGHT,
+				   -itemtype => 'imagetext',
+				   -indent => 35,
+				   -separator => '/',
+				  )->grid(-sticky => 'nsew');
+
+  Paparazzi::Environment::read_config();
+
+}
 
 sub build_hosts_page {
   my ($self, $hlist, $e, $section_h, $item) = @_;

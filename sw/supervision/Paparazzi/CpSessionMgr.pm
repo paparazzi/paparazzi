@@ -135,7 +135,7 @@ sub xml_parse_section {
 #  print "section $section_name items_name $items_name\n";
   my $items = $section->getElementsByTagName($items_name);
   my $h_name = '-'.$section_name;
-  print "h_name $h_name\n";
+#  print "h_name $h_name\n";
   my $tmp = $self->get($h_name);
   foreach my $item (@{$items}){
     if ($section_name eq "hosts") {

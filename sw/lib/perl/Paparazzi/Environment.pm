@@ -2,6 +2,7 @@ package Paparazzi::Environment;
 
 use File::NCopy;
 use Getopt::Long;
+use XML::DOM;
 
 use constant INST_PREFIX => "/usr";
 
@@ -54,6 +55,18 @@ sub check_paparazzi_home {
 	exit(1);
       }
     }
+  }
+}
+
+sub read_config {
+  my $filename = $paparazzi_home."/conf/conf.xml";
+  my $parser = XML::DOM::Parser->new();
+  my $doc = $parser->parsefile($filename);
+  my $conf = $doc->getElementsByTagName("conf")->[0];
+  my $aircrafts = $conf->getElementsByTagName("aircraft");;
+  foreach my $aircraft (@{$aircrafts}){
+    my $name = $aircraft->getAttribute('name');
+    print ("name $name\n");
   }
 }
 

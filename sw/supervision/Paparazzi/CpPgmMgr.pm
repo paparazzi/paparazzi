@@ -44,9 +44,9 @@ sub start_program() {
                                # parent
   $children{$pid} = {cmd => $pgm, args => \@args};#, ktw => $fh};
   $self->configure('-children', \%children);
-  foreach my $key (keys %children) {
+#  foreach my $key (keys %children) {
 #    print("in ChildrenSpawner::start_programm child: [$key $children{$key}]\n");
-  }
+#  }
   return $pid;
 }
 

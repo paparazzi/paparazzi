@@ -31,13 +31,21 @@ MESSAGES_H=$(STATICINCLUDE)/messages.h
 UBX_PROTOCOL_H=$(STATICINCLUDE)/ubx_protocol.h
 MESSAGES_XML = $(CONF)/messages.xml
 UBX_XML = $(CONF)/ubx.xml
+FBW_MESSAGES_H=$(STATICINCLUDE)/fbw_messages.h
 
 
-static:  $(MESSAGES_H) $(UBX_PROTOCOL_H)
+static:  $(MESSAGES_H) $(UBX_PROTOCOL_H) $(FBW_MESSAGES_H)
 
 $(MESSAGES_H) : $(MESSAGES_XML) $(CONF_XML)
-	$(TOOLS)/gen_messages.out $< telemetry_ap > /tmp/messages.h
-	mv /tmp/messages.h $@
+	test -d $(STATICINCLUDE) || mkdir -p $(STATICINCLUDE)
+	TMP_FILE=`mktemp`;\
+        $(TOOLS)/gen_messages.out $< telemetry_ap > $$TMP_FILE;\
+        mv $$TMP_FILE $@
+
+$(FBW_MESSAGES_H) : $(MESSAGES_XML) $(CONF_XML) 
+	TMP_FILE=`mktemp`;\
+        $(TOOLS)/gen_messages.out $< telemetry_fbw > $$TMP_FILE;\
+        mv $$TMP_FILE $@
 
 $(UBX_PROTOCOL_H) : $(UBX_XML) $(CONF_XML)
 	$(TOOLS)/gen_ubx.out $< > /tmp/ubx.h

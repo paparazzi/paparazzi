@@ -36,4 +36,13 @@ void uart_print_hex16 ( uint16_t c );
 void uart_print_string(const uint8_t* s);
 void uart_print_float( const float * f);
 
+#define TX_BUF_SIZE     256
+extern uint8_t           tx_head;
+extern volatile uint8_t  tx_tail;
+extern uint8_t           tx_buf[ TX_BUF_SIZE ];
+
+#define UART_CHECK_FREE_SPACE(_space) (tx_head>=tx_tail? _space < (TX_BUF_SIZE - (tx_head - tx_tail)) : _space < (tx_tail - tx_head))
+
+
+
 #endif

@@ -129,6 +129,7 @@ avr_clean:
 #
 
 $(OBJDIR)/.depend:
+	test -d $(OBJDIR) || mkdir -p $(OBJDIR)
 	$(CC) -M $(CFLAGS) $($(TARGET).srcs) > $@
 
 ifneq ($(MAKECMDGOALS),clean) 
