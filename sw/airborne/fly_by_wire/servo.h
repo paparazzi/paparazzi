@@ -57,5 +57,7 @@ extern void servo_set(const pprz_t values[]);
 extern void servo_set_one(uint8_t servo, uint16_t value_us);
 extern void servo_transmit(void);
 
+#define _4017_NB_CHANNELS 10
+extern uint16_t servo_widths[_4017_NB_CHANNELS];
 
 #endif /*  SERVO_H */

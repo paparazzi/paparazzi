@@ -118,7 +118,7 @@ int main( void )
       ppm_cpt++;
       radio_ok = TRUE;
       radio_really_lost = FALSE;
-      time_since_last_ppm = 0;
+      //      time_since_last_ppm = 0;
       last_radio_from_ppm();
       if (last_radio_contains_avg_channels) {
 	mode = MODE_OF_PPRZ(last_radio[RADIO_MODE]);

@@ -38,7 +38,6 @@
  * Paparazzi boards have one 4017 servo driver.
  * It is driven by OCR1A (PB1) with reset on PORTD5.
  */
-#define _4017_NB_CHANNELS 10
 
 #ifdef CTL_BRD_V1_1
 #define _4017_RESET_PORT        PORTD
@@ -82,7 +81,7 @@
 #define ChopServo(x) ((x) < SERVO_MIN ? SERVO_MIN : ((x) > SERVO_MAX ? SERVO_MAX : (x)))
 
 /* holds the servo pulses width in clock ticks */
-static uint16_t servo_widths[_4017_NB_CHANNELS];
+uint16_t servo_widths[_4017_NB_CHANNELS];
 
 /*
  * We use the output compare registers to generate our servo pulses.

@@ -11,8 +11,7 @@
  * 
  * Copied from autopilot (autopilot.sf.net) thanx alot Trammell
  *
- * (c) 2002 Trammell Hudson <hudson@rotomotion.com>
- * (c) 2003 Pascal Brisset, Antoine Drouin
+ * (c) 2005 Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
  *
@@ -33,8 +32,8 @@
  *
  */
 
-#ifndef PPM_H
-#define PPM_H
+#ifndef PPM_TEST_H
+#define PPM_TEST_H
 
 
 /**
@@ -60,14 +59,31 @@
 
 /*
  * PPM pulses are falling edge clocked on the ICP, which records
- * the state of the global clock.  We do not use any noise
- * canceling features.
+ * the state of the global clock.
  *
  * JR might be rising edge clocked; set that as an option
  */
+
+
+#define PPM_MAX_PULSES 12
+extern volatile bool_t	ppm_available;
+extern uint16_t ppm_pulses[PPM_MAX_PULSES];
+extern uint8_t  ppm_nb_received_channel;
+extern uint8_t  ppm_sync_len;
+
+#define STALLED_TIME        30  // 500ms with a 60Hz timer
+#define REALLY_STALLED_TIME 300 // 5s with a 60Hz timer
+extern uint16_t ppm_time_since_last_valid;
+
+#define PPM_STATUS_OK   0
+#define PPM_STATUS_LOST 1
+#define PPM_STATUS_REALLY_LOST 2
+extern uint8_t ppm_status;
+
 static inline void
 ppm_init( void )
 {
+ uint8_t i;
 #if   PPM_RX_TYPE == RXFUTABA
   cbi( TCCR1B, ICES1 );
 #elif PPM_RX_TYPE == RXJR
@@ -79,36 +95,18 @@ ppm_init( void )
   /* No noise cancelation */
   sbi( TCCR1B, ICNC1 );
   
-  /* Set ICP to input, no internal pull up */
+  /* Set ICP to input */
   cbi( PPM_DDR, PPM_PIN);
-  
+  /* no internal pull up */
+  cbi( PPM_PORT, PPM_PIN);
+
   /* Enable interrupt on input capture */
   sbi( TIMSK, TICIE1 );
+
+  for (i=0; i<PPM_MAX_PULSES; i++)
+    ppm_pulses[i] = 1550+i;
 }
 
-#define PPM_NB_PULSES RADIO_CTL_NB
-
-extern volatile bool_t	ppm_valid;
-extern uint16_t ppm_pulses[PPM_NB_PULSES];
-extern pprz_t last_radio[PPM_NB_PULSES];
-extern bool_t last_radio_contains_avg_channels;
-
-
-#define  MODE_MANUAL   0
-#define  MODE_AUTO     1
-
-#define MODE_OF_PPRZ(mode) ((mode) < TRESHOLD_MANUAL_PPRZ ? MODE_MANUAL : MODE_AUTO)
-
-extern void last_radio_from_ppm(void);
-
-#define STALLED_TIME        30  // 500ms with a 60Hz timer
-#define REALLY_STALLED_TIME 300 // 5s with a 60Hz timer
-extern uint16_t ppm_time_since_last_valid;
-
-#define PPM_STATUS_OK   0
-#define PPM_STATUS_LOST 1
-#define PPM_STATUS_REALLY_LOST 2
-extern uint8_t ppm_status;
 #define PPM_UPDATE_TIMER() { \
   if (ppm_time_since_last_valid >= REALLY_STALLED_TIME) \
      ppm_status = PPM_STATUS_REALLY_LOST; \
@@ -121,7 +119,6 @@ extern uint8_t ppm_status;
   } \
 }
 
+extern void ppm_mainloop_task(void);
 
-
-
-#endif
+#endif /* PPM_TEST_H */

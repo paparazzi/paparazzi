@@ -33,7 +33,6 @@ TARGET	  = check_uart
 VARINCLUDE = $(PAPARAZZI_HOME)/var/include
 ACINCLUDE = $(PAPARAZZI_HOME)/var/$(AIRCRAFT)
 INCLUDES = -I ../ -I ../../../include -I $(ACINCLUDE) -I $(VARINCLUDE)
-#-I ../../../var/include
 
 CONF_DIR = ../../../../conf
 CONF_XML = $(CONF_DIR)/conf.xml
@@ -51,9 +50,13 @@ ifeq ($(CTL_BRD_VERSION),V1_1)
 CTL_BRD_FLAGS=-DCTL_BRD_V1_1
 endif
 
-rc_transmitter.srcs  = rc_transmitter.c ../ppm.c ../uart.c
+ppm_diag.srcs  = ppm_diag.c ppm_test.c ../uart.c ../telemetry.c
 
-new_rc_transmitter.srcs  = new_rc_transmitter.c ../ppm.c ../uart.c ../telemetry.c
+rc_diag.srcs  = rc_diag.c ../ppm.c ../uart.c ../telemetry.c
+
+servo_diag.srcs  = servo_diag.c ../ppm.c ../uart.c ../telemetry.c ../servo.c
+
+rc_transmitter.srcs  = rc_transmitter.c ../ppm.c ../uart.c
 
 setup_servos.srcs  = setup_servos.c ../uart.c ../servo.c
 
@@ -62,7 +65,6 @@ check_uart.srcs  = check_uart.c ../uart.c
 tx_adcs.srcs = tx_adcs.c ../uart.c ../adc_fbw.c
 
 check_spi.srcs = check_spi.c ../uart.c ../spi.c
-
 
 include ../../../../conf/Makefile.local
 include ../../../../conf/Makefile.avr

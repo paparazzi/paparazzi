@@ -49,6 +49,8 @@ pprz_t last_radio[ PPM_NB_PULSES ];
 pprz_t avg_last_radio[ PPM_NB_PULSES ];
 bool_t last_radio_contains_avg_channels = FALSE;
 volatile bool_t ppm_valid;
+uint8_t ppm_status;
+uint16_t ppm_time_since_last_valid;
 
 /* MC3030, Trame PPM7: 25ms, 10.4 au neutre, 
    sync pulse = 16.2ms with low value on every channels */
@@ -77,9 +79,9 @@ SIGNAL( SIG_INPUT_CAPTURE1 )
 
     /* The frame period of the mc3030 seems to be 25ms. 
      * One pulse lasts from 1.05ms to 2.150ms.
-     * Sync pulse is at least 7ms : (7000*CLOCK)/1024 = 109
+     * Sync pulse is at least 5.5ms : (5500*CLOCK)/1024 = 109
      */
-    if( diff > (uint8_t)(((uint32_t)(7000ul*CLOCK))/1024ul) ) {
+    if( diff > (uint8_t)(((uint32_t)(5500ul*CLOCK))/1024ul) ) {
       state = 1;
     }
   } 
@@ -98,7 +100,8 @@ SIGNAL( SIG_INPUT_CAPTURE1 )
   return;
 }
 
-#define Int16FromPulse(i) (int16_t)((ppm_pulses[(i)] - PpmOfUs(((int[])RADIO_NEUTRALS_US)[i]))*(2*MAX_PPRZ)/(PpmOfUs(((int[])RADIO_MAXS_US[i])-((int[])RADIO_MINS_US[i]))))
+#define Int16FromPulse(i) (int16_t)((ppm_pulses[(i)] - PpmOfUs(((uint16_t[])RADIO_NEUTRALS_US)[i]))* (2*MAX_PPRZ)/(PpmOfUs(((uint16_t[])RADIO_MAXS_US[i])-((uint16_t[])RADIO_MINS_US[i]))))
+#define NewInt16FromPulse(i) (int16_t)((ppm_pulses[(i)] - ((uint16_t[])RADIO_NEUTRALS_PPM)[i])) * (float[])RADIO_TRAVEL_PPM[i]
 
 
 /* Copy from the ppm receiving buffer to the buffer sent to mcu0 */
@@ -107,7 +110,7 @@ void last_radio_from_ppm() {
   uint8_t i;
   
   for(i = 0; i < RADIO_CTL_NB; i++) {
-    int16_t pprz = Int16FromPulse(i);
+    int16_t pprz = NewInt16FromPulse(i);
     if (pprz > MAX_PPRZ)
       pprz = MAX_PPRZ;
     else if (pprz < MIN_PPRZ)
