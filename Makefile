@@ -114,6 +114,7 @@ uninstall :
 	./Makefile.pl -uninstall -destdir $(DESTDIR)
 
 deb :
+	chmod u+x debian/rules
 	dpkg-buildpackage -rfakeroot
 
 clean:
