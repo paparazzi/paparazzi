@@ -112,7 +112,7 @@ sub build_compile_page {
   @pl = qw/-side top -expand yes -pady 2 -anchor w/;
   my $mode_txt = 'Mode : '. (defined $paparazzi_src ? "Source tree" : "System install");
   my $mode_label = $ground_frame->Label(-text => $mode_txt)->pack(@pl);
-  my $paparazzi_src_txt = 'location : '.$paparazzi_src;
+  my $paparazzi_src_txt = 'location : '. (defined $paparazzi_src ? $paparazzi_src : "/usr/share/paparazzi");
   my $paparazzi_src_label = $ground_frame->Label(-text => $paparazzi_src_txt)->pack(@pl);
   my $make_button = $ground_frame->Button(
 					  -text    => "Compile",

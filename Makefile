@@ -18,6 +18,8 @@
 # the Free Software Foundation, 59 Temple Place - Suite 330,
 # Boston, MA 02111-1307, USA.  
 
+PAPARAZZI_SRC=$(shell pwd)
+
 include conf/Makefile.local
 
 LIB=sw/lib
@@ -33,7 +35,14 @@ LOGALIZER=sw/logalizer
 SIMULATOR=sw/simulator
 MAKE=make
 
-static : lib tools configurator cockpit tmtc visu3d logalizer sim_static wind 
+all: static ac1 ac2
+
+static : lib tools configurator cockpit tmtc visu3d logalizer sim_static wind static_h
+
+ac1 : 
+	make AIRCRAFT=Thon1 sim_ac
+ac2 : 
+	make AIRCRAFT=Thon2 sim_ac
 
 configure : configurator
 	PAPARAZZI_DIR=`pwd` $(CONFIGURATOR)/configurator
@@ -55,7 +64,7 @@ sim_static :
 	cd $(SIMULATOR); $(MAKE)
 
 sim_sitl :
-	cd $(SIMULATOR); $(MAKE) sim_sitl
+	cd $(SIMULATOR);  $(MAKE) sim_sitl PAPARAZZI_HOME=$(PAPARAZZI_SRC) PAPARAZZI_SRC=$(PAPARAZZI_SRC) AIRCRAFT=$(AIRCRAFT)
 
 fbw fly_by_wire:
 	cd $(FBW); $(MAKE) all
@@ -92,12 +101,14 @@ receive: tmtc
 	$(TMTC)/receive
 
 static_h :
-	make -f Makefile.gen
+	PAPARAZZI_HOME=`pwd` PAPARAZZI_SRC=`pwd` make -f Makefile.gen
 
 ac_h :
-	$(TOOLS)/gen_aircraft.out $(AIRCRAFT)
+	PAPARAZZI_HOME=`pwd` PAPARAZZI_SRC=`pwd` $(TOOLS)/gen_aircraft.out $(AIRCRAFT)
 
-ac: static_h ac_h ap fbw sim_sitl
+sim_ac: ac_h sim_sitl
+hard_ac: ac_h ap fbw
+ac: sim_ac hard_ac
 
 clean_ac :
 	rm -fr $(PAPARAZZI_HOME)/var/$(AIRCRAFT)
@@ -105,9 +116,7 @@ clean_ac :
 run_sitl :
 	$(PAPARAZZI_HOME)/var/$(AIRCRAFT)/sim/simsitl.out
 
-t1: ac
-
-install : static t1
+install : all
 	./Makefile.pl -install -destdir $(DESTDIR)
 
 uninstall :

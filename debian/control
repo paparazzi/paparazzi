@@ -7,6 +7,6 @@ Standards-Version: 3.6.1
 
 Package: paparazzi
 Architecture: any
-Depends: ivy-c-dev, ivy-c, ivy-perl, libsubject-perl, zinc-perl, zinc-tk, ivy-ocaml, xml-light-ocaml, libxml-dom-perl, libpcre3-dev, liblablgtk2-ocaml-dev, gcc-avr, avr-libc, binutils-avr, libexpect-perl, libgnomecanvas2-dev, libcamlimages-ocaml-dev, uisp, libfile-ncopy-perl, libtext-csv-perl
+Depends: ivy-c-dev, ivy-c, ivy-perl, libsubject-perl, zinc-perl, zinc-tk, ivy-ocaml, xml-light-ocaml, libxml-dom-perl, libpcre3-dev, liblablgtk2-ocaml-dev, gcc-avr, avr-libc, binutils-avr, libexpect-perl, libgnomecanvas2-dev, libcamlimages-ocaml-dev, uisp, libfile-ncopy-perl, libtext-csv-perl, digikit
 Description: Paparazzi Meta Package
 

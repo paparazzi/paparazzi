@@ -53,7 +53,7 @@ let _ =
       end;
       true in
   
-    ignore (Glib.Io.add_watch `IN cb (Glib.Io.channel_of_descr fd)) in
+    ignore (Glib.Io.add_watch [`IN] cb (Glib.Io.channel_of_descr fd)) in
 
   let handle_pprz_message = fun (msg_id, values) ->
     let msg = Tele_Pprz.message_of_id msg_id in

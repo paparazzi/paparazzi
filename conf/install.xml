@@ -30,9 +30,9 @@
   <directory name="sw/lib/perl/Paparazzi"/>
   <directory name="sw/ground_segment/cockpit/Paparazzi"/>
 -->
-   <file name="sw/lib/perl/Paparazzi/CpPgmMgr.pm"/>
-   <file name="sw/lib/perl/Paparazzi/CpSessionMgr.pm"/>
-   <file name="sw/lib/perl/Paparazzi/CpGui.pm"/>
+   <file name="sw/supervision/Paparazzi/CpPgmMgr.pm"/>
+   <file name="sw/supervision/Paparazzi/CpSessionMgr.pm"/>
+   <file name="sw/supervision/Paparazzi/CpGui.pm"/>
    <file name="sw/lib/perl/Paparazzi/Environment.pm"/>
    <file name="sw/lib/perl/Paparazzi/IvyProtocol.pm"/>
    <file name="sw/lib/perl/Paparazzi/Utils.pm"/>
@@ -49,6 +49,14 @@
    <file name="sw/ground_segment/cockpit/Paparazzi/Scale.pm"/>
    <file name="sw/ground_segment/cockpit/Paparazzi/Strip.pm"/>
    <file name="sw/ground_segment/cockpit/Paparazzi/StripPanel.pm"/>
+   <file name="sw/ground_segment/cockpit/Paparazzi/ND.pm"/>
+   <file name="sw/ground_segment/cockpit/Paparazzi/NDPage.pm"/>
+   <file name="sw/ground_segment/cockpit/Paparazzi/SatPage.pm"/>
+   <file name="sw/ground_segment/cockpit/Paparazzi/EnginePage.pm"/>
+   <file name="sw/ground_segment/cockpit/Paparazzi/APPage.pm"/>
+   <file name="sw/ground_segment/cockpit/Paparazzi/IRPage.pm"/>
+   <file name="sw/ground_segment/cockpit/Paparazzi/HistoryView.pm"/>
+   <file name="sw/ground_segment/cockpit/Paparazzi/Geometry.pm"/>
 </section>
 
 <section name="conf" dest="share/paparazzi/conf">
@@ -212,7 +220,7 @@
 </section>
 
 <section name="var_log" dest="share/paparazzi/var/logs">
-   <file name="var/logs/04_12_29__15_11_08.log"/>
+<!--   <file name="var/logs/04_12_29__15_11_08.log"/> -->
 </section>
 
 <section name="var_Thon1_sim" dest="share/paparazzi/var/Thon1/sim">

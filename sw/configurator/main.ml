@@ -38,11 +38,13 @@ let _ =
   Hardware.create_sheet sheets;
   Radio.create_sheet sheets;
   Airframe.create_sheet sheets;
+(***
   Flightplan.create_sheet sheets;
   Upload.create_sheet sheets;
   Simulator.create_sheet sheets;
   Monitor.create_sheet sheets;
   Logalizer.create_sheet sheets;
+***)
 
   let quit_button = Button.create ~relief:`Sunken ~text:"Quit" ~command:exit sheets
   and (n, _) = Grid.size sheets in
