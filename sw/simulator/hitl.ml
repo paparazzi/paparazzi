@@ -64,7 +64,7 @@ module Make(A:Data.MISSION) = struct
       ["ITOW",scale gps.time 1e3;
        "VEL_D", -scale gps.climb 1e2;
        "GSpeed", scale gps.gspeed 1e2;
-       "Heading", scale (deg gps.course) 1e5]
+       "Heading", scale (deg_of_rad gps.course) 1e5]
 
 
 

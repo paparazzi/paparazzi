@@ -27,7 +27,7 @@ include ../../conf/Makefile.local
 ACDIR= $(PAPARAZZI_HOME)/var/$(AIRCRAFT)
 OBJDIR= $(ACDIR)/sim
 
-SIMHML = stdlib.ml types.ml data.ml flightModel.ml sirf.ml gps.ml hitl.ml sim.ml
+SIMHML = stdlib.ml data.ml flightModel.ml gps.ml hitl.ml sim.ml
 SIMHCMO=$(SIMHML:%.ml=%.cmo)
 SIMSML = stdlib.ml data.ml flightModel.ml gps.ml sitl.ml sim.ml
 SIMSCMO=$(SIMSML:%.ml=%.cmo)
@@ -126,3 +126,6 @@ simhitl.cmo: hitl.cmi sim.cmi
 simsitl.cmo: sim.cmi sitl.cmi 
 sitl.cmo: sitl.cmi 
 sitl.cmi: sim.cmi 
+data.cmo : data.cmi
+stdlib.cmo : stdlib.cmi
+gps.cmo : gps.cmi
