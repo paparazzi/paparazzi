@@ -7,6 +7,7 @@ BEGIN {
     $ENV{PAPARAZZI_SRC}."/sw/lib/perl" : "/usr/lib/paparazzi/";
 }
 use lib ($paparazzi_lib);
+use lib ($ENV{PAPARAZZI_SRC}."/sw/supervision");
 
 use Paparazzi::CpGui;
 @ISA = qw(Paparazzi::CpGui);
