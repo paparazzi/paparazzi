@@ -28,13 +28,19 @@ type class_name = string
 type message_id = int
 type format = string
 type _type = string
-type value = string
+type value = Int of int | Float of float | String of string | Int32 of int32
 type field = { _type : _type; fformat : format; }
 type message = { name : string; fields : (string * field) list; }
-type type_descr = { format : format; glib_type : string; size:int; value:string}
-val types : (string * type_descr) list
 val size_of_field : field -> int
 val default_format : string -> string
+val string_of_value : value -> string
+type type_descr = {
+    format : string ;
+    glib_type : string;
+    size : int;
+    value : string
+  }
+val types : (string * type_descr) list
 
 exception Unknown_msg_name of string
 
@@ -43,14 +49,14 @@ module Protocol : functor (Class : CLASS) -> sig
   include Serial.PROTOCOL
   val message_of_id : message_id -> message
   val message_of_name : string ->  message_id * message
-  val values_of_bin : string -> message_id * (string * string) list
+  val values_of_bin : string -> message_id * (string * value) list
 (** [values raw_message] Parses a raw message, returns the
    message id and the liste of (field_name, value) *)
 
-  val values_of_string : string -> message_id * (string * string) list
+  val values_of_string : string -> message_id * (string * value) list
   (** May raise [(Unknown_msg_name msg_name)] *)
 
-  val string_of_message : message -> (string * string) list -> string
+  val string_of_message : message -> (string * value) list -> string
   (** [string_of_message msg values] *)
 end
     

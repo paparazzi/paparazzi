@@ -62,8 +62,8 @@ let _ =
 
   let handle_pprz_message = fun (msg_id, values) ->
     let msg = Tele_Pprz.message_of_id msg_id in
-    let s = String.concat " " (List.map snd values) in
-    Ivy.send (sprintf "1234.567 %s %s" msg.Pprz.name s) in
+    let s = Tele_Pprz.string_of_message msg values in
+    Ivy.send (sprintf "1234.567 %s" s) in
 
   listen_tty handle_pprz_message !serial_dev;
   Ivy.init "Paparazzi listen" "READY" (fun _ _ -> ());

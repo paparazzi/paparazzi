@@ -31,7 +31,7 @@ type message_id = int
 type class_name = string
 type format = string
 type _type = string
-type value = string
+type value = Int of int | Float of float | String of string | Int32 of int32
 type field = {
     _type : _type;
     fformat : format;
@@ -66,7 +66,25 @@ let types = [
   ("int16",  { format = "%d";  glib_type = "gint16";  size = 2; value="42" });
   ("int32",  { format = "%ld" ;  glib_type = "gint32";  size = 4; value="42" });
   ("float",  { format = "%f" ;  glib_type = "gfloat";  size = 4; value="4.2" })
-] 
+]
+
+let int_of_string = fun x ->
+  try int_of_string x with
+    _ -> failwith (sprintf "Pprz.int_of_string: %s" x)
+
+let value = fun t v ->
+  match t with 
+    "uint8" | "uint16" | "int8" | "int16" -> Int (int_of_string v)
+  | "uint32" | "int32" -> Int32 (Int32.of_string v)
+  | "float" -> Float (float_of_string v)
+  | "string" -> String v
+  | _ -> failwith (sprintf "Pprz.value: Unexpected type: %s" t)
+
+let string_of_value = function
+    Int x -> string_of_int x
+  | Float x -> string_of_float x
+  | Int32 x -> Int32.to_string x
+  | String s -> s
 
 let size_of_field = fun f -> (List.assoc f._type types).size
 let default_format = fun x -> (List.assoc x types).format
@@ -85,47 +103,47 @@ let field_of_xml = fun xml ->
 
 
 (** Table of msg classes indexed by name. Each class is a table of messages
-indexed by ids *)
+   indexed by ids *)
 let lazy_classes =
   lazy
-  (let h = Hashtbl.create 13 in
-  List.iter
-    (fun xml_class ->
-      let by_id = Hashtbl.create 13
-      and by_name = Hashtbl.create 13 in
-      List.iter
-	(fun xml_msg ->
-	  try
-	    let name = ExtXml.attrib xml_msg "name" in
-	    let msg = {
-	      name = name;
-	      fields = List.map field_of_xml (Xml.children xml_msg)
-	    } in
-	    let id = int_of_string (ExtXml.attrib xml_msg "id") (* - 1 !!!!*) in
-	    Hashtbl.add by_id id msg;
-	    Hashtbl.add by_name name (id, msg)	      
-	  with _ ->
-	    fprintf stderr "Warning: Ignoring '%s'\n" (Xml.to_string xml_msg))
-	(Xml.children xml_class);
-      Hashtbl.add h (ExtXml.attrib xml_class "name") (by_id, by_name)
-    )
-    (Xml.children (messages_xml ()));
-  h)
+    (let h = Hashtbl.create 13 in
+    List.iter
+      (fun xml_class ->
+	let by_id = Hashtbl.create 13
+	and by_name = Hashtbl.create 13 in
+	List.iter
+	  (fun xml_msg ->
+	    try
+	      let name = ExtXml.attrib xml_msg "name" in
+	      let msg = {
+		name = name;
+		fields = List.map field_of_xml (Xml.children xml_msg)
+	      } in
+	      let id = int_of_string (ExtXml.attrib xml_msg "id") (* - 1 !!!!*) in
+	      Hashtbl.add by_id id msg;
+	      Hashtbl.add by_name name (id, msg)	      
+	    with _ ->
+	      fprintf stderr "Warning: Ignoring '%s'\n" (Xml.to_string xml_msg))
+	  (Xml.children xml_class);
+	Hashtbl.add h (ExtXml.attrib xml_class "name") (by_id, by_name)
+      )
+      (Xml.children (messages_xml ()));
+    h)
 
 let classes = fun () -> Lazy.force lazy_classes
-	
+    
 let magic = fun x -> (Obj.magic x:('a,'b,'c) Pervasives.format)
 
-  let format_field = fun buffer index (field:field) ->
-    let format = field.fformat in
-    match field._type with
-      "uint8" -> sprintf (magic format) (Char.code buffer.[index])
-    | "int8" -> sprintf (magic format) (if Char.code buffer.[index] <= 128 then Char.code buffer.[index] else Char.code buffer.[index] - 256)
-    | "uint16" -> sprintf (magic format) (Char.code buffer.[index] lsl 8 + Char.code buffer.[index+1])
-    | "int16" -> sprintf (magic format) (if Char.code buffer.[index] lsl 8 + Char.code buffer.[index+1] <= 32768 then Char.code buffer.[index] lsl 8 + Char.code buffer.[index+1] else Char.code buffer.[index] lsl 8 + Char.code buffer.[index+1] - 65536)
-    | "float" ->  sprintf (magic format) (float_of_bytes buffer index)
-    | "int32"  | "uint32" -> sprintf (magic format) (int32_of_bytes buffer index)
-    | _ -> failwith "format_field"
+let value_field = fun buffer index (field:field) ->
+  let format = field.fformat in
+  match field._type with
+    "uint8" -> Int (Char.code buffer.[index])
+  | "int8" -> Int (if Char.code buffer.[index] <= 128 then Char.code buffer.[index] else Char.code buffer.[index] - 256)
+  | "uint16" -> Int (Char.code buffer.[index] lsl 8 + Char.code buffer.[index+1])
+  | "int16" -> Int (if Char.code buffer.[index] lsl 8 + Char.code buffer.[index+1] <= 32768 then Char.code buffer.[index] lsl 8 + Char.code buffer.[index+1] else Char.code buffer.[index] lsl 8 + Char.code buffer.[index+1] - 65536)
+  | "float" ->  Float (float_of_bytes buffer index)
+  | "int32"  | "uint32" -> Int32 (int32_of_bytes buffer index)
+  | _ -> failwith "value_field"
 
 module type CLASS = sig val name : string end
 
@@ -171,29 +189,28 @@ module Protocol(Class:CLASS) = struct
 	[] -> []
       | (field_name, field_descr)::fs -> 
 	  let n = size_of_field field_descr in
-	    (field_name, format_field buffer index field_descr) :: loop (index+n) fs in
+	  (field_name, value_field buffer index field_descr) :: loop (index+n) fs in
     (id, loop 2 message.fields)
 
   let space = Str.regexp "[ \t]+"
   let values_of_string = fun s ->
-     match Str.split space s with
-       msg_name::args ->
-	 begin
-	   try
-	     let msg_id, msg = message_of_name msg_name in
-	     let values = List.map2 (fun (field_name, _) v -> (field_name, v)) msg.fields args in
-	     (msg_id, values)
-	   with
-	     Not_found -> raise (Unknown_msg_name msg_name)
-	 end
-     | [] -> invalid_arg "Pprz.values_of_string"
+    match Str.split space s with
+      msg_name::args ->
+	begin
+	  try
+	    let msg_id, msg = message_of_name msg_name in
+	    let values = List.map2 (fun (field_name, field) v -> (field_name, value field._type v)) msg.fields args in
+	    (msg_id, values)
+	  with
+	    Not_found -> raise (Unknown_msg_name msg_name)
+	end
+    | [] -> invalid_arg "Pprz.values_of_string"
 
   let string_of_message = fun msg values ->
     String.concat " "
       (msg.name::
        List.map 
 	 (fun (field_name, field) ->
-	   try List.assoc field_name values with Not_found -> default_value field._type)
+	   try string_of_value (List.assoc field_name values) with Not_found -> default_value field._type)
 	 msg.fields)
 end
-

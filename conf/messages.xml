@@ -138,7 +138,7 @@
   </message>
 
    <message name="IDENT" ID="0x14" period="10">
-     <field name="id" type="uint8" len="16" format="%s"/>
+     <field name="id" type="string" len="16" format="%s"/>
    </message>
  </class>
 

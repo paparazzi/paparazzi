@@ -65,8 +65,6 @@ let listen_pprz_modem = fun use_pprz_message tty ->
   
   ignore (Glib.Io.add_watch [`IN] cb (Glib.Io.channel_of_descr fd))
 
-let fos = float_of_string
-let ios = int_of_string
 let space = Str.regexp "[ \t]+"
 
 let (//) = Filename.concat
@@ -123,14 +121,27 @@ let logger = fun () ->
   end;
   open_out (logs_path // name)
 
+let fvalue = fun x ->
+  match x with
+    Pprz.Float x -> x 
+  | Pprz.Int32 x -> Int32.to_float x 
+  | Pprz.Int x -> float_of_int x 
+  | _ -> failwith (sprintf "Receive.log_and_parse: float expected, got '%s'" (Pprz.string_of_value x))
+let ivalue = fun x ->
+  match x with
+    Pprz.Int x -> x 
+  | _ -> failwith "Receive.log_and_parse: int expected"
+
+
 
 let log_and_parse = fun log ac_name a msg values ->
   let t = U.gettimeofday () in
-  let s = String.concat " " (List.map snd values) in
+  let s = String.concat " " (List.map (fun (_, v) -> Pprz.string_of_value v) values) in
   fprintf log "%.2f %s %s %s\n" t ac_name msg.Pprz.name s; flush log;
   Ivy.send (sprintf "%s RAW %.2f %s %s" ac_name t msg.Pprz.name s);
   let value = fun x -> try List.assoc x values with Not_found -> failwith (sprintf "Error: field '%s' not found\n" x) in
-  let fvalue = fun x -> fos (value x) in
+  let fvalue = fun x -> fvalue (value x)
+  and ivalue = fun x -> ivalue (value x) in
   match msg.Pprz.name with
     "GPS" ->
       a.east    <- fvalue "east" /. 100.;
@@ -143,19 +154,19 @@ let log_and_parse = fun log ac_name a msg values ->
       a.roll <- fvalue "phi";
       a.pitch <- fvalue "theta"
   | "NAVIGATION" -> 
-      a.cur_block <- ios (value "cur_block");
-      a.cur_stage <- ios (value "cur_stage")
+      a.cur_block <- ivalue "cur_block";
+      a.cur_stage <- ivalue "cur_stage"
   | "CLIMB_PID" ->
       a.throttle <- fvalue "gaz" /. 9600. *. 100.;
       a.rpm <- a.throttle *. 100.
   | "BAT" ->
       a.bat <- fvalue "voltage" /. 10.
   | "PPRZ_MODE" ->
-      a.ap_mode <- ios (value "ap_mode");
-      a.ap_altitude <- ios (value "ap_altitude");
-      a.if_calib_mode <- ios (value "if_calib_mode");
-      a.mcu1_status <- ios (value "mcu1_status");
-      a.lls_calib <- ios (value "lls_calib")
+      a.ap_mode <- ivalue "ap_mode";
+      a.ap_altitude <- ivalue "ap_altitude";
+      a.if_calib_mode <- ivalue "if_calib_mode";
+      a.mcu1_status <- ivalue "mcu1_status";
+      a.lls_calib <- ivalue "lls_calib"
   | _ -> ()
 
 
@@ -175,26 +186,27 @@ let send_aircraft_msg = fun ac ->
   try
     let sof = fun f -> sprintf "%.1f" f in
     let a = Hashtbl.find aircrafts ac in
-    let values = ["roll", sof (Geometry_2d.rad2deg a.roll);
-		  "pitch", sof (Geometry_2d.rad2deg a.pitch);
-		  "east", sof a.east;
-		  "north", sof a.north;
-		  "speed", sof a.gspeed;
-		  "heading", sof (Geometry_2d.rad2deg a.course);
-		  "alt", sof a.alt;
-		  "climb", sof a.climb] in
+    let f = fun x -> Pprz.Float x in
+    let values = ["roll", f (Geometry_2d.rad2deg a.roll);
+		  "pitch", f (Geometry_2d.rad2deg a.pitch);
+		  "east", f a.east;
+		  "north", f a.north;
+		  "speed", f a.gspeed;
+		  "heading", f (Geometry_2d.rad2deg a.course);
+		  "alt", f a.alt;
+		  "climb", f a.climb] in
     let _, fp_msg = AcInfo_Pprz.message_of_name "FLIGHT_PARAM" in
     Ivy.send (sprintf "%s %s" ac (AcInfo_Pprz.string_of_message fp_msg values));
 
-    let values = ["cur_block", soi a.cur_block;"cur_stage", soi a.cur_stage]
+    let values = ["cur_block", Pprz.Int a.cur_block;"cur_stage", Pprz.Int a.cur_stage]
     and _, ns_msg =  AcInfo_Pprz.message_of_name "NAV_STATUS" in
     Ivy.send (sprintf "%s %s" ac (AcInfo_Pprz.string_of_message ns_msg values));
 
-    let values = ["throttle", sof a.throttle;"rpm", sof a.rpm;"temp", sof a.temp;"bat", sof a.bat;"amp", sof a.amp;"energy", sof a.energy]
+    let values = ["throttle", f a.throttle;"rpm", f a.rpm;"temp", f a.temp;"bat", f a.bat;"amp", f a.amp;"energy", f a.energy]
     and _, es_msg = AcInfo_Pprz.message_of_name "ENGINE_STATUS" in
     Ivy.send (sprintf "%s %s" ac (AcInfo_Pprz.string_of_message es_msg values));
 
-    let values = ["mode", soi a.ap_mode; "v_mode", soi a.ap_altitude]
+    let values = ["mode", Pprz.Int a.ap_mode; "v_mode", Pprz.Int a.ap_altitude]
     and _, as_msg =  AcInfo_Pprz.message_of_name "AP_STATUS" in
     Ivy.send (sprintf "%s %s" ac (AcInfo_Pprz.string_of_message as_msg values))
   with
@@ -257,7 +269,7 @@ let handle_pprz_message = fun log a ->
     match !name with
       None ->
 	if msg.Pprz.name = "IDENT" then
-	  let n = List.assoc "id" values in
+	  let n = Pprz.string_of_value (List.assoc "id" values) in
 	  name := Some n;
 	  register_aircraft n a
     | Some ac_name ->
