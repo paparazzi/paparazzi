@@ -30,7 +30,7 @@ let create_sheet = fun sheets ->
   
   let l = Label.create ~text:"WELCOME TO THE PAPARAZZI CONFIGURATOR" welcome
   in let img = Imagephoto.create() in
-  Imagephoto.configure img ~file:(Env.configurator_dir^"/penguin.gif") ~format:"gif";
+  Imagephoto.configure img ~file:(Env.paparazzi_src^"/data/pictures/penguin_logo.gif") ~format:"gif";
   let l1 = Label.create ~image:img welcome 
   in Tk.pack [l; l1];
 

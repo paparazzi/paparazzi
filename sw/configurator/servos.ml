@@ -112,7 +112,7 @@ let create_sheet = fun sheets airframe_xml ->
   in
 
   let program = fun () ->
-    Flasher.make Flasher.Fbw (Printf.sprintf "%s/test" Env.fbw_dir) "TARGET=setup_servos load" in
+    Flasher.make Flasher.Fbw (Printf.sprintf "%s/test" Env_conf.fbw_dir) "TARGET=setup_servos load" in
 
   let legend = Frame.create channels
   and slider = Scale.create tf ~orient:`Horizontal ~min:min_min ~max:max_max ~digits:4 ~label:"micro-seconds" ~resolution:1. ~length:300

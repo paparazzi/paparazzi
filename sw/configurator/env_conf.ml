@@ -24,14 +24,7 @@
  *
  *)
 
-let pprz_dir =
-  try
-    Sys.getenv "PAPARAZZI_DIR"
-  with
-    Not_found ->
-      Filename.concat (Filename.dirname Sys.argv.(0)) "../.."
-
-let abs = fun x -> pprz_dir ^ "/" ^ x
+let abs = fun x -> Env.paparazzi_src ^ "/" ^ x
 
 let configurator_dir = abs "sw/configurator"
 
@@ -48,10 +41,3 @@ let tty_rate = Serial.B38400
 
 (* Initialization very early for creation of Textvariables *)
 let _ = Tk.openTk ()
-
-let select_one_file = fun ?(filter="*.xml") use ->
-  let action = function 
-      [] -> ()
-    | [f] -> use f
-    | _ -> failwith "Env.select_one_file: unepected several files" in
-  Fileselect.f ~title:"File Selection" ~action ~filter ~file:"" ~multi:false ~sync:false

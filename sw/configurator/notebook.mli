@@ -26,3 +26,7 @@
 
 val create_sheet : 'a Widget.widget -> string -> 'b Widget.widget -> unit
 (** [create_sheet parent name frame] adds the new [frame] tab *)
+
+
+val select_one_file : ?filter:string -> (string -> unit) -> unit
+(** File selector. Default [filter] is "*.xml" *)

@@ -42,7 +42,7 @@ let connect = fun tty ->
   if Hashtbl.mem ttys tty then
     deconnect tty;
   let buffer = String.create buffer_len in
-  let fd = Serial.opendev tty Env.tty_rate in
+  let fd = Serial.opendev tty Env_conf.tty_rate in
   let log = fun () ->
     let n = Unix.read fd buffer 0 buffer_len in
     let s = String.sub buffer 0 n in

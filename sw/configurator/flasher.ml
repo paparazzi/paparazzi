@@ -50,7 +50,7 @@ let warn =
       
       let erase_AP = fun () ->
 	if switch Ap = 0 then
-	  let command = Printf.sprintf "cd %s; make erase" Env.ap_dir in
+	  let command = Printf.sprintf "cd %s; make erase" Env_conf.ap_dir in
 	  Console.exec command;
 	  destroy () in
       

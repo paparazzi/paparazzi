@@ -24,8 +24,6 @@
  *
  *)
 
-val pprz_dir : string
-
 val configurator_dir : string
 val fbw_dir : string
 val ap_dir : string
@@ -36,6 +34,3 @@ val ap_tty : string
 val modem_tty : string
 
 val tty_rate : Serial.speed
-
-val select_one_file : ?filter:string -> (string -> unit) -> unit
-(** File selector. Default [filter] is "*.xml" *)

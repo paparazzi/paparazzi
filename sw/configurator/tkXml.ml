@@ -44,7 +44,7 @@ let create_display_frame = fun f xml appli ->
     close_out f;
     destroy () in
 
-  let save_button = Button.create ~text:"Save Config" ~command:(fun _ -> Env.select_one_file save) tf 
+  let save_button = Button.create ~text:"Save Config" ~command:(fun _ -> Notebook.select_one_file save) tf 
   and cancel_button = Button.create ~text:"Cancel" ~command:destroy tf  in
   
   Tk.pack [l] ~side:`Left;
@@ -66,7 +66,7 @@ let create = fun top appli ->
     Console.write (Printf.sprintf "Reading from \"%s\"\n" file);
     
     create_display_frame f (VarXml.of_xml (Xml.parse_file file)) appli in
-  let load_button = Button.create ~text:"Load Config" ~command:(fun _ -> Env.select_one_file load) top in
+  let load_button = Button.create ~text:"Load Config" ~command:(fun _ -> Notebook.select_one_file load) top in
 
   Tk.pack [load_button];
   Tk.pack [f]

@@ -56,7 +56,7 @@ let create_sheet = fun sheets ->
   let f = Frame.create sheets in
   Notebook.create_sheet sheets "Flight Plan" f;
 
-  let b = Button.create ~text:"Calibrate IGN tile" ~command:(fun () -> Env.select_one_file ~filter:"*.png" calibrate_ign_tile) f in
+  let b = Button.create ~text:"Calibrate IGN tile" ~command:(fun () -> Notebook.select_one_file ~filter:"*.png" calibrate_ign_tile) f in
 
   Tk.pack [b];
 

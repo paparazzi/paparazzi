@@ -27,22 +27,22 @@
 module FbwMcu = struct
   let name = "Fly by wire"
   let sort = Flasher.Fbw
-  let path = Env.fbw_dir
-  let default_tty = Env.fbw_tty
+  let path = Env_conf.fbw_dir
+  let default_tty = Env_conf.fbw_tty
 end
 
 module ApMcu = struct
   let name = "Autopilot"
   let sort = Flasher.Ap
-  let path = Env.ap_dir
-  let default_tty = Env.ap_tty
+  let path = Env_conf.ap_dir
+  let default_tty = Env_conf.ap_tty
 end
 
 module ModemMcu = struct
   let name = "Ground Modem"
   let sort = Flasher.Modem
-  let path = Env.modem_dir
-  let default_tty = Env.modem_tty
+  let path = Env_conf.modem_dir
+  let default_tty = Env_conf.modem_tty
 end
 
 module type MCU = sig

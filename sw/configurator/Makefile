@@ -23,7 +23,7 @@
 OCAMLC=ocamlc -g -I +labltk -I +lablgtk2 -I ../lib/ocaml
 
 
-SRC = env.ml tty.ml varXml.ml console.ml tkXml.ml flasher.ml notebook.ml welcome.ml hardware.ml radio.ml servos.ml adc.ml infrared.ml attitude.ml autopilot.ml airframe.ml flightplan.ml upload.ml simulator.ml monitor.ml logalizer.ml main.ml
+SRC = env_conf.ml notebook.ml tty.ml varXml.ml console.ml tkXml.ml flasher.ml welcome.ml hardware.ml radio.ml servos.ml adc.ml infrared.ml attitude.ml autopilot.ml airframe.ml flightplan.ml upload.ml simulator.ml monitor.ml logalizer.ml main.ml
 CMO = $(SRC:.ml=.cmo)
 
 all : configurator medit.out

@@ -139,7 +139,7 @@ let one_channel = fun parent i xml_channel ->
 
 
 let program_board = fun w cs () ->
-  Flasher.make Flasher.Fbw (Printf.sprintf "%s/test" Env.fbw_dir) "TARGET=rc_transmitter load";
+  Flasher.make Flasher.Fbw (Printf.sprintf "%s/test" Env_conf.fbw_dir) "TARGET=rc_transmitter load";
   
   let tty = Hardware.Fbw.get_tty () in
   Tty.connect tty;

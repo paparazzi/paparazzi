@@ -60,3 +60,11 @@ let create_sheet w name child =
 
   
   
+let select_one_file = fun ?(filter="*.xml") use ->
+  let action = function 
+      [] -> ()
+    | [f] -> use f
+    | _ -> failwith "Env.select_one_file: unepected several files" in
+  Fileselect.f ~title:"File Selection" ~action ~filter ~file:"" ~multi:false ~sync:false
+
+  
