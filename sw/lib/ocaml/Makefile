@@ -34,7 +34,7 @@ XCMO = $(XSRC:.ml=.cmo)
 XCMX = $(XSRC:.ml=.cmx)
 
 
-all : lib-pprz.cma xlib-pprz.cma xml_get.out
+all : lib-pprz.cma xlib-pprz.cma xml_get.out lib-pprz.cmxa
 # lib-pprz.cmxa xlib-pprz.cmxa
 
 

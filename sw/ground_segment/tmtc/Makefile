@@ -45,7 +45,7 @@ receive : modem.cmo receive.ml
 	chmod a+x $@
 
 listen.opt : listen.ml
-	$(OCAMLOPT) $(INCLUDES) -o $@ str.cmxa unix.cmxa xml-light.cmxa glibivy-ocaml.cmxa -I +lablgtk2 lablgtk.cmxa lib.cmxa $^
+	$(OCAMLOPT) $(INCLUDES) -o $@ str.cmxa unix.cmxa xml-light.cmxa glibivy-ocaml.cmxa -I +lablgtk2 lablgtk.cmxa lib-pprz.cmxa $^
 	strip $@
 
 
