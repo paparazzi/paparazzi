@@ -309,7 +309,7 @@ let gtk_image_rgb24_of_image image =
   | Images.Rgb24  i  -> i
   | Images.Index16 i -> Index16.to_rgb24 i
   | Images.Rgba32  i -> Rgb24.of_rgba32 i
-  | Images.Cmyk32  i -> Printf.printf "Pb : Image Cmyk32 !!!\n"; flush stdout ; exit 1
+  | Images.Cmyk32  _i -> Printf.printf "Pb : Image Cmyk32 !!!\n"; flush stdout ; exit 1
 
 (* ============================================================================= *)
 (* = Lecture d'une image et creation d'une pixmap                              = *)
@@ -330,7 +330,7 @@ let gtk_image_load filename win format =
 	(pix, pixmap)
   in
 
-  let (pix, pixmap) = create_pixmap win w h in
+  let (_pix, pixmap) = create_pixmap win w h in
 
   (* Creation d'une image Rgb24 quel que soit le format d'origine *)
   let rgb = gtk_image_rgb24_of_image image in

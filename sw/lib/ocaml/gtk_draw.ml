@@ -205,6 +205,5 @@ let gd_put_transp_pixmap p dest x y =
   dest#put_pixmap ~x:x ~y:y p#pixmap ;
 
   (* On enleve le masque *)
-  (match p#mask with None -> () | Some m -> prerr_endline "TODO (Gtk_draw): dest#unset_clip_mask")
+  (match p#mask with None -> () | Some _m -> prerr_endline "TODO (Gtk_draw): dest#unset_clip_mask")
 
-(* =============================== FIN ========================================= *)

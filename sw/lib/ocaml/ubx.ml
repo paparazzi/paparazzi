@@ -73,7 +73,6 @@ let ubx_get_msg = fun ubx_class name ->
 
 let ubx_get_nav_msg = fun name -> ubx_get_msg ubx_nav name
 
-let nav_posllh = ubx_nav_id, ubx_get_nav_msg "POSLLH"
 let nav_posutm = ubx_nav_id, ubx_get_nav_msg "POSUTM"
 let nav_status = ubx_nav_id, ubx_get_nav_msg "STATUS"
 let nav_velned = ubx_nav_id, ubx_get_nav_msg "VELNED"

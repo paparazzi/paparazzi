@@ -94,7 +94,6 @@ type t_action = ACTION_NONE | ACTION_ZOOM of (int*int) | ACTION_ROTATE of (int*i
 let cursor_standard  = Gdk.Cursor.create `LEFT_PTR
 let cursor_zoom_up   = Gdk.Cursor.create `BASED_ARROW_UP
 let cursor_zoom_down = Gdk.Cursor.create `BASED_ARROW_DOWN
-let cursor_wait      = Gdk.Cursor.create `WATCH
 let cursor_rotate    = Gdk.Cursor.create `EXCHANGE
 
 (* Valeurs OpenGL pour utiliser une source de lumiere *)
@@ -413,8 +412,8 @@ let get_object_color obj =
   |	ENVELOPPE_3D_DOUBLE e -> e.env3d_double_color_out
   | ARROW_3D a            -> a.arr3d_color
   | POINT_3D p            -> p.p3d_color
-  | SURFACE_3D s          -> glcolor_white
-  | SURFACE_3D_TEX s      -> glcolor_white
+  | SURFACE_3D _s          -> glcolor_white
+  | SURFACE_3D_TEX _s      -> glcolor_white
 
 (* [set_object_color objet color] met a jour la couleur de l'objet *)
 let set_object_color obj color =
@@ -450,9 +449,9 @@ let get_object_fill obj =
   |	ENVELOPPE_3D e        -> e.env3d_filled
   |	ENVELOPPE_3D_DOUBLE e -> e.env3d_double_filled
   | ARROW_3D a            -> a.arr3d_filled
-  | POINT_3D p            -> false
+  | POINT_3D _p            -> false
   | SURFACE_3D s          -> s.s3d_filled
-  | SURFACE_3D_TEX s      -> true
+  | SURFACE_3D_TEX _s      -> true
 
 (* [set_object_filled objet filled] force l'objet en mode plein ou fil de fer *)
 let set_object_fill obj filled =
@@ -463,9 +462,9 @@ let set_object_fill obj filled =
   |	ENVELOPPE_3D e        -> e.env3d_filled <- filled
   |	ENVELOPPE_3D_DOUBLE e -> e.env3d_double_filled <- filled
   | ARROW_3D a            -> a.arr3d_filled <- filled
-  | POINT_3D p            -> ()
+  | POINT_3D _p            -> ()
   | SURFACE_3D s          -> s.s3d_filled <- filled
-  | SURFACE_3D_TEX s      -> ()
+  | SURFACE_3D_TEX _s      -> ()
 
 (* [get_line_width objet id] renvoie l'epaisseur d'un objet ligne. Si l'objet
    passe n'est pas du type [LINE_3D] alors l'exception {!Gtk_3d.NOT_A_3D_LINE}
@@ -524,7 +523,7 @@ class widget_3d pack with_status_bar n =
       (a, fun msg -> ignore(ss#push msg))
     end else
       (GlGtk.area [`RGBA; `DOUBLEBUFFER; `DEPTH_SIZE 1] ~packing:pack (),
-       fun msg -> ())
+       fun _msg -> ())
   in
 
   object (self)
@@ -885,12 +884,12 @@ class widget_3d pack with_status_bar n =
       let old_rs = rs in
       let (do_it, l) =
 	match o with
-	  OUTLINE_3D o          -> (false, [])
+	  OUTLINE_3D _o          -> (false, [])
 	| LINE_3D l             -> (true, l.line3d_points)
 	| VOLUME1_3D v          -> (true, v.vol3d_contour)
 	| ENVELOPPE_3D e        -> (true, e.env3d_contour)
 	| ENVELOPPE_3D_DOUBLE e -> (true, e.env3d_double_contour_out)
-	| ARROW_3D a            -> (false, [])
+	| ARROW_3D _a            -> (false, [])
 	| POINT_3D p            -> (true, [p.p3d_pos; p.p3d_pos2])
 	| SURFACE_3D s          ->
 	    let l = Array.to_list (Array.map (fun t -> Array.to_list t) s.s3d_pts) in
@@ -1271,7 +1270,7 @@ class widget_3d pack with_status_bar n =
 	  current_action <- (ACTION_ROTATE mouse_pos) ; true
 
 	    (* [mouse_release ev] traite un evenement de relachement de bouton *)
-    method private mouse_release ev =
+    method private mouse_release _ev =
       (match current_action with ACTION_NONE -> () | _ -> self#reset_cursor) ;
       current_action <- ACTION_NONE ;
       true
@@ -1437,7 +1436,7 @@ class widget_3d pack with_status_bar n =
       ignore(area#event#connect#any ~callback:scroll_cb) ;
       
       (* Attachement des callbacks pour les evenements clavier *)
-      Gtk_tools_GL.glarea_key_connect area self#key_pressed (fun k -> (); false)
+      Gtk_tools_GL.glarea_key_connect area self#key_pressed (fun _k -> (); false)
   end
 
 (* =============================== FIN ========================================= *)

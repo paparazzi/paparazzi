@@ -22,7 +22,7 @@ class widget = fun  ?(height=800) ?width ?wgs84_of_en () ->
   let canvas = GnoCanvas.canvas ~height ~packing:(frame#pack ~expand:true) () in
 
   let bottom = GPack.hbox ~height:30 ~packing:frame#pack () in
-  let w = GEdit.spin_button ~adjustment:adj ~rate:0. ~digits:2 ~width:50 ~height:20 ~packing:bottom#pack () in
+  let _w = GEdit.spin_button ~adjustment:adj ~rate:0. ~digits:2 ~width:50 ~height:20 ~packing:bottom#pack () in
 
 
   let lbl_xy = GMisc.label ~height:50 ~packing:bottom#pack () in
@@ -158,7 +158,6 @@ class widget = fun  ?(height=800) ?width ?wgs84_of_en () ->
     false
 
   method button_release = fun ev ->
-    let state = GdkEvent.Button.state ev in
     match GdkEvent.Button.button ev, grouping with
       2, _ ->
 	dragging <- None; false
@@ -173,7 +172,6 @@ class widget = fun  ?(height=800) ?width ?wgs84_of_en () ->
     | _ -> false
 
   method button_press = fun ev ->
-    let state = GdkEvent.Button.state ev in
     let xc = GdkEvent.Button.x ev in
     let yc = GdkEvent.Button.y ev in  
     match GdkEvent.Button.button ev with

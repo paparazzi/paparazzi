@@ -1138,7 +1138,7 @@ let set_window_position window (x, y) =
 (* = callback = le callback a appeler                                          = *)
 (* ============================================================================= *)
 let window_modify_connect window callback =
-  (window:GWindow.window)#event#connect#configure ~callback:(fun ev ->
+  (window:GWindow.window)#event#connect#configure ~callback:(fun _ev ->
 	callback (get_window_geometry window) ;
 	true)
 
@@ -1315,9 +1315,9 @@ let scw window colors tooltips update_func vbox destroy_func =
   (* et un bouton de selection de couleur dont la couleur est color *)
   let create_boite v title color callback =
 	let hbox = create_hbox (v:GPack.box)#pack in
-	let lab = create_label title hbox#pack and
-		but = create_color_selection_button (window:GWindow.window)
-		taille_x taille_y color	(hbox#pack ~from:`END) callback in
+	let _lab = create_label title hbox#pack and
+	    but = create_color_selection_button (window:GWindow.window)
+	    taille_x taille_y color	(hbox#pack ~from:`END) callback in
 	but
   in
 
@@ -1329,10 +1329,10 @@ let scw window colors tooltips update_func vbox destroy_func =
 	List.iter (fun (nom, lst) ->
 	  let v = snd (create_vframe nom !vb#pack) in
 	  let do_boites (title, couleur, _) =
-		let b = create_boite v title !couleur
-			(fun color -> couleur := color;
-			  (* Recreation de toute la liste pour mise a jour de la couleur de la boite *)
-			  creation_liste () ;
+	    let _b = create_boite v title !couleur
+		(fun color -> couleur := color;
+		  (* Recreation de toute la liste pour mise a jour de la couleur de la boite *)
+		  creation_liste () ;
 			  (* Application automatique ? *)
 			  if !application_auto then begin
 				clicked_apply := true ;	update_func ()
@@ -1463,7 +1463,7 @@ let creation_fen_capture default_filename default_format tooltips with_caption =
 		contour_color = ref (`RGB(65535, 65535, 65535)) and
 		back_color    = ref (`RGB(0, 0, 0)) in
 
-	let (fr, hbox) = create_hframe "Legende" vbox#pack in
+	let (_fr, hbox) = create_hframe "Legende" vbox#pack in
 	let entry_caption = GEdit.entry ~text:"" ~packing:hbox#add () and
 		hb = ref (create_hbox (hbox#pack ~from:`END)) in
 
@@ -1507,7 +1507,7 @@ let creation_fen_capture default_filename default_format tooltips with_caption =
   end ;
 
   (* Selection du format de sauvegarde *)
-  let (fr, hbox) = create_hframe "Format" vbox#pack in
+  let (_fr, hbox) = create_hframe "Format" vbox#pack in
   let lst_but = List.fold_left (fun lst typ ->
 	let name = Gtk_image.string_of_format_capture typ in
 	let but =
@@ -1527,19 +1527,19 @@ let creation_fen_capture default_filename default_format tooltips with_caption =
 
   (* Nom du fichier *)
   let pm = GDraw.pixmap_from_xpm_d ~data:open_file_pixmap ~window:window () and
-	  (fr, hbox) = create_hframe "Nom du fichier" vbox#pack in
+	  (_fr, hbox) = create_hframe "Nom du fichier" vbox#pack in
   let entry = GEdit.entry ~text: !filename ~packing:hbox#add () and
 	  but_fic = create_pixbutton pm hbox#pack in
 
   (* Progression de la sauvegarde *)
-  let (fr, vb) = create_vframe "Sauvegarde" vbox#pack in
+  let (_fr, vb) = create_vframe "Sauvegarde" vbox#pack in
   let hbox = create_hbox vb#pack in
-  let l = create_label " Etat :        " hbox#pack and
-	  lab_save = create_label "" hbox#add in
+  let _l = create_label " Etat :        " hbox#pack
+  and lab_save = create_label "" hbox#add in
 
   let hbox = create_hbox vb#pack in
-  let l = create_label " Progression : " hbox#pack and
-	  pbar_save = GRange.progress_bar ~packing:hbox#add () in
+  let _l = create_label " Progression : " hbox#pack
+  and pbar_save = GRange.progress_bar ~packing:hbox#add () in
   pbar_save#set_fraction 0. ;
 
   let but_ok      = create_button "Capture" window#action_area#add and
@@ -1717,12 +1717,12 @@ let screenshot_box_with_caption default_filename default_format
 let create_int_spinner_simple label lab_width init_value min_value
 	max_value value_width step_incr page_incr tip tooltips pack_method =
   let hbox = create_hbox pack_method in
-  let l = create_sized_label label lab_width hbox#pack and
-	  spinner = GEdit.spin_button
-	  ~adjustment:(GData.adjustment ~value:(float_of_int init_value)
-					 ~lower:(float_of_int min_value) ~upper:(float_of_int max_value)
-					 ~step_incr:(float_of_int step_incr)
-					 ~page_incr:(float_of_int page_incr) ~page_size:0.0 ())
+  let _l = create_sized_label label lab_width hbox#pack 
+  and spinner = GEdit.spin_button
+      ~adjustment:(GData.adjustment ~value:(float_of_int init_value)
+		     ~lower:(float_of_int min_value) ~upper:(float_of_int max_value)
+		     ~step_incr:(float_of_int step_incr)
+		     ~page_incr:(float_of_int page_incr) ~page_size:0.0 ())
 	  ~rate:0. ~digits:0 ~width:value_width () in
   hbox#pack spinner#coerce ;
   if tip <> "" then	add_tooltips tooltips spinner tip ;
@@ -1836,7 +1836,7 @@ let create_hslider init_val min_val max_val step page draw_val
 let create_float_spinner_simple label lab_width init_value min_value
 	max_value value_width nb_digits step_incr page_incr tip tooltips pack_method =
   let hbox = create_hbox pack_method in
-  let l = create_sized_label label lab_width hbox#pack and
+  let _l = create_sized_label label lab_width hbox#pack and
 	  spinner = GEdit.spin_button
 	  ~adjustment:(GData.adjustment ~value:init_value
 					 ~lower:min_value ~upper:max_value
@@ -2709,7 +2709,7 @@ let display_file filename title width height tooltips font =
 (* = fonction prend en parametre un flottant entre 0.0 et 1.0.                 = *)
 (* = Lorsque ce flottant vaut 1.0, la fenetre est detruite                     = *)
 (* ============================================================================= *)
-let create_progress_bar_win nb_blocks title =
+let create_progress_bar_win title =
   let window = GWindow.window ~title:title ~border_width:10 ~width:200 () in
   let pbar = GRange.progress_bar ~packing:window#add () in
 (* GTK2 AAA GRange.progress_bar ~bar_style:`DISCRETE ~discrete_blocks:nb_blocks ()
@@ -2965,7 +2965,7 @@ let calendar lst_dates callback_select only_available_dates_selectable
   let current_month = ref 0 and current_year = ref 0 in
   if init_with_last_available_date && lst_dates<>[] then begin
 	let d = List.hd (List.fast_sort (fun d1 d2 -> cmp_int d2 d1) lst_dates) in
-	let (j, m, a) = decompose_date d in current_month := m; current_year := a
+	let (_j, m, a) = decompose_date d in current_month := m; current_year := a
   end else begin
 	let tm = timer_get_time () in
 	current_month := (tm.Unix.tm_mon+1); current_year:= (tm.Unix.tm_year+1900)
@@ -3014,7 +3014,7 @@ let calendar lst_dates callback_select only_available_dates_selectable
 		callback_select (compose_date (i+1, !current_month, !current_year))
 	  end) ;
 	b) in
-  let buttons_shown = Array.init 31 (fun i -> false) in
+  let buttons_shown = Array.create 31 false in
 
   (* Mise a jour des boutons dans le calendrier *)
   let update_calendar () =

@@ -1,9 +1,9 @@
- (*
+(*
  * $Id$
  *
- * Debugging facilities
- *  
- * Copyright (C) 2004 CENA/ENAC, Pascal Brisset, Antoine Drouin
+ * UBX protocol handling
+ *
+ * Copyright (C) 2004 CENA/ENAC, Yann Le Fablec, Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
  *
@@ -24,23 +24,18 @@
  *
  *)
 
-let level = ref (try Sys.getenv "PPRZ_DEBUG" with Not_found -> "")
-let log = ref stderr
-let call lev f =
-  assert( (* assert permet au compilo de tout virer avec l'option -noassert *)
-  if (String.contains !level '*' || String.contains !level lev)
-  then begin
-    f !log;
-    flush !log
-  end;
-  true)
-    
-let xprint = fun s ->
-  let n = String.length s in
-  let a = String.make (3*n) ' ' in
-  for i = 0 to n - 1 do
-    let x = Printf.sprintf "%02x" (Char.code s.[i]) in
-    a.[3*i] <- x.[0];
-    a.[3*i+1] <- x.[1]
-  done;
-  a
+module Protocol :
+  sig
+    val index_start : string -> int
+    val payload_length : string -> int -> int
+    val length : string -> int -> int
+    val payload : string -> int -> string
+    val uint8_t : int -> int
+    val ( += ) : int ref -> int -> unit
+    val checksum : string -> int -> string -> bool
+  end
+
+val nav_posutm : int * Xml.xml
+val nav_status : int * Xml.xml
+val nav_velned : int * Xml.xml
+val send : out_channel -> int * Xml.xml -> (string * int) list -> unit

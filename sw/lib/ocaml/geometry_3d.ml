@@ -228,7 +228,7 @@ let test_on_hl t = (test_in_segment t)||(t=T_OUT_SEG_PT4)||(t=T_OUT_SEG_PT2)
 let crossing_seg_seg a b c d =
   match crossing_point a (vect_make a b) c (vect_make c d) with
 	None -> false
-  |	Some (type1, type2, pt) -> (test_in_segment type1)&&(test_in_segment type2)
+  |	Some (type1, type2, _pt) -> (test_in_segment type1)&&(test_in_segment type2)
 
 (* ============================================================================= *)
 (* = Teste l'intersection d'un segment (a,b) et d'une demi-droite (c,v)        = *)
@@ -236,7 +236,7 @@ let crossing_seg_seg a b c d =
 let crossing_seg_hl a b c v =
   match crossing_point a (vect_make a b) c v with
 	None -> false
-  |	Some (type1, type2, pt) ->
+  |	Some (type1, type2, _pt) ->
 	  (* OK si intersection sur la demi-droite *)
 	  (test_in_segment type1) && (test_on_hl type2)
 
@@ -247,7 +247,7 @@ let crossing_hl_hl a u c v =
   let inter = crossing_point a u c v in
   match inter with
 	None -> false
-  |	Some (type1, type2, pt) -> (test_on_hl type1) && (test_on_hl type2)
+  |	Some (type1, type2, _pt) -> (test_on_hl type1) && (test_on_hl type2)
 
 (* ============================================================================= *)
 (* = Teste l'intersection de deux droites et renvoie le point s'il existe      = *)
@@ -255,7 +255,7 @@ let crossing_hl_hl a u c v =
 let crossing_lines a u c v =
   match crossing_point a u c v with
 	None -> (false, null_vector)
-  |	Some (type1, type2, pt) -> (true, pt)
+  |	Some (_type1, _type2, pt) -> (true, pt)
 
 (* ============================================================================= *)
 (* = Intersection d'une droite (a, u) et d'un plan (c, d, e)                   = *)
@@ -544,7 +544,7 @@ let point_in_volume pt vol =
   (* On compte le nombre d'intersections entre la demi-droite issue du point *)
   (* a tester de vecteur directeur dir avec le volume *)
 
-  let is_in = ref false and list_inter = ref [] in
+  let is_in = ref false in
   List.iter (fun poly_face ->
 	if List.length poly_face>=3 then begin
 	  (* 3 points definissant le plan contenant la face *)

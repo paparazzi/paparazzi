@@ -300,7 +300,7 @@ let test_on_hl t = (test_in_segment t)||(t=T_OUT_SEG_PT4)||(t=T_OUT_SEG_PT2)
 let crossing_seg_seg a b c d =
   match crossing_point a (vect_make a b) c (vect_make c d) with
 	None -> false
-  |	Some (type1, type2, pt) -> (test_in_segment type1)&&(test_in_segment type2)
+  |	Some (type1, type2, _pt) -> (test_in_segment type1)&&(test_in_segment type2)
 
 (* ============================================================================= *)
 (* = Teste l'intersection d'un segment (a,b) et d'une demi-droite (c,v)        = *)
@@ -308,7 +308,7 @@ let crossing_seg_seg a b c d =
 let crossing_seg_hl a b c v =
   match crossing_point a (vect_make a b) c v with
 	None -> false
-  |	Some (type1, type2, pt) ->
+  |	Some (type1, type2, _pt) ->
 	  (* OK si intersection sur la demi-droite *)
 	  (test_in_segment type1) && (test_on_hl type2)
 
@@ -319,7 +319,7 @@ let crossing_hl_hl a u c v =
   let inter = crossing_point a u c v in
   match inter with
 	None -> false
-  |	Some (type1, type2, pt) -> (test_on_hl type1) && (test_on_hl type2)
+  |	Some (type1, type2, _pt) -> (test_on_hl type1) && (test_on_hl type2)
 
 (* ============================================================================= *)
 (* = Teste l'intersection de deux droites et renvoie le point s'il existe      = *)
@@ -327,7 +327,7 @@ let crossing_hl_hl a u c v =
 let crossing_lines a u c v =
   match crossing_point a u c v with
 	None -> (false, null_vector)
-  |	Some (type1, type2, pt) -> (true, pt)
+  |	Some (_type1, _type2, pt) -> (true, pt)
 
 
 (* ============================================================================= *)
@@ -414,7 +414,6 @@ let convex_hull poly =
 	| [] -> raise Exit
   in
 
-  let f (x,y) = {x2D=x;y2D=y} in
   let p a b = a.x2D<b.x2D or (a.x2D=b.x2D & a.y2D>b.y2D) in
   let l2=poly in
   let debut,_=extract_mini p l2 in
@@ -431,7 +430,7 @@ let convex_hull poly =
 let crossing_seg_poly a b poly =
   (* Supprime les doublons dans une liste triee *)
   let supprime_doublons_points l =
-	let (p, new_l) = List.fold_left (fun (old, lst) pt ->
+	let (_p, new_l) = List.fold_left (fun (old, lst) pt ->
 	  match old with
 		None ->   (Some pt, [pt])
 	  |	Some p -> if point_same p pt then (old, lst) else (Some pt, pt :: lst)
@@ -605,79 +604,6 @@ let poly_centroid poly =
 
 
 (* ============================================================================= *)
-(* = Triangulation d'un polygone. Vielle version incorrecte dans certains cas  = *)
-(* ============================================================================= *)
-let in_tesselation_old l0 =
-  (* Recherche des extremes et du centre *)
-  let {x2D=x; y2D=y} = List.hd l0 in
-  let xmin = ref x and xmax = ref x and ymin = ref y and ymax = ref y in
-  List.iter (fun {x2D=x; y2D=y} ->
-	if x< !xmin then xmin:=x; if x> !xmax then xmax:=x;
-	if y< !ymin then ymin:=y; if y> !ymax then ymax:=y) l0 ;
-  let dmax = max (!xmax -. !xmin) (!ymax -. !ymin) in
-  let pmid = point_middle {x2D= !xmin; y2D= !ymin} {x2D= !xmax; y2D= !ymax} in
-
-  (* Recherche du triangle englobant (supertriangle) *)
-  let n = List.length l0 in
-  let t = Array.of_list (l0@[{x2D=pmid.x2D-.2.*.dmax; y2D=pmid.y2D-.dmax} ;
-							 {x2D=pmid.x2D;           y2D=pmid.y2D+.2.*.dmax} ;
-							 {x2D=pmid.x2D+.2.*.dmax; y2D=pmid.y2D-.dmax}]) in
-  let triangles = ref [(n, n+1, n+2)] in
-
-  (* Tous les points du contour sont inseres les uns apres les autres *)
-  Array.iteri (fun i point ->
-	let edges = ref [] in
-
-	triangles := List.fold_left (fun l (p1, p2, p3) ->
-	  (* Cercle circonscrit au triangle *)
-	  let circle = circumcircle t.(p1) t.(p2) t.(p3) in
-	  if point_in_circle point circle then begin
-		(* Ajout de 3 arretes et suppression du triangle en cours *)
-		edges := (p3,p1)::(p2,p3)::(p1,p2)::!edges ; l
-	  end else (p1, p2, p3)::l) [] !triangles ;
-
-	(* Creation de nouveaux triangles a partir du point courant pour les  *)
-	(* arretes non multiples ou qui apparaissent un nombre impair de fois *)
-	let ledges = ref !edges in
-	List.iter (fun (n1, n2) ->
-	  let l = List.find_all (fun (n01, n02) ->
-		(n01=n1&&n02=n2) or (n01=n2&&n02=n1)) !ledges in
-	  if List.length l mod 2 <> 0 then begin
-		triangles:=(n1, n2, i)::!triangles;
-		(* Si l'arrete apparait un nombre impair de fois > 1 alors *)
-		(* on n'insere que ce triangle et pas les suivants, sinon  *)
-		(* certains triangles apparaissent plusieurs fois *)
-		if List.length l>=3 then ledges:=!ledges@[(n1, n2)]
-	  end) !edges) t ;
-
-  let triangle_ok (p1, p2, p3) =
-	let check p1 p2 =
-	  if p1-p2=1 or p2-p1=1 or (p1=0&&p2=n-1) or (p1=n-1&&p2=0) then true
-	  else point_in_poly (point_middle t.(p1) t.(p2)) l0
-	in
-	check p1 p2 && check p2 p3 && check p3 p1
-  in
-
-  (* Les triangles ayant des points du supertriangle sont elimines ainsi *)
-  (* que tous les triangles se trouvant a l'exterieur du contour initial *)
-  (* car ce cas arrive lorsque le contour original est concave... *)
-  let l = List.fold_left (fun l (p1, p2, p3) ->
-	if p1>=n or p2>=n or p3>=n or not (triangle_ok (p1, p2, p3)) then l
-	else (p1, p2, p3)::l) [] !triangles in
-
-  (* Renvoie la liste des triangles CW *)
-  let l = List.map (fun (p1, p2, p3) ->
-	if ccw_angle t.(p1) t.(p2) t.(p3) = CW then (p1, p2, p3) else (p1, p3, p2)) l in
-
-  (* Tableau des points et liste des triangles *)
-  (* Normalement, si n points differents au depart -> n-2 triangles en sortie *)
-  if List.length l0<>(List.length l)+2 then begin
-	Printf.printf "AAAA %d points %d triangles\n" (List.length l0) (List.length l);
-	flush stdout
-  end ;
-  (Array.of_list l0, l)
-
-(* ============================================================================= *)
 (* = Triangulation d'un polygone                                               = *)
 (* ============================================================================= *)
 let in_tesselation poly =
@@ -797,7 +723,7 @@ let tesselation l =
 let in_tesselation_fans l =
   let t = Array.of_list l in
   let l = in_tesselation l in
-  let tt = Array.mapi (fun i x -> (i, 0)) t in
+  let tt = Array.mapi (fun i _x -> (i, 0)) t in
   let add_val x = let (p, n) = tt.(x) in tt.(x) <- (p, n+1) in
   List.iter (fun (p1, p2, p3) ->
 	add_val p1; add_val p2; add_val p3) l ;

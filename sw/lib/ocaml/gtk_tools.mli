@@ -1232,12 +1232,11 @@ val set_log_verbose_level : int -> unit
 (** {6 Barres de progression} *)
 
 
-(** [gtk_tools_create_progress_bar_win nb_blocks title] crée une barre de progression
-   dans une fenetre externe. [nb_blocks] désigne le nombre de subdivisions de
-   la barre. En sortie, la fonction de mise à jour de la barre de progression
+(** [gtk_tools_create_progress_bar_win title] crée une barre de progression
+   dans une fenetre externe. En sortie, la fonction de mise à jour de la barre de progression
    est renvoyée. Cette fonction prend en paramètre un flottant compris entre
    0.0 et 1.0, lorsqu'on lui passe 1.0, la fenetre est fermée *)
-val create_progress_bar_win : int -> string -> float -> unit
+val create_progress_bar_win : string -> float -> unit
 
 (** [gtk_tools_create_progress_bar pack_method] creation d'une barre de
    progression continue et sans fenetre (donc différente de

@@ -30,7 +30,7 @@ let sep = Str.regexp "\\."
 
 let child xml ?select c =
   let rec find = function
-      Xml.Element (tag, attributes, _children) as elt :: elts ->
+      Xml.Element (tag, _attributes, _children) as elt :: elts ->
 	if tag = c then
 	  match select with
 	    None -> elt
