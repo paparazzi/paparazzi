@@ -112,7 +112,7 @@ $(OBJDIR)/%.hex: $(OBJDIR)/%.elf
 %.install: $(OBJDIR)/%.hex check_arch
 	# stk200 needs to be erased first
 	$(UISP) $(UISP_FLAGS) --erase
-	$(UISP) $(UISP_FLAGS) --upload if=$<
+	$(UISP) $(UISP_FLAGS) --upload --verify if=$<
 
 erase: check_arch
 	$(UISP) $(ISP_FLAGS) --erase
