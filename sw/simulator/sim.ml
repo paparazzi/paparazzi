@@ -120,7 +120,7 @@ module Make(AircraftItl : AIRCRAFT_ITL) = struct
     let gust_norm_max_adj = GData.adjustment ~value:0. ~lower:(0.) ~upper:20. ~step_incr:0.1 () in
     let gust_norm_ch_fact_adj = GData.adjustment ~value:0. ~lower:(0.) ~upper:20. ~step_incr:0.1 () in
     let gust_dir_ch_fact_adj = GData.adjustment ~value:0. ~lower:(0.) ~upper:20. ~step_incr:0.1 () in
-    let infrared_contrast_adj = GData.adjustment ~value:0. ~lower:(0.) ~upper:1010. ~step_incr:10. () in
+    let infrared_contrast_adj = GData.adjustment ~value:500. ~lower:(0.) ~upper:1010. ~step_incr:10. () in
 
     let run = ref false in
     let scheduler =

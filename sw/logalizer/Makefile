@@ -20,13 +20,16 @@
 # Boston, MA 02111-1307, USA.  
 # 
 
-OCAMLC = ocamlc -I ../lib/ocaml
-OCAMLOPT = ocamlopt -I ../lib/ocaml
+OCAMLC = ocamlc
+OCAMLOPT = ocamlopt
 
-all: play.opt
+all: play
 
 clean:
-	rm -f *.opt *.out *~ core *.o *.bak .depend *.cm*
+	rm -f *.opt *.out *~ core *.o *.bak .depend *.cm* play
 
-play.opt : play.ml
-	$(OCAMLOPT) -o $@ unix.cmxa glibivy-ocaml.cmxa -I +lablgtk2 lablgtk.cmxa gtkInit.cmx $^
+play : play.ml
+	$(OCAMLC) -o $@ unix.cma glibivy-ocaml.cma -I +lablgtk2 lablgtk.cma gtkInit.cmo $^ # to check
+	cat ../../pprz_src_test.sh > $@
+	echo 'lablgtk2 unix.cma glibivy-ocaml.cma $$PAPARAZZI_SRC/sw/logalizer/$< $$*' >> $@
+	chmod a+x $@

@@ -18,7 +18,7 @@ let gen_flight_plan =
   try
     Sys.getenv "PAPARAZZI_SRC" // "sw/tools/gen_flight_plan.out"
   with
-    Not_found -> "/usr/bin/paparazzi gen_flight_plan"
+    Not_found -> "/usr/share/paparazzi/bin/gen_flight_plan.out"
 
 
 type aircraft = {

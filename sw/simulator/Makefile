@@ -34,6 +34,7 @@ SIMSCMO=$(SIMSML:%.ml=%.cmo)
 SIMSCMX=$(SIMSML:%.ml=%.cmx)
 SIMSC = sim_ir.c sim_gps.c sim_ap.c estimator.c pid.c nav.c main.c
 SIMSO=$(SIMSC:%.c=$(OBJDIR)/%.o)
+SIMSA=sims.cma
 
 OCAMLC = ocamlc
 OCAMLOPT=ocamlopt -p
@@ -46,7 +47,7 @@ VARINCLUDE=$(PAPARAZZI_HOME)/var/include
 ACINCLUDE = $(PAPARAZZI_HOME)/var/$(AIRCRAFT)
 
 MESSAGES = ../../conf/messages.xml
-GEN_DOWNLINK = ./gen_downlink.out
+GEN_DOWNLINK = ./gen_downlink
 
 SIMDIR=$(shell echo `pwd`)
 
@@ -55,7 +56,7 @@ SIMDIR=$(shell echo `pwd`)
 #all : simhitl.out sitl.cma $(GEN_DOWNLINK)
 all : sitl.cma $(GEN_DOWNLINK)
 
-sim_sitl : $(OBJDIR)/simsitl.out
+sim_sitl : $(OBJDIR)/simsitl
 
 simhitl.out : $(SIMHCMO) simhitl.cmo
 	$(OCAMLC) $(INCLUDES) -o $@ str.cma xml-light.cma unix.cma lib.cma lablgtk.cma gtkInit.cmo $^
@@ -66,8 +67,15 @@ sitl.cma : $(SIMSCMO)
 sitl.cmxa : $(SIMSCMX)
 	ocamlopt -o $@ -a $^ 
 
-$(OBJDIR)/simsitl.out : sitl.cma $(SIMSO) $(OBJDIR)/simsitl.cmo
-	$(OCAMLC) $(INCLUDES) -custom -o $@ glibivy-ocaml.cma xml-light.cma unix.cma lib.cma lablgtk.cma gtkInit.cmo $(SIMSO) sitl.cma  $(OBJDIR)/simsitl.cmo
+$(OBJDIR)/$(SIMSA) : $(SIMSO)
+	touch $(OBJDIR)/dummy.ml
+	cd $(OBJDIR); ocamlmklib -o sims $^ dummy.ml
+
+$(OBJDIR)/simsitl : $(OBJDIR)/$(SIMSA) sitl.cma $(OBJDIR)/simsitl.ml
+	$(OCAMLC) $(INCLUDES) -o $@ glibivy-ocaml.cma xml-light.cma unix.cma lib-pprz.cma lablgtk.cma gtkInit.cmo -I $(OBJDIR) $(SIMSA) sitl.cma $(OBJDIR)/simsitl.ml # To check
+	cat ../../pprz_src_test.sh > $@
+	echo 'lablgtk2 -I $$PAPARAZZI_SRC/sw/lib/ocaml -I $(OBJDIR) glibivy-ocaml.cma xml-light.cma lib-pprz.cma $(SIMSA) $$PAPARAZZI_SRC/sw/simulator/sitl.cma -I $$PAPARAZZI_SRC/sw/simulator $(OBJDIR)/simsitl.ml $$*' >> $@
+	chmod a+x $@
 
 $(OBJDIR)/simsitl.opt : $(SIMSO) $(OBJDIR)/simsitl.cmx
 	$(OCAMLOPT) $(INCLUDES) -o $@ str.cmxa glibivy-ocaml.cmxa xml-light.cmxa unix.cmxa lib.cmxa lablgtk.cmxa gtkInit.cmx $(SIMSO) sitl.cmxa  $(OBJDIR)/simsitl.cmx
@@ -90,8 +98,10 @@ $(OBJDIR)/downlink.h : $(MESSAGES) $(GEN_DOWNLINK)
 	$(GEN_DOWNLINK) $< > $@
 
 $(GEN_DOWNLINK) : gen_downlink.ml
-	$(OCAMLC) $(INCLUDES) -o $@ str.cma xml-light.cma lib.cma $<
-
+	$(OCAMLC) $(INCLUDES) -o $@ str.cma xml-light.cma lib-pprz.cma $< # To check	
+	cat ../../pprz_src_test.sh > $@
+	echo 'ocaml -I $$PAPARAZZI_SRC/sw/lib/ocaml str.cma xml-light.cma lib-pprz.cma $$PAPARAZZI_SRC/sw/simulator/$< $$*' >> $@
+	chmod a+x $@
 
 $(OBJDIR)/simsitl.cmo : $(OBJDIR)/simsitl.ml
 	$(OCAMLC) $(INCLUDES) -c -o $@ $<
@@ -113,7 +123,7 @@ $(OBJDIR)/simsitl.ml : simsitl.ml
 	$(OCAMLC) $(INCLUDES) -c $<
 
 clean :
-	\rm -f *.cm* *~ *.out .depend *.o
+	\rm -f *.cm* *~ *.out .depend *.o $(GEN_DOWNLINK)
 
 .depend:
 	ocamldep *.ml* > .depend

@@ -1,25 +1,18 @@
 OCAMLC=ocamlc -g
 OCAMLOPT=ocamlopt
 INCLUDES=-I +lablgtk2 -I +camlimages -I ../../lib/ocaml
-LIBS=glibivy-ocaml.cma lablgtk.cma ci_core.cma ci_png.cma ci_gif.cma ci_jpeg.cma ci_tiff.cma ci_bmp.cma ci_ppm.cma ci_ps.cma lib.cma lablgnomecanvas.cma xlib.cma
+LIBS=glibivy-ocaml.cma lablgtk.cma ci_core.cma ci_png.cma ci_gif.cma ci_jpeg.cma ci_tiff.cma ci_bmp.cma ci_ppm.cma ci_ps.cma lib-pprz.cma lablgnomecanvas.cma xlib-pprz.cma
 CMXA=$(LIBS:.cma=.cmxa)
 
-SRC = map2d.ml
-CMO = $(SRC:.ml=.cmo)
-CMX = $(SRC:.ml=.cmx)
 
-all : map2d.opt
+all : map2d
 
 
-map2d.out : $(CMO)
-	$(OCAMLC) $(INCLUDES) $(LIBS) gtkInit.cmo $(CMO) -o $@
-
-
-map2d.opt : $(CMX)
-	$(OCAMLOPT) str.cmxa unix.cmxa xml-light.cmxa $(INCLUDES) $(CMXA) gtkInit.cmx $(CMX) -o $@
-
-map2d.run:
-	lablgtk2 str.cma unix.cma xml-light.cma -I +camlimages -I ../../lib/ocaml glibivy-ocaml.cma ci_core.cma ci_png.cma ci_gif.cma ci_jpeg.cma ci_tiff.cma ci_bmp.cma ci_ppm.cma ci_ps.cma lib.cma xlib.cma map2d.ml
+map2d : map2d.ml
+	$(OCAMLC) -custom $(INCLUDES) $(LIBS) gtkInit.cmo $(CMO) -o /dev/null #to Check
+	cat ../../../pprz_src_test.sh > $@
+	echo 'lablgtk2 str.cma unix.cma xml-light.cma -I +camlimages glibivy-ocaml.cma ci_core.cma ci_png.cma ci_gif.cma ci_jpeg.cma ci_tiff.cma ci_bmp.cma ci_ppm.cma ci_ps.cma -I $$PAPARAZZI_SRC/sw/lib/ocaml lib-pprz.cma xlib-pprz.cma $$PAPARAZZI_SRC/sw/ground_segment/cockpit/$< $$*' >> $@
+	chmod a+x $@
 
 
 .SUFFIXES: .ml .mli .cmo .cmi .cmx

@@ -12,22 +12,22 @@ OBJS= $(SRC:.ml=.cmo)
 LINK= $(OCAMLC) $(MLFLAGS)
 LIBS_CI = ci_core.cma ci_gif.cma ci_jpeg.cma ci_tiff.cma ci_bmp.cma ci_ppm.cma ci_png.cma \
 	ci_xpm.cma ci_ps.cma ci_freetype.cma
-STDLIBS = unix.cma str.cmxa xml-light.cma lablgtk.cma lablgl.cma lablgtkgl.cma $(LIBS_CI)
-ADD_LIBS = lib.cma xlib.cma glibivy-ocaml.cma
+STDLIBS = unix.cma str.cma xml-light.cma lablgtk.cma lablgnomecanvas.cma lablgl.cma lablgtkgl.cma $(LIBS_CI)
+ADD_LIBS = lib-pprz.cma xlib-pprz.cma glibivy-ocaml.cma
 CLIBS = -cclib -lpthread
 
-all: mapGL.opt
+all: mapGL
 
 clean:
-	\rm -f *.cm* *.o *.a *~ *.opt *.out *.top *.output *obj *exe \
+	\rm -f mapGL *.cm* *.o *.a *~ *.opt *.out *.top *.output *obj *exe \
 	stars_lexer.ml stars_parser.mli stars_parser.ml .depend
 
 # Executables
-mapGL.out: $(OBJS)
-	$(OCAMLC) $(MLFLAGS) $(STDLIBS) gtkInit.cmo $(ADD_LIBS) -o $@ $(OBJS_3D) $(OBJS) $(CLIBS)
-
-mapGL.opt: $(OBJS:.cmo=.cmx)
-	$(OCAMLOPT) $(MLFLAGS) $(STDLIBS:.cma=.cmxa) gtkInit.cmx $(ADD_LIBS:.cma=.cmxa) -o $@ $(OBJS:.cmo=.cmx) $(CLIBS)
+mapGL: mapGL.ml
+	$(OCAMLC) $(MLFLAGS) $(STDLIBS) gtkInit.cmo $(ADD_LIBS) -o $@ $< $(CLIBS) # To check
+	cat ../../../pprz_src_test.sh > $@
+	echo 'ocaml -I +lablgtk2 -I +lablGL -I +camlimages -I $$PAPARAZZI_SRC/sw/lib/ocaml $(STDLIBS) gtkInit.cmo $(ADD_LIBS) $$PAPARAZZI_SRC/sw/ground_segment/visu3d/$< $$*' >> $@
+	chmod a+x $@
 
 # Do not edit below this line
 

@@ -1,11 +1,11 @@
-DESTDIR=/usr
+DESTDIR=/
 
 ifeq ($(PAPARAZZI_HOME),)
 PAPARAZZI_HOME=$(HOME)/paparazzi
 endif
 
 ifeq ($(PAPARAZZI_SRC),)
-TOOLS=$(DESTDIR)/share/paparazzi/bin
+TOOLS=$(DESTDIR)/usr/share/paparazzi/bin
 else
 TOOLS=$(PAPARAZZI_SRC)/sw/tools
 endif

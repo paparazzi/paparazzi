@@ -1,13 +1,17 @@
+OCAML=ocaml
 OCAMLC=ocamlc -g -I ../lib/ocaml
 OCAMLLEX=ocamllex
 OCAMLYACC=ocamlyacc
 
 all: gen_aircraft.out gen_airframe.out gen_calib.out gen_messages.out gen_ubx.out gen_flight_plan.out gen_radio.out
 
-FP_CMO = fp_syntax.cmo fp_parser.cmo fp_lexer.cmo fp_proc.cmo gen_flight_plan.cmo
+FP_CMO = fp_syntax.cmo fp_parser.cmo fp_lexer.cmo fp_proc.cmo gen_flight_plan.ml
+ABS_FP = $(FP_CMO:%=$$PAPARAZZI_SRC/sw/tools/%)
 
 gen_flight_plan.out : $(FP_CMO)
-	$(OCAMLC) lib.cma $^ -o $@
+	cat ../../pprz_src_test.sh > $@
+	echo '$(OCAML) -I $$PAPARAZZI_SRC/sw/lib/ocaml -I $$PAPARAZZI_SRC/sw/tools lib-pprz.cma $(ABS_FP) $$*' >> $@
+	chmod a+x $@
 
 fp_parser.cmo : fp_parser.cmi fp_syntax.cmi
 fp_parser.cmi : fp_parser.ml fp_syntax.cmi
@@ -18,7 +22,10 @@ fp_syntax.cmo : fp_syntax.cmi
 
 
 %.out : %.ml
-	$(OCAMLC) lib.cma $< -o $@
+	$(OCAMLC) -o /dev/null lib-pprz.cma $< # To check
+	cat ../../pprz_src_test.sh > $@
+	echo '$(OCAML) -I $$PAPARAZZI_SRC/sw/lib/ocaml lib-pprz.cma $$PAPARAZZI_SRC/sw/tools/$< $$*' >> $@
+	chmod a+x $@
 
 %.cmo : %.ml
 	$(OCAMLC) -c $<

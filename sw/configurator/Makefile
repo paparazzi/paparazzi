@@ -23,16 +23,25 @@
 OCAMLC=ocamlc -g -I +labltk -I +lablgtk2 -I ../lib/ocaml
 
 
-SRC = env_conf.ml notebook.ml tty.ml varXml.ml console.ml tkXml.ml flasher.ml welcome.ml hardware.ml radio.ml servos.ml adc.ml infrared.ml attitude.ml autopilot.ml airframe.ml flightplan.ml upload.ml simulator.ml monitor.ml logalizer.ml main.ml
-CMO = $(SRC:.ml=.cmo)
+CMO = env_conf.cmo notebook.cmo tty.cmo varXml.cmo console.cmo tkXml.cmo flasher.cmo welcome.cmo hardware.cmo radio.cmo servos.cmo adc.cmo infrared.cmo attitude.cmo autopilot.cmo airframe.cmo flightplan.cmo upload.cmo simulator.cmo monitor.cmo logalizer.cmo main.ml
 
-all : configurator medit.out
+ABS_CMO = $(CMO:%=$$PAPARAZZI_SRC/sw/configurator/%)
+
+all : configurator medit
 
 configurator : $(CMO)
-	$(OCAMLC) -custom -o $@ unix.cma str.cma xml-light.cma labltk.cma jpflib.cma lib.cma $^
+	$(OCAMLC) -custom -o /dev/null unix.cma str.cma xml-light.cma labltk.cma jpflib.cma lib-pprz.cma $^ # To check
+	cat ../../pprz_src_test.sh > $@
+	echo 'ocaml -I +labltk -I $$PAPARAZZI_SRC/sw/lib/ocaml -I $$PAPARAZZI_SRC/sw/configurator unix.cma str.cma xml-light.cma labltk.cma jpflib.cma lib-pprz.cma $(ABS_CMO) $$*' >> $@
+	chmod a+x $@
 
-medit.out : medit.cmo
-	$(OCAMLC) -o $@ str.cma unix.cma xml-light.cma glibivy-ocaml.cma -I +lablgtk2 lablgtk.cma lablgnomecanvas.cma gtkInit.cmo lib.cma $^
+medit : medit.ml
+	$(OCAMLC) -o /dev/null str.cma unix.cma xml-light.cma glibivy-ocaml.cma -I +lablgtk2 lablgtk.cma lablgnomecanvas.cma gtkInit.cmo lib-pprz.cma $^ # To check
+	cat ../../pprz_src_test.sh > $@
+	echo 'lablgtk2 -I $$PAPARAZZI_SRC/sw/lib/ocaml str.cma unix.cma xml-light.cma glibivy-ocaml.cma lib-pprz.cma $$PAPARAZZI_SRC/sw/configurator/$< $$*' >> $@
+	chmod a+x $@
+
+
 
 %.cmo : %.ml
 	$(OCAMLC) -c $<

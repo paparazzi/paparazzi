@@ -239,7 +239,7 @@ end
 
 let _ =
   if Array.length Sys.argv <> 3 then begin
-    fprintf stderr "Usage: %s <.xml file> <class_name>" Sys.argv.(0) 
+    failwith (sprintf "Usage: %s <.xml file> <class_name>" Sys.argv.(0)) 
   end;
   let filename = Sys.argv.(1) in
   let class_name = Sys.argv.(2) in

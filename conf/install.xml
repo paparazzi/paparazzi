@@ -2,19 +2,20 @@
 
 <section name="binaries" dest="bin" comment="main program">
   <file name="sw/supervision/paparazzi.pl"/>
+  <!-- TMP -->  <file name="paparazzi_demo"/>
 </section>
 
 <section name="priv_binaries" dest="share/paparazzi/bin" comment="helpers program">
    <file name="sw/configurator/medit.out"/>
    <file name="sw/ground_segment/cockpit/cockpit.pl"/>
    <file name="sw/ground_segment/cockpit/map.pl"/>
-   <file name="sw/ground_segment/cockpit/map2d.opt"/>
+   <file name="sw/ground_segment/cockpit/map2d"/>
    <file name="sw/ground_segment/speech/paparazzi_speak.pl"/>
-   <file name="sw/ground_segment/tmtc/messages.opt"/>
-   <file name="sw/ground_segment/tmtc/receive.opt"/>
-   <file name="sw/ground_segment/visu3d/mapGL.opt"/>
-   <file name="sw/logalizer/play.opt"/>
-   <file name="sw/simulator/gen_downlink.out"/>
+   <file name="sw/ground_segment/tmtc/messages"/>
+   <file name="sw/ground_segment/tmtc/receive"/>
+   <file name="sw/ground_segment/visu3d/mapGL"/>
+   <file name="sw/logalizer/play"/>
+   <file name="sw/simulator/gen_downlink"/>
    <file name="sw/simulator/simsitl.pl"/>
    <file name="sw/tools/gen_aircraft.out"/>
    <file name="sw/tools/gen_airframe.out"/>
@@ -66,7 +67,7 @@
   <file name="conf/ubx.dtd"/>
   <file name="conf/conf.xml"/>
   <file name="conf/control_panel.xml.sys" new_name="control_panel.xml"/>
-  <file name="conf/ground_segment.xml"/>
+<!--  <file name="conf/ground_segment.xml"/> -->
   <file name="conf/hosts_wavecard.xml"/>
   <file name="conf/messages.xml"/>
   <file name="conf/wavecard.xml"/>
@@ -119,17 +120,64 @@
    <file name="Makefile.ac"/>
 </section>
 
+<section name="sw_tmtc" dest="share/paparazzi/sw/ground_segment/tmtc" comment="ocaml objects">
+   <file name="sw/ground_segment/tmtc/modem.cmo"/>
+   <file name="sw/ground_segment/tmtc/modem.cmi"/>
+   <file name="sw/ground_segment/tmtc/receive.ml"/>
+   <file name="sw/ground_segment/tmtc/messages.ml"/>
+</section>
+
+<section name="sw_cockpit" dest="share/paparazzi/sw/ground_segment/cockpit" comment="ocaml objects">
+   <file name="sw/ground_segment/cockpit/map2d.ml"/>
+</section>
+
+<section name="sw_visu3d" dest="share/paparazzi/sw/ground_segment/visu3d" comment="ocaml objects">
+   <file name="sw/ground_segment/visu3d/mapGL.ml"/>
+</section>
+
+<section name="sw_log" dest="share/paparazzi/sw/logalizer" comment="ocaml objects">
+   <file name="sw/logalizer/play.ml"/>
+</section>
+
+<section name="sw_tools" dest="share/paparazzi/sw/tools" comment="ocaml objects">
+   <file name="sw/tools/gen_aircraft.ml"/>
+   <file name="sw/tools/gen_airframe.ml"/>
+   <file name="sw/tools/gen_calib.ml"/>
+   <file name="sw/tools/gen_radio.ml"/>
+   <file name="sw/tools/gen_ubx.ml"/>
+   <file name="sw/tools/gen_messages.ml"/>
+   <file name="sw/tools/gen_flight_plan.ml"/>
+   <file name="sw/tools/fp_syntax.cmo"/>
+   <file name="sw/tools/fp_parser.cmo"/>
+   <file name="sw/tools/fp_lexer.cmo"/>
+   <file name="sw/tools/fp_proc.cmo"/>
+   <file name="sw/tools/fp_proc.cmi"/>
+   <file name="sw/tools/fp_syntax.cmi"/>
+</section>
+
 <section name="sw_lib_ocaml" dest="share/paparazzi/sw/lib/ocaml" comment="ocaml objects and libs needed during airborne code generation">
-   <file name="sw/lib/ocaml/env.cmo"/>
    <file name="sw/lib/ocaml/env.cmi"/>
-   <file name="sw/lib/ocaml/extXml.cmo"/>
    <file name="sw/lib/ocaml/extXml.cmi"/>
-   <file name="sw/lib/ocaml/latlong.cmo"/>
    <file name="sw/lib/ocaml/latlong.cmi"/>
-   <file name="sw/lib/ocaml/xml2h.cmo"/>
    <file name="sw/lib/ocaml/xml2h.cmi"/>
-   <file name="sw/lib/ocaml/lib.cma"/>
-   <file name="sw/lib/ocaml/liblib.a"/>
+   <file name="sw/lib/ocaml/serial.cmi"/>
+   <file name="sw/lib/ocaml/pprz.cmi"/>
+   <file name="sw/lib/ocaml/debug.cmi"/>
+   <file name="sw/lib/ocaml/geometry_2d.cmi"/>
+   <file name="sw/lib/ocaml/geometry_3d.cmi"/>
+   <file name="sw/lib/ocaml/gtk_3d.cmi"/>
+   <file name="sw/lib/ocaml/gtk_tools.cmi"/>
+   <file name="sw/lib/ocaml/srtm.cmi"/>
+   <file name="sw/lib/ocaml/ocaml_tools.cmi"/>
+   <file name="sw/lib/ocaml/mapCanvas.cmi"/>
+   <file name="sw/lib/ocaml/mapTrack.cmi"/>
+   <file name="sw/lib/ocaml/mapWaypoints.cmi"/>
+   <file name="sw/lib/ocaml/lib-pprz.cma"/>
+   <file name="sw/lib/ocaml/liblib-pprz.a"/>
+   <file name="sw/lib/ocaml/dlllib-pprz.so"/>
+   <file name="sw/lib/ocaml/xlib-pprz.cma"/>
+   <file name="sw/lib/ocaml/libxlib-pprz.a"/>
+   <file name="sw/lib/ocaml/dllxlib-pprz.so"/>
 </section>
 
 <section name="sw_simulator" dest="share/paparazzi/sw/simulator" comment="ocaml objects and C hooks for airborne code simulation">
@@ -139,13 +187,11 @@
    <file name="sw/simulator/flightModel.ml"/>
    <file name="sw/simulator/flightModel.mli"/>
    <file name="sw/simulator/flightModelHeli.ml.sav"/>
-   <file name="sw/simulator/gen_downlink.ml"/>
    <file name="sw/simulator/gps.ml"/>
    <file name="sw/simulator/gui.ml"/>
    <file name="sw/simulator/hitl.ml"/>
    <file name="sw/simulator/hitl.mli"/>
-   <file name="sw/simulator/sim.ml"/>
-   <file name="sw/simulator/sim.mli"/>
+   <file name="sw/simulator/sim.cmi"/>
    <file name="sw/simulator/sim_ap.c"/>
    <file name="sw/simulator/sim_gps.c"/>
    <file name="sw/simulator/sim_ir.c"/>
@@ -153,11 +199,12 @@
    <file name="sw/simulator/simsitl.ml"/>
    <file name="sw/simulator/simsitl.pl"/>
    <file name="sw/simulator/sirf.ml"/>
-   <file name="sw/simulator/sitl.ml"/>
-   <file name="sw/simulator/sitl.mli"/>
+   <file name="sw/simulator/sitl.cma"/>
+   <file name="sw/simulator/sitl.cmi"/>
    <file name="sw/simulator/stdlib.ml"/>
    <file name="sw/simulator/timer.h"/>
    <file name="sw/simulator/types.ml"/>
+   <file name="sw/simulator/gen_downlink.ml"/>
 </section>
 
 <section name="sw_include" dest="share/paparazzi/sw/include" comment="common headers for airborne code">
@@ -224,11 +271,11 @@
 </section>
 
 <section name="var_Thon1_sim" dest="share/paparazzi/var/Thon1/sim">
-   <file name="var/Thon1/sim/simsitl.out"/>
+   <file name="var/Thon1/sim/simsitl"/>
 </section>
 
 <section name="var_Thon2_sim" dest="share/paparazzi/var/Thon2/sim">
-   <file name="var/Thon2/sim/simsitl.out"/>
+   <file name="var/Thon2/sim/simsitl"/>
 </section>
 
 </install>

@@ -100,6 +100,9 @@ let parse_class = fun c ->
   
 
 let _ =
+  if Array.length Sys.argv <> 2 then begin
+    failwith (sprintf "Usage: %s <.xml ubx protocol file>" Sys.argv.(0)) 
+  end;
   let xml_file = Sys.argv.(1) in
   try
     let xml = Xml.parse_file xml_file in

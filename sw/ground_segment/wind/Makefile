@@ -22,7 +22,7 @@
 
 include ../../../conf/Makefile.local
 
-all: wind.opt
+all: wind
 
 INCLUDES= -I ../../lib/ocaml -I +lablgtk2
 
@@ -33,9 +33,12 @@ OCAMLDEP= ocamldep $(INCLUDES)
 
 
 
-wind.opt : wind.cmx
-	$(OCAMLOPT) -o $@ xml-light.cmxa glibivy-ocaml.cmxa lablgtk.cmxa str.cmxa lib.cmxa $<
-	strip $@
+wind : wind.ml
+	$(OCAMLC) -o $@ xml-light.cma glibivy-ocaml.cma lablgtk.cma str.cma lib-pprz.cma $< # To check
+	cat ../../../pprz_src_test.sh > $@
+	echo 'ocaml -I +lablgtk2 -I $$PAPARAZZI_SRC/sw/lib/ocaml xml-light.cma glibivy-ocaml.cma lablgtk.cma str.cma lib-pprz.cma $$PAPARAZZI_SRC/sw/ground_segment/wind/$< $$*' >> $@
+	chmod a+x $@
+
 
 .SUFFIXES:
 .SUFFIXES: .ml .mli .mly .mll .cmi .cmo .cmx .out .opt .p.cmx .popt

@@ -34,8 +34,8 @@ build-stamp: configure-stamp
 	dh_testdir
 
 	# Add here commands to compile the package.
-	# $(MAKE)
-	#docbook-to-man debian/paparazzi.sgml > paparazzi.1
+	$(MAKE)
+	#docbook-to-man debian/ivy-ocaml.sgml > ivy-ocaml.1
 
 	touch build-stamp
 
@@ -45,7 +45,7 @@ clean:
 	rm -f build-stamp configure-stamp
 
 	# Add here commands to clean up after the build process.
-	# -$(MAKE) clean
+	-$(MAKE) clean
 
 	dh_clean 
 
@@ -55,8 +55,8 @@ install: build
 	dh_clean -k 
 	dh_installdirs
 
-	# Add here commands to install the package into debian/paparazzi.
-	# $(MAKE) install DESTDIR=$(CURDIR)/debian/paparazzi
+	# Add here commands to install the package into debian/ivy-ocaml.
+	$(MAKE) install DESTDIR=$(CURDIR)/debian/paparazzi
 
 
 # Build architecture-independent files here.

@@ -53,7 +53,8 @@ type type_descr = {
 
 
 let (//) = Filename.concat
-let messages_xml = Xml.parse_file (Env.paparazzi_src // "conf" // "messages.xml")
+let lazy_messages_xml = lazy (Xml.parse_file (Env.paparazzi_src // "conf" // "messages.xml"))
+let messages_xml = fun () -> Lazy.force lazy_messages_xml
 
 external float_of_bytes : string -> int -> float = "c_float_of_indexed_bytes"
 external int32_of_bytes : string -> int -> int32 = "c_int32_of_indexed_bytes"
@@ -85,8 +86,9 @@ let field_of_xml = fun xml ->
 
 (** Table of msg classes indexed by name. Each class is a table of messages
 indexed by ids *)
-let classes = Hashtbl.create 13
-let _ =
+let lazy_classes =
+  lazy
+  (let h = Hashtbl.create 13 in
   List.iter
     (fun xml_class ->
       let by_id = Hashtbl.create 13
@@ -105,9 +107,12 @@ let _ =
 	  with _ ->
 	    fprintf stderr "Warning: Ignoring '%s'\n" (Xml.to_string xml_msg))
 	(Xml.children xml_class);
-      Hashtbl.add classes (ExtXml.attrib xml_class "name") (by_id, by_name)
+      Hashtbl.add h (ExtXml.attrib xml_class "name") (by_id, by_name)
     )
-    (Xml.children messages_xml)
+    (Xml.children (messages_xml ()));
+  h)
+
+let classes = fun () -> Lazy.force lazy_classes
 	
 let magic = fun x -> (Obj.magic x:('a,'b,'c) Pervasives.format)
 
@@ -129,7 +134,7 @@ module Protocol(Class:CLASS) = struct
   let index_start = fun buf ->
     String.index buf stx
 
-  let messages_by_id, messages_by_name = Hashtbl.find classes Class.name
+  let messages_by_id, messages_by_name = Hashtbl.find (classes ()) Class.name
   let message_of_id = fun id -> Hashtbl.find messages_by_id (id (*** +1 ***))
   let message_of_name = fun name -> Hashtbl.find messages_by_name name
 

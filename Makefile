@@ -114,13 +114,13 @@ clean_ac :
 	rm -fr $(PAPARAZZI_HOME)/var/$(AIRCRAFT)
 
 run_sitl :
-	$(PAPARAZZI_HOME)/var/$(AIRCRAFT)/sim/simsitl.out
+	$(PAPARAZZI_HOME)/var/$(AIRCRAFT)/sim/simsitl
 
-install : all
-	./Makefile.pl -install -destdir $(DESTDIR)
+install :
+	./Makefile.pl -install -destdir $(DESTDIR)/usr
 
 uninstall :
-	./Makefile.pl -uninstall -destdir $(DESTDIR)
+	./Makefile.pl -uninstall -destdir $(DESTDIR)/usr
 
 deb :
 	chmod u+x debian/rules

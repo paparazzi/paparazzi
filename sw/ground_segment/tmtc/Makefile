@@ -22,36 +22,31 @@
 
 include ../../../conf/Makefile.local
 
-all: messages.cmo modem.cmo receive.cmo receive.opt messages.opt
+all: receive messages
 
 clean:
-	rm -f receive *.bak *~ core *.o .depend *.opt *.out *.cm*
+	rm -f receive messages *.bak *~ core *.o .depend *.opt *.out *.cm*
 
 OCAMLC = ocamlc
 OCAMLOPT = ocamlopt
 INCLUDES= -I ../../lib/ocaml -I +lablgtk2
 
-messages.opt : messages.ml
-	$(OCAMLOPT) $(INCLUDES) -o $@ unix.cmxa xml-light.cmxa glibivy-ocaml.cmxa -I +lablgtk2 lablgtk.cmxa gtkInit.cmx str.cmxa lib.cmxa $^
-	strip $@
+messages: messages.ml
+	$(OCAMLC) $(INCLUDES) -o /dev/null unix.cma xml-light.cma glibivy-ocaml.cma -I +lablgtk2 lablgtk.cma gtkInit.cmo str.cma lib-pprz.cma $^ # To check
+	cat ../../../pprz_src_test.sh > $@
+	echo 'lablgtk2 str.cma ivy-ocaml.cma -I $$PAPARAZZI_SRC/sw/lib/ocaml lib-pprz.cma $$PAPARAZZI_SRC/sw/ground_segment/tmtc/$< $$*' >> $@
+	chmod a+x $@
 
-messages.run:
-	lablgtk2 str.cma -I ../../lib/ocaml ivy-ocaml.cma lib.cma messages.cmo
 
-receive.opt : modem.ml receive.ml
-	$(OCAMLOPT) $(INCLUDES) -o $@ str.cmxa unix.cmxa xml-light.cmxa glibivy-ocaml.cmxa -I +lablgtk2 lablgtk.cmxa lib.cmxa $^
-	strip $@
+receive : modem.cmo receive.ml
+	$(OCAMLC) $(INCLUDES) -o $@ str.cma unix.cma xml-light.cma glibivy-ocaml.cma -I +lablgtk2 lablgtk.cma lib-pprz.cma $^ #To check
+	cat ../../../pprz_src_test.sh > $@
+	echo 'lablgtk2 str.cma glibivy-ocaml.cma -I $$PAPARAZZI_SRC/sw/lib/ocaml lib-pprz.cma -I $$PAPARAZZI_SRC/sw/ground_segment/tmtc $$PAPARAZZI_SRC/sw/ground_segment/tmtc/modem.cmo $$PAPARAZZI_SRC/sw/ground_segment/tmtc/receive.ml $$*' >> $@
+	chmod a+x $@
 
 listen.opt : listen.ml
 	$(OCAMLOPT) $(INCLUDES) -o $@ str.cmxa unix.cmxa xml-light.cmxa glibivy-ocaml.cmxa -I +lablgtk2 lablgtk.cmxa lib.cmxa $^
 	strip $@
-
-receive.out : modem.ml receive.ml
-	$(OCAMLC) -g $(INCLUDES) -o $@ str.cma unix.cma xml-light.cma glibivy-ocaml.cma -I +lablgtk2 lablgtk.cma lib.cma $^
-
-
-receive.run:
-	lablgtk2 str.cma -I ../../lib/ocaml ivy-ocaml.cma lib.cma modem.cmo receive.ml
 
 
 %.cmo : %.ml

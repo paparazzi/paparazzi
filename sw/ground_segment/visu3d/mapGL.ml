@@ -395,7 +395,7 @@ let build_interface = fun map_file mission_file ->
   let (window, vbox, factory, accel_group, menus, menu_help) =
     Gtk_tools.create_window_with_menubar_help ("Visu Drone v"^version)
       width height liste_menus in
-  window#connect#destroy ~callback:GMain.Main.quit;
+  ignore (window#connect#destroy ~callback:GMain.Main.quit);
 
   (* Creation du Widget OpenGL *)
   let view3d = new widget_3d vbox#add false "" in
@@ -407,27 +407,27 @@ let build_interface = fun map_file mission_file ->
   (* Creation des menus : Sol *)
   let factory = new GMenu.factory menus.(!nb_menus) ~accel_group in
   incr nb_menus ;
-  factory#add_item "Load Background"
-    ~callback:(on_load_surface window view3d id_sol) ;
+  ignore (factory#add_item "Load Background"
+    ~callback:(on_load_surface window view3d id_sol)) ;
 
   (* Creation des menus : Trajectoires *)
   let factory = new GMenu.factory menus.(!nb_menus) ~accel_group in
   incr nb_menus ;
-  factory#add_item "Load Track" ~callback:(load_trajectory view3d lst_ids_trajs) ;
-  factory#add_item "Edit Tracks"
-    ~callback:(build_lst_traj tooltips view3d lst_ids_trajs) ;
+  ignore (factory#add_item "Load Track" ~callback:(load_trajectory view3d lst_ids_trajs)) ;
+  ignore (factory#add_item "Edit Tracks"
+    ~callback:(build_lst_traj tooltips view3d lst_ids_trajs)) ;
 
   (* Creation des menus : Parametres *)
   let factory = new GMenu.factory menus.(!nb_menus) ~accel_group in
   incr nb_menus ;
-  factory#add_item "Edit" ~callback:(fun () -> ()) ;
+  ignore (factory#add_item "Edit" ~callback:(fun () -> ())) ;
 
   (* Aide *)
   let factory = new GMenu.factory menu_help in
-  factory#add_item "A propos" ~callback:build_fen_about ;
-  factory#add_item "Help keys/mouse"
+  ignore (factory#add_item "A propos" ~callback:build_fen_about) ;
+  ignore (factory#add_item "Help keys/mouse"
     ~callback:(fun () -> Gtk_tools.display_file filename_help_keys
-	"Aide touches clavier" 370 500 tooltips (Some "fixed")) ;
+	"Aide touches clavier" 370 500 tooltips (Some "fixed"))) ;
 
   (* Affichage de la fenetre principale *)
   window#show () ;

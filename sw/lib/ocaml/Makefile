@@ -21,7 +21,7 @@
 #
 
 INCLUDES= -I +lablgl -I +camlimages -I +lablgtk2
-OCAMLC=ocamlc -g $(INCLUDES)
+OCAMLC=ocamlc $(INCLUDES)
 OCAMLOPT=ocamlopt $(INCLUDES)
 
 
@@ -34,22 +34,23 @@ XCMO = $(XSRC:.ml=.cmo)
 XCMX = $(XSRC:.ml=.cmx)
 
 
-all : lib.cma lib.cmxa xlib.cma xlib.cmxa xml_get.out
+all : lib-pprz.cma xlib-pprz.cma xml_get.out
+# lib-pprz.cmxa xlib-pprz.cmxa
 
 
-lib.cma : $(CMO)
-	ocamlmklib -custom -o lib str.cma xml-light.cma unix.cma $^
+lib-pprz.cma : $(CMO)
+	ocamlmklib -o lib-pprz str.cma xml-light.cma unix.cma $^
 
-lib.cmxa : $(CMX)
-	ocamlmklib -custom -o lib $^
+lib-pprz.cmxa : $(CMX)
+	ocamlmklib -o lib-pprz $^
 
-xlib.cma : $(XCMO)
-	ocamlmklib -custom -o xlib $^
+xlib-pprz.cma : $(XCMO)
+	ocamlmklib -o xlib-pprz $^
 
-xlib.cmxa : $(XCMX)
-	ocamlmklib -custom -o xlib $^
+xlib-pprz.cmxa : $(XCMX)
+	ocamlmklib -o xlib-pprz $^
 
-xml_get.out : lib.cma xml_get.cmo
+xml_get.out : lib-pprz.cma xml_get.cmo
 	$(OCAMLC) -o $@ str.cma xml-light.cma -I . $^
 
 ignutm.opt : latlong.cmx ignutm.ml

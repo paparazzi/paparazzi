@@ -358,12 +358,14 @@ let check_distance = fun (hx, hy) max_d wp ->
 
 
 let _ =
-  let xml_file = ref "fligh_plan.xml"
+  let xml_file = ref ""
   and dump = ref false in
   Arg.parse [("-dump", Arg.Set dump, "Dump compile result");
 	     ("-nocheck", Arg.Clear check_expressions, "Disable expression checking")]
     (fun f -> xml_file := f)
     "Usage:";
+  if !xml_file = "" then
+    failwith (sprintf "Usage: %s <xml-flight-plan-file>" Sys.argv.(0));
   try
     let xml = Xml.parse_file !xml_file in
     let dir = Filename.dirname !xml_file in
