@@ -1,0 +1,114 @@
+(*
+ * $Id$
+ *
+ * Serial Port handling
+ *  
+ * Copyright (C) 2004 CENA/ENAC, Pascal Brisset
+ *
+ * This file is part of paparazzi.
+ *
+ * paparazzi is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * paparazzi is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with paparazzi; see the file COPYING.  If not, write to
+ * the Free Software Foundation, 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA. 
+ *
+ *)
+
+open Printf
+
+type speed = 
+    B0
+  | B50
+  | B75
+  | B110
+  | B134
+  | B150
+  | B200
+  | B300
+  | B600
+  | B1200
+  | B1800
+  | B2400
+  | B4800
+  | B9600
+  | B19200
+  | B38400
+  | B57600
+  | B115200
+  | B230400
+
+
+external init_serial : string -> speed -> Unix.file_descr = "c_init_serial";;
+
+let opendev device speed =
+  try
+    init_serial device speed
+  with
+    Failure x ->
+      failwith (Printf.sprintf "%s (%s)" x device)
+
+let close = Unix.close
+
+
+let buffer_len = 256
+let input = fun f ->
+  let buffer = String.create buffer_len
+  and index = ref 0 in
+
+  let wait = fun start n ->
+    String.blit buffer start buffer 0 n;
+    index := n in
+
+  fun fd ->
+    let n = !index + Unix.read fd buffer !index (buffer_len - !index) in
+    Debug.call 'T' (fun f -> fprintf f "input: %d %d\n" !index n);
+    let rec parse = fun start n -> 
+      Debug.call 'T' (fun f -> fprintf f "input parse: %d %d\n" start n);
+      let nb_used = f (String.sub buffer start n) in
+(* 	Printf.fprintf stderr "n'=%d\n" nb_used; flush stderr; *)
+      if nb_used > 0 then
+	parse (start + nb_used) (n - nb_used)
+      else
+	wait start n in
+    parse 0 n
+
+
+exception Not_enough
+
+module type PROTOCOL = sig
+  val index_start : string -> int (* raise Not_found *)
+  val length : string -> int -> int (* raise Not_enough *)
+  val checksum : string -> bool
+end
+
+module Transport(Protocol:PROTOCOL) = struct
+  let rec parse = fun use buf ->
+    let start = ref 0
+    and n = String.length buf in
+    try
+      start := Protocol.index_start buf;
+      let length = Protocol.length buf !start in
+      let end_ = !start + length in
+      if n < end_ then
+	raise Not_enough;
+      let msg = String.sub buf !start length in
+      if Protocol.checksum msg then begin
+	use msg
+      end else
+	Debug.call 'T' (fun f -> fprintf f "Transport.chk: %s\n" (Debug.xprint msg))
+	;
+      end_ + parse use (String.sub buf end_ (String.length buf - end_))
+    with
+      Not_found -> String.length buf
+    | Not_enough -> !start
+end

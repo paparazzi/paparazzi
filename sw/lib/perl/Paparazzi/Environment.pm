@@ -1,0 +1,69 @@
+package Paparazzi::Environment;
+
+use File::NCopy;
+use Getopt::Long;
+
+use constant INST_PREFIX => "/usr";
+
+my $paparazzi_src = undef;
+my $paparazzi_home = $ENV{HOME}."/paparazzi";
+
+if (defined $ENV{PAPARAZZI_SRC}) {
+  $paparazzi_src = $ENV{PAPARAZZI_SRC};
+  $paparazzi_home =  $ENV{PAPARAZZI_SRC};
+}
+$paparazzi_home = $ENV{PAPARAZZI_HOME} if (defined $ENV{PAPARAZZI_HOME});
+print "\nEnvironment : ";
+if (defined $paparazzi_src) {
+  print "source directory mode\n  paparazzi_src  $paparazzi_src\n";
+}
+else {
+  print "system mode\n  inst_prefix     INST_PREFIX";
+}
+print "  paparazzi_home $paparazzi_home\n\n";
+
+sub parse_command_line {
+  my ($options) = @_;
+  my $getopt_h = {"b=s" => \$options->{ivy_bus}};
+  foreach my $option (keys %{$options}) {
+    $getopt_h->{$option."=s"} = \$options->{$option};
+  }
+  return GetOptions (%{$getopt_h});
+}
+
+sub check_paparazzi_home {
+  unless (defined $paparazzi_src) {
+    unless (-e $paparazzi_home) {
+      print "\nDirectory $paparazzi_home doesn't exist\n";
+      print "This directory is needed to store user configuration and data\n";
+      print "Shall I create it and populate it with examples? (Y/n)\n";
+      my $ans = <STDIN>;
+      chop($ans);
+      if ($ans eq "" || $ans eq "Y" || $ans eq "y") {
+	print "Creating directory $paparazzi_home\n";
+	mkdir($paparazzi_home, 0755);
+	print "Copying default config and examples\n";
+	my $copier = File::NCopy->new(recursive => 1);
+	foreach my $dir ("conf", "var", "data") {
+	  $copier->copy(INST_PREFIX."/share/paparazzi/".$dir, $paparazzi_home);
+	}
+      	print "done.\n\n";
+      }
+      else {
+	print "exiting...\n";
+	exit(1);
+      }
+    }
+  }
+}
+
+sub paparazzi_src {
+  return $paparazzi_src;
+}
+
+sub paparazzi_home {
+  return $paparazzi_home;
+}
+
+
+1;

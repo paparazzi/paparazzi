@@ -1,0 +1,82 @@
+<!-- Paparazzi procedure DTD -->
+
+<!ELEMENT procedure (param*,waypoints,blocks)>
+
+<!ELEMENT param EMPTY>
+
+<!ELEMENT waypoints (waypoint+)>
+<!ELEMENT waypoint EMPTY>
+
+<!ELEMENT blocks (block+)>
+<!ELEMENT block (exception|while|heading|go|xyz|circle|deroute|stay)*>
+
+<!ELEMENT while (while|heading|go|xyz|circle|deroute|stay)*>
+<!ELEMENT exception EMPTY>
+<!ELEMENT heading EMPTY>
+<!ELEMENT go EMPTY>
+<!ELEMENT xyz EMPTY>
+<!ELEMENT circle EMPTY>
+<!ELEMENT deroute EMPTY>
+<!ELEMENT stay EMPTY>
+
+<!ATTLIST waypoint
+name CDATA #REQUIRED
+x CDATA #REQUIRED
+y CDATA #REQUIRED
+lat CDATA #IMPLIED
+lon CDATA #IMPLIED
+alt CDATA #IMPLIED>
+
+<!ATTLIST block name CDATA #REQUIRED>
+
+<!ATTLIST while cond CDATA #IMPLIED>
+
+<!ATTLIST exception
+cond CDATA #REQUIRED
+deroute CDATA #REQUIRED>
+
+<!ATTLIST heading
+course CDATA #REQUIRED
+vmode CDATA #IMPLIED
+gaz CDATA #IMPLIED
+climb CDATA #IMPLIED
+pitch CDATA #IMPLIED
+until CDATA #IMPLIED>
+
+<!ATTLIST go 
+wp CDATA #REQUIRED
+wp_qdr CDATA #IMPLIED
+wp_dist CDATA #IMPLIED
+from CDATA #IMPLIED
+from_qdr CDATA #IMPLIED
+from_dist CDATA #IMPLIED
+hmode CDATA #IMPLIED
+vmode CDATA #IMPLIED
+alt CDATA #IMPLIED
+until CDATA #IMPLIED
+gaz CDATA #IMPLIED>
+
+<!ATTLIST xyz
+radius CDATA #IMPLIED>
+
+<!ATTLIST circle
+wp CDATA #REQUIRED
+radius CDATA #REQUIRED
+alt CDATA #IMPLIED
+vmode CDATA #IMPLIED
+climb CDATA #IMPLIED
+until CDATA #IMPLIED>
+
+<!ATTLIST stay
+wp CDATA #REQUIRED
+vmode CDATA #IMPLIED
+gaz CDATA #IMPLIED>
+
+<!ATTLIST deroute
+block CDATA #REQUIRED>
+
+<!ATTLIST param
+name CDATA #REQUIRED
+default_value CDATA #IMPLIED>
+
+

@@ -1,0 +1,5 @@
+<map file="muret_UTM.gif" projection="UTM" scale="2.5">
+  <point x="0" y="800" utm_x="359000" utm_y="4813000"/>
+  <point x="0" y="0" utm_x="359000" utm_y="4815000"/>
+  <point x="800" y="800" utm_x="361000" utm_y="4813000"/>
+</map>

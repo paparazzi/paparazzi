@@ -1,0 +1,68 @@
+<!-- $Id$ -->
+<!-- ublox UBX Binary Protocol description -->
+
+<!DOCTYPE ubx SYSTEM "ubx.dtd">
+
+<ubx>
+  <class name="NAV" ID="0x01">
+    <message name="POSLLH" ID="0x02" length="28">
+      <field name="ITOW" format="U4" unit="ms"/>
+      <field name="LON" format="I4" scaling="1e-7" unit="deg"/>
+      <field name="LAT" format="I4" scaling="1e-7" unit="deg"/>
+      <field name="HEIGHT" format="I4" unit="mm"/>
+      <field name="HMSL" format="I4" unit="mm"/>
+      <field name="Hacc" format="U4" unit="mm"/>
+      <field name="Vacc" format="U4" unit="mm"/>
+    </message>
+
+    <message name="POSUTM" ID="0x08" length="18">
+      <field name="ITOW" format="U4" unit="ms"/>
+      <field name="EAST" format="I4" unit="cm"/>
+      <field name="NORTH" format="I4" unit="cm"/>
+      <field name="ALT" format="I4" unit="cm"/>
+      <field name="ZONE" format="I1"/>
+      <field name="HEM" format="I1"/>
+    </message>
+
+    <message name="STATUS" ID="0x03" length="16">
+      <field name="ITOW" format="U4" unit="ms"/>
+      <field name="GPSfix" format="U1"/>
+      <field name="Flags" format="U1"/>
+      <field name="DiffS" format="U1"/>
+      <field name="res" format="U1"/>
+      <field name="TTFF" format="U4"/>
+      <field name="MSSS" format="U4"/>
+    </message>
+
+    <message name="VELNED" ID="0x12" length="36">
+      <field name="ITOW" format="U4" unit="ms"/>
+      <field name="VEL_N" format="I4" unit="cm/s"/>
+      <field name="VEL_E" format="I4" unit="cm/s"/>
+      <field name="VEL_D" format="I4" unit="cm/s"/>
+      <field name="Speed" format="U4" unit="cm/s"/>
+      <field name="GSpeed" format="U4" unit="cm/s"/>
+      <field name="Heading" format="I4" scaling="1e-5" unit="deg"/>
+      <field name="SAcc" format="U4" unit="cm/s"/>
+      <field name="CAcc" format="U4" unit="deg"/>
+    </message>
+
+    <message name="SVINFO" ID="0x30">
+      <field name="ITOW" format="U4" unit="ms"/>
+      <field name="NCH" format="U1"/>
+      <field name="RES1" format="U1"/>
+      <field name="RES2" format="U1"/>
+      <block times="NCH" length="12">
+        <field name="chn" format="U1"/>
+        <field name="SVID" format="U1"/>
+        <field name="Flags" format="U1"/>
+        <field name="QI" format="I1"/>
+        <field name="CNO" format="U1" unit="dbHz"/>
+        <field name="Elev" format="I1" unit="deg"/>
+        <field name="Azim" format="I2" unit="deg"/>
+        <field name="PRRes" format="I4" unit="cm"/>
+      </block>
+  </message>
+ </class>
+
+</ubx>
+

@@ -1,0 +1,20 @@
+
+
+add waypoint icons
+add aircraft icon
+
+add camera trace on ground
+
+manage aircraft track length (limit to n minutes)
+
+map video frame (photos) on ground surface
+transform photos (translate, rotate, zoom)
+save photos position and visibility for future reload.
+manage photos (like layers in a cad program )
+
+add fact_alti adjust
+
+support several aircrafts, maybe with an identification label (3D radar track ? )
+select aircraft, waypoints (would it be possible??)
+
+support viewpoint selection using function keys - viewpoints are defined in the flight plan ?

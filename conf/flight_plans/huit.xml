@@ -1,0 +1,44 @@
+<flight_plan name="8 - ricou"
+  lat0="43.237535" lon0="1.327747"
+  ref_pos="ricou"
+  qfu="225" ground_alt="390" security_height="25" alt = "490">
+
+<rc_control>
+  <mode name="AUTO1">
+    <setting var="ir_pitch_neutral"   rc="gain_1_up"   type="int16" range="60."/> 
+    <setting var="pitch_pgain"        rc="gain_1_down" type="float" range = "-1000."/>
+    <setting var="ir_roll_neutral"  rc="gain_2_up"   type="int16" range="-60."/>
+    <setting var="roll_pgain"       rc="gain_2_down" type="float" range="-1000."/> 
+  </mode>
+  <mode name="AUTO2">
+    <setting var="course_pgain"  rc="gain_1_up"   type="float" range="0.1"/> 
+    <setting var="max_roll"      rc="gain_1_down" type="float" range = ".2"/>
+    <setting var="pitch_of_roll" rc="gain_2_up"   type="float" range="-0.2"/> 
+  </mode>
+</rc_control>
+
+<waypoints>
+  <waypoint name="HOME" x="-30" y="-100" alt="492"/>
+  <waypoint x="150" y="-100"/>
+  <waypoint x="150" y="-150"/>
+  <waypoint x="-150" y="-100"/>
+  <waypoint x="-150" y="-150"/>
+</waypoints>
+
+<blocks>
+  <block name="init">
+    <while cond="(estimator_flight_time)"></while>
+    <heading course="QFU" vmode="climb" climb="2.0" until="(estimator_z > SECURITY_ALT)"/>
+  </block>
+
+  <block name="balaye">
+    <while>
+      <go wp="1" hmode="route"  vmode="alt" alt="465"/>
+      <go wp="2" hmode="direct" vmode="alt" alt="465"/>
+      <go wp="3" hmode="route" vmode="alt" alt="465"/>
+      <go wp="4" hmode="direct" vmode="alt" alt="465"/>
+    </while>
+  </block>
+
+</blocks>
+</flight_plan>

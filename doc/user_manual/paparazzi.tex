@@ -1,0 +1,472 @@
+%
+%
+%
+%   $Id$
+%   Copyright (C) 2003 Pascal Brisset, Antoine Drouin
+%
+% This file is part of paparazzi.
+%
+% paparazzi is free software; you can redistribute it and/or modify
+% it under the terms of the GNU General Public License as published by
+% the Free Software Foundation; either version 2, or (at your option)
+% any later version.
+%
+% paparazzi is distributed in the hope that it will be useful,
+% but WITHOUT ANY WARRANTY; without even the implied warranty of
+% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+% GNU General Public License for more details.
+%
+% You should have received a copy of the GNU General Public License
+% along with paparazzi; see the file COPYING.  If not, write to
+% the Free Software Foundation, 59 Temple Place - Suite 330,
+% Boston, MA 02111-1307, USA.  
+% 
+
+%
+%
+% This may become the paparazzi user manual.
+%
+%
+
+
+\documentclass{article}
+
+\usepackage{a4wide}
+\usepackage{graphicx}
+\usepackage{makeidx}
+\usepackage[pagebackref=true,hyperindex=true]{hyperref}
+
+\title{Paparazzi User's Manual}
+\author{Pascal Brisset and Antoine Drouin}
+\date{\today}
+
+\makeindex
+
+\begin{document}
+
+\maketitle
+
+
+
+\begin{abstract}
+The system described in this document is an autopilot for model aircrafts.
+It consist of custom airborne hardware, a laptop as ground station and a 
+retail radio control transmitter for uplink (manual/assisted control, reconfiguration, etc..).
+The sensor used are a GPS receiver and infrared thermopiles (melexys mlx90247) 
+for horizon sensing. This system is able to fly autonomously a small electro 
+powered aircraft. It transmits live video and telemetry data. 
+The ground station permits decoding, logging, replay and analysis of these data. 
+It also permits airborne code configuration, generation, simulation and flashing 
+on target MCU.
+
+\end{abstract}
+
+\section{Description}
+
+\subsection{Architecture : two 8 bits MCUs}
+
+  goals: 
+     - maximum availability (modes degrades, manual control)
+     - ease of development
+  
+    logical tasks of increasing conplexity and decreasing importance in separate devices.
+
+  \subsubsection{fly by wire} 
+   (avr mega8) responsible for radio control decoding, mixings, servos (c.f. figure ref{fbw}).
+
+  short code, well tested, features similar to a programmable radio control transmitter
+
+  allows manual control and programmed failsafe (radio link loss).
+
+
+  health monitoring (battery voltage, drawn current etc...)
+
+\
+ \subsubsection{autopilot}
+ (avr mega128) measures + control loops + telemetry + navigation
+
+  The model can be safely flown in manual mode with only the fly by wire MCU.
+
+  We want to keep and improve this simple system for cheap/small aircrafts.
+
+  We also want to expend it with a third 32 bit processor (like arm or xscale) 
+  to get network communications and processing power (FMS like).
+
+\subsection{Technology : cheap and widely available parts}
+  4800bps FSK Telemetry signal. Can be fed in most transmitter.
+  We use the audio channel of a 50 mW 2.4GHz video transmitter.
+  The video Channel is used for real time video. We reach 600m in line of sight.
+  The rx antenna is a small patch mounted on top of a helm (cheap self pointing antenna).
+  FIXME: ADD PIC
+
+  Modified retail RC receiver : solder a wire after the HF section.
+
+  controller board, sensor, GPS : custom PCBs, all(most) parts smd. 
+  home pcbs and home soldering for protos
+
+  Free software for tool (GNU/Linux, gcc, gtk, ocaml....)
+  No Windows port known but should be faisible.
+
+\section{Ground station}
+  \subsection{hardware}
+    Gnu/linux laptop
+    
+    2.4GHz video receiver + CMX469 modem board  or rtty
+    ==FIXME== add pic
+    camcorder
+
+  \subsection{obtaining and installing} 
+
+  The source code is available from the Project page ( http://savannah.nongnu.org/projects/paparazzi/ )
+
+  Use the anonymous CVS server to get the up to date source code and documentation:
+
+{\em  export CVS\_RSH="ssh"}
+{\em  cvs -z3 -d:ext:anoncvs@savannah.nongnu.org:/cvsroot/paparazzi co paparazzi2}
+
+  You can also download a tarball from this website ( http://www.recherche.enac.fr/paparazzi/paparazzi.tar.gz ). 
+    Debian sarge users can get the required extra packages from there ( http://www.recherche.enac.fr/paparazzi ). 
+
+  ***********************************************************************
+  Set the PAPARAZZI\_HOME environment variable to the top directory
+  of the distribution (this variable is used by some of the components).
+  ***********************************************************************
+  {\em export PAPARAZZI\_HOME=/some/dir/paparazzi2 }
+Default configurations files (in conf/ directory) should allow to
+compile both embedded and ground software:
+\begin{itemize}
+ \item 1) HAVE A LOOK at conf/Makefile.local
+
+ \item  2) Create conf/conf.xml and the related files for your convenience
+("make configure" runs a graphics interface which may help; however
+this gui is in a very early alpha stage). Some examples are provided.
+
+  \item 3) "make" in top directory should compile everything
+
+\end{itemize}
+
+\subsection{The ivy software bus}
+
+
+
+\subsection{configuration interface}
+  This windowed program allows to graphicaly edit the configuration of a Paparazzi.
+  It also can also be used to program your controller board with various test and calibration
+  programs.
+  type {\em{make configure}} in the source top directory.
+
+  \subsection{telemetry interface : recording and display}	
+  \index{telemetry}
+	receive : retrieve telemetry data, store them on disk and broadcast them over a network
+        gui : display telemetry data. Can be feed live by the receive programm or by the replay programm
+
+	map calibration :
+	 uses 3 points. trivial projection but sufficient for short range.
+  \subsection{replay interface}
+
+  \subsection{hitl simulator}
+    Airborn programs runs on their target MCUs. 
+    Their inputs and outputs (GPS, infrared and servos) are bypassed to the laptop.
+    A dumb flight model allows debugging and non regression testing. Also useful for 
+    tunnig navigation
+ 
+\section{Airborne software}
+  \subsection{Fly by wire}
+
+
+
+    only supports PPM - subject to jamming - filtering - would be better with a PCM encoding
+
+\begin{figure}
+\includegraphics[width=15cm]{fly_by_wire}
+\caption{\label{fbw}Fly by wire data processing}
+\end{figure}
+
+
+ \subsection{Autopilot}
+
+   \subsubsection{Low level control loop}
+     20Hz . P controller for pitch and roll 
+     PI for throttle
+     
+     mostly unfiltered attitude data from infrared sensor + GPS climb rate for throttle
+
+
+   \subsubsection{Navigtion loop}
+     1Hz P controllers on heading to waypoint and altitude
+     GPS data
+
+
+   \subsubsection{Infrared calibration}
+      contrast
+      LLS
+      
+
+   \subsubsection{FMS}
+      modes (auto1 auto2)
+      waypoints circling
+      waypoint crossing
+      mode home
+      automatic take off
+
+\section{Assembling boards}
+PCBS : homebuild eurocircuits
+
+see part list
+
+solder one(a group of) component at a time. test with voltmeter or scope
+use provided programms. 
+
+mcu fuses - used to define type of clock - factory supplied with 1MHz internal oscillator -
+must switch to {\em{ceramic resonator}} for ``fly by wire''. He will be generating clock for autopilot.
+``autopilot'' will have to be programmed to ``external clok''. If you mess up, you can make a zombie 
+out of your MCU unless you can provide the awaited signal or crystal. You can read current fuses configuration by typing {\em{make read\_fuses}} in an avr source directory. The correct values are contained
+in the Makefile and can be programmed by typing {\em{make wr\_fuses}}. 
+The graphical configurator also allows these operations.
+
+
+mcu flashing - The method (and corresponding wiring) we use for flashing and fuses programming is 
+called serial (SPI) programming. It is possible to programm a resident bootloader who will take care
+of following programmations using serial RS232
+
+\subsection{power supply}
+
+\subsection{pc link}
+  This board is a level converter. It converts between the TTL 5V of the controller board and respectively, the 
+  3.3V of the parallel port and the 10V of the rs232 port.
+  The parallel port is used for SPI programming of MCUs. The rs232 port are used fo serial 
+  communications with MCUs, for example during simulations.
+  This board is meant to stay on ground.
+ 
+
+\subsection{controller board}
+  solder the fly by wire MCU (mega8), its crystal and the programmation socket
+  Connect to a current limited power supply and check current.
+
+  build a wire harness to the pc link board
+  plug the pc link in your parallel port
+  try connecting to MCU in serial programming mode (SPI) (button on gui)  
+    FIXME: if it fails
+  programm the fuses of the MCU (describe the crystal connected to the mcu) (button on gui)
+    check crystal oscillating with scope if available.
+
+  try programming the uart test
+  plug a straight serial cable in the serial1 connector of the pc link and the other end in one of your computer rs232 port. If your computer doesn't have any, use a usb to rsr232 converter. 
+ you should see a message comming from your board telling you the link is ok. Check the other direction, writing to the board.
+
+ solder servo driver and connector (maybe later...)
+   run the test programm (servo calibration)
+
+ find ppm signal and supply in receiver. solder wire (computer cdrom wire)
+ solder the other end to the controller board.
+  run the test programm (radio calibration)
+  
+
+ solder the autopilot MCU
+  try uart 1
+  
+  try spi (write a test with SPI and UART)
+
+  solder the modem
+   try modem (in line input - with rtty ?? )
+
+
+
+\subsection{ground modem}
+  same story with mega8 and crystal
+  check connection, write fuse, program serial test
+  solder modem
+  connect to airborne modem
+  watch telemetry
+
+\subsection{infrared sensor}
+  solder amp, resistor and capa and thermopiles.
+  connect to autopilot MCU ADCs 
+  watch telemetrie values;
+
+\section{Fitting system in the airframe}
+
+All the processing available on programmable radio transmitters (travel adj, mixing etc..) are here 
+done by the fly by wire MCU. This is cool because you don't need to change your transmitter programm 
+when you change aircraft, but it also enables the autopilot to use these features.
+
+\subsection{radio control transmitter calibration}
+tab in gui.
+use the default programm of your rc transmitter with travels set to 100\% and trim centered.
+programm the controller board (actually fly by wire MCU) with the test programm (button on gui).
+if everything goes well you will see values of the channels in the signal send by your transmitter.
+record min max neutral for each channel and setup control
+give it a name  
+generate a configuration file.
+
+
+\subsection{servos travel and mixer setup}
+
+Mount the board in the airframe and connect servos. programm the board with the servo setting programm (tab in gui)
+for each servo, define name of the control, travel neutral and direction. 
+Try to use maximal travel and long control arms.
+
+\subsection{infrared sensor}
+describe the way to mout it on the airframe and the needed configuration.
+
+
+\section{Simulation}
+Don't attempt to fly your aircraft until you've succesfully simulated with your configuration and learned how the system works. There are two type of simulation :
+
+\subsection{``Software in loop'' simulation}
+needs no hardware but the laptop. 
+It is great to learn while you are building the hardware.
+Thanx to our magnificient C compiler, we are able to compile the same code for the AVR mcu and for the i386 laptop.
+
+\subsection{``Hardware in the loop'' simulation}
+
+
+
+\section{Test Flight}
+
+\subsection{checklist}
+
+This checklist applies to our twinstar.
+
+Switch ground station on - connect modem - launch receive and gui - check modem messages + check ground batterie
+
+Switch rc transmitter on - check programm - all switches pushed - mode auto1 - throttle low
+
+Switch airplane on - check model name and rc transmitter name
+
+check "waiting calibration" on ground station - switch to mode manual
+
+Put airplane on nose - push roll stick - check contrast on ground station
+
+switch briefly to full throttle to trigger speed controllers
+
+Check command direction and travel
+
+Switch to auto1. Check corrections direction (if you put the plane nose down, the elevator should raise, if you bank to the right, the left aileron should raise).
+
+Check GPS status on ground station.
+
+Flight briefing - check mission on map
+
+check autopilot mode
+
+take off. For automatic take off (auto 2), full throttle will signal take off and trigger full throttle.
+
+
+\subsection{adjusting trim}
+
+
+This first flight is flown in manual mode. It is used to trim the airframe and get an estimation of infrared neutrals.
+It is very important that you trim your model perfectly. Choose a day without wind or turbulence. Fly long 
+straight lines trying not to touch your sticks.
+
+Watch your batterie voltage on the laptop (ask someone or use a vocal synthetiser).
+
+After the flight
+      offset servos to recenter your rc transmitter trims.
+      get an estimation of contrast\_gain (ir\_gain = contrast\_gain/contrast) comparing your contrast measure and lls
+      get an estimation of infrared neutrals (pitch and roll) (play the telemetry record during straight lines or maybe       write a tool).
+      get an estimation of throttle for level flight
+      watch the record for anomalies (describe)
+      plot parameters (like airspeed, climb rate, current consumption...). This is a great tool for tunning an airframe.
+
+
+
+\subsection{adjusting low level loop (attitude loop)}
+In this flight you will adjust the infrared neutrals and low level loop gains.
+The number of parameter that you are able to tune in a single flight depends on how many switches and sliders are available on your rc transmitter. With the Multiplex MC3030 (9 channels) we have two spare sliders and one three positions 
+switch. It allows us to tune 4 parameters at a time.  
+
+Update you airframe description. Use the values from the previous flight for infrared neutral and contrast\_gain. Use low values for the low level loop P gains. Reflash your airplane.
+
+For this flight we will programm an autopilot mode in auto1 which will hold the plane in an attitude described by the 
+roll and pitch sticks. If you leave your sticks centered, the plane will fly level. If you push your roll stick, the plane will bank to a given value (full travel -> 30°) and stay in this attitude.
+
+
+Take off in manual mode. Gain altitude .
+Check that the plane is flying level and that your tranmistter trims are centered.
+If this is not the case, redo the programm of the previous flight.
+
+Engage auto1 mode. Be ready to switch back to manual if the plane doesn't react like you expect.
+Switch to neutral calibration and fine tune values so that the plane flies level. 
+This stage is very important for the navigation to work.
+Raise the values of the low level loop P gains until the plane reacts quickly to an attitude change but 
+without oscillating. 
+
+Now your plane should be capable of holding attitude. This is a very strange feeling for the pilote.
+
+
+After the flight: 
+      plot params
+      fine tune your contrast gain with LLS measure
+      update low level P gains and infrared neutrals in model description.
+
+
+\subsection{adjusting autopilot gains}
+
+In this flight, we will programm a navigation mode in the auto2 bank which will navigate the airplane around waypoints.
+
+describe a mission: home and waypoints 
+ You can click on a map (needs calibration) or walk with the plane GPS to find the position of your points.
+ 
+ For our twinstar, the typical missions are two waypoints distant from 300m and at 80m above ground level.
+
+ Flash your airplane. If you have a map, check that the mission that the airplane transmits on boot shows up on the map at the right place.
+
+ After the checklist, check that the position transmitted is near your home (relative position - NAV message) and that the coordinates go in the right direction (X->NORTH Y->EAST FIXME:check!!)
+
+Take of in manual mode - check plane level and rc trim centered
+Switch to auto1 - check plane level
+Switch to auto2 - adjust nav P gain and max bank angle for smooth nav
+
+
+
+Make more flights taking off in manual - 
+When your are confident you can take off in auto1 or auto2. Specify desired climb rate and security altitude
+
+
+
+\section{Part list and supplyers}
+
+\subsection{power supply}
+
+\subsection{controller board}
+
+
+\subsection{infrared sensor}
+\begin{tabular}{| l | l | l | l |}
+\hline
+4 & thermopiles MLX90247ESF-B & www.digikey.com (PN: MLX90247ESF-B-ND) & 16,5 euros each, 12.5 euros >= 10 \\
+\hline
+1 & op amp AD8552 TSSOP case & le fabriquant envoie des échantillons - formulaire sur leur site.&  \\
+\hline
+1 & MOLEX 6 contacts connector 1.25mm pitch & radiospares (PN: 53047-0610) & by 10 - 2,34 euros \\
+\hline
+\end{tabular}
+
+
+résistances et condensateurs CMS
+
+
+
+
+
+\section{glossaire}
+\begin{description}
+  \item[ADC] Analog to Digital Converter: A chip or MCU peripheral that converts an analog voltage to its binary representation.
+
+  \item[CPU] Control Processor Unit:
+
+
+  \item[MCU] Micro Controller Unit: A chip containing a CPU and varous peripherals like memory, io ports, timer, ADCs etc..
+                             The paparazzi controller board uses two of these chip.  
+
+
+\item[LLS] Linear Least Square: 
+
+\end{description}
+
+\printindex
+
+
+\end{document}

@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+
+<section name="hosts">
+ <host addr="00 01 18 04 c0 00 4f" name="ground_station">
+ <host addr="00 01 18 04 c0 00 51" name="Morue1">
+ <host addr="00 01 18 04 c0 00 52" name="Morue2">
+ <host addr="00 01 18 04 c0 00 53" name="Thon1">
+ <host addr="00 01 18 04 c0 00 54" name="Thon2">
+</section>

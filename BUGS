@@ -1,0 +1,15 @@
+paparazzi.pl
+CpGui et CpSeesionManager n'ont pas les meme variables !!!
+
+
+
+
+receive
+ne cree pas son repertoire de log et meurt
+
+
+
+
+
+visu3D
+ne trouve pas son fichier d'aide. a mettre dans conf ??

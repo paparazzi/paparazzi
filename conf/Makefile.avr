@@ -1,0 +1,140 @@
+# 
+#   $Id$
+#   Copyright (C) 2003 Pascal Brisset, Antoine Drouin
+#
+# This file is part of paparazzi.
+#
+# paparazzi is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# paparazzi is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with paparazzi; see the file COPYING.  If not, write to
+# the Free Software Foundation, 59 Temple Place - Suite 330,
+# Boston, MA 02111-1307, USA.  
+# 
+
+
+#
+# This is the common Makefile for the avr-target.
+# Edit the configuration part to suit your local install
+#
+
+OBJDIR = $(PAPARAZZI_HOME)/var/$(AIRCRAFT)/$(TARGET)
+
+CC		= $(ATMELBIN)/avr-gcc -mmcu=$(ARCH)
+LD		= $(CC) $(ATMEL_LIBPATH)
+SIZE		= $(ATMELBIN)/avr-size
+OBJCOPY         = $(ATMELBIN)/avr-objcopy
+
+
+SERIAL_FLAGS	=							\
+	-dprog=avr910							\
+	-dpart=auto							\
+	-dserial=/dev/ttyS0						\
+	-dspeed=38400							\
+
+ISP_FLAGS	=							\
+	-dlpt=$(PROG_PORT) -dprog=stk200 -v=3				\
+
+UISP		= uisp
+UISP_FLAGS	= $(ISP_FLAGS)
+#UISP_FLAGS	= $(SERIAL_FLAGS)
+
+
+#
+# End of configuration part.
+#
+
+
+CFLAGS		=							\
+	-W -Wall \
+	$(ATMEL_INCLUDES)					  	\
+	$(INCLUDES)					  	\
+	-Wall 								\
+	-Wstrict-prototypes						\
+	$(LOCAL_CFLAGS)							\
+	-O2								\
+
+LDFLAGS		=	-lm						\
+
+#
+# General rules
+#
+
+all compile: $(OBJDIR)/$(TARGET).elf
+
+load upload:							 	\
+	$(TARGET).install
+
+$(TARGET).objs	=							\
+	$($(TARGET).srcs:%.c=$(OBJDIR)/%.o)						\
+
+#
+# Fuses
+#
+
+rd_fuses: check_arch
+	$(UISP) $(ISP_FLAGS) --rd_fuses
+
+wr_fuses : check_arch
+	$(UISP) $(ISP_FLAGS) --wr_fuse_h=$(HIGH_FUSE)
+	$(UISP) $(ISP_FLAGS) --wr_fuse_l=$(LOW_FUSE)
+	$(UISP) $(ISP_FLAGS) --wr_fuse_e=$(EXT_FUSE)
+	$(UISP) $(ISP_FLAGS) --wr_lock=$(LOCK_FUSE)
+
+
+$(OBJDIR)/%.elf: $($(TARGET).objs)
+	$(LD)								\
+	$(LOCAL_LDFLAGS)						\
+		$^							\
+		-o $@							\
+		$(LDFLAGS)
+	$(SIZE) $@
+
+
+$(OBJDIR)/%.s: %.c
+	$(CC) $(CFLAGS) -S -o $@ $<
+
+$(OBJDIR)/%.o: %.c
+	$(CC) $(CFLAGS) -c -o $@ $<
+
+$(OBJDIR)/%.hex: $(OBJDIR)/%.elf
+	 $(OBJCOPY) -O ihex -R .eeprom $< $@
+
+
+%.install: $(OBJDIR)/%.hex check_arch
+	# stk200 needs to be erased first
+	$(UISP) $(UISP_FLAGS) --erase
+	$(UISP) $(UISP_FLAGS) --upload if=$<
+
+erase: check_arch
+	$(UISP) $(ISP_FLAGS) --erase
+
+check_arch :
+	if ($(UISP) $(UISP_FLAGS) 2>&1 | tr '[:upper:]' '[:lower:]' | grep $(ARCH)); then : ; else echo "Wrong architecture (mcu0 vs mcu1 ?)"; exit 1; fi
+
+avr_clean:
+	cd $(OBJDIR); rm -f *.hex *.elf *.out core *.o *.a *~ *.s *.cm* .depend
+
+
+#
+# Dependencies
+#
+
+$(OBJDIR)/.depend:
+	$(CC) -M $(CFLAGS) $($(TARGET).srcs) > $@
+
+ifneq ($(MAKECMDGOALS),clean) 
+ifneq ($(MAKECMDGOALS),erase) 
+-include $(OBJDIR)/.depend
+endif
+endif
+
+

@@ -1,0 +1,208 @@
+#   Paparazzi $Id$
+#   Copyright (C) 2003 Pascal Brisset Antoine Drouin
+#
+# This file is part of paparazzi.
+#
+# paparazzi is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# paparazzi is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with paparazzi; see the file COPYING.  If not, write to
+# the Free Software Foundation, 59 Temple Place - Suite 330,
+# Boston, MA 02111-1307, USA.  
+# 
+
+Intro
+-----
+
+Paparazzi is an attempt to develop a cheap fixed wing UAV (Unmanned Air
+Vehicle).  As of today we have successfully flown autonomously several small
+electro powered fixed wing aircraft: the Twinstar and the Microjet of
+Multiplex.
+
+Up to date informations are available from the website
+
+	www.nongnu.org/paparazzi
+
+and from the mailing list.
+
+Directories description:
+-----------------------
+
+conf: the configuration directory (airframe, radio, ... descriptions). YOU HAVE
+TO EDIT THERE the Makefile.local file
+
+data: where to put read-only data (e.g. maps and terrain files)
+
+doc: the paparazzi documentation.
+
+hw: hardware definitions (electronic schemas, PCBs, ...)
+
+sw: software (onboard, ground station, simulation, ...)
+
+
+Required Software
+-----------------
+ - AVR micro-controller development environnment (avr-gcc, uisp, avr-libc)
+ - OCaml (ocaml.org), xml-light library (http://tech.motion-twin.com/xmllight)
+ - gcc, GTK2, Glib2, libgnomecanvas, libxml2
+ - ...
+
+For Debian users: Required packages are available at
+	http://www.rechercher.enac.fr/paparazzi/debian
+Installation of the meta-package "paparazzi" will install everything
+needed (if something is missing, please ask)
+
+Compilation
+-----------
+
+  0) Configuration. Default PAPARAZZI_HOME is $(HOME)/PAPARAZZI. You
+can change it by setting an environment variable
+
+  1) "make" in the top directory
+
+  2) Set the PAPARAZZI_SRC environment variable to the top directory
+(default is /usr/share/paparazzi)
+
+  2) "make init" creates a directory $PAPARAZZI_HOME for your own files.
+Configure there the conf/conf.xml
+
+  3) "make ac AIRCRAFT=<name>" compiles everything for the specified
+aircraft (default is twinstar2 for which conf files are provided) and
+set the files in $PAPARAZZI_HOME/var/<name>
+
+  5) "make clean_ac AIRCRAFT=<name>" cleans files for the specified aircraft.
+
+  6) $PAPARAZZI_HOME/var/<name>/sim/simsitl.out runs the soft simulator.
+
+Uploading of the embedded software
+----------------------------------
+
+  1) Power the flight controller board. Plug the pc-link to the board
+  and to the host parallel port.
+
+  2) Upload with
+
+	make upload_fbw		# Fly by wire
+	make upload_ap		# Autopilot
+
+  Important notes:
+     - The pclink must be switched accordingly with the target
+     - The "fly by wire" controller cannot be uploaded when the
+     "autopilot" controller is running. They cannot independently be
+     modified; then an upload of the fly by wire usually requires
+
+	make erase_ap
+	make upload_fbw
+ 	make upload_ap
+
+
+Running the ground segment monitoring
+-------------------------------------
+  1) The transmitter must be plugged to the flight controller and both must
+  be powered.
+
+  2) The ground modem must be powered and plugged to the antenna and
+  to the host (trough a serial port)
+
+  3) Launch the supervision
+
+	sw/supervision/paparazzi.pl
+
+  4) Launch "receive", "cockpit", "map", ...
+
+
+Log replay 
+----------
+   1) Run the supervision
+
+	sw/supervision/paparazzi.pl
+
+   2) Launch "play", "cockpit", "map", ...
+
+
+Software in the loop simulator
+------------------------------
+This simulator allows to run the stabilization and navigation controllers
+and play with the ground control station.
+
+0) Use the conf.xml and ground_segment.xml examples for the configuration.
+Recompile everything to be sure you run what you want ("make clean; make" in
+the top directory). The mission takes place in Braunschweig, Germany
+(flight competion of EMAV'04).
+
+1) Run the "control panel" (sw/supervision/paparazzi.pl)
+ This window helps to launch the different components.
+
+2) Launch the "cockpit" to display flight parameters
+
+3) Launch "sim" (aircraft simulator)
+  You get two windows standing for
+    - The aircraft
+    - The radio-controller (RC, displayed as one slider for each channel,
+even if some of them are buttons on the real RC)
+
+4) "Boot" the aircraft (button in the aircraft window)
+  The cockpit now displays some parameters. You can check
+  - The autopilot mode: "auto1" (stabilized manual mode)
+  - The altitude (on the right of the horizon)
+  - The speed: null (on the left of the horizon)
+
+5) "Launch" the aircraft (button in the aircraft window)
+  The speed is now 10m/s.
+  The altitude is going down: push the THROTTLE to go up !
+  Ok, you were probably too slow: the aircraft went too far from HOME
+and the autopilot mode is now "home" (cockpit window): it is going
+back home automatically and you do not control anything with the RC.
+
+6) Launch "map" (from the control panel)
+ In this window, you can zoom with mouse wheel and pan with the middle
+button.
+ The aicraft is going around the "HOME" waypoint.
+ Now, reset the autopilot mode with GAIN1 slider (push full left for
+one second, put it back around 0 when "auto1" is displayed in the
+cockpit window). The aircraft is going away: turn right or left with
+the "ROLL" slider which directly controls the "roll" angle (set it to 0
+to go straight)
+ Look at the altitude. Control its variation with the "THROTTLE".
+
+7) Launch "mission" (from the control panel)
+ This window displays the flight plan the aircraft will follow in
+autonomous mode. If your current altitude is realistic, the second
+block should be active (if not, go up with more THROTTLE)
+
+8) Switch to autonomous mode "auto2" with the "MODE" slider (push right)
+
+  The aircraft successively goes to waypoints 1 and 3 while trying to
+stay at a constant altitude of 200m. The trajectory is better if you
+active the automatic calibration of the attitude with the "LLS" slider
+(with a large positive value, you get "ON" on the Cockpit window)
+
+9) Activate the next block of the flight plan with "GAIN1" slider (full left)
+ The active block is now the "height". On the "map" window (type
+CRTL-C to clear the track), you can observe a red point (the "carrot")
+which moves in front of the aircraft: it is the guide of the aircraft
+(that you probably should consider as a donkey in this case), always
+5 second before the aircraft on the desired track.
+
+10) Add some west wind (with the slider on the aircraft window)
+ 5m/s is an acceptable value for this approximative flight model. The
+aircraft no longer can follow the "height" trajectory.
+
+11) Activate the next block of the mission ("GAIN1" slider, full left)
+ In this "xyz" mode, you can control the carrot position with the
+"YAW" (west-east) and "PITCH" (south-north) sliders: the slider value is
+the speed of the carrot.
+
+12) Activate the next block
+ In this block, the aircraft follows a circle around the "HOME"
+waypoint at a fixed distance.
+
+13) Close the control panel to quit

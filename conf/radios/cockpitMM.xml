@@ -1,0 +1,18 @@
+<radio name="cockpitMM">
+<!--
+ <photo filename="/home/poine/work/paparazzi_savannah/paparazzi2/sw/ground_segment/cockpit/images/cockpitMM.gif"/>
+ <control name="left_stick" type="stick" x="88"  y="95" size="40" v_axe="pitch" h_axe="yaw"/>
+ <control name="right_stick" type="stick" x="267" y="95" size="40" v_axe="power" h_axe="roll"/>
+ <control name="gain1" type="slider" x="179" y="114" size="40" axe="gain1" direction="vertical"/>
+ <control name="mode"  type="slider" x="285" y="53"  size="30" axe="mode" direction="vertical"/>
+ <control name="calib" type="slider" x="110" y="30"  size="40" axe="calib" direction="horizontal"/>
+--!>
+
+ <channel ctl="D" function="ROLL"     min="2000" neutral="1498" max="1000" average="0"/>
+ <channel ctl="C" function="PITCH"    min="2000" neutral="1498" max="1000" average="0"/>
+ <channel ctl="B" function="YAW"      min="2000" neutral="1498" max="1000" average="0"/>
+ <channel ctl="A" function="THROTTLE" min="2000" neutral="1100" max="1100" average="0"/>
+ <channel ctl="G" function="GAIN1"    min="2000" neutral="1498" max="1000" average="10"/> <!-- center slider        -->
+ <channel ctl="E" function="MODE"     min="2000" neutral="1500" max="1000" average="10"/> <!-- Top right switch     -->
+ <channel ctl="F" function="CALIB"    min="2000" neutral="1500" max="1000" average="10"/> <!-- Top left rotary knob -->
+</radio>

@@ -1,0 +1,22 @@
+<radio name="fc28">
+  <photo filename="data/pictures/fc28.gif"/>
+  <control name="left_stick" type="stick" x="92"  y="175" size="50" v_axe="pitch" h_axe="yaw"/>
+  <control name="right_stick" type="stick" x="386" y="175" size="50" v_axe="power" h_axe="roll"/>
+  <control name="gain1" type="slider" x="239" y="229" size="50" axe="gain1" direction="vertical"/>
+  <control name="gain2" type="slider" x="200" y="229" size="50" axe="gain2" direction="vertical"/>
+  <control name="gain3" type="slider" x="277" y="229" size="50" axe="gain3" direction="vertical"/>
+  <control name="lls"   type="slider" x="150" y="98" size="50" axe="lls" direction="vertical"/>
+  <control name="mode"  type="slider" x="420" y="98" size="50" axe="mode" direction="vertical"/>
+  <control name="calib" type="slider" x="80"  y="75" size="50" axe="calib" direction="horizontal"/>
+
+  <channel ctl="D" function="THROTTLE" min="1000" neutral="1600" max="2200" average="0"/>
+  <channel ctl="C" function="ROLL" min="1000" neutral="1600" max="2200" average="0"/>
+  <channel ctl="B" function="PITCH" min="1000" neutral="1600" max="2200" average="0"/>
+  <channel ctl="A" function="YAW" min="1000" neutral="1600" max="2200" average="0"/>
+  <channel ctl="G" function="MODE" min="1000" neutral="1600" max="2200" average="10"/>
+  <channel ctl="E" function="GAIN1" min="1000" neutral="1600" max="2200" average="10"/>
+  <channel ctl="F" function="GAIN2" min="1000" neutral="1600" max="2200" average="10"/>
+  <channel ctl="H" function="LLS" min="1000" neutral="1600" max="2200" average="10"/>
+  <channel ctl="I" function="CALIB" min="1000" neutral="1600" max="2200" average="10"/>
+</radio>
+  

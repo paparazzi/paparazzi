@@ -1,0 +1,27 @@
+<!DOCTYPE procedure SYSTEM "procedure.dtd">
+
+<procedure>
+  <param name="alt"/>
+  <param name="radius" default_value="75"/>
+
+  <waypoints>
+    <waypoint name="c1" x="0" y="0"/>
+    <waypoint name="c2" x="300" y="0"/>
+  </waypoints>
+
+  <blocks>
+    <block name="loop">
+      <exception cond="(RcEvent1())" deroute="event1"/>
+      <while>
+	<go hmode="route" alt="alt"
+	  from="c1" from_qdr="0" from_dist="radius"
+	  wp="c2" wp_qdr="0" wp_dist="radius"/>
+	<circle wp="c2" radius="radius" until="Qdr(180)" alt="alt"/>
+	<go hmode="route" alt="alt"
+	  from="c2" from_qdr="180" from_dist="radius"
+	  wp="c1" wp_qdr="180" wp_dist="radius"/>
+	<circle wp="c1" radius="radius" until="Qdr(0)" alt="alt"/>   
+      </while>
+    </block>
+  </blocks>
+</procedure>

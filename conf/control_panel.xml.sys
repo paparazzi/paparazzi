@@ -1,0 +1,84 @@
+<?xml version="1.0"?>
+
+<control_panel name="paparazzi control panel">
+
+  <section name="hosts">
+    <host name="localhost" ip="127.0.0.1"/>
+  </section>
+
+  <section name="variables">
+    <variable name="downlink_serial_port" value="/dev/ttyUSB0"/>
+    <variable name="fbw_serial_port"      value="/dev/ttyS1"/>
+    <variable name="ap_serial_port"       value="/dev/ttyS0"/>
+    <variable name="ivy_bus"              value="127.25.255.255:2009"/>
+    <variable name="map"                  value="maps/muret_UTM.xml"/>
+    <variable name="flight_plan"          value="flight_plans/muret1.xml"/>
+  </section>
+
+  <section name="programs">
+    <program name="receive" command="/usr/share/paparazzi/bin/receive.opt">
+      <arg flag="-b " variable="ivy_bus"/>
+    </program>
+    <program name="cockpit" command="/usr/share/paparazzi/bin/cockpit.pl">
+      <arg flag="-b " variable="ivy_bus"/>
+    </program>
+    <program name="map 2d" command="/usr/share/paparazzi/bin/map.pl">
+      <arg flag="-b " variable="ivy_bus"/>
+      <arg flag="-m " variable="map"/>
+      <arg flag="-f " variable="flight_plan"/>
+    </program>
+    <program name="map 2d ml" command="/usr/share/paparazzi/bin/map2d.opt">
+      <arg flag="-b " variable="ivy_bus"/>
+<!--      <arg flag="-m" variable="map"/> -->
+    </program>
+    <program name="map 3d" command="/usr/share/paparazzi/bin/mapGL.opt">
+      <arg flag="-b " variable="ivy_bus"/>
+      <arg flag="-m " variable="map"/>
+      <arg flag="-f " variable="flight_plan"/>
+    </program>
+    <program name="messages" command="/usr/share/paparazzi/bi/messages.opt">
+      <arg flag="-b " variable="ivy_bus"/>
+    </program>
+    <program name="speech" command="/usr/share/paparazzi/bin/paparazzi_speak.pl">
+      <arg flag="-b " variable="ivy_bus"/>
+      <arg flag="-t " variable="paparazzi_home"/>
+    </program>
+    <program name="wind" command ="/usr/share/paparazzi/bin/wind"/>
+    <program name="plot" command ="/usr/share/paparazzi/bin/plot.pl"/>
+    <program name="play" command="/usr/share/paparazzi/bin/play.opt">
+      <arg flag="-b " variable="ivy_bus"/>
+    </program>
+    <program name="sim" command="/usr/share/paparazzi/bin/simsitl.pl">
+      <arg flag="-b " variable="ivy_bus"/>
+      <arg flag="-a " constant="Thon1"/>
+    </program>
+    <program name="hitl" command="/usr/share/paparazzi/bin/simhitl.out">
+      <arg flag="-fbw " variable="fbw_serial_port"/>
+      <arg flag="-ap " variable="ap_serial_port"/>
+    </program>
+    <program name="configurator" command="/usr/share/paparazzi/bin/configurator"/>
+    <program name="medit" command="/usr/share/paparazzi/bin/medit.out"/>
+  </section>
+
+  <section name="sessions">
+
+    <session name="soft sim 2">
+      <variable name="ivy_bus" value="127.25.255.255:3333"/>
+      <program name="receive"/>
+      <program name="sim"><arg flag="-a" constant="Thon1"/></program>
+      <program name="sim"><arg flag="-a" constant="Thon2"/></program>
+      <program name="cockpit"/>
+      <program name="map 2d"/>
+      <program name="map 3d"/>
+    </session>
+
+    <session name="flight">
+      <program name="receive"/>
+      <program name="cockpit"/>
+      <program name="mission"/>
+      <program name="map2d"/>
+    </session>
+
+  </section>
+
+</control_panel>
