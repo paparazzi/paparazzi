@@ -31,12 +31,15 @@ OCAMLC = ocamlc
 OCAMLOPT = ocamlopt
 INCLUDES= -I ../../lib/ocaml -I +lablgtk2
 
-messages: messages.ml
-	$(OCAMLC) $(INCLUDES) -o /dev/null unix.cma xml-light.cma glibivy-ocaml.cma -I +lablgtk2 lablgtk.cma gtkInit.cmo str.cma lib-pprz.cma $^ # To check
-	cat ../../../pprz_src_test.sh > $@
-	echo 'lablgtk2 str.cma ivy-ocaml.cma -I $$PAPARAZZI_SRC/sw/lib/ocaml lib-pprz.cma $$PAPARAZZI_SRC/sw/ground_segment/tmtc/$< $$*' >> $@
-	chmod a+x $@
+#messages: messages.ml
+#	$(OCAMLC) $(INCLUDES) -o /dev/null unix.cma xml-light.cma glibivy-ocaml.cma -I +lablgtk2 lablgtk.cma gtkInit.cmo str.cma lib-pprz.cma $^ # To check
+#	cat ../../../pprz_src_test.sh > $@
+#	echo 'lablgtk2 str.cma ivy-ocaml.cma -I $$PAPARAZZI_SRC/sw/lib/ocaml lib-pprz.cma -I $$PAPARAZZI_SRC/sw/ground_segment/tmtc $$PAPARAZZI_SRC/sw/ground_segment/tmtc/$< $$*' >> $@
+#	chmod a+x $@
 
+messages : messages.ml
+	$(OCAMLOPT) $(INCLUDES) -o $@ str.cmxa unix.cmxa xml-light.cmxa glibivy-ocaml.cmxa -I +lablgtk2 lablgtk.cmxa gtkInit.cmx lib-pprz.cmxa $^ 
+	strip $@
 
 receive : modem.cmo receive.ml
 	$(OCAMLC) $(INCLUDES) -o $@ str.cma unix.cma xml-light.cma glibivy-ocaml.cma -I +lablgtk2 lablgtk.cma lib-pprz.cma $^ #To check

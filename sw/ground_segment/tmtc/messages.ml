@@ -55,14 +55,18 @@ let format = fun field ->
 
 open GMain
 let _ =
-  let bus = ref "127.255.255.255:2010" in
+  let ivy_bus = ref "127.255.255.255:2010" in
 (*  let classes = ref ["telemetry_ap";"ground"] in *)
   let classes = ref [] in
   Arg.parse
-    [ "-b", Arg.String (fun x -> bus := x), "Bus\tDefault is 127.255.255.25:2010";
+    [ "-b", Arg.String (fun x -> ivy_bus := x), "Bus\tDefault is 127.255.255.255:2010";
       "-c",  Arg.String (fun x -> classes := x :: !classes), "class name"]
     (fun x -> prerr_endline ("WARNING: don't do anything with "^x))
     "Usage: ";
+
+
+  Ivy.init "Paparazzi messages" "READY" (fun _ _ -> ());
+  Ivy.start !ivy_bus;
 
   let xml = Xml.parse_file xml_file in
 
@@ -133,8 +137,7 @@ let _ =
       messages in
 
   window#show ();
+  let loop = Glib.Main.create true in
+  while Glib.Main.is_running loop do ignore (Glib.Main.iteration true) done
 
-  Ivy.init "Paparazzi messages" "READY" (fun _ _ -> ());
-  Ivy.start !bus;
-
-  GMain.Main.main () 
+(*  GMain.Main.main () *)
