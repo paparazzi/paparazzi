@@ -56,7 +56,8 @@ let format = fun field ->
 open GMain
 let _ =
   let bus = ref "127.255.255.255:2010" in
-  let classes = ref ["telemetry_ap";"ground"] in
+(*  let classes = ref ["telemetry_ap";"ground"] in *)
+  let classes = ref [] in
   Arg.parse
     [ "-b", Arg.String (fun x -> bus := x), "Bus\tDefault is 127.255.255.25:2010";
       "-c",  Arg.String (fun x -> classes := x :: !classes), "class name"]

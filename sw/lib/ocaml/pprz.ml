@@ -119,8 +119,10 @@ let magic = fun x -> (Obj.magic x:('a,'b,'c) Pervasives.format)
   let format_field = fun buffer index (field:field) ->
     let format = field.fformat in
     match field._type with
-      "uint8" | "int8" -> sprintf (magic format) (Char.code buffer.[index])
-    | "uint16" | "int16" -> sprintf (magic format) (Char.code buffer.[index] lsl 8 + Char.code buffer.[index+1])
+      "uint8" -> sprintf (magic format) (Char.code buffer.[index])
+    | "int8" -> sprintf (magic format) (if Char.code buffer.[index] <= 128 then Char.code buffer.[index] else Char.code buffer.[index] - 256)
+    | "uint16" -> sprintf (magic format) (Char.code buffer.[index] lsl 8 + Char.code buffer.[index+1])
+    | "int16" -> sprintf (magic format) (if Char.code buffer.[index] lsl 8 + Char.code buffer.[index+1] <= 32768 then Char.code buffer.[index] lsl 8 + Char.code buffer.[index+1] else Char.code buffer.[index] lsl 8 + Char.code buffer.[index+1] - 65536)
     | "float" ->  sprintf (magic format) (float_of_bytes buffer index)
     | "int32"  | "uint32" -> sprintf (magic format) (int32_of_bytes buffer index)
     | _ -> failwith "format_field"

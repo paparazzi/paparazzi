@@ -80,7 +80,8 @@ let _ =
   define "RADIO_NEUTRALS_US" (sprint_float_array (List.map (fun x -> x.neutral) channels_params));
   define "RADIO_MAXS_US" (sprint_float_array (List.map (fun x -> x.max) channels_params));
   define "RADIO_AVERAGED" (sprint_float_array (List.map (fun x -> x.averaged) channels_params));
-  
+  define "RADIO_NEUTRALS_PPM" (sprint_float_array (List.map (fun x -> string_of_int ((int_of_string x.neutral)*16)) channels_params));
+  define "RADIO_TRAVEL_PPM" (sprint_float_array (List.map (fun x -> string_of_float (9600. *. 2. /. (float ((int_of_string x.max) - (int_of_string x.min))) /. 16.)) channels_params));
   nl ();
   define "AveragedChannel(ch)" "(((int[])RADIO_AVERAGED)[ch])";
   

@@ -144,40 +144,53 @@
 
 <class name="telemetry_fbw" ID="0X41">
 
-  <message name="RC" ID="0x01" period="1">
+  <message name="PPM" ID="0x01" period="1">
     <field name="nb_channels" type="uint8"/>
-<!--    
-    <block times="nb_channels">
-      <field name="ppm" type="uint16" unit="us"/>
-    </block> 
--->
-     <field name="ppm01" type="uint16" unit="us"/>
-     <field name="ppm02" type="uint16" unit="us"/>
-     <field name="ppm03" type="uint16" unit="us"/>
-     <field name="ppm04" type="uint16" unit="us"/>
-     <field name="ppm05" type="uint16" unit="us"/>
-     <field name="ppm06" type="uint16" unit="us"/>
-     <field name="ppm07" type="uint16" unit="us"/>
-     <field name="ppm08" type="uint16" unit="us"/>
-     <field name="ppm09" type="uint16" unit="us"/>
-     <field name="ppm10" type="uint16" unit="us"/>
+    <field name="sync_len" type="uint8"/>
+    <field name="ppm01" type="uint16" unit="us"/>
+    <field name="ppm02" type="uint16" unit="us"/>
+    <field name="ppm03" type="uint16" unit="us"/>
+    <field name="ppm04" type="uint16" unit="us"/>
+    <field name="ppm05" type="uint16" unit="us"/>
+    <field name="ppm06" type="uint16" unit="us"/>
+    <field name="ppm07" type="uint16" unit="us"/>
+    <field name="ppm08" type="uint16" unit="us"/>
+    <field name="ppm09" type="uint16" unit="us"/>
+    <field name="ppm10" type="uint16" unit="us"/>
+    <field name="ppm11" type="uint16" unit="us"/>
+    <field name="ppm12" type="uint16" unit="us"/>
   </message>
 
-<!--
-  <message name="SERVOS" ID="0x02" period="1">
+  <message name="RC" ID="0x02" period="1">
     <field name="nb_channels" type="uint8"/>
-    <block times="nb_channels">
-      <field name="ppm" type="uint16" unit="us"/>
-    </block>
+    <field name="pprz01" type="int16" unit="pprz"/>
+    <field name="pprz02" type="int16" unit="pprz"/>
+    <field name="pprz03" type="int16" unit="pprz"/>
+    <field name="pprz04" type="int16" unit="pprz"/>
+    <field name="pprz05" type="int16" unit="pprz"/>
+    <field name="pprz06" type="int16" unit="pprz"/>
+    <field name="pprz07" type="int16" unit="pprz"/>
+    <field name="pprz08" type="int16" unit="pprz"/>
+    <field name="pprz09" type="int16" unit="pprz"/>
+    <field name="pprz10" type="int16" unit="pprz"/>
+    <field name="pprz11" type="int16" unit="pprz"/>
+    <field name="pprz12" type="int16" unit="pprz"/>
   </message>
 
-  <message name="PPRZ" ID="0x03" period="1">
-    <field name="nb_channels" type="uint8"/>
-   <block times="nb_channels">
-     <field name="pprz" type="int16" unit="pprz"/>
-   </block>
+  <message name="SERVOS" ID="0x03" period="1">
+    <field name="nb_servos" type="uint8"/>
+    <field name="ser01" type="uint16" unit="us"/>
+    <field name="ser02" type="uint16" unit="us"/>
+    <field name="ser03" type="uint16" unit="us"/>
+    <field name="ser04" type="uint16" unit="us"/>
+    <field name="ser05" type="uint16" unit="us"/>
+    <field name="ser06" type="uint16" unit="us"/>
+    <field name="ser07" type="uint16" unit="us"/>
+    <field name="ser08" type="uint16" unit="us"/>
+    <field name="ser09" type="uint16" unit="us"/>
+    <field name="ser10" type="uint16" unit="us"/>
   </message>
--->
+
   <message name="FBW_STATUS" ID="0x04" period="1">
     <field name="nb_spi_err" type="uint8"/>
     <field name="rc_status" type="uint8" values="OK|LOST|REALLY_LOST"/>

@@ -32,12 +32,12 @@ let _ =
   let class_name = ref "telemetry_fbw" in
   let serial_dev = ref "/dev/ttyUSB0" in
   Arg.parse
-    [ "-b", Arg.String (fun x -> bus := x), "Bus\tDefault is 127.255.255.25:2010";
-      "-c",  Arg.String (fun x -> class_name := x), "class name";
-      "-d",  Arg.String (fun x -> serial_dev := x), "serial device"]
+    [ "-b",  Arg.String (fun x -> bus := x), "Bus\tDefault is 127.255.255.25:2010";
+      "-c",  Arg.String (fun x -> class_name := x), "Message class name\tDefault is telemetry_fbw";
+      "-d",  Arg.String (fun x -> serial_dev := x), "Serial device\tDefault is /dev/ttyUSB0"]
     (fun x -> prerr_endline ("WARNING: don't do anything with "))
     "Usage: ";
-
+  
   let module Tele_Class = struct let name = !class_name end in
   let module Tele_Pprz = Pprz.Protocol(Tele_Class) in
   let module PprzTransport = Serial.Transport(Tele_Pprz) in
@@ -63,7 +63,7 @@ let _ =
   let handle_pprz_message = fun (msg_id, values) ->
     let msg = Tele_Pprz.message_of_id msg_id in
     let s = String.concat " " (List.map snd values) in
-    Ivy.send (sprintf "%s %s" msg.Pprz.name s) in
+    Ivy.send (sprintf "1234.567 %s %s" msg.Pprz.name s) in
 
   listen_tty handle_pprz_message !serial_dev;
   Ivy.init "Paparazzi listen" "READY" (fun _ _ -> ());

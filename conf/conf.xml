@@ -18,7 +18,7 @@
   <aircraft 
     name="Thon1"
     airframe="airframes/twinstar1.xml" 
-    radio="radios/mc3030.xml" 
+    radio="radios/cockpitMM.xml" 
     flight_plan="flight_plans/muret1.xml"
   />
 

@@ -34,15 +34,15 @@
 #define MSG_END '\n'
 
 #define UNINIT        0
-#define GOT_START    1
-#define GOT_CHANNEL    2
-#define GOT_LOW      3
-#define GOT_HI      4
+#define GOT_START     1
+#define GOT_CHANNEL   2
+#define GOT_LOW       3
+#define GOT_HI        4
 
 
 static uint8_t msg_status;
 static uint8_t servo;
-static uint16_t value; /* micro-seconds */
+static uint16_t value; /* microseconds */
 static volatile bool_t msg_valid;
 
 static inline void parse_msg(uint8_t c) {

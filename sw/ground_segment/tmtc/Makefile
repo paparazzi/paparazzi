@@ -22,7 +22,7 @@
 
 include ../../../conf/Makefile.local
 
-all: receive messages
+all: receive messages listen.opt
 
 clean:
 	rm -f receive messages *.bak *~ core *.o .depend *.opt *.out *.cm*
