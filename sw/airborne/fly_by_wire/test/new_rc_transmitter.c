@@ -6,7 +6,7 @@
 #include "uart.h"
 #include "ppm.h"
 
-#include "fbw_messages.h"
+#include "telemetry.h"
 
 uint8_t nb_spi_err = 0;
 uint8_t rc_status = 0;
@@ -14,7 +14,6 @@ uint8_t mode = 0;
 
 int main( void ) {
   uart_init_tx();
-  uart_print_string("Calib_radio Booting $Id$\n");
   timer_init();
   ppm_init();
   sei(); 
@@ -27,7 +26,9 @@ int main( void ) {
       n++;
       if (n == 60) {
 	n = 0;
-	TELEMETRY_SEND_FBW_STATUS(&nb_spi_err, &rc_status, &mode);
+	//	uart_transmit('A');
+	//	uart_transmit('\n');
+	telemetry_send_fbw_status(&nb_spi_err, &rc_status, &mode);
       }
     }
   }

@@ -33,13 +33,15 @@
 extern uint8_t ck_a, ck_b;
 #include "uart.h"
 
+void telemetry_send_fbw_status(uint8_t* nb_spi_err, uint8_t* rc_status, uint8_t* mode);
+
 #define TELEMETRY_START_MESSAGE(id) {					\
     UART_PUT_1_BYTE(STX); UART_PUT_1_BYTE(id); ck_a = id; ck_b = id;	\
-}
+  }
 
 #define TELEMETRY_END_MESSAGE() {					\
-    UART_PUT_1_BYTE(ck_a); UART_PUT_1_BYTE(ck_b); UART_CHECK_RUNNING(); \
-}
+    UART_PUT_1_BYTE(ck_a); UART_PUT_1_BYTE(ck_b);			\
+  }
 
 #define TELEMETRY_CHECK_FREE_SPACE(_space) UART_CHECK_FREE_SPACE(_space)
 
@@ -47,18 +49,18 @@ extern uint8_t ck_a, ck_b;
     UART_PUT_1_BYTE_BY_ADDR(_byte);		   \
     ck_a += *(_byte);				   \
     ck_b += ck_a;				   \
-}
+  }
 
 #define TELEMETRY_PUT_2_DATA_BYTE_BY_ADDR(_byte) { \
     TELEMETRY_PUT_1_DATA_BYTE_BY_ADDR(_byte);	   \
     TELEMETRY_PUT_1_DATA_BYTE_BY_ADDR(_byte+1);	   \
-}
+  }
 
 #define TELEMETRY_PUT_4_DATA_BYTE_BY_ADDR(_byte) { \
-  TELEMETRY_PUT_1_DATA_BYTE_BY_ADDR(_byte); \
-  TELEMETRY_PUT_1_DATA_BYTE_BY_ADDR(_byte+1); \
-  TELEMETRY_PUT_1_DATA_BYTE_BY_ADDR(_byte+2); \
-  TELEMETRY_PUT_1_DATA_BYTE_BY_ADDR(_byte+3); \
-}
+    TELEMETRY_PUT_1_DATA_BYTE_BY_ADDR(_byte);	   \
+    TELEMETRY_PUT_1_DATA_BYTE_BY_ADDR(_byte+1);	   \
+    TELEMETRY_PUT_1_DATA_BYTE_BY_ADDR(_byte+2);	   \
+    TELEMETRY_PUT_1_DATA_BYTE_BY_ADDR(_byte+3);	   \
+  }
 
 #endif /* TELEMETRY_H */

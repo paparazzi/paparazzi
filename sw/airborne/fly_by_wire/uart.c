@@ -30,10 +30,10 @@
 #include "std.h"
 #include "uart.h"
 
-uint8_t           tx_head; /* next free in buf */
-volatile uint8_t  tx_tail; /* next char to send */
+uint8_t           tx_head = 0; /* next free in buf */
+volatile uint8_t  tx_tail = 0; /* next char to send */
 uint8_t           tx_buf[ TX_BUF_SIZE ];
-
+uint8_t           uart_nb_overrun = 0;
 /*
  * UART Baud rate generation settings:
  *
@@ -100,10 +100,10 @@ void uart_print_string(const uint8_t* s) {
 
 SIGNAL(SIG_UART_TRANS) {
   if (tx_head == tx_tail) {
-    /* Nothing more to send */
+    /* buffer ring is empty */
     cbi(UCSRB, TXCIE); /* disable interrupt */
   } else {
     UDR = tx_buf[tx_tail];
-    tx_tail++; /* warning tx_buf_len is 256 */
+    tx_tail++; /* WARNING : only works with TX_BUF_LEN = 256 */
   }
 }

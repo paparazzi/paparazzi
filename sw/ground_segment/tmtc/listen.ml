@@ -28,17 +28,22 @@ open Printf
 
 
 let _ =
-  if Array.length Sys.argv <> 3 then
-    failwith (sprintf "Usage: %s <message class> <port>" Sys.argv.(0));
+  let bus = ref "127.255.255.255:2010" in
+  let class_name = ref "telemetry_fbw" in
+  let serial_dev = ref "/dev/ttyUSB0" in
+  Arg.parse
+    [ "-b", Arg.String (fun x -> bus := x), "Bus\tDefault is 127.255.255.25:2010";
+      "-c",  Arg.String (fun x -> class_name := x), "class name";
+      "-d",  Arg.String (fun x -> serial_dev := x), "serial device"]
+    (fun x -> prerr_endline ("WARNING: don't do anything with "))
+    "Usage: ";
 
-  let class_name = Sys.argv.(1) in
-
-  let module Tele_Class = struct let name = class_name end in
+  let module Tele_Class = struct let name = !class_name end in
   let module Tele_Pprz = Pprz.Protocol(Tele_Class) in
   let module PprzTransport = Serial.Transport(Tele_Pprz) in
 
   let listen_tty = fun use_pprz_message tty ->
-    let fd = Serial.opendev tty Serial.B4800 in
+    let fd = Serial.opendev tty Serial.B38400 in
 
     let use_pprz_buf = fun buf ->
       use_pprz_message (Tele_Pprz.values_of_bin buf) in
@@ -60,10 +65,9 @@ let _ =
     let s = String.concat " " (List.map snd values) in
     Ivy.send (sprintf "%s %s" msg.Pprz.name s) in
 
-  let port = Sys.argv.(2) in
-
-  listen_tty handle_pprz_message port;
-
+  listen_tty handle_pprz_message !serial_dev;
+  Ivy.init "Paparazzi listen" "READY" (fun _ _ -> ());
+  Ivy.start "127.255.255.255:2010";
   let loop = Glib.Main.create true in
   while Glib.Main.is_running loop do ignore (Glib.Main.iteration true) done
 
