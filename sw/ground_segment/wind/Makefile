@@ -26,12 +26,12 @@ all: wind
 
 INCLUDES= -I ../../lib/ocaml -I +lablgtk2
 
-OCAMLC= ocamlc -g $(INCLUDES)
+OCAMLC= ocamlc $(INCLUDES)
 OCAMLMLI= ocamlc $(INCLUDES)
 OCAMLOPT= ocamlopt $(INCLUDES)
 OCAMLDEP= ocamldep $(INCLUDES)
 
-
+wind : wind.cmi
 
 wind : wind.ml
 	$(OCAMLC) -o $@ xml-light.cma glibivy-ocaml.cma lablgtk.cma str.cma lib-pprz.cma $< # To check
@@ -63,9 +63,12 @@ wind : wind.ml
 	$(OCAMLOPT) -o $@ $<
 
 clean:
-	\rm -f *.cmo *.cmi *.cmx *.o *~ *.opt *.out .depend *.popt
+	\rm -f *.cmo *.cmi *.cmx *.o *~ *.opt *.out .depend *.popt wind
 
 .depend:
 	$(OCAMLDEP) *.mli *.ml > $@
 
-include .depend
+ifneq ($(MAKECMDGOALS),clean) 
+-include .depend
+endif
+
