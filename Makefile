@@ -113,6 +113,9 @@ install : static t1
 uninstall :
 	./Makefile.pl -uninstall -destdir $(DESTDIR)
 
+deb :
+	dpkg-buildpackage -rfakeroot
+
 clean:
 	find . -name Makefile -mindepth 2 -exec sh -c '$(MAKE) -C `dirname {}` $@' \; 
 	find . -name '*~' -exec rm -f {} \;
