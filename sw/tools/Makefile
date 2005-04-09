@@ -9,6 +9,7 @@ FP_CMO = fp_syntax.cmo fp_parser.cmo fp_lexer.cmo fp_proc.cmo gen_flight_plan.ml
 ABS_FP = $(FP_CMO:%=$$PAPARAZZI_SRC/sw/tools/%)
 
 gen_flight_plan.out : $(FP_CMO)
+	$(OCAMLC) -o /dev/null lib-pprz.cma $^ # To check
 	cat ../../pprz_src_test.sh > $@
 	echo '$(OCAML) -I $$PAPARAZZI_SRC/sw/lib/ocaml -I $$PAPARAZZI_SRC/sw/tools lib-pprz.cma $(ABS_FP) $$*' >> $@
 	chmod a+x $@

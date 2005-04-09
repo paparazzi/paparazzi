@@ -35,7 +35,7 @@ let parse = fun s ->
   if !check_expressions then
     let e = parse_expression s in
     let unexpected = fun kind x ->
-      fprintf stderr "Paring error in '%s': unexpected %s: '%s' \n" s kind x;
+      fprintf stderr "Parsing error in '%s': unexpected %s: '%s' \n" s kind x;
       exit 1 in
     begin
       try
@@ -191,6 +191,9 @@ let rec compile_stage = fun block x ->
      "while" ->
        List.iter (compile_stage block) (Xml.children x);
        incr stage (* To count the loop stage *)
+    | "for" ->
+       List.iter (compile_stage block) (Xml.children x);
+       incr stage (* To count the loop stage *)
     | "return_from_excpt" | "goto"  | "deroute" | "exit_block"
     | "heading" | "go" | "stay" | "xyz" | "circle" -> ()
     | s -> failwith (sprintf "Unknown stage: %s\n" s)
@@ -223,6 +226,21 @@ let rec print_stage = fun index_of_waypoints x ->
 	List.iter (print_stage index_of_waypoints) (Xml.children x);
 	print_stage index_of_waypoints (goto w);
 	output_label e
+    | "for" ->
+	let f = gen_label "for" in
+	let e = gen_label "endfor" in
+	let v = Fp_syntax.c_var_of_ident (ExtXml.attrib x "var")
+	and from_ = parsed_attrib x "from" 
+	and to_expr = parsed_attrib x "to"  in
+	let to_var = v ^ "_to" in
+	lprintf "static int8_t %s = %s - 1;\n" v from_;
+	lprintf "static const int8_t %s = %s;\n" to_var to_expr;
+	output_label f;
+	stage ();
+	lprintf "if (++%s > %s) Goto(%s) else NextStage();\n" v to_var e;
+	List.iter (print_stage index_of_waypoints) (Xml.children x);
+	print_stage index_of_waypoints (goto f);
+	output_label e
     | "heading" ->
 	stage ();
 	let until = parsed_attrib x "until" in
@@ -234,7 +252,15 @@ let rec print_stage = fun index_of_waypoints x ->
 	lprintf "return;\n"
     | "go" ->
 	stage ();
-	let wp = get_index_waypoint (ExtXml.attrib x "wp") index_of_waypoints in
+	let wp = 
+	  try
+	    get_index_waypoint (ExtXml.attrib x "wp") index_of_waypoints
+	  with
+	    _ ->
+	      lprintf "waypoints[0].x = %s;\n" (parsed_attrib x "x");
+	      lprintf "waypoints[0].y = %s;\n" (parsed_attrib x "y");
+	      "0"
+	in
 	lprintf "if (approaching(%s)) NextStageFrom(%s) else {\n" wp wp;
 	right ();
 	let last_wp =
@@ -354,7 +380,14 @@ let check_distance = fun (hx, hy) max_d wp ->
   let d = sqrt ((x-.hx)**2. +. (y-.hy)**2.) in
   if d > max_d then
     fprintf stderr "\nWARNING: Waypoint '%s' too far from HOME (%.0f>%.0f)\n\n" (name_of wp) d max_d
-  
+
+
+let dummy_waypoint = 
+  Xml.Element ("waypoint", 
+	       ["name", "dummy"; 
+		"x", "42."; 
+		"y", "42." ], 
+	       [])
 
 
 let _ =
@@ -426,7 +459,7 @@ let _ =
       Xml2h.define "QFU" (sprintf "%.1f" qfu);
 
       
-      let waypoints = Xml.children waypoints in
+      let waypoints = dummy_waypoint :: Xml.children waypoints in
       let (hx, hy) = define_home waypoints in
       List.iter (check_distance (hx, hy) mdfh) waypoints;
 

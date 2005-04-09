@@ -10,13 +10,14 @@
 <!ELEMENT waypoint EMPTY>
 
 <!ELEMENT blocks (block+)>
-<!ELEMENT block (exception|while|heading|go|xyz|circle|deroute|stay)*>
+<!ELEMENT block (exception|while|heading|go|xyz|circle|deroute|stay|for)*>
 
 <!ELEMENT include (arg|with)*>
 <!ELEMENT arg EMPTY>
 <!ELEMENT with EMPTY>
 
-<!ELEMENT while (while|heading|go|xyz|circle|deroute|stay)*>
+<!ELEMENT while (while|heading|go|xyz|circle|deroute|stay|for)*>
+<!ELEMENT for (while|heading|go|xyz|circle|deroute|stay|for)*>
 <!ELEMENT exception EMPTY>
 <!ELEMENT heading EMPTY>
 <!ELEMENT go EMPTY>
@@ -55,6 +56,11 @@ alt CDATA #IMPLIED>
 
 <!ATTLIST while cond CDATA #IMPLIED>
 
+<!ATTLIST for
+var CDATA #REQUIRED
+from CDATA #REQUIRED
+to CDATA #REQUIRED>
+
 <!ATTLIST exception
 cond CDATA #REQUIRED
 deroute CDATA #REQUIRED>
@@ -67,7 +73,9 @@ pitch CDATA #IMPLIED
 until CDATA #IMPLIED>
 
 <!ATTLIST go 
-wp CDATA #REQUIRED
+wp CDATA #IMPLIED
+x CDATA #IMPLIED
+y CDATA #IMPLIED
 wp_qdr CDATA #IMPLIED
 wp_dist CDATA #IMPLIED
 from CDATA #IMPLIED
@@ -80,7 +88,8 @@ alt CDATA #IMPLIED
 until CDATA #IMPLIED
 gaz CDATA #IMPLIED>
 
-<!ATTLIST xyz radius CDATA #IMPLIED>
+<!ATTLIST xyz
+radius CDATA #IMPLIED>
 
 <!ATTLIST circle
 wp CDATA #REQUIRED

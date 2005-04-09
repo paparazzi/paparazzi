@@ -33,6 +33,9 @@ type expression =
   | Call of ident * expression list
   | Index of ident * expression
 
+val c_var_of_ident : ident -> string
+(** Encapsulate a user ident into a C variable *)
+
 val sprint_expression : expression -> string
 
 exception Unknown_ident of string

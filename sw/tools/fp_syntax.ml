@@ -16,15 +16,18 @@ type expression =
   | Call of ident * (expression list)
   | Index of ident * expression
 
+let c_var_of_ident = fun x -> "_var_" ^ x
+
 (* Valid unary and binary opetarors *)
-let binary_operators = ["+"; ">"; "-"]
+let binary_operators = ["+"; ">"; "-"; "*"]
 let unary_operators = ["!"; "-"]
 
 let is_binary = fun op -> List.mem op binary_operators
 let is_unary = fun op -> List.mem op unary_operators
 
 let rec sprint_expression = function
-    Ident i -> sprintf "%s" i
+    Ident i when i.[0] = '$' -> sprintf "%s" (c_var_of_ident (String.sub i 1 (String.length i - 1)))
+  | Ident i -> sprintf "%s" i
   | Int i -> sprintf "%d" i
   | Float i -> sprintf "%f" i
   | Call (op, [e1;e2]) when is_binary op ->
@@ -63,7 +66,8 @@ exception Unknown_function of string
 
 let rec check_expression = fun e ->
   match e with
-    Ident i ->
+    Ident i when i.[0] = '$' -> ()
+  | Ident i ->
       if not (List.mem i variables) then
 	raise (Unknown_ident i)
   | Int _  | Float _ -> ()
