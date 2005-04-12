@@ -112,7 +112,6 @@ inline uint8_t pprz_mode_update( void ) {
   /* We remain in home mode until explicit reset from the RC */
   if (pprz_mode != PPRZ_MODE_HOME || CheckEvent(rc_event_1)) {
     ModeUpdate(pprz_mode, PPRZ_MODE_OF_PULSE(from_fbw.channels[RADIO_MODE], from_fbw.status));
-    nav_stage = 0; /* Restart the last current block */
   } else
     return FALSE;
 }
