@@ -94,3 +94,14 @@ on split les Makefiles
 ###########
 
 manque gerbmerge dans les dependance??? ha non ca n'existe pas... a packager !
+
+
+>
+>
+> - Pitch should more be in degree than in radian in flight plan files.
+>It could be in the future version of Paparazzi.
+>
+>
+> - It's strange MIN_HEIGHT_CARROT and MAX_HEIGHT_CARROT are in the
+>code. Shouldn't it be in a conf file so as to change it ?
+>
