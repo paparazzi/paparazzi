@@ -38,7 +38,8 @@ class track = fun ?(name="coucou") ?(size = 50) ?(color="red") (geomap:MapCanvas
   let group = GnoCanvas.group geomap#canvas#root in
   let empty = ({ G.east = 0.; north = 0. },  GnoCanvas.line group) in
 
-  let aircraft = GnoCanvas.group group in
+  let aircraft = GnoCanvas.group group
+  and track = GnoCanvas.group group in
   let _ac_icon =
     ignore (GnoCanvas.line ~fill_color:color ~props:[`WIDTH_PIXELS 4;`CAP_STYLE `ROUND] ~points:[|0.;-6.;0.;14.|] aircraft);
     ignore (GnoCanvas.line ~fill_color:color ~props:[`WIDTH_PIXELS 4;`CAP_STYLE `ROUND] ~points:[|-9.;0.;9.;0.|] aircraft);
@@ -50,6 +51,8 @@ class track = fun ?(name="coucou") ?(size = 50) ?(color="red") (geomap:MapCanvas
     val mutable segments = Array.create size empty
     val mutable top = 0
     val mutable last = None
+    method track = track
+    method aircraft = aircraft
     method clear_one = fun i ->
       if segments.(i) != empty then begin
 	(snd segments.(i))#destroy ();
@@ -68,9 +71,9 @@ class track = fun ?(name="coucou") ?(size = 50) ?(color="red") (geomap:MapCanvas
       begin
 	match last with
 	  None -> 
-	    segments.(top) <- (en, geomap#segment ~fill_color:color en en)
+	    segments.(top) <- (en, geomap#segment ~group:track ~fill_color:color en en)
 	| Some last ->
-	    segments.(top) <- (en, geomap#segment ~width:2 ~fill_color:color last en)
+	    segments.(top) <- (en, geomap#segment ~group:track ~width:2 ~fill_color:color last en)
       end;
       self#incr;
       last <- Some en

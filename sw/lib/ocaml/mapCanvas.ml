@@ -206,10 +206,10 @@ class widget = fun  ?(height=800) ?width ?wgs84_of_en () ->
     | _ -> false
 	  
 
-   method segment = fun ?(width=1) ?fill_color en1 en2 ->
+   method segment = fun ?(group = canvas#root) ?(width=1) ?fill_color en1 en2 ->
      let (x1, y1) = self#world_of_en en1
      and (x2, y2) = self#world_of_en en2 in
-     let l = GnoCanvas.line ?fill_color ~props:[`WIDTH_PIXELS width] ~points:[|x1;y1;x2;y2|] canvas#root in
+     let l = GnoCanvas.line ?fill_color ~props:[`WIDTH_PIXELS width] ~points:[|x1;y1;x2;y2|] group in
      l#show ();
      l
 end
