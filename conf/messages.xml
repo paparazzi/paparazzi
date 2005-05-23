@@ -287,7 +287,8 @@ twinstar2 POSITION_UTM 10 10
     <field name="flight_time" type="uint32"/>
     <field name="block_time"  type="uint32"/>
     <field name="stage_time"  type="uint32"/>
-
+    <field name="target_east" type="float" unit="m"/>
+    <field name="target_north" type="float" unit="m"/>
   </message>
 
   <message name="ENGINE_STATUS" ID="0x07">
@@ -332,9 +333,6 @@ twinstar2 POSITION_UTM 10 10
     <field name="airframe"    type="string" unit="url"/>
     <field name="rc_tx"       type="string" unit="url"/>
   </message>
-
-
-
 </class>
 
 </protocol>

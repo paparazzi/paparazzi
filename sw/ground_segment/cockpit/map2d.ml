@@ -115,6 +115,13 @@ let aircraft_pos_msg = fun track utm_x utm_y heading ->
       track#add_point en;
       track#move_icon en heading
 
+let carrot_pos_msg = fun track x y ->
+  match !map_ref with
+    None -> ()
+  | Some utm0 ->
+      let en =  {G.east = x; north = y } in
+      track#move_carrot en
+
 let new_color =
   let colors = ref ["red"; "blue"; "green"] in
   fun () ->
@@ -179,6 +186,10 @@ let live_aircrafts_msg = fun (geomap:MapCanvas.widget) acs ->
 	  Ivy.bind
 	    (fun _ args -> aircraft_pos_msg track (fos args.(0)) (fos args.(1))(fos args.(2))) 
 	    (sprintf "%s +FLIGHT_PARAM +[^ ]* +[^ ]* +([0-9\\.]*) +([0-9\\.]*) +[0-9\\.]* +([0-9\\.]*)" ac)  in
+	let b =
+	  Ivy.bind
+	    (fun _ args -> carrot_pos_msg track (fos args.(0)) (fos args.(1))) 
+	    (sprintf "%s +NAV_STATUS +[^ ]* +[^ ]* +[^ ]* +[^ ]* +[^ ]* +([\\-0-9\\.]*) +([\\-0-9\\.]*)" ac)  in
 	Hashtbl.add live_aircrafts ac { track = track; color = color; fp_group = None }
       end
     )

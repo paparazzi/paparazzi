@@ -18,7 +18,7 @@ GetOptions (
 	   );
 my @args = ();
 push @args, "-b", $options->{ivy_bus};
-my $sim_binary = Paparazzi::Environment::paparazzi_home()."/var/".$options->{aircraft}."/sim/simsitl.out";
+my $sim_binary = Paparazzi::Environment::paparazzi_home()."/var/".$options->{aircraft}."/sim/simsitl";
 die "$sim_binary not found. try make AIRCRAFT=$options->{aircraft} ac\n" unless -e $sim_binary;
 exec ($sim_binary, @args)
 

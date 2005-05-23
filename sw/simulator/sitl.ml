@@ -33,9 +33,9 @@ module Make(A:Data.MISSION) = struct
   let servos_period = 25 (* ms *)
   let periodic_period = 16 (* ms *)
   let rc_period = 25 (* ms *)
-  let id_period = 10_000 (* ms *)
 
   let periodic = fun p f ->
+    f ();
     ignore (GMain.Timeout.add p (fun () -> f (); true))
 
 

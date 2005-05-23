@@ -78,6 +78,8 @@ type aircraft = {
     mutable pitch   : float;
     mutable east    : float;
     mutable north    : float;
+    mutable desired_east    : float;
+    mutable desired_north    : float;
     mutable gspeed  : float;
     mutable course  : float;
     mutable alt     : float;
@@ -150,6 +152,9 @@ let log_and_parse = fun log ac_name a msg values ->
       a.course  <- fvalue "course";
       a.alt     <- fvalue "alt";
       a.climb   <- fvalue "climb"
+  | "DESIRED" ->
+      a.desired_east <- fvalue "desired_x";
+      a.desired_north <- fvalue "desired_y"
   | "ATTITUDE" ->
       a.roll <- fvalue "phi";
       a.pitch <- fvalue "theta"
@@ -198,7 +203,7 @@ let send_aircraft_msg = fun ac ->
     let _, fp_msg = AcInfo_Pprz.message_of_name "FLIGHT_PARAM" in
     Ivy.send (sprintf "%s %s" ac (AcInfo_Pprz.string_of_message fp_msg values));
 
-    let values = ["cur_block", Pprz.Int a.cur_block;"cur_stage", Pprz.Int a.cur_stage]
+    let values = ["cur_block", Pprz.Int a.cur_block;"cur_stage", Pprz.Int a.cur_stage; "target_east", f a.desired_east; "target_north", f a.desired_north]
     and _, ns_msg =  AcInfo_Pprz.message_of_name "NAV_STATUS" in
     Ivy.send (sprintf "%s %s" ac (AcInfo_Pprz.string_of_message ns_msg values));
 
@@ -213,7 +218,7 @@ let send_aircraft_msg = fun ac ->
     Not_found -> prerr_endline ac
       
 let new_aircraft = fun id ->
-    { port = id ; roll = 0.; pitch = 0.; east = 0.; north = 0.; gspeed=0.; course = 0.; alt=0.; climb=0.; cur_block=0; cur_stage=0; throttle = 0.; rpm = 0.; temp = 0.; bat = 0.; amp = 0.; energy = 0.; ap_mode=0; ap_altitude=0; if_calib_mode=0; mcu1_status=0; lls_calib=0 }
+    { port = id ; roll = 0.; pitch = 0.; east = 0.; north = 0.; desired_east = 0.; desired_north = 0.; gspeed=0.; course = 0.; alt=0.; climb=0.; cur_block=0; cur_stage=0; throttle = 0.; rpm = 0.; temp = 0.; bat = 0.; amp = 0.; energy = 0.; ap_mode=0; ap_altitude=0; if_calib_mode=0; mcu1_status=0; lls_calib=0 }
     
 let register_aircraft = fun name a ->
   Hashtbl.add aircrafts name a;
@@ -223,9 +228,11 @@ let register_aircraft = fun name a ->
 (** Callback of an identifying message from a soft simulator *)
 let ident_msg = fun log id name ->
   if not (Hashtbl.mem aircrafts name) then begin
+    prerr_endline "ident_msg";
     let ac = new_aircraft (Ivy id) in
     let b = Ivy.bind (fun _ args -> sim_msg log name ac args.(0)) (sprintf "^%s +(.*)" id) in
-    register_aircraft name ac
+    register_aircraft name ac;
+    send_aircrafts_msg ()
   end
 
 (* Waits for new simulated aircrafts *)

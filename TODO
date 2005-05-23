@@ -105,3 +105,7 @@ manque gerbmerge dans les dependance??? ha non ca n'existe pas... a packager !
 > - It's strange MIN_HEIGHT_CARROT and MAX_HEIGHT_CARROT are in the
 >code. Shouldn't it be in a conf file so as to change it ?
 >
+- In the same way, MIN_SPEED_FOR_TAKEOFF should be in the airframe
+conf file ?
+
+ 

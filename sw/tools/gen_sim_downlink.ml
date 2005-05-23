@@ -51,12 +51,12 @@ let gen_periodic = fun avr_h messages ->
     
     fprintf avr_h "#define PeriodicSend() {  /* %dHz */ \\\n" freq;
     fprintf avr_h "  static uint8_t i;\\\n";
-    fprintf avr_h "  i++; if (i == %d) i = 0;\\\n" nb_steps;
+    fprintf avr_h "  if (i == %d) i = 0;\\\n" nb_steps;
     List.iter
       (fun (p, id) ->
 	fprintf avr_h "  if (i %% %d == 0) PERIODIC_SEND_%s();\\\n" p id)
       scheduled_messages;
-    fprintf avr_h "}\n"
+    fprintf avr_h " i++;\\\n}\n"
 
   
 

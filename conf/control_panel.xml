@@ -15,12 +15,12 @@
     <variable name="fbw_serial_port"      value="/dev/ttyS1"/>
     <variable name="ap_serial_port"       value="/dev/ttyS0"/>
     <variable name="ivy_bus"              value="127.25.255.255:2009"/>
-    <variable name="map"                  value="maps/muret_UTM.xml"/>
+    <variable name="map"                  value="muret_UTM.xml"/>
     <variable name="flight_plan"          value="flight_plans/muret1.xml"/>
   </section>
 
   <section name="programs">
-    <program name="receive" command="sw/ground_segment/tmtc/receive.opt">
+    <program name="receive" command="sw/ground_segment/tmtc/receive">
       <arg flag="-b" variable="ivy_bus"/>
     </program>
     <program name="cockpit" command="sw/ground_segment/cockpit/cockpit.pl">
@@ -33,10 +33,11 @@
       <arg flag="-f" variable="flight_plan"/>
       <arg flag="-r" variable="render"/>
     </program>
-    <program name="map 2d ml" command="sw/ground_segment/cockpit/map2d.out">
+    <program name="map 2d ml" command="sw/ground_segment/cockpit/map2d">
       <arg flag="-b" variable="ivy_bus"/>
+      <arg flag="-m" variable="map"/>
     </program>
-    <program name="map 3d" command="sw/ground_segment/visu3d/mapGL.opt">
+    <program name="map 3d" command="sw/ground_segment/visu3d/mapGL">
       <arg flag="-b" variable="ivy_bus"/>
       <arg flag="-m" variable="map"/>
       <arg flag="-f" variable="flight_plan"/>
@@ -46,27 +47,27 @@
       <arg flag="-m" variable="map"/>
       <arg flag="-f" variable="flight_plan"/>
     </program>
-    <program name="messages" command="sw/ground_segment/tmtc/messages.opt">
+    <program name="messages" command="sw/ground_segment/tmtc/messages">
       <arg flag="-b" variable="ivy_bus"/>
     </program>
     <program name="speech" command="sw/ground_segment/speech/paparazzi_speak.pl">
       <arg flag="-b" variable="ivy_bus"/>
 <!--      <arg flag="-t" variable="paparazzi_home"/> -->
     </program>
-    <program name="wind" command ="sw/ground_segment/wind/wind.opt"><arg flag="-b" variable="ivy_bus"/></program>
+    <program name="wind" command ="sw/ground_segment/wind/wind"><arg flag="-b" variable="ivy_bus"/></program>
     <program name="plot" command ="sw/logalizer/plot.pl"/>
-    <program name="play" command="sw/logalizer/play.opt">
+    <program name="play" command="sw/logalizer/play">
       <arg flag="-b" variable="ivy_bus"/>
     </program>
     <program name="sim" command="sw/simulator/simsitl.pl">
       <arg flag="-b" variable="ivy_bus"/>
     </program>
-    <program name="hitl" command="sw/simulator/simhitl.out">
+    <program name="hitl" command="sw/simulator/simhitl">
       <arg flag="-fbw" variable="fbw_serial_port"/>
       <arg flag="-ap" variable="ap_serial_port"/>
     </program>
     <program name="configurator" command="sw/configurator/configurator"/>
-    <program name="medit" command="sw/configurator/medit.out"/>
+    <program name="medit" command="sw/configurator/medit"/>
     <program name="make aircraft" command="sw/configurator/configurator"/>
 
 
@@ -80,7 +81,7 @@
       <program name="sim"><arg flag="-a" constant="Thon1"/></program>
       <program name="sim"><arg flag="-a" constant="Thon2"/></program>
       <program name="cockpit"/>
-      <program name="map 2d"/>
+      <program name="map 2d ml"/>
       <program name="map 3d"/>
     </session>
 
@@ -89,7 +90,7 @@
       <program name="receive"/>     
       <program name="sim"><arg flag="-a" constant="Thon1"/></program>
       <program name="cockpit"/>
-      <program name="map 2d"/>
+      <program name="map 2d ml"/>
       <program name="wind"/>
     </session>
 
