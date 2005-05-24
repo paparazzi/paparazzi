@@ -194,7 +194,7 @@ let rec compile_stage = fun block x ->
     | "for" ->
        List.iter (compile_stage block) (Xml.children x);
        incr stage (* To count the loop stage *)
-    | "return_from_excpt" | "goto"  | "deroute" | "exit_block"
+    | "return_from_excpt" | "goto"  | "deroute" | "exit_block" | "follow"
     | "heading" | "go" | "stay" | "xyz" | "circle" -> ()
     | s -> failwith (sprintf "Unknown stage: %s\n" s)
   end
@@ -249,6 +249,12 @@ let rec print_stage = fun index_of_waypoints x ->
 	lprintf "desired_course = RadOfDeg(%s);\n" (parsed_attrib x "course");
 	ignore (output_vmode x "" "");
 	left (); lprintf "}\n";
+	lprintf "return;\n"
+    | "follow" ->
+	stage ();
+	let id = ExtXml.attrib x "ac_id" in
+	let d = ExtXml.attrib x "distance" in
+	lprintf "Follow(%s, %s);\n" id d;
 	lprintf "return;\n"
     | "go" ->
 	stage ();

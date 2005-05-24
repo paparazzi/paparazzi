@@ -51,12 +51,12 @@ type aircraft = {
 
 let aircraft = fun name ->
   let aircraft_xml, id =
-    let rec loop i = function
+    let rec loop = function
 	[] -> failwith ("Aicraft not found : "^name)
       | x::_ when Xml.tag x = "aircraft" && Xml.attrib x "name" = name ->
-	  (x, i)
-      | _x::xs -> loop (i+1) xs in
-    loop 0 (Xml.children conf_xml) in
+	  (x, int_of_string (Xml.attrib x "ac_id"))
+      | _x::xs -> loop xs in
+    loop (Xml.children conf_xml) in
   
   let airframe_file = user_conf_path // ExtXml.attrib aircraft_xml "airframe" in
 

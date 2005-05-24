@@ -48,7 +48,7 @@ class track = fun ?(name="coucou") ?(size = 50) ?(color="red") (geomap:MapCanvas
     GnoCanvas.text group ~props:[`TEXT name; `X 25.; `Y 25.; `ANCHOR `SW; `FILL_COLOR color] in
   let carrot = GnoCanvas.group group in
   let _ac_carrot =
-    ignore (GnoCanvas.polygon ~points:[|0.;0.;-2.5;5.;2.5;5.|] ~props:[`WIDTH_UNITS 1.;`FILL_COLOR "orange"; `OUTLINE_COLOR "orange"; `FILL_STIPPLE (Gdk.Bitmap.create_from_data ~width:2 ~height:2 "\002\001")] carrot) in
+    ignore (GnoCanvas.polygon ~points:[|0.;0.;-5.;-10.;5.;-10.|] ~props:[`WIDTH_UNITS 1.;`FILL_COLOR "orange"; `OUTLINE_COLOR "orange"; `FILL_STIPPLE (Gdk.Bitmap.create_from_data ~width:2 ~height:2 "\002\001")] carrot) in
   
   object (self)
     val mutable segments = Array.create size empty

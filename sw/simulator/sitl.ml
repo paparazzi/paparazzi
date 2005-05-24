@@ -26,6 +26,9 @@
 
 open Printf
 
+let ios = int_of_string
+let fos = float_of_string
+
 let ivy_bus = ref "127.255.255.255:2010"
 
 module Make(A:Data.MISSION) = struct
@@ -113,11 +116,20 @@ module Make(A:Data.MISSION) = struct
     ignore (adj_bat#connect#value_changed update);
     update ()
 
+  external set_the_other : float -> float -> float -> float -> unit = "sim_set_the_other"
+
+  let traffic_info = fun ac_id east north heading alt ->
+    if ac_id <> A.ac.Data.id then (* Only ONE other A/C for the time being *)
+      set_the_other east north heading alt
+
   let boot = fun () ->
     periodic servos_period update_servos;
     periodic periodic_period periodic_task;
     periodic rc_period rc_task;
-    periodic 10000 update_adj_bat
+    periodic 10000 update_adj_bat;
+    ignore (Ivy.bind
+      (fun _ a -> traffic_info (ios a.(0)) (fos a.(1)) (fos a.(2)) (fos a.(4)) (fos a.(5)) )
+      "TRAFFIC_INFO +([^ ]+) +([^ ]+) +([^ ]+) +([^ ]+) +([^ ]+) +([^ ]+) +([^ ]+)")
 
 
 (* Functions called by the simulator *)

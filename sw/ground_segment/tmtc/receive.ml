@@ -29,8 +29,10 @@ module U = Unix
 
 module ModemTransport = Serial.Transport(Modem.Protocol)
 module Tele_Class = struct let name = "telemetry_ap" end
+module Tc_Class = struct let name = "telecommand" end
 module AcInfo = struct let name = "aircraft_info" end
 module Tele_Pprz = Pprz.Protocol(Tele_Class)
+module Tc_Pprz = Pprz.Protocol(Tc_Class)
 module AcInfo_Pprz = Pprz.Protocol(AcInfo)
 module PprzTransport = Serial.Transport(Tele_Pprz)
 
@@ -78,6 +80,8 @@ type aircraft = {
     mutable pitch   : float;
     mutable east    : float;
     mutable north    : float;
+    mutable nav_ref_east    : float;
+    mutable nav_ref_north    : float;
     mutable desired_east    : float;
     mutable desired_north    : float;
     mutable gspeed  : float;
@@ -106,6 +110,7 @@ let aircrafts = Hashtbl.create 3
 (** Broadcast of the received aircrafts *)
 let aircrafts_msg_period = 5000 (* ms *)
 let aircraft_msg_period = 1000 (* ms *)
+let traffic_info_period = 2000 (* ms *)
 let send_aircrafts_msg = fun () ->
   let t = U.gettimeofday () in
   let names = String.concat "," (Hashtbl.fold (fun k v r -> k::r) aircrafts [])  in
@@ -155,6 +160,9 @@ let log_and_parse = fun log ac_name a msg values ->
   | "DESIRED" ->
       a.desired_east <- fvalue "desired_x";
       a.desired_north <- fvalue "desired_y"
+  | "NAVIGATION_REF" ->
+      a.nav_ref_east <- fvalue "utm_east";
+      a.nav_ref_north <- fvalue "utm_north"
   | "ATTITUDE" ->
       a.roll <- fvalue "phi";
       a.pitch <- fvalue "theta"
@@ -203,7 +211,7 @@ let send_aircraft_msg = fun ac ->
     let _, fp_msg = AcInfo_Pprz.message_of_name "FLIGHT_PARAM" in
     Ivy.send (sprintf "%s %s" ac (AcInfo_Pprz.string_of_message fp_msg values));
 
-    let values = ["cur_block", Pprz.Int a.cur_block;"cur_stage", Pprz.Int a.cur_stage; "target_east", f a.desired_east; "target_north", f a.desired_north]
+    let values = ["cur_block", Pprz.Int a.cur_block;"cur_stage", Pprz.Int a.cur_stage; "target_east", f (a.nav_ref_east+.a.desired_east); "target_north", f (a.nav_ref_north+.a.desired_north)]
     and _, ns_msg =  AcInfo_Pprz.message_of_name "NAV_STATUS" in
     Ivy.send (sprintf "%s %s" ac (AcInfo_Pprz.string_of_message ns_msg values));
 
@@ -216,13 +224,30 @@ let send_aircraft_msg = fun ac ->
     Ivy.send (sprintf "%s %s" ac (AcInfo_Pprz.string_of_message as_msg values))
   with
     Not_found -> prerr_endline ac
+
+let send_traffic_info = fun ac ->
+  (* TODO: should send up on the datalink *)
+  (* Sending on the Ivy bus for the simulators *)
+  let a = Hashtbl.find aircrafts ac in
+  let f = fun x -> Pprz.Float x in
+  let conf = ExtXml.child conf_xml "aircraft" ~select:(fun x -> ExtXml.attrib x "name" = ac) in
+  let values = ["ac_id", Pprz.Int (int_of_string (ExtXml.attrib conf "ac_id"));
+                "east", f a.east;
+		"north", f a.north;
+		"speed", f a.gspeed;
+		"heading", f (Geometry_2d.rad2deg a.course);
+		"alt", f a.alt;
+		"climb", f a.climb] in
+  let _, fp_msg = Tc_Pprz.message_of_name "TRAFFIC_INFO" in
+  Ivy.send (sprintf "%s %s" ac (Tc_Pprz.string_of_message fp_msg values))
       
 let new_aircraft = fun id ->
-    { port = id ; roll = 0.; pitch = 0.; east = 0.; north = 0.; desired_east = 0.; desired_north = 0.; gspeed=0.; course = 0.; alt=0.; climb=0.; cur_block=0; cur_stage=0; throttle = 0.; rpm = 0.; temp = 0.; bat = 0.; amp = 0.; energy = 0.; ap_mode=0; ap_altitude=0; if_calib_mode=0; mcu1_status=0; lls_calib=0 }
+    { port = id ; roll = 0.; pitch = 0.; east = 0.; north = 0.; nav_ref_east = 0.; nav_ref_north = 0.; desired_east = 0.; desired_north = 0.; gspeed=0.; course = 0.; alt=0.; climb=0.; cur_block=0; cur_stage=0; throttle = 0.; rpm = 0.; temp = 0.; bat = 0.; amp = 0.; energy = 0.; ap_mode=0; ap_altitude=0; if_calib_mode=0; mcu1_status=0; lls_calib=0 }
     
 let register_aircraft = fun name a ->
   Hashtbl.add aircrafts name a;
-  ignore (Glib.Timeout.add aircraft_msg_period (fun () -> send_aircraft_msg name; true))
+  ignore (Glib.Timeout.add aircraft_msg_period (fun () -> send_aircraft_msg name; true));
+  ignore (Glib.Timeout.add traffic_info_period (fun () -> send_traffic_info name; true))
 
 
 (** Callback of an identifying message from a soft simulator *)

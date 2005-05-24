@@ -335,4 +335,15 @@ twinstar2 POSITION_UTM 10 10
   </message>
 </class>
 
+<class name="telecommand">
+  <message name="TRAFFIC_INFO" id="0x01">
+    <field name="ac_id"   type="int8"/>
+    <field name="east"    type="float" unit="m"/>
+    <field name="north"   type="float" unit="m"/>
+    <field name="speed"   type="float" unit="m/s"/>
+    <field name="heading" type="float" unit="deg"/>
+    <field name="alt"     type="float" unit="m"/>
+    <field name="climb"   type="float" unit="m/s"/>
+  </message>
+</class>
 </protocol>

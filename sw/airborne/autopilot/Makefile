@@ -65,6 +65,7 @@ $(TARGET).srcs	=							\
 	uart.c                                                          \
         estimator.c                                                     \
 	if_calib.c							\
+	traffic_info.c \
 	mainloop.c
 
 include ../../../conf/Makefile.local

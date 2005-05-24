@@ -32,6 +32,7 @@
 #include "autopilot.h"
 #include "link_fbw.h"
 #include "airframe.h"
+#include "traffic_info.h"
 
 uint8_t nav_stage, nav_block;
 uint8_t excpt_stage; /*To save the current stage when an exception is raised */
@@ -108,6 +109,19 @@ static float carrot_x, carrot_y;
 #define Min(x,y) (x < y ? x : y)
 #define Max(x,y) (x > y ? x : y)
 #define Qdr(x) (Min(x, 350) < qdr && qdr < x+10)
+
+void Follow(uint8_t _ac_id, float distance);
+
+
+void
+Follow(uint8_t _ac_id, float distance) { 
+  struct ac_info_ * ac = get_the_other();
+  vertical_mode = VERTICAL_MODE_AUTO_ALT;
+  desired_altitude = ac->alt;
+  float alpha = M_PI/2 - RadOfDeg(ac->heading);
+  fly_to_xy(ac->east - distance*cos(alpha), ac->north - distance*sin(alpha));
+}
+
 
 #include "flight_plan.h"
 

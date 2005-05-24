@@ -3,6 +3,7 @@
 <conf>
   <aircraft 
     name="Morue1"
+    ac_id="0"
     airframe="airframes/microjet1.xml" 
     radio="radios/mc3030.xml" 
     flight_plan="flight_plans/muret3.xml"
@@ -10,6 +11,7 @@
 
   <aircraft 
     name="Morue2"
+    ac_id="1"
     airframe="airframes/microjet2.xml" 
     radio="radios/mc3030.xml" 
     flight_plan="flight_plans/muret2.xml"
@@ -17,6 +19,7 @@
 
   <aircraft 
     name="Thon1"
+    ac_id="2"
     airframe="airframes/twinstar1.xml" 
     radio="radios/cockpitMM.xml" 
     flight_plan="flight_plans/muret_for.xml"
@@ -24,9 +27,10 @@
 
   <aircraft 
     name="Thon2"
+    ac_id="3"
     airframe="airframes/twinstar2.xml" 
     radio="radios/mc3030.xml" 
-    flight_plan="flight_plans/muret1.xml"
+    flight_plan="flight_plans/muret_follow.xml"
   />
   
   <map

@@ -115,11 +115,11 @@ let aircraft_pos_msg = fun track utm_x utm_y heading ->
       track#add_point en;
       track#move_icon en heading
 
-let carrot_pos_msg = fun track x y ->
+let carrot_pos_msg = fun track utm_x utm_y ->
   match !map_ref with
     None -> ()
   | Some utm0 ->
-      let en =  {G.east = x; north = y } in
+      let en =  {G.east = utm_x -. utm0.utm_x; north = utm_y -. utm0.utm_y } in
       track#move_carrot en
 
 let new_color =

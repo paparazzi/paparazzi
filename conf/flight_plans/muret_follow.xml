@@ -1,4 +1,4 @@
-<!DOCTYPE flight_plan SYSTEM "flight_plan.dtd">
+<!-- <!DOCTYPE flight_plan SYSTEM "flight_plan.dtd"> -->
 
 <flight_plan NAME="example - Muret for loops" LON0="1.27289" MAX_DIST_FROM_HOME="1000" GROUND_ALT="185" SECURITY_HEIGHT="25" QFU="270" ALT="250" LAT0="43.46223">
   <rc_control>
@@ -22,15 +22,8 @@
       <heading CLIMB="3.0" VMODE="climb" PITCH="0.15" COURSE="QFU" UNTIL="(estimator_z > SECURITY_ALT)"/>
     </block>
 
-    <block NAME="for">
-      <exception COND="(RcEvent1())" DEROUTE="for"/>
-      <for var="i" from="0" to="3">
-        <go hmode="route" x="-200" y="$i*100"/>
-        <go x="-200" y="($i+3)*100"/>
-        <go hmode="route" x="200" y="($i+3)*100"/>
-        <go x="200" y="($i+1)*100"/>
-      </for>
-      <circle WP="HOME" alt="GROUND_ALT+50" radius="75"/>
+    <block NAME="follow">
+      <follow ac_id="2" distance="200"/>
     </block>
   </blocks>
 </flight_plan>
