@@ -82,23 +82,12 @@
       <program name="sim"><arg flag="-a" constant="Thon2"/></program>
       <program name="cockpit"/>
       <program name="map 2d ml"/>
-      <program name="map 3d"/>
-    </session>
-
-    <session name="soft sim 1">
-      <variable name="ivy_bus" value="127.25.255.255:3333"/>
-      <program name="receive"/>     
-      <program name="sim"><arg flag="-a" constant="Thon1"/></program>
-      <program name="cockpit"/>
-      <program name="map 2d ml"/>
-      <program name="wind"/>
     </session>
 
     <session name="flight">
       <program name="receive"/>
       <program name="cockpit"/>
-      <program name="mission"/>
-      <program name="map2d"/>
+      <program name="map 2d ml"/>
     </session>
 
   </section>

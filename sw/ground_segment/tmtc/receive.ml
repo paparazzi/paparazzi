@@ -253,7 +253,6 @@ let register_aircraft = fun name a ->
 (** Callback of an identifying message from a soft simulator *)
 let ident_msg = fun log id name ->
   if not (Hashtbl.mem aircrafts name) then begin
-    prerr_endline "ident_msg";
     let ac = new_aircraft (Ivy id) in
     let b = Ivy.bind (fun _ args -> sim_msg log name ac args.(0)) (sprintf "^%s +(.*)" id) in
     register_aircraft name ac;
@@ -288,7 +287,7 @@ let send_config = fun id_ac id_req ->
     Not_found ->
       Ivy.send (sprintf "ground UNKNOWN %s" id_req)     
     
-let server = fun () ->
+let ivy_server = fun () ->
   ignore (Ivy.bind (fun _ args -> send_aircrafts_msg ()) "^ask AIRCRAFTS");
   ignore (Ivy.bind (fun _ args -> send_flight_plan args.(0)) "^ask FLIGHT_PLAN +(.*)");
   ignore (Ivy.bind (fun _ args -> send_config args.(0) args.(1)) "^(.*) CONFIG_REQ +(.*)")
@@ -307,6 +306,29 @@ let handle_pprz_message = fun log a ->
     | Some ac_name ->
 	log_and_parse log ac_name a msg values
 
+module Coronis = struct
+  let send_ack = fun delay fd ->
+    ignore (GMain.Timeout.add delay (fun _ -> Wavecard.send fd ("ACK", ""); false))
+
+  let broadcast_msg = fun (msg, data) ->
+    Ivy.send (sprintf "FROM_WAVECARD %s %s" msg data)
+
+  let connect = fun port ->
+    try
+      let fd = Serial.opendev port Serial.B9600 in
+      (* Listening *)
+      let cb = fun _ ->
+	Wavecard.receive ~ack:(fun () -> send_ack 100 fd) broadcast_msg fd;
+	true in
+      ignore (GMain.Io.add_watch [`IN] cb (GMain.Io.channel_of_descr fd));
+      
+      (* Sending request from Ivy *)
+      let send = fun _ a -> Wavecard.send fd (a.(0), a.(1)) in
+      ignore (Ivy.bind send "TO_WAVECARD +([^ ]+) +([^ ]+)")
+    with
+      _ -> failwith "Coronis.connect"
+end
+
 let listen_link = fun log xml_link ->
   match ExtXml.attrib xml_link "protocol" with
     "pprz/modem" ->
@@ -314,6 +336,11 @@ let listen_link = fun log xml_link ->
       let port = ExtXml.attrib xml_link "port" in
       let ac = new_aircraft (Modem port) in
       listen_pprz_modem (handle_pprz_message log ac) port
+(***
+  | "pprz/coronis" ->
+      let port = ExtXml.attrib xml_link "port" in
+      Coronis.connect port
+***)
   | _  -> fprintf stderr "Warning: Ignoring link '%s'\n" (ExtXml.attrib xml_link "name")
   
 
@@ -331,7 +358,6 @@ let _ =
   Ivy.init "Paparazzi receive" "READY" (fun _ _ -> ());
   Ivy.start !ivy_bus;
 
-
   (* Opens the log file *)
   let log = logger () in
 
@@ -344,7 +370,8 @@ let _ =
   (* Sends periodically alive aircrafts *)
   ignore (Glib.Timeout.add aircrafts_msg_period (fun () -> send_aircrafts_msg (); true));
 
-  server ();
+  (* Waits for client requests on the Ivy bus *)
+  ivy_server ();
   
   let loop = Glib.Main.create true in
   while Glib.Main.is_running loop do ignore (Glib.Main.iteration true) done
