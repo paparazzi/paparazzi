@@ -1,0 +1,34 @@
+Linux Radio Transmission Decoder
+by Thomas Sailer, HB9JNX/AE4WA
+Paparazzi adaptions added by Martin Mueller, DL3FCC
+
+Description
+
+The multimon software can decode a variety of digital transmission modes commonly found on UHF radio. A standard PC soundcard is used to acquire the signal from a transceiver. The decoding is done completely in software. Currently, the following modes are supported:
+
+    * AX.25
+          o 1200 Baud AFSK
+          o 2400 Baud AFSK (2 variants)
+          o 4800 Baud HAPN
+          o 9600 Baud FSK (G3RUH)
+    * POCSAG
+          o 512 Baud
+          o 1200 Baud
+          o 2400 Baud
+    * Miscellaneous
+          o DTMF
+          o ZVEI
+          o 4800 Baud AFSK PPRZ (baudot and hdlc)
+
+An arbitrary set of the above modes may run concurrently on the same input signal (provided the CPU power is sufficient), so you do not have to know in advance which mode is used. Note however that some modes might require modifications to the radio (especially the 9600 baud FSK and the POCSAG modes) to work properly.
+
+POCSAG (Post Office Code Standards Advisory Group) is a common paging transmission format.
+Download
+
+PPRZ is a proprietary 4800 Baud baudot-like protocol. This is used by the Paparazzi project which is located at http://www.nongnu.org/paparazzi
+
+Please note that monitoring commercial services may be prohibited in some countries, this software should therefore only be used to monitor the amateur radio service.
+
+The software is published under the GNU GPL V2
+
+The original software can be found at http://www.baycom.org/~tom/ham/linux/multimon.html

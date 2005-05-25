@@ -55,6 +55,15 @@ struct demod_state {
 				unsigned int numnibbles;
 			} rx[2];
 		} pocsag;
+		
+		struct l2_state_pprz {
+			unsigned char rxbuf[512];
+			unsigned char *rxptr;
+			unsigned int rxstate;
+			unsigned int rxbitstream;
+			unsigned int rxbitbuf;
+			int pipe_fd;
+		} pprz;
 	} l2;
 	union {
 		struct l1_state_poc5 {
@@ -86,6 +95,22 @@ struct demod_state {
 			unsigned int sphase;
 			unsigned int lasts;
 		} afsk24;
+
+		struct l1_state_afsk48p {
+			unsigned int dcd_shreg;
+			unsigned int sphase;
+			unsigned int lasts;
+			unsigned int dcd_count;
+			unsigned int sample_count;
+		} afsk48p;
+
+		struct l1_state_afsk48 {
+			unsigned int dcd_shreg;
+			unsigned int sphase;
+			unsigned int lasts;
+			unsigned int dcd_count;
+			unsigned int sample_count;
+		} afsk48;
 
 		struct l1_state_hapn48 {
 			unsigned int shreg;
@@ -140,6 +165,8 @@ extern const struct demod_param demod_poc24;
 extern const struct demod_param demod_afsk1200;
 extern const struct demod_param demod_afsk2400;
 extern const struct demod_param demod_afsk2400_2;
+extern const struct demod_param demod_afsk4800p;
+extern const struct demod_param demod_afsk4800;
 
 extern const struct demod_param demod_hapn4800;
 extern const struct demod_param demod_fsk9600;
@@ -150,8 +177,9 @@ extern const struct demod_param demod_zvei;
 extern const struct demod_param demod_scope;
 
 #define ALL_DEMOD &demod_poc5, &demod_poc12, &demod_poc24, \
-&demod_afsk1200, &demod_afsk2400, &demod_afsk2400_2, &demod_hapn4800, \
-&demod_fsk9600, &demod_dtmf, &demod_zvei, &demod_scope
+&demod_afsk1200, &demod_afsk2400, &demod_afsk2400_2, &demod_afsk4800p, \
+&demod_afsk4800, &demod_hapn4800, &demod_fsk9600, &demod_dtmf, \
+&demod_zvei, &demod_scope
 
 /* ---------------------------------------------------------------------- */
 
@@ -162,6 +190,10 @@ void hdlc_rxbit(struct demod_state *s, int bit);
 
 void pocsag_init(struct demod_state *s);
 void pocsag_rxbit(struct demod_state *s, int bit);
+
+void pprz_init(struct demod_state *s);
+void pprz_rxbit(struct demod_state *s, int bit);
+void pprz_status(struct demod_state *s);
 
 void xdisp_terminate(int cnum);
 int xdisp_start(void);

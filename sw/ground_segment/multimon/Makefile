@@ -11,11 +11,11 @@ endif
 LDFLAGSX	=-lX11 -L/usr/X11R6/lib -R/usr/X11R6/lib -lsocket -lnsl
 else
 ifeq ($(DEBUG),y)
-CFLAGS		+=-g -O -m486 -malign-loops=2 -malign-jumps=2 \
-		  -malign-functions=2 -DARCH_I386
+CFLAGS		+=-g -O -march=i486 -falign-loops=2 -falign-jumps=2 \
+		  -falign-functions=2 -DARCH_I386
 else
-CFLAGS		+=-O3 -m486 -malign-loops=2 -malign-jumps=2 \
-		  -malign-functions=2 -DARCH_I386
+CFLAGS		+=-O3 -march=i486 -falign-loops=2 -falign-jumps=2 \
+		  -falign-functions=2 -DARCH_I386
 endif
 LDFLAGSX	=-lX11 -L/usr/X11R6/lib
 endif
@@ -48,8 +48,8 @@ $(BINDIR)/%.o:	$(BINDIR)/%.s
 $(BINDIR)/%.o:	%.c
 		$(CC) $(CFLAGS) -c -o $@ $<
 
-SRC_L2		=hdlc.c pocsag.c
-SRC_L1		=demod_afsk12.c demod_afsk24.c demod_afsk24_2.c
+SRC_L2		=hdlc.c pocsag.c pprz.c
+SRC_L1		=demod_afsk12.c demod_afsk24.c demod_afsk24_2.c demod_afsk48p.c demod_afsk48.c
 SRC_L1		+=demod_hapn48.c demod_fsk96.c
 SRC_L1		+=demod_poc5.c demod_poc12.c demod_poc24.c
 SRC_L1		+=demod_dtmf.c demod_zvei.c demod_display.c
