@@ -55,7 +55,7 @@
     <define name="LOW_BATTERY" value="93" unit="1e-1V"/>
   </section>
   <section name="MISC">
-    <define name="NOMINAL_AIRSPEED" value="10." unit="m/s"/>
+    <define name="NOMINAL_AIRSPEED" value="12." unit="m/s"/>
     <define name="CARROT" value="5." unit="s"/>
   </section>
 </airframe>

@@ -116,11 +116,11 @@ module Make(A:Data.MISSION) = struct
     ignore (adj_bat#connect#value_changed update);
     update ()
 
-  external set_the_other : float -> float -> float -> float -> unit = "sim_set_the_other"
+   external set_the_other : int -> float -> float -> float -> float -> unit = "sim_set_the_other"
 
   let traffic_info = fun ac_id east north heading alt ->
     if ac_id <> A.ac.Data.id then (* Only ONE other A/C for the time being *)
-      set_the_other east north heading alt
+      set_the_other ac_id east north heading alt
 
   let boot = fun () ->
     periodic servos_period update_servos;

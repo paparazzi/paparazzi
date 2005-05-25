@@ -115,7 +115,7 @@ void Follow(uint8_t _ac_id, float distance);
 
 void
 Follow(uint8_t _ac_id, float distance) { 
-  struct ac_info_ * ac = get_the_other();
+  struct ac_info_ * ac = get_the_other(_ac_id);
   vertical_mode = VERTICAL_MODE_AUTO_ALT;
   desired_altitude = ac->alt;
   float alpha = M_PI/2 - RadOfDeg(ac->heading);

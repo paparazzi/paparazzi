@@ -117,7 +117,7 @@ $(OBJDIR)/simsitl.ml : simsitl.ml
 	$(OCAMLC) $(INCLUDES) -c $<
 
 clean :
-	\rm -f *.cm* *~ *.out .depend *.o
+	\rm -f *.cm* *~ *.out .depend *.o *.a *.so
 
 flightModel.cmo: flightModel.cmi 
 hitl.cmo: hitl.cmi 

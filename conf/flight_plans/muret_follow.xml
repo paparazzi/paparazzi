@@ -23,7 +23,7 @@
     </block>
 
     <block NAME="follow">
-      <follow ac_id="2" distance="200"/>
+      <follow ac_id="2" distance="50"/>
     </block>
   </blocks>
 </flight_plan>

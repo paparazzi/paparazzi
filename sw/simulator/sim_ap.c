@@ -94,6 +94,7 @@ value set_servos(value servos) {
 }
 
 value
-sim_set_the_other(value east, value north, value heading, value alt) {
-  set_the_other(Double_val(east), Double_val(north), Double_val(heading), Double_val(alt));
+sim_set_the_other(value id, value east, value north, value heading, value alt) {
+  set_the_other(Int_val(id), Double_val(east), Double_val(north), Double_val(heading), Double_val(alt));
+  return Val_unit;
 }
