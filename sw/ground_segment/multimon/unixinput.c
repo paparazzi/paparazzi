@@ -177,6 +177,7 @@ static void input_sound(unsigned int sample_rate, unsigned int overlap,
 	short *sp;
 	unsigned char *bp;
 	int fmt = 0;
+	int stereo = 0;
 
 	if ((fd = open(ifname ? ifname : "/dev/dsp", O_RDONLY)) < 0) {
 		perror("open");
@@ -205,6 +206,11 @@ static void input_sound(unsigned int sample_rate, unsigned int overlap,
 		perror("ioctl: SNDCTL_DSP_STEREO");
 		exit (10);
 	}
+        if (sndparam == 1) {
+                fprintf(stderr, "soundif: Warning, cannot set the channel "
+                        "number to 1, will use stereo\n");
+		stereo=1;
+        } else
         if (sndparam != 0) {
                 fprintf(stderr, "soundif: Error, cannot set the channel "
                         "number to 1\n");
@@ -261,8 +267,13 @@ static void input_sound(unsigned int sample_rate, unsigned int overlap,
 			if (!i)
 				break;
 			if (i > 0) {
-				for (; i >= sizeof(b.s[0]); i -= sizeof(b.s[0]), sp++)
-					fbuf[fbuf_cnt++] = (*sp) * (1.0/32768.0);
+				if (stereo) {
+					for (; i >= sizeof(b.s[0]); i -= (sizeof(b.s[0])*2), sp+=2)
+						fbuf[fbuf_cnt++] = (*sp) * (1.0/32768.0);
+				} else {
+					for (; i >= sizeof(b.s[0]); i -= sizeof(b.s[0]), sp++)
+						fbuf[fbuf_cnt++] = (*sp) * (1.0/32768.0);
+				}
 				if (i)
 					fprintf(stderr, "warning: noninteger number of samples read\n");
 				if (fbuf_cnt > overlap) {
