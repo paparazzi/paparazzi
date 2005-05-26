@@ -1,4 +1,6 @@
-(* ocamlc -I ../../lib/ocaml unix.cma -I +lablgtk2 lablgtk.cma lib.cma bilink.ml *)
+(* ocamlc -I ../../lib/ocaml unix.cma -I +lablgtk2 lablgtk.cma lib-pprz.cma bilink.ml *)
+
+module W = Wavecard
 
 (* Adresse carte sol :       01 18 04 c0 00 4f *)
 (* Adresse carte embarquee : 01 18 04 c0 00 51 *)
@@ -16,11 +18,11 @@ let send = fun fd com ->
 
 
 let send_ack = fun delay fd  ->
-  GMain.Timeout.add delay (fun _ -> send ("ACK", ""))
+  ignore (GMain.Timeout.add delay (fun _ -> send fd (W.ACK, ""); false))
 
 
-let print_cmd = fun (name, data) ->
-  Printf.fprintf stderr "%s:" name;
+let print_cmd = fun (cmd, data) ->
+  Printf.fprintf stderr "%2x:" (W.code_of_cmd cmd);
   for i = 0 to String.length data - 1 do
     Printf.fprintf stderr " %02x" (Char.code data.[i])
   done;
@@ -35,10 +37,10 @@ let _ =
 
   let fd = if !dev = "" then Unix.stdin else Serial.opendev !dev Serial.B9600 in
   
-  ignore (GMain.Timeout.add 2000 (fun _ -> send fd; true));
+  ignore (GMain.Timeout.add 2000 (fun _ -> send fd (W.REQ_READ_RADIO_PARAM,"\000"); true));
 
-  let cb = Wavecard.receive ~ack:(send_ack 100) print_cmd in
+  let cb = Wavecard.receive ~ack:(fun () -> send_ack 100 fd) print_cmd in
 
-  ignore (GMain.Io.add_watch `IN (fun () -> cb fd; true) (GMain.Io.channel_of_descr fd));
+  ignore (GMain.Io.add_watch [`IN] (fun _ -> cb fd; true) (GMain.Io.channel_of_descr fd));
 
   GMain.Main.main ()

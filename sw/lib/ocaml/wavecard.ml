@@ -26,55 +26,92 @@
 
 open Printf
 
-type cmd_name = string
+type cmd_name =
+    ACK
+  |  NAK
+  |  ERROR
+  |  REQ_WRITE_RADIO_PARAM
+  |  RES_WRITE_RADIO_PARAM
+  |  REQ_READ_RADIO_PARAM
+  |  RES_READ_RADIO_PARAM
+  |  REQ_SELECT_CHANNEL
+  |  RES_SELECT_CHANNEL
+  |  REQ_READ_CHANNEL
+  |  RES_READ_CHANNEL
+  |  REQ_SELECT_PHYCONFIG
+  |  RES_SELECT_PHYCONFIG
+  |  REQ_READ_PHYCONFIG
+  |  RES_READ_PHYCONFIG
+  |  REQ_READ_REMOTE_RSSI
+  |  RES_READ_REMOTE_RSSI
+  |  REQ_READ_LOCAL_RSSI
+  |  RES_READ_LOCAL_RSSI
+  |  REQ_FIRMWARE_VERSION
+  |  RES_FIRMWARE_VERSION
+  |  MODE_TEST
+  |  REQ_SEND_FRAME
+  |  RES_SEND_FRAME
+  |  REQ_SEND_MESSAGE
+  |  REQ_SEND_POLLING
+  |  REQ_SEND_BROADCAST
+  |  RECEIVED_FRAME
+  |  RECEPTION_ERROR
+  |  RECEIVED_FRAME_POLLING
+  |  RECEIVED_FRAME_BROADCAST
+  |  RECEIVED_MULTIFRAME
+  |  REQ_SEND_SERVICE
+  |  RES_SEND_SERVICE
+  |  SERVICE_RESPONSE
+
+
 type data = string
 
 type cmd = cmd_name * string
 
 let cmd_names = [
-  0x06, "ACK";
-  0x15, "NAK";
-  0x00, "ERROR";
-  0x40, "REQ_WRITE_RADIO_PARAM";
-  0x41, "RES_WRITE_RADIO_PARAM";
-  0x50, "REQ_READ_RADIO_PARAM";
-  0x51, "RES_READ_RADIO_PARAM";
-  0x60, "REQ_SELECT_CHANNEL";
-  0x61, "RES_SELECT_CHANNEL";
-  0x62, "REQ_READ_CHANNEL";
-  0x63, "RES_READ_CHANNEL";
-  0x64, "REQ_SELECT_PHYCONFIG";
-  0x65, "RES_SELECT_PHYCONFIG";
-  0x66, "REQ_READ_PHYCONFIG";
-  0x67, "RES_READ_PHYCONFIG";
-  0x68, "REQ_READ_REMOTE_RSSI";
-  0x69, "RES_READ_REMOTE_RSSI";
-  0x6A, "REQ_READ_LOCAL_RSSI";
-  0x6B, "RES_READ_LOCAL_RSSI";
-  0xA0, "REQ_FIRMWARE_VERSION";
-  0xA1, "RES_FIRMWARE_VERSION";
-  0xB0, "MODE_TEST";
-  0x20, "REQ_SEND_FRAME";
-  0x21, "RES_SEND_FRAME";
-  0x22, "REQ_SEND_MESSAGE";
-  0x26, "REQ_SEND_POLLING";
-  0x28, "REQ_SEND_BROADCAST";
-  0x30, "RECEIVED_FRAME";
-  0x31, "RECEPTION_ERROR";
-  0x32, "RECEIVED_FRAME_POLLING";
-  0x34, "RECEIVED_FRAME_BROADCAST";
-  0x36, "RECEIVED_MULTIFRAME";
-  0x80, "REQ_SEND_SERVICE";
-  0x81, "RES_SEND_SERVICE";
-  0x82, "SERVICE_RESPONSE"]
+  0x06, ACK;
+  0x15, NAK;
+  0x00, ERROR;
+  0x40, REQ_WRITE_RADIO_PARAM;
+  0x41, RES_WRITE_RADIO_PARAM;
+  0x50, REQ_READ_RADIO_PARAM;
+  0x51, RES_READ_RADIO_PARAM;
+  0x60, REQ_SELECT_CHANNEL;
+  0x61, RES_SELECT_CHANNEL;
+  0x62, REQ_READ_CHANNEL;
+  0x63, RES_READ_CHANNEL;
+  0x64, REQ_SELECT_PHYCONFIG;
+  0x65, RES_SELECT_PHYCONFIG;
+  0x66, REQ_READ_PHYCONFIG;
+  0x67, RES_READ_PHYCONFIG;
+  0x68, REQ_READ_REMOTE_RSSI;
+  0x69, RES_READ_REMOTE_RSSI;
+  0x6A, REQ_READ_LOCAL_RSSI;
+  0x6B, RES_READ_LOCAL_RSSI;
+  0xA0, REQ_FIRMWARE_VERSION;
+  0xA1, RES_FIRMWARE_VERSION;
+  0xB0, MODE_TEST;
+  0x20, REQ_SEND_FRAME;
+  0x21, RES_SEND_FRAME;
+  0x22, REQ_SEND_MESSAGE;
+  0x26, REQ_SEND_POLLING;
+  0x28, REQ_SEND_BROADCAST;
+  0x30, RECEIVED_FRAME;
+  0x31, RECEPTION_ERROR;
+  0x32, RECEIVED_FRAME_POLLING;
+  0x34, RECEIVED_FRAME_BROADCAST;
+  0x36, RECEIVED_MULTIFRAME;
+  0x80, REQ_SEND_SERVICE;
+  0x81, RES_SEND_SERVICE;
+  0x82, SERVICE_RESPONSE]
 
 let rec cossa = fun x l ->
   match l with
     [] -> raise Not_found
   | (v, k)::xs -> if k = x then v else cossa x xs
 
-let cmd_name_of = fun x -> try List.assoc x cmd_names with Not_found -> failwith (sprintf "Unknown command: %2x" x)
-let of_cmd_name = fun x -> try cossa x cmd_names with Not_found -> failwith (sprintf "Unknown command: %s" x)
+let cmd_of_code = fun x -> try List.assoc x cmd_names with Not_found -> failwith (sprintf "Unknown command: %2x" x)
+let code_of_cmd = fun x -> cossa x cmd_names
 
 let sync = Char.chr 0xff
 let stx = Char.chr 0x02
@@ -86,7 +123,7 @@ let total_length = fun buf -> length buf + 3
 let payload = fun buf ->
   let l = length buf in
   let data = String.sub buf 4 (l-4) in
-  (cmd_name_of (Char.code buf.[3]), data)
+  (cmd_of_code (Char.code buf.[3]), data)
 
 let (^=) r x = r := !r lxor x
 
@@ -144,7 +181,7 @@ let send = fun fd (cmd, data) ->
   buf.[0] <- sync;
   buf.[1] <- stx;
   buf.[2] <- Char.chr l;
-  buf.[3] <- Char.chr (of_cmd_name cmd);
+  buf.[3] <- Char.chr (code_of_cmd cmd);
   for i = 4 to l - 1 do
     buf.[i] <- data.[i-4]
   done;
