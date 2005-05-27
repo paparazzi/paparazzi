@@ -89,5 +89,9 @@ $(OBJDIR)/nav.o : $(ACINCLUDE)/flight_plan.h
 $(OBJDIR)/gps_ubx.o : $(VARINCLUDE)/ubx_protocol.h
 $(OBJDIR)/if_calib.o : $(ACINCLUDE)/inflight_calib.h
 
+wavecard_glib : wavecard_glib.c wavecard.c
+	gcc -Wall -o wavecard_glib wavecard.c wavecard_glib.c `pkg-config --cflags glib-2.0` `pkg-config --libs glib-2.0`
+
+
 clean : avr_clean
 	rm -f *.out *.cm* messages.h flight_plan.h ubx_protocol.h inflight_calib.h
