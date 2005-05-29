@@ -138,14 +138,16 @@ let parse_section = fun s ->
 let h_name = "AIRFRAME_H"
 
 let _ =
-  if Array.length Sys.argv <> 3 then
-    failwith (Printf.sprintf "Usage: %s A/C_ident xml_file" Sys.argv.(0));
-  let xml_file = Sys.argv.(2)
-  and ac_name = Sys.argv.(1) in
+  if Array.length Sys.argv <> 4 then
+    failwith (Printf.sprintf "Usage: %s A/C_ident A/C_name xml_file" Sys.argv.(0));
+  let xml_file = Sys.argv.(3)
+  and ac_id = Sys.argv.(1)
+  and ac_name = Sys.argv.(2) in
   try
     let xml = start_and_begin xml_file h_name in
     Xml2h.warning ("AIRFRAME MODEL: "^ ac_name);
     define_string "AIRFRAME_NAME" ac_name;
+    define "AC_ID" ac_id;
     nl ();
     let v = ExtXml.attrib xml "ctl_board" in
     define ("CTL_BRD_"^v) "1";

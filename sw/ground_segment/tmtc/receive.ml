@@ -230,7 +230,7 @@ let send_traffic_info = fun ac ->
   (* Sending on the Ivy bus for the simulators *)
   let a = Hashtbl.find aircrafts ac in
   let f = fun x -> Pprz.Float x in
-  let conf = ExtXml.child conf_xml "aircraft" ~select:(fun x -> ExtXml.attrib x "name" = ac) in
+  let conf = ExtXml.child conf_xml "aircraft" ~select:(fun x -> ExtXml.attrib x "ac_id" = ac) in
   let values = ["ac_id", Pprz.Int (int_of_string (ExtXml.attrib conf "ac_id"));
                 "east", f a.east;
 		"north", f a.north;
@@ -266,7 +266,7 @@ let listen_sims = fun log ->
 (* Server on the Ivy bus *)
 let send_flight_plan = fun id ->
   try
-    let conf = ExtXml.child conf_xml "aircraft" ~select:(fun x -> ExtXml.attrib x "name" = id) in
+    let conf = ExtXml.child conf_xml "aircraft" ~select:(fun x -> ExtXml.attrib x "ac_id" = id) in
     let f = ExtXml.attrib conf "flight_plan" in
     Ivy.send (sprintf "ground FLIGHT_PLAN %s file://%s/conf/%s" id Env.paparazzi_home f)
   with
@@ -276,7 +276,7 @@ let send_flight_plan = fun id ->
 let send_config = fun id_ac id_req ->
   try
     prerr_endline (sprintf "[%s] [%s]\n" id_ac id_req);
-    let conf = ExtXml.child conf_xml "aircraft" ~select:(fun x -> ExtXml.attrib x "name" = id_ac) in
+    let conf = ExtXml.child conf_xml "aircraft" ~select:(fun x -> ExtXml.attrib x "ac_id" = id_ac) in
     let fp = sprintf "%s/conf/%s" Env.paparazzi_home (ExtXml.attrib conf "flight_plan") and
 	af = sprintf "%s/conf/%s" Env.paparazzi_home (ExtXml.attrib conf "airframe") and
 	rc = sprintf "%s/conf/%s" Env.paparazzi_home (ExtXml.attrib conf "radio")in
@@ -306,29 +306,6 @@ let handle_pprz_message = fun log a ->
     | Some ac_name ->
 	log_and_parse log ac_name a msg values
 
-module Coronis = struct
-  let send_ack = fun delay fd ->
-    ignore (GMain.Timeout.add delay (fun _ -> Wavecard.send fd ("ACK", ""); false))
-
-  let broadcast_msg = fun (msg, data) ->
-    Ivy.send (sprintf "FROM_WAVECARD %s %s" msg data)
-
-  let connect = fun port ->
-    try
-      let fd = Serial.opendev port Serial.B9600 in
-      (* Listening *)
-      let cb = fun _ ->
-	Wavecard.receive ~ack:(fun () -> send_ack 100 fd) broadcast_msg fd;
-	true in
-      ignore (GMain.Io.add_watch [`IN] cb (GMain.Io.channel_of_descr fd));
-      
-      (* Sending request from Ivy *)
-      let send = fun _ a -> Wavecard.send fd (a.(0), a.(1)) in
-      ignore (Ivy.bind send "TO_WAVECARD +([^ ]+) +([^ ]+)")
-    with
-      _ -> failwith "Coronis.connect"
-end
-
 let listen_link = fun log xml_link ->
   match ExtXml.attrib xml_link "protocol" with
     "pprz/modem" ->
@@ -336,11 +313,6 @@ let listen_link = fun log xml_link ->
       let port = ExtXml.attrib xml_link "port" in
       let ac = new_aircraft (Modem port) in
       listen_pprz_modem (handle_pprz_message log ac) port
-(***
-  | "pprz/coronis" ->
-      let port = ExtXml.attrib xml_link "port" in
-      Coronis.connect port
-***)
   | _  -> fprintf stderr "Warning: Ignoring link '%s'\n" (ExtXml.attrib xml_link "name")
   
 

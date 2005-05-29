@@ -38,9 +38,7 @@ static:  $(MESSAGES_H) $(UBX_PROTOCOL_H) $(FBW_MESSAGES_H)
 
 $(MESSAGES_H) : $(MESSAGES_XML) $(CONF_XML)
 	test -d $(STATICINCLUDE) || mkdir -p $(STATICINCLUDE)
-	TMP_FILE=`mktemp`;\
-        $(TOOLS)/gen_messages.out $< telemetry_ap > $$TMP_FILE;\
-        mv $$TMP_FILE $@
+	$(TOOLS)/gen_messages.out $< telemetry_ap > $@
 	chmod a+r $@
 
 $(FBW_MESSAGES_H) : $(MESSAGES_XML) $(CONF_XML) 

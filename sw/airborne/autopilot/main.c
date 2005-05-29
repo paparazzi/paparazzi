@@ -183,7 +183,7 @@ uint8_t ticks_last_est; // 20Hz
 #define INIT_MSG_NB 2
 #define HI_FREQ_PHASE_NB  5
 
-static char ac_ident[16] = AIRFRAME_NAME;
+uint8_t ac_ident = AC_ID;
 
 #define PERIODIC_SEND_BAT() DOWNLINK_SEND_BAT(&vsupply, &estimator_flight_time, &low_battery, &block_time, &stage_time)
 #define PERIODIC_SEND_DEBUG() DOWNLINK_SEND_DEBUG(&link_fbw_nb_err, &link_fbw_fbw_nb_err, &modem_nb_ovrn, &gps_nb_ovrn, &mcu1_ppm_cpt);
@@ -195,7 +195,7 @@ static char ac_ident[16] = AIRFRAME_NAME;
 #define PERIODIC_SEND_DESIRED() DOWNLINK_SEND_DESIRED(&desired_roll, &desired_pitch, &desired_x, &desired_y, &desired_altitude);
 #define PERIODIC_SEND_PITCH() DOWNLINK_SEND_PITCH(&ir_pitch, &ir_pitch_neutral, &ir_gain);
 #define PERIODIC_SEND_NAVIGATION_REF()  DOWNLINK_SEND_NAVIGATION_REF(&utm_east0, &utm_north0);
-#define PERIODIC_SEND_IDENT()  DOWNLINK_SEND_IDENT(ac_ident);
+#define PERIODIC_SEND_IDENT()  DOWNLINK_SEND_IDENT(&ac_ident);
 
 #ifdef RADIO_CALIB
 #define PERIODIC_SEND_SETTINGS() if (inflight_calib_mode != IF_CALIB_MODE_NONE)	DOWNLINK_SEND_SETTINGS(&inflight_calib_mode, &slider_1_val, &slider_2_val);

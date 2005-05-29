@@ -30,6 +30,6 @@ let _ =
   mkdir (aircraft_dir // "autopilot");
   mkdir (aircraft_dir // "sim");
   
-  let c = sprintf "make -f Makefile.ac AIRCRAFT=%s AIRFRAME=%s RADIO=%s FLIGHT_PLAN=%s" aircraft (value "airframe") (value "radio") (value "flight_plan") in
+  let c = sprintf "make -f Makefile.ac AIRCRAFT=%s AC_ID=%s AIRFRAME=%s RADIO=%s FLIGHT_PLAN=%s" aircraft (value "ac_id") (value "airframe") (value "radio") (value "flight_plan") in
   prerr_endline c;
   exit (Sys.command c)
