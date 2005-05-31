@@ -6,7 +6,9 @@ all:
 TARGET=check_uart
 
 ARCH      = atmega128
-INCLUDES = -I ../ -I ../../../include
+VARINCLUDE = ../../../var/include
+INCLUDES = -I .. -I ../../../include -I $(VARINCLUDE)
+#INCLUDES = -I ../ -I ../../../include
 
 LOCAL_CFLAGS= $(CTL_BRD_FLAGS)
 

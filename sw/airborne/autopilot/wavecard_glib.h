@@ -9,14 +9,23 @@
 struct WcGlibOptions {
   gchar*    serial_device;
   gboolean  silent;
+  gboolean  poll_mode;
 };
+
+#define WC_STATUS_SELFADDRESS_REQUESTED 0
+#define WC_STATUS_GOT_SELFADDRESS 1
+#define WC_STATUS_REMOTE_RSSI_REQUESTED 2
 
 struct WcGlib {
   GMainLoop* ml;
   GIOChannel* in_ch;
-  uint8_t radio_param;
-  uint8_t self_addr[WC_ADDR_LEN];
-  uint8_t* distant_addr;
+  uint8_t  requested_radio_param;
+  uint8_t  requested_remote_rssi;
+  uint8_t  self_addr[WC_ADDR_LEN];
+  uint8_t  self_id;
+  uint8_t  status;
+  guint    timeout_id;
+  guint    last_poll;
   struct WcGlibOptions options;
 };
 
