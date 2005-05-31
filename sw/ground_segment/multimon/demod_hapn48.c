@@ -69,11 +69,12 @@ static void hapn48_demod(struct demod_state *s, float *buffer, int length)
 		}
 		verbprintf(10, "%c", '0' + (s->l1.hapn48.shreg & 1));
 		s->l1.hapn48.sphase += SPHASEINC;
-		if (((s->l1.hapn48.shreg >> 1) ^ s->l1.hapn48.shreg) & 1)
+		if (((s->l1.hapn48.shreg >> 1) ^ s->l1.hapn48.shreg) & 1) {
 			if (s->l1.hapn48.sphase >= 0x8000+SPHASEINC/2)
 				s->l1.hapn48.sphase -= 0x800;
 			else
 				s->l1.hapn48.sphase += 0x800;
+		}
 #if 0
 		if (cursync)
 			if (((s->l1.hapn48.sphase-0x8000)&0xffffu) >= 0x8000+SPHASEINC/2)

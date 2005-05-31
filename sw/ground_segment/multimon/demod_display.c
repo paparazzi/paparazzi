@@ -53,7 +53,7 @@ static void scope_init(struct demod_state *s)
 static void scope_demod(struct demod_state *s, float *buffer, int length)
 {
 	float *src, *dst;
-	int i, j;
+	int i;
 
 	if (s->l1.scope.dispnum == -1)
 		return;

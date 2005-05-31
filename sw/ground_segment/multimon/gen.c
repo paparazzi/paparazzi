@@ -367,7 +367,7 @@ static const char usage_str[] = "gen\n"
 "  -s <freq>  : encode sine\n"
 "  -p <text>  : encode hdlc packet\n";
 
-void main(int argc, char *argv[])
+int main(int argc, char *argv[])
 {
 	int c;
 	int errflg = 0;
@@ -514,6 +514,7 @@ void main(int argc, char *argv[])
 	}
 	output_file(SAMPLE_RATE, argv[optind], output_type);
 	exit(0);
+	return 0;
 }
 
 

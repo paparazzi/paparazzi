@@ -30,6 +30,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 #define STX         0x02
 #define ETX         0x03
@@ -42,7 +43,7 @@
 
 #define INPUT_BUF_LEN 10
 
-#define MULTIMON_PIPE_NAME "multimon"
+#define MULTIMON_PIPE_NAME "/tmp/multimon"
 
 
 /* ---------------------------------------------------------------------- */

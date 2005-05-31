@@ -74,7 +74,7 @@ static inline unsigned char even_parity(unsigned long data)
 }
 
 /* ---------------------------------------------------------------------- */
-
+#if 0
 static unsigned long pocsag_code(unsigned long data) 
 {
 	unsigned long ret = data << (BCH_N-BCH_K), shreg = ret;
@@ -90,6 +90,7 @@ static unsigned long pocsag_code(unsigned long data)
 		   data, shreg, ret);
 	return ret;
 }
+#endif
 
 /* ---------------------------------------------------------------------- */
 
