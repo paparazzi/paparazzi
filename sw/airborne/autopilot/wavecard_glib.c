@@ -114,7 +114,9 @@ static void priv_parse_payload() {
   case WC_RES_READ_REMOTE_RSSI : {
     g_source_remove(wc_glib.timeout_id);
     float percent = (float)wc_payload[1] / (float)0x2F * 100.;
-    g_message("got WC_RES_READ_REMOTE_RSSI %s %.1f", get_host_by_id(wc_glib.requested_remote_rssi)->name, percent ); 
+    GTimeVal now;
+    g_get_current_time(&now);
+    g_message("%ld.%06ld got WC_RES_READ_REMOTE_RSSI %s %.1f", now.tv_sec, now.tv_usec, get_host_by_id(wc_glib.requested_remote_rssi)->name, percent ); 
     NEXT_RSSI();
     request_remote_rssi();
   }
