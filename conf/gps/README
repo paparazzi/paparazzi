@@ -1,0 +1,3 @@
+This are the settings that we use for the ublox SAM-LS unit. We have no programm for applying them, so you'll have to use ucenter on a windows box ( available upon registration from ublox website ).
+use the tools/GPS Configuration menu to open a window.
+Select the file and click File->GPS :)
