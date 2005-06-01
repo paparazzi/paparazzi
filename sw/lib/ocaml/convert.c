@@ -31,14 +31,23 @@
 #include "caml/mlvalues.h"
 #include "caml/alloc.h"
 
-value c_float_of_indexed_bytes(value s, value index)
+value 
+c_float_of_indexed_bytes(value s, value index)
 {
   float *x = (float*)(String_val(s) + Int_val(index));
 
   return copy_double((double)(*x));
 }
 
-value c_int32_of_indexed_bytes(value s, value index)
+value
+c_sprint_float(value s, value index, value f) {
+  char *p = String_val(s) + Int_val(index);
+  *p = (float)Double_val(f);
+  return Val_unit;
+}
+
+value
+c_int32_of_indexed_bytes(value s, value index)
 {
   int32_t *x = (int32_t*)(String_val(s) + Int_val(index));
 

@@ -46,7 +46,7 @@ type type_descr = {
     format : string ;
     glib_type : string;
     size : int;
-    value : string
+    value : value
   }
 
 
@@ -58,14 +58,16 @@ let messages_xml = fun () -> Lazy.force lazy_messages_xml
 
 external float_of_bytes : string -> int -> float = "c_float_of_indexed_bytes"
 external int32_of_bytes : string -> int -> int32 = "c_int32_of_indexed_bytes"
+external sprint_float : string -> int -> float -> unit = "c_sprint_float"
+
 let types = [
-  ("uint8",  { format = "%u"; glib_type = "guint8";  size = 1; value="42" });
-  ("uint16", { format = "%u";  glib_type = "guint16"; size = 2; value="42" });
-  ("uint32", { format = "%lu" ;  glib_type = "guint32"; size = 4; value="42" });
-  ("int8",   { format = "%d"; glib_type = "gint8";   size = 1; value="42" });
-  ("int16",  { format = "%d";  glib_type = "gint16";  size = 2; value="42" });
-  ("int32",  { format = "%ld" ;  glib_type = "gint32";  size = 4; value="42" });
-  ("float",  { format = "%f" ;  glib_type = "gfloat";  size = 4; value="4.2" })
+  ("uint8",  { format = "%u"; glib_type = "guint8";  size = 1; value=Int 42 });
+  ("uint16", { format = "%u";  glib_type = "guint16"; size = 2; value=Int 42 });
+  ("uint32", { format = "%lu" ;  glib_type = "guint32"; size = 4; value=Int 42 });
+  ("int8",   { format = "%d"; glib_type = "gint8";   size = 1; value= Int 42 });
+  ("int16",  { format = "%d";  glib_type = "gint16";  size = 2; value= Int 42 });
+  ("int32",  { format = "%ld" ;  glib_type = "gint32";  size = 4; value=Int 42 });
+  ("float",  { format = "%f" ;  glib_type = "gfloat";  size = 4; value=Float 4.2 })
 ]
 
 let int_of_string = fun x ->
@@ -90,11 +92,14 @@ let size_of_field = fun f -> (List.assoc f._type types).size
 let default_format = fun x -> (List.assoc x types).format
 let default_value = fun x -> (List.assoc x types).value
 
-let size_of_message = fun message ->
+let payload_size_of_message = fun message ->
   List.fold_right
     (fun (_, f) s -> size_of_field f + s)
     message.fields
     4
+
+let size_of_message = fun m -> 
+  payload_size_of_message m + 3 (* STX, CK_A, CK_B *)
 
 let field_of_xml = fun xml ->
   let t = ExtXml.attrib xml "type" in
@@ -145,6 +150,14 @@ let value_field = fun buffer index (field:field) ->
   | "int32"  | "uint32" -> Int32 (int32_of_bytes buffer index)
   | _ -> failwith "value_field"
 
+let sprint_value = fun buf i field_type v ->
+  match field_type, v with
+    "int8", Int x -> buf.[i] <- Char.chr x
+  | "float", Float f -> sprint_float buf i f
+  | x, _ -> failwith (sprintf "Pprz.sprint_value (%s)" x)
+  
+  
+
 module type CLASS = sig val name : string end
 
 exception Unknown_msg_name of string
@@ -180,8 +193,8 @@ module Protocol(Class:CLASS) = struct
     Debug.call 'T' (fun f -> fprintf f "Pprz ck: %d %d\n" !ck_a (Char.code msg.[l-2]));
     !ck_a = Char.code msg.[l-2] && !ck_b = Char.code msg.[l-1]
 
-  let values_of_bin = fun buffer ->
-    let id = Char.code buffer.[1] in
+  let values_of_payload = fun buffer ->
+    let id = Char.code buffer.[0] in
     let message = message_of_id id in
     Debug.call 'T' (fun f -> fprintf f "Pprz.values id=%d\n" id);
     let rec loop = fun index fields ->
@@ -190,7 +203,28 @@ module Protocol(Class:CLASS) = struct
       | (field_name, field_descr)::fs -> 
 	  let n = size_of_field field_descr in
 	  (field_name, value_field buffer index field_descr) :: loop (index+n) fs in
-    (id, loop 2 message.fields)
+    (id, loop 1 message.fields)
+
+  let values_of_bin = fun buffer ->
+    values_of_payload (String.sub buffer 1 (String.length buffer - 1))
+
+  let payload_of_values = fun id values ->
+    let message = message_of_id id in
+    let n = payload_size_of_message message in
+    let p = String.make n '#' in
+    p.[0] <- Char.chr id;
+    let i = ref 1 in
+    List.iter
+      (fun (field_name, field) ->
+	let v =
+	  try List.assoc field_name values with
+	    Not_found -> default_value field._type in
+	sprint_value p !i field._type v;
+	i := !i + size_of_field field	
+	)
+      message.fields;
+    p
+    
 
   let space = Str.regexp "[ \t]+"
   let values_of_string = fun s ->
@@ -211,6 +245,7 @@ module Protocol(Class:CLASS) = struct
       (msg.name::
        List.map 
 	 (fun (field_name, field) ->
-	   try string_of_value (List.assoc field_name values) with Not_found -> default_value field._type)
+	   try string_of_value (List.assoc field_name values) with
+	     Not_found -> string_of_value (default_value field._type))
 	 msg.fields)
 end

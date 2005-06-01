@@ -36,12 +36,12 @@ val call : char -> (out_channel -> unit) -> unit
 (** [call debug_level output_function] outputs a message to the current
     channel [!Debug.log]
     [debug_level] is a flag to categorize the debug message.
-    The environment variable OPAS_DEBUG contains the active debug levels.
-    [call debug_level output_function] outputs its message iff OPAS_DEBUG
+    The environment variable PPRZ_DEBUG contains the active debug levels.
+    [call debug_level output_function] outputs its message iff PPRZ_DEBUG
     contains the character [debug_level] or [*]
     [output_function]
     [Debug.call 'x' (fun c -> Printf.fprintf c "message")] outputs ["message"]
-    iff the flag 'x' is active (ie OPAS_DEBUG contains the character ['x']) *)
+    iff the flag 'x' is active (ie PPRZ_DEBUG contains the character ['x']) *)
 
 (** No debug information is output if the program was compiled with the
     -noassert flag *)

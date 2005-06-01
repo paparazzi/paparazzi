@@ -31,7 +31,6 @@ module Protocol :
     val length : string -> int -> int
     val payload : string -> int -> string
     val uint8_t : int -> int
-    val ( += ) : int ref -> int -> unit
     val checksum : string -> int -> string -> bool
   end
 

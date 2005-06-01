@@ -27,47 +27,12 @@
 open Printf
 module U = Unix
 
-module ModemTransport = Serial.Transport(Modem.Protocol)
 module Tele_Class = struct let name = "telemetry_ap" end
-module Tc_Class = struct let name = "telecommand" end
+module Tc_Class = struct let name = "non" end
 module AcInfo = struct let name = "aircraft_info" end
 module Tele_Pprz = Pprz.Protocol(Tele_Class)
 module Tc_Pprz = Pprz.Protocol(Tc_Class)
 module AcInfo_Pprz = Pprz.Protocol(AcInfo)
-module PprzTransport = Serial.Transport(Tele_Pprz)
-
-
-let listen_pprz_modem = fun use_pprz_message tty ->
-  (*** let fd = Serial.opendev tty Serial.B4800 in
-  ***) prerr_endline tty;
-  let fd = U.stdin in (***)
-  let use_pprz_buf = fun buf ->
-    Debug.call 'T' (fun f -> fprintf f "use_pprz: %s\n" (Debug.xprint buf));
-    use_pprz_message (Tele_Pprz.values_of_bin buf) in
-  let buffer = ref "" in
-  let use_modem_message = fun msg ->
-    Debug.call 'T' (fun f -> fprintf f "use_modem: %s\n" (Debug.xprint msg));
-    match Modem.parse msg with
-      None -> () (* Only internal modem data *)
-    | Some data ->
-	let b = !buffer ^ data in
-	Debug.call 'T' (fun f -> fprintf f "Pprz buffer: %s\n" (Debug.xprint b));
-	let x = PprzTransport.parse use_pprz_buf b in
-	buffer := String.sub b x (String.length b - x)
-  in
-  let scanner = Serial.input (ModemTransport.parse use_modem_message) in
-  let cb = fun _ ->
-    begin
-      try
-	scanner fd
-      with
-	e -> fprintf stderr "%s\n" (Printexc.to_string e)
-    end;
-    true in
-  
-  ignore (Glib.Io.add_watch [`IN] cb (Glib.Io.channel_of_descr fd))
-
-let space = Str.regexp "[ \t]+"
 
 let (//) = Filename.concat
 let logs_path = Env.paparazzi_home // "var" // "logs"
@@ -292,10 +257,10 @@ let ivy_server = fun () ->
   ignore (Ivy.bind (fun _ args -> send_flight_plan args.(0)) "^ask FLIGHT_PLAN +(.*)");
   ignore (Ivy.bind (fun _ args -> send_config args.(0) args.(1)) "^(.*) CONFIG_REQ +(.*)")
 
+(***
 let handle_pprz_message = fun log a ->
   let name = ref None (*** register_aircraft "log_twinstar" a; Some "log_twinstar" ***) in
-  fun (msg_id, values) ->
-    prerr_endline "handle_pprz_message";
+  fun ...
     let msg = Tele_Pprz.message_of_id msg_id in
     match !name with
       None ->
@@ -305,15 +270,8 @@ let handle_pprz_message = fun log a ->
 	  register_aircraft n a
     | Some ac_name ->
 	log_and_parse log ac_name a msg values
+***)
 
-let listen_link = fun log xml_link ->
-  match ExtXml.attrib xml_link "protocol" with
-    "pprz/modem" ->
-      (* Hyp: One single A/C on this channel *)
-      let port = ExtXml.attrib xml_link "port" in
-      let ac = new_aircraft (Modem port) in
-      listen_pprz_modem (handle_pprz_message log ac) port
-  | _  -> fprintf stderr "Warning: Ignoring link '%s'\n" (ExtXml.attrib xml_link "name")
   
 
 
@@ -335,9 +293,6 @@ let _ =
 
   (* Waits for new simulated aircrafts *)
   listen_sims log;
-
-  (* Listen on links *)
-  List.iter (listen_link log) (Xml.children xml_ground);
 
   (* Sends periodically alive aircrafts *)
   ignore (Glib.Timeout.add aircrafts_msg_period (fun () -> send_aircrafts_msg (); true));

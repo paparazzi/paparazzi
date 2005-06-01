@@ -31,6 +31,8 @@ type _type = string
 type value = Int of int | Float of float | String of string | Int32 of int32
 type field = { _type : _type; fformat : format; }
 type message = { name : string; fields : (string * field) list; }
+(** Message specification *)
+
 val size_of_field : field -> int
 val default_format : string -> string
 val string_of_value : value -> string
@@ -38,7 +40,7 @@ type type_descr = {
     format : string ;
     glib_type : string;
     size : int;
-    value : string
+    value : value
   }
 val types : (string * type_descr) list
 
@@ -49,9 +51,15 @@ module Protocol : functor (Class : CLASS) -> sig
   include Serial.PROTOCOL
   val message_of_id : message_id -> message
   val message_of_name : string ->  message_id * message
+  val values_of_payload : string -> message_id * (string * value) list
+  (** [values_of_bin payload] Parses a raw payload, returns the
+   message id and the list of (field_name, value) *)
   val values_of_bin : string -> message_id * (string * value) list
-(** [values raw_message] Parses a raw message, returns the
-   message id and the liste of (field_name, value) *)
+  (** [values_of_bin raw_message] Same than previous but [raw_message]
+  includes header and checksum. *)
+  val payload_of_values : message_id -> (string * value) list -> string
+  (** [payload_of_values m vs] Returns a payload *)
+
 
   val values_of_string : string -> message_id * (string * value) list
   (** May raise [(Unknown_msg_name msg_name)] *)

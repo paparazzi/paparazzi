@@ -22,10 +22,10 @@
 
 include ../../../conf/Makefile.local
 
-all: receive messages listen.opt
+all: hw_modem_listen wavecard_connect receive messages listen.opt
 
 clean:
-	rm -f receive messages *.bak *~ core *.o .depend *.opt *.out *.cm*
+	rm -f hw_modem_listen wavecard_connect receive messages *.bak *~ core *.o .depend *.opt *.out *.cm*
 
 OCAMLC = ocamlc
 OCAMLOPT = ocamlopt
@@ -41,10 +41,22 @@ messages : messages.ml
 	$(OCAMLOPT) $(INCLUDES) -o $@ str.cmxa unix.cmxa xml-light.cmxa glibivy-ocaml.cmxa -I +lablgtk2 lablgtk.cmxa gtkInit.cmx lib-pprz.cmxa $^ 
 	strip $@
 
-receive : modem.cmo receive.ml
+hw_modem_listen : modem.cmo hw_modem_listen.ml
 	$(OCAMLC) $(INCLUDES) -o $@ str.cma unix.cma xml-light.cma glibivy-ocaml.cma -I +lablgtk2 lablgtk.cma lib-pprz.cma $^ #To check
 	cat ../../../pprz_src_test.sh > $@
-	echo 'lablgtk2 str.cma glibivy-ocaml.cma -I $$PAPARAZZI_SRC/sw/lib/ocaml lib-pprz.cma -I $$PAPARAZZI_SRC/sw/ground_segment/tmtc $$PAPARAZZI_SRC/sw/ground_segment/tmtc/modem.cmo $$PAPARAZZI_SRC/sw/ground_segment/tmtc/receive.ml $$*' >> $@
+	echo 'lablgtk2 str.cma glibivy-ocaml.cma -I $$PAPARAZZI_SRC/sw/lib/ocaml lib-pprz.cma -I $$PAPARAZZI_SRC/sw/ground_segment/tmtc $$PAPARAZZI_SRC/sw/ground_segment/tmtc/modem.cmo $$PAPARAZZI_SRC/sw/ground_segment/tmtc/hw_modem_listen.ml $$*' >> $@
+	chmod a+x $@
+
+wavecard_connect : modem.cmo wavecard_connect.ml
+	$(OCAMLC) $(INCLUDES) -o $@ str.cma unix.cma xml-light.cma glibivy-ocaml.cma -I +lablgtk2 lablgtk.cma lib-pprz.cma $^ #To check
+	cat ../../../pprz_src_test.sh > $@
+	echo 'lablgtk2 str.cma glibivy-ocaml.cma -I $$PAPARAZZI_SRC/sw/lib/ocaml lib-pprz.cma $$PAPARAZZI_SRC/sw/ground_segment/tmtc/wavecard_connect.ml $$*' >> $@
+	chmod a+x $@
+
+receive : receive.ml
+	$(OCAMLC) $(INCLUDES) -o $@ str.cma unix.cma xml-light.cma glibivy-ocaml.cma -I +lablgtk2 lablgtk.cma lib-pprz.cma $^ #To check
+	cat ../../../pprz_src_test.sh > $@
+	echo 'lablgtk2 str.cma glibivy-ocaml.cma -I $$PAPARAZZI_SRC/sw/lib/ocaml lib-pprz.cma $$PAPARAZZI_SRC/sw/ground_segment/tmtc/receive.ml $$*' >> $@
 	chmod a+x $@
 
 listen.opt : listen.ml
