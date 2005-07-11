@@ -31,6 +31,7 @@ type expression =
   | Int of int
   | Float of float
   | Call of ident * expression list
+  | CallOperator of ident * expression list
   | Index of ident * expression
 
 val c_var_of_ident : ident -> string

@@ -68,6 +68,9 @@ let rotate_expression = fun a expression ->
     | Call("Qdr", [Int a']) -> Call("Qdr", [Float (float a' +. a)])
     | Call(op, [e1; e2]) when op = "And" || op ="Or" ->
 	Call(op, [rot e1; rot e2]) 
+    | CallOperator(op, [e]) -> CallOperator(op, [rot e])
+    | CallOperator(op, [e1; e2]) -> CallOperator(op, [rot e1; rot e2])
+    | CallOperator(op, _) -> failwith "fp_proc: Operator should be unary or binary"
     | _ -> e in
   rot expression
 
@@ -77,6 +80,7 @@ let subst_expression = fun env e ->
       Ident i -> Ident (try List.assoc i env with Not_found -> i)
     | Int _ | Float _ -> e
     | Call (i, es) -> Call (i, List.map sub es)
+    | CallOperator (i, es) -> CallOperator (i, List.map sub es)
     | Index (i,e) -> Index (i,sub e) in
   sub e
 

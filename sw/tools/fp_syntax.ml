@@ -14,26 +14,28 @@ type expression =
   | Int of int
   | Float of float
   | Call of ident * (expression list)
+  | CallOperator of ident * (expression list)
   | Index of ident * expression
 
 let c_var_of_ident = fun x -> "_var_" ^ x
 
 (* Valid unary and binary opetarors *)
-let binary_operators = ["+"; ">"; "-"; "*"]
+(*let binary_operators = ["+"; ">"; "-"; "*"]
 let unary_operators = ["!"; "-"]
 
 let is_binary = fun op -> List.mem op binary_operators
-let is_unary = fun op -> List.mem op unary_operators
+let is_unary = fun op -> List.mem op unary_operators*)
 
 let rec sprint_expression = function
     Ident i when i.[0] = '$' -> sprintf "%s" (c_var_of_ident (String.sub i 1 (String.length i - 1)))
   | Ident i -> sprintf "%s" i
   | Int i -> sprintf "%d" i
   | Float i -> sprintf "%f" i
-  | Call (op, [e1;e2]) when is_binary op ->
+  | CallOperator (op, [e1;e2]) ->
       sprintf "(" ^ sprint_expression e1 ^ op ^ sprint_expression e2 ^ ")"
-  | Call (op, [e1]) when is_unary op ->
+  | CallOperator (op, [e1]) ->
       sprintf "%s(%s)" op (sprint_expression e1)
+  | CallOperator (_,_) -> failwith "Operator should be binary or unary"
   | Call (i, es) ->
       let ses = List.map sprint_expression es in
       sprintf "%s(" i ^ String.concat "," ses ^ ")"
@@ -45,7 +47,7 @@ let functions = [
   "And";
   "Or";
   "RcEvent1";
-  "RcEvent2"] @ binary_operators @ unary_operators
+  "RcEvent2"] (*@ binary_operators @ unary_operators*)
 
 (* Valid identifiers *)
 let variables = [
@@ -70,7 +72,7 @@ let rec check_expression = fun e ->
   | Ident i ->
       if not (List.mem i variables) then
 	raise (Unknown_ident i)
-  | Int _  | Float _ -> ()
+  | Int _  | Float _ | CallOperator _ -> ()
   | Call (i, es) ->
       if not (List.mem i functions) then
 	raise (Unknown_function i);

@@ -24,16 +24,16 @@ open Fp_syntax
 %%
 
 expression:
-    expression GT expression { Call (">",[$1;$3]) }
-  | expression GEQ expression { Call (">=",[$1;$3]) }
-  | expression EQ expression { Call ("==",[$1;$3]) }
-  | expression AND expression { Call ("&&",[$1;$3]) }
-  | expression PLUS expression { Call ("+",[$1;$3]) }
-  | expression MINUS expression { Call ("-",[$1;$3]) }
-  | expression MULT expression { Call ("*",[$1;$3]) }
-  | expression DIV expression { Call ("/",[$1;$3]) }
-  | MINUS expression %prec UMINUS { Call ("-",[$2]) }
-  | NOT expression { Call ("!",[$2]) }
+    expression GT expression { CallOperator (">",[$1;$3]) }
+  | expression GEQ expression { CallOperator (">=",[$1;$3]) }
+  | expression EQ expression { CallOperator ("==",[$1;$3]) }
+  | expression AND expression { CallOperator ("&&",[$1;$3]) }
+  | expression PLUS expression { CallOperator ("+",[$1;$3]) }
+  | expression MINUS expression { CallOperator ("-",[$1;$3]) }
+  | expression MULT expression { CallOperator ("*",[$1;$3]) }
+  | expression DIV expression { CallOperator ("/",[$1;$3]) }
+  | MINUS expression %prec UMINUS { CallOperator ("-",[$2]) }
+  | NOT expression { CallOperator ("!",[$2]) }
   | INT { Int $1 }
   | FLOAT { Float $1 }
   | IDENT { Ident $1 }
