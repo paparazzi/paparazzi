@@ -226,7 +226,9 @@ uint8_t ticks_last_est; // 20Hz
 /** @@@@@ A FIXER @@@@ */
 #define HI_FREQ_PHASE_NB  5
 
-//static char signature[16] = MESSAGES_MD5SUM;
+uint8_t ac_ident = AC_ID;
+
+#define PERIODIC_SEND_IDENT()  DOWNLINK_SEND_IDENT(&ac_ident);
 
 /** \def PERIODIC_SEND_BAT()
  *  @@@@@ A FIXER @@@@@

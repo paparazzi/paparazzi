@@ -8,7 +8,6 @@
 #include "link_autopilot.h"
 #include "autopilot.h"
 #include "estimator.h"
-#include "traffic_info.h"
 
 #include <caml/mlvalues.h>
 #include <caml/memory.h>
@@ -91,10 +90,4 @@ value set_servos(value servos) {
     Store_field(servos, i, Val_int(servo_widths[i]));
 
   return Val_int(servo_widths[SERVO_GAZ]);
-}
-
-value
-sim_set_the_other(value id, value east, value north, value heading, value alt) {
-  set_the_other(Int_val(id), Double_val(east), Double_val(north), Double_val(heading), Double_val(alt));
-  return Val_unit;
 }
