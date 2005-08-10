@@ -27,6 +27,8 @@
 open Printf
 open Latlong
 
+let sof = string_of_float
+
 let check_expressions = ref true
 
 let parse_expression = Fp_proc.parse_expression
@@ -124,8 +126,15 @@ let stage = ref 0
 let output_label l = lprintf "Label(%s)\n" l
 
 let output_vmode x wp last_wp =
-  let pitch = try parsed_attrib x "pitch" with _ -> "0.0" in
-  lprintf "nav_pitch = %s;\n" pitch;
+  let pitch = try Xml.attrib x "pitch" with _ -> "0.0" in
+  if pitch = "auto"
+  then begin
+    lprintf "auto_pitch = TRUE;\n";
+    lprintf "nav_desired_gaz = TRIM_UPPRZ(%s*MAX_PPRZ);\n" (parsed_attrib x "gaz")
+  end else begin
+    lprintf "auto_pitch = FALSE;\n";
+    lprintf "nav_pitch = %s;\n" (parse pitch);
+  end;
   let vmode = try ExtXml.attrib x "vmode" with _ -> "alt" in
   begin
     match vmode with
@@ -141,18 +150,22 @@ let output_vmode x wp last_wp =
 	      try
 		check_altitude (float_of_string a) x
 	      with
+		(* Impossible to check the altitude on an expression: *)
 		Failure "float_of_string" -> ()
 	    end;
 	    a
 	  with _ ->
-	    if wp = "" then failwith "alt or waypoint required in alt vmode" else
-	    sprintf "waypoints[%s].a" wp in
+	    if wp = "" 
+	    then failwith "alt or waypoint required in alt vmode" 
+	    else sprintf "waypoints[%s].a" wp in
 	lprintf "desired_altitude = %s;\n" alt;
 	lprintf "pre_climb = 0.;\n"
     | "glide" ->
 	lprintf "vertical_mode = VERTICAL_MODE_AUTO_ALT;\n";
 	lprintf "glide_to(%s, %s);\n" last_wp wp
     | "gaz" ->
+	if (pitch = "auto") then
+	  failwith "auto pich mode not compatible with vmode=gaz";
 	lprintf "vertical_mode = VERTICAL_MODE_AUTO_GAZ;\n";
 	lprintf "nav_desired_gaz = TRIM_UPPRZ(%s*MAX_PPRZ);\n" (parsed_attrib x "gaz")
     | x -> failwith (sprintf "Unknown vmode '%s'" x)
@@ -194,8 +207,8 @@ let rec compile_stage = fun block x ->
     | "for" ->
        List.iter (compile_stage block) (Xml.children x);
        incr stage (* To count the loop stage *)
-    | "return_from_excpt" | "goto"  | "deroute" | "exit_block" | "follow"
-    | "heading" | "go" | "stay" | "xyz" | "circle" -> ()
+    | "return_from_excpt" | "goto"  | "deroute" | "exit_block"
+    | "heading" | "attitude" | "go" | "stay" | "xyz" | "set" | "circle" -> ()
     | s -> failwith (sprintf "Unknown stage: %s\n" s)
   end
 
@@ -256,6 +269,16 @@ let rec print_stage = fun index_of_waypoints x ->
 	let d = ExtXml.attrib x "distance" in
 	lprintf "Follow(%s, %s);\n" id d;
 	lprintf "return;\n"
+    | "attitude" ->
+	stage ();
+	let until = parsed_attrib x "until" in
+	lprintf "if (%s) NextStage() else {\n" until;
+	right ();
+	lprintf "lateral_mode = LATERAL_MODE_ROLL;\n";
+	lprintf "nav_desired_roll = RadOfDeg(%s);\n" (parsed_attrib x "roll");
+	ignore (output_vmode x "" "");
+	left (); lprintf "}\n";
+	lprintf "return;\n"
     | "go" ->
 	stage ();
 	let wp = 
@@ -309,6 +332,20 @@ let rec print_stage = fun index_of_waypoints x ->
 	    lprintf "if (%s) NextStage();\n" c
 	  with
 	    ExtXml.Error _ -> ()
+	end;
+	lprintf "return;\n"
+    | "set" ->
+	stage ();
+	let var = parsed_attrib  x "var" in
+	let valuee = parsed_attrib  x "value" in
+	lprintf "%s = %s;\n" var valuee;
+	begin
+	  try
+	    let c = parsed_attrib x "until" in
+	    lprintf "if (%s) NextStage();\n" c
+	  with
+	    ExtXml.Error _ ->
+	      lprintf "NextStage();\n";
 	end;
 	lprintf "return;\n"
     | s -> failwith "Unreachable"
@@ -386,7 +423,29 @@ let check_distance = fun (hx, hy) max_d wp ->
   let d = sqrt ((x-.hx)**2. +. (y-.hy)**2.) in
   if d > max_d then
     fprintf stderr "\nWARNING: Waypoint '%s' too far from HOME (%.0f>%.0f)\n\n" (name_of wp) d max_d
+  
 
+(* Check coherence between global ref and waypoints ref *)
+(* Returns a patched xml with utm_x0 and utm_y0 set *)
+let check_geo_ref = fun xml ->
+  let get_float = fun x -> float_attrib xml x in
+  let lat0_deg = get_float "lat0"
+  and lon0_deg = get_float "lon0" in
+  let utm0 = utm_of WGS84 { posn_lat=(Deg>>Rad)lat0_deg;
+			    posn_long=(Deg>>Rad)lon0_deg } in
+
+  let max_d = get_float "max_dist_from_home" in
+  let check_zone = fun u ->
+    if (utm_of WGS84 (of_utm WGS84 u)).utm_zone <> utm0.utm_zone then
+      failwith "Fatal error: You are too close (less than twice the max distance) to an UTM zone border !" in
+  check_zone { utm0 with utm_x = utm0.utm_x +. 2.*.max_d };
+  check_zone { utm0 with utm_x = utm0.utm_x -. 2.*.max_d };
+
+  let wpts = ExtXml.child xml "waypoints" in
+  let wpts = ExtXml.subst_attrib "utm_x0" (sof utm0.utm_x) wpts in
+  let wpts = ExtXml.subst_attrib "utm_y0" (sof utm0.utm_y) wpts in
+  let x = ExtXml.subst_child "waypoints" wpts xml in
+  x
 
 let dummy_waypoint = 
   Xml.Element ("waypoint", 
@@ -397,7 +456,7 @@ let dummy_waypoint =
 
 
 let _ =
-  let xml_file = ref ""
+  let xml_file = ref "fligh_plan.xml"
   and dump = ref false in
   Arg.parse [("-dump", Arg.Set dump, "Dump compile result");
 	     ("-nocheck", Arg.Clear check_expressions, "Disable expression checking")]
@@ -407,9 +466,11 @@ let _ =
     failwith (sprintf "Usage: %s <xml-flight-plan-file>" Sys.argv.(0));
   try
     let xml = Xml.parse_file !xml_file in
+    
+    let xml = check_geo_ref xml in
+
     let dir = Filename.dirname !xml_file in
     let xml = Fp_proc.process_includes dir xml in
-    (*** prerr_endline (Xml.to_string_fmt xml); prerr_endline "\n\n\n"; ***)
     let xml = Fp_proc.process_relative_waypoints xml in
     let waypoints = ExtXml.child xml "waypoints"
     and blocks = Xml.children (ExtXml.child xml "blocks") in
@@ -474,9 +535,9 @@ let _ =
       lprintf "};\n";
       Xml2h.define "NB_WAYPOINT" (string_of_int (List.length waypoints));
 
-      Xml2h.define "GROUND_ALT" (string_of_float !ground_alt);
-      Xml2h.define "SECURITY_ALT" (string_of_float (!security_height +. !ground_alt));
-      Xml2h.define "MAX_DIST_FROM_HOME" (string_of_float mdfh);
+      Xml2h.define "GROUND_ALT" (sof !ground_alt);
+      Xml2h.define "SECURITY_ALT" (sof (!security_height +. !ground_alt));
+      Xml2h.define "MAX_DIST_FROM_HOME" (sof mdfh);
       
       let index_of_waypoints =
 	let i = ref (-1) in
@@ -489,3 +550,4 @@ let _ =
   with
     Xml.Error e -> prerr_endline (Xml.error e); exit 1
   | Dtd.Prove_error e ->  prerr_endline (Dtd.prove_error e); exit 1
+

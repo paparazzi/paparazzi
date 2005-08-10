@@ -19,13 +19,6 @@ type expression =
 
 let c_var_of_ident = fun x -> "_var_" ^ x
 
-(* Valid unary and binary opetarors *)
-(*let binary_operators = ["+"; ">"; "-"; "*"]
-let unary_operators = ["!"; "-"]
-
-let is_binary = fun op -> List.mem op binary_operators
-let is_unary = fun op -> List.mem op unary_operators*)
-
 let rec sprint_expression = function
     Ident i when i.[0] = '$' -> sprintf "%s" (c_var_of_ident (String.sub i 1 (String.length i - 1)))
   | Ident i -> sprintf "%s" i
@@ -46,19 +39,27 @@ let functions = [
   "Qdr";
   "And";
   "Or";
+	"RcRoll";
   "RcEvent1";
-  "RcEvent2"] (*@ binary_operators @ unary_operators*)
+  "RcEvent2";
+	"RadOfDeg"] (*@ binary_operators @ unary_operators*)
 
 (* Valid identifiers *)
 let variables = [
   "launch";
   "estimator_z";
   "estimator_flight_time";
+	"estimator_hspeed_mod";
+  "estimator_theta";
+	"circle_count";
+  "vsupply";
   "stage_time";
+	"stage_time_ds";
   "block_time";
   "SECURITY_ALT";
   "GROUND_ALT";
   "TRUE";
+	"FALSE";
   "QFU"
 ]
 

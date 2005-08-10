@@ -30,26 +30,81 @@ open Xml2h
 let h_name = "RADIO_H"
 
 let fos = float_of_string
+type us = int
 
-type channel = { min : string; max : string; neutral : string; averaged : string }
+type channel = { 
+    name : string;
+    min : us; 
+    max : us; 
+    neutral : us; 
+    averaged : bool }
 
-let default_neutral = "1600"
-let default_min = "1000"
-let default_max = "2200"
+
+(* Characters used in Gen_airframe.pprz_value *)
+let check_function_name = fun s ->
+  for i = 0 to String.length s - 1 do
+    match s.[i] with
+      'A'..'Z' | '0'..'9' | '_' -> ()
+    | _ ->
+	failwith (sprintf "Character '%c' not allowed in function name '%s'" s.[i] s)
+  done
 
 let parse_channel =
   let no_channel = ref 0 in
   fun c ->
+    let name = ExtXml.attrib c "function"  in
+    check_function_name name;
     let ctl = "RADIO_CTL_"^ExtXml.attrib c "ctl"
-    and fct = "RADIO_" ^ ExtXml.attrib c "function" in
+    and fct = "RADIO_" ^ name in
     define ctl (string_of_int !no_channel);
     define fct ctl;
     no_channel := !no_channel + 1;
-    { min = ExtXml.attrib_or_default c "min" default_min;
-      neutral = ExtXml.attrib_or_default c "neutral" default_neutral;
-      max = ExtXml.attrib_or_default c "max" default_max;
-      averaged = ExtXml.attrib_or_default c "average" "0"
+    let int_attrib = fun x -> int_of_string (ExtXml.attrib c x) in
+    { min = int_attrib "min";
+      neutral = int_attrib "neutral";
+      max = int_attrib "max";
+      averaged = ExtXml.attrib_or_default c "average" "0" <> "0";
+      name = name
     }
+
+
+let gen_last_radio_from_ppm = fun channels ->
+  printf "#define LastRadioFromPpm() {\\\n";
+  printf "  static uint8_t avg_cpt = 0; /* Counter for averaging */\\\n";
+  printf "   int16_t tmp_radio;\\\n";
+  List.iter
+    (fun c ->
+      printf "  tmp_radio = ppm_pulses[RADIO_%s] - (CLOCK*%d);\\\n" c.name c.neutral;
+      let period = if c.averaged then "AVERAGING_PERIOD" else "1" in
+      let value, min_pprz = 
+	if c.neutral = c.min then
+	  sprintf "tmp_radio * (MAX_PPRZ / %s / (float)(CLOCK*(%d-%d)))" period c.max c.min, "0"
+	else
+	  sprintf "tmp_radio * (tmp_radio >=0 ? (MAX_PPRZ/%s/(float)(CLOCK*(%d-%d))) : (MIN_PPRZ/%s/(float)(CLOCK*(%d-%d))))" period c.max c.neutral period c.min c.neutral, "MIN_PPRZ" in
+      if c.averaged then begin
+	printf "  avg_last_radio[RADIO_%s] += %s;\\\n" c.name value
+      end else begin
+	printf "  last_radio[RADIO_%s] = %s;\\\n" c.name value;
+	printf "  if (last_radio[RADIO_%s] > MAX_PPRZ) last_radio[RADIO_%s] = MAX_PPRZ;\\\n else if (last_radio[RADIO_%s] < %s) last_radio[RADIO_%s] = %s; \\\n\\\n" c.name c.name c.name min_pprz c.name min_pprz;
+      end
+      )
+    channels;
+  printf "avg_cpt++;\\\n";
+  printf "  if (avg_cpt == AVERAGING_PERIOD) {\\\n";
+  printf "    avg_cpt = 0;\\\n";
+  List.iter
+    (fun c ->
+      if c.averaged then begin
+	printf "    last_radio[RADIO_%s] = avg_last_radio[RADIO_%s];\\\n" c.name c.name;
+	printf "    avg_last_radio[RADIO_%s] = 0;\\\n" c.name;
+	printf "  if (last_radio[RADIO_%s] > MAX_PPRZ) last_radio[RADIO_%s] = MAX_PPRZ;\\\n else if (last_radio[RADIO_%s] < MIN_PPRZ) last_radio[RADIO_%s] = MIN_PPRZ; \\\n\\\n" c.name c.name c.name c.name;
+      end
+    )
+    channels;
+  printf "    last_radio_contains_avg_channels = TRUE;\\\n";
+  printf " }\\\n";
+  printf "}\n"
+
 
 
 let _ =
@@ -71,19 +126,19 @@ let _ =
   define "RADIO_CTL_NB" (string_of_int (List.length channels));
   nl ();
   
-  (* For compatibility *)
-  define "PPM_PULSE_NEUTRAL_US" default_neutral;
-  nl ();
   let channels_params = List.map parse_channel channels in 
   nl ();
-  define "RADIO_MINS_US" (sprint_float_array (List.map (fun x -> x.min) channels_params));
-  define "RADIO_NEUTRALS_US" (sprint_float_array (List.map (fun x -> x.neutral) channels_params));
-  define "RADIO_MAXS_US" (sprint_float_array (List.map (fun x -> x.max) channels_params));
-  define "RADIO_AVERAGED" (sprint_float_array (List.map (fun x -> x.averaged) channels_params));
-  define "RADIO_NEUTRALS_PPM" (sprint_float_array (List.map (fun x -> string_of_int ((int_of_string x.neutral)*16)) channels_params));
-  define "RADIO_TRAVEL_PPM" (sprint_float_array (List.map (fun x -> string_of_float (9600. *. 2. /. (float ((int_of_string x.max) - (int_of_string x.min))) /. 16.)) channels_params));
+  
+  let ppm_min = ExtXml.attrib xml "min" in
+  let ppm_max = ExtXml.attrib xml "max" in
+  let ppm_sync= ExtXml.attrib xml "sync" in
+
+  printf "#define PPM_MIN_PULSE_WIDTH %sul*CLOCK\n" ppm_min;
+  printf "#define PPM_MAX_PULSE_WIDTH %sul*CLOCK\n" ppm_max;
+  printf "#define PPM_SYNC_PULSE (uint8_t)(((uint32_t)(%sul*CLOCK))/1024ul)\n" ppm_sync;
   nl ();
-  define "AveragedChannel(ch)" "(((int[])RADIO_AVERAGED)[ch])";
+
+  gen_last_radio_from_ppm channels_params;
   
   printf "\n#endif // %s\n" h_name
 	

@@ -48,8 +48,12 @@ let define_macro name n x =
 	  
 let parse_element = fun prefix s ->
   match Xml.tag s with
-    "define" ->
-      define (prefix^ExtXml.attrib s "name") (ExtXml.attrib s "value")
+    "define" -> begin
+			try	
+      	define (prefix^ExtXml.attrib s "name") (ExtXml.attrib s "value");
+      	define (prefix^(ExtXml.attrib s "name")^"_NB_SAMPLE") (ExtXml.attrib s "nb_sample");
+			with _ -> ();
+		end
   | "linear" ->
       let name = ExtXml.attrib s "name"
       and n = int_of_string (ExtXml.attrib s "arity") in
@@ -74,7 +78,9 @@ let parse_servo =
     servo_params.(no_servo) <- { min = min; neutral = neutral; max = max }
 
 
-let pprz_value = Str.regexp "@\\([A-Z]+\\)"
+(* Characters checked in Gen_radio.checl_function_name *)
+let pprz_value = Str.regexp "@\\([A-Z_0-9]+\\)"
+
 let var_value = Str.regexp "\\$\\([_a-z0-9]+\\)"
 let preprocess_command = fun s ->
   let s = Str.global_replace pprz_value "values[RADIO_\\1]" s in

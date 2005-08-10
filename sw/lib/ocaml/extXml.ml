@@ -30,7 +30,7 @@ let sep = Str.regexp "\\."
 
 let child xml ?select c =
   let rec find = function
-      Xml.Element (tag, _attributes, _children) as elt :: elts ->
+      Xml.Element (tag, attributes, _children) as elt :: elts ->
 	if tag = c then
 	  match select with
 	    None -> elt
@@ -85,3 +85,37 @@ let to_string_fmt = fun xml ->
 		    List.map (fun (a,v) -> (l a, v)) ats,
 		    List.map lower cs) in
   Xml.to_string_fmt (lower xml)
+
+
+let subst_attrib = fun attrib value xml ->
+  let u = String.uppercase in
+  let uattrib = u attrib in
+  match xml with
+    Xml.Element (tag, attrs, children) ->
+      let rec loop = function
+	  [] -> [(attrib, value)]
+	| (a,v) as c::ats ->
+	    if u a = uattrib then loop ats else c::loop ats in
+      Xml.Element (tag, 
+		   loop attrs,
+		   children)
+  | Xml.PCData _ -> xml
+
+
+let subst_child = fun t x xml ->
+  let u = String.uppercase in
+  match xml with
+    Xml.Element (tag, attrs, children) ->
+      Xml.Element (tag,
+		   attrs,
+		   List.map (fun xml -> if u (Xml.tag xml) = u t then x else xml) children)
+  | Xml.PCData _ -> xml
+
+
+let float_attrib = fun xml a ->
+  let v = attrib xml a in
+  try
+    float_of_string v
+  with
+    _ -> failwith (Printf.sprintf "Error: float expected in '%s'" v)
+

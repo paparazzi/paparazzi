@@ -103,7 +103,7 @@ receive: tmtc
 static_h :
 	PAPARAZZI_HOME=`pwd` PAPARAZZI_SRC=`pwd` make -f Makefile.gen
 
-ac_h :
+ac_h : static_h
 	PAPARAZZI_HOME=`pwd` PAPARAZZI_SRC=`pwd` $(TOOLS)/gen_aircraft.out $(AIRCRAFT)
 
 sim_ac: ac_h sim_sitl

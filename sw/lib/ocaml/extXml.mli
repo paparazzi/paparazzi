@@ -46,3 +46,8 @@ val attrib_or_default : Xml.xml -> string -> string -> string
 val to_string_fmt : Xml.xml -> string
 (** [to_string_fmt xml] Returns a formatted string where tag and attribute
 names are lowercase *)
+
+val subst_attrib : string -> string -> Xml.xml -> Xml.xml
+val subst_child : string -> Xml.xml -> Xml.xml -> Xml.xml
+val float_attrib : Xml.xml -> string -> float
+

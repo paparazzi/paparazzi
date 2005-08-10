@@ -44,8 +44,6 @@ let parse_expression = fun s ->
 
 open Latlong
 
-let float_attrib = fun xml a -> float_of_string (ExtXml.attrib xml a)
-
 (* Translation and rotation *)
 type affine = { dx : float; dy : float; angle : float (* Deg Clockwise *) }
 
@@ -103,8 +101,8 @@ let transform_values = fun attribs_not_modified affine env attribs ->
     attribs
 
 let transform_waypoint = fun prefix affine xml ->
-  let x = float_attrib xml "x"
-  and y = float_attrib xml "y" in
+  let x = ExtXml.float_attrib xml "x"
+  and y = ExtXml.float_attrib xml "y" in
   let (x, y) = rotate affine.angle (x, y) in
   let (x, y) = (x+.affine.dx, y+.affine.dy) in
   let alt = try ["alt", ExtXml.attrib xml "alt"] with ExtXml.Error _ -> [] in
@@ -214,9 +212,9 @@ let parse_include = fun dir include_xml ->
   let proc_name = ExtXml.attrib include_xml "name" in
   let prefix = fun x -> proc_name ^ "." ^ x in
   let affine = { 
-    dx = float_attrib  include_xml "x";
-    dy = float_attrib  include_xml "y";
-    angle = float_attrib  include_xml "rotate"
+    dx = ExtXml.float_attrib  include_xml "x";
+    dy = ExtXml.float_attrib  include_xml "y";
+    angle = ExtXml.float_attrib  include_xml "rotate"
   } in
   let reroutes = 
     List.filter 
@@ -312,7 +310,7 @@ let xml_assoc_attrib = fun a v xmls ->
   | _ -> failwith "xml_assoc_attrib"
 
 let coords_of_waypoint = fun wp ->
-  (float_attrib wp "x", float_attrib wp "y")
+  (ExtXml.float_attrib wp "x", ExtXml.float_attrib wp "y")
   
 
 let new_waypoint = fun wp qdr dist waypoints ->
@@ -329,8 +327,8 @@ let new_waypoint = fun wp qdr dist waypoints ->
 
 let replace_wp = fun stage waypoints ->
   try
-    let qdr = float_attrib stage "wp_qdr"
-    and dist = float_attrib stage "wp_dist" in
+    let qdr = ExtXml.float_attrib stage "wp_qdr"
+    and dist = ExtXml.float_attrib stage "wp_dist" in
     let wp = ExtXml.attrib stage "wp" in
     
     let name = new_waypoint wp qdr dist waypoints in
@@ -343,8 +341,8 @@ let replace_wp = fun stage waypoints ->
 
 let replace_from = fun stage waypoints ->
   try
-    let qdr = float_attrib stage "from_qdr"
-    and dist = float_attrib stage "from_dist" in
+    let qdr = ExtXml.float_attrib stage "from_qdr"
+    and dist = ExtXml.float_attrib stage "from_dist" in
     let wp = ExtXml.attrib stage "from" in
     
     let name = new_waypoint wp qdr dist waypoints in
