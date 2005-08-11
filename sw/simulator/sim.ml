@@ -45,7 +45,7 @@ module type AIRCRAFT =
 	(** Called once at init *)
 	
     val infrared : float -> float -> unit
-	(** [infrared phi] Called on timer *)
+	(** [infrared ir_left ir_front] Called on timer *)
 	
     val gps : Gps.state -> unit
 	(** [gps state] Called on timer *)
@@ -122,6 +122,30 @@ module Make(AircraftItl : AIRCRAFT_ITL) = struct
     let gust_dir_ch_fact_adj = GData.adjustment ~value:0. ~lower:(0.) ~upper:20. ~step_incr:0.1 () in
     let infrared_contrast_adj = GData.adjustment ~value:500. ~lower:(0.) ~upper:1010. ~step_incr:10. () in
 
+
+    let irs =
+      try
+	ExtXml.child A.ac.Data.airframe
+	  ~select:(fun x -> try Xml.attrib x "prefix" = "IR_" with Xml.No_attribute _ -> false)
+	  "section"
+      with Not_found -> 
+	failwith "Do not find an IR section in airframe description" in
+    let ir_roll_neutral =
+      try
+	float_of_string (ExtXml.attrib (ExtXml.child irs ~select:(fun x -> try Xml.attrib x "name" = "ROLL_NEUTRAL_DEFAULT" with Xml.No_attribute _ -> false) "define") "value")
+      with
+      Not_found ->
+	failwith "Do not find an ROLL_NEUTRAL_DEFAULT define in IR description" in
+    
+    let ir_pitch_neutral =
+      try
+	float_of_string (ExtXml.attrib (ExtXml.child irs ~select:(fun x -> try Xml.attrib x "name" = "PITCH_NEUTRAL_DEFAULT" with Xml.No_attribute _ -> false) "define") "value")
+      with
+	Not_found ->
+	  failwith "Do not find an PITCH_NEUTRAL_DEFAULT define in IR description" in
+	    
+
+
     let run = ref false in
     let scheduler =
       let t = ref 0 in
@@ -136,8 +160,13 @@ module Make(AircraftItl : AIRCRAFT_ITL) = struct
 	    let wind_speed_cart = polar2cart wind_speed_polar in
 	    FM.state_update !state ( wind_speed_cart.x2D, wind_speed_cart.y2D)
 	  end;
-	  if !t mod ir_period = 0 then
-	    Aircraft.infrared (FlightModel.get_phi !state) infrared_contrast_adj#value;
+	  if !t mod ir_period = 0 then begin
+	    let phi = FlightModel.get_phi !state in
+	    let ir_left = (phi *. infrared_contrast_adj#value +. ir_roll_neutral)
+	    and ir_front = ir_pitch_neutral in
+	    Aircraft.infrared ir_left ir_front
+	  end;
+	    
 	  if !t mod gps_period = 0 then begin
 	    let (x,y,z) = FlightModel.get_xyz !state in
 	    east_label#set_text (Printf.sprintf "%.0f" x);

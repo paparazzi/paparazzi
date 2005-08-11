@@ -127,8 +127,8 @@ module Make(A:Data.MISSION) = struct
   let servos = fun s -> rservos := s
 
   external set_ir_roll : int -> unit = "set_ir_roll"
-  let infrared = fun phi ctrst ->
-    set_ir_roll (truncate (phi *. ctrst))
+  let infrared = fun ir_left ir_front ->
+    set_ir_roll (truncate ir_left)
 
   external use_gps_pos: int -> int -> float -> float -> float -> float -> float -> unit = "sim_use_gps_pos_bytecode" "sim_use_gps_pos"
   open Latlong
