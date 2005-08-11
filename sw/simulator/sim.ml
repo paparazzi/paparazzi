@@ -123,27 +123,6 @@ module Make(AircraftItl : AIRCRAFT_ITL) = struct
     let infrared_contrast_adj = GData.adjustment ~value:500. ~lower:(0.) ~upper:1010. ~step_incr:10. () in
 
 
-    let irs =
-      try
-	ExtXml.child A.ac.Data.airframe
-	  ~select:(fun x -> try Xml.attrib x "prefix" = "IR_" with Xml.No_attribute _ -> false)
-	  "section"
-      with Not_found -> 
-	failwith "Do not find an IR section in airframe description" in
-    let ir_roll_neutral =
-      try
-	float_of_string (ExtXml.attrib (ExtXml.child irs ~select:(fun x -> try Xml.attrib x "name" = "ROLL_NEUTRAL_DEFAULT" with Xml.No_attribute _ -> false) "define") "value")
-      with
-      Not_found ->
-	failwith "Do not find an ROLL_NEUTRAL_DEFAULT define in IR description" in
-    
-    let ir_pitch_neutral =
-      try
-	float_of_string (ExtXml.attrib (ExtXml.child irs ~select:(fun x -> try Xml.attrib x "name" = "PITCH_NEUTRAL_DEFAULT" with Xml.No_attribute _ -> false) "define") "value")
-      with
-	Not_found ->
-	  failwith "Do not find an PITCH_NEUTRAL_DEFAULT define in IR description" in
-	    
 
 
     let run = ref false in
@@ -162,8 +141,8 @@ module Make(AircraftItl : AIRCRAFT_ITL) = struct
 	  end;
 	  if !t mod ir_period = 0 then begin
 	    let phi = FlightModel.get_phi !state in
-	    let ir_left = (phi *. infrared_contrast_adj#value +. ir_roll_neutral)
-	    and ir_front = ir_pitch_neutral in
+	    let ir_left = (phi *. infrared_contrast_adj#value)
+	    and ir_front = 0. in
 	    Aircraft.infrared ir_left ir_front
 	  end;
 	    

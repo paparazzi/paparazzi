@@ -47,6 +47,30 @@ module Make(A:Data.MISSION) = struct
 
   let boot = fun () -> ()
 
+    let irs =
+      try
+	ExtXml.child A.ac.Data.airframe
+	  ~select:(fun x -> try Xml.attrib x "prefix" = "IR_" with Xml.No_attribute _ -> false)
+	  "section"
+      with Not_found -> 
+	failwith "Do not find an IR section in airframe description"
+
+    let ir_roll_neutral =
+      try
+	float_of_string (ExtXml.attrib (ExtXml.child irs ~select:(fun x -> try Xml.attrib x "name" = "ROLL_NEUTRAL_DEFAULT" with Xml.No_attribute _ -> false) "define") "value")
+      with
+      Not_found ->
+	failwith "Do not find an ROLL_NEUTRAL_DEFAULT define in IR description" 
+    
+    let ir_pitch_neutral =
+      try
+	float_of_string (ExtXml.attrib (ExtXml.child irs ~select:(fun x -> try Xml.attrib x "name" = "PITCH_NEUTRAL_DEFAULT" with Xml.No_attribute _ -> false) "define") "value")
+      with
+	Not_found ->
+	  failwith "Do not find an PITCH_NEUTRAL_DEFAULT define in IR description"
+	    
+
+
 
   let scale = fun value s -> truncate (value *. s)
 
@@ -70,6 +94,8 @@ module Make(A:Data.MISSION) = struct
 
   let infrared = fun ir_left ir_front ->
     let uart = Unix.out_channel_of_descr !uart_mcu0 in
+    let ir_left = ir_left + ir_roll_neutral
+    and ir_front = ir_front + ir_pitch_neutral in
     Ubx.send uart Ubx.usr_irsim
       ["ROLL", ir_left;
        "PITCH", ir_front]
