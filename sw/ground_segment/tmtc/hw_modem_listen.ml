@@ -31,10 +31,10 @@ module Tele_Class = struct let name = "telemetry_ap" end
 module Tele_Pprz = Pprz.Protocol(Tele_Class)
 module PprzTransport = Serial.Transport(Tele_Pprz)
 
-let use_pprz_message = fun ac_name (msg_id, values) ->
+let use_pprz_message = fun ac_id (msg_id, values) ->
   let msg = Tele_Pprz.message_of_id msg_id in
   let s = String.concat " " (List.map (fun (_, v) -> Pprz.string_of_value v) values) in
-  Ivy.send (sprintf "%s RAW %s %s" ac_name msg.Pprz.name s)
+  Ivy.send (sprintf "%d %s %s" ac_id msg.Pprz.name s)
 
 let listen_pprz_modem = fun pprz_message_cb tty ->
   let fd = 
@@ -73,22 +73,22 @@ let listen_pprz_modem = fun pprz_message_cb tty ->
 let _ =
   let ivy_bus = ref "127.255.255.255:2010" in
   let port = ref "/dev/ttyS0" in
-  let ac_name = ref "" in
+  let ac_id = ref (-1) in
   let options =
     [ "-b", Arg.Set_string ivy_bus, (sprintf "Ivy bus (%s)" !ivy_bus);
       "-d", Arg.Set_string port, (sprintf "Port (%s)" !port)] in
   Arg.parse
     options
-    (fun x -> ac_name := x)
+    (fun x -> ac_id := int_of_string x)
     "Usage: ";
   
-  if !ac_name = "" then
-    failwith "A/C name expected";
+  if !ac_id < 0 then
+    failwith "A/C ic expected";
 
   Ivy.init "Paparazzi receive" "READY" (fun _ _ -> ());
   Ivy.start !ivy_bus;
 
-  listen_pprz_modem (use_pprz_message !ac_name) !port;
+  listen_pprz_modem (use_pprz_message !ac_id) !port;
   
   let loop = Glib.Main.create true in
   while Glib.Main.is_running loop do

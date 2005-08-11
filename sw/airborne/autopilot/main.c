@@ -274,6 +274,7 @@ inline void reporting_task( void ) {
   /** initialisation phase during boot */
   if (boot) {
       DOWNLINK_SEND_BOOT(&version);
+      PERIODIC_SEND_IDENT();
       DOWNLINK_SEND_RAD_OF_IR(&estimator_ir, &estimator_rad, &estimator_rad_of_ir, &ir_roll_neutral, &ir_pitch_neutral);
       boot = FALSE;
   }

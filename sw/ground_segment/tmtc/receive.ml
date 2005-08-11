@@ -38,7 +38,7 @@ let (//) = Filename.concat
 let logs_path = Env.paparazzi_home // "var" // "logs"
 let conf_xml = Xml.parse_file (Env.paparazzi_home // "conf" // "conf.xml")
 
-type port = Ivy of string | Modem of string
+type port = string
 type aircraft = { 
     port : port;
     mutable roll    : float;
@@ -110,7 +110,6 @@ let log_and_parse = fun log ac_name a msg values ->
   let t = U.gettimeofday () in
   let s = String.concat " " (List.map (fun (_, v) -> Pprz.string_of_value v) values) in
   fprintf log "%.2f %s %s %s\n" t ac_name msg.Pprz.name s; flush log;
-  Ivy.send (sprintf "%s RAW %.2f %s %s" ac_name t msg.Pprz.name s);
   let value = fun x -> try List.assoc x values with Not_found -> failwith (sprintf "Error: field '%s' not found\n" x) in
   let fvalue = fun x -> fvalue (value x)
   and ivalue = fun x -> ivalue (value x) in
@@ -148,8 +147,8 @@ let log_and_parse = fun log ac_name a msg values ->
   | _ -> ()
 
 
-(** Callback for a message from a soft simulator *)
-let sim_msg = fun log ac_name a m ->
+(** Callback for a message from a registered A/C *)
+let ac_msg = fun log ac_name a m ->
   try
     let (msg_id, values) = Tele_Pprz.values_of_string m in
     let msg = Tele_Pprz.message_of_id msg_id in
@@ -215,17 +214,17 @@ let register_aircraft = fun name a ->
   ignore (Glib.Timeout.add traffic_info_period (fun () -> send_traffic_info name; true))
 
 
-(** Callback of an identifying message from a soft simulator *)
+(** Identifying message from a A/C *)
 let ident_msg = fun log id name ->
   if not (Hashtbl.mem aircrafts name) then begin
-    let ac = new_aircraft (Ivy id) in
-    let b = Ivy.bind (fun _ args -> sim_msg log name ac args.(0)) (sprintf "^%s +(.*)" id) in
+    let ac = new_aircraft id in
+    let b = Ivy.bind (fun _ args -> ac_msg log name ac args.(0)) (sprintf "^%s +(.*)" id) in
     register_aircraft name ac;
     send_aircrafts_msg ()
   end
 
-(* Waits for new simulated aircrafts *)
-let listen_sims = fun log ->
+(* Waits for new aircrafts *)
+let listen_acs = fun log ->
   ignore (Ivy.bind (fun _ args -> ident_msg log args.(0) args.(1)) "^(.*) IDENT +(.*)")
 
 (* Server on the Ivy bus *)
@@ -257,22 +256,6 @@ let ivy_server = fun () ->
   ignore (Ivy.bind (fun _ args -> send_flight_plan args.(0)) "^ask FLIGHT_PLAN +(.*)");
   ignore (Ivy.bind (fun _ args -> send_config args.(0) args.(1)) "^(.*) CONFIG_REQ +(.*)")
 
-(***
-let handle_pprz_message = fun log a ->
-  let name = ref None (*** register_aircraft "log_twinstar" a; Some "log_twinstar" ***) in
-  fun ...
-    let msg = Tele_Pprz.message_of_id msg_id in
-    match !name with
-      None ->
-	if msg.Pprz.name = "IDENT" then
-	  let n = Pprz.string_of_value (List.assoc "id" values) in
-	  name := Some n;
-	  register_aircraft n a
-    | Some ac_name ->
-	log_and_parse log ac_name a msg values
-***)
-
-  
 
 
 (* main loop *)
@@ -292,7 +275,7 @@ let _ =
   let log = logger () in
 
   (* Waits for new simulated aircrafts *)
-  listen_sims log;
+  listen_acs log;
 
   (* Sends periodically alive aircrafts *)
   ignore (Glib.Timeout.add aircrafts_msg_period (fun () -> send_aircrafts_msg (); true));
