@@ -47,6 +47,12 @@ reset_on_app:
 internal_1M:
 	uisp -dlpt=/dev/parport0 -dprog=stk200 -v=3 --wr_fuse_l=0xe1
 
+external_16M:
+	uisp -dlpt=/dev/parport0 -dprog=stk200 -v=3 --wr_fuse_l=0xe0
+
+upload_by_bl: test_prog.hex
+	uisp -dserial=/dev/ttyS0 -dspeed=38400 -dprog=avr910 -dpart=auto -v=4 --upload if=$<
+
 dump_flash:
 	uisp -dlpt=/dev/parport0 -dprog=stk200 -v=3 --download of=flash_dump.hex
 erase:

@@ -5,9 +5,9 @@
 
 #define BL_SIZE 1024
 #define APP_END (FLASHEND - BL_SIZE)
-#define PARTCODE  0x66
-#define SIG_BYTE3 0x97
-#define SIG_BYTE2 0x02
+#define PARTCODE  0x44
+#define SIG_BYTE3 0x02
+#define SIG_BYTE2 0x97
 #define SIG_BYTE1 0x1E
 
 void (*user_app)( void ) = 0x0000;
@@ -70,6 +70,9 @@ static void process_input ( uint8_t c ) {
     output = 'Y';
     goto out_char;
   }
+  case 'L': { /* ??? */
+    goto new_line;
+  }
   case 'M': { /* Write many words at once */
     uint8_t i;
     uint8_t len = uart_getc();
@@ -92,12 +95,22 @@ static void process_input ( uint8_t c ) {
     boot_spm_busy_wait();
   }
   case 'P': { /* Enter programming mode */
-
+    goto new_line;
   }
   case 'S': { /* Return software identifier */
     const uint8_t *s = "AVRBOOT";
     while( (c = *(s++) ) )
       uart_putc( c );
+  }
+  case 's': { /* Return signature byte */
+    uart_putc( SIG_BYTE3 );
+    uart_putc( SIG_BYTE2 );
+    output = SIG_BYTE1;
+    goto out_char;
+  }
+  case 'T': { /* ignored??? */
+    uart_getc();
+    goto new_line;
   }
   case 't': { /* Return programmer type */
     uart_putc( PARTCODE );
@@ -112,12 +125,6 @@ static void process_input ( uint8_t c ) {
   case 'v': { /* Return hardware version */
     uart_putc( '1' );
     output = '0';
-    goto out_char;
-  }
-  case 's': { /* Return signature byte */
-    uart_putc( SIG_BYTE3 );
-    uart_putc( SIG_BYTE2 );
-    output = SIG_BYTE1;
     goto out_char;
   }
   case 'Z': { /* Start application (never returns) */
