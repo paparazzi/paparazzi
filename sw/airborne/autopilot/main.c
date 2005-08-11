@@ -42,6 +42,7 @@
 #include "autopilot.h"
 #include "estimator.h"
 #include "if_calib.h"
+#include "cam.h"
 
 //
 //
@@ -377,6 +378,13 @@ void navigation_task( void ) {
     nav_update();
   
   DOWNLINK_SEND_NAVIGATION(&nav_block, &nav_stage, &estimator_x, &estimator_y, &desired_course, &dist2_to_wp, &course_pgain, &dist2_to_home);
+
+  int16_t x = target_x;
+  int16_t y = target_y;
+  int8_t phi = DegOfRad(phi_c);
+  int8_t theta = DegOfRad(theta_c);
+  DOWNLINK_SEND_CAM(&phi, &theta, &x, &y);
+  
   
   if (pprz_mode == PPRZ_MODE_AUTO2 || pprz_mode == PPRZ_MODE_HOME) {
     if (lateral_mode >= LATERAL_MODE_COURSE)

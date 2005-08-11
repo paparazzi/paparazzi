@@ -125,6 +125,32 @@ let stage = ref 0
 
 let output_label l = lprintf "Label(%s)\n" l
 
+let get_index_waypoint = fun x l ->
+  try
+    string_of_int (List.assoc x l)
+  with
+    Not_found -> failwith (sprintf "Unknown waypoint: %s\n" x)
+
+let output_cam_mode = fun x index_of_waypoints ->
+  let m =  try Xml.attrib x "cam_mode" with _ -> "fix" in
+  match m with
+    "null" -> lprintf "CamNull()";
+  | "fix" -> lprintf "CamFix()";
+  | "manual" -> lprintf "cam_manual();\n"
+  | "nadir" -> lprintf "cam_nadir();\n"
+  | "target" ->
+      if Xml.tag x = "xyz" then
+	lprintf "cam_carrot();\n"
+      else begin
+	try 
+	  let wp = Xml.attrib x "target" in
+	  let i = get_index_waypoint wp index_of_waypoints in
+	  lprintf "cam_waypoint_target(%s);\n" i
+	with _ ->
+	  lprintf "cam_manual_target();\n"
+      end
+  | _ -> failwith (sprintf "Error: unknown '%s' cam mode" m)
+
 let output_vmode x wp last_wp =
   let pitch = try Xml.attrib x "pitch" with _ -> "0.0" in
   if pitch = "auto"
@@ -189,11 +215,6 @@ let output_hmode x wp last_wp =
     ExtXml.Error _ -> lprintf "fly_to(%s);\n" wp; "direct" (* Default behaviour *)
 	  
 
-let get_index_waypoint = fun x l ->
-  try
-    string_of_int (List.assoc x l)
-  with
-    Not_found -> failwith (sprintf "Unknown waypoint: %s\n" x)
 
 	
 let rec compile_stage = fun block x ->
@@ -261,6 +282,7 @@ let rec print_stage = fun index_of_waypoints x ->
 	right (); 
 	lprintf "desired_course = RadOfDeg(%s);\n" (parsed_attrib x "course");
 	ignore (output_vmode x "" "");
+	output_cam_mode x index_of_waypoints;
 	left (); lprintf "}\n";
 	lprintf "return;\n"
     | "follow" ->
@@ -268,6 +290,7 @@ let rec print_stage = fun index_of_waypoints x ->
 	let id = ExtXml.attrib x "ac_id" in
 	let d = ExtXml.attrib x "distance" in
 	lprintf "Follow(%s, %s);\n" id d;
+	output_cam_mode x index_of_waypoints;
 	lprintf "return;\n"
     | "attitude" ->
 	stage ();
@@ -277,6 +300,7 @@ let rec print_stage = fun index_of_waypoints x ->
 	lprintf "lateral_mode = LATERAL_MODE_ROLL;\n";
 	lprintf "nav_desired_roll = RadOfDeg(%s);\n" (parsed_attrib x "roll");
 	ignore (output_vmode x "" "");
+	output_cam_mode x index_of_waypoints;
 	left (); lprintf "}\n";
 	lprintf "return;\n"
     | "go" ->
@@ -300,6 +324,7 @@ let rec print_stage = fun index_of_waypoints x ->
 	let vmode = output_vmode x wp last_wp in
 	if vmode = "glide" && hmode <> "route" then
 	  failwith "glide vmode requires route hmode";
+	output_cam_mode x index_of_waypoints;
 	left (); lprintf "}\n";
 	lprintf "return;\n"
     | "stay" ->
@@ -319,6 +344,7 @@ let rec print_stage = fun index_of_waypoints x ->
 	stage ();
 	let r = try parsed_attrib  x "radius" with _ -> "100" in
 	lprintf "Goto3D(%s)\n" r;
+	output_cam_mode x index_of_waypoints;
 	lprintf "return;\n"
     | "circle" ->
 	stage ();
@@ -333,6 +359,7 @@ let rec print_stage = fun index_of_waypoints x ->
 	  with
 	    ExtXml.Error _ -> ()
 	end;
+	output_cam_mode x index_of_waypoints;
 	lprintf "return;\n"
     | "set" ->
 	stage ();

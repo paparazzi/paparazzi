@@ -36,6 +36,7 @@
 #include "autopilot.h"
 #include "link_fbw.h"
 #include "airframe.h"
+#include "cam.h"
 
 uint8_t nav_stage, nav_block;
 /** To save the current stage when an exception is raised */
@@ -45,6 +46,7 @@ static uint8_t last_wp;
 float rc_pitch;
 uint16_t stage_time, block_time;
 float stage_time_ds;
+float carrot_x, carrot_y;
 static float sum_alpha, last_alpha;
 /** represents in percent the stage where the uav is on a route
  *  or the qdr when uav circles.
@@ -83,8 +85,6 @@ static void glide_to(uint8_t last_wp, uint8_t wp);
 
 #define MIN_DX ((int16_t)(MAX_PPRZ * 0.05))
 
-#define DegOfRad(x) ((x) / M_PI * 180.)
-#define RadOfDeg(x) ((x)/180. * M_PI)
 #define NormCourse(x) { \
   while (x < 0) x += 360; \
   while (x >= 360) x -= 360; \
@@ -121,7 +121,6 @@ static float qdr;
 #define MAX_HEIGHT_CARROT 150.
 
 #define Goto3D(radius) { \
-  static float carrot_x, carrot_y; \
   if (pprz_mode == PPRZ_MODE_AUTO2) { \
     int16_t yaw = from_fbw.channels[RADIO_YAW]; \
     if (yaw > MIN_DX || yaw < -MIN_DX) { \
@@ -150,8 +149,6 @@ static float qdr;
 
 #define And(x, y) ((x) && (y))
 #define Or(x, y) ((x) || (y))
-#define Min(x,y) (x < y ? x : y)
-#define Max(x,y) (x > y ? x : y)
 #define Qdr(x) (Min(x, 350) < qdr && qdr < x+10)
 
 #include "flight_plan.h"

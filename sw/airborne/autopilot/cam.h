@@ -1,9 +1,7 @@
-#ifndef STD_H
-#define STD_H
 /*
  * $Id$
- *
- * Copyright (C) 2005 Pascal Brisset, Antoine Drouin
+ *  
+ * Copyright (C) 2005  Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
  *
@@ -22,31 +20,28 @@
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA. 
  *
- *
- * a couple of fundamentals used in the avr code
+ */
+/** \file cam.h
+ *  \brief Regroup functions to control the camera
  *
  */
 
+#ifndef CAM_H
+#define CAM_H
+
 #include <inttypes.h>
 
-#define FALSE 0
-#define TRUE (!FALSE)
 
-/* Boolean values */
-typedef uint8_t bool_t;
+extern float phi_c, theta_c;
+extern float target_x, target_y;
 
-#ifndef cbi
-#define cbi(sfr, bit) (_SFR_BYTE(sfr) &= ~_BV(bit))
+#define CamNull() { phi_c = 0; theta_c = 0; }
+#define CamFix() {}
+
+void cam_nadir();
+void cam_manual();
+void cam_manual_target();
+void cam_waypoint_target(uint8_t wp);
+void cam_carrot();
+
 #endif
-#ifndef sbi
-#define sbi(sfr, bit) (_SFR_BYTE(sfr) |= _BV(bit))
-#endif
-
-
-#define DegOfRad(x) ((x) / M_PI * 180.)
-#define RadOfDeg(x) ((x)/180. * M_PI)
-
-#define Min(x,y) (x < y ? x : y)
-#define Max(x,y) (x > y ? x : y)
-
-#endif /* STD_H */

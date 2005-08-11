@@ -32,7 +32,7 @@ SIMHCMO=$(SIMHML:%.ml=%.cmo)
 SIMSML = stdlib.ml data.ml flightModel.ml gps.ml sitl.ml sim.ml
 SIMSCMO=$(SIMSML:%.ml=%.cmo)
 SIMSCMX=$(SIMSML:%.ml=%.cmx)
-SIMSC = sim_ir.c sim_gps.c sim_ap.c estimator.c pid.c nav.c main.c
+SIMSC = sim_ir.c sim_gps.c sim_ap.c estimator.c pid.c nav.c main.c cam.c
 SIMSO=$(SIMSC:%.c=$(OBJDIR)/%.o)
 SIMSA=sims.cma
 

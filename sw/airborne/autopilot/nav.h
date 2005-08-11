@@ -58,6 +58,7 @@ extern float stage_time_ds;
 /** in number of circle */
 extern float circle_count;
 extern float nav_desired_roll;
+extern float carrot_x, carrot_y;
 
 void nav_update(void);
 void nav_home(void);

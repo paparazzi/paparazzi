@@ -83,12 +83,16 @@ from_qdr CDATA #IMPLIED
 from_dist CDATA #IMPLIED
 hmode CDATA #IMPLIED
 vmode CDATA #IMPLIED
+cam_mode (null|fix|manual|nadir|target) #IMPLIED
+target CDATA #IMPLIED
 pitch CDATA #IMPLIED
 alt CDATA #IMPLIED
 until CDATA #IMPLIED
 gaz CDATA #IMPLIED>
 
 <!ATTLIST xyz
+cam_mode (null|fix|manual|nadir|target) #IMPLIED
+target CDATA #IMPLIED
 radius CDATA #IMPLIED>
 
 <!ATTLIST circle
@@ -96,6 +100,8 @@ wp CDATA #REQUIRED
 radius CDATA #REQUIRED
 alt CDATA #IMPLIED
 vmode CDATA #IMPLIED
+cam_mode (null|fix|manual|nadir|target) #IMPLIED
+target CDATA #IMPLIED
 climb CDATA #IMPLIED
 until CDATA #IMPLIED>
 
