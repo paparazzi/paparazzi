@@ -140,6 +140,13 @@
    <message name="IDENT" ID="0x14" period="10">
      <field name="id" type="uint8"/>
    </message>
+
+  <message name="CAM" ID="0x15">
+     <field name="phi" type="int8" unit="deg"/>
+     <field name="theta" type="int8" unit="deg"/>
+     <field name="target_x" type="int16" unit="m"/>
+     <field name="target_y" type="int16" unit="m"/>
+  </message>
  </class>
 
 <class name="telemetry_fbw" ID="0X41">
