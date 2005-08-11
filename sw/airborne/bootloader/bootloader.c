@@ -6,7 +6,7 @@
 #define BL_SIZE 1024
 #define APP_END (FLASHEND - BL_SIZE)
 #define PARTCODE  0x66
-#define SIG_BYTE3 0x94
+#define SIG_BYTE3 0x97
 #define SIG_BYTE2 0x02
 #define SIG_BYTE1 0x1E
 
@@ -99,6 +99,11 @@ static void process_input ( uint8_t c ) {
     while( (c = *(s++) ) )
       uart_putc( c );
   }
+  case 't': { /* Return programmer type */
+    uart_putc( PARTCODE );
+    output = 0x00;
+    goto out_char;
+  }
   case 'V': { /* Return software version */
     uart_putc( '2' );
     output = '4';
@@ -134,11 +139,16 @@ static void process_input ( uint8_t c ) {
 
 }
 
+#include "led_v1_2.h";
 
 int main ( void ) {
   cli();
+  LEDS_INIT();
   uart_init();
-  
+  RED_LED_ON();
+  YELLOW_LED_OFF();
+  GREEN_LED_OFF();
+
   while ( 1 ) {
     uint8_t c = uart_getc();
     process_input ( c );
