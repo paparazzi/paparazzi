@@ -64,5 +64,10 @@ listen.opt : listen.ml
 	strip $@
 
 
+modem.cmo : modem.cmi
+
 %.cmo : %.ml
 	$(OCAMLC) $(INCLUDES) -c $<
+
+%.cmi : %.mli
+	$(OCAMLC) $(INCLUDES) $<

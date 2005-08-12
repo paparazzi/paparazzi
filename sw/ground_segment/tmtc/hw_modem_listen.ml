@@ -39,21 +39,21 @@ let use_pprz_message = fun ac_id (msg_id, values) ->
 let listen_pprz_modem = fun pprz_message_cb tty ->
   let fd = 
     if String.sub tty 0 4 = "/dev" then
-      Serial.opendev tty Serial.B4800
+      Serial.opendev tty Serial.B38400
     else
       Unix.descr_of_in_channel (open_in tty)
   in
   let use_pprz_buf = fun buf ->
-    Debug.call 'T' (fun f -> fprintf f "use_pprz: %s\n" (Debug.xprint buf));
+    Debug.call 'P' (fun f -> fprintf f "use_pprz: %s\n" (Debug.xprint buf));
     pprz_message_cb (Tele_Pprz.values_of_bin buf) in
   let buffer = ref "" in
   let use_modem_message = fun msg ->
-    Debug.call 'T' (fun f -> fprintf f "use_modem: %s\n" (Debug.xprint msg));
+    Debug.call 'M' (fun f -> fprintf f "use_modem: %s\n" (Debug.xprint msg));
     match Modem.parse msg with
       None -> () (* Only internal modem data *)
     | Some data ->
 	let b = !buffer ^ data in
-	Debug.call 'T' (fun f -> fprintf f "Pprz buffer: %s\n" (Debug.xprint b));
+	Debug.call 'M' (fun f -> fprintf f "Pprz buffer: %s\n" (Debug.xprint b));
 	let x = PprzTransport.parse use_pprz_buf b in
 	buffer := String.sub b x (String.length b - x)
   in
@@ -76,16 +76,17 @@ let _ =
   let ac_id = ref (-1) in
   let options =
     [ "-b", Arg.Set_string ivy_bus, (sprintf "Ivy bus (%s)" !ivy_bus);
+      "-i", Arg.Set_int ac_id, "A/C id";
       "-d", Arg.Set_string port, (sprintf "Port (%s)" !port)] in
   Arg.parse
     options
-    (fun x -> ac_id := int_of_string x)
+    (fun x -> fprintf stderr "Warning:ignoring %s\n" x)
     "Usage: ";
   
   if !ac_id < 0 then
     failwith "A/C ic expected";
 
-  Ivy.init "Paparazzi receive" "READY" (fun _ _ -> ());
+  Ivy.init "Paparazzi hw_modem_listen" "READY" (fun _ _ -> ());
   Ivy.start !ivy_bus;
 
   listen_pprz_modem (use_pprz_message !ac_id) !port;

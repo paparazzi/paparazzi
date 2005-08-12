@@ -22,6 +22,7 @@
 /* ---------------------------------------------------------------------- */
 
 #include "multimon.h"
+#include "pprz.h"
 #include <stdio.h>
 #include <stdarg.h>
 #include <sys/types.h>
@@ -399,7 +400,7 @@ int main(int argc, char *argv[])
 	for (i = 0; i < NUMDEMOD; i++) 
 		fprintf(stdout, " %s", dem[i]->name);
 	fprintf(stdout, "\n");
-	while ((c = getopt(argc, argv, "t:a:s:v:")) != EOF) {
+	while ((c = getopt(argc, argv, "t:a:p:s:v:")) != EOF) {
 		switch (c) {
 		case '?':
 			errflg++;
@@ -438,6 +439,11 @@ int main(int argc, char *argv[])
 				errflg++;
 			}
 			break;
+
+		case 'p':
+		  printf("pipe=%s\n", optarg);
+		  strcpy(multimon_pipe_name, optarg);
+		  break;
 
 		case 's':
 			if (mask_first)

@@ -19,10 +19,10 @@
     <block NAME="init">
       <exception COND="(RcEvent1())" DEROUTE="init"/>
 
-      <circle wp="HOME" alt="GROUND_ALT+50" radius="75" cam_mode="nadir" until="stage_time > 100"/>
-      <circle wp="HOME" alt="GROUND_ALT+50" radius="75" cam_mode="manual" until="stage_time > 100"/>
       <circle wp="HOME" alt="GROUND_ALT+50" radius="75" cam_mode="target" target="HOME" until="stage_time > 100"/>
       <circle wp="HOME" alt="GROUND_ALT+50" radius="75" cam_mode="target" until="stage_time > 100"/>
+      <circle wp="HOME" alt="GROUND_ALT+50" radius="75" cam_mode="nadir" until="stage_time > 100"/>
+      <circle wp="HOME" alt="GROUND_ALT+50" radius="75" cam_mode="manual" until="stage_time > 100"/>
       <xyz cam_mode="target"/>
     </block>
   </blocks>

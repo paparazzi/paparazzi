@@ -44,7 +44,7 @@ sub parse_args {
   my ($self) = @_;
   my $options = {
 		 ivy_bus => "127.255.255.255:2005",
-		 map => "sinsat.xml",
+		 map => "muret_UTM.xml",
 		 render => "1",
 		};
   GetOptions("b=s" => \$options->{ivy_bus},

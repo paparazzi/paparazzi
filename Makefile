@@ -29,15 +29,16 @@ FBW=$(AIRBORNE)/fly_by_wire
 AP=$(AIRBORNE)/autopilot
 COCKPIT=sw/ground_segment/cockpit
 TMTC=sw/ground_segment/tmtc
+MULTIMON=sw/ground_segment/multimon
 WIND=sw/ground_segment/wind
 VISU3D=sw/ground_segment/visu3d
 LOGALIZER=sw/logalizer
 SIMULATOR=sw/simulator
 MAKE=make
 
-all: static ac1 ac2
+all: static
 
-static : lib tools configurator cockpit tmtc visu3d logalizer sim_static wind static_h
+static : lib tools configurator cockpit tmtc multimon visu3d logalizer sim_static wind static_h
 
 ac1 : 
 	make AIRCRAFT=Thon1 sim_ac
@@ -91,6 +92,9 @@ cockpit: lib
 
 tmtc: lib
 	cd $(TMTC); $(MAKE) all
+
+multimon:
+	cd $(MULTIMON); $(MAKE)
 
 visu3d: lib
 	cd $(VISU3D); $(MAKE)

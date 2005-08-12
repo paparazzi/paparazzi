@@ -17,10 +17,17 @@
     <variable name="ivy_bus"              value="127.25.255.255:2009"/>
     <variable name="map"                  value="sinsat.xml"/>
     <variable name="flight_plan"          value="flight_plans/muret1.xml"/>
+    <variable name="multimon_demod"       value="AFSK4800_P"/>
   </section>
 
   <section name="programs">
     <program name="receive" command="sw/ground_segment/tmtc/receive">
+      <arg flag="-b" variable="ivy_bus"/>
+    </program>
+    <program name="multimon" command="sw/ground_segment/multimon/bin-i686/multimon">
+      <arg flag="-a" variable="multimon_demod"/>
+    </program>
+    <program name="modem_listen" command="sw/ground_segment/tmtc/hw_modem_listen">
       <arg flag="-b" variable="ivy_bus"/>
     </program>
     <program name="cockpit" command="sw/ground_segment/cockpit/cockpit.pl">
@@ -75,6 +82,14 @@
 
   <section name="sessions">
 
+    <session name="soft plaster">
+      <variable name="ivy_bus" value="127.25.255.255:3333"/>
+      <program name="receive"/>     
+      <program name="sim"><arg flag="-a" constant="Plaster1"/></program>
+      <program name="cockpit"/>
+      <program name="map 2d ml"/>
+    </session>
+
     <session name="soft sim 2">
       <variable name="ivy_bus" value="127.25.255.255:3333"/>
       <program name="receive"/>     
@@ -85,9 +100,17 @@
     </session>
 
     <session name="soft sim 1">
-      <variable name="ivy_bus" value="127.25.255.255:3333"/>
       <program name="receive"/>     
       <program name="sim"><arg flag="-a" constant="Thon1"/></program>
+      <program name="map 2d ml"/>
+    </session>
+
+    <session name="flight microjet">
+      <program name="multimon"><arg flag="-p" constant="/tmp/multimon"/></program>
+      <program name="modem_listen"><arg flag="-d" constant="/tmp/multimon"/><arg flag="-i" constant="1"/></program>
+      <program name="receive"/>     
+
+      <program name="cockpit"/>
       <program name="map 2d ml"/>
     </session>
 

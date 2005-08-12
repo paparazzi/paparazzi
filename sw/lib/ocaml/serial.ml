@@ -93,6 +93,7 @@ end
 
 module Transport(Protocol:PROTOCOL) = struct
   let rec parse = fun use buf ->
+    Debug.call 'T' (fun f -> fprintf f "Transport.parse: %s\n" (Debug.xprint buf));
     let start = ref 0
     and n = String.length buf in
     try

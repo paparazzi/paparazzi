@@ -96,7 +96,7 @@ let payload_size_of_message = fun message ->
   List.fold_right
     (fun (_, f) s -> size_of_field f + s)
     message.fields
-    4
+    1
 
 let size_of_message = fun m -> 
   payload_size_of_message m + 3 (* STX, CK_A, CK_B *)
@@ -190,7 +190,7 @@ module Protocol(Class:CLASS) = struct
       ck_a += Char.code msg.[i];
       ck_b += !ck_a
     done;
-    Debug.call 'T' (fun f -> fprintf f "Pprz ck: %d %d\n" !ck_a (Char.code msg.[l-2]));
+    Debug.call 'T' (fun f -> fprintf f "Pprz cs: %d %d\n" !ck_a (Char.code msg.[l-2]));
     !ck_a = Char.code msg.[l-2] && !ck_b = Char.code msg.[l-1]
 
   let values_of_payload = fun buffer ->

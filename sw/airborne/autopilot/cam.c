@@ -77,13 +77,13 @@ void cam_target() {
 
 void cam_manual_target() {
   int16_t yaw = from_fbw.channels[RADIO_YAW];
-  if (yaw > MIN_PPRZ || yaw < -MIN_PPRZ) {
+  if (yaw > MIN_PPRZ_CAM || yaw < -MIN_PPRZ_CAM) {
     target_x += FLOAT_OF_PPRZ(yaw, 0, -20.);
     target_x = Min(target_x, MAX_DIST_TARGET + estimator_x);
     target_x = Max(target_x, -MAX_DIST_TARGET + estimator_x);
   }
   int16_t pitch = from_fbw.channels[RADIO_PITCH];
-  if (pitch > MIN_PPRZ || pitch < -MIN_PPRZ) {
+  if (pitch > MIN_PPRZ_CAM || pitch < -MIN_PPRZ_CAM) {
     target_y += FLOAT_OF_PPRZ(pitch, 0, -20.);
     target_y = Min(target_y, MAX_DIST_TARGET + estimator_y);
     target_y = Max(target_y, -MAX_DIST_TARGET + estimator_y);
@@ -94,9 +94,11 @@ void cam_manual_target() {
 void cam_waypoint_target(uint8_t wp) {
   target_x = waypoints[wp].x;
   target_y = waypoints[wp].y;
+  cam_target();
 }
 
 void cam_carrot() {
   target_x = carrot_x;
   target_y = carrot_y;
+  cam_target();
 }

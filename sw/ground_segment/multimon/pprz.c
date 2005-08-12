@@ -78,12 +78,14 @@ static void pprz_tmtc_send(struct demod_state *s, unsigned char *data, unsigned 
 
 /* ---------------------------------------------------------------------- */
 
+char multimon_pipe_name[1024] = "pprz.c/multimon";
+
 void pprz_init(struct demod_state *s)
 {
 	memset(&s->l2.hdlc, 0, sizeof(s->l2.hdlc));
 	
 	/* open named pipe */
-	if ((s->l2.pprz.pipe_fd = open(MULTIMON_PIPE_NAME, O_WRONLY /*| O_NONBLOCK*/)) < 0) {
+	if ((s->l2.pprz.pipe_fd = open(multimon_pipe_name, O_WRONLY /*| O_NONBLOCK*/)) < 0) {
 		perror("open pipe");
 		exit (10);
 	}
