@@ -116,7 +116,6 @@ let horizon_slope = fun geo r psi alpha d ->
 	let s_utm = utm_q +. !dj *. cos( heading_psi_2alpha +. alpha_i) in
 	let t_utm = utm_p +. !dj *. sin( heading_psi_2alpha +. alpha_i) in
 	let h = of_utm { utm_zone = z; utm_x = s_utm; utm_y = t_utm} in
-	Printf.fprintf stderr "psi=%.0f: %.0f %.0f %d\n%!" psi s_utm t_utm h;
 	begin
 	  begin 
 	    let slope =  float_of_int (h-r ) /. !dj in
@@ -127,7 +126,7 @@ let horizon_slope = fun geo r psi alpha d ->
 	dj := !dj +. step_d;
       done;
      (* Printf.printf "alpha_i %.2f max_slope %.2f \n" alpha_i !max_slope; *)
-      calc_horizon (sum_cos_alpha_i_slope_alpha_i +. !max_slope *. (cos alpha_i)) (sum_cos_alpha_i +. (cos alpha_i)) (alpha_i +. step_alpha)
+      calc_horizon (sum_cos_alpha_i_slope_alpha_i +. !max_slope *. (cos (alpha_i -. alpha))) (sum_cos_alpha_i +. (cos (alpha_i -. alpha))) (alpha_i +. step_alpha)
     end
   in 
   begin

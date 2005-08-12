@@ -157,8 +157,8 @@ module Make(AircraftItl : AIRCRAFT_ITL) = struct
 		      let altitude = (int_of_float gps_state.Gps.alt) in
 		      let horizon_right = Srtm.horizon_slope gps_state.Gps.wgs84 altitude (gps_state.Gps.course +. Latlong.pi /. 2.)  half_aperture horizon_distance in
 		      let horizon_left = Srtm.horizon_slope gps_state.Gps.wgs84 altitude (gps_state.Gps.course -. Latlong.pi /. 2.) half_aperture horizon_distance in 
-		  (***) Printf.printf "IR: %f-%f\n%!" horizon_right horizon_left;
-		  (***) Printf.printf "alt: %d\n%!" altitude;
+		      (***) Printf.printf "IR: %f-%f\n%!" horizon_right horizon_left;
+		      (***) Printf.printf "alt: %d\n%!" altitude;
 		      horizon_right -. horizon_left
 		    else
 		      0. in

@@ -493,7 +493,7 @@ let print_heights = fun wgs84 alt ->
   Srtm.add_path (Env.paparazzi_home ^ "/data/srtm");
   Xml2h.define "NB_HEIGHTS" (string_of_int nb_heights);
   Xml2h.define "HEIGHTS" "{ /* Degrees from default alt*/\\";
-  let a = pi /. float nb_heights in
+  let a =2. *. pi /. float nb_heights in
   for i = 0 to nb_heights - 1 do
     let psi = float i *. a in
     let horizon = Srtm.horizon_slope wgs84 alt psi  half_aperture horizon_distance in

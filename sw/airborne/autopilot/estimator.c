@@ -30,6 +30,7 @@
 #include "pid.h"
 #include "infrared.h"
 #include "autopilot.h"
+#include "flight_plan.h"
 
 
 /* position in meters */
@@ -62,6 +63,25 @@ float estimator_hspeed_mod;
 float estimator_hspeed_dir;
 
 float estimator_rad_of_ir, estimator_ir, estimator_rad;
+
+
+/* array of horizon angles computed for a given height (at flight_plan.h generation) */
+
+int8_t angles[NB_HEIGHTS] = HEIGHTS;
+
+
+/* (aircraft axis, ir axis) angle */
+
+#define aircraft_ir_angle ( M_PI / 2)
+
+
+
+#define height_index_coeff (NB_HEIGHTS / ( 2 * M_PI ))
+
+#define NORM_RAD_ANGLE2(x) { \
+    while (x > 2 * M_PI) x -= 2 * M_PI; \
+    while (x < 0 ) x += 2 * M_PI; \
+  }
 
 #define EstimatorSetPos(x, y, z) { estimator_x = x; estimator_y = y; estimator_z = z; }
 #define EstimatorSetAtt(phi, psi, theta) { estimator_phi = phi; estimator_psi = psi; estimator_theta = theta; }
@@ -113,7 +133,33 @@ void estimator_init( void ) {
 void estimator_update_state_infrared( void ) {
   float rad_of_ir = (ir_estim_mode == IR_ESTIM_MODE_ON && EstimatorIrGainIsCorrect()) ? 
     estimator_rad_of_ir : ir_rad_of_ir;
-  estimator_phi  = rad_of_ir * ir_roll;
+
+  /* phi correction because of the relief effect on ir data */
+
+  /*** int8_t index_left, index_right;
+
+  float angle =  gps_fcourse - aircraft_ir_angle;
+
+  NORM_RAD_ANGLE2(angle);
+
+  index_left = angle * height_index_coeff ;
+
+  angle =  gps_fcourse + aircraft_ir_angle;
+
+  NORM_RAD_ANGLE2(angle);
+
+  index_right = angle * height_index_coeff ;
+
+  int8_t angle_left = angles[index_left]; 
+
+  int8_t angle_right = angles[index_right];
+
+
+  float correction =  angle_left - angle_right;
+
+  printf(" degres_left %d angle_left %d degres_right %d angle_right %d correction %.2f \n", (index_left*15), angle_left, (index_right*15), angle_right, correction); ***/
+   
+  estimator_phi  = rad_of_ir * ir_roll /*** + RadOfDeg( correction ) ***/;
 
   estimator_theta = rad_of_ir * ir_pitch;
 }
