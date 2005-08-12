@@ -38,10 +38,10 @@ extern float target_x, target_y;
 #define CamNull() { phi_c = 0; theta_c = 0; }
 #define CamFix() {}
 
-void cam_nadir();
-void cam_manual();
-void cam_manual_target();
+void cam_nadir(void);
+void cam_manual(void);
+void cam_manual_target(void);
 void cam_waypoint_target(uint8_t wp);
-void cam_carrot();
+void cam_carrot(void);
 
 #endif
