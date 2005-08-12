@@ -129,6 +129,8 @@ module Make(AircraftItl : AIRCRAFT_ITL) = struct
     let half_aperture = (Latlong.pi /. 4.) in
     let last_gps_state = ref None in
     let run = ref false in
+    let ir_srtm = ref false in
+
     let scheduler =
       let t = ref 0 in
       let f =
@@ -144,29 +146,30 @@ module Make(AircraftItl : AIRCRAFT_ITL) = struct
 	  end;
 
 	  if !t mod ir_period = 0 then begin
-
-	  (***   let (x,y,z) = FlightModel.get_xyz !state in
-	     let utm_pos = { Latlong.utm_zone = utm0.Latlong.utm_zone; Latlong.utm_x = utm0.Latlong.utm_x +. x; Latlong.utm_y = utm0.Latlong.utm_y +. y} in
-	     let wgs84_pos = Latlong.of_utm Latlong.WGS84 utm_pos in  ***)
-	     let phi = FlightModel.get_phi !state in
-	     let horizon_distance = 1000. in
-	     try
-	       match !last_gps_state with
-		 None -> Printf.printf "gps state NONE \n%!";()
-	       | Some gps_state ->
-		   let altitude = (int_of_float gps_state.Gps.alt) in
-		   let horizon_right = Srtm.horizon_slope gps_state.Gps.wgs84 altitude (gps_state.Gps.course +. Latlong.pi /. 2.)  half_aperture horizon_distance in
-		   let horizon_left = Srtm.horizon_slope gps_state.Gps.wgs84 altitude (gps_state.Gps.course -. Latlong.pi /. 2.) half_aperture horizon_distance in 
-		   (***) Printf.printf "IR: %f-%f\n%!" horizon_right horizon_left;
-		   (***) Printf.printf "alt: %d\n%!" altitude;
-		   let ir_left = ( (phi +. (horizon_right -. horizon_left) ) *. infrared_contrast_adj#value )
-		   and ir_front = 0. in
-		   Aircraft.infrared ir_left ir_front
-	     with
-	       x -> Printf.printf "%s\n%!" (Printexc.to_string x)
-
+	    let phi = FlightModel.get_phi !state in
+	    let horizon_distance = 1000. in
+	    try
+	      match !last_gps_state with
+		None -> Printf.printf "gps state NONE \n%!";()
+	      | Some gps_state ->
+		  let delta_ir = 
+		    if !ir_srtm then
+		      let altitude = (int_of_float gps_state.Gps.alt) in
+		      let horizon_right = Srtm.horizon_slope gps_state.Gps.wgs84 altitude (gps_state.Gps.course +. Latlong.pi /. 2.)  half_aperture horizon_distance in
+		      let horizon_left = Srtm.horizon_slope gps_state.Gps.wgs84 altitude (gps_state.Gps.course -. Latlong.pi /. 2.) half_aperture horizon_distance in 
+		  (***) Printf.printf "IR: %f-%f\n%!" horizon_right horizon_left;
+		  (***) Printf.printf "alt: %d\n%!" altitude;
+		      horizon_right -. horizon_left
+		    else
+		      0. in
+		  let ir_left = ( (phi +. delta_ir ) *. infrared_contrast_adj#value )
+		  and ir_front = 0. in
+		  Aircraft.infrared ir_left ir_front
+	    with
+	      x -> Printf.printf "%s\n%!" (Printexc.to_string x)
+		  
 	  end;
-	    
+	  
 	  if !t mod gps_period = 0 then begin
 	    let (x,y,z) = FlightModel.get_xyz !state in
 	    east_label#set_text (Printf.sprintf "%.0f" x);
@@ -179,6 +182,7 @@ module Make(AircraftItl : AIRCRAFT_ITL) = struct
 	  true in
       fun () -> ignore (GMain.Timeout.add 10 f) in
 
+
     let boot = fun () ->
       Aircraft.boot ();
       scheduler () in
@@ -190,6 +194,8 @@ module Make(AircraftItl : AIRCRAFT_ITL) = struct
     ignore (s#connect#clicked ~callback:boot);
     let t = GButton.button ~label:"Launch" ~packing:hbox#pack () in
     ignore (t#connect#clicked ~callback:take_off);
+    let ir_srtm_button = GButton.toggle_button ~label:"IR/srtm" ~packing:hbox#pack () in
+    ignore (ir_srtm_button#connect#toggled (fun () -> ir_srtm := not !ir_srtm));
 
     let hbox = GPack.hbox ~packing:window#vbox#pack () in
     let l = fun s -> ignore(GMisc.label ~text:s ~packing:hbox#pack ()) in
@@ -213,6 +219,7 @@ module Make(AircraftItl : AIRCRAFT_ITL) = struct
     let hbox = GPack.hbox ~packing:window#vbox#pack () in
     ignore (GMisc.label ~text:"infrared:" ~packing:hbox#pack ());
     ignore (GRange.scale `HORIZONTAL ~adjustment:infrared_contrast_adj ~packing:hbox#add ());
+
 
     window#show ();
     Unix.handle_unix_error GMain.Main.main ()
