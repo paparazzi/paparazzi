@@ -28,12 +28,16 @@
 
 (** {b Angles} *)
 
+val pi : float
+
 type degree = float
 and radian = float
 and semi = float
 and dms = int * int * float
 (** Angle units. In [semi], -pi is coded by -2^31 and pi by 2^31 (used in
 Garmin GPS protocol). *)
+
+val deg_string_of_rad  : radian -> string
 
 type angle_unit = Semi | Rad | Deg | Grd
 val ( >> ) : angle_unit -> angle_unit -> float -> float
@@ -42,7 +46,6 @@ val ( >> ) : angle_unit -> angle_unit -> float -> float
 val decimal : int -> int -> float -> float
 val dms : float -> dms
 (** Conversions between decimal degrees and degree, minutes and seconds *)
-
 
 (** {b Geodesic datum} *)
 
@@ -102,6 +105,9 @@ val of_cartesian : geodesic -> cartesian -> geographic * float
 geographic coordinates and altitude expressed in geodesic referential
 [geode] *)
 
-val distance : lambert -> lambert -> meter 
+val utm_distance : utm -> utm -> fmeter 
 
 val wgs84_of_lambertIIe : meter -> meter -> geographic
+
+val of_string : string -> geographic
+(** [of_string pos] Parses [pos] as "WGS84 45.678 1.2345", "UTM 500123 4500300 31" or "LBT2e 544945 1755355" *) 

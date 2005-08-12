@@ -72,8 +72,8 @@ module Make(AircraftItl : AIRCRAFT_ITL) = struct
 
   let flight_plan = A.ac.Data.flight_plan
 
-  let lat0 = (float_attrib flight_plan "lat0")
-  let lon0 = (float_attrib flight_plan "lon0")
+  let lat0 = rad_of_deg (float_attrib flight_plan "lat0")
+  let lon0 = rad_of_deg (float_attrib flight_plan "lon0")
   let qfu = (float_attrib flight_plan "qfu")
   let alt0 = (float_attrib flight_plan "ground_alt")
 (*
@@ -94,13 +94,15 @@ module Make(AircraftItl : AIRCRAFT_ITL) = struct
     let window = GWindow.dialog ~title:("Aircraft "^ !ac_name) () in
     let quit = fun () -> GMain.Main.quit (); exit 0 in
     ignore (window#connect#destroy ~callback:quit);
+    Srtm.add_path (Env.paparazzi_home ^ "/data/srtm");
     
     Aircraft.init A.ac.Data.id window#vbox;
 
     let gps_period = 25 in
     
-    let compute_gps_state = Gps.state (rad_of_deg lat0) (rad_of_deg lon0) (alt0) in
+    let compute_gps_state = Gps.state lat0 lon0 (alt0) in
 
+    let utm0 = Latlong.utm_of Latlong.WGS84 {Latlong.posn_long = lon0; Latlong.posn_lat = lat0}  in
 
     let initial_state = FlightModel.init (pi/.2. -. qfu/.180.*.pi) in
 
@@ -124,7 +126,8 @@ module Make(AircraftItl : AIRCRAFT_ITL) = struct
 
 
 
-
+    let half_aperture = (Latlong.pi /. 4.) in
+    let last_gps_state = ref None in
     let run = ref false in
     let scheduler =
       let t = ref 0 in
@@ -139,11 +142,29 @@ module Make(AircraftItl : AIRCRAFT_ITL) = struct
 	    let wind_speed_cart = polar2cart wind_speed_polar in
 	    FM.state_update !state ( wind_speed_cart.x2D, wind_speed_cart.y2D)
 	  end;
+
 	  if !t mod ir_period = 0 then begin
-	    let phi = FlightModel.get_phi !state in
-	    let ir_left = (phi *. infrared_contrast_adj#value)
-	    and ir_front = 0. in
-	    Aircraft.infrared ir_left ir_front
+
+	  (***   let (x,y,z) = FlightModel.get_xyz !state in
+	     let utm_pos = { Latlong.utm_zone = utm0.Latlong.utm_zone; Latlong.utm_x = utm0.Latlong.utm_x +. x; Latlong.utm_y = utm0.Latlong.utm_y +. y} in
+	     let wgs84_pos = Latlong.of_utm Latlong.WGS84 utm_pos in  ***)
+	     let phi = FlightModel.get_phi !state in
+	     let horizon_distance = 1000. in
+	     try
+	       match !last_gps_state with
+		 None -> Printf.printf "gps state NONE \n%!";()
+	       | Some gps_state ->
+		   let altitude = (int_of_float gps_state.Gps.alt) in
+		   let horizon_right = Srtm.horizon_slope gps_state.Gps.wgs84 altitude (gps_state.Gps.course +. Latlong.pi /. 2.)  half_aperture horizon_distance in
+		   let horizon_left = Srtm.horizon_slope gps_state.Gps.wgs84 altitude (gps_state.Gps.course -. Latlong.pi /. 2.) half_aperture horizon_distance in 
+		   (***) Printf.printf "IR: %f-%f\n%!" horizon_right horizon_left;
+		   (***) Printf.printf "alt: %d\n%!" altitude;
+		   let ir_left = ( (phi +. (horizon_right -. horizon_left) ) *. infrared_contrast_adj#value )
+		   and ir_front = 0. in
+		   Aircraft.infrared ir_left ir_front
+	     with
+	       x -> Printf.printf "%s\n%!" (Printexc.to_string x)
+
 	  end;
 	    
 	  if !t mod gps_period = 0 then begin
@@ -151,7 +172,9 @@ module Make(AircraftItl : AIRCRAFT_ITL) = struct
 	    east_label#set_text (Printf.sprintf "%.0f" x);
 	    north_label#set_text (Printf.sprintf "%.0f" y);
 	    alt_label#set_text (Printf.sprintf "%.0f" z);
-	    Aircraft.gps (compute_gps_state (x,y,z) (FlightModel.get_time !state))
+	    let s = compute_gps_state (x,y,z) (FlightModel.get_time !state) in
+	    last_gps_state := Some s;
+	    Aircraft.gps s
 	  end;
 	  true in
       fun () -> ignore (GMain.Timeout.add 10 f) in

@@ -29,7 +29,7 @@ SRC = debug.ml env.ml serial.ml ocaml_tools.ml extXml.ml xml2h.ml latlong.ml srt
 CMO = $(SRC:.ml=.cmo)
 CMX = $(SRC:.ml=.cmx)
 
-XSRC = platform.ml gtkgl_Hack.ml ml_gtkgl_hack.o gtk_image.ml gtk_tools_icons.ml gtk_tools.ml gtk_draw.ml gtk_tools_GL.ml gtk_3d.ml mapCanvas.ml mapWaypoints.ml mapTrack.ml
+XSRC = platform.ml gtkgl_Hack.ml ml_gtkgl_hack.o gtk_image.ml gtk_tools_icons.ml gtk_tools.ml gtk_draw.ml gtk_tools_GL.ml gtk_3d.ml mapCanvas.ml mapWaypoints.ml mapTrack.ml ml_gtk_drag.o xmlEdit.ml
 XCMO = $(XSRC:.ml=.cmo)
 XCMX = $(XSRC:.ml=.cmx)
 
@@ -59,10 +59,14 @@ ignutm.opt : latlong.cmx ignutm.ml
 utm_of.opt : latlong.cmx utm_of.ml
 	$(OCAMLOPT) -o $@ $^
 
-GTKCFLAGS := $(shell gtk-config --cflags)
+GTKCFLAGS := -I /usr/lib/gtk-2.0/include -I/usr/include/gtk-2.0 -I/usr/include/atk-1.0 -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include -I/usr/include/pango-1.0
+# GTKCFLAGS := $(shell gtk-config --cflags)
 
 %.o   : %.c
 	$(OCAMLC) -c $<
+
+ml_gtk_drag.o : ml_gtk_drag.c
+	$(OCAMLC) -c -ccopt "$(GTKCFLAGS)" $<
 
 ml_gtkgl_hack.o   : ml_gtkgl_hack.c
 	$(OCAMLC) -c -ccopt "$(GTKCFLAGS)" $<

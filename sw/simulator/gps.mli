@@ -30,7 +30,7 @@ type state = {
   time : float;
   climb : float;
   gspeed : float;
-  course : float;
+  course : float; (** North = 0 *)
 }
 val state :
   float -> float -> float -> (float * float * float -> float -> state)

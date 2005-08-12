@@ -14,7 +14,7 @@
     ac_id="1"
     airframe="airframes/twinstar1.xml" 
     radio="radios/cockpitMM.xml" 
-    flight_plan="flight_plans/muret_for.xml"
+    flight_plan="flight_plans/sinsat.xml"
   />
 
   <aircraft 
@@ -26,7 +26,7 @@
   />
   
   <map
-    location="muret_UTM.xml"
+    location="sinsat.xml"
   />
 
   <ground name="desktop" ivy_bus="127.255.255.255:2010">

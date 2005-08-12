@@ -54,12 +54,15 @@ let piradian = function
   Semi -> 2. ** 31. | Rad -> pi | Deg -> 180. | Grd -> 200.
 let (>>) u1 u2 x = (x *. piradian u2) /. piradian u1;;
 
+let deg_string_of_rad = fun r -> Printf.sprintf "%.6f" ((Rad>>Deg)r)
+
 let sprint_degree_of_radian x =
   Printf.sprintf "%.4f" ((Rad>>Deg) x)
 
 let string_degrees_of_geographic sm =
   Printf.sprintf "%s\t%s"
     (sprint_degree_of_radian sm.posn_lat) (sprint_degree_of_radian sm.posn_long)
+
 
 let of_semicircle x =
   { posn_lat = (Semi>>Rad) x.lat ; posn_long = (Semi>>Rad) x.long }
@@ -179,6 +182,9 @@ let lambert_c l =
   let n = lambert_n l in
   l.r0 *. exp (l.lphi0 *. n)
   
+let lambert = function
+    1 -> lambertI |  2 -> lambertII |  3 -> lambertIII |  4 -> lambertIV | _ -> failwith "lambert";;
+
 
 let of_lambert l { lbt_x = x; lbt_y = y } =
   let c = lambert_c l and n = lambert_n l in
@@ -235,7 +241,7 @@ let utm_of geo {posn_long = lambda; posn_lat = phi} =
   and ys = if phi > 0. then 0. else 10000000. in
   let lambda_deg = truncate (floor ((Rad>>Deg)lambda)) in
   let zone = (lambda_deg + 180) / 6 + 1 in
-  let lambda_c = (Deg>>Rad) (float (lambda_deg - ((lambda_deg mod 6)+6) mod 6 + 3)) in
+  let lambda_c = (Deg>>Rad) (float (lambda_deg - ((lambda_deg mod 6)+6)mod 6 + 3)) in
   let e = ellipsoid.e
   and n = k0 *. ellipsoid.a in
   let ll = latitude_isometrique phi e
@@ -325,7 +331,22 @@ let of_cartesian ellips {x=x;y=y;z=z} =
   let h = xy/.cos phi -. geo.a /. sqrt (1.-.e2*.sin phi ** 2.) in
   ({posn_long = lambda; posn_lat = phi}, h)
 
-let distance = fun {lbt_x=x1; lbt_y=y1} {lbt_x=x2; lbt_y=y2} ->
-  truncate (sqrt ((float x1 -. float x2)**2. +. (float y1 -. float y2)**2.))
+let utm_distance = fun utm1 utm2 ->
+  if utm1.utm_zone <> utm2.utm_zone then invalid_arg "utm_distance";
+  sqrt ((utm1.utm_x -. utm2.utm_x)**2. +. (utm1.utm_y -. utm2.utm_y)**2.)
   
 let wgs84_of_lambertIIe = fun x y -> (WGS84<<NTF)(of_lambert lambertIIe {lbt_x = x; lbt_y = y})
+
+let space = Str.regexp "[ \t]+"
+let fos = float_of_string
+let ios = int_of_string
+let rodg = fun s -> (Deg>>Rad)(fos s)
+let of_string = fun s ->
+  match Str.split space s with
+    ["WGS84"; lat ; long] ->
+      {posn_lat = rodg lat; posn_long = rodg long}
+  | ["UTM";x;y;zone] ->
+      of_utm WGS84 { utm_x = fos x; utm_y = fos y; utm_zone = ios zone}
+  | ["LBT2e";x;y] ->
+      wgs84_of_lambertIIe (ios x) (ios y)
+  | _ -> invalid_arg (Printf.sprintf "Latlong.of_string: %s" s)
