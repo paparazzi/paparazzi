@@ -104,7 +104,7 @@ let horizon_slope = fun geo r psi alpha d ->
   let { utm_zone = z; utm_x = utm_q; utm_y = utm_p} = Latlong.utm_of WGS84  geo in
 
   let alpha2 = 2.0 *. alpha in
-  let heading_psi_2alpha = pi /. 2.0 -. psi -. alpha2 in
+  let heading_psi_2alpha = pi /. 2.0 -. psi -. alpha in
     
   let rec calc_horizon = fun sum_cos_alpha_i_slope_alpha_i  sum_cos_alpha_i alpha_i ->
   if alpha_i > alpha2 then atan ( sum_cos_alpha_i_slope_alpha_i /. sum_cos_alpha_i )
@@ -116,6 +116,7 @@ let horizon_slope = fun geo r psi alpha d ->
 	let s_utm = utm_q +. !dj *. cos( heading_psi_2alpha +. alpha_i) in
 	let t_utm = utm_p +. !dj *. sin( heading_psi_2alpha +. alpha_i) in
 	let h = of_utm { utm_zone = z; utm_x = s_utm; utm_y = t_utm} in
+	Printf.fprintf stderr "psi=%.0f: %.0f %.0f %d\n%!" psi s_utm t_utm h;
 	begin
 	  begin 
 	    let slope =  float_of_int (h-r ) /. !dj in

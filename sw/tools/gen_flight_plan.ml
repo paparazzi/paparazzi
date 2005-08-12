@@ -62,6 +62,9 @@ let radE8_of_deg = fun d ->
 let rad_of_deg = fun d ->
   d /. 180. *. pi
 
+let deg_of_rad = fun r ->
+  r /. pi *. 180.
+
 let gen_label =
   let x = ref 0 in
   fun p -> incr x; sprintf "%s_%d" p !x
@@ -88,6 +91,7 @@ let check_altitude = fun a x ->
   if a < !ground_alt +. !security_height then begin
     fprintf stderr "\nWARNING: low altitude (%.0f<%.0f+%.0f) in %s\n\n" a !ground_alt !security_height (Xml.to_string x)
   end
+
 
 let print_waypoint = fun rel_utm_of_wgs84 default_alt waypoint ->
   let (x, y) =
@@ -482,6 +486,23 @@ let dummy_waypoint =
 	       [])
 
 
+let nb_heights = 24
+let half_aperture = pi /. 4.
+let horizon_distance = 1000.
+let print_heights = fun wgs84 alt ->
+  Srtm.add_path (Env.paparazzi_home ^ "/data/srtm");
+  Xml2h.define "NB_HEIGHTS" (string_of_int nb_heights);
+  Xml2h.define "HEIGHTS" "{ /* Degrees from default alt*/\\";
+  let a = pi /. float nb_heights in
+  for i = 0 to nb_heights - 1 do
+    let psi = float i *. a in
+    let horizon = Srtm.horizon_slope wgs84 alt psi  half_aperture horizon_distance in
+    let a = deg_of_rad horizon in
+     lprintf "%.0f, /* heading=%.2f */\\\n" a psi
+  done;
+  lprintf " }\n"
+
+
 let _ =
   let xml_file = ref "fligh_plan.xml"
   and dump = ref false in
@@ -543,7 +564,8 @@ let _ =
 
       check_altitude (float_of_string alt) xml;
 
-      let utm0 = utm_of WGS84 {posn_lat=(Deg>>Rad)lat0_deg;posn_long=(Deg>>Rad)lon0_deg } in
+      let wgs84 = {posn_lat=(Deg>>Rad)lat0_deg;posn_long=(Deg>>Rad)lon0_deg } in
+      let utm0 = utm_of WGS84 wgs84 in
       let rel_utm_of_wgs84 = fun wgs84 ->
 	let utm = utm_of WGS84 wgs84 in
 	(utm.utm_x -. utm0.utm_x, utm.utm_y -. utm0.utm_y) in
@@ -571,6 +593,8 @@ let _ =
 	List.map (fun w -> incr i; (name_of w, !i)) waypoints in
 
       print_blocks index_of_waypoints blocks;
+
+      print_heights wgs84 (int_of_string alt);
 
       Xml2h.finish h_name
     end
