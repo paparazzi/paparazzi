@@ -394,6 +394,7 @@ void navigation_task( void ) {
       altitude_pid_run();
     if (vertical_mode >= VERTICAL_MODE_AUTO_CLIMB)
       climb_pid_run();
+    desired_pitch = nav_pitch;
     if (vertical_mode == VERTICAL_MODE_AUTO_GAZ)
       desired_gaz = nav_desired_gaz;
     if (low_battery || (!estimator_flight_time && !launch))

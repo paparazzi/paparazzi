@@ -88,17 +88,17 @@ float min_pitch = MIN_PITCH;
 #define MAX_CLIMB_SUM_ERR 100
 #define MAX_PITCH_CLIMB_SUM_ERR 100
 
-/** \brief Computes desired_gaz and desired_pitch from desired_climb */
+/** \brief Computes desired_gaz and updates nav_pitch from desired_climb */
 void 
 climb_pid_run ( void ) {
   float err  = estimator_z_dot - desired_climb;
   if (auto_pitch) { /* gaz constant */
     desired_gaz = nav_desired_gaz;
-    desired_pitch = climb_pitch_pgain * (err + climb_pitch_igain * climb_pitch_sum_err);
-    if (desired_pitch > max_pitch)
-      desired_pitch = max_pitch;
-    if (desired_pitch < min_pitch)
-      desired_pitch = min_pitch;
+    nav_pitch = climb_pitch_pgain * (err + climb_pitch_igain * climb_pitch_sum_err);
+    if (nav_pitch > max_pitch)
+      nav_pitch = max_pitch;
+    if (nav_pitch < min_pitch)
+      nav_pitch = min_pitch;
     climb_pitch_sum_err += err;
     if (climb_pitch_sum_err > MAX_PITCH_CLIMB_SUM_ERR)
       climb_pitch_sum_err = MAX_PITCH_CLIMB_SUM_ERR;
@@ -112,7 +112,7 @@ climb_pid_run ( void ) {
     if (climb_sum_err > MAX_CLIMB_SUM_ERR) climb_sum_err = MAX_CLIMB_SUM_ERR;
     if (climb_sum_err < - MAX_CLIMB_SUM_ERR) climb_sum_err = - MAX_CLIMB_SUM_ERR;
     desired_gaz = TRIM_UPPRZ(fgaz * MAX_PPRZ);
-    desired_pitch = nav_pitch + pitch_of_vz;
+    nav_pitch += pitch_of_vz;
   }
 }
 
