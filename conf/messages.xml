@@ -1,9 +1,7 @@
 <?xml version="1.0"?>
 
 <protocol>
-
-
-  <!-- messages from modem or sim to server -->
+ <!-- messages from modem or sim to server -->
  <class name="telemetry_ap" ID="0x40">
  
    <message name="BOOT" ID="0x01">
@@ -234,26 +232,20 @@
     <field name="ac_list" type="string" unit="csv"/>
   </message>
 
+  <message name="AIRCRAFTS_REQ" ID="0x04">
+  </message>
+
   <message name="SELECTED" ID="0x05">
-    <field name="from" type="string"/>
     <field name="aicraft_id" type="string"/>
   </message>
 
+  <message name="SELECTED_REQ" ID="0x05">
+  </message>
 
   <message name="WIND_REQ" ID="0x06">
-    <field name="request_id" type="string"/>
   </message>
 
-  <message name="WIND_RES" ID="0x06">
-    <field name="request_id" type="string"/>
-    <field name="dir" type="float"   unit="deg_wind"/>
-    <field name="speed" type="float" unit="m/s"/>
-    <field name="mean_aspeed" type="float" unit="m/s"/>
-    <field name="stddev" type="float" unit="m/s"/>
-  </message>
-
-  <message name="WIND_EVENT" ID="0x06">
-    <field name="request_id" type="string"/>
+  <message name="WIND" ID="0x06">
     <field name="dir" type="float"   unit="deg_wind"/>
     <field name="speed" type="float" unit="m/s"/>
     <field name="mean_aspeed" type="float" unit="m/s"/>
@@ -261,29 +253,16 @@
   </message>
 
   <message name="CONFIG_REQ" ID="0x07">
-    <field name="request_id" type="string"/>
     <field name="aircraft_id" type="string"/>
   </message>
 
-  <message name="CONFIG_RES" ID="0x08">
-    <field name="request_id" type="string"/>
+  <message name="CONFIG" ID="0x08">
     <field name="aircraft_id" type="string"/>
     <field name="flight_plan" type="string" unit="url"/>
     <field name="airframe" type="string" unit="url"/>
     <field name="radio" type="string" unit="url"/>
   </message>
 
-  <message name="CONFIG_EVENT" ID="0x09">
-    <field name="aircraft_id" type="string"/>
-    <field name="flight_plan" type="string" unit="url"/>
-    <field name="airframe" type="string" unit="url"/>
-    <field name="radio" type="string" unit="url"/>
-  </message>
-
-</class>
-
-<class name="aircraft_info">
- 
   <message name="FLIGHT_PARAM" ID="0x04">
     <field name="roll"    type="float" unit="deg"/>
     <field name="pitch"   type="float" unit="deg"/>
@@ -338,23 +317,6 @@
       <field name="azim"  type="float" unit="deg"/>
       <field name="prres" type="float" unit="cm"/>
     </block>
-  </message>
-
-  <message name="FIX_UTM" ID="0x09">
-    <field name="itow" type="float" unit="ms"/>
-    <field name="east" type="float" unit="m"/>
-    <field name="north" type="float" unit="m"/>
-    <field name="alt" type="float" unit="m"/>
-    <field name="zone" type="int8"/>
-    <field name="hem" type="int8" values="north|south"/>
-    <field name="gpsfix" type="int8" values="none|dead_reck_only|2d|3d|gps_dead_reck"/>
-    <field name="flags" type="int8" mask="fix_ok|dgps|wknset|towset"/>
-  </message>
-
-  <message name="CONFIG" ID="0x0A">
-    <field name="flight_plan" type="string" unit="url"/>
-    <field name="airframe"    type="string" unit="url"/>
-    <field name="rc_tx"       type="string" unit="url"/>
   </message>
 </class>
 
