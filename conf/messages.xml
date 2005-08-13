@@ -2,6 +2,8 @@
 
 <protocol>
 
+
+  <!-- messages from modem or sim to server -->
  <class name="telemetry_ap" ID="0x40">
  
    <message name="BOOT" ID="0x01">
