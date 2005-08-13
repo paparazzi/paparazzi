@@ -252,12 +252,27 @@ ground AIRCRAFTS twinstar,microjet
   </message>
 
   <message name="WIND_RES" ID="0x06">
-    <field name="idreq" type="string"/>
+    <field name="request_id" type="string"/>
     <field name="dir" type="float"   unit="deg_wind"/>
     <field name="speed" type="float" unit="m/s"/>
     <field name="mean_aspeed" type="float" unit="m/s"/>
     <field name="stddev" type="float" unit="m/s"/>
   </message>
+
+  <message name="CONFIG_REQ" ID="0x07">
+    <field name="reques_id" type="string"/>
+    <field name="aircraft_id" type="string"/>
+  </message>
+
+  <message name="CONFIG_RES" ID="0x08">
+    <field name="reques_id" type="string"/>
+    <field name="aircraft_id" type="string"/>
+    <field name="flight_plan" type="string" unit="url"/>
+    <field name="airframe" type="string" unit="url"/>
+    <field name="radio" type="string" unit="url"/>
+  </message>
+
+
 
 </class>
 
