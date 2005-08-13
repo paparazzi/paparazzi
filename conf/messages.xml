@@ -252,7 +252,20 @@ ground AIRCRAFTS twinstar,microjet
     <field name="aicraft_id" type="string"/>
   </message>
 
+
+  <message name="WIND_REQ" ID="0x06">
+    <field name="request_id" type="string"/>
+  </message>
+
   <message name="WIND_RES" ID="0x06">
+    <field name="request_id" type="string"/>
+    <field name="dir" type="float"   unit="deg_wind"/>
+    <field name="speed" type="float" unit="m/s"/>
+    <field name="mean_aspeed" type="float" unit="m/s"/>
+    <field name="stddev" type="float" unit="m/s"/>
+  </message>
+
+  <message name="WIND_EVENT" ID="0x06">
     <field name="request_id" type="string"/>
     <field name="dir" type="float"   unit="deg_wind"/>
     <field name="speed" type="float" unit="m/s"/>
@@ -281,11 +294,6 @@ ground AIRCRAFTS twinstar,microjet
   </message>
 
 </class>
-
-
-<!-- 
-twinstar2 POSITION_UTM 10 10
- -->
 
 <class name="aircraft_info">
  
@@ -363,15 +371,4 @@ twinstar2 POSITION_UTM 10 10
   </message>
 </class>
 
-<class name="non">
-  <message name="TRAFFIC_INFO" id="0x01">
-    <field name="ac_id"   type="int8"/>
-    <field name="east"    type="float" unit="m"/>
-    <field name="north"   type="float" unit="m"/>
-    <field name="speed"   type="float" unit="m/s"/>
-    <field name="heading" type="float" unit="deg"/>
-    <field name="alt"     type="float" unit="m"/>
-    <field name="climb"   type="float" unit="m/s"/>
-  </message>
-</class>
 </protocol>
