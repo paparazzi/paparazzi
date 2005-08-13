@@ -208,22 +208,7 @@
 
 
 
-
-<!-- 
-ground AIRCRAFTS twinstar,microjet
- -->
-
 <class name="ground" ID="0x42">
-
-<!--
-  <message name="WIND" ID="0x01">
-    <field name="dir" type="float"/>
-    <field name="speed" type="float"/>
-    <field name="mean_as" type="float"/>
-    <field name="nb_sample" type="uint16"/>
-    <field name="stddev" type="float"/>
-  </message>
--->
 
   <message name="DOWNLINK_STATUS" ID="0x02">
     <field name="run_time" type="uint32" unit="s"></field>
