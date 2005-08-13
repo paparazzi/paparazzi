@@ -248,7 +248,8 @@ ground AIRCRAFTS twinstar,microjet
   </message>
 
   <message name="SELECTED" ID="0x05">
-    <field name="id" type="string"/>
+    <field name="from" type="string"/>
+    <field name="aicraft_id" type="string"/>
   </message>
 
   <message name="WIND_RES" ID="0x06">
@@ -260,12 +261,12 @@ ground AIRCRAFTS twinstar,microjet
   </message>
 
   <message name="CONFIG_REQ" ID="0x07">
-    <field name="reques_id" type="string"/>
+    <field name="request_id" type="string"/>
     <field name="aircraft_id" type="string"/>
   </message>
 
   <message name="CONFIG_RES" ID="0x08">
-    <field name="reques_id" type="string"/>
+    <field name="request_id" type="string"/>
     <field name="aircraft_id" type="string"/>
     <field name="flight_plan" type="string" unit="url"/>
     <field name="airframe" type="string" unit="url"/>
