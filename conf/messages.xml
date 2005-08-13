@@ -257,17 +257,18 @@
   </message>
 
   <message name="CONFIG_REQ" ID="0x07">
-    <field name="aircraft_id" type="string"/>
+    <field name="ac_id" type="string"/>
   </message>
 
   <message name="CONFIG" ID="0x08">
-    <field name="aircraft_id" type="string"/>
+    <field name="ac_id" type="string"/>
     <field name="flight_plan" type="string" unit="url"/>
     <field name="airframe" type="string" unit="url"/>
     <field name="radio" type="string" unit="url"/>
   </message>
 
   <message name="FLIGHT_PARAM" ID="0x04">
+    <field name="ac_id" type="string"/>
     <field name="roll"    type="float" unit="deg"/>
     <field name="pitch"   type="float" unit="deg"/>
     <field name="east"    type="float" unit="m"/>
@@ -279,6 +280,7 @@
   </message>
 
   <message name="AP_STATUS" ID="0x05">
+    <field name="ac_id" type="string"/>
     <field name="mode"   type="uint8" values="MANUAL|AUTO1|AUTO2|HOME"/>
     <field name="h_mode" type="uint8" values="NONE|ROLLDOT|ROLL|HEADING_DOT|HEADING|WP|ROUTE|CIRCLE"/>
     <field name="v_mode" type="uint8" values="NONE|CLIMB|ALT|GLIDE|PARABOLIC"/>
@@ -288,6 +290,7 @@
   </message>
 
   <message name="NAV_STATUS" ID="0x06">
+    <field name="ac_id" type="string"/>
     <field name="cur_block"   type="uint8"/>
     <field name="cur_stage"   type="uint8"/>
     <field name="flight_time" type="uint32"/>
@@ -298,6 +301,7 @@
   </message>
 
   <message name="ENGINE_STATUS" ID="0x07">
+    <field name="ac_id" type="string"/>
     <field name="throttle" type="float" unit="%"/>
     <field name="rpm"      type="float" unit="rpm"/>
     <field name="temp"     type="float" unit="celcius"/>

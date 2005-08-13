@@ -1,4 +1,4 @@
-OCAMLC=ocamlc -g
+OCAMLC=ocamlc
 OCAMLOPT=ocamlopt
 INCLUDES=-I +lablgtk2 -I +camlimages -I ../../lib/ocaml
 LIBS=glibivy-ocaml.cma lablgtk.cma ci_core.cma ci_png.cma ci_gif.cma ci_jpeg.cma ci_tiff.cma ci_bmp.cma ci_ppm.cma ci_ps.cma lib-pprz.cma lablgnomecanvas.cma xlib-pprz.cma
@@ -9,7 +9,7 @@ all : map2d
 
 
 map2d : map2d.ml
-	$(OCAMLC) -custom $(INCLUDES) $(LIBS) gtkInit.cmo $(CMO) -o /dev/null #to Check
+	$(OCAMLC) -custom $(INCLUDES) $(LIBS) gtkInit.cmo $< -o /dev/null #to Check
 	cat ../../../pprz_src_test.sh > $@
 	echo 'lablgtk2 str.cma unix.cma xml-light.cma -I +camlimages glibivy-ocaml.cma ci_core.cma ci_png.cma ci_gif.cma ci_jpeg.cma ci_tiff.cma ci_bmp.cma ci_ppm.cma ci_ps.cma -I $$PAPARAZZI_SRC/sw/lib/ocaml lib-pprz.cma xlib-pprz.cma $$PAPARAZZI_SRC/sw/ground_segment/cockpit/$< $$*' >> $@
 	chmod a+x $@

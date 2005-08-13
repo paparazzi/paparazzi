@@ -24,15 +24,15 @@
  *
  *)
 
+let my_id = "ground"
+
 open Printf
 module U = Unix
 
 module Tele_Class = struct let name = "telemetry_ap" end
-module Tc_Class = struct let name = "non" end
-module AcInfo = struct let name = "aircraft_info" end
+module Ground = struct let name = "ground" end
 module Tele_Pprz = Pprz.Protocol(Tele_Class)
-module Tc_Pprz = Pprz.Protocol(Tc_Class)
-module AcInfo_Pprz = Pprz.Protocol(AcInfo)
+module Ground_Pprz = Pprz.Protocol(Ground)
 
 let (//) = Filename.concat
 let logs_path = Env.paparazzi_home // "var" // "logs"
@@ -76,11 +76,10 @@ let aircrafts = Hashtbl.create 3
 let aircrafts_msg_period = 5000 (* ms *)
 let aircraft_msg_period = 1000 (* ms *)
 let traffic_info_period = 2000 (* ms *)
-let send_aircrafts_msg = fun () ->
-  let t = U.gettimeofday () in
-  let names = String.concat "," (Hashtbl.fold (fun k v r -> k::r) aircrafts [])  in
-  Ivy.send (sprintf "ground AIRCRAFTS %s" names)
-(*  Ivy.send (sprintf "YOUOPIIIII") *)
+let send_aircrafts_msg = fun _asker _values ->
+  assert(_values = []);
+  let names = String.concat "," (Hashtbl.fold (fun k v r -> k::r) aircrafts []) ^ "," in
+  ["ac_list", Pprz.String names]
 
 (* Opens the log file *)
 (* FIXME : shoud open also an associated config file *)
@@ -164,7 +163,8 @@ let send_aircraft_msg = fun ac ->
     let sof = fun f -> sprintf "%.1f" f in
     let a = Hashtbl.find aircrafts ac in
     let f = fun x -> Pprz.Float x in
-    let values = ["roll", f (Geometry_2d.rad2deg a.roll);
+    let values = ["ac_id", Pprz.String ac;
+		  "roll", f (Geometry_2d.rad2deg a.roll);
 		  "pitch", f (Geometry_2d.rad2deg a.pitch);
 		  "east", f a.east;
 		  "north", f a.north;
@@ -172,46 +172,25 @@ let send_aircraft_msg = fun ac ->
 		  "heading", f (Geometry_2d.rad2deg a.course);
 		  "alt", f a.alt;
 		  "climb", f a.climb] in
-    let _, fp_msg = AcInfo_Pprz.message_of_name "FLIGHT_PARAM" in
-    Ivy.send (sprintf "%s %s" ac (AcInfo_Pprz.string_of_message fp_msg values));
+    Ground_Pprz.message_send my_id "FLIGHT_PARAM" values;
 
-    let values = ["cur_block", Pprz.Int a.cur_block;"cur_stage", Pprz.Int a.cur_stage; "target_east", f (a.nav_ref_east+.a.desired_east); "target_north", f (a.nav_ref_north+.a.desired_north)]
-    and _, ns_msg =  AcInfo_Pprz.message_of_name "NAV_STATUS" in
-    Ivy.send (sprintf "%s %s" ac (AcInfo_Pprz.string_of_message ns_msg values));
+    let values = ["ac_id", Pprz.String ac; "cur_block", Pprz.Int a.cur_block;"cur_stage", Pprz.Int a.cur_stage; "target_east", f (a.nav_ref_east+.a.desired_east); "target_north", f (a.nav_ref_north+.a.desired_north)] in
+    Ground_Pprz.message_send my_id "NAV_STATUS" values;
 
-    let values = ["throttle", f a.throttle;"rpm", f a.rpm;"temp", f a.temp;"bat", f a.bat;"amp", f a.amp;"energy", f a.energy]
-    and _, es_msg = AcInfo_Pprz.message_of_name "ENGINE_STATUS" in
-    Ivy.send (sprintf "%s %s" ac (AcInfo_Pprz.string_of_message es_msg values));
+    let values = ["ac_id", Pprz.String ac; "throttle", f a.throttle;"rpm", f a.rpm;"temp", f a.temp;"bat", f a.bat;"amp", f a.amp;"energy", f a.energy] in
+    Ground_Pprz.message_send my_id "ENGINE_STATUS" values;
 
-    let values = ["mode", Pprz.Int a.ap_mode; "v_mode", Pprz.Int a.ap_altitude]
-    and _, as_msg =  AcInfo_Pprz.message_of_name "AP_STATUS" in
-    Ivy.send (sprintf "%s %s" ac (AcInfo_Pprz.string_of_message as_msg values))
+    let values = ["ac_id", Pprz.String ac; "mode", Pprz.Int a.ap_mode; "v_mode", Pprz.Int a.ap_altitude] in
+    Ground_Pprz.message_send my_id "AP_STATUS" values 
   with
     Not_found -> prerr_endline ac
-
-let send_traffic_info = fun ac ->
-  (* TODO: should send up on the datalink *)
-  (* Sending on the Ivy bus for the simulators *)
-  let a = Hashtbl.find aircrafts ac in
-  let f = fun x -> Pprz.Float x in
-  let conf = ExtXml.child conf_xml "aircraft" ~select:(fun x -> ExtXml.attrib x "ac_id" = ac) in
-  let values = ["ac_id", Pprz.Int (int_of_string (ExtXml.attrib conf "ac_id"));
-                "east", f a.east;
-		"north", f a.north;
-		"speed", f a.gspeed;
-		"heading", f (Geometry_2d.rad2deg a.course);
-		"alt", f a.alt;
-		"climb", f a.climb] in
-  let _, fp_msg = Tc_Pprz.message_of_name "TRAFFIC_INFO" in
-  Ivy.send (sprintf "%s %s" ac (Tc_Pprz.string_of_message fp_msg values))
       
 let new_aircraft = fun id ->
     { port = id ; roll = 0.; pitch = 0.; east = 0.; north = 0.; nav_ref_east = 0.; nav_ref_north = 0.; desired_east = 0.; desired_north = 0.; gspeed=0.; course = 0.; alt=0.; climb=0.; cur_block=0; cur_stage=0; throttle = 0.; rpm = 0.; temp = 0.; bat = 0.; amp = 0.; energy = 0.; ap_mode=0; ap_altitude=0; if_calib_mode=0; mcu1_status=0; lls_calib=0 }
     
 let register_aircraft = fun name a ->
   Hashtbl.add aircrafts name a;
-  ignore (Glib.Timeout.add aircraft_msg_period (fun () -> send_aircraft_msg name; true));
-  ignore (Glib.Timeout.add traffic_info_period (fun () -> send_traffic_info name; true))
+  ignore (Glib.Timeout.add aircraft_msg_period (fun () -> send_aircraft_msg name; true))
 
 
 (** Identifying message from a A/C *)
@@ -220,41 +199,37 @@ let ident_msg = fun log id name ->
     let ac = new_aircraft id in
     let b = Ivy.bind (fun _ args -> ac_msg log name ac args.(0)) (sprintf "^%s +(.*)" id) in
     register_aircraft name ac;
-    send_aircrafts_msg ()
+    Ground_Pprz.message_send my_id "NEW_AIRCRAFT" ["ac_id", Pprz.String id]
   end
 
 (* Waits for new aircrafts *)
 let listen_acs = fun log ->
   ignore (Ivy.bind (fun _ args -> ident_msg log args.(0) args.(1)) "^(.*) IDENT +(.*)")
 
-(* Server on the Ivy bus *)
-let send_flight_plan = fun id ->
-  try
-    let conf = ExtXml.child conf_xml "aircraft" ~select:(fun x -> ExtXml.attrib x "ac_id" = id) in
-    let f = ExtXml.attrib conf "flight_plan" in
-    Ivy.send (sprintf "ground FLIGHT_PLAN %s file://%s/conf/%s" id Env.paparazzi_home f)
-  with
-    Not_found ->
-      Ivy.send (sprintf "ground UNKNOWN %s" id)
-
-let send_config = fun id_ac id_req ->
-  try
-    prerr_endline (sprintf "[%s] [%s]\n" id_ac id_req);
-    let conf = ExtXml.child conf_xml "aircraft" ~select:(fun x -> ExtXml.attrib x "ac_id" = id_ac) in
-    let fp = sprintf "%s/conf/%s" Env.paparazzi_home (ExtXml.attrib conf "flight_plan") and
-	af = sprintf "%s/conf/%s" Env.paparazzi_home (ExtXml.attrib conf "airframe") and
-	rc = sprintf "%s/conf/%s" Env.paparazzi_home (ExtXml.attrib conf "radio")in
-    let resp = sprintf "%s CONFIG_RES %s %s %s %s" id_ac id_req fp af rc in 
-    Ivy.send (resp);
-    prerr_endline (resp)
-  with
-    Not_found ->
-      Ivy.send (sprintf "ground UNKNOWN %s" id_req)     
+let send_config = fun _asker args ->
+  match args with
+    ["ac_id", Pprz.String ac_id] -> begin
+      try
+	let conf = ExtXml.child conf_xml "aircraft" ~select:(fun x -> ExtXml.attrib x "ac_id" = ac_id) in
+	let prefix = fun s -> sprintf "file://%s/conf/%s" Env.paparazzi_home s in
+	let fp = prefix (ExtXml.attrib conf "flight_plan")
+	and af = prefix (ExtXml.attrib conf "airframe")
+	and rc = prefix (ExtXml.attrib conf "radio") in
+	["ac_id", Pprz.String ac_id;
+	 "flight_plan", Pprz.String fp;
+	 "airframe", Pprz.String af;
+	 "radio", Pprz.String rc]
+      with
+	Not_found ->
+	  failwith (sprintf "ground UNKNOWN %s" ac_id)     
+    end
+  | _ ->
+      let s = String.concat " " (List.map (fun (a,v) -> a^"="^Pprz.string_of_value v) args) in
+      failwith (sprintf "Error, Receive.send_config: %s" s)
     
 let ivy_server = fun () ->
-  ignore (Ivy.bind (fun _ args -> send_aircrafts_msg ()) "^ask AIRCRAFTS");
-  ignore (Ivy.bind (fun _ args -> send_flight_plan args.(0)) "^ask FLIGHT_PLAN +(.*)");
-  ignore (Ivy.bind (fun _ args -> send_config args.(0) args.(1)) "^(.*) CONFIG_REQ +(.*)")
+  ignore (Ground_Pprz.message_answerer my_id "AIRCRAFTS" send_aircrafts_msg);
+  ignore (Ground_Pprz.message_answerer my_id "CONFIG" send_config)
 
 
 
@@ -278,7 +253,12 @@ let _ =
   listen_acs log;
 
   (* Sends periodically alive aircrafts *)
-  ignore (Glib.Timeout.add aircrafts_msg_period (fun () -> send_aircrafts_msg (); true));
+  let sending = fun () ->
+    let vs = send_aircrafts_msg "event" [] in
+    Ground_Pprz.message_send my_id "AIRCRAFTS" vs;
+    true
+  in
+  ignore (Glib.Timeout.add aircrafts_msg_period sending);
 
   (* Waits for client requests on the Ivy bus *)
   ivy_server ();

@@ -150,7 +150,7 @@ module Make(AircraftItl : AIRCRAFT_ITL) = struct
 	    let horizon_distance = 1000. in
 	    try
 	      match !last_gps_state with
-		None -> Printf.printf "gps state NONE \n%!";()
+		None -> ()
 	      | Some gps_state ->
 		  let delta_ir = 
 		    if !ir_srtm then

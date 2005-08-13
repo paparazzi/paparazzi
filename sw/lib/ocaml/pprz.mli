@@ -43,6 +43,13 @@ type type_descr = {
     value : value
   }
 val types : (string * type_descr) list
+type values  = (string * value) list
+
+val string_assoc : string -> values -> string
+(** May raise Not_found *)
+
+val float_assoc : string -> values -> float
+(** May raise Not_found or Invalid_argument *)
 
 exception Unknown_msg_name of string
 
@@ -51,21 +58,31 @@ module Protocol : functor (Class : CLASS) -> sig
   include Serial.PROTOCOL
   val message_of_id : message_id -> message
   val message_of_name : string ->  message_id * message
-  val values_of_payload : string -> message_id * (string * value) list
+  val values_of_payload : string -> message_id * values
   (** [values_of_bin payload] Parses a raw payload, returns the
    message id and the list of (field_name, value) *)
-  val values_of_bin : string -> message_id * (string * value) list
+  val values_of_bin : string -> message_id * values
   (** [values_of_bin raw_message] Same than previous but [raw_message]
   includes header and checksum. *)
-  val payload_of_values : message_id -> (string * value) list -> string
+  val payload_of_values : message_id -> values -> string
   (** [payload_of_values m vs] Returns a payload *)
 
 
-  val values_of_string : string -> message_id * (string * value) list
+  val values_of_string : string -> message_id * values
   (** May raise [(Unknown_msg_name msg_name)] *)
 
-  val string_of_message : message -> (string * value) list -> string
+  val string_of_message : message -> values -> string
   (** [string_of_message msg values] *)
-end
-    
 
+  val message_send : string -> string -> values -> unit
+  (** [message_send sender msg_name values] *)
+
+  val message_bind : string -> (string -> values -> unit) -> Ivy.binding
+  (** [message_bind msg_name callback] *)
+
+  val message_answerer : string -> string -> (string -> values -> values) -> Ivy.binding
+  (** [message_answerer sender msg_name callback] *)
+
+  val message_req : string -> string -> values -> (string -> values -> unit) -> unit
+  (** [message_answerer sender msg_name values receiver] Sends a request on the Ivy bus for the specified message. On reception, [receiver] will be applied on [sender_name] and expected values. *)
+end

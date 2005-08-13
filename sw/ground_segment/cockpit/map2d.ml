@@ -1,5 +1,32 @@
+(*
+ * $Id$
+ *
+ * Multi aircrafts map display
+ *  
+ * Copyright (C) 2004 CENA/ENAC, Pascal Brisset, Antoine Drouin
+ *
+ * This file is part of paparazzi.
+ *
+ * paparazzi is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * paparazzi is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with paparazzi; see the file COPYING.  If not, write to
+ * the Free Software Foundation, 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA. 
+ *
+ *)
+
 open Printf
 open Latlong
+module Ground_Pprz = Pprz.Protocol(struct let name = "ground" end)
 
 type color = string
 
@@ -72,8 +99,11 @@ let file_of_url = fun url ->
     String.sub url 7 (String.length url - 7)
   else
     let tmp_file = Filename.temp_file "fp" ".xml" in
-    Sys.command (sprintf "wget -O %s %s" tmp_file url);
-    tmp_file
+    let c = sprintf "wget -O %s %s" tmp_file url in
+    if Sys.command c = 0 then
+      tmp_file
+    else
+      failwith c
 
 let load_mission = fun color geomap url ->
   let file = file_of_url url in
@@ -132,24 +162,12 @@ let new_color =
     | [] -> failwith "new_color"
 
 
-let ivy_request = fun s f ->
-  let b = ref (Obj.magic ()) in
-  let cb = fun response ->
-    Ivy.unbind !b;
-    f response in
-  let id = sprintf "%s_%d" (Filename.basename Sys.argv.(1)) (Unix.getpid ()) in
-  b := Ivy.bind (fun _ args -> cb args.(0)) (sprintf "response %s (.*)" id);
-  Ivy.send (sprintf "request %s %s" id s)
-
-
 let ask_fp = fun geomap ac ->
-  let b = ref (Obj.magic ()) in
-  let load_fp = fun file ->
-    Ivy.unbind !b;
+  let get_config = fun _sender values ->
+    let file = Pprz.string_assoc "flight_plan" values in
     let ac = Hashtbl.find live_aircrafts ac in
     ac.fp_group <- Some (load_mission ac.color  geomap file) in
-  b := Ivy.bind (fun _ args -> load_fp args.(0)) (sprintf "ground FLIGHT_PLAN %s (.*)" ac);
-  Ivy.send (sprintf "ask FLIGHT_PLAN %s" ac)
+  Ground_Pprz.message_req "map2d" "CONFIG" ["ac_id", Pprz.String ac] get_config
 
 
 let show_mission = fun geomap ac on_off ->
@@ -171,6 +189,8 @@ let resize_track = fun ac track ->
 
 
 let live_aircrafts_msg = fun (geomap:MapCanvas.widget) acs ->
+  let acs = Pprz.string_assoc "ac_list" acs in
+  let acs = Str.split list_separator acs in
   List.iter
     (fun ac ->
       if not (Hashtbl.mem live_aircrafts ac) then begin
@@ -180,21 +200,33 @@ let live_aircrafts_msg = fun (geomap:MapCanvas.widget) acs ->
 	ignore (fp#connect#toggled (fun () -> show_mission geomap ac fp#active));
 	let color = new_color () in
 	let track = new MapTrack.track ~name:ac ~color:color geomap in
-	ignore (ac_menu_fact#add_item "Clear Track" ~callback:(fun () -> track#clear)) ;
-	ignore (ac_menu_fact#add_item "Resize Track" ~callback:(fun () -> resize_track ac track)) ;
-	let b =
-	  Ivy.bind
-	    (fun _ args -> aircraft_pos_msg track (fos args.(0)) (fos args.(1))(fos args.(2))) 
-	    (sprintf "%s +FLIGHT_PARAM +[^ ]* +[^ ]* +([0-9\\.]*) +([0-9\\.]*) +[0-9\\.]* +([0-9\\.]*)" ac)  in
-	let b =
-	  Ivy.bind
-	    (fun _ args -> carrot_pos_msg track (fos args.(0)) (fos args.(1))) 
-	    (sprintf "%s +NAV_STATUS +[^ ]* +[^ ]* +[^ ]* +[^ ]* +[^ ]* +([\\-0-9\\.]*) +([\\-0-9\\.]*)" ac)  in
+	ignore (ac_menu_fact#add_item "Clear Track" ~callback:(fun () -> track#clear));
+	ignore (ac_menu_fact#add_item "Resize Track" ~callback:(fun () -> resize_track ac track));
 	Hashtbl.add live_aircrafts ac { track = track; color = color; fp_group = None }
-      end
-    )
+      end)
     acs
-  
+
+
+let listen_flight_params = fun () ->
+  let get_fp = fun _sender vs ->
+    let ac_id = Pprz.string_assoc "ac_id" vs in
+    try
+      let ac = Hashtbl.find live_aircrafts ac_id in
+      let a = fun s -> Pprz.float_assoc s vs in
+      aircraft_pos_msg ac.track (a "east") (a "north") (a "heading")
+    with Not_found -> ()
+  in
+  ignore (Ground_Pprz.message_bind "FLIGHT_PARAM" get_fp);
+
+  let get_ns = fun _sender vs ->
+    let ac_id = Pprz.string_assoc "ac_id" vs in
+    try
+      let ac = Hashtbl.find live_aircrafts ac_id in
+      let a = fun s -> Pprz.float_assoc s vs in
+      carrot_pos_msg ac.track (a "target_east") (a "target_north") 
+    with Not_found -> ()
+  in
+  ignore (Ground_Pprz.message_bind "NAV_STATUS" get_ns)
 
 let _ =
   let ivy_bus = ref "127.255.255.255:2010"
@@ -229,7 +261,9 @@ let _ =
     load_map geomap xml_map_file
   end;
 
-  Ivy.bind (fun _ args -> live_aircrafts_msg geomap (Str.split list_separator args.(0))) "ground +AIRCRAFTS +(.*)";
+  ignore (Ground_Pprz.message_bind "AIRCRAFTS" (fun _sender vs -> live_aircrafts_msg geomap vs));
+
+  listen_flight_params ();
 
   window#add_accel_group accel_group;
   window#show ();

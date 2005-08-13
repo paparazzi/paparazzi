@@ -39,7 +39,7 @@ all : lib-pprz.cma xlib-pprz.cma xml_get.out lib-pprz.cmxa
 
 
 lib-pprz.cma : $(CMO)
-	ocamlmklib -o lib-pprz str.cma xml-light.cma unix.cma $^
+	ocamlmklib -o lib-pprz str.cma unix.cma xml-light.cma ivy-ocaml.cma $^
 
 lib-pprz.cmxa : $(CMX)
 	ocamlmklib -o lib-pprz $^

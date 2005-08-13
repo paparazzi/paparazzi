@@ -49,6 +49,8 @@ type type_descr = {
     value : value
   }
 
+type values = (string * value) list
+
 
 
 
@@ -67,7 +69,8 @@ let types = [
   ("int8",   { format = "%d"; glib_type = "gint8";   size = 1; value= Int 42 });
   ("int16",  { format = "%d";  glib_type = "gint16";  size = 2; value= Int 42 });
   ("int32",  { format = "%ld" ;  glib_type = "gint32";  size = 4; value=Int 42 });
-  ("float",  { format = "%f" ;  glib_type = "gfloat";  size = 4; value=Float 4.2 })
+  ("float",  { format = "%f" ;  glib_type = "gfloat";  size = 4; value=Float 4.2 });
+  ("string",  { format = "%s" ;  glib_type = "gchar*";  size = max_int; value=String "42" })
 ]
 
 let int_of_string = fun x ->
@@ -105,6 +108,14 @@ let field_of_xml = fun xml ->
   let t = ExtXml.attrib xml "type" in
   let f = try Xml.attrib xml "format" with _ -> default_format t in
   (ExtXml.attrib xml "name", { _type = t; fformat = f })
+
+let float_assoc = fun (a:string) vs -> 
+  match List.assoc a vs with
+    Float x -> x
+  | _ -> invalid_arg "Pprz.float_assoc"
+
+let string_assoc = fun (a:string) (vs:values) -> string_of_value (List.assoc a vs)
+
 
 
 (** Table of msg classes indexed by name. Each class is a table of messages
@@ -237,6 +248,7 @@ module Protocol(Class:CLASS) = struct
 	    (msg_id, values)
 	  with
 	    Not_found -> raise (Unknown_msg_name msg_name)
+	  | Invalid_argument "List.map2" -> failwith (sprintf "Pprz.values_of_string: '%s'" s)
 	end
     | [] -> invalid_arg "Pprz.values_of_string"
 
@@ -248,4 +260,34 @@ module Protocol(Class:CLASS) = struct
 	   try string_of_value (List.assoc field_name values) with
 	     Not_found -> string_of_value (default_value field._type))
 	 msg.fields)
+
+  let message_send = fun sender msg_name values ->
+    let m = snd (message_of_name msg_name) in
+    let s = string_of_message m values in
+    Ivy.send (sprintf "%s %s" sender s)
+
+  let message_bind = fun msg_name cb ->
+    Ivy.bind (fun _ args -> cb args.(0) (snd (values_of_string args.(1)))) (sprintf "^([^ ]*) +(%s.*)" msg_name)
+
+  let message_answerer = fun sender msg_name cb ->
+    let ivy_cb = fun _ args ->
+      let asker = args.(0)
+      and asker_id = args.(1) in
+      let values = cb asker (snd (values_of_string args.(2))) in
+      let m = string_of_message (snd (message_of_name msg_name)) values in
+      Ivy.send (sprintf "%s %s %s" asker_id sender m) in
+    Ivy.bind ivy_cb (sprintf "^([^ ]*) +([^ ]*) +(%s_REQ.*)" msg_name)
+
+  let gen_id = let r = ref 0 in fun () -> incr r; !r
+  let message_req = fun sender msg_name values (f:string -> (string * value) list -> unit) ->
+    let b = ref (Obj.magic ()) in
+    let cb = fun _ args ->
+      Ivy.unbind !b;
+      f args.(0) (snd (values_of_string args.(1))) in
+    let id = sprintf "%d_%d" (Unix.getpid ()) (gen_id ()) in
+    let r = sprintf "^%s ([^ ]*) +(%s.*)" id msg_name in
+    b := Ivy.bind cb r;
+    let msg_name_req = msg_name ^ "_REQ" in
+    let m = sprintf "%s %s %s" sender id (string_of_message (snd (message_of_name msg_name_req)) values) in
+    Ivy.send m
 end
