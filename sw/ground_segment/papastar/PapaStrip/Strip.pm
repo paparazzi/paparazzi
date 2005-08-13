@@ -25,8 +25,9 @@
 
 package PapaStrip::Strip;
 
+our $paparazzi_home;
 BEGIN {
-  our $paparazzi_home = $ENV{PAPARAZZI_HOME};
+  $paparazzi_home = $ENV{PAPARAZZI_HOME};
 };
 use lib ('/usr/share/perl5',
 	 $paparazzi_home.'/sw/lib/perl', 
@@ -47,6 +48,8 @@ use Data::Dumper;
 
 use strict;
 use warnings;
+
+use constant PAPARAZZI_HOME => $paparazzi_home;
 
 # populate:
 #   this sub is the subject constructor method
@@ -79,7 +82,7 @@ sub completeinit {
   my $flight_plan = $self->get(-flight_plan);
   $self->{'zinc'} = $self->get(-zinc);
   $self->{fp} = $flight_plan;
-  
+ 
   $self->{modes} =
     { ap_mode => 
       { name => ["Manual", "Auto1", "Auto2", "Home"],
@@ -124,7 +127,7 @@ sub parse_config {
   my ($self) = @_;
   my $parser = XML::DOM::Parser->new();
   print "Parsing gui.xml\n";
-  my $doc = $parser->parsefile($paparazzi_home."/conf/gui.xml");
+  my $doc = $parser->parsefile(PAPARAZZI_HOME."/conf/gui.xml");
   my $strip = $doc->getElementsByTagName('strip')->[0];
   $self->{options}->{normal_font} =  $strip->getAttribute('normal_font');
   $self->{options}->{small_font} =  $strip->getAttribute('small_font');
@@ -177,7 +180,16 @@ sub draw {
   $self->add_label("GPS", "gps_mode", 70, 34);
   $self->add_value_text("gps_mode");
 
-	
+  ## Cal label and value
+  $self->add_label("cal", "cal", 70, 46);
+  $self->add_value_text("cal");
+
+  ## crst label and value
+  $self->add_label("crst", "crst", 70, 58);
+  $self->add_value_text("crst");
+
+
+  
   ## alt label and value
   $self->add_label("alt:","alt", 150, 10);
   $self->add_value_text("alt");
