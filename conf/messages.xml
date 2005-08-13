@@ -273,7 +273,12 @@ ground AIRCRAFTS twinstar,microjet
     <field name="radio" type="string" unit="url"/>
   </message>
 
-
+  <message name="CONFIG_EVENT" ID="0x09">
+    <field name="aircraft_id" type="string"/>
+    <field name="flight_plan" type="string" unit="url"/>
+    <field name="airframe" type="string" unit="url"/>
+    <field name="radio" type="string" unit="url"/>
+  </message>
 
 </class>
 
