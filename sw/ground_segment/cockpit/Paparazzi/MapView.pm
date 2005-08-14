@@ -33,17 +33,17 @@ sub completeinit {
   $zinc->pack(-fill => 'both', -expand => "1");
   $self->{map_widget} = $zinc;
   $self->default_palette();
-  my $ressource_file = Paparazzi::Environment::get_config_file("gui.xml");
+  my $ressource_file = Paparazzi::Environment::get_config("gui.xml");
   $self->load_user_palette($ressource_file);
   $self->default_configuration();
-  $self->load_configuration(ressource_file);
+  $self->load_configuration($ressource_file);
   
 
   $self->build_gui();
 
-  my $config_file = Paparazzi::Environment::get_config_file("conf.xml");
+  my $map_file = Paparazzi::Environment::get_default_map();
 
-#  $self->load_map($options->{data_dir}."/maps/".$options->{map_file}, $win_size);
+  $self->load_map($map_files, $win_size);
 
 
 
@@ -65,7 +65,8 @@ sub build_gui {
   $self->{pan_group} = $zinc->add('group', $self->{main_group}, -visible => 1);
   $self->{zoom_group} = $zinc->add('group', $self->{pan_group}, -visible => 1);
   # map
-  $self->{map_picture_group} = $zinc->add('group', $self->{zoom_group}, -visible => 0);
+  $self->{map_picture_group} = $zinc->add('group', $self->{zoom_group},
+														-visible => $self->{configuration}->{map});
   # waypoints
   $self->{map_wp_group} = $zinc->add('group', $self->{zoom_group}, -visible => 1, -priority => 5 );
   $self->{map_circle_group} = $zinc->add('group', $self->{zoom_group},
@@ -92,11 +93,14 @@ sub build_gui {
   $zinc->configure(-overlapmanager =>  $self->{map_track_group} );
 	
 	# Max_dist_from_Home mask
-  $self->{max_dist_mask} = $zinc->add('group', $self->{zoom_group}, -visible => 1, -priority => 3 );
-  $self->{max_dist_circle} = $zinc->add('group', $self->{zoom_group}, -visible => 1, -priority => 4 );
+  $self->{max_dist_mask} = $zinc->add('group', $self->{zoom_group},
+					-visible => $self->{configuration}->{max_dist_from_home_mask}, -priority => 3 );
+  $self->{max_dist_circle} = $zinc->add('group', $self->{zoom_group},
+					-visible => $self->{configuration}->{max_dist_from_home_circle}, -priority => 4 );
 	
   # grid
-	$self->{grid_group} = $zinc->add('group', $self->{zoom_group}, -visible => 1, -priority => 2 );
+	$self->{grid_group} = $zinc->add('group', $self->{zoom_group},
+					-visible => $self->{configuration}->{grid}, -priority => 2 );
 }
 
 sub set_bindings {
@@ -311,7 +315,7 @@ sub load_map {
     $self->{cal_det_OX_0Y}->{$i} = vect_prod_c2d($self->{cal_0X}->{$i}, $self->{cal_0Y}->{$i});
   }
 
-  my $map_filename = File::Basename::dirname($xml_map)."/".$map_node->getAttribute('file');
+  my $map_filename = Paparazzi::Environment::get_data()."/".$map_node->getAttribute('file');
   my $image = $zinc->Photo("bg_picture", -file => $map_filename);
   my $img_item = $zinc->add('icon', $self->{map_picture_group},
 					       						-image => $image,
@@ -406,20 +410,20 @@ sub apply_palette {
 
 sub load_user_palette {
 	# Load user palette (defined in conf/ground_segment.xml)
-  my ($self, $xml_ground_segment) = @_;
+  my ($self, $xml_gui) = @_;
 	my $zinc = $self->{map_widget};
   my $parser = XML::DOM::Parser->new();
-  my $doc = $parser->parsefile($xml_ground_segment);
+  my $doc = $parser->parsefile($xml_gui);
 	my $map_element = $doc->getElementsByTagName('map')->[0];
 	$self->read_palette($map_element, 'user');
 	#	print "loading default user palette... \n"
 }
 
 sub load_configuration {
-  my ($self, $xml_ground_segment) = @_;
+  my ($self, $xml_gui) = @_;
 	my $zinc = $self->{map_widget};
   my $parser = XML::DOM::Parser->new();
-  my $doc = $parser->parsefile($xml_ground_segment);
+  my $doc = $parser->parsefile($xml_gui);
 	my $map_element = $doc->getElementsByTagName('map')->[0];
 	my $configuration = $map_element->getElementsByTagName('configuration')->[0];
 	if (defined $configuration) {
@@ -434,10 +438,6 @@ sub load_configuration {
 			$self->{configuration}->{$attrib_name} = $attrib_value;
     }
 	}
-	$zinc->itemconfigure($self->{grid_group}, -visible => $self->{configuration}->{grid});
-	$zinc->itemconfigure($self->{map_picture_group}, -visible => $self->{configuration}->{map});
-	$zinc->itemconfigure($self->{max_dist_mask}, -visible => $self->{configuration}->{max_dist_from_home_mask});
-	$zinc->itemconfigure($self->{max_dist_circle}, -visible => $self->{configuration}->{max_dist_from_home_circle});
 }
 
 sub load_map_options {
