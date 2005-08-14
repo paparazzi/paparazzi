@@ -30,6 +30,7 @@ my $options = {
 
 use Paparazzi::Environment;
 use Paparazzi::IvyProtocol;
+use Paparazzi::AircraftsManager;
 use Paparazzi::MapView;
 
 Paparazzi::Environment::parse_command_line($options);
@@ -64,11 +65,13 @@ sub on_foo {
 
 
 sub build_gui {
+  my ($self) = @_;
   my $mw = MainWindow->new();
   $mw->title("Paparazzi map : $options->{map_file}");
   my $win_size = [770, 600];
   my $win_pos = [310, 140];
   $mw->geometry(sprintf("%dx%d+%d+%d", $win_size->[0], $win_size->[1], $win_pos->[0], $win_pos->[1]));
+  $self->{mw} = $mw;
 #  my $mv = $mw->MapView();
 #  $mv->pack(-fill => 'both', -expand => "1");
   
