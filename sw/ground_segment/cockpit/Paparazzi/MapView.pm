@@ -1,4 +1,8 @@
-package MapView;
+package Paparazzi::MapView;
+use Subject;
+@ISA = ("Subject");
+
+use strict;
 
 use Tk;
 #use Tk::widgets qw/PNG/;
@@ -8,19 +12,19 @@ use XML::DOM;
 use Math::Trig;
 require File::Basename;
 
-use base "Tk::Frame";
-use strict;
 
-Construct Tk::Widget 'MapView';
 
-sub ClassInit {
-  my ($class, $mw) = @_;
-  $class->SUPER::ClassInit($mw);
+ssub populate {
+  my ($self, $args) = @_;
+  $self->SUPER::populate($args);
+  $self->configspec
+    ();
 }
 
-sub Populate {
-  my ($self, $args) = @_;
-  $self->SUPER::Populate($args);
+sub completeinit {
+  my $self = shift;
+  $self->SUPER::completeinit();
+
   my $zinc = $self->Zinc(-backcolor => 'black',
 			 										-borderwidth => 3,
 													-relief => 'sunken',
