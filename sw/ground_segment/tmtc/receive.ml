@@ -73,6 +73,7 @@ type aircraft = {
     mutable mcu1_status : int;
     mutable lls_calib : int;
     cam : ac_cam;
+    mutable gps_mode : int
   }
 
 (** The aircrafts store *)
@@ -126,7 +127,8 @@ let log_and_parse = fun log ac_name a msg values ->
 	a.gspeed  <- fvalue "speed";
 	a.course  <- fvalue "course";
 	a.alt     <- fvalue "alt";
-	a.climb   <- fvalue "climb"
+	a.climb   <- fvalue "climb";
+	a.gps_mode <- ivalue "mode"
     | "DESIRED" ->
 	a.desired_east <- fvalue "desired_x";
 	a.desired_north <- fvalue "desired_y"
@@ -207,7 +209,10 @@ let send_aircraft_msg = fun ac ->
 		  "energy", f a.energy] in
     Ground_Pprz.message_send my_id "ENGINE_STATUS" values;
 
-    let values = ["ac_id", Pprz.String ac; "mode", Pprz.Int a.ap_mode; "v_mode", Pprz.Int a.ap_altitude] in
+    let values = ["ac_id", Pprz.String ac; 
+		  "mode", Pprz.Int a.ap_mode; 
+		  "v_mode", Pprz.Int a.ap_altitude;
+		  "gps_mode", Pprz.Int a.gps_mode] in
     Ground_Pprz.message_send my_id "AP_STATUS" values;
 
     send_cam_status a
@@ -216,7 +221,7 @@ let send_aircraft_msg = fun ac ->
   | x -> prerr_endline (Printexc.to_string x)
       
 let new_aircraft = fun id ->
-    { id = id ; roll = 0.; pitch = 0.; nav_ref_east = 0.; nav_ref_north = 0.; desired_east = 0.; desired_north = 0.; gspeed=0.; course = 0.; alt=0.; climb=0.; cur_block=0; cur_stage=0; throttle = 0.; rpm = 0.; temp = 0.; bat = 0.; amp = 0.; energy = 0.; ap_mode=0; ap_altitude=0; if_calib_mode=0; mcu1_status=0; lls_calib=0;
+    { id = id ; roll = 0.; pitch = 0.; nav_ref_east = 0.; nav_ref_north = 0.; desired_east = 0.; desired_north = 0.; gspeed=0.; course = 0.; alt=0.; climb=0.; cur_block=0; cur_stage=0; throttle = 0.; rpm = 0.; temp = 0.; bat = 0.; amp = 0.; energy = 0.; ap_mode=0; ap_altitude=0; if_calib_mode=0; mcu1_status=0; lls_calib=0; gps_mode =0;
       pos = { utm_x = 0.; utm_y = 0.; utm_zone = 0 };
       cam = { phi = 0.; theta = 0. }
     }

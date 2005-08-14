@@ -42,7 +42,7 @@ float gps_fspeed;
 float gps_fclimb;
 float gps_fcourse;
 int32_t gps_utm_east, gps_utm_north;
-int8_t gps_utm_zone;
+uint8_t gps_utm_zone;
 float gps_east, gps_north;
 uint8_t gps_mode;
 volatile bool_t gps_msg_received;
@@ -99,7 +99,7 @@ void parse_gps_msg( void ) {
       gps_utm_east = UBX_NAV_POSUTM_EAST(ubx_msg_buf);
       gps_utm_north = UBX_NAV_POSUTM_NORTH(ubx_msg_buf);
       gps_falt = (float)UBX_NAV_POSUTM_ALT(ubx_msg_buf) / 100.;
-      gps_utm_zone = UBX_NAV_POSUTM_ZONE(ubx_msg_buf)
+      gps_utm_zone = UBX_NAV_POSUTM_ZONE(ubx_msg_buf);
     } else if (ubx_id == UBX_NAV_STATUS_ID) {
       gps_mode = UBX_NAV_STATUS_GPSfix(ubx_msg_buf);
     } else if (ubx_id == UBX_NAV_VELNED_ID) {

@@ -303,6 +303,7 @@
     <field name="target_climb"   type="float" unit="m/s"/>
     <field name="target_alt"     type="float" unit="m"/>
     <field name="target_heading" type="float" unit="m"/>
+    <field name="gps_mode" type="uint8"/>
   </message>
 
   <message name="NAV_STATUS" ID="0x06">
