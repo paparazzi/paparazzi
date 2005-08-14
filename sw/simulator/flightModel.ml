@@ -33,7 +33,6 @@ let set_air_speed state x = state.air_speed <- x
 let drag = 0.45
 let c_lp = -10.
 let g = 9.81
-let weight = 1. *. 1.4
 
 let max_phi = 0.7 (* rad *)
 let bound = fun x mi ma -> if x > ma then ma else if x < mi then mi else x
@@ -48,14 +47,51 @@ module Make(A:Data.MISSION) = struct
    http://controls.ae.gatech.edu/papers/johnson_mst_01.pdf
  *)
 
+
+
+  let servos =
+    try
+      ExtXml.child A.ac.airframe "servos"
+    with
+      Not_found ->
+	failwith (Printf.sprintf "Child 'servos' expected in '%s'\n" (Xml.to_string A.ac.airframe))
+	  
+let section = fun name ->
+  try
+    ExtXml.child A.ac.airframe ~select:(fun x -> ExtXml.attrib x "name" = name) "section"
+  with
+    Not_found ->
+      failwith (Printf.sprintf "Child 'section' with 'name=%s' expected in '%s'\n" name (Xml.to_string A.ac.airframe))
+
+let misc_section = section "MISC"
+
+let infrared_section = section "INFRARED"
+
+let simu_section = section "SIMU"
+
+let defined_value = fun sect name ->
+  try
+    (Xml.attrib (ExtXml.child sect ~select:(fun x -> ExtXml.attrib x "name" = name) "define") "value")
+  with
+    Not_found ->
+      failwith (Printf.sprintf "Child 'define' with 'name=%s' expected in '%s'\n" name (Xml.to_string misc_section))
+
+let float_value = fun section s ->  float_of_string (defined_value section s)
+
+let roll_response_factor = float_value simu_section "ROLL_RESPONSE_FACTOR"
+
+let yaw_response_factor = float_value simu_section "YAW_RESPONSE_FACTOR"
+
+let weight = float_value simu_section "WEIGHT"
+
   let state_update = fun state (wx, wy) ->
     let now = Unix.gettimeofday () -. state.start in
     let dt = now -. state.t in
     if state.air_speed > 0. then begin
-      let phi_dot_dot = state.delta_a +. c_lp *. state.phi_dot /. state.air_speed in
+      let phi_dot_dot = roll_response_factor *. state.delta_a +. c_lp *. state.phi_dot /. state.air_speed in
       state.phi_dot <- state.phi_dot +. phi_dot_dot *. dt;
       state.phi <- bound (state.phi +. state.phi_dot *. dt) (-.max_phi) max_phi;
-      let psi_dot = -. g /. state.air_speed *. tan state.phi in
+      let psi_dot = -. g /. state.air_speed *. tan (yaw_response_factor *. state.phi) in
       state.psi <- norm_angle (state.psi +. psi_dot *. dt);
       let dx = state.air_speed *. cos state.psi *. dt +. wx *. dt
       and dy = state.air_speed *. sin state.psi *. dt +. wy *. dt in
@@ -68,26 +104,10 @@ module Make(A:Data.MISSION) = struct
     state.t <- now
 
 
-  let servos =
-    try
-      ExtXml.child A.ac.airframe "servos"
-    with
-      Not_found ->
-	failwith (Printf.sprintf "Child 'servos' expected in '%s'\n" (Xml.to_string A.ac.airframe))
-	  
-  let misc_section =
-    try
-      ExtXml.child A.ac.airframe ~select:(fun x -> ExtXml.attrib x "name" = "MISC") "section"
-    with
-      Not_found ->
-	failwith (Printf.sprintf "Child 'section' with 'name=MISC' expected in '%s'\n" (Xml.to_string A.ac.airframe))
 
-  let nominal_airspeed =
-    try
-      float_of_string (Xml.attrib (ExtXml.child misc_section ~select:(fun x -> ExtXml.attrib x "name" = "NOMINAL_AIRSPEED") "define") "value")
-    with
-      Not_found ->
-	failwith (Printf.sprintf "Child 'define' with 'name=NOMINAL_AIRSPEED' expected in '%s'\n" (Xml.to_string misc_section))
+let nominal_airspeed = float_of_string (defined_value misc_section "NOMINAL_AIRSPEED")
+
+let ir_roll_neutral = int_of_string (defined_value infrared_section "ROLL_NEUTRAL_DEFAULT")
 
   let get_servo name =
     try

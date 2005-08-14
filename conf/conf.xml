@@ -20,7 +20,7 @@
   <aircraft 
     name="Thon1"
     ac_id="1"
-    airframe="airframes/twinstar1.xml" 
+    airframe="airframes/microjet1.xml" 
     radio="radios/cockpitMM.xml" 
     flight_plan="flight_plans/muret_cam.xml"
   />

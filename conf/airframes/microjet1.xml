@@ -64,4 +64,9 @@
     <define name="NOMINAL_AIRSPEED" value="15."/>
     <define name="CARROT" value="5." unit="s"/>
   </section>
+  <section name="SIMU">
+    <define name="ROLL_RESPONSE_FACTOR" value="5."/>
+    <define name="YAW_RESPONSE_FACTOR" value="1."/>
+    <define name="WEIGHT" value="0.45"/>
+  </section>
 </airframe>
