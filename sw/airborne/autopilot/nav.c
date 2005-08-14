@@ -55,6 +55,10 @@ static float alpha;
 /** Number of circle done */
 static float circle_count;
 static bool_t new_circle;
+bool_t in_circle = FALSE;
+bool_t in_segment = FALSE;
+float circle_x, circle_y, circle_radius;
+float segment_x_1, segment_y_1, segment_x_2, segment_y_2;
 
 #define RcRoll(travel) (from_fbw.channels[RADIO_ROLL]* (float)travel /(float)MAX_PPRZ)
 
@@ -66,7 +70,7 @@ static bool_t new_circle;
 #define GotoBlock(b) { nav_block=b; InitBlock(); }
 
 #define Stage(s) case s: nav_stage=s;
-#define InitStage() { last_x = estimator_x; last_y = estimator_y; stage_time = 0; stage_time_ds = 0; sum_alpha = 0; new_circle = TRUE; return; }
+#define InitStage() { last_x = estimator_x; last_y = estimator_y; stage_time = 0; stage_time_ds = 0; sum_alpha = 0; new_circle = TRUE; in_circle = FALSE; in_segment = FALSE; return; }
 #define NextStage() { nav_stage++; InitStage() }
 #define NextStageFrom(wp) { last_wp = wp; NextStage() }
 #define GotoStage(s) { nav_stage = s; InitStage() }
@@ -85,6 +89,8 @@ static void glide_to(uint8_t last_wp, uint8_t wp);
 
 #define MIN_DX ((int16_t)(MAX_PPRZ * 0.05))
 
+#define DegOfRad(x) ((x) / M_PI * 180.)
+#define RadOfDeg(x) ((x)/180. * M_PI)
 #define NormCourse(x) { \
   while (x < 0) x += 360; \
   while (x >= 360) x -= 360; \
@@ -111,9 +117,13 @@ static float qdr;
 	circle_count = fabs(sum_alpha) / (2*M_PI); \
   float alpha_carrot = alpha + CARROT / -radius * estimator_hspeed_mod; \
   fly_to_xy(x+cos(alpha_carrot)*fabs(radius), \
-	    y+sin(alpha_carrot)*fabs(radius)); \
+						y+sin(alpha_carrot)*fabs(radius)); \
   qdr = DegOfRad(M_PI/2 - alpha_carrot); \
   NormCourse(qdr); \
+	in_circle = TRUE; \
+	circle_x = x; \
+	circle_y = y; \
+	circle_radius = radius; \
 }
 
 #define MAX_DIST_CARROT 250.
@@ -121,6 +131,7 @@ static float qdr;
 #define MAX_HEIGHT_CARROT 150.
 
 #define Goto3D(radius) { \
+  static float carrot_x, carrot_y; \
   if (pprz_mode == PPRZ_MODE_AUTO2) { \
     int16_t yaw = from_fbw.channels[RADIO_YAW]; \
     if (yaw > MIN_DX || yaw < -MIN_DX) { \
@@ -149,6 +160,8 @@ static float qdr;
 
 #define And(x, y) ((x) && (y))
 #define Or(x, y) ((x) || (y))
+#define Min(x,y) (x < y ? x : y)
+#define Max(x,y) (x > y ? x : y)
 #define Qdr(x) (Min(x, 350) < qdr && qdr < x+10)
 
 #include "flight_plan.h"
@@ -214,6 +227,11 @@ static inline void fly_to_xy(float x, float y) {
  *  \brief Just call \a fly_to_xy with x and y of current waypoint.
  */
 static void fly_to(uint8_t wp) { 
+	in_segment = TRUE;
+	segment_x_1 = estimator_x;
+	segment_y_1 = estimator_y;
+	segment_x_2 = waypoints[wp].x;
+	segment_y_2 = waypoints[wp].y;
   fly_to_xy(waypoints[wp].x, waypoints[wp].y);
 }
 
@@ -235,6 +253,11 @@ static void route_to(uint8_t _last_wp, uint8_t wp) {
   /** carrot is computed in approaching() */
   alpha += Max(carrot / leg, 0.);
   alpha = Min(1., alpha);
+	in_segment = TRUE;
+	segment_x_1 = last_wp_x;
+	segment_y_1 = last_wp_y;
+	segment_x_2 = waypoints[wp].x;
+	segment_y_2 = waypoints[wp].y;
   fly_to_xy(last_wp_x + alpha*leg_x, last_wp_y + alpha*leg_y);
 }
 
