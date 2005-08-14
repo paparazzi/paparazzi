@@ -41,7 +41,7 @@ messages : messages.ml
 	$(OCAMLOPT) $(INCLUDES) -o $@ str.cmxa unix.cmxa xml-light.cmxa glibivy-ocaml.cmxa -I +lablgtk2 lablgtk.cmxa gtkInit.cmx lib-pprz.cmxa $^ 
 	strip $@
 
-hw_modem_listen : modem.cmo hw_modem_listen.ml
+hw_modem_listen : modem.cmo hw_modem_listen.ml ../../lib/ocaml/lib-pprz.cma
 	$(OCAMLC) $(INCLUDES) -o $@ str.cma unix.cma xml-light.cma glibivy-ocaml.cma -I +lablgtk2 lablgtk.cma lib-pprz.cma $^ #To check
 	cat ../../../pprz_src_test.sh > $@
 	echo 'lablgtk2 str.cma glibivy-ocaml.cma -I $$PAPARAZZI_SRC/sw/lib/ocaml lib-pprz.cma -I $$PAPARAZZI_SRC/sw/ground_segment/tmtc $$PAPARAZZI_SRC/sw/ground_segment/tmtc/modem.cmo $$PAPARAZZI_SRC/sw/ground_segment/tmtc/hw_modem_listen.ml $$*' >> $@

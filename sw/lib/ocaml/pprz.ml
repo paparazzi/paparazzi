@@ -60,6 +60,8 @@ let messages_xml = fun () -> Lazy.force lazy_messages_xml
 
 external float_of_bytes : string -> int -> float = "c_float_of_indexed_bytes"
 external int32_of_bytes : string -> int -> int32 = "c_int32_of_indexed_bytes"
+external int8_of_bytes : string -> int -> int = "c_int8_of_indexed_bytes"
+external int16_of_bytes : string -> int -> int = "c_int16_of_indexed_bytes"
 external sprint_float : string -> int -> float -> unit = "c_sprint_float"
 
 let types = [
@@ -154,9 +156,9 @@ let value_field = fun buffer index (field:field) ->
   let format = field.fformat in
   match field._type with
     "uint8" -> Int (Char.code buffer.[index])
-  | "int8" -> Int (if Char.code buffer.[index] <= 128 then Char.code buffer.[index] else Char.code buffer.[index] - 256)
-  | "uint16" -> Int (Char.code buffer.[index] lsl 8 + Char.code buffer.[index+1])
-  | "int16" -> Int (if Char.code buffer.[index] lsl 8 + Char.code buffer.[index+1] <= 32768 then Char.code buffer.[index] lsl 8 + Char.code buffer.[index+1] else Char.code buffer.[index] lsl 8 + Char.code buffer.[index+1] - 65536)
+  | "int8" -> Int (int8_of_bytes buffer index)
+  | "uint16" -> Int (Char.code buffer.[index+1] lsl 8 + Char.code buffer.[index])
+  | "int16" -> Int (int16_of_bytes buffer index)
   | "float" ->  Float (float_of_bytes buffer index)
   | "int32"  | "uint32" -> Int32 (int32_of_bytes buffer index)
   | _ -> failwith "value_field"
