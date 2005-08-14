@@ -78,5 +78,9 @@ sub paparazzi_home {
   return $paparazzi_home;
 }
 
+sub get_config_file {
+  my ($file) = @_;
+  return $paparazzi_home."/conf/".$file;
+}
 
 1;
