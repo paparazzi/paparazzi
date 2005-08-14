@@ -33,7 +33,22 @@ sub completeinit {
 													-render => '0');
   $zinc->pack(-fill => 'both', -expand => "1");
   $self->{map_widget} = $zinc;
+  $self->default_palette();
+  my $ressource_file = Paparazzi::Environment::get_config_file("gui.xml");
+  $self->load_user_palette($ressource_file);
+  $self->default_configuration();
+  $self->load_configuration(ressource_file);
+  
+
   $self->build_gui();
+
+  my $config_file = Paparazzi::Environment::get_config_file("conf.xml");
+
+#  $self->load_map($options->{data_dir}."/maps/".$options->{map_file}, $win_size);
+
+
+
+
   $self->{tracks} = {};
   $self->set_bindings();
 }

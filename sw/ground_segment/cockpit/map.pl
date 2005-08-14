@@ -72,12 +72,10 @@ sub build_gui {
   my $win_pos = [310, 140];
   $mw->geometry(sprintf("%dx%d+%d+%d", $win_size->[0], $win_size->[1], $win_pos->[0], $win_pos->[1]));
   $self->{mw} = $mw;
-  my $mv = Paparazzi::MapView->new(-mw => $mw);
-#  $mv->pack(-fill => 'both', -expand => "1");
+  $self->{map_view} = $mw;
+  my $map_view = Paparazzi::MapView->new(-mw => $mw);
   
-#  $mv->default_palette();
-#  $mv->load_user_palette($options->{conf_dir}."/ground_segment.xml");
-#  $mv->default_configuration();
+
 #  $mv->load_configuration($options->{conf_dir}."/ground_segment.xml");
 #  $mv->load_map($options->{data_dir}."/maps/".$options->{map_file}, $win_size);
 #  my $flight_plan_name = $options->{conf_dir}."/".$options->{mission_file};
