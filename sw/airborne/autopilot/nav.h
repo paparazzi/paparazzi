@@ -41,8 +41,9 @@ extern float cur_pos_y;
 extern uint8_t nav_stage, nav_block;
 extern float dist2_to_wp, dist2_to_home;
 
-extern const int32_t nav_east0; 
-extern const int32_t nav_north0;
+extern const int32_t nav_utm_east0; 
+extern const int32_t nav_utm_north0;
+extern const int8_t nav_utm_zone0;
 
 extern const uint8_t nb_waypoint;
 extern struct point waypoints[];
@@ -59,6 +60,12 @@ extern float stage_time_ds;
 extern float circle_count;
 extern float nav_desired_roll;
 extern float carrot_x, carrot_y;
+
+extern bool_t in_circle;
+extern bool_t in_segment;
+extern float circle_x, circle_y, circle_radius;
+extern float segment_x_1, segment_y_1, segment_x_2, segment_y_2;
+
 
 void nav_update(void);
 void nav_home(void);

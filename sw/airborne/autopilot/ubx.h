@@ -32,7 +32,5 @@
 #define UBX_H
 
 #define GPS_FIX_VALID(gps_mode) (gps_mode == 3)
-extern const int32_t utm_east0;
-extern const int32_t utm_north0;
 
 #endif /* UBX_H */

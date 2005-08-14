@@ -91,7 +91,7 @@ $(OBJDIR)/main.o : $(OBJDIR)/main.c
 
 $(OBJDIR)/sim_gps.o $(OBJDIR)/nav.o $(OBJDIR)/main.o $(OBJDIR)/sim_ir.o $(OBJDIR)/sim_ap.o $(OBJDIR)/pid.o $(OBJDIR)/estimator.o : $(ACINCLUDE)/flight_plan.h  $(ACINCLUDE)/airframe.h
 
-$(OBJDIR)/main.c : $(OBJDIR)/downlink.h
+$(OBJDIR)/main.c : $(OBJDIR)/downlink.h $(AP)/main.c
 	cp $(AP)/main.c $(@)
 
 $(OBJDIR)/downlink.h : $(MESSAGES) $(GEN_DOWNLINK)

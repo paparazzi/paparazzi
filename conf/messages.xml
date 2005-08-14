@@ -40,18 +40,20 @@
 
   <message name="GPS" ID="0x08">
     <field name="mode"   type="uint8" unit="byte_mask"></field>
-    <field name="east"  type="int32" unit="cm"></field>
-    <field name="north"  type="int32" unit="cm"></field>
+    <field name="utm_east"  type="int32" unit="cm"></field>
+    <field name="utm_north"  type="int32" unit="cm"></field>
     <field name="course" type="float" unit="rad" format="%.2f"></field>
     <field name="alt"    type="float" unit="m" format="%.1f"></field>
     <field name="speed"  type="float" unit="m/s" format="%.1f"></field>
     <field name="climb"  type="float" unit="m/s" format="%.1f"></field>
     <field name="tow"  type="float" unit="s" format="%.1f"></field>
+    <field name="utm_zone"  type="uint8"></field>
   </message>
 
   <message name="NAVIGATION_REF" ID="0x09" period="10" >
     <field name="utm_east"  type="int32" unit="m"></field>
     <field name="utm_north" type="int32" unit="m"></field>
+    <field name="utm_zone" type="uint8"></field>
   </message>
 
   <message name="NAVIGATION" ID="0x0A">
@@ -312,6 +314,14 @@
     <field name="target_east" type="float" unit="m"/>
     <field name="target_north" type="float" unit="m"/>
   </message>
+
+  <message name="CAM_STATUS" ID="0x15">
+     <field name="east" type="float" unit="m"/>
+     <field name="north" type="float" unit="m"/>
+     <field name="targe_east" type="float" unit="m"/>
+     <field name="target_north" type="float" unit="m"/>
+  </message>
+
 
   <message name="ENGINE_STATUS" ID="0x07">
     <field name="ac_id" type="string"/>

@@ -33,13 +33,15 @@
 
 #include "std.h"
 
+
 extern uint8_t gps_mode;
 extern float   gps_ftow;    /* ms */
 extern float   gps_falt;    /* m       */
 extern float   gps_fspeed;  /* m/s     */
 extern float   gps_fclimb;  /* m/s     */
 extern float   gps_fcourse; /* rad     */
-extern int32_t gps_utm_east, gps_utm_north;
+extern int32_t gps_utm_east, gps_utm_north; /** cm */
+extern uint8_t gps_utm_zone;
 extern float gps_east, gps_north; /* m */
 
 void gps_init( void );
@@ -50,8 +52,6 @@ extern uint8_t gps_nb_ovrn;
 
 #ifdef UBX
 #include "ubx.h"
-#else
-#include "sirf.h"
 #endif
 
 

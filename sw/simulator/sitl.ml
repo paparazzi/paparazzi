@@ -130,12 +130,12 @@ module Make(A:Data.MISSION) = struct
   let infrared = fun ir_left ir_front ->
     set_ir_roll (truncate ir_left)
 
-  external use_gps_pos: int -> int -> float -> float -> float -> float -> float -> unit = "sim_use_gps_pos_bytecode" "sim_use_gps_pos"
+  external use_gps_pos: int -> int -> int -> float -> float -> float -> float -> float -> unit = "sim_use_gps_pos_bytecode" "sim_use_gps_pos"
   open Latlong
   let gps = fun gps ->
     let utm = utm_of WGS84 gps.Gps.wgs84 in
     let cm = fun f -> truncate (f *. 100.) in
-    use_gps_pos (cm utm.utm_x) (cm utm.utm_y) gps.Gps.course gps.Gps.alt gps.Gps.gspeed gps.Gps.climb gps.Gps.time 
+    use_gps_pos (cm utm.utm_x) (cm utm.utm_y) utm.utm_zone gps.Gps.course gps.Gps.alt gps.Gps.gspeed gps.Gps.climb gps.Gps.time 
 
 end
 let options =

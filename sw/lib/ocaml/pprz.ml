@@ -266,8 +266,13 @@ module Protocol(Class:CLASS) = struct
     let s = string_of_message m values in
     Ivy.send (sprintf "%s %s" sender s)
 
-  let message_bind = fun msg_name cb ->
-    Ivy.bind (fun _ args -> cb args.(0) (snd (values_of_string args.(1)))) (sprintf "^([^ ]*) +(%s.*)" msg_name)
+  let message_bind = fun ?sender msg_name cb ->
+    match sender with
+      None ->
+	Ivy.bind (fun _ args -> cb args.(0) (snd (values_of_string args.(1)))) (sprintf "^([^ ]*) +(%s .*)" msg_name)
+    | Some s ->
+	Ivy.bind (fun _ args -> cb s (snd (values_of_string args.(0)))) (sprintf "^%s +(%s .*)" s msg_name)
+	  
 
   let message_answerer = fun sender msg_name cb ->
     let ivy_cb = fun _ args ->

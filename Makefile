@@ -36,7 +36,7 @@ LOGALIZER=sw/logalizer
 SIMULATOR=sw/simulator
 MAKE=make
 
-all: static
+all: static ac1 ac2
 
 static : lib tools configurator cockpit tmtc multimon visu3d logalizer sim_static wind static_h
 

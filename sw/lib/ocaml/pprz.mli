@@ -77,8 +77,8 @@ module Protocol : functor (Class : CLASS) -> sig
   val message_send : string -> string -> values -> unit
   (** [message_send sender msg_name values] *)
 
-  val message_bind : string -> (string -> values -> unit) -> Ivy.binding
-  (** [message_bind msg_name callback] *)
+  val message_bind : ?sender:string ->string -> (string -> values -> unit) -> Ivy.binding
+  (** [message_bind ?sender msg_name callback] *)
 
   val message_answerer : string -> string -> (string -> values -> values) -> Ivy.binding
   (** [message_answerer sender msg_name callback] *)

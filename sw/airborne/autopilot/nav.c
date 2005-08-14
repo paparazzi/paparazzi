@@ -171,8 +171,9 @@ static float qdr;
 
 #define DISTANCE2(p1_x, p1_y, p2) ((p1_x-p2.x)*(p1_x-p2.x)+(p1_y-p2.y)*(p1_y-p2.y))
 
-const int32_t nav_east0 = NAV_UTM_EAST0;
-const int32_t nav_north0 = NAV_UTM_NORTH0;
+const int32_t nav_utm_east0 = NAV_UTM_EAST0;
+const int32_t nav_utm_north0 = NAV_UTM_NORTH0;
+const int8_t nav_utm_zone0 = NAV_UTM_ZONE0;
 
 float desired_altitude = GROUND_ALT + MIN_HEIGHT_CARROT;
 float desired_x, desired_y;

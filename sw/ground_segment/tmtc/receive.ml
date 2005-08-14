@@ -27,6 +27,7 @@
 let my_id = "ground"
 
 open Printf
+open Latlong
 module U = Unix
 
 module Tele_Class = struct let name = "telemetry_ap" end
@@ -37,14 +38,18 @@ module Ground_Pprz = Pprz.Protocol(Ground)
 let (//) = Filename.concat
 let logs_path = Env.paparazzi_home // "var" // "logs"
 let conf_xml = Xml.parse_file (Env.paparazzi_home // "conf" // "conf.xml")
+let srtm_path = Env.paparazzi_home // "data" // "srtm"
 
-type port = string
+type ac_cam = {
+    mutable phi : float; (* Rad, right = >0 *)
+    mutable theta : float; (* Rad, front = >0 *)
+  }
+
 type aircraft = { 
-    port : port;
+    id : string;
+    mutable pos : Latlong.utm;
     mutable roll    : float;
     mutable pitch   : float;
-    mutable east    : float;
-    mutable north    : float;
     mutable nav_ref_east    : float;
     mutable nav_ref_north    : float;
     mutable desired_east    : float;
@@ -67,6 +72,7 @@ type aircraft = {
     mutable if_calib_mode : int;
     mutable mcu1_status : int;
     mutable lls_calib : int;
+    cam : ac_cam;
   }
 
 (** The aircrafts store *)
@@ -114,8 +120,9 @@ let log_and_parse = fun log ac_name a msg values ->
   and ivalue = fun x -> ivalue (value x) in
   match msg.Pprz.name with
     "GPS" ->
-      a.east    <- fvalue "east" /. 100.;
-      a.north    <- fvalue "north" /. 100.;
+      a.pos <- { utm_x = fvalue "utm_east" /. 100.;
+		 utm_y = fvalue "utm_north" /. 100.;
+		 utm_zone = ivalue "utm_zone" };
       a.gspeed  <- fvalue "speed";
       a.course  <- fvalue "course";
       a.alt     <- fvalue "alt";
@@ -143,6 +150,9 @@ let log_and_parse = fun log ac_name a msg values ->
       a.if_calib_mode <- ivalue "if_calib_mode";
       a.mcu1_status <- ivalue "mcu1_status";
       a.lls_calib <- ivalue "lls_calib"
+  | "CAM" ->
+      a.cam.phi <- (Deg>>Rad) (fvalue  "phi");
+      a.cam.theta <- (Deg>>Rad) (fvalue  "theta");
   | _ -> ()
 
 
@@ -158,6 +168,14 @@ let ac_msg = fun log ac_name a m ->
 
 let soi = string_of_int
 
+let send_cam_status = fun a ->
+  let h = a.alt -. float (Srtm.of_utm a.pos) in
+  let east = a.pos.utm_x +. h *. tan (a.cam.phi -. a.roll)
+  and north = a.pos.utm_y +. h *. tan (a.cam.theta +. a.pitch) in
+  let values = ["east", Pprz.Float east; "north", Pprz.Float north] in
+  Ground_Pprz.message_send my_id "CAM_STATUS" values
+
+
 let send_aircraft_msg = fun ac ->
   try
     let sof = fun f -> sprintf "%.1f" f in
@@ -166,27 +184,43 @@ let send_aircraft_msg = fun ac ->
     let values = ["ac_id", Pprz.String ac;
 		  "roll", f (Geometry_2d.rad2deg a.roll);
 		  "pitch", f (Geometry_2d.rad2deg a.pitch);
-		  "east", f a.east;
-		  "north", f a.north;
+		  "east", f a.pos.utm_x;
+		  "north", f a.pos.utm_y;
 		  "speed", f a.gspeed;
 		  "heading", f (Geometry_2d.rad2deg a.course);
 		  "alt", f a.alt;
 		  "climb", f a.climb] in
     Ground_Pprz.message_send my_id "FLIGHT_PARAM" values;
 
-    let values = ["ac_id", Pprz.String ac; "cur_block", Pprz.Int a.cur_block;"cur_stage", Pprz.Int a.cur_stage; "target_east", f (a.nav_ref_east+.a.desired_east); "target_north", f (a.nav_ref_north+.a.desired_north)] in
+    let values = ["ac_id", Pprz.String ac; 
+		  "cur_block", Pprz.Int a.cur_block;
+		  "cur_stage", Pprz.Int a.cur_stage;
+		  "target_east", f (a.nav_ref_east+.a.desired_east);
+		  "target_north", f (a.nav_ref_north+.a.desired_north)] in
     Ground_Pprz.message_send my_id "NAV_STATUS" values;
 
-    let values = ["ac_id", Pprz.String ac; "throttle", f a.throttle;"rpm", f a.rpm;"temp", f a.temp;"bat", f a.bat;"amp", f a.amp;"energy", f a.energy] in
+    let values = ["ac_id", Pprz.String ac; 
+		  "throttle", f a.throttle;
+		  "rpm", f a.rpm;
+		  "temp", f a.temp;
+		  "bat", f a.bat;
+		  "amp", f a.amp;
+		  "energy", f a.energy] in
     Ground_Pprz.message_send my_id "ENGINE_STATUS" values;
 
     let values = ["ac_id", Pprz.String ac; "mode", Pprz.Int a.ap_mode; "v_mode", Pprz.Int a.ap_altitude] in
-    Ground_Pprz.message_send my_id "AP_STATUS" values 
+    Ground_Pprz.message_send my_id "AP_STATUS" values;
+
+    send_cam_status a
   with
     Not_found -> prerr_endline ac
+  | x -> prerr_endline (Printexc.to_string x)
       
 let new_aircraft = fun id ->
-    { port = id ; roll = 0.; pitch = 0.; east = 0.; north = 0.; nav_ref_east = 0.; nav_ref_north = 0.; desired_east = 0.; desired_north = 0.; gspeed=0.; course = 0.; alt=0.; climb=0.; cur_block=0; cur_stage=0; throttle = 0.; rpm = 0.; temp = 0.; bat = 0.; amp = 0.; energy = 0.; ap_mode=0; ap_altitude=0; if_calib_mode=0; mcu1_status=0; lls_calib=0 }
+    { id = id ; roll = 0.; pitch = 0.; nav_ref_east = 0.; nav_ref_north = 0.; desired_east = 0.; desired_north = 0.; gspeed=0.; course = 0.; alt=0.; climb=0.; cur_block=0; cur_stage=0; throttle = 0.; rpm = 0.; temp = 0.; bat = 0.; amp = 0.; energy = 0.; ap_mode=0; ap_altitude=0; if_calib_mode=0; mcu1_status=0; lls_calib=0;
+      pos = { utm_x = 0.; utm_y = 0.; utm_zone = 0 };
+      cam = { phi = 0.; theta = 0. }
+    }
     
 let register_aircraft = fun name a ->
   Hashtbl.add aircrafts name a;
@@ -242,6 +276,8 @@ let _ =
   Arg.parse (options)
     (fun x -> Printf.fprintf stderr "Warning: Don't do anythig with %s\n" x)
     "Usage: ";
+
+  Srtm.add_path srtm_path;
 
   Ivy.init "Paparazzi receive" "READY" (fun _ _ -> ());
   Ivy.start !ivy_bus;
