@@ -63,8 +63,8 @@ extern float carrot_x, carrot_y;
 
 extern bool_t in_circle;
 extern bool_t in_segment;
-extern float circle_x, circle_y, circle_radius;
-extern float segment_x_1, segment_y_1, segment_x_2, segment_y_2;
+extern int16_t circle_x, circle_y, circle_radius;
+extern int16_t segment_x_1, segment_y_1, segment_x_2, segment_y_2;
 
 
 void nav_update(void);

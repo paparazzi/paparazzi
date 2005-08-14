@@ -38,25 +38,17 @@ float estimator_x;
 float estimator_y;
 float estimator_z;
 
+float estimator_z_dot;
+
 /* attitude in radian */
 float estimator_phi;
 float estimator_psi;
 float estimator_theta;
 
-/* speed in meters per second */
-float estimator_x_dot;
-float estimator_y_dot;
-float estimator_z_dot;
-
-/* rotational speed in radians per second */
-float estimator_phi_dot;
-float estimator_psi_dot;
-float estimator_theta_dot;
-
 /* flight time in seconds */
 uint16_t estimator_flight_time; 
 /* flight time in seconds */
-float estimator_t; 
+float estimator_t;
 
 /* horizontal speed in module and dir */
 float estimator_hspeed_mod;
@@ -105,12 +97,6 @@ int8_t angles[NB_HEIGHTS] = HEIGHTS;
 //FIXME is this true ?? estimator_vx = estimator_hspeed_mod * cos(estimator_hspeed_dir);
 //FIXME is this true ?? estimator_vy = estimator_hspeed_mod * sin(estimator_hspeed_dir);
 
-#define EstimatorSetRotSpeed(phi_dot, psi_dot, theta_dot) { \
-  estimator_phi_dot = phi_dot; \
-  estimator_psi_dot = psi_dot; \
-  estimator_theta_dot = theta_dot; \
-}
-
 inline void estimator_update_lls( void );
 
 void estimator_init( void ) {
@@ -120,8 +106,6 @@ void estimator_init( void ) {
   EstimatorSetAtt (0., 0., 0);
 
   EstimatorSetSpeedPol ( 0., 0., 0.);
-
-  EstimatorSetRotSpeed (0., 0., 0.);
 
   estimator_flight_time = 0;
 
@@ -179,13 +163,12 @@ void estimator_update_ir_estim( void ) {
   if (initialized) {
     float dt = gps_ftow - last_t;
     if (dt > 0.1) { // Against division by zero
-      float phi = (estimator_hspeed_dir - last_hspeed_dir); 
-      NORM_RAD_ANGLE(phi);
-      phi = phi/dt*NOMINAL_AIRSPEED/g; /* tan linearized */
-      NORM_RAD_ANGLE(phi);
+      float dpsi = (estimator_hspeed_dir - last_hspeed_dir); 
+      NORM_RAD_ANGLE(dpsi);
+      estimator_rad = dpsi/dt*NOMINAL_AIRSPEED/g; /* tan linearized */
+      NORM_RAD_ANGLE(estimator_rad);
       estimator_ir = (float)ir_roll;
-      estimator_rad = phi;
-      float absphi = fabs(phi);
+      float absphi = fabs(estimator_rad);
       if (absphi < 1.0 && absphi > 0.05 && (- ir_contrast/2 < ir_roll && ir_roll < ir_contrast/2)) {
 	sum_xy = estimator_rad * estimator_ir + RHO * sum_xy;
 	sum_xx = estimator_ir * estimator_ir + RHO * sum_xx;

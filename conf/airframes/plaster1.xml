@@ -51,6 +51,7 @@
     <define name="NAV_PITCH" value="0."/>
   </section>
   <section name="BAT" channel="3">
+    <define name="MILLIAMP_PER_PERCENT" value="2.16"/>
     <define name="VOLTAGE_ADC_A" value="0.016892"/>
     <define name="VOLTAGE_ADC_B" value="0.083604"/>
     <define name="VoltageOfAdc(adc)" value="(VOLTAGE_ADC_A * adc + VOLTAGE_ADC_B)"/>

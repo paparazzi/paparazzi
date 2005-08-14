@@ -116,8 +116,8 @@ let one_page = fun (notebook:GPack.notebook) bind m ->
   let time = GMisc.label ~text:"___" ~packing:h#pack () in
   notebook#append_page ~tab_label:h#coerce v#coerce;
   let fields = 
-    List.fold_right
-      (fun f rest ->
+    List.fold_left
+      (fun rest f ->
 	try
 	  let unit = try "("^Xml.attrib f "unit"^")" with _ -> "" in
 	  let name = Printf.sprintf "%s %s %s: " (ExtXml.attrib f "type") (Xml.attrib f "name") unit in
@@ -133,8 +133,8 @@ let one_page = fun (notebook:GPack.notebook) bind m ->
 	    fprintf stderr "Warning: Ignoring '%s'\n%!" (Xml.to_string f);
 	    rest
       )
-      (Xml.children m)
       []
+      (Xml.children m)
   in
   let n = List.length fields in
   let last_update = ref (Unix.gettimeofday ()) in
@@ -146,7 +146,7 @@ let one_page = fun (notebook:GPack.notebook) bind m ->
     if t > !last_update +. update_delay then begin
       last_update := t;
       try
-	List.iter2 (fun f x -> f x) fields values;
+	List.iter2 (fun f x -> f x) fields (List.rev values);
 	
 	led#set_pixmap green_led;
  	ignore (GMain.Timeout.add led_delay (fun () -> led#set_pixmap yellow_led; false))

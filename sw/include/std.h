@@ -44,6 +44,7 @@ typedef uint8_t bool_t;
 
 
 #define DegOfRad(x) ((x) / M_PI * 180.)
+#define DeciDegOfRad(x) ((x) / M_PI * 1800.)
 #define RadOfDeg(x) ((x)/180. * M_PI)
 
 #define Min(x,y) (x < y ? x : y)

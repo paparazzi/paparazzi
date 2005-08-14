@@ -101,7 +101,7 @@
 
     <session name="soft sim 1">
       <program name="receive"/>     
-      <program name="sim"><arg flag="-a" constant="Thon1"/></program>
+      <program name="sim"><arg flag="-a" constant="Thon2"/></program>
       <program name="map 2d ml"/>
     </session>
 

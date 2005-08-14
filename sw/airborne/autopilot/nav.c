@@ -57,8 +57,8 @@ static float circle_count;
 static bool_t new_circle;
 bool_t in_circle = FALSE;
 bool_t in_segment = FALSE;
-float circle_x, circle_y, circle_radius;
-float segment_x_1, segment_y_1, segment_x_2, segment_y_2;
+int16_t circle_x, circle_y, circle_radius;
+int16_t segment_x_1, segment_y_1, segment_x_2, segment_y_2;
 
 #define RcRoll(travel) (from_fbw.channels[RADIO_ROLL]* (float)travel /(float)MAX_PPRZ)
 

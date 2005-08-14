@@ -187,24 +187,24 @@ let resize_track = fun ac track ->
   | Some s -> track#resize (int_of_string s)
 	 
 
-
+let one_new_ac = fun (geomap:MapCanvas.widget) ac ->
+  if not (Hashtbl.mem live_aircrafts ac) then begin
+    let ac_menu = geomap#factory#add_submenu ac in
+    let ac_menu_fact = new GMenu.factory ac_menu in
+    let fp = ac_menu_fact#add_check_item "Fligh Plan" ~active:false in
+    ignore (fp#connect#toggled (fun () -> show_mission geomap ac fp#active));
+    let color = new_color () in
+    let track = new MapTrack.track ~name:ac ~color:color geomap in
+    ignore (ac_menu_fact#add_item "Clear Track" ~callback:(fun () -> track#clear));
+    ignore (ac_menu_fact#add_item "Resize Track" ~callback:(fun () -> resize_track ac track));
+    Hashtbl.add live_aircrafts ac { track = track; color = color; fp_group = None }
+  end
+      
+      
 let live_aircrafts_msg = fun (geomap:MapCanvas.widget) acs ->
   let acs = Pprz.string_assoc "ac_list" acs in
   let acs = Str.split list_separator acs in
-  List.iter
-    (fun ac ->
-      if not (Hashtbl.mem live_aircrafts ac) then begin
-	let ac_menu = geomap#factory#add_submenu ac in
-	let ac_menu_fact = new GMenu.factory ac_menu in
-	let fp = ac_menu_fact#add_check_item "Fligh Plan" ~active:false in
-	ignore (fp#connect#toggled (fun () -> show_mission geomap ac fp#active));
-	let color = new_color () in
-	let track = new MapTrack.track ~name:ac ~color:color geomap in
-	ignore (ac_menu_fact#add_item "Clear Track" ~callback:(fun () -> track#clear));
-	ignore (ac_menu_fact#add_item "Resize Track" ~callback:(fun () -> resize_track ac track));
-	Hashtbl.add live_aircrafts ac { track = track; color = color; fp_group = None }
-      end)
-    acs
+  List.iter (one_new_ac geomap) acs
 
 
 let listen_flight_params = fun () ->
@@ -213,7 +213,7 @@ let listen_flight_params = fun () ->
     try
       let ac = Hashtbl.find live_aircrafts ac_id in
       let a = fun s -> Pprz.float_assoc s vs in
-      aircraft_pos_msg ac.track (a "east") (a "north") (a "heading")
+      aircraft_pos_msg ac.track (a "east") (a "north") (a "course")
     with Not_found -> ()
   in
   ignore (Ground_Pprz.message_bind "FLIGHT_PARAM" get_fp);
@@ -261,7 +261,9 @@ let _ =
     load_map geomap xml_map_file
   end;
 
-  ignore (Ground_Pprz.message_bind "AIRCRAFTS" (fun _sender vs -> live_aircrafts_msg geomap vs));
+  ignore (Glib.Timeout.add 1000 (fun () -> Ground_Pprz.message_req "map2d" "AIRCRAFTS" [] (fun _sender vs -> live_aircrafts_msg geomap vs); false));
+
+  ignore (Ground_Pprz.message_bind "NEW_AIRCRAFT" (fun _sender vs -> one_new_ac geomap (Pprz.string_assoc "ac_id" vs)));
 
   listen_flight_params ();
 

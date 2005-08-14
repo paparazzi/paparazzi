@@ -76,6 +76,8 @@ float slider_1_val, slider_2_val;
 
 bool_t launch = FALSE;
 
+float energy; /** Fuel consumption */
+
 
 #define Min(x, y) (x < y ? x : y)
 #define Max(x, y) (x > y ? x : y)
@@ -91,36 +93,6 @@ bool_t launch = FALSE;
 
 /** Maximal delay for calibration */
 #define MAX_DELAY_FOR_CALIBRATION 10
-
-/** \fn inline void ground_calibrate( void )
- *  \brief Calibrate contrast if paparazzi mode is
- * set to auto1 before MAX_DELAY_FOR_CALIBRATION secondes */
-/**User must put verticaly the uav (nose bottom) and push
- * radio roll stick to get new calibration
- * If not, the default calibration is used.
- */
-inline void ground_calibrate( void ) {
-  static uint8_t calib_status = NO_CALIB;
-  switch (calib_status) {
-  case NO_CALIB:
-    if (cputime < MAX_DELAY_FOR_CALIBRATION && pprz_mode == PPRZ_MODE_AUTO1 ) {
-      calib_status = WAITING_CALIB_CONTRAST;
-      DOWNLINK_SEND_CALIB_START();
-    }
-    break;
-  case WAITING_CALIB_CONTRAST:
-    if (STICK_PUSHED(from_fbw.channels[RADIO_ROLL])) {
-      ir_gain_calib();
-      estimator_rad_of_ir = ir_rad_of_ir;
-      DOWNLINK_SEND_RAD_OF_IR(&estimator_ir, &estimator_rad, &estimator_rad_of_ir, &ir_roll_neutral, &ir_pitch_neutral);
-      calib_status = CALIB_DONE;
-      DOWNLINK_SEND_CALIB_CONTRAST(&ir_contrast);
-    }
-    break;
-  case CALIB_DONE:
-    break;
-  }
-}
 
 
 /** \fn inline uint8_t pprz_mode_update( void )
@@ -231,7 +203,7 @@ uint8_t ac_ident = AC_ID;
 /** \def PERIODIC_SEND_BAT()
  *  @@@@@ A FIXER @@@@@
  */
-#define PERIODIC_SEND_BAT() DOWNLINK_SEND_BAT(&vsupply, &estimator_flight_time, &low_battery, &block_time, &stage_time)
+#define PERIODIC_SEND_BAT() { uint16_t e = energy; DOWNLINK_SEND_BAT(&desired_gaz, &vsupply, &estimator_flight_time, &low_battery, &block_time, &stage_time, &e); }
 /** \def EventPos(_cpt, _channel, _event)
  *  @@@@@ A FIXER @@@@@
  */
@@ -239,7 +211,12 @@ uint8_t ac_ident = AC_ID;
 /** \def EventPos(_cpt, _channel, _event)
  *  @@@@@ A FIXER @@@@@
  */
-#define PERIODIC_SEND_ATTITUDE() DOWNLINK_SEND_ATTITUDE(&estimator_phi, &estimator_psi, &estimator_theta);  
+#define PERIODIC_SEND_ATTITUDE() { \
+  int8_t phi = DegOfRad(estimator_phi); \
+  int8_t psi = DegOfRad(estimator_psi); \
+  int8_t theta = DegOfRad(estimator_theta); \
+  DOWNLINK_SEND_ATTITUDE(&phi, &psi, &theta); \
+}
 /** \def EventPos(_cpt, _channel, _event)
  *  @@@@@ A FIXER @@@@@
  */
@@ -248,9 +225,8 @@ uint8_t ac_ident = AC_ID;
  *  @@@@@ A FIXER @@@@@
  */
 #define PERIODIC_SEND_STABILISATION() DOWNLINK_SEND_STABILISATION(&roll_pgain, &pitch_pgain);
-#define PERIODIC_SEND_CLIMB_PID() DOWNLINK_SEND_CLIMB_PID(&desired_gaz, &desired_climb, &climb_sum_err, &climb_pgain);
 #define PERIODIC_SEND_PPRZ_MODE() DOWNLINK_SEND_PPRZ_MODE(&pprz_mode, &vertical_mode, &inflight_calib_mode, &mcu1_status, &ir_estim_mode);
-#define PERIODIC_SEND_DESIRED() DOWNLINK_SEND_DESIRED(&desired_roll, &desired_pitch, &desired_x, &desired_y, &desired_altitude);
+#define PERIODIC_SEND_DESIRED() DOWNLINK_SEND_DESIRED(&desired_roll, &desired_pitch, &desired_x, &desired_y, &desired_altitude, &desired_climb);
 #define PERIODIC_SEND_PITCH() DOWNLINK_SEND_PITCH(&ir_pitch, &ir_pitch_neutral, &ir_gain);
 
 #define PERIODIC_SEND_NAVIGATION_REF()  DOWNLINK_SEND_NAVIGATION_REF(&nav_utm_east0, &nav_utm_north0, &nav_utm_zone0);
@@ -260,6 +236,41 @@ uint8_t ac_ident = AC_ID;
 #else
 #define PERIODIC_SEND_SETTINGS()
 #endif
+
+#define SEND_RAD_OF_IR() { int16_t rad = DeciDegOfRad(estimator_rad); DOWNLINK_SEND_RAD_OF_IR(&ir_roll, &rad, &estimator_rad_of_ir, &ir_roll_neutral, &ir_pitch_neutral);} 
+
+#define PERIODIC_SEND_CALIBRATION() DOWNLINK_SEND_CALIBRATION(&climb_sum_err, &climb_pgain, &course_pgain)
+
+
+/** \fn inline void ground_calibrate( void )
+ *  \brief Calibrate contrast if paparazzi mode is
+ * set to auto1 before MAX_DELAY_FOR_CALIBRATION secondes */
+/**User must put verticaly the uav (nose bottom) and push
+ * radio roll stick to get new calibration
+ * If not, the default calibration is used.
+ */
+inline void ground_calibrate( void ) {
+  static uint8_t calib_status = NO_CALIB;
+  switch (calib_status) {
+  case NO_CALIB:
+    if (cputime < MAX_DELAY_FOR_CALIBRATION && pprz_mode == PPRZ_MODE_AUTO1 ) {
+      calib_status = WAITING_CALIB_CONTRAST;
+      DOWNLINK_SEND_CALIB_START();
+    }
+    break;
+  case WAITING_CALIB_CONTRAST:
+    if (STICK_PUSHED(from_fbw.channels[RADIO_ROLL])) {
+      ir_gain_calib();
+      estimator_rad_of_ir = ir_rad_of_ir;
+      SEND_RAD_OF_IR();
+      calib_status = CALIB_DONE;
+      DOWNLINK_SEND_CALIB_CONTRAST(&ir_contrast);
+    }
+    break;
+  case CALIB_DONE:
+    break;
+  }
+}
 
 
 /** \fn inline void reporting_task( void )
@@ -273,7 +284,7 @@ inline void reporting_task( void ) {
   if (boot) {
       DOWNLINK_SEND_BOOT(&version);
       PERIODIC_SEND_IDENT();
-      DOWNLINK_SEND_RAD_OF_IR(&estimator_ir, &estimator_rad, &estimator_rad_of_ir, &ir_roll_neutral, &ir_pitch_neutral);
+      SEND_RAD_OF_IR();
       boot = FALSE;
   }
   /** then report periodicly */
@@ -374,7 +385,10 @@ void navigation_task( void ) {
   else
     nav_update();
   
-  DOWNLINK_SEND_NAVIGATION(&nav_block, &nav_stage, &estimator_x, &estimator_y, &desired_course, &dist2_to_wp, &course_pgain, &dist2_to_home);
+  int16_t pos_x = estimator_x;
+  int16_t pos_y = estimator_y;
+  int16_t d_course = DeciDegOfRad(desired_course);
+  DOWNLINK_SEND_NAVIGATION(&nav_block, &nav_stage, &pos_x, &pos_y, &d_course, &dist2_to_wp, &dist2_to_home);
 
   int16_t x = target_x;
   int16_t y = target_y;
@@ -395,11 +409,9 @@ void navigation_task( void ) {
       desired_gaz = nav_desired_gaz;
     desired_pitch = nav_pitch;
     if (low_battery || (!estimator_flight_time && !launch))
-      desired_gaz = 0.;
+      desired_gaz = 0;
   }  
-
-
-
+  energy += (float)desired_gaz / (MAX_PPRZ * MILLIAMP_PER_PERCENT / 4.);
 }
 
 #define PERIOD (256. * 1024. / CLOCK / 1000000.)
@@ -462,11 +474,13 @@ inline void periodic_task( void ) {
     navigation_task();
     break;
     /*  default: */
-	case 1:
-		if (in_circle) {
-			DOWNLINK_SEND_CIRCLE(&circle_x, &circle_y, &circle_radius); }
-		if (in_segment) {
-			DOWNLINK_SEND_SEGMENT(&segment_x_1, &segment_y_1, &segment_x_2, &segment_y_2); }
+  case 1:
+    if (in_circle) {
+      DOWNLINK_SEND_CIRCLE(&circle_x, &circle_y, &circle_radius); 
+    }
+    if (in_segment) {
+      DOWNLINK_SEND_SEGMENT(&segment_x_1, &segment_y_1, &segment_x_2, &segment_y_2); 
+    }
   }
   switch (_20Hz) {
   case 0:
@@ -511,7 +525,7 @@ inline void periodic_task( void ) {
 void use_gps_pos( void ) {
   DOWNLINK_SEND_GPS(&gps_mode, &gps_utm_east, &gps_utm_north, &gps_fcourse, &gps_falt, &gps_fspeed,&gps_fclimb, &gps_ftow, &gps_utm_zone);
   estimator_update_state_gps();
-  DOWNLINK_SEND_RAD_OF_IR(&estimator_ir, &estimator_rad, &estimator_rad_of_ir, &ir_roll_neutral, &ir_pitch_neutral);
+  SEND_RAD_OF_IR();
   if (!estimator_flight_time && (estimator_hspeed_mod > MIN_SPEED_FOR_TAKEOFF)) {
     estimator_flight_time = 1;
     launch = TRUE; /* Not set in non auto launch */

@@ -20,17 +20,17 @@
    </message>
 
   <message name="RAD_OF_IR" ID="0x05">
-    <field name="ir" type="float" format="%.0f"></field>
-    <field name="rad" type="float" format="%.2f"></field>
+    <field name="ir" type="int16"></field>
+    <field name="rad" type="int16" unit="decideg"></field>
     <field name="rad_of_ir" type="float" format="%.4f"></field>
     <field name="ir_roll_ntrl" type="int16"></field>
     <field name="ir_pitch_ntrl" type="int16"></field>
   </message>
 
   <message name="ATTITUDE" ID="0x06" period="0.5" >
-    <field name="phi" type="float" format="%.2f" unit="rad"></field>
-    <field name="psi" type="float" format="%.2f" unit="rad"></field>
-    <field name="theta" type="float" format="%.2f" unit="rad"></field>
+    <field name="phi" type="int8" unit="deg"></field>
+    <field name="psi" type="int8" unit="deg"></field>
+    <field name="theta" type="int8" unit="deg"></field>
   </message>
 
   <message name="ADC" ID="0x07" period="0.5" >
@@ -59,12 +59,11 @@
   <message name="NAVIGATION" ID="0x0A">
     <field name="cur_block" type="uint8"></field>
     <field name="cur_stage" type="uint8"></field>
-    <field name="pos_x" type="float" format="%.1f"></field>
-    <field name="pos_y" type="float" format="%.1f"></field>
-    <field name="desired_course" type="float" format="%.3f"></field>
-    <field name="dist2_wp" type="float" format="%.1f"></field>
-    <field name="course_pgain" type="float" format="%.3f"></field>
-    <field name="dist2_home" type="float" format="%.1f"></field>
+    <field name="pos_x" type="int16" unit="m"></field>
+    <field name="pos_y" type="int16" unit="m"></field>
+    <field name="desired_course" type="int16" unit="decideg"></field>
+    <field name="dist2_wp" type="float" format="%.1f" unit="m^2"></field>
+    <field name="dist2_home" type="float" format="%.1f" unit="m^2"></field>
   </message>
 
   <message name="PPRZ_MODE" ID="0x0B" period="5" >
@@ -76,11 +75,13 @@
   </message>
 
   <message name="BAT" ID="0x0C" period="2" >
+    <field name="desired_gaz" type="int16" unit="pprz"></field>
     <field name="voltage" type="uint8" unit="1e-1V"></field>
     <field name="flight_time" type="uint16" unit="s"></field>
     <field name="status_battery" type="uint8" values="LOW|OK"></field>
     <field name="block_time" type="uint16" unit="s"></field>
     <field name="stage_time" type="uint16" unit="s"></field>
+    <field name="energy" type="uint16" unit="mAh"/>
   </message>
 
   <message name="DEBUG" ID="0x0D" period="5" >
@@ -91,14 +92,13 @@
     <field name="ppm_rate" type="uint8"></field>
   </message> 
 
-  <message name="CLIMB_PID" ID="0x0E" period="2" >
-    <field name="gaz" type="int16" unit="pprz"></field>
-    <field name="climb" type="float" format="%.1f"></field>
-    <field name="sum_err" type="float" format="%.1f"></field>
-    <field name="p_gain" type="float" format="%.3f"></field> 
+  <message name="CALIBRATION" ID="0x0E" period="2">
+    <field name="climb_sum_err" type="float" format="%.1f"></field>
+    <field name="climb_pgain" type="float" format="%.3f"></field> 
+    <field name="course_pgain" type="float" format="%.3f"></field>
   </message>
 
-  <message name="SETTINGS" ID="0x0F" period="0.5" >
+  <message name="SETTINGS" ID="0x0F" period="0.5">
     <field name="mode" type="uint8" values="DOWN|NEUTRAL|UP"></field>
     <field name="slider_1_val" type="float"></field>
     <field name="slider_2_val" type="float"></field>
@@ -110,6 +110,7 @@
     <field name="desired_x" type="float" format="%.0f"/>
     <field name="desired_y" type="float" format="%.0f"/>
     <field name="desired_altitude" type="float" format="%.0f"/>
+    <field name="desired_climb" type="float" format="%.1f"></field>
   </message>
 
   <message name="IMU" ID="0x11">
@@ -150,18 +151,18 @@
      <field name="target_y" type="int16" unit="m"/>
   </message>
 	
-	<message name="CIRCLE" ID="0x16">
-		<field name="center_x" type="float" unit="m" format="%.0f"/>
-		<field name="center_y" type="float" unit="m" format="%.0f"/>
-		<field name="radius" type="float" unit="m" format="%.0f"/>
-	</message>
+  <message name="CIRCLE" ID="0x16">
+     <field name="center_x" type="int16" unit="m"/>
+     <field name="center_y" type="int16" unit="m"/>
+     <field name="radius" type="int16" unit="m"/>
+     </message>
 	
-	<message name="SEGMENT" ID="0x17">
-		<field name="segment_x_1" type="float" unit="m" format="%.0f"/>
-		<field name="segment_y_1" type="float" unit="m" format="%.0f"/>
-		<field name="segment_x_2" type="float" unit="m" format="%.0f"/>
-		<field name="segment_y_2" type="float" unit="m" format="%.0f"/>
-	</message>
+   <message name="SEGMENT" ID="0x17">
+      <field name="segment_x_1" type="int16" unit="m"/>
+      <field name="segment_y_1" type="int16" unit="m"/>
+      <field name="segment_x_2" type="int16" unit="m"/>
+      <field name="segment_y_2" type="int16" unit="m"/>
+  </message>
 </class>
 
 <class name="telemetry_fbw" ID="0X41">
@@ -289,7 +290,7 @@
     <field name="east"    type="float" unit="m"/>
     <field name="north"   type="float" unit="m"/>
     <field name="speed"   type="float" unit="m/s"/>
-    <field name="heading" type="float" unit="deg"/>
+    <field name="course" type="float" unit="deg"/>
     <field name="alt"     type="float" unit="m"/>
     <field name="climb"   type="float" unit="m/s"/>
   </message>

@@ -26,6 +26,7 @@
 #define PID_H
 
 #include <inttypes.h>
+#include "link_autopilot.h"
 
 #define NORM_RAD_ANGLE(x) { \
     while (x > M_PI) x -= 2 * M_PI; \
@@ -50,7 +51,7 @@ extern const float climb_pgain;
 extern const float climb_igain;
 extern float climb_sum_err;
 extern float desired_climb, pre_climb;
-extern int16_t desired_gaz, desired_aileron, desired_elevator;
+extern pprz_t desired_gaz, desired_aileron, desired_elevator;
 
 extern float pitch_of_vz_pgain;
 extern float pitch_of_vz;

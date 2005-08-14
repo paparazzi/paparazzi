@@ -118,43 +118,41 @@ let log_and_parse = fun log ac_name a msg values ->
   let value = fun x -> try List.assoc x values with Not_found -> failwith (sprintf "Error: field '%s' not found\n" x) in
   let fvalue = fun x -> fvalue (value x)
   and ivalue = fun x -> ivalue (value x) in
-  match msg.Pprz.name with
-    "GPS" ->
-      a.pos <- { utm_x = fvalue "utm_east" /. 100.;
-		 utm_y = fvalue "utm_north" /. 100.;
-		 utm_zone = ivalue "utm_zone" };
-      a.gspeed  <- fvalue "speed";
-      a.course  <- fvalue "course";
-      a.alt     <- fvalue "alt";
-      a.climb   <- fvalue "climb"
-  | "DESIRED" ->
-      a.desired_east <- fvalue "desired_x";
-      a.desired_north <- fvalue "desired_y"
-  | "NAVIGATION_REF" ->
-      a.nav_ref_east <- fvalue "utm_east";
-      a.nav_ref_north <- fvalue "utm_north"
-  | "ATTITUDE" ->
-      a.roll <- fvalue "phi";
-      a.pitch <- fvalue "theta"
-  | "NAVIGATION" -> 
-      a.cur_block <- ivalue "cur_block";
-      a.cur_stage <- ivalue "cur_stage"
-  | "CLIMB_PID" ->
-      a.throttle <- fvalue "gaz" /. 9600. *. 100.;
-      a.rpm <- a.throttle *. 100.
-  | "BAT" ->
-      a.bat <- fvalue "voltage" /. 10.
-  | "PPRZ_MODE" ->
-      a.ap_mode <- ivalue "ap_mode";
-      a.ap_altitude <- ivalue "ap_altitude";
-      a.if_calib_mode <- ivalue "if_calib_mode";
-      a.mcu1_status <- ivalue "mcu1_status";
-      a.lls_calib <- ivalue "lls_calib"
-  | "CAM" ->
-      a.cam.phi <- (Deg>>Rad) (fvalue  "phi");
-      a.cam.theta <- (Deg>>Rad) (fvalue  "theta");
-  | _ -> ()
-
+    match msg.Pprz.name with
+      "GPS" ->
+	a.pos <- { utm_x = fvalue "utm_east" /. 100.;
+		   utm_y = fvalue "utm_north" /. 100.;
+		   utm_zone = ivalue "utm_zone" };
+	a.gspeed  <- fvalue "speed";
+	a.course  <- fvalue "course";
+	a.alt     <- fvalue "alt";
+	a.climb   <- fvalue "climb"
+    | "DESIRED" ->
+	a.desired_east <- fvalue "desired_x";
+	a.desired_north <- fvalue "desired_y"
+    | "NAVIGATION_REF" ->
+	a.nav_ref_east <- fvalue "utm_east";
+	a.nav_ref_north <- fvalue "utm_north"
+    | "ATTITUDE" ->
+	a.roll <- (Deg>>Rad) (fvalue "phi");
+	a.pitch <- (Deg>>Rad) (fvalue "theta")
+    | "NAVIGATION" -> 
+	a.cur_block <- ivalue "cur_block";
+	a.cur_stage <- ivalue "cur_stage"
+    | "BAT" ->
+	a.throttle <- fvalue "desired_gaz" /. 9600. *. 100.;
+	a.rpm <- a.throttle *. 100.;
+	a.bat <- fvalue "voltage" /. 10.
+    | "PPRZ_MODE" ->
+	a.ap_mode <- ivalue "ap_mode";
+	a.ap_altitude <- ivalue "ap_altitude";
+	a.if_calib_mode <- ivalue "if_calib_mode";
+	a.mcu1_status <- ivalue "mcu1_status";
+	a.lls_calib <- ivalue "lls_calib"
+    | "CAM" ->
+	a.cam.phi <- (Deg>>Rad) (fvalue  "phi");
+	a.cam.theta <- (Deg>>Rad) (fvalue  "theta");
+    | _ -> ()
 
 (** Callback for a message from a registered A/C *)
 let ac_msg = fun log ac_name a m ->
@@ -165,6 +163,7 @@ let ac_msg = fun log ac_name a m ->
   with
     Pprz.Unknown_msg_name x ->
       fprintf stderr "Unknown message %s from %s: %s\n" x ac_name m
+  | x -> prerr_endline (Printexc.to_string x)
 
 let soi = string_of_int
 
@@ -187,7 +186,7 @@ let send_aircraft_msg = fun ac ->
 		  "east", f a.pos.utm_x;
 		  "north", f a.pos.utm_y;
 		  "speed", f a.gspeed;
-		  "heading", f (Geometry_2d.rad2deg a.course);
+		  "course", f (Geometry_2d.rad2deg a.course);
 		  "alt", f a.alt;
 		  "climb", f a.climb] in
     Ground_Pprz.message_send my_id "FLIGHT_PARAM" values;
@@ -287,14 +286,6 @@ let _ =
 
   (* Waits for new simulated aircrafts *)
   listen_acs log;
-
-  (* Sends periodically alive aircrafts *)
-  let sending = fun () ->
-    let vs = send_aircrafts_msg "event" [] in
-    Ground_Pprz.message_send my_id "AIRCRAFTS" vs;
-    true
-  in
-  ignore (Glib.Timeout.add aircrafts_msg_period sending);
 
   (* Waits for client requests on the Ivy bus *)
   ivy_server ();
