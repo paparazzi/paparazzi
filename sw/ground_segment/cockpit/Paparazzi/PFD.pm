@@ -76,6 +76,15 @@ sub selected_ac {
 					$self->configure('-'.$field, $new_value);
 				      }]);
   }
+
+  @fields = (['mode', '-ap_mode'],
+	     ['course', '-heading'],
+	    );
+  foreach my $field ( @fields ) {
+    $new_ac->attach($self, $field->[0], [sub { my ($self, $aircraft, $event, $new_value) = @_;
+					$self->configure($field->[1], $new_value);
+				      }]);
+  }
 }
 
 #sub foo_cbk {

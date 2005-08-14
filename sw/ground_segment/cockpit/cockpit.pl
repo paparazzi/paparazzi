@@ -20,6 +20,7 @@ use constant APP_NAME => "Cockpit";
 use constant MESSAGE_WHEN_READY => APP_NAME.': READY';
 
 use Paparazzi::IvyProtocol;
+use Paparazzi::AircraftsManager;
 use Paparazzi::Aircraft;
 use Paparazzi::PFD;
 use Paparazzi::ND;
@@ -56,7 +57,13 @@ sub completeinit {
   $self->{wind_dir} = 0.;
   $self->{wind_speed} = 0.;
   $self->build_gui();
-  $self->start_ivy();
+  my $protocol_file = Paparazzi::Environment::get_config_file("messages.xml");
+  Paparazzi::IvyProtocol::init(-file      => $protocol_file,
+			       -ivy_bus   => $options->{ivy_bus},
+			       -app_name  => APP_NAME,
+			       -loop_mode => 'TK',
+			    );
+  $self->{aircrafts_manager} = Paparazzi::AircraftsManager->new(-listen_to_all => 1);
   $self->{mw}->after(500, [\&on_foo, $self]);
 }
 
@@ -102,85 +109,31 @@ sub build_gui {
 
 
 
+#    $self->{strip_panel}->add_strip($aircraft);
 
-sub start_ivy {
-  my ($self) = @_;
-  my $protocol_file = Paparazzi::Environment::get_config_file("messages.xml");
-  Paparazzi::IvyProtocol::init(-file      => $protocol_file,
-			       -ivy_bus   => $options->{ivy_bus},
-			       -app_name  => APP_NAME,
-			       -loop_mode => 'TK',
-			    );
-
-
-# Paparazzi::IvyProtocol::bind_msg("ground", "ground", "FLIGHT_PARAM", {aircraft_id => '1'}, [\&ivyOnFlightParam, $self]);
-
-}
 
 sub on_foo {
   my ($self) = @_;
   print "in ivy_on_foo\n"; # if (COCKPIT_DEBUG);
-  Paparazzi::IvyProtocol::send_request("ground", "ground", "AIRCRAFTS", {}, [\&ivy_on_aircrafts, $self]);
+  $self->{aircrafts_manager}->start();
   Paparazzi::IvyProtocol::bind_msg("ground", "ground", "SELECTED", {}, [\&ivy_on_selected, $self]);
 }
 
-sub ivy_on_aircrafts {
-  print "in ivyOnAircrafts\n"; # if (COCKPIT_DEBUG);
-  my ($sender_name, $msg_class, $msg_name, $fields, $self) = @_;
-  use Data::Dumper;
-  print "fields ".Dumper($fields)."\n";
-  my $csv = Text::CSV->new();
-  $csv->parse($fields->{ac_list});
-  my @ac_list = $csv->fields();
-  #  my @added_ac = Utils::diff_array(\@ac_list, $self->{aircrafts});
-  #  my @removed_ac = Utils::diff_array($self->{aircrafts}, \@ac_list);
-  foreach my $ac (@ac_list) {
-    Paparazzi::IvyProtocol::send_request("ground", "ground", "CONFIG", {ac_id => $ac}, [\&ivy_on_config, $self]) unless $ac eq "";
-    my $aircraft = Paparazzi::Aircraft->new(-ac_id => $ac);
-    $self->{strip_panel}->add_strip($aircraft);
-    $self->{aircrafts}->{$ac} = $aircraft;
-  }
-}
 
-sub ivy_on_config {
-  my ($sender_name, $msg_class, $msg_name, $fields, $self) = @_;
-  print "in ivy_on_config\n"; # if (COCKPIT_DEBUG);
-  use Data::Dumper;
-  print "fields ".Dumper($fields)."\n";
-  my $ac_id = $fields->{ac_id};
-  $self->{aircrafts}->{$ac_id}->configure('-flight_plan' => $fields->{flight_plan});
-}
 
 sub ivy_on_selected {
   my ($sender_name, $msg_class, $msg_name, $fields, $self) = @_;
   print "in ivy_on_selected\n"; # if (COCKPIT_DEBUG);
-  my @ac_events = ( ['FLIGHT_PARAM',  \&on_ac_msg],
-		    ['NAV_STATUS',    \&on_ac_msg],
-		    ['AP_STATUS',     \&on_ac_msg],
-#		    ['ENGINE_STATUS', \&ivyOnEngineStatus],
-#		    ['SATS', \&ivyOnSats],
-		  );
-  my $selected_ac = $fields->{aicraft_id};
-  $self->{selected_ac} = $selected_ac;
-  foreach my $event (@ac_events) {
-    Paparazzi::IvyProtocol::bind_msg("ground", "ground", $event->[0], {aircraft_id => $selected_ac},
-				     [$event->[1], $self]);
-  }
+ 
+  my $sel_ac_id = $fields->{aicraft_id};
+  $self->{selected_ac} = $sel_ac_id;
+  $self->{aircrafts_manager}->listen_to_ac($sel_ac_id);
   print "configuring pfd\n";
+  my $aircraft = $self->{aircrafts_manager}->get_aircraft_by_id($sel_ac_id);
   my $pfd = $self->{pfd};
-  $pfd->configure('-selected_ac', $self->{aircrafts}->{$selected_ac});
+  $pfd->configure('-selected_ac', $aircraft);
 }
 
-
-sub on_ac_msg {
-  my ($sender_name, $msg_class, $msg_name, $fields, $self) = @_;
-#  print "in on_ac_msg $msg_name\n";# if (COCKPIT_DEBUG);
-  my $ac_id = $fields->{ac_id};
-  my $aircraft = $self->{aircrafts}->{$ac_id};
-  delete $fields->{ac_id};
-#  print Dumper($fields);
-  $aircraft->configure(%{$fields});
-}
 
 sub onShowPage {
   my ($self, $component, $signal, $page) = @_;
