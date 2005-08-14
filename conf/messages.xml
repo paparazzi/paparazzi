@@ -350,6 +350,16 @@
       <field name="prres" type="float" unit="cm"/>
     </block>
   </message>
+
+  <!--
+    lls_mode
+    lls_value
+    ctrst_mode
+    ctrst_value
+    if_mode
+    rc_status
+ -->
+
 </class>
 
 </protocol>

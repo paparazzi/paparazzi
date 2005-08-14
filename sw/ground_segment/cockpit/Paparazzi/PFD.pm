@@ -69,7 +69,7 @@ sub selected_ac {
   print "###########";
   print "in PFD selected_ac $previous_ac $new_ac\n";
 
-  my @fields = ('roll', 'alt', 'speed', 'course');
+  my @fields = ('roll', 'alt', 'speed', 'alt', 'target_alt', 'target_heading', 'gps_mode');
   
   foreach my $field ( @fields ) {
     $new_ac->attach($self, $field, [sub { my ($self, $aircraft, $event, $new_value) = @_;

@@ -1149,41 +1149,6 @@ sub get_window_size {
 }
 
 
-###
-#
-# Projections
-#
-###
-
-
-
-#sub utm_of_geo {
-#  my ($pos_lon, $pos_lat) = @_;
-
-#  let ellipsoid =  ellipsoid_of geo in
-#  my $k0 = 0.9996;
-#  my $xs = 500000;
-#  my $ys = (phi > 0.) ? 0 : 10000000;
-#  let lambda_deg = truncate (floor ((Rad>>Deg)lambda)) in
-#  let zone = (lambda_deg + 180) / 6 + 1 in
-#  let lambda_c = (Deg>>Rad) (float (lambda_deg - lambda_deg mod 6 + 3)) in
-#  let e = ellipsoid.e
-#  and n = k0 *. ellipsoid.a in
-#  let ll = latitude_isometrique phi e
-#  and dl = lambda -. lambda_c in
-#  let phi' = asin (sin dl /. cosh ll) in
-#  let ll' = latitude_isometrique phi' 0. in
-#  let lambda' = atan (sinh ll /. cos dl) in
-#  let z = C.make lambda' ll'
-#  and c = serie5 coeff_proj_mercator e in
-#  let z' = ref (C.scal c.(0) z) in
-#  for k = 1 to Array.length c - 1 do
-#    z' := C.add !z' (C.scal c.(k) (C.sin (C.scal (float (2*k)) z)))
-#  done;
-#  z' := C.scal n !z';
-#  { utm_zone = zone; utm_x = xs + truncate (C.im !z'); utm_y = ys + truncate (C.re !z') };;
-
-
 
 
 1;
