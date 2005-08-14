@@ -206,12 +206,12 @@ sub draw {
   $self->add_label("climb:", "climb", 150, 58);
   $self->add_value_text("climb");
 
+  $zinc->add('text', $self->{'contentgroup'}, -text => $self->string_of_time(0), -position => [8, 82], -font => $self->{options}->{small_font}, -color => $self->{options}->{label_color}, -tags ["flight_time_value"]);
   ##
   # QUICK and DIRTY flight time an battery
   # 
   ## flight_time
   # FIXME: use tags instead of reference to zinc item
-  $self->{'zinc_flight_time'} = $zinc->add('text', $self->{'contentgroup'}, -text => sprintf("%s",$self->string_of_time(0)), -position=>[8,82], -font => $self->{options}->{small_font});
 
   $zinc->add('rectangle', $self->{'contentgroup'}, [10,25, 41,81], -filled=>1, -fillcolor=> '#d1d1d1');
   $self->{'zinc_bat'} = $zinc->add('rectangle', $self->{'contentgroup'}, [11,80-(($self->{'battery'}-6)/7)*55,40,80],  -filled=>1,-fillcolor=>'#8080ff', -linewidth=>0);
@@ -366,24 +366,75 @@ sub setBat {
   $self->{'zinc'}->raise($self->{'zinc_bat_value'});
 }
 
-# FIXME: should use tags and set_item!!!
-sub setSDV {
-  my $self = shift;
-  my ($sdv) = @_;
-  $self->{'sdv'} = $sdv;
-  $self->{'zinc'}->itemconfigure(
-				 $self->{'zinc_flight_time'},
-				 -text => sprintf("%s",$self->string_of_time($sdv)),
-				 -color => $self->{options}->{label_color}
-				);
-}
-
 sub string_of_time {
   my ($self, $t) = @_;
   my $hour = int($t/3600);
   my $min = int(($t-$hour*3600)/60);
   my $sec = $t-(3600*$hour)-($min*60);
   sprintf("%02d:%02d:%02d",$hour, $min, $sec);
+}
+
+# attach_to_aircraft
+#   bla bla
+##############################################################################
+sub attach_to_aircraft {
+  $self->get('-aircraft')->attach($self, -flight_plan, [\&aircraft_config_changed]);
+  $self->get('-aircraft')->attach($self, -mode, [\&aircraft_config_changed]);
+  $self->get('-aircraft')->attach($self, -flight_time, [\&aircraft_config_changed]);
+  $self->get('-aircraft')->attach($self, -battery, [\&aircraft_config_changed]);
+  $self->get('-aircraft')->attach($self, -speed, [\&aircraft_config_changed]);
+  $self->get('-aircraft')->attach($self, -climb, [\&aircraft_config_changed]);
+  $self->get('-aircraft')->attach($self, -alt, [\&aircraft_config_changed]);
+  $self->get('-aircraft')->attach($self, -target_alt, [\&aircraft_config_changed]);
+  $self->get('-aircraft')->attach($self, -cur_block, [\&aircraft_config_changed]);
+}
+
+
+sub aircraft_config_changed {
+  my ($self, $aircraft, $event, $new_value) = @_;
+  #  parse_config();
+  # parse flight plan
+  print "in strip aircraft_config_changed $event $new_value\n";
+  # flight_plan
+  if ($event eq '-flight_plan' and $new_value ne "UNKNOWN") {
+    $self->border_block(); # display blocks of flight plan
+  }
+
+  # mode (AP)
+  if ($event eq '-mode') {
+    $self->set_item("ap_mode",$self->{modes}->{ap_mode}->{name}[$new_value], $self->{modes}->{ap_mode}->{color}[$new_value]); # display blocks of flight plan
+  }
+
+  if ($event eq '-flight_time') {
+    $self->set_item("flight_time",$self->string_of_time($new_value), $self->{options}->{value_color}); 
+  }
+
+  if ($event eq '-battery') {
+    #$self->set_item("ap_mode",$self->{modes}->{ap_mode}->{name}[$new_value]); # display blocks of flight plan
+  }
+
+  if ($event eq '-speed') {
+    $self->set_item("speed",sprintf("%2.1fm/s", $new_value), $self->{options}->{value_color});
+  }
+
+  if ($event eq '-climb') {
+    $self->set_item("climb",sprintf("%+2.1fm/s", $new_value), $self->{options}->{value_color});
+  }
+
+  if ($event eq '-alt') {
+    $self->set_item("alt",sprintf("%4.1fm/s", $new_value), $self->{options}->{value_color}); # display blocks of flight plan
+  }
+
+  if ($event eq '-target_alt') {
+    $self->set_item("desired_alt",sprintf("%4.1fm/s", $new_value), $self->{options}->{value_color}); # display blocks of flight plan
+  }
+
+  
+  # cur_block
+  if ($event eq '-cur_block') {
+    $self->set_block($new_value); # display current block of flight plan
+  }
+
 }
 
 ## fin de la classe
