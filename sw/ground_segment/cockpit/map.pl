@@ -72,7 +72,7 @@ sub build_gui {
   my $win_pos = [310, 140];
   $mw->geometry(sprintf("%dx%d+%d+%d", $win_size->[0], $win_size->[1], $win_pos->[0], $win_pos->[1]));
   $self->{mw} = $mw;
-#  my $mv = $mw->MapView();
+  my $mv = Paparazzi::MapView->new(-mw => $mw);
 #  $mv->pack(-fill => 'both', -expand => "1");
   
 #  $mv->default_palette();

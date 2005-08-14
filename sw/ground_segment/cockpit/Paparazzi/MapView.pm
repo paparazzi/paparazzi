@@ -17,21 +17,22 @@ require File::Basename;
 sub populate {
   my ($self, $args) = @_;
   $self->SUPER::populate($args);
-  $self->configspec
-    ();
+  $self->configspec (
+		     -mw    => [S_NEEDINIT, S_PASSIVE, S_RDONLY, S_OVRWRT, S_NOPRPG, undef],
+		    );
 }
 
 sub completeinit {
   my $self = shift;
   $self->SUPER::completeinit();
 
-  my $zinc = $self->Zinc(-backcolor => 'black',
+  my $mw = $self->get('-mw');
+  my $zinc = $mw->Zinc(-backcolor => 'black',
 			 										-borderwidth => 3,
 													-relief => 'sunken',
 													-render => '0');
   $zinc->pack(-fill => 'both', -expand => "1");
-  $self->Advertise('zinc' => $zinc);
-	$self->{map_widget} = $zinc;
+  $self->{map_widget} = $zinc;
   $self->build_gui();
   $self->{tracks} = {};
   $self->set_bindings();
@@ -87,6 +88,7 @@ sub build_gui {
 sub set_bindings {
   my ($self) = @_;
   my $zinc = $self->{map_widget};
+  my $mw = $self->get('-mw');
   my $map_grp = $self->{pan_group};
 #	$zinc->Tk::bind('<Configure>', [\&resize]);
   $zinc->Tk::bind('<ButtonPress-4>', [\&mouse_zoom, $self, 1.15]);
@@ -94,18 +96,18 @@ sub set_bindings {
   $zinc->Tk::bind('<ButtonPress-2>', [\&drag_start, $map_grp, \&drag_motion]);
   $zinc->Tk::bind('<ButtonRelease-2>', [\&drag_stop]);
   $zinc->Tk::bind('<ButtonPress-1>', [\&show_pos_cbk, $self]);
-  $self->parent()->Tk::bind('<Next>', [\&dec_zoom, $self]);
-  $self->parent()->Tk::bind('<Prior>', [\&inc_zoom, $self]);
-  $self->parent()->Tk::bind('<Control-Key-c>', [\&clear_track, $self]);
-  $self->parent()->Tk::bind('<Escape>', [\&clear_track, $self]);
-  $self->parent()->Tk::bind('<Left>', [\&scroll, $self, 1, 0]);
-  $self->parent()->Tk::bind('<Right>', [\&scroll, $self, -1, 0]);
-  $self->parent()->Tk::bind('<Up>', [\&scroll, $self, 0, 1]);
-  $self->parent()->Tk::bind('<Down>', [\&scroll, $self, 0, -1]);
-  $self->parent()->Tk::bind('<m>', [\&toggle_map, $self]);
-  $self->parent()->Tk::bind('<g>', [\&toggle_grid, $self]);
-#	$self->parent()->Tk::bind('<c>', [\&toggle_max_dist_circle, $self]);
-#	$self->parent()->Tk::bind('<c>', [\&center_on_aircraft, $self, 0, -1]);
+  $mw->Tk::bind('<Next>', [\&dec_zoom, $self]);
+  $mw->Tk::bind('<Prior>', [\&inc_zoom, $self]);
+  $mw->Tk::bind('<Control-Key-c>', [\&clear_track, $self]);
+  $mw->Tk::bind('<Escape>', [\&clear_track, $self]);
+  $mw->Tk::bind('<Left>', [\&scroll, $self, 1, 0]);
+  $mw->Tk::bind('<Right>', [\&scroll, $self, -1, 0]);
+  $mw->Tk::bind('<Up>', [\&scroll, $self, 0, 1]);
+  $mw->Tk::bind('<Down>', [\&scroll, $self, 0, -1]);
+  $mw->Tk::bind('<m>', [\&toggle_map, $self]);
+  $mw->Tk::bind('<g>', [\&toggle_grid, $self]);
+#	$mw->Tk::bind('<c>', [\&toggle_max_dist_circle, $self]);
+#	$mw->Tk::bind('<c>', [\&center_on_aircraft, $self, 0, -1]);
 }
 
 sub load_flight_plan {
