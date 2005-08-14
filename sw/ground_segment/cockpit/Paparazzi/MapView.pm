@@ -6,7 +6,7 @@ use strict;
 
 use Tk;
 #use Tk::widgets qw/PNG/;
-use Tk::JPEG;
+#use Tk::JPEG;
 use Tk::Zinc;
 use XML::DOM;
 use Math::Trig;
@@ -14,7 +14,7 @@ require File::Basename;
 
 
 
-ssub populate {
+sub populate {
   my ($self, $args) = @_;
   $self->SUPER::populate($args);
   $self->configspec
