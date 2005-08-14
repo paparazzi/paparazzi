@@ -34,7 +34,7 @@
   />
 
   <map
-    location="sinsat.xml"
+    location="maps/sinsat.xml"
   />
 
   <ground name="desktop" ivy_bus="127.255.255.255:2010">

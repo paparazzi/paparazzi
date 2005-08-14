@@ -76,8 +76,6 @@ sub build_gui {
   my $map_view = Paparazzi::MapView->new(-mw => $mw);
   
 
-#  $mv->load_configuration($options->{conf_dir}."/ground_segment.xml");
-#  $mv->load_map($options->{data_dir}."/maps/".$options->{map_file}, $win_size);
 #  my $flight_plan_name = $options->{conf_dir}."/".$options->{mission_file};
 #  my $flight_plan = `/home/$paparazzi_home/sw/tools/gen_flight_plan.out -dump $ flight_plan_name`;
 #  $mv->load_flight_plan($flight_plan, $win_size);

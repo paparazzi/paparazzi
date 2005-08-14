@@ -5,7 +5,6 @@ use Subject;
 use strict;
 
 use Tk;
-#use Tk::widgets qw/PNG/;
 #use Tk::JPEG;
 use Tk::Zinc;
 use XML::DOM;

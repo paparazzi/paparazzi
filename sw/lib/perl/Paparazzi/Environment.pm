@@ -78,9 +78,26 @@ sub paparazzi_home {
   return $paparazzi_home;
 }
 
-sub get_config_file {
+sub get_config {
   my ($file) = @_;
   return $paparazzi_home."/conf/".$file;
 }
+
+sub get_data {
+  my ($file) = @_;
+  return $paparazzi_home."/data/".$file;
+}
+
+sub get_default_map {
+  my $filename = $paparazzi_home."/conf/conf.xml";
+  my $parser = XML::DOM::Parser->new();
+  my $doc = $parser->parsefile($filename);
+  my $map_conf = $doc->getElementsByTagName("map")->[0];
+  my $calib_file = $map_conf->getAttribute('location');
+  $calib_file = get_data($calib_file);
+  print "in Paparazzi::Environment::get_default_map $calib_file\n";
+  return $calib_file;
+}
+
 
 1;
