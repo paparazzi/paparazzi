@@ -1,6 +1,6 @@
 # $Id$
 #
-# GUI configuration file
+# Flightplan object
 # 
 # Copyright (C) 2005 Louis Dugrain
 #

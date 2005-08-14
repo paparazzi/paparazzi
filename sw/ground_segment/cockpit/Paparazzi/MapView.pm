@@ -5,7 +5,8 @@ use Subject;
 use strict;
 
 use Tk;
-#use Tk::JPEG;
+use Tk::PNG;
+use Tk::JPEG;
 use Tk::Zinc;
 use XML::DOM;
 use Math::Trig;
@@ -18,6 +19,8 @@ sub populate {
   $self->SUPER::populate($args);
   $self->configspec (
 		     -mw    => [S_NEEDINIT, S_PASSIVE, S_RDONLY, S_OVRWRT, S_NOPRPG, undef],
+		     -height    => [S_NOINIT, S_PASSIVE, S_RDONLY, S_OVRWRT, S_NOPRPG, 600],
+		     -width			=> [S_NOINIT, S_PASSIVE, S_RDONLY, S_OVRWRT, S_NOPRPG, 770],
 		    );
 }
 
@@ -43,7 +46,7 @@ sub completeinit {
 
   my $map_file = Paparazzi::Environment::get_default_map();
 
-  $self->load_map($map_files, $win_size);
+  $self->load_map($map_file, [scalar $self->get('-width'), scalar $self->get('-height')]);
 
 
 
@@ -315,7 +318,8 @@ sub load_map {
     $self->{cal_det_OX_0Y}->{$i} = vect_prod_c2d($self->{cal_0X}->{$i}, $self->{cal_0Y}->{$i});
   }
 
-  my $map_filename = Paparazzi::Environment::get_data()."/".$map_node->getAttribute('file');
+  my $map_filename = Paparazzi::Environment::get_data($map_node->getAttribute('file'));
+	print "map filename $map_filename \n";
   my $image = $zinc->Photo("bg_picture", -file => $map_filename);
   my $img_item = $zinc->add('icon', $self->{map_picture_group},
 					       						-image => $image,
