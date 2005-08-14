@@ -163,6 +163,24 @@
       <field name="segment_x_2" type="int16" unit="m"/>
       <field name="segment_y_2" type="int16" unit="m"/>
   </message>
+
+  <message name="DOWNLINK_STATUS" ID="0x02">
+    <field name="run_time" type="uint32" unit="s"></field>
+    <field name="rx_bytes" type="uint32"></field>
+    <field name="rx_msgs" type="uint32"></field>
+    <field name="rx_err" type="uint32"></field>
+    <field name="rx_bytes_rate" type="float" format="%.1f"></field>
+    <field name="rx_msgs_rate" type="float" format="%.1f"></field>
+  </message>
+
+  <message name="MODEM_STATUS" ID="0x03">
+    <field name="detected" type="uint8"></field>
+    <field name="valim" type="float" format="%.1f"></field>
+    <field name="cd" type="uint8"></field>
+    <field name="nb_byte" type="uint32"></field>
+    <field name="nb_msg" type="uint32"></field>
+    <field name="nb_err" type="uint32"></field>
+  </message>
 </class>
 
 <class name="telemetry_fbw" ID="0X41">
@@ -225,25 +243,6 @@
 
 
 <class name="ground" ID="0x42">
-
-  <message name="DOWNLINK_STATUS" ID="0x02">
-    <field name="run_time" type="uint32" unit="s"></field>
-    <field name="rx_bytes" type="uint32"></field>
-    <field name="rx_msgs" type="uint32"></field>
-    <field name="rx_err" type="uint32"></field>
-    <field name="rx_bytes_rate" type="float" format="%.1f"></field>
-    <field name="rx_msgs_rate" type="float" format="%.1f"></field>
-  </message>
-
-  <message name="MODEM_STATUS" ID="0x03">
-    <field name="detected" type="uint8"></field>
-    <field name="valim" type="float" format="%.1f"></field>
-    <field name="cd" type="uint8"></field>
-    <field name="nb_byte" type="uint32"></field>
-    <field name="nb_msg" type="uint32"></field>
-    <field name="nb_err" type="uint32"></field>
-  </message>
-
   <message name="NEW_AIRCRAFT" ID="0x04">
     <field name="ac_id" type="string"/>
   </message>

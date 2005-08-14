@@ -62,34 +62,37 @@ let msg_debug = 3
 let msg_valim = 4
 
 type status = {
-    mutable last_message_date : float;
     mutable valim : float;
     mutable cd : int;
     mutable error : int;
     mutable debug : int;
     mutable nb_byte : int;
     mutable nb_msg : int;
-    mutable nb_err : int
+    mutable nb_err : int;
+    mutable detected : int
   }
       
 let max_stalled_time = 2.
 
 let status = {
-  last_message_date = Unix.gettimeofday () -. max_stalled_time; (* FIXME *)
   valim = 0.;
   cd = 0;
   error = 0;
   debug = 0;
   nb_byte = 0;
   nb_msg = 0;
-  nb_err = 0
+  nb_err = 0;
+  detected = 0;
 }
 (* FIXME *)
   let valim = fun x -> float x *. 0.0162863 -. 1.17483
 (* FIXME *)
 
 let parse = fun msg ->
+  status.detected <- 1;
   let len = String.length msg in
+  status.nb_byte <- status.nb_byte + len;
+  status.nb_msg <- status.nb_msg + 1;
   let id = Char.code msg.[2] in
   if id = msg_data then
     Some (String.sub msg 3 (len-5))
@@ -104,7 +107,6 @@ let parse = fun msg ->
 	  status.debug <- (Char.code msg.[3])
       | x when x = msg_valim ->
 	  status.valim <- (valim (Char.code msg.[4] * 0x100 + Char.code msg.[3]));
-	  printf "valim=%f\n" status.valim; flush stdout;
       | _ -> (* Uncorrect id *)
 	  status.nb_err <- status.nb_err + 1
     end;

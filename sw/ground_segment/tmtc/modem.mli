@@ -39,15 +39,15 @@ val parse : string -> string option
 (* Returns None for modem specific messages (while updating status) *)
 
 type status = {
-  mutable last_message_date : float;
-  mutable valim : float;
-  mutable cd : int;
-  mutable error : int;
-  mutable debug : int;
-  mutable nb_byte : int;
-  mutable nb_msg : int;
-  mutable nb_err : int;
-}
+    mutable valim : float;
+    mutable cd : int;
+    mutable error : int;
+    mutable debug : int;
+    mutable nb_byte : int;
+    mutable nb_msg : int;
+    mutable nb_err : int;
+    mutable detected : int
+  }
 
 val status : status
 

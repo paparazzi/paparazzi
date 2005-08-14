@@ -27,7 +27,7 @@
     <program name="multimon" command="sw/ground_segment/multimon/bin-i686/multimon">
       <arg flag="-a" variable="multimon_demod"/>
     </program>
-    <program name="modem_listen" command="sw/ground_segment/tmtc/hw_modem_listen">
+    <program name="modem" command="sw/ground_segment/tmtc/hw_modem_listen">
       <arg flag="-b" variable="ivy_bus"/>
     </program>
     <program name="cockpit" command="sw/ground_segment/cockpit/cockpit.pl">
@@ -81,15 +81,6 @@
  </section>
 
   <section name="sessions">
-
-    <session name="soft plaster">
-      <variable name="ivy_bus" value="127.25.255.255:3333"/>
-      <program name="receive"/>     
-      <program name="sim"><arg flag="-a" constant="Plaster1"/></program>
-      <program name="cockpit"/>
-      <program name="map 2d ml"/>
-    </session>
-
     <session name="soft sim 2">
       <variable name="ivy_bus" value="127.25.255.255:3333"/>
       <program name="receive"/>     
@@ -101,25 +92,36 @@
 
     <session name="soft sim 1">
       <program name="receive"/>     
-      <program name="sim"><arg flag="-a" constant="Thon2"/></program>
+      <program name="sim"><arg flag="-a" constant="Thon1"/></program>
       <program name="map 2d ml"/>
     </session>
 
-    <session name="flight microjet">
-      <program name="multimon"><arg flag="-p" constant="/tmp/multimon"/></program>
-      <program name="modem_listen"><arg flag="-d" constant="/tmp/multimon"/><arg flag="-i" constant="1"/></program>
+    <session name="flight microjet modem">
+      <program name="modem"><arg flag="-i" constant="1"/><arg flag="-d" constant="/dev/ttyUSB0"/></program>
       <program name="receive"/>     
-
       <program name="cockpit"/>
       <program name="map 2d ml"/>
+      <program name="messages"><arg flag="-c" constant="telemetry_ap:1"/><arg flag="-c" constant="ground"/></program>
     </session>
-
-    <session name="flight">
-      <program name="receive"/>
+  
+   <session name="flight microjet multimon">
+      <program name="multimon"><arg flag="-p" constant="/tmp/multimon"/></program>
+      <program name="modem"><arg flag="-i" constant="1"/><arg flag="-d" constant="/tmp/multimon"/></program>
+      <program name="receive"/>     
       <program name="cockpit"/>
       <program name="map 2d ml"/>
+      <program name="messages"><arg flag="-c" constant="telemetry_ap:1"/><arg flag="-c" constant="ground"/></program>
     </session>
 
+   <session name="flight microjet multimon sim">
+      <program name="multimon"><arg flag="-p" constant="/tmp/multimon"/></program>
+      <program name="modem"><arg flag="-i" constant="1"/><arg flag="-d" constant="/tmp/multimon"/></program>
+      <program name="sim"><arg flag="-a" constant="Thon2"/></program>
+      <program name="receive"/>     
+      <program name="cockpit"/>
+      <program name="map 2d ml"/>
+      <program name="messages"><arg flag="-c" constant="telemetry_ap:1"/><arg flag="-c" constant="telemetry_ap:2"/><arg flag="-c" constant="ground"/></program>
+    </session>
   </section>
 
 </control_panel>

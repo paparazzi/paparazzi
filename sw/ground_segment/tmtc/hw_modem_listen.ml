@@ -26,15 +26,26 @@
 
 open Printf
 
+
+let modem_msg_period = 1000
+
 module ModemTransport = Serial.Transport(Modem.Protocol)
 module Tele_Class = struct let name = "telemetry_ap" end
 module Tele_Pprz = Pprz.Protocol(Tele_Class)
 module PprzTransport = Serial.Transport(Tele_Pprz)
 
+type status = {
+    mutable rx_byte : int;
+    mutable rx_msg : int;
+    mutable rx_err : int
+  }
+
+let status = { rx_byte = 0; rx_msg = 0; rx_err = 0 }
+
 let use_pprz_message = fun ac_id (msg_id, values) ->
+  status.rx_msg <- status.rx_msg + 1;
   let msg = Tele_Pprz.message_of_id msg_id in
-  let s = String.concat " " (List.map (fun (_, v) -> Pprz.string_of_value v) values) in
-  Ivy.send (sprintf "%d %s %s" ac_id msg.Pprz.name s)
+  Tele_Pprz.message_send (string_of_int ac_id) msg.Pprz.name values
 
 let listen_pprz_modem = fun pprz_message_cb tty ->
   let fd = 
@@ -44,6 +55,7 @@ let listen_pprz_modem = fun pprz_message_cb tty ->
       Unix.descr_of_in_channel (open_in tty)
   in
   let use_pprz_buf = fun buf ->
+    status.rx_byte <- status.rx_byte + String.length buf;
     Debug.call 'P' (fun f -> fprintf f "use_pprz: %s\n" (Debug.xprint buf));
     pprz_message_cb (Tele_Pprz.values_of_bin buf) in
   let buffer = ref "" in
@@ -69,6 +81,33 @@ let listen_pprz_modem = fun pprz_message_cb tty ->
   
   ignore (Glib.Io.add_watch [`IN] cb (Glib.Io.channel_of_descr fd))
 
+let send_modem_msg =
+  let rx_msg = ref 0 and rx_byte = ref 0 and start = Unix.gettimeofday () in
+  fun ac_id ->
+    let ac_id = string_of_int ac_id in
+    let dt = float modem_msg_period /. 1000. in
+    let t = int_of_float (Unix.gettimeofday () -. start) in
+    let byte_rate = float (status.rx_byte - !rx_byte) /. dt
+    and msg_rate = float (status.rx_msg - !rx_msg) /. dt in
+    rx_msg := status.rx_msg;
+    rx_byte := status.rx_byte;
+    let vs = ["run_time", Pprz.Int t;
+	      "rx_bytes_rate", Pprz.Float byte_rate; 
+	      "rx_msgs_rate", Pprz.Float msg_rate;
+	      "rx_err", Pprz.Int status.rx_err;
+	      "rx_bytes", Pprz.Int status.rx_byte;
+	      "rx_msgs", Pprz.Int status.rx_msg
+	    ] in
+    Tele_Pprz.message_send ac_id "DOWNLINK_STATUS" vs;
+    let vs = ["valim", Pprz.Float Modem.status.Modem.valim;
+	      "detected", Pprz.Int Modem.status.Modem.detected;
+	      "cd", Pprz.Int Modem.status.Modem.cd;
+	      "nb_err", Pprz.Int Modem.status.Modem.nb_err;
+	      "nb_byte", Pprz.Int Modem.status.Modem.nb_byte;
+	      "nb_msg", Pprz.Int Modem.status.Modem.nb_msg
+	    ] in
+    Tele_Pprz.message_send ac_id "MODEM_STATUS" vs
+
 (* main loop *)
 let _ =
   let ivy_bus = ref "127.255.255.255:2010" in
@@ -90,6 +129,8 @@ let _ =
   Ivy.start !ivy_bus;
 
   listen_pprz_modem (use_pprz_message !ac_id) !port;
+
+  ignore (Glib.Timeout.add modem_msg_period (fun () -> send_modem_msg !ac_id; true));
   
   let loop = Glib.Main.create true in
   while Glib.Main.is_running loop do

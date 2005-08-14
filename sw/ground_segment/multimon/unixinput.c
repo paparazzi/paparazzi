@@ -382,6 +382,7 @@ static const char usage_str[] = "multimod\n"
 "(C) 1996 by Thomas Sailer HB9JNX/AE4WA\n"
 "  -t <type>  : input file type (any other type than raw requires sox)\n"
 "  -a <demod> : add demodulator\n"
+"  -p <fifo> : output\n"
 "  -s <demod> : subtract demodulator\n";
 
 int main(int argc, char *argv[])
