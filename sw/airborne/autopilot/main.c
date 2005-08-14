@@ -202,9 +202,6 @@ static inline void events_update( void ) {
  */
 inline void copy_from_to_fbw ( void ) {
   to_fbw.channels[RADIO_YAW] = from_fbw.channels[RADIO_YAW];
-#ifdef ANTON_T7
-  to_fbw.channels[RADIO_PITCH] = from_fbw.channels[RADIO_PITCH];
-#endif
   to_fbw.status = 0;
 }
 
@@ -394,9 +391,9 @@ void navigation_task( void ) {
       altitude_pid_run();
     if (vertical_mode >= VERTICAL_MODE_AUTO_CLIMB)
       climb_pid_run();
-    desired_pitch = nav_pitch;
     if (vertical_mode == VERTICAL_MODE_AUTO_GAZ)
       desired_gaz = nav_desired_gaz;
+    desired_pitch = nav_pitch;
     if (low_battery || (!estimator_flight_time && !launch))
       desired_gaz = 0.;
   }  
@@ -465,6 +462,11 @@ inline void periodic_task( void ) {
     navigation_task();
     break;
     /*  default: */
+	case 1:
+		if (in_circle) {
+			DOWNLINK_SEND_CIRCLE(&circle_x, &circle_y, &circle_radius); }
+		if (in_segment) {
+			DOWNLINK_SEND_SEGMENT(&segment_x_1, &segment_y_1, &segment_x_2, &segment_y_2); }
   }
   switch (_20Hz) {
   case 0:
@@ -507,7 +509,7 @@ inline void periodic_task( void ) {
  * \a DOWNLINK_SEND_TAKEOFF
  */
 void use_gps_pos( void ) {
-  DOWNLINK_SEND_GPS(&gps_mode, &gps_utm_east, &gps_utm_north, &gps_fcourse, &gps_falt, &gps_fspeed,&gps_fclimb, &gps_ftow);
+  DOWNLINK_SEND_GPS(&gps_mode, &gps_utm_east, &gps_utm_north, &gps_fcourse, &gps_falt, &gps_fspeed, &gps_fclimb, &gps_ftow);
   estimator_update_state_gps();
   DOWNLINK_SEND_RAD_OF_IR(&estimator_ir, &estimator_rad, &estimator_rad_of_ir, &ir_roll_neutral, &ir_pitch_neutral);
   if (!estimator_flight_time && (estimator_hspeed_mod > MIN_SPEED_FOR_TAKEOFF)) {
