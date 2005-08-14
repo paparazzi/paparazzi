@@ -51,7 +51,7 @@ sub completeinit {
 			       -app_name  => APP_NAME,
 			       -loop_mode => 'TK',
 			      );
-  $self->build_gui()
+  $self->build_gui();
   $self->{aircrafts_manager} = Paparazzi::AircraftsManager->new(-listen_to_all => 1);
   $self->{mw}->after(500, [\&on_foo, $self]);
 }
