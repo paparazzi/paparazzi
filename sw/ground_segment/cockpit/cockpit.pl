@@ -154,64 +154,32 @@ sub ivy_on_config {
 sub ivy_on_selected {
   my ($sender_name, $msg_class, $msg_name, $fields, $self) = @_;
   print "in ivy_on_selected\n"; # if (COCKPIT_DEBUG);
-  my @ac_events = ( ['FLIGHT_PARAM',  \&ivy_on_flight_param],
-#		    ['NAV_STATUS',    \&ivyOnNavStatus],
-#		    ['AP_STATUS',     \&ivyOnApStatus],
+  my @ac_events = ( ['FLIGHT_PARAM',  \&on_ac_msg],
+		    ['NAV_STATUS',    \&on_ac_msg],
+		    ['AP_STATUS',     \&on_ac_msg],
 #		    ['ENGINE_STATUS', \&ivyOnEngineStatus],
 #		    ['SATS', \&ivyOnSats],
 		  );
   my $selected_ac = $fields->{aicraft_id};
   $self->{selected_ac} = $selected_ac;
   foreach my $event (@ac_events) {
-    Paparazzi::IvyProtocol::bind_msg("ground", "ground", $event->[0], {aircraft_id => $selected_ac}, 
+    Paparazzi::IvyProtocol::bind_msg("ground", "ground", $event->[0], {aircraft_id => $selected_ac},
 				     [$event->[1], $self]);
   }
+  print "configuring pfd\n";
   my $pfd = $self->{pfd};
-#  $pfd->set_selected_ac($self->{aircrafts}->{$selected_ac});
   $pfd->configure('-selected_ac', $self->{aircrafts}->{$selected_ac});
 }
 
 
-sub ivy_on_flight_param {
-  print "in ivyOnFlightParam\n";# if (COCKPIT_DEBUG);
+sub on_ac_msg {
   my ($sender_name, $msg_class, $msg_name, $fields, $self) = @_;
-  my $gs_dir_rad = Utils::deg2rad( $fields->{heading});
-  my $gs_angle_rad = Paparazzi::Geometry::angle_of_heading_rad( Utils::deg2rad( $fields->{heading}));
-#  print "$gs_dir_rad $gs_angle_rad\n";
-  my ($xg, $yg) = Paparazzi::Geometry::cart_of_polar ($fields->{speed}, $gs_angle_rad);
-  my $wind_angle_rad = Paparazzi::Geometry::angle_of_heading_rad( Utils::deg2rad( $self->{wind_dir} + Math::Trig::pi));
-  my ($xw, $yw) = Paparazzi::Geometry::cart_of_polar ($self->{wind_speed}, $wind_angle_rad);
-  my ($xa, $ya) = ($xg+$xw, $yg+$yw);
-  my ($as, $ad) = Paparazzi::Geometry::polar_of_cart ($xa, $ya);
-
+#  print "in on_ac_msg $msg_name\n";# if (COCKPIT_DEBUG);
   my $ac_id = $fields->{ac_id};
   my $aircraft = $self->{aircrafts}->{$ac_id};
   delete $fields->{ac_id};
+#  print Dumper($fields);
   $aircraft->configure(%{$fields});
-
-#  print "gs $xg $yg w $xw $yw as $xa $ya $as $ad\n";
-
-
-#   $self->{pfd}->configure(
-# 			  -roll =>  $fields->{roll},
-# 			  -pitch =>  $fields->{pitch},
-# #			  -speed => $fields->{speed},
-# 			  -speed => $as,
-# 			  -target_speed => $fields->{speed},
-# #			  -heading => $fields->{heading},
-# 			  -heading => $ad,
-# #			  -target_heading => $fields->{heading},
-# 			  -alt => $fields->{alt},
-# 			  -vz => $fields->{climb},
-# #			  -gps_mode => 3,
-# 			  -lls_mode => 1,
-# #			  -lls_value  => 1.1 ,
-# 			  -ctrst_mode => 2 ,
-# 			  -ctrst_value => 200,
-# 			  -rc_mode     => 1,
-# 			  -if_mode     => 1,
-# 			 );
-#  $self->{nd}->configure();
 }
 
 sub onShowPage {

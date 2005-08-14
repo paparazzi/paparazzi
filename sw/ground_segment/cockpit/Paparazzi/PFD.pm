@@ -23,7 +23,7 @@ sub populate {
      -width   => [S_NEEDINIT, S_PASSIVE, S_RDONLY, S_OVRWRT, S_NOPRPG, undef],
      -height  => [S_NEEDINIT, S_PASSIVE, S_RDONLY, S_OVRWRT, S_NOPRPG, undef],
      
-     -selected_ac =>  [S_NOINIT, S_METHOD, S_RDWR,   S_OVRWRT, S_CHILDREN, undef],
+     -selected_ac =>  [S_NOINIT, S_METHOD, S_RDWR, S_OVRWRT, S_NOPRPG, undef],
 
      -roll           =>  [S_NOINIT, S_PRPGONLY, S_RDWR,   S_OVRWRT, S_CHILDREN, 0],
      -pitch          =>  [S_NOINIT, S_PRPGONLY, S_RDWR,   S_OVRWRT, S_CHILDREN, 0],
@@ -66,10 +66,16 @@ sub completeinit {
 
 sub selected_ac {
   my ($self,  $previous_ac, $new_ac) = @_;
-  #  $new_ac->attach($self, 'roll', [&foo_cbk, $self]);
-  $new_ac->attach($self, 'roll', [sub { my ($self, $aircraft, $event, $new_value) = @_;
-					$self->configure('-roll', $new_value);
+  print "###########";
+  print "in PFD selected_ac $previous_ac $new_ac\n";
+
+  my @fields = ('roll', 'alt', 'speed', 'course');
+  
+  foreach my $field ( @fields ) {
+    $new_ac->attach($self, $field, [sub { my ($self, $aircraft, $event, $new_value) = @_;
+					$self->configure('-'.$field, $new_value);
 				      }]);
+  }
 }
 
 #sub foo_cbk {
