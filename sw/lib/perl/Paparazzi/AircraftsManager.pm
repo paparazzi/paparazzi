@@ -12,17 +12,27 @@ sub populate {
   $self->configspec( 
 		    -listen_to_all => [S_NOINIT,   S_METHOD,  S_RDWR,   S_OVRWRT, S_NOPRPG, 0],
 		    -aircrafts => [S_NOINIT,   S_PASSIVE,  S_RDWR,   S_OVRWRT, S_NOPRPG, {}],
+		    -pubevts   => [S_NEEDINIT, S_PASSIVE, S_RDWR, S_APPEND, S_NOPRPG,[]],
 		   );
 }
 
 sub completeinit {
   my $self = shift;
   $self->SUPER::completeinit();
+  $self->configure('-pubevts' => 'NEW_AIRCRAFT');
+  $self->configure('-pubevts' => 'DIE_AIRCRAFT');
 }
 
 sub start {
   my ($self) = @_;
   Paparazzi::IvyProtocol::send_request("ground", "ground", "AIRCRAFTS", {}, [\&on_aircrafts, $self]);
+  Paparazzi::IvyProtocol::bind_msg("ground", "ground", "NEW_AIRCRAFT", 
+				   {}, [\&on_aircraft_new_die, $self]);
+}
+
+sub on_aircraft_new_die {
+  my ($sender_name, $msg_class, $msg_name, $fields, $self) = @_;
+  $self->add_aircraft($fields->{ac_id});
 }
 
 sub on_aircrafts {
@@ -33,15 +43,22 @@ sub on_aircrafts {
   my $csv = Text::CSV->new();
   $csv->parse($fields->{ac_list});
   my @ac_list = $csv->fields();
-  my $aircrafts = $self->get('-aircrafts');
   foreach my $ac_id (@ac_list) {
-    Paparazzi::IvyProtocol::send_request("ground", "ground", "CONFIG",
-					 {ac_id => $ac_id}, [\&on_config, $self]) unless $ac_id eq "";
-    my $aircraft = Paparazzi::Aircraft->new(-ac_id => $ac_id);
-    $aircrafts->{$ac_id} = $aircraft;
-    $self->listen_to_ac($ac_id) if ($self->get('-listen_to_all'));
+    $self->add_aircraft($ac_id);
   }
 }
+
+
+sub add_aircraft {
+  my ($self, $ac_id) = @_;
+  Paparazzi::IvyProtocol::send_request("ground", "ground", "CONFIG",
+				       {ac_id => $ac_id}, [\&on_config, $self]) unless $ac_id eq "";
+  my $aircraft = Paparazzi::Aircraft->new(-ac_id => $ac_id);
+  $self->get('-aircrafts')->{$ac_id} = $aircraft;
+  $self->listen_to_ac($ac_id) if ($self->get('-listen_to_all'));
+  $self->notify('NEW_AIRCRAFT', $ac_id);
+}
+
 
 sub on_config {
   my ($sender_name, $msg_class, $msg_name, $fields, $self) = @_;
