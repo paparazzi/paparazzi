@@ -51,18 +51,19 @@ sub build_gui {
 }
 
 sub add_strip {
-  my ($self, $name) = @_;
+  my ($self, $aircraft) = @_;
   # add strip only once
-  return if (defined $self->{strips}->{$name});
+  return if (defined $self->{strips}->{$aircraft->get('-ac_id')});
   my $zinc = $self->get('-zinc');
   use constant NB_STRIP => 6;
   my $step = $self->get('-height') / NB_STRIP;
   my $nb_strips = keys %{$self->{strips}};
   my ($p, $w, $h) = ([15, 10 + $step * $nb_strips], 120, 45);
-  $self->{strips}->{$name} = Paparazzi::Strip->new( -zinc => $zinc, -parent_grp => $self->{sp_main_group},
-						    -origin => $p, -width  => $w, -height => $h,
-						    -name => $name);
-  $zinc->bind($self->{strips}->{$name}->{-paper},'<ButtonPress-1>',[\&OnStripPressed,$self, $name]);
+  my $strip = Paparazzi::Strip->new( -zinc => $zinc, -parent_grp => $self->{sp_main_group},
+#						    -origin => $p, -width  => $w, -height => $h,
+				     -aircraft => $aircraft);
+  $self->{strips}->{$aircraft->get('-ac_id')} = $strip;
+#  $zinc->bind($self->{strips}->{$name}->{-paper},'<ButtonPress-1>',[\&OnStripPressed,$self, $name]);
 }
 
 sub OnStripPressed {

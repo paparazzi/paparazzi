@@ -13,7 +13,7 @@ our $options = {
 		data_dir => $paparazzi_home."/data",
 		map_file => "magny_UTM.xml",
 		conf_dir => $paparazzi_home."/conf",
-		mission_file => "flight_plans/Magny_07-01_2.xml",
+		mission_file => "flight_plans/muret1.xml",
 	   };
 
 ###############################################################################

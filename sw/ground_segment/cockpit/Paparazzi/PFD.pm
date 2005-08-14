@@ -23,6 +23,8 @@ sub populate {
      -width   => [S_NEEDINIT, S_PASSIVE, S_RDONLY, S_OVRWRT, S_NOPRPG, undef],
      -height  => [S_NEEDINIT, S_PASSIVE, S_RDONLY, S_OVRWRT, S_NOPRPG, undef],
      
+     -selected_ac =>  [S_NOINIT, S_METHOD, S_RDWR,   S_OVRWRT, S_CHILDREN, undef],
+
      -roll           =>  [S_NOINIT, S_PRPGONLY, S_RDWR,   S_OVRWRT, S_CHILDREN, 0],
      -pitch          =>  [S_NOINIT, S_PRPGONLY, S_RDWR,   S_OVRWRT, S_CHILDREN, 0],
 
@@ -61,6 +63,20 @@ sub completeinit {
 #  $self->configure( -pitch => 10);
   $self->configure('-pubevts' => 'SHOW_PAGE');
 }
+
+sub selected_ac {
+  my ($self,  $previous_ac, $new_ac) = @_;
+  #  $new_ac->attach($self, 'roll', [&foo_cbk, $self]);
+  $new_ac->attach($self, 'roll', [sub { my ($self, $aircraft, $event, $new_value) = @_;
+					$self->configure('-roll', $new_value);
+				      }]);
+}
+
+#sub foo_cbk {
+#  my ($self, $aircraft, $event, $new_value) = @_;
+#  $self->configure('-roll', $new_value);
+#  
+#}
 
 sub nav_dist_wp {
   my ($self, $previous_d, $new_d) = @_;

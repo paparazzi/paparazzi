@@ -20,6 +20,7 @@ use constant APP_NAME => "Cockpit";
 use constant MESSAGE_WHEN_READY => APP_NAME.': READY';
 
 use Paparazzi::IvyProtocol;
+use Paparazzi::Aircraft;
 use Paparazzi::PFD;
 use Paparazzi::ND;
 use Paparazzi::MissionD;
@@ -50,12 +51,13 @@ sub populate {
 sub completeinit {
   my $self = shift;
   $self->SUPER::completeinit();
-  $self->{aircrafts} = [];
+  $self->{aircrafts} = {};
+  $self->{selected_ac} = undef;
   $self->{wind_dir} = 0.;
   $self->{wind_speed} = 0.;
-  $self->start_ivy();
   $self->build_gui();
-  
+  $self->start_ivy();
+  $self->{mw}->after(500, [\&on_foo, $self]);
 }
 
 sub build_gui {
@@ -63,7 +65,7 @@ sub build_gui {
   $self->{mw} = MainWindow->new();
   my $top_frame =  $self->{mw}->Frame()->pack(-side => 'top', -fill => 'both');
   my $bot_frame =  $self->{mw}->Frame()->pack(-side => 'bottom', -fill => 'both');
-  my ($stp_p, $stp_w, $stp_h) = ([0, 0],                   150, 300);
+  my ($stp_p, $stp_w, $stp_h) = ([0, 0],                   800, 300);
   my ($pfd_p, $pfd_w, $pfd_h) = ([$stp_w, 0]             , 300, $stp_h);
   my ($nd_p,  $nd_w,  $nd_h) =  ([$pfd_p->[0]+ $pfd_w, 0], 600, 600);
   my $zinc = $top_frame->Zinc(-width => $stp_w + $pfd_w + $nd_w ,
@@ -74,53 +76,143 @@ sub build_gui {
 			      -lightangle => 130,);
   $zinc->pack(-side => 'left', -anchor => "nw");
   $self->{strip_panel} = Paparazzi::StripPanel->new( -zinc => $zinc,
-					  -origin => $stp_p,
-					  -width  => $stp_w,
-					  -height => $stp_h
-					);
-  $self->{strip_panel}->attach($self, '-selected_ac', ['onAircratftSelection', ()]);
+						     -origin => $stp_p,
+						     -width  => $stp_w,
+						     -height => $stp_h
+						   );
+#  $self->{strip_panel}->attach($self, '-selected_ac', ['onAircratftSelection', ()]);
 
   $self->{pfd} = Paparazzi::PFD->new( -zinc => $zinc,
 				      -origin => $pfd_p,
 				      -width  => $pfd_w,
 				      -height => $pfd_h,
 				    );
-  $self->{pfd}->attach($self, 'SHOW_PAGE', ['onShowPage']);
-  $self->{nd} = Paparazzi::ND->new( -zinc => $zinc,
-				    -origin => $nd_p,
-				    -width  => $nd_w,
-				    -height => $nd_h,
-				  );
-  $self->{nd}->attach($self, 'WIND_COMMAND', ['onWindCommand']);
-  $md = $bot_frame->MissionD(-bg => '#c1daff');
-  $md->pack(-side => 'bottom', -anchor => "n", -fill => 'both');
+#  $self->{pfd}->attach($self, 'SHOW_PAGE', ['onShowPage']);
+#   $self->{nd} = Paparazzi::ND->new( -zinc => $zinc,
+# 				    -origin => $nd_p,
+# 				    -width  => $nd_w,
+# 				    -height => $nd_h,
+# 				  );
+#   $self->{nd}->attach($self, 'WIND_COMMAND', ['onWindCommand']);
+#  $md = $bot_frame->MissionD(-bg => '#c1daff');
+#  $md->pack(-side => 'bottom', -anchor => "n", -fill => 'both');
 
 
 }
 
-# sub onTimer {
-#   my ( $self) = @_;
-# #  print("in onTimer $self\n");
-#   $self->{ivy}->sendMsgs("WIND_REQ toto", {-id => "toto"});
-#  #   Paparazzi::IvyProtocol::request_message("ground", "CONFIG", {id => 'ground'}, $self->{ivy}, [$self, \&ivyOnWind]);
-# }
 
-# sub ivyOnWind {
-# #  print "in ivyOnWind\n"; # if (COCKPIT_DEBUG);
-#   my ($self, @args) = @_;
-# #  my $fields_by_name = Paparazzi::IvyProtocol::get_values_by_name("ground", "RES_WIND", \@args);
-#   $self->{wind_dir} = $args[2];
-#   $self->{wind_speed} = $args[3];
 
-#   my $h = { dir => $args[2],
-# 	    speed => $args[3],
-# 	    mean_aspeed => $args[4], 
-# 	    stddev => $args[5],
-# 	  };
-  
-# #  print Dumper($h);# if (COCKPIT_DEBUG); 
-#   $self->{nd}->configure('-wind' => $h);
-# }
+
+sub start_ivy {
+  my ($self) = @_;
+  my $protocol_file = Paparazzi::Environment::get_config_file("messages.xml");
+  Paparazzi::IvyProtocol::init(-file      => $protocol_file,
+			       -ivy_bus   => $options->{ivy_bus},
+			       -app_name  => APP_NAME,
+			       -loop_mode => 'TK',
+			    );
+
+
+# Paparazzi::IvyProtocol::bind_msg("ground", "ground", "FLIGHT_PARAM", {aircraft_id => '1'}, [\&ivyOnFlightParam, $self]);
+
+}
+
+sub on_foo {
+  my ($self) = @_;
+  print "in ivy_on_foo\n"; # if (COCKPIT_DEBUG);
+  Paparazzi::IvyProtocol::send_request("ground", "ground", "AIRCRAFTS", {}, [\&ivy_on_aircrafts, $self]);
+  Paparazzi::IvyProtocol::bind_msg("ground", "ground", "SELECTED", {}, [\&ivy_on_selected, $self]);
+}
+
+sub ivy_on_aircrafts {
+  print "in ivyOnAircrafts\n"; # if (COCKPIT_DEBUG);
+  my ($sender_name, $msg_class, $msg_name, $fields, $self) = @_;
+  use Data::Dumper;
+  print "fields ".Dumper($fields)."\n";
+  my $csv = Text::CSV->new();
+  $csv->parse($fields->{ac_list});
+  my @ac_list = $csv->fields();
+  #  my @added_ac = Utils::diff_array(\@ac_list, $self->{aircrafts});
+  #  my @removed_ac = Utils::diff_array($self->{aircrafts}, \@ac_list);
+  foreach my $ac (@ac_list) {
+    Paparazzi::IvyProtocol::send_request("ground", "ground", "CONFIG", {ac_id => $ac}, [\&ivy_on_config, $self]) unless $ac eq "";
+    my $aircraft = Paparazzi::Aircraft->new(-ac_id => $ac);
+    $self->{strip_panel}->add_strip($aircraft);
+    $self->{aircrafts}->{$ac} = $aircraft;
+  }
+}
+
+sub ivy_on_config {
+  my ($sender_name, $msg_class, $msg_name, $fields, $self) = @_;
+  print "in ivy_on_config\n"; # if (COCKPIT_DEBUG);
+  use Data::Dumper;
+  print "fields ".Dumper($fields)."\n";
+  my $ac_id = $fields->{ac_id};
+  $self->{aircrafts}->{$ac_id}->configure('-flight_plan' => $fields->{flight_plan});
+}
+
+sub ivy_on_selected {
+  my ($sender_name, $msg_class, $msg_name, $fields, $self) = @_;
+  print "in ivy_on_selected\n"; # if (COCKPIT_DEBUG);
+  my @ac_events = ( ['FLIGHT_PARAM',  \&ivy_on_flight_param],
+#		    ['NAV_STATUS',    \&ivyOnNavStatus],
+#		    ['AP_STATUS',     \&ivyOnApStatus],
+#		    ['ENGINE_STATUS', \&ivyOnEngineStatus],
+#		    ['SATS', \&ivyOnSats],
+		  );
+  my $selected_ac = $fields->{aicraft_id};
+  $self->{selected_ac} = $selected_ac;
+  foreach my $event (@ac_events) {
+    Paparazzi::IvyProtocol::bind_msg("ground", "ground", $event->[0], {aircraft_id => $selected_ac}, 
+				     [$event->[1], $self]);
+  }
+  my $pfd = $self->{pfd};
+#  $pfd->set_selected_ac($self->{aircrafts}->{$selected_ac});
+  $pfd->configure('-selected_ac', $self->{aircrafts}->{$selected_ac});
+}
+
+
+sub ivy_on_flight_param {
+  print "in ivyOnFlightParam\n";# if (COCKPIT_DEBUG);
+  my ($sender_name, $msg_class, $msg_name, $fields, $self) = @_;
+  my $gs_dir_rad = Utils::deg2rad( $fields->{heading});
+  my $gs_angle_rad = Paparazzi::Geometry::angle_of_heading_rad( Utils::deg2rad( $fields->{heading}));
+#  print "$gs_dir_rad $gs_angle_rad\n";
+  my ($xg, $yg) = Paparazzi::Geometry::cart_of_polar ($fields->{speed}, $gs_angle_rad);
+  my $wind_angle_rad = Paparazzi::Geometry::angle_of_heading_rad( Utils::deg2rad( $self->{wind_dir} + Math::Trig::pi));
+  my ($xw, $yw) = Paparazzi::Geometry::cart_of_polar ($self->{wind_speed}, $wind_angle_rad);
+  my ($xa, $ya) = ($xg+$xw, $yg+$yw);
+  my ($as, $ad) = Paparazzi::Geometry::polar_of_cart ($xa, $ya);
+
+  my $ac_id = $fields->{ac_id};
+  my $aircraft = $self->{aircrafts}->{$ac_id};
+  delete $fields->{ac_id};
+  $aircraft->configure(%{$fields});
+
+#  print "gs $xg $yg w $xw $yw as $xa $ya $as $ad\n";
+
+
+#   $self->{pfd}->configure(
+# 			  -roll =>  $fields->{roll},
+# 			  -pitch =>  $fields->{pitch},
+# #			  -speed => $fields->{speed},
+# 			  -speed => $as,
+# 			  -target_speed => $fields->{speed},
+# #			  -heading => $fields->{heading},
+# 			  -heading => $ad,
+# #			  -target_heading => $fields->{heading},
+# 			  -alt => $fields->{alt},
+# 			  -vz => $fields->{climb},
+# #			  -gps_mode => 3,
+# 			  -lls_mode => 1,
+# #			  -lls_value  => 1.1 ,
+# 			  -ctrst_mode => 2 ,
+# 			  -ctrst_value => 200,
+# 			  -rc_mode     => 1,
+# 			  -if_mode     => 1,
+# 			 );
+#  $self->{nd}->configure();
+}
 
 sub onShowPage {
   my ($self, $component, $signal, $page) = @_;
@@ -129,18 +221,18 @@ sub onShowPage {
   $self->{nd}->configure('-page' => $page);
 }
 
-sub onWindCommand {
-  my ($self, $component, $signal, $cmd) = @_;
-  print "cockpit::onWindCommand $cmd\n";
-  $self->{ivy}->sendMsgs("WIND_COMMAND $cmd");
-  if ($cmd eq "start") {
-    $self->{timer_id} = $self->{mw}->repeat(5000, [\&onTimer, $self]);
-    $self->{ivy}->sendMsgs("WIND_COMMAND clear");
-  }
-  elsif ($cmd eq "stop") {
-    $self->{mw}->afterCancel($self->{timer_id})
-  }
-}
+# sub onWindCommand {
+#   my ($self, $component, $signal, $cmd) = @_;
+#   print "cockpit::onWindCommand $cmd\n";
+#   $self->{ivy}->sendMsgs("WIND_COMMAND $cmd");
+#   if ($cmd eq "start") {
+#     $self->{timer_id} = $self->{mw}->repeat(5000, [\&onTimer, $self]);
+#     $self->{ivy}->sendMsgs("WIND_COMMAND clear");
+#   }
+#   elsif ($cmd eq "stop") {
+#     $self->{mw}->afterCancel($self->{timer_id})
+#   }
+# }
 
 sub onAircratftSelection {
 #  print ("onAircratftSelection @_\n");
@@ -163,54 +255,10 @@ sub onAircratftSelection {
   $self->{selected_ac} = $new_selected_ac;
 }
 
-sub start_ivy {
-  my ($self) = @_;
-  my $protocol_file = Paparazzi::Environment::get_config_file("messages.xml");
-  Paparazzi::IvyProtocol::init(-file      => $protocol_file,
-			       -ivy_bus   => $options->{ivy_bus},
-			       -app_name  => APP_NAME,
-			       -loop_mode => 'TK',
-			    );
-
-
-  Paparazzi::IvyProtocol::bind_msg("ground", "ground", "FLIGHT_PARAM", {aircraft_id => '1'}, [\&ivyOnFlightParam, $self]);
-
-
-}
-
-# sub ivyOnIR {
-#   my ($self, @args) = @_;
-#   my $h = { 
-# 	   ir => $args[2],
-# 	   rad => $args[3],
-# 	   rad_of_ir => $args[4],
-# 	   ir_roll_ntrl => $args[5],
-# 	   ir_pitch_ntrl => $args[6]
-# 	  };
-#   $self->{nd}->configure('-lls' => $h->{rad_of_ir});
-#   $self->{nd}->put_lls($h->{rad_of_ir});
-# }
 
 
 
 
-# sub ivyOnAircrafts {
-# #  print "in ivyOnAircrafts\n" if (COCKPIT_DEBUG);
-#   my ($self, @args) = @_;
-# #  my $fields_by_name = Paparazzi::IvyProtocol::get_values_by_name("ground", "AIRCRAFTS", \@args);
-#   print Dumper($fields_by_name) if (COCKPIT_DEBUG);
-#   my $ac_list = $fields_by_name->{ac_list};
-#   my $csv = Text::CSV->new();
-#   $csv->parse($ac_list);
-#   my @new_ac = $csv->fields();
-#   my @added_ac = Utils::diff_array(\@new_ac, $self->{aircrafts});
-#   my @removed_ac = Utils::diff_array($self->{aircrafts}, \@new_ac);
-#   foreach my $ac1 (@added_ac) {
-#     $self->{strip_panel}->add_strip($ac1); 
-# #    Paparazzi::IvyProtocol::request_message("aircraft_info", "CONFIG", {id => $ac1}, $self->{ivy}, [$self, \&onConfigRes]);
-#   }
-#   $self->{aircrafts} = \@new_ac;
-# }
 
 # sub ivyOnNavStatus {
 #   my ($self, @args) = @_;
@@ -239,44 +287,7 @@ sub start_ivy {
 # }
 
 
-sub ivyOnFlightParam {
-  print "in ivyOnFlightParam\n";# if (COCKPIT_DEBUG);
-  my ($sender_name, $msg_class, $msg_name, $fields, $self) = @_;
-  my $gs_dir_rad = Utils::deg2rad( $fields->{heading});
-  my $gs_angle_rad = Paparazzi::Geometry::angle_of_heading_rad( Utils::deg2rad( $fields->{heading}));
-#  print "$gs_dir_rad $gs_angle_rad\n";
-  my ($xg, $yg) = Paparazzi::Geometry::cart_of_polar ($fields->{speed}, $gs_angle_rad);
-  my $wind_angle_rad = Paparazzi::Geometry::angle_of_heading_rad( Utils::deg2rad( $self->{wind_dir} + Math::Trig::pi));
-  my ($xw, $yw) = Paparazzi::Geometry::cart_of_polar ($self->{wind_speed}, $wind_angle_rad);
-  my ($xa, $ya) = ($xg+$xw, $yg+$yw);
-  my ($as, $ad) = Paparazzi::Geometry::polar_of_cart ($xa, $ya);
 
-#  print "gs $xg $yg w $xw $yw as $xa $ya $as $ad\n";
-
-
-  $self->{pfd}->configure(
-			  -roll =>  $fields->{roll},
-			  -pitch =>  $fields->{pitch},
-#			  -speed => $fields->{speed},
-			  -speed => $as,
-			  -target_speed => $fields->{speed},
-#			  -heading => $fields->{heading},
-			  -heading => $ad,
-#			  -target_heading => $fields->{heading},
-			  -alt => $fields->{alt},
-			  -vz => $fields->{climb},
-#			  -gps_mode => 3,
-			  -lls_mode => 1,
-#			  -lls_value  => 1.1 ,
-			  -ctrst_mode => 2 ,
-			  -ctrst_value => 200,
-			  -rc_mode     => 1,
-			  -if_mode     => 1,
-			 );
-#  $self->{nd}->configure();
-
-
-}
 
 # sub ivyOnApStatus {
 #   print "in ivyOnApStatus\n" if (COCKPIT_DEBUG);
@@ -307,10 +318,48 @@ sub ivyOnFlightParam {
 #   $self->{nd}->configure( -sats, $fbn);
 # }
 
+# sub ivyOnIR {
+#   my ($self, @args) = @_;
+#   my $h = { 
+# 	   ir => $args[2],
+# 	   rad => $args[3],
+# 	   rad_of_ir => $args[4],
+# 	   ir_roll_ntrl => $args[5],
+# 	   ir_pitch_ntrl => $args[6]
+# 	  };
+#   $self->{nd}->configure('-lls' => $h->{rad_of_ir});
+#   $self->{nd}->put_lls($h->{rad_of_ir});
+# }
+
 
 
 # sub ivyStatusCbk {
 #   printf("in ivyStatusCbk\n")  if (COCKPIT_DEBUG);
+# }
+
+
+# sub onTimer {
+#   my ( $self) = @_;
+# #  print("in onTimer $self\n");
+#   $self->{ivy}->sendMsgs("WIND_REQ toto", {-id => "toto"});
+#  #   Paparazzi::IvyProtocol::request_message("ground", "CONFIG", {id => 'ground'}, $self->{ivy}, [$self, \&ivyOnWind]);
+# }
+
+# sub ivyOnWind {
+# #  print "in ivyOnWind\n"; # if (COCKPIT_DEBUG);
+#   my ($self, @args) = @_;
+# #  my $fields_by_name = Paparazzi::IvyProtocol::get_values_by_name("ground", "RES_WIND", \@args);
+#   $self->{wind_dir} = $args[2];
+#   $self->{wind_speed} = $args[3];
+
+#   my $h = { dir => $args[2],
+# 	    speed => $args[3],
+# 	    mean_aspeed => $args[4], 
+# 	    stddev => $args[5],
+# 	  };
+  
+# #  print Dumper($h);# if (COCKPIT_DEBUG); 
+#   $self->{nd}->configure('-wind' => $h);
 # }
 
 Paparazzi::Environment::parse_command_line($options) || pod2usage(-verbose => 0);

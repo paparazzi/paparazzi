@@ -10,18 +10,45 @@ use Data::Dumper;
 my $classes_by_name = {};
 my $ivy = undef;
 my $app_name = "";
+my $req_id = 0;
 
 sub init {
   my (%options) = @_;
-  read_protocol(%options->{-file}, 'ground');
-  $app_name = %options->{-app_name};
-  Ivy->init( -ivyBus        => %options->{-ivy_bus},
-             -appName       => %options->{-app_name},
-             -loopMode      => %options->{-loop_mode},
+  my $opt = \%options;
+  read_protocol($opt->{-file}, 'ground');
+  $app_name = $opt->{-app_name};
+  Ivy->init( -ivyBus        => $opt->{-ivy_bus},
+             -appName       => $opt->{-app_name},
+             -loopMode      => $opt->{-loop_mode},
              -messWhenReady => 'READY',
            );
   $ivy = Ivy->new ();
   $ivy->start();
+}
+
+sub send_request {
+  my ($sender_name, $msg_class, $msg_name, $known_fields, $user_cb) = @_;
+  print "in send request $msg_class $msg_name\n";
+  print Dumper($known_fields);
+  my $result_name = $msg_name;#."_RES";
+  my $regexp = get_regexp($sender_name, $msg_class, $msg_name, $known_fields);
+  $regexp =~ s/$msg_name/$result_name/;
+  $regexp =~ s/$sender_name/$req_id $sender_name/;
+  $ivy->bindRegexp($regexp, [\&on_res_received, $msg_class, $msg_name, $known_fields, $regexp, $user_cb]);
+  my $request_name = $msg_name."_REQ";
+  my $msg = print_msg("", $msg_class, $request_name, $known_fields, 0);
+  $msg =~ s/$app_name/$app_name $req_id/;
+  $ivy->sendMsgs($msg);
+  $req_id++;
+}
+
+sub on_res_received {
+  my ($sender_name, $msg_class, $msg_name, $known_fields, $regexp, $user_cb, @matched_regexps) = @_;
+  print "on res received\n";
+  print Dumper($known_fields);
+  $ivy->bindRegexp($regexp);
+  on_msg_received($sender_name, $msg_class, $msg_name, $known_fields, $user_cb, @matched_regexps);
+
 }
 
 sub send_msg {
@@ -70,7 +97,10 @@ sub print_msg {
   my ($sender_name, $msg_class, $msg_name, $args, $is_regexp) = @_;
   warn "no such class : $msg_class" unless defined $classes_by_name->{$msg_class};
   my $msg =  $classes_by_name->{$msg_class}->{$msg_name};
-  return "" if !defined $msg;
+  if (!defined $msg) {
+    warn "unknown message  $msg_class, $msg_name\n";
+    return;
+  }
   my $nb_fields = @{$msg};
   my $output = $sender_name ne "" ? $sender_name : $app_name;
   $output = "^".$output if ($is_regexp);
@@ -128,98 +158,6 @@ sub read_protocol {
  # use Data::Dumper;
  # print Dumper($messages_by_name);
 }
-
-
-
-# sub bind_message {
-#   my ($msg_class, $msg_name, $args, $ivy, $callback) = @_;
-#   my $regexp = get_regexp($msg_class, $msg_name, $args);
-#   print ((defined $callback ? "binding":"removing binding")." on \'$regexp\'\n");
-#   $ivy->bindRegexp ($regexp, $callback);
-# }
-
-# my $req_id = int rand(65534);
-# # TODO: make real timeout instead of single request
-# my $res_regexp = undef;
-
-# sub request_message {
-#   my ($msg_class, $msg_name, $args, $ivy, $callback) = @_;
-#   my $message =  $classes_by_name->{$msg_class}->{$msg_name};
-#   return unless defined $message;
-#   # unbind previous request
-#   $ivy->bindRegexp($res_regexp) if defined $res_regexp;
-#   $res_regexp = "^(".$args->{id}.") ".$msg_name."_RES ".++$req_id;
-#   foreach my $field (@{$message}) {$res_regexp.= " (\\S+)" unless $field->{name} eq "id"};
-#   print "res_regexp \'$res_regexp\'\n";
-#   $ivy->bindRegexp ($res_regexp, $callback);
-#   my $req_msg = $args->{id}." ".$msg_name."_REQ ".$req_id;
-#   print "req_msg \'$req_msg\'\n";
-#   $ivy->sendMsgs($req_msg);
-#   return $req_id;
-# }
-
-# sub bind_request_message {
-#   my ($msg_class, $msg_name, $args, $ivy, $callback) = @_;
-  
-
-
-# }
-
-
-# sub get_regexp {
-#   my ($msg_class, $msg_name, $args) = @_;
-#   warn "no such class : $msg_class" unless defined $classes_by_name->{$msg_class};
-#   my $message =  $classes_by_name->{$msg_class}->{$msg_name};
-#   return "" if !defined $message;
-#   my $nb_fields = @{$message};
-#   my $regexp = "";
-#   if( $msg_class eq "ground") {
-#     $regexp = "^".$msg_class." ".$msg_name;
-#     foreach (@{$message}) {$regexp.= " (\\S+)"};
-#   }
-#   elsif ( $msg_class eq "aircraft_info") {
-#     $regexp = "^(".$args->{id}.") ".$msg_name;
-#     foreach my $field (@{$message}) {$regexp.= " (\\S+)" unless $field->{name} eq "id"};
-#   }
-#   else {
-#     $regexp = "^.*".$msg_name."\\s+";
-#     foreach (@{$message}) {$regexp.= " (\\S+)"};
-#   }
-#   return $regexp;
-# }
-
-# sub get_values_by_name {
-#   my ($msg_class, $msg_name, $ivy_args) = @_;
-#   my $values_by_name = {};
-#   my $message =  $classes_by_name->{$msg_class}->{$msg_name};
-#   return {} unless defined $message;
-#   for (my $i=0; $i<@{$message}; $i++) {
-#     my $field = $message->[$i];
-#     $values_by_name->{$field->{name}} = $ivy_args->[$i+1];
-#   }
-#   return $values_by_name;
-# }
-
-# sub getMsg {
-#  my ($msg_class, $msg_name, $args) = @_;
-#  my $message =  $classes_by_name->{$msg_class}->{$msg_name};
-#  my $str = "";
-#  if ( $msg_class eq "ground") { 
-#    $str .= $msg_class." ".$msg_name;
-#  }
-#  else {
-#    $str .= $msg_name;
-#  }
-#  foreach my $field (@{$message}) {
-#    $str.= " ".$args->{$field->{name}};
-#  }
-#  return $str;
-# }
-
-# sub sendMsg {
-#   my ($ivy, $msg_class, $msg_name, $args) = @_;
-#   $ivy->sendMsgs(getMsg($msg_class, $msg_name, $args));
-# }
 
 
 
