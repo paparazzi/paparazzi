@@ -147,7 +147,20 @@
      <field name="target_x" type="int16" unit="m"/>
      <field name="target_y" type="int16" unit="m"/>
   </message>
- </class>
+	
+	<message name="CIRCLE" ID="0x16">
+		<field name="center_x" type="float" unit="m" format="%.0f"/>
+		<field name="center_y" type="float" unit="m" format="%.0f"/>
+		<field name="radius" type="float" unit="m" format="%.0f"/>
+	</message>
+	
+	<message name="SEGMENT" ID="0x17">
+		<field name="segment_x_1" type="float" unit="m" format="%.0f"/>
+		<field name="segment_y_1" type="float" unit="m" format="%.0f"/>
+		<field name="segment_x_2" type="float" unit="m" format="%.0f"/>
+		<field name="segment_y_2" type="float" unit="m" format="%.0f"/>
+	</message>
+</class>
 
 <class name="telemetry_fbw" ID="0X41">
 
