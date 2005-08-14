@@ -45,7 +45,7 @@ sub populate {
 sub completeinit {
   my $self = shift;
   $self->SUPER::completeinit();
-  my $protocol_file = Paparazzi::Environment::get_config_file("messages.xml");
+  my $protocol_file = Paparazzi::Environment::get_config("messages.xml");
   print "protocol_file $protocol_file\n";
   Paparazzi::IvyProtocol::init(-file      => $protocol_file,
 			       -ivy_bus   => $options->{ivy_bus},

@@ -57,7 +57,7 @@ sub completeinit {
   $self->{wind_dir} = 0.;
   $self->{wind_speed} = 0.;
   $self->build_gui();
-  my $protocol_file = Paparazzi::Environment::get_config_file("messages.xml");
+  my $protocol_file = Paparazzi::Environment::get_config("messages.xml");
   Paparazzi::IvyProtocol::init(-file      => $protocol_file,
 			       -ivy_bus   => $options->{ivy_bus},
 			       -app_name  => APP_NAME,

@@ -127,7 +127,7 @@ sub parse_config {
   my ($self) = @_;
   my $parser = XML::DOM::Parser->new();
   print "Parsing gui.xml\n";
-  my $doc = $parser->parsefile(Paparazzi::Environment::get_config_file("gui.xml"));
+  my $doc = $parser->parsefile(Paparazzi::Environment::get_config("gui.xml"));
   my $strip = $doc->getElementsByTagName('strip')->[0];
   $self->{options}->{normal_font} =  $strip->getAttribute('normal_font');
   $self->{options}->{small_font} =  $strip->getAttribute('small_font');
