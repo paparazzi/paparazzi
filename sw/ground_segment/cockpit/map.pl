@@ -52,7 +52,16 @@ sub completeinit {
 			       -loop_mode => 'TK',
 			      );
   $self->build_gui()
+  $self->{aircrafts_manager} = Paparazzi::AircraftsManager->new(-listen_to_all => 1);
+  $self->{mw}->after(500, [\&on_foo, $self]);
 }
+
+sub on_foo {
+  my ($self) = @_;
+  print "in ivy_on_foo\n"; # if (COCKPIT_DEBUG);
+  $self->{aircrafts_manager}->start();
+}
+
 
 sub build_gui {
   my $mw = MainWindow->new();
