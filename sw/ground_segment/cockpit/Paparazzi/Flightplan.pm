@@ -45,6 +45,10 @@ sub populate {
 										);
 }
 
+# url
+# NAV_UTM_EAST0
+# NAV_UTM_NORTH0
+# max_dist_from_home
 # waypoints
 #		|-- name
 #					|-- x
@@ -53,7 +57,7 @@ sub populate {
 #					|-- alt
 #					|-- type
 #					|-- number
-
+# nb_waypoints
 #	mission
 #			|-- block_ID
 #						|-- stage
@@ -176,7 +180,27 @@ sub parse_mission {
 #				$self->Subwidget('text')->insert('end', $line."\n", $tags);
 				if (defined $stage_id) {
 					# print "reading $block_id $stage_id  block name  $block_name\n";
-					$self->{mission}->{$block_id}->{stage}->{$stage_id}->{text} = $line; }
+					$self->{mission}->{$block_id}->{stage}->{$stage_id}->{text} = $line;
+					
+					# Parse the stage_line to get a wp_name defined with `wp="wp_name"`
+					my $wp_name = $line;
+					$wp_name =~ s/^.*\s[wW][pP]="([^"]*)".*$/$1/;
+					$wp_name =~ s/^(\s*<.*>\s*)$//;
+					if ($wp_name ne "") {
+						$self->{mission}->{$block_id}->{stage}->{$stage_id}->{waypoint} = $wp_name; }
+					
+					#	I think we can do this better...
+					my $type = $line;
+					if ($type =~ /^.*<xyz.*$/) {
+						$self->{mission}->{$block_id}->{stage}->{$stage_id}->{type} = 'xyz'; }
+					if ($type =~ /^.*<circle.*$/) {
+						$self->{mission}->{$block_id}->{stage}->{$stage_id}->{type} = 'circle'; }
+					if ($type =~ /^.*<go.*$/) {
+						$self->{mission}->{$block_id}->{stage}->{$stage_id}->{type} = 'go'; }
+					if ($type =~ /^.*<attitude.*$/) {
+						$self->{mission}->{$block_id}->{stage}->{$stage_id}->{type} = 'go'; }
+
+				}
       }
     }
 		$nb_excep = 0;
