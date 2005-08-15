@@ -59,7 +59,7 @@ sub populate {
 sub completeinit {
   my $self = shift;
   $self->SUPER::completeinit();
-  $self->attach_to_aircraft();
+  #$self->attach_to_aircraft();
 
   my $zinc = $self->get(-zinc);
 #  my $ident = $self->get(-ident);
@@ -104,6 +104,7 @@ sub completeinit {
   $self->{prefix} = "STRIP_".$self->get(-aircraft)->get('-ac_id')."_";
   $self->{'zinc_bat'} = "";
   $self->{'zinc_bat_value'} = "";
+  $self->attach_to_aircraft();
   $self->draw();
 
 }
@@ -323,7 +324,7 @@ $zinc->add('text', $groups[$i], -text => $blocks[$i]->{rc2},
 
 sub set_item {
   my ($self, $item_name, $string, $color) = @_;
-  print "in Strip::set_item $item_name $string $color\n";
+  print "in Strip::set_item $item_name $string $color ($self->{prefix})\n";
   my $zinc = $self->get('-zinc');
   my $item = $zinc->find('withtag', $self->{prefix}.$item_name."_value");
   $zinc->itemconfigure($item, -text => $string, -color  => $color);
