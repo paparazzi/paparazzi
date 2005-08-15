@@ -47,10 +47,9 @@ sub populate {
   $self->configspec(-aircraft =>  [S_NEEDINIT, S_PASSIVE, S_RDWR, S_OVRWRT, S_SUPER, undef],
 		    -zinc => [S_NEEDINIT, S_PASSIVE, S_RDWR, S_OVRWRT, S_SUPER, undef],
 		    -parent_grp => [S_NEEDINIT, S_PASSIVE, S_RDWR, S_OVRWRT, S_SUPER, undef],
-#		    -ident => [S_NEEDINIT, S_PASSIVE, S_RDWR, S_OVRWRT, S_NOPRPG, undef],
-#		    -pos_x => [S_NEEDINIT, S_PASSIVE, S_RDWR, S_OVRWRT, S_NOPRPG, undef],
-#		    -pos_y => [S_NEEDINIT, S_PASSIVE, S_RDWR, S_OVRWRT, S_NOPRPG, undef],
-#		    -flight_plan => [S_NEEDINIT, S_PASSIVE, S_RDWR, S_OVRWRT, S_NOPRPG, undef],
+		    -origin     => [S_NEEDINIT, S_PASSIVE, S_RDWR, S_OVRWRT, S_NOPRPG, undef],
+		    -width      => [S_NEEDINIT, S_PASSIVE, S_RDWR, S_OVRWRT, S_NOPRPG, undef],
+		    -height     => [S_NEEDINIT, S_PASSIVE, S_RDWR, S_OVRWRT, S_NOPRPG, undef],
 		   );
 }
 
@@ -64,8 +63,6 @@ sub completeinit {
 
   my $zinc = $self->get(-zinc);
 #  my $ident = $self->get(-ident);
-  my $pos_x = 0; #$self->get(-pos_x);
-  my $pos_y = 0; #$self->get(-pos_y);
   my $flight_plan = "foo"; #$self->get(-flight_plan);
 #  $self->{zinc} = $self->get(-zinc);
 #  $self->{fp} = $flight_plan;
@@ -134,8 +131,7 @@ sub draw {
   my $self = shift;
   my $zinc = $self->get(-zinc);
   my $ident = $self->get(-aircraft)->get('-ac_id');
-  my $x = 0;#$self->get(-pos_x);
-  my $y = 0;#$self->get(-pos_y);
+  my ($x, $y) = @{$self->get('-origin')};
 #  my $fp = $self->get(-flight_plan);
 
   ## main group of the strip

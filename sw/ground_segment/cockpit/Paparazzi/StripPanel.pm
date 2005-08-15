@@ -58,9 +58,9 @@ sub add_strip {
   use constant NB_STRIP => 6;
   my $step = $self->get('-height') / NB_STRIP;
   my $nb_strips = keys %{$self->{strips}};
-  my ($p, $w, $h) = ([15, 10 + $step * $nb_strips], 120, 45);
+  my ($p, $w, $h) = ([5, 10 + $step * $nb_strips], 120, 45);
   my $strip = Paparazzi::Strip->new( -zinc => $zinc, -parent_grp => $self->{sp_main_group},
-#				     -origin => $p, -width  => $w, -height => $h,
+				     -origin => $p, -width  => $w, -height => $h,
 				     -aircraft => $aircraft);
   $self->{strips}->{$aircraft->get('-ac_id')} = $strip;
 #  $zinc->bind($self->{strips}->{$name}->{-paper},'<ButtonPress-1>',[\&OnStripPressed,$self, $name]);
