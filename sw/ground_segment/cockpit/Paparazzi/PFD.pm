@@ -70,8 +70,8 @@ sub selected_ac {
     $new_ac->attach($self, $field, [\&foo_cbk, $field]);
   }
 
-  @fields = (['mode', '-ap_mode'],
-	     ['course', '-heading'],
+  @fields = (['mode', 'ap_mode'],
+	     ['course', 'heading'],
 	    );
   foreach my $field ( @fields ) {
     $previous_ac->detach($self, $field->[0], [\&foo_cbk, $field->[1]]) if ($previous_ac);
