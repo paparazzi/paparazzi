@@ -17,13 +17,14 @@ sub populate {
 		    -origin  => [S_NEEDINIT, S_PASSIVE, S_RDONLY, S_OVRWRT, S_NOPRPG, undef],
 		    -width   => [S_NEEDINIT, S_PASSIVE, S_RDONLY, S_OVRWRT, S_NOPRPG, undef],
 		    -height  => [S_NEEDINIT, S_PASSIVE, S_RDONLY, S_OVRWRT, S_NOPRPG, undef],
-		    -selected_ac  => [S_NOINIT, S_METHOD,  S_RDWR,   S_OVRWRT, S_NOPRPG, 'NONE'],
+		    -pubevts   => [S_NEEDINIT, S_PASSIVE, S_RDWR, S_APPEND, S_NOPRPG,[]],
 		   );
 }
 
 sub completeinit {
   my $self = shift;
   $self->SUPER::completeinit();
+  $self->configure('-pubevts' => 'SELECTED');
   $self->build_gui();
 }
 
@@ -55,27 +56,23 @@ sub add_strip {
   # add strip only once
   return if (defined $self->{strips}->{$aircraft->get('-ac_id')});
   my $zinc = $self->get('-zinc');
-  use constant NB_STRIP => 6;
+  use constant NB_STRIP => 3;
   my $step = $self->get('-height') / NB_STRIP;
   my $nb_strips = keys %{$self->{strips}};
   my ($p, $w, $h) = ([5, 10 + $step * $nb_strips], 120, 45);
   my $strip = Paparazzi::Strip->new( -zinc => $zinc, -parent_grp => $self->{sp_main_group},
 				     -origin => $p, -width  => $w, -height => $h,
 				     -aircraft => $aircraft);
-  $self->{strips}->{$aircraft->get('-ac_id')} = $strip;
-#  $zinc->bind($self->{strips}->{$name}->{-paper},'<ButtonPress-1>',[\&OnStripPressed,$self, $name]);
+  my $ac_id = $aircraft->get('-ac_id');
+  $zinc->bind($strip->{'frame'},'<ButtonPress-1>',[\&OnStripPressed,$self, $ac_id]);
+  $self->{strips}->{$ac_id} = $strip;
 }
 
 sub OnStripPressed {
-#  print ("OnStripPressed @_\n");
-  my ($zinc, $self, $name) = @_;
-  $self->configure( -selected_ac => $name);
+  print ("OnStripPressed @_\n");
+  my ($zinc, $self, $ac_id) = @_;
+  $self->notify('SELECTED', $ac_id);
 }
 
-sub selected_ac {
-  my ($self, $previous, $new) = @_;
-  $self->{strips}->{$previous}->configure( -selected => 0) if defined $previous and defined $self->{strips}->{$previous};
-  $self->{strips}->{$new}->configure( -selected => 1) if defined $new and $new ne "NONE" and defined $self->{strips}->{$new};
-}
 
 1;

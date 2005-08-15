@@ -64,27 +64,17 @@ sub selected_ac {
   print "in PFD selected_ac $previous_ac $new_ac\n";
 
   my @fields = ('roll', 'alt', 'speed', 'alt', 'target_alt', 'target_heading', 'gps_mode');
-  
-  if ($previous_ac) {
-    foreach my $field ( @fields ) {
-      $previous_ac->detach($self, $field, [\&foo_cbk, $field]);
-    } 
-  }
 
   foreach my $field ( @fields ) {
+    $previous_ac->detach($self, $field, [\&foo_cbk, $field]) if ($previous_ac);
     $new_ac->attach($self, $field, [\&foo_cbk, $field]);
   }
 
   @fields = (['mode', '-ap_mode'],
 	     ['course', '-heading'],
 	    );
-  if ($previous_ac) {
-    foreach my $field ( @fields ) {
-      $previous_ac->detach($self, $field->[0], [\&foo_cbk, $field->[1]]);
-    }
-  }
-
   foreach my $field ( @fields ) {
+    $previous_ac->detach($self, $field->[0], [\&foo_cbk, $field->[1]]) if ($previous_ac);
     $new_ac->attach($self, $field->[0], [\&foo_cbk, $field->[1]]);
   }
 }

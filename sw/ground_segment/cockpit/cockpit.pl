@@ -96,7 +96,7 @@ sub build_gui {
 						     -width  => $stp_w,
 						     -height => $stp_h
 						   );
-#  $self->{strip_panel}->attach($self, '-selected_ac', ['onAircratftSelection', ()]);
+  $self->{strip_panel}->attach($self, 'SELECTED', ['on_aircraft_selection', ()]);
 
   $self->{pfd} = Paparazzi::PFD->new( -zinc => $zinc,
 				      -origin => $pfd_p,
@@ -132,12 +132,24 @@ sub on_foo {
 sub ivy_on_selected {
   my ($sender_name, $msg_class, $msg_name, $fields, $self) = @_;
   print "in ivy_on_selected\n"; # if (COCKPIT_DEBUG);
- 
-  my $sel_ac_id = $fields->{aicraft_id};
-  $self->{selected_ac} = $sel_ac_id;
-  $self->{aircrafts_manager}->listen_to_ac($sel_ac_id);
-  print "configuring pfd\n";
-  my $aircraft = $self->{aircrafts_manager}->get_aircraft_by_id($sel_ac_id);
+  $self->select_ac($fields->{aicraft_id});
+}
+
+
+sub on_aircraft_selection {
+  #  print ("onAircratftSelection @_\n");
+  my ($self, $_sp, $what, $new_selected_ac ) = @_;
+  print "on_aircraft_selection @_\n";
+  $self->select_ac($new_selected_ac);
+
+}
+
+
+sub select_ac {
+  my ($self, $ac_id) = @_;
+  $self->{selected_ac} = $ac_id;
+  $self->{aircrafts_manager}->listen_to_ac($ac_id);
+  my $aircraft = $self->{aircrafts_manager}->get_aircraft_by_id($ac_id);
   my $pfd = $self->{pfd};
   $pfd->configure('-selected_ac', $aircraft);
 }
@@ -162,29 +174,6 @@ sub onShowPage {
 #     $self->{mw}->afterCancel($self->{timer_id})
 #   }
 # }
-
-sub onAircratftSelection {
-#  print ("onAircratftSelection @_\n");
-  my ($self, $_sp, $what, $new_selected_ac ) = @_;
-  my $ivy = $self->{ivy};
-#  Paparazzi::IvyProtocol::sendMsg($ivy, "ground", "SELECTED",{ id => $new_selected_ac});
-  return if ($new_selected_ac eq "NONE");
-  my @ac_events = ( ['FLIGHT_PARAM',  \&ivyOnFlightParam],
-		    ['NAV_STATUS',    \&ivyOnNavStatus],
-		    ['AP_STATUS',     \&ivyOnApStatus],
-		    ['ENGINE_STATUS', \&ivyOnEngineStatus],
-		    ['SATS', \&ivyOnSats],
-		  );
-  foreach my $event (@ac_events) {
-    # removes existing binding
-#    Paparazzi::IvyProtocol::bind_message("aircraft_info", $event->[0], {id => $self->{selected_ac}}, $ivy, undef) unless !defined $self->{selected_ac};
-    # add new one
-#    Paparazzi::IvyProtocol::bind_message("aircraft_info", $event->[0], {id => $new_selected_ac}, $ivy, [$self, $event->[1]]);
-  }
-  $self->{selected_ac} = $new_selected_ac;
-}
-
-
 
 
 
