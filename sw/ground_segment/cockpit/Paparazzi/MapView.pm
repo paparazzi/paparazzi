@@ -369,12 +369,8 @@ sub load_flight_plan_in_progress {
 	my $NAV_UTM_NORTH0 = $flightplan->gets('-NAV_UTM_NORTH0');
 
 
-  my $flight_plan = $doc->getElementsByTagName('flight_plan')->[0];
-
-  my $waypoints = $doc->getElementsByTagName('waypoints')->[0];
-  $self->{NAV_UTM_EAST0} = $waypoints->getAttribute('utm_x0');
-  $self->{NAV_UTM_NORTH0} = $waypoints->getAttribute('utm_y0');
-
+return;
+	my $doc;
 	# The sub which highlights overflight waypoint
 	my $highlight_overflight_wp = sub {
 #		$self->set_wp_color('current', $self->{palette}->{highlighted_waypoint});
@@ -447,7 +443,6 @@ sub load_flight_plan_in_progress {
 	my $waypoint_home_tag = [$zinc->gettags($zinc->find('withtag', "HOME"))];
 	my ($waypoint_home_x, $waypoint_home_y) = ($waypoint_home_tag->[1], $waypoint_home_tag->[2]);
 #	print "find HOME (x, y) ($waypoint_home_x, $waypoint_home_y) \n";
-	my $max_dist_from_home = $flight_plan->getAttribute('max_dist_from_home');
 	$self->{flight_plan}->{Id1}->{max_dist_from_home} = $max_dist_from_home;
   my @minus_max_dist = $self->map_of_mission([-$max_dist_from_home + $waypoint_home_x,
 																							-$max_dist_from_home + $waypoint_home_y]);
