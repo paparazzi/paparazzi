@@ -33,6 +33,7 @@ use Tk::JPEG;
 use Tk::Zinc;
 use XML::DOM;
 use Math::Trig;
+use Paparazzi::Flightplan;
 require File::Basename;
 
 
@@ -71,6 +72,12 @@ sub completeinit {
   my $map_file = Paparazzi::Environment::get_default_map();
 
   $self->load_map($map_file, [scalar $self->get('-width'), scalar $self->get('-height')]);
+
+	
+#	my $flightplan_url = Paparazzi::Environment::get_flightplan()
+#	my $flightplan = $self->{flightplan} = Paparazzi::Flightplan->new(-url => $flightplan_url)
+	
+	
   $self->set_bindings();
   $self->{tracks} = {};
   $self->get('-ac_manager')->attach($self, 'NEW_AIRCRAFT', [\&on_new_aircraft]);
@@ -219,6 +226,175 @@ sub load_flight_plan {
 		#	print "I leave wp... \n";
 	};
 
+  foreach my $wp ($doc->getElementsByTagName('waypoint')) {
+    my ($wp_name, $wp_x_mission, $wp_y_mission, $wp_alt) = 
+      		( $wp->getAttribute('name'),
+						$wp->getAttribute('x'),
+						$wp->getAttribute('y'),
+						$wp->getAttribute('alt'));
+    my @wp_map = $self->map_of_mission([$wp_x_mission, $wp_y_mission]);
+		
+		#	We change the ta in order not to have '.' or '*' because it is use by zinc for pathTag
+		my $wp_tag = $wp_name;
+		$wp_tag =~ s/\./·/;
+		$wp_tag =~ s/\*/~/;
+		# We create 2 labels, first one is not visible but is used to let the automatic format of
+		# the second one when mouse fly over the waypoint (unless, we get a lot of 'in' and 'out' events)
+    my $item = $zinc->add( 'waypoint', $self->{map_wp_group}, 2,
+													-position => \@wp_map,
+					      					-labeldistance => 10,
+													-leaderanchors => '%0x0',
+													-labelformat => 'x200x18+0+0 x50x18^0^0',
+													-tags => [$wp_tag, $wp_x_mission, $wp_y_mission]);
+		#	print "Add waypoint $wp_name with tag $wp_tag\n";
+    $zinc->itemconfigure($item, 1,
+													-backcolor => $self->{palette}->{back_screen},
+													-bordercolor => $self->{palette}->{highlighted_waypoint},
+													-filled => 'false',
+													-border => '',
+					   							-text => "$wp_name" );
+    $zinc->itemconfigure($item, 0,
+					   							-visible => 0 );
+#		$self->get_color($item, 'back_screen');
+		if ($wp_tag =~ /^.*_\d*_\d*$/ or $wp_tag =~ /^.*__.*$/) {
+			# This is a secondary waypoint (defined from another one)
+#			$self->set_wp_color($item, $self->{palette}->{secondary_waypoint});
+			$self->set_wp_color($item, 'secondary_waypoint');
+			$zinc->addtag('secondary', 'withtag', $wp_tag);}
+		else {
+			# This is a primary waypoint
+#			$self->set_wp_color($item, $self->{palette}->{waypoint});
+			$self->set_wp_color($item, 'waypoint');
+			$zinc->addtag('primary', 'withtag', $wp_tag);}
+		$zinc->bind("$item:1", '<Enter>', $highlight_overflight_wp);
+		$zinc->bind("$item:leader", '<Enter>', $highlight_overflight_wp);
+		$zinc->bind("$item:position", '<Enter>', $highlight_overflight_wp);
+		$zinc->bind("$item:1", '<Leave>', $unhighlight_overflight_wp);
+		$zinc->bind("$item:leader", '<Leave>', $unhighlight_overflight_wp);
+		$zinc->bind("$item:position", '<Leave>', $unhighlight_overflight_wp);
+  }
+	
+	my $waypoint_home_tag = [$zinc->gettags($zinc->find('withtag', "HOME"))];
+	my ($waypoint_home_x, $waypoint_home_y) = ($waypoint_home_tag->[1], $waypoint_home_tag->[2]);
+#	print "find HOME (x, y) ($waypoint_home_x, $waypoint_home_y) \n";
+	my $max_dist_from_home = $flight_plan->getAttribute('max_dist_from_home');
+	$self->{flight_plan}->{Id1}->{max_dist_from_home} = $max_dist_from_home;
+  my @minus_max_dist = $self->map_of_mission([-$max_dist_from_home + $waypoint_home_x,
+																							-$max_dist_from_home + $waypoint_home_y]);
+  my @plus_max_dist = $self->map_of_mission([$max_dist_from_home + $waypoint_home_x,
+																						 $max_dist_from_home + $waypoint_home_y]);
+	
+	my $max_dist_circle = $zinc->add('arc', $self->{max_dist_circle},
+																		[@minus_max_dist, @plus_max_dist],
+																		-filled => 0,
+																		-linewidth => 3,
+																		-linecolor => $self->{palette}->{max_dist_from_home_circle});
+																		
+	my $max_dist_circle_mask = $zinc->add('arc', $self->{max_dist_mask},
+																				[@minus_max_dist, @plus_max_dist],
+																				-visible => 0, -filled => 1);
+																							
+	my $max_dist_rect_mask = $zinc->find('withtag', 'max_dist_rect_mask');
+	my $max_dist_rect_mask_clone = $zinc->find('withtag', 'max_dist_rect_mask_clone');
+	$zinc->contour($max_dist_rect_mask, 'add', -1, $max_dist_circle_mask);
+	
+	$zinc->itemconfigure($self->{max_dist_mask}, -clip => $max_dist_rect_mask_clone);
+	
+	if ($self->{is_centered_by_user} == 0) {
+  	$self->scroll_to_map([$self->map_of_mission([0, 0])], [$win_size->[0]/2, $win_size->[1]/2]);
+	}
+	$self->trace_grid();
+
+
+#	That is the copy of MissionD.pm
+  my ($blocks, $blocks_stages);
+
+  foreach my $stage ($doc->getElementsByTagName('stage')) {
+    my $block_name = $stage->getAttribute('block_name');
+    my $block_no = $stage->getAttribute('block');
+    my $stage_no = $stage->getAttribute('stage');
+    my $stage_text = "";
+    my $stage_kids = $stage->getChildNodes();
+    foreach my $kid (@{$stage_kids}) {
+      $stage_text = $stage_text.$kid->toString() if $kid->getNodeType() != TEXT_NODE;
+    }
+    $blocks_stages->{$block_name}->{$stage_text} = get_stage_id($block_no, $stage_no);
+    $blocks->{$block_name} = get_block_id($block_no) unless defined $blocks->{block_name};
+  }
+
+  #  print Dumper(\$blocks);
+  #  print Dumper(\$blocks_stages);
+
+  foreach my $block ($doc->getElementsByTagName('block')){
+    my $block_name = $block->getAttribute('name');
+    foreach my $line (split (/(\n)/, $block->toString())) {
+      my $key = $line;
+      $key =~ s/^\s*//; # remove any leading whitespace
+      $key =~ s/\s*$//; # remove any trailing whitespace
+      if ($key ne "") {
+				my $block_id = $blocks->{$block_name};
+				my $stage_id = $blocks_stages->{$block_name}->{$key};
+				my $tags = [$block_id];
+				push(@{$tags}, ($stage_id)) if defined $stage_id;
+#				$self->Subwidget('text')->insert('end', $line."\n", $tags);
+				if (defined $stage_id) {
+					# print "reading $block_id $stage_id  block name  $block_name\n";
+					$self->{mission}->{$block_id}->{$stage_id} = $line; }
+      }
+    }
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+sub load_flight_plan_in_progress {
+  my ($self, $flightplan, $win_size) = @_;
+	my $zinc = $self->{map_widget};
+
+	my $waypoints = $flightplan->gets('-waypoints');
+	my $mission = $flightplan->gets('-mission');
+	my $max_dist_from_home = $flightplan->gets('-max_dist_from_home');
+	my $NAV_UTM_EAST0 = $flightplan->gets('-NAV_UTM_EAST0');
+	my $NAV_UTM_NORTH0 = $flightplan->gets('-NAV_UTM_NORTH0');
+
+
+  my $flight_plan = $doc->getElementsByTagName('flight_plan')->[0];
+
+  my $waypoints = $doc->getElementsByTagName('waypoints')->[0];
+  $self->{NAV_UTM_EAST0} = $waypoints->getAttribute('utm_x0');
+  $self->{NAV_UTM_NORTH0} = $waypoints->getAttribute('utm_y0');
+
+	# The sub which highlights overflight waypoint
+	my $highlight_overflight_wp = sub {
+#		$self->set_wp_color('current', $self->{palette}->{highlighted_waypoint});
+		$self->set_wp_color('current', 'highlighted_waypoint');
+		$zinc->itemconfigure('current', 1, -border => 'contour', -filled => 'true');
+		$zinc->itemconfigure('current', -labelformat => 'x200x18+0+0 a0x18^0^0' );
+		$zinc->addtag('above_tag', 'above', 'current');
+		$zinc->raise('current');
+		#	print "I fly over wp... \n";
+	};
+	# The sub which unhighlights overflight waypoint
+	my $unhighlight_overflight_wp = sub {
+		$self->clear_wp_color('current');
+		$zinc->itemconfigure('current', 1, -border => '', -filled => 'false');
+		$zinc->itemconfigure('current', -labelformat => 'x200x18+0+0 x50x18^0^0' );
+		foreach my $aboved_item ($zinc->find('withtag', 'above_tag')) {
+			$zinc->lower('current', $aboved_item); }
+		$zinc->dtag('above_tag');
+		#	print "I leave wp... \n";
+	};
 
   foreach my $wp ($doc->getElementsByTagName('waypoint')) {
     my ($wp_name, $wp_x_mission, $wp_y_mission, $wp_alt) = 
@@ -338,6 +514,21 @@ sub load_flight_plan {
     }
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 sub get_block_id {
   my ($no_block) = @_;
@@ -780,11 +971,19 @@ sub set_track_map {
 }
 
 sub set_picture_mission {
+	#########################
+	######## CAUTION ########
+	# I think it is useless #
+	#########################
   my ($self, $name, $pos_xy, $heading, $scale) = @_;
   return $self->set_picture_map($name, [$self->map_of_mission($pos_xy)], $heading, $scale);
 }
 
 sub set_picture_map {
+	#########################
+	######## CAUTION ########
+	# I think it is useless #
+	#########################
   my ($self, $name, $pos_xy, $heading, $scale) = @_;
   my $zinc = $self->{zinc};
   my $track_item = $self->{tracks}->{$name};
