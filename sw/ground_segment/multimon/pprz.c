@@ -85,6 +85,13 @@ void pprz_init(struct demod_state *s)
 	memset(&s->l2.hdlc, 0, sizeof(s->l2.hdlc));
 	
 	/* open named pipe */
+	struct stat st;
+	if (stat(multimon_pipe_name, &st)) {
+	  if (mkfifo(multimon_pipe_name, 0644) == -1) {
+	    perror("make pipe");
+	    exit (10);
+	  }
+	}
 	if ((s->l2.pprz.pipe_fd = open(multimon_pipe_name, O_WRONLY /*| O_NONBLOCK*/)) < 0) {
 		perror("open pipe");
 		exit (10);

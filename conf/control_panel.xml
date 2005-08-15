@@ -97,7 +97,7 @@
     </session>
 
     <session name="flight microjet modem">
-      <program name="modem"><arg flag="-i" constant="1"/><arg flag="-d" constant="/dev/ttyUSB0"/></program>
+      <program name="modem"><arg flag="-d" constant="/dev/ttyUSB0"/></program>
       <program name="receive"/>     
       <program name="cockpit"/>
       <program name="map 2d ml"/>
@@ -106,7 +106,7 @@
   
    <session name="flight microjet multimon">
       <program name="multimon"><arg flag="-p" constant="/tmp/multimon"/></program>
-      <program name="modem"><arg flag="-i" constant="1"/><arg flag="-d" constant="/tmp/multimon"/></program>
+      <program name="modem"><arg flag="-d" constant="/tmp/multimon"/></program>
       <program name="receive"/>     
       <program name="cockpit"/>
       <program name="map 2d ml"/>
@@ -115,7 +115,7 @@
 
    <session name="flight microjet multimon sim">
       <program name="multimon"><arg flag="-p" constant="/tmp/multimon"/></program>
-      <program name="modem"><arg flag="-i" constant="1"/><arg flag="-d" constant="/tmp/multimon"/></program>
+      <program name="modem"><arg flag="-d" constant="/tmp/multimon"/></program>
       <program name="sim"><arg flag="-a" constant="Thon2"/></program>
       <program name="receive"/>     
       <program name="cockpit"/>

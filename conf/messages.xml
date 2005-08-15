@@ -247,6 +247,10 @@
     <field name="ac_id" type="string"/>
   </message>
 
+  <message name="AIRCRAFT_DIE" ID="0x04">
+    <field name="ac_id" type="string"/>
+  </message>
+
   <message name="AIRCRAFTS" ID="0x04">
     <field name="ac_list" type="string" unit="csv"/>
   </message>

@@ -26,6 +26,7 @@
 
 open Printf
 
+let ac_id = ref "modem"
 
 let modem_msg_period = 1000
 
@@ -42,10 +43,12 @@ type status = {
 
 let status = { rx_byte = 0; rx_msg = 0; rx_err = 0 }
 
-let use_pprz_message = fun ac_id (msg_id, values) ->
+let use_pprz_message = fun () (msg_id, values) ->
   status.rx_msg <- status.rx_msg + 1;
   let msg = Tele_Pprz.message_of_id msg_id in
-  Tele_Pprz.message_send (string_of_int ac_id) msg.Pprz.name values
+  if msg.Pprz.name = "IDENT" then
+    ac_id := Pprz.string_assoc "id" values;
+  Tele_Pprz.message_send !ac_id msg.Pprz.name values
 
 let listen_pprz_modem = fun pprz_message_cb tty ->
   let fd = 
@@ -83,8 +86,7 @@ let listen_pprz_modem = fun pprz_message_cb tty ->
 
 let send_modem_msg =
   let rx_msg = ref 0 and rx_byte = ref 0 and start = Unix.gettimeofday () in
-  fun ac_id ->
-    let ac_id = string_of_int ac_id in
+  fun () ->
     let dt = float modem_msg_period /. 1000. in
     let t = int_of_float (Unix.gettimeofday () -. start) in
     let byte_rate = float (status.rx_byte - !rx_byte) /. dt
@@ -98,7 +100,7 @@ let send_modem_msg =
 	      "rx_bytes", Pprz.Int status.rx_byte;
 	      "rx_msgs", Pprz.Int status.rx_msg
 	    ] in
-    Tele_Pprz.message_send ac_id "DOWNLINK_STATUS" vs;
+    Tele_Pprz.message_send !ac_id "DOWNLINK_STATUS" vs;
     let vs = ["valim", Pprz.Float Modem.status.Modem.valim;
 	      "detected", Pprz.Int Modem.status.Modem.detected;
 	      "cd", Pprz.Int Modem.status.Modem.cd;
@@ -106,31 +108,26 @@ let send_modem_msg =
 	      "nb_byte", Pprz.Int Modem.status.Modem.nb_byte;
 	      "nb_msg", Pprz.Int Modem.status.Modem.nb_msg
 	    ] in
-    Tele_Pprz.message_send ac_id "MODEM_STATUS" vs
+    Tele_Pprz.message_send !ac_id "MODEM_STATUS" vs
 
 (* main loop *)
 let _ =
   let ivy_bus = ref "127.255.255.255:2010" in
   let port = ref "/dev/ttyS0" in
-  let ac_id = ref (-1) in
   let options =
     [ "-b", Arg.Set_string ivy_bus, (sprintf "Ivy bus (%s)" !ivy_bus);
-      "-i", Arg.Set_int ac_id, "A/C id";
       "-d", Arg.Set_string port, (sprintf "Port (%s)" !port)] in
   Arg.parse
     options
     (fun x -> fprintf stderr "Warning:ignoring %s\n" x)
     "Usage: ";
   
-  if !ac_id < 0 then
-    failwith "A/C ic expected";
-
   Ivy.init "Paparazzi hw_modem_listen" "READY" (fun _ _ -> ());
   Ivy.start !ivy_bus;
 
-  listen_pprz_modem (use_pprz_message !ac_id) !port;
+  listen_pprz_modem (use_pprz_message ()) !port;
 
-  ignore (Glib.Timeout.add modem_msg_period (fun () -> send_modem_msg !ac_id; true));
+  ignore (Glib.Timeout.add modem_msg_period (fun () -> send_modem_msg (); true));
   
   let loop = Glib.Main.create true in
   while Glib.Main.is_running loop do
