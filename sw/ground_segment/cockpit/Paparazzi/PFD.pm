@@ -55,12 +55,6 @@ sub completeinit {
   $self->SUPER::completeinit();
 
   $self->build_gui();
-#  $self->configure( -speed => 9);
-#  $self->configure( -target_speed => 10);
-#  $self->configure( -alt => 140);
-#  $self->configure( -target_alt => 150);
-#  $self->configure( -roll => 20);
-#  $self->configure( -pitch => 10);
   $self->configure('-pubevts' => 'SHOW_PAGE');
 }
 
@@ -71,27 +65,35 @@ sub selected_ac {
 
   my @fields = ('roll', 'alt', 'speed', 'alt', 'target_alt', 'target_heading', 'gps_mode');
   
+  if ($previous_ac) {
+    foreach my $field ( @fields ) {
+      $previous_ac->detach($self, $field, [\&foo_cbk, $field]);
+    } 
+  }
+
   foreach my $field ( @fields ) {
-    $new_ac->attach($self, $field, [sub { my ($self, $aircraft, $event, $new_value) = @_;
-					$self->configure('-'.$field, $new_value);
-				      }]);
+    $new_ac->attach($self, $field, [\&foo_cbk, $field]);
   }
 
   @fields = (['mode', '-ap_mode'],
 	     ['course', '-heading'],
 	    );
+  if ($previous_ac) {
+    foreach my $field ( @fields ) {
+      $previous_ac->detach($self, $field->[0], [\&foo_cbk, $field->[1]]);
+    }
+  }
+
   foreach my $field ( @fields ) {
-    $new_ac->attach($self, $field->[0], [sub { my ($self, $aircraft, $event, $new_value) = @_;
-					$self->configure($field->[1], $new_value);
-				      }]);
+    $new_ac->attach($self, $field->[0], [\&foo_cbk, $field->[1]]);
   }
 }
 
-#sub foo_cbk {
-#  my ($self, $aircraft, $event, $new_value) = @_;
-#  $self->configure('-roll', $new_value);
-#  
-#}
+
+sub foo_cbk {
+  my ($self, $field, $aircraft, $event, $new_value) = @_;
+  $self->configure('-'.$field, $new_value);
+}
 
 sub nav_dist_wp {
   my ($self, $previous_d, $new_d) = @_;
