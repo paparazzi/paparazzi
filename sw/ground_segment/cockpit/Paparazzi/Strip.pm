@@ -100,8 +100,8 @@ sub completeinit {
 
   $self->parse_config();
 
-  $self->{'sdv'} = 0;
-  $self->{'zinc_flight_time'} = "";
+
+  $self->{prefix} = "STRIP_".$self->get(-aircraft)->get('-ac_id')."_";
   $self->{'zinc_bat'} = "";
   $self->{'zinc_bat_value'} = "";
   $self->draw();
@@ -190,7 +190,7 @@ sub draw {
   $self->add_label("climb:", "climb", 150, 58);
   $self->add_value_text("climb");
 
-  $zinc->add('text', $self->{'contentgroup'}, -text => $self->string_of_time(0), -position => [8, 82], -font => $self->{options}->{small_font}, -color => $self->{options}->{label_color}, -tags => ["flight_time_value"]);
+  $zinc->add('text', $self->{'contentgroup'}, -text => $self->string_of_time(0), -position => [8, 82], -font => $self->{options}->{small_font}, -color => $self->{options}->{label_color}, -tags => [ $self->{prefix}."flight_time_value"] );
   ##
   # QUICK and DIRTY flight time an battery
   # 
@@ -215,7 +215,7 @@ sub draw {
 sub add_label {
   my ($self, $label, $tag, $x, $y) = @_;
   print "adding $tag\n";
-  $self->get('-zinc')->add('text',$self->{'contentgroup'}, -text => $label, -position => [$x, $y], -font => $self->{options}->{normal_font}, -color => $self->{options}->{label_color}, -tags => [ $tag ]);
+  $self->get('-zinc')->add('text',$self->{'contentgroup'}, -text => $label, -position => [$x, $y], -font => $self->{options}->{normal_font}, -color => $self->{options}->{label_color}, -tags => [ $self->{prefix}.$tag ]);
 }
 
 # add_value_text
@@ -224,8 +224,8 @@ sub add_label {
 sub add_value_text {
   my ($self, $tag) = @_;
   my $zinc = $self->get('-zinc');
-  my $item = $zinc->find('withtag', $tag);
-  my $new_tag = $tag."_value";
+  my $item = $zinc->find('withtag', $self->{prefix}.$tag);
+  my $new_tag = $self->{prefix}.$tag."_value";
   my ($xo,$yo, $xc, $yc) = $zinc->bbox($item);
   $zinc->add('text', $self->{contentgroup}, -text =>  "N/A",
 	     -position => [$xc+5, $yo], -font => $self->{options}->{normal_font}, 
@@ -274,7 +274,8 @@ sub border_block {
   my $flight_plan = $1;
   print "in Strip border_block parsing $flight_plan\n";
 
-  my @blocks = $self->parse_fp($flight_plan);
+  #my @blocks = $self->parse_fp($flight_plan);
+  my @blocks;
   my @groups = ();
   my @x = ( 300, 350, 400, 450, 500, 550, 600, 650, 700, 750);
 
@@ -303,7 +304,7 @@ sub border_block {
     $zinc->itemconfigure($groups[$i], -clip => $clip);
     $zinc->add('text', $groups[$i], -text => $block_name,
     -position => [ $x[$i]+3, 20], -font => $self->{options}->{normal_font},
-    -tags => [ "block_".$block_name, "block_label", "block_num_".$i ]
+    -tags => [ $self->{prefix}."block_".$block_name, "block_label", $self->{prefix}."block_num_".$i ]
   );
   $zinc->add('text', $groups[$i], -text => $blocks[$i]->{rc1},
   -position => [ $x[$i]+3, 50], -font => $self->{options}->{small_font},
@@ -322,19 +323,19 @@ $zinc->add('text', $groups[$i], -text => $blocks[$i]->{rc2},
 
 sub set_item {
   my ($self, $item_name, $string, $color) = @_;
+  print "in Strip::set_item $item_name $string $color\n";
   my $zinc = $self->get('-zinc');
-  my $item = $zinc->find('withtag', $item_name."_value");
+  my $item = $zinc->find('withtag', $self->{prefix}.$item_name."_value");
   $zinc->itemconfigure($item, -text => $string, -color  => $color);
 }
 
 sub set_block {
   my ($self, $num) = @_;
   my $zinc = $self->get('-zinc');
-  print Dumper($self->{zinc}->find('withtag', "block_label"));
-  foreach my $b ($zinc->find('withtag', "block_label")) {
+  foreach my $b ($zinc->find('withtag', $self->{prefix}."block_label")) {
     $zinc->itemconfigure($b, -color => $self->{options}->{label_color});
   }
-  my $item = $zinc->find('withtag', "block_num_".$num);
+  my $item = $zinc->find('withtag', $self->{prefix}."block_num_".$num);
   $zinc->itemconfigure($item, -color => 'blue');
 }
 
@@ -416,7 +417,7 @@ sub aircraft_config_changed {
 
   
   # cur_block
-  elsif ($event eq '-cur_block') {
+  elsif ($event eq 'cur_block') {
     $self->set_block($new_value); # display current block of flight plan
   }
 
