@@ -149,6 +149,7 @@ sub draw {
   ## bindings to highlight the strip when the mouse is over
   $zinc->bind($self->{frame}, '<Enter>', sub { $zinc->itemconfigure($self->{frame}, -linecolor => 'red'); });
   $zinc->bind($self->{frame}, '<Leave>', sub { $zinc->itemconfigure($self->{frame}, -linecolor => 'sienna'); });
+  $zinc->bind($self->{frame}, '<1>', [\&onStripPressed, $self, $ident]);
 
   ## ident of the plane
   $zinc->add('text', $self->{'contentgroup'}, -text => uc($ident), -position=>[10,10], -font => $self->{options}->{normal_font}, -color => "midnightblue");
@@ -426,6 +427,12 @@ sub aircraft_config_changed {
     print "in Strip::aircraft_config_changed : unknow event $event $new_value\n";
   }
 
+}
+
+sub OnStripPressed {
+ print ("OnStripPressed @_\n");
+ my ($zinc, $self, $ac_id) = @_;
+ $self->notify('SELECTED', $ac_id);
 }
 
 ## fin de la classe
