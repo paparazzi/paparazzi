@@ -41,9 +41,10 @@ sub populate {
   my ($self, $args) = @_;
   $self->SUPER::populate($args);
   $self->configspec (
-		     -mw    => [S_NEEDINIT, S_PASSIVE, S_RDONLY, S_OVRWRT, S_NOPRPG, undef],
-		     -height    => [S_NOINIT, S_PASSIVE, S_RDONLY, S_OVRWRT, S_NOPRPG, 600],
-		     -width			=> [S_NOINIT, S_PASSIVE, S_RDONLY, S_OVRWRT, S_NOPRPG, 770],
+		     -mw => [S_NEEDINIT, S_PASSIVE, S_RDONLY, S_OVRWRT, S_NOPRPG, undef],
+		     -ac_manager => [S_NEEDINIT, S_PASSIVE, S_RDONLY, S_OVRWRT, S_NOPRPG, undef],
+		     -height => [S_NOINIT, S_PASSIVE, S_RDONLY, S_OVRWRT, S_NOPRPG, 600],
+		     -width  => [S_NOINIT, S_PASSIVE, S_RDONLY, S_OVRWRT, S_NOPRPG, 770],
 		    );
 }
 
@@ -53,11 +54,11 @@ sub completeinit {
 
   my $mw = $self->get('-mw');
   my $zinc = $mw->Zinc(-backcolor => 'black',
-			 										-borderwidth => 3,
-													-relief => 'sunken',
-													-render => '0');
+		       -borderwidth => 3,
+		       -relief => 'sunken',
+		       -render => '0');
   $zinc->pack(-fill => 'both', -expand => "1");
-  $self->{map_widget} = $zinc;
+  $self->{zinc} = $zinc;
   $self->default_palette();
   my $ressource_file = Paparazzi::Environment::get_config("gui.xml");
   $self->load_user_palette($ressource_file);
@@ -70,12 +71,43 @@ sub completeinit {
   my $map_file = Paparazzi::Environment::get_default_map();
 
   $self->load_map($map_file, [scalar $self->get('-width'), scalar $self->get('-height')]);
-
-
-
-
-  $self->{tracks} = {};
   $self->set_bindings();
+  $self->{tracks} = {};
+  $self->get('-ac_manager')->attach($self, 'NEW_AIRCRAFT', [\&on_new_aircraft]);
+}
+
+
+sub on_new_aircraft {
+  my ($self, $ac_manager, $event, $ac_id) = @_;
+  print "in MapView : on_new_aircraft\n";
+  my $zinc = $self->{zinc};
+  my $track = $zinc->add('track', $self->{map_track_group}, 6);
+  $zinc->itemconfigure($track, 
+		       -position => [200, 200],
+		       -labeldistance => 30,
+		       -markersize => 20, -symbolcolor => 'red3', -markercolor => 'red3', -leadercolor => 'red3',
+		       -labelformat => "x80x60+0+0 x63a0^0^0 x33a0^0>1 a0a0>2>1 x33a0>3>1 a0a0^0>2");
+  $zinc->itemconfigure($track, 0, -filled => 1, -backcolor => 'gray60');
+  $zinc->itemconfigure($track, 1,
+		       -filled => 1,
+		       -backcolor => 'gray55',
+		       -text => "COUCOU");
+ $self->{tracks}->{$ac_id} = $track;
+  my $aircraft = $ac_manager->get_aircraft_by_id($ac_id);
+  $aircraft->attach($self, 'east', [\&track_moved]);
+  $aircraft->attach($self, 'north', [\&track_moved]);
+}
+
+sub track_moved {
+  my ($self, $aircraft, $event, $new_value) = @_;
+  print "in MapView : track_moved\n";
+  my $zinc = $self->{zinc};
+  my $ac_id = $aircraft->get('-ac_id');
+  my $track = $self->{tracks}->{$ac_id};
+  my $pos_utm = [scalar $aircraft->get('east'), scalar $aircraft->get('north')];
+  $zinc->itemconfigure($track,
+		       -position => [$self->map_of_geo($pos_utm)],
+		      )
 }
 
 use constant SCALE_LEN => 200;
@@ -85,14 +117,14 @@ use constant SCALE_Y => 1000;
 
 sub build_gui {
   my ($self) = @_;
-	my $zinc = $self->{map_widget};
+  my $zinc = $self->{zinc};
   $self->{main_group} = $zinc->add('group', 1, -visible => 1);
 
   $self->{pan_group} = $zinc->add('group', $self->{main_group}, -visible => 1);
   $self->{zoom_group} = $zinc->add('group', $self->{pan_group}, -visible => 1);
   # map
   $self->{map_picture_group} = $zinc->add('group', $self->{zoom_group},
-														-visible => $self->{configuration}->{map});
+					  -visible => $self->{configuration}->{map});
   # waypoints
   $self->{map_wp_group} = $zinc->add('group', $self->{zoom_group}, -visible => 1, -priority => 5 );
   $self->{map_circle_group} = $zinc->add('group', $self->{zoom_group},
@@ -131,7 +163,7 @@ sub build_gui {
 
 sub set_bindings {
   my ($self) = @_;
-  my $zinc = $self->{map_widget};
+  my $zinc = $self->{zinc};
   my $mw = $self->get('-mw');
   my $map_grp = $self->{pan_group};
 #	$zinc->Tk::bind('<Configure>', [\&resize]);
@@ -158,7 +190,7 @@ sub load_flight_plan {
   my ($self, $xmldata, $win_size) = @_;
   my $parser = XML::DOM::Parser->new();
   my $doc = $parser->parse($xmldata);
-	my $zinc = $self->{map_widget};
+	my $zinc = $self->{zinc};
 
   my $flight_plan = $doc->getElementsByTagName('flight_plan')->[0];
 
@@ -319,7 +351,7 @@ sub get_stage_id {
 
 sub load_map {
   my ($self, $xml_map, $win_size) = @_;
-	my $zinc = $self->{map_widget};
+	my $zinc = $self->{zinc};
 	$self->{win_size} = $win_size;
   my $parser = XML::DOM::Parser->new();
   my $doc = $parser->parsefile($xml_map);
@@ -350,9 +382,9 @@ sub load_map {
 														-tags => ['image', $image->width(), $image->height()]);
 	$self->{image_data}->{size} = [$image->width(), $image->height()];
 	
-#  $self->{map_widget}->coords($self->{pan_group}, [0, -$image->height()]);
-  $self->{map_widget}->treset($self->{pan_group});
-#  $self->{map_widget}->coords($self->{pan_group}, [0 , $image->height()]);
+#  $self->{zinc}->coords($self->{pan_group}, [0, -$image->height()]);
+  $self->{zinc}->treset($self->{pan_group});
+#  $self->{zinc}->coords($self->{pan_group}, [0 , $image->height()]);
 	
 	$self->load_map_options($doc);
 	$self->create_max_dist_rect_mask();
@@ -430,7 +462,7 @@ sub read_palette {
 sub apply_palette {
 	#	Apply palette to previously created elements
 	my ($self) = @_;
-	my $zinc = $self->{map_widget};
+	my $zinc = $self->{zinc};
 	$zinc->configure(-backcolor => $self->{palette}->{back_screen});
 	#	print "in apply_palette \n";
 }
@@ -438,7 +470,7 @@ sub apply_palette {
 sub load_user_palette {
 	# Load user palette (defined in conf/ground_segment.xml)
   my ($self, $xml_gui) = @_;
-	my $zinc = $self->{map_widget};
+	my $zinc = $self->{zinc};
   my $parser = XML::DOM::Parser->new();
   my $doc = $parser->parsefile($xml_gui);
 	my $map_element = $doc->getElementsByTagName('map')->[0];
@@ -448,7 +480,7 @@ sub load_user_palette {
 
 sub load_configuration {
   my ($self, $xml_gui) = @_;
-	my $zinc = $self->{map_widget};
+	my $zinc = $self->{zinc};
   my $parser = XML::DOM::Parser->new();
   my $doc = $parser->parsefile($xml_gui);
 	my $map_element = $doc->getElementsByTagName('map')->[0];
@@ -470,7 +502,7 @@ sub load_configuration {
 sub load_map_options {
 	# Read and load map options
   my ($self, $doc) = @_;
-	my $zinc = $self->{map_widget};
+	my $zinc = $self->{zinc};
   my $xml_user_options = $doc->getElementsByTagName('user')->[0];
 	my ($user_zoom, $user_center);
 	$self->{is_centered_by_user} = 0;
@@ -491,7 +523,7 @@ sub load_map_options {
 sub create_max_dist_rect_mask {
 	# Create the max_dist_from_home mask  (usefull only with OpenGL)
   my ($self) = @_;
-	my $zinc = $self->{map_widget};
+	my $zinc = $self->{zinc};
 	my $img_size = $self->{image_data}->{size};
 	# Define max_dist mask rectangle with a curve in order to retire the circle
 	# (I think it is not possible with a real rectangle element)
@@ -517,7 +549,7 @@ sub create_max_dist_rect_mask {
 sub trace_grid {
 # Trace a grid on the map
   my ($self) = @_;
-	my $zinc = $self->{map_widget};
+	my $zinc = $self->{zinc};
 	my $max_dist_from_home = $self->{flight_plan}->{Id1}->{max_dist_from_home};
 	my $grid_step = $self->{configuration}->{grid_step};
 	my $grid_only_on_map = $self->{configuration}->{grid_only_on_map};
@@ -591,10 +623,10 @@ sub set_wp_color {
 sub clear_wp_color {
 # To clear the color of a waypoint and come back to first one
   my ($self, $wp_Id) = @_;
-	if ($self->{map_widget}->hastag($wp_Id, 'desired')) {
+	if ($self->{zinc}->hastag($wp_Id, 'desired')) {
 #		$self->set_wp_color($wp_Id, $self->{palette}->{desired_waypoint}); }
 		$self->set_wp_color($wp_Id, 'desired_waypoint'); }
-	elsif ($self->{map_widget}->hastag($wp_Id, 'primary')) {
+	elsif ($self->{zinc}->hastag($wp_Id, 'primary')) {
 #		$self->set_wp_color($wp_Id, $self->{palette}->{waypoint}); }
 		$self->set_wp_color($wp_Id, 'waypoint'); }
 	else {
@@ -605,7 +637,7 @@ sub clear_wp_color {
 sub color_wp {
 # To put a color to a waypoint
   my ($self, $wp_Id, $label_color, $symbol_color) = @_;
-	my $zinc = $self->{map_widget};
+	my $zinc = $self->{zinc};
 	$zinc->itemconfigure($wp_Id, 1,
 												-color => $label_color);
 	$zinc->itemconfigure($wp_Id, 
@@ -616,7 +648,7 @@ sub color_wp {
 sub highlight_desired_wp {
 # To highlight desired waypoint
   my ($self, $wp_name) = @_;
-	my $zinc = $self->{map_widget};
+	my $zinc = $self->{zinc};
 	my $wp_tag = $wp_name;
 	$wp_tag =~ s/\./·/;				# In order not to have '.' or '*' in pathTag
 	$wp_tag =~ s/\*/~/;
@@ -631,7 +663,7 @@ sub highlight_desired_wp {
 sub unhighlight_desired_wp {
 # To unhighlight desired waypoint
   my ($self) = @_;
-	my $zinc = $self->{map_widget};
+	my $zinc = $self->{zinc};
 	if (defined $self->{mission}->{last_highlighted_wp}) {
 		my $wp_tag = $self->{mission}->{last_highlighted_wp};
 		$wp_tag =~ s/\./·/;			# In order not to have '.' or '*' in pathTag
@@ -711,7 +743,7 @@ sub mission_of_map {
 
 sub set_pos_geo {
   my ($self, $pos_utm) = @_;
-  my $item = $self->{map_widget}->add('text', $self->{map_trajectory_group},
+  my $item = $self->{zinc}->add('text', $self->{map_trajectory_group},
 					   -position => [$self->map_of_geo($pos_utm)],
 					   -color => $self->{palette}->{track},
 					   -anchor => 'c',
@@ -731,7 +763,7 @@ sub set_track_mission {
 
 sub set_track_map {
   my ($self, $name, $pos_xy) = @_;
-  my $zinc = $self->{map_widget};
+  my $zinc = $self->{zinc};
   my $track_item = $self->{tracks}->{$name};
   if (not defined $track_item) {
     $track_item = $zinc->add( 'track', $self->{map_track_group}, 2,
@@ -754,7 +786,7 @@ sub set_picture_mission {
 
 sub set_picture_map {
   my ($self, $name, $pos_xy, $heading, $scale) = @_;
-  my $zinc = $self->{map_widget};
+  my $zinc = $self->{zinc};
   my $track_item = $self->{tracks}->{$name};
   if (not defined $track_item) {
     my $_w = 720; my $_h = 570;
@@ -786,7 +818,7 @@ sub set_picture_map {
 
 sub scroll_to_map {
   my ($self, $p1_map, $p2_dev) = @_;
-  my $zinc = $self->{map_widget};
+  my $zinc = $self->{zinc};
 
 #  print "p1_map @$p1_map p2_dev @$p2_dev\n";
   my ($x1_dev, $y1_dev) = $zinc->transform($self->{zoom_group}, 'device', [$p1_map]);
@@ -797,7 +829,7 @@ sub scroll_to_map {
 
 sub map_of_dev {
   my ($self, $p_dev) = @_;
-  my $zinc = $self->{map_widget};
+  my $zinc = $self->{zinc};
   my ($x_m, $y_m) = $zinc->transform('device', $self->{zoom_group}, [$p_dev]);
 #  print "in map_of_dev @$p_dev -> $x_m, $y_m \n";  
   return ([$x_m, $y_m]);
@@ -805,7 +837,7 @@ sub map_of_dev {
 
 sub dev_of_map {
   my ($self, $p_map) = @_;
-  my $zinc = $self->{map_widget};
+  my $zinc = $self->{zinc};
   my ($x_dev, $y_dev) = $zinc->transform($self->{zoom_group}, 'device', [$p_map]);
 #  print "in dev_of_map @$p_map -> $x_dev, $y_dev \n";  
   return ([$x_dev, $y_dev]);
@@ -853,7 +885,7 @@ sub set_view_on_plane {
 sub get_color {
 	# Determine if the object is over the map and choose the appropriate color
   my ($self, $object, $color_type) = @_;
-  my $zinc = $self->{map_widget};
+  my $zinc = $self->{zinc};
 	my $img_item = $zinc->find('withtype', 'icon', 'image');
 	my $img_tags = [$zinc->gettags($img_item)];
 	if (not defined $img_tags->[2]) { $img_tags->[2] = $img_tags->[1]; }
@@ -886,7 +918,7 @@ sub irpt {
 	#	***** In progress *****
 	#	***********************
   my ($self, $object, $color_type) = @_;
-  my $zinc = $self->{map_widget};
+  my $zinc = $self->{zinc};
 	foreach my $wp_item ($zinc->find('withtype', 'waypoint')) {
 		$self->clear_wp_color($wp_item); }
 }
@@ -894,7 +926,7 @@ sub irpt {
 sub create_circle {
   my ($self) = @_;
 	# Create a circle with its center which will be used to trace the followed circle
-  my $zinc = $self->{map_widget};
+  my $zinc = $self->{zinc};
 	$zinc->add('curve', $self->{map_circle_group},
 							[[-2, 0], [2, 0]],
 							-closed => 0,
@@ -916,7 +948,7 @@ sub create_circle {
 sub create_segment {
 	# Create a segment which will be used to trace the followed route
   my ($self) = @_;
-  my $zinc = $self->{map_widget};
+  my $zinc = $self->{zinc};
 	$zinc->add('curve', $self->{map_segment_group},
 							[[0, 0], [10, 10]],
 							-closed => 0,
@@ -927,7 +959,7 @@ sub create_segment {
 sub set_circle {
   my ($self, $center_x, $center_y, $radius) = @_;
 	# Set the current circle center and radius and show it
-  my $zinc = $self->{map_widget};
+  my $zinc = $self->{zinc};
 	my $pos_map = [$self->map_of_mission([$center_x, $center_y])];
 	my ($x_map, $y_map) = ($pos_map->[0], $pos_map->[1]);
 	#	print "in set_circle with center (x, y) ($center_x, $center_y) in mission -> ($x_map, $y_map) in map \n";
@@ -948,7 +980,7 @@ sub set_circle {
 sub verify_circle_mode {
   my ($self, $cur_block_no, $cur_stage_no) = @_;
 	# Verify the current stage to hide the circle if we are not anymore in a circle mode
-  my $zinc = $self->{map_widget};
+  my $zinc = $self->{zinc};
 	my $cur_block_id = get_block_id($cur_block_no);
 	my $cur_stage_id = get_stage_id($cur_block_no, $cur_stage_no);
 	my $stage_line = $self->{mission}->{$cur_block_id}->{$cur_stage_id};
@@ -965,7 +997,7 @@ sub set_segment {
   my ($self, $segment_x_1, $segment_y_1, $segment_x_2, $segment_y_2) = @_;
 	# Set the current route segment and show it
 #	return;
-  my $zinc = $self->{map_widget};
+  my $zinc = $self->{zinc};
 	my $pos_1_map = [$self->map_of_mission([$segment_x_1, $segment_y_1])];
 	my $pos_2_map = [$self->map_of_mission([$segment_x_2, $segment_y_2])];
 	#	print "in set_segment from (@$pos_1_map) to (@$pos_2_map) \n";
@@ -983,7 +1015,7 @@ sub set_segment {
 sub verify_segment_mode {
   my ($self, $cur_block_no, $cur_stage_no) = @_;
 	# Verify the current stage to hide the circle if we are not anymore in a circle mode
-  my $zinc = $self->{map_widget};
+  my $zinc = $self->{zinc};
 	my $cur_block_id = get_block_id($cur_block_no);
 	my $cur_stage_id = get_stage_id($cur_block_no, $cur_stage_no);
 	my $stage_line = $self->{mission}->{$cur_block_id}->{$cur_stage_id};
@@ -1004,7 +1036,7 @@ sub verify_segment_mode {
 
 sub mouse_zoom {
   my ($_zinc, $self, $ratio) = @_;
-  my $zinc = $self->{map_widget}; 
+  my $zinc = $self->{zinc}; 
   my $ev = $zinc->XEvent();
 	my $x = $ev->x;
 	my $y = $ev->y;
@@ -1026,7 +1058,7 @@ sub mouse_zoom {
 
 sub inc_zoom {
   my ($tsointsoin, $self) = @_;
-  my $zinc = $self->{map_widget}; 
+  my $zinc = $self->{zinc}; 
 	my $ratio = 2.;
 #  my $ev = $zzz->XEvent();
 	my $win_size = $self->get_window_size();
@@ -1037,7 +1069,7 @@ sub inc_zoom {
 
 sub dec_zoom {
   my ($tsointsoin, $self) = @_;
-  my $zinc = $self->{map_widget}; 
+  my $zinc = $self->{zinc}; 
 	my $ratio = 0.5;
 #  my $ev = $zzz->XEvent();
 	my $win_size = $self->get_window_size();
@@ -1051,7 +1083,7 @@ sub adjust_zoom {
 
   print ("$binded, $self, $ratio\n");
 
-  my $zinc = $self->{map_widget}; # had to bind on frame for keyboard events ???
+  my $zinc = $self->{zinc}; # had to bind on frame for keyboard events ???
   $zinc->scale($self->{pan_group}, $ratio, $ratio);
 
   my $map_tgroup = $self->{zoom_group};
@@ -1068,7 +1100,7 @@ sub adjust_zoom {
 
 sub clear_track {
   my ($zinc, $self) = @_;
-  my $zzz = $self->{map_widget}; 
+  my $zzz = $self->{zinc}; 
   $zzz->remove($self->{map_trajectory_group});
   $self->{map_trajectory_group} = $zzz->add('group', $self->{zoom_group}, -visible => 1);
 #  $self->scroll_to_map([1000,200], [250,250]);
@@ -1118,7 +1150,7 @@ sub show_pos_cbk {
 sub scroll {
 # Scroll the map. 1 unit correspond to 1/4 of the window size.
   my ($useless, $self, $x_movement, $y_movement) = @_;
-  my $zinc = $self->{map_widget};
+  my $zinc = $self->{zinc};
 #  my $p0 = $zinc->transform('device', $self->{zoom_group}, [0, 0]);
 	my $win_size = $self->get_window_size();
 	
@@ -1132,7 +1164,7 @@ sub scroll {
 sub toggle_map {
 # Show or hide the map
   my ($useless, $self) = @_;
-  my $zinc = $self->{map_widget};
+  my $zinc = $self->{zinc};
 #	my $img_item = $zinc->find('withtype', 'icon', 'image');
 #	$self->{map_picture_group}
 	$zinc->itemconfigure($self->{map_picture_group}, -visible => 1 - $zinc->itemcget($self->{map_picture_group}, -visible));
@@ -1143,7 +1175,7 @@ sub toggle_map {
 sub toggle_grid {
 # Show or hide the grid
   my ($useless, $self) = @_;
-  my $zinc = $self->{map_widget};
+  my $zinc = $self->{zinc};
 	$zinc->itemconfigure($self->{grid_group}, -visible => 1 - $zinc->itemcget($self->{grid_group}, -visible));
   #	print "toggle the grid \n";
 }
@@ -1151,7 +1183,7 @@ sub toggle_grid {
 sub toggle_max_dist_circle {
 # Scroll the map. 1 unit correspond to 1/4 of the window size.
   my ($useless, $self) = @_;
-  my $zinc = $self->{map_widget};
+  my $zinc = $self->{zinc};
 	$zinc->itemconfigure($self->{grid_group}, -visible => 1 - $zinc->itemcget($self->{grid_group}, -visible));
   #	print "toggle the grid \n";
 }
@@ -1190,9 +1222,9 @@ sub vect_prod_c2d {
 }
 
 sub get_window_size {
-	my ($self) = @_;
-  my $zinc = $self->{map_widget};
-	return ([$zinc->cget(-width), $zinc->cget(-height)]);
+  my ($self) = @_;
+  my $zinc = $self->{zinc};
+  return ([$zinc->cget(-width), $zinc->cget(-height)]);
 }
 
 

@@ -60,16 +60,15 @@ sub populate {
 sub completeinit {
   my $self = shift;
   $self->SUPER::completeinit();
-
-  $self->get('-aircraft')->attach($self, -flight_plan, [\&aircraft_config_changed]);
+  $self->attach_to_aircraft();
 
   my $zinc = $self->get(-zinc);
 #  my $ident = $self->get(-ident);
   my $pos_x = 0; #$self->get(-pos_x);
   my $pos_y = 0; #$self->get(-pos_y);
   my $flight_plan = "foo"; #$self->get(-flight_plan);
-  $self->{'zinc'} = $self->get(-zinc);
-  $self->{fp} = $flight_plan;
+#  $self->{zinc} = $self->get(-zinc);
+#  $self->{fp} = $flight_plan;
  
   $self->{modes} =
     { ap_mode => 
@@ -112,17 +111,6 @@ sub completeinit {
 
 }
 
-sub aircraft_config_changed {
-  my ($self, $aircraft, $event, $new_value) = @_;
-#  parse_config();
-  # parse flight plan
-  print "in strip aircraft_config_changed $event $new_value\n";
-  if ($event eq '-flight_plan' and $new_value ne "UNKNOWN") {
-    $self->border_block(); # display blocks of flight plan
-  }
-
-}
-
 sub parse_config {
   my ($self) = @_;
   my $parser = XML::DOM::Parser->new();
@@ -148,7 +136,7 @@ sub draw {
   my $ident = $self->get(-aircraft)->get('-ac_id');
   my $x = 0;#$self->get(-pos_x);
   my $y = 0;#$self->get(-pos_y);
-  my $fp = $self->get(-flight_plan);
+#  my $fp = $self->get(-flight_plan);
 
   ## main group of the strip
   $self->{'topgroup'} = $zinc->add('group', scalar $self->get('-parent_grp'), -sensitive => 1,
@@ -206,7 +194,7 @@ sub draw {
   $self->add_label("climb:", "climb", 150, 58);
   $self->add_value_text("climb");
 
-  $zinc->add('text', $self->{'contentgroup'}, -text => $self->string_of_time(0), -position => [8, 82], -font => $self->{options}->{small_font}, -color => $self->{options}->{label_color}, -tags ["flight_time_value"]);
+  $zinc->add('text', $self->{'contentgroup'}, -text => $self->string_of_time(0), -position => [8, 82], -font => $self->{options}->{small_font}, -color => $self->{options}->{label_color}, -tags => ["flight_time_value"]);
   ##
   # QUICK and DIRTY flight time an battery
   # 
@@ -231,7 +219,7 @@ sub draw {
 sub add_label {
   my ($self, $label, $tag, $x, $y) = @_;
   print "adding $tag\n";
-  $self->{zinc}->add('text',$self->{'contentgroup'}, -text => $label, -position => [$x, $y], -font => $self->{options}->{normal_font}, -color => $self->{options}->{label_color}, -tags => [ $tag ]);
+  $self->get('-zinc')->add('text',$self->{'contentgroup'}, -text => $label, -position => [$x, $y], -font => $self->{options}->{normal_font}, -color => $self->{options}->{label_color}, -tags => [ $tag ]);
 }
 
 # add_value_text
@@ -239,12 +227,13 @@ sub add_label {
 ##############################################################################
 sub add_value_text {
   my ($self, $tag) = @_;
-  my $item = $self->{zinc}->find('withtag', $tag);
+  my $zinc = $self->get('-zinc');
+  my $item = $zinc->find('withtag', $tag);
   my $new_tag = $tag."_value";
-  my ($xo,$yo, $xc, $yc) = $self->{zinc}->bbox($item);
-  $self->{zinc}->add('text', $self->{contentgroup}, -text =>  "N/A",
-    -position => [$xc+5, $yo], -font => $self->{options}->{normal_font}, 
-    -color => $self->{options}->{value_color}, -tags => [ $new_tag ]);
+  my ($xo,$yo, $xc, $yc) = $zinc->bbox($item);
+  $zinc->add('text', $self->{contentgroup}, -text =>  "N/A",
+	     -position => [$xc+5, $yo], -font => $self->{options}->{normal_font}, 
+	     -color => $self->{options}->{value_color}, -tags => [ $new_tag ]);
 }
 
 # parse_fp
@@ -284,7 +273,7 @@ sub parse_fp {
 ##############################################################################
 sub border_block {
   my ($self) = @_;
-  my $flight_plan_url = $self->get('-aircraft')->get('-flight_plan');
+  my $flight_plan_url = $self->get('-aircraft')->get('flight_plan');
   $flight_plan_url =~ /file:\/\/(.*)/;
   my $flight_plan = $1;
   print "in Strip border_block parsing $flight_plan\n";
@@ -295,14 +284,16 @@ sub border_block {
 
   print "############ coucou\n";
 
-  $self->{zinc}->add('text', $self->{contentgroup}, -text => "Event1",
+  my $zinc = $self->get('-zinc');
+
+  $zinc->add('text', $self->{contentgroup}, -text => "Event1",
 		     -position => [ 260, 50], -font => $self->{options}->{small_font},
 		     -color => $self->{options}->{label_color}
 		    );
 
   print "############ coucou2\n";
  
-  $self->{zinc}->add('text', $self->{contentgroup}, -text => "Event2",
+  $zinc->add('text', $self->{contentgroup}, -text => "Event2",
 		     -position => [ 260, 60], -font => $self->{options}->{small_font},
 		     -color => $self->{options}->{label_color}
 		    );
@@ -310,19 +301,19 @@ sub border_block {
   my $i;
   for ($i=0; $i<10; $i++) {
     my $block_name = uc($blocks[$i]->{name});
-    $self->{zinc}->add('curve', $self->{contentgroup}, [$x[$i], 10, $x[$i], 90]);
-    push(@groups, $self->{zinc}->add('group', $self->{contentgroup}));
-    my $clip = $self->{zinc}->add('rectangle', $groups[$i], [$x[$i], 10, $x[$i]+46, 90], -visible => 0);
-    $self->{zinc}->itemconfigure($groups[$i], -clip => $clip);
-    $self->{zinc}->add('text', $groups[$i], -text => $block_name,
+    $zinc->add('curve', $self->{contentgroup}, [$x[$i], 10, $x[$i], 90]);
+    push(@groups, $zinc->add('group', $self->{contentgroup}));
+    my $clip = $zinc->add('rectangle', $groups[$i], [$x[$i], 10, $x[$i]+46, 90], -visible => 0);
+    $zinc->itemconfigure($groups[$i], -clip => $clip);
+    $zinc->add('text', $groups[$i], -text => $block_name,
     -position => [ $x[$i]+3, 20], -font => $self->{options}->{normal_font},
     -tags => [ "block_".$block_name, "block_label", "block_num_".$i ]
   );
-  $self->{zinc}->add('text', $groups[$i], -text => $blocks[$i]->{rc1},
+  $zinc->add('text', $groups[$i], -text => $blocks[$i]->{rc1},
   -position => [ $x[$i]+3, 50], -font => $self->{options}->{small_font},
   -color => $self->{options}->{value_color}
 );
-$self->{zinc}->add('text', $groups[$i], -text => $blocks[$i]->{rc2},
+$zinc->add('text', $groups[$i], -text => $blocks[$i]->{rc2},
 -position => [ $x[$i]+3, 60], -font => $self->{options}->{small_font},
 -color => $self->{options}->{value_color}
     );
@@ -335,18 +326,20 @@ $self->{zinc}->add('text', $groups[$i], -text => $blocks[$i]->{rc2},
 
 sub set_item {
   my ($self, $item_name, $string, $color) = @_;
-  my $item = $self->{zinc}->find('withtag', $item_name."_value");
-  $self->{zinc}->itemconfigure($item, -text => $string, -color  => $color);
+  my $zinc = $self->get('-zinc');
+  my $item = $zinc->find('withtag', $item_name."_value");
+  $zinc->itemconfigure($item, -text => $string, -color  => $color);
 }
 
 sub set_block {
   my ($self, $num) = @_;
+  my $zinc = $self->get('-zinc');
   print Dumper($self->{zinc}->find('withtag', "block_label"));
-  foreach my $b ($self->{zinc}->find('withtag', "block_label")) {
-    $self->{zinc}->itemconfigure($b, -color => $self->{options}->{label_color});
+  foreach my $b ($zinc->find('withtag', "block_label")) {
+    $zinc->itemconfigure($b, -color => $self->{options}->{label_color});
   }
-  my $item = $self->{zinc}->find('withtag', "block_num_".$num);
-  $self->{zinc}->itemconfigure($item, -color => 'blue');
+  my $item = $zinc->find('withtag', "block_num_".$num);
+  $zinc->itemconfigure($item, -color => 'blue');
 }
 
 
@@ -378,15 +371,11 @@ sub string_of_time {
 #   bla bla
 ##############################################################################
 sub attach_to_aircraft {
-  $self->get('-aircraft')->attach($self, -flight_plan, [\&aircraft_config_changed]);
-  $self->get('-aircraft')->attach($self, -mode, [\&aircraft_config_changed]);
-  $self->get('-aircraft')->attach($self, -flight_time, [\&aircraft_config_changed]);
-  $self->get('-aircraft')->attach($self, -battery, [\&aircraft_config_changed]);
-  $self->get('-aircraft')->attach($self, -speed, [\&aircraft_config_changed]);
-  $self->get('-aircraft')->attach($self, -climb, [\&aircraft_config_changed]);
-  $self->get('-aircraft')->attach($self, -alt, [\&aircraft_config_changed]);
-  $self->get('-aircraft')->attach($self, -target_alt, [\&aircraft_config_changed]);
-  $self->get('-aircraft')->attach($self, -cur_block, [\&aircraft_config_changed]);
+  my ($self) = @_;
+  my @options = ('flight_plan', 'mode', 'flight_time', 'bat', 'speed', 'climb', 'alt', 'target_alt', 'cur_block');
+  foreach my $option (@options) {
+    $self->get('-aircraft')->attach($self, $option, [\&aircraft_config_changed]);
+  }
 }
 
 
@@ -394,45 +383,49 @@ sub aircraft_config_changed {
   my ($self, $aircraft, $event, $new_value) = @_;
   #  parse_config();
   # parse flight plan
-  print "in strip aircraft_config_changed $event $new_value\n";
+#  print "in strip aircraft_config_changed $event $new_value\n";
   # flight_plan
-  if ($event eq '-flight_plan' and $new_value ne "UNKNOWN") {
+  if ($event eq 'flight_plan' and $new_value ne "UNKNOWN") {
     $self->border_block(); # display blocks of flight plan
   }
 
   # mode (AP)
-  if ($event eq '-mode') {
+  elsif ($event eq 'mode') {
     $self->set_item("ap_mode",$self->{modes}->{ap_mode}->{name}[$new_value], $self->{modes}->{ap_mode}->{color}[$new_value]); # display blocks of flight plan
   }
 
-  if ($event eq '-flight_time') {
+  elsif ($event eq 'flight_time') {
     $self->set_item("flight_time",$self->string_of_time($new_value), $self->{options}->{value_color}); 
   }
 
-  if ($event eq '-battery') {
+  elsif ($event eq 'bat') {
     #$self->set_item("ap_mode",$self->{modes}->{ap_mode}->{name}[$new_value]); # display blocks of flight plan
   }
 
-  if ($event eq '-speed') {
+  elsif ($event eq 'speed') {
     $self->set_item("speed",sprintf("%2.1fm/s", $new_value), $self->{options}->{value_color});
   }
 
-  if ($event eq '-climb') {
+  elsif ($event eq 'climb') {
     $self->set_item("climb",sprintf("%+2.1fm/s", $new_value), $self->{options}->{value_color});
   }
 
-  if ($event eq '-alt') {
-    $self->set_item("alt",sprintf("%4.1fm/s", $new_value), $self->{options}->{value_color}); # display blocks of flight plan
+  elsif ($event eq 'alt') {
+    $self->set_item("alt",sprintf("%4.1fm", $new_value), $self->{options}->{value_color}); # display blocks of flight plan
   }
 
-  if ($event eq '-target_alt') {
-    $self->set_item("desired_alt",sprintf("%4.1fm/s", $new_value), $self->{options}->{value_color}); # display blocks of flight plan
+  elsif ($event eq 'target_alt') {
+    $self->set_item("desired_alt",sprintf("%4.1fm", $new_value), $self->{options}->{value_color}); # display blocks of flight plan
   }
 
   
   # cur_block
-  if ($event eq '-cur_block') {
+  elsif ($event eq '-cur_block') {
     $self->set_block($new_value); # display current block of flight plan
+  }
+
+  else {
+    print "in Strip::aircraft_config_changed : unknow event $event $new_value\n";
   }
 
 }

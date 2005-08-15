@@ -49,7 +49,7 @@ use Data::Dumper;
 use strict;
 
 my $options = {
-	       ivy_bus  => "127.255.255.255:2010",
+	       ivy_bus  => "127.255.255.255:2005",
 	       map_file => "defaultUTM.xml",
 	      };
 
@@ -77,8 +77,8 @@ sub completeinit {
 			       -app_name  => APP_NAME,
 			       -loop_mode => 'TK',
 			      );
-  $self->build_gui();
   $self->{aircrafts_manager} = Paparazzi::AircraftsManager->new(-listen_to_all => 1);
+  $self->build_gui();
   $self->{mw}->after(500, [\&on_foo, $self]);
 }
 
@@ -98,7 +98,7 @@ sub build_gui {
   $mw->geometry(sprintf("%dx%d+%d+%d", $win_size->[0], $win_size->[1], $win_pos->[0], $win_pos->[1]));
   $self->{mw} = $mw;
   $self->{map_view} = $mw;
-  my $map_view = Paparazzi::MapView->new(-mw => $mw);
+  my $map_view = Paparazzi::MapView->new(-mw => $mw, -ac_manager => $self->{aircrafts_manager});
   
 
 #  my $flight_plan_name = $options->{conf_dir}."/".$options->{mission_file};

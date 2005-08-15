@@ -4,7 +4,10 @@ use Subject;
 @ISA = ("Subject");
 use strict;
 
+use Text::CSV;
+
 use Paparazzi::IvyProtocol;
+use Paparazzi::Aircraft;
 
 sub populate {
   my ($self, $args) = @_;
@@ -44,7 +47,7 @@ sub on_aircrafts {
   $csv->parse($fields->{ac_list});
   my @ac_list = $csv->fields();
   foreach my $ac_id (@ac_list) {
-    $self->add_aircraft($ac_id);
+    $self->add_aircraft($ac_id) unless $ac_id eq "";
   }
 }
 
@@ -56,6 +59,8 @@ sub add_aircraft {
   my $aircraft = Paparazzi::Aircraft->new(-ac_id => $ac_id);
   $self->get('-aircrafts')->{$ac_id} = $aircraft;
   $self->listen_to_ac($ac_id) if ($self->get('-listen_to_all'));
+
+  print "int AircraftsManager : notifying new ac $ac_id\n";
   $self->notify('NEW_AIRCRAFT', $ac_id);
 }
 

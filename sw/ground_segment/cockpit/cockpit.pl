@@ -32,7 +32,6 @@ use Tk;
 #use Tk::PNG;
 use Tk::Zinc;
 use Ivy;
-use Text::CSV;
 use Data::Dumper;
 use Pod::Usage;
 
@@ -64,8 +63,18 @@ sub completeinit {
 			       -loop_mode => 'TK',
 			    );
   $self->{aircrafts_manager} = Paparazzi::AircraftsManager->new(-listen_to_all => 1);
+  $self->{aircrafts_manager}->attach($self, 'NEW_AIRCRAFT', [\&on_new_aircraft]);
   $self->{mw}->after(500, [\&on_foo, $self]);
 }
+
+sub on_new_aircraft {
+  my ($self, $ac_manager, $event, $ac_id) = @_;
+  print "in Cockpit : on_new_aircraft\n";
+  my $aircraft = $self->{aircrafts_manager}->get_aircraft_by_id($ac_id);
+  $self->{strip_panel}->add_strip($aircraft);
+}
+
+
 
 sub build_gui {
   my ($self) = @_;
@@ -101,15 +110,14 @@ sub build_gui {
 # 				    -height => $nd_h,
 # 				  );
 #   $self->{nd}->attach($self, 'WIND_COMMAND', ['onWindCommand']);
-#  $md = $bot_frame->MissionD(-bg => '#c1daff');
-#  $md->pack(-side => 'bottom', -anchor => "n", -fill => 'both');
+  $md = $bot_frame->MissionD(-bg => '#c1daff');
+  $md->pack(-side => 'bottom', -anchor => "n", -fill => 'both');
 
 
 }
 
 
 
-#    $self->{strip_panel}->add_strip($aircraft);
 
 
 sub on_foo {
@@ -162,10 +170,10 @@ sub onAircratftSelection {
 #  Paparazzi::IvyProtocol::sendMsg($ivy, "ground", "SELECTED",{ id => $new_selected_ac});
   return if ($new_selected_ac eq "NONE");
   my @ac_events = ( ['FLIGHT_PARAM',  \&ivyOnFlightParam],
-		   ['NAV_STATUS',    \&ivyOnNavStatus],
-		   ['AP_STATUS',     \&ivyOnApStatus],
-		   ['ENGINE_STATUS', \&ivyOnEngineStatus],
-		   ['SATS', \&ivyOnSats],
+		    ['NAV_STATUS',    \&ivyOnNavStatus],
+		    ['AP_STATUS',     \&ivyOnApStatus],
+		    ['ENGINE_STATUS', \&ivyOnEngineStatus],
+		    ['SATS', \&ivyOnSats],
 		  );
   foreach my $event (@ac_events) {
     # removes existing binding
@@ -181,12 +189,6 @@ sub onAircratftSelection {
 
 
 
-# sub ivyOnNavStatus {
-#   my ($self, @args) = @_;
-# #  my $fields_by_name = Paparazzi::IvyProtocol::get_values_by_name("aircraft_info", "NAV_STATUS", \@args);
-#   print Dumper($fields_by_name) if (COCKPIT_DEBUG);
-#   $md->set_block_and_stage($fields_by_name->{cur_block}, $fields_by_name->{cur_stage});
-# }
 
 # sub onWindRes {
 #   my ($self, @args) = @_;
@@ -210,53 +212,6 @@ sub onAircratftSelection {
 
 
 
-# sub ivyOnApStatus {
-#   print "in ivyOnApStatus\n" if (COCKPIT_DEBUG);
-#   my ($self, @args) = @_;
-# #  my $fbn = Paparazzi::IvyProtocol::get_values_by_name("aircraft_info", "AP_STATUS", \@args);
-# #  print $self->{selected_ac}." ".Dumper($fbn);# if (COCKPIT_DEBUG); 
-#   $self->{pfd}->configure( -ap_mode  => $fbn->{mode},
-# #			   -h_mode   => $fbn->{h_mode},
-# #			   -v_mode   => $fbn->{v_mode},
-# #			   -target_vz  =>  $fbn->{target_climb}
-# 			   -target_alt =>  $fbn->{target_alt},
-# 			   -target_heading =>  $fbn->{target_heading},
-# 			 ); 
-#   $self->{nd}->configure( -ap_status, $fbn);
-# }
-
-# sub ivyOnEngineStatus {
-#   print "in ivyOnEngineStatus\n" if (COCKPIT_DEBUG);
-#   my ($self, @args) = @_;
-# #  my $fbn = Paparazzi::IvyProtocol::get_values_by_name("aircraft_info", "ENGINE_STATUS", \@args);
-#   $self->{nd}->configure( -engine_status, $fbn);
-# }
-
-# sub ivyOnSats {
-#   print "in ivyOnSats\n" if (COCKPIT_DEBUG);
-#   my ($self, @args) = @_;
-# #  my $fbn = Paparazzi::IvyProtocol::get_values_by_name("aircraft_info", "SATS", \@args);
-#   $self->{nd}->configure( -sats, $fbn);
-# }
-
-# sub ivyOnIR {
-#   my ($self, @args) = @_;
-#   my $h = { 
-# 	   ir => $args[2],
-# 	   rad => $args[3],
-# 	   rad_of_ir => $args[4],
-# 	   ir_roll_ntrl => $args[5],
-# 	   ir_pitch_ntrl => $args[6]
-# 	  };
-#   $self->{nd}->configure('-lls' => $h->{rad_of_ir});
-#   $self->{nd}->put_lls($h->{rad_of_ir});
-# }
-
-
-
-# sub ivyStatusCbk {
-#   printf("in ivyStatusCbk\n")  if (COCKPIT_DEBUG);
-# }
 
 
 # sub onTimer {
