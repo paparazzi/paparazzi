@@ -141,7 +141,6 @@ sub select_ac {
   $self->{selected_ac} = $ac_id;
   $self->{aircrafts_manager}->listen_to_ac($ac_id);
   my $aircraft = $self->{aircrafts_manager}->get_aircraft_by_id($ac_id);
-  my $pfd = ;
   $self->{pfd}->configure('-selected_ac', $aircraft);
   $self->{md}->set_selected_ac($aircraft);
 }
