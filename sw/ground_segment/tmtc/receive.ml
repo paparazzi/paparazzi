@@ -46,6 +46,26 @@ type ac_cam = {
     mutable theta : float; (* Rad, front = >0 *)
   }
 
+type inflight_calib = {
+    mutable if_mode : int; (* DOWN|OFF|UP *)
+  }
+
+type contrast_status = string (** DEFAULT|WAITING|SET *)
+type infrared = {
+    mutable gps_hybrid_mode : int;
+    mutable gps_hybrid_factor : float;
+    mutable contrast_status : contrast_status;
+    mutable contrast_value : int
+  }
+let infrared_init = { gps_hybrid_mode = 0; gps_hybrid_factor = 0. ; contrast_status = "DEFAULT"; contrast_value = 0} 
+
+type rc_status = string (** OK, LOST, REALLY_LOST *)
+type rc_mode = string (** MANUAL, AUTO, FAILSAFE *)
+type fbw = {
+    mutable rc_status : rc_status;
+    mutable rc_mode : rc_mode;
+  }
+
 type aircraft = { 
     id : string;
     mutable pos : Latlong.utm;
@@ -61,7 +81,6 @@ type aircraft = {
     mutable climb   : float;
     mutable cur_block : int;
     mutable cur_stage : int;
-(* warning twin engines ?? *)
     mutable throttle : float;
     mutable rpm  : float;
     mutable temp : float;
@@ -70,11 +89,11 @@ type aircraft = {
     mutable energy  : float;
     mutable ap_mode : int;
     mutable ap_altitude : int;
-    mutable if_calib_mode : int;
-    mutable mcu1_status : int;
-    mutable lls_calib : int;
     cam : ac_cam;
-    mutable gps_mode : int
+    mutable gps_mode : int;
+    inflight_calib : inflight_calib;
+    infrared : infrared;
+    fbw : fbw
   }
 
 (** The aircrafts store *)
@@ -149,12 +168,31 @@ let log_and_parse = fun log ac_name a msg values ->
     | "PPRZ_MODE" ->
 	a.ap_mode <- ivalue "ap_mode";
 	a.ap_altitude <- ivalue "ap_altitude";
-	a.if_calib_mode <- ivalue "if_calib_mode";
-	a.mcu1_status <- ivalue "mcu1_status";
-	a.lls_calib <- ivalue "lls_calib"
+	a.inflight_calib.if_mode <- ivalue "if_calib_mode";
+	let mcu1_status = ivalue "mcu1_status" in
+	(** c.f. link_autopilot.h *)
+	a.fbw.rc_status <- 
+	  if mcu1_status land 0b1 > 0
+	  then "OK"
+	  else if mcu1_status land 0b10 > 0
+	  then "REALLY_LOST"
+	  else "LOST";
+	a.fbw.rc_mode <-
+	  if mcu1_status land 0b1000 > 0
+	  then "FAILSAFE"
+	  else if mcu1_status land 0b100 > 0
+	  then "AUTO"
+	  else "MANUAL";
+	a.infrared.gps_hybrid_mode <- ivalue "lls_calib"
     | "CAM" ->
 	a.cam.phi <- (Deg>>Rad) (fvalue  "phi");
 	a.cam.theta <- (Deg>>Rad) (fvalue  "theta");
+    | "RAD_OF_IR" ->
+	a.infrared.gps_hybrid_factor <- fvalue "rad_of_ir"
+    | "CALIB_START" ->
+	a.infrared.contrast_status <- "WAITING"
+    | "CALIB_CONTRAST" ->
+	a.infrared.contrast_value <- ivalue "adc"
     | _ -> ()
 
 (** Callback for a message from a registered A/C *)
@@ -177,6 +215,26 @@ let send_cam_status = fun a ->
     and north = a.pos.utm_y +. h *. tan (a.cam.theta +. a.pitch) in
     let values = ["east", Pprz.Float east; "north", Pprz.Float north] in
     Ground_Pprz.message_send my_id "CAM_STATUS" values
+
+let send_if_calib = fun a ->
+  let values = ["ac_id", Pprz.String a.id;
+		 "mode", Pprz.Int a.inflight_calib.if_mode] in
+  Ground_Pprz.message_send my_id "INFLIGH_CALIB" values
+
+let send_fbw = fun a ->
+  let values = [ "ac_id", Pprz.String a.id;
+		 "rc_mode", Pprz.String a.fbw.rc_mode;
+		 "rc_status", Pprz.String a.fbw.rc_status ] in
+  Ground_Pprz.message_send my_id "FLY_BY_WIRE"  values
+
+let send_infrared = fun a ->
+  let values = [ "ac_id", Pprz.String a.id;
+		 "gps_hybrid_mode", Pprz.Int a.infrared.gps_hybrid_mode;
+		 "gps_hybrid_factor", Pprz.Float a.infrared.gps_hybrid_factor;
+		 "contrast_status", Pprz.String a.infrared.contrast_status;
+		 "contrast_value", Pprz.Int a.infrared.contrast_value
+	       ] in
+  Ground_Pprz.message_send my_id "INFRARED"  values
 
 
 let send_aircraft_msg = fun ac ->
@@ -217,15 +275,21 @@ let send_aircraft_msg = fun ac ->
 		  "gps_mode", Pprz.Int a.gps_mode] in
     Ground_Pprz.message_send my_id "AP_STATUS" values;
 
-    send_cam_status a
+    send_cam_status a;
+    send_if_calib a;
+    send_fbw a;
+    send_infrared a
   with
     Not_found -> prerr_endline ac
   | x -> prerr_endline (Printexc.to_string x)
       
 let new_aircraft = fun id ->
-    { id = id ; roll = 0.; pitch = 0.; nav_ref_east = 0.; nav_ref_north = 0.; desired_east = 0.; desired_north = 0.; gspeed=0.; course = 0.; alt=0.; climb=0.; cur_block=0; cur_stage=0; throttle = 0.; rpm = 0.; temp = 0.; bat = 0.; amp = 0.; energy = 0.; ap_mode=0; ap_altitude=0; if_calib_mode=0; mcu1_status=0; lls_calib=0; gps_mode =0;
+    { id = id ; roll = 0.; pitch = 0.; nav_ref_east = 0.; nav_ref_north = 0.; desired_east = 0.; desired_north = 0.; gspeed=0.; course = 0.; alt=0.; climb=0.; cur_block=0; cur_stage=0; throttle = 0.; rpm = 0.; temp = 0.; bat = 0.; amp = 0.; energy = 0.; ap_mode=0; ap_altitude=0; gps_mode =0;
       pos = { utm_x = 0.; utm_y = 0.; utm_zone = 0 };
-      cam = { phi = 0.; theta = 0. }
+      cam = { phi = 0.; theta = 0. };
+      inflight_calib = { if_mode = 1 };
+      infrared = infrared_init;
+      fbw = { rc_status = "???"; rc_mode = "???" }
     }
     
 let register_aircraft = fun name a ->

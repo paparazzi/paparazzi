@@ -53,7 +53,7 @@ wavecard_connect : modem.cmo wavecard_connect.ml
 	echo 'lablgtk2 str.cma glibivy-ocaml.cma -I $$PAPARAZZI_SRC/sw/lib/ocaml lib-pprz.cma $$PAPARAZZI_SRC/sw/ground_segment/tmtc/wavecard_connect.ml $$*' >> $@
 	chmod a+x $@
 
-receive : receive.ml
+receive : receive.ml ../../lib/ocaml/lib-pprz.cma
 	$(OCAMLC) $(INCLUDES) -o $@ str.cma unix.cma xml-light.cma glibivy-ocaml.cma -I +lablgtk2 lablgtk.cma lib-pprz.cma $^ #To check
 	cat ../../../pprz_src_test.sh > $@
 	echo 'lablgtk2 str.cma glibivy-ocaml.cma -I $$PAPARAZZI_SRC/sw/lib/ocaml lib-pprz.cma $$PAPARAZZI_SRC/sw/ground_segment/tmtc/receive.ml $$*' >> $@

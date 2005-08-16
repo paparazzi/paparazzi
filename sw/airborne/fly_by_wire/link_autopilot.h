@@ -52,8 +52,10 @@ struct inter_mcu_msg {
 // Status bits from FBW to AUTOPILOT
 #define STATUS_RADIO_OK 0
 #define RADIO_REALLY_LOST 1
-#define AVERAGED_CHANNELS_SENT 2
-#define MASK_FBW_CHANGED 0x3
+#define STATUS_MODE_AUTO 2
+#define STATUS_MODE_FAILSAFE 3
+#define AVERAGED_CHANNELS_SENT 4
+#define MASK_FBW_CHANGED 0xf
 
 // Statut bits from AUTOPILOT to FBW
 #define STATUS_AUTO_OK  0

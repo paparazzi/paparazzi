@@ -78,7 +78,7 @@ static void pprz_tmtc_send(struct demod_state *s, unsigned char *data, unsigned 
 
 /* ---------------------------------------------------------------------- */
 
-char multimon_pipe_name[1024] = "pprz.c/multimon";
+char multimon_pipe_name[1024] = MULTIMON_PIPE_NAME;
 
 void pprz_init(struct demod_state *s)
 {

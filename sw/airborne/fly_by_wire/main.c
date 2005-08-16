@@ -47,7 +47,7 @@ struct adc_buf vservos_adc_buf;
 uint8_t mode;
 static uint8_t time_since_last_mega128;
 static uint16_t time_since_last_ppm;
-bool_t radio_ok, mega128_ok, radio_really_lost;
+bool_t radio_ok, mega128_ok, radio_really_lost, failsafe_mode;
 
 static const pprz_t failsafe[] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
 
@@ -84,6 +84,8 @@ static inline void to_autopilot_from_last_radio (void) {
      to_mega128.channels[i] = last_radio[i];
   to_mega128.status = (radio_ok ? _BV(STATUS_RADIO_OK) : 0);
   to_mega128.status |= (radio_really_lost ? _BV(RADIO_REALLY_LOST) : 0);
+  to_mega128.status |= (pprz_mode == MODE_AUTO ? _BV(STATUS_MODE_AUTO) : 0);
+  to_mega128.status |= (failsafe_mode ? _BV(STATUS_MODE_FAILSAFE) : 0);
   if (last_radio_contains_avg_channels) {
     to_mega128.status |= _BV(AVERAGED_CHANNELS_SENT);
     last_radio_contains_avg_channels = FALSE;
@@ -152,8 +154,10 @@ int main( void )
       mega128_ok = FALSE;
     }
     
+    failsafe_mode = FALSE;
     if ((mode == MODE_MANUAL && !radio_ok) ||
 	(mode == MODE_AUTO && !mega128_ok)) {
+      failsafe_mode = TRUE;
       servo_set(failsafe);
     }
 

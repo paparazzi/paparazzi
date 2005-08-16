@@ -94,7 +94,7 @@ let string_of_value = function
   | String s -> s
 
 let size_of_field = fun f -> (List.assoc f._type types).size
-let default_format = fun x -> (List.assoc x types).format
+let default_format = fun x -> try (List.assoc x types).format with Not_found -> failwith (sprintf "Unknwon format '%s'" x)
 let default_value = fun x -> (List.assoc x types).value
 
 let payload_size_of_message = fun message ->
@@ -140,8 +140,8 @@ let lazy_classes =
 	      let id = int_of_string (ExtXml.attrib xml_msg "id") (* - 1 !!!!*) in
 	      Hashtbl.add by_id id msg;
 	      Hashtbl.add by_name name (id, msg)	      
-	    with _ ->
-	      fprintf stderr "Warning: Ignoring '%s'\n" (Xml.to_string xml_msg))
+	    with x ->
+	      fprintf stderr "Warning (%s): Ignoring '%s'\n" (Printexc.to_string x) (Xml.to_string xml_msg))
 	  (Xml.children xml_class);
 	Hashtbl.add h (ExtXml.attrib xml_class "name") (by_id, by_name)
       )

@@ -23,8 +23,6 @@
     <field name="ir" type="int16"></field>
     <field name="rad" type="int16" unit="decideg"></field>
     <field name="rad_of_ir" type="float" format="%.4f"></field>
-    <field name="ir_roll_ntrl" type="int16"></field>
-    <field name="ir_pitch_ntrl" type="int16"></field>
   </message>
 
   <message name="ATTITUDE" ID="0x06" period="0.5" >
@@ -99,7 +97,6 @@
   </message>
 
   <message name="SETTINGS" ID="0x0F" period="0.5">
-    <field name="mode" type="uint8" values="DOWN|NEUTRAL|UP"></field>
     <field name="slider_1_val" type="float"></field>
     <field name="slider_2_val" type="float"></field>
   </message>
@@ -243,50 +240,50 @@
 
 
 <class name="ground" ID="0x42">
-  <message name="NEW_AIRCRAFT" ID="0x04">
+  <message name="NEW_AIRCRAFT" ID="1">
     <field name="ac_id" type="string"/>
   </message>
 
-  <message name="AIRCRAFT_DIE" ID="0x04">
+  <message name="AIRCRAFT_DIE" ID="2">
     <field name="ac_id" type="string"/>
   </message>
 
-  <message name="AIRCRAFTS" ID="0x04">
+  <message name="AIRCRAFTS" ID="3">
     <field name="ac_list" type="string" unit="csv"/>
   </message>
 
-  <message name="AIRCRAFTS_REQ" ID="0x04">
+  <message name="AIRCRAFTS_REQ" ID="4">
   </message>
 
-  <message name="SELECTED" ID="0x05">
+  <message name="SELECTED" ID="5">
     <field name="aicraft_id" type="string"/>
   </message>
 
-  <message name="SELECTED_REQ" ID="0x05">
+  <message name="SELECTED_REQ" ID="6">
   </message>
 
-  <message name="WIND_REQ" ID="0x06">
+  <message name="WIND_REQ" ID="7">
   </message>
 
-  <message name="WIND" ID="0x06">
+  <message name="WIND" ID="8">
     <field name="dir" type="float"   unit="deg_wind"/>
     <field name="speed" type="float" unit="m/s"/>
     <field name="mean_aspeed" type="float" unit="m/s"/>
     <field name="stddev" type="float" unit="m/s"/>
   </message>
 
-  <message name="CONFIG_REQ" ID="0x07">
+  <message name="CONFIG_REQ" ID="9">
     <field name="ac_id" type="string"/>
   </message>
 
-  <message name="CONFIG" ID="0x08">
+  <message name="CONFIG" ID="10">
     <field name="ac_id" type="string"/>
     <field name="flight_plan" type="string" unit="url"/>
     <field name="airframe" type="string" unit="url"/>
     <field name="radio" type="string" unit="url"/>
   </message>
 
-  <message name="FLIGHT_PARAM" ID="0x04">
+  <message name="FLIGHT_PARAM" ID="11">
     <field name="ac_id" type="string"/>
     <field name="roll"    type="float" unit="deg"/>
     <field name="pitch"   type="float" unit="deg"/>
@@ -298,7 +295,7 @@
     <field name="climb"   type="float" unit="m/s"/>
   </message>
 
-  <message name="AP_STATUS" ID="0x05">
+  <message name="AP_STATUS" ID="12">
     <field name="ac_id" type="string"/>
     <field name="mode"   type="uint8" values="MANUAL|AUTO1|AUTO2|HOME"/>
     <field name="h_mode" type="uint8" values="NONE|ROLLDOT|ROLL|HEADING_DOT|HEADING|WP|ROUTE|CIRCLE"/>
@@ -309,7 +306,7 @@
     <field name="gps_mode" type="uint8"/>
   </message>
 
-  <message name="NAV_STATUS" ID="0x06">
+  <message name="NAV_STATUS" ID="13">
     <field name="ac_id" type="string"/>
     <field name="cur_block"   type="uint8"/>
     <field name="cur_stage"   type="uint8"/>
@@ -320,7 +317,7 @@
     <field name="target_north" type="float" unit="m"/>
   </message>
 
-  <message name="CAM_STATUS" ID="0x15">
+  <message name="CAM_STATUS" ID="14">
      <field name="east" type="float" unit="m"/>
      <field name="north" type="float" unit="m"/>
      <field name="targe_east" type="float" unit="m"/>
@@ -328,7 +325,7 @@
   </message>
 
 
-  <message name="ENGINE_STATUS" ID="0x07">
+  <message name="ENGINE_STATUS" ID="15">
     <field name="ac_id" type="string"/>
     <field name="throttle" type="float" unit="%"/>
     <field name="rpm"      type="float" unit="rpm"/>
@@ -338,7 +335,7 @@
     <field name="energy"   type="float" unit="Wh"/>
   </message>
 
-  <message name="SATS" ID="0x08">
+  <message name="SATS" ID="16">
     <field name="itow" type="uint32" unit="ms"/>
     <field name="nch"  type="uint8"/>
     <field name="res1" type="uint8"/>
@@ -355,15 +352,24 @@
     </block>
   </message>
 
-  <!--
-    lls_mode
-    lls_value
-    ctrst_mode
-    ctrst_value
-    if_mode
-    rc_status
- -->
+  <message name="FLY_BY_WIRE" id="17">
+    <field name="ac_id" type="string"/>
+    <field name="rc_status" type="string" values="OK|LOST|REALLY_LOST"/>
+    <field name="mode" type="string" values="MANUAL|AUTO|FAILSAFE"/>
+  </message>
 
+  <message name="INFRARED" id="18">
+    <field name="ac_id" type="string"/>
+    <field name="gps_hybrid_mode" type="uint8" values="OFF|ON"/>
+    <field name="gps_hybrid_factor" type="float"/>
+    <field name="contrast_status" type="string" values="DEFAULT|WAITING|SET"/>
+    <field name="contrast_value" type="int16"/>
+  </message>
+
+  <message name="INFLIGH_CALIB" id="19">
+    <field name="ac_id" type="string"/>
+    <field name="mode" type="uint8" values="DOWN|OFF|UP"></field>
+  </message>
 </class>
 
 </protocol>
