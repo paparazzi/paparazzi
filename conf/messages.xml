@@ -178,6 +178,16 @@
     <field name="nb_msg" type="uint32"></field>
     <field name="nb_err" type="uint32"></field>
   </message>
+
+  <message name="SVINFO" id="20">
+     <field name="chn" type="uint8"/>
+     <field name="SVID" type="uint8"/>
+     <field name="Flags" type="uint8"/>
+     <field name="QI" type="int8"/>
+     <field name="CNO" type="uint8" unit="dbHz"/>
+     <field name="Elev" type="int8" unit="deg"/>
+     <field name="Azim" type="int16" unit="deg"/>
+  </message>
 </class>
 
 <class name="telemetry_fbw" ID="0X41">

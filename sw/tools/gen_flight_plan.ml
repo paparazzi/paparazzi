@@ -190,6 +190,7 @@ let output_vmode x wp last_wp =
 	    else sprintf "waypoints[%s].a" wp in
 	lprintf "desired_altitude = %s;\n" alt;
 	lprintf "pre_climb = 0.;\n"
+    | "xyz" -> () (** Handled in Goto3D() *)
     | "glide" ->
 	lprintf "vertical_mode = VERTICAL_MODE_AUTO_ALT;\n";
 	lprintf "glide_to(%s, %s);\n" last_wp wp
@@ -348,6 +349,8 @@ let rec print_stage = fun index_of_waypoints x ->
 	stage ();
 	let r = try parsed_attrib  x "radius" with _ -> "100" in
 	lprintf "Goto3D(%s)\n" r;
+	let x = ExtXml.subst_attrib "vmode" "xyz" x in
+	ignore (output_vmode x "" ""); (** To handle "pitch" *)
 	output_cam_mode x index_of_waypoints;
 	lprintf "return;\n"
     | "circle" ->

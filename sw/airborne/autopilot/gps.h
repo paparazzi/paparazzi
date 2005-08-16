@@ -50,6 +50,23 @@ extern volatile uint8_t gps_msg_received;
 extern bool_t gps_pos_available;
 extern uint8_t gps_nb_ovrn;
 
+#define NB_CHANNELS 16
+
+/** Number of scanned satellites */
+extern uint8_t gps_nb_channels;
+
+/** Space Vehicle Information */
+struct svinfo {
+  uint8_t svid;
+  uint8_t flags;
+  uint8_t qi;
+  uint8_t cno;
+  int8_t elev;
+  int16_t azim;
+};
+
+extern struct svinfo gps_svinfos[NB_CHANNELS];
+
 #ifdef UBX
 #include "ubx.h"
 #endif

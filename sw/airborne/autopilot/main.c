@@ -524,6 +524,11 @@ void use_gps_pos( void ) {
   DOWNLINK_SEND_GPS(&gps_mode, &gps_utm_east, &gps_utm_north, &gps_fcourse, &gps_falt, &gps_fspeed,&gps_fclimb, &gps_ftow, &gps_utm_zone);
   estimator_update_state_gps();
   SEND_RAD_OF_IR();
+  
+  static uint8_t i;
+  if (i == gps_nb_channels) i = 0;
+  DOWNLINK_SEND_SVINFO(&i, &gps_svinfos[i].svid, &gps_svinfos[i].flags, &gps_svinfos[i].qi, &gps_svinfos[i].cno, &gps_svinfos[i].elev, &gps_svinfos[i].azim);
+
   if (!estimator_flight_time && (estimator_hspeed_mod > MIN_SPEED_FOR_TAKEOFF)) {
     estimator_flight_time = 1;
     launch = TRUE; /* Not set in non auto launch */

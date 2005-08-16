@@ -8,6 +8,7 @@
 #include "link_autopilot.h"
 #include "autopilot.h"
 #include "estimator.h"
+#include "gps.h"
 
 #include <caml/mlvalues.h>
 #include <caml/memory.h>
@@ -19,6 +20,10 @@ bool_t rc_event_1, rc_event_2;
 bool_t launch;
 bool_t link_fbw_receive_valid;
 uint8_t gps_nb_ovrn, modem_nb_ovrn, link_fbw_fbw_nb_err, link_fbw_nb_err;
+
+struct svinfo gps_svinfos[NB_CHANNELS];
+uint8_t gps_nb_channels;
+
 
 uint8_t ac_id;
 

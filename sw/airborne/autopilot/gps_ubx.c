@@ -93,6 +93,9 @@ void gps_init( void ) {
   ubx_status = UNINIT;
 }
 
+struct svinfo gps_svinfos[NB_CHANNELS];
+uint8_t gps_nb_channels;
+
 void parse_gps_msg( void ) {
   if (ubx_class == UBX_NAV_ID) {
     if (ubx_id == UBX_NAV_POSUTM_ID) {
@@ -113,6 +116,17 @@ void parse_gps_msg( void ) {
       
       
       gps_pos_available = TRUE; /* The 3 UBX messages are sent in one rafale */
+    } else if (ubx_id == UBX_NAV_SVINFO_ID) {
+      gps_nb_channels = UBX_NAV_SVINFO_NCH(ubx_msg_buf);
+      uint8_t i;
+      for(i = 0; i < Min(gps_nb_channels, NB_CHANNELS); i++) {
+	gps_svinfos[i].svid = UBX_NAV_SVINFO_SVID(ubx_msg_buf, i);
+	gps_svinfos[i].flags = UBX_NAV_SVINFO_Flags(ubx_msg_buf, i);
+	gps_svinfos[i].qi = UBX_NAV_SVINFO_QI(ubx_msg_buf, i);
+	gps_svinfos[i].cno = UBX_NAV_SVINFO_CNO(ubx_msg_buf, i);
+	gps_svinfos[i].elev = UBX_NAV_SVINFO_Elev(ubx_msg_buf, i);
+	gps_svinfos[i].azim = UBX_NAV_SVINFO_Azim(ubx_msg_buf, i);
+      }
     }
   }
 #ifdef SIMUL
