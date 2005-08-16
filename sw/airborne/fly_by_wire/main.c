@@ -84,7 +84,7 @@ static inline void to_autopilot_from_last_radio (void) {
      to_mega128.channels[i] = last_radio[i];
   to_mega128.status = (radio_ok ? _BV(STATUS_RADIO_OK) : 0);
   to_mega128.status |= (radio_really_lost ? _BV(RADIO_REALLY_LOST) : 0);
-  to_mega128.status |= (pprz_mode == MODE_AUTO ? _BV(STATUS_MODE_AUTO) : 0);
+  to_mega128.status |= (mode == MODE_AUTO ? _BV(STATUS_MODE_AUTO) : 0);
   to_mega128.status |= (failsafe_mode ? _BV(STATUS_MODE_FAILSAFE) : 0);
   if (last_radio_contains_avg_channels) {
     to_mega128.status |= _BV(AVERAGED_CHANNELS_SENT);
