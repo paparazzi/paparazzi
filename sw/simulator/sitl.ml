@@ -60,16 +60,21 @@ module Make(A:Data.MISSION) = struct
 (** Returns gaz servo value (us) *)
 
   let energy = ref 0.
-  let update_servos = fun () ->
-    let gaz = set_servos !rservos in
-    (* 100% = 1W *)
-    energy := !energy +. float (gaz-1000) /. 1000. *. float servos_period /. 1000.
 
-  let update_adj_bat = fun () ->
-    let b = adj_bat#value in
-    adj_bat#set_value (b -. !energy *. 0.00259259259259259252); (* To be improved !!! *)
-    energy := 0.
-
+  let update_servos =
+    let accu = ref 0. in
+    fun bat_button () ->
+      let gaz = set_servos !rservos in
+      (* 100% = 1W *)
+      if bat_button#active then
+	let energy = float (gaz-1000) /. 1000. *. float servos_period /. 1000. in
+	accu := !accu +. energy *. 0.00259259259259259252; (* To be improved !!! *)
+	printf "\b\b\b\b\b%.3f%!" !accu;
+	if !accu >= 0.1 then begin
+	  let b = adj_bat#value in
+	  adj_bat#set_value (b -. !accu);
+	  accu := 0.
+	end
 
 (* Radio command handling *)
   external update_channel : int -> float -> unit = "update_rc_channel"
@@ -103,6 +108,8 @@ module Make(A:Data.MISSION) = struct
   external sim_init : int -> unit = "sim_init"
   external update_bat : int -> unit = "update_bat"
 
+  let bat_button = GButton.toggle_button ~label:"Bat" ()
+
   let init = fun id vbox ->
     Ivy.init (sprintf "Paparazzi sim %d" id) "READY" (fun _ _ -> ());
     Ivy.start !ivy_bus;
@@ -110,7 +117,9 @@ module Make(A:Data.MISSION) = struct
     sim_init id;
 
     let hbox = GPack.hbox ~packing:vbox#add () in
-    let l = GMisc.label ~text:"Bat:" ~packing:hbox#pack () in
+    hbox#pack bat_button#coerce;
+    let tips = GData.tooltips () in
+    tips#set_tip bat_button#coerce ~text:"Select for auto-decreasing voltage";
     let _scale = GRange.scale `HORIZONTAL ~adjustment:adj_bat ~packing:hbox#add () in
     let update = fun () -> update_bat (truncate (adj_bat#value *. 10.)) in
     ignore (adj_bat#connect#value_changed update);
@@ -118,10 +127,9 @@ module Make(A:Data.MISSION) = struct
 
 
   let boot = fun () ->
-    periodic servos_period update_servos;
+    periodic servos_period (update_servos bat_button);
     periodic periodic_period periodic_task;
-    periodic rc_period rc_task;
-    periodic 10000 update_adj_bat
+    periodic rc_period rc_task
 
 (* Functions called by the simulator *)
   let servos = fun s -> rservos := s
