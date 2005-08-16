@@ -1,7 +1,7 @@
 # $Id$
 #
 # AircraftsManager object
-# 
+#
 # Copyright (C) 2005 Antoine Drouin
 #
 # This file is part of paparazzi.
@@ -15,7 +15,7 @@
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with paparazzi; see the file COPYING.  If not, write to
 # the Free Software Foundation, 59 Temple Place - Suite 330,
@@ -31,6 +31,7 @@ use Text::CSV;
 
 use Paparazzi::IvyProtocol;
 use Paparazzi::Aircraft;
+use Paparazzi::Flightplan;
 
 sub populate {
   my ($self, $args) = @_;
@@ -96,6 +97,16 @@ sub on_config {
   my $ac_id = $fields->{ac_id};
   my $ac = $self->get('-aircrafts')->{$ac_id};
   delete $fields->{ac_id};
+  my $fp_url = $fields->{flight_plan};
+  if (defined $fp_url) {
+    print "in AircraftsManager : on_config creating new flight plan\n";
+    my $fp = Paparazzi::Flightplan->new(-url => $fp_url);
+    use Data::Dumper; 
+#    print "##### waypoints\n".Dumper($fp->get('-waypoints'));
+#    print "##### mission\n".Dumper($fp->get('-mission'));
+    $fields->{flight_plan} = $fp;
+  }
+
   $ac->configure(%{$fields});
 }
 

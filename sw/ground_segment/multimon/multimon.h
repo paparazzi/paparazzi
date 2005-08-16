@@ -62,6 +62,7 @@ struct demod_state {
 			unsigned int rxstate;
 			unsigned int rxbitstream;
 			unsigned int rxbitbuf;
+		        char* pipe_path;
 			int pipe_fd;
 		} pprz;
 	} l2;

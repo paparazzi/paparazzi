@@ -384,7 +384,7 @@ sub aircraft_config_changed {
   # parse flight plan
 #  print "in strip aircraft_config_changed $event $new_value\n";
   # flight_plan
-  if ($event eq 'flight_plan' and $new_value ne "UNKNOWN") {
+  if ($event eq 'flight_plan' and defined $new_value) {
     $self->border_block(); # display blocks of flight plan
   }
 

@@ -41,8 +41,6 @@ my $options =
    render => 1,
   };
 
-my $md;
-
 sub populate {
   my ($self, $args) = @_;
   $self->SUPER::populate($args);
@@ -51,7 +49,6 @@ sub populate {
 sub completeinit {
   my $self = shift;
   $self->SUPER::completeinit();
-  $self->{aircrafts} = {};
   $self->{selected_ac} = undef;
   $self->{wind_dir} = 0.;
   $self->{wind_speed} = 0.;
@@ -72,6 +69,7 @@ sub on_new_aircraft {
   print "in Cockpit : on_new_aircraft\n";
   my $aircraft = $self->{aircrafts_manager}->get_aircraft_by_id($ac_id);
   $self->{strip_panel}->add_strip($aircraft);
+  $self->{md}->add_aircraft($aircraft);
 }
 
 
@@ -79,11 +77,12 @@ sub on_new_aircraft {
 sub build_gui {
   my ($self) = @_;
   $self->{mw} = MainWindow->new();
+#  $self->{mw}->geometry("1280x1024");
   my $top_frame =  $self->{mw}->Frame()->pack(-side => 'top', -fill => 'both');
-  my $bot_frame =  $self->{mw}->Frame()->pack(-side => 'bottom', -fill => 'both');
+  my $bot_frame =  $self->{mw}->Frame()->pack(-side => 'bottom', -fill => 'both', -expand => 1);
   my ($stp_p, $stp_w, $stp_h) = ([0, 0],                   800, 300);
   my ($pfd_p, $pfd_w, $pfd_h) = ([$stp_w, 0]             , 300, $stp_h);
-  my ($nd_p,  $nd_w,  $nd_h) =  ([$pfd_p->[0]+ $pfd_w, 0], 600, 600);
+  my ($nd_p,  $nd_w,  $nd_h) =  ([$pfd_p->[0]+ $pfd_w, 0], 300, 300);
   my $zinc = $top_frame->Zinc(-width => $stp_w + $pfd_w + $nd_w ,
 			      -height => $nd_h,
 			      -backcolor => 'black',
@@ -110,15 +109,11 @@ sub build_gui {
 # 				    -height => $nd_h,
 # 				  );
 #   $self->{nd}->attach($self, 'WIND_COMMAND', ['onWindCommand']);
-  $md = $bot_frame->MissionD(-bg => '#c1daff');
-  $md->pack(-side => 'bottom', -anchor => "n", -fill => 'both');
-
+  my $md = $bot_frame->MissionD(-bg => '#c1daff');
+  $md->pack(-side => 'bottom', -anchor => "n", -fill => 'both', -expand => 1);
+  $self->{md} = $md;
 
 }
-
-
-
-
 
 sub on_foo {
   my ($self) = @_;
@@ -127,14 +122,11 @@ sub on_foo {
   Paparazzi::IvyProtocol::bind_msg("ground", "ground", "SELECTED", {}, [\&ivy_on_selected, $self]);
 }
 
-
-
 sub ivy_on_selected {
   my ($sender_name, $msg_class, $msg_name, $fields, $self) = @_;
   print "in ivy_on_selected\n"; # if (COCKPIT_DEBUG);
   $self->select_ac($fields->{aicraft_id});
 }
-
 
 sub on_aircraft_selection {
   #  print ("onAircratftSelection @_\n");
@@ -144,16 +136,15 @@ sub on_aircraft_selection {
 
 }
 
-
 sub select_ac {
   my ($self, $ac_id) = @_;
   $self->{selected_ac} = $ac_id;
   $self->{aircrafts_manager}->listen_to_ac($ac_id);
   my $aircraft = $self->{aircrafts_manager}->get_aircraft_by_id($ac_id);
-  my $pfd = $self->{pfd};
-  $pfd->configure('-selected_ac', $aircraft);
+  my $pfd = ;
+  $self->{pfd}->configure('-selected_ac', $aircraft);
+  $self->{md}->set_selected_ac($aircraft);
 }
-
 
 sub onShowPage {
   my ($self, $component, $signal, $page) = @_;
