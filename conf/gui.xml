@@ -27,6 +27,7 @@
 <gui>
   <strip
     background_color="=axial -90 |bisque|sandybrown;70"
+    selected_background_color="=axial -90 |white|yellow;70"
     border_color="sienna"
     normal_font="bleriot-radar-m12c"
     small_font="bleriot-radar-m8c"
@@ -34,29 +35,29 @@
     value_color="brown"
     />
   <map>
-		<configuration
-			grid="yes"
-			map="no"
-			max_dist_from_home_mask="no"
-			max_dist_from_home_circle="yes"
-			grid_only_on_map="no"
-			grid_step="100"
-		/>
-		<!-- This is the default palette. When there is no map. -->
-		<palette
-			waypoint="orange"
-			secondary_waypoint="gray"
-			highlighted_waypoint="white"
-			desired_waypoint="red"
-			max_dist_from_home_circle="red3"
-			carrot_symbol="red"
-			carrot_label="darkred"
-			aircraft_symbol="green"
-			aircraft_label="darkgreen"
-			selected_aircraft="orange"
-			grid="navy"
-			back_screen="black"
-			track="blue"
-		/>
-   </map>
+    <configuration
+      grid="yes"
+      map="no"
+      max_dist_from_home_mask="no"
+      max_dist_from_home_circle="yes"
+      grid_only_on_map="no"
+      grid_step="100"
+    />
+    <!-- This is the default palette. When there is no map. -->
+    <palette
+      waypoint="orange"
+      secondary_waypoint="gray"
+      highlighted_waypoint="white"
+      desired_waypoint="red"
+      max_dist_from_home_circle="red3"
+      carrot_symbol="red"
+      carrot_label="darkred"
+      aircraft_symbol="green"
+      aircraft_label="darkgreen"
+      selected_aircraft="orange"
+      grid="navy"
+      back_screen="black"
+      track="blue"
+    />
+  </map>
 </gui>

@@ -17,6 +17,7 @@ sub populate {
 		    -origin  => [S_NEEDINIT, S_PASSIVE, S_RDONLY, S_OVRWRT, S_NOPRPG, undef],
 		    -width   => [S_NEEDINIT, S_PASSIVE, S_RDONLY, S_OVRWRT, S_NOPRPG, undef],
 		    -height  => [S_NEEDINIT, S_PASSIVE, S_RDONLY, S_OVRWRT, S_NOPRPG, undef],
+		    -selected => [S_NOINIT,  S_PASSIVE, S_RDWR, S_OVRWRT, S_NOPRPG, undef],
 		    -pubevts   => [S_NEEDINIT, S_PASSIVE, S_RDWR, S_APPEND, S_NOPRPG,[]],
 		   );
 }
@@ -71,6 +72,9 @@ sub add_strip {
 sub OnStripPressed {
   print ("OnStripPressed @_\n");
   my ($zinc, $self, $ac_id) = @_;
+  $self->{strips}->{$self->get('-selected')}->configure('-selected' => 0) if defined $self->get('-selected');
+  $self->configure('-selected' => $ac_id);
+  $self->{strips}->{$ac_id}->configure('-selected' => 1);
   $self->notify('SELECTED', $ac_id);
 }
 

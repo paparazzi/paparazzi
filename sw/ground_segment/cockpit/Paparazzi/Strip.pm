@@ -41,7 +41,6 @@ use warnings;
 #   this sub is the subject constructor method
 ############################################################################## 
 sub populate {
-
   my ($self, $args) = @_;
   $self->SUPER::populate($args);
   $self->configspec(-aircraft =>  [S_NEEDINIT, S_PASSIVE, S_RDWR, S_OVRWRT, S_SUPER, undef],
@@ -50,6 +49,7 @@ sub populate {
 		    -origin     => [S_NEEDINIT, S_PASSIVE, S_RDWR, S_OVRWRT, S_NOPRPG, undef],
 		    -width      => [S_NEEDINIT, S_PASSIVE, S_RDWR, S_OVRWRT, S_NOPRPG, undef],
 		    -height     => [S_NEEDINIT, S_PASSIVE, S_RDWR, S_OVRWRT, S_NOPRPG, undef],
+		    -selected   => [S_NOINIT,   S_METHOD,  S_RDWR, S_OVRWRT, S_NOPRPG, 0],
 		   );
 }
 
@@ -120,7 +120,8 @@ sub parse_config {
   print "Parsing gui.xml\n";
   my $doc = $parser->parsefile(Paparazzi::Environment::get_config("gui.xml"));
   my $strip = $doc->getElementsByTagName('strip')->[0];
-  foreach my $attr ('normal_font', 'small_font', 'background_color', 'border_color', 'label_color', 'value_color') {
+  foreach my $attr ('selected_background_color', 'background_color', 'normal_font',
+		    'small_font', 'border_color', 'label_color', 'value_color') {
     $self->{options}->{$attr} =  $strip->getAttribute($attr);
   }
 }
@@ -159,43 +160,20 @@ sub draw {
   ## ident of the plane
   $zinc->add('text', $self->{'contentgroup'}, -text => uc($ident), -position=>[10,10], -font => $self->{options}->{normal_font}, -color => "midnightblue");
   
-  ## AutoPilot label and value
-  $self->add_label("AP", "ap_mode", 70, 10);
-  $self->add_value_text("ap_mode");
-
-  ## RC Status label and value
-  $self->add_label("RC", "rc_status", 70, 22);
-  $self->add_value_text("rc_status");
-
-  ## GPS Fix label and value
-  $self->add_label("GPS", "gps_mode", 70, 34);
-  $self->add_value_text("gps_mode");
-
-  ## Cal label and value
-  $self->add_label("cal", "contrast_status", 70, 46);
-  $self->add_value_text("contrast_status");
-
-  ## crst label and value
-  $self->add_label("crst", "contrast_value", 70, 58);
-  $self->add_value_text("contrast_value");
-
-
-  
-  ## alt label and value
-  $self->add_label("alt:","alt", 150, 10);
-  $self->add_value_text("alt");
-
-  ## desired alt label and value
-  $self->add_label("desired:","target_alt", 150, 22);
-  $self->add_value_text("target_alt");
-
-  ## speed label and value
-  $self->add_label("speed:", "speed", 150, 46);
-  $self->add_value_text("speed");
-
-  ## climb label and value
-  $self->add_label("climb:", "climb", 150, 58);
-  $self->add_value_text("climb");
+  my @label_attr = (['AP',  'ap_mode',          70,  10],
+		    ['RC',  'rc_status',        70,  22],
+		    ['GPS', 'gps_mode',         70,  34],
+		    ['Cal', 'contrast_status',  70,  46],
+		    ['Ctrst', 'contrast_value', 70,  58],
+		    ['alt:',  'alt',            150, 10],
+		    ['desired:','target_alt',   150, 22],
+		    ['speed:',  'speed',        150, 46],
+		    ['climb:',  'climb',        150, 58],
+		   );
+  foreach my $attr (@label_attr) {
+    $self->add_label($attr->[0], $attr->[1], $attr->[2], $attr->[3]);
+    $self->add_value_text($attr->[1]);
+  }
 
   $zinc->add('text', $self->{'contentgroup'}, -text => $self->string_of_time(0), -position => [8, 82], -font => $self->{options}->{small_font}, -color => $self->{options}->{label_color}, -tags => [ $self->{prefix}."flight_time_value"] );
   ##
@@ -326,7 +304,7 @@ sub border_block {
 
 sub set_item {
   my ($self, $item_name, $string, $color) = @_;
-  print "in Strip::set_item $item_name $string $color ($self->{prefix})\n";
+#  print "in Strip::set_item $item_name $string $color ($self->{prefix})\n";
   my $zinc = $self->get('-zinc');
   my $item = $zinc->find('withtag', $self->{prefix}.$item_name."_value");
   $zinc->itemconfigure($item, -text => $string, -color  => $color);
@@ -346,6 +324,7 @@ sub set_block {
 # FIXME: should be deprecated and we should use set_item or something like that
 sub setBat {
   my ($self, $bat) = @_;
+  print "in Strip::set_bat $bat ($self->{prefix})\n";
   $self->{'battery'} = $bat;
   my $batcolor = '#8080ff';
   $self->{'zinc'}->remove($self->{'zinc_bat'});
@@ -381,10 +360,7 @@ sub attach_to_aircraft {
 
 sub aircraft_config_changed {
   my ($self, $aircraft, $event, $new_value) = @_;
-  #  parse_config();
-  # parse flight plan
 #  print "in strip aircraft_config_changed $event $new_value\n";
-  # flight_plan
   if ($event eq 'flight_plan') {
     #    $self->border_block() if (defined $new_value) ; # display blocks of flight plan
   }
@@ -395,35 +371,22 @@ sub aircraft_config_changed {
     if ($new_value < @{$names} ) {
       $self->set_item($event,$self->{modes}->{$event}->{name}[$new_value], $self->{modes}->{$event}->{color}[$new_value]);
     }
-    else {
-      print "in Strip::aircraft_config_changed : wrong value $new_value for $event\n";
-    }
+    else { print "in Strip::aircraft_config_changed : wrong value $new_value for $event\n"}
   }
   elsif ($event eq 'flight_time') {
     $self->set_item("flight_time",$self->string_of_time($new_value), $self->{options}->{value_color});
   }
-
   elsif ($event eq 'bat') {
-    #$self->set_item("ap_mode",$self->{modes}->{ap_mode}->{name}[$new_value]); # display blocks of flight plan
+    $self->set_bat($new_value); # display blocks of flight plan
   }
-
-  elsif ($event eq 'speed') {
-    $self->set_item("speed",sprintf("%2.1fm/s", $new_value), $self->{options}->{value_color});
+  elsif ( $event eq 'speed' or $event eq 'climb' or $event eq 'alt' or $event eq 'target_alt') {
+    my $fmt = { speed => "%2.1fm/s",
+		climb => "%+2.1fm/s",
+		alt   => "%4.1fm",
+		target_alt => "%4.1fm"
+	      };
+    $self->set_item($event, sprintf($fmt->{$event}, $new_value), $self->{options}->{value_color});
   }
-
-  elsif ($event eq 'climb') {
-    $self->set_item("climb",sprintf("%+2.1fm/s", $new_value), $self->{options}->{value_color});
-  }
-
-  elsif ($event eq 'alt') {
-    $self->set_item("alt",sprintf("%4.1fm", $new_value), $self->{options}->{value_color}); # display blocks of flight plan
-  }
-
-  elsif ($event eq 'target_alt') {
-    $self->set_item("desired_alt",sprintf("%4.1fm", $new_value), $self->{options}->{value_color}); # display blocks of flight plan
-  }
-
-  
   # cur_block
   elsif ($event eq 'cur_block') {
     $self->set_block($new_value); # display current block of flight plan
@@ -435,10 +398,12 @@ sub aircraft_config_changed {
 
 }
 
-sub OnStripPressed {
- print ("OnStripPressed @_\n");
- my ($zinc, $self, $ac_id) = @_;
- $self->notify('SELECTED', $ac_id);
+sub selected {
+  my ($self, $previous_val, $new_val) = @_;
+  my $zinc = $self->get('-zinc');
+  $zinc->itemconfigure($self->{'frame'},
+		       -fillcolor => $new_val ? $self->{options}->{selected_background_color} :
+		       $self->{options}->{background_color});
 }
 
 ## fin de la classe
