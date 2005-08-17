@@ -68,18 +68,23 @@ sub completeinit {
 #  $self->{fp} = $flight_plan;
  
   $self->{modes} =
-    { ap_mode => 
-      { name => ["Manual", "Auto1", "Auto2", "Home"],
-	color => ["sienna", "blue", "brown", "red"]
-      },
-      gps_mode =>
-      { name => [ "No fix", "GPS dead reckoning only", "2D-fix",  "3D-fix", "GPS + dead reckoning combined"],
-	color => ["red", "red", "orange", "brown", "orange"]
-      },
-      rc_status => 
-      { name => ["Lost","Ok", "Really lost", "error"],
-	color => ["orange", "brown", "red", "red"]
-      }
+    { 
+     ap_mode => 
+     { name => ["Manual", "Auto1", "Auto2", "Home"],
+       color => ["sienna", "blue", "brown", "red"]
+     },
+     gps_mode =>
+     { name => [ "No fix", "GPS dead reckoning only", "2D-fix",  "3D-fix", "GPS + dead reckoning combined"],
+       color => ["red", "red", "orange", "brown", "orange"]
+     },
+     rc_status => 
+     { name => ["Ok","Lost", "Really lost", "error"],
+       color => ["orange", "brown", "red", "red"]
+     },
+     contrast_status => 
+     { name => ["Default","Waiting", "Set", "error"],
+       color => ["orange", "brown", "red", "red"]
+     }
     };
 
   $self->{'frame'} = undef;
@@ -170,12 +175,12 @@ sub draw {
   $self->add_value_text("gps_mode");
 
   ## Cal label and value
-  $self->add_label("cal", "cal", 70, 46);
-  $self->add_value_text("cal");
+  $self->add_label("cal", "contrast_status", 70, 46);
+  $self->add_value_text("contrast_status");
 
   ## crst label and value
-  $self->add_label("crst", "crst", 70, 58);
-  $self->add_value_text("crst");
+  $self->add_label("crst", "contrast_value", 70, 58);
+  $self->add_value_text("contrast_value");
 
 
   
@@ -184,8 +189,8 @@ sub draw {
   $self->add_value_text("alt");
 
   ## desired alt label and value
-  $self->add_label("desired:","desired_alt", 150, 22);
-  $self->add_value_text("desired_alt");
+  $self->add_label("desired:","target_alt", 150, 22);
+  $self->add_value_text("target_alt");
 
   ## speed label and value
   $self->add_label("speed:", "speed", 150, 46);
@@ -284,8 +289,6 @@ sub border_block {
   my @groups = ();
   my @x = ( 300, 350, 400, 450, 500, 550, 600, 650, 700, 750);
 
-  print "############ coucou\n";
-
   my $zinc = $self->get('-zinc');
 
   $zinc->add('text', $self->{contentgroup}, -text => "Event1",
@@ -293,8 +296,6 @@ sub border_block {
 		     -color => $self->{options}->{label_color}
 		    );
 
-  print "############ coucou2\n";
- 
   $zinc->add('text', $self->{contentgroup}, -text => "Event2",
 		     -position => [ 260, 60], -font => $self->{options}->{small_font},
 		     -color => $self->{options}->{label_color}
@@ -347,8 +348,7 @@ sub set_block {
 
 # FIXME: should be deprecated and we should use set_item or something like that
 sub setBat {
-  my $self = shift;
-  my ($bat) = @_;
+  my ($self, $bat) = @_;
   $self->{'battery'} = $bat;
   my $batcolor = '#8080ff';
   $self->{'zinc'}->remove($self->{'zinc_bat'});
@@ -374,7 +374,8 @@ sub string_of_time {
 ##############################################################################
 sub attach_to_aircraft {
   my ($self) = @_;
-  my @options = ('flight_plan', 'mode', 'flight_time', 'bat', 'speed', 'climb', 'alt', 'target_alt', 'cur_block');
+  my @options = ('flight_plan', 'ap_mode', 'rc_mode', 'gps_mode', 'contrast_status', 'contrast_value',
+		 'flight_time', 'alt', 'target_alt', 'speed', 'climb');
   foreach my $option (@options) {
     $self->get('-aircraft')->attach($self, $option, [\&aircraft_config_changed]);
   }
@@ -385,19 +386,26 @@ sub aircraft_config_changed {
   my ($self, $aircraft, $event, $new_value) = @_;
   #  parse_config();
   # parse flight plan
-#  print "in strip aircraft_config_changed $event $new_value\n";
+  print "in strip aircraft_config_changed $event $new_value\n";
   # flight_plan
   if ($event eq 'flight_plan' and defined $new_value) {
-    $self->border_block(); # display blocks of flight plan
+#    $self->border_block(); # display blocks of flight plan
   }
 
-  # mode (AP)
-  elsif ($event eq 'mode') {
-    $self->set_item("ap_mode",$self->{modes}->{ap_mode}->{name}[$new_value], $self->{modes}->{ap_mode}->{color}[$new_value]); # display blocks of flight plan
+  elsif ($event eq 'ap_mode' or $event eq 'rc_status' or 
+	 $event eq 'gps_mode' or $event eq 'contrast_status') {
+    my $names = $self->{modes}->{$event}->{name};
+    my $colors = $self->{modes}->{$event}->{color};
+    if ($new_value < @{$names} ) {
+      $self->set_item($event,$self->{modes}->{$event}->{name}[$new_value], $self->{modes}->{$event}->{color}[$new_value]);
+    }
+    else {
+      print "in Strip::aircraft_config_changed : wrong value $new_value for $event\n";
+    }
   }
 
   elsif ($event eq 'flight_time') {
-    $self->set_item("flight_time",$self->string_of_time($new_value), $self->{options}->{value_color}); 
+    $self->set_item("flight_time",$self->string_of_time($new_value), $self->{options}->{value_color});
   }
 
   elsif ($event eq 'bat') {

@@ -29,7 +29,7 @@ sub completeinit {
 
 sub visible {
   my ($self, $old_val, $new_val) = @_;
-  print "in EngineView::visible $new_val\n";
+#  print "in EngineView::visible $new_val\n";
   return unless defined $new_val and defined $self->{main_group};
   my $zinc = $self->get('-zinc');
   $zinc->itemconfigure ($self->{main_group},

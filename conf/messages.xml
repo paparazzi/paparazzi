@@ -259,7 +259,7 @@
   </message>
 
   <message name="AIRCRAFTS" ID="3">
-    <field name="ac_list" type="string" unit="csv"/>
+    <field name="ac_list" type="string" format="csv"/>
   </message>
 
   <message name="AIRCRAFTS_REQ" ID="4">
@@ -345,7 +345,7 @@
     <field name="energy"   type="float" unit="Wh"/>
   </message>
 
-  <message name="SVSINFO" ID="16">
+  <message name="SVINFO" ID="16">
       <field name="ac_id" type="string"/>
       <field name="svid"  type="string" format="csv"/>
       <field name="flags" type="string" format="csv"/>

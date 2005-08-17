@@ -27,8 +27,6 @@ use Subject;
 @ISA = ("Subject");
 use strict;
 
-use Text::CSV;
-
 use Paparazzi::IvyProtocol;
 use Paparazzi::Aircraft;
 use Paparazzi::Flightplan;
@@ -63,14 +61,12 @@ sub on_aircraft_new_die {
 }
 
 sub on_aircrafts {
-  print "AircraftsManager : in on_aircrafts\n";
+#  print "AircraftsManager::on_aircrafts\n";
   my ($sender_name, $msg_class, $msg_name, $fields, $self) = @_;
-#  use Data::Dumper;
-#  print "fields ".Dumper($fields)."\n";
-  my $csv = Text::CSV->new();
-  $csv->parse($fields->{ac_list});
-  my @ac_list = $csv->fields();
-  foreach my $ac_id (@ac_list) {
+  use Data::Dumper;
+#  print "in AircraftsManager::on_aircrafts : dumping fields\n ".Dumper($fields);
+  my $ac_list = $fields->{ac_list};
+  foreach my $ac_id (@{$ac_list}) {
     $self->add_aircraft($ac_id) unless $ac_id eq "";
   }
 }
@@ -91,7 +87,7 @@ sub add_aircraft {
 
 sub on_config {
   my ($sender_name, $msg_class, $msg_name, $fields, $self) = @_;
-  print "AircraftsManager : in on_config\n"; # if (COCKPIT_DEBUG);
+  print "AircraftsManager::on_config\n";
 #  use Data::Dumper;
 #  print "fields ".Dumper($fields)."\n";
   my $ac_id = $fields->{ac_id};
@@ -112,12 +108,24 @@ sub on_config {
 
 sub on_ac_msg {
   my ($sender_name, $msg_class, $msg_name, $fields, $self) = @_;
-#  print "in on_ac_msg $msg_name\n";# if (COCKPIT_DEBUG);
   my $ac_id = $fields->{ac_id};
   my $aircraft = $self->get('-aircrafts')->{$ac_id};
-  delete $fields->{ac_id};
-#  print Dumper($fields);
-  $aircraft->configure(%{$fields});
+#  print "AircraftsManager::on_ac_msg : $msg_name\n".Dumper($fields);
+  if (defined ($aircraft)) {
+    delete $fields->{ac_id};
+    $aircraft->configure(%{$fields});
+  }
+  else {
+    print STDERR "in AircraftsManager::on_ac_msg : unknow aircraft $ac_id in message $msg_class:$msg_name\n";
+  }
+}
+
+sub on_sv_info {
+ my ($sender_name, $msg_class, $msg_name, $fields, $self) = @_;
+ print "in AircraftsManager::on_sv_info\n".Dumper($fields);
+
+
+
 }
 
 sub listen_to_ac {
@@ -130,7 +138,7 @@ sub listen_to_ac {
 		    ['FLY_BY_WIRE',   \&on_ac_msg],
 		    ['INFRARED',      \&on_ac_msg],
 		    ['INFLIGH_CALIB', \&on_ac_msg],
-#		    ['SATS', \&ivyOnSats],
+		    ['SVINFO',        \&on_sv_info],
 		  );
   foreach my $event (@ac_events) {
     Paparazzi::IvyProtocol::bind_msg("ground", "ground", $event->[0], 

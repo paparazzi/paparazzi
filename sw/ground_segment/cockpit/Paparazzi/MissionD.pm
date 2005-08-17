@@ -20,6 +20,7 @@ sub Populate {
   my $notebook = $self->NoteBook(-ipadx => 6, -ipady => 6);
   $notebook->pack(-fill => 'both', -expand => "1");
   $self->Advertise('notebook' => $notebook);
+  $self->{cur_block} = $self->{cur_stage} = -1;
 }
 
 use Data::Dumper;
@@ -52,7 +53,7 @@ sub add_aircraft {
 
 sub on_ac_changed {
   my ($self, $aircraft, $event, $new_value) = @_;
-  print "in MissionD : on_flight_plan @_\n";
+  print "in MissionD : on_ac_changed $aircraft, $event $new_value\n";
   my $ac_id = $aircraft->get('-ac_id');
   if ($event eq 'flight_plan') {
     if (defined $new_value) {

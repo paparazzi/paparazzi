@@ -103,11 +103,11 @@ sub build_gui {
 				      -height => $pfd_h,
 				    );
 #  $self->{pfd}->attach($self, 'SHOW_PAGE', ['onShowPage']);
-#   $self->{nd} = Paparazzi::ND->new( -zinc => $zinc,
-# 				    -origin => $nd_p,
-# 				    -width  => $nd_w,
-# 				    -height => $nd_h,
-# 				  );
+   $self->{nd} = Paparazzi::ND->new( -zinc => $zinc,
+ 				    -origin => $nd_p,
+ 				    -width  => $nd_w,
+ 				    -height => $nd_h,
+ 				  );
 #   $self->{nd}->attach($self, 'WIND_COMMAND', ['onWindCommand']);
   my $md = $bot_frame->MissionD(-bg => '#c1daff');
   $md->pack(-side => 'bottom', -anchor => "n", -fill => 'both', -expand => 1);

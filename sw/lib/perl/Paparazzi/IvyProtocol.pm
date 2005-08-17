@@ -2,6 +2,7 @@ package Paparazzi::IvyProtocol;
 
 use strict;
 use XML::DOM;
+use Text::CSV;
 use Carp;
 use Ivy;
 
@@ -72,13 +73,28 @@ sub on_msg_received {
   #  print STDERR "##### on_msg_received ".Dumper(@_);
   my $ret = {};
   my $msg =  $classes_by_name->{$msg_class}->{$msg_name};
+  unless (defined $msg) {
+    print STDERR "in IvyProtocol::on_msg_received : unknown message $msg_class $msg_name\n";
+    return;
+  }
   my $nb_fields = @{$msg};
-  for (my $i=0; $i<$nb_fields; $i++) {
-    my $field_name = $msg->[$i]->{name};
+  foreach my $field (@{$msg}) {
+    my $field_name = $field->{name};
     if ($known_fields->{$field_name}) {
       $ret->{$field_name} = $known_fields->{$field_name};
     } else {
-      $ret->{$field_name} = shift @matched_regexps;
+      my $val = shift @matched_regexps;
+      if (exists $field->{format} and $field->{format} eq 'csv') {
+#	print "in IvyProtocol::on_msg_received : val $val\n";
+	my $csv = Text::CSV->new();
+	$csv->parse($val);
+	my @list = $csv->fields();
+	pop @list if $list[$#list] eq '';
+	$ret->{$field_name} = \@list;
+      }
+      else {
+	$ret->{$field_name} = $val;
+      }
     }
   }
   #  print STDERR "ret : ".Dumper($ret)."\n";
