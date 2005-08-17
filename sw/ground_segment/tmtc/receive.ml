@@ -48,6 +48,8 @@ type ac_cam = {
 
 type inflight_calib = {
     mutable if_mode : int; (* DOWN|OFF|UP *)
+    mutable if_val1 : float;
+    mutable if_val2 : float
   }
 
 type contrast_status = string (** DEFAULT|WAITING|SET *)
@@ -64,6 +66,25 @@ type rc_mode = string (** MANUAL, AUTO, FAILSAFE *)
 type fbw = {
     mutable rc_status : rc_status;
     mutable rc_mode : rc_mode;
+  }
+
+let gps_nb_channels = 16
+type svinfo = {  
+    svid : int;
+    flags : int;
+    qi : int;
+    cno : int;
+    elev : int;
+    azim : int
+  }
+
+let svinfo_init = {  
+    svid = 0 ;
+    flags = 0;
+    qi = 0;
+    cno = 0;
+    elev = 0;
+    azim = 0;
   }
 
 type aircraft = { 
@@ -93,7 +114,10 @@ type aircraft = {
     mutable gps_mode : int;
     inflight_calib : inflight_calib;
     infrared : infrared;
-    fbw : fbw
+    fbw : fbw;
+    mutable svinfo_nb_channels : int;
+    mutable svinfo_last_channel : int;
+    svinfo : svinfo array
   }
 
 (** The aircrafts store *)
@@ -193,6 +217,23 @@ let log_and_parse = fun log ac_name a msg values ->
 	a.infrared.contrast_status <- "WAITING"
     | "CALIB_CONTRAST" ->
 	a.infrared.contrast_value <- ivalue "adc"
+    | "SETTINGS" ->
+	a.inflight_calib.if_val1 <- fvalue "slider_1_val";
+	a.inflight_calib.if_val2 <- fvalue "slider_2_val";
+    | "SVINFO" ->
+	let i = ivalue "chn" in
+	assert(i < Array.length a.svinfo);
+	a.svinfo.(i) <- {  
+	  svid = ivalue "SVID";
+	  flags = ivalue "Flags";
+	  qi = ivalue "QI";
+	  cno = ivalue "CNO";
+	  elev = ivalue "Elev";
+	  azim = ivalue "Azim";
+	};
+	if i = 0 then
+	  a.svinfo_nb_channels <- a.svinfo_last_channel;
+	a.svinfo_last_channel <- i
     | _ -> ()
 
 (** Callback for a message from a registered A/C *)
@@ -213,12 +254,14 @@ let send_cam_status = fun a ->
     let h = a.alt -. float (Srtm.of_utm a.pos) in
     let east = a.pos.utm_x +. h *. tan (a.cam.phi -. a.roll)
     and north = a.pos.utm_y +. h *. tan (a.cam.theta +. a.pitch) in
-    let values = ["east", Pprz.Float east; "north", Pprz.Float north] in
+    let values = ["cam_east", Pprz.Float east; "cam_north", Pprz.Float north] in
     Ground_Pprz.message_send my_id "CAM_STATUS" values
 
 let send_if_calib = fun a ->
   let values = ["ac_id", Pprz.String a.id;
-		 "mode", Pprz.Int a.inflight_calib.if_mode] in
+		"if_mode", Pprz.Int a.inflight_calib.if_mode;
+		"if_value1", Pprz.Float a.inflight_calib.if_val1;
+		"if_value2", Pprz.Float a.inflight_calib.if_val2] in
   Ground_Pprz.message_send my_id "INFLIGH_CALIB" values
 
 let send_fbw = fun a ->
@@ -235,6 +278,30 @@ let send_infrared = fun a ->
 		 "contrast_value", Pprz.Int a.infrared.contrast_value
 	       ] in
   Ground_Pprz.message_send my_id "INFRARED"  values
+
+let send_svsinfo = fun a ->
+  if a.svinfo_last_channel = 0 then begin
+    let svid = ref ","
+    and flags= ref ","
+    and qi = ref ","
+    and cno = ref ","
+    and elev = ref ","
+    and azim = ref "," in
+    for i = 0 to a.svinfo_nb_channels - 1 do
+      let concat = fun ref v ->
+	ref := !ref ^ string_of_int v ^ "," in
+      concat svid a.svinfo.(i).svid;
+      concat flags a.svinfo.(i).flags;
+      concat qi a.svinfo.(i).qi;
+      concat cno a.svinfo.(i).cno;
+      concat elev a.svinfo.(i).elev;
+      concat azim a.svinfo.(i).azim
+    done;
+    let f = fun s r -> (s, Pprz.String !r) in
+    let vs = [f "SVID" svid; f "Flags" flags; f "QI" qi; 
+	      f "CNO" cno; f "Elev" elev; f "Azim" azim] in
+    Ground_Pprz.message_send my_id "SVSINFO" vs
+  end
 
 
 let send_aircraft_msg = fun ac ->
@@ -270,7 +337,7 @@ let send_aircraft_msg = fun ac ->
     Ground_Pprz.message_send my_id "ENGINE_STATUS" values;
 
     let values = ["ac_id", Pprz.String ac; 
-		  "mode", Pprz.Int a.ap_mode; 
+		  "ap_mode", Pprz.Int a.ap_mode; 
 		  "v_mode", Pprz.Int a.ap_altitude;
 		  "gps_mode", Pprz.Int a.gps_mode] in
     Ground_Pprz.message_send my_id "AP_STATUS" values;
@@ -287,9 +354,12 @@ let new_aircraft = fun id ->
     { id = id ; roll = 0.; pitch = 0.; nav_ref_east = 0.; nav_ref_north = 0.; desired_east = 0.; desired_north = 0.; gspeed=0.; course = 0.; alt=0.; climb=0.; cur_block=0; cur_stage=0; throttle = 0.; rpm = 0.; temp = 0.; bat = 0.; amp = 0.; energy = 0.; ap_mode=0; ap_altitude=0; gps_mode =0;
       pos = { utm_x = 0.; utm_y = 0.; utm_zone = 0 };
       cam = { phi = 0.; theta = 0. };
-      inflight_calib = { if_mode = 1 };
+      inflight_calib = { if_mode = 1 ; if_val1 = 0.; if_val2 = 0.};
       infrared = infrared_init;
-      fbw = { rc_status = "???"; rc_mode = "???" }
+      fbw = { rc_status = "???"; rc_mode = "???" };
+      svinfo_nb_channels = 0;
+      svinfo_last_channel = -1;
+      svinfo = Array.create gps_nb_channels svinfo_init
     }
     
 let register_aircraft = fun name a ->

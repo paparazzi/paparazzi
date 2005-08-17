@@ -4,39 +4,39 @@
  <!-- messages from modem or sim to server -->
  <class name="telemetry_ap" ID="0x40">
  
-   <message name="BOOT" ID="0x01">
+   <message name="BOOT" ID="1">
      <field name="version" type="uint16"></field>
    </message>
 
-   <message name="CALIB_START" ID="0x02">
+   <message name="CALIB_START" ID="2">
    </message>
 
-   <message name="CALIB_CONTRAST" ID="0x03">
+   <message name="CALIB_CONTRAST" ID="3">
      <field name="adc" type="int16"></field>
    </message>
 
-   <message name="TAKEOFF" ID="0x04">
+   <message name="TAKEOFF" ID="4">
      <field name="cpu_time" type="uint16" unit="s"></field>
    </message>
 
-  <message name="RAD_OF_IR" ID="0x05">
+  <message name="RAD_OF_IR" ID="5">
     <field name="ir" type="int16"></field>
     <field name="rad" type="int16" unit="decideg"></field>
     <field name="rad_of_ir" type="float" format="%.4f"></field>
   </message>
 
-  <message name="ATTITUDE" ID="0x06" period="0.5" >
+  <message name="ATTITUDE" ID="6" period="0.5" >
     <field name="phi" type="int8" unit="deg"></field>
     <field name="psi" type="int8" unit="deg"></field>
     <field name="theta" type="int8" unit="deg"></field>
   </message>
 
-  <message name="ADC" ID="0x07" period="0.5" >
+  <message name="ADC" ID="7" period="0.5" >
     <field name="roll" type="int16"></field>
     <field name="pitch" type="int16"></field>
   </message>
 
-  <message name="GPS" ID="0x08">
+  <message name="GPS" ID="8">
     <field name="mode"   type="uint8" unit="byte_mask"></field>
     <field name="utm_east"  type="int32" unit="cm"></field>
     <field name="utm_north"  type="int32" unit="cm"></field>
@@ -48,13 +48,13 @@
     <field name="utm_zone"  type="uint8"></field>
   </message>
 
-  <message name="NAVIGATION_REF" ID="0x09" period="10" >
+  <message name="NAVIGATION_REF" ID="0x09" period="9" >
     <field name="utm_east"  type="int32" unit="m"></field>
     <field name="utm_north" type="int32" unit="m"></field>
     <field name="utm_zone" type="uint8"></field>
   </message>
 
-  <message name="NAVIGATION" ID="0x0A">
+  <message name="NAVIGATION" ID="10">
     <field name="cur_block" type="uint8"></field>
     <field name="cur_stage" type="uint8"></field>
     <field name="pos_x" type="int16" unit="m"></field>
@@ -64,7 +64,7 @@
     <field name="dist2_home" type="float" format="%.1f" unit="m^2"></field>
   </message>
 
-  <message name="PPRZ_MODE" ID="0x0B" period="5" >
+  <message name="PPRZ_MODE" ID="11" period="5" >
     <field name="ap_mode" type="uint8" values="MANUAL|AUTO1|AUTO2|HOME"/>
     <field name="ap_altitude" type="uint8" values="MANUAL|AUTO_GAZ|AUTO_CLIMB|AUTO_ALT"/>
     <field name="if_calib_mode" type="uint8" values="NONE|DOWN|UP"/>
@@ -72,7 +72,7 @@
     <field name="lls_calib" type="uint8" values="LLS_CALIB_MODE_OFF|LLS_CALIB_MODE_ON"/>
   </message>
 
-  <message name="BAT" ID="0x0C" period="2" >
+  <message name="BAT" ID="12" period="2" >
     <field name="desired_gaz" type="int16" unit="pprz"></field>
     <field name="voltage" type="uint8" unit="1e-1V"></field>
     <field name="flight_time" type="uint16" unit="s"></field>
@@ -82,7 +82,7 @@
     <field name="energy" type="uint16" unit="mAh"/>
   </message>
 
-  <message name="DEBUG" ID="0x0D" period="5" >
+  <message name="DEBUG" ID="13" period="5" >
     <field name="i2c_nb_err" type="uint8"></field>	
     <field name="i2c_mcu1_nb_err" type="uint8"></field>
     <field name="modem_nb_err" type="uint8"></field>
@@ -90,18 +90,18 @@
     <field name="ppm_rate" type="uint8"></field>
   </message> 
 
-  <message name="CALIBRATION" ID="0x0E" period="2">
+  <message name="CALIBRATION" ID="14" period="2">
     <field name="climb_sum_err" type="float" format="%.1f"></field>
     <field name="climb_pgain" type="float" format="%.3f"></field> 
     <field name="course_pgain" type="float" format="%.3f"></field>
   </message>
 
-  <message name="SETTINGS" ID="0x0F" period="0.5">
+  <message name="SETTINGS" ID="15" period="0.5">
     <field name="slider_1_val" type="float"></field>
     <field name="slider_2_val" type="float"></field>
   </message>
 
-  <message name="DESIRED" ID="0x10" period="1">
+  <message name="DESIRED" ID="16" period="1">
     <field name="roll" type="float" format="%.2f"/>
     <field name="pitch" type="float" format="%.2f"/>
     <field name="desired_x" type="float" format="%.0f"/>
@@ -110,7 +110,7 @@
     <field name="desired_climb" type="float" format="%.1f"></field>
   </message>
 
-  <message name="IMU" ID="0x11">
+  <message name="IMU" ID="17">
     <field name="gyro_x" type="float"/>
     <field name="gyro_y" type="float"/>
     <field name="gyro_z" type="float"/>
@@ -119,7 +119,7 @@
     <field name="accel_z" type="float"/>
   </message>
 
-  <message name="RAW_IMU" ID="0x12">
+  <message name="RAW_IMU" ID="17">
     <field name="raw_gx" type="uint16"/>
     <field name="raw_gy" type="uint16"/>
     <field name="raw_gz" type="uint16"/>
@@ -128,7 +128,7 @@
     <field name="raw_az" type="uint16"/>
   </message>
 
-  <message name="KALMAN" ID="0x13">
+  <message name="KALMAN" ID="18">
     <field name="phi"        type="float" format="%.3f"/>
     <field name="phi_dot"    type="float" format="%.3f"/>
     <field name="phi_bias"   type="float" format="%.3f"/>
@@ -137,31 +137,31 @@
     <field name="theta_bias" type="float" format="%.3f"/>
   </message>
 
-   <message name="IDENT" ID="0x14" period="10">
+   <message name="IDENT" ID="19" period="10">
      <field name="id" type="uint8"/>
    </message>
 
-  <message name="CAM" ID="0x15">
+  <message name="CAM" ID="20">
      <field name="phi" type="int8" unit="deg"/>
      <field name="theta" type="int8" unit="deg"/>
      <field name="target_x" type="int16" unit="m"/>
      <field name="target_y" type="int16" unit="m"/>
   </message>
 	
-  <message name="CIRCLE" ID="0x16">
+  <message name="CIRCLE" ID="21">
      <field name="center_x" type="int16" unit="m"/>
      <field name="center_y" type="int16" unit="m"/>
      <field name="radius" type="int16" unit="m"/>
      </message>
 	
-   <message name="SEGMENT" ID="0x17">
+   <message name="SEGMENT" ID="22">
       <field name="segment_x_1" type="int16" unit="m"/>
       <field name="segment_y_1" type="int16" unit="m"/>
       <field name="segment_x_2" type="int16" unit="m"/>
       <field name="segment_y_2" type="int16" unit="m"/>
   </message>
 
-  <message name="DOWNLINK_STATUS" ID="0x02">
+  <message name="DOWNLINK_STATUS" ID="23">
     <field name="run_time" type="uint32" unit="s"></field>
     <field name="rx_bytes" type="uint32"></field>
     <field name="rx_msgs" type="uint32"></field>
@@ -170,7 +170,7 @@
     <field name="rx_msgs_rate" type="float" format="%.1f"></field>
   </message>
 
-  <message name="MODEM_STATUS" ID="0x03">
+  <message name="MODEM_STATUS" ID="24">
     <field name="detected" type="uint8"></field>
     <field name="valim" type="float" format="%.1f"></field>
     <field name="cd" type="uint8"></field>
@@ -179,7 +179,7 @@
     <field name="nb_err" type="uint32"></field>
   </message>
 
-  <message name="SVINFO" id="20">
+  <message name="SVINFO" id="25">
      <field name="chn" type="uint8"/>
      <field name="SVID" type="uint8"/>
      <field name="Flags" type="uint8"/>
@@ -345,21 +345,14 @@
     <field name="energy"   type="float" unit="Wh"/>
   </message>
 
-  <message name="SATS" ID="16">
-    <field name="itow" type="uint32" unit="ms"/>
-    <field name="nch"  type="uint8"/>
-    <field name="res1" type="uint8"/>
-    <field name="res2" type="uint8"/>
-    <block name="sats" times="nch">
-      <field name="chn"   type="uint8"/>
-      <field name="svid"  type="uint8"/>
-      <field name="flags" type="uint8"/>
-      <field name="qi"    type="int8"/>
-      <field name="cno"   type="float" unit="dbHz"/>
-      <field name="elev"  type="float" unit="deg"/>
-      <field name="azim"  type="float" unit="deg"/>
-      <field name="prres" type="float" unit="cm"/>
-    </block>
+  <message name="SVSINFO" ID="16">
+      <field name="ac_id" type="string"/>
+      <field name="svid"  type="string" format="csv"/>
+      <field name="flags" type="string" format="csv"/>
+      <field name="qi"    type="string" format="csv" values="IDLE|SEARCH|SEARCH|UNUSABLE|CODELOCK|CARRIERLOCK|CARRIERLOCK|RECEIVING"/>
+      <field name="cno"   type="string" format="csv" unit="dbHz"/>
+      <field name="elev"  type="string" format="csv" unit="deg"/>
+      <field name="azim"  type="string" format="csv" unit="deg"/>
   </message>
 
   <message name="FLY_BY_WIRE" id="17">
@@ -379,6 +372,8 @@
   <message name="INFLIGH_CALIB" id="19">
     <field name="ac_id" type="string"/>
     <field name="if_mode" type="uint8" values="DOWN|OFF|UP"></field>
+    <field name="if_value1" type="float"></field>
+    <field name="if_value2" type="float"></field>
   </message>
 </class>
 

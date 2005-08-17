@@ -94,6 +94,7 @@
       <program name="receive"/>     
       <program name="sim"><arg flag="-a" constant="Thon1"/></program>
       <program name="map 2d ml"/>
+      <program name="messages"><arg flag="-c" constant="telemetry_ap:1"/><arg flag="-c" constant="ground"/></program>
     </session>
 
     <session name="flight microjet modem">
