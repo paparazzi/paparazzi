@@ -307,7 +307,7 @@
 
   <message name="AP_STATUS" ID="12">
     <field name="ac_id" type="string"/>
-    <field name="mode"   type="uint8" values="MANUAL|AUTO1|AUTO2|HOME"/>
+    <field name="ap_mode" type="uint8" values="MANUAL|AUTO1|AUTO2|HOME"/>
     <field name="h_mode" type="uint8" values="NONE|ROLLDOT|ROLL|HEADING_DOT|HEADING|WP|ROUTE|CIRCLE"/>
     <field name="v_mode" type="uint8" values="NONE|CLIMB|ALT|GLIDE|PARABOLIC"/>
     <field name="target_climb"   type="float" unit="m/s"/>
@@ -365,7 +365,7 @@
   <message name="FLY_BY_WIRE" id="17">
     <field name="ac_id" type="string"/>
     <field name="rc_status" type="string" values="OK|LOST|REALLY_LOST"/>
-    <field name="mode" type="string" values="MANUAL|AUTO|FAILSAFE"/>
+    <field name="rc_mode" type="string" values="MANUAL|AUTO|FAILSAFE"/>
   </message>
 
   <message name="INFRARED" id="18">
@@ -378,7 +378,7 @@
 
   <message name="INFLIGH_CALIB" id="19">
     <field name="ac_id" type="string"/>
-    <field name="mode" type="uint8" values="DOWN|OFF|UP"></field>
+    <field name="if_mode" type="uint8" values="DOWN|OFF|UP"></field>
   </message>
 </class>
 
