@@ -16,7 +16,7 @@
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with paparazzi; see the file COPYING.  If not, write to
 # the Free Software Foundation, 59 Temple Place - Suite 330,
@@ -68,7 +68,7 @@ sub completeinit {
 #  $self->{fp} = $flight_plan;
  
   $self->{modes} =
-    { 
+    {
      ap_mode => 
      { name => ["Manual", "Auto1", "Auto2", "Home"],
        color => ["sienna", "blue", "brown", "red"]
@@ -120,12 +120,9 @@ sub parse_config {
   print "Parsing gui.xml\n";
   my $doc = $parser->parsefile(Paparazzi::Environment::get_config("gui.xml"));
   my $strip = $doc->getElementsByTagName('strip')->[0];
-  $self->{options}->{normal_font} =  $strip->getAttribute('normal_font');
-  $self->{options}->{small_font} =  $strip->getAttribute('small_font');
-  $self->{options}->{background_color} =  $strip->getAttribute('background_color');
-  $self->{options}->{border_color} =  $strip->getAttribute('border_color');
-  $self->{options}->{label_color} = $strip->getAttribute('label_color');
-  $self->{options}->{value_color} = $strip->getAttribute('value_color');
+  foreach my $attr ('normal_font', 'small_font', 'background_color', 'border_color', 'label_color', 'value_color') {
+    $self->{options}->{$attr} =  $strip->getAttribute($attr);
+  }
 }
 
 
@@ -386,12 +383,11 @@ sub aircraft_config_changed {
   my ($self, $aircraft, $event, $new_value) = @_;
   #  parse_config();
   # parse flight plan
-  print "in strip aircraft_config_changed $event $new_value\n";
+#  print "in strip aircraft_config_changed $event $new_value\n";
   # flight_plan
-  if ($event eq 'flight_plan' and defined $new_value) {
-#    $self->border_block(); # display blocks of flight plan
+  if ($event eq 'flight_plan') {
+    #    $self->border_block() if (defined $new_value) ; # display blocks of flight plan
   }
-
   elsif ($event eq 'ap_mode' or $event eq 'rc_status' or 
 	 $event eq 'gps_mode' or $event eq 'contrast_status') {
     my $names = $self->{modes}->{$event}->{name};
@@ -403,7 +399,6 @@ sub aircraft_config_changed {
       print "in Strip::aircraft_config_changed : wrong value $new_value for $event\n";
     }
   }
-
   elsif ($event eq 'flight_time') {
     $self->set_item("flight_time",$self->string_of_time($new_value), $self->{options}->{value_color});
   }
