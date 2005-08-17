@@ -129,11 +129,8 @@ sub ivy_on_selected {
 }
 
 sub on_aircraft_selection {
-  #  print ("onAircratftSelection @_\n");
   my ($self, $_sp, $what, $new_selected_ac ) = @_;
-  print "on_aircraft_selection @_\n";
   $self->select_ac($new_selected_ac);
-
 }
 
 sub select_ac {
@@ -142,6 +139,7 @@ sub select_ac {
   $self->{aircrafts_manager}->listen_to_ac($ac_id);
   my $aircraft = $self->{aircrafts_manager}->get_aircraft_by_id($ac_id);
   $self->{pfd}->configure('-selected_ac', $aircraft);
+  $self->{nd}->configure('-selected_ac', $aircraft);
   $self->{md}->set_selected_ac($aircraft);
 }
 

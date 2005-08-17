@@ -23,6 +23,12 @@ sub Populate {
   $self->{cur_block} = $self->{cur_stage} = -1;
 }
 
+sub set_selected_ac {
+  my ($self, $aircraft ) = @_;
+  my $notebook = $self->Subwidget('notebook');
+  $notebook->raise(scalar $aircraft->get('-ac_id'));
+}
+
 use Data::Dumper;
 
 sub get_block_id {

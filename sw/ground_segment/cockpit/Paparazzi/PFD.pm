@@ -60,18 +60,18 @@ sub completeinit {
 
 sub selected_ac {
   my ($self,  $previous_ac, $new_ac) = @_;
-  print "###########";
-  print "in PFD selected_ac $previous_ac $new_ac\n";
+#  print "###########\n";
+#  print "in PFD selected_ac $previous_ac $new_ac\n";
 
-  my @fields = ('roll', 'alt', 'speed', 'alt', 'target_alt', 'target_heading', 'gps_mode');
+  my @fields = ('roll', 'pitch', 'speed', 'alt', 'target_alt', 'target_heading', 'gps_mode', 'ap_mode');
 
   foreach my $field ( @fields ) {
     $previous_ac->detach($self, $field, [\&foo_cbk, $field]) if ($previous_ac);
     $new_ac->attach($self, $field, [\&foo_cbk, $field]);
   }
 
-  @fields = (['mode', 'ap_mode'],
-	     ['course', 'heading'],
+  @fields = (['course', 'heading'],
+	     ['climb', 'vz']
 	    );
   foreach my $field ( @fields ) {
     $previous_ac->detach($self, $field->[0], [\&foo_cbk, $field->[1]]) if ($previous_ac);

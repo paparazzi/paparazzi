@@ -70,7 +70,7 @@ sub add_strip {
 }
 
 sub OnStripPressed {
-  print ("OnStripPressed @_\n");
+#  print ("OnStripPressed @_\n");
   my ($zinc, $self, $ac_id) = @_;
   $self->{strips}->{$self->get('-selected')}->configure('-selected' => 0) if defined $self->get('-selected');
   $self->configure('-selected' => $ac_id);

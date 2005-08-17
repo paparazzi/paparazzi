@@ -29,8 +29,8 @@ sub init {
 
 sub send_request {
   my ($sender_name, $msg_class, $msg_name, $known_fields, $user_cb) = @_;
-  print "in send request $msg_class $msg_name\n";
-  print Dumper($known_fields);
+#  print "in send request $msg_class $msg_name\n";
+#  print Dumper($known_fields);
   my $result_name = $msg_name;#."_RES";
   my $regexp = get_regexp($sender_name, $msg_class, $msg_name, $known_fields);
   $regexp =~ s/$msg_name/$result_name/;
@@ -45,8 +45,8 @@ sub send_request {
 
 sub on_res_received {
   my ($sender_name, $msg_class, $msg_name, $known_fields, $regexp, $user_cb, @matched_regexps) = @_;
-  print "on res received\n";
-  print Dumper($known_fields);
+#  print "on res received\n";
+#  print Dumper($known_fields);
   $ivy->bindRegexp($regexp);
   on_msg_received($sender_name, $msg_class, $msg_name, $known_fields, $user_cb, @matched_regexps);
 

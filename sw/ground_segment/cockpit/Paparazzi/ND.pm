@@ -19,6 +19,7 @@ sub populate {
 		    -origin   => [S_NEEDINIT, S_PASSIVE, S_RDONLY, S_OVRWRT, S_NOPRPG, undef],
 		    -width    => [S_NEEDINIT, S_PASSIVE, S_RDONLY, S_OVRWRT, S_NOPRPG, undef],
 		    -height   => [S_NEEDINIT, S_PASSIVE, S_RDONLY, S_OVRWRT, S_NOPRPG, undef],
+		    -selected_ac => [S_NOINIT,  S_METHOD, S_RDWR, S_OVRWRT, S_NOPRPG, undef],
 		    -page     => [S_NOINIT,  S_METHOD, S_RDWR, S_OVRWRT, S_NOPRPG, "gps"],
 		    -engine_status => [S_NOINIT, S_PRPGONLY, S_RDWR,   S_OVRWRT, S_CHILDREN, undef],
 		    -ap_status => [S_NOINIT, S_PRPGONLY, S_RDWR,   S_OVRWRT, S_CHILDREN, undef],
@@ -47,6 +48,13 @@ sub page {
 sub put_lls {
   my ($self, $value) = @_;
 #  $self->{IR}->put_lls($value);
+}
+
+sub selected_ac {
+  my ($self, $old_ac, $new_ac) = @_;
+  
+
+  
 }
 
 sub build_gui() {

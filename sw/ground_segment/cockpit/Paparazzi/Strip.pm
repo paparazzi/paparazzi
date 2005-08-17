@@ -87,12 +87,12 @@ sub completeinit {
      }
     };
 
-  $self->{'frame'} = undef;
-  $self->{'frame_clip'} = undef;
+  $self->{frame} = undef;
+  $self->{frame_clip} = undef;
 
-  $self->{'battery'} = 12.5;
-  $self->{'topgroup'} = undef;
-  $self->{'contentgroup'} = undef;
+  $self->{battery} = 12.5;
+  $self->{topgroup} = undef;
+  $self->{contentgroup} = undef;
   $self->{mission} = undef;
 
   $self->{options} = {
@@ -107,8 +107,8 @@ sub completeinit {
 
 
   $self->{prefix} = "STRIP_".$self->get(-aircraft)->get('-ac_id')."_";
-  $self->{'zinc_bat'} = "";
-  $self->{'zinc_bat_value'} = "";
+  $self->{zinc_bat} = undef;
+  $self->{zinc_bat_value} = undef;
   $self->attach_to_aircraft();
   $self->draw();
 
@@ -142,15 +142,15 @@ sub draw {
 
 
   ## main group of the strip
-  $self->{'topgroup'} = $zinc->add('group', scalar $self->get('-parent_grp'), -sensitive => 1,
+  $self->{topgroup} = $zinc->add('group', scalar $self->get('-parent_grp'), -sensitive => 1,
   	-atomic => 0, -tags => ["strip_".$ident]);
-  $self->{'contentgroup'} = $zinc->add('group', $self->{'topgroup'}, -composealpha=>0, -sensitive=>1);
+  $self->{contentgroup} = $zinc->add('group', $self->{topgroup}, -composealpha=>0, -sensitive=>1);
 
   ## the strip
-  $self->{'frame'} = $zinc->add('rectangle', $self->{'topgroup'}, [5,5,$width, 95], -fillcolor => $self->{options}->{background_color}, -filled=>1, -linecolor => $self->{options}->{border_color}, -sensitive => 1, -tags => ["strip_".$ident]);
+  $self->{frame} = $zinc->add('rectangle', $self->{topgroup}, [5,5,$width, 95], -fillcolor => $self->{options}->{background_color}, -filled=>1, -linecolor => $self->{options}->{border_color}, -sensitive => 1, -tags => ["strip_".$ident]);
   # cliping contour of the strip
-  $self->{'frame_clip'} = $zinc->add('rectangle', $self->{'contentgroup'}, [5,5,$width, 95], -visible=>0);
-  $zinc->itemconfigure($self->{'contentgroup'}, -clip=> $self->{'frame_clip'});
+  $self->{frame_clip} = $zinc->add('rectangle', $self->{contentgroup}, [5,5,$width, 95], -visible=>0);
+  $zinc->itemconfigure($self->{contentgroup}, -clip=> $self->{frame_clip});
   
   ## bindings to highlight the strip when the mouse is over
   $zinc->bind($self->{frame}, '<Enter>', sub { $zinc->itemconfigure($self->{frame}, -linecolor => 'red'); });
@@ -158,7 +158,7 @@ sub draw {
   $zinc->bind($self->{frame}, '<1>', [\&onStripPressed, $self, $ident]);
 
   ## ident of the plane
-  $zinc->add('text', $self->{'contentgroup'}, -text => uc($ident), -position=>[10,10], -font => $self->{options}->{normal_font}, -color => "midnightblue");
+  $zinc->add('text', $self->{contentgroup}, -text => uc($ident), -position=>[10,10], -font => $self->{options}->{normal_font}, -color => "midnightblue");
   
   my @label_attr = (['AP',  'ap_mode',          70,  10],
 		    ['RC',  'rc_status',        70,  22],
@@ -175,23 +175,23 @@ sub draw {
     $self->add_value_text($attr->[1]);
   }
 
-  $zinc->add('text', $self->{'contentgroup'}, -text => $self->string_of_time(0), -position => [8, 82], -font => $self->{options}->{small_font}, -color => $self->{options}->{label_color}, -tags => [ $self->{prefix}."flight_time_value"] );
+  $zinc->add('text', $self->{contentgroup}, -text => $self->string_of_time(0), -position => [8, 82], -font => $self->{options}->{small_font}, -color => $self->{options}->{label_color}, -tags => [ $self->{prefix}."flight_time_value"] );
   ##
   # QUICK and DIRTY flight time an battery
   # 
   ## flight_time
   # FIXME: use tags instead of reference to zinc item
 
-  $zinc->add('rectangle', $self->{'contentgroup'}, [10,25, 41,81], -filled=>1, -fillcolor=> '#d1d1d1');
-  $self->{'zinc_bat'} = $zinc->add('rectangle', $self->{'contentgroup'}, [11,80-(($self->{'battery'}-6)/7)*55,40,80],  -filled=>1,-fillcolor=>'#8080ff', -linewidth=>0);
+  $zinc->add('rectangle', $self->{contentgroup}, [10,25, 41,81], -filled=>1, -fillcolor=> '#d1d1d1');
+  $self->{zinc_bat} = $zinc->add('rectangle', $self->{contentgroup}, [11,80-(($self->{battery}-6)/7)*55,40,80],  -filled=>1,-fillcolor=>'#8080ff', -linewidth=>0);
 
-  $self->{'zinc_bat_value'} = $zinc->add('text', $self->{'contentgroup'}, -text => sprintf("%s",$self->{'battery'}), -position=>[12,40], -font => $self->{options}->{small_font});
+  $self->{zinc_bat_value} = $zinc->add('text', $self->{contentgroup}, -text => sprintf("%s",$self->{battery}), -position=>[12,40], -font => $self->{options}->{small_font});
 
-  $zinc->translate($self->{'topgroup'}, $x, $y);
-  $zinc->raise($self->{'topgroup'});
-  $zinc->raise($self->{'contentgroup'});
+  $zinc->translate($self->{topgroup}, $x, $y);
+  $zinc->raise($self->{topgroup});
+  $zinc->raise($self->{contentgroup});
 #  $self->border_block(); # display blocks of flight plan
-  return $self->{'topgroup'};
+  return $self->{topgroup};
 }
 
 # add_label
@@ -199,8 +199,8 @@ sub draw {
 ##############################################################################
 sub add_label {
   my ($self, $label, $tag, $x, $y) = @_;
-  print "adding $tag\n";
-  $self->get('-zinc')->add('text',$self->{'contentgroup'}, -text => $label, -position => [$x, $y], -font => $self->{options}->{normal_font}, -color => $self->{options}->{label_color}, -tags => [ $self->{prefix}.$tag ]);
+#  print "adding $tag\n";
+  $self->get('-zinc')->add('text',$self->{contentgroup}, -text => $label, -position => [$x, $y], -font => $self->{options}->{normal_font}, -color => $self->{options}->{label_color}, -tags => [ $self->{prefix}.$tag ]);
 }
 
 # add_value_text
@@ -322,19 +322,20 @@ sub set_block {
 
 
 # FIXME: should be deprecated and we should use set_item or something like that
-sub setBat {
+sub set_bat {
   my ($self, $bat) = @_;
-  print "in Strip::set_bat $bat ($self->{prefix})\n";
-  $self->{'battery'} = $bat;
+#  print "in Strip::set_bat $bat ($self->{prefix})\n";
+  my $zinc = $self->get('-zinc');
+  $self->{battery} = $bat;
   my $batcolor = '#8080ff';
-  $self->{'zinc'}->remove($self->{'zinc_bat'});
-  $self->{'zinc_bat'} = 
-    $self->{'zinc'}->add('rectangle',
-			 $self->{'contentgroup'}, [11,80-(($self->{'battery'}-6)/7)*55,40,80],
-			 -filled=>1,-fillcolor=>$batcolor, -linewidth=>0);
-  $self->{'zinc'}->itemconfigure($self->{'zinc_bat_value'},
-				 -text => sprintf("%2.1f",$self->{'battery'}),);
-  $self->{'zinc'}->raise($self->{'zinc_bat_value'});
+  $zinc->remove($self->{zinc_bat}) if (defined $self->{zinc_bat});
+  $self->{zinc_bat} = $zinc->add('rectangle',
+				 $self->{contentgroup},
+				 [11,80-(($self->{battery}-6)/7)*55,40,80],
+				 -filled=>1, -fillcolor=>$batcolor, -linewidth=>0) if (defined $self->{contentgroup});
+  $zinc->itemconfigure($self->{zinc_bat_value},
+		       -text => sprintf("%2.1f",$self->{battery}),);
+  $zinc->raise($self->{zinc_bat_value});
 }
 
 sub string_of_time {
@@ -350,8 +351,8 @@ sub string_of_time {
 ##############################################################################
 sub attach_to_aircraft {
   my ($self) = @_;
-  my @options = ('flight_plan', 'ap_mode', 'rc_mode', 'gps_mode', 'contrast_status', 'contrast_value',
-		 'flight_time', 'alt', 'target_alt', 'speed', 'climb');
+  my @options = ('flight_plan', 'ap_mode', 'rc_status', 'gps_mode', 'contrast_status', 'contrast_value',
+		 'flight_time', 'alt', 'target_alt', 'speed', 'climb', 'bat');
   foreach my $option (@options) {
     $self->get('-aircraft')->attach($self, $option, [\&aircraft_config_changed]);
   }
@@ -364,8 +365,8 @@ sub aircraft_config_changed {
   if ($event eq 'flight_plan') {
     #    $self->border_block() if (defined $new_value) ; # display blocks of flight plan
   }
-  elsif ($event eq 'ap_mode' or $event eq 'rc_status' or 
-	 $event eq 'gps_mode' or $event eq 'contrast_status') {
+  elsif ($event eq 'ap_mode' or $event eq 'rc_status' or #$event eq 'rc_mode' or
+	 $event eq 'gps_mode' or $event eq 'contrast_status' ) {
     my $names = $self->{modes}->{$event}->{name};
     my $colors = $self->{modes}->{$event}->{color};
     if ($new_value < @{$names} ) {
@@ -377,15 +378,17 @@ sub aircraft_config_changed {
     $self->set_item("flight_time",$self->string_of_time($new_value), $self->{options}->{value_color});
   }
   elsif ($event eq 'bat') {
-    $self->set_bat($new_value); # display blocks of flight plan
+    $self->set_bat($new_value);
   }
-  elsif ( $event eq 'speed' or $event eq 'climb' or $event eq 'alt' or $event eq 'target_alt') {
+  elsif ( $event eq 'speed' or $event eq 'climb' or $event eq 'alt' or $event eq 'target_alt' or $event eq 'contrast_value') {
     my $fmt = { speed => "%2.1fm/s",
 		climb => "%+2.1fm/s",
 		alt   => "%4.1fm",
-		target_alt => "%4.1fm"
+		target_alt => "%4.1fm",
+		contrast_value => "%03d",
 	      };
     $self->set_item($event, sprintf($fmt->{$event}, $new_value), $self->{options}->{value_color});
+
   }
   # cur_block
   elsif ($event eq 'cur_block') {
@@ -401,7 +404,7 @@ sub aircraft_config_changed {
 sub selected {
   my ($self, $previous_val, $new_val) = @_;
   my $zinc = $self->get('-zinc');
-  $zinc->itemconfigure($self->{'frame'},
+  $zinc->itemconfigure($self->{frame},
 		       -fillcolor => $new_val ? $self->{options}->{selected_background_color} :
 		       $self->{options}->{background_color});
 }
