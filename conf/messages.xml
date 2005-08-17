@@ -328,6 +328,7 @@
   </message>
 
   <message name="CAM_STATUS" ID="14">
+     <field name="ac_id" type="string"/>
      <field name="cam_east" type="float" unit="m"/>
      <field name="cam_north" type="float" unit="m"/>
      <field name="target_east" type="float" unit="m"/>

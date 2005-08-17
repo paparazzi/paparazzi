@@ -123,10 +123,14 @@ sub on_ac_msg {
 sub listen_to_ac {
   my ($self, $ac_id)  = @_;
   my @ac_events = ( ['FLIGHT_PARAM',  \&on_ac_msg],
-		    ['NAV_STATUS',    \&on_ac_msg],
 		    ['AP_STATUS',     \&on_ac_msg],
+		    ['NAV_STATUS',    \&on_ac_msg],
+		    ['CAM_STATUS',    \&on_ac_msg],
 		    ['ENGINE_STATUS', \&on_ac_msg],
-		    #		    ['SATS', \&ivyOnSats],
+		    ['FLY_BY_WIRE',   \&on_ac_msg],
+		    ['INFRARED',      \&on_ac_msg],
+		    ['INFLIGH_CALIB', \&on_ac_msg],
+#		    ['SATS', \&ivyOnSats],
 		  );
   foreach my $event (@ac_events) {
     Paparazzi::IvyProtocol::bind_msg("ground", "ground", $event->[0], 
