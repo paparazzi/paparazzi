@@ -41,9 +41,21 @@ value sim_periodic_task(value unit) {
   return Val_unit;
 }
 
+static int radio_status = 1;
+static int radio_really_lost;
+
+value set_radio_status(value on) {
+  radio_status = Int_val(on);
+  if (! radio_status) radio_really_lost = FALSE;
+}
+
+
+value set_really_lost(value on) {
+  radio_really_lost = Int_val(on);
+}
 
 value sim_rc_task(value unit) {
-  from_fbw.status = (1 << STATUS_RADIO_OK) | (1 << AVERAGED_CHANNELS_SENT);
+  from_fbw.status = (radio_status << STATUS_RADIO_OK) | (radio_really_lost << RADIO_REALLY_LOST) | (1 << AVERAGED_CHANNELS_SENT);
   link_fbw_receive_valid = TRUE;
   radio_control_task();
   return Val_unit;

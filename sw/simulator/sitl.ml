@@ -78,19 +78,23 @@ module Make(A:Data.MISSION) = struct
 
 (* Radio command handling *)
   external update_channel : int -> float -> unit = "update_rc_channel"
+  external set_radio_status : bool -> unit = "set_radio_status"
+  external set_really_lost : bool -> unit = "set_really_lost"
 
   let inverted = ["ROLL"; "PITCH"; "YAW"; "GAIN1"; "GAIN2"]
 
   let rc = fun () ->
     let name = Xml.attrib A.ac.Data.radio "name" ^ " " ^ A.ac.Data.name in
-    let window = GWindow.window ~title:name ~border_width:0 ~width:400 ~height:400 () in
+    let window = GWindow.window ~title:name ~border_width:0 ~width:200 ~height:400 () in
     let quit = fun () -> GMain.Main.quit (); exit 0 in
     ignore (window#connect#destroy ~callback:quit);
-    let vbox = GPack.vbox ~packing:window#add () in
+    let vbox = GPack.vbox ~height:10 ~spacing: 1 ~border_width: 1 ~packing:window#add () in
+    let on_off = GButton.check_button ~label:"On" ~active:true ~packing:vbox#pack () in
+    let sliders = GPack.vbox ~packing:vbox#add () in
     Array.iteri
       (fun i c ->
 	let adj = GData.adjustment ~value:0. ~lower:(-100.) ~upper:110. ~step_incr:1.0 () in
-	let hbox = GPack.hbox ~packing:vbox#add () in
+	let hbox = GPack.hbox ~packing:sliders#add () in
 	let f = (ExtXml.attrib c "function") in
 	let l = GMisc.label ~width:75 ~text:f ~packing:hbox#pack () in
 	let inv = List.mem f inverted in
@@ -100,7 +104,15 @@ module Make(A:Data.MISSION) = struct
 	ignore (adj#connect#value_changed update);
 	update ())
       rc_channels;
+    ignore (on_off#connect#toggled (fun () -> sliders#coerce#misc#set_sensitive on_off#active; set_radio_status on_off#active));
 
+    let monitor_on_off = 
+      let t = ref 0 in
+      fun () ->
+	incr t;
+	if on_off#active then t := 0;
+	set_really_lost (!t > 2) in
+    periodic 1000 monitor_on_off;
     window#show ()
 
   external periodic_task : unit -> unit = "sim_periodic_task"

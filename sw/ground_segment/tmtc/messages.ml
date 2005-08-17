@@ -26,7 +26,7 @@
 
 open Printf
 
-let update_delay = 1. (* Min time in second before two updates *)
+let update_delay = 0.25 (* Min time in second before two updates *)
 let led_delay = 500 (* Time in milliseconds while the green led is displayed *)
 
 
@@ -35,37 +35,6 @@ let space = Str.regexp "[ \t]+"
 let (//) = Filename.concat
 
 let xml_file = Env.paparazzi_src // "conf" // "messages.xml"
-
-let green = "#00e000"
-let red = "#ff0000"
-let black = "#000000"
-let yellow = "#ffff00"
-
-let led2 color1 color2 = [|
-  "16 16 5 1";
-  "       c None";
-  ".      c black";
-  "X      c white";
-  "o c "^color1;
-  "O c "^color2;
-  "     ......     ";
-  "   ........XX   ";
-  "  ...ooooooXXX  ";
-  " ..ooooooooooXX ";
-  " ..oooXXXooooXX ";
-  "..oooXXXooooooXX";
-  "..ooXXooooooooXX";
-  "..ooXXooooooooXX";
-  "..ooXoooooooooXX";
-  "..ooooooooooooXX";
-  "..ooooooooooooXX";
-  " ..ooooooooooXX ";
-  " ..ooooooooooXX ";
-  "  ...ooooooXXX  ";
-  "   ..XXXXXXXX   ";
-  "     XXXXXX     "|]
-
-let led color = led2 color "None"
 
 let format = fun field ->
   try
@@ -100,21 +69,17 @@ let _ =
 
   let notebook = GPack.notebook ~packing:window#add ~tab_pos:`TOP () in
 
-  let pm = fun color ->
-    GDraw.pixmap_from_xpm_d ~data:(led color) ~window:window () in
-  let black_led = pm black
-  and green_led = pm green
-  and yellow_led = pm yellow
-  and red_led = pm red in
 
 let one_page = fun (notebook:GPack.notebook) bind m ->
   let id = (Xml.attrib m "name") in
   let h = GPack.hbox () in
   let v = GPack.vbox ~width:200 () in
   let l = GMisc.label ~text:id ~packing:h#add () in
-  let led = GMisc.pixmap black_led ~packing:h#pack () in
-  let time = GMisc.label ~text:"___" ~packing:h#pack () in
-  notebook#append_page ~tab_label:h#coerce v#coerce;
+  let eb = GBin.event_box ~packing:h#pack () in
+  let time = GMisc.label ~width:40 ~packing:eb#add () in
+   eb#coerce#misc#modify_bg [`SELECTED, `NAME "green"];
+      notebook#append_page ~tab_label:h#coerce v#coerce;
+    let page_num = notebook#page_num v#coerce in
   let fields = 
     List.fold_left
       (fun rest f ->
@@ -125,8 +90,9 @@ let one_page = fun (notebook:GPack.notebook) bind m ->
 	  let _ = GMisc.label ~text:name ~packing:h#pack () in
 	  let l = GMisc.label ~text:"XXXX" ~packing:h#pack () in
 	  let update = fun (a, x) -> 
-	    let fx = Pprz.string_of_value x in
-	    if l#label <> fx then l#set_text fx in
+	    if notebook#current_page = page_num then
+	      let fx = Pprz.string_of_value x in
+	      if l#label <> fx then l#set_text fx in
 	  update::rest
 	with
 	  _ -> 
@@ -139,7 +105,10 @@ let one_page = fun (notebook:GPack.notebook) bind m ->
   let n = List.length fields in
   let last_update = ref (Unix.gettimeofday ()) in
   let time_since_last = ref 0 in
-  ignore (GMain.Timeout.add 1000 (fun () -> incr time_since_last; time#set_text (sprintf "%2d" !time_since_last); true));
+  let update_time = fun () ->
+    incr time_since_last;
+    time#set_text (sprintf "%2d" !time_since_last); true in
+  ignore (GMain.Timeout.add 1000 update_time);
   let display = fun sender values ->
     time_since_last := 0;
     let t = Unix.gettimeofday () in
@@ -148,16 +117,15 @@ let one_page = fun (notebook:GPack.notebook) bind m ->
       try
 	List.iter2 (fun f x -> f x) fields (List.rev values);
 	
-	led#set_pixmap green_led;
- 	ignore (GMain.Timeout.add led_delay (fun () -> led#set_pixmap yellow_led; false))
+	eb#coerce#misc#set_state `SELECTED;
+ 	ignore (GMain.Timeout.add led_delay (fun () -> eb#coerce#misc#set_state `NORMAL; false))
       with
 	Invalid_argument "List.iter2" ->
-	  led#set_pixmap red_led;
 	  Printf.fprintf stderr "%s: expected %d, got %d\n" id n (List.length values); flush stderr
     end
   in
   ignore (bind id display);
-  (id, (led, fields)) in
+  (id, fields) in
 
 
   let xml_classes =
