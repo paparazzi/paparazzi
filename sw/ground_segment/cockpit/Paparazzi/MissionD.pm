@@ -34,27 +34,6 @@ sub get_stage_id {
   return "stage_".$no_block."_".$no_stage;
 }
 
-sub set_block_and_stage {
-  my ($self, $new_block, $new_stage) = @_;
-  my $text = $self->Subwidget('text');
-  if ($self->{cur_block} != $new_block) {
-    $text->tagConfigure(get_block_id($self->{cur_block}), -background => undef);
-    $text->tagConfigure(get_block_id($new_block), -background => 'green3');
-    $text->tagConfigure(get_stage_id($self->{cur_block}, $self->{cur_stage}), -background => undef);
-    $text->tagConfigure(get_stage_id($new_block, $new_stage), -background => 'green1');
-    $self->{cur_block} = $new_block;
-    $self->{cur_stage} = $new_stage;
-  }
-  else {
-    if ($self->{cur_stage} != $new_stage) {
-      $text->tagConfigure(get_stage_id($self->{cur_block}, $self->{cur_stage}), -background => undef);
-      $text->tagConfigure(get_stage_id($self->{cur_block}, $new_stage), -background => 'green1');
-      $self->{cur_stage} = $new_stage;
-    }
-  }
-}
-
-
 sub add_aircraft {
   my ($self, $aircraft ) = @_;
   my $notebook = $self->Subwidget('notebook');
@@ -66,16 +45,33 @@ sub add_aircraft {
   $text->insert('end', "coucou");
 
   $self->{'text'.$aircraft->get('-ac_id')} = $text;
-  $aircraft->attach($self, 'flight_plan', [\&on_flight_plan]);
+  $aircraft->attach($self, 'flight_plan', [\&on_ac_changed]);
+  $aircraft->attach($self, 'cur_block', [\&on_ac_changed]);
+  $aircraft->attach($self, 'cur_stage', [\&on_ac_changed]);
 }
 
-sub on_flight_plan {
+sub on_ac_changed {
   my ($self, $aircraft, $event, $new_value) = @_;
   print "in MissionD : on_flight_plan @_\n";
-  
-  if (defined $new_value) {
-    my $compiled_xml = $new_value->get('-compiled_xml') ;
-    $self->load_flight_plan(scalar $aircraft->get('-ac_id'), $compiled_xml);
+  my $ac_id = $aircraft->get('-ac_id');
+  if ($event eq 'flight_plan') {
+    if (defined $new_value) {
+      my $compiled_xml = $new_value->get('-compiled_xml') ;
+      $self->load_flight_plan($ac_id , $compiled_xml);
+    }
+  }
+  elsif ($event eq 'cur_block') {
+    my $text = $self->{'text'.$ac_id};
+    $text->tagConfigure(get_block_id($self->{cur_block}), -background => undef);
+    $text->tagConfigure(get_block_id($new_value), -background => 'green3');
+    $text->tagConfigure(get_stage_id($self->{cur_block}, $self->{cur_stage}), -background => undef);
+    $self->{cur_block} = $new_value;
+  }
+  elsif ($event eq 'cur_stage') {
+    my $text = $self->{'text'.$ac_id};
+    $text->tagConfigure(get_stage_id($self->{cur_block}, $self->{cur_stage}), -background => undef);
+    $text->tagConfigure(get_stage_id($self->{cur_block}, $new_value), -background => 'green1');
+    $self->{cur_stage} = $new_value;
   }
 }
 

@@ -328,12 +328,11 @@
   </message>
 
   <message name="CAM_STATUS" ID="14">
-     <field name="east" type="float" unit="m"/>
-     <field name="north" type="float" unit="m"/>
+     <field name="cam_east" type="float" unit="m"/>
+     <field name="cam_north" type="float" unit="m"/>
      <field name="targe_east" type="float" unit="m"/>
      <field name="target_north" type="float" unit="m"/>
   </message>
-
 
   <message name="ENGINE_STATUS" ID="15">
     <field name="ac_id" type="string"/>

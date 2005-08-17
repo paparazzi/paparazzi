@@ -80,7 +80,7 @@ sub build_gui {
 #  $self->{mw}->geometry("1280x1024");
   my $top_frame =  $self->{mw}->Frame()->pack(-side => 'top', -fill => 'both');
   my $bot_frame =  $self->{mw}->Frame()->pack(-side => 'bottom', -fill => 'both', -expand => 1);
-  my ($stp_p, $stp_w, $stp_h) = ([0, 0],                   800, 300);
+  my ($stp_p, $stp_w, $stp_h) = ([0, 0],                   315, 300);
   my ($pfd_p, $pfd_w, $pfd_h) = ([$stp_w, 0]             , 300, $stp_h);
   my ($nd_p,  $nd_w,  $nd_h) =  ([$pfd_p->[0]+ $pfd_w, 0], 300, 300);
   my $zinc = $top_frame->Zinc(-width => $stp_w + $pfd_w + $nd_w ,

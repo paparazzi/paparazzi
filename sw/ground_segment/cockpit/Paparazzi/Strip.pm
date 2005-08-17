@@ -134,6 +134,9 @@ sub draw {
   my $ident = $self->get(-aircraft)->get('-ac_id');
   my ($x, $y) = @{$self->get('-origin')};
 #  my $fp = $self->get(-flight_plan);
+  
+  my $width = 300;
+
 
   ## main group of the strip
   $self->{'topgroup'} = $zinc->add('group', scalar $self->get('-parent_grp'), -sensitive => 1,
@@ -141,9 +144,9 @@ sub draw {
   $self->{'contentgroup'} = $zinc->add('group', $self->{'topgroup'}, -composealpha=>0, -sensitive=>1);
 
   ## the strip
-  $self->{'frame'} = $zinc->add('rectangle', $self->{'topgroup'}, [5,5,795, 95], -fillcolor => $self->{options}->{background_color}, -filled=>1, -linecolor => $self->{options}->{border_color}, -sensitive => 1, -tags => ["strip_".$ident]);
+  $self->{'frame'} = $zinc->add('rectangle', $self->{'topgroup'}, [5,5,$width, 95], -fillcolor => $self->{options}->{background_color}, -filled=>1, -linecolor => $self->{options}->{border_color}, -sensitive => 1, -tags => ["strip_".$ident]);
   # cliping contour of the strip
-  $self->{'frame_clip'} = $zinc->add('rectangle', $self->{'contentgroup'}, [5,5,795, 95], -visible=>0);
+  $self->{'frame_clip'} = $zinc->add('rectangle', $self->{'contentgroup'}, [5,5,$width, 95], -visible=>0);
   $zinc->itemconfigure($self->{'contentgroup'}, -clip=> $self->{'frame_clip'});
   
   ## bindings to highlight the strip when the mouse is over
@@ -305,17 +308,17 @@ sub border_block {
     my $clip = $zinc->add('rectangle', $groups[$i], [$x[$i], 10, $x[$i]+46, 90], -visible => 0);
     $zinc->itemconfigure($groups[$i], -clip => $clip);
     $zinc->add('text', $groups[$i], -text => $block_name,
-    -position => [ $x[$i]+3, 20], -font => $self->{options}->{normal_font},
-    -tags => [ $self->{prefix}."block_".$block_name, "block_label", $self->{prefix}."block_num_".$i ]
-  );
-  $zinc->add('text', $groups[$i], -text => $blocks[$i]->{rc1},
-  -position => [ $x[$i]+3, 50], -font => $self->{options}->{small_font},
-  -color => $self->{options}->{value_color}
-);
-$zinc->add('text', $groups[$i], -text => $blocks[$i]->{rc2},
--position => [ $x[$i]+3, 60], -font => $self->{options}->{small_font},
--color => $self->{options}->{value_color}
-    );
+	       -position => [ $x[$i]+3, 20], -font => $self->{options}->{normal_font},
+	       -tags => [ $self->{prefix}."block_".$block_name, "block_label", $self->{prefix}."block_num_".$i ]
+	      );
+    $zinc->add('text', $groups[$i], -text => $blocks[$i]->{rc1},
+	       -position => [ $x[$i]+3, 50], -font => $self->{options}->{small_font},
+	       -color => $self->{options}->{value_color}
+	      );
+    $zinc->add('text', $groups[$i], -text => $blocks[$i]->{rc2},
+	       -position => [ $x[$i]+3, 60], -font => $self->{options}->{small_font},
+	       -color => $self->{options}->{value_color}
+	      );
 
   }
 }
