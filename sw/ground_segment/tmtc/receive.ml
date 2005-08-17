@@ -96,6 +96,7 @@ type aircraft = {
     mutable nav_ref_north    : float;
     mutable desired_east    : float;
     mutable desired_north    : float;
+    mutable desired_altitude    : float;
     mutable gspeed  : float;
     mutable course  : float;
     mutable alt     : float;
@@ -173,7 +174,8 @@ let log_and_parse = fun log ac_name a msg values ->
 	a.gps_mode <- ivalue "mode"
     | "DESIRED" ->
 	a.desired_east <- fvalue "desired_x";
-	a.desired_north <- fvalue "desired_y"
+	a.desired_north <- fvalue "desired_y";
+	a.desired_altitude <- fvalue "desired_altitude"
     | "NAVIGATION_REF" ->
 	a.nav_ref_east <- fvalue "utm_east";
 	a.nav_ref_north <- fvalue "utm_north"
@@ -334,7 +336,8 @@ let send_aircraft_msg = fun ac ->
     let values = ["ac_id", Pprz.String ac; 
 		  "ap_mode", Pprz.Int a.ap_mode; 
 		  "v_mode", Pprz.Int a.ap_altitude;
-		  "gps_mode", Pprz.Int a.gps_mode] in
+		  "gps_mode", Pprz.Int a.gps_mode;
+		  "target_alt", Pprz.Float a.desired_altitude] in
     Ground_Pprz.message_send my_id "AP_STATUS" values;
 
     send_cam_status a;
@@ -348,6 +351,7 @@ let send_aircraft_msg = fun ac ->
       
 let new_aircraft = fun id ->
     { id = id ; roll = 0.; pitch = 0.; nav_ref_east = 0.; nav_ref_north = 0.; desired_east = 0.; desired_north = 0.; gspeed=0.; course = 0.; alt=0.; climb=0.; cur_block=0; cur_stage=0; throttle = 0.; rpm = 0.; temp = 0.; bat = 0.; amp = 0.; energy = 0.; ap_mode=0; ap_altitude=0; gps_mode =0;
+      desired_altitude = 0.;
       pos = { utm_x = 0.; utm_y = 0.; utm_zone = 0 };
       cam = { phi = 0.; theta = 0. };
       inflight_calib = { if_mode = 1 ; if_val1 = 0.; if_val2 = 0.};
