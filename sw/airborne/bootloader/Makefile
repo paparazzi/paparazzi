@@ -14,8 +14,8 @@ ARCH      = atmega128
 # low_fuse e1
 #
 
-# bootloader base in bytes
-BL_BASE = 0x1800
+# bootloader base in bytes (0xF000 in words)
+BL_BASE = 0x1E00
 
 bootloader.elf: bootloader.c
 	avr-gcc -Wall -mmcu=$(ARCH) -Ttext $(BL_BASE) -o $@ $<

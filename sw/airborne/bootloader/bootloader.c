@@ -3,7 +3,11 @@
 #include <avr/boot.h>
 #include <avr/pgmspace.h>
 
-#define BL_SIZE 1024
+/* mega128
+   FLASHEND => 0x1FFFF (131071)
+*/
+
+#define BL_SIZE 4096 /* words */
 #define APP_END (FLASHEND - BL_SIZE)
 #define PARTCODE  0x44
 #define SIG_BYTE3 0x02
@@ -146,7 +150,7 @@ static void process_input ( uint8_t c ) {
 
 }
 
-#include "led_v1_2.h";
+#include "led_v1_2.h"
 
 int main ( void ) {
   cli();
