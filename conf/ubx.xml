@@ -50,7 +50,7 @@
       <field name="ITOW" format="U4" unit="ms"/>
       <field name="NCH" format="U1"/>
       <field name="RES1" format="U1"/>
-      <field name="RES2" format="U1"/>
+      <field name="RES2" format="U2"/>
       <block times="NCH" length="12">
         <field name="chn" format="U1"/>
         <field name="SVID" format="U1"/>

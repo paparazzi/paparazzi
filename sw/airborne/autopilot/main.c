@@ -527,7 +527,7 @@ void use_gps_pos( void ) {
   
   static uint8_t i;
   if (i == gps_nb_channels) i = 0;
-  if (i < gps_nb_channels)
+  if (i < gps_nb_channels && gps_svinfos[i].cno > 0) 
     DOWNLINK_SEND_SVINFO(&i, &gps_svinfos[i].svid, &gps_svinfos[i].flags, &gps_svinfos[i].qi, &gps_svinfos[i].cno, &gps_svinfos[i].elev, &gps_svinfos[i].azim);
   i++;
 

@@ -115,8 +115,6 @@ type aircraft = {
     inflight_calib : inflight_calib;
     infrared : infrared;
     fbw : fbw;
-    mutable svinfo_nb_channels : int;
-    mutable svinfo_last_channel : int;
     svinfo : svinfo array
   }
 
@@ -230,10 +228,7 @@ let log_and_parse = fun log ac_name a msg values ->
 	  cno = ivalue "CNO";
 	  elev = ivalue "Elev";
 	  azim = ivalue "Azim";
-	};
-	if i = 0 then
-	  a.svinfo_nb_channels <- a.svinfo_last_channel + 1;
-	a.svinfo_last_channel <- i
+	}
     | _ -> ()
 
 (** Callback for a message from a registered A/C *)
@@ -280,29 +275,28 @@ let send_infrared = fun a ->
   Ground_Pprz.message_send my_id "INFRARED"  values
 
 let send_svsinfo = fun a ->
-  if a.svinfo_last_channel = 0 then begin
-    let svid = ref ","
-    and flags= ref ","
-    and qi = ref ","
-    and cno = ref ","
-    and elev = ref ","
-    and azim = ref "," in
-    for i = 0 to a.svinfo_nb_channels - 1 do
-      let concat = fun ref v ->
-	ref := !ref ^ string_of_int v ^ "," in
-      concat svid a.svinfo.(i).svid;
-      concat flags a.svinfo.(i).flags;
-      concat qi a.svinfo.(i).qi;
-      concat cno a.svinfo.(i).cno;
-      concat elev a.svinfo.(i).elev;
-      concat azim a.svinfo.(i).azim
-    done;
-    let f = fun s r -> (s, Pprz.String !r) in
-    let vs = ["ac_id", Pprz.String a.id; 
+  let svid = ref ","
+  and flags= ref ","
+  and qi = ref ","
+  and cno = ref ","
+  and elev = ref ","
+  and azim = ref "," in
+  for i = 0 to gps_nb_channels - 1 do
+    let concat = fun ref v ->
+      ref := !ref ^ string_of_int v ^ "," in
+    concat svid a.svinfo.(i).svid;
+    concat flags a.svinfo.(i).flags;
+    concat qi a.svinfo.(i).qi;
+    concat cno a.svinfo.(i).cno;
+    concat elev a.svinfo.(i).elev;
+    concat azim a.svinfo.(i).azim
+  done;
+  let f = fun s r -> (s, Pprz.String !r) in
+  let vs = ["ac_id", Pprz.String a.id; 
 	      f "svid" svid; f "flags" flags; f "qi" qi; 
-	      f "cno" cno; f "elev" elev; f "azim" azim] in
-    Ground_Pprz.message_send my_id "SVSINFO" vs
-  end
+	    f "cno" cno; f "elev" elev; f "azim" azim] in
+  Ground_Pprz.message_send my_id "SVSINFO" vs
+
 
 
 let send_aircraft_msg = fun ac ->
@@ -359,8 +353,6 @@ let new_aircraft = fun id ->
       inflight_calib = { if_mode = 1 ; if_val1 = 0.; if_val2 = 0.};
       infrared = infrared_init;
       fbw = { rc_status = "???"; rc_mode = "???" };
-      svinfo_nb_channels = 0;
-      svinfo_last_channel = -1;
       svinfo = Array.create gps_nb_channels svinfo_init
     }
     
