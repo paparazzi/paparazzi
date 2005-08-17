@@ -529,6 +529,7 @@ void use_gps_pos( void ) {
   if (i == gps_nb_channels) i = 0;
   if (i < gps_nb_channels)
     DOWNLINK_SEND_SVINFO(&i, &gps_svinfos[i].svid, &gps_svinfos[i].flags, &gps_svinfos[i].qi, &gps_svinfos[i].cno, &gps_svinfos[i].elev, &gps_svinfos[i].azim);
+  i++;
 
   if (!estimator_flight_time && (estimator_hspeed_mod > MIN_SPEED_FOR_TAKEOFF)) {
     estimator_flight_time = 1;

@@ -61,8 +61,8 @@ struct svinfo {
   uint8_t flags;
   uint8_t qi;
   uint8_t cno;
-  int8_t elev;
-  int16_t azim;
+  int8_t elev; /** deg */
+  int16_t azim; /** deg */
 };
 
 extern struct svinfo gps_svinfos[NB_CHANNELS];

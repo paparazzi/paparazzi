@@ -4,7 +4,7 @@
  <!-- messages from modem or sim to server -->
  <class name="telemetry_ap" ID="0x40">
  
-   <message name="BOOT" ID="1">
+   <message name="BOOT" id="2">
      <field name="version" type="uint16"></field>
    </message>
 

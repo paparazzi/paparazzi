@@ -232,7 +232,7 @@ let log_and_parse = fun log ac_name a msg values ->
 	  azim = ivalue "Azim";
 	};
 	if i = 0 then
-	  a.svinfo_nb_channels <- a.svinfo_last_channel;
+	  a.svinfo_nb_channels <- a.svinfo_last_channel + 1;
 	a.svinfo_last_channel <- i
     | _ -> ()
 
@@ -254,7 +254,7 @@ let send_cam_status = fun a ->
     let h = a.alt -. float (Srtm.of_utm a.pos) in
     let east = a.pos.utm_x +. h *. tan (a.cam.phi -. a.roll)
     and north = a.pos.utm_y +. h *. tan (a.cam.theta +. a.pitch) in
-    let values = ["cam_east", Pprz.Float east; "cam_north", Pprz.Float north] in
+    let values = ["ac_id", Pprz.String a.id; "cam_east", Pprz.Float east; "cam_north", Pprz.Float north] in
     Ground_Pprz.message_send my_id "CAM_STATUS" values
 
 let send_if_calib = fun a ->
@@ -298,8 +298,9 @@ let send_svsinfo = fun a ->
       concat azim a.svinfo.(i).azim
     done;
     let f = fun s r -> (s, Pprz.String !r) in
-    let vs = [f "SVID" svid; f "Flags" flags; f "QI" qi; 
-	      f "CNO" cno; f "Elev" elev; f "Azim" azim] in
+    let vs = ["ac_id", Pprz.String a.id; 
+	      f "svid" svid; f "flags" flags; f "qi" qi; 
+	      f "cno" cno; f "elev" elev; f "azim" azim] in
     Ground_Pprz.message_send my_id "SVSINFO" vs
   end
 
@@ -345,7 +346,8 @@ let send_aircraft_msg = fun ac ->
     send_cam_status a;
     send_if_calib a;
     send_fbw a;
-    send_infrared a
+    send_infrared a;
+    send_svsinfo a
   with
     Not_found -> prerr_endline ac
   | x -> prerr_endline (Printexc.to_string x)
