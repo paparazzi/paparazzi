@@ -345,7 +345,7 @@
     <field name="energy"   type="float" unit="Wh"/>
   </message>
 
-  <message name="SVSINFO" ID="16">
+  <message name="SVINFO" ID="16">
       <field name="ac_id" type="string"/>
       <field name="svid"  type="string" format="csv"/>
       <field name="flags" type="string" format="csv"/>
