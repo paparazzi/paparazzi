@@ -47,8 +47,8 @@ sub populate {
 }
 
 # url
-# NAV_UTM_EAST0
-# NAV_UTM_NORTH0
+# nav_utm_east0
+# nav_utm_north0
 # max_dist_from_home
 # waypoints
 #    |-- name

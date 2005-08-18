@@ -30,6 +30,7 @@ use strict;
 use Paparazzi::IvyProtocol;
 use Paparazzi::Aircraft;
 use Paparazzi::Flightplan;
+use Paparazzi::Airframe;
 
 sub populate {
   my ($self, $args) = @_;
@@ -93,6 +94,7 @@ sub on_config {
   my $ac_id = $fields->{ac_id};
   my $ac = $self->get('-aircrafts')->{$ac_id};
   delete $fields->{ac_id};
+
   my $fp_url = $fields->{flight_plan};
   if (defined $fp_url) {
 #    print "in AircraftsManager : on_config creating new flight plan\n";
@@ -101,6 +103,11 @@ sub on_config {
 #    print "##### waypoints\n".Dumper($fp->get('-waypoints'));
 #    print "##### mission\n".Dumper($fp->get('-mission'));
     $fields->{flight_plan} = $fp;
+  }
+  my $airframe_url = $fields->{airframe};
+  if (defined $airframe_url) {
+    my $af = Paparazzi::Airframe->new(-url => $airframe_url);
+    $fields->{airframe} = $af;
   }
 
   $ac->configure(%{$fields});
