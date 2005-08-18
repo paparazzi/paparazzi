@@ -51,10 +51,15 @@ sub put_lls {
 }
 
 sub selected_ac {
-  my ($self, $old_ac, $new_ac) = @_;
+  my ($self, $previous_ac, $new_ac) = @_;
+  $previous_ac->detach($self, '-svsinfo', [\&foo_cbk, '-svsinfo']) if ($previous_ac);
+  $new_ac->attach($self, '-svsinfo', [\&foo_cbk, '-svsinfo']);
   
+}
 
-  
+sub foo_cbk {
+  my ($self, $field, $aircraft, $event, $new_value) = @_;
+  $self->configure('-sats', $new_value);
 }
 
 sub build_gui() {
@@ -116,7 +121,7 @@ sub build_gui() {
 		{ -chn => 6 , -svid => 30, -flags => 0x01, -qi => 0, -cno => 42.2, -elev => 53, -azim => 161, -prres => 0.},
 	      ]
     };
-  $self->{Sat}->configure( -sats => $sat_h);
+#  $self->{Sat}->configure( -sats => $sat_h);
   $self->{Sat}->configure( -fix => 30.);
 
 #  my $engine_h = { -nb_engine => 2,

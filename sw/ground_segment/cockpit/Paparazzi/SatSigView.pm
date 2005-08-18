@@ -20,7 +20,8 @@ sub populate {
 		    -origin  => [S_NEEDINIT, S_PASSIVE, S_RDONLY, S_OVRWRT, S_NOPRPG, undef],
 		    -width   => [S_NEEDINIT, S_PASSIVE, S_RDONLY, S_OVRWRT, S_NOPRPG, undef],
 		    -height  => [S_NEEDINIT, S_PASSIVE, S_RDONLY, S_OVRWRT, S_NOPRPG, undef],
-		    -sat =>     [S_NOINIT,   S_METHOD,  S_RDWR,   S_OVRWRT, S_NOPRPG, undef],
+		    -svid =>     [S_NOINIT,   S_METHOD,  S_RDWR,   S_OVRWRT, S_NOPRPG, undef],
+		    -cno  =>     [S_NOINIT,   S_METHOD,  S_RDWR,   S_OVRWRT, S_NOPRPG, undef],
 		   );
 }
 
@@ -30,11 +31,16 @@ sub completeinit {
   $self->build_gui();
 }
 
-sub sat {
+sub svid {
   my ($self, $old_val, $new_val) = @_;
   return unless defined $new_val;
-  $self->get('-zinc')->itemconfigure($self->{-id_lab},  -text => sprintf("%d", $new_val->{-svid}));
-  $self->get('-zinc')->itemconfigure($self->{-sig_lab}, -text => sprintf("%.1f db", $new_val->{-cno}));
+  $self->get('-zinc')->itemconfigure($self->{-id_lab},  -text => sprintf("%d", $new_val));
+}
+
+sub cno {
+  my ($self, $old_val, $new_val) = @_;
+  return unless defined $new_val;
+  $self->get('-zinc')->itemconfigure($self->{-sig_lab}, -text => sprintf("%.1f db", $new_val));
 }
 
 sub build_gui {

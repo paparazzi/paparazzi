@@ -113,36 +113,26 @@ sub on_ac_msg {
 #  print "AircraftsManager::on_ac_msg : $msg_name\n".Dumper($fields);
   if (defined ($aircraft)) {
     delete $fields->{ac_id};
-    $aircraft->configure(%{$fields});
+    if ($msg_name eq "SVSINFO") {
+      $aircraft->configure(-svsinfo => $fields);
+    }
+    else {
+      $aircraft->configure(%{$fields});
+    }
   }
   else {
     print STDERR "in AircraftsManager::on_ac_msg : unknow aircraft $ac_id in message $msg_class:$msg_name\n";
   }
 }
 
-sub on_sv_info {
- my ($sender_name, $msg_class, $msg_name, $fields, $self) = @_;
- print "in AircraftsManager::on_sv_info\n".Dumper($fields);
-
-
-
-}
 
 sub listen_to_ac {
   my ($self, $ac_id)  = @_;
-  my @ac_events = ( ['FLIGHT_PARAM',  \&on_ac_msg],
-		    ['AP_STATUS',     \&on_ac_msg],
-		    ['NAV_STATUS',    \&on_ac_msg],
-		    ['CAM_STATUS',    \&on_ac_msg],
-		    ['ENGINE_STATUS', \&on_ac_msg],
-		    ['FLY_BY_WIRE',   \&on_ac_msg],
-		    ['INFRARED',      \&on_ac_msg],
-		    ['INFLIGH_CALIB', \&on_ac_msg],
-		    ['SVINFO',        \&on_sv_info],
-		  );
-  foreach my $event (@ac_events) {
-    Paparazzi::IvyProtocol::bind_msg("ground", "ground", $event->[0], 
-				     {aircraft_id => $ac_id}, [$event->[1], $self]);
+  my @ac_msgs = ( 'FLIGHT_PARAM', 'AP_STATUS', 'NAV_STATUS', 'CAM_STATUS', 'ENGINE_STATUS',
+		  'FLY_BY_WIRE', 'INFRARED', 'INFLIGH_CALIB', 'SVSINFO');
+  foreach my $msg_name (@ac_msgs) {
+    Paparazzi::IvyProtocol::bind_msg("ground", "ground", $msg_name, {aircraft_id => $ac_id}, 
+				     [\&on_ac_msg, $self]);
   }
 }
 

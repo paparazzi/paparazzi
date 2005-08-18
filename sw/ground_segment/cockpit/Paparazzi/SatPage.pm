@@ -28,19 +28,23 @@ sub sats {
   my $nb_ch = $new_val->{-nch};
   my $sats =  $new_val->{-sats};
   my $zinc = $self->get('-zinc');
-  foreach my $sat (@{$sats}) {
-    my $sat_obj = $self->{satellites}->[$sat->{-chn}];
-    $zinc->coords($sat_obj->{-group}, $self->get_pos($sat->{-elev}, $sat->{-azim}));
-    $zinc->itemconfigure ($sat_obj->{-group},
-			  -visible => 1,
-			 );
-    $zinc->itemconfigure ($sat_obj->{-arc},
-			  -fillcolor =>  $sat->{-flags} & 0x01 ? "green3" : "red",
-			 );
-    $zinc->itemconfigure ($sat_obj->{-id_lab},
-			  -text => sprintf("%d", $sat->{-svid}),
-			 );
-    $sat_obj->{-sig_view}->configure(-sat => $sat);
+
+  foreach my $i (0..MAX_CH-1) {
+    my $sat_obj = $self->{satellites}->[$i];
+    unless ($new_val->{svid}->[$i] eq '' or $new_val->{svid}->[$i] == 0) {
+      my $pos = $self->get_pos($new_val->{elev}->[$i], $new_val->{azim}->[$i]);
+#      print "in SatPage::sats $i $new_val->{svid}->[$i] $new_val->{elev}->[$i], $new_val->{azim}->[$i] @{$pos}\n";
+      $zinc->coords($sat_obj->{-group}, $pos);
+      $zinc->itemconfigure ($sat_obj->{-group}, -visible => 1 );
+      $zinc->itemconfigure ($sat_obj->{-arc},
+			    -fillcolor =>  $new_val->{flags}->[$i] & 0x01 ? "green3" : "red",
+			   );
+      $zinc->itemconfigure ($sat_obj->{-id_lab},
+			    -text => sprintf("%d", $new_val->{svid}->[$i]),
+			   );
+      $sat_obj->{-sig_view}->configure(-svid => $new_val->{svid}->[$i], -cno => $new_val->{cno}->[$i]);
+    }
+    else { $zinc->itemconfigure ($sat_obj->{-group}, -visible => 0 )}
   }
 }
 
