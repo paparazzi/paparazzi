@@ -4,7 +4,7 @@
  <!-- messages from modem or sim to server -->
  <class name="telemetry_ap" ID="0x40">
  
-   <message name="BOOT" id="2">
+   <message name="BOOT" id="1">
      <field name="version" type="uint16"></field>
    </message>
 
@@ -117,15 +117,6 @@
     <field name="accel_x" type="float"/>
     <field name="accel_y" type="float"/>
     <field name="accel_z" type="float"/>
-  </message>
-
-  <message name="RAW_IMU" ID="17">
-    <field name="raw_gx" type="uint16"/>
-    <field name="raw_gy" type="uint16"/>
-    <field name="raw_gz" type="uint16"/>
-    <field name="raw_ax" type="uint16"/>
-    <field name="raw_ay" type="uint16"/>
-    <field name="raw_az" type="uint16"/>
   </message>
 
   <message name="KALMAN" ID="18">
@@ -310,21 +301,21 @@
     <field name="ap_mode" type="uint8" values="MANUAL|AUTO1|AUTO2|HOME"/>
     <field name="h_mode" type="uint8" values="NONE|ROLLDOT|ROLL|HEADING_DOT|HEADING|WP|ROUTE|CIRCLE"/>
     <field name="v_mode" type="uint8" values="NONE|CLIMB|ALT|GLIDE|PARABOLIC"/>
-    <field name="target_climb"   type="float" unit="m/s"/>
-    <field name="target_alt"     type="float" unit="m"/>
-    <field name="target_heading" type="float" unit="m"/>
     <field name="gps_mode" type="uint8"/>
+    <field name="flight_time" type="uint32"/>
   </message>
 
   <message name="NAV_STATUS" ID="13">
     <field name="ac_id" type="string"/>
     <field name="cur_block"   type="uint8"/>
     <field name="cur_stage"   type="uint8"/>
-    <field name="flight_time" type="uint32"/>
     <field name="block_time"  type="uint32"/>
     <field name="stage_time"  type="uint32"/>
     <field name="target_east" type="float" unit="m"/>
     <field name="target_north" type="float" unit="m"/>
+    <field name="target_climb"   type="float" unit="m/s"/>
+    <field name="target_alt"     type="float" unit="m"/>
+    <field name="target_heading" type="float" unit="m"/>
   </message>
 
   <message name="CAM_STATUS" ID="14">

@@ -131,17 +131,16 @@ let lazy_classes =
 	and by_name = Hashtbl.create 13 in
 	List.iter
 	  (fun xml_msg ->
-	    try
-	      let name = ExtXml.attrib xml_msg "name" in
-	      let msg = {
-		name = name;
-		fields = List.map field_of_xml (Xml.children xml_msg)
-	      } in
-	      let id = int_of_string (ExtXml.attrib xml_msg "id") (* - 1 !!!!*) in
-	      Hashtbl.add by_id id msg;
-	      Hashtbl.add by_name name (id, msg)	      
-	    with x ->
-	      fprintf stderr "Warning (%s): Ignoring '%s'\n" (Printexc.to_string x) (Xml.to_string xml_msg))
+	    let name = ExtXml.attrib xml_msg "name" in
+	    let msg = {
+	      name = name;
+	      fields = List.map field_of_xml (Xml.children xml_msg)
+	    } in
+	    let id = int_of_string (ExtXml.attrib xml_msg "id") in
+	    if Hashtbl.mem by_id id then
+	      failwith (sprintf "Duplicated id in messages.xml: %d" id);
+	    Hashtbl.add by_id id msg;
+	    Hashtbl.add by_name name (id, msg))
 	  (Xml.children xml_class);
 	Hashtbl.add h (ExtXml.attrib xml_class "name") (by_id, by_name)
       )

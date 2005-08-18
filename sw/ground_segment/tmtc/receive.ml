@@ -279,25 +279,25 @@ let send_infrared = fun a ->
   Ground_Pprz.message_send my_id "INFRARED"  values
 
 let send_svsinfo = fun a ->
-  let svid = ref ","
-  and flags= ref ","
-  and qi = ref ","
-  and cno = ref ","
-  and elev = ref ","
-  and azim = ref "," in
+  let svid = ref ""
+  and flags= ref ""
+  and qi = ref ""
+  and cno = ref ""
+  and elev = ref ""
+  and azim = ref "" in
   for i = 0 to gps_nb_channels - 1 do
     let concat = fun ref v ->
       ref := !ref ^ string_of_int v ^ "," in
     concat svid a.svinfo.(i).svid;
     concat flags a.svinfo.(i).flags;
-    concat qi a.svinfo.(i).qi;
+      concat qi a.svinfo.(i).qi;
     concat cno a.svinfo.(i).cno;
     concat elev a.svinfo.(i).elev;
     concat azim a.svinfo.(i).azim
   done;
   let f = fun s r -> (s, Pprz.String !r) in
   let vs = ["ac_id", Pprz.String a.id; 
-	      f "svid" svid; f "flags" flags; f "qi" qi; 
+	    f "svid" svid; f "flags" flags; f "qi" qi; 
 	    f "cno" cno; f "elev" elev; f "azim" azim] in
   Ground_Pprz.message_send my_id "SVSINFO" vs
 
@@ -320,11 +320,11 @@ let send_aircraft_msg = fun ac ->
     Ground_Pprz.message_send my_id "FLIGHT_PARAM" values;
 
     let values = ["ac_id", Pprz.String ac; 
-		  "flight_time", Pprz.Int a.flight_time;
 		  "cur_block", Pprz.Int a.cur_block;
 		  "cur_stage", Pprz.Int a.cur_stage;
 		  "target_east", f (a.nav_ref_east+.a.desired_east);
-		  "target_north", f (a.nav_ref_north+.a.desired_north)] in
+		  "target_north", f (a.nav_ref_north+.a.desired_north);
+		  "target_alt", Pprz.Float a.desired_altitude] in
     Ground_Pprz.message_send my_id "NAV_STATUS" values;
 
     let values = ["ac_id", Pprz.String ac; 
@@ -337,10 +337,10 @@ let send_aircraft_msg = fun ac ->
     Ground_Pprz.message_send my_id "ENGINE_STATUS" values;
 
     let values = ["ac_id", Pprz.String ac; 
+		  "flight_time", Pprz.Int a.flight_time;
 		  "ap_mode", Pprz.Int a.ap_mode; 
 		  "v_mode", Pprz.Int a.ap_altitude;
-		  "gps_mode", Pprz.Int a.gps_mode;
-		  "target_alt", Pprz.Float a.desired_altitude] in
+		  "gps_mode", Pprz.Int a.gps_mode] in
     Ground_Pprz.message_send my_id "AP_STATUS" values;
 
     send_cam_status a;
