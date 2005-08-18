@@ -66,7 +66,8 @@
 
   <message name="PPRZ_MODE" ID="11" period="5" >
     <field name="ap_mode" type="uint8" values="MANUAL|AUTO1|AUTO2|HOME"/>
-    <field name="ap_altitude" type="uint8" values="MANUAL|AUTO_GAZ|AUTO_CLIMB|AUTO_ALT"/>
+    <field name="ap_gaz" type="uint8" values="MANUAL|AUTO_GAZ|AUTO_CLIMB|AUTO_ALT"/>
+    <field name="ap_lateral" type="uint8" values="MANUAL|ROLL_RATE|ROLL|COURSE"/>
     <field name="if_calib_mode" type="uint8" values="NONE|DOWN|UP"/>
     <field name="mcu1_status" type="uint8" values="LOST|OK|REALLY_LOST"/>	
     <field name="lls_calib" type="uint8" values="LLS_CALIB_MODE_OFF|LLS_CALIB_MODE_ON"/>
@@ -298,9 +299,9 @@
 
   <message name="AP_STATUS" ID="12">
     <field name="ac_id" type="string"/>
-    <field name="ap_mode" type="uint8" values="MANUAL|AUTO1|AUTO2|HOME"/>
-    <field name="h_mode" type="uint8" values="NONE|ROLLDOT|ROLL|HEADING_DOT|HEADING|WP|ROUTE|CIRCLE"/>
-    <field name="v_mode" type="uint8" values="NONE|CLIMB|ALT|GLIDE|PARABOLIC"/>
+    <field name="ap_mode" type="string" values="MANUAL|AUTO1|AUTO2|HOME"/>
+    <field name="lat_mode" type="string" values="MANUAL|ROLL_RATE|ROLL|COURSE"/>
+    <field name="gaz_mode" type="string" values="MANUAL|GAZ|CLIMB|ALT"/>
     <field name="gps_mode" type="uint8"/>
     <field name="flight_time" type="uint32"/>
   </message>
@@ -315,7 +316,7 @@
     <field name="target_north" type="float" unit="m"/>
     <field name="target_climb"   type="float" unit="m/s"/>
     <field name="target_alt"     type="float" unit="m"/>
-    <field name="target_heading" type="float" unit="m"/>
+    <field name="target_course" type="float" unit="deg"/>
   </message>
 
   <message name="CAM_STATUS" ID="14">

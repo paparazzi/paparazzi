@@ -33,7 +33,7 @@ sub populate {
      -alt            => [S_NOINIT,   S_PASSIVE, S_RDWR,   S_OVRWRT, S_NOPRPG, 0.],
      -target_alt     => [S_NOINIT,   S_PASSIVE, S_RDWR,   S_OVRWRT, S_NOPRPG, 0.],
      -heading        => [S_NOINIT,   S_PASSIVE, S_RDWR,   S_OVRWRT, S_NOPRPG, 0.],
-     -target_heading => [S_NOINIT,   S_PASSIVE, S_RDWR,   S_OVRWRT, S_NOPRPG, 0.],
+     -target_course => [S_NOINIT,   S_PASSIVE, S_RDWR,   S_OVRWRT, S_NOPRPG, 0.],
      -vz             => [S_NOINIT,   S_PASSIVE, S_RDWR,   S_OVRWRT, S_NOPRPG, 0.],
      
      -ap_mode     => [S_NOINIT, S_PRPGONLY, S_RDWR,   S_OVRWRT, S_CHILDREN,    0],
@@ -63,7 +63,7 @@ sub selected_ac {
 #  print "###########\n";
 #  print "in PFD selected_ac $previous_ac $new_ac\n";
 
-  my @fields = ('roll', 'pitch', 'speed', 'alt', 'target_alt', 'target_heading', 'gps_mode', 'ap_mode');
+  my @fields = ('roll', 'pitch', 'speed', 'alt', 'target_alt', 'target_course', 'gps_mode', 'ap_mode');
 
   foreach my $field ( @fields ) {
     $previous_ac->detach($self, $field, [\&foo_cbk, $field]) if ($previous_ac);
@@ -177,7 +177,7 @@ sub build_gui() {
 						  -repeat_legend => 3,
 						);
   $self->connectoptions(-heading, S_TO, [$self->{heading_scale}, -value]);
-  $self->connectoptions(-target_heading, S_TO, [$self->{heading_scale}, -target_value]);
+  $self->connectoptions(-target_course, S_TO, [$self->{heading_scale}, -target_value]);
   $self->{alt_scale} = Paparazzi::LensScale->new( -zinc => $zinc, 
 						  -parent_grp => $self->{main_group},
 						  -origin => [0.8*$width, 0.25*$height],

@@ -41,6 +41,21 @@ let logs_path = Env.paparazzi_home // "var" // "logs"
 let conf_xml = Xml.parse_file (Env.paparazzi_home // "conf" // "conf.xml")
 let srtm_path = Env.paparazzi_home // "data" // "srtm"
 
+(** Should be read from messages.xml *)
+let ap_modes = [|"MANUAL";"AUTO1";"AUTO2";"HOME"|]
+let gaz_modes = [|"MANUAL";"GAZ";"CLIMB";"ALT"|]
+let lat_modes = [|"MANUAL";"ROLL_RATE";"ROLL";"COURSE"|]
+
+let check_index = fun i t where ->
+  if i < 0 || i >= Array.length t then begin
+    Debug.call 'E' (fun f -> fprintf f "Wrong index in %s: %d" where i);
+    -1
+  end else
+    i
+
+let get_indexed_value = fun t i ->
+  if i >= 0 then t.(i) else "UNK"
+  
 type ac_cam = {
     mutable phi : float; (* Rad, right = >0 *)
     mutable theta : float; (* Rad, front = >0 *)
@@ -97,6 +112,8 @@ type aircraft = {
     mutable desired_east    : float;
     mutable desired_north    : float;
     mutable desired_altitude    : float;
+    mutable desired_course : float;
+    mutable desired_climb : float;
     mutable gspeed  : float;
     mutable course  : float;
     mutable alt     : float;
@@ -110,14 +127,17 @@ type aircraft = {
     mutable amp : float;
     mutable energy  : float;
     mutable ap_mode : int;
-    mutable ap_altitude : int;
+    mutable gaz_mode : int;
+    mutable lateral_mode : int;
     cam : ac_cam;
     mutable gps_mode : int;
     inflight_calib : inflight_calib;
     infrared : infrared;
     fbw : fbw;
     svinfo : svinfo array;
-    mutable flight_time : int
+    mutable flight_time : int;
+    mutable stage_time : int;
+    mutable block_time : int
   }
 
 (** The aircrafts store *)
@@ -176,7 +196,8 @@ let log_and_parse = fun log ac_name a msg values ->
     | "DESIRED" ->
 	a.desired_east <- fvalue "desired_x";
 	a.desired_north <- fvalue "desired_y";
-	a.desired_altitude <- fvalue "desired_altitude"
+	a.desired_altitude <- fvalue "desired_altitude";
+	a.desired_climb <- fvalue "desired_climb"
     | "NAVIGATION_REF" ->
 	a.nav_ref_east <- fvalue "utm_east";
 	a.nav_ref_north <- fvalue "utm_north"
@@ -185,15 +206,19 @@ let log_and_parse = fun log ac_name a msg values ->
 	a.pitch <- (Deg>>Rad) (fvalue "theta")
     | "NAVIGATION" -> 
 	a.cur_block <- ivalue "cur_block";
-	a.cur_stage <- ivalue "cur_stage"
+	a.cur_stage <- ivalue "cur_stage";
+	a.desired_course <- fvalue "desired_course" /. 10.
     | "BAT" ->
 	a.throttle <- fvalue "desired_gaz" /. 9600. *. 100.;
 	a.flight_time <- ivalue "flight_time";
 	a.rpm <- a.throttle *. 100.;
-	a.bat <- fvalue "voltage" /. 10.
+	a.bat <- fvalue "voltage" /. 10.;
+	a.stage_time <- ivalue "stage_time";
+	a.block_time <- ivalue "block_time"
     | "PPRZ_MODE" ->
-	a.ap_mode <- ivalue "ap_mode";
-	a.ap_altitude <- ivalue "ap_altitude";
+	a.ap_mode <- check_index (ivalue "ap_mode") ap_modes "AP_MODE";
+	a.gaz_mode <- check_index (ivalue "ap_gaz") gaz_modes "AP_GAZ";
+	a.lateral_mode <- check_index (ivalue "ap_lateral") lat_modes "AP_LAT";
 	a.inflight_calib.if_mode <- ivalue "if_calib_mode";
 	let mcu1_status = ivalue "mcu1_status" in
 	(** c.f. link_autopilot.h *)
@@ -322,9 +347,14 @@ let send_aircraft_msg = fun ac ->
     let values = ["ac_id", Pprz.String ac; 
 		  "cur_block", Pprz.Int a.cur_block;
 		  "cur_stage", Pprz.Int a.cur_stage;
+		  "stage_time", Pprz.Int a.stage_time;
+		  "block_time", Pprz.Int a.block_time;
 		  "target_east", f (a.nav_ref_east+.a.desired_east);
 		  "target_north", f (a.nav_ref_north+.a.desired_north);
-		  "target_alt", Pprz.Float a.desired_altitude] in
+		  "target_alt", Pprz.Float a.desired_altitude;
+		  "target_climb", Pprz.Float a.desired_climb;
+		  "target_course", Pprz.Float a.desired_course
+		] in
     Ground_Pprz.message_send my_id "NAV_STATUS" values;
 
     let values = ["ac_id", Pprz.String ac; 
@@ -335,11 +365,15 @@ let send_aircraft_msg = fun ac ->
 		  "amp", f a.amp;
 		  "energy", f a.energy] in
     Ground_Pprz.message_send my_id "ENGINE_STATUS" values;
-
+    
+    let ap_mode = get_indexed_value ap_modes a.ap_mode in
+    let gaz_mode = get_indexed_value gaz_modes a.gaz_mode in
+    let lat_mode = get_indexed_value lat_modes a.lateral_mode in
     let values = ["ac_id", Pprz.String ac; 
 		  "flight_time", Pprz.Int a.flight_time;
-		  "ap_mode", Pprz.Int a.ap_mode; 
-		  "v_mode", Pprz.Int a.ap_altitude;
+		  "ap_mode", Pprz.String ap_mode; 
+		  "gaz_mode", Pprz.String gaz_mode;
+		  "lat_mode", Pprz.String lat_mode;
 		  "gps_mode", Pprz.Int a.gps_mode] in
     Ground_Pprz.message_send my_id "AP_STATUS" values;
 
@@ -353,15 +387,20 @@ let send_aircraft_msg = fun ac ->
   | x -> prerr_endline (Printexc.to_string x)
       
 let new_aircraft = fun id ->
-    { id = id ; roll = 0.; pitch = 0.; nav_ref_east = 0.; nav_ref_north = 0.; desired_east = 0.; desired_north = 0.; gspeed=0.; course = 0.; alt=0.; climb=0.; cur_block=0; cur_stage=0; throttle = 0.; rpm = 0.; temp = 0.; bat = 0.; amp = 0.; energy = 0.; ap_mode=0; ap_altitude=0; gps_mode =0;
+    { id = id ; roll = 0.; pitch = 0.; nav_ref_east = 0.; nav_ref_north = 0.; desired_east = 0.; desired_north = 0.; 
+      desired_course = 0.;
+	gspeed=0.; course = 0.; alt=0.; climb=0.; cur_block=0; cur_stage=0; throttle = 0.; rpm = 0.; temp = 0.; bat = 0.; amp = 0.; energy = 0.; ap_mode= -1;
+      gaz_mode= -1; lateral_mode= -1;
+      gps_mode =0;
       desired_altitude = 0.;
+      desired_climb = 0.;
       pos = { utm_x = 0.; utm_y = 0.; utm_zone = 0 };
       cam = { phi = 0.; theta = 0. };
       inflight_calib = { if_mode = 1 ; if_val1 = 0.; if_val2 = 0.};
       infrared = infrared_init;
       fbw = { rc_status = "???"; rc_mode = "???" };
       svinfo = Array.create gps_nb_channels svinfo_init;
-      flight_time = 0;
+      flight_time = 0; stage_time = 0; block_time = 0
     }
     
 let register_aircraft = fun name a ->

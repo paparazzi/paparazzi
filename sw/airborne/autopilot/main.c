@@ -224,7 +224,7 @@ uint8_t ac_ident = AC_ID;
 /** \def EventPos(_cpt, _channel, _event)
  *  @@@@@ A FIXER @@@@@
  */
-#define PERIODIC_SEND_PPRZ_MODE() DOWNLINK_SEND_PPRZ_MODE(&pprz_mode, &vertical_mode, &inflight_calib_mode, &mcu1_status, &ir_estim_mode);
+#define PERIODIC_SEND_PPRZ_MODE() DOWNLINK_SEND_PPRZ_MODE(&pprz_mode, &vertical_mode, &lateral_mode, &inflight_calib_mode, &mcu1_status, &ir_estim_mode);
 #define PERIODIC_SEND_DESIRED() DOWNLINK_SEND_DESIRED(&desired_roll, &desired_pitch, &desired_x, &desired_y, &desired_altitude, &desired_climb);
 
 #define PERIODIC_SEND_NAVIGATION_REF()  DOWNLINK_SEND_NAVIGATION_REF(&nav_utm_east0, &nav_utm_north0, &nav_utm_zone0);
@@ -324,7 +324,7 @@ inline void radio_control_task( void ) {
     }
     mode_changed |= mcu1_status_update();
     if ( mode_changed )
-      DOWNLINK_SEND_PPRZ_MODE(&pprz_mode, &vertical_mode, &inflight_calib_mode, &mcu1_status, &ir_estim_mode);
+      PERIODIC_SEND_PPRZ_MODE();
     
     /** If Auto1 mode, compute \a desired_roll and \a desired_pitch from 
       * \a RADIO_ROLL and \a RADIO_PITCH \n
