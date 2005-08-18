@@ -77,14 +77,21 @@ sub completeinit {
      { name => [ "No fix", "GPS dead reckoning only", "2D-fix",  "3D-fix", "GPS + dead reckoning combined"],
        color => ["red", "red", "orange", "brown", "orange"]
      },
-     rc_status => 
-     { name => ["Ok","Lost", "Really lost", "error"],
-       color => ["orange", "brown", "red", "red"]
-     },
+#     rc_status => 
+#     { name => ["Ok","Lost", "Really lost", "error"],
+#       color => ["orange", "brown", "red", "red"]
+#     },
      contrast_status => 
      { name => ["Default","Waiting", "Set", "error"],
        color => ["orange", "brown", "red", "red"]
      }
+    };
+
+  $self->{new_modes} = 
+    {
+     rc_status => {'OK' => 'orange', 'LOST' => 'brown', 'REALLY_LOST' => 'red'},
+     rc_mode   => {'AUTO'=> 'orange', 'MANUAL' => 'brown', 'FAILSAFE' => 'red'},
+     contrast_status => {'DEFAULT' => 'orange', 'WAITING' => 'brown', 'SET' => 'set'},
     };
 
   $self->{frame} = undef;
@@ -365,8 +372,11 @@ sub aircraft_config_changed {
   if ($event eq 'flight_plan') {
     #    $self->border_block() if (defined $new_value) ; # display blocks of flight plan
   }
-  elsif ($event eq 'ap_mode' or $event eq 'rc_status' or #$event eq 'rc_mode' or
-	 $event eq 'gps_mode' or $event eq 'contrast_status' ) {
+  elsif ($event eq 'rc_status' or $event eq 'rc_mode' or $event eq 'contrast_status' ) {
+    my $color = $self->{new_modes}->{$event}->{$new_value};
+    $self->set_item($event, $new_value, $color);
+  }
+  elsif ($event eq 'ap_mode' or $event eq 'gps_mode' ) {
     my $names = $self->{modes}->{$event}->{name};
     my $colors = $self->{modes}->{$event}->{color};
     if ($new_value < @{$names} ) {

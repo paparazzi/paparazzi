@@ -62,17 +62,17 @@ sub populate {
 # mission
 #    |-- block_ID
 #		 |-- stage
-#									|-- stage_ID
-#												|-- text
-#						|-- nb_exceptions
-#						|-- exception
-#										|-- n°
-#												|-- cond
-#												|-- deroute
-#												|-- text
-#						|-- description
-#						|-- is_deroute
-#						|-- [deroute_block]
+#				|-- stage_ID
+#							|-- text
+#	|-- nb_exceptions
+#	|-- exception
+#					|-- n°
+#							|-- cond
+#							|-- deroute
+#							|-- text
+#	|-- description
+#	|-- is_deroute
+#	|-- [deroute_block]
 
 
 sub completeinit {

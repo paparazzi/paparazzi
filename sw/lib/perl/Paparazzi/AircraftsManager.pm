@@ -63,7 +63,7 @@ sub on_aircraft_new_die {
 sub on_aircrafts {
 #  print "AircraftsManager::on_aircrafts\n";
   my ($sender_name, $msg_class, $msg_name, $fields, $self) = @_;
-  use Data::Dumper;
+#  use Data::Dumper;
 #  print "in AircraftsManager::on_aircrafts : dumping fields\n ".Dumper($fields);
   my $ac_list = $fields->{ac_list};
   foreach my $ac_id (@{$ac_list}) {
@@ -80,14 +80,14 @@ sub add_aircraft {
   $self->get('-aircrafts')->{$ac_id} = $aircraft;
   $self->listen_to_ac($ac_id) if ($self->get('-listen_to_all'));
 
-  print "int AircraftsManager : notifying new ac $ac_id\n";
+#  print "int AircraftsManager : notifying new ac $ac_id\n";
   $self->notify('NEW_AIRCRAFT', $ac_id);
 }
 
 
 sub on_config {
   my ($sender_name, $msg_class, $msg_name, $fields, $self) = @_;
-  print "AircraftsManager::on_config\n";
+#  print "AircraftsManager::on_config\n";
 #  use Data::Dumper;
 #  print "fields ".Dumper($fields)."\n";
   my $ac_id = $fields->{ac_id};
@@ -95,9 +95,9 @@ sub on_config {
   delete $fields->{ac_id};
   my $fp_url = $fields->{flight_plan};
   if (defined $fp_url) {
-    print "in AircraftsManager : on_config creating new flight plan\n";
+#    print "in AircraftsManager : on_config creating new flight plan\n";
     my $fp = Paparazzi::Flightplan->new(-url => $fp_url);
-    use Data::Dumper; 
+#    use Data::Dumper; 
 #    print "##### waypoints\n".Dumper($fp->get('-waypoints'));
 #    print "##### mission\n".Dumper($fp->get('-mission'));
     $fields->{flight_plan} = $fp;
@@ -124,7 +124,6 @@ sub on_ac_msg {
     print STDERR "in AircraftsManager::on_ac_msg : unknow aircraft $ac_id in message $msg_class:$msg_name\n";
   }
 }
-
 
 sub listen_to_ac {
   my ($self, $ac_id)  = @_;

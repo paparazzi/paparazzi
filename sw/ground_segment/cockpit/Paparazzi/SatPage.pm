@@ -31,7 +31,7 @@ sub sats {
 
   foreach my $i (0..MAX_CH-1) {
     my $sat_obj = $self->{satellites}->[$i];
-    unless ($new_val->{svid}->[$i] eq '' or $new_val->{svid}->[$i] == 0) {
+    unless ($new_val->{svid}->[$i] == 0) {
       my $pos = $self->get_pos($new_val->{elev}->[$i], $new_val->{azim}->[$i]);
 #      print "in SatPage::sats $i $new_val->{svid}->[$i] $new_val->{elev}->[$i], $new_val->{azim}->[$i] @{$pos}\n";
       $zinc->coords($sat_obj->{-group}, $pos);
