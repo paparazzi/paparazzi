@@ -116,7 +116,8 @@ type aircraft = {
     inflight_calib : inflight_calib;
     infrared : infrared;
     fbw : fbw;
-    svinfo : svinfo array
+    svinfo : svinfo array;
+    mutable flight_time : int
   }
 
 (** The aircrafts store *)
@@ -187,6 +188,7 @@ let log_and_parse = fun log ac_name a msg values ->
 	a.cur_stage <- ivalue "cur_stage"
     | "BAT" ->
 	a.throttle <- fvalue "desired_gaz" /. 9600. *. 100.;
+	a.flight_time <- ivalue "flight_time";
 	a.rpm <- a.throttle *. 100.;
 	a.bat <- fvalue "voltage" /. 10.
     | "PPRZ_MODE" ->
@@ -318,6 +320,7 @@ let send_aircraft_msg = fun ac ->
     Ground_Pprz.message_send my_id "FLIGHT_PARAM" values;
 
     let values = ["ac_id", Pprz.String ac; 
+		  "flight_time", Pprz.Int a.flight_time;
 		  "cur_block", Pprz.Int a.cur_block;
 		  "cur_stage", Pprz.Int a.cur_stage;
 		  "target_east", f (a.nav_ref_east+.a.desired_east);
@@ -357,7 +360,8 @@ let new_aircraft = fun id ->
       inflight_calib = { if_mode = 1 ; if_val1 = 0.; if_val2 = 0.};
       infrared = infrared_init;
       fbw = { rc_status = "???"; rc_mode = "???" };
-      svinfo = Array.create gps_nb_channels svinfo_init
+      svinfo = Array.create gps_nb_channels svinfo_init;
+      flight_time = 0;
     }
     
 let register_aircraft = fun name a ->
