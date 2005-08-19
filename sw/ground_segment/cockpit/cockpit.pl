@@ -102,8 +102,8 @@ sub build_gui {
 				      -width  => $pfd_w,
 				      -height => $pfd_h,
 				    );
-#  $self->{pfd}->attach($self, 'SHOW_PAGE', ['onShowPage']);
-   $self->{nd} = Paparazzi::ND->new( -zinc => $zinc,
+  $self->{pfd}->attach($self, 'SHOW_PAGE', ['onShowPage']);
+  $self->{nd} = Paparazzi::ND->new( -zinc => $zinc,
  				    -origin => $nd_p,
  				    -width  => $nd_w,
  				    -height => $nd_h,

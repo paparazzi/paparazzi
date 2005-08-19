@@ -179,7 +179,7 @@ sub parse_mission {
 
   foreach my $block ($doc->getElementsByTagName('block')) {
     my $block_name = $block->getAttribute('NAME').$block->getAttribute('name');
-    print "################### $block_name\n";
+#    print "################### $block_name\n";
     my $block_description = $block->getAttribute('description');
     my $block_id = $blocks->{$block_name};
 

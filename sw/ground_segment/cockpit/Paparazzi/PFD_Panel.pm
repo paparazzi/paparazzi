@@ -11,7 +11,7 @@ use Data::Dumper;
 use strict;
 sub populate {
   my ($self, $args) = @_;
-  
+
   $self->SUPER::populate($args);
   $self->configspec(-zinc    => [S_NEEDINIT, S_PASSIVE, S_RDONLY, S_OVRWRT, S_NOPRPG, undef],
 		    -parent_grp  => [S_NEEDINIT, S_PASSIVE, S_RDONLY, S_OVRWRT, S_NOPRPG, undef],
@@ -80,60 +80,27 @@ sub build_gui {
   my @origin = $self->get('-origin');
   $zinc->coords($self->{main_group}, \@origin);
 
+  my $nb_mode = scalar @{$self->{modes}};
+  my $dx =  $self->get('-width') / $nb_mode;
 
-  my $modes = $self->{modes};
-
-  my $nb_col = $#$modes+1;
-
-#  print "nb_col $nb_col\n";
-
-  my $w = $self->get('-width');
-  my $h = $self->get('-height');
-  my $i;
-  for  ($i=1; $i<$nb_col; $i++) {
-    my $x =  $i / $nb_col * $w;
-    $zinc->add('curve', $self->{main_group},
-	       [$x, 10, $x, $h +10],
-	       -linewidth => 2,
-	       -linecolor => 'white',
-	       -filled => 0);
+  foreach my $i (0..$nb_mode-1){
+    my $mode = $self->{modes}->[$i];
+    my $button = DigiKit::Button->new(-widget => $zinc,
+				      -style => ['Aqualike',
+						 -width => $dx,
+						 -height => 35,
+						 -color => 'green',
+						 -text => (uc $mode->{name})."\ncoucou",
+#						 -trunc => $i == 0 ? 'right' : $i == $nb_mode ? 'left' : 'both',
+						 -trunc => 'both',
+						],
+				      -position =>  [$i * $dx, 0],
+				      -parentgroup => $self->{main_group},
+				      -releasecommand => sub { $self->notify('CLICKED', $mode->{name})},
+				     );
   }
 
-  my $f = '-adobe-helvetica-bold-o-normal--16-240-100-100-p-182-iso8859-1';
-  my $labelformat = "100x200 x80x20+20+10 x80x20^0>0 x80x20^0>1";
-  my @tab_args = ('tabular',$self->{main_group}, 3,
-		  -labelformat => $labelformat,);
-  my @tab_style = (  -font => $f,
-		      -color => 'green');
-  my $x=-10;
-  my $dx =  $self->get('-width') / $nb_col;
-  foreach my $mode (@{$self->{modes}}) {
-    $mode->{tabular} = $zinc->add(@tab_args, -position => [$x, -5] );
-    $zinc->itemconfigure ($mode->{tabular}, 0, @tab_style, -text => uc $mode->{name});
-    $zinc->bind($mode->{tabular},'<ButtonPress-1>'=> [\&onRectClicked, $self, $mode->{name}]);
-    $x += $dx;
-  }
-
-
-  $self->{rect_group} = $zinc->add('group', $self->{main_group}, -visible => 1);
-  my $rect = $zinc->add('rectangle',  $self->{main_group}, [0, 0, $w, $h],
-			-visible => 0, 
-			-linecolor => 'white',
-			-filled => '1',
-		       );
-#  $zinc->bind($rect,'<ButtonPress-1>'=> [\&onRectClicked, $self, "coucou"]);
-
 }
-
-
-
-sub onRectClicked {
-  my ($zinc, $self, $name) = @_;
-  print "onRectClicked : $name\n";
-  $self->notify('CLICKED', $name);
-}
-
-
 
 sub set_mode {
   my ($self, $name, $previous_val, $new_val) = @_;

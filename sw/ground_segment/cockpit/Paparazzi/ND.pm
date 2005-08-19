@@ -90,15 +90,6 @@ sub build_gui() {
 				      -height  => $real_width,
 				      -visible => 1,
 				     );
- #   $self->{$page} = ('Paparazzi::'.$page.'Page')->new(
-#						       -zinc => $zinc,
-#						       -parent_grp => $self->{main_group},
-#						       -origin  => [ $margin+$col*$page_width, $margin+$row*$page_width],
-#						       -width   => $real_width,
-#						       -height  => $real_width,
-#						       -visible => 1,
-#						      );
-    
     if ($page eq "IR") {
       $self->{$page}->attach($self, 'WIND_COMMAND', [sub { my ($self, $component, $signal, $arg) = @_;
 							   $self->notify('WIND_COMMAND', $arg)}]);
@@ -108,21 +99,7 @@ sub build_gui() {
   }
 
 
-  my $sat_h = 
-    {
-     -itow => 12345,
-     -nch => 7,
-     -sats => [ { -chn => 0 , -svid => 3,  -flags => 0x00, -qi => 0, -cno => 0,    -elev => 45, -azim => 315, -prres => 0.},
-		{ -chn => 1 , -svid => 22, -flags => 0x01, -qi => 0, -cno => 45.2, -elev => 35, -azim => 300, -prres => 0.},
-		{ -chn => 2 , -svid => 1,  -flags => 0x00, -qi => 0, -cno => 36.6, -elev => 6,  -azim => 315, -prres => 0.},
-		{ -chn => 3 , -svid => 25, -flags => 0x01, -qi => 0, -cno => 45.2, -elev => 45, -azim => 237, -prres => 0.},
-		{ -chn => 4 , -svid => 6,  -flags => 0x01, -qi => 0, -cno => 45.8, -elev => 58, -azim =>  61, -prres => 0.},
-		{ -chn => 5 , -svid => 17, -flags => 0x01, -qi => 0, -cno => 43.8, -elev => 31, -azim => 123, -prres => 0.},
-		{ -chn => 6 , -svid => 30, -flags => 0x01, -qi => 0, -cno => 42.2, -elev => 53, -azim => 161, -prres => 0.},
-	      ]
-    };
-#  $self->{Sat}->configure( -sats => $sat_h);
-  $self->{Sat}->configure( -fix => 30.);
+
 
 #  my $engine_h = { -nb_engine => 2,
 #		   -engine    => [{throttle => 50, -rpm => 3500, -temp => 39},
