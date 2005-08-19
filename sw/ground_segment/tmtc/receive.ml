@@ -162,16 +162,49 @@ let send_aircrafts_msg = fun _asker _values ->
   let names = String.concat "," (Hashtbl.fold (fun k v r -> k::r) aircrafts []) ^ "," in
   ["ac_list", Pprz.String names]
 
-(* Opens the log file *)
-(* FIXME : shoud open also an associated config file *)
+let make_element = fun t a c -> Xml.Element (t,a,c)
+
+let expand_ac_xml = fun ac_conf ->
+  let prefix = fun s -> sprintf "%s/conf/%s" Env.paparazzi_home s in
+  let parse = fun a ->
+    try
+      Xml.parse_file (prefix (ExtXml.attrib ac_conf a))
+    with
+      Xml.File_not_found _ -> make_element "file_not_found" ["file",a] [] in
+  let fp = parse "flight_plan"
+  and af = parse "airframe"
+  and rc = parse "radio" in
+  let children = Xml.children ac_conf@[fp; af; rc] in
+  make_element (Xml.tag ac_conf) (Xml.attribs ac_conf) children
+  
+let log_xml = fun timeofday data_file ->
+  let conf_children = 
+    List.map
+      (fun x ->	if Xml.tag x = "aircraft" then expand_ac_xml x else x)
+      (Xml.children conf_xml) in
+  let expanded_conf = make_element (Xml.tag conf_xml) (Xml.attribs conf_xml) conf_children in
+  make_element 
+    "configuration"
+    ["time_of_day", string_of_float timeofday; "data_file", data_file]
+    [expanded_conf; Pprz.messages_xml ()]
+			 
+  
+let start_time = U.gettimeofday ()
+
+(* Opens the log files *)
 let logger = fun () ->
-  let d = U.localtime (U.gettimeofday ()) in
-  let name = sprintf "%02d_%02d_%02d__%02d_%02d_%02d.log" (d.U.tm_year mod 100) (d.U.tm_mon+1) (d.U.tm_mday) (d.U.tm_hour) (d.U.tm_min) (d.U.tm_sec) in
+  let d = U.localtime start_time in
+  let basename = sprintf "%02d_%02d_%02d__%02d_%02d_%02d" (d.U.tm_year mod 100) (d.U.tm_mon+1) (d.U.tm_mday) (d.U.tm_hour) (d.U.tm_min) (d.U.tm_sec) in
   if not (Sys.file_exists logs_path) then begin
     printf "Creating '%s'\n" logs_path; flush stdout;
-    ignore (Sys.command (sprintf "mkdir -p %s" logs_path))
+    Unix.mkdir logs_path 0o640
   end;
-  open_out (logs_path // name)
+  let log_name = sprintf "%s.log" basename
+  and data_name = sprintf "%s.data" basename in
+  let f = open_out (logs_path // log_name) in
+  output_string f (Xml.to_string_fmt (log_xml start_time data_name));
+  close_out f;
+  open_out (logs_path // data_name)
 
 let fvalue = fun x ->
   match x with
@@ -187,7 +220,7 @@ let ivalue = fun x ->
 
 
 let log_and_parse = fun log ac_name a msg values ->
-  let t = U.gettimeofday () in
+  let t = U.gettimeofday () -. start_time in
   let s = String.concat " " (List.map (fun (_, v) -> Pprz.string_of_value v) values) in
   fprintf log "%.2f %s %s %s\n" t ac_name msg.Pprz.name s; flush log;
   let value = fun x -> try List.assoc x values with Not_found -> failwith (sprintf "Error: field '%s' not found\n" x) in

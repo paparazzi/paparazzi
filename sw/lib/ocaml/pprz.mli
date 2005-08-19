@@ -24,6 +24,8 @@
  *
  *)
 
+val messages_xml : unit -> Xml.xml
+
 type class_name = string
 type message_id = int
 type format = string
