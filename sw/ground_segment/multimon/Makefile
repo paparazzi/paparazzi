@@ -21,7 +21,8 @@ LDFLAGSX	=-lX11 -L/usr/X11R6/lib
 endif
 
 
-BINDIR		=bin-$(shell uname -m)
+#BINDIR		=bin-$(shell uname -m)
+BINDIR		=.
 
 AS86		=as86 -0 -a
 LD86		=ld86 -0
@@ -37,7 +38,8 @@ AR		=ar
 STRIP		=strip
 MKDIR		=mkdir
 
-all:		$(BINDIR) $(BINDIR)/multimon $(BINDIR)/gen
+# all:		$(BINDIR) $(BINDIR)/multimon $(BINDIR)/gen
+all:		$(BINDIR)/multimon
 
 $(BINDIR)/%.s:	%.c
 		$(CC) $(CFLAGS) -S -o $@ $<
@@ -48,12 +50,15 @@ $(BINDIR)/%.o:	$(BINDIR)/%.s
 $(BINDIR)/%.o:	%.c
 		$(CC) $(CFLAGS) -c -o $@ $<
 
-SRC_L2		=hdlc.c pocsag.c pprz.c
-SRC_L1		=demod_afsk12.c demod_afsk24.c demod_afsk24_2.c demod_afsk48p.c demod_afsk48.c
-SRC_L1		+=demod_hapn48.c demod_fsk96.c
-SRC_L1		+=demod_poc5.c demod_poc12.c demod_poc24.c
-SRC_L1		+=demod_dtmf.c demod_zvei.c demod_display.c
-SRC_MISC	=unixinput.c costabf.c xdisplay.c
+SRC_L2		=hdlc.c pprz.c
+# pocsag.c
+# SRC_L1		=demod_afsk12.c demod_afsk24.c demod_afsk24_2.c demod_afsk48p.c demod_afsk48.c
+SRC_L1		= demod_afsk48p.c demod_display.c
+#SRC_L1		+=demod_hapn48.c demod_fsk96.c
+#SRC_L1		+=demod_poc5.c demod_poc12.c demod_poc24.c
+#SRC_L1		+=demod_dtmf.c demod_zvei.c demod_display.c
+SRC_MISC	= unixinput.c xdisplay.c
+# costabf.c
 
 SRC_GEN		=gen.c gen_dtmf.c gen_sin.c gen_zvei.c gen_hdlc.c costabi.c
 
