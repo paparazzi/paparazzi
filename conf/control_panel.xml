@@ -24,7 +24,7 @@
     <program name="receive" command="sw/ground_segment/tmtc/receive">
       <arg flag="-b" variable="ivy_bus"/>
     </program>
-    <program name="multimon" command="sw/ground_segment/multimon/bin-i686/multimon">
+    <program name="multimon" command="sw/ground_segment/multimon/multimon">
       <arg flag="-a" variable="multimon_demod"/>
     </program>
     <program name="modem" command="sw/ground_segment/tmtc/hw_modem_listen">
@@ -86,14 +86,15 @@
       <program name="receive"/>     
       <program name="sim"><arg flag="-a" constant="Thon1"/></program>
       <program name="sim"><arg flag="-a" constant="Thon2"/></program>
-      <program name="cockpit"/>
+      <program name="cockpit"></program>
       <program name="map 2d ml"/>
+      <program name="messages"><arg flag="-c" constant="telemetry_ap:1"/><arg flag="-c" constant="telemetry_ap:2"/><arg flag="-c" constant="ground"/></program>
     </session>
 
     <session name="soft sim 1">
       <program name="receive"/>     
       <program name="sim"><arg flag="-a" constant="Thon1"/></program>
-      <program name="cockpit"/>
+      <program name="cockpit"></program>
       <program name="map 2d ml"/>
       <program name="messages"><arg flag="-c" constant="telemetry_ap:1"/><arg flag="-c" constant="ground"/></program>
     </session>
