@@ -41,10 +41,20 @@ let logs_path = Env.paparazzi_home // "var" // "logs"
 let conf_xml = Xml.parse_file (Env.paparazzi_home // "conf" // "conf.xml")
 let srtm_path = Env.paparazzi_home // "data" // "srtm"
 
-(** Should be read from messages.xml *)
+
+let rec norm_course =
+  let _2pi = 2. *. Latlong.pi in
+  fun c ->
+    if c < 0. then norm_course (c +. _2pi)
+    else if c >= _2pi then norm_course (c -. _2pi)
+    else c
+
+(** FIXME: Should be read from messages.xml *)
 let ap_modes = [|"MANUAL";"AUTO1";"AUTO2";"HOME"|]
 let gaz_modes = [|"MANUAL";"GAZ";"CLIMB";"ALT"|]
 let lat_modes = [|"MANUAL";"ROLL_RATE";"ROLL";"COURSE"|]
+let gps_modes = [|"NOFIX";"DRO";"2D";"3D";"GPSDRO"|]
+let if_modes = [|"OFF";"DOWN";"UP"|]
 
 let check_index = fun i t where ->
   if i < 0 || i >= Array.length t then begin
@@ -189,10 +199,10 @@ let log_and_parse = fun log ac_name a msg values ->
 		   utm_y = fvalue "utm_north" /. 100.;
 		   utm_zone = ivalue "utm_zone" };
 	a.gspeed  <- fvalue "speed";
-	a.course  <- fvalue "course";
+	a.course  <- norm_course (fvalue "course");
 	a.alt     <- fvalue "alt";
 	a.climb   <- fvalue "climb";
-	a.gps_mode <- ivalue "mode"
+	a.gps_mode <- check_index (ivalue "mode") gps_modes "GPS_MODE"
     | "DESIRED" ->
 	a.desired_east <- fvalue "desired_x";
 	a.desired_north <- fvalue "desired_y";
@@ -207,7 +217,7 @@ let log_and_parse = fun log ac_name a msg values ->
     | "NAVIGATION" -> 
 	a.cur_block <- ivalue "cur_block";
 	a.cur_stage <- ivalue "cur_stage";
-	a.desired_course <- fvalue "desired_course" /. 10.
+	a.desired_course <- norm_course ((Deg>>Rad)(fvalue "desired_course" /. 10.))
     | "BAT" ->
 	a.throttle <- fvalue "desired_gaz" /. 9600. *. 100.;
 	a.flight_time <- ivalue "flight_time";
@@ -219,7 +229,7 @@ let log_and_parse = fun log ac_name a msg values ->
 	a.ap_mode <- check_index (ivalue "ap_mode") ap_modes "AP_MODE";
 	a.gaz_mode <- check_index (ivalue "ap_gaz") gaz_modes "AP_GAZ";
 	a.lateral_mode <- check_index (ivalue "ap_lateral") lat_modes "AP_LAT";
-	a.inflight_calib.if_mode <- ivalue "if_calib_mode";
+	a.inflight_calib.if_mode <- check_index (ivalue "if_calib_mode") if_modes "IF_MODE";
 	let mcu1_status = ivalue "mcu1_status" in
 	(** c.f. link_autopilot.h *)
 	a.fbw.rc_status <- 
@@ -282,8 +292,9 @@ let send_cam_status = fun a ->
     Ground_Pprz.message_send my_id "CAM_STATUS" values
 
 let send_if_calib = fun a ->
+  let if_mode = get_indexed_value if_modes a.inflight_calib.if_mode in
   let values = ["ac_id", Pprz.String a.id;
-		"if_mode", Pprz.Int a.inflight_calib.if_mode;
+		"if_mode", Pprz.String if_mode;
 		"if_value1", Pprz.Float a.inflight_calib.if_val1;
 		"if_value2", Pprz.Float a.inflight_calib.if_val2] in
   Ground_Pprz.message_send my_id "INFLIGH_CALIB" values
@@ -353,7 +364,7 @@ let send_aircraft_msg = fun ac ->
 		  "target_north", f (a.nav_ref_north+.a.desired_north);
 		  "target_alt", Pprz.Float a.desired_altitude;
 		  "target_climb", Pprz.Float a.desired_climb;
-		  "target_course", Pprz.Float a.desired_course
+		  "target_course", Pprz.Float ((Rad>>Deg)a.desired_course)
 		] in
     Ground_Pprz.message_send my_id "NAV_STATUS" values;
 
@@ -369,12 +380,13 @@ let send_aircraft_msg = fun ac ->
     let ap_mode = get_indexed_value ap_modes a.ap_mode in
     let gaz_mode = get_indexed_value gaz_modes a.gaz_mode in
     let lat_mode = get_indexed_value lat_modes a.lateral_mode in
+    let gps_mode = get_indexed_value gps_modes a.gps_mode in
     let values = ["ac_id", Pprz.String ac; 
 		  "flight_time", Pprz.Int a.flight_time;
 		  "ap_mode", Pprz.String ap_mode; 
 		  "gaz_mode", Pprz.String gaz_mode;
 		  "lat_mode", Pprz.String lat_mode;
-		  "gps_mode", Pprz.Int a.gps_mode] in
+		  "gps_mode", Pprz.String gps_mode] in
     Ground_Pprz.message_send my_id "AP_STATUS" values;
 
     send_cam_status a;

@@ -93,6 +93,15 @@ let string_of_value = function
   | Int32 x -> Int32.to_string x
   | String s -> s
 
+
+let magic = fun x -> (Obj.magic x:('a,'b,'c) Pervasives.format)
+
+
+let formatted_string_of_value = fun format v ->
+  match v with
+    Float x -> sprintf (magic format) x
+  | v -> string_of_value v
+
 let size_of_field = fun f -> (List.assoc f._type types).size
 let default_format = fun x -> try (List.assoc x types).format with Not_found -> failwith (sprintf "Unknwon format '%s'" x)
 let default_value = fun x -> (List.assoc x types).value
@@ -149,10 +158,7 @@ let lazy_classes =
 
 let classes = fun () -> Lazy.force lazy_classes
     
-let magic = fun x -> (Obj.magic x:('a,'b,'c) Pervasives.format)
-
 let value_field = fun buffer index (field:field) ->
-  let format = field.fformat in
   match field._type with
     "uint8" -> Int (Char.code buffer.[index])
   | "int8" -> Int (int8_of_bytes buffer index)
@@ -258,8 +264,11 @@ module Protocol(Class:CLASS) = struct
       (msg.name::
        List.map 
 	 (fun (field_name, field) ->
-	   try string_of_value (List.assoc field_name values) with
-	     Not_found -> string_of_value (default_value field._type))
+	   let v =
+	     try List.assoc field_name values with
+	       Not_found ->
+		 default_value field._type in
+	   formatted_string_of_value field.fformat v)
 	 msg.fields)
 
   let message_send = fun sender msg_name values ->

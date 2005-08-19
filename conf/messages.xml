@@ -292,7 +292,7 @@
     <field name="east"    type="float" unit="m"/>
     <field name="north"   type="float" unit="m"/>
     <field name="speed"   type="float" unit="m/s"/>
-    <field name="course" type="float" unit="deg"/>
+    <field name="course" type="float" unit="deg" format="%.1f"/>
     <field name="alt"     type="float" unit="m"/>
     <field name="climb"   type="float" unit="m/s"/>
   </message>
@@ -302,8 +302,8 @@
     <field name="ap_mode" type="string" values="MANUAL|AUTO1|AUTO2|HOME"/>
     <field name="lat_mode" type="string" values="MANUAL|ROLL_RATE|ROLL|COURSE"/>
     <field name="gaz_mode" type="string" values="MANUAL|GAZ|CLIMB|ALT"/>
-    <field name="gps_mode" type="uint8"/>
-    <field name="flight_time" type="uint32"/>
+    <field name="gps_mode" type="string" />
+    <field name="flight_time" type="uint32" values="NOFIX|DRO|2D|3D|GPSDRO"/>
   </message>
 
   <message name="NAV_STATUS" ID="13">
@@ -321,16 +321,16 @@
 
   <message name="CAM_STATUS" ID="14">
      <field name="ac_id" type="string"/>
-     <field name="cam_east" type="float" unit="m"/>
-     <field name="cam_north" type="float" unit="m"/>
+     <field name="cam_east" type="float" unit="m" format="%.1f"/>
+     <field name="cam_north" type="float" unit="m" format="%.1f"/>
      <field name="target_east" type="float" unit="m"/>
      <field name="target_north" type="float" unit="m"/>
   </message>
 
   <message name="ENGINE_STATUS" ID="15">
     <field name="ac_id" type="string"/>
-    <field name="throttle" type="float" unit="%"/>
-    <field name="rpm"      type="float" unit="rpm"/>
+    <field name="throttle" type="float" unit="%"  format="%.1f"/>
+    <field name="rpm"      type="float" unit="rpm"  format="%.1f"/>
     <field name="temp"     type="float" unit="celcius"/>
     <field name="bat"      type="float" unit="V"/>
     <field name="amp"      type="float" unit="A"/>
@@ -363,7 +363,7 @@
 
   <message name="INFLIGH_CALIB" id="19">
     <field name="ac_id" type="string"/>
-    <field name="if_mode" type="uint8" values="DOWN|OFF|UP"></field>
+    <field name="if_mode" type="string" values="OFF|DOWN|UP"></field>
     <field name="if_value1" type="float"></field>
     <field name="if_value2" type="float"></field>
   </message>
