@@ -216,7 +216,7 @@ sub onShowPage {
 # }
 
 Paparazzi::Environment::parse_command_line($options) || pod2usage(-verbose => 0);
-print Dumper($options);
+#print Dumper($options);
 my $cockpit = Cockpit->new();
 MainLoop();
 

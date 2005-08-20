@@ -244,7 +244,7 @@ sub build_list_page {
     $hlist->header('create', $i, -text => $header[$i]);
   }
   my $section_h = $self->get('-'.$section);
-  print "CpGui variables ".Dumper($section_h) if ($section eq "variables");
+#  print "CpGui variables ".Dumper($section_h) if ($section eq "variables");
   foreach my $item (keys %{$section_h}) {
     my $e = $hlist->addchild("");
     &$row_fun($self, $hlist, $e, $section_h, $item);

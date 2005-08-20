@@ -91,7 +91,7 @@ sub toggle_program_in_session {
   my ($self, $session_name, $pgm_idx) = @_;
   my $session = $self->get('-sessions')->{$session_name};
   my $session_program = $session->{pgms}->[$pgm_idx];
-  print "processing program in session context\n".Dumper($session);
+#  print "processing program in session context\n".Dumper($session);
   if (defined $session_program->{pid}) {
     print "killing program $session_program->{name} => $session_program->{pid}\n";
     $self->SUPER::stop_program($session_program->{pid});
@@ -106,8 +106,9 @@ sub toggle_program_in_session {
     push @pgm_options, @session_options;
     push @pgm_args, @session_args;
     my $command = $self->find_binary($program);
+    print "starting $program->{name} [$command @pgm_options @pgm_args]\n";
     $session_program->{pid} = $self->SUPER::start_program($command, @pgm_options[0..$#pgm_options], @pgm_args[0..$#pgm_args]);
-    print "launched $program_name => pid $session_program->{pid}\n";
+    #    print "launched $program_name => pid $session_program->{pid}\n";
   }
 }
 

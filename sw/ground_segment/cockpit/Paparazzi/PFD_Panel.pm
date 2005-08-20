@@ -104,57 +104,57 @@ sub build_gui {
 
 sub set_mode {
   my ($self, $name, $previous_val, $new_val) = @_;
-  my $mode = $self->{modes_by_name}->{$name};
-  if (defined $mode) {
-    if (!defined $previous_val || $previous_val != $new_val) {
-      my $zinc = $self->get('-zinc');
-      $zinc->itemconfigure( $mode->{tabular}, 1,
-			   -text => $mode->{str}[$new_val],
-			   -color =>$mode->{color}[$new_val],
-			  );
-    }
-  }
+#   my $mode = $self->{modes_by_name}->{$name};
+#   if (defined $mode) {
+#     if (!defined $previous_val || $previous_val != $new_val) {
+#       my $zinc = $self->get('-zinc');
+#       $zinc->itemconfigure( $mode->{tabular}, 1,
+# 			   -text => $mode->{str}[$new_val],
+# 			   -color =>$mode->{color}[$new_val],
+# 			  );
+#     }
+#   }
 }
 
 sub gps_mode() {
   my ($self, $previous_mode, $new_mode) = @_;
-  $self->set_mode("gps", $previous_mode, $new_mode); 
+#  $self->set_mode("gps", $previous_mode, $new_mode); 
 
 }
 
 sub ap_mode() {
   my ($self, $previous_mode, $new_mode) = @_;
-  $self->set_mode("ap", $previous_mode, $new_mode);
+ # $self->set_mode("ap", $previous_mode, $new_mode);
 }
 
 sub rc_mode {
   my ($self, $previous_mode, $new_mode) = @_;
-  $self->set_mode("rc", $previous_mode, $new_mode);
+ # $self->set_mode("rc", $previous_mode, $new_mode);
 }
 
 sub lls_mode {
   my ($self, $previous_mode, $new_mode) = @_;
-  $self->set_mode("lls", $previous_mode, $new_mode);
+ # $self->set_mode("lls", $previous_mode, $new_mode);
 }
 
 sub if_mode {
   my ($self, $previous_mode, $new_mode) = @_;
-  $self->set_mode("if", $previous_mode, $new_mode); 
+ # $self->set_mode("if", $previous_mode, $new_mode); 
 }
 
 sub lls_value {
   my ($self, $previous_val, $new_val) = @_;
-  my $mode = $self->{modes_by_name}->{lls};
-  if (defined $mode) {
-    if (!defined $previous_val || $previous_val != $new_val) {
-      my $zinc = $self->get('-zinc');
-      my $str_val = sprintf ("%.4f", $new_val);
-      $zinc->itemconfigure( $mode->{tabular}, 2,
-			    -text => $str_val,
-			    -color => "green",
-			  );
-    }
-  }
+#   my $mode = $self->{modes_by_name}->{lls};
+#   if (defined $mode) {
+#     if (!defined $previous_val || $previous_val != $new_val) {
+#       my $zinc = $self->get('-zinc');
+#       my $str_val = sprintf ("%.4f", $new_val);
+#       $zinc->itemconfigure( $mode->{tabular}, 2,
+# 			    -text => $str_val,
+# 			    -color => "green",
+# 			  );
+#     }
+#   }
 }
 
 

@@ -56,7 +56,7 @@ sub parse_args {
   foreach my $var (keys %{$options}) {
     $variables->{$var} = $options->{$var} if defined $options->{$var};
   }
-  print "in paparazzi::parse_args variables after\n".Dumper($variables);
+#  print "in paparazzi::parse_args variables after\n".Dumper($variables);
 }
 
 sub catchSigTerm() {
