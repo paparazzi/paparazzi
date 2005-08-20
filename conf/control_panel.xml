@@ -9,7 +9,6 @@
   </section>
 
   <section name="variables">
-<!--    <variable name="paparazzi_home"       value="/home/poine/work/paparazzi_enac/paparazzi/tmp_multi_ac"/> -->
     <variable name="render" value="1"/>
     <variable name="downlink_serial_port" value="/dev/ttyUSB0"/>
     <variable name="fbw_serial_port"      value="/dev/ttyS1"/>

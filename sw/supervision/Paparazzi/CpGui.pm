@@ -28,12 +28,13 @@ sub completeinit {
 
 sub onProgramSelected {
   my ($self, $pgm_name) = @_;
-  $self->toggle_program("NONE", $pgm_name, []);
+  $self->toggle_program($pgm_name);
 }
 
 sub onSessionSelected {
   my ($self, $session_name) = @_;
   $self->start_session($session_name);
+  $self->add_session_page($session_name);
 }
 
 use constant LIST_WIDTH => 80;
@@ -50,6 +51,7 @@ sub onCompile {
 sub build_gui {
   my ($self) = @_;
   my $mw = MainWindow->new();
+  $self->{mw} = $mw;
   $mw->title ($self->{cp_name});
   # menu bar
   my $menubar =
@@ -70,17 +72,18 @@ sub build_gui {
   # session frame
   my $session_frame = $mw->Frame( -relief => 'groove')->pack(-side => 'bottom', -fill => 'both', -expand => "yes",);
   my $notebook = $session_frame->NoteBook( -ipadx => 6, -ipady => 6);
+  $self->{notebook} = $notebook;
   $notebook->pack(-expand => "yes",
 		  -fill => "both",
 		  -padx => 5, -pady => 5,
 		  -side => "top");
   $self->build_logo_page($notebook);
-  $self->build_compile_page($notebook);
-  $self->build_list_page($notebook, "hosts", "Hosts", ["name", "ip", "status"], \&build_hosts_page);
-  $self->build_list_page($notebook, "variables", "Variables", ["name", "value"], \&build_variables_page);
+#  $self->build_compile_page($notebook);
+#  $self->build_list_page($notebook, "hosts", "Hosts", ["name", "ip", "status"], \&build_hosts_page);
+#  $self->build_list_page($notebook, "variables", "Variables", ["name", "value"], \&build_variables_page);
 #  $self->build_list_page($notebook, "programs", "Programs", ["name", "command", "args"], \&build_programs_page);
-  $self->build_programs_page($notebook);
-  $self->build_list_page($notebook, "sessions", "Sessions", ["name", "command", "args"], \&build_sessions_page);
+#  $self->build_programs_page($notebook);
+#  $self->build_list_page($notebook, "sessions", "Sessions", ["name", "command", "args"], \&build_sessions_page);
 #  $self->build_programs_page($notebook);
 # my $programs_page = $notebook->add("programs", -label => "Programs", -underline => 0);
 #  my $sessions_page = $notebook->add("sessions", -label => "Sessions", -underline => 0);
@@ -248,6 +251,38 @@ sub build_list_page {
  #   print("$hlist, $e, $section_h, $item\n");
   }
   return $page
+}
+
+sub add_session_page {
+  my ($self, $session_name) = @_;
+  my ($mw, $notebook) = ($self->{mw}, $self->{notebook});
+  my $page_id = "session_".$session_name;
+  my $session_page = $notebook->add($page_id, -label => "$session_name",
+				    -underline => 0);
+  my $sessions = $self->get('-sessions');
+  my $session = $sessions->{$session_name};
+  my $hlist = $session_page->Scrolled ('HList',
+				       -header => 1,
+				       -columns => 2,
+				       -width => LIST_WIDTH,
+				       -height => LIST_HEIGHT,
+				       -command => [\&on_session_pgm_clicked, $self, $session_name],
+				      )->grid(-sticky => 'nsew');
+  $hlist->header('create', 0, -text => 'name');
+  $hlist->header('create', 1, -text => 'status');
+  foreach my $i (0..@{$session->{pgms}}-1) {
+    my $pgm = $session->{pgms}->[$i];
+    my $pgm_name = $pgm->{name};
+    print "i $i name : $pgm_name\n";
+    $hlist->add($i,  -text => $pgm_name );
+  }
+  $notebook->raise($page_id);
+}
+
+sub on_session_pgm_clicked {
+  print "in CpGui::on_session_pgm_clicked @_\n";
+  my ($self, $session_name, $pgm_idx) = @_;
+  $self->toggle_program_in_session($session_name, $pgm_idx);
 }
 
 1;

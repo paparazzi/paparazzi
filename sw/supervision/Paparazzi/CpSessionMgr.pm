@@ -37,7 +37,7 @@ sub prepare_args {
   my ($self, $args) = @_;
   my (@options, @rargs);
   my $variables = $self->get('-variables');
-  print "CpSessionMgr : variables ".Dumper($variables);
+#  print "CpSessionMgr : variables ".Dumper($variables);
   foreach my $opt (@{$args}) {
     my $type = $opt->{type};
     my $flag = $opt->{flag};
@@ -51,14 +51,8 @@ sub prepare_args {
   return (@options, @rargs);
 }
 
-sub toggle_program {
-  my ($self, $session_name, $pgm_name, $pgm_session_args, $session_idx) = @_;
-#  shift @_;
-#  print Dumper(@_);
-  my $programs = $self->get('-programs');
-#  print "Progams ".Dumper($programs);
-  my $program = $programs->{$pgm_name};
-#  print "Toggling Progam ".Dumper($program);
+sub find_binary {
+  my ($self, $program) = @_;
   my $command;
   if ($program->{command} =~ /^\/.*/) {
     $command = $program->{command};
@@ -66,33 +60,46 @@ sub toggle_program {
   else {
     $command = $self->get('-bin_base_dir')."/".$program->{command};
   }
-  if ($session_name eq "NONE") {
-    if (defined $program->{pid}) {
-      $self->SUPER::stop_program($program->{pid});
-      $program->{pid} = undef;
-    }
-    else {
-      my (@options, @args) = $self->prepare_args($program->{args});
-#      print Dumper($program->{args});
-      print "starting $pgm_name [$command @options, @args]\n";
-      $program->{pid} = $self->SUPER::start_program($command, @options[0..$#options], @args[0..$#args]);
-    }
+  return $command;
+}
+
+sub toggle_program {
+  my ($self, $pgm_name) = @_;
+  print "processing program out session context\n";
+  my $program = $self->get('-programs')->{$pgm_name};
+  if (defined $program->{pid}) {
+    $self->SUPER::stop_program($program->{pid});
+    $program->{pid} = undef;
   }
   else {
-    my @pgm_args = $self->prepare_args($program->{args});
-#    print "program->{args} ".Dumper($program->{args});
-#    print "pgm_args ".Dumper(@pgm_args);
-#    print "session ".Dumper($self->{sessions}->{$session_name});
-    
-    my $session_pgms = $self->get('-sessions')->{$session_name}->{pgms};
-#    print "session_pgms ".Dumper($session_pgms);
-    my $_session_args = ($session_pgms->[$session_idx])->{args};
-    my @session_args = defined $_session_args ? $self->prepare_args($_session_args) : [];
-#    print "session_args ".Dumper($_session_args);
+    my (@options, @args) = $self->prepare_args($program->{args});
+    my $command = $self->find_binary($program);
+    print "starting $program->{name} [$command @options, @args]\n";
+    $program->{pid} = $self->SUPER::start_program($command, @options[0..$#options], @args[0..$#args]);
+  }
+}
 
-    push @pgm_args , @session_args;
-    print "session $session_name starting program $pgm_name\n[$command @pgm_args]\n";
-    $self->{sessions}->{$session_name}->{pgms}[$session_idx]->{pid} = $self->SUPER::start_program($command, @pgm_args[0..$#pgm_args]);   
+sub toggle_program_in_session {
+  my ($self, $session_name, $pgm_idx) = @_;
+  my $session = $self->get('-sessions')->{$session_name};
+  my $session_program = $session->{pgms}->[$pgm_idx];
+#  print "processing program in session context\n".Dumper($session_program);
+  if (defined $session_program->{pid}) {
+    print "killing program $session_program->{name} => $session_program->{pid}\n";
+    $self->SUPER::stop_program($session_program->{pid});
+    $session_program->{pid} = undef;
+  }
+  else {
+    print "launching program\n";
+    my $program_name = $session_program->{name};
+    my $program = $self->get('-programs')->{$program_name};
+    my (@pgm_options, @pgm_args) = $self->prepare_args($program->{args});
+    my (@session_options, @session_args) = $self->prepare_args($session_program->{args});
+    push @pgm_options, @session_options;
+    push @pgm_args, @session_args;
+    my $command = $self->find_binary($program);
+    $session_program->{pid} = $self->SUPER::start_program($command, @pgm_options[0..$#pgm_options], @pgm_args[0..$#pgm_args]);
+    print "launched $program_name => pid $session_program->{pid}\n";
   }
 }
 
@@ -103,12 +110,8 @@ sub start_session {
   my $session = $sessions->{$session_name};
   my @progs = @{$session->{pgms}};
 #  print "progs ".Dumper(@progs);
-  my  $session_idx = 0;
-  foreach my $pgm (@progs) {
-    my $pgm_name = $pgm->{name};
-    my $pgm_session_args = $pgm->{args};
-    $self->toggle_program($session_name, $pgm_name, $pgm_session_args, $session_idx) if (!defined $self->{programs}->{$pgm_name}->{pid});
-    $session_idx++;
+  foreach my $pgm_idx (0..@progs-1) {
+    $self->toggle_program_in_session($session_name, $pgm_idx);
   }
 }
 
