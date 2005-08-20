@@ -392,7 +392,7 @@ void navigation_task( void ) {
   int16_t y = target_y;
   int8_t phi = DegOfRad(phi_c);
   int8_t theta = DegOfRad(theta_c);
-  DOWNLINK_SEND_CAM(&phi, &theta, &x, &y);
+  // *** DOWNLINK_SEND_CAM(&phi, &theta, &x, &y);
   
   
   if (pprz_mode == PPRZ_MODE_AUTO2 || pprz_mode == PPRZ_MODE_HOME) {
@@ -465,6 +465,13 @@ inline void periodic_task( void ) {
     static uint8_t t = 0;
     if (vsupply < LOW_BATTERY) t++; else t = 0;
     low_battery |= (t >= LOW_BATTERY_DELAY);
+
+    if (in_circle) {
+      DOWNLINK_SEND_CIRCLE(&circle_x, &circle_y, &circle_radius); 
+    }
+    if (in_segment) {
+      DOWNLINK_SEND_SEGMENT(&segment_x_1, &segment_y_1, &segment_x_2, &segment_y_2); 
+    }
   }
   switch(_4Hz) {
   case 0:
@@ -473,12 +480,6 @@ inline void periodic_task( void ) {
     break;
     /*  default: */
   case 1:
-    if (in_circle) {
-      DOWNLINK_SEND_CIRCLE(&circle_x, &circle_y, &circle_radius); 
-    }
-    if (in_segment) {
-      DOWNLINK_SEND_SEGMENT(&segment_x_1, &segment_y_1, &segment_x_2, &segment_y_2); 
-    }
   }
   switch (_20Hz) {
   case 0:

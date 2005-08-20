@@ -1,7 +1,7 @@
 /*
  * $Id$
  *  
- * Copyright (C) 2003  Pascal Brisset, Antoine Drouin
+ * Copyright (C) 2003-2005  Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
  *
@@ -25,6 +25,7 @@
 #include <avr/io.h>
 #include <avr/signal.h>
 #include <avr/interrupt.h>
+#include <avr/crc16.h>
 
 #include "link_fbw.h"
 #include "spi.h"
@@ -37,7 +38,7 @@ volatile uint8_t link_fbw_nb_err;
 uint8_t link_fbw_fbw_nb_err;
 
 static uint8_t idx_buf;
-static uint8_t xor_in, xor_out;
+static uint16_t crc_in, crc_out;
 
 void link_fbw_init(void) {
   link_fbw_nb_err;
@@ -55,9 +56,11 @@ void link_fbw_send(void) {
   SPI_SELECT_SLAVE0();
 
   idx_buf = 0;
-  xor_in = 0;
-  xor_out = ((uint8_t*)&to_fbw)[idx_buf];
-  SPDR = xor_out;
+  crc_in = CRC_INIT;
+  crc_out = CRC_INIT;
+  uint8_t byte1 = ((uint8_t*)&to_fbw)[0];
+  SPDR = byte1;
+  crc_out = CrcUpdate(crc_out, byte1);
   link_fbw_receive_valid = FALSE;
   // Other bytes will follow SIG_SPI interrupts
 }
@@ -75,9 +78,10 @@ void link_fbw_on_spi_it( void ) {
 }
 
 
-/* send the next byte */
+/** send the next byte
+    c.f. fly_by_wire/spi.c */
 SIGNAL(SIG_OUTPUT_COMPARE1A) {
-  uint8_t tmp;
+  static uint8_t tmp, crc_in1;
 
   /* disable OC1A interrupt */
   cbi(TIMSK, OCIE1A); 
@@ -86,10 +90,10 @@ SIGNAL(SIG_OUTPUT_COMPARE1A) {
 
   /* we have sent/received a complete frame */
   if (idx_buf == FRAME_LENGTH) {
-    /* read checksum from receive register  */
+    /* read second byte of crc from receive register  */
     tmp = SPDR;
     /* notify valid frame                   */
-    if (tmp == xor_in) {
+    if (crc_in1 == Crc1(crc_in) && tmp == Crc2(crc_in)) {
       link_fbw_receive_valid = TRUE;
       link_fbw_fbw_nb_err = from_fbw.nb_err;
     }
@@ -102,21 +106,31 @@ SIGNAL(SIG_OUTPUT_COMPARE1A) {
     return;
   }
 
+  if (idx_buf == FRAME_LENGTH - 1) {
+    /* send the second byte of the crc_out */
+    tmp = Crc2(crc_out);
+    SPDR = tmp;
+    /* get the first byte of the crc_in */
+    crc_in1 = SPDR;
+    return;
+  } 
+
   /* we are sending/receiving payload       */
-  if (idx_buf < FRAME_LENGTH - 1) {
+  if (idx_buf < FRAME_LENGTH - 2) {
     /* place new payload byte in send register */
     tmp = ((uint8_t*)&to_fbw)[idx_buf];
     SPI_SEND(tmp);
-    xor_out ^= tmp;
+    crc_out = CrcUpdate(crc_out, tmp);
   } 
   /* we are done sending the payload */
-  else { // idx_buf == FRAME_LENGTH - 1
-    /* place checksum in send register */
-    SPI_SEND(xor_out);
+  else { // idx_buf == FRAME_LENGTH - 2
+    /* Send first byte of crc_out */
+    tmp = Crc1(crc_out);
+    SPI_SEND(tmp);
   }
   
   /* read the byte from receive register */
   tmp = SPDR;
   ((uint8_t*)&from_fbw)[idx_buf-1] = tmp;
-  xor_in ^= tmp;
+  crc_in = CrcUpdate(crc_in, tmp);
 }

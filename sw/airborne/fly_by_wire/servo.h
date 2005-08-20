@@ -51,6 +51,7 @@
 
 #include <inttypes.h>
 #include "timer.h"
+#include "link_autopilot.h"
 
 extern void servo_init( void );
 extern void servo_set(const pprz_t values[]);

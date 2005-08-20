@@ -28,6 +28,7 @@
 #include <avr/io.h>
 #include <avr/signal.h>
 #include <avr/interrupt.h>
+#include <avr/crc16.h>
 
 #include "spi.h"
 
@@ -46,15 +47,7 @@ volatile bool_t mega128_receive_valid = FALSE;
 volatile bool_t spi_was_interrupted = FALSE;
 
 static volatile uint8_t idx_buf = 0;
-static volatile uint8_t xor_in, xor_out;
-
-void spi_reset(void) {
-  idx_buf = 0;
-  xor_in = 0;
-  xor_out = ((uint8_t*)&to_mega128)[idx_buf];
-  SPDR = xor_out;
-  mega128_receive_valid = FALSE;
-}
+static volatile uint16_t crc_in, crc_out;
 
 void spi_init(void) {
   to_mega128.status = 0;
@@ -71,8 +64,23 @@ void spi_init(void) {
   SPCR |= _BV(SPIE);
 }
 
+void spi_reset(void) {
+  idx_buf = 0;
+  crc_in = CRC_INIT;
+  crc_out = CRC_INIT;
+
+  uint8_t first_byte = ((uint8_t*)&to_mega128)[0];
+  crc_out = CrcUpdate(crc_out, first_byte);
+  SPDR = first_byte;
+
+  mega128_receive_valid = FALSE;
+}
+
+#include "uart.h"
+
+/** c.f. autopilot/link_fbw.c */
 SIGNAL(SIG_SPI) {
-  static uint8_t tmp;
+  static uint8_t tmp, crc_in1;
   
   idx_buf++;
 
@@ -82,31 +90,41 @@ SIGNAL(SIG_SPI) {
     return;
   /* we have sent/received a complete frame */
   if (idx_buf == FRAME_LENGTH) {
-    /* read checksum from receive register */
+    /* read second byte of crc from receive register */
     tmp = SPDR;
-    /* notify valid frame                  */
-    if (tmp == xor_in)
+    /* notify valid frame  */
+    if (crc_in1 == Crc1(crc_in) && tmp == Crc2(crc_in))
       mega128_receive_valid = TRUE;
     else
       to_mega128.nb_err++;
     return;
   }
 
+  if (idx_buf == FRAME_LENGTH - 1) {
+    /* send the second byte of the crc_out */
+    tmp = Crc2(crc_out);
+    SPDR = tmp;
+    /* get the first byte of the crc_in */
+    crc_in1 = SPDR;
+    return;
+  } 
+
   /* we are sending/receiving payload       */
-  if (idx_buf < FRAME_LENGTH - 1) {
+  if (idx_buf < FRAME_LENGTH - 2) {
     /* place new payload byte in send register */
     tmp = ((uint8_t*)&to_mega128)[idx_buf];
     SPDR = tmp;
-    xor_out = xor_out ^ tmp;
+    crc_out = CrcUpdate(crc_out, tmp);
   } 
   /* we are done sending the payload */
-  else { // idx_buf == FRAME_LENGTH - 1
-    /* place checksum in send register */
-    SPDR = xor_out;
+  else { // idx_buf == FRAME_LENGTH - 2
+    /* place first byte of crc_out */
+    tmp = Crc1(crc_out);
+    SPDR = tmp;
   }
   
   /* read the byte from receive register */
   tmp = SPDR;
   ((uint8_t*)&from_mega128)[idx_buf-1] = tmp;
-  xor_in = xor_in ^ tmp;
+  crc_in = CrcUpdate(crc_in, tmp);
 }

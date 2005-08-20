@@ -42,7 +42,7 @@ typedef int16_t pprz_t; // type of commands
 #define MIN_PPRZ -MAX_PPRZ
 
 struct inter_mcu_msg {
-  int16_t channels[RADIO_CTL_NB];  
+  pprz_t channels[RADIO_CTL_NB];  
   uint8_t ppm_cpt;
   uint8_t status;
   uint8_t nb_err;
@@ -60,7 +60,13 @@ struct inter_mcu_msg {
 // Statut bits from AUTOPILOT to FBW
 #define STATUS_AUTO_OK  0
 
-#define FRAME_LENGTH (sizeof(struct inter_mcu_msg)+1)
+/** Two bytes for the CRC */
+#define FRAME_LENGTH (sizeof(struct inter_mcu_msg)+2)
+
+#define CRC_INIT 0xffff
+#define CrcUpdate(_crc, _data) _crc_ccitt_update(_crc, _data)
+#define Crc1(x) ((x)&0xff)
+#define Crc2(x) ((x)>>8)
 
 #define TRESHOLD_MANUAL_PPRZ (MIN_PPRZ / 2)
 
