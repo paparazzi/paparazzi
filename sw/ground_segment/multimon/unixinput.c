@@ -34,14 +34,8 @@
 #include <sys/wait.h>
 #include <stdlib.h>
 
-#ifdef SUN_AUDIO
-#include <sys/audioio.h>
-#include <stropts.h>
-#include <sys/conf.h>
-#else /* SUN_AUDIO */
 #include <sys/soundcard.h>
 #include <sys/ioctl.h>
-#endif /* SUN_AUDIO */
 
 /* ---------------------------------------------------------------------- */
 
@@ -90,77 +84,6 @@ static void process_buffer(float *buf, unsigned int len)
       dem[i]->demod(dem_st+i, buf, len);
 }
 
-/* ---------------------------------------------------------------------- */
-#ifdef SUN_AUDIO
-
-static void input_sound(unsigned int sample_rate, unsigned int overlap,
-			const char *ifname)
-{
-  audio_info_t audioinfo;
-  audio_info_t audioinfo2;
-  audio_device_t audiodev;
-  int fd;
-  short buffer[8192];
-  float fbuf[16384];
-  unsigned int fbuf_cnt = 0;
-  int i;
-  short *sp;
-
-  if ((fd = open(ifname ? ifname : "/dev/audio", O_RDONLY)) < 0) {
-    perror("open");
-    exit (10);
-  }
-  if (ioctl(fd, AUDIO_GETDEV, &audiodev) == -1) {
-    perror("ioctl: AUDIO_GETDEV");
-    exit (10);
-  }
-  AUDIO_INITINFO(&audioinfo);
-  audioinfo.record.sample_rate = sample_rate;
-  audioinfo.record.channels = 1;
-  audioinfo.record.precision = 16;
-  audioinfo.record.encoding = AUDIO_ENCODING_LINEAR;
-  /*audioinfo.record.gain = 0x20;
-    audioinfo.record.port = AUDIO_LINE_IN;
-    audioinfo.monitor_gain = 0;*/
-  if (ioctl(fd, AUDIO_SETINFO, &audioinfo) == -1) {
-    perror("ioctl: AUDIO_SETINFO");
-    exit (10);
-  }     
-  if (ioctl(fd, I_FLUSH, FLUSHR) == -1) {
-    perror("ioctl: I_FLUSH");
-    exit (10);
-  }
-  if (ioctl(fd, AUDIO_GETINFO, &audioinfo2) == -1) {
-    perror("ioctl: AUDIO_GETINFO");
-    exit (10);
-  }
-  fprintf(stdout, "Audio device: name %s, ver %s, config %s, "
-	  "sampling rate %d\n", audiodev.name, audiodev.version,
-	  audiodev.config, audioinfo.record.sample_rate);
-  for (;;) {
-    i = read(fd, sp = buffer, sizeof(buffer));
-    if (i < 0 && errno != EAGAIN) {
-      perror("read");
-      exit(4);
-    }
-    if (!i)
-      break;
-    if (i > 0) {
-      for (; i >= sizeof(buffer[0]); i -= sizeof(buffer[0]), sp++)
-	fbuf[fbuf_cnt++] = (*sp) * (1.0/32768.0);
-      if (i)
-	fprintf(stderr, "warning: noninteger number of samples read\n");
-      if (fbuf_cnt > overlap) {
-	process_buffer(fbuf, fbuf_cnt-overlap);
-	memmove(fbuf, fbuf+fbuf_cnt-overlap, overlap*sizeof(fbuf[0]));
-	fbuf_cnt = overlap;
-      }
-    }
-  }
-  close(fd);
-}
-
-#else /* SUN_AUDIO */
 /* ---------------------------------------------------------------------- */
 
 static void input_sound(unsigned int sample_rate, unsigned int overlap,
@@ -287,7 +210,6 @@ static void input_sound(unsigned int sample_rate, unsigned int overlap,
   }
   close(fd);
 }
-#endif /* SUN_AUDIO */
 
 /* ---------------------------------------------------------------------- */
 

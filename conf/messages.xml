@@ -302,8 +302,8 @@
     <field name="ap_mode" type="string" values="MANUAL|AUTO1|AUTO2|HOME"/>
     <field name="lat_mode" type="string" values="MANUAL|ROLL_RATE|ROLL|COURSE"/>
     <field name="gaz_mode" type="string" values="MANUAL|GAZ|CLIMB|ALT"/>
-    <field name="gps_mode" type="string" />
-    <field name="flight_time" type="uint32" values="NOFIX|DRO|2D|3D|GPSDRO"/>
+    <field name="gps_mode" type="string" values="NOFIX|DRO|2D|3D|GPSDRO"/>
+    <field name="flight_time" type="uint32" />
   </message>
 
   <message name="NAV_STATUS" ID="13">

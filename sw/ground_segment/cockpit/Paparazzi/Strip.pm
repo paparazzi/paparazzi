@@ -73,10 +73,10 @@ sub completeinit {
 #     { name => ["Manual", "Auto1", "Auto2", "Home"],
 #       color => ["sienna", "blue", "brown", "red"]
 #     },
-     gps_mode =>
-     { name => [ "No fix", "GPS dead reckoning only", "2D-fix",  "3D-fix", "GPS + dead reckoning combined"],
-       color => ["red", "red", "orange", "brown", "orange"]
-     },
+#      gps_mode =>
+#      { name => [ "No fix", "GPS dead reckoning only", "2D-fix",  "3D-fix", "GPS + dead reckoning combined"],
+#        color => ["red", "red", "orange", "brown", "orange"]
+#      },
 #     rc_status => 
 #     { name => ["Ok","Lost", "Really lost", "error"],
 #       color => ["orange", "brown", "red", "red"]
@@ -93,6 +93,7 @@ sub completeinit {
      rc_status => {'OK' => 'brown', 'LOST' => 'orange', 'REALLY_LOST' => 'red'},
      rc_mode   => {'AUTO'=> 'orange', 'MANUAL' => 'brown', 'FAILSAFE' => 'red'},
      contrast_status => {'DEFAULT' => 'orange', 'WAITING' => 'brown', 'SET' => 'set'},
+     gps_mode => {'NOFIX' => 'red', 'DRO' => 'red', '2D' => 'orange', '3D' => 'brown', 'GPSDRO' => 'red'},
     };
 
   $self->{frame} = undef;
@@ -166,7 +167,7 @@ sub draw {
   $zinc->bind($self->{frame}, '<1>', [\&onStripPressed, $self, $ident]);
 
   ## ident of the plane
-  $zinc->add('text', $self->{contentgroup}, -text => uc($ident), -position=>[10,10], -font => $self->{options}->{normal_font}, -color => "midnightblue");
+  $self->{ident} = $zinc->add('text', $self->{contentgroup}, -text => uc($ident), -position=>[10,10], -font => $self->{options}->{normal_font}, -color => "midnightblue");
   
   my @label_attr = (['AP',  'ap_mode',          70,  10],
 		    ['RC',  'rc_status',        70,  22],
@@ -359,7 +360,7 @@ sub string_of_time {
 ##############################################################################
 sub attach_to_aircraft {
   my ($self) = @_;
-  my @options = ('flight_plan', 'ap_mode', 'rc_status', 'gps_mode', 'contrast_status', 'contrast_value',
+  my @options = ('airframe', 'flight_plan', 'ap_mode', 'rc_status', 'gps_mode', 'contrast_status', 'contrast_value',
 		 'flight_time', 'alt', 'target_alt', 'speed', 'climb', 'bat');
   foreach my $option (@options) {
     $self->get('-aircraft')->attach($self, $option, [\&aircraft_config_changed]);
@@ -373,17 +374,12 @@ sub aircraft_config_changed {
   if ($event eq 'flight_plan') {
     #    $self->border_block() if (defined $new_value) ; # display blocks of flight plan
   }
-  elsif ($event eq 'rc_status' or $event eq 'rc_mode' or $event eq 'contrast_status' or $event eq 'ap_mode' ) {
+  elsif ($event eq 'airframe') {
+    $self->get('-zinc')->itemconfigure($self->{ident}, -text => scalar $new_value->get('-name')) if defined $new_value;
+  }
+  elsif ($event eq 'rc_status' or $event eq 'rc_mode' or $event eq 'contrast_status' or $event eq 'ap_mode' or $event eq 'gps_mode') {
     my $color = $self->{new_modes}->{$event}->{$new_value};
     $self->set_item($event, $new_value, $color);
-  }
-  elsif ($event eq 'gps_mode' ) {
-    my $names = $self->{modes}->{$event}->{name};
-    my $colors = $self->{modes}->{$event}->{color};
-    if ($new_value < @{$names} ) {
-      $self->set_item($event,$self->{modes}->{$event}->{name}[$new_value], $self->{modes}->{$event}->{color}[$new_value]);
-    }
-    else { print "in Strip::aircraft_config_changed : wrong value $new_value for $event\n"}
   }
   elsif ($event eq 'flight_time') {
     $self->set_item("flight_time",$self->string_of_time($new_value), $self->{options}->{value_color});
