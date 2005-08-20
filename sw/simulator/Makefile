@@ -54,7 +54,7 @@ SIMDIR=$(shell echo `pwd`)
 
 
 #all : simhitl.out sitl.cma $(GEN_DOWNLINK)
-all : sitl.cma $(GEN_DOWNLINK)
+all : gaia sitl.cma $(GEN_DOWNLINK)
 
 sim_sitl : $(OBJDIR)/simsitl
 
@@ -75,6 +75,12 @@ $(OBJDIR)/simsitl : $(OBJDIR)/$(SIMSA) $(OBJDIR)/simsitl.ml
 	$(OCAMLC) $(INCLUDES) -o $@ glibivy-ocaml.cma xml-light.cma unix.cma lib-pprz.cma lablgtk.cma gtkInit.cmo -I $(OBJDIR) $(SIMSA) sitl.cma $(OBJDIR)/simsitl.ml # To check
 	cat ../../pprz_src_test.sh > $@
 	echo 'lablgtk2 -I $$PAPARAZZI_SRC/sw/lib/ocaml -I $(OBJDIR) glibivy-ocaml.cma xml-light.cma lib-pprz.cma $(SIMSA) $$PAPARAZZI_SRC/sw/simulator/sitl.cma -I $$PAPARAZZI_SRC/sw/simulator $(OBJDIR)/simsitl.ml $$*' >> $@
+	chmod a+x $@
+
+gaia : gaia.ml
+	$(OCAMLC) $(INCLUDES) -o $@ glibivy-ocaml.cma xml-light.cma unix.cma lib-pprz.cma lablgtk.cma gtkInit.cmo gaia.ml # To check
+	cat ../../pprz_src_test.sh > $@
+	echo 'lablgtk2 -I $$PAPARAZZI_SRC/sw/lib/ocaml glibivy-ocaml.cma xml-light.cma unix.cma lib-pprz.cma lablgtk.cma gtkInit.cmo $$PAPARAZZI_SRC/sw/simulator/gaia.ml $$*' >> $@
 	chmod a+x $@
 
 $(OBJDIR)/simsitl.opt : $(SIMSO) $(OBJDIR)/simsitl.cmx

@@ -31,3 +31,8 @@ val deg_of_rad : float -> float
 val rad_of_deg : float -> float
 val set_float : string -> float ref -> string -> string * Arg.spec * string
 val set_string : string -> string ref -> string -> string * Arg.spec * string
+
+class type value = object method value : float end
+
+val timer : ?scale:#value -> float -> (unit -> 'a) -> unit
+(** [timer ?time_accel period_s callback] Non derivating periodic timer *)

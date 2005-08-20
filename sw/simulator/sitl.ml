@@ -29,14 +29,12 @@ open Printf
 let ios = int_of_string
 let fos = float_of_string
 
-let ivy_bus = ref "127.255.255.255:2010"
-
 module Make(A:Data.MISSION) = struct
 
-  let servos_period = 25 (* ms *)
-  let periodic_period = 16 (* ms *)
-  let rc_period = 25 (* ms *)
-
+  let servos_period = 1./.40. (* s *)
+  let periodic_period = 1./.61. (* s *)
+  let rc_period = 1./.40. (* s *)
+      
   let periodic = fun p f ->
     f ();
     ignore (GMain.Timeout.add p (fun () -> f (); true))
@@ -67,7 +65,7 @@ module Make(A:Data.MISSION) = struct
       let gaz = set_servos !rservos in
       (* 100% = 1W *)
       if bat_button#active then
-	let energy = float (gaz-1000) /. 1000. *. float servos_period /. 1000. in
+	let energy = float (gaz-1000) /. 1000. *. servos_period in
 	accu := !accu +. energy *. 0.00259259259259259252; (* To be improved !!! *)
 	printf "\b\b\b\b\b%.3f%!" !accu;
 	if !accu >= 0.1 then begin
@@ -123,8 +121,6 @@ module Make(A:Data.MISSION) = struct
   let bat_button = GButton.toggle_button ~label:"Bat" ()
 
   let init = fun id vbox ->
-    Ivy.init (sprintf "Paparazzi sim %d" id) "READY" (fun _ _ -> ());
-    Ivy.start !ivy_bus;
     rc ();
     sim_init id;
 
@@ -138,10 +134,10 @@ module Make(A:Data.MISSION) = struct
     update ()
 
 
-  let boot = fun () ->
-    periodic servos_period (update_servos bat_button);
-    periodic periodic_period periodic_task;
-    periodic rc_period rc_task
+  let boot = fun time_scale ->
+    Stdlib.timer ~scale:time_scale servos_period (update_servos bat_button);
+    Stdlib.timer ~scale:time_scale periodic_period periodic_task;
+    Stdlib.timer ~scale:time_scale rc_period rc_task
 
 (* Functions called by the simulator *)
   let servos = fun s -> rservos := s
@@ -158,6 +154,4 @@ module Make(A:Data.MISSION) = struct
     use_gps_pos (cm utm.utm_x) (cm utm.utm_y) utm.utm_zone gps.Gps.course gps.Gps.alt gps.Gps.gspeed gps.Gps.climb gps.Gps.time 
 
 end
-let options =
-  [ "-b", Arg.String (fun x -> ivy_bus := x), "Bus\tDefault is 127.255.255.25:2010"]
-
+let options = []

@@ -7,7 +7,7 @@ val ac_name  : string ref
 module type AIRCRAFT =
   sig
     val init : int -> GPack.box -> unit
-    val boot : unit -> unit
+    val boot : Stdlib.value -> unit
     val servos : Stdlib.us array -> unit
     val infrared : float -> float -> unit
     val gps : Gps.state -> unit

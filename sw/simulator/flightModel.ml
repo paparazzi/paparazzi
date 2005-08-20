@@ -1,3 +1,29 @@
+(*
+ *  $Id$
+ *
+ * Basic flight model for simulation
+ *  
+ * Copyright (C) 2004 Pascal Brisset, Antoine Drouin
+ *
+ * This file is part of paparazzi.
+ *
+ * paparazzi is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * paparazzi is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with paparazzi; see the file COPYING.  If not, write to
+ * the Free Software Foundation, 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA. 
+ *
+ *)
+
 open Stdlib
 
 type meter = float
@@ -84,9 +110,8 @@ let yaw_response_factor = float_value simu_section "YAW_RESPONSE_FACTOR"
 
 let weight = float_value simu_section "WEIGHT"
 
-  let state_update = fun state (wx, wy) ->
-    let now = Unix.gettimeofday () -. state.start in
-    let dt = now -. state.t in
+  let state_update = fun state (wx, wy) dt ->
+    let now = state.t +. dt in
     if state.air_speed > 0. then begin
       let phi_dot_dot = roll_response_factor *. state.delta_a +. c_lp *. state.phi_dot /. state.air_speed in
       state.phi_dot <- state.phi_dot +. phi_dot_dot *. dt;

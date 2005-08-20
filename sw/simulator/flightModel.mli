@@ -18,5 +18,5 @@ module Make :
       val do_servos : state -> Stdlib.us array -> unit
       val nb_servos : int
       val nominal_airspeed : float (* m/s *)
-      val state_update : state -> float * float -> unit
+      val state_update : state -> float * float -> float -> unit
     end

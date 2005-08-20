@@ -367,6 +367,14 @@
     <field name="if_value1" type="float"></field>
     <field name="if_value2" type="float"></field>
   </message>
+
+  <message name="WORLD_ENV" id="20">
+    <field name="wind_east" type="float" unit="m/s" format="%.1f"/>
+    <field name="wind_north" type="float" unit="m/s" format="%.1f"/>
+    <field name="ir_contrast" type="float"/>
+    <field name="time_scale" type="float"/>
+  </message>
+  <message name="WORLD_ENV_REQ" id="21"/>
 </class>
 
 </protocol>

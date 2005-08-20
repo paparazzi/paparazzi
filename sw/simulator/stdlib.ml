@@ -40,3 +40,26 @@ let set_float = fun option var name ->
   (option, Arg.Set_float var, Printf.sprintf "%s (%f)" name !var)
 let set_string = fun option var name ->
   (option, Arg.Set_string var, Printf.sprintf "%s (%s)" name !var)
+
+let ms x = max 0 (truncate (1000.*.x))
+(* Non derivating timer *)
+class type value = object method value : float end
+
+let timer ?scale p f =
+  let scale = 
+    match scale with 
+      None -> object method value = 1. end 
+    | Some s -> (s :> value) in
+  let rec loop = fun expected ->
+    let next = expected +. p /. scale#value in
+    let dt = ms (next -. Unix.gettimeofday()) in
+    if dt < 1 then begin (* No timer needed, simply loop *)
+      f (); loop next
+    end else
+      GMain.Timeout.add 
+	dt
+	(fun () -> 
+	  loop next;
+	  f (); 
+	  false) in
+  ignore (loop (Unix.gettimeofday()))
