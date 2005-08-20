@@ -197,7 +197,7 @@ let logger = fun () ->
   let basename = sprintf "%02d_%02d_%02d__%02d_%02d_%02d" (d.U.tm_year mod 100) (d.U.tm_mon+1) (d.U.tm_mday) (d.U.tm_hour) (d.U.tm_min) (d.U.tm_sec) in
   if not (Sys.file_exists logs_path) then begin
     printf "Creating '%s'\n" logs_path; flush stdout;
-    Unix.mkdir logs_path 0o640
+    Unix.mkdir logs_path 0o755
   end;
   let log_name = sprintf "%s.log" basename
   and data_name = sprintf "%s.data" basename in
@@ -286,7 +286,8 @@ let log_and_parse = fun log ac_name a msg values ->
     | "CALIB_START" ->
 	a.infrared.contrast_status <- "WAITING"
     | "CALIB_CONTRAST" ->
-	a.infrared.contrast_value <- ivalue "adc"
+	a.infrared.contrast_value <- ivalue "adc";
+	a.infrared.contrast_status <- "SET"
     | "SETTINGS" ->
 	a.inflight_calib.if_val1 <- fvalue "slider_1_val";
 	a.inflight_calib.if_val2 <- fvalue "slider_2_val";
