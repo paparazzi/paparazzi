@@ -28,9 +28,10 @@ ACINCLUDE = $(PAPARAZZI_HOME)/var/$(AIRCRAFT)
 AIRFRAME_H=$(ACINCLUDE)/airframe.h
 RADIO_H=$(ACINCLUDE)/radio.h
 FLIGHT_PLAN_H=$(ACINCLUDE)/flight_plan.h
+FLIGHT_PLAN_XML=$(ACINCLUDE)/flight_plan.xml
 INFLIGHT_CALIB_H=$(ACINCLUDE)/inflight_calib.h
 
-all: $(AIRFRAME_H) $(RADIO_H) $(FLIGHT_PLAN_H) $(INFLIGHT_CALIB_H)
+all: $(AIRFRAME_H) $(RADIO_H) $(FLIGHT_PLAN_H) $(FLIGHT_PLAN_XML) $(INFLIGHT_CALIB_H)
 	echo $(AIRFRAME_H) $(CONF)/$(AIRFRAME)
 
 $(AIRFRAME_H) : $(CONF)/$(AIRFRAME) $(CONF_XML)
@@ -44,6 +45,10 @@ $(RADIO_H) : $(CONF)/$(RADIO) $(CONF_XML)
 $(FLIGHT_PLAN_H) : $(CONF)/$(FLIGHT_PLAN) $(CONF_XML)
 	$(TOOLS)/gen_flight_plan.out $< > /tmp/fp.h
 	mv /tmp/fp.h $@
+
+$(FLIGHT_PLAN_XML) : $(CONF)/$(FLIGHT_PLAN) $(CONF_XML)
+	$(TOOLS)/gen_flight_plan.out -dump $< > /tmp/fp.xml
+	mv /tmp/fp.xml $@
 
 $(INFLIGHT_CALIB_H) : $(CONF)/$(FLIGHT_PLAN) $(CONF_XML)
 	$(TOOLS)/gen_calib.out $< > /tmp/c.h

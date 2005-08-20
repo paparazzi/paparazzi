@@ -20,7 +20,8 @@
 # Boston, MA 02111-1307, USA.  
 #
 
-INCLUDES= -I +lablgl -I +camlimages -I +lablgtk2
+INCLUDES=
+XINCLUDES= -I +lablgl -I +camlimages -I +lablgtk2
 OCAMLC=ocamlc $(INCLUDES)
 OCAMLOPT=ocamlopt $(INCLUDES)
 
@@ -33,13 +34,14 @@ XSRC = platform.ml gtkgl_Hack.ml ml_gtkgl_hack.o gtk_image.ml gtk_tools_icons.ml
 XCMO = $(XSRC:.ml=.cmo)
 XCMX = $(XSRC:.ml=.cmx)
 
+$(XCMO) : INCLUDES=$(XINCLUDES)
 
-all : lib-pprz.cma xlib-pprz.cma xml_get.out lib-pprz.cmxa
-# lib-pprz.cmxa xlib-pprz.cmxa
+all : lib-pprz.cma xlib-pprz.cma xml_get.out
+#  lib-pprz.cmxa xlib-pprz.cmxa
 
 
 lib-pprz.cma : $(CMO)
-	ocamlmklib -o lib-pprz str.cma unix.cma xml-light.cma ivy-ocaml.cma $^
+	ocamlmklib -o lib-pprz str.cma unix.cma xml-light.cma $^
 
 lib-pprz.cmxa : $(CMX)
 	ocamlmklib -o lib-pprz $^

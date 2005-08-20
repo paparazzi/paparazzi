@@ -26,25 +26,28 @@
 
 open Printf
 
+(** Ivy messages are initially tagged "modem" and with the A/C
+id as soon as it is identified (IDENT message) *)
 let ac_id = ref "modem"
 
-let modem_msg_period = 1000
+let modem_msg_period = 1000 (** ms *)
 
 module ModemTransport = Serial.Transport(Modem.Protocol)
 module Tele_Class = struct let name = "telemetry_ap" end
 module Tele_Pprz = Pprz.Protocol(Tele_Class)
 module PprzTransport = Serial.Transport(Tele_Pprz)
 
+(** Monitoring of the message reception *)
 type status = {
     mutable rx_byte : int;
     mutable rx_msg : int;
     mutable rx_err : int
   }
-
 let status = { rx_byte = 0; rx_msg = 0; rx_err = 0 }
 
-let use_pprz_message = fun () (msg_id, values) ->
-  status.rx_msg <- status.rx_msg + 1;
+(** Callback for each decoded message *)
+let use_pprz_message = fun (msg_id, values) ->
+  status.rx_msg <- status.rx_msg + 1; (** Monitoring update *)
   let msg = Tele_Pprz.message_of_id msg_id in
   if msg.Pprz.name = "IDENT" then
     ac_id := Pprz.string_assoc "id" values;
@@ -84,8 +87,11 @@ let listen_pprz_modem = fun pprz_message_cb tty ->
   
   ignore (Glib.Io.add_watch [`IN] cb (Glib.Io.channel_of_descr fd))
 
+(** Modem monitoring messages *)
 let send_modem_msg =
-  let rx_msg = ref 0 and rx_byte = ref 0 and start = Unix.gettimeofday () in
+  let rx_msg = ref 0 
+  and rx_byte = ref 0 
+  and start = Unix.gettimeofday () in
   fun () ->
     let dt = float modem_msg_period /. 1000. in
     let t = int_of_float (Unix.gettimeofday () -. start) in
@@ -125,8 +131,10 @@ let _ =
   Ivy.init "Paparazzi hw_modem_listen" "READY" (fun _ _ -> ());
   Ivy.start !ivy_bus;
 
-  listen_pprz_modem (use_pprz_message ()) !port;
+  (** Listening on the given port (serial device or multimon fifo)*)
+  listen_pprz_modem use_pprz_message !port;
 
+  (** Sending periodically modem and downlink status messages *)
   ignore (Glib.Timeout.add modem_msg_period (fun () -> send_modem_msg (); true));
   
   let loop = Glib.Main.create true in

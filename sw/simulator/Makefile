@@ -38,7 +38,7 @@ SIMSA=sims.cma
 
 OCAMLC = ocamlc
 OCAMLOPT=ocamlopt -p
-INCLUDES= -I +lablgtk2 -I $(SIMDIR)/../lib/ocaml
+INCLUDES= -I +lablgtk2 -I ../lib/ocaml
 OCAMLCC = gcc -O2 -I /usr/include/glib-2.0 -I /usr/lib/glib-2.0/include -DUBX -DCTL_BRD_V1_2 -I $(OBJDIR) -I $(ACDIR) 
 
 FBW = ../airborne/fly_by_wire
@@ -68,23 +68,20 @@ sitl.cmxa : $(SIMSCMX)
 	ocamlopt -o $@ -a $^ 
 
 $(OBJDIR)/$(SIMSA) : $(SIMSO)
-	touch $(OBJDIR)/dummy.ml
-	cd $(OBJDIR); ocamlmklib -o sims $^ dummy.ml
+	@touch $(OBJDIR)/dummy.ml
+	@cd $(OBJDIR); ocamlmklib -o sims $^ dummy.ml
 
 $(OBJDIR)/simsitl : $(OBJDIR)/$(SIMSA) $(OBJDIR)/simsitl.ml
-	$(OCAMLC) $(INCLUDES) -o $@ glibivy-ocaml.cma xml-light.cma unix.cma lib-pprz.cma lablgtk.cma gtkInit.cmo -I $(OBJDIR) $(SIMSA) sitl.cma $(OBJDIR)/simsitl.ml # To check
-	cat ../../pprz_src_test.sh > $@
-	echo 'lablgtk2 -I $$PAPARAZZI_SRC/sw/lib/ocaml -I $(OBJDIR) glibivy-ocaml.cma xml-light.cma lib-pprz.cma $(SIMSA) $$PAPARAZZI_SRC/sw/simulator/sitl.cma -I $$PAPARAZZI_SRC/sw/simulator $(OBJDIR)/simsitl.ml $$*' >> $@
-	chmod a+x $@
+	$(OCAMLC) $(INCLUDES) -o $@ glibivy-ocaml.cma lib-pprz.cma lablgtk.cma gtkInit.cmo -I $(OBJDIR) $(SIMSA) sitl.cma $(OBJDIR)/simsitl.ml
+	@cat ../../pprz_src_test.sh > $@
+	@echo 'exec lablgtk2 -I $$PAPARAZZI_SRC/sw/lib/ocaml -I $(OBJDIR) glibivy-ocaml.cma xml-light.cma lib-pprz.cma $(SIMSA) $$PAPARAZZI_SRC/sw/simulator/sitl.cma -I $$PAPARAZZI_SRC/sw/simulator $(OBJDIR)/simsitl.ml $$*' >> $@
+	@chmod a+x $@
 
 gaia : gaia.ml
-	$(OCAMLC) $(INCLUDES) -o $@ glibivy-ocaml.cma xml-light.cma unix.cma lib-pprz.cma lablgtk.cma gtkInit.cmo gaia.ml # To check
-	cat ../../pprz_src_test.sh > $@
-	echo 'lablgtk2 -I $$PAPARAZZI_SRC/sw/lib/ocaml glibivy-ocaml.cma xml-light.cma unix.cma lib-pprz.cma lablgtk.cma gtkInit.cmo $$PAPARAZZI_SRC/sw/simulator/gaia.ml $$*' >> $@
-	chmod a+x $@
-
-$(OBJDIR)/simsitl.opt : $(SIMSO) $(OBJDIR)/simsitl.cmx
-	$(OCAMLOPT) $(INCLUDES) -o $@ str.cmxa glibivy-ocaml.cmxa xml-light.cmxa unix.cmxa lib.cmxa lablgtk.cmxa gtkInit.cmx $(SIMSO) sitl.cmxa  $(OBJDIR)/simsitl.cmx
+	$(OCAMLC) $(INCLUDES) -o $@ glibivy-ocaml.cma lib-pprz.cma lablgtk.cma gtkInit.cmo gaia.ml
+	@cat ../../pprz_src_test.sh > $@
+	@echo 'exec lablgtk2 -I $$PAPARAZZI_SRC/sw/lib/ocaml glibivy-ocaml.cma lib-pprz.cma lablgtk.cma gtkInit.cmo $$PAPARAZZI_SRC/sw/simulator/gaia.ml $$*' >> $@
+	@chmod a+x $@
 
 $(OBJDIR)/%.o : %.c
 	$(OCAMLCC) -c -o $@ -I $(SIMDIR) -I $(FBW) -I $(AP) -I ../include -I $(VARINCLUDE) $<
@@ -110,8 +107,8 @@ $(OBJDIR)/simsitl.cmx : $(OBJDIR)/simsitl.ml
 	$(OCAMLOPT) $(INCLUDES) -c -o $@ $<
 
 $(OBJDIR)/simsitl.ml : simsitl.ml
-	echo "Sim.ac_name := \"$(AIRCRAFT)\"" > $@
-	cat $< >> $@
+	@echo "Sim.ac_name := \"$(AIRCRAFT)\"" > $@
+	@cat $< >> $@
 
 %.cmo : %.ml
 	$(OCAMLC) $(INCLUDES) -c $<
@@ -123,7 +120,7 @@ $(OBJDIR)/simsitl.ml : simsitl.ml
 	$(OCAMLC) $(INCLUDES) -c $<
 
 clean :
-	\rm -f *.cm* *~ *.out .depend *.o *.a *.so
+	\rm -f *.cm* *~ *.out .depend *.o *.a *.so gaia
 
 flightModel.cmo: flightModel.cmi 
 hitl.cmo: hitl.cmi 

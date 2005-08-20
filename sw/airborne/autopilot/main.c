@@ -479,7 +479,6 @@ inline void periodic_task( void ) {
     navigation_task();
     break;
     /*  default: */
-  case 1:
   }
   switch (_20Hz) {
   case 0:

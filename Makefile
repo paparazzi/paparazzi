@@ -41,9 +41,9 @@ all: static ac1 ac2
 static : lib tools configurator cockpit tmtc multimon visu3d logalizer sim_static wind static_h
 
 ac1 : 
-	make AIRCRAFT=Thon1 sim_ac
-ac2 : 
-	make AIRCRAFT=Thon2 sim_ac
+	make AIRCRAFT=Thon1 ac
+ac2 :
+	make AIRCRAFT=Thon2 ac
 
 configure : configurator
 	PAPARAZZI_DIR=`pwd` $(CONFIGURATOR)/configurator
@@ -134,3 +134,5 @@ clean:
 	find . -name Makefile -mindepth 2 -exec sh -c '$(MAKE) -C `dirname {}` $@' \; 
 	find . -name '*~' -exec rm -f {} \;
 
+dist_clean : clean
+	rm -fr var

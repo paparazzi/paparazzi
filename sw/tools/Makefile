@@ -1,5 +1,5 @@
 OCAML=ocaml
-OCAMLC=ocamlc -g -I ../lib/ocaml
+OCAMLC=ocamlc -I ../lib/ocaml
 OCAMLLEX=ocamllex
 OCAMLYACC=ocamlyacc
 
@@ -9,10 +9,10 @@ FP_CMO = fp_syntax.cmo fp_parser.cmo fp_lexer.cmo fp_proc.cmo gen_flight_plan.ml
 ABS_FP = $(FP_CMO:%=$$PAPARAZZI_SRC/sw/tools/%)
 
 gen_flight_plan.out : $(FP_CMO)
-	$(OCAMLC) -o /dev/null lib-pprz.cma $^ # To check
-	cat ../../pprz_src_test.sh > $@
-	echo '$(OCAML) -I $$PAPARAZZI_SRC/sw/lib/ocaml -I $$PAPARAZZI_SRC/sw/tools lib-pprz.cma $(ABS_FP) $$*' >> $@
-	chmod a+x $@
+	$(OCAMLC) -o $@ ivy-ocaml.cma lib-pprz.cma $^
+	@cat ../../pprz_src_test.sh > $@
+	@echo '$(OCAML) -I $$PAPARAZZI_SRC/sw/lib/ocaml -I $$PAPARAZZI_SRC/sw/tools ivy-ocaml.cma lib-pprz.cma $(ABS_FP) $$*' >> $@
+	@chmod a+x $@
 
 fp_parser.cmo : fp_parser.cmi fp_syntax.cmi
 fp_parser.cmi : fp_parser.ml fp_syntax.cmi
@@ -23,10 +23,10 @@ fp_syntax.cmo : fp_syntax.cmi
 
 
 %.out : %.ml
-	$(OCAMLC) -o /dev/null lib-pprz.cma $< # To check
-	cat ../../pprz_src_test.sh > $@
-	echo '$(OCAML) -I $$PAPARAZZI_SRC/sw/lib/ocaml lib-pprz.cma $$PAPARAZZI_SRC/sw/tools/$< $$*' >> $@
-	chmod a+x $@
+	$(OCAMLC) -o $@ ivy-ocaml.cma lib-pprz.cma $<
+	@cat ../../pprz_src_test.sh > $@
+	@echo '$(OCAML) -I $$PAPARAZZI_SRC/sw/lib/ocaml ivy-ocaml.cma lib-pprz.cma $$PAPARAZZI_SRC/sw/tools/$< $$*' >> $@
+	@chmod a+x $@
 
 %.cmo : %.ml
 	$(OCAMLC) -c $<

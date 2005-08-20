@@ -94,4 +94,4 @@ wavecard_glib : wavecard_glib.c wavecard.c wavecard_glib_utils.c
 
 
 clean : avr_clean
-	rm -f *.out *.cm* messages.h flight_plan.h ubx_protocol.h inflight_calib.h
+	rm -f *.out *.cm* messages.h flight_plan.h ubx_protocol.h inflight_calib.h wavecard_glib

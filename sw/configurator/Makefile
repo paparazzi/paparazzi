@@ -20,7 +20,7 @@
 # Boston, MA 02111-1307, USA.  
 #
 
-OCAMLC=ocamlc -g -I +labltk -I +lablgtk2 -I +camlimages -I ../lib/ocaml -I +lablGL
+OCAMLC=ocamlc -I +labltk -I ../lib/ocaml
 
 
 CMO = env_conf.cmo notebook.cmo tty.cmo varXml.cmo console.cmo tkXml.cmo flasher.cmo welcome.cmo hardware.cmo radio.cmo servos.cmo adc.cmo infrared.cmo attitude.cmo autopilot.cmo airframe.cmo flightplan.cmo upload.cmo simulator.cmo monitor.cmo logalizer.cmo main.ml
@@ -30,16 +30,18 @@ ABS_CMO = $(CMO:%=$$PAPARAZZI_SRC/sw/configurator/%)
 all : configurator medit
 
 configurator : $(CMO)
-	$(OCAMLC) -custom -o /dev/null unix.cma str.cma xml-light.cma labltk.cma jpflib.cma lib-pprz.cma $^ # To check
-	cat ../../pprz_src_test.sh > $@
-	echo 'ocaml -I +labltk -I $$PAPARAZZI_SRC/sw/lib/ocaml -I $$PAPARAZZI_SRC/sw/configurator unix.cma str.cma xml-light.cma labltk.cma jpflib.cma lib-pprz.cma $(ABS_CMO) $$*' >> $@
-	chmod a+x $@
+	$(OCAMLC) -custom -o $@ labltk.cma lib-pprz.cma jpflib.cma $^
+	@cat ../../pprz_src_test.sh > $@
+	@echo 'ocaml -I +labltk -I $$PAPARAZZI_SRC/sw/lib/ocaml -I $$PAPARAZZI_SRC/sw/configurator labltk.cma lib-pprz.cma jpflib.cma $(ABS_CMO) $$*' >> $@
+	@chmod a+x $@
+
+medit : OCAMLC=ocamlc -I +lablgtk2 -I +camlimages -I ../lib/ocaml -I +lablGL
 
 medit : medit.ml
-	$(OCAMLC) -o /dev/null str.cma unix.cma xml-light.cma glibivy-ocaml.cma -I +lablgtk2 lablgtk.cma lablgnomecanvas.cma lablgl.cma gtkInit.cmo lib-pprz.cma xlib-pprz.cma ci_core.cma ci_png.cma  $^ # To check
-	cat ../../pprz_src_test.sh > $@
-	echo 'lablgtk2 -I +camlimages -I $$PAPARAZZI_SRC/sw/lib/ocaml str.cma unix.cma xml-light.cma glibivy-ocaml.cma  ci_core.cma ci_png.cma ci_gif.cma ci_jpeg.cma ci_tiff.cma ci_bmp.cma ci_ppm.cma ci_ps.cma lib-pprz.cma xlib-pprz.cma $$PAPARAZZI_SRC/sw/configurator/$< $$*' >> $@
-	chmod a+x $@
+	$(OCAMLC) -o $@ glibivy-ocaml.cma -I +lablgtk2 lablgtk.cma lablgnomecanvas.cma lablgl.cma gtkInit.cmo lib-pprz.cma xlib-pprz.cma ci_core.cma ci_png.cma  $^
+	@cat ../../pprz_src_test.sh > $@
+	@echo 'lablgtk2 -I +camlimages -I $$PAPARAZZI_SRC/sw/lib/ocaml glibivy-ocaml.cma  ci_core.cma ci_png.cma ci_gif.cma ci_jpeg.cma ci_tiff.cma ci_bmp.cma ci_ppm.cma ci_ps.cma lib-pprz.cma xlib-pprz.cma $$PAPARAZZI_SRC/sw/configurator/$< $$*' >> $@
+	@chmod a+x $@
 
 
 
