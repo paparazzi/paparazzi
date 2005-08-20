@@ -25,7 +25,9 @@
  *)
 
 open Printf
+open Srtm
 open Latlong
+
 module Ground_Pprz = Pprz.Protocol(struct let name = "ground" end)
 
 type color = string
@@ -137,13 +139,14 @@ let load_mission = fun color geomap url ->
   fp
 
 
-let aircraft_pos_msg = fun track utm_x utm_y heading ->
+let aircraft_pos_msg = fun track utm_x_ utm_y_ heading altitude ->
   match !map_ref with
     None -> ()
   | Some utm0 ->
-      let en =  {G.east = utm_x -. utm0.utm_x; north = utm_y -. utm0.utm_y } in
+      let en =  {G.east = utm_x_ -. utm0.utm_x; north = utm_y_ -. utm0.utm_y } in
       track#add_point en;
-      track#move_icon en heading
+      let h = Srtm.of_utm { utm_zone = utm0.utm_zone; utm_x = utm_x_; utm_y = utm_y_} in
+      track#move_icon en heading altitude (float_of_int h)
 
 let carrot_pos_msg = fun track utm_x utm_y ->
   match !map_ref with
@@ -151,6 +154,14 @@ let carrot_pos_msg = fun track utm_x utm_y ->
   | Some utm0 ->
       let en =  {G.east = utm_x -. utm0.utm_x; north = utm_y -. utm0.utm_y } in
       track#move_carrot en
+
+let cam_pos_msg = fun track utm_x utm_y target_utm_x target_utm_y ->
+  match !map_ref with
+    None -> ()
+  | Some utm0 ->
+      let en =  {G.east = utm_x -. utm0.utm_x; north = utm_y -. utm0.utm_y } in
+      let target_en =  {G.east = target_utm_x -. utm0.utm_x; north = target_utm_y -. utm0.utm_y } in  
+      track#move_cam en target_en
 
 let new_color =
   let colors = ref ["red"; "blue"; "green"] in
@@ -213,7 +224,7 @@ let listen_flight_params = fun () ->
     try
       let ac = Hashtbl.find live_aircrafts ac_id in
       let a = fun s -> Pprz.float_assoc s vs in
-      aircraft_pos_msg ac.track (a "east") (a "north") (a "course")
+      aircraft_pos_msg ac.track (a "east") (a "north") (a "course") (a "alt")
     with Not_found -> ()
   in
   ignore (Ground_Pprz.message_bind "FLIGHT_PARAM" get_fp);
@@ -226,7 +237,17 @@ let listen_flight_params = fun () ->
       carrot_pos_msg ac.track (a "target_east") (a "target_north") 
     with Not_found -> ()
   in
-  ignore (Ground_Pprz.message_bind "NAV_STATUS" get_ns)
+  ignore (Ground_Pprz.message_bind "NAV_STATUS" get_ns);
+
+  let get_cam_status = fun _sender vs ->
+    let ac_id = Pprz.string_assoc "ac_id" vs in
+    try
+      let ac = Hashtbl.find live_aircrafts ac_id in
+      let a = fun s -> Pprz.float_assoc s vs in
+      cam_pos_msg ac.track (a "cam_east") (a "cam_north") (a "target_east") (a "target_north") 
+    with Not_found -> ()
+  in
+  ignore (Ground_Pprz.message_bind "CAM_STATUS" get_cam_status)
 
 let _ =
   let ivy_bus = ref "127.255.255.255:2010"
@@ -243,6 +264,8 @@ let _ =
   Ivy.start !ivy_bus;
 
   Srtm.add_path default_path_SRTM;
+
+  Srtm.add_path (Env.paparazzi_home ^ "/data/srtm");
 
   let window = GWindow.window ~title: "Map2d" ~border_width:1 ~width:400 () in
   let vbox= GPack.vbox ~packing: window#add () in
