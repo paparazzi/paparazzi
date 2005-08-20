@@ -17,7 +17,7 @@ sub populate {
   my ($self, $args) = @_;
   $self->SUPER::populate($args);
   $self->configspec(-logo_file => [S_NOINIT,   S_PASSIVE,  S_RDWR,   S_OVRWRT, S_NOPRPG, undef],
-		    -variables => [S_SUPER,    S_SUPER,    S_SUPER,  S_SUPER,  S_SUPER, undef],
+		    -variables => [S_SUPER,    S_SUPER,    S_SUPER,  S_SUPER,  S_SUPER, {}],
 		   );
 }
 sub completeinit {

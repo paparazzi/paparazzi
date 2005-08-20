@@ -26,22 +26,30 @@ sub completeinit {
   my ($self) = @_;
   $self->SUPER::completeinit();
   my $cfg_file = $self->get('-config_file');
-#  my $variables = $self->get('-variables');
-#  print "initial variables\n".Dumper($variables);
+  my $variables = $self->get('-variables');
   $self->read_cfg($cfg_file);
-#  $variables = $self->get('-variables');
-#  print "configured variables\n".Dumper($variables);
 }
 
 sub prepare_args {
-  my ($self, $args) = @_;
+  my ($self, $args, $session) = @_;
   my (@options, @rargs);
   my $variables = $self->get('-variables');
 #  print "CpSessionMgr : variables ".Dumper($variables);
   foreach my $opt (@{$args}) {
     my $type = $opt->{type};
     my $flag = $opt->{flag};
-    my $value = $type eq 'var' ? $variables->{$opt->{value}}: $opt->{value};
+    my $value;
+    if ($type eq 'var') {
+      if (defined $session and exists $session->{vars}->{$opt->{value}}) {
+	$value =  $session->{vars}->{$opt->{value}}
+      }
+      else {
+	$value = $variables->{$opt->{value}}
+      }
+    }
+    else {
+      $value = $opt->{value};
+    }
     if ($flag) {
       if ($flag =~ /\.*=/) { push @options, $flag.$value}
       else {push @options, $flag, $value}
@@ -74,7 +82,7 @@ sub toggle_program {
   else {
     my (@options, @args) = $self->prepare_args($program->{args});
     my $command = $self->find_binary($program);
-    print "starting $program->{name} [$command @options, @args]\n";
+    print "starting $program->{name} [$command @options @args]\n";
     $program->{pid} = $self->SUPER::start_program($command, @options[0..$#options], @args[0..$#args]);
   }
 }
@@ -83,7 +91,7 @@ sub toggle_program_in_session {
   my ($self, $session_name, $pgm_idx) = @_;
   my $session = $self->get('-sessions')->{$session_name};
   my $session_program = $session->{pgms}->[$pgm_idx];
-#  print "processing program in session context\n".Dumper($session_program);
+  print "processing program in session context\n".Dumper($session);
   if (defined $session_program->{pid}) {
     print "killing program $session_program->{name} => $session_program->{pid}\n";
     $self->SUPER::stop_program($session_program->{pid});
@@ -93,7 +101,7 @@ sub toggle_program_in_session {
     print "launching program\n";
     my $program_name = $session_program->{name};
     my $program = $self->get('-programs')->{$program_name};
-    my (@pgm_options, @pgm_args) = $self->prepare_args($program->{args});
+    my (@pgm_options, @pgm_args) = $self->prepare_args($program->{args}, $session);
     my (@session_options, @session_args) = $self->prepare_args($session_program->{args});
     push @pgm_options, @session_options;
     push @pgm_args, @session_args;
@@ -146,7 +154,7 @@ sub xml_parse_section {
     }
     elsif ($section_name eq 'variables') {
       $tmp->{$item->getAttribute('name')} = $item->getAttribute('value');
-    } 
+    }
     elsif ($section_name eq 'programs') {
       my $pgm_name = $item->getAttribute('name');
       my $args = $item->getElementsByTagName("arg");
@@ -170,9 +178,15 @@ sub xml_parse_section {
 			      args => $args_h
 			     };
       }
+      my $session_vars = {};
+      my @xsession_vars = $item->getElementsByTagName("variable");
+      foreach my $session_var (@xsession_vars){
+	$session_vars->{$session_var->getAttribute('name')} = $session_var->getAttribute('value')
+      }
       $tmp->{$session_name} = {
 			       name => $session_name,
-			       pgms => \@sessions_pgms
+			       pgms => \@sessions_pgms,
+			       vars => $session_vars,
 			      };
     }
   }

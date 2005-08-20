@@ -91,6 +91,7 @@
     </session>
 
     <session name="soft sim 1">
+      <variable name="ivy_bus" value="127.25.255.255:2001"/>
       <program name="receive"/>     
       <program name="sim"><arg flag="-a" constant="Thon1"/></program>
       <program name="cockpit"></program>

@@ -32,8 +32,9 @@ sub populate {
   $args->{-bin_base_dir} = $paparazzi_src;
   $args->{-logo_file} = $paparazzi_home."/data/pictures/penguin_logo.gif";
   $self->SUPER::populate($args);
-  $self->configspec(-variables => [S_SUPER,    S_SUPER,    S_SUPER,  S_SUPER,  S_SUPER, undef]);
+  $self->configspec(-variables => [S_SUPER,    S_SUPER,    S_SUPER,  S_SUPER,  S_SUPER, {}]);
 }
+
 sub completeinit {
   my ($self) = @_;
   $self->SUPER::completeinit();
@@ -43,9 +44,9 @@ sub completeinit {
 sub parse_args {
   my ($self) = @_;
   my $options = {
-		 ivy_bus => "127.255.255.255:2005",
-		 map => "muret_UTM.xml",
-		 render => "1",
+		 ivy_bus => undef,
+		 map => undef,
+		 render => undef,
 		};
   GetOptions("b=s" => \$options->{ivy_bus},
 	     "m=s" => \$options->{map},
@@ -53,9 +54,9 @@ sub parse_args {
 	    );
   my $variables = $self->get('-variables');
   foreach my $var (keys %{$options}) {
-    $variables->{$var} = $options->{$var};
+    $variables->{$var} = $options->{$var} if defined $options->{$var};
   }
-  $self->configure('-variables' => $variables);
+  print "in paparazzi::parse_args variables after\n".Dumper($variables);
 }
 
 sub catchSigTerm() {
