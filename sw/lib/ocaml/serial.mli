@@ -70,6 +70,8 @@ module type PROTOCOL =
 module Transport :
   functor (Protocol : PROTOCOL) ->
     sig 
+      val nb_err : int ref (* Errors on checksum *)
+      val discarded_bytes : int ref
       val parse : (string -> unit) -> string -> int
       (** [parse f buf] Scans [buf] according to [Protocol] and applies [f] on
        every recognised message. Returns the number of consumed bytes. *)

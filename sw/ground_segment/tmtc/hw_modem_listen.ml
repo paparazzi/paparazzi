@@ -53,6 +53,7 @@ let use_pprz_message = fun (msg_id, values) ->
     ac_id := Pprz.string_assoc "id" values;
   Tele_Pprz.message_send !ac_id msg.Pprz.name values
 
+(** Listen on a serial device or on multimon pipe *)
 let listen_pprz_modem = fun pprz_message_cb tty ->
   let fd = 
     if String.sub tty 0 4 = "/dev" then
@@ -60,21 +61,31 @@ let listen_pprz_modem = fun pprz_message_cb tty ->
     else
       Unix.descr_of_in_channel (open_in tty)
   in
+
+  (** Callback for a checksumed pprz message *)
   let use_pprz_buf = fun buf ->
     status.rx_byte <- status.rx_byte + String.length buf;
     Debug.call 'P' (fun f -> fprintf f "use_pprz: %s\n" (Debug.xprint buf));
     pprz_message_cb (Tele_Pprz.values_of_bin buf) in
-  let buffer = ref "" in
-  let use_modem_message = fun msg ->
-    Debug.call 'M' (fun f -> fprintf f "use_modem: %s\n" (Debug.xprint msg));
-    match Modem.parse msg with
-      None -> () (* Only internal modem data *)
-    | Some data ->
-	let b = !buffer ^ data in
-	Debug.call 'M' (fun f -> fprintf f "Pprz buffer: %s\n" (Debug.xprint b));
-	let x = PprzTransport.parse use_pprz_buf b in
-	buffer := String.sub b x (String.length b - x)
+  (** Callback for a modem message *)
+  let use_modem_message =
+    let buffer = ref "" in
+    fun msg ->
+      Debug.call 'M' (fun f -> fprintf f "use_modem: %s\n" (Debug.xprint msg));
+      match Modem.parse msg with
+	None -> () (* Only internal modem data *)
+      | Some data ->
+	  (** Accumulate in a buffer *)
+	  let b = !buffer ^ data in
+	  Debug.call 'M' (fun f -> fprintf f "Pprz buffer: %s\n" (Debug.xprint b));
+	  (** Parse as pprz message and ... *)
+	  let x = PprzTransport.parse use_pprz_buf b in
+	  status.rx_err <- !PprzTransport.nb_err;
+	  (** ... remove from the buffer the chars which have been used *)
+	  buffer := String.sub b x (String.length b - x)
   in
+
+  (** Callback for available chars on the channel *)
   let scanner = Serial.input (ModemTransport.parse use_modem_message) in
   let cb = fun _ ->
     begin
@@ -85,6 +96,7 @@ let listen_pprz_modem = fun pprz_message_cb tty ->
     end;
     true in
   
+  (** Attach the callback to the channel *)
   ignore (Glib.Io.add_watch [`IN] cb (Glib.Io.channel_of_descr fd))
 
 (** Modem monitoring messages *)

@@ -92,12 +92,16 @@ module type PROTOCOL = sig
 end
 
 module Transport(Protocol:PROTOCOL) = struct
+  let nb_err = ref 0
+  let discarded_bytes = ref 0
   let rec parse = fun use buf ->
     Debug.call 'T' (fun f -> fprintf f "Transport.parse: %s\n" (Debug.xprint buf));
+    (** ref required due to Not_enough exception raised by Protocol.length *)
     let start = ref 0
     and n = String.length buf in
     try
       start := Protocol.index_start buf;
+      discarded_bytes := !discarded_bytes + !start;
       let length = Protocol.length buf !start in
       let end_ = !start + length in
       if n < end_ then
@@ -105,9 +109,11 @@ module Transport(Protocol:PROTOCOL) = struct
       let msg = String.sub buf !start length in
       if Protocol.checksum msg then begin
 	use msg
-      end else
+      end else begin
+	incr nb_err;
+	discarded_bytes := !discarded_bytes + length;
 	Debug.call 'T' (fun f -> fprintf f "Transport.chk: %s\n" (Debug.xprint msg))
-	;
+      end;
       end_ + parse use (String.sub buf end_ (String.length buf - end_))
     with
       Not_found -> String.length buf
