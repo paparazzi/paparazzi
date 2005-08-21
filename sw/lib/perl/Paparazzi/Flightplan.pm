@@ -27,7 +27,7 @@ use Subject;
 @ISA = ("Subject");
 use strict;
 
-use LWP::Simple;
+require LWP::Simple;
 use XML::DOM;
 use Math::Trig;
 require File::Basename;
@@ -81,10 +81,14 @@ sub completeinit {
   $self->SUPER::completeinit();
   my $parser = XML::DOM::Parser->new();
   my $flight_plan_url = $self->get('-url');
-  my $flight_plan_xml = LWP::Simple::get $fp_url;
+
+#  print "###### flight_plan_url $flight_plan_url\n";
+
+#  my $flight_plan_xml ="";
+  my $flight_plan_xml = LWP::Simple::get($flight_plan_url);
   $self->configure( -compiled_xml => $flight_plan_xml);
 
-  print "#######flight_plan_xml\n".$flight_plan_xml;
+#  print "#######flight_plan_xml\n".$flight_plan_xml;
 
   my $doc = $parser->parse($flight_plan_xml);
 #  print "in Flightplan : parsing $file $doc \n";

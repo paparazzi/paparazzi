@@ -98,6 +98,11 @@
       <program name="map 2d ml"/>
       <program name="messages"><arg flag="-c" constant="telemetry_ap:1"/><arg flag="-c" constant="ground"/></program>
     </session>
+  <session name="display station">
+      <variable name="ivy_bus" value="192.168.1:2001"/>
+      <program name="cockpit"></program>
+      <program name="map 2d ml"/>
+    </session>
 
     <session name="flight microjet modem">
       <program name="modem"><arg flag="-d" constant="/dev/ttyS0"/></program>

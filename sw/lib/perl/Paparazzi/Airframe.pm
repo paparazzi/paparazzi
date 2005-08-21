@@ -5,6 +5,7 @@ use Subject;
 use strict;
 
 use XML::DOM;
+require LWP::Simple;
 
 sub populate {
   my ($self, $args) = @_;
@@ -19,16 +20,15 @@ sub completeinit {
   my $self = shift;
   $self->SUPER::completeinit();
   my $airframe_url = $self->get('-url');
-  $airframe_url =~ /file:\/\/(.*)/;
-  my $filename = $1;
-  $self->parse_airframe($filename);
+  my $airframe_xml = LWP::Simple::get($airframe_url);
+  $self->parse_airframe($airframe_xml);
 }
 
 sub parse_airframe {
-  my ($self, $filename) = @_;
+  my ($self, $airframe_xml) = @_;
 
   my $parser = XML::DOM::Parser->new();
-  my $doc = $parser->parsefile($filename);
+  my $doc = $parser->parse($airframe_xml);
   my $airframe = $doc->getElementsByTagName('airframe')->[0];
   $self->configure( -name => $airframe->getAttribute('name'));
 }
