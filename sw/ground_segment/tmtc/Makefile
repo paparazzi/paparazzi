@@ -35,6 +35,7 @@ INCLUDES= -I ../../lib/ocaml -I +lablgtk2
 
 boa_conf :
 	chmod a+x boa
+	mkdir -p $(VAR)
 	sed 's|PAPARAZZI_HOME|$(PAPARAZZI_HOME)|' < $(CONF)/boa.conf > $(VAR)/boa.conf
 
 

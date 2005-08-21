@@ -35,14 +35,13 @@
 
 
 extern uint8_t gps_mode;
-extern float   gps_ftow;    /* ms */
-extern float   gps_falt;    /* m       */
-extern float   gps_fspeed;  /* m/s     */
-extern float   gps_fclimb;  /* m/s     */
-extern float   gps_fcourse; /* rad     */
+extern uint32_t gps_itow;    /* ms */
+extern int32_t  gps_alt;    /* cm       */
+extern uint16_t gps_gspeed;  /* cm/s     */
+extern int16_t  gps_climb;  /* m/s     */
+extern int16_t  gps_course; /* decideg     */
 extern int32_t gps_utm_east, gps_utm_north; /** cm */
 extern uint8_t gps_utm_zone;
-extern float gps_east, gps_north; /* m */
 
 void gps_init( void );
 void parse_gps_msg( void );

@@ -1,7 +1,10 @@
 /* OCaml binding to link the simulator to autopilot functions. */
 
 #include <assert.h>
+#include <math.h>
 #include <inttypes.h>
+
+/** From airborne/autopilot/ */
 #include "airframe.h"
 #include "flight_plan.h"
 #include "autopilot.h"
@@ -10,14 +13,13 @@
 #include <caml/mlvalues.h>
 
 uint8_t gps_mode;
-float   gps_ftow;    /* ms */
-float   gps_falt;    /* m       */
-float   gps_fspeed;  /* m/s     */
-float   gps_fclimb;  /* m/s     */
-float   gps_fcourse; /* rad     */
+uint32_t  gps_itow;    /* ms */
+int32_t   gps_alt;    /* m       */
+uint16_t  gps_gspeed;  /* cm/s     */
+int16_t   gps_climb;  /* cm/s     */
+int16_t   gps_course; /* decideg     */
 int32_t gps_utm_east, gps_utm_north;
 uint8_t gps_utm_zone;
-float gps_east, gps_north; /* m */
 struct svinfo gps_svinfos[NB_CHANNELS];
 uint8_t gps_nb_channels = 0;
 
@@ -26,14 +28,11 @@ value sim_use_gps_pos(value x, value y, value z, value c, value a, value s, valu
   gps_utm_east = Int_val(x);
   gps_utm_north = Int_val(y);
   gps_utm_zone = Int_val(z);
-  gps_fcourse = Double_val(c);
-  gps_falt = Double_val(a);
-  gps_fspeed = Double_val(s);
-  gps_fclimb = Double_val(cl);
-  gps_ftow = Double_val(t);
-
-  gps_east = gps_utm_east / 100 - NAV_UTM_EAST0;
-  gps_north = gps_utm_north / 100 - NAV_UTM_NORTH0;
+  gps_course = DegOfRad(Double_val(c)) * 10.;
+  gps_alt = Double_val(a) * 100.;
+  gps_gspeed = Double_val(s) * 100.;
+  gps_climb = Double_val(cl) * 100.;
+  gps_itow = Double_val(t) * 1000.;
 
   /** Space vehicle info simulation */
   gps_nb_channels=7;

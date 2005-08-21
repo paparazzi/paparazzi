@@ -99,6 +99,9 @@ $(OBJDIR)/%.elf: $($(TARGET).objs)
 	$(SIZE) $@
 
 
+%.s: %.c
+	$(CC) $(CFLAGS) -S -o $@ $<
+
 $(OBJDIR)/%.s: %.c
 	$(CC) $(CFLAGS) -S -o $@ $<
 

@@ -65,7 +65,7 @@ float max_roll = MAX_ROLL;
 void course_pid_run( void ) {
   float err = estimator_hspeed_dir - desired_course;
   NORM_RAD_ANGLE(err);
-  nav_desired_roll = course_pgain * err; //  * fspeed / AIR_SPEED;
+  nav_desired_roll = course_pgain * err;
   if (nav_desired_roll > max_roll)
     nav_desired_roll = max_roll;
   else if (nav_desired_roll < -max_roll)

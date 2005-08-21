@@ -388,11 +388,11 @@ void navigation_task( void ) {
   int16_t d_course = DeciDegOfRad(desired_course);
   DOWNLINK_SEND_NAVIGATION(&nav_block, &nav_stage, &pos_x, &pos_y, &d_course, &dist2_to_wp, &dist2_to_home);
 
-  int16_t x = target_x;
-  int16_t y = target_y;
-  int8_t phi = DegOfRad(phi_c);
-  int8_t theta = DegOfRad(theta_c);
-  // *** DOWNLINK_SEND_CAM(&phi, &theta, &x, &y);
+  /* int16_t x = target_x; */
+/*   int16_t y = target_y; */
+/*   int8_t phi = DegOfRad(phi_c); */
+/*   int8_t theta = DegOfRad(theta_c); */
+/*   DOWNLINK_SEND_CAM(&phi, &theta, &x, &y); */
   
   
   if (pprz_mode == PPRZ_MODE_AUTO2 || pprz_mode == PPRZ_MODE_HOME) {
@@ -521,7 +521,7 @@ inline void periodic_task( void ) {
  * \a DOWNLINK_SEND_TAKEOFF
  */
 void use_gps_pos( void ) {
-  DOWNLINK_SEND_GPS(&gps_mode, &gps_utm_east, &gps_utm_north, &gps_fcourse, &gps_falt, &gps_fspeed,&gps_fclimb, &gps_ftow, &gps_utm_zone);
+  DOWNLINK_SEND_GPS(&gps_mode, &gps_utm_east, &gps_utm_north, &gps_course, &gps_alt, &gps_gspeed,&gps_climb, &gps_itow, &gps_utm_zone);
   estimator_update_state_gps();
   SEND_RAD_OF_IR();
   

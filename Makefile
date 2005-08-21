@@ -38,7 +38,7 @@ MAKE=make
 
 all: static ac1 ac2
 
-static : lib tools configurator cockpit tmtc multimon visu3d logalizer sim_static wind static_h
+static : lib tools configurator cockpit tmtc visu3d logalizer sim_static wind static_h
 
 ac1 : 
 	make AIRCRAFT=Thon1 ac

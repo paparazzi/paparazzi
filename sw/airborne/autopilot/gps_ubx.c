@@ -36,14 +36,13 @@
 #include "ubx_protocol.h"
 #include "flight_plan.h"
 
-float gps_ftow;
-float gps_falt;
-float gps_fspeed;
-float gps_fclimb;
-float gps_fcourse;
+uint32_t gps_itow;
+int32_t gps_alt;
+uint16_t gps_gspeed;
+int16_t gps_climb;
+int16_t gps_course;
 int32_t gps_utm_east, gps_utm_north;
 uint8_t gps_utm_zone;
-float gps_east, gps_north;
 uint8_t gps_mode;
 volatile bool_t gps_msg_received;
 bool_t gps_pos_available;
@@ -101,25 +100,22 @@ void parse_gps_msg( void ) {
     if (ubx_id == UBX_NAV_POSUTM_ID) {
       gps_utm_east = UBX_NAV_POSUTM_EAST(ubx_msg_buf);
       gps_utm_north = UBX_NAV_POSUTM_NORTH(ubx_msg_buf);
-      gps_falt = (float)UBX_NAV_POSUTM_ALT(ubx_msg_buf) / 100.;
+      gps_alt = UBX_NAV_POSUTM_ALT(ubx_msg_buf);
       gps_utm_zone = UBX_NAV_POSUTM_ZONE(ubx_msg_buf);
     } else if (ubx_id == UBX_NAV_STATUS_ID) {
       gps_mode = UBX_NAV_STATUS_GPSfix(ubx_msg_buf);
     } else if (ubx_id == UBX_NAV_VELNED_ID) {
-      gps_fspeed = ((float)UBX_NAV_VELNED_GSpeed(ubx_msg_buf)) / 1e2; 
-      gps_fclimb = ((float)UBX_NAV_VELNED_VEL_D(ubx_msg_buf)) / -1e2;
-      gps_fcourse = RadianOfDeg(((float)UBX_NAV_VELNED_Heading(ubx_msg_buf)) / 1e5);
-      gps_ftow = ((float)UBX_NAV_VELNED_ITOW(ubx_msg_buf)) / 1e3;
-      
-      gps_east = gps_utm_east / 100 - NAV_UTM_EAST0;
-      gps_north = gps_utm_north / 100 - NAV_UTM_NORTH0;
-      
+      gps_gspeed = UBX_NAV_VELNED_GSpeed(ubx_msg_buf);
+      gps_climb = - UBX_NAV_VELNED_VEL_D(ubx_msg_buf);
+      gps_course = UBX_NAV_VELNED_Heading(ubx_msg_buf) / 10000;
+      gps_itow = UBX_NAV_VELNED_ITOW(ubx_msg_buf);
       
       gps_pos_available = TRUE; /* The 3 UBX messages are sent in one rafale */
     } else if (ubx_id == UBX_NAV_SVINFO_ID) {
       gps_nb_channels = UBX_NAV_SVINFO_NCH(ubx_msg_buf);
       uint8_t i;
       for(i = 0; i < Min(gps_nb_channels, NB_CHANNELS); i++) {
+	//	memcpy(&(gps_svinfos[i]), (ubx_msg_buf+9+12*i), 7);
 	gps_svinfos[i].svid = UBX_NAV_SVINFO_SVID(ubx_msg_buf, i);
 	gps_svinfos[i].flags = UBX_NAV_SVINFO_Flags(ubx_msg_buf, i);
 	gps_svinfos[i].qi = UBX_NAV_SVINFO_QI(ubx_msg_buf, i);

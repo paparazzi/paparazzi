@@ -156,12 +156,12 @@ void estimator_update_state_infrared( void ) {
 
 void estimator_update_ir_estim( void ) {
   static float last_hspeed_dir;
-  static float last_t;
+  static uint32_t last_t; /* ms */
   static bool_t initialized = FALSE;
   static float sum_xy, sum_xx;
 
   if (initialized) {
-    float dt = gps_ftow - last_t;
+    float dt = (float)(gps_itow - last_t) / 1e3;
     if (dt > 0.1) { // Against division by zero
       float dpsi = (estimator_hspeed_dir - last_hspeed_dir); 
       NORM_RAD_ANGLE(dpsi);
@@ -194,14 +194,20 @@ void estimator_update_ir_estim( void ) {
   }
 
   last_hspeed_dir = estimator_hspeed_dir;
-  last_t = gps_ftow;
+  last_t = gps_itow;
 }
 
 
 void estimator_update_state_gps( void ) {
   if (GPS_FIX_VALID(gps_mode)) {
-    EstimatorSetPos(gps_east, gps_north, gps_falt);
-    EstimatorSetSpeedPol(gps_fspeed, gps_fcourse, gps_fclimb);
+    float gps_east = gps_utm_east / 100. - NAV_UTM_EAST0;
+    float gps_north = gps_utm_north / 100. - NAV_UTM_NORTH0;
+    float falt = gps_alt / 100.;
+    EstimatorSetPos(gps_east, gps_north, falt);
+    float fspeed = gps_gspeed / 100.;
+    float fclimb = gps_climb / 100.;
+    float fcourse = RadOfDeg(gps_course / 10.);
+    EstimatorSetSpeedPol(fspeed, fcourse, fclimb);
     
     if (estimator_flight_time)
       estimator_update_ir_estim();

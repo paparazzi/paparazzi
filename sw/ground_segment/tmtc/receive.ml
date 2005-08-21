@@ -231,10 +231,10 @@ let log_and_parse = fun log ac_name a msg values ->
 	a.pos <- { utm_x = fvalue "utm_east" /. 100.;
 		   utm_y = fvalue "utm_north" /. 100.;
 		   utm_zone = ivalue "utm_zone" };
-	a.gspeed  <- fvalue "speed";
-	a.course  <- norm_course (fvalue "course");
-	a.alt     <- fvalue "alt";
-	a.climb   <- fvalue "climb";
+	a.gspeed  <- fvalue "speed" /. 100.;
+	a.course  <- norm_course ((Deg>>Rad)(fvalue "course" /. 10.));
+	a.alt     <- fvalue "alt" /. 100.;
+	a.climb   <- fvalue "climb" /. 100.;
 	a.gps_mode <- check_index (ivalue "mode") gps_modes "GPS_MODE"
     | "DESIRED" ->
 	a.desired_east <- fvalue "desired_x";

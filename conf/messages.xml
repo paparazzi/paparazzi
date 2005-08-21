@@ -40,11 +40,11 @@
     <field name="mode"   type="uint8" unit="byte_mask"></field>
     <field name="utm_east"  type="int32" unit="cm"></field>
     <field name="utm_north"  type="int32" unit="cm"></field>
-    <field name="course" type="float" unit="rad" format="%.2f"></field>
-    <field name="alt"    type="float" unit="m" format="%.1f"></field>
-    <field name="speed"  type="float" unit="m/s" format="%.1f"></field>
-    <field name="climb"  type="float" unit="m/s" format="%.1f"></field>
-    <field name="tow"  type="float" unit="s" format="%.1f"></field>
+    <field name="course" type="int16" unit="decideg"></field>
+    <field name="alt"    type="int32" unit="cm"></field>
+    <field name="speed"  type="uint16" unit="cm/s"></field>
+    <field name="climb"  type="int16" unit="cm/s"></field>
+    <field name="itow"  type="uint32" unit="ms"></field>
     <field name="utm_zone"  type="uint8"></field>
   </message>
 
