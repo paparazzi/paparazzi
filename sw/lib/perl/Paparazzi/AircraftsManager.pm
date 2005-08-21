@@ -122,8 +122,8 @@ sub on_ac_msg {
 #  print "AircraftsManager::on_ac_msg : $msg_name\n".Dumper($fields);
   if (defined ($aircraft)) {
     delete $fields->{ac_id};
-    if ($msg_name eq "SVSINFO") {
-      $aircraft->configure(-svsinfo => $fields);
+    if ($msg_name eq "SVSINFO" or $msg_name eq "ENGINE_STATUS") {
+      $aircraft->configure('-'.(lc $msg_name) => $fields);
     }
     else {
       $aircraft->configure(%{$fields});

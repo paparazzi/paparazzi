@@ -33,39 +33,41 @@ sub populate {
 sub completeinit {
   my $self = shift;
   $self->SUPER::completeinit();
-  $self->{modes} = [ { name => 'rc',
-		       str =>  ["lost","ok", "really lost", "not possible"],
-		       color => ["orange", "green", "red", "red"]
-		     },
-		     { name => 'cal',
-		       str =>  ["unkwn", "wait", "ok"],
-		       color =>["red",  "orange", "green"]
-		     },
-		     { name => 'ap',
-		       str =>  ["manual", "auto1", "auto2", "home"],
-		       color =>["green",  "green", "green", "orange"]
-		     },
-		     { name => 'gps',
-		       str => [ "No fix",
-				"dead reckoning only",
-				"2D-fix",
-				"3D-fix",
-				"GPS + dead reckoning combined"],
-		       color => ["red", "red", "orange", "green", "orange"]
-		     },
-		     { name => 'lls',
-		       str =>  ["OFF"  , "ON"],
-		       color =>["orange", "green"]
-		     },
-		     { name => 'if',
-		       str =>  ["none", "down", "up"],
-		       color =>["green", "orange", "orange"]
-		     }
-		   ];
-  $self->{modes_by_name} = {};
-  foreach my $mode (@{$self->{modes}}) {
-    $self->{modes_by_name}->{$mode->{name}} = $mode;
-  }
+ #  $self->{modes} = [ { name => 'rc',
+# 		       str =>  ["lost","ok", "really lost", "not possible"],
+# 		       color => ["orange", "green", "red", "red"]
+# 		     },
+# 		     { name => 'cal',
+# 		       str =>  ["unkwn", "wait", "ok"],
+# 		       color =>["red",  "orange", "green"]
+# 		     },
+# 		     { name => 'ap',
+# 		       str =>  ["manual", "auto1", "auto2", "home"],
+# 		       color =>["green",  "green", "green", "orange"]
+# 		     },
+# 		     { name => 'gps',
+# 		       str => [ "No fix",
+# 				"dead reckoning only",
+# 				"2D-fix",
+# 				"3D-fix",
+# 				"GPS + dead reckoning combined"],
+# 		       color => ["red", "red", "orange", "green", "orange"]
+# 		     },
+# 		     { name => 'lls',
+# 		       str =>  ["OFF"  , "ON"],
+# 		       color =>["orange", "green"]
+# 		     },
+# 		     { name => 'if',
+# 		       str =>  ["none", "down", "up"],
+# 		       color =>["green", "orange", "orange"]
+# 		     }
+# 		   ];
+#   $self->{modes_by_name} = {};
+#   foreach my $mode (@{$self->{modes}}) {
+#     $self->{modes_by_name}->{$mode->{name}} = $mode;
+#   }
+
+  $self->{pages} = ['Gps', 'Nav', 'Engine', 'IR'];
   $self->build_gui();
   $self->configure('-pubevts' => 'CLICKED');
 }
@@ -80,23 +82,22 @@ sub build_gui {
   my @origin = $self->get('-origin');
   $zinc->coords($self->{main_group}, \@origin);
 
-  my $nb_mode = scalar @{$self->{modes}};
-  my $dx =  $self->get('-width') / $nb_mode;
+  my $nb_pages = scalar @{$self->{pages}};
+  my $dx =  $self->get('-width') / $nb_pages;
 
-  foreach my $i (0..$nb_mode-1){
-    my $mode = $self->{modes}->[$i];
+  foreach my $i (0..$nb_pages-1){
+    my $page = $self->{pages}->[$i];
     my $button = DigiKit::Button->new(-widget => $zinc,
 				      -style => ['Aqualike',
 						 -width => $dx,
 						 -height => 35,
 						 -color => 'green',
-						 -text => (uc $mode->{name})."\ncoucou",
-#						 -trunc => $i == 0 ? 'right' : $i == $nb_mode ? 'left' : 'both',
+						 -text => $page,
 						 -trunc => 'both',
 						],
 				      -position =>  [$i * $dx, 0],
 				      -parentgroup => $self->{main_group},
-				      -releasecommand => sub { $self->notify('CLICKED', $mode->{name})},
+				      -releasecommand => sub { $self->notify('CLICKED', $page)},
 				     );
   }
 
@@ -161,22 +162,22 @@ sub lls_value {
 
 sub ctrst_mode {
   my ($self, $previous_mode, $new_mode) = @_;
-  $self->set_mode("ctrst", $previous_mode, $new_mode);
+#  $self->set_mode("ctrst", $previous_mode, $new_mode);
 }
 
 sub ctrst_value {
   my ($self, $previous_val, $new_val) = @_;
-  my $mode = $self->{modes_by_name}->{ctrst};
-  if (defined $mode) {
-    if (!defined $previous_val || $previous_val != $new_val) {
-      my $zinc = $self->get('-zinc');
-      my $str_val = sprintf ("%.4f", $new_val);
-      $zinc->itemconfigure( $mode->{tabular}, 2,
-			    -text => $str_val,
-			    -color => "green",
-			  );
-    }
-  }
+#   my $mode = $self->{modes_by_name}->{ctrst};
+#   if (defined $mode) {
+#     if (!defined $previous_val || $previous_val != $new_val) {
+#       my $zinc = $self->get('-zinc');
+#       my $str_val = sprintf ("%.4f", $new_val);
+#       $zinc->itemconfigure( $mode->{tabular}, 2,
+# 			    -text => $str_val,
+# 			    -color => "green",
+# 			  );
+#     }
+#   }
 }
 
 

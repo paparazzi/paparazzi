@@ -20,29 +20,29 @@ sub populate {
 		    -width    => [S_NEEDINIT, S_PASSIVE, S_RDONLY, S_OVRWRT, S_NOPRPG, undef],
 		    -height   => [S_NEEDINIT, S_PASSIVE, S_RDONLY, S_OVRWRT, S_NOPRPG, undef],
 		    -selected_ac => [S_NOINIT,  S_METHOD, S_RDWR, S_OVRWRT, S_NOPRPG, undef],
-		    -page     => [S_NOINIT,  S_METHOD, S_RDWR, S_OVRWRT, S_NOPRPG, "gps"],
+		    -page     => [S_NOINIT,  S_METHOD, S_RDWR, S_OVRWRT, S_NOPRPG, undef],
+#		    -fix       => [S_NOINIT, S_PRPGONLY, S_RDWR,   S_OVRWRT, S_CHILDREN, undef],
+#		    -ap_status => [S_NOINIT, S_PRPGONLY, S_RDWR,   S_OVRWRT, S_CHILDREN, undef],
+#		    -wind      => [S_NOINIT, S_PRPGONLY, S_RDWR,   S_OVRWRT, S_CHILDREN, undef],
+#		    -lls       => [S_NOINIT, S_PRPGONLY, S_RDWR,   S_OVRWRT, S_CHILDREN, undef],
+		    -svsinfo   => [S_NOINIT, S_PRPGONLY, S_RDWR,   S_OVRWRT, S_CHILDREN, undef],
 		    -engine_status => [S_NOINIT, S_PRPGONLY, S_RDWR,   S_OVRWRT, S_CHILDREN, undef],
-		    -ap_status => [S_NOINIT, S_PRPGONLY, S_RDWR,   S_OVRWRT, S_CHILDREN, undef],
-		    -wind      => [S_NOINIT, S_PRPGONLY, S_RDWR,   S_OVRWRT, S_CHILDREN, undef],
-		    -lls       => [S_NOINIT, S_PRPGONLY, S_RDWR,   S_OVRWRT, S_CHILDREN, undef],
-		    -sats      => [S_NOINIT, S_PRPGONLY, S_RDWR,   S_OVRWRT, S_CHILDREN, undef],
-		    -fix       => [S_NOINIT, S_PRPGONLY, S_RDWR,   S_OVRWRT, S_CHILDREN, undef],
 		   );
 }
 
 sub completeinit {
   my $self = shift;
-  $self->SUPER::completeinit(); 
+  $self->SUPER::completeinit();
   $self->build_gui();
   $self->configure('-pubevts' => 'WIND_COMMAND');
 }
 
 sub page {
   my ($self, $old_val, $new_val) = @_;
-  print "in ND::page [$new_val]\n";
-  return unless defined $new_val and defined $self->{sat_view};
-#  $self->{sat_view}->configure('-visible' => $i%2);
-#  $i++;
+  print "in ND::page [$old_val $new_val]\n";
+  return unless defined $new_val and defined $self->{main_group};
+  $self->{$old_val}->configure(-visible => 0) if defined $old_val;
+  $self->{$new_val}->configure(-visible => 1);
 }
 
 sub put_lls {
@@ -52,14 +52,15 @@ sub put_lls {
 
 sub selected_ac {
   my ($self, $previous_ac, $new_ac) = @_;
-  $previous_ac->detach($self, '-svsinfo', [\&foo_cbk, '-svsinfo']) if ($previous_ac);
-  $new_ac->attach($self, '-svsinfo', [\&foo_cbk, '-svsinfo']);
-  
+  foreach my $attr ('-svsinfo', '-engine_status') {
+    $previous_ac->detach($self, $attr, [\&foo_cbk, $attr]) if ($previous_ac);
+    $new_ac->attach($self, $attr, [\&foo_cbk, $attr]);
+  }
 }
 
 sub foo_cbk {
-  my ($self, $field, $aircraft, $event, $new_value) = @_;
-  $self->configure('-sats', $new_value);
+  my ($self, $field, $aircraft, $attr, $new_value) = @_;
+  $self->configure($attr, $new_value);
 }
 
 sub build_gui() {
@@ -77,18 +78,18 @@ sub build_gui() {
 	     -filled => 0,
 	     -linecolor => 'red');
   my ($margin, $page_width) = (5, 300);
-  my $real_width = $page_width - 2*$margin; 
+  my $real_width = $page_width - 2*$margin;
   my ($page_per_row, $row, $col) = (2, 0, 0);
 
-  my $pages = ['Sat', 'Engine','AP', 'IR'];
+  my $pages = ['Gps', 'Nav', 'Engine', 'IR'];
   foreach my $page (@{$pages}) {
     $self->{$page} = $self->component('Paparazzi::'.$page.'Page',
 				      -zinc => $zinc,
 				      -parent_grp => $self->{main_group},
-				      -origin  => [ $margin+$col*$page_width, $margin+$row*$page_width],
+				      -origin  => [ $margin, $margin],
 				      -width   => $real_width,
 				      -height  => $real_width,
-				      -visible => 1,
+				      -visible => 0,
 				     );
     if ($page eq "IR") {
       $self->{$page}->attach($self, 'WIND_COMMAND', [sub { my ($self, $component, $signal, $arg) = @_;

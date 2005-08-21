@@ -27,7 +27,7 @@ sub engine_status {
   my ($self, $old_val, $new_val) = @_;
   my $zinc = $self->get('-zinc');
   foreach my $field (keys %{$new_val}) {
-    $self->{'gauge_'.$field}->configure( -value =>  $new_val->{$field}) if defined     $self->{'gauge_'.$field};
+    $self->{'gauge_'.$field}->configure( -value =>  $new_val->{$field}) if defined $self->{'gauge_'.$field};
   }
 }
 

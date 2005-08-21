@@ -72,8 +72,6 @@ sub on_new_aircraft {
   $self->{md}->add_aircraft($aircraft);
 }
 
-
-
 sub build_gui {
   my ($self) = @_;
   $self->{mw} = MainWindow->new();

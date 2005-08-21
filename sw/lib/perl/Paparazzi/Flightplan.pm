@@ -82,7 +82,7 @@ sub completeinit {
   my $parser = XML::DOM::Parser->new();
   my $flight_plan_url = $self->get('-url');
 
-#  print "###### flight_plan_url $flight_plan_url\n";
+  print "###### flight_plan_url $flight_plan_url\n";
 
 #  my $flight_plan_xml ="";
   my $flight_plan_xml = LWP::Simple::get($flight_plan_url);
