@@ -472,10 +472,12 @@ let send_config = fun _asker args ->
     ["ac_id", Pprz.String ac_id] -> begin
       try
 	let conf = ExtXml.child conf_xml "aircraft" ~select:(fun x -> ExtXml.attrib x "ac_id" = ac_id) in
-	let prefix = fun s -> sprintf "file://%s/conf/%s" Env.paparazzi_home s in
-	let fp = prefix (ExtXml.attrib conf "flight_plan")
-	and af = prefix (ExtXml.attrib conf "airframe")
-	and rc = prefix (ExtXml.attrib conf "radio") in
+	let ac_name = ExtXml.attrib conf "name" in
+	let prefix = fun s -> sprintf "http://%s:8888/%s" (Unix.gethostname ()) s in
+	(** Expanded flight plan has been compiled in var/ *)
+	let fp = prefix ("var" // ac_name // "flight_plan.xml")
+	and af = prefix ("conf" // ExtXml.attrib conf "airframe")
+	and rc = prefix ("conf" // ExtXml.attrib conf "radio") in
 	["ac_id", Pprz.String ac_id;
 	 "flight_plan", Pprz.String fp;
 	 "airframe", Pprz.String af;

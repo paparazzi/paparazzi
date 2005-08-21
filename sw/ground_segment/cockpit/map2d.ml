@@ -43,11 +43,6 @@ let default_path_SRTM = home // "data" // "SRTM"
 let default_path_maps = home // "data" // "maps" // ""
 let default_path_missions = home // "conf"
 
-let gen_flight_plan =
-  try
-    Sys.getenv "PAPARAZZI_SRC" // "sw/tools/gen_flight_plan.out"
-  with
-    Not_found -> "/usr/share/paparazzi/bin/gen_flight_plan.out"
 
 
 type aircraft = {
@@ -109,7 +104,7 @@ let file_of_url = fun url ->
 
 let load_mission = fun color geomap url ->
   let file = file_of_url url in
-  let xml = Xml.parse_in (Unix.open_process_in (sprintf "%s -dump %s" gen_flight_plan file)) in
+  let xml = Xml.parse_file file in
   let xml = ExtXml.child xml "flight_plan" in
   let lat0 = float_attr xml "lat0"
   and lon0 = float_attr xml "lon0" in

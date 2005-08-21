@@ -9,9 +9,9 @@ all : map2d
 
 
 map2d : map2d.ml
-	$(OCAMLC) -custom $(INCLUDES) $(LIBS) gtkInit.cmo $< -o /dev/null #to Check
+	$(OCAMLC) -custom $(INCLUDES) $(LIBS) gtkInit.cmo $< -o $@ #to Check
 	cat ../../../pprz_src_test.sh > $@
-	echo 'exec lablgtk2 -I +camlimages ci_core.cma ci_png.cma ci_gif.cma ci_jpeg.cma ci_tiff.cma ci_bmp.cma ci_ppm.cma ci_ps.cma -I $$PAPARAZZI_SRC/sw/lib/ocaml lib-pprz.cma xlib-pprz.cma $$PAPARAZZI_SRC/sw/ground_segment/cockpit/$< $$*' >> $@
+	echo 'exec lablgtk2 -I +camlimages ci_core.cma ci_png.cma ci_gif.cma ci_jpeg.cma ci_tiff.cma ci_bmp.cma ci_ppm.cma ci_ps.cma -I $$PAPARAZZI_SRC/sw/lib/ocaml glibivy-ocaml.cma lib-pprz.cma xlib-pprz.cma $$PAPARAZZI_SRC/sw/ground_segment/cockpit/$< $$*' >> $@
 	chmod a+x $@
 
 

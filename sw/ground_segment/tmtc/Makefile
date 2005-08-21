@@ -21,8 +21,10 @@
 # 
 
 include ../../../conf/Makefile.local
+CONF = ../../../conf
+VAR = ../../../var
 
-all: hw_modem_listen receive messages
+all: hw_modem_listen receive messages boa_conf
 
 clean:
 	rm -f hw_modem_listen wavecard_connect receive messages *.bak *~ core *.o .depend *.opt *.out *.cm*
@@ -30,6 +32,12 @@ clean:
 OCAMLC = ocamlc
 OCAMLOPT = ocamlopt
 INCLUDES= -I ../../lib/ocaml -I +lablgtk2
+
+boa_conf :
+	chmod a+x boa
+	sed 's|PAPARAZZI_HOME|$(PAPARAZZI_HOME)|' < $(CONF)/boa.conf > $(VAR)/boa.conf
+
+
 
 messages.opt : messages.ml
 	$(OCAMLOPT) $(INCLUDES) -o $@ str.cmxa unix.cmxa xml-light.cmxa glibivy-ocaml.cmxa -I +lablgtk2 lablgtk.cmxa gtkInit.cmx lib-pprz.cmxa $^ 

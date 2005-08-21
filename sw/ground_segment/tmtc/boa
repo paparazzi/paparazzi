@@ -1,0 +1,5 @@
+#! /bin/sh
+if test -z "$PAPARAZZI_SRC"; then
+    PAPARAZZI_SRC=/usr/share/paparazzi
+fi
+/usr/sbin/boa -d -f $PAPARAZZI_HOME/var/boa.conf
