@@ -13,7 +13,7 @@
     <variable name="downlink_serial_port" value="/dev/ttyUSB0"/>
     <variable name="fbw_serial_port"      value="/dev/ttyS1"/>
     <variable name="ap_serial_port"       value="/dev/ttyS0"/>
-    <variable name="ivy_bus"              value="127.25.255.255:2009"/>
+    <variable name="ivy_bus"              value="127:2009"/>
     <variable name="map"                  value="sinsat.xml"/>
     <variable name="flight_plan"          value="flight_plans/muret1.xml"/>
     <variable name="multimon_demod"       value="AFSK4800_P"/>
@@ -81,7 +81,7 @@
 
   <section name="sessions">
     <session name="soft sim 2">
-      <variable name="ivy_bus" value="127.25.255.255:3333"/>
+      <variable name="ivy_bus" value="127:3333"/>
       <program name="receive"/>     
       <program name="sim"><arg flag="-a" constant="Thon1"/></program>
       <program name="sim"><arg flag="-a" constant="Thon2"/></program>
@@ -91,7 +91,7 @@
     </session>
 
     <session name="soft sim 1">
-      <variable name="ivy_bus" value="127.25.255.255:2001"/>
+      <variable name="ivy_bus" value="127:2001"/>
       <program name="receive"/>     
       <program name="sim"><arg flag="-a" constant="Thon1"/></program>
       <program name="cockpit"></program>
