@@ -32,7 +32,6 @@ use Paparazzi::Aircraft;
 use Paparazzi::Flightplan;
 use Paparazzi::Airframe;
 
-use LWP::Simple;
 
 
 sub populate {
@@ -101,9 +100,6 @@ sub on_config {
   my $fp_url = $fields->{flight_plan};
   if (defined $fp_url) {
     #    print "in AircraftsManager : on_config creating new flight plan\n";
-    my $doc = LWP::Simple::get $fp_url;
-    print "##### $doc\n";
-
     my $fp = Paparazzi::Flightplan->new(-url => $fp_url);
 #    use Data::Dumper; 
 #    print "##### waypoints\n".Dumper($fp->get('-waypoints'));

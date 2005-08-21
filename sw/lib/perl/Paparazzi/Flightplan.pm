@@ -27,6 +27,7 @@ use Subject;
 @ISA = ("Subject");
 use strict;
 
+use LWP::Simple;
 use XML::DOM;
 use Math::Trig;
 require File::Basename;
@@ -80,15 +81,10 @@ sub completeinit {
   $self->SUPER::completeinit();
   my $parser = XML::DOM::Parser->new();
   my $flight_plan_url = $self->get('-url');
-  $flight_plan_url =~ /file:\/\/(.*)/;
-  my $flight_plan = $1;
-  my $paparazzi_src =  Paparazzi::Environment::paparazzi_src();
-  my $gfp_bin = ((defined $paparazzi_src) ? $paparazzi_src."/sw/tools" : "/usr/share/paparazzi/bin") ."/gen_flight_plan.out";
-  my $flight_plan_xml = `$gfp_bin -dump $flight_plan`;
-
+  my $flight_plan_xml = LWP::Simple::get $fp_url;
   $self->configure( -compiled_xml => $flight_plan_xml);
 
-#  print "#######flight_plan_xml\n".$flight_plan_xml;
+  print "#######flight_plan_xml\n".$flight_plan_xml;
 
   my $doc = $parser->parse($flight_plan_xml);
 #  print "in Flightplan : parsing $file $doc \n";
