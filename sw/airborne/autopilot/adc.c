@@ -50,13 +50,7 @@
 #define ANALOG_PORT_DIR	DDRF
 
 
-#ifdef CTL_BRD_V1_1
-#define ANALOG_VREF 0
-#endif
-
-#if defined CTL_BRD_V1_2 || defined CTL_BRD_V1_2_1
 #define ANALOG_VREF _BV(REFS0)
-#endif
 
 uint16_t		adc_samples[ NB_ADC ];
 

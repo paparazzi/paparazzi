@@ -53,16 +53,6 @@ extern uint8_t ck_a, ck_b;
 #define MODEM_TX_EN     7
 #define MODEM_TX_DATA   6
 
-#ifdef CTL_BRD_V1_1
-#define MODEM_CLK_DDR   DDRD
-#define MODEM_CLK_PORT  PORTD
-#define MODEM_CLK       0
-#define MODEM_CLK_INT   INT0
-#define MODEM_CLK_INT_REG EICRA
-#define MODEM_CLK_INT_CFG _BV(ISC01)
-#define MODEM_CLK_INT_SIG SIG_INTERRUPT0
-#endif /* CTL_BRD_V1_1 */
-
 #ifdef CTL_BRD_V1_2 
 #define MODEM_CLK_DDR   DDRD
 #define MODEM_CLK_PORT  PORTD

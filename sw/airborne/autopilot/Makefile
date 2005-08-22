@@ -35,12 +35,6 @@ TARGET 	  = autopilot
 LOW_FUSE  = e0
 HIGH_FUSE = 99
 
-ifeq ($(CTL_BRD_VERSION),V1_1)
-LOW_FUSE  = ff
-HIGH_FUSE = 89
-CTL_BRD_FLAGS=-DCTL_BRD_V1_1
-endif
-
 ifeq ($(SIMUL),1)
 SIMUL_FLAGS= -DSIMUL
 endif

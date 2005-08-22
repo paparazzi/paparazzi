@@ -58,9 +58,6 @@ int main( void ) {
   timer_init(); 
   modem_init();
   adc_init();
-#ifdef CTL_BRD_V1_1  
-  adc_buf_channel(ADC_CHANNEL_BAT, &buf_bat, DEFAULT_AV_NB_SAMPLE);
-#endif
   spi_init();
   link_fbw_init();
   gps_init();
@@ -103,7 +100,7 @@ int main( void ) {
       radio_control_task();
 #ifdef IMU_TYPE_3DMG
       DOWNLINK_SEND_IMU_3DMG(&from_fbw.euler_dot[0], &from_fbw.euler_dot[1], &from_fbw.euler_dot[2], &from_fbw.euler[0], &from_fbw.euler[1], &from_fbw.euler[2]);
-
+      estimator_update_state_3DMG();
 #endif
     }
   } 

@@ -492,7 +492,9 @@ inline void periodic_task( void ) {
   }
   case 2:
     ir_update();
+#ifndef IMU_TYPE_3DMG
     estimator_update_state_infrared();
+#endif
     roll_pitch_pid_run(); /* Set  desired_aileron & desired_elevator */
     to_fbw.channels[RADIO_THROTTLE] = desired_gaz; /* desired_gaz is set upon GPS message reception */
     to_fbw.channels[RADIO_ROLL] = desired_aileron;

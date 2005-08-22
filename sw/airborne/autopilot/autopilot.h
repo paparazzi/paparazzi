@@ -98,9 +98,6 @@ extern bool_t launch;
 
 #define CheckEvent(_event) (_event ? _event = FALSE, TRUE : FALSE)
 
-#ifdef CTL_BRD_V1_1
-extern struct adc_buf buf_bat;
-#endif
 
 void periodic_task( void );
 void use_gps_pos(void);
