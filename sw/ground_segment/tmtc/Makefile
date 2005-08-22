@@ -24,7 +24,7 @@ include ../../../conf/Makefile.local
 CONF = ../../../conf
 VAR = ../../../var
 
-all: hw_modem_listen receive messages boa_conf
+all: hw_modem_listen receive messages $(VAR)/boa.conf
 
 clean:
 	rm -f hw_modem_listen wavecard_connect receive messages *.bak *~ core *.o .depend *.opt *.out *.cm*
@@ -33,10 +33,10 @@ OCAMLC = ocamlc
 OCAMLOPT = ocamlopt
 INCLUDES= -I ../../lib/ocaml -I +lablgtk2
 
-boa_conf :
-	chmod a+x boa
+$(VAR)/boa.conf :$(CONF)/boa.conf
 	mkdir -p $(VAR)
-	sed 's|PAPARAZZI_HOME|$(PAPARAZZI_HOME)|' < $(CONF)/boa.conf > $(VAR)/boa.conf
+	sed 's|PAPARAZZI_HOME|$(PAPARAZZI_HOME)|' < $< > $@
+	chmod a+x boa
 
 
 

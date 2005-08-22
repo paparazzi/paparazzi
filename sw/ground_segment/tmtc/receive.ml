@@ -320,8 +320,11 @@ let soi = string_of_int
 let send_cam_status = fun a ->
   if a.gps_mode = gps_mode_3D then
     let h = a.alt -. float (Srtm.of_utm a.pos) in
-    let east = a.pos.utm_x +. h *. tan (a.cam.phi -. a.roll)
-    and north = a.pos.utm_y +. h *. tan (a.cam.theta +. a.pitch) in
+    let dx = h *. tan (a.cam.phi -. a.roll)
+    and dy = h *. tan (a.cam.theta +. a.pitch) in
+    let alpha = -. a.course in
+    let east = a.pos.utm_x +. dx *. cos alpha -. dy *. sin alpha
+    and north = a.pos.utm_y +. dx *. sin alpha +. dy *. cos alpha in
     let values = ["ac_id", Pprz.String a.id; "cam_east", Pprz.Float east; "cam_north", Pprz.Float north] in
     Ground_Pprz.message_send my_id "CAM_STATUS" values
 

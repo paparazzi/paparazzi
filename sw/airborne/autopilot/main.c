@@ -388,11 +388,11 @@ void navigation_task( void ) {
   int16_t d_course = DeciDegOfRad(desired_course);
   DOWNLINK_SEND_NAVIGATION(&nav_block, &nav_stage, &pos_x, &pos_y, &d_course, &dist2_to_wp, &dist2_to_home);
 
-  /* int16_t x = target_x; */
-/*   int16_t y = target_y; */
-/*   int8_t phi = DegOfRad(phi_c); */
-/*   int8_t theta = DegOfRad(theta_c); */
-/*   DOWNLINK_SEND_CAM(&phi, &theta, &x, &y); */
+  int16_t x = target_x;
+  int16_t y = target_y;
+  int8_t phi = DegOfRad(phi_c);
+  int8_t theta = DegOfRad(theta_c);
+  DOWNLINK_SEND_CAM(&phi, &theta, &x, &y);
   
   
   if (pprz_mode == PPRZ_MODE_AUTO2 || pprz_mode == PPRZ_MODE_HOME) {
