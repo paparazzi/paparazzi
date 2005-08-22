@@ -1,10 +1,39 @@
-#include "imu.h"
+/*
+ * Paparazzi $Id$
+ *  
+ * Copyright (C) 2005 Pascal Brisset, Antoine Drouin
+ *
+ * This file is part of paparazzi.
+ *
+ * paparazzi is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * paparazzi is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with paparazzi; see the file COPYING.  If not, write to
+ * the Free Software Foundation, 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA. 
+ *
+ */
 
 #include "airframe.h"
 
+#if defined(SECTION_IMU_3DMG) && defined(SECTION_IMU_ANALOG)
+#error "IMU_3DMG and IMU_ANALOG cannot be defined simultaneously
+#endif
+
+#include "imu.h"
+
 int16_t roll_dot, pitch_dot, yaw_dot;
 
-#ifdef IMU_TYPE_3DMG
+#ifdef SECTION_IMU_3DMG
+#warning "Compiling imu.c for 3DMG"
 #include "3dmg.h"
 int16_t roll, pitch, yaw;
 
@@ -26,9 +55,10 @@ void imu_capture_neutral ( void ) {
   _3dmg_capture_neutral();
 }
 
-#endif
+#endif // 3DMG
 
-#ifdef IMU_TYPE_ANALOG
+#ifdef SECTION_IMU_ANALOG
+#warning "Compiling imu.c for ANALOG"
 #include "adc_fbw.h"
 
 struct adc_buf buf_roll_dot;
@@ -64,4 +94,5 @@ void imu_capture_neutral ( void ) {
   raw_yaw_dot_neutral = raw_yaw_dot;
 }
 
-#endif
+#endif // ANALOG
+

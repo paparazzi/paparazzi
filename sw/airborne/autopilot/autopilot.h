@@ -70,15 +70,6 @@ extern uint8_t ir_estim_mode;
 #define STICK_PUSHED(pprz) (pprz < TRESHOLD1 || pprz > TRESHOLD2)
 
 
-#define TRIM_PPRZ(pprz) (pprz <  MIN_PPRZ ? MIN_PPRZ :  \
-                         (pprz >  MAX_PPRZ ? MAX_PPRZ : \
-                                   pprz))
-
-#define TRIM_UPPRZ(pprz) (pprz <  0 ? 0 :  \
-                          (pprz >  MAX_PPRZ ? MAX_PPRZ : \
-                                    pprz))
-
-
 #define FLOAT_OF_PPRZ(pprz, center, travel) ((float)pprz / (float)MAX_PPRZ * travel + center)
 
 extern uint8_t fatal_error_nb;

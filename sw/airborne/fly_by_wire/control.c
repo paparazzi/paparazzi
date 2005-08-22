@@ -1,11 +1,35 @@
-#include "control.h"
-#include "imu.h"
+/*
+ * Paparazzi $Id$
+ *  
+ * Copyright (C) 2005 Pascal Brisset, Antoine Drouin
+ *
+ * This file is part of paparazzi.
+ *
+ * paparazzi is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * paparazzi is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with paparazzi; see the file COPYING.  If not, write to
+ * the Free Software Foundation, 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA. 
+ *
+ */
+
 #include "airframe.h"
 
-/* WARNING : taken from ../autopilot/autopilot.h */
-#define TRIM_PPRZ(pprz) (pprz <  MIN_PPRZ ? MIN_PPRZ :  \
-                         (pprz >  MAX_PPRZ ? MAX_PPRZ : \
-                                   pprz))
+#ifdef SECTION_RATE_LOOP
+#warning "Compiling control.c"
+
+#include "control.h"
+#include "imu.h"
+
 
 int16_t desired_roll_dot;
 float   roll_dot_pgain = ROLL_DOT_PGAIN;
@@ -73,3 +97,5 @@ void control_set_desired ( const pprz_t values[] ) {
   desired_yaw_dot   =  DESIRED_OF_RADIO_YAW_DOT*values[RADIO_YAW];
   desired_throttle  =  values[RADIO_THROTTLE];
 }
+
+#endif

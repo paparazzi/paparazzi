@@ -106,6 +106,7 @@ let parse_section = fun s ->
   match Xml.tag s with
     "section" ->
       let prefix = ExtXml.attrib_or_default s "prefix" "" in
+      define ("SECTION_"^ExtXml.attrib s "name") "1";
       List.iter (parse_element prefix) (Xml.children s);
       nl ()
   | "servos" ->
