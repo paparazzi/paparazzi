@@ -263,19 +263,24 @@ sub add_session_page {
   my $session = $sessions->{$session_name};
   my $hlist = $session_page->Scrolled ('HList',
 				       -header => 1,
-				       -columns => 2,
+				       -columns => 3,
 				       -width => LIST_WIDTH,
 				       -height => LIST_HEIGHT,
 				       -command => [\&on_session_pgm_clicked, $self, $session_name],
 				      )->grid(-sticky => 'nsew');
   $hlist->header('create', 0, -text => 'name');
   $hlist->header('create', 1, -text => 'status');
+  $hlist->header('create', 2, -text => 'args');
   foreach my $i (0..@{$session->{pgms}}-1) {
     my $pgm = $session->{pgms}->[$i];
     my $pgm_name = $pgm->{name};
     print "i $i name : $pgm_name\n";
-    $hlist->add($i,  -text => $pgm_name );
+    $hlist->add($i);
+    $hlist->itemCreate($i, 0,   -text => $pgm_name );
+    $hlist->itemCreate($i, 1,   -text => 'on' );
+    $hlist->itemCreate($i, 2,   -text => 'blah' );
   }
+  $self->{$session_name.'hlist'} = $hlist;
   $notebook->raise($page_id);
 }
 
@@ -283,6 +288,8 @@ sub on_session_pgm_clicked {
   print "in CpGui::on_session_pgm_clicked @_\n";
   my ($self, $session_name, $pgm_idx) = @_;
   $self->toggle_program_in_session($session_name, $pgm_idx);
+  my $text = $self->get_session_program_status($session_name, $pgm_idx) ? 'on' : 'off';
+  $self->{$session_name.'hlist'}->itemConfigure($pgm_idx, 1, -text => $text);
 }
 
 1;

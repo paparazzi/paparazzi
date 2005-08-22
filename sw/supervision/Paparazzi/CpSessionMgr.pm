@@ -124,6 +124,14 @@ sub start_session {
   }
 }
 
+
+sub get_session_program_status {
+  my ($self, $session_name, $pgm_idx) = @_;
+  my $session = $self->get('-sessions')->{$session_name};
+  my $session_program = $session->{pgms}->[$pgm_idx];
+  return (defined $session_program->{pid});
+}
+
 sub xml_parse_args {
   my ($args) = @_;
   my @args_a;
