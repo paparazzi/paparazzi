@@ -59,6 +59,7 @@ bool_t in_circle = FALSE;
 bool_t in_segment = FALSE;
 int16_t circle_x, circle_y, circle_radius;
 int16_t segment_x_1, segment_y_1, segment_x_2, segment_y_2;
+uint8_t horizontal_mode;
 
 #define RcRoll(travel) (from_fbw.channels[RADIO_ROLL]* (float)travel /(float)MAX_PPRZ)
 
@@ -116,6 +117,7 @@ static float qdr;
 	else new_circle = FALSE; \
 	circle_count = fabs(sum_alpha) / (2*M_PI); \
   float alpha_carrot = alpha + CARROT / -radius * estimator_hspeed_mod; \
+  horizontal_mode = HORIZONTAL_MODE_CIRCLE; \
   fly_to_xy(x+cos(alpha_carrot)*fabs(radius), \
 						y+sin(alpha_carrot)*fabs(radius)); \
   qdr = DegOfRad(M_PI/2 - alpha_carrot); \
@@ -228,11 +230,7 @@ static inline void fly_to_xy(float x, float y) {
  *  \brief Just call \a fly_to_xy with x and y of current waypoint.
  */
 static void fly_to(uint8_t wp) { 
-	in_segment = TRUE;
-	segment_x_1 = estimator_x;
-	segment_y_1 = estimator_y;
-	segment_x_2 = waypoints[wp].x;
-	segment_y_2 = waypoints[wp].y;
+  horizontal_mode = HORIZONTAL_MODE_WAYPOINT;
   fly_to_xy(waypoints[wp].x, waypoints[wp].y);
 }
 
@@ -259,6 +257,14 @@ static void route_to(uint8_t _last_wp, uint8_t wp) {
 	segment_y_1 = last_wp_y;
 	segment_x_2 = waypoints[wp].x;
 	segment_y_2 = waypoints[wp].y;
+
+  in_segment = TRUE;
+  segment_x_1 = last_wp_x;
+  segment_y_1 = last_wp_y;
+  segment_x_2 = waypoints[wp].x;
+  segment_y_2 = waypoints[wp].y;
+  horizontal_mode = HORIZONTAL_MODE_ROUTE;
+
   fly_to_xy(last_wp_x + alpha*leg_x, last_wp_y + alpha*leg_y);
 }
 

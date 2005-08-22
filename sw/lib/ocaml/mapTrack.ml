@@ -52,11 +52,9 @@ let cam_field_half_width = ref 0.0
 let cam_field_half_height_1 = ref 0.0
 let cam_field_half_height_2 = ref 0.0
 let cam_heading = ref 0.0
-let angle_of_view = ref 0.0
-let oblic_distance = ref 0.0
 let max_cam_half_height = 10000.0
 let max_oblic_distance = 10000.0
-let min_distance = 0.1
+let min_distance = 10.
 let min_height = 0.1
 
 let half_pi = m_pi /. 2.0
@@ -161,24 +159,21 @@ class track = fun ?(name="coucou") ?(size = 50) ?(color="red") (geomap:MapCanvas
 	    cam_heading := norm_angle_360 ( rad2deg (asin (cross_product vect_north cam_vect_normalized)))
 	      else cam_heading := norm_angle_360 ( rad2deg (m_pi -. asin (cross_product vect_north cam_vect_normalized)))
 	  else cam_heading := last_heading;
-	  if last_height < min_height then 
-	    begin
-	      angle_of_view := half_pi;
-	      oblic_distance := max_oblic_distance
-	    end
-	  else 
-	    begin
-	      angle_of_view := (atan ( d /. last_height) );
-	      oblic_distance := last_height /. (cos !angle_of_view)
-	    end;
-	  let alpha_1 = !angle_of_view +. cam_half_aperture in
-	  let alpha_2 = !angle_of_view -. cam_half_aperture in
+	  let (angle_of_view, oblic_distance) = 
+	    if last_height < min_height then 
+	      (half_pi, max_oblic_distance)
+	    else
+	      let oav = atan ( d /. last_height) in
+	      (oav, last_height /. (cos oav))
+	  in
+	  let alpha_1 = angle_of_view +. cam_half_aperture in
+	  let alpha_2 = angle_of_view -. cam_half_aperture in
 	  begin 
 	    if alpha_1 < half_pi then
 	      cam_field_half_height_1 := (tan alpha_1) *. last_height -. d
 	    else cam_field_half_height_1 := max_cam_half_height;
-	    cam_field_half_height_2 := d -. (tan ( !angle_of_view -. cam_half_aperture)) *. last_height;
-	    cam_field_half_width := ( tan (cam_half_aperture) ) *. !oblic_distance;
+	    cam_field_half_height_2 := d -. (tan ( angle_of_view -. cam_half_aperture)) *. last_height;
+	    cam_field_half_width := ( tan (cam_half_aperture) ) *. oblic_distance;
 	      
 (***	  Printf.printf "dist %.2f aoview %.2f oblic_distance %.2f cfh1 %.2f cfh2 %.2f cfhw %.2f last_xw %.2f last_yw %.2f cam_heading %.2f \n " d !angle_of_view !oblic_distance !cam_field_half_height_1 !cam_field_half_height_2 !cam_field_half_width last_xw last_yw !cam_heading; 
    flush stdout;   ***)
@@ -199,6 +194,7 @@ class track = fun ?(name="coucou") ?(size = 50) ?(color="red") (geomap:MapCanvas
     method resize =  fun new_size ->
       let a = Array.create new_size empty in
       let size =  Array.length segments in
+
       let m = min new_size size in
       let j = ref ((top - m + size) mod size) in
       for i = 0 to m - 1 do
