@@ -1,5 +1,6 @@
 <airframe name="Gorazoptere_brushless_3DMG" ctl_board="V1_2_1" gps="SAM_LS">
   <section name="IMU_3DMG" prefix="IMU_">
+    <define name="TYPE_3DMG" value="1">
   </section>
   <section name="rate_loop">
     <define name="ROLL_DOT_PGAIN" value="-192."/>
