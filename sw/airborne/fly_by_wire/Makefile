@@ -55,7 +55,9 @@ $(TARGET).srcs	=							\
 	spi.c								\
 	uart.c                                                          \
 	adc_fbw.c                                                       \
-
+	3dmg.c								\
+	imu.c								\
+	control.c							\
 
 include ../../../conf/Makefile.local
 include ../../../conf/Makefile.avr
