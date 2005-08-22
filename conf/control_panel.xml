@@ -121,7 +121,7 @@
     </session>
   
    <session name="flight microjet multimon">
-      <variable name="ivy_bus" value="192.168.1:2001"/>
+      <variable name="ivy_bus" value="127:2007"/>
       <program name="http server"/>     
       <program name="multimon"><arg flag="-p" constant="/tmp/multimon"/></program>
       <program name="modem"><arg flag="-d" constant="/tmp/multimon"/></program>

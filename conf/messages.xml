@@ -181,6 +181,16 @@
      <field name="Elev" type="int8" unit="deg"/>
      <field name="Azim" type="int16" unit="deg"/>
   </message>
+
+  <message name="IMU_3DMG" ID="26">
+    <field name="roll_dot" type="int16"/>
+    <field name="pitch_dot" type="int16"/>
+    <field name="yaw_dot" type="int16"/>
+    <field name="roll" type="int16"/>
+    <field name="pitch" type="int16"/>
+    <field name="yaw" type="int16"/>
+  </message>
+
 </class>
 
 <class name="telemetry_fbw" ID="0X41">
