@@ -149,13 +149,14 @@ void estimator_update_state_infrared( void ) {
 }
 
 
+#ifdef IMU_TYPE_3DMG
 #include "link_fbw.h"
 void estimator_update_state_3DMG ( void ) {
   estimator_phi = from_fbw.euler[0];
   estimator_psi = from_fbw.euler[1];
   estimator_theta = from_fbw.euler[2];
 }
-
+#endif
 
 #define INIT_WEIGHT 100. /* The number of times the initial value has to be taken */
 #define RHO 0.999 /* The higher, the slower the estimation is changing */
