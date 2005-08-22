@@ -43,11 +43,6 @@ ifeq ($(CTL_BRD_VERSION),V1_2)
 CTL_BRD_FLAGS=-DCTL_BRD_V1_2
 endif
 
-ifeq ($(CTL_BRD_VERSION),V1_1)
-CTL_BRD_FLAGS=-DCTL_BRD_V1_1
-endif
-
-
 $(TARGET).srcs	=							\
 	main.c								\
 	ppm.c								\

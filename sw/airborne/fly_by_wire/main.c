@@ -22,10 +22,17 @@
  *
  */
 
+//#define LED_DEBUG
+
 #include <inttypes.h>
 #include <avr/io.h>
 #include <avr/signal.h>
 #include <avr/interrupt.h>
+
+
+#ifdef LED_DEBUG
+#include "led.h"
+#endif
 
 #include "timer.h"
 #include "servo.h"
@@ -37,12 +44,18 @@
 
 #include "uart.h"
 
+#ifdef IMU_TYPE_3DMG 
+#include "3dmg.h"
+#endif
 
-#ifndef CTL_BRD_V1_1
+#if defined  IMU_TYPE_ANALOG || defined IMU_TYPE_3DMG
+#include "imu.h"
+#include "control.h"
+#endif
+
 #include "adc_fbw.h"
 struct adc_buf vsupply_adc_buf;
 struct adc_buf vservos_adc_buf;
-#endif
 
 uint8_t mode;
 static uint8_t time_since_last_mega128;
@@ -55,26 +68,6 @@ static uint8_t ppm_cpt, last_ppm_cpt;
 
 #define STALLED_TIME        30  // 500ms with a 60Hz timer
 #define REALLY_STALLED_TIME 300 // 5s with a 60Hz timer
-
-
-/* static inline void status_transmit( void ) { */
-/*   uint8_t i; */
-/*   uart_transmit(7); */
-/*   uart_transmit(7); */
-/*   for (i=0; i<sizeof(struct inter_mcu_msg); i++)  */
-/*     uart_transmit(((uint8_t*)&to_mega128)[i]); */
-/*   uart_transmit('\n'); */
-
-/*   uart_transmit(7); */
-/*   uart_transmit(7); */
-/*   uint8_t i; */
-/*   for(i = 0; i < RADIO_CTL_NB; i++) { */
-/*     extern uint16_t ppm_pulses[]; */
-/*     uart_transmit(ppm_pulses[i]>>8); */
-/*     uart_transmit(ppm_pulses[i] & 0xff); */
-/*   } */
-/*   uart_transmit('\n'); */
-/* } */
 
 
 /* Prepare data to be sent to mcu0 */
@@ -91,59 +84,102 @@ static inline void to_autopilot_from_last_radio (void) {
     last_radio_contains_avg_channels = FALSE;
   }
   to_mega128.ppm_cpt = last_ppm_cpt;
-#ifndef CTL_BRD_V1_1
   to_mega128.vsupply = VoltageOfAdc(vsupply_adc_buf.sum/AV_NB_SAMPLE) * 10;
-#else
-  to_mega128.vsupply = 0;
+#if defined IMU_TYPE_3DMG || defined IMU_TYPE_ANALOG
+  to_mega128.euler_dot[0] = roll_dot;
+  to_mega128.euler_dot[1] = pitch_dot;
+  to_mega128.euler_dot[2] = yaw_dot;
+#endif
+#ifdef IMU_TYPE_3DMG
+  to_mega128.euler[0] = roll;
+  to_mega128.euler[1] = 777; //pitch;
+  to_mega128.euler[2] = yaw;
 #endif
 }
 
+inline void radio_control_task(void) {
+  ppm_cpt++;
+  radio_ok = TRUE;
+  radio_really_lost = FALSE;
+  time_since_last_ppm = 0;
+  last_radio_from_ppm();
+  if (last_radio_contains_avg_channels) {
+    mode = MODE_OF_PPRZ(last_radio[RADIO_MODE]);
+  }
+  if (mode == MODE_MANUAL) {
+#if defined IMU_TYPE_3DMG 
+    //    control_set_desired(last_radio);
+#elif defined IMU_TYPE_ANALOG
+    control_set_desired(last_radio);
+#else
+    servo_set(last_radio);
+#endif  
+  }
+}
+
+inline void spi_task(void) {
+  if (mega128_receive_valid) {
+    time_since_last_mega128 = 0;
+    mega128_ok = TRUE;
+    if (mode == MODE_AUTO) 
+#if defined IMU_TYPE_ANALOG || defined IMU_TYPE_3DMG
+      control_set_desired(from_mega128.channels);
+#else
+    servo_set(from_mega128.channels);
+#endif
+  }
+  to_autopilot_from_last_radio();
+  spi_reset();
+}
 
 int main( void )
 {
   uart_init_tx();
+#if defined IMU_TYPE_3DMG
+  uart_init_rx();
+#else
   uart_print_string("FBW Booting $Id$\n");
-
-#ifndef CTL_BRD_V1_1
+#endif
   adc_init();
   adc_buf_channel(3, &vsupply_adc_buf);
   adc_buf_channel(6, &vservos_adc_buf);
+#if defined IMU_TYPE_3DMG || defined IMU_TYPE_ANALOG
+  imu_init();
 #endif
   timer_init();
+#if defined LED_DEBUG
+  LEDS_INIT(); 
+  RED_LED_ON();
+  GREEN_LED_ON();
+  YELLOW_LED_ON();
+#else
   servo_init();
   ppm_init();
+#endif
   spi_init();
   sei();
   while( 1 ) {
     if( ppm_valid ) {
       ppm_valid = FALSE;
-      ppm_cpt++;
-      radio_ok = TRUE;
-      radio_really_lost = FALSE;
-      time_since_last_ppm = 0;
-      last_radio_from_ppm();
-      if (last_radio_contains_avg_channels) {
-	mode = MODE_OF_PPRZ(last_radio[RADIO_MODE]);
-      }
-      if (mode == MODE_MANUAL) {
-	servo_set(last_radio);
-      }
-    } else if (mode == MODE_MANUAL && radio_really_lost) {
+      radio_control_task();
+    } 
+    else if (mode == MODE_MANUAL && radio_really_lost) {
       mode = MODE_AUTO;
     }
-
     if ( !SpiIsSelected() && spi_was_interrupted ) {
       spi_was_interrupted = FALSE;
-      if (mega128_receive_valid) {
-	time_since_last_mega128 = 0;
-	mega128_ok = TRUE;
-	if (mode == MODE_AUTO)
-	  servo_set(from_mega128.channels);
-      }
-      to_autopilot_from_last_radio();
-      spi_reset();
+      spi_task();
     }
-
+#ifdef IMU_TYPE_3DMG
+    if (_3dmg_data_ready) {
+      imu_update();
+      RED_LED_TOGGLE();
+      if (roll>0) {GREEN_LED_ON();}
+      else {GREEN_LED_OFF();}
+      if (pitch>0) {YELLOW_LED_ON();}
+      else {YELLOW_LED_OFF();}
+    }
+#endif
     if (time_since_last_ppm >= STALLED_TIME) {
       radio_ok = FALSE;
     }
@@ -166,6 +202,9 @@ int main( void )
       static uint8_t _20Hz;
       _1Hz++;
       _20Hz++;
+#ifdef IMU_TYPE_3DMG
+      //      control_run();
+#endif
       if (_1Hz >= 60) {
 	_1Hz = 0;
 	last_ppm_cpt = ppm_cpt;
@@ -173,8 +212,9 @@ int main( void )
       }
       if (_20Hz >= 3) {
 	_20Hz = 0;
+#ifndef IMU_TYPE_3DMG
 	servo_transmit();
-	//	status_transmit();
+#endif
       }
       if (time_since_last_mega128 < STALLED_TIME)
 	time_since_last_mega128++;

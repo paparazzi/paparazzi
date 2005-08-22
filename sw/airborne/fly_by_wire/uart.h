@@ -36,4 +36,10 @@ void uart_print_hex16 ( uint16_t c );
 void uart_print_string(const uint8_t* s);
 void uart_print_float( const float * f);
 
+#define ReceiveUart(cb) \
+  SIGNAL( SIG_UART_RECV ) { \
+    uint8_t c = UDR; \
+    cb(c); \
+}
+
 #endif

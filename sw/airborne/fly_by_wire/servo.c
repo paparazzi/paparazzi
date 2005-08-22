@@ -40,12 +40,6 @@
  */
 #define _4017_NB_CHANNELS 10
 
-#ifdef CTL_BRD_V1_1
-#define _4017_RESET_PORT        PORTD
-#define _4017_RESET_DDR         DDRD
-#define _4017_RESET_PIN         5
-#endif /* CTL_BRD_V1_1 */ 
-
 #ifdef CTL_BRD_V1_2
 #define _4017_RESET_PORT        PORTC
 #define _4017_RESET_DDR         DDRC
