@@ -65,6 +65,8 @@ int main( void ) {
   ir_init();
   estimator_init();
 
+  uart0_init();
+
   /** - start interrupt task */
   sei();
 
@@ -101,6 +103,16 @@ int main( void ) {
 #ifdef IMU_TYPE_3DMG
       DOWNLINK_SEND_IMU_3DMG(&from_fbw.euler_dot[0], &from_fbw.euler_dot[1], &from_fbw.euler_dot[2], &from_fbw.euler[0], &from_fbw.euler[1], &from_fbw.euler[2]);
       estimator_update_state_3DMG();
+#endif
+#ifdef SECTION_IMU_ANALOG
+      uart0_transmit('G');
+      uart0_transmit(' ');
+      uart0_print_hex16(from_fbw.euler_dot[0]);
+      uart0_transmit(',');
+      uart0_print_hex16(from_fbw.euler_dot[1]);
+      uart0_transmit(',');
+      uart0_print_hex16(from_fbw.euler_dot[2]);
+      uart0_transmit('\n');
 #endif
     }
   } 

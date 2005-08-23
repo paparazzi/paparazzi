@@ -44,11 +44,11 @@
 
 #include "uart.h"
 
-#ifdef IMU_TYPE_3DMG 
+#ifdef SECTION_IMU_3DMG 
 #include "3dmg.h"
 #endif
 
-#if defined  IMU_TYPE_ANALOG || defined IMU_TYPE_3DMG
+#if defined  SECTION_IMU_ANALOG || defined SECTION_IMU_3DMG
 #include "imu.h"
 #include "control.h"
 #endif
@@ -85,14 +85,14 @@ static inline void to_autopilot_from_last_radio (void) {
   }
   to_mega128.ppm_cpt = last_ppm_cpt;
   to_mega128.vsupply = VoltageOfAdc(vsupply_adc_buf.sum/AV_NB_SAMPLE) * 10;
-#if defined IMU_TYPE_3DMG || defined IMU_TYPE_ANALOG
+#if defined SECTION_IMU_3DMG || defined SECTION_IMU_ANALOG
   to_mega128.euler_dot[0] = roll_dot;
   to_mega128.euler_dot[1] = pitch_dot;
   to_mega128.euler_dot[2] = yaw_dot;
 #endif
-#ifdef IMU_TYPE_3DMG
+#ifdef SECTION_IMU_3DMG
   to_mega128.euler[0] = roll;
-  to_mega128.euler[1] = 777; //pitch;
+  to_mega128.euler[1] = pitch;
   to_mega128.euler[2] = yaw;
 #endif
 }
@@ -107,9 +107,7 @@ inline void radio_control_task(void) {
     mode = MODE_OF_PPRZ(last_radio[RADIO_MODE]);
   }
   if (mode == MODE_MANUAL) {
-#if defined IMU_TYPE_3DMG 
-    //    control_set_desired(last_radio);
-#elif defined IMU_TYPE_ANALOG
+#if defined SECTION_IMU_3DMG || defined SECTION_IMU_ANALOG
     control_set_desired(last_radio);
 #else
     servo_set(last_radio);
@@ -121,12 +119,13 @@ inline void spi_task(void) {
   if (mega128_receive_valid) {
     time_since_last_mega128 = 0;
     mega128_ok = TRUE;
-    if (mode == MODE_AUTO) 
-#if defined IMU_TYPE_ANALOG || defined IMU_TYPE_3DMG
+    if (mode == MODE_AUTO) {
+#if defined SECTION_IMU_ANALOG || defined SECTION_IMU_3DMG
       control_set_desired(from_mega128.channels);
 #else
     servo_set(from_mega128.channels);
 #endif
+    }
   }
   to_autopilot_from_last_radio();
   spi_reset();
@@ -135,7 +134,7 @@ inline void spi_task(void) {
 int main( void )
 {
   uart_init_tx();
-#if defined IMU_TYPE_3DMG
+#if defined SECTION_IMU_3DMG
   uart_init_rx();
 #else
   uart_print_string("FBW Booting $Id$\n");
@@ -143,7 +142,7 @@ int main( void )
   adc_init();
   adc_buf_channel(3, &vsupply_adc_buf);
   adc_buf_channel(6, &vservos_adc_buf);
-#if defined IMU_TYPE_3DMG || defined IMU_TYPE_ANALOG
+#if defined SECTION_IMU_3DMG || defined SECTION_IMU_ANALOG
   imu_init();
 #endif
   timer_init();
@@ -170,7 +169,7 @@ int main( void )
       spi_was_interrupted = FALSE;
       spi_task();
     }
-#ifdef IMU_TYPE_3DMG
+#ifdef SECTION_IMU_3DMG
     if (_3dmg_data_ready) {
       imu_update();
       RED_LED_TOGGLE();
@@ -202,8 +201,25 @@ int main( void )
       static uint8_t _20Hz;
       _1Hz++;
       _20Hz++;
-#ifdef IMU_TYPE_3DMG
-      //      control_run();
+#if defined SECTION_IMU_ANALOG
+      imu_update();
+#if 0
+      {
+      	static uint8_t foo = 0;
+      	foo++;
+      	if (!(foo%10)) {
+      	  uart_print_hex16(roll_dot);
+      	  uart_transmit(',');
+      	  uart_print_hex16(pitch_dot);
+      	  uart_transmit(',');
+      	  uart_print_hex16(yaw_dot);
+      	  uart_transmit('\n');
+      	}
+      }
+#endif /* 0 */
+#endif
+#if defined SECTION_IMU_3DMG || defined SECTION_IMU_ANALOG
+      control_run();
 #endif
       if (_1Hz >= 60) {
 	_1Hz = 0;
@@ -212,8 +228,8 @@ int main( void )
       }
       if (_20Hz >= 3) {
 	_20Hz = 0;
-#ifndef IMU_TYPE_3DMG
-	servo_transmit();
+#ifndef SECTION_IMU_3DMG
+	//	servo_transmit();
 #endif
       }
       if (time_since_last_mega128 < STALLED_TIME)

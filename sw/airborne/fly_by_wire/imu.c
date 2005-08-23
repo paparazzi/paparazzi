@@ -25,7 +25,7 @@
 #include "airframe.h"
 
 #if defined(SECTION_IMU_3DMG) && defined(SECTION_IMU_ANALOG)
-#error "IMU_3DMG and IMU_ANALOG cannot be defined simultaneously
+#error "IMU_3DMG and IMU_ANALOG cannot be defined simultaneously"
 #endif
 
 #include "imu.h"

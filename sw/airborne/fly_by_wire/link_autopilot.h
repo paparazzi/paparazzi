@@ -54,10 +54,10 @@ struct inter_mcu_msg {
   uint8_t status;
   uint8_t nb_err;
   uint8_t vsupply; /* 1e-1 V */
-#if defined IMU_TYPE_3DMG || defined IMU_TYPE_ANALOG
+#if defined SECTION_IMU_ANALOG || defined SECTION_IMU_3DMG
   int16_t euler_dot[3];
 #endif
-#ifdef IMU_TYPE_3DMG
+#ifdef SECTION_IMU_3DMG
   int16_t euler[3];
 #endif
 };
