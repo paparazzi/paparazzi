@@ -1,7 +1,7 @@
 <airframe name="Gorazoptere_brushless_3DMG" ctl_board="V1_2_1" gps="SAM_LS">
   <section name="IMU_3DMG" prefix="IMU_">
   </section>
-  <section name="rate_loop">
+  <section name="RATE_LOOP">
     <define name="ROLL_DOT_PGAIN" value="-192."/>
     <define name="ROLL_DOT_IGAIN" value="0."/>
     <define name="ROLL_DOT_DGAIN" value="0."/>
