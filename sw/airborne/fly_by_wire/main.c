@@ -22,7 +22,7 @@
  *
  */
 
-//#define LED_DEBUG
+#define LED_DEBUG
 
 #include <inttypes.h>
 #include <avr/io.h>

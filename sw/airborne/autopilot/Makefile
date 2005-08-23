@@ -62,6 +62,11 @@ $(TARGET).srcs	= \
 	mainloop.c \
 	cam.c
 
+ifeq ($(AIRCRAFT), Gorazoptere_brushless_ANALOG)
+	$(TARGET).srcs  += ahrs.S 
+	$(TARGET).srcs  += ahrs.c 
+endif
+
 include ../../../conf/Makefile.local
 include ../../../conf/Makefile.avr
 

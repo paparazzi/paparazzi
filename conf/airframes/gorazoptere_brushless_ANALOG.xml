@@ -4,6 +4,18 @@
     <define name="ADC_ROLL_DOT" value="1"/>
     <define name="ADC_PITCH_DOT" value="2"/>
     <define name="ADC_YAW_DOT" value="3"/>
+	<define name="ADC_ROLL_DOT_SIGN" value="+"/>
+    <define name="ADC_PITCH_DOT_SIGN" value="-"/>
+    <define name="ADC_YAW_DOT_SIGN" value="-"/>
+	<define name="ADC_ACCELX" value="2"/>
+    <define name="ADC_ACCELY" value="3"/>
+    <define name="ADC_ACCELZ" value="4"/>
+	<define name="ADC_ACCELX_SIGN" value="-"/>
+    <define name="ADC_ACCELY_SIGN" value="+"/>
+    <define name="ADC_ACCELZ_SIGN" value="-"/>
+	<define name="ADC_ACCELX_ZERO" value="0x24A"/>
+    <define name="ADC_ACCELY_ZERO" value="0x280"/>
+    <define name="ADC_ACCELZ_ZERO" value="0x210"/>
   </section>
   <section name="RATE_LOOP">
     <define name="ROLL_DOT_PGAIN" value="-192."/>
