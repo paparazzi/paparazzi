@@ -40,6 +40,11 @@
 #include "estimator.h"
 #include "downlink.h"
 
+#ifdef SECTION_IMU_ANALOG
+#include "ahrs.h"
+#endif //SECTION_IMU_ANALOG
+
+
 /** \fn int main( void )
  *  \brief Main and @@@@@ unique @@@@@ function \n
  */
@@ -76,6 +81,11 @@ int main( void ) {
     if (timer_periodic())
       init_cpt--;
   }
+  
+#ifdef SECTION_IMU_ANALOG
+  /** - ahrs init */
+  ahrs_init();
+#endif //SECTION_IMU_ANALOG
 
   /** - enter mainloop:
    *    - do periodic task by calling \a periodic_task
@@ -83,6 +93,7 @@ int main( void ) {
    *    - receive radio control task from fbw and use it with
    * \a radio_control_task
    */
+  
   while( 1 ) {
     if(timer_periodic())
       /* do periodic task */
@@ -105,6 +116,17 @@ int main( void ) {
       estimator_update_state_3DMG();
 #endif
 #ifdef SECTION_IMU_ANALOG
+	  /** - ahrs update */
+	  ahrs_update();
+	  uart0_transmit('E');
+      uart0_transmit(' ');
+ 	  uart0_print_hex16(euler[0]);
+      uart0_transmit(',');
+      uart0_print_hex16(euler[1]);
+      uart0_transmit(',');
+      uart0_print_hex16(euler[2]);
+      uart0_transmit('\t');
+
       uart0_transmit('G');
       uart0_transmit(' ');
       uart0_print_hex16(from_fbw.euler_dot[0]);
