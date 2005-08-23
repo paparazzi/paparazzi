@@ -7,7 +7,6 @@
  * (c) 2005 Jean-Pierre Dumont <flyingtuxATfreeDOTfr>
  */
 
-#ifdef SECTION_IMU_ANALOG
 
 #include <avr/io.h>
 #include <avr/pgmspace.h>
@@ -18,10 +17,13 @@
 #include "adc.h"
 #include "ahrs.h"
 #include "autopilot.h"
+#include "link_fbw.h"
 
 #ifdef PNI_MAG
 #include "pni.h"
 #endif //PNI_MAG
+
+#ifdef SECTION_IMU_ANALOG
 
 #define C_PI		((real_t) 3.14159265358979323846264338327950)
 
@@ -927,9 +929,19 @@ static inline void
 pqr_update( void )
 {
 	//TODO : paparazzi take the mean valu of pqr 
-	pqr[0] = adc_samples[ IMU_ADC_ROLL_DOT ] * IMU_ADC_ROLL_DOT_SIGN GYRO_SCALE;
-	pqr[1] = adc_samples[ IMU_ADC_PITCH_DOT ] * IMU_ADC_PITCH_DOT_SIGN GYRO_SCALE;
-	pqr[2] = adc_samples[ IMU_ADC_YAW_DOT ] * IMU_ADC_YAW_DOT_SIGN GYRO_SCALE;
+	//pqr[0] = adc_samples[ IMU_ADC_ROLL_DOT ] * IMU_ADC_ROLL_DOT_SIGN GYRO_SCALE;
+	//pqr[1] = adc_samples[ IMU_ADC_PITCH_DOT ] * IMU_ADC_PITCH_DOT_SIGN GYRO_SCALE;
+	//pqr[2] = adc_samples[ IMU_ADC_YAW_DOT ] * IMU_ADC_YAW_DOT_SIGN GYRO_SCALE;
+	
+	if (link_fbw_receive_complete && link_fbw_receive_valid)
+	{
+		//Actually this valuers have to be  Normalized by mcu1 
+		//with IMU_ADC_ROLL_DOT_SIGN GYRO_SCALE...
+		//So we don't do it here ;-)
+		pqr[0] = from_fbw.euler_dot[0];
+		pqr[1] = from_fbw.euler_dot[1];
+		pqr[2] = from_fbw.euler_dot[2];
+	}
 }
 
 
