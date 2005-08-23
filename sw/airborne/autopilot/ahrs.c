@@ -855,85 +855,41 @@ accel2pitch()
 static inline void
 imu_init( void )
 {
-	int8_t		samples = 32;
-	int16_t		p_m = 0;
-	int16_t		q_m = 0;
-	int16_t		r_m = 0;
-	int16_t		ax = 0;
-	int16_t		ay = 0;
-	int16_t		az = 0;
+			
+	const int16_t	ax_m	= buf_accelX.sum/buf_accelX.av_nb_sample;
+	const int16_t	ay_m	= buf_accelY.sum/buf_accelY.av_nb_sample;
+	const int16_t	az_m	= buf_accelZ.sum/buf_accelZ.av_nb_sample;
 	
-	//putc( 'I' );
-	while( samples-- )
-	{
-		/* Every 32768 microseconds */
-		while( timer_periodic() == 0 )
-			continue;
-#ifdef PNI_MAG
-		pni_poll();
-#endif //PNI_MAG
-
-		//putc( '.' );
-		//adc_output();
-
-
-		/* Average the three accelerometer readings */
-		//TODO : paparazzi we have to replace it by the mean value
-		ax += adc_samples[ IMU_ADC_ACCELX ];
-		ay += adc_samples[ IMU_ADC_ACCELY ];
-		az += adc_samples[ IMU_ADC_ACCELZ ];
-		
-		//TODO : ttaking the euler_dot from from_fbw.euler.dot if ANALOG
-		p_m += adc_samples[ IMU_ADC_ROLL_DOT ];
-		q_m += adc_samples[ IMU_ADC_PITCH_DOT ];
-		r_m += adc_samples[ IMU_ADC_YAW_DOT ];
-	}
-
-	//putnl();
-
-
-	while( timer_periodic() == 0 )
+	while (timer_periodic() == 0)
+	    continue;
+	
+	//Geeting ax ay az from this adc buffer mean
+	accel[0] = IMU_ADC_ACCELX_SIGN (ax_m - IMU_ADC_ACCELX_ZERO);
+	accel[1] = IMU_ADC_ACCELY_SIGN (ay_m - IMU_ADC_ACCELY_ZERO);
+	accel[2] = IMU_ADC_ACCELZ_SIGN (az_m - IMU_ADC_ACCELZ_ZERO);
+	
+	//Geeting p q r from uc1
+	while (!link_fbw_receive_complete || !link_fbw_receive_valid)
 		continue;
-
-	/* Divide by the number of samples */
-	pqr[0] = (p_m >> 5) * IMU_ADC_ROLL_DOT_SIGN GYRO_SCALE;
-	pqr[1] = (q_m >> 5) * IMU_ADC_PITCH_DOT_SIGN GYRO_SCALE;
-	pqr[2] = (r_m >> 5) * IMU_ADC_YAW_DOT_SIGN GYRO_SCALE;
-
-	/* Fill in the AHRS data members */
-	accel[0] = IMU_ADC_ACCELX_SIGN( (ax >> 5) - IMU_ADC_ACCELX_ZERO );
-	accel[1] = IMU_ADC_ACCELY_SIGN( (ay >> 5) - IMU_ADC_ACCELY_ZERO );
-	accel[2] = IMU_ADC_ACCELZ_SIGN( (az >> 5) - IMU_ADC_ACCELZ_ZERO );
-
-	/*
-	putc( 'A' );
-	put_int16_t( accel[0] );
-	put_int16_t( accel[1] );
-	put_int16_t( accel[2] );
-
-	putc( 'M' );
-	put_int16_t( pni_values[0] );
-	put_int16_t( pni_values[1] );
-	put_int16_t( pni_values[2] );
-
-	putc( 'P' );
-	put_float( pqr[0] );
-	put_float( pqr[1] );
-	put_float( pqr[2] );
-	putnl();
-	*/
+	
+	//Actually this valuers have to be  Normalized by mcu1 
+	//with IMU_ADC_ROLL_DOT_SIGN GYRO_SCALE...
+	//So we don't do it here ;-)
+	pqr[0] = from_fbw.euler_dot[0];
+	pqr[1] = from_fbw.euler_dot[1];
+	pqr[2] = from_fbw.euler_dot[2];
+	
+#ifdef PNI_MAG
+	pni_poll();
+#endif //PNI_MAG
 }
 
 
 static inline void
 pqr_update( void )
 {
-	//TODO : paparazzi take the mean valu of pqr 
-	//pqr[0] = adc_samples[ IMU_ADC_ROLL_DOT ] * IMU_ADC_ROLL_DOT_SIGN GYRO_SCALE;
-	//pqr[1] = adc_samples[ IMU_ADC_PITCH_DOT ] * IMU_ADC_PITCH_DOT_SIGN GYRO_SCALE;
-	//pqr[2] = adc_samples[ IMU_ADC_YAW_DOT ] * IMU_ADC_YAW_DOT_SIGN GYRO_SCALE;
-	
-	if (link_fbw_receive_complete && link_fbw_receive_valid)
+	//have we got new datas to eat, tha the question ???????????
+    	if (link_fbw_receive_complete && link_fbw_receive_valid)
 	{
 		//Actually this valuers have to be  Normalized by mcu1 
 		//with IMU_ADC_ROLL_DOT_SIGN GYRO_SCALE...
@@ -949,14 +905,11 @@ pqr_update( void )
 void
 roll_update( void )
 {
-	
-	//const int16_t		ay_m	= adc_samples[ IMU_ADC_ACCELY ];
-	//const int16_t		az_m	= adc_samples[ IMU_ADC_ACCELZ ];
-
-	//TODO Taking Value from the macro average (papaprazzi like)
-	const int16_t	ay_m	= buf_accelY.sum/buf_accelY.av_nb_sample;
+	//have we got new datas to eat, tha the question ???????????
+    	const int16_t	ay_m	= buf_accelY.sum/buf_accelY.av_nb_sample;
 	const int16_t	az_m	= buf_accelZ.sum/buf_accelZ.av_nb_sample;
 	
+	//Geeting ax ay az from this adc buffer mean
 	// accel[0] is not needed for roll_update.
 	accel[1] = IMU_ADC_ACCELY_SIGN (ay_m - IMU_ADC_ACCELY_ZERO);
 	accel[2] = IMU_ADC_ACCELZ_SIGN (az_m - IMU_ADC_ACCELZ_ZERO);
@@ -978,10 +931,12 @@ roll_update( void )
 static inline void
 pitch_update( void )
 {
-	const int16_t		ax_m	= adc_samples[ IMU_ADC_ACCELX ];
-	const int16_t		ay_m	= adc_samples[ IMU_ADC_ACCELY ];
-	const int16_t		az_m	= adc_samples[ IMU_ADC_ACCELZ ];
-
+	//have we got new datas to eat, tha the question ???????????
+    	const int16_t	ax_m	= buf_accelX.sum/buf_accelX.av_nb_sample;
+	const int16_t	ay_m	= buf_accelY.sum/buf_accelY.av_nb_sample;
+	const int16_t	az_m	= buf_accelZ.sum/buf_accelZ.av_nb_sample;
+	
+	//Geeting ax ay az from this adc buffer mean
 	accel[0] = IMU_ADC_ACCELX_SIGN (ax_m - IMU_ADC_ACCELX_ZERO);
 	accel[1] = IMU_ADC_ACCELY_SIGN (ay_m - IMU_ADC_ACCELY_ZERO);
 	accel[2] = IMU_ADC_ACCELZ_SIGN (az_m - IMU_ADC_ACCELZ_ZERO);
@@ -1036,19 +991,11 @@ uint16_t		sample = 0;
 
 void ahrs_init()
 {
-	timer_init();
-	//uart_init();
-
-	//put_uint16_t( (uint16_t) &step );
-
-	adc_init();
 #ifdef PNI_MAG
 	pni_init();
 #endif //PNI_MAG
-	//sei();
 
 	imu_init();
-
 
 	euler[0] = accel2roll();
 	euler[1] = accel2pitch();
