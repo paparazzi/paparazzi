@@ -149,7 +149,7 @@ void estimator_update_state_infrared( void ) {
 }
 
 
-#ifdef IMU_TYPE_3DMG
+#ifdef SECTION_IMU_3DMG
 #include "link_fbw.h"
 void estimator_update_state_3DMG ( void ) {
   estimator_phi = from_fbw.euler[0];

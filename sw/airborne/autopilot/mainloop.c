@@ -100,7 +100,7 @@ int main( void ) {
       /* receive radio control task from fbw */
       link_fbw_receive_complete = FALSE;
       radio_control_task();
-#ifdef IMU_TYPE_3DMG
+#ifdef SECTION_IMU_3DMG
       DOWNLINK_SEND_IMU_3DMG(&from_fbw.euler_dot[0], &from_fbw.euler_dot[1], &from_fbw.euler_dot[2], &from_fbw.euler[0], &from_fbw.euler[1], &from_fbw.euler[2]);
       estimator_update_state_3DMG();
 #endif

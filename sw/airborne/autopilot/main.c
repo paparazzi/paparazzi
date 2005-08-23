@@ -492,7 +492,7 @@ inline void periodic_task( void ) {
   }
   case 2:
     ir_update();
-#ifndef IMU_TYPE_3DMG
+#ifndef SECTION_IMU_3DMG
     estimator_update_state_infrared();
 #endif
     roll_pitch_pid_run(); /* Set  desired_aileron & desired_elevator */
