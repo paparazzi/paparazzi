@@ -7,6 +7,8 @@
  * (c) 2005 Jean-Pierre Dumont <flyingtuxATfreeDOTfr>
  */
 
+#ifdef SECTION_IMU_ANALOG
+
 #include <avr/io.h>
 #include <avr/pgmspace.h>
 #include <math.h>
@@ -878,6 +880,8 @@ imu_init( void )
 		ax += adc_samples[ IMU_ADC_ACCELX ];
 		ay += adc_samples[ IMU_ADC_ACCELY ];
 		az += adc_samples[ IMU_ADC_ACCELZ ];
+		
+		//TODO : ttaking the euler_dot from from_fbw.euler.dot if ANALOG
 		p_m += adc_samples[ IMU_ADC_ROLL_DOT ];
 		q_m += adc_samples[ IMU_ADC_PITCH_DOT ];
 		r_m += adc_samples[ IMU_ADC_YAW_DOT ];
@@ -1085,4 +1089,6 @@ void ahrs_update()
 		step = 0;
 	} 
 }
+
+#endif //SECTION_IMU_ANALOG
 
