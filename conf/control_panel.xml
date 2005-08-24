@@ -83,6 +83,7 @@
     <session name="soft sim 2">
       <variable name="ivy_bus" value="127:3333"/>
       <program name="receive"/>     
+      <program name="http server"/>     
       <program name="sim"><arg flag="-a" constant="Thon1"/></program>
       <program name="sim"><arg flag="-a" constant="Thon2"/></program>
       <program name="cockpit"></program>

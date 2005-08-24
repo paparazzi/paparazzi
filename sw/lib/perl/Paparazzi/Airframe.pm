@@ -21,7 +21,7 @@ sub completeinit {
   $self->SUPER::completeinit();
   my $airframe_url = $self->get('-url');
   my $airframe_xml = LWP::Simple::get($airframe_url);
-  $self->parse_airframe($airframe_xml);
+  $self->parse_airframe($airframe_xml) if defined $airframe_xml;
 }
 
 sub parse_airframe {

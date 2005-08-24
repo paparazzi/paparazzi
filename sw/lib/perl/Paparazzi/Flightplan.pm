@@ -86,7 +86,13 @@ sub completeinit {
 
 #  my $flight_plan_xml ="";
   my $flight_plan_xml = LWP::Simple::get($flight_plan_url);
-  $self->configure( -compiled_xml => $flight_plan_xml);
+  if (defined $flight_plan_xml) {
+    $self->configure( -compiled_xml => $flight_plan_xml);
+  }
+  else {
+    print "############WARNING : could not get $flight_plan_url\n";
+    return;
+  }
 
 #  print "#######flight_plan_xml\n".$flight_plan_xml;
 

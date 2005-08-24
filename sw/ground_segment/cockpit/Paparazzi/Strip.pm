@@ -361,7 +361,7 @@ sub string_of_time {
 sub attach_to_aircraft {
   my ($self) = @_;
   my @options = ('airframe', 'flight_plan', 'ap_mode', 'rc_status', 'gps_mode', 'contrast_status', 'contrast_value',
-		 'flight_time', 'alt', 'target_alt', 'speed', 'climb', 'bat');
+		 'flight_time', 'alt', 'target_alt', 'speed', 'climb');#, 'bat');
   foreach my $option (@options) {
     $self->get('-aircraft')->attach($self, $option, [\&aircraft_config_changed]);
   }
