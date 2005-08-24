@@ -116,7 +116,7 @@ int main( void ) {
 #endif
 #ifdef SECTION_IMU_ANALOG
       /** - ahrs update */
-      ahrs_update();
+      //moved into periodic_task() at 20Hz case 2 : ahrs_update();
       //Rajouter en init:  uart0_init();
       uart0_transmit('E');
       uart0_transmit(' ');

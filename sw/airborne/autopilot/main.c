@@ -44,6 +44,11 @@
 #include "if_calib.h"
 #include "cam.h"
 
+#ifdef SECTION_IMU_ANALOG
+#include "ahrs.h"
+#endif //SECTION_IMU_ANALOG
+
+
 //
 //
 // FIXME estimator_flight_time should not be manipuled here anymore
@@ -491,8 +496,15 @@ inline void periodic_task( void ) {
     break;
   }
   case 2:
-    ir_update();
-#ifndef SECTION_IMU_3DMG
+    
+    ir_update();//Perhaps ir_update should move into the NO_IMU SECTION
+    
+#if defined SECTION_IMU_3DMG
+
+#elif defined SECTION_IMU_ANALOG
+    //20Hz/3 it could be possible because can run standalone at 60Hz/3
+    ahrs_update();
+#else //NO IMU
     estimator_update_state_infrared();
 #endif
     roll_pitch_pid_run(); /* Set  desired_aileron & desired_elevator */
