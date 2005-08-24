@@ -22,7 +22,7 @@
  *
  */
 
-#define LED_DEBUG
+
 
 #include <inttypes.h>
 #include <avr/io.h>
@@ -30,9 +30,7 @@
 #include <avr/interrupt.h>
 
 
-#ifdef LED_DEBUG
-#include "led.h"
-#endif
+
 
 #include "timer.h"
 #include "servo.h"
@@ -146,15 +144,10 @@ int main( void )
   imu_init();
 #endif
   timer_init();
-#if defined LED_DEBUG
-  LEDS_INIT(); 
-  RED_LED_ON();
-  GREEN_LED_ON();
-  YELLOW_LED_ON();
-#else
+
   servo_init();
   ppm_init();
-#endif
+
   spi_init();
   sei();
   while( 1 ) {
