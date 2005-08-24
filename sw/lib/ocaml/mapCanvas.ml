@@ -62,6 +62,8 @@ class widget = fun  ?(height=800) ?width ?wgs84_of_en () ->
 
    method set_world_unit = fun x -> world_unit <- x
 
+   method get_world_unit = fun () -> world_unit
+
   method current_zoom = current_zoom
 
   method canvas = canvas
@@ -73,7 +75,9 @@ class widget = fun  ?(height=800) ?width ?wgs84_of_en () ->
    method factory = factory
      
 
-  method world_of_en = fun en -> en.east /. world_unit, -. en.north /. world_unit
+  method world_of_en = fun en -> 
+    
+    en.east /. world_unit, -. en.north /. world_unit
   method en_of_world = fun wx wy -> { east = wx *. world_unit; north = -. wy *. world_unit } 
 
   method geo_string = fun en ->

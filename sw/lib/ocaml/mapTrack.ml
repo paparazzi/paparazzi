@@ -48,16 +48,8 @@ let fixed_cam_targeted_yw = 500.0
 (** variables used for handling cam moves: *)
 
 let cam_half_aperture = m_pi /. 4.0
-let cam_field_half_width = ref 0.0
-let cam_field_half_height_1 = ref 0.0
-let cam_field_half_height_2 = ref 0.0
-let cam_heading = ref 0.0
-let max_cam_half_height = 10000.0
-let max_oblic_distance = 10000.0
-let min_distance = 10.
-let min_height = 0.1
-
 let half_pi = m_pi /. 2.0
+let sqrt_2_div_2 = sqrt 2.0
 
 class track = fun ?(name="coucou") ?(size = 50) ?(color="red") (geomap:MapCanvas.widget) ->
   let group = GnoCanvas.group geomap#canvas#root in
@@ -74,21 +66,35 @@ class track = fun ?(name="coucou") ?(size = 50) ?(color="red") (geomap:MapCanvas
   let carrot = GnoCanvas.group group in
   let _ac_carrot =
     ignore (GnoCanvas.polygon ~points:[|0.;0.;-5.;-10.;5.;-10.|] ~props:[`WIDTH_UNITS 1.;`FILL_COLOR "orange"; `OUTLINE_COLOR "orange"; `FILL_STIPPLE (Gdk.Bitmap.create_from_data ~width:2 ~height:2 "\002\001")] carrot) in
-
+  
   let cam = GnoCanvas.group group in
-  let ac_cam_cover = ref ( GnoCanvas.rect ~x1:(-. !cam_field_half_width) ~y1: (-. !cam_field_half_height_2) ~x2:(!cam_field_half_width) ~y2:(!cam_field_half_height_1) ~fill_color:"none" ~props:[`WIDTH_UNITS 1.; `OUTLINE_COLOR "brown"; `FILL_STIPPLE (Gdk.Bitmap.create_from_data ~width:2 ~height:2 "\002\001")] cam) in
-
-  let cam_targeted = GnoCanvas.group group in
-
+  
 (** rectangle representing the field covered by the cam *)
+  let ac_cam_cover = ref ( GnoCanvas.rect cam) in 
+  let cam_targeted = GnoCanvas.group group in
   let _ac_cam_targeted =
-    ignore ( GnoCanvas.ellipse ~x1: (-. 2.5) ~y1: (-. 2.5) ~x2: 2.5 ~y2: 2.5 ~fill_color:"blue" ~props:[`WIDTH_UNITS 1.; `OUTLINE_COLOR "blue"; `FILL_STIPPLE (Gdk.Bitmap.create_from_data ~width:2 ~height:2 "\002\001")] cam_targeted ) in
-
+    ignore ( GnoCanvas.ellipse ~x1: (-. 2.5) ~y1: (-. 2.5) ~x2: 2.5 ~y2: 2.5 ~fill_color:color ~props:[`WIDTH_UNITS 1.; `OUTLINE_COLOR color; `FILL_STIPPLE (Gdk.Bitmap.create_from_data ~width:2 ~height:2 "\002\001")] cam_targeted ) in
+  
   let mission_target = GnoCanvas.group group in
-
+  
 (** red circle : target of the mission *)
   let ac_mission_target =
-    ignore ( GnoCanvas.ellipse ~x1: (-5.) ~y1: (-5.) ~x2: 5. ~y2: 5. ~fill_color:"red" ~props:[`WIDTH_UNITS 1.; `OUTLINE_COLOR "red"; `FILL_STIPPLE (Gdk.Bitmap.create_from_data ~width:2 ~height:2 "\002\001")] mission_target ) in 
+    ignore ( GnoCanvas.ellipse ~x1: (-5.) ~y1: (-5.) ~x2: 5. ~y2: 5. ~fill_color:"red" ~props:[`WIDTH_UNITS 1.; `OUTLINE_COLOR "red"; `FILL_STIPPLE (Gdk.Bitmap.create_from_data ~width:2 ~height:2 "\002\001")] mission_target ) in
+  
+  let circle_mode = GnoCanvas.group group in
+  
+(** green circle: circle to be followed by the aircraft in circle mode *)
+  let circle_mode_icon = ref ( GnoCanvas.ellipse mission_target ) in
+  let segment_mode = GnoCanvas.group group in
+
+(** green segment: line to be followed by the aircraft between two waypoints *)
+  let segment_mode_icon = ref (GnoCanvas.line segment_mode) in
+
+(** data at map scale *)
+  let max_cam_half_height = 10000.0 /. (geomap#get_world_unit ()) in
+  let max_oblic_distance = 10000.0 /. (geomap#get_world_unit ()) in
+  let min_distance = 10.  /. (geomap#get_world_unit ()) in
+  let min_height = 0.1 /. (geomap#get_world_unit ()) in
   
   object (self)
     val mutable segments = Array.create size empty
@@ -99,6 +105,10 @@ class track = fun ?(name="coucou") ?(size = 50) ?(color="red") (geomap:MapCanvas
     val mutable last_height = 0.0
     val mutable last_xw = 0.0
     val mutable last_yw = 0.0
+    val mutable cam_on = true
+    val mutable previous_cam_state_on = true
+    val mutable previous_horizontal_mode = "WAYPOINT"
+    val mutable current_horizontal_mode = "WAYPOINT"
     method track = track
     method aircraft = aircraft
     method clear_one = fun i ->
@@ -114,6 +124,12 @@ class track = fun ?(name="coucou") ?(size = 50) ?(color="red") (geomap:MapCanvas
 	self#clear_one i
       done;
       top <- 0
+    method switch_cam_state =
+      if cam_on then 
+	(!ac_cam_cover)#destroy ();
+      previous_cam_state_on <- cam_on;
+      cam_on <- not cam_on
+    method cam_state_on = cam_on
     method add_point = fun en ->
       self#clear_one top;
       begin
@@ -121,7 +137,7 @@ class track = fun ?(name="coucou") ?(size = 50) ?(color="red") (geomap:MapCanvas
 	  None -> 
 	    segments.(top) <- (en, geomap#segment ~group:track ~fill_color:color en en)
 	| Some last ->
-	    segments.(top) <- (en, geomap#segment ~group:track ~width:2 ~fill_color:color last en)
+	    segments.(top) <- (en, geomap#segment ~group:track ~width:2 ~fill_color:color last en);
       end;
       self#incr;
       last <- Some en
@@ -132,33 +148,64 @@ class track = fun ?(name="coucou") ?(size = 50) ?(color="red") (geomap:MapCanvas
       last_altitude <- altitude;
       last_xw <- xw;
       last_yw <- yw;
-      last_height <- altitude -. relief_height;
+      last_height <- (altitude -. relief_height) /. (geomap#get_world_unit ());
       ac_label#affine_absolute (affine_pos_and_angle geomap#zoom_adj#value xw yw 0.);
     method move_carrot = fun en ->
       let (xw,yw) = geomap#world_of_en en in
       carrot#affine_absolute (affine_pos_and_angle geomap#zoom_adj#value xw yw 0.)
 
+(** updates the autopilot status *)
+    method update_ap_status = fun horizontal_mode ->
+      current_horizontal_mode <- horizontal_mode
 
+(** draws the circular path to be followed by the aircraft in circle mode *)
+    method draw_circle = fun en radius ->
+      if ( current_horizontal_mode = "CIRCLE" || (***) current_horizontal_mode = "42" (***)) then
+	let fradius = (float_of_int radius) /. (geomap#get_world_unit ()) in
+	let (xw,yw) = geomap#world_of_en en in
+	begin
+	  if previous_horizontal_mode ="CIRCLE" then (!circle_mode_icon)#destroy ()
+	  else
+	    if previous_horizontal_mode ="SEGMENT" then (!segment_mode_icon)#destroy ();
+	  circle_mode_icon := ( GnoCanvas.ellipse ~x1: ( -.fradius ) ~y1: (-. fradius) ~x2: (fradius ) ~y2: (fradius) ~props:[`WIDTH_UNITS 1.; `OUTLINE_COLOR "green"; `FILL_STIPPLE (Gdk.Bitmap.create_from_data ~width:2 ~height:2 "\002\001")] circle_mode);
+	  circle_mode#affine_absolute (affine_pos_and_angle geomap#zoom_adj#value xw yw 0.);
+	  previous_horizontal_mode <- "CIRCLE";
+	end
+
+(** draws the linear path to be followed by the aircraft between two waypoints *)
+    method draw_segment = fun en en2 ->
+      if ( current_horizontal_mode = "SEGMENT" || (***) current_horizontal_mode = "42" (***)) then
+	begin
+	  if previous_horizontal_mode ="CIRCLE" then (!circle_mode_icon)#destroy ()
+	  else
+	    if previous_horizontal_mode = "SEGMENT" then (!segment_mode_icon)#destroy ();
+	  segment_mode_icon := geomap#segment ~group:segment_mode ~fill_color:"green" en en2;
+	  previous_horizontal_mode <- "SEGMENT"
+	end
+	  
 (** moves the rectangle representing the field covered by the camera *)
     method move_cam = fun en mission_target_en ->
       let (xw,yw) = geomap#world_of_en en in 
       let (mission_target_xw, mission_target_yw) = geomap#world_of_en mission_target_en in
+      
+(** all data are at map scale *)
+      
       begin
-	(!ac_cam_cover)#destroy ();
+	if previous_cam_state_on then (!ac_cam_cover)#destroy ();
 	let pt1 = { x2D = last_xw; y2D = last_yw} in
 	let pt2 = { x2D = xw ; y2D = yw } in
-
-	(* y axis is downwards so North vector is as follows *)
-
-	let vect_north = (vect_make  { x2D = 0.0 ; y2D = 0.0 } { x2D = 0.0 ; y2D = -. 1.0 } ) in
+	
+(** y axis is downwards so North vector is as follows: *)
+	let vect_north = (vect_make  { x2D = 0.0 ; y2D = 0.0 } { x2D = 0.0 ; y2D = -1.0 } ) in
 	let d = distance pt1 pt2 in
 	begin
-	  if d > min_distance then
-	    let cam_vect_normalized = (vect_normalize (vect_make pt1 pt2)) in
+	  let cam_heading = 
+	    if d > min_distance then
+	      let cam_vect_normalized = (vect_normalize (vect_make pt1 pt2)) in
 	      if (dot_product vect_north cam_vect_normalized) > 0.0 then
-	    cam_heading := norm_angle_360 ( rad2deg (asin (cross_product vect_north cam_vect_normalized)))
-	      else cam_heading := norm_angle_360 ( rad2deg (m_pi -. asin (cross_product vect_north cam_vect_normalized)))
-	  else cam_heading := last_heading;
+		norm_angle_360 ( rad2deg (asin (cross_product vect_north cam_vect_normalized)))
+	      else norm_angle_360 ( rad2deg (m_pi -. asin (cross_product vect_north cam_vect_normalized)))
+	    else last_heading in
 	  let (angle_of_view, oblic_distance) = 
 	    if last_height < min_height then 
 	      (half_pi, max_oblic_distance)
@@ -168,24 +215,26 @@ class track = fun ?(name="coucou") ?(size = 50) ?(color="red") (geomap:MapCanvas
 	  in
 	  let alpha_1 = angle_of_view +. cam_half_aperture in
 	  let alpha_2 = angle_of_view -. cam_half_aperture in
-	  begin 
-	    if alpha_1 < half_pi then
-	      cam_field_half_height_1 := (tan alpha_1) *. last_height -. d
-	    else cam_field_half_height_1 := max_cam_half_height;
-	    cam_field_half_height_2 := d -. (tan ( angle_of_view -. cam_half_aperture)) *. last_height;
-	    cam_field_half_width := ( tan (cam_half_aperture) ) *. oblic_distance;
+	  begin
+	    let cam_field_half_height_1 =
+	      if alpha_1 < half_pi then
+		(tan alpha_1) *. last_height -. d
+	      else max_cam_half_height in
+	    let cam_field_half_height_2 = d -. (tan ( angle_of_view -. cam_half_aperture)) *. last_height in
+	    let cam_field_half_width = ( tan (cam_half_aperture) ) *. oblic_distance in
+	    begin
+(***	      Printf.printf "dist %.2f aoview %.2f oblic_distance %.2f cfh1 %.2f cfh2 %.2f cfhw %.2f last_xw %.2f last_yw %.2f cam_heading %.2f \n%!" (d  *. (geomap#get_world_unit ()) ) angle_of_view (oblic_distance  *. (geomap#get_world_unit ()) ) (cam_field_half_height_1  *. (geomap#get_world_unit ()) ) (cam_field_half_height_2  *. (geomap#get_world_unit ()) ) (cam_field_half_width  *. (geomap#get_world_unit ()) ) last_xw last_yw cam_heading; ***)
 	      
-(***	  Printf.printf "dist %.2f aoview %.2f oblic_distance %.2f cfh1 %.2f cfh2 %.2f cfhw %.2f last_xw %.2f last_yw %.2f cam_heading %.2f \n " d !angle_of_view !oblic_distance !cam_field_half_height_1 !cam_field_half_height_2 !cam_field_half_width last_xw last_yw !cam_heading; 
-   flush stdout;   ***)
-  
-	    ac_cam_cover := GnoCanvas.rect ~x1:( !cam_field_half_width) ~y1:( !cam_field_half_height_2) ~x2:(-. !cam_field_half_width) ~y2:(-. !cam_field_half_height_1) ~fill_color:"grey" ~props:[`WIDTH_UNITS 0.5 ; `OUTLINE_COLOR "blue"; `FILL_STIPPLE (Gdk.Bitmap.create_from_data ~width:2 ~height:2 "\002\001")] cam;
+	      ac_cam_cover := GnoCanvas.rect ~x1:(-. cam_field_half_width) ~y1:(-. cam_field_half_height_1) ~x2:(cam_field_half_width) ~y2:(cam_field_half_height_2) ~fill_color:"grey" ~props:[`WIDTH_UNITS 1. ; `OUTLINE_COLOR color; `FILL_STIPPLE (Gdk.Bitmap.create_from_data ~width:2 ~height:2 "\002\001")] cam;
+	      previous_cam_state_on <- true
+	    end
 	  end;
-	  cam#affine_absolute (affine_pos_and_angle geomap#zoom_adj#value xw yw !cam_heading);
+	  cam#affine_absolute (affine_pos_and_angle geomap#zoom_adj#value xw yw cam_heading);	 
 	  cam_targeted#affine_absolute (affine_pos_and_angle geomap#zoom_adj#value xw yw 0.0);
 	  mission_target#affine_absolute (affine_pos_and_angle geomap#zoom_adj#value mission_target_xw mission_target_yw 0.0)
 	end;
       end
-
+	
     method zoom = fun z ->
       let a = aircraft#i2w_affine in
       let z' = sqrt (a.(0)*.a.(0)+.a.(1)*.a.(1)) in

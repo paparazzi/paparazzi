@@ -43,8 +43,6 @@ let default_path_SRTM = home // "data" // "SRTM"
 let default_path_maps = home // "data" // "maps" // ""
 let default_path_missions = home // "conf"
 
-
-
 type aircraft = {
     track : MapTrack.track;
     color: color;
@@ -158,6 +156,31 @@ let cam_pos_msg = fun track utm_x utm_y target_utm_x target_utm_y ->
       let target_en =  {G.east = target_utm_x -. utm0.utm_x; north = target_utm_y -. utm0.utm_y } in  
       track#move_cam en target_en
 
+let circle_status_msg = fun track utm_x utm_y radius ->
+  match !map_ref with
+    None -> ()
+  | Some utm0 ->
+      let en =  {G.east = utm_x -. utm0.utm_x; north = utm_y -. utm0.utm_y } in  
+      track#draw_circle en radius
+
+let segment_status_msg = fun track utm_x utm_y utm2_x utm2_y ->
+  match !map_ref with
+    None -> ()
+  | Some utm0 ->
+      let en =  {G.east = utm_x -. utm0.utm_x; north = utm_y -. utm0.utm_y } in  
+      let en2 =  {G.east = utm2_x -. utm0.utm_x; north = utm2_y -. utm0.utm_y } in
+      track#draw_segment en en2
+
+let circle_status_msg = fun track utm_x utm_y radius ->
+  match !map_ref with
+    None -> ()
+  | Some utm0 ->
+      let en =  {G.east = utm_x -. utm0.utm_x; north = utm_y -. utm0.utm_y } in  
+      track#draw_circle en radius
+
+let ap_status_msg = fun track horizontal_mode ->
+      track#update_ap_status horizontal_mode
+
 let new_color =
   let colors = ref ["red"; "blue"; "green"] in
   fun () ->
@@ -203,6 +226,7 @@ let one_new_ac = fun (geomap:MapCanvas.widget) ac ->
     let track = new MapTrack.track ~name:ac ~color:color geomap in
     ignore (ac_menu_fact#add_item "Clear Track" ~callback:(fun () -> track#clear));
     ignore (ac_menu_fact#add_item "Resize Track" ~callback:(fun () -> resize_track ac track));
+    ignore (ac_menu_fact#add_item "Switch On-Off Cam Display" ~callback:(fun () -> track#switch_cam_state));
     Hashtbl.add live_aircrafts ac { track = track; color = color; fp_group = None }
   end
       
@@ -239,10 +263,40 @@ let listen_flight_params = fun () ->
     try
       let ac = Hashtbl.find live_aircrafts ac_id in
       let a = fun s -> Pprz.float_assoc s vs in
-      cam_pos_msg ac.track (a "cam_east") (a "cam_north") (a "target_east") (a "target_north") 
+      if (ac.track)#cam_state_on then cam_pos_msg ac.track (a "cam_east") (a "cam_north") (a "target_east") (a "target_north") 
+    with Not_found -> ()
+  in ignore (Ground_Pprz.message_bind "CAM_STATUS" get_cam_status);
+
+  let get_circle_status = fun _sender vs ->
+    let ac_id = Pprz.string_assoc "ac_id" vs in
+    try
+      let ac = Hashtbl.find live_aircrafts ac_id in
+      let a = fun s -> Pprz.float_assoc s vs in
+      circle_status_msg ac.track (a "circle_east") (a "circle_north") (int_of_string (Pprz.string_assoc "radius" vs)) 
     with Not_found -> ()
   in
-  ignore (Ground_Pprz.message_bind "CAM_STATUS" get_cam_status)
+  ignore (Ground_Pprz.message_bind "CIRCLE_STATUS" get_circle_status);
+
+  let get_segment_status = fun _sender vs ->
+    let ac_id = Pprz.string_assoc "ac_id" vs in
+    try
+      let ac = Hashtbl.find live_aircrafts ac_id in
+      let a = fun s -> Pprz.float_assoc s vs in
+      segment_status_msg ac.track (a "segment1_east") (a "segment1_north") (a "segment2_east") (a "segment2_north") 
+    with Not_found -> ()
+  in
+  ignore (Ground_Pprz.message_bind "SEGMENT_STATUS" get_segment_status);
+
+ let get_ap_status = fun _sender vs ->
+    let ac_id = Pprz.string_assoc "ac_id" vs in
+    try
+      let ac = Hashtbl.find live_aircrafts ac_id in
+      let a = fun s -> Pprz.string_assoc s vs in
+      ap_status_msg ac.track (a "horiz_mode") 
+    with Not_found -> ()
+  in
+  ignore (Ground_Pprz.message_bind "AP_STATUS" get_ap_status)
+
 
 let _ =
   let ivy_bus = ref "127.255.255.255:2010"
