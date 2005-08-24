@@ -122,12 +122,15 @@
     </session>
   
    <session name="flight microjet multimon">
-      <variable name="ivy_bus" value="127:2007"/>
+      <variable name="map"  value="ricouUTM.xml"/>
+      <variable name="ivy_bus" value="127:2010"/>
       <program name="http server"/>     
       <program name="multimon"><arg flag="-p" constant="/tmp/multimon"/></program>
       <program name="modem"><arg flag="-d" constant="/tmp/multimon"/></program>
       <program name="receive"/>     
       <program name="messages"><arg flag="-c" constant="telemetry_ap:1"/><arg flag="-c" constant="ground"/></program>
+      <program name="cockpit"/>
+      <program name="map 2d ml"/>
     </session>
 
    <session name="flight microjet multimon sim">

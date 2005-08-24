@@ -5,8 +5,8 @@
   </section>
   <servos min="1000" neutral="1500" max="2000">
     <servo name="GAZ"           no="0" min="1000" neutral="1000" max="2000"/>
-    <servo name="AILEVON_RIGHT"  no="5" min="1000" neutral="1500" max="2000"/>
-    <servo name="AILEVON_LEFT" no="1" min="1000" neutral="1700" max="2000"/>
+    <servo name="AILEVON_RIGHT"  no="5" min="1800" neutral="1480" max="1200"/>
+    <servo name="AILEVON_LEFT" no="1" min="1800" neutral="1480" max="1200"/>
   </servos>
   <command>
     <set servo="GAZ" value="2 * @THROTTLE"/>
@@ -21,27 +21,28 @@
   </section>
   <section name="INFRARED" prefix="IR_">
     <define name="ROLL_NEUTRAL_DEFAULT" value="-1040"/>
-    <define name="PITCH_NEUTRAL_DEFAULT" value="0"/>
+    <define name="PITCH_NEUTRAL_DEFAULT" value="70"/>
     <define name="DEFAULT_CONTRAST" value="400"/>
     <define name="RAD_OF_IR_CONTRAST" value="0.6"/>
     <linear name="RollOfIrs" arity="2" coeff1="-1" coeff2="-1"/>
     <linear name="PitchOfIrs" arity="2" coeff1="-1" coeff2="1"/>
   </section>
   <section name="PID">
-    <define name="ROLL_PGAIN" value="7000."/>
+    <define name="ROLL_PGAIN" value="5000."/>
     <define name="PITCH_OF_ROLL" value="0.2"/>
-    <define name="PITCH_PGAIN" value="10000."/>
+    <define name="PITCH_PGAIN" value="7000."/>
     <define name="MAX_ROLL" value="0.4"/>
-    <define name="MAX_PITCH" value="0.35"/>
+    <define name="AUTO1_MAX_ROLL" value="0.8"/>
+    <define name="MAX_PITCH" value="0.25"/>
     <define name="MIN_PITCH" value="-0.35"/>
-  </section>
+   </section>
   <section name="ALT" prefix="CLIMB_">
-    <define name="PITCH_PGAIN" value="-0.1"/>
-    <define name="PITCH_IGAIN" value="0.025"/>
+      <define name="PITCH_PGAIN" value="-0.1"/>
+    <define name="PITCH_IGAIN" value="1.0"/>
     <define name="PGAIN" value="-0.025"/>
     <define name="IGAIN" value="0.01"/>
     <define name="MAX" value="1."/>
-    <define name="LEVEL_GAZ" value="0.22"/>
+    <define name="LEVEL_GAZ" value="0.34"/>
     <define name="GAZ_OF_CLIMB" value="0.15" unit="% / m/s"/>
     <define name="PITCH_OF_VZ_PGAIN" value="0.00"/>
   </section>
@@ -52,8 +53,8 @@
   </section>
   <section name="BAT" channel="3">
     <define name="MILLIAMP_PER_PERCENT" value="2.16"/>
-    <define name="VOLTAGE_ADC_A" value="0.016892"/>
-    <define name="VOLTAGE_ADC_B" value="0.083604"/>
+    <define name="VOLTAGE_ADC_A" value="0.0139498"/>
+    <define name="VOLTAGE_ADC_B" value="0.382856"/>
     <define name="VoltageOfAdc(adc)" value="(VOLTAGE_ADC_A * adc + VOLTAGE_ADC_B)"/>
     <define name="LOW_BATTERY" value="90" unit="1e-1V"/>
   </section>
@@ -63,7 +64,7 @@
     <define name="ServosVoltageOfAdc(adc)" value="(VOLTAGE_ADC_A * adc + VOLTAGE_ADC_B)"/>
   </section>
   <section name="MISC">
-    <define name="NOMINAL_AIRSPEED" value="15."/>
+    <define name="NOMINAL_AIRSPEED" value="9."/>
     <define name="CARROT" value="5." unit="s"/>
   </section>
   <section name="SIMU">
@@ -72,3 +73,7 @@
     <define name="WEIGHT" value="0.45"/>
   </section>
 </airframe>
+
+
+
+

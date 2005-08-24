@@ -69,8 +69,6 @@ int main( void ) {
   nav_init();
   ir_init();
   estimator_init();
-  uart0_init();
-
   /** - start interrupt task */
   sei();
 

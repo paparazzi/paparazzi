@@ -25,7 +25,6 @@
  *)
 
 open Printf
-open Srtm
 open Latlong
 
 module Ground_Pprz = Pprz.Protocol(struct let name = "ground" end)
@@ -39,7 +38,7 @@ module G = MapCanvas
 
 let home = Env.paparazzi_home
 let (//) = Filename.concat
-let default_path_SRTM = home // "data" // "SRTM"
+let default_path_srtm = home // "data" // "srtm"
 let default_path_maps = home // "data" // "maps" // ""
 let default_path_missions = home // "conf"
 
@@ -138,7 +137,12 @@ let aircraft_pos_msg = fun track utm_x_ utm_y_ heading altitude ->
   | Some utm0 ->
       let en =  {G.east = utm_x_ -. utm0.utm_x; north = utm_y_ -. utm0.utm_y } in
       track#add_point en;
-      let h = Srtm.of_utm { utm_zone = utm0.utm_zone; utm_x = utm_x_; utm_y = utm_y_} in
+      let h = 
+	try
+	  Srtm.of_utm { utm_zone = utm0.utm_zone; utm_x = utm_x_; utm_y = utm_y_}
+	with
+	  _ -> truncate altitude
+      in
       track#move_icon en heading altitude (float_of_int h)
 
 let carrot_pos_msg = fun track utm_x utm_y ->
@@ -312,9 +316,7 @@ let _ =
   Ivy.init "Paparazzi map 2D" "READY" (fun _ _ -> ());
   Ivy.start !ivy_bus;
 
-  Srtm.add_path default_path_SRTM;
-
-  Srtm.add_path (Env.paparazzi_home ^ "/data/srtm");
+  Srtm.add_path default_path_srtm;
 
   let window = GWindow.window ~title: "Map2d" ~border_width:1 ~width:400 () in
   let vbox= GPack.vbox ~packing: window#add () in

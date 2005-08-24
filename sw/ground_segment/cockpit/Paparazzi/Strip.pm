@@ -92,7 +92,7 @@ sub completeinit {
      ap_mode => { 'MANUAL' => 'sienna', 'AUTO1' => 'blue', 'AUTO2' => 'brown', 'HOME' => 'red'},
      rc_status => {'OK' => 'brown', 'LOST' => 'orange', 'REALLY_LOST' => 'red'},
      rc_mode   => {'AUTO'=> 'orange', 'MANUAL' => 'brown', 'FAILSAFE' => 'red'},
-     contrast_status => {'DEFAULT' => 'orange', 'WAITING' => 'brown', 'SET' => 'set'},
+     contrast_status => {'DEFAULT' => 'orange', 'WAITING' => 'brown', 'SET' => 'green'},
      gps_mode => {'NOFIX' => 'red', 'DRO' => 'red', '2D' => 'orange', '3D' => 'brown', 'GPSDRO' => 'red'},
     };
 
