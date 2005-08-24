@@ -70,8 +70,6 @@ int main( void ) {
   ir_init();
   estimator_init();
 
-  uart0_init();
-
   /** - start interrupt task */
   sei();
 
@@ -118,6 +116,7 @@ int main( void ) {
 #ifdef SECTION_IMU_ANALOG
 	  /** - ahrs update */
 	  ahrs_update();
+	  Rajouter en init:  uart0_init();
 	  uart0_transmit('E');
       uart0_transmit(' ');
  	  uart0_print_hex16(euler[0]);
