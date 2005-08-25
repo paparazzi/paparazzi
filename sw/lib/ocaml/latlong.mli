@@ -107,6 +107,9 @@ geographic coordinates and altitude expressed in geodesic referential
 
 val utm_distance : utm -> utm -> fmeter 
 
+val utm_add : utm -> fmeter -> fmeter -> utm
+(** [add_utm utm east north] *)
+
 val wgs84_of_lambertIIe : meter -> meter -> geographic
 
 val of_string : string -> geographic

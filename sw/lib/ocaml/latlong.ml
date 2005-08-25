@@ -334,6 +334,9 @@ let of_cartesian ellips {x=x;y=y;z=z} =
 let utm_distance = fun utm1 utm2 ->
   if utm1.utm_zone <> utm2.utm_zone then invalid_arg "utm_distance";
   sqrt ((utm1.utm_x -. utm2.utm_x)**2. +. (utm1.utm_y -. utm2.utm_y)**2.)
+
+let utm_add = fun u x y ->
+  {utm_x = u.utm_x +. x; utm_y = u.utm_y +. y; utm_zone = u.utm_zone }
   
 let wgs84_of_lambertIIe = fun x y -> (WGS84<<NTF)(of_lambert lambertIIe {lbt_x = x; lbt_y = y})
 

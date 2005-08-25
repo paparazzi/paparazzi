@@ -142,16 +142,16 @@
   </message>
 	
   <message name="CIRCLE" ID="21">
-     <field name="center_x" type="int16" unit="m"/>
-     <field name="center_y" type="int16" unit="m"/>
+     <field name="center_east" type="int16" unit="m"/>
+     <field name="center_north" type="int16" unit="m"/>
      <field name="radius" type="int16" unit="m"/>
      </message>
 	
    <message name="SEGMENT" ID="22">
-      <field name="segment_x_1" type="int16" unit="m"/>
-      <field name="segment_y_1" type="int16" unit="m"/>
-      <field name="segment_x_2" type="int16" unit="m"/>
-      <field name="segment_y_2" type="int16" unit="m"/>
+      <field name="segment_east_1" type="int16" unit="m"/>
+      <field name="segment_north_1" type="int16" unit="m"/>
+      <field name="segment_east_2" type="int16" unit="m"/>
+      <field name="segment_north_2" type="int16" unit="m"/>
   </message>
 
   <message name="DOWNLINK_STATUS" ID="23">

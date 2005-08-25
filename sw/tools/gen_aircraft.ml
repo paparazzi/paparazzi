@@ -9,11 +9,23 @@ let mkdir = fun d ->
   if not (Sys.file_exists d) then
     Unix.mkdir d 0o755
 
+let check_unique_id = fun conf ->
+  let ids = Hashtbl.create 5 in
+  List.iter
+    (fun x -> 
+      if String.lowercase (Xml.tag x) = "aircraft" then 
+	let id = ExtXml.attrib x "ac_id" in
+	if Hashtbl.mem ids id then
+	  failwith (sprintf "Error: A/C Id '%s' duplicated in %s" id conf_xml);
+	Hashtbl.add ids id ())
+    (Xml.children conf)
+
 let _ =
   if Array.length Sys.argv <> 2 then
     failwith (sprintf "Usage: %s <A/C ident (conf.xml)>" Sys.argv.(0));
   let aircraft = Sys.argv.(1) in
   let conf = Xml.parse_file conf_xml in
+  check_unique_id conf;
   let aircraft_xml =
     try
       ExtXml.child conf ~select:(fun x -> Xml.attrib x "name" = aircraft) "aircraft"

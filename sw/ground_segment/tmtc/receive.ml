@@ -55,6 +55,7 @@ let gaz_modes = [|"MANUAL";"GAZ";"CLIMB";"ALT"|]
 let lat_modes = [|"MANUAL";"ROLL_RATE";"ROLL";"COURSE"|]
 let gps_modes = [|"NOFIX";"DRO";"2D";"3D";"GPSDRO"|]
 let if_modes = [|"OFF";"DOWN";"UP"|]
+let horiz_modes = [|"WAYPOINT";"ROUTE";"CIRCLE"|]
 
 let check_index = fun i t where ->
   if i < 0 || i >= Array.length t then begin
@@ -112,13 +113,17 @@ let svinfo_init = {
     azim = 0;
   }
 
+type horiz_mode = 
+    Circle of utm * int
+  | Segment of utm * utm
+  | UnknownHorizMode
+
 type aircraft = { 
     id : string;
     mutable pos : Latlong.utm;
     mutable roll    : float;
     mutable pitch   : float;
-    mutable nav_ref_east    : float;
-    mutable nav_ref_north    : float;
+    mutable nav_ref    : Latlong.utm;
     mutable desired_east    : float;
     mutable desired_north    : float;
     mutable desired_altitude    : float;
@@ -139,6 +144,7 @@ type aircraft = {
     mutable ap_mode : int;
     mutable gaz_mode : int;
     mutable lateral_mode : int;
+    mutable horizontal_mode : int;
     cam : ac_cam;
     mutable gps_mode : int;
     inflight_calib : inflight_calib;
@@ -147,7 +153,8 @@ type aircraft = {
     svinfo : svinfo array;
     mutable flight_time : int;
     mutable stage_time : int;
-    mutable block_time : int
+    mutable block_time : int;
+    mutable horiz_mode : horiz_mode
   }
 
 (** The aircrafts store *)
@@ -242,8 +249,7 @@ let log_and_parse = fun log ac_name a msg values ->
 	a.desired_altitude <- fvalue "desired_altitude";
 	a.desired_climb <- fvalue "desired_climb"
     | "NAVIGATION_REF" ->
-	a.nav_ref_east <- fvalue "utm_east";
-	a.nav_ref_north <- fvalue "utm_north"
+	a.nav_ref <- { utm_x = fvalue "utm_east"; utm_y = fvalue "utm_north"; utm_zone = a.pos.utm_zone }
     | "ATTITUDE" ->
 	a.roll <- (Deg>>Rad) (fvalue "phi");
 	a.pitch <- (Deg>>Rad) (fvalue "theta")
@@ -262,6 +268,7 @@ let log_and_parse = fun log ac_name a msg values ->
 	a.ap_mode <- check_index (ivalue "ap_mode") ap_modes "AP_MODE";
 	a.gaz_mode <- check_index (ivalue "ap_gaz") gaz_modes "AP_GAZ";
 	a.lateral_mode <- check_index (ivalue "ap_lateral") lat_modes "AP_LAT";
+	a.horizontal_mode <- check_index (ivalue "ap_horizontal") horiz_modes "AP_HORIZ";
 	a.inflight_calib.if_mode <- check_index (ivalue "if_calib_mode") if_modes "IF_MODE";
 	let mcu1_status = ivalue "mcu1_status" in
 	(** c.f. link_autopilot.h *)
@@ -302,6 +309,12 @@ let log_and_parse = fun log ac_name a msg values ->
 	  elev = ivalue "Elev";
 	  azim = ivalue "Azim";
 	}
+    | "CIRCLE" ->
+	a.horiz_mode <- Circle (Latlong.utm_add a.nav_ref (fvalue "center_east") (fvalue "center_north"), ivalue "radius")
+    | "SEGMENT" ->
+	let p1 = Latlong.utm_add a.nav_ref (fvalue "segment_east_1") (fvalue "segment_north_1")
+	and p2 = Latlong.utm_add a.nav_ref (fvalue "segment_east_2") (fvalue "segment_north_2") in
+	a.horiz_mode <- Segment (p1, p2)
     | _ -> ()
 
 (** Callback for a message from a registered A/C *)
@@ -374,6 +387,22 @@ let send_svsinfo = fun a ->
 	    f "cno" cno; f "elev" elev; f "azim" azim] in
   Ground_Pprz.message_send my_id "SVSINFO" vs
 
+let send_horiz_status = fun a ->
+  match a.horiz_mode with
+    Circle (utm, r) ->
+      let vs = [ "ac_id", Pprz.String a.id; 
+		 "circle_east", Pprz.Float utm.utm_x;
+		 "circle_north", Pprz.Float utm.utm_y;
+		 "radius", Pprz.Int r ] in
+       Ground_Pprz.message_send my_id "CIRCLE_STATUS" vs
+  | Segment (u1, u2) ->
+      let vs = [ "ac_id", Pprz.String a.id; 
+		 "segment1_east", Pprz.Float u1.utm_x;
+		 "segment1_north", Pprz.Float u1.utm_y;
+		 "segment2_east", Pprz.Float u2.utm_x;
+		 "segment2_north", Pprz.Float u2.utm_y ] in
+      Ground_Pprz.message_send my_id "SEGMENT_STATUS" vs
+  | UnknownHorizMode -> ()
 
 
 let send_aircraft_msg = fun ac ->
@@ -397,8 +426,8 @@ let send_aircraft_msg = fun ac ->
 		  "cur_stage", Pprz.Int a.cur_stage;
 		  "stage_time", Pprz.Int a.stage_time;
 		  "block_time", Pprz.Int a.block_time;
-		  "target_east", f (a.nav_ref_east+.a.desired_east);
-		  "target_north", f (a.nav_ref_north+.a.desired_north);
+		  "target_east", f (a.nav_ref.utm_x+.a.desired_east);
+		  "target_north", f (a.nav_ref.utm_y+.a.desired_north);
 		  "target_alt", Pprz.Float a.desired_altitude;
 		  "target_climb", Pprz.Float a.desired_climb;
 		  "target_course", Pprz.Float ((Rad>>Deg)a.desired_course)
@@ -417,12 +446,14 @@ let send_aircraft_msg = fun ac ->
     let ap_mode = get_indexed_value ap_modes a.ap_mode in
     let gaz_mode = get_indexed_value gaz_modes a.gaz_mode in
     let lat_mode = get_indexed_value lat_modes a.lateral_mode in
+    let horiz_mode = get_indexed_value horiz_modes a.horizontal_mode in
     let gps_mode = get_indexed_value gps_modes a.gps_mode in
     let values = ["ac_id", Pprz.String ac; 
 		  "flight_time", Pprz.Int a.flight_time;
 		  "ap_mode", Pprz.String ap_mode; 
 		  "gaz_mode", Pprz.String gaz_mode;
 		  "lat_mode", Pprz.String lat_mode;
+		  "horiz_mode", Pprz.String horiz_mode;
 		  "gps_mode", Pprz.String gps_mode] in
     Ground_Pprz.message_send my_id "AP_STATUS" values;
 
@@ -430,13 +461,14 @@ let send_aircraft_msg = fun ac ->
     send_if_calib a;
     send_fbw a;
     send_infrared a;
-    send_svsinfo a
+    send_svsinfo a;
+    send_horiz_status a
   with
     Not_found -> prerr_endline ac
   | x -> prerr_endline (Printexc.to_string x)
       
 let new_aircraft = fun id ->
-    { id = id ; roll = 0.; pitch = 0.; nav_ref_east = 0.; nav_ref_north = 0.; desired_east = 0.; desired_north = 0.; 
+    { id = id ; roll = 0.; pitch = 0.; desired_east = 0.; desired_north = 0.; 
       desired_course = 0.;
 	gspeed=0.; course = 0.; alt=0.; climb=0.; cur_block=0; cur_stage=0; throttle = 0.; rpm = 0.; temp = 0.; bat = 0.; amp = 0.; energy = 0.; ap_mode= -1;
       gaz_mode= -1; lateral_mode= -1;
@@ -444,12 +476,15 @@ let new_aircraft = fun id ->
       desired_altitude = 0.;
       desired_climb = 0.;
       pos = { utm_x = 0.; utm_y = 0.; utm_zone = 0 };
+      nav_ref = { utm_x = 0.; utm_y = 0.; utm_zone = 0 };
       cam = { phi = 0.; theta = 0. };
       inflight_calib = { if_mode = 1 ; if_val1 = 0.; if_val2 = 0.};
       infrared = infrared_init;
       fbw = { rc_status = "???"; rc_mode = "???" };
       svinfo = Array.create gps_nb_channels svinfo_init;
-      flight_time = 0; stage_time = 0; block_time = 0
+      flight_time = 0; stage_time = 0; block_time = 0;
+      horiz_mode = UnknownHorizMode;
+      horizontal_mode = 0
     }
     
 let register_aircraft = fun name a ->
