@@ -95,6 +95,7 @@ class track = fun ?(name="coucou") ?(size = 50) ?(color="red") (geomap:MapCanvas
   let max_oblic_distance = 10000.0 /. (geomap#get_world_unit ()) in
   let min_distance = 10.  /. (geomap#get_world_unit ()) in
   let min_height = 0.1 /. (geomap#get_world_unit ()) in
+  (***) let cpt = ref 0 in (***)
   
   object (self)
     val mutable segments = Array.create size empty
@@ -191,6 +192,7 @@ class track = fun ?(name="coucou") ?(size = 50) ?(color="red") (geomap:MapCanvas
 (** all data are at map scale *)
       
       begin
+	cpt := !cpt + 1;
 	if previous_cam_state_on then (!ac_cam_cover)#destroy ();
 	let pt1 = { x2D = last_xw; y2D = last_yw} in
 	let pt2 = { x2D = xw ; y2D = yw } in
@@ -225,11 +227,11 @@ class track = fun ?(name="coucou") ?(size = 50) ?(color="red") (geomap:MapCanvas
 	    begin
 (***	      Printf.printf "dist %.2f aoview %.2f oblic_distance %.2f cfh1 %.2f cfh2 %.2f cfhw %.2f last_xw %.2f last_yw %.2f cam_heading %.2f \n%!" (d  *. (geomap#get_world_unit ()) ) angle_of_view (oblic_distance  *. (geomap#get_world_unit ()) ) (cam_field_half_height_1  *. (geomap#get_world_unit ()) ) (cam_field_half_height_2  *. (geomap#get_world_unit ()) ) (cam_field_half_width  *. (geomap#get_world_unit ()) ) last_xw last_yw cam_heading; ***)
 	      
-	      ac_cam_cover := GnoCanvas.rect ~x1:(-. cam_field_half_width) ~y1:(-. cam_field_half_height_1) ~x2:(cam_field_half_width) ~y2:(cam_field_half_height_2) ~fill_color:"grey" ~props:[`WIDTH_UNITS 1. ; `OUTLINE_COLOR color; `FILL_STIPPLE (Gdk.Bitmap.create_from_data ~width:2 ~height:2 "\002\001")] cam;
+	      ac_cam_cover := GnoCanvas.rect ~x1:(-. cam_field_half_width) ~y1:(-. cam_field_half_height_1) ~x2:(cam_field_half_width) ~y2:(cam_field_half_height_2) ~fill_color:"grey" ~props:[`WIDTH_PIXELS 1 ; `OUTLINE_COLOR color; `FILL_STIPPLE (Gdk.Bitmap.create_from_data ~width:2 ~height:2 "\002\001")] cam;
 	      previous_cam_state_on <- true
 	    end
 	  end;
-	  cam#affine_absolute (affine_pos_and_angle geomap#zoom_adj#value xw yw cam_heading);	 
+	  cam#affine_absolute (affine_pos_and_angle 1.0 xw yw cam_heading);
 	  cam_targeted#affine_absolute (affine_pos_and_angle geomap#zoom_adj#value xw yw 0.0);
 	  mission_target#affine_absolute (affine_pos_and_angle geomap#zoom_adj#value mission_target_xw mission_target_yw 0.0)
 	end;
