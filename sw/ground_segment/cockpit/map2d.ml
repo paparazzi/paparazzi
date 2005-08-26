@@ -199,7 +199,10 @@ let ask_fp = fun geomap ac ->
   let get_config = fun _sender values ->
     let file = Pprz.string_assoc "flight_plan" values in
     let ac = Hashtbl.find live_aircrafts ac in
-    ac.fp_group <- Some (load_mission ac.color  geomap file) in
+    try
+      ac.fp_group <- Some (load_mission ac.color  geomap file)
+    with Failure x ->
+      GToolbox.message_box ~title:"Error while loading flight plan" x in
   Ground_Pprz.message_req "map2d" "CONFIG" ["ac_id", Pprz.String ac] get_config
 
 
