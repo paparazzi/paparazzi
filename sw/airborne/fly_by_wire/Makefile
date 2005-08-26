@@ -24,6 +24,7 @@ LOCAL_CFLAGS= $(CTL_BRD_FLAGS)
 
 ARCH	  = atmega8
 TARGET	  = fbw
+TARGETDIR = fbw
 #LOW_FUSE  = 3f # crystal       #
 #LOW_FUSE  = 31 # internal 1MHz #
 #LOW_FUSE  = 1e  # ceramic resonator slow rising power p26 #

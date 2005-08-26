@@ -45,7 +45,7 @@
 float phi_c, theta_c;
 float target_x, target_y;
 
-void cam_manual() {
+void cam_manual( void ) {
   int16_t yaw = from_fbw.channels[RADIO_YAW];
   if (yaw > MIN_PPRZ_CAM || yaw < -MIN_PPRZ_CAM) {
     phi_c += FLOAT_OF_PPRZ(yaw, 0, DELTA_ALPHA);
@@ -60,12 +60,12 @@ void cam_manual() {
   }
 }
 
-void cam_nadir() {
+void cam_nadir( void ) {
   phi_c = -estimator_phi;
   theta_c = -estimator_theta;
 }
 
-void cam_target() {
+void cam_target( void ) {
   float h = estimator_z - target_alt;
   float c_psi = cos(estimator_psi);
   float s_psi = sin(estimator_psi);
@@ -75,7 +75,7 @@ void cam_target() {
 
 #define MAX_DIST_TARGET 500.
 
-void cam_manual_target() {
+void cam_manual_target( void ) {
   int16_t yaw = from_fbw.channels[RADIO_YAW];
   if (yaw > MIN_PPRZ_CAM || yaw < -MIN_PPRZ_CAM) {
     target_x += FLOAT_OF_PPRZ(yaw, 0, -20.);
@@ -91,13 +91,13 @@ void cam_manual_target() {
   cam_target();
 }
 
-void cam_waypoint_target(uint8_t wp) {
+void cam_waypoint_target( uint8_t wp ) {
   target_x = waypoints[wp].x;
   target_y = waypoints[wp].y;
   cam_target();
 }
 
-void cam_carrot() {
+void cam_carrot( void ) {
   target_x = carrot_x;
   target_y = carrot_y;
   cam_target();

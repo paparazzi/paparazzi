@@ -318,6 +318,7 @@ sub set_item {
 #  print "in Strip::set_item $item_name $string $color ($self->{prefix})\n";
   my $zinc = $self->get('-zinc');
   my $item = $zinc->find('withtag', $self->{prefix}.$item_name."_value");
+  print "in Strip::set_item $item_name $string color $color\n";
   $zinc->itemconfigure($item, -text => $string, -color  => $color);
 }
 

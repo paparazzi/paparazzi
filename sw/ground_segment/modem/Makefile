@@ -22,6 +22,7 @@
 
 ARCH		= atmega8
 TARGET		= modem_gnd
+TARGETDIR       = modem_gnd
 LOW_FUSE =  3f
 HIGH_FUSE = cb
 EXT_FUSE=   ff

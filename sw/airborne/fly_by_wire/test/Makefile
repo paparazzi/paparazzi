@@ -28,6 +28,7 @@ LOCAL_CFLAGS= $(CTL_BRD_FLAGS)
 
 ARCH      = atmega8
 TARGET	  = check_uart
+TARGETDIR = fbw/check_uart
 
 
 VARINCLUDE = $(PAPARAZZI_HOME)/var/include

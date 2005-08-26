@@ -26,7 +26,7 @@
 # Edit the configuration part to suit your local install
 #
 
-OBJDIR = $(PAPARAZZI_HOME)/var/$(AIRCRAFT)/$(TARGET)
+OBJDIR = $(PAPARAZZI_HOME)/var/$(AIRCRAFT)/$(TARGETDIR)
 
 CC		= $(ATMELBIN)/avr-gcc -mmcu=$(ARCH)
 LD		= $(CC) $(ATMEL_LIBPATH)
@@ -124,7 +124,7 @@ check_arch :
 	if ($(UISP) $(UISP_FLAGS) 2>&1 | tr '[:upper:]' '[:lower:]' | grep $(ARCH)); then : ; else echo "Wrong architecture (mcu0 vs mcu1 ?)"; exit 1; fi
 
 avr_clean:
-	cd $(OBJDIR); rm -f *.hex *.elf *.out core *.o *.a *~ *.s *.cm* .depend
+	rm -rf $(OBJDIR)
 
 
 #

@@ -4,7 +4,7 @@ all:
 	@echo "call with 'make TARGET=... compile (or load)'"
 
 TARGET=check_uart
-
+TARGETDIR=autopilot/test
 ARCH      = atmega128
 VARINCLUDE = ../../../var/include
 INCLUDES = -I .. -I ../../../include -I $(VARINCLUDE)

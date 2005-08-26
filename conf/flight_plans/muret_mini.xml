@@ -17,11 +17,10 @@
 
   <blocks>
     <block NAME="init">
-       <go hmode="route" wp="HOME"/>
-	<go hmode="route" wp="HOME" wp_qdr="0" wp_dist="500"/>
-      <go hmode="route" wp="HOME" wp_qdr="90" wp_dist="500"/>
-      <go hmode="route" wp="HOME"/>
-
+      <go wp="HOME"/>
+      <go hmode="route" wp="HOME" wp_qdr="0" wp_dist="500" from="HOME"/>
+      <go hmode="route" wp="HOME" wp_qdr="90" wp_dist="500" from="HOME" from_qdr="0" from_dist="500"/>
+      <go hmode="route" wp="HOME" from="HOME" from_qdr="90" from_dist="500"/>
       <circle wp="HOME" alt="GROUND_ALT+50" radius="75"/>
     </block>
   </blocks>

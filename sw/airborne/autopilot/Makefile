@@ -31,6 +31,7 @@ ACINCLUDE = $(PAPARAZZI_HOME)/var/$(AIRCRAFT)
 
 ARCH	  = atmega128
 TARGET 	  = autopilot
+TARGETDIR = autopilot
 
 LOW_FUSE  = e0
 HIGH_FUSE = 99

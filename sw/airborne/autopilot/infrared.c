@@ -25,6 +25,8 @@
  *  \brief Regroup all functions link to \a ir
  */
 
+#include <stdlib.h>
+
 #include "adc.h"
 #include "infrared.h"
 #include "autopilot.h"
