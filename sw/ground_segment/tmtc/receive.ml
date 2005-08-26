@@ -511,7 +511,7 @@ let send_config = fun _asker args ->
       try
 	let conf = ExtXml.child conf_xml "aircraft" ~select:(fun x -> ExtXml.attrib x "ac_id" = ac_id) in
 	let ac_name = ExtXml.attrib conf "name" in
-	let prefix = fun s -> sprintf "http://%s:8889/%s" "localhost" s in
+	let prefix = fun s -> sprintf "http://%s:8889/%s" (Unix.gethostname ()) s in
 	(** Expanded flight plan has been compiled in var/ *)
 	let fp = prefix ("var" // ac_name // "flight_plan.xml")
 	and af = prefix ("conf" // ExtXml.attrib conf "airframe")

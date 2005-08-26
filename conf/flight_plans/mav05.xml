@@ -1,0 +1,42 @@
+<flight_plan SECURITY_HEIGHT="25" lat0="47.482400" lon0="11.092700" ground_alt="722" qfu="0" alt="772" max_dist_from_home="300" name="Garmisch">
+  <rc_control>
+    <mode NAME="AUTO1">
+      <setting VAR="ir_pitch_neutral" RANGE="60." RC="gain_1_up" TYPE="int16"/>
+      <setting VAR="ir_roll_neutral" RANGE="-60." RC="gain_1_down" TYPE="int16"/>
+    </mode>
+    <mode NAME="AUTO2">
+      <setting VAR="course_pgain" RANGE="0.1" RC="gain_1_up" TYPE="float"/>
+      <setting VAR="pitch_of_roll" RANGE=".2" RC="gain_1_down" TYPE="float"/>
+    </mode>
+  </rc_control>
+  <waypoints>
+    <waypoint Y="0" NAME="HOME" X="0"/>
+  </waypoints>
+  <include Y="100" NAME="up_and_down" PROCEDURE="circles.xml" X="00" ROTATE="0">
+    <arg NAME="bottom" VALUE="GROUND_ALT+50"/>
+    <with FROM="event1" TO="bh50.go"/>
+  </include>
+  <include Y="200" NAME="bh50" PROCEDURE="bh.xml" X="0" ROTATE="0">
+    <arg NAME="height" VALUE="50"/>
+    <with FROM="event1" TO="bh30.go"/>
+    <with FROM="event2" TO="circlehome"/>
+  </include>
+  <include Y="200" NAME="bh30" PROCEDURE="bh.xml" X="0" ROTATE="0">
+    <arg NAME="height" VALUE="30"/>
+    <with FROM="event1" TO="circlehome"/>
+    <with FROM="event2" TO="circlehome"/>
+  </include>
+  <blocks>
+    <block NAME="init">
+      <while COND="(!launch)"/>
+      <heading GAZ="0.8" PITCH="0.15" COURSE="QFU" UNTIL="(estimator_flight_time > 8)" VMODE="gaz"/>
+      <heading PITCH="0.15" CLIMB="3.0" COURSE="QFU" UNTIL="(estimator_z > SECURITY_ALT)" VMODE="climb"/>
+      <deroute BLOCK="circlehome"/>
+    </block>
+    <block NAME="circlehome">
+      <exception COND="(RcEvent1())" DEROUTE="up_and_down.climb"/>
+      <circle WP="HOME" ALT="GROUND_ALT+50" RADIUS="75"/>
+    </block>
+  </blocks>
+</flight_plan>
+

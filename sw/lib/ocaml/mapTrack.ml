@@ -51,7 +51,7 @@ let cam_half_aperture = m_pi /. 4.0
 let half_pi = m_pi /. 2.0
 let sqrt_2_div_2 = sqrt 2.0
 
-class track = fun ?(name="coucou") ?(size = 50) ?(color="red") (geomap:MapCanvas.widget) ->
+class track = fun ?(name="coucou") ?(size = 500) ?(color="red") (geomap:MapCanvas.widget) ->
   let group = GnoCanvas.group geomap#canvas#root in
   let empty = ({ G.east = 0.; north = 0. },  GnoCanvas.line group) in
 
@@ -70,10 +70,8 @@ class track = fun ?(name="coucou") ?(size = 50) ?(color="red") (geomap:MapCanvas
   let cam = GnoCanvas.group group in
   
 (** rectangle representing the field covered by the cam *)
-  let ac_cam_cover = ref ( GnoCanvas.rect cam) in 
-  let cam_targeted = GnoCanvas.group group in
   let _ac_cam_targeted =
-    ignore ( GnoCanvas.ellipse ~x1: (-. 2.5) ~y1: (-. 2.5) ~x2: 2.5 ~y2: 2.5 ~fill_color:color ~props:[`WIDTH_UNITS 1.; `OUTLINE_COLOR color; `FILL_STIPPLE (Gdk.Bitmap.create_from_data ~width:2 ~height:2 "\002\001")] cam_targeted ) in
+    ignore ( GnoCanvas.ellipse ~x1: (-. 2.5) ~y1: (-. 2.5) ~x2: 2.5 ~y2: 2.5 ~fill_color:color ~props:[`WIDTH_UNITS 1.; `OUTLINE_COLOR color; `FILL_STIPPLE (Gdk.Bitmap.create_from_data ~width:2 ~height:2 "\002\001")] cam) in
   
   let mission_target = GnoCanvas.group group in
   
@@ -81,21 +79,11 @@ class track = fun ?(name="coucou") ?(size = 50) ?(color="red") (geomap:MapCanvas
   let ac_mission_target =
     ignore ( GnoCanvas.ellipse ~x1: (-5.) ~y1: (-5.) ~x2: 5. ~y2: 5. ~fill_color:"red" ~props:[`WIDTH_UNITS 1.; `OUTLINE_COLOR "red"; `FILL_STIPPLE (Gdk.Bitmap.create_from_data ~width:2 ~height:2 "\002\001")] mission_target ) in
   
-  let circle_mode = GnoCanvas.group group in
-  
-(** green circle: circle to be followed by the aircraft in circle mode *)
-  let circle_mode_icon = ref ( GnoCanvas.ellipse mission_target ) in
-  let segment_mode = GnoCanvas.group group in
-
-(** green segment: line to be followed by the aircraft between two waypoints *)
-  let segment_mode_icon = ref (GnoCanvas.line segment_mode) in
-
-(** data at map scale *)
+ (** data at map scale *)
   let max_cam_half_height = 10000.0 /. (geomap#get_world_unit ()) in
   let max_oblic_distance = 10000.0 /. (geomap#get_world_unit ()) in
   let min_distance = 10.  /. (geomap#get_world_unit ()) in
   let min_height = 0.1 /. (geomap#get_world_unit ()) in
-  (***) let cpt = ref 0 in (***)
   
   object (self)
     val mutable segments = Array.create size empty
@@ -106,10 +94,9 @@ class track = fun ?(name="coucou") ?(size = 50) ?(color="red") (geomap:MapCanvas
     val mutable last_height = 0.0
     val mutable last_xw = 0.0
     val mutable last_yw = 0.0
-    val mutable cam_on = true
-    val mutable previous_cam_state_on = true
-    val mutable previous_horizontal_mode = "WAYPOINT"
-    val mutable current_horizontal_mode = "WAYPOINT"
+    val mutable cam_on = false
+    val mutable desired_track =  ((GnoCanvas.ellipse group) :> GnoCanvas.base_item)
+    val mutable ac_cam_cover = GnoCanvas.rect cam
     method track = track
     method aircraft = aircraft
     method clear_one = fun i ->
@@ -125,12 +112,7 @@ class track = fun ?(name="coucou") ?(size = 50) ?(color="red") (geomap:MapCanvas
 	self#clear_one i
       done;
       top <- 0
-    method switch_cam_state =
-      if cam_on then 
-	(!ac_cam_cover)#destroy ();
-      previous_cam_state_on <- cam_on;
-      cam_on <- not cam_on
-    method cam_state_on = cam_on
+    method set_cam_state = fun b -> cam_on <- b
     method add_point = fun en ->
       self#clear_one top;
       begin
@@ -153,47 +135,29 @@ class track = fun ?(name="coucou") ?(size = 50) ?(color="red") (geomap:MapCanvas
       ac_label#affine_absolute (affine_pos_and_angle geomap#zoom_adj#value xw yw 0.);
     method move_carrot = fun en ->
       let (xw,yw) = geomap#world_of_en en in
-      carrot#affine_absolute (affine_pos_and_angle geomap#zoom_adj#value xw yw 0.)
-
-(** updates the autopilot status *)
-    method update_ap_status = fun horizontal_mode ->
-      current_horizontal_mode <- horizontal_mode
+      carrot#affine_absolute (affine_pos_and_angle geomap#zoom_adj#value xw yw 0.);
 
 (** draws the circular path to be followed by the aircraft in circle mode *)
     method draw_circle = fun en radius ->
-      if ( current_horizontal_mode = "CIRCLE" || (***) current_horizontal_mode = "42" (***)) then
-	let fradius = (float_of_int radius) /. (geomap#get_world_unit ()) in
-	let (xw,yw) = geomap#world_of_en en in
-	begin
-	  if previous_horizontal_mode ="CIRCLE" then (!circle_mode_icon)#destroy ()
-	  else
-	    if previous_horizontal_mode ="SEGMENT" then (!segment_mode_icon)#destroy ();
-	  circle_mode_icon := ( GnoCanvas.ellipse ~x1: ( -.fradius ) ~y1: (-. fradius) ~x2: (fradius ) ~y2: (fradius) ~props:[`WIDTH_UNITS 1.; `OUTLINE_COLOR "green"; `FILL_STIPPLE (Gdk.Bitmap.create_from_data ~width:2 ~height:2 "\002\001")] circle_mode);
-	  circle_mode#affine_absolute (affine_pos_and_angle geomap#zoom_adj#value xw yw 0.);
-	  previous_horizontal_mode <- "CIRCLE";
-	end
+      desired_track#destroy ();
+      desired_track <- ((geomap#circle ~color:"green" en radius) :> GnoCanvas.base_item)
 
 (** draws the linear path to be followed by the aircraft between two waypoints *)
     method draw_segment = fun en en2 ->
-      if ( current_horizontal_mode = "SEGMENT" || (***) current_horizontal_mode = "42" (***)) then
-	begin
-	  if previous_horizontal_mode ="CIRCLE" then (!circle_mode_icon)#destroy ()
-	  else
-	    if previous_horizontal_mode = "SEGMENT" then (!segment_mode_icon)#destroy ();
-	  segment_mode_icon := geomap#segment ~group:segment_mode ~fill_color:"green" en en2;
-	  previous_horizontal_mode <- "SEGMENT"
-	end
+      desired_track#destroy ();
+      desired_track <-  ((geomap#segment ~fill_color:"green" en en2) :> GnoCanvas.base_item)
 	  
 (** moves the rectangle representing the field covered by the camera *)
     method move_cam = fun en mission_target_en ->
-      let (xw,yw) = geomap#world_of_en en in 
-      let (mission_target_xw, mission_target_yw) = geomap#world_of_en mission_target_en in
-      
+      if not cam_on then
+	cam#hide ()
+      else
+	let (xw,yw) = geomap#world_of_en en in 
+	let (mission_target_xw, mission_target_yw) = geomap#world_of_en mission_target_en in
+	
 (** all data are at map scale *)
-      
-      begin
-	cpt := !cpt + 1;
-	if previous_cam_state_on then (!ac_cam_cover)#destroy ();
+	
+	begin
 	let pt1 = { x2D = last_xw; y2D = last_yw} in
 	let pt2 = { x2D = xw ; y2D = yw } in
 	
@@ -227,13 +191,13 @@ class track = fun ?(name="coucou") ?(size = 50) ?(color="red") (geomap:MapCanvas
 	    begin
 (***	      Printf.printf "dist %.2f aoview %.2f oblic_distance %.2f cfh1 %.2f cfh2 %.2f cfhw %.2f last_xw %.2f last_yw %.2f cam_heading %.2f \n%!" (d  *. (geomap#get_world_unit ()) ) angle_of_view (oblic_distance  *. (geomap#get_world_unit ()) ) (cam_field_half_height_1  *. (geomap#get_world_unit ()) ) (cam_field_half_height_2  *. (geomap#get_world_unit ()) ) (cam_field_half_width  *. (geomap#get_world_unit ()) ) last_xw last_yw cam_heading; ***)
 	      
-	      ac_cam_cover := GnoCanvas.rect ~x1:(-. cam_field_half_width) ~y1:(-. cam_field_half_height_1) ~x2:(cam_field_half_width) ~y2:(cam_field_half_height_2) ~fill_color:"grey" ~props:[`WIDTH_PIXELS 1 ; `OUTLINE_COLOR color; `FILL_STIPPLE (Gdk.Bitmap.create_from_data ~width:2 ~height:2 "\002\001")] cam;
-	      previous_cam_state_on <- true
+	      ac_cam_cover#destroy ();
+	      ac_cam_cover <- GnoCanvas.rect ~x1:(-. cam_field_half_width) ~y1:(-. cam_field_half_height_1) ~x2:(cam_field_half_width) ~y2:(cam_field_half_height_2) ~fill_color:"grey" ~props:[`WIDTH_PIXELS 1 ; `OUTLINE_COLOR color; `FILL_STIPPLE (Gdk.Bitmap.create_from_data ~width:2 ~height:2 "\002\001")] cam
 	    end
 	  end;
 	  cam#affine_absolute (affine_pos_and_angle 1.0 xw yw cam_heading);
-	  cam_targeted#affine_absolute (affine_pos_and_angle geomap#zoom_adj#value xw yw 0.0);
-	  mission_target#affine_absolute (affine_pos_and_angle geomap#zoom_adj#value mission_target_xw mission_target_yw 0.0)
+	  mission_target#affine_absolute (affine_pos_and_angle geomap#zoom_adj#value mission_target_xw mission_target_yw 0.0);
+	  cam#show ()
 	end;
       end
 	

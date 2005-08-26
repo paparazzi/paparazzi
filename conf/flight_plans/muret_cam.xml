@@ -1,6 +1,6 @@
 <!DOCTYPE flight_plan SYSTEM "flight_plan.dtd">
 
-<flight_plan NAME="example - Muret for camera control" LON0="1.27289" MAX_DIST_FROM_HOME="1000" GROUND_ALT="185" SECURITY_HEIGHT="25" QFU="270" ALT="250" LAT0="43.46223">
+<flight_plan NAME="example - Muret for camera control" LON0="1.27289" MAX_DIST_FROM_HOME="500" GROUND_ALT="185" SECURITY_HEIGHT="25" QFU="270" ALT="250" LAT0="43.46223">
   <rc_control>
     <mode NAME="AUTO1">
       <setting VAR="ir_pitch_neutral" RANGE="60." RC="gain_1_up" TYPE="int16"/>

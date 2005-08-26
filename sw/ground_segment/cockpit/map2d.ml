@@ -107,6 +107,7 @@ let load_mission = fun color geomap url ->
   and lon0 = float_attr xml "lon0" in
   let utm0 = utm_of WGS84 {posn_lat = (Deg>>Rad)lat0; posn_long = (Deg>>Rad)lon0 } in
   let waypoints = ExtXml.child xml "waypoints" in
+  let max_dist_from_home = float_attr xml "MAX_DIST_FROM_HOME" in
   
   let utm_ref =
     match !map_ref with
@@ -125,8 +126,10 @@ let load_mission = fun color geomap url ->
     (fun wp ->
       let en = en_of_xy (float_attr wp "x") (float_attr wp "y") in
       let alt = try Some (float_attr wp "alt") with _ -> None in
-      ignore (MapWaypoints.waypoint fp ~name:(ExtXml.attrib wp "name") ?alt en)
-    )
+      ignore (MapWaypoints.waypoint fp ~name:(ExtXml.attrib wp "name") ?alt en);
+      if  ExtXml.attrib wp "name" = "HOME" then
+	ignore (geomap#circle ~color en max_dist_from_home)
+    ) 
     (Xml.children waypoints);
   fp
 
@@ -183,7 +186,8 @@ let circle_status_msg = fun track utm_x utm_y radius ->
       track#draw_circle en radius
 
 let ap_status_msg = fun track horizontal_mode ->
-      track#update_ap_status horizontal_mode
+  ()
+    
 
 let new_color =
   let colors = ref ["red"; "blue"; "green"] in
@@ -233,7 +237,8 @@ let one_new_ac = fun (geomap:MapCanvas.widget) ac ->
     let track = new MapTrack.track ~name:ac ~color:color geomap in
     ignore (ac_menu_fact#add_item "Clear Track" ~callback:(fun () -> track#clear));
     ignore (ac_menu_fact#add_item "Resize Track" ~callback:(fun () -> resize_track ac track));
-    ignore (ac_menu_fact#add_item "Switch On-Off Cam Display" ~callback:(fun () -> track#switch_cam_state));
+    let cam = ac_menu_fact#add_check_item "Cam Display" ~active:false in
+    ignore (cam#connect#toggled (fun () -> track#set_cam_state cam#active));
     Hashtbl.add live_aircrafts ac { track = track; color = color; fp_group = None }
   end
       
@@ -270,7 +275,7 @@ let listen_flight_params = fun () ->
     try
       let ac = Hashtbl.find live_aircrafts ac_id in
       let a = fun s -> Pprz.float_assoc s vs in
-      if (ac.track)#cam_state_on then cam_pos_msg ac.track (a "cam_east") (a "cam_north") (a "target_east") (a "target_north") 
+      cam_pos_msg ac.track (a "cam_east") (a "cam_north") (a "target_east") (a "target_north") 
     with Not_found -> ()
   in ignore (Ground_Pprz.message_bind "CAM_STATUS" get_cam_status);
 
@@ -279,7 +284,7 @@ let listen_flight_params = fun () ->
     try
       let ac = Hashtbl.find live_aircrafts ac_id in
       let a = fun s -> Pprz.float_assoc s vs in
-      circle_status_msg ac.track (a "circle_east") (a "circle_north") (int_of_string (Pprz.string_assoc "radius" vs)) 
+      circle_status_msg ac.track (a "circle_east") (a "circle_north") (float_of_string (Pprz.string_assoc "radius" vs)) 
     with Not_found -> ()
   in
   ignore (Ground_Pprz.message_bind "CIRCLE_STATUS" get_circle_status);

@@ -50,7 +50,7 @@ class waypoint = fun (group:group) (name :string) ?(alt=0.) en ->
       GnoCanvas.polygon group#group ~points:losange
 	~props:[`FILL_COLOR color; `OUTLINE_COLOR "midnightblue" ; `WIDTH_UNITS 1.; `FILL_STIPPLE (Gdk.Bitmap.create_from_data ~width:2 ~height:2 "\002\001")]
 	
-    val label = GnoCanvas.text group#group ~props:[`TEXT name; `X s; `Y 0.; `ANCHOR `SW]
+    val label = GnoCanvas.text group#group ~props:[`TEXT name; `X s; `Y 0.; `ANCHOR `SW; `FILL_COLOR "green"]
     val mutable name = name
     val mutable alt = alt
     initializer self#move xw yw

@@ -37,7 +37,9 @@ class widget = fun  ?(height=800) ?width ?wgs84_of_en () ->
   let srtm = menu_fact#add_check_item "SRTM" ~active:false in
 
  object (self)
+     initializer canvas#coerce#misc#modify_bg [`NORMAL, `NAME "black"]
 
+   initializer ignore (menu_fact#add_check_item "Background" ~active:true ~callback:self#switch_background)
    initializer ignore (menu_fact#add_item "Goto" ~callback:self#goto)
   initializer ignore (canvas#event#connect#motion_notify (self#mouse_motion));
   initializer ignore (canvas#event#connect#button_press (self#button_press));
@@ -57,6 +59,9 @@ class widget = fun  ?(height=800) ?width ?wgs84_of_en () ->
    val mutable rectangle = None
    val mutable world_unit = 1.
    val mutable wgs84_of_en = wgs84_of_en
+   val mutable background = GnoCanvas.pixbuf canvas#root
+
+   method switch_background = fun x -> if x then background#show () else background#hide ();
 
    method set_wgs84_of_en = fun x -> wgs84_of_en <- Some x
 
@@ -118,14 +123,14 @@ class widget = fun  ?(height=800) ?width ?wgs84_of_en () ->
 
 
   method display_map = fun ?(scale = 1.) en image ->
-    let p = GnoCanvas.pixbuf ~pixbuf:image ~props:[`ANCHOR `NW] self#root in
-    p#lower_to_bottom ();
+    background <- GnoCanvas.pixbuf ~pixbuf:image ~props:[`ANCHOR `NW] self#root;
+    background#lower_to_bottom ();
     let wx, wy = self#world_of_en en in
-    p#move wx wy;
-    let a = p#i2w_affine in
+    background#move wx wy;
+    let a = background#i2w_affine in
     a.(0) <- scale; a.(3) <- scale; 
-    p#affine_absolute a;
-    p
+    background#affine_absolute a;
+    background
 
   method zoom = fun value ->
     canvas#set_pixels_per_unit value;
@@ -195,6 +200,8 @@ class widget = fun  ?(height=800) ?width ?wgs84_of_en () ->
     | k when k = GdkKeysyms._Down -> canvas#scroll_to x (y+pan_step) ; true
     | k when k = GdkKeysyms._Left -> canvas#scroll_to (x-pan_step) y ; true
     | k when k = GdkKeysyms._Right -> canvas#scroll_to (x+pan_step) y ; true
+    | k when k = GdkKeysyms._Page_Up -> adj#set_value (adj#value+.adj#step_increment) ; true
+    | k when k = GdkKeysyms._Page_Down -> adj#set_value (adj#value-.adj#step_increment) ; true
     | _ -> false
 	  
   method any_event = fun ev ->
@@ -214,6 +221,13 @@ class widget = fun  ?(height=800) ?width ?wgs84_of_en () ->
      let (x1, y1) = self#world_of_en en1
      and (x2, y2) = self#world_of_en en2 in
      let l = GnoCanvas.line ?fill_color ~props:[`WIDTH_PIXELS width] ~points:[|x1;y1;x2;y2|] group in
+     l#show ();
+     l
+       
+   method circle = fun ?(group = canvas#root) ?(width=1) ?fill_color ?(color="black") en rad ->
+     let (x, y) = self#world_of_en en in
+     let rad = rad /. world_unit in
+     let l = GnoCanvas.ellipse ?fill_color ~props:[`WIDTH_PIXELS width; `OUTLINE_COLOR color] ~x1:(x-.rad) ~y1:(y -.rad) ~x2:(x +.rad) ~y2:(y+.rad) group in
      l#show ();
      l
 end

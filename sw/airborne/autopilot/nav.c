@@ -252,12 +252,6 @@ static void route_to(uint8_t _last_wp, uint8_t wp) {
   /** carrot is computed in approaching() */
   alpha += Max(carrot / leg, 0.);
   alpha = Min(1., alpha);
-	in_segment = TRUE;
-	segment_x_1 = last_wp_x;
-	segment_y_1 = last_wp_y;
-	segment_x_2 = waypoints[wp].x;
-	segment_y_2 = waypoints[wp].y;
-
   in_segment = TRUE;
   segment_x_1 = last_wp_x;
   segment_y_1 = last_wp_y;
