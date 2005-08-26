@@ -142,11 +142,13 @@ sub parse_rc_control {
     my $mode_name = $mode->getAttribute('name');
     my @settings = $mode->getElementsByTagName('setting');
     foreach my $s (@settings) {
-      my ($var, $range, $rc, $type) = ($s->getAttribute('var'),
+      my ($rc, $var, $range, $type) = ($s->getAttribute('rc'),
+				       $s->getAttribute('var'),
 				       $s->getAttribute('range'),
-				       $s->getAttribute('rc'),
 				       $s->getAttribute('type'));
-      $rc_control->{$mode_name} = [$var, $range, $rc, $type];
+      $rc =~ /(gain_.+)_(\S+)/;
+      my ($slider, $direction) = ($1, $2);
+      $rc_control->{$mode_name}->{$direction}->{$slider} = [$var, $range, $type];
     }
   }
   $self->configure('-rc_control', $rc_control);
