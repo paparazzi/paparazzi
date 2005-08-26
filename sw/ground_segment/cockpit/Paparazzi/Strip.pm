@@ -37,6 +37,8 @@ use Data::Dumper;
 use strict;
 use warnings;
 
+use Paparazzi::Traces;
+
 # populate:
 #   this sub is the subject constructor method
 ############################################################################## 
@@ -361,7 +363,7 @@ sub string_of_time {
 sub attach_to_aircraft {
   my ($self) = @_;
   my @options = ('airframe', 'flight_plan', 'ap_mode', 'rc_status', 'gps_mode', 'contrast_status', 'contrast_value',
-		 'flight_time', 'alt', 'target_alt', 'speed', 'climb');#, 'bat');
+		 'flight_time', 'alt', 'target_alt', 'speed', 'climb', '-engine_status');
   foreach my $option (@options) {
     $self->get('-aircraft')->attach($self, $option, [\&aircraft_config_changed]);
   }
@@ -371,6 +373,7 @@ sub attach_to_aircraft {
 sub aircraft_config_changed {
   my ($self, $aircraft, $event, $new_value) = @_;
 #  print "in strip aircraft_config_changed $event $new_value\n";
+  return unless defined $new_value;
   if ($event eq 'flight_plan') {
     #    $self->border_block() if (defined $new_value) ; # display blocks of flight plan
   }
@@ -384,8 +387,9 @@ sub aircraft_config_changed {
   elsif ($event eq 'flight_time') {
     $self->set_item("flight_time",$self->string_of_time($new_value), $self->{options}->{value_color});
   }
-  elsif ($event eq 'bat') {
-    $self->set_bat($new_value);
+  elsif ($event eq '-engine_status') {
+#    Paparazzi::Traces::trace( Paparazzi::Traces::TRACE_DEBUG, "in Strip::aircraft_config_changed\n".Dumper($new_value));
+    $self->set_bat($new_value->{bat});
   }
   elsif ( $event eq 'speed' or $event eq 'climb' or $event eq 'alt' or $event eq 'target_alt' or $event eq 'contrast_value') {
     my $fmt = { speed => "%2.1fm/s",

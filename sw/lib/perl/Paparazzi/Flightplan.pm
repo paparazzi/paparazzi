@@ -27,6 +27,8 @@ use Subject;
 @ISA = ("Subject");
 use strict;
 
+use Paparazzi::Traces;
+
 require LWP::Simple;
 use XML::DOM;
 use Math::Trig;
@@ -40,6 +42,7 @@ sub populate {
                     -nav_utm_east0	=> [S_NOINIT,   S_PASSIVE,  S_RDWR,   S_OVRWRT, S_NOPRPG, 0.],
                     -nav_utm_north0	=> [S_NOINIT,   S_PASSIVE,  S_RDWR,   S_OVRWRT, S_NOPRPG, 0.],
                     -max_dist_from_home	=> [S_NOINIT,   S_PASSIVE,  S_RDWR,   S_OVRWRT, S_NOPRPG, 0.],
+		    -rc_control		=> [S_NOINIT,   S_PASSIVE,  S_RDWR,   S_OVRWRT, S_NOPRPG, {}],
                     -waypoints		=> [S_NOINIT,   S_PASSIVE,  S_RDWR,   S_OVRWRT, S_NOPRPG, {}],
                     -nb_waypoints	=> [S_NOINIT,   S_PASSIVE,  S_RDWR,   S_OVRWRT, S_NOPRPG, 0.],
                     -mission		=> [S_NOINIT,   S_PASSIVE,  S_RDWR,   S_OVRWRT, S_NOPRPG, {}],
@@ -114,6 +117,7 @@ sub parse_flight_plan {
   $self->{nav_utm_east0} = $waypoints->getAttribute('utm_x0');
   $self->{nav_utm_north0} = $waypoints->getAttribute('utm_y0');
 		
+  $self->parse_rc_control($doc);
   $self->parse_waypoints($doc);
   $self->parse_mission($doc);
   $self->configure_spec();
@@ -127,6 +131,25 @@ sub configure_spec {
 			-waypoints	 => $self->{waypoints},
 			-nb_waypoints	 => $self->{nb_waypoints},
 			-mission	 => $self->{mission});
+}
+
+sub parse_rc_control {
+  my ($self, $doc) = @_;
+  my $rc_control = {};
+  my $rc_control_elt = $doc->getElementsByTagName('rc_control')->[0];
+  my @modes = $rc_control_elt->getElementsByTagName('mode');
+  foreach my $mode (@modes) {
+    my $mode_name = $mode->getAttribute('name');
+    my @settings = $mode->getElementsByTagName('setting');
+    foreach my $s (@settings) {
+      my ($var, $range, $rc, $type) = ($s->getAttribute('var'),
+				       $s->getAttribute('range'),
+				       $s->getAttribute('rc'),
+				       $s->getAttribute('type'));
+      $rc_control->{$mode_name} = [$var, $range, $rc, $type];
+    }
+  }
+  $self->configure('-rc_control', $rc_control);
 }
 
 sub parse_waypoints {

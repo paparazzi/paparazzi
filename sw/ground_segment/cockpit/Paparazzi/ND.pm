@@ -21,10 +21,6 @@ sub populate {
 		    -height   => [S_NEEDINIT, S_PASSIVE, S_RDONLY, S_OVRWRT, S_NOPRPG, undef],
 		    -selected_ac => [S_NOINIT,  S_METHOD, S_RDWR, S_OVRWRT, S_NOPRPG, undef],
 		    -page     => [S_NOINIT,  S_METHOD, S_RDWR, S_OVRWRT, S_NOPRPG, undef],
-#		    -fix       => [S_NOINIT, S_PRPGONLY, S_RDWR,   S_OVRWRT, S_CHILDREN, undef],
-#		    -ap_status => [S_NOINIT, S_PRPGONLY, S_RDWR,   S_OVRWRT, S_CHILDREN, undef],
-#		    -wind      => [S_NOINIT, S_PRPGONLY, S_RDWR,   S_OVRWRT, S_CHILDREN, undef],
-#		    -lls       => [S_NOINIT, S_PRPGONLY, S_RDWR,   S_OVRWRT, S_CHILDREN, undef],
 		    -svsinfo   => [S_NOINIT, S_PRPGONLY, S_RDWR,   S_OVRWRT, S_CHILDREN, undef],
 		    -engine_status => [S_NOINIT, S_PRPGONLY, S_RDWR,   S_OVRWRT, S_CHILDREN, undef],
 		   );
@@ -39,7 +35,7 @@ sub completeinit {
 
 sub page {
   my ($self, $old_val, $new_val) = @_;
-  print "in ND::page [$old_val $new_val]\n";
+#  print "in ND::page [$old_val $new_val]\n";
   return unless defined $new_val and defined $self->{main_group};
   $self->{$old_val}->configure(-visible => 0) if defined $old_val;
   $self->{$new_val}->configure(-visible => 1);
@@ -56,6 +52,8 @@ sub selected_ac {
     $previous_ac->detach($self, $attr, [\&foo_cbk, $attr]) if ($previous_ac);
     $new_ac->attach($self, $attr, [\&foo_cbk, $attr]);
   }
+  $self->{AP}->set_aircraft($previous_ac, $new_ac);
+  $self->{Settings}->set_aircraft($previous_ac, $new_ac);
 }
 
 sub foo_cbk {
@@ -81,8 +79,8 @@ sub build_gui() {
   my $real_width = $page_width - 2*$margin;
   my ($page_per_row, $row, $col) = (2, 0, 0);
 
-  my $pages = ['Gps', 'Nav', 'Engine', 'IR'];
-  foreach my $page (@{$pages}) {
+  my @pages = ('Gps', 'AP', 'Settings', 'Engine', 'IR');
+  foreach my $page (@pages) {
     $self->{$page} = $self->component('Paparazzi::'.$page.'Page',
 				      -zinc => $zinc,
 				      -parent_grp => $self->{main_group},

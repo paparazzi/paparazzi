@@ -37,4 +37,12 @@ sub min {
   return $b;
 }
 
+sub hhmmss_of_s {
+  my ($t) = @_;
+  my $hour = int($t/3600);
+  my $min = int(($t-$hour*3600)/60);
+  my $sec = $t-(3600*$hour)-($min*60);
+  sprintf("%02d:%02d:%02d",$hour, $min, $sec);
+}
+
 1;

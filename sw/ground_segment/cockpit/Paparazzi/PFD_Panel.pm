@@ -4,7 +4,7 @@ package Paparazzi::PFD_Panel;
 use Subject;
 @ISA = ("Subject");
 
-use Tk; 
+use Tk;
 use Tk::Zinc;
 use Data::Dumper;
 
@@ -18,56 +18,16 @@ sub populate {
 		    -origin  => [S_NEEDINIT, S_PASSIVE, S_RDONLY, S_OVRWRT, S_NOPRPG, undef],
 		    -width   => [S_NEEDINIT, S_PASSIVE, S_RDONLY, S_OVRWRT, S_NOPRPG, undef],
 		    -height  => [S_NEEDINIT, S_PASSIVE, S_RDONLY, S_OVRWRT, S_NOPRPG, undef],
-		    -gps_mode => [S_NOINIT,   S_METHOD,  S_RDWR,   S_OVRWRT, S_NOPRPG, 0.],
-		    -ap_mode  => [S_NOINIT,   S_METHOD,  S_RDWR,   S_OVRWRT, S_NOPRPG, 0.],
-		    -rc_mode  => [S_NOINIT,   S_METHOD,  S_RDWR,   S_OVRWRT, S_NOPRPG, 0.],
-		    -ctrst_mode => [S_NOINIT,   S_METHOD,  S_RDWR,   S_OVRWRT, S_NOPRPG, 0.],
-		    -ctrst_value => [S_NOINIT,   S_METHOD,  S_RDWR,   S_OVRWRT, S_NOPRPG, 0.],
-		    -lls_mode => [S_NOINIT,   S_METHOD,  S_RDWR,   S_OVRWRT, S_NOPRPG, 0.],
-		    -lls_value => [S_NOINIT,   S_METHOD,  S_RDWR,   S_OVRWRT, S_NOPRPG, 0.],
-		    -if_mode => [S_NOINIT,   S_METHOD,  S_RDWR,   S_OVRWRT, S_NOPRPG, 0.],
-#		    -pubevts => [S_NEEDINIT, S_PASSIVE, S_RDWR, S_APPEND, S_NOPRPG,[]]	   
+		    -pages  =>  [S_NEEDINIT, S_PASSIVE, S_RDONLY, S_OVRWRT, S_NOPRPG, []],
+#		    -pubevts => [S_NEEDINIT, S_PASSIVE, S_RDWR, S_APPEND, S_NOPRPG,[]]
 		   );
 }
 
 sub completeinit {
   my $self = shift;
   $self->SUPER::completeinit();
- #  $self->{modes} = [ { name => 'rc',
-# 		       str =>  ["lost","ok", "really lost", "not possible"],
-# 		       color => ["orange", "green", "red", "red"]
-# 		     },
-# 		     { name => 'cal',
-# 		       str =>  ["unkwn", "wait", "ok"],
-# 		       color =>["red",  "orange", "green"]
-# 		     },
-# 		     { name => 'ap',
-# 		       str =>  ["manual", "auto1", "auto2", "home"],
-# 		       color =>["green",  "green", "green", "orange"]
-# 		     },
-# 		     { name => 'gps',
-# 		       str => [ "No fix",
-# 				"dead reckoning only",
-# 				"2D-fix",
-# 				"3D-fix",
-# 				"GPS + dead reckoning combined"],
-# 		       color => ["red", "red", "orange", "green", "orange"]
-# 		     },
-# 		     { name => 'lls',
-# 		       str =>  ["OFF"  , "ON"],
-# 		       color =>["orange", "green"]
-# 		     },
-# 		     { name => 'if',
-# 		       str =>  ["none", "down", "up"],
-# 		       color =>["green", "orange", "orange"]
-# 		     }
-# 		   ];
-#   $self->{modes_by_name} = {};
-#   foreach my $mode (@{$self->{modes}}) {
-#     $self->{modes_by_name}->{$mode->{name}} = $mode;
-#   }
 
-  $self->{pages} = ['Gps', 'Nav', 'Engine', 'IR'];
+  $self->{pages} = ['Gps', 'AP', 'Settings', 'Engine', 'IR'];
   $self->build_gui();
   $self->configure('-pubevts' => 'CLICKED');
 }

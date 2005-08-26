@@ -140,6 +140,7 @@ sub build_gui() {
 				    -origin => [$p_x, $p_y],
 				    -width => $p_w,
 				    -height => $p_h,
+				    -pages => ['Gps', 'AP', 'Settings', 'Engine', 'IR']
 		  );
   $component->attach($self, 'CLICKED', ['onPanelCLicked']);
 
