@@ -99,6 +99,7 @@ class track = fun ?(name="coucou") ?(size = 500) ?(color="red") (geomap:MapCanva
     val mutable ac_cam_cover = GnoCanvas.rect cam
     method track = track
     method aircraft = aircraft
+    method set_label = fun s -> ac_label#set [`TEXT s]
     method clear_one = fun i ->
       if segments.(i) != empty then begin
 	(snd segments.(i))#destroy ();
@@ -132,7 +133,7 @@ class track = fun ?(name="coucou") ?(size = 500) ?(color="red") (geomap:MapCanva
       last_xw <- xw;
       last_yw <- yw;
       last_height <- (altitude -. relief_height) /. (geomap#get_world_unit ());
-      ac_label#affine_absolute (affine_pos_and_angle geomap#zoom_adj#value xw yw 0.);
+      ac_label#affine_absolute (affine_pos_and_angle geomap#zoom_adj#value xw yw 0.)
     method move_carrot = fun en ->
       let (xw,yw) = geomap#world_of_en en in
       carrot#affine_absolute (affine_pos_and_angle geomap#zoom_adj#value xw yw 0.);
