@@ -96,7 +96,8 @@ float energy; /** Fuel consumption */
 #define CALIB_DONE             2	//!< Calibration done state
 //@}
 
-/** Maximal delay for calibration */
+/** Maximal delay waits before calibration.
+		After, no more calibration is possible */
 #define MAX_DELAY_FOR_CALIBRATION 10
 
 
@@ -198,8 +199,6 @@ uint8_t ticks_last_est; // 20Hz
 
 /** Define number of message at initialisation */
 #define INIT_MSG_NB 2
-/** @@@@@ A FIXER @@@@ */
-#define HI_FREQ_PHASE_NB  5
 
 uint8_t ac_ident = AC_ID;
 
@@ -244,6 +243,8 @@ uint8_t ac_ident = AC_ID;
 
 #define PERIODIC_SEND_CALIBRATION() DOWNLINK_SEND_CALIBRATION(&climb_sum_err, &climb_pgain, &course_pgain)
 
+/** Status of the calibration. Can be one of the \a calibration \a states */
+static uint8_t calib_status = NO_CALIB;
 
 /** \fn inline void ground_calibrate( void )
  *  \brief Calibrate contrast if paparazzi mode is
@@ -253,7 +254,6 @@ uint8_t ac_ident = AC_ID;
  * If not, the default calibration is used.
  */
 inline void ground_calibrate( void ) {
-  static uint8_t calib_status = NO_CALIB;
   switch (calib_status) {
   case NO_CALIB:
     if (cputime < MAX_DELAY_FOR_CALIBRATION && pprz_mode == PPRZ_MODE_AUTO1 ) {
@@ -472,11 +472,13 @@ inline void periodic_task( void ) {
     low_battery |= (t >= LOW_BATTERY_DELAY);
 
     if (in_circle) {
-      DOWNLINK_SEND_CIRCLE(&circle_x, &circle_y, &circle_radius); 
-    }
+      DOWNLINK_SEND_CIRCLE(&circle_x, &circle_y, &circle_radius); }
     if (in_segment) {
-      DOWNLINK_SEND_SEGMENT(&segment_x_1, &segment_y_1, &segment_x_2, &segment_y_2); 
-    }
+      DOWNLINK_SEND_SEGMENT(&segment_x_1, &segment_y_1, &segment_x_2, &segment_y_2); }
+		if (calib_status == WAITING_CALIB_CONTRAST) {
+			DOWNLINK_SEND_CALIB_START(); }
+		if (calib_status == CALIB_DONE && !estimator_flight_time) {
+			DOWNLINK_SEND_CALIB_CONTRAST(&ir_contrast); }
   }
   switch(_4Hz) {
   case 0:
