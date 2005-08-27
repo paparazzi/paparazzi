@@ -24,7 +24,6 @@ sub populate {
 sub completeinit {
   my $self = shift;
   $self->SUPER::completeinit();
-#  $self->build_gui();
   $self->{timer_id} = $self->get('-zinc')->repeat(UPDATE_REPEAT, [\&onTimer, $self]);
 }
 

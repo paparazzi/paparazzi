@@ -87,22 +87,17 @@ sub completeinit {
 
   print "###### flight_plan_url $flight_plan_url\n";
 
-#  my $flight_plan_xml ="";
   my $flight_plan_xml = LWP::Simple::get($flight_plan_url);
   if (defined $flight_plan_xml) {
     $self->configure( -compiled_xml => $flight_plan_xml);
+    my $doc = $parser->parse($flight_plan_xml);
+    $self->{doc} = $doc;
+    $self->parse_flight_plan();
   }
   else {
     print "############WARNING : could not get $flight_plan_url\n";
     return;
   }
-
-#  print "#######flight_plan_xml\n".$flight_plan_xml;
-
-  my $doc = $parser->parse($flight_plan_xml);
-#  print "in Flightplan : parsing $file $doc \n";
-  $self->{doc} = $doc;
-  $self->parse_flight_plan();
 }
 
 sub parse_flight_plan {
@@ -125,12 +120,13 @@ sub parse_flight_plan {
 
 sub configure_spec {
   my ($self) = @_;
-  $self->configure(	-nav_utm_east0	 => $self->{nav_utm_east0},
-			-nav_utm_north0	 => $self->{nav_utm_north0},
-			-max_dist_from_home	=> $self->{max_dist_from_home},
-			-waypoints	 => $self->{waypoints},
-			-nb_waypoints	 => $self->{nb_waypoints},
-			-mission	 => $self->{mission});
+  $self->configure( -nav_utm_east0	=> $self->{nav_utm_east0},
+		    -nav_utm_north0	=> $self->{nav_utm_north0},
+		    -max_dist_from_home => $self->{max_dist_from_home},
+		    -waypoints	        => $self->{waypoints},
+		    -nb_waypoints	=> $self->{nb_waypoints},
+		    -mission	        => $self->{mission},
+		  );
 }
 
 sub parse_rc_control {

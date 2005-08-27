@@ -62,7 +62,6 @@ sub update_field {
       $label = $self->{'value_'.$ap_mode."_".$if_mode."_".$slider};
       $zinc->itemconfigure($label, -color => 'green') if defined $label;
       $self->configure( 'ap_mode' => $ap_mode, 'if_mode' => $if_mode);
-      #      print "$ap_mode $if_mode $slider $label\n";
     }
   }
   else {

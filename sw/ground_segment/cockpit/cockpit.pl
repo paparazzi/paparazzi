@@ -26,7 +26,6 @@ use Paparazzi::PFD;
 use Paparazzi::ND;
 use Paparazzi::MissionD;
 use Paparazzi::StripPanel;
-use Paparazzi::Geometry;
 
 use Tk;
 #use Tk::PNG;
@@ -59,7 +58,10 @@ sub completeinit {
 			       -app_name  => APP_NAME,
 			       -loop_mode => 'TK',
 			    );
-  $self->{aircrafts_manager} = Paparazzi::AircraftsManager->new(-listen_to_all => 1);
+  $self->{aircrafts_manager} = 
+    Paparazzi::AircraftsManager->new(-listen_to_all => 
+				     ['FLIGHT_PARAM', 'AP_STATUS', 'NAV_STATUS', 'CAM_STATUS', 'ENGINE_STATUS',
+				      'FLY_BY_WIRE', 'INFRARED', 'INFLIGH_CALIB', 'SVSINFO']);
   $self->{aircrafts_manager}->attach($self, 'NEW_AIRCRAFT', [\&on_new_aircraft]);
   $self->{mw}->after(500, [\&on_foo, $self]);
 }
@@ -75,7 +77,6 @@ sub on_new_aircraft {
 sub build_gui {
   my ($self) = @_;
   $self->{mw} = MainWindow->new();
-#  $self->{mw}->geometry("1280x1024");
   my $top_frame =  $self->{mw}->Frame()->pack(-side => 'top', -fill => 'both');
   my $bot_frame =  $self->{mw}->Frame()->pack(-side => 'bottom', -fill => 'both', -expand => 1);
   my ($stp_p, $stp_w, $stp_h) = ([0, 0],                   315, 300);
@@ -106,7 +107,6 @@ sub build_gui {
  				    -width  => $nd_w,
  				    -height => $nd_h,
  				  );
-#   $self->{nd}->attach($self, 'WIND_COMMAND', ['onWindCommand']);
   my $md = $bot_frame->MissionD(-bg => '#c1daff');
   $md->pack(-side => 'bottom', -anchor => "n", -fill => 'both', -expand => 1);
   $self->{md} = $md;
@@ -135,7 +135,7 @@ sub on_aircraft_selection {
 sub select_ac {
   my ($self, $ac_id) = @_;
   $self->{selected_ac} = $ac_id;
-  $self->{aircrafts_manager}->listen_to_ac($ac_id);
+  $self->{aircrafts_manager}->configure('-selected_aircrafts' => [$ac_id]);
   my $aircraft = $self->{aircrafts_manager}->get_aircraft_by_id($ac_id);
   $self->{pfd}->configure('-selected_ac', $aircraft);
   $self->{nd}->configure('-selected_ac', $aircraft);

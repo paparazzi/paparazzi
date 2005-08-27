@@ -390,7 +390,8 @@ sub aircraft_config_changed {
     #    $self->border_block() if (defined $new_value) ; # display blocks of flight plan
   }
   elsif ($event eq 'airframe') {
-    $self->get('-zinc')->itemconfigure($self->{ident}, -text => scalar $new_value->get('-name')) if defined $new_value;
+    my $ac_name = $new_value->get('-ac_name');
+    $self->get('-zinc')->itemconfigure($self->{ident}, -text => $ac_name ) if defined $ac_name;
   }
   elsif ($event eq 'rc_status' or $event eq 'rc_mode' or $event eq 'contrast_status' or $event eq 'ap_mode' or $event eq 'gps_mode') {
     $self->set_item($event, $new_value, $self->get_color($event, $new_value));
