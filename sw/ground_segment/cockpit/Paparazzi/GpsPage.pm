@@ -15,7 +15,6 @@ sub populate {
   $self->SUPER::populate($args);
   $self->configspec(
 		    -svsinfo =>    [S_NOINIT,   S_METHOD,  S_RDWR,   S_OVRWRT, S_NOPRPG, undef],
-		    -fix  =>    [S_NOINIT,   S_METHOD,  S_RDWR,   S_OVRWRT, S_NOPRPG, undef],
 		   );
 }
 
@@ -33,7 +32,6 @@ sub svsinfo {
     my $sat_obj = $self->{satellites}->[$i];
     unless ($new_val->{svid}->[$i] == 0) {
       my $pos = $self->get_pos($new_val->{elev}->[$i], $new_val->{azim}->[$i]);
-#      print "in SatPage::sats $i $new_val->{svid}->[$i] $new_val->{elev}->[$i], $new_val->{azim}->[$i] @{$pos}\n";
       $zinc->coords($sat_obj->{-group}, $pos);
       $zinc->itemconfigure ($sat_obj->{-group}, -visible => 1 );
       $zinc->itemconfigure ($sat_obj->{-arc},
@@ -47,15 +45,6 @@ sub svsinfo {
     else { $zinc->itemconfigure ($sat_obj->{-group}, -visible => 0 )}
   }
 }
-
-
-sub fix {
-  my ($self, $old_val, $new_val) = @_;
-#  print "in fix\n";
-  return unless defined $new_val and defined $self->{rg};
-#  print "in fix2\n";
-}
-
 
 sub get_pos {
   my ($self, $elev, $azim) = @_;
@@ -88,6 +77,7 @@ sub build_gui {
 	       [-$rad, -$rad, $rad, $rad],
 	       -visible => 1,
 	       -linecolor => 'white',
+	       -linewidth => 1,
 	       -filled => 0,
 	      );
     $zinc->add('text', $self->{sky_group},
@@ -95,10 +85,10 @@ sub build_gui {
 	       -text => sprintf("%.0f", $elev),
 	       -color => 'white',
 	       -anchor => 'c',
+	       -font => $self->{small_font},
 	      );
   }
   # azimut scale
-  my $tick_font = '-adobe-helvetica-bold-o-normal--24-240-100-100-p-182-iso8859-1';
   my $ticks = [["S", [0,  $sky_radius]], ["E", [ $sky_radius, 0]],
 	       ["N", [0, -$sky_radius]], ["W", [-$sky_radius, 0]]];
   foreach my $tick (@{$ticks}) {
@@ -107,7 +97,7 @@ sub build_gui {
 	       -position => $pos,
 	       -text => $txt,
 	       -color => 'white',
-	       -font => $tick_font,
+	       -font => $self->{big_font},
 	       -anchor => 'c',
 	      );
   }

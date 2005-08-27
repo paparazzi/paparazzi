@@ -318,7 +318,7 @@ sub set_item {
 #  print "in Strip::set_item $item_name $string $color ($self->{prefix})\n";
   my $zinc = $self->get('-zinc');
   my $item = $zinc->find('withtag', $self->{prefix}.$item_name."_value");
-  print "in Strip::set_item $item_name $string color $color\n";
+#  print "in Strip::set_item $item_name $string color $color\n";
   $zinc->itemconfigure($item, -text => $string, -color  => $color);
 }
 
@@ -371,6 +371,17 @@ sub attach_to_aircraft {
 }
 
 
+sub get_color {
+  my ($self, $mode, $value) = @_;
+  if (defined $self->{new_modes}->{$mode}->{$value}) {
+    return $self->{new_modes}->{$mode}->{$value};
+  }
+  else {
+    return 'black';
+  }
+}
+
+
 sub aircraft_config_changed {
   my ($self, $aircraft, $event, $new_value) = @_;
 #  print "in strip aircraft_config_changed $event $new_value\n";
@@ -382,8 +393,7 @@ sub aircraft_config_changed {
     $self->get('-zinc')->itemconfigure($self->{ident}, -text => scalar $new_value->get('-name')) if defined $new_value;
   }
   elsif ($event eq 'rc_status' or $event eq 'rc_mode' or $event eq 'contrast_status' or $event eq 'ap_mode' or $event eq 'gps_mode') {
-    my $color = $self->{new_modes}->{$event}->{$new_value};
-    $self->set_item($event, $new_value, $color);
+    $self->set_item($event, $new_value, $self->get_color($event, $new_value));
   }
   elsif ($event eq 'flight_time') {
     $self->set_item("flight_time",$self->string_of_time($new_value), $self->{options}->{value_color});

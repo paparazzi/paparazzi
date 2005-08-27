@@ -24,6 +24,7 @@ sub populate {
 sub completeinit {
   my $self = shift;
   $self->SUPER::completeinit;
+  $self->{big_font} = "bleriot-radar-m16c";
   $self->{normal_font} = "bleriot-radar-m12c";
   $self->{small_font} = "bleriot-radar-m8c";
   $self->build_gui();

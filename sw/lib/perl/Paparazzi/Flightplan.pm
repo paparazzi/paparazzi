@@ -147,7 +147,7 @@ sub parse_rc_control {
 				       $s->getAttribute('range'),
 				       $s->getAttribute('type'));
       $rc =~ /(gain_.+)_(\S+)/;
-      my ($slider, $direction) = ($1, $2);
+      my ($slider, $direction) = ($1, uc $2);
       $rc_control->{$mode_name}->{$direction}->{$slider} = [$var, $range, $type];
     }
   }

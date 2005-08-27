@@ -9,8 +9,8 @@ use Tk;
 use Tk::Zinc;
 use Paparazzi::SatPage;
 use Paparazzi::EnginePage;
-use Paparazzi::APPage;
-use Paparazzi::IRPage;
+use Paparazzi::AutopilotPage;
+use Paparazzi::InfraredPage;
 
 sub populate {
   my ($self, $args) = @_;
@@ -52,8 +52,9 @@ sub selected_ac {
     $previous_ac->detach($self, $attr, [\&foo_cbk, $attr]) if ($previous_ac);
     $new_ac->attach($self, $attr, [\&foo_cbk, $attr]);
   }
-  $self->{AP}->set_aircraft($previous_ac, $new_ac);
+  $self->{Autopilot}->set_aircraft($previous_ac, $new_ac);
   $self->{Settings}->set_aircraft($previous_ac, $new_ac);
+  $self->{Infrared}->set_aircraft($previous_ac, $new_ac);
 }
 
 sub foo_cbk {
@@ -79,7 +80,7 @@ sub build_gui() {
   my $real_width = $page_width - 2*$margin;
   my ($page_per_row, $row, $col) = (2, 0, 0);
 
-  my @pages = ('Gps', 'AP', 'Settings', 'Engine', 'IR');
+  my @pages = ('Infrared', 'Gps', 'Autopilot', 'Settings', 'Engine');
   foreach my $page (@pages) {
     $self->{$page} = $self->component('Paparazzi::'.$page.'Page',
 				      -zinc => $zinc,
@@ -96,26 +97,6 @@ sub build_gui() {
     $col++;
     unless ($col lt $page_per_row) { $col=0; $row++ };
   }
-
-
-
-
-#  my $engine_h = { -nb_engine => 2,
-#		   -engine    => [{throttle => 50, -rpm => 3500, -temp => 39},
-#				  {throttle => 50, -rpm => 3400, -temp => 37}],
-#		   -bat       => 11.5,
-#		   -energy    => 25.2
-#		 };
-  
-#  my $ap_h = {
-#	      -mode => 1,
-#              -h_mode => 2,
-#              -v_mode => 0,
-#              -target_climb => 1.,
-#              -target_alt => 200.,
-#              -target_heading => 36.,
-#	     };
-#  $self->{AP}->configure( -ap_status => $ap_h);
 }
 
 1;

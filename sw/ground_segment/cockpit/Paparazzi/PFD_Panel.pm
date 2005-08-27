@@ -27,7 +27,7 @@ sub completeinit {
   my $self = shift;
   $self->SUPER::completeinit();
 
-  $self->{pages} = ['Gps', 'AP', 'Settings', 'Engine', 'IR'];
+  $self->{pages} = ['Infrared', 'Gps', 'Autopilot', 'Settings', 'Engine'];
   $self->build_gui();
   $self->configure('-pubevts' => 'CLICKED');
 }

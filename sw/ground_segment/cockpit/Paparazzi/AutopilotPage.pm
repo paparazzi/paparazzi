@@ -1,4 +1,4 @@
-package Paparazzi::APPage;
+package Paparazzi::AutopilotPage;
 use Paparazzi::NDPage;
 @ISA = ("Paparazzi::NDPage");
 use strict;
@@ -36,14 +36,14 @@ sub build_gui {
   my ($self) = @_;
   $self->SUPER::build_gui();
   my $zinc = $self->get('-zinc');
-  my $dy = $self->get('-height')/10;
-  my $y=10;
-  my $x=10;
+  my ($y, $dy) = (10, $self->get('-height')/10);
+  my ($x, $dx) = (10, 100);
   foreach my $field (@fields) {
     $zinc->add('text', $self->{main_group},
 	       -position => [$x, $y+$self->{vmargin}],
 	       -color => 'white',
 	       -anchor => 'w',
+	       -font => $self->{big_font},
 	       -text => $field);
     $self->{'text_'.$field} = $zinc->add('text', $self->{main_group},
 					 -position => [$x + 100, $y+$self->{vmargin}],
