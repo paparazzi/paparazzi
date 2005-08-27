@@ -342,6 +342,7 @@
   <message name="ENGINE_STATUS" ID="15">
     <field name="ac_id" type="string"/>
     <field name="throttle" type="float" unit="%"  format="%.1f"/>
+    <field name="throttle_accu" type="float" format="%.1f"/>
     <field name="rpm"      type="float" unit="rpm"  format="%.1f"/>
     <field name="temp"     type="float" unit="celcius"/>
     <field name="bat"      type="float" unit="V"/>

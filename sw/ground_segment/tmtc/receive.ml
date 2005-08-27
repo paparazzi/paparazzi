@@ -136,6 +136,7 @@ type aircraft = {
     mutable cur_block : int;
     mutable cur_stage : int;
     mutable throttle : float;
+    mutable throttle_accu : float;
     mutable rpm  : float;
     mutable temp : float;
     mutable bat  : float;
@@ -317,6 +318,8 @@ let log_and_parse = fun log ac_name a msg values ->
 	let p1 = Latlong.utm_add a.nav_ref (fvalue "segment_east_1") (fvalue "segment_north_1")
 	and p2 = Latlong.utm_add a.nav_ref (fvalue "segment_east_2") (fvalue "segment_north_2") in
 	a.horiz_mode <- Segment (p1, p2)
+    | "CALIBRATION" ->
+	a.throttle_accu <- fvalue "climb_sum_err"
     | _ -> ()
 
 (** Callback for a message from a registered A/C *)
@@ -439,6 +442,7 @@ let send_aircraft_msg = fun ac ->
 
     let values = ["ac_id", Pprz.String ac; 
 		  "throttle", f a.throttle;
+		  "throttle_accu", f a.throttle_accu;
 		  "rpm", f a.rpm;
 		  "temp", f a.temp;
 		  "bat", f a.bat;
@@ -475,7 +479,8 @@ let new_aircraft = fun id ->
 			contrast_status = "DEFAULT"; contrast_value = 0} in
     { id = id ; roll = 0.; pitch = 0.; desired_east = 0.; desired_north = 0.; 
       desired_course = 0.;
-	gspeed=0.; course = 0.; alt=0.; climb=0.; cur_block=0; cur_stage=0; throttle = 0.; rpm = 0.; temp = 0.; bat = 0.; amp = 0.; energy = 0.; ap_mode= -1;
+	gspeed=0.; course = 0.; alt=0.; climb=0.; cur_block=0; cur_stage=0;
+      throttle = 0.; throttle_accu = 0.; rpm = 0.; temp = 0.; bat = 0.; amp = 0.; energy = 0.; ap_mode= -1;
       gaz_mode= -1; lateral_mode= -1;
       gps_mode =0;
       desired_altitude = 0.;
