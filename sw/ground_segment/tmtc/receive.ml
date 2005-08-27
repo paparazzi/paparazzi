@@ -86,7 +86,6 @@ type infrared = {
     mutable contrast_status : contrast_status;
     mutable contrast_value : int
   }
-let infrared_init = { gps_hybrid_mode = 0; gps_hybrid_factor = 0. ; contrast_status = "DEFAULT"; contrast_value = 0} 
 
 type rc_status = string (** OK, LOST, REALLY_LOST *)
 type rc_mode = string (** MANUAL, AUTO, FAILSAFE *)
@@ -472,6 +471,8 @@ let send_aircraft_msg = fun ac ->
   | x -> prerr_endline (Printexc.to_string x)
       
 let new_aircraft = fun id ->
+  let infrared_init = { gps_hybrid_mode = 0; gps_hybrid_factor = 0. ;
+			contrast_status = "DEFAULT"; contrast_value = 0} in
     { id = id ; roll = 0.; pitch = 0.; desired_east = 0.; desired_north = 0.; 
       desired_course = 0.;
 	gspeed=0.; course = 0.; alt=0.; climb=0.; cur_block=0; cur_stage=0; throttle = 0.; rpm = 0.; temp = 0.; bat = 0.; amp = 0.; energy = 0.; ap_mode= -1;
