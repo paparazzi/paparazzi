@@ -55,7 +55,7 @@ let default_color_trajs = ref (`NAME "red")
 
 let home = Env.paparazzi_home
 let (//) = Filename.concat
-let default_path_SRTM = home // "data" // "SRTM"
+let default_path_SRTM = home // "data" // "srtm"
 let default_path_maps = home // "data" // ""
 let default_path_traj = home // "var" // ""
 let default_path_missions = home // "conf"
