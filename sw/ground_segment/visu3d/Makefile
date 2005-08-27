@@ -13,7 +13,7 @@ LINK= $(OCAMLC) $(MLFLAGS)
 LIBS_CI = ci_core.cma ci_gif.cma ci_jpeg.cma ci_tiff.cma ci_bmp.cma ci_ppm.cma ci_png.cma \
 	ci_xpm.cma ci_ps.cma ci_freetype.cma
 STDLIBS = unix.cma str.cma xml-light.cma lablgtk.cma lablgnomecanvas.cma lablgl.cma lablgtkgl.cma $(LIBS_CI)
-ADD_LIBS = lib-pprz.cma xlib-pprz.cma glibivy-ocaml.cma
+ADD_LIBS = glibivy-ocaml.cma lib-pprz.cma xlib-pprz.cma
 CLIBS = -cclib -lpthread
 
 all: mapGL
