@@ -80,6 +80,17 @@
  </section>
 
   <section name="sessions">
+    <session name="sim garmisch">
+      <variable name="map" value="garmisch.xml"/>
+      <program name="receive"/>     
+      <program name="http server"/>     
+      <program name="sim"><arg flag="-a" constant="Ladybug"/></program>
+<!--      <program name="sim"><arg flag="-a" constant="Thon2"/></program> -->
+      <program name="cockpit"></program>
+      <program name="map 2d ml"/>
+      <program name="messages"><arg flag="-c" constant="telemetry_ap:*"/><arg flag="-c" constant="ground"/></program>
+    </session>
+
     <session name="soft sim 2">
       <variable name="ivy_bus" value="127:3333"/>
       <program name="receive"/>     
