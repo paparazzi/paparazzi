@@ -8,10 +8,10 @@
      <field name="version" type="uint16"></field>
    </message>
 
-   <message name="CALIB_START" ID="2">
+   <message name="CALIB_START" ID="2" period="1">
    </message>
 
-   <message name="CALIB_CONTRAST" ID="3">
+   <message name="CALIB_CONTRAST" ID="3" period="1">
      <field name="adc" type="int16"></field>
    </message>
 
@@ -65,7 +65,7 @@
   </message>
 
   <message name="PPRZ_MODE" ID="11" period="5" >
-    <field name="ap_mode" type="uint8" values="MANUAL|AUTO1|AUTO2|HOME"/>
+    <field name="ap_mode" type="uint8" values="MANUAL|AUTO1|AUTO2|HOME|FAILSAFE"/>
     <field name="ap_gaz" type="uint8" values="MANUAL|AUTO_GAZ|AUTO_CLIMB|AUTO_ALT"/>
     <field name="ap_lateral" type="uint8" values="MANUAL|ROLL_RATE|ROLL|COURSE"/>
     <field name="ap_horizontal" type="uint8" values="WAYPOINT|ROUTE|CIRCLE"/>
@@ -141,13 +141,13 @@
      <field name="target_y" type="int16" unit="m"/>
   </message>
 	
-  <message name="CIRCLE" ID="21">
+  <message name="CIRCLE" ID="21" period="1">
      <field name="center_east" type="int16" unit="m"/>
      <field name="center_north" type="int16" unit="m"/>
      <field name="radius" type="int16" unit="m"/>
      </message>
 	
-   <message name="SEGMENT" ID="22">
+   <message name="SEGMENT" ID="22" period="1">
       <field name="segment_east_1" type="int16" unit="m"/>
       <field name="segment_north_1" type="int16" unit="m"/>
       <field name="segment_east_2" type="int16" unit="m"/>
@@ -310,7 +310,7 @@
 
   <message name="AP_STATUS" ID="12">
     <field name="ac_id" type="string"/>
-    <field name="ap_mode" type="string" values="MANUAL|AUTO1|AUTO2|HOME"/>
+    <field name="ap_mode" type="string" values="MANUAL|AUTO1|AUTO2|HOME|FAILSAFE"/>
     <field name="lat_mode" type="string" values="MANUAL|ROLL_RATE|ROLL|COURSE"/>
     <field name="horiz_mode" type="string" values="WAYPOINT|ROUTE|CIRCLE"/>
     <field name="gaz_mode" type="string" values="MANUAL|GAZ|CLIMB|ALT"/>
