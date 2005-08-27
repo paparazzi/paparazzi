@@ -129,6 +129,7 @@ sub ivy_on_selected {
 sub on_aircraft_selection {
   my ($self, $_sp, $what, $new_selected_ac ) = @_;
   $self->select_ac($new_selected_ac);
+  Paparazzi::IvyProtocol::send_msg('ground', 'SELECTED', { aicraft_id => $new_selected_ac });
 }
 
 sub select_ac {
@@ -148,70 +149,6 @@ sub onShowPage {
   $self->{nd}->configure('-page' => $page);
 }
 
-# sub onWindCommand {
-#   my ($self, $component, $signal, $cmd) = @_;
-#   print "cockpit::onWindCommand $cmd\n";
-#   $self->{ivy}->sendMsgs("WIND_COMMAND $cmd");
-#   if ($cmd eq "start") {
-#     $self->{timer_id} = $self->{mw}->repeat(5000, [\&onTimer, $self]);
-#     $self->{ivy}->sendMsgs("WIND_COMMAND clear");
-#   }
-#   elsif ($cmd eq "stop") {
-#     $self->{mw}->afterCancel($self->{timer_id})
-#   }
-# }
-
-
-
-
-
-# sub onWindRes {
-#   my ($self, @args) = @_;
-# #  my $fields_by_name = Paparazzi::IvyProtocol::get_values_by_name("ground", "WIND_RES", \@args);
-#   print  Dumper ($fields_by_name) if (COCKPIT_DEBUG);
-# }
-
-# sub onConfigRes {
-#   print "in onConfigRes\n" if (COCKPIT_DEBUG);
-#   my ($self, @args) = @_;
-# #  my $fields_by_name = Paparazzi::IvyProtocol::get_values_by_name("aircraft_info", "CONFIG", \@args);
-#   my $fp = $fields_by_name->{flight_plan};
-#   #  print Dumper($fields_by_name);
-#   my $paparazzi_src =  Paparazzi::Environment::paparazzi_src();
-#   my $gfp_bin = ((defined $paparazzi_src) ? $paparazzi_src."/sw/tools" : "/usr/share/paparazzi/bin") ."/gen_flight_plan.out";
-#   my $flight_plan_xml = `$gfp_bin -dump $fp`;
-#   $md->load_flight_plan($flight_plan_xml);
-#   $md->set_block_and_stage(0,0);
-# }
-
-
-
-
-
-
-# sub onTimer {
-#   my ( $self) = @_;
-# #  print("in onTimer $self\n");
-#   $self->{ivy}->sendMsgs("WIND_REQ toto", {-id => "toto"});
-#  #   Paparazzi::IvyProtocol::request_message("ground", "CONFIG", {id => 'ground'}, $self->{ivy}, [$self, \&ivyOnWind]);
-# }
-
-# sub ivyOnWind {
-# #  print "in ivyOnWind\n"; # if (COCKPIT_DEBUG);
-#   my ($self, @args) = @_;
-# #  my $fields_by_name = Paparazzi::IvyProtocol::get_values_by_name("ground", "RES_WIND", \@args);
-#   $self->{wind_dir} = $args[2];
-#   $self->{wind_speed} = $args[3];
-
-#   my $h = { dir => $args[2],
-# 	    speed => $args[3],
-# 	    mean_aspeed => $args[4], 
-# 	    stddev => $args[5],
-# 	  };
-  
-# #  print Dumper($h);# if (COCKPIT_DEBUG); 
-#   $self->{nd}->configure('-wind' => $h);
-# }
 
 Paparazzi::Environment::parse_command_line($options) || pod2usage(-verbose => 0);
 #print Dumper($options);
