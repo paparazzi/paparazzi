@@ -120,17 +120,24 @@ let field_of_xml = fun xml ->
   let f = try Xml.attrib xml "format" with _ -> default_format t in
   (ExtXml.attrib xml "name", { _type = t; fformat = f })
 
+let string_of_values = fun vs ->
+  String.concat " " (List.map (fun (a,v) -> sprintf "%s=%s" a (string_of_value v)) vs)
+
+let assoc = fun a vs -> 
+  try List.assoc a vs with Not_found -> 
+    failwith (sprintf "Attribute '%s' not found in '%s'" a (string_of_values vs))
+
 let float_assoc = fun (a:string) vs -> 
-  match List.assoc a vs with
+  match assoc a vs with
     Float x -> x
   | _ -> invalid_arg "Pprz.float_assoc"
 
 let int_assoc = fun (a:string) vs -> 
-  match List.assoc a vs with
+  match assoc a vs with
     Int x -> x
   | _ -> invalid_arg "Pprz.int_assoc"
 
-let string_assoc = fun (a:string) (vs:values) -> string_of_value (List.assoc a vs)
+let string_assoc = fun (a:string) (vs:values) -> string_of_value (assoc a vs)
 
 
 

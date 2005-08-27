@@ -54,6 +54,7 @@ let ap_modes = [|"MANUAL";"AUTO1";"AUTO2";"HOME"|]
 let gaz_modes = [|"MANUAL";"GAZ";"CLIMB";"ALT"|]
 let lat_modes = [|"MANUAL";"ROLL_RATE";"ROLL";"COURSE"|]
 let gps_modes = [|"NOFIX";"DRO";"2D";"3D";"GPSDRO"|]
+let gps_hybrid_modes = [|"OFF";"ON"|]
 let if_modes = [|"OFF";"DOWN";"UP"|]
 let horiz_modes = [|"WAYPOINT";"ROUTE";"CIRCLE"|]
 
@@ -263,7 +264,9 @@ let log_and_parse = fun log ac_name a msg values ->
 	a.rpm <- a.throttle *. 100.;
 	a.bat <- fvalue "voltage" /. 10.;
 	a.stage_time <- ivalue "stage_time";
-	a.block_time <- ivalue "block_time"
+	a.block_time <- ivalue "block_time";
+	if a.flight_time > 0 && a.infrared.contrast_status = "WAITING" then
+	  a.infrared.contrast_status <- "SKIPPED"
     | "PPRZ_MODE" ->
 	a.ap_mode <- check_index (ivalue "ap_mode") ap_modes "AP_MODE";
 	a.gaz_mode <- check_index (ivalue "ap_gaz") gaz_modes "AP_GAZ";
@@ -284,7 +287,7 @@ let log_and_parse = fun log ac_name a msg values ->
 	  else if mcu1_status land 0b100 > 0
 	  then "AUTO"
 	  else "MANUAL";
-	a.infrared.gps_hybrid_mode <- ivalue "lls_calib"
+	a.infrared.gps_hybrid_mode <- check_index (ivalue "lls_calib") gps_hybrid_modes "HYBRID MODE"
     | "CAM" ->
 	a.cam.phi <- (Deg>>Rad) (fvalue  "phi");
 	a.cam.theta <- (Deg>>Rad) (fvalue  "theta");
@@ -356,8 +359,9 @@ let send_fbw = fun a ->
   Ground_Pprz.message_send my_id "FLY_BY_WIRE"  values
 
 let send_infrared = fun a ->
+  let gps_hybrid_mode = get_indexed_value gps_hybrid_modes a.infrared.gps_hybrid_mode in
   let values = [ "ac_id", Pprz.String a.id;
-		 "gps_hybrid_mode", Pprz.Int a.infrared.gps_hybrid_mode;
+		 "gps_hybrid_mode", Pprz.String gps_hybrid_mode;
 		 "gps_hybrid_factor", Pprz.Float a.infrared.gps_hybrid_factor;
 		 "contrast_status", Pprz.String a.infrared.contrast_status;
 		 "contrast_value", Pprz.Int a.infrared.contrast_value

@@ -367,9 +367,9 @@
 
   <message name="INFRARED" id="18">
     <field name="ac_id" type="string"/>
-    <field name="gps_hybrid_mode" type="uint8" values="OFF|ON"/>
+    <field name="gps_hybrid_mode" type="string" values="OFF|ON"/>
     <field name="gps_hybrid_factor" type="float"/>
-    <field name="contrast_status" type="string" values="DEFAULT|WAITING|SET"/>
+    <field name="contrast_status" type="string" values="DEFAULT|WAITING|SET|SKIPPED"/>
     <field name="contrast_value" type="int16"/>
   </message>
 

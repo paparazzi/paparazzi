@@ -1,5 +1,5 @@
 /* Definitions and declarations required to compile autopilot code on a
-   i386 architecture. Binding for OCaml. */
+   i386 architecture. Bindings for OCaml. */
 
 #include <stdio.h>
 #include <sys/time.h>

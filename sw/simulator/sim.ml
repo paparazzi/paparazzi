@@ -123,7 +123,7 @@ module Make(AircraftItl : AIRCRAFT_ITL) = struct
       gps_availability := Pprz.int_assoc "gps_availability" vs;
       wind_x := Pprz.float_assoc "wind_east" vs;      
       wind_y := Pprz.float_assoc "wind_north" vs;      
-      infrared_contrast := Pprz.float_assoc "ir_contrast" vs; (** FIXME *)
+      infrared_contrast := Pprz.float_assoc "ir_contrast" vs;
       time_scale#set_value (Pprz.float_assoc "time_scale" vs)
     in
 

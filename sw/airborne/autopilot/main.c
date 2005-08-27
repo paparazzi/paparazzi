@@ -475,10 +475,13 @@ inline void periodic_task( void ) {
       DOWNLINK_SEND_CIRCLE(&circle_x, &circle_y, &circle_radius); }
     if (in_segment) {
       DOWNLINK_SEND_SEGMENT(&segment_x_1, &segment_y_1, &segment_x_2, &segment_y_2); }
-		if (calib_status == WAITING_CALIB_CONTRAST) {
-			DOWNLINK_SEND_CALIB_START(); }
-		if (calib_status == CALIB_DONE && !estimator_flight_time) {
-			DOWNLINK_SEND_CALIB_CONTRAST(&ir_contrast); }
+    if (!estimator_flight_time) {
+      if (calib_status == WAITING_CALIB_CONTRAST) {
+	DOWNLINK_SEND_CALIB_START();
+      } else if (calib_status == CALIB_DONE) {
+	DOWNLINK_SEND_CALIB_CONTRAST(&ir_contrast);
+      }
+    }
   }
   switch(_4Hz) {
   case 0:

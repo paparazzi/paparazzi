@@ -1,4 +1,9 @@
-/* Infrared soft simulation. OCaml binding. */
+/** \file sim_ir.c
+ *  \brief Regroup functions to simulate autopilot/infrared.c
+ *
+ * Infrared soft simulation. OCaml binding.
+ */
+
 
 #include <inttypes.h>
 #include "airframe.h"
