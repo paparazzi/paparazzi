@@ -1,0 +1,95 @@
+<!DOCTYPE flight_plan SYSTEM "flight_plan.dtd">
+
+<flight_plan NAME="example - Muret4" LON0="1.27289" MAX_DIST_FROM_HOME="1000" GROUND_ALT="185" SECURITY_HEIGHT="25" QFU="270" ALT="250" LAT0="43.46223">
+   <rc_control>
+     <mode NAME="AUTO1">
+      <setting VAR="ir_pitch_neutral" RANGE="60." RC="gain_1_up" TYPE="int16"/>
+      <setting VAR="ir_roll_neutral" RANGE="-60." RC="gain_2_up" TYPE="int16"/>
+      <setting VAR="pitch_pgain" RANGE="1000." RC="gain_1_down" TYPE="int16"/>
+      <setting VAR="roll_pgain" RANGE="-1000." RC="gain_2_down" TYPE="int16"/>
+    </mode>
+    <mode NAME="AUTO2">
+      <setting VAR="pitch_of_roll" RANGE="0.1" RC="gain_1_down" TYPE="float"/>
+      <setting VAR="pitch_of_vz" RANGE=".2" RC="gain_2_down" TYPE="float"/>
+      <setting VAR="ir_pitch_neutral" RANGE="60." RC="gain_1_up" TYPE="int16"/>
+      <setting VAR="ir_roll_neutral" RANGE="-60." RC="gain_2_up" TYPE="int16"/>
+    </mode>
+  </rc_control>
+  <waypoints utm_x0="360284.8" utm_y0="4813595.5">
+    <waypoint name="AF" x="267.5" y="35.0" lat="43.4625948985" lon="1.27618631405" alt="215."/>
+    <waypoint name="3" x="25.0" y="285.0" lat="43.464799741" lon="1.27312587027" alt="250."/>
+    <waypoint name="4" x="162.5" y="210.0" lat="43.4641503744" lon="1.27484411158" alt="250."/>
+    <waypoint name="5" x="97.5" y="60.0" lat="43.4627882109" lon="1.27407935592" alt="250."/>
+    <waypoint name="2" x="-130.0" y="217.5" lat="43.4641632754" lon="1.27122790867" alt="250."/>
+    <waypoint name="1" x="-100.0" y="60.0" lat="43.4627513408" lon="1.2716390001" alt="250."/>
+    <waypoint name="RWAY" x="0.0" y="30.0" lat="43.4625000078" lon="1.27288231142" alt="185."/>
+    <waypoint name="HOME" x="0.0" y="30.0" lat="43.4625000078" lon="1.27288231142" alt="250."/>
+    <waypoint name="IAF" x="267.5" y="200.0" alt="250."/>
+  </waypoints>
+
+  <include name="slow" procedure="circles.xml" x="00" y="200" rotate="0">
+    <arg name="vz" value="0.5"/>
+    <arg name="top" value="GROUND_ALT+200"/>
+    <arg name="bottom" value="GROUND_ALT+50"/>
+    <with from="event1" to="fast.climb"/>
+  </include>
+
+  <include name="fast" procedure="circles.xml" x="00" y="200" rotate="0">
+    <arg name="rad" value="150"/>
+    <arg name="bottom" value="GROUND_ALT+50"/>
+    <with from="event1" to="xyz"/>
+  </include>
+
+  <include name="hippo1" procedure="hippo.xml" x="-100" y="150" rotate="0">
+    <arg name="alt" value="GROUND_ALT+100"/>
+    <with from="event1" to="penta"/>
+  </include>
+
+  <blocks>
+    <block NAME="init">
+      <while COND="(!launch)"/>
+      <heading VMODE="gaz" GAZ="0.8" PITCH="0.15" COURSE="QFU" UNTIL="(estimator_flight_time > 8)"/>
+      <heading CLIMB="3.0" VMODE="climb" PITCH="0.15" COURSE="QFU" UNTIL="(estimator_z > SECURITY_ALT)"/>
+    </block>
+
+    <block NAME="deux">
+      <exception COND="(RcEvent1())" DEROUTE="hippo1.loop"/>
+      <circle WP="HOME" alt="GROUND_ALT+50" radius="75"/>
+    </block>
+
+    <block NAME="penta">
+      <exception COND="(RcEvent1())" DEROUTE="slow.climb"/>
+      <while>
+        <go hmode="route" from="1" wp="2"/>
+        <go hmode="route" from="2" wp="3"/>
+        <go hmode="route" from="3" wp="4"/>
+        <go hmode="route" from="4" wp="1"/>
+      </while>
+    </block>
+    <block NAME="xyz">
+      <exception COND="(RcEvent1())" DEROUTE="land"/>
+      <xyz/>
+    </block>
+
+    <block NAME="land">
+      <exception COND="(RcEvent1())" DEROUTE="rdg"/>
+      <exception COND="(GROUND_ALT+10> estimator_z)" DEROUTE="rdg"/>
+      <exception COND="(RcEvent2())" DEROUTE="stop"/>
+      <circle WP="2" radius="50" ALT="215" UNTIL="And(225 > estimator_z, Qdr(0))"/>
+      <go WP="IAF" ALT="215"/>
+      <go WP="AF" ALT="215"/>
+      <go WP="RWAY" HMODE="route" VMODE="glide"/>
+    </block>
+
+    <block NAME="rdg">
+      <exception COND="(RcEvent1())" DEROUTE="land"/>
+      <heading CLIMB="2.0" VMODE="climb" PITCH="0.15" COURSE="QFU" UNTIL="(estimator_z > GROUND_ALT+25)"/>
+      <deroute block="land"/>
+    </block>
+  <block name="stop">
+      <exception COND="(RcEvent1())" DEROUTE="rdg"/>
+   <stay wp="HOME" vmode="gaz" gaz="0"/>
+  </block>
+  </blocks>
+</flight_plan>
+
