@@ -1,12 +1,15 @@
-package Paparazzi::Traces;
-@ISA = qw (Exporter);
-@EXPORT = qw (get_ressource);
+package Paparazzi::GuiConfig;
 
 use strict;
+require XML::DOM;
 
+sub init {
+  my ($filename) = @_;
+
+}
 
 sub get_ressource {
   my ($ressource_name) = @_;
 
-
+  return "foo";
 }

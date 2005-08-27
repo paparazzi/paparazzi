@@ -10,9 +10,14 @@ use constant TRACE_JUNK  => 3;
 
 my $tracelevel = 2;
 
+sub init {
+  my ($level) = @_;
+  $tracelevel = $level;
+}
+
 sub trace {
   my ($level, $msg) = @_;
-  print $msg.'\n' if $level <= $tracelevel;
+  print $msg."\n" if $level <= $tracelevel;
 }
 
 

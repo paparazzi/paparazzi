@@ -15,11 +15,11 @@ use Subject;
 use strict;
 use Paparazzi::Environment;
 
-use constant COCKPIT_DEBUG => 0;
 use constant APP_NAME => "Cockpit";
 use constant MESSAGE_WHEN_READY => APP_NAME.': READY';
 
 use Paparazzi::Traces;
+use Paparazzi::GuiConfig;
 use Paparazzi::IvyProtocol;
 use Paparazzi::AircraftsManager;
 use Paparazzi::Aircraft;
@@ -39,6 +39,7 @@ my $options =
   {
    ivy_bus  => "127.255.255.255:2005",
    render => 1,
+   tracelevel => 1,
   };
 
 sub populate {
@@ -49,6 +50,9 @@ sub populate {
 sub completeinit {
   my $self = shift;
   $self->SUPER::completeinit();
+  Paparazzi::Traces::init($options->{tracelevel});
+  my $gui_file = Paparazzi::Environment::get_config("gui.xml");
+  Paparazzi::GuiConfig->init($gui_file);
   $self->{selected_ac} = undef;
   $self->build_gui();
   my $protocol_file = Paparazzi::Environment::get_config("messages.xml");
@@ -121,12 +125,12 @@ sub on_foo {
 sub ivy_on_selected {
   my ($sender_name, $msg_class, $msg_name, $fields, $self) = @_;
   my $ac_id = $fields->{aircraft_id};
-  trace(TRACE_DEBUG, "cockpit::ivy_on_selected : selecting aircraft $ac_id\n");
+  trace(TRACE_DEBUG, "cockpit::ivy_on_selected : selecting aircraft $ac_id");
   if (defined $self->{aircrafts_manager}->get_aircraft_by_id($ac_id)) {
     $self->select_ac($ac_id);
   }
   else {
-    trace(TRACE_ERROR, "cockpit::ivy_on_selected : received select order for unknown aircraft $ac_id\n");
+    trace(TRACE_ERROR, "cockpit::ivy_on_selected : received select order for unknown aircraft $ac_id");
   }
 }
 
@@ -154,7 +158,6 @@ sub onShowPage {
 
 
 Paparazzi::Environment::parse_command_line($options) || pod2usage(-verbose => 0);
-#print Dumper($options);
 my $cockpit = Cockpit->new();
 MainLoop();
 
