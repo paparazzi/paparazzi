@@ -239,6 +239,13 @@ let one_new_ac = fun (geomap:MapCanvas.widget) ac ->
     ignore (ac_menu_fact#add_item "Resize Track" ~callback:(fun () -> resize_track ac track));
     let cam = ac_menu_fact#add_check_item "Cam Display" ~active:false in
     ignore (cam#connect#toggled (fun () -> track#set_cam_state cam#active));
+    let event_ac = fun e ->
+      match e with
+	`BUTTON_PRESS _ | `BUTTON_RELEASE _ -> 
+	  Ground_Pprz.message_send "ground" "SELECTED" ["aircraft_id", Pprz.String ac];
+	  true
+      | _ -> false in
+    ignore (track#aircraft#connect#event event_ac);
     Hashtbl.add live_aircrafts ac { track = track; color = color; fp_group = None }
   end
       

@@ -269,7 +269,7 @@
   </message>
 
   <message name="SELECTED" ID="5">
-    <field name="aicraft_id" type="string"/>
+    <field name="aircraft_id" type="string"/>
   </message>
 
   <message name="SELECTED_REQ" ID="6">

@@ -123,7 +123,7 @@ sub on_foo {
 sub ivy_on_selected {
   my ($sender_name, $msg_class, $msg_name, $fields, $self) = @_;
   print "in ivy_on_selected\n"; # if (COCKPIT_DEBUG);
-  my $ac_id = $fields->{aicraft_id};
+  my $ac_id = $fields->{aircraft_id};
   if (defined $self->{aircrafts_manager}->get_aircraft_by_id($ac_id)) {
     $self->select_ac($ac_id);
   }
@@ -135,7 +135,7 @@ sub ivy_on_selected {
 sub on_aircraft_selection {
   my ($self, $_sp, $what, $new_selected_ac ) = @_;
   $self->select_ac($new_selected_ac);
-  Paparazzi::IvyProtocol::send_msg('ground', 'SELECTED', { aicraft_id => $new_selected_ac });
+  Paparazzi::IvyProtocol::send_msg('ground', 'SELECTED', { aircraft_id => $new_selected_ac });
 }
 
 sub select_ac {
