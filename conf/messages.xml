@@ -385,6 +385,7 @@
     <field name="wind_north" type="float" unit="m/s" format="%.1f"/>
     <field name="ir_contrast" type="float"/>
     <field name="time_scale" type="float"/>
+    <field name="gps_availability" type="uint8" values="OFF|ON"/>
   </message>
 
   <message name="WORLD_ENV_REQ" id="21"/>
