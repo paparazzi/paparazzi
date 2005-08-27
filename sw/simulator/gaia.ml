@@ -51,7 +51,7 @@ let _ =
   let wind_dir_adj = GData.adjustment ~value:0. ~lower:(0.) ~upper:370. ~step_incr:1.0 () in
   let wind_speed_adj = GData.adjustment ~value:0. ~lower:(0.) ~upper:20. ~step_incr:0.1 () in
   let gust_norm_max_adj = GData.adjustment ~value:0. ~lower:(0.) ~upper:20. ~step_incr:0.1 () in
-  let infrared_contrast_adj = GData.adjustment ~value:500. ~lower:(0.) ~upper:1010. ~step_incr:10. () in
+  let infrared_contrast_adj = GData.adjustment ~value:266. ~lower:(0.) ~upper:1010. ~step_incr:10. () in
   let gps_sa = GButton.toggle_button ~label:"GPS OFF" () in
 
   let world_values = fun () ->

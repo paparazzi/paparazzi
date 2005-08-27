@@ -3,7 +3,7 @@
  *
  * Basic flight model for simulation
  *  
- * Copyright (C) 2004 Pascal Brisset, Antoine Drouin
+ * Copyright (C) 2004-2005 Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
  *

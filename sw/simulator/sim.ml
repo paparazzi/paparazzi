@@ -115,7 +115,7 @@ module Make(AircraftItl : AIRCRAFT_ITL) = struct
 
     let wind_x = ref 0.
     and wind_y = ref 0. in
-    let infrared_contrast = ref 2000.
+    let infrared_contrast = ref 266.
     and time_scale = object val mutable v = 1. method value = v method set_value x = v <- x end
     and gps_availability = ref 1 in
 
@@ -123,7 +123,7 @@ module Make(AircraftItl : AIRCRAFT_ITL) = struct
       gps_availability := Pprz.int_assoc "gps_availability" vs;
       wind_x := Pprz.float_assoc "wind_east" vs;      
       wind_y := Pprz.float_assoc "wind_north" vs;      
-      infrared_contrast := 4. *. Pprz.float_assoc "ir_contrast" vs; (** FIXME *)
+      infrared_contrast := Pprz.float_assoc "ir_contrast" vs; (** FIXME *)
       time_scale#set_value (Pprz.float_assoc "time_scale" vs)
     in
 
