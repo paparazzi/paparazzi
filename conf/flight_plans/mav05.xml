@@ -11,21 +11,8 @@
   </rc_control>
   <waypoints>
     <waypoint Y="0" NAME="HOME" X="0"/>
+    <waypoint x="-25.6622711116" y="131.217815482" name="X"/>
   </waypoints>
-  <include Y="100" NAME="up_and_down" PROCEDURE="circles.xml" X="00" ROTATE="0">
-    <arg NAME="bottom" VALUE="GROUND_ALT+50"/>
-    <with FROM="event1" TO="bh50.go"/>
-  </include>
-  <include Y="200" NAME="bh50" PROCEDURE="bh.xml" X="0" ROTATE="0">
-    <arg NAME="height" VALUE="50"/>
-    <with FROM="event1" TO="bh30.go"/>
-    <with FROM="event2" TO="circlehome"/>
-  </include>
-  <include Y="200" NAME="bh30" PROCEDURE="bh.xml" X="0" ROTATE="0">
-    <arg NAME="height" VALUE="30"/>
-    <with FROM="event1" TO="circlehome"/>
-    <with FROM="event2" TO="circlehome"/>
-  </include>
   <blocks>
     <block NAME="init">
       <while COND="(!launch)"/>
@@ -34,8 +21,7 @@
       <deroute BLOCK="circlehome"/>
     </block>
     <block NAME="circlehome">
-      <exception COND="(RcEvent1())" DEROUTE="up_and_down.climb"/>
-      <circle WP="HOME" ALT="GROUND_ALT+50" RADIUS="75"/>
+      <circle WP="X" ALT="GROUND_ALT+50" RADIUS="50"/>
     </block>
   </blocks>
 </flight_plan>
