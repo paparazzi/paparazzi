@@ -76,5 +76,6 @@ extern uint8_t horizontal_mode;
 void nav_update(void);
 void nav_home(void);
 void nav_init(void);
+void nav_wihtout_gps(void);
 
 #endif /* NAV_H */

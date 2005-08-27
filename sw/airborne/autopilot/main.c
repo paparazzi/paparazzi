@@ -82,6 +82,7 @@ float slider_1_val, slider_2_val;
 bool_t launch = FALSE;
 
 float energy; /** Fuel consumption */
+static uint16_t last_gps_msg_t;	/** cputime of the last gps message */
 
 
 #define Min(x, y) (x < y ? x : y)
@@ -106,7 +107,9 @@ float energy; /** Fuel consumption */
  */
 inline uint8_t pprz_mode_update( void ) {
   /** We remain in home mode until explicit reset from the RC */
-  if (pprz_mode != PPRZ_MODE_HOME || CheckEvent(rc_event_1)) {
+  if ((pprz_mode != PPRZ_MODE_HOME &&
+				pprz_mode != PPRZ_MODE_GPS_OUT_OF_ORDER)
+				|| CheckEvent(rc_event_1)) {
     ModeUpdate(pprz_mode, PPRZ_MODE_OF_PULSE(from_fbw.channels[RADIO_MODE], from_fbw.status));
   } else
     return FALSE;
@@ -183,13 +186,6 @@ inline void copy_from_to_fbw ( void ) {
   to_fbw.status = 0;
 }
 
-#ifdef EST_TEST
-float est_pos_x;
-float est_pos_y;
-float est_fcourse;
-uint8_t ticks_last_est; // 20Hz
-#endif /* EST_TEST */
-
 
 
 /* 
@@ -242,6 +238,14 @@ uint8_t ac_ident = AC_ID;
 #define SEND_RAD_OF_IR() { int16_t rad = DeciDegOfRad(estimator_rad); DOWNLINK_SEND_RAD_OF_IR(&ir_roll, &rad, &estimator_rad_of_ir);} 
 
 #define PERIODIC_SEND_CALIBRATION() DOWNLINK_SEND_CALIBRATION(&climb_sum_err, &climb_pgain, &course_pgain)
+
+#define PERIODIC_SEND_CIRCLE() if (in_circle) { DOWNLINK_SEND_CIRCLE(&circle_x, &circle_y, &circle_radius); }
+
+#define PERIODIC_SEND_SEGMENT() if (in_segment) { DOWNLINK_SEND_SEGMENT(&segment_x_1, &segment_y_1, &segment_x_2, &segment_y_2); }
+
+#define PERIODIC_SEND_CALIB_START() if (!estimator_flight_time && calib_status == WAITING_CALIB_CONTRAST) { DOWNLINK_SEND_CALIB_START(); }
+
+#define PERIODIC_SEND_CALIB_CONTRAST() if (!estimator_flight_time && calib_status == CALIB_DONE) { DOWNLINK_SEND_CALIB_CONTRAST(&ir_contrast); }
 
 /** Status of the calibration. Can be one of the \a calibration \a states */
 static uint8_t calib_status = NO_CALIB;
@@ -342,7 +346,7 @@ inline void radio_control_task( void ) {
 			#else
      		/** In Auto1 mode, roll is bounded between [-0.6;0.6] */
 				desired_roll = FLOAT_OF_PPRZ(from_fbw.channels[RADIO_ROLL], 0., -0.6);
-			#endif
+			#endif /* AUTO1_MAX_ROLL */
 
 			#ifdef AUTO1_MAX_PITCH
 				/** In Auto1 mode, pitch is bounded between [-AUTO1_MAX_PITCH;AUTO1_MAX_PITCH] */
@@ -350,7 +354,7 @@ inline void radio_control_task( void ) {
 			#else
      		/** In Auto1 mode, pitch is bounded between [-0.5;0.5] */
 				desired_pitch = FLOAT_OF_PPRZ(from_fbw.channels[RADIO_PITCH], 0., 0.5);
-			#endif
+			#endif	/* AUTO1_MAX_PITCH */
     }
     if (pprz_mode == PPRZ_MODE_MANUAL || pprz_mode == PPRZ_MODE_AUTO1) {
       desired_gaz = from_fbw.channels[RADIO_THROTTLE];
@@ -380,11 +384,38 @@ inline void radio_control_task( void ) {
  *  \brief Compute desired_course
  */
 void navigation_task( void ) {
-
+	static uint8_t last_pprz_mode;
+	static bool_t has_lost_gps = FALSE;
+	
+	/** This section is used for the failsafe of GPS */
+#ifdef FAILSAFE_DELAY_WITHOUT_GPS
+	/** Test if we lost the GPS */
+	if (!GPS_FIX_VALID(gps_mode) ||
+			(cputime - last_gps_msg_t > FAILSAFE_DELAY_WITHOUT_GPS)) {
+		/** If aircraft is launch and is in autonomus mode, go into
+				PPRZ_MODE_GPS_OUT_OF_ORDER mode (Failsafe). */
+		if (launch && (pprz_mode == PPRZ_MODE_AUTO2 ||
+					pprz_mode == PPRZ_MODE_HOME)) {
+			last_pprz_mode = pprz_mode;
+			pprz_mode = PPRZ_MODE_GPS_OUT_OF_ORDER;
+			PERIODIC_SEND_PPRZ_MODE();
+			has_lost_gps = TRUE;
+		}
+	}
+	/** If aircraft was in failsafe mode, come back in previous mode */
+	else if (has_lost_gps) {
+		pprz_mode = last_pprz_mode;
+		has_lost_gps = FALSE;
+		PERIODIC_SEND_PPRZ_MODE();
+	}
+#endif /* FAILSAFE_DELAY_WITHOUT_GPS */
+		
   /** Default to keep compatibility with previous behaviour */
   lateral_mode = LATERAL_MODE_COURSE;
   if (pprz_mode == PPRZ_MODE_HOME)
     nav_home();
+  else if (pprz_mode == PPRZ_MODE_GPS_OUT_OF_ORDER)
+    nav_wihtout_gps();
   else
     nav_update();
   
@@ -400,7 +431,8 @@ void navigation_task( void ) {
   DOWNLINK_SEND_CAM(&phi, &theta, &x, &y);
   
   
-  if (pprz_mode == PPRZ_MODE_AUTO2 || pprz_mode == PPRZ_MODE_HOME) {
+  if (pprz_mode == PPRZ_MODE_AUTO2 || pprz_mode == PPRZ_MODE_HOME
+			|| pprz_mode == PPRZ_MODE_GPS_OUT_OF_ORDER) {
     if (lateral_mode >= LATERAL_MODE_COURSE)
       course_pid_run(); /* aka compute nav_desired_roll */
     desired_roll = nav_desired_roll;
@@ -470,18 +502,6 @@ inline void periodic_task( void ) {
     static uint8_t t = 0;
     if (vsupply < LOW_BATTERY) t++; else t = 0;
     low_battery |= (t >= LOW_BATTERY_DELAY);
-
-    if (in_circle) {
-      DOWNLINK_SEND_CIRCLE(&circle_x, &circle_y, &circle_radius); }
-    if (in_segment) {
-      DOWNLINK_SEND_SEGMENT(&segment_x_1, &segment_y_1, &segment_x_2, &segment_y_2); }
-    if (!estimator_flight_time) {
-      if (calib_status == WAITING_CALIB_CONTRAST) {
-	DOWNLINK_SEND_CALIB_START();
-      } else if (calib_status == CALIB_DONE) {
-	DOWNLINK_SEND_CALIB_CONTRAST(&ir_contrast);
-      }
-    }
   }
   switch(_4Hz) {
   case 0:
@@ -543,6 +563,7 @@ void use_gps_pos( void ) {
   DOWNLINK_SEND_GPS(&gps_mode, &gps_utm_east, &gps_utm_north, &gps_course, &gps_alt, &gps_gspeed,&gps_climb, &gps_itow, &gps_utm_zone);
   estimator_update_state_gps();
   SEND_RAD_OF_IR();
+	if (GPS_FIX_VALID(gps_mode)) last_gps_msg_t = cputime;
   
   static uint8_t i;
   if (i == gps_nb_channels) i = 0;
