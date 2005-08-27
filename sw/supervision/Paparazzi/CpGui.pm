@@ -33,8 +33,17 @@ sub onProgramSelected {
 
 sub onSessionSelected {
   my ($self, $session_name) = @_;
+  $self->{'session_command_'.$session_name}->configure(-state => 'disabled');
   $self->start_session($session_name);
   $self->add_session_page($session_name);
+}
+
+sub onCloseSession {
+  my ($self, $session_name) = @_;
+  print "on close session\n";
+  $self->kill_session($session_name);
+  $self->{'session_command_'.$session_name}->configure(-state => 'active');
+  $self->remove_session_page($session_name);
 }
 
 use constant LIST_WIDTH => 80;
@@ -59,8 +68,9 @@ sub build_gui {
   my $session_menu = $menubar->Menubutton(-text => 'Sessions')->pack(-side => 'left');;
   my $sessions = $self->get('-sessions');
   foreach my $session_name (keys %{$sessions}) {
-    $session_menu->command( -label  => $session_name,
-			    -command => [\&onSessionSelected, $self, $session_name] );
+    $self->{'session_command_'.$session_name} =
+      $session_menu->command( -label  => $session_name,
+			      -command => [\&onSessionSelected, $self, $session_name] );
   }
   my $program_menu = $menubar->Menubutton(-text => 'Programs')->pack(-side => 'left');;
   my $programs = $self->get(-programs);
@@ -262,12 +272,13 @@ sub add_session_page {
   my $sessions = $self->get('-sessions');
   my $session = $sessions->{$session_name};
   my $hlist = $session_page->Scrolled ('HList',
+				       -scrollbars => 'o',
 				       -header => 1,
 				       -columns => 3,
 				       -width => LIST_WIDTH,
 				       -height => LIST_HEIGHT,
 				       -command => [\&on_session_pgm_clicked, $self, $session_name],
-				      )->grid(-sticky => 'nsew');
+				      )->grid(-columnspan => 2);
   $hlist->header('create', 0, -text => 'name');
   $hlist->header('create', 1, -text => 'status');
   $hlist->header('create', 2, -text => 'args');
@@ -281,7 +292,17 @@ sub add_session_page {
     $hlist->itemCreate($i, 2,   -text => 'blah' );
   }
   $self->{$session_name.'hlist'} = $hlist;
+#  $session_page->Button( -text => "killall")->grid(-column => 0, -row => 1);
+  $session_page->Button( -text => "close",
+			 -command => [\&onCloseSession, $self, $session_name])->grid(-column => 1, -row => 1);
   $notebook->raise($page_id);
+}
+
+sub remove_session_page {
+  my ($self, $session_name) = @_;
+  my $notebook = $self->{notebook};
+  my $page_id = "session_".$session_name;
+  $notebook->delete($page_id);
 }
 
 sub on_session_pgm_clicked {

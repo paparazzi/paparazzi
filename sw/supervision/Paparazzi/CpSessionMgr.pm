@@ -124,6 +124,14 @@ sub start_session {
   }
 }
 
+sub kill_session {
+  my ($self, $session_name) = @_;
+  my $session = $self->get('-sessions')->{$session_name};
+  my @progs = @{$session->{pgms}};
+  foreach my $pgm_idx (0..@progs-1) {
+    $self->toggle_program_in_session($session_name, $pgm_idx) if ($self->get_session_program_status($session_name, $pgm_idx));
+  }
+}
 
 sub get_session_program_status {
   my ($self, $session_name, $pgm_idx) = @_;
