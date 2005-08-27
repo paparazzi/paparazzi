@@ -234,7 +234,7 @@ sub set_bat {
 ##############################################################################
 sub attach_to_aircraft {
   my ($self) = @_;
-  my @options = ('airframe', 'flight_plan', 'ap_mode', 'rc_status', 'gps_mode', 'contrast_status', 'contrast_value',
+  my @options = ('airframe', 'ap_mode', 'rc_status', 'gps_mode', 'contrast_status', 'contrast_value',
 		 'flight_time', 'alt', 'target_alt', 'speed', 'climb', '-engine_status');
   foreach my $option (@options) {
     $self->get('-aircraft')->attach($self, $option, [\&aircraft_config_changed]);

@@ -19,6 +19,7 @@ use constant COCKPIT_DEBUG => 0;
 use constant APP_NAME => "Cockpit";
 use constant MESSAGE_WHEN_READY => APP_NAME.': READY';
 
+use Paparazzi::Traces;
 use Paparazzi::IvyProtocol;
 use Paparazzi::AircraftsManager;
 use Paparazzi::Aircraft;
@@ -49,8 +50,6 @@ sub completeinit {
   my $self = shift;
   $self->SUPER::completeinit();
   $self->{selected_ac} = undef;
-  $self->{wind_dir} = 0.;
-  $self->{wind_speed} = 0.;
   $self->build_gui();
   my $protocol_file = Paparazzi::Environment::get_config("messages.xml");
   Paparazzi::IvyProtocol::init(-file      => $protocol_file,
@@ -68,7 +67,7 @@ sub completeinit {
 
 sub on_new_aircraft {
   my ($self, $ac_manager, $event, $ac_id) = @_;
-  print "in Cockpit : on_new_aircraft\n";
+  trace(TRACE_DEBUG, "cockpit::on_new_aircraft $ac_id");
   my $aircraft = $self->{aircrafts_manager}->get_aircraft_by_id($ac_id);
   $self->{strip_panel}->add_strip($aircraft);
   $self->{md}->add_aircraft($aircraft);
@@ -115,20 +114,19 @@ sub build_gui {
 
 sub on_foo {
   my ($self) = @_;
-  print "in ivy_on_foo\n"; # if (COCKPIT_DEBUG);
   $self->{aircrafts_manager}->start();
   Paparazzi::IvyProtocol::bind_msg("ground", "ground", "SELECTED", {}, [\&ivy_on_selected, $self]);
 }
 
 sub ivy_on_selected {
   my ($sender_name, $msg_class, $msg_name, $fields, $self) = @_;
-  print "in ivy_on_selected\n"; # if (COCKPIT_DEBUG);
   my $ac_id = $fields->{aircraft_id};
+  trace(TRACE_DEBUG, "cockpit::ivy_on_selected : selecting aircraft $ac_id\n");
   if (defined $self->{aircrafts_manager}->get_aircraft_by_id($ac_id)) {
     $self->select_ac($ac_id);
   }
   else {
-    Traces::trace(1, "cockpit::ivy_on_selected : received select order for unknown aircraft $ac_id\n");
+    trace(TRACE_ERROR, "cockpit::ivy_on_selected : received select order for unknown aircraft $ac_id\n");
   }
 }
 
@@ -150,8 +148,7 @@ sub select_ac {
 
 sub onShowPage {
   my ($self, $component, $signal, $page) = @_;
-  print "cockpit::onShowPage $page\n";
-  print "$self->{nd}\n";
+  trace(TRACE_DEBUG, "cockpit::onShowPage $page");
   $self->{nd}->configure('-page' => $page);
 }
 

@@ -84,9 +84,7 @@ sub completeinit {
   $self->SUPER::completeinit();
   my $parser = XML::DOM::Parser->new();
   my $flight_plan_url = $self->get('-url');
-
-  print "###### flight_plan_url $flight_plan_url\n";
-
+  trace(TRACE_DEBUG, "Flightplan::completeinit : url $flight_plan_url\n");
   my $flight_plan_xml = LWP::Simple::get($flight_plan_url);
   if (defined $flight_plan_xml) {
     $self->configure( -compiled_xml => $flight_plan_xml);
@@ -95,7 +93,7 @@ sub completeinit {
     $self->parse_flight_plan();
   }
   else {
-    print "############WARNING : could not get $flight_plan_url\n";
+    trace(TRACE_ERROR, "Flightplan::completeinit : WARNING : could not get $flight_plan_url\n");
     return;
   }
 }
@@ -200,13 +198,8 @@ sub parse_mission {
     $blocks->{$block_name} = get_block_id($block_no) unless defined $blocks->{block_name};
   }
   
-#  use Data::Dumper;
-#  print Dumper($blocks);
-#  print Dumper(\$blocks_stages);
-
   foreach my $block ($doc->getElementsByTagName('block')) {
     my $block_name = $block->getAttribute('NAME').$block->getAttribute('name');
-#    print "################### $block_name\n";
     my $block_description = $block->getAttribute('description');
     my $block_id = $blocks->{$block_name};
 
@@ -219,9 +212,7 @@ sub parse_mission {
 	my $stage_id = $blocks_stages->{$block_name}->{$key};
 	my $tags = [$block_id];
 	push(@{$tags}, ($stage_id)) if defined $stage_id;
-	#				$self->Subwidget('text')->insert('end', $line."\n", $tags);
 	if (defined $stage_id) {
-	  # print "reading $block_id $stage_id  block name  $block_name\n";
 	  $self->{mission}->{$block_id}->{stage}->{$stage_id}->{text} = $line;
 					
 	  # Parse the stage_line to get a wp_name defined with `wp="wp_name"`

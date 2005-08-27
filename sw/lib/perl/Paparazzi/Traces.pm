@@ -1,6 +1,6 @@
 package Paparazzi::Traces;
-
-@export = qw (TRACE_ERROR TRACE_DEBUG TRACE_JUNK);
+@ISA = qw (Exporter);
+@EXPORT = qw (trace TRACE_ERROR TRACE_DEBUG TRACE_JUNK);
 
 use strict;
 
@@ -12,7 +12,7 @@ my $tracelevel = 2;
 
 sub trace {
   my ($level, $msg) = @_;
-  print $msg if $level >= $tracelevel;
+  print $msg.'\n' if $level <= $tracelevel;
 }
 
 
