@@ -11,8 +11,8 @@ sub populate {
   my ($self, $args) = @_;
   $self->SUPER::populate($args);
   $self->configspec(
-                    -url	        => [S_NEEDINIT, S_PASSIVE,  S_RDONLY, S_OVRWRT, S_NOPRPG, undef],
-		    -ac_name	        => [S_NOINIT,   S_PASSIVE,  S_RDWR, S_OVRWRT, S_NOPRPG, undef],
+                    -url     => [S_NEEDINIT, S_PASSIVE,  S_RDONLY, S_OVRWRT, S_NOPRPG, undef],
+		    -ac_name => [S_NOINIT,   S_PASSIVE,  S_RDWR, S_OVRWRT, S_NOPRPG, undef],
 		   );
 }
 

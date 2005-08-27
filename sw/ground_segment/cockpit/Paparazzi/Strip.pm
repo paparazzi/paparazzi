@@ -38,6 +38,7 @@ use strict;
 use warnings;
 
 use Paparazzi::Traces;
+use Paparazzi::Utils;
 
 # populate:
 #   this sub is the subject constructor method
@@ -51,7 +52,7 @@ sub populate {
 		    -origin     => [S_NEEDINIT, S_PASSIVE, S_RDWR, S_OVRWRT, S_NOPRPG, undef],
 		    -width      => [S_NEEDINIT, S_PASSIVE, S_RDWR, S_OVRWRT, S_NOPRPG, undef],
 		    -height     => [S_NEEDINIT, S_PASSIVE, S_RDWR, S_OVRWRT, S_NOPRPG, undef],
-		    -selected   => [S_NOINIT,   S_METHOD,  S_RDWR, S_OVRWRT, S_NOPRPG, 0],
+		    -selected   => [S_NOINIT,   S_METHOD,  S_RDWR, S_OVRWRT, S_NOPRPG, undef],
 		   );
 }
 
@@ -61,33 +62,8 @@ sub populate {
 sub completeinit {
   my $self = shift;
   $self->SUPER::completeinit();
-  #$self->attach_to_aircraft();
 
   my $zinc = $self->get(-zinc);
-#  my $ident = $self->get(-ident);
-  my $flight_plan = "foo"; #$self->get(-flight_plan);
-#  $self->{zinc} = $self->get(-zinc);
-#  $self->{fp} = $flight_plan;
- 
-  $self->{modes} =
-    {
-#     ap_mode => 
-#     { name => ["Manual", "Auto1", "Auto2", "Home"],
-#       color => ["sienna", "blue", "brown", "red"]
-#     },
-#      gps_mode =>
-#      { name => [ "No fix", "GPS dead reckoning only", "2D-fix",  "3D-fix", "GPS + dead reckoning combined"],
-#        color => ["red", "red", "orange", "brown", "orange"]
-#      },
-#     rc_status => 
-#     { name => ["Ok","Lost", "Really lost", "error"],
-#       color => ["orange", "brown", "red", "red"]
-#     },
-#     contrast_status => 
-#     { name => ["Default","Waiting", "Set", "error"],
-#       color => ["orange", "brown", "red", "red"]
-#     }
-    };
 
   $self->{new_modes} = 
     {
@@ -115,14 +91,11 @@ sub completeinit {
   };
 
   $self->parse_config();
-
-
   $self->{prefix} = "STRIP_".$self->get(-aircraft)->get('-ac_id')."_";
   $self->{zinc_bat} = undef;
   $self->{zinc_bat_value} = undef;
   $self->attach_to_aircraft();
   $self->draw();
-
 }
 
 sub parse_config {
@@ -147,8 +120,6 @@ sub draw {
   my $zinc = $self->get(-zinc);
   my $ident = $self->get(-aircraft)->get('-ac_id');
   my ($x, $y) = @{$self->get('-origin')};
-#  my $fp = $self->get(-flight_plan);
-  
   my $width = 300;
 
 
@@ -186,7 +157,7 @@ sub draw {
     $self->add_value_text($attr->[1]);
   }
 
-  $zinc->add('text', $self->{contentgroup}, -text => $self->string_of_time(0), -position => [8, 82], -font => $self->{options}->{small_font}, -color => $self->{options}->{label_color}, -tags => [ $self->{prefix}."flight_time_value"] );
+  $zinc->add('text', $self->{contentgroup}, -text => Utils::hhmmss_of_s(0), -position => [8, 82], -font => $self->{options}->{small_font}, -color => $self->{options}->{label_color}, -tags => [ $self->{prefix}."flight_time_value"] );
   ##
   # QUICK and DIRTY flight time an battery
   # 
@@ -198,10 +169,11 @@ sub draw {
 
   $self->{zinc_bat_value} = $zinc->add('text', $self->{contentgroup}, -text => sprintf("%s",$self->{battery}), -position=>[12,40], -font => $self->{options}->{small_font});
 
+
   $zinc->translate($self->{topgroup}, $x, $y);
   $zinc->raise($self->{topgroup});
   $zinc->raise($self->{contentgroup});
-#  $self->border_block(); # display blocks of flight plan
+
   return $self->{topgroup};
 }
 
@@ -228,87 +200,6 @@ sub add_value_text {
 	     -color => $self->{options}->{value_color}, -tags => [ $new_tag ]);
 }
 
-# parse_fp
-#   Quick and dirty sub to parse a flight plan
-# FIXME:
-##############################################################################
-sub parse_fp {
-  my $self = shift;
-  my ($fp) = @_;
-  my $parser = XML::DOM::Parser->new();
-  print "Parsing $fp\n";
-  my $doc = $parser->parsefile($fp);
-  my @result;
-  my $flight_plan = $doc->getElementsByTagName('flight_plan')->[0];
-  foreach my $block ($doc->getElementsByTagName('block')) {
-
-    my @exceptions = $block->getElementsByTagName('exception');
-    my $rc_events = {rc1=>"", rc2=>""};
-    foreach my $event (@exceptions) {
-      if($event->getAttribute('cond') eq "(RcEvent1())") {
-	$rc_events->{rc1} = $event->getAttribute('deroute');
-      }
-      if($event->getAttribute('cond') eq "(RcEvent2())") {
-	$rc_events->{rc2} = $event->getAttribute('deroute');
-      }
-    }
-    push(@result, { name => $block->getAttribute('name'),
-    	description => $block->getAttribute('description'),
-	rc1 => $rc_events->{rc1},
-	rc2 => $rc_events->{rc2}});
-  }
-  return @result;
-}
-
-# border_block
-#   add the flight plans block to the strip
-##############################################################################
-sub border_block {
-  my ($self) = @_;
-  my $flight_plan_url = $self->get('-aircraft')->get('flight_plan');
-  $flight_plan_url =~ /file:\/\/(.*)/;
-  my $flight_plan = $1;
-  print "in Strip border_block parsing $flight_plan\n";
-
-  #my @blocks = $self->parse_fp($flight_plan);
-  my @blocks;
-  my @groups = ();
-  my @x = ( 300, 350, 400, 450, 500, 550, 600, 650, 700, 750);
-
-  my $zinc = $self->get('-zinc');
-
-  $zinc->add('text', $self->{contentgroup}, -text => "Event1",
-		     -position => [ 260, 50], -font => $self->{options}->{small_font},
-		     -color => $self->{options}->{label_color}
-		    );
-
-  $zinc->add('text', $self->{contentgroup}, -text => "Event2",
-		     -position => [ 260, 60], -font => $self->{options}->{small_font},
-		     -color => $self->{options}->{label_color}
-		    );
-  
-  my $i;
-  for ($i=0; $i<10; $i++) {
-    my $block_name = uc($blocks[$i]->{name});
-    $zinc->add('curve', $self->{contentgroup}, [$x[$i], 10, $x[$i], 90]);
-    push(@groups, $zinc->add('group', $self->{contentgroup}));
-    my $clip = $zinc->add('rectangle', $groups[$i], [$x[$i], 10, $x[$i]+46, 90], -visible => 0);
-    $zinc->itemconfigure($groups[$i], -clip => $clip);
-    $zinc->add('text', $groups[$i], -text => $block_name,
-	       -position => [ $x[$i]+3, 20], -font => $self->{options}->{normal_font},
-	       -tags => [ $self->{prefix}."block_".$block_name, "block_label", $self->{prefix}."block_num_".$i ]
-	      );
-    $zinc->add('text', $groups[$i], -text => $blocks[$i]->{rc1},
-	       -position => [ $x[$i]+3, 50], -font => $self->{options}->{small_font},
-	       -color => $self->{options}->{value_color}
-	      );
-    $zinc->add('text', $groups[$i], -text => $blocks[$i]->{rc2},
-	       -position => [ $x[$i]+3, 60], -font => $self->{options}->{small_font},
-	       -color => $self->{options}->{value_color}
-	      );
-
-  }
-}
 
 # set and get methods
 ###############################################################################
@@ -322,18 +213,6 @@ sub set_item {
   $zinc->itemconfigure($item, -text => $string, -color  => $color);
 }
 
-sub set_block {
-  my ($self, $num) = @_;
-  my $zinc = $self->get('-zinc');
-  foreach my $b ($zinc->find('withtag', $self->{prefix}."block_label")) {
-    $zinc->itemconfigure($b, -color => $self->{options}->{label_color});
-  }
-  my $item = $zinc->find('withtag', $self->{prefix}."block_num_".$num);
-  $zinc->itemconfigure($item, -color => 'blue');
-}
-
-
-# FIXME: should be deprecated and we should use set_item or something like that
 sub set_bat {
   my ($self, $bat) = @_;
 #  print "in Strip::set_bat $bat ($self->{prefix})\n";
@@ -348,14 +227,6 @@ sub set_bat {
   $zinc->itemconfigure($self->{zinc_bat_value},
 		       -text => sprintf("%2.1f",$self->{battery}),);
   $zinc->raise($self->{zinc_bat_value});
-}
-
-sub string_of_time {
-  my ($self, $t) = @_;
-  my $hour = int($t/3600);
-  my $min = int(($t-$hour*3600)/60);
-  my $sec = $t-(3600*$hour)-($min*60);
-  sprintf("%02d:%02d:%02d",$hour, $min, $sec);
 }
 
 # attach_to_aircraft
@@ -386,10 +257,7 @@ sub aircraft_config_changed {
   my ($self, $aircraft, $event, $new_value) = @_;
 #  print "in strip aircraft_config_changed $event $new_value\n";
   return unless defined $new_value;
-  if ($event eq 'flight_plan') {
-    #    $self->border_block() if (defined $new_value) ; # display blocks of flight plan
-  }
-  elsif ($event eq 'airframe') {
+  if ($event eq 'airframe') {
     my $ac_name = $new_value->get('-ac_name');
     $self->get('-zinc')->itemconfigure($self->{ident}, -text => $ac_name ) if defined $ac_name;
   }
@@ -397,7 +265,7 @@ sub aircraft_config_changed {
     $self->set_item($event, $new_value, $self->get_color($event, $new_value));
   }
   elsif ($event eq 'flight_time') {
-    $self->set_item("flight_time",$self->string_of_time($new_value), $self->{options}->{value_color});
+    $self->set_item("flight_time",Utils::hhmmss_of_s($new_value), $self->{options}->{value_color});
   }
   elsif ($event eq '-engine_status') {
 #    Paparazzi::Traces::trace( Paparazzi::Traces::TRACE_DEBUG, "in Strip::aircraft_config_changed\n".Dumper($new_value));
@@ -413,11 +281,6 @@ sub aircraft_config_changed {
     $self->set_item($event, sprintf($fmt->{$event}, $new_value), $self->{options}->{value_color});
 
   }
-  # cur_block
-  elsif ($event eq 'cur_block') {
-    $self->set_block($new_value); # display current block of flight plan
-  }
-
   else {
     print "in Strip::aircraft_config_changed : unknow event $event $new_value\n";
   }

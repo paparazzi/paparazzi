@@ -123,7 +123,13 @@ sub on_foo {
 sub ivy_on_selected {
   my ($sender_name, $msg_class, $msg_name, $fields, $self) = @_;
   print "in ivy_on_selected\n"; # if (COCKPIT_DEBUG);
-  $self->select_ac($fields->{aicraft_id}) if defined $self->{aircrafts_manager}->get_aircraft_by_id($ac_id);
+  my $ac_id = $fields->{aicraft_id};
+  if (defined $self->{aircrafts_manager}->get_aircraft_by_id($ac_id)) {
+    $self->select_ac($ac_id);
+  }
+  else {
+    Traces::trace(1, "cockpit::ivy_on_selected : received select order for unknown aircraft $ac_id\n");
+  }
 }
 
 sub on_aircraft_selection {
