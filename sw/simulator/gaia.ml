@@ -28,6 +28,7 @@ open Printf
 open Latlong
 
 let my_id = "gaia"
+let sending_period = 5000 (* ms *)
 
 module Ground_Pprz = Pprz.Protocol(struct let name = "ground" end)
 
@@ -51,15 +52,18 @@ let _ =
   let wind_speed_adj = GData.adjustment ~value:0. ~lower:(0.) ~upper:20. ~step_incr:0.1 () in
   let gust_norm_max_adj = GData.adjustment ~value:0. ~lower:(0.) ~upper:20. ~step_incr:0.1 () in
   let infrared_contrast_adj = GData.adjustment ~value:500. ~lower:(0.) ~upper:1010. ~step_incr:10. () in
+  let gps_sa = GButton.toggle_button ~label:"GPS OFF" () in
 
   let world_values = fun () ->
     let wind_dir_rad = Latlong.pi /. 2. -. (Deg>>Rad) wind_dir_adj#value in
     let wind_east = wind_speed_adj#value *. cos wind_dir_rad
     and wind_north = wind_speed_adj#value *. sin wind_dir_rad in
     [ "wind_east", Pprz.Float wind_east;
-	       "wind_north", Pprz.Float wind_north;
-	       "ir_contrast", Pprz.Float infrared_contrast_adj#value;
-	       "time_scale", Pprz.Float time_scale#value ] in
+      "wind_north", Pprz.Float wind_north;
+      "ir_contrast", Pprz.Float infrared_contrast_adj#value;
+      "time_scale", Pprz.Float time_scale#value;
+      "gps_availability", Pprz.Int (if gps_sa#active then 0 else 1)
+    ] in
   let world_send = fun () ->
     Ground_Pprz.message_send my_id "WORLD_ENV" (world_values ()) in
 
@@ -67,6 +71,9 @@ let _ =
     (fun (a:GData.adjustment) -> ignore (a#connect#value_changed world_send))
     [time_scale; wind_dir_adj; wind_speed_adj; gust_norm_max_adj; 
      infrared_contrast_adj];
+  ignore (gps_sa#connect#toggled world_send);
+
+  ignore (Glib.Timeout.add sending_period (fun () -> world_send (); true));
     
 
   let vbox = GPack.vbox ~packing:window#add () in
@@ -91,6 +98,8 @@ let _ =
   let hbox = GPack.hbox ~packing:vbox#pack () in
   ignore (GMisc.label ~text:"infrared:" ~packing:hbox#pack ());
   ignore (GRange.scale `HORIZONTAL ~adjustment:infrared_contrast_adj ~packing:hbox#add ());
+
+  vbox#pack gps_sa#coerce;
 
   Ivy.init "Paparazzi gaia" "READY" (fun _ _ -> ());
   Ivy.start !ivy_bus;

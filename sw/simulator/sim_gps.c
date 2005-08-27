@@ -23,8 +23,8 @@ uint8_t gps_utm_zone;
 struct svinfo gps_svinfos[NB_CHANNELS];
 uint8_t gps_nb_channels = 0;
 
-value sim_use_gps_pos(value x, value y, value z, value c, value a, value s, value cl, value t) {
-  gps_mode = 3;
+value sim_use_gps_pos(value x, value y, value z, value c, value a, value s, value cl, value t, value m) {
+  gps_mode = (Bool_val(m) ? 3 : 0);
   gps_utm_east = Int_val(x);
   gps_utm_north = Int_val(y);
   gps_utm_zone = Int_val(z);
@@ -54,6 +54,6 @@ value sim_use_gps_pos(value x, value y, value z, value c, value a, value s, valu
 
 /* Second binding required because number of args > 5 */
 value sim_use_gps_pos_bytecode(value *a, int argn) {
-  assert(argn == 8);
-  return sim_use_gps_pos(a[0],a[1],a[2],a[3],a[4],a[5],a[6],a[7]);
+  assert(argn == 9);
+  return sim_use_gps_pos(a[0],a[1],a[2],a[3],a[4],a[5],a[6],a[7], a[8]);
 }

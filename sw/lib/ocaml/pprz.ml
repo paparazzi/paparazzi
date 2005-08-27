@@ -125,6 +125,11 @@ let float_assoc = fun (a:string) vs ->
     Float x -> x
   | _ -> invalid_arg "Pprz.float_assoc"
 
+let int_assoc = fun (a:string) vs -> 
+  match List.assoc a vs with
+    Int x -> x
+  | _ -> invalid_arg "Pprz.int_assoc"
+
 let string_assoc = fun (a:string) (vs:values) -> string_of_value (List.assoc a vs)
 
 

@@ -94,6 +94,10 @@ value update_rc_channel(value c, value v) {
 #define SERVO_MAX (SERVO_MAX_US)
 #define ChopServo(x) ((x) < SERVO_MIN ? SERVO_MIN : ((x) > SERVO_MAX ? SERVO_MAX : (x)))
 
+#ifdef SERVO_MOTOR_RIGHT
+#define SERVO_GAZ SERVO_MOTOR_RIGHT
+#endif
+
 value set_servos(value servos) {
   int i;
 

@@ -25,13 +25,14 @@
  *)
 
 type state = {
-  wgs84 : Latlong.geographic;
-  alt : float;
-  time : float;
-  climb : float;
-  gspeed : float;
-  course : float; (** North = 0 *)
-}
+    mutable availability : bool;
+    wgs84 : Latlong.geographic;
+    alt : float;
+    time : float;
+    climb : float;
+    gspeed : float;
+    course : float; (** North = 0 *)
+  }
 val state :
   float -> float -> float -> (float * float * float -> float -> state)
 (** [state lat0 lon0 alt0] Returns a function which must be called with

@@ -27,7 +27,8 @@
 open Stdlib
 open Latlong
 
-type state = {
+type state = { 
+    mutable availability : bool;
     wgs84 : Latlong.geographic;
     alt : float;
     time : float;
@@ -69,6 +70,7 @@ let state = fun lat0 lon0 alt0 ->
      time = t;
      climb = climb;
      gspeed = gspeed;
-     course = course
+     course = course;
+     availability = true;
    }
       

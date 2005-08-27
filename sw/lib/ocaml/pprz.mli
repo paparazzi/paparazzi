@@ -51,6 +51,7 @@ val string_assoc : string -> values -> string
 (** May raise Not_found *)
 
 val float_assoc : string -> values -> float
+val int_assoc : string -> values -> int
 (** May raise Not_found or Invalid_argument *)
 
 exception Unknown_msg_name of string

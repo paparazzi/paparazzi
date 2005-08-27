@@ -116,9 +116,11 @@ module Make(AircraftItl : AIRCRAFT_ITL) = struct
     let wind_x = ref 0.
     and wind_y = ref 0. in
     let infrared_contrast = ref 2000.
-    and time_scale = object val mutable v = 1. method value = v method set_value x = v <- x end in
+    and time_scale = object val mutable v = 1. method value = v method set_value x = v <- x end
+    and gps_availability = ref 1 in
 
     let world_update = fun _ vs ->
+      gps_availability := Pprz.int_assoc "gps_availability" vs;
       wind_x := Pprz.float_assoc "wind_east" vs;      
       wind_y := Pprz.float_assoc "wind_north" vs;      
       infrared_contrast := 4. *. Pprz.float_assoc "ir_contrast" vs; (** FIXME *)
@@ -159,6 +161,7 @@ module Make(AircraftItl : AIRCRAFT_ITL) = struct
       north_label#set_text (Printf.sprintf "%.0f" y);
       alt_label#set_text (Printf.sprintf "%.0f" z);
       let s = compute_gps_state (x,y,z) (FlightModel.get_time !state) in
+      s.Gps.availability <- not (!gps_availability = 0);
       last_gps_state := Some s;
       Aircraft.gps s in
 

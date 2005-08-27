@@ -35,11 +35,6 @@ module Make(A:Data.MISSION) = struct
   let periodic_period = 1./.61. (* s *)
   let rc_period = 1./.40. (* s *)
       
-  let periodic = fun p f ->
-    f ();
-    ignore (GMain.Timeout.add p (fun () -> f (); true))
-
-
   let msg = fun name ->
     ExtXml.child Data.messages_ap ~select:(fun x -> ExtXml.attrib x "name" = name) "message"
   let gps_msg = msg "GPS"
@@ -110,7 +105,7 @@ module Make(A:Data.MISSION) = struct
 	incr t;
 	if on_off#active then t := 0;
 	set_really_lost (!t > 2) in
-    periodic 1000 monitor_on_off;
+    Stdlib.timer 1. monitor_on_off; (** FIXME: should use time_scale *)
     window#show ()
 
   external periodic_task : unit -> unit = "sim_periodic_task"
@@ -146,12 +141,12 @@ module Make(A:Data.MISSION) = struct
   let infrared = fun ir_left ir_front ->
     set_ir_roll (truncate ir_left)
 
-  external use_gps_pos: int -> int -> int -> float -> float -> float -> float -> float -> unit = "sim_use_gps_pos_bytecode" "sim_use_gps_pos"
+  external use_gps_pos: int -> int -> int -> float -> float -> float -> float -> float -> bool -> unit = "sim_use_gps_pos_bytecode" "sim_use_gps_pos"
   open Latlong
   let gps = fun gps ->
     let utm = utm_of WGS84 gps.Gps.wgs84 in
     let cm = fun f -> truncate (f *. 100.) in
-    use_gps_pos (cm utm.utm_x) (cm utm.utm_y) utm.utm_zone gps.Gps.course gps.Gps.alt gps.Gps.gspeed gps.Gps.climb gps.Gps.time 
+    use_gps_pos (cm utm.utm_x) (cm utm.utm_y) utm.utm_zone gps.Gps.course gps.Gps.alt gps.Gps.gspeed gps.Gps.climb gps.Gps.time gps.Gps.availability
 
 end
 let options = []
