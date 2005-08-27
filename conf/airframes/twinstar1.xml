@@ -64,9 +64,16 @@
     <define name="NOMINAL_AIRSPEED" value="12." unit="m/s"/>
     <define name="CARROT" value="5." unit="s"/>
   </section>
- <section name="SIMU">
-      <define name="ROLL_RESPONSE_FACTOR" value="2."/>
-      <define name="YAW_RESPONSE_FACTOR" value="5."/>
-      <define name="WEIGHT" value="1.3"/>
- </section>
+	<section name="SIMU">
+		<define name="ROLL_RESPONSE_FACTOR" value="2."/>
+		<define name="YAW_RESPONSE_FACTOR" value="5."/>
+		<define name="WEIGHT" value="1.3"/>
+	</section>
+	<section name="FAILSAFE" prefix="FAILSAFE_">
+		<define name="DELAY_WITHOUT_GPS" value="2" unit="s"/>
+    <define name="DEFAULT_GAZ" value="CLIMB_LEVEL_GAZ+0.05" unit="%"/>
+    <define name="DEFAULT_ROLL" value="0.17" unit="rad"/>
+    <define name="DEFAULT_PITCH" value="0.08" unit="rad"/>
+		<define name="HOME_RADIUS" value="50" unit="m"/>
+	</section>
 </airframe>
