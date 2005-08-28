@@ -32,3 +32,5 @@ sub get_resource {
   trace(TRACE_JUNK, "GuiConfig::get_resource : $section_name $resource_name -> $value");
   return $value;
 }
+
+1;
