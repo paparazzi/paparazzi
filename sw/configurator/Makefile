@@ -32,7 +32,7 @@ all : configurator medit
 configurator : $(CMO)
 	$(OCAMLC) -custom -o $@ labltk.cma lib-pprz.cma jpflib.cma $^
 	@cat ../../pprz_src_test.sh > $@
-	@echo 'ocaml -I +labltk -I $$PAPARAZZI_SRC/sw/lib/ocaml -I $$PAPARAZZI_SRC/sw/configurator labltk.cma lib-pprz.cma jpflib.cma $(ABS_CMO) $$*' >> $@
+	@echo 'ocaml -I +labltk -I $$PAPARAZZI_SRC/sw/lib/ocaml -I $$PAPARAZZI_SRC/sw/configurator labltk.cma ivy-ocaml.cma lib-pprz.cma jpflib.cma $(ABS_CMO) $$*' >> $@
 	@chmod a+x $@
 
 medit : OCAMLC=ocamlc -I +lablgtk2 -I +camlimages -I ../lib/ocaml -I +lablGL

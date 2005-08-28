@@ -7,7 +7,7 @@
   <channel ctl="G" function="MODE" min="1000" neutral="1600" max="2200" average="10"/>
   <channel ctl="E" function="GAIN1" min="1000" neutral="1600" max="2200" average="10"/>
   <channel ctl="F" function="GAIN2" min="1000" neutral="1600" max="2200" average="10"/>
-  <channel ctl="H" function="LLS" min="1000" neutral="1600" max="2200" average="10"/>
+  <channel ctl="H" function="SWITCH1" min="1000" neutral="1600" max="2200" average="10"/>
   <channel ctl="I" function="CALIB" min="1000" neutral="1600" max="2200" average="10"/>
 </radio>
   

@@ -68,13 +68,15 @@ LDFLAGS		=	-lm						\
 # General rules
 #
 
-all compile: $(OBJDIR)/$(TARGET).elf
+$(TARGET).objs	= $($(TARGET).srcs:%.c=$(OBJDIR)/%.o)	
+
+
+all compile: $($(TARGET).objs) $(OBJDIR)/$(TARGET).elf
+	echo $(OBJDIR)
 
 load upload:							 	\
 	$(TARGET).install
 
-$(TARGET).objs	=							\
-	$($(TARGET).srcs:%.c=$(OBJDIR)/%.o)						\
 
 #
 # Fuses
@@ -137,8 +139,6 @@ $(OBJDIR)/.depend:
 
 ifneq ($(MAKECMDGOALS),clean) 
 ifneq ($(MAKECMDGOALS),erase) 
--include $(OBJDIR)/.depend
+include $(OBJDIR)/.depend
 endif
 endif
-
-

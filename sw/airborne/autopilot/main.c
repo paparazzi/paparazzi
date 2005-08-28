@@ -446,7 +446,7 @@ void navigation_task( void ) {
     if (low_battery || (!estimator_flight_time && !launch))
       desired_gaz = 0;
   }  
-  energy += (float)desired_gaz / (MAX_PPRZ * MILLIAMP_PER_PERCENT / 4.);
+  energy += (float)desired_gaz * (MILLIAMP_PER_PERCENT / MAX_PPRZ * 0.25/3600.);
 }
 
 #define PERIOD (256. * 1024. / CLOCK / 1000000.)

@@ -1,3 +1,5 @@
+<!-- axi 2204-54 / GWS 8*4.3 / 3 lipos 740mah / 9.5a -->
+
 <airframe name="Plaster White 1" ctl_board="V1_2" gps="SAM_LS">
   <section name="adc" prefix="ADC_CHANNEL_">
     <define name="IR1" value="1"/>

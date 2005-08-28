@@ -222,7 +222,7 @@ int main( void )
       if (_20Hz >= 3) {
 	_20Hz = 0;
 #ifndef SECTION_IMU_3DMG
-	//	servo_transmit();
+	servo_transmit();
 #endif
       }
       if (time_since_last_mega128 < STALLED_TIME)
@@ -233,3 +233,5 @@ int main( void )
   } 
   return 0;
 }
+
+
