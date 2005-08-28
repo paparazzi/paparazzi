@@ -8,7 +8,7 @@ use constant TRACE_ERROR => 1;
 use constant TRACE_DEBUG => 2;
 use constant TRACE_JUNK  => 3;
 
-my $tracelevel = 2;
+my $tracelevel = 1;
 
 sub init {
   my ($level) = @_;

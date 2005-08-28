@@ -24,9 +24,9 @@ sub populate {
 sub completeinit {
   my $self = shift;
   $self->SUPER::completeinit;
-  $self->{big_font} = "bleriot-radar-m16c";
-  $self->{normal_font} = "bleriot-radar-m12c";
-  $self->{small_font} = "bleriot-radar-m8c";
+  $self->{big_font} = Paparazzi::GuiConfig::get_resource('default', 'big_font');
+  $self->{normal_font} = Paparazzi::GuiConfig::get_resource('default', 'normal_font');
+  $self->{small_font} = Paparazzi::GuiConfig::get_resource('default', 'small_font');
   $self->build_gui();
 }
 

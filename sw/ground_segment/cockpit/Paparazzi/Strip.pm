@@ -93,28 +93,12 @@ sub completeinit {
     value_color => Paparazzi::GuiConfig::get_resource('strip', 'value_color'),
  };
 
-#  $self->parse_config();
   $self->{prefix} = "STRIP_".$self->get(-aircraft)->get('-ac_id')."_";
   $self->{zinc_bat} = undef;
   $self->{zinc_bat_value} = undef;
   $self->attach_to_aircraft();
   $self->draw();
 }
-
-# sub parse_config {
-#   my ($self) = @_;
-#   my $parser = XML::DOM::Parser->new();
-#   print "Parsing gui.xml\n";
-#   return;
-#   my $doc = $parser->parsefile(Paparazzi::Environment::get_config("gui.xml"));
-#   my $strip = $doc->getElementsByTagName('strip')->[0];
-#   foreach my $attr ('selected_background_color', 'background_color', 'normal_font',
-# 		    'small_font', 'border_color', 'label_color', 'value_color') {
-#     $self->{options}->{$attr} =  $strip->getAttribute($attr);
-#   }
-# }
-
-
 
 # draw
 #   draw elements of the strip

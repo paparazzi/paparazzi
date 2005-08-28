@@ -39,7 +39,7 @@ my $options =
   {
    ivy_bus  => "127.255.255.255:2005",
    render => 1,
-   tracelevel => 1,
+   tracelevel => 3,
   };
 
 sub populate {

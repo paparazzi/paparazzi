@@ -25,6 +25,11 @@
 -->
 
 <gui>
+  <section name="default">
+    <resource name="big_font"  value="bleriot-radar-m18c"/>
+    <resource name="normal_font"  value="bleriot-radar-m12c"/>
+    <resource name="small_font"  value="bleriot-radar-m8c"/>
+  </section>
   <section name="strip">
     <resource name="background_color" value="=axial -90 |bisque|sandybrown;70"/>
     <resource name="selected_background_color" value="=axial -90 |white|yellow;70"/>
