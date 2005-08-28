@@ -522,14 +522,15 @@ inline void periodic_task( void ) {
   }
   case 2:
     
-    ir_update();//Perhaps ir_update should move into the NO_IMU SECTION
-    
+        
 #if defined SECTION_IMU_3DMG
 
 #elif defined SECTION_IMU_ANALOG
-    //20Hz/3 it could be possible because can run standalone at 60Hz/3
+    //20Hz/3 it could be possible since it can run standalone at 60Hz/3
     ahrs_update();
+	estimator_update_state_ANALOG();
 #else //NO IMU
+	ir_update();
     estimator_update_state_infrared();
 #endif
     roll_pitch_pid_run(); /* Set  desired_aileron & desired_elevator */

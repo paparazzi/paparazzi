@@ -69,6 +69,9 @@ int main( void ) {
   nav_init();
   ir_init();
   estimator_init();
+#if defined SECTION_IMU_3DMG || defined SECTION_IMU_ANALOG
+  uart0_init();
+#endif //SECTION_IMU
   /** - start interrupt task */
   sei();
 
@@ -80,8 +83,12 @@ int main( void ) {
   }
   
 #ifdef SECTION_IMU_ANALOG
-  /** - ahrs init */
-  ahrs_init();
+  /** - ahrs init(do_calibration)
+   *  - Warning if do_calibration is TRUE this will provide an asynchronous
+   *  - calibration process, and it will take some calls to ahrs_update() to
+   *  - end. So Don't take off before ahrs_state == AHRS_RUNNING
+   */
+  ahrs_init(TRUE);
 #endif //SECTION_IMU_ANALOG
 
   /** - enter mainloop:
@@ -111,20 +118,22 @@ int main( void ) {
 #ifdef SECTION_IMU_3DMG
       DOWNLINK_SEND_IMU_3DMG(&from_fbw.euler_dot[0], &from_fbw.euler_dot[1], &from_fbw.euler_dot[2], &from_fbw.euler[0], &from_fbw.euler[1], &from_fbw.euler[2]);
       estimator_update_state_3DMG();
-#endif
-#ifdef SECTION_IMU_ANALOG
-      /** - ahrs update */
-      //moved into periodic_task() at 20Hz case 2 : ahrs_update();
-      //Rajouter en init:  uart0_init();
-      uart0_transmit('E');
+#elif defined SECTION_IMU_ANALOG
+	  /** -Saving now the pqr values from the fbw struct since
+	   *  -it's not safe always
+	   */
+	  ahrs_save_pqr_from_fbw();
+	  
+	  uart0_transmit('E');
       uart0_transmit(' ');
-      uart0_print_hex16(euler[0]);
+      uart0_print_hex16(ahrs_euler[0]);
       uart0_transmit(',');
-      uart0_print_hex16(euler[1]);
+      uart0_print_hex16(ahrs_euler[1]);
       uart0_transmit(',');
-      uart0_print_hex16(euler[2]);
+      uart0_print_hex16(ahrs_euler[2]);
       uart0_transmit('\t');
-
+#endif
+#if defined SECTION_IMU_3DMG || defined SECTION_IMU_ANALOG
       uart0_transmit('G');
       uart0_transmit(' ');
       uart0_print_hex16(from_fbw.euler_dot[0]);

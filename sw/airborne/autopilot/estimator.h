@@ -58,7 +58,13 @@ extern float estimator_hspeed_mod;
 extern float estimator_hspeed_dir;
 
 void estimator_init( void );
+#ifdef SECTION_IMU_3DMG
+void estimator_update_state_3DMG( void );
+#elif defined SECTION_IMU_ANALOG
+void estimator_update_state_ANALOG( void );
+#else //NO_IMU
 void estimator_update_state_infrared( void );
+#endif
 void estimator_update_state_gps( void );
 void estimator_propagate_state( void );
 

@@ -114,6 +114,21 @@ void estimator_init( void ) {
 
 #define EstimatorIrGainIsCorrect() (TRUE)
 
+#ifdef SECTION_IMU_3DMG
+#include "link_fbw.h"
+void estimator_update_state_3DMG( void ) {
+  estimator_phi = from_fbw.euler[0];
+  estimator_psi = from_fbw.euler[1];
+  estimator_theta = from_fbw.euler[2];
+}
+#elif defined SECTION_IMU_ANALOG
+#include "ahrs.h"
+void estimator_update_state_ANALOG( void ) {
+  estimator_phi = ahrs_euler[0];
+  estimator_theta = ahrs_euler[1];
+  estimator_psi = ahrs_euler[2];
+}
+#else //NO_IMU
 void estimator_update_state_infrared( void ) {
   float rad_of_ir = (ir_estim_mode == IR_ESTIM_MODE_ON && EstimatorIrGainIsCorrect()) ? 
     estimator_rad_of_ir : ir_rad_of_ir;
@@ -146,15 +161,6 @@ void estimator_update_state_infrared( void ) {
   estimator_phi  = rad_of_ir * ir_roll /*** + RadOfDeg( correction ) ***/;
 
   estimator_theta = rad_of_ir * ir_pitch;
-}
-
-
-#ifdef SECTION_IMU_3DMG
-#include "link_fbw.h"
-void estimator_update_state_3DMG ( void ) {
-  estimator_phi = from_fbw.euler[0];
-  estimator_psi = from_fbw.euler[1];
-  estimator_theta = from_fbw.euler[2];
 }
 #endif
 

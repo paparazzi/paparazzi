@@ -1,5 +1,7 @@
 <airframe name="Gorazoptere_brushless_ANALOG" ctl_board="V1_2" gps="SAM_LS">
   <section name="IMU_ANALOG" prefix="IMU_">
+    <define name="INIT_EULER_DOT_VARIANCE_MAX" value="3"/>
+    <define name="INIT_EULER_DOT_NB_SAMPLES_MIN" value ="10"/>
     <define name="ADC_ROLL_DOT" value="1"/>
     <define name="ADC_PITCH_DOT" value="2"/>
     <define name="ADC_YAW_DOT" value="3"/>

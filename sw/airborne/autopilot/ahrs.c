@@ -63,6 +63,9 @@
 //#define		IMU_ADC_YAW_DOT	7
 //#define		IMU_ADC_YAW_DOT_SIGN	-
 
+//#define			IMU_INIT_EULER_DOT_VARIANCE_MAX		2
+//#define			IMU_INIT_EULER_DOT_NB_SAMPLES_MIN	10
+
 #define		GYRO_SCALE	(real_t) (0.9444 * 3.14159 / 180.0)
 #define		GYRO_ZERO	0x200
 
@@ -101,7 +104,7 @@ int16_t	accel[3];
  * The euler estimate will be updated less frequently than the
  * quaternion, but some applications are ok with that.
  */
-real_t	euler[3];
+real_t	ahrs_euler[3];
 
 
 /*
@@ -499,19 +502,19 @@ compute_dpsi_dq( void )
 static inline void
 compute_euler_roll( void )
 {
-	euler[0] = atan2( dcm12, dcm22 );
+	ahrs_euler[0] = atan2( dcm12, dcm22 );
 }
 
 static inline void
 compute_euler_pitch( void )
 {
-	euler[1] = -asin( dcm02 );
+	ahrs_euler[1] = -asin( dcm02 );
 }
 
 static inline void
 compute_euler_heading( void )
 {
-	euler[2] = atan2( dcm01, dcm00 );
+	ahrs_euler[2] = atan2( dcm01, dcm00 );
 }
 
 
@@ -613,7 +616,7 @@ ahrs_roll_update(
 	 * Compute the error in our roll estimate and measurement.
 	 * This can be between -180 and +180 degrees.
 	 */
-	roll -= euler[0];
+	roll -= ahrs_euler[0];
 	if( roll < -C_PI )
 		roll += 2 * C_PI;
 	if( roll > C_PI )
@@ -639,7 +642,7 @@ ahrs_pitch_update(
 	 * Pitch can be between -90 and +90 degrees, so wrap it around
 	 * for the shortest distance.
 	 */
-	pitch -= euler[1];
+	pitch -= ahrs_euler[1];
 	if( pitch < -C_PI / 2 )
 		pitch += C_PI;
 	if( pitch > C_PI / 2 )
@@ -686,7 +689,7 @@ untilt_compass(
 	const int16_t *		mag
 )
 
-	const real_t	ctheta	= cos( euler[1] );
+	const real_t	ctheta	= cos( ahrs_euler[1] );
 	const real_t	mn = ctheta * mag[0]
 		- (dcm12 * mag[1] + dcm22 * mag[2]) * dcm02 / ctheta;
 
@@ -728,7 +731,7 @@ ahrs_compass_update(
 	 * Heading can be between -180 and +180 degrees, so we wrap
 	 * to find the shortest turn between the two.
 	 */
-	heading -= euler[2];
+	heading -= ahrs_euler[2];
 	if( heading < -C_PI )
 		heading += 2 * C_PI;
 	if( heading > C_PI )
@@ -741,9 +744,9 @@ ahrs_compass_update(
 static void
 euler2quat( void )
 {
-	const real_t		phi     = euler[0] / 2.0;
-	const real_t		theta   = euler[1] / 2.0;
-	const real_t		psi     = euler[2] / 2.0;
+	const real_t		phi     = ahrs_euler[0] / 2.0;
+	const real_t		theta   = ahrs_euler[1] / 2.0;
+	const real_t		psi     = ahrs_euler[2] / 2.0;
 
 	const real_t		shphi0   = sin( phi );
 	const real_t		chphi0   = cos( phi );
@@ -764,8 +767,8 @@ euler2quat( void )
 /*
  * Initialize the AHRS state data and covariance matrix.  The user
  * should have filled in the pqr and accel vectors before calling this.
- * They should also have set euler[2] from an untilted compass reading
- * and the euler[0], euler[1] from the accel2roll / accel2pitch values.
+ * They should also have set ahrs_euler[2] from an untilted compass reading
+ * and the ahrs_euler[0], ahrs_euler[1] from the accel2roll / accel2pitch values.
  */
 void
 _ahrs_init(
@@ -774,16 +777,10 @@ _ahrs_init(
 {
 	index_t			i;
 
-	//accel : paparazzi mean accel buffer init
-	adc_buf_channel(IMU_ADC_ACCELX, &buf_accelX, DEFAULT_AV_NB_SAMPLE);
-	adc_buf_channel(IMU_ADC_ACCELY, &buf_accelY, DEFAULT_AV_NB_SAMPLE);
-	adc_buf_channel(IMU_ADC_ACCELZ, &buf_accelZ, DEFAULT_AV_NB_SAMPLE); 
-	
-	
 	euler2quat();
 	compute_DCM();
 	
-	euler[2] = untilt_compass( mag );
+	ahrs_euler[2] = untilt_compass( mag );
 
 	euler2quat();
 	compute_DCM();
@@ -852,52 +849,111 @@ accel2pitch()
 }
 
 
+
+
+/** - Here start the Paparazzi englued code 
+ *  - TODO : move this code to another file will be good
+ */
+uint8_t ahrs_state = AHRS_NOT_INITIALIZED;
+
 static inline void
-imu_init( void )
+accel_init( void )
 {
+	//accel : paparazzi mean accel buffer init
+	adc_buf_channel(IMU_ADC_ACCELX, &buf_accelX, DEFAULT_AV_NB_SAMPLE);
+	adc_buf_channel(IMU_ADC_ACCELY, &buf_accelY, DEFAULT_AV_NB_SAMPLE);
+	adc_buf_channel(IMU_ADC_ACCELZ, &buf_accelZ, DEFAULT_AV_NB_SAMPLE);
+
+}
+
+static inline void
+gyro_init( void)
+{
+    	//gyro : paparazzi initialization
+	//nothing todo
+}
+
+static inline void
+imu_calibration( uint8_t reset )
+{
+	static uint32_t dec = IMU_INIT_EULER_DOT_NB_SAMPLES_MIN; 
+	static int16_t pqr_min[3],pqr_max[3];
+	int8_t i;
+
+	//assuming that pqr sample is new is new....
+	
+	//init-algo
+	if (reset)
+	    dec = IMU_INIT_EULER_DOT_NB_SAMPLES_MIN;
+
+	if (dec == IMU_INIT_EULER_DOT_NB_SAMPLES_MIN)
+	{
+		for(i=0;i<3;i++)
+			pqr_min[i] = pqr_max[i] = pqr[i];//<--from_fbw.euler_dot[i];
+		return;
+	}									
+	if (dec-- > 0)
+	{
+		//Saving min and max
+		for(i=0;i<3;i++)
+		{
+			//pqr[i] = from_fbw.euler_dot[i];//already done
+			pqr_min[i] = (pqr_min[i] < pqr[i])? pqr_min[i] : pqr[i];
+			pqr_max[i] = (pqr_max[i] > pqr[i])? pqr_max[i] : pqr[i];
+		}
+
+		//testing variance
+		for(i=0;i<3;i++) 
+		{ 
+			if ((pqr_max[i]- pqr_min[i]) > IMU_INIT_EULER_DOT_VARIANCE_MAX)
+			{       
+				//re-init algo
+				dec = IMU_INIT_EULER_DOT_NB_SAMPLES_MIN;
+				return;
+			}
+		}
 			
-	const int16_t	ax_m	= buf_accelX.sum/buf_accelX.av_nb_sample;
-	const int16_t	ay_m	= buf_accelY.sum/buf_accelY.av_nb_sample;
-	const int16_t	az_m	= buf_accelZ.sum/buf_accelZ.av_nb_sample;
+	}
+	else
+	{
+	    	//entering in the end of calibration ;-)
 	
-	while (timer_periodic() == 0)
-	    continue;
+	    	//we take the middle for pqr
+		//pqr is already normalized and scaled by the fbw mcu
+		for(i=0;i<3;i++)
+			pqr[i] = (pqr_min[i] + pqr_max[i])/2;
+
+		/** - Time of Accel Now
+		 *
+		 */
+
+		const int16_t ax_m	= buf_accelX.sum/buf_accelX.av_nb_sample;
+		const int16_t ay_m	= buf_accelY.sum/buf_accelY.av_nb_sample;
+		const int16_t az_m	= buf_accelZ.sum/buf_accelZ.av_nb_sample;
 	
-	//Geeting ax ay az from this adc buffer mean
-	accel[0] = IMU_ADC_ACCELX_SIGN (ax_m - IMU_ADC_ACCELX_ZERO);
-	accel[1] = IMU_ADC_ACCELY_SIGN (ay_m - IMU_ADC_ACCELY_ZERO);
-	accel[2] = IMU_ADC_ACCELZ_SIGN (az_m - IMU_ADC_ACCELZ_ZERO);
-	
-	//Geeting p q r from uc1
-	while (!link_fbw_receive_complete || !link_fbw_receive_valid)
-		continue;
-	
-	//Actually this valuers have to be  Normalized by mcu1 
-	//with IMU_ADC_ROLL_DOT_SIGN GYRO_SCALE...
-	//So we don't do it here ;-)
-	pqr[0] = from_fbw.euler_dot[0];
-	pqr[1] = from_fbw.euler_dot[1];
-	pqr[2] = from_fbw.euler_dot[2];
-	
+		//Geeting ax ay az from this adc buffer mean
+		accel[0] = IMU_ADC_ACCELX_SIGN (ax_m - IMU_ADC_ACCELX_ZERO);
+		accel[1] = IMU_ADC_ACCELY_SIGN (ay_m - IMU_ADC_ACCELY_ZERO);
+		accel[2] = IMU_ADC_ACCELZ_SIGN (az_m - IMU_ADC_ACCELZ_ZERO);
+
+		//Enf of ahrs_init ;-)
 #ifdef PNI_MAG
-	pni_poll();
+		pni_poll();		
+		_ahrs_init( pni_values );
+#else
+		_ahrs_init( NULL );
 #endif //PNI_MAG
+		ahrs_state = AHRS_RUNNING;
+	}
+	
 }
 
 
 static inline void
 pqr_update( void )
 {
-	//have we got new datas to eat, tha the question ???????????
-    	if (link_fbw_receive_complete && link_fbw_receive_valid)
-	{
-		//Actually this valuers have to be  Normalized by mcu1 
-		//with IMU_ADC_ROLL_DOT_SIGN GYRO_SCALE...
-		//So we don't do it here ;-)
-		pqr[0] = from_fbw.euler_dot[0];
-		pqr[1] = from_fbw.euler_dot[1];
-		pqr[2] = from_fbw.euler_dot[2];
-	}
+    //do nothing here in paparazzi
+    //pqr is filled "asymchronously" by the exported function ahrs_save_pqr_from_fbw
 }
 
 
@@ -914,17 +970,8 @@ roll_update( void )
 	accel[1] = IMU_ADC_ACCELY_SIGN (ay_m - IMU_ADC_ACCELY_ZERO);
 	accel[2] = IMU_ADC_ACCELZ_SIGN (az_m - IMU_ADC_ACCELZ_ZERO);
 
-	euler[0] =  accel2roll();
+	ahrs_euler[0] =  accel2roll();
 
-/*
-	putc( 'A' );
-	put_int16_t( accel[0] );
-	put_int16_t( accel[1] );
-	put_int16_t( accel[2] );
-
-	put_float( euler[0] );
-	putnl();
-*/
 }
 
 
@@ -941,17 +988,7 @@ pitch_update( void )
 	accel[1] = IMU_ADC_ACCELY_SIGN (ay_m - IMU_ADC_ACCELY_ZERO);
 	accel[2] = IMU_ADC_ACCELZ_SIGN (az_m - IMU_ADC_ACCELZ_ZERO);
 
-	euler[1] = accel2pitch();
-/*
-	putc( 'A' );
-	put_int16_t( accel[0] );
-	put_int16_t( accel[1] );
-	put_int16_t( accel[2] );
-
-
-	put_float( euler[1] );
-	putnl();
-*/
+	ahrs_euler[1] = accel2pitch();
 }
 
 
@@ -971,10 +1008,10 @@ compass_update( void )
 		put_int16_t( pni_values[i] );
 	putnl();
 */
-	euler[2] = untilt_compass( pni_values );
+	ahrs_euler[2] = untilt_compass( pni_values );
 #else
 	//faking the Compass
-	euler[2] = 0;
+	ahrs_euler[2] = 0;
 #endif //PNI_MAG
 }
 
@@ -983,35 +1020,77 @@ compass_update( void )
 
 
 
-//global Value
-index_t			i;
-uint8_t			step = 0;
-uint16_t		sample = 0;
+
+//Exported Function to paparazzi
 
 
-void ahrs_init()
+
+void ahrs_save_pqr_from_fbw( void )
 {
-#ifdef PNI_MAG
-	pni_init();
-#endif //PNI_MAG
+	//we take the gyro data from the spi data
+	//No transformation is needed for pqr
+	pqr[0] = from_fbw.euler_dot[0];
+	pqr[1] = from_fbw.euler_dot[1];
+	pqr[2] = from_fbw.euler_dot[2];
+}
 
-	imu_init();
 
-	euler[0] = accel2roll();
-	euler[1] = accel2pitch();
+//ahrs_init have to be call in the mainllop init part
+//ahrs have to be call during the mainllop
 
-#ifdef PNI_MAG
-	_ahrs_init( pni_values );
-#else
-	_ahrs_init( NULL );
-#endif //PNI_MAG
-
+void ahrs_init(uint8_t do_calibration)
+{
+	if (ahrs_state == AHRS_IMU_CALIBRATION)
+		return;
 	
+    	if(ahrs_state == AHRS_NOT_INITIALIZED)
+	{
+#ifdef PNI_MAG
+		pni_init();
+#endif //PNI_MAG
+		accel_init();
+		gyro_init();
+	}
+
+	if(do_calibration)
+	{
+		ahrs_state = AHRS_IMU_CALIBRATION;
+	    	imu_calibration(TRUE);
+	    	//end of ahrs_init is done in imu_calibration when calib is done
+	}
+	else
+	{
+	    	roll_update();
+		pitch_update();
+	    
+	    	//ahrs_euler[0] = accel2roll();
+		//ahrs_euler[1] = accel2pitch();
+
+		//Enf of ahrs_init ;-)
+#ifdef PNI_MAG
+		pni_poll();		
+		_ahrs_init( pni_values );
+#else
+		_ahrs_init( NULL );
+#endif //PNI_MAG
+		ahrs_state = AHRS_RUNNING;
+	}
+		
+
 }
 
 void ahrs_update()
 {
-	if( isnan( q0 ) )
+	static uint8_t	step = 0;
+	
+	if (ahrs_state != AHRS_RUNNING)
+	{
+		if (ahrs_state == AHRS_IMU_CALIBRATION)
+			imu_calibration(FALSE);
+		return;
+	}
+	
+    	if( isnan( q0 ) )
 	{
 		//puts( "\r\nFilter NaN! Reset!\r\n" );
 		reset();
@@ -1026,13 +1105,13 @@ void ahrs_update()
 	if( step == 0 )
 	{
 		roll_update();
-		ahrs_roll_update( euler[0] );
+		ahrs_roll_update( ahrs_euler[0] );
 		step = 1;
 	} else
 	if( step == 1 )
 	{
 		pitch_update();
-		ahrs_pitch_update( euler[1] );
+		ahrs_pitch_update( ahrs_euler[1] );
 		step = 2;
 	} else
 	if( step == 2 )
@@ -1042,11 +1121,11 @@ void ahrs_update()
 	    	compass_update();
 #else
 		//Fucking Compass
-		euler[2] = 0;
+		ahrs_euler[2] = 0;
 #endif //PNI_MAG
-		ahrs_compass_update( euler[2] );
+		ahrs_compass_update( ahrs_euler[2] );
 		step = 0;
-	} 
+	}
 }
 
 #endif //SECTION_IMU_ANALOG

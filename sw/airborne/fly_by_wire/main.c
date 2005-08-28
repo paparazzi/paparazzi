@@ -165,11 +165,6 @@ int main( void )
 #ifdef SECTION_IMU_3DMG
     if (_3dmg_data_ready) {
       imu_update();
-      RED_LED_TOGGLE();
-      if (roll>0) {GREEN_LED_ON();}
-      else {GREEN_LED_OFF();}
-      if (pitch>0) {YELLOW_LED_ON();}
-      else {YELLOW_LED_OFF();}
     }
 #endif
     if (time_since_last_ppm >= STALLED_TIME) {
