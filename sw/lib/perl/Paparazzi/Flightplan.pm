@@ -38,15 +38,20 @@ sub populate {
   my ($self, $args) = @_;
   $self->SUPER::populate($args);
   $self->configspec(
-                    -url	        => [S_NEEDINIT, S_PASSIVE,  S_RDONLY, S_OVRWRT, S_NOPRPG, undef],
+                    -url						=> [S_NEEDINIT, S_PASSIVE,  S_RDONLY, S_OVRWRT, S_NOPRPG, undef],
                     -nav_utm_east0	=> [S_NOINIT,   S_PASSIVE,  S_RDWR,   S_OVRWRT, S_NOPRPG, 0.],
                     -nav_utm_north0	=> [S_NOINIT,   S_PASSIVE,  S_RDWR,   S_OVRWRT, S_NOPRPG, 0.],
-                    -max_dist_from_home	=> [S_NOINIT,   S_PASSIVE,  S_RDWR,   S_OVRWRT, S_NOPRPG, 0.],
-		    -rc_control		=> [S_NOINIT,   S_PASSIVE,  S_RDWR,   S_OVRWRT, S_NOPRPG, {}],
-                    -waypoints		=> [S_NOINIT,   S_PASSIVE,  S_RDWR,   S_OVRWRT, S_NOPRPG, {}],
-                    -nb_waypoints	=> [S_NOINIT,   S_PASSIVE,  S_RDWR,   S_OVRWRT, S_NOPRPG, 0.],
-                    -mission		=> [S_NOINIT,   S_PASSIVE,  S_RDWR,   S_OVRWRT, S_NOPRPG, {}],
-		    -compiled_xml       => [S_NOINIT,   S_PASSIVE,  S_RDWR,   S_OVRWRT, S_NOPRPG, ""],
+                    -max_dist_from_home	=> [S_NOINIT, S_PASSIVE, S_RDWR,	S_OVRWRT, S_NOPRPG, 0.],
+										-rc_control			=> [S_NOINIT,   S_PASSIVE,  S_RDWR,   S_OVRWRT, S_NOPRPG, {}],
+                    -waypoints			=> [S_NOINIT,   S_PASSIVE,  S_RDWR,   S_OVRWRT, S_NOPRPG, {}],
+                    -nb_waypoints		=> [S_NOINIT,   S_PASSIVE,  S_RDWR,   S_OVRWRT, S_NOPRPG, 0.],
+                    -mission				=> [S_NOINIT,   S_PASSIVE,  S_RDWR,   S_OVRWRT, S_NOPRPG, {}],
+										-compiled_xml   => [S_NOINIT,   S_PASSIVE,  S_RDWR,   S_OVRWRT, S_NOPRPG, ""],
+                    -qfu						=> [S_NOINIT,   S_PASSIVE,  S_RDWR,   S_OVRWRT, S_NOPRPG, 0.],
+                    -security_height	=> [S_NOINIT,	S_PASSIVE,  S_RDWR,   S_OVRWRT, S_NOPRPG, 0.],
+                    -alt						=> [S_NOINIT,   S_PASSIVE,  S_RDWR,   S_OVRWRT, S_NOPRPG, 0.],
+                    -name						=> [S_NOINIT,   S_PASSIVE,  S_RDWR,   S_OVRWRT, S_NOPRPG, ""],
+                    -ground_alt			=> [S_NOINIT,   S_PASSIVE,  S_RDWR,   S_OVRWRT, S_NOPRPG, 0.],
 		   );
 }
 
@@ -54,6 +59,7 @@ sub populate {
 # nav_utm_east0
 # nav_utm_north0
 # max_dist_from_home
+# rc_control
 # waypoints
 #    |-- name
 #    |-- x
@@ -64,19 +70,28 @@ sub populate {
 #    |-- number
 # nb_waypoints
 # mission
+#    |-- nb_block
 #    |-- block_ID
-#		 |-- stage
-#				|-- stage_ID
-#							|-- text
-#	|-- nb_exceptions
-#	|-- exception
-#					|-- n°
-#							|-- cond
-#							|-- deroute
-#							|-- text
-#	|-- description
-#	|-- is_deroute
-#	|-- [deroute_block]
+#		       |-- stage
+#		      		|-- stage_ID
+#					      		|-- text
+#					      		|-- type
+#							      |-- [attributes]
+#	         |-- nb_exceptions
+#	         |-- exception
+#					         |-- n°
+#							         |-- cond
+#							         |-- deroute
+#							         |-- text
+#	         |-- description
+#	         |-- is_deroute
+#	         |-- [deroute_block]
+# compiled_xml
+# qfu
+# security_height
+# alt
+# ground_alt
+# name
 
 
 sub completeinit {
@@ -119,11 +134,11 @@ sub parse_flight_plan {
 sub configure_spec {
   my ($self) = @_;
   $self->configure( -nav_utm_east0	=> $self->{nav_utm_east0},
-		    -nav_utm_north0	=> $self->{nav_utm_north0},
+		    -nav_utm_north0			=> $self->{nav_utm_north0},
 		    -max_dist_from_home => $self->{max_dist_from_home},
 		    -waypoints	        => $self->{waypoints},
-		    -nb_waypoints	=> $self->{nb_waypoints},
-		    -mission	        => $self->{mission},
+		    -nb_waypoints				=> $self->{nb_waypoints},
+		    -mission						=> $self->{mission},
 		  );
 }
 
@@ -184,6 +199,7 @@ sub parse_mission {
   my ($blocks, $blocks_stages);
   my ($nb_excep, $excep_cond, $excep_deroute);
   my (@deroute, $deroute_block);
+	my ($block_id, $stage_id);
 
   foreach my $stage ($doc->getElementsByTagName('stage')) {
     my $block_name = $stage->getAttribute('block_name');
@@ -191,14 +207,36 @@ sub parse_mission {
     my $stage_no = $stage->getAttribute('stage');
     my $stage_text = "";
     my $stage_kids = $stage->getChildNodes();
+    $block_id = get_block_id($block_no);
+    $stage_id = get_stage_id($block_no, $stage_no);
     foreach my $kid (@{$stage_kids}) {
-      $stage_text = $stage_text.$kid->toString() if $kid->getNodeType() != TEXT_NODE;
+      if ($kid->getNodeType() != TEXT_NODE) {
+        $stage_text = $stage_text.$kid->toString() if $kid->getNodeType() != TEXT_NODE;
+				$self->{mission}->{$block_id}->{stage}->{$stage_id}->{type} = $kid->getNodeName()
+									if $kid->getNodeName() ne "#text";
+
+#				if ($stage_text ne "" and $kid->getNodeName() ne "#text") {
+	  		# printf "stage_id: $stage_id stage_text: $stage_text NodeName: %s \n", $kid->getNodeName();
+	  		my $kid_attributes = $kid->getAttributes();
+	  		my ($attrib_name, $attrib_value);
+	  		my $atributes_nb = $kid_attributes->getLength();
+	  		$self->{mission}->{$block_id}->{stage}->{$stage_id}->{nb_attribute} = $atributes_nb;
+	  		for (my $i=0; $i<$atributes_nb; $i++) {
+	    		$attrib_name = $kid_attributes->item($i)->getNodeName();
+	    		$attrib_value = $kid_attributes->item($i)->getNodeValue();
+	    		$self->{mission}->{$block_id}->{stage}->{$stage_id}->{$attrib_name} = $attrib_value;
+	    		# print "attribute '$attrib_name' valueing '$attrib_value' \n";
+	  		}
+			}
+#			else { print "Marche pas... stage_id: $stage_id \n"; }
     }
-    $blocks_stages->{$block_name}->{$stage_text} = get_stage_id($block_no, $stage_no);
-    $blocks->{$block_name} = get_block_id($block_no) unless defined $blocks->{block_name};
+    $blocks_stages->{$block_name}->{$stage_text} = $stage_id;
+    $blocks->{$block_name} = $block_id  unless defined $blocks->{block_name};
   }
   
+  my $nb_block = 0;
   foreach my $block ($doc->getElementsByTagName('block')) {
+    $nb_block++;
     my $block_name = $block->getAttribute('NAME').$block->getAttribute('name');
     my $block_description = $block->getAttribute('description');
     my $block_id = $blocks->{$block_name};
@@ -209,38 +247,40 @@ sub parse_mission {
       $key =~ s/^\s*//;		# remove any leading whitespace
       $key =~ s/\s*$//;		# remove any trailing whitespace
       if ($key ne "") {
-	my $stage_id = $blocks_stages->{$block_name}->{$key};
-	my $tags = [$block_id];
-	push(@{$tags}, ($stage_id)) if defined $stage_id;
-	if (defined $stage_id) {
-	  $self->{mission}->{$block_id}->{stage}->{$stage_id}->{text} = $line;
+				my $stage_id = $blocks_stages->{$block_name}->{$key};
+				my $tags = [$block_id];
+				push(@{$tags}, ($stage_id)) if defined $stage_id;
+				if (defined $stage_id) {
+				  $self->{mission}->{$block_id}->{stage}->{$stage_id}->{text} = $line;
 					
-	  # Parse the stage_line to get a wp_name defined with `wp="wp_name"`
-	  my $wp_name = $line;
-	  $wp_name =~ s/^.*\s[wW][pP]="([^"]*)".*$/$1/;
-	  $wp_name =~ s/^(\s*<.*>\s*)$//;
-	  if ($wp_name ne "") {
-	    $self->{mission}->{$block_id}->{stage}->{$stage_id}->{waypoint} = $wp_name;
-	  }
+				  # Parse the stage_line to get a wp_name defined with `wp="wp_name"`
+				  my $wp_name = $line;
+				  $wp_name =~ s/^.*\s[wW][pP]="([^"]*)".*$/$1/;
+				  $wp_name =~ s/^(\s*<.*>\s*)$//;
+				  if ($wp_name ne "") {
+				    $self->{mission}->{$block_id}->{stage}->{$stage_id}->{waypoint} = $wp_name;
+				  }
 					
-	  #	I think we can do this better...
-	  my $type = $line;
-	  if ($type =~ /^.*<xyz.*$/) {
-	    $self->{mission}->{$block_id}->{stage}->{$stage_id}->{type} = 'xyz';
-	  }
-	  if ($type =~ /^.*<circle.*$/) {
-	    $self->{mission}->{$block_id}->{stage}->{$stage_id}->{type} = 'circle';
-	  }
-	  if ($type =~ /^.*<go.*$/) {
-	    $self->{mission}->{$block_id}->{stage}->{$stage_id}->{type} = 'go';
-	  }
-	  if ($type =~ /^.*<attitude.*$/) {
-	    $self->{mission}->{$block_id}->{stage}->{$stage_id}->{type} = 'go';
-	  }
-
-	}
+				  #	I think we can do this better...
+					# It is in progess few lines above.
+				  my $type = $line;
+				  if ($type =~ /^.*<xyz.*$/) {
+				    $self->{mission}->{$block_id}->{stage}->{$stage_id}->{type} = 'xyz';
+				  }
+				  if ($type =~ /^.*<circle.*$/) {
+				    $self->{mission}->{$block_id}->{stage}->{$stage_id}->{type} = 'circle';
+				  }
+				  if ($type =~ /^.*<go.*$/) {
+				    $self->{mission}->{$block_id}->{stage}->{$stage_id}->{type} = 'go';
+				  }
+				  if ($type =~ /^.*<attitude.*$/) {
+				    $self->{mission}->{$block_id}->{stage}->{$stage_id}->{type} = 'go';
+				  }
+				}
       }
     }
+    $self->{mission}->{nb_block} = $nb_block;
+    
     $nb_excep = 0;
     foreach my $except ($block->getElementsByTagName('exception')) {
       $nb_excep++;
