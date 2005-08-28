@@ -157,7 +157,7 @@ if ($self->get('-height') >  $self->get('-width')) {
 		    );
 
   my $nb_ticks = ($self->get('-max_val') - $self->get('-min_val')) / $self->get('-tick_scale');
-  my $tick_font = '-adobe-helvetica-bold-o-normal--18-240-100-100-p-182-iso8859-1';
+  my $tick_font = Paparazzi::GuiConfig::get_resource('default', 'normal_font');
   my $first_tick = $self->get('-periodic') ? -$nb_ticks:0;
   my $last_tick = $self->get('-periodic') ? 2*$nb_ticks:$nb_ticks;
   for (my $tick=$first_tick; $tick<=$last_tick; $tick++) {

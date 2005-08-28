@@ -16,12 +16,6 @@ sub populate {
 		   );
 }
 
-#sub completeinit {
-#  my $self = shift;
-#  $self->SUPER::completeinit;
-##  $self->build_gui();
-#}
-
 use constant VZ_WIDTH => 8;
 use constant MAX_VZ => 2. ;
 
@@ -32,7 +26,6 @@ sub vz {
   my $h = $self->get('-height');
   my $y = $new_vz * $h / 2 / MAX_VZ;
   $zinc->coords($self->{vz_itemclip}, [0, 0, VZ_WIDTH, -$y]);
-
 }
 
 sub value() {
@@ -93,7 +86,7 @@ sub build_gui {
 	     -linecolor => 'yellow',
 	     -filled => 0);
 
-  my $font = '-adobe-helvetica-bold-o-normal--16-240-100-100-p-182-iso8859-1';
+  my $font = Paparazzi::GuiConfig::get_resource('default', 'normal_font');
 
   $self->{fixed_text} = $zinc->add('text', $self->{lens_group},
 				   -position => [$xt, $h/2],

@@ -84,7 +84,7 @@ sub build_gui {
 
   # pitch scale
   $self->{y_per_deg} = $radius / 30;
-  my $v_tick_font = '-adobe-helvetica-bold-o-normal--12-240-100-100-p-182-iso8859-1';
+  my $v_tick_font = Paparazzi::GuiConfig::get_resource('default', 'small_font');
   my $i;
   for ($i=-16; $i <= 16; $i++) {
     my $angle = $i*2.5;
