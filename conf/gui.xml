@@ -25,25 +25,24 @@
 -->
 
 <gui>
-  <strip
-    background_color="=axial -90 |bisque|sandybrown;70"
-    selected_background_color="=axial -90 |white|yellow;70"
-    border_color="sienna"
-    normal_font="bleriot-radar-m12c"
-    small_font="bleriot-radar-m8c"
-    label_color="black"
-    value_color="brown"
+  <section name="strip">
+    <resource name="background_color" value="=axial -90 |bisque|sandybrown;70"/>
+    <resource name="selected_background_color" value="=axial -90 |white|yellow;70"/>
+    <resource name="border_color" value="sienna"/>
+    <resource name="label_color"  value="black"/>
+    <resource name="value_color"  value="brown"/>
+    <resource name="normal_font"  value="bleriot-radar-m12c"/>
+    <resource name="small_font"  value="bleriot-radar-m8c"/>
+  </section>
+<!--  
+  <section name="map">
+     <resource name="grid" value="yes"/>
+     <resource name="      map="no"
+     <resource name="      max_dist_from_home_mask="no"
+     <resource name="      max_dist_from_home_circle="yes"
+     <resource name="      grid_only_on_map="no"
+     <resource name="      grid_step="100"
     />
-  <map>
-    <configuration
-      grid="yes"
-      map="no"
-      max_dist_from_home_mask="no"
-      max_dist_from_home_circle="yes"
-      grid_only_on_map="no"
-      grid_step="100"
-    />
-    <!-- This is the default palette. When there is no map. -->
     <palette
       waypoint="orange"
       secondary_waypoint="gray"
@@ -60,4 +59,5 @@
       track="blue"
     />
   </map>
+-->
 </gui>

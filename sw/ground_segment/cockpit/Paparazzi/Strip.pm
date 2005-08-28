@@ -39,6 +39,7 @@ use warnings;
 
 use Paparazzi::Traces;
 use Paparazzi::Utils;
+use Paparazzi::GuiConfig;
 
 # populate:
 #   this sub is the subject constructor method
@@ -83,14 +84,16 @@ sub completeinit {
   $self->{mission} = undef;
 
   $self->{options} = {
-    normal_font => undef,
-    small_font => undef,
-    background_color => undef,
-    border_color => undef,
-    label_color => undef,
-  };
+    normal_font => Paparazzi::GuiConfig::get_resource('strip', 'normal_font'),
+    small_font => Paparazzi::GuiConfig::get_resource('strip', 'small_font'),
+    background_color => Paparazzi::GuiConfig::get_resource('strip', 'background_color'),
+    selected_background_color => Paparazzi::GuiConfig::get_resource('strip', 'selected_background_color'),
+    border_color => Paparazzi::GuiConfig::get_resource('strip', 'border_color'),
+    label_color => Paparazzi::GuiConfig::get_resource('strip', 'label_color'),
+    value_color => Paparazzi::GuiConfig::get_resource('strip', 'value_color'),
+ };
 
-  $self->parse_config();
+#  $self->parse_config();
   $self->{prefix} = "STRIP_".$self->get(-aircraft)->get('-ac_id')."_";
   $self->{zinc_bat} = undef;
   $self->{zinc_bat_value} = undef;
@@ -98,17 +101,18 @@ sub completeinit {
   $self->draw();
 }
 
-sub parse_config {
-  my ($self) = @_;
-  my $parser = XML::DOM::Parser->new();
-  print "Parsing gui.xml\n";
-  my $doc = $parser->parsefile(Paparazzi::Environment::get_config("gui.xml"));
-  my $strip = $doc->getElementsByTagName('strip')->[0];
-  foreach my $attr ('selected_background_color', 'background_color', 'normal_font',
-		    'small_font', 'border_color', 'label_color', 'value_color') {
-    $self->{options}->{$attr} =  $strip->getAttribute($attr);
-  }
-}
+# sub parse_config {
+#   my ($self) = @_;
+#   my $parser = XML::DOM::Parser->new();
+#   print "Parsing gui.xml\n";
+#   return;
+#   my $doc = $parser->parsefile(Paparazzi::Environment::get_config("gui.xml"));
+#   my $strip = $doc->getElementsByTagName('strip')->[0];
+#   foreach my $attr ('selected_background_color', 'background_color', 'normal_font',
+# 		    'small_font', 'border_color', 'label_color', 'value_color') {
+#     $self->{options}->{$attr} =  $strip->getAttribute($attr);
+#   }
+# }
 
 
 
