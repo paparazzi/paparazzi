@@ -63,7 +63,7 @@ class track = fun ?(name="coucou") ?(size = 500) ?(color="red") (geomap:MapCanva
     ignore (GnoCanvas.line ~fill_color:color ~props:[`WIDTH_PIXELS 4;`CAP_STYLE `ROUND] ~points:[|-4.;10.;4.;10.|] aircraft) in
   let ac_label =
     GnoCanvas.text group ~props:[`TEXT name; `X 25.; `Y 25.; `ANCHOR `SW; `FILL_COLOR color] in
-  let carrot = GnoCanvas.group group in
+   let carrot = GnoCanvas.group group in
   let _ac_carrot =
     ignore (GnoCanvas.polygon ~points:[|0.;0.;-5.;-10.;5.;-10.|] ~props:[`WIDTH_UNITS 1.;`FILL_COLOR "orange"; `OUTLINE_COLOR "orange"; `FILL_STIPPLE (Gdk.Bitmap.create_from_data ~width:2 ~height:2 "\002\001")] carrot) in
   
@@ -80,10 +80,10 @@ class track = fun ?(name="coucou") ?(size = 500) ?(color="red") (geomap:MapCanva
     ignore ( GnoCanvas.ellipse ~x1: (-5.) ~y1: (-5.) ~x2: 5. ~y2: 5. ~fill_color:"red" ~props:[`WIDTH_UNITS 1.; `OUTLINE_COLOR "red"; `FILL_STIPPLE (Gdk.Bitmap.create_from_data ~width:2 ~height:2 "\002\001")] mission_target ) in
   
  (** data at map scale *)
-  let max_cam_half_height = 10000.0 /. (geomap#get_world_unit ()) in
-  let max_oblic_distance = 10000.0 /. (geomap#get_world_unit ()) in
-  let min_distance = 10.  /. (geomap#get_world_unit ()) in
-  let min_height = 0.1 /. (geomap#get_world_unit ()) in
+  let max_cam_half_height_scaled = 10000.0 /. (geomap#get_world_unit ()) in
+  let max_oblic_distance_scaled = 10000.0 /. (geomap#get_world_unit ()) in
+  let min_distance_scaled = 10. /. (geomap#get_world_unit ())   in
+  let min_height_scaled = 0.1 /. (geomap#get_world_unit ()) in
   
   object (self)
     val mutable segments = Array.create size empty
@@ -95,6 +95,7 @@ class track = fun ?(name="coucou") ?(size = 500) ?(color="red") (geomap:MapCanva
     val mutable last_xw = 0.0
     val mutable last_yw = 0.0
     val mutable cam_on = false
+    val mutable params_on = false
     val mutable desired_track =  ((GnoCanvas.ellipse group) :> GnoCanvas.base_item)
     val mutable ac_cam_cover = GnoCanvas.rect cam
     method track = track
@@ -114,6 +115,7 @@ class track = fun ?(name="coucou") ?(size = 500) ?(color="red") (geomap:MapCanva
       done;
       top <- 0
     method set_cam_state = fun b -> cam_on <- b
+    method set_params_state = fun b -> params_on <- b
     method add_point = fun en ->
       self#clear_one top;
       begin
@@ -132,7 +134,10 @@ class track = fun ?(name="coucou") ?(size = 500) ?(color="red") (geomap:MapCanva
       last_altitude <- altitude;
       last_xw <- xw;
       last_yw <- yw;
-      last_height <- (altitude -. relief_height) /. (geomap#get_world_unit ());
+      last_height <- (altitude -. relief_height);
+      if params_on then 
+	ac_label#set [`TEXT ( name^" \n"^(string_of_float last_height)^" m\n" ); `Y 70. ] else
+	ac_label#set [`TEXT name; `Y 25.];
       ac_label#affine_absolute (affine_pos_and_angle geomap#zoom_adj#value xw yw 0.)
     method move_carrot = fun en ->
       let (xw,yw) = geomap#world_of_en en in
@@ -155,6 +160,7 @@ class track = fun ?(name="coucou") ?(size = 500) ?(color="red") (geomap:MapCanva
       else
 	let (xw,yw) = geomap#world_of_en en in 
 	let (mission_target_xw, mission_target_yw) = geomap#world_of_en mission_target_en in
+	let last_height_scaled = last_height /. (geomap#get_world_unit ()) in
 	
 (** all data are at map scale *)
 	
@@ -167,27 +173,27 @@ class track = fun ?(name="coucou") ?(size = 500) ?(color="red") (geomap:MapCanva
 	let d = distance pt1 pt2 in
 	begin
 	  let cam_heading = 
-	    if d > min_distance then
+	    if d > min_distance_scaled then
 	      let cam_vect_normalized = (vect_normalize (vect_make pt1 pt2)) in
 	      if (dot_product vect_north cam_vect_normalized) > 0.0 then
 		norm_angle_360 ( rad2deg (asin (cross_product vect_north cam_vect_normalized)))
 	      else norm_angle_360 ( rad2deg (m_pi -. asin (cross_product vect_north cam_vect_normalized)))
 	    else last_heading in
 	  let (angle_of_view, oblic_distance) = 
-	    if last_height < min_height then 
-	      (half_pi, max_oblic_distance)
+	    if last_height < min_height_scaled then 
+	      (half_pi, max_oblic_distance_scaled)
 	    else
-	      let oav = atan ( d /. last_height) in
-	      (oav, last_height /. (cos oav))
+	      let oav = atan ( d /. last_height_scaled) in
+	      (oav, last_height_scaled /. (cos oav))
 	  in
 	  let alpha_1 = angle_of_view +. cam_half_aperture in
 	  let alpha_2 = angle_of_view -. cam_half_aperture in
 	  begin
 	    let cam_field_half_height_1 =
 	      if alpha_1 < half_pi then
-		(tan alpha_1) *. last_height -. d
-	      else max_cam_half_height in
-	    let cam_field_half_height_2 = d -. (tan ( angle_of_view -. cam_half_aperture)) *. last_height in
+		(tan alpha_1) *. last_height_scaled -. d
+	      else max_cam_half_height_scaled in
+	    let cam_field_half_height_2 = d -. (tan ( angle_of_view -. cam_half_aperture)) *. last_height_scaled in
 	    let cam_field_half_width = ( tan (cam_half_aperture) ) *. oblic_distance in
 	    begin
 (***	      Printf.printf "dist %.2f aoview %.2f oblic_distance %.2f cfh1 %.2f cfh2 %.2f cfhw %.2f last_xw %.2f last_yw %.2f cam_heading %.2f \n%!" (d  *. (geomap#get_world_unit ()) ) angle_of_view (oblic_distance  *. (geomap#get_world_unit ()) ) (cam_field_half_height_1  *. (geomap#get_world_unit ()) ) (cam_field_half_height_2  *. (geomap#get_world_unit ()) ) (cam_field_half_width  *. (geomap#get_world_unit ()) ) last_xw last_yw cam_heading; ***)

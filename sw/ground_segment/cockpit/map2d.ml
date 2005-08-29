@@ -239,6 +239,8 @@ let one_new_ac = fun (geomap:MapCanvas.widget) ac ->
     ignore (ac_menu_fact#add_item "Resize Track" ~callback:(fun () -> resize_track ac track));
     let cam = ac_menu_fact#add_check_item "Cam Display" ~active:false in
     ignore (cam#connect#toggled (fun () -> track#set_cam_state cam#active));
+    let params = ac_menu_fact#add_check_item "flight param. display" ~active:false in
+    ignore (params#connect#toggled (fun () -> track#set_params_state params#active));
     let event_ac = fun e ->
       match e with
 	`BUTTON_PRESS _ | `BUTTON_RELEASE _ -> 
