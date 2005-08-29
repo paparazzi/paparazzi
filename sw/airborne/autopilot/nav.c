@@ -53,7 +53,7 @@ static float sum_alpha, last_alpha;
  */
 static float alpha;
 /** Number of circle done */
-static float circle_count;
+float circle_count;
 static bool_t new_circle;
 bool_t in_circle = FALSE;
 bool_t in_segment = FALSE;
