@@ -91,6 +91,7 @@ class track = fun ?(name="coucou") ?(size = 500) ?(color="red") (geomap:MapCanva
     val mutable last = None
     val mutable last_heading = 0.0
     val mutable last_altitude = 0.0
+    val mutable last_speed = 0.0
     val mutable last_height = 0.0
     val mutable last_xw = 0.0
     val mutable last_yw = 0.0
@@ -127,7 +128,7 @@ class track = fun ?(name="coucou") ?(size = 500) ?(color="red") (geomap:MapCanva
       end;
       self#incr;
       last <- Some en
-    method move_icon = fun en heading altitude relief_height ->
+    method move_icon = fun en heading altitude relief_height speed ->
       let (xw,yw) = geomap#world_of_en en in
       aircraft#affine_absolute (affine_pos_and_angle geomap#zoom_adj#value xw yw heading);
       last_heading <- heading;
@@ -135,8 +136,9 @@ class track = fun ?(name="coucou") ?(size = 500) ?(color="red") (geomap:MapCanva
       last_xw <- xw;
       last_yw <- yw;
       last_height <- (altitude -. relief_height);
+      last_speed <- speed ;
       if params_on then 
-	ac_label#set [`TEXT ( name^" \n"^(string_of_float last_height)^" m\n" ); `Y 70. ] else
+	ac_label#set [`TEXT ( name^" \n"^(string_of_float last_height)^" m\n"^(string_of_float last_speed)^" m/s\n" ); `Y 70. ] else
 	ac_label#set [`TEXT name; `Y 25.];
       ac_label#affine_absolute (affine_pos_and_angle geomap#zoom_adj#value xw yw 0.)
     method move_carrot = fun en ->

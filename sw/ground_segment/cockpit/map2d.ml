@@ -134,7 +134,7 @@ let load_mission = fun color geomap url ->
   fp
 
 
-let aircraft_pos_msg = fun track utm_x_ utm_y_ heading altitude ->
+let aircraft_pos_msg = fun track utm_x_ utm_y_ heading altitude speed ->
   match !map_ref with
     None -> ()
   | Some utm0 ->
@@ -146,7 +146,7 @@ let aircraft_pos_msg = fun track utm_x_ utm_y_ heading altitude ->
 	with
 	  _ -> truncate altitude
       in
-      track#move_icon en heading altitude (float_of_int h)
+      track#move_icon en heading altitude (float_of_int h) speed
 
 let carrot_pos_msg = fun track utm_x utm_y ->
   match !map_ref with
@@ -264,7 +264,7 @@ let listen_flight_params = fun () ->
     try
       let ac = Hashtbl.find live_aircrafts ac_id in
       let a = fun s -> Pprz.float_assoc s vs in
-      aircraft_pos_msg ac.track (a "east") (a "north") (a "course") (a "alt")
+      aircraft_pos_msg ac.track (a "east") (a "north") (a "course") (a "alt")  (a "speed")
     with Not_found -> ()
   in
   ignore (Ground_Pprz.message_bind "FLIGHT_PARAM" get_fp);
@@ -284,7 +284,7 @@ let listen_flight_params = fun () ->
     try
       let ac = Hashtbl.find live_aircrafts ac_id in
       let a = fun s -> Pprz.float_assoc s vs in
-      cam_pos_msg ac.track (a "cam_east") (a "cam_north") (a "target_east") (a "target_north") 
+      cam_pos_msg ac.track (a "cam_east") (a "cam_north") (a "target_east") (a "target_north")
     with Not_found -> ()
   in ignore (Ground_Pprz.message_bind "CAM_STATUS" get_cam_status);
 

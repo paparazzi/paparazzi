@@ -83,7 +83,7 @@ let _ =
   let speed = GData.adjustment ~value:1. ~lower:0.05 ~upper:10. 
     ~step_incr:0.25 ~page_incr:1.0 () in
 
-  let bus = ref "127.255.255.255:2010" in
+  let bus = ref "127.255.255.255:3333" in
   Arg.parse 
     [ "-b", Arg.String (fun x -> bus := x), "Bus\tDefault is 127.255.255.25:2010"]
     (fun x -> load_log window adj x)
