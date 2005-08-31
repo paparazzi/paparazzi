@@ -32,7 +32,7 @@
  * frequency with which ahrs_state_update() is called with the body
  * angular rates.
  */
-#define	dt		0.04
+#define	dt		0.05  //0.04
 
 #define CONFIG_SPLIT_COVARIANCE
 #ifdef CONFIG_SPLIT_COVARIANCE
@@ -66,8 +66,8 @@
 //#define			IMU_INIT_EULER_DOT_VARIANCE_MAX		2
 //#define			IMU_INIT_EULER_DOT_NB_SAMPLES_MIN	10
 
-#define		GYRO_SCALE	(real_t) (0.9444 * 3.14159 / 180.0)
-#define		GYRO_ZERO	0x200
+//#define		GYRO_SCALE	(real_t) (0.9444 * 3.14159 / 180.0)
+//#define		GYRO_ZERO	0x200
 
 
 /*
@@ -1029,9 +1029,10 @@ void ahrs_save_pqr_from_fbw( void )
 {
 	//we take the gyro data from the spi data
 	//No transformation is needed for pqr
-	pqr[0] = from_fbw.euler_dot[0];
-	pqr[1] = from_fbw.euler_dot[1];
-	pqr[2] = from_fbw.euler_dot[2];
+	//FBW not scale the data for the moment so we transform here
+	pqr[0] = from_fbw.euler_dot[0] /** IMU_ADC_ROLL_DOT_SIGN IMU_ADC_ROLL_DOT_SCALE*/;
+	pqr[1] = from_fbw.euler_dot[1] /** IMU_ADC_PITCH_DOT_SIGN IMU_ADC_PITCH_DOT_SCALE*/;
+	pqr[2] = from_fbw.euler_dot[2] /** IMU_ADC_YAW_DOT_SIGN IMU_ADC_YAW_DOT_SCALE*/;
 }
 
 
