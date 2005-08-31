@@ -67,6 +67,9 @@ $(BINDIR)/mkcostab:	$(BINDIR)/mkcostab.o
 costabi.c costabf.c:	$(BINDIR)/mkcostab
 			$(BINDIR)/mkcostab
 
+libtest: pprzlib.o demodml.c demod.ml test.ml
+	ocamlc -custom -o $@ pprzlib.o demodml.c -I +lablgtk2 unix.cma lablgtk.cma demod.ml test.ml
+
 clean:
 	$(RM) -f core `find . -name '*.[oas]' -print`
 	$(RM) -f core `find . -name 'core' -print`
