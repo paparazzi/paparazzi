@@ -29,7 +29,7 @@ STRIP		=strip
 MKDIR		=mkdir
 
 # all:		$(BINDIR) $(BINDIR)/multimon $(BINDIR)/gen
-all:		$(BINDIR)/multimon
+all:		$(BINDIR)/multimon multimon.cma
 
 $(BINDIR)/%.s:	%.c
 		$(CC) $(CFLAGS) -S -o $@ $<
@@ -66,6 +66,9 @@ $(BINDIR)/mkcostab:	$(BINDIR)/mkcostab.o
 
 costabi.c costabf.c:	$(BINDIR)/mkcostab
 			$(BINDIR)/mkcostab
+
+multimon.cma : pprzlib.o demodml.o demod.ml
+	ocamlmklib -o multimon $^
 
 libtest: pprzlib.o demodml.c demod.ml test.ml
 	ocamlc -custom -o $@ pprzlib.o demodml.c -I +lablgtk2 unix.cma lablgtk.cma demod.ml test.ml

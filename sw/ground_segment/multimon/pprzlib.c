@@ -187,6 +187,8 @@ afsk48p_demod(struct demod_state *s, float *buffer, int length, char* data)
   float f;
   unsigned char curbit;
 
+  printf("l=%d\n", length);
+
   s->l1.afsk48p.sample_count += length;
   if (s->l1.afsk48p.sample_count > FREQ_SAMP) {
     s->l1.afsk48p.sample_count -= FREQ_SAMP;
@@ -295,6 +297,7 @@ static struct demod_state dem_st[2];
 char data_left[INPUT_BUF_LEN];
 char data_right[INPUT_BUF_LEN];
 char* data_received[2] = {data_left, data_right};
+unsigned int fbuf_cnt = 0;
 
 char**
 pprz_demod_read_data(void) {
@@ -303,7 +306,6 @@ pprz_demod_read_data(void) {
   unsigned char *bp;
   short *sp;
   float fbuf[2][16384];
-  unsigned int fbuf_cnt = 0;
   int data_received_len[2];
 
   if (fmt) {
@@ -337,9 +339,10 @@ pprz_demod_read_data(void) {
     }
     if (i > 0) {
       if (stereo) {
-	for (; i >= sizeof(b.s[0]); i -= (sizeof(b.s[0])*2), sp+=2)
-	  fbuf[LEFT][fbuf_cnt++] = (*sp) * (1.0/32768.0);
+	for (; i >= sizeof(b.s[0]); i -= (sizeof(b.s[0])*2), sp+=2) {
+	  fbuf[LEFT][fbuf_cnt] = (*sp) * (1.0/32768.0);
 	  fbuf[RIGHT][fbuf_cnt++] = (*(sp+1)) * (1.0/32768.0);
+	}
       } else {
 	for (; i >= sizeof(b.s[0]); i -= sizeof(b.s[0]), sp++)
 	  fbuf[LEFT][fbuf_cnt++] = (*sp) * (1.0/32768.0);
