@@ -134,8 +134,8 @@ avr_clean:
 #
 
 $(OBJDIR)/.depend:
-	test -d $(OBJDIR) || mkdir -p $(OBJDIR)
-	$(CC) -M $(CFLAGS) $($(TARGET).srcs) > $@
+	@test -d $(OBJDIR) || mkdir -p $(OBJDIR)
+	$(CC) -MM -MG $(CFLAGS) $($(TARGET).srcs) | sed 's|\([^\.]*\.o\)|$(OBJDIR)/\1|' > $@
 
 ifneq ($(MAKECMDGOALS),clean) 
 ifneq ($(MAKECMDGOALS),erase) 
