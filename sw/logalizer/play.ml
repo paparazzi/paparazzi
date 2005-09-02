@@ -1,3 +1,6 @@
+
+module Ground_Pprz = Pprz.Protocol(struct let name = "ground" end)
+
 let log = ref [||]
 
 let load_log = fun window (adj:GData.adjustment) name ->
@@ -80,8 +83,11 @@ let _ =
       ~value:0. ~lower:0. ~upper:1000. 
     ~step_incr:0.5 ~page_incr:1.0 ~page_size:1.0 () in
 
-  let speed = GData.adjustment ~value:1. ~lower:0.05 ~upper:10. 
-    ~step_incr:0.25 ~page_incr:1.0 () in
+(***  let speed = GData.adjustment ~value:1. ~lower:0.05 ~upper:10. 
+    ~step_incr:0.25 ~page_incr:1.0 () in ***)
+
+  let speed = object val mutable v = 1. method value = v method set_value x = v <- x end
+  in
 
   let bus = ref "127.255.255.255:3333" in
   Arg.parse 
@@ -102,16 +108,22 @@ let _ =
   ignore (file_menu_fact#add_item "Quit" ~key:GdkKeysyms._Q ~callback:quit);  
 
 
-  let timescale = GRange.scale `HORIZONTAL ~adjustment:adj ~packing:window#vbox#pack () in
-  let speed_button = GEdit.spin_button ~adjustment:speed ~rate:0. ~digits:2 ~width:50 ~packing:window#vbox#add () in
+ (***) let timescale = GRange.scale `HORIZONTAL ~adjustment:adj ~packing:window#vbox#pack () in
+  let speed_button = GEdit.spin_button (*** ~adjustment:speed ***) ~rate:0. ~digits:2 ~width:50 ~packing:window#vbox#add () in (***)
 
-  (** #move_slider is not working ??? **) ignore (timescale#event#connect#button_release ~callback:(fun _ -> if !was_running then play adj speed; false));
-  ignore (timescale#event#connect#button_press ~callback:(fun _ -> was_running := !timer <> None; stop (); false));
+  (** #move_slider is not working ??? **) (*** ignore (timescale#event#connect#button_release ~callback:(fun _ -> if !was_running then play adj speed; false));
+  ignore (timescale#event#connect#button_press ~callback:(fun _ -> was_running := !timer <> None; stop (); false));  ***)
 
   window#add_accel_group accel_group;
   window#show ();
 
   Ivy.init "Paparazzi replay" "READY" (fun _ _ -> ());
   Ivy.start !bus;
+
+  let world_update_time = fun _ vs ->
+      speed#set_value (Pprz.float_assoc "time_scale" vs)
+    in
+
+    ignore (Ground_Pprz.message_bind "WORLD_ENV" world_update_time);
 
   GMain.Main.main ()

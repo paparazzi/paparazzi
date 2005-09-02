@@ -115,7 +115,19 @@
       <program name="map 2d ml"/>
       <program name="messages"><arg flag="-c" constant="telemetry_ap:*"/><arg flag="-c" constant="ground:ground"/></program>
     </session>
-  <session name="display station">
+  <session name="replay">
+<!--      <variable name="ivy_bus" value="192.168.1:2001"/> -->
+      <variable name="map" value="muret_UTM.xml"/>
+      <program name="receive"/>     
+      <program name="http server"/>     
+      <program name="sim"><arg flag="-a" constant="Thon1"/></program>
+      <program name="cockpit"><arg flag="-render" constant="1"/></program>
+      <program name="map 2d ml"/>
+      <program name="play"/>
+    <program name="gaia" command="sw/simulator/gaia"/>
+      <program name="messages"><arg flag="-c" constant="telemetry_ap:*"/><arg flag="-c" constant="ground:ground"/></program>
+    </session>
+ <session name="display station">
       <variable name="ivy_bus" value="192.168.1:2001"/>
       <program name="cockpit"></program>
       <program name="map 2d ml"/>
