@@ -433,7 +433,7 @@ void navigation_task( void ) {
   
   if (pprz_mode == PPRZ_MODE_AUTO2 || pprz_mode == PPRZ_MODE_HOME
 			|| pprz_mode == PPRZ_MODE_GPS_OUT_OF_ORDER) {
-    if (lateral_mode >= LATERAL_MODE_COURSE)
+    if (lateral_mode >=LATERAL_MODE_COURSE)
       course_pid_run(); /* aka compute nav_desired_roll */
     desired_roll = nav_desired_roll;
     if (vertical_mode == VERTICAL_MODE_AUTO_ALT)
@@ -525,12 +525,12 @@ inline void periodic_task( void ) {
         
 #if defined SECTION_IMU_3DMG
 
-#elif defined SECTION_IMU_ANALOG
+    //#elif defined SECTION_IMU_ANALOG
     //20Hz/3 it could be possible since it can run standalone at 60Hz/3
-    ahrs_update();
-	estimator_update_state_ANALOG();
+    //    ahrs_update();
+    //	estimator_update_state_ANALOG();
 #else //NO IMU
-	ir_update();
+    ir_update();
     estimator_update_state_infrared();
 #endif
     roll_pitch_pid_run(); /* Set  desired_aileron & desired_elevator */
@@ -578,3 +578,19 @@ void use_gps_pos( void ) {
     DOWNLINK_SEND_TAKEOFF(&cputime);
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

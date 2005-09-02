@@ -50,7 +50,7 @@
 #define _4017_RESET_PORT        PORTD
 #define _4017_RESET_DDR         DDRD
 #define _4017_RESET_PIN         7
-#endif /* CTL_BRD_V1_2 */
+#endif /* CTL_BRD_V1_2_1 */
 
 #define _4017_CLOCK_PORT        PORTB
 #define _4017_CLOCK_DDR         DDRB

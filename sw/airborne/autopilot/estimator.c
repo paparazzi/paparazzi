@@ -121,13 +121,13 @@ void estimator_update_state_3DMG( void ) {
   estimator_psi = from_fbw.euler[1];
   estimator_theta = from_fbw.euler[2];
 }
-#elif defined SECTION_IMU_ANALOG
-#include "ahrs.h"
-void estimator_update_state_ANALOG( void ) {
-  estimator_phi = ahrs_euler[0];
-  estimator_theta = ahrs_euler[1];
-  estimator_psi = ahrs_euler[2];
-}
+//#elif defined SECTION_IMU_ANALOG
+//#include "ahrs.h"
+//void estimator_update_state_ANALOG( void ) {
+//  estimator_phi = ahrs_euler[0];
+//  estimator_theta = ahrs_euler[1];
+//  estimator_psi = ahrs_euler[2];
+//}
 #else //NO_IMU
 void estimator_update_state_infrared( void ) {
   float rad_of_ir = (ir_estim_mode == IR_ESTIM_MODE_ON && EstimatorIrGainIsCorrect()) ? 

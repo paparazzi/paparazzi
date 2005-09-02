@@ -42,7 +42,7 @@ extern uint16_t		adc_samples[ NB_ADC ];
 
 void adc_init( void );
 
-#define AV_NB_SAMPLE 0x20
+#define AV_NB_SAMPLE 0x08
 
 struct adc_buf {
   uint16_t sum;

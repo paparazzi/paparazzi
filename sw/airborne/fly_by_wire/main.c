@@ -38,6 +38,7 @@
 #include "spi.h"
 #include "link_autopilot.h"
 #include "radio.h"
+#include "led.h"
 
 
 #include "uart.h"
@@ -53,7 +54,6 @@
 
 #include "adc_fbw.h"
 struct adc_buf vsupply_adc_buf;
-struct adc_buf vservos_adc_buf;
 
 uint8_t mode;
 static uint8_t time_since_last_mega128;
@@ -104,8 +104,20 @@ inline void radio_control_task(void) {
   if (last_radio_contains_avg_channels) {
     mode = MODE_OF_PPRZ(last_radio[RADIO_MODE]);
   }
+#if defined SECTION_IMU_ANALOG
+  if (last_radio[RADIO_SWITCH1] > MAX_PPRZ/2) {
+    imu_capture_neutral();
+    CounterLedOn();
+  } else {
+    CounterLedOff();
+  } 
+#endif
   if (mode == MODE_MANUAL) {
 #if defined SECTION_IMU_3DMG || defined SECTION_IMU_ANALOG
+    roll_dot_pgain = -100.  + (float)last_radio[RADIO_GAIN1] * 0.010;
+    roll_dot_dgain = 2.5 - (float)last_radio[RADIO_GAIN2] * 0.00025;
+    pitch_dot_pgain = roll_dot_pgain;
+    pitch_dot_dgain = roll_dot_dgain;
     control_set_desired(last_radio);
 #else
     servo_set(last_radio);
@@ -129,6 +141,11 @@ inline void spi_task(void) {
   spi_reset();
 }
 
+#ifndef ADC_CHANNEL_VSUPPLY
+#define ADC_CHANNEL_VSUPPLY 3
+// for compatibility
+#endif
+
 int main( void )
 {
   uart_init_tx();
@@ -138,9 +155,9 @@ int main( void )
   uart_print_string("FBW Booting $Id$\n");
 #endif
   adc_init();
-  adc_buf_channel(3, &vsupply_adc_buf);
-  adc_buf_channel(6, &vservos_adc_buf);
+  adc_buf_channel(ADC_CHANNEL_VSUPPLY, &vsupply_adc_buf);
 #if defined SECTION_IMU_3DMG || defined SECTION_IMU_ANALOG
+  CounterLedInit();
   imu_init();
 #endif
   timer_init();
@@ -208,6 +225,14 @@ int main( void )
 #endif
 #if defined SECTION_IMU_3DMG || defined SECTION_IMU_ANALOG
       control_run();
+      if (radio_ok) {
+	if (last_radio[RADIO_THROTTLE] > 0.1*MAX_PPRZ) {
+	  servo_set(control_commands);
+	}
+	else {
+	  servo_set(failsafe);
+	}
+  }
 #endif
       if (_1Hz >= 60) {
 	_1Hz = 0;

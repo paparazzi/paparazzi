@@ -39,6 +39,7 @@
 #include "infrared.h"
 #include "estimator.h"
 #include "downlink.h"
+#include "uart.h"
 
 #ifdef SECTION_IMU_ANALOG
 #include "ahrs.h"
@@ -123,6 +124,8 @@ int main( void ) {
 	   *  -it's not safe always
 	   */
 	  ahrs_save_pqr_from_fbw();
+	  int16_t dummy;
+      DOWNLINK_SEND_IMU_3DMG(&from_fbw.euler_dot[0], &from_fbw.euler_dot[1], &from_fbw.euler_dot[2], &dummy, &dummy, &dummy);
 	  
 	  uart0_transmit('E');
       uart0_transmit(' ');
@@ -147,4 +150,6 @@ int main( void ) {
   } 
   return 0;
 }
+
+
 

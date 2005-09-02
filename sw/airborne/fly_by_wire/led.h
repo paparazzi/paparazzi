@@ -20,6 +20,15 @@
 #define GREEN_LED_OFF()     PORTB |=  _BV(1)
 #define GREEN_LED_TOGGLE()  PORTB ^=  _BV(1)
 
+#define CounterPin 4
+
+#define CounterLedInit()  DDRD |= _BV(CounterPin)
+
+#define CounterLedOn()      PORTD &= ~_BV(CounterPin)
+#define CounterLedOff()     PORTD |=  _BV(CounterPin)
+#define CounterLedToggle()  PORTD ^=  _BV(CounterPin)
+
+
 
 
 

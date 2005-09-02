@@ -124,7 +124,7 @@ void uart0_init( void ) {
   /* Set frame format: 8data, 1stop bit */ 
   UCSR0C = _BV(UCSZ1) | _BV(UCSZ0);
   /* Enable uart receive interrupt */
-  sbi(UCSR0B, RXCIE ); 
+  //  sbi(UCSR0B, RXCIE ); 
 }
 
 void uart1_init( void ) {
