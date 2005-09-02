@@ -1,2 +1,4 @@
 int pprz_demod_init(char *dev);
-char** pprz_demod_read_data(void);
+
+struct data { char* data_left; int len_left; char* data_right; int len_right;};
+struct data* pprz_demod_read_data(void);

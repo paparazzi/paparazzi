@@ -50,6 +50,7 @@ let use_pprz_message = fun (msg_id, values) ->
   let msg = Tele_Pprz.message_of_id msg_id in
   if msg.Pprz.name = "IDENT" then
     ac_id := Pprz.string_assoc "id" values;
+  (***)prerr_endline msg.Pprz.name;
   Tele_Pprz.message_send !ac_id msg.Pprz.name values
 
 (** Listen on a dsp device *)
@@ -66,7 +67,10 @@ let listen_pprz_modem = fun pprz_message_cb devdsp ->
   let cb =
     let buffer = ref "" in
     fun _ ->
+      printf("get_date\n%!");
       let (data_left, data_right) = Demod.get_data () in
+      (***)printf "left=%s\n%!" (Debug.xprint  data_left);
+      (***)printf "right=%s\n%!" (Debug.xprint  data_right);
       (** Accumulate in a buffer *)
       let b = !buffer ^ data_left in
       Debug.call 'M' (fun f -> fprintf f "Pprz buffer: %s\n" (Debug.xprint b));

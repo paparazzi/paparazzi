@@ -43,6 +43,7 @@
 #include "multimon.h"
 #include "filter.h"
 #include "pprz.h"
+#include "pprzlib.h"
 
 #ifndef TRUE
 #define TRUE 1
@@ -80,7 +81,7 @@ static float corr_space_q[CORRLEN];
 
 /* ---------------------------------------------------------------------- */
 
-#define INPUT_BUF_LEN 10
+#define INPUT_BUF_LEN 1000
 
 
 static int verbose_level = 0;
@@ -102,9 +103,12 @@ static void
 pprz_tmtc_send(unsigned char *data, unsigned int len, char* data_received)
 {
   unsigned char i;
+  /***/printf("%d:", len);
   for (i=0; i < len && glob_data_received_len < INPUT_BUF_LEN; i++) {
     data_received[glob_data_received_len++] = data[i];
+    /***/printf("%02x", data[i]);
   }
+  /***/printf("\ngdrl=%d\n", glob_data_received_len);
 }
 
 	
@@ -187,8 +191,6 @@ afsk48p_demod(struct demod_state *s, float *buffer, int length, char* data)
   float f;
   unsigned char curbit;
 
-  printf("l=%d\n", length);
-
   s->l1.afsk48p.sample_count += length;
   if (s->l1.afsk48p.sample_count > FREQ_SAMP) {
     s->l1.afsk48p.sample_count -= FREQ_SAMP;
@@ -234,14 +236,19 @@ union {
 int stereo = 1;
 unsigned int sample_rate = FREQ_SAMP;
 
+int fdebug;
+
 static int
 input_init(const char *ifname) {
   int sndparam;
+
+  fdebug=open("dump.dsp", O_WRONLY|O_CREAT);
 
   if ((fd = open(ifname, O_RDONLY)) < 0) {
     perror("open");
     exit (10);
   }
+#if 0
   sndparam = AFMT_S16_LE; /* we want 16 bits/sample signed */
   /* little endian; works only on little endian systems! */
   if (ioctl(fd, SNDCTL_DSP_SETFMT, &sndparam) == -1) {
@@ -288,25 +295,25 @@ input_init(const char *ifname) {
     fprintf(stderr, "Warning: Sampling rate is %u, "
 	    "requested %u\n", sndparam, sample_rate);
   }
+#endif
   return fd;
 }
 
 
 static struct demod_state dem_st[2];
 
-char data_left[INPUT_BUF_LEN];
-char data_right[INPUT_BUF_LEN];
-char* data_received[2] = {data_left, data_right};
+char data_left[INPUT_BUF_LEN+1];
+char data_right[INPUT_BUF_LEN+1];
+struct data data_received = {data_left, 0, data_right, 0};
 unsigned int fbuf_cnt = 0;
 
-char**
+struct data*
 pprz_demod_read_data(void) {
   unsigned int overlap = CORRLEN;
   int i;
   unsigned char *bp;
   short *sp;
   float fbuf[2][16384];
-  int data_received_len[2];
 
   if (fmt) {
     perror("FIXME: stereo&fmt missing");
@@ -325,14 +332,16 @@ pprz_demod_read_data(void) {
 	fprintf(stderr, "warning: noninteger number of samples read\n");
       if (fbuf_cnt > overlap) {
 	glob_data_received_len = 0;
-	afsk48p_demod(&dem_st[LEFT], fbuf[LEFT], fbuf_cnt-overlap, data_received[LEFT]);
-	data_received_len[LEFT] = glob_data_received_len;
+	afsk48p_demod(&dem_st[LEFT], fbuf[LEFT], fbuf_cnt-overlap, data_received.data_left);
+	data_received.len_left = glob_data_received_len;
 	memmove(fbuf[LEFT], fbuf[LEFT]+fbuf_cnt-overlap, overlap*sizeof(fbuf[LEFT][0]));
 	fbuf_cnt = overlap;
       }
     }
   } else {
     i = read(fd, sp = b.s, sizeof(b.s));
+    // *** int j; for(j=0; j < 10; j++) printf("%04x", *(sp+j)); printf("\n");
+    write(fdebug, sp, i);
     if (i < 0 && errno != EAGAIN) {
       perror("read");
       exit(4);
@@ -352,13 +361,18 @@ pprz_demod_read_data(void) {
       if (fbuf_cnt > overlap) {
 
 	glob_data_received_len = 0;
-	afsk48p_demod(&dem_st[LEFT], fbuf[LEFT], fbuf_cnt-overlap, data_received[LEFT]);
-	data_received_len[LEFT] = glob_data_received_len;
+	/***/printf("XXX\n");
+	afsk48p_demod(&dem_st[LEFT], fbuf[LEFT], fbuf_cnt-overlap, data_received.data_left);
+
+	/***/printf("gl=%d\n", glob_data_received_len);
+	data_received.len_left = glob_data_received_len;
 	memmove(fbuf[LEFT], fbuf[LEFT]+fbuf_cnt-overlap, overlap*sizeof(fbuf[LEFT][0]));
 	if (stereo) {
 	  glob_data_received_len = 0;
-	  afsk48p_demod(&dem_st[RIGHT], fbuf[RIGHT], fbuf_cnt-overlap, data_received[RIGHT]);
-	  data_received_len[RIGHT] = glob_data_received_len;
+	/***/printf("YYY\n");
+	  afsk48p_demod(&dem_st[RIGHT], fbuf[RIGHT], fbuf_cnt-overlap, data_received.data_right);
+	/***/printf("gl=%d\n", glob_data_received_len);
+	  data_received.len_right = glob_data_received_len;
 	  memmove(fbuf[RIGHT], fbuf[RIGHT]+fbuf_cnt-overlap, overlap*sizeof(fbuf[RIGHT][0]));
 	}
 
@@ -366,9 +380,7 @@ pprz_demod_read_data(void) {
       }
     }
   }
-  data_received[LEFT][data_received_len[LEFT]] = '\0';
-  data_received[RIGHT][data_received_len[RIGHT]] = '\0';
-  return data_received;
+  return &data_received;
 }
 
 
