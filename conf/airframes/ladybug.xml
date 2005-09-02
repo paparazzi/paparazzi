@@ -21,7 +21,7 @@
     <define name="AILEVON_ELEVATOR_RATE" value="0.75"/>
   </section>
   <section name="INFRARED" prefix="IR_">
-    <define name="ROLL_NEUTRAL_DEFAULT" value="-45"/>
+    <define name="ROLL_NEUTRAL_DEFAULT" value="10"/>
     <define name="PITCH_NEUTRAL_DEFAULT" value="1125"/>
     <define name="DEFAULT_CONTRAST" value="400"/>
     <define name="RAD_OF_IR_CONTRAST" value="0.6"/>
@@ -57,7 +57,7 @@
     <define name="VOLTAGE_ADC_A" value="0.012932"/>
     <define name="VOLTAGE_ADC_B" value="0.073729"/>
     <define name="VoltageOfAdc(adc)" value="(VOLTAGE_ADC_A * adc + VOLTAGE_ADC_B)"/>
-    <define name="LOW_BATTERY" value="60" unit="1e-1V"/>
+    <define name="LOW_BATTERY" value="90" unit="1e-1V"/>
   </section>
   <section name="SERVOS" channel="6">
     <define name="SERVOS_VOLTAGE_ADC_A" value="0.005661"/>
