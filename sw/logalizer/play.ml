@@ -58,7 +58,7 @@ let index_of_time log t =
 
 let rec run log adj i speed =
   let (t, m) = log.(i) in
-  Ivy.send (Printf.sprintf "%.2f %s" t m);
+  Ivy.send (Printf.sprintf "%s" m);
   adj#set_value (t -. fst log.(0));
   if i + 1 < Array.length log then
     let dt = fst log.(i+1) -. t in

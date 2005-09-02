@@ -31,5 +31,5 @@ clean:
 play : play.ml
 	$(OCAMLC) -o $@ unix.cma glibivy-ocaml.cma -I +lablgtk2 lablgtk.cma gtkInit.cmo $^ # to check
 	cat ../../pprz_src_test.sh > $@
-	echo 'lablgtk2 unix.cma glibivy-ocaml.cma $$PAPARAZZI_SRC/sw/logalizer/$< $$*' >> $@
+	echo 'exec lablgtk2 unix.cma glibivy-ocaml.cma $$PAPARAZZI_SRC/sw/logalizer/$< $$*' >> $@
 	chmod a+x $@
