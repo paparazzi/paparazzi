@@ -78,3 +78,5 @@ sub build_gui {
   $zinc->add('rectangle',  $self->{main_group}, [0, 0, $width, $height],
 	     -visible => 1, -linecolor => "green");
 }
+
+1;

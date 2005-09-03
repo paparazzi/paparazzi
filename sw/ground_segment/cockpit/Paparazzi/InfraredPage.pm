@@ -17,7 +17,7 @@ sub populate {
   $args->{-title} = TITLE;
   $self->SUPER::populate($args);
   $self->configspec(
-		    -lls => [S_NOINIT, S_METHOD,  S_RDWR,   S_OVRWRT, S_NOPRPG, 0.0015],
+#		    -lls => [S_NOINIT, S_METHOD,  S_RDWR,   S_OVRWRT, S_NOPRPG, 0.0015],
 		   );
 }
 
@@ -33,6 +33,11 @@ sub set_aircraft {
     $prev_ac->detach($self, $field, [\&update_field]) if ($prev_ac);
     $new_ac->attach($self, $field, [\&update_field]) if ($new_ac);
   }
+  foreach my $field (@fields) {
+    my $text = $new_ac->get($field);
+    $self->get('-zinc')->itemconfigure($self->{'value_'.$field}, -text => $text);
+  }
+  $self->{aircraft} = $new_ac;
 }
 
 sub update_field {
@@ -42,8 +47,10 @@ sub update_field {
 }
 
 sub onTimer {
-  my ( $self) = @_;
-  $self->{history}->put_value(scalar $self->get('-lls'));
+  my ($self) = @_;
+  if (defined $self->{aircraft}) {
+    $self->{history}->put_value(scalar $self->{aircraft}->get('gps_hybrid_factor'));
+  }
 }
 
 sub lls {
