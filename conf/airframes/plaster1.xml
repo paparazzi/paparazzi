@@ -55,8 +55,8 @@
   </section>
   <section name="BAT" channel="3">
     <define name="MILLIAMP_PER_PERCENT" value="0.4"/>
-    <define name="VOLTAGE_ADC_A" value="0.0139498"/>
-    <define name="VOLTAGE_ADC_B" value="0.382856"/>
+    <define name="VOLTAGE_ADC_A" value="0.01727"/>
+    <define name="VOLTAGE_ADC_B" value="0.2965"/>
     <define name="VoltageOfAdc(adc)" value="(VOLTAGE_ADC_A * adc + VOLTAGE_ADC_B)"/>
     <define name="LOW_BATTERY" value="90" unit="1e-1V"/>
   </section>
