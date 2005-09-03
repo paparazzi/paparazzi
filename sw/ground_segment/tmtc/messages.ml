@@ -30,21 +30,9 @@ let update_delay = 0.25 (* Min time in second before two updates *)
 let led_delay = 500 (* Time in milliseconds while the green led is displayed *)
 
 
-let space = Str.regexp "[ \t]+"
-
 let (//) = Filename.concat
 
 let xml_file = Env.paparazzi_src // "conf" // "messages.xml"
-
-let format = fun field ->
-  try
-    match Xml.attrib field "type", Xml.attrib field "format" with
-      "float", f -> fun x -> Printf.sprintf (Obj.magic f) (float_of_string x)
-    | _ -> fun x -> x
-  with _ -> fun x -> x
-
-
-
 
 
 let _ =
@@ -74,7 +62,7 @@ let _ =
     let id = (Xml.attrib m "name") in
     let h = GPack.hbox () in
     let v = GPack.vbox ~width:200 () in
-    let l = GMisc.label ~text:id ~packing:h#add () in
+    let _l = GMisc.label ~text:id ~packing:h#add () in
     let eb = GBin.event_box ~packing:h#pack () in
     let time = GMisc.label ~width:40 ~packing:eb#add () in
     eb#coerce#misc#modify_bg [`SELECTED, `NAME "green"];
@@ -89,7 +77,7 @@ let _ =
 	    let h = GPack.hbox ~packing:v#pack () in
 	    let _ = GMisc.label ~text:name ~packing:h#pack () in
 	    let l = GMisc.label ~text:"XXXX" ~packing:h#pack () in
-	    let update = fun (a, x) -> 
+	    let update = fun (_a, x) -> 
 	      if notebook#current_page = page_num then
 		let fx = Pprz.string_of_value x in
 		if l#label <> fx then l#set_text fx in
@@ -109,7 +97,7 @@ let _ =
       incr time_since_last;
       time#set_text (sprintf "%2d" !time_since_last); true in
     ignore (GMain.Timeout.add 1000 update_time);
-    let display = fun sender values ->
+    let display = fun _sender values ->
       time_since_last := 0;
       let t = Unix.gettimeofday () in
       if t > !last_update +. update_delay then begin
@@ -144,7 +132,7 @@ let _ =
     match sender with
     | Some "*" ->
 	(* Waiting for a new sender in this class *)
-	let get_one = fun sender vs ->
+	let get_one = fun sender _vs ->
 	  if not (Hashtbl.mem senders sender) then begin
 	    Hashtbl.add senders sender ();
 	    one_class (ident,  xml_class, Some sender)
@@ -161,7 +149,7 @@ let _ =
 	let bind = match sender with
 	  None -> fun m cb -> P.message_bind m cb
 	| Some sender -> fun m cb -> P.message_bind ~sender m cb in
-	let bindings = 
+	let _bindings = 
 	  (** Forall messages in the class *)
 	  List.map (fun m -> one_page class_notebook bind m) messages in
 (***	label#connect#clicked ~callback:(fun () -> prerr_endline "clicked"); ***)

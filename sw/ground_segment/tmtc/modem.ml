@@ -72,8 +72,6 @@ type status = {
     mutable detected : int
   }
       
-let max_stalled_time = 2.
-
 let status = {
   valim = 0.;
   cd = 0;

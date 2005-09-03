@@ -35,7 +35,7 @@ let _ =
     [ "-b",  Arg.String (fun x -> bus := x), "Bus\tDefault is 127.255.255.25:2010";
       "-c",  Arg.String (fun x -> class_name := x), "Message class name\tDefault is telemetry_fbw";
       "-d",  Arg.String (fun x -> serial_dev := x), "Serial device\tDefault is /dev/ttyUSB0"]
-    (fun x -> prerr_endline ("WARNING: don't do anything with "))
+    (fun _x -> prerr_endline ("WARNING: don't do anything with "))
     "Usage: ";
   
   let module Tele_Class = struct let name = !class_name end in

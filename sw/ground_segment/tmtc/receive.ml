@@ -162,12 +162,10 @@ type aircraft = {
 let aircrafts = Hashtbl.create 3
 
 (** Broadcast of the received aircrafts *)
-let aircrafts_msg_period = 5000 (* ms *)
 let aircraft_msg_period = 1000 (* ms *)
-let traffic_info_period = 2000 (* ms *)
 let send_aircrafts_msg = fun _asker _values ->
   assert(_values = []);
-  let names = String.concat "," (Hashtbl.fold (fun k v r -> k::r) aircrafts []) ^ "," in
+  let names = String.concat "," (Hashtbl.fold (fun k _v r -> k::r) aircrafts []) ^ "," in
   ["ac_list", Pprz.String names]
 
 let make_element = fun t a c -> Xml.Element (t,a,c)
@@ -333,7 +331,6 @@ let ac_msg = fun log ac_name a m ->
       fprintf stderr "Unknown message %s from %s: %s\n" x ac_name m
   | x -> prerr_endline (Printexc.to_string x)
 
-let soi = string_of_int
 
 let send_cam_status = fun a ->
   if a.gps_mode = gps_mode_3D then
@@ -413,7 +410,6 @@ let send_horiz_status = fun a ->
 
 let send_aircraft_msg = fun ac ->
   try
-    let sof = fun f -> sprintf "%.1f" f in
     let a = Hashtbl.find aircrafts ac in
     let f = fun x -> Pprz.Float x in
     let values = ["ac_id", Pprz.String ac;
@@ -506,7 +502,7 @@ let register_aircraft = fun name a ->
 let ident_msg = fun log id name ->
   if not (Hashtbl.mem aircrafts name) then begin
     let ac = new_aircraft id in
-    let b = Ivy.bind (fun _ args -> ac_msg log name ac args.(0)) (sprintf "^%s +(.*)" id) in
+    let _b = Ivy.bind (fun _ args -> ac_msg log name ac args.(0)) (sprintf "^%s +(.*)" id) in
     register_aircraft name ac;
     Ground_Pprz.message_send my_id "NEW_AIRCRAFT" ["ac_id", Pprz.String id]
   end

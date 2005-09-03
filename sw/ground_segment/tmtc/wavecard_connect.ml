@@ -56,7 +56,7 @@ let _ =
       "-d", Arg.Set_string port, (sprintf "Port (%s)" !port)] in
   Arg.parse
     options
-    (fun x -> ())
+    (fun _x -> ())
     "Usage: ";
 
   Ivy.init "Wavecard connect" "READY" (fun _ _ -> ());
