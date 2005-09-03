@@ -137,6 +137,7 @@ sub draw {
 		    ['Ctrst', 'contrast_value', 70,  58],
 		    ['alt:',  'alt',            150, 10],
 		    ['desired:','target_alt',   150, 22],
+		    ['throttle:',  'throttle',  150, 34],
 		    ['speed:',  'speed',        150, 46],
 		    ['climb:',  'climb',        150, 58],
 		   );
@@ -258,6 +259,7 @@ sub aircraft_config_changed {
   elsif ($event eq '-engine_status') {
 #    Paparazzi::Traces::trace( Paparazzi::Traces::TRACE_DEBUG, "in Strip::aircraft_config_changed\n".Dumper($new_value));
     $self->set_bat($new_value->{bat});
+    $self->set_item('throttle', $new_value->{throttle}, 'black');
   }
   elsif ( $event eq 'speed' or $event eq 'climb' or $event eq 'alt' or $event eq 'target_alt' or $event eq 'contrast_value') {
     my $fmt = { speed => "%2.1fm/s",
