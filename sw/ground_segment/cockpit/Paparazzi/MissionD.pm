@@ -20,7 +20,7 @@ sub Populate {
   my $notebook = $self->NoteBook(-ipadx => 6, -ipady => 6);
   $notebook->pack(-fill => 'both', -expand => "1");
   $self->Advertise('notebook' => $notebook);
-  $self->{cur_block} = $self->{cur_stage} = -1;
+#  $self->{cur_block} = $self->{cur_stage} = -1;
 }
 
 sub set_selected_ac {
@@ -51,7 +51,12 @@ sub add_aircraft {
   $text->pack(-fill => 'both', -expand => "1");
   $text->insert('end', "coucou");
 
-  $self->{'text'.$aircraft->get('-ac_id')} = $text;
+  my $ac_id = $aircraft->get('-ac_id');
+  $self->{'text'.$ac_id} = $text;
+  $self->{'cur_block_'.$ac_id} = $aircraft->get('cur_block');
+  $text->tagConfigure($self->{'cur_block_'.$ac_id}, -background => 'green3');
+  $self->{'cur_stage_'.$ac_id} = $aircraft->get('cur_stage');
+  $text->tagConfigure($self->{'cur_stage_'.$ac_id}, -background => 'green1');
   $aircraft->attach($self, 'flight_plan', [\&on_ac_changed]);
   $aircraft->attach($self, 'cur_block', [\&on_ac_changed]);
   $aircraft->attach($self, 'cur_stage', [\&on_ac_changed]);
@@ -69,16 +74,16 @@ sub on_ac_changed {
   }
   elsif ($event eq 'cur_block') {
     my $text = $self->{'text'.$ac_id};
-    $text->tagConfigure(get_block_id($self->{cur_block}), -background => undef);
+    $text->tagConfigure(get_block_id($self->{'cur_block_'.$ac_id}), -background => undef);
     $text->tagConfigure(get_block_id($new_value), -background => 'green3');
-    $text->tagConfigure(get_stage_id($self->{cur_block}, $self->{cur_stage}), -background => undef);
-    $self->{cur_block} = $new_value;
+    $text->tagConfigure(get_stage_id($self->{'cur_block_'.$ac_id}, $self->{'cur_stage_'.$ac_id}), -background => undef);
+    $self->{'cur_block_'.$ac_id} = $new_value;
   }
   elsif ($event eq 'cur_stage') {
     my $text = $self->{'text'.$ac_id};
-    $text->tagConfigure(get_stage_id($self->{cur_block}, $self->{cur_stage}), -background => undef);
-    $text->tagConfigure(get_stage_id($self->{cur_block}, $new_value), -background => 'green1');
-    $self->{cur_stage} = $new_value;
+    $text->tagConfigure(get_stage_id($self->{'cur_block_'.$ac_id}, $self->{'cur_stage_'.$ac_id}), -background => undef);
+    $text->tagConfigure(get_stage_id($self->{'cur_block_'.$ac_id}, $new_value), -background => 'green1');
+    $self->{'cur_stage_'.$ac_id} = $new_value;
   }
 }
 
