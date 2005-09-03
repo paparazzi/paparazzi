@@ -42,7 +42,7 @@ value sim_use_gps_pos(value x, value y, value z, value c, value a, value s, valu
   for(i = 0; i < gps_nb_channels; i++) {
     gps_svinfos[i].svid = 7 + i;
     gps_svinfos[i].elev = (cos(((100*i)+time)/100.) + 1) * 45;
-    gps_svinfos[i].azim = (time/gps_nb_channels + 20 * i) % 360;
+    gps_svinfos[i].azim = (time/gps_nb_channels + 50 * i) % 360;
     gps_svinfos[i].cno = 40 + sin(time/100.) * 10.;
     gps_svinfos[i].flags = 0x01;
     gps_svinfos[i].qi = (int)((time / 1000.) + i) % 8;

@@ -81,7 +81,8 @@ static float corr_space_q[CORRLEN];
 
 /* ---------------------------------------------------------------------- */
 
-#define INPUT_BUF_LEN 1000
+#define TEMP_BUF_LEN 10
+#define OUTPUT_BUF_LEN 512
 
 
 static int verbose_level = 0;
@@ -103,12 +104,9 @@ static void
 pprz_tmtc_send(unsigned char *data, unsigned int len, char* data_received)
 {
   unsigned char i;
-  /***/printf("%d:", len);
-  for (i=0; i < len && glob_data_received_len < INPUT_BUF_LEN; i++) {
+  for (i=0; i < len && glob_data_received_len < OUTPUT_BUF_LEN; i++) {
     data_received[glob_data_received_len++] = data[i];
-    /***/printf("%02x", data[i]);
   }
-  /***/printf("\ngdrl=%d\n", glob_data_received_len);
 }
 
 	
@@ -131,7 +129,7 @@ my_pprz_baudot_rxbit(struct demod_state *s, int bit, char* data)
     }
   }
 
-  if ((s->l2.hdlc.rxptr - s->l2.hdlc.rxbuf) >= INPUT_BUF_LEN) {
+  if ((s->l2.hdlc.rxptr - s->l2.hdlc.rxbuf) >= TEMP_BUF_LEN) {
     pprz_tmtc_send(s->l2.hdlc.rxbuf, s->l2.hdlc.rxptr - s->l2.hdlc.rxbuf, data);
     /* reset data buffer */
     s->l2.hdlc.rxptr = s->l2.hdlc.rxbuf;
@@ -236,74 +234,70 @@ union {
 int stereo = 1;
 unsigned int sample_rate = FREQ_SAMP;
 
-int fdebug;
-
 static int
 input_init(const char *ifname) {
   int sndparam;
-
-  fdebug=open("dump.dsp", O_WRONLY|O_CREAT);
 
   if ((fd = open(ifname, O_RDONLY)) < 0) {
     perror("open");
     exit (10);
   }
-#if 0
-  sndparam = AFMT_S16_LE; /* we want 16 bits/sample signed */
-  /* little endian; works only on little endian systems! */
-  if (ioctl(fd, SNDCTL_DSP_SETFMT, &sndparam) == -1) {
-    perror("ioctl: SNDCTL_DSP_SETFMT");
-    exit (10);
-  }
-  if (sndparam != AFMT_S16_LE) {
-    fmt = 1;
-    sndparam = AFMT_U8;
+  if (!strncmp("/dev", ifname, 4)) {
+    sndparam = AFMT_S16_LE; /* we want 16 bits/sample signed */
+    /* little endian; works only on little endian systems! */
     if (ioctl(fd, SNDCTL_DSP_SETFMT, &sndparam) == -1) {
       perror("ioctl: SNDCTL_DSP_SETFMT");
       exit (10);
     }
-    if (sndparam != AFMT_U8) {
-      perror("ioctl: SNDCTL_DSP_SETFMT");
+    if (sndparam != AFMT_S16_LE) {
+      fmt = 1;
+      sndparam = AFMT_U8;
+      if (ioctl(fd, SNDCTL_DSP_SETFMT, &sndparam) == -1) {
+	perror("ioctl: SNDCTL_DSP_SETFMT");
+	exit (10);
+      }
+      if (sndparam != AFMT_U8) {
+	perror("ioctl: SNDCTL_DSP_SETFMT");
+	exit (10);
+      }
+    }
+    stereo = TRUE;
+    sndparam = 1;   /* we want 2 channels */
+    if (ioctl(fd, SNDCTL_DSP_STEREO, &sndparam) == -1) {
+      perror("ioctl: SNDCTL_DSP_STEREO");
       exit (10);
     }
+    if (sndparam == 0) {
+      fprintf(stderr, "soundif: Error, cannot set the channel "
+	      "number to 2: using mono\n");
+      stereo=FALSE;
+    } else if (sndparam != 1) {
+      fprintf(stderr, "soundif: Error, cannot set the channel "
+	      "number to 2\n");
+      exit (10);
+    }
+    sndparam = sample_rate; 
+    if (ioctl(fd, SNDCTL_DSP_SPEED, &sndparam) == -1) {
+      perror("ioctl: SNDCTL_DSP_SPEED");
+      exit (10);
+    }
+    if ((10*abs(sndparam-sample_rate)) > sample_rate) {
+      perror("ioctl: SNDCTL_DSP_SPEED");
+      exit (10);
+    }
+    if (sndparam != sample_rate) {
+      fprintf(stderr, "Warning: Sampling rate is %u, "
+	      "requested %u\n", sndparam, sample_rate);
+    }
   }
-  stereo = TRUE;
-  sndparam = 1;   /* we want 2 channels */
-  if (ioctl(fd, SNDCTL_DSP_STEREO, &sndparam) == -1) {
-    perror("ioctl: SNDCTL_DSP_STEREO");
-    exit (10);
-  }
-  if (sndparam == 0) {
-    fprintf(stderr, "soundif: Error, cannot set the channel "
-	    "number to 2: using mono\n");
-    stereo=FALSE;
-  } else if (sndparam != 1) {
-    fprintf(stderr, "soundif: Error, cannot set the channel "
-	    "number to 2\n");
-    exit (10);
-  }
-  sndparam = sample_rate; 
-  if (ioctl(fd, SNDCTL_DSP_SPEED, &sndparam) == -1) {
-    perror("ioctl: SNDCTL_DSP_SPEED");
-    exit (10);
-  }
-  if ((10*abs(sndparam-sample_rate)) > sample_rate) {
-    perror("ioctl: SNDCTL_DSP_SPEED");
-    exit (10);
-  }
-  if (sndparam != sample_rate) {
-    fprintf(stderr, "Warning: Sampling rate is %u, "
-	    "requested %u\n", sndparam, sample_rate);
-  }
-#endif
   return fd;
 }
 
 
 static struct demod_state dem_st[2];
 
-char data_left[INPUT_BUF_LEN+1];
-char data_right[INPUT_BUF_LEN+1];
+char data_left[OUTPUT_BUF_LEN+1];
+char data_right[OUTPUT_BUF_LEN+1];
 struct data data_received = {data_left, 0, data_right, 0};
 unsigned int fbuf_cnt = 0;
 
@@ -340,8 +334,6 @@ pprz_demod_read_data(void) {
     }
   } else {
     i = read(fd, sp = b.s, sizeof(b.s));
-    // *** int j; for(j=0; j < 10; j++) printf("%04x", *(sp+j)); printf("\n");
-    write(fdebug, sp, i);
     if (i < 0 && errno != EAGAIN) {
       perror("read");
       exit(4);
@@ -361,17 +353,13 @@ pprz_demod_read_data(void) {
       if (fbuf_cnt > overlap) {
 
 	glob_data_received_len = 0;
-	/***/printf("XXX\n");
 	afsk48p_demod(&dem_st[LEFT], fbuf[LEFT], fbuf_cnt-overlap, data_received.data_left);
 
-	/***/printf("gl=%d\n", glob_data_received_len);
 	data_received.len_left = glob_data_received_len;
 	memmove(fbuf[LEFT], fbuf[LEFT]+fbuf_cnt-overlap, overlap*sizeof(fbuf[LEFT][0]));
 	if (stereo) {
 	  glob_data_received_len = 0;
-	/***/printf("YYY\n");
 	  afsk48p_demod(&dem_st[RIGHT], fbuf[RIGHT], fbuf_cnt-overlap, data_received.data_right);
-	/***/printf("gl=%d\n", glob_data_received_len);
 	  data_received.len_right = glob_data_received_len;
 	  memmove(fbuf[RIGHT], fbuf[RIGHT]+fbuf_cnt-overlap, overlap*sizeof(fbuf[RIGHT][0]));
 	}
