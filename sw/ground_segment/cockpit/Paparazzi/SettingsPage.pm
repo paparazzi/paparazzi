@@ -28,16 +28,18 @@ sub set_aircraft {
     $prev_ac->detach($self, $field, [\&update_field]) if ($prev_ac);
     $new_ac->attach($self, $field, [\&update_field]) if ($new_ac);
   }
-  my $fligh_plan = $new_ac->get('flight_plan');
-  my $rc_controls = $fligh_plan->get('-rc_control');
-  my $zinc = $self->get('-zinc');
-  foreach my $mode (@ap_modes) {
-    foreach my $dir (@if_modes) {
-      foreach my $slider (@sliders) {
-	my $label = $self->{'label_'.$mode."_".$dir."_".$slider};
-	my $text = defined $rc_controls->{$mode}->{$dir}->{$slider} ?
-	  $rc_controls->{$mode}->{$dir}->{$slider}->[0] : 'N/A';
-	$zinc->itemconfigure($label, -text => $text);
+  my $flight_plan = $new_ac->get('flight_plan');
+  if (defined $flight_plan) {
+    my $rc_controls = $flight_plan->get('-rc_control');
+    my $zinc = $self->get('-zinc');
+    foreach my $mode (@ap_modes) {
+      foreach my $dir (@if_modes) {
+	foreach my $slider (@sliders) {
+	  my $label = $self->{'label_'.$mode."_".$dir."_".$slider};
+	  my $text = defined $rc_controls->{$mode}->{$dir}->{$slider} ?
+	    $rc_controls->{$mode}->{$dir}->{$slider}->[0] : 'N/A';
+	  $zinc->itemconfigure($label, -text => $text);
+	}
       }
     }
   }
