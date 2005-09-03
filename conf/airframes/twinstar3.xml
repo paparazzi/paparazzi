@@ -22,7 +22,7 @@
     <set servo="AILERON_RIGHT" value="($roll > 0 ? AILERON_DIFF : 1) * $roll"/>
     <set servo="RUDDER" value="@YAW + @ROLL*COMBI_SWITCH"/>
     <set servo="CAM_ROLL" value="@GAIN1"/>
-    <set servo="CAM_PITCH" value="@GAIN2"/>
+    <set servo="CAM_PITCH" value="@CALIB"/>
   </command>
   <section name="MIXER">
     <define name="AILERON_DIFF" value="0.66"/>

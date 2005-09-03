@@ -22,7 +22,7 @@
   </section>
   <section name="INFRARED" prefix="IR_">
     <define name="ROLL_NEUTRAL_DEFAULT" value="10"/>
-    <define name="PITCH_NEUTRAL_DEFAULT" value="1125"/>
+    <define name="PITCH_NEUTRAL_DEFAULT" value="1160"/>
     <define name="DEFAULT_CONTRAST" value="400"/>
     <define name="RAD_OF_IR_CONTRAST" value="0.6"/>
     <linear name="RollOfIrs" arity="2" coeff1="1" coeff2="-1"/>

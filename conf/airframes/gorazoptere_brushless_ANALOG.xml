@@ -8,7 +8,7 @@
     <define name="ADC_ROLL_DOT_SIGN" value="-1"/>
     <define name="ADC_PITCH_DOT_SIGN" value="1"/>
     <define name="ADC_YAW_DOT_SIGN" value="-1"/>
-	<define name="ADC_ROLL_DOT_ZERO" value="-512"/>
+    <define name="ADC_ROLL_DOT_ZERO" value="512"/>
     <define name="ADC_PITCH_DOT_ZERO" value="512"/>
     <define name="ADC_YAW_DOT_ZERO" value="512"/>
     <define name="ADC_ROLL_DOT_SCALE" value="(real_t) (0.9444 * 3.14159 / 180.0)"/>
