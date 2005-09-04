@@ -1,7 +1,7 @@
 #
 # $Id$
 #
-# PapaStrip::Strip (Aircraft flight informations)
+# Paparazzi::Strip (Aircraft flight informations)
 #
 # Copyright (C) 2005 Pierre-Selim Huard
 #
