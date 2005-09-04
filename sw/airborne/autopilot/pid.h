@@ -52,9 +52,11 @@ extern const float climb_igain;
 extern float climb_sum_err;
 extern float desired_climb, pre_climb;
 extern pprz_t desired_gaz, desired_aileron, desired_elevator;
+extern float climb_level_gaz;
 
 extern float pitch_of_vz_pgain;
 extern float pitch_of_vz;
+extern float aileron_of_gaz;
 
 void climb_pid_run(void);
 void altitude_pid_run(void);

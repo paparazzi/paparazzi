@@ -32,8 +32,6 @@ extern int16_t ir_pitch; /* averaged pitch adc */
 
 extern float   ir_rad_of_ir;
 extern int16_t ir_contrast;
-extern int16_t ir_roll_neutral;
-extern int16_t ir_pitch_neutral;
 
 void ir_init(void);
 void ir_update(void);

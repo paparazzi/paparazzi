@@ -32,7 +32,7 @@ FLIGHT_PLAN_XML=$(ACINCLUDE)/flight_plan.xml
 INFLIGHT_CALIB_H=$(ACINCLUDE)/inflight_calib.h
 
 all: $(AIRFRAME_H) $(RADIO_H) $(FLIGHT_PLAN_H) $(FLIGHT_PLAN_XML) $(INFLIGHT_CALIB_H)
-	echo $(AIRFRAME_H) $(CONF)/$(AIRFRAME)
+
 
 $(AIRFRAME_H) : $(CONF)/$(AIRFRAME) $(CONF_XML)
 	$(TOOLS)/gen_airframe.out $(AC_ID) $(AIRCRAFT) $< > /tmp/airframe.h

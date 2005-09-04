@@ -39,10 +39,6 @@ int16_t ir_pitch;
 int16_t ir_contrast     = IR_DEFAULT_CONTRAST;
 /** Initialized to \a IR_DEFAULT_CONTRAST.
  *  Changed with @@@@@ EST-CE QUE CA CHANGE @@@@@ */
-int16_t ir_roll_neutral  = IR_ROLL_NEUTRAL_DEFAULT;
-/** Initialized to \a IR_PITCH_NEUTRAL_DEFAULT.
- *  Changed with @@@@@ EST-CE QUE CA CHANGE @@@@@ */
-int16_t ir_pitch_neutral = IR_PITCH_NEUTRAL_DEFAULT;
 
 /** \def RadOfIrFromConstrast(c)
  *  \brief Contrast measurement
@@ -64,20 +60,15 @@ static struct adc_buf buf_ir2;
 /** Initialize \a ir with the \a IR_DEFAULT_CONTRAST \n
  *  Initialize \a adc_buf_channel
  */
+#ifndef ADC_CHANNEL_IR_NB_SAMPLES
+#define ADC_CHANNEL_IR_NB_SAMPLES DEFAULT_AV_NB_SAMPLE
+#else
+#warning " ADC_CHANNEL_IR_NB_SAMPLES";
+#endif
 void ir_init(void) {
   RadOfIrFromConstrast(IR_DEFAULT_CONTRAST);
-	#ifndef ADC_CHANNEL_IR1_NB_SAMPLE
-/*		set_buf_av_nb_sample(&buf_ir1, ADC_CHANNEL_IR1_NB_SAMPLE)	*/
-		#define ADC_CHANNEL_IR1_NB_SAMPLE DEFAULT_AV_NB_SAMPLE
-	#endif
-	adc_buf_channel(ADC_CHANNEL_IR1, &buf_ir1, ADC_CHANNEL_IR1_NB_SAMPLE);
-/*	adc_buf_channel(ADC_CHANNEL_IR1, &buf_ir1);	*/
-	#ifndef ADC_CHANNEL_IR2_NB_SAMPLE
-/*		set_buf_av_nb_sample(&buf_ir2, ADC_CHANNEL_IR2_NB_SAMPLE)	*/
-		#define ADC_CHANNEL_IR2_NB_SAMPLE DEFAULT_AV_NB_SAMPLE
-	#endif
-  adc_buf_channel(ADC_CHANNEL_IR2, &buf_ir2, ADC_CHANNEL_IR2_NB_SAMPLE);
-/*  adc_buf_channel(ADC_CHANNEL_IR2, &buf_ir2);	*/
+  adc_buf_channel(ADC_CHANNEL_IR1, &buf_ir1, ADC_CHANNEL_IR_NB_SAMPLES);
+  adc_buf_channel(ADC_CHANNEL_IR2, &buf_ir2, ADC_CHANNEL_IR_NB_SAMPLES);
 }
 
 /** \fn void ir_update(void)
@@ -88,12 +79,12 @@ void ir_update(void) {
 #ifndef SIMUL
   int16_t x1_mean = buf_ir1.sum/buf_ir1.av_nb_sample;
   int16_t x2_mean = buf_ir2.sum/buf_ir2.av_nb_sample;
-  ir_roll = IR_RollOfIrs(x1_mean, x2_mean) - ir_roll_neutral;
-  ir_pitch = IR_PitchOfIrs(x1_mean, x2_mean) - ir_pitch_neutral;
+  ir_roll = IR_RollOfIrs(x1_mean, x2_mean) - IR_ADC_ROLL_NEUTRAL;
+  ir_pitch = IR_PitchOfIrs(x1_mean, x2_mean) - IR_ADC_PITCH_NEUTRAL;
 #else
   extern volatile int16_t simul_ir_roll, simul_ir_pitch;
-  ir_roll = simul_ir_roll -  ir_roll_neutral; 
-  ir_pitch = simul_ir_pitch - ir_pitch_neutral;  
+  ir_roll = simul_ir_roll - IR_ADC_ROLL_NEUTRAL; 
+  ir_pitch = simul_ir_pitch - IR_ADC_PITCH_NEUTRAL;  
 #endif
 }
 

@@ -80,12 +80,12 @@ void imu_init ( void ) {
 }
 
 void imu_update ( void ) {
-  raw_roll_dot = IMU_ADC_ROLL_DOT_SIGN * buf_roll_dot.sum;
-  raw_pitch_dot = IMU_ADC_PITCH_DOT_SIGN * buf_pitch_dot.sum;
-  raw_yaw_dot = IMU_ADC_YAW_DOT_SIGN * buf_yaw_dot.sum;
-  roll_dot = (int16_t)(raw_roll_dot - raw_roll_dot_neutral) / AV_NB_SAMPLE;
-  pitch_dot = (int16_t)(raw_pitch_dot - raw_pitch_dot_neutral) / AV_NB_SAMPLE;
-  yaw_dot = (int16_t)(raw_yaw_dot - raw_yaw_dot_neutral) / AV_NB_SAMPLE;;
+  raw_roll_dot = buf_roll_dot.sum;
+  raw_pitch_dot = buf_pitch_dot.sum;
+  raw_yaw_dot = buf_yaw_dot.sum;
+  roll_dot = IMU_ADC_ROLL_DOT_SIGN * (int16_t)(raw_roll_dot - raw_roll_dot_neutral) / AV_NB_SAMPLE;
+  pitch_dot = IMU_ADC_PITCH_DOT_SIGN * (int16_t)(raw_pitch_dot - raw_pitch_dot_neutral) / AV_NB_SAMPLE;
+  yaw_dot = IMU_ADC_YAW_DOT_SIGN * (int16_t)(raw_yaw_dot - raw_yaw_dot_neutral) / AV_NB_SAMPLE;;
 }
 
 void imu_capture_neutral ( void ) {

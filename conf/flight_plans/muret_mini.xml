@@ -4,11 +4,15 @@
   <rc_control>
     <mode NAME="AUTO1">
       <setting VAR="ir_pitch_neutral" RANGE="60." RC="gain_1_up" TYPE="int16"/>
-      <setting VAR="ir_roll_neutral" RANGE="-60." RC="gain_1_down" TYPE="int16"/>
+      <setting VAR="ir_roll_neutral" RANGE="-60." RC="gain_2_up" TYPE="int16"/>
+      <setting VAR="pitch_pgain" RANGE="1000." RC="gain_1_down" TYPE="int16"/>
+      <setting VAR="roll_pgain" RANGE="-1000." RC="gain_2_down" TYPE="int16"/>
     </mode>
     <mode NAME="AUTO2">
-      <setting VAR="course_pgain" RANGE="0.1" RC="gain_1_up" TYPE="float"/>
-      <setting VAR="pitch_of_roll" RANGE=".2" RC="gain_1_down" TYPE="float"/>
+      <setting VAR="pitch_of_roll" RANGE="0.1" RC="gain_1_down" TYPE="float"/>
+      <setting VAR="pitch_of_vz" RANGE=".1" RC="gain_2_down" TYPE="float"/>
+      <setting VAR="ir_pitch_neutral" RANGE="60." RC="gain_1_up" TYPE="int16"/>
+      <setting VAR="ir_roll_neutral" RANGE="-60." RC="gain_2_up" TYPE="int16"/>
     </mode>
   </rc_control>
   <waypoints utm_x0="360284.8" utm_y0="4813595.5">
@@ -16,12 +20,23 @@
      </waypoints>
 
   <blocks>
-    <block NAME="init">
-      <go wp="HOME"/>
-      <go hmode="route" wp="HOME" wp_qdr="0" wp_dist="500" from="HOME"/>
-      <go hmode="route" wp="HOME" wp_qdr="90" wp_dist="500" from="HOME" from_qdr="0" from_dist="500"/>
-      <go hmode="route" wp="HOME" from="HOME" from_qdr="90" from_dist="500"/>
+    <block NAME="home">
+      <exception COND="(RcEvent1())" DEROUTE="c50"/>
       <circle wp="HOME" alt="GROUND_ALT+50" radius="75"/>
+    </block>
+    <block NAME="c50">
+      <exception COND="(RcEvent1())" DEROUTE="c40"/>
+      <exception COND="(RcEvent2())" DEROUTE="home"/>
+      <circle wp="HOME" alt="GROUND_ALT+50" radius="50"/>
+    </block>
+    <block NAME="c40">
+      <exception COND="(RcEvent1())" DEROUTE="c30"/>
+      <exception COND="(RcEvent2())" DEROUTE="home"/>
+      <circle wp="HOME" alt="GROUND_ALT+50" radius="40"/>
+    </block>
+    <block NAME="c30">
+      <exception COND="(RcEvent1())" DEROUTE="home"/>
+      <circle wp="HOME" alt="GROUND_ALT+50" radius="30"/>
     </block>
   </blocks>
 </flight_plan>

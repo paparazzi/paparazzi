@@ -22,7 +22,7 @@
   <message name="RAD_OF_IR" ID="5">
     <field name="ir" type="int16"></field>
     <field name="rad" type="int16" unit="decideg"></field>
-    <field name="rad_of_ir" type="float" format="%.4f"></field>
+    <field name="rad_of_ir" type="float" format="%.5f"></field>
   </message>
 
   <message name="ATTITUDE" ID="6" period="0.5" >
@@ -347,7 +347,7 @@
     <field name="temp"     type="float" unit="celcius"/>
     <field name="bat"      type="float" unit="V"/>
     <field name="amp"      type="float" unit="A"/>
-    <field name="energy"   type="float" unit="Wh"/>
+    <field name="energy"   type="int16" unit="Wh"/>
   </message>
 
   <message name="SVSINFO" ID="16">

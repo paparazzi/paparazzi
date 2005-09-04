@@ -46,17 +46,22 @@ float phi_c, theta_c;
 float target_x, target_y;
 
 void cam_manual( void ) {
-  int16_t yaw = from_fbw.channels[RADIO_YAW];
-  if (yaw > MIN_PPRZ_CAM || yaw < -MIN_PPRZ_CAM) {
-    phi_c += FLOAT_OF_PPRZ(yaw, 0, DELTA_ALPHA);
-    phi_c = Min(phi_c, MAX_CAM_ROLL);
-    phi_c = Max(phi_c, -MAX_CAM_ROLL);
-  }
-  int16_t pitch = from_fbw.channels[RADIO_PITCH];
-  if (pitch > MIN_PPRZ_CAM || pitch < -MIN_PPRZ_CAM) {
-    theta_c += FLOAT_OF_PPRZ(pitch, 0, DELTA_ALPHA); 
-    theta_c = Min(theta_c, MAX_CAM_PITCH);
-    theta_c = Max(theta_c, -MAX_CAM_PITCH);
+ to_fbw.channels[RADIO_GAIN1] = 0;
+ to_fbw.channels[RADIO_CALIB] = 0;
+  if (pprz_mode == PPRZ_MODE_AUTO2) {
+    static pprz_t cam_roll, cam_pitch;
+    int16_t yaw = from_fbw.channels[RADIO_YAW];
+    if (yaw > MIN_PPRZ_CAM || yaw < -MIN_PPRZ_CAM) { 
+      cam_roll += FLOAT_OF_PPRZ(yaw, 0, 300.);
+      cam_roll = TRIM_PPRZ(cam_roll);
+    }
+    int16_t pitch = from_fbw.channels[RADIO_PITCH];
+    if (pitch > MIN_PPRZ_CAM || pitch < -MIN_PPRZ_CAM) {
+      cam_pitch += FLOAT_OF_PPRZ(pitch, 0, 300.);
+      cam_pitch = TRIM_PPRZ(cam_pitch);
+    }
+    to_fbw.channels[RADIO_GAIN1] = cam_roll;
+    to_fbw.channels[RADIO_CALIB] = cam_pitch;
   }
 }
 

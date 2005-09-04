@@ -52,7 +52,7 @@ lib:
 	cd $(LIB)/ocaml; $(MAKE)
 	cd $(LIB)/perl; $(MAKE)
 
-tools:
+tools: lib
 	cd $(TOOLS); make
 
 logalizer: lib
@@ -73,10 +73,10 @@ fbw fly_by_wire:
 ap autopilot:
 	cd $(AP); $(MAKE) all
 
-upload_fbw: fbw
+upload_fbw: hard_ac
 	cd $(FBW); $(MAKE) upload
 
-upload_ap: ap
+upload_ap: hard_ac
 	cd $(AP); $(MAKE) upload
 
 erase_fbw:
@@ -107,7 +107,7 @@ receive: tmtc
 static_h :
 	PAPARAZZI_HOME=`pwd` PAPARAZZI_SRC=`pwd` make -f Makefile.gen
 
-ac_h : static_h
+ac_h : tools static_h
 	PAPARAZZI_HOME=`pwd` PAPARAZZI_SRC=`pwd` $(TOOLS)/gen_aircraft.out $(AIRCRAFT)
 
 sim_ac: ac_h sim_sitl
@@ -135,4 +135,3 @@ clean:
 	find . -name '*~' -exec rm -f {} \;
 
 dist_clean : clean
-	rm -fr var

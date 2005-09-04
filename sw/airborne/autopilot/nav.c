@@ -325,20 +325,20 @@ void nav_init(void) {
  *	Just set attitude and gaz to failsafe values
  *	to prevent the plane from crashing.
  */
-void nav_wihtout_gps(void) {
+void nav_without_gps(void) {
 #ifdef SECTION_FAILSAFE
 	lateral_mode = LATERAL_MODE_ROLL;
 	nav_desired_roll = FAILSAFE_DEFAULT_ROLL;
 	auto_pitch = FALSE;
 	nav_pitch = FAILSAFE_DEFAULT_PITCH;
 	vertical_mode = VERTICAL_MODE_AUTO_GAZ;
-	nav_desired_gaz = TRIM_UPPRZ(FAILSAFE_DEFAULT_GAZ*MAX_PPRZ);
+	nav_desired_gaz = TRIM_UPPRZ((FAILSAFE_DEFAULT_GAZ)*MAX_PPRZ);
 #else
 	lateral_mode = LATERAL_MODE_ROLL;
 	nav_desired_roll = 0;
 	auto_pitch = FALSE;
 	nav_pitch = 0;
 	vertical_mode = VERTICAL_MODE_AUTO_GAZ;
-	nav_desired_gaz = TRIM_UPPRZ(CLIMB_LEVEL_GAZ*MAX_PPRZ);
+	nav_desired_gaz = TRIM_UPPRZ((CLIMB_LEVEL_GAZ)*MAX_PPRZ);
 #endif
 }

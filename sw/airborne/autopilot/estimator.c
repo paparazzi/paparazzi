@@ -129,6 +129,12 @@ void estimator_update_state_3DMG( void ) {
 //  estimator_psi = ahrs_euler[2];
 //}
 #else //NO_IMU
+
+float ir_roll_neutral  = RadOfDeg(IR_ROLL_NEUTRAL_DEFAULT);
+/** Initialized to \a IR_PITCH_NEUTRAL_DEFAULT.
+ *  Changed with @@@@@ EST-CE QUE CA CHANGE @@@@@ */
+float ir_pitch_neutral = RadOfDeg(IR_PITCH_NEUTRAL_DEFAULT);
+
 void estimator_update_state_infrared( void ) {
   float rad_of_ir = (ir_estim_mode == IR_ESTIM_MODE_ON && EstimatorIrGainIsCorrect()) ? 
     estimator_rad_of_ir : ir_rad_of_ir;
@@ -158,14 +164,14 @@ void estimator_update_state_infrared( void ) {
 
   printf(" degres_left %d angle_left %d degres_right %d angle_right %d correction %.2f \n", (index_left*15), angle_left, (index_right*15), angle_right, correction); ***/
    
-  estimator_phi  = rad_of_ir * ir_roll /*** + RadOfDeg( correction ) ***/;
+  estimator_phi  = rad_of_ir * ir_roll - ir_roll_neutral /*** + RadOfDeg( correction ) ***/;
 
-  estimator_theta = rad_of_ir * ir_pitch;
+  estimator_theta = rad_of_ir * ir_pitch - ir_pitch_neutral;
 }
 #endif
 
 #define INIT_WEIGHT 100. /* The number of times the initial value has to be taken */
-#define RHO 0.999 /* The higher, the slower the estimation is changing */
+#define RHO 0.995 /* The higher, the slower the estimation is changing */
 
 #define g 9.81
 

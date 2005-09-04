@@ -115,12 +115,11 @@
       <program name="map 2d ml"/>
       <program name="messages"><arg flag="-c" constant="telemetry_ap:*"/><arg flag="-c" constant="ground:ground"/></program>
     </session>
-  <session name="replay">
+  <session name="replay Ricou">
 <!--      <variable name="ivy_bus" value="192.168.1:2001"/> -->
-      <variable name="map" value="muret_UTM.xml"/>
+      <variable name="map" value="ricouUTM.xml"/>
       <program name="receive"/>     
       <program name="http server"/>     
-      <program name="sim"><arg flag="-a" constant="Thon1"/></program>
       <program name="cockpit"><arg flag="-render" constant="1"/></program>
       <program name="map 2d ml"/>
       <program name="play"/>
@@ -147,8 +146,33 @@
       <program name="messages"><arg flag="-c" constant="telemetry_ap:1"/><arg flag="-c" constant="telemetry_ap:3"/><arg flag="-c" constant="ground"/></program>
     </session>
   
-   <session name="flight multimon">
+   <session name="flight multimon Ricou">
       <variable name="map"  value="ricouUTM.xml"/>
+      <variable name="ivy_bus" value="127:2010"/>
+      <program name="http server"/>     
+      <program name="multimon"><arg flag="-p" constant="/tmp/multimon"/></program>
+      <program name="modem"><arg flag="-d" constant="/tmp/multimon"/></program>
+      <program name="receive"/>     
+      <program name="messages"><arg flag="-c" constant="telemetry_ap:*"/><arg flag="-c" constant="ground"/></program>
+      <program name="cockpit"/>
+      <program name="map 2d ml"/>
+    </session>
+
+   <session name="flight multimon+hw Ricou">
+      <variable name="map"  value="ricouUTM.xml"/>
+      <variable name="ivy_bus" value="127:2010"/>
+      <program name="http server"/>     
+      <program name="multimon"><arg flag="-p" constant="/tmp/multimon"/></program>
+      <program name="modem"><arg flag="-d" constant="/tmp/multimon"/></program>
+      <program name="modem"><arg flag="-d" constant="/dev/ttyUSB0"/></program>
+      <program name="receive"/>     
+      <program name="messages"><arg flag="-c" constant="telemetry_ap:*"/><arg flag="-c" constant="ground"/></program>
+      <program name="cockpit"/>
+      <program name="map 2d ml"/>
+    </session>
+
+   <session name="flight multimon Muret">
+      <variable name="map"  value="muret_UTM.xml"/>
       <variable name="ivy_bus" value="127:2010"/>
       <program name="http server"/>     
       <program name="multimon"><arg flag="-p" constant="/tmp/multimon"/></program>

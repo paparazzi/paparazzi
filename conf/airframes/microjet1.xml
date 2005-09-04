@@ -26,7 +26,7 @@
     <define name="ROLL_NEUTRAL_DEFAULT" value="0"/>
     <define name="PITCH_NEUTRAL_DEFAULT" value="1040"/>
     <define name="DEFAULT_CONTRAST" value="400"/>
-    <define name="RAD_OF_IR_CONTRAST" value="0.9"/>
+    <define name="RAD_OF_IR_CONTRAST" value="0.666"/>
     <linear name="RollOfIrs" arity="2" coeff1="1" coeff2="-1"/>
     <linear name="PitchOfIrs" arity="2" coeff1="1" coeff2="1"/>
   </section>

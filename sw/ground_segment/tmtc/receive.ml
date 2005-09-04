@@ -162,7 +162,7 @@ type aircraft = {
 let aircrafts = Hashtbl.create 3
 
 (** Broadcast of the received aircrafts *)
-let aircraft_msg_period = 1000 (* ms *)
+let aircraft_msg_period = 500 (* ms *)
 let send_aircrafts_msg = fun _asker _values ->
   assert(_values = []);
   let names = String.concat "," (Hashtbl.fold (fun k _v r -> k::r) aircrafts []) ^ "," in

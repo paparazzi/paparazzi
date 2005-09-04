@@ -203,7 +203,7 @@ uint8_t ac_ident = AC_ID;
 /** \def PERIODIC_SEND_BAT()
  *  @@@@@ A FIXER @@@@@
  */
-#define PERIODIC_SEND_BAT() { uint16_t e = energy; DOWNLINK_SEND_BAT(&desired_gaz, &vsupply, &estimator_flight_time, &low_battery, &block_time, &stage_time, &e); }
+#define PERIODIC_SEND_BAT() { int16_t e = energy; DOWNLINK_SEND_BAT(&desired_gaz, &vsupply, &estimator_flight_time, &low_battery, &block_time, &stage_time, &e); }
 /** \def EventPos(_cpt, _channel, _event)
  *  @@@@@ A FIXER @@@@@
  */
@@ -415,7 +415,7 @@ void navigation_task( void ) {
   if (pprz_mode == PPRZ_MODE_HOME)
     nav_home();
   else if (pprz_mode == PPRZ_MODE_GPS_OUT_OF_ORDER)
-    nav_wihtout_gps();
+    nav_without_gps();
   else
     nav_update();
   
@@ -446,7 +446,7 @@ void navigation_task( void ) {
     if (low_battery || (!estimator_flight_time && !launch))
       desired_gaz = 0;
   }  
-  energy += (float)desired_gaz * (MILLIAMP_PER_PERCENT / MAX_PPRZ * 0.25/3600.);
+  energy += (float)desired_gaz * (MILLIAMP_PER_PERCENT / MAX_PPRZ * 0.25);
 }
 
 #define PERIOD (256. * 1024. / CLOCK / 1000000.)
@@ -540,8 +540,8 @@ inline void periodic_task( void ) {
     to_fbw.channels[RADIO_PITCH] = desired_elevator;
 #endif
     
-    /* Code for camera stabilization, FIXME put that elsewhere */
-    to_fbw.channels[RADIO_GAIN1] = TRIM_PPRZ(MAX_PPRZ/0.75*(-estimator_phi));
+    /* Code for camera stabilization */
+    cam_manual ();
     
     link_fbw_send();
     break;

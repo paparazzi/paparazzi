@@ -24,7 +24,8 @@ include ../../../conf/Makefile.local
 CONF = ../../../conf
 VAR = ../../../var
 
-all: hw_modem_listen receive messages $(VAR)/boa.conf stereo_demod
+all: hw_modem_listen receive messages $(VAR)/boa.conf
+# stereo_demod
 
 clean:
 	rm -f hw_modem_listen wavecard_connect receive messages *.bak *~ core *.o .depend *.opt *.out *.cm*

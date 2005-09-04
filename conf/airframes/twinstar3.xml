@@ -10,8 +10,8 @@
     <servo name="AILERON_RIGHT" no="2" max="1375" neutral="1650" min="2000"/>
     <servo name="ELEVATOR" no="6" max="1816" neutral="1530" min="1220"/>
     <servo name="RUDDER"   no="7" max="1270" neutral="1450" min="1850"/>
-    <servo name="CAM_ROLL" no="4" max="1816" neutral="1530" min="1220"/>
-    <servo name="CAM_PITCH" no="8" max="1270" neutral="1450" min="1850"/>
+    <servo name="CAM_ROLL" no="8" max="1816" neutral="1530" min="1220"/>
+    <servo name="CAM_PITCH" no="4" max="1270" neutral="1450" min="1850"/>
   </servos>
   <command>
     <set servo="MOTOR_LEFT" value="2 * @THROTTLE"/>

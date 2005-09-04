@@ -45,6 +45,7 @@ uint8_t  inflight_calib_mode = IF_CALIB_MODE_NONE;
 
 static int16_t slider1_init, slider2_init;
 
+#include "estimator.h"
 #include "inflight_calib.h"
 
 
