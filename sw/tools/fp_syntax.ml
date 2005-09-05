@@ -39,27 +39,27 @@ let functions = [
   "Qdr";
   "And";
   "Or";
-	"RcRoll";
+  "RcRoll";
   "RcEvent1";
   "RcEvent2";
-	"RadOfDeg"] (*@ binary_operators @ unary_operators*)
+  "RadOfDeg"]
 
 (* Valid identifiers *)
 let variables = [
   "launch";
   "estimator_z";
   "estimator_flight_time";
-	"estimator_hspeed_mod";
+  "estimator_hspeed_mod";
   "estimator_theta";
-	"circle_count";
+  "circle_count";
   "vsupply";
   "stage_time";
-	"stage_time_ds";
+  "stage_time_ds";
   "block_time";
   "SECURITY_ALT";
   "GROUND_ALT";
   "TRUE";
-	"FALSE";
+  "FALSE";
   "QFU"
 ]
 

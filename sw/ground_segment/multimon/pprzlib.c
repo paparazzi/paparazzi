@@ -225,7 +225,6 @@ afsk48p_demod(struct demod_state *s, float *buffer, int length, char* data)
   }
 }
 
-int fmt = 0;
 int fd;
 union {
   short s[8192];
@@ -250,16 +249,8 @@ input_init(const char *ifname) {
       exit (10);
     }
     if (sndparam != AFMT_S16_LE) {
-      fmt = 1;
-      sndparam = AFMT_U8;
-      if (ioctl(fd, SNDCTL_DSP_SETFMT, &sndparam) == -1) {
-	perror("ioctl: SNDCTL_DSP_SETFMT");
-	exit (10);
-      }
-      if (sndparam != AFMT_U8) {
-	perror("ioctl: SNDCTL_DSP_SETFMT");
-	exit (10);
-      }
+      perror("ioctl: AFMT_S16_LE");
+      exit (10);
     }
     stereo = TRUE;
     sndparam = 1;   /* we want 2 channels */
@@ -300,80 +291,56 @@ char data_left[OUTPUT_BUF_LEN+1];
 char data_right[OUTPUT_BUF_LEN+1];
 struct data data_received = {data_left, 0, data_right, 0};
 unsigned int fbuf_cnt = 0;
+float fbuf[2][16384];
 
 struct data*
 pprz_demod_read_data(void) {
   unsigned int overlap = CORRLEN;
   int i;
-  unsigned char *bp;
   short *sp;
-  float fbuf[2][16384];
 
-  if (fmt) {
-    perror("FIXME: stereo&fmt missing");
-    exit(1);
-
-
-    i = read(fd, bp = b.b, sizeof(b.b));
-    if (i < 0 && errno != EAGAIN) {
-      perror("read");
-      exit(4);
-    }
-    if (i > 0) {
-      for (; i >= sizeof(b.b[0]); i -= sizeof(b.b[0]), sp++)
-	fbuf[LEFT][fbuf_cnt++] = ((int)(*bp)-0x80) * (1.0/128.0);
-      if (i)
-	fprintf(stderr, "warning: noninteger number of samples read\n");
-      if (fbuf_cnt > overlap) {
-	glob_data_received_len = 0;
-	afsk48p_demod(&dem_st[LEFT], fbuf[LEFT], fbuf_cnt-overlap, data_received.data_left);
-	data_received.len_left = glob_data_received_len;
-	memmove(fbuf[LEFT], fbuf[LEFT]+fbuf_cnt-overlap, overlap*sizeof(fbuf[LEFT][0]));
-	fbuf_cnt = overlap;
-      }
-    }
-  } else {
-    i = read(fd, sp = b.s, sizeof(b.s));
-    if (i < 0 && errno != EAGAIN) {
-      perror("read");
-      exit(4);
-    }
-    if (i > 0) {
-      if (stereo) {
-	for (; i >= sizeof(b.s[0]); i -= (sizeof(b.s[0])*2), sp+=2) {
-	  fbuf[LEFT][fbuf_cnt] = (*sp) * (1.0/32768.0);
-	  fbuf[RIGHT][fbuf_cnt++] = (*(sp+1)) * (1.0/32768.0);
-	}
-      } else {
-	for (; i >= sizeof(b.s[0]); i -= sizeof(b.s[0]), sp++)
-	  fbuf[LEFT][fbuf_cnt++] = (*sp) * (1.0/32768.0);
-      }
-      if (i)
-	fprintf(stderr, "warning: noninteger number of samples read\n");
-      if (fbuf_cnt > overlap) {
-
-	glob_data_received_len = 0;
-	afsk48p_demod(&dem_st[LEFT], fbuf[LEFT], fbuf_cnt-overlap, data_received.data_left);
-
-	data_received.len_left = glob_data_received_len;
-	memmove(fbuf[LEFT], fbuf[LEFT]+fbuf_cnt-overlap, overlap*sizeof(fbuf[LEFT][0]));
-	if (stereo) {
-	  glob_data_received_len = 0;
-	  afsk48p_demod(&dem_st[RIGHT], fbuf[RIGHT], fbuf_cnt-overlap, data_received.data_right);
-	  data_received.len_right = glob_data_received_len;
-	  memmove(fbuf[RIGHT], fbuf[RIGHT]+fbuf_cnt-overlap, overlap*sizeof(fbuf[RIGHT][0]));
-	}
-
-	fbuf_cnt = overlap;
-      }
-    }
+  i = read(fd, sp = b.s, sizeof(b.s));
+  if (i < 0 && errno != EAGAIN) {
+    perror("read");
+    exit(4);
   }
-  return &data_received;
+  if (i > 0) {
+    data_received.len_left = 0;
+    data_received.len_right = 0;
+    if (stereo) {
+      for (; i >= sizeof(b.s[0]); i -= (sizeof(b.s[0])*2), sp+=2) {
+	fbuf[LEFT][fbuf_cnt] = (*sp) * (1.0/32768.0);
+	fbuf[RIGHT][fbuf_cnt++] = (*(sp+1)) * (1.0/32768.0);
+      }
+    } else {
+      for (; i >= sizeof(b.s[0]); i -= sizeof(b.s[0]), sp++)
+	fbuf[LEFT][fbuf_cnt++] = (*sp) * (1.0/32768.0);
+      }
+    if (i)
+	fprintf(stderr, "warning: noninteger number of samples read\n");
+    if (fbuf_cnt > overlap) {
+      
+      glob_data_received_len = 0;
+      afsk48p_demod(&dem_st[LEFT], fbuf[LEFT], fbuf_cnt-overlap, data_received.data_left);
+      
+      data_received.len_left = glob_data_received_len;
+      memmove(fbuf[LEFT], fbuf[LEFT]+fbuf_cnt-overlap, overlap*sizeof(fbuf[LEFT][0]));
+      if (stereo) {
+	glob_data_received_len = 0;
+	afsk48p_demod(&dem_st[RIGHT], fbuf[RIGHT], fbuf_cnt-overlap, data_received.data_right);
+	data_received.len_right = glob_data_received_len;
+	memmove(fbuf[RIGHT], fbuf[RIGHT]+fbuf_cnt-overlap, overlap*sizeof(fbuf[RIGHT][0]));
+      }      
+      fbuf_cnt = overlap;
+    }
+    return &data_received;
+  } else 
+    return NULL;
 }
 
 
 int pprz_demod_init(char *dev) {
-  memset(&dem_st, 0, sizeof(dem_st));
+  memset(dem_st, 0, 2*sizeof(struct demod_state));
   afsk48p_init(&dem_st[LEFT]);
   afsk48p_init(&dem_st[RIGHT]);
   return input_init(dev);
