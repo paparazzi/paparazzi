@@ -7,8 +7,8 @@
   </section>
   <servos min="1000" neutral="1500" max="2000">
     <servo name="GAZ"    no="0" min="1250" neutral="1250" max="1850"/>
-    <servo name="AILEVON_RIGHT"  no="2" min="1200" neutral="1495" max="1800"/>
-    <servo name="AILEVON_LEFT" no="4" min="1200" neutral="1540" max="1800"/>
+    <servo name="AILEVON_RIGHT"  no="2" min="1200" neutral="1495" max="2000"/>
+    <servo name="AILEVON_LEFT" no="4" min="1200" neutral="1540" max="2000"/>
   </servos>
   <command>
     <set servo="GAZ" value="2 * @THROTTLE"/>

@@ -347,7 +347,7 @@
     <field name="temp"     type="float" unit="celcius"/>
     <field name="bat"      type="float" unit="V"/>
     <field name="amp"      type="float" unit="A"/>
-    <field name="energy"   type="int16" unit="Wh"/>
+    <field name="energy"   type="uint16" unit="Wh"/>
   </message>
 
   <message name="SVSINFO" ID="16">

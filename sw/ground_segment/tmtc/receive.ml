@@ -141,7 +141,7 @@ type aircraft = {
     mutable temp : float;
     mutable bat  : float;
     mutable amp : float;
-    mutable energy  : float;
+    mutable energy  : int;
     mutable ap_mode : int;
     mutable gaz_mode : int;
     mutable lateral_mode : int;
@@ -225,10 +225,15 @@ let ivalue = fun x ->
 
 
 
-let log_and_parse = fun log ac_name a msg values ->
-  let t = U.gettimeofday () -. start_time in
-  let s = String.concat " " (List.map (fun (_, v) -> Pprz.string_of_value v) values) in
-  fprintf log "%.2f %s %s %s\n" t ac_name msg.Pprz.name s; flush log;
+let log_and_parse = fun logging ac_name a msg values ->
+  begin
+    match logging with
+      Some log ->
+	let t = U.gettimeofday () -. start_time in
+	let s = String.concat " " (List.map (fun (_, v) -> Pprz.string_of_value v) values) in
+	fprintf log "%.2f %s %s %s\n" t ac_name msg.Pprz.name s; flush log
+    | None -> ()
+  end;
   let value = fun x -> try List.assoc x values with Not_found -> failwith (sprintf "Error: field '%s' not found\n" x) in
   let fvalue = fun x -> fvalue (value x)
   and ivalue = fun x -> ivalue (value x) in
@@ -263,6 +268,7 @@ let log_and_parse = fun log ac_name a msg values ->
 	a.bat <- fvalue "voltage" /. 10.;
 	a.stage_time <- ivalue "stage_time";
 	a.block_time <- ivalue "block_time";
+	a.energy <- ivalue "energy";
 	if a.flight_time > 0 && a.infrared.contrast_status = "WAITING" then
 	  a.infrared.contrast_status <- "SKIPPED"
     | "PPRZ_MODE" ->
@@ -443,7 +449,7 @@ let send_aircraft_msg = fun ac ->
 		  "temp", f a.temp;
 		  "bat", f a.bat;
 		  "amp", f a.amp;
-		  "energy", f a.energy] in
+		  "energy", Pprz.Int a.energy] in
     Ground_Pprz.message_send my_id "ENGINE_STATUS" values;
     
     let ap_mode = get_indexed_value ap_modes a.ap_mode in
@@ -476,7 +482,7 @@ let new_aircraft = fun id ->
     { id = id ; roll = 0.; pitch = 0.; desired_east = 0.; desired_north = 0.; 
       desired_course = 0.;
 	gspeed=0.; course = 0.; alt=0.; climb=0.; cur_block=0; cur_stage=0;
-      throttle = 0.; throttle_accu = 0.; rpm = 0.; temp = 0.; bat = 0.; amp = 0.; energy = 0.; ap_mode= -1;
+      throttle = 0.; throttle_accu = 0.; rpm = 0.; temp = 0.; bat = 0.; amp = 0.; energy = 0; ap_mode= -1;
       gaz_mode= -1; lateral_mode= -1;
       gps_mode =0;
       desired_altitude = 0.;
@@ -544,8 +550,10 @@ let ivy_server = fun () ->
 let _ =
   let xml_ground = ExtXml.child conf_xml "ground" in
   let ivy_bus = ref (ExtXml.attrib xml_ground "ivy_bus") in
+  let logging = ref true in
   let options =
-    [ "-b", Arg.String (fun x -> ivy_bus := x), (sprintf "Bus\tDefault is %s" !ivy_bus)] in
+    [ "-b", Arg.String (fun x -> ivy_bus := x), (sprintf "Bus\tDefault is %s" !ivy_bus);
+      "-n", Arg.Clear logging, "Disable log"] in
   Arg.parse (options)
     (fun x -> Printf.fprintf stderr "Warning: Don't do anythig with %s\n" x)
     "Usage: ";
@@ -555,11 +563,13 @@ let _ =
   Ivy.init "Paparazzi receive" "READY" (fun _ _ -> ());
   Ivy.start !ivy_bus;
 
-  (* Opens the log file *)
-  let log = logger () in
-
-  (* Waits for new simulated aircrafts *)
-  listen_acs log;
+  if !logging then
+    (* Opens the log file *)
+    let log = logger () in
+    (* Waits for new simulated aircrafts *)
+    listen_acs (Some log)
+  else
+    listen_acs None;
 
   (* Waits for client requests on the Ivy bus *)
   ivy_server ();

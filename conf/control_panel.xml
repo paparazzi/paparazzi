@@ -108,7 +108,7 @@
     <session name="soft sim 1">
 <!--      <variable name="ivy_bus" value="192.168.1:2001"/> -->
       <variable name="map" value="muret_UTM.xml"/>
-      <program name="receive"/>     
+      <program name="receive"><arg flag="-n"/></program>     
       <program name="http server"/>     
       <program name="sim"><arg flag="-a" constant="Thon1"/></program>
       <program name="cockpit"><arg flag="-render" constant="1"/></program>
