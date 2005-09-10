@@ -407,4 +407,12 @@
   </message>
 </class>
 
+<class name="alert">
+   <message name="BAT_LOW" ID="1">
+      <field name="ac_id" type="string"/>
+      <field name="level" type="string" values="CATASTROPHIC|CRITIC|WARNING"/> 
+      <field name="value" type="float"/>
+  </message>
+</class>
+
 </protocol>

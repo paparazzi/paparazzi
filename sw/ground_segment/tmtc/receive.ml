@@ -35,6 +35,7 @@ module Tele_Class = struct let name = "telemetry_ap" end
 module Ground = struct let name = "ground" end
 module Tele_Pprz = Pprz.Protocol(Tele_Class)
 module Ground_Pprz = Pprz.Protocol(Ground)
+module Alerts_Pprz = Pprz.Protocol(struct let name = "alert" end)
 
 let (//) = Filename.concat
 let logs_path = Env.paparazzi_home // "var" // "logs"
@@ -163,6 +164,7 @@ let aircrafts = Hashtbl.create 3
 
 (** Broadcast of the received aircrafts *)
 let aircraft_msg_period = 500 (* ms *)
+let aircraft_alerts_period = 1000 (* ms *)
 let send_aircrafts_msg = fun _asker _values ->
   assert(_values = []);
   let names = String.concat "," (Hashtbl.fold (fun k _v r -> k::r) aircrafts []) ^ "," in
@@ -482,7 +484,7 @@ let new_aircraft = fun id ->
     { id = id ; roll = 0.; pitch = 0.; desired_east = 0.; desired_north = 0.; 
       desired_course = 0.;
 	gspeed=0.; course = 0.; alt=0.; climb=0.; cur_block=0; cur_stage=0;
-      throttle = 0.; throttle_accu = 0.; rpm = 0.; temp = 0.; bat = 0.; amp = 0.; energy = 0; ap_mode= -1;
+      throttle = 0.; throttle_accu = 0.; rpm = 0.; temp = 0.; bat = 42.; amp = 0.; energy = 0; ap_mode= -1;
       gaz_mode= -1; lateral_mode= -1;
       gps_mode =0;
       desired_altitude = 0.;
@@ -498,10 +500,20 @@ let new_aircraft = fun id ->
       horiz_mode = UnknownHorizMode;
       horizontal_mode = 0
     }
+
+let check_alerts = fun a ->
+  let send = fun level ->
+    let vs =
+      ["ac_id", Pprz.String a.id; "level", Pprz.String level; "value", Pprz.Float a.bat] in
+    Alerts_Pprz.message_send my_id "BAT_LOW" vs in
+  if a.bat < 9. then send "CATASTROPHIC"
+  else if a.bat < 10. then send "CRITIC"
+  else if a.bat < 10.5 then send "WARNING"
     
 let register_aircraft = fun name a ->
   Hashtbl.add aircrafts name a;
-  ignore (Glib.Timeout.add aircraft_msg_period (fun () -> send_aircraft_msg name; true))
+  ignore (Glib.Timeout.add aircraft_msg_period (fun () -> send_aircraft_msg name; true));
+  ignore (Glib.Timeout.add aircraft_alerts_period (fun () -> check_alerts a; true))
 
 
 (** Identifying message from a A/C *)

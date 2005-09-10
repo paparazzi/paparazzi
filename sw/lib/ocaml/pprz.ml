@@ -197,8 +197,12 @@ module Protocol(Class:CLASS) = struct
   let index_start = fun buf ->
     String.index buf stx
 
-  let messages_by_id, messages_by_name = Hashtbl.find (classes ()) Class.name
-  let message_of_id = fun id -> Hashtbl.find messages_by_id (id (*** +1 ***))
+  let messages_by_id, messages_by_name = 
+    try
+      Hashtbl.find (classes ()) Class.name
+    with
+      Not_found -> failwith (sprintf "Unknown message class: %s" Class.name)
+  let message_of_id = fun id -> Hashtbl.find messages_by_id id
   let message_of_name = fun name -> Hashtbl.find messages_by_name name
 
   let length = fun buf start ->
