@@ -51,8 +51,10 @@ let cam_half_aperture = m_pi /. 4.0
 let half_pi = m_pi /. 2.0
 let sqrt_2_div_2 = sqrt 2.0
 
-class track = fun ?(name="coucou") ?(size = 500) ?(color="red") (geomap:MapCanvas.widget) ->
+
+class track = fun ?(name="coucou") ?(size = 500) ?(color="red") (geomap:MapCanvas.widget) (vertical_display:MapCanvas.basic_widget) ->
   let group = GnoCanvas.group geomap#canvas#root in
+  let v_group = GnoCanvas.group vertical_display#canvas#root in
   let empty = ({ G.east = 0.; north = 0. },  GnoCanvas.line group) in
 
   let aircraft = GnoCanvas.group group
@@ -71,7 +73,7 @@ class track = fun ?(name="coucou") ?(size = 500) ?(color="red") (geomap:MapCanva
   
 (** rectangle representing the field covered by the cam *)
   let _ac_cam_targeted =
-    ignore ( GnoCanvas.ellipse ~x1: (-. 2.5) ~y1: (-. 2.5) ~x2: 2.5 ~y2: 2.5 ~fill_color:color ~props:[`WIDTH_UNITS 1.; `OUTLINE_COLOR color; `FILL_STIPPLE (Gdk.Bitmap.create_from_data ~width:2 ~height:2 "\002\001")] cam) in
+    ignore ( GnoCanvas.ellipse ~x1: (-. 2.5) ~y1: (-. 2.5 ) ~x2: 2.5 ~y2: 2.5 ~fill_color:color ~props:[`WIDTH_UNITS 1.; `OUTLINE_COLOR color; `FILL_STIPPLE (Gdk.Bitmap.create_from_data ~width:2 ~height:2 "\002\001")] cam) in
   
   let mission_target = GnoCanvas.group group in
   
@@ -84,63 +86,133 @@ class track = fun ?(name="coucou") ?(size = 500) ?(color="red") (geomap:MapCanva
   let max_oblic_distance_scaled = 10000.0 /. (geomap#get_world_unit ()) in
   let min_distance_scaled = 10. /. (geomap#get_world_unit ())   in
   let min_height_scaled = 0.1 /. (geomap#get_world_unit ()) in
-  
+
+
+(** vertical display items *)
+
+ let vertical_group = GnoCanvas.group vertical_display#canvas#root in
+ let vertical_aircraft = GnoCanvas.group vertical_group in
+ let vertical_plot =
+    ignore ( GnoCanvas.ellipse ~x1: (-. 5.0) ~y1: (-. 5.0) ~x2: 5.0 ~y2: 5.0 ~fill_color:color ~props:[`WIDTH_UNITS 1.; `OUTLINE_COLOR color; `FILL_STIPPLE (Gdk.Bitmap.create_from_data ~width:2 ~height:2 "\002\001")] vertical_aircraft);
+  (*** ignore (GnoCanvas.line ~fill_color:color ~props:[`WIDTH_PIXELS 2;`CAP_STYLE `ROUND] ~points:[|0.;0.;0.; -10.|] vertical_aircraft); ***)
+ in
+let ac_v_label =
+  GnoCanvas.text v_group ~props:[`TEXT name; `X 25.; `Y 25.; `ANCHOR `SW; `FILL_COLOR color]
+ in
+
+ let top = ref 0 and v_top = ref 0 in
   object (self)
     val mutable segments = Array.create size empty
-    val mutable top = 0
+    val mutable v_segments = Array.create size empty
     val mutable last = None
+    val mutable v_last = None 
     val mutable last_heading = 0.0
     val mutable last_altitude = 0.0
     val mutable last_speed = 0.0
+    val mutable last_climb = 0.0
     val mutable last_height = 0.0
     val mutable last_xw = 0.0
     val mutable last_yw = 0.0
+    val mutable last_flight_time = 0.0
+    val mutable last_x_val = 0.0
     val mutable cam_on = false
+    val mutable vertical_time_axis_on = false
     val mutable params_on = false
+    val mutable v_params_on = false
     val mutable desired_track =  ((GnoCanvas.ellipse group) :> GnoCanvas.base_item)
     val mutable ac_cam_cover = GnoCanvas.rect cam
     method track = track
     method aircraft = aircraft
     method set_label = fun s -> ac_label#set [`TEXT s]
-    method clear_one = fun i ->
-      if segments.(i) != empty then begin
-	(snd segments.(i))#destroy ();
-	segments.(i) <- empty
+    method clear_one = fun i seg ->
+      if seg.(i) != empty then begin
+	(snd seg.(i))#destroy ();
+	seg.(i) <- empty
       end
-    method incr =
-      let s = Array.length segments in
-      top <- (top + 1) mod s
-    method clear =
-      for i = 0 to Array.length segments - 1 do
-	self#clear_one i
+    method incr = fun seg top_ ->
+      let s = Array.length seg in
+      top_ := (!(top_) + 1) mod s
+    method clear = fun seg top ->
+      for i = 0 to Array.length seg - 1 do
+	self#clear_one i seg
       done;
-      top <- 0
+      top := 0
     method set_cam_state = fun b -> cam_on <- b
-    method set_params_state = fun b -> params_on <- b
-    method add_point = fun en ->
-      self#clear_one top;
+
+    (** switches time and longitude on the vertical display x axis.
+        tracks are cleared *)
+    method set_vertical_time_axis = fun b ->
+      vertical_time_axis_on <- b;
+      if vertical_time_axis_on then vertical_display#set_lbl_x_axis "x-axis: time"
+	  else vertical_display#set_lbl_x_axis "x-axis: longitude";
+      self#clear v_segments v_top;
+      v_last <- None
+
+    method update_ap_status = fun time -> 
+      last_flight_time <- time
+    method set_params_state = fun b -> params_on <- b 
+    method set_v_params_state = fun b -> v_params_on <- b
+    method set_last = fun x -> last <- x
+    method set_v_last = fun x -> v_last <- x
+
+    (** add track points on map2D or vertical display, according to the
+       track parameter *)
+    method add_point = fun en seg set_last_point last_point top track ->
+      self#clear_one (!top) seg ;
       begin
-	match last with
+	match last_point with
 	  None -> 
-	    segments.(top) <- (en, geomap#segment ~group:track ~fill_color:color en en)
-	| Some last ->
-	    segments.(top) <- (en, geomap#segment ~group:track ~width:2 ~fill_color:color last en);
+	    seg.((!top)) <- (en, geomap#segment ~group:track ~fill_color:color en en)
+	| Some pt ->
+	    seg.((!top)) <- (en, geomap#segment ~group:track ~width:2 ~fill_color:color pt en);
       end;
-      self#incr;
-      last <- Some en
-    method move_icon = fun en heading altitude relief_height speed ->
+      self#incr (seg) top ;
+      set_last_point (Some en)
+
+    method clear_map2D = self#clear segments top 
+
+    method move_icon = fun en heading altitude relief_height speed climb ->
       let (xw,yw) = geomap#world_of_en en in
       aircraft#affine_absolute (affine_pos_and_angle geomap#zoom_adj#value xw yw heading);
       last_heading <- heading;
-      last_altitude <- altitude;
-      last_xw <- xw;
       last_yw <- yw;
       last_height <- (altitude -. relief_height);
       last_speed <- speed ;
-      if params_on then 
-	ac_label#set [`TEXT ( name^" \n"^(string_of_float last_height)^" m\n"^(string_of_float last_speed)^" m/s\n" ); `Y 70. ] else
+      last_climb <- climb;
+      
+      if params_on then
+	  ac_label#set [`TEXT ( name^" \n"^(string_of_float last_height)^" m\n"^(string_of_float last_speed)^" m/s\n" ); `Y 70. ] else
 	ac_label#set [`TEXT name; `Y 25.];
-      ac_label#affine_absolute (affine_pos_and_angle geomap#zoom_adj#value xw yw 0.)
+      ac_label#affine_absolute (affine_pos_and_angle geomap#zoom_adj#value xw yw 0.);
+
+      let y_val = ((vertical_display#get_vertical_max_level -. altitude) *. (vertical_display#get_vertical_factor) /. ( vertical_display#get_world_unit () ) ) in
+      let x_val = if vertical_time_axis_on then
+	last_flight_time /. ( vertical_display#get_world_unit () )
+      else xw in
+      vertical_aircraft#affine_absolute (affine_pos_and_angle vertical_display#zoom_adj#value x_val y_val 0.0 );
+
+      let v_en = { MapCanvas.east = x_val *. ( vertical_display#get_world_unit () ); MapCanvas.north = y_val *. ( -. vertical_display#get_world_unit () ) } in
+
+
+      (** on the vertical_display, 
+	 params displayed are different if we have time or longitude on x-axis *)
+
+      if vertical_time_axis_on then 
+	begin
+	  self#add_point v_en v_segments (self#set_v_last) v_last v_top v_group;
+	  if v_params_on then ac_v_label#set [`TEXT ( name^" \n alt: "^(string_of_float altitude)^" m\n"^" height: "^(string_of_float last_height)^" m\n flight_time: "^( sprintf"%.2f sec\n" last_flight_time)); `Y 70. ]
+	  else 	ac_v_label#set [`TEXT name; `Y 25.]
+	end
+      else
+	begin
+	  if v_params_on then ac_v_label#set [`TEXT ( name^" \n alt: "^(string_of_float altitude)^" m\n"^" height: "^(string_of_float last_height)^" m\n long(utm_world): "^(sprintf"%.2f m\n" en.MapCanvas.east)); `Y 70. ] 
+	  else 	ac_v_label#set [`TEXT name; `Y 25.]
+	end;
+      ac_v_label#affine_absolute (affine_pos_and_angle vertical_display#zoom_adj#value x_val y_val 0.);
+      self#add_point en segments (self#set_last) last top group;
+      last_altitude <- altitude;
+      last_xw <- xw;
+      last_x_val <- x_val;
     method move_carrot = fun en ->
       let (xw,yw) = geomap#world_of_en en in
       carrot#affine_absolute (affine_pos_and_angle geomap#zoom_adj#value xw yw 0.);
@@ -148,7 +220,7 @@ class track = fun ?(name="coucou") ?(size = 500) ?(color="red") (geomap:MapCanva
 (** draws the circular path to be followed by the aircraft in circle mode *)
     method draw_circle = fun en radius ->
       desired_track#destroy ();
-      desired_track <- ((geomap#circle ~color:"green" en radius) :> GnoCanvas.base_item)
+      desired_track <- ((geomap#circle ~color:"green" en radius) :> GnoCanvas.base_item);
 
 (** draws the linear path to be followed by the aircraft between two waypoints *)
     method draw_segment = fun en en2 ->
@@ -216,21 +288,20 @@ class track = fun ?(name="coucou") ?(size = 500) ?(color="red") (geomap:MapCanva
       for i = 0 to 3 do a.(i) <- a.(i) /. z' *. 1./.z done;
       aircraft#affine_absolute a	
     method resize =  fun new_size ->
-      let a = Array.create new_size empty in
-      let size =  Array.length segments in
-
-      let m = min new_size size in
-      let j = ref ((top - m + size) mod size) in
-      for i = 0 to m - 1 do
-	a.(i) <- segments.(!j);
-	j := (!j + 1) mod size
-      done;
-      for i = 1 to size - new_size do (* Never done if new_size > size *)
-	self#clear_one !j;
-	j := (!j + 1) mod size
-      done;
-      top <- m mod new_size;
-      segments <- a
+	let a = Array.create new_size empty in
+	let size =  Array.length segments in	
+	let m = min new_size size in
+	let j = ref ((!top - m + size) mod size) in
+	for i = 0 to m - 1 do
+	  a.(i) <- segments.(!j);
+	  j := (!j + 1) mod size
+	done;
+	for i = 1 to size - new_size do (* Never done if new_size > size *)
+	  self#clear_one !j segments;
+	  j := (!j + 1) mod size
+	done;
+	top := m mod new_size;
+	segments <- a
     method size = Array.length segments
     initializer ignore(geomap#zoom_adj#connect#value_changed (fun () -> self#zoom geomap#zoom_adj#value))
 end

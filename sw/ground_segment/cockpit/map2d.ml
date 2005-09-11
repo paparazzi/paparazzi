@@ -34,6 +34,17 @@ type color = string
 let fos = float_of_string
 let list_separator = Str.regexp ","
 
+(** parameters used for creating the vertical display window *) 
+let max_graduations = 20
+
+let vertical_delta = 5.0
+
+let max_east = 2000.0
+
+let max_label = 4 
+
+let approx_ground_altitude = ref 0.0
+
 module G = MapCanvas
 
 let home = Env.paparazzi_home
@@ -41,6 +52,7 @@ let (//) = Filename.concat
 let default_path_srtm = home // "data" // "srtm"
 let default_path_maps = home // "data" // "maps" // ""
 let default_path_missions = home // "conf"
+
 
 type aircraft = {
     track : MapTrack.track;
@@ -54,7 +66,7 @@ let map_ref = ref None
 
 let float_attr = fun xml a -> float_of_string (ExtXml.attrib xml a)
 
-let load_map = fun (geomap:G.widget) xml_map ->
+let load_map = fun (geomap:G.widget) (vertical_display:MapCanvas.basic_widget) xml_map ->
   let dir = Filename.dirname xml_map in
   let xml_map = Xml.parse_file xml_map in
   let image = dir // ExtXml.attrib xml_map "file"
@@ -63,6 +75,9 @@ let load_map = fun (geomap:G.widget) xml_map ->
     try int_of_string (Xml.attrib xml_map "utm_zone") with
       _ -> 31 in
   geomap#set_world_unit scale;
+  approx_ground_altitude := ( try (float_attr xml_map "approx_ground_altitude") 
+      with _ -> 0.0);
+  vertical_display#set_world_unit scale;
   let one_ref = ExtXml.child xml_map "point" in
   let x = float_attr one_ref "x" and y = float_attr one_ref "y"
   and utm_x = float_attr one_ref "utm_x" and utm_y = float_attr one_ref "utm_y" in
@@ -134,19 +149,18 @@ let load_mission = fun color geomap url ->
   fp
 
 
-let aircraft_pos_msg = fun track utm_x_ utm_y_ heading altitude speed ->
+let aircraft_pos_msg = fun track utm_x_ utm_y_ heading altitude speed climb ->
   match !map_ref with
     None -> ()
   | Some utm0 ->
       let en =  {G.east = utm_x_ -. utm0.utm_x; north = utm_y_ -. utm0.utm_y } in
-      track#add_point en;
       let h = 
 	try
 	  Srtm.of_utm { utm_zone = utm0.utm_zone; utm_x = utm_x_; utm_y = utm_y_}
 	with
 	  _ -> truncate altitude
       in
-      track#move_icon en heading altitude (float_of_int h) speed
+      track#move_icon en heading altitude (float_of_int h) speed climb
 
 let carrot_pos_msg = fun track utm_x utm_y ->
   match !map_ref with
@@ -185,8 +199,8 @@ let circle_status_msg = fun track utm_x utm_y radius ->
       let en =  {G.east = utm_x -. utm0.utm_x; north = utm_y -. utm0.utm_y } in  
       track#draw_circle en radius
 
-let ap_status_msg = fun track horizontal_mode ->
-  ()
+let ap_status_msg = fun track flight_time ->
+    track#update_ap_status flight_time
     
 
 let new_color =
@@ -227,21 +241,25 @@ let resize_track = fun ac track ->
   | Some s -> track#resize (int_of_string s)
 	 
 
-let one_new_ac = fun (geomap:MapCanvas.widget) ac ->
+let one_new_ac = fun (geomap:MapCanvas.widget)(vertical_display:MapCanvas.basic_widget) ac ->
   if not (Hashtbl.mem live_aircrafts ac) then begin
     let ac_menu = geomap#factory#add_submenu ac in
     let ac_menu_fact = new GMenu.factory ac_menu in
     let fp = ac_menu_fact#add_check_item "Fligh Plan" ~active:false in
     ignore (fp#connect#toggled (fun () -> show_mission geomap ac fp#active));
     let color = new_color () in
-    let track = new MapTrack.track ~name:ac ~color:color geomap in
-    ignore (ac_menu_fact#add_item "Clear Track" ~callback:(fun () -> track#clear));
+    let track = new MapTrack.track ~name:ac ~color:color geomap vertical_display in
+    ignore (ac_menu_fact#add_item "Clear Track" ~callback:(fun () -> track#clear_map2D));
     ignore (ac_menu_fact#add_item "Resize Track" ~callback:(fun () -> resize_track ac track));
     let cam = ac_menu_fact#add_check_item "Cam Display" ~active:false in
     ignore (cam#connect#toggled (fun () -> track#set_cam_state cam#active));
+    let ac_menu_vertical = vertical_display#factory#add_submenu ac in
+    let ac_menu_fact_vertical = new GMenu.factory ac_menu_vertical in
     let params = ac_menu_fact#add_check_item "flight param. display" ~active:false in
     ignore (params#connect#toggled (fun () -> track#set_params_state params#active));
-    let event_ac = fun e ->
+    let v_params = ac_menu_fact_vertical#add_check_item "flight param. display" ~active:false in
+    ignore (v_params#connect#toggled (fun () -> track#set_v_params_state v_params#active));
+     let event_ac = fun e ->
       match e with
 	`BUTTON_PRESS _ | `BUTTON_RELEASE _ -> 
 	  Ground_Pprz.message_send "ground" "SELECTED" ["aircraft_id", Pprz.String ac];
@@ -252,10 +270,10 @@ let one_new_ac = fun (geomap:MapCanvas.widget) ac ->
   end
       
       
-let live_aircrafts_msg = fun (geomap:MapCanvas.widget) acs ->
+let live_aircrafts_msg = fun (geomap:MapCanvas.widget)(vertical_display:MapCanvas.basic_widget) acs ->
   let acs = Pprz.string_assoc "ac_list" acs in
   let acs = Str.split list_separator acs in
-  List.iter (one_new_ac geomap) acs
+  List.iter (one_new_ac geomap vertical_display) acs
 
 
 let listen_flight_params = fun () ->
@@ -264,7 +282,7 @@ let listen_flight_params = fun () ->
     try
       let ac = Hashtbl.find live_aircrafts ac_id in
       let a = fun s -> Pprz.float_assoc s vs in
-      aircraft_pos_msg ac.track (a "east") (a "north") (a "course") (a "alt")  (a "speed")
+      aircraft_pos_msg ac.track (a "east") (a "north") (a "course") (a "alt")  (a "speed") (a "climb")
     with Not_found -> ()
   in
   ignore (Ground_Pprz.message_bind "FLIGHT_PARAM" get_fp);
@@ -274,7 +292,7 @@ let listen_flight_params = fun () ->
     try
       let ac = Hashtbl.find live_aircrafts ac_id in
       let a = fun s -> Pprz.float_assoc s vs in
-      carrot_pos_msg ac.track (a "target_east") (a "target_north") 
+	carrot_pos_msg ac.track (a "target_east") (a "target_north") 
     with Not_found -> ()
   in
   ignore (Ground_Pprz.message_bind "NAV_STATUS" get_ns);
@@ -313,8 +331,9 @@ let listen_flight_params = fun () ->
     try
       let ac = Hashtbl.find live_aircrafts ac_id in
       let a = fun s -> Pprz.string_assoc s vs in
-      ap_status_msg ac.track (a "horiz_mode") 
-    with Not_found -> ()
+	 ap_status_msg ac.track ( float_of_int (Pprz.int32_assoc "flight_time" vs ))
+    with 
+      Not_found -> ()
   in
   ignore (Ground_Pprz.message_bind "AP_STATUS" get_ap_status)
 
@@ -337,27 +356,57 @@ let _ =
 
   let window = GWindow.window ~title: "Map2d" ~border_width:1 ~width:400 () in
   let vbox= GPack.vbox ~packing: window#add () in
+  let vertical_situation = GWindow.window ~title: "Vertical" ~border_width:1 ~width:400 () in
+  let vertical_vbox= GPack.vbox ~packing: vertical_situation#add () in
   let quit = fun () -> GMain.Main.quit (); exit 0 in
   ignore (window#connect#destroy ~callback:quit);
+  ignore (vertical_situation#connect#destroy ~callback:quit);
 
   let geomap = new MapCanvas.widget ~height:400 () in
   let accel_group = geomap#menu_fact#accel_group in
+
+  (** widget displaying aircraft vertical position  *)
+  let vertical_display = new MapCanvas.basic_widget ~height:400 () in
+  let ac_vertical_fact = new GMenu.factory vertical_display#file_menu in
+  let time_axis = ac_vertical_fact#add_check_item "x_axis : Time" ~active:false in
+    ignore (time_axis#connect#toggled (fun () ->
+      let set_one_track = (fun a b -> 
+	(b.track)#set_vertical_time_axis time_axis#active) in 
+      Hashtbl.iter (set_one_track) live_aircrafts));
+  let vertical_graduations = GnoCanvas.group vertical_display#canvas#root in
+  vertical_display#set_vertical_factor 10.0;
+ 
+ 
   ignore (geomap#menu_fact#add_item "Quit" ~key:GdkKeysyms._Q ~callback:quit);
+ 
 
   vbox#pack ~expand:true geomap#frame#coerce;
+  vertical_vbox#pack ~expand:true vertical_display#frame#coerce;
 
   (* Loading an initial map *)
   if !map_file <> "" then begin
     let xml_map_file = Filename.concat default_path_maps !map_file in
-    load_map geomap xml_map_file
+    load_map geomap vertical_display xml_map_file
   end;
 
-  ignore (Glib.Timeout.add 5000 (fun () -> Ground_Pprz.message_req "map2d" "AIRCRAFTS" [] (fun _sender vs -> live_aircrafts_msg geomap vs); false));
+  let max_level = (float_of_int max_graduations) *. vertical_delta +. !approx_ground_altitude in 
+   vertical_display#set_vertical_max_level max_level;
+  for i = 0 to max_graduations do
+    let level = (float_of_int i) *. vertical_delta in    
+    ignore ( vertical_display#segment ~group:vertical_graduations ~fill_color:"blue" {G.east = 0.0 ; G.north = level *. (-. vertical_display#get_vertical_factor) } {G.east = max_east ; G.north =  level *. (-. vertical_display#get_vertical_factor) } ) ;
+    for j = 0 to max_label do
+    ignore( vertical_display#text ~group:vertical_graduations ~fill_color:"red" ~x_offset:30.0 ~y_offset:(-.0.5) {G.east = (float_of_int j) *. max_east /. (float_of_int max_label) ; G.north = level *. (-. vertical_display#get_vertical_factor) } ((string_of_float ( max_level -. level) )^" m") )
+    done;
+  done;   
 
-  ignore (Ground_Pprz.message_bind "NEW_AIRCRAFT" (fun _sender vs -> one_new_ac geomap (Pprz.string_assoc "ac_id" vs)));
+  ignore (Glib.Timeout.add 5000 (fun () -> Ground_Pprz.message_req "map2d" "AIRCRAFTS" [] (fun _sender vs -> live_aircrafts_msg geomap vertical_display vs); false));
+
+  ignore (Ground_Pprz.message_bind "NEW_AIRCRAFT" (fun _sender vs -> one_new_ac geomap vertical_display (Pprz.string_assoc "ac_id" vs)));
 
   listen_flight_params ();
 
   window#add_accel_group accel_group;
   window#show ();
+ 
+  vertical_situation#show ();
   GMain.Main.main ()

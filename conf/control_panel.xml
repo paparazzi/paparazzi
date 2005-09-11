@@ -87,7 +87,7 @@
       <variable name="map" value="garmisch.xml"/>
       <program name="receive"/>     
       <program name="http server"/>     
-      <program name="sim"><arg flag="-a" constant="Ladybug"/></program>
+      <program name="sim"><arg flag="-a" constant="Thon1"/></program>
       <program name="cockpit"></program>
       <program name="map 2d ml"/>
       <program name="messages"><arg flag="-c" constant="telemetry_ap:*"/><arg flag="-c" constant="ground"/></program>
@@ -111,6 +111,16 @@
       <program name="receive"><arg flag="-n"/></program>     
       <program name="http server"/>     
       <program name="sim"><arg flag="-a" constant="Thon1"/></program>
+      <program name="cockpit"><arg flag="-render" constant="1"/></program>
+      <program name="map 2d ml"/>
+      <program name="messages"><arg flag="-c" constant="telemetry_ap:*"/><arg flag="-c" constant="ground:ground"/></program>
+    </session>
+<session name="sinsat">
+<!--      <variable name="ivy_bus" value="127:3333"/> -->
+      <variable name="map" value="sinsat.xml"/>
+      <program name="receive"><arg flag="-n"/></program>     
+      <program name="http server"/>     
+      <program name="sim"><arg flag="-a" constant="Ladybug"/></program>
       <program name="cockpit"><arg flag="-render" constant="1"/></program>
       <program name="map 2d ml"/>
       <program name="messages"><arg flag="-c" constant="telemetry_ap:*"/><arg flag="-c" constant="ground:ground"/></program>

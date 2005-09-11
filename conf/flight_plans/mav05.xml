@@ -1,4 +1,4 @@
-<flight_plan SECURITY_HEIGHT="25" lat0="47.482400" lon0="11.092700" ground_alt="722" qfu="0" alt="772" max_dist_from_home="300" name="Garmisch">
+<flight_plan SECURITY_HEIGHT="25" lat0="47.482400" lon0="11.092700" ground_alt="722" qfu="0" alt="772" ir_square_utmx_min="657530.0" ir_square_utmy_max="5261130.0" ir_square_width="180.0" ir_correct_steps="2" max_dist_from_home="300" name="Garmisch">
   <rc_control>
     <mode NAME="AUTO1">
       <setting VAR="ir_pitch_neutral" RANGE="60." RC="gain_1_up" TYPE="int16"/>

@@ -4,7 +4,7 @@
  * Copyright (C) 2004  Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
- *
+ * 
  * paparazzi is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2, or (at your option)
@@ -33,6 +33,14 @@
 #include "flight_plan.h"
 
 
+/** if defined, ir relief correction done */
+
+/***/ #define IR_RELIEF_CORRECTION  /***/
+
+
+/** stepping value in meters, the area of correction */
+#define ir_correction_step 90
+
 /* position in meters */
 float estimator_x;
 float estimator_y;
@@ -59,12 +67,15 @@ float estimator_rad_of_ir, estimator_ir, estimator_rad;
 
 /* array of horizon angles computed for a given height (at flight_plan.h generation) */
 
-int8_t angles[NB_HEIGHTS] = HEIGHTS;
+
+int8_t angles[IR_CORRECTION_MAX_INDEX + 1][IR_CORRECTION_MAX_INDEX + 1][NB_HEIGHTS] = HEIGHTS;
+
 
 
 /* (aircraft axis, ir axis) angle */
 
 #define aircraft_ir_angle ( M_PI / 2)
+
 
 
 
@@ -139,32 +150,60 @@ void estimator_update_state_infrared( void ) {
   float rad_of_ir = (ir_estim_mode == IR_ESTIM_MODE_ON && EstimatorIrGainIsCorrect()) ? 
     estimator_rad_of_ir : ir_rad_of_ir;
 
-  /* phi correction because of the relief effect on ir data */
+#if defined IR_RELIEF_CORRECTION
+  /** phi correction because of the relief effect on ir data */
 
-  /*** int8_t index_left, index_right;
+  int8_t lat_index = ( (int) (IR_SQUARE_UTMY_MAX - gps_utm_north / 100.0) ) / ir_correction_step;
+  lat_index = (lat_index < 0 ? 0 : lat_index);
+  lat_index = (lat_index > IR_CORRECTION_MAX_INDEX ? IR_CORRECTION_MAX_INDEX : lat_index);
 
-  float angle =  gps_fcourse - aircraft_ir_angle;
+  int8_t long_index = ( (int) (gps_utm_east / 100. - IR_SQUARE_UTMX_MIN) ) / ir_correction_step;
+       long_index = (long_index > IR_CORRECTION_MAX_INDEX ? IR_CORRECTION_MAX_INDEX : long_index);
+       long_index = (long_index < 0 ? 0 : long_index);
+  
+       /***  printf( "utmlowx %.2f gps_x %.2f utmlowy %.2f gps_y %.2f \n", IR_SQUARE_UTMX_MIN, gps_utm_east / 100.0 , IR_SQUARE_UTMY_MAX, gps_utm_north / 100.0); ***/
 
-  NORM_RAD_ANGLE2(angle);
+  int8_t index_left, index_right;
 
-  index_left = angle * height_index_coeff ;
+  float degrees_left =  estimator_hspeed_dir - aircraft_ir_angle;
+  float degrees_right =  estimator_hspeed_dir + aircraft_ir_angle;
 
-  angle =  gps_fcourse + aircraft_ir_angle;
+  NORM_RAD_ANGLE2(degrees_left);
 
-  NORM_RAD_ANGLE2(angle);
+  index_left = degrees_left * height_index_coeff ;
 
-  index_right = angle * height_index_coeff ;
+  degrees_right =  estimator_hspeed_dir + aircraft_ir_angle;
 
-  int8_t angle_left = angles[index_left]; 
+  NORM_RAD_ANGLE2(degrees_right);
 
-  int8_t angle_right = angles[index_right];
+  index_right = degrees_right * height_index_coeff ;
+
+  int8_t angle_left = angles[long_index][lat_index][index_left];  
+
+  int8_t angle_right = angles[long_index][lat_index][index_right];
 
 
   float correction =  angle_left - angle_right;
+ 
 
-  printf(" degres_left %d angle_left %d degres_right %d angle_right %d correction %.2f \n", (index_left*15), angle_left, (index_right*15), angle_right, correction); ***/
-   
-  estimator_phi  = rad_of_ir * ir_roll - ir_roll_neutral /*** + RadOfDeg( correction ) ***/;
+  
+
+  
+  /*** printf(" estimator_hspeed_dir %.2f aircraft_ir_angle %.2f degres_left %.2f angle_left %d degres_right %.2f angle_right %d correction %.2f long_index %d lat_index %d \n", estimator_hspeed_dir, aircraft_ir_angle, degrees_left, angle_left, degrees_right, angle_right, correction, long_index, lat_index); ***/
+  
+#endif
+
+  float rad_of_ir_roll = rad_of_ir * ir_roll;
+  
+  estimator_phi  = rad_of_ir * ir_roll; 
+    
+#if defined IR_RELIEF_CORRECTION
+    
+  estimator_phi += RadOfDeg(correction) ;
+
+  /*** printf(" estimator phi = %.4f ; riroll = %.4f ; correction = %.4f\n", estimator_phi, rad_of_ir_roll, correction); ***/
+
+#endif
 
   estimator_theta = rad_of_ir * ir_pitch - ir_pitch_neutral;
 }

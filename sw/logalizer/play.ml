@@ -109,7 +109,7 @@ let _ =
 
 
  (***) let timescale = GRange.scale `HORIZONTAL ~adjustment:adj ~packing:window#vbox#pack () in
-  let speed_button = GEdit.spin_button (*** ~adjustment:speed ***) ~rate:0. ~digits:2 ~width:50 ~packing:window#vbox#add () in (***)
+  (*** let speed_button = GEdit.spin_button (*** ~adjustment:speed ***) ~rate:0. ~digits:2 ~width:50 ~packing:window#vbox#add () in ***)
 
   (** #move_slider is not working ??? **) (*** ignore (timescale#event#connect#button_release ~callback:(fun _ -> if !was_running then play adj speed; false));
   ignore (timescale#event#connect#button_press ~callback:(fun _ -> was_running := !timer <> None; stop (); false));  ***)

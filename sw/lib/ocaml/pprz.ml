@@ -137,6 +137,11 @@ let int_assoc = fun (a:string) vs ->
     Int x -> x
   | _ -> invalid_arg "Pprz.int_assoc"
 
+let int32_assoc = fun (a:string) vs -> 
+  match assoc a vs with
+    Int32 x -> int_of_string (string_of_value (Int32 x))
+  | _ -> invalid_arg "Pprz.int_assoc"
+
 let string_assoc = fun (a:string) (vs:values) -> string_of_value (assoc a vs)
 
 

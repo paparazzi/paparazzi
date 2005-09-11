@@ -492,18 +492,51 @@ let dummy_waypoint =
 let nb_heights = 24
 let half_aperture = pi /. 4.
 let horizon_distance = 1000.
-let print_heights = fun wgs84 alt ->
-  Srtm.add_path (Env.paparazzi_home ^ "/data/srtm");
-  Xml2h.define "NB_HEIGHTS" (string_of_int nb_heights);
-  Xml2h.define "HEIGHTS" "{ /* Degrees from default alt*/\\";
-  let a =2. *. pi /. float nb_heights in
-  for i = 0 to nb_heights - 1 do
-    let psi = float i *. a in
-    let horizon = Srtm.horizon_slope wgs84 alt psi  half_aperture horizon_distance in
-    let a = deg_of_rad horizon in
-     lprintf "%.0f, /* heading=%.2f */\\\n" a psi
-  done;
-  lprintf " }\n"
+let print_heights = fun xml wgs84 alt ->
+  begin
+    let compute = ref true in
+    let utm0_low_x = try (float_attrib xml "ir_square_utmx_min")
+    with _ -> compute:= false; 657530.0 in
+
+    let utm0_low_y = try (float_attrib xml "ir_square_utmy_max")
+    with _ -> compute:= false; 5261130.0 in
+ 
+    let ir_correction_width = try int_of_string ( Xml.attrib xml "ir_square_width") 
+    with _ -> 180 in
+    
+    let max_index =  try int_of_string ( Xml.attrib xml "ir_correct_steps") 
+    with _ -> 2 in
+    
+    Xml2h.define "IR_SQUARE_UTMX_MIN" (string_of_float utm0_low_x);
+    Xml2h.define "IR_SQUARE_UTMY_MAX" (string_of_float utm0_low_y);
+    Xml2h.define "IR_CORRECTION_MAX_INDEX" (string_of_int max_index);
+    Srtm.add_path (Env.paparazzi_home ^ "/data/srtm");
+    Xml2h.define "NB_HEIGHTS" (string_of_int nb_heights);
+    Xml2h.define "HEIGHTS" "{ /* Degrees from default alt*/\\";
+      
+    let utm0 = utm_of WGS84 wgs84 in
+
+    let ir_correction_step = float_of_int (ir_correction_width / max_index) in
+
+    for k = 0 to max_index do
+      lprintf "{ ";
+      for l = 0 to max_index do
+	lprintf "{ ";
+	let wgs84_2 = of_utm WGS84 { utm_zone= utm0.utm_zone; utm_x = utm0_low_x +. ir_correction_step *. (float_of_int k) ; utm_y = utm0_low_y -. ir_correction_step *. (float_of_int l)} in 
+	let a =2. *. pi /. float nb_heights in
+	for i = 0 to nb_heights - 1 do
+	  let psi = float i *. a in
+	  let horizon = if !compute then Srtm.horizon_slope wgs84_2 alt psi  half_aperture horizon_distance else 0.0 in
+	  let a = deg_of_rad horizon in
+	  lprintf "%.0f, /* heading=%.2f */\\\n" a psi
+	done;
+	lprintf " }, \\\n";
+      done;
+      lprintf "}, \\\n";
+    done;
+    lprintf "} \n"; 
+  end
+
 
 
 let _ =
@@ -598,7 +631,7 @@ let _ =
 
       print_blocks index_of_waypoints blocks;
 
-      print_heights wgs84 (int_of_string alt);
+      print_heights xml wgs84 (int_of_string alt);
 
       Xml2h.finish h_name
     end
