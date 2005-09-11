@@ -24,6 +24,8 @@
  *
  *)
 
+open Printf
+
 let (//) = Filename.concat
 
 (* let pprz_conf_path = Env.paparazzi_src // "conf" *)
@@ -54,7 +56,13 @@ let aircraft = fun name ->
     let rec loop = function
 	[] -> failwith ("Aicraft not found : "^name)
       | x::_ when Xml.tag x = "aircraft" && Xml.attrib x "name" = name ->
-	  (x, int_of_string (Xml.attrib x "ac_id"))
+	  begin 
+	    try
+	      (x, int_of_string (Xml.attrib x "ac_id"))
+	    with
+	      _ ->
+		failwith (sprintf "Int value expected for 'ac_id' in %s" (Xml.to_string x))
+	  end
       | _x::xs -> loop xs in
     loop (Xml.children conf_xml) in
   

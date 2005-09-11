@@ -26,6 +26,9 @@
 
 open Stdlib
 
+let ios = fun x ->
+  try int_of_string x with _ -> failwith (Printf.sprintf "int_of_string: '%s'" x)
+
 type meter = float
 type meter_s = float
 type radian = float
@@ -133,7 +136,7 @@ let infrared_section = section "INFRARED"
 
 let nominal_airspeed = float_of_string (defined_value misc_section "NOMINAL_AIRSPEED")
 
-let ir_roll_neutral = int_of_string (defined_value infrared_section "ROLL_NEUTRAL_DEFAULT")
+let ir_roll_neutral = ios (defined_value infrared_section "ADC_ROLL_NEUTRAL")
 
   let get_servo name =
     try
