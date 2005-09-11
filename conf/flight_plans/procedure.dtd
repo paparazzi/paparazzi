@@ -61,9 +61,13 @@ radius CDATA #IMPLIED>
 
 <!ATTLIST circle
 wp CDATA #REQUIRED
+wp_qdr CDATA #IMPLIED
+wp_dist CDATA #IMPLIED
 radius CDATA #REQUIRED
 alt CDATA #IMPLIED
 vmode CDATA #IMPLIED
+cam_mode (null|fix|manual|nadir|target) #IMPLIED
+target CDATA #IMPLIED
 climb CDATA #IMPLIED
 until CDATA #IMPLIED>
 
