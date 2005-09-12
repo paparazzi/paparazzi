@@ -79,6 +79,7 @@
     <program name="medit" command="sw/configurator/medit"/>
     <program name="make aircraft" command="sw/configurator/configurator"/>
     <program name="http server" command="sw/ground_segment/tmtc/boa"/>
+    <program name="stereo" command="sw/ground_segment/tmtc/stereo_demod"/>
 
  </section>
 
@@ -115,6 +116,16 @@
       <program name="map 2d ml"/>
       <program name="messages"><arg flag="-c" constant="telemetry_ap:*"/><arg flag="-c" constant="ground:ground"/></program>
     </session>
+    <session name="soft ricou large">
+<!--      <variable name="ivy_bus" value="192.168.1:2001"/> -->
+      <variable name="map" value="ricou_large.xml"/>
+      <program name="receive"><arg flag="-n"/></program>     
+      <program name="http server"/>     
+      <program name="sim"><arg flag="-a" constant="Twinstar3"/></program>
+      <program name="cockpit"><arg flag="-render" constant="1"/></program>
+      <program name="map 2d ml"/>
+      <program name="messages"><arg flag="-c" constant="telemetry_ap:*"/><arg flag="-c" constant="ground:ground"/></program>
+    </session>
 <session name="sinsat">
 <!--      <variable name="ivy_bus" value="127:3333"/> -->
       <variable name="map" value="sinsat.xml"/>
@@ -125,6 +136,7 @@
       <program name="map 2d ml"/>
       <program name="messages"><arg flag="-c" constant="telemetry_ap:*"/><arg flag="-c" constant="ground:ground"/></program>
     </session>
+
   <session name="replay Ricou">
 <!--      <variable name="ivy_bus" value="192.168.1:2001"/> -->
       <variable name="map" value="ricouUTM.xml"/>
@@ -162,6 +174,29 @@
       <program name="http server"/>     
       <program name="multimon"><arg flag="-p" constant="/tmp/multimon"/></program>
       <program name="modem"><arg flag="-d" constant="/tmp/multimon"/></program>
+      <program name="receive"/>     
+      <program name="messages"><arg flag="-c" constant="telemetry_ap:*"/><arg flag="-c" constant="ground"/></program>
+      <program name="cockpit"/>
+      <program name="map 2d ml"/>
+    </session>
+
+   <session name="flight multimon Castagnac">
+      <variable name="map"  value="ricou_large.xml"/>
+      <variable name="ivy_bus" value="127:2010"/>
+      <program name="http server"/>     
+      <program name="multimon"><arg flag="-p" constant="/tmp/multimon"/></program>
+      <program name="modem"><arg flag="-d" constant="/tmp/multimon"/></program>
+      <program name="receive"/>     
+      <program name="messages"><arg flag="-c" constant="telemetry_ap:*"/><arg flag="-c" constant="ground"/></program>
+      <program name="cockpit"/>
+      <program name="map 2d ml"/>
+    </session>
+
+   <session name="flight multimon Ricou stereo">
+      <variable name="map"  value="ricouUTM.xml"/>
+      <variable name="ivy_bus" value="127:2010"/>
+      <program name="http server"/>     
+      <program name="stereo"></program>
       <program name="receive"/>     
       <program name="messages"><arg flag="-c" constant="telemetry_ap:*"/><arg flag="-c" constant="ground"/></program>
       <program name="cockpit"/>

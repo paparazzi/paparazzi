@@ -46,8 +46,6 @@ float phi_c, theta_c;
 float target_x, target_y;
 
 void cam_manual( void ) {
- to_fbw.channels[RADIO_GAIN1] = 0;
- to_fbw.channels[RADIO_CALIB] = 0;
   if (pprz_mode == PPRZ_MODE_AUTO2) {
     static pprz_t cam_roll, cam_pitch;
     int16_t yaw = from_fbw.channels[RADIO_YAW];

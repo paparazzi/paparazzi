@@ -9,7 +9,7 @@
     <servo name="AILERON_LEFT" no="0" max="1190" neutral="1600" min="1850"/>
     <servo name="AILERON_RIGHT" no="2" max="1375" neutral="1650" min="2000"/>
     <servo name="ELEVATOR" no="6" max="1816" neutral="1530" min="1220"/>
-    <servo name="RUDDER"   no="7" max="1270" neutral="1450" min="1850"/>
+    <servo name="RUDDER"   no="7" max="1270" neutral="1550" min="1850"/>
     <servo name="CAM_ROLL" no="8" max="1816" neutral="1530" min="1220"/>
     <servo name="CAM_PITCH" no="4" max="1270" neutral="1450" min="1850"/>
   </servos>
@@ -29,14 +29,16 @@
     <define name="COMBI_SWITCH" value="1.0"/>
   </section>
   <section name="INFRARED" prefix="IR_">
-    <define name="ROLL_NEUTRAL_DEFAULT" value="-915"/>
-    <define name="PITCH_NEUTRAL_DEFAULT" value="110"/>
+    <define name="ROLL_NEUTRAL_DEFAULT" value="6" unit="deg"/>
+    <define name="PITCH_NEUTRAL_DEFAULT" value="5" unit="deg"/>
     <define name="DEFAULT_CONTRAST" value="200"/>
     <define name="RAD_OF_IR_CONTRAST" value="0.75"/>
     <linear name="RollOfIrs" arity="2" coeff1="-1" coeff2="-1"/>
     <linear name="PitchOfIrs" arity="2" coeff1="-1" coeff2="1"/>
     <define name="RAD_OF_IR_MAX_VALUE" value="0.0045"/>
     <define name="RAD_OF_IR_MIN_VALUE" value="0.00075"/>
+    <define name="ADC_ROLL_NEUTRAL" value="-1026"/>
+    <define name="ADC_PITCH_NEUTRAL" value="5"/>
   </section>
   <section name="PID">
     <define name="ROLL_PGAIN" value="10000."/>
@@ -45,6 +47,7 @@
     <define name="MAX_ROLL" value="0.35"/>
     <define name="MAX_PITCH" value="0.35"/>
     <define name="MIN_PITCH" value="-0.35"/>
+    <define name="AILERON_OF_GAZ" value="0.0"/>
   </section>
   <section name="ALT" prefix="CLIMB_">
     <define name="PITCH_PGAIN" value="-0.1"/>
@@ -73,8 +76,8 @@
     <define name="CARROT" value="5." unit="s"/>
   </section>
   <section name="SIMU">
-    <define name="ROLL_RESPONSE_FACTOR" value="5."/>
-    <define name="YAW_RESPONSE_FACTOR" value="5."/>
+    <define name="ROLL_RESPONSE_FACTOR" value="1."/>
+    <define name="YAW_RESPONSE_FACTOR" value="1."/>
     <define name="WEIGHT" value="1.3"/>
   </section>
 	<section name="FAILSAFE" prefix="FAILSAFE_">
