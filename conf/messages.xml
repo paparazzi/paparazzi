@@ -275,10 +275,12 @@
   <message name="SELECTED_REQ" ID="6">
   </message>
 
-  <message name="WIND_REQ" ID="7">
+  <message name="WIND_CLEAR" ID="7">
+    <field name="ac_id" type="string"/>
   </message>
 
   <message name="WIND" ID="8">
+    <field name="ac_id" type="string"/>
     <field name="dir" type="float"   unit="deg_wind"/>
     <field name="speed" type="float" unit="m/s"/>
     <field name="mean_aspeed" type="float" unit="m/s"/>

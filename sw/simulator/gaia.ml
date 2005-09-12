@@ -56,8 +56,8 @@ let _ =
 
   let world_values = fun () ->
     let wind_dir_rad = Latlong.pi /. 2. -. (Deg>>Rad) wind_dir_adj#value in
-    let wind_east = wind_speed_adj#value *. cos wind_dir_rad
-    and wind_north = wind_speed_adj#value *. sin wind_dir_rad in
+    let wind_east = -. wind_speed_adj#value *. cos wind_dir_rad
+    and wind_north = -. wind_speed_adj#value *. sin wind_dir_rad in
     [ "wind_east", Pprz.Float wind_east;
       "wind_north", Pprz.Float wind_north;
       "ir_contrast", Pprz.Float infrared_contrast_adj#value;

@@ -248,7 +248,9 @@ let log_and_parse = fun logging ac_name a msg values ->
 	a.course  <- norm_course ((Deg>>Rad)(fvalue "course" /. 10.));
 	a.alt     <- fvalue "alt" /. 100.;
 	a.climb   <- fvalue "climb" /. 100.;
-	a.gps_mode <- check_index (ivalue "mode") gps_modes "GPS_MODE"
+	a.gps_mode <- check_index (ivalue "mode") gps_modes "GPS_MODE";
+	if a.gspeed > 3. then
+	  Wind.update ac_name a.gspeed a.course
     | "DESIRED" ->
 	a.desired_east <- fvalue "desired_x";
 	a.desired_north <- fvalue "desired_y";
@@ -416,6 +418,21 @@ let send_horiz_status = fun a ->
   | UnknownHorizMode -> ()
 
 
+let send_wind = fun a ->
+  let id = a.id in
+  try
+    let (wind_cap_deg, wind_polar, mean, stddev, nb_sample) = Wind.get id in
+    let vs =
+      ["ac_id", Pprz.String id;
+       "dir", Pprz.Float wind_cap_deg;
+       "speed", Pprz.Float wind_polar;
+       "mean_aspeed", Pprz.Float mean;
+       "stddev", Pprz.Float stddev] in
+    Ground_Pprz.message_send my_id "WIND" vs
+  with
+    exc -> ()
+      
+
 let send_aircraft_msg = fun ac ->
   try
     let a = Hashtbl.find aircrafts ac in
@@ -473,7 +490,8 @@ let send_aircraft_msg = fun ac ->
     send_fbw a;
     send_infrared a;
     send_svsinfo a;
-    send_horiz_status a
+    send_horiz_status a;
+    send_wind a
   with
     Not_found -> prerr_endline ac
   | x -> prerr_endline (Printexc.to_string x)
@@ -509,11 +527,16 @@ let check_alerts = fun a ->
   if a.bat < 9. then send "CATASTROPHIC"
   else if a.bat < 10. then send "CRITIC"
   else if a.bat < 10.5 then send "WARNING"
+
+let wind_clear = fun _sender vs ->
+  Wind.clear (Pprz.string_assoc "ac_id" vs)
     
 let register_aircraft = fun name a ->
   Hashtbl.add aircrafts name a;
   ignore (Glib.Timeout.add aircraft_msg_period (fun () -> send_aircraft_msg name; true));
-  ignore (Glib.Timeout.add aircraft_alerts_period (fun () -> check_alerts a; true))
+  ignore (Glib.Timeout.add aircraft_alerts_period (fun () -> check_alerts a; true));
+  Wind.new_ac name 1000;
+  ignore(Ground_Pprz.message_bind "WIND_CLEAR" wind_clear)
 
 
 (** Identifying message from a A/C *)
