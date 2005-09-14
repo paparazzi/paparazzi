@@ -64,7 +64,7 @@ sub completeinit {
   $self->{aircrafts_manager} = 
     Paparazzi::AircraftsManager->new(-listen_to_all => 
 				     ['FLIGHT_PARAM', 'AP_STATUS', 'NAV_STATUS', 'CAM_STATUS', 'ENGINE_STATUS',
-				      'FLY_BY_WIRE', 'INFRARED', 'INFLIGH_CALIB', 'SVSINFO']);
+				      'FLY_BY_WIRE', 'INFRARED', 'INFLIGH_CALIB', 'SVSINFO', 'WIND']);
   $self->{aircrafts_manager}->attach($self, 'NEW_AIRCRAFT', [\&on_new_aircraft]);
   $self->{mw}->after(500, [\&on_foo, $self]);
 }

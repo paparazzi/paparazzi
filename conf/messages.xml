@@ -282,7 +282,7 @@
   <message name="WIND" ID="8">
     <field name="ac_id" type="string"/>
     <field name="dir" type="float"   unit="deg_wind"/>
-    <field name="speed" type="float" unit="m/s"/>
+    <field name="wspeed" type="float" unit="m/s"/>
     <field name="mean_aspeed" type="float" unit="m/s"/>
     <field name="stddev" type="float" unit="m/s"/>
   </message>

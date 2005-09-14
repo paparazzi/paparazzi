@@ -133,13 +133,14 @@ sub draw {
   my @label_attr = (['AP',  'ap_mode',          70,  10],
 		    ['RC',  'rc_status',        70,  22],
 		    ['GPS', 'gps_mode',         70,  34],
-		    ['Cal', 'contrast_status',  70,  46],
-		    ['Ctrst', 'contrast_value', 70,  58],
-		    ['alt:',  'alt',            150, 10],
-		    ['desired:','target_alt',   150, 22],
-		    ['throttle:',  'throttle',  150, 34],
-		    ['speed:',  'speed',        150, 46],
-		    ['climb:',  'climb',        150, 58],
+		    ['Wind','dir',              70,  46],
+		    ['     ', 'wspeed',         70,  58],
+		    ['Mas', 'mean_aspeed',      70,  70],
+		    ['alt:',  'alt',            160, 10],
+		    ['desired:','target_alt',   160, 22],
+		    ['throttle:',  'throttle',  160, 34],
+		    ['speed:',  'speed',        160, 46],
+		    ['climb:',  'climb',        160, 58],
 		   );
   foreach my $attr (@label_attr) {
     $self->add_label($attr->[0], $attr->[1], $attr->[2], $attr->[3]);
@@ -223,7 +224,7 @@ sub set_bat {
 ##############################################################################
 sub attach_to_aircraft {
   my ($self) = @_;
-  my @options = ('airframe', 'ap_mode', 'rc_status', 'gps_mode', 'contrast_status', 'contrast_value',
+  my @options = ('airframe', 'ap_mode', 'rc_status', 'gps_mode', 'wspeed', 'dir', 'mean_aspeed',
 		 'flight_time', 'alt', 'target_alt', 'speed', 'climb', '-engine_status');
   foreach my $option (@options) {
     $self->get('-aircraft')->attach($self, $option, [\&aircraft_config_changed]);
@@ -250,7 +251,7 @@ sub aircraft_config_changed {
     my $ac_name = $new_value->get('-ac_name');
     $self->get('-zinc')->itemconfigure($self->{ident}, -text => $ac_name ) if defined $ac_name;
   }
-  elsif ($event eq 'rc_status' or $event eq 'rc_mode' or $event eq 'contrast_status' or $event eq 'ap_mode' or $event eq 'gps_mode') {
+  elsif ($event eq 'rc_status' or $event eq 'rc_mode' or $event eq 'ap_mode' or $event eq 'gps_mode') {
     $self->set_item($event, $new_value, $self->get_color($event, $new_value));
   }
   elsif ($event eq 'flight_time') {
@@ -261,15 +262,16 @@ sub aircraft_config_changed {
     $self->set_bat($new_value->{bat});
     $self->set_item('throttle', $new_value->{throttle}, 'black');
   }
-  elsif ( $event eq 'speed' or $event eq 'climb' or $event eq 'alt' or $event eq 'target_alt' or $event eq 'contrast_value') {
+  elsif ( $event eq 'speed' or $event eq 'climb' or $event eq 'alt' or $event eq 'target_alt' or $event eq 'wspeed' or $event eq 'dir' or $event eq 'mean_aspeed') {
     my $fmt = { speed => "%2.1fm/s",
 		climb => "%+2.1fm/s",
 		alt   => "%4.1fm",
 		target_alt => "%4.1fm",
-		contrast_value => "%03d",
+		wspeed => "%.1fm/s",
+		dir    => "%03d°",
+		mean_aspeed => "%.1fm/s",
 	      };
     $self->set_item($event, sprintf($fmt->{$event}, $new_value), $self->{options}->{value_color});
-
   }
   else {
     print "in Strip::aircraft_config_changed : unknow event $event $new_value\n";
