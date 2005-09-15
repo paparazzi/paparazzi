@@ -108,7 +108,7 @@ let file_of_url = fun url ->
     String.sub url 7 (String.length url - 7)
   else
     let tmp_file = Filename.temp_file "fp" ".xml" in
-    let c = sprintf "wget -O %s %s" tmp_file url in
+    let c = sprintf "wget --cache=off -O %s %s" tmp_file url in
     if Sys.command c = 0 then
       tmp_file
     else
