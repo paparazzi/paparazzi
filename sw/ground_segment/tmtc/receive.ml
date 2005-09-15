@@ -37,11 +37,11 @@ module Tele_Pprz = Pprz.Protocol(Tele_Class)
 module Ground_Pprz = Pprz.Protocol(Ground)
 module Alerts_Pprz = Pprz.Protocol(struct let name = "alert" end)
 
+
 let (//) = Filename.concat
 let logs_path = Env.paparazzi_home // "var" // "logs"
 let conf_xml = Xml.parse_file (Env.paparazzi_home // "conf" // "conf.xml")
 let srtm_path = Env.paparazzi_home // "data" // "srtm"
-
 
 let rec norm_course =
   let _2pi = 2. *. Latlong.pi in
@@ -175,20 +175,27 @@ let make_element = fun t a c -> Xml.Element (t,a,c)
 let expand_ac_xml = fun ac_conf ->
   let prefix = fun s -> sprintf "%s/conf/%s" Env.paparazzi_home s in
   let parse = fun a ->
+    let file = prefix (ExtXml.attrib ac_conf a) in
     try
-      Xml.parse_file (prefix (ExtXml.attrib ac_conf a))
+      Xml.parse_file file
     with
-      Xml.File_not_found _ -> make_element "file_not_found" ["file",a] [] in
-  let fp = parse "flight_plan"
-  and af = parse "airframe"
-  and rc = parse "radio" in
+      Xml.File_not_found _ ->
+	prerr_endline (sprintf "File not found: %s" file);
+	make_element "file_not_found" ["file",a] []
+    | Xml.Error e ->
+	let s = Xml.error e in
+	prerr_endline (sprintf "Parse error in %s: %s" file s);
+	make_element "cannot_parse" ["file",file;"error", s] [] in
+  let fp = parse "flight_plan" in
+  let af = parse "airframe" in
+  let rc = parse "radio" in
   let children = Xml.children ac_conf@[fp; af; rc] in
   make_element (Xml.tag ac_conf) (Xml.attribs ac_conf) children
   
 let log_xml = fun timeofday data_file ->
   let conf_children = 
     List.map
-      (fun x ->	if Xml.tag x = "aircraft" then expand_ac_xml x else x)
+      (fun x ->	  if Xml.tag x = "aircraft" then expand_ac_xml x else x)
       (Xml.children conf_xml) in
   let expanded_conf = make_element (Xml.tag conf_xml) (Xml.attribs conf_xml) conf_children in
   make_element 
@@ -605,7 +612,6 @@ let _ =
     listen_acs (Some log)
   else
     listen_acs None;
-
   (* Waits for client requests on the Ivy bus *)
   ivy_server ();
   
