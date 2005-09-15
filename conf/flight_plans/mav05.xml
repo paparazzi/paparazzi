@@ -10,18 +10,15 @@
     </mode>
   </rc_control>
   <waypoints>
-    <waypoint Y="0" NAME="HOME" X="0"/>
-    <waypoint x="-25.6622711116" y="131.217815482" name="X"/>
+    <waypoint NAME="HOME" X="120" Y="20"/>
   </waypoints>
+  <include name="zz" procedure="zigzag.xml" x="120" y="-20" rotate="0">
+    <arg name="alt" value="GROUND_ALT+50"/>
+    <with from="end" to="home"/>
+  </include>
   <blocks>
     <block NAME="init">
-      <while COND="(!launch)"/>
-      <heading GAZ="0.8" PITCH="0.15" COURSE="QFU" UNTIL="(estimator_flight_time > 8)" VMODE="gaz"/>
-      <heading PITCH="0.15" CLIMB="3.0" COURSE="QFU" UNTIL="(estimator_z > SECURITY_ALT)" VMODE="climb"/>
-      <deroute BLOCK="circlehome"/>
-    </block>
-    <block NAME="circlehome">
-      <circle WP="X" ALT="GROUND_ALT+50" RADIUS="50"/>
+      <deroute BLOCK="zz.takeoff"/>
     </block>
   </blocks>
 </flight_plan>
