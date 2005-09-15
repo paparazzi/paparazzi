@@ -35,7 +35,7 @@
 
 /** if defined, ir relief correction done */
 
-/***/ #define IR_RELIEF_CORRECTION  /***/
+/*** #define IR_RELIEF_CORRECTION  ***/
 
 
 /** stepping value in meters, the area of correction */
@@ -195,7 +195,7 @@ void estimator_update_state_infrared( void ) {
 
   float rad_of_ir_roll = rad_of_ir * ir_roll;
   
-  estimator_phi  = rad_of_ir * ir_roll; 
+  estimator_phi  = rad_of_ir * ir_roll -ir_roll_neutral; 
     
 #if defined IR_RELIEF_CORRECTION
     
