@@ -116,7 +116,8 @@ let parse_section = fun s ->
       and max = get_float "max" in
 
       let servos = Xml.children s in
-      define "NB_SERVO" (string_of_int (List.length servos));
+      let nb_servos = List.fold_right (fun s m -> Pervasives.max (int_of_string (ExtXml.attrib s "no")) m) servos min_int in
+      define "LAST_SERVO_CHANNEL" (string_of_int nb_servos);
       nl ();
       let servos_params = Array.create nb_servo_4017 { min = min; neutral = neutral; max = max } in
 

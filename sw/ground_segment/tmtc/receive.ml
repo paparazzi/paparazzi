@@ -432,7 +432,7 @@ let send_wind = fun a ->
     let vs =
       ["ac_id", Pprz.String id;
        "dir", Pprz.Float wind_cap_deg;
-       "speed", Pprz.Float wind_polar;
+       "wspeed", Pprz.Float wind_polar;
        "mean_aspeed", Pprz.Float mean;
        "stddev", Pprz.Float stddev] in
     Ground_Pprz.message_send my_id "WIND" vs

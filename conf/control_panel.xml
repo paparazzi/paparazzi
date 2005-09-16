@@ -139,7 +139,7 @@
 
   <session name="replay Ricou">
 <!--      <variable name="ivy_bus" value="192.168.1:2001"/> -->
-      <variable name="map" value="ricouUTM.xml"/>
+      <variable name="map" value="ricou_large.xml"/>
       <program name="receive"/>     
       <program name="http server"/>     
       <program name="cockpit"><arg flag="-render" constant="1"/></program>
@@ -222,6 +222,17 @@
       <program name="http server"/>     
       <program name="multimon"><arg flag="-p" constant="/tmp/multimon"/></program>
       <program name="modem"><arg flag="-d" constant="/tmp/multimon"/></program>
+      <program name="receive"/>     
+      <program name="messages"><arg flag="-c" constant="telemetry_ap:*"/><arg flag="-c" constant="ground"/></program>
+      <program name="cockpit"/>
+      <program name="map 2d ml"/>
+    </session>
+
+   <session name="flight hard modem Muret">
+      <variable name="map"  value="muret_UTM.xml"/>
+      <variable name="ivy_bus" value="127:2010"/>
+      <program name="http server"/>     
+      <program name="modem"><arg flag="-d" constant="/dev/ttyUSB0"/></program>
       <program name="receive"/>     
       <program name="messages"><arg flag="-c" constant="telemetry_ap:*"/><arg flag="-c" constant="ground"/></program>
       <program name="cockpit"/>

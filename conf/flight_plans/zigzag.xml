@@ -35,6 +35,7 @@
 
     <block NAME="back">
       <exception COND="(RcEvent1())" DEROUTE="takeoff"/>
+      <exception COND="(RcEvent2())" DEROUTE="target"/>
       <go wp="LANDING" alt="GROUND_ALT"/>
       <deroute block="end"/>
     </block>

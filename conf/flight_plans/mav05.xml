@@ -14,7 +14,7 @@
   </waypoints>
   <include name="zz" procedure="zigzag.xml" x="120" y="-20" rotate="0">
     <arg name="alt" value="GROUND_ALT+50"/>
-    <with from="end" to="home"/>
+    <with from="end" to="init"/>
   </include>
   <blocks>
     <block NAME="init">

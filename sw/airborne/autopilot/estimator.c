@@ -142,8 +142,6 @@ void estimator_update_state_3DMG( void ) {
 #else //NO_IMU
 
 float ir_roll_neutral  = RadOfDeg(IR_ROLL_NEUTRAL_DEFAULT);
-/** Initialized to \a IR_PITCH_NEUTRAL_DEFAULT.
- *  Changed with @@@@@ EST-CE QUE CA CHANGE @@@@@ */
 float ir_pitch_neutral = RadOfDeg(IR_PITCH_NEUTRAL_DEFAULT);
 
 void estimator_update_state_infrared( void ) {
@@ -193,9 +191,7 @@ void estimator_update_state_infrared( void ) {
   
 #endif
 
-  float rad_of_ir_roll = rad_of_ir * ir_roll;
-  
-  estimator_phi  = rad_of_ir * ir_roll -ir_roll_neutral; 
+  estimator_phi  = rad_of_ir * ir_roll - ir_roll_neutral; 
     
 #if defined IR_RELIEF_CORRECTION
     

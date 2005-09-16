@@ -38,7 +38,7 @@
     ac_id="4"
     airframe="airframes/plaster1.xml" 
     radio="radios/mc3030.xml"
-    flight_plan="flight_plans/ricou_vz.xml"
+    flight_plan="flight_plans/muret_mini.xml"
   />
 
   <aircraft 
@@ -71,7 +71,7 @@
     ac_id="8"
     airframe="airframes/ladybug.xml" 
     radio="radios/mc3030.xml"
-    flight_plan="flight_plans/sinsat.xml"
+    flight_plan="flight_plans/muret_mini.xml"
   />
 
   <aircraft 
@@ -79,7 +79,7 @@
     ac_id="9"
     airframe="airframes/flyingtux.xml" 
     radio="radios/mc3030.xml"
-    flight_plan="flight_plans/ricou_vz.xml"
+    flight_plan="flight_plans/muret_mini.xml"
   />
 
   <ground name="desktop" ivy_bus="127.255.255.255:2010">

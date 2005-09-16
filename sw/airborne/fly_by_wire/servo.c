@@ -119,6 +119,11 @@ servo_init( void )
    * Configure output compare to toggle the output bits.
    */
   TCCR1A |=  _BV(SERVO_COM0 );
+
+#ifdef SERVOS_FALLING_EDGE
+  /** Starts CLOCK high for the falling edge case */
+  TCCR1A |= _BV(SERVO_FORCE);
+#endif
 	
   /* Clear the interrupt flags in case they are set */
   TIFR = _BV(SERVO_FLAG);
@@ -143,6 +148,33 @@ SIGNAL( SIG_OUTPUT_COMPARE1A )
   static uint8_t servo = 0;
   uint16_t width;
 
+#ifdef SERVOS_FALLING_EDGE
+#define RESET_WIDTH (CLOCK*1000)
+#define FIRST_PULSE_WIDTH (CLOCK*100)
+/** The clock pin has been initialized high and is toggled down by
+the timer.
+ Unfortunately it seems that reset does not work on 4017 in this case if it
+occurs after the first falling edge. We add two more states at the end of
+the sequence:
+  - keeping clock low, reset high during 1ms
+  - clock high (toggled by the timer), reset down, during 100us (looks like
+  the first pulse of a standard RC */
+  if (servo == _4017_NB_CHANNELS) {
+    sbi( _4017_RESET_PORT, _4017_RESET_PIN );
+    /** Start a long 1ms reset, keep clock low */
+    SERVO_OCR += RESET_WIDTH;
+    servo++;
+    return;
+  }
+  if (servo > _4017_NB_CHANNELS) {
+    /** Clear the reset, the clock has been toggled high */
+    cbi( _4017_RESET_PORT, _4017_RESET_PIN );
+    /** Starts a short pulse-like period */
+    SERVO_OCR += FIRST_PULSE_WIDTH;
+    servo=0; /** Starts a new sequence next time */
+    return;
+  }
+#else
   if (servo >= _4017_NB_CHANNELS) {
     sbi( _4017_RESET_PORT, _4017_RESET_PIN );
     servo = 0;
@@ -150,7 +182,7 @@ SIGNAL( SIG_OUTPUT_COMPARE1A )
     // asm( "nop; nop; nop; nop;nop; nop; nop; nop;nop; nop; nop; nop;nop; nop; nop; nop;" );
     cbi( _4017_RESET_PORT, _4017_RESET_PIN );
   }
-
+#endif
   width = servo_widths[servo];
 
   SERVO_OCR += width;
@@ -159,6 +191,7 @@ SIGNAL( SIG_OUTPUT_COMPARE1A )
 
   servo++;
 }
+
 
 void servo_set_one(uint8_t servo, uint16_t value_us) {
   servo_widths[servo] = ChopServo(CLOCK*value_us);
