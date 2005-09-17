@@ -87,8 +87,8 @@
     <define name="DEFAULT_PITCH" value="0.08" unit="rad"/>
     <define name="HOME_RADIUS" value="50" unit="m"/>
   </section>
+  <section name="CAM" prefix="CAM_">
+    <define name="THETA0" value="45" unit="deg"/>
+    <define name="PHI0" value="-45" unit="deg"/>
+  </section>
 </airframe>
-
-
-
-

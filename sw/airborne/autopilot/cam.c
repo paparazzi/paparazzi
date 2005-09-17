@@ -42,7 +42,18 @@
 
 #define target_alt GROUND_ALT
 
-float phi_c, theta_c;
+#ifdef CAM_PHI0
+float phi_c = RadOfDeg(CAM_PHI0);
+#else
+float phi_c;
+#endif
+
+#ifdef CAM_THETA0
+float theta_c = RadOfDeg(CAM_THETA0);
+#else
+float theta_c;
+#endif
+
 float target_x, target_y;
 
 void cam_manual( void ) {

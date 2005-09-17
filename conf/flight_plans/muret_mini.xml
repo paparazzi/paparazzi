@@ -4,15 +4,11 @@
   <rc_control>
     <mode NAME="AUTO1">
       <setting VAR="ir_pitch_neutral" RANGE="0.1" RC="gain_1_up" TYPE="float"/>
-      <setting VAR="ir_roll_neutral" RANGE="-0.1" RC="gain_2_up" TYPE="float"/>
-      <setting VAR="pitch_pgain" RANGE="-1000." RC="gain_1_down" TYPE="int16"/>
-      <setting VAR="roll_pgain" RANGE="-1000." RC="gain_2_down" TYPE="int16"/>
+      <setting VAR="ir_roll_neutral" RANGE="-0.1" RC="gain_1_down" TYPE="float"/>
     </mode>
     <mode NAME="AUTO2">
-      <setting VAR="ir_pitch_neutral" RANGE="0.1" RC="gain_1_up" TYPE="float"/>
-      <setting VAR="ir_roll_neutral" RANGE="-0.1" RC="gain_2_up" TYPE="float"/>
       <setting VAR="aileron_of_gaz" RANGE="0.1" RC="gain_1_down" TYPE="float"/>
-      <setting VAR="pitch_of_vz" RANGE=".1" RC="gain_2_down" TYPE="float"/>
+      <setting VAR="pitch_of_vz" RANGE=".1" RC="gain_1_up" TYPE="float"/>
     </mode>
   </rc_control>
   <waypoints utm_x0="360284.8" utm_y0="4813595.5">

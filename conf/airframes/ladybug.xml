@@ -22,7 +22,7 @@
     <define name="AILEVON_ELEVATOR_RATE" value="0.75"/>
   </section>
   <section name="INFRARED" prefix="IR_">
-    <define name="ROLL_NEUTRAL_DEFAULT" value="-3" unit="deg"/>
+    <define name="ROLL_NEUTRAL_DEFAULT" value="-5" unit="deg"/>
     <define name="PITCH_NEUTRAL_DEFAULT" value="9" unit="deg"/>
     <define name="DEFAULT_CONTRAST" value="400"/>
     <define name="RAD_OF_IR_CONTRAST" value="0.6"/>

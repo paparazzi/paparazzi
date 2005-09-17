@@ -84,7 +84,6 @@ let subst_expression = fun env e ->
 
 
 let transform_expression = fun affine env e ->
-  let e = parse_expression e in
   let e' = rotate_expression affine.angle e in
   let e'' = subst_expression env e' in
   Fp_syntax.sprint_expression e''
@@ -93,10 +92,15 @@ let transform_expression = fun affine env e ->
 let transform_values = fun attribs_not_modified affine env attribs ->
   List.map
     (fun (a, v) ->
+      let e = parse_expression v in
+      let e' = 
+	if String.lowercase a = "course" 
+	then CallOperator("+", [e; Float affine.angle])
+	else e in
       let v' =
 	if List.mem (String.lowercase a) attribs_not_modified
 	then v
-	else transform_expression affine env v in
+	else transform_expression affine env e' in
       (a, v'))
     attribs
 

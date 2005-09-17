@@ -47,7 +47,7 @@ let fixed_cam_targeted_yw = 500.0
 
 (** variables used for handling cam moves: *)
 
-let cam_half_aperture = m_pi /. 4.0
+let cam_half_aperture = m_pi /. 6.0
 let half_pi = m_pi /. 2.0
 let sqrt_2_div_2 = sqrt 2.0
 
