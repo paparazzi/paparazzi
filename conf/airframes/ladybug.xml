@@ -68,24 +68,28 @@
   <section name="SERVOS" channel="6">
     <define name="SERVOS_VOLTAGE_ADC_A" value="0.005661"/>
     <define name="SERVOS_VOLTAGE_ADC_B" value="0.014948"/>
-    <define name="ServosVoltageOfAdc(adc)" value="(VOLTAGE_ADC_A * adc + VOLTAGE_ADC_B)"/>
+    <define name="ServosVoltageOfAdc(adc)" value="(SERVOS_VOLTAGE_ADC_A * adc + SERVOS_VOLTAGE_ADC_B)"/>
   </section>
   <section name="MISC">
     <define name="NOMINAL_AIRSPEED" value="9."/>
     <define name="CARROT" value="5." unit="s"/>
   </section>
   <section name="SIMU">
-    <define name="ROLL_RESPONSE_FACTOR" value="-10."/>
+    <define name="ROLL_RESPONSE_FACTOR" value="5."/>
     <define name="YAW_RESPONSE_FACTOR" value="1."/>
     <define name="WEIGHT" value="0.45"/>
   </section>
-	<section name="FAILSAFE" prefix="FAILSAFE_">
-		<define name="DELAY_WITHOUT_GPS" value="2" unit="s"/>
+    <section name="FAILSAFE" prefix="FAILSAFE_">
+    <define name="DELAY_WITHOUT_GPS" value="2" unit="s"/>
     <define name="DEFAULT_GAZ" value="CLIMB_LEVEL_GAZ+0.05" unit="%"/>
     <define name="DEFAULT_ROLL" value="0.17" unit="rad"/>
     <define name="DEFAULT_PITCH" value="0.08" unit="rad"/>
-		<define name="HOME_RADIUS" value="50" unit="m"/>
-	</section>
+    <define name="HOME_RADIUS" value="50" unit="m"/>
+  </section>
+  <section name="CAM" prefix="CAM_">
+    <define name="THETA0" value="45" unit="deg"/>
+    <define name="PHI0" value="-45" unit="deg"/>
+  </section>
 </airframe>
 
 
