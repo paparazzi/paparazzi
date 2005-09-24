@@ -133,7 +133,6 @@ static float qdr;
 #define MAX_HEIGHT_CARROT 150.
 
 #define Goto3D(radius) { \
-  static float carrot_x, carrot_y; \
   if (pprz_mode == PPRZ_MODE_AUTO2) { \
     int16_t yaw = from_fbw.channels[RADIO_YAW]; \
     if (yaw > MIN_DX || yaw < -MIN_DX) { \
