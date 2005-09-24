@@ -57,7 +57,7 @@
   <section name="SERVOS" channel="6">
     <define name="SERVOS_VOLTAGE_ADC_A" value="0.005661"/>
     <define name="SERVOS_VOLTAGE_ADC_B" value="0.014948"/>
-    <define name="ServosVoltageOfAdc(adc)" value="(VOLTAGE_ADC_A * adc + VOLTAGE_ADC_B)"/>
+    <define name="ServosVoltageOfAdc(adc)" value="(SERVOS_VOLTAGE_ADC_A * adc + SERVOS_VOLTAGE_ADC_B)"/>
   </section>
   <section name="MISC">
     <define name="NOMINAL_AIRSPEED" value="15."/>
