@@ -1,0 +1,88 @@
+<airframe name="Twinstar four" ctl_board="V1_2_1" gps="SAM_LS">
+  <section name="adc" prefix="ADC_CHANNEL_">
+    <define name="IR1" value="1"/>
+    <define name="IR2" value="2"/>
+  </section>
+  <servos min="1000" neutral="1500" max="2000">
+    <servo name="MOTOR" no="3" min="1000" neutral="1000" max="2000"/>
+    <servo name="AILERON_LEFT" no="0" max="1190" neutral="1600" min="1850"/>
+    <servo name="AILERON_RIGHT" no="2" max="1375" neutral="1650" min="2000"/>
+    <servo name="ELEVATOR" no="6" max="1816" neutral="1530" min="1220"/>
+    <servo name="RUDDER"   no="7" max="1270" neutral="1550" min="1850"/>
+    <servo name="CAM_ROLL" no="8" max="1816" neutral="1530" min="1220"/>
+    <servo name="CAM_PITCH" no="4" max="1270" neutral="1450" min="1850"/>
+  </servos>
+  <command>
+    <set servo="MOTOR" value="2 * @THROTTLE"/>
+    <set servo="ELEVATOR" value="@PITCH"/>
+    <let var="roll" value="@ROLL"/>
+    <set servo="AILERON_LEFT" value="($roll > 0 ? 1 : AILERON_DIFF) * $roll"/>
+    <set servo="AILERON_RIGHT" value="($roll > 0 ? AILERON_DIFF : 1) * $roll"/>
+    <set servo="RUDDER" value="@YAW + @ROLL*COMBI_SWITCH"/>
+    <set servo="CAM_ROLL" value="@GAIN1"/>
+    <set servo="CAM_PITCH" value="@CALIB"/>
+  </command>
+  <section name="MIXER">
+    <define name="AILERON_DIFF" value="0.66"/>
+    <define name="COMBI_SWITCH" value="1.0"/>
+  </section>
+  <section name="INFRARED" prefix="IR_">
+    <define name="ROLL_NEUTRAL_DEFAULT" value="6" unit="deg"/>
+    <define name="PITCH_NEUTRAL_DEFAULT" value="5" unit="deg"/>
+    <define name="DEFAULT_CONTRAST" value="200"/>
+    <define name="RAD_OF_IR_CONTRAST" value="0.75"/>
+    <linear name="RollOfIrs" arity="2" coeff1="-1" coeff2="-1"/>
+    <linear name="PitchOfIrs" arity="2" coeff1="-1" coeff2="1"/>
+    <define name="RAD_OF_IR_MAX_VALUE" value="0.0045"/>
+    <define name="RAD_OF_IR_MIN_VALUE" value="0.00075"/>
+    <define name="ADC_ROLL_NEUTRAL" value="-1026"/>
+    <define name="ADC_PITCH_NEUTRAL" value="5"/>
+  </section>
+  <section name="PID">
+    <define name="ROLL_PGAIN" value="10000."/>
+    <define name="PITCH_OF_ROLL" value="0.0"/>
+    <define name="PITCH_PGAIN" value="15000."/>
+    <define name="MAX_ROLL" value="0.35"/>
+    <define name="MAX_PITCH" value="0.35"/>
+    <define name="MIN_PITCH" value="-0.35"/>
+    <define name="AILERON_OF_GAZ" value="0.0"/>
+  </section>
+  <section name="ALT" prefix="CLIMB_">
+    <define name="PITCH_PGAIN" value="-0.1"/>
+    <define name="PITCH_IGAIN" value="0.025"/>
+    <define name="PGAIN" value="-0.03"/>
+    <define name="IGAIN" value="0.1"/>
+    <define name="MAX" value="1."/>
+    <define name="LEVEL_GAZ" value="0.31"/>
+    <define name="PITCH_OF_VZ_PGAIN" value="0.05"/>
+    <define name="GAZ_OF_CLIMB" value="0.2" unit="%/(m/s)"/>
+  </section>
+  <section name="NAV">
+    <define name="COURSE_PGAIN" value="-0.2"/>
+    <define name="ALTITUDE_PGAIN" value="-0.025"/>
+    <define name="NAV_PITCH" value="0."/>
+  </section>
+  <section name="BAT">
+    <define name="MILLIAMP_PER_PERCENT" value="0.86"/>
+    <define name="VOLTAGE_ADC_A" value="0.0175"/>
+    <define name="VOLTAGE_ADC_B" value="0.088"/>
+    <define name="VoltageOfAdc(adc)" value="(VOLTAGE_ADC_A * adc + VOLTAGE_ADC_B)"/>
+    <define name="LOW_BATTERY" value="93" unit="1e-1V"/>
+  </section>
+  <section name="MISC">
+    <define name="NOMINAL_AIRSPEED" value="10." unit="m/s"/>
+    <define name="CARROT" value="5." unit="s"/>
+  </section>
+  <section name="SIMU">
+    <define name="ROLL_RESPONSE_FACTOR" value="2."/>
+    <define name="YAW_RESPONSE_FACTOR" value="1.25"/>
+    <define name="WEIGHT" value="1.3"/>
+  </section>
+	<section name="FAILSAFE" prefix="FAILSAFE_">
+		<define name="DELAY_WITHOUT_GPS" value="2" unit="s"/>
+    <define name="DEFAULT_GAZ" value="CLIMB_LEVEL_GAZ+0.05" unit="%"/>
+    <define name="DEFAULT_ROLL" value="0.17" unit="rad"/>
+    <define name="DEFAULT_PITCH" value="0.08" unit="rad"/>
+		<define name="HOME_RADIUS" value="50" unit="m"/>
+	</section>
+</airframe>
