@@ -101,6 +101,7 @@ target CDATA #IMPLIED
 pitch CDATA #IMPLIED
 alt CDATA #IMPLIED
 until CDATA #IMPLIED
+approaching_time CDATA #IMPLIED
 gaz CDATA #IMPLIED>
 
 

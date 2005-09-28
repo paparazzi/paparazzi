@@ -29,7 +29,6 @@
 #include <inttypes.h>
 #include <math.h>
 
-
 #include "link_autopilot.h"
 
 #include "timer.h"
@@ -47,6 +46,14 @@
 #ifdef SECTION_IMU_ANALOG
 #include "ahrs.h"
 #endif //SECTION_IMU_ANALOG
+
+#ifndef AUTO1_MAX_ROLL
+#define AUTO1_MAX_ROLL 0.6
+#endif
+
+#ifndef AUTO1_MAX_PITCH
+#define AUTO1_MAX_PITCH 0.5
+#endif
 
 
 //
@@ -66,7 +73,13 @@ static uint16_t cputime = 0;
 uint8_t pprz_mode = PPRZ_MODE_MANUAL;
 uint8_t vertical_mode = VERTICAL_MODE_MANUAL;
 uint8_t lateral_mode = LATERAL_MODE_MANUAL;
+
+#ifdef SECTION_IMU_ANALOG
+uint8_t ir_estim_mode = IR_ESTIM_MODE_OFF;
+#else
 uint8_t ir_estim_mode = IR_ESTIM_MODE_ON;
+#endif //SECTION_IMU_ANALOG
+
 bool_t auto_pitch = FALSE;
 
 bool_t rc_event_1, rc_event_2;
@@ -340,28 +353,14 @@ inline void radio_control_task( void ) {
       * Else asynchronously set by \a course_pid_run
       */
     if (pprz_mode == PPRZ_MODE_AUTO1) {
-			#ifdef AUTO1_MAX_ROLL
-	      /** In Auto1 mode, roll is bounded between [-AUTO1_MAX_ROLL;AUTO1_MAX_ROLL] */
-				desired_roll = FLOAT_OF_PPRZ(from_fbw.channels[RADIO_ROLL], 0., -AUTO1_MAX_ROLL);
-			#else
-     		/** In Auto1 mode, roll is bounded between [-0.6;0.6] */
-				desired_roll = FLOAT_OF_PPRZ(from_fbw.channels[RADIO_ROLL], 0., -0.6);
-			#endif /* AUTO1_MAX_ROLL */
-
-			#ifdef AUTO1_MAX_PITCH
-				/** In Auto1 mode, pitch is bounded between [-AUTO1_MAX_PITCH;AUTO1_MAX_PITCH] */
-				desired_pitch = FLOAT_OF_PPRZ(from_fbw.channels[RADIO_PITCH], 0., AUTO1_MAX_PITCH);
-			#else
-     		/** In Auto1 mode, pitch is bounded between [-0.5;0.5] */
-				desired_pitch = FLOAT_OF_PPRZ(from_fbw.channels[RADIO_PITCH], 0., 0.5);
-			#endif	/* AUTO1_MAX_PITCH */
+      /** In Auto1 mode, roll is bounded between [-AUTO1_MAX_ROLL;AUTO1_MAX_ROLL] */
+      desired_roll = FLOAT_OF_PPRZ(from_fbw.channels[RADIO_ROLL], 0., -AUTO1_MAX_ROLL);
+      
+      /** In Auto1 mode, pitch is bounded between [-AUTO1_MAX_PITCH;AUTO1_MAX_PITCH] */
+      desired_pitch = FLOAT_OF_PPRZ(from_fbw.channels[RADIO_PITCH], 0., AUTO1_MAX_PITCH);
     }
     if (pprz_mode == PPRZ_MODE_MANUAL || pprz_mode == PPRZ_MODE_AUTO1) {
       desired_gaz = from_fbw.channels[RADIO_THROTTLE];
-#ifdef ANTON_MAGICAL_MISTERY_GAINS     
-      roll_pgain = ROLL_PGAIN * (1 - 5. / 7. * from_fbw.channels[RADIO_THROTTLE] / MAX_PPRZ);
-      pitch_pgain = PITCH_PGAIN * ( 1 - 1. / 3. * from_fbw.channels[RADIO_THROTTLE] / MAX_PPRZ);
-#endif /* ANTON_MAGICAL_MISTERY_GAINS */
     }
     // else asynchronously set by climb_pid_run();
 
@@ -377,39 +376,38 @@ inline void radio_control_task( void ) {
       }
     }
   }
-
 }
 
 /** \fn void navigation_task( void )
  *  \brief Compute desired_course
  */
 void navigation_task( void ) {
-	static uint8_t last_pprz_mode;
-	static bool_t has_lost_gps = FALSE;
+  static uint8_t last_pprz_mode;
+  static bool_t has_lost_gps = FALSE;
 	
-	/** This section is used for the failsafe of GPS */
+  /** This section is used for the failsafe of GPS */
 #ifdef FAILSAFE_DELAY_WITHOUT_GPS
-	/** Test if we lost the GPS */
-	if (!GPS_FIX_VALID(gps_mode) ||
-			(cputime - last_gps_msg_t > FAILSAFE_DELAY_WITHOUT_GPS)) {
-		/** If aircraft is launch and is in autonomus mode, go into
-				PPRZ_MODE_GPS_OUT_OF_ORDER mode (Failsafe). */
-		if (launch && (pprz_mode == PPRZ_MODE_AUTO2 ||
-					pprz_mode == PPRZ_MODE_HOME)) {
-			last_pprz_mode = pprz_mode;
-			pprz_mode = PPRZ_MODE_GPS_OUT_OF_ORDER;
-			PERIODIC_SEND_PPRZ_MODE();
-			has_lost_gps = TRUE;
-		}
-	}
-	/** If aircraft was in failsafe mode, come back in previous mode */
-	else if (has_lost_gps) {
-		pprz_mode = last_pprz_mode;
-		has_lost_gps = FALSE;
-		PERIODIC_SEND_PPRZ_MODE();
-	}
+  /** Test if we lost the GPS */
+  if (!GPS_FIX_VALID(gps_mode) ||
+      (cputime - last_gps_msg_t > FAILSAFE_DELAY_WITHOUT_GPS)) {
+    /** If aircraft is launch and is in autonomus mode, go into
+	PPRZ_MODE_GPS_OUT_OF_ORDER mode (Failsafe). */
+    if (launch && (pprz_mode == PPRZ_MODE_AUTO2 ||
+		   pprz_mode == PPRZ_MODE_HOME)) {
+      last_pprz_mode = pprz_mode;
+      pprz_mode = PPRZ_MODE_GPS_OUT_OF_ORDER;
+      PERIODIC_SEND_PPRZ_MODE();
+      has_lost_gps = TRUE;
+    }
+  }
+  /** If aircraft was in failsafe mode, come back in previous mode */
+  else if (has_lost_gps) {
+    pprz_mode = last_pprz_mode;
+    has_lost_gps = FALSE;
+    PERIODIC_SEND_PPRZ_MODE();
+  }
 #endif /* FAILSAFE_DELAY_WITHOUT_GPS */
-		
+  
   /** Default to keep compatibility with previous behaviour */
   lateral_mode = LATERAL_MODE_COURSE;
   if (pprz_mode == PPRZ_MODE_HOME)
@@ -536,9 +534,7 @@ inline void periodic_task( void ) {
     roll_pitch_pid_run(); /* Set  desired_aileron & desired_elevator */
     to_fbw.channels[RADIO_THROTTLE] = desired_gaz; /* desired_gaz is set upon GPS message reception */
     to_fbw.channels[RADIO_ROLL] = desired_aileron;
-#ifndef ANTON_T7
     to_fbw.channels[RADIO_PITCH] = desired_elevator;
-#endif
     
     /* Code for camera stabilization */
     cam_manual ();

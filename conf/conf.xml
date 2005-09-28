@@ -14,15 +14,15 @@
     ac_id="1"
     airframe="airframes/twinstar1.xml" 
     radio="radios/mc3030.xml" 
-    flight_plan="flight_plans/muret_cw.xml"
+    flight_plan="flight_plans/ricou_sieuras_stybars.xml"
   />
 
   <aircraft 
     name="Thon2"
     ac_id="2"
     airframe="airframes/twinstar2.xml" 
-    radio="radios/mc3030.xml" 
-    flight_plan="flight_plans/muret_ccw.xml"
+    radio="radios/cockpitMM.xml" 
+    flight_plan="flight_plans/mav05_ccw.xml"
   />
 
   <aircraft 
@@ -30,7 +30,7 @@
     ac_id="3"
     airframe="airframes/twinstar3.xml" 
     radio="radios/mc3030.xml" 
-    flight_plan="flight_plans/castagnac.xml"
+    flight_plan="flight_plans/ricou_sieuras_stybars.xml"
   />
 
   <aircraft 
@@ -38,15 +38,15 @@
     ac_id="4"
     airframe="airframes/plaster1.xml" 
     radio="radios/cockpitMM.xml"
-    flight_plan="flight_plans/muret_cw.xml"
+    flight_plan="flight_plans/ricou_70.xml"
   />
 
   <aircraft 
     name="Microjet"
     ac_id="5"
     airframe="airframes/microjet1.xml" 
-    radio="radios/mc3030.xml" 
-    flight_plan="flight_plans/ricou_pla.xml"
+    radio="radios/mc3030.xml"
+    flight_plan="flight_plans/mav05_mj.xml"
   />
  
  
@@ -63,7 +63,7 @@
     ac_id="7"
     airframe="airframes/gorazoptere_brushless_ANALOG.xml" 
     radio="radios/mc3030.xml" 
-    flight_plan="flight_plans/muret_mini.xml"
+    flight_plan="flight_plans/ricou_null.xml"
   />
 
   <aircraft 
@@ -79,7 +79,7 @@
     ac_id="9"
     airframe="airframes/flyingtux.xml" 
     radio="radios/cockpitMM.xml"
-    flight_plan="flight_plans/muret_ccw.xml"
+    flight_plan="flight_plans/ricou_40.xml"
   />
 
   <ground name="desktop" ivy_bus="127.255.255.255:2010">

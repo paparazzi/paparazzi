@@ -79,9 +79,9 @@
     <linear name="PitchOfIrs" arity="2" coeff1="1" coeff2="1"/>
   </section>
   <section name="PID">
-    <define name="ROLL_PGAIN" value="15000."/>
+    <define name="ROLL_PGAIN" value="23000."/>
     <define name="PITCH_OF_ROLL" value="0.0"/>
-    <define name="PITCH_PGAIN" value="15000."/>
+    <define name="PITCH_PGAIN" value="23000."/>
     <define name="MAX_ROLL" value="0.35"/>
     <define name="MAX_PITCH" value="0.35"/>
     <define name="MIN_PITCH" value="-0.35"/>

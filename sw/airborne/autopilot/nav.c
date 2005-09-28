@@ -82,7 +82,7 @@ uint8_t horizontal_mode;
 #define Exception(x) { excpt_stage = nav_stage; goto label_ ## x; }
 #define ReturnFromException(_) { GotoStage(excpt_stage) }
 
-static bool_t approaching(uint8_t);
+static bool_t approaching(uint8_t, float);
 static inline void fly_to_xy(float x, float y);
 static void fly_to(uint8_t wp);
 static void route_to(uint8_t last_wp, uint8_t wp);
@@ -106,7 +106,7 @@ static void glide_to(uint8_t last_wp, uint8_t wp);
 static float qdr;
 
 #define CircleXY(x, y, radius) { \
-	last_alpha = alpha; \
+  last_alpha = alpha; \
   alpha = atan2(estimator_y - y, \
 		      estimator_x - x); \
 	if (! new_circle) { \
@@ -199,15 +199,15 @@ static float carrot;
  *  uav has not gone past waypoint.
  *  Return true if it is the case.
  */
-static bool_t approaching(uint8_t wp) {
+static bool_t approaching(uint8_t wp, float carrot_time) {
   /** distance to waypoint in x */
   float pw_x = waypoints[wp].x - estimator_x;
   /** distance to waypoint in y */
   float pw_y = waypoints[wp].y - estimator_y;
 
   dist2_to_wp = pw_x*pw_x + pw_y *pw_y;
-  carrot = CARROT * estimator_hspeed_mod;
-  carrot = (carrot < 40 ? 40 : carrot);
+  carrot = carrot_time * estimator_hspeed_mod;
+  //  carrot = (carrot < 40 ? 40 : carrot);
   if (dist2_to_wp < carrot*carrot)
     return TRUE;
 
@@ -326,18 +326,18 @@ void nav_init(void) {
  */
 void nav_without_gps(void) {
 #ifdef SECTION_FAILSAFE
-	lateral_mode = LATERAL_MODE_ROLL;
-	nav_desired_roll = FAILSAFE_DEFAULT_ROLL;
-	auto_pitch = FALSE;
-	nav_pitch = FAILSAFE_DEFAULT_PITCH;
-	vertical_mode = VERTICAL_MODE_AUTO_GAZ;
-	nav_desired_gaz = TRIM_UPPRZ((FAILSAFE_DEFAULT_GAZ)*MAX_PPRZ);
+  lateral_mode = LATERAL_MODE_ROLL;
+  nav_desired_roll = FAILSAFE_DEFAULT_ROLL;
+  auto_pitch = FALSE;
+  nav_pitch = FAILSAFE_DEFAULT_PITCH;
+  vertical_mode = VERTICAL_MODE_AUTO_GAZ;
+  nav_desired_gaz = TRIM_UPPRZ((FAILSAFE_DEFAULT_GAZ)*MAX_PPRZ);
 #else
-	lateral_mode = LATERAL_MODE_ROLL;
-	nav_desired_roll = 0;
-	auto_pitch = FALSE;
-	nav_pitch = 0;
-	vertical_mode = VERTICAL_MODE_AUTO_GAZ;
-	nav_desired_gaz = TRIM_UPPRZ((CLIMB_LEVEL_GAZ)*MAX_PPRZ);
+  lateral_mode = LATERAL_MODE_ROLL;
+  nav_desired_roll = 0;
+  auto_pitch = FALSE;
+  nav_pitch = 0;
+  vertical_mode = VERTICAL_MODE_AUTO_GAZ;
+  nav_desired_gaz = TRIM_UPPRZ((CLIMB_LEVEL_GAZ)*MAX_PPRZ);
 #endif
 }

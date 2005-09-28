@@ -28,16 +28,16 @@
     <define name="DEFAULT_CONTRAST" value="400"/>
     <define name="RAD_OF_IR_CONTRAST" value="0.6"/>
     <define name="RAD_OF_IR_MIN_VALUE" value="0.0008"/>
-    <define name="RAD_OF_IR_MAX_VALUE" value="0.004"/>
+    <define name="RAD_OF_IR_MAX_VALUE" value="0.008"/>
     <linear name="RollOfIrs" arity="2" coeff1="-1" coeff2="-1"/>
     <linear name="PitchOfIrs" arity="2" coeff1="-1" coeff2="1"/>
     <define name="ADC_ROLL_NEUTRAL" value="-1042"/>
     <define name="ADC_PITCH_NEUTRAL" value="10"/>
   </section>
   <section name="PID">
-    <define name="ROLL_PGAIN" value="5000."/>
+    <define name="ROLL_PGAIN" value="6000."/>
     <define name="PITCH_OF_ROLL" value="0.2"/>
-    <define name="PITCH_PGAIN" value="7000."/>
+    <define name="PITCH_PGAIN" value="9000."/>
     <define name="MAX_ROLL" value="0.4"/>
     <define name="AUTO1_MAX_ROLL" value="0.8"/>
     <define name="MAX_PITCH" value="0.25"/>

@@ -114,8 +114,8 @@ inline void radio_control_task(void) {
 #endif
   if (mode == MODE_MANUAL) {
 #if defined SECTION_IMU_3DMG || defined SECTION_IMU_ANALOG
-    roll_dot_pgain = -100.  + (float)last_radio[RADIO_GAIN1] * 0.010;
-    roll_dot_dgain = 2.5 - (float)last_radio[RADIO_GAIN2] * 0.00025;
+    roll_dot_pgain = -100. ; /***  + (float)last_radio[RADIO_GAIN1] * 0.010; ***/
+    roll_dot_dgain = 0.; /*** 2.5 - (float)last_radio[RADIO_GAIN2] * 0.00025; ***/
     pitch_dot_pgain = roll_dot_pgain;
     pitch_dot_dgain = roll_dot_dgain;
     control_set_desired(last_radio);

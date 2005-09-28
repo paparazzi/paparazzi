@@ -10,13 +10,8 @@ void inflight_calib(bool_t calib_mode_changed);
 #define IF_CALIB_MODE_DOWN      1
 #define IF_CALIB_MODE_UP        2
 
-#ifdef ANTON_T7
 #define IF_CALIB_MODE_OF_PULSE(pprz) (pprz < TRESHOLD1 ? IF_CALIB_MODE_UP : \
-				      IF_CALIB_MODE_NONE)
-#else
-#define IF_CALIB_MODE_OF_PULSE(pprz) (pprz < TRESHOLD1 ? IF_CALIB_MODE_UP : \
-				      (pprz < TRESHOLD2 ? IF_CALIB_MODE_NONE :   \
+				      (pprz < TRESHOLD2 ? IF_CALIB_MODE_NONE :  \
 				                           IF_CALIB_MODE_DOWN))
-#endif /* ANTON_T7 */
 
 #endif // IF_CALIB_H

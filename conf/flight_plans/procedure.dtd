@@ -54,6 +54,7 @@ hmode CDATA #IMPLIED
 vmode CDATA #IMPLIED
 alt CDATA #IMPLIED
 until CDATA #IMPLIED
+approaching_time CDATA #IMPLIED
 gaz CDATA #IMPLIED>
 
 <!ATTLIST xyz

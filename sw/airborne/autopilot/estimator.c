@@ -65,18 +65,16 @@ float estimator_hspeed_dir;
 float estimator_rad_of_ir, estimator_ir, estimator_rad;
 
 
+#ifdef IR_RELIEF_CORRECTION
 /* array of horizon angles computed for a given height (at flight_plan.h generation) */
-
-
 int8_t angles[IR_CORRECTION_MAX_INDEX + 1][IR_CORRECTION_MAX_INDEX + 1][NB_HEIGHTS] = HEIGHTS;
+#endif
 
 
 
 /* (aircraft axis, ir axis) angle */
 
 #define aircraft_ir_angle ( M_PI / 2)
-
-
 
 
 #define height_index_coeff (NB_HEIGHTS / ( 2 * M_PI ))
@@ -180,15 +178,8 @@ void estimator_update_state_infrared( void ) {
 
   int8_t angle_right = angles[long_index][lat_index][index_right];
 
-
   float correction =  angle_left - angle_right;
- 
 
-  
-
-  
-  /*** printf(" estimator_hspeed_dir %.2f aircraft_ir_angle %.2f degres_left %.2f angle_left %d degres_right %.2f angle_right %d correction %.2f long_index %d lat_index %d \n", estimator_hspeed_dir, aircraft_ir_angle, degrees_left, angle_left, degrees_right, angle_right, correction, long_index, lat_index); ***/
-  
 #endif
 
   estimator_phi  = rad_of_ir * ir_roll - ir_roll_neutral; 
@@ -196,8 +187,6 @@ void estimator_update_state_infrared( void ) {
 #if defined IR_RELIEF_CORRECTION
     
   estimator_phi += RadOfDeg(correction) ;
-
-  /*** printf(" estimator phi = %.4f ; riroll = %.4f ; correction = %.4f\n", estimator_phi, rad_of_ir_roll, correction); ***/
 
 #endif
 

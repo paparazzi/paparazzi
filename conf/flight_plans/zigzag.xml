@@ -5,19 +5,21 @@
   <param name="alt"/>
 
   <waypoints>
-    <waypoint name="LANDING" x="0" y="40" alt="0"/>
-    <waypoint name="TARGET" x="-170" y="100" alt="0"/>
-    <waypoint name="WP1" x="-160" y="20" alt="0"/>
-    <waypoint name="WP2" x="-70" y="110" alt="0"/>
+    <waypoint name="LANDING" x="0" y="40"/>
+    <waypoint name="TARGET" x="-120" y="100"/>
+    <waypoint name="WP1" x="-140" y="20"/>
+    <waypoint name="WP2" x="-60" y="80"/>
+    <waypoint name="WP3" x="-60" y="100"/>
   </waypoints>
 
   <blocks>
     <block NAME="takeoff">
       <exception COND="(RcEvent1())" DEROUTE="back"/>
       <exception COND="(RcEvent2())" DEROUTE="target"/>
-      <heading vmode="gaz" gaz="0.8" pitch="0.15" course="260" until="(estimator_flight_time > 10)"/>
-      <go wp="WP1" alt="alt"/>
-      <go wp="WP2" alt="alt"/>
+      <heading vmode="gaz" gaz="0.7" pitch="0.15" course="280" until="(estimator_flight_time > 5)"/>
+      <go wp="WP1" alt="alt" approaching_time="1"/>
+      <go wp="WP2" alt="alt" approaching_time="1"/>
+      <go wp="WP3" alt="alt" approaching_time="1"/>
       <deroute block="target"/>
     </block>
 
@@ -36,7 +38,7 @@
     <block NAME="back">
       <exception COND="(RcEvent1())" DEROUTE="takeoff"/>
       <exception COND="(RcEvent2())" DEROUTE="target"/>
-      <go wp="LANDING" alt="GROUND_ALT"/>
+      <circle wp="LANDING" alt="alt" radius="25"/>
       <deroute block="end"/>
     </block>
   </blocks>

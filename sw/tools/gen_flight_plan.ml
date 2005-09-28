@@ -319,7 +319,8 @@ let rec print_stage = fun index_of_waypoints x ->
 	      lprintf "waypoints[0].y = %s;\n" (parsed_attrib x "y");
 	      "0"
 	in
-	lprintf "if (approaching(%s)) NextStageFrom(%s) else {\n" wp wp;
+	let at = try ExtXml.attrib x "approaching_time" with _ -> "CARROT" in
+	lprintf "if (approaching(%s,%s)) NextStageFrom(%s) else {\n" wp at wp;
 	right ();
 	let last_wp =
 	  try
