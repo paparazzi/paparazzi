@@ -1,3 +1,16 @@
+make clean doesn't delete boa config
+
+make a "single node" mode where boa isn't needed and serve file:// URL
+force ivybus to 127 in single node
+default to that mode
+
+
+
+
+
+
+######################################## obsolete ? ##############
+
 dans flybywire
 chop servo ne depends pas du servo
 
