@@ -34,19 +34,26 @@ WIND=sw/ground_segment/wind
 VISU3D=sw/ground_segment/visu3d
 LOGALIZER=sw/logalizer
 SIMULATOR=sw/simulator
+SUPERVISION=sw/supervision/paparazzi.pl
 MAKE=make
 
-all: static ac1 ac2
+all: static
 
 static : lib tools configurator cockpit tmtc visu3d logalizer sim_static wind static_h multimon
 
-ac1 : 
-	make AIRCRAFT=Thon1 ac
-ac2 :
-	make AIRCRAFT=Thon2 ac
+conf: conf/conf.xml conf/control_panel.xml
 
-configure : configurator
-	PAPARAZZI_DIR=`pwd` $(CONFIGURATOR)/configurator
+conf/%.xml :conf/%.xml.example 
+	[ -L $@ ] || [ -f $@ ] || ln -s `basename $<` $@ 
+
+
+test: conf ac1 ac2
+	PAPARAZZI_HOME=$(PAPARAZZI_SRC) PAPARAZZI_SRC=$(PAPARAZZI_SRC) $(SUPERVISION)
+
+ac1 : 
+	make AIRCRAFT=Twin1 PAPARAZZI_HOME=$(PAPARAZZI_SRC) ac
+ac2 :
+	make AIRCRAFT=Twin2 PAPARAZZI_HOME=$(PAPARAZZI_SRC) ac
 
 lib:
 	cd $(LIB)/ocaml; $(MAKE)
