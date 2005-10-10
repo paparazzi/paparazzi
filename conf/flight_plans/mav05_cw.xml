@@ -1,0 +1,25 @@
+<flight_plan SECURITY_HEIGHT="25" lat0="47.4820" lon0="11.0945" ground_alt="730" qfu="280" alt="780" ir_square_utmx_min="657530.0" ir_square_utmy_max="5261130.0" ir_square_width="180.0" ir_correct_steps="2" max_dist_from_home="300" name="Garmisch">
+  <rc_control>
+    <mode NAME="AUTO1">
+      <setting VAR="ir_pitch_neutral" RANGE="0.1" RC="gain_1_up" TYPE="float"/>
+      <setting VAR="ir_roll_neutral" RANGE="-0.1" RC="gain_1_down" TYPE="float"/>
+    </mode>
+    <mode NAME="AUTO2">
+      <setting VAR="ir_pitch_neutral" RANGE="0.1" RC="gain_1_up" TYPE="float"/>
+      <setting VAR="ir_roll_neutral" RANGE="-0.1" RC="gain_1_down" TYPE="float"/>
+    </mode>
+  </rc_control>
+  <waypoints>
+    <waypoint name="HOME" x="-30" y="30" alt="730."/>
+  </waypoints>
+  <include name="zz" procedure="zigzag.xml" x="0" y="0" rotate="0">
+    <arg name="alt" value="GROUND_ALT+30"/>
+    <arg name="rad" value="30"/>
+    <with from="end" to="init"/>
+  </include>
+  <blocks>
+    <block NAME="init">
+      <deroute BLOCK="zz.takeoff"/>
+    </block>
+  </blocks>
+</flight_plan>
