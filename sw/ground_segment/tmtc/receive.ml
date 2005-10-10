@@ -164,6 +164,7 @@ let aircrafts = Hashtbl.create 3
 
 (** Broadcast of the received aircrafts *)
 let aircraft_msg_period = 500 (* ms *)
+let wind_msg_period = 5000 (* ms *)
 let aircraft_alerts_period = 1000 (* ms *)
 let send_aircrafts_msg = fun _asker _values ->
   assert(_values = []);
@@ -497,8 +498,7 @@ let send_aircraft_msg = fun ac ->
     send_fbw a;
     send_infrared a;
     send_svsinfo a;
-    send_horiz_status a;
-    send_wind a
+    send_horiz_status a
   with
     Not_found -> prerr_endline ac
   | x -> prerr_endline (Printexc.to_string x)
@@ -537,16 +537,20 @@ let check_alerts = fun a ->
 
 let wind_clear = fun _sender vs ->
   Wind.clear (Pprz.string_assoc "ac_id" vs)
-    
+
+let periodic = fun period cb ->
+  ignore (Glib.Timeout.add period (fun () -> cb (); true))
+
 let register_aircraft = fun name a ->
   Hashtbl.add aircrafts name a;
-  ignore (Glib.Timeout.add aircraft_msg_period (fun () -> send_aircraft_msg name; true));
-  ignore (Glib.Timeout.add aircraft_alerts_period (fun () -> check_alerts a; true));
+  periodic aircraft_msg_period (fun () -> send_aircraft_msg name);
+  periodic aircraft_alerts_period (fun () -> check_alerts a);
+  periodic wind_msg_period (fun () -> send_wind a);
   Wind.new_ac name 1000;
   ignore(Ground_Pprz.message_bind "WIND_CLEAR" wind_clear)
 
 
-(** Identifying message from a A/C *)
+(** Identifying message from an A/C *)
 let ident_msg = fun log id name ->
   if not (Hashtbl.mem aircrafts name) then begin
     let ac = new_aircraft id in
@@ -559,13 +563,18 @@ let ident_msg = fun log id name ->
 let listen_acs = fun log ->
   ignore (Ivy.bind (fun _ args -> ident_msg log args.(0) args.(1)) "^(.*) IDENT +(.*)")
 
-let send_config = fun _asker args ->
+let send_config = fun http _asker args ->
   match args with
     ["ac_id", Pprz.String ac_id] -> begin
       try
 	let conf = ExtXml.child conf_xml "aircraft" ~select:(fun x -> ExtXml.attrib x "ac_id" = ac_id) in
 	let ac_name = ExtXml.attrib conf "name" in
-	let prefix = fun s -> sprintf "http://%s:8889/%s" (Unix.gethostname ()) s in
+	let protocol =
+	  if http then
+	    sprintf "http://%s:8889" (Unix.gethostname ())
+	  else
+	    "file://" in
+	let prefix = fun s -> sprintf "%s/%s" protocol s in
 	(** Expanded flight plan has been compiled in var/ *)
 	let fp = prefix ("var" // ac_name // "flight_plan.xml")
 	and af = prefix ("conf" // ExtXml.attrib conf "airframe")
@@ -582,20 +591,23 @@ let send_config = fun _asker args ->
       let s = String.concat " " (List.map (fun (a,v) -> a^"="^Pprz.string_of_value v) args) in
       failwith (sprintf "Error, Receive.send_config: %s" s)
     
-let ivy_server = fun () ->
+let ivy_server = fun http ->
   ignore (Ground_Pprz.message_answerer my_id "AIRCRAFTS" send_aircrafts_msg);
-  ignore (Ground_Pprz.message_answerer my_id "CONFIG" send_config)
+  ignore (Ground_Pprz.message_answerer my_id "CONFIG" (send_config http))
 
 
 
 (* main loop *)
 let _ =
   let xml_ground = ExtXml.child conf_xml "ground" in
-  let ivy_bus = ref (ExtXml.attrib xml_ground "ivy_bus") in
-  let logging = ref true in
+  let ivy_bus = ref (ExtXml.attrib xml_ground "ivy_bus")
+  and logging = ref true
+  and http = ref false in
+
   let options =
     [ "-b", Arg.String (fun x -> ivy_bus := x), (sprintf "Bus\tDefault is %s" !ivy_bus);
-      "-n", Arg.Clear logging, "Disable log"] in
+      "-n", Arg.Clear logging, "Disable log";
+      "-http", Arg.Set http, "Send http: URLs (default is file:)"] in
   Arg.parse (options)
     (fun x -> Printf.fprintf stderr "Warning: Don't do anythig with %s\n" x)
     "Usage: ";
@@ -613,7 +625,7 @@ let _ =
   else
     listen_acs None;
   (* Waits for client requests on the Ivy bus *)
-  ivy_server ();
+  ivy_server !http;
   
   let loop = Glib.Main.create true in
   while Glib.Main.is_running loop do ignore (Glib.Main.iteration true) done
