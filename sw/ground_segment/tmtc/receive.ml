@@ -573,7 +573,7 @@ let send_config = fun http _asker args ->
 	  if http then
 	    sprintf "http://%s:8889" (Unix.gethostname ())
 	  else
-	    "file://" in
+	    sprintf "file://%s" Env.paparazzi_home in
 	let prefix = fun s -> sprintf "%s/%s" protocol s in
 	(** Expanded flight plan has been compiled in var/ *)
 	let fp = prefix ("var" // ac_name // "flight_plan.xml")
