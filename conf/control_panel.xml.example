@@ -13,7 +13,7 @@
     <variable name="downlink_serial_port" value="/dev/ttyUSB0"/>
     <variable name="fbw_serial_port"      value="/dev/ttyS1"/>
     <variable name="ap_serial_port"       value="/dev/ttyS0"/>
-    <variable name="ivy_bus"              value="127:2009"/>
+    <variable name="ivy_bus"              value="127:2010"/>
     <variable name="map"                  value="muret_UTM.xml"/>
     <variable name="flight_plan"          value="flight_plans/muret1.xml"/>
     <variable name="multimon_demod"       value="AFSK4800_P"/>
@@ -84,83 +84,48 @@
  </section>
 
   <section name="sessions">
-    <session name="soft sim 2">
-      <variable name="map" value="ricouUTM.xml"/>
-<!--      <variable name="ivy_bus" value="192.168.1:2010"/> -->
-      <program name="receive"/>     
+    <session name="Sim 1@Garmisch : 192.168.1">
+      <variable name="ivy_bus" value="192.168.1:2010"/>
+      <variable name="map" value="garmisch.xml"/>
+      <program name="receive"><arg flag="-n"/><arg flag="-http"/></program>
       <program name="http server"/>     
+      <program name="sim"><arg flag="-a" constant="Twin1"/></program>
+      <program name="cockpit"><arg flag="-render" constant="0"/></program>
+      <program name="map 2d ml"/>
+      <program name="messages"><arg flag="-c" constant="telemetry_ap:*"/><arg flag="-c" constant="ground:ground"/></program>
       <program name="gaia"/>
-      <program name="sim"><arg flag="-a" constant="Twinstar3"/></program>
-      <program name="sim"><arg flag="-a" constant="Plaster1"/></program>
+    </session>
+
+    <session name="Sim 2@Garmisch">
+      <variable name="map" value="garmisch.xml"/>
+      <program name="receive"/>     
+      <program name="gaia"/>
+      <program name="sim"><arg flag="-a" constant="Twin1"/></program>
+      <program name="sim"><arg flag="-a" constant="Twin2"/></program>
       <program name="cockpit"></program>
       <program name="map 2d ml"/>
       <program name="messages"><arg flag="-c" constant="telemetry_ap:*"/><arg flag="-c" constant="ground"/></program>
     </session>
-    <session name="client">
+
+    <session name="Client 192.168.1">
        <variable name="ivy_bus" value="192.168.1:2010"/>
        <program name="cockpit"></program>
       <program name="map 2d ml"/>
       <program name="messages"><arg flag="-c" constant="ground"/></program>
     </session>
 
-    <session name="soft sim 1">
-<!--      <variable name="ivy_bus" value="192.168.1:2001"/> -->
-      <variable name="map" value="UTM_363_4782_31.xml"/>
-      <program name="receive"><arg flag="-n"/></program>     
-      <program name="http server"/>     
-      <program name="sim"><arg flag="-a" constant="Thon1"/></program>
-      <program name="cockpit"><arg flag="-render" constant="1"/></program>
-      <program name="map 2d ml"/>
-      <program name="messages"><arg flag="-c" constant="telemetry_ap:*"/><arg flag="-c" constant="ground:ground"/></program>
-    </session>
-  <session name="replay Muret">
-<!--      <variable name="ivy_bus" value="192.168.1:2001"/> -->
-      <variable name="map" value="muret_UTM.xml"/>
-      <program name="receive"/>     
-      <program name="http server"/>     
-      <program name="cockpit"><arg flag="-render" constant="1"/></program>
-      <program name="map 2d ml"/>
-      <program name="play"/>
-    <program name="gaia" command="sw/simulator/gaia"/>
-      <program name="messages"><arg flag="-c" constant="telemetry_ap:*"/><arg flag="-c" constant="ground:ground"/></program>
-    </session>
-  <session name="replay Ricou">
-<!--      <variable name="ivy_bus" value="192.168.1:2001"/> -->
-      <variable name="map" value="UTM_363_4782_31.xml"/>
-      <program name="receive"><arg flag="-n" constant=""/></program>
-      <program name="http server"/>     
-      <program name="cockpit"><arg flag="-render" constant="1"/></program>
-      <program name="map 2d ml"/>
-      <program name="play"/>
-    <program name="gaia" command="sw/simulator/gaia"/>
-      <program name="messages"><arg flag="-c" constant="telemetry_ap:*"/><arg flag="-c" constant="ground:ground"/></program>
-    </session>
- 
-
- <session name="display station">
-      <variable name="ivy_bus" value="192.168.1:2001"/>
+  <session name="Replay MAV05">
+      <variable name="map" value="garmisch.xml"/>
+      <program name="receive"><arg flag="-n"/></program>
       <program name="cockpit"></program>
       <program name="map 2d ml"/>
+      <program name="play"/>
+      <program name="gaia"/>
+      <program name="messages"><arg flag="-c" constant="telemetry_ap:*"/><arg flag="-c" constant="ground:ground"/></program>
     </session>
 
-    <session name="flight microjet modem">
-      <program name="modem"><arg flag="-d" constant="/dev/ttyS0"/></program>
-      <program name="receive"/>     
-      <program name="messages"><arg flag="-c" constant="telemetry_ap:5"/><arg flag="-c" constant="ground"/></program>
-    </session>
-
-   <session name="flight microjet-plaster">
-      <program name="modem"><arg flag="-d" constant="/dev/ttyS0"/></program>
-      <program name="multimon"><arg flag="-p" constant="/tmp/multimon"/></program>
-      <program name="modem"><arg flag="-d" constant="/tmp/multimon"/></program>
-      <program name="receive"/>     
-      <program name="messages"><arg flag="-c" constant="telemetry_ap:1"/><arg flag="-c" constant="telemetry_ap:3"/><arg flag="-c" constant="ground"/></program>
-    </session>
-  
-   <session name="FLIGHT MULTIMON+HW RICOU">
-      <variable name="map"  value="UTM_363_4782_31.xml"/>
-      <variable name="ivy_bus" value="192.168.1:2010"/>
-      <program name="http server"/>     
+   <session name="Flight audio+tty @Garmish">
+      <variable name="map" value="garmisch.xml"/>
       <program name="multimon"><arg flag="-p" constant="/tmp/multimon"/></program>
       <program name="modem"><arg flag="-d" constant="/tmp/multimon"/></program>
       <program name="modem"><arg flag="-d" constant="/dev/ttyUSB0"/></program>
@@ -168,39 +133,6 @@
       <program name="messages"><arg flag="-c" constant="telemetry_ap:*"/><arg flag="-c" constant="ground"/></program>
       <program name="cockpit"/>
       <program name="map 2d ml"/>
-    </session>
-
-   <session name="REPLAY MULTIMON+HW GARMISH">
-      <variable name="map"  value="garmisch.xml"/>
-<!--      <variable name="ivy_bus" value="192.168.1:2010"/> -->
-      <program name="http server"/>     
-      <program name="receive"/>     
-      <program name="messages"><arg flag="-c" constant="telemetry_ap:*"/><arg flag="-c" constant="ground"/></program>
-      <program name="cockpit"/>
-      <program name="map 2d ml"/>
-      <program name="play"/>
-    </session>
-
-   <session name="flight multimon Muret">
-      <variable name="map"  value="muret_UTM.xml"/>
-      <variable name="ivy_bus" value="127:2010"/>
-      <program name="http server"/>     
-      <program name="multimon"><arg flag="-p" constant="/tmp/multimon"/></program>
-      <program name="modem"><arg flag="-d" constant="/tmp/multimon"/></program>
-      <program name="receive"/>     
-      <program name="messages"><arg flag="-c" constant="telemetry_ap:*"/><arg flag="-c" constant="ground"/></program>
-      <program name="cockpit"/>
-      <program name="map 2d ml"/>
-    </session>
-
-   <session name="flight microjet multimon sim">
-      <program name="multimon"><arg flag="-p" constant="/tmp/multimon"/></program>
-      <program name="modem"><arg flag="-d" constant="/tmp/multimon"/></program>
-      <program name="sim"><arg flag="-a" constant="Thon2"/></program>
-      <program name="receive"/>     
-      <program name="cockpit"/>
-      <program name="map 2d ml"/>
-      <program name="messages"><arg flag="-c" constant="telemetry_ap:1"/><arg flag="-c" constant="telemetry_ap:2"/><arg flag="-c" constant="ground"/></program>
     </session>
   </section>
 
