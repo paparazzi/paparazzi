@@ -161,13 +161,13 @@
 #define U0IER          (*((volatile unsigned char *) 0xE000C004))
 #define U0IIR          (*((volatile unsigned char *) 0xE000C008))
 #define U0FCR          (*((volatile unsigned char *) 0xE000C008))
-#define U0LCR          (*((volatile unsigned char *) 0xE000C00C))
+//#define U0LCR          (*((volatile unsigned char *) 0xE000C00C))
 #define U0MCR          (*((volatile unsigned char *) 0xE000C010))
 #define U0LSR          (*((volatile unsigned char *) 0xE000C014))
 #define U0MSR          (*((volatile unsigned char *) 0xE000C018))
 #define U0SCR          (*((volatile unsigned char *) 0xE000C01C))
-#define U0DLL          (*((volatile unsigned char *) 0xE000C000))
-#define U0DLM          (*((volatile unsigned char *) 0xE000C004))
+//#define U0DLL          (*((volatile unsigned char *) 0xE000C000))
+//#define U0DLM          (*((volatile unsigned char *) 0xE000C004))
 
 /* Universal Asynchronous Receiver Transmitter 1 (UART1) */
 #define U1RBR          (*((volatile unsigned char *) 0xE0010000))
