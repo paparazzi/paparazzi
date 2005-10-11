@@ -15,7 +15,7 @@
 #
 # make clean = Clean out built project files.
 #
-# make program = Download the hex file to the device, using lpc21isp
+# make load = Download the hex file to the device, using lpc21isp
 #
 # (TODO: make filename.s = Just compile filename.c into the assembler code only)
 #
@@ -290,7 +290,7 @@ gccversion :
 
 
 # Program the device.  
-program: $(TARGET).hex
+load: $(TARGET).hex
 	@echo
 	@echo $(MSG_LPC21_RESETREMINDER)
 	$(LPC21ISP) $(LPC21ISP_CONTROL) $(LPC21ISP_DEBUG) $(LPC21ISP_FLASHFILE) $(LPC21ISP_PORT) $(LPC21ISP_BAUD) $(LPC21ISP_XTAL)
@@ -413,4 +413,4 @@ clean_list :
 
 # Listing of phony targets.
 .PHONY : all begin finish end sizebefore sizeafter gccversion \
-build elf hex lss sym clean clean_list program
+build elf hex lss sym clean clean_list load
