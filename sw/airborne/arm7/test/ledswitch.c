@@ -13,6 +13,7 @@
 //////////////////////////////////////////////////////////////////////////////
 
 #include "lpc21xx.h"
+#include "lpc2138.h"
 
 // olimex LPC-P2138: buttons on P0.15/P0.16 (active low)
 #define BUT1PIN 	15
@@ -24,11 +25,19 @@
 static void delay(void )
 {
   volatile int i,j;
-
   for (i=0;i<100;i++)
     for (j=0;j<1000;j++);
 }
-  
+ 
+#define YELLOW_LED_ON() { IOCLR0 = (1<<LED1PIN); } 
+#define YELLOW_LED_OFF() { IOSET0 = (1<<LED1PIN); } // LEDs active low
+#define GREEN_LED_ON() { IOCLR0 = (1<<LED2PIN); }
+#define GREEN_LED_OFF() { IOSET0 = (1<<LED2PIN); }
+
+// true if button released (active low)
+#define BUTTTON1_OFF() (IOPIN0 & (1<<BUT1PIN))
+#define BUTTTON2_OFF() (IOPIN0 & (1<<BUT2PIN))
+
 int main(void)
 {
 
@@ -37,35 +46,35 @@ int main(void)
   MAMCR = 2;	// MAM functions fully enabled
 
   IODIR0 |= (1<<LED1PIN)|(1<<LED2PIN); // define LED-Pins as outputs
-  IOSET0 = (1<<LED1PIN)|(1<<LED2PIN); // set Bits = LEDs off (active low)
+  YELLOW_LED_OFF();
+  GREEN_LED_OFF();
   IODIR0 &= ~((1<<BUT1PIN)|(1<<BUT2PIN));// define Button-Pins as inputs
 
   i=0;
-  while (i<10)	
-    {
-      IOCLR0 = (1<<LED1PIN);	
-      IOSET0 = (1<<LED2PIN);	
-      delay();
-      IOSET0 = (1<<LED1PIN);
-      IOCLR0 = (1<<LED2PIN);	
-      delay();
-      i++;
-    }
+  while (i<10)	{
+    YELLOW_LED_ON();
+    GREEN_LED_OFF();
+    delay();
+    YELLOW_LED_OFF();
+    GREEN_LED_ON();
+    delay();
+    i++;
+  }
 	
   while (1)	
     {
-      if (IOPIN0 & (1<<BUT1PIN))	{ // true if button released (active low)
-	IOCLR0 = (1<<LED2PIN);		// clear I/O bit -> LED on (active low)
+      if (BUTTTON1_OFF()) { 
+	YELLOW_LED_ON();
       }
       else {
-	IOSET0 = (1<<LED2PIN);		// set I/O bit -> LED off (active low)
+	YELLOW_LED_OFF();
       }
 		
-      if (IOPIN0 & (1<<BUT2PIN))	{ // true if button released (active low)
-	IOCLR0 = (1<<LED1PIN);		// clear I/O bit -> LED on (active low)
+      if (BUTTTON2_OFF())	{ 
+	GREEN_LED_ON();
       }
       else {
-	IOSET0 = (1<<LED1PIN);		// set I/O bit -> LED off (active low)
+	GREEN_LED_OFF();
       }
     }
 	

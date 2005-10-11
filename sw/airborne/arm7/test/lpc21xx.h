@@ -78,10 +78,10 @@
 #define MEMMAP         (*((volatile unsigned char *) 0xE01FC040))
 
 /* Phase Locked Loop (PLL) */
-#define PLLCON         (*((volatile unsigned char *) 0xE01FC080))
-#define PLLCFG         (*((volatile unsigned char *) 0xE01FC084))
-#define PLLSTAT        (*((volatile unsigned short*) 0xE01FC088))
-#define PLLFEED        (*((volatile unsigned char *) 0xE01FC08C))
+//#define PLLCON         (*((volatile unsigned char *) 0xE01FC080))
+//#define PLLCFG         (*((volatile unsigned char *) 0xE01FC084))
+//#define PLLSTAT        (*((volatile unsigned short*) 0xE01FC088))
+//#define PLLFEED        (*((volatile unsigned char *) 0xE01FC08C))
 
 /* VPB Divider */
 #define VPBDIV         (*((volatile unsigned char *) 0xE01FC100))
