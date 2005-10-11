@@ -26,6 +26,51 @@
         .equ  I_BIT, 0x80               // when I bit is set, IRQ is disabled
         .equ  F_BIT, 0x40               // when F bit is set, FIQ is disabled
 
+#define FOSC 14318180                 /* External clock input frequency (must be between 10 MHz and 25 MHz) */
+//#define FOSC 14745600                 /* External clock input frequency (must be between 10 MHz and 25 MHz) */
+
+#define USE_PLL 1                     /* 0 = do not use on-chip PLL,
+                                         1 = use on-chip PLL) */
+#define PLL_MUL 4                     /* PLL multiplication factor (1 to 32) */
+#define PLL_DIV 2                     /* PLL division factor (1, 2, 4, or 8) */
+#define PBSD    4                     /* Peripheral bus speed divider (1, 2, or 4) */
+
+/* initialize the MAM (Memory Accelerator Module) */
+#if (FOSC * PLL_MUL) < 20000000
+#define MAM_TIMING   1                /* number of CCLK to read from the FLASH */
+#elif (FOSC * PLL_MUL) < 40000000
+#define MAM_TIMING   2                /* number of CCLK to read from the FLASH */
+#else
+#define MAM_TIMING   3                /* number of CCLK to read from the FLASH */
+#endif
+#define MAM_SETTING  2                /* 0=disabled,
+                                         1=partly enabled (enabled for code prefetch, but not for data),
+                                         2=fully enabled */
+	
+#define VAL_PLLCFG_MSEL  ((PLL_MUL - 1) << 0)
+#if (PLL_DIV == 1)
+#define PLL_DIV_VALUE 0x00
+#elif (PLL_DIV == 2)
+#define PLL_DIV_VALUE 0x01
+#elif (PLL_DIV == 4)
+#define PLL_DIV_VALUE 0x10
+#elif (PLL_DIV == 8)
+#define PLL_DIV_VALUE 0x11
+#endif
+#define VAL_PLLCFG_PSEL  (PLL_DIV_VALUE << 5)
+#define VAL_PLLCFG       (VAL_PLLCFG_MSEL | VAL_PLLCFG_PSEL)
+
+		
+# Phase Locked Loop (PLL) definitions
+        .equ    PLL_BASE,       0xE01FC080  /* PLL Base Address */
+        .equ    PLLCON_OFS,     0x00        /* PLL Control Offset*/
+        .equ    PLLCFG_OFS,     0x04        /* PLL Configuration Offset */
+        .equ    PLLSTAT_OFS,    0x08        /* PLL Status Offset */
+        .equ    PLLFEED_OFS,    0x0C        /* PLL Feed Offset */
+        .equ    PLLCON_PLLE,    (1<<0)      /* PLL Enable */
+        .equ    PLLCON_PLLC,    (1<<1)      /* PLL Connect */
+        .equ    PLLSTAT_PLOCK,  (1<<10)     /* PLL Lock Status */
+	
         .text
         .code 32
         .align 2
@@ -83,6 +128,37 @@ __fiq:  b     .                         // FIQ
 _start:
 start:
 _mainCRTStartup:
+
+#if (USE_PLL == 1)
+                LDR     R0, =PLL_BASE
+                MOV     R1, #0xAA
+                MOV     R2, #0x55
+
+# Disable PLL before programming 
+		MOV	R3,#0
+                STR     R3, [R0, #PLLCON_OFS]
+                STR     R1, [R0, #PLLFEED_OFS]
+                STR     R2, [R0, #PLLFEED_OFS]
+		
+# Configure and Enable PLL
+                MOV     R3, #VAL_PLLCFG
+                STR     R3, [R0, #PLLCFG_OFS] 
+                MOV     R3, #PLLCON_PLLE
+                STR     R3, [R0, #PLLCON_OFS]
+                STR     R1, [R0, #PLLFEED_OFS]
+                STR     R2, [R0, #PLLFEED_OFS]
+
+# Wait until PLL Locked
+PLL_Loop:       LDR     R3, [R0, #PLLSTAT_OFS]
+                ANDS    R3, R3, #PLLSTAT_PLOCK
+                BEQ     PLL_Loop
+
+# Switch to PLL Clock
+                MOV     R3, #(PLLCON_PLLE | PLLCON_PLLC)
+                STR     R3, [R0, #PLLCON_OFS]
+                STR     R1, [R0, #PLLFEED_OFS]
+                STR     R2, [R0, #PLLFEED_OFS]
+#endif
 
 // Initialize Interrupt System
 // - Set stack location for each mode
