@@ -37,7 +37,7 @@ struct PLLFEED_reg {
 
 /* Universal Asynchronous Receiver Transmitter 0 (UART0) */
 #define U0LCR          (*((volatile unsigned char *) 0xE000C00C))
-#define U0LCR_bit      (*(struct U0LCR_reg*) U0LCR)
+#define U0LCR_bit      (*(struct U0LCR_reg*) 0xE000C00C)
 struct U0LCR_reg {
   unsigned char WLS:2;
   unsigned char SBS:1;
