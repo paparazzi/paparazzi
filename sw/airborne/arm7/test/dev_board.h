@@ -2,6 +2,10 @@
 #define DEV_BOARD_H
 
 // olimex LPC-P2138:
+
+#define FOSC 14745600
+#define PLL_MUL 4
+ 
 // buttons on P0.15/P0.16 (active low)
 #define BUT1PIN 	15
 #define BUT2PIN 	16
