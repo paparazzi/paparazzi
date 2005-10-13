@@ -84,17 +84,17 @@
 //#define PLLFEED        (*((volatile unsigned char *) 0xE01FC08C))
 
 /* VPB Divider */
-#define VPBDIV         (*((volatile unsigned char *) 0xE01FC100))
+//#define VPBDIV         (*((volatile unsigned char *) 0xE01FC100))
 
 /* Power Control */
-#define PCON           (*((volatile unsigned char *) 0xE01FC0C0))
-#define PCONP          (*((volatile unsigned long *) 0xE01FC0C4))
+//#define PCON           (*((volatile unsigned char *) 0xE01FC0C0))
+//#define PCONP          (*((volatile unsigned long *) 0xE01FC0C4))
 
 /* External Interrupts */
-#define EXTINT         (*((volatile unsigned char *) 0xE01FC140))
-#define EXTWAKE        (*((volatile unsigned char *) 0xE01FC144))
-#define EXTMODE        (*((volatile unsigned char *) 0xE01FC148))
-#define EXTPOLAR       (*((volatile unsigned char *) 0xE01FC14C))
+//#define EXTINT         (*((volatile unsigned char *) 0xE01FC140))
+//#define EXTWAKE        (*((volatile unsigned char *) 0xE01FC144))
+//#define EXTMODE        (*((volatile unsigned char *) 0xE01FC148))
+//#define EXTPOLAR       (*((volatile unsigned char *) 0xE01FC14C))
 
 /* Timer 0 */
 //#define T0IR           (*((volatile unsigned long *) 0xE0004000))
@@ -115,22 +115,22 @@
 //#define T0EMR          (*((volatile unsigned long *) 0xE000403C))
 
 /* Timer 1 */
-#define T1IR           (*((volatile unsigned long *) 0xE0008000))
-#define T1TCR          (*((volatile unsigned long *) 0xE0008004))
-#define T1TC           (*((volatile unsigned long *) 0xE0008008))
-#define T1PR           (*((volatile unsigned long *) 0xE000800C))
-#define T1PC           (*((volatile unsigned long *) 0xE0008010))
-#define T1MCR          (*((volatile unsigned long *) 0xE0008014))
-#define T1MR0          (*((volatile unsigned long *) 0xE0008018))
-#define T1MR1          (*((volatile unsigned long *) 0xE000801C))
-#define T1MR2          (*((volatile unsigned long *) 0xE0008020))
-#define T1MR3          (*((volatile unsigned long *) 0xE0008024))
-#define T1CCR          (*((volatile unsigned long *) 0xE0008028))
-#define T1CR0          (*((volatile unsigned long *) 0xE000802C))
-#define T1CR1          (*((volatile unsigned long *) 0xE0008030))
-#define T1CR2          (*((volatile unsigned long *) 0xE0008034))
-#define T1CR3          (*((volatile unsigned long *) 0xE0008038))
-#define T1EMR          (*((volatile unsigned long *) 0xE000803C))
+//#define T1IR           (*((volatile unsigned long *) 0xE0008000))
+//#define T1TCR          (*((volatile unsigned long *) 0xE0008004))
+//#define T1TC           (*((volatile unsigned long *) 0xE0008008))
+//#define T1PR           (*((volatile unsigned long *) 0xE000800C))
+//#define T1PC           (*((volatile unsigned long *) 0xE0008010))
+//#define T1MCR          (*((volatile unsigned long *) 0xE0008014))
+//#define T1MR0          (*((volatile unsigned long *) 0xE0008018))
+//#define T1MR1          (*((volatile unsigned long *) 0xE000801C))
+//#define T1MR2          (*((volatile unsigned long *) 0xE0008020))
+//#define T1MR3          (*((volatile unsigned long *) 0xE0008024))
+//#define T1CCR          (*((volatile unsigned long *) 0xE0008028))
+//#define T1CR0          (*((volatile unsigned long *) 0xE000802C))
+//#define T1CR1          (*((volatile unsigned long *) 0xE0008030))
+//#define T1CR2          (*((volatile unsigned long *) 0xE0008034))
+//#define T1CR3          (*((volatile unsigned long *) 0xE0008038))
+//#define T1EMR          (*((volatile unsigned long *) 0xE000803C))
 
 /* Pulse Width Modulator (PWM) */
 #define PWMIR          (*((volatile unsigned long *) 0xE0014000))
@@ -193,14 +193,14 @@
 #define I2CONCLR       (*((volatile unsigned char *) 0xE001C018))
 
 /* SPI0 (Serial Peripheral Interface 0) */
-#define S0SPCR         (*((volatile unsigned char *) 0xE0020000))
-#define S0SPSR         (*((volatile unsigned char *) 0xE0020004))
-#define S0SPDR         (*((volatile unsigned char *) 0xE0020008))
-#define S0SPCCR        (*((volatile unsigned char *) 0xE002000C))
-#define S0SPTCR        (*((volatile unsigned char *) 0xE0020010))
-#define S0SPTSR        (*((volatile unsigned char *) 0xE0020014))
-#define S0SPTOR        (*((volatile unsigned char *) 0xE0020018))
-#define S0SPINT        (*((volatile unsigned char *) 0xE002001C))
+//#define S0SPCR         (*((volatile unsigned char *) 0xE0020000))
+//#define S0SPSR         (*((volatile unsigned char *) 0xE0020004))
+//#define S0SPDR         (*((volatile unsigned char *) 0xE0020008))
+//#define S0SPCCR        (*((volatile unsigned char *) 0xE002000C))
+//#define S0SPTCR        (*((volatile unsigned char *) 0xE0020010))
+//#define S0SPTSR        (*((volatile unsigned char *) 0xE0020014))
+//#define S0SPTOR        (*((volatile unsigned char *) 0xE0020018))
+//#define S0SPINT        (*((volatile unsigned char *) 0xE002001C))
 
 /* SPI1 (Serial Peripheral Interface 1) */
 #define S1SPCR         (*((volatile unsigned char *) 0xE0030000))
@@ -213,41 +213,44 @@
 #define S1SPINT        (*((volatile unsigned char *) 0xE003001C))
 
 /* Real Time Clock */
-#define ILR            (*((volatile unsigned char *) 0xE0024000))
-#define CTC            (*((volatile unsigned short*) 0xE0024004))
-#define CCR            (*((volatile unsigned char *) 0xE0024008))
-#define CIIR           (*((volatile unsigned char *) 0xE002400C))
-#define AMR            (*((volatile unsigned char *) 0xE0024010))
-#define CTIME0         (*((volatile unsigned long *) 0xE0024014))
-#define CTIME1         (*((volatile unsigned long *) 0xE0024018))
-#define CTIME2         (*((volatile unsigned long *) 0xE002401C))
-#define SEC            (*((volatile unsigned char *) 0xE0024020))
-#define MIN            (*((volatile unsigned char *) 0xE0024024))
-#define HOUR           (*((volatile unsigned char *) 0xE0024028))
-#define DOM            (*((volatile unsigned char *) 0xE002402C))
-#define DOW            (*((volatile unsigned char *) 0xE0024030))
-#define DOY            (*((volatile unsigned short*) 0xE0024034))
-#define MONTH          (*((volatile unsigned char *) 0xE0024038))
-#define YEAR           (*((volatile unsigned short*) 0xE002403C))
-#define ALSEC          (*((volatile unsigned char *) 0xE0024060))
-#define ALMIN          (*((volatile unsigned char *) 0xE0024064))
-#define ALHOUR         (*((volatile unsigned char *) 0xE0024068))
-#define ALDOM          (*((volatile unsigned char *) 0xE002406C))
-#define ALDOW          (*((volatile unsigned char *) 0xE0024070))
-#define ALDOY          (*((volatile unsigned short*) 0xE0024074))
-#define ALMON          (*((volatile unsigned char *) 0xE0024078))
-#define ALYEAR         (*((volatile unsigned short*) 0xE002407C))
-#define PREINT         (*((volatile unsigned short*) 0xE0024080))
-#define PREFRAC        (*((volatile unsigned short*) 0xE0024084))
+//#define ILR            (*((volatile unsigned char *) 0xE0024000))
+//#define CTC            (*((volatile unsigned short*) 0xE0024004))
+//#define CCR            (*((volatile unsigned char *) 0xE0024008))
+//#define CIIR           (*((volatile unsigned char *) 0xE002400C))
+//#define AMR            (*((volatile unsigned char *) 0xE0024010))
+//#define CTIME0         (*((volatile unsigned long *) 0xE0024014))
+//#define CTIME1         (*((volatile unsigned long *) 0xE0024018))
+//#define CTIME2         (*((volatile unsigned long *) 0xE002401C))
+//#define SEC            (*((volatile unsigned char *) 0xE0024020))
+//#define MIN            (*((volatile unsigned char *) 0xE0024024))
+//#define HOUR           (*((volatile unsigned char *) 0xE0024028))
+//#define DOM            (*((volatile unsigned char *) 0xE002402C))
+//#define DOW            (*((volatile unsigned char *) 0xE0024030))
+//#define DOY            (*((volatile unsigned short*) 0xE0024034))
+//#define MONTH          (*((volatile unsigned char *) 0xE0024038))
+//#define YEAR           (*((volatile unsigned short*) 0xE002403C))
+//#define ALSEC          (*((volatile unsigned char *) 0xE0024060))
+//#define ALMIN          (*((volatile unsigned char *) 0xE0024064))
+//#define ALHOUR         (*((volatile unsigned char *) 0xE0024068))
+//#define ALDOM          (*((volatile unsigned char *) 0xE002406C))
+//#define ALDOW          (*((volatile unsigned char *) 0xE0024070))
+//#define ALDOY          (*((volatile unsigned short*) 0xE0024074))
+//#define ALMON          (*((volatile unsigned char *) 0xE0024078))
+//#define ALYEAR         (*((volatile unsigned short*) 0xE002407C))
+//#define PREINT         (*((volatile unsigned short*) 0xE0024080))
+//#define PREFRAC        (*((volatile unsigned short*) 0xE0024084))
 
 /* A/D Converter */
+//not in 2138
 #define ADCR           (*((volatile unsigned long *) 0xE0034000))
 #define ADDR           (*((volatile unsigned long *) 0xE0034004))
 
 /* CAN Acceptance Filter RAM */
+//not in 2138
 #define AFRAM          (*((volatile unsigned long *) 0xE0038000))
 
 /* CAN Acceptance Filter */
+//not in 2138
 #define AFMR           (*((volatile unsigned long *) 0xE003C000))
 #define SFF_sa         (*((volatile unsigned long *) 0xE003C004))
 #define SFF_GRP_sa     (*((volatile unsigned long *) 0xE003C008))
@@ -258,11 +261,13 @@
 #define LUTerr         (*((volatile unsigned long *) 0xE003C01C))
 
 /* CAN Central Registers */
+//not in 2138
 #define CANTxSR        (*((volatile unsigned long *) 0xE0040000))
 #define CANRxSR        (*((volatile unsigned long *) 0xE0040004))
 #define CANMSR         (*((volatile unsigned long *) 0xE0040008))
 
 /* CAN Controller 1 (CAN1) */
+//not in 2138
 #define C1MOD          (*((volatile unsigned long *) 0xE0044000))
 #define C1CMR          (*((volatile unsigned long *) 0xE0044004))
 #define C1GSR          (*((volatile unsigned long *) 0xE0044008))
@@ -289,6 +294,7 @@
 #define C1TDB3         (*((volatile unsigned long *) 0xE004405C))
 
 /* CAN Controller 2 (CAN2) */
+//not in 2138
 #define C2MOD          (*((volatile unsigned long *) 0xE0048000))
 #define C2CMR          (*((volatile unsigned long *) 0xE0048004))
 #define C2GSR          (*((volatile unsigned long *) 0xE0048008))
@@ -315,6 +321,7 @@
 #define C2TDB3         (*((volatile unsigned long *) 0xE004805C))
 
 /* CAN Controller 3 (CAN3) */
+//not in 2138
 #define C3MOD          (*((volatile unsigned long *) 0xE004C000))
 #define C3CMR          (*((volatile unsigned long *) 0xE004C004))
 #define C3GSR          (*((volatile unsigned long *) 0xE004C008))
@@ -341,6 +348,7 @@
 #define C3TDB3         (*((volatile unsigned long *) 0xE004C05C))
 
 /* CAN Controller 4 (CAN4) */
+//not in 2138
 #define C4MOD          (*((volatile unsigned long *) 0xE0050000))
 #define C4CMR          (*((volatile unsigned long *) 0xE0050004))
 #define C4GSR          (*((volatile unsigned long *) 0xE0050008))
@@ -367,10 +375,10 @@
 #define C4TDB3         (*((volatile unsigned long *) 0xE005005C))
 
 /* Watchdog */
-#define WDMOD          (*((volatile unsigned char *) 0xE0000000))
-#define WDTC           (*((volatile unsigned long *) 0xE0000004))
-#define WDFEED         (*((volatile unsigned char *) 0xE0000008))
-#define WDTV           (*((volatile unsigned long *) 0xE000000C))
+//#define WDMOD          (*((volatile unsigned char *) 0xE0000000))
+//#define WDTC           (*((volatile unsigned long *) 0xE0000004))
+//#define WDFEED         (*((volatile unsigned char *) 0xE0000008))
+//#define WDTV           (*((volatile unsigned long *) 0xE000000C))
 
 #endif  // __LPC21xx_H
 
