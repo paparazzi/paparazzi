@@ -148,19 +148,19 @@ struct T0TCR_reg {
 #define T0MCR          (*((volatile uint16_t *) 0xE0004014))
 #define T0MCR_bit      (*(struct T0MCR_reg*)    0xE0004014)
 struct T0MCR_reg {
-  uint8_t MR0I:1;
-  uint8_t MR0R:1;
-  uint8_t MR0S:1; 
-  uint8_t MR1I:1;
-  uint8_t MR1R:1;
-  uint8_t MR1S:1; 
-  uint8_t MR2I:1;
-  uint8_t MR2R:1;
-  uint8_t MR2S:1; 
-  uint8_t MR3I:1;
-  uint8_t MR3R:1;
-  uint8_t MR3S:1; 
-  uint8_t _:4;  
+  uint32_t MR0I:1;
+  uint32_t MR0R:1;
+  uint32_t MR0S:1; 
+  uint32_t MR1I:1;
+  uint32_t MR1R:1;
+  uint32_t MR1S:1; 
+  uint32_t MR2I:1;
+  uint32_t MR2R:1;
+  uint32_t MR2S:1; 
+  uint32_t MR3I:1;
+  uint32_t MR3R:1;
+  uint32_t MR3S:1; 
+  uint32_t _:4;  
 };
 
 
@@ -479,8 +479,8 @@ struct DACR_reg {
 #define VICVectCntl0     (*((volatile uint32_t *)   0xFFFFF200))
 #define VICVectCntl0_bit (*(struct VICVecCntl0_reg*)0xFFFFF200)
 struct VICVecCntl0_reg {
-  uint8_t IRSIA:5;
-  uint8_t IRQslot_en:1;
+  uint32_t IRSIA:5;
+  uint32_t IRQslot_en:1;
   uint32_t _:26;
 };
 
@@ -500,5 +500,28 @@ struct VICVecCntl0_reg {
 #define VICVectCntl14  (*((volatile uint32_t *) 0xFFFFF238))
 #define VICVectCntl15  (*((volatile uint32_t *) 0xFFFFF23C))
 
+#define VIC_WDT         0
+#define VIC_ARMCore0    2
+#define VIC_ARMCore1    3
+#define VIC_TIMER0      4
+#define VIC_TIMER1      5
+#define VIC_UART0       6
+#define VIC_UART1       7
+#define VIC_PWM0        8
+#define VIC_I2C0        9
+#define VIC_SPI0        10
+#define VIC_SSP         11
+#define VIC_PLL         12
+#define VIC_RTC         13
+#define VIC_EINT0       14
+#define VIC_EINT1       15
+#define VIC_EINT2       16
+#define VIC_EINT3       17
+#define VIC_AD0         18
+#define VIC_I2C1        19
+#define VIC_BOD         20
+#define VIC_AD1         21
+
+#define VIC_NUM_INTS    22
 
 #endif /* LPC2138_H */
