@@ -44,20 +44,27 @@ let version = "0.1"
 let dx = 50 and dy = 50
 
 (* Facteur d'echelle pour les altitudes *)
-let fact_alti = 3
+let fact_alti = 1
 
 (* Taille de la fenetre d'affichage *)
 let width = 800 and height = 600
 
-let tolerance_alti = 100.
+let tolerance_alti = 20.
 
-let default_color_trajs = ref (`NAME "red")
+
+let color_trajs = [|`NAME "red"; `NAME "green"; `NAME "blue"|]
+
+let new_color =
+  let i = ref (-1) in
+  fun () ->
+    i := (! i + 1) mod (Array.length color_trajs);
+    color_trajs.(!i)
 
 let home = Env.paparazzi_home
 let (//) = Filename.concat
 let default_path_SRTM = home // "data" // "srtm"
-let default_path_maps = home // "data" // ""
-let default_path_traj = home // "var" // ""
+let default_path_maps = home // "data" // "maps/"
+let default_path_traj = home // "var" // "logs/"
 let default_path_missions = home // "conf"
 
 let color_pixmaps = Hashtbl.create 101
@@ -66,16 +73,22 @@ let limits = ref ((min_float,min_float), (max_float, max_float))
 
 let track_filter = fun points ->
   let ((minx,miny), (maxx, maxy)) = !limits in
-  let rec loop = function
+  let rec loop = fun last_alt points ->
+    match points with
       [] -> []
     | (t,x,y,a)::ps ->
 	if minx < x && x < maxx && miny < y && y < maxy
-	then (t,x,y,a)::loop ps
-	else loop ps in
-  loop points
+	then 
+	  match last_alt with
+	    None -> (t,x,y,a)::loop (Some a) ps
+	  | (Some a') when abs_float (a-.a') < tolerance_alti ->
+	      (t,x,y,a)::loop (Some a) ps
+	  | _ -> loop last_alt ps
+	else loop last_alt ps in
+  loop None points
 
 (* Fichier d'aide contenant les touches clavier utilisees *)
-let filename_help_keys = Env.paparazzi_src // "conf" // "Help_Keys.txt"
+let filename_help_keys = Env.paparazzi_src // "conf" // "mapGL_help_keys.txt"
 
 (* ============================================================================= *)
 (* = Passage de couleur GTK vers GL                                            = *)
@@ -97,50 +110,47 @@ let gl_to_gtk_color (r, g, b) =
   `RGB(int_of_float (r*.65535.0), int_of_float (g*.65535.0),
        int_of_float (b*.65535.0))
 
-(* ============================================================================= *)
-(* = Lecture d'un fichier de trajectoire avec correction des points etranges   = *)
-(* ============================================================================= *)
+(** Tracks loading from a log file   = *)
 let read_traj_file filename =
-  let traj = ref [] and prev_alti = ref None in
-  let corrige_alt alt =
-    let x =
-      match !prev_alti with
-	None -> alt
-      | Some prev_alti ->
-	  if abs_float(alt-.prev_alti)<tolerance_alti then alt
-	  else prev_alti
-    in
-    prev_alti:=Some x;
-    x
-  in
+  let h = Hashtbl.create 5 in
+  let add_point = fun id p ->
+    let track =
+      try Hashtbl.find h id with
+	Not_found -> 
+	  let empty_track = ref [] in
+	  Hashtbl.add h id empty_track;
+	  empty_track in
+    track := p :: !track in      
 
   let match_func l error_func =
     match l with
-      time::"GPS"::mode::utm_x::utm_y::_::alt::_ ->
+      time::id::"GPS"::mode::utm_x::utm_y::_::alt::_ ->
 	(try
 	  if mode = "3" then (* Else no pertinent info available *)
 	    let t = fos time
-	    and utm_x = (fos utm_x)/.100.
-	    and utm_y = (fos utm_y)/.100.
-	    and alt = (fos alt) in
-	    (* Filtrage des altitudes incorrectes *)
-	    let alt = corrige_alt alt in
-	    traj:=(t, utm_x, utm_y, alt)::!traj
+	    and utm_x = fos utm_x /. 100.
+	    and utm_y = fos utm_y /. 100.
+	    and alt = fos alt /. 100. in
+	    add_point id (t, utm_x, utm_y, alt);
 	with _ -> error_func ())
     | _ -> ()
   in
-  do_read_file filename match_func (fun () -> ()) ;
-  let traj' = track_filter (List.rev !traj) in
-  (traj', !default_color_trajs)
+  do_read_file filename match_func (fun () -> ());
+  let tracks =
+    Hashtbl.fold
+      (fun _id track r -> (track_filter (List.rev !track), new_color ())::r)
+      h
+      [] in
+  tracks
 
 (* ============================================================================= *)
 (* = Ajout de la surface                                                       = *)
 (* ============================================================================= *)
 let add_surface view3d texture_file (min_x, min_y) (max_x, max_y) utm_zone =
   (* Creation de la texture a partir d'une image *)
-  Printf.printf "Lecture texture..."; flush stdout ;
+  Printf.printf "Loading texture...%!";
   let texture_id = Gtk_3d.create_texture_from_image texture_file in
-  Printf.printf " OK\n"; flush stdout ;
+  Printf.printf " OK\n%!";
 
   (* Creation d'une matrice contenant les elevations *)
   let nx = (max_x-min_x)/dx+1 and ny = (max_y-min_y)/dy+1 in
@@ -167,7 +177,8 @@ let add_surface view3d texture_file (min_x, min_y) (max_x, max_y) utm_zone =
 (* ============================================================================= *)
 (* = Ajout d'une trajectoire                                                   = *)
 (* ============================================================================= *)
-let point3D = fun (_, utm_x, utm_y, alt) -> {x3D=utm_x; y3D=utm_y; z3D=alt*. float fact_alti}
+let point3D = fun (_, utm_x, utm_y, alt) ->
+  {x3D=utm_x; y3D=utm_y; z3D=alt*. float fact_alti}
 let add_traj view3d (points, id) =
   let l = List.map point3D points in
 
@@ -255,9 +266,11 @@ let on_load_surface win view3d id_sol () =
 (* ============================================================================= *)
 let load_trajectory view3d lst_ids_trajs () =
   let read_data f =
-    let new_traj = read_traj_file f in
-    lst_ids_trajs:=(add_traj view3d new_traj)::!lst_ids_trajs ;
-    (* Force la mise a jour de l'affichage *)
+    let new_trajs = read_traj_file f in
+    List.iter
+      (fun traj -> lst_ids_trajs:=(add_traj view3d traj)::!lst_ids_trajs)
+      new_trajs;
+    (* Force display update *)
     view3d#display_func
   in
 
@@ -407,13 +420,15 @@ let build_interface = fun map_file mission_file ->
   (* Creation des menus : Sol *)
   let factory = new GMenu.factory menus.(!nb_menus) ~accel_group in
   incr nb_menus ;
-  ignore (factory#add_item "Load Background"
+  ignore (factory#add_item "Load Background" ~key:GdkKeysyms._M
     ~callback:(on_load_surface window view3d id_sol)) ;
+  let quit = fun () -> GMain.Main.quit (); exit 0 in
+  ignore (factory#add_item "Quit" ~key:GdkKeysyms._Q ~callback:quit) ;
 
   (* Creation des menus : Trajectoires *)
   let factory = new GMenu.factory menus.(!nb_menus) ~accel_group in
   incr nb_menus ;
-  ignore (factory#add_item "Load Track" ~callback:(load_trajectory view3d lst_ids_trajs)) ;
+  ignore (factory#add_item "Load Track"  ~key:GdkKeysyms._T ~callback:(load_trajectory view3d lst_ids_trajs)) ;
   ignore (factory#add_item "Edit Tracks"
     ~callback:(build_lst_traj tooltips view3d lst_ids_trajs)) ;
 
@@ -424,10 +439,9 @@ let build_interface = fun map_file mission_file ->
 
   (* Aide *)
   let factory = new GMenu.factory menu_help in
-  ignore (factory#add_item "A propos" ~callback:build_fen_about) ;
   ignore (factory#add_item "Help keys/mouse"
     ~callback:(fun () -> Gtk_tools.display_file filename_help_keys
-	"Aide touches clavier" 370 500 tooltips (Some "fixed"))) ;
+	"Help keys/mouse" 370 500 tooltips (Some "fixed"))) ;
 
   (* Affichage de la fenetre principale *)
   window#show () ;
@@ -463,6 +477,7 @@ let build_interface = fun map_file mission_file ->
     load_mission view3d (Xml.parse_file xml_file)
   end;
 
+  window#add_accel_group accel_group;
  (* Lancement de la mainloop *)
   Gtk_tools.main_loop () 
 
@@ -478,7 +493,7 @@ let _ =
       "-m", Arg.String (fun x -> map_file := x), "Map description file";
       "-f", Arg.String (fun x -> mission_file := x), "Mission description file"] in
   Arg.parse (options)
-    (fun x -> Printf.fprintf stderr "Warning: Don't do anythig with %s\n" x)
+    (fun x -> Printf.fprintf stderr "Warning: Don't do anything with %s\n" x)
     "Usage: ";
   (*                                 *)
   Ivy.init "Paparazzi 3d visu" "READY" (fun _ _ -> ());
