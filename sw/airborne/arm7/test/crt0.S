@@ -6,6 +6,8 @@
         .global __bss_start             // -> .bss area in RAM
         .global __bss_end__             // end of .bss area
         .global _stack                  // top of stack
+	
+        .global irq_dispatcher
 
 // Stack Sizes
         .set  UND_STACK_SIZE, 0x00000004
@@ -26,8 +28,7 @@
         .equ  I_BIT, 0x80               // when I bit is set, IRQ is disabled
         .equ  F_BIT, 0x40               // when F bit is set, FIQ is disabled
 
-#define FOSC 14318180                 /* External clock input frequency (must be between 10 MHz and 25 MHz) */
-//#define FOSC 14745600                 /* External clock input frequency (must be between 10 MHz and 25 MHz) */
+#define FOSC 14745600                 /* External clock input frequency (must be between 10 MHz and 25 MHz) */
 
 #define USE_PLL 1                     /* 0 = do not use on-chip PLL,
                                          1 = use on-chip PLL) */
@@ -46,6 +47,9 @@
 #define MAM_SETTING  2                /* 0=disabled,
                                          1=partly enabled (enabled for code prefetch, but not for data),
                                          2=fully enabled */
+#define MEM_MAPPING  1                /* 0=Boot loader,
+                                         1=User Flash,
+                                         2=User RAM */
 	
 #define VAL_PLLCFG_MSEL  ((PLL_MUL - 1) << 0)
 #if (PLL_DIV == 1)
@@ -70,7 +74,15 @@
         .equ    PLLCON_PLLE,    (1<<0)      /* PLL Enable */
         .equ    PLLCON_PLLC,    (1<<1)      /* PLL Connect */
         .equ    PLLSTAT_PLOCK,  (1<<10)     /* PLL Lock Status */
-	
+        .equ    MAM_BASE,       0xE01FC000  /* Memory Accelerator Module */
+        .equ    MAMCR_OFS,      0x00        /* MAM Control */
+        .equ    MAMTIM_OFS,     0x04        /* MAM Timing */
+        .equ    MEMMAP_BASE,    0xE01FC040  /* Memory Mapping Base */
+        .equ    MEMMAP_OFS,     0x00        /* Memory Mapping */
+        .equ    VIC_BASE,       0xFFFFF000  /* Vector Interrupt Controller */
+        .equ    VICIRQStats_OFS,0x10        /* IRQ Status Register */
+        .equ    VICIntEnClr_OFS,0x14        /* VIC Interrupt Enable Clear */
+
         .text
         .code 32
         .align 2
@@ -88,8 +100,19 @@ Vectors:
         ldr   pc,_pabt                  // program abort - _pabt
         ldr   pc,_dabt                  // data abort - _dabt
         nop                             // reserved
-        ldr   pc,[pc,#-0xFF0]           // IRQ - read the VIC
+        b     irq_handler               // IRQ - jump to fct
         ldr   pc,_fiq                   // FIQ - _fiq
+
+irq_handler:        
+        stmfd sp!,{r0-r12,lr}           // save regs r0-r12 and link register
+
+        ldr r1, =VIC_BASE               // load IRQ status
+        ldr r0, [r1, #VICIRQStats_OFS]
+        bl irq_dispatcher               // c-function irq
+
+        ldmfd sp!,{r0-r12,lr}           // restore regs and lr
+        subs pc,lr,#4
+
 
 #if 0
 // Use this group for production
@@ -159,6 +182,24 @@ PLL_Loop:       LDR     R3, [R0, #PLLSTAT_OFS]
                 STR     R1, [R0, #PLLFEED_OFS]
                 STR     R2, [R0, #PLLFEED_OFS]
 #endif
+                // switch on MAM
+                ldr     R0, =MAM_BASE
+                mov     R1, #MAM_TIMING
+                mov     R2, #MAM_SETTING
+                str     R1, [R0, #MAMTIM_OFS]
+                str     R2, [R0, #MAMCR_OFS]
+
+                // set interrupt table location
+                ldr     R0, =MEMMAP_BASE
+                mov     R1, #MEM_MAPPING
+                str     R1, [R0, #MEMMAP_OFS]
+
+                // turn off interrupts
+                ldr     R0, =VIC_BASE
+                mov     R1, #0xFFFFFFFF
+                str     R1, [R0, #VICIntEnClr_OFS]
+
+
 
 // Initialize Interrupt System
 // - Set stack location for each mode
@@ -221,6 +262,11 @@ ctor_loop:
 		LDMFD 	sp!, {r0-r1}
 		B 		ctor_loop
 ctor_end:
+
+enable_irq:
+        mrs r0,CPSR                     // get current CPSR
+        bic r0,r0,#I_BIT                // clear I bit, normal interrupts enabled
+        msr CPSR_c,r0                   // write CPSR
 
 // Call main program: main(0)
 // --------------------------
