@@ -24,6 +24,8 @@
  *
  *)
 
+module Ground_Pprz = Pprz.Protocol(struct let name = "ground" end)
+
 open Ocaml_tools
 open Geometry_3d
 
@@ -190,13 +192,13 @@ let last_points = Hashtbl.create 11
 let add_point (view3d:Gtk_3d.widget_3d) (point, id) =
   let p = point3D point in
   try
-    let last = Hashtbl.find last_points id in
-    let color = gtk_to_gl_color id in
-    view3d#display (view3d#add_object_line [last;p] color 2 false false);
-    Hashtbl.replace last_points id p
+    let (last, color) = Hashtbl.find last_points id in
+    let gl_color = gtk_to_gl_color color in
+    view3d#display (view3d#add_object_line [last;p] gl_color 2 false false);
+    Hashtbl.replace last_points id (p, color)
   with
     Not_found ->
-      Hashtbl.add last_points id p
+      Hashtbl.add last_points id (p, new_color ())
  
 (* ============================================================================= *)
 (* = Load a map. Use SRTM elevation data to produce a 3d surface               = *)
@@ -446,24 +448,15 @@ let build_interface = fun map_file mission_file ->
   (* Affichage de la fenetre principale *)
   window#show () ;
 
-(*  let gps_regexp = "([a-z]*) +GPS +[0-9]* +([0-9]*) +([0-9]*) +[0-9\\.]* +([0-9\\.]*)" in
-  ignore (Ivy.bind (fun _ args -> add_point view3d ((0., fos args.(1)/.100.,fos args.(2)/.100., fos args.(3)), `NAME "green")) gps_regexp); *)
-  
+  let use_fp = fun _sender vs ->
+    let ac_id = Pprz.string_assoc "ac_id" vs in
+    let a = fun s -> Pprz.float_assoc s vs in
+    let x = a "east"
+    and y = a "north"
+    and z = a "alt" in
+    add_point view3d ((0., x, y, z), ac_id) in
 
-  let flight_param_regexp = "([a-z0-9]*) +FLIGHT_PARAM +[0-9\\.]* +[0-9\\.]* +([0-9\\.]*) +([0-9\\.]*) +[0-9\\.]* +[0-9\\.]* +([0-9\\.]*) +[0-9\\.]*" in
-  ignore (Ivy.bind (fun _ args -> 
-    let name= args.(0) and
-	x = fos args.(1) and
-	y = fos args.(2) and
-	z = fos args.(3) in
- (*   Printf.fprintf stderr "############ %f %f %f\n" x y z; *)
-    if (Str.string_match (Str.regexp_string "twinstar1") name 0) then 
-      add_point view3d ((0., x, y, z), `NAME "green");
-    if (Str.string_match (Str.regexp_string "twinstar2") name 0) then 
-      add_point view3d ((0., x, y, z), `NAME "blue"); 
-(*    Printf.fprintf stderr "############\n"; *)
-		   ) flight_param_regexp);
-
+  ignore (Ground_Pprz.message_bind "FLIGHT_PARAM" use_fp);
 
   (* Loading an initial map *)
   if map_file <> "" then begin
