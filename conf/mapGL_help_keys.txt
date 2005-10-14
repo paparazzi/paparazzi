@@ -1,0 +1,16 @@
+	Mouse
+
+Left button: rotation
+Middle button: zoom/unzoom sliding up/down
+Wheel: zoom/unzoom
+
+       Keyboard
+
+Space : Toggle animation
+Keypad +/- : Faster or slower animation
+Home : Top view
+Page_Up / Page_Down : zoom/unzoom
+Arrows : Pan
+Keypad Arrows: Rotation
+r : Toggle compass card
+F12 : Take screenshot
