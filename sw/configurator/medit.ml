@@ -370,19 +370,14 @@ let load_map = fun root filename ->
 	end
     | _ -> failwith "Unknwown projection"
 
-let utm_of_name = fun name ->
-  match Str.split (Str.regexp "[ \\t]+") name with
-    "WGS84"::lat::long::_ ->
-      let lat = fos lat and long = fos long in
-      let wgs84 = {posn_lat = (Deg>>Rad)lat; posn_long = (Deg>>Rad)long} in
-      utm_of WGS84 wgs84
-  | "UTM"::z::x::y::_ ->
-      {utm_x = fos x; utm_y = fos y; utm_zone=ios z}
-  | _ -> 
-      GToolbox.message_box "Calibration error" (sprintf "WGS84 or UTM point expected in '%s'" name);
-      failwith "Calibration Error"
+let utm_of_name = fun name -> 
+  try
+    utm_of WGS84 (Latlong.of_string name)
+  with
+    _ -> GToolbox.message_box "Calibration error" (sprintf "WGS84 or UTM point expected in '%s'" name);
+    failwith "Calibration Error"
 
-let distance = fun (x1,x2) (y1,y2) ->
+let distance = fun (x1,y1) (x2,y2) ->
   sqrt ((x1 -. x2)**2. +. (y1 -. y2)**2.)
 
 let calibrate_map = fun root () ->
@@ -396,7 +391,7 @@ let calibrate_map = fun root () ->
 	p#lower_to_bottom ();
 	let dialog = GWindow.window ~border_width:10 ~title:"Map calibration" () in
 	let v = GPack.vbox ~packing:dialog#add () in
-	let _ = GMisc.label ~text:"Choose 3 waypoints (Left Button)\nRename the waypoints with their geographic coordinates\nFor example: 'WGS84 43.123456 1.234567' or 'UTM 12 530134 3987652'\nClick the button below to save the XML result file\nExit and restart" ~packing:v#add () in
+	let _ = GMisc.label ~text:"Choose 3 waypoints (Left Button)\nRename the waypoints with their geographic coordinates\nFor example: 'WGS84 43.123456 1.234567' or 'UTM 530134 3987652 12' or 'LBT2e 123456 543210\nClick the button below to save the XML result file\nExit and restart" ~packing:v#add () in
 	let h = GPack.hbox ~packing:v#pack () in
 	let cal = GButton.button ~label:"Calibrate" ~packing:h#add () in
 	let close = GButton.button ~label:"Exit" ~packing:h#add () in
@@ -405,9 +400,7 @@ let calibrate_map = fun root () ->
 	ignore(close#connect#clicked ~callback:(fun () -> exit 0));
 	ignore(cal#connect#clicked ~callback:(fun _ ->
 	  let coords = fun w ->
-	    ((wp_east w) /. Ref.world_unit, 
-	     -. (wp_north w) /. Ref.world_unit,
-	 utm_of_name (wp_name w)) in
+	    (wp_east w/. Ref.world_unit, wp_north w/. Ref.world_unit, utm_of_name (wp_name w)) in
 	  
 	  let wpts = waypoints () in
 
@@ -425,10 +418,12 @@ let calibrate_map = fun root () ->
 				   "utm_x",sof utm.utm_x;
 				   "utm_y",sof utm.utm_y], []) in
 	  let points = List.map f wpts in
-	  let xml = Xml.Element ("map", ["file", Filename.basename name;
-					 "projection", "UTM";
-					 "scale", sof scale;
-					 "utm_zone", soi utm_zone], points) in
+	  let xml = Xml.Element ("map", 
+				 ["file", Filename.basename name;
+				  "projection", "UTM";
+				  "scale", sof scale;
+				  "utm_zone", soi utm_zone],
+				 points) in
 	  file_dialog ~filename:(sprintf "%s.xml" (Filename.chop_extension name)) ~title:"Save map ref" ~callback:(fun file ->
 	    let f = open_out file in
 	    Printf.fprintf f "%s\n" (Xml.to_string_fmt xml);
@@ -469,7 +464,7 @@ let canvas_button_release = fun (_canvas:GnoCanvas.canvas) ev ->
 
 let canvas_button_press = fun (canvas:GnoCanvas.canvas) zoomadj ev ->
   let state = GdkEvent.Button.state ev in
-  if GdkEvent.Button.button ev = 1 then
+  if GdkEvent.Button.button ev = 1 && Gdk.Convert.test_modifier `CONTROL state then
     let xc = GdkEvent.Button.x ev in
     let yc = GdkEvent.Button.y ev in
     let (xw, yw) = canvas#window_to_world xc yc in
@@ -520,7 +515,7 @@ let display_coord = fun (canvas:GnoCanvas.canvas) lbl_xy lbl_geo ev ->
 let display_help = fun ()->
   GToolbox.message_box ~title:"Help" ~ok:"Close"
   "Load first a flight plan then load a map (XML files)\n\n\
-  Left Button: Create a new waypoint\n\
+  CTRL Left Button: Create a new waypoint\n\
   CTRL Middle Button: Pan the map\n\
   Wheel: Zoom/Unzoom\n\n\
   Middle Button on waypoint: Move\n\
