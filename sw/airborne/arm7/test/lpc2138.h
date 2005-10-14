@@ -120,12 +120,50 @@ struct RSIR_reg {
 #define CSPR           (*((volatile uint8_t *)  0xE01FC184))
 
 /* Timer 0 */
-#define T0IR           (*((volatile uint32_t *) 0xE0004000))
-#define T0TCR          (*((volatile uint32_t *) 0xE0004004))
+#define T0IR           (*((volatile uint8_t *)  0xE0004000))
+#define T0IR_bit       (*(struct T0IR_reg*)     0xE0004000)
+struct T0IR_reg {
+  uint8_t MR0I:1;
+  uint8_t MR1I:1;
+  uint8_t MR2I:1;
+  uint8_t MR3I:1;
+  uint8_t CR0I:1;
+  uint8_t CR1I:1;
+  uint8_t CR2I:1;
+  uint8_t CR3I:1;
+};
+
+#define T0TCR          (*((volatile uint8_t *)  0xE0004004))
+#define T0TCR_bit      (*(struct T0TCR_reg*)    0xE0004004)
+struct T0TCR_reg {
+  uint8_t CE:1;
+  uint8_t CR:1;
+  uint8_t _:6;  
+};
+
 #define T0TC           (*((volatile uint32_t *) 0xE0004008))
 #define T0PR           (*((volatile uint32_t *) 0xE000400C))
 #define T0PC           (*((volatile uint32_t *) 0xE0004010))
-#define T0MCR          (*((volatile uint32_t *) 0xE0004014))
+
+#define T0MCR          (*((volatile uint16_t *) 0xE0004014))
+#define T0MCR_bit      (*(struct T0MCR_reg*)    0xE0004014)
+struct T0MCR_reg {
+  uint8_t MR0I:1;
+  uint8_t MR0R:1;
+  uint8_t MR0S:1; 
+  uint8_t MR1I:1;
+  uint8_t MR1R:1;
+  uint8_t MR1S:1; 
+  uint8_t MR2I:1;
+  uint8_t MR2R:1;
+  uint8_t MR2S:1; 
+  uint8_t MR3I:1;
+  uint8_t MR3R:1;
+  uint8_t MR3S:1; 
+  uint8_t _:4;  
+};
+
+
 #define T0MR0          (*((volatile uint32_t *) 0xE0004018))
 #define T0MR1          (*((volatile uint32_t *) 0xE000401C))
 #define T0MR2          (*((volatile uint32_t *) 0xE0004020))
@@ -408,6 +446,59 @@ struct DACR_reg {
   uint32_t VALUE:10;
   uint32_t BIAS:1;
 };
+
+/* Vectored Interrupt Controller (VIC) */
+#define VICIRQStatus   (*((volatile uint32_t *) 0xFFFFF000))
+#define VICFIQStatus   (*((volatile uint32_t *) 0xFFFFF004))
+#define VICRawIntr     (*((volatile uint32_t *) 0xFFFFF008))
+#define VICIntSelect   (*((volatile uint32_t *) 0xFFFFF00C))
+#define VICIntEnable   (*((volatile uint32_t *) 0xFFFFF010))
+#define VICIntEnClr    (*((volatile uint32_t *) 0xFFFFF014))
+#define VICSoftInt     (*((volatile uint32_t *) 0xFFFFF018))
+#define VICSoftIntClr  (*((volatile uint32_t *) 0xFFFFF01C))
+#define VICProtection  (*((volatile uint32_t *) 0xFFFFF020))
+#define VICVectAddr    (*((volatile uint32_t *) 0xFFFFF030))
+#define VICDefVectAddr (*((volatile uint32_t *) 0xFFFFF034))
+#define VICVectAddr0   (*((volatile uint32_t *) 0xFFFFF100))
+#define VICVectAddr1   (*((volatile uint32_t *) 0xFFFFF104))
+#define VICVectAddr2   (*((volatile uint32_t *) 0xFFFFF108))
+#define VICVectAddr3   (*((volatile uint32_t *) 0xFFFFF10C))
+#define VICVectAddr4   (*((volatile uint32_t *) 0xFFFFF110))
+#define VICVectAddr5   (*((volatile uint32_t *) 0xFFFFF114))
+#define VICVectAddr6   (*((volatile uint32_t *) 0xFFFFF118))
+#define VICVectAddr7   (*((volatile uint32_t *) 0xFFFFF11C))
+#define VICVectAddr8   (*((volatile uint32_t *) 0xFFFFF120))
+#define VICVectAddr9   (*((volatile uint32_t *) 0xFFFFF124))
+#define VICVectAddr10  (*((volatile uint32_t *) 0xFFFFF128))
+#define VICVectAddr11  (*((volatile uint32_t *) 0xFFFFF12C))
+#define VICVectAddr12  (*((volatile uint32_t *) 0xFFFFF130))
+#define VICVectAddr13  (*((volatile uint32_t *) 0xFFFFF134))
+#define VICVectAddr14  (*((volatile uint32_t *) 0xFFFFF138))
+#define VICVectAddr15  (*((volatile uint32_t *) 0xFFFFF13C))
+
+#define VICVectCntl0     (*((volatile uint32_t *)   0xFFFFF200))
+#define VICVectCntl0_bit (*(struct VICVecCntl0_reg*)0xFFFFF200)
+struct VICVecCntl0_reg {
+  uint8_t IRSIA:5;
+  uint8_t IRQslot_en:1;
+  uint32_t _:26;
+};
+
+#define VICVectCntl1   (*((volatile uint32_t *) 0xFFFFF204))
+#define VICVectCntl2   (*((volatile uint32_t *) 0xFFFFF208))
+#define VICVectCntl3   (*((volatile uint32_t *) 0xFFFFF20C))
+#define VICVectCntl4   (*((volatile uint32_t *) 0xFFFFF210))
+#define VICVectCntl5   (*((volatile uint32_t *) 0xFFFFF214))
+#define VICVectCntl6   (*((volatile uint32_t *) 0xFFFFF218))
+#define VICVectCntl7   (*((volatile uint32_t *) 0xFFFFF21C))
+#define VICVectCntl8   (*((volatile uint32_t *) 0xFFFFF220))
+#define VICVectCntl9   (*((volatile uint32_t *) 0xFFFFF224))
+#define VICVectCntl10  (*((volatile uint32_t *) 0xFFFFF228))
+#define VICVectCntl11  (*((volatile uint32_t *) 0xFFFFF22C))
+#define VICVectCntl12  (*((volatile uint32_t *) 0xFFFFF230))
+#define VICVectCntl13  (*((volatile uint32_t *) 0xFFFFF234))
+#define VICVectCntl14  (*((volatile uint32_t *) 0xFFFFF238))
+#define VICVectCntl15  (*((volatile uint32_t *) 0xFFFFF23C))
 
 
 #endif /* LPC2138_H */
