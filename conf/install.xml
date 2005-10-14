@@ -2,7 +2,6 @@
 
 <section name="binaries" dest="bin" comment="main program">
   <file name="sw/supervision/paparazzi.pl"/>
-  <!-- TMP -->  <file name="paparazzi_demo"/>
 </section>
 
 <section name="priv_binaries" dest="share/paparazzi/bin" comment="helpers program">
@@ -97,13 +96,13 @@
  <file name="conf/radios/fc28.xml"/>
 </section>
 
-<section name="data_SRTM" dest="share/paparazzi/data/SRTM">
+<section name="data_SRTM" dest="share/paparazzi/data/srtm">
  <file name="data/SRTM/N43E001.hgt"/>
 </section>
 
 <section name="data_maps" dest="share/paparazzi/data/maps">
- <file name="data/maps/muret_UTM.xml"/>
- <file name="data/maps/muret_UTM.gif"/>
+ <file name="data/maps/garmisch.xml"/>
+ <file name="data/maps/garmisch.gif"/>
  <file name="data/maps/nasa_strasbourg.xml"/>
  <file name="data/maps/nasa_strasbourg.jpg"/>
 </section>
@@ -263,14 +262,6 @@
    <file name="var/include/fbw_messages.h"/>
    <file name="var/include/messages.h"/>
    <file name="var/include/ubx_protocol.h"/>
-</section>
-
-<section name="var_Thon1_sim" dest="share/paparazzi/var/Thon1/sim">
-   <file name="var/Thon1/sim/simsitl"/>
-</section>
-
-<section name="var_Thon2_sim" dest="share/paparazzi/var/Thon2/sim">
-   <file name="var/Thon2/sim/simsitl"/>
 </section>
 
 </install>
