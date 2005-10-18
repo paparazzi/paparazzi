@@ -35,7 +35,7 @@
     <define name="RAD_OF_IR_CONTRAST" value="0.75"/>
     <linear name="RollOfIrs" arity="2" coeff1="-1" coeff2="-1"/>
     <linear name="PitchOfIrs" arity="2" coeff1="-1" coeff2="1"/>
-    <define name="RAD_OF_IR_MAX_VALUE" value="0.0045"/>
+    <define name="RAD_OF_IR_MAX_VALUE" value="0.01"/>
     <define name="RAD_OF_IR_MIN_VALUE" value="0.00075"/>
     <define name="ADC_ROLL_NEUTRAL" value="-1026"/>
     <define name="ADC_PITCH_NEUTRAL" value="5"/>

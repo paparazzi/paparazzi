@@ -66,33 +66,33 @@ let g = 9.81
 module Make(A:Data.MISSION) = struct
   open Data
 
-let section = fun name ->
-  try
-    ExtXml.child A.ac.airframe ~select:(fun x -> ExtXml.attrib x "name" = name) "section"
-  with
-    Not_found ->
-      failwith (Printf.sprintf "Child 'section' with 'name=%s' expected in '%s'\n" name (Xml.to_string A.ac.airframe))
+  let section = fun name ->
+    try
+      ExtXml.child A.ac.airframe ~select:(fun x -> ExtXml.attrib x "name" = name) "section"
+    with
+      Not_found ->
+	failwith (Printf.sprintf "Child 'section' with 'name=%s' expected in '%s'\n" name (Xml.to_string A.ac.airframe))
 
 
-let simu_section = section "SIMU"
+  let simu_section = section "SIMU"
 
-let defined_value = fun sect name ->
-  try
-    (Xml.attrib (ExtXml.child sect ~select:(fun x -> ExtXml.attrib x "name" = name) "define") "value")
-  with
-    Not_found ->
-      failwith (Printf.sprintf "Child 'define' with 'name=%s' expected in '%s'\n" name (Xml.to_string sect))
+  let defined_value = fun sect name ->
+    try
+      (Xml.attrib (ExtXml.child sect ~select:(fun x -> ExtXml.attrib x "name" = name) "define") "value")
+    with
+      Not_found ->
+	failwith (Printf.sprintf "Child 'define' with 'name=%s' expected in '%s'\n" name (Xml.to_string sect))
 
-let float_value = fun section s ->  float_of_string (defined_value section s)
+  let float_value = fun section s ->  float_of_string (defined_value section s)
 
-let roll_response_factor = float_value simu_section "ROLL_RESPONSE_FACTOR"
+  let roll_response_factor = float_value simu_section "ROLL_RESPONSE_FACTOR"
 
-let yaw_response_factor = float_value simu_section "YAW_RESPONSE_FACTOR"
+  let yaw_response_factor = float_value simu_section "YAW_RESPONSE_FACTOR"
 
-let weight = float_value simu_section "WEIGHT"
+  let weight = float_value simu_section "WEIGHT"
 
-let max_phi = 0.7 (* rad *)
-let bound = fun x mi ma -> if x > ma then ma else if x < mi then mi else x
+  let max_phi = 0.7 (* rad *)
+  let bound = fun x mi ma -> if x > ma then ma else if x < mi then mi else x
 
 
 
@@ -129,14 +129,14 @@ let bound = fun x mi ma -> if x > ma then ma else if x < mi then mi else x
       Not_found ->
 	failwith (Printf.sprintf "Child 'servos' expected in '%s'\n" (Xml.to_string A.ac.airframe))
 	  
-let misc_section = section "MISC"
+  let misc_section = section "MISC"
 
-let infrared_section = section "INFRARED"
+  let infrared_section = section "INFRARED"
 
+  let nominal_airspeed = float_of_string (defined_value misc_section "NOMINAL_AIRSPEED")
 
-let nominal_airspeed = float_of_string (defined_value misc_section "NOMINAL_AIRSPEED")
-
-let ir_roll_neutral = ios (defined_value infrared_section "ADC_ROLL_NEUTRAL")
+  let adc_roll_neutral = ios (defined_value infrared_section "ADC_ROLL_NEUTRAL")
+  let roll_neutral_default = rad_of_deg (float_value infrared_section "ROLL_NEUTRAL_DEFAULT")
 
   let get_servo name =
     try
@@ -181,9 +181,9 @@ let ir_roll_neutral = ios (defined_value infrared_section "ADC_ROLL_NEUTRAL")
 	and no_aileron_left = int_attrib aileron_left "no" in
 	fun state servo ->
 	  let left = - sign_aileron_left * (servo.(no_aileron_left) - n_delta_a) in
-	(** if left <> 0 then Printf.printf "left=%d\n" (servo.(no_aileron_left) - n_delta_a); flush stdout;  **)
-	state.delta_a <- c_lda *. float left;
-	do_thrust state servo
+	  (** if left <> 0 then Printf.printf "left=%d\n" (servo.(no_aileron_left) - n_delta_a); flush stdout;  **)
+	  state.delta_a <- c_lda *. float left;
+	  do_thrust state servo
     | None, Some ailevon_left, Some ailevon_right ->
 	let c_lda = 2.5e-4 in (* phi_dot_dot from aileron *)
 

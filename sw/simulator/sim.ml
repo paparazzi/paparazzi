@@ -149,7 +149,8 @@ module Make(AircraftItl : AIRCRAFT_ITL) = struct
 		horizon_right -. horizon_left
 	      else
 		0. in
-	    let ir_left = ( (phi +. delta_ir ) *. !infrared_contrast)
+	    let phi = phi +. FM.roll_neutral_default in
+	    let ir_left = (phi +. delta_ir ) *. !infrared_contrast
 	    and ir_front = 0. in
 	    Aircraft.infrared ir_left ir_front
       with
