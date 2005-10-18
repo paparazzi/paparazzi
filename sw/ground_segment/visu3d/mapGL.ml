@@ -26,10 +26,9 @@
 
 module Ground_Pprz = Pprz.Protocol(struct let name = "ground" end)
 
-open Ocaml_tools
-open Geometry_3d
+module OT = Ocaml_tools
+module G3d = Geometry_3d
 
-open Gtk_3d
 open Latlong
 
 let fos = fun x -> 
@@ -92,22 +91,22 @@ let track_filter = fun points ->
 (* Fichier d'aide contenant les touches clavier utilisees *)
 let filename_help_keys = Env.paparazzi_src // "conf" // "mapGL_help_keys.txt"
 
-(* ============================================================================= *)
-(* = Passage de couleur GTK vers GL                                            = *)
-(* =                                                                           = *)
-(* = color = couleur GTK (`NAME ou `RGB) a transformer                         = *)
-(* ============================================================================= *)
+(* ========================================================================= *)
+(* = Passage de couleur GTK vers GL                                        = *)
+(* =                                                                       = *)
+(* = color = couleur GTK (`NAME ou `RGB) a transformer                     = *)
+(* ========================================================================= *)
 let gtk_to_gl_color color =
   let t = GDraw.color color in
   ((float_of_int (Gdk.Color.red t))/.65535.0,
    (float_of_int (Gdk.Color.green t))/.65535.0,
    (float_of_int (Gdk.Color.blue t))/.65535.0)
 
-(* ============================================================================= *)
-(* = Passage de couleur GL vers GTK                                            = *)
-(* =                                                                           = *)
-(* = (r, g, b) = couleur GL a transformer en equivalent GTK                    = *)
-(* ============================================================================= *)
+(* ========================================================================= *)
+(* = Passage de couleur GL vers GTK                                        = *)
+(* =                                                                       = *)
+(* = (r, g, b) = couleur GL a transformer en equivalent GTK                = *)
+(* ========================================================================= *)
 let gl_to_gtk_color (r, g, b) =
   `RGB(int_of_float (r*.65535.0), int_of_float (g*.65535.0),
        int_of_float (b*.65535.0))
@@ -137,7 +136,7 @@ let read_traj_file filename =
 	with _ -> error_func ())
     | _ -> ()
   in
-  do_read_file filename match_func (fun () -> ());
+  OT.do_read_file filename match_func (fun () -> ());
   let tracks =
     Hashtbl.fold
       (fun _id track r -> (track_filter (List.rev !track), new_color ())::r)
@@ -145,9 +144,9 @@ let read_traj_file filename =
       [] in
   tracks
 
-(* ============================================================================= *)
-(* = Ajout de la surface                                                       = *)
-(* ============================================================================= *)
+(* ========================================================================= *)
+(* = Ajout de la surface                                                   = *)
+(* ========================================================================= *)
 let add_surface view3d texture_file (min_x, min_y) (max_x, max_y) utm_zone =
   (* Creation de la texture a partir d'une image *)
   Printf.printf "Loading texture...%!";
@@ -156,15 +155,16 @@ let add_surface view3d texture_file (min_x, min_y) (max_x, max_y) utm_zone =
 
   (* Creation d'une matrice contenant les elevations *)
   let nx = (max_x-min_x)/dx+1 and ny = (max_y-min_y)/dy+1 in
-  let tab = Array.make_matrix ny nx {x3D=0.; y3D=0.; z3D=0.} in
+  let tab = Array.make_matrix ny nx {G3d.x3D=0.; G3d.y3D=0.; G3d.z3D=0.} in
 
-  let y = ref max_y and i = ref 0 in
+  let y = ref max_y in
   try
     for i = 0 to ny - 1 do
       let x = ref min_x in
+      let uy = float !y in
       for j = 0 to nx - 1 do
-	let alt = (Srtm.of_utm {utm_x = float !x; utm_y = float !y; utm_zone = utm_zone})*fact_alti in
-	tab.(i).(j) <- {x3D = float !x; y3D= float !y; z3D = float alt} ;
+	let alt = (Srtm.of_utm {utm_x = float !x; utm_y = uy; utm_zone = utm_zone})*fact_alti in
+	tab.(i).(j) <- {G3d.x3D = float !x; G3d.y3D= float !y; G3d.z3D = float alt} ;
 	x:=!x+dx
       done ;
       y:=!y-dy
@@ -176,11 +176,11 @@ let add_surface view3d texture_file (min_x, min_y) (max_x, max_y) utm_zone =
     Srtm.Tile_not_found s ->
       failwith (Printf.sprintf "SRTM tile '%s' not found,  you can download it with %s" s (Srtm.error s))
 
-(* ============================================================================= *)
-(* = Ajout d'une trajectoire                                                   = *)
-(* ============================================================================= *)
+(* ========================================================================= *)
+(* = Ajout d'une trajectoire                                               = *)
+(* ========================================================================= *)
 let point3D = fun (_, utm_x, utm_y, alt) ->
-  {x3D=utm_x; y3D=utm_y; z3D=alt*. float fact_alti}
+  {G3d.x3D=utm_x; G3d.y3D=utm_y; G3d.z3D=alt*. float fact_alti}
 let add_traj view3d (points, id) =
   let l = List.map point3D points in
 
@@ -200,9 +200,9 @@ let add_point (view3d:Gtk_3d.widget_3d) (point, id) =
     Not_found ->
       Hashtbl.add last_points id (p, new_color ())
  
-(* ============================================================================= *)
-(* = Load a map. Use SRTM elevation data to produce a 3d surface               = *)
-(* ============================================================================= *) 
+(* ========================================================================= *)
+(* = Load a map. Use SRTM elevation data to produce a 3d surface           = *)
+(* ========================================================================= *) 
 let load_surface view3d id_sol xml_map_file =
   let min_x = ref max_int and min_y = ref max_int
   and max_x = ref min_int and max_y = ref min_int  
@@ -250,9 +250,9 @@ let load_mission = fun (view3d:Gtk_3d.widget_3d) xml ->
     view3d#display (view3d#add_object_point p3d p3d_label (ExtXml.attrib wp "name") (gtk_to_gl_color (`NAME "red")) true) in
   List.iter display_waypoint (Xml.children wps)
 
-(* ============================================================================= *)
-(* = Map loading callback                                                      = *)
-(* ============================================================================= *)
+(* ========================================================================= *)
+(* = Map loading callback                                                  = *)
+(* ========================================================================= *)
 let on_load_surface win view3d id_sol () =
   let priv_load_surf xml_map_file =
     load_surface view3d id_sol xml_map_file 
@@ -263,9 +263,9 @@ let on_load_surface win view3d id_sol () =
     Gtk_tools.error_box win "Read error" (Printexc.to_string x)
 
 
-(* ============================================================================= *)
-(* = Chargement d'une trajectoire                                              = *)
-(* ============================================================================= *)
+(* ========================================================================= *)
+(* = Chargement d'une trajectoire                                          = *)
+(* ========================================================================= *)
 let load_trajectory view3d lst_ids_trajs () =
   let read_data f =
     let new_trajs = read_traj_file f in
@@ -278,9 +278,9 @@ let load_trajectory view3d lst_ids_trajs () =
 
   Gtk_tools.open_file_dlg "Track" read_data None default_path_traj false
 
-(* ============================================================================= *)
-(* = Recherche/Ajout d'une pixmap de couleur dans la table                     = *)
-(* ============================================================================= *)
+(* ========================================================================= *)
+(* = Recherche/Ajout d'une pixmap de couleur dans la table                 = *)
+(* ========================================================================= *)
 let get_color_pixmap win color =
   let taille_x = 20 and taille_y = 8 in
   try Hashtbl.find color_pixmaps color
@@ -289,9 +289,9 @@ let get_color_pixmap win color =
     Hashtbl.add color_pixmaps color pm ;
     pm
 
-(* ============================================================================= *)
-(* = Selection de trajectoires                                                 = *)
-(* ============================================================================= *)
+(* ========================================================================= *)
+(* = Selection de trajectoires                                             = *)
+(* ========================================================================= *)
 let build_lst_traj tooltips view3d lst_ids_trajs () =
   let get_id idx = try List.nth !lst_ids_trajs idx with _ -> (-1) in
 
@@ -377,9 +377,9 @@ let build_lst_traj tooltips view3d lst_ids_trajs () =
      (fun () -> window#destroy (); view3d#display_func)] ;
   window#show ()
 
-(* ============================================================================= *)
-(* = Fenetre About                                                             = *)
-(* ============================================================================= *)
+(* ========================================================================= *)
+(* = Fenetre About                                                         = *)
+(* ========================================================================= *)
 let build_fen_about () =
   (* Creation de la liste des fichiers de l'animation *)
   let l = ref [] and max_pixmaps = 15 in
@@ -391,9 +391,9 @@ let build_fen_about () =
 
   Gtk_tools.animated_msg_box "About" message (List.rev !l)
 
-(* ============================================================================= *)
-(* = Creation de l'interface                                                   = *)
-(* ============================================================================= *)
+(* ========================================================================= *)
+(* = Creation de l'interface                                               = *)
+(* ========================================================================= *)
 let build_interface = fun map_file mission_file ->
   let nb_menus = ref 0 in
 
@@ -413,7 +413,7 @@ let build_interface = fun map_file mission_file ->
   ignore (window#connect#destroy ~callback:GMain.Main.quit);
 
   (* Creation du Widget OpenGL *)
-  let view3d = new widget_3d vbox#add false "" in
+  let view3d = new Gtk_3d.widget_3d vbox#add false "" in
 
   (* Ajout des objets a la vue *)
   let id_sol = ref None in
@@ -474,9 +474,9 @@ let build_interface = fun map_file mission_file ->
  (* Lancement de la mainloop *)
   Gtk_tools.main_loop () 
 
-(* ============================================================================= *)
-(* = Programme principal                                                       = *)
-(* ============================================================================= *)
+(* ========================================================================= *)
+(* = Programme principal                                                   = *)
+(* ========================================================================= *)
 let _ =
   let ivy_bus = ref "127.255.255.255:2010" and
       map_file = ref "" and
@@ -496,6 +496,3 @@ let _ =
 
   (* Lancement de l'interface *)
   build_interface !map_file !mission_file
-
- 
-(* =============================== FIN ========================================= *)

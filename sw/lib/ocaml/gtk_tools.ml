@@ -1096,7 +1096,7 @@ let create_window_with_menubar_help title width height menubar_items =
 
   let menubar_hlp = GMenu.menu_bar ~packing:(hbox#pack ~from:`END) () in
   let factory_hlp = new GMenu.factory menubar_hlp in
-  let menu_help = factory_hlp#add_submenu "Aide" in
+  let menu_help = factory_hlp#add_submenu "Help" in
 
   (window, vbox, factory, factory#accel_group, Array.of_list menus, menu_help)
 
