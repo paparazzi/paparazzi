@@ -22,8 +22,8 @@ let load_log = fun window (adj:GData.adjustment) name ->
       close_in f;
       log := Array.of_list (List.rev !lines);
       let start = fst !log.(0) in
-      let end_ = fst !log.(Array.length !log - 1) -. start in
-      adj#set_bounds ~upper:end_ ();
+      let end_ = fst !log.(Array.length !log - 1) in
+      adj#set_bounds ~lower:start ~upper:end_ ();
       window#set_title (Filename.basename name)
 
 
@@ -52,7 +52,7 @@ let open_log = fun window adj () ->
   ignore (file_dialog ~title:"Open Log" ~callback:(fun name -> load_log window adj name) ())
 
 let index_of_time log t =
-  let t = t +. fst log.(0) in
+  let t = t in
   let rec loop = fun a b ->
     if a >= b then a else
     let c = (a+b)/ 2 in
@@ -62,7 +62,7 @@ let index_of_time log t =
 let rec run log adj i speed =
   let (t, m) = log.(i) in
   Ivy.send (Printf.sprintf "%s" m);
-  adj#set_value (t -. fst log.(0));
+  adj#set_value t;
   if i + 1 < Array.length log then
     let dt = fst log.(i+1) -. t in
     timer := Some (GMain.Timeout.add (truncate (1000. *. dt /. speed#value)) (fun () -> run log adj (i+1) speed; false))
