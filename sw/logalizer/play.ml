@@ -1,13 +1,35 @@
+(*
+ * $Id$
+ *
+ * Log player
+ *  
+ * Copyright (C) 2004 CENA/ENAC, Pascal Brisset, Antoine Drouin
+ *
+ * This file is part of paparazzi.
+ *
+ * paparazzi is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * paparazzi is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with paparazzi; see the file COPYING.  If not, write to
+ * the Free Software Foundation, 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA. 
+ *
+ *)
 
 module Ground_Pprz = Pprz.Protocol(struct let name = "ground" end)
 
 let log = ref [||]
 
 let load_log = fun window (adj:GData.adjustment) name ->
-  let f =
-    if Filename.check_suffix name ".gz"
-    then Unix.open_process_in (Printf.sprintf "zcat %s" name)
-    else open_in name in
+  let f = Ocaml_tools.open_compress name  in
   let lines = ref [] in
   try
     while true do
@@ -83,11 +105,9 @@ let _ =
       ~value:0. ~lower:0. ~upper:1000. 
     ~step_incr:0.5 ~page_incr:1.0 ~page_size:1.0 () in
 
-(***  let speed = GData.adjustment ~value:1. ~lower:0.05 ~upper:10. 
-    ~step_incr:0.25 ~page_incr:1.0 () in ***)
-
-  let speed = object val mutable v = 1. method value = v method set_value x = v <- x end
-  in
+  let speed = object
+    val mutable v = 1. method value = v method set_value x = v <- x
+  end in
 
   let bus = ref "127.255.255.255:3333" in
   Arg.parse 
@@ -108,11 +128,7 @@ let _ =
   ignore (file_menu_fact#add_item "Quit" ~key:GdkKeysyms._Q ~callback:quit);  
 
 
- (***) let timescale = GRange.scale `HORIZONTAL ~adjustment:adj ~packing:window#vbox#pack () in
-  (*** let speed_button = GEdit.spin_button (*** ~adjustment:speed ***) ~rate:0. ~digits:2 ~width:50 ~packing:window#vbox#add () in ***)
-
-  (** #move_slider is not working ??? **) (*** ignore (timescale#event#connect#button_release ~callback:(fun _ -> if !was_running then play adj speed; false));
-  ignore (timescale#event#connect#button_press ~callback:(fun _ -> was_running := !timer <> None; stop (); false));  ***)
+  let timescale = GRange.scale `HORIZONTAL ~adjustment:adj ~packing:window#vbox#pack () in
 
   window#add_accel_group accel_group;
   window#show ();
