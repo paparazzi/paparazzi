@@ -17,6 +17,7 @@ sub init {
   my (%options) = @_;
   my $opt = \%options;
   read_protocol($opt->{-file}, 'ground');
+  read_protocol($opt->{-file}, 'alert');
   $app_name = $opt->{-app_name};
   Ivy->init( -ivyBus        => $opt->{-ivy_bus},
              -appName       => $opt->{-app_name},
