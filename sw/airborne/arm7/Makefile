@@ -15,7 +15,7 @@
 #
 # make clean = Clean out built project files.
 #
-# make load = Download the hex file to the device, using lpc21isp
+# make program = Download the hex file to the device, using lpc21isp
 #
 # (TODO: make filename.s = Just compile filename.c into the assembler code only)
 #
@@ -27,11 +27,14 @@
 # - 29. Arp. 2005  - changed handling for lst-Filename (mth)
 #
 
+#FLASH_TOOL = ULINK
+FLASH_TOOL = lpc21isp 
+
 # MCU name and submodel
-MCU = arm7tdmi
+MCU = arm7tdmi 
 SUBMDL = LPC2138
-#THUMB    = -mthumb
-#THUMB_IW = -mthumb-interwork
+THUMB    = -mthumb
+THUMB_IW = -mthumb-interwork
 
 
 ## Create ROM-Image (final)
@@ -45,18 +48,23 @@ FORMAT = ihex
 
 
 # Target file name (without extension).
-TARGET = ledswitch
+TARGET = main
 
-timer.srcs = timer.c interrupt.c
 
 # List C source files here. (C dependencies are automatically generated.)
 # use file-extension c for "c-only"-files
-SRC = $(TARGET).c
-#SRC =
+SRC = $(TARGET).c 
+SRC += uart.c sysTime.c 
+
+#SRC += rprintf.c
+#SRC += src/efs.c src/plibc.c src/disc.c src/partition.c 
+#SRC += src/time.c src/fs.c src/fat.c src/file.c src/dir.c src/ls.c
+#SRC += src/mkfs.c src/debug.c src/ioman.c src/ui.c src/extract.c 
+#SRC += src/interfaces/if_lpc21xx.c src/interfaces/sd.c
 
 # List C source files here which must be compiled in ARM-Mode.
 # use file-extension c for "c-only"-files
-SRCARM = 
+SRCARM = uartISR.c armVIC.c adc.c
 
 # List C++ source files here.
 # use file-extension cpp for C++-files
@@ -64,7 +72,7 @@ CPPSRC =
 
 # List C++ source files here which must be compiled in ARM-Mode.
 # use file-extension cpp for C++-files
-# CPPSRCARM = $(TARGET).cpp
+#CPPSRCARM = $(TARGET).cpp
 CPPSRCARM = 
 
 # List Assembler source files here.
@@ -83,6 +91,7 @@ ASRCARM = crt0.S
 # 0 = turn off optimization. s = optimize for size.
 # (Note: 3 is not always the best optimization level. See avr-libc FAQ.)
 OPT = s
+#OPT = 0
 
 # Debugging format.
 # Native formats for AVR-GCC's -g are stabs [default], or dwarf-2.
@@ -93,7 +102,7 @@ DEBUG = dwarf-2
 # List any extra directories to look for include files here.
 #     Each directory must be seperated by a space.
 #EXTRAINCDIRS = ./include
-EXTRAINCDIRS = 
+EXTRAINCDIRS = ./include
 
 # Compiler flag to set the C Standard level.
 # c89   - "ANSI" C
@@ -127,7 +136,6 @@ CFLAGS += -O$(OPT)
 CFLAGS += -Wall -Wcast-align -Wcast-qual -Wimplicit 
 CFLAGS += -Wpointer-arith -Wswitch
 CFLAGS += -Wredundant-decls -Wreturn-type -Wshadow -Wunused
-#CFLAGS += -Wa,-adhlns=$(<:.c=.lst) 
 CFLAGS += -Wa,-adhlns=$(subst $(suffix $<),.lst,$<) 
 CFLAGS += $(patsubst %,-I%,$(EXTRAINCDIRS))
 
@@ -137,7 +145,8 @@ CONLYFLAGS += -Wmissing-prototypes -Wnested-externs
 CONLYFLAGS += $(CSTANDARD)
 
 # flags only for C++ (arm-elf-g++)
-CPPFLAGS =
+# CPPFLAGS = -fno-rtti -fno-exceptions
+CPPFLAGS = 
 
 # Assembler flags.
 #  -Wa,...:   tell GCC to pass this to the assembler.
@@ -153,9 +162,10 @@ ASFLAGS = $(ADEFS) -Wa,-adhlns=$(<:.S=.lst),-g$(DEBUG)
 
 #Support for newlibc-lpc (file: libnewlibc-lpc.a)
 #NEWLIBLPC = -lnewlib-lpc
-NEWLIBCLPC =
 
 MATH_LIB = -lm
+
+#CPLUSPLUS_LIB = -lstdc++
 
 # Linker flags.
 #  -Wl,...:     tell GCC to pass this to linker.
@@ -164,7 +174,8 @@ MATH_LIB = -lm
 LDFLAGS = -nostartfiles -Wl,-Map=$(TARGET).map,--cref
 LDFLAGS += -lc
 LDFLAGS += $(NEWLIBLPC) $(MATH_LIB)
-LDFLAGS += -lc -lgcc
+LDFLAGS += -lc -lgcc 
+LDFLAGS += $(CPLUSPLUS_LIB)
 
 # Set Linker-Script Depending On Selected Memory
 ifeq ($(RUN_MODE),RAM_RUN)
@@ -174,37 +185,39 @@ LDFLAGS +=-T$(SUBMDL)-ROM.ld
 endif
 
 
-# ---------------------------------------------------------------------------
-# Define directories, if needed.
-DIRARM = /usr
-DIRARMBIN = $(DIRARM)/bin/
 
 # ---------------------------------------------------------------------------
 # Flash-Programming support using lpc21isp by Martin Maurer 
 
 # Settings and variables:
-LPC21ISP = $(DIRARMBIN)/lpc21isp
-#LPC21ISP = $(DIRARMBIN)/lpc21isp_beta
+#LPC21ISP = lpc21isp
+LPC21ISP = lpc21isp
 LPC21ISP_PORT = /dev/ttyS0
 LPC21ISP_BAUD = 115200
 LPC21ISP_XTAL = 14746
 LPC21ISP_FLASHFILE = $(TARGET).hex
 # verbose output:
-## LPC21ISP_DEBUG = -debug
+#LPC21ISP_DEBUG = -debug
 # enter bootloader via RS232 DTR/RTS (only if hardware supports this
 # feature - see Philips AppNote):
 LPC21ISP_CONTROL = -control
 
 
 # ---------------------------------------------------------------------------
+
+# Define directories, if needed.
+## DIRARM = c:/WinARM/
+## DIRARMBIN = $(DIRAVR)/bin/
+## DIRAVRUTILS = $(DIRAVR)/utils/bin/
+
 # Define programs and commands.
 SHELL = sh
-CC = $(DIRARMBIN)/arm-elf-gcc
+CC = arm-elf-gcc
 CPP = arm-elf-g++
-OBJCOPY = $(DIRARMBIN)/arm-elf-objcopy
-OBJDUMP = $(DIRARMBIN)/arm-elf-objdump
-SIZE = $(DIRARMBIN)/arm-elf-size
-NM = $(DIRARMBIN)/arm-elf-nm
+OBJCOPY = arm-elf-objcopy
+OBJDUMP = arm-elf-objdump
+SIZE = arm-elf-size
+NM = arm-elf-nm
 REMOVE = rm -f
 COPY = cp
 
@@ -290,12 +303,19 @@ gccversion :
 	@$(CC) --version
 
 
+ifeq ($(FLASH_TOOL),ULINK)
+# Program the device with Keil's ULINK (needs configured uVision-Workspace). 
+program: $(TARGET).hex
+	@echo
+	@echo "Programming with ULINK"
+	C:\Keil\uv3\Uv3.exe -f ulinkflash.Uv2 -oulinkflash.txt
+else
 # Program the device.  
-load: $(TARGET).hex
+program: $(TARGET).hex
 	@echo
 	@echo $(MSG_LPC21_RESETREMINDER)
 	$(LPC21ISP) $(LPC21ISP_CONTROL) $(LPC21ISP_DEBUG) $(LPC21ISP_FLASHFILE) $(LPC21ISP_PORT) $(LPC21ISP_BAUD) $(LPC21ISP_XTAL)
-
+endif
 
 # Create final output files (.hex, .eep) from ELF output file.
 # TODO: handling the .eeprom-section should be redundant
@@ -408,10 +428,12 @@ clean_list :
 	$(REMOVE) .dep/*
 	$(REMOVE) *~
 
+
 # Include the dependency files.
 -include $(shell mkdir .dep 2>/dev/null) $(wildcard .dep/*)
 
 
 # Listing of phony targets.
 .PHONY : all begin finish end sizebefore sizeafter gccversion \
-build elf hex lss sym clean clean_list load
+build elf hex lss sym clean clean_list program
+
