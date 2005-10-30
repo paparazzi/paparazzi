@@ -2,6 +2,8 @@
 #include "LPC21xx.h"
 #include "armVIC.h"
 
+volatile uint16_t adc_val = 000;
+
 void adcInit ( void ) {
   PINSEL1 |= 0x01 << 22 ; /* P0.27 is AD0.0 */
   AD0CR = 0x01 | 0x03 << 8 | 0 << 16 | 0x01 << 21 ; /* AD0.0 - PCLK/4 - BURST OFF */
@@ -12,12 +14,14 @@ void adcInit ( void ) {
   VICVectCntl2 = VIC_ENABLE | VIC_AD0;
   VICVectAddr2 = (uint32_t)adcISR;    // address of the ISR
   //#endif
+  AD0CR |= 0x01 << 24;  
 }
 
 void adcISR ( void ) {
   // perform proper ISR entry so thumb-interwork works properly
   ISR_ENTRY();
-  uint32_t tmp = AD0DR;  
+  adc_val = (uint16_t)(AD0DR >> 6) & 0x03FF;
+  //  adc_val = 500;
   AD0CR |= 0x01 << 24;                      /* Start A/D Conversion           */
   VICVectAddr = 0x00000000;             // clear this interrupt from the VIC
   ISR_EXIT();                           // recover registers and return

@@ -255,8 +255,8 @@ int main(void)
 		}
 		uart0Puts("\r\ntick!\r\n");
 		//		uint16_t foo = adcPoll();
-		//		uart0_print_hex_16(foo);
-		//		uart0Puts("\r\n");
+		uart0_print_hex_16(adc_val);
+		uart0Puts("\r\n");
 		startTime += HALF_SEC;
 	} // for
 	
