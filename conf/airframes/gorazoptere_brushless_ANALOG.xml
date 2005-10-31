@@ -5,9 +5,9 @@
     <define name="ADC_ROLL_DOT" value="1"/>
     <define name="ADC_PITCH_DOT" value="2"/>
     <define name="ADC_YAW_DOT" value="3"/>
-    <define name="ADC_ROLL_DOT_SIGN" value="-1"/>
-    <define name="ADC_PITCH_DOT_SIGN" value="1"/>
-    <define name="ADC_YAW_DOT_SIGN" value="-1"/>
+    <define name="ADC_ROLL_DOT_SIGN" value="-"/>
+    <define name="ADC_PITCH_DOT_SIGN" value="+"/>
+    <define name="ADC_YAW_DOT_SIGN" value="-"/>
     <define name="ADC_ROLL_DOT_ZERO" value="512"/>
     <define name="ADC_PITCH_DOT_ZERO" value="512"/>
     <define name="ADC_YAW_DOT_ZERO" value="512"/>
