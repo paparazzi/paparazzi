@@ -62,10 +62,12 @@ extern real_t	ahrs_euler[3];
 extern uint8_t ahrs_state;
 
 
-//exported mainloop functions
+//exported procedure
 extern void ahrs_init( uint8_t do_zero_calibration );//will restart the ahrs with zero_calibration phase
-//export function
-extern void ahrs_gyro_update( void );//needed by paparazzi achitecture
 extern void ahrs_update( void );//will update state with accels and compas if we have
+
+#if (!defined IMU_GYROS_CONNECTED_TO_AP) || (IMU_GYROS_CONNECTED_TO_AP == 0)
+extern void ahrs_gyro_update( void );//needed by paparazzi achitecture
+#endif //IMU_GYROS_CONNECTED_TO_AP
 
 #endif //__AHRS_

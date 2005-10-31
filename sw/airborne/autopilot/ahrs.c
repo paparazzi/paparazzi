@@ -7,7 +7,6 @@
  * (c) 2005 Jean-Pierre Dumont <flyingtuxATfreeDOTfr>
  */
 
-//#define TIME_OPTIM
 
 #include <avr/io.h>
 #include <avr/pgmspace.h>
@@ -25,6 +24,23 @@
 #include "pni.h"
 #endif //PNI_MAG
 
+/* un peu de doc en fancais
+	ahrs est en repere NED (north, east, down) contairement au reste de paparazzi
+	les accelerometres doivent donc etre calibrés (cf quadRotorJP.xml) de sorte que
+		AX = accel[0] = -9.81 lorsque l'imu est posée sur le nez (nez en bas & queue en l'air), 
+		AY = accel[1] = -9.81 lorsque l'imu est posée sur sa tranche droite
+		AZ = accel[2] = -9.81 lorsque l'imu est posée a l'horizontale sur le ventre (soit normalement)
+		
+		Note : Quatre choses à fixer, dans airframe.xml l'affectation des adc, le signe, l'offset (valeur raw à 0g) et le scale
+	
+	les gyroscopes doivent etre calibrés de sorte que
+		P = pqr[0] positif en roulie sur la droite (manche à droite)
+		Q = pqr[1] positif en tangage positff (tire sur le=  manche pour monter)
+		R = pqr[2] positif lacet  à droite
+		
+		Note : De meme 4 choses a fixer dans l'xml comme pour les accels 
+		Veuillez aussi fixer le define IMU_GYROS_CONNECTED_TO_AP ou non en fonction de votre configuration
+*/
 #ifdef SECTION_IMU_ANALOG
 
 
