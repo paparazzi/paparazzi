@@ -120,31 +120,26 @@ int main( void ) {
       DOWNLINK_SEND_IMU_3DMG(&from_fbw.euler_dot[0], &from_fbw.euler_dot[1], &from_fbw.euler_dot[2], &from_fbw.euler[0], &from_fbw.euler[1], &from_fbw.euler[2]);
       estimator_update_state_3DMG();
 #elif defined SECTION_IMU_ANALOG
-	  /** -Saving now the pqr values from the fbw struct since
-	   *  -it's not safe always
-	   */
-	  ahrs_save_pqr_from_fbw();
-	  int16_t dummy;
+      /** -Saving now the pqr values from the fbw struct since
+	*  -it's not safe always
+	*  only if gyro are connected to fbw
+	*/
+#if (!defined IMU_GYROS_CONNECTED_TO_AP) || (!IMU_GYROS_CONNECTED_TO_AP) 
+	/* it can be called at 20 hz and gyros data come from the fbw so call have to be here */
+	ahrs_gyro_update();
+#endif //!IMU_GYROS_CONNECTED_TO_AP	 	  
+	int16_t dummy;
       DOWNLINK_SEND_IMU_3DMG(&from_fbw.euler_dot[0], &from_fbw.euler_dot[1], &from_fbw.euler_dot[2], &dummy, &dummy, &dummy);
-	  
-	  uart0_transmit('E');
-      uart0_transmit(' ');
-      uart0_print_hex16(ahrs_euler[0]);
-      uart0_transmit(',');
-      uart0_print_hex16(ahrs_euler[1]);
-      uart0_transmit(',');
-      uart0_print_hex16(ahrs_euler[2]);
-      uart0_transmit('\t');
-#endif
+#endif //SECTION_IMU
 #if defined SECTION_IMU_3DMG || defined SECTION_IMU_ANALOG
-      uart0_transmit('G');
+      /*uart0_transmit('G');
       uart0_transmit(' ');
       uart0_print_hex16(from_fbw.euler_dot[0]);
       uart0_transmit(',');
       uart0_print_hex16(from_fbw.euler_dot[1]);
       uart0_transmit(',');
       uart0_print_hex16(from_fbw.euler_dot[2]);
-      uart0_transmit('\n');
+      uart0_transmit('\n');*/
 #endif
     }
   } 

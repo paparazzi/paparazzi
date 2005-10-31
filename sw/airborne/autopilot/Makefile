@@ -58,7 +58,7 @@ $(TARGET).srcs	= \
 	pid.c \
 	nav.c \
 	uart.c \
-        estimator.c \
+    estimator.c \
 	if_calib.c \
 	mainloop.c \
 	cam.c
@@ -67,6 +67,12 @@ ifeq ($(AIRCRAFT), Gorazoptere_brushless_ANALOG)
 	$(TARGET).srcs  += ahrs.S 
 	$(TARGET).srcs  += ahrs.c 
 endif
+ifeq ($(AIRCRAFT), quadRotorJP)
+	$(TARGET).srcs  += ahrs.S 
+	$(TARGET).srcs  += ahrs.c
+#	$(TARGET).srcs  += fp.c
+endif
+
 
 include ../../../conf/Makefile.local
 include ../../../conf/Makefile.avr

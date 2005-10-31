@@ -486,6 +486,8 @@ inline void periodic_task( void ) {
   if (_4Hz>=15) _4Hz=0;
   _1Hz++;
   if (_1Hz>=61) _1Hz=0;
+	  
+ 
   
   if (!_10Hz) {
     stage_time_ds = stage_time_ds + .1;
@@ -508,6 +510,9 @@ inline void periodic_task( void ) {
     break;
     /*  default: */
   }
+  #ifdef SECTION_IMU_ANALOG
+ ahrs_update();//<8,6 ms called at 60hz
+#endif
   switch (_20Hz) {
   case 0:
     break;
@@ -522,12 +527,12 @@ inline void periodic_task( void ) {
     
         
 #if defined SECTION_IMU_3DMG
+  //estimator_update_state_3DMG( );
 
-    //#elif defined SECTION_IMU_ANALOG
-    //20Hz/3 it could be possible since it can run standalone at 60Hz/3
-    //    ahrs_update();
-    //	estimator_update_state_ANALOG();
-#else //NO IMU
+#elif defined SECTION_IMU_ANALOG
+   //ahrs_update();show up (it's called at 60/4 Hz)
+   estimator_update_state_ANALOG( );
+#else /*NO IMU*/
     ir_update();
     estimator_update_state_infrared();
 #endif
@@ -574,19 +579,3 @@ void use_gps_pos( void ) {
     DOWNLINK_SEND_TAKEOFF(&cputime);
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

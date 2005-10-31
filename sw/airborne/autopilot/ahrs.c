@@ -7,6 +7,7 @@
  * (c) 2005 Jean-Pierre Dumont <flyingtuxATfreeDOTfr>
  */
 
+//#define TIME_OPTIM
 
 #include <avr/io.h>
 #include <avr/pgmspace.h>
@@ -18,6 +19,7 @@
 #include "ahrs.h"
 #include "autopilot.h"
 #include "link_fbw.h"
+#include "uart.h"
 
 #ifdef PNI_MAG
 #include "pni.h"
@@ -25,59 +27,29 @@
 
 #ifdef SECTION_IMU_ANALOG
 
+
+#define C_ONE		1.0
+#define C_TWO		2.0
 #define C_PI		((real_t) 3.14159265358979323846264338327950)
+#define C_HALF_PI	(C_PI/2)
+#define C_TWO_PI	(C_PI*2)
+
 
 /*
  * dt is our time step.  It is important to be close to the actual
  * frequency with which ahrs_state_update() is called with the body
  * angular rates.
  */
-#define	dt		0.05  //0.04
 
+#define	dt		1/15 //0,066666667  //1/15
 #define CONFIG_SPLIT_COVARIANCE
 #ifdef CONFIG_SPLIT_COVARIANCE
 #define	dt_covariance	2 * dt
 #else
 #define dt_covariance	dt
-#endif
+#endif //CONFIG_SLIT_COVARIANCE
 
-//TODO this part of code should be generaed by xml configuration
-//#define		IMU_ADC_ACCELX	5
-//#define		IMU_ADC_ACCELX_ZERO	0x24A
-//#define		IMU_ADC_ACCELX_SIGN	-
-
-//#define		IMU_ADC_ACCELY	6
-//#define		IMU_ADC_ACCELY_ZERO	0x280
-//#define		IMU_ADC_ACCELY_SIGN	+
-
-//#define		IMU_ADC_ACCELZ	4
-//#define		IMU_ADC_ACCELZ_ZERO	0x210
-//#define		IMU_ADC_ACCELZ_SIGN	-
-
-//#define		IMU_ADC_ROLL_DOT	3
-//#define		IMU_ADC_ROLL_DOT_SIGN	+
-
-//#define		IMU_ADC_PITCH_DOT	2
-//#define		IMU_ADC_PITCH_DOT_SIGN	-
-
-//#define		IMU_ADC_YAW_DOT	7
-//#define		IMU_ADC_YAW_DOT_SIGN	-
-
-//#define			IMU_INIT_EULER_DOT_VARIANCE_MAX		2
-//#define			IMU_INIT_EULER_DOT_NB_SAMPLES_MIN	10
-
-//#define		GYRO_SCALE	(real_t) (0.9444 * 3.14159 / 180.0)
-//#define		GYRO_ZERO	0x200
-
-
-/*
- * paparazzi adc_buff
- */
-static struct adc_buf buf_accelX;
-static struct adc_buf buf_accelY;
-static struct adc_buf buf_accelZ;
-
-
+#define AHRS_DEBUG
 
 /*
  * We have seven variables in our state -- the quaternion attitude
@@ -96,9 +68,8 @@ static struct adc_buf buf_accelZ;
  * The user inputs the acceleration and rotational rates here, then
  * calls the update functions.
  */
-real_t	pqr[3];
-int16_t	accel[3];
-
+real_t pqr[3];//rad/s
+real_t accel[3];//in G
 
 /*
  * The euler estimate will be updated less frequently than the
@@ -168,8 +139,8 @@ extern real_t		Qdot[4];
  * it), those are zero.  For the gyro, we expect around 5 deg/sec noise,
  * which is 0.08 rad/sec.  The variance is then 0.08^2 ~= 0.0075.
  */
-#define Q_gyro		0.0075
 
+#define Q_gyro		0.0075
 
 /*
  * R is our measurement noise estimate.  Like Q, it is supposed to be
@@ -178,10 +149,76 @@ extern real_t		Qdot[4];
  * We only have an expected noise in the pitch and roll accelerometers
  * and in the compass.
  */
+
 #define R_pitch		1.3 * 1.3
 #define R_roll		1.0 * 1.0
 #define R_yaw		2.5 * 2.5
 
+//jpdumont adds... (take care on asm ahrs.S)
+
+/*raw datas
+ */
+int16_t gyro[3];//direct mean from gyro 
+int16_t gyro_zero[3];//this datas will by re-initialiazed during startup
+
+int16_t accel_raw[3];//direct lean from adxl 
+int16_t accel_raw_zero[3];
+
+/* real_t datas
+ */
+
+real_t gyro_scale[3];
+real_t accel_scale[3];
+
+/*
+ * paparazzi adc_buff
+ */
+static struct adc_buf buf_accelX;
+static struct adc_buf buf_accelY;
+static struct adc_buf buf_accelZ;
+
+/*
+ * only if gyro are connected on ap
+ */
+#if (defined IMU_GYROS_CONNECTED_TO_AP) && (IMU_GYROS_CONNECTED_TO_AP != 0)
+static struct adc_buf buf_gyroP;
+static struct adc_buf buf_gyroQ;
+static struct adc_buf buf_gyroR;
+#endif //IMU_GYROS_CONNECTED_TO_AP
+
+#ifdef AHRS_DEBUG
+char		float_buf[12];
+void
+put_float(
+	const float 		f
+)
+{
+	uint8_t			i;
+
+
+	dtostrf(
+		f,
+		sizeof( float_buf )-1,
+		5,
+		float_buf
+	);
+
+	for( i=0 ; i<sizeof(float_buf) ; i++ )
+	{
+		char c = float_buf[i];
+		if( !c )
+			break;
+		uart0_transmit( c );
+
+		/* Stop on a NaN */
+		if( i == 2 && c == 'N' )
+		{
+			uart0_transmit( ' ' );
+			break;
+		}
+	}
+}
+#endif //AHRS_DEBUG
 
 
 /*
@@ -191,16 +228,34 @@ extern real_t		Qdot[4];
 void
 norm_quat( void )
 {
-	index_t		i;
+//	index_t		i;
+	real_t		mag2 = 0;
 	real_t		mag = 0;
 
-	for( i=0 ; i<4 ; i++ )
-		mag += quat[i] * quat[i];
 
-	mag = sqrt( mag );
+	/*for( i=0 ; i<4 ; i++ )
+		mag2 += quat[i] * quat[i];*/
+	mag2 += quat[0] * quat[0];
+	mag2 += quat[1] * quat[1];
+	mag2 += quat[2] * quat[2];
+	mag2 += quat[3] * quat[3];
+	mag = sqrt( mag2 );
 
-	for( i=0 ; i<4 ; i++ )
-		quat[i] /= mag;
+
+#ifdef AHRS_DEBUG
+	if (mag == 0)
+	{
+		uart0_print_string("\nnorm_quat:div by 0 !\n");
+		mag = mag2;
+	}
+#endif //AHRS_DEBUG
+
+	/*for( i=0 ; i<4 ; i++ )
+		quat[i] /= mag;*/
+	quat[0] /= mag;
+	quat[1] /= mag;
+	quat[2] /= mag;
+	quat[3] /= mag;
 }
 
 
@@ -256,7 +311,7 @@ compute_A_quat( void )
 static inline void
 compute_A_bias( void )
 {
-	A[0][4] = A[2][6] = q1 * 0.5;
+    A[0][4] = A[2][6] = q1 * 0.5;
 	A[0][5] = A[3][4] = q2 * 0.5;
 	A[0][6] = A[1][5] = q3 * 0.5;
 
@@ -292,7 +347,6 @@ covariance_update_0( void )
 
 	/* Finish the computation of A */
 	compute_A_bias();
-
 	/*
 	 * Compute the A*P+P*At for the bottom rows of P and A_tranpose
 	 */
@@ -301,17 +355,19 @@ covariance_update_0( void )
 			for( k=4 ; k<7 ; k++ )
 			{
 				const real_t A_i_k = A[i][k];
-
 				Pdot[i][j] += A_i_k * P[k][j];
 				Pdot[j][i] += P[j][k] * A_i_k;
 			}
-
 	/*
 	 * Add in the non-zero parts of Q.  The quaternion portions
 	 * are all zero, and all the gyros share the same value.
 	 */
-	for( i=4 ; i<7 ; i++ )
-		Pdot[i][i] += Q_gyro;
+	/*for( i=4 ; i<7 ; i++ )
+		Pdot[i][i] += Q_gyro;*/
+	Pdot[4][4] += Q_gyro;
+	Pdot[5][5] += Q_gyro;
+	Pdot[6][6] += Q_gyro;
+	
 }
 
 
@@ -326,7 +382,6 @@ covariance_update_1( void )
 	index_t			i;
 	index_t			j;
 	index_t			k;
-
 	/*
 	 * Compute A*P + P*At for the region [0..3][0..3]
 	 */
@@ -339,18 +394,71 @@ covariance_update_1( void )
 					continue;
 				if( j == k )
 					Pdot[i][j] += A[i][k] * P[k][j];
-				else
-				if( i == k )
+				else if( i == k )
 					Pdot[i][j] += P[i][k] * A[j][k];
 				else
 					Pdot[i][j] += A[i][k] * P[k][j]
 						   +  P[i][k] * A[j][k];
 			}
-
 	/* Compute P = P + Pdot * dt */
-	for( i=0 ; i<7 ; i++ )
+	/*for( i=0 ; i<7 ; i++ )
 		for( j=0 ; j<7 ; j++ )
-			P[i][j] += Pdot[i][j] * dt_covariance;
+			P[i][j] += Pdot[i][j] * dt_covariance;*/
+	P[0][0] += Pdot[0][0] * dt_covariance;
+	P[0][1] += Pdot[0][1] * dt_covariance;
+	P[0][2] += Pdot[0][2] * dt_covariance;
+	P[0][3] += Pdot[0][3] * dt_covariance;
+	P[0][4] += Pdot[0][4] * dt_covariance;
+	P[0][5] += Pdot[0][5] * dt_covariance;
+	P[0][6] += Pdot[0][6] * dt_covariance;
+	
+	P[1][0] += Pdot[1][0] * dt_covariance;
+	P[1][1] += Pdot[1][1] * dt_covariance;
+	P[1][2] += Pdot[1][2] * dt_covariance;
+	P[1][3] += Pdot[1][3] * dt_covariance;
+	P[1][4] += Pdot[1][4] * dt_covariance;
+	P[1][5] += Pdot[1][5] * dt_covariance;
+	P[1][6] += Pdot[1][6] * dt_covariance;
+
+	P[2][0] += Pdot[2][0] * dt_covariance;
+	P[2][1] += Pdot[2][1] * dt_covariance;
+	P[2][2] += Pdot[2][2] * dt_covariance;
+	P[2][3] += Pdot[2][3] * dt_covariance;
+	P[2][4] += Pdot[2][4] * dt_covariance;
+	P[2][5] += Pdot[2][5] * dt_covariance;
+	P[2][6] += Pdot[2][6] * dt_covariance;
+
+	P[3][0] += Pdot[3][0] * dt_covariance;
+	P[3][1] += Pdot[3][1] * dt_covariance;
+	P[3][2] += Pdot[3][2] * dt_covariance;
+	P[3][3] += Pdot[3][3] * dt_covariance;
+	P[3][4] += Pdot[3][4] * dt_covariance;
+	P[3][5] += Pdot[3][5] * dt_covariance;
+	P[3][6] += Pdot[3][6] * dt_covariance;
+
+	P[4][0] += Pdot[4][0] * dt_covariance;
+	P[4][1] += Pdot[4][1] * dt_covariance;
+	P[4][2] += Pdot[4][2] * dt_covariance;
+	P[4][3] += Pdot[4][3] * dt_covariance;
+	P[4][4] += Pdot[4][4] * dt_covariance;
+	P[4][5] += Pdot[4][5] * dt_covariance;
+	P[4][6] += Pdot[4][6] * dt_covariance;
+
+	P[5][0] += Pdot[5][0] * dt_covariance;
+	P[5][1] += Pdot[5][1] * dt_covariance;
+	P[5][2] += Pdot[5][2] * dt_covariance;
+	P[5][3] += Pdot[5][3] * dt_covariance;
+	P[5][4] += Pdot[5][4] * dt_covariance;
+	P[5][5] += Pdot[5][5] * dt_covariance;
+	P[5][6] += Pdot[5][6] * dt_covariance;
+
+	P[6][0] += Pdot[6][0] * dt_covariance;
+	P[6][1] += Pdot[6][1] * dt_covariance;
+	P[6][2] += Pdot[6][2] * dt_covariance;
+	P[6][3] += Pdot[6][3] * dt_covariance;
+	P[6][4] += Pdot[6][4] * dt_covariance;
+	P[6][5] += Pdot[6][5] * dt_covariance;
+	P[6][6] += Pdot[6][6] * dt_covariance;
 }
 
 
@@ -380,14 +488,14 @@ covariance_update( void )
 void
 ahrs_state_update( void )
 {
-	index_t			i;
-	index_t			j;
+//	index_t			i;
+//	index_t			j;
 
 	compute_A_quat();
 	memset( Qdot, 0, sizeof(Qdot) );
 
-	/* Compute Q_dot = Wxq(pqr) * Q (storing temp in C) */
-	for( i=0 ; i<4 ; i++ )
+	/* Compute Q_dot = Wxq(pqr) * Q (storing temp in C) */	
+	/*for( i=0 ; i<4 ; i++ )
 	{
 		for( j=0 ; j<4 ; j++ )
 		{
@@ -395,12 +503,35 @@ ahrs_state_update( void )
 				continue;
 			Qdot[i] += A[i][j] * quat[j];
 		}
-	}
+	}*/
 
-	/* Compute Q = Q + Q_dot * dt */
-	for( i=0 ; i<4 ; i++ )
-		quat[i] += Qdot[i] * dt;
+	//Qdot[0] += A[0][0] * quat[0];
+	Qdot[0] += A[0][1] * quat[1];
+	Qdot[0] += A[0][2] * quat[2];
+	Qdot[0] += A[0][3] * quat[3];
+	
+	Qdot[1] += A[1][0] * quat[0];
+	//Qdot[1] += A[1][1] * quat[1];
+	Qdot[1] += A[1][2] * quat[2];
+	Qdot[1] += A[1][3] * quat[3];
+	
+	Qdot[2] += A[2][0] * quat[0];
+	Qdot[2] += A[2][1] * quat[1];
+	//Qdot[2] += A[2][2] * quat[2];
+	Qdot[2] += A[2][3] * quat[3];
+	
+	Qdot[3] += A[3][0] * quat[0];
+	Qdot[3] += A[3][1] * quat[1];
+	Qdot[3] += A[3][2] * quat[2];
+	//Qdot[3] += A[3][3] * quat[3];
 
+/* Compute Q = Q + Q_dot * dt */
+	/*for( i=0 ; i<4 ; i++ )
+		quat[i] += Qdot[i] * dt;*/
+	quat[0] += Qdot[0] * dt;
+	quat[1] += Qdot[1] * dt;
+	quat[2] += Qdot[2] * dt;
+	quat[3] += Qdot[3] * dt;
 	/*
 	 * We would normally renormalize our quaternion, but we will
 	 * allow it to drift until the next kalman update.
@@ -414,7 +545,9 @@ ahrs_state_update( void )
 		covariance_state = 1;
 		covariance_update_0();
 		return;
-	} else {
+	}
+	else 
+	{
 		covariance_state = 0;
 		covariance_update_1();
 		return;
@@ -422,7 +555,7 @@ ahrs_state_update( void )
 #else
 	covariance_update_0();
 	covariance_update_1();
-#endif
+#endif //CONFIG_SPLIT_COVARIANCE
 }
 
 
@@ -436,11 +569,12 @@ ahrs_state_update( void )
 static void
 compute_DCM( void )
 {
-	dcm00 = 1.0-2*(q2*q2 + q3*q3);
-	dcm01 =     2*(q1*q2 + q0*q3);
-	dcm02 =     2*(q1*q3 - q0*q2);
-	dcm12 =     2*(q2*q3 + q0*q1);
-	dcm22 = 1.0-2*(q1*q1 + q2*q2);
+	const real_t q2xq2 = q2*q2; 
+    dcm00 = C_ONE - 2*(q2xq2 + q3*q3);
+	dcm01 =     	2*(q1*q2 + q0*q3);
+	dcm02 =     	2*(q1*q3 - q0*q2);
+	dcm12 =     	2*(q2*q3 + q0*q1);
+	dcm22 = C_ONE - 2*(q1*q1 + q2xq2);
 }
 
 
@@ -452,23 +586,61 @@ compute_DCM( void )
 static inline void
 compute_dphi_dq( void )
 {
-	index_t			i;
+//	index_t			i;
+	const real_t tmp = dcm22*dcm22 + dcm12*dcm12;
 
-	const real_t phi_err =  2 / (dcm22*dcm22 + dcm12*dcm12);
+#ifdef AHRS_DEBUG
+	if (tmp == 0)
+	{
+		uart0_print_string("\ncompute_dphi_dq:div by 0 !\n");
+		return;
+	}
+#endif //AHRS_DEBUG
 
-	C[0] = (q1 * dcm22);
-	C[1] = (q0 * dcm22 + 2 * q1 * dcm12);
-	C[2] = (q3 * dcm22 + 2 * q2 * dcm12);
-	C[3] = (q2 * dcm22);
+	const real_t phi_err =  C_TWO / tmp;
 
-	for( i=0 ; i<4 ; i++ )
-		C[i] *= phi_err;
+	C[0] = q1 * dcm22;
+	C[1] = q0 * dcm22 + 2 * q1 * dcm12;
+	C[2] = q3 * dcm22 + 2 * q2 * dcm12;
+	C[3] = q2 * dcm22;
+
+	/*for( i=0 ; i<4 ; i++ )
+		C[i] *= phi_err;*/
+	C[0] *= phi_err;
+	C[1] *= phi_err;
+	C[2] *= phi_err;
+	C[3] *= phi_err;
 }
 
 static inline void
 compute_dtheta_dq( void )
 {
-	const real_t theta_err	= -2 / sqrt( 1 - dcm02*dcm02 );
+	real_t tmp = C_ONE - dcm02*dcm02;
+	
+#ifdef AHRS_DEBUG
+	if (tmp == 0)
+	{
+		uart0_print_string("\ncompute_dtheta_dq:1:div by 0 !\n");
+		tmp = real_t_min;
+	}
+	if (tmp < 0)
+	{
+		uart0_print_string("\ncompute_dtheta_dq:1:sqrt of negativ value !\n");
+		tmp = real_t_min; 
+	}
+#endif //AHRS_DEBUG
+
+	real_t sqrt_tmp = sqrt(tmp);
+
+#ifdef AHRS_DEBUG
+	if (sqrt_tmp == 0)
+	{
+		uart0_print_string("\ncompute_dtheta_dq:2:div by 0 !\n");
+		sqrt_tmp = tmp;
+	}
+#endif //AHRS_DEBUG
+
+	const real_t theta_err	= -C_TWO / sqrt_tmp;
 
 	C[0] = -q2 * theta_err;
 	C[1] =  q3 * theta_err;
@@ -479,17 +651,30 @@ compute_dtheta_dq( void )
 static inline void
 compute_dpsi_dq( void )
 {
-	index_t			i;
+//	index_t			i;
+	const real_t tmp = dcm00*dcm00 + dcm01*dcm01;
 
-	const real_t psi_err	=  2 / (dcm00*dcm00 + dcm01*dcm01);
+#ifdef AHRS_DEBUG
+	if (tmp == 0)
+	{
+		uart0_print_string("\ncompute_dpsi_dq::div by 0 !\n");
+		return;
+	}
+#endif //AHRS_DEBUG
+
+	const real_t psi_err	=  C_TWO / tmp;
 
 	C[0] = (q3 * dcm00);
 	C[1] = (q2 * dcm00);
 	C[2] = (q1 * dcm00 + 2 * q2 * dcm01);
 	C[3] = (q0 * dcm00 + 2 * q3 * dcm01);
 
-	for( i=0 ; i<4 ; i++ )
-		C[i] *= psi_err;
+	/*for( i=0 ; i<4 ; i++ )
+		C[i] *= psi_err;*/
+	C[0] *= psi_err;
+	C[1] *= psi_err;
+	C[2] *= psi_err;
+	C[3] *= psi_err;
 }
 
 
@@ -502,18 +687,33 @@ compute_dpsi_dq( void )
 static inline void
 compute_euler_roll( void )
 {
+#ifdef AHRS_DEBUG
+	if (dcm22 == 0)
+	{
+		uart0_print_string("\ncompute_euler_roll:atan2(Y,0) !\n");
+		return;
+	}
+#endif //AHRS_DEBUG
 	ahrs_euler[0] = atan2( dcm12, dcm22 );
 }
 
 static inline void
 compute_euler_pitch( void )
 {
+	//TODO : perhaps we should verify that dcm02 is in [-1;1]
 	ahrs_euler[1] = -asin( dcm02 );
 }
 
 static inline void
 compute_euler_heading( void )
 {
+#ifdef AHRS_DEBUG
+	if (dcm00 == 0)
+	{
+		uart0_print_string("\ncompute_euler_heading:atan2(Y,0) !\n");
+		return;
+	}
+#endif //AHRS_DEBUG
 	ahrs_euler[2] = atan2( dcm01, dcm00 );
 }
 
@@ -528,46 +728,195 @@ run_kalman(
 	const real_t	error
 )
 {
-	index_t		i;
-	index_t		j;
-	index_t		k;
+//	index_t		i;
+//	index_t		j;
+//	index_t		k;
 
 	memset( (void*) PCt, 0, sizeof( PCt ) );
 
 	/* Compute PCt = P * C_tranpose */
-	for( i=0 ; i<7 ; i++ )
+	/*for( i=0 ; i<7 ; i++ )
 		for( k=0 ; k<4 ; k++ )
-			PCt[i] += P[i][k] * C[k];
+			PCt[i] += P[i][k] * C[k];*/
+	PCt[0] += P[0][0] * C[0];
+	PCt[0] += P[0][1] * C[1];
+	PCt[0] += P[0][2] * C[2];
+	PCt[0] += P[0][3] * C[3];
+		
+	PCt[1] += P[1][0] * C[0];
+	PCt[1] += P[1][1] * C[1];
+	PCt[1] += P[1][2] * C[2];
+	PCt[1] += P[1][3] * C[3];
+		
+	PCt[2] += P[2][0] * C[0];
+	PCt[2] += P[2][1] * C[1];
+	PCt[2] += P[2][2] * C[2];
+	PCt[2] += P[2][3] * C[3];
+		
+	PCt[3] += P[3][0] * C[0];
+	PCt[3] += P[3][1] * C[1];
+	PCt[3] += P[3][2] * C[2];
+	PCt[3] += P[3][3] * C[3];
+	
+	PCt[4] += P[4][0] * C[0];
+	PCt[4] += P[4][1] * C[1];
+	PCt[4] += P[4][2] * C[2];
+	PCt[4] += P[4][3] * C[3];
+	
+	PCt[5] += P[5][0] * C[0];
+	PCt[5] += P[5][1] * C[1];
+	PCt[5] += P[5][2] * C[2];
+	PCt[5] += P[5][3] * C[3];
+	
+	PCt[6] += P[6][0] * C[0];
+	PCt[6] += P[6][1] * C[1];
+	PCt[6] += P[6][2] * C[2];
+	PCt[6] += P[6][3] * C[3];
 
 	/* Compute E = C * PCt + R */
 	E = R_axis;
-	for( i=0 ; i<4 ; i++ )
-		E += C[i] * PCt[i];
+	/*for( i=0 ; i<4 ; i++ )
+		E += C[i] * PCt[i];*/
+	E += C[0] * PCt[0];
+	E += C[1] * PCt[1];
+	E += C[2] * PCt[2];
+	E += C[3] * PCt[3];
 
 	/* Compute the inverse of E */
-	E = 1.0 / E;
+#ifdef AHRS_DEBUG
+	if (E == 0)
+	{
+		uart0_print_string("\nrun_kalman:div by 0 !\n");
+		return;
+	}
+#endif //AHRS_DEBUG
+	
+	E = C_ONE / E;
 
 	/* Compute K = P * C_tranpose * inv(E) */
-	for( i=0 ; i<7 ; i++ )
-		K[i] = PCt[i] * E;
+	/*for( i=0 ; i<7 ; i++ )
+		K[i] = PCt[i] * E;*/
+	K[0] = PCt[0] * E;
+	K[1] = PCt[1] * E;
+	K[2] = PCt[2] * E;
+	K[3] = PCt[3] * E;
+	K[4] = PCt[4] * E;
+	K[5] = PCt[5] * E;
+	K[6] = PCt[6] * E;
 
 	/* Update our covariance matrix: P = P - K * C * P */
 
 	/* Compute CP = C * P, reusing the PCt array. */
 	memset( (void*) PCt, 0, sizeof( PCt ) );
-	for( j=0 ; j<7 ; j++ )
+	/*for( j=0 ; j<7 ; j++ )
 		for( k=0 ; k<4 ; k++ )
-			PCt[j] += C[k] * P[k][j];
+		    	PCt[j] += C[k] * P[k][j];*/
+	PCt[0] += C[0] * P[0][0];
+	PCt[0] += C[1] * P[1][0];
+	PCt[0] += C[2] * P[2][0];
+	PCt[0] += C[3] * P[3][0];
+	
+	PCt[1] += C[0] * P[0][1];
+	PCt[1] += C[1] * P[1][1];
+	PCt[1] += C[2] * P[2][1];
+	PCt[1] += C[3] * P[3][1];
+	
+	PCt[2] += C[0] * P[0][2];
+	PCt[2] += C[1] * P[1][2];
+	PCt[2] += C[2] * P[2][2];
+	PCt[2] += C[3] * P[3][2];
+	
+	PCt[3] += C[0] * P[0][3];
+	PCt[3] += C[1] * P[1][3];
+	PCt[3] += C[2] * P[2][3];
+	PCt[3] += C[3] * P[3][3];
+	
+	PCt[4] += C[0] * P[0][4];
+	PCt[4] += C[1] * P[1][4];
+	PCt[4] += C[2] * P[2][4];
+	PCt[4] += C[3] * P[3][4];
+	
+	PCt[5] += C[0] * P[0][5];
+	PCt[5] += C[1] * P[1][5];
+	PCt[5] += C[2] * P[2][5];
+	PCt[5] += C[3] * P[3][5];
+	
+	PCt[6] += C[0] * P[0][6];
+	PCt[6] += C[1] * P[1][6];
+	PCt[6] += C[2] * P[2][6];
+	PCt[6] += C[3] * P[3][6];
 
 	/* Compute P -= K * CP (aliased to PCt) */
-	for( i=0 ; i<7 ; i++ )
-		for( j=0 ; j<7 ; j++ )
-			P[i][j] -= K[i] * PCt[j];
+	/*for( i=0 ; i<7 ; i++ )
+		for( j=0 ; j<7 ; j++ )			
+			P[i][j] -= K[i] * PCt[j];*/
+	P[0][0] -= K[0] * PCt[0];
+	P[0][1] -= K[0] * PCt[1];
+	P[0][2] -= K[0] * PCt[2];
+	P[0][3] -= K[0] * PCt[3];
+	P[0][4] -= K[0] * PCt[4];
+	P[0][5] -= K[0] * PCt[5];
+	P[0][6] -= K[0] * PCt[6];
+		
+	P[1][0] -= K[1] * PCt[0];
+	P[1][1] -= K[1] * PCt[1];
+	P[1][2] -= K[1] * PCt[2];
+	P[1][3] -= K[1] * PCt[3];
+	P[1][4] -= K[1] * PCt[4];
+	P[1][5] -= K[1] * PCt[5];
+	P[1][6] -= K[1] * PCt[6];
+		
+	P[2][0] -= K[2] * PCt[0];
+	P[2][1] -= K[2] * PCt[1];
+	P[2][2] -= K[2] * PCt[2];
+	P[2][3] -= K[2] * PCt[3];
+	P[2][4] -= K[2] * PCt[4];
+	P[2][5] -= K[2] * PCt[5];
+	P[2][6] -= K[2] * PCt[6];
+	
+	P[3][0] -= K[3] * PCt[0];
+	P[3][1] -= K[3] * PCt[1];
+	P[3][2] -= K[3] * PCt[2];
+	P[3][3] -= K[3] * PCt[3];
+	P[3][4] -= K[3] * PCt[4];
+	P[3][5] -= K[3] * PCt[5];
+	P[3][6] -= K[3] * PCt[6];
+	
+	P[4][0] -= K[4] * PCt[0];
+	P[4][1] -= K[4] * PCt[1];
+	P[4][2] -= K[4] * PCt[2];
+	P[4][3] -= K[4] * PCt[3];
+	P[4][4] -= K[4] * PCt[4];
+	P[4][5] -= K[4] * PCt[5];
+	P[4][6] -= K[4] * PCt[6];
+	
+	P[5][0] -= K[5] * PCt[0];
+	P[5][1] -= K[5] * PCt[1];
+	P[5][2] -= K[5] * PCt[2];
+	P[5][3] -= K[5] * PCt[3];
+	P[5][4] -= K[5] * PCt[4];
+	P[5][5] -= K[5] * PCt[5];
+	P[5][6] -= K[5] * PCt[6];
+	
+	P[6][0] -= K[6] * PCt[0];
+	P[6][1] -= K[6] * PCt[1];
+	P[6][2] -= K[6] * PCt[2];
+	P[6][3] -= K[6] * PCt[3];
+	P[6][4] -= K[6] * PCt[4];
+	P[6][5] -= K[6] * PCt[5];
+	P[6][6] -= K[6] * PCt[6];
 
 	/* Update our state: X += K * error */
-	for( i=0 ; i<7 ; i++ )
-		X[i] += K[i] * error;
-
+	/*for( i=0 ; i<7 ; i++ )
+		X[i] += K[i] * error;*/
+	X[0] += K[0] * error;
+	X[1] += K[1] * error;
+	X[2] += K[2] * error;
+	X[3] += K[3] * error;
+	X[4] += K[4] * error;
+	X[5] += K[5] * error;
+	X[6] += K[6] * error;
+	
 	/*
 	 * We would normally normalize our quaternion here, but
 	 * instead we will allow our caller to do it
@@ -618,9 +967,9 @@ ahrs_roll_update(
 	 */
 	roll -= ahrs_euler[0];
 	if( roll < -C_PI )
-		roll += 2 * C_PI;
+		roll += C_TWO_PI;
 	if( roll > C_PI )
-		roll -= 2 * C_PI;
+		roll -= C_TWO_PI;
 
 	run_kalman( R_roll, roll );
 }
@@ -643,9 +992,9 @@ ahrs_pitch_update(
 	 * for the shortest distance.
 	 */
 	pitch -= ahrs_euler[1];
-	if( pitch < -C_PI / 2 )
+	if( pitch < -C_HALF_PI )
 		pitch += C_PI;
-	if( pitch > C_PI / 2 )
+	if( pitch > C_HALF_PI )
 		pitch -= C_PI;
 
 	run_kalman( R_pitch, pitch );
@@ -654,6 +1003,32 @@ ahrs_pitch_update(
 	norm_quat();
 }
 
+/*
+ * Call this with an untilted heading
+ */
+void
+ahrs_compass_update(
+	real_t			heading
+)
+{
+	// Update the DCM since this will require
+	compute_DCM();
+	compute_euler_heading();
+	compute_dpsi_dq();
+
+	/*
+	 * Compute the error in our heading estimate and measurement.
+	 * Heading can be between -180 and +180 degrees, so we wrap
+	 * to find the shortest turn between the two.
+	 */
+	heading -= ahrs_euler[2];
+	if( heading < -C_PI )
+		heading += C_TWO_PI;
+	if( heading > C_PI )
+		heading -= C_TWO_PI;
+
+	run_kalman( R_yaw, heading );
+}
 
 /*
  * The rotation matrix to rotate from NED frame to body frame without
@@ -683,22 +1058,35 @@ ahrs_pitch_update(
  * about the Z axis relative to the IMU.  Thus, we must negate
  * mag[0] and mag[1], while mag[2] is still positive.
  */
+
 #ifdef PNI_MAG
 real_t
 untilt_compass(
 	const int16_t *		mag
 )
-
 	const real_t	ctheta	= cos( ahrs_euler[1] );
+
+#ifdef AHRS_DEBUG
+	if (ctheta == 0)
+	{
+		uart0_print_string("\nuntilt_compass:div by 0 !\n");
+		return 0 ;//prhaps should we return other thing
+	}
+#endif //AHRS_DEBUG
+	
 	const real_t	mn = ctheta * mag[0]
 		- (dcm12 * mag[1] + dcm22 * mag[2]) * dcm02 / ctheta;
 
 	const real_t	me =
 		(dcm22 * mag[1] - dcm12 * mag[2]) / ctheta;
-
-	const real_t	heading = -atan2( me, -mn );
-
-	return heading;
+#ifdef AHRS_DEBUG
+	if (mn == 0)
+	{
+		uart0_print_string("\nuntilt_compass:atan2(Y,0) !\n");
+		return -((me > 0) ? C_HALF_PI : C_HALF_PI);
+	}
+#endif //AHRS_DEBUG
+	return -atan2( me, -mn );
 }
 #else
 real_t
@@ -710,35 +1098,6 @@ untilt_compass(
 	return 0;
 }
 #endif //PNI_MAG
-
-
-
-/*
- * Call this with an untilted heading
- */
-void
-ahrs_compass_update(
-	real_t			heading
-)
-{
-	// Update the DCM since this will require
-	compute_DCM();
-	compute_euler_heading();
-	compute_dpsi_dq();
-
-	/*
-	 * Compute the error in our heading estimate and measurement.
-	 * Heading can be between -180 and +180 degrees, so we wrap
-	 * to find the shortest turn between the two.
-	 */
-	heading -= ahrs_euler[2];
-	if( heading < -C_PI )
-		heading += 2 * C_PI;
-	if( heading > C_PI )
-		heading -= 2 * C_PI;
-
-	run_kalman( R_yaw, heading );
-}
 
 
 static void
@@ -763,6 +1122,7 @@ euler2quat( void )
 	q3 =  chphi0 * chtheta0 * shpsi0 - shphi0 * shtheta0 * chpsi0;
 }
 
+//END OF USING_FP WORK
 
 /*
  * Initialize the AHRS state data and covariance matrix.  The user
@@ -775,7 +1135,7 @@ _ahrs_init(
 	const int16_t *		mag
 )
 {
-	index_t			i;
+//	index_t			i;
 
 	euler2quat();
 	compute_DCM();
@@ -797,8 +1157,12 @@ _ahrs_init(
 	 * rows/columns have any entries.
 	 */
 	memset( (void*) P, 0, sizeof( P ) );
-	for( i=0 ; i<4 ; i++ )
-		P[i][i] = 1;
+	/*for( i=0 ; i<4 ; i++ )
+		P[i][i] = C_ONE;*/
+	P[0][0] = C_ONE;
+	P[1][1] = C_ONE;
+	P[2][2] = C_ONE;
+	P[3][3] = C_ONE;
 }
 
 /*
@@ -831,6 +1195,13 @@ pni_poll( void )
 static inline real_t
 accel2roll( void )
 {
+#ifdef AHRS_DEBUG
+	if (accel[2] == 0)
+	{
+		uart0_print_string("\naccel2roll:atan2(Y,0) !\n");
+		return -((accel[1]>0) ? C_HALF_PI : -C_HALF_PI);
+	}
+#endif //AHRS_DEBUG
 	return -atan2( accel[1], -accel[2] );
 }
 
@@ -838,17 +1209,29 @@ accel2roll( void )
 static inline real_t
 accel2pitch()
 {
-	index_t         i;
-	uint16_t        g2 = 0;
+//	index_t         i;
+	real_t          g2 = 0;
 
 	/* Compute the square of the magnitude of the acceleration */
-	for( i=0 ; i<3 ; i++ )
-		g2 += accel[i] * accel[i];
 
-	return -asin( accel[0] / -sqrt( g2 ) );
+	/*for( i=0 ; i<3 ; i++ )
+		g2 += accel[i] * accel[i];*/
+	g2 += accel[0] * accel[0];
+	g2 += accel[1] * accel[1];
+	g2 += accel[2] * accel[2];
+
+	real_t tmp = -sqrt(g2);
+
+#ifdef AHRS_DEBUG
+	if (tmp == 0)
+	{
+		uart0_print_string("\naccel2pitch:div by 0 !\n");
+		tmp = -g2;
+	}
+#endif //AHRS_DEBUG
+	
+	return -asin( accel[0] / tmp );
 }
-
-
 
 
 /** - Here start the Paparazzi englued code 
@@ -864,111 +1247,71 @@ accel_init( void )
 	adc_buf_channel(IMU_ADC_ACCELY, &buf_accelY, DEFAULT_AV_NB_SAMPLE);
 	adc_buf_channel(IMU_ADC_ACCELZ, &buf_accelZ, DEFAULT_AV_NB_SAMPLE);
 
+	//Default accel_raw_zeo initialisation
+	accel_raw_zero[0] = IMU_ADC_ACCELX_ZERO;
+	accel_raw_zero[1] = IMU_ADC_ACCELY_ZERO;
+	accel_raw_zero[2] = IMU_ADC_ACCELZ_ZERO;
+
+	//default accel_scale initialisation
+	accel_scale[0] = IMU_ADC_ACCELX_SCALE;
+	accel_scale[1] = IMU_ADC_ACCELY_SCALE;
+	accel_scale[2] = IMU_ADC_ACCELZ_SCALE;
 }
 
 static inline void
 gyro_init( void)
 {
-    	//gyro : paparazzi initialization
+    //gyro : paparazzi initialization
 	//nothing todo
-}
-
-static inline void
-imu_calibration( uint8_t reset )
-{
-	static uint32_t dec = IMU_INIT_EULER_DOT_NB_SAMPLES_MIN; 
-	static int16_t pqr_min[3],pqr_max[3];
-	int8_t i;
-
-	//assuming that pqr sample is new is new....
+#if (defined IMU_GYROS_CONNECTED_TO_AP) && (IMU_GYROS_CONNECTED_TO_AP != 0)
+	//gyro : paparazzi mean gyro buffer init(only if gyro are connected to ap)
+	adc_buf_channel(IMU_ADC_ROLL_DOT, &buf_gyroP, DEFAULT_AV_NB_SAMPLE);
+	adc_buf_channel(IMU_ADC_PITCH_DOT, &buf_gyroQ, DEFAULT_AV_NB_SAMPLE);
+	adc_buf_channel(IMU_ADC_YAW_DOT, &buf_gyroR, DEFAULT_AV_NB_SAMPLE);
+#endif //IMU_GYROS_CONNECTED_TO_AP
 	
-	//init-algo
-	if (reset)
-	    dec = IMU_INIT_EULER_DOT_NB_SAMPLES_MIN;
-
-	if (dec == IMU_INIT_EULER_DOT_NB_SAMPLES_MIN)
-	{
-		for(i=0;i<3;i++)
-			pqr_min[i] = pqr_max[i] = pqr[i];//<--from_fbw.euler_dot[i];
-		return;
-	}									
-	if (dec-- > 0)
-	{
-		//Saving min and max
-		for(i=0;i<3;i++)
-		{
-			//pqr[i] = from_fbw.euler_dot[i];//already done
-			pqr_min[i] = (pqr_min[i] < pqr[i])? pqr_min[i] : pqr[i];
-			pqr_max[i] = (pqr_max[i] > pqr[i])? pqr_max[i] : pqr[i];
-		}
-
-		//testing variance
-		for(i=0;i<3;i++) 
-		{ 
-			if ((pqr_max[i]- pqr_min[i]) > IMU_INIT_EULER_DOT_VARIANCE_MAX)
-			{       
-				//re-init algo
-				dec = IMU_INIT_EULER_DOT_NB_SAMPLES_MIN;
-				return;
-			}
-		}
-			
-	}
-	else
-	{
-	    	//entering in the end of calibration ;-)
+	//Default gyro_zero initialisation
+	gyro_zero[0] = IMU_ADC_ROLL_DOT_ZERO;
+	gyro_zero[1] = IMU_ADC_PITCH_DOT_ZERO;
+	gyro_zero[2] = IMU_ADC_YAW_DOT_ZERO;
 	
-	    	//we take the middle for pqr
-		//pqr is already normalized and scaled by the fbw mcu
-		for(i=0;i<3;i++)
-			pqr[i] = (pqr_min[i] + pqr_max[i])/2;
-
-		/** - Time of Accel Now
-		 *
-		 */
-
-		const int16_t ax_m	= buf_accelX.sum/buf_accelX.av_nb_sample;
-		const int16_t ay_m	= buf_accelY.sum/buf_accelY.av_nb_sample;
-		const int16_t az_m	= buf_accelZ.sum/buf_accelZ.av_nb_sample;
-	
-		//Geeting ax ay az from this adc buffer mean
-		accel[0] = IMU_ADC_ACCELX_SIGN (ax_m - IMU_ADC_ACCELX_ZERO);
-		accel[1] = IMU_ADC_ACCELY_SIGN (ay_m - IMU_ADC_ACCELY_ZERO);
-		accel[2] = IMU_ADC_ACCELZ_SIGN (az_m - IMU_ADC_ACCELZ_ZERO);
-
-		//Enf of ahrs_init ;-)
-#ifdef PNI_MAG
-		pni_poll();		
-		_ahrs_init( pni_values );
-#else
-		_ahrs_init( NULL );
-#endif //PNI_MAG
-		ahrs_state = AHRS_RUNNING;
-	}
-	
+	//Default gyro_scale Initialisation
+	gyro_scale[0] = IMU_ADC_ROLL_DOT_SCALE;
+	gyro_scale[1] = IMU_ADC_PITCH_DOT_SCALE;
+	gyro_scale[2] = IMU_ADC_YAW_DOT_SCALE;
 }
 
 
 static inline void
 pqr_update( void )
 {
-    //do nothing here in paparazzi
-    //pqr is filled "asymchronously" by the exported function ahrs_save_pqr_from_fbw
+#if (defined IMU_GYROS_CONNECTED_TO_AP) && (IMU_GYROS_CONNECTED_TO_AP != 0)
+	ahrs_gyro_update();
+	
+	pqr[0] = IMU_ADC_ROLL_DOT_SIGN  ((real_t)(gyro[0] - gyro_zero[0])) * gyro_scale[0];
+    	pqr[1] = IMU_ADC_PITCH_DOT_SIGN ((real_t)(gyro[1] - gyro_zero[1])) * gyro_scale[1];
+    	pqr[2] = IMU_ADC_YAW_DOT_SIGN   ((real_t)(gyro[2] - gyro_zero[2])) * gyro_scale[2];
+#else
+    //ahrs_gyro_update is called from the mainloop.c when fbw gyro comming if gyro are connected to fbw
+    //data are signed or not and unoffseted so ?
+    //TODO: do it as you feel
+    	pqr[0] = /*IMU_ADC_ROLL_DOT_SIGN*/  ((real_t)(gyro[0] /*- gyro_zero[0]*/)) * gyro_scale[0];
+    	pqr[1] = /*IMU_ADC_PITCH_DOT_SIGN*/ ((real_t)(gyro[1] /*- gyro_zero[1]*/)) * gyro_scale[1];
+    	pqr[2] = /*IMU_ADC_YAW_DOT_SIGN*/   ((real_t)(gyro[2] /*- gyro_zero[2]*/)) * gyro_scale[2];
+#endif // IMU_GYROS_CONNECTED_TO_AP
 }
-
 
 
 void
 roll_update( void )
 {
-	//have we got new datas to eat, tha the question ???????????
-    	const int16_t	ay_m	= buf_accelY.sum/buf_accelY.av_nb_sample;
-	const int16_t	az_m	= buf_accelZ.sum/buf_accelZ.av_nb_sample;
-	
 	//Geeting ax ay az from this adc buffer mean
-	// accel[0] is not needed for roll_update.
-	accel[1] = IMU_ADC_ACCELY_SIGN (ay_m - IMU_ADC_ACCELY_ZERO);
-	accel[2] = IMU_ADC_ACCELZ_SIGN (az_m - IMU_ADC_ACCELZ_ZERO);
+    accel_raw[1] = buf_accelY.sum/buf_accelY.av_nb_sample;
+	accel_raw[2] = buf_accelZ.sum/buf_accelZ.av_nb_sample;
+	
+	//accel[0] is not needed for roll_update.
+	accel[1] = IMU_ADC_ACCELY_SIGN ((real_t)(accel_raw[1] - accel_raw_zero[1])) * accel_scale[1];
+	accel[2] = IMU_ADC_ACCELZ_SIGN ((real_t)(accel_raw[2] - accel_raw_zero[2])) * accel_scale[2];
 
 	ahrs_euler[0] =  accel2roll();
 
@@ -978,15 +1321,14 @@ roll_update( void )
 static inline void
 pitch_update( void )
 {
-	//have we got new datas to eat, tha the question ???????????
-    	const int16_t	ax_m	= buf_accelX.sum/buf_accelX.av_nb_sample;
-	const int16_t	ay_m	= buf_accelY.sum/buf_accelY.av_nb_sample;
-	const int16_t	az_m	= buf_accelZ.sum/buf_accelZ.av_nb_sample;
-	
 	//Geeting ax ay az from this adc buffer mean
-	accel[0] = IMU_ADC_ACCELX_SIGN (ax_m - IMU_ADC_ACCELX_ZERO);
-	accel[1] = IMU_ADC_ACCELY_SIGN (ay_m - IMU_ADC_ACCELY_ZERO);
-	accel[2] = IMU_ADC_ACCELZ_SIGN (az_m - IMU_ADC_ACCELZ_ZERO);
+    accel_raw[0] = buf_accelX.sum/buf_accelX.av_nb_sample;
+	accel_raw[1] = buf_accelY.sum/buf_accelY.av_nb_sample;
+	accel_raw[2] = buf_accelZ.sum/buf_accelZ.av_nb_sample;
+	
+	accel[0] = IMU_ADC_ACCELX_SIGN ((real_t)(accel_raw[0] - accel_raw_zero[0])) * accel_scale[0];
+	accel[1] = IMU_ADC_ACCELY_SIGN ((real_t)(accel_raw[1] - accel_raw_zero[1])) * accel_scale[1];
+	accel[2] = IMU_ADC_ACCELZ_SIGN ((real_t)(accel_raw[2] - accel_raw_zero[2])) * accel_scale[2];
 
 	ahrs_euler[1] = accel2pitch();
 }
@@ -1002,12 +1344,6 @@ compass_update( void )
 	/* Swap the sensor readings to rotate front to back */
 	pni_values[0] = -pni_values[0];
 	pni_values[1] = -pni_values[1];
-/*
-	putc( 'M' );
-	for( i=0 ; i<3 ; i++ )
-		put_int16_t( pni_values[i] );
-	putnl();
-*/
 	ahrs_euler[2] = untilt_compass( pni_values );
 #else
 	//faking the Compass
@@ -1018,30 +1354,115 @@ compass_update( void )
 #define reset()	((void(*)(void))0)()
 
 
-
-
-
 //Exported Function to paparazzi
 
-
-
-void ahrs_save_pqr_from_fbw( void )
+static inline void
+zero_calibration( uint8_t reset )
 {
-	//we take the gyro data from the spi data
-	//No transformation is needed for pqr
-	//FBW not scale the data for the moment so we transform here
-	pqr[0] = from_fbw.euler_dot[0] /** IMU_ADC_ROLL_DOT_SIGN IMU_ADC_ROLL_DOT_SCALE*/;
-	pqr[1] = from_fbw.euler_dot[1] /** IMU_ADC_PITCH_DOT_SIGN IMU_ADC_PITCH_DOT_SCALE*/;
-	pqr[2] = from_fbw.euler_dot[2] /** IMU_ADC_YAW_DOT_SIGN IMU_ADC_YAW_DOT_SCALE*/;
+	static int16_t dec = IMU_INIT_EULER_DOT_NB_SAMPLES_MIN; 
+	static int16_t gyro_min[3],gyro_max[3];
+	uint8_t i;
+
+#ifdef AHRS_DEBUG		
+	//init-algo
+	uart0_print_string(" dec = ");
+ 	uart0_print_hex16(dec); 
+	uart0_transmit('\n');
+#endif //AHRS_DEBUG
+	if (reset)
+	    dec = IMU_INIT_EULER_DOT_NB_SAMPLES_MIN;
+
+#if (defined IMU_GYROS_CONNECTED_TO_AP) && (IMU_GYROS_CONNECTED_TO_AP != 0)
+	ahrs_gyro_update();//only if gyros are connected to the ap
+#endif //IMU_GYROS_CONNECTED_TO_AP
+
+	if (dec == IMU_INIT_EULER_DOT_NB_SAMPLES_MIN)
+	{
+		for(i=0;i<3;i++)
+			gyro_min[i] = gyro_max[i] = gyro[i];//<--from_fbw.euler_dot[i];
+		dec--;
+		return;
+	}
+	
+	if (dec)
+	{
+		//Saving min and max
+		for(i=0;i<3;i++)
+		{
+			//gyro[i] = from_fbw.euler_dot[i];//already done
+			gyro_min[i] = (gyro_min[i] < gyro[i])? gyro_min[i] : gyro[i];
+			gyro_max[i] = (gyro_max[i] > gyro[i])? gyro_max[i] : gyro[i];
+		}
+
+		//testing variance
+		for(i=0;i<3;i++) 
+		{ 
+			if ((gyro_max[i]- gyro_min[i]) > IMU_INIT_EULER_DOT_VARIANCE_MAX)
+			{       
+				//re-init algo
+				dec = IMU_INIT_EULER_DOT_NB_SAMPLES_MIN;
+				return;
+			}
+		}
+		dec--;	
+	}
+	else
+	{
+	    	//entering in the end of calibration ;-)
+	
+	    	//we take the middle for pqr
+		//normally pqr should be normalized and scaled by the fbw mcu
+		//but offset is determined here and with kalman
+	 	for(i=0;i<3;i++)
+			gyro_zero[i] = (gyro_min[i] + gyro_max[i])/2;
+
+#ifdef AHRS_DEBUG
+		uart0_print_string("gyro_zero : ");
+    		uart0_print_hex16(gyro_zero[0]);
+    		uart0_transmit(',');
+    		uart0_print_hex16(gyro_zero[1]);
+    		uart0_transmit(',');
+    		uart0_print_hex16(gyro_zero[2]);
+		uart0_transmit('\n');
+#endif //AHRS_DEBUG
+
+		//fixe here accel_raw_zero
+		accel_raw_zero[0] = buf_accelX.sum/buf_accelX.av_nb_sample;
+		accel_raw_zero[1] = buf_accelY.sum/buf_accelY.av_nb_sample;
+		//accel_raw_zero[2] = buf_accelZ.sum/buf_accelZ.av_nb_sample + IMU_ADC_ACCELZ_RAW_RANGE/2;
+
+#ifdef AHRS_DEBUG		
+		uart0_print_string("accel_raw_zero : ");
+    		uart0_print_hex16(accel_raw_zero[0]);
+    		uart0_transmit(',');
+    		uart0_print_hex16(accel_raw_zero[1]);
+    		uart0_transmit(',');
+    		uart0_print_hex16(accel_raw_zero[2]);
+		uart0_transmit('\n');
+#endif //AHRS_DEBUG
+
+		pqr_update();
+		roll_update();
+		pitch_update();
+		
+		//Enf of ahrs_init ;-)
+#ifdef PNI_MAG
+		pni_poll();		
+		_ahrs_init( pni_values );
+#else
+		_ahrs_init( NULL );
+#endif //PNI_MAG
+		ahrs_state = AHRS_RUNNING;
+	}
+	
 }
 
 
-//ahrs_init have to be call in the mainllop init part
-//ahrs have to be call during the mainllop
-
-void ahrs_init(uint8_t do_calibration)
+//AHRS EXPORTED FUNCTION
+void ahrs_init(uint8_t do_zero_calibration)
 {
-	if (ahrs_state == AHRS_IMU_CALIBRATION)
+	//fp_test();return;
+    	if (ahrs_state == AHRS_IMU_CALIBRATION)
 		return;
 	
     	if(ahrs_state == AHRS_NOT_INITIALIZED)
@@ -1053,19 +1474,17 @@ void ahrs_init(uint8_t do_calibration)
 		gyro_init();
 	}
 
-	if(do_calibration)
+	if(do_zero_calibration)
 	{
 		ahrs_state = AHRS_IMU_CALIBRATION;
-	    	imu_calibration(TRUE);
-	    	//end of ahrs_init is done in imu_calibration when calib is done
+	    	zero_calibration(TRUE);
+	    	//end of ahrs_init is done in zero_calibration when calib is done
 	}
 	else
-	{
-	    	roll_update();
+	{  
+	    	pqr_update();
+	        roll_update();
 		pitch_update();
-	    
-	    	//ahrs_euler[0] = accel2roll();
-		//ahrs_euler[1] = accel2pitch();
 
 		//Enf of ahrs_init ;-)
 #ifdef PNI_MAG
@@ -1080,54 +1499,106 @@ void ahrs_init(uint8_t do_calibration)
 
 }
 
+void ahrs_gyro_update( void )
+{
+#if (defined IMU_GYROS_CONNECTED_TO_AP) && (IMU_GYROS_CONNECTED_TO_AP != 0)
+	gyro[0] = buf_gyroP.sum/buf_gyroP.av_nb_sample;
+	gyro[1] = buf_gyroQ.sum/buf_gyroQ.av_nb_sample;
+	gyro[2] = buf_gyroR.sum/buf_gyroR.av_nb_sample;
+#else
+	//taking data from fbw
+	gyro[0] = from_fbw.euler_dot[0];
+	gyro[1] = from_fbw.euler_dot[1];
+	gyro[2] = from_fbw.euler_dot[2];
+#endif //IMU_GYROS_CONNECTED_TO_AP
+}
+
 void ahrs_update()
 {
-	static uint8_t	step = 0;
+    static uint8_t	step = 0;
+
+#ifdef AHRS_DEBUG	
+	/*if (ahrs_state == AHRS_RUNNING)
+ 		uart0_transmit('R');
+	else if (ahrs_state == AHRS_IMU_CALIBRATION)
+		uart0_transmit('C');
+	else if (ahrs_state == AHRS_NOT_INITIALIZED)
+		uart0_transmit('N');*/
+
+	uint16_t t1 = TCNT2;//timer_now();
+#endif //AHRS_DEBUG
+	
 	
 	if (ahrs_state != AHRS_RUNNING)
 	{
 		if (ahrs_state == AHRS_IMU_CALIBRATION)
-			imu_calibration(FALSE);
+			zero_calibration(FALSE);
 		return;
 	}
 	
-    	if( isnan( q0 ) )
+	if( isnan( q0 ) )
 	{
-		//puts( "\r\nFilter NaN! Reset!\r\n" );
-		reset();
+		uart0_print_string( "\nFilter NaN! Reset!\n" );
+		//reset();
 	}
-		
-	pqr_update();
-	ahrs_state_update();
-
+	switch(step)
+	{
+		case 0:
+			//this one takes les than 6.2 ms
+			pqr_update();
+			ahrs_state_update();
+			break;
+		case 1:
+			//this one takes les than 8.6 ms (atan2)
+			roll_update();
+			ahrs_roll_update( ahrs_euler[0] );
+			break;
+		case 2:
+			//this one takes les than 6.4 ms (asin)
+			pitch_update();
+			ahrs_pitch_update( ahrs_euler[1] );
+			break;
+		case 3:
+			//this one takes les than 6.9 ms 
 #ifdef PNI_MAG
-	pni_poll();
-#endif //PNI_MAG
-	if( step == 0 )
-	{
-		roll_update();
-		ahrs_roll_update( ahrs_euler[0] );
-		step = 1;
-	} else
-	if( step == 1 )
-	{
-		pitch_update();
-		ahrs_pitch_update( ahrs_euler[1] );
-		step = 2;
-	} else
-	if( step == 2 )
-	{
-#ifdef PNI_MAG
+			pni_poll();//perhaps should I call this more often
 	    	//Updating Compass
 	    	compass_update();
 #else
-		//Fucking Compass
-		ahrs_euler[2] = 0;
+			//Fucking Compass
+			ahrs_euler[2] = 0;
 #endif //PNI_MAG
-		ahrs_compass_update( ahrs_euler[2] );
-		step = 0;
+			ahrs_compass_update( ahrs_euler[2] );
+			break;
 	}
+    step = (step<3) ? step+1 : 0;
+
+#ifdef AHRS_DEBUG
+	uint16_t t2 = TCNT2;//timer_now();
+	uint16_t t3 = t2 > t1 ? t2 - t1 : t1 - t2;
+	float tms= t3;
+	tms *= 0.064f;
+	switch(step)
+	{
+		case 0:
+			uart0_print_string("\nEuler = ");
+			put_float(ahrs_euler[0]);
+			put_float(ahrs_euler[1]);
+			put_float(ahrs_euler[2]);
+			uart0_print_string("in");
+			put_float(tms);
+			break;
+		case 1:
+		case 2:
+			uart0_print_string("  +");
+			put_float(tms);
+			break;
+		case 3:
+			put_float(tms);
+			uart0_print_string("  ms");
+	}	
+#endif //AHRS_DEBUG
+
 }
 
 #endif //SECTION_IMU_ANALOG
-

@@ -123,6 +123,9 @@ void estimator_init( void ) {
 
 #define EstimatorIrGainIsCorrect() (TRUE)
 
+float ir_roll_neutral  = RadOfDeg(IR_ROLL_NEUTRAL_DEFAULT);
+float ir_pitch_neutral = RadOfDeg(IR_PITCH_NEUTRAL_DEFAULT);
+
 #ifdef SECTION_IMU_3DMG
 #include "link_fbw.h"
 void estimator_update_state_3DMG( void ) {
@@ -130,18 +133,16 @@ void estimator_update_state_3DMG( void ) {
   estimator_psi = from_fbw.euler[1];
   estimator_theta = from_fbw.euler[2];
 }
-//#elif defined SECTION_IMU_ANALOG
-//#include "ahrs.h"
-//void estimator_update_state_ANALOG( void ) {
-//  estimator_phi = ahrs_euler[0];
-//  estimator_theta = ahrs_euler[1];
-//  estimator_psi = ahrs_euler[2];
-//}
+#elif defined SECTION_IMU_ANALOG
+#include "ahrs.h"
+void estimator_update_state_ANALOG( void ) {
+//ahrs.h is in NED but estimator in NWU if i remember
+//perhaps this transform is not enough, i'm tired ;-) 
+  estimator_phi = ahrs_euler[0];
+  estimator_theta = -ahrs_euler[1];
+  estimator_psi = -ahrs_euler[2];
+}
 #else //NO_IMU
-
-float ir_roll_neutral  = RadOfDeg(IR_ROLL_NEUTRAL_DEFAULT);
-float ir_pitch_neutral = RadOfDeg(IR_PITCH_NEUTRAL_DEFAULT);
-
 void estimator_update_state_infrared( void ) {
   float rad_of_ir = (ir_estim_mode == IR_ESTIM_MODE_ON && EstimatorIrGainIsCorrect()) ? 
     estimator_rad_of_ir : ir_rad_of_ir;

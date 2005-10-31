@@ -91,6 +91,12 @@ void uart0_print_hex16 ( uint16_t c ) {
   uart0_print_hex(low);
 }
 
+void uart0_print_hex32 ( uint32_t ui32 ) {
+	uint16_t high = (uint16_t)(ui32>>16);
+	uint16_t low  = (uint16_t)(ui32);
+	uart0_print_hex16(high);
+	uart0_print_hex16(low);
+}
 
 SIGNAL(SIG_UART0_TRANS) {
   if (tx_head0 == tx_tail0) {
