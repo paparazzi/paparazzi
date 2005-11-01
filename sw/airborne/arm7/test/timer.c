@@ -58,7 +58,7 @@ void tc0_cmp( unsigned int isr_number ) {
   /* we don't care now, but... */
   isr_number = isr_number;
   
-  DACR = dat_short[value];
+  DACR = dat_short[value]<<6;
 
   value++;
    
@@ -86,7 +86,7 @@ void init_timer (void) {
   register_isr((1 << VIC_TIMER0), tc0_cmp);
 
   // Compare-hit at 1 Sec (-1 reset "tick") (PCLK = CLK / 4)
-  T0MR0 = ( ((FOSC*PLL_MUL)/(4)) / 16000 ) -1; 
+  T0MR0 = ( ((FOSC*PLL_MUL)/(4)) / 8000 ) -1; 
   
   // Interrupt and Reset on MR0
   T0MCR_bit.MR0R |= 1;
