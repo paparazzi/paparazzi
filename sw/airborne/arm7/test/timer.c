@@ -3,6 +3,8 @@
 #include "lpc2138.h"
 #include "dev_board.h"
 
+#include "welcome.h"
+
 void init_timer ( void );
 void tc0_cmp( unsigned int isr_number );
 
@@ -46,8 +48,7 @@ void empty_isr(unsigned int isr_number)
 {
 }
 
-
-
+unsigned short value = 0;
 
 /* Timer0 Compare-Match Interrupt Handler (ISR) */
 void tc0_cmp( unsigned int isr_number ) {
@@ -57,13 +58,12 @@ void tc0_cmp( unsigned int isr_number ) {
   /* we don't care now, but... */
   isr_number = isr_number;
   
-  for (i=0;i<100000;i++)
-  {
-    DACR = (i & 0x3FF) << 6;
-  }  
+  DACR = dat_short[value];
 
-  timeval++;
-  
+  value++;
+   
+   if (value == dat_len) value = 0;
+    
   // Clear interrupt flag by writing 1 to Bit 0
   T0IR_bit.MR0I |= 1; 
 }
@@ -86,7 +86,7 @@ void init_timer (void) {
   register_isr((1 << VIC_TIMER0), tc0_cmp);
 
   // Compare-hit at 1 Sec (-1 reset "tick") (PCLK = CLK / 4)
-  T0MR0 = ((FOSC*PLL_MUL)/(4))-1; 
+  T0MR0 = ( ((FOSC*PLL_MUL)/(4)) / 16000 ) -1; 
   
   // Interrupt and Reset on MR0
   T0MCR_bit.MR0R |= 1;
@@ -130,7 +130,7 @@ int main ( int argc, char** argv) {
   LED_INIT();
   YELLOW_LED_OFF();
   GREEN_LED_OFF();
-  
+     
   while(1) {
     YELLOW_LED_ON();
     delay_timer(2);
