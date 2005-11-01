@@ -61,7 +61,8 @@ $(TARGET).srcs	= \
     estimator.c \
 	if_calib.c \
 	mainloop.c \
-	cam.c
+	cam.c \
+	traffic_info.c
 
 ifeq ($(AIRCRAFT), Gorazoptere_brushless_ANALOG)
 	$(TARGET).srcs  += ahrs.S 

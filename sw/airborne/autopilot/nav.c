@@ -37,6 +37,7 @@
 #include "link_fbw.h"
 #include "airframe.h"
 #include "cam.h"
+#include "traffic_info.h"
 
 uint8_t nav_stage, nav_block;
 /** To save the current stage when an exception is raised */
@@ -164,6 +165,14 @@ static float qdr;
 #define Min(x,y) (x < y ? x : y)
 #define Max(x,y) (x > y ? x : y)
 #define Qdr(x) (Min(x, 350) < qdr && qdr < x+10)
+
+#define Follow(_ac_id, _distance) { \
+  struct ac_info_ * ac = get_the_other(_ac_id); \
+  vertical_mode = VERTICAL_MODE_AUTO_ALT; \
+  desired_altitude = ac->alt; \
+  float alpha = M_PI/2 - RadOfDeg(ac->heading); \
+  fly_to_xy(ac->east - _distance*cos(alpha), ac->north - _distance*sin(alpha)); \
+}
 
 #include "flight_plan.h"
 
