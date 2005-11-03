@@ -1,3 +1,7 @@
-This are the settings that we use for the ublox SAM-LS unit. We have no programm for applying them, so you'll have to use ucenter on a windows box ( available upon registration from ublox website ).
-use the tools/GPS Configuration menu to open a window.
-Select the file and click File->GPS :)
+This are the settings that we use for the ublox SAM-LS unit. You can use u-center on a Windows box ( available upon registration from ublox website )
+
+- use the Tools/GPS Configuration menu to open a window
+- check 'Store configuration into BBR/Flash' box to permanently save it in the receiver
+- select the file and click File->GPS
+
+Or use the ublox_conf.c application to do it :)
