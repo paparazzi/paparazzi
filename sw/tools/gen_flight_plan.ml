@@ -233,7 +233,7 @@ let rec compile_stage = fun block x ->
     | "for" ->
        List.iter (compile_stage block) (Xml.children x);
        incr stage (* To count the loop stage *)
-    | "return_from_excpt" | "goto"  | "deroute" | "exit_block"
+    | "return_from_excpt" | "goto"  | "deroute" | "exit_block" | "follow"
     | "heading" | "attitude" | "go" | "stay" | "xyz" | "set" | "circle" -> ()
     | s -> failwith (sprintf "Unknown stage: %s\n" s)
   end
