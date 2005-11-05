@@ -26,6 +26,8 @@
 
 open Printf
 
+module Ground_Pprz = Pprz.Protocol(struct let name = "ground" end)
+
 let ios = int_of_string
 let fos = float_of_string
 
@@ -37,7 +39,6 @@ module Make(A:Data.MISSION) = struct
       
   let msg = fun name ->
     ExtXml.child Data.messages_ap ~select:(fun x -> ExtXml.attrib x "name" = name) "message"
-  let gps_msg = msg "GPS"
 
 
 (* Servos handling (rservos is the intermediate storage) *)
@@ -115,8 +116,10 @@ module Make(A:Data.MISSION) = struct
 
   let bat_button = GButton.toggle_button ~label:"Bat" ()
 
+  let my_id = ref (-1)
   let init = fun id vbox ->
     rc ();
+    my_id := id;
     sim_init id;
 
     let hbox = GPack.hbox ~packing:vbox#add () in
@@ -128,11 +131,37 @@ module Make(A:Data.MISSION) = struct
     ignore (adj_bat#connect#value_changed update);
     update ()
 
+  open Latlong
+  external set_ac_info : int -> float -> float -> float -> float -> float -> unit = "set_ac_info"
+  let get_flight_param = fun _sender vs ->
+    let ac_id = int_of_string (Pprz.string_assoc "ac_id" vs) in
+    if ac_id <> !my_id then
+      let f = fun a -> Pprz.float_assoc a vs in
+      let ux = f "east"
+      and uy = f "north"
+      and course = (Deg>>Rad)(f "course")
+      and alt = f "alt"
+      and gspeed = f "speed" in
+      set_ac_info ac_id ux uy course alt gspeed
+
+  external move_waypoint : int -> float -> float -> float -> unit = "move_waypoint"
+  let get_move_waypoint = fun _sender vs ->
+    let ac_id = int_of_string (Pprz.string_assoc "ac_id" vs) in
+    if ac_id == !my_id then
+      let f = fun a -> Pprz.float_assoc a vs in
+      let wp_id = Pprz.int_assoc "wp_id" vs
+      and ux = f "utm_east"
+      and uy = f "utm_north"
+      and alt = f "alt" in
+      move_waypoint wp_id ux uy alt
+
 
   let boot = fun time_scale ->
     Stdlib.timer ~scale:time_scale servos_period (update_servos bat_button);
     Stdlib.timer ~scale:time_scale periodic_period periodic_task;
-    Stdlib.timer ~scale:time_scale rc_period rc_task
+    Stdlib.timer ~scale:time_scale rc_period rc_task;
+    ignore (Ground_Pprz.message_bind "FLIGHT_PARAM" get_flight_param);
+    ignore (Ground_Pprz.message_bind "MOVE_WAYPOINT" get_move_waypoint)
 
 (* Functions called by the simulator *)
   let servos = fun s -> rservos := s
@@ -143,7 +172,6 @@ module Make(A:Data.MISSION) = struct
     set_ir_roll (truncate ir_left)
 
   external use_gps_pos: int -> int -> int -> float -> float -> float -> float -> float -> bool -> unit = "sim_use_gps_pos_bytecode" "sim_use_gps_pos"
-  open Latlong
   let gps = fun gps ->
     let utm = utm_of WGS84 gps.Gps.wgs84 in
     let cm = fun f -> truncate (f *. 100.) in

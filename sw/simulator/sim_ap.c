@@ -9,6 +9,10 @@
 #include "autopilot.h"
 #include "estimator.h"
 #include "gps.h"
+#include "traffic_info.h"
+#include "flight_plan.h"
+#include "nav.h"
+
 
 #include <caml/mlvalues.h>
 #include <caml/memory.h>
@@ -108,4 +112,15 @@ value set_servos(value servos) {
     Store_field(servos, i, Val_int(servo_widths[i]));
 
   return Val_int(servo_widths[SERVO_GAZ]);
+}
+
+value set_ac_info(value ac_id, value ux, value uy, value course, value alt, value gspeed) {
+  SetAcInfo(Int_val(ac_id), Double_val(ux), Double_val(uy), 
+	    Double_val(course), Double_val(alt), Double_val(gspeed));
+  return Val_unit;
+}
+
+value move_waypoint(value wp_id, value ux, value uy, value a) {
+  MoveWaypoint(Int_val(wp_id), Double_val(ux), Double_val(uy), Double_val(a));
+  return Val_unit;
 }
