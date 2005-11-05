@@ -15,11 +15,14 @@
   <include name="zz" procedure="zigzag.xml" x="0" y="0" rotate="0">
     <arg name="alt" value="GROUND_ALT+50"/>
     <arg name="rad" value="-40"/>
-    <with from="end" to="init"/>
+    <with from="end" to="follow"/>
   </include>
   <blocks>
     <block NAME="init">
       <deroute BLOCK="zz.takeoff"/>
+    </block>
+    <block NAME="follow">
+      <follow ac_id="1" distance="20"/>
     </block>
   </blocks>
 </flight_plan>

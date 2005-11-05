@@ -10,7 +10,7 @@
 <!ELEMENT waypoint EMPTY>
 
 <!ELEMENT blocks (block+)>
-<!ELEMENT block (exception|while|heading|attitude|go|xyz|set|circle|deroute|stay)*>
+<!ELEMENT block (exception|while|heading|attitude|go|xyz|set|circle|deroute|stay|follow)*>
 
 <!ELEMENT include (arg|with)*>
 <!ELEMENT arg EMPTY>
@@ -109,6 +109,10 @@ gaz CDATA #IMPLIED>
 var CDATA #REQUIRED
 value CDATA #REQUIRED
 until CDATA #IMPLIED>
+
+<!ATTLIST follow
+ac_id CDATA #REQUIRED
+distance CDATA #REQUIRED>
 
 <!ATTLIST xyz
 cam_mode (null|fix|manual|nadir|target) #IMPLIED

@@ -36,10 +36,9 @@
     </block>
 
     <block NAME="back">
-      <exception COND="(RcEvent1())" DEROUTE="takeoff"/>
+      <exception COND="(RcEvent1())" DEROUTE="end"/>
       <exception COND="(RcEvent2())" DEROUTE="target"/>
       <circle wp="LANDING" alt="alt" radius="25"/>
-      <deroute block="end"/>
     </block>
   </blocks>
 </procedure>
