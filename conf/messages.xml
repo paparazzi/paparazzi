@@ -407,6 +407,15 @@
       <field name="segment2_east" type="float" unit="m"/>
       <field name="segment2_north" type="float" unit="m"/>
   </message>
+
+ <message name="MOVE_WAYPOINT" ID="24">
+  <field name="ac_id" type="string"/>
+  <field name="wp_id" type="uint8"/>
+  <field name="utm_east"  type="float" unit="m"></field>
+  <field name="utm_north"  type="float" unit="m"></field>
+  <field name="alt"    type="float" unit="m"></field>
+ </message>
+
 </class>
 
 <class name="alert">
@@ -415,6 +424,26 @@
       <field name="level" type="string" values="CATASTROPHIC|CRITIC|WARNING"/> 
       <field name="value" type="float"/>
   </message>
+</class>
+
+<class name="datalink">
+ <message name="ACINFO" ID="1">
+  <field name="ac_id" type="uint8"/>
+  <field name="utm_east"  type="int32" unit="cm"></field>
+  <field name="utm_north"  type="int32" unit="cm"></field>
+  <field name="course" type="int16" unit="decideg"></field>
+  <field name="alt"    type="int32" unit="cm"></field>
+  <field name="speed"  type="uint16" unit="cm/s"></field>
+  <field name="climb"  type="int16" unit="cm/s"></field>
+  <field name="itow"  type="uint32" unit="ms"></field>
+ </message>
+ <message name="MOVE_WP" ID="2">
+  <field name="ac_id" type="uint8"/>
+  <field name="wp_id" type="uint8"/>
+  <field name="utm_east"  type="int32" unit="cm"></field>
+  <field name="utm_north"  type="int32" unit="cm"></field>
+  <field name="alt"    type="int32" unit="cm"></field>
+ </message>
 </class>
 
 </protocol>
