@@ -78,4 +78,14 @@ void nav_home(void);
 void nav_init(void);
 void nav_without_gps(void);
 
+#define MoveWaypoint(_id, _ux, _uy, _a) { \
+  if (_id < nb_waypoint) { \
+    waypoints[_id].x = _ux - nav_utm_east0; \
+    waypoints[_id].y = _uy - nav_utm_north0; \
+    waypoints[_id].a = _a; \
+    /*** printf("%d:x=%.0f y=%.0f a=%.0f\n",_id, waypoints[_id].x, waypoints[_id].y, _a); ***/  \
+  } \
+}
+
+
 #endif /* NAV_H */

@@ -133,9 +133,6 @@ void parse_gps_msg( void ) {
     }
   }
 #endif
-
-
-
 }
 
 

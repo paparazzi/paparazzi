@@ -40,6 +40,7 @@
 #include "estimator.h"
 #include "downlink.h"
 #include "uart.h"
+#include "datalink.h"
 
 #ifdef SECTION_IMU_ANALOG
 #include "ahrs.h"
@@ -111,6 +112,10 @@ int main( void ) {
 	use_gps_pos();
 	gps_pos_available = FALSE;
       }
+    }
+    if (dl_msg_available) {
+      dl_parse_msg();
+      dl_msg_available = FALSE;
     }
     if (link_fbw_receive_complete) {
       /* receive radio control task from fbw */

@@ -167,10 +167,10 @@ static float qdr;
 #define Qdr(x) (Min(x, 350) < qdr && qdr < x+10)
 
 #define Follow(_ac_id, _distance) { \
-  struct ac_info_ * ac = get_the_other(_ac_id); \
+  struct ac_info_ * ac = get_ac_info(_ac_id); \
   vertical_mode = VERTICAL_MODE_AUTO_ALT; \
   desired_altitude = ac->alt; \
-  float alpha = M_PI/2 - RadOfDeg(ac->heading); \
+  float alpha = M_PI/2 - ac->course; \
   fly_to_xy(ac->east - _distance*cos(alpha), ac->north - _distance*sin(alpha)); \
 }
 
@@ -196,6 +196,7 @@ bool_t too_far_from_home;
 const uint8_t nb_waypoint = NB_WAYPOINT;
 
 struct point waypoints[NB_WAYPOINT+1] = WAYPOINTS;
+
 
 /** distance of carrot (in meter) */
 static float carrot;

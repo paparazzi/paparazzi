@@ -29,12 +29,32 @@
 #ifndef TI_H
 #define TI_H
 
-struct ac_info_ {float east, north, heading, alt;};
+#define NB_ACS 4
 
-void 
-set_the_other(uint8_t id, float utm_x, float utm_y, float heading, float alt);
+struct ac_info_ {
+  float east; /* m */
+  float north; /* m */
+  float course; /* rad (CW) */
+  float alt; /* m */
+  float gspeed; /* m/s */
+};
+
+
+struct ac_info_ the_acs[NB_ACS];
+
+#define SetAcInfo(_id, _utm_x /*m*/, _utm_y /*m*/, _course/*rad(CW)*/, _alt/*m*/,_gspeed/*m/s*/) { \
+  if (_id < NB_ACS) { \
+    the_acs[_id].east = _utm_x -  NAV_UTM_EAST0; \
+    the_acs[_id].north = _utm_y - NAV_UTM_NORTH0; \
+    the_acs[_id].course = _course; \
+    the_acs[_id].alt = _alt; \
+    the_acs[_id].gspeed = _gspeed; \
+    /*** printf("%d:x=%.0f y=%.0f c=%f a=%.0f\n",_id,the_acs[_id].east,the_acs[_id].north,the_acs[_id].course, the_acs[_id].alt); ***/  \
+  } \
+}
+
 
 struct ac_info_ *
-get_the_other(uint8_t id);
+get_ac_info(uint8_t id);
 
 #endif

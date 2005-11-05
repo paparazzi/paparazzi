@@ -62,7 +62,8 @@ $(TARGET).srcs	= \
 	if_calib.c \
 	mainloop.c \
 	cam.c \
-	traffic_info.c
+	traffic_info.c \
+	datalink.c
 
 ifeq ($(AIRCRAFT), Gorazoptere_brushless_ANALOG)
 	$(TARGET).srcs  += ahrs.S 
