@@ -28,6 +28,7 @@
  */
 
 #include <inttypes.h>
+#include <math.h>
 
 #define FALSE 0
 #define TRUE (!FALSE)
