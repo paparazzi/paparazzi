@@ -26,27 +26,31 @@
 
 open Printf
 module W = Wavecard
-module Tc_Class = struct let name = "non" end
-module Tc_Pprz = Pprz.Protocol(Tc_Class)
-
 
 let send_ack = fun delay fd () ->
   ignore (GMain.Timeout.add delay (fun _ -> W.send fd (W.ACK, ""); false))
 
-let send = fun fd a ->
+(***
+let send = fun fd addr a ->
   let (id, values) = Tc_Pprz.values_of_string a in
   let s  = Tc_Pprz.payload_of_values id values in
-  Wavecard.send fd (W.REQ_SEND_FRAME,s)
+  Wavecard.send fd (W.REQ_SEND_MESSAGE,s)
+***)
+
+let send = fun fd addr s ->
+  Wavecard.send_addressed fd (W.REQ_SEND_MESSAGE,addr,s)
     
 let broadcast_msg = fun (com, data) ->
+  prerr_endline "bc";
   match com with
     W.RECEIVED_FRAME ->
-      let id, vs = Tc_Pprz.values_of_payload data in
-      let m = Tc_Pprz.message_of_id id in
-      let s = Tc_Pprz.string_of_message m vs in
-      Ivy.send (sprintf "FROM_WAVECARD %s" s)
+      Ivy.send (sprintf "FROM_WAVECARD %s" data)
   | _ -> 
+      Debug.call 'w' (fun f -> fprintf f "wv receiving: %x " (W.code_of_cmd com); for i = 0 to String.length data - 1 do fprintf f "%x " (Char.code data.[i]) done; fprintf f "\n");
       Ivy.send (sprintf "RAW_FROM_WAVECARD %2x %s" (W.code_of_cmd com) data)
+
+let addr = Wavecard.addr_of_ints [|0x01; 0x18; 0x04; 0xc0; 0x01; 0x34|]
+let addr = Wavecard.addr_of_ints [|0x01; 0x18; 0x04; 0xc0; 0x01; 0x2d|]
 
 let _ =
   let ivy_bus = ref "127.255.255.255:2010" in
@@ -65,14 +69,15 @@ let _ =
   try
     let fd = Serial.opendev !port Serial.B9600 in
     (* Listening *)
+    let listener = Wavecard.receive ~ack:(send_ack 10 fd) broadcast_msg in
     let cb = fun _ ->
-      Wavecard.receive ~ack:(send_ack 100 fd) broadcast_msg fd;
+      listener fd;
       true in
 
     ignore (Glib.Io.add_watch [`IN] cb (GMain.Io.channel_of_descr fd));
     
     (* Sending request from Ivy *)
-    ignore (Ivy.bind (fun _ a -> send fd a.(0)) "TO_WAVECARD +(.*)");
+    ignore (Ivy.bind (fun _ a -> send fd addr a.(0)) "TO_WAVECARD +(.*)");
 
     (* Main Loop *)
     let loop = Glib.Main.create true in

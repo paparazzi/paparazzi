@@ -41,6 +41,7 @@
 #include "downlink.h"
 #include "uart.h"
 #include "datalink.h"
+#include "wavecard.h"
 
 #ifdef SECTION_IMU_ANALOG
 #include "ahrs.h"
@@ -112,6 +113,10 @@ int main( void ) {
 	use_gps_pos();
 	gps_pos_available = FALSE;
       }
+    }
+    if (wc_msg_received) {
+      wc_parse_payload();
+      wc_msg_received = FALSE;
     }
     if (dl_msg_available) {
       dl_parse_msg();

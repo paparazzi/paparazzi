@@ -1,4 +1,4 @@
-<!DOCTYPE flight_plan SYSTEM "flight_plan.dtd">
+<!-- DOCTYPE flight_plan SYSTEM "flight_plan.dtd" -->
 
 <flight_plan NAME="Muret mini" LON0="1.27289" MAX_DIST_FROM_HOME="1000" GROUND_ALT="185" SECURITY_HEIGHT="25" QFU="270" ALT="250" LAT0="43.46223">
   <rc_control>
@@ -17,26 +17,7 @@
 
   <blocks>
     <block NAME="home">
-      <exception COND="(RcEvent1())" DEROUTE="c50"/>
       <circle wp="HOME" alt="GROUND_ALT+50" radius="-75"/>
-    </block>
-    <block NAME="c50">
-      <exception COND="(RcEvent1())" DEROUTE="c40"/>
-      <exception COND="(RcEvent2())" DEROUTE="home"/>
-      <circle wp="HOME" alt="GROUND_ALT+50" radius="-50"/>
-    </block>
-    <block NAME="c40">
-      <exception COND="(RcEvent1())" DEROUTE="c30"/>
-      <exception COND="(RcEvent2())" DEROUTE="home"/>
-      <circle wp="HOME" alt="GROUND_ALT+50" radius="-40"/>
-    </block>
-    <block NAME="c30">
-      <exception COND="(RcEvent1())" DEROUTE="c20"/>
-      <circle wp="HOME" alt="GROUND_ALT+30" radius="-30"/>
-    </block>
-    <block NAME="c20">
-      <exception COND="(RcEvent1())" DEROUTE="home"/>
-      <circle wp="HOME" alt="GROUND_ALT+25" radius="-20"/>
     </block>
   </blocks>
 </flight_plan>

@@ -36,6 +36,10 @@
 
 EXTERN bool_t dl_msg_available;
 
-EXTERN void dl_parse_msg(void);
+#define MSG_SIZE 128
+EXTERN char dl_buffer[MSG_SIZE];
+
+void dl_parse_msg(void);
 /** Should be called when dl_msg_available is set */
+
 #endif

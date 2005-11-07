@@ -120,9 +120,10 @@ SIGNAL(SIG_UART1_TRANS) {
 
 void uart0_init( void ) {
   /* Baudrate is 38.4k */
-  UBRR0H = 0; 
-  UBRR0L = 25; // 38.4
+  UBRR0H = 0;
   // UBRR0L = 103; //9600
+  UBRR0L = 25; // 38.4
+
   /* single speed */ 
   UCSR0A = 0; 
   /* Enable receiver and transmitter */ 
@@ -136,8 +137,11 @@ void uart0_init( void ) {
 void uart1_init( void ) {
   /* Baudrate is 38.4k */
   UBRR1H = 0; 
+#ifdef WAVECARD_ON_GPS
+  UBRR1L = 103; //9600
+#else
   UBRR1L = 25; // 38.4
-  // UBRR1L = 103; //9600
+#endif
 
 
   /* single speed */ 

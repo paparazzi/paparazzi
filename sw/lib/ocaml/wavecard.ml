@@ -146,25 +146,26 @@ let compute_checksum =
 let checksum = fun buf ->
   let crc = compute_checksum buf
   and l = length buf in
-  crc land 0xff = Char.code buf.[l] && crc lsr 8 = Char.code buf.[l+1]
+  true || (crc land 0xff = Char.code buf.[l] && crc lsr 8 = Char.code buf.[l+1])
     
   
 
 
 let parse = fun buf ?ack f ->
   let n = String.length buf in
-  if n < 3 || n < total_length buf then
+  Debug.call 'w' (fun f -> fprintf f "wv input: "; for i = 0 to String.length buf - 1 do fprintf f "%x " (Char.code buf.[i]) done; fprintf f "\n");
+  if n < 3 || n < total_length buf then begin
     0 (* Not enough chars to read *)
-  else if buf.[0] <> sync then
+  end else if buf.[0] <> sync then
     1
-  else if buf.[1] <> stx || not (checksum buf) then
+  else if buf.[1] <> stx || not (checksum buf) then begin
     2
-  else begin
+  end else begin
     f (payload buf);
     begin
       match ack with
-	None -> ()
-      | Some ack -> ack ()
+	Some ack when cmd_of_code (Char.code buf.[3]) <> ACK -> ack ()
+      | _ -> ()
     end;
     total_length buf
   end
@@ -191,4 +192,21 @@ let send = fun fd (cmd, data) ->
   buf.[l+2] <- etx;
   let o = Unix.out_channel_of_descr fd in
   Printf.fprintf o "%s" buf;
+  Debug.call 'w' (fun f -> fprintf f "wv sending: "; for i = 0 to String.length buf - 1 do fprintf f "%x " (Char.code buf.[i]) done; fprintf f "\n");
   flush o
+
+type addr = string
+
+let addr_length = 6
+
+let addr_of_ints = fun a ->
+  assert(Array.length a = addr_length);
+  let s = String.create addr_length in
+  for i = 0 to addr_length - 1 do
+    s.[i] <- Char.chr a.(i)
+  done;
+  s
+
+let send_addressed = fun fd (cmd, addr, data) ->
+  assert(String.length addr = addr_length);
+  send fd (cmd, addr^data)

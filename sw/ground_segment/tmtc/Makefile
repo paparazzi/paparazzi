@@ -70,6 +70,12 @@ receive : wind.cmo receive.ml ../../lib/ocaml/lib-pprz.cma
 	@echo 'exec lablgtk2 -I $$PAPARAZZI_SRC/sw/lib/ocaml glibivy-ocaml.cma lib-pprz.cma -I $$PAPARAZZI_SRC/sw/ground_segment/tmtc $$PAPARAZZI_SRC/sw/ground_segment/tmtc/wind.cmo $$PAPARAZZI_SRC/sw/ground_segment/tmtc/receive.ml $$*' >> $@
 	@chmod a+x $@
 
+wavecard : wavecard_connect.ml ../../lib/ocaml/lib-pprz.cma
+	$(OCAMLC) $(INCLUDES) -o $@.out lablgtk.cma glibivy-ocaml.cma lib-pprz.cma $^
+	@cat ../../../pprz_src_test.sh > $@
+	@echo 'exec lablgtk2 -I $$PAPARAZZI_SRC/sw/lib/ocaml glibivy-ocaml.cma lib-pprz.cma -I $$PAPARAZZI_SRC/sw/ground_segment/tmtc $$PAPARAZZI_SRC/sw/ground_segment/tmtc/wavecard_connect.ml $$*' >> $@
+	@chmod a+x $@
+
 
 modem.cmo : modem.cmi
 

@@ -208,7 +208,9 @@ static inline void parse_ubx( uint8_t c ) {
 
 #ifdef SIMUL
 ReceiveUart0(parse_ubx);
-#else
+#endif
+
+#ifndef WAVECARD_ON_GPS
 ReceiveUart1(parse_ubx);
 #endif
 

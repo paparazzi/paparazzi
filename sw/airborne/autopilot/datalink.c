@@ -32,28 +32,34 @@
 #include "traffic_info.h"
 #include "nav.h"
 #include "datalink.h"
+#include "flight_plan.h"
 
 #define MOfCm(_x) (((float)_x)/100.)
 
-#define MSG_SIZE 128
-char dl_buffer[MSG_SIZE];
 
+/* void dl_parse_msg(void) { */
+/*   uint8_t msg_id = dl_buffer[0]; */
+/*   if (msg_id == DL_ACINFO_ID) { */
+/*     uint8_t id = DL_ACINFO_ac_id(dl_buffer); */
+/*     float ux = MOfCm(DL_ACINFO_utm_east(dl_buffer)); */
+/*     float uy = MOfCm(DL_ACINFO_utm_north(dl_buffer)); */
+/*     float a = MOfCm(DL_ACINFO_alt(dl_buffer)); */
+/*     float c = RadOfDeg(((float)DL_ACINFO_course(dl_buffer))/ 10.); */
+/*     float s = MOfCm(DL_ACINFO_speed(dl_buffer)); */
+/*     SetAcInfo(id, ux, uy, c, a, s); */
+/*   } else if (msg_id == DL_MOVE_WP_ID) { */
+/*     uint8_t wp_id = DL_MOVE_WP_wp_id(dl_buffer); */
+/*     float ux = MOfCm(DL_MOVE_WP_utm_east(dl_buffer)); */
+/*     float uy = MOfCm(DL_MOVE_WP_utm_north(dl_buffer)); */
+/*     float a = MOfCm(DL_MOVE_WP_alt(dl_buffer)); */
+/*     MoveWaypoint(wp_id, ux, uy, a); */
+/*   } */
+/* } */
 
-static uint8_t msg_id;
-
+#include "uart.h"
 void dl_parse_msg(void) {
-  if (msg_id == DL_ACINFO_ID) {
-    uint8_t id = DL_ACINFO_ac_id(dl_buffer);
-    float ux = MOfCm(DL_ACINFO_utm_east(dl_buffer));
-    float uy = MOfCm(DL_ACINFO_utm_north(dl_buffer));
-    float a = MOfCm(DL_ACINFO_alt(dl_buffer));
-    float c = RadOfDeg(((float)DL_ACINFO_course(dl_buffer))/ 10.);
-    SetAcInfo(id, ux, uy, c, a);
-  } else if (msg_id == DL_MOVE_WP_ID) {
-    uint8_t wp_id = DL_MOVE_WP_wp_id(dl_buffer);
-    float ux = MOfCm(DL_MOVE_WP_utm_east(dl_buffer));
-    float uy = MOfCm(DL_MOVE_WP_utm_north(dl_buffer));
-    float a = MOfCm(DL_MOVE_WP_alt(dl_buffer));
-    MoveWaypoint(wp_id, ux, uy, a);
-  }
+  dl_buffer[6] = '\0';
+  uart0_print_string(dl_buffer);
+  uart0_transmit('\n');
 }
+

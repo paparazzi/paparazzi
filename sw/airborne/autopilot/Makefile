@@ -24,7 +24,7 @@
 FBW=../fly_by_wire
 
 
-LOCAL_CFLAGS= $(CTL_BRD_FLAGS) $(GPS_FLAGS) $(SIMUL_FLAGS)
+LOCAL_CFLAGS= $(CTL_BRD_FLAGS) $(GPS_FLAGS) $(SIMUL_FLAGS) -DWAVECARD_ON_GPS
 
 VARINCLUDE=$(PAPARAZZI_HOME)/var/include
 ACINCLUDE = $(PAPARAZZI_HOME)/var/$(AIRCRAFT)
@@ -63,7 +63,8 @@ $(TARGET).srcs	= \
 	mainloop.c \
 	cam.c \
 	traffic_info.c \
-	datalink.c
+	datalink.c \
+	wavecard.c
 
 ifeq ($(AIRCRAFT), Gorazoptere_brushless_ANALOG)
 	$(TARGET).srcs  += ahrs.S 
