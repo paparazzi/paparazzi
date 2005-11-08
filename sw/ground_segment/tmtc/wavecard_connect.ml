@@ -84,8 +84,7 @@ let move_wp = fun ac _sender vs ->
     and uy = f "utm_north"
     and alt = f "alt"
     and wp_id = Pprz.int_assoc "wp_id" vs in
-    let vs = ["ac_id", Pprz.Int ac_id;
-	      "wp_id", Pprz.Int wp_id;
+    let vs = ["wp_id", Pprz.Int wp_id;
 	      "utm_east", cm_of_m ux;
 	      "utm_north", cm_of_m uy;
 	      "alt", cm_of_m alt] in
