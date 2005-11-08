@@ -438,14 +438,12 @@
   <field name="itow"  type="uint32" unit="ms"></field>
  </message>
  <message name="MOVE_WP" ID="2">
-  <field name="ac_id" type="uint8"/>
   <field name="wp_id" type="uint8"/>
   <field name="utm_east"  type="int32" unit="cm"></field>
   <field name="utm_north"  type="int32" unit="cm"></field>
   <field name="alt"    type="int32" unit="cm"></field>
  </message>
  <message name="EVENT" ID="3">
-  <field name="ac_id" type="uint8"/>
   <field name="event" type="uint8"/>
  </message>
 </class>
