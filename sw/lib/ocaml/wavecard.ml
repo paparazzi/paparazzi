@@ -195,18 +195,15 @@ let send = fun fd (cmd, data) ->
   Debug.call 'w' (fun f -> fprintf f "wv sending: "; for i = 0 to String.length buf - 1 do fprintf f "%x " (Char.code buf.[i]) done; fprintf f "\n");
   flush o
 
-type addr = string
+type addr = Int64.t
 
 let addr_length = 6
 
-let addr_of_ints = fun a ->
-  assert(Array.length a = addr_length);
-  let s = String.create addr_length in
-  for i = 0 to addr_length - 1 do
-    s.[i] <- Char.chr a.(i)
-  done;
-  s
+let addr_of_string = Int64.of_string
 
 let send_addressed = fun fd (cmd, addr, data) ->
-  assert(String.length addr = addr_length);
-  send fd (cmd, addr^data)
+  let s = String.create addr_length in
+  for i = 0 to addr_length - 1 do
+    s.[addr_length-i-1] <- Char.chr (Int64.to_int (Int64.shift_right addr (8*i)) land 0xff)
+  done;
+  send fd (cmd, s^data)

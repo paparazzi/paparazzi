@@ -444,6 +444,10 @@
   <field name="utm_north"  type="int32" unit="cm"></field>
   <field name="alt"    type="int32" unit="cm"></field>
  </message>
+ <message name="EVENT" ID="3">
+  <field name="ac_id" type="uint8"/>
+  <field name="event" type="uint8"/>
+ </message>
 </class>
 
 </protocol>

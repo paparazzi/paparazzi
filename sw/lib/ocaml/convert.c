@@ -47,6 +47,13 @@ c_sprint_float(value s, value index, value f) {
 }
 
 value
+c_sprint_int32(value s, value index, value x) {
+  char *p = String_val(s) + Int_val(index);
+  *p = Int32_val(x);
+  return Val_unit;
+}
+
+value
 c_int16_of_indexed_bytes(value s, value index)
 {
   int16_t *x = (int16_t*)(String_val(s) + Int_val(index));

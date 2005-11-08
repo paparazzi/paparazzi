@@ -26,19 +26,21 @@
 
 open Printf
 module W = Wavecard
+module Ground_Pprz = Pprz.Protocol(struct let name = "ground" end)
+module Dl_Pprz = Pprz.Protocol(struct let name = "datalink" end)
+
+type aircraft = { fd : Unix.file_descr; id : int; addr : W.addr }
 
 let send_ack = fun delay fd () ->
   ignore (GMain.Timeout.add delay (fun _ -> W.send fd (W.ACK, ""); false))
 
-(***
-let send = fun fd addr a ->
-  let (id, values) = Tc_Pprz.values_of_string a in
-  let s  = Tc_Pprz.payload_of_values id values in
-  Wavecard.send fd (W.REQ_SEND_MESSAGE,s)
-***)
+let send = fun ac a ->
+  let (id, values) = Dl_Pprz.values_of_string a in
+  let s  = Dl_Pprz.payload_of_values id values in
+  Wavecard.send_addressed ac.fd (W.REQ_SEND_MESSAGE,ac.addr,s)
 
-let send = fun fd addr s ->
-  Wavecard.send_addressed fd (W.REQ_SEND_MESSAGE,addr,s)
+
+
     
 let broadcast_msg = fun (com, data) ->
   prerr_endline "bc";
@@ -49,14 +51,59 @@ let broadcast_msg = fun (com, data) ->
       Debug.call 'w' (fun f -> fprintf f "wv receiving: %x " (W.code_of_cmd com); for i = 0 to String.length data - 1 do fprintf f "%x " (Char.code data.[i]) done; fprintf f "\n");
       Ivy.send (sprintf "RAW_FROM_WAVECARD %2x %s" (W.code_of_cmd com) data)
 
-let addr = Wavecard.addr_of_ints [|0x01; 0x18; 0x04; 0xc0; 0x01; 0x34|]
-let addr = Wavecard.addr_of_ints [|0x01; 0x18; 0x04; 0xc0; 0x01; 0x2d|]
+
+
+let cm_of_m = fun f -> Pprz.Int (truncate (100. *. f))
+
+(** Got a FLIGHT_PARAM message and dispatch a ACINFO *)
+let get_fp = fun ac _sender vs ->
+  let ac_id = int_of_string (Pprz.string_assoc "ac_id" vs) in
+  if ac_id <> ac.id then
+    let f = fun a -> Pprz.float_assoc a vs in
+    let ux = f "east"
+    and uy = f "north"
+    and course = f "course"
+    and alt = f "alt"
+    and gspeed = f "speed" in
+    let vs = ["ac_id", Pprz.Int ac_id;
+	      "utm_east", cm_of_m ux;
+	      "utm_north", cm_of_m uy;
+	      "course", Pprz.Int (truncate (10. *. course));
+	      "alt", cm_of_m alt;
+	      "speed", cm_of_m gspeed] in
+    let msg_id, _ = Dl_Pprz.message_of_name "ACINFO" in
+    let s = Dl_Pprz.payload_of_values msg_id vs in
+    send ac s
+
+(** Got a MOVE_WAYPOINT and send a MOVE_WP *)
+let move_wp = fun ac _sender vs ->
+  let ac_id = int_of_string (Pprz.string_assoc "ac_id" vs) in
+  if ac_id = ac.id then
+    let f = fun a -> Pprz.float_assoc a vs in
+    let ux = f "utm_east"
+    and uy = f "utm_north"
+    and alt = f "alt"
+    and wp_id = Pprz.int_assoc "wp_id" vs in
+    let vs = ["ac_id", Pprz.Int ac_id;
+	      "wp_id", Pprz.Int wp_id;
+	      "utm_east", cm_of_m ux;
+	      "utm_north", cm_of_m uy;
+	      "alt", cm_of_m alt] in
+    let msg_id, _ = Dl_Pprz.message_of_name "MOVE_WP" in
+    let s = Dl_Pprz.payload_of_values msg_id vs in
+    send ac s
+    
 
 let _ =
   let ivy_bus = ref "127.255.255.255:2010" in
   let port = ref "/dev/ttyS0" in
+  let distant_addr = ref "0x011804c0012d" in
+  let id = ref 4 in
+
   let options =
     [ "-b", Arg.Set_string ivy_bus, (sprintf "Ivy bus (%s)" !ivy_bus);
+      "-id", Arg.Set_int id, (sprintf "A/C Id (%d)" !id);
+      "-a", Arg.Set_string distant_addr, (sprintf "Distant address (%s)" !distant_addr);
       "-d", Arg.Set_string port, (sprintf "Port (%s)" !port)] in
   Arg.parse
     options
@@ -75,9 +122,16 @@ let _ =
       true in
 
     ignore (Glib.Io.add_watch [`IN] cb (GMain.Io.channel_of_descr fd));
+
+    let ac = { fd=fd; id= !id; addr= W.addr_of_string !distant_addr } in
     
     (* Sending request from Ivy *)
-    ignore (Ivy.bind (fun _ a -> send fd addr a.(0)) "TO_WAVECARD +(.*)");
+
+    (* For debug *)
+    ignore (Ivy.bind (fun _ a -> send ac a.(0)) "TO_WAVECARD +(.*)");
+
+    ignore (Ground_Pprz.message_bind "FLIGHT_PARAM" (get_fp ac));
+    ignore (Ground_Pprz.message_bind "MOVE_WAYPOINT" (move_wp ac));
 
     (* Main Loop *)
     let loop = Glib.Main.create true in

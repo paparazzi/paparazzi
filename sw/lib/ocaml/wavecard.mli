@@ -71,5 +71,5 @@ val receive : ?ack:(unit -> unit) -> (cmd -> 'a) -> (Unix.file_descr -> unit)
 val code_of_cmd : cmd_name -> int
 
 type addr
-val addr_of_ints : int array -> addr
+val addr_of_string : string -> addr
 val send_addressed : Unix.file_descr -> (cmd_name*addr*data) -> unit

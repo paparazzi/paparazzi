@@ -63,6 +63,7 @@ external int32_of_bytes : string -> int -> int32 = "c_int32_of_indexed_bytes"
 external int8_of_bytes : string -> int -> int = "c_int8_of_indexed_bytes"
 external int16_of_bytes : string -> int -> int = "c_int16_of_indexed_bytes"
 external sprint_float : string -> int -> float -> unit = "c_sprint_float"
+external sprint_int32 : string -> int -> int32 -> unit = "c_sprint_int32"
 
 let types = [
   ("uint8",  { format = "%u"; glib_type = "guint8";  size = 1; value=Int 42 });
@@ -185,10 +186,23 @@ let value_field = fun buffer index (field:field) ->
   | "int32"  | "uint32" -> Int32 (int32_of_bytes buffer index)
   | _ -> failwith "value_field"
 
+let byte = fun x -> Char.chr (x land 0xff)
+
 let sprint_value = fun buf i field_type v ->
   match field_type, v with
-    "int8", Int x -> buf.[i] <- Char.chr x
+    ("int8"|"uint8"), Int x -> buf.[i] <- Char.chr x
   | "float", Float f -> sprint_float buf i f
+  | "int32", Int32 x -> sprint_int32 buf i x
+  | ("int32" | "uint32"), Int value ->
+      assert (field_type <> "uint32" || value >= 0);
+      buf.[i+3] <- byte (value asr 24);
+      buf.[i+2] <- byte (value lsr 16);
+      buf.[i+1] <- byte (value lsr 8);
+      buf.[i+0] <- byte value
+  | ("int16"|"uint16"), Int value ->
+      assert (field_type <> "uint16" || value >= 0);
+      buf.[i+1] <- byte (value lsr 8);
+      buf.[i+0] <- byte value
   | x, _ -> failwith (sprintf "Pprz.sprint_value (%s)" x)
   
   
