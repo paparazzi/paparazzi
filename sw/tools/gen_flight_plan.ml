@@ -138,8 +138,8 @@ let get_index_waypoint = fun x l ->
 let output_cam_mode = fun x index_of_waypoints ->
   let m =  try Xml.attrib x "cam_mode" with _ -> "fix" in
   match m with
-    "null" -> lprintf "CamNull()";
-  | "fix" -> lprintf "CamFix()";
+    "null" -> lprintf "CamNull();\n";
+  | "fix" -> lprintf "CamFix();\n";
   | "manual" -> lprintf "cam_manual();\n"
   | "nadir" -> lprintf "cam_nadir();\n"
   | "target" ->
