@@ -34,16 +34,18 @@ type aircraft = { fd : Unix.file_descr; id : int; addr : W.addr }
 let send_ack = fun delay fd () ->
   ignore (GMain.Timeout.add delay (fun _ -> W.send fd (W.ACK, ""); false))
 
-let send = fun ac a ->
+let send = fun ac s ->
+  Wavecard.send_addressed ac.fd (W.REQ_SEND_MESSAGE,ac.addr,s)
+
+let send_dl_msg = fun ac a ->
   let (id, values) = Dl_Pprz.values_of_string a in
   let s  = Dl_Pprz.payload_of_values id values in
-  Wavecard.send_addressed ac.fd (W.REQ_SEND_MESSAGE,ac.addr,s)
+  send ac s
 
 
 
     
 let broadcast_msg = fun (com, data) ->
-  prerr_endline "bc";
   match com with
     W.RECEIVED_FRAME ->
       Ivy.send (sprintf "FROM_WAVECARD %s" data)
@@ -77,6 +79,7 @@ let get_fp = fun ac _sender vs ->
 
 (** Got a MOVE_WAYPOINT and send a MOVE_WP *)
 let move_wp = fun ac _sender vs ->
+    prerr_endline "move";
   let ac_id = int_of_string (Pprz.string_assoc "ac_id" vs) in
   if ac_id = ac.id then
     let f = fun a -> Pprz.float_assoc a vs in
@@ -88,6 +91,7 @@ let move_wp = fun ac _sender vs ->
 	      "utm_east", cm_of_m ux;
 	      "utm_north", cm_of_m uy;
 	      "alt", cm_of_m alt] in
+    prerr_endline "move";
     let msg_id, _ = Dl_Pprz.message_of_name "MOVE_WP" in
     let s = Dl_Pprz.payload_of_values msg_id vs in
     send ac s
@@ -127,7 +131,7 @@ let _ =
     (* Sending request from Ivy *)
 
     (* For debug *)
-    ignore (Ivy.bind (fun _ a -> send ac a.(0)) "TO_WAVECARD +(.*)");
+    ignore (Ivy.bind (fun _ a -> send_dl_msg ac a.(0)) "TO_WAVECARD +(.*)");
 
     ignore (Ground_Pprz.message_bind "FLIGHT_PARAM" (get_fp ac));
     ignore (Ground_Pprz.message_bind "MOVE_WAYPOINT" (move_wp ac));

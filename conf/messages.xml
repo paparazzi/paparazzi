@@ -191,6 +191,14 @@
     <field name="yaw" type="int16"/>
   </message>
 
+ <message name="ACINFO" ID="27" period="1">
+  <field name="utm_east"  type="float" unit="m"></field>
+  <field name="utm_north"  type="float" unit="m"></field>
+  <field name="course" type="float" unit="rad"></field>
+  <field name="alt"    type="float" unit="m"></field>
+  <field name="speed"  type="float" unit="m/s"></field>
+ </message>
+
 </class>
 
 <class name="telemetry_fbw" ID="0X41">

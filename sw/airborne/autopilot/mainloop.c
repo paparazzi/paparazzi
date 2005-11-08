@@ -72,7 +72,7 @@ int main( void ) {
   nav_init();
   ir_init();
   estimator_init();
-#if defined SECTION_IMU_3DMG || defined SECTION_IMU_ANALOG
+#if defined SECTION_IMU_3DMG || defined SECTION_IMU_ANALOG || WAVECARD_ON_UART0
   uart0_init();
 #endif //SECTION_IMU
   /** - start interrupt task */

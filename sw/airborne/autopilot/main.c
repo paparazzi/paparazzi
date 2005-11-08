@@ -1,7 +1,7 @@
 /*
  * $Id$
  *  
- * Copyright (C) 2003  Pascal Brisset, Antoine Drouin
+ * Copyright (C) 2003-2005  Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
  *
@@ -42,6 +42,7 @@
 #include "estimator.h"
 #include "if_calib.h"
 #include "cam.h"
+#include "traffic_info.h"
 
 #ifdef SECTION_IMU_ANALOG
 #include "ahrs.h"
@@ -241,6 +242,8 @@ uint8_t ac_ident = AC_ID;
 #define PERIODIC_SEND_DESIRED() DOWNLINK_SEND_DESIRED(&desired_roll, &desired_pitch, &desired_x, &desired_y, &desired_altitude, &desired_climb);
 
 #define PERIODIC_SEND_NAVIGATION_REF()  DOWNLINK_SEND_NAVIGATION_REF(&nav_utm_east0, &nav_utm_north0, &nav_utm_zone0);
+
+#define PERIODIC_SEND_ACINFO() { struct ac_info_ *s=get_ac_info(1); DOWNLINK_SEND_ACINFO(&s->east, &s->north, &s->course, &s->alt, &s->gspeed); }
 
 #ifdef RADIO_CALIB
 #define PERIODIC_SEND_SETTINGS() if (inflight_calib_mode != IF_CALIB_MODE_NONE)	DOWNLINK_SEND_SETTINGS(&slider_1_val, &slider_2_val);

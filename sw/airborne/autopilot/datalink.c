@@ -35,6 +35,9 @@
 #include "flight_plan.h"
 #include "autopilot.h"
 
+/***/
+#include "uart.h"
+
 #define MOfCm(_x) (((float)_x)/100.)
 
 
@@ -63,11 +66,3 @@ void dl_parse_msg(void) {
     }
   }
 }
-
-/*  #include "uart.h" */
-/*  void dl_parse_msg(void) { */
-/*    dl_buffer[6] = '\0'; */
-/*    uart0_print_string(dl_buffer); */
-/*    uart0_transmit('\n'); */
-/*  } */
-

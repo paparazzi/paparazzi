@@ -44,7 +44,7 @@
 extern uint8_t wc_msg_received;
 
 extern uint8_t  wc_length;
-void parse_payload(void);
+void wc_parse_payload(void);
 
 
 
