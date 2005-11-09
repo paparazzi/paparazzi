@@ -72,7 +72,7 @@ int main( void ) {
   nav_init();
   ir_init();
   estimator_init();
-#if defined SECTION_IMU_3DMG || defined SECTION_IMU_ANALOG || WAVECARD_ON_UART0
+#if defined SECTION_IMU_3DMG || defined SECTION_IMU_ANALOG || WAVECARD
   uart0_init();
 #endif //SECTION_IMU
   /** - start interrupt task */
@@ -114,10 +114,12 @@ int main( void ) {
 	gps_pos_available = FALSE;
       }
     }
+#ifdef WAVECARD
     if (wc_msg_received) {
       wc_parse_payload();
       wc_msg_received = FALSE;
     }
+#endif
     if (dl_msg_available) {
       dl_parse_msg();
       dl_msg_available = FALSE;

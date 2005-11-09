@@ -1,6 +1,6 @@
 # 
 #  $Id$
-#  Copyright (C) 2003 Pascal Brisset, Antoine Drouin
+#  Copyright (C) 2003-2005 Pascal Brisset, Antoine Drouin
 #
 # This file is part of paparazzi.
 #
@@ -24,7 +24,7 @@
 FBW=../fly_by_wire
 
 
-LOCAL_CFLAGS= $(CTL_BRD_FLAGS) $(GPS_FLAGS) $(SIMUL_FLAGS) -DWAVECARD_ON_UART0
+LOCAL_CFLAGS= $(CTL_BRD_FLAGS) $(GPS_FLAGS) $(SIMUL_FLAGS)
 
 VARINCLUDE=$(PAPARAZZI_HOME)/var/include
 ACINCLUDE = $(PAPARAZZI_HOME)/var/$(AIRCRAFT)
@@ -63,8 +63,7 @@ $(TARGET).srcs	= \
 	mainloop.c \
 	cam.c \
 	traffic_info.c \
-	datalink.c \
-	wavecard.c
+	datalink.c
 
 ifeq ($(AIRCRAFT), Gorazoptere_brushless_ANALOG)
 	$(TARGET).srcs  += ahrs.S 
@@ -77,6 +76,7 @@ ifeq ($(AIRCRAFT), quadRotorJP)
 endif
 
 
+include $(PAPARAZZI_HOME)/var/$(AIRCRAFT)/Makefile.ac
 include ../../../conf/Makefile.local
 include ../../../conf/Makefile.avr
 

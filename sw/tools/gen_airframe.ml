@@ -102,6 +102,7 @@ let parse_command = fun command ->
        printf "  int16_t _var_%s = %s;\\\n" var v       
    | _ -> xml_error "set|let"
 
+
 let parse_section = fun s ->
   match Xml.tag s with
     "section" ->
@@ -140,6 +141,9 @@ let parse_section = fun s ->
       printf "  uint16_t servo_value;\\\n";
       List.iter parse_command (Xml.children s);
       printf "}\n"
+  | "makefile" ->
+      ()
+      (** Ignoring this section *)
   | _ -> xml_error "param|servos|command"
       
 

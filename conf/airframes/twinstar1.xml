@@ -83,4 +83,8 @@
     <define name="THETA0" value="45" unit="deg"/>
     <define name="PHI0" value="-45" unit="deg"/>
   </section>
+  <makefile>
+LOCAL_CFLAGS += -DWAVECARD_ON_UART0
+$(TARGET).srcs += wavecard.c
+  </makefile>
 </airframe>
