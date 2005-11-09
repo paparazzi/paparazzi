@@ -30,8 +30,9 @@ RADIO_H=$(ACINCLUDE)/radio.h
 FLIGHT_PLAN_H=$(ACINCLUDE)/flight_plan.h
 FLIGHT_PLAN_XML=$(ACINCLUDE)/flight_plan.xml
 INFLIGHT_CALIB_H=$(ACINCLUDE)/inflight_calib.h
+MAKEFILE_AC=$(ACINCLUDE)/Makefile.ac
 
-all: $(AIRFRAME_H) $(RADIO_H) $(FLIGHT_PLAN_H) $(FLIGHT_PLAN_XML) $(INFLIGHT_CALIB_H)
+all: $(AIRFRAME_H) $(RADIO_H) $(FLIGHT_PLAN_H) $(FLIGHT_PLAN_XML) $(INFLIGHT_CALIB_H) $(MAKEFILE_AC)
 
 
 $(AIRFRAME_H) : $(CONF)/$(AIRFRAME) $(CONF_XML)
@@ -53,6 +54,9 @@ $(FLIGHT_PLAN_XML) : $(CONF)/$(FLIGHT_PLAN) $(CONF_XML)
 $(INFLIGHT_CALIB_H) : $(CONF)/$(FLIGHT_PLAN) $(CONF_XML)
 	$(TOOLS)/gen_calib.out $< > /tmp/c.h
 	mv /tmp/c.h $@
+
+$(MAKEFILE_AC) : $(CONF)/$(AIRFRAME)
+	$(TOOLS)/extract_makefile.out $< > $@
 
 clean :
 	rm -f $(ACINCLUDE)/*.h
