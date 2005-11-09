@@ -32,15 +32,20 @@
 #include <sys/time.h>
 
 
-/* serial port that is used at the ublox gps receiver */
+/* *********************** change this to your needs *********************** */
+
+/* serial port that is used at the ublox gps receiver (1 or 2) */
 #define UBLOX_PORT          1
-/* serial speed that is used at the ublox gps receiver at startup */
+/* serial speed that for the ublox gps receiver at startup (usb: don't care) */
 #define DEFAULT_BAUDRATE    9600
 /* this is the name of the input configuration text from ublox */
 #define IN_FILE_NAME        "sam_ls_cfg_05_02.txt"
-/* this is where your gps receiver lives on the PC */
+/* this is where your gps receiver lives on the PC (ttyS0, ttyACM0, ttyUSB0) */
 #define OUT_FILE_NAME       "/dev/ttyS0"
+/* should the config be written to flash or battery backed ram? (1=yes) */
+#define SAVE_PERMANENT      1
 
+/* **************** no user servicable part below this line **************** */
 
 
 #define SYNC_CHAR_1     0xB5
@@ -60,6 +65,7 @@
 #define CFG_DAT         0x06
 #define CFG_TP          0x07
 #define CFG_RATE        0x08
+#define CFG_CFG         0x09
 #define CFG_TM          0x10
 #define CFG_RXM         0x11
 #define CFG_FXN         0x0E
@@ -72,7 +78,8 @@
 #define AID             0x0B
 #define TIM             0x0D
 
-#define ACK_LENGTH      0x0A
+#define ACK_ACK_LENGTH  0x0A
+#define CFG_CFG_LENGTH  0x14
 
 struct speed_map
 {
@@ -104,6 +111,7 @@ static const struct speed_map speeds[] = {
 
 static const int NUM_SPEEDS = (sizeof(speeds) / sizeof(struct speed_map));
 
+
 static speed_t int_to_baud(unsigned int value)
 {
     int i;
@@ -119,6 +127,71 @@ static speed_t int_to_baud(unsigned int value)
 }
 
 
+int wait_for_ack( unsigned char* data, int serial_fd )
+{
+    /* the acknowledge buffer to check if the gps understood it */
+    unsigned char ack_ack[ACK_ACK_LENGTH] = { 
+        SYNC_CHAR_1, SYNC_CHAR_2, ACK, ACK_ACK, 0x02, 0x00 };
+    struct timeval select_tv;
+    fd_set read_fd_set;
+    int max_fd;
+    int i;
+    int ack_index;
+    unsigned char data_temp;
+
+    ack_index = 0;
+            
+    /* calc ACK checksum */
+    ack_ack[6] = *(data+2);
+    ack_ack[7] = *(data+3);
+    ack_ack[8] = 0;
+    ack_ack[9] = 0;
+
+    for (i=2; i < ACK_ACK_LENGTH-2; i++)
+    {
+        ack_ack[8] = ack_ack[8] + ack_ack[i];
+        ack_ack[9] = ack_ack[9] + ack_ack[8];
+    }
+
+    /* 900 msec timeout for reply */
+    select_tv.tv_sec = 0;
+    select_tv.tv_usec = 900000; 
+
+    while (1)
+    {
+        /* wait for ACK-ACK */
+        FD_ZERO( &read_fd_set );
+        FD_SET( 0, &read_fd_set );
+        FD_SET( serial_fd, &read_fd_set );
+        max_fd = serial_fd;
+        i = select( max_fd + 1,
+                    &read_fd_set,
+                    NULL,
+                    NULL,
+                    &select_tv );
+
+        if ( FD_ISSET(serial_fd, &read_fd_set) )
+        {
+            read(serial_fd, &data_temp, 1);
+            if (data_temp != ack_ack[ack_index++])
+            {
+                ack_index = 0;
+            }
+            if (ack_index == ACK_ACK_LENGTH)
+            {
+                printf("OK\n");
+                return(0);
+            }
+        }
+        else
+        {
+            printf("*** no ACK from gps rx ***\n");
+            return(-1);
+        }
+    }
+}
+
+
 int main (void)
 {
     char in_file_name[80]  = IN_FILE_NAME;
@@ -126,21 +199,22 @@ int main (void)
 
     struct termios orig_termios, cur_termios;
 
+    /* the general buffer for config read from file */
     unsigned char data[65536] = { SYNC_CHAR_1, SYNC_CHAR_2 };
-    unsigned char ack_ack[ACK_LENGTH] = { SYNC_CHAR_1, SYNC_CHAR_2, ACK, 
-                                          ACK_ACK, 0x02, 0x00 };
+    /* this packet saves the just sent CFG commands */
+    unsigned char cfg_cfg[CFG_CFG_LENGTH] = {
+        SYNC_CHAR_1, SYNC_CHAR_2, CFG, CFG_CFG, 0x0C, 0x00,
+        0x00, 0x00, 0x00, 0x00, 
+        0xFF, 0xFF, 0xFF, 0xFF,
+        0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00 }; 
     unsigned char data_temp;
 
     FILE *in_file;
     int serial_fd;
     int count, i;
     int br;
-    fd_set read_fd_set;
-    int max_fd;
-    struct timeval select_tv;
     int baud;
-    int ack_index;
-    int no_ack;
 
     if ((br = int_to_baud(DEFAULT_BAUDRATE)) < 0 )
     {
@@ -299,13 +373,10 @@ int main (void)
         
         /* send data */
         write(serial_fd, data, count+2);
-
+       
         /* did we configure something: check for acknowledge */
         if (data[2] == CFG)
         {
-            no_ack = 1;
-            ack_index = 0;
-
             /* did we change baudrate: change PC as well */
             if (data[3] == CFG_PRT)
             {
@@ -342,56 +413,22 @@ int main (void)
                     }
                 }
             }
-    
-            /* calc ACK checksum */
-            ack_ack[6] = data[2];
-            ack_ack[7] = data[3];
-            ack_ack[8] = 0;
-            ack_ack[9] = 0;
-
-            for (i=2; i < ACK_LENGTH-2; i++)
+            
+            wait_for_ack( data, serial_fd );
+        }
+        /* monitor command? */
+        else if (data[2] == MON)
+        {
+            /* monitor version command? */
+            if (data[3] == MON_VER)
             {
-                ack_ack[8] = ack_ack[8] + ack_ack[i];
-                ack_ack[9] = ack_ack[9] + ack_ack[8];
-            }
-    
-            /* 900 msec timeout for reply */
-            select_tv.tv_sec = 0;
-            select_tv.tv_usec = 900000; 
-
-            while (no_ack)
-            {
-                /* wait for ACK-ACK */
-                FD_ZERO( &read_fd_set );
-                FD_SET( 0, &read_fd_set );
-                FD_SET( serial_fd, &read_fd_set );
-                max_fd = serial_fd;
-                i = select( max_fd + 1,
-                            &read_fd_set,
-                            NULL,
-                            NULL,
-                            &select_tv );
-    
-                if ( FD_ISSET(serial_fd, &read_fd_set) )
+                /* print it */
+                for (i=6; i < count; i++)
                 {
-                    read(serial_fd, &data_temp, 1);
-                    if (data_temp != ack_ack[ack_index++])
-                    {
-                        ack_index = 0;
-                    }
-                    if (ack_index == ACK_LENGTH)
-                    {
-                        printf("OK\n");
-                        no_ack = 0;
-                    }
+                    printf("%c", data[i]);
                 }
-                else
-                {
-                    printf("*** no ACK from gps rx ***\n");
-                    break;
-                }
+                printf("\n");
             }
-
         }
         else
         {
@@ -399,6 +436,24 @@ int main (void)
         }
 
     }    
+    
+    /* save it forever? */
+    if (SAVE_PERMANENT != 0)
+    {
+        printf("CFG-CFG writing config to permanent memory ");
+        count = CFG_CFG_LENGTH-2;
+        for (i=2; i < count; i++)
+        {
+            cfg_cfg[count]   = cfg_cfg[count]   + cfg_cfg[i];
+            cfg_cfg[count+1] = cfg_cfg[count+1] + cfg_cfg[count];
+        }
+        
+        /* send data */
+        write(serial_fd, cfg_cfg, count+2);
+        
+        wait_for_ack( cfg_cfg, serial_fd );
+    }        
+
     fclose(in_file);
     close(serial_fd);
 
