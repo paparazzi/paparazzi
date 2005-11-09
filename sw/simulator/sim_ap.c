@@ -114,11 +114,17 @@ value set_servos(value servos) {
   return Val_int(servo_widths[SERVO_GAZ]);
 }
 
-value set_ac_info(value ac_id, value ux, value uy, value course, value alt, value gspeed) {
+value set_ac_info_native(value ac_id, value ux, value uy, value course, value alt, value gspeed) {
   SetAcInfo(Int_val(ac_id), Double_val(ux), Double_val(uy), 
 	    Double_val(course), Double_val(alt), Double_val(gspeed));
   return Val_unit;
 }
+
+value set_ac_info(value * argv, int argn) {
+  return set_ac_info_native(argv[0], argv[1], argv[2], argv[3],argv[4], argv[5]);
+}
+
+
 
 value move_waypoint(value wp_id, value ux, value uy, value a) {
   MoveWaypoint(Int_val(wp_id), Double_val(ux), Double_val(uy), Double_val(a));
