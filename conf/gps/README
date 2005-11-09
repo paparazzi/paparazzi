@@ -4,4 +4,13 @@ This are the settings that we use for the ublox SAM-LS unit. You can use u-cente
 - check 'Store configuration into BBR/Flash' box to permanently save it in the receiver
 - select the file and click File->GPS
 
-Or use the ublox_conf.c application to do it :)
+Or use the ublox_conf.c application to do it, see the source code for configuration :)
+
+
+The u-blox Antaris "4" GPS receivers (i.e. LEA-4A) do have an USB interface. They implement an USB Communication Device Class (CDC) which makes them easy to use. 
+
+For a recent Linux kernel, start the cdc-acm kernel module (if not done automatically) and use /dev/ttyACM0 as if it was a "normal" serial port.
+
+Windows needs some special treatment. For XP get the 'usbser.sys' from 'c:\windows\driver cache\i386\drivers.cab' (by double clicking). Copy it to the same directory as the antrser.inf. Attach the ublox receiver and feed Windows with the antrser.inf. You should now have an additional virtual serial port (i.e. COM23).
+
+Some more explanation (and the original .inf file) can be found at 'linux-2.6.xx/Documentation/usb/gadget_serial.txt'.
