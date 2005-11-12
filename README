@@ -56,7 +56,7 @@ Required Software
  - ...
 
 For Debian users: Required packages are available at
-	http://www.rechercher.enac.fr/paparazzi/debian
+	http://www.recherche.enac.fr/paparazzi/debian
 Installation of the meta-package "paparazzi" will install everything
 needed (if something is missing, please ask)
 
