@@ -147,7 +147,7 @@ module Make(A:Data.MISSION) = struct
   external move_waypoint : int -> float -> float -> float -> unit = "move_waypoint"
   let get_move_waypoint = fun _sender vs ->
     let ac_id = int_of_string (Pprz.string_assoc "ac_id" vs) in
-    if ac_id == !my_id then
+    if ac_id = !my_id then
       let f = fun a -> Pprz.float_assoc a vs in
       let wp_id = Pprz.int_assoc "wp_id" vs
       and ux = f "utm_east"
@@ -155,13 +155,20 @@ module Make(A:Data.MISSION) = struct
       and alt = f "alt" in
       move_waypoint wp_id ux uy alt
 
+  external send_event : int -> unit = "send_event"
+  let get_send_event = fun _sender vs ->
+    let ac_id = int_of_string (Pprz.string_assoc "ac_id" vs) in
+    if ac_id = !my_id then
+      send_event (Pprz.int_assoc "event_id" vs)
+
 
   let boot = fun time_scale ->
     Stdlib.timer ~scale:time_scale servos_period (update_servos bat_button);
     Stdlib.timer ~scale:time_scale periodic_period periodic_task;
     Stdlib.timer ~scale:time_scale rc_period rc_task;
     ignore (Ground_Pprz.message_bind "FLIGHT_PARAM" get_flight_param);
-    ignore (Ground_Pprz.message_bind "MOVE_WAYPOINT" get_move_waypoint)
+    ignore (Ground_Pprz.message_bind "MOVE_WAYPOINT" get_move_waypoint);
+    ignore (Ground_Pprz.message_bind "SEND_EVENT" get_send_event)
 
 (* Functions called by the simulator *)
   let servos = fun s -> rservos := s

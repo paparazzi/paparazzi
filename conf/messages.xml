@@ -424,6 +424,10 @@
   <field name="alt"    type="float" unit="m"></field>
  </message>
 
+ <message name="SEND_EVENT" ID="25">
+  <field name="ac_id" type="string"/>
+  <field name="event_id" type="uint8"/>
+ </message>
 </class>
 
 <class name="alert">

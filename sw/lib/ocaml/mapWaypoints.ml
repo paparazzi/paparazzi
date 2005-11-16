@@ -31,12 +31,12 @@ let losange = [|s;0.; 0.;s; -.s;0.; 0.;-.s|]
 
 class group = fun ?(color="red") ?(editable=true) (geomap:MapCanvas.widget) ->
   let g = GnoCanvas.group geomap#canvas#root in
- object
+  object
     method group=g
     method geomap=geomap
     method color=color
-   method editable=editable
-end
+    method editable=editable
+  end
 
 class waypoint = fun (group:group) (name :string) ?(alt=0.) en ->
   let geomap=group#geomap
@@ -53,6 +53,7 @@ class waypoint = fun (group:group) (name :string) ?(alt=0.) en ->
     val label = GnoCanvas.text group#group ~props:[`TEXT name; `X s; `Y 0.; `ANCHOR `SW; `FILL_COLOR "green"]
     val mutable name = name
     val mutable alt = alt
+    val mutable moved = false
     initializer self#move xw yw
     method name = name
     method set_name n =
@@ -114,12 +115,15 @@ class waypoint = fun (group:group) (name :string) ?(alt=0.) en ->
 	      x0 <- x; y0 <- y
 	    end
 	| `BUTTON_RELEASE ev ->
-	    if GdkEvent.Button.button ev = 2 then
-	      item#ungrab (GdkEvent.Button.time ev)
+	    if GdkEvent.Button.button ev = 2 then begin
+	      item#ungrab (GdkEvent.Button.time ev);
+	      moved <- true
+	    end
 	| _ -> ()
       end;
       true
     initializer ignore(if editable then ignore (item#connect#event self#event))
+    method moved = moved
     method item = item
     method en =
       let (dx, dy) = self#xy in

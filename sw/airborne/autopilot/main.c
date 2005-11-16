@@ -167,7 +167,6 @@ inline uint8_t mcu1_status_update( void ) {
     } \
   } else { \
     _cpt = 0; \
-    _event = FALSE; \
   }
 /** \def EventPos(_cpt, _channel, _event)
  *  @@@@@ A FIXER @@@@@

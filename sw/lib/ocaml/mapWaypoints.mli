@@ -41,12 +41,6 @@ class waypoint :
   ?alt:float ->
   MapCanvas.en ->
   object
-    val mutable alt : float
-    val item : GnoCanvas.polygon
-    val label : GnoCanvas.text
-    val mutable name : string
-    val mutable x0 : float
-    val mutable y0 : float
     method alt : float
     method delete : unit
     method edit : unit
@@ -60,6 +54,7 @@ class waypoint :
     method set_name : string -> unit
     method xy : float * float
     method zoom : float -> unit
+    method moved : bool
   end
 
 

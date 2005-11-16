@@ -130,3 +130,13 @@ value move_waypoint(value wp_id, value ux, value uy, value a) {
   MoveWaypoint(Int_val(wp_id), Double_val(ux), Double_val(uy), Double_val(a));
   return Val_unit;
 }
+
+value send_event(value event_id) {
+  uint8_t event = Int_val(event_id);
+  switch (event) {
+    case 1 : rc_event_1 = TRUE; break; // FIXME !
+    case 2 : rc_event_2 = TRUE; break;
+    default: ;
+  }
+  return Val_unit;
+}

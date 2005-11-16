@@ -79,7 +79,6 @@ let get_fp = fun ac _sender vs ->
 
 (** Got a MOVE_WAYPOINT and send a MOVE_WP *)
 let move_wp = fun ac _sender vs ->
-    prerr_endline "move";
   let ac_id = int_of_string (Pprz.string_assoc "ac_id" vs) in
   if ac_id = ac.id then
     let f = fun a -> Pprz.float_assoc a vs in
@@ -91,8 +90,17 @@ let move_wp = fun ac _sender vs ->
 	      "utm_east", cm_of_m ux;
 	      "utm_north", cm_of_m uy;
 	      "alt", cm_of_m alt] in
-    prerr_endline "move";
     let msg_id, _ = Dl_Pprz.message_of_name "MOVE_WP" in
+    let s = Dl_Pprz.payload_of_values msg_id vs in
+    send ac s
+
+(** Got a SEND_EVENT, and send an EVENT *)
+let send_event = fun ac _sender vs ->
+  let ac_id = int_of_string (Pprz.string_assoc "ac_id" vs) in
+  if ac_id = ac.id then
+    let ev_id = Pprz.int_assoc "event_id" vs in
+    let vs = ["event", Pprz.Int ev_id] in
+    let msg_id, _ = Dl_Pprz.message_of_name "EVENT" in
     let s = Dl_Pprz.payload_of_values msg_id vs in
     send ac s
     
@@ -135,6 +143,7 @@ let _ =
 
     ignore (Ground_Pprz.message_bind "FLIGHT_PARAM" (get_fp ac));
     ignore (Ground_Pprz.message_bind "MOVE_WAYPOINT" (move_wp ac));
+    ignore (Ground_Pprz.message_bind "SEND_EVENT" (send_event ac));
 
     (* Main Loop *)
     let loop = Glib.Main.create true in

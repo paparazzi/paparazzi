@@ -208,7 +208,7 @@ class basic_widget = fun ?(height=800) ?width ?wgs84_of_en () ->
 	  let xyw = self#window_to_world xc yc in
 	  grouping <- Some xyw;
 	  true
-      | 2 ->
+      | 2 when Gdk.Convert.test_modifier `SHIFT (GdkEvent.Button.state ev) ->
 	  dragging <- Some (xc, yc);
 	  true
       |	_ -> false

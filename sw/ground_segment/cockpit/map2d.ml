@@ -57,7 +57,7 @@ let default_path_missions = home // "conf"
 type aircraft = {
     track : MapTrack.track;
     color: color;
-    mutable fp_group : MapWaypoints.group option
+    mutable fp_group : (MapWaypoints.group * (int * MapWaypoints.waypoint) list) option
   }
 
 let live_aircrafts = Hashtbl.create 3
@@ -119,7 +119,8 @@ let load_mission = fun color geomap url ->
   let xml = Xml.parse_file file in
   let xml = ExtXml.child xml "flight_plan" in
   let lat0 = float_attr xml "lat0"
-  and lon0 = float_attr xml "lon0" in
+  and lon0 = float_attr xml "lon0"
+  and alt0 = float_attr xml "alt" in
   let utm0 = utm_of WGS84 {posn_lat = (Deg>>Rad)lat0; posn_long = (Deg>>Rad)lon0 } in
   let waypoints = ExtXml.child xml "waypoints" in
   let max_dist_from_home = float_attr xml "MAX_DIST_FROM_HOME" in
@@ -136,17 +137,20 @@ let load_mission = fun color geomap url ->
     {G.east = x +. utm0.utm_x -. utm_ref.utm_x;
      G.north = y +. utm0.utm_y -. utm_ref.utm_y } in
 
-  let fp = new MapWaypoints.group ~color ~editable:false geomap in
-  List.iter
-    (fun wp ->
-      let en = en_of_xy (float_attr wp "x") (float_attr wp "y") in
-      let alt = try Some (float_attr wp "alt") with _ -> None in
-      ignore (MapWaypoints.waypoint fp ~name:(ExtXml.attrib wp "name") ?alt en);
-      if  ExtXml.attrib wp "name" = "HOME" then
-	ignore (geomap#circle ~color en max_dist_from_home)
-    ) 
-    (Xml.children waypoints);
-  fp
+  let fp = new MapWaypoints.group ~color ~editable:true geomap in
+  let i = ref 0 in
+  let wpts = List.map
+      (fun wp ->
+	let en = en_of_xy (float_attr wp "x") (float_attr wp "y") in
+	let alt = try float_attr wp "alt" with _ -> alt0 in
+	let w = MapWaypoints.waypoint fp ~name:(ExtXml.attrib wp "name") ~alt en in
+	if  ExtXml.attrib wp "name" = "HOME" then
+	  ignore (geomap#circle ~color en max_dist_from_home);
+	incr i;
+	!i, w
+      ) 
+      (Xml.children waypoints) in
+  fp, wpts
 
 
 let aircraft_pos_msg = fun track utm_x_ utm_y_ heading altitude speed climb ->
@@ -231,9 +235,33 @@ let show_mission = fun geomap ac on_off ->
     let a = Hashtbl.find live_aircrafts ac in
     match a.fp_group with
       None -> ()
-    | Some g -> 
+    | Some (g, _wpts) -> 
 	a.fp_group <- None;
 	g#group#destroy ()
+
+let commit_changes = fun ac ->
+  let a = Hashtbl.find live_aircrafts ac in
+  match a.fp_group, !map_ref with
+    Some (g, wpts), Some utm0 -> 
+      List.iter 
+	(fun (i, w) -> 
+	  if w#moved then 
+	    let {MapCanvas.east=e; MapCanvas.north=n} =w#en in
+	    let vs = ["ac_id", Pprz.String ac;
+		      "wp_id", Pprz.Int i;
+		      "utm_east", Pprz.Float (utm0.utm_x+.e);
+		      "utm_north", Pprz.Float (utm0.utm_y+.n);
+		      "alt", Pprz.Float w#alt
+		    ] in
+	    Ground_Pprz.message_send "map2d" "MOVE_WAYPOINT" vs)
+	wpts
+  | _ -> ()
+
+let send_event = fun ac e ->
+  Ground_Pprz.message_send "map2d" "SEND_EVENT" 
+    ["ac_id", Pprz.String ac; "event_id", Pprz.Int e]
+  
+
 
 let resize_track = fun ac track ->
   match GToolbox.input_string ~text:(string_of_int track#size) ~title:ac "Track size" with
@@ -251,6 +279,9 @@ let one_new_ac = fun (geomap:MapCanvas.widget)(vertical_display:MapCanvas.basic_
     let track = new MapTrack.track ~name:ac ~color:color geomap vertical_display in
     ignore (ac_menu_fact#add_item "Clear Track" ~callback:(fun () -> track#clear_map2D));
     ignore (ac_menu_fact#add_item "Resize Track" ~callback:(fun () -> resize_track ac track));
+    ignore (ac_menu_fact#add_item "Commit Moves" ~callback:(fun () -> commit_changes ac));
+    ignore (ac_menu_fact#add_item "Event 1" ~callback:(fun () -> send_event ac 1));
+    ignore (ac_menu_fact#add_item "Event 2" ~callback:(fun () -> send_event ac 2));
     let cam = ac_menu_fact#add_check_item "Cam Display" ~active:false in
     ignore (cam#connect#toggled (fun () -> track#set_cam_state cam#active));
     let ac_menu_vertical = vertical_display#factory#add_submenu ac in
