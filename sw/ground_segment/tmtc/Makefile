@@ -84,3 +84,9 @@ modem.cmo : modem.cmi
 
 %.cmi : %.mli
 	$(OCAMLC) $(INCLUDES) $<
+
+
+
+wavecard_c : wavecard_c.c wavecard_utils_c.c wavecard_foo_c.c
+	gcc -Wall -o $@ $^ `pkg-config --cflags glib-2.0` `pkg-config --libs glib-2.0`
+

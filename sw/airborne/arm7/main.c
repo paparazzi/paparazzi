@@ -114,7 +114,7 @@ static void sysInit(void)
 	initSysTime();                        // initialize the system timer
 	
 	uart0Init(UART_BAUD(HOST_BAUD), UART_8N1, UART_FIFO_8); // setup the UART
-	uart1Init(UART_BAUD(HOST_BAUD), UART_8N1, UART_FIFO_8); // setup the UART
+	//	uart1Init(UART_BAUD(HOST_BAUD), UART_8N1, UART_FIFO_8); // setup the UART
 	adcInit();
 }
 
@@ -216,7 +216,7 @@ int main(void)
 	uart0Puts("\r\nHello World! (UART0)\r\n");
 	uart0Puts("A WinARM Demo-Application by Martin Thomas\r\n");
 	uart0Puts("based on code from Bill Knight\r\n\r\n");
-	uart1Puts("\r\nHello World! (UART1)\r\n");
+//	uart1Puts("\r\nHello World! (UART1)\r\n");
 	
 	for (;;) {
 		do {
@@ -227,19 +227,20 @@ int main(void)
 				uart0Putch(ch);
 				uart0Puts("> key has been pressed on UART0\r\n");
 			}
-			if ((ch = uart1Getch()) >= 0) {
-				uart1Puts("the <");
-				uart1Putch(ch);
-				uart1Puts("> key has been pressed on UART1\r\n");
-			}
-			
+
+//			if ((ch = uart1Getch()) >= 0) {
+//				uart1Puts("the <");
+//				uart1Putch(ch);
+//				uart1Puts("> key has been pressed on UART1\r\n");
+//			}
+
 			// send button-pressed string only once if hit
 			if (button_state()==0) lock=FALSE; // release lock if button is released
 			
 			if ( ((bt=button_state()) > 0 ) && !lock ) {
 				if ( bt & 0x01 ) {
 					uart0Puts("\r\nButton 1 Pressed!\r\n");
-					uart1Puts("\r\nButton 1 Pressed!\r\n");
+//					uart1Puts("\r\nButton 1 Pressed!\r\n");
 					lock=TRUE;
 				}
 			}
@@ -254,8 +255,29 @@ int main(void)
 			IO0CLR = LED2_BIT; 
 		}
 		uart0Puts("\r\ntick!\r\n");
-		//		uint16_t foo = adcPoll();
-		uart0_print_hex_16(adc_val);
+		uart0_print_hex_16(adc0_val[0]);
+		uart0Puts(", ");
+		uart0_print_hex_16(adc0_val[1]);
+		uart0Puts(", ");
+		uart0_print_hex_16(adc0_val[2]);
+		uart0Puts(", ");
+		uart0_print_hex_16(adc0_val[3]);
+		uart0Puts(", ");
+		uart0_print_hex_16(adc0_val[4]);
+		uart0Puts(", ");
+		uart0_print_hex_16(adc0_val[5]);
+		uart0Puts("\r\n");
+		uart0_print_hex_16(adc1_val[0]);
+		uart0Puts(", ");
+		uart0_print_hex_16(adc1_val[1]);
+		uart0Puts(", ");
+		uart0_print_hex_16(adc1_val[2]);
+		uart0Puts(", ");
+		uart0_print_hex_16(adc1_val[3]);
+		uart0Puts(", ");
+		uart0_print_hex_16(adc1_val[4]);
+		uart0Puts(", ");
+		uart0_print_hex_16(adc1_val[5]);
 		uart0Puts("\r\n");
 		startTime += HALF_SEC;
 	} // for

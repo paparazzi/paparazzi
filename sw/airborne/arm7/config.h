@@ -82,9 +82,11 @@ extern void abort(void);
 #define P0_04_UNUSED_BIT      BIT(4)      // P0.04 unused - low output
 #define P0_05_UNUSED_BIT      BIT(5)      // P0.05 unused - low output
 #define P0_06_UNUSED_BIT      BIT(6)      // P0.06 unused - low output
-#define P0_07_UNUSED_BIT      BIT(7)      // P0.06 unused - low output
-#define TXD1_BIT              BIT(8)      // used by UART1
-#define RXD1_BIT              BIT(9)      // used by UART1
+#define P0_07_UNUSED_BIT      BIT(7)      // P0.07 unused - low output
+//#define TXD1_BIT              BIT(8)      // used by UART1
+//#define RXD1_BIT              BIT(9)      // used by UART1
+#define P0_08_UNUSED_BIT      BIT(8)      // P0.08 unused - low output
+#define P0_09_UNUSED_BIT      BIT(9)      // P0.09 unused - low output
 #define P0_10_UNUSED_BIT      BIT(10)     // P0.10 unused - low output
 #define P0_11_UNUSED_BIT      BIT(11)     // P0.11 unused - low output
 #define LED1_BIT              BIT(12)     // P0.12 LED1 low active
@@ -156,7 +158,9 @@ extern void abort(void);
                                          P0_05_UNUSED_BIT | \
                                          P0_06_UNUSED_BIT | \
 					 P0_07_UNUSED_BIT | \
-					 P0_10_UNUSED_BIT | \
+					 P0_08_UNUSED_BIT | \
+                                         P0_09_UNUSED_BIT | \
+	                                 P0_10_UNUSED_BIT | \
 					 P0_11_UNUSED_BIT | \
 					 LED1_BIT         | \
 					 LED2_BIT         | \
