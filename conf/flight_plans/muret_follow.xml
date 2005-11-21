@@ -16,14 +16,14 @@
      </waypoints>
 
   <blocks>
-    <block NAME="init">
-      <while COND="(!launch)"/>
-      <heading VMODE="gaz" GAZ="0.8" PITCH="0.15" COURSE="QFU" UNTIL="(estimator_flight_time > 8)"/>
-      <heading CLIMB="3.0" VMODE="climb" PITCH="0.15" COURSE="QFU" UNTIL="(estimator_z > SECURITY_ALT)"/>
+    <block NAME="home">
+       <exception COND="(RcEvent1())" DEROUTE="follow"/>
+       <circle wp="HOME" alt="GROUND_ALT+50" radius="-75"/>
     </block>
 
     <block NAME="follow">
-      <follow ac_id="2" distance="50"/>
+       <exception COND="(RcEvent1())" DEROUTE="home"/>
+      <follow ac_id="3" distance="50"/>
     </block>
   </blocks>
 </flight_plan>
