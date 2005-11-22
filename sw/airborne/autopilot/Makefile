@@ -33,7 +33,8 @@ ARCH	  = atmega128
 TARGET 	  = autopilot
 TARGETDIR = autopilot
 
-LOW_FUSE  = e0
+# LOW_FUSE  = e0
+LOW_FUSE  = a0
 HIGH_FUSE = 99
 
 ifeq ($(SIMUL),1)
