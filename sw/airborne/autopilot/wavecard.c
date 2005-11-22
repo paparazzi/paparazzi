@@ -35,6 +35,20 @@
 #include "wavecard.h"
 #include "datalink.h"
 
+#define WC_RESET_DDR DDRD
+#define WC_RESET_PIN 1
+#define WC_RESET_PORT PORTD
+
+void wc_reset( void ) {
+  WC_RESET_DDR |= _BV(WC_RESET_PIN);
+  sbi(WC_RESET_PORT, WC_RESET_PIN);
+}
+
+void wc_end_reset( void ) {
+  cbi(WC_RESET_PORT, WC_RESET_PIN);
+}
+
+
 #define WC_MAX_PAYLOAD 256
 uint8_t  wc_payload[WC_MAX_PAYLOAD];
 

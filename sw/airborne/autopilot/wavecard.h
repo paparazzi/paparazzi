@@ -46,6 +46,8 @@ extern uint8_t wc_msg_received;
 extern uint8_t  wc_length;
 void wc_parse_payload(void);
 
+void wc_reset( void );
+void wc_end_reset( void );
 
 
 #define WC_SYNC 0xff

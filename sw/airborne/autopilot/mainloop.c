@@ -75,6 +75,10 @@ int main( void ) {
 #if defined SECTION_IMU_3DMG || defined SECTION_IMU_ANALOG || WAVECARD
   uart0_init();
 #endif //SECTION_IMU
+#ifdef WAVECARD
+  /** Reset the wavecard during the init pause */
+  wc_reset();
+#endif
   /** - start interrupt task */
   sei();
 
@@ -84,7 +88,10 @@ int main( void ) {
     if (timer_periodic())
       init_cpt--;
   }
-  
+#ifdef WAVECARD
+  wc_end_reset();
+#endif
+ 
 #ifdef SECTION_IMU_ANALOG
   /** - ahrs init(do_calibration)
    *  - Warning if do_calibration is TRUE this will provide an asynchronous
