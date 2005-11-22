@@ -148,6 +148,13 @@ inline void spi_task(void) {
 
 int main( void )
 {
+  {
+    uint8_t foo1 = 25;
+    while (foo1--) {
+      uint16_t foo2 = 1;
+      while (foo2++);
+    }
+  }
   uart_init_tx();
 #if defined SECTION_IMU_3DMG
   uart_init_rx();
