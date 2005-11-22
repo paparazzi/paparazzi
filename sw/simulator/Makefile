@@ -92,7 +92,7 @@ $(OBJDIR)/%.o : $(AP)/%.c
 $(OBJDIR)/main.o : $(OBJDIR)/main.c
 	$(OCAMLCC) -c -o $@ -I $(SIMDIR) -I $(FBW) -I $(AP) -I ../include -I $(VARINCLUDE) $<
 
-$(OBJDIR)/sim_gps.o $(OBJDIR)/nav.o $(OBJDIR)/main.o $(OBJDIR)/sim_ir.o $(OBJDIR)/sim_ap.o $(OBJDIR)/pid.o $(OBJDIR)/estimator.o : $(ACINCLUDE)/flight_plan.h  $(ACINCLUDE)/airframe.h
+$(OBJDIR)/sim_gps.o $(OBJDIR)/nav.o $(OBJDIR)/main.o $(OBJDIR)/sim_ir.o $(OBJDIR)/sim_ap.o $(OBJDIR)/pid.o $(OBJDIR)/estimator.o $(OBJDIR)/cam.o : $(ACINCLUDE)/flight_plan.h  $(ACINCLUDE)/airframe.h
 
 $(OBJDIR)/sim_ap.o : $(AP)/traffic_info.h $(AP)/nav.h 
 

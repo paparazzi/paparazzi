@@ -166,10 +166,10 @@ static float qdr;
 #define Max(x,y) (x > y ? x : y)
 #define Qdr(x) (Min(x, 350) < qdr && qdr < x+10)
 
-#define Follow(_ac_id, _distance) { \
+#define Follow(_ac_id, _distance, _height) { \
   struct ac_info_ * ac = get_ac_info(_ac_id); \
   vertical_mode = VERTICAL_MODE_AUTO_ALT; \
-  desired_altitude = ac->alt; \
+  desired_altitude = Max(ac->alt + _height, SECURITY_ALT); \
   float alpha = M_PI/2 - ac->course; \
   fly_to_xy(ac->east - _distance*cos(alpha), ac->north - _distance*sin(alpha)); \
 }

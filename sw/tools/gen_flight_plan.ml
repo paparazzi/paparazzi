@@ -153,6 +153,9 @@ let output_cam_mode = fun x index_of_waypoints ->
 	with _ ->
 	  lprintf "cam_manual_target();\n"
       end
+  | "follow" ->
+      let i = ExtXml.attrib x "cam_ac_target" in
+      lprintf "cam_ac_target(%s);\n" i
   | _ -> failwith (sprintf "Error: unknown '%s' cam mode" m)
 
 let output_vmode x wp last_wp =
@@ -292,9 +295,10 @@ let rec print_stage = fun index_of_waypoints x ->
 	lprintf "return;\n"
     | "follow" ->
 	stage ();
-	let id = ExtXml.attrib x "ac_id" in
-	let d = ExtXml.attrib x "distance" in
-	lprintf "Follow(%s, %s);\n" id d;
+	let id = ExtXml.attrib x "ac_id"
+	and d = ExtXml.attrib x "distance"
+	and h = ExtXml.attrib x "height" in
+	lprintf "Follow(%s, %s, %s);\n" id d h;
 	output_cam_mode x index_of_waypoints;
 	lprintf "return;\n"
     | "attitude" ->

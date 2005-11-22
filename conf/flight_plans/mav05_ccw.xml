@@ -22,7 +22,7 @@
       <deroute BLOCK="zz.takeoff"/>
     </block>
     <block NAME="follow">
-      <follow ac_id="1" distance="20"/>
+      <follow ac_id="1" distance="25" height="25" cam_mode="target" target="zz.TARGET"/>
     </block>
   </blocks>
 </flight_plan>

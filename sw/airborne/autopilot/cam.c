@@ -33,14 +33,13 @@
 #include "flight_plan.h"
 #include "estimator.h"
 #include "link_fbw.h"
+#include "traffic_info.h"
 
 #define MIN_PPRZ_CAM ((int16_t)(MAX_PPRZ * 0.05))
 #define DELTA_ALPHA 0.2
 
 #define MAX_CAM_ROLL M_PI/2
 #define MAX_CAM_PITCH M_PI/3
-
-#define target_alt GROUND_ALT
 
 #ifdef CAM_PHI0
 float phi_c = RadOfDeg(CAM_PHI0);
@@ -54,7 +53,7 @@ float theta_c = RadOfDeg(CAM_THETA0);
 float theta_c;
 #endif
 
-float target_x, target_y;
+float target_x, target_y, target_alt;
 
 void cam_manual( void ) {
   if (pprz_mode == PPRZ_MODE_AUTO2) {
@@ -102,12 +101,22 @@ void cam_manual_target( void ) {
     target_y = Min(target_y, MAX_DIST_TARGET + estimator_y);
     target_y = Max(target_y, -MAX_DIST_TARGET + estimator_y);
   }
+  target_alt = GROUND_ALT;
   cam_target();
 }
 
 void cam_waypoint_target( uint8_t wp ) {
   target_x = waypoints[wp].x;
   target_y = waypoints[wp].y;
+  target_alt = GROUND_ALT;
+  cam_target();
+}
+
+void cam_ac_target( uint8_t ac_id ) {
+  struct ac_info_ * ac = get_ac_info(ac_id);
+  target_x = ac->east;
+  target_y = ac->north;
+  target_alt = ac->alt;
   cam_target();
 }
 
