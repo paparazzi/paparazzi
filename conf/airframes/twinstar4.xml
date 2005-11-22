@@ -5,9 +5,9 @@
   </section>
   <servos min="1000" neutral="1500" max="2000">
     <servo name="GAZ" no="3" min="1000" neutral="1000" max="2000"/>
-    <servo name="AILERON_LEFT" no="0" max="1190" neutral="1600" min="1850"/>
-    <servo name="AILERON_RIGHT" no="2" max="1375" neutral="1650" min="2000"/>
-    <servo name="ELEVATOR" no="6" max="1816" neutral="1530" min="1220"/>
+    <servo name="AILERON_LEFT" no="0" max="1190" neutral="1530" min="1850"/>
+    <servo name="AILERON_RIGHT" no="2" max="1375" neutral="1580" min="2000"/>
+    <servo name="ELEVATOR" no="6" max="1816" neutral="1410" min="1220"/>
     <servo name="RUDDER"   no="7" max="1270" neutral="1550" min="1850"/>
     <servo name="CAM_ROLL" no="8" max="1816" neutral="1530" min="1220"/>
     <servo name="CAM_PITCH" no="4" max="1270" neutral="1450" min="1850"/>
