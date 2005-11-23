@@ -1,3 +1,5 @@
+<!DOCTYPE flight_plan SYSTEM "flight_plan.dtd">
+
 <flight_plan SECURITY_HEIGHT="25" lat0="47.4820" lon0="11.0945" ground_alt="730" qfu="280" alt="780" ir_square_utmx_min="657530.0" ir_square_utmy_max="5261130.0" ir_square_width="180.0" ir_correct_steps="2" max_dist_from_home="300" name="Garmisch">
   <rc_control>
     <mode NAME="AUTO1">
