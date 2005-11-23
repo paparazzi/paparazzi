@@ -432,6 +432,12 @@
   <field name="ac_id" type="string"/>
   <field name="event_id" type="uint8"/>
  </message>
+
+ <message name="DL_SETTING" ID="26">
+  <field name="ac_id" type="string"/>
+  <field name="index" type="uint8"/>
+  <field name="value" type="float"/>
+ </message>
 </class>
 
 <class name="alert">
@@ -462,6 +468,11 @@
  <message name="EVENT" ID="3">
   <field name="event" type="uint8"/>
  </message>
+ <message name="SETTING" ID="4">
+  <field name="index" type="uint8"/>
+  <field name="value" type="float"/>
+ </message>
+
 </class>
 
 </protocol>
