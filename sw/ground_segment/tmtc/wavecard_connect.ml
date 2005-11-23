@@ -26,6 +26,7 @@
 
 open Printf
 module W = Wavecard
+module Tm_Pprz = Pprz.Protocol(struct let name = "telemetry_ap" end)
 module Ground_Pprz = Pprz.Protocol(struct let name = "ground" end)
 module Dl_Pprz = Pprz.Protocol(struct let name = "datalink" end)
 
@@ -45,13 +46,20 @@ let send_dl_msg = fun ac a ->
 
 
     
-let broadcast_msg = fun (com, data) ->
+let broadcast_msg = fun ac (com, data) ->
   match com with
     W.RECEIVED_FRAME ->
       Ivy.send (sprintf "FROM_WAVECARD %s" data)
+  | W.RES_READ_REMOTE_RSSI ->
+      Tm_Pprz.message_send (string_of_int ac.id) "WC_RSSI" ["raw_level", Pprz.Int (Char.code data.[0])]
   | _ -> 
       Debug.call 'w' (fun f -> fprintf f "wv receiving: %x " (W.code_of_cmd com); for i = 0 to String.length data - 1 do fprintf f "%x " (Char.code data.[i]) done; fprintf f "\n");
       Ivy.send (sprintf "RAW_FROM_WAVECARD %2x %s" (W.code_of_cmd com) data)
+
+
+let rssi_period = 5000 (** ms *)
+let req_rssi = fun ac ->
+  Wavecard.send_addressed ac.fd (W.REQ_READ_REMOTE_RSSI, ac.addr,"")
 
 
 
@@ -126,24 +134,27 @@ let _ =
   
   try
     let fd = Serial.opendev !port Serial.B9600 in
-    (* Listening *)
-    let listener = Wavecard.receive ~ack:(send_ack 10 fd) broadcast_msg in
+    let ac = { fd=fd; id= !id; addr= W.addr_of_string !distant_addr } in
+    (* Listening on wavecard *)
+    let listener = Wavecard.receive ~ack:(send_ack 10 fd) (broadcast_msg ac) in
     let cb = fun _ ->
       listener fd;
       true in
 
     ignore (Glib.Io.add_watch [`IN] cb (GMain.Io.channel_of_descr fd));
 
-    let ac = { fd=fd; id= !id; addr= W.addr_of_string !distant_addr } in
-    
     (* Sending request from Ivy *)
 
-    (* For debug *)
-    ignore (Ivy.bind (fun _ a -> send_dl_msg ac a.(0)) "TO_WAVECARD +(.*)");
 
+    (** Listening on Ivy *)
     ignore (Ground_Pprz.message_bind "FLIGHT_PARAM" (get_fp ac));
     ignore (Ground_Pprz.message_bind "MOVE_WAYPOINT" (move_wp ac));
     ignore (Ground_Pprz.message_bind "SEND_EVENT" (send_event ac));
+    (* For debug *)
+    ignore (Ivy.bind (fun _ a -> send_dl_msg ac a.(0)) "TO_WAVECARD +(.*)");
+
+
+    ignore (GMain.Timeout.add rssi_period (fun _ -> req_rssi ac; true));
 
     (* Main Loop *)
     let loop = Glib.Main.create true in
