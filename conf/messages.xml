@@ -192,11 +192,15 @@
   </message>
 
  <message name="ACINFO" ID="27" period="1">
-  <field name="east"  type="float" unit="m"></field>
-  <field name="north"  type="float" unit="m"></field>
-  <field name="course" type="float" unit="rad"></field>
-  <field name="alt"    type="float" unit="m"></field>
-  <field name="speed"  type="float" unit="m/s"></field>
+  <field name="east"  type="float" unit="m"/>
+  <field name="north"  type="float" unit="m"/>
+  <field name="course" type="float" unit="rad"/>
+  <field name="alt"    type="float" unit="m"/>
+  <field name="speed"  type="float" unit="m/s"/>
+ </message>
+
+ <message name="WC_RSSI" id="28">
+  <field name="raw_level" type="uint8"/>
  </message>
 
 </class>
