@@ -29,7 +29,7 @@ open Printf
 let out = stdout
 
 let sizeof = function
-    "int32" | "uint32" -> 4
+    "int32" | "uint32" | "float" -> 4
   | "int16" | "uint16" -> 2
   | "int8" | "uint8" -> 1
   | x -> failwith (sprintf "sizeof: unknown format '%s'" x)
@@ -45,6 +45,7 @@ let get_at = fun offset format ->
     | "uint32" -> "uint32_t"
     | "uint8" -> "uint8_t"
     | "int8" -> "int8_t"
+    | "float" -> "float"
     | _ -> failwith (sprintf "get_at: unknown format '%s'" format) in
   sprintf "(*((%s*)(_ubx_payload+%d)))" t offset
 
