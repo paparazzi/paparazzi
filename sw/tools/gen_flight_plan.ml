@@ -542,6 +542,18 @@ let print_heights = fun xml wgs84 alt ->
     lprintf "} \n"; 
   end
 
+let print_dl_settings = fun settings ->
+  lprintf "#define DlSetting(_idx, _value) { \\\n";
+  right ();
+  let idx = ref 0 in
+  List.iter 
+    (fun s ->
+      let v = ExtXml.attrib s "var" in
+      lprintf "if (_idx == %d) %s = _value;\\\n" !idx v; incr idx) 
+    settings;
+  left ();
+  lprintf "}\n"
+
 
 
 let _ =
@@ -562,6 +574,7 @@ let _ =
     let xml = Fp_proc.process_includes dir xml in
     let xml = Fp_proc.process_relative_waypoints xml in
     let waypoints = ExtXml.child xml "waypoints"
+    and dl_settings = try Xml.children (ExtXml.child xml "dl_settings") with Not_found -> []
     and blocks = Xml.children (ExtXml.child xml "blocks") in
 
     compile_blocks blocks;
@@ -637,6 +650,8 @@ let _ =
       print_blocks index_of_waypoints blocks;
 
       print_heights xml wgs84 (int_of_string alt);
+
+      print_dl_settings dl_settings;
 
       Xml2h.finish h_name
     end

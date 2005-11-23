@@ -35,8 +35,7 @@
 #include "flight_plan.h"
 #include "autopilot.h"
 
-/***/
-#include "uart.h"
+#include "estimator.h"
 
 #define MOfCm(_x) (((float)_x)/100.)
 
@@ -64,5 +63,7 @@ void dl_parse_msg(void) {
     case 2 : rc_event_2 = TRUE; break;
     default: ;
     }
+  } else if (msg_id == DL_SETTING_ID) {
+    DlSetting(DL_SETTING_index(dl_buffer), DL_SETTING_value(dl_buffer));
   }
 }

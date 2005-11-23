@@ -162,13 +162,21 @@ module Make(A:Data.MISSION) = struct
       send_event (Pprz.int_assoc "event_id" vs)
 
 
+  external dl_setting : int -> float -> unit = "dl_setting"
+  let get_dl_setting = fun _sender vs ->
+    let ac_id = int_of_string (Pprz.string_assoc "ac_id" vs) in
+    if ac_id = !my_id then
+      dl_setting (Pprz.int_assoc "index" vs) (Pprz.float_assoc "value" vs)
+
+
   let boot = fun time_scale ->
     Stdlib.timer ~scale:time_scale servos_period (update_servos bat_button);
     Stdlib.timer ~scale:time_scale periodic_period periodic_task;
     Stdlib.timer ~scale:time_scale rc_period rc_task;
     ignore (Ground_Pprz.message_bind "FLIGHT_PARAM" get_flight_param);
     ignore (Ground_Pprz.message_bind "MOVE_WAYPOINT" get_move_waypoint);
-    ignore (Ground_Pprz.message_bind "SEND_EVENT" get_send_event)
+    ignore (Ground_Pprz.message_bind "SEND_EVENT" get_send_event);
+    ignore (Ground_Pprz.message_bind "DL_SETTING" get_dl_setting)
 
 (* Functions called by the simulator *)
   let servos = fun s -> rservos := s

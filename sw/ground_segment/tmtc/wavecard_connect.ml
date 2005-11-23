@@ -113,6 +113,17 @@ let send_event = fun ac _sender vs ->
     send ac s
     
 
+(** Got a DL_SETTING, and send an SETTING *)
+let setting = fun ac _sender vs ->
+  let ac_id = int_of_string (Pprz.string_assoc "ac_id" vs) in
+  if ac_id = ac.id then
+    let idx = Pprz.int_assoc "index" vs in
+    let vs = ["event", Pprz.Int idx; "value", List.assoc "value" vs] in
+    let msg_id, _ = Dl_Pprz.message_of_name "SETTING" in
+    let s = Dl_Pprz.payload_of_values msg_id vs in
+    send ac s
+    
+
 let _ =
   let ivy_bus = ref "127.255.255.255:2010" in
   let port = ref "/dev/ttyS0" in
@@ -150,6 +161,7 @@ let _ =
     ignore (Ground_Pprz.message_bind "FLIGHT_PARAM" (get_fp ac));
     ignore (Ground_Pprz.message_bind "MOVE_WAYPOINT" (move_wp ac));
     ignore (Ground_Pprz.message_bind "SEND_EVENT" (send_event ac));
+    ignore (Ground_Pprz.message_bind "DL_SETTING" (setting ac));
     (* For debug *)
     ignore (Ivy.bind (fun _ a -> send_dl_msg ac a.(0)) "TO_WAVECARD +(.*)");
 

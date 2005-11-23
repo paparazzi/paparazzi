@@ -140,3 +140,10 @@ value send_event(value event_id) {
   }
   return Val_unit;
 }
+
+value dl_setting(value index, value val) {
+#if defined DlSetting
+  DlSetting(Int_val(index), Double_val(val));
+#endif
+  return Val_unit;
+}
