@@ -43,11 +43,11 @@
 
 #include "uart.h"
 
-#ifdef SECTION_IMU_3DMG 
+#ifdef IMU_3DMG 
 #include "3dmg.h"
 #endif
 
-#if defined  SECTION_IMU_ANALOG || defined SECTION_IMU_3DMG
+#if defined  IMU_ANALOG || defined IMU_3DMG
 #include "imu.h"
 #include "control.h"
 #endif
@@ -83,12 +83,12 @@ static inline void to_autopilot_from_last_radio (void) {
   }
   to_mega128.ppm_cpt = last_ppm_cpt;
   to_mega128.vsupply = VoltageOfAdc(vsupply_adc_buf.sum/AV_NB_SAMPLE) * 10;
-#if defined SECTION_IMU_3DMG || defined SECTION_IMU_ANALOG
+#if defined IMU_3DMG || defined IMU_ANALOG
   to_mega128.euler_dot[0] = roll_dot;
   to_mega128.euler_dot[1] = pitch_dot;
   to_mega128.euler_dot[2] = yaw_dot;
 #endif
-#ifdef SECTION_IMU_3DMG
+#ifdef IMU_3DMG
   to_mega128.euler[0] = roll;
   to_mega128.euler[1] = pitch;
   to_mega128.euler[2] = yaw;
@@ -104,7 +104,7 @@ inline void radio_control_task(void) {
   if (last_radio_contains_avg_channels) {
     mode = MODE_OF_PPRZ(last_radio[RADIO_MODE]);
   }
-#if defined SECTION_IMU_ANALOG
+#if defined IMU_ANALOG && defined RADIO_SWITCH1
   if (last_radio[RADIO_SWITCH1] > MAX_PPRZ/2) {
     imu_capture_neutral();
     CounterLedOn();
@@ -113,7 +113,7 @@ inline void radio_control_task(void) {
   } 
 #endif
   if (mode == MODE_MANUAL) {
-#if defined SECTION_IMU_3DMG || defined SECTION_IMU_ANALOG
+#if defined IMU_3DMG || defined IMU_ANALOG
     roll_dot_pgain = -100. ; /***  + (float)last_radio[RADIO_GAIN1] * 0.010; ***/
     roll_dot_dgain = 0.; /*** 2.5 - (float)last_radio[RADIO_GAIN2] * 0.00025; ***/
     pitch_dot_pgain = roll_dot_pgain;
@@ -130,7 +130,7 @@ inline void spi_task(void) {
     time_since_last_mega128 = 0;
     mega128_ok = TRUE;
     if (mode == MODE_AUTO) {
-#if defined SECTION_IMU_ANALOG || defined SECTION_IMU_3DMG
+#if defined IMU_ANALOG || defined IMU_3DMG
       control_set_desired(from_mega128.channels);
 #else
     servo_set(from_mega128.channels);
@@ -156,14 +156,14 @@ int main( void )
     }
   }
   uart_init_tx();
-#if defined SECTION_IMU_3DMG
+#if defined IMU_3DMG
   uart_init_rx();
 #else
   uart_print_string("FBW Booting $Id$\n");
 #endif
   adc_init();
   adc_buf_channel(ADC_CHANNEL_VSUPPLY, &vsupply_adc_buf);
-#if defined SECTION_IMU_3DMG || defined SECTION_IMU_ANALOG
+#if defined IMU_3DMG || defined IMU_ANALOG
   CounterLedInit();
   imu_init();
 #endif
@@ -186,7 +186,7 @@ int main( void )
       spi_was_interrupted = FALSE;
       spi_task();
     }
-#ifdef SECTION_IMU_3DMG
+#ifdef IMU_3DMG
     if (_3dmg_data_ready) {
       imu_update();
     }
@@ -213,7 +213,7 @@ int main( void )
       static uint8_t _20Hz;
       _1Hz++;
       _20Hz++;
-#if defined SECTION_IMU_ANALOG
+#if defined IMU_ANALOG
       imu_update();
 #if 0
       {
@@ -230,7 +230,7 @@ int main( void )
       }
 #endif /* 0 */
 #endif
-#if defined SECTION_IMU_3DMG || defined SECTION_IMU_ANALOG
+#if defined IMU_3DMG || defined IMU_ANALOG
       control_run();
       if (radio_ok) {
 	if (last_radio[RADIO_THROTTLE] > 0.1*MAX_PPRZ) {
@@ -248,7 +248,7 @@ int main( void )
       }
       if (_20Hz >= 3) {
 	_20Hz = 0;
-#ifndef SECTION_IMU_3DMG
+#ifndef IMU_3DMG
 	servo_transmit();
 #endif
       }

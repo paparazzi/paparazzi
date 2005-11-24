@@ -44,9 +44,13 @@
 #include "cam.h"
 #include "traffic_info.h"
 
-#ifdef SECTION_IMU_ANALOG
+#ifdef TELEMETER
+#include "srf08.h"
+#endif
+
+#ifdef IMU_ANALOG
 #include "ahrs.h"
-#endif //SECTION_IMU_ANALOG
+#endif //IMU_ANALOG
 
 #ifndef AUTO1_MAX_ROLL
 #define AUTO1_MAX_ROLL 0.6
@@ -75,11 +79,11 @@ uint8_t pprz_mode = PPRZ_MODE_MANUAL;
 uint8_t vertical_mode = VERTICAL_MODE_MANUAL;
 uint8_t lateral_mode = LATERAL_MODE_MANUAL;
 
-#ifdef SECTION_IMU_ANALOG
+#ifdef IMU_ANALOG
 uint8_t ir_estim_mode = IR_ESTIM_MODE_OFF;
 #else
 uint8_t ir_estim_mode = IR_ESTIM_MODE_ON;
-#endif //SECTION_IMU_ANALOG
+#endif //IMU_ANALOG
 
 bool_t auto_pitch = FALSE;
 
@@ -242,7 +246,14 @@ uint8_t ac_ident = AC_ID;
 
 #define PERIODIC_SEND_NAVIGATION_REF()  DOWNLINK_SEND_NAVIGATION_REF(&nav_utm_east0, &nav_utm_north0, &nav_utm_zone0);
 
-#define PERIODIC_SEND_ACINFO() { struct ac_info_ *s=get_ac_info(1); DOWNLINK_SEND_ACINFO(&s->east, &s->north, &s->course, &s->alt, &s->gspeed); }
+#ifdef DATALINK
+#define PERIODIC_SEND_ACINFO() { \
+  struct ac_info_ *s=get_ac_info(3); \
+  DOWNLINK_SEND_ACINFO(&s->east, &s->north, &s->course, &s->alt, &s->gspeed); \
+}
+#else
+#define PERIODIC_SEND_ACINFO()
+#endif
 
 #ifdef RADIO_CALIB
 #define PERIODIC_SEND_SETTINGS() if (inflight_calib_mode != IF_CALIB_MODE_NONE)	DOWNLINK_SEND_SETTINGS(&slider_1_val, &slider_2_val);
@@ -512,8 +523,8 @@ inline void periodic_task( void ) {
     break;
     /*  default: */
   }
-  #ifdef SECTION_IMU_ANALOG
- ahrs_update();//<8,6 ms called at 60hz
+  #ifdef IMU_ANALOG
+  ahrs_update();//<8,6 ms called at 60hz
 #endif
   switch (_20Hz) {
   case 0:
@@ -528,10 +539,10 @@ inline void periodic_task( void ) {
   case 2:
     
         
-#if defined SECTION_IMU_3DMG
+#if defined IMU_3DMG
   //estimator_update_state_3DMG( );
 
-#elif defined SECTION_IMU_ANALOG
+#elif defined IMU_ANALOG
    //ahrs_update();show up (it's called at 60/4 Hz)
    estimator_update_state_ANALOG( );
 #else /*NO IMU*/
@@ -542,9 +553,6 @@ inline void periodic_task( void ) {
     to_fbw.channels[RADIO_THROTTLE] = desired_gaz; /* desired_gaz is set upon GPS message reception */
     to_fbw.channels[RADIO_ROLL] = desired_aileron;
     to_fbw.channels[RADIO_PITCH] = desired_elevator;
-    
-    /* Code for camera stabilization */
-    cam_manual ();
     
     link_fbw_send();
     break;

@@ -59,25 +59,14 @@ $(TARGET).srcs	= \
 	pid.c \
 	nav.c \
 	uart.c \
-    estimator.c \
+        estimator.c \
 	if_calib.c \
 	mainloop.c \
 	cam.c \
-	traffic_info.c \
-	datalink.c
-
-ifeq ($(AIRCRAFT), Gorazoptere_brushless_ANALOG)
-	$(TARGET).srcs  += ahrs.S 
-	$(TARGET).srcs  += ahrs.c 
-endif
-ifeq ($(AIRCRAFT), quadRotorJP)
-	$(TARGET).srcs  += ahrs.S 
-	$(TARGET).srcs  += ahrs.c
-#	$(TARGET).srcs  += fp.c
-endif
 
 
 include $(PAPARAZZI_HOME)/var/$(AIRCRAFT)/Makefile.ac
+$(TARGET).srcs += $(AP_EXTRA_SRCS)
 include ../../../conf/Makefile.local
 include ../../../conf/Makefile.avr
 

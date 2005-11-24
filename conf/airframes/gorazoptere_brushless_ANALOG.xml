@@ -113,4 +113,11 @@
     <define name="NOMINAL_AIRSPEED" value="10." unit="m/s"/>
     <define name="CARROT" value="5." unit="s"/>
   </section>
+  <makefile>
+LOCAL_CFLAGS += -DTELEMETER
+AP_EXTRA_SRCS += i2c.c srf08.c
+LOCAL_CFLAGS += -DRATE_LOOP -DIMU_ANALOG
+AP_EXTRA_SRCS += ahrs.S ahrs.c
+FBW_EXTRA_SRCS += control.c imu.c
+  </makefile>
 </airframe>

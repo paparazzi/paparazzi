@@ -51,10 +51,10 @@ $(TARGET).srcs	=							\
 	spi.c								\
 	uart.c                                                          \
 	adc_fbw.c                                                       \
-	3dmg.c								\
-	imu.c								\
-	control.c							\
 
+
+include $(PAPARAZZI_HOME)/var/$(AIRCRAFT)/Makefile.ac
+$(TARGET).srcs += $(FBW_EXTRA_SRCS)
 include ../../../conf/Makefile.local
 include ../../../conf/Makefile.avr
 

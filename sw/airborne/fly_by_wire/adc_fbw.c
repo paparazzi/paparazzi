@@ -43,7 +43,7 @@
 #define ANALOG_PORT_DIR	DDRC
 
 
-#ifdef SECTION_IMU_ANALOG
+#ifdef IMU_ANALOG
 #define ANALOG_VREF _BV(REFS0)
 #else
 #define ANALOG_VREF _BV(REFS0) | _BV(REFS1)

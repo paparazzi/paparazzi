@@ -3,7 +3,7 @@
 
 #include <inttypes.h>
 
-#ifdef SECTION_IMU_3DMG
+#ifdef IMU_3DMG
 extern int16_t roll, pitch, yaw;
 #endif
 extern int16_t roll_dot, pitch_dot, yaw_dot;

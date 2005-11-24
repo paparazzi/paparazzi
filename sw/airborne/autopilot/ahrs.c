@@ -41,7 +41,7 @@
 		Note : De meme 4 choses a fixer dans l'xml comme pour les accels 
 		Veuillez aussi fixer le define IMU_GYROS_CONNECTED_TO_AP ou non en fonction de votre configuration
 */
-#ifdef SECTION_IMU_ANALOG
+#ifdef IMU_ANALOG
 
 
 #define C_ONE		1.0
@@ -1617,4 +1617,4 @@ void ahrs_update()
 
 }
 
-#endif //SECTION_IMU_ANALOG
+#endif //IMU_ANALOG

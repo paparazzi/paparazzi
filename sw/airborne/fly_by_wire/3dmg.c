@@ -24,7 +24,7 @@
 
 #include "airframe.h"
 
-#ifdef SECTION_IMU_3DMG
+#ifdef IMU_3DMG
 
 #warning "Compiling 3dmg.c"
 

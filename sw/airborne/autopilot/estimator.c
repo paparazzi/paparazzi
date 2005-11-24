@@ -126,14 +126,14 @@ void estimator_init( void ) {
 float ir_roll_neutral  = RadOfDeg(IR_ROLL_NEUTRAL_DEFAULT);
 float ir_pitch_neutral = RadOfDeg(IR_PITCH_NEUTRAL_DEFAULT);
 
-#ifdef SECTION_IMU_3DMG
+#ifdef IMU_3DMG
 #include "link_fbw.h"
 void estimator_update_state_3DMG( void ) {
   estimator_phi = from_fbw.euler[0];
   estimator_psi = from_fbw.euler[1];
   estimator_theta = from_fbw.euler[2];
 }
-#elif defined SECTION_IMU_ANALOG
+#elif defined IMU_ANALOG
 #include "ahrs.h"
 void estimator_update_state_ANALOG( void ) {
 //ahrs.h is in NED but estimator in NWU if i remember

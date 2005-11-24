@@ -55,6 +55,8 @@ float theta_c;
 
 float target_x, target_y, target_alt;
 
+#ifdef MOBILE_CAM
+
 void cam_manual( void ) {
   if (pprz_mode == PPRZ_MODE_AUTO2) {
     static pprz_t cam_roll, cam_pitch;
@@ -125,3 +127,5 @@ void cam_carrot( void ) {
   target_y = carrot_y;
   cam_target();
 }
+
+#endif // MOBILE_CAM

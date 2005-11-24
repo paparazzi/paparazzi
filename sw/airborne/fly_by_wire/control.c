@@ -24,7 +24,7 @@
 
 #include "airframe.h"
 
-#ifdef SECTION_RATE_LOOP
+#ifdef RATE_LOOP
 #warning "Compiling control.c"
 
 #include "control.h"

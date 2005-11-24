@@ -43,9 +43,9 @@
 #include "datalink.h"
 #include "wavecard.h"
 
-#ifdef SECTION_IMU_ANALOG
+#ifdef IMU_ANALOG
 #include "ahrs.h"
-#endif //SECTION_IMU_ANALOG
+#endif //IMU_ANALOG
 
 
 /** \fn int main( void )
@@ -72,9 +72,9 @@ int main( void ) {
   nav_init();
   ir_init();
   estimator_init();
-#if defined SECTION_IMU_3DMG || defined SECTION_IMU_ANALOG || WAVECARD
+#if defined IMU_3DMG || defined IMU_ANALOG || WAVECARD
   uart0_init();
-#endif //SECTION_IMU
+#endif //IMU
 #ifdef WAVECARD
   /** Reset the wavecard during the init pause */
   wc_reset();
@@ -92,14 +92,14 @@ int main( void ) {
   wc_end_reset();
 #endif
  
-#ifdef SECTION_IMU_ANALOG
+#ifdef IMU_ANALOG
   /** - ahrs init(do_calibration)
    *  - Warning if do_calibration is TRUE this will provide an asynchronous
    *  - calibration process, and it will take some calls to ahrs_update() to
    *  - end. So Don't take off before ahrs_state == AHRS_RUNNING
    */
   ahrs_init(TRUE);
-#endif //SECTION_IMU_ANALOG
+#endif //IMU_ANALOG
 
   /** - enter mainloop:
    *    - do periodic task by calling \a periodic_task
@@ -127,18 +127,20 @@ int main( void ) {
       wc_msg_received = FALSE;
     }
 #endif
+#ifdef DATALINK
     if (dl_msg_available) {
       dl_parse_msg();
       dl_msg_available = FALSE;
     }
+#endif
     if (link_fbw_receive_complete) {
       /* receive radio control task from fbw */
       link_fbw_receive_complete = FALSE;
       radio_control_task();
-#ifdef SECTION_IMU_3DMG
+#ifdef IMU_3DMG
       DOWNLINK_SEND_IMU_3DMG(&from_fbw.euler_dot[0], &from_fbw.euler_dot[1], &from_fbw.euler_dot[2], &from_fbw.euler[0], &from_fbw.euler[1], &from_fbw.euler[2]);
       estimator_update_state_3DMG();
-#elif defined SECTION_IMU_ANALOG
+#elif defined IMU_ANALOG
       /** -Saving now the pqr values from the fbw struct since
 	*  -it's not safe always
 	*  only if gyro are connected to fbw
@@ -149,8 +151,8 @@ int main( void ) {
 #endif //!IMU_GYROS_CONNECTED_TO_AP	 	  
 	int16_t dummy;
       DOWNLINK_SEND_IMU_3DMG(&from_fbw.euler_dot[0], &from_fbw.euler_dot[1], &from_fbw.euler_dot[2], &dummy, &dummy, &dummy);
-#endif //SECTION_IMU
-#if defined SECTION_IMU_3DMG || defined SECTION_IMU_ANALOG
+#endif //IMU
+#if defined IMU_3DMG || defined IMU_ANALOG
       /*uart0_transmit('G');
       uart0_transmit(' ');
       uart0_print_hex16(from_fbw.euler_dot[0]);

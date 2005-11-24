@@ -24,7 +24,7 @@
 
 #include "airframe.h"
 
-#if defined(SECTION_IMU_3DMG) && defined(SECTION_IMU_ANALOG)
+#if defined(IMU_3DMG) && defined(IMU_ANALOG)
 #error "IMU_3DMG and IMU_ANALOG cannot be defined simultaneously"
 #endif
 
@@ -32,7 +32,7 @@
 
 int16_t roll_dot, pitch_dot, yaw_dot;
 
-#ifdef SECTION_IMU_3DMG
+#ifdef IMU_3DMG
 #warning "Compiling imu.c for 3DMG"
 #include "3dmg.h"
 int16_t roll, pitch, yaw;
@@ -57,7 +57,7 @@ void imu_capture_neutral ( void ) {
 
 #endif // 3DMG
 
-#ifdef SECTION_IMU_ANALOG
+#ifdef IMU_ANALOG
 #warning "Compiling imu.c for ANALOG"
 #include "adc_fbw.h"
 
