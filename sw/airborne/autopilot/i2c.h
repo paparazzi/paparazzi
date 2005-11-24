@@ -53,8 +53,8 @@ extern uint8_t i2c_start(void);
 extern uint8_t i2c_sla(uint8_t x);
 extern uint8_t i2c_transmit(uint8_t x);
 extern uint8_t i2c_receive(uint8_t);
-extern void i2c_send(uint8_t address, uint8_t len);
-extern void i2c_get(uint8_t address, uint8_t len);
+extern void i2c_send(uint8_t address, uint8_t len, bool_t* finished);
+extern void i2c_get(uint8_t address, uint8_t len, bool_t* finished);
 
 #define I2C_START(ADDRESS)     { i2c_start(); i2c_sla(ADDRESS); }
 #define I2C_START_TX(ADDRESS)  I2C_START(ADDRESS | I2C_TRANSMIT)

@@ -203,6 +203,10 @@
   <field name="raw_level" type="uint8"/>
  </message>
 
+ <message name="RANGEFINDER" id="29">
+  <field name="range" type="uint16"/>
+ </message>
+
 </class>
 
 <class name="telemetry_fbw" ID="0X41">

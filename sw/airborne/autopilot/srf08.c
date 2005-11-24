@@ -42,7 +42,7 @@ static unsigned char address=SRF08_UNIT_0;
 
 void srf08_init(void)
 {
-  unsigned int  range=0;
+  unsigned int range=0;
   i2c_init();
   I2C_START_TX(address);
   i2c_transmit(0);                    
@@ -59,19 +59,30 @@ void srf08_init(void)
 }
 /*###########################################################################*/
 
-
+static bool_t dummy_bool;
 void srf08_initiate_ranging(void) {
   i2c_buf[0]=0;
   i2c_buf[1]=SRF08_CENTIMETERS;
-  i2c_send(address, 2);
+  i2c_send(address, 2, &dummy_bool);
 }
 
+bool_t srf08_received, srf08_got;
+
+/** Ask the value to the device */
 void srf08_receive(void) {
   i2c_buf[0]=SRF08_ECHO_1;
-  i2c_send(address, 1);
-  while (!i2c_idle);
-  i2c_get(address, 2);
-  while (!i2c_idle);
+  srf08_received = FALSE;
+  i2c_send(address, 1, &srf08_received);
+}
+
+/** Read values on the bus */
+void srf08_read(void) {
+  srf08_got = FALSE;
+  i2c_get(address, 2, &srf08_got);
+}
+
+/** Copy the I2C buffer */
+void srf08_copy(void) {
   srf08_range = i2c_buf[0] << 8 | i2c_buf[1];
 }
 

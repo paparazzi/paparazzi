@@ -133,7 +133,7 @@ void estimator_update_state_3DMG( void ) {
   estimator_psi = from_fbw.euler[1];
   estimator_theta = from_fbw.euler[2];
 }
-#elif defined IMU_ANALOG
+#elif defined IMU_ANALOG && defined AHRS
 #include "ahrs.h"
 void estimator_update_state_ANALOG( void ) {
 //ahrs.h is in NED but estimator in NWU if i remember

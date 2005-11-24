@@ -47,9 +47,10 @@ uint8_t i2c_buf[TWI_BUF_LEN];
 uint8_t twi_index, twi_len;
 volatile bool_t i2c_idle;
 uint8_t i2c_debug;
+static bool_t *twi_end;
 
-#define I2cStart() i2c_idle = FALSE; TWCR=_BV(TWINT)|_BV(TWSTA)|_BV(TWEN)|_BV(TWIE);
-#define I2cStop()  i2c_idle= TRUE; TWCR=_BV(TWINT)|_BV(TWSTO)|_BV(TWEN);
+#define I2cStart() i2c_idle = FALSE; *twi_end = FALSE; TWCR=_BV(TWINT)|_BV(TWSTA)|_BV(TWEN)|_BV(TWIE);
+#define I2cStop()  i2c_idle= TRUE; *twi_end = TRUE; TWCR=_BV(TWINT)|_BV(TWSTO)|_BV(TWEN);
 #define I2cReceive(_ack) TWCR=_BV(TWINT)|_BV(TWEN)| (_ack ? _BV(TWEA) : 0)|_BV(TWIE);
 #define I2cReceiveAck TWCR=_BV(TWINT)|_BV(TWEN)| _BV(TWEA) |_BV(TWIE);
 #define I2cReceiveNAck TWCR=_BV(TWINT)|_BV(TWEN)| _BV(TWIE);
@@ -98,16 +99,18 @@ SIGNAL(SIG_2WIRE_SERIAL) {
   }
 }
 
-void i2c_send(uint8_t sla, uint8_t _twi_len) {
+void i2c_send(uint8_t sla, uint8_t _twi_len, bool_t* finished) {
   i2c_debug = 0x32;
   twi_len = _twi_len;
   twi_sla = I2C_TRANSMIT | sla;
+  twi_end = finished;
   I2cStart();
 }
 
-void i2c_get(uint8_t sla, uint8_t _twi_len) {
+void i2c_get(uint8_t sla, uint8_t _twi_len, bool_t* finished) {
   twi_len = _twi_len;
   twi_sla = I2C_RECEIVE | sla;
+  twi_end = finished;
   I2cStart();
 }
 

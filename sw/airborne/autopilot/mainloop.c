@@ -43,9 +43,13 @@
 #include "datalink.h"
 #include "wavecard.h"
 
-#ifdef IMU_ANALOG
+#ifdef TELEMETER
+#include "srf08.h"
+#endif
+
+#ifdef AHRS
 #include "ahrs.h"
-#endif //IMU_ANALOG
+#endif // AHRS
 
 
 /** \fn int main( void )
@@ -72,6 +76,9 @@ int main( void ) {
   nav_init();
   ir_init();
   estimator_init();
+#ifdef TELEMETER
+  srf08_init();
+#endif
 #if defined IMU_3DMG || defined IMU_ANALOG || WAVECARD
   uart0_init();
 #endif //IMU
@@ -92,14 +99,14 @@ int main( void ) {
   wc_end_reset();
 #endif
  
-#ifdef IMU_ANALOG
+#if defined AHRS
   /** - ahrs init(do_calibration)
    *  - Warning if do_calibration is TRUE this will provide an asynchronous
    *  - calibration process, and it will take some calls to ahrs_update() to
    *  - end. So Don't take off before ahrs_state == AHRS_RUNNING
    */
   ahrs_init(TRUE);
-#endif //IMU_ANALOG
+#endif //AHRS
 
   /** - enter mainloop:
    *    - do periodic task by calling \a periodic_task
@@ -133,6 +140,18 @@ int main( void ) {
       dl_msg_available = FALSE;
     }
 #endif
+#ifdef TELEMETER
+    /** Handling of data sent by the device (initiated by srf08_receive() */
+    if (srf08_received) {
+      srf08_received = FALSE;
+      srf08_read();
+    }
+    if (srf08_got) {
+      srf08_got = FALSE;
+      srf08_copy();
+      DOWNLINK_SEND_RANGEFINDER(&srf08_range);
+    }
+#endif
     if (link_fbw_receive_complete) {
       /* receive radio control task from fbw */
       link_fbw_receive_complete = FALSE;
@@ -145,7 +164,7 @@ int main( void ) {
 	*  -it's not safe always
 	*  only if gyro are connected to fbw
 	*/
-#if (!defined IMU_GYROS_CONNECTED_TO_AP) || (!IMU_GYROS_CONNECTED_TO_AP) 
+#if defined AHRS && ((!defined IMU_GYROS_CONNECTED_TO_AP) || (!IMU_GYROS_CONNECTED_TO_AP))
 	/* it can be called at 20 hz and gyros data come from the fbw so call have to be here */
 	ahrs_gyro_update();
 #endif //!IMU_GYROS_CONNECTED_TO_AP	 	  

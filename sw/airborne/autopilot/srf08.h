@@ -91,21 +91,26 @@
 
 /* Function Declaration */
 
-extern void          srf08_select_unit(unsigned char srf08_address);
-extern void          srf08_init(void);
+extern void srf08_select_unit(unsigned char srf08_address);
+extern void srf08_init(void);
 
-extern void          srf08_set_gain(unsigned char gain);
-extern void          srf08_set_range(unsigned int millimeters);
+extern void srf08_set_gain(unsigned char gain);
+extern void srf08_set_range(unsigned int millimeters);
 
-extern void  srf08_ping(void);
+extern void srf08_ping(void);
 extern uint16_t  srf08_read_register(unsigned char srf08_register);
 
-extern void          srf08_change_i2c_address(unsigned char new_i2c_address);
+extern void srf08_change_i2c_address(unsigned char new_i2c_address);
 
 extern void srf08_initiate_ranging(void);
 extern void srf08_receive(void);
 
 extern uint16_t srf08_range;
+extern bool_t srf08_received, srf08_got;
+/** Read values on the bus */
+extern void srf08_read(void);
+/** Copy the I2C buffer */
+extern void srf08_copy(void);
 
 #endif  /* #ifndef SRF08_H */
 

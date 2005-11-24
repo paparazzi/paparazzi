@@ -48,7 +48,7 @@
 #include "srf08.h"
 #endif
 
-#ifdef IMU_ANALOG
+#if defined IMU_ANALOG && defined AHRS
 #include "ahrs.h"
 #endif //IMU_ANALOG
 
@@ -79,7 +79,7 @@ uint8_t pprz_mode = PPRZ_MODE_MANUAL;
 uint8_t vertical_mode = VERTICAL_MODE_MANUAL;
 uint8_t lateral_mode = LATERAL_MODE_MANUAL;
 
-#ifdef IMU_ANALOG
+#ifdef AHRS
 uint8_t ir_estim_mode = IR_ESTIM_MODE_OFF;
 #else
 uint8_t ir_estim_mode = IR_ESTIM_MODE_ON;
@@ -217,30 +217,15 @@ uint8_t ac_ident = AC_ID;
 
 #define PERIODIC_SEND_IDENT()  DOWNLINK_SEND_IDENT(&ac_ident);
 
-/** \def PERIODIC_SEND_BAT()
- *  @@@@@ A FIXER @@@@@
- */
 #define PERIODIC_SEND_BAT() { int16_t e = energy; DOWNLINK_SEND_BAT(&desired_gaz, &vsupply, &estimator_flight_time, &low_battery, &block_time, &stage_time, &e); }
-/** \def EventPos(_cpt, _channel, _event)
- *  @@@@@ A FIXER @@@@@
- */
 #define PERIODIC_SEND_DEBUG() DOWNLINK_SEND_DEBUG(&link_fbw_nb_err, &link_fbw_fbw_nb_err, &modem_nb_ovrn, &gps_nb_ovrn, &mcu1_ppm_cpt);
-/** \def EventPos(_cpt, _channel, _event)
- *  @@@@@ A FIXER @@@@@
- */
 #define PERIODIC_SEND_ATTITUDE() { \
   int8_t phi = DegOfRad(estimator_phi); \
   int8_t psi = DegOfRad(estimator_psi); \
   int8_t theta = DegOfRad(estimator_theta); \
   DOWNLINK_SEND_ATTITUDE(&phi, &psi, &theta); \
 }
-/** \def EventPos(_cpt, _channel, _event)
- *  @@@@@ A FIXER @@@@@
- */
 #define PERIODIC_SEND_ADC() DOWNLINK_SEND_ADC(&ir_roll, &ir_pitch);
-/** \def EventPos(_cpt, _channel, _event)
- *  @@@@@ A FIXER @@@@@
- */
 #define PERIODIC_SEND_PPRZ_MODE() DOWNLINK_SEND_PPRZ_MODE(&pprz_mode, &vertical_mode, &lateral_mode, &horizontal_mode, &inflight_calib_mode, &mcu1_status, &ir_estim_mode);
 #define PERIODIC_SEND_DESIRED() DOWNLINK_SEND_DESIRED(&desired_roll, &desired_pitch, &desired_x, &desired_y, &desired_altitude, &desired_climb);
 
@@ -252,13 +237,13 @@ uint8_t ac_ident = AC_ID;
   DOWNLINK_SEND_ACINFO(&s->east, &s->north, &s->course, &s->alt, &s->gspeed); \
 }
 #else
-#define PERIODIC_SEND_ACINFO()
+#define PERIODIC_SEND_ACINFO() {}
 #endif
 
 #ifdef RADIO_CALIB
 #define PERIODIC_SEND_SETTINGS() if (inflight_calib_mode != IF_CALIB_MODE_NONE)	DOWNLINK_SEND_SETTINGS(&slider_1_val, &slider_2_val);
 #else
-#define PERIODIC_SEND_SETTINGS()
+#define PERIODIC_SEND_SETTINGS() {}
 #endif
 
 #define SEND_RAD_OF_IR() { int16_t rad = DeciDegOfRad(estimator_rad); DOWNLINK_SEND_RAD_OF_IR(&ir_roll, &rad, &estimator_rad_of_ir);} 
@@ -315,10 +300,10 @@ inline void reporting_task( void ) {
 
   /** initialisation phase during boot */
   if (boot) {
-      DOWNLINK_SEND_BOOT(&version);
-      PERIODIC_SEND_IDENT();
-      SEND_RAD_OF_IR();
-      boot = FALSE;
+    DOWNLINK_SEND_BOOT(&version);
+    PERIODIC_SEND_IDENT();
+    SEND_RAD_OF_IR();
+    boot = FALSE;
   }
   /** then report periodicly */
   else {
@@ -395,11 +380,11 @@ inline void radio_control_task( void ) {
  *  \brief Compute desired_course
  */
 void navigation_task( void ) {
+#ifdef FAILSAFE_DELAY_WITHOUT_GPS
+  /** This section is used for the failsafe of GPS */
   static uint8_t last_pprz_mode;
   static bool_t has_lost_gps = FALSE;
 	
-  /** This section is used for the failsafe of GPS */
-#ifdef FAILSAFE_DELAY_WITHOUT_GPS
   /** Test if we lost the GPS */
   if (!GPS_FIX_VALID(gps_mode) ||
       (cputime - last_gps_msg_t > FAILSAFE_DELAY_WITHOUT_GPS)) {
@@ -521,9 +506,18 @@ inline void periodic_task( void ) {
     estimator_propagate_state();
     navigation_task();
     break;
+#ifdef TELEMETER
+  case 1:
+    srf08_initiate_ranging();
+    break;
+  case 2:
+    /** 250ms since initiate_ranging() (the spec ask for 65ms) */
+    srf08_receive();
+    break;
+#endif
     /*  default: */
   }
-  #ifdef IMU_ANALOG
+#if defined IMU_ANALOG && defined AHRS
   ahrs_update();//<8,6 ms called at 60hz
 #endif
   switch (_20Hz) {
@@ -542,7 +536,7 @@ inline void periodic_task( void ) {
 #if defined IMU_3DMG
   //estimator_update_state_3DMG( );
 
-#elif defined IMU_ANALOG
+#elif defined IMU_ANALOG && defined AHRS
    //ahrs_update();show up (it's called at 60/4 Hz)
    estimator_update_state_ANALOG( );
 #else /*NO IMU*/

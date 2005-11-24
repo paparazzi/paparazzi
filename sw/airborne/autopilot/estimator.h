@@ -63,7 +63,7 @@ extern float estimator_hspeed_dir;
 void estimator_init( void );
 #ifdef IMU_3DMG
 void estimator_update_state_3DMG( void );
-#elif defined IMU_ANALOG
+#elif defined IMU_ANALOG && defined AHRS
 void estimator_update_state_ANALOG( void );
 #else //NO_IMU
 void estimator_update_state_infrared( void );
