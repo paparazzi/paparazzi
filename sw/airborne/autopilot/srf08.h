@@ -70,6 +70,7 @@
 
 /* register positions */
 #define SRF08_COMMAND         0
+#define SRF08_SET_GAIN        1
 #define SRF08_LIGHT           1
 #define SRF08_ECHO_1          2
 #define SRF08_ECHO_2          4

@@ -48,9 +48,9 @@
 #include "srf08.h"
 #endif
 
-#if defined IMU_ANALOG && defined AHRS
+#if defined AHRS
 #include "ahrs.h"
-#endif //IMU_ANALOG
+#endif // AHRS
 
 #ifndef AUTO1_MAX_ROLL
 #define AUTO1_MAX_ROLL 0.6
@@ -83,7 +83,7 @@ uint8_t lateral_mode = LATERAL_MODE_MANUAL;
 uint8_t ir_estim_mode = IR_ESTIM_MODE_OFF;
 #else
 uint8_t ir_estim_mode = IR_ESTIM_MODE_ON;
-#endif //IMU_ANALOG
+#endif // AHRS
 
 bool_t auto_pitch = FALSE;
 
@@ -257,6 +257,9 @@ uint8_t ac_ident = AC_ID;
 #define PERIODIC_SEND_CALIB_START() if (!estimator_flight_time && calib_status == WAITING_CALIB_CONTRAST) { DOWNLINK_SEND_CALIB_START(); }
 
 #define PERIODIC_SEND_CALIB_CONTRAST() if (!estimator_flight_time && calib_status == CALIB_DONE) { DOWNLINK_SEND_CALIB_CONTRAST(&ir_contrast); }
+
+#define PERIODIC_SEND_IMU() { int16_t dummy = 42; DOWNLINK_SEND_IMU(&(from_fbw.euler_dot[0]), &(from_fbw.euler_dot[1]), &(from_fbw.euler_dot[2]), &dummy, &dummy, &dummy); }
+
 
 /** Status of the calibration. Can be one of the \a calibration \a states */
 static uint8_t calib_status = NO_CALIB;
@@ -501,23 +504,25 @@ inline void periodic_task( void ) {
     if (vsupply < LOW_BATTERY) t++; else t = 0;
     low_battery |= (t >= LOW_BATTERY_DELAY);
   }
+  switch (_1Hz) {
+#ifdef TELEMETER
+  case 1:
+    srf08_initiate_ranging();
+    break;
+  case 5:
+    /** 65ms since initiate_ranging() (the spec ask for 65ms) */
+    srf08_receive();
+    break;
+#endif
+  }
   switch(_4Hz) {
   case 0:
     estimator_propagate_state();
     navigation_task();
     break;
-#ifdef TELEMETER
-  case 1:
-    srf08_initiate_ranging();
-    break;
-  case 2:
-    /** 250ms since initiate_ranging() (the spec ask for 65ms) */
-    srf08_receive();
-    break;
-#endif
     /*  default: */
   }
-#if defined IMU_ANALOG && defined AHRS
+#if defined AHRS
   ahrs_update();//<8,6 ms called at 60hz
 #endif
   switch (_20Hz) {

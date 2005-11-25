@@ -114,11 +114,12 @@
     <define name="CARROT" value="5." unit="s"/>
   </section>
   <makefile>
-#LOCAL_CFLAGS += -DTELEMETER
-#AP_EXTRA_SRCS += i2c.c srf08.c
-# LOCAL_CFLAGS += -DRATE_LOOP -DIMU_ANALOG
-# FBW_EXTRA_SRCS += control.c imu.c
-# LOCAL_CFLAGS += -DAHRS
-# AP_EXTRA_SRCS += ahrs.S ahrs.c
+LOCAL_CFLAGS += -DTELEMETER
+AP_EXTRA_SRCS += i2c.c srf08.c
+LOCAL_CFLAGS += -DRATE_LOOP -DIMU_ANALOG
+FBW_EXTRA_SRCS += control.c imu.c
+LOCAL_CFLAGS += -DAHRS
+AP_EXTRA_SRCS += ahrs.S ahrs.c
+LOCAL_CFLAGS += -DIMU_RESET_ON_BOOT
   </makefile>
 </airframe>

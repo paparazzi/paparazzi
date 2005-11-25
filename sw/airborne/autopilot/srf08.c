@@ -38,6 +38,8 @@ uint16_t srf08_range;
 /* Global Variables */
 static unsigned char address=SRF08_UNIT_0;
 
+static bool_t dummy_bool;
+
 /*###########################################################################*/
 
 void srf08_init(void)
@@ -52,16 +54,20 @@ void srf08_init(void)
     i2c_start();
     range=i2c_sla(address);               
     i2c_stop();
-  } while(range != I2C_NO_ERROR);                               
-                                
+  } while(range != I2C_NO_ERROR);  /** !!!!!!!!!!!!!  WARNING : blocking wait */
+
+
+  /** Setting the gain to the minimun value (to avoid echos ?) */
+  i2c_buf[0]=SRF08_SET_GAIN;
+  i2c_buf[1]=SRF08_MIN_GAIN;
+  i2c_send(address, 2, &dummy_bool);
 
   return;
 }
 /*###########################################################################*/
 
-static bool_t dummy_bool;
 void srf08_initiate_ranging(void) {
-  i2c_buf[0]=0;
+  i2c_buf[0]=SRF08_COMMAND;
   i2c_buf[1]=SRF08_CENTIMETERS;
   i2c_send(address, 2, &dummy_bool);
 }

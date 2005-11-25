@@ -156,6 +156,7 @@ int main( void ) {
       /* receive radio control task from fbw */
       link_fbw_receive_complete = FALSE;
       radio_control_task();
+
 #ifdef IMU_3DMG
       DOWNLINK_SEND_IMU_3DMG(&from_fbw.euler_dot[0], &from_fbw.euler_dot[1], &from_fbw.euler_dot[2], &from_fbw.euler[0], &from_fbw.euler[1], &from_fbw.euler[2]);
       estimator_update_state_3DMG();
@@ -169,8 +170,10 @@ int main( void ) {
 	ahrs_gyro_update();
 #endif //!IMU_GYROS_CONNECTED_TO_AP	 	  
 	int16_t dummy;
-      DOWNLINK_SEND_IMU_3DMG(&from_fbw.euler_dot[0], &from_fbw.euler_dot[1], &from_fbw.euler_dot[2], &dummy, &dummy, &dummy);
+	//      DOWNLINK_SEND_IMU_3DMG(&from_fbw.euler_dot[0], &from_fbw.euler_dot[1], &from_fbw.euler_dot[2], &dummy, &dummy, &dummy);
 #endif //IMU
+
+
 #if defined IMU_3DMG || defined IMU_ANALOG
       /*uart0_transmit('G');
       uart0_transmit(' ');

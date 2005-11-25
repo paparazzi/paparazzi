@@ -174,6 +174,12 @@ int main( void )
 
   spi_init();
   sei();
+
+#if IMU_RESET_ON_BOOT
+#warning IMU_RESET_ON_BOOT
+  imu_capture_neutral();
+#endif
+
   while( 1 ) {
     if( ppm_valid ) {
       ppm_valid = FALSE;

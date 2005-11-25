@@ -112,7 +112,7 @@
     <field name="desired_climb" type="float" format="%.1f"></field>
   </message>
 
-  <message name="IMU" ID="17">
+  <message name="RAW_IMU" ID="17">
     <field name="gyro_x" type="float"/>
     <field name="gyro_y" type="float"/>
     <field name="gyro_z" type="float"/>
@@ -182,7 +182,7 @@
      <field name="Azim" type="int16" unit="deg"/>
   </message>
 
-  <message name="IMU_3DMG" ID="26">
+  <message name="IMU" ID="26" period="0.5">
     <field name="roll_dot" type="int16"/>
     <field name="pitch_dot" type="int16"/>
     <field name="yaw_dot" type="int16"/>

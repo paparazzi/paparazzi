@@ -8,7 +8,7 @@
  */
 
 
-#include <avr/stdlib.h>
+#include <stdlib.h>
 #include <avr/io.h>
 #include <avr/pgmspace.h>
 #include <math.h>
@@ -1222,7 +1222,7 @@ accel2roll( void )
 
 
 static inline real_t
-accel2pitch()
+accel2pitch( void )
 {
   //	index_t         i;
   real_t          g2 = 0;
