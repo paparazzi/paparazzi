@@ -81,11 +81,22 @@ void cam_nadir( void ) {
 }
 
 void cam_target( void ) {
+  /** Relative height of the target */
   float h = estimator_z - target_alt;
-  float c_psi = cos(estimator_psi);
-  float s_psi = sin(estimator_psi);
-  phi_c = atan((target_x*c_psi - target_y*s_psi - estimator_x) / h) - estimator_phi;
-  theta_c = atan((target_x*s_psi + target_y*c_psi - estimator_y) / h)- estimator_theta;
+
+  /** Relative heading of the target (trigo) */
+  float dy = target_y-estimator_y;
+  float dx = target_x-estimator_x;
+  float alpha = atan2(dy, dx);
+
+  /** Projection in a horizontal plane of the distance ac-target */
+  float d = sqrt (dy*dy + dx*dx);
+
+  float d_h = d / h;
+  float pseudo_psi = M_PI/2 - estimator_hspeed_dir; /** Trigo */
+  float psi_alpha = - (pseudo_psi - M_PI/2 - alpha);
+  phi_c = atan(d_h * cos (psi_alpha)) + estimator_phi;
+  theta_c = atan(d_h * sin (psi_alpha)) - estimator_theta;
 }
 
 #define MAX_DIST_TARGET 500.

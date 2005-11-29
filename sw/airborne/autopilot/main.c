@@ -258,8 +258,11 @@ uint8_t ac_ident = AC_ID;
 
 #define PERIODIC_SEND_CALIB_CONTRAST() if (!estimator_flight_time && calib_status == CALIB_DONE) { DOWNLINK_SEND_CALIB_CONTRAST(&ir_contrast); }
 
+#ifdef IMU_ANALOG
 #define PERIODIC_SEND_IMU() { int16_t dummy = 42; DOWNLINK_SEND_IMU(&(from_fbw.euler_dot[0]), &(from_fbw.euler_dot[1]), &(from_fbw.euler_dot[2]), &dummy, &dummy, &dummy); }
-
+#else
+#define PERIODIC_SEND_IMU() {}
+#endif
 
 /** Status of the calibration. Can be one of the \a calibration \a states */
 static uint8_t calib_status = NO_CALIB;

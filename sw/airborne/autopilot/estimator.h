@@ -56,7 +56,7 @@ extern float estimator_teta_dot;
 extern uint16_t estimator_flight_time;
 extern float estimator_t;
 
-/* horizontal speed in module and dir (m/s, rad) */
+/* horizontal ground speed in module and dir (m/s, rad (CW/North)) */
 extern float estimator_hspeed_mod;
 extern float estimator_hspeed_dir;
 
