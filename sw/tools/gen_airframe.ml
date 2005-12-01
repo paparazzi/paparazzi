@@ -24,7 +24,7 @@
  *
  *)
 
-let command_travel = 1200. (* !!!! From link_autopilot.h !!!! *)
+let max_pprz = 600. (* !!!! MAX_PPRZ From link_autopilot.h !!!! *)
 let nb_servo_4017 = 10 (* From servo.h *)
 
 open Printf
@@ -70,8 +70,10 @@ let parse_servo =
     and neutral = fos (ExtXml.attrib_or_default c "neutral" (sof default_neutral))
     and max = fos (ExtXml.attrib_or_default c "max" (sof default_max)) in
     
-    let travel = (max-.min) /. command_travel in
-    define (name^"_TRAVEL") (sof travel);
+    let travel_up = (max-.neutral) /. max_pprz
+    and travel_down = (neutral-.min) /. max_pprz in
+    define (name^"_TRAVEL_UP") (sof travel_up);
+    define (name^"_TRAVEL_DOWN") (sof travel_down);
     define (sprintf "SERVOS_NEUTRALS_%d" no_servo) (sof neutral);
     nl ();
     
@@ -93,7 +95,9 @@ let parse_command = fun command ->
        let servo = a "servo"
        and value = a "value" in
        let v = preprocess_command value in
-       printf "  servo_value = SERVO_NEUTRAL(SERVO_%s) + (int16_t)((%s)*SERVO_%s_TRAVEL);\\\n" servo v servo;
+       printf "  command_value = %s;\\\n" v;
+       printf "  command_value *= command_value>0 ? SERVO_%s_TRAVEL_UP : SERVO_%s_TRAVEL_DOWN;\\\n" servo servo;
+       printf "  servo_value = SERVO_NEUTRAL(SERVO_%s) + (int16_t)(command_value);\\\n" servo;
        printf "  servo_widths[SERVO_%s] = ChopServo(servo_value);\\\n\\\n" servo
    | "let" ->
        let var = a "var"
@@ -139,6 +143,7 @@ let parse_section = fun s ->
   | "command" ->
       printf "#define ServoSet(values) { \\\n";
       printf "  uint16_t servo_value;\\\n";
+      printf "  float command_value;\\\n";
       List.iter parse_command (Xml.children s);
       printf "}\n"
   | "makefile" ->
