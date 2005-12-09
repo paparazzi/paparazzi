@@ -44,7 +44,7 @@ static : lib tools configurator cockpit tmtc visu3d logalizer sim_static wind st
 conf: conf/conf.xml conf/control_panel.xml
 
 conf/%.xml :conf/%.xml.example 
-	[ -L $@ ] || [ -f $@ ] || cp `basename $<` $@ 
+	[ -L $@ ] || [ -f $@ ] || cp $< $@ 
 
 
 test: conf ac1 ac2
