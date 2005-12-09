@@ -44,7 +44,7 @@ static : lib tools configurator cockpit tmtc visu3d logalizer sim_static wind st
 conf: conf/conf.xml conf/control_panel.xml
 
 conf/%.xml :conf/%.xml.example 
-	[ -L $@ ] || [ -f $@ ] || ln -s `basename $<` $@ 
+	[ -L $@ ] || [ -f $@ ] || cp `basename $<` $@ 
 
 
 test: conf ac1 ac2
@@ -128,10 +128,10 @@ run_sitl :
 	$(PAPARAZZI_HOME)/var/$(AIRCRAFT)/sim/simsitl
 
 install :
-	./Makefile.pl -install -destdir $(DESTDIR)/usr
+	./Makefile.pl -install -destdir $(DESTDIR)
 
 uninstall :
-	./Makefile.pl -uninstall -destdir $(DESTDIR)/usr
+	./Makefile.pl -uninstall -destdir $(DESTDIR)
 
 deb :
 	chmod u+x debian/rules
