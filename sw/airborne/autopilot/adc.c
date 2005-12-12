@@ -1,10 +1,10 @@
 /*
- * Paparazzi mcu0 adc functions
+ * $Id$
  *  
- * Copied from autopilot (autopilot.sf.net) thanx alot Trammell
+ * Originally from autopilot (autopilot.sf.net) thanx alot Trammell
  *
  * Copyright (C) 2002 Trammell Hudson <hudson@rotomotion.com>
- * Copyright (C) 2003 Pascal Brisset, Antoine Drouin
+ * Copyright (C) 2003-2005 Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
  *
@@ -52,8 +52,6 @@
 
 #define ANALOG_VREF _BV(REFS0)
 
-uint16_t		adc_samples[ NB_ADC ];
-
 static struct adc_buf* buffers[NB_ADC];
 
 void adc_buf_channel(uint8_t adc_channel, struct adc_buf* s, uint8_t av_nb_sample) {
@@ -99,8 +97,6 @@ SIGNAL( SIG_ADC )
   uint8_t adc_input	= ADMUX & 0x7;
   struct adc_buf* buf = buffers[adc_input];
   uint16_t adc_value = ADCW;
-  /* Store result */
-  adc_samples[ adc_input ] = adc_value;
 
   if (buf) {
     uint8_t new_head = buf->head + 1;

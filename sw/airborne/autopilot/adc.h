@@ -25,6 +25,11 @@
  *
  */
 
+/** \file adc.h
+ *  \brief Analog to Digital Converter API
+ *
+ */
+
 #ifndef _ADC_H_
 #define _ADC_H_
 
@@ -32,24 +37,26 @@
 
 
 #define NB_ADC 8
-
-/* Array containing the last measured value */
-extern uint16_t		adc_samples[ NB_ADC ];
-
-void adc_init( void );
-
 #define MAX_AV_NB_SAMPLE 0x20
 #define DEFAULT_AV_NB_SAMPLE 0x20
 
+/** Facility to store last values in a circular buffer for a specific
+ *   channel:
+ *  - allocate a (struct adc_buf)
+ *   - register it with the ::adc_buf_channel function
+*/
+
+/** Data structure used to store samples */
 struct adc_buf {
   uint16_t sum;
   uint16_t values[MAX_AV_NB_SAMPLE];
   uint8_t  head;
-	uint8_t	 av_nb_sample;
+  uint8_t  av_nb_sample;
 };
 
-/* Facility to store last values in a circular buffer for a specific
-   channel: allocate a (struct adc_buf) and register it with the following
-   function */
+/** Registers a buffer to be used to store the specified converted channel */
 void adc_buf_channel(uint8_t adc_channel, struct adc_buf* s, uint8_t av_nb_sample);
+
+/** Starts conversions */
+void adc_init( void );
 #endif

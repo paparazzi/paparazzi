@@ -1,7 +1,7 @@
 /*
  * $Id$
  *  
- * Copyright (C) 2003  Pascal Brisset, Antoine Drouin
+ * Copyright (C) 2003-2005  Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
  *
@@ -22,7 +22,7 @@
  *
  */
 /** \file nav.c
- *  \brief Regroup functions to compute navigation plopplopplop ::block_time
+ *  \brief Regroup functions to compute navigation
  *
  */
 

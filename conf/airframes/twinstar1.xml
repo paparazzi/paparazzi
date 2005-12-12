@@ -84,7 +84,9 @@
     <define name="PHI0" value="30" unit="deg"/>
   </section>
   <makefile>
+LOCAL_CFLAGS += -DDATALINK
+AP_EXTRA_SRCS += traffic_info.c datalink.c
 LOCAL_CFLAGS += -DWAVECARD
-$(TARGET).srcs += wavecard.c
+AP_EXTRA_SRCS += wavecard.c
   </makefile>
 </airframe>

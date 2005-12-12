@@ -22,7 +22,7 @@
  *
  */
 /** \file datalink.c
- *  \brief Hadling of messages coming from ground and other A/Cs
+ *  \brief Handling of messages coming from ground and other A/Cs
  *
  */
 #define DATALINK_C

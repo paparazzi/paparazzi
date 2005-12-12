@@ -1,5 +1,5 @@
 #   Paparazzi $Id$
-#   Copyright (C) 2003 Pascal Brisset Antoine Drouin
+#   Copyright (C) 2003-2005 Pascal Brisset Antoine Drouin
 #
 # This file is part of paparazzi.
 #
@@ -63,7 +63,7 @@ needed (if something is missing, please ask)
 Compilation
 -----------
 
-  0) Configuration. Default PAPARAZZI_HOME is $(HOME)/PAPARAZZI. You
+  0) Configuration. Default PAPARAZZI_HOME is $(HOME)/paparazzi. You
 can change it by setting an environment variable
 
   1) "make" in the top directory

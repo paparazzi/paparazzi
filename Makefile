@@ -50,9 +50,9 @@ conf/%.xml :conf/%.xml.example
 test: conf ac1 ac2
 	PAPARAZZI_HOME=$(PAPARAZZI_SRC) PAPARAZZI_SRC=$(PAPARAZZI_SRC) $(SUPERVISION)
 
-ac1 : 
+ac1 : conf
 	make AIRCRAFT=Twin1 PAPARAZZI_HOME=$(PAPARAZZI_SRC) sim_ac
-ac2 :
+ac2 : conf
 	make AIRCRAFT=Twin2 PAPARAZZI_HOME=$(PAPARAZZI_SRC) sim_ac
 
 lib:
@@ -120,6 +120,10 @@ ac_h : tools static_h
 sim_ac: ac_h sim_sitl
 hard_ac: ac_h ap fbw
 ac: sim_ac hard_ac
+
+doxygen: ac1
+	mkdir -p dox
+	doxygen Doxyfile
 
 clean_ac :
 	rm -fr $(PAPARAZZI_HOME)/var/$(AIRCRAFT)

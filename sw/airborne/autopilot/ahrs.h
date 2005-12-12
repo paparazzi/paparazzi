@@ -6,7 +6,31 @@
  *
  * (c) 2003 Trammell Hudson <hudson@rotomotion.com>
  * (c) 2005 Jean-Pierre Dumont <jpxDOTdumontATwanadooDOTfr>
+ *
+ * This file is part of paparazzi.
+ *
+ * paparazzi is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * paparazzi is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with paparazzi; see the file COPYING.  If not, write to
+ * the Free Software Foundation, 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA. 
+*/
+
+/** \file ahrs.h
+ *  \brief Attitude Heading Reference System (gyros, accels and magneto
+ * filtered through a Kalman)
+ *
  */
+
 #ifndef __AHRS_
 #define __AHRS_
 
@@ -52,22 +76,28 @@ extern int16_t gyro_raw_zero[3];
  */
 extern real_t	ahrs_euler[3];
 
-//haere are the ahrs_state possible values
+/** @name ahrs_state possible values */
+//@{ 
 #define AHRS_NOT_INITIALIZED		0
 #define AHRS_IMU_CALIBRATION		1
 #define AHRS_RUNNING			2
+//@} 
 
-
-//export internal state
+/** Current internal state */
 extern uint8_t ahrs_state;
 
 
-//exported procedure
-extern void ahrs_init( uint8_t do_zero_calibration );//will restart the ahrs with zero_calibration phase
-extern void ahrs_update( void );//will update state with accels and compas if we have
+/** Restarts the ahrs with zero_calibration phase */
+void ahrs_init( uint8_t do_zero_calibration );
+
+/** Udates state with accels and compas (if available) */
+void ahrs_update( void );
 
 #if (!defined IMU_GYROS_CONNECTED_TO_AP) || (IMU_GYROS_CONNECTED_TO_AP == 0)
-extern void ahrs_gyro_update( void );//needed by paparazzi achitecture
+
+/** Function to be called when gyro data are available (through the link to
+    the fbw mcu */
+void ahrs_gyro_update( void );
 #endif //IMU_GYROS_CONNECTED_TO_AP
 
 #endif //__AHRS_
