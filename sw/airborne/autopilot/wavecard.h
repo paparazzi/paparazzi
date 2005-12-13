@@ -27,7 +27,7 @@
 #ifndef WAVECARD_H
 #define WAVECARD_H
 
-#include "uart.h"
+#include "uart_ap.h"
 
 #ifdef WAVECARD_ON_GPS
 #define WcPut1CtlByte(x) uart1_transmit(x)

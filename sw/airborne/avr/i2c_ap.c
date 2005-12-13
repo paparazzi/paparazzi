@@ -28,7 +28,7 @@
 
 #include <avr/signal.h>
 #include <avr/interrupt.h>
-#include "i2c.h"
+#include "i2c_ap.h"
 #include "std.h"
 
 

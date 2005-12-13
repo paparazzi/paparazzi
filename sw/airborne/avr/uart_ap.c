@@ -24,7 +24,7 @@
 #include <avr/signal.h>
 #include <avr/interrupt.h>
 #include <avr/io.h>
-#include "uart.h"
+#include "uart_ap.h"
 #include "std.h"
 
 #define TX_BUF_SIZE      256
@@ -92,10 +92,10 @@ void uart0_print_hex16 ( uint16_t c ) {
 }
 
 void uart0_print_hex32 ( uint32_t ui32 ) {
-	uint16_t high = (uint16_t)(ui32>>16);
-	uint16_t low  = (uint16_t)(ui32);
-	uart0_print_hex16(high);
-	uart0_print_hex16(low);
+  uint16_t high = (uint16_t)(ui32>>16);
+  uint16_t low  = (uint16_t)(ui32);
+  uart0_print_hex16(high);
+  uart0_print_hex16(low);
 }
 
 SIGNAL(SIG_UART0_TRANS) {

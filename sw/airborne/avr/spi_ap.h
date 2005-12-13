@@ -1,8 +1,6 @@
 #ifndef SPI_H
 #define SPI_H
 
-//#include "link_autopilot.h"
-
 #define SPI_SS0_PIN  0
 #define SPI_SS0_PORT PORTB
 #define SPI_SS0_DDR  DDRB

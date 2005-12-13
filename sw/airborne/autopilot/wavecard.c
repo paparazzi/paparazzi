@@ -26,12 +26,10 @@
 
 #include <inttypes.h>
 #include <stdlib.h>
-#include <avr/signal.h>
-#include <avr/interrupt.h>
 
 #include "std.h"
 #include "link_autopilot.h"
-#include "uart.h"
+#include "uart_ap.h"
 #include "wavecard.h"
 #include "datalink.h"
 
@@ -167,8 +165,12 @@ inline void parse_wc( uint8_t c ) {
   return;
 }
 
+#ifdef AVR_ARCH
+
 #ifdef WAVECARD_ON_GPS
 ReceiveUart1(parse_wc);
 #else
 ReceiveUart0(parse_wc);
 #endif
+
+#endif /* AVR_ARCH */

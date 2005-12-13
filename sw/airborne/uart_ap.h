@@ -25,6 +25,7 @@
 #define _UART_H_
 
 #include <inttypes.h>
+#include "uart_ap_hw.h"
 
 extern void uart0_init(void);
 extern void uart1_init(void);
@@ -35,15 +36,5 @@ extern void uart0_print_hex16(const uint16_t);
 extern void uart0_transmit(const uint8_t);
 extern void uart1_transmit(const uint8_t);
 
-#define ReceiveUart0(cb) \
-  SIGNAL( SIG_UART0_RECV ) { \
-    uint8_t c = UDR0; \
-    cb(c); \
-}
-#define ReceiveUart1(cb) \
-  SIGNAL( SIG_UART1_RECV ) { \
-    uint8_t c = UDR1; \
-    cb(c); \
-}
 
 #endif

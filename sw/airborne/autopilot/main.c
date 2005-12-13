@@ -31,8 +31,8 @@
 
 #include "link_autopilot.h"
 
-#include "timer.h"
-#include "adc.h"
+#include "modem.h"
+#include "adc_ap.h"
 #include "pid.h"
 #include "gps.h"
 #include "infrared.h"

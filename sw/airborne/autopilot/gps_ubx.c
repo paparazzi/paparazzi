@@ -23,15 +23,12 @@
  */
 
 #include <inttypes.h>
-#include <avr/io.h>
-#include <avr/signal.h>
-#include <avr/interrupt.h>
 #include <string.h> 
 #include <math.h>
 
 
 #include "flight_plan.h"
-#include "uart.h"
+#include "uart_ap.h"
 #include "gps.h"
 #include "ubx_protocol.h"
 #include "flight_plan.h"
@@ -206,6 +203,8 @@ static inline void parse_ubx( uint8_t c ) {
   return;
 }
 
+#ifdef AVR_ARCH
+
 #ifdef SIMUL
 ReceiveUart0(parse_ubx);
 #endif
@@ -213,4 +212,6 @@ ReceiveUart0(parse_ubx);
 #ifndef WAVECARD_ON_GPS
 ReceiveUart1(parse_ubx);
 #endif
+
+#endif /* AVR_ARCH */
 

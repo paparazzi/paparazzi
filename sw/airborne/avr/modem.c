@@ -42,15 +42,9 @@ uint8_t    tx_byte_idx;
 uint8_t ck_a, ck_b;
 
 void modem_init( void ) {
-  /* 
-     on >= V1.2 boards, 4MHz modem clock is generated
-     by one PWM module.
-  */
-#if defined CTL_BRD_V1_2 || defined CTL_BRD_V1_2_1
   MODEM_OSC_DDR |= _BV(MODEM_OSC);
   OCR0 = 1; /* 4MhZ */
   TCCR0 = _BV(WGM01) | _BV(COM00) | _BV(CS00);
-#endif
 
   /* setup TX_EN and TX_DATA pin as output */
   MODEM_TX_DDR |= _BV(MODEM_TX_EN) | _BV(MODEM_TX_DATA);

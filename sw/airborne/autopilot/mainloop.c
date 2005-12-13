@@ -24,22 +24,21 @@
  *  \brief Main loop used in the autopilot microcontroler
  */
  
-#include <avr/interrupt.h>
 #include "std.h"
 
-#include "timer.h"
+#include "timer_ap.h"
 #include "modem.h"
-#include "adc.h"
+#include "adc_ap.h"
 #include "airframe.h"
 #include "autopilot.h"
 #include "spi.h"
-#include "link_fbw.h"
+#include "link_mcu_ap.h"
 #include "gps.h"
 #include "nav.h"
 #include "infrared.h"
 #include "estimator.h"
 #include "downlink.h"
-#include "uart.h"
+#include "uart_ap.h"
 #include "datalink.h"
 #include "wavecard.h"
 

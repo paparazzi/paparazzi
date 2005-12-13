@@ -27,7 +27,7 @@
 #include <inttypes.h>
 #include "int.h"
 
-#include "timer.h"
+#include "timer_fbw.h"
 #include "servo.h"
 #include "ppm.h"
 #include "spi_fbw_hw.h"

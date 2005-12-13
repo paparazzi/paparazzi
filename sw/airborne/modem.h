@@ -27,6 +27,8 @@
 
 #include "airframe.h"
 
+#include "modem_hw.h"
+
 void modem_init( void );
 
 extern uint8_t modem_nb_ovrn;
@@ -117,14 +119,5 @@ extern uint8_t ck_a, ck_b;
   if( tx_tail >= TX_BUF_SIZE ) \
     tx_tail = 0; \
 }
-
-#define MODEM_CHECK_RUNNING() { \
-  if (!(EIMSK & _BV(MODEM_CLK_INT))) { \
-    MODEM_LOAD_NEXT_BYTE() \
-    sbi(EIFR, INTF0); \
-    sbi(EIMSK, MODEM_CLK_INT); \
-  } \
-}
-
 
 #endif /* MODEM_H */

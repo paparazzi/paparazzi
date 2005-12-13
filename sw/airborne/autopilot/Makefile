@@ -43,7 +43,7 @@ endif
 
 EXT_FUSE  = ff
 LOCK_FUSE = ff
-INCLUDES = -I .. -I ../../include -I $(VARINCLUDE) -I $(ACINCLUDE)
+INCLUDES = -I .. -I ../../include -I $(VARINCLUDE) -I $(ACINCLUDE) -I ../avr -I $(PAPARAZZI_SRC)/sw/airborne/autopilot
 
 GPS = gps_ubx.c
 GPS_FLAGS=-DUBX
@@ -51,14 +51,14 @@ GPS_FLAGS=-DUBX
 $(TARGET).srcs	= \
 	main.c \
 	modem.c \
-	link_fbw.c \
-	spi.c \
-	adc.c \
+	link_mcu_ap.c \
+	spi_ap.c \
+	adc_ap.c \
 	$(GPS) \
 	infrared.c \
 	pid.c \
 	nav.c \
-	uart.c \
+	uart_ap.c \
         estimator.c \
 	if_calib.c \
 	mainloop.c \

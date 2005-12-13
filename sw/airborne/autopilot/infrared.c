@@ -27,7 +27,7 @@
 
 #include <stdlib.h>
 
-#include "adc.h"
+#include "adc_ap.h"
 #include "infrared.h"
 #include "autopilot.h"
 #include "estimator.h"

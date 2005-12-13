@@ -32,7 +32,7 @@
 #include "autopilot.h"
 #include "flight_plan.h"
 #include "estimator.h"
-#include "link_fbw.h"
+#include "link_mcu_ap.h"
 #include "traffic_info.h"
 
 #define MIN_PPRZ_CAM ((int16_t)(MAX_PPRZ * 0.05))

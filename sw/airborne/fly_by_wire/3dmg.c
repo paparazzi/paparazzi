@@ -29,9 +29,6 @@
 #warning "Compiling 3dmg.c"
 
 #include "std.h"
-#include <avr/interrupt.h>
-#include <avr/io.h>
-#include <avr/signal.h>
 #include "3dmg.h"
 #include "uart_fbw.h"
 
@@ -165,6 +162,10 @@ static inline void on_3dmg_receive(uint8_t c) {
 }
 
 
+#ifdef AVR_ARCH
+
 ReceiveUart(on_3dmg_receive);
+
+#endif /* AVR_ARCH */
 
 #endif // IMU_3DMG

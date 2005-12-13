@@ -121,7 +121,7 @@ sim_ac: ac_h sim_sitl
 hard_ac: ac_h ap fbw
 ac: sim_ac hard_ac
 
-doxygen: ac1
+doxygen:
 	mkdir -p dox
 	doxygen Doxyfile
 

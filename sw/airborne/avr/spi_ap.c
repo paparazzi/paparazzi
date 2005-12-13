@@ -28,9 +28,9 @@
 #include <avr/interrupt.h>
 
 
-#include "spi.h"
+#include "spi_ap.h"
 #include "autopilot.h"
-#include "link_fbw.h"
+#include "link_mcu_ap.h"
 
 volatile uint8_t spi_cur_slave;
 uint8_t spi_nb_ovrn;

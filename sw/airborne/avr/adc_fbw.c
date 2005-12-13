@@ -83,7 +83,7 @@ adc_init( void )
 /**
  * Called when the voltage conversion is finished
  * 
- *  8.913kHz on mega128@16MHz 1kHz/channel ??
+ *  8.913kHz on mega128 16MHz 1kHz/channel ??
 */
 
 

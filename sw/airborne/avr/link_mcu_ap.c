@@ -27,8 +27,8 @@
 #include <avr/interrupt.h>
 #include <avr/crc16.h>
 
-#include "link_fbw.h"
-#include "spi.h"
+#include "link_mcu_ap.h"
+#include "spi_ap.h"
 
 struct inter_mcu_msg from_fbw;
 struct inter_mcu_msg to_fbw;

@@ -49,7 +49,7 @@
 #include <inttypes.h>
 #include <avr/signal.h>
 
-#include "timer.h"
+#include "timer_fbw.h"
 #include "link_autopilot.h"
 
 #define PpmOfUs(x) ((x)*CLOCK)

@@ -27,9 +27,7 @@
  *
  */
 
-#include <avr/io.h>
-#include "i2c.h"
-#include "uart.h"
+#include "i2c_ap.h"
 #include "srf08.h"
 
 
@@ -54,7 +52,7 @@ void srf08_init(void)
     i2c_start();
     range=i2c_sla(address);               
     i2c_stop();
-  } while(range != I2C_NO_ERROR);  /** !!!!!!!!!!!!!  WARNING : blocking wait */
+  } while(range != I2C_NO_ERROR);  /** !!!!!!!!!!!!  WARNING : blocking wait */
 
 
   /** Setting the gain to the minimun value (to avoid echos ?) */
