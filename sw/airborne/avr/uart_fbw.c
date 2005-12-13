@@ -28,7 +28,7 @@
 
 
 #include "std.h"
-#include "uart.h"
+#include "uart_fbw.h"
 
 #define TX_BUF_SIZE      256
 static uint8_t           tx_head; /* next free in buf */

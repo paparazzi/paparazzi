@@ -76,7 +76,6 @@ void spi_reset(void) {
   mega128_receive_valid = FALSE;
 }
 
-#include "uart.h"
 
 /** c.f. autopilot/link_fbw.c */
 SIGNAL(SIG_SPI) {

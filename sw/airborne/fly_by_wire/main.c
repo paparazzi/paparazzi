@@ -25,23 +25,19 @@
 
 
 #include <inttypes.h>
-#include <avr/io.h>
-#include <avr/signal.h>
-#include <avr/interrupt.h>
-
-
-
+#include "int.h"
 
 #include "timer.h"
 #include "servo.h"
 #include "ppm.h"
+#include "spi_fbw_hw.h"
 #include "spi.h"
 #include "link_autopilot.h"
 #include "radio.h"
 #include "led.h"
 
 
-#include "uart.h"
+#include "uart_fbw.h"
 
 #ifdef IMU_3DMG 
 #include "3dmg.h"
@@ -173,7 +169,7 @@ int main( void )
   ppm_init();
 
   spi_init();
-  sei();
+  int_enable();
 
 #if IMU_RESET_ON_BOOT
 #warning IMU_RESET_ON_BOOT
@@ -255,7 +251,7 @@ int main( void )
       if (_20Hz >= 3) {
 	_20Hz = 0;
 #ifndef IMU_3DMG
-	servo_transmit();
+/*  	servo_transmit(); */
 #endif
       }
       if (time_since_last_mega128 < STALLED_TIME)

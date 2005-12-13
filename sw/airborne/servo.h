@@ -50,7 +50,6 @@
 #define SERVO_H
 
 #include <inttypes.h>
-#include "timer.h"
 #include "link_autopilot.h"
 
 extern void servo_init( void );

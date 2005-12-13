@@ -117,6 +117,9 @@ $(OBJDIR)/%.s: %.c
 $(OBJDIR)/%.o: %.c
 	$(CC) $(CFLAGS) -c -o $@ $<
 
+$(OBJDIR)/%.o: $(PAPARAZZI_SRC)/sw/airborne/avr/%.c
+	$(CC) $(CFLAGS) -c -o $@ $<
+
 $(OBJDIR)/%.hex: $(OBJDIR)/%.elf
 	 $(OBJCOPY) -O ihex -R .eeprom $< $@
 

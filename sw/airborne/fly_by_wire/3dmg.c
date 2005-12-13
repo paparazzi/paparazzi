@@ -33,7 +33,7 @@
 #include <avr/io.h>
 #include <avr/signal.h>
 #include "3dmg.h"
-#include "uart.h"
+#include "uart_fbw.h"
 
 volatile bool_t _3dmg_data_ready;
 int16_t   _3dmg_roll, _3dmg_pitch, _3dmg_yaw;

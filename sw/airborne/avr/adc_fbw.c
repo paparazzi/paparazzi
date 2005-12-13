@@ -1,10 +1,10 @@
 /*
- * $Id$
+ * Paparazzi fly by wire adc functions
  *  
- * Originally from autopilot (autopilot.sf.net) thanx alot Trammell
+ * Copied from autopilot (autopilot.sf.net) thanx alot Trammell
  *
  * Copyright (C) 2002 Trammell Hudson <hudson@rotomotion.com>
- * Copyright (C) 2003-2005 Pascal Brisset, Antoine Drouin
+ * Copyright (C) 2003 Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
  *
@@ -25,38 +25,36 @@
  *
  */
 
+//// ADC3 MVSUP
+//// ADC6 MVSERVO
+
 
 #include <avr/signal.h>
 #include <avr/interrupt.h>
 #include <avr/io.h>
-#include "airframe.h"
+#include "adc_fbw.h"
 #include "std.h"
-#include "adc.h"
 
 
-/*************************************************************************
- *
- *  Analog to digital conversion code.
- *
- * We allow interrupts during the 2048 usec windows.  If we run the
- * ADC clock faster than Clk/64 we have too much overhead servicing
- * the interrupts from it and end up with servo jitter.
- *
- * For now we've slowed the clock to Clk/128 because it lets us
- * be lazy in the interrupt routine.
- */
 #define VOLTAGE_TIME	0x07
-#define ANALOG_PORT	PORTF
-#define ANALOG_PORT_DIR	DDRF
+#define ANALOG_PORT	PORTC
+#define ANALOG_PORT_DIR	DDRC
 
 
+#ifdef IMU_ANALOG
 #define ANALOG_VREF _BV(REFS0)
+#else
+#define ANALOG_VREF _BV(REFS0) | _BV(REFS1)
+#endif
+
+
+
+uint16_t		adc_samples[ NB_ADC ];
 
 static struct adc_buf* buffers[NB_ADC];
 
-void adc_buf_channel(uint8_t adc_channel, struct adc_buf* s, uint8_t av_nb_sample) {
+void adc_buf_channel(uint8_t adc_channel, struct adc_buf* s) {
   buffers[adc_channel] = s;
-	s->av_nb_sample = av_nb_sample;
 }
 
 void 
@@ -67,18 +65,15 @@ adc_init( void )
   ANALOG_PORT 	= 0x00;
   ANALOG_PORT_DIR	= 0x00;
 
-  /* Select our external voltage ref, which is tied to Vcc */
+  /* Select our external voltage ref */
   ADMUX		= ANALOG_VREF;
 
-  /* Turn off the analog comparator */
-  sbi( ACSR, ACD );
-
   /* Select out clock, turn on the ADC interrupt and start conversion */
-  ADCSR		= 0
+  ADCSRA = 0
     | VOLTAGE_TIME
-    | ( 1 << ADEN )
-    | ( 1 << ADIE )
-    | ( 1 << ADSC );
+    | _BV(ADEN )
+    | _BV(ADIE )
+    | _BV(ADSC );
 
   /* Init to 0 (usefull ?) */
   for(i = 0; i < NB_ADC; i++)
@@ -88,7 +83,7 @@ adc_init( void )
 /**
  * Called when the voltage conversion is finished
  * 
- *  8.913kHz on mega128 16MHz 1kHz/channel ??
+ *  8.913kHz on mega128@16MHz 1kHz/channel ??
 */
 
 
@@ -97,10 +92,12 @@ SIGNAL( SIG_ADC )
   uint8_t adc_input	= ADMUX & 0x7;
   struct adc_buf* buf = buffers[adc_input];
   uint16_t adc_value = ADCW;
+  /* Store result */
+  adc_samples[ adc_input ] = adc_value;
 
   if (buf) {
     uint8_t new_head = buf->head + 1;
-    if (new_head >= buf->av_nb_sample) new_head = 0;
+    if (new_head >= AV_NB_SAMPLE) new_head = 0;
     buf->sum -= buf->values[new_head];
     buf->values[new_head] = adc_value;
     buf->sum += adc_value;
@@ -109,8 +106,14 @@ SIGNAL( SIG_ADC )
 
   /* Find the next input */
   adc_input++;
-  if( adc_input >= 8 )
+  if (adc_input == 4)
+    adc_input = 6; // ADC 4 and 5 for i2c
+  if( adc_input >= 8 ) {
     adc_input = 0;
+#ifdef CTL_BRD_V1_2
+    adc_input = 1; // WARNING ADC0 is for rservo driver reset on v1.2.0
+#endif /* CTL_BRD_V1_2 */
+  }
   /* Select it */
   ADMUX = adc_input | ANALOG_VREF;
   /* Restart the conversion */

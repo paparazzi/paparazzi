@@ -34,7 +34,7 @@ EXT_FUSE  = ff
 LOCK_FUSE = ff
 VARINCLUDE = $(PAPARAZZI_HOME)/var/include
 ACINCLUDE = $(PAPARAZZI_HOME)/var/$(AIRCRAFT)
-INCLUDES = -I ../../include -I $(VARINCLUDE) -I $(ACINCLUDE)
+INCLUDES = -I ../../include -I .. -I ../avr -I $(VARINCLUDE) -I $(ACINCLUDE) -I $(PAPARAZZI_SRC)/sw/airborne/fly_by_wire
 
 ifeq ($(CTL_BRD_VERSION),V1_2_1)
 CTL_BRD_FLAGS=-DCTL_BRD_V1_2_1
@@ -49,8 +49,8 @@ $(TARGET).srcs	=							\
 	ppm.c								\
 	servo.c								\
 	spi.c								\
-	uart.c                                                          \
-	adc_fbw.c                                                       \
+	uart_fbw.c                                                          \
+	adc_fbw.c                               \
 
 
 include $(PAPARAZZI_HOME)/var/$(AIRCRAFT)/Makefile.ac

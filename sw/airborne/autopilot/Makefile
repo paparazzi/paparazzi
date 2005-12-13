@@ -43,7 +43,7 @@ endif
 
 EXT_FUSE  = ff
 LOCK_FUSE = ff
-INCLUDES = -I $(FBW) -I ../../include -I $(VARINCLUDE) -I $(ACINCLUDE)
+INCLUDES = -I .. -I ../../include -I $(VARINCLUDE) -I $(ACINCLUDE)
 
 GPS = gps_ubx.c
 GPS_FLAGS=-DUBX

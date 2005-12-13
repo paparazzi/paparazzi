@@ -41,6 +41,7 @@ OCAMLOPT=ocamlopt -p
 INCLUDES= -I +lablgtk2 -I ../lib/ocaml
 OCAMLCC = gcc -O2 -I /usr/include/glib-2.0 -I /usr/lib/glib-2.0/include -DUBX -DCTL_BRD_V1_2 -DMOBILE_CAM -I $(OBJDIR) -I $(ACDIR) 
 
+AIRBORNE = ../airborne
 FBW = ../airborne/fly_by_wire
 AP = ../airborne/autopilot
 VARINCLUDE=$(PAPARAZZI_HOME)/var/include
@@ -84,13 +85,13 @@ gaia : gaia.ml
 	@chmod a+x $@
 
 $(OBJDIR)/%.o : %.c
-	$(OCAMLCC) -c -o $@ -I $(SIMDIR) -I $(FBW) -I $(AP) -I ../include -I $(VARINCLUDE) $<
+	$(OCAMLCC) -c -o $@ -I $(SIMDIR) -I $(AIRBORNE) -I $(AP) -I ../include -I $(VARINCLUDE) $<
 
 $(OBJDIR)/%.o : $(AP)/%.c
-	$(OCAMLCC) -c -o $@ -I $(SIMDIR) -I $(FBW) -I $(AP) -I ../include -I $(VARINCLUDE) $<
+	$(OCAMLCC) -c -o $@ -I $(SIMDIR) -I $(AIRBORNE) -I $(AP) -I ../include -I $(VARINCLUDE) $<
 
 $(OBJDIR)/main.o : $(OBJDIR)/main.c
-	$(OCAMLCC) -c -o $@ -I $(SIMDIR) -I $(FBW) -I $(AP) -I ../include -I $(VARINCLUDE) $<
+	$(OCAMLCC) -c -o $@ -I $(SIMDIR) -I $(AIRBORNE) -I $(AP) -I ../include -I $(VARINCLUDE) $<
 
 $(OBJDIR)/sim_gps.o $(OBJDIR)/nav.o $(OBJDIR)/main.o $(OBJDIR)/sim_ir.o $(OBJDIR)/sim_ap.o $(OBJDIR)/pid.o $(OBJDIR)/estimator.o $(OBJDIR)/cam.o : $(ACINCLUDE)/flight_plan.h  $(ACINCLUDE)/airframe.h
 

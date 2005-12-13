@@ -28,13 +28,6 @@
 
 #include "link_autopilot.h"
 
-
-#define SPI_PORT   PORTB
-#define SPI_PIN    PINB
-#define SPI_SS_PIN 2
-
-#define SpiIsSelected() (bit_is_clear(SPI_PIN, SPI_SS_PIN))
-
 extern struct inter_mcu_msg from_mega128;
 extern struct inter_mcu_msg to_mega128;
 extern volatile bool_t mega128_receive_valid;
