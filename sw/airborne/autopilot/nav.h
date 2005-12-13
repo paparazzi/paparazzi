@@ -1,7 +1,7 @@
 /*
  * Paparazzi mcu0 $Id$
  *  
- * Copyright (C) 2003  Pascal Brisset, Antoine Drouin
+ * Copyright (C) 2003-2005  Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
  *
@@ -21,9 +21,12 @@
  * Boston, MA 02111-1307, USA. 
  *
  */
+
 /** \file nav.h
- *  \brief @@@@@ A FIXER @@@@@
- *
+ *  \brief Navigation library
+ * 
+ * This collection of macros and functions is used by the C code generated
+ * from the XML flight plan
  */
 
 #ifndef NAV_H
@@ -36,6 +39,7 @@ struct point {
   float y;
   float a;
 };
+
 extern float cur_pos_x;
 extern float cur_pos_y;
 extern uint8_t nav_stage, nav_block;
@@ -52,12 +56,16 @@ extern float desired_altitude, desired_x, desired_y;
 extern uint16_t nav_desired_gaz;
 extern float nav_pitch, rc_pitch;
 extern bool_t too_far_from_home;
-/** in seconde */
+
+/** in second */
 extern uint16_t stage_time, block_time;
-/** in seconde */
+
+/** in second */
 extern float stage_time_ds;
-/** in number of circle */
+
+/** One full circle == 1. */
 extern float circle_count;
+
 extern float nav_desired_roll;
 extern float carrot_x, carrot_y;
 
@@ -72,20 +80,17 @@ extern uint8_t horizontal_mode;
 #define HORIZONTAL_MODE_ROUTE 1
 #define HORIZONTAL_MODE_CIRCLE 2
 
-
-void nav_update(void);
-void nav_home(void);
-void nav_init(void);
-void nav_without_gps(void);
-
 #define MoveWaypoint(_id, _ux, _uy, _a) { \
   if (_id < nb_waypoint) { \
     waypoints[_id].x = _ux - nav_utm_east0; \
     waypoints[_id].y = _uy - nav_utm_north0; \
     waypoints[_id].a = _a; \
-    /*** printf("%d:x=%.0f y=%.0f a=%.0f\n",_id, waypoints[_id].x, waypoints[_id].y, _a); ***/  \
   } \
 }
 
+void nav_update(void);
+void nav_home(void);
+void nav_init(void);
+void nav_without_gps(void);
 
 #endif /* NAV_H */

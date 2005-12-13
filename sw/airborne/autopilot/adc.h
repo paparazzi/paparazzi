@@ -28,6 +28,10 @@
 /** \file adc.h
  *  \brief Analog to Digital Converter API
  *
+ * Facility to store last values in a circular buffer for a specific
+ *   channel:
+ *  - allocate a (struct adc_buf)
+ *  - register it with the ::adc_buf_channel function
  */
 
 #ifndef _ADC_H_
@@ -40,10 +44,7 @@
 #define MAX_AV_NB_SAMPLE 0x20
 #define DEFAULT_AV_NB_SAMPLE 0x20
 
-/** Facility to store last values in a circular buffer for a specific
- *   channel:
- *  - allocate a (struct adc_buf)
- *   - register it with the ::adc_buf_channel function
+/** 
 */
 
 /** Data structure used to store samples */
