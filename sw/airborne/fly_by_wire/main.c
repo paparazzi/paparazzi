@@ -31,7 +31,7 @@
 #include "servo.h"
 #include "ppm.h"
 #include "spi_fbw_hw.h"
-#include "spi.h"
+#include "spi_fbw.h"
 #include "link_autopilot.h"
 #include "radio.h"
 #include "led.h"

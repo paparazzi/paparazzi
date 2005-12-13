@@ -1,5 +1,5 @@
 /*
- * $id$
+ * $Id$
  *  
  * Copyright (C) 2003 Pascal Brisset, Antoine Drouin
  *

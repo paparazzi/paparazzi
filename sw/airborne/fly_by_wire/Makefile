@@ -48,7 +48,7 @@ $(TARGET).srcs	=							\
 	main.c								\
 	ppm.c								\
 	servo.c								\
-	spi.c								\
+	spi_fbw.c								\
 	uart_fbw.c                                                          \
 	adc_fbw.c                               \
 
