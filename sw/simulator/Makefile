@@ -39,7 +39,7 @@ SIMSA=sims.cma
 OCAMLC = ocamlc
 OCAMLOPT=ocamlopt -p
 INCLUDES= -I +lablgtk2 -I ../lib/ocaml
-OCAMLCC = gcc -O2 -I /usr/include/glib-2.0 -I /usr/lib/glib-2.0/include -DUBX -DCTL_BRD_V1_2 -DMOBILE_CAM -I $(OBJDIR) -I $(ACDIR) 
+OCAMLCC = gcc -O2 -I /usr/include/glib-2.0 -I /usr/lib/glib-2.0/include -DUBX -DMOBILE_CAM -I $(OBJDIR) -I $(ACDIR) 
 
 AIRBORNE = ../airborne
 FBW = ../airborne/fly_by_wire

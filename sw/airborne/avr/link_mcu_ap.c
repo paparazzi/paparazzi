@@ -30,13 +30,6 @@
 #include "link_mcu_ap.h"
 #include "spi_ap.h"
 
-struct inter_mcu_msg from_fbw;
-struct inter_mcu_msg to_fbw;
-volatile uint8_t link_fbw_receive_complete = TRUE;
-volatile uint8_t link_fbw_receive_valid = FALSE;
-volatile uint8_t link_fbw_nb_err;
-uint8_t link_fbw_fbw_nb_err;
-
 static uint8_t idx_buf;
 static uint16_t crc_in, crc_out;
 

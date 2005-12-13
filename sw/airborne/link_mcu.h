@@ -22,23 +22,20 @@
  *
  */
 
-/** \file modem_hw.h
- *  \brief AVR CMX469 low level functions
- *
- */
+#ifndef LINK_MCU_H
+#define LINK_MCU_H
 
+#include "link_autopilot.h"
 
-#ifndef MODEM_HW_H
-#define MODEM_HW_H
+extern struct inter_mcu_msg from_fbw;
+extern struct inter_mcu_msg to_fbw;
 
-#include <avr/io.h>
+extern volatile uint8_t link_fbw_nb_err;
+extern uint8_t link_fbw_fbw_nb_err;
 
-#define MODEM_CHECK_RUNNING() { \
-  if (!(EIMSK & _BV(MODEM_CLK_INT))) { \
-    MODEM_LOAD_NEXT_BYTE() \
-    sbi(EIFR, INTF0); \
-    sbi(EIMSK, MODEM_CLK_INT); \
-  } \
-}
+extern volatile uint8_t link_fbw_receive_complete;
+extern volatile uint8_t link_fbw_receive_valid;
+
+void link_fbw_send(void);
 
 #endif

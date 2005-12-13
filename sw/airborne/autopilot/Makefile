@@ -51,6 +51,7 @@ GPS_FLAGS=-DUBX
 $(TARGET).srcs	= \
 	main.c \
 	modem.c \
+	link_mcu.c \
 	link_mcu_ap.c \
 	spi_ap.c \
 	adc_ap.c \

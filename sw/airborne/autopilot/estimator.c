@@ -127,7 +127,7 @@ float ir_roll_neutral  = RadOfDeg(IR_ROLL_NEUTRAL_DEFAULT);
 float ir_pitch_neutral = RadOfDeg(IR_PITCH_NEUTRAL_DEFAULT);
 
 #ifdef IMU_3DMG
-#include "link_mcu_ap.h"
+#include "link_mcu.h"
 void estimator_update_state_3DMG( void ) {
   estimator_phi = from_fbw.euler[0];
   estimator_psi = from_fbw.euler[1];

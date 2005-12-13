@@ -1,7 +1,7 @@
 /*
  * $Id$
  *  
- * Copyright (C) 2003 Pascal Brisset, Antoine Drouin
+ * Copyright (C) 2003-2005  Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
  *
@@ -22,23 +22,12 @@
  *
  */
 
-/** \file modem_hw.h
- *  \brief AVR CMX469 low level functions
- *
- */
+#include "link_mcu.h"
 
+struct inter_mcu_msg from_fbw;
+struct inter_mcu_msg to_fbw;
 
-#ifndef MODEM_HW_H
-#define MODEM_HW_H
-
-#include <avr/io.h>
-
-#define MODEM_CHECK_RUNNING() { \
-  if (!(EIMSK & _BV(MODEM_CLK_INT))) { \
-    MODEM_LOAD_NEXT_BYTE() \
-    sbi(EIFR, INTF0); \
-    sbi(EIMSK, MODEM_CLK_INT); \
-  } \
-}
-
-#endif
+volatile uint8_t link_fbw_receive_complete = TRUE;
+volatile uint8_t link_fbw_receive_valid = FALSE;
+volatile uint8_t link_fbw_nb_err;
+uint8_t link_fbw_fbw_nb_err;

@@ -30,7 +30,7 @@
 #include <math.h>
 
 #include "link_autopilot.h"
-
+#include "link_mcu.h"
 #include "modem.h"
 #include "adc_ap.h"
 #include "pid.h"

@@ -32,7 +32,7 @@
 #include "adc_ap.h"
 #include "ahrs.h"
 #include "autopilot.h"
-#include "link_mcu_ap.h"
+#include "link_mcu.h"
 #include "uart_ap.h"
 
 #ifdef PNI_MAG

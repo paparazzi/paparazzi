@@ -26,7 +26,6 @@
 #define MODEM_H
 
 #include "airframe.h"
-
 #include "modem_hw.h"
 
 void modem_init( void );

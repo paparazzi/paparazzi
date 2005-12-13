@@ -22,23 +22,14 @@
  *
  */
 
-#ifndef LINK_FBW_H
-#define LINK_FBW_H
+#ifndef LINK_MCU_AP_H
+#define LINK_MCU_AP_H
 
 #include <inttypes.h>
-
-#include "link_autopilot.h"
+#include "link_mcu.h"
 
 void link_fbw_init(void);
 void link_fbw_send(void);
 void link_fbw_on_spi_it(void);
 
-extern volatile uint8_t link_fbw_nb_err;
-extern uint8_t link_fbw_fbw_nb_err;
-
-extern struct inter_mcu_msg from_fbw;
-extern struct inter_mcu_msg to_fbw;
-extern volatile uint8_t link_fbw_receive_complete;
-extern volatile uint8_t link_fbw_receive_valid;
-
-#endif /* LINK_FBW_H */
+#endif /* LINK_MCU_AP_H */
