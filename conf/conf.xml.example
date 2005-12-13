@@ -17,6 +17,14 @@
     flight_plan="flight_plans/mav05_ccw.xml"
   />
 
+  <aircraft 
+    name="GRZBA"
+    ac_id="3"
+    airframe="airframes/gorazoptere_brushless_ANALOG.xml" 
+    radio="radios/cockpitMM.xml" 
+    flight_plan="flight_plans/muret_mini.xml"
+  />
+
   <ground name="desktop" ivy_bus="127:2010">
     <link name="downlink" port="/dev/ttyS0" protocol="pprz/modem"/>
     <link name="datalink" port="/dev/ttyS1" protocol="pprz/coronis"/>
