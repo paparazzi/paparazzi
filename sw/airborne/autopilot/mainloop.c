@@ -31,7 +31,7 @@
 #include "adc_ap.h"
 #include "airframe.h"
 #include "autopilot.h"
-#include "spi.h"
+#include "spi_ap.h"
 #include "link_mcu_ap.h"
 #include "gps.h"
 #include "nav.h"

@@ -1,5 +1,5 @@
 /*
- * Paparazzi mcu0 cmx469 modem functions
+ * $id$
  *  
  * Copyright (C) 2003 Pascal Brisset, Antoine Drouin
  *

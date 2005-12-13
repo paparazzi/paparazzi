@@ -22,6 +22,11 @@
  *
  */
 
+/** \file autopilot.h
+ *  \brief Autopilot modes
+ *
+ */
+
 #ifndef AUTOPILOT_H
 #define AUTOPILOT_H
 
