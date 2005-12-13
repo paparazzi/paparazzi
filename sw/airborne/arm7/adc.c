@@ -5,7 +5,7 @@
 volatile uint16_t adc0_val[ADC_NB_CHAN] = {0, 0, 0, 0, 0, 0};
 volatile uint16_t adc1_val[ADC_NB_CHAN] = {0, 0, 0, 0, 0, 0};
 
-void adcInit ( void ) {
+void adc_init ( void ) {
   /* AD0.0 to AD0.3 as ADC */
   //  PINSEL1 |= 1 << 22 | 1 << 24 | 1 << 26 | 1 << 28;
   PINSEL1 |= 1 << 12 | 1 << 22 | 1 << 24 | 1 << 26 | 1 << 28;

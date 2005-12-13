@@ -54,7 +54,7 @@ TARGET = main
 # List C source files here. (C dependencies are automatically generated.)
 # use file-extension c for "c-only"-files
 SRC = $(TARGET).c 
-SRC += uart.c sysTime.c 
+SRC += uart.c sysTime.c traces.c radio_control.c 
 
 #SRC += rprintf.c
 #SRC += src/efs.c src/plibc.c src/disc.c src/partition.c 
@@ -64,7 +64,7 @@ SRC += uart.c sysTime.c
 
 # List C source files here which must be compiled in ARM-Mode.
 # use file-extension c for "c-only"-files
-SRCARM = uartISR.c armVIC.c adc.c
+SRCARM = uartISR.c armVIC.c adc.c servos.c ppm.c
 
 # List C++ source files here.
 # use file-extension cpp for C++-files
@@ -130,7 +130,8 @@ ADEFS =  -D$(RUN_MODE)
 #    -adhlns...: create assembler listing
 #
 # Flags for C and C++ (arm-elf-gcc/arm-elf-g++)
-CFLAGS = -g$(DEBUG)
+#CFLAGS = -g$(DEBUG)
+CFLAGS =  -g0
 CFLAGS += $(CDEFS) $(CINCS)
 CFLAGS += -O$(OPT)
 CFLAGS += -Wall -Wcast-align -Wcast-qual -Wimplicit 
@@ -156,7 +157,8 @@ CPPFLAGS =
 #             and function names needs to be present in the assembler source
 #             files -- see avr-libc docs [FIXME: not yet described there]
 ##ASFLAGS = -Wa,-adhlns=$(<:.S=.lst),-gstabs 
-ASFLAGS = $(ADEFS) -Wa,-adhlns=$(<:.S=.lst),-g$(DEBUG)
+#ASFLAGS = $(ADEFS) -Wa,-adhlns=$(<:.S=.lst),-g$(DEBUG)
+ASFLAGS = $(ADEFS) -Wa,-adhlns=$(<:.S=.lst)
 
 #Additional libraries.
 

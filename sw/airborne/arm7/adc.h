@@ -4,8 +4,8 @@
 #include "types.h"
 
 
-void adcInit ( void );
-uint16_t adcPoll ( void );
+void adc_init ( void );
+
 void adcISR0 ( void ) __attribute__((naked));
 void adcISR1 ( void ) __attribute__((naked));
 
