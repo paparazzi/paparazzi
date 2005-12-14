@@ -86,8 +86,8 @@ uint8_t horizontal_mode;
 static bool_t approaching(uint8_t, float);
 static inline void fly_to_xy(float x, float y);
 static void fly_to(uint8_t wp);
-static void route_to(uint8_t last_wp, uint8_t wp);
-static void glide_to(uint8_t last_wp, uint8_t wp);
+static void route_to(uint8_t last_wp, uint8_t wp) __attribute__ ((unused));
+static void glide_to(uint8_t last_wp, uint8_t wp) __attribute__ ((unused));
 
 #define MIN_DX ((int16_t)(MAX_PPRZ * 0.05))
 
