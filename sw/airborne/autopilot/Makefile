@@ -48,18 +48,24 @@ INCLUDES = -I .. -I ../../include -I $(VARINCLUDE) -I $(ACINCLUDE) -I ../avr -I 
 GPS = gps_ubx.c
 GPS_FLAGS=-DUBX
 
+ifndef ARCHDIR
+ARCHDIR=avr
+endif
+
+SRC_ARCH = $(PAPARAZZI_SRC)/sw/airborne/$(ARCHDIR)
+
 $(TARGET).srcs	= \
 	main.c \
-	modem.c \
+	$(SRC_ARCH)/modem.c \
 	link_mcu.c \
-	link_mcu_ap.c \
-	spi_ap.c \
-	adc_ap.c \
+	$(SRC_ARCH)/link_mcu_ap.c \
+	$(SRC_ARCH)/spi_ap.c \
+	$(SRC_ARCH)/adc_ap.c \
 	$(GPS) \
 	infrared.c \
 	pid.c \
 	nav.c \
-	uart_ap.c \
+	$(SRC_ARCH)/uart_ap.c \
         estimator.c \
 	if_calib.c \
 	mainloop.c \

@@ -27,6 +27,7 @@
 #
 
 OBJDIR = $(PAPARAZZI_HOME)/var/$(AIRCRAFT)/$(TARGETDIR)
+SRC_ARCH = $(PAPARAZZI_SRC)/sw/airborne/avr
 
 CC		= $(ATMELBIN)/avr-gcc -mmcu=$(ARCH)
 LD		= $(CC) $(ATMEL_LIBPATH)
@@ -68,11 +69,11 @@ LDFLAGS		=	-lm						\
 # General rules
 #
 
-$(TARGET).objs	= $($(TARGET).srcs:%.c=$(OBJDIR)/%.o)	
+$(TARGET).srcsnd = $(notdir $($(TARGET).srcs))
+$(TARGET).objs	= $($(TARGET).srcsnd:%.c=$(OBJDIR)/%.o)	
 
 
 all compile: $($(TARGET).objs) $(OBJDIR)/$(TARGET).elf
-	echo $(OBJDIR)
 
 load upload: $(TARGET).install
 
@@ -117,7 +118,7 @@ $(OBJDIR)/%.s: %.c
 $(OBJDIR)/%.o: %.c
 	$(CC) $(CFLAGS) -c -o $@ $<
 
-$(OBJDIR)/%.o: $(PAPARAZZI_SRC)/sw/airborne/avr/%.c
+$(OBJDIR)/%.o: $(SRC_ARCH)/%.c
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 $(OBJDIR)/%.hex: $(OBJDIR)/%.elf

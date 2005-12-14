@@ -44,13 +44,15 @@ ifeq ($(CTL_BRD_VERSION),V1_2)
 CTL_BRD_FLAGS=-DCTL_BRD_V1_2
 endif
 
+SRC_ARCH = $(PAPARAZZI_SRC)/sw/airborne/avr
+
 $(TARGET).srcs	=							\
 	main.c								\
-	ppm.c								\
-	servo.c								\
-	spi_fbw.c								\
-	uart_fbw.c                                                          \
-	adc_fbw.c                               \
+	$(SRC_ARCH)/ppm.c						\
+	$(SRC_ARCH)/servo.c						\
+	$(SRC_ARCH)/spi_fbw.c						\
+	$(SRC_ARCH)/uart_fbw.c                                          \
+	$(SRC_ARCH)/adc_fbw.c                               \
 
 
 include $(PAPARAZZI_HOME)/var/$(AIRCRAFT)/Makefile.ac
