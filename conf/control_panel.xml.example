@@ -20,7 +20,7 @@
   </section>
 
   <section name="programs">
-    <program name="receive" command="sw/ground_segment/tmtc/receive">
+    <program name="server" command="sw/ground_segment/tmtc/server">
       <arg flag="-b" variable="ivy_bus"/>
     </program>
     <program name="multimon" command="sw/ground_segment/multimon/multimon">
@@ -87,7 +87,7 @@
     <session name="Sim 1@Garmisch : 192.168.1">
       <variable name="ivy_bus" value="192.168.1:2010"/>
       <variable name="map" value="garmisch.xml"/>
-      <program name="receive"><arg flag="-n"/><arg flag="-http"/></program>
+      <program name="server"><arg flag="-n"/><arg flag="-http"/></program>
       <program name="http server"/>     
       <program name="sim"><arg flag="-a" constant="Twin1"/></program>
       <program name="cockpit"><arg flag="-render" constant="0"/></program>
@@ -98,7 +98,7 @@
 
     <session name="Sim 2@Garmisch">
       <variable name="map" value="garmisch.xml"/>
-      <program name="receive"/>     
+      <program name="server"/>     
       <program name="gaia"/>
       <program name="sim"><arg flag="-a" constant="Twin1"/></program>
       <program name="sim"><arg flag="-a" constant="Twin2"/></program>
@@ -116,7 +116,7 @@
 
   <session name="Replay MAV05">
       <variable name="map" value="garmisch.xml"/>
-      <program name="receive"><arg flag="-n"/></program>
+      <program name="server"><arg flag="-n"/></program>
       <program name="cockpit"></program>
       <program name="map 2d ml"/>
       <program name="play"/>
@@ -129,7 +129,7 @@
       <program name="multimon"><arg flag="-p" constant="/tmp/multimon"/></program>
       <program name="modem"><arg flag="-d" constant="/tmp/multimon"/></program>
       <program name="modem"><arg flag="-d" constant="/dev/ttyUSB0"/></program>
-      <program name="receive"/>     
+      <program name="server"/>     
       <program name="messages"><arg flag="-c" constant="telemetry_ap:*"/><arg flag="-c" constant="ground"/></program>
       <program name="cockpit"/>
       <program name="map 2d ml"/>

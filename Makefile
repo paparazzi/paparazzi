@@ -108,8 +108,6 @@ visu3d: lib
 wind:
 	cd $(WIND); $(MAKE)
 
-receive: tmtc
-	$(TMTC)/receive
 
 static_h :
 	PAPARAZZI_HOME=`pwd` PAPARAZZI_SRC=`pwd` make -f Makefile.gen
@@ -142,6 +140,7 @@ deb :
 	dpkg-buildpackage -rfakeroot
 
 clean:
+	rm -fr dox
 	find . -mindepth 2 -name Makefile -exec sh -c '$(MAKE) -C `dirname {}` $@' \; 
 	find . -name '*~' -exec rm -f {} \;
 

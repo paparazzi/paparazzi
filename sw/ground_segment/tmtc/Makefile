@@ -24,11 +24,11 @@ include ../../../conf/Makefile.local
 CONF = ../../../conf
 VAR = ../../../var
 
-all: hw_modem_listen receive messages wavecard $(VAR)/boa.conf
+all: hw_modem_listen server messages wavecard $(VAR)/boa.conf
 # stereo_demod
 
 clean:
-	rm -f hw_modem_listen wavecard_connect receive messages *.bak *~ core *.o .depend *.opt *.out *.cm*
+	rm -f hw_modem_listen wavecard_connect server messages *.bak *~ core *.o .depend *.opt *.out *.cm*
 
 OCAMLC = ocamlc
 OCAMLOPT = ocamlopt
@@ -64,10 +64,10 @@ stereo_demod : ../multimon/multimon.cma stereo_demod.ml ../../lib/ocaml/lib-pprz
 	@echo 'exec lablgtk2 -I $$PAPARAZZI_SRC/sw/lib/ocaml -I $$PAPARAZZI_SRC/sw/ground_segment/multimon glibivy-ocaml.cma lib-pprz.cma -I $$PAPARAZZI_SRC/sw/ground_segment/tmtc $$PAPARAZZI_SRC/sw/ground_segment/multimon/multimon.cma $$PAPARAZZI_SRC/sw/ground_segment/tmtc/stereo_demod.ml $$*' >> $@
 	@chmod a+x $@
 
-receive : wind.cmo receive.ml ../../lib/ocaml/lib-pprz.cma
+server : aircraft.cmo wind.cmo airprox.cmo server.ml ../../lib/ocaml/lib-pprz.cma
 	$(OCAMLC) $(INCLUDES) -o $@.out lablgtk.cma glibivy-ocaml.cma lib-pprz.cma $^
 	@cat ../../../pprz_src_test.sh > $@
-	@echo 'exec lablgtk2 -I $$PAPARAZZI_SRC/sw/lib/ocaml glibivy-ocaml.cma lib-pprz.cma -I $$PAPARAZZI_SRC/sw/ground_segment/tmtc $$PAPARAZZI_SRC/sw/ground_segment/tmtc/wind.cmo $$PAPARAZZI_SRC/sw/ground_segment/tmtc/receive.ml $$*' >> $@
+	@echo 'exec lablgtk2 -I $$PAPARAZZI_SRC/sw/lib/ocaml glibivy-ocaml.cma lib-pprz.cma -I $$PAPARAZZI_SRC/sw/ground_segment/tmtc $$PAPARAZZI_SRC/sw/ground_segment/tmtc/aircraft.cmo $$PAPARAZZI_SRC/sw/ground_segment/tmtc/wind.cmo $$PAPARAZZI_SRC/sw/ground_segment/tmtc/airprox.cmo $$PAPARAZZI_SRC/sw/ground_segment/tmtc/server.ml $$*' >> $@
 	@chmod a+x $@
 
 wavecard : wavecard_connect.ml ../../lib/ocaml/lib-pprz.cma
@@ -85,7 +85,8 @@ modem.cmo : modem.cmi
 %.cmi : %.mli
 	$(OCAMLC) $(INCLUDES) $<
 
-
+aircraft.cmo : aircraft.cmi
+airprox.cmo : airprox.cmi
 
 wavecard_c : wavecard_c.c wavecard_utils_c.c wavecard_foo_c.c
 	gcc -Wall -o $@ $^ `pkg-config --cflags glib-2.0` `pkg-config --libs glib-2.0`

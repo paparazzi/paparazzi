@@ -29,6 +29,7 @@ let gps_mode_3D = 3
 
 open Printf
 open Latlong
+open Aircraft
 module U = Unix
 
 module Tele_Class = struct let name = "telemetry_ap" end
@@ -67,97 +68,7 @@ let check_index = fun i t where ->
     i
 
 let get_indexed_value = fun t i ->
-  if i >= 0 then t.(i) else "UNK"
-  
-type ac_cam = {
-    mutable phi : float; (* Rad, right = >0 *)
-    mutable theta : float; (* Rad, front = >0 *)
-  }
-
-type inflight_calib = {
-    mutable if_mode : int; (* DOWN|OFF|UP *)
-    mutable if_val1 : float;
-    mutable if_val2 : float
-  }
-
-type contrast_status = string (** DEFAULT|WAITING|SET *)
-type infrared = {
-    mutable gps_hybrid_mode : int;
-    mutable gps_hybrid_factor : float;
-    mutable contrast_status : contrast_status;
-    mutable contrast_value : int
-  }
-
-type rc_status = string (** OK, LOST, REALLY_LOST *)
-type rc_mode = string (** MANUAL, AUTO, FAILSAFE *)
-type fbw = {
-    mutable rc_status : rc_status;
-    mutable rc_mode : rc_mode;
-  }
-
-let gps_nb_channels = 16
-type svinfo = {  
-    svid : int;
-    flags : int;
-    qi : int;
-    cno : int;
-    elev : int;
-    azim : int
-  }
-
-let svinfo_init = {  
-    svid = 0 ;
-    flags = 0;
-    qi = 0;
-    cno = 0;
-    elev = 0;
-    azim = 0;
-  }
-
-type horiz_mode = 
-    Circle of utm * int
-  | Segment of utm * utm
-  | UnknownHorizMode
-
-type aircraft = { 
-    id : string;
-    mutable pos : Latlong.utm;
-    mutable roll    : float;
-    mutable pitch   : float;
-    mutable nav_ref    : Latlong.utm;
-    mutable desired_east    : float;
-    mutable desired_north    : float;
-    mutable desired_altitude    : float;
-    mutable desired_course : float;
-    mutable desired_climb : float;
-    mutable gspeed  : float;
-    mutable course  : float;
-    mutable alt     : float;
-    mutable climb   : float;
-    mutable cur_block : int;
-    mutable cur_stage : int;
-    mutable throttle : float;
-    mutable throttle_accu : float;
-    mutable rpm  : float;
-    mutable temp : float;
-    mutable bat  : float;
-    mutable amp : float;
-    mutable energy  : int;
-    mutable ap_mode : int;
-    mutable gaz_mode : int;
-    mutable lateral_mode : int;
-    mutable horizontal_mode : int;
-    cam : ac_cam;
-    mutable gps_mode : int;
-    inflight_calib : inflight_calib;
-    infrared : infrared;
-    fbw : fbw;
-    svinfo : svinfo array;
-    mutable flight_time : int;
-    mutable stage_time : int;
-    mutable block_time : int;
-    mutable horiz_mode : horiz_mode
-  }
+  if i >= 0 then t.(i) else "UNK"  
 
 (** The aircrafts store *)
 let aircrafts = Hashtbl.create 3
@@ -541,10 +452,35 @@ let wind_clear = fun _sender vs ->
 let periodic = fun period cb ->
   ignore (Glib.Timeout.add period (fun () -> cb (); true))
 
+(** add the periodic airprox check for the aircraft (name) on all aircraft     *)
+(**    already known                                                           *)
+let periodic_airprox_check = fun name ->
+  let thisac = Hashtbl.find aircrafts name in
+  let aircrafts2list = fun () ->
+    let list = ref [] in
+    Hashtbl.iter (fun name a -> list := name :: !list) aircrafts;
+    !list in
+  let ac_names = List.filter (fun a -> a <> name) (aircrafts2list ()) in
+  let list_ac = List.map (fun name -> Hashtbl.find aircrafts name) ac_names in
+
+  let check_airprox = fun ac ->
+    match Airprox.check_airprox thisac ac with
+      None -> ()
+    | Some level ->
+	let vs =
+	  ["ac_id", Pprz.String (thisac.id ^ "," ^ ac.id) ; "level", Pprz.String level; "value", Pprz.String ac.id] in
+	Alerts_Pprz.message_send my_id "AIR_PROX" vs in
+  
+  List.iter 
+    (fun ac ->
+      periodic aircraft_alerts_period (fun () -> check_airprox ac)
+    ) list_ac
+
 let register_aircraft = fun name a ->
   Hashtbl.add aircrafts name a;
   periodic aircraft_msg_period (fun () -> send_aircraft_msg name);
   periodic aircraft_alerts_period (fun () -> check_alerts a);
+  periodic_airprox_check name;
   periodic wind_msg_period (fun () -> send_wind a);
   Wind.new_ac name 1000;
   ignore(Ground_Pprz.message_bind "WIND_CLEAR" wind_clear)
