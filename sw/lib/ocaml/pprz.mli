@@ -55,7 +55,9 @@ val int_assoc : string -> values -> int
 val int32_assoc : string -> values -> int
 (** May raise Not_found or Invalid_argument *)
 
-exception Unknown_msg_name of string
+exception Unknown_msg_name of string * string
+(** [Unknown_msg_name (name, class_name)] Raised if message [name] is not
+found in class [class_name]. *)
 
 module type CLASS = sig val name : string end
 module Protocol : functor (Class : CLASS) -> sig

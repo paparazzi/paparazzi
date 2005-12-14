@@ -450,6 +450,10 @@
       <field name="level" type="string" values="CATASTROPHIC|CRITIC|WARNING"/> 
       <field name="value" type="float"/>
   </message>
+   <message name="AIR_PROX" ID="2">
+      <field name="ac_id" type="string"/>
+      <field name="level" type="string" values="CATASTROPHIC|CRITIC|WARNING"/>
+  </message>
 </class>
 
 <class name="datalink">

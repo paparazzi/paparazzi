@@ -209,7 +209,7 @@ let sprint_value = fun buf i field_type v ->
 
 module type CLASS = sig val name : string end
 
-exception Unknown_msg_name of string
+exception Unknown_msg_name of string * string
 
 module Protocol(Class:CLASS) = struct
   let stx = Char.chr 0x05
@@ -222,7 +222,11 @@ module Protocol(Class:CLASS) = struct
     with
       Not_found -> failwith (sprintf "Unknown message class: %s" Class.name)
   let message_of_id = fun id -> Hashtbl.find messages_by_id id
-  let message_of_name = fun name -> Hashtbl.find messages_by_name name
+  let message_of_name = fun name ->
+    try
+      Hashtbl.find messages_by_name name
+    with
+      Not_found -> raise (Unknown_msg_name (name, Class.name))
 
   let length = fun buf start ->
     let len = String.length buf - start in
@@ -289,8 +293,7 @@ module Protocol(Class:CLASS) = struct
 	    let values = List.map2 (fun (field_name, field) v -> (field_name, value field._type v)) msg.fields args in
 	    (msg_id, values)
 	  with
-	    Not_found -> raise (Unknown_msg_name msg_name)
-	  | Invalid_argument "List.map2" -> failwith (sprintf "Pprz.values_of_string: '%s'" s)
+	    Invalid_argument "List.map2" -> failwith (sprintf "Pprz.values_of_string: '%s'" s)
 	end
     | [] -> invalid_arg "Pprz.values_of_string"
 

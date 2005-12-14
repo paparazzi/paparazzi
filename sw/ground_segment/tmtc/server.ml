@@ -256,8 +256,8 @@ let ac_msg = fun log ac_name a m ->
     let msg = Tele_Pprz.message_of_id msg_id in
     log_and_parse log ac_name a msg values
   with
-    Pprz.Unknown_msg_name x ->
-      fprintf stderr "Unknown message %s from %s: %s\n" x ac_name m
+    Pprz.Unknown_msg_name (x, c) ->
+      fprintf stderr "Unknown message %s in class %s from %s: %s\n" x c ac_name m
   | x -> prerr_endline (Printexc.to_string x)
 
 
@@ -464,12 +464,17 @@ let periodic_airprox_check = fun name ->
   let list_ac = List.map (fun name -> Hashtbl.find aircrafts name) ac_names in
 
   let check_airprox = fun ac ->
-    match Airprox.check_airprox thisac ac with
-      None -> ()
-    | Some level ->
-	let vs =
-	  ["ac_id", Pprz.String (thisac.id ^ "," ^ ac.id) ; "level", Pprz.String level; "value", Pprz.String ac.id] in
-	Alerts_Pprz.message_send my_id "AIR_PROX" vs in
+    try
+      match Airprox.check_airprox thisac ac with
+	None -> ()
+      | Some level ->
+	  let vs =
+	    ["ac_id", Pprz.String (thisac.id ^ "," ^ ac.id) ; "level", Pprz.String level] in
+	  Alerts_Pprz.message_send my_id "AIR_PROX" vs
+    with
+      x -> fprintf stderr "check_airprox: %s\n%!" (Printexc.to_string x)
+
+ in
   
   List.iter 
     (fun ac ->
