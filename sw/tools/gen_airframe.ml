@@ -166,9 +166,6 @@ let _ =
     define_string "AIRFRAME_NAME" ac_name;
     define "AC_ID" ac_id;
     nl ();
-    let v = ExtXml.attrib xml "ctl_board" in
-    define ("CTL_BRD_"^v) "1";
-    nl ();
     List.iter parse_section (Xml.children xml);
     finish h_name
   with

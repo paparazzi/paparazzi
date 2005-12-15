@@ -26,10 +26,10 @@
 # Edit the configuration part to suit your local install
 #
 
-OBJDIR = $(PAPARAZZI_HOME)/var/$(AIRCRAFT)/$(TARGETDIR)
+OBJDIR = $(PAPARAZZI_HOME)/var/$(AIRCRAFT)/$(TARGET)
 SRC_ARCH = $(PAPARAZZI_SRC)/sw/airborne/avr
 
-CC		= $(ATMELBIN)/avr-gcc -mmcu=$(ARCH)
+CC		= $(ATMELBIN)/avr-gcc -mmcu=$($(TARGET).ARCH)
 LD		= $(CC) $(ATMEL_LIBPATH)
 SIZE		= $(ATMELBIN)/avr-size
 OBJCOPY         = $(ATMELBIN)/avr-objcopy
@@ -60,7 +60,8 @@ CFLAGS		=							\
 	$(INCLUDES)					  	\
 	-Wall 								\
 	-Wstrict-prototypes						\
-	$(LOCAL_CFLAGS)							\
+	$($(TARGET).CFLAGS)					\
+	$(LOCAL_CFLAGS)					\
 	-O2								\
 
 LDFLAGS		=	-lm						\
@@ -70,10 +71,15 @@ LDFLAGS		=	-lm						\
 #
 
 $(TARGET).srcsnd = $(notdir $($(TARGET).srcs))
-$(TARGET).objs	= $($(TARGET).srcsnd:%.c=$(OBJDIR)/%.o)	
+$(TARGET).objso	= $($(TARGET).srcsnd:%.c=$(OBJDIR)/%.o)
+$(TARGET).objs	= $($(TARGET).objso:%.S=$(OBJDIR)/%.o)
 
 
 all compile: $($(TARGET).objs) $(OBJDIR)/$(TARGET).elf
+#all:
+#	@echo !!!!!!!
+#	@echo $($(TARGET).objs)
+#	@echo !!!!!!!
 
 load upload: $(TARGET).install
 
@@ -121,6 +127,9 @@ $(OBJDIR)/%.o: %.c
 $(OBJDIR)/%.o: $(SRC_ARCH)/%.c
 	$(CC) $(CFLAGS) -c -o $@ $<
 
+$(OBJDIR)/%.o: $(SRC_ARCH)/%.S
+	$(CC) $(CFLAGS) -c -o $@ $<
+
 $(OBJDIR)/%.hex: $(OBJDIR)/%.elf
 	 $(OBJCOPY) -O ihex -R .eeprom $< $@
 
@@ -134,7 +143,7 @@ erase: check_arch
 	$(UISP) $(ISP_FLAGS) --erase
 
 check_arch :
-	if ($(UISP) $(UISP_FLAGS) 2>&1 | tr '[:upper:]' '[:lower:]' | grep $(ARCH)); then : ; else echo "Wrong architecture (mcu0 vs mcu1 ?)"; exit 1; fi
+	if ($(UISP) $(UISP_FLAGS) 2>&1 | tr '[:upper:]' '[:lower:]' | grep $($(TARGET).ARCH)); then : ; else echo "Wrong architecture (mcu0 vs mcu1 ?)"; exit 1; fi
 
 avr_clean:
 	rm -rf $(OBJDIR)

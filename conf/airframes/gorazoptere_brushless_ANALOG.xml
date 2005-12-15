@@ -1,4 +1,4 @@
-<airframe name="Gorazoptere_brushless_ANALOG" ctl_board="V1_2_1" gps="SAM_LS">
+<airframe name="Gorazoptere_brushless_ANALOG">
   <section name="IMU_ANALOG" prefix="IMU_">
     <define name="INIT_EULER_DOT_VARIANCE_MAX" value="3"/>
     <define name="INIT_EULER_DOT_NB_SAMPLES_MIN" value ="10"/>
@@ -114,12 +114,18 @@
     <define name="CARROT" value="5." unit="s"/>
   </section>
   <makefile>
-LOCAL_CFLAGS += -DTELEMETER
-AP_EXTRA_SRCS += i2c_ap.c srf08.c
-LOCAL_CFLAGS += -DRATE_LOOP -DIMU_ANALOG
-FBW_EXTRA_SRCS += control.c imu.c
-LOCAL_CFLAGS += -DAHRS
-AP_EXTRA_SRCS += ahrs.S ahrs.c
-LOCAL_CFLAGS += -DIMU_RESET_ON_BOOT
+include $(PAPARAZZI_SRC)/conf/autopilot/v1_2_1.makefile
+
+LOCAL_CFLAGS += -DIMU_ANALOG
+
+fbw.CFLAGS += -DRATE_LOOP
+fbw.EXTRA_SRCS += control.c imu.c
+fbw.CFLAGS += -DIMU_RESET_ON_BOOT
+
+ap.CFLAGS += -DUBX
+ap.CFLAGS += -DTELEMETER
+ap.EXTRA_SRCS += $(SRC_ARCH)/i2c_ap.c srf08.c
+ap.CFLAGS += -DAHRS
+ap.EXTRA_SRCS += $(SRC_ARCH)/ahrs_asm.S ahrs.c
   </makefile>
 </airframe>

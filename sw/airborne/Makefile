@@ -21,63 +21,19 @@
 # 
 
 
-FBW=../fly_by_wire
-
-
-LOCAL_CFLAGS= $(CTL_BRD_FLAGS) $(GPS_FLAGS) $(SIMUL_FLAGS)
-
 VARINCLUDE=$(PAPARAZZI_HOME)/var/include
 ACINCLUDE = $(PAPARAZZI_HOME)/var/$(AIRCRAFT)
 
-ARCH	  = atmega128
-TARGET 	  = autopilot
-TARGETDIR = autopilot
-
-# LOW_FUSE  = e0
-LOW_FUSE  = a0
-HIGH_FUSE = 99
-
-ifeq ($(SIMUL),1)
-SIMUL_FLAGS= -DSIMUL
-endif
-
-EXT_FUSE  = ff
-LOCK_FUSE = ff
-INCLUDES = -I .. -I ../../include -I $(VARINCLUDE) -I $(ACINCLUDE) -I ../avr -I $(PAPARAZZI_SRC)/sw/airborne/autopilot
-
-GPS = gps_ubx.c
-GPS_FLAGS=-DUBX
-
-ifndef ARCHDIR
-ARCHDIR=avr
-endif
+INCLUDES = -I ../include -I $(VARINCLUDE) -I $(ACINCLUDE) -I $(ARCHI) -I $(PAPARAZZI_SRC)/sw/airborne
 
 SRC_ARCH = $(PAPARAZZI_SRC)/sw/airborne/$(ARCHDIR)
 
-$(TARGET).srcs	= \
-	main.c \
-	$(SRC_ARCH)/modem.c \
-	link_mcu.c \
-	$(SRC_ARCH)/link_mcu_ap.c \
-	$(SRC_ARCH)/spi_ap.c \
-	$(SRC_ARCH)/adc_ap.c \
-	$(GPS) \
-	infrared.c \
-	pid.c \
-	nav.c \
-	$(SRC_ARCH)/uart_ap.c \
-        estimator.c \
-	if_calib.c \
-	mainloop.c \
-	cam.c \
-
-
 include $(PAPARAZZI_HOME)/var/$(AIRCRAFT)/Makefile.ac
-$(TARGET).srcs += $(AP_EXTRA_SRCS)
-include ../../../conf/Makefile.local
-include ../../../conf/Makefile.avr
+$(TARGET).srcs += $($(TARGET).EXTRA_SRCS)
+include ../../conf/Makefile.local
+include ../../conf/Makefile.$(ARCHI)
 
-autopilot.install : warn_conf
+$(TARGET).install : warn_conf
 
 warn_conf :
 	@echo
@@ -88,10 +44,5 @@ warn_conf :
 	@echo '###########################################################'
 	@echo
 
-
-wavecard_glib : wavecard_glib.c wavecard.c wavecard_glib_utils.c
-	gcc -Wall -o $@ $^ `pkg-config --cflags glib-2.0` `pkg-config --libs glib-2.0`
-
-
-clean : avr_clean
-	rm -f *.out *.cm* messages.h flight_plan.h ubx_protocol.h inflight_calib.h wavecard_glib
+clean :
+	rm *~

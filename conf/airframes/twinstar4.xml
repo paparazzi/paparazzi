@@ -1,4 +1,4 @@
-<airframe name="Twinstar four" ctl_board="V1_2_1" gps="SAM_LS">
+<airframe name="Twinstar four">
   <section name="adc" prefix="ADC_CHANNEL_">
     <define name="IR1" value="1"/>
     <define name="IR2" value="2"/>
@@ -86,9 +86,12 @@
 		<define name="HOME_RADIUS" value="50" unit="m"/>
 	</section>
   <makefile>
-LOCAL_CFLAGS += -DDATALINK
-AP_EXTRA_SRCS += traffic_info.c datalink.c
-LOCAL_CFLAGS += -DWAVECARD
-AP_EXTRA_SRCS += wavecard.c
+include $(PAPARAZZI_SRC)/conf/autopilot/v1_2_1.makefile
+
+ap.CFLAGS += -DUBX
+ap.LOCAL_CFLAGS += -DDATALINK
+ap.EXTRA_SRCS += traffic_info.c datalink.c
+ap.LOCAL_CFLAGS += -DWAVECARD
+ap.EXTRA_SRCS += wavecard.c
   </makefile>
 </airframe>

@@ -25,8 +25,6 @@ include conf/Makefile.local
 LIB=sw/lib
 AIRBORNE=sw/airborne
 CONFIGURATOR=sw/configurator
-FBW=$(AIRBORNE)/fly_by_wire
-AP=$(AIRBORNE)/autopilot
 COCKPIT=sw/ground_segment/cockpit
 TMTC=sw/ground_segment/tmtc
 MULTIMON=sw/ground_segment/multimon
@@ -74,23 +72,23 @@ sim_static :
 sim_sitl :
 	cd $(SIMULATOR);  $(MAKE) sim_sitl PAPARAZZI_HOME=$(PAPARAZZI_SRC) PAPARAZZI_SRC=$(PAPARAZZI_SRC) AIRCRAFT=$(AIRCRAFT)
 
-fbw fly_by_wire:
-	cd $(FBW); $(MAKE) all
+fbw fly_by_wire: ac_h
+	cd $(AIRBORNE); $(MAKE) TARGET=fbw all
 
-ap autopilot:
-	cd $(AP); $(MAKE) all
+ap autopilot: ac_h
+	cd $(AIRBORNE); $(MAKE) TARGET=ap all
 
 upload_fbw: hard_ac
-	cd $(FBW); $(MAKE) upload
+	cd $(AIRBORNE); $(MAKE) TARGET=fbw upload
 
 upload_ap: hard_ac
-	cd $(AP); $(MAKE) upload
+	cd $(AIRBORNE); $(MAKE) TARGET=ap upload
 
 erase_fbw:
-	cd $(FBW); $(MAKE) erase
+	cd $(AIRBORNE); $(MAKE) TARGET=fbw erase
 
 erase_ap:
-	cd $(AP); $(MAKE) erase
+	cd $(AIRBORNE); $(MAKE) TARGET=ap erase
 
 airborne: fbw ap
 

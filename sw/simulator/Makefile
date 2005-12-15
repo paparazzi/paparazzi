@@ -32,7 +32,7 @@ SIMHCMO=$(SIMHML:%.ml=%.cmo)
 SIMSML = stdlib.ml data.ml flightModel.ml gps.ml sitl.ml sim.ml
 SIMSCMO=$(SIMSML:%.ml=%.cmo)
 SIMSCMX=$(SIMSML:%.ml=%.cmx)
-SIMSC = sim_ir.c sim_gps.c sim_ap.c estimator.c pid.c nav.c main.c cam.c traffic_info.c
+SIMSC = sim_ir.c sim_gps.c sim_ap.c estimator.c pid.c nav.c main_ap.c cam.c traffic_info.c
 SIMSO=$(SIMSC:%.c=$(OBJDIR)/%.o)
 SIMSA=sims.cma
 
@@ -42,8 +42,6 @@ INCLUDES= -I +lablgtk2 -I ../lib/ocaml
 OCAMLCC = gcc -O2 -I /usr/include/glib-2.0 -I /usr/lib/glib-2.0/include -DUBX -DMOBILE_CAM -I $(OBJDIR) -I $(ACDIR) 
 
 AIRBORNE = ../airborne
-FBW = ../airborne/fly_by_wire
-AP = ../airborne/autopilot
 VARINCLUDE=$(PAPARAZZI_HOME)/var/include
 ACINCLUDE = $(PAPARAZZI_HOME)/var/$(AIRCRAFT)
 
@@ -79,20 +77,20 @@ gaia : gaia.cmo
 	$(OCAMLC) -custom $(INCLUDES) -o $@ glibivy-ocaml.cma lib-pprz.cma lablgtk.cma gtkInit.cmo $<
 
 $(OBJDIR)/%.o : %.c
-	$(OCAMLCC) -c -o $@ -I $(SIMDIR) -I $(AIRBORNE) -I $(AP) -I ../include -I $(VARINCLUDE) $<
+	$(OCAMLCC) -c -o $@ -I $(SIMDIR) -I $(AIRBORNE) -I $(AIRBORNE) -I ../include -I $(VARINCLUDE) $<
 
-$(OBJDIR)/%.o : $(AP)/%.c
-	$(OCAMLCC) -c -o $@ -I $(SIMDIR) -I $(AIRBORNE) -I $(AP) -I ../include -I $(VARINCLUDE) $<
+$(OBJDIR)/%.o : $(AIRBORNE)/%.c
+	$(OCAMLCC) -c -o $@ -I $(SIMDIR) -I $(AIRBORNE) -I $(AIRBORNE) -I ../include -I $(VARINCLUDE) $<
 
-$(OBJDIR)/main.o : $(OBJDIR)/main.c
-	$(OCAMLCC) -c -o $@ -I $(SIMDIR) -I $(AIRBORNE) -I $(AP) -I ../include -I $(VARINCLUDE) $<
+$(OBJDIR)/main_ap.o : $(OBJDIR)/main_ap.c
+	$(OCAMLCC) -c -o $@ -I $(SIMDIR) -I $(AIRBORNE) -I $(AIRBORNE) -I ../include -I $(VARINCLUDE) $<
 
-$(OBJDIR)/sim_gps.o $(OBJDIR)/nav.o $(OBJDIR)/main.o $(OBJDIR)/sim_ir.o $(OBJDIR)/sim_ap.o $(OBJDIR)/pid.o $(OBJDIR)/estimator.o $(OBJDIR)/cam.o : $(ACINCLUDE)/flight_plan.h  $(ACINCLUDE)/airframe.h
+$(OBJDIR)/sim_gps.o $(OBJDIR)/nav.o $(OBJDIR)/main_ap.o $(OBJDIR)/sim_ir.o $(OBJDIR)/sim_ap.o $(OBJDIR)/pid.o $(OBJDIR)/estimator.o $(OBJDIR)/cam.o : $(ACINCLUDE)/flight_plan.h  $(ACINCLUDE)/airframe.h
 
-$(OBJDIR)/sim_ap.o : $(AP)/traffic_info.h $(AP)/nav.h 
+$(OBJDIR)/sim_ap.o : $(AIRBORNE)/traffic_info.h $(AIRBORNE)/nav.h 
 
-$(OBJDIR)/main.c : $(OBJDIR)/downlink.h $(AP)/main.c
-	cp $(AP)/main.c $(@)
+$(OBJDIR)/main_ap.c : $(OBJDIR)/downlink.h $(AIRBORNE)/main_ap.c
+	cp $(AIRBORNE)/main_ap.c $(@)
 
 $(OBJDIR)/downlink.h : $(MESSAGES) $(GEN_DOWNLINK)
 	$(GEN_DOWNLINK) $< > $@

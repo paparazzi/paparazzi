@@ -1,4 +1,4 @@
-<airframe name="Twin1" ctl_board="V1_2_1" gps="SAM_LS">
+<airframe name="Twin1">
   <section name="control board">
     <define name="AVR_ARCH" value="1"/>
   </section>
@@ -87,10 +87,13 @@
     <define name="PHI0" value="30" unit="deg"/>
   </section>
   <makefile>
-ARCHDIR=avr
-LOCAL_CFLAGS += -DDATALINK
-AP_EXTRA_SRCS += traffic_info.c datalink.c
-LOCAL_CFLAGS += -DWAVECARD
-AP_EXTRA_SRCS += wavecard.c
+include $(PAPARAZZI_SRC)/conf/autopilot/v1_2_1.makefile
+
+ap.CFLAGS += -DUBX
+# ap.CFLAGS += -DSIMUL
+ap.LOCAL_CFLAGS += -DDATALINK
+ap.EXTRA_SRCS += traffic_info.c datalink.c
+ap.LOCAL_CFLAGS += -DWAVECARD
+ap.EXTRA_SRCS += wavecard.c
   </makefile>
 </airframe>
