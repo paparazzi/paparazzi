@@ -68,7 +68,7 @@ static uint8_t ppm_cpt, last_ppm_cpt;
 static inline void to_autopilot_from_last_radio (void) {
   uint8_t i;
   for(i = 0; i < RADIO_CTL_NB; i++)
-     to_mega128.channels[i] = last_radio[i];
+    to_mega128.channels[i] = last_radio[i];
   to_mega128.status = (radio_ok ? _BV(STATUS_RADIO_OK) : 0);
   to_mega128.status |= (radio_really_lost ? _BV(RADIO_REALLY_LOST) : 0);
   to_mega128.status |= (mode == MODE_AUTO ? _BV(STATUS_MODE_AUTO) : 0);
@@ -129,7 +129,7 @@ inline void spi_task(void) {
 #if defined IMU_ANALOG || defined IMU_3DMG
       control_set_desired(from_mega128.channels);
 #else
-    command_set(from_mega128.channels);
+      command_set(from_mega128.channels);
 #endif
     }
   }
@@ -142,8 +142,7 @@ inline void spi_task(void) {
 // for compatibility
 #endif
 
-int main( void )
-{
+void init_fbw( void ) {
   {
     uint8_t foo1 = 25;
     while (foo1--) {
@@ -175,92 +174,76 @@ int main( void )
 #warning IMU_RESET_ON_BOOT
   imu_capture_neutral();
 #endif
-
-  while( 1 ) {
-    if( ppm_valid ) {
-      ppm_valid = FALSE;
-      radio_control_task();
-    } 
-    else if (mode == MODE_MANUAL && radio_really_lost) {
-      mode = MODE_AUTO;
-    }
-    if ( !SpiIsSelected() && spi_was_interrupted ) {
-      spi_was_interrupted = FALSE;
-      spi_task();
-    }
-#ifdef IMU_3DMG
-    if (_3dmg_data_ready) {
-      imu_update();
-    }
-#endif
-    if (time_since_last_ppm >= STALLED_TIME) {
-      radio_ok = FALSE;
-    }
-    if (time_since_last_ppm >= REALLY_STALLED_TIME) {
-      radio_really_lost = TRUE;
-    }
-    if (time_since_last_mega128 == STALLED_TIME) {
-      mega128_ok = FALSE;
-    }
-    
-    failsafe_mode = FALSE;
-    if ((mode == MODE_MANUAL && !radio_ok) ||
-	(mode == MODE_AUTO && !mega128_ok)) {
-      failsafe_mode = TRUE;
-      command_set(failsafe);
-    }
-
-    if(timer_periodic()) {
-      static uint8_t _1Hz;
-      static uint8_t _20Hz;
-      _1Hz++;
-      _20Hz++;
-#if defined IMU_ANALOG
-      imu_update();
-#if 0
-      {
-      	static uint8_t foo = 0;
-      	foo++;
-      	if (!(foo%10)) {
-      	  uart0_print_hex16(roll_dot);
-      	  uart0_transmit(',');
-      	  uart0_print_hex16(pitch_dot);
-      	  uart0_transmit(',');
-      	  uart0_print_hex16(yaw_dot);
-      	  uart0_transmit('\n');
-      	}
-      }
-#endif /* 0 */
-#endif
-#if defined IMU_3DMG || defined IMU_ANALOG
-      control_run();
-      if (radio_ok) {
-	if (last_radio[RADIO_THROTTLE] > 0.1*MAX_PPRZ) {
-	  command_set(control_commands);
-	}
-	else {
-	  command_set(failsafe);
-	}
-  }
-#endif
-      if (_1Hz >= 60) {
-	_1Hz = 0;
-	last_ppm_cpt = ppm_cpt;
-	ppm_cpt = 0;
-      }
-      if (_20Hz >= 3) {
-	_20Hz = 0;
-#ifndef IMU_3DMG
-/*  	servo_transmit(); */
-#endif
-      }
-      if (time_since_last_mega128 < STALLED_TIME)
-	time_since_last_mega128++;
-      if (time_since_last_ppm < REALLY_STALLED_TIME)
-	time_since_last_ppm++;
-    }
-  } 
-  return 0;
 }
 
 
+void event_task_fbw( void) {
+  if( ppm_valid ) {
+    ppm_valid = FALSE;
+    radio_control_task();
+  } 
+  else if (mode == MODE_MANUAL && radio_really_lost) {
+    mode = MODE_AUTO;
+  }
+  if ( !SpiIsSelected() && spi_was_interrupted ) {
+    spi_was_interrupted = FALSE;
+    spi_task();
+  }
+#ifdef IMU_3DMG
+  if (_3dmg_data_ready) {
+    imu_update();
+  }
+#endif
+  if (time_since_last_ppm >= STALLED_TIME) {
+    radio_ok = FALSE;
+  }
+  if (time_since_last_ppm >= REALLY_STALLED_TIME) {
+    radio_really_lost = TRUE;
+  }
+  if (time_since_last_mega128 == STALLED_TIME) {
+    mega128_ok = FALSE;
+  }
+  
+  failsafe_mode = FALSE;
+  if ((mode == MODE_MANUAL && !radio_ok) ||
+      (mode == MODE_AUTO && !mega128_ok)) {
+    failsafe_mode = TRUE;
+    command_set(failsafe);
+  }
+}
+
+void periodic_task_fbw( void ) {
+  static uint8_t _1Hz;
+  static uint8_t _20Hz;
+  _1Hz++;
+  _20Hz++;
+#if defined IMU_ANALOG
+  imu_update();
+#endif
+#if defined IMU_3DMG || defined IMU_ANALOG
+  control_run();
+  if (radio_ok) {
+    if (last_radio[RADIO_THROTTLE] > 0.1*MAX_PPRZ) {
+      command_set(control_commands);
+    }
+    else {
+      command_set(failsafe);
+    }
+  }
+#endif
+  if (_1Hz >= 60) {
+    _1Hz = 0;
+    last_ppm_cpt = ppm_cpt;
+    ppm_cpt = 0;
+  }
+  if (_20Hz >= 3) {
+    _20Hz = 0;
+#ifndef IMU_3DMG
+    /*  	servo_transmit(); */
+#endif
+  }
+  if (time_since_last_mega128 < STALLED_TIME)
+    time_since_last_mega128++;
+  if (time_since_last_ppm < REALLY_STALLED_TIME)
+    time_since_last_ppm++;
+}

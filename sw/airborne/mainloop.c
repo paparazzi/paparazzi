@@ -24,12 +24,8 @@
  *  \brief Main loop used in the autopilot microcontroler
  */
  
-#include "std.h"
-
 #include "timer_ap.h"
-#include "modem.h"
 #include "adc_ap.h"
-#include "airframe.h"
 #include "autopilot.h"
 #include "spi_ap.h"
 #include "link_mcu_ap.h"
@@ -38,7 +34,6 @@
 #include "infrared.h"
 #include "estimator.h"
 #include "downlink.h"
-#include "uart_ap.h"
 #include "datalink.h"
 #include "wavecard.h"
 
@@ -51,10 +46,7 @@
 #endif // AHRS
 
 
-/** \fn int main( void )
- *  \brief Main and @@@@@ unique @@@@@ function \n
- */
-int main( void ) {
+void init_ap( void ) {
   /** - init peripherals:
    *    - \a timer
    *    - \a modem
@@ -113,68 +105,70 @@ int main( void ) {
    *    - receive radio control task from fbw and use it with
    * \a radio_control_task
    */
-  
-  while( 1 ) {
-    if(timer_periodic())
-      /* do periodic task */
-      periodic_task();
-    if (gps_msg_received) {
-      /* parse and use GPS messages */
-      parse_gps_msg();
-      gps_msg_received = FALSE;
-      if (gps_pos_available) {
-	use_gps_pos();
-	gps_pos_available = FALSE;
-      }
+}
+
+void periodic_task_ap( void) {
+  periodic_task();
+}
+
+void event_task_ap( void ) {
+  if (gps_msg_received) {
+    /* parse and use GPS messages */
+    parse_gps_msg();
+    gps_msg_received = FALSE;
+    if (gps_pos_available) {
+      use_gps_pos();
+      gps_pos_available = FALSE;
     }
+  }
 #ifdef WAVECARD
-    if (wc_msg_received) {
-      wc_parse_payload();
-      wc_msg_received = FALSE;
-    }
+  if (wc_msg_received) {
+    wc_parse_payload();
+    wc_msg_received = FALSE;
+  }
 #endif
 #ifdef DATALINK
-    if (dl_msg_available) {
-      dl_parse_msg();
-      dl_msg_available = FALSE;
-    }
+  if (dl_msg_available) {
+    dl_parse_msg();
+    dl_msg_available = FALSE;
+  }
 #endif
 #ifdef TELEMETER
-    /** Handling of data sent by the device (initiated by srf08_receive() */
-    if (srf08_received) {
-      srf08_received = FALSE;
-      srf08_read();
-    }
-    if (srf08_got) {
-      srf08_got = FALSE;
-      srf08_copy();
-      DOWNLINK_SEND_RANGEFINDER(&srf08_range);
-    }
+  /** Handling of data sent by the device (initiated by srf08_receive() */
+  if (srf08_received) {
+    srf08_received = FALSE;
+    srf08_read();
+  }
+  if (srf08_got) {
+    srf08_got = FALSE;
+    srf08_copy();
+    DOWNLINK_SEND_RANGEFINDER(&srf08_range);
+  }
 #endif
-    if (link_fbw_receive_complete) {
-      /* receive radio control task from fbw */
-      link_fbw_receive_complete = FALSE;
-      radio_control_task();
+  if (link_fbw_receive_complete) {
+    /* receive radio control task from fbw */
+    link_fbw_receive_complete = FALSE;
+    radio_control_task();
 
 #ifdef IMU_3DMG
-      DOWNLINK_SEND_IMU_3DMG(&from_fbw.euler_dot[0], &from_fbw.euler_dot[1], &from_fbw.euler_dot[2], &from_fbw.euler[0], &from_fbw.euler[1], &from_fbw.euler[2]);
-      estimator_update_state_3DMG();
+    DOWNLINK_SEND_IMU_3DMG(&from_fbw.euler_dot[0], &from_fbw.euler_dot[1], &from_fbw.euler_dot[2], &from_fbw.euler[0], &from_fbw.euler[1], &from_fbw.euler[2]);
+    estimator_update_state_3DMG();
 #elif defined IMU_ANALOG
-      /** -Saving now the pqr values from the fbw struct since
+    /** -Saving now the pqr values from the fbw struct since
 	*  -it's not safe always
 	*  only if gyro are connected to fbw
 	*/
 #if defined AHRS && ((!defined IMU_GYROS_CONNECTED_TO_AP) || (!IMU_GYROS_CONNECTED_TO_AP))
-	/* it can be called at 20 hz and gyros data come from the fbw so call have to be here */
-	ahrs_gyro_update();
+    /* it can be called at 20 hz and gyros data come from the fbw so call have to be here */
+    ahrs_gyro_update();
 #endif //!IMU_GYROS_CONNECTED_TO_AP	 	  
-	int16_t dummy;
-	//      DOWNLINK_SEND_IMU_3DMG(&from_fbw.euler_dot[0], &from_fbw.euler_dot[1], &from_fbw.euler_dot[2], &dummy, &dummy, &dummy);
+    int16_t dummy;
+    //      DOWNLINK_SEND_IMU_3DMG(&from_fbw.euler_dot[0], &from_fbw.euler_dot[1], &from_fbw.euler_dot[2], &dummy, &dummy, &dummy);
 #endif //IMU
 
 
 #if defined IMU_3DMG || defined IMU_ANALOG
-      /*uart0_transmit('G');
+    /*uart0_transmit('G');
       uart0_transmit(' ');
       uart0_print_hex16(from_fbw.euler_dot[0]);
       uart0_transmit(',');
@@ -183,10 +177,9 @@ int main( void ) {
       uart0_print_hex16(from_fbw.euler_dot[2]);
       uart0_transmit('\n');*/
 #endif
-    }
-  } 
-  return 0;
-}
+  }
+} 
+
 
 
 
