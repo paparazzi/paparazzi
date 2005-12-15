@@ -34,10 +34,10 @@ XSRC = platform.ml gtkgl_Hack.ml ml_gtkgl_hack.o gtk_image.ml gtk_tools_icons.ml
 XCMO = $(XSRC:.ml=.cmo)
 XCMX = $(XSRC:.ml=.cmx)
 
-$(XCMO) : INCLUDES=$(XINCLUDES)
+$(XCMO) $(XCMX) : INCLUDES=$(XINCLUDES)
 
 all : lib-pprz.cma xlib-pprz.cma xml_get.out
-#  lib-pprz.cmxa xlib-pprz.cmxa
+opt : all lib-pprz.cmxa xlib-pprz.cmxa
 
 
 lib-pprz.cma : $(CMO)

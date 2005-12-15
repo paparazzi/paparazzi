@@ -45,18 +45,12 @@ messages.opt : messages.ml
 	$(OCAMLOPT) $(INCLUDES) -o $@ str.cmxa unix.cmxa xml-light.cmxa glibivy-ocaml.cmxa -I +lablgtk2 lablgtk.cmxa gtkInit.cmx lib-pprz.cmxa $^ 
 	strip $@
 
-messages : messages.ml
-	$(OCAMLC) $(INCLUDES) -o $@ lablgtk.cma glibivy-ocaml.cma lib-pprz.cma $^ #To check
-	@cat ../../../pprz_src_test.sh > $@
-	@echo 'exec lablgtk2 glibivy-ocaml.cma -I $$PAPARAZZI_SRC/sw/lib/ocaml glibivy-ocaml.cma lib-pprz.cma $$PAPARAZZI_SRC/sw/ground_segment/tmtc/messages.ml $$*' >> $@
-	chmod a+x $@
+messages : messages.cmo
+	$(OCAMLC) -custom $(INCLUDES) -o $@ lablgtk.cma glibivy-ocaml.cma lib-pprz.cma gtkInit.cmo $^
 
 
-hw_modem_listen : modem.cmo hw_modem_listen.ml ../../lib/ocaml/lib-pprz.cma
-	$(OCAMLC) $(INCLUDES) -o $@ lablgtk.cma glibivy-ocaml.cma lib-pprz.cma $^
-	@cat ../../../pprz_src_test.sh > $@
-	@echo 'exec lablgtk2 -I $$PAPARAZZI_SRC/sw/lib/ocaml glibivy-ocaml.cma lib-pprz.cma -I $$PAPARAZZI_SRC/sw/ground_segment/tmtc $$PAPARAZZI_SRC/sw/ground_segment/tmtc/modem.cmo $$PAPARAZZI_SRC/sw/ground_segment/tmtc/hw_modem_listen.ml $$*' >> $@
-	@chmod a+x $@
+hw_modem_listen : modem.cmo hw_modem_listen.cmo
+	$(OCAMLC) -custom $(INCLUDES) -o $@ lablgtk.cma glibivy-ocaml.cma lib-pprz.cma $^
 
 stereo_demod : ../multimon/multimon.cma stereo_demod.ml ../../lib/ocaml/lib-pprz.cma
 	$(OCAMLC) $(INCLUDES) -I ../multimon -o $@ lablgtk.cma glibivy-ocaml.cma lib-pprz.cma multimon.cma $^
@@ -64,18 +58,11 @@ stereo_demod : ../multimon/multimon.cma stereo_demod.ml ../../lib/ocaml/lib-pprz
 	@echo 'exec lablgtk2 -I $$PAPARAZZI_SRC/sw/lib/ocaml -I $$PAPARAZZI_SRC/sw/ground_segment/multimon glibivy-ocaml.cma lib-pprz.cma -I $$PAPARAZZI_SRC/sw/ground_segment/tmtc $$PAPARAZZI_SRC/sw/ground_segment/multimon/multimon.cma $$PAPARAZZI_SRC/sw/ground_segment/tmtc/stereo_demod.ml $$*' >> $@
 	@chmod a+x $@
 
-server : aircraft.cmo wind.cmo airprox.cmo server.ml ../../lib/ocaml/lib-pprz.cma
-	$(OCAMLC) $(INCLUDES) -o $@.out lablgtk.cma glibivy-ocaml.cma lib-pprz.cma $^
-	@cat ../../../pprz_src_test.sh > $@
-	@echo 'exec lablgtk2 -I $$PAPARAZZI_SRC/sw/lib/ocaml glibivy-ocaml.cma lib-pprz.cma -I $$PAPARAZZI_SRC/sw/ground_segment/tmtc $$PAPARAZZI_SRC/sw/ground_segment/tmtc/aircraft.cmo $$PAPARAZZI_SRC/sw/ground_segment/tmtc/wind.cmo $$PAPARAZZI_SRC/sw/ground_segment/tmtc/airprox.cmo $$PAPARAZZI_SRC/sw/ground_segment/tmtc/server.ml $$*' >> $@
-	@chmod a+x $@
+server : aircraft.cmo wind.cmo airprox.cmo server.cmo
+	$(OCAMLC) -custom $(INCLUDES) -o $@ lablgtk.cma glibivy-ocaml.cma lib-pprz.cma $^
 
-wavecard : wavecard_connect.ml ../../lib/ocaml/lib-pprz.cma
-	$(OCAMLC) $(INCLUDES) -o $@.out lablgtk.cma glibivy-ocaml.cma lib-pprz.cma $^
-	@cat ../../../pprz_src_test.sh > $@
-	@echo 'exec lablgtk2 -I $$PAPARAZZI_SRC/sw/lib/ocaml glibivy-ocaml.cma lib-pprz.cma -I $$PAPARAZZI_SRC/sw/ground_segment/tmtc $$PAPARAZZI_SRC/sw/ground_segment/tmtc/wavecard_connect.ml $$*' >> $@
-	@chmod a+x $@
-
+wavecard : wavecard_connect.cmo
+	$(OCAMLC) -custom $(INCLUDES) -o $@ lablgtk.cma glibivy-ocaml.cma lib-pprz.cma $^
 
 modem.cmo : modem.cmi
 

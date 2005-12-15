@@ -73,16 +73,10 @@ $(OBJDIR)/$(SIMSA) : $(SIMSO)
 	@cd $(OBJDIR); ocamlmklib -o sims $^ dummy.ml
 
 $(OBJDIR)/simsitl : $(OBJDIR)/$(SIMSA) $(OBJDIR)/simsitl.ml
-	$(OCAMLC) $(INCLUDES) -o $@ glibivy-ocaml.cma lib-pprz.cma lablgtk.cma gtkInit.cmo -I $(OBJDIR) $(SIMSA) sitl.cma $(OBJDIR)/simsitl.ml
-	@cat ../../pprz_src_test.sh > $@
-	@echo 'exec lablgtk2 -I $$PAPARAZZI_SRC/sw/lib/ocaml -I $(OBJDIR) glibivy-ocaml.cma xml-light.cma lib-pprz.cma $(SIMSA) $$PAPARAZZI_SRC/sw/simulator/sitl.cma -I $$PAPARAZZI_SRC/sw/simulator $(OBJDIR)/simsitl.ml $$*' >> $@
-	@chmod a+x $@
+	$(OCAMLC) -custom $(INCLUDES) -o $@ glibivy-ocaml.cma lib-pprz.cma lablgtk.cma gtkInit.cmo -I $(OBJDIR) $(SIMSA) sitl.cma $(OBJDIR)/simsitl.ml
 
-gaia : gaia.ml
-	$(OCAMLC) $(INCLUDES) -o $@ glibivy-ocaml.cma lib-pprz.cma lablgtk.cma gtkInit.cmo gaia.ml
-	@cat ../../pprz_src_test.sh > $@
-	@echo 'exec lablgtk2 -I $$PAPARAZZI_SRC/sw/lib/ocaml glibivy-ocaml.cma lib-pprz.cma lablgtk.cma gtkInit.cmo $$PAPARAZZI_SRC/sw/simulator/gaia.ml $$*' >> $@
-	@chmod a+x $@
+gaia : gaia.cmo
+	$(OCAMLC) -custom $(INCLUDES) -o $@ glibivy-ocaml.cma lib-pprz.cma lablgtk.cma gtkInit.cmo $<
 
 $(OBJDIR)/%.o : %.c
 	$(OCAMLCC) -c -o $@ -I $(SIMDIR) -I $(AIRBORNE) -I $(AP) -I ../include -I $(VARINCLUDE) $<
