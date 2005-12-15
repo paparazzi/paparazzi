@@ -28,7 +28,7 @@ all: hw_modem_listen server messages wavecard $(VAR)/boa.conf
 # stereo_demod
 
 clean:
-	rm -f hw_modem_listen wavecard_connect server messages *.bak *~ core *.o .depend *.opt *.out *.cm*
+	rm -f hw_modem_listen wavecard server messages *.bak *~ core *.o .depend *.opt *.out *.cm*
 
 OCAMLC = ocamlc
 OCAMLOPT = ocamlopt

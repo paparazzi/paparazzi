@@ -74,6 +74,7 @@ libtest: pprzlib.o demodml.c demod.ml test.ml
 	ocamlc -custom -o $@ pprzlib.o demodml.c -I +lablgtk2 unix.cma lablgtk.cma demod.ml test.ml
 
 clean:
+	rm -fr *.cm*
 	$(RM) -f core `find . -name '*.[oas]' -print`
 	$(RM) -f core `find . -name 'core' -print`
 	$(RM) -f core costabi.c costabf.c *~
