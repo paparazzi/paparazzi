@@ -58,6 +58,14 @@ volatile bool_t ppm_valid;
   
 #define RestartPpmCycle() { state = 0;  sync_start = TCNT2; return; }
 
+#ifdef TIMER1_TOP
+static volatile uint16_t tmr1_ov_cnt = 0;
+SIGNAL(SIG_OVERFLOW1) {
+  tmr1_ov_cnt += TIMER1_TOP;
+  return;
+}
+#endif
+
 SIGNAL( SIG_INPUT_CAPTURE1 )
 {
   static uint16_t		last;
@@ -67,6 +75,9 @@ SIGNAL( SIG_INPUT_CAPTURE1 )
   static uint8_t		sync_start;
 
   this		= ICR1;
+#ifdef TIMER1_TOP
+  this += tmr1_ov_cnt;
+#endif
   width		= this - last;
   last		= this;
   

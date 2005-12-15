@@ -28,7 +28,7 @@
 #include "int.h"
 
 #include "timer_fbw.h"
-#include "servo.h"
+#include "command.h"
 #include "ppm.h"
 #include "spi_fbw_hw.h"
 #include "spi_fbw.h"
@@ -116,7 +116,7 @@ inline void radio_control_task(void) {
     pitch_dot_dgain = roll_dot_dgain;
     control_set_desired(last_radio);
 #else
-    servo_set(last_radio);
+    command_set(last_radio);
 #endif  
   }
 }
@@ -129,7 +129,7 @@ inline void spi_task(void) {
 #if defined IMU_ANALOG || defined IMU_3DMG
       control_set_desired(from_mega128.channels);
 #else
-    servo_set(from_mega128.channels);
+    command_set(from_mega128.channels);
 #endif
     }
   }
@@ -151,11 +151,11 @@ int main( void )
       while (foo2++);
     }
   }
-  uart_init_tx();
+  uart0_init_tx();
 #if defined IMU_3DMG
-  uart_init_rx();
+  uart0_init_rx();
 #else
-  uart_print_string("FBW Booting $Id$\n");
+  uart0_print_string("FBW Booting $Id$\n");
 #endif
   adc_init();
   adc_buf_channel(ADC_CHANNEL_VSUPPLY, &vsupply_adc_buf);
@@ -165,7 +165,7 @@ int main( void )
 #endif
   timer_init();
 
-  servo_init();
+  command_init();
   ppm_init();
 
   spi_init();
@@ -207,7 +207,7 @@ int main( void )
     if ((mode == MODE_MANUAL && !radio_ok) ||
 	(mode == MODE_AUTO && !mega128_ok)) {
       failsafe_mode = TRUE;
-      servo_set(failsafe);
+      command_set(failsafe);
     }
 
     if(timer_periodic()) {
@@ -222,12 +222,12 @@ int main( void )
       	static uint8_t foo = 0;
       	foo++;
       	if (!(foo%10)) {
-      	  uart_print_hex16(roll_dot);
-      	  uart_transmit(',');
-      	  uart_print_hex16(pitch_dot);
-      	  uart_transmit(',');
-      	  uart_print_hex16(yaw_dot);
-      	  uart_transmit('\n');
+      	  uart0_print_hex16(roll_dot);
+      	  uart0_transmit(',');
+      	  uart0_print_hex16(pitch_dot);
+      	  uart0_transmit(',');
+      	  uart0_print_hex16(yaw_dot);
+      	  uart0_transmit('\n');
       	}
       }
 #endif /* 0 */
@@ -236,10 +236,10 @@ int main( void )
       control_run();
       if (radio_ok) {
 	if (last_radio[RADIO_THROTTLE] > 0.1*MAX_PPRZ) {
-	  servo_set(control_commands);
+	  command_set(control_commands);
 	}
 	else {
-	  servo_set(failsafe);
+	  command_set(failsafe);
 	}
   }
 #endif

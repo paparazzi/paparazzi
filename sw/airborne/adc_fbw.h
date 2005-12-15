@@ -30,8 +30,6 @@
 
 #include "airframe.h"
 
-#if defined CTL_BRD_V1_2 || defined CTL_BRD_V1_2_1
-
 #include <inttypes.h>
 
 
@@ -55,7 +53,5 @@ struct adc_buf {
    function */
 void adc_buf_channel(uint8_t adc_channel, struct adc_buf* s);
 
-
-#endif /* CTL_BRD_V1_2 || CTL_BRD_V1_2 */
 
 #endif /* _ADC_H_      */

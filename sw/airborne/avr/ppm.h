@@ -84,6 +84,12 @@ ppm_init( void )
   
   /* Enable interrupt on input capture */
   sbi( TIMSK, TICIE1 );
+
+#ifdef TIMER1_TOP
+  /* Enable timer1 overflow it. */
+  /* needed to increase timer1 count to 16 bits in fast pwm mode (TIMER1_TOP rollover) */
+  sbi( TIMSK, TOIE1 );
+#endif
 }
 
 #define PPM_NB_PULSES RADIO_CTL_NB

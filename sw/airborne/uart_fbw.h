@@ -29,13 +29,13 @@
 
 #include "uart_fbw_hw.h"
 
-void uart_init_tx( void );
-void uart_init_rx( void );
-void uart_transmit( unsigned char data );
+void uart0_init_tx( void );
+void uart0_init_rx( void );
+void uart0_transmit( unsigned char data );
 
-void uart_print_hex ( uint8_t c );
-void uart_print_hex16 ( uint16_t c );
-void uart_print_string(const uint8_t* s);
-void uart_print_float( const float * f);
+void uart0_print_hex ( uint8_t c );
+void uart0_print_hex16 ( uint16_t c );
+void uart0_print_string(const uint8_t* s);
+void uart0_print_float( const float * f);
 
 #endif

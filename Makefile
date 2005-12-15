@@ -134,7 +134,7 @@ ac_h : tools static_h
 	PAPARAZZI_HOME=`pwd` PAPARAZZI_SRC=`pwd` $(TOOLS)/gen_aircraft.out $(AIRCRAFT)
 
 sim_ac: ac_h sim_sitl
-hard_ac: ac_h ap fbw
+hard_ac: ac_h fbw ap
 ac: sim_ac hard_ac
 
 doxygen:

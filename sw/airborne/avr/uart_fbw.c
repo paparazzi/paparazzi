@@ -41,7 +41,7 @@ static uint8_t           tx_buf[ TX_BUF_SIZE ];
  * With 16.0 MHz clock,UBRR=25  => 38400 baud
  *
  */
-void uart_init_tx( void ) {
+void uart0_init_tx( void ) {
   /* Baudrate is 38.4k */
   UBRRH = 0; 
   UBRRL = 25; 
@@ -53,14 +53,14 @@ void uart_init_tx( void ) {
   UCSRC = _BV(URSEL) | _BV(UCSZ1) | _BV(UCSZ0); 
 }
 
-void uart_init_rx() {
+void uart0_init_rx() {
   /* Enable receiver               */ 
   UCSRB |= _BV(RXEN); 
   /* Enable uart receive interrupt */
   sbi( UCSRB, RXCIE ); 
 }
 
-void uart_transmit( unsigned char data ) {
+void uart0_transmit( unsigned char data ) {
   if (UCSRB & _BV(TXCIE)) {
     /* we are waiting for the last char to be sent : buffering */
     if (tx_tail == tx_head + 1) { /* BUF_SIZE = 256 */
@@ -75,26 +75,26 @@ void uart_transmit( unsigned char data ) {
   }
 }
 
-void uart_print_hex ( uint8_t c ) {
+void uart0_print_hex ( uint8_t c ) {
   const uint8_t hex[16] = { '0', '1', '2', '3', '4', '5', '6', '7', 
                             '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
   uint8_t high = (c & 0xF0)>>4;
   uint8_t low  = c & 0x0F;
-  uart_transmit(hex[high]);
-  uart_transmit(hex[low]);
+  uart0_transmit(hex[high]);
+  uart0_transmit(hex[low]);
 } 
 
-void uart_print_hex16 ( uint16_t c ) {
+void uart0_print_hex16 ( uint16_t c ) {
   uint8_t high = (uint8_t)(c>>8);
   uint8_t low  = (uint8_t)(c);
-  uart_print_hex(high);
-  uart_print_hex(low);
+  uart0_print_hex(high);
+  uart0_print_hex(low);
 }
 
-void uart_print_string(const uint8_t* s) {
+void uart0_print_string(const uint8_t* s) {
   uint8_t i = 0;
   while (s[i]) {
-    uart_transmit(s[i]);
+    uart0_transmit(s[i]);
     i++;
   }
 }

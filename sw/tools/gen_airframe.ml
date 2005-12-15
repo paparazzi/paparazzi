@@ -98,7 +98,7 @@ let parse_command = fun command ->
        printf "  command_value = %s;\\\n" v;
        printf "  command_value *= command_value>0 ? SERVO_%s_TRAVEL_UP : SERVO_%s_TRAVEL_DOWN;\\\n" servo servo;
        printf "  servo_value = SERVO_NEUTRAL(SERVO_%s) + (int16_t)(command_value);\\\n" servo;
-       printf "  servo_widths[SERVO_%s] = ChopServo(servo_value);\\\n\\\n" servo
+       printf "  COMMAND(SERVO_%s) = ChopServo(servo_value);\\\n\\\n" servo
    | "let" ->
        let var = a "var"
        and value = a "value" in
@@ -141,7 +141,7 @@ let parse_section = fun s ->
       define "SERVO_MAX_US" (sprintf "%.0ful" max);
       nl ()
   | "command" ->
-      printf "#define ServoSet(values) { \\\n";
+      printf "#define CommandSet(values) { \\\n";
       printf "  uint16_t servo_value;\\\n";
       printf "  float command_value;\\\n";
       List.iter parse_command (Xml.children s);

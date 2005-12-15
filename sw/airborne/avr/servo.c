@@ -2,7 +2,7 @@
  *
  * Copied from autopilot (autopilot.sf.net) thanx alot Trammell
  * (c) 2002 Trammell Hudson <hudson@rotomotion.com>
- * (c) 2003 Pascal Brisset, Antoine Drouin
+ * (c) 2003-2005 Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
  *
@@ -24,10 +24,11 @@
  */
 
 
+/** Implementation of command.h */
+
 #include <avr/io.h>
 #include <avr/signal.h>
-#include "servo.h"
-#include "link_autopilot.h"
+#include "command.h"
 
 #include "airframe.h"
 
@@ -76,6 +77,8 @@
 /* holds the servo pulses width in clock ticks */
 static uint16_t servo_widths[_4017_NB_CHANNELS];
 
+#define COMMAND(i) servo_widths[i]
+
 /*
  * We use the output compare registers to generate our servo pulses.
  * These should be connected to a decade counter that routes the
@@ -91,7 +94,7 @@ static uint16_t servo_widths[_4017_NB_CHANNELS];
  * Ideally, you can use two decade counters to drive 20 servos.
  */
 void
-servo_init( void )
+command_init( void )
 {
   uint8_t			i;
 
@@ -190,31 +193,6 @@ the sequence:
   servo++;
 }
 
-
-void servo_set_one(uint8_t servo, uint16_t value_us) {
-  servo_widths[servo] = ChopServo(CLOCK*value_us);
-}
-
-
-/*  void  */
-/*  servo_transmit(void) { */
-/*    uint8_t servo; */
-/*    uart_transmit((uint8_t)0); uart_transmit((uint8_t)0); */
-
-/*    for(servo = 0; servo < _4017_NB_CHANNELS; servo++) { */
-/*      uart_transmit((uint8_t)(servo_widths[servo] >> 8)); */
-/*      uart_transmit((uint8_t)(servo_widths[servo] & 0xff)); */
-/*    } */
-/*    uart_transmit((uint8_t)'\n'); */
-/*  } */
-
-
-/*
- *
- * defines how servos react to radio control or autopilot channels
- *
- */
-
-void servo_set(const pprz_t values[]) {
-  ServoSet(values); /*Generated from airframe.xml */
+void command_set(const pprz_t values[]) {
+  CommandSet(values); /*Generated from airframe.xml */
 }

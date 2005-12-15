@@ -46,7 +46,7 @@ static inline void timer_init( void ) {
 
   /* Timer0: Modem clock is started in modem.h in ctc mode*/
 
-  /* Timer1 @ Clk/1: System clock, ppm and servos */
+  /* Timer1 @ Clk/1: System clock */
   TCCR1A		= 0x00;
   TCCR1B		= 0x01;
 
