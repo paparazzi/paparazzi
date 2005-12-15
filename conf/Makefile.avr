@@ -92,17 +92,17 @@ rd_fuses: check_arch
 	$(UISP) $(ISP_FLAGS) --rd_fuses
 
 wr_fuses : check_arch
-	$(UISP) $(ISP_FLAGS) --wr_fuse_h=$(HIGH_FUSE)
-	$(UISP) $(ISP_FLAGS) --wr_fuse_l=$(LOW_FUSE)
-	$(UISP) $(ISP_FLAGS) --wr_fuse_e=$(EXT_FUSE)
-	$(UISP) $(ISP_FLAGS) --wr_lock=$(LOCK_FUSE)
+	$(UISP) $(ISP_FLAGS) --wr_fuse_h=$($(TARGET).HIGH_FUSE)
+	$(UISP) $(ISP_FLAGS) --wr_fuse_l=$($(TARGET).LOW_FUSE)
+	$(UISP) $(ISP_FLAGS) --wr_fuse_e=$($(TARGET).EXT_FUSE)
+	$(UISP) $(ISP_FLAGS) --wr_lock=$($(TARGET).LOCK_FUSE)
 
 TMPFILE	= '/tmp/check_fuses.tmp'
 
 check_fuses: check_arch
 	@echo "##### Check of fuses #####"
 	@$(UISP) $(ISP_FLAGS) --rd_fuses >$(TMPFILE)
-	@if (grep -i 'Fuse Low Byte' $(TMPFILE) | cut -c24- | grep -iq $(LOW_FUSE)) && (grep -i 'Fuse High Byte' $(TMPFILE) |cut -c24- | grep -iq $(HIGH_FUSE)) && (grep -i 'Fuse Extended Byte' $(TMPFILE) |cut -c24- | grep -iq $(EXT_FUSE)) && (grep -i 'Lock Bits' $(TMPFILE) |cut -c24- | grep -iq $(LOCK_FUSE)); then echo "-> Fuses are Ok"; rm $(TMPFILE); else echo "-> Wrong fuses. Type 'make wr_fuses'"; rm $(TMPFILE); exit 1; fi
+	@if (grep -i 'Fuse Low Byte' $(TMPFILE) | cut -c24- | grep -iq $($(TARGET).LOW_FUSE)) && (grep -i 'Fuse High Byte' $(TMPFILE) |cut -c24- | grep -iq $($(TARGET).HIGH_FUSE)) && (grep -i 'Fuse Extended Byte' $(TMPFILE) |cut -c24- | grep -iq $($(TARGET).EXT_FUSE)) && (grep -i 'Lock Bits' $(TMPFILE) |cut -c24- | grep -iq $($(TARGET).LOCK_FUSE)); then echo "-> Fuses are Ok"; rm $(TMPFILE); else echo "-> Wrong fuses. Type 'make wr_fuses'"; rm $(TMPFILE); exit 1; fi
 	
 
 

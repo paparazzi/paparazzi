@@ -106,6 +106,26 @@ visu3d: lib
 wind:
 	cd $(WIND); $(MAKE)
 
+wr_fuses_ap:
+	cd $(AIRBORNE); make TARGET=ap wr_fuses
+
+wr_fuses_fbw:
+	cd $(AIRBORNE); make TARGET=fbw wr_fuses
+
+
+rd_fuses_ap:
+	cd $(AIRBORNE); make TARGET=ap rd_fuses
+
+rd_fuses_fbw:
+	cd $(AIRBORNE); make TARGET=fbw rd_fuses
+
+
+check_fuses_ap:
+	cd $(AIRBORNE); make TARGET=ap check_fuses
+
+check_fuses_fbw:
+	cd $(AIRBORNE); make TARGET=fbw check_fuses
+
 
 static_h :
 	PAPARAZZI_HOME=`pwd` PAPARAZZI_SRC=`pwd` make -f Makefile.gen
