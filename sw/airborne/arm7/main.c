@@ -9,6 +9,8 @@
 #include "servos.h"
 #include "ppm.h"
 #include "radio_control.h"
+#include "gps_crado.h"
+
 
 static void periodic_task ( void );
 
@@ -85,7 +87,7 @@ static void sysInit(void) {
   initSysTime();                        // initialize the system timer
   
   uart0Init(UART_BAUD(HOST_BAUD), UART_8N1, UART_FIFO_8); // setup the UART
-  //	uart1Init(UART_BAUD(HOST_BAUD), UART_8N1, UART_FIFO_8); // setup the UART
+  uart1Init(B38400, UART_8N1, UART_FIFO_8);               // setup the UART
   adc_init();
   servos_init();
   ppm_init();
@@ -100,7 +102,7 @@ static void periodic_task ( void ) {
       IO0CLR = LED1_BIT;
     else
       IO0SET = LED1_BIT; 
-    PRINT_ADC();
+    //    PRINT_ADC();
   }
   radio_control_periodic_task();
   if (rc_status == RC_OK) 
@@ -124,10 +126,16 @@ int main (void) {
       startTime += PERIODIC_TASK_PERIOD; 
     }
     int ch;
-    if ((ch = uart0Getch()) >= 0) {
-      uart0Puts("the <");
-      uart0Putch(ch);
-      uart0Puts("> key has been pressed on UART0\r\n");
+    if ((ch = uart1Getch()) >= 0) {
+      parse_ubx(ch);
+      if (gps_msg_received) {
+	parse_gps_msg();
+	gps_msg_received = FALSE;
+      }
+      if (gps_pos_available) {
+	PRINT_GPS();
+	gps_pos_available = FALSE;
+      }
     }
     if (ppm_valid) {
       radio_control_process_ppm();

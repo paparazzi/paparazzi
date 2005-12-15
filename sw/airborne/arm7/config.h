@@ -81,12 +81,13 @@ extern void abort(void);
 #define P0_03_UNUSED_BIT      BIT(3)      // P0.03 unused - low output
 #define P0_04_UNUSED_BIT      BIT(4)      // P0.04 unused - low output
 #define P0_05_UNUSED_BIT      BIT(5)      // P0.05 unused - low output
-#define P0_06_UNUSED_BIT      BIT(6)      // P0.06 unused - low output
-#define P0_07_UNUSED_BIT      BIT(7)      // P0.07 unused - low output
-//#define TXD1_BIT              BIT(8)      // used by UART1
-//#define RXD1_BIT              BIT(9)      // used by UART1
-#define P0_08_UNUSED_BIT      BIT(8)      // P0.08 unused - low output
-#define P0_09_UNUSED_BIT      BIT(9)      // P0.09 unused - low output
+#define PPM_IN_BIT            BIT(6)      // P0.06 unused - low output
+//#define P0_07_UNUSED_BIT      BIT(7)      // P0.07 unused - low output
+#define SERV1_CLOCK_BIT       BIT(7)      // P0.07 unused - low output
+#define TXD1_BIT              BIT(8)      // used by UART1
+#define RXD1_BIT              BIT(9)      // used by UART1
+//#define P0_08_UNUSED_BIT      BIT(8)      // P0.08 unused - low output
+//#define P0_09_UNUSED_BIT      BIT(9)      // P0.09 unused - low output
 #define P0_10_UNUSED_BIT      BIT(10)     // P0.10 unused - low output
 #define P0_11_UNUSED_BIT      BIT(11)     // P0.11 unused - low output
 #define LED1_BIT              BIT(12)     // P0.12 LED1 low active
@@ -98,7 +99,7 @@ extern void abort(void);
 #define P0_18_UNUSED_BIT      BIT(18)     // P0.18 unused - low output
 #define P0_19_UNUSED_BIT      BIT(19)     // P0.19 unused - low output
 #define P0_20_UNUSED_BIT      BIT(20)     // P0.20 unused - low output
-#define P0_21_UNUSED_BIT      BIT(21)     // P0.21 unused - low output
+#define SERV0_CLOCK_BIT       BIT(21)     // P0.21 unused - low output
 #define P0_22_UNUSED_BIT      BIT(22)     // P0.22 unused - low output
 #define P0_23_UNUSED_BIT      BIT(23)     // P0.23 unused - low output
 #define P0_24_UNUSED_BIT      BIT(24)     // P0.24 unused - low output
@@ -131,8 +132,8 @@ extern void abort(void);
 #define P1_17_UNUSED_BIT      BIT(17)     // P1.17 unused - low output
 #define P1_18_UNUSED_BIT      BIT(18)     // P1.18 unused - low output
 #define P1_19_UNUSED_BIT      BIT(19)     // P1.19 unused - low output
-#define P1_20_UNUSED_BIT      BIT(20)     // P1.20 unused - low output
-#define P1_21_UNUSED_BIT      BIT(21)     // P1.21 unused - low output
+#define SERV0_DATA_BIT        BIT(20)     // P1.20 unused - low output
+#define SERV0_RESET_BIT       BIT(21)     // P1.21 unused - low output
 #define P1_22_UNUSED_BIT      BIT(22)     // P1.22 unused - low output
 #define P1_23_UNUSED_BIT      BIT(23)     // P1.23 unused - low output
 #define P1_24_UNUSED_BIT      BIT(24)     // P1.24 unused - low output
@@ -140,8 +141,8 @@ extern void abort(void);
 #define P1_26_UNUSED_BIT      BIT(26)     // P1.26 unused - low output
 #define P1_27_UNUSED_BIT      BIT(27)     // P1.27 unused - low output
 #define P1_28_UNUSED_BIT      BIT(28)     // P1.28 unused - low output
-#define P1_29_UNUSED_BIT      BIT(29)     // P1.29 unused - low output
-#define P1_30_UNUSED_BIT      BIT(30)     // P1.30 unused - low output
+#define SERV1_RESET_BIT       BIT(29)     // P1.29 unused - low output
+#define SERV1_DATA_BIT        BIT(30)     // P1.30 unused - low output
 #define P1_31_UNUSED_BIT      BIT(31)     // P1.31 unused - low output
 
 
@@ -156,10 +157,7 @@ extern void abort(void);
                                          P0_03_UNUSED_BIT | \
                                          P0_04_UNUSED_BIT | \
                                          P0_05_UNUSED_BIT | \
-                                         P0_06_UNUSED_BIT | \
-					 P0_07_UNUSED_BIT | \
-					 P0_08_UNUSED_BIT | \
-                                         P0_09_UNUSED_BIT | \
+					 SERV1_CLOCK_BIT  | \
 	                                 P0_10_UNUSED_BIT | \
 					 P0_11_UNUSED_BIT | \
 					 LED1_BIT         | \
@@ -169,7 +167,7 @@ extern void abort(void);
 					 P0_18_UNUSED_BIT | \
 					 P0_19_UNUSED_BIT | \
 					 P0_20_UNUSED_BIT | \
-					 P0_21_UNUSED_BIT | \
+					 SERV0_CLOCK_BIT  | \
 					 P0_22_UNUSED_BIT | \
 					 P0_23_UNUSED_BIT | \
                                          P0_24_UNUSED_BIT | \
@@ -215,8 +213,8 @@ extern void abort(void);
 					 P1_17_UNUSED_BIT | \
 					 P1_18_UNUSED_BIT | \
 					 P1_19_UNUSED_BIT | \
-					 P1_20_UNUSED_BIT | \
-					 P1_21_UNUSED_BIT | \
+					 SERV0_DATA_BIT   | \
+					 SERV0_RESET_BIT  | \
 					 P1_22_UNUSED_BIT | \
 					 P1_23_UNUSED_BIT | \
 					 P1_24_UNUSED_BIT | \
@@ -224,8 +222,8 @@ extern void abort(void);
 					 P1_26_UNUSED_BIT | \
 					 P1_27_UNUSED_BIT | \
 					 P1_28_UNUSED_BIT | \
-					 P1_29_UNUSED_BIT | \
-					 P1_30_UNUSED_BIT | \
+					 SERV1_RESET_BIT  | \
+					 SERV1_DATA_BIT   | \
 					 P1_31_UNUSED_BIT | \
                                          0 )
 

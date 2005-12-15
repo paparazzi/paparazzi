@@ -77,4 +77,10 @@ void uart0_print_dec_32(const int32_t c);
   uart0Puts("\r\n");				\
 }
 
+#define PRINT_GPS() {				\
+ uart0Puts("GPS ");				\
+ uart0_print_dec_32(gps_itow);			\
+ uart0Puts("\r\n");				\
+}
+
 #endif /* TRACES_H */

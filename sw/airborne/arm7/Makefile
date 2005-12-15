@@ -64,7 +64,7 @@ SRC += uart.c sysTime.c traces.c radio_control.c
 
 # List C source files here which must be compiled in ARM-Mode.
 # use file-extension c for "c-only"-files
-SRCARM = uartISR.c armVIC.c adc.c servos.c ppm.c
+SRCARM = uartISR.c armVIC.c adc.c servos.c ppm.c gps_crado.c
 
 # List C++ source files here.
 # use file-extension cpp for C++-files
