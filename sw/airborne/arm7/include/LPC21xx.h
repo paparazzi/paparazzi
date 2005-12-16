@@ -249,6 +249,12 @@
 #define AD1CR            ADC1->cr       /* Control Register */
 #define AD1DR            ADC1->dr       /* Data Register */
 
+
+///////////////////////////////////////////////////////////////////////////////
+// Digital to Analog Converter
+#define DACR   (*(REG32*) 0xE006C000)
+
+ 
 ///////////////////////////////////////////////////////////////////////////////
 // System Contol Block
 #define SCB             ((scbRegs_t *)0xE01FC000)

@@ -83,4 +83,34 @@ void uart0_print_dec_32(const int32_t c);
  uart0Puts("\r\n");				\
 }
 
+#define MODEM_PRINT_GPS() {			\
+    modem_put_one_byte('G');			\
+    modem_put_one_byte('P');			\
+    modem_put_one_byte('S');			\
+    modem_put_one_byte('G');			\
+    modem_put_one_byte('P');			\
+    modem_put_one_byte('S');			\
+    modem_put_one_byte('G');			\
+    modem_put_one_byte('P');			\
+    modem_put_one_byte('S');			\
+    modem_put_one_byte('G');			\
+    modem_put_one_byte('P');			\
+    modem_put_one_byte('S');			\
+    modem_put_one_byte('G');			\
+    modem_put_one_byte('P');			\
+    modem_put_one_byte('S');			\
+    modem_put_one_byte('G');			\
+    modem_put_one_byte('P');			\
+    modem_put_one_byte('S');			\
+    modem_put_one_byte('G');			\
+    modem_put_one_byte('P');			\
+    modem_put_one_byte('S');			\
+    modem_put_one_byte('G');			\
+    modem_put_one_byte('P');			\
+    modem_put_one_byte('S');			\
+    modem_put_one_byte('G');			\
+    modem_put_one_byte('P');			\
+    modem_put_one_byte('S');			\
+}
+
 #endif /* TRACES_H */

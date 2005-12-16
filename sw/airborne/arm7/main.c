@@ -10,6 +10,7 @@
 #include "ppm.h"
 #include "radio_control.h"
 #include "gps_crado.h"
+#include "modem.h"
 
 
 static void periodic_task ( void );
@@ -92,6 +93,7 @@ static void sysInit(void) {
   servos_init();
   ppm_init();
   radio_control_init();
+  modem_init();
 }
 
 static void periodic_task ( void ) {
@@ -134,6 +136,7 @@ int main (void) {
       }
       if (gps_pos_available) {
 	PRINT_GPS();
+	MODEM_PRINT_GPS();
 	gps_pos_available = FALSE;
       }
     }

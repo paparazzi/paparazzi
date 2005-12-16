@@ -18,7 +18,7 @@ void ppm_init ( void ) {
   /* select P0.6 as capture */
   PINSEL0 |= 0x02 << 12;
   /* enable capture 0.2 on rising edge + trigger interrupt */
-  T0CCR = 1 << 6 | 1 << 8;
+  T0CCR = TCCR_CR2_R | TCCR_CR2_I;
 }
 
 void TIMER0_ISR ( void ) {
@@ -49,7 +49,7 @@ void TIMER0_ISR ( void ) {
   }
 
   /* clear interrupt */
-  T0IR = 1<<6;
+  T0IR = TIR_CR2I;
   VICVectAddr = 0x00000000;
   ISR_EXIT();
 }
