@@ -34,7 +34,7 @@
 #include "std.h"
 
 
-extern uint8_t gps_mode;
+extern uint8_t gps_mode; /* Receiver status */
 extern uint32_t gps_itow;    /* ms */
 extern int32_t  gps_alt;    /* cm       */
 extern uint16_t gps_gspeed;  /* cm/s     */
@@ -42,14 +42,18 @@ extern int16_t  gps_climb;  /* m/s     */
 extern int16_t  gps_course; /* decideg     */
 extern int32_t gps_utm_east, gps_utm_north; /** cm */
 extern uint8_t gps_utm_zone;
+extern uint16_t last_gps_msg_t; /** cputime of the last gps message */
 
 void gps_init( void );
 void parse_gps_msg( void );
+void estimator_update_state_gps( void );
+void use_gps_pos( void );
+
 extern volatile uint8_t gps_msg_received;
 extern bool_t gps_pos_available;
 extern uint8_t gps_nb_ovrn;
 
-#define NB_CHANNELS 16
+#define GPS_NB_CHANNELS 16
 
 /** Number of scanned satellites */
 extern uint8_t gps_nb_channels;
@@ -64,7 +68,7 @@ struct svinfo {
   int16_t azim; /** deg */
 };
 
-extern struct svinfo gps_svinfos[NB_CHANNELS];
+extern struct svinfo gps_svinfos[GPS_NB_CHANNELS];
 
 #ifdef UBX
 #include "ubx.h"

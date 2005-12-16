@@ -26,12 +26,8 @@
  *
  */
 
-#include <inttypes.h>
 #include <math.h>
 
-#include "link_autopilot.h"
-#include "link_mcu.h"
-#include "modem.h"
 #include "adc_ap.h"
 #include "pid.h"
 #include "gps.h"
@@ -73,7 +69,7 @@ uint8_t fatal_error_nb = 0;
 static const uint16_t version = 1;
 
 /**  in seconds */
-static uint16_t cputime = 0;
+uint16_t cputime = 0;
 
 uint8_t pprz_mode = PPRZ_MODE_MANUAL;
 uint8_t vertical_mode = VERTICAL_MODE_MANUAL;
@@ -100,7 +96,6 @@ float slider_1_val, slider_2_val;
 bool_t launch = FALSE;
 
 float energy; /** Fuel consumption */
-static uint16_t last_gps_msg_t;	/** cputime of the last gps message */
 
 
 #define Min(x, y) (x < y ? x : y)
@@ -516,12 +511,23 @@ inline void periodic_task( void ) {
     /** 65ms since initiate_ranging() (the spec ask for 65ms) */
     srf08_receive();
     break;
+  case 10:
+    SEND_RAD_OF_IR();
+    break;
 #endif
   }
   switch(_4Hz) {
   case 0:
     estimator_propagate_state();
     navigation_task();
+    break;
+  case 1:
+    if (!estimator_flight_time && 
+	estimator_hspeed_mod > MIN_SPEED_FOR_TAKEOFF) {
+      estimator_flight_time = 1;
+      launch = TRUE; /* Not set in non auto launch */
+      DOWNLINK_SEND_TAKEOFF(&cputime);
+    }
     break;
     /*  default: */
   }
@@ -563,31 +569,3 @@ inline void periodic_task( void ) {
   }
 }
 
-/** \fn void use_gps_pos( void )
- *  \brief use GPS
- */
-/**Send by downlink the GPS and rad_of_ir messages with \a DOWNLINK_SEND_GPS
- * and \a DOWNLINK_SEND_RAD_OF_IR \n
- * If \a estimator_flight_time is null and \a estimator_hspeed_mod is greater
- * than \a MIN_SPEED_FOR_TAKEOFF, set the \a estimator_flight_time to 1 and \a
- * launch to true (which is not set in non auto launch. Then call
- * \a DOWNLINK_SEND_TAKEOFF
- */
-void use_gps_pos( void ) {
-  DOWNLINK_SEND_GPS(&gps_mode, &gps_utm_east, &gps_utm_north, &gps_course, &gps_alt, &gps_gspeed,&gps_climb, &gps_itow, &gps_utm_zone);
-  estimator_update_state_gps();
-  SEND_RAD_OF_IR();
-	if (GPS_FIX_VALID(gps_mode)) last_gps_msg_t = cputime;
-  
-  static uint8_t i;
-  if (i == gps_nb_channels) i = 0;
-  if (i < gps_nb_channels && gps_svinfos[i].cno > 0) 
-    DOWNLINK_SEND_SVINFO(&i, &gps_svinfos[i].svid, &gps_svinfos[i].flags, &gps_svinfos[i].qi, &gps_svinfos[i].cno, &gps_svinfos[i].elev, &gps_svinfos[i].azim);
-  i++;
-
-  if (!estimator_flight_time && (estimator_hspeed_mod > MIN_SPEED_FOR_TAKEOFF)) {
-    estimator_flight_time = 1;
-    launch = TRUE; /* Not set in non auto launch */
-    DOWNLINK_SEND_TAKEOFF(&cputime);
-  }
-}

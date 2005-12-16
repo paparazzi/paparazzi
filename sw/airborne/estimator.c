@@ -1,7 +1,7 @@
 /*
  * Paparazzi autopilot $Id$
  *  
- * Copyright (C) 2004  Pascal Brisset, Antoine Drouin
+ * Copyright (C) 2004-2005 Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
  * 
@@ -20,6 +20,10 @@
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA. 
  *
+ */
+
+/** \file estimator.c
+ * \brief State estimate, fusioning sensors
  */
 
 #include <inttypes.h>
@@ -84,7 +88,6 @@ int8_t angles[IR_CORRECTION_MAX_INDEX + 1][IR_CORRECTION_MAX_INDEX + 1][NB_HEIGH
     while (x < 0 ) x += 2 * M_PI; \
   }
 
-#define EstimatorSetPos(x, y, z) { estimator_x = x; estimator_y = y; estimator_z = z; }
 #define EstimatorSetAtt(phi, psi, theta) { estimator_phi = phi; estimator_psi = psi; estimator_theta = theta; }
 
 
@@ -98,11 +101,6 @@ int8_t angles[IR_CORRECTION_MAX_INDEX + 1][IR_CORRECTION_MAX_INDEX + 1][NB_HEIGH
 //  estimator_hspeed_dir = atan2(estimator_vy, estimator_vx);
 
 
-#define EstimatorSetSpeedPol(vhmod, vhdir, vz) { \
-  estimator_hspeed_mod = vhmod; \
-  estimator_hspeed_dir = vhdir; \
-  estimator_z_dot = vz; \
-}
 //FIXME is this true ?? estimator_vx = estimator_hspeed_mod * cos(estimator_hspeed_dir);
 //FIXME is this true ?? estimator_vy = estimator_hspeed_mod * sin(estimator_hspeed_dir);
 
@@ -244,22 +242,6 @@ void estimator_update_ir_estim( void ) {
   last_t = gps_itow;
 }
 
-
-void estimator_update_state_gps( void ) {
-  if (GPS_FIX_VALID(gps_mode)) {
-    float gps_east = gps_utm_east / 100. - NAV_UTM_EAST0;
-    float gps_north = gps_utm_north / 100. - NAV_UTM_NORTH0;
-    float falt = gps_alt / 100.;
-    EstimatorSetPos(gps_east, gps_north, falt);
-    float fspeed = gps_gspeed / 100.;
-    float fclimb = gps_climb / 100.;
-    float fcourse = RadOfDeg(gps_course / 10.);
-    EstimatorSetSpeedPol(fspeed, fcourse, fclimb);
-    
-    if (estimator_flight_time)
-      estimator_update_ir_estim();
-  }
-}
 
 void estimator_propagate_state( void ) {
   

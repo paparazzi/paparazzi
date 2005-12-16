@@ -116,7 +116,7 @@ include $(PAPARAZZI_SRC)/conf/autopilot/disc_board.makefile
 LOCAL_CFLAGS += -DIMU_3DMG
 
 fbw.CFLAGS += -DRATE_LOOP
-fbw.EXTRA_SRCS += control.c imu.c
+fbw.EXTRA_SRCS += control.c imu.c 3dmg.c
 fbw.CFLAGS += -DIMU_RESET_ON_BOOT
 fbw.CFLAGS += -DTIMER1_TOP=0x400
 

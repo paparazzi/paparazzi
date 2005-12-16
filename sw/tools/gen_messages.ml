@@ -164,7 +164,10 @@ module Gen_onboard = struct
     fprintf avr_h "\t  modem_nb_ovrn++; \\\n";
     fprintf avr_h "}\n\n"
 
-
+  let print_null_avr_macro = fun avr_h {name=s; fields = fields} ->
+    fprintf avr_h "#define DOWNLINK_SEND_%s(" s;
+    print_avr_macro_names avr_h fields;
+    fprintf avr_h ") {}\n"
 
   let print_enum = fun avr_h messages ->
     List.iter (fun m -> fprintf avr_h "#define DL_%s %d\n" m.name m.id) messages;
@@ -179,6 +182,9 @@ module Gen_onboard = struct
       fprintf avr_h "\\%03o" (Char.code md5sum.[i])
     done;
     fprintf avr_h "\"\n"
+      
+  let print_null_avr_macros = fun avr_h messages ->
+    List.iter (print_null_avr_macro avr_h) messages
 
   let freq = 10
   let buffer_length = 5
@@ -250,5 +256,9 @@ let _ =
   let avr_h = stdout in
   Printf.fprintf avr_h "/* Automatically generated from %s */\n" filename;
   Printf.fprintf avr_h "/* Please DO NOT EDIT */\n";
+  Printf.fprintf avr_h "#ifdef DOWNLINK\n";
   Gen_onboard.print_avr_macros filename avr_h messages;
+  Printf.fprintf avr_h "#else // DOWNLINK\n";
+  Gen_onboard.print_null_avr_macros avr_h messages;
+  Printf.fprintf avr_h "#endif // DOWNLINK\n";
   Gen_onboard.gen_periodic avr_h messages

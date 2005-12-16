@@ -89,7 +89,7 @@ void gps_init( void ) {
   ubx_status = UNINIT;
 }
 
-struct svinfo gps_svinfos[NB_CHANNELS];
+struct svinfo gps_svinfos[GPS_NB_CHANNELS];
 uint8_t gps_nb_channels;
 
 void parse_gps_msg( void ) {
@@ -111,7 +111,7 @@ void parse_gps_msg( void ) {
     } else if (ubx_id == UBX_NAV_SVINFO_ID) {
       gps_nb_channels = UBX_NAV_SVINFO_NCH(ubx_msg_buf);
       uint8_t i;
-      for(i = 0; i < Min(gps_nb_channels, NB_CHANNELS); i++) {
+      for(i = 0; i < Min(gps_nb_channels, GPS_NB_CHANNELS); i++) {
 	//	memcpy(&(gps_svinfos[i]), (ubx_msg_buf+9+12*i), 7);
 	gps_svinfos[i].svid = UBX_NAV_SVINFO_SVID(ubx_msg_buf, i);
 	gps_svinfos[i].flags = UBX_NAV_SVINFO_Flags(ubx_msg_buf, i);
