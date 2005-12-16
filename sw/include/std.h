@@ -42,6 +42,9 @@ typedef uint8_t bool_t;
 #ifndef sbi
 #define sbi(sfr, bit) (_SFR_BYTE(sfr) |= _BV(bit))
 #endif
+#ifndef bit_is_set
+#define bit_is_set(x, b) ((x >> b) & 0x1)
+#endif
 
 
 #define DegOfRad(x) ((x) / M_PI * 180.)

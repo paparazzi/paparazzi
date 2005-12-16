@@ -20,7 +20,7 @@ int16_t   gps_climb;  /* cm/s     */
 int16_t   gps_course; /* decideg     */
 int32_t gps_utm_east, gps_utm_north;
 uint8_t gps_utm_zone;
-struct svinfo gps_svinfos[NB_CHANNELS];
+struct svinfo gps_svinfos[GPS_NB_CHANNELS];
 uint8_t gps_nb_channels = 0;
 
 value sim_use_gps_pos(value x, value y, value z, value c, value a, value s, value cl, value t, value m) {

@@ -25,12 +25,14 @@
 #ifndef MODEM_H
 #define MODEM_H
 
+void modem_init( void );
+extern uint8_t modem_nb_ovrn;
+
+#ifdef MODEM
+
 #include "airframe.h"
 #include "modem_hw.h"
 
-void modem_init( void );
-
-extern uint8_t modem_nb_ovrn;
 
 #define TX_BUF_SIZE     255
 extern uint8_t           tx_head;
@@ -118,5 +120,7 @@ extern uint8_t ck_a, ck_b;
   if( tx_tail >= TX_BUF_SIZE ) \
     tx_tail = 0; \
 }
+
+#endif // MODEM
 
 #endif /* MODEM_H */

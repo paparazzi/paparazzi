@@ -32,14 +32,14 @@ SIMHCMO=$(SIMHML:%.ml=%.cmo)
 SIMSML = stdlib.ml data.ml flightModel.ml gps.ml sitl.ml sim.ml
 SIMSCMO=$(SIMSML:%.ml=%.cmo)
 SIMSCMX=$(SIMSML:%.ml=%.cmx)
-SIMSC = sim_ir.c sim_gps.c sim_ap.c estimator.c pid.c nav.c main_ap.c cam.c traffic_info.c
+SIMSC = sim_ir.c sim_gps.c sim_ap.c estimator.c gps.c pid.c nav.c main_ap.c cam.c traffic_info.c
 SIMSO=$(SIMSC:%.c=$(OBJDIR)/%.o)
 SIMSA=sims.cma
 
 OCAMLC = ocamlc
 OCAMLOPT=ocamlopt -p
 INCLUDES= -I +lablgtk2 -I ../lib/ocaml
-OCAMLCC = gcc -O2 -I /usr/include/glib-2.0 -I /usr/lib/glib-2.0/include -DUBX -DMOBILE_CAM -I $(OBJDIR) -I $(ACDIR) 
+OCAMLCC = gcc -O2 -I /usr/include/glib-2.0 -I /usr/lib/glib-2.0/include -DUBX -DMOBILE_CAM -DAP -I $(OBJDIR) -I $(ACDIR) 
 
 AIRBORNE = ../airborne
 VARINCLUDE=$(PAPARAZZI_HOME)/var/include
