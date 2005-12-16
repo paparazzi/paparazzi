@@ -99,12 +99,14 @@ static void sysInit(void) {
 static void periodic_task ( void ) {
   static uint32_t foo = 0;
   foo++;
+  MODEM_PRINT_GPS();
   if (!(foo%10)) {
     if (IO0PIN & LED1_BIT)
       IO0CLR = LED1_BIT;
     else
       IO0SET = LED1_BIT; 
     //    PRINT_ADC();
+   
   }
   radio_control_periodic_task();
   if (rc_status == RC_OK) 

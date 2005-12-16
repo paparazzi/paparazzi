@@ -91,8 +91,8 @@ void uart0Init(uint16_t baud, uint8_t mode, uint8_t fmode)
   // initialize the interrupt vector
   VICIntSelect &= ~VIC_BIT(VIC_UART0);  // UART0 selected as IRQ
   VICIntEnable = VIC_BIT(VIC_UART0);    // UART0 interrupt enabled
-  VICVectCntl0 = VIC_ENABLE | VIC_UART0;
-  VICVectAddr0 = (uint32_t)uart0ISR;    // address of the ISR
+  VICVectCntl5 = VIC_ENABLE | VIC_UART0;
+  VICVectAddr5 = (uint32_t)uart0ISR;    // address of the ISR
 
 #ifdef UART0_TX_INT_MODE
   // initialize the transmit data queue
