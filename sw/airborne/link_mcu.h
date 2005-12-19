@@ -25,16 +25,11 @@
 #ifndef LINK_MCU_H
 #define LINK_MCU_H
 
-#include "link_autopilot.h"
-
-extern struct inter_mcu_msg from_fbw;
-extern struct inter_mcu_msg to_fbw;
+#include <inttypes.h>
 
 extern volatile uint8_t link_fbw_nb_err;
 extern uint8_t link_fbw_fbw_nb_err;
 
-extern volatile uint8_t link_fbw_receive_complete;
-extern volatile uint8_t link_fbw_receive_valid;
 
 void link_fbw_send(void);
 

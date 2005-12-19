@@ -30,6 +30,7 @@
 #include <avr/interrupt.h>
 #include <avr/crc16.h>
 
+#include "inter_mcu.h"
 #include "spi_fbw.h"
 
 #define IT_PORT PORTD
@@ -41,17 +42,14 @@
 #define SPI_MISO_PIN 4
 #define SPI_SCK_PIN  5
 
-struct inter_mcu_msg from_mega128;
-struct inter_mcu_msg to_mega128;
-volatile bool_t mega128_receive_valid = FALSE;
 volatile bool_t spi_was_interrupted = FALSE;
 
 static volatile uint8_t idx_buf = 0;
 static volatile uint16_t crc_in, crc_out;
 
 void spi_init(void) {
-  to_mega128.status = 0;
-  to_mega128.nb_err = 0;
+  from_fbw.status = 0;
+  from_fbw.nb_err = 0;
 
   /* set it pin output */
   //  IT_DDR |= _BV(IT_PIN);
@@ -69,11 +67,11 @@ void spi_reset(void) {
   crc_in = CRC_INIT;
   crc_out = CRC_INIT;
 
-  uint8_t first_byte = ((uint8_t*)&to_mega128)[0];
+  uint8_t first_byte = ((uint8_t*)&from_fbw)[0];
   crc_out = CrcUpdate(crc_out, first_byte);
   SPDR = first_byte;
 
-  mega128_receive_valid = FALSE;
+  from_ap_receive_valid = FALSE;
 }
 
 
@@ -93,9 +91,9 @@ SIGNAL(SIG_SPI) {
     tmp = SPDR;
     /* notify valid frame  */
     if (crc_in1 == Crc1(crc_in) && tmp == Crc2(crc_in))
-      mega128_receive_valid = TRUE;
+      from_ap_receive_valid = TRUE;
     else
-      to_mega128.nb_err++;
+      from_fbw.nb_err++;
     return;
   }
 
@@ -111,7 +109,7 @@ SIGNAL(SIG_SPI) {
   /* we are sending/receiving payload       */
   if (idx_buf < FRAME_LENGTH - 2) {
     /* place new payload byte in send register */
-    tmp = ((uint8_t*)&to_mega128)[idx_buf];
+    tmp = ((uint8_t*)&from_fbw)[idx_buf];
     SPDR = tmp;
     crc_out = CrcUpdate(crc_out, tmp);
   } 
@@ -124,6 +122,6 @@ SIGNAL(SIG_SPI) {
   
   /* read the byte from receive register */
   tmp = SPDR;
-  ((uint8_t*)&from_mega128)[idx_buf-1] = tmp;
+  ((uint8_t*)&from_ap)[idx_buf-1] = tmp;
   crc_in = CrcUpdate(crc_in, tmp);
 }

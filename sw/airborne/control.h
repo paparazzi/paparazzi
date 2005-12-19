@@ -2,7 +2,7 @@
 #define CONTROL_H
 
 #include <inttypes.h>
-#include "link_autopilot.h"
+#include "inter_mcu.h"
 
 extern int16_t desired_roll_dot;
 extern float   roll_dot_pgain;

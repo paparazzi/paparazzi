@@ -25,6 +25,19 @@
 #ifndef INFRARED_H
 #define INFRARED_H
 
+#include "std.h"
+
+/** @name Calibration states
+ *  Successive states for initial infrared contrast calibration
+ */
+//@{
+#define NO_CALIB               0	//!< No calibration state
+#define WAITING_CALIB_CONTRAST 1	//!< Waiting calibration contrast state
+#define CALIB_DONE             2	//!< Calibration done state
+//@}
+
+
+
 
 extern int16_t ir_roll;  /* averaged roll adc */
 extern int16_t ir_pitch; /* averaged pitch adc */
@@ -33,8 +46,15 @@ extern int16_t ir_pitch; /* averaged pitch adc */
 extern float   ir_rad_of_ir;
 extern int16_t ir_contrast;
 
+/** Status of the calibration. Can be one of the \a calibration \a states */
+extern uint8_t calib_status;
+
 void ir_init(void);
 void ir_update(void);
-void ir_gain_calib(void);
+void ground_calibrate(bool_t triggered);
+
+extern float estimator_rad_of_ir, estimator_ir, estimator_rad;
+void estimator_update_ir_estim( void );
+void estimator_update_state_infrared( void );
 
 #endif /* INFRARED_H */

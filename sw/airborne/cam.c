@@ -32,7 +32,7 @@
 #include "autopilot.h"
 #include "flight_plan.h"
 #include "estimator.h"
-#include "link_mcu.h"
+#include "inter_mcu.h"
 #include "traffic_info.h"
 
 #define MIN_PPRZ_CAM ((int16_t)(MAX_PPRZ * 0.05))
@@ -70,8 +70,8 @@ void cam_manual( void ) {
       cam_pitch += FLOAT_OF_PPRZ(pitch, 0, 300.);
       cam_pitch = TRIM_PPRZ(cam_pitch);
     }
-    to_fbw.channels[RADIO_GAIN1] = cam_roll;
-    to_fbw.channels[RADIO_CALIB] = cam_pitch;
+    from_ap.channels[RADIO_GAIN1] = cam_roll;
+    from_ap.channels[RADIO_CALIB] = cam_pitch;
   }
 }
 

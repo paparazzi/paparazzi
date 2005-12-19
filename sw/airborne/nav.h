@@ -88,9 +88,28 @@ extern uint8_t horizontal_mode;
   } \
 }
 
+extern float course_pgain;
+extern float desired_course;
+void course_pid_run( void );
+
+extern const float climb_pgain;
+extern const float climb_igain;
+extern float climb_sum_err;
+extern float desired_climb, pre_climb;
+
+extern float pitch_of_vz_pgain;
+extern float pitch_of_vz;
+extern float aileron_of_gaz;
+extern float climb_level_gaz;
+
+void climb_pid_run(void);
+void altitude_pid_run(void);
+
 void nav_update(void);
 void nav_home(void);
 void nav_init(void);
 void nav_without_gps(void);
+
+
 
 #endif /* NAV_H */

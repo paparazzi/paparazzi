@@ -30,7 +30,7 @@
 #ifndef AUTOPILOT_H
 #define AUTOPILOT_H
 
-#include "link_autopilot.h"
+#include "inter_mcu.h"
 
 #define TRESHOLD1 TRESHOLD_MANUAL_PPRZ
 #define TRESHOLD2 200 * CLOCK
@@ -108,6 +108,6 @@ extern uint16_t cputime; /**  in seconds */
 
 void periodic_task( void );
 void use_gps_pos(void);
-void radio_control_task(void);
+void telecommand_task(void);
 
 #endif /* AUTOPILOT_H */

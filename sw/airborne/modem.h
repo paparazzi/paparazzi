@@ -44,6 +44,8 @@ extern uint8_t    tx_byte_idx;
 
 extern uint8_t ck_a, ck_b;
 
+#define STX  0x05
+
 #define ModemStartMessage(id) \
   { MODEM_PUT_1_BYTE(STX); MODEM_PUT_1_BYTE(id); ck_a = id; ck_b = id; }
 

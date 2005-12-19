@@ -50,7 +50,7 @@
 #include <avr/signal.h>
 
 #include "timer_fbw.h"
-#include "link_autopilot.h"
+#include "inter_mcu.h"
 
 #define PpmOfUs(x) ((x)*CLOCK)
 

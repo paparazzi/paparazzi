@@ -27,15 +27,16 @@
 #include <avr/interrupt.h>
 #include <avr/crc16.h>
 
+#include "inter_mcu.h"
 #include "link_mcu_ap.h"
+#include "link_mcu.h"
 #include "spi_ap.h"
 
 static uint8_t idx_buf;
 static uint16_t crc_in, crc_out;
 
 void link_fbw_init(void) {
-  link_fbw_nb_err;
-  link_fbw_receive_complete = FALSE;  
+  link_fbw_nb_err = 0;
 }
 
 void link_fbw_send(void) {
@@ -51,10 +52,10 @@ void link_fbw_send(void) {
   idx_buf = 0;
   crc_in = CRC_INIT;
   crc_out = CRC_INIT;
-  uint8_t byte1 = ((uint8_t*)&to_fbw)[0];
+  uint8_t byte1 = ((uint8_t*)&from_ap)[0];
   SPDR = byte1;
   crc_out = CrcUpdate(crc_out, byte1);
-  link_fbw_receive_valid = FALSE;
+  from_fbw_receive_valid = FALSE;
   // Other bytes will follow SIG_SPI interrupts
 }
 
@@ -87,12 +88,11 @@ SIGNAL(SIG_OUTPUT_COMPARE1A) {
     tmp = SPDR;
     /* notify valid frame                   */
     if (crc_in1 == Crc1(crc_in) && tmp == Crc2(crc_in)) {
-      link_fbw_receive_valid = TRUE;
+      from_fbw_receive_valid = TRUE;
       link_fbw_fbw_nb_err = from_fbw.nb_err;
     }
     else
       link_fbw_nb_err++;
-    link_fbw_receive_complete = TRUE;
     /* unselect slave0                      */
     SPI_UNSELECT_SLAVE0();
     SPI_STOP();
@@ -111,7 +111,7 @@ SIGNAL(SIG_OUTPUT_COMPARE1A) {
   /* we are sending/receiving payload       */
   if (idx_buf < FRAME_LENGTH - 2) {
     /* place new payload byte in send register */
-    tmp = ((uint8_t*)&to_fbw)[idx_buf];
+    tmp = ((uint8_t*)&from_ap)[idx_buf];
     SPI_SEND(tmp);
     crc_out = CrcUpdate(crc_out, tmp);
   } 

@@ -66,12 +66,9 @@ void estimator_update_state_3DMG( void );
 #elif defined IMU_ANALOG && defined AHRS
 void estimator_update_state_ANALOG( void );
 #else //NO_IMU
-void estimator_update_state_infrared( void );
 #endif
 void estimator_propagate_state( void );
 
-extern float estimator_rad_of_ir, estimator_ir, estimator_rad;
-void estimator_update_ir_estim( void );
 
 #define EstimatorSetPos(x, y, z) { estimator_x = x; estimator_y = y; estimator_z = z; }
 #define EstimatorSetSpeedPol(vhmod, vhdir, vz) { \
@@ -79,5 +76,8 @@ void estimator_update_ir_estim( void );
   estimator_hspeed_dir = vhdir; \
   estimator_z_dot = vz; \
 }
+#define EstimatorSetAtt(phi, psi, theta) { estimator_phi = phi; estimator_psi = psi; estimator_theta = theta; }
+#define EstimatorSetPhiPsi(phi, psi) { estimator_phi = phi; estimator_psi = psi; }
+
 
 #endif /* ESTIMATOR_H */

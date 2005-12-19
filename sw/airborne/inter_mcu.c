@@ -1,7 +1,7 @@
 /*
- * Paparazzi $Id$
+ * $Id$
  *  
- * Copyright (C) 2003 Pascal Brisset, Antoine Drouin
+ * Copyright (C) 2003-2005  Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
  *
@@ -21,21 +21,11 @@
  * Boston, MA 02111-1307, USA. 
  *
  */
-#ifndef _UART_H_
-#define _UART_H_
 
-#include <inttypes.h>
-#include "uart_ap_hw.h"
+#include "inter_mcu.h"
 
-extern void uart0_init_tx(void);
-extern void uart0_init_rx(void);
-extern void uart1_init(void);
+struct inter_mcu_msg from_fbw;
+struct inter_mcu_msg from_ap;
 
-extern void uart0_print_string(const uint8_t*);
-extern void uart0_print_hex(const uint8_t);
-extern void uart0_print_hex16(const uint16_t);
-extern void uart0_transmit(const uint8_t);
-extern void uart1_transmit(const uint8_t);
-
-
-#endif
+volatile bool_t from_fbw_receive_valid = FALSE;
+volatile bool_t from_ap_receive_valid = FALSE;

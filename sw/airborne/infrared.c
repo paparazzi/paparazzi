@@ -29,8 +29,10 @@
 
 #include "adc_ap.h"
 #include "infrared.h"
+#include "gps.h"
 #include "autopilot.h"
 #include "estimator.h"
+#include "downlink.h"
 
 int16_t ir_roll;
 int16_t ir_pitch;
@@ -69,6 +71,8 @@ void ir_init(void) {
   RadOfIrFromConstrast(IR_DEFAULT_CONTRAST);
   adc_buf_channel(ADC_CHANNEL_IR1, &buf_ir1, ADC_CHANNEL_IR_NB_SAMPLES);
   adc_buf_channel(ADC_CHANNEL_IR2, &buf_ir2, ADC_CHANNEL_IR_NB_SAMPLES);
+ 
+  estimator_rad_of_ir = ir_rad_of_ir;
 }
 
 /** \fn void ir_update(void)
@@ -88,12 +92,106 @@ void ir_update(void) {
 #endif
 }
 
-/** \fn void ir_gain_calib(void)
- *  \brief Contrast measurement
+/** \brief Contrast measurement
  *  \note <b>Plane must be nose down !</b>
  */
-void ir_gain_calib(void) {
+static void ir_gain_calib(void) {
   /* plane nose down -> negativ value */
   ir_contrast = abs(ir_pitch);
   RadOfIrFromConstrast(ir_contrast);
+}
+
+/** Maximal delay waits before calibration.
+		After, no more calibration is possible */
+#define MAX_DELAY_FOR_CALIBRATION 10
+
+uint8_t calib_status = NO_CALIB;
+
+/** \brief Calibrate contrast if paparazzi mode is
+ * set to auto1 before MAX_DELAY_FOR_CALIBRATION secondes */
+/**User must put verticaly the uav (nose bottom) and push
+ * radio roll stick to get new calibration
+ * If not, the default calibration is used.
+ */
+inline void ground_calibrate( bool_t triggered ) {
+  switch (calib_status) {
+  case NO_CALIB:
+    if (cputime < MAX_DELAY_FOR_CALIBRATION && pprz_mode == PPRZ_MODE_AUTO1 ) {
+      calib_status = WAITING_CALIB_CONTRAST;
+      DOWNLINK_SEND_CALIB_START();
+    }
+    break;
+  case WAITING_CALIB_CONTRAST:
+    if (triggered) {
+      ir_gain_calib();
+      estimator_rad_of_ir = ir_rad_of_ir;
+      calib_status = CALIB_DONE;
+      DOWNLINK_SEND_CALIB_CONTRAST(&ir_contrast);
+    }
+    break;
+  case CALIB_DONE:
+    break;
+  }
+}
+
+float estimator_rad_of_ir, estimator_ir, estimator_rad;
+
+#define INIT_WEIGHT 100. /* The number of times the initial value has to be taken */
+#define RHO 0.995 /* The higher, the slower the estimation is changing */
+
+#define G 9.81
+
+void estimator_update_ir_estim( void ) {
+  static float last_hspeed_dir;
+  static uint32_t last_t; /* ms */
+  static bool_t initialized = FALSE;
+  static float sum_xy, sum_xx;
+
+  if (initialized) {
+    float dt = (float)(gps_itow - last_t) / 1e3;
+    if (dt > 0.1) { // Against division by zero
+      float dpsi = (estimator_hspeed_dir - last_hspeed_dir); 
+      NormRadAngle(dpsi);
+      estimator_rad = dpsi/dt*NOMINAL_AIRSPEED/G; /* tan linearized */
+      NormRadAngle(estimator_rad);
+      estimator_ir = (float)ir_roll;
+      float absphi = fabs(estimator_rad);
+      if (absphi < 1.0 && absphi > 0.05 && (- ir_contrast/2 < ir_roll && ir_roll < ir_contrast/2)) {
+	sum_xy = estimator_rad * estimator_ir + RHO * sum_xy;
+	sum_xx = estimator_ir * estimator_ir + RHO * sum_xx;
+#if defined IR_RAD_OF_IR_MIN_VALUE & defined IR_RAD_OF_IR_MAX_VALUE
+	float result = sum_xy / sum_xx;
+	if (result < IR_RAD_OF_IR_MIN_VALUE)
+	  estimator_rad_of_ir = IR_RAD_OF_IR_MIN_VALUE;
+	else if (result > IR_RAD_OF_IR_MAX_VALUE)
+	  estimator_rad_of_ir = IR_RAD_OF_IR_MAX_VALUE;
+	else
+	  estimator_rad_of_ir = result;
+#else
+	  estimator_rad_of_ir = sum_xy / sum_xx;
+#endif
+      }
+    } 
+  } else {
+    initialized = TRUE;
+    float init_ir2 = ir_contrast;
+    init_ir2 = init_ir2*init_ir2;
+    sum_xy = INIT_WEIGHT * estimator_rad_of_ir * init_ir2;
+    sum_xx = INIT_WEIGHT * init_ir2;
+  }
+
+  last_hspeed_dir = estimator_hspeed_dir;
+  last_t = gps_itow;
+}
+
+float ir_roll_neutral  = RadOfDeg(IR_ROLL_NEUTRAL_DEFAULT);
+float ir_pitch_neutral = RadOfDeg(IR_PITCH_NEUTRAL_DEFAULT);
+
+void estimator_update_state_infrared( void ) {
+  float rad_of_ir = (ir_estim_mode == IR_ESTIM_MODE_ON ? 
+		     estimator_rad_of_ir :
+		     ir_rad_of_ir);
+		     
+  estimator_phi  = rad_of_ir * ir_roll - ir_roll_neutral;
+  estimator_theta = rad_of_ir * ir_pitch - ir_pitch_neutral;
 }

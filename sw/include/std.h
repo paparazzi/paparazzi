@@ -47,11 +47,19 @@ typedef uint8_t bool_t;
 #endif
 
 
+#define NormRadAngle(x) { \
+    while (x > M_PI) x -= 2 * M_PI; \
+    while (x < -M_PI) x += 2 * M_PI; \
+  }
 #define DegOfRad(x) ((x) / M_PI * 180.)
 #define DeciDegOfRad(x) ((x) / M_PI * 1800.)
 #define RadOfDeg(x) ((x)/180. * M_PI)
 
 #define Min(x,y) (x < y ? x : y)
 #define Max(x,y) (x > y ? x : y)
+
+#define Bound(_x, _min, _max) { if (_x > _max) _x = _max; if (_x < _min) _x = _min; }
+#define BoundAbs(_x, _max) Bound(_x, -_max, _max)
+
 
 #endif /* STD_H */

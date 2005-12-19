@@ -28,7 +28,7 @@
 #include <stdlib.h>
 
 #include "std.h"
-#include "link_autopilot.h"
+#include "inter_mcu.h"
 #include "uart_ap.h"
 #include "wavecard.h"
 #include "datalink.h"

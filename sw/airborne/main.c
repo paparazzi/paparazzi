@@ -1,3 +1,5 @@
+/** \brief mono and dual mcus mainloop */
+
 #ifdef FBW
 extern void init_fbw( void );
 extern void periodic_task_fbw( void );

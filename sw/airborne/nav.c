@@ -34,7 +34,7 @@
 #include "estimator.h"
 #include "pid.h"
 #include "autopilot.h"
-#include "link_mcu.h"
+#include "inter_mcu.h"
 #include "airframe.h"
 #include "cam.h"
 #include "traffic_info.h"
@@ -97,11 +97,6 @@ static void glide_to(uint8_t last_wp, uint8_t wp) __attribute__ ((unused));
   while (x < 0) x += 360; \
   while (x >= 360) x -= 360; \
 }
-/** Normalize angle in radian between [-Pi;Pi] */
-#define Norm_Rad_Angle(x) { \
-    while (x > M_PI) x -= 2 * M_PI; \
-    while (x <= -M_PI) x += 2 * M_PI; \
-  }
 
 /** Degrees from 0 to 360 */
 static float qdr;
@@ -112,7 +107,7 @@ static float qdr;
 		      estimator_x - x); \
 	if (! new_circle) { \
 	  float alpha_diff = alpha - last_alpha; \
-		Norm_Rad_Angle(alpha_diff); \
+		NormRadAngle(alpha_diff); \
 	  sum_alpha += alpha_diff; \
 	} \
 	else new_circle = FALSE; \
@@ -291,16 +286,14 @@ static inline void compute_dist2_to_home(void) {
   too_far_from_home = dist2_to_home > (MAX_DIST_FROM_HOME*MAX_DIST_FROM_HOME);
 }
 
-/** void nav_home(void)
- *  \brief Occurs when it switchs in Home mode.
+#ifndef FAILSAFE_HOME_RADIUS
+#define FAILSAFE_HOME_RADIUS 50
+#endif
+
+/** \brief Occurs when it switchs in Home mode.
  */
 void nav_home(void) {
-  /** FIXME: radius should be defined elsewhere */
-#ifdef FAILSAFE_HOME_RADIUS
   Circle(WP_HOME, FAILSAFE_HOME_RADIUS);
-#else
-  Circle(WP_HOME, 50);
-#endif
   /** Nominal speed */ 
   nav_pitch = 0.;
   vertical_mode = VERTICAL_MODE_AUTO_ALT;
@@ -350,4 +343,66 @@ void nav_without_gps(void) {
   vertical_mode = VERTICAL_MODE_AUTO_GAZ;
   nav_desired_gaz = TRIM_UPPRZ((CLIMB_LEVEL_GAZ)*MAX_PPRZ);
 #endif
+}
+
+float course_pgain = COURSE_PGAIN;
+float desired_course = 0.;
+float max_roll = MAX_ROLL;
+
+/** \brief Computes ::nav_desired_roll from course estimation and expected
+ course.
+*/
+void course_pid_run( void ) {
+  float err = estimator_hspeed_dir - desired_course;
+  NormRadAngle(err);
+  nav_desired_roll = course_pgain * err;
+  if (nav_desired_roll > max_roll)
+    nav_desired_roll = max_roll;
+  else if (nav_desired_roll < -max_roll)
+    nav_desired_roll = -max_roll;
+}
+
+#define MAX_CLIMB_SUM_ERR 150
+#define MAX_PITCH_CLIMB_SUM_ERR 100
+
+const float climb_pgain   = CLIMB_PGAIN;
+const float climb_igain   =  CLIMB_IGAIN;
+float desired_climb = 0., pre_climb = 0.;
+float climb_sum_err  = 0;
+
+float climb_pitch_pgain = CLIMB_PITCH_PGAIN;
+float climb_pitch_igain = CLIMB_PITCH_IGAIN;
+float climb_pitch_sum_err = 0.;
+float climb_level_gaz = CLIMB_LEVEL_GAZ;
+
+/** \brief Computes desired_gaz and updates nav_pitch from desired_climb */
+void 
+climb_pid_run ( void ) {
+  float err  = estimator_z_dot - desired_climb;
+  if (auto_pitch) { /* gaz constant */
+    desired_gaz = nav_desired_gaz;
+    nav_pitch = climb_pitch_pgain * (err + climb_pitch_igain * climb_pitch_sum_err);
+    Bound(nav_pitch, MIN_PITCH, MAX_PITCH);
+    climb_pitch_sum_err += err;
+    BoundAbs(climb_pitch_sum_err, MAX_PITCH_CLIMB_SUM_ERR);
+  } else { /* pitch almost constant */
+    /* pitch offset for climb */
+    pitch_of_vz = (desired_climb > 0) ? desired_climb * pitch_of_vz_pgain : 0.;
+    float fgaz = climb_pgain * (err + climb_igain * climb_sum_err) + climb_level_gaz + CLIMB_GAZ_OF_CLIMB*desired_climb;
+    climb_sum_err += err;
+    if (climb_sum_err > MAX_CLIMB_SUM_ERR) climb_sum_err = MAX_CLIMB_SUM_ERR;
+    if (climb_sum_err < - MAX_CLIMB_SUM_ERR) climb_sum_err = - MAX_CLIMB_SUM_ERR;
+    desired_gaz = TRIM_UPPRZ(fgaz * MAX_PPRZ);
+    nav_pitch += pitch_of_vz;
+  }
+}
+
+float altitude_pgain = ALTITUDE_PGAIN;
+
+
+void altitude_pid_run(void) {
+  float err = estimator_z - desired_altitude;
+  desired_climb = pre_climb + altitude_pgain * err;
+  if (desired_climb < -CLIMB_MAX) desired_climb = -CLIMB_MAX;
+  if (desired_climb > CLIMB_MAX) desired_climb = CLIMB_MAX;
 }

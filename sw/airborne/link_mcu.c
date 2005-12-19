@@ -24,10 +24,5 @@
 
 #include "link_mcu.h"
 
-struct inter_mcu_msg from_fbw;
-struct inter_mcu_msg to_fbw;
-
-volatile uint8_t link_fbw_receive_complete = TRUE;
-volatile uint8_t link_fbw_receive_valid = FALSE;
 volatile uint8_t link_fbw_nb_err;
 uint8_t link_fbw_fbw_nb_err;

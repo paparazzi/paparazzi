@@ -118,7 +118,7 @@ SIGNAL(SIG_UART1_TRANS) {
   }
 }
 
-void uart0_init( void ) {
+void uart0_init_tx( void ) {
   /* Baudrate is 38.4k */
   UBRR0H = 0;
 #ifdef WAVECARD
@@ -129,14 +129,18 @@ void uart0_init( void ) {
 
   /* single speed */ 
   UCSR0A = 0; 
-  /* Enable receiver and transmitter */ 
-  UCSR0B = _BV(RXEN) | _BV(TXEN);
+  /* Enable transmitter */ 
+  UCSR0B = _BV(TXEN);
   /* Set frame format: 8data, 1stop bit */ 
   UCSR0C = _BV(UCSZ1) | _BV(UCSZ0);
-#ifdef WAVECARD
+}
+
+void uart0_init_rx( void ) {
+  /* Enable receiver */ 
+  UCSR0B |= _BV(RXEN);
+  
   /* Enable uart receive interrupt */
   sbi(UCSR0B, RXCIE );
-#endif
 }
 
 void uart1_init( void ) {

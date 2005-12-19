@@ -36,6 +36,7 @@
 #include "downlink.h"
 #include "datalink.h"
 #include "wavecard.h"
+#include "downlink.h"
 
 #ifdef TELEMETER
 #include "srf08.h"
@@ -59,24 +60,42 @@ void init_ap( void ) {
    *    - estimator
    */
   timer_init(); 
-  modem_init();
   adc_init();
-  spi_init();
-  link_fbw_init();
-  gps_init();
-  nav_init();
+
+  /************* Sensors initialization ***************/
+#ifdef INFRARED
   ir_init();
-  estimator_init();
+#endif
+#ifdef GPS
+  gps_init();
+#endif
 #ifdef TELEMETER
   srf08_init();
 #endif
 #if defined IMU_3DMG || defined IMU_ANALOG || WAVECARD
-  uart0_init();
+  uart0_init_tx();
+  uart0_init_rx();
 #endif //IMU
+
+
+  /************* Links initialization ***************/
+#ifndef FBW /** Dual mcus */
+  spi_init();
+  link_fbw_init();
+#endif
+#ifdef MODEM
+  modem_init();
+#endif
 #ifdef WAVECARD
   /** Reset the wavecard during the init pause */
   wc_reset();
 #endif
+
+  /************ Internal status ***************/
+  estimator_init();
+  nav_init();
+
+
   /** - start interrupt task */
   sei();
 
@@ -103,7 +122,7 @@ void init_ap( void ) {
    *    - do periodic task by calling \a periodic_task
    *    - parse and use GPS messages with \a parse_gps_msg and \a use_gps_pos
    *    - receive radio control task from fbw and use it with
-   * \a radio_control_task
+   * \a telecommand_task
    */
 }
 
@@ -112,6 +131,7 @@ void periodic_task_ap( void) {
 }
 
 void event_task_ap( void ) {
+#ifdef GPS
   if (gps_msg_received) {
     /* parse and use GPS messages */
     parse_gps_msg();
@@ -121,6 +141,7 @@ void event_task_ap( void ) {
       gps_pos_available = FALSE;
     }
   }
+#endif
 #ifdef WAVECARD
   if (wc_msg_received) {
     wc_parse_payload();
@@ -145,13 +166,13 @@ void event_task_ap( void ) {
     DOWNLINK_SEND_RANGEFINDER(&srf08_range);
   }
 #endif
-  if (link_fbw_receive_complete) {
+  if (from_fbw_receive_valid) {
     /* receive radio control task from fbw */
-    link_fbw_receive_complete = FALSE;
-    radio_control_task();
+    from_fbw_receive_valid = FALSE;
+    telecommand_task();
 
 #ifdef IMU_3DMG
-    DOWNLINK_SEND_IMU_3DMG(&from_fbw.euler_dot[0], &from_fbw.euler_dot[1], &from_fbw.euler_dot[2], &from_fbw.euler[0], &from_fbw.euler[1], &from_fbw.euler[2]);
+    DOWNLINK_SEND_IMU(&from_fbw.euler_dot[0], &from_fbw.euler_dot[1], &from_fbw.euler_dot[2], &from_fbw.euler[0], &from_fbw.euler[1], &from_fbw.euler[2]);
     estimator_update_state_3DMG();
 #elif defined IMU_ANALOG
     /** -Saving now the pqr values from the fbw struct since

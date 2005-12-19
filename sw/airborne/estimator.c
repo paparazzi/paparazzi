@@ -31,19 +31,10 @@
 
 #include "estimator.h"
 #include "gps.h"
-#include "pid.h"
 #include "infrared.h"
 #include "autopilot.h"
 #include "flight_plan.h"
 
-
-/** if defined, ir relief correction done */
-
-/*** #define IR_RELIEF_CORRECTION  ***/
-
-
-/** stepping value in meters, the area of correction */
-#define ir_correction_step 90
 
 /* position in meters */
 float estimator_x;
@@ -66,29 +57,11 @@ float estimator_t;
 float estimator_hspeed_mod;
 float estimator_hspeed_dir;
 
-float estimator_rad_of_ir, estimator_ir, estimator_rad;
-
-
-#ifdef IR_RELIEF_CORRECTION
-/* array of horizon angles computed for a given height (at flight_plan.h generation) */
-int8_t angles[IR_CORRECTION_MAX_INDEX + 1][IR_CORRECTION_MAX_INDEX + 1][NB_HEIGHTS] = HEIGHTS;
-#endif
-
-
-
-/* (aircraft axis, ir axis) angle */
-
-#define aircraft_ir_angle ( M_PI / 2)
-
-
-#define height_index_coeff (NB_HEIGHTS / ( 2 * M_PI ))
 
 #define NORM_RAD_ANGLE2(x) { \
     while (x > 2 * M_PI) x -= 2 * M_PI; \
     while (x < 0 ) x += 2 * M_PI; \
   }
-
-#define EstimatorSetAtt(phi, psi, theta) { estimator_phi = phi; estimator_psi = psi; estimator_theta = theta; }
 
 
 // FIXME maybe vz = -climb for NED??
@@ -115,17 +88,11 @@ void estimator_init( void ) {
   EstimatorSetSpeedPol ( 0., 0., 0.);
 
   estimator_flight_time = 0;
-
-  estimator_rad_of_ir = ir_rad_of_ir;
 }
 
-#define EstimatorIrGainIsCorrect() (TRUE)
-
-float ir_roll_neutral  = RadOfDeg(IR_ROLL_NEUTRAL_DEFAULT);
-float ir_pitch_neutral = RadOfDeg(IR_PITCH_NEUTRAL_DEFAULT);
 
 #ifdef IMU_3DMG
-#include "link_mcu.h"
+#include "inter_mcu.h"
 void estimator_update_state_3DMG( void ) {
   estimator_phi = from_fbw.euler[0];
   estimator_psi = from_fbw.euler[1];
@@ -141,107 +108,7 @@ void estimator_update_state_ANALOG( void ) {
   estimator_psi = -ahrs_euler[2];
 }
 #else //NO_IMU
-void estimator_update_state_infrared( void ) {
-  float rad_of_ir = (ir_estim_mode == IR_ESTIM_MODE_ON && EstimatorIrGainIsCorrect()) ? 
-    estimator_rad_of_ir : ir_rad_of_ir;
-
-#if defined IR_RELIEF_CORRECTION
-  /** phi correction because of the relief effect on ir data */
-
-  int8_t lat_index = ( (int) (IR_SQUARE_UTMY_MAX - gps_utm_north / 100.0) ) / ir_correction_step;
-  lat_index = (lat_index < 0 ? 0 : lat_index);
-  lat_index = (lat_index > IR_CORRECTION_MAX_INDEX ? IR_CORRECTION_MAX_INDEX : lat_index);
-
-  int8_t long_index = ( (int) (gps_utm_east / 100. - IR_SQUARE_UTMX_MIN) ) / ir_correction_step;
-       long_index = (long_index > IR_CORRECTION_MAX_INDEX ? IR_CORRECTION_MAX_INDEX : long_index);
-       long_index = (long_index < 0 ? 0 : long_index);
-  
-       /***  printf( "utmlowx %.2f gps_x %.2f utmlowy %.2f gps_y %.2f \n", IR_SQUARE_UTMX_MIN, gps_utm_east / 100.0 , IR_SQUARE_UTMY_MAX, gps_utm_north / 100.0); ***/
-
-  int8_t index_left, index_right;
-
-  float degrees_left =  estimator_hspeed_dir - aircraft_ir_angle;
-  float degrees_right =  estimator_hspeed_dir + aircraft_ir_angle;
-
-  NORM_RAD_ANGLE2(degrees_left);
-
-  index_left = degrees_left * height_index_coeff ;
-
-  degrees_right =  estimator_hspeed_dir + aircraft_ir_angle;
-
-  NORM_RAD_ANGLE2(degrees_right);
-
-  index_right = degrees_right * height_index_coeff ;
-
-  int8_t angle_left = angles[long_index][lat_index][index_left];  
-
-  int8_t angle_right = angles[long_index][lat_index][index_right];
-
-  float correction =  angle_left - angle_right;
-
 #endif
-
-  estimator_phi  = rad_of_ir * ir_roll - ir_roll_neutral; 
-    
-#if defined IR_RELIEF_CORRECTION
-    
-  estimator_phi += RadOfDeg(correction) ;
-
-#endif
-
-  estimator_theta = rad_of_ir * ir_pitch - ir_pitch_neutral;
-}
-#endif
-
-#define INIT_WEIGHT 100. /* The number of times the initial value has to be taken */
-#define RHO 0.995 /* The higher, the slower the estimation is changing */
-
-#define g 9.81
-
-
-void estimator_update_ir_estim( void ) {
-  static float last_hspeed_dir;
-  static uint32_t last_t; /* ms */
-  static bool_t initialized = FALSE;
-  static float sum_xy, sum_xx;
-
-  if (initialized) {
-    float dt = (float)(gps_itow - last_t) / 1e3;
-    if (dt > 0.1) { // Against division by zero
-      float dpsi = (estimator_hspeed_dir - last_hspeed_dir); 
-      NORM_RAD_ANGLE(dpsi);
-      estimator_rad = dpsi/dt*NOMINAL_AIRSPEED/g; /* tan linearized */
-      NORM_RAD_ANGLE(estimator_rad);
-      estimator_ir = (float)ir_roll;
-      float absphi = fabs(estimator_rad);
-      if (absphi < 1.0 && absphi > 0.05 && (- ir_contrast/2 < ir_roll && ir_roll < ir_contrast/2)) {
-	sum_xy = estimator_rad * estimator_ir + RHO * sum_xy;
-	sum_xx = estimator_ir * estimator_ir + RHO * sum_xx;
-#if defined IR_RAD_OF_IR_MIN_VALUE & defined IR_RAD_OF_IR_MAX_VALUE
-	float result = sum_xy / sum_xx;
-	if (result < IR_RAD_OF_IR_MIN_VALUE)
-	  estimator_rad_of_ir = IR_RAD_OF_IR_MIN_VALUE;
-	else if (result > IR_RAD_OF_IR_MAX_VALUE)
-	  estimator_rad_of_ir = IR_RAD_OF_IR_MAX_VALUE;
-	else
-	  estimator_rad_of_ir = result;
-#else
-	  estimator_rad_of_ir = sum_xy / sum_xx;
-#endif
-      }
-    } 
-  } else {
-    initialized = TRUE;
-    float init_ir2 = ir_contrast;
-    init_ir2 = init_ir2*init_ir2;
-    sum_xy = INIT_WEIGHT * estimator_rad_of_ir * init_ir2;
-    sum_xx = INIT_WEIGHT * init_ir2;
-  }
-
-  last_hspeed_dir = estimator_hspeed_dir;
-  last_t = gps_itow;
-}
-
 
 void estimator_propagate_state( void ) {
   

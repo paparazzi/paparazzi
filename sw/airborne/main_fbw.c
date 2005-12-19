@@ -32,7 +32,7 @@
 #include "ppm.h"
 #include "spi_fbw_hw.h"
 #include "spi_fbw.h"
-#include "link_autopilot.h"
+#include "inter_mcu.h"
 #include "radio.h"
 #include "led.h"
 
@@ -52,9 +52,9 @@
 struct adc_buf vsupply_adc_buf;
 
 uint8_t mode;
-static uint8_t time_since_last_mega128;
+static uint8_t time_since_last_ap;
 static uint16_t time_since_last_ppm;
-bool_t radio_ok, mega128_ok, radio_really_lost, failsafe_mode;
+bool_t radio_ok, ap_ok, radio_really_lost, failsafe_mode;
 
 static const pprz_t failsafe[] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
 
@@ -68,26 +68,26 @@ static uint8_t ppm_cpt, last_ppm_cpt;
 static inline void to_autopilot_from_last_radio (void) {
   uint8_t i;
   for(i = 0; i < RADIO_CTL_NB; i++)
-    to_mega128.channels[i] = last_radio[i];
-  to_mega128.status = (radio_ok ? _BV(STATUS_RADIO_OK) : 0);
-  to_mega128.status |= (radio_really_lost ? _BV(RADIO_REALLY_LOST) : 0);
-  to_mega128.status |= (mode == MODE_AUTO ? _BV(STATUS_MODE_AUTO) : 0);
-  to_mega128.status |= (failsafe_mode ? _BV(STATUS_MODE_FAILSAFE) : 0);
+    from_fbw.channels[i] = last_radio[i];
+  from_fbw.status = (radio_ok ? _BV(STATUS_RADIO_OK) : 0);
+  from_fbw.status |= (radio_really_lost ? _BV(RADIO_REALLY_LOST) : 0);
+  from_fbw.status |= (mode == MODE_AUTO ? _BV(STATUS_MODE_AUTO) : 0);
+  from_fbw.status |= (failsafe_mode ? _BV(STATUS_MODE_FAILSAFE) : 0);
   if (last_radio_contains_avg_channels) {
-    to_mega128.status |= _BV(AVERAGED_CHANNELS_SENT);
+    from_fbw.status |= _BV(AVERAGED_CHANNELS_SENT);
     last_radio_contains_avg_channels = FALSE;
   }
-  to_mega128.ppm_cpt = last_ppm_cpt;
-  to_mega128.vsupply = VoltageOfAdc(vsupply_adc_buf.sum/AV_NB_SAMPLE) * 10;
+  from_fbw.ppm_cpt = last_ppm_cpt;
+  from_fbw.vsupply = VoltageOfAdc(vsupply_adc_buf.sum/AV_NB_SAMPLE) * 10;
 #if defined IMU_3DMG || defined IMU_ANALOG
-  to_mega128.euler_dot[0] = roll_dot;
-  to_mega128.euler_dot[1] = pitch_dot;
-  to_mega128.euler_dot[2] = yaw_dot;
+  from_fbw.euler_dot[0] = roll_dot;
+  from_fbw.euler_dot[1] = pitch_dot;
+  from_fbw.euler_dot[2] = yaw_dot;
 #endif
 #ifdef IMU_3DMG
-  to_mega128.euler[0] = roll;
-  to_mega128.euler[1] = pitch;
-  to_mega128.euler[2] = yaw;
+  from_fbw.euler[0] = roll;
+  from_fbw.euler[1] = pitch;
+  from_fbw.euler[2] = yaw;
 #endif
 }
 
@@ -121,22 +121,6 @@ inline void radio_control_task(void) {
   }
 }
 
-inline void spi_task(void) {
-  if (mega128_receive_valid) {
-    time_since_last_mega128 = 0;
-    mega128_ok = TRUE;
-    if (mode == MODE_AUTO) {
-#if defined IMU_ANALOG || defined IMU_3DMG
-      control_set_desired(from_mega128.channels);
-#else
-      command_set(from_mega128.channels);
-#endif
-    }
-  }
-  to_autopilot_from_last_radio();
-  spi_reset();
-}
-
 #ifndef ADC_CHANNEL_VSUPPLY
 #define ADC_CHANNEL_VSUPPLY 3
 // for compatibility
@@ -167,7 +151,11 @@ void init_fbw( void ) {
   command_init();
   ppm_init();
 
+#ifndef AP
   spi_init();
+#endif
+/** #else Statically linked with AP: no spi com */
+
   int_enable();
 
 #if IMU_RESET_ON_BOOT
@@ -181,32 +169,52 @@ void event_task_fbw( void) {
   if( ppm_valid ) {
     ppm_valid = FALSE;
     radio_control_task();
-  } 
-  else if (mode == MODE_MANUAL && radio_really_lost) {
+  } else if (mode == MODE_MANUAL && radio_really_lost) {
     mode = MODE_AUTO;
   }
+
+#ifndef AP
   if ( !SpiIsSelected() && spi_was_interrupted ) {
     spi_was_interrupted = FALSE;
-    spi_task();
+    spi_reset();
   }
+#endif
+/** #else Statically linked with AP: no spi com */
+
+  if (from_ap_receive_valid) {
+    time_since_last_ap = 0;
+    ap_ok = TRUE;
+    if (mode == MODE_AUTO) {
+#if defined IMU_ANALOG || defined IMU_3DMG
+      control_set_desired(from_ap.channels);
+#else
+      command_set(from_ap.channels);
+#endif
+    }
+    to_autopilot_from_last_radio();
+  }
+
 #ifdef IMU_3DMG
   if (_3dmg_data_ready) {
     imu_update();
   }
 #endif
+
   if (time_since_last_ppm >= STALLED_TIME) {
     radio_ok = FALSE;
   }
+
   if (time_since_last_ppm >= REALLY_STALLED_TIME) {
     radio_really_lost = TRUE;
   }
-  if (time_since_last_mega128 == STALLED_TIME) {
-    mega128_ok = FALSE;
+
+  if (time_since_last_ap == STALLED_TIME) {
+    ap_ok = FALSE;
   }
   
   failsafe_mode = FALSE;
   if ((mode == MODE_MANUAL && !radio_ok) ||
-      (mode == MODE_AUTO && !mega128_ok)) {
+      (mode == MODE_AUTO && !ap_ok)) {
     failsafe_mode = TRUE;
     command_set(failsafe);
   }
@@ -242,8 +250,8 @@ void periodic_task_fbw( void ) {
     /*  	servo_transmit(); */
 #endif
   }
-  if (time_since_last_mega128 < STALLED_TIME)
-    time_since_last_mega128++;
+  if (time_since_last_ap < STALLED_TIME)
+    time_since_last_ap++;
   if (time_since_last_ppm < REALLY_STALLED_TIME)
     time_since_last_ppm++;
 }

@@ -44,7 +44,7 @@ void _3dmg_set_continuous_mode ( void ) {
   uint8_t msg[REQ_CONT_LEN] = { 0x10, 0x00, 0x31, 0x00, 0x41};
   uint8_t i;
   for (i=0; i<REQ_CONT_LEN; i++)
-    uart_transmit(msg[i]);
+    uart0_transmit(msg[i]);
 }
 
 void _3dmg_capture_neutral ( void ) {
@@ -52,7 +52,7 @@ void _3dmg_capture_neutral ( void ) {
   uint8_t msg[REQ_CONT_LEN] = { 0x06, 0x00, 0x06};
   uint8_t i;
   for (i=0; i<CAP_GYR_LEN; i++)
-    uart_transmit(msg[i]);
+    uart0_transmit(msg[i]);
 }
 
 

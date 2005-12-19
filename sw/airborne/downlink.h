@@ -26,10 +26,69 @@
 #define DOWNLINK_H
 
 #include "modem.h"
-
-#define STX  0x05
-#define ETX  0x06
-
 #include "messages.h"
+
+#ifdef DOWNLINK
+#define Downlink(x) x
+#else
+#define Downlink(x) {}
+#endif
+
+#define PERIODIC_SEND_IDENT()  DOWNLINK_SEND_IDENT(&ac_ident);
+
+#define PERIODIC_SEND_BAT() Downlink({ int16_t e = energy; DOWNLINK_SEND_BAT(&desired_gaz, &vsupply, &estimator_flight_time, &low_battery, &block_time, &stage_time, &e); })
+
+#define PERIODIC_SEND_DEBUG() DOWNLINK_SEND_DEBUG(&link_fbw_nb_err, &link_fbw_fbw_nb_err, &modem_nb_ovrn, &gps_nb_ovrn, &mcu1_ppm_cpt);
+
+#define PERIODIC_SEND_ATTITUDE() Downlink({ \
+  int8_t phi = DegOfRad(estimator_phi); \
+  int8_t psi = DegOfRad(estimator_psi); \
+  int8_t theta = DegOfRad(estimator_theta); \
+  DOWNLINK_SEND_ATTITUDE(&phi, &psi, &theta); \
+})
+
+#define PERIODIC_SEND_ADC() DOWNLINK_SEND_ADC(&ir_roll, &ir_pitch);
+#define PERIODIC_SEND_PPRZ_MODE() DOWNLINK_SEND_PPRZ_MODE(&pprz_mode, &vertical_mode, &lateral_mode, &horizontal_mode, &inflight_calib_mode, &mcu1_status, &ir_estim_mode);
+#define PERIODIC_SEND_DESIRED() DOWNLINK_SEND_DESIRED(&desired_roll, &desired_pitch, &desired_x, &desired_y, &desired_altitude, &desired_climb);
+
+#define PERIODIC_SEND_NAVIGATION_REF()  DOWNLINK_SEND_NAVIGATION_REF(&nav_utm_east0, &nav_utm_north0, &nav_utm_zone0);
+
+#ifdef DATALINK
+#define PERIODIC_SEND_ACINFO() { \
+  struct ac_info_ *s=get_ac_info(3); \
+  DOWNLINK_SEND_ACINFO(&s->east, &s->north, &s->course, &s->alt, &s->gspeed); \
+}
+#else
+#define PERIODIC_SEND_ACINFO() {}
+#endif
+
+#ifdef RADIO_CALIB
+#define PERIODIC_SEND_SETTINGS() if (inflight_calib_mode != IF_CALIB_MODE_NONE)	DOWNLINK_SEND_SETTINGS(&slider_1_val, &slider_2_val);
+#else
+#define PERIODIC_SEND_SETTINGS() {}
+#endif
+
+#define SEND_RAD_OF_IR() Downlink({ int16_t rad = DeciDegOfRad(estimator_rad); DOWNLINK_SEND_RAD_OF_IR(&ir_roll, &rad, &estimator_rad_of_ir);})
+
+#define PERIODIC_SEND_CALIBRATION() DOWNLINK_SEND_CALIBRATION(&climb_sum_err, &climb_pgain, &course_pgain)
+
+#define PERIODIC_SEND_CIRCLE() if (in_circle) { DOWNLINK_SEND_CIRCLE(&circle_x, &circle_y, &circle_radius); }
+
+#define PERIODIC_SEND_SEGMENT() if (in_segment) { DOWNLINK_SEND_SEGMENT(&segment_x_1, &segment_y_1, &segment_x_2, &segment_y_2); }
+
+#define PERIODIC_SEND_CALIB_START() if (!estimator_flight_time && calib_status == WAITING_CALIB_CONTRAST) { DOWNLINK_SEND_CALIB_START(); }
+
+#define PERIODIC_SEND_CALIB_CONTRAST() if (!estimator_flight_time && calib_status == CALIB_DONE) { DOWNLINK_SEND_CALIB_CONTRAST(&ir_contrast); }
+
+#ifdef IMU_ANALOG
+#define PERIODIC_SEND_IMU() { int16_t dummy = 42; DOWNLINK_SEND_IMU(&(from_fbw.euler_dot[0]), &(from_fbw.euler_dot[1]), &(from_fbw.euler_dot[2]), &dummy, &dummy, &dummy); }
+#else
+#define PERIODIC_SEND_IMU() {}
+#endif
+
+#define SEND_NAVIGATION() Downlink({ int16_t pos_x = estimator_x; int16_t pos_y = estimator_y; int16_t d_course = DeciDegOfRad(desired_course); DOWNLINK_SEND_NAVIGATION(&nav_block, &nav_stage, &pos_x, &pos_y, &d_course, &dist2_to_wp, &dist2_to_home);})
+
+#define SEND_CAM() Downlink({ int16_t x = target_x; int16_t y = target_y; int8_t phi = DegOfRad(phi_c); int8_t theta = DegOfRad(theta_c); DOWNLINK_SEND_CAM(&phi, &theta, &x, &y);})
+
 
 #endif /* DOWNLINK_H */

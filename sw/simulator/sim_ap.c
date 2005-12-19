@@ -5,14 +5,13 @@
 #include <sys/time.h>
 #include <time.h>
 #include "std.h"
-#include "link_autopilot.h"
+#include "inter_mcu.h"
 #include "autopilot.h"
 #include "estimator.h"
 #include "gps.h"
 #include "traffic_info.h"
 #include "flight_plan.h"
 #include "nav.h"
-
 
 #include <caml/mlvalues.h>
 #include <caml/memory.h>
@@ -61,7 +60,7 @@ value set_really_lost(value on) {
 value sim_rc_task(value unit) {
   from_fbw.status = (radio_status << STATUS_RADIO_OK) | (radio_really_lost << RADIO_REALLY_LOST) | (1 << AVERAGED_CHANNELS_SENT);
   link_fbw_receive_valid = TRUE;
-  radio_control_task();
+  telecommand_task();
   return Val_unit;
 }
 

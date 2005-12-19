@@ -26,13 +26,9 @@
 #ifndef SPI_H
 #define SPI_H
 
-#include "link_autopilot.h"
+#include "inter_mcu.h"
 
-extern struct inter_mcu_msg from_mega128;
-extern struct inter_mcu_msg to_mega128;
-extern volatile bool_t mega128_receive_valid;
 extern volatile bool_t spi_was_interrupted;
-
 
 void spi_init(void);
 void spi_reset(void);

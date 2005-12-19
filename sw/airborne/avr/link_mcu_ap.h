@@ -26,7 +26,7 @@
 #define LINK_MCU_AP_H
 
 #include <inttypes.h>
-#include "link_mcu.h"
+
 
 void link_fbw_init(void);
 void link_fbw_send(void);

@@ -39,6 +39,7 @@
 #include "if_calib.h"
 #include "cam.h"
 #include "traffic_info.h"
+#include "link_mcu.h"
 
 #ifdef TELEMETER
 #include "srf08.h"
@@ -100,19 +101,6 @@ float energy; /** Fuel consumption */
 
 #define Min(x, y) (x < y ? x : y)
 #define Max(x, y) (x > y ? x : y)
-
-/** @name Calibration states
- *  Successive states for initial infrared contrast calibration
- */
-//@{
-#define NO_CALIB               0	//!< No calibration state
-#define WAITING_CALIB_CONTRAST 1	//!< Waiting calibration contrast state
-#define CALIB_DONE             2	//!< Calibration done state
-//@}
-
-/** Maximal delay waits before calibration.
-		After, no more calibration is possible */
-#define MAX_DELAY_FOR_CALIBRATION 10
 
 
 /** \fn inline uint8_t pprz_mode_update( void )
@@ -194,8 +182,8 @@ static inline void events_update( void ) {
  *  \brief Send back uncontrolled channels (only rudder)
  */
 inline void copy_from_to_fbw ( void ) {
-  to_fbw.channels[RADIO_YAW] = from_fbw.channels[RADIO_YAW];
-  to_fbw.status = 0;
+  from_ap.channels[RADIO_YAW] = from_fbw.channels[RADIO_YAW];
+  from_ap.status = 0;
 }
 
 
@@ -210,90 +198,8 @@ inline void copy_from_to_fbw ( void ) {
 
 uint8_t ac_ident = AC_ID;
 
-#define PERIODIC_SEND_IDENT()  DOWNLINK_SEND_IDENT(&ac_ident);
-
-#define PERIODIC_SEND_BAT() { int16_t e = energy; DOWNLINK_SEND_BAT(&desired_gaz, &vsupply, &estimator_flight_time, &low_battery, &block_time, &stage_time, &e); }
-#define PERIODIC_SEND_DEBUG() DOWNLINK_SEND_DEBUG(&link_fbw_nb_err, &link_fbw_fbw_nb_err, &modem_nb_ovrn, &gps_nb_ovrn, &mcu1_ppm_cpt);
-#define PERIODIC_SEND_ATTITUDE() { \
-  int8_t phi = DegOfRad(estimator_phi); \
-  int8_t psi = DegOfRad(estimator_psi); \
-  int8_t theta = DegOfRad(estimator_theta); \
-  DOWNLINK_SEND_ATTITUDE(&phi, &psi, &theta); \
-}
-#define PERIODIC_SEND_ADC() DOWNLINK_SEND_ADC(&ir_roll, &ir_pitch);
-#define PERIODIC_SEND_PPRZ_MODE() DOWNLINK_SEND_PPRZ_MODE(&pprz_mode, &vertical_mode, &lateral_mode, &horizontal_mode, &inflight_calib_mode, &mcu1_status, &ir_estim_mode);
-#define PERIODIC_SEND_DESIRED() DOWNLINK_SEND_DESIRED(&desired_roll, &desired_pitch, &desired_x, &desired_y, &desired_altitude, &desired_climb);
-
-#define PERIODIC_SEND_NAVIGATION_REF()  DOWNLINK_SEND_NAVIGATION_REF(&nav_utm_east0, &nav_utm_north0, &nav_utm_zone0);
-
-#ifdef DATALINK
-#define PERIODIC_SEND_ACINFO() { \
-  struct ac_info_ *s=get_ac_info(3); \
-  DOWNLINK_SEND_ACINFO(&s->east, &s->north, &s->course, &s->alt, &s->gspeed); \
-}
-#else
-#define PERIODIC_SEND_ACINFO() {}
-#endif
-
-#ifdef RADIO_CALIB
-#define PERIODIC_SEND_SETTINGS() if (inflight_calib_mode != IF_CALIB_MODE_NONE)	DOWNLINK_SEND_SETTINGS(&slider_1_val, &slider_2_val);
-#else
-#define PERIODIC_SEND_SETTINGS() {}
-#endif
-
-#define SEND_RAD_OF_IR() { int16_t rad = DeciDegOfRad(estimator_rad); DOWNLINK_SEND_RAD_OF_IR(&ir_roll, &rad, &estimator_rad_of_ir);} 
-
-#define PERIODIC_SEND_CALIBRATION() DOWNLINK_SEND_CALIBRATION(&climb_sum_err, &climb_pgain, &course_pgain)
-
-#define PERIODIC_SEND_CIRCLE() if (in_circle) { DOWNLINK_SEND_CIRCLE(&circle_x, &circle_y, &circle_radius); }
-
-#define PERIODIC_SEND_SEGMENT() if (in_segment) { DOWNLINK_SEND_SEGMENT(&segment_x_1, &segment_y_1, &segment_x_2, &segment_y_2); }
-
-#define PERIODIC_SEND_CALIB_START() if (!estimator_flight_time && calib_status == WAITING_CALIB_CONTRAST) { DOWNLINK_SEND_CALIB_START(); }
-
-#define PERIODIC_SEND_CALIB_CONTRAST() if (!estimator_flight_time && calib_status == CALIB_DONE) { DOWNLINK_SEND_CALIB_CONTRAST(&ir_contrast); }
-
-#ifdef IMU_ANALOG
-#define PERIODIC_SEND_IMU() { int16_t dummy = 42; DOWNLINK_SEND_IMU(&(from_fbw.euler_dot[0]), &(from_fbw.euler_dot[1]), &(from_fbw.euler_dot[2]), &dummy, &dummy, &dummy); }
-#else
-#define PERIODIC_SEND_IMU() {}
-#endif
-
-/** Status of the calibration. Can be one of the \a calibration \a states */
-static uint8_t calib_status = NO_CALIB;
-
-/** \fn inline void ground_calibrate( void )
- *  \brief Calibrate contrast if paparazzi mode is
- * set to auto1 before MAX_DELAY_FOR_CALIBRATION secondes */
-/**User must put verticaly the uav (nose bottom) and push
- * radio roll stick to get new calibration
- * If not, the default calibration is used.
- */
-inline void ground_calibrate( void ) {
-  switch (calib_status) {
-  case NO_CALIB:
-    if (cputime < MAX_DELAY_FOR_CALIBRATION && pprz_mode == PPRZ_MODE_AUTO1 ) {
-      calib_status = WAITING_CALIB_CONTRAST;
-      DOWNLINK_SEND_CALIB_START();
-    }
-    break;
-  case WAITING_CALIB_CONTRAST:
-    if (STICK_PUSHED(from_fbw.channels[RADIO_ROLL])) {
-      ir_gain_calib();
-      estimator_rad_of_ir = ir_rad_of_ir;
-      SEND_RAD_OF_IR();
-      calib_status = CALIB_DONE;
-      DOWNLINK_SEND_CALIB_CONTRAST(&ir_contrast);
-    }
-    break;
-  case CALIB_DONE:
-    break;
-  }
-}
-
-
-/** \fn inline void reporting_task( void )
- *  \brief Send a serie of initialisation messages followed by a stream of periodic ones\n
+/** \brief Send a serie of initialisation messages followed by a stream of periodic ones
+ *
  * Called at 20Hz.
  */
 inline void reporting_task( void ) {
@@ -320,59 +226,58 @@ inline uint8_t inflight_calib_mode_update ( void ) {
 }
 
 
-/** \fn inline void radio_control_task( void )
- *  \brief @@@@@ A FIXER @@@@@
+/** \brief Function to be called when a command is available (usually comming from the radio command)
  */
-inline void radio_control_task( void ) {
-  if (link_fbw_receive_valid) {
-    uint8_t mode_changed = FALSE;
-    copy_from_to_fbw();
-    if ((bit_is_set(from_fbw.status, RADIO_REALLY_LOST) && (pprz_mode == PPRZ_MODE_AUTO1 || pprz_mode == PPRZ_MODE_MANUAL)) || too_far_from_home) {
-      pprz_mode = PPRZ_MODE_HOME;
-      mode_changed = TRUE;
-    }
-    if (bit_is_set(from_fbw.status, AVERAGED_CHANNELS_SENT)) {
-      bool_t pprz_mode_changed = pprz_mode_update();
-      mode_changed |= pprz_mode_changed;
+inline void telecommand_task( void ) {
+  uint8_t mode_changed = FALSE;
+  copy_from_to_fbw();
+  if ((bit_is_set(from_fbw.status, RADIO_REALLY_LOST) && (pprz_mode == PPRZ_MODE_AUTO1 || pprz_mode == PPRZ_MODE_MANUAL)) || too_far_from_home) {
+    pprz_mode = PPRZ_MODE_HOME;
+    mode_changed = TRUE;
+  }
+  if (bit_is_set(from_fbw.status, AVERAGED_CHANNELS_SENT)) {
+    bool_t pprz_mode_changed = pprz_mode_update();
+    mode_changed |= pprz_mode_changed;
 #ifdef RADIO_LLS
-      mode_changed |= ir_estim_mode_update();
+    mode_changed |= ir_estim_mode_update();
 #endif
 #ifdef RADIO_CALIB
-      bool_t calib_mode_changed = inflight_calib_mode_update();
-      inflight_calib(calib_mode_changed || pprz_mode_changed);
-      mode_changed |= calib_mode_changed;
+    bool_t calib_mode_changed = inflight_calib_mode_update();
+    inflight_calib(calib_mode_changed || pprz_mode_changed);
+    mode_changed |= calib_mode_changed;
 #endif
-    }
-    mode_changed |= mcu1_status_update();
-    if ( mode_changed )
-      PERIODIC_SEND_PPRZ_MODE();
+  }
+  mode_changed |= mcu1_status_update();
+  if ( mode_changed )
+    PERIODIC_SEND_PPRZ_MODE();
+  
+  /** If Auto1 mode, compute \a desired_roll and \a desired_pitch from 
+   * \a RADIO_ROLL and \a RADIO_PITCH \n
+   * Else asynchronously set by \a course_pid_run
+   */
+  if (pprz_mode == PPRZ_MODE_AUTO1) {
+    /** In Auto1 mode, roll is bounded between [-AUTO1_MAX_ROLL;AUTO1_MAX_ROLL] */
+    desired_roll = FLOAT_OF_PPRZ(from_fbw.channels[RADIO_ROLL], 0., -AUTO1_MAX_ROLL);
     
-    /** If Auto1 mode, compute \a desired_roll and \a desired_pitch from 
-      * \a RADIO_ROLL and \a RADIO_PITCH \n
-      * Else asynchronously set by \a course_pid_run
-      */
-    if (pprz_mode == PPRZ_MODE_AUTO1) {
-      /** In Auto1 mode, roll is bounded between [-AUTO1_MAX_ROLL;AUTO1_MAX_ROLL] */
-      desired_roll = FLOAT_OF_PPRZ(from_fbw.channels[RADIO_ROLL], 0., -AUTO1_MAX_ROLL);
-      
-      /** In Auto1 mode, pitch is bounded between [-AUTO1_MAX_PITCH;AUTO1_MAX_PITCH] */
-      desired_pitch = FLOAT_OF_PPRZ(from_fbw.channels[RADIO_PITCH], 0., AUTO1_MAX_PITCH);
-    }
-    if (pprz_mode == PPRZ_MODE_MANUAL || pprz_mode == PPRZ_MODE_AUTO1) {
-      desired_gaz = from_fbw.channels[RADIO_THROTTLE];
-    }
-    // else asynchronously set by climb_pid_run();
-
-    mcu1_ppm_cpt = from_fbw.ppm_cpt;
-    vsupply = from_fbw.vsupply;
-
-    events_update();
-
-    if (!estimator_flight_time) {
-      ground_calibrate();
-      if (pprz_mode == PPRZ_MODE_AUTO2 && from_fbw.channels[RADIO_THROTTLE] > GAZ_THRESHOLD_TAKEOFF) {
-	launch = TRUE;
-      }
+    /** In Auto1 mode, pitch is bounded between [-AUTO1_MAX_PITCH;AUTO1_MAX_PITCH] */
+    desired_pitch = FLOAT_OF_PPRZ(from_fbw.channels[RADIO_PITCH], 0., AUTO1_MAX_PITCH);
+  }
+  if (pprz_mode == PPRZ_MODE_MANUAL || pprz_mode == PPRZ_MODE_AUTO1) {
+    desired_gaz = from_fbw.channels[RADIO_THROTTLE];
+  }
+  /** else asynchronously set by climb_pid_run(); */
+  
+  mcu1_ppm_cpt = from_fbw.ppm_cpt;
+  vsupply = from_fbw.vsupply;
+  
+  events_update();
+  
+  if (!estimator_flight_time) {
+#ifdef INFRARED
+    ground_calibrate(STICK_PUSHED(from_fbw.channels[RADIO_ROLL]));
+#endif
+    if (pprz_mode == PPRZ_MODE_AUTO2 && from_fbw.channels[RADIO_THROTTLE] > GAZ_THRESHOLD_TAKEOFF) {
+      launch = TRUE;
     }
   }
 }
@@ -416,16 +321,9 @@ void navigation_task( void ) {
   else
     nav_update();
   
-  int16_t pos_x = estimator_x;
-  int16_t pos_y = estimator_y;
-  int16_t d_course = DeciDegOfRad(desired_course);
-  DOWNLINK_SEND_NAVIGATION(&nav_block, &nav_stage, &pos_x, &pos_y, &d_course, &dist2_to_wp, &dist2_to_home);
+  SEND_NAVIGATION();
 
-  int16_t x = target_x;
-  int16_t y = target_y;
-  int8_t phi = DegOfRad(phi_c);
-  int8_t theta = DegOfRad(theta_c);
-  DOWNLINK_SEND_CAM(&phi, &theta, &x, &y);
+  SEND_CAM();
   
   
   if (pprz_mode == PPRZ_MODE_AUTO2 || pprz_mode == PPRZ_MODE_HOME
@@ -558,11 +456,14 @@ inline void periodic_task( void ) {
     estimator_update_state_infrared();
 #endif
     roll_pitch_pid_run(); /* Set  desired_aileron & desired_elevator */
-    to_fbw.channels[RADIO_THROTTLE] = desired_gaz; /* desired_gaz is set upon GPS message reception */
-    to_fbw.channels[RADIO_ROLL] = desired_aileron;
-    to_fbw.channels[RADIO_PITCH] = desired_elevator;
+    from_ap.channels[RADIO_THROTTLE] = desired_gaz; /* desired_gaz is set upon GPS message reception */
+    from_ap.channels[RADIO_ROLL] = desired_aileron;
+    from_ap.channels[RADIO_PITCH] = desired_elevator;
     
+#ifndef FBW
     link_fbw_send();
+#endif
+/** #else statically linked with fbw */
     break;
   default:
     fatal_error_nb++;

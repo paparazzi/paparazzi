@@ -50,7 +50,7 @@
 #define SERVO_H
 
 #include <inttypes.h>
-#include "link_autopilot.h"
+#include "inter_mcu.h"
 
 extern void servo_init( void );
 extern void servo_set(const pprz_t values[]);
