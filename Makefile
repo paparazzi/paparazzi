@@ -45,12 +45,12 @@ conf/%.xml :conf/%.xml.example
 	[ -L $@ ] || [ -f $@ ] || cp $< $@ 
 
 
-test: conf ac1 ac2
+test: static ac1 ac2
 	PAPARAZZI_HOME=$(PAPARAZZI_SRC) PAPARAZZI_SRC=$(PAPARAZZI_SRC) $(SUPERVISION)
 
-ac1 : conf
+ac1 : conf sim_static
 	make AIRCRAFT=Twin1 PAPARAZZI_HOME=$(PAPARAZZI_SRC) sim_ac
-ac2 : conf
+ac2 : conf sim_static
 	make AIRCRAFT=Twin2 PAPARAZZI_HOME=$(PAPARAZZI_SRC) sim_ac
 
 lib:

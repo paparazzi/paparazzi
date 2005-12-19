@@ -2,6 +2,7 @@
    i386 architecture. Bindings for OCaml. */
 
 #include <stdio.h>
+#include <assert.h>
 #include <sys/time.h>
 #include <time.h>
 #include "std.h"
@@ -27,7 +28,7 @@ uint8_t gps_nb_ovrn, modem_nb_ovrn, link_fbw_fbw_nb_err, link_fbw_nb_err;
 
 uint8_t ac_id;
 
-struct inter_mcu_msg from_fbw, to_fbw;
+struct inter_mcu_msg from_fbw, from_ap;
 
 static int16_t values_from_ap[RADIO_CTL_NB];
 
@@ -36,10 +37,10 @@ void inflight_calib(void) { }
 void link_fbw_send(void) {
   int i;
   for(i = 0; i < RADIO_CTL_NB; i++)
-    values_from_ap[i] =  to_fbw.channels[i] / CLOCK;
+    values_from_ap[i] =  from_ap.channels[i] / CLOCK;
 }
 
-value sim_periodic_task(value unit) {
+value sim_periodic_task(value _unit) {
   periodic_task();
   return Val_unit;
 }
@@ -50,14 +51,16 @@ static int radio_really_lost;
 value set_radio_status(value on) {
   radio_status = Int_val(on);
   if (! radio_status) radio_really_lost = FALSE;
+  return Val_unit;
 }
 
 
 value set_really_lost(value on) {
   radio_really_lost = Int_val(on);
+  return Val_unit;
 }
 
-value sim_rc_task(value unit) {
+value sim_rc_task(value _unit) {
   from_fbw.status = (radio_status << STATUS_RADIO_OK) | (radio_really_lost << RADIO_REALLY_LOST) | (1 << AVERAGED_CHANNELS_SENT);
   link_fbw_receive_valid = TRUE;
   telecommand_task();
@@ -75,6 +78,7 @@ float ftimeofday(void) {
 value sim_init(value id) {
   pprz_mode = PPRZ_MODE_MANUAL;
   estimator_init();
+  ir_init();
   ac_id = Int_val(id);
   return Val_unit;
 }
@@ -122,6 +126,7 @@ value set_ac_info_native(value ac_id, value ux, value uy, value course, value al
 }
 
 value set_ac_info(value * argv, int argn) {
+  assert (argn == 6);
   return set_ac_info_native(argv[0], argv[1], argv[2], argv[3],argv[4], argv[5]);
 }
 

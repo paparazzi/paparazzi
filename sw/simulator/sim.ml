@@ -172,7 +172,7 @@ module Make(AircraftItl : AIRCRAFT_ITL) = struct
       Stdlib.timer ~scale:time_scale ir_period ir_task;
       Stdlib.timer ~scale:time_scale gps_period gps_task in
     
-    let take_off = fun () -> prerr_endline "takeoff"; FlightModel.set_air_speed !state FM.nominal_airspeed in 
+    let take_off = fun () -> FlightModel.set_air_speed !state FM.nominal_airspeed in 
 
     let hbox = GPack.hbox ~packing:vbox#pack () in
     let s = GButton.button ~label:"Boot" ~packing:(hbox#pack ~padding:5) () in

@@ -54,6 +54,8 @@ int16_t ir_contrast     = IR_DEFAULT_CONTRAST;
  */
 float ir_rad_of_ir = IR_RAD_OF_IR_CONTRAST / IR_DEFAULT_CONTRAST;
 
+float estimator_rad_of_ir, estimator_ir, estimator_rad;
+
 static struct adc_buf buf_ir1;
 static struct adc_buf buf_ir2;
 
@@ -80,15 +82,21 @@ void ir_init(void) {
 /** Different if the \a SIMUL flag is true or not. \n
  */
 void ir_update(void) {
-#ifndef SIMUL
+#if defined SITL
+  /** ir_roll set by simulator in sim_ir.c */
+#else
+#if defined SIMUL
+  extern volatile int16_t simul_ir_roll, simul_ir_pitch;
+  ir_roll = simul_ir_roll; 
+  ir_pitch = simul_ir_pitch;
+#else
   int16_t x1_mean = buf_ir1.sum/buf_ir1.av_nb_sample;
   int16_t x2_mean = buf_ir2.sum/buf_ir2.av_nb_sample;
-  ir_roll = IR_RollOfIrs(x1_mean, x2_mean) - IR_ADC_ROLL_NEUTRAL;
-  ir_pitch = IR_PitchOfIrs(x1_mean, x2_mean) - IR_ADC_PITCH_NEUTRAL;
-#else
-  extern volatile int16_t simul_ir_roll, simul_ir_pitch;
-  ir_roll = simul_ir_roll - IR_ADC_ROLL_NEUTRAL; 
-  ir_pitch = simul_ir_pitch - IR_ADC_PITCH_NEUTRAL;  
+  ir_roll = IR_RollOfIrs(x1_mean, x2_mean);
+  ir_pitch = IR_PitchOfIrs(x1_mean, x2_mean);
+#endif
+  ir_roll -= IR_ADC_ROLL_NEUTRAL;
+  ir_pitch -= IR_ADC_PITCH_NEUTRAL;
 #endif
 }
 
@@ -113,7 +121,7 @@ uint8_t calib_status = NO_CALIB;
  * radio roll stick to get new calibration
  * If not, the default calibration is used.
  */
-inline void ground_calibrate( bool_t triggered ) {
+void ground_calibrate( bool_t triggered ) {
   switch (calib_status) {
   case NO_CALIB:
     if (cputime < MAX_DELAY_FOR_CALIBRATION && pprz_mode == PPRZ_MODE_AUTO1 ) {
@@ -133,8 +141,6 @@ inline void ground_calibrate( bool_t triggered ) {
     break;
   }
 }
-
-float estimator_rad_of_ir, estimator_ir, estimator_rad;
 
 #define INIT_WEIGHT 100. /* The number of times the initial value has to be taken */
 #define RHO 0.995 /* The higher, the slower the estimation is changing */

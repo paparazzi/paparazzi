@@ -444,7 +444,6 @@ inline void periodic_task( void ) {
   }
   case 2:
     
-        
 #if defined IMU_3DMG
   //estimator_update_state_3DMG( );
 

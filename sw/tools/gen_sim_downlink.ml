@@ -1,6 +1,6 @@
 open Printf
 
-let h_name = "DOWNLINK_H"
+let h_name = "MESSAGES_H"
 
 let id_of = fun xml -> ExtXml.attrib xml "name"
 
