@@ -5,7 +5,7 @@
 #include "armVIC.h"
 #include "config.h"
 
-#define TX_BUF_SIZE 256
+//#define TX_BUF_SIZE 256
 
 uint8_t           modem_nb_ovrn;
 uint8_t           tx_head;
@@ -18,8 +18,8 @@ uint8_t    tx_bit_idx;
 #define T1_PCLK_DIV 3
 
 #define SAMPLES_PER_PERIOD 4
-#define SAMPLE_PERIOD (PCLK/4800/SAMPLES_PER_PERIOD/T1_PCLK_DIV)
-//0xFFF
+#define SAMPLE_PERIOD (PCLK/4762/SAMPLES_PER_PERIOD/T1_PCLK_DIV)
+
 #define NB_STATE 2
 #define NB_PHASE 2
 
@@ -71,7 +71,7 @@ static inline uint8_t get_next_bit( void ) {
     ret = 0;
   /*  data bits         */
   else if (tx_bit_idx < 9) {
-    ret = tx_byte && 0x01;
+    ret = tx_byte & 0x01;
     tx_byte >>= 1;
   }
   /* stop_bit           */
@@ -90,8 +90,8 @@ static inline uint8_t get_next_bit( void ) {
       tx_byte = tx_buf[tx_tail];	       
       tx_bit_idx = 0;				
       tx_tail++;				
-      /*      if( tx_tail >= TX_BUF_SIZE )
-	      tx_tail = 0; */
+            if( tx_tail >= TX_BUF_SIZE )
+	      tx_tail = 0; 
     }
   }
   return ret;

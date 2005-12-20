@@ -139,6 +139,7 @@ CFLAGS += -Wpointer-arith -Wswitch
 CFLAGS += -Wredundant-decls -Wreturn-type -Wshadow -Wunused
 CFLAGS += -Wa,-adhlns=$(subst $(suffix $<),.lst,$<) 
 CFLAGS += $(patsubst %,-I%,$(EXTRAINCDIRS))
+CFLAGS += -D MODEM -D DOWNLINK
 
 # flags only for C
 CONLYFLAGS  = -Wstrict-prototypes -Wmissing-declarations

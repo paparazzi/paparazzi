@@ -25,6 +25,8 @@
 #ifndef MODEM_H
 #define MODEM_H
 
+#include "inttypes.h"
+
 void modem_init( void );
 extern uint8_t modem_nb_ovrn;
 
@@ -52,55 +54,29 @@ extern uint8_t ck_a, ck_b;
 #define ModemEndMessage() \
   { MODEM_PUT_1_BYTE(ck_a); MODEM_PUT_1_BYTE(ck_b); MODEM_CHECK_RUNNING(); }
 
-
-#define MODEM_TX_PORT   PORTD
-#define MODEM_TX_DDR	DDRD
-#define MODEM_TX_EN     7
-#define MODEM_TX_DATA   6
-
-#ifdef CTL_BRD_V1_2 
-#define MODEM_CLK_DDR   DDRD
-#define MODEM_CLK_PORT  PORTD
-#define MODEM_CLK       0
-#define MODEM_CLK_INT   INT0
-#define MODEM_CLK_INT_REG EICRA
-#define MODEM_CLK_INT_CFG _BV(ISC01)
-#define MODEM_CLK_INT_SIG SIG_INTERRUPT0
-
-#define MODEM_OSC_DDR   DDRB
-#define MODEM_OSC_PORT  PORTB
-#define MODEM_OSC       4
-#endif /* CTL_BRD_V1_2 */
-
-#ifdef CTL_BRD_V1_2_1
-#define MODEM_CLK_DDR   DDRE
-#define MODEM_CLK_PORT  PORTE
-#define MODEM_CLK       4
-#define MODEM_CLK_INT   INT4
-#define MODEM_CLK_INT_REG EICRB
-#define MODEM_CLK_INT_CFG _BV(ISC41)
-#define MODEM_CLK_INT_SIG SIG_INTERRUPT4
-#define MODEM_OSC_DDR   DDRB
-#define MODEM_OSC_PORT  PORTB
-#define MODEM_OSC       4
-#endif /* CTL_BRD_V1_2_1 */
-
-
+#if TX_BUF_SIZE == 256
+#define UPDATE_HEAD() {			   \
+  tx_head++;				   \
+  if (tx_head >= TX_BUF_SIZE) tx_head = 0; \
+}
+#else
+#define UPDATE_HEAD() {			   \
+    tx_head++;				   \
+}
+#endif
 
 #define MODEM_CHECK_FREE_SPACE(_space) (tx_head>=tx_tail? _space < (TX_BUF_SIZE - (tx_head - tx_tail)) : _space < (tx_tail - tx_head))
 
 #define MODEM_PUT_1_BYTE(_byte) { \
-  tx_buf[tx_head] = _byte; \
-  tx_head++; \
-  if (tx_head >= TX_BUF_SIZE) tx_head = 0; \
+  tx_buf[tx_head] = _byte;	  \
+  UPDATE_HEAD();		  \
 }
 
 #define MODEM_PUT_1_BYTE_BY_ADDR(_byte) { \
-  tx_buf[tx_head] = *(_byte); \
-  ck_a += *(_byte); \
-  ck_b += ck_a; \
-  tx_head++; \
-  if (tx_head >= TX_BUF_SIZE) tx_head = 0; \
+    tx_buf[tx_head] = *(_byte);		  \
+    ck_a += *(_byte);			  \
+    ck_b += ck_a;			  \
+    UPDATE_HEAD();			  \
 }
 
 #define MODEM_PUT_2_BYTE_BY_ADDR(_byte) { \
@@ -122,6 +98,8 @@ extern uint8_t ck_a, ck_b;
   if( tx_tail >= TX_BUF_SIZE ) \
     tx_tail = 0; \
 }
+
+
 
 #endif // MODEM
 

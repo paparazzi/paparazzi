@@ -10,7 +10,10 @@
 #include "ppm.h"
 #include "radio_control.h"
 #include "gps_crado.h"
+
+#include "messages.h"
 #include "modem.h"
+
 
 
 static void periodic_task ( void );
@@ -96,17 +99,24 @@ static void sysInit(void) {
   modem_init();
 }
 
+uint8_t AC_ID = 42;
+
 static void periodic_task ( void ) {
   static uint32_t foo = 0;
   foo++;
-  MODEM_PRINT_GPS();
+/*   modem_put_one_byte(0x42); */
+/*   modem_put_one_byte(0x42); */
+/*   modem_put_one_byte(0x42); */
+/*   modem_put_one_byte(0x42); */
+  //  MODEM_PRINT_GPS();
   if (!(foo%10)) {
     if (IO0PIN & LED1_BIT)
       IO0CLR = LED1_BIT;
     else
       IO0SET = LED1_BIT; 
     //    PRINT_ADC();
-   
+        DOWNLINK_SEND_IDENT(&AC_ID);
+
   }
   radio_control_periodic_task();
   if (rc_status == RC_OK) 
@@ -114,6 +124,7 @@ static void periodic_task ( void ) {
   else
     IO0SET = LED2_BIT;
 }
+
 
 #define PERIODIC_TASK_PERIOD FIFTY_MS
 
@@ -138,7 +149,7 @@ int main (void) {
       }
       if (gps_pos_available) {
 	PRINT_GPS();
-	MODEM_PRINT_GPS();
+	//	MODEM_PRINT_GPS();
 	gps_pos_available = FALSE;
       }
     }

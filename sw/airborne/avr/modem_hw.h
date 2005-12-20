@@ -41,4 +41,38 @@
   } \
 }
 
+
+#define MODEM_TX_PORT   PORTD
+#define MODEM_TX_DDR	DDRD
+#define MODEM_TX_EN     7
+#define MODEM_TX_DATA   6
+
+#ifdef CTL_BRD_V1_2 
+#define MODEM_CLK_DDR   DDRD
+#define MODEM_CLK_PORT  PORTD
+#define MODEM_CLK       0
+#define MODEM_CLK_INT   INT0
+#define MODEM_CLK_INT_REG EICRA
+#define MODEM_CLK_INT_CFG _BV(ISC01)
+#define MODEM_CLK_INT_SIG SIG_INTERRUPT0
+
+#define MODEM_OSC_DDR   DDRB
+#define MODEM_OSC_PORT  PORTB
+#define MODEM_OSC       4
+#endif /* CTL_BRD_V1_2 */
+
+#ifdef CTL_BRD_V1_2_1
+#define MODEM_CLK_DDR   DDRE
+#define MODEM_CLK_PORT  PORTE
+#define MODEM_CLK       4
+#define MODEM_CLK_INT   INT4
+#define MODEM_CLK_INT_REG EICRB
+#define MODEM_CLK_INT_CFG _BV(ISC41)
+#define MODEM_CLK_INT_SIG SIG_INTERRUPT4
+#define MODEM_OSC_DDR   DDRB
+#define MODEM_OSC_PORT  PORTB
+#define MODEM_OSC       4
+#endif /* CTL_BRD_V1_2_1 */
+
+
 #endif

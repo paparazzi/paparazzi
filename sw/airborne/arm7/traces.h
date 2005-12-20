@@ -113,4 +113,5 @@ void uart0_print_dec_32(const int32_t c);
     modem_put_one_byte('S');			\
 }
 
+
 #endif /* TRACES_H */
