@@ -90,6 +90,5 @@ ap.CFLAGS += -DUBX
 ap.CFLAGS += -DDATALINK
 ap.EXTRA_SRCS += traffic_info.c datalink.c
 ap.CFLAGS += -DMOBILE_CAM
-ap.EXTRA_SRCS += cam.c
   </makefile>
 </airframe>

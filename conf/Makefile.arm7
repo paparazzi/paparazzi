@@ -146,7 +146,7 @@ CPPFLAGS =
 #             files -- see avr-libc docs [FIXME: not yet described there]
 ##ASFLAGS = -Wa,-adhlns=$(<:.S=.lst),-gstabs 
 #ASFLAGS = $(ADEFS) -Wa,-adhlns=$(<:.S=.lst),-g$(DEBUG)
-ASFLAGS = $(ADEFS) -Wa,-adhlns=$(<:.S=.lst)
+ASFLAGS = $(ADEFS) -Wa,-adhlns=$(OBJDIR)/$(notdir $(<:.S=.lst))
 
 #Additional libraries.
 
