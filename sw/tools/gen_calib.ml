@@ -24,6 +24,8 @@
  *
  *)
 
+(** Generates code for tuning parameters using RC sliders *)
+
 open Printf
 open Xml2h
 
@@ -61,6 +63,7 @@ let parse_setting = fun xml ->
   lprintf "if (inflight_calib_mode == IF_CALIB_MODE_%s) {\n" (String.uppercase cm);
   right ();
   lprintf "static %s %s;\n" (inttype t) var_init;
+  lprintf "static int16_t slider%d_init;\n" cursor;
   lprintf "if (mode_changed) {\n";
   right ();
   lprintf "%s = %s;\n" var_init var;

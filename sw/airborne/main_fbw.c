@@ -1,7 +1,7 @@
 /*
  * Paparazzi $Id$
  *  
- * Copyright (C) 2003 Pascal Brisset, Antoine Drouin
+ * Copyright (C) 2003-2005 Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
  *
@@ -25,25 +25,28 @@
 
 
 #include <inttypes.h>
-#include "int.h"
 
+#include "main_fbw.h"
+#include "int.h"
 #include "timer_fbw.h"
 #include "command.h"
 #include "ppm.h"
-#include "spi_fbw_hw.h"
-#include "spi_fbw.h"
 #include "inter_mcu.h"
 #include "radio.h"
 #include "led.h"
-
-
 #include "uart_fbw.h"
+
+#ifndef AP /** fbw alone, using SPI to communicate with ap */
+#include "spi_fbw_hw.h"
+#include "spi_fbw.h"
+#endif
+/** #else statically linked with ap */
 
 #ifdef IMU_3DMG 
 #include "3dmg.h"
 #endif
 
-#if defined  IMU_ANALOG || defined IMU_3DMG
+#if defined IMU_ANALOG || defined IMU_3DMG
 #include "imu.h"
 #include "control.h"
 #endif
@@ -51,10 +54,18 @@
 #include "adc_fbw.h"
 struct adc_buf vsupply_adc_buf;
 
-uint8_t mode;
+#define AVERAGING_PERIOD 10
+
+
+
+static uint8_t mode;
 static uint8_t time_since_last_ap;
 static uint16_t time_since_last_ppm;
-bool_t radio_ok, ap_ok, radio_really_lost, failsafe_mode;
+static bool_t radio_ok, ap_ok, radio_really_lost, failsafe_mode;
+
+static pprz_t last_radio[ PPM_NB_PULSES ];
+static pprz_t avg_last_radio[ PPM_NB_PULSES ];
+static bool_t last_radio_contains_avg_channels = FALSE;
 
 static const pprz_t failsafe[] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
 
@@ -71,7 +82,7 @@ static inline void to_autopilot_from_last_radio (void) {
     from_fbw.channels[i] = last_radio[i];
   from_fbw.status = (radio_ok ? _BV(STATUS_RADIO_OK) : 0);
   from_fbw.status |= (radio_really_lost ? _BV(RADIO_REALLY_LOST) : 0);
-  from_fbw.status |= (mode == MODE_AUTO ? _BV(STATUS_MODE_AUTO) : 0);
+  from_fbw.status |= (mode == FBW_MODE_AUTO ? _BV(STATUS_MODE_AUTO) : 0);
   from_fbw.status |= (failsafe_mode ? _BV(STATUS_MODE_FAILSAFE) : 0);
   if (last_radio_contains_avg_channels) {
     from_fbw.status |= _BV(AVERAGED_CHANNELS_SENT);
@@ -91,14 +102,19 @@ static inline void to_autopilot_from_last_radio (void) {
 #endif
 }
 
-inline void radio_control_task(void) {
+/* Copy from the ppm receiving buffer to the buffer sent to mcu0 */
+static void last_radio_from_ppm( void ) {
+  LastRadioFromPpm()
+}
+
+static inline void radio_control_task(void) {
   ppm_cpt++;
   radio_ok = TRUE;
   radio_really_lost = FALSE;
   time_since_last_ppm = 0;
   last_radio_from_ppm();
   if (last_radio_contains_avg_channels) {
-    mode = MODE_OF_PPRZ(last_radio[RADIO_MODE]);
+    mode = FBW_MODE_OF_PPRZ(last_radio[RADIO_MODE]);
   }
 #if defined IMU_ANALOG && defined RADIO_SWITCH1
   if (last_radio[RADIO_SWITCH1] > MAX_PPRZ/2) {
@@ -108,7 +124,7 @@ inline void radio_control_task(void) {
     CounterLedOff();
   } 
 #endif
-  if (mode == MODE_MANUAL) {
+  if (mode == FBW_MODE_MANUAL) {
 #if defined IMU_3DMG || defined IMU_ANALOG
     roll_dot_pgain = -100. ; /***  + (float)last_radio[RADIO_GAIN1] * 0.010; ***/
     roll_dot_dgain = 0.; /*** 2.5 - (float)last_radio[RADIO_GAIN2] * 0.00025; ***/
@@ -127,7 +143,7 @@ inline void radio_control_task(void) {
 #endif
 
 void init_fbw( void ) {
-  {
+  { /** Pause */
     uint8_t foo1 = 25;
     while (foo1--) {
       uint16_t foo2 = 1;
@@ -169,8 +185,8 @@ void event_task_fbw( void) {
   if( ppm_valid ) {
     ppm_valid = FALSE;
     radio_control_task();
-  } else if (mode == MODE_MANUAL && radio_really_lost) {
-    mode = MODE_AUTO;
+  } else if (mode == FBW_MODE_MANUAL && radio_really_lost) {
+    mode = FBW_MODE_AUTO;
   }
 
 #ifndef AP
@@ -184,7 +200,7 @@ void event_task_fbw( void) {
   if (from_ap_receive_valid) {
     time_since_last_ap = 0;
     ap_ok = TRUE;
-    if (mode == MODE_AUTO) {
+    if (mode == FBW_MODE_AUTO) {
 #if defined IMU_ANALOG || defined IMU_3DMG
       control_set_desired(from_ap.channels);
 #else
@@ -213,8 +229,8 @@ void event_task_fbw( void) {
   }
   
   failsafe_mode = FALSE;
-  if ((mode == MODE_MANUAL && !radio_ok) ||
-      (mode == MODE_AUTO && !ap_ok)) {
+  if ((mode == FBW_MODE_MANUAL && !radio_ok) ||
+      (mode == FBW_MODE_AUTO && !ap_ok)) {
     failsafe_mode = TRUE;
     command_set(failsafe);
   }

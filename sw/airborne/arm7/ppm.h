@@ -1,11 +1,11 @@
 #ifndef PPM_H
 #define PPM_H
 
-#include "types.h"
+#include "inttypes.h"
 #include "radio.h"
 
-#define PPM_NB_CHANNEL RADIO_CTL_NB
-extern uint16_t ppm_pulses[PPM_NB_CHANNEL];
+#define PPM_NB_PULSES RADIO_CTL_NB
+extern uint16_t ppm_pulses[PPM_NB_PULSES];
 extern volatile uint8_t ppm_valid;
 
 void ppm_init ( void );

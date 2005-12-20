@@ -22,6 +22,10 @@
  *
  */
 
+/** \file gps_ubx.c
+ * \brief Parser for the UBX protocol (u-blox.com devices)
+ */
+
 #include <inttypes.h>
 #include <string.h> 
 #include <math.h>

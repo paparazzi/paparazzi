@@ -1,8 +1,6 @@
-/*
- * $Id$
- * Flight-time calibration facility
- *  
- * Copyright (C) 2003-2005  Pascal Brisset, Antoine Drouin
+/* $Id$
+ *
+ * Copyright (C) 2005 Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
  *
@@ -23,27 +21,9 @@
  *
  */
 
+#ifndef TIMER_H
+#define TIMER_H
 
-#include <inttypes.h>
-#include "radio.h"
-#include "autopilot.h"
-#include "if_calib.h"
-#include "infrared.h"
-#include "pid.h"
-#include "nav.h"
+extern void timer_init( void );
 
-
-#define ParamValInt16(param_init_val, param_travel, cur_pulse, init_pulse) \
-(param_init_val + (int16_t)(((float)(cur_pulse - init_pulse)) * param_travel / (float)MAX_PPRZ))
-
-#define ParamValFloat(param_init_val, param_travel, cur_pulse, init_pulse) \
-(param_init_val + ((float)(cur_pulse - init_pulse)) * param_travel / (float)MAX_PPRZ)
-
-
-
-uint8_t  inflight_calib_mode = IF_CALIB_MODE_NONE;
-
-#include "estimator.h"
-
-/** Includes generated code from airframe.xml */
-#include "inflight_calib.h"
+#endif /** TIMER_H */

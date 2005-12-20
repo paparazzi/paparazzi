@@ -24,11 +24,11 @@
  *  \brief Main loop used in the autopilot microcontroler
  */
  
+#include "main_ap.h"
+#include "int.h"
 #include "timer_ap.h"
 #include "adc_ap.h"
 #include "autopilot.h"
-#include "spi_ap.h"
-#include "link_mcu_ap.h"
 #include "gps.h"
 #include "nav.h"
 #include "infrared.h"
@@ -37,6 +37,13 @@
 #include "datalink.h"
 #include "wavecard.h"
 #include "downlink.h"
+
+#ifndef FBW /** ap alone, using SPI to communicate with fbw */
+#include "spi_ap.h"
+#include "link_mcu_ap.h"
+#endif
+/** #else statically linked with fbw */
+
 
 #ifdef TELEMETER
 #include "srf08.h"
@@ -48,19 +55,10 @@
 
 
 void init_ap( void ) {
-  /** - init peripherals:
-   *    - \a timer
-   *    - \a modem
-   *    - \a adc
-   *    - spi
-   *    - link to fbw
-   *    - gps
-   *    - nav
-   *    - ir (infrared)
-   *    - estimator
-   */
+#ifndef FBW /** Dual mcus : init done in main_fbw */
   timer_init(); 
   adc_init();
+#endif
 
   /************* Sensors initialization ***************/
 #ifdef INFRARED
@@ -97,7 +95,7 @@ void init_ap( void ) {
 
 
   /** - start interrupt task */
-  sei();
+  int_enable();
 
   /** - wait 0.5s (for modem init ?) */
   uint8_t init_cpt = 30;

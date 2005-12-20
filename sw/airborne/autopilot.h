@@ -82,8 +82,6 @@ extern uint8_t fatal_error_nb;
 
 #define GAZ_THRESHOLD_TAKEOFF (pprz_t)(MAX_PPRZ * 0.9)
 
-extern uint8_t inflight_calib_mode;
-//extern uint16_t flight_time;
 extern uint8_t vertical_mode;
 extern bool_t auto_pitch;
 extern uint8_t lateral_mode;
@@ -107,7 +105,6 @@ extern uint16_t cputime; /**  in seconds */
 
 
 void periodic_task( void );
-void use_gps_pos(void);
 void telecommand_task(void);
 
 #endif /* AUTOPILOT_H */

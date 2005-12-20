@@ -35,8 +35,6 @@ extern float estimator_x;
 extern float estimator_y;
 extern float estimator_z;
 
-extern float estimator_z_dot;
-
 /* attitude in radians */
 extern float estimator_phi;
 extern float estimator_psi;

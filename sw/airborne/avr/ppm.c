@@ -26,8 +26,6 @@
 #include "radio.h"
 #include "ppm.h"
 
-#define AVERAGING_PERIOD (PPM_FREQ/4)
-
 /*
  * Pulse width is computed as the difference between now and the
  * previous pulse.  If no pulse has been received between then and
@@ -45,9 +43,6 @@
  */
 
 uint16_t ppm_pulses[ PPM_NB_PULSES ];
-pprz_t last_radio[ PPM_NB_PULSES ];
-pprz_t avg_last_radio[ PPM_NB_PULSES ];
-bool_t last_radio_contains_avg_channels = FALSE;
 volatile bool_t ppm_valid;
 
 /* MC3030, Trame PPM7: 25ms, 10.4 au neutre, 
@@ -107,9 +102,4 @@ SIGNAL( SIG_INPUT_CAPTURE1 )
       state++;
   }
   return;
-}
-
-/* Copy from the ppm receiving buffer to the buffer sent to mcu0 */
-void last_radio_from_ppm() {
-  LastRadioFromPpm()
 }

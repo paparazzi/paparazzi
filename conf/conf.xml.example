@@ -33,6 +33,14 @@
     flight_plan="flight_plans/dummy.xml"
   />
 
+  <aircraft 
+    name="Dragon"
+    ac_id="7"
+    airframe="airframes/dragon.xml" 
+    radio="radios/cockpitMM.xml" 
+    flight_plan="flight_plans/dummy.xml"
+  />
+
   <ground name="desktop" ivy_bus="127:2010">
     <link name="downlink" port="/dev/ttyS0" protocol="pprz/modem"/>
     <link name="datalink" port="/dev/ttyS1" protocol="pprz/coronis"/>

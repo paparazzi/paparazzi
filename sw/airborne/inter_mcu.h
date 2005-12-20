@@ -55,7 +55,7 @@ typedef int16_t pprz_t; // type of commands
                           (pprz >  MAX_PPRZ ? MAX_PPRZ : \
                                     pprz))
 
-
+/** Data structure shared by fbw and ap sub-mofules */
 struct inter_mcu_msg {
   pprz_t channels[RADIO_CTL_NB];  
   uint8_t ppm_cpt;
@@ -69,6 +69,12 @@ struct inter_mcu_msg {
   int16_t euler[3];
 #endif
 };
+
+/** Fly by wire modes */
+
+#define FBW_MODE_MANUAL   0
+#define FBW_MODE_AUTO     1
+#define FBW_MODE_OF_PPRZ(mode) ((mode) < TRESHOLD_MANUAL_PPRZ ? FBW_MODE_MANUAL : FBW_MODE_AUTO)
 
 // Status bits from FBW to AUTOPILOT
 #define STATUS_RADIO_OK 0

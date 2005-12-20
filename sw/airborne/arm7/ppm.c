@@ -3,6 +3,8 @@
 #include "armVIC.h"
 #include "config.h"
 
+#define PPM_NB_CHANNEL PPM_NB_PULSES
+
 uint16_t ppm_pulses[PPM_NB_CHANNEL];
 volatile uint8_t ppm_valid = FALSE;
 

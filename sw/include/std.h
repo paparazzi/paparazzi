@@ -46,6 +46,10 @@ typedef uint8_t bool_t;
 #define bit_is_set(x, b) ((x >> b) & 0x1)
 #endif
 
+#ifndef _BV
+#define _BV(bit) (1 << (bit))
+#endif
+
 
 #define NormRadAngle(x) { \
     while (x > M_PI) x -= 2 * M_PI; \

@@ -103,10 +103,9 @@ float energy; /** Fuel consumption */
 #define Max(x, y) (x > y ? x : y)
 
 
-/** \fn inline uint8_t pprz_mode_update( void )
- *  \brief Update paparazzi mode
+/** \brief Update paparazzi mode
  */
-inline uint8_t pprz_mode_update( void ) {
+static inline uint8_t pprz_mode_update( void ) {
   /** We remain in home mode until explicit reset from the RC */
   if ((pprz_mode != PPRZ_MODE_HOME &&
 				pprz_mode != PPRZ_MODE_GPS_OUT_OF_ORDER)
@@ -126,10 +125,7 @@ inline uint8_t ir_estim_mode_update( void ) {
 #endif
 
 
-/** \fn inline uint8_t mcu1_status_update( void )
- *  \brief @@@@@ A FIXER @@@@@
- */
-inline uint8_t mcu1_status_update( void ) {
+static inline uint8_t mcu1_status_update( void ) {
   uint8_t new_mode = from_fbw.status;
   if (mcu1_status != new_mode) {
     bool_t changed = ((mcu1_status&MASK_FBW_CHANGED) != (new_mode&MASK_FBW_CHANGED));
@@ -178,10 +174,9 @@ static inline void events_update( void ) {
 }  
 
 
-/** \fn inline void copy_from_to_fbw ( void )
- *  \brief Send back uncontrolled channels (only rudder)
+/** \brief Send back uncontrolled channels (actually only rudder)
  */
-inline void copy_from_to_fbw ( void ) {
+static inline void copy_from_to_fbw ( void ) {
   from_ap.channels[RADIO_YAW] = from_fbw.channels[RADIO_YAW];
   from_ap.status = 0;
 }
@@ -202,7 +197,7 @@ uint8_t ac_ident = AC_ID;
  *
  * Called at 20Hz.
  */
-inline void reporting_task( void ) {
+static inline void reporting_task( void ) {
   static uint8_t boot = TRUE;
 
   /** initialisation phase during boot */
@@ -218,10 +213,7 @@ inline void reporting_task( void ) {
   }
 }
 
-/** \fn inline uint8_t inflight_calib_mode_update ( void )
- *  \brief @@@@@ A FIXER @@@@@
- */
-inline uint8_t inflight_calib_mode_update ( void ) {
+static inline uint8_t inflight_calib_mode_update ( void ) {
   ModeUpdate(inflight_calib_mode, IF_CALIB_MODE_OF_PULSE(from_fbw.channels[RADIO_CALIB]));
 }
 
@@ -285,7 +277,7 @@ inline void telecommand_task( void ) {
 /** \fn void navigation_task( void )
  *  \brief Compute desired_course
  */
-void navigation_task( void ) {
+static void navigation_task( void ) {
 #ifdef FAILSAFE_DELAY_WITHOUT_GPS
   /** This section is used for the failsafe of GPS */
   static uint8_t last_pprz_mode;

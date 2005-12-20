@@ -43,7 +43,10 @@ uint8_t nav_stage, nav_block;
 /** To save the current stage when an exception is raised */
 uint8_t excpt_stage;
 static float last_x, last_y;
-static uint8_t last_wp;
+
+/** Index of last waypoint. Used only in "go" stage in "route" horiz mode */
+static uint8_t last_wp __attribute__ ((unused));
+
 float rc_pitch;
 uint16_t stage_time, block_time;
 float stage_time_ds;
@@ -83,11 +86,11 @@ uint8_t horizontal_mode;
 #define Exception(x) { excpt_stage = nav_stage; goto label_ ## x; }
 #define ReturnFromException(_) { GotoStage(excpt_stage) }
 
-static bool_t approaching(uint8_t, float);
+static bool_t approaching(uint8_t, float) __attribute__ ((unused));
 static inline void fly_to_xy(float x, float y);
-static void fly_to(uint8_t wp);
-static void route_to(uint8_t last_wp, uint8_t wp) __attribute__ ((unused));
-static void glide_to(uint8_t last_wp, uint8_t wp) __attribute__ ((unused));
+static void fly_to(uint8_t wp) __attribute__ ((unused));
+static void route_to(uint8_t _last_wp, uint8_t _wp) __attribute__ ((unused));
+static void glide_to(uint8_t _last_wp, uint8_t _wp) __attribute__ ((unused));
 
 #define MIN_DX ((int16_t)(MAX_PPRZ * 0.05))
 

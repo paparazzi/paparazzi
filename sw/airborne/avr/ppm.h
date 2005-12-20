@@ -44,7 +44,6 @@
 #define RXJR     1
 
 #define PPM_RX_TYPE  RXFUTABA
-#define PPM_FREQ     40 // 25ms
 
 #include <inttypes.h>
 #include <avr/signal.h>
@@ -95,14 +94,6 @@ ppm_init( void )
 #define PPM_NB_PULSES RADIO_CTL_NB
 
 extern volatile bool_t	ppm_valid;
-extern pprz_t last_radio[PPM_NB_PULSES];
-extern bool_t last_radio_contains_avg_channels;
+extern uint16_t ppm_pulses[ PPM_NB_PULSES ];
 
-
-#define  MODE_MANUAL   0
-#define  MODE_AUTO     1
-
-#define MODE_OF_PPRZ(mode) ((mode) < TRESHOLD_MANUAL_PPRZ ? MODE_MANUAL : MODE_AUTO)
-
-extern void last_radio_from_ppm(void);
 #endif
