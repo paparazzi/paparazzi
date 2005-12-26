@@ -98,24 +98,30 @@ let parse_message = fun class_name m ->
   end;
    
   (** Generating send function *)
-  if List.for_all (fun f -> Xml.tag f = "field") (Xml.children m) then
-    (** Only for messages with fixed length (no "block") *)
-    let param_name = fun f -> String.lowercase (field_name f) in
-    let param_type = fun f -> c_type (format f) in
-    fprintf out "\n#define UbxSend_%s_%s(" class_name msg_name;
-    fprintf out "%s" (String.concat "," (List.map param_name (Xml.children m)));
-    fprintf out ") { \\\n";
-    fprintf out "  UbxHeader(UBX_%s_ID, %s, %d);\\\n" class_name msg_id !offset;
-    List.iter
-      (fun f ->
-	assert (String.lowercase (Xml.tag f) = "field");
+  let param_name = fun f -> String.lowercase (field_name f) in
+  let rec param_names = fun f r -> 
+    if Xml.tag f = "field" then
+      param_name f :: r
+    else
+      List.fold_right param_names (Xml.children f) r in
+  let param_type = fun f -> c_type (format f) in
+  fprintf out "\n#define UbxSend_%s_%s(" class_name msg_name;
+  fprintf out "%s" (String.concat "," (param_names m []));
+  fprintf out ") { \\\n";
+  fprintf out "  UbxHeader(UBX_%s_ID, %s, %d);\\\n" class_name msg_id !offset;
+  let rec send_one_field = fun f ->
+    match Xml.tag f with
+      "field" -> 
 	let s = sizeof (format f) in
-	fprintf out "  UbxSend%dByAddr((uint8_t*)%s);\\\n" s  (param_name f))
-      (Xml.children m);
-    fprintf out "  UbxTrailer();\\\n";
-    fprintf out "}\n"
+	fprintf out "  UbxSend%dByAddr((uint8_t*)%s);\\\n" s  (param_name f)
+    | "block" ->
+	List.iter send_one_field (Xml.children f)
+    | _ -> assert (false) in
+  List.iter send_one_field (Xml.children m);
+  fprintf out "  UbxTrailer();\\\n";
+  fprintf out "}\n"
     
-
+    
 let parse_class = fun c ->
   let class_id = int_of_string (Xml.attrib c "id")
   and class_name = Xml.attrib c "name" in
