@@ -34,7 +34,7 @@
 #include "flight_plan.h"
 #include "uart_ap.h"
 #include "gps.h"
-#include "ubx_protocol.h"
+#include "ubx.h"
 #include "flight_plan.h"
 
 uint32_t gps_itow;
@@ -80,6 +80,7 @@ static uint8_t  ubx_status;
 static uint16_t ubx_len;
 static uint8_t  ubx_msg_idx;
 static uint8_t ck_a, ck_b, ubx_id, ubx_class;
+uint8_t send_ck_a, send_ck_b;
 
 void gps_init( void ) {
   /* Enable uart                   */
@@ -216,6 +217,7 @@ ReceiveUart0(parse_ubx);
 #ifndef WAVECARD_ON_GPS
 ReceiveUart1(parse_ubx);
 #endif
+
 
 #endif /* AVR_ARCH */
 

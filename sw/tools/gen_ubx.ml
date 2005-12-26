@@ -36,16 +36,18 @@ let sizeof = function
 
 let (+=) = fun r x -> r := !r + x
 
+let c_type = fun format ->
+  match format with
+    "I2" -> "int16_t"
+  | "I4" -> "int32_t"
+  | "U2" -> "uint16_t"
+  | "U4" -> "uint32_t"
+  | "U1" -> "uint8_t"
+  | "I1" -> "int8_t"
+  | _ -> failwith (sprintf "Gen_ubx.c_type: unknown format '%s'" format)
+
 let get_at = fun offset format block_size ->
-  let t = 
-    match format with
-      "I2" -> "int16_t"
-    | "I4" -> "int32_t"
-    | "U2" -> "uint16_t"
-    | "U4" -> "uint32_t"
-    | "U1" -> "uint8_t"
-    | "I1" -> "int8_t"
-    | _ -> failwith (sprintf "get_at: unknown format '%s'" format) in
+  let t = c_type format in
   let block_offset =
     if block_size = 0 then "" else sprintf "+%d*_ubx_block" block_size in
   sprintf "(*((%s*)(_ubx_payload+%d%s)))" t offset block_offset
@@ -54,7 +56,65 @@ let define = fun x y ->
   fprintf out "#define %s %s\n" x y
 
 exception Length_error of Xml.xml*int*int
+
   
+  
+
+let parse_message = fun class_name m ->
+  let msg_name = Xml.attrib m "name" in
+
+  fprintf out "\n";
+  let msg_id = sprintf "UBX_%s_%s_ID" class_name msg_name in
+  define msg_id (Xml.attrib m "ID");
+
+  let field_name = fun f -> ExtXml.attrib f "name" in
+  let format = fun f -> Xml.attrib f "format" in
+
+  let offset = ref 0 in
+  let rec gen_access_macro = fun block_size f ->
+    match Xml.tag f with
+      "field" ->
+	let fn = field_name f
+	and fmt = format f  in
+	let block_no = if block_size = 0 then "" else ",_ubx_block" in
+	define (sprintf "UBX_%s_%s_%s(_ubx_payload%s)" class_name msg_name fn block_no) (get_at !offset fmt block_size);
+	offset += sizeof fmt
+    | "block" ->
+	let s = int_of_string (Xml.attrib f "length") in
+	let o = !offset in
+	List.iter (gen_access_macro s) (Xml.children f);
+	let s' = !offset - o in
+	if s <> s' then raise (Length_error (f, s, s'))
+    | x -> failwith ("Unexpected field: " ^ x)
+  in
+
+  List.iter (gen_access_macro 0) (Xml.children m);
+  begin
+    try
+      let l = int_of_string (Xml.attrib m "length") in
+      if l <> !offset then raise (Length_error (m, l, !offset))
+    with
+      Xml.No_attribute("length") -> () (** Undefined length authorized *)
+  end;
+   
+  (** Generating send function *)
+  if List.for_all (fun f -> Xml.tag f = "field") (Xml.children m) then
+    (** Only for messages with fixed length (no "block") *)
+    let param_name = fun f -> String.lowercase (field_name f) in
+    let param_type = fun f -> c_type (format f) in
+    fprintf out "\n#define UbxSend_%s_%s(" class_name msg_name;
+    fprintf out "%s" (String.concat "," (List.map param_name (Xml.children m)));
+    fprintf out ") { \\\n";
+    fprintf out "  UbxHeader(UBX_%s_ID, %s, %d);\\\n" class_name msg_id !offset;
+    List.iter
+      (fun f ->
+	assert (String.lowercase (Xml.tag f) = "field");
+	let s = sizeof (format f) in
+	fprintf out "  UbxSend%dByAddr((uint8_t*)%s);\\\n" s  (param_name f))
+      (Xml.children m);
+    fprintf out "  UbxTrailer();\\\n";
+    fprintf out "}\n"
+    
 
 let parse_class = fun c ->
   let class_id = int_of_string (Xml.attrib c "id")
@@ -63,40 +123,7 @@ let parse_class = fun c ->
   fprintf out "\n";
   define (sprintf "UBX_%s_ID" class_name) (Xml.attrib c "ID");
 
-  let parse_message = fun m ->
-    let msg_name = Xml.attrib m "name" in
-
-    fprintf out "\n";
-    define (sprintf "UBX_%s_%s_ID" class_name msg_name) (Xml.attrib m "ID");
-
-    let offset = ref 0 in
-    let rec parse_field = fun block_size f ->
-      match Xml.tag f with
-	"field" ->
-	  let field_name = Xml.attrib f "name"
-	  and format = Xml.attrib f "format" in
-	  let block_no = if block_size = 0 then "" else ",_ubx_block" in
-	  define (sprintf "UBX_%s_%s_%s(_ubx_payload%s)" class_name msg_name field_name block_no) (get_at !offset format block_size);
-	  offset += sizeof format
-      | "block" ->
-	  let s = int_of_string (Xml.attrib f "length") in
-	  let o = !offset in
-	  List.iter (parse_field s) (Xml.children f);
-	  let s' = !offset - o in
-	  if s <> s' then raise (Length_error (f, s, s'))
-      | x -> failwith ("Unexpected field: " ^ x)
-    in
-
-    List.iter (parse_field 0) (Xml.children m);
-    try
-      let l = int_of_string (Xml.attrib m "length") in
-      if l <> !offset then raise (Length_error (m, l, !offset))
-    with
-      Xml.No_attribute("length") -> ()
-  in
-
-
-  List.iter parse_message (Xml.children c)
+  List.iter (parse_message class_name) (Xml.children c)
   
 
 let _ =

@@ -31,6 +31,31 @@
 #ifndef UBX_H
 #define UBX_H
 
+extern uint8_t send_ck_a, send_ck_b;
+#define UbxInitCheksum() { send_ck_a = send_ck_b = 0; }
+#define UpdateChecksum(c) { send_ck_a += c; send_ck_b += send_ck_a; }
+#define UbxTrailer() { GpsUartSend1(send_ck_a);  GpsUartSend1(send_ck_b); }
+
+#define UbxSend1(c) { uint8_t i8=c; GpsUartSend1(i8); UpdateChecksum(i8); }
+#define UbxSend2(c) { uint16_t i16=c; UbxSend1(i16&0xff); UbxSend1(i16 >> 8); }
+#define UbxSend1ByAddr(x) { UbxSend1(*x); }
+#define UbxSend2ByAddr(x) { UbxSend1(*x); UbxSend1(*(x+1)); }
+#define UbxSend4ByAddr(x) { UbxSend1(*x); UbxSend1(*(x+1)); UbxSend1(*(x+2)); UbxSend1(*(x+3)); }
+
+#define UbxHeader(nav_id, msg_id, len) { \
+  GpsUartSend1(UBX_SYNC1); \
+  GpsUartSend1(UBX_SYNC2); \
+  UbxInitCheksum(); \
+  UbxSend1(nav_id); \
+  UbxSend1(msg_id); \
+  UbxSend2(len); \
+}
+
+
+ 
+#include "ubx_protocol.h"
+
 #define GPS_FIX_VALID(gps_mode) (gps_mode == 3)
+
 
 #endif /* UBX_H */
