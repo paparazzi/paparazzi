@@ -57,5 +57,13 @@ extern uint8_t send_ck_a, send_ck_b;
 
 #define GPS_FIX_VALID(gps_mode) (gps_mode == 3)
 
+extern void parse_ubx( uint8_t c );
+
+#define GpsParse(_gps_buffer, _gps_buffer_size) { \
+  uint8_t i; \
+  for(i = 0; i < _gps_buffer_size; i++) { \
+    parse_ubx(_gps_buffer[i]); \
+  } \
+}
 
 #endif /* UBX_H */

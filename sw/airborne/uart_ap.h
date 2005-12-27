@@ -25,6 +25,7 @@
 #define _UART_H_
 
 #include <inttypes.h>
+#include "std.h"
 #include "uart_ap_hw.h"
 
 extern void uart0_init_tx(void);
@@ -37,5 +38,7 @@ extern void uart0_print_hex16(const uint16_t);
 extern void uart0_transmit(const uint8_t);
 extern void uart1_transmit(const uint8_t);
 
+extern bool_t uart1_buffer_size;
+extern uint8_t uart1_buffer[UART_BUFFER_LEN];
 
 #endif

@@ -39,3 +39,5 @@
     uint8_t c = UDR1; \
     cb(c); \
 }
+
+#define UART_BUFFER_LEN 16

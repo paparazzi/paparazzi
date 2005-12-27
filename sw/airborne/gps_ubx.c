@@ -141,7 +141,7 @@ void parse_gps_msg( void ) {
 uint8_t gps_nb_ovrn;
 
 
-static inline void parse_ubx( uint8_t c ) {
+void parse_ubx( uint8_t c ) {
   if (ubx_status < GOT_PAYLOAD) {
     ck_a += c;
     ck_b += ck_a;
@@ -207,17 +207,3 @@ static inline void parse_ubx( uint8_t c ) {
   ubx_status = UNINIT;
   return;
 }
-
-#ifdef AVR_ARCH
-
-#ifdef SIMUL
-ReceiveUart0(parse_ubx);
-#endif
-
-#ifndef WAVECARD_ON_GPS
-ReceiveUart1(parse_ubx);
-#endif
-
-
-#endif /* AVR_ARCH */
-

@@ -115,7 +115,7 @@ let parse_message = fun class_name m ->
 	let s = sizeof (format f) in
 	let p = param_name f in
 	let t = param_type f in
-	fprintf out "  %s _%s = %s; UbxSend%dByAddr((uint8_t*)_%s);\\\n" t p p s p
+	fprintf out "  %s _%s = %s; UbxSend%dByAddr((uint8_t*)&_%s);\\\n" t p p s p
     | "block" ->
 	List.iter send_one_field (Xml.children f)
     | _ -> assert (false) in

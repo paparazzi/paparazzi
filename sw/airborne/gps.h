@@ -74,5 +74,14 @@ extern struct svinfo gps_svinfos[GPS_NB_CHANNELS];
 #include "ubx.h"
 #endif
 
+#define GPS_BUFFER uart1_buffer
+#define GPS_BUFFER_SIZE uart1_buffer_size
+
+
+#define GpsBuffer() (GPS_BUFFER_SIZE > 0)
+#define ReadGpsBuffer() { \
+  GpsParse(GPS_BUFFER, GPS_BUFFER_SIZE); \
+  GPS_BUFFER_SIZE = 0; \
+}
 
 #endif /* GPS_H */

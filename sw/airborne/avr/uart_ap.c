@@ -163,3 +163,13 @@ void uart1_init( void ) {
   sbi(UCSR1B, RXCIE ); 
 }
 
+
+bool_t uart1_buffer_size;
+uint8_t uart1_buffer[UART_BUFFER_LEN];
+
+SIGNAL( SIG_UART1_RECV ) {
+  if (uart1_buffer_size < UART_BUFFER_LEN) {
+    uart1_buffer[uart1_buffer_size] = UDR1;
+    uart1_buffer_size++;
+  } /** else overrun */
+}

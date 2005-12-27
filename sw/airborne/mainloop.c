@@ -130,6 +130,9 @@ void periodic_task_ap( void) {
 
 void event_task_ap( void ) {
 #ifdef GPS
+  if (GpsBuffer()) {
+    ReadGpsBuffer();
+  }
   if (gps_msg_received) {
     /* parse and use GPS messages */
     parse_gps_msg();
