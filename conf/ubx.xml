@@ -64,4 +64,71 @@
   </message>
  </class>
 
+ <class name="CFG" ID="0x06">
+  
+    <message name="CFG-PRT" ID="0x00">
+      <block length="20">
+        <field name="PortId" format="U1"/>
+        <field name="ReS0" format="U1"/>
+        <field name="ReS1" format="U2"/>
+        <field name="Mode" format="U4"/>
+        <field name="Baudrate" format="U4"/>
+        <field name="In_proto_mask" format="U2"/>
+        <field name="Out_proto_mask" format="U2"/>
+        <field name="Flags" format="U2"/>
+        <field name="Res2" format="U2"/>
+      </block>
+    </message>
+
+    <message name="CFG-MSG" ID="0x01">
+      <block length="6">
+        <field name="Class" format="U1"/>
+        <field name="MsgId" format="U1"/>
+        <field name="Rate0" format="U1"/>
+        <field name="Rate1" format="U1"/>
+        <field name="Rate2" format="U1"/>
+        <field name="Rate3" format="U1"/>
+      </block>
+    </message>
+
+    <message name="CFG-RATE" ID="0x08">
+      <field name="Meas" format="U2"/>
+      <field name="Nav" format="U2"/>
+      <field name="Time" format="U2"/>
+    </message>
+
+    <message name="CFG-NAV" ID="0x03">
+      <field name="Platform" format="U2"/>
+      <field name="MinSvs" format="U1"/>
+      <field name="MaxSvs" format="U1"/>
+      <field name="MinCN0" format="U1"/>
+      <field name="AbsCN0" format="U1"/>
+      <field name="MinELE" format="U1"/>
+      <field name="DGPSTTR" format="U1"/>
+      <field name="DGPST0" format="U1"/>
+      <field name="PRCAGE" format="U1"/>
+      <field name="MinCLT" format="U2"/>
+      <field name="AbsCLT" format="U2"/>
+      <field name="MaxDR" format="U1"/>
+      <field name="NAVOPT" format="U1"/>
+      <field name="PDOP" format="U1"/>
+      <field name="TDOP" format="U1"/>
+      <field name="PACC" format="U2"/>
+      <field name="TACC" format="U2"/>
+      <field name="FACC" format="U2"/>
+      <field name="StaticThres" format="U1"/>
+      <field name="reserved" format="U1"/>
+    </message>
+
+    <message name="CFG-SBAS" ID="0x16">
+      <field name="mode" format="U1"/>
+      <field name="usage" format="U1"/>
+      <field name="maxbas" format="U1"/>
+      <field name="reserved" format="U1"/>
+      <field name="scanmode" format="U4"/>
+    </message>
+
+
+ </class>
+
 </ubx>
