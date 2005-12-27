@@ -147,7 +147,7 @@ int uart0Putch(int ch);
 uint16_t uart0Space(void);
 
 /******************************************************************************
- *
+ * -DAP
  * Function Name: uart0Puts()
  *
  * Description:  
@@ -233,7 +233,12 @@ void uart0TxFlush(void);
  *****************************************************************************/
 int uart0Getch(void);
 
-#endif
+#if defined(UART0_TX_INT_MODE) || defined(UART0_RX_INT_MODE)
+void uart0ISR(void) __attribute__((naked));
+#endif // UART0_TX_INT_MODE || UART0_RX_INT_MODE
+
+
+#endif /* UART0_SUPPORT */ 
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -351,7 +356,8 @@ int uart1Write(const char *buffer, uint16_t count);
  *
  * Returns:
  *    FALSE - either the tx holding or shift register is not empty
- *   !FALSE - if both the tx holding & shift registers are empty
+ *   !FALSE - if both the tx holding & shift registeuint8_t  uart0_rx_buffer[UART0_RX_BUFFER_SIZE];
+uint16_t uart0_rx_insert_idx, uart0_rx_extract_idx;rs are empty
  *
  *****************************************************************************/
 int uart1TxEmpty(void);
@@ -389,6 +395,16 @@ void uart1TxFlush(void);
  *****************************************************************************/
 int uart1Getch(void);
 
-#endif
+extern uint8_t  uart1_rx_buffer[UART1_RX_BUFFER_SIZE];
+extern uint16_t uart1_rx_insert_idx, uart1_rx_extract_idx;
+#define uart1ChAvailable() (uart1_rx_insert_idx != uart1_rx_extract_idx)
+
+#if defined(UART1_TX_INT_MODE) || defined(UART1_RX_INT_MODE)
+void uart1ISR(void) __attribute__((naked));
+#endif // UART1_TX_INT_MODE || UART1_RX_INT_MODE
+
+
+
+#endif /* UART1_SUPPORT */
 
 #endif

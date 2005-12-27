@@ -97,8 +97,8 @@
       <field name="Time" format="U2"/>
     </message>
 
-    <message name="NAV" ID="0x03">
-      <field name="Platform" format="U2"/>
+    <message name="NAV" ID="0x03" length="28">
+      <field name="Platform" format="U1"/>
       <field name="MinSvs" format="U1"/>
       <field name="MaxSvs" format="U1"/>
       <field name="MinCN0" format="U1"/>
@@ -107,12 +107,13 @@
       <field name="DGPSTTR" format="U1"/>
       <field name="DGPST0" format="U1"/>
       <field name="PRCAGE" format="U1"/>
+      <field name="CPCAGE" format="U1"/>
       <field name="MinCLT" format="U2"/>
       <field name="AbsCLT" format="U2"/>
       <field name="MaxDR" format="U1"/>
       <field name="NAVOPT" format="U1"/>
-      <field name="PDOP" format="U1"/>
-      <field name="TDOP" format="U1"/>
+      <field name="PDOP" format="U2"/>
+      <field name="TDOP" format="U2"/>
       <field name="PACC" format="U2"/>
       <field name="TACC" format="U2"/>
       <field name="FACC" format="U2"/>

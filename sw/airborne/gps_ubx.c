@@ -35,7 +35,6 @@
 #include "uart_ap.h"
 #include "gps.h"
 #include "ubx.h"
-#include "flight_plan.h"
 
 uint32_t gps_itow;
 int32_t gps_alt;
@@ -94,6 +93,50 @@ void gps_init( void ) {
   ubx_status = UNINIT;
 }
 
+
+#define UBX_PROTO_MASK  0x0001
+#define NMEA_PROTO_MASK 0x0002
+#define RTCM_PROTO_MASK 0x0004
+
+#define NAV_DYN_AIRBORNE_1G 5
+#define NAV_DYN_AIRBORNE_2G 6
+#define NAV_DYN_AIRBORNE_4G 7
+
+void gps_configure ( void ) {
+  static uint8_t gps_config_status = 0;
+  switch (gps_config_status) {
+  case 0:
+    UbxSend_CFG_PRT(0x01, 0x00, 0x0000, 0x000080C0, 0x00009600, UBX_PROTO_MASK, UBX_PROTO_MASK, 0x0000, 0x0000);
+    /* remember to change host baudrate on ack */
+    break;
+  case 1:
+    UbxSend_CFG_NAV(NAV_DYN_AIRBORNE_2G, 3, 16, 24, 20, 5, 0, 0x3C, 0x3C, 0x14, 0x03E8 ,0x0000, 0x0, 0x17, 0x00FA, 0x00FA, 0x0064, 0x012C, 0x000F, 0x00, 0x00);
+    break;
+  case 2:
+    UbxSend_CFG_MSG(UBX_NAV_ID, UBX_NAV_POSUTM_ID, 0, 1, 0, 0);
+    break;
+  case 3:
+    UbxSend_CFG_MSG(UBX_NAV_ID, UBX_NAV_VELNED_ID, 0, 1, 0, 0);
+    break;
+  case 4:
+    UbxSend_CFG_MSG(UBX_NAV_ID, UBX_NAV_STATUS_ID, 0, 1, 0, 0);
+    break;
+  case 5:
+    UbxSend_CFG_MSG(UBX_NAV_ID, UBX_NAV_SVINFO_ID, 0, 4, 0, 0);
+    break;
+  case 6:
+    UbxSend_CFG_SBAS(0x00, 0x00, 0x00, 0x00, 0x00);
+    break;
+  case 7:
+    UbxSend_CFG_RATE(0x00FA, 0x0001, 0x0000);
+    break;
+    
+
+  }
+  gps_config_status++;
+}
+
+
 struct svinfo gps_svinfos[GPS_NB_CHANNELS];
 uint8_t gps_nb_channels;
 
@@ -117,7 +160,6 @@ void parse_gps_msg( void ) {
       gps_nb_channels = UBX_NAV_SVINFO_NCH(ubx_msg_buf);
       uint8_t i;
       for(i = 0; i < Min(gps_nb_channels, GPS_NB_CHANNELS); i++) {
-	//	memcpy(&(gps_svinfos[i]), (ubx_msg_buf+9+12*i), 7);
 	gps_svinfos[i].svid = UBX_NAV_SVINFO_SVID(ubx_msg_buf, i);
 	gps_svinfos[i].flags = UBX_NAV_SVINFO_Flags(ubx_msg_buf, i);
 	gps_svinfos[i].qi = UBX_NAV_SVINFO_QI(ubx_msg_buf, i);

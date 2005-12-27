@@ -45,6 +45,7 @@ extern uint8_t gps_utm_zone;
 extern uint16_t last_gps_msg_t; /** cputime of the last gps message */
 
 void gps_init( void );
+void gps_configure( void );
 void parse_gps_msg( void );
 void estimator_update_state_gps( void );
 void use_gps_pos( void );
@@ -74,14 +75,11 @@ extern struct svinfo gps_svinfos[GPS_NB_CHANNELS];
 #include "ubx.h"
 #endif
 
-#define GPS_BUFFER uart1_buffer
-#define GPS_BUFFER_SIZE uart1_buffer_size
+#include "uart_ap.h"
 
+#define GpsBuffer() uart1ChAvailable()
+#define ReadGpsBuffer() { while (uart1ChAvailable()) parse_ubx(uart1Getch()); }
+#define GpsUartSend1(c) uart1Putch(c)
 
-#define GpsBuffer() (GPS_BUFFER_SIZE > 0)
-#define ReadGpsBuffer() { \
-  GpsParse(GPS_BUFFER, GPS_BUFFER_SIZE); \
-  GPS_BUFFER_SIZE = 0; \
-}
 
 #endif /* GPS_H */

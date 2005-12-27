@@ -38,7 +38,7 @@
 #include "wavecard.h"
 #include "downlink.h"
 
-#ifndef FBW /** ap alone, using SPI to communicate with fbw */
+#ifdef MCU_SPI_LINK /** ap alone, using SPI to communicate with fbw */
 #include "spi_ap.h"
 #include "link_mcu_ap.h"
 #endif
@@ -57,7 +57,9 @@
 void init_ap( void ) {
 #ifndef FBW /** Dual mcus : init done in main_fbw */
   timer_init(); 
+#ifdef ADC
   adc_init();
+#endif
 #endif
 
   /************* Sensors initialization ***************/
@@ -77,7 +79,7 @@ void init_ap( void ) {
 
 
   /************* Links initialization ***************/
-#ifndef FBW /** Dual mcus */
+#if defined MCU_SPI_LINK
   spi_init();
   link_fbw_init();
 #endif

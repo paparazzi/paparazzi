@@ -80,7 +80,7 @@
 		<define name="HOME_RADIUS" value="50" unit="m"/>
 	</section>
   <makefile>
-include $(PAPARAZZI_SRC)/conf/autopilot/tiny.makefile
+include $(PAPARAZZI_SRC)/conf/autopilot/tiny_test.makefile
 
 ap.CFLAGS += -Werror
 

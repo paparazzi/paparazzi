@@ -151,21 +151,31 @@ static inline uint8_t mcu1_status_update( void ) {
   } else { \
     _cpt = 0; \
   }
-/** \def EventPos(_cpt, _channel, _event)
- *  @@@@@ A FIXER @@@@@
- */
+
+
+#if defined RADIO_CALIB && defined RADIO_CONTROL_CALIB
+static inline uint8_t inflight_calib_mode_update ( void ) {
+  ModeUpdate(inflight_calib_mode, IF_CALIB_MODE_OF_PULSE(from_fbw.channels[RADIO_CALIB]));
+}
 #define EventPos(_cpt, _channel, _event) \
  EventUpdate(_cpt, (inflight_calib_mode==IF_CALIB_MODE_NONE && from_fbw.channels[_channel]>(int)(0.75*MAX_PPRZ)), _event)
 
-/** \def EventNeg(_cpt, _channel, _event)
- *  @@@@@ A FIXER @@@@@
- */
 #define EventNeg(_cpt, _channel, _event) \
  EventUpdate(_cpt, (inflight_calib_mode==IF_CALIB_MODE_NONE && from_fbw.channels[_channel]<(int)(-0.75*MAX_PPRZ)), _event)
 
-/** \fn static inline void events_update( void )
- *  @@@@@ A FIXER @@@@@
- */
+#else //  RADIO_CALIB && defined RADIO_CONTROL_CALIB
+
+#define EventPos(_cpt, _channel, _event) \
+ EventUpdate(_cpt, (from_fbw.channels[_channel]>(int)(0.75*MAX_PPRZ)), _event)
+
+#define EventNeg(_cpt, _channel, _event) \
+ EventUpdate(_cpt, (from_fbw.channels[_channel]<(int)(-0.75*MAX_PPRZ)), _event)
+
+#endif //  RADIO_CALIB && defined RADIO_CONTROL_CALIB
+
+
+
+
 static inline void events_update( void ) {
   static uint16_t event1_cpt = 0;
   EventPos(event1_cpt, RADIO_GAIN1, rc_event_1);
@@ -213,11 +223,6 @@ static inline void reporting_task( void ) {
   }
 }
 
-static inline uint8_t inflight_calib_mode_update ( void ) {
-  ModeUpdate(inflight_calib_mode, IF_CALIB_MODE_OF_PULSE(from_fbw.channels[RADIO_CALIB]));
-}
-
-
 /** \brief Function to be called when a command is available (usually comming from the radio command)
  */
 inline void telecommand_task( void ) {
@@ -233,7 +238,7 @@ inline void telecommand_task( void ) {
 #ifdef RADIO_LLS
     mode_changed |= ir_estim_mode_update();
 #endif
-#ifdef RADIO_CALIB
+#if defined RADIO_CALIB && defined RADIO_CONTROL_CALIB
     bool_t calib_mode_changed = inflight_calib_mode_update();
     inflight_calib(calib_mode_changed || pprz_mode_changed);
     mode_changed |= calib_mode_changed;
@@ -442,7 +447,7 @@ inline void periodic_task( void ) {
 #elif defined IMU_ANALOG && defined AHRS
    //ahrs_update();show up (it's called at 60/4 Hz)
    estimator_update_state_ANALOG( );
-#else /*NO IMU*/
+#elif defined INFRARED /*NO IMU*/
     ir_update();
     estimator_update_state_infrared();
 #endif
@@ -451,7 +456,7 @@ inline void periodic_task( void ) {
     from_ap.channels[RADIO_ROLL] = desired_aileron;
     from_ap.channels[RADIO_PITCH] = desired_elevator;
     
-#ifndef FBW
+#ifdef MCU_SPI_LINK
     link_fbw_send();
 #endif
 /** #else statically linked with fbw */
