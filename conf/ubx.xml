@@ -66,7 +66,7 @@
 
  <class name="CFG" ID="0x06">
   
-    <message name="CFG-PRT" ID="0x00">
+    <message name="PRT" ID="0x00">
       <block length="20">
         <field name="PortId" format="U1"/>
         <field name="ReS0" format="U1"/>
@@ -80,7 +80,7 @@
       </block>
     </message>
 
-    <message name="CFG-MSG" ID="0x01">
+    <message name="MSG" ID="0x01">
       <block length="6">
         <field name="Class" format="U1"/>
         <field name="MsgId" format="U1"/>
@@ -91,13 +91,13 @@
       </block>
     </message>
 
-    <message name="CFG-RATE" ID="0x08">
+    <message name="RATE" ID="0x08" length="6">
       <field name="Meas" format="U2"/>
       <field name="Nav" format="U2"/>
       <field name="Time" format="U2"/>
     </message>
 
-    <message name="CFG-NAV" ID="0x03">
+    <message name="NAV" ID="0x03">
       <field name="Platform" format="U2"/>
       <field name="MinSvs" format="U1"/>
       <field name="MaxSvs" format="U1"/>
@@ -120,7 +120,7 @@
       <field name="reserved" format="U1"/>
     </message>
 
-    <message name="CFG-SBAS" ID="0x16">
+    <message name="SBAS" ID="0x16">
       <field name="mode" format="U1"/>
       <field name="usage" format="U1"/>
       <field name="maxbas" format="U1"/>
@@ -128,6 +128,19 @@
       <field name="scanmode" format="U4"/>
     </message>
 
+
+ </class>
+
+ <class name="ACK" ID="0x05">
+
+  <message name="ACK" ID="0x01" length="2">
+    <field name="ClsID" format="U1"/>
+    <field name="MsgID" format="U1"/>
+  </message>
+  <message name="NAK" ID="0x00" length="2">
+    <field name="ClsID" format="U1"/>
+    <field name="MsgID" format="U1"/>
+  </message>
 
  </class>
 
