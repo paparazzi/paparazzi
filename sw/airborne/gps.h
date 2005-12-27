@@ -75,11 +75,13 @@ extern struct svinfo gps_svinfos[GPS_NB_CHANNELS];
 #include "ubx.h"
 #endif
 
+#ifndef SITL
 #include "uart_ap.h"
 
 #define GpsBuffer() uart1ChAvailable()
 #define ReadGpsBuffer() { while (uart1ChAvailable()) parse_ubx(uart1Getch()); }
 #define GpsUartSend1(c) uart1Putch(c)
+#endif
 
 
 #endif /* GPS_H */

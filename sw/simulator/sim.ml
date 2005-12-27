@@ -45,8 +45,8 @@ module type AIRCRAFT =
     val servos : us array -> unit
 	(** Called once at init *)
 	
-    val infrared : float -> float -> unit
-	(** [infrared ir_left ir_front] Called on timer *)
+    val infrared : float -> float -> float -> unit
+	(** [infrared ir_left ir_front ir_top] Called on timer *)
 	
     val gps : Gps.state -> unit
 	(** [gps state] Called on timer *)
@@ -151,8 +151,9 @@ module Make(AircraftItl : AIRCRAFT_ITL) = struct
 		0. in
 	    let phi = phi +. FM.roll_neutral_default in
 	    let ir_left = (phi +. delta_ir ) *. !infrared_contrast
-	    and ir_front = 0. in
-	    Aircraft.infrared ir_left ir_front
+	    and ir_front = 0.
+	    and ir_top = pi /. 2. *. !infrared_contrast in
+	    Aircraft.infrared ir_left ir_front ir_top
       with
 	x -> Printf.printf "%s\n%!" (Printexc.to_string x)
 	    

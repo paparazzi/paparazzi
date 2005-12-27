@@ -36,6 +36,7 @@
 
 int16_t ir_roll;
 int16_t ir_pitch;
+int16_t ir_top;
 
 /** Initialized to \a IR_DEFAULT_CONTRAST. Changed with calibration */
 int16_t ir_contrast     = IR_DEFAULT_CONTRAST;

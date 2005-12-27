@@ -9,7 +9,7 @@ module type AIRCRAFT =
     val init : int -> GPack.box -> unit
     val boot : Stdlib.value -> unit
     val servos : Stdlib.us array -> unit
-    val infrared : float -> float -> unit
+    val infrared : float -> float -> float -> unit
     val gps : Gps.state -> unit
   end
 

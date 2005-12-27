@@ -41,6 +41,7 @@
 
 extern int16_t ir_roll;  /* averaged roll adc */
 extern int16_t ir_pitch; /* averaged pitch adc */
+extern int16_t ir_top;  /* averaged vertical ir adc */
 
 
 extern float   ir_rad_of_ir;
