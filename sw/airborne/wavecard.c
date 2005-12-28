@@ -110,7 +110,7 @@ void wc_parse_payload() {
   }
 }
 
-inline void parse_wc( uint8_t c ) {
+static inline void parse_wc( uint8_t c ) {
   //  printf("s=%d\n", wc_status);
   switch (wc_status) {
   case UNINIT:

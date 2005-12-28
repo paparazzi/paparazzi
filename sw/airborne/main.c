@@ -24,6 +24,8 @@
 /** \brief mono and dual mcus mainloop */
 
 
+#include "sys_time_hw.h"
+
 #ifdef FBW
 #include "main_fbw.h"
 #define Fbw(f) f ## _fbw()
@@ -42,8 +44,10 @@ int main( void ) {
   Fbw(init);
   Ap(init);
   while (1) {
-    Fbw(periodic_task);
-    Ap(periodic_task);
+    if (sys_time_periodic()) {
+      Fbw(periodic_task);
+      Ap(periodic_task);
+    }
     Fbw(event_task);
     Ap(event_task);
   }

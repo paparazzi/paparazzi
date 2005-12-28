@@ -129,9 +129,7 @@ void init_ap( void ) {
 }
 
 void periodic_task_ap( void) {
-  if (sys_time_periodic()) {
-    periodic_task();
-  }
+  periodic_task();
 }
 
 void event_task_ap( void ) {
