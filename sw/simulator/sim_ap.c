@@ -34,12 +34,6 @@ static int16_t values_from_ap[RADIO_CTL_NB];
 
 void inflight_calib(void) { }
 
-void link_fbw_send(void) {
-  int i;
-  for(i = 0; i < RADIO_CTL_NB; i++)
-    values_from_ap[i] =  from_ap.channels[i] / CLOCK;
-}
-
 value sim_periodic_task(value _unit) {
   periodic_task();
   return Val_unit;
@@ -109,6 +103,10 @@ value update_rc_channel(value c, value v) {
 
 value set_servos(value servos) {
   int i;
+
+  /** Get values computed by the autopilot */
+  for(i = 0; i < RADIO_CTL_NB; i++)
+    values_from_ap[i] =  from_ap.channels[i] / CLOCK;
 
   uint16_t servo_widths[_4017_NB_CHANNELS];
   CommandSet(values_from_ap);
