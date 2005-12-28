@@ -20,12 +20,12 @@
 #include "LPC21xx.h"
 
 // some handy DEFINES
-#ifndef FALSE
-#define FALSE               0
-#ifndef TRUE
-#define TRUE                !FALSE
-#endif
-#endif
+//#ifndef FALSE
+//#define FALSE               0
+//#ifndef TRUE
+//#define TRUE                !FALSE
+//#endif
+//#endif
 
 #ifndef BIT
 #define BIT(n)              (1L << (n))
@@ -43,8 +43,9 @@ extern void abort(void);
 
 // PLL setup values are computed within the LPC include file
 // It relies upon the following defines
-#define FOSC                (14745600)  // Master Oscillator Freq.
-#define PLL_MUL             (4)         // PLL Multiplier
+//#define FOSC                (14745600)  // Master Oscillator Freq.
+#define FOSC                (12000000)  // Master Oscillator Freq.
+#define PLL_MUL             (5)         // PLL Multiplier
 #define CCLK                (FOSC * PLL_MUL) // CPU Clock Freq.
 
 // Pheripheral Bus Speed Divider
@@ -73,7 +74,7 @@ extern void abort(void);
 
 // Port Bit Definitions & Macros:    Description - initial conditions
 
-// The following defines are for the Olimex (LPC2138)
+// The following defines are for the Tiny v0.9)
 // PIO 0
 #define TXD0_BIT              BIT(0)      // used by UART0
 #define RXD0_BIT              BIT(1)      // used by UART0
@@ -90,8 +91,8 @@ extern void abort(void);
 //#define P0_09_UNUSED_BIT      BIT(9)      // P0.09 unused - low output
 #define P0_10_UNUSED_BIT      BIT(10)     // P0.10 unused - low output
 #define P0_11_UNUSED_BIT      BIT(11)     // P0.11 unused - low output
-#define LED1_BIT              BIT(12)     // P0.12 LED1 low active
-#define LED2_BIT              BIT(13)     // P0.13 LED1 low active
+#define P0_12_UNUSED_BIT      BIT(12)     // P0.12 unused - low output
+#define P0_13_UNUSED_BIT      BIT(13)     // P0.13 unused - low output
 #define P0_14_UNUSED_BIT      BIT(14)     // P0.14 unused - low output
 #define SW1_BIT               BIT(15)     // P0.15 Switch 1 - active low input
 #define SW2_BIT               BIT(16)     // P0.16 Switch 2 - active low input
@@ -131,7 +132,7 @@ extern void abort(void);
 #define P1_16_UNUSED_BIT      BIT(16)     // P1.16 unused - low output
 #define P1_17_UNUSED_BIT      BIT(17)     // P1.17 unused - low output
 #define P1_18_UNUSED_BIT      BIT(18)     // P1.18 unused - low output
-#define P1_19_UNUSED_BIT      BIT(19)     // P1.19 unused - low output
+#define LED_2_BIT             BIT(19)     // P1.19 unused - low output
 #define SERV0_DATA_BIT        BIT(20)     // P1.20 unused - low output
 #define SERV0_RESET_BIT       BIT(21)     // P1.21 unused - low output
 #define P1_22_UNUSED_BIT      BIT(22)     // P1.22 unused - low output
@@ -140,7 +141,7 @@ extern void abort(void);
 #define P1_25_UNUSED_BIT      BIT(25)     // P1.25 unused - low output
 #define P1_26_UNUSED_BIT      BIT(26)     // P1.26 unused - low output
 #define P1_27_UNUSED_BIT      BIT(27)     // P1.27 unused - low output
-#define P1_28_UNUSED_BIT      BIT(28)     // P1.28 unused - low output
+#define LED_1_BIT             BIT(28)     // P1.28 unused - low output
 #define SERV1_RESET_BIT       BIT(29)     // P1.29 unused - low output
 #define SERV1_DATA_BIT        BIT(30)     // P1.30 unused - low output
 #define P1_31_UNUSED_BIT      BIT(31)     // P1.31 unused - low output
@@ -160,8 +161,8 @@ extern void abort(void);
 					 SERV1_CLOCK_BIT  | \
 	                                 P0_10_UNUSED_BIT | \
 					 P0_11_UNUSED_BIT | \
-					 LED1_BIT         | \
-					 LED2_BIT         | \
+					 P0_12_UNUSED_BIT | \
+					 P0_13_UNUSED_BIT | \
 					 P0_14_UNUSED_BIT | \
 					 P0_17_UNUSED_BIT | \
 					 P0_18_UNUSED_BIT | \
@@ -212,7 +213,7 @@ extern void abort(void);
 					 P1_16_UNUSED_BIT | \
 					 P1_17_UNUSED_BIT | \
 					 P1_18_UNUSED_BIT | \
-					 P1_19_UNUSED_BIT | \
+					 LED_2_BIT        | \
 					 SERV0_DATA_BIT   | \
 					 SERV0_RESET_BIT  | \
 					 P1_22_UNUSED_BIT | \
@@ -221,7 +222,7 @@ extern void abort(void);
 					 P1_25_UNUSED_BIT | \
 					 P1_26_UNUSED_BIT | \
 					 P1_27_UNUSED_BIT | \
-					 P1_28_UNUSED_BIT | \
+					 LED_1_BIT        | \
 					 SERV1_RESET_BIT  | \
 					 SERV1_DATA_BIT   | \
 					 P1_31_UNUSED_BIT | \

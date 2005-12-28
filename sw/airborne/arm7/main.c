@@ -114,6 +114,7 @@ static void periodic_task ( void ) {
       IO0CLR = LED1_BIT;
     else
       IO0SET = LED1_BIT; 
+    MODEM_PRINT_GPS();
     //    PRINT_ADC();
         DOWNLINK_SEND_IDENT(&AC_ID);
 

@@ -22,6 +22,10 @@
  *
  */
 
+/** \file modem_hw.c
+ *  \brief Handling of a CMX 469 on avr mega128 architecture
+ */
+
 #include <inttypes.h>
 #include <avr/io.h>
 #include <avr/signal.h>
@@ -42,6 +46,7 @@ uint8_t    tx_byte_idx;
 uint8_t ck_a, ck_b;
 
 void modem_init( void ) {
+  /* setup TIMER0 to generate a 4MHz clock */
   MODEM_OSC_DDR |= _BV(MODEM_OSC);
   OCR0 = 1; /* 4MhZ */
   TCCR0 = _BV(WGM01) | _BV(COM00) | _BV(CS00);

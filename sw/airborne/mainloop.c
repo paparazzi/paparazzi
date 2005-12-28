@@ -26,7 +26,9 @@
  
 #include "main_ap.h"
 #include "int.h"
-#include "timer_ap.h"
+//#include "timer_ap.h"
+#include "low_level_hw.h"
+#include "sys_time_hw.h"
 #include "adc_ap.h"
 #include "autopilot.h"
 #include "gps.h"
@@ -56,7 +58,8 @@
 
 void init_ap( void ) {
 #ifndef FBW /** Dual mcus : init done in main_fbw */
-  timer_init(); 
+  low_level_init();
+  sys_time_init(); 
 #ifdef ADC
   adc_init();
 #endif
@@ -102,7 +105,7 @@ void init_ap( void ) {
   /** - wait 0.5s (for modem init ?) */
   uint8_t init_cpt = 30;
   while (init_cpt) {
-    if (timer_periodic())
+    if (sys_time_periodic())
       init_cpt--;
   }
 #ifdef WAVECARD

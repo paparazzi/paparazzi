@@ -341,6 +341,7 @@ static void navigation_task( void ) {
   energy += (float)desired_gaz * (MILLIAMP_PER_PERCENT / MAX_PPRZ * 0.25);
 }
 
+
 #define PERIOD (256. * 1024. / CLOCK / 1000000.)
 
 /** Maximum time allowed for low battery level */

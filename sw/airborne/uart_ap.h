@@ -32,9 +32,6 @@ extern void uart0_init_tx(void);
 extern void uart0_init_rx(void);
 //extern void uart1_init(void);
 
-extern void uart0_print_string(const uint8_t*);
-extern void uart0_print_hex(const uint8_t);
-extern void uart0_print_hex16(const uint16_t);
 extern void uart0_transmit(const uint8_t);
 extern void uart1_transmit(const uint8_t);
 

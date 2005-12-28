@@ -81,7 +81,7 @@ ap autopilot: ac_h
 upload_fbw: hard_ac
 	cd $(AIRBORNE); $(MAKE) TARGET=fbw upload
 
-upload_ap: hard_ac
+upload_ap: ap
 	cd $(AIRBORNE); $(MAKE) TARGET=ap upload
 
 erase_fbw:

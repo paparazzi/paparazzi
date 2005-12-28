@@ -83,7 +83,8 @@ OPT = s
 # Native formats for AVR-GCC's -g are stabs [default], or dwarf-2.
 # AVR (extended) COFF requires stabs, plus an avr-objcopy run.
 #DEBUG = stabs
-DEBUG = dwarf-2
+#DEBUG = dwarf-2
+DEBUG = 0
 
 # List any extra directories to look for include files here.
 #     Each directory must be seperated by a space.
@@ -117,8 +118,8 @@ ADEFS =  -D$(RUN_MODE)
 #
 # Flags for C and C++ (arm-elf-gcc/arm-elf-g++)
 #CFLAGS = -g$(DEBUG)
-CFLAGS =  -g0
-CFLAGS += $(CDEFS) $(CINCS)
+#CFLAGS =  -g0
+CFLAGS = $(CDEFS) $(CINCS)
 CFLAGS += -O$(OPT)
 CFLAGS += -Wall -Wcast-qual -Wimplicit 
 # -Wcast-align # Incompatible with GPS message parsing
@@ -183,8 +184,10 @@ endif
 #LPC21ISP = lpc21isp
 LPC21ISP = lpc21isp
 LPC21ISP_PORT = /dev/ttyS0
-LPC21ISP_BAUD = 115200
-LPC21ISP_XTAL = 14746
+#LPC21ISP_BAUD = 115200
+#LPC21ISP_XTAL = 14746
+LPC21ISP_BAUD = 38400
+LPC21ISP_XTAL = 12000
 LPC21ISP_FLASHFILE = $(TARGET).hex
 # verbose output:
 #LPC21ISP_DEBUG = -debug

@@ -103,7 +103,7 @@ void gps_init( void ) {
 #define NAV_DYN_AIRBORNE_4G 7
 
 void gps_configure ( void ) {
-  static uint8_t gps_config_status = 0;
+  static uint8_t gps_config_status = 1;
   switch (gps_config_status) {
   case 0:
     UbxSend_CFG_PRT(0x01, 0x00, 0x0000, 0x000080C0, 0x00009600, UBX_PROTO_MASK, UBX_PROTO_MASK, 0x0000, 0x0000);
@@ -130,8 +130,6 @@ void gps_configure ( void ) {
   case 7:
     UbxSend_CFG_RATE(0x00FA, 0x0001, 0x0000);
     break;
-    
-
   }
   gps_config_status++;
 }
