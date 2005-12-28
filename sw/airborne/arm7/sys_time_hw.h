@@ -58,8 +58,9 @@ static inline void sys_time_init( void ) {
 
 #define SysTicsOfSec(s)   (uint32_t)(s * PCLK / T0_PCLK_DIV + 0.5)
 #define FIFTY_MS          SysTicsOfSec( 50e-3 )
+#define AVR_PERIOD_MS     SysTicsOfSec( 15.625e-3 )
 
-#define PERIODIC_TASK_PERIOD FIFTY_MS
+#define PERIODIC_TASK_PERIOD AVR_PERIOD_MS
 
 static inline bool_t sys_time_periodic( void ) {
   uint32_t now = T0TC;

@@ -380,8 +380,8 @@ void uart1Init(uint16_t baud, uint8_t mode, uint8_t fmode)
   // initialize the interrupt vector
   VICIntSelect &= ~VIC_BIT(VIC_UART1);  // UART1 selected as IRQ
   VICIntEnable = VIC_BIT(VIC_UART1);    // UART1 interrupt enabled
-  VICVectCntl1 = VIC_ENABLE | VIC_UART1;
-  VICVectAddr1 = (uint32_t)uart1ISR;    // address of the ISR
+  VICVectCntl2 = VIC_ENABLE | VIC_UART1;
+  VICVectAddr2 = (uint32_t)uart1ISR;    // address of the ISR
 
 #ifdef UART1_TX_INT_MODE
   uart1_tx_extract_idx = uart1_tx_insert_idx = 0;

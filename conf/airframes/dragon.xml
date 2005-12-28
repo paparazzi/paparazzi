@@ -82,7 +82,7 @@
   <makefile>
 include $(PAPARAZZI_SRC)/conf/autopilot/tiny_test.makefile
 
-ap.CFLAGS += -Werror
+
 
   </makefile>
 </airframe>

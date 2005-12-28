@@ -58,6 +58,9 @@
 #endif
 
 
+uint8_t  inflight_calib_mode = IF_CALIB_MODE_NONE;
+
+
 //
 //
 // FIXME estimator_flight_time should not be manipuled here anymore
@@ -205,7 +208,7 @@ uint8_t ac_ident = AC_ID;
 
 /** \brief Send a serie of initialisation messages followed by a stream of periodic ones
  *
- * Called at 20Hz.
+ * Called at 10Hz.
  */
 static inline void reporting_task( void ) {
   static uint8_t boot = TRUE;
@@ -219,7 +222,9 @@ static inline void reporting_task( void ) {
   }
   /** then report periodicly */
   else {
+    IO1CLR = LED_2_BIT;
     PeriodicSend();
+    IO1SET = LED_2_BIT;
   }
 }
 
@@ -283,7 +288,7 @@ inline void telecommand_task( void ) {
  *  \brief Compute desired_course
  */
 static void navigation_task( void ) {
-#ifdef FAILSAFE_DELAY_WITHOUT_GPS
+#if defined GPS && defined FAILSAFE_DELAY_WITHOUT_GPS
   /** This section is used for the failsafe of GPS */
   static uint8_t last_pprz_mode;
   static bool_t has_lost_gps = FALSE;
@@ -307,7 +312,7 @@ static void navigation_task( void ) {
     has_lost_gps = FALSE;
     PERIODIC_SEND_PPRZ_MODE();
   }
-#endif /* FAILSAFE_DELAY_WITHOUT_GPS */
+#endif /* GPS && FAILSAFE_DELAY_WITHOUT_GPS */
   
   /** Default to keep compatibility with previous behaviour */
   lateral_mode = LATERAL_MODE_COURSE;

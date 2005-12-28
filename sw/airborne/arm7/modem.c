@@ -5,8 +5,6 @@
 #include "armVIC.h"
 #include "config.h"
 
-//#define TX_BUF_SIZE 256
-
 uint8_t           modem_nb_ovrn;
 uint8_t           tx_head;
 volatile uint8_t  tx_tail;
@@ -46,7 +44,7 @@ void modem_init ( void ) {
   VICIntSelect &= ~VIC_BIT(VIC_TIMER1);
   /* enable TIMER1 interrupt   */
   VICIntEnable = VIC_BIT(VIC_TIMER1);
-  /* on slot vic slot 5        */
+  /* on slot vic slot 1        */
   VICVectCntl1 = VIC_ENABLE | VIC_TIMER1;
   /* address of the ISR        */
   VICVectAddr1 = (uint32_t)TIMER1_ISR;
@@ -56,12 +54,6 @@ void modem_init ( void ) {
   T1MCR |= TMCR_MR0_I | TMCR_MR0_R;
   /* enable timer 1 */
   T1TCR = TCR_ENABLE; 
-}
-
-void modem_put_one_byte( uint8_t _byte) {
-  tx_buf[tx_head] = _byte;
-  tx_head++;
-  //  if (tx_head >= TX_BUF_SIZE) tx_head = 0; /* TX_BUF_SIZE == 256 */
 }
 
 static inline uint8_t get_next_bit( void ) {
@@ -99,7 +91,7 @@ static inline uint8_t get_next_bit( void ) {
 
 void TIMER1_ISR ( void ) {
   ISR_ENTRY();
-  IO0CLR = LED2_BIT;
+  //  IO1CLR = LED_2_BIT;
   static uint8_t modem_bit;
   
   DACR = modem_sample[modem_bit][modem_phase][modem_sample_idx] << 6;
@@ -108,16 +100,12 @@ void TIMER1_ISR ( void ) {
     modem_sample_idx = 0;
     modem_phase ^= modem_bit;
     modem_bit =  get_next_bit();
-    //    if (modem_bit)
-    //      modem_phase = !modem_phase;
   }
 
-  /* trigger next match */
-  //  T1MR0 += SAMPLE_PERIOD;
   /* clear interrupt */
   T1IR = TIR_MR0I;
   VICVectAddr = 0x00000000;
-  IO0SET = LED2_BIT;  
+  //  IO1SET = LED_2_BIT;  
   ISR_EXIT();
 }
 

@@ -136,12 +136,10 @@ void event_task_ap( void ) {
 #ifdef GPS
   if (GpsBuffer()) {
     ReadGpsBuffer();
-#ifdef DEBUG_ARM7
-    if (IO1PIN & LED_2_BIT)
-      IO1CLR = LED_2_BIT;
-    else
-      IO1SET = LED_2_BIT;
-#endif
+    /*     if (IO1PIN & LED_2_BIT) */
+    /*       IO1CLR = LED_2_BIT; */
+    /*     else */
+    /*       IO1SET = LED_2_BIT; */
   }
   if (gps_msg_received) {
     /* parse and use GPS messages */

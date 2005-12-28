@@ -60,7 +60,7 @@ void estimator_update_state_gps( void ) {
  * \a DOWNLINK_SEND_TAKEOFF
  */
 void use_gps_pos( void ) {
-  DOWNLINK_SEND_GPS(&gps_mode, &gps_utm_east, &gps_utm_north, &gps_course, &gps_alt, &gps_gspeed,&gps_climb, &gps_itow, &gps_utm_zone);
+  DOWNLINK_SEND_GPS(&gps_mode, &gps_utm_east, &gps_utm_north, &gps_course, &gps_alt, &gps_gspeed,&gps_climb, &gps_itow, &gps_utm_zone, &gps_nb_ovrn);
   if (GPS_FIX_VALID(gps_mode)) {
     last_gps_msg_t = cputime;
     estimator_update_state_gps();

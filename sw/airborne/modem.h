@@ -73,8 +73,9 @@ extern uint8_t ck_a, ck_b;
 }
 
 #define MODEM_PUT_1_BYTE_BY_ADDR(_byte) { \
-    tx_buf[tx_head] = *(_byte);		  \
-    ck_a += *(_byte);			  \
+    uint8_t _x = *(_byte);		  \
+    tx_buf[tx_head] = _x;		  \
+    ck_a += _x;			  \
     ck_b += ck_a;			  \
     UPDATE_HEAD();			  \
 }

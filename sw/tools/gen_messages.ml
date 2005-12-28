@@ -131,7 +131,7 @@ module Gen_onboard = struct
   let print_avr_field = fun avr_h (t, name, (_f:format option)) ->
     match t with 
       Basic _ ->
-	fprintf avr_h "\t  MODEM_PUT_%d_BYTE_BY_ADDR((uint8_t*)(%s)); \\\n" (sizeof t) name
+	fprintf avr_h "\t  MODEM_PUT_%d_BYTE_BY_ADDR((const uint8_t*)(%s)); \\\n" (sizeof t) name
     | Array (t, i) ->
 	let s = sizeof (Basic t) in
 	fprintf avr_h "\t  {\\\n\t    int i;\\\n\t    for(i = 0; i < %d; i++) {\\\n" i;

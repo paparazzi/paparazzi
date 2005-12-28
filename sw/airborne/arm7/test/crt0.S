@@ -1,4 +1,11 @@
-        .global main                    // int main(void)
+/* 
+ crt0.S for LPC2xxx
+ - based on examples from R O Software
+ - based on examples from newlib-lpc
+ - based on an example from Anglia Designs
+
+ collected and modified by Martin Thomas
+*/
 
         .global _etext                  // -> .data initial values in ROM
         .global _data                   // -> .data area in RAM
@@ -6,8 +13,6 @@
         .global __bss_start             // -> .bss area in RAM
         .global __bss_end__             // end of .bss area
         .global _stack                  // top of stack
-	
-        .global irq_dispatcher
 
 // Stack Sizes
         .set  UND_STACK_SIZE, 0x00000004
@@ -28,62 +33,10 @@
         .equ  I_BIT, 0x80               // when I bit is set, IRQ is disabled
         .equ  F_BIT, 0x40               // when F bit is set, FIQ is disabled
 
-#define FOSC 14745600                 /* External clock input frequency (must be between 10 MHz and 25 MHz) */
-
-#define USE_PLL 1                     /* 0 = do not use on-chip PLL,
-                                         1 = use on-chip PLL) */
-#define PLL_MUL 4                     /* PLL multiplication factor (1 to 32) */
-#define PLL_DIV 2                     /* PLL division factor (1, 2, 4, or 8) */
-#define PBSD    4                     /* Peripheral bus speed divider (1, 2, or 4) */
-
-/* initialize the MAM (Memory Accelerator Module) */
-#if (FOSC * PLL_MUL) < 20000000
-#define MAM_TIMING   1                /* number of CCLK to read from the FLASH */
-#elif (FOSC * PLL_MUL) < 40000000
-#define MAM_TIMING   2                /* number of CCLK to read from the FLASH */
-#else
-#define MAM_TIMING   3                /* number of CCLK to read from the FLASH */
-#endif
-#define MAM_SETTING  2                /* 0=disabled,
-                                         1=partly enabled (enabled for code prefetch, but not for data),
-                                         2=fully enabled */
-#define MEM_MAPPING  1                /* 0=Boot loader,
-                                         1=User Flash,
-                                         2=User RAM */
-	
-#define VAL_PLLCFG_MSEL  ((PLL_MUL - 1) << 0)
-#if (PLL_DIV == 1)
-#define PLL_DIV_VALUE 0x00
-#elif (PLL_DIV == 2)
-#define PLL_DIV_VALUE 0x01
-#elif (PLL_DIV == 4)
-#define PLL_DIV_VALUE 0x10
-#elif (PLL_DIV == 8)
-#define PLL_DIV_VALUE 0x11
-#endif
-#define VAL_PLLCFG_PSEL  (PLL_DIV_VALUE << 5)
-#define VAL_PLLCFG       (VAL_PLLCFG_MSEL | VAL_PLLCFG_PSEL)
-
-		
-# Phase Locked Loop (PLL) definitions
-        .equ    PLL_BASE,       0xE01FC080  /* PLL Base Address */
-        .equ    PLLCON_OFS,     0x00        /* PLL Control Offset*/
-        .equ    PLLCFG_OFS,     0x04        /* PLL Configuration Offset */
-        .equ    PLLSTAT_OFS,    0x08        /* PLL Status Offset */
-        .equ    PLLFEED_OFS,    0x0C        /* PLL Feed Offset */
-        .equ    PLLCON_PLLE,    (1<<0)      /* PLL Enable */
-        .equ    PLLCON_PLLC,    (1<<1)      /* PLL Connect */
-        .equ    PLLSTAT_PLOCK,  (1<<10)     /* PLL Lock Status */
-        .equ    MAM_BASE,       0xE01FC000  /* Memory Accelerator Module */
-        .equ    MAMCR_OFS,      0x00        /* MAM Control */
-        .equ    MAMTIM_OFS,     0x04        /* MAM Timing */
-        .equ    MEMMAP_BASE,    0xE01FC040  /* Memory Mapping Base */
-        .equ    MEMMAP_OFS,     0x00        /* Memory Mapping */
-        .equ    VIC_BASE,       0xFFFFF000  /* Vector Interrupt Controller */
-        .equ    VICIRQStats_OFS,0x10        /* IRQ Status Register */
-        .equ    VICIntEnClr_OFS,0x14        /* VIC Interrupt Enable Clear */
-
         .text
+	.arm
+	.section .init, "ax"
+
         .code 32
         .align 2
 
@@ -100,19 +53,8 @@ Vectors:
         ldr   pc,_pabt                  // program abort - _pabt
         ldr   pc,_dabt                  // data abort - _dabt
         nop                             // reserved
-        b     irq_handler               // IRQ - jump to fct
+        ldr   pc,[pc,#-0xFF0]           // IRQ - read the VIC
         ldr   pc,_fiq                   // FIQ - _fiq
-
-irq_handler:        
-        stmfd sp!,{r0-r12,lr}           // save regs r0-r12 and link register
-
-        ldr r1, =VIC_BASE               // load IRQ status
-        ldr r0, [r1, #VICIRQStats_OFS]
-        bl irq_dispatcher               // c-function irq
-
-        ldmfd sp!,{r0-r12,lr}           // restore regs and lr
-        subs pc,lr,#4
-
 
 #if 0
 // Use this group for production
@@ -151,55 +93,6 @@ __fiq:  b     .                         // FIQ
 _start:
 start:
 _mainCRTStartup:
-
-#if (USE_PLL == 1)
-                LDR     R0, =PLL_BASE
-                MOV     R1, #0xAA
-                MOV     R2, #0x55
-
-# Disable PLL before programming 
-		MOV	R3,#0
-                STR     R3, [R0, #PLLCON_OFS]
-                STR     R1, [R0, #PLLFEED_OFS]
-                STR     R2, [R0, #PLLFEED_OFS]
-		
-# Configure and Enable PLL
-                MOV     R3, #VAL_PLLCFG
-                STR     R3, [R0, #PLLCFG_OFS] 
-                MOV     R3, #PLLCON_PLLE
-                STR     R3, [R0, #PLLCON_OFS]
-                STR     R1, [R0, #PLLFEED_OFS]
-                STR     R2, [R0, #PLLFEED_OFS]
-
-# Wait until PLL Locked
-PLL_Loop:       LDR     R3, [R0, #PLLSTAT_OFS]
-                ANDS    R3, R3, #PLLSTAT_PLOCK
-                BEQ     PLL_Loop
-
-# Switch to PLL Clock
-                MOV     R3, #(PLLCON_PLLE | PLLCON_PLLC)
-                STR     R3, [R0, #PLLCON_OFS]
-                STR     R1, [R0, #PLLFEED_OFS]
-                STR     R2, [R0, #PLLFEED_OFS]
-#endif
-                // switch on MAM
-                ldr     R0, =MAM_BASE
-                mov     R1, #MAM_TIMING
-                mov     R2, #MAM_SETTING
-                str     R1, [R0, #MAMTIM_OFS]
-                str     R2, [R0, #MAMCR_OFS]
-
-                // set interrupt table location
-                ldr     R0, =MEMMAP_BASE
-                mov     R1, #MEM_MAPPING
-                str     R1, [R0, #MEMMAP_OFS]
-
-                // turn off interrupts
-                ldr     R0, =VIC_BASE
-                mov     R1, #0xFFFFFFFF
-                str     R1, [R0, #VICIntEnClr_OFS]
-
-
 
 // Initialize Interrupt System
 // - Set stack location for each mode
@@ -263,11 +156,6 @@ ctor_loop:
 		B 		ctor_loop
 ctor_end:
 
-enable_irq:
-        mrs r0,CPSR                     // get current CPSR
-        bic r0,r0,#I_BIT                // clear I bit, normal interrupts enabled
-        msr CPSR_c,r0                   // write CPSR
-
 // Call main program: main(0)
 // --------------------------
         mov   r0,#0                     // no arguments (argc = 0)
@@ -277,10 +165,27 @@ enable_irq:
         mov   r7,r0                     // null frame pointer for thumb
         ldr   r10,=main
         mov   lr,pc
+
+/* Enter the C code, use BX instruction so as to never return */
+/* use BLX (?) main if you want to use c++ destructors below */
+
         bx    r10                       // enter main()
 
 /* "global object"-dtors are never called and it should not be 
    needed since there is no OS to exit to. */
+/* Call destructors */
+#		LDR		r0, =__dtors_start__
+#		LDR		r1, =__dtors_end__
+dtor_loop:
+#		CMP		r0, r1
+#		BEQ		dtor_end
+#		LDR		r2, [r0], #4
+#		STMFD	sp!, {r0-r1}
+#		MOV		lr, pc
+#		MOV		pc, r2
+#		LDMFD	sp!, {r0-r1}
+#		B		dtor_loop
+dtor_end:
    
         .size   _start, . - _start
         .endfunc

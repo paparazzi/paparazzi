@@ -46,6 +46,7 @@
     <field name="climb"  type="int16" unit="cm/s"></field>
     <field name="itow"  type="uint32" unit="ms"></field>
     <field name="utm_zone"  type="uint8"></field>
+    <field name="gps_nb_err" type="uint8"></field>
   </message>
 
   <message name="NAVIGATION_REF" ID="0x09" period="9" >
@@ -84,13 +85,11 @@
     <field name="energy" type="uint16" unit="mAh"/>
   </message>
 
-  <message name="DEBUG" ID="13" period="5" >
+  <message name="DEBUG_MCU_LINK" ID="13" period="5" >
     <field name="i2c_nb_err" type="uint8"></field>	
     <field name="i2c_mcu1_nb_err" type="uint8"></field>
-    <field name="modem_nb_err" type="uint8"></field>
-    <field name="gps_nb_err" type="uint8"></field>
     <field name="ppm_rate" type="uint8"></field>
-  </message> 
+  </message>
 
   <message name="CALIBRATION" ID="14" period="2">
     <field name="climb_sum_err" type="float" format="%.1f"></field>
@@ -206,6 +205,11 @@
  <message name="RANGEFINDER" id="29">
   <field name="range" type="uint16"/>
  </message>
+
+
+<message name="DEBUG_MODEM" id="30" period="5">
+    <field name="modem_nb_err" type="uint8"></field>
+</message>
 
 </class>
 

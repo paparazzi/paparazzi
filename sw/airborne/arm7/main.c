@@ -91,7 +91,7 @@ static void sysInit(void) {
   initSysTime();                        // initialize the system timer
   
   uart0Init(UART_BAUD(HOST_BAUD), UART_8N1, UART_FIFO_8); // setup the UART
-  uart1Init(B38400, UART_8N1, UART_FIFO_8);               // setup the UART
+  //  uart1Init(B38400, UART_8N1, UART_FIFO_8);               // setup the UART
   adc_init();
   servos_init();
   ppm_init();
@@ -110,11 +110,12 @@ static void periodic_task ( void ) {
 /*   modem_put_one_byte(0x42); */
   //  MODEM_PRINT_GPS();
   if (!(foo%10)) {
-    if (IO0PIN & LED1_BIT)
-      IO0CLR = LED1_BIT;
+    if (IO1PIN & LED_TINY_BIT)
+      //      IO0CLR = LED1_BIT;
+      IO1CLR = LED_TINY_BIT;
     else
-      IO0SET = LED1_BIT; 
-    MODEM_PRINT_GPS();
+      //IO0SET = LED1_BIT; 
+      IO1SET = LED_TINY_BIT;
     //    PRINT_ADC();
         DOWNLINK_SEND_IDENT(&AC_ID);
 

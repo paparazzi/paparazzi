@@ -41,8 +41,6 @@
 
 
 
-uint8_t  inflight_calib_mode = IF_CALIB_MODE_NONE;
-
 #include "estimator.h"
 
 /** Includes generated code from airframe.xml */
