@@ -90,6 +90,8 @@
 include $(PAPARAZZI_SRC)/conf/autopilot/v1_2_1.makefile
 
 ap.CFLAGS += -DUBX
+ap.CFLAGS += -Werror
+
 # ap.CFLAGS += -DSIMUL
 ap.LOCAL_CFLAGS += -DDATALINK
 ap.EXTRA_SRCS += traffic_info.c datalink.c

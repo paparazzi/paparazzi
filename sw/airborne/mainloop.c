@@ -136,11 +136,13 @@ void event_task_ap( void ) {
 #ifdef GPS
   if (GpsBuffer()) {
     ReadGpsBuffer();
+#ifdef DEBUG_ARM7
     if (IO1PIN & LED_2_BIT)
       IO1CLR = LED_2_BIT;
     else
       IO1SET = LED_2_BIT;
- }
+#endif
+  }
   if (gps_msg_received) {
     /* parse and use GPS messages */
     parse_gps_msg();
@@ -150,13 +152,13 @@ void event_task_ap( void ) {
       gps_pos_available = FALSE;
     }
   }
-#endif
+#endif /** GPS */
 #ifdef WAVECARD
   if (wc_msg_received) {
     wc_parse_payload();
     wc_msg_received = FALSE;
   }
-#endif
+#endif /** WAVECARD */
 #ifdef DATALINK
   if (dl_msg_available) {
     dl_parse_msg();

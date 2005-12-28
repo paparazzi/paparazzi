@@ -1,7 +1,7 @@
 /*
  * Paparazzi $Id$
- *  
- * Copyright (C) 2003 Pascal Brisset, Antoine Drouin
+ *
+ * Copyright (C) 2005 Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
  *
@@ -18,14 +18,17 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  */
-#ifndef _UART_H_
-#define _UART_H_
 
-#include <inttypes.h>
-#include "std.h"
-#include "uart_ap_hw.h"
+/*
+ *\brief AVR low level hardware initialisation 
+ */
 
-#endif
+#ifndef LOW_LEVEL_HW_H
+#define LOW_LEVEL_HW_H
+
+#define low_level_init() {}
+
+#endif /* LOW_LEVEL_HW_H */

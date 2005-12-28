@@ -40,4 +40,20 @@
     cb(c); \
 }
 
-#define UART_BUFFER_LEN 16
+extern void uart0_init_tx(void);
+extern void uart0_init_rx(void);
+extern void uart1_init(void);
+
+extern void uart0_transmit(const uint8_t);
+extern void uart1_transmit(const uint8_t);
+
+#define uart1Putch(c) uart1_transmit(c)
+
+extern uint8_t uart1_char;
+extern bool_t uart1_char_available;
+
+#define uart1ChAvailable() (uart1_char_available)
+static inline uint8_t uart1Getch( void ) {
+  uart1_char_available = FALSE;
+  return uart1_char;
+}

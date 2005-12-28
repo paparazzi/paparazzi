@@ -164,12 +164,10 @@ void uart1_init( void ) {
 }
 
 
-bool_t uart1_buffer_size;
-uint8_t uart1_buffer[UART_BUFFER_LEN];
+uint8_t uart1_char;
+bool_t uart1_char_available;
 
 SIGNAL( SIG_UART1_RECV ) {
-  if (uart1_buffer_size < UART_BUFFER_LEN) {
-    uart1_buffer[uart1_buffer_size] = UDR1;
-    uart1_buffer_size++;
-  } /** else overrun */
+  uart1_char = UDR1;
+  uart1_char_available = TRUE;
 }
