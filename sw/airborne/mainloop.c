@@ -26,7 +26,6 @@
  
 #include "main_ap.h"
 #include "int.h"
-//#include "timer_ap.h"
 #include "low_level_hw.h"
 #include "sys_time_hw.h"
 #include "adc_ap.h"
@@ -130,14 +129,20 @@ void init_ap( void ) {
 }
 
 void periodic_task_ap( void) {
-  periodic_task();
+  if (sys_time_periodic()) {
+    periodic_task();
+  }
 }
 
 void event_task_ap( void ) {
 #ifdef GPS
   if (GpsBuffer()) {
     ReadGpsBuffer();
-  }
+    if (IO1PIN & LED_2_BIT)
+      IO1CLR = LED_2_BIT;
+    else
+      IO1SET = LED_2_BIT;
+ }
   if (gps_msg_received) {
     /* parse and use GPS messages */
     parse_gps_msg();

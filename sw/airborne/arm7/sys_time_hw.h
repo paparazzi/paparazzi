@@ -23,7 +23,7 @@
  */
 
 /*
- *\brief ARM7 timer functions 
+ *\brief ARM7 timing functions 
  *
  */
 
@@ -64,7 +64,7 @@ static inline void sys_time_init( void ) {
 static inline bool_t sys_time_periodic( void ) {
   uint32_t now = T0TC;
   if (now - last_periodic_event >= PERIODIC_TASK_PERIOD) {
-    last_periodic_event = now;
+    last_periodic_event += PERIODIC_TASK_PERIOD;
     if (IO1PIN & LED_1_BIT)
       IO1CLR = LED_1_BIT;
     else
@@ -73,5 +73,6 @@ static inline bool_t sys_time_periodic( void ) {
   }
   return FALSE;
 }
+
 
 #endif /* SYS_TIME_HW_H */
