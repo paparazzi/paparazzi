@@ -36,11 +36,10 @@
 #include "led.h"
 #include "uart_fbw.h"
 
-#ifndef AP /** fbw alone, using SPI to communicate with ap */
+#ifdef MCU_SPI_LINK
 #include "spi_fbw_hw.h"
 #include "spi_fbw.h"
 #endif
-/** #else statically linked with ap */
 
 #ifdef IMU_3DMG 
 #include "3dmg.h"
@@ -167,10 +166,9 @@ void init_fbw( void ) {
   command_init();
   ppm_init();
 
-#ifndef AP
+#ifdef MCU_SPI_LINK
   spi_init();
 #endif
-/** #else Statically linked with AP: no spi com */
 
   int_enable();
 
@@ -189,13 +187,12 @@ void event_task_fbw( void) {
     mode = FBW_MODE_AUTO;
   }
 
-#ifndef AP
+#ifdef MCU_SPI_LINK
   if ( !SpiIsSelected() && spi_was_interrupted ) {
     spi_was_interrupted = FALSE;
     spi_reset();
   }
 #endif
-/** #else Statically linked with AP: no spi com */
 
   if (from_ap_receive_valid) {
     time_since_last_ap = 0;

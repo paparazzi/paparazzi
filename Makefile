@@ -78,7 +78,7 @@ fbw fly_by_wire: ac_h
 ap autopilot: ac_h
 	cd $(AIRBORNE); $(MAKE) TARGET=ap all
 
-upload_fbw: hard_ac
+upload_fbw: fbw
 	cd $(AIRBORNE); $(MAKE) TARGET=fbw upload
 
 upload_ap: ap
