@@ -24,15 +24,21 @@
 
 /*
  *\brief ARM7 low level hardware initialisation 
- * PLL, IOPORT, MAM, VIC
+ * PLL, MAM, VIC
  *
  */
 
 #ifndef LOW_LEVEL_HW_H
 #define LOW_LEVEL_HW_H
 
+#include CONFIG
 #include "LPC21xx.h"
-#include "config.h"
+
+/* declare functions and values from crt0.S & the linker control file */
+extern void reset(void);
+/* extern void exit(void); */
+extern void abort(void);
+
 
 static inline void low_level_init(void) {
   /* set PLL multiplier & divisor. */
@@ -44,15 +50,6 @@ static inline void low_level_init(void) {
   PLLFEED = 0xAA;
   PLLFEED = 0x55;
 
-  /* setup port pins */
-  IO0CLR = PIO0_ZERO_BITS;                // clear the ZEROs output
-  IO0SET = PIO0_ONE_BITS;                 // set the ONEs output
-  IO0DIR = PIO0_OUTPUT_BITS;              // set the output bit direction
-  
-  IO1CLR = PIO1_ZERO_BITS;                // clear the ZEROs output
-  IO1SET = PIO1_ONE_BITS;                 // set the ONEs output
-  IO1DIR = PIO1_OUTPUT_BITS;              // set the output bit direction
-  
   /* wait for PLL lock */
   while (!(PLLSTAT & PLLSTAT_LOCK))
     continue;

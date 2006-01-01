@@ -1,5 +1,3 @@
-#ifndef STD_H
-#define STD_H
 /*
  * $Id$
  *
@@ -27,6 +25,9 @@
  *
  */
 
+#ifndef STD_H
+#define STD_H
+
 #include <inttypes.h>
 #include <math.h>
 
@@ -49,6 +50,7 @@ typedef uint8_t bool_t;
 #ifndef _BV
 #define _BV(bit) (1 << (bit))
 #endif
+
 
 
 #define NormRadAngle(x) { \

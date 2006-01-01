@@ -1,0 +1,5 @@
+<airframe name="Microjet4">
+  <makefile>
+include $(PAPARAZZI_SRC)/conf/autopilot/tiny.makefile
+  </makefile>
+</airframe>

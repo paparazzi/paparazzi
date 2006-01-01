@@ -1,0 +1,5 @@
+<airframe name="Twinjet1">
+  <makefile>
+include $(PAPARAZZI_SRC)/conf/autopilot/robostix.makefile
+  </makefile>
+</airframe>

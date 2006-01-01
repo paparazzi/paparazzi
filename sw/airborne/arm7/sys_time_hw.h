@@ -32,7 +32,7 @@
 
 #include "std.h"
 #include "LPC21xx.h"
-#include "config.h" /* PCLK */
+#include CONFIG
 
 static uint32_t last_periodic_event;
 
@@ -53,7 +53,6 @@ static inline void sys_time_init( void ) {
   T0EMR = 0;                          
   /* enable timer 0                  */
   T0TCR = TCR_ENABLE;
-  //  sysTICs = 0;
 }
 
 #define SysTicsOfSec(s)   (uint32_t)(s * PCLK / T0_PCLK_DIV + 0.5)
@@ -66,10 +65,6 @@ static inline bool_t sys_time_periodic( void ) {
   uint32_t now = T0TC;
   if (now - last_periodic_event >= PERIODIC_TASK_PERIOD) {
     last_periodic_event += PERIODIC_TASK_PERIOD;
-    if (IO1PIN & LED_1_BIT)
-      IO1CLR = LED_1_BIT;
-    else
-      IO1SET = LED_1_BIT;
     return TRUE;
   }
   return FALSE;
