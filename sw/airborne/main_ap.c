@@ -222,9 +222,9 @@ static inline void reporting_task( void ) {
   }
   /** then report periodicly */
   else {
-    IO1CLR = LED_2_BIT;
+//    IO1CLR = LED_2_BIT;
     PeriodicSend();
-    IO1SET = LED_2_BIT;
+//    IO1SET = LED_2_BIT;
   }
 }
 
