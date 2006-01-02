@@ -15,7 +15,8 @@
 
 #include "types.h"
 #include "LPC21xx.h"
-#include "config.h"
+//#include "config.h"
+#include CONFIG
 
 ///////////////////////////////////////////////////////////////////////////////
 #define UART0_SUPPORT    (1)            // non-zero to enable UART0 code
@@ -158,7 +159,8 @@ uint16_t uart0Space(void);
  *    address of the string
  *
  * Returns:
- *    a pointer to the next character to be written
+ *    a pointer to the next character to be writte#define uart1_init() uart1Init(B19200, UART_8N1, UART_FIFO_8)
+n
  *    (\0 if full string is written)
  *
  *****************************************************************************/

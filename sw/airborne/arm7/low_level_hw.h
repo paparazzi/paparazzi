@@ -31,6 +31,7 @@
 #ifndef LOW_LEVEL_HW_H
 #define LOW_LEVEL_HW_H
 
+#include <inttypes.h>
 #include CONFIG
 #include "LPC21xx.h"
 

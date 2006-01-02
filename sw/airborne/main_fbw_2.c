@@ -1,10 +1,10 @@
 #include "main_fbw.h"
-#include "low_level_hw.h"
-#include "sys_time_hw.h"
 
-#ifdef LED
+#include "low_level_hw.h"
+#include "sys_time.h"
 #include "led.h"
-#endif
+//#include "command.h"
+#include "servos.h"
 
 void init_fbw( void ) {
   low_level_init();
@@ -12,13 +12,18 @@ void init_fbw( void ) {
 #ifdef LED
   led_init();
 #endif /* LED */
-#ifndef AP /* if FBW is running in a separate MCU */
+#ifdef ACTUATORS
+  servos_init();
+#endif /* ACTUATORS */
+
+  /* if FBW is running in a separate MCU */
+#ifndef AP
 
 #endif /* AP */
 }
 
 void periodic_task_fbw( void ) {
-  LED_TOGGLE(1);
+  //  LED_TOGGLE(1);
   LED_TOGGLE(2);
   //  LED_TOGGLE(3);
 }

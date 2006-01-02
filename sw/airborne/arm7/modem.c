@@ -82,8 +82,8 @@ static inline uint8_t get_next_bit( void ) {
       tx_byte = tx_buf[tx_tail];	       
       tx_bit_idx = 0;				
       tx_tail++;				
-            if( tx_tail >= TX_BUF_SIZE )
-	      tx_tail = 0; 
+      if( tx_tail >= TX_BUF_SIZE )
+	tx_tail = 0; 
     }
   }
   return ret;

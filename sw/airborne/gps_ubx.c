@@ -103,35 +103,35 @@ void gps_init( void ) {
 #define NAV_DYN_AIRBORNE_4G 7
 
 void gps_configure ( void ) {
-  static uint8_t gps_config_status = 1;
-  switch (gps_config_status) {
-  case 0:
-    UbxSend_CFG_PRT(0x01, 0x00, 0x0000, 0x000080C0, 0x00009600, UBX_PROTO_MASK, UBX_PROTO_MASK, 0x0000, 0x0000);
+  //  static uint8_t gps_config_status = 1;
+  //  switch (gps_config_status) {
+    //  case 0:
+    //    UbxSend_CFG_PRT(0x01, 0x00, 0x0000, 0x000080C0, 0x00009600, UBX_PROTO_MASK, UBX_PROTO_MASK, 0x0000, 0x0000);
     /* remember to change host baudrate on ack */
-    break;
-  case 1:
+    //    break;
+    //  case 1:
     UbxSend_CFG_NAV(NAV_DYN_AIRBORNE_2G, 3, 16, 24, 20, 5, 0, 0x3C, 0x3C, 0x14, 0x03E8 ,0x0000, 0x0, 0x17, 0x00FA, 0x00FA, 0x0064, 0x012C, 0x000F, 0x00, 0x00);
-    break;
-  case 2:
+    //    break;
+    //  case 2:
     UbxSend_CFG_MSG(UBX_NAV_ID, UBX_NAV_POSUTM_ID, 0, 1, 0, 0);
-    break;
-  case 3:
+    //    break;
+    //  case 3:
     UbxSend_CFG_MSG(UBX_NAV_ID, UBX_NAV_VELNED_ID, 0, 1, 0, 0);
-    break;
-  case 4:
+    //    break;
+    //  case 4:
     UbxSend_CFG_MSG(UBX_NAV_ID, UBX_NAV_STATUS_ID, 0, 1, 0, 0);
-    break;
-  case 5:
+    //    break;
+    //  case 5:
     UbxSend_CFG_MSG(UBX_NAV_ID, UBX_NAV_SVINFO_ID, 0, 4, 0, 0);
-    break;
-  case 6:
+    //    break;
+    //  case 6:
     UbxSend_CFG_SBAS(0x00, 0x00, 0x00, 0x00, 0x00);
-    break;
-  case 7:
+    //    break;
+    //  case 7:
     UbxSend_CFG_RATE(0x00FA, 0x0001, 0x0000);
-    break;
-  }
-  gps_config_status++;
+    //    break;
+    //  }
+    //  gps_config_status++;
 }
 
 

@@ -43,9 +43,9 @@ extern void abort(void);
 
 // PLL setup values are computed within the LPC include file
 // It relies upon the following defines
-//#define FOSC                (14745600)  // Master Oscillator Freq.
-#define FOSC                (12000000)  // Master Oscillator Freq.
-#define PLL_MUL             (5)         // PLL Multiplier
+#define FOSC                (14745600)  // Master Oscillator Freq.
+//#define FOSC                (12000000)  // Master Oscillator Freq.
+#define PLL_MUL             (4)         // PLL Multiplier
 #define CCLK                (FOSC * PLL_MUL) // CPU Clock Freq.
 
 // Pheripheral Bus Speed Divider

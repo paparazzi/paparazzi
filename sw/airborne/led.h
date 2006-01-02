@@ -1,6 +1,8 @@
 #ifndef LED_H
 #define LED_H
 
+#ifdef LED
+
 #include "led_hw.h"
 
 static inline void led_init ( void ) {
@@ -17,5 +19,7 @@ static inline void led_init ( void ) {
   LED_INIT(4);
 #endif /* LED_4_BANK */
 }
+
+#endif /* LED */
 
 #endif /* LED_H */

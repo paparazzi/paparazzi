@@ -30,10 +30,10 @@
 #include <math.h>
 
 #include "estimator.h"
-#include "gps.h"
-#include "infrared.h"
-#include "autopilot.h"
-#include "flight_plan.h"
+//#include "gps.h"
+//#include "infrared.h"
+//#include "autopilot.h"
+//#include "flight_plan.h"
 
 
 /* position in meters */

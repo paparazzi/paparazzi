@@ -79,7 +79,7 @@ void PWM_ISR ( void ) {
     IO1SET = SERV1_RESET_BIT;
     PWMMR0 = servos_delay;
     PWMLER = 0x1;
-      servos_idx = 0;
+    servos_idx = 0;
   }
   /* clear the interrupt */
   PWMIR = 1<<2;

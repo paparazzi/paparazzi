@@ -1,0 +1,5 @@
+<airframe name="Twinstar five">
+  <makefile>
+include $(PAPARAZZI_SRC)/conf/autopilot/classix.makefile
+  </makefile>
+</airframe>

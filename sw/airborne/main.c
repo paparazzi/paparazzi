@@ -24,7 +24,7 @@
 /** \brief mono and dual mcus mainloop */
 
 
-#include "sys_time_hw.h"
+#include "sys_time.h"
 
 #ifdef FBW
 #include "main_fbw.h"

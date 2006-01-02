@@ -37,9 +37,9 @@
  * Enable Timer1 (16-bit) running at Clk/1 for the global system
  * clock.
  *
- * Low frequency periodic tasks will be signaled by timer 0
+ * Low frequency periodic tasks will be signaled by timer 2
  * running at Clk/1024.  For 16 Mhz clock, this will be every
- * 262144 microseconds, or 61 Hz.
+ * 16384 microseconds, or 61.03515625 Hz.
  */
 static inline void sys_time_init( void ) {
 
@@ -51,11 +51,13 @@ static inline void sys_time_init( void ) {
 
   /* Timer2 @ Clk/1024: Periodic clock */
   TCCR2         = 0x05;
+
+  cpu_time = 0;
 }
 
 /*
  *  Periodic tasks occur when Timer2 overflows.  Check and unset
- * the overflow bit.
+ * the overflow bit. Occurs at 61.03515625 Hz
  *
  */
 static inline bool_t sys_time_periodic( void ) {

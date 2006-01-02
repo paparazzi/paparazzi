@@ -53,6 +53,8 @@ static inline void sys_time_init( void ) {
   T0EMR = 0;                          
   /* enable timer 0                  */
   T0TCR = TCR_ENABLE;
+
+  cpu_time = 0;
 }
 
 #define SysTicsOfSec(s)   (uint32_t)(s * PCLK / T0_PCLK_DIV + 0.5)

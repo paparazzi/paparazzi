@@ -27,7 +27,7 @@
 #include "main_ap.h"
 #include "int.h"
 #include "low_level_hw.h"
-#include "sys_time_hw.h"
+#include "sys_time.h"
 #include "adc_ap.h"
 #include "autopilot.h"
 #include "gps.h"
