@@ -18,8 +18,24 @@
   />
 
   <aircraft 
-    name="GRZBA"
+    name="Twin3"
     ac_id="3"
+    airframe="airframes/twinstar1.xml" 
+    radio="radios/cockpitMM.xml" 
+    flight_plan="flight_plans/muret_mini.xml"
+  />
+
+  <aircraft 
+    name="Twin4"
+    ac_id="4"
+    airframe="airframes/twinstar4.xml" 
+    radio="radios/cockpitMM.xml" 
+    flight_plan="flight_plans/muret_follow.xml"
+  />
+
+  <aircraft 
+    name="GRZBA"
+    ac_id="5"
     airframe="airframes/gorazoptere_brushless_ANALOG.xml" 
     radio="radios/cockpitMM.xml" 
     flight_plan="flight_plans/muret_mini.xml"

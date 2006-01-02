@@ -8,8 +8,8 @@ ap.LOW_FUSE  = a0
 ap.HIGH_FUSE = 99
 ap.EXT_FUSE  = ff
 ap.LOCK_FUSE = ff
-ap.CFLAGS += -DAP -DMODEM -DDOWNLINK -DINFRARED -DGPS -DMCU_SPI_LINK
-ap.srcs = gps_ubx.c gps.c main_ap.c $(SRC_ARCH)/modem.c inter_mcu.c link_mcu.c $(SRC_ARCH)/link_mcu_ap.c $(SRC_ARCH)/spi_ap.c $(SRC_ARCH)/adc_ap.c infrared.c pid.c nav.c $(SRC_ARCH)/uart_ap.c estimator.c if_calib.c mainloop.c cam.c main.c
+ap.CFLAGS += -DAP -DMODEM -DDOWNLINK -DMCU_SPI_LINK
+ap.srcs = gps_ubx.c gps.c main_ap.c $(SRC_ARCH)/modem.c inter_mcu.c link_mcu.c $(SRC_ARCH)/link_mcu_ap.c $(SRC_ARCH)/spi_ap.c $(SRC_ARCH)/adc_ap.c infrared.c pid.c nav.c $(SRC_ARCH)/uart_ap.c estimator.c mainloop.c cam.c main.c
 
 fbw.ARCHDIR = $(ARCHI)
 fbw.ARCH = atmega8

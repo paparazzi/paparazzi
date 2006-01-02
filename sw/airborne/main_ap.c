@@ -41,6 +41,10 @@
 #include "traffic_info.h"
 #include "link_mcu.h"
 
+#ifdef LED
+#include "led.h"
+#endif
+
 #ifdef TELEMETER
 #include "srf08.h"
 #endif
@@ -465,10 +469,8 @@ inline void periodic_task( void ) {
 #ifdef MCU_SPI_LINK
     link_fbw_send();
 #endif
-/** #else statically linked with fbw */
     break;
   default:
     fatal_error_nb++;
   }
 }
-

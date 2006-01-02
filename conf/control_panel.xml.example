@@ -134,6 +134,18 @@
       <program name="cockpit"/>
       <program name="map 2d ml"/>
     </session>
+
+   <session name="Flight audio+sim+wavecard@Muret">
+      <variable name="map" value="muret_UTM.xml"/>
+      <program name="multimon"><arg flag="-p" constant="/tmp/multimon"/></program>
+      <program name="modem"><arg flag="-d" constant="/tmp/multimon"/></program>
+      <program name="server"/>     
+      <program name="messages"><arg flag="-c" constant="telemetry_ap:*"/><arg flag="-c" constant="ground"/></program>
+      <program name="cockpit"/>
+      <program name="map 2d ml"/>
+<!--      <program name="wavecard"/> -->
+      <program name="sim"><arg flag="-a" constant="Twin3"/></program>
+    </session>
   </section>
 
 </control_panel>

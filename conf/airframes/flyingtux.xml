@@ -93,6 +93,7 @@
   <makefile>
 include $(PAPARAZZI_SRC)/conf/autopilot/v1_2.makefile
 
-ap.CFLAGS += -DUBX
+ap.CFLAGS += -DINFRARED -DGPS -DUBX -DRADIO_CONTROL_CALIB
+ap.EXTRA_SRCS += if_calib.c
   </makefile>
 </airframe>

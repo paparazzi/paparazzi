@@ -38,6 +38,7 @@
 #include "datalink.h"
 #include "wavecard.h"
 #include "downlink.h"
+#include "led.h"
 
 #ifdef MCU_SPI_LINK /** ap alone, using SPI to communicate with fbw */
 #include "spi_ap.h"
@@ -56,6 +57,9 @@
 
 
 void init_ap( void ) {
+#ifdef LED
+  led_init();
+#endif
 #ifndef FBW /** Dual mcus : init done in main_fbw */
   low_level_init();
   sys_time_init(); 
@@ -175,6 +179,7 @@ void event_task_ap( void ) {
     DOWNLINK_SEND_RANGEFINDER(&srf08_range);
   }
 #endif
+
   if (from_fbw_receive_valid) {
     /* receive radio control task from fbw */
     from_fbw_receive_valid = FALSE;
@@ -196,20 +201,5 @@ void event_task_ap( void ) {
     //      DOWNLINK_SEND_IMU_3DMG(&from_fbw.euler_dot[0], &from_fbw.euler_dot[1], &from_fbw.euler_dot[2], &dummy, &dummy, &dummy);
 #endif //IMU
 
-
-#if defined IMU_3DMG || defined IMU_ANALOG
-    /*uart0_transmit('G');
-      uart0_transmit(' ');
-      uart0_print_hex16(from_fbw.euler_dot[0]);
-      uart0_transmit(',');
-      uart0_print_hex16(from_fbw.euler_dot[1]);
-      uart0_transmit(',');
-      uart0_print_hex16(from_fbw.euler_dot[2]);
-      uart0_transmit('\n');*/
-#endif
   }
 } 
-
-
-
-

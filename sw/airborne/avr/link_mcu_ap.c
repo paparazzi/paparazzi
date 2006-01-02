@@ -90,8 +90,7 @@ SIGNAL(SIG_OUTPUT_COMPARE1A) {
     if (crc_in1 == Crc1(crc_in) && tmp == Crc2(crc_in)) {
       from_fbw_receive_valid = TRUE;
       link_fbw_fbw_nb_err = from_fbw.nb_err;
-    }
-    else
+    } else
       link_fbw_nb_err++;
     /* unselect slave0                      */
     SPI_UNSELECT_SLAVE0();

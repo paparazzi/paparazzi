@@ -88,10 +88,12 @@
   <makefile>
 include $(PAPARAZZI_SRC)/conf/autopilot/v1_2_1.makefile
 
-ap.CFLAGS += -DUBX
-ap.LOCAL_CFLAGS += -DDATALINK
+ap.CFLAGS += -DINFRARED -DGPS -DUBX -DRADIO_CONTROL_CALIB
+ap.CFLAGS += -DLED -DLED_1_BANK=D  -DLED_1_PIN=0
+ap.EXTRA_SRCS += if_calib.c
+ap.CFLAGS += -DDATALINK
 ap.EXTRA_SRCS += traffic_info.c datalink.c
-ap.LOCAL_CFLAGS += -DWAVECARD
+ap.CFLAGS += -DWAVECARD
 ap.EXTRA_SRCS += wavecard.c
   </makefile>
 </airframe>
