@@ -18,6 +18,11 @@
 
 #define LED_2_BANK 1
 #define LED_2_PIN 31
+
+/* PPM : rc rx on P0.16 */
+#define PPM_PINSEL PINSEL1
+#define PPM_PINSEL_VAL 0x03
+#define PPM_PINSEL_BIT 0
 #endif /* FBW */
 
 #ifdef AP

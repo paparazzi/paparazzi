@@ -10,4 +10,12 @@
 #define LED_3_BANK B
 #define LED_3_PIN 4
 
+/* clock in MHz */
+#define CLOCK 16
+
+/* PPM input on mega128 ICP  */
+#define PPM_DDR  DDRD
+#define PPM_PORT PORTD
+#define PPM_PIN  PD4
+
 #endif /* CONFIG_ROBOSTIX_H */

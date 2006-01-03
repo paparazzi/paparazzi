@@ -74,13 +74,13 @@ let gen_last_radio_from_ppm = fun channels ->
   printf "   int16_t tmp_radio;\\\n";
   List.iter
     (fun c ->
-      printf "  tmp_radio = ppm_pulses[RADIO_%s] - (CLOCK*%d);\\\n" c.name c.neutral;
+      printf "  tmp_radio = ppm_pulses[RADIO_%s] -  SYS_TICS_OF_USEC(%d);\\\n" c.name c.neutral;
       let period = if c.averaged then "AVERAGING_PERIOD" else "1" in
       let value, min_pprz = 
 	if c.neutral = c.min then
-	  sprintf "tmp_radio * (MAX_PPRZ / %s / (float)(CLOCK*(%d-%d)))" period c.max c.min, "0"
+	  sprintf "tmp_radio * (MAX_PPRZ / %s / (float)(SYS_TICS_OF_USEC(%d-%d)))" period c.max c.min, "0"
 	else
-	  sprintf "tmp_radio * (tmp_radio >=0 ? (MAX_PPRZ/%s/(float)(CLOCK*(%d-%d))) : (MIN_PPRZ/%s/(float)(CLOCK*(%d-%d))))" period c.max c.neutral period c.min c.neutral, "MIN_PPRZ" in
+	  sprintf "tmp_radio * (tmp_radio >=0 ? (MAX_PPRZ/%s/(float)(SYS_TICS_OF_USEC(%d-%d))) : (MIN_PPRZ/%s/(float)(SYS_TICS_OF_USEC(%d-%d))))" period c.max c.neutral period c.min c.neutral, "MIN_PPRZ" in
       if c.averaged then begin
 	printf "  avg_last_radio[RADIO_%s] += %s;\\\n" c.name value
       end else begin
@@ -129,13 +129,15 @@ let _ =
   let channels_params = List.map parse_channel channels in 
   nl ();
   
-  let ppm_min = ExtXml.attrib xml "min" in
-  let ppm_max = ExtXml.attrib xml "max" in
-  let ppm_sync= ExtXml.attrib xml "sync" in
+  let ppm_data_min = ExtXml.attrib xml "data_min" in
+  let ppm_data_max = ExtXml.attrib xml "data_max" in
+  let ppm_sync_min = ExtXml.attrib xml "sync_min" in
+  let ppm_sync_max = ExtXml.attrib xml "sync_max" in
 
-  printf "#define PPM_MIN_PULSE_WIDTH %sul*CLOCK\n" ppm_min;
-  printf "#define PPM_MAX_PULSE_WIDTH %sul*CLOCK\n" ppm_max;
-  printf "#define PPM_SYNC_PULSE (uint8_t)(((uint32_t)(%sul*CLOCK))/1024ul)\n" ppm_sync;
+  printf "#define PPM_DATA_MIN_LEN SYS_TICS_OF_USEC(%sul)\n" ppm_data_min;
+  printf "#define PPM_DATA_MAX_LEN SYS_TICS_OF_USEC(%sul)\n" ppm_data_max;
+  printf "#define PPM_SYNC_MIN_LEN SYS_TICS_OF_USEC(%sul)\n" ppm_sync_min;
+  printf "#define PPM_SYNC_MAX_LEN SYS_TICS_OF_USEC(%sul)\n" ppm_sync_max;
   nl ();
 
   gen_last_radio_from_ppm channels_params;

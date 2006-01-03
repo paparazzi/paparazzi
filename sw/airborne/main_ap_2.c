@@ -19,12 +19,15 @@ void init_ap( void ) {
   gps_init();
   gps_configure();
 #endif
-  int_enable();
+  /* if AP is running in a separate MCU */
+#ifndef FBW
+ int_enable();
+#endif /* FBW */
 }
 
 void periodic_task_ap( void ) {
   //  LED_TOGGLE(1);
-  LED_TOGGLE(2);
+  //  LED_TOGGLE(2);
 }
 
 void event_task_ap( void ) {
@@ -36,7 +39,7 @@ void event_task_ap( void ) {
       parse_gps_msg();
       gps_msg_received = FALSE;
       if (gps_pos_available) {
-	LED_TOGGLE(1);
+	//	LED_TOGGLE(1);
 	use_gps_pos();
 	gps_pos_available = FALSE;
       }

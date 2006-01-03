@@ -37,7 +37,8 @@
 static uint32_t last_periodic_event;
 
 /* T0 prescaler */
-#define T0_PCLK_DIV     3
+//#define T0_PCLK_DIV     3
+#define T0_PCLK_DIV     1
 
 static inline void sys_time_init( void ) {
   /* setup Timer 0 to count forever  */
@@ -57,10 +58,10 @@ static inline void sys_time_init( void ) {
   cpu_time = 0;
 }
 
-#define SysTicsOfSec(s)   (uint32_t)(s * PCLK / T0_PCLK_DIV + 0.5)
-#define FIFTY_MS          SysTicsOfSec( 50e-3 )
-#define AVR_PERIOD_MS     SysTicsOfSec( 15.625e-3 )
-
+#define SYS_TICS_OF_SEC(s)   (uint32_t)(s * PCLK / T0_PCLK_DIV + 0.5)
+#define SYS_TICS_OF_USEC(us) SYS_TICS_OF_SEC(us * 1e-6)
+#define FIFTY_MS          SYS_TICS_OF_SEC( 50e-3 )
+#define AVR_PERIOD_MS     SYS_TICS_OF_SEC( 15.625e-3 )
 #define PERIODIC_TASK_PERIOD AVR_PERIOD_MS
 
 static inline bool_t sys_time_periodic( void ) {

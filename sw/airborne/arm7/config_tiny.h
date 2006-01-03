@@ -21,4 +21,9 @@
 #define LED_2_BANK 1
 #define LED_2_PIN 19
 
+/* PPM : rc rx on P0.6*/
+#define PPM_PINSEL PINSEL0
+#define PPM_PINSEL_VAL 0x02
+#define PPM_PINSEL_BIT 12
+
 #endif /* CONFIG_TINY_H */

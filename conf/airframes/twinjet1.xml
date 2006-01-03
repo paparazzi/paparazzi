@@ -2,7 +2,7 @@
 <!-- robostix with direct servo drive on PWM output -->
   <makefile>
 include $(PAPARAZZI_SRC)/conf/autopilot/robostix.makefile
-ap.CFLAGS += -DACTUATORS
-ap.EXTRA_SRCS += $(SRC_ARCH)/servo_direct.c
+ap.CFLAGS += -DRADIO_CONTROL
+ap.EXTRA_SRCS += $(SRC_ARCH)/ppm_hw.c
   </makefile>
 </airframe>

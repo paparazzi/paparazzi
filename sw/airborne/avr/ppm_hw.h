@@ -33,8 +33,8 @@
  *
  */
 
-#ifndef PPM_H
-#define PPM_H
+#ifndef PPM_HW_H
+#define PPM_HW_H
 
 
 /**
@@ -46,16 +46,9 @@
 #define PPM_RX_TYPE  RXFUTABA
 
 #include <inttypes.h>
-#include <avr/signal.h>
+#include <avr/io.h>
 
-#include "timer_fbw.h"
-#include "inter_mcu.h"
-
-#define PpmOfUs(x) ((x)*CLOCK)
-
-#define PPM_DDR  DDRB
-#define PPM_PORT PORTB
-#define PPM_PIN  PB0
+#include CONFIG
 
 /*
  * PPM pulses are falling edge clocked on the ICP, which records
@@ -74,7 +67,6 @@ ppm_init( void )
 #else
 #	error "ppm.h: Unknown receiver type in PPM_RX_TYPE"
 #endif
-
   /* No noise cancelation */
   sbi( TCCR1B, ICNC1 );
   
@@ -89,11 +81,8 @@ ppm_init( void )
   /* needed to increase timer1 count to 16 bits in fast pwm mode (TIMER1_TOP rollover) */
   sbi( TIMSK, TOIE1 );
 #endif
+  ppm_valid = FALSE;
+
 }
 
-#define PPM_NB_PULSES RADIO_CTL_NB
-
-extern volatile bool_t	ppm_valid;
-extern uint16_t ppm_pulses[ PPM_NB_PULSES ];
-
-#endif
+#endif /* PPM_HW_H */

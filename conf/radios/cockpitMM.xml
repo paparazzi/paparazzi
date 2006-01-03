@@ -24,10 +24,11 @@
 <!--
 -- Attributes of root (Radio) tag :
 -- name: name of RC
--- min: min width of a pulse to be considered as a data pulse
--- max: max width of a pulse to be considered as a data pulse
--- sync: min width of a pulse to be considered as a synchro pulse
--- min, max and sync are expressed in nano-seconds
+-- data_min: min width of a pulse to be considered as a data pulse
+-- data_max: max width of a pulse to be considered as a data pulse
+-- sync_min: min width of a pulse to be considered as a synchro pulse
+-- sync_max: max width of a pulse to be considered as a synchro pulse
+-- min, max and sync are expressed in micro-seconds
 -->
 
 <!-- 
@@ -39,11 +40,11 @@
 -- min: minimum pulse length (micro-seconds)
 -- max: maximum pulse length (micro-seconds)
 -- neutral: neutral pulse length (micro-seconds)
-Note: a command may be reversed by exchanging min and max values
+-- Note: a command may be reversed by exchanging min and max values
 -->
 
 <!DOCTYPE radio SYSTEM "radio.dtd">
-<radio name="cockpitMM" min="850" max="2100" sync="5000">
+<radio name="cockpitMM" data_min="850" data_max="2100" sync_min ="3000" sync_max ="25000">
  <channel ctl="D" function="ROLL"     min="2000" neutral="1498" max="1000" average="0"/>
  <channel ctl="C" function="PITCH"    min="2000" neutral="1498" max="1000" average="0"/>
  <channel ctl="B" function="YAW"      min="2000" neutral="1498" max="1000" average="0"/>

@@ -1,27 +1,14 @@
 #include "ppm.h"
-#include "LPC21xx.h"
 #include "armVIC.h"
-#include "config.h"
+#include "std.h"
+#include "sys_time.h"
+#include CONFIG
 
 #define PPM_NB_CHANNEL PPM_NB_PULSES
 
 uint16_t ppm_pulses[PPM_NB_CHANNEL];
-volatile uint8_t ppm_valid = FALSE;
+volatile bool_t ppm_valid;
 
-void ppm_init ( void ) {
-  /* select TIMER0 as IRQ    */
-  VICIntSelect &= ~VIC_BIT(VIC_TIMER0);
-  /* enable TIMER0 interrupt */
-  VICIntEnable = VIC_BIT(VIC_TIMER0); 
-  /* on slot vic slot 4      */
-  VICVectCntl4 = VIC_ENABLE | VIC_TIMER0;
-  /* address of the ISR      */
-  VICVectAddr4 = (uint32_t)TIMER0_ISR; 
-  /* select P0.6 as capture */
-  PINSEL0 |= 0x02 << 12;
-  /* enable capture 0.2 on rising edge + trigger interrupt */
-  T0CCR = TCCR_CR2_R | TCCR_CR2_I;
-}
 
 void TIMER0_ISR ( void ) {
   ISR_ENTRY();

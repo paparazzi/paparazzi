@@ -55,6 +55,9 @@ static inline void sys_time_init( void ) {
   cpu_time = 0;
 }
 
+
+#define SYS_TICS_OF_USEC(us) (uint16_t)(us*CLOCK)
+
 /*
  *  Periodic tasks occur when Timer2 overflows.  Check and unset
  * the overflow bit. Occurs at 61.03515625 Hz

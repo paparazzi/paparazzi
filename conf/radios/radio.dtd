@@ -5,9 +5,10 @@
 
 <!ATTLIST radio
   name CDATA #REQUIRED
-  min CDATA #REQUIRED
-  max CDATA #REQUIRED
-  sync CDATA #REQUIRED>
+  data_min CDATA #REQUIRED
+  data_max CDATA #REQUIRED
+  sync_min CDATA #REQUIRED
+  sync_max CDATA #REQUIRED>
 
 <!ATTLIST channel
   ctl CDATA #REQUIRED
