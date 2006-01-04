@@ -1,8 +1,6 @@
 #ifndef PPM_HW_H
 #define PPM_HW_H
 
-#include "ppm.h"
-
 #include "LPC21xx.h"
 #include CONFIG
 
@@ -26,4 +24,4 @@ static inline void ppm_init ( void ) {
 }
 
 
-#endif /* PPM_H */
+#endif /* PPM_HW_H */

@@ -1,5 +1,5 @@
 <!DOCTYPE radio SYSTEM "radio.dtd">
-<radio name="mc3030" min="850" max="2100" sync="5000">
+<radio name="mc3030" data_min="850" data_max="2100" sync_min="5000" sync_max="25000">
   <channel ctl="D" function="THROTTLE" min="1000" neutral="1000" max="2200" average="0"/>
   <channel ctl="C" function="ROLL" min="1000" neutral="1600" max="2200" average="0"/>
   <channel ctl="B" function="PITCH" min="1000" neutral="1600" max="2200" average="0"/>

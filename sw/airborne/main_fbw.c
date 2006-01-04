@@ -28,7 +28,8 @@
 
 #include "main_fbw.h"
 #include "int.h"
-#include "timer_fbw.h"
+//#include "timer_fbw.h"
+#include "sys_time.h"
 #include "command.h"
 #include "ppm.h"
 #include "inter_mcu.h"
@@ -53,7 +54,7 @@
 #include "adc_fbw.h"
 struct adc_buf vsupply_adc_buf;
 
-#define AVERAGING_PERIOD 10
+#define RC_AVG_PERIOD 10
 
 
 
@@ -62,9 +63,9 @@ static uint8_t time_since_last_ap;
 static uint16_t time_since_last_ppm;
 static bool_t radio_ok, ap_ok, radio_really_lost, failsafe_mode;
 
-static pprz_t last_radio[ PPM_NB_PULSES ];
-static pprz_t avg_last_radio[ PPM_NB_PULSES ];
-static bool_t last_radio_contains_avg_channels = FALSE;
+static pprz_t rc_values[ PPM_NB_PULSES ];
+static pprz_t avg_rc_values[ PPM_NB_PULSES ];
+static bool_t rc_values_contains_avg_channels = FALSE;
 
 static const pprz_t failsafe[] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
 
@@ -75,17 +76,17 @@ static uint8_t ppm_cpt, last_ppm_cpt;
 
 
 /* Prepare data to be sent to mcu0 */
-static inline void to_autopilot_from_last_radio (void) {
+static inline void to_autopilot_from_rc_values (void) {
   uint8_t i;
   for(i = 0; i < RADIO_CTL_NB; i++)
-    from_fbw.channels[i] = last_radio[i];
+    from_fbw.channels[i] = rc_values[i];
   from_fbw.status = (radio_ok ? _BV(STATUS_RADIO_OK) : 0);
   from_fbw.status |= (radio_really_lost ? _BV(RADIO_REALLY_LOST) : 0);
   from_fbw.status |= (mode == FBW_MODE_AUTO ? _BV(STATUS_MODE_AUTO) : 0);
   from_fbw.status |= (failsafe_mode ? _BV(STATUS_MODE_FAILSAFE) : 0);
-  if (last_radio_contains_avg_channels) {
+  if (rc_values_contains_avg_channels) {
     from_fbw.status |= _BV(AVERAGED_CHANNELS_SENT);
-    last_radio_contains_avg_channels = FALSE;
+    rc_values_contains_avg_channels = FALSE;
   }
   from_fbw.ppm_cpt = last_ppm_cpt;
   from_fbw.vsupply = VoltageOfAdc(vsupply_adc_buf.sum/AV_NB_SAMPLE) * 10;
@@ -102,8 +103,8 @@ static inline void to_autopilot_from_last_radio (void) {
 }
 
 /* Copy from the ppm receiving buffer to the buffer sent to mcu0 */
-static void last_radio_from_ppm( void ) {
-  LastRadioFromPpm()
+static void rc_values_from_ppm( void ) {
+  NormalizePpm();
 }
 
 static inline void radio_control_task(void) {
@@ -111,12 +112,12 @@ static inline void radio_control_task(void) {
   radio_ok = TRUE;
   radio_really_lost = FALSE;
   time_since_last_ppm = 0;
-  last_radio_from_ppm();
-  if (last_radio_contains_avg_channels) {
-    mode = FBW_MODE_OF_PPRZ(last_radio[RADIO_MODE]);
+  rc_values_from_ppm();
+  if (rc_values_contains_avg_channels) {
+    mode = FBW_MODE_OF_PPRZ(rc_values[RADIO_MODE]);
   }
 #if defined IMU_ANALOG && defined RADIO_SWITCH1
-  if (last_radio[RADIO_SWITCH1] > MAX_PPRZ/2) {
+  if (rc_values[RADIO_SWITCH1] > MAX_PPRZ/2) {
     imu_capture_neutral();
     CounterLedOn();
   } else {
@@ -125,13 +126,13 @@ static inline void radio_control_task(void) {
 #endif
   if (mode == FBW_MODE_MANUAL) {
 #if defined IMU_3DMG || defined IMU_ANALOG
-    roll_dot_pgain = -100. ; /***  + (float)last_radio[RADIO_GAIN1] * 0.010; ***/
-    roll_dot_dgain = 0.; /*** 2.5 - (float)last_radio[RADIO_GAIN2] * 0.00025; ***/
+    roll_dot_pgain = -100. ; /***  + (float)rc_values[RADIO_GAIN1] * 0.010; ***/
+    roll_dot_dgain = 0.; /*** 2.5 - (float)rc_values[RADIO_GAIN2] * 0.00025; ***/
     pitch_dot_pgain = roll_dot_pgain;
     pitch_dot_dgain = roll_dot_dgain;
-    control_set_desired(last_radio);
+    control_set_desired(rc_values);
 #else
-    command_set(last_radio);
+    command_set(rc_values);
 #endif  
   }
 }
@@ -161,7 +162,7 @@ void init_fbw( void ) {
   CounterLedInit();
   imu_init();
 #endif
-  timer_init();
+  sys_time_init();
 
   command_init();
   ppm_init();
@@ -204,7 +205,7 @@ void event_task_fbw( void) {
       command_set(from_ap.channels);
 #endif
     }
-    to_autopilot_from_last_radio();
+    to_autopilot_from_rc_values();
   }
 
 #ifdef IMU_3DMG
@@ -244,7 +245,7 @@ void periodic_task_fbw( void ) {
 #if defined IMU_3DMG || defined IMU_ANALOG
   control_run();
   if (radio_ok) {
-    if (last_radio[RADIO_THROTTLE] > 0.1*MAX_PPRZ) {
+    if (rc_values[RADIO_THROTTLE] > 0.1*MAX_PPRZ) {
       command_set(control_commands);
     }
     else {

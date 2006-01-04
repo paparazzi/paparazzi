@@ -29,9 +29,8 @@
 #include "radio.h"
 
 #define PPM_NB_PULSES RADIO_CTL_NB
-
-extern volatile bool_t	ppm_valid;
 extern uint16_t ppm_pulses[ PPM_NB_PULSES ];
+extern volatile bool_t	ppm_valid;
 
 #include "ppm_hw.h"
 

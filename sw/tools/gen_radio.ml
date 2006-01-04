@@ -68,40 +68,40 @@ let parse_channel =
     }
 
 
-let gen_last_radio_from_ppm = fun channels ->
-  printf "#define LastRadioFromPpm() {\\\n";
+let gen_normalize_ppm = fun channels ->
+  printf "#define NormalizePpm() {\\\n";
   printf "  static uint8_t avg_cpt = 0; /* Counter for averaging */\\\n";
   printf "   int16_t tmp_radio;\\\n";
   List.iter
     (fun c ->
       printf "  tmp_radio = ppm_pulses[RADIO_%s] -  SYS_TICS_OF_USEC(%d);\\\n" c.name c.neutral;
-      let period = if c.averaged then "AVERAGING_PERIOD" else "1" in
+      let period = if c.averaged then "RC_AVG_PERIOD" else "1" in
       let value, min_pprz = 
 	if c.neutral = c.min then
 	  sprintf "tmp_radio * (MAX_PPRZ / %s / (float)(SYS_TICS_OF_USEC(%d-%d)))" period c.max c.min, "0"
 	else
 	  sprintf "tmp_radio * (tmp_radio >=0 ? (MAX_PPRZ/%s/(float)(SYS_TICS_OF_USEC(%d-%d))) : (MIN_PPRZ/%s/(float)(SYS_TICS_OF_USEC(%d-%d))))" period c.max c.neutral period c.min c.neutral, "MIN_PPRZ" in
       if c.averaged then begin
-	printf "  avg_last_radio[RADIO_%s] += %s;\\\n" c.name value
+	printf "  avg_rc_values[RADIO_%s] += %s;\\\n" c.name value
       end else begin
-	printf "  last_radio[RADIO_%s] = %s;\\\n" c.name value;
-	printf "  if (last_radio[RADIO_%s] > MAX_PPRZ) last_radio[RADIO_%s] = MAX_PPRZ;\\\n else if (last_radio[RADIO_%s] < %s) last_radio[RADIO_%s] = %s; \\\n\\\n" c.name c.name c.name min_pprz c.name min_pprz;
+	printf "  rc_values[RADIO_%s] = %s;\\\n" c.name value;
+	printf "  if (rc_values[RADIO_%s] > MAX_PPRZ) rc_values[RADIO_%s] = MAX_PPRZ;\\\n else if (rc_values[RADIO_%s] < %s) rc_values[RADIO_%s] = %s; \\\n\\\n" c.name c.name c.name min_pprz c.name min_pprz;
       end
       )
     channels;
   printf "avg_cpt++;\\\n";
-  printf "  if (avg_cpt == AVERAGING_PERIOD) {\\\n";
+  printf "  if (avg_cpt == RC_AVG_PERIOD) {\\\n";
   printf "    avg_cpt = 0;\\\n";
   List.iter
     (fun c ->
       if c.averaged then begin
-	printf "    last_radio[RADIO_%s] = avg_last_radio[RADIO_%s];\\\n" c.name c.name;
-	printf "    avg_last_radio[RADIO_%s] = 0;\\\n" c.name;
-	printf "  if (last_radio[RADIO_%s] > MAX_PPRZ) last_radio[RADIO_%s] = MAX_PPRZ;\\\n else if (last_radio[RADIO_%s] < MIN_PPRZ) last_radio[RADIO_%s] = MIN_PPRZ; \\\n\\\n" c.name c.name c.name c.name;
+	printf "    rc_values[RADIO_%s] = avg_rc_values[RADIO_%s];\\\n" c.name c.name;
+	printf "    avg_rc_values[RADIO_%s] = 0;\\\n" c.name;
+	printf "  if (rc_values[RADIO_%s] > MAX_PPRZ) rc_values[RADIO_%s] = MAX_PPRZ;\\\n else if (rc_values[RADIO_%s] < MIN_PPRZ) rc_values[RADIO_%s] = MIN_PPRZ; \\\n\\\n" c.name c.name c.name c.name;
       end
     )
     channels;
-  printf "    last_radio_contains_avg_channels = TRUE;\\\n";
+  printf "    rc_values_contains_avg_channels = TRUE;\\\n";
   printf " }\\\n";
   printf "}\n"
 
@@ -140,7 +140,7 @@ let _ =
   printf "#define PPM_SYNC_MAX_LEN SYS_TICS_OF_USEC(%sul)\n" ppm_sync_max;
   nl ();
 
-  gen_last_radio_from_ppm channels_params;
+  gen_normalize_ppm channels_params;
   
   printf "\n#endif // %s\n" h_name
 	

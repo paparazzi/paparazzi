@@ -1,12 +1,15 @@
 #include "main_fbw.h"
 
 #include "low_level_hw.h"
+#include "int.h"
 #include "sys_time.h"
 #include "int.h"
 #include "led.h"
 #include "ppm.h"
 //#include "command.h"
-//#include "servos.h"
+#include "servos_hw.h"
+#include "ppm.h"
+#include "radio_control.h"
 
 void init_fbw( void ) {
   low_level_init();
@@ -15,15 +18,15 @@ void init_fbw( void ) {
   led_init();
   LED_OFF(1);
   LED_OFF(2);
-  LED_OFF(3);
+  //  LED_OFF(3);
 #endif /* LED */
+#ifdef ACTUATORS
+  servos_init();
+#endif /* ACTUATORS */
 #ifdef RADIO_CONTROL
   ppm_init();
+  radio_control_init();
 #endif /* RADIO_CONTROL */
-
-  //#ifdef ACTUATORS
-  //  servos_init();
-  //#endif /* ACTUATORS */
 
   /* if FBW is running in a separate MCU */
 #ifndef AP
@@ -32,15 +35,17 @@ void init_fbw( void ) {
 }
 
 void periodic_task_fbw( void ) {
+#ifdef RADIO_CONTROL
+  radio_control_periodic_task();
+#endif /* RADIO_CONTROL */
   //LED_TOGGLE(1);
   //  LED_TOGGLE(2);
   //  LED_TOGGLE(3);
 }
 
 void event_task_fbw( void ) {
-  if (ppm_valid) {
-    ppm_valid = FALSE;
-    LED_TOGGLE(1);
-  }
+#ifdef RADIO_CONTROL
+  radio_control_ppm_event();
+#endif /* RADIO_CONTROL */
 }
 

@@ -50,23 +50,10 @@ typedef struct
 #define TIR_CR2I    (1 << 6)            // Interrupt flag for capture channel 2 event
 #define TIR_CR3I    (1 << 7)            // Interrupt flag for capture channel 3 event
 
-// PWM Interrupt Register Bit Definitions
-#define PWMIR_MR0I  (1 << 0)            // Interrupt flag for match channel 0
-#define PWMIR_MR1I  (1 << 1)            // Interrupt flag for match channel 1
-#define PWMIR_MR2I  (1 << 2)            // Interrupt flag for match channel 2
-#define PWMIR_MR3I  (1 << 3)            // Interrupt flag for match channel 3
-#define PWMIR_MR4I  (1 << 8)            // Interrupt flag for match channel 4
-#define PWMIR_MR5I  (1 << 9)            // Interrupt flag for match channel 5
-#define PWMIR_MR6I  (1 << 10)           // Interrupt flag for match channel 6
-#define PWMIR_MASK  (0x070F)
-
 // Timer Control Register Bit Definitions
 #define TCR_ENABLE  (1 << 0)
 #define TCR_RESET   (1 << 1)
 
-// PWM Control Register Bit Definitions
-#define PWMCR_ENABLE (1 << 0)
-#define PWMCR_RESET (1 << 1)
 
 // Timer Match Control Register Bit Definitions
 #define TMCR_MR0_I  (1 << 0)            // Enable Interrupt when MR0 matches TC
@@ -82,6 +69,67 @@ typedef struct
 #define TMCR_MR3_R  (1 << 10)           // Enable Reset of TC upon MR3 match
 #define TMCR_MR3_S  (1 << 11)           // Enable Stop of TC upon MR3 match
 
+/* PWMIR ( Interrupt Register ) bits definitions      */
+#define PWMIR_MR0I  _BV(0)            /* Interrupt flag for match channel 0 */
+#define PWMIR_MR1I  _BV(1)            /* Interrupt flag for match channel 1 */
+#define PWMIR_MR2I  _BV(2)            /* Interrupt flag for match channel 2 */
+#define PWMIR_MR3I  _BV(3)            /* Interrupt flag for match channel 3 */
+#define PWMIR_MR4I  _BV(8)            /* Interrupt flag for match channel 4 */
+#define PWMIR_MR5I  _BV(9)            /* Interrupt flag for match channel 5 */
+#define PWMIR_MR6I  _BV(10)           /* Interrupt flag for match channel 6 */
+#define PWMIR_MASK  (0x070F)
+
+/* PWMTCR ( Timer Control Register ) bits definitions */
+#define PWMTCR_COUNTER_ENABLE _BV(0) /* enable PWM timer counter */
+#define PWMTCR_COUNTER_RESET  _BV(1) /* reset PWM timer counter  */
+#define PWMTCR_PWM_ENABLE     _BV(3) /* enable PWM mode          */
+
+/* PWMMCR ( Match Control Register ) bits definitions */
+#define PWMMCR_MR0I (1 << 0)   /* enable interrupt on match channel 0 */
+#define PWMMCR_MR0R (1 << 1)   /* enable reset on match channel 0     */
+#define PWMMCR_MR0S (1 << 2)   /* enable stop on match channel 0      */
+#define PWMMCR_MR1I (1 << 3)   /* enable interrupt on match channel 1 */
+#define PWMMCR_MR1R (1 << 4)   /* enable reset on match channel 1     */
+#define PWMMCR_MR1S (1 << 5)   /* enable stop on match channel 1      */
+#define PWMMCR_MR2I (1 << 6)   /* enable interrupt on match channel 2 */
+#define PWMMCR_MR2R (1 << 7)   /* enable reset on match channel 2     */
+#define PWMMCR_MR2S (1 << 8)   /* enable stop on match channel 2      */
+#define PWMMCR_MR3I (1 << 9)   /* enable interrupt on match channel 3 */
+#define PWMMCR_MR3R (1 << 10)  /* enable reset on match channel 3     */
+#define PWMMCR_MR3S (1 << 11)  /* enable stop on match channel 3      */
+#define PWMMCR_MR4I (1 << 12)  /* enable interrupt on match channel 4 */
+#define PWMMCR_MR4R (1 << 13)  /* enable reset on match channel 4     */
+#define PWMMCR_MR4S (1 << 14)  /* enable stop on match channel 4      */
+#define PWMMCR_MR5I (1 << 15)  /* enable interrupt on match channel 5 */
+#define PWMMCR_MR5R (1 << 16)  /* enable reset on match channel 5     */
+#define PWMMCR_MR5S (1 << 17)  /* enable stop on match channel 5      */
+#define PWMMCR_MR6I (1 << 18)  /* enable interrupt on match channel 6 */
+#define PWMMCR_MR6R (1 << 19)  /* enable reset on match channel 6     */
+#define PWMMCR_MR6S (1 << 20)  /* enable stop on match channel 6      */
+
+/* PWMPCR ( Control Register ) bit definitions */
+#define PWMPCR_SEL2 _BV(2)     /* select double edge for PWM2 output  */
+#define PWMPCR_SEL3 _BV(3)     /* select double edge for PWM3 output  */
+#define PWMPCR_SEL4 _BV(4)     /* select double edge for PWM4 output  */
+#define PWMPCR_SEL5 _BV(5)     /* select double edge for PWM5 output  */
+#define PWMPCR_SEL6 _BV(6)     /* select double edge for PWM6 output  */
+#define PWMPCR_ENA1 _BV(9)     /* PWM1 output enabled                 */
+#define PWMPCR_ENA2 _BV(10)    /* PWM2 output enabled                 */
+#define PWMPCR_ENA3 _BV(11)    /* PWM3 output enabled                 */
+#define PWMPCR_ENA4 _BV(12)    /* PWM4 output enabled                 */
+#define PWMPCR_ENA5 _BV(13)    /* PWM5 output enabled                 */
+#define PWMPCR_ENA6 _BV(14)    /* PWM6 output enabled                 */
+
+/* PWMLER ( Latch Enable Register ) bit definitions */
+#define PWMLER_LATCH0 _BV(0)   /* latch last MATCH0 register value    */
+#define PWMLER_LATCH1 _BV(1)   /* latch last MATCH1 register value    */
+#define PWMLER_LATCH2 _BV(2)   /* latch last MATCH2 register value    */
+#define PWMLER_LATCH3 _BV(3)   /* latch last MATCH3 register value    */
+#define PWMLER_LATCH4 _BV(4)   /* latch last MATCH4 register value    */
+#define PWMLER_LATCH5 _BV(5)   /* latch last MATCH5 register value    */
+#define PWMLER_LATCH6 _BV(6)   /* latch last MATCH6 register value    */
+
+
 // Timer Capture Control Register Bit Definitions
 #define TCCR_CR0_R (1 << 0)            // Enable Rising edge on CAPn.0 will load TC to CR0
 #define TCCR_CR0_F (1 << 1)            // Enable Falling edge on CAPn.0 will load TC to CR0
@@ -95,5 +143,6 @@ typedef struct
 #define TCCR_CR3_R (1 << 9)            // Enable Rising edge on CAPn.3 will load TC to CR3
 #define TCCR_CR3_F (1 << 10)           // Enable Falling edge on CAPn.3 will load TC to CR3
 #define TCCR_CR3_I (1 << 11)           // Enable Interrupt on load of CR3
+
 
 #endif
