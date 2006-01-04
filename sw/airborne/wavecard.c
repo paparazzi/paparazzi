@@ -165,12 +165,5 @@ static inline void parse_wc( uint8_t c ) {
   return;
 }
 
-#ifdef AVR_ARCH
-
-#ifdef WAVECARD_ON_GPS
-ReceiveUart1(parse_wc);
-#else
 ReceiveUart0(parse_wc);
-#endif
 
-#endif /* AVR_ARCH */
