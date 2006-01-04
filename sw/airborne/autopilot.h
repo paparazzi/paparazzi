@@ -92,7 +92,6 @@ extern bool_t rc_event_1, rc_event_2;
 extern float slider_1_val, slider_2_val;
 
 extern bool_t launch;
-extern uint16_t cputime; /**  in seconds */
 
 
 #define ModeUpdate(_mode, _value) { \

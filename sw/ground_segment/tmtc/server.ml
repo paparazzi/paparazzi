@@ -52,7 +52,7 @@ let rec norm_course =
     else c
 
 (** FIXME: Should be read from messages.xml *)
-let ap_modes = [|"MANUAL";"AUTO1";"AUTO2";"HOME"|]
+let ap_modes = [|"MANUAL";"AUTO1";"AUTO2";"HOME";"NOGPS"|]
 let gaz_modes = [|"MANUAL";"GAZ";"CLIMB";"ALT"|]
 let lat_modes = [|"MANUAL";"ROLL_RATE";"ROLL";"COURSE"|]
 let gps_modes = [|"NOFIX";"DRO";"2D";"3D";"GPSDRO"|]

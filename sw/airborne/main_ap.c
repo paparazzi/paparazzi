@@ -1,7 +1,7 @@
 /*
  * $Id$
  *  
- * Copyright (C) 2003-2005  Pascal Brisset, Antoine Drouin
+ * Copyright (C) 2003-2005  Antoine Drouin
  *
  * This file is part of paparazzi.
  *
@@ -21,10 +21,6 @@
  * Boston, MA 02111-1307, USA. 
  *
  */
-/** \file main.c
- *  \brief Regroup main functions
- *
- */
 
 #include <math.h>
 
@@ -40,6 +36,7 @@
 #include "cam.h"
 #include "traffic_info.h"
 #include "link_mcu.h"
+#include "sys_time.h"
 
 #ifdef LED
 #include "led.h"
@@ -65,19 +62,12 @@
 uint8_t  inflight_calib_mode = IF_CALIB_MODE_NONE;
 
 
-//
-//
-// FIXME estimator_flight_time should not be manipuled here anymore
-//
 /** Define minimal speed for takeoff in m/s */
 #define MIN_SPEED_FOR_TAKEOFF 5.
 
 
 uint8_t fatal_error_nb = 0;
 static const uint16_t version = 1;
-
-/**  in seconds */
-uint16_t cputime = 0;
 
 uint8_t pprz_mode = PPRZ_MODE_MANUAL;
 uint8_t vertical_mode = VERTICAL_MODE_MANUAL;
@@ -115,8 +105,8 @@ float energy; /** Fuel consumption */
 static inline uint8_t pprz_mode_update( void ) {
   /** We remain in home mode until explicit reset from the RC */
   if ((pprz_mode != PPRZ_MODE_HOME &&
-				pprz_mode != PPRZ_MODE_GPS_OUT_OF_ORDER)
-				|| CheckEvent(rc_event_1)) {
+       pprz_mode != PPRZ_MODE_GPS_OUT_OF_ORDER)
+      || CheckEvent(rc_event_1)) {
     ModeUpdate(pprz_mode, PPRZ_MODE_OF_PULSE(from_fbw.channels[RADIO_MODE], from_fbw.status));
   } else
     return FALSE;
@@ -299,7 +289,7 @@ static void navigation_task( void ) {
 	
   /** Test if we lost the GPS */
   if (!GPS_FIX_VALID(gps_mode) ||
-      (cputime - last_gps_msg_t > FAILSAFE_DELAY_WITHOUT_GPS)) {
+      (cpu_time - last_gps_msg_t > FAILSAFE_DELAY_WITHOUT_GPS)) {
     /** If aircraft is launch and is in autonomus mode, go into
 	PPRZ_MODE_GPS_OUT_OF_ORDER mode (Failsafe). */
     if (launch && (pprz_mode == PPRZ_MODE_AUTO2 ||
@@ -398,7 +388,7 @@ inline void periodic_task( void ) {
   }
   if (!_1Hz) {
     if (estimator_flight_time) estimator_flight_time++;
-    cputime++;
+    cpu_time++;
     stage_time_ds = (int16_t)(stage_time_ds+.5);
     stage_time++;
     block_time++;
@@ -431,7 +421,7 @@ inline void periodic_task( void ) {
 	estimator_hspeed_mod > MIN_SPEED_FOR_TAKEOFF) {
       estimator_flight_time = 1;
       launch = TRUE; /* Not set in non auto launch */
-      DOWNLINK_SEND_TAKEOFF(&cputime);
+      DOWNLINK_SEND_TAKEOFF(&cpu_time);
     }
     break;
     /*  default: */
