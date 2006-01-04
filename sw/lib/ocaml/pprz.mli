@@ -28,6 +28,7 @@ val messages_xml : unit -> Xml.xml
 
 type class_name = string
 type message_id = int
+type ac_id = int
 type format = string
 type _type = string
 type value = Int of int | Float of float | String of string | Int32 of int32
@@ -64,13 +65,13 @@ module Protocol : functor (Class : CLASS) -> sig
   include Serial.PROTOCOL
   val message_of_id : message_id -> message
   val message_of_name : string ->  message_id * message
-  val values_of_payload : string -> message_id * values
+  val values_of_payload : string -> message_id * ac_id * values
   (** [values_of_bin payload] Parses a raw payload, returns the
-   message id and the list of (field_name, value) *)
-  val values_of_bin : string -> message_id * values
+   message id, the A/C id and the list of (field_name, value) *)
+  val values_of_bin : string -> message_id * ac_id * values
   (** [values_of_bin raw_message] Same than previous but [raw_message]
   includes header and checksum. *)
-  val payload_of_values : message_id -> values -> string
+  val payload_of_values : message_id -> ac_id -> values -> string
   (** [payload_of_values m vs] Returns a payload *)
 
 

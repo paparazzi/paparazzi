@@ -3,7 +3,7 @@
  *
  * XML preprocessing for downlink protocol
  *  
- * Copyright (C) 2003 Pascal Brisset, Antoine Drouin
+ * Copyright (C) 2003-2005 Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
  *
@@ -134,11 +134,11 @@ module Gen_onboard = struct
   let print_avr_field = fun avr_h (t, name, (_f:format option)) ->
     match t with 
       Basic _ ->
-	fprintf avr_h "\t  MODEM_PUT_%d_BYTE_BY_ADDR((const uint8_t*)(%s)); \\\n" (sizeof t) name
+	fprintf avr_h "\t  DownlinkPut%dByteByAddr((const uint8_t*)(%s)); \\\n" (sizeof t) name
     | Array (t, i) ->
 	let s = sizeof (Basic t) in
 	fprintf avr_h "\t  {\\\n\t    int i;\\\n\t    for(i = 0; i < %d; i++) {\\\n" i;
-	fprintf avr_h "\t      MODEM_PUT_%d_BYTE_BY_ADDR((uint8_t*)(&%s[i])); \\\n" s name;
+	fprintf avr_h "\t      DownlinkPut%dByteByAddr((uint8_t*)(&%s[i])); \\\n" s name;
 	fprintf avr_h "\t    }\\\n";
 	fprintf avr_h "\t  }\\\n"
 
@@ -149,7 +149,7 @@ module Gen_onboard = struct
 
   let rec size_fields = fun fields size ->
     match fields with
-      [] -> size + 4
+      [] -> size
     | (t, _, _)::fields -> size_fields fields (size + sizeof(t))
 
   let size_of_message = fun m -> size_fields m.fields 0    
@@ -158,13 +158,13 @@ module Gen_onboard = struct
     fprintf avr_h "#define DOWNLINK_SEND_%s(" s;
     print_avr_macro_names avr_h fields;
     fprintf avr_h "){ \\\n";
-    fprintf avr_h "\tif (MODEM_CHECK_FREE_SPACE(%d)) {\\\n" (size_fields fields 0);
-    fprintf avr_h "\t  ModemStartMessage(DL_%s) \\\n" s; 
+    fprintf avr_h "\tif (DownlinkCheckFreeSpace(DownlinkSizeOf(%d))) {\\\n" (size_fields fields 0);
+    fprintf avr_h "\t  DownlinkStartMessage(DL_%s) \\\n" s; 
     List.iter (print_avr_field avr_h) fields;
-    fprintf avr_h "\t  ModemEndMessage() \\\n";
+    fprintf avr_h "\t  DownlinkEndMessage() \\\n";
     fprintf avr_h "\t} \\\n";
     fprintf avr_h "\telse \\\n";
-    fprintf avr_h "\t  modem_nb_ovrn++; \\\n";
+    fprintf avr_h "\t  downlink_nb_ovrn++; \\\n";
     fprintf avr_h "}\n\n"
 
   let print_null_avr_macro = fun avr_h {name=s; fields = fields} ->

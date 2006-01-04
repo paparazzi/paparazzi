@@ -46,13 +46,17 @@ extern uint8_t    tx_byte_idx;
 
 extern uint8_t ck_a, ck_b;
 
+
 #define STX  0x05
 
+/** 5 = STX + ac_id + msg_id + ck_a + ck_b */
+#define ModemSizeOf(_payload) (_payload+5)
+
 #define ModemStartMessage(id) \
-  { MODEM_PUT_1_BYTE(STX); MODEM_PUT_1_BYTE(id); ck_a = id; ck_b = id; }
+  { ModemPut1Byte(STX); ModemPut1Byte(id); ck_a = id; ck_b = id; ModemPut1ByteUpdateCs(AC_ID);}
 
 #define ModemEndMessage() \
-  { MODEM_PUT_1_BYTE(ck_a); MODEM_PUT_1_BYTE(ck_b); MODEM_CHECK_RUNNING(); }
+  { ModemPut1Byte(ck_a); ModemPut1Byte(ck_b); MODEM_CHECK_RUNNING(); }
 
 #if TX_BUF_SIZE == 256
 #define UPDATE_HEAD() {			   \
@@ -65,31 +69,32 @@ extern uint8_t ck_a, ck_b;
 }
 #endif
 
-#define MODEM_CHECK_FREE_SPACE(_space) (tx_head>=tx_tail? _space < (TX_BUF_SIZE - (tx_head - tx_tail)) : _space < (tx_tail - tx_head))
+#define ModemCheckFreeSpace(_space) (tx_head>=tx_tail? _space < (TX_BUF_SIZE - (tx_head - tx_tail)) : _space < (tx_tail - tx_head))
 
-#define MODEM_PUT_1_BYTE(_byte) { \
+#define ModemPut1Byte(_byte) { \
   tx_buf[tx_head] = _byte;	  \
   UPDATE_HEAD();		  \
 }
 
-#define MODEM_PUT_1_BYTE_BY_ADDR(_byte) { \
-    uint8_t _x = *(_byte);		  \
-    tx_buf[tx_head] = _x;		  \
-    ck_a += _x;			  \
-    ck_b += ck_a;			  \
-    UPDATE_HEAD();			  \
+#define ModemPut1ByteUpdateCs(_byte) { \
+  ck_a += _byte;			  \
+  ck_b += ck_a;			  \
+  ModemPut1Byte(_byte) \
 }
 
-#define MODEM_PUT_2_BYTE_BY_ADDR(_byte) { \
-  MODEM_PUT_1_BYTE_BY_ADDR(_byte); \
-  MODEM_PUT_1_BYTE_BY_ADDR(_byte+1); \
+#define ModemPut1ByteByAddr(_byte) { \
+  uint8_t _x = *(_byte);		  \
+  ModemPut1ByteUpdateCs(_x); \
 }
 
-#define MODEM_PUT_4_BYTE_BY_ADDR(_byte) { \
-  MODEM_PUT_1_BYTE_BY_ADDR(_byte); \
-  MODEM_PUT_1_BYTE_BY_ADDR(_byte+1); \
-  MODEM_PUT_1_BYTE_BY_ADDR(_byte+2); \
-  MODEM_PUT_1_BYTE_BY_ADDR(_byte+3); \
+#define ModemPut2ByteByAddr(_byte) { \
+  ModemPut1ByteByAddr(_byte); \
+  ModemPut1ByteByAddr(_byte+1); \
+}
+
+#define ModemPut4ByteByAddr(_byte) { \
+  ModemPut2ByteByAddr(_byte); \
+  ModemPut2ByteByAddr(_byte+2); \
 }
 
 #define MODEM_LOAD_NEXT_BYTE() { \

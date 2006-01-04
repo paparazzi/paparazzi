@@ -30,6 +30,8 @@ module Tm_Pprz = Pprz.Protocol(struct let name = "telemetry_ap" end)
 module Ground_Pprz = Pprz.Protocol(struct let name = "ground" end)
 module Dl_Pprz = Pprz.Protocol(struct let name = "datalink" end)
 
+let ground_id = 0
+
 type aircraft = { fd : Unix.file_descr; id : int; addr : W.addr }
 
 let send_ack = fun delay fd () ->
@@ -40,7 +42,7 @@ let send = fun ac s ->
 
 let send_dl_msg = fun ac a ->
   let (id, values) = Dl_Pprz.values_of_string a in
-  let s  = Dl_Pprz.payload_of_values id values in
+  let s  = Dl_Pprz.payload_of_values id ground_id values in
   send ac s
 
 
@@ -82,7 +84,7 @@ let get_fp = fun ac _sender vs ->
 	      "alt", cm_of_m alt;
 	      "speed", cm_of_m gspeed] in
     let msg_id, _ = Dl_Pprz.message_of_name "ACINFO" in
-    let s = Dl_Pprz.payload_of_values msg_id vs in
+    let s = Dl_Pprz.payload_of_values msg_id ground_id vs in
     send ac s
 
 (** Got a MOVE_WAYPOINT and send a MOVE_WP *)
@@ -99,7 +101,7 @@ let move_wp = fun ac _sender vs ->
 	      "utm_north", cm_of_m uy;
 	      "alt", cm_of_m alt] in
     let msg_id, _ = Dl_Pprz.message_of_name "MOVE_WP" in
-    let s = Dl_Pprz.payload_of_values msg_id vs in
+    let s = Dl_Pprz.payload_of_values msg_id ground_id vs in
     send ac s
 
 (** Got a SEND_EVENT, and send an EVENT *)
@@ -109,7 +111,7 @@ let send_event = fun ac _sender vs ->
     let ev_id = Pprz.int_assoc "event_id" vs in
     let vs = ["event", Pprz.Int ev_id] in
     let msg_id, _ = Dl_Pprz.message_of_name "EVENT" in
-    let s = Dl_Pprz.payload_of_values msg_id vs in
+    let s = Dl_Pprz.payload_of_values msg_id ground_id vs in
     send ac s
     
 
@@ -120,7 +122,7 @@ let setting = fun ac _sender vs ->
     let idx = Pprz.int_assoc "index" vs in
     let vs = ["event", Pprz.Int idx; "value", List.assoc "value" vs] in
     let msg_id, _ = Dl_Pprz.message_of_name "SETTING" in
-    let s = Dl_Pprz.payload_of_values msg_id vs in
+    let s = Dl_Pprz.payload_of_values msg_id ground_id vs in
     send ac s
     
 

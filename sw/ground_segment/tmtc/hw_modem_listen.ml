@@ -28,7 +28,6 @@ open Printf
 
 (** Ivy messages are initially tagged "modem" and with the A/C
 id as soon as it is identified (IDENT message) *)
-let ac_id = ref "modem"
 
 let modem_msg_period = 1000 (** ms *)
 
@@ -46,12 +45,10 @@ type status = {
 let status = { rx_byte = 0; rx_msg = 0; rx_err = 0 }
 
 (** Callback for each decoded message *)
-let use_pprz_message = fun (msg_id, values) ->
+let use_pprz_message = fun (msg_id, ac_id, values) ->
   status.rx_msg <- status.rx_msg + 1; (** Monitoring update *)
   let msg = Tele_Pprz.message_of_id msg_id in
-  if msg.Pprz.name = "IDENT" then
-    ac_id := Pprz.string_assoc "id" values;
-  Tele_Pprz.message_send !ac_id msg.Pprz.name values
+  Tele_Pprz.message_send (string_of_int ac_id) msg.Pprz.name values
 
 (** Listen on a serial device or on multimon pipe *)
 let listen_pprz_modem = fun pprz_message_cb tty ->
@@ -118,7 +115,7 @@ let send_modem_msg =
 	      "rx_bytes", Pprz.Int status.rx_byte;
 	      "rx_msgs", Pprz.Int status.rx_msg
 	    ] in
-    Tele_Pprz.message_send !ac_id "DOWNLINK_STATUS" vs;
+    Tele_Pprz.message_send "modem" "DOWNLINK_STATUS" vs;
     let vs = ["valim", Pprz.Float Modem.status.Modem.valim;
 	      "detected", Pprz.Int Modem.status.Modem.detected;
 	      "cd", Pprz.Int Modem.status.Modem.cd;
@@ -126,7 +123,7 @@ let send_modem_msg =
 	      "nb_byte", Pprz.Int Modem.status.Modem.nb_byte;
 	      "nb_msg", Pprz.Int Modem.status.Modem.nb_msg
 	    ] in
-    Tele_Pprz.message_send !ac_id "MODEM_STATUS" vs
+    Tele_Pprz.message_send "modem" "MODEM_STATUS" vs
 
 (* main loop *)
 let _ =

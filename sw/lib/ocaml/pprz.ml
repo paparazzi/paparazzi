@@ -28,6 +28,7 @@ open Printf
 
 
 type message_id = int
+type ac_id = int
 type class_name = string
 type format = string
 type _type = string
@@ -111,7 +112,7 @@ let payload_size_of_message = fun message ->
   List.fold_right
     (fun (_, f) s -> size_of_field f + s)
     message.fields
-    1
+    2 (** message id + aircraft id *)
 
 let size_of_message = fun m -> 
   payload_size_of_message m + 3 (* STX, CK_A, CK_B *)
@@ -212,7 +213,7 @@ module type CLASS = sig val name : string end
 exception Unknown_msg_name of string * string
 
 module Protocol(Class:CLASS) = struct
-  let stx = Char.chr 0x05
+  let stx = Char.chr 0x05 (** sw/airborne/modem.h *)
   let index_start = fun buf ->
     String.index buf stx
 
@@ -252,6 +253,7 @@ module Protocol(Class:CLASS) = struct
 
   let values_of_payload = fun buffer ->
     let id = Char.code buffer.[0] in
+    let ac_id = Char.code buffer.[1] in
     let message = message_of_id id in
     Debug.call 'T' (fun f -> fprintf f "Pprz.values id=%d\n" id);
     let rec loop = fun index fields ->
@@ -260,17 +262,18 @@ module Protocol(Class:CLASS) = struct
       | (field_name, field_descr)::fs -> 
 	  let n = size_of_field field_descr in
 	  (field_name, value_field buffer index field_descr) :: loop (index+n) fs in
-    (id, loop 1 message.fields)
+    (id, ac_id, loop 2 message.fields)
 
   let values_of_bin = fun buffer ->
     values_of_payload (String.sub buffer 1 (String.length buffer - 1))
 
-  let payload_of_values = fun id values ->
+  let payload_of_values = fun id ac_id values ->
     let message = message_of_id id in
     let n = payload_size_of_message message in
     let p = String.make n '#' in
     p.[0] <- Char.chr id;
-    let i = ref 1 in
+    p.[1] <- Char.chr ac_id;
+    let i = ref 2 in
     List.iter
       (fun (field_name, field) ->
 	let v =

@@ -61,7 +61,7 @@ let parse_message = fun m ->
   fprintf out "\n";
   define (sprintf "DL_%s_ID" msg_name) (Xml.attrib m "ID");
   
-  let offset = ref 1 in (** 1 for the tag of the message *)
+  let offset = ref 2 in (** message id + sender id *)
   let rec parse_field = fun f ->
     match Xml.tag f with
       "field" ->

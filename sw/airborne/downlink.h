@@ -39,6 +39,17 @@
 #define Downlink(x) {}
 #endif
 
+/** Downlink is done with the modem for the time being
+    These macro could be moved to another .h */
+#define DownlinkCheckFreeSpace(_x) ModemCheckFreeSpace(_x)
+#define DownlinkStartMessage(_x) ModemStartMessage(_x)
+#define DownlinkEndMessage(_x) ModemEndMessage(_x)
+#define DownlinkPut1ByteByAddr(_x) ModemPut1ByteByAddr(_x)
+#define DownlinkPut2ByteByAddr(_x) ModemPut2ByteByAddr(_x)
+#define DownlinkPut4ByteByAddr(_x) ModemPut4ByteByAddr(_x)
+#define downlink_nb_ovrn modem_nb_ovrn
+#define DownlinkSizeOf(_x) ModemSizeOf(_x)
+
 #define PERIODIC_SEND_IDENT()  DOWNLINK_SEND_IDENT(&ac_ident);
 
 #define PERIODIC_SEND_BAT() Downlink({ int16_t e = energy; DOWNLINK_SEND_BAT(&desired_gaz, &vsupply, &estimator_flight_time, &low_battery, &block_time, &stage_time, &e); })
