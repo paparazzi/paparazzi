@@ -5,9 +5,7 @@
 #include "sys_time.h"
 #include "ppm.h"
 #include "radio.h"
-
-#define MAX_PPRZ 9600
-#define MIN_PPRZ -MAX_PPRZ
+#include "paparazzi.h"
 
 #define RC_AVG_PERIOD 8
 #define RC_LOST_TIME 10
@@ -42,7 +40,7 @@ static inline void radio_control_periodic_task ( void ) {
   }
 }
 
-static inline void radio_control_ppm_event ( void ) {
+static inline bool_t radio_control_ppm_event ( void ) {
   if (ppm_valid) {
     time_sime_last_ppm = 0;
     rc_status = RC_OK;
@@ -54,7 +52,9 @@ static inline void radio_control_ppm_event ( void ) {
     //    PRINT_RADIO_CONTROL();
     //  }
     ppm_valid = FALSE;
+    return TRUE;
   }
+  return FALSE;
 }
 
 #endif /* RADIO_CONTROL_H */

@@ -10,5 +10,5 @@ ap.LOW_FUSE  = 0xbf
 ap.HIGH_FUSE = 0xc9
 ap.EXT_FUSE  = ff
 ap.LOCK_FUSE = ff
-ap.CFLAGS += -DAP -DFBW -DCONFIG=\"config_robostix.h\" -DLED -DRADIO_CONTROL
-ap.srcs = $(SRC_ARCH)/ppm_hw.c sys_time.c main_fbw_2.c main_ap_2.c main.c
+ap.CFLAGS += -DAP -DFBW -DCONFIG=\"config_robostix.h\" -DLED
+ap.srcs = sys_time.c main_fbw_2.c main_ap_2.c main.c

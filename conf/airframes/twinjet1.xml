@@ -1,6 +1,31 @@
 <airframe name="Twinjet1">
 <!-- robostix with direct servo drive on PWM output -->
-  <makefile>
+  <servos>
+    <servo name="GAZ"           no="0" min="1000" neutral="1000" max="2000"/>
+    <servo name="AILEVON_LEFT"  no="1" min="2000" neutral="1500" max="1000"/>
+    <servo name="AILEVON_RIGHT" no="2" min="1000" neutral="1500" max="2000"/>
+  </servos>
+
+  <control>
+    <axis name="THROTTLE" failsafe_value="10"/>
+    <axis name="ROLL"     failsafe_value="20"/>
+    <axis name="PITCH"    failsafe_value="30"/>
+  </control>
+
+  <section name="MIXER">
+    <define name="AILEVON_AILERON_RATE" value="0.55"/>
+    <define name="AILEVON_ELEVATOR_RATE" value="0.75"/>
+  </section>
+
+  <commands>
+    <let var="aileron"  value="@ROLL  * AILEVON_AILERON_RATE"/>
+    <let var="elevator" value="@PITCH * AILEVON_ELEVATOR_RATE"/>  
+    <set servo="GAZ"           value="@THROTTLE"/>
+    <set servo="AILEVON_LEFT"  value="$elevator + $aileron"/>
+    <set servo="AILEVON_RIGHT" value="$elevator - $aileron"/>
+  </commands>
+
+ <makefile>
 include $(PAPARAZZI_SRC)/conf/autopilot/robostix.makefile
 ap.CFLAGS += -DRADIO_CONTROL
 ap.EXTRA_SRCS += $(SRC_ARCH)/ppm_hw.c

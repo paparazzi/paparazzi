@@ -1,0 +1,52 @@
+<airframe name="Gorrazoptere_esc_3dmg">
+  <servos>
+    <servo name="MOTOR_FRONT" no="0" min="0" neutral="0" max="0x3ff"/>
+    <servo name="MOTOR_BACK"  no="1" min="0" neutral="0" max="0x3ff"/>
+    <servo name="MOTOR_LEFT"  no="2" min="0" neutral="0" max="0x3ff"/>
+    <servo name="MOTOR_RIGHT" no="3" min="0" neutral="0" max="0x3ff"/>
+  </servos>
+
+  <control>
+    <axis name="THROTTLE"  failsafe_value="0"/>
+    <axis name="ROLL_DOT"  failsafe_value="0"/>
+    <axis name="PITCH_DOT" failsafe_value="0"/>
+    <axis name="YAW_DOT"   failsafe_value="0"/>
+  </control>
+
+<!--
+<control>
+  <mode name="MANUAL">
+    <control type="direct" input="RADIO_THROTTLE" output="COMMAND_THROTTLE"/>
+    <control type="P" setpoint="RADIO_ROLL" measure="estimator_roll_dot" output="COMMAND_ROLL_DOT"/>
+    <control type="P" setpoint="RADIO_PITCH" measure="estimator_pitch_dot" output="COMMAND_PITCH_DOT"/>
+    <control type="P" setpoint="RADIO_YAW" measure="estimator_yaw_dot" output="COMMAND_YAW_DOT"/>
+  </mode>
+
+  <mode name="AUTO1">
+    <control type="direct" input="RADIO_THROTTLE" output="COMMAND_THROTTLE"/>
+    <control type="P" setpoint="RADIO_ROLL" measure="estimator_roll" output="setpoint_roll_dot"/>
+    RADIO_PITCH    -> CONTROL_PITCH_SETPOINT
+    RADIO_ROLL     -> CONTROL_ROLL_SETPOINT
+    RADIO_YAW      -> COMMAND_YAW
+  </mode>
+</control>
+-->
+
+  <section name="MIXER">
+    <define name="ROLL_PART"  value="0.15"/>
+    <define name="PITCH_PART" value="0.15"/>
+    <define name="YAW_PART"   value="0.2"/>
+  </section>
+
+  <commands>
+    <let var="roll"     value="ROLL_PART  * @ROLL_DOT"/>
+    <let var="pitch"    value="PITCH_PART  * @PITCH_DOT"/>
+    <let var="yaw"      value="YAW_PART  * @YAW_DOT"/>
+    <let var="throttle" value="@THROTTLE"/>
+    <set servo="MOTOR_FRONT" value="$throttle + $pitch + $yaw"/>
+    <set servo="MOTOR_BACK"  value="$throttle - $pitch + $yaw"/>
+    <set servo="MOTOR_RIGHT" value="$throttle + $roll  - $yaw"/>
+    <set servo="MOTOR_LEFT"  value="$throttle - $roll  - $yaw"/>
+  </commands>
+
+</airframe>

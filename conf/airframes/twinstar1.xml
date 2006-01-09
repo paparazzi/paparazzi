@@ -13,14 +13,14 @@
     <servo name="ELEVATOR" no="7" min="1816" neutral="1586" max="1220"/>
     <servo name="RUDDER"   no="3" min="1270" neutral="1546" max="1850"/>
   </servos>
-  <command>
+  <commands>
     <set servo="GAZ" value="2 * @THROTTLE"/>
     <set servo="ELEVATOR" value="@PITCH"/>
     <let var="roll" value="@ROLL"/>
     <set servo="AILERON_LEFT" value="($roll > 0 ? 1 : AILERON_DIFF) * $roll"/>
     <set servo="AILERON_RIGHT" value="($roll > 0 ? AILERON_DIFF : 1) * $roll"/>
     <set servo="RUDDER" value="@YAW + @ROLL*COMBI_SWITCH"/>
-  </command>
+  </commands>
   <section name="MIXER">
     <define name="AILERON_DIFF" value="0.66"/>
     <define name="COMBI_SWITCH" value="1.0"/>

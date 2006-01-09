@@ -31,15 +31,11 @@
 #include "airframe.h"
 #include CONFIG
 
-
-/*
- * Paparazzi boards have one 4017 servo driver.
- * It is driven by OCR1A (PB1) with reset on PORTD5.
- */
 #define _4017_NB_CHANNELS 10
 
 /* holds the servo pulses width in clock ticks */
 static uint16_t servo_widths[_4017_NB_CHANNELS];
+static const pprz_t failsafe_values[COMMANDS_NB] = COMMANDS_FAILSAFE;
 
 #define COMMAND(i) servo_widths[i]
 
@@ -69,6 +65,8 @@ void command_init( void ) {
   /* Set all servos at their midpoints              */
   for( i=0 ; i < _4017_NB_CHANNELS ; i++ )
     servo_widths[i] = SYS_TICS_OF_USEC(1500);
+  /* Load the failsafe defaults                     */
+  command_set(failsafe_values);
   /* Set servos to go off some long time from now   */
   SERVO_OCR = 32768ul;
   /* Set output compare to toggle the output bits   */
