@@ -6,12 +6,29 @@
     <servo name="MOTOR_RIGHT" no="3" min="0" neutral="0" max="0x3ff"/>
   </servos>
 
-  <control>
+  <commands>
     <axis name="THROTTLE"  failsafe_value="0"/>
     <axis name="ROLL_DOT"  failsafe_value="0"/>
     <axis name="PITCH_DOT" failsafe_value="0"/>
     <axis name="YAW_DOT"   failsafe_value="0"/>
-  </control>
+  </commands>
+
+  <section name="MIXER">
+    <define name="ROLL_PART"  value="0.15"/>
+    <define name="PITCH_PART" value="0.15"/>
+    <define name="YAW_PART"   value="0.2"/>
+  </section>
+
+  <command_laws>
+    <let var="roll"     value="ROLL_PART * @ROLL_DOT"/>
+    <let var="pitch"    value="PITCH_PART * @PITCH_DOT"/>
+    <let var="yaw"      value="YAW_PART * @YAW_DOT"/>
+    <let var="throttle" value="@THROTTLE"/>
+    <set servo="MOTOR_FRONT" value="$throttle + $pitch + $yaw"/>
+    <set servo="MOTOR_BACK"  value="$throttle - $pitch + $yaw"/>
+    <set servo="MOTOR_RIGHT" value="$throttle + $roll  - $yaw"/>
+    <set servo="MOTOR_LEFT"  value="$throttle - $roll  - $yaw"/>
+  </command_laws>
 
 <!--
 <control>
@@ -31,22 +48,5 @@
   </mode>
 </control>
 -->
-
-  <section name="MIXER">
-    <define name="ROLL_PART"  value="0.15"/>
-    <define name="PITCH_PART" value="0.15"/>
-    <define name="YAW_PART"   value="0.2"/>
-  </section>
-
-  <commands>
-    <let var="roll"     value="ROLL_PART  * @ROLL_DOT"/>
-    <let var="pitch"    value="PITCH_PART  * @PITCH_DOT"/>
-    <let var="yaw"      value="YAW_PART  * @YAW_DOT"/>
-    <let var="throttle" value="@THROTTLE"/>
-    <set servo="MOTOR_FRONT" value="$throttle + $pitch + $yaw"/>
-    <set servo="MOTOR_BACK"  value="$throttle - $pitch + $yaw"/>
-    <set servo="MOTOR_RIGHT" value="$throttle + $roll  - $yaw"/>
-    <set servo="MOTOR_LEFT"  value="$throttle - $roll  - $yaw"/>
-  </commands>
 
 </airframe>
