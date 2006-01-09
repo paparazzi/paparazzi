@@ -25,14 +25,20 @@
 
 /** Implementation of command.h */
 
+/*
+ 
+  4 DC motor controller with mosfets on OCR1A OCR3A OCR3B OCR3C
+
+*/
+
 #include <avr/io.h>
 #include "command.h"
 
 #define MAX_TICK 0x3FF
-#define MOT_CTL_0 OCR3C
+#define MOT_CTL_0  OCR3C
 #define MOT_CTL_1  OCR1A
 #define MOT_CTL_2  OCR3B
-#define MOT_CTL_3 OCR3A
+#define MOT_CTL_3  OCR3A
 
 void command_init ( void ) {
   /* OC1A output    */

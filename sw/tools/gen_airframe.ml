@@ -97,7 +97,7 @@ let parse_command_laws = fun command ->
        printf "  command_value = %s;\\\n" v;
        printf "  command_value *= command_value>0 ? SERVO_%s_TRAVEL_UP : SERVO_%s_TRAVEL_DOWN;\\\n" servo servo;
        printf "  servo_value = SERVO_%s_NEUTRAL + (int16_t)(command_value);\\\n" servo;
-       printf "  COMMAND(SERVO_%s) = SYS_TICS_OF_USEC(Chop(servo_value, SERVO_%s_MIN, SERVO_%s_MAX));\\\n\\\n" servo servo servo
+       printf "  COMMAND(SERVO_%s) = SERVOS_TICS_OF_USEC(Chop(servo_value, SERVO_%s_MIN, SERVO_%s_MAX));\\\n\\\n" servo servo servo
    | "let" ->
        let var = a "var"
        and value = a "value" in
