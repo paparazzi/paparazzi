@@ -30,8 +30,12 @@
     <set servo="MOTOR_LEFT"  value="$throttle - $roll  - $yaw"/>
   </command_laws>
 
-<!--
+
 <control>
+  <level name="rates">
+    <loop name="roll_dot" type="P" pgain="100" measure="estimator_roll_dot" setpoint="setpoint_rolldot" output="command_roll_dot"/>
+    <loop name="pitch_dot" type="PD" pgain="100" dgain="200" measure="estimator_pitch_dot" setpoint="setpoint_picthdot" output="command_pitch_dot"/>
+  </level>
   <mode name="MANUAL">
     <control type="direct" input="RADIO_THROTTLE" output="COMMAND_THROTTLE"/>
     <control type="P" setpoint="RADIO_ROLL" measure="estimator_roll_dot" output="COMMAND_ROLL_DOT"/>
@@ -42,11 +46,8 @@
   <mode name="AUTO1">
     <control type="direct" input="RADIO_THROTTLE" output="COMMAND_THROTTLE"/>
     <control type="P" setpoint="RADIO_ROLL" measure="estimator_roll" output="setpoint_roll_dot"/>
-    RADIO_PITCH    -> CONTROL_PITCH_SETPOINT
-    RADIO_ROLL     -> CONTROL_ROLL_SETPOINT
-    RADIO_YAW      -> COMMAND_YAW
-  </mode>
+   </mode>
 </control>
--->
+
 
 </airframe>

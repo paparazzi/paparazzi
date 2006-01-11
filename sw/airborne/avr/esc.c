@@ -53,11 +53,9 @@ void command_init ( void ) {
   TCCR3B  |= _BV(WGM32);
 }
 
-#define SERVO_NEUTRAL(_) 0
 #define COMMAND_(i) MOT_CTL_ ## i
 #define COMMAND(i) COMMAND_(i)
 #define ChopServo(x) (x > MAX_TICK ? MAX_TICK : x)
-
 
 void command_set(const pprz_t values[]) {
   CommandSet(values); /*Generated from airframe.xml */
