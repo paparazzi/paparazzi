@@ -36,17 +36,35 @@
     <loop name="roll_dot" type="P" pgain="100" measure="estimator_roll_dot" setpoint="setpoint_rolldot" output="command_roll_dot"/>
     <loop name="pitch_dot" type="PD" pgain="100" dgain="200" measure="estimator_pitch_dot" setpoint="setpoint_picthdot" output="command_pitch_dot"/>
   </level>
+
+  <level name="attitudes">
+    <loop name="roll" type="P" pgain="100" measure="estimator_roll" setpoint="setpoint_roll" output="setpoint_rolldot"/>
+    <loop name="pitch" type="PD" pgain="100" dgain="200" measure="estimator_pitch" setpoint="setpoint_picth" output="setpoint_pitchdot"/>
+  </level>
+
+
+
   <mode name="MANUAL">
-    <control type="direct" input="RADIO_THROTTLE" output="COMMAND_THROTTLE"/>
-    <control type="P" setpoint="RADIO_ROLL" measure="estimator_roll_dot" output="COMMAND_ROLL_DOT"/>
-    <control type="P" setpoint="RADIO_PITCH" measure="estimator_pitch_dot" output="COMMAND_PITCH_DOT"/>
-    <control type="P" setpoint="RADIO_YAW" measure="estimator_yaw_dot" output="COMMAND_YAW_DOT"/>
+    <input input="rc_values[COMMAND_THROTTLE]" output="control_commands[RADIO_THROTTLE]"/>
+    <input input="rc_values[RADIO_ROLL]" output="control_setpoint_rolldot"/>
+    <input input="rc_values[RADIO_PITCH]" output="control_setpoint_pitchdot"/>
+    <input input="rc_values[RADIO_YAW]" output="control_setpoint_yawdot"/>
   </mode>
 
   <mode name="AUTO1">
-    <control type="direct" input="RADIO_THROTTLE" output="COMMAND_THROTTLE"/>
-    <control type="P" setpoint="RADIO_ROLL" measure="estimator_roll" output="setpoint_roll_dot"/>
-   </mode>
+    <input input="rc_values[COMMAND_THROTTLE]" output="control_commands[RADIO_THROTTLE]"/>
+    <input input="rc_values[RADIO_ROLL]" output="control_setpoint_roll"/>
+    <input input="rc_values[RADIO_PITCH]" output="control_setpoint_pitch"/>
+    <input input="rc_values[RADIO_YAW]" output="control_setpoint_yawdot"/>
+  </mode>
+
+  <mode name="AUTO2">
+    <input input="rc_values[COMMAND_THROTTLE]" output="control_commands[RADIO_THROTTLE]"/>
+    <input input="rc_values[RADIO_ROLL]" output="control_setpoint_roll"/>
+    <input input="rc_values[RADIO_PITCH]" output="control_setpoint_pitch"/>
+    <input input="rc_values[RADIO_YAW]" output="control_setpoint_yawdot"/>
+  </mode>
+
 </control>
 
 
