@@ -146,7 +146,8 @@ let parse_section = fun s ->
   | "makefile" ->
       ()
       (** Ignoring this section *)
-  | _ -> xml_error (Printf.sprintf "[%s] section|servos|command_laws|conmmands|makefile" (Xml.tag s))
+  | _ -> ignore()
+(*xml_error (Printf.sprintf "[%s] section|servos|command_laws|conmmands|makefile" (Xml.tag s)) *)
       
 
 let h_name = "AIRFRAME_H"

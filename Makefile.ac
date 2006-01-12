@@ -26,13 +26,14 @@ CONF=$(PAPARAZZI_HOME)/conf
 CONF_XML=$(CONF)/conf.xml
 ACINCLUDE = $(PAPARAZZI_HOME)/var/$(AIRCRAFT)
 AIRFRAME_H=$(ACINCLUDE)/airframe.h
+CONTROL_H=$(ACINCLUDE)/control.h
 RADIO_H=$(ACINCLUDE)/radio.h
 FLIGHT_PLAN_H=$(ACINCLUDE)/flight_plan.h
 FLIGHT_PLAN_XML=$(ACINCLUDE)/flight_plan.xml
 INFLIGHT_CALIB_H=$(ACINCLUDE)/inflight_calib.h
 MAKEFILE_AC=$(ACINCLUDE)/Makefile.ac
 
-all: $(AIRFRAME_H) $(RADIO_H) $(FLIGHT_PLAN_H) $(FLIGHT_PLAN_XML) $(INFLIGHT_CALIB_H) $(MAKEFILE_AC)
+all: $(AIRFRAME_H) $(RADIO_H) $(CONTROL_H) $(FLIGHT_PLAN_H) $(FLIGHT_PLAN_XML) $(INFLIGHT_CALIB_H) $(MAKEFILE_AC)
 
 
 $(AIRFRAME_H) : $(CONF)/$(AIRFRAME) $(CONF_XML)
@@ -42,6 +43,10 @@ $(AIRFRAME_H) : $(CONF)/$(AIRFRAME) $(CONF_XML)
 $(RADIO_H) : $(CONF)/$(RADIO) $(CONF_XML)
 	$(TOOLS)/gen_radio.out $< > /tmp/radio.h
 	mv /tmp/radio.h $@
+
+$(CONTROL_H) : $(CONF)/$(AIRFRAME) $(CONF_XML)
+	$(TOOLS)/gen_control.out $< > /tmp/control.h
+	mv /tmp/control.h $@
 
 $(FLIGHT_PLAN_H) : $(CONF)/$(FLIGHT_PLAN) $(CONF_XML)
 	$(TOOLS)/gen_flight_plan.out $< > /tmp/fp.h

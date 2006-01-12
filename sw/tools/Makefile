@@ -3,7 +3,7 @@ OCAMLC=ocamlc -I ../lib/ocaml
 OCAMLLEX=ocamllex
 OCAMLYACC=ocamlyacc
 
-all: gen_aircraft.out gen_airframe.out gen_calib.out gen_messages.out gen_ubx.out gen_flight_plan.out gen_radio.out gen_sim_downlink.out gen_dl.out extract_makefile.out
+all: gen_aircraft.out gen_airframe.out gen_calib.out gen_messages.out gen_ubx.out gen_flight_plan.out gen_radio.out gen_sim_downlink.out gen_dl.out extract_makefile.out gen_control.out
 
 FP_CMO = fp_syntax.cmo fp_parser.cmo fp_lexer.cmo fp_proc.cmo gen_flight_plan.ml
 ABS_FP = $(FP_CMO:%=$$PAPARAZZI_SRC/sw/tools/%)

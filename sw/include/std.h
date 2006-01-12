@@ -66,6 +66,7 @@ typedef uint8_t bool_t;
 
 #define Bound(_x, _min, _max) { if (_x > _max) _x = _max; if (_x < _min) _x = _min; }
 #define BoundAbs(_x, _max) Bound(_x, -_max, _max)
-#define Chop(x, min, max) ( (x) < (min) ? (min) : (x) > (max) ? (max) : (x) )
+#define Chop(_x, _min, _max) ( (_x) < (_min) ? (_min) : (_x) > (_max) ? (_max) : (_x) )
+#define ChopAbs(x, max) Chop(x, -max, max)
 
 #endif /* STD_H */
