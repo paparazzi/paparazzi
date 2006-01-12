@@ -77,5 +77,7 @@
 </control>
   <makefile>
 include $(PAPARAZZI_SRC)/conf/autopilot/disc_board.makefile
+ap.CFLAGS += -DRADIO_CONTROL -DACTUATORS
+ap.EXTRA_SRCS += radio_control.c $(SRC_ARCH)/ppm_hw.c $(SRC_ARCH)/esc.c
  </makefile>
 </airframe>

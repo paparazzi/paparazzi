@@ -45,8 +45,11 @@ $(RADIO_H) : $(CONF)/$(RADIO) $(CONF_XML)
 	mv /tmp/radio.h $@
 
 $(CONTROL_H) : $(CONF)/$(AIRFRAME) $(CONF_XML)
-	$(TOOLS)/gen_control.out $< > /tmp/control.h
-	mv /tmp/control.h $@
+	TMPFILE=$(shell echo `tempfile`)
+	$(TOOLS)/gen_control.out $< > $TMPFILE
+	mv $TMPFILE $@
+#	$(TOOLS)/gen_control.out $< > /tmp/control.h
+#	mv /tmp/control.h $@
 
 $(FLIGHT_PLAN_H) : $(CONF)/$(FLIGHT_PLAN) $(CONF_XML)
 	$(TOOLS)/gen_flight_plan.out $< > /tmp/fp.h

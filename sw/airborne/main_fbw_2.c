@@ -7,7 +7,7 @@
 #include "ppm.h"
 #include "radio_control.h"
 #include "command.h"
-#include "control_2.h"
+//#include "control_2.h"
 
 void init_fbw( void ) {
   low_level_init();
@@ -37,8 +37,11 @@ void periodic_task_fbw( void ) {
 
 void event_task_fbw( void ) {
 #ifdef RADIO_CONTROL
-  if (radio_control_ppm_event())
+  if (radio_control_ppm_event()) {
+#ifdef CONTROL
     control_process_radio_control();
+#endif /* CONTROL */
+  }
 #endif /* RADIO_CONTROL */
 }
 

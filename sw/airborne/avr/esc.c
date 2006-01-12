@@ -33,12 +33,14 @@
 
 #include <avr/io.h>
 #include "command.h"
+#include "std.h"
+#include "airframe.h"
 
 #define MAX_TICK 0x3FF
-#define MOT_CTL_0  OCR3C
-#define MOT_CTL_1  OCR1A
-#define MOT_CTL_2  OCR3B
-#define MOT_CTL_3  OCR3A
+#define MOT_CTL_0 OCR3C
+#define MOT_CTL_1 OCR1A
+#define MOT_CTL_2 OCR3B
+#define MOT_CTL_3 OCR3A
 
 void command_init ( void ) {
   /* OC1A output    */
@@ -56,7 +58,8 @@ void command_init ( void ) {
 #define COMMAND_(i) MOT_CTL_ ## i
 #define COMMAND(i) COMMAND_(i)
 #define ChopServo(x) (x > MAX_TICK ? MAX_TICK : x)
+#define SERVOS_TICS_OF_USEC(s) (s)
 
 void command_set(const pprz_t values[]) {
-  CommandSet(values); /*Generated from airframe.xml */
+  CommandsSet(values); /*Generated from airframe.xml */
 }
