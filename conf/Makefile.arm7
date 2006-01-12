@@ -183,7 +183,7 @@ endif
 # Settings and variables:
 #LPC21ISP = lpc21isp
 LPC21ISP = lpc21isp
-LPC21ISP_PORT = /dev/ttyS0
+LPC21ISP_PORT = /dev/ttyUSB0
 LPC21ISP_BAUD = 115200
 LPC21ISP_XTAL = 14746
 #LPC21ISP_BAUD = 38400

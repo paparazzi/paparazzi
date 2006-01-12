@@ -7,7 +7,7 @@
 
 void PWM_ISR ( void ) __attribute__((naked));
 
-static inline void servos_init ( void ) {
+static inline void command_init ( void ) {
   /* PWM selected as IRQ */
   VICIntSelect &= ~VIC_BIT(VIC_PWM);   
   /* PWM interrupt enabled */

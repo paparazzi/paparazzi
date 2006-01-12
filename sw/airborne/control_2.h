@@ -8,13 +8,11 @@
 extern pprz_t control_commands[];
 
 // twinjet1
-#ifdef 0
 static inline void control_process_radio_control_manual( void ) {
   control_commands[COMMAND_THROTTLE] = rc_values[RADIO_THROTTLE];
   control_commands[COMMAND_ROLL] = rc_values[RADIO_ROLL];
   control_commands[COMMAND_PITCH] = rc_values[RADIO_PITCH];
 }
-#endif
 
 // twinstar_test
 #ifdef 0
@@ -26,6 +24,7 @@ static inline void control_process_radio_control_manual( void ) {
 }
 #endif
 
+#ifdef 0
 // gorazoptere_test
 static inline void control_process_radio_control_manual( void ) {
   control_commands[COMMAND_THROTTLE] = rc_values[RADIO_THROTTLE];
@@ -46,5 +45,5 @@ static inline void control_run_manual( void ) {
 
 
 }
-
+#endif
 #endif /* CONTROL_H */
