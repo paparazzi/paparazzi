@@ -1,5 +1,55 @@
 <airframe name="Microjet4">
-  <makefile>
+ <!-- tiny test airframe -->
+<!-- commands section -->
+  <servos>
+    <servo name="GAZ"           no="0" min="1000" neutral="1000" max="2000"/>
+    <servo name="AILEVON_LEFT"  no="1" min="2000" neutral="1500" max="1000"/>
+    <servo name="AILEVON_RIGHT" no="2" min="1000" neutral="1500" max="2000"/>
+  </servos>
+
+  <commands>
+    <axis name="THROTTLE" failsafe_value="0"/>
+    <axis name="ROLL"     failsafe_value="0"/>
+    <axis name="PITCH"    failsafe_value="0"/>
+  </commands>
+
+  <section name="MIXER">
+    <define name="AILEVON_AILERON_RATE" value="0.55"/>
+    <define name="AILEVON_ELEVATOR_RATE" value="0.75"/>
+  </section>
+
+  <command_laws>
+    <let var="aileron"  value="@ROLL  * AILEVON_AILERON_RATE"/>
+    <let var="elevator" value="@PITCH * AILEVON_ELEVATOR_RATE"/>  
+    <set servo="GAZ"           value="@THROTTLE"/>
+    <set servo="AILEVON_LEFT"  value="$elevator + $aileron"/>
+    <set servo="AILEVON_RIGHT" value="$elevator - $aileron"/>
+  </command_laws>
+
+<control>
+  <mode name="MANUAL">
+    <input input="rc_values[RADIO_THROTTLE]" output="control_commands[COMMAND_THROTTLE]" range="1"/>
+    <input input="rc_values[RADIO_ROLL]" output="control_commands[COMMAND_ROLL]" range="1"/>
+    <input input="rc_values[RADIO_PITCH]" output="control_commands[COMMAND_PITCH]" range="1"/>
+  </mode>
+</control>
+
+
+ <makefile>
 include $(PAPARAZZI_SRC)/conf/autopilot/tiny_test.makefile
+ap.CFLAGS += -DTRACES=uart0
+ap.EXTRA_SRCS += $(SRC_ARCH)/traces.c $(SRC_ARCH)/uart.c
+ap.CFLAGS += -DRADIO_CONTROL 
+ap.EXTRA_SRCS += $(SRC_ARCH)/ppm_hw.c radio_control.c 
+ap.CFLAGS += -DAUTOPILOT
+ap.EXTRA_SRCS += autopilot_fbw.c 
+#ap.CFLAGS += -DCONTROL 
+#ap.EXTRA_SRCS += $(ACINCLUDE)/ap/control.c 
+ap.CFLAGS += -DESTIMATOR
+ap.EXTRA_SRCS += estimator.c
+ap.CFLAGS += -DGPS -DUBX
+ap.EXTRA_SRCS += gps.c gps_ubx.c
+ap.CFLAGS += -DMODEM
+ap.EXTRA_SRCS += $(SRC_ARCH)/modem_hw.c
   </makefile>
 </airframe>

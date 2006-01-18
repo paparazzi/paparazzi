@@ -27,13 +27,14 @@ CONF_XML=$(CONF)/conf.xml
 ACINCLUDE = $(PAPARAZZI_HOME)/var/$(AIRCRAFT)
 AIRFRAME_H=$(ACINCLUDE)/airframe.h
 CONTROL_H=$(ACINCLUDE)/control.h
+CONTROL_C=$(ACINCLUDE)/ap/control.c
 RADIO_H=$(ACINCLUDE)/radio.h
 FLIGHT_PLAN_H=$(ACINCLUDE)/flight_plan.h
 FLIGHT_PLAN_XML=$(ACINCLUDE)/flight_plan.xml
 INFLIGHT_CALIB_H=$(ACINCLUDE)/inflight_calib.h
 MAKEFILE_AC=$(ACINCLUDE)/Makefile.ac
 
-all: $(AIRFRAME_H) $(RADIO_H) $(CONTROL_H) $(FLIGHT_PLAN_H) $(FLIGHT_PLAN_XML) $(INFLIGHT_CALIB_H) $(MAKEFILE_AC)
+all: $(AIRFRAME_H) $(RADIO_H) $(CONTROL_H) $(CONTROL_C) $(FLIGHT_PLAN_H) $(FLIGHT_PLAN_XML) $(INFLIGHT_CALIB_H) $(MAKEFILE_AC)
 
 
 $(AIRFRAME_H) : $(CONF)/$(AIRFRAME) $(CONF_XML)
@@ -45,11 +46,20 @@ $(RADIO_H) : $(CONF)/$(RADIO) $(CONF_XML)
 	mv /tmp/radio.h $@
 
 $(CONTROL_H) : $(CONF)/$(AIRFRAME) $(CONF_XML)
-	TMPFILE=$(shell echo `tempfile`)
-	$(TOOLS)/gen_control.out $< > $TMPFILE
-	mv $TMPFILE $@
-#	$(TOOLS)/gen_control.out $< > /tmp/control.h
-#	mv /tmp/control.h $@
+#	export TMPFILE=$(shell echo `tempfile`)
+#	echo =$(shell echo `echo $TMPFILE`)
+#	$(TOOLS)/gen_control.out h $< > $(shell echo $TMPFILE)
+#	mv $TMPFILE $@
+	$(TOOLS)/gen_control.out h $< > /tmp/control.h
+	mv /tmp/control.h $@
+
+$(CONTROL_C) : $(CONF)/$(AIRFRAME) $(CONF_XML)
+#	TMPFILE=$(shell echo `tempfile`)
+#	$(TOOLS)/gen_control.out c $< > $(shell echo $TMPFILE)
+#	mv $TMPFILE $@
+	mkdir -p $(ACINCLUDE)/ap
+	$(TOOLS)/gen_control.out c $< > /tmp/control.c
+	mv /tmp/control.c $@
 
 $(FLIGHT_PLAN_H) : $(CONF)/$(FLIGHT_PLAN) $(CONF_XML)
 	$(TOOLS)/gen_flight_plan.out $< > /tmp/fp.h
