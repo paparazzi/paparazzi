@@ -35,4 +35,8 @@ static inline void modem_init ( void ) {
   T1TCR = TCR_ENABLE; 
 }
 
+
+#define MODEM_CHECK_RUNNING() {}
+
+
 #endif /* MODEM_HW_H */
