@@ -1,9 +1,6 @@
 #include "modem.h"
-
 #include "types.h"
-#include "LPC21xx.h"
 #include "armVIC.h"
-#include "config.h"
 
 uint8_t           modem_nb_ovrn;
 uint8_t           tx_head;
@@ -13,10 +10,6 @@ uint8_t ck_a, ck_b;
 uint8_t    tx_byte;
 uint8_t    tx_bit_idx;
 
-#define T1_PCLK_DIV 3
-
-#define SAMPLES_PER_PERIOD 4
-#define SAMPLE_PERIOD (PCLK/4762/SAMPLES_PER_PERIOD/T1_PCLK_DIV)
 
 #define NB_STATE 2
 #define NB_PHASE 2
@@ -32,29 +25,6 @@ static const uint16_t modem_sample[NB_STATE][NB_PHASE][SAMPLES_PER_PERIOD] =
 static uint8_t modem_sample_idx = 0;
 static uint8_t modem_phase = 0;
 
-void modem_init ( void ) {
-  /* turn on DAC pins */
-  PINSEL1 &= 1 << 19;
-  PINSEL1 |= ~(1 << 18);
-  /* reset & disable timer 1   */
-  T1TCR = TCR_RESET;
-  /* set the prescale divider  */
-  T1PR = T1_PCLK_DIV - 1;
- /* select TIMER1 as IRQ       */
-  VICIntSelect &= ~VIC_BIT(VIC_TIMER1);
-  /* enable TIMER1 interrupt   */
-  VICIntEnable = VIC_BIT(VIC_TIMER1);
-  /* on slot vic slot 1        */
-  VICVectCntl1 = VIC_ENABLE | VIC_TIMER1;
-  /* address of the ISR        */
-  VICVectAddr1 = (uint32_t)TIMER1_ISR;
-  /* trigger initial match in a long time from now */
-  T1MR0 = SAMPLE_PERIOD;
-  /* enable interrupt on match register 0 */
-  T1MCR |= TMCR_MR0_I | TMCR_MR0_R;
-  /* enable timer 1 */
-  T1TCR = TCR_ENABLE; 
-}
 
 static inline uint8_t get_next_bit( void ) {
   uint8_t ret;

@@ -30,7 +30,11 @@
 #ifndef AUTOPILOT_H
 #define AUTOPILOT_H
 
-#include "inter_mcu.h"
+//#include "inter_mcu.h"
+#include <inttypes.h>
+#include "std.h"
+
+#define TRESHOLD_MANUAL_PPRZ (MIN_PPRZ / 2)
 
 #define TRESHOLD1 TRESHOLD_MANUAL_PPRZ
 #define TRESHOLD2 200 * CLOCK
@@ -105,5 +109,11 @@ extern bool_t launch;
 
 void periodic_task( void );
 void telecommand_task(void);
+
+#include "radio_control.h"
+static inline void autopilot_process_radio_control ( void ) {
+  pprz_mode = PPRZ_MODE_OF_PULSE(rc_values[RADIO_MODE], 0);
+
+}
 
 #endif /* AUTOPILOT_H */

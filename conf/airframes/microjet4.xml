@@ -51,5 +51,7 @@ ap.CFLAGS += -DGPS -DUBX
 ap.EXTRA_SRCS += gps.c gps_ubx.c
 ap.CFLAGS += -DMODEM
 ap.EXTRA_SRCS += $(SRC_ARCH)/modem_hw.c
+ap.CFLAGS += -DDOWNLINK
+
   </makefile>
 </airframe>

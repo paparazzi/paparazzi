@@ -1,5 +1,7 @@
 <airframe name="Twinjet1">
 <!-- robostix with direct servo drive on PWM output -->
+
+<!-- commands section -->
   <servos>
     <servo name="GAZ"           no="0" min="1000" neutral="1000" max="2000"/>
     <servo name="AILEVON_LEFT"  no="1" min="2000" neutral="1500" max="1000"/>
@@ -25,9 +27,61 @@
     <set servo="AILEVON_RIGHT" value="$elevator - $aileron"/>
   </command_laws>
 
+<!-- control section -->
+
+<control>
+  <level name="attitude">
+    <loop name="roll" loop_type="P" pgain="100" saturation = "MAX_PPRZ"
+       data_type = "int16_t"
+       measure="estimator_phi" setpoint="control_roll_setpoint" output="control_commands[COMMAND_ROLL]"/>
+    <loop name="pitch" loop_type="P" pgain="100" saturation = "MAX_PPRZ"
+       data_type = "int16_t"
+       measure="estimator_theta" setpoint="control_pitch_setpoint" output="control_commands[COMMAND_PITCH]"/>
+  </level>
+
+  <mode name="MANUAL">
+    <input input="rc_values[RADIO_THROTTLE]" output="control_commands[COMMAND_THROTTLE]" range="1"/>
+    <input input="rc_values[RADIO_ROLL]" output="control_commands[COMMAND_ROLL]" range="1"/>
+    <input input="rc_values[RADIO_PITCH]" output="control_commands[COMMAND_PITCH]" range="1"/>
+  </mode>
+
+  <mode name="AUTO1">
+    <input input="rc_values[RADIO_THROTTLE]" output="control_commands[COMMAND_THROTTLE]" range="1"/>
+    <input input="rc_values[RADIO_ROLL]" output="control_roll_setpoint" range="1"/>
+    <input input="rc_values[RADIO_PITCH]" output="control_pitch_setpoint" range="1"/>
+    <run name="attitude"/>
+  </mode>
+
+</control>
+
+
+<section name="added_for_nav">
+   <define name="COURSE_PGAIN" value="-0.4"/>
+   <define name="ALTITUDE_PGAIN" value="-0.025"/>
+   <define name="NAV_PITCH" value="0."/>
+  <define name="NOMINAL_AIRSPEED" value="12." unit="m/s"/>
+  <define name="CARROT" value="5." unit="s"/>
+    <define name="MAX_ROLL" value="0.35"/>
+    <define name="MAX_PITCH" value="0.35"/>
+    <define name="MIN_PITCH" value="-0.35"/>
+</section>
+  <section name="added_for_nav2" prefix="CLIMB_">
+    <define name="PITCH_PGAIN" value="-0.1"/>
+    <define name="PITCH_IGAIN" value="0.025"/>
+    <define name="PGAIN" value="-0.03"/>
+    <define name="IGAIN" value="0.1"/>
+    <define name="MAX" value="1."/>
+    <define name="LEVEL_GAZ" value="0.45"/>
+    <define name="GAZ_OF_CLIMB" value="0.2" unit="%/(m/s)"/>
+    <define name="PITCH_OF_VZ_PGAIN" value="0.00"/>
+ </section>
+
  <makefile>
 include $(PAPARAZZI_SRC)/conf/autopilot/robostix.makefile
-ap.CFLAGS += -DRADIO_CONTROL -DACTUATORS
-ap.EXTRA_SRCS += radio_control.c $(SRC_ARCH)/ppm_hw.c $(SRC_ARCH)/servos_direct.c
+ap.CFLAGS += -DRADIO_CONTROL -DACTUATORS=\"servos_direct_hw.h\" -DCONTROL -DAUTOPILOT -DTRACES -DWAVECARD_ON_GPS
+ap.EXTRA_SRCS += radio_control.c $(SRC_ARCH)/ppm_hw.c $(SRC_ARCH)/servos_direct_hw.c $(ACINCLUDE)/ap/control.c autopilot_fbw.c $(SRC_ARCH)/traces.c $(SRC_ARCH)/uart_ap.c
+#ap.CFLAGS += -DDATALINK
+#ap.EXTRA_SRCS += datalink.c nav.c estimator.c
+
   </makefile>
 </airframe>

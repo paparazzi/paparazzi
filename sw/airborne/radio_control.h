@@ -15,9 +15,9 @@
 #define RC_LOST        1
 #define RC_REALLY_LOST 2
 
-extern int32_t rc_values[RADIO_CTL_NB];
+extern pprz_t rc_values[RADIO_CTL_NB];
 extern uint8_t rc_status;
-extern int32_t avg_rc_values[RADIO_CTL_NB];
+extern pprz_t avg_rc_values[RADIO_CTL_NB];
 extern uint8_t rc_values_contains_avg_channels;
 extern uint8_t time_sime_last_ppm;
 
@@ -26,7 +26,8 @@ static inline void radio_control_init ( void ) {
   time_sime_last_ppm = RC_REALLY_LOST_TIME;
 }
 
-static inline void radio_control_periodic_task ( void ) {
+static inline bool_t radio_control_periodic_task ( void ) {
+  uint8_t last_status = rc_status;
   if (time_sime_last_ppm >= RC_REALLY_LOST_TIME) {
     rc_status = RC_REALLY_LOST;
     LED_OFF(1);
@@ -38,6 +39,7 @@ static inline void radio_control_periodic_task ( void ) {
       LED_TOGGLE(1);
     }
   }
+  return last_status != rc_status;
 }
 
 static inline bool_t radio_control_ppm_event ( void ) {
@@ -45,12 +47,7 @@ static inline bool_t radio_control_ppm_event ( void ) {
     time_sime_last_ppm = 0;
     rc_status = RC_OK;
     NormalizePpm();
-    LED_ON(1);
-    //  static uint32_t foo;
-    //foo++;
-    //  if (!(foo%10)) {
-    //    PRINT_RADIO_CONTROL();
-    //  }
+    LED_ON(1); 
     ppm_valid = FALSE;
     return TRUE;
   }

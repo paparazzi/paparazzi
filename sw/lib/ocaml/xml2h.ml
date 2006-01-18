@@ -59,6 +59,14 @@ let start_and_begin = fun xml_file h_name ->
   nl ();
   xml
 
+let start_and_begin_c = fun xml_file name ->
+  let xml = Xml.parse_file xml_file in
+  printf "/* This file has been generated from %s */\n" xml_file;
+  printf "/* Please DO NOT EDIT */\n\n";
+  printf "#include \"%s.h\"\n" name;
+  nl ();
+  xml
+
 let finish = fun h_name ->
   printf "\n#endif // %s\n" h_name
 

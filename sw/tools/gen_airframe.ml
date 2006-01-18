@@ -24,7 +24,7 @@
  *
  *)
 
-let max_pprz = 600. (* !!!! MAX_PPRZ From link_autopilot.h !!!! *)
+let max_pprz = 9600. (* !!!! MAX_PPRZ From paparazzi.h !!!! *)
 (* let nb_servo_4017 = 10  From servo.h *)
 
 open Printf

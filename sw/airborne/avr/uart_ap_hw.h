@@ -28,6 +28,7 @@
 #include <avr/io.h>
 #include <avr/signal.h>
 #include <avr/interrupt.h>
+#include "std.h"
 
 #define ReceiveUart0(cb) \
   SIGNAL( SIG_UART0_RECV ) { \
@@ -48,6 +49,13 @@ extern void uart0_transmit(const uint8_t);
 extern void uart1_transmit(const uint8_t);
 
 #define uart1Putch(c) uart1_transmit(c)
+#define uart1Puts(c) {				\
+    uint8_t *b = c;				\
+   while (*b) {					\
+      uart1_transmit(*b);			\
+      b++;					\
+    }						\
+  }
 
 extern uint8_t uart1_char;
 extern bool_t uart1_char_available;

@@ -2,7 +2,6 @@
 #include "armVIC.h"
 #include "std.h"
 #include "sys_time.h"
-#include CONFIG
 
 #define PPM_NB_CHANNEL PPM_NB_PULSES
 
@@ -21,12 +20,12 @@ void TIMER0_ISR ( void ) {
   last = now;
 
   if (state == PPM_NB_CHANNEL) {
-    if (length > PPM_SYNC_MIN_LEN && length < PPM_SYNC_MAX_LEN) {
+    if (length > SYS_TICS_OF_USEC(PPM_SYNC_MIN_LEN) && length < SYS_TICS_OF_USEC(PPM_SYNC_MAX_LEN)) {
       state = 0;
     }
   }
   else {
-    if (length > PPM_DATA_MIN_LEN && length < PPM_DATA_MAX_LEN) {
+    if (length > SYS_TICS_OF_USEC(PPM_DATA_MIN_LEN) && length < SYS_TICS_OF_USEC(PPM_DATA_MAX_LEN)) {
       ppm_pulses[state] = length;
       state++;
       if (state == PPM_NB_CHANNEL) {

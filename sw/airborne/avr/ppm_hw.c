@@ -84,14 +84,16 @@ SIGNAL( SIG_INPUT_CAPTURE1 )
      * One pulse lasts from 1.05ms to 2.150ms.
      * Sync pulse is at least 7ms : (7000*CLOCK)/1024 = 109
      */
-    if( diff > (uint8_t)((PPM_SYNC_MIN_LEN)/1024ul) ) {
-    //   if( diff > (uint8_t)(((uint32_t)7000ul*16)/1024ul) ) {
+    if( diff > LONG_SYS_TICS_OF_USEC(PPM_SYNC_MIN_LEN) &&
+	diff < LONG_SYS_TICS_OF_USEC(PPM_SYNC_MAX_LEN)) {
+      //  if( diff > (uint8_t)(((uint32_t)7000ul*16)/1024ul) ) {
       state = 1;
     }
   } 
   else {
     /* Read a data pulses */
-    if( width > PPM_DATA_MAX_LEN || width < PPM_DATA_MIN_LEN)
+    if( width > SYS_TICS_OF_USEC(PPM_DATA_MAX_LEN) || 
+	width < SYS_TICS_OF_USEC(PPM_DATA_MIN_LEN))
       RestartPpmCycle();
     ppm_pulses[state - 1] = width;
 

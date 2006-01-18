@@ -3,6 +3,7 @@
 #include "sys_time.h"
 #include "int.h"
 #include "led.h"
+#include "modem.h"
 #include "gps.h"
 
 void init_ap( void ) {
@@ -14,7 +15,9 @@ void init_ap( void ) {
   led_init();
 #endif /* LED */
 #endif /* FBW */
-
+#ifdef MODEM
+  modem_init();
+#endif /* MODEM */
 #ifdef GPS
   gps_init();
   gps_configure();
@@ -39,7 +42,7 @@ void event_task_ap( void ) {
       parse_gps_msg();
       gps_msg_received = FALSE;
       if (gps_pos_available) {
-	//	LED_TOGGLE(1);
+	LED_TOGGLE(1);
 	use_gps_pos();
 	gps_pos_available = FALSE;
       }

@@ -78,9 +78,9 @@ let gen_normalize_ppm = fun channels ->
       let period = if c.averaged then "RC_AVG_PERIOD" else "1" in
       let value, min_pprz = 
 	if c.neutral = c.min then
-	  sprintf "tmp_radio * (MAX_PPRZ / %s / (float)(SYS_TICS_OF_USEC(%d-%d)))" period c.max c.min, "0"
+	  sprintf "tmp_radio * (MAX_PPRZ / %s / (float)(SIGNED_SYS_TICS_OF_USEC(%d-%d)))" period c.max c.min, "0"
 	else
-	  sprintf "tmp_radio * (tmp_radio >=0 ? (MAX_PPRZ/%s/(float)(SYS_TICS_OF_USEC(%d-%d))) : (MIN_PPRZ/%s/(float)(SYS_TICS_OF_USEC(%d-%d))))" period c.max c.neutral period c.min c.neutral, "MIN_PPRZ" in
+	  sprintf "tmp_radio * (tmp_radio >=0 ? (MAX_PPRZ/%s/(float)(SIGNED_SYS_TICS_OF_USEC(%d-%d))) : (MIN_PPRZ/%s/(float)(SIGNED_SYS_TICS_OF_USEC(%d-%d))))" period c.max c.neutral period c.min c.neutral, "MIN_PPRZ" in
       if c.averaged then begin
 	printf "  avg_rc_values[RADIO_%s] += %s;\\\n" c.name value
       end else begin
@@ -134,10 +134,10 @@ let _ =
   let ppm_sync_min = ExtXml.attrib xml "sync_min" in
   let ppm_sync_max = ExtXml.attrib xml "sync_max" in
 
-  printf "#define PPM_DATA_MIN_LEN SYS_TICS_OF_USEC(%sul)\n" ppm_data_min;
-  printf "#define PPM_DATA_MAX_LEN SYS_TICS_OF_USEC(%sul)\n" ppm_data_max;
-  printf "#define PPM_SYNC_MIN_LEN SYS_TICS_OF_USEC(%sul)\n" ppm_sync_min;
-  printf "#define PPM_SYNC_MAX_LEN SYS_TICS_OF_USEC(%sul)\n" ppm_sync_max;
+  printf "#define PPM_DATA_MIN_LEN (%sul)\n" ppm_data_min;
+  printf "#define PPM_DATA_MAX_LEN (%sul)\n" ppm_data_max;
+  printf "#define PPM_SYNC_MIN_LEN (%sul)\n" ppm_sync_min;
+  printf "#define PPM_SYNC_MAX_LEN (%sul)\n" ppm_sync_max;
   nl ();
 
   gen_normalize_ppm channels_params;

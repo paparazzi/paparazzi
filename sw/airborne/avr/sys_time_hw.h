@@ -56,7 +56,9 @@ static inline void sys_time_init( void ) {
 }
 
 
-#define SYS_TICS_OF_USEC(us) (uint16_t)(us*CLOCK)
+#define SYS_TICS_OF_USEC(us) (uint16_t)((us)*CLOCK)
+#define SIGNED_SYS_TICS_OF_USEC(us) (int16_t)((us)*CLOCK)
+#define LONG_SYS_TICS_OF_USEC(us) (uint8_t)(((uint32_t)(us)*CLOCK)/1024ul)
 
 /*
  *  Periodic tasks occur when Timer2 overflows.  Check and unset

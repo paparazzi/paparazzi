@@ -13,7 +13,7 @@
 /* clock in MHz */
 #define CLOCK 16
 
-/* PPM input on mega128 ICP  */
+/* PPM input on mega128 ICP (PD4) */
 #define PPM_DDR  DDRD
 #define PPM_PORT PORTD
 #define PPM_PIN  PD4

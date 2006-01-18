@@ -4,6 +4,13 @@
 #include "types.h"
 #include "uart.h"
 
+
+//#define FOO TRACES
+//#define _TRACES_INIT(s) s ## _init()
+//#define TRACES_INIT() _TRACES_INIT( FOO )
+
+#define TRACES_INIT() uart0Init(B9600, UART_8N1, UART_FIFO_8)
+
 void uart0_print_hex(const uint8_t c);
 void uart0_print_hex_16(const uint16_t c);
 void uart0_print_hex_32(const uint32_t c);

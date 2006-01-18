@@ -27,7 +27,7 @@
  *
  */
 
-#include "autopilot.h"
+//#include "autopilot.h"
 #include "gps.h"
 #include "sys_time.h"
 #include "flight_plan.h"
