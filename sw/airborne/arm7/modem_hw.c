@@ -63,7 +63,6 @@ static inline uint8_t get_next_bit( void ) {
 
 void TIMER1_ISR ( void ) {
   ISR_ENTRY();
-  //  IO1CLR = LED_2_BIT;
   static uint8_t modem_bit;
   
   DACR = modem_sample[modem_bit][modem_phase][modem_sample_idx] << 6;

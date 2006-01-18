@@ -344,21 +344,27 @@ endif
 #	$(CPP) $(THUMB) $(ALL_CFLAGS) $(AOBJARM) $(AOBJ) $(COBJARM) $(COBJ) $(CPPOBJ) $(CPPOBJARM) --output $@ $(LDFLAGS)
 
 # Compile: create object files from C source files. ARM/Thumb
-$(COBJ) : $(OBJDIR)/%.o : %.c
-	@echo
-	@echo $(MSG_COMPILING) $<
-	$(CC) -c $(THUMB) $(ALL_CFLAGS) $(CONLYFLAGS) $< -o $@ 
+#$(COBJ) : $(OBJDIR)/%.o : %.c
+#	@echo
+#	@echo $(MSG_COMPILING) $<
+#	$(CC) -c $(THUMB) $(ALL_CFLAGS) $(CONLYFLAGS) $< -o $@ 
 
 # Compile: create object files from C source files. ARM-only
 $(OBJDIR)/%.o : %.c
 	@echo
 	@echo $(MSG_COMPILING_ARM) $<
-	$(CC) -c $(ALL_CFLAGS) $(CONLYFLAGS) $< -o $@ 
+	@$(CC) -c $(ALL_CFLAGS) $(CONLYFLAGS) $< -o $@ 
 
 $(OBJDIR)/%.o : $(SRC_ARCH)/%.c
 	@echo
 	@echo $(MSG_COMPILING_ARM) $<
-	$(CC) -c $(ALL_CFLAGS) $(CONLYFLAGS) $< -o $@ 
+	@$(CC) -c $(ALL_CFLAGS) $(CONLYFLAGS) $< -o $@ 
+
+# grab files in var/$(AIRCRAFT)/$(TARGET) aka $(OBJDIR)
+$(OBJDIR)/%.o : $(OBJDIR)/%.c
+	@echo
+	@echo $(MSG_COMPILING_ARM) $<
+	@$(CC) -c $(ALL_CFLAGS) $(CONLYFLAGS) $< -o $@ 
 
 # Compile: create object files from C++ source files. ARM/Thumb
 $(CPPOBJ) : $(OBJDIR)/%.o : %.cpp

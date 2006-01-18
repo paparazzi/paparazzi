@@ -90,6 +90,17 @@ void uart0_print_dec_32(const int32_t c);
  uart0Puts("\r\n");				\
 }
 
+#define PRINT_CONTROL_COMMANDS() { \
+    uart0Puts("CM ");				\
+    uart0_print_hex_16(control_commands[0]);	\
+    uart0Puts(", ");				\
+    uart0_print_hex_16(control_commands[1]);	\
+    uart0Puts(", ");				\
+    uart0_print_hex_16(control_commands[2]);	\
+    uart0Puts("\r\n");				\
+}
+
+
 #define MODEM_PRINT_GPS() {			\
     modem_put_one_byte('G');			\
     modem_put_one_byte('P');			\
