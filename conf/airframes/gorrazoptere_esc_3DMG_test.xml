@@ -32,52 +32,66 @@
 
 
 <control>
-  <level name="rate">
+  
+ <level name="rate">
     <loop name="rolldot" loop_type="P" pgain="100" saturation = "MAX_PPRZ"
       data_type = "int16_t"
-      measure="estimator_rolldot" setpoint="control_rolldot_setpoint" output="command_roll_dot"/>
-    <loop name="pitchdot" loop_type="PD" pgain="100" dgain="200" saturation = "MAX_PPRZ"
+      measure="estimator_rolldot" setpoint="control_rolldot_setpoint" output="control_commands[COMMAND_ROLL_DOT]"/>
+    <loop name="pitchdot" loop_type="P" pgain="100" saturation = "MAX_PPRZ"
       data_type = "int16_t"
-      measure="estimator_pitch_dot" setpoint="setpoint_pitchdot" output="command_pitch_dot"/>
-  </level>
+      measure="estimator_pitchdot" setpoint="control_pitchdot_setpoint" output="control_commands[COMMAND_PITCH_DOT]"/>
+    <loop name="yawdot" loop_type="P" pgain="100" saturation = "MAX_PPRZ"
+      data_type = "int16_t"
+      measure="estimator_yawdot" setpoint="control_yawdot_setpoint" output="control_commands[COMMAND_YAW_DOT]"/> 
+ </level>
 
-  <level name="attitude">
+ 
+ <level name="attitude">
     <loop name="roll" loop_type="P" pgain="100" saturation = "444"
        data_type = "int16_t"
-       measure="estimator_roll" setpoint="control_roll_setpoint" output="setpoint_rolldot"/>
+       measure="estimator_roll" setpoint="control_roll_setpoint" output="control_rolldot_setpoint"/>
     <loop name="pitch" loop_type="PID" pgain="100" dgain="200" igain="300" saturation = "444" integral_saturation = "777"
        data_type = "int16_t"
-       measure="estimator_pitch" setpoint="control_setpoint_pitch" output="control_setpoint_pitchdot"/>
-  </level>
+       measure="estimator_pitch" setpoint="control_pitch_setpoint" output="control_pitchdot_setpoint"/>
+ </level>
+
 
   <mode name="MANUAL">
     <input input="rc_values[RADIO_THROTTLE]" output="control_commands[COMMAND_THROTTLE]" range="1"/>
-    <input input="rc_values[RADIO_ROLL]" output="control_setpoint_rolldot" range="(1. * 32768000. / 8500. / 9600.)"/>
-    <input input="rc_values[RADIO_PITCH]" output="control_setpoint_pitchdot" range="(1. * 32768000. / 8500. / 9600.)"/>
-    <input input="rc_values[RADIO_YAW]" output="control_setpoint_yawdot" range="(1. * 32768000. / 8500. / 9600.)"/>
+    <input input="rc_values[RADIO_ROLL]" output="control_rolldot_setpoint" range="(1. * 32768000. / 8500. / 9600.)"/>
+    <input input="rc_values[RADIO_PITCH]" output="control_pitchdot_setpoint" range="(1. * 32768000. / 8500. / 9600.)"/>
+    <input input="rc_values[RADIO_YAW]" output="control_yawdot_setpoint" range="(1. * 32768000. / 8500. / 9600.)"/>
     <run name="rate"/>
   </mode>
 
   <mode name="AUTO1">
     <input input="rc_values[RADIO_THROTTLE]" output="control_commands[COMMAND_THROTTLE]" range="1"/>
-    <input input="rc_values[RADIO_ROLL]" output="control_setpoint_roll" range="1"/>
-    <input input="rc_values[RADIO_PITCH]" output="control_setpoint_pitch" range="1"/>
-    <input input="rc_values[RADIO_YAW]" output="control_setpoint_yawdot" range="1"/>
+    <input input="rc_values[RADIO_ROLL]" output="control_roll_setpoint" range="1"/>
+    <input input="rc_values[RADIO_PITCH]" output="control_pitch_setpoint" range="1"/>
+    <input input="rc_values[RADIO_YAW]" output="control_yawdot_setpoint" range="1"/>
     <run name="rate"/>
     <run name="attitude"/>
   </mode>
 
+<!--
   <mode name="AUTO2">
     <input input="rc_values[RADIO_THROTTLE]" output="control_commands[COMMAND_THROTTLE]" range="1"/>
     <input input="rc_values[RADIO_ROLL]" output="control_setpoint_roll" range="1"/>
     <input input="rc_values[RADIO_PITCH]" output="control_setpoint_pitch" range="1"/>
     <input input="rc_values[RADIO_YAW]" output="control_setpoint_yawdot" range="1"/>
   </mode>
+-->
 
 </control>
   <makefile>
 include $(PAPARAZZI_SRC)/conf/autopilot/disc_board.makefile
-ap.CFLAGS += -DRADIO_CONTROL -DACTUATORS
-ap.EXTRA_SRCS += radio_control.c $(SRC_ARCH)/ppm_hw.c $(SRC_ARCH)/esc.c
+ap.CFLAGS += -DRADIO_CONTROL
+ap.EXTRA_SRCS += radio_control.c $(SRC_ARCH)/ppm_hw.c
+ap.CFLAGS += -DACTUATORS=\"servos_esc_hw.h\"
+ap.EXTRA_SRCS += $(SRC_ARCH)/servos_esc_hw.c
+ap.CFLAGS += -DESTIMATOR=\"estimator_3dmg.h\"
+ap.EXTRA_SRCS += estimator_3dmg.c
+ap.CFLAGS += -D_3DMG
+ap.EXTRA_SRCS += 3dmg.c
  </makefile>
 </airframe>

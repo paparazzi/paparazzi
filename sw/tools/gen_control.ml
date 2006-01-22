@@ -20,13 +20,20 @@ type loop = {
 let mode = ref "c"
 
 
-let parse_input = fun s ->
+let print_mode_inputs = fun s ->
   match Xml.tag s with
     "input" ->
       let input = ExtXml.attrib s "input"
       and output = ExtXml.attrib s "output" 
       and range =  ExtXml.attrib s "range" in
       printf "  %s = %s * %s;\n" output input range
+  | _ -> ignore ()
+
+let print_mode_loops = fun s ->
+  match Xml.tag s with
+    "run" ->
+      let name = ExtXml.attrib s "name" in
+      printf "  control_run_%s_loops();\n" name
   | _ -> ignore ()
 
 let parse_loop = fun s list ->
@@ -114,7 +121,11 @@ let parse_control = fun s ->
 	  "h" ->
 	    let mode_name = ExtXml.attrib s "name" in
 	    printf "static inline void control_process_radio_control_%s ( void ) {\n" mode_name;
-	    List.iter parse_input (Xml.children s);
+	    List.iter print_mode_inputs (Xml.children s);
+	    printf "}\n";
+	    nl();
+	    printf "static inline void control_run_%s ( void ) {\n" mode_name;
+	    List.iter print_mode_loops (Xml.children s);
 	    printf "}\n";
 	    nl()
 	| _ -> ignore();
@@ -142,7 +153,7 @@ let _ =
 	"h" ->
 	  let xml = start_and_begin xml_file h_name in
 	  printf "#include \"std.h\"\n";
-	  printf "#include \"estimator.h\"\n";
+	  printf "#include ESTIMATOR\n";
 	  printf "#include \"airframe.h\"\n";
 	  printf "#include \"radio_control.h\"\n";
 	  printf "#include \"paparazzi.h\"\n";
