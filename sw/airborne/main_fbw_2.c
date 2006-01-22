@@ -10,9 +10,7 @@
 #include "control.h"
 #include "autopilot_fbw.h"
 
-
 #include "traces.h"
-
 
 void init_fbw( void ) {
   low_level_init();
@@ -27,6 +25,9 @@ void init_fbw( void ) {
   ppm_init();
   radio_control_init();
 #endif /* RADIO_CONTROL */
+#ifdef _3DMG
+
+#endif /* _3DMG */
 
 #ifdef TRACES
   TRACES_INIT();

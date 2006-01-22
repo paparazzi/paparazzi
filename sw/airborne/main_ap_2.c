@@ -15,6 +15,7 @@ void init_ap( void ) {
   led_init();
 #endif /* LED */
 #endif /* FBW */
+
 #ifdef MODEM
   modem_init();
 #endif /* MODEM */

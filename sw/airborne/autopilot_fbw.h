@@ -50,10 +50,12 @@ extern uint8_t autopilot_mode;
 #include "radio_control.h"
 static inline void autopilot_process_radio_control ( void ) {
   autopilot_mode = MODE_OF_PPRZ(rc_values[RADIO_MODE]);
+#ifdef LED
   if (autopilot_mode == MODE_MANUAL)
     LED_ON(2);
   else
     LED_OFF(2);
+#endif /* LED */
 }
 #endif /* RADIO_CONTROL */
 
