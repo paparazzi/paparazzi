@@ -446,6 +446,12 @@
   <field name="index" type="uint8"/>
   <field name="value" type="float"/>
  </message>
+
+ <message name="JUMP_TO_BLOCK" ID="27">
+  <field name="ac_id" type="string"/>
+  <field name="block_name" type="string"/>
+ </message>
+
 </class>
 
 <class name="alert">
@@ -471,19 +477,23 @@
   <field name="climb"  type="int16" unit="cm/s"></field>
   <field name="itow"  type="uint32" unit="ms"></field>
  </message>
+
  <message name="MOVE_WP" ID="2">
   <field name="wp_id" type="uint8"/>
   <field name="utm_east"  type="int32" unit="cm"></field>
   <field name="utm_north"  type="int32" unit="cm"></field>
   <field name="alt"    type="int32" unit="cm"></field>
  </message>
+
  <message name="EVENT" ID="3">
   <field name="event" type="uint8"/>
  </message>
+
  <message name="SETTING" ID="4">
   <field name="index" type="uint8"/>
   <field name="value" type="float"/>
  </message>
+
 
 </class>
 

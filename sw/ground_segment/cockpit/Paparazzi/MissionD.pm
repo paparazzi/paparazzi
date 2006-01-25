@@ -7,6 +7,8 @@ use XML::DOM;
 use base qw/Tk::Frame/;
 use strict;
 
+use Paparazzi::Traces;
+
 Construct Tk::Widget 'MissionD';
 
 sub ClassInit {
@@ -60,6 +62,8 @@ sub add_aircraft {
   $aircraft->attach($self, 'flight_plan', [\&on_ac_changed]);
   $aircraft->attach($self, 'cur_block', [\&on_ac_changed]);
   $aircraft->attach($self, 'cur_stage', [\&on_ac_changed]);
+
+
 }
 
 sub on_ac_changed {
@@ -116,8 +120,11 @@ sub load_flight_plan {
   #  print Dumper(\$blocks);
   #  print Dumper(\$blocks_stages);
 
+  my @items_blocks = ();
+
   foreach my $block ($doc->getElementsByTagName('block')){
     my $block_name = $block->getAttribute('name');
+    push @items_blocks, [Button => $block_name, -command => [\&on_jump_to_block, $ac_id, $block_name]];
     foreach my $line (split (/(\n)/, $block->toString())) {
       my $key = $line;
       $key =~ s/^\s*//; # remove any leading whitespace
@@ -131,6 +138,25 @@ sub load_flight_plan {
       }
     }
   }
+
+  my $menuitems = [
+		   [Cascade => "Jump to block", -menuitems =>
+		    \@items_blocks
+		   ]
+		  ];
+  my $menu = $text->Menu( -menuitems => $menuitems, -tearoff => 0);
+  $text->bind("<Button-3>" => sub { $menu->Popup(-popover => "cursor",
+						 -popanchor => 'nw') });
 }
+
+
+sub on_jump_to_block {
+  my ($ac_id, $block_name) = @_;
+  trace(TRACE_DEBUG, "MissionD::on_jump_to_block $ac_id $block_name");
+  Paparazzi::IvyProtocol::send_msg('ground', 'JUMP_TO_BLOCK', { ac_id => $ac_id, block_name => $block_name });
+}
+
+
+
 
 1;
