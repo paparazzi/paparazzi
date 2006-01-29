@@ -1,0 +1,876 @@
+%
+%
+%
+%   $Id$
+%   Copyright (C) 2003 Pascal Brisset, Antoine Drouin
+%
+% This file is part of paparazzi.
+%
+% paparazzi is free software; you can redistribute it and/or modify
+% it under the terms of the GNU General Public License as published by
+% the Free Software Foundation; either version 2, or (at your option)
+% any later version.
+%
+% paparazzi is distributed in the hope that it will be useful,
+% but WITHOUT ANY WARRANTY; without even the implied warranty of
+% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+% GNU General Public License for more details.
+%
+% You should have received a copy of the GNU General Public License
+% along with paparazzi; see the file COPYING.  If not, write to
+% the Free Software Foundation, 59 Temple Place - Suite 330,
+% Boston, MA 02111-1307, USA.  
+% 
+
+
+
+\documentclass{article}
+
+\usepackage{a4wide}
+\usepackage{graphicx}
+\usepackage{makeidx}
+\usepackage[pagebackref=true,hyperindex=true]{hyperref}
+\usepackage{color}
+
+\title{Paparazzi flight plan language manual}
+\author{Louis Dugrain}
+\date{\today}
+\setlength{\parindent}{0pt}
+
+\makeindex
+%\newenvironment{example}{\linespread{0.8}}{\linespread{1}}
+\renewcommand{\tt}[1]{\texttt{#1}}
+\newcommand{\ex}[1]{\colorbox[gray]{0.92}{\tt{#1}}}
+\newcommand{\hs}[1]{\hspace*{#1cm}}
+\newcommand{\until}{%
+	\tt{until} is written like the \tt{\hyperlink{exceptions}{exceptions}}
+		\tt{\hyperlink{cond}{cond}}. It works like an
+		\tt{\hyperlink{exceptions}{exception}} but only for \tt{stages}.
+		When it's true the autopilot apply following \tt{stage}.
+}
+\definecolor{gris75}{gray}{0.25}
+\newcommand{\qt}[1]{\textcolor{gris75}{#1}}
+
+\begin{document}
+
+\maketitle
+
+
+\vspace{\stretch{1}}
+%===============================================================================
+\hypertarget{flightplanstructure}{\section{Structure of flight plan files}}
+%===============================================================================
+
+\begin{minipage}[ctb]{\textwidth}
+\tt{\hyperlink{generaldata}{flight\_plan} \emph{name lat0 lon0 ground\_alt security\_height QFU alt max\_dist\_from\_home}} \\
+	\hs{0.5} \hyperlink{rccontrol}{\tt{rc\_control}} \\
+		\hs{1} \tt{mode AUTO1} \\
+			\hs{1.5} [\tt{setting \emph{var range rc type}}]+ \\
+		\hs{1} \tt{mode AUTO2} \\
+			\hs{1.5} [\tt{setting \emph{var range rc type}}]+ \\
+			
+	\hs{0.5} [\hyperlink{dlsettings}{\tt{dl\_settings}}]? \\
+		\hs{1} [\tt{dl\_setting \emph{var min max [step]}}]* \\
+		
+	\hs{0.5} \hyperlink{waypoints}{\tt{waypoints}} \\
+		\hs{1} [\tt{waypoint \emph{name x y [lat] [lon] [alt]}}]+ \\
+		
+	\hs{0.5} [\hyperlink{include}{\tt{include}} \tt{\emph{name \hyperlink{procedures}{procedure} [x] [y] [rotate]}} \\
+		\hs{1} [\tt{arg \emph{name value}}]* \\
+		\hs{1} [\tt{with \emph{from to}}]* \\
+	\hs{0.5} ]* \\
+	
+	\hs{0.5} \hyperlink{blocks}{\tt{blocks}} \\
+		\hs{1} [\tt{block \emph{name [description]}}]+ \\
+			\hs{1.5} \hyperlink{exceptions}{\tt{exception}} \tt{\emph{\tt{\hyperlink{cond}{cond}} deroute}} \\
+			\hs{1.5} \hyperlink{heading}{\tt{heading}} \tt{\emph{course [\hyperlink{verticalmodes}{vmode}] [alt] [gaz] [climb] [pitch] until}} \\
+			\hs{1.5} \hyperlink{attitude}{\tt{attitude}} \tt{\emph{roll [\hyperlink{verticalmodes}{vmode}] [alt] [gaz] [climb] [pitch] until}} \\
+			\hs{1.5} \parbox[]{13cm}{\tt{\hyperlink{go}{go} \emph{wp [wp\_qdr wp\_dist] [from] [from\_qdr from\_dist] [\hyperlink{horizontalmodes}{hmode}] [\hyperlink{verticalmodes}{vmode}] [alt] [pitch] [approaching\_time] [gaz] [\hyperlink{cam}{cam\_mode}] [\hyperlink{cam}{target}] [\hyperlink{cam}{cam\_ac\_target}] [until]}}} \\
+			\hs{1.5} \hyperlink{follow}{\tt{follow}} \tt{\emph{ac\_id distance height [\hyperlink{cam}{cam\_mode}] [\hyperlink{cam}{target}] [\hyperlink{cam}{cam\_ac\_target}]}} \\
+			\hs{1.5} \parbox[]{13cm}{\tt{\hyperlink{circle}{circle} \emph{wp [wp\_qdr wp\_dist] radius [alt] [\hyperlink{verticalmodes}{vmode}] [\hyperlink{cam}{cam\_mode}] [\hyperlink{cam}{target}] [\hyperlink{cam}{cam\_ac\_target}] [climb] [until]}}} \\
+			\hs{1.5} \hyperlink{stay}{\tt{stay}} \tt{\emph{wp [\hyperlink{verticalmodes}{vmode}] [gaz]}} \\
+			\hs{1.5} \hyperlink{deroute}{\tt{deroute}} \tt{\emph{block}} \\
+			\hs{1.5} \hyperlink{set}{\tt{set}} \tt{\emph{var value [until]}} \\
+			\hs{1.5} \hyperlink{xyz}{\tt{xyz}} \tt{\emph{[radius] [\hyperlink{cam}{cam\_mode}] [\hyperlink{cam}{target}] [\hyperlink{cam}{cam\_ac\_target}]}} \\
+			\hs{1.5} \hyperlink{while}{\tt{while}} \tt{\emph{[\tt{\hyperlink{cond}{cond}}]}} \\
+				\hs{2} [\tt{while}, \tt{heading}, \tt{attitude}, \tt{go}, \tt{xyz}, \tt{set}, \tt{circle}, \tt{deroute}, \tt{stay}]* \\
+\end{minipage}
+
+\vspace{\stretch{1}}
+\pagebreak
+
+
+%===============================================================================
+\section{Description}
+%===============================================================================
+
+A flight plan is devided in 6 parts:
+\begin{itemize}
+	\item some general data about the mission
+	\item \hyperlink{rccontrol}{\textbf{\tt{rc\_control}}:} radio control functions' description
+	\item \hyperlink{dlsettings}{\textbf{\tt{dl\_settings}:}} \emph{\textbf{I don't know and must complete this}}
+	\item \hyperlink{waypoints}{\textbf{\tt{waypoints}:}} a list of waypoint used for navigation
+	\item \hyperlink{include}{\textbf{\tt{include}:}} a \hyperlink{procedures}{procedure} with its arguments
+	\item \hyperlink{blocks}{\textbf{\tt{blocks}:}} the description of the mission
+\end{itemize}
+
+
+%===============================================================================
+\hypertarget{generaldata}{\subsection{General data}}
+%===============================================================================
+
+\begin{quote}
+	\tt{<flight\_plan \emph{name lat0 lon0 ground\_alt security\_height QFU alt max\_dist\_from\_home}>}
+\end{quote}
+\par
+\par
+
+In the arguments of first meta tag \tt{flight\_plan} you can find several general data about mission:
+\begin{itemize}
+	\item firstly there is the \tt{name} of the mission,
+	\item then \tt{lat0} and \tt{lon0} describe the latitude and longitude of the point \{0,0\} in WGS84.
+	\item \tt{ground\_alt} is the ground altitude%
+	\footnote{which is in meter set in relation whith sea level} (in meter).
+	It's used to easily place waypoints altitude in relation with \tt{GROUND\_ALT},
+	\item \tt{security\_height} is the height below which the UAV \textbf{stop is engine},
+	\item the \tt{QFU} is a kind of global constant often used during takeoff ot landing. It is the magnetic heading of the runway, generaly the opposite of wind direction
+	\item \tt{alt} is the default altitude of waypoints when it's not specify (see \autoref{waypoints2})
+	\item \tt{max\_dist\_from\_home} describe a circle (in meter) outside which the UAV come back to \tt{HOME} waypoint.
+\end{itemize}
+
+\begin{minipage}[ctb]{\textwidth}
+Here is an example of the first line of a flight plan:
+\begin{quote}
+	\ex{<flight\_plan NAME="\qt{example - Muret1}"} \\
+	\ex{\hs{2.2} LAT0="\qt{43.46223}" LON0="\qt{1.27289}"} \\
+	\ex{\hs{2.2} MAX\_DIST\_FROM\_HOME="\qt{300}"} \\
+	\ex{\hs{2.2} GROUND\_ALT="\qt{185}"} \\
+	\ex{\hs{2.2} SECURITY\_HEIGHT="\qt{25}"} \\
+	\ex{\hs{2.2} QFU="\qt{270}" ALT="\qt{250}">} \\
+\end{quote}
+\end{minipage}
+
+
+%===============================================================================
+\hypertarget{rccontrol}{\subsection{\tt{rc\_control}}}
+%===============================================================================
+Then, there is the radio control section which describes what variables can be changed during flight and by which way you can change it.
+This is very usefull when you want to adjust trim or loop's gain 
+
+You must specify for both \tt{mode}, \tt{AUTO1} and \tt{AUTO2}, the settings by this way:
+	\begin{quote}
+		\tt{<setting \emph{var range rc type}/>}
+	\end{quote}
+\par
+
+where:
+\begin{itemize}
+	\item \tt{var} is the variable's name you want to change during flight
+	\item \tt{type} is its type
+	\item \tt{range} is the max range you can change by one full change on the radio control
+	\item \tt{rc} specify the radio control voice you'll use to change this variable \\
+\end{itemize}
+
+\begin{minipage}[ctb]{\textwidth}
+Here is an example of the \hyperlink{rccontrol}{\tt{rc\_control}} section:
+\begin{quote}
+	\ex{<rc\_control>} \\
+	\ex{\hs{0.5} <mode NAME="\qt{AUTO1}">} \\
+	\ex{\hs{1} <setting VAR="\qt{ir\_pitch\_neutral}" RANGE="\qt{60.}"} \\
+	\ex{\hs{2.7} RC="\qt{gain\_1\_up}" TYPE="\qt{int16}"/>} \\
+	\ex{\hs{1} <setting VAR="\qt{ir\_roll\_neutral}" RANGE="\qt{-60.}"} \\
+	\ex{\hs{2.7} RC="\qt{gain\_1\_down}" TYPE="\qt{int16}"/>} \\
+	\ex{\hs{0.5} </mode>} \\
+	\ex{\hs{0.5} <mode NAME="\qt{AUTO2}">} \\
+	\ex{\hs{1} <setting VAR="\qt{course\_pgain}" RANGE="\qt{0.1}"} \\
+	\ex{\hs{2.7} RC="\qt{gain\_1\_up}" TYPE="\qt{float}"/>} \\
+	\ex{\hs{1} <setting VAR="\qt{pitch\_of\_roll}" RANGE="\qt{.2}"} \\
+	\ex{\hs{2.7} RC="\qt{gain\_1\_down}" TYPE="\qt{float}"/>} \\
+	\ex{\hs{0.5} </mode>} \\
+	\ex{</rc\_control>} \\
+\end{quote}
+\end{minipage}
+
+
+%===============================================================================
+\hypertarget{dlsettings}{\subsection{\tt{dl\_settings}}}
+%===============================================================================
+I don't know what it is. Maybe I should...  :-)
+
+
+%===============================================================================
+\hypertarget{waypoints}{\subsection{\tt{waypoints}}}
+%===============================================================================
+\label{waypoints2}
+You describe here the waypoint you'll use in your flight plan. \par
+The syntax is following:
+	\begin{quote}
+		\tt{<waypoint \emph{name x y [lat] [lon] [alt]}/>}
+	\end{quote}
+\par
+where \tt{x} and \tt{y} are the coordinates in meter from point \{0,0\}%
+\footnote{in an UTM projection}. \tt{lat} and \tt{lon} are now useless because the transformation in WGS84 coordinates is automatically done. \tt{alt} can be specify. If not, the default altitude is taken.
+\\
+
+
+There must always be a waypoint \tt{HOME} where the UAV can come back if there is any problem.
+\\
+
+
+\begin{minipage}[ctb]{\textwidth}
+Here is the result:
+\begin{quote}
+	\ex{<waypoints>} \\
+	\ex{\hs{0.5} <waypoint name="\qt{HOME}" x="\qt{0.0}" y="\qt{30.0}"/>} \\
+	\ex{\hs{0.5} <waypoint name="\qt{1}" x="\qt{-100.0}" y="\qt{60.0}"
+	alt="\qt{250.}"/>} \\
+	\ex{\hs{0.5} <waypoint name="\qt{2}" x="\qt{-130.0}" y="\qt{217.5}"
+	alt="\qt{250.}"/>} \\
+	\ex{\hs{0.5} <waypoint name="\qt{3}" x="\qt{25.0}" y="\qt{285.0}"
+	alt="\qt{250.}"/>} \\
+	\ex{\hs{0.5} <waypoint name="\qt{4}" x="\qt{162.5}" y="\qt{210.0}"
+	alt="\qt{250.}"/>} \\
+	\ex{\hs{0.5} <waypoint name="\qt{5}" x="\qt{97.5}" y="\qt{60.0}"
+	alt="\qt{250.}"/>} \\
+	\ex{</waypoints>}
+\end{quote}
+\end{minipage}
+	
+
+%===============================================================================
+\hypertarget{include}{\subsection{\tt{include}}}
+%===============================================================================
+\label{include2}
+\tt{include} is used to add all \hyperlink{blocks}{\tt{blocks}} defined in a
+\hyperlink{procedures}{\tt{procedure}}. It's usefull to use ever made
+\hyperlink{procedures}{\tt{procedure}} with only few arguments and then
+clarify the flight plan. \\
+
+
+Here is the structure:
+\begin{quote}
+
+	\tt{<include \emph{name \hyperlink{procedures}{procedure} [x] [y] [rotate]}>} \\
+	\hs{0.5} [\tt{<arg \emph{name value}/>}]* \\
+	\hs{0.5} [\tt{<with \emph{from to}/>}]* \\
+	\tt{</include>}
+\end{quote}
+
+\tt{name} will be used in this flight plan to call the
+\hyperlink{procedures}{\tt{procedure}}, which known by its relative path. The
+\hyperlink{procedures}{\tt{procedure}} can be moved of \tt{x} and \tt{y}
+and rotate with \tt{rotate} argument.\\
+We pass the argument \tt{name} and their \tt{value} in the \tt{arg} lines and
+the events \tt{from} and the block to switch to \tt{to} in the \tt{with}
+line. \\
+
+
+Then, each \hyperlink{blocks}{\tt{blocks}} of the
+\hyperlink{procedures}{\tt{procedure}}
+is like any \hyperlink{blocks}{\tt{block}} of the flight plan and can be called
+with \tt{deroute} command: \ex{deroute="\qt{hippo1.one\_block}"}, where
+\tt{one\_block} is one of the \hyperlink{blocks}{\tt{block}} of the
+\hyperlink{procedures}{\tt{procedure}} locally called \tt{hippo1}. \\
+There are more explainations in \autoref{procedureuse2}. \\
+
+
+\begin{minipage}[ctb]{\textwidth}
+Here is an example:
+\begin{quote}
+	\ex{<include name="\qt{hippo1}" procedure="\qt{hippo.xml}" x="\qt{-100}" y="\qt{150}" rotate="\qt{0}">} \\
+	\ex{\hs{0.5} <arg name="\qt{alt}" value="\qt{GROUND\_ALT+100}"/>} \\
+	\ex{\hs{0.5} <with from="\qt{event1}" to="\qt{penta}"/>} \\
+	\ex{</include>}
+\end{quote}
+\end{minipage}
+
+
+%===============================================================================
+\hypertarget{blocks}{\subsection{\tt{blocks}}}
+%===============================================================================
+\tt{Blocks} are the main part of a flight plan because they describe each 
+main stages of the mission. They are made of various primitives, called
+\tt{stages}, you can put one after the other. When a \tt{stage} is finished,
+the autopilot go to next one.
+
+
+%-------------------------------------------------------------------------------
+\hypertarget{exceptions}{\subsubsection{\tt{exceptions}}}
+%-------------------------------------------------------------------------------
+In order to switch between
+\tt{blocks}, there are \tt{exceptions} which deroute the mission
+on another \tt{block} by the \tt{deroute} argument when the
+\tt{cond}ition is true (\tt{deroute} must be the name of
+a \tt{block}). Here is the syntax of \tt{exceptions}:
+
+\begin{quote}
+	\tt{<exception \emph{cond deroute}/>}
+\end{quote}
+
+\tt{\hypertarget{cond}{cond}} are annalysed whith some functions:
+
+\begin{itemize}
+	\item \tt{<}, \tt{>}, \tt{<=}, \tt{>=}, \tt{<>}, \tt{==}, \tt{+}, \tt{-}, \tt{/}, \tt{*}
+	\item \tt{And(\emph{cond1}, \emph{cond2})} and \tt{Or(\emph{cond1}, \emph{cond2})}
+	\item \tt{RcEvent1()} and \tt{RcEvent2()}, which correspond
+	to radio control event
+	\item \tt{Qdr(\emph{value})}, which is true when Qdr is more or less
+	of 10 degrees of the \emph{value}.
+\end{itemize}
+
+There are also variables:
+\begin{itemize}
+	\item \tt{launch} is true when the UAV think it has been launched
+	\item \tt{estimator\_z} is altitude
+	\item \tt{estimator\_flight\_time}
+	\item \tt{estimator\_hspeed\_mod} is the horizontal speed (in m/s)
+	\item \tt{stage\_time} is the time past since the begining of the stage
+	\item \tt{block\_time} is the time past since the entrance in the
+	last block
+	\item \tt{GROUND\_ALT}, \tt{QFU} and \tt{SECURITY\_HEIGHT}
+	\item \tt{TRUE} to make infinite loop \\
+\end{itemize}
+
+
+Here there are some example of \tt{exceptions}:
+\begin{quote}
+	\ex{<exception cond="\qt{(RcEvent1())}" deroute="\qt{go\_again}"/>} \\
+	\ex{<exception cond="\qt{(GROUND\_ALT+10 > estimator\_z)}" deroute="\qt{go\_again}"/>} \\
+	\ex{<exception cond="\qt{(RcEvent2())}" deroute="\qt{stop}"/>} \\
+	\ex{<exception cond="\qt{(estimator\_flight\_time > 840)}" deroute="\qt{quick\_land}"/>}
+\end{quote}
+
+Now, we are studying the other primitive. Firstly, we'll see the loop.
+
+
+%-------------------------------------------------------------------------------
+\hypertarget{while}{\subsubsection{\tt{while}}}
+%-------------------------------------------------------------------------------
+The syntax is following:
+\begin{quote}
+	\tt{while \emph{[\hyperlink{cond}{cond}]}}
+\end{quote}
+Almost any other primitive can be put in a short or long loop. \\
+\tt{\hyperlink{cond}{cond}} is written like the \tt{\hyperlink{exceptions}{exceptions}} \tt{\hyperlink{cond}{cond}}.
+\\
+
+
+\begin{minipage}[ctb]{\textwidth}
+Here is an example of an infinite hippodrome between \tt{c1} and \tt{c2}:
+\begin{quote}
+	\ex{<while>} \\
+	\ex{\hs{0.5} <go hmode="\qt{route}" alt="\qt{alt}"} \\ 
+	\ex{\hs{1.2} from="\qt{c1}" from\_qdr="\qt{0}" from\_dist="\qt{radius}"} \\
+	\ex{\hs{1.2} wp="\qt{c2}" wp\_qdr="\qt{0}" wp\_dist="\qt{radius}"/>} \\
+	\ex{\hs{0.5} <circle wp="\qt{c2}" radius="\qt{radius}" until="\qt{Qdr(180)}" alt="\qt{alt}"/>} \\
+	\ex{\hs{0.5} <go hmode="\qt{route}" alt="\qt{alt}"} \\
+	\ex{\hs{1.2} from="\qt{c2}" from\_qdr="\qt{180}" from\_dist="\qt{radius}"} \\
+	\ex{\hs{1.2} wp="\qt{c1}" wp\_qdr="\qt{180}" wp\_dist="\qt{radius}"/>} \\
+	\ex{\hs{0.5} <circle wp="\qt{c1}" radius="\qt{radius}" until="\qt{Qdr(0)}" alt="\qt{alt}"/>} \\
+	\ex{</while>}
+\end{quote}
+\end{minipage}
+
+
+%-------------------------------------------------------------------------------
+\hypertarget{modes}{\subsubsection{Various mode}}
+%-------------------------------------------------------------------------------
+\label{modes2}
+There are various modes, separated into two groups (horizontal and vertical).
+Each group is divide up into 3 modes, corresponding to the three level loop
+in the autopilot.
+
+Here is the various modes:
+\begin{itemize}
+	\item \hypertarget{horizontalmodes}{horizontal modes (\tt{hmode})}:
+	\begin{itemize}
+		\item You just specify \tt{roll}:
+		\ex{roll="\qt{0.2}"}
+		\item You ask an \tt{course} with the
+		\hyperlink{heading}{\tt{heading}} primitive:\\
+		\ex{<heading course="\qt{QFU}" until="\qt{(estimator\_z > SECURITY\_ALT)}"/>}
+		\item You want the UAV navigate. There are 5 primitives we'll study further:
+		\begin{itemize}
+			\item \tt{\hyperlink{go}{go}}
+			\item \tt{\hyperlink{circle}{circle}}
+			\item \tt{\hyperlink{follow}{follow}}
+			\item \tt{\hyperlink{stay}{stay}}
+			\item \tt{\hyperlink{xyz}{xyz}}
+		\end{itemize}
+	\end{itemize}
+	\item \hypertarget{verticalmodes}{vertical modes (\tt{vmode})}:
+	\begin{itemize}
+		\item You ask a \tt{pitch}: \ex{pitch="\qt{0.1}"}
+		and \tt{gaz}: \ex{vmode="\qt{gaz}" gaz="\qt{0.5}"}
+		(\tt{gaz} are in percent).
+		\item You ask a \tt{climb}: \ex{vmode="\qt{climb}" climb="\qt{1}"}
+		where \tt{climb} is in meter per second.
+		
+		\item You want the UAV keep an altitude with the \tt{alt} argument:\\
+		\ex{vmode="\qt{alt}" alt="\qt{GROUND\_ALT+50}"}
+		\item You ask a \tt{glide} which is a special mode (a derivative of
+		\tt{alt} mode) where you need also be in \tt{route hmode}:
+		\ex{hmode="\qt{route}" vmode="\qt{glide}"}.
+	\end{itemize}
+\end{itemize}
+
+In vertical modes, there are two ways to specify what you want:
+\begin{itemize}
+	\item You set \tt{pitch} (or don't mention it which means it will be
+	set to zero) and let the \tt{gaz} automaticly set to respect the
+	\tt{climb} or \tt{alt} command. It's the default vertical mode.
+	You just have to set the \tt{pitch} if you don't want it set to
+	zero: \ex{\tt{pitch="\qt{0.1}"}}.
+	
+	\item You set \tt{gaz} and let the \tt{pitch} automaticly set to
+	respect the \tt{climb} or \tt{alt} command. This is the auto
+	\tt{pitch} mode: \ex{\tt{pitch="\qt{auto}"}}.
+	\tt{gaz} must be set:	\ex{\tt{gaz="\qt{0.5}"}}.
+\end{itemize}
+
+
+%-------------------------------------------------------------------------------
+\hypertarget{attitude}{\subsubsection{\tt{attitude}}}
+%-------------------------------------------------------------------------------
+\tt{attitude} is the command which corresponds to the first level loop for
+\hyperlink{horizontalmodes}{horizontal mode} in the autopilot. \\
+Its syntax is following:
+
+\begin{quote}
+	\tt{attitude \qt{roll [\hyperlink{verticalmodes}{vmode}] [alt] [gaz] [climb] [pitch] until}}
+\end{quote}
+
+Where \until \\
+
+Here is an example:
+\begin{quote}
+	\ex{<attitude roll="\qt{0}" pitch="\qt{0}" vmode="\qt{gaz}" gaz="\qt{0.5}" until="\qt{(FALSE)}"/>}
+\end{quote}
+
+
+%-------------------------------------------------------------------------------
+\hypertarget{heading}{\subsubsection{\tt{heading}}}
+%-------------------------------------------------------------------------------
+\tt{heading} primitive corresponds to the second level loop for
+\hyperlink{horizontalmodes}{horizontal mode} in the autopilot. \\
+Its syntax is following:
+
+\begin{quote}
+	\tt{heading \emph{course [\hyperlink{verticalmodes}{vmode}] [alt] [gaz] [climb] [pitch] until}}
+\end{quote}
+
+Where \until \\
+
+Here is an example:
+\begin{quote}
+	\ex{<heading vmode="\qt{gaz}" gaz="\qt{0.8}" pitch="\qt{0.15}" course="\qt{QFU}"} \\
+	\ex{\hs{1.5} until="\qt{(estimator\_z > SECURITY\_ALT)}"/>}
+\end{quote}
+
+
+%-------------------------------------------------------------------------------
+\hypertarget{go}{\subsubsection{\tt{go}}}
+%-------------------------------------------------------------------------------
+\tt{go} primitive corresponds to the third level loop for
+\hyperlink{horizontalmodes}{horizontal mode} in the autopilot. \\
+Its syntax is following:
+
+\begin{quote}
+	\tt{go \emph{wp [wp\_qdr wp\_dist] [from] [from\_qdr from\_dist]
+	[\hyperlink{horizontalmodes}{hmode}] [\hyperlink{verticalmodes}{vmode}]
+	[alt] [pitch] [approaching\_time] [gaz] [\hyperlink{cam}{cam\_mode}]
+	[\hyperlink{cam}{target}] [\hyperlink{cam}{cam\_ac\_target}] [until]}}
+\end{quote}
+
+
+where:
+\begin{itemize}
+	\item \tt{wp} and \tt{from} are \hyperlink{waypoints}{waypoint} valid names.
+	\tt{wp} is the \hyperlink{waypoints}{waypoint} the UAV must go to.
+	\tt{from} is the \hyperlink{waypoints}{waypoint} the UAV come from if
+	you ask a \tt{route} \hyperlink{horizontalmodes}{horizontal mode}\\
+	(\ex{\tt{hmode="\qt{route}"}}).
+	In \tt{route} mode, the UAV will follow a path between the two waypoints
+	\tt{from} and \tt{wp}. If it is not specify, the UAV will go directly
+	to \tt{wp} (probably by doing a dog courb).
+	
+	\item \tt{wp\_qdr} and \tt{wp\_dist} are used to create a ghost waypoint
+	defined from \tt{wp} by its QDR and distance (\ex{from="\qt{wp1}"
+	from\_qdr="\qt{0}" from\_dist="\qt{60}"} is a 60 meters northward new
+	waypoint).
+	
+	\item \tt{from\_qdr} and \tt{from\_dist} are used by the same way to create
+	a ghost waypoint defined from \tt{from}.
+	
+	\item \hyperlink{verticalmodes}{\tt{vmode}}, \tt{alt} and \tt{pitch} are
+	used like it's explained in \autoref{modes2}.
+	
+	\item \tt{approaching\_time} is a way to specify when the UAV decide
+	is near enough of the \tt{wp} to do the next \tt{stage}. By default,
+	\tt{approaching\_time} is egal to \tt{CAROTT} time, which is by
+	default 5 seconds.
+	
+	\item \tt{cam\_mode}, \tt{target} and \tt{cam\_ac\_target} are used as
+	specified in \autoref{cam2}.
+	
+	\item \until	
+\end{itemize}
+
+\emph{Note:} it is not obliged to specify the waypoint \tt{from} in \tt{route}
+mode if you have ever used a \tt{go} primitive just the previous \tt{stage}.
+For example, with this command:
+\begin{quote}
+	\ex{<go wp="\qt{wp2}" from="\qt{wp1}" hmode="\qt{route}"/>} \\
+	\ex{<go wp="\qt{wp3}" hmode="\qt{route}"/>}
+\end{quote}
+the autopilot will understand: follow the route between \tt{wp1} and \tt{wp2}.
+When you are near \tt{wp2}, follow the route between \tt{wp2} and \tt{wp3}.
+In each branch, the altitude is the altitude of the going to waypoint.
+\\
+
+
+\begin{minipage}[ctb]{\textwidth}
+Here is an example of primitive \tt{go}'s use:
+\begin{quote}
+	\ex{<go hmode="\qt{route}" alt="\qt{GROUND\_ALT+50}"} \\ 
+	\ex{\hs{0.58} from="\qt{wp\_left}" from\_qdr="\qt{0}" from\_dist="\qt{60}"} \\
+	\ex{\hs{0.58} wp="\qt{wp\_right}" wp\_qdr="\qt{0}" wp\_dist="\qt{60}"} \\
+	\ex{\hs{0.58} pitch="\qt{auto}" gaz="\qt{0.5}"} \\
+	\ex{\hs{0.58} cam\_mode="\qt{target}" target="\qt{my\_house}"/>} \\
+\end{quote}
+\end{minipage}
+
+
+%-------------------------------------------------------------------------------
+\hypertarget{circle}{\subsubsection{\tt{circle}}}
+%-------------------------------------------------------------------------------
+Like \hyperlink{go}{\tt{go}} primitive, \tt{circle} works with autopilot's
+third level loop for \hyperlink{horizontalmodes}{horizontal mode}. \\
+The syntax is following:
+
+\begin{quote}
+	\tt{circle \emph{wp [wp\_qdr wp\_dist] radius [alt]
+	[\hyperlink{verticalmodes}{vmode}] [\hyperlink{cam}{cam\_mode}]
+	[\hyperlink{cam}{target}] [\hyperlink{cam}{cam\_ac\_target}]
+	[climb] [until]}}
+\end{quote}
+
+
+where:
+\begin{itemize}
+	\item \tt{wp} is one of the defined \hyperlink{waypoints}{waypoint}.
+	The UAV will turn around with a \tt{radius} radius circle.
+	
+	\item \tt{wp\_qdr} and \tt{wp\_dist} are used to create a ghost waypoint
+	defined from \tt{wp} by its QDR and distance (\ex{from="\qt{wp1}"
+	from\_qdr="\qt{0}" from\_dist="\qt{60}"} is a 60 meters northward
+	new waypoint).
+
+	\item \hyperlink{verticalmodes}{\tt{vmode}}, \tt{alt} and \tt{climb} are
+	used like it's explained in \autoref{modes2}.
+
+	\item \tt{cam\_mode}, \tt{target} and \tt{cam\_ac\_target} are used as
+	specified in \autoref{cam2}.
+
+	\item \until \\
+\end{itemize}
+
+
+\begin{minipage}[ctb]{\textwidth}
+Here is an example of primitive \tt{circle}'s use:
+\begin{quote}
+	\ex{<circle wp="\qt{HOME}" wp\_qdr="\qt{70}" wp\_dist="\qt{100}" radius="\qt{50}"} \\
+	\ex{\hs{1.3} vmode="\qt{climb}" climb="\qt{-1}" cam\_mode="\qt{nadir}"} \\
+	\ex{\hs{1.3} until="\qt{And(GROUND\_ALT+30 > estimator\_z, Qdr(180))}"/>} \\
+\end{quote}
+\end{minipage}
+
+
+%-------------------------------------------------------------------------------
+\hypertarget{follow}{\subsubsection{\tt{follow}}}
+%-------------------------------------------------------------------------------
+\begin{quote}
+	\tt{follow \emph{ac\_id distance height [\hyperlink{cam}{cam\_mode}]
+	[\hyperlink{cam}{target}] [\hyperlink{cam}{cam\_ac\_target}]}}
+\end{quote}
+
+\tt{follow} is a special primitive which make your UAV \tt{follow} the
+\tt{ac\_id} UAV at \tt{distance} meters behind and \tt{height} meters above
+(and always above \tt{SECURITY\_ALT}). \\
+
+\tt{cam\_mode}, \tt{target} and \tt{cam\_ac\_target} can be used as
+specified in \autoref{cam2}. \\
+
+\begin{minipage}[ctb]{\textwidth}
+Here is an example of \tt{follow} mode use:
+\begin{quote}
+	\ex{<follow ac\_id="\qt{4}" distance="\qt{50}" height="\qt{20}" cam\_mode="\qt{follow}" cam\_ac\_target="\qt{4}"/>} \\
+\end{quote}
+\end{minipage}
+
+
+%-------------------------------------------------------------------------------
+\hypertarget{stay}{\subsubsection{\tt{stay}}}
+%-------------------------------------------------------------------------------
+\begin{quote}
+	\tt{stay \emph{wp [\hyperlink{verticalmodes}{vmode}] [gaz]}}
+\end{quote}
+
+\tt{stay} is a mode for helicopter-like UAVs to make them remain at a
+valid \hyperlink{waypoints}{waypoint} \tt{wp}. \\
+
+\begin{minipage}[ctb]{\textwidth}
+Here is an example of \tt{stay} mode use:
+\begin{quote}
+	\ex{<stay wp="\qt{my\_house}"/>} \\
+\end{quote}
+\end{minipage}
+
+
+%-------------------------------------------------------------------------------
+\hypertarget{xyz}{\subsubsection{\tt{xyz}}}
+%-------------------------------------------------------------------------------
+\begin{quote}
+	\tt{xyz \emph{[radius] [\hyperlink{cam}{cam\_mode}] [\hyperlink{cam}{target}]
+	[\hyperlink{cam}{cam\_ac\_target}]}}
+\end{quote}
+
+\tt{xyz} is a special mode where the UAV circles around a user moveable
+waypoint, called \tt{carrot} with a \tt{radius} radius.
+By default, the \tt{radius} is 60 meters.
+It is usefull to put this command in a special \hyperlink{blocks}{\tt{block}}
+so as to let user to fly around a special target not determined at fligh
+plan writing time. The user uses radio control to move the target waypoint. \\
+
+\tt{cam\_mode}, \tt{target} and \tt{cam\_ac\_target} can be used as
+specified in \autoref{cam2}. \\
+
+
+\begin{minipage}[ctb]{\textwidth}
+Here is an example of \tt{xyz} mode use:
+\begin{quote}
+	\ex{<block name="\qt{xyz}">} \\
+	\ex{\hs{0.5} <exception cond="\qt{(RcEvent2())}" deroute="\qt{circlehome}"/>} \\
+	\ex{\hs{0.5} <xyz radius="\qt{40}" cam\_mode="\qt{target}"/>} \\
+	\ex{</block>}
+\end{quote}
+\end{minipage}
+
+
+%-------------------------------------------------------------------------------
+\hypertarget{cam}{\subsubsection{Camera options}}
+%-------------------------------------------------------------------------------
+\label{cam2}
+There are 6 modes whith camera (\tt{cam\_mode}):
+\begin{itemize}
+	\item \tt{null}: there is no camera.
+	\item \tt{fix}: camera is fix.
+	\item \tt{manual}: camera is manually moved.
+	\item \tt{nadir}: camera looks always just under the UAV, even if it is turning.
+	\item \tt{target}: camera is set on \tt{target}. In \tt{xyz} mode, the
+	camera is set on the \tt{carrot}, meaning the center of the circle.
+	If \tt{target} is a valid \hyperlink{waypoints}{waypoint}. It keep view on it.
+	Else it is a manually set target (meaning it moves automaticaly to keep
+	view on the user defined target).
+	\item \tt{follow}: camera is set on \tt{cam\_ac\_target} aircraft.
+\end{itemize}
+
+
+%-------------------------------------------------------------------------------
+\hypertarget{set}{\subsubsection{\tt{set}}}
+%-------------------------------------------------------------------------------
+\tt{set} is not a primitive like the other ones. This command is used to
+changed a variable with this syntax:
+
+\begin{quote}
+	\tt{set \emph{var value [until]}}
+\end{quote}
+
+
+It's usefull for developpement to set \tt{var} variable to \tt{value} to test
+something new and \tt{set} it back to current \tt{value} in another
+\hyperlink{blocks}{\tt{block}} you can allways switch to in order to prevent
+crash. \\
+
+\until \\
+
+\begin{minipage}[ctb]{\textwidth}
+Here is a little example of \tt{set} use where the developper wants to try a
+new navigation algorithm by doing a route between \tt{wp1} and \tt{wp2}.
+At any time, he can stop the new algorithm by switching to
+\tt{stop\_test block} with a radio control \tt{RcEvent1} event and then go
+in the \tt{come\_back block}.
+\begin{quote}
+	\ex{<block name="\qt{test}"} \\ 
+	\ex{\hs{0.5} <exception cond="\qt{(RcEvent1())}" deroute="\qt{stop\_test}"/>} \\
+	\ex{\hs{0.5} <set var="\qt{new\_navigation\_algorithm}" value="\qt{TRUE}"/>} \\
+	\ex{\hs{0.5} <go wp="\qt{wp2}" from="\qt{wp1}" hmode="\qt{route}"/>} \\
+	\ex{\hs{0.5} <deroute block="\qt{stop\_test}"/>} \\
+	\ex{</block}\\
+	\ex{<block name="\qt{stop\_test}"} \\ 
+	\ex{\hs{0.5} <set var="\qt{new\_navigation\_algorithm}" value="\qt{FALSE}"/>} \\
+	\ex{\hs{0.5} <deroute block="\qt{come\_back}"/>} \\
+	\ex{</block}\\
+\end{quote}
+\end{minipage}
+
+
+%-------------------------------------------------------------------------------
+\hypertarget{deroute}{\subsubsection{\tt{deroute}}}
+%-------------------------------------------------------------------------------
+\tt{deroute} is not a primitive. It's just an easy way to specify which is the
+following \hyperlink{blocks}{\tt{block}} in flight plan execution:
+\begin{quote}
+	\ex{<deroute block="\qt{another\_block}"/>}
+\end{quote}
+
+
+If there is no \tt{deroute} command at the end of a block, then the autopilot
+will jump to the next one.
+
+
+%===============================================================================
+\hypertarget{procedures}{\section{\tt{procedures}}}
+%===============================================================================
+\tt{procedures} are used as fight plan library. You write it once and use it
+when you want. It prevents you to think every time about a common figure like
+an hippodrome.
+
+%-------------------------------------------------------------------------------
+\hypertarget{procedurestructure}{\subsection{Structure of \tt{procedures}}}
+%-------------------------------------------------------------------------------
+The way to write it is quite similar to flight plan. Here is the structure: \\
+
+\begin{minipage}[ctb]{\textwidth}
+\tt{procedure} \\
+	\hs{0.5} [\hyperlink{param}{\tt{param}} \tt{\emph{name [default\_value]}}]* \\
+		
+	\hs{0.5} \hyperlink{waypoints}{\tt{waypoints}} \\
+		\hs{1} [\tt{waypoint \emph{name x y [lat] [lon] [alt]}}]+ \\
+		
+	\hs{0.5} \hyperlink{blocks}{\tt{blocks}} \\
+		\hs{1} [\tt{block \emph{name [description]}}]+ \\
+			\hs{1.5} as in \hyperlink{flightplanstructure}{flight plans}... \\
+\end{minipage}
+
+
+%-------------------------------------------------------------------------------
+\hypertarget{param}{\subsection{\tt{param}}}
+%-------------------------------------------------------------------------------
+\begin{quote}
+	\tt{param \emph{name [default\_value]}}
+\end{quote}
+
+\tt{param} describes the various parameters you can have in the
+\hyperlink{procedure}{procedure} wiht their \tt{name} and \tt{default\_value}. For example: \\
+\begin{quote}
+	\ex{<param name="\qt{rad}" default\_value="\qt{30}"/>}
+\end{quote}
+
+
+%-------------------------------------------------------------------------------
+\hypertarget{procedureuse}{\subsection{\tt{procedures} use}}
+%-------------------------------------------------------------------------------
+\label{procedureuse2}
+
+\tt{procedures} are called with the \hyperlink{include}{\tt{include}} command
+in flight plans. There, you specify the \tt{value} of arguments \tt{name}.
+You must also specify \hyperlink{deroute}{\tt{deroute}} link with \tt{with}
+command where \tt{from} is the name used in the \tt{procedure} and \tt{to}
+the \tt{block} to switch to.
+
+\begin{minipage}[ctb]{\textwidth}
+Here is an example of the \tt{procedure} inclusion in the flight plan:
+\begin{quote}
+	\ex{<include name="\qt{hippo1}" procedure="\qt{hippo.xml}" x="\qt{-100}" y="\qt{150}" rotate="\qt{0}">} \\
+	\ex{\hs{0.5} <arg name="\qt{alt}" value="\qt{GROUND\_ALT+100}"/>} \\
+	\ex{\hs{0.5} <with from="\qt{event1}" to="\qt{another\_block\_of\_flight\_plan}"/>} \\
+	\ex{</include>} \\
+\end{quote}
+\end{minipage}
+
+\begin{minipage}[ctb]{\textwidth}
+Here is the corresponding \tt{procedure} \emph{hippo.xml}:
+\begin{quote}
+	\ex{<procedure>} \\
+	\ex{\hs{0.5} <param name="\qt{alt}"/>} \\
+	\ex{\hs{0.5} <param name="\qt{radius}" default\_value="\qt{75}"/>} \\
+	\ex{\rule{0pt}{1ex}} \\
+	\ex{\hs{0.5} <waypoints>} \\
+	\ex{\hs{1} <waypoint name="\qt{c1}" x="\qt{0}" y="\qt{0}"/>} \\
+	\ex{\hs{1} <waypoint name="\qt{c2}" x="\qt{250}" y="\qt{0}"/>} \\
+	\ex{\hs{0.5} </waypoints>} \\
+	\ex{\rule{0pt}{1ex}} \\
+	\ex{\hs{0.5} <blocks>} \\
+	\ex{\hs{1} <block name="\qt{loop}">} \\
+	\ex{\hs{1.5} <exception cond="\qt{(RcEvent1())}" deroute="\qt{event1}"/>} \\
+	\ex{\hs{1.5} <while cond="\qt{vsupply>100}">} \\
+	\ex{\hs{2} <go hmode="\qt{route}" alt="\qt{alt}"} \\ 
+	\ex{\hs{2.7} from="\qt{c1}" from\_qdr="\qt{0}" from\_dist="\qt{radius}"} \\
+	\ex{\hs{2.7} wp="\qt{c2}" wp\_qdr="\qt{0}" wp\_dist="\qt{radius}"/>} \\
+	\ex{\hs{2} <circle wp="\qt{c2}" radius="\qt{radius}" until="\qt{Qdr(180)}" alt="\qt{alt}"/>} \\
+	\ex{\hs{2} <go hmode="\qt{route}" alt="\qt{alt}"} \\
+	\ex{\hs{2.7} from="\qt{c2}" from\_qdr="\qt{180}" from\_dist="\qt{radius}"} \\
+	\ex{\hs{2.7} wp="\qt{c1}" wp\_qdr="\qt{180}" wp\_dist="\qt{radius}"/>} \\
+	\ex{\hs{2} <circle wp="\qt{c1}" radius="\qt{radius}" until="\qt{Qdr(0)}" alt="\qt{alt}"/>} \\
+	\ex{\hs{1.5} </while>} \\
+	\ex{\hs{1.5} <deroute block="\qt{event1}"/>} \\
+	\ex{\hs{1} </block>} \\
+	\ex{\hs{0.5} </blocks>} \\
+	\ex{</procedures>} \\
+\end{quote}
+\end{minipage}
+
+\begin{minipage}[ctb]{\textwidth}
+Here is an example of the call the \tt{procedure} in the flight plan:
+\begin{quote}
+	\ex{<exception cond="\qt{(RcEvent1())}" deroute="\qt{hippo1.loop}"/>} \\
+\end{quote}
+\end{minipage}
+
+
+%===============================================================================
+\hypertarget{Ccode}{\section{Remarks about C code}}
+%===============================================================================
+\label{Ccode2}
+Most of the argument are C code. In fact, the xml flight plan file is read and
+changed into C code which is compiled and put into autopilot. By this way, you
+can write funny flight plan like this:
+\begin{quote}
+	\ex{<circle wp="\qt{my\_center}" vmode="\qt{climb}" climb="\qt{1}"} \\
+	\ex{\hs{1.3} radius="\qt{estimator\_z}" until="\qt{100>vsupply}"/>}
+\end{quote}
+
+In this example, the UAV will do circles around \emph{my\_center} by climbing
+1 meter per second with a \tt{radius} depending on it's altitude
+(\tt{estimator\_z}). This figure is an enlarging helice, which is nice because
+you see more and more around your goal \emph{my\_center} and still feel the UAV
+is moving by looking at airborne video.
+This will end when supply is under 10 volt (\tt{vsupply} is in decivolt). \\
+
+It would also be possible to write
+\ex{radius="\qt{2*estimator\_z}"} or
+\ex{radius="\qt{50 + 30*sin(stage\_time/28.6)}"} (a three minutes based
+sinusoidal radius circle).
+
+Lots of thing are possible by editing airborne C code and play with variables. \\
+
+\emph{Note:} if you want to change the list of user accessible variables or
+functions in flight plan, you must change the \tt{functions} and
+\tt{variables} lists in \emph{./sw/tools/fp\_syntax.ml} file and
+recompile it by tipping \tt{make} in \emph{.sw/tools/}
+
+
+%===============================================================================
+\hypertarget{medit}{\section{\emph{medit} tool}}
+%===============================================================================
+\label{medit2}
+
+\emph{medit} is a tool to easily defined a flight plan. You can add, move or
+clear \tt{waypoints} on a map. You can easily see your various
+\hyperlink{blocks}{\tt{blocks}}, their \tt{stages} and their \emph{arguments}.\\
+It is really simplier to make or edit a flight plan with \emph{medit} than
+with a text editor.
+
+
+\end{document}
