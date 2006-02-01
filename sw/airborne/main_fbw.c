@@ -78,7 +78,7 @@ static uint8_t ppm_cpt, last_ppm_cpt;
 /* Prepare data to be sent to mcu0 */
 static inline void to_autopilot_from_rc_values (void) {
   uint8_t i;
-  for(i = 0; i < RADIO_CTL_NB; i++)
+  for(i = 0; i < COMMANDS_NB; i++)
     from_fbw.channels[i] = rc_values[i];
   from_fbw.status = (radio_ok ? _BV(STATUS_RADIO_OK) : 0);
   from_fbw.status |= (radio_really_lost ? _BV(RADIO_REALLY_LOST) : 0);
@@ -114,10 +114,10 @@ static inline void radio_control_task(void) {
   time_since_last_ppm = 0;
   rc_values_from_ppm();
   if (rc_values_contains_avg_channels) {
-    mode = FBW_MODE_OF_PPRZ(rc_values[RADIO_MODE]);
+    mode = FBW_MODE_OF_PPRZ(rc_values[COMMAND_MODE]);
   }
-#if defined IMU_ANALOG && defined RADIO_SWITCH1
-  if (rc_values[RADIO_SWITCH1] > MAX_PPRZ/2) {
+#if defined IMU_ANALOG && defined COMMAND_SWITCH1
+  if (rc_values[COMMAND_SWITCH1] > MAX_PPRZ/2) {
     imu_capture_neutral();
     CounterLedOn();
   } else {
@@ -245,7 +245,7 @@ void periodic_task_fbw( void ) {
 #if defined IMU_3DMG || defined IMU_ANALOG
   control_run();
   if (radio_ok) {
-    if (rc_values[RADIO_THROTTLE] > 0.1*MAX_PPRZ) {
+    if (rc_values[COMMAND_THROTTLE] > 0.1*MAX_PPRZ) {
       command_set(control_commands);
     }
     else {

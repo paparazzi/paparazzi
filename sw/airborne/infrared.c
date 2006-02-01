@@ -34,6 +34,7 @@
 #include "estimator.h"
 #include "downlink.h"
 #include "sys_time.h"
+#include "airframe.h"
 
 int16_t ir_roll;
 int16_t ir_pitch;

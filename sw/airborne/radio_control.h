@@ -5,6 +5,7 @@
 #include "sys_time.h"
 #include "ppm.h"
 #include "radio.h"
+#include "airframe.h"
 #include "paparazzi.h"
 
 #define RC_AVG_PERIOD 8
@@ -15,9 +16,9 @@
 #define RC_LOST        1
 #define RC_REALLY_LOST 2
 
-extern pprz_t rc_values[RADIO_CTL_NB];
+extern pprz_t rc_values[COMMANDS_NB];
 extern uint8_t rc_status;
-extern pprz_t avg_rc_values[RADIO_CTL_NB];
+extern pprz_t avg_rc_values[COMMANDS_NB];
 extern uint8_t rc_values_contains_avg_channels;
 extern uint8_t time_sime_last_ppm;
 

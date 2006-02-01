@@ -105,11 +105,14 @@ value set_servos(value servos) {
   int i;
 
   /** Get values computed by the autopilot */
-  for(i = 0; i < RADIO_CTL_NB; i++)
-    values_from_ap[i] =  from_ap.channels[i] / CLOCK;
+  for(i = 0; i < RADIO_CTL_NB; i++) {
+    values_from_ap[i] =  US_OF_CLOCK(from_ap.channels[i]);
+    /***/printf("%d:%d\n", i, values_from_ap[i]);
+  }
+  
 
   uint16_t servo_widths[_4017_NB_CHANNELS];
-  CommandSet(values_from_ap);
+  CommandsSet(values_from_ap);
 
   for(i=0; i < _4017_NB_CHANNELS; i++)
     Store_field(servos, i, Val_int(servo_widths[i]));

@@ -72,30 +72,30 @@ void control_run ( void ) {
   roll_dot_last_err = err;
   //  roll_dot_sum_err += err;
   //  control_commands[RADIO_ROLL] = TRIM_PPRZ((err + d_err * roll_dot_dgain + roll_dot_sum_err * roll_dot_igain) * roll_dot_pgain);
-  control_commands[RADIO_ROLL] = TRIM_PPRZ(Int16((err +d_err * roll_dot_dgain) * roll_dot_pgain));
+  control_commands[COMMAND_ROLL] = TRIM_PPRZ(Int16((err +d_err * roll_dot_dgain) * roll_dot_pgain));
 
   err =  pitch_dot - desired_pitch_dot;
   d_err = err - pitch_dot_last_err;
   pitch_dot_last_err = err;
   //  pitch_dot_sum_err += err;
   //  control_commands[RADIO_PITCH] = TRIM_PPRZ((err + d_err * pitch_dot_dgain + pitch_dot_sum_err * pitch_dot_igain) * pitch_dot_pgain);
-  control_commands[RADIO_PITCH] =  TRIM_PPRZ(Int16((err + d_err * pitch_dot_dgain) * pitch_dot_pgain));
+  control_commands[COMMAND_PITCH] =  TRIM_PPRZ(Int16((err + d_err * pitch_dot_dgain) * pitch_dot_pgain));
 
   err = yaw_dot - desired_yaw_dot;
   //  d_err = err - yaw_dot_last_err;
   //  yaw_dot_last_err = err;
   //  yaw_dot_sum_err += err;
   //  control_commands[RADIO_YAW] = TRIM_PPRZ((err + d_err * yaw_dot_dgain + yaw_dot_sum_err * yaw_dot_igain) * yaw_dot_pgain);
-  control_commands[RADIO_YAW] =  TRIM_PPRZ(Int16(err * yaw_dot_pgain));
+  control_commands[COMMAND_YAW] =  TRIM_PPRZ(Int16(err * yaw_dot_pgain));
 
-  control_commands[RADIO_THROTTLE] = TRIM_PPRZ(desired_throttle);
+  control_commands[COMMAND_THROTTLE] = TRIM_PPRZ(desired_throttle);
 }
 
 void control_set_desired ( const pprz_t values[] ) {
-  desired_roll_dot  =  DESIRED_OF_RADIO_ROLL_DOT*values[RADIO_ROLL];
-  desired_pitch_dot =  DESIRED_OF_RADIO_PITCH_DOT*values[RADIO_PITCH];
-  desired_yaw_dot   =  DESIRED_OF_RADIO_YAW_DOT*values[RADIO_YAW];
-  desired_throttle  =  values[RADIO_THROTTLE];
+  desired_roll_dot  =  DESIRED_OF_RADIO_ROLL_DOT*values[COMMAND_ROLL];
+  desired_pitch_dot =  DESIRED_OF_RADIO_PITCH_DOT*values[COMMAND_PITCH];
+  desired_yaw_dot   =  DESIRED_OF_RADIO_YAW_DOT*values[COMMAND_YAW];
+  desired_throttle  =  values[COMMAND_THROTTLE];
 }
 
 #endif

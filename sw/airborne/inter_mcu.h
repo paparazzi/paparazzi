@@ -36,6 +36,7 @@
 
 #include "std.h"
 #include "radio.h"
+#include "paparazzi.h"
 #include "airframe.h"
 
 /*
@@ -43,11 +44,8 @@
  */
 #define CLOCK		16
 
-typedef int16_t pprz_t; // type of commands
-
 /* !!!!!!!!!!!!!!!!!!! Value used in gen_airframe.ml !!!!!!!!!!!!!!!!! */
-#define MAX_PPRZ (600 * CLOCK)
-#define MIN_PPRZ -MAX_PPRZ
+
 #define TRIM_PPRZ(pprz) (pprz <  MIN_PPRZ ? MIN_PPRZ :  \
                          (pprz >  MAX_PPRZ ? MAX_PPRZ : \
                                    pprz))
@@ -57,7 +55,7 @@ typedef int16_t pprz_t; // type of commands
 
 /** Data structure shared by fbw and ap sub-mofules */
 struct inter_mcu_msg {
-  pprz_t channels[RADIO_CTL_NB];  
+  pprz_t channels[COMMANDS_NB];  
   uint8_t ppm_cpt;
   uint8_t status;
   uint8_t nb_err;

@@ -6,6 +6,7 @@
     <define name="IR1" value="1"/>
     <define name="IR2" value="2"/>
   </section>
+
   <servos min="1000" neutral="1500" max="2000">
     <servo name="GAZ" no="9" min="1000" neutral="1000" max="2000"/>
     <servo name="AILERON_LEFT" no="2" min="1100" neutral="1492" max="2000"/>
@@ -13,14 +14,28 @@
     <servo name="ELEVATOR" no="7" min="1816" neutral="1586" max="1220"/>
     <servo name="RUDDER"   no="3" min="1270" neutral="1546" max="1850"/>
   </servos>
+
   <commands>
+    <axis name="THROTTLE" failsafe_value="0"/>
+    <axis name="ROLL"     failsafe_value="0"/>
+    <axis name="PITCH"    failsafe_value="0"/>
+    <axis name="YAW"    failsafe_value="0"/>
+    <axis name="MODE"    failsafe_value="0"/>
+    <axis name="GAIN1"    failsafe_value="0"/>
+    <axis name="GAIN2"    failsafe_value="0"/>
+    <axis name="SWITCH1"    failsafe_value="0"/>
+    <axis name="CALIB"    failsafe_value="0"/>
+  </commands>
+
+  <command_laws>
     <set servo="GAZ" value="2 * @THROTTLE"/>
     <set servo="ELEVATOR" value="@PITCH"/>
     <let var="roll" value="@ROLL"/>
     <set servo="AILERON_LEFT" value="($roll > 0 ? 1 : AILERON_DIFF) * $roll"/>
     <set servo="AILERON_RIGHT" value="($roll > 0 ? AILERON_DIFF : 1) * $roll"/>
     <set servo="RUDDER" value="@YAW + @ROLL*COMBI_SWITCH"/>
-  </commands>
+  </command_laws>
+
   <section name="MIXER">
     <define name="AILERON_DIFF" value="0.66"/>
     <define name="COMBI_SWITCH" value="1.0"/>

@@ -60,18 +60,18 @@ float target_x, target_y, target_alt;
 void cam_manual( void ) {
   if (pprz_mode == PPRZ_MODE_AUTO2) {
     static pprz_t cam_roll, cam_pitch;
-    int16_t yaw = from_fbw.channels[RADIO_YAW];
+    int16_t yaw = from_fbw.channels[COMMAND_YAW];
     if (yaw > MIN_PPRZ_CAM || yaw < -MIN_PPRZ_CAM) { 
       cam_roll += FLOAT_OF_PPRZ(yaw, 0, 300.);
       cam_roll = TRIM_PPRZ(cam_roll);
     }
-    int16_t pitch = from_fbw.channels[RADIO_PITCH];
+    int16_t pitch = from_fbw.channels[COMMAND_PITCH];
     if (pitch > MIN_PPRZ_CAM || pitch < -MIN_PPRZ_CAM) {
       cam_pitch += FLOAT_OF_PPRZ(pitch, 0, 300.);
       cam_pitch = TRIM_PPRZ(cam_pitch);
     }
-    from_ap.channels[RADIO_GAIN1] = cam_roll;
-    from_ap.channels[RADIO_CALIB] = cam_pitch;
+    from_ap.channels[COMMAND_GAIN1] = cam_roll;
+    from_ap.channels[COMMAND_CALIB] = cam_pitch;
   }
 }
 
@@ -102,13 +102,13 @@ void cam_target( void ) {
 #define MAX_DIST_TARGET 500.
 
 void cam_manual_target( void ) {
-  int16_t yaw = from_fbw.channels[RADIO_YAW];
+  int16_t yaw = from_fbw.channels[COMMAND_YAW];
   if (yaw > MIN_PPRZ_CAM || yaw < -MIN_PPRZ_CAM) {
     target_x += FLOAT_OF_PPRZ(yaw, 0, -20.);
     target_x = Min(target_x, MAX_DIST_TARGET + estimator_x);
     target_x = Max(target_x, -MAX_DIST_TARGET + estimator_x);
   }
-  int16_t pitch = from_fbw.channels[RADIO_PITCH];
+  int16_t pitch = from_fbw.channels[COMMAND_PITCH];
   if (pitch > MIN_PPRZ_CAM || pitch < -MIN_PPRZ_CAM) {
     target_y += FLOAT_OF_PPRZ(pitch, 0, -20.);
     target_y = Min(target_y, MAX_DIST_TARGET + estimator_y);
