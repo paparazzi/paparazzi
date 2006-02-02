@@ -107,7 +107,6 @@ value set_servos(value servos) {
   /** Get values computed by the autopilot */
   for(i = 0; i < RADIO_CTL_NB; i++) {
     values_from_ap[i] =  US_OF_CLOCK(from_ap.channels[i]);
-    /***/printf("%d:%d\n", i, values_from_ap[i]);
   }
   
 
