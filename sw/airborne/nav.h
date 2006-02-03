@@ -110,6 +110,6 @@ void nav_home(void);
 void nav_init(void);
 void nav_without_gps(void);
 
-
+extern void nav_goto_block(uint8_t block_id);
 
 #endif /* NAV_H */

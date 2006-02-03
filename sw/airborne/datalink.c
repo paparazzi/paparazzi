@@ -65,5 +65,7 @@ void dl_parse_msg(void) {
     }
   } else if (msg_id == DL_SETTING_ID) {
     DlSetting(DL_SETTING_index(dl_buffer), DL_SETTING_value(dl_buffer));
+  } else if (msg_id == DL_BLOCK_ID) {
+    nav_goto_block(DL_BLOCK_block_id(dl_buffer));
   }
 }

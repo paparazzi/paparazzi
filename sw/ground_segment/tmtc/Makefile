@@ -64,6 +64,9 @@ server : aircraft.cmo wind.cmo airprox.cmo server.cmo
 wavecard : wavecard_connect.cmo
 	$(OCAMLC) -custom $(INCLUDES) -o $@ lablgtk.cma glibivy-ocaml.cma lib-pprz.cma $^
 
+dl_setting : dl_setting.cmo
+	$(OCAMLC) -custom $(INCLUDES) -o $@ lablgtk.cma glibivy-ocaml.cma lib-pprz.cma gtkInit.cmo $^
+
 modem.cmo : modem.cmi
 
 %.cmo : %.ml

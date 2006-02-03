@@ -1,4 +1,6 @@
 /*
+ * $Id$
+ *
  * Paparazzi mcu0 cmx469 modem functions
  *  
  * Copyright (C) 2003 Pascal Brisset, Antoine Drouin
@@ -27,7 +29,7 @@
 
 #include "inttypes.h"
 
-//void modem_init( void );
+void modem_init( void );
 extern uint8_t modem_nb_ovrn;
 
 #ifdef MODEM

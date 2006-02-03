@@ -39,6 +39,7 @@
 #include "wavecard.h"
 #include "downlink.h"
 #include "led.h"
+#include "inter_mcu.h"
 
 #ifdef MCU_SPI_LINK /** ap alone, using SPI to communicate with fbw */
 #include "spi_ap.h"

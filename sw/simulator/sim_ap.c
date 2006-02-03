@@ -137,6 +137,11 @@ value move_waypoint(value wp_id, value ux, value uy, value a) {
   return Val_unit;
 }
 
+value goto_block(value block_id) {
+  nav_goto_block(Int_val(block_id));
+  return Val_unit;
+}
+
 value send_event(value event_id) {
   uint8_t event = Int_val(event_id);
   switch (event) {

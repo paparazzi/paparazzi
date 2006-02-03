@@ -1,0 +1,1 @@
+#define SERVOS_TICS_OF_USEC(_us) SYS_TICS_OF_USEC(_us)

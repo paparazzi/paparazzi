@@ -449,7 +449,7 @@
 
  <message name="JUMP_TO_BLOCK" ID="27">
   <field name="ac_id" type="string"/>
-  <field name="block_name" type="string"/>
+  <field name="block_id" type="uint8"/>
  </message>
 
 </class>
@@ -494,6 +494,9 @@
   <field name="value" type="float"/>
  </message>
 
+ <message name="BLOCK" ID="5">
+  <field name="block_id" type="uint8"/>
+ </message>
 
 </class>
 

@@ -172,6 +172,10 @@ static float qdr;
   fly_to_xy(ac->east - _distance*cos(alpha), ac->north - _distance*sin(alpha)); \
 }
 
+void nav_goto_block(uint8_t b) {
+  GotoBlock(b);
+}
+
 #include "flight_plan.h"
 
 
