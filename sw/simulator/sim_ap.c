@@ -32,7 +32,7 @@ struct inter_mcu_msg from_fbw, from_ap;
 
 static int16_t values_from_ap[RADIO_CTL_NB];
 
-void inflight_calib(void) { }
+uint16_t ppm_pulses[ PPM_NB_PULSES ]; /** From ppm_hw.c */
 
 value sim_periodic_task(value _unit) {
   periodic_task();
@@ -55,6 +55,12 @@ value set_really_lost(value on) {
 }
 
 value sim_rc_task(value _unit) {
+  NormalizePpm(); /** -> rc_values */
+  /***  printf("update: %d : %f (%d)\n", Int_val(c), Double_val(v), rc_values[COMMAND_GAIN1]); ***/
+  int i;
+  for(i = 0; i < COMMANDS_NB; i++)
+    from_fbw.channels[i] = rc_values[i];
+
   from_fbw.status = (radio_status << STATUS_RADIO_OK) | (radio_really_lost << RADIO_REALLY_LOST) | (1 << AVERAGED_CHANNELS_SENT);
   link_fbw_receive_valid = TRUE;
   telecommand_task();
@@ -83,7 +89,7 @@ value update_bat(value bat) {
 }
 
 value update_rc_channel(value c, value v) {
-  from_fbw.channels[Int_val(c)] = Double_val(v)*MAX_PPRZ;
+  ppm_pulses[Int_val(c)] = Double_val(v);
   return Val_unit;
 }
 
@@ -107,6 +113,7 @@ value set_servos(value servos) {
   /** Get values computed by the autopilot */
   for(i = 0; i < RADIO_CTL_NB; i++) {
     values_from_ap[i] =  US_OF_CLOCK(from_ap.channels[i]);
+    /***printf("%d:%d\n", i, values_from_ap[i]); ***/
   }
   
 

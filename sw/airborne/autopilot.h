@@ -38,7 +38,7 @@
 #define TRESHOLD_MANUAL_PPRZ (MIN_PPRZ / 2)
 
 #define TRESHOLD1 TRESHOLD_MANUAL_PPRZ
-#define TRESHOLD2 SYS_TICS_OF_USEC(200)
+#define TRESHOLD2 (MAX_PPRZ/2)
 
 
 #define  PPRZ_MODE_MANUAL 0
@@ -49,7 +49,7 @@
 #define  PPRZ_MODE_NB 5
 
 #define PPRZ_MODE_OF_PULSE(pprz, mega8_status) \
-  ((uint16_t)pprz > TRESHOLD2 ? PPRZ_MODE_AUTO2 : \
+  (pprz > TRESHOLD2 ? PPRZ_MODE_AUTO2 : \
         (pprz > TRESHOLD1 ? PPRZ_MODE_AUTO1 : PPRZ_MODE_MANUAL))
 
 extern uint8_t pprz_mode;

@@ -85,15 +85,21 @@ module Make(A:Data.MISSION) = struct
     let vbox = GPack.vbox ~height:10 ~spacing: 1 ~border_width: 1 ~packing:window#add () in
     let on_off = GButton.check_button ~label:"On" ~active:true ~packing:vbox#pack () in
     let sliders = GPack.vbox ~packing:vbox#add () in
+    let float_attrib = fun a x -> float_of_string (ExtXml.attrib x a) in
     Array.iteri
       (fun i c ->
-	let adj = GData.adjustment ~value:0. ~lower:(-100.) ~upper:110. ~step_incr:1.0 () in
+	let mi = float_attrib "min" c
+	and ma = float_attrib "max" c
+	and value = float_attrib "neutral" c in
+	let lower = min mi ma
+	and upper = max mi ma in
+	let adj = GData.adjustment ~value ~lower ~upper ~step_incr:1.0 () in
 	let hbox = GPack.hbox ~packing:sliders#add () in
 	let f = (ExtXml.attrib c "function") in
 	let l = GMisc.label ~width:75 ~text:f ~packing:hbox#pack () in
-	let inv = List.mem f inverted in
+	let inv = not ((List.mem f inverted) == (ma < mi)) in
 	let _scale = GRange.scale `HORIZONTAL ~inverted:inv ~adjustment:adj ~packing:hbox#add () in
-	let update = fun () -> update_channel i (adj#value /. 100.) in
+	let update = fun () -> update_channel i adj#value in
 	
 	ignore (adj#connect#value_changed update);
 	update ())

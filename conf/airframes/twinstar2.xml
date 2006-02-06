@@ -18,8 +18,6 @@
     <axis name="YAW"    failsafe_value="0"/>
     <axis name="MODE"    failsafe_value="0"/>
     <axis name="GAIN1"    failsafe_value="0"/>
-    <axis name="GAIN2"    failsafe_value="0"/>
-    <axis name="SWITCH1"    failsafe_value="0"/>
     <axis name="CALIB"    failsafe_value="0"/>
   </commands>
 
