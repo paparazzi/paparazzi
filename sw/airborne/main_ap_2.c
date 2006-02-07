@@ -23,6 +23,9 @@ void init_ap( void ) {
   gps_init();
   gps_configure();
 #endif
+#ifdef ADC
+
+#endif ADC
   /* if AP is running in a separate MCU */
 #ifndef FBW
  int_enable();

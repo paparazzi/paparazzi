@@ -84,6 +84,8 @@ ap.CFLAGS += -DACTUATORS=\"servos_direct_hw.h\"
 ap.EXTRA_SRCS += $(SRC_ARCH)/servos_direct_hw.c 
 ap.CFLAGS += -DCONTROL -DAUTOPILOT
 ap.EXTRA_SRCS += $(ACINCLUDE)/ap/control.c autopilot_fbw.c
+ap.CFLAGS += -DADC
+ap.EXTRA_SRCS += $(SRC_ARCH)/adc_hw.c
 ap.CFLAGS += -DTRACES -DWAVECARD_ON_GPS
 ap.EXTRA_SRCS += $(SRC_ARCH)/traces.c $(SRC_ARCH)/uart_ap.c
 #ap.CFLAGS += -DDATALINK

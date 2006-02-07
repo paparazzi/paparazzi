@@ -14,14 +14,14 @@ if (defined $ENV{PAPARAZZI_SRC}) {
   $paparazzi_home =  $ENV{PAPARAZZI_SRC};
 }
 $paparazzi_home = $ENV{PAPARAZZI_HOME} if (defined $ENV{PAPARAZZI_HOME});
-print "\nEnvironment : ";
-if (defined $paparazzi_src) {
-  print "source directory mode\n  paparazzi_src  $paparazzi_src\n";
-}
-else {
-  print "system mode\n  inst_prefix     INST_PREFIX";
-}
-print "  paparazzi_home $paparazzi_home\n\n";
+#print "\nEnvironment : ";
+#if (defined $paparazzi_src) {
+#  print "source directory mode\n  paparazzi_src  $paparazzi_src\n";
+#}
+#else {
+#  print "system mode\n  inst_prefix     INST_PREFIX";
+#}
+#print "  paparazzi_home $paparazzi_home\n\n";
 
 sub parse_command_line {
   my ($options) = @_;
@@ -66,7 +66,7 @@ sub read_config {
   my $aircrafts = $conf->getElementsByTagName("aircraft");;
   foreach my $aircraft (@{$aircrafts}){
     my $name = $aircraft->getAttribute('name');
-    print ("name $name\n");
+#    print ("name $name\n");
   }
 }
 
@@ -95,7 +95,7 @@ sub get_default_map {
   my $map_conf = $doc->getElementsByTagName("map")->[0];
   my $calib_file = $map_conf->getAttribute('location');
   $calib_file = get_data($calib_file);
-  print "in Paparazzi::Environment::get_default_map $calib_file\n";
+#  print "in Paparazzi::Environment::get_default_map $calib_file\n";
   return $calib_file;
 }
 
