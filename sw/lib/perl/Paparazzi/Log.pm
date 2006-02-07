@@ -5,7 +5,7 @@ use strict;
 use XML::Parser;
 use XML::DOM;
 
-my $PAPARAZZI_HOME = "/home/poine/work/paparazzi_savannah/paparazzi3";
+my $PAPARAZZI_HOME = "/home/drouin/work/paparazzi/savannah/paparazzi3";
 
 sub get_available {
   my $log_dir = $PAPARAZZI_HOME."/var/logs";
@@ -28,6 +28,7 @@ sub read_infos {
   my $conf = $doc->getElementsByTagName('conf');
   my $aircrafts = parse_configuration($conf->[0]);
   my $protocol = $doc->getElementsByTagName('protocol');
+  my $prt = parse_protocol($protocol);
   return { date => $timeofday, data_file => $data_file , aircrafts => $aircrafts };
 }
 
@@ -46,6 +47,10 @@ sub read_data {
   return {nb_messages => $#data, duration => $duration, raw_data => \@data};
 }
 
+sub parse_protocol {
+
+
+}
 
 sub parse_configuration {
   my ($conf) = @_;

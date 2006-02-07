@@ -6,7 +6,7 @@ my $paparazzi_lib;
 BEGIN {
 #  $paparazzi_lib = (defined $ENV{PAPARAZZI_SRC}) ?
 #    $ENV{PAPARAZZI_SRC}."/sw/lib/perl" : "/usr/lib/paparazzi/";
-  $paparazzi_lib = "/home/poine/work/paparazzi_savannah/paparazzi3/sw/lib/perl";
+  $paparazzi_lib = "/home/drouin/work/paparazzi/savannah/paparazzi3/sw/lib/perl";
 }
 use lib ($paparazzi_lib);
 
@@ -16,7 +16,7 @@ use warnings;
 #use Paparazzi::Environment;
 use Paparazzi::Log;
 
-my $PAPARAZZI_HOME = "/home/poine/work/paparazzi_savannah/paparazzi3";
+my $PAPARAZZI_HOME = "/home/drouin/work/paparazzi/savannah/paparazzi3";
 
 my $query = new CGI::Form;
 print $query->header;
@@ -39,7 +39,7 @@ my $log_data = undef;
 
 sub print_prompt { 
   my($query) = @_; 
-  print "<H1> Paparazzi plotter</H1>\n";
+  print "<H1> Paparazzi plotter.</H1>\n";
   print $query->startform;
   print "<TABLE>\n";
   print "  <TR>\n";
@@ -65,6 +65,14 @@ sub print_prompt {
   print $query->submit('Action','Update');
   print "    </TD>\n";
   print "  </TR>\n";
+  print "  <TR>\n";
+  print "    <TD>\n";
+  print $query->textfield('start_time','0',10,20);
+  print "    </TD>\n";
+  print "    <TD>\n";
+  print $query->textfield('end_time',"$log_data->{duration}",10,20);
+  print "    </TD>\n";
+  print "  </TR>\n";
   print "</TABLE>\n";
   print $query->endform;
   print "<HR>\n";
@@ -75,12 +83,12 @@ use POSIX qw(strftime);
 sub print_log_info {
   if (defined $log_info) {
     my $now_string = POSIX::strftime "%a %b %e %H:%M:%S %Y", localtime($log_info->{date});
-    print "date :".$now_string."\n<br>";
+    print "date : ".$now_string."\n<br>";
     my $url = gen_activity_plot($log_info->{data_file});
     my $nb_messages = $log_data->{nb_messages};
-    print "nb message :".$nb_messages."\n<br>";
+    print "nb message : ".$nb_messages."\n<br>";
     my $duration = $log_data->{duration};
-    print "duration :".$duration."s\n<br>";
+    print "duration : ".$duration."s\n<br>";
     print"<img src=\"$url\">\n";
 #    print "data_file ".$log_info->{data_file}."\n<br>";
   }
@@ -107,14 +115,14 @@ sub gen_activity_plot {
     $time+=$step;
   }
   close OUTFILE;
-
-  my $plot_cmd = "plot \"$data_filename\" using 1:11 w p t \"alalalala\"";
-#  for (my $i=2; $i < $#{@$active_aircrafts}+1; $i++) {
-  for (my $i=2; $i < 3; $i++) {
-    $plot_cmd =  $plot_cmd."; replot \"$data_filename\" using 1:$i w p t \"ouou\"";
+  my $ac = $log_info->{aircrafts}->[0];
+  my $plot_cmd = "plot \"$data_filename\" using 1:2 w p t \"$ac\"";
+  for (my $i=3; $i < $#{@$active_aircrafts}+3; $i++) {
+    $ac = $log_info->{aircrafts}->[$i-2];
+    $plot_cmd =  $plot_cmd.", \"$data_filename\" using 1:$i w p t \"$ac\"";
   }
-  print "$plot_cmd\n<br>";
-  my $url = gen_plot("png size 640,480", "bar.png", $plot_cmd);
+
+  my $url = gen_plot("png size 800,240", "bar.png", $plot_cmd);
   return $url;
 }
 
@@ -135,7 +143,6 @@ sub get_active_aircrafts {
   return ($idx, \@a_ac);
 }
 
-
 sub gen_plot {
   my ($terminal, $filename, $plot_cmd ) = @_;
 
@@ -147,14 +154,13 @@ sub gen_plot {
   $Expect::Debug = 10;  
   my $pid = $exp->spawn("/usr/bin/gnuplot", ("-geometry", "1x1+0+0")) or printf "Don't find gnuplot";
   $pid->log_stdout(0);
-  print("Printing $print_cmd <br>\n");
+#  print("Printing $print_cmd <br>\n");
   $exp->send($print_cmd."\n");
-  my $timeout = 5;
+  my $timeout = 1;
   my $foo = $exp->expect($timeout);
-  print "foo $foo<br>\n";
   $exp->hard_close();
 
-  return "http://ornette:8889/var/plot/".$filename;
+  return "http://barak:8889/var/plot/".$filename;
 }
 
 
@@ -170,19 +176,17 @@ sub process_query {
 
     @aircrafts = @{$log_info->{aircrafts}};
   }
+
 #  my(@values,$key);
 #  foreach $key ($query->param) {
 #    print "<STRONG>$key</STRONG> -> ";
 #    @values = $query->param($key);
 #    print join(", ",@values),"<BR>\n";
 #  }
+
 #  print "leaving process_query\n";
 }
 
-
-
-
- 
 sub print_tail {
  print "<HR>\n";
  print "<ADDRESS>Poine.</ADDRESS><BR>\n";
