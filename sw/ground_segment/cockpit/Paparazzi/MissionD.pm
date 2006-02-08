@@ -124,7 +124,9 @@ sub load_flight_plan {
 
   foreach my $block ($doc->getElementsByTagName('block')){
     my $block_name = $block->getAttribute('name');
-    push @items_blocks, [Button => $block_name, -command => [\&on_jump_to_block, $ac_id, $block_name]];
+    my $block_id = $blocks->{$block_name};
+    ($block_id) = ($block_id =~ /([^_]*)$/);
+    push @items_blocks, [Button => $block_name, -command => [\&on_jump_to_block, $ac_id, $block_id]];
     foreach my $line (split (/(\n)/, $block->toString())) {
       my $key = $line;
       $key =~ s/^\s*//; # remove any leading whitespace
@@ -151,9 +153,9 @@ sub load_flight_plan {
 
 
 sub on_jump_to_block {
-  my ($ac_id, $block_name) = @_;
-  trace(TRACE_DEBUG, "MissionD::on_jump_to_block $ac_id $block_name");
-  Paparazzi::IvyProtocol::send_msg('ground', 'JUMP_TO_BLOCK', { ac_id => $ac_id, block_name => $block_name });
+  my ($ac_id, $block_id) = @_;
+  trace(TRACE_DEBUG, "MissionD::on_jump_to_block $ac_id $block_id");
+  Paparazzi::IvyProtocol::send_msg('ground', 'JUMP_TO_BLOCK', { ac_id => $ac_id, block_id => $block_id });
 }
 
 
