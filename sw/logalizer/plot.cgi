@@ -6,7 +6,7 @@ my $paparazzi_lib;
 BEGIN {
 #  $paparazzi_lib = (defined $ENV{PAPARAZZI_SRC}) ?
 #    $ENV{PAPARAZZI_SRC}."/sw/lib/perl" : "/usr/lib/paparazzi/";
-  $paparazzi_lib = "/home/drouin/work/paparazzi/savannah/paparazzi3/sw/lib/perl";
+  $paparazzi_lib = "/home/poine/work/paparazzi_savannah/paparazzi3/sw/lib/perl";
 }
 use lib ($paparazzi_lib);
 
@@ -16,7 +16,9 @@ use warnings;
 #use Paparazzi::Environment;
 use Paparazzi::Log;
 
-my $PAPARAZZI_HOME = "/home/drouin/work/paparazzi/savannah/paparazzi3";
+
+my $PAPARAZZI_HOME = "/home/poine/work/paparazzi_savannah/paparazzi3";
+#"/home/drouin/work/paparazzi/savannah/paparazzi3";
 
 my $query = new CGI::Form;
 print $query->header;
@@ -159,6 +161,10 @@ sub gen_plot {
   my $timeout = 1;
   my $foo = $exp->expect($timeout);
   $exp->hard_close();
+
+  my $url = url(-full=>1);
+
+  print "URL $url\n<br>";
 
   return "http://barak:8889/var/plot/".$filename;
 }

@@ -23,6 +23,14 @@ $paparazzi_home = $ENV{PAPARAZZI_HOME} if (defined $ENV{PAPARAZZI_HOME});
 #}
 #print "  paparazzi_home $paparazzi_home\n\n";
 
+
+sub set_env {
+  my ($pps, $pph) = @_;
+  $paparazzi_src = $pps;
+  $paparazzi_home = $pph;
+}
+
+
 sub parse_command_line {
   my ($options) = @_;
   my $getopt_h = {"b=s" => \$options->{ivy_bus}};

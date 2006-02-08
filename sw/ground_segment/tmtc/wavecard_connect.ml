@@ -61,7 +61,8 @@ let broadcast_msg = fun ac (com, data) ->
 
 let rssi_period = 5000 (** ms *)
 let req_rssi = fun ac ->
-  Wavecard.send_addressed ac.fd (W.REQ_READ_REMOTE_RSSI, ac.addr,"")
+(*  Wavecard.send_addressed ac.fd (W.REQ_READ_REMOTE_RSSI, ac.addr,"") *)
+  Wavecard.send ac.fd (W.REQ_READ_LOCAL_RSSI,"")
 
 
 
