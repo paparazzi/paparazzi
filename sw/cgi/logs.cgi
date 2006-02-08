@@ -2,29 +2,28 @@
 
 # displays available logs
 
-use CGI::Form;
-
-my $paparazzi_lib;
-BEGIN {
-#  $paparazzi_lib = (defined $ENV{PAPARAZZI_SRC}) ?
-#    $ENV{PAPARAZZI_SRC}."/sw/lib/perl" : "/usr/lib/paparazzi/";
-  $paparazzi_lib = "/home/poine/work/paparazzi_savannah/paparazzi3/sw/lib/perl";
-}
-use lib ($paparazzi_lib);
-
 use strict;
 use warnings;
 
+use Cwd;
+use CGI ":standard";
+my $paparazzi_src;
+my $paparazzi_lib;
+BEGIN {
+  $paparazzi_src = getcwd()."/../..";
+  $paparazzi_lib = $paparazzi_src."/sw/lib/perl";
+}
+use lib ($paparazzi_lib);
+my $paparazzi_home = $paparazzi_src;
+
 use Paparazzi::Environment;
-Paparazzi::Environment::set_env("/home/poine/work/paparazzi_savannah/paparazzi3",
-			       "/home/poine/work/paparazzi_savannah/paparazzi3");
+Paparazzi::Environment::set_env($paparazzi_src, $paparazzi_home);
+
 use Paparazzi::Log;
 
-my $query = new CGI::Form();
+my $query = new CGI();
 print $query->header();
 print $query->start_html("Paparazzi Logs");
-
-#my $configuration = Paparazzi::Configuration::read_current();
 
 my @logs = Paparazzi::Log::get_available();
 
@@ -43,9 +42,10 @@ print $query->popup_menu('file', \@logs, $logs[0]);
 print $query->submit('Action','Update');
 print $query->endform();
 if (defined $log_info) {
+  print $query->path_info()."<br>";
   Paparazzi::Log::html_print_summary($log_info, $log_data);
-  my $url = Paparazzi::Log::gen_activity_plot($log_info, $log_data);
-  print"<img src=\"$url\">\n"; 
+#  my $url = Paparazzi::Log::gen_activity_plot($log_info, $log_data);
+#  print"<img src=\"$url\">\n"; 
 }
 print "<HR>\n";
 print "<a href=\"../index.html\">home</a><BR>\n";
