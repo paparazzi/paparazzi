@@ -43,14 +43,20 @@ let etx = Char.chr 0x03
 let wc_received_frame =  Char.chr 0x30
 
 let maxstream_send = fun fd data ->
-  let l = String.length data + 4 in
+  let l = String.length data + 4 + 6 in
   let buf = String.create (l+3) in
   buf.[0] <- sync;
   buf.[1] <- stx;
   buf.[2] <- Char.chr l;
   buf.[3] <- wc_received_frame;
-  for i = 4 to l - 1 do
-    buf.[i] <- data.[i-4]
+  buf.[4] <- Char.chr 0;
+  buf.[5] <- Char.chr 0;
+  buf.[6] <- Char.chr 0;
+  buf.[7] <- Char.chr 0;
+  buf.[8] <- Char.chr 0;
+  buf.[9] <- Char.chr 0;
+ for i = 10 to l - 1 do
+    buf.[i] <- data.[i-10]
   done;
   let crc = Wavecard.compute_checksum buf in
   buf.[l] <- Char.chr (crc land 0xff);
