@@ -29,7 +29,6 @@
 
 #include "inttypes.h"
 
-void modem_init( void );
 extern uint8_t modem_nb_ovrn;
 
 #ifdef MODEM

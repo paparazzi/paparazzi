@@ -12,7 +12,20 @@
     <servo name="CAM_ROLL" no="8" max="1816" neutral="1530" min="1220"/>
     <servo name="CAM_PITCH" no="4" max="1270" neutral="1450" min="1850"/>
   </servos>
-  <command>
+
+  <commands>
+    <axis name="THROTTLE" failsafe_value="0"/>
+    <axis name="ROLL"     failsafe_value="0"/>
+    <axis name="PITCH"    failsafe_value="0"/>
+    <axis name="YAW"    failsafe_value="0"/>
+    <axis name="MODE"    failsafe_value="0"/>
+    <axis name="GAIN1"    failsafe_value="0"/>
+    <axis name="GAIN2"    failsafe_value="0"/>
+    <axis name="SWITCH1"    failsafe_value="0"/>
+    <axis name="CALIB"    failsafe_value="0"/>
+  </commands>
+
+  <command_laws>
     <set servo="GAZ" value="2 * @THROTTLE"/>
     <set servo="ELEVATOR" value="@PITCH"/>
     <let var="roll" value="@ROLL"/>
@@ -21,7 +34,8 @@
     <set servo="RUDDER" value="@YAW + @ROLL*COMBI_SWITCH"/>
     <set servo="CAM_ROLL" value="@GAIN1"/>
     <set servo="CAM_PITCH" value="@CALIB"/>
-  </command>
+  </command_laws>
+
   <section name="MIXER">
     <define name="AILERON_DIFF" value="0.66"/>
     <define name="COMBI_SWITCH" value="1.0"/>

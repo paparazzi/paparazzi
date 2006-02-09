@@ -24,11 +24,11 @@ include ../../../conf/Makefile.local
 CONF = ../../../conf
 VAR = ../../../var
 
-all: hw_modem_listen server messages wavecard $(VAR)/boa.conf
+all: hw_modem_listen server messages wavecard $(VAR)/boa.conf maxstream
 # stereo_demod
 
 clean:
-	rm -f hw_modem_listen wavecard server messages *.bak *~ core *.o .depend *.opt *.out *.cm*
+	rm -f hw_modem_listen wavecard maxstream server messages *.bak *~ core *.o .depend *.opt *.out *.cm*
 
 OCAMLC = ocamlc
 OCAMLOPT = ocamlopt
@@ -62,6 +62,9 @@ server : aircraft.cmo wind.cmo airprox.cmo server.cmo
 	$(OCAMLC) -custom $(INCLUDES) -o $@ lablgtk.cma glibivy-ocaml.cma lib-pprz.cma $^
 
 wavecard : wavecard_connect.cmo
+	$(OCAMLC) -custom $(INCLUDES) -o $@ lablgtk.cma glibivy-ocaml.cma lib-pprz.cma $^
+
+maxstream : maxstream.cmo
 	$(OCAMLC) -custom $(INCLUDES) -o $@ lablgtk.cma glibivy-ocaml.cma lib-pprz.cma $^
 
 dl_setting : dl_setting.cmo

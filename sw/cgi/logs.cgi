@@ -44,8 +44,8 @@ print $query->endform();
 if (defined $log_info) {
   print $query->path_info()."<br>";
   Paparazzi::Log::html_print_summary($log_info, $log_data);
-#  my $url = Paparazzi::Log::gen_activity_plot($log_info, $log_data);
-#  print"<img src=\"$url\">\n"; 
+  my $url = Paparazzi::Log::gen_activity_plot($log_info, $log_data);
+  print"<img src=\"$url\">\n"; 
 }
 print "<HR>\n";
 print "<a href=\"../index.html\">home</a><BR>\n";

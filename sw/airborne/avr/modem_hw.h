@@ -32,6 +32,7 @@
 #define MODEM_HW_H
 
 #include <avr/io.h>
+#include "std.h"
 
 #define MODEM_CHECK_RUNNING() { \
   if (!(EIMSK & _BV(MODEM_CLK_INT))) { \
@@ -73,6 +74,23 @@
 #define MODEM_OSC_PORT  PORTB
 #define MODEM_OSC       4
 #endif /* CTL_BRD_V1_2_1 */
+
+static inline void modem_init ( void ) {
+  /* setup TIMER0 to generate a 4MHz clock */
+  MODEM_OSC_DDR |= _BV(MODEM_OSC);
+  OCR0 = 1; /* 4MhZ */
+  TCCR0 = _BV(WGM01) | _BV(COM00) | _BV(CS00);
+
+  /* setup TX_EN and TX_DATA pin as output */
+  MODEM_TX_DDR |= _BV(MODEM_TX_EN) | _BV(MODEM_TX_DATA);
+  /* data idles hight */
+  sbi(MODEM_TX_PORT, MODEM_TX_DATA);
+  /* enable transmitter */
+  cbi(MODEM_TX_PORT, MODEM_TX_EN);
+  /* set interrupt on failing edge of clock */
+  MODEM_CLK_INT_REG |=  MODEM_CLK_INT_CFG;
+}
+
 
 
 #endif

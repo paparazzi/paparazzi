@@ -54,8 +54,8 @@ sub on_res_received {
 }
 
 sub send_msg {
-  my ($msg_class, $msg_name, $fields) = @_;
-  my $msg = print_msg("", $msg_class, $msg_name, $fields, 0);
+  my ($msg_class, $msg_name, $fields, $sender) = @_;
+  my $msg = print_msg(defined $sender ? $sender : "", $msg_class, $msg_name, $fields, 0);
   $ivy->sendMsgs($msg);
 }
 

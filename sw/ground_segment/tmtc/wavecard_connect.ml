@@ -53,9 +53,13 @@ let broadcast_msg = fun ac (com, data) ->
     W.RECEIVED_FRAME ->
       Ivy.send (sprintf "FROM_WAVECARD %s" data)
   | W.RES_READ_REMOTE_RSSI ->
-      Tm_Pprz.message_send (string_of_int ac.id) "WC_RSSI" ["raw_level", Pprz.Int (Char.code data.[0])]
+      Tm_Pprz.message_send (string_of_int ac.id) "WC_RSSI" ["raw_level", Pprz.Int (Char.code data.[0])];
+      Debug.call 'w' (fun f -> fprintf f "wv remote RSSI %d\n" (Char.code data.[0]))
+  | W.RES_READ_RADIO_PARAM ->
+      Ivy.send (sprintf "WC_ADDR %s" data);
+      Debug.call 'w' (fun f -> fprintf f "wv local addr : " ; for i = 0 to String.length data - 1 do fprintf f "%x " (Char.code data.[i]) done; fprintf f "\n")
   | _ -> 
-      Debug.call 'w' (fun f -> fprintf f "wv receiving: %x " (W.code_of_cmd com); for i = 0 to String.length data - 1 do fprintf f "%x " (Char.code data.[i]) done; fprintf f "\n");
+      Debug.call 'w' (fun f -> fprintf f "wv receiving: %02x " (W.code_of_cmd com); for i = 0 to String.length data - 1 do fprintf f "%x " (Char.code data.[i]) done; fprintf f "\n");
       Ivy.send (sprintf "RAW_FROM_WAVECARD %2x %s" (W.code_of_cmd com) data)
 
 
@@ -171,6 +175,9 @@ let _ =
 
 
     ignore (GMain.Timeout.add rssi_period (fun _ -> req_rssi ac; true));
+    (* request own address *)
+    let s = String.make 1 (char_of_int 5) in
+    Wavecard.send ac.fd (W.REQ_READ_RADIO_PARAM, s);
 
     (* Main Loop *)
     let loop = Glib.Main.create true in

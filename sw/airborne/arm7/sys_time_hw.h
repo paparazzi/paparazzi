@@ -33,6 +33,7 @@
 #include "std.h"
 #include "LPC21xx.h"
 #include CONFIG
+#include "led.h"
 
 static uint32_t last_periodic_event;
 
@@ -71,6 +72,9 @@ static inline bool_t sys_time_periodic( void ) {
   uint32_t now = T0TC;
   if (now - last_periodic_event >= PERIODIC_TASK_PERIOD) {
     last_periodic_event += PERIODIC_TASK_PERIOD;
+#ifdef TIME_LED
+    LED_TOGGLE(TIME_LED)
+#endif
     return TRUE;
   }
   return FALSE;

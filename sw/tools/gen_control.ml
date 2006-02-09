@@ -197,7 +197,11 @@ let _ =
 	H ->
 	  let xml = start_and_begin xml_file h_name in
 	  printf "#include \"std.h\"\n";
+	  printf "#ifdef ESTIMATOR\n";
 	  printf "#include ESTIMATOR\n";
+	  printf "#else\n";
+	  printf "#warning \"-DCONTROL requires an ESTIMATOR\"\n";
+	  printf "#endif\n";
 	  printf "#include \"airframe.h\"\n";
 	  printf "#include \"radio_control.h\"\n";
 	  printf "#include \"paparazzi.h\"\n";

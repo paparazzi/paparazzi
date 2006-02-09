@@ -73,3 +73,5 @@ val code_of_cmd : cmd_name -> int
 type addr
 val addr_of_string : string -> addr
 val send_addressed : Unix.file_descr -> (cmd_name*addr*data) -> unit
+
+val compute_checksum : string -> int
