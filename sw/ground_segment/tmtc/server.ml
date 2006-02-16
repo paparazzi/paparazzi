@@ -500,6 +500,9 @@ let ident_msg = fun log id name ->
     Ground_Pprz.message_send my_id "NEW_AIRCRAFT" ["ac_id", Pprz.String id]
   end
 
+let new_color = fun () ->
+  sprintf "#%02x%02x%02x" (Random.int 256) (Random.int 256) (Random.int 256)
+
 (* Waits for new aircrafts *)
 let listen_acs = fun log ->
   ignore (Ivy.bind (fun _ args -> ident_msg log args.(0) args.(1)) "^(.*) IDENT +(.*)")
@@ -520,10 +523,15 @@ let send_config = fun http _asker args ->
 	let fp = prefix ("var" // ac_name // "flight_plan.xml")
 	and af = prefix ("conf" // ExtXml.attrib conf "airframe")
 	and rc = prefix ("conf" // ExtXml.attrib conf "radio") in
+	let col = try Xml.attrib conf "gui_color" with _ -> new_color () in
+	let ac_name = try Xml.attrib conf "name" with _ -> "" in
 	["ac_id", Pprz.String ac_id;
 	 "flight_plan", Pprz.String fp;
 	 "airframe", Pprz.String af;
-	 "radio", Pprz.String rc]
+	 "radio", Pprz.String rc;
+	 "default_gui_color", Pprz.String col;
+	 "ac_name", Pprz.String ac_name
+       ]
       with
 	Not_found ->
 	  failwith (sprintf "ground UNKNOWN %s" ac_id)     
@@ -555,7 +563,7 @@ let _ =
 
   Srtm.add_path srtm_path;
 
-  Ivy.init "Paparazzi receive" "READY" (fun _ _ -> ());
+  Ivy.init "Paparazzi server" "READY" (fun _ _ -> ());
   Ivy.start !ivy_bus;
 
   if !logging then

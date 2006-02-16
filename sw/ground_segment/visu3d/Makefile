@@ -24,10 +24,7 @@ clean:
 
 # Executables
 mapGL: mapGL.ml
-	$(OCAMLC) $(MLFLAGS) $(STDLIBS) gtkInit.cmo $(ADD_LIBS) -o $@ $< $(CLIBS) # To check
-	cat ../../../pprz_src_test.sh > $@
-	echo 'ocaml -I +lablgtk2 -I +lablGL -I +camlimages -I $$PAPARAZZI_SRC/sw/lib/ocaml $(STDLIBS) gtkInit.cmo $(ADD_LIBS) $$PAPARAZZI_SRC/sw/ground_segment/visu3d/$< $$*' >> $@
-	chmod a+x $@
+	$(OCAMLC) -custom $(MLFLAGS) $(STDLIBS) gtkInit.cmo $(ADD_LIBS) -o $@ $< $(CLIBS)
 
 # Do not edit below this line
 

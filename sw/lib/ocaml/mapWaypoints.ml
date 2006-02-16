@@ -94,7 +94,9 @@ class waypoint = fun (group:group) (name :string) ?(alt=0.) en ->
 	    begin
 	      match GdkEvent.Button.button ev with
 	      |	1 -> self#edit
-	      |	3 -> self#delete
+	      |	3 -> 
+		  if (GToolbox.question_box ~title:"Confirm delete" ~buttons:["Cancel";"Delete"] ~default:2 (sprintf "Delete '%s' ?" name)) = 2 then
+		    self#delete
 	      | 2 ->
 		  let x = GdkEvent.Button.x ev
 		  and y = GdkEvent.Button.y ev in

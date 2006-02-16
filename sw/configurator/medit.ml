@@ -391,7 +391,7 @@ let calibrate_map = fun root () ->
 	p#lower_to_bottom ();
 	let dialog = GWindow.window ~border_width:10 ~title:"Map calibration" () in
 	let v = GPack.vbox ~packing:dialog#add () in
-	let _ = GMisc.label ~text:"Choose 3 waypoints (Left Button)\nRename the waypoints with their geographic coordinates\nFor example: 'WGS84 43.123456 1.234567' or 'UTM 530134 3987652 12' or 'LBT2e 123456 543210\nClick the button below to save the XML result file\nExit and restart" ~packing:v#add () in
+	let _ = GMisc.label ~text:"Choose 3 waypoints (CTRL Left Button)\nRename the waypoints with their geographic coordinates\nFor example: 'WGS84 43.123456 1.234567' or 'UTM 530134 3987652 12' or 'LBT2e 123456 543210\nClick the button below to save the XML result file\nExit and restart" ~packing:v#add () in
 	let h = GPack.hbox ~packing:v#pack () in
 	let cal = GButton.button ~label:"Calibrate" ~packing:h#add () in
 	let close = GButton.button ~label:"Exit" ~packing:h#add () in

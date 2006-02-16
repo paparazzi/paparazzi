@@ -100,8 +100,10 @@ let ac_v_label =
   GnoCanvas.text v_group ~props:[`TEXT name; `X 25.; `Y 25.; `ANCHOR `SW; `FILL_COLOR color]
  in
 
- let top = ref 0 and v_top = ref 0 in
+ let top = ref 0 
+ and v_top = ref 0 in
   object (self)
+    val mutable color = color
     val mutable segments = Array.create size empty
     val mutable v_segments = Array.create size empty
     val mutable last = None
@@ -121,6 +123,8 @@ let ac_v_label =
     val mutable v_params_on = false
     val mutable desired_track =  ((GnoCanvas.ellipse group) :> GnoCanvas.base_item)
     val mutable ac_cam_cover = GnoCanvas.rect cam
+    method color = color
+    method set_color c = color <- c
     method track = track
     method aircraft = aircraft
     method set_label = fun s -> ac_label#set [`TEXT s]
@@ -129,9 +133,9 @@ let ac_v_label =
 	(snd seg.(i))#destroy ();
 	seg.(i) <- empty
       end
-    method incr = fun seg top_ ->
+    method incr = fun seg ->
       let s = Array.length seg in
-      top_ := (!(top_) + 1) mod s
+      top := (!top + 1) mod s
     method clear = fun seg top ->
       for i = 0 to Array.length seg - 1 do
 	self#clear_one i seg
@@ -166,7 +170,7 @@ let ac_v_label =
 	| Some pt ->
 	    seg.((!top)) <- (en, geomap#segment ~group:track ~width:2 ~fill_color:color pt en);
       end;
-      self#incr (seg) top ;
+      self#incr seg;
       set_last_point (Some en)
 
     method clear_map2D = self#clear segments top 

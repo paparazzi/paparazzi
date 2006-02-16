@@ -55,6 +55,7 @@ let default_path_missions = home // "conf"
 
 
 type aircraft = {
+    config : Pprz.values;
     track : MapTrack.track;
     color: color;
     mutable fp_group : (MapWaypoints.group * (int * MapWaypoints.waypoint) list) option
@@ -207,30 +208,18 @@ let ap_status_msg = fun track flight_time ->
     track#update_ap_status flight_time
     
 
-let new_color =
-  let colors = ref ["red"; "blue"; "green"] in
-  fun () ->
-    match !colors with
-      x::xs ->
-	colors := xs @ [x];
-	x
-    | [] -> failwith "new_color"
-
-
-let ask_fp = fun geomap ac ->
-  let get_config = fun _sender values ->
-    let file = Pprz.string_assoc "flight_plan" values in
+let display_fp = fun geomap ac ->
+  try
     let ac = Hashtbl.find live_aircrafts ac in
-    try
-      ac.fp_group <- Some (load_mission ac.color  geomap file)
-    with Failure x ->
-      GToolbox.message_box ~title:"Error while loading flight plan" x in
-  Ground_Pprz.message_req "map2d" "CONFIG" ["ac_id", Pprz.String ac] get_config
+    let file = Pprz.string_assoc "flight_plan" ac.config in
+    ac.fp_group <- Some (load_mission ac.color geomap file)
+  with Failure x ->
+    GToolbox.message_box ~title:"Error while loading flight plan" x
 
 
 let show_mission = fun geomap ac on_off ->
   if on_off then
-    ask_fp geomap ac
+    display_fp geomap ac
   else
     let a = Hashtbl.find live_aircrafts ac in
     match a.fp_group with
@@ -267,41 +256,102 @@ let resize_track = fun ac track ->
   match GToolbox.input_string ~text:(string_of_int track#size) ~title:ac "Track size" with
     None -> ()
   | Some s -> track#resize (int_of_string s)
+
+
+
+let canvas_color = fun gdk_color ->
+  let r = Gdk.Color.red gdk_color
+  and g = Gdk.Color.green gdk_color
+  and b = Gdk.Color.blue gdk_color in
+  Printf.sprintf "#%02x%02x%02x" r g b
+
+let gdk_color = fun s ->
+  Gdk.Color.alloc (Gdk.Color.get_system_colormap ()) (`NAME s)
+
+
+let colorsel = 
+  let dialog_ref = ref None in
+  fun (track:MapTrack.track) (box:GObj.widget) ->
+    let colordlg =
+      (** Creates the dialog if it has not been done yet *)
+      match !dialog_ref with
+      | None ->
+	  let dlg = GWindow.color_selection_dialog ~title:"Select track color" () in
+	  dialog_ref := Some dlg;
+	  let callback = fun response ->
+	    begin
+	      match response with
+		`OK -> 
+		  let c = dlg#colorsel#color in
+		  box#coerce#misc#modify_bg [`NORMAL, `COLOR c];
+		  track#set_color (canvas_color c)
+	      | _ -> ()
+	    end;
+	    dlg#misc#hide ()
+	  in
+	  ignore (dlg#connect#response ~callback);
+	  dlg
+      | Some dlg -> dlg
+    in
+    let colorsel = colordlg#colorsel in
+
+    colorsel#set_has_palette true;
+    ignore (colordlg#run ())
+
+
+let create_ac = fun (geomap:MapCanvas.widget) (vertical_display:MapCanvas.basic_widget) ac_id config ->
+  let color = Pprz.string_assoc "default_gui_color" config
+  and name = Pprz.string_assoc "ac_name" config in
+  let ac_menu = geomap#factory#add_submenu name in
+  let ac_menu_fact = new GMenu.factory ac_menu in
+  let fp = ac_menu_fact#add_check_item "Fligh Plan" ~active:false in
+  ignore (fp#connect#toggled (fun () -> show_mission geomap ac_id fp#active));
+  
+  let track = new MapTrack.track ~name ~color:color geomap vertical_display in
+  
+  let eb = GBin.event_box ~width:10 ~height:10 () in
+  eb#coerce#misc#modify_bg [`NORMAL, `NAME color];
+  let col_menu = ac_menu_fact#add_image_item ~label:"Color" ~image:eb#coerce ~callback:(fun () -> () (*** TO FIX colorsel track eb#coerce***) ) () in
+  ignore (ac_menu_fact#add_item "Clear Track" ~callback:(fun () -> track#clear_map2D));
+  ignore (ac_menu_fact#add_item "Resize Track" ~callback:(fun () -> resize_track ac_id track));
+    ignore (ac_menu_fact#add_item "Commit Moves" ~callback:(fun () -> commit_changes ac_id));
+  ignore (ac_menu_fact#add_item "Event 1" ~callback:(fun () -> send_event ac_id 1));
+  ignore (ac_menu_fact#add_item "Event 2" ~callback:(fun () -> send_event ac_id 2));
+  let cam = ac_menu_fact#add_check_item "Cam Display" ~active:false in
+  ignore (cam#connect#toggled (fun () -> track#set_cam_state cam#active));
+  let ac_menu_vertical = vertical_display#factory#add_submenu ac_id in
+  let ac_menu_fact_vertical = new GMenu.factory ac_menu_vertical in
+  let params = ac_menu_fact#add_check_item "flight param. display" ~active:false in
+  ignore (params#connect#toggled (fun () -> track#set_params_state params#active));
+  let v_params = ac_menu_fact_vertical#add_check_item "flight param. display" ~active:false in
+  ignore (v_params#connect#toggled (fun () -> track#set_v_params_state v_params#active));
+  let event_ac = fun e ->
+    match e with
+      `BUTTON_PRESS _ | `BUTTON_RELEASE _ -> 
+	Ground_Pprz.message_send "ground" "SELECTED" ["aircraft_id", Pprz.String ac_id];
+	true
+    | _ -> false in
+  ignore (track#aircraft#connect#event event_ac);
+  Hashtbl.add live_aircrafts ac_id { track = track; color = color; fp_group = None ; config = config}
+  
+
+
+
+let ask_config = fun geomap vd ac ->
+  let get_config = fun _sender values ->
+    create_ac geomap vd ac values
+  in
+  Ground_Pprz.message_req "map2d" "CONFIG" ["ac_id", Pprz.String ac] get_config
+
 	 
 
 let one_new_ac = fun (geomap:MapCanvas.widget)(vertical_display:MapCanvas.basic_widget) ac ->
   if not (Hashtbl.mem live_aircrafts ac) then begin
-    let ac_menu = geomap#factory#add_submenu ac in
-    let ac_menu_fact = new GMenu.factory ac_menu in
-    let fp = ac_menu_fact#add_check_item "Fligh Plan" ~active:false in
-    ignore (fp#connect#toggled (fun () -> show_mission geomap ac fp#active));
-    let color = new_color () in
-    let track = new MapTrack.track ~name:ac ~color:color geomap vertical_display in
-    ignore (ac_menu_fact#add_item "Clear Track" ~callback:(fun () -> track#clear_map2D));
-    ignore (ac_menu_fact#add_item "Resize Track" ~callback:(fun () -> resize_track ac track));
-    ignore (ac_menu_fact#add_item "Commit Moves" ~callback:(fun () -> commit_changes ac));
-    ignore (ac_menu_fact#add_item "Event 1" ~callback:(fun () -> send_event ac 1));
-    ignore (ac_menu_fact#add_item "Event 2" ~callback:(fun () -> send_event ac 2));
-    let cam = ac_menu_fact#add_check_item "Cam Display" ~active:false in
-    ignore (cam#connect#toggled (fun () -> track#set_cam_state cam#active));
-    let ac_menu_vertical = vertical_display#factory#add_submenu ac in
-    let ac_menu_fact_vertical = new GMenu.factory ac_menu_vertical in
-    let params = ac_menu_fact#add_check_item "flight param. display" ~active:false in
-    ignore (params#connect#toggled (fun () -> track#set_params_state params#active));
-    let v_params = ac_menu_fact_vertical#add_check_item "flight param. display" ~active:false in
-    ignore (v_params#connect#toggled (fun () -> track#set_v_params_state v_params#active));
-     let event_ac = fun e ->
-      match e with
-	`BUTTON_PRESS _ | `BUTTON_RELEASE _ -> 
-	  Ground_Pprz.message_send "ground" "SELECTED" ["aircraft_id", Pprz.String ac];
-	  true
-      | _ -> false in
-    ignore (track#aircraft#connect#event event_ac);
-    Hashtbl.add live_aircrafts ac { track = track; color = color; fp_group = None }
+     ask_config geomap vertical_display ac
   end
       
       
-let live_aircrafts_msg = fun (geomap:MapCanvas.widget)(vertical_display:MapCanvas.basic_widget) acs ->
+let live_aircrafts_msg = fun (geomap:MapCanvas.widget) (vertical_display:MapCanvas.basic_widget) acs ->
   let acs = Pprz.string_assoc "ac_list" acs in
   let acs = Str.split list_separator acs in
   List.iter (one_new_ac geomap vertical_display) acs
@@ -430,7 +480,7 @@ let _ =
     done;
   done;   
 
-  ignore (Glib.Timeout.add 5000 (fun () -> Ground_Pprz.message_req "map2d" "AIRCRAFTS" [] (fun _sender vs -> live_aircrafts_msg geomap vertical_display vs); false));
+  ignore (Glib.Timeout.add 2000 (fun () -> Ground_Pprz.message_req "map2d" "AIRCRAFTS" [] (fun _sender vs -> live_aircrafts_msg geomap vertical_display vs); false));
 
   ignore (Ground_Pprz.message_bind "NEW_AIRCRAFT" (fun _sender vs -> one_new_ac geomap vertical_display (Pprz.string_assoc "ac_id" vs)));
 

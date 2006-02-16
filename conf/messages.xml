@@ -316,6 +316,8 @@
     <field name="flight_plan" type="string" unit="url"/>
     <field name="airframe" type="string" unit="url"/>
     <field name="radio" type="string" unit="url"/>
+    <field name="default_gui_color" type="string"/>
+    <field name="ac_name" type="string"/>
   </message>
 
   <message name="FLIGHT_PARAM" ID="11">

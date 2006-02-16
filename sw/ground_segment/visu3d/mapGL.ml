@@ -102,6 +102,9 @@ let gtk_to_gl_color color =
    (float_of_int (Gdk.Color.green t))/.65535.0,
    (float_of_int (Gdk.Color.blue t))/.65535.0)
 
+let gl_color_of_string = fun s -> gtk_to_gl_color (`NAME s)
+  
+
 (* ========================================================================= *)
 (* = Passage de couleur GL vers GTK                                        = *)
 (* =                                                                       = *)
@@ -187,18 +190,43 @@ let add_traj view3d (points, id) =
   let color = gtk_to_gl_color id in
   view3d#add_object_line l color 2 false false
 
+
+type aircraft = { color : Gtk_3d.glcolor; mutable last_point : Geometry_3d.pt_3D option }
+let live_aircrafts = Hashtbl.create 3
+
+let create_ac = fun ac config ->
+  let color = Pprz.string_assoc "default_gui_color" config in
+  let gl_color = gl_color_of_string color in
+  Hashtbl.add live_aircrafts ac { color = gl_color; last_point = None }
+  
+let one_new_ac = fun ac ->
+  if not (Hashtbl.mem live_aircrafts ac) then begin
+    let get_config = fun _sender values -> create_ac ac values in
+    Ground_Pprz.message_req "map3d" "CONFIG" ["ac_id", Pprz.String ac] get_config
+  end
+
+let list_separator = Str.regexp ","
+let live_aircrafts_msg = fun acs ->
+  let acs = Pprz.string_assoc "ac_list" acs in
+  let acs = Str.split list_separator acs in
+  List.iter one_new_ac acs
+
+
 (* Adding one more point to a track *)
-let last_points = Hashtbl.create 11
 let add_point (view3d:Gtk_3d.widget_3d) (point, id) =
   let p = point3D point in
   try
-    let (last, color) = Hashtbl.find last_points id in
-    let gl_color = gtk_to_gl_color color in
-    view3d#display (view3d#add_object_line [last;p] gl_color 2 false false);
-    Hashtbl.replace last_points id (p, color)
+    let ac = Hashtbl.find live_aircrafts id in
+    begin
+      match ac.last_point with
+	Some last ->
+	  view3d#display (view3d#add_object_line [last;p] ac.color 2 false false)
+      | None -> ()
+    end;
+    ac.last_point <- Some p
   with
-    Not_found ->
-      Hashtbl.add last_points id (p, new_color ())
+    Not_found -> ()
+      
  
 (* ========================================================================= *)
 (* = Load a map. Use SRTM elevation data to produce a 3d surface           = *)
@@ -447,6 +475,10 @@ let build_interface = fun map_file mission_file ->
 
   (* Affichage de la fenetre principale *)
   window#show () ;
+
+  ignore (Ground_Pprz.message_bind "NEW_AIRCRAFT" (fun _sender vs -> one_new_ac (Pprz.string_assoc "ac_id" vs)));
+  
+  ignore (Glib.Timeout.add 5000 (fun () -> Ground_Pprz.message_req "map3d" "AIRCRAFTS" [] (fun _sender vs -> live_aircrafts_msg vs); false));
 
   let use_fp = fun _sender vs ->
     let ac_id = Pprz.string_assoc "ac_id" vs in
