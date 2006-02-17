@@ -586,7 +586,7 @@ let calibrate_map = fun root zoomadj () ->
 	ignore(cal#connect#clicked ~callback:(fun _ ->
 	  try
 	    let coords = fun w ->
-	      (wp_east w/. Ref.world_unit, wp_north w/. Ref.world_unit, utm_of_name (wp_name w)) in
+	      (wp_east w/. Ref.world_unit, -. wp_north w/. Ref.world_unit, utm_of_name (wp_name w)) in
 	    
 	    let wpts = waypoints () in
 	    

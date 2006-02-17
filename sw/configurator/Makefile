@@ -38,11 +38,7 @@ configurator : $(CMO)
 medit : OCAMLC=ocamlc -I +lablgtk2 -I +camlimages -I ../lib/ocaml -I +lablGL
 
 medit : medit.ml
-	$(OCAMLC) -o $@ glibivy-ocaml.cma -I +lablgtk2 lablgtk.cma lablgnomecanvas.cma lablgl.cma gtkInit.cmo lib-pprz.cma xlib-pprz.cma ci_core.cma ci_png.cma  $^
-	@cat ../../pprz_src_test.sh > $@
-	@echo 'lablgtk2 -I +camlimages -I $$PAPARAZZI_SRC/sw/lib/ocaml glibivy-ocaml.cma  ci_core.cma ci_png.cma ci_gif.cma ci_jpeg.cma ci_tiff.cma ci_bmp.cma ci_ppm.cma ci_ps.cma lib-pprz.cma xlib-pprz.cma $$PAPARAZZI_SRC/sw/configurator/$< $$*' >> $@
-	@chmod a+x $@
-
+	$(OCAMLC) -custom -o $@ glibivy-ocaml.cma -I +lablgtk2 lablgtk.cma lablgnomecanvas.cma lablgl.cma gtkInit.cmo lib-pprz.cma xlib-pprz.cma ci_core.cma ci_png.cma  $^
 
 
 %.cmo : %.ml
