@@ -1,4 +1,26 @@
-(* ocamlc -I +lablgtk2 lablgtk.cma lablgnomecanvas.cma gtkInit.cmo medit.ml *)
+(*
+ * $Id$
+ *
+ * Copyright (C) 2004-2006 CENA/ENAC, Pascal Brisset, Antoine Drouin
+ *
+ * This file is part of paparazzi.
+ *
+ * paparazzi is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * paparazzi is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with paparazzi; see the file COPYING.  If not, write to
+ * the Free Software Foundation, 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA. 
+ *
+ *)
 
 open Printf
 open Latlong
@@ -19,7 +41,6 @@ let find_file = fun file ->
 let sof = string_of_float
 let soi = string_of_int
 let fos = float_of_string
-let ios = int_of_string
 
 let home = try Sys.getenv "PAPARAZZI_HOME" with Not_found -> prerr_endline "Please set the PAPARAZZI_HOME variable to the top directory"; exit 1
 let (//) = Filename.concat
@@ -27,6 +48,8 @@ let default_path_flightplans = home // "conf" // "flight_plans" // ""
 let default_flag_flightplans = default_path_flightplans // "*.xml"
 let default_path_maps = home // "data" // "maps" // ""
 let default_flag_maps = default_path_maps // "*.xml"
+let example_file = default_path_flightplans // "example.xml"
+let dtd = default_path_flightplans // "flight_plan.dtd"
 
 let file_dialog ?(filename="*.xml") ~title ~callback () =
   let sel = GWindow.file_selection ~title ~filename ~modal:true () in
@@ -130,6 +153,7 @@ let labelled_entry = fun text value h ->
 let save_fp = fun fp ->
   file_dialog 
     ~title:"Save Flight Plan" 
+    ~filename:default_flag_flightplans
     ~callback:(fun name ->
       let f  = open_out name in
       fprintf f "%s\n" (Xml.to_string_fmt fp);
@@ -137,10 +161,6 @@ let save_fp = fun fp ->
       close_out f)
     ()
 
-let (//) = Filename.concat
-let pararazzi_home = Filename.dirname Sys.argv.(0) // ".." // ".." 
-let example_file = pararazzi_home // "conf" // "flight_plans" // "example.xml"
-let dtd = pararazzi_home // "conf" // "flight_plans" // "flight_plan.dtd"
 
 let current_ivy = ref ({ posn_lat=0.; posn_long = 0.}, 0.)
 
@@ -206,7 +226,9 @@ class waypoint = fun root (zoomadj:GData.adjustment) name ?(alt=0.) en ->
 	    begin
 	      match GdkEvent.Button.button ev with
 	      |	1 -> ()
-	      |	3 -> self#delete false
+	      |	3 -> 
+		  if (GToolbox.question_box ~title:"Confirm delete" ~buttons:["Cancel";"Delete"] ~default:2 (sprintf "Delete '%s' ?" name)) = 2 then
+		    self#delete false
 	      | 2 ->
 		  let x = GdkEvent.Button.x ev
 		  and y = GdkEvent.Button.y ev in
@@ -303,7 +325,7 @@ let load_mission_xml = fun root zoomadj xml ->
   let wpts = XmlEdit.child xml_root "waypoints" in
 
   Ref.set (float_attrib xml "lat0") (float_attrib xml "lon0");
-  let utm0 = Ref.utm0 () in
+  let _utm0 = Ref.utm0 () in
   
   let display_wp = fun node ->
     let w = waypoint root zoomadj node in
@@ -381,7 +403,7 @@ let display_map = fun ?(scale = 1.) x y wgs84 map_name root ->
       failwith "display_map"
 
       
-let ignutm = fun root wgs84 sx sy scale ->
+let ignutm = fun _root wgs84 sx sy scale ->
   let width = truncate (sx /. scale)
   and height = truncate (sy /. scale) in
   let utm = utm_of WGS84 wgs84 in
@@ -615,7 +637,7 @@ let create_wp = fun canvas zoomadj xw yw () ->
   let en = Ref.en_of_world xw yw in
   let name = gensym "wp" in
   let node = XmlEdit.add_child (waypoints_node ()) "waypoint" ["x",sof en.east;"y",sof en.north;"name",name] in
-  let x = waypoint canvas#root zoomadj node in
+  let _x = waypoint canvas#root zoomadj node in
   ()
 
 
@@ -623,7 +645,6 @@ let dragging = ref None
 
 
 let canvas_button_release = fun (_canvas:GnoCanvas.canvas) ev ->
-  let state = GdkEvent.Button.state ev in
   if GdkEvent.Button.button ev = 2 then dragging := None;
   false
 
