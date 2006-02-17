@@ -276,10 +276,9 @@ let update_wp x = function
 let waypoint = fun group zoomadj node ->
   let float_attrib = 
     fun a -> try float_of_string (XmlEdit.attrib node a) with _ -> 0. in
-  let alt = float_attrib "alt" in
   let en = { east= float_attrib "x"; north= float_attrib "y" } in
   let name = XmlEdit.attrib node "name" in
-  let x = new waypoint group zoomadj name ~alt en in
+  let x = new waypoint group zoomadj name en in
   x#zoom !current_zoom;
   XmlEdit.connect node (update_wp x);
   x
@@ -303,8 +302,6 @@ let load_mission_xml = fun root zoomadj xml ->
   let xml_root = XmlEdit.root xml_tree_view in
   let wpts = XmlEdit.child xml_root "waypoints" in
 
-  let default_alt = float_attrib xml "alt" in
-
   Ref.set (float_attrib xml "lat0") (float_attrib xml "lon0");
   let utm0 = Ref.utm0 () in
   
@@ -327,6 +324,45 @@ let open_mission = fun cont root zoomadj ?file () ->
       ignore (file_dialog ~title:"Open Flight Plan" ~filename:default_flag_flightplans ~callback:(fun name -> load_mission root zoomadj name; cont (RecentFiles.FP name)) ())
   | Some name -> load_mission root zoomadj name; cont (RecentFiles.FP name)
 
+let tiles = Hashtbl.create 7
+
+exception Tile_not_found of string
+
+let image_of = fun tile ->
+  try
+    Hashtbl.find tiles tile
+  with
+    Not_found ->
+      let file = try find_file tile with Not_found -> raise (Tile_not_found tile) in
+      Printf.fprintf stderr " (loading %s) ... " file; flush stderr;
+      let img =
+	match OImages.tag (OImages.load file []) with
+	  OImages.Rgb24 rgb24 ->
+	    rgb24
+	| OImages.Index8 img ->
+	    let rgb = img#to_rgb24 in
+	    img#destroy;
+	    rgb
+	| OImages.Index16 img ->
+	    let rgb = img#to_rgb24 in
+	    img#destroy;
+	    rgb
+	| _ -> failwith "image_of"  in
+      Hashtbl.add tiles tile img;
+      img
+
+
+
+
+let lbt_get = fun lbt ->
+  let dalle_x = lbt.lbt_x / 10000
+  and dalle_y = 267 - (lbt.lbt_y / 10000) in
+  let file = Printf.sprintf "F%03d_%03d.png" dalle_x dalle_y in
+  let i = image_of file in
+  let x = truncate (float (lbt.lbt_x mod 10000) /. 2.5)
+  and y = 3999-truncate (float (lbt.lbt_y mod 10000) /. 2.5) in
+  i#get x y
+
 
 let display_map = fun ?(scale = 1.) x y wgs84 map_name root ->
   try
@@ -345,46 +381,173 @@ let display_map = fun ?(scale = 1.) x y wgs84 map_name root ->
       failwith "display_map"
 
       
-	     
+let ignutm = fun root wgs84 sx sy scale ->
+  let width = truncate (sx /. scale)
+  and height = truncate (sy /. scale) in
+  let utm = utm_of WGS84 wgs84 in
+  let utm_x0 = utm.utm_x -. sx /. 2.
+  and utm_y0 = utm.utm_y -. sy /. 2. in
+  let i = new OImages.rgb24 width height in
+  Printf.fprintf stderr "Row:    ";
+  for x = 0 to i#width - 1 do
+    Printf.fprintf stderr "\b\b\b\b%4d" x; flush stderr;
+    for y = 0 to i#height - 1 do
+      let xm = (float x *. scale)
+      and ym = (float (i#height - 1 - y) *. scale) in
+      let utm = { utm_x = (utm_x0 +. xm); utm_y = (utm_y0 +. ym); utm_zone = utm.utm_zone } in
+      let wgs84 = of_utm WGS84 utm in
+      let lbt = lambert_of lambertIIe ((NTF<<WGS84)wgs84) in
+      i#unsafe_set x y (lbt_get lbt)
+    done
+  done;
+  Printf.fprintf stderr "\n";
+  let name = sprintf "UTM_%.0f_%.0f_%d" (utm_x0/.1000.) (utm_y0/.1000.) utm.utm_zone in
+  file_dialog ~filename:(sprintf "%s.png" name) ~title:"Save map image" ~callback:(fun png ->
+    i#save png (Some Images.Png) [];
+    let point = fun x y utm_x utm_y ->
+      Xml.Element ("point", ["x",string_of_int x;
+			     "y",string_of_int y;
+			     "utm_x",sof utm_x;
+			     "utm_y",sof utm_y], []) in
+    let points = [point 0 height utm_x0 utm_y0;
+		  point 0 0 utm_x0 (utm_y0 +. sy);
+		  point width height (utm_x0 +. sx) utm_y0] in
+    let xml =
+      Xml.Element ("map", ["file", Filename.basename png;
+			   "projection", "UTM";
+			   "utm_zone", soi utm.utm_zone;
+			   "scale", string_of_float scale], points) in
+    file_dialog ~filename:(sprintf "%s.xml" name) ~title:"Save map ref" ~callback:(fun file ->
+      let f = open_out file in
+      Printf.fprintf f "%s\n" (Xml.to_string_fmt xml);
+      close_out f) ())
+    ()
 
 
-let load_map = fun root filename ->
-  let register = fun _pixbuf -> () in
-    let xml = Xml.parse_file filename in
-    let map_name = Filename.concat (Filename.dirname filename) (Xml.attrib xml "file") in
+let create_ign = fun root wgs84 ->
+  printf "lat=%f long=%f\n%!" wgs84.posn_lat wgs84.posn_long;
+  let dialog = GWindow.window ~border_width:10 ~title:"New IGN map" () in
+  let v = GPack.vbox ~packing:dialog#add () in
+  let h = GPack.hbox ~packing:v#pack () in
+  let sx = labelled_entry "Width (m)" "2000" h in
+  let sy = labelled_entry "Height (m)" "2000" h in
+  let scale = labelled_entry "Scale (m/px)" "2.5" h in
+  let h = GPack.hbox ~packing:v#pack () in
+  let create = GButton.button ~label:"Create" ~packing: h#add () in
+  let cancel = GButton.button ~label:"Cancel" ~packing: h#add () in
+  ignore(cancel#connect#clicked ~callback:dialog#destroy);
+  ignore(create#connect#clicked ~callback:(fun _ ->
+    try
+      ignutm root wgs84 (fos sx#text) (fos sy#text) (fos scale#text);
+      dialog#destroy ()
+    with
+      Tile_not_found s ->
+	GToolbox.message_box "Error" (sprintf "IGN tile '%s' not found\nUse the -I option to set the path" s)
+					  ));
+  dialog#show ();;
  
-    match Xml.attrib xml "projection" with
-      "UTM" ->
-	let utm_zone = try int_of_string (Xml.attrib xml "utm_zone") with _ -> fprintf stderr "Warning: utm_zone attribute not specified in '%s'; default is 31\n" filename; flush stderr; 31 in
-	begin
-	  match Xml.children xml with
-	    p::_ ->
-	      let utm_x = float_attrib p "utm_x"
-	      and utm_y = float_attrib p "utm_y"
-	      and x = float_attrib p "x"
-	      and y = float_attrib p "y"
-	      and scale = float_attrib xml "scale" /. Ref.world_unit in
-	      let wgs84 = of_utm WGS84 {utm_x = utm_x; utm_y = utm_y; utm_zone = utm_zone} in
-	      register (display_map ~scale x y wgs84 map_name root)
-	  | _ -> failwith "Exactly one ref point please"
-	end
-    | _ -> failwith "Unknwown projection"
+  
+
+let create_flight_plan = fun root zoomadj default_latlong cont ->
+  let dialog = GWindow.window ~border_width:10 ~title:"New flight plan" () in
+  let dvbx = GPack.box `VERTICAL ~packing:dialog#add () in
+  let h = GPack.hbox ~packing:dvbx#pack () in
+  let latlong  = labelled_entry "latlong" default_latlong h in
+  let alt0 = labelled_entry "ground_alt" "380" h in
+  let get_current = GButton.button ~label:"Get current" ~packing: h#add () in
+  ignore(get_current#connect#clicked ~callback:
+	   (fun _ ->
+	     let (wgs84, alt) = !current_ivy in
+	     let s = sprintf "WGS84 %.6f %.6f" ((Rad>>Deg)wgs84.posn_lat)((Rad>>Deg)wgs84.posn_long) in
+	     latlong#set_text s;
+	     alt0#set_text (sof alt);
+	   )
+	);
+  let h = GPack.hbox ~packing:dvbx#pack () in
+  let alt = labelled_entry "alt" "430" h in
+  let qfu = labelled_entry "QFU" "270" h in
+  let mdfh = labelled_entry "Max dist" "500" h in
+
+  let h = GPack.hbox ~packing:dvbx#pack () in
+  let name  = labelled_entry "Name" "Test flight" h in
+
+  let h = GPack.hbox ~packing:dvbx#pack () in
+  let createfp = GButton.button ~label:"Create FP" ~packing: h#add () in
+  if !ign then begin
+    let createign = GButton.button ~label:"Create IGN Map" ~packing: h#add () in
+    ignore(createign#connect#clicked ~callback:(fun _ -> create_ign root (Latlong.of_string latlong#text)))
+  end;
+  let cancel = GButton.button ~label:"Close" ~packing: h#add () in 
+  ignore(cancel#connect#clicked ~callback:dialog#destroy);
+  ignore(createfp#connect#clicked ~callback:
+      begin fun _ ->
+	let xml = Xml.parse_file example_file in
+	let s = ExtXml.subst_attrib in
+	let wgs84 = Latlong.of_string latlong#text in
+	let xml = s "lat0" (deg_string_of_rad wgs84.posn_lat) xml in
+	let xml = s "lon0" (deg_string_of_rad wgs84.posn_long) xml in
+	let xml = s "ground_alt" alt0#text xml in
+	let xml = s "qfu" qfu#text xml in
+	let xml = s "alt" alt#text xml in
+	let xml = s "max_dist_from_home" mdfh#text xml in
+	let xml = s "name" name#text xml in
+	load_mission_xml root zoomadj xml;
+	dialog#destroy ();
+	cont ()
+      end);
+  dialog#show ();;
+
+
+ 
+
+
+let load_map = fun root zoomadj filename ->
+  let register = fun _pixbuf -> () in
+  let xml = Xml.parse_file filename in
+  let map_name = Filename.concat (Filename.dirname filename) (Xml.attrib xml "file") in
+  
+  match Xml.attrib xml "projection" with
+    "UTM" ->
+      let utm_zone = try int_of_string (Xml.attrib xml "utm_zone") with _ -> fprintf stderr "Warning: utm_zone attribute not specified in '%s'; default is 31\n" filename; flush stderr; 31 in
+      begin
+	match Xml.children xml with
+	  p::_ ->
+	    let utm_x = float_attrib p "utm_x"
+	    and utm_y = float_attrib p "utm_y"
+	    and x = float_attrib p "x"
+	    and y = float_attrib p "y"
+	    and scale = float_attrib xml "scale" /. Ref.world_unit in
+	    let wgs84 = of_utm WGS84 {utm_x = utm_x; utm_y = utm_y; utm_zone = utm_zone} in
+	    let cont () = register (display_map ~scale x y wgs84 map_name root) in
+	    if !Ref.ref0 = None then begin
+	      if GToolbox.question_box ~title:"Loading a map" ~buttons:["Cancel";"Create"] ~default:2 "Create a flight plan on this map ?" = 2 then
+		create_flight_plan root zoomadj (sprintf "WGS84 %.4f %.4f" ((Rad>>Deg)wgs84.posn_lat) ((Rad>>Deg)wgs84.posn_long)) cont
+	    end else
+	      cont ()
+      	    
+	| _ -> failwith "Exactly one ref point please"
+      end
+  | _ -> failwith "Unknwown projection"
 
 let utm_of_name = fun name -> 
   try
     utm_of WGS84 (Latlong.of_string name)
   with
-    _ -> GToolbox.message_box "Calibration error" (sprintf "WGS84 or UTM point expected in '%s'" name);
-    failwith "Calibration Error"
+    _ -> 
+      GToolbox.message_box "Calibration error" (sprintf "WGS84 or UTM point expected in '%s'" name);
+      failwith "Calibration Error"
 
 let distance = fun (x1,y1) (x2,y2) ->
   sqrt ((x1 -. x2)**2. +. (y1 -. y2)**2.)
 
-let calibrate_map = fun root () ->
-  match !tree_view with
-    None ->
-      GToolbox.message_box ~title:"Error" "Please first load or create a (dummy) flight plan"
-  | Some _ ->
+let calibrate_map = fun root zoomadj () ->
+  begin
+    match !tree_view with
+      None ->
+	let xml = Xml.Element ("flight_plan", ["lat0", "0"; "lon0", "0"], [Xml.Element ("waypoints", [], [])]) in
+	load_mission_xml root zoomadj xml
+    | Some _ -> ()
+  end;
       file_dialog ~title:"Load image file" ~callback:(fun name ->
 	let image = GdkPixbuf.from_file name in
 	let p = GnoCanvas.pixbuf ~pixbuf:image ~props:[`ANCHOR `NW] root in
@@ -399,51 +562,53 @@ let calibrate_map = fun root () ->
 	ignore(cancel#connect#clicked ~callback:dialog#destroy);
 	ignore(close#connect#clicked ~callback:(fun () -> exit 0));
 	ignore(cal#connect#clicked ~callback:(fun _ ->
-	  let coords = fun w ->
-	    (wp_east w/. Ref.world_unit, wp_north w/. Ref.world_unit, utm_of_name (wp_name w)) in
-	  
-	  let wpts = waypoints () in
-
-	  let utm_zone, scale =
-	    match wpts with
-	      w1::w2::_w3::_ ->
-		let (x1, y1, utm1) = coords w1
-		and (x2, y2, utm2) = coords w2 in
-		utm1.utm_zone, utm_distance utm1 utm2 /. distance (x1,y1) (x2,y2)
-	    | _ -> failwith "Calibration: 3 points required" in
-	  let f = fun w ->
-	    let (x,y,utm) = coords w in
-	    Xml.Element ("point", ["x",sof x;
-				   "y",sof y;
-				   "utm_x",sof utm.utm_x;
-				   "utm_y",sof utm.utm_y], []) in
-	  let points = List.map f wpts in
-	  let xml = Xml.Element ("map", 
-				 ["file", Filename.basename name;
-				  "projection", "UTM";
-				  "scale", sof scale;
-				  "utm_zone", soi utm_zone],
-				 points) in
-	  file_dialog ~filename:(sprintf "%s.xml" (Filename.chop_extension name)) ~title:"Save map ref" ~callback:(fun file ->
-	    let f = open_out file in
-	    Printf.fprintf f "%s\n" (Xml.to_string_fmt xml);
-	    close_out f) ()));
+	  try
+	    let coords = fun w ->
+	      (wp_east w/. Ref.world_unit, wp_north w/. Ref.world_unit, utm_of_name (wp_name w)) in
+	    
+	    let wpts = waypoints () in
+	    
+	    let utm_zone, scale =
+	      match wpts with
+		w1::w2::_w3::_ ->
+		  let (x1, y1, utm1) = coords w1
+		  and (x2, y2, utm2) = coords w2 in
+		  utm1.utm_zone, utm_distance utm1 utm2 /. distance (x1,y1) (x2,y2)
+	      | _ -> 
+		  GToolbox.message_box "Calibration error" "Three points required !";
+		  failwith "Calibration Error" in
+	    let f = fun w ->
+	      let (x,y,utm) = coords w in
+	      Xml.Element ("point", ["x",sof x;
+				     "y",sof y;
+				     "utm_x",sof utm.utm_x;
+				     "utm_y",sof utm.utm_y], []) in
+	    let points = List.map f wpts in
+	    let xml = Xml.Element ("map", 
+				   ["file", Filename.basename name;
+				    "projection", "UTM";
+				    "scale", sof scale;
+				    "utm_zone", soi utm_zone],
+				   points) in
+	    file_dialog ~filename:(sprintf "%s.xml" (Filename.chop_extension name)) ~title:"Save map ref" ~callback:(fun file ->
+	      let f = open_out file in
+	      Printf.fprintf f "%s\n" (Xml.to_string_fmt xml);
+	      close_out f) ()
+	  with
+	    Failure "Calibration Error" -> ()));
 	dialog#show ())
 	()
 
 
 
-let open_map = fun cont root ?file () ->
-  if !Ref.ref0 = None then
-    GToolbox.message_box ~title:"Error" "Please first load or create a flight plan"
-  else
-    match file with
-      None ->
-	file_dialog ~title:"Open Map" ~filename:default_flag_maps ~callback:(fun name -> ignore (load_map root name); cont (RecentFiles.Map name)) ()
-    | Some name ->
-	ignore (load_map root name);
-	cont (RecentFiles.Map name)
-
+let open_map = fun cont root zoomadj ?file () ->
+  match file with
+    None ->
+      file_dialog ~title:"Open Map" ~filename:default_flag_maps ~callback:(fun name -> ignore (load_map root zoomadj name); cont (RecentFiles.Map name)) ()
+  | Some name ->
+      ignore (load_map root zoomadj name);
+      cont (RecentFiles.Map name)
+	
 
 
 let create_wp = fun canvas zoomadj xw yw () ->
@@ -544,158 +709,12 @@ let ivy = fun port domain root ->
 
   ignore (Ivy.bind (fun _ args -> plot_utm (fos args.(0)/.100.) (fos args.(1)/.100.) (fos args.(2))) "GPS +[0-9]+ +([0-9]*) +([0-9]*) +[0-9\\.]* +([0-9\\.]*)")
 
-let tiles = Hashtbl.create 7
 
-exception Tile_not_found of string
-
-let image_of = fun tile ->
-  try
-    Hashtbl.find tiles tile
-  with
-    Not_found ->
-      let file = try find_file tile with Not_found -> raise (Tile_not_found tile) in
-      Printf.fprintf stderr " (loading %s) ... " file; flush stderr;
-      let img =
-	match OImages.tag (OImages.load file []) with
-	  OImages.Rgb24 rgb24 ->
-	    rgb24
-	| OImages.Index8 img ->
-	    let rgb = img#to_rgb24 in
-	    img#destroy;
-	    rgb
-	| OImages.Index16 img ->
-	    let rgb = img#to_rgb24 in
-	    img#destroy;
-	    rgb
-	| _ -> failwith "image_of"  in
-      Hashtbl.add tiles tile img;
-      img
-
-let lbt_get = fun lbt ->
-  let dalle_x = lbt.lbt_x / 10000
-  and dalle_y = 267 - (lbt.lbt_y / 10000) in
-  let file = Printf.sprintf "F%03d_%03d.png" dalle_x dalle_y in
-  let i = image_of file in
-  let x = truncate (float (lbt.lbt_x mod 10000) /. 2.5)
-  and y = 3999-truncate (float (lbt.lbt_y mod 10000) /. 2.5) in
-  i#get x y
-
-let ignutm = fun root wgs84 sx sy scale ->
-  let width = truncate (sx /. scale)
-  and height = truncate (sy /. scale) in
-  let utm = utm_of WGS84 wgs84 in
-  let utm_x0 = utm.utm_x -. sx /. 2.
-  and utm_y0 = utm.utm_y -. sy /. 2. in
-  let i = new OImages.rgb24 width height in
-  Printf.fprintf stderr "Row:    ";
-  for x = 0 to i#width - 1 do
-    Printf.fprintf stderr "\b\b\b\b%4d" x; flush stderr;
-    for y = 0 to i#height - 1 do
-      let xm = (float x *. scale)
-      and ym = (float (i#height - 1 - y) *. scale) in
-      let utm = { utm_x = (utm_x0 +. xm); utm_y = (utm_y0 +. ym); utm_zone = utm.utm_zone } in
-      let wgs84 = of_utm WGS84 utm in
-      let lbt = lambert_of lambertIIe ((NTF<<WGS84)wgs84) in
-      i#unsafe_set x y (lbt_get lbt)
-    done
-  done;
-  Printf.fprintf stderr "\n";
-  let name = sprintf "UTM_%.0f_%.0f_%d" (utm_x0/.1000.) (utm_y0/.1000.) utm.utm_zone in
-  file_dialog ~filename:(sprintf "%s.png" name) ~title:"Save map image" ~callback:(fun png ->
-    i#save png (Some Images.Png) [];
-    let point = fun x y utm_x utm_y ->
-      Xml.Element ("point", ["x",string_of_int x;
-			     "y",string_of_int y;
-			     "utm_x",sof utm_x;
-			     "utm_y",sof utm_y], []) in
-    let points = [point 0 height utm_x0 utm_y0;
-		  point 0 0 utm_x0 (utm_y0 +. sy);
-		  point width height (utm_x0 +. sx) utm_y0] in
-    let xml =
-      Xml.Element ("map", ["file", Filename.basename png;
-			   "projection", "UTM";
-			   "utm_zone", soi utm.utm_zone;
-			   "scale", string_of_float scale], points) in
-    file_dialog ~filename:(sprintf "%s.xml" name) ~title:"Save map ref" ~callback:(fun file ->
-      let f = open_out file in
-      Printf.fprintf f "%s\n" (Xml.to_string_fmt xml);
-      close_out f;
-      load_map root file) ())
-    ()
-
-let create_ign = fun root wgs84 ->
-  printf "lat=%f long=%f\n%!" wgs84.posn_lat wgs84.posn_long;
-  let dialog = GWindow.window ~border_width:10 ~title:"New IGN map" () in
-  let v = GPack.vbox ~packing:dialog#add () in
-  let h = GPack.hbox ~packing:v#pack () in
-  let sx = labelled_entry "Width (m)" "2000" h in
-  let sy = labelled_entry "Height (m)" "2000" h in
-  let scale = labelled_entry "Scale (m/px)" "2.5" h in
-  let h = GPack.hbox ~packing:v#pack () in
-  let create = GButton.button ~label:"Create" ~packing: h#add () in
-  let cancel = GButton.button ~label:"Cancel" ~packing: h#add () in
-  ignore(cancel#connect#clicked ~callback:dialog#destroy);
-  ignore(create#connect#clicked ~callback:(fun _ ->
-    try
-      ignutm root wgs84 (fos sx#text) (fos sy#text) (fos scale#text);
-      dialog#destroy ()
-    with
-      Tile_not_found s ->
-	GToolbox.message_box "Error" (sprintf "IGN tile '%s' not found\nUse the -I option to set the path" s)
-					  ));
-  dialog#show ();;
- 
-  
   
   
 
 let new_flight_plan = fun root zoomadj () ->
-  let dialog = GWindow.window ~border_width:10 ~title:"New flight plan" () in
-  let dvbx = GPack.box `VERTICAL ~packing:dialog#add () in
-  let h = GPack.hbox ~packing:dvbx#pack () in
-  let latlong  = labelled_entry "lat" "WGS84 43.210987 1.324" h in
-  let alt0 = labelled_entry "ground_alt" "380" h in
-  let get_current = GButton.button ~label:"Get current" ~packing: h#add () in
-  ignore(get_current#connect#clicked ~callback:
-	   (fun _ ->
-	     let (wgs84, alt) = !current_ivy in
-	     let s = sprintf "WGS84 %.6f %.6f" ((Rad>>Deg)wgs84.posn_lat)((Rad>>Deg)wgs84.posn_long) in
-	     latlong#set_text s;
-	     alt0#set_text (sof alt);
-	   )
-	);
-  let h = GPack.hbox ~packing:dvbx#pack () in
-  let alt = labelled_entry "alt" "430" h in
-  let qfu = labelled_entry "QFU" "270" h in
-  let mdfh = labelled_entry "Max dist" "500" h in
-
-  let h = GPack.hbox ~packing:dvbx#pack () in
-  let name  = labelled_entry "Name" "Test flight" h in
-
-  let h = GPack.hbox ~packing:dvbx#pack () in
-  let createfp = GButton.button ~label:"Create FP" ~packing: h#add () in
-  if !ign then begin
-    let createign = GButton.button ~label:"Create IGN Map" ~packing: h#add () in
-    ignore(createign#connect#clicked ~callback:(fun _ -> create_ign root (Latlong.of_string latlong#text)))
-  end;
-  let cancel = GButton.button ~label:"Close" ~packing: h#add () in 
-  ignore(cancel#connect#clicked ~callback:dialog#destroy);
-  ignore(createfp#connect#clicked ~callback:
-      begin fun _ ->
-	let xml = Xml.parse_file example_file in
-	let s = ExtXml.subst_attrib in
-	let wgs84 = Latlong.of_string latlong#text in
-	let xml = s "lat0" (deg_string_of_rad wgs84.posn_lat) xml in
-	let xml = s "lon0" (deg_string_of_rad wgs84.posn_long) xml in
-	let xml = s "ground_alt" alt0#text xml in
-	let xml = s "qfu" qfu#text xml in
-	let xml = s "alt" alt#text xml in
-	let xml = s "max_dist_from_home" mdfh#text xml in
-	let xml = s "name" name#text xml in
-	load_mission_xml root zoomadj xml	
-      end);
-  dialog#show ();;
-
+  create_flight_plan root zoomadj "WGS84 43.210987 1.324" (fun () -> ())
 
 let main () =
   let window = GWindow.window ~title: "Paparazzi"
@@ -741,14 +760,14 @@ let main () =
     RecentFiles.add f;
     match f with
       RecentFiles.Map f ->
-	ignore (file_menu_fact#add_item f ~callback:(open_map (fun _ -> ()) root ~file:f))
+	ignore (file_menu_fact#add_item f ~callback:(open_map (fun _ -> ()) root zoomadj ~file:f))
     | RecentFiles.FP f ->
 	ignore (file_menu_fact#add_item f ~callback:(open_mission (fun _ -> ()) root zoomadj ~file:f)) in
 
   ignore (file_menu_fact#add_item "New Flight Plan" ~key:GdkKeysyms._N ~callback:(new_flight_plan root zoomadj));
-  ignore (file_menu_fact#add_item "Calibrate Map" ~key:GdkKeysyms._R ~callback:(calibrate_map root));
+  ignore (file_menu_fact#add_item "Calibrate Map" ~key:GdkKeysyms._R ~callback:(calibrate_map root zoomadj));
   ignore (file_menu_fact#add_item "Open Flight Plan" ~key:GdkKeysyms._O ~callback:(open_mission register_recent_file root zoomadj));    
-  ignore (file_menu_fact#add_item "Open Map" ~key:GdkKeysyms._M ~callback:(open_map register_recent_file root));    
+  ignore (file_menu_fact#add_item "Open Map" ~key:GdkKeysyms._M ~callback:(open_map register_recent_file root zoomadj));    
   ignore (file_menu_fact#add_item "Write Flight Plan" ~key:GdkKeysyms._S ~callback:write_mission);    
   ignore (file_menu_fact#add_item "Clear Waypoints" ~key:GdkKeysyms._C ~callback:waypoints_clear);    
   ignore (file_menu_fact#add_item "Quit" ~key:GdkKeysyms._Q ~callback:quit);
