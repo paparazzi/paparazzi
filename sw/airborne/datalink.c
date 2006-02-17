@@ -36,6 +36,7 @@
 #include "autopilot.h"
 
 #include "estimator.h"
+#include "pid.h"
 
 #define MOfCm(_x) (((float)_x)/100.)
 

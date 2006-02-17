@@ -14,7 +14,7 @@
 
   <dl_settings>
       <dl_setting var="ir_roll_neutral" min="-0.2" max="0.2" step="0.01"/>
-      <dl_setting var="nav_block" min="0" max="1" step="1"/>
+      <dl_setting var="roll_pgain" min="5000" max="15000" step="100"/>
   </dl_settings>
 
   <waypoints>

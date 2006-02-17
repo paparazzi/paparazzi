@@ -58,7 +58,9 @@ type aircraft = {
     config : Pprz.values;
     track : MapTrack.track;
     color: color;
-    mutable fp_group : (MapWaypoints.group * (int * MapWaypoints.waypoint) list) option
+    mutable fp_group : (MapWaypoints.group * (int * MapWaypoints.waypoint) list) option;
+    fp : Xml.xml;
+    dl_settings : GWindow.window
   }
 
 let live_aircrafts = Hashtbl.create 3
@@ -115,10 +117,7 @@ let file_of_url = fun url ->
     else
       failwith c
 
-let load_mission = fun color geomap url ->
-  let file = file_of_url url in
-  let xml = Xml.parse_file file in
-  let xml = ExtXml.child xml "flight_plan" in
+let load_mission = fun color geomap xml ->
   let lat0 = float_attr xml "lat0"
   and lon0 = float_attr xml "lon0"
   and alt0 = float_attr xml "alt" in
@@ -211,8 +210,7 @@ let ap_status_msg = fun track flight_time ->
 let display_fp = fun geomap ac ->
   try
     let ac = Hashtbl.find live_aircrafts ac in
-    let file = Pprz.string_assoc "flight_plan" ac.config in
-    ac.fp_group <- Some (load_mission ac.color geomap file)
+    ac.fp_group <- Some (load_mission ac.color geomap ac.fp)
   with Failure x ->
     GToolbox.message_box ~title:"Error while loading flight plan" x
 
@@ -299,6 +297,49 @@ let colorsel =
     ignore (colordlg#run ())
 
 
+
+let dl_settings = fun ac_id xml ->
+  let window = GWindow.window ~title:("Datalink settings ") () in
+  let quit = fun () -> GMain.Main.quit (); exit 0 in
+  ignore (window#connect#destroy ~callback:quit);
+  let vbox = GPack.vbox ~packing:window#add () in
+
+  begin
+    try
+      let settings = Xml.children (ExtXml.child xml "dl_settings") in
+      let i = ref 0 in
+      List.iter
+	(fun s ->
+	  let f = fun a -> float_of_string (ExtXml.attrib s a) in
+	  let lower = f "min"
+	  and upper = f "max"
+	  and step_incr = f "step" in
+	  let value = (lower +. upper) /. 2. in
+	  let text = ExtXml.attrib s "var" in
+	  let adj = GData.adjustment ~value ~lower ~upper:(upper+.10.) ~step_incr () in
+	  let hbox = GPack.hbox ~width:400 ~packing:vbox#add () in
+	  let _l = GMisc.label ~width:100 ~text ~packing:hbox#pack () in
+	  let _scale = GRange.scale `HORIZONTAL ~digits:2 ~adjustment:adj ~packing:hbox#add () in
+	  let ii = !i in
+	  let callback = fun () -> 
+	    let vs = ["ac_id", Pprz.String ac_id; "index", Pprz.Int ii;"value", Pprz.Float adj#value] in
+	    Ground_Pprz.message_send "dl" "DL_SETTING" vs in
+	  let b = GButton.button ~label:"Commit" ~stock:`OK ~packing:hbox#pack () in
+	  ignore (b#connect#clicked ~callback);
+	  incr i
+	)
+      settings
+    with _ -> ()
+  end;
+  window
+
+
+let active_dl_settings = fun ac_id x ->
+  let ac = Hashtbl.find live_aircrafts ac_id in
+  let w = ac.dl_settings in
+  if x then w#show () else w#misc#hide ();;
+
+
 let create_ac = fun (geomap:MapCanvas.widget) (vertical_display:MapCanvas.basic_widget) ac_id config ->
   let color = Pprz.string_assoc "default_gui_color" config
   and name = Pprz.string_assoc "ac_name" config in
@@ -306,6 +347,7 @@ let create_ac = fun (geomap:MapCanvas.widget) (vertical_display:MapCanvas.basic_
   let ac_menu_fact = new GMenu.factory ac_menu in
   let fp = ac_menu_fact#add_check_item "Fligh Plan" ~active:false in
   ignore (fp#connect#toggled (fun () -> show_mission geomap ac_id fp#active));
+  ignore (ac_menu_fact#add_check_item "Datalink Settings" ~callback:(active_dl_settings ac_id));
   
   let track = new MapTrack.track ~name ~color:color geomap vertical_display in
   
@@ -332,7 +374,14 @@ let create_ac = fun (geomap:MapCanvas.widget) (vertical_display:MapCanvas.basic_
 	true
     | _ -> false in
   ignore (track#aircraft#connect#event event_ac);
-  Hashtbl.add live_aircrafts ac_id { track = track; color = color; fp_group = None ; config = config}
+  let fp_url = Pprz.string_assoc "flight_plan" config in
+  let fp_file = file_of_url fp_url in
+  let fp_xml_dump = Xml.parse_file fp_file in
+  let fp_xml = ExtXml.child fp_xml_dump "flight_plan" in
+
+  let ds = dl_settings ac_id fp_xml in
+
+  Hashtbl.add live_aircrafts ac_id { track = track; color = color; fp_group = None ; config = config ; fp = fp_xml; dl_settings = ds}
   
 
 
@@ -416,7 +465,7 @@ let listen_flight_params = fun () ->
     with 
       Not_found -> ()
   in
-  ignore (Ground_Pprz.message_bind "AP_STATUS" get_ap_status)
+  ignore (Ground_Pprz.message_bind "AP_STATUS" get_ap_status);;
 
 
 let _ =
@@ -456,9 +505,13 @@ let _ =
       Hashtbl.iter (set_one_track) live_aircrafts));
   let vertical_graduations = GnoCanvas.group vertical_display#canvas#root in
   vertical_display#set_vertical_factor 10.0;
+
+  let active_vertical = fun x ->
+    if x then vertical_situation#show () else vertical_situation#misc#hide () in
  
  
   ignore (geomap#menu_fact#add_item "Quit" ~key:GdkKeysyms._Q ~callback:quit);
+  ignore (geomap#menu_fact#add_check_item "Vertical View" ~key:GdkKeysyms._V ~callback:active_vertical);
  
 
   vbox#pack ~expand:true geomap#frame#coerce;
@@ -489,5 +542,4 @@ let _ =
   window#add_accel_group accel_group;
   window#show ();
  
-  vertical_situation#show ();
   GMain.Main.main ()

@@ -13,6 +13,7 @@
 #include "traffic_info.h"
 #include "flight_plan.h"
 #include "nav.h"
+#include "pid.h"
 
 #include <caml/mlvalues.h>
 #include <caml/memory.h>
