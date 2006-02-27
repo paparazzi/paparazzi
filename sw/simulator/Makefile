@@ -60,7 +60,7 @@ sim_sitl : $(OBJDIR)/simsitl
 simhitl.out : $(SIMHCMO) simhitl.cmo
 	$(OCAMLC) $(INCLUDES) -o $@ str.cma xml-light.cma unix.cma lib.cma lablgtk.cma gtkInit.cmo $^
 
-sitl.cma : $(SIMSCMO)
+sitl.cma : fg.o $(SIMSCMO)
 	ocamlc -o $@ -a $^ 
 
 sitl.cmxa : $(SIMSCMX)
@@ -107,6 +107,9 @@ $(OBJDIR)/simsitl.ml : simsitl.ml
 
 %.cmo : %.ml
 	$(OCAMLC) $(INCLUDES) -c $<
+
+%.o : %.c
+	$(OCAMLC) -c $<
 
 %.cmx : %.ml
 	$(OCAMLOPT) $(INCLUDES) -c $<

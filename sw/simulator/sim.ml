@@ -34,6 +34,7 @@ let float_attrib xml a = float_of_string (ExtXml.attrib xml a)
 (* Frequencies for perdiodic tasks are expressed in s *)
 let ir_period = 1./.20.
 let fm_period = 1./.25.
+let fg_period = 1./.50.
 
 
 module type AIRCRAFT = 
@@ -55,12 +56,19 @@ module type AIRCRAFT =
 
 module type AIRCRAFT_ITL = functor (A : Data.MISSION) -> AIRCRAFT
 
+external fg_msg : float -> float -> float -> float -> string = "fg_msg"
+
 
 let ac_name = ref ""
 
 let ivy_bus = ref "127.255.255.255:2010"
 
-let common_options = [ "-b", Arg.String (fun x -> ivy_bus := x), "Bus\tDefault is 127.255.255.25:2010"]
+let fg_client = ref ""
+
+let common_options = [
+  "-b", Arg.Set_string ivy_bus, "Bus\tDefault is 127.255.255.25:2010";
+  "-fg", Arg.Set_string fg_client, "Flight gear client address"
+]
 
 module Make(AircraftItl : AIRCRAFT_ITL) = struct
 
@@ -167,11 +175,34 @@ module Make(AircraftItl : AIRCRAFT_ITL) = struct
       last_gps_state := Some s;
       Aircraft.gps s in
 
+    (** Sending to Flight Gear *)
+    let fg_task = fun socket () ->
+      let (x,y,z) = FlightModel.get_xyz !state
+      and phi = FlightModel.get_phi !state in
+      let m = fg_msg x y z phi in
+      (*** for i = 0 to String.length m - 1 do fprintf stderr "%x " (Char.code m.[i]) done; fprintf stderr "\n"; ***)
+      try
+	ignore (Unix.send socket m 0 (String.length m) [])
+      with
+	Unix.Unix_error (e,f,a) -> Printf.fprintf stderr "Error fg: %s (%s(%s))\n" (Unix.error_message e) f a
+    in
+
     let boot = fun () ->
       Aircraft.boot (time_scale:>value);
       Stdlib.timer ~scale:time_scale fm_period fm_task;
       Stdlib.timer ~scale:time_scale ir_period ir_task;
-      Stdlib.timer ~scale:time_scale gps_period gps_task in
+      Stdlib.timer ~scale:time_scale gps_period gps_task;
+
+      (** Connection to Flight Gear client *)
+      if !fg_client <> "" then
+	try
+	  let inet_addr = Unix.inet_addr_of_string !fg_client in
+	  let socket = Unix.socket Unix.PF_INET Unix.SOCK_DGRAM 0 in
+	  Unix.connect socket (Unix.ADDR_INET (inet_addr, 1234));
+	  Stdlib.timer ~scale:time_scale fg_period (fg_task socket)
+	with
+	  e -> fprintf stderr "Error while connecting to fg: %s" (Printexc.to_string e)
+    in
     
     let take_off = fun () -> FlightModel.set_air_speed !state FM.nominal_airspeed in 
 
