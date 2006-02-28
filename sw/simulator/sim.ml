@@ -56,7 +56,8 @@ module type AIRCRAFT =
 
 module type AIRCRAFT_ITL = functor (A : Data.MISSION) -> AIRCRAFT
 
-external fg_msg : float -> float -> float -> float -> string = "fg_msg"
+external fg_sizeof : unit -> int = "fg_sizeof"
+external fg_msg : string -> float -> float -> float -> float -> unit = "fg_msg"
 
 
 let ac_name = ref ""
@@ -176,13 +177,13 @@ module Make(AircraftItl : AIRCRAFT_ITL) = struct
       Aircraft.gps s in
 
     (** Sending to Flight Gear *)
-    let fg_task = fun socket () ->
+    let fg_task = fun socket buffer () ->
       let (x,y,z) = FlightModel.get_xyz !state
       and phi = FlightModel.get_phi !state in
-      let m = fg_msg x y z phi in
-(**       for i = 0 to String.length m - 1 do fprintf stderr "%x " (Char.code m.[i]) done; fprintf stderr "\n"; **)
+      fg_msg buffer x y z phi;
+(**)       for i = 0 to String.length buffer - 1 do fprintf stderr "%x " (Char.code buffer.[i]) done; fprintf stderr "\n"; (**)
       try
-	ignore (Unix.send socket m 0 (String.length m) [])
+	ignore (Unix.send socket buffer 0 (String.length buffer) [])
       with
 	Unix.Unix_error (e,f,a) -> Printf.fprintf stderr "Error fg: %s (%s(%s))\n" (Unix.error_message e) f a
     in
@@ -199,7 +200,8 @@ module Make(AircraftItl : AIRCRAFT_ITL) = struct
 	  let inet_addr = Unix.inet_addr_of_string !fg_client in
 	  let socket = Unix.socket Unix.PF_INET Unix.SOCK_DGRAM 0 in
 	  Unix.connect socket (Unix.ADDR_INET (inet_addr, 5500));
-	  Stdlib.timer ~scale:time_scale fg_period (fg_task socket)
+	  let buffer = String.create (fg_sizeof ()) in
+	  Stdlib.timer ~scale:time_scale fg_period (fg_task socket buffer)
 	with
 	  e -> fprintf stderr "Error while connecting to fg: %s" (Printexc.to_string e)
     in

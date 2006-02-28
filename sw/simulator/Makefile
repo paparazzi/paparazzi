@@ -64,7 +64,7 @@ sitl.cma : fg.o $(SIMSCMO)
 	ocamlc -o $@ -a $^ 
 
 fg.o : fg.c
-	$(OCAMLC) -cclib -lm fg.c
+	$(OCAMLC) -c fg.c
 
 sitl.cmxa : $(SIMSCMX)
 	ocamlopt -o $@ -a $^ 

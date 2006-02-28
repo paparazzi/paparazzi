@@ -10,10 +10,11 @@
 
 #include "flight_gear.h"
 
-value fg_msg(value x, value y, value z, value phi) {
-  CAMLparam4(x, y, z, phi);
-  CAMLlocal1(s);
+value fg_sizeof(value unit) {
+  return Val_int(sizeof(struct FGNetGUI));
+}
 
+value fg_msg(value s, value x, value y, value z, value phi) {
 #if 0
   const double earth_radius = 6372795.; 
   double lat =  0.656480 + asin(Double_val(x)/earth_radius);
@@ -106,7 +107,7 @@ value fg_msg(value x, value y, value z, value phi) {
   msg.altitude = _z;
 
   s = alloc_string(sizeof(msg));
-  strncpy(String_val(s), (char*)&msg, sizeof(msg));
+  memcpy(String_val(s), (char*)&msg, sizeof(msg));
 
-  CAMLreturn (s);
+  return Val_unit;
 }
