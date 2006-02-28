@@ -180,7 +180,7 @@ module Make(AircraftItl : AIRCRAFT_ITL) = struct
       let (x,y,z) = FlightModel.get_xyz !state
       and phi = FlightModel.get_phi !state in
       let m = fg_msg x y z phi in
-      (*** for i = 0 to String.length m - 1 do fprintf stderr "%x " (Char.code m.[i]) done; fprintf stderr "\n"; ***)
+(**       for i = 0 to String.length m - 1 do fprintf stderr "%x " (Char.code m.[i]) done; fprintf stderr "\n"; **)
       try
 	ignore (Unix.send socket m 0 (String.length m) [])
       with
@@ -198,7 +198,7 @@ module Make(AircraftItl : AIRCRAFT_ITL) = struct
 	try
 	  let inet_addr = Unix.inet_addr_of_string !fg_client in
 	  let socket = Unix.socket Unix.PF_INET Unix.SOCK_DGRAM 0 in
-	  Unix.connect socket (Unix.ADDR_INET (inet_addr, 1234));
+	  Unix.connect socket (Unix.ADDR_INET (inet_addr, 5500));
 	  Stdlib.timer ~scale:time_scale fg_period (fg_task socket)
 	with
 	  e -> fprintf stderr "Error while connecting to fg: %s" (Printexc.to_string e)

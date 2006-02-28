@@ -16,7 +16,7 @@ value fg_msg(value x, value y, value z, value phi) {
   double lon = -2.135537 + asin(Double_val(y)/earth_radius);
   
   struct FGNetGUI msg;
-  msg.version = 7;
+  msg.version = FG_NET_GUI_VERSION;
 
   msg.longitude = lon;
   msg.latitude = lat;
