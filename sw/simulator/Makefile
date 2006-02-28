@@ -53,7 +53,7 @@ SIMDIR=$(shell echo `pwd`)
 
 
 #all : simhitl.out sitl.cma $(GEN_DOWNLINK)
-all : gaia sitl.cma $(GEN_DOWNLINK)
+all : gaia sitl.cma $(GEN_DOWNLINK) fg.o
 
 sim_sitl : $(OBJDIR)/simsitl
 
@@ -62,6 +62,9 @@ simhitl.out : $(SIMHCMO) simhitl.cmo
 
 sitl.cma : fg.o $(SIMSCMO)
 	ocamlc -o $@ -a $^ 
+
+fg.o : fg.c
+	$(OCAMLC) -cclib -lm fg.c
 
 sitl.cmxa : $(SIMSCMX)
 	ocamlopt -o $@ -a $^ 
