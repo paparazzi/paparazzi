@@ -35,6 +35,7 @@ val init : radian -> state
 val get_xyz : state -> meter * meter * meter
 val get_time : state -> float
 val get_phi : state -> radian
+val get_attitude : state -> radian * radian * radian
 
 val set_air_speed : state -> meter_s -> unit
 

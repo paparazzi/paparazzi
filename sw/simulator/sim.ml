@@ -34,7 +34,7 @@ let float_attrib xml a = float_of_string (ExtXml.attrib xml a)
 (* Frequencies for perdiodic tasks are expressed in s *)
 let ir_period = 1./.20.
 let fm_period = 1./.25.
-let fg_period = 1./.50.
+let fg_period = 1./.25.
 
 
 module type AIRCRAFT = 
@@ -57,7 +57,7 @@ module type AIRCRAFT =
 module type AIRCRAFT_ITL = functor (A : Data.MISSION) -> AIRCRAFT
 
 external fg_sizeof : unit -> int = "fg_sizeof"
-external fg_msg : string -> float -> float -> float -> float -> unit = "fg_msg"
+external fg_msg : string -> float -> float -> float -> float -> float -> float -> unit = "fg_msg_bytecode" "fg_msg_native"
 
 
 let ac_name = ref ""
@@ -178,10 +178,16 @@ module Make(AircraftItl : AIRCRAFT_ITL) = struct
 
     (** Sending to Flight Gear *)
     let fg_task = fun socket buffer () ->
-      let (x,y,z) = FlightModel.get_xyz !state
-      and phi = FlightModel.get_phi !state in
-      fg_msg buffer x y z phi;
-(**)       for i = 0 to String.length buffer - 1 do fprintf stderr "%x " (Char.code buffer.[i]) done; fprintf stderr "\n"; (**)
+      match !last_gps_state with
+	None -> ()
+      | Some s ->
+	  let lat = s.Gps.wgs84.Latlong.posn_lat
+	  and lon = s.Gps.wgs84.Latlong.posn_long
+	  and alt = s.Gps.alt
+(*	  and theta_ = s.Gps.course *)
+	  and (phi, theta, psi) = FlightModel.get_attitude !state in
+	  fg_msg buffer lat lon alt phi theta psi;
+(**       for i = 0 to String.length buffer - 1 do fprintf stderr "%x " (Char.code buffer.[i]) done; fprintf stderr "\n"; **)
       try
 	ignore (Unix.send socket buffer 0 (String.length buffer) [])
       with
@@ -199,7 +205,7 @@ module Make(AircraftItl : AIRCRAFT_ITL) = struct
 	try
 	  let inet_addr = Unix.inet_addr_of_string !fg_client in
 	  let socket = Unix.socket Unix.PF_INET Unix.SOCK_DGRAM 0 in
-	  Unix.connect socket (Unix.ADDR_INET (inet_addr, 5500));
+	  Unix.connect socket (Unix.ADDR_INET (inet_addr, 5501));
 	  let buffer = String.create (fg_sizeof ()) in
 	  Stdlib.timer ~scale:time_scale fg_period (fg_task socket buffer)
 	with

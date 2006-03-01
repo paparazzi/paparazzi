@@ -15,9 +15,11 @@ my $options = {};
 GetOptions (
 	    "b=s" => \$options->{ivy_bus},
 	    "a=s" => \$options->{aircraft},
+	    "fg=s" => \$options->{fg},
 	   );
 my @args = ();
 push @args, "-b", $options->{ivy_bus};
+push @args, "-fg", $options->{fg} if exists $options->{fg};
 my $sim_binary = Paparazzi::Environment::paparazzi_home()."/var/".$options->{aircraft}."/sim/simsitl";
 die "$sim_binary not found. try make AIRCRAFT=$options->{aircraft} ac\n" unless -e $sim_binary;
 exec ($sim_binary, @args)

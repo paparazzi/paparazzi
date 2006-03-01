@@ -56,6 +56,7 @@ let init route = {
 let get_xyz state = (state.x, state.y, state.z)
 let get_time state = state.t
 let get_phi state = state.phi
+let get_attitude state = (state.phi, 0., state.psi)
 
 let set_air_speed state x = state.air_speed <- x
 
