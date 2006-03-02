@@ -3,7 +3,7 @@
  *
  * Geographic conversion utilities
  *  
- * Copyright (C) 2004 CENA/ENAC, Pascal Brisset, Antoine Drouin
+ * Copyright (C) 2004-2006 ENAC, Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
  *
@@ -360,6 +360,22 @@ let (/.=) r x = r := !r /. x
 let (+.=) r x = r := !r +. x
 let (-.=) r x = r := !r -. x
 
+
+let gm_pos_and_scale = fun keyholeString tLat latHeight tLon lonWidth ->
+  let tmp_lat = fun l -> 2. *. atan (exp (l *. pi)) -. pi/.2. in
+  let bl_lat = tmp_lat tLat in
+  let tr_lat = tmp_lat (tLat +. latHeight) in
+  let bottom_left = {posn_lat = bl_lat ; posn_long = tLon *. pi} in
+  let top_right = {posn_lat = tr_lat;
+		   posn_long = bottom_left.posn_long +. lonWidth *. pi } in
+
+  let utm_bottom_left = utm_of WGS84 bottom_left
+  and utm_top_right = utm_of WGS84 top_right in
+(***   Printf.fprintf stderr "%fx%f\n" (utm_bottom_left.utm_x -. utm_top_right.utm_x) (utm_bottom_left.utm_y -. utm_top_right.utm_y); ***)
+  let scale = utm_distance utm_bottom_left utm_top_right  /. sqrt (2. *. 256.*.256.) in
+  (keyholeString, bottom_left, scale)
+
+
 (** Returns a keyhole string for a longitude (x), latitude (y), and zoom 
    for Google Maps (http://www.ponies.me.uk/maps/GoogleTileUtils.java) *)
 let gm_tile_string = fun wgs84 zoom ->
@@ -403,26 +419,14 @@ let gm_tile_string = fun wgs84 zoom ->
       end
     end
   done;
-  let tmp_lat = fun l -> 2. *. atan (exp (l *. pi)) -. pi/.2. in
-  let bl_lat = tmp_lat !tLat in
-  let tr_lat = tmp_lat (!tLat +. !latHeight) in
-  let bottom_left = {posn_lat = bl_lat ; posn_long = !tLon *. pi} in
-  let top_right = {posn_lat = tr_lat;
-		   posn_long = bottom_left.posn_long +. !lonWidth *. pi } in
-
-  let utm_bottom_left = utm_of WGS84 bottom_left
-  and utm_top_right = utm_of WGS84 top_right in
-  Printf.fprintf stderr "%fx%f\n" (utm_bottom_left.utm_x -. utm_top_right.utm_x) (utm_bottom_left.utm_y -. utm_top_right.utm_y);
-  let scale = utm_distance utm_bottom_left utm_top_right  /. sqrt (2. *. 256.*.256.) in
-  (Buffer.contents keyholeString, bottom_left, scale)
-
+  gm_pos_and_scale (Buffer.contents keyholeString) !tLat !latHeight !tLon !lonWidth
 
 let gm_lat_long_of_tile = fun keyholeStr ->
   assert(keyholeStr.[0] = 't');
   
   let lon  = ref (-180.)
   and lonWidth = ref 360. 
-  and  lat       = ref (-1.) 
+  and lat       = ref (-1.) 
   and latHeight = ref 2. in
   
   for i = 1 to String.length keyholeStr - 1  do
@@ -439,11 +443,5 @@ let gm_lat_long_of_tile = fun keyholeStr ->
     | _ -> invalid_arg ("gm_get_lat_long " ^ keyholeStr)
   done;
 
-  latHeight +.= !lat;
-  latHeight := (2. *. atan (exp (pi *. !latHeight))) -. (pi /. 2.);
-
-  lat := (2. *. atan (exp (pi *. !lat))) -. (pi /. 2.);
-
-  latHeight -.= !lat;
-  lon := (Deg>>Rad)!lon;
-  { posn_lat = !lat; posn_long = !lon }
+  let (_, sw, s) = gm_pos_and_scale keyholeStr !lat !latHeight (!lon/.180.) (!lonWidth/.180.) in
+  (sw, s)

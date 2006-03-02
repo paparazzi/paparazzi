@@ -3,7 +3,7 @@
  *
  * Multi aircrafts map display
  *  
- * Copyright (C) 2004 CENA/ENAC, Pascal Brisset, Antoine Drouin
+ * Copyright (C) 2004-2006 ENAC, Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
  *
@@ -52,6 +52,12 @@ let (//) = Filename.concat
 let default_path_srtm = home // "data" // "srtm"
 let default_path_maps = home // "data" // "maps" // ""
 let default_path_missions = home // "conf"
+let gm_tiles_path = home // "var" // "maps"
+let _ = 
+  ignore (Sys.command (sprintf "mkdir -p %s" gm_tiles_path))
+
+let google_maps_url = fun s -> sprintf "http://kh1.google.com/kh?n=404&v=3&t=%s" s
+
 
 
 type aircraft = {
@@ -117,17 +123,23 @@ let set_geo_ref = fun geomap wgs84 ->
   map_ref := Some utm_ref
 
 
+exception Wget_failure of string
 
-let file_of_url = fun ?(extension=".xml") url ->
+let file_of_url = fun ?(extension=".xml") ?dest url ->
   if String.sub url 0 7 = "file://" then
     String.sub url 7 (String.length url - 7)
   else
-    let tmp_file = Filename.temp_file "fp" extension in
+    let tmp_file =
+      match dest with 
+	Some s -> s
+      | None -> Filename.temp_file "fp" extension in
     let c = sprintf "wget --cache=off -O %s '%s'" tmp_file url in
     if Sys.command c = 0 then
       tmp_file
-    else
-      failwith c
+    else begin
+      Sys.remove tmp_file;
+      raise (Wget_failure url)
+    end
 
 let load_mission = fun color geomap xml ->
   let lat0 = float_attr xml "lat0"
@@ -487,19 +499,40 @@ let en_of_wgs84 = fun geomap wgs84 ->
   {G.east=utm.utm_x -. utm_ref.utm_x; north=utm.utm_y -. utm_ref.utm_y}
 
 
+let is_prefix = fun a b ->
+  String.length b >= String.length a &&
+  a = String.sub b 0 (String.length a)
+
+let get_gm_from_cache = fun f ->
+  let files = Sys.readdir gm_tiles_path in
+  let rec loop = fun i ->
+    if i < Array.length files then
+      let fi = files.(i) in
+      if is_prefix (Filename.chop_extension fi) f then
+	let (sw, s) = Latlong.gm_lat_long_of_tile f in
+	(gm_tiles_path // fi, sw, s)
+      else
+	loop (i+1)
+    else
+      raise Not_found in
+  loop 0
+
 
 let rec get_gm_tile = fun wgs84 zoom ->
   if zoom < 10 then
     try
       let (gm_string, sw, scale) = Latlong.gm_tile_string wgs84 zoom in
-      let url = sprintf "http://kh1.google.com/kh?n=404&v=3&t=%s" gm_string in
-      let jpg_file = file_of_url ~extension:".jpg" url in
-
-      (jpg_file, sw, scale)
+      try get_gm_from_cache gm_string with
+	Not_found ->
+	  let url = google_maps_url gm_string in
+	  let jpg_file = gm_tiles_path // (gm_string ^ ".jpg") in
+	  ignore (file_of_url ~extension:".jpg" ~dest:jpg_file url);
+	  (jpg_file, sw, scale)
     with (** Error, let's try a lower zoom *)
-      _ -> get_gm_tile wgs84 (zoom+1)
+      Wget_failure __ -> get_gm_tile wgs84 (zoom+1)
   else
-    failwith "get_gm_tile"
+    failwith "download_gm_tile"
+
 
 
 

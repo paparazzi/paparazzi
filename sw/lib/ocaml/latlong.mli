@@ -117,8 +117,8 @@ val of_string : string -> geographic
 
 val gm_tile_string : geographic -> int -> string * geographic * float
 (** [gm_tile_string geo zoom] Returns the string code designing the
-   Google Map tile *)
+   Google Map tile, coordinates of SW corner and scale *)
 
-val gm_lat_long_of_tile : string -> geographic
+val gm_lat_long_of_tile : string -> geographic * float
 (** [gm_lat_long_of_tile google_maps_tile_key] Returns the coordinates of the
-South West corner of the given tile. *)
+South West corner and the scale of the given tile. *)
