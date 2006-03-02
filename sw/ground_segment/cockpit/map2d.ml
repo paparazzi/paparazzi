@@ -106,12 +106,24 @@ let load_map = fun (geomap:G.widget) (vertical_display:MapCanvas.basic_widget) x
   geomap#moveto en0
 
 
-let file_of_url = fun url ->
+let set_geo_ref = fun geomap wgs84 ->
+  let utm_ref = utm_of WGS84 wgs84 in
+  let wgs84_of_en = fun en ->
+    of_utm WGS84 {utm_x = utm_ref.utm_x +. en.G.east; utm_y = utm_ref.utm_y +. en.G.north; utm_zone = utm_ref.utm_zone} in
+
+  geomap#set_wgs84_of_en wgs84_of_en;
+  geomap#set_world_unit 1.;
+  assert (!map_ref = None);
+  map_ref := Some utm_ref
+
+
+
+let file_of_url = fun ?(extension=".xml") url ->
   if String.sub url 0 7 = "file://" then
     String.sub url 7 (String.length url - 7)
   else
-    let tmp_file = Filename.temp_file "fp" ".xml" in
-    let c = sprintf "wget --cache=off -O %s %s" tmp_file url in
+    let tmp_file = Filename.temp_file "fp" extension in
+    let c = sprintf "wget --cache=off -O %s '%s'" tmp_file url in
     if Sys.command c = 0 then
       tmp_file
     else
@@ -467,13 +479,56 @@ let listen_flight_params = fun () ->
   in
   ignore (Ground_Pprz.message_bind "AP_STATUS" get_ap_status);;
 
+let en_of_wgs84 = fun geomap wgs84 ->
+  let ref = geomap#wgs84_of_en {G.east=0.; north = 0.} in
+  let utm_ref = utm_of WGS84 ref in
+
+  let utm = utm_of WGS84 wgs84 in
+  {G.east=utm.utm_x -. utm_ref.utm_x; north=utm.utm_y -. utm_ref.utm_y}
+
+
+
+let rec get_gm_tile = fun wgs84 zoom ->
+  if zoom < 10 then
+    try
+      let (gm_string, sw, scale) = Latlong.gm_tile_string wgs84 zoom in
+      let url = sprintf "http://kh1.google.com/kh?n=404&v=3&t=%s" gm_string in
+      let jpg_file = file_of_url ~extension:".jpg" url in
+
+      (jpg_file, sw, scale)
+    with (** Error, let's try a lower zoom *)
+      _ -> get_gm_tile wgs84 (zoom+1)
+  else
+    failwith "get_gm_tile"
+
+
+
+let button_press = fun (geomap:MapCanvas.widget) ev ->
+  let xc = GdkEvent.Button.x ev 
+  and yc = GdkEvent.Button.y ev in
+  let (xw, yw) = geomap#window_to_world xc yc in
+  let en = geomap#en_of_world xw yw in
+  let wgs84 = geomap#wgs84_of_en en in
+
+  let (jpg_file, sw, scale) = get_gm_tile wgs84 1 in
+
+  let en_sw = en_of_wgs84 geomap sw in
+  let en_nw = { en_sw with G.north = en_sw.G.north +. 256. *. scale } in
+  let scale = scale /. geomap#get_world_unit () in
+  let map = geomap#display_map ~scale en_nw (GdkPixbuf.from_file jpg_file) in
+  map#raise 1;
+  true
+  
+
 
 let _ =
   let ivy_bus = ref "127.255.255.255:2010"
+  and geo_ref = ref ""
   and map_file = ref ""
   and mission_file = ref "" in
   let options =
     [ "-b", Arg.String (fun x -> ivy_bus := x), "Bus\tDefault is 127.255.255.25:2010";
+      "-ref", Arg.Set_string geo_ref, "Geographic ref (default '')";
       "-m", Arg.String (fun x -> map_file := x), "Map description file"] in
   Arg.parse (options)
     (fun x -> Printf.fprintf stderr "Warning: Don't do anythig with %s\n" x)
@@ -494,6 +549,8 @@ let _ =
 
   let geomap = new MapCanvas.widget ~height:400 () in
   let accel_group = geomap#menu_fact#accel_group in
+
+  ignore (geomap#canvas#event#connect#button_press (button_press geomap));
 
   (** widget displaying aircraft vertical position  *)
   let vertical_display = new MapCanvas.basic_widget ~height:400 () in
@@ -518,8 +575,10 @@ let _ =
   vertical_vbox#pack ~expand:true vertical_display#frame#coerce;
 
   (* Loading an initial map *)
-  if !map_file <> "" then begin
-    let xml_map_file = Filename.concat default_path_maps !map_file in
+  if !geo_ref <> "" then
+    set_geo_ref geomap (Latlong.of_string !geo_ref)
+  else if !map_file <> "" then begin
+    let xml_map_file = if !map_file.[0] <> '/' then Filename.concat default_path_maps !map_file else !map_file in
     load_map geomap vertical_display xml_map_file
   end;
 

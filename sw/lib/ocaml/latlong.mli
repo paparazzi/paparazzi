@@ -114,3 +114,11 @@ val wgs84_of_lambertIIe : meter -> meter -> geographic
 
 val of_string : string -> geographic
 (** [of_string pos] Parses [pos] as "WGS84 45.678 1.2345", "UTM 500123 4500300 31" or "LBT2e 544945 1755355" *) 
+
+val gm_tile_string : geographic -> int -> string * geographic * float
+(** [gm_tile_string geo zoom] Returns the string code designing the
+   Google Map tile *)
+
+val gm_lat_long_of_tile : string -> geographic
+(** [gm_lat_long_of_tile google_maps_tile_key] Returns the coordinates of the
+South West corner of the given tile. *)

@@ -141,6 +141,11 @@ class basic_widget = fun ?(height=800) ?width ?wgs84_of_en () ->
 	None -> ""
       | Some f -> string_degrees_of_geographic (f en)
 
+    method wgs84_of_en =
+      match wgs84_of_en with
+	None -> raise Not_found
+      | Some f -> f
+	    
     	    
     method moveto = fun en ->
       let (xw, yw) = self#world_of_en en in

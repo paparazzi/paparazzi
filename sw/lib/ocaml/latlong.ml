@@ -57,7 +57,7 @@ let (>>) u1 u2 x = (x *. piradian u2) /. piradian u1;;
 let deg_string_of_rad = fun r -> Printf.sprintf "%.6f" ((Rad>>Deg)r)
 
 let sprint_degree_of_radian x =
-  Printf.sprintf "%.4f" ((Rad>>Deg) x)
+  Printf.sprintf "%.6f" ((Rad>>Deg) x)
 
 let string_degrees_of_geographic sm =
   Printf.sprintf "%s\t%s"
@@ -353,3 +353,97 @@ let of_string = fun s ->
   | ["LBT2e";x;y] ->
       wgs84_of_lambertIIe (ios x) (ios y)
   | _ -> invalid_arg (Printf.sprintf "Latlong.of_string: %s" s)
+
+
+
+let (/.=) r x = r := !r /. x
+let (+.=) r x = r := !r +. x
+let (-.=) r x = r := !r -. x
+
+(** Returns a keyhole string for a longitude (x), latitude (y), and zoom 
+   for Google Maps (http://www.ponies.me.uk/maps/GoogleTileUtils.java) *)
+let gm_tile_string = fun wgs84 zoom ->
+  let zoom = 18 - zoom in
+  
+  (* first convert the lat lon to transverse mercator coordintes.*)
+  let lon = (Rad>>Deg)wgs84.posn_long in
+  let lon = if lon > 180. then lon -. 180. else lon in
+  let lon = lon /. 180. in
+
+  (*  convert latitude to a range -1..+1 *)
+  let lat = log (tan (pi/.4. +. 0.5*. wgs84.posn_lat)) /. pi in
+
+  let tLat = ref (-1.)
+  and tLon      = ref (-1.)
+  and lonWidth  = ref 2.
+  and latHeight = ref 2. (** Always identical to lonWidth !!! *)
+  and keyholeString = Buffer.create 3 in
+  Buffer.add_char keyholeString 't';
+
+  for i = 0 to zoom - 1 do
+    lonWidth /.= 2.;
+    latHeight /.= 2.;
+
+    if !tLat +. !latHeight > lat then
+      if ((!tLon +. !lonWidth) > lon) then begin
+        Buffer.add_char keyholeString 't';
+      end else begin
+        tLon +.= !lonWidth;
+        Buffer.add_char keyholeString 's';
+      end
+    else begin
+      tLat +.= !latHeight;
+
+      if ((!tLon +. !lonWidth) > lon) then begin
+        Buffer.add_char keyholeString 'q';
+      end
+      else begin  
+        tLon +.= !lonWidth;
+        Buffer.add_char keyholeString 'r';
+      end
+    end
+  done;
+  let tmp_lat = fun l -> 2. *. atan (exp (l *. pi)) -. pi/.2. in
+  let bl_lat = tmp_lat !tLat in
+  let tr_lat = tmp_lat (!tLat +. !latHeight) in
+  let bottom_left = {posn_lat = bl_lat ; posn_long = !tLon *. pi} in
+  let top_right = {posn_lat = tr_lat;
+		   posn_long = bottom_left.posn_long +. !lonWidth *. pi } in
+
+  let utm_bottom_left = utm_of WGS84 bottom_left
+  and utm_top_right = utm_of WGS84 top_right in
+  Printf.fprintf stderr "%fx%f\n" (utm_bottom_left.utm_x -. utm_top_right.utm_x) (utm_bottom_left.utm_y -. utm_top_right.utm_y);
+  let scale = utm_distance utm_bottom_left utm_top_right  /. sqrt (2. *. 256.*.256.) in
+  (Buffer.contents keyholeString, bottom_left, scale)
+
+
+let gm_lat_long_of_tile = fun keyholeStr ->
+  assert(keyholeStr.[0] = 't');
+  
+  let lon  = ref (-180.)
+  and lonWidth = ref 360. 
+  and  lat       = ref (-1.) 
+  and latHeight = ref 2. in
+  
+  for i = 1 to String.length keyholeStr - 1  do
+    lonWidth /.= 2.;
+    latHeight /.= 2.;
+
+    match keyholeStr.[i] with
+      's' -> lon +.= !lonWidth
+    | 'r' -> 
+        lat +.= !latHeight;
+        lon +.= !lonWidth
+    | 'q' -> lat +.= !latHeight
+    | 't' -> ()
+    | _ -> invalid_arg ("gm_get_lat_long " ^ keyholeStr)
+  done;
+
+  latHeight +.= !lat;
+  latHeight := (2. *. atan (exp (pi *. !latHeight))) -. (pi /. 2.);
+
+  lat := (2. *. atan (exp (pi *. !lat))) -. (pi /. 2.);
+
+  latHeight -.= !lat;
+  lon := (Deg>>Rad)!lon;
+  { posn_lat = !lat; posn_long = !lon }
