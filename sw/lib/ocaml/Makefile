@@ -26,7 +26,7 @@ OCAMLC=ocamlc $(INCLUDES)
 OCAMLOPT=ocamlopt $(INCLUDES)
 
 
-SRC = debug.ml env.ml serial.ml ocaml_tools.ml extXml.ml xml2h.ml latlong.ml srtm.ml wavecard.ml geometry_2d.ml geometry_3d.ml cserial.o convert.o ubx.ml pprz.ml
+SRC = debug.ml env.ml serial.ml ocaml_tools.ml extXml.ml xml2h.ml latlong.ml srtm.ml http.ml gm.ml wavecard.ml geometry_2d.ml geometry_3d.ml cserial.o convert.o ubx.ml pprz.ml
 CMO = $(SRC:.ml=.cmo)
 CMX = $(SRC:.ml=.cmx)
 

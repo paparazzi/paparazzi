@@ -26,7 +26,7 @@ class basic_widget = fun ?(height=800) ?width ?wgs84_of_en () ->
     val menubar = GMenu.menu_bar ()
 	
     val adj = GData.adjustment 
-	~value:1. ~lower:0.25 ~upper:10. 
+	~value:1. ~lower:0.05 ~upper:10. 
 	~step_incr:0.25 ~page_incr:1.0 ~page_size:1.0 ()
   
     val canvas = GnoCanvas.canvas ()
@@ -152,8 +152,8 @@ class basic_widget = fun ?(height=800) ?width ?wgs84_of_en () ->
       let (xc, yc) = canvas#world_to_window xw yw in
       canvas#scroll_to (truncate xc) (truncate yc)
 			
-    method display_map = fun ?(scale = 1.) en image ->
-      background <- GnoCanvas.pixbuf ~pixbuf:image ~props:[`ANCHOR `NW] self#root;
+    method display_map = fun ?(scale = 1.) ?(anchor = (`ANCHOR `NW)) en image ->
+      background <- GnoCanvas.pixbuf ~pixbuf:image ~props:[anchor] self#root;
       background#lower_to_bottom ();
       let wx, wy = self#world_of_en en in
       background#move wx wy;

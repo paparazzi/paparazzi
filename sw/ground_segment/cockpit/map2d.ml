@@ -56,8 +56,6 @@ let gm_tiles_path = home // "var" // "maps"
 let _ = 
   ignore (Sys.command (sprintf "mkdir -p %s" gm_tiles_path))
 
-let google_maps_url = fun s -> sprintf "http://kh1.google.com/kh?n=404&v=3&t=%s" s
-
 
 
 type aircraft = {
@@ -122,24 +120,6 @@ let set_geo_ref = fun geomap wgs84 ->
   assert (!map_ref = None);
   map_ref := Some utm_ref
 
-
-exception Wget_failure of string
-
-let file_of_url = fun ?(extension=".xml") ?dest url ->
-  if String.sub url 0 7 = "file://" then
-    String.sub url 7 (String.length url - 7)
-  else
-    let tmp_file =
-      match dest with 
-	Some s -> s
-      | None -> Filename.temp_file "fp" extension in
-    let c = sprintf "wget --cache=off -O %s '%s'" tmp_file url in
-    if Sys.command c = 0 then
-      tmp_file
-    else begin
-      Sys.remove tmp_file;
-      raise (Wget_failure url)
-    end
 
 let load_mission = fun color geomap xml ->
   let lat0 = float_attr xml "lat0"
@@ -399,7 +379,7 @@ let create_ac = fun (geomap:MapCanvas.widget) (vertical_display:MapCanvas.basic_
     | _ -> false in
   ignore (track#aircraft#connect#event event_ac);
   let fp_url = Pprz.string_assoc "flight_plan" config in
-  let fp_file = file_of_url fp_url in
+  let fp_file = Http.file_of_url fp_url in
   let fp_xml_dump = Xml.parse_file fp_file in
   let fp_xml = ExtXml.child fp_xml_dump "flight_plan" in
 
@@ -499,58 +479,98 @@ let en_of_wgs84 = fun geomap wgs84 ->
   {G.east=utm.utm_x -. utm_ref.utm_x; north=utm.utm_y -. utm_ref.utm_y}
 
 
-let is_prefix = fun a b ->
-  String.length b >= String.length a &&
-  a = String.sub b 0 (String.length a)
+let current_gm_tiles = Hashtbl.create 97
 
-let get_gm_from_cache = fun f ->
-  let files = Sys.readdir gm_tiles_path in
-  let rec loop = fun i ->
-    if i < Array.length files then
-      let fi = files.(i) in
-      if is_prefix (Filename.chop_extension fi) f then
-	let (sw, s) = Latlong.gm_lat_long_of_tile f in
-	(gm_tiles_path // fi, sw, s)
-      else
-	loop (i+1)
-    else
-      raise Not_found in
-  loop 0
+let gm_tile_diagonal =
+  let (dx, dy) = Gm.tile_size in
+  sqrt (float (dx*dx+dy*dy))
+
+let middle = fun a b -> (a +. b) /. 2.
 
 
-let rec get_gm_tile = fun wgs84 zoom ->
-  if zoom < 10 then
-    try
-      let (gm_string, sw, scale) = Latlong.gm_tile_string wgs84 zoom in
-      try get_gm_from_cache gm_string with
-	Not_found ->
-	  let url = google_maps_url gm_string in
-	  let jpg_file = gm_tiles_path // (gm_string ^ ".jpg") in
-	  ignore (file_of_url ~extension:".jpg" ~dest:jpg_file url);
-	  (jpg_file, sw, scale)
-    with (** Error, let's try a lower zoom *)
-      Wget_failure __ -> get_gm_tile wgs84 (zoom+1)
-  else
-    failwith "download_gm_tile"
+let gm_no_http = ref false
+let active_gm_http = fun x -> 
+  gm_no_http := not x
 
+let display_gm_tile = fun (geomap:MapCanvas.widget) wgs84 ->
+  let desired_tile = Gm.tile_of_geo wgs84 1 in
 
+  let key = desired_tile.Gm.key in
+  let scale =
+    try Hashtbl.find current_gm_tiles key with
+      Not_found ->
+	let (tile, jpg_file) = Gm.get_tile ~no_http:!gm_no_http wgs84 1 in
+	let south_lat = tile.Gm.sw_corner.posn_lat
+	and west_long = tile.Gm.sw_corner.posn_long in
+	let north_lat = south_lat +. tile.Gm.height
+	and east_long = west_long +. tile.Gm.width in
+	let center = { posn_lat = middle north_lat south_lat; posn_long = middle west_long east_long }
+	and ne = { posn_lat = north_lat; posn_long = east_long } in
+	let en_center = en_of_wgs84 geomap center in
+	
+	let sw_utm = utm_of WGS84 tile.Gm.sw_corner
+	and ne_utm = utm_of  WGS84 ne in
+	let diagonal = utm_distance sw_utm ne_utm in
+	let tile_scale = diagonal /. gm_tile_diagonal in
+
+	let scale = tile_scale /. geomap#get_world_unit () in
+
+	let map = geomap#display_map ~scale en_center ~anchor:(`ANCHOR `CENTER) (GdkPixbuf.from_file jpg_file) in
+	map#raise 1;
+
+	(* Rotation *)
+	let diagonal_angle = atan2 (ne_utm.utm_y -. sw_utm.utm_y) (ne_utm.utm_x -. sw_utm.utm_x) in
+	let a = pi /. 4. -. diagonal_angle in
+	let cos_a = cos a and sin_a = sin a in
+	map#affine_relative [| cos_a; sin_a; -. sin_a; cos_a; 0.; 0.|];
+
+	Hashtbl.add current_gm_tiles key scale;
+	scale in
+  truncate (256. *. scale)
+  
+  
 
 
 let button_press = fun (geomap:MapCanvas.widget) ev ->
   let xc = GdkEvent.Button.x ev 
   and yc = GdkEvent.Button.y ev in
   let (xw, yw) = geomap#window_to_world xc yc in
+
   let en = geomap#en_of_world xw yw in
   let wgs84 = geomap#wgs84_of_en en in
-
-  let (jpg_file, sw, scale) = get_gm_tile wgs84 1 in
-
-  let en_sw = en_of_wgs84 geomap sw in
-  let en_nw = { en_sw with G.north = en_sw.G.north +. 256. *. scale } in
-  let scale = scale /. geomap#get_world_unit () in
-  let map = geomap#display_map ~scale en_nw (GdkPixbuf.from_file jpg_file) in
-  map#raise 1;
+  begin
+    try ignore (Thread.create (display_gm_tile geomap) wgs84) with
+      Gm.Not_available -> ()
+  end;
   true
+
+
+let fill_gm_tiles = fun (geomap:MapCanvas.widget) ->
+  try
+    let sx_w, sy_w = Gdk.Drawable.get_size geomap#canvas#misc#window in
+    
+    let (ox, oy) = geomap#canvas#get_scroll_offsets in
+    
+    let yc = ref oy in
+    let last_size = ref 0 in
+    while !yc < sy_w + oy + !last_size do
+      let xc = ref ox
+      and min_height = ref max_int in
+      while !xc < sx_w + ox + !last_size do
+	let (xw, yw) = geomap#window_to_world (float !xc) (float !yc) in
+	let en = geomap#en_of_world xw yw in
+	let wgs84 = geomap#wgs84_of_en en in
+	let size = truncate (float (display_gm_tile geomap wgs84) *. geomap#current_zoom) in
+	last_size := size;
+	xc := !xc + size;
+      min_height := min !min_height size
+      done;
+      yc := !yc + !min_height
+    done
+  with
+    Gm.Not_available -> ()
+      
+let fill_gm_tiles = fun geomap -> ignore (Thread.create fill_gm_tiles geomap)
   
 
 
@@ -571,6 +591,7 @@ let _ =
   Ivy.start !ivy_bus;
 
   Srtm.add_path default_path_srtm;
+  Gm.cache_path := gm_tiles_path;
 
   let window = GWindow.window ~title: "Map2d" ~border_width:1 ~width:400 () in
   let vbox= GPack.vbox ~packing: window#add () in
@@ -602,6 +623,8 @@ let _ =
  
   ignore (geomap#menu_fact#add_item "Quit" ~key:GdkKeysyms._Q ~callback:quit);
   ignore (geomap#menu_fact#add_check_item "Vertical View" ~key:GdkKeysyms._V ~callback:active_vertical);
+  ignore (geomap#menu_fact#add_item "GM Fill" ~key:GdkKeysyms._G ~callback:(fun _ -> fill_gm_tiles geomap));
+  ignore (geomap#menu_fact#add_check_item "GM Http" ~key:GdkKeysyms._H ~active:true ~callback:active_gm_http);
  
 
   vbox#pack ~expand:true geomap#frame#coerce;
@@ -634,4 +657,5 @@ let _ =
   window#add_accel_group accel_group;
   window#show ();
  
-  GMain.Main.main ()
+(***  GMain.Main.main () ***)
+  GtkThread.main ()

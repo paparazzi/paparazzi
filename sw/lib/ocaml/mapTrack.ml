@@ -189,13 +189,13 @@ let ac_v_label =
 	ac_label#set [`TEXT name; `Y 25.];
       ac_label#affine_absolute (affine_pos_and_angle geomap#zoom_adj#value xw yw 0.);
 
-      let y_val = ((vertical_display#get_vertical_max_level -. altitude) *. (vertical_display#get_vertical_factor) /. ( vertical_display#get_world_unit () ) ) in
+      let y_val = ((vertical_display#get_vertical_max_level -. altitude) *. (vertical_display#get_vertical_factor) /. ( vertical_display#get_world_unit ()) ) in
       let x_val = if vertical_time_axis_on then
 	last_flight_time /. ( vertical_display#get_world_unit () )
       else xw in
       vertical_aircraft#affine_absolute (affine_pos_and_angle vertical_display#zoom_adj#value x_val y_val 0.0 );
 
-      let v_en = { MapCanvas.east = x_val *. ( vertical_display#get_world_unit () ); MapCanvas.north = y_val *. ( -. vertical_display#get_world_unit () ) } in
+      let v_en = { MapCanvas.east = x_val *. ( vertical_display#get_world_unit ()  ); MapCanvas.north = y_val *. ( -. vertical_display#get_world_unit () ) } in
 
 
       (** on the vertical_display, 

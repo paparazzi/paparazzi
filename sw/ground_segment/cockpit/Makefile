@@ -11,7 +11,7 @@ opt : map2d.opt
 
 
 map2d : map2d.ml
-	$(OCAMLC) -custom $(INCLUDES) $(LIBS) gtkInit.cmo $< -o $@
+	$(OCAMLC) -thread -custom $(INCLUDES) $(LIBS) threads.cma gtkThread.cmo gtkInit.cmo $< -o $@
 
 map2d.opt : map2d.cmx
 	$(OCAMLOPT) $(INCLUDES) str.cmxa unix.cmxa xml-light.cmxa $(LIBS:.cma=.cmxa) gtkInit.cmx $< -o $@
