@@ -44,11 +44,20 @@ let (/.=) r x = r := !r /. x
 let (+.=) r x = r := !r +. x
 let (-.=) r x = r := !r -. x
 
+let inv_norm_lat = fun l -> Latlong.inv_mercator_lat (l *. pi)
+let norm_lat = fun l -> Latlong.mercator_lat l /. pi
+
+let tile_coverage = fun lat zoom ->
+  let normed_size = 2. /. (2. ** (float (18-zoom))) in
+  let normed_lat = norm_lat lat in
+  let normed_lat' = normed_lat +. normed_size in
+  let lat' = inv_norm_lat normed_lat' in
+  (normed_size, lat' -. lat)
+
 
 let gm_pos_and_scale = fun keyholeString tLat latHeight tLon lonWidth ->
-  let tmp_lat = fun l -> 2. *. atan (exp (l *. pi)) -. pi/.2. in
-  let bot_lat = tmp_lat tLat in
-  let top_lat = tmp_lat (tLat +. latHeight) in
+  let bot_lat = inv_norm_lat tLat in
+  let top_lat = inv_norm_lat (tLat +. latHeight) in
   let bottom_left = {posn_lat = bot_lat ; posn_long = tLon *. pi} in
   { key = keyholeString;
     sw_corner = bottom_left;
@@ -67,7 +76,8 @@ let tile_of_geo = fun wgs84 zoom ->
   let lon = lon /. 180. in
 
   (*  convert latitude to a range -1..+1 *)
-  let lat = log (tan (pi/.4. +. 0.5*. wgs84.posn_lat)) /. pi in
+  let lat = norm_lat wgs84.posn_lat in
+(*** log (tan (pi/.4. +. 0.5*. wgs84.posn_lat)) /. pi in ***)
 
   let tLat = ref (-1.)
   and tLon      = ref (-1.)
@@ -151,10 +161,12 @@ let google_maps_url = fun s ->
 
 exception Not_available
 
-let get_image = fun no_http tile ->
+let no_http = ref false
+
+let get_image = fun tile ->
   try get_from_cache tile.key with
     Not_found ->
-      if no_http then raise Not_available;
+      if !no_http then raise Not_available;
       let url = google_maps_url tile.key in
       let jpg_file = !cache_path // (tile.key ^ ".jpg") in
       try
@@ -164,13 +176,13 @@ let get_image = fun no_http tile ->
 	Http.Failure _ -> raise Not_available
 
 
-let rec get_tile = fun ?(no_http=false) wgs84 zoom ->
+let rec get_tile = fun wgs84 zoom ->
   if zoom < 10 then
     let tile = tile_of_geo wgs84 zoom in
-    try get_image no_http tile with
+    try get_image tile with
       (** Error, let's try a lower zoom *)
-      Not_available when not no_http -> get_tile ~no_http wgs84 (zoom+1)
+      Not_available when not !no_http -> get_tile wgs84 (zoom+1)
   else
-    failwith "download_gm_tile"
+    raise Not_available
 
 

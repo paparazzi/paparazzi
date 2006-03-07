@@ -107,10 +107,20 @@ geographic coordinates and altitude expressed in geodesic referential
 
 val utm_distance : utm -> utm -> fmeter 
 
-val utm_add : utm -> fmeter -> fmeter -> utm
-(** [add_utm utm east north] *)
+val utm_add : utm -> (fmeter * fmeter) -> utm
+(** [add_utm utm (east,north)] *)
+
+val utm_sub : utm -> utm -> (fmeter * fmeter)
+(** [utm_sub u1 u2] Raises Invalid_arg if [u1] and [u2] are not in the same
+UTM zone *)
 
 val wgs84_of_lambertIIe : meter -> meter -> geographic
 
 val of_string : string -> geographic
 (** [of_string pos] Parses [pos] as "WGS84 45.678 1.2345", "UTM 500123 4500300 31" or "LBT2e 544945 1755355" *) 
+
+val mercator_lat : float -> float
+(** wgs84 -> [-pi; pi] *)
+
+val inv_mercator_lat : float -> float
+(** [-pi; pi] -> wgs84 *)

@@ -39,18 +39,18 @@ class waypoint :
   group ->
   string ->
   ?alt:float ->
-  MapCanvas.en ->
+  Latlong.geographic ->
   object
     method alt : float
     method delete : unit
     method edit : unit
-    method en : MapCanvas.en
+    method pos : Latlong.geographic
     method event : GnoCanvas.item_event -> bool
     method item : GnoCanvas.polygon
     method label : GnoCanvas.text
     method move : float -> float -> unit
     method name : string
-    method set : MapCanvas.en -> unit
+    method set : Latlong.geographic -> unit
     method set_name : string -> unit
     method xy : float * float
     method zoom : float -> unit
@@ -58,4 +58,4 @@ class waypoint :
   end
 
 
-val waypoint : group -> ?name:string -> ?alt:float -> MapCanvas.en -> waypoint
+val waypoint : group -> ?name:string -> ?alt:float -> Latlong.geographic -> waypoint

@@ -24,6 +24,7 @@
  *
  *)
 
+
 type cmd_name =
     ACK
   |  NAK
@@ -60,18 +61,32 @@ type cmd_name =
   |  REQ_SEND_SERVICE
   |  RES_SEND_SERVICE
   |  SERVICE_RESPONSE
+(** available commands *)
+
+
+val code_of_cmd : cmd_name -> int
+(** Code of command *)
 
 type data = string
 type cmd = cmd_name * data
-
-val send :  Unix.file_descr -> cmd -> unit
-
-val receive : ?ack:(unit -> unit) -> (cmd -> 'a) -> (Unix.file_descr -> unit)
-
-val code_of_cmd : cmd_name -> int
+(** A command is composed of a command name and some untyped data *)
 
 type addr
 val addr_of_string : string -> addr
+(** [addr_of_string address] where [address] is a 64 bits number, for example
+[0x011804c0012d] *)
+
+val send :  Unix.file_descr -> cmd -> unit
+(** Send a command on the channel connected to the serial port of the wavecard *)
+
 val send_addressed : Unix.file_descr -> (cmd_name*addr*data) -> unit
+(** [send_addressed fd (cmd, a, data)] Sends [cmd] with data obtained by
+concatenation of codinf of [a] and [data] *)
+
+val receive : ?ack:(unit -> unit) -> (cmd -> 'a) -> (Unix.file_descr -> unit)
+(** [receive ?acknowledger callbkack] Returns a listener for wavecard messages *)
+
 
 val compute_checksum : string -> int
+(** [compute_checksum buf] Computes the checksum of a complete message buffer,
+including the header of the message *)

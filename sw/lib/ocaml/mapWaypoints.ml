@@ -24,6 +24,7 @@
  *
  *)
 
+module LL = Latlong
 open Printf
 
 let s = 5.
@@ -38,11 +39,11 @@ class group = fun ?(color="red") ?(editable=true) (geomap:MapCanvas.widget) ->
     method editable=editable
   end
 
-class waypoint = fun (group:group) (name :string) ?(alt=0.) en ->
+class waypoint = fun (group:group) (name :string) ?(alt=0.) wgs84 ->
   let geomap=group#geomap
   and color = group#color
   and editable = group#editable in
-  let xw, yw = geomap#world_of_en en in
+  let xw, yw = geomap#world_of wgs84 in
   object (self)
     val mutable x0 = 0.
     val mutable y0 = 0.
@@ -66,10 +67,10 @@ class waypoint = fun (group:group) (name :string) ?(alt=0.) en ->
     method edit =
       let dialog = GWindow.window ~border_width:10 ~title:"Waypoint Edit" () in
       let dvbx = GPack.box `VERTICAL ~packing:dialog#add () in
-      let en = self#en in
+      let wgs84 = self#pos in
+      let s = sprintf "WGS84 %s" (geomap#geo_string wgs84) in
       let ename  = GEdit.entry ~text:name ~packing:dvbx#add () in
-      let ex  = GEdit.entry ~text:(string_of_float en.MapCanvas.east) ~packing:dvbx#add () in
-      let ey  = GEdit.entry ~text:(string_of_float en.MapCanvas.north) ~packing:dvbx#add () in
+      let e_pos  = GEdit.entry ~text:s ~packing:dvbx#add () in
       let ea  = GEdit.entry ~text:(string_of_float alt) ~packing:dvbx#add () in
       let cancel = GButton.button ~label:"Cancel" ~packing: dvbx#add () in 
       let ok = GButton.button ~label:"OK" ~packing: dvbx#add () in
@@ -79,8 +80,7 @@ class waypoint = fun (group:group) (name :string) ?(alt=0.) en ->
 		 self#set_name ename#text;
 		 alt <- float_of_string ea#text;
 		 label#set [`TEXT name];
-		 self#set {MapCanvas.east = float_of_string ex#text;
-			   north = float_of_string ey#text};
+		 self#set (LL.of_string e_pos#text);
 		 dialog#destroy ()
 	       end);
       dialog#show ()
@@ -127,11 +127,9 @@ class waypoint = fun (group:group) (name :string) ?(alt=0.) en ->
     initializer ignore(if editable then ignore (item#connect#event self#event))
     method moved = moved
     method item = item
-    method en =
-      let (dx, dy) = self#xy in
-      geomap#en_of_world dx dy
-    method set en = 
-      let (xw, yw) = geomap#world_of_en en
+    method pos = geomap#of_world self#xy
+    method set wgs84 = 
+      let (xw, yw) = geomap#world_of wgs84
       and (xw0, yw0) = self#xy in
       self#move (xw-.xw0) (yw-.yw0)      
     method delete =

@@ -143,12 +143,14 @@ module Make(A:Data.MISSION) = struct
     let ac_id = int_of_string (Pprz.string_assoc "ac_id" vs) in
     if ac_id <> !my_id then
       let f = fun a -> Pprz.float_assoc a vs in
-      let ux = f "east"
-      and uy = f "north"
+      let lat = f "lat"
+      and long = f "long"
       and course = (Deg>>Rad)(f "course")
       and alt = f "alt"
       and gspeed = f "speed" in
-      set_ac_info ac_id ux uy course alt gspeed
+      let wgs84 = {posn_lat=(Deg>>Rad)lat;posn_long=(Deg>>Rad)long} in
+      let utm = Latlong.utm_of WGS84 wgs84 in
+      set_ac_info ac_id utm.utm_x utm.utm_y course alt gspeed
 
   external move_waypoint : int -> float -> float -> float -> unit = "move_waypoint"
   let get_move_waypoint = fun _sender vs ->
@@ -156,10 +158,12 @@ module Make(A:Data.MISSION) = struct
     if ac_id = !my_id then
       let f = fun a -> Pprz.float_assoc a vs in
       let wp_id = Pprz.int_assoc "wp_id" vs
-      and ux = f "utm_east"
-      and uy = f "utm_north"
+      and lat = f "lat"
+      and long = f "long"
       and alt = f "alt" in
-      move_waypoint wp_id ux uy alt
+      let wgs84 = {posn_lat=(Deg>>Rad)lat;posn_long=(Deg>>Rad)long} in
+      let utm = Latlong.utm_of WGS84 wgs84 in
+      move_waypoint wp_id utm.utm_x utm.utm_y alt
 
   external send_event : int -> unit = "send_event"
   let get_send_event = fun _sender vs ->

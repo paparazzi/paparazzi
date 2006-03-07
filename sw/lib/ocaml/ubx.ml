@@ -61,21 +61,22 @@ end
 let (//) = Filename.concat
 
 let ubx_xml =
-  Xml.parse_file (Env.paparazzi_src // "conf" // "ubx.xml")
+  lazy (Xml.parse_file (Env.paparazzi_src // "conf" // "ubx.xml"))
 
 let ubx_get_class = fun name ->
+  let ubx_xml = Lazy.force ubx_xml in
   ExtXml.child ubx_xml ~select:(fun x -> ExtXml.attrib x "name" = name) "class"
 
-let ubx_nav = ubx_get_class "NAV"
-let ubx_nav_id = int_of_string (ExtXml.attrib ubx_nav "ID")
+let ubx_nav () = ubx_get_class "NAV"
+let ubx_nav_id () = int_of_string (ExtXml.attrib (ubx_nav ()) "ID")
 let ubx_get_msg = fun ubx_class name ->
   ExtXml.child ubx_class ~select:(fun x -> ExtXml.attrib x "name" = name) "message"
 
-let ubx_get_nav_msg = fun name -> ubx_get_msg ubx_nav name
+let ubx_get_nav_msg = fun name -> ubx_get_msg (ubx_nav ()) name
 
-let nav_posutm = ubx_nav_id, ubx_get_nav_msg "POSUTM"
-let nav_status = ubx_nav_id, ubx_get_nav_msg "STATUS"
-let nav_velned = ubx_nav_id, ubx_get_nav_msg "VELNED"
+let nav_posutm () = ubx_nav_id (), ubx_get_nav_msg "POSUTM"
+let nav_status () = ubx_nav_id (), ubx_get_nav_msg "STATUS"
+let nav_velned () = ubx_nav_id (), ubx_get_nav_msg "VELNED"
 
 
 let send_start_sequence = fun gps ->

@@ -335,8 +335,14 @@ let utm_distance = fun utm1 utm2 ->
   if utm1.utm_zone <> utm2.utm_zone then invalid_arg "utm_distance";
   sqrt ((utm1.utm_x -. utm2.utm_x)**2. +. (utm1.utm_y -. utm2.utm_y)**2.)
 
-let utm_add = fun u x y ->
+let utm_add = fun u (x, y) ->
   {utm_x = u.utm_x +. x; utm_y = u.utm_y +. y; utm_zone = u.utm_zone }
+  
+let utm_sub = fun u1 u2 ->
+  if u1.utm_zone <> u2.utm_zone then
+    invalid_arg (Printf.sprintf "utm_sub: %d %d" u1.utm_zone u2.utm_zone);
+  (u1.utm_x -. u2.utm_x, u1.utm_y -. u2.utm_y)
+
   
 let wgs84_of_lambertIIe = fun x y -> (WGS84<<NTF)(of_lambert lambertIIe {lbt_x = x; lbt_y = y})
 
@@ -353,4 +359,8 @@ let of_string = fun s ->
   | ["LBT2e";x;y] ->
       wgs84_of_lambertIIe (ios x) (ios y)
   | _ -> invalid_arg (Printf.sprintf "Latlong.of_string: %s" s)
+
+
+let mercator_lat = fun l -> log (tan (pi/.4. +. 0.5*. l))
+let inv_mercator_lat = fun l -> 2. *. atan (exp l) -. pi/.2.
 

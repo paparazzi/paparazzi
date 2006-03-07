@@ -324,8 +324,8 @@
     <field name="ac_id" type="string"/>
     <field name="roll"    type="float" unit="deg"/>
     <field name="pitch"   type="float" unit="deg"/>
-    <field name="east"    type="float" unit="m"/>
-    <field name="north"   type="float" unit="m"/>
+    <field name="lat"    type="float" unit="deg"/>
+    <field name="long"   type="float" unit="deg"/>
     <field name="speed"   type="float" unit="m/s"/>
     <field name="course" type="float" unit="deg" format="%.1f"/>
     <field name="alt"     type="float" unit="m"/>
@@ -348,8 +348,8 @@
     <field name="cur_stage"   type="uint8"/>
     <field name="block_time"  type="uint32"/>
     <field name="stage_time"  type="uint32"/>
-    <field name="target_east" type="float" unit="m"/>
-    <field name="target_north" type="float" unit="m"/>
+    <field name="target_lat" type="float" unit="deg"/>
+    <field name="target_long" type="float" unit="deg"/>
     <field name="target_climb"   type="float" unit="m/s"/>
     <field name="target_alt"     type="float" unit="m"/>
     <field name="target_course" type="float" unit="deg"/>
@@ -357,10 +357,10 @@
 
   <message name="CAM_STATUS" ID="14">
      <field name="ac_id" type="string"/>
-     <field name="cam_east" type="float" unit="m" format="%.1f"/>
-     <field name="cam_north" type="float" unit="m" format="%.1f"/>
-     <field name="target_east" type="float" unit="m"/>
-     <field name="target_north" type="float" unit="m"/>
+     <field name="cam_lat" type="float" unit="deg"/>
+     <field name="cam_long" type="float" unit="deg"/>
+     <field name="cam_target_lat" type="float" unit="deg"/>
+     <field name="cam_target_long" type="float" unit="deg"/>
   </message>
 
   <message name="ENGINE_STATUS" ID="15">
@@ -417,24 +417,24 @@
 
   <message name="CIRCLE_STATUS" ID="22">
      <field name="ac_id" type="string"/>
-     <field name="circle_east" type="float" unit="m"/>
-     <field name="circle_north" type="float" unit="m"/>
+     <field name="circle_lat" type="float" unit="deg"/>
+     <field name="circle_long" type="float" unit="deg"/>
      <field name="radius" type="int16" unit="m"/>
      </message>
 	
    <message name="SEGMENT_STATUS" ID="23">
       <field name="ac_id" type="string"/>
-      <field name="segment1_east" type="float" unit="m"/>
-      <field name="segment1_north" type="float" unit="m"/>
-      <field name="segment2_east" type="float" unit="m"/>
-      <field name="segment2_north" type="float" unit="m"/>
+      <field name="segment1_lat" type="float" unit="deg"/>
+      <field name="segment1_long" type="float" unit="deg"/>
+      <field name="segment2_lat" type="float" unit="deg"/>
+      <field name="segment2_long" type="float" unit="deg"/>
   </message>
 
  <message name="MOVE_WAYPOINT" ID="24">
   <field name="ac_id" type="string"/>
   <field name="wp_id" type="uint8"/>
-  <field name="utm_east"  type="float" unit="m"></field>
-  <field name="utm_north"  type="float" unit="m"></field>
+  <field name="lat"  type="float" unit="deg"></field>
+  <field name="long"  type="float" unit="deg"></field>
   <field name="alt"    type="float" unit="m"></field>
  </message>
 

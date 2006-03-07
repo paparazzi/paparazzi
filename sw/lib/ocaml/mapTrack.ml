@@ -25,7 +25,8 @@
  *)
 
 open Printf
-open Geometry_2d
+module G2d = Geometry_2d
+module LL = Latlong
 
 module G = MapCanvas
 
@@ -47,15 +48,14 @@ let fixed_cam_targeted_yw = 500.0
 
 (** variables used for handling cam moves: *)
 
-let cam_half_aperture = m_pi /. 6.0
-let half_pi = m_pi /. 2.0
+let cam_half_aperture = LL.pi /. 6.0
+let half_pi = LL.pi /. 2.0
 let sqrt_2_div_2 = sqrt 2.0
 
 
-class track = fun ?(name="coucou") ?(size = 500) ?(color="red") (geomap:MapCanvas.widget) (vertical_display:MapCanvas.basic_widget) ->
+class track = fun ?(name="coucou") ?(size = 500) ?(color="red") (geomap:MapCanvas.widget) ->
   let group = GnoCanvas.group geomap#canvas#root in
-  let v_group = GnoCanvas.group vertical_display#canvas#root in
-  let empty = ({ G.east = 0.; north = 0. },  GnoCanvas.line group) in
+  let empty = ({LL.posn_lat=0.; LL.posn_long=0.},  GnoCanvas.line group) in
 
   let aircraft = GnoCanvas.group group
   and track = GnoCanvas.group group in
@@ -82,23 +82,11 @@ class track = fun ?(name="coucou") ?(size = 500) ?(color="red") (geomap:MapCanva
     ignore ( GnoCanvas.ellipse ~x1: (-5.) ~y1: (-5.) ~x2: 5. ~y2: 5. ~fill_color:"red" ~props:[`WIDTH_UNITS 1.; `OUTLINE_COLOR "red"; `FILL_STIPPLE (Gdk.Bitmap.create_from_data ~width:2 ~height:2 "\002\001")] mission_target ) in
   
  (** data at map scale *)
-  let max_cam_half_height_scaled = 10000.0 /. (geomap#get_world_unit ()) in
-  let max_oblic_distance_scaled = 10000.0 /. (geomap#get_world_unit ()) in
-  let min_distance_scaled = 10. /. (geomap#get_world_unit ())   in
-  let min_height_scaled = 0.1 /. (geomap#get_world_unit ()) in
+  let max_cam_half_height_scaled = 10000.0  in
+  let max_oblic_distance_scaled = 10000.0  in
+  let min_distance_scaled = 10.  in
+  let min_height_scaled = 0.1 in
 
-
-(** vertical display items *)
-
- let vertical_group = GnoCanvas.group vertical_display#canvas#root in
- let vertical_aircraft = GnoCanvas.group vertical_group in
- let vertical_plot =
-    ignore ( GnoCanvas.ellipse ~x1: (-. 5.0) ~y1: (-. 5.0) ~x2: 5.0 ~y2: 5.0 ~fill_color:color ~props:[`WIDTH_UNITS 1.; `OUTLINE_COLOR color; `FILL_STIPPLE (Gdk.Bitmap.create_from_data ~width:2 ~height:2 "\002\001")] vertical_aircraft);
-  (*** ignore (GnoCanvas.line ~fill_color:color ~props:[`WIDTH_PIXELS 2;`CAP_STYLE `ROUND] ~points:[|0.;0.;0.; -10.|] vertical_aircraft); ***)
- in
-let ac_v_label =
-  GnoCanvas.text v_group ~props:[`TEXT name; `X 25.; `Y 25.; `ANCHOR `SW; `FILL_COLOR color]
- in
 
  let top = ref 0 
  and v_top = ref 0 in
@@ -107,7 +95,6 @@ let ac_v_label =
     val mutable segments = Array.create size empty
     val mutable v_segments = Array.create size empty
     val mutable last = None
-    val mutable v_last = None 
     val mutable last_heading = 0.0
     val mutable last_altitude = 0.0
     val mutable last_speed = 0.0
@@ -118,7 +105,6 @@ let ac_v_label =
     val mutable last_flight_time = 0.0
     val mutable last_x_val = 0.0
     val mutable cam_on = false
-    val mutable vertical_time_axis_on = false
     val mutable params_on = false
     val mutable v_params_on = false
     val mutable desired_track =  ((GnoCanvas.ellipse group) :> GnoCanvas.base_item)
@@ -143,40 +129,31 @@ let ac_v_label =
       top := 0
     method set_cam_state = fun b -> cam_on <- b
 
-    (** switches time and longitude on the vertical display x axis.
-        tracks are cleared *)
-    method set_vertical_time_axis = fun b ->
-      vertical_time_axis_on <- b;
-      if vertical_time_axis_on then vertical_display#set_lbl_x_axis "x-axis: time"
-	  else vertical_display#set_lbl_x_axis "x-axis: longitude";
-      self#clear v_segments v_top;
-      v_last <- None
-
     method update_ap_status = fun time -> 
       last_flight_time <- time
     method set_params_state = fun b -> params_on <- b 
     method set_v_params_state = fun b -> v_params_on <- b
     method set_last = fun x -> last <- x
-    method set_v_last = fun x -> v_last <- x
+    method last = last
 
-    (** add track points on map2D or vertical display, according to the
+    (** add track points on map2D, according to the
        track parameter *)
-    method add_point = fun en seg set_last_point last_point top track ->
+    method add_point = fun geo seg set_last_point last_point top track ->
       self#clear_one (!top) seg ;
       begin
 	match last_point with
 	  None -> 
-	    seg.((!top)) <- (en, geomap#segment ~group:track ~fill_color:color en en)
-	| Some pt ->
-	    seg.((!top)) <- (en, geomap#segment ~group:track ~width:2 ~fill_color:color pt en);
+	    seg.((!top)) <- (geo, geomap#segment ~group:track ~fill_color:color geo geo)
+	| Some last_geo ->
+	    seg.((!top)) <- (geo, geomap#segment ~group:track ~width:2 ~fill_color:color last_geo geo);
       end;
       self#incr seg;
-      set_last_point (Some en)
+      (set_last_point (Some geo) : unit)
 
     method clear_map2D = self#clear segments top 
 
-    method move_icon = fun en heading altitude relief_height speed climb ->
-      let (xw,yw) = geomap#world_of_en en in
+    method move_icon = fun wgs84 heading altitude relief_height speed climb ->
+      let (xw,yw) = geomap#world_of wgs84 in
       aircraft#affine_absolute (affine_pos_and_angle geomap#zoom_adj#value xw yw heading);
       last_heading <- heading;
       last_yw <- yw;
@@ -188,37 +165,10 @@ let ac_v_label =
 	  ac_label#set [`TEXT ( name^" \n"^(string_of_float last_height)^" m\n"^(string_of_float last_speed)^" m/s\n" ); `Y 70. ] else
 	ac_label#set [`TEXT name; `Y 25.];
       ac_label#affine_absolute (affine_pos_and_angle geomap#zoom_adj#value xw yw 0.);
+      self#add_point wgs84 segments (self#set_last) last top group;
 
-      let y_val = ((vertical_display#get_vertical_max_level -. altitude) *. (vertical_display#get_vertical_factor) /. ( vertical_display#get_world_unit ()) ) in
-      let x_val = if vertical_time_axis_on then
-	last_flight_time /. ( vertical_display#get_world_unit () )
-      else xw in
-      vertical_aircraft#affine_absolute (affine_pos_and_angle vertical_display#zoom_adj#value x_val y_val 0.0 );
-
-      let v_en = { MapCanvas.east = x_val *. ( vertical_display#get_world_unit ()  ); MapCanvas.north = y_val *. ( -. vertical_display#get_world_unit () ) } in
-
-
-      (** on the vertical_display, 
-	 params displayed are different if we have time or longitude on x-axis *)
-
-      if vertical_time_axis_on then 
-	begin
-	  self#add_point v_en v_segments (self#set_v_last) v_last v_top v_group;
-	  if v_params_on then ac_v_label#set [`TEXT ( name^" \n alt: "^(string_of_float altitude)^" m\n"^" height: "^(string_of_float last_height)^" m\n flight_time: "^( sprintf"%.2f sec\n" last_flight_time)); `Y 70. ]
-	  else 	ac_v_label#set [`TEXT name; `Y 25.]
-	end
-      else
-	begin
-	  if v_params_on then ac_v_label#set [`TEXT ( name^" \n alt: "^(string_of_float altitude)^" m\n"^" height: "^(string_of_float last_height)^" m\n long(utm_world): "^(sprintf"%.2f m\n" en.MapCanvas.east)); `Y 70. ] 
-	  else 	ac_v_label#set [`TEXT name; `Y 25.]
-	end;
-      ac_v_label#affine_absolute (affine_pos_and_angle vertical_display#zoom_adj#value x_val y_val 0.);
-      self#add_point en segments (self#set_last) last top group;
-      last_altitude <- altitude;
-      last_xw <- xw;
-      last_x_val <- x_val;
-    method move_carrot = fun en ->
-      let (xw,yw) = geomap#world_of_en en in
+    method move_carrot = fun wgs84 ->
+      let (xw,yw) = geomap#world_of wgs84 in
       carrot#affine_absolute (affine_pos_and_angle geomap#zoom_adj#value xw yw 0.);
 
 (** draws the circular path to be followed by the aircraft in circle mode *)
@@ -232,30 +182,30 @@ let ac_v_label =
       desired_track <-  ((geomap#segment ~fill_color:"green" en en2) :> GnoCanvas.base_item)
 	  
 (** moves the rectangle representing the field covered by the camera *)
-    method move_cam = fun en mission_target_en ->
+    method move_cam = fun wgs84 mission_target_wgs84 ->
       if not cam_on then
 	cam#hide ()
       else
-	let (xw,yw) = geomap#world_of_en en in 
-	let (mission_target_xw, mission_target_yw) = geomap#world_of_en mission_target_en in
-	let last_height_scaled = last_height /. (geomap#get_world_unit ()) in
+	let (xw,yw) = geomap#world_of wgs84 in 
+	let (mission_target_xw, mission_target_yw) = geomap#world_of mission_target_wgs84 in
+	let last_height_scaled = last_height in
 	
 (** all data are at map scale *)
 	
 	begin
-	let pt1 = { x2D = last_xw; y2D = last_yw} in
-	let pt2 = { x2D = xw ; y2D = yw } in
+	let pt1 = { G2d.x2D = last_xw; y2D = last_yw} in
+	let pt2 = { G2d.x2D = xw ; y2D = yw } in
 	
 (** y axis is downwards so North vector is as follows: *)
-	let vect_north = (vect_make  { x2D = 0.0 ; y2D = 0.0 } { x2D = 0.0 ; y2D = -1.0 } ) in
-	let d = distance pt1 pt2 in
+	let vect_north = (G2d.vect_make  { G2d.x2D = 0.0 ; y2D = 0.0 } { G2d.x2D = 0.0 ; y2D = -1.0 } ) in
+	let d = G2d.distance pt1 pt2 in
 	begin
 	  let cam_heading = 
 	    if d > min_distance_scaled then
-	      let cam_vect_normalized = (vect_normalize (vect_make pt1 pt2)) in
-	      if (dot_product vect_north cam_vect_normalized) > 0.0 then
-		norm_angle_360 ( rad2deg (asin (cross_product vect_north cam_vect_normalized)))
-	      else norm_angle_360 ( rad2deg (m_pi -. asin (cross_product vect_north cam_vect_normalized)))
+	      let cam_vect_normalized = (G2d.vect_normalize (G2d.vect_make pt1 pt2)) in
+	      if (G2d.dot_product vect_north cam_vect_normalized) > 0.0 then
+		norm_angle_360 ( G2d.rad2deg (asin (G2d.cross_product vect_north cam_vect_normalized)))
+	      else norm_angle_360 ( G2d.rad2deg (G2d.m_pi -. asin (G2d.cross_product vect_north cam_vect_normalized)))
 	    else last_heading in
 	  let (angle_of_view, oblic_distance) = 
 	    if last_height < min_height_scaled then 

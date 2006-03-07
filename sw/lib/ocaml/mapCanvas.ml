@@ -1,13 +1,25 @@
-open Latlong
+module LL = Latlong
 open Printf
+
+let zoom_factor = 1.5
   
 let pan_step = 50
     
 type meter = float
-type en = { east : meter; north : meter }
+
+let distance = fun (x1,y1) (x2,y2) -> sqrt ((x1-.x2)**2.+.(y1-.y2)**2.)
       
 let _ = Srtm.add_path "SRTM"
 
+type utm_zone = int
+type projection = 
+    Mercator (* 1e-6 = 1 world unit, y axis reversed *)
+  | UTM (* 1m = 1 world unit, y axis reversed *)
+  | Lambert2 (* 1m = 1 world unit, y axis reversed *)
+
+let default_georef = { LL.posn_lat = 0.; LL.posn_long = 0. }
+
+let mercator_coeff = 5e6
 
     
 (** basic canvas with menubar **************************************
@@ -15,12 +27,15 @@ let _ = Srtm.add_path "SRTM"
  *******************************************************************)
     
 (* world_unit: m:pixel at scale 1. *)
-class basic_widget = fun ?(height=800) ?width ?wgs84_of_en () ->  
-  
+class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef () ->  
+  let canvas = GnoCanvas.canvas () in
+  let background = GnoCanvas.group canvas#root in
   object (self)
    
 (** GUI attributes *)
 
+    val background = background
+	
     val frame = GPack.vbox ~height ?width ()
 	
     val menubar = GMenu.menu_bar ()
@@ -29,30 +44,24 @@ class basic_widget = fun ?(height=800) ?width ?wgs84_of_en () ->
 	~value:1. ~lower:0.05 ~upper:10. 
 	~step_incr:0.25 ~page_incr:1.0 ~page_size:1.0 ()
   
-    val canvas = GnoCanvas.canvas ()
-	
     val bottom = GPack.hbox  ~height:30 ()
 	
-    val _w = GEdit.spin_button  ~rate:0. ~digits:2 ~width:50
-	  ~height:20 ()
+    val _w = GEdit.spin_button  ~rate:0. ~digits:2 ~width:50 ~height:20 ()
 	
-(***)   val mutable factory = new GMenu.factory (GMenu.menu_bar ())
+    val mutable factory = new GMenu.factory (GMenu.menu_bar ())
     
     val mutable file_menu =  GMenu.menu ()
     
     val mutable lbl_x_axis = GMisc.label ~height:50 ()
+
 	
 (** other attributes *)
-	
-    val mutable current_zoom = 1.
+
+    val mutable projection = projection	
+    val mutable georef = georef
     val mutable dragging = None
     val mutable grouping = None
     val mutable rectangle = None
-    val mutable world_unit = 1.
-    val mutable wgs84_of_en = wgs84_of_en
-(***)    val mutable background =  GnoCanvas.pixbuf (GnoCanvas.canvas ())#root
-    val mutable vertical_factor = 10.0
-    val mutable vertical_max_level = 0.0
 
 
     method pack = 
@@ -70,11 +79,6 @@ class basic_widget = fun ?(height=800) ?width ?wgs84_of_en () ->
 
       _w#set_adjustment adj;
       
-      background#destroy ();
-      background <- GnoCanvas.pixbuf canvas#root;
-
-     (*** factory#destroy (); ***)
-
       factory <- new GMenu.factory menubar;
 
       file_menu#destroy ();
@@ -90,7 +94,7 @@ class basic_widget = fun ?(height=800) ?width ?wgs84_of_en () ->
       ignore (canvas#event#connect#after#key_press self#key_press) ;
       ignore (canvas#event#connect#enter_notify (fun _ -> self#canvas#misc#grab_focus () ; false));
       ignore (canvas#event#connect#any self#any_event);
-      ignore (adj#connect#value_changed (fun () -> self#zoom adj#value));
+      ignore (adj#connect#value_changed (fun () -> canvas#set_pixels_per_unit adj#value));
 
       canvas#set_center_scroll_region false ;
       canvas#set_scroll_region (-2500000.) (-2500000.) 2500000. 2500000.;
@@ -101,21 +105,10 @@ class basic_widget = fun ?(height=800) ?width ?wgs84_of_en () ->
 
 (** methods *)
 
-     
-    method set_wgs84_of_en = fun x -> wgs84_of_en <- Some x
-	
-    method set_world_unit = fun x -> world_unit <- x
-	
-    method get_world_unit = fun () -> world_unit
-
     method set_lbl_x_axis = fun s -> lbl_x_axis#set_text s
 	
 (** accessors to instance variables *)	
-    method current_zoom = current_zoom	
-    method get_vertical_factor = vertical_factor
-    method get_vertical_max_level = vertical_max_level
-    method set_vertical_factor = fun x -> vertical_factor <- x
-    method set_vertical_max_level = fun x -> vertical_max_level <- x	
+    method current_zoom = adj#value
     method canvas = canvas
     method frame = frame
     method factory = factory
@@ -126,55 +119,98 @@ class basic_widget = fun ?(height=800) ?width ?wgs84_of_en () ->
 	
 (** following display functions can be redefined by subclasses.
    they do nothing in the basic_widget *)
-    method display_xy = fun s -> ()
     method display_geo = fun s -> ()
-    method display_alt = fun en -> ()
+    method display_alt = fun wgs84 -> ()
     method display_group = fun s -> ()
-	
-   (** converts relative utm coordinates into world (ie map) coordinates *)
-    method world_of_en = fun en -> 
-      en.east /. world_unit, -. en.north /. world_unit
-    method en_of_world = fun wx wy -> { east = wx *. world_unit;
-					north = -. wy *. world_unit } 
-    method geo_string = fun en ->
-      match wgs84_of_en with
-	None -> ""
-      | Some f -> string_degrees_of_geographic (f en)
 
-    method wgs84_of_en =
-      match wgs84_of_en with
-	None -> raise Not_found
-      | Some f -> f
-	    
+    method georef = georef
+    method set_georef = fun wgs84 -> georef <- Some wgs84
+	
+    method world_of = fun wgs84 -> 
+      match georef with
+	Some georef -> begin
+	  match projection with
+	    UTM ->
+	      let utmref = LL.utm_of LL.WGS84 georef
+	      and utm = LL.utm_of LL.WGS84 wgs84 in
+	      let (wx, y) = LL.utm_sub utm utmref in
+	      (wx, -.y)
+	  | Mercator ->
+	      let mlref = LL.mercator_lat georef.LL.posn_lat
+	      and ml = LL.mercator_lat wgs84.LL.posn_lat in
+	      let xw = (wgs84.LL.posn_long -. georef.LL.posn_long) *. mercator_coeff
+	      and yw = -. (ml -. mlref) *. mercator_coeff in
+	      (xw, yw)
+	  | _ -> failwith "#world_of : unknown projection"
+	end
+      | None -> failwith "#world_of : no georef"
+
+    method of_world = fun (wx, wy) ->
+      match georef with
+	Some georef -> begin
+	  match projection with
+	    UTM ->
+	      let utmref = LL.utm_of LL.WGS84 georef in
+	      LL.of_utm LL.WGS84 (LL.utm_add utmref (wx, -.wy))
+	  | Mercator ->
+	      let mlref = LL.mercator_lat georef.LL.posn_lat in
+	      let ml = mlref -. wy /. mercator_coeff in
+	      let lat = LL.inv_mercator_lat ml
+	      and long = wx /. mercator_coeff +. georef.LL.posn_long in
+	      { LL.posn_lat = lat; posn_long = long }
+	  | _ -> failwith "#of_world : unknown projection"
+	end
+      | None -> failwith "#of_world : no georef"
+
+		
+    method geo_string = fun wgs84 ->
+      LL.string_degrees_of_geographic wgs84
+
     	    
-    method moveto = fun en ->
-      let (xw, yw) = self#world_of_en en in
+    method moveto = fun wgs84 ->
+      let (xw, yw) = self#world_of wgs84 in
       let (xc, yc) = canvas#world_to_window xw yw in
       canvas#scroll_to (truncate xc) (truncate yc)
+
+    method center = fun wgs84 ->
+      self#moveto wgs84;
+      let sx_w, sy_w = Gdk.Drawable.get_size canvas#misc#window
+      and (x, y) = canvas#get_scroll_offsets in
+      canvas#scroll_to (x-sx_w/2) (y-sy_w/2)
 			
-    method display_map = fun ?(scale = 1.) ?(anchor = (`ANCHOR `NW)) en image ->
-      background <- GnoCanvas.pixbuf ~pixbuf:image ~props:[anchor] self#root;
-      background#lower_to_bottom ();
-      let wx, wy = self#world_of_en en in
-      background#move wx wy;
-      let a = background#i2w_affine in
+    method display_map = fun ?(scale = 1.) ?(anchor = (`ANCHOR `NW)) wgs84 image ->
+      let pix = GnoCanvas.pixbuf ~pixbuf:image ~props:[anchor] background in
+      pix#lower_to_bottom ();
+      let wx, wy = self#world_of wgs84 in
+      pix#move wx wy;
+      let a = pix#i2w_affine in
       a.(0) <- scale; a.(3) <- scale; 
-      background#affine_absolute a;
-      background
+      pix#affine_absolute a;
+      pix
+
+    method display_pixbuf = fun ((x1,y1), geo1) ((x2,y2), geo2) image ->
+      let x1 = float x1 and x2 = float x2
+      and y1 = float y1 and y2 = float y2 in
+      let pix = GnoCanvas.pixbuf ~x:(-.x1) ~y:(-.y1)~pixbuf:image ~props:[`ANCHOR `NW] background in
+      let xw1, yw1 = self#world_of geo1
+      and xw2, yw2 = self#world_of geo2 in
+      let scale = distance (xw1, yw1) (xw2, yw2) /. distance (x1,y1) (x2,y2) in
+      let a = atan2 (yw2-.yw1) (xw2-.xw1) -. atan2 (y2-.y1) (x2-.x1) in
+      let cos_a = cos a *. scale and sin_a = sin a *. scale in
+      pix#move xw1 yw1;
+      pix#affine_relative [| cos_a; sin_a; -. sin_a; cos_a; 0.;0.|];
+      pix
 	
     method zoom = fun value ->
-      canvas#set_pixels_per_unit value;
-      current_zoom <- value
-	  
+      adj#set_value value
+  
 	  
     method mouse_motion = fun ev ->
       let xc = GdkEvent.Motion.x ev 
       and yc = GdkEvent.Motion.y ev in
       let (xw, yw) = self#window_to_world xc yc in
-      let en = self#en_of_world xw yw in
-      self#display_xy (sprintf "%.0fm %.0fm\t" en.east en.north);
-      self#display_geo (self#geo_string en);
-      self#display_alt en;
+      self#display_geo (self#geo_string (self#of_world (xw,yw)));
+      self#display_alt (self#of_world (xw,yw));
       begin
 	match dragging with
 	  Some (x0, y0 ) -> 
@@ -184,9 +220,11 @@ class basic_widget = fun ?(height=800) ?width ?wgs84_of_en () ->
       end;
       begin
 	match grouping with
-	  Some (xw1, yw1) -> 
-	    let en1 = self#en_of_world xw1 yw1 in
-	    self#display_group (sprintf "[%.1fkm %.1fkm]" ((en1.east -. en.east)/.1000.) ((en1.north-.en.north)/.1000.))
+	  Some starting_point ->
+	    let starting_point = LL.utm_of LL.WGS84 starting_point in
+	    let current_point = LL.utm_of LL.WGS84 (self#of_world (xw, yw)) in
+	    let (east, north) = LL.utm_sub current_point starting_point in
+	    self#display_group (sprintf "[%.1fkm %.1fkm]" (east/.1000.) (north/.1000.))
 	| None -> ()
       end;
       false
@@ -195,11 +233,12 @@ class basic_widget = fun ?(height=800) ?width ?wgs84_of_en () ->
       match GdkEvent.Button.button ev, grouping with
 	2, _ ->
 	  dragging <- None; false
-      | 1, Some (xw1, yw1) ->
+      | 1, Some starting_point ->
 	  let xc = GdkEvent.Button.x ev in
 	  let yc = GdkEvent.Button.y ev in  
 	  let (xw2, yw2) = self#window_to_world xc yc in
-	  rectangle <- Some ((xw1, yw1), (xw2, yw2));
+	  let current_point = self#of_world (xw2, yw2) in
+	  rectangle <- Some (starting_point, current_point);
 	  self#display_group "";
 	  grouping <- None;
 	  false
@@ -211,7 +250,7 @@ class basic_widget = fun ?(height=800) ?width ?wgs84_of_en () ->
       match GdkEvent.Button.button ev with
 	1 ->
 	  let xyw = self#window_to_world xc yc in
-	  grouping <- Some xyw;
+	  grouping <- Some (self#of_world xyw);
 	  true
       | 2 when Gdk.Convert.test_modifier `SHIFT (GdkEvent.Button.state ev) ->
 	  dragging <- Some (xc, yc);
@@ -232,31 +271,54 @@ class basic_widget = fun ?(height=800) ?width ?wgs84_of_en () ->
     method any_event = fun ev ->
       match GdkEvent.get_type ev with
       | `SCROLL -> begin
-	  match GdkEvent.Scroll.direction (GdkEvent.Scroll.cast ev) with
+	  let scroll_event = GdkEvent.Scroll.cast ev in
+	  let (x, y) = canvas#get_scroll_offsets in
+	  let xr = GdkEvent.Scroll.x_root scroll_event in
+	  let yr = GdkEvent.Scroll.y_root scroll_event -. 35. in
+	  match GdkEvent.Scroll.direction scroll_event with
 	    `UP    ->
-	      adj#set_value (adj#value+.adj#step_increment) ;
+	      canvas#scroll_to (x+truncate xr) (y+truncate yr);
+
+	      adj#set_value (adj#value*.zoom_factor);
+
+	      let (x, y) = canvas#get_scroll_offsets in
+	      canvas#scroll_to (x-truncate (xr)) (y-truncate (yr));
 	      true
-	  | `DOWN  -> adj#set_value (adj#value-.adj#step_increment) ; true
+	  | `DOWN  ->
+	      canvas#scroll_to (x+truncate xr) (y+truncate yr);
+
+	      adj#set_value (adj#value/.zoom_factor);
+
+	      let (x, y) = canvas#get_scroll_offsets in
+	      canvas#scroll_to (x-truncate (xr)) (y-truncate (yr));
+	      true
 	  | _  -> false
       end
       | _ -> false
 	    
 	    
-    method segment = fun ?(group = canvas#root) ?(width=1) ?fill_color en1 en2 ->
-      let (x1, y1) = self#world_of_en en1
-      and (x2, y2) = self#world_of_en en2 in
+    method segment = fun ?(group = canvas#root) ?(width=1) ?fill_color geo1 geo2 ->
+      let (x1, y1) = self#world_of geo1
+      and (x2, y2) = self#world_of geo2 in
       let l = GnoCanvas.line ?fill_color ~props:[`WIDTH_PIXELS width] ~points:[|x1;y1;x2;y2|] group in
       l#show ();
       l
 	
-    method circle = fun ?(group = canvas#root) ?(width=1) ?fill_color ?(color="black") en rad ->
-      let (x, y) = self#world_of_en en in
-      let rad = rad /. world_unit in
+    method circle = fun ?(group = canvas#root) ?(width=1) ?fill_color ?(color="black") geo radius ->
+      let (x, y) = self#world_of geo in
+
+      (** Compute the actual radius in a UTM projection *)
+      let utm = LL.utm_of LL.WGS84 geo in
+      let geo_east = LL.of_utm LL.WGS84 (LL.utm_add utm (radius, 0.)) in
+      let (xe, _) = self#world_of geo_east in
+      let rad = xe -. x in      
+
       let l = GnoCanvas.ellipse ?fill_color ~props:[`WIDTH_PIXELS width; `OUTLINE_COLOR color] ~x1:(x-.rad) ~y1:(y -.rad) ~x2:(x +.rad) ~y2:(y+.rad) group in
       l#show ();
       l
-    method text = fun ?(group = canvas#root) ?(fill_color = "blue") ?(x_offset = 0.0) ?(y_offset = 0.0) en1 text ->
-      let (x1, y1) = self#world_of_en en1 in
+
+    method text = fun ?(group = canvas#root) ?(fill_color = "blue") ?(x_offset = 0.0) ?(y_offset = 0.0) geo text ->
+      let (x1, y1) = self#world_of geo in
       let t = GnoCanvas.text ~x:x1 ~y:y1 ~text:text ~props:[`FILL_COLOR fill_color; `X_OFFSET x_offset; `Y_OFFSET y_offset] group in
       t#show ();
       t
@@ -271,15 +333,15 @@ class basic_widget = fun ?(height=800) ?width ?wgs84_of_en () ->
  ****************************************************************)
 
     
-class widget =  fun ?(height=800) ?width ?wgs84_of_en () ->
+class widget =  fun ?(height=800) ?width ?projection ?georef () ->
   object(self)
-    inherit (basic_widget ~height:height ?width ?wgs84_of_en ())
+    inherit (basic_widget ~height ?width ?projection ?georef ())
 
     val mutable lbl_xy = GMisc.label  ~height:50 ()
     val mutable lbl_geo = GMisc.label  ~height:50 ()
     val mutable lbl_alt =  GMisc.label  ~height:50 ()
     val mutable lbl_group = GMisc.label  ~height:50 ()   
-(***)    val mutable menu_fact = new GMenu.factory (GMenu.menu ())
+    val mutable menu_fact = new GMenu.factory (GMenu.menu ())
     val mutable srtm = GMenu.check_menu_item ()
 
     method pack_labels =
@@ -314,13 +376,9 @@ class widget =  fun ?(height=800) ?width ?wgs84_of_en () ->
 	   
     method display_xy = fun s ->  lbl_xy#set_text s
     method display_geo = fun s ->  lbl_geo#set_text s
-    method display_alt = fun en ->
-      begin
-	 match wgs84_of_en, srtm#active with
-	  Some wgs84_of_en, true ->
-	    lbl_alt#set_text (sprintf "\t%dm"(self#altitude (wgs84_of_en en)))
-	| _ -> ()
-       end
+    method display_alt = fun wgs84 ->
+      if srtm#active then
+	lbl_alt#set_text (sprintf "\t%dm"(self#altitude wgs84))
 	
     method display_group = fun s ->  lbl_group#set_text s
 	
@@ -328,20 +386,10 @@ class widget =  fun ?(height=800) ?width ?wgs84_of_en () ->
     method switch_background = fun x -> if x then background#show () else background#hide ()
 
     method goto = fun () ->
-      let dialog = GWindow.window ~border_width:10 ~title:"Geo ref" () in
-      let dvbx = GPack.box `VERTICAL ~packing:dialog#add () in
-      let lat  = GEdit.entry ~packing:dvbx#add () in
-      let lon  = GEdit.entry ~packing:dvbx#add () in
-      let cancel = GButton.button ~label:"Cancel" ~packing: dvbx#add () in 
-      let ok = GButton.button ~label:"OK" ~packing: dvbx#add () in
-      ignore(cancel#connect#clicked ~callback:dialog#destroy);
-      ignore(ok#connect#clicked ~callback:
-	       begin fun _ ->
-		 let x = float_of_string lat#text in
-		 let y = float_of_string lon#text in
-		 self#moveto {east=x; north=y};
-		 dialog#destroy ()
-	       end);
-      dialog#show ()
+      match GToolbox.input_string ~title:"Geo ref" ~text:"WGS84 " "Geo ref" with
+	Some s ->
+	  let wgs84 = Latlong.of_string s in
+	  self#moveto wgs84
+      | None -> ()
 	
 end

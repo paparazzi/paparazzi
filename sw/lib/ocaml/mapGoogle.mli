@@ -1,9 +1,9 @@
 (*
  * $Id$
  *
- * UBX protocol handling
- *
- * Copyright (C) 2004 CENA/ENAC, Yann Le Fablec, Pascal Brisset, Antoine Drouin
+ * Displaying Google Maps on a MapCanvas object
+ *  
+ * Copyright (C) 2004-2006 ENAC, Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
  *
@@ -24,17 +24,8 @@
  *
  *)
 
-module Protocol :
-  sig
-    val index_start : string -> int
-    val payload_length : string -> int -> int
-    val length : string -> int -> int
-    val payload : string -> int -> string
-    val uint8_t : int -> int
-    val checksum : string -> int -> string -> bool
-  end
+val display_tile : MapCanvas.widget -> Latlong.geographic -> unit
+(** Displaying the Google Maps tile around the given point (zoom=1) *)
 
-val nav_posutm : unit -> int * Xml.xml
-val nav_status : unit -> int * Xml.xml
-val nav_velned : unit -> int * Xml.xml
-val send : out_channel -> int * Xml.xml -> (string * int) list -> unit
+val fill_window : MapCanvas.widget -> unit
+(** Filling the canvas window with Google Maps tiles *)

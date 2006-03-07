@@ -77,7 +77,7 @@ type aircraft = {
     mutable pos : Latlong.utm;
     mutable roll    : float;
     mutable pitch   : float;
-    mutable nav_ref    : Latlong.utm;
+    mutable nav_ref    : Latlong.utm option;
     mutable desired_east    : float;
     mutable desired_north    : float;
     mutable desired_altitude    : float;

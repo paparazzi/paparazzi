@@ -176,7 +176,7 @@ let log_and_parse = fun logging ac_name a msg values ->
 	a.desired_altitude <- fvalue "desired_altitude";
 	a.desired_climb <- fvalue "desired_climb"
     | "NAVIGATION_REF" ->
-	a.nav_ref <- { utm_x = fvalue "utm_east"; utm_y = fvalue "utm_north"; utm_zone = a.pos.utm_zone }
+	a.nav_ref <- Some { utm_x = fvalue "utm_east"; utm_y = fvalue "utm_north"; utm_zone = ivalue "utm_zone" }
     | "ATTITUDE" ->
 	a.roll <- (Deg>>Rad) (fvalue "phi");
 	a.pitch <- (Deg>>Rad) (fvalue "theta")
@@ -240,11 +240,21 @@ let log_and_parse = fun logging ac_name a msg values ->
 	  azim = ivalue "Azim";
 	}
     | "CIRCLE" ->
-	a.horiz_mode <- Circle (Latlong.utm_add a.nav_ref (fvalue "center_east") (fvalue "center_north"), ivalue "radius")
+	begin
+	  match a.nav_ref with
+	    Some nav_ref ->
+	      a.horiz_mode <- Circle (Latlong.utm_add nav_ref (fvalue "center_east", fvalue "center_north"), ivalue "radius")
+	  | None -> ()
+	end
     | "SEGMENT" ->
-	let p1 = Latlong.utm_add a.nav_ref (fvalue "segment_east_1") (fvalue "segment_north_1")
-	and p2 = Latlong.utm_add a.nav_ref (fvalue "segment_east_2") (fvalue "segment_north_2") in
+		begin
+	  match a.nav_ref with
+	    Some nav_ref ->
+	      let p1 = Latlong.utm_add nav_ref (fvalue "segment_east_1", fvalue "segment_north_1")
+	      and p2 = Latlong.utm_add nav_ref (fvalue "segment_east_2",  fvalue "segment_north_2") in
 	a.horiz_mode <- Segment (p1, p2)
+	  | None -> ()
+	end
     | "CALIBRATION" ->
 	a.throttle_accu <- fvalue "climb_sum_err"
     | _ -> ()
@@ -267,9 +277,13 @@ let send_cam_status = fun a ->
     let dx = h *. tan (a.cam.phi -. a.roll)
     and dy = h *. tan (a.cam.theta +. a.pitch) in
     let alpha = -. a.course in
-    let east = a.pos.utm_x +. dx *. cos alpha -. dy *. sin alpha
-    and north = a.pos.utm_y +. dx *. sin alpha +. dy *. cos alpha in
-    let values = ["ac_id", Pprz.String a.id; "cam_east", Pprz.Float east; "cam_north", Pprz.Float north] in
+    let east = dx *. cos alpha -. dy *. sin alpha
+    and north = dx *. sin alpha +. dy *. cos alpha in
+    let utm = Latlong.utm_add a.pos (east, north) in
+    let wgs84 = Latlong.of_utm WGS84 utm in
+    let values = ["ac_id", Pprz.String a.id; 
+		  "cam_lat", Pprz.Float ((Rad>>Deg)wgs84.posn_lat);
+		  "cam_long", Pprz.Float ((Rad>>Deg)wgs84.posn_long)] in
     Ground_Pprz.message_send my_id "CAM_STATUS" values
 
 let send_if_calib = fun a ->
@@ -322,17 +336,20 @@ let send_svsinfo = fun a ->
 let send_horiz_status = fun a ->
   match a.horiz_mode with
     Circle (utm, r) ->
+      let wgs84 = Latlong.of_utm WGS84 utm in
       let vs = [ "ac_id", Pprz.String a.id; 
-		 "circle_east", Pprz.Float utm.utm_x;
-		 "circle_north", Pprz.Float utm.utm_y;
+		 "circle_lat", Pprz.Float ((Rad>>Deg)wgs84.posn_lat);
+		 "circle_long", Pprz.Float ((Rad>>Deg)wgs84.posn_long);
 		 "radius", Pprz.Int r ] in
        Ground_Pprz.message_send my_id "CIRCLE_STATUS" vs
   | Segment (u1, u2) ->
+      let geo1 = Latlong.of_utm WGS84 u1 in
+      let geo2 = Latlong.of_utm WGS84 u2 in
       let vs = [ "ac_id", Pprz.String a.id; 
-		 "segment1_east", Pprz.Float u1.utm_x;
-		 "segment1_north", Pprz.Float u1.utm_y;
-		 "segment2_east", Pprz.Float u2.utm_x;
-		 "segment2_north", Pprz.Float u2.utm_y ] in
+		 "segment1_lat", Pprz.Float ((Rad>>Deg)geo1.posn_lat);
+		 "segment1_long", Pprz.Float ((Rad>>Deg)geo1.posn_long);
+		 "segment2_lat", Pprz.Float ((Rad>>Deg)geo2.posn_lat);
+		 "segment2_long", Pprz.Float ((Rad>>Deg)geo2.posn_long) ] in
       Ground_Pprz.message_send my_id "SEGMENT_STATUS" vs
   | UnknownHorizMode -> ()
 
@@ -356,29 +373,37 @@ let send_aircraft_msg = fun ac ->
   try
     let a = Hashtbl.find aircrafts ac in
     let f = fun x -> Pprz.Float x in
+    let wgs84 = Latlong.of_utm WGS84 a.pos in
     let values = ["ac_id", Pprz.String ac;
 		  "roll", f (Geometry_2d.rad2deg a.roll);
 		  "pitch", f (Geometry_2d.rad2deg a.pitch);
-		  "east", f a.pos.utm_x;
-		  "north", f a.pos.utm_y;
+		  "lat", f ((Rad>>Deg)wgs84.posn_lat);
+		  "long", f ((Rad>>Deg) wgs84.posn_long);
 		  "speed", f a.gspeed;
 		  "course", f (Geometry_2d.rad2deg a.course);
 		  "alt", f a.alt;
 		  "climb", f a.climb] in
     Ground_Pprz.message_send my_id "FLIGHT_PARAM" values;
 
-    let values = ["ac_id", Pprz.String ac; 
-		  "cur_block", Pprz.Int a.cur_block;
-		  "cur_stage", Pprz.Int a.cur_stage;
-		  "stage_time", Pprz.Int a.stage_time;
-		  "block_time", Pprz.Int a.block_time;
-		  "target_east", f (a.nav_ref.utm_x+.a.desired_east);
-		  "target_north", f (a.nav_ref.utm_y+.a.desired_north);
-		  "target_alt", Pprz.Float a.desired_altitude;
-		  "target_climb", Pprz.Float a.desired_climb;
-		  "target_course", Pprz.Float ((Rad>>Deg)a.desired_course)
-		] in
-    Ground_Pprz.message_send my_id "NAV_STATUS" values;
+    begin
+      match a.nav_ref with
+	Some nav_ref ->
+	  let target_utm = Latlong.utm_add nav_ref (a.desired_east, a.desired_north) in
+	  let target_wgs84 = Latlong.of_utm WGS84 target_utm in 
+	  let values = ["ac_id", Pprz.String ac; 
+			"cur_block", Pprz.Int a.cur_block;
+			"cur_stage", Pprz.Int a.cur_stage;
+			"stage_time", Pprz.Int a.stage_time;
+			"block_time", Pprz.Int a.block_time;
+			"target_lat", f ((Rad>>Deg)target_wgs84.posn_lat);
+			"target_long", f ((Rad>>Deg)target_wgs84.posn_long);
+			"target_alt", Pprz.Float a.desired_altitude;
+			"target_climb", Pprz.Float a.desired_climb;
+			"target_course", Pprz.Float ((Rad>>Deg)a.desired_course)
+		      ] in
+	  Ground_Pprz.message_send my_id "NAV_STATUS" values
+      | None -> () (* No nav_ref yet *)
+    end;
 
     let values = ["ac_id", Pprz.String ac; 
 		  "throttle", f a.throttle;
@@ -426,7 +451,7 @@ let new_aircraft = fun id ->
       desired_altitude = 0.;
       desired_climb = 0.;
       pos = { utm_x = 0.; utm_y = 0.; utm_zone = 0 };
-      nav_ref = { utm_x = 0.; utm_y = 0.; utm_zone = 0 };
+      nav_ref = None;
       cam = { phi = 0.; theta = 0. };
       inflight_calib = { if_mode = 1 ; if_val1 = 0.; if_val2 = 0.};
       infrared = infrared_init;

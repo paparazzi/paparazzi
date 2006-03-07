@@ -24,6 +24,7 @@
  *
  *)
 
+open Latlong
 open Printf
 module W = Wavecard
 module Tm_Pprz = Pprz.Protocol(struct let name = "telemetry_ap" end)
@@ -146,13 +147,15 @@ let move_wp = fun ac _sender vs ->
   let ac_id = int_of_string (Pprz.string_assoc "ac_id" vs) in
   if ac_id = ac.id then
     let f = fun a -> Pprz.float_assoc a vs in
-    let ux = f "utm_east"
-    and uy = f "utm_north"
+    let lat = f "lat"
+    and long = f "long"
     and alt = f "alt"
     and wp_id = Pprz.int_assoc "wp_id" vs in
+    let wgs84 = {posn_lat=(Deg>>Rad)lat;posn_long=(Deg>>Rad)long} in
+    let utm = Latlong.utm_of WGS84 wgs84 in
     let vs = ["wp_id", Pprz.Int wp_id;
-	      "utm_east", cm_of_m ux;
-	      "utm_north", cm_of_m uy;
+	      "utm_east", cm_of_m utm.utm_x;
+	      "utm_north", cm_of_m utm.utm_y;
 	      "alt", cm_of_m alt] in
     let msg_id, _ = Dl_Pprz.message_of_name "MOVE_WP" in
     let s = Dl_Pprz.payload_of_values msg_id ground_id vs in

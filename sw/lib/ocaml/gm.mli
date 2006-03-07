@@ -25,6 +25,8 @@
  *)
 
 val tile_size : int * int
+val tile_coverage : float -> int -> float * float
+(** [tile_coverage wgs84_lat zoom] Returns (width,height) *)
 
 type tile_t = {
     key : string; (* [qrst] string *)
@@ -43,8 +45,10 @@ val tile_of_key : string -> tile_t
 
 val cache_path : string ref
 
-val get_tile : ?no_http:bool -> Latlong.geographic -> int -> tile_t*string
+val get_tile : Latlong.geographic -> int -> tile_t*string
 (** May raise [Not_available] *)
 
 exception Not_available
+
+val no_http : bool ref
 

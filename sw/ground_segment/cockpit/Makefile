@@ -10,7 +10,7 @@ all : map2d
 opt : map2d.opt
 
 
-map2d : map2d.ml
+map2d : map2d.ml ../../lib/ocaml/lib-pprz.cma ../../lib/ocaml/xlib-pprz.cma
 	$(OCAMLC) -thread -custom $(INCLUDES) $(LIBS) threads.cma gtkThread.cmo gtkInit.cmo $< -o $@
 
 map2d.opt : map2d.cmx
