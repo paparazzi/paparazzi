@@ -114,7 +114,14 @@ val utm_sub : utm -> utm -> (fmeter * fmeter)
 (** [utm_sub u1 u2] Raises Invalid_arg if [u1] and [u2] are not in the same
 UTM zone *)
 
-val wgs84_of_lambertIIe : meter -> meter -> geographic
+val of_lambertIIe : lambert -> geographic
+val lambertIIe_of : geographic -> lambert
+val lbt_add : lambert -> (fmeter * fmeter) -> lambert
+(** [add_lbt utm (east,north)] *)
+
+val lbt_sub : lambert -> lambert -> (fmeter * fmeter)
+(** Returns (east,north) *)
+
 
 val of_string : string -> geographic
 (** [of_string pos] Parses [pos] as "WGS84 45.678 1.2345", "UTM 500123 4500300 31" or "LBT2e 544945 1755355" *) 

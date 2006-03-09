@@ -32,7 +32,7 @@ let calibrate_xy = fun x0 y0 ->
   let print x y =
     let xl = x0 + truncate (float x *. scale)
     and yl = y0 + truncate (float y *. scale) in
-    let wgs84 = Latlong.wgs84_of_lambertIIe xl yl in
+    let wgs84 = Latlong.of_lambertIIe {lbt_x=xl;lbt_y= yl} in
     Console.write (Printf.sprintf "%d %d %f %f\n" x y ((Rad>>Deg)wgs84.Latlong.posn_lat)  ((Rad>>Deg)wgs84.Latlong.posn_long)) in
   
   Console.write (Printf.sprintf "Calibration for x0=%d y0=%d:\n--8<----------------------\n" x0 y0);

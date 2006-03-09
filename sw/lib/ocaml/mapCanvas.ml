@@ -15,7 +15,7 @@ type utm_zone = int
 type projection = 
     Mercator (* 1e-6 = 1 world unit, y axis reversed *)
   | UTM (* 1m = 1 world unit, y axis reversed *)
-  | Lambert2 (* 1m = 1 world unit, y axis reversed *)
+  | LambertIIe (* 1m = 1 world unit, y axis reversed *)
 
 let default_georef = { LL.posn_lat = 0.; LL.posn_long = 0. }
 
@@ -141,7 +141,11 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
 	      let xw = (wgs84.LL.posn_long -. georef.LL.posn_long) *. mercator_coeff
 	      and yw = -. (ml -. mlref) *. mercator_coeff in
 	      (xw, yw)
-	  | _ -> failwith "#world_of : unknown projection"
+	  | LambertIIe ->
+	      let lbtref = LL.lambertIIe_of georef
+	      and lbt = LL.lambertIIe_of wgs84 in
+	      let (wx, y) = LL.lbt_sub lbt lbtref in
+	      (wx, -.y)
 	end
       | None -> failwith "#world_of : no georef"
 
@@ -152,13 +156,15 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
 	    UTM ->
 	      let utmref = LL.utm_of LL.WGS84 georef in
 	      LL.of_utm LL.WGS84 (LL.utm_add utmref (wx, -.wy))
+	  | LambertIIe ->
+	      let utmref = LL.lambertIIe_of georef in
+	      LL.of_lambertIIe (LL.lbt_add utmref (wx, -.wy))
 	  | Mercator ->
 	      let mlref = LL.mercator_lat georef.LL.posn_lat in
 	      let ml = mlref -. wy /. mercator_coeff in
 	      let lat = LL.inv_mercator_lat ml
 	      and long = wx /. mercator_coeff +. georef.LL.posn_long in
 	      { LL.posn_lat = lat; posn_long = long }
-	  | _ -> failwith "#of_world : unknown projection"
 	end
       | None -> failwith "#of_world : no georef"
 

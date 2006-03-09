@@ -344,7 +344,15 @@ let utm_sub = fun u1 u2 ->
   (u1.utm_x -. u2.utm_x, u1.utm_y -. u2.utm_y)
 
   
-let wgs84_of_lambertIIe = fun x y -> (WGS84<<NTF)(of_lambert lambertIIe {lbt_x = x; lbt_y = y})
+let of_lambertIIe = fun lbt ->
+  (WGS84<<NTF)(of_lambert lambertIIe lbt)
+let lambertIIe_of = fun wgs84 ->
+  lambert_of lambertIIe ((NTF<<WGS84)wgs84)
+
+let lbt_add = fun {lbt_x=x; lbt_y=y} (dx, dy) ->
+  {lbt_x = x + truncate dx; lbt_y = y + truncate dy }
+let lbt_sub = fun {lbt_x=x1; lbt_y=y1} {lbt_x=x2; lbt_y=y2} ->
+  (float (x2-x1), float (y2-y1))
 
 let space = Str.regexp "[ \t]+"
 let fos = float_of_string
@@ -357,7 +365,7 @@ let of_string = fun s ->
   | ["UTM";x;y;zone] ->
       of_utm WGS84 { utm_x = fos x; utm_y = fos y; utm_zone = ios zone}
   | ["LBT2e";x;y] ->
-      wgs84_of_lambertIIe (ios x) (ios y)
+      of_lambertIIe {lbt_x=ios x; lbt_y=ios y }
   | _ -> invalid_arg (Printf.sprintf "Latlong.of_string: %s" s)
 
 
