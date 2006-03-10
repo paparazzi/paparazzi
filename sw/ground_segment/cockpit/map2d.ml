@@ -443,6 +443,10 @@ let listen_flight_params = fun () ->
 let active_gm_http = fun x -> 
   Gm.no_http := not x
 
+let gm_auto = ref false
+let active_gm_auto = fun x -> 
+  gm_auto := x
+
 let button_press = fun (geomap:MapCanvas.widget) ev ->
   if GdkEvent.Button.button ev = 3 then
     let xc = GdkEvent.Button.x ev 
@@ -462,6 +466,9 @@ let button_press = fun (geomap:MapCanvas.widget) ev ->
 
 let fill_gm_tiles = fun geomap -> ignore (Thread.create MapGoogle.fill_window geomap)
   
+
+let gm_update = fun geomap ->
+  if !gm_auto then fill_gm_tiles geomap
 
 let _ =
   let ivy_bus = ref "127.255.255.255:2010"
@@ -509,7 +516,9 @@ let _ =
   ignore (geomap#menu_fact#add_check_item "Vertical View" ~key:GdkKeysyms._V ~callback:active_vertical);
   ignore (geomap#menu_fact#add_item "GM Fill" ~key:GdkKeysyms._G ~callback:(fun _ -> fill_gm_tiles geomap));
   ignore (geomap#menu_fact#add_check_item "GM Http" ~key:GdkKeysyms._H ~active:true ~callback:active_gm_http);
+  ignore (geomap#menu_fact#add_check_item "GM Auto" ~key:GdkKeysyms._A ~active:false ~callback:active_gm_auto);
  
+  geomap#connect_view (fun () -> gm_update geomap);
 
   vbox#pack ~expand:true geomap#frame#coerce;
 

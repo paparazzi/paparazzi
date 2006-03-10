@@ -30,6 +30,7 @@ let mercator_coeff = 5e6
 class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef () ->  
   let canvas = GnoCanvas.canvas () in
   let background = GnoCanvas.group canvas#root in
+  let view_cbs = Hashtbl.create 3 in (* Store for view event callback *)
   object (self)
    
 (** GUI attributes *)
@@ -273,8 +274,22 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
       | k when k = GdkKeysyms._Page_Up -> adj#set_value (adj#value+.adj#step_increment) ; true
       | k when k = GdkKeysyms._Page_Down -> adj#set_value (adj#value-.adj#step_increment) ; true
       | _ -> false
-	    
-    method any_event = fun ev ->
+
+    method connect_view = fun cb ->
+      Hashtbl.add view_cbs cb ()
+
+    method any_event =
+      let rec last_view = ref (0,0,0,0) in
+      fun ev ->
+      (** View has changed ? *)
+      let width_c, height_c = Gdk.Drawable.get_size canvas#misc#window
+      and (xc0, yc0) = canvas#get_scroll_offsets in
+      let view = (xc0, yc0, width_c, height_c) in
+      if view <> !last_view then begin
+	last_view := view;
+	Hashtbl.iter (fun cb _ -> cb ()) view_cbs
+      end;
+
       match GdkEvent.get_type ev with
       | `SCROLL -> begin
 	  let scroll_event = GdkEvent.Scroll.cast ev in

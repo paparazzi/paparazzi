@@ -163,26 +163,26 @@ exception Not_available
 
 let no_http = ref false
 
-let get_image = fun tile ->
-  try get_from_cache tile.key with
+let remove_last_char = fun s -> String.sub s 0 (String.length s - 1)
+
+let get_image = fun key ->
+  try get_from_cache key with
     Not_found ->
       if !no_http then raise Not_available;
-      let url = google_maps_url tile.key in
-      let jpg_file = !cache_path // (tile.key ^ ".jpg") in
-      try
-	ignore (Http.file_of_url ~dest:jpg_file url);
-	tile, jpg_file
-      with
-	Http.Failure _ -> raise Not_available
+      let rec loop = fun k ->
+	if String.length k >= 1 then
+	  let url = google_maps_url k in
+	  let jpg_file = !cache_path // (k ^ ".jpg") in
+	  try
+	    ignore (Http.file_of_url ~dest:jpg_file url);
+	    tile_of_key k, jpg_file
+	  with
+	    Http.Failure _ -> loop (remove_last_char k)
+	else
+	  raise Not_available in
+      loop key 
 
 
 let rec get_tile = fun wgs84 zoom ->
-  if zoom < 10 then
-    let tile = tile_of_geo wgs84 zoom in
-    try get_image tile with
-      (** Error, let's try a lower zoom *)
-      Not_available when not !no_http -> get_tile wgs84 (zoom+1)
-  else
-    raise Not_available
-
-
+  let tile = tile_of_geo wgs84 zoom in
+  get_image tile.key
