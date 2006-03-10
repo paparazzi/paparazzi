@@ -448,20 +448,22 @@ let active_gm_auto = fun x ->
   gm_auto := x
 
 let button_press = fun (geomap:MapCanvas.widget) ev ->
-  if GdkEvent.Button.button ev = 3 then
+  if GdkEvent.Button.button ev = 3 then begin
     let xc = GdkEvent.Button.x ev 
     and yc = GdkEvent.Button.y ev in
     let (xw,yw) = geomap#window_to_world xc yc in
     
     let wgs84 = geomap#of_world (xw,yw) in
-    let (xw',yw') = geomap#world_of wgs84 in
-    ignore(Thread.create (fun geo ->
-      try ignore (MapGoogle.display_tile geomap geo) with
-	Gm.Not_available -> ())
-      wgs84);
-    false
-  else
-    false
+    let display = fun geo ->
+      if Gdk.Convert.test_modifier `SHIFT (GdkEvent.Button.state ev) then
+	MapIGN.display_tile geomap geo
+      else
+	try ignore (MapGoogle.display_tile geomap geo) with
+	  Gm.Not_available -> () in
+
+    ignore(Thread.create display wgs84)
+  end;
+  false
 
 
 let fill_gm_tiles = fun geomap -> ignore (Thread.create MapGoogle.fill_window geomap)
@@ -480,6 +482,8 @@ let _ =
     [ "-b", Arg.String (fun x -> ivy_bus := x), "Bus\tDefault is 127.255.255.25:2010";
       "-ref", Arg.Set_string geo_ref, "Geographic ref (default '')";
       "-mercator", Arg.Unit (fun () -> projection:=MapCanvas.Mercator),"Switch to (Google Maps) Mercator projection";
+      "-lambertIIe", Arg.Unit (fun () -> projection:=MapCanvas.LambertIIe),"Switch to LambertIIe projection";
+      "-ign", Arg.Set_string IGN.data_path, "IGN tiles path";
       "-m", Arg.String (fun x -> map_file := x), "Map description file"] in
   Arg.parse (options)
     (fun x -> Printf.fprintf stderr "Warning: Don't do anythig with %s\n" x)

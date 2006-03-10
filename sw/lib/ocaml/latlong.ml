@@ -352,7 +352,7 @@ let lambertIIe_of = fun wgs84 ->
 let lbt_add = fun {lbt_x=x; lbt_y=y} (dx, dy) ->
   {lbt_x = x + truncate dx; lbt_y = y + truncate dy }
 let lbt_sub = fun {lbt_x=x1; lbt_y=y1} {lbt_x=x2; lbt_y=y2} ->
-  (float (x2-x1), float (y2-y1))
+  (float (x1-x2), float (y1-y2))
 
 let space = Str.regexp "[ \t]+"
 let fos = float_of_string
