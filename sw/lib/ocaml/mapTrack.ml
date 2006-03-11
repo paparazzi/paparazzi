@@ -41,16 +41,11 @@ let rec norm_angle_360 = fun alpha ->
   else if alpha < 0.0 then norm_angle_360 (alpha +. 360.0)
   else alpha
 
-(** for tests, coordinates of a fixed target: *)
- 
-let fixed_cam_targeted_xw = 500.0
-let fixed_cam_targeted_yw = 500.0
 
 (** variables used for handling cam moves: *)
 
 let cam_half_aperture = LL.pi /. 6.0
 let half_pi = LL.pi /. 2.0
-let sqrt_2_div_2 = sqrt 2.0
 
 
 class track = fun ?(name="coucou") ?(size = 500) ?(color="red") (geomap:MapCanvas.widget) ->
@@ -78,7 +73,7 @@ class track = fun ?(name="coucou") ?(size = 500) ?(color="red") (geomap:MapCanva
   let mission_target = GnoCanvas.group group in
   
 (** red circle : target of the mission *)
-  let ac_mission_target =
+  let _ac_mission_target =
     ignore ( GnoCanvas.ellipse ~x1: (-5.) ~y1: (-5.) ~x2: 5. ~y2: 5. ~fill_color:"red" ~props:[`WIDTH_UNITS 1.; `OUTLINE_COLOR "red"; `FILL_STIPPLE (Gdk.Bitmap.create_from_data ~width:2 ~height:2 "\002\001")] mission_target ) in
   
  (** data at map scale *)
@@ -88,8 +83,7 @@ class track = fun ?(name="coucou") ?(size = 500) ?(color="red") (geomap:MapCanva
   let min_height_scaled = 0.1 in
 
 
- let top = ref 0 
- and v_top = ref 0 in
+ let top = ref 0  in
   object (self)
     val mutable color = color
     val mutable segments = Array.create size empty
@@ -215,7 +209,6 @@ class track = fun ?(name="coucou") ?(size = 500) ?(color="red") (geomap:MapCanva
 	      (oav, last_height_scaled /. (cos oav))
 	  in
 	  let alpha_1 = angle_of_view +. cam_half_aperture in
-	  let alpha_2 = angle_of_view -. cam_half_aperture in
 	  begin
 	    let cam_field_half_height_1 =
 	      if alpha_1 < half_pi then

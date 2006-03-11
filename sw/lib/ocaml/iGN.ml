@@ -39,6 +39,7 @@ let size_m = (size_px * 25) / 10
 
 let tile_size = size_px , size_px
 
+let cache_path = ref "/var/tmp"
 let data_path = ref "/path_to_ign_files"
 
 let tile_of_geo = fun wgs84 ->
@@ -57,13 +58,21 @@ let get_tile = fun tile ->
   let (kx, ky) = tile.key in
   let dalle_x = (kx * size_m) / 10000
   and dalle_y = 267 - ((ky*size_m) / 10000) in
-  let file = !data_path // Printf.sprintf "F%03d_%03d.png" dalle_x dalle_y in
-  let tmp_file = Filename.temp_file "ign" ".png" in
+  let dalle_name = Printf.sprintf "F%03d_%03d" dalle_x dalle_y in
   let ix = (kx mod (10000 / size_m)) * size_px
   and iy = 4000 - size_px - ((ky mod (10000 / size_m)) * size_px) in
-  let sub_tile = Printf.sprintf "convert -crop %dx%d+%d+%d %s %s" size_px size_px ix iy file tmp_file in
-  let x = Sys.command sub_tile in
-  if x <> 0 then failwith sub_tile;
-  tmp_file
+  let png_name = Printf.sprintf "%s_%dx%d+%d+%d.png" dalle_name size_px size_px ix iy in
+
+  (* Look in the cache *)
+  let cache_name = !cache_path // png_name in
+  if Sys.file_exists cache_name then
+    cache_name
+  else (* Not there: crop it from the original IGN dalle *)
+    let file = !data_path // dalle_name ^ ".png" in
+    let png_file = !cache_path // png_name in
+    let sub_tile = Printf.sprintf "convert -crop %dx%d+%d+%d %s %s" size_px size_px ix iy file png_file in
+    let x = Sys.command sub_tile in
+    if x <> 0 then failwith sub_tile;
+    png_file
   
   

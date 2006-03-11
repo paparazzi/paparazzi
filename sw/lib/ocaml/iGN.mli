@@ -32,6 +32,9 @@ type tile_t = {
     ne_corner : Latlong.geographic
   };;
 
+val cache_path : string ref
+(** Where to cache *)
+
 val data_path : string ref
 (** Where to find the original tiles *)
 

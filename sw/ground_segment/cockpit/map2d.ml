@@ -34,19 +34,16 @@ let int_attr = fun xml a -> int_of_string (ExtXml.attrib xml a)
 
 type color = string
 
-let fos = float_of_string
+let soi = string_of_int
 let list_separator = Str.regexp ","
 
-(** parameters used for creating the vertical display window *) 
-let max_graduations = 20
-
-let vertical_delta = 5.0
-
-let max_east = 2000.0
-
-let max_label = 4 
-
-let approx_ground_altitude = ref 0.0
+(*** parameters used for creating the vertical display window
+let _max_graduations = 20
+let _vertical_delta = 5.0
+let _max_east = 2000.0
+let _max_label = 4 
+let _approx_ground_altitude = ref 0.0
+***)
 
 module G = MapCanvas
 
@@ -54,10 +51,9 @@ let home = Env.paparazzi_home
 let (//) = Filename.concat
 let default_path_srtm = home // "data" // "srtm"
 let default_path_maps = home // "data" // "maps" // ""
-let default_path_missions = home // "conf"
-let gm_tiles_path = home // "var" // "maps"
+let var_maps_path = home // "var" // "maps"
 let _ = 
-  ignore (Sys.command (sprintf "mkdir -p %s" gm_tiles_path))
+  ignore (Sys.command (sprintf "mkdir -p %s" var_maps_path))
 
 
 
@@ -79,38 +75,41 @@ let set_georef_if_none = fun geomap wgs84 ->
 	
 
 
-let load_map = fun (geomap:G.widget) xml_map ->
+let display_map = fun (geomap:G.widget) xml_map ->
   let dir = Filename.dirname xml_map in
   let xml_map = Xml.parse_file xml_map in
-  let image = dir // ExtXml.attrib xml_map "file"
-  and scale = float_attr xml_map "scale"
-  and utm_zone = int_attr xml_map "utm_zone" in
-  assert (ExtXml.attrib xml_map "projection" = "UTM");
+  let image = dir // ExtXml.attrib xml_map "file" in
+
+  let pix_ref = fun p ->
+    truncate (float_attr p "x"), truncate (float_attr p "y") in
+  let geo_ref = fun p ->
+     try Latlong.of_string (Xml.attrib p "geo") with
+       _ -> (* Compatibility with the old UTM format *)
+	 let utm_x = float_attr p "utm_x"
+	 and utm_y = float_attr p "utm_y" in
+	 let utm_zone = int_attr xml_map "utm_zone" in
+	 let utm = {utm_x = utm_x;  utm_y = utm_y; utm_zone = utm_zone } in
+	 Latlong.of_utm WGS84 utm in
 
   match Xml.children xml_map with
     p1::p2::_ ->
-      let x1 = truncate (float_attr p1 "x")
-      and y1 = truncate (float_attr p1 "y")
-      and x2 = truncate (float_attr p2 "x")
-      and y2 = truncate (float_attr p2 "y")
-      and utm_x1 = float_attr p1 "utm_x"
-      and utm_y1 = float_attr p1 "utm_y" 
-      and utm_x2 = float_attr p2 "utm_x"
-      and utm_y2 = float_attr p2 "utm_y" in
-      
-      let utm1 = {utm_x = utm_x1;  utm_y = utm_y1; utm_zone = utm_zone }
-      and utm2 = {utm_x = utm_x2;  utm_y = utm_y2; utm_zone = utm_zone } in
-      let geo1 = Latlong.of_utm WGS84 utm1
-      and geo2 = Latlong.of_utm WGS84 utm2 in
+      let x1y1 = pix_ref p1
+      and x2y2 = pix_ref p2
+      and geo1 = geo_ref p1
+      and geo2 = geo_ref p2 in
       
       (* Take this point as a reference for the display if none currently *)
       set_georef_if_none geomap geo1;
       
-      ignore (geomap#display_pixbuf ((x1,y1),geo1) ((x2,y2),geo2) (GdkPixbuf.from_file image));
+      ignore (geomap#display_pixbuf ((x1y1),geo1) ((x2y2),geo2) (GdkPixbuf.from_file image));
       geomap#moveto geo1
-  | _ -> failwith (sprintf "load_map: two ref points required")
+  | _ -> failwith (sprintf "display_map: two ref points required")
 
 
+let load_map = fun geomap () ->
+  match GToolbox.select_file ~title:"Open Map" ~filename:(default_path_maps^"*.xml") () with
+    None -> ()
+  | Some f -> display_map geomap f
 
 
 let load_mission = fun color geomap xml ->
@@ -189,7 +188,7 @@ let show_mission = fun geomap ac on_off ->
 let commit_changes = fun ac ->
   let a = Hashtbl.find live_aircrafts ac in
   match a.fp_group with
-    Some (g, wpts) -> 
+    Some (_g, wpts) -> 
       List.iter 
 	(fun (i, w) -> 
 	  if w#moved then 
@@ -217,6 +216,8 @@ let resize_track = fun ac track ->
 
 
 
+
+(***
 let canvas_color = fun gdk_color ->
   let r = Gdk.Color.red gdk_color
   and g = Gdk.Color.green gdk_color
@@ -225,7 +226,6 @@ let canvas_color = fun gdk_color ->
 
 let gdk_color = fun s ->
   Gdk.Color.alloc (Gdk.Color.get_system_colormap ()) (`NAME s)
-
 
 let colorsel = 
   let dialog_ref = ref None in
@@ -255,6 +255,7 @@ let colorsel =
 
     colorsel#set_has_palette true;
     ignore (colordlg#run ())
+***)
 
 
 
@@ -322,7 +323,7 @@ let create_ac = fun (geomap:MapCanvas.widget) ac_id config ->
   
   let eb = GBin.event_box ~width:10 ~height:10 () in
   eb#coerce#misc#modify_bg [`NORMAL, `NAME color];
-  let col_menu = ac_menu_fact#add_image_item ~label:"Color" ~image:eb#coerce ~callback:(fun () -> () (*** TO FIX colorsel track eb#coerce***) ) () in
+  let _col_menu = ac_menu_fact#add_image_item ~label:"Color" ~image:eb#coerce ~callback:(fun () -> () (*** TO FIX colorsel track eb#coerce***) ) () in
   ignore (ac_menu_fact#add_item "Clear Track" ~callback:(fun () -> track#clear_map2D));
   ignore (ac_menu_fact#add_item "Resize Track" ~callback:(fun () -> resize_track ac_id track));
     ignore (ac_menu_fact#add_item "Commit Moves" ~callback:(fun () -> commit_changes ac_id));
@@ -433,8 +434,7 @@ let listen_flight_params = fun () ->
     let ac_id = Pprz.string_assoc "ac_id" vs in
     try
       let ac = Hashtbl.find live_aircrafts ac_id in
-      let a = fun s -> Pprz.string_assoc s vs in
-	 ap_status_msg ac.track ( float_of_int (Pprz.int32_assoc "flight_time" vs ))
+      ap_status_msg ac.track ( float_of_int (Pprz.int32_assoc "flight_time" vs ))
     with 
       Not_found -> ()
   in
@@ -466,17 +466,54 @@ let button_press = fun (geomap:MapCanvas.widget) ev ->
   false
 
 
-let fill_gm_tiles = fun geomap -> ignore (Thread.create MapGoogle.fill_window geomap)
+let fill_gm_tiles = fun geomap -> 
+  ignore (Thread.create MapGoogle.fill_window geomap)
   
-
 let gm_update = fun geomap ->
   if !gm_auto then fill_gm_tiles geomap
+
+let file_dialog ?(filename="*.xml") ~title ~callback () =
+  let sel = GWindow.file_selection ~title ~filename ~modal:true () in
+  ignore (sel#cancel_button#connect#clicked ~callback:sel#destroy);
+  ignore
+    (sel#ok_button#connect#clicked
+       ~callback:(fun () ->
+	 let name = sel#filename in
+	 sel#destroy ();
+	 callback name));
+  sel#show ()
+
+let map_from_region = fun (geomap:MapCanvas.widget) () ->
+  match geomap#region with
+    None -> GToolbox.message_box "Error" "Select a region first (drag left button)"
+  | Some ((xw1,yw1), (xw2,yw2)) ->
+      let (xc1, yc1) = geomap#canvas#w2c xw1 yw1
+      and (xc2, yc2) = geomap#canvas#w2c xw2 yw2 in
+      let width = xc2-xc1 and height = yc2-yc1 in
+      let p = GdkPixbuf.create width height () in
+      let (x0, y0) = geomap#canvas#get_scroll_offsets in
+      let xc1= xc1 - x0 and yc1 = yc1 - y0 in
+      GdkPixbuf.get_from_drawable ~dest:p ~width ~height ~src_x:xc1 ~src_y:yc1 geomap#canvas#misc#window;
+      file_dialog ~filename:(default_path_maps//".xml") ~title:"Save region map" ~callback:(fun xml_file ->
+	let jpg = Filename.chop_extension xml_file ^ ".png" in
+	GdkPixbuf.save jpg "png" p;
+	let point = fun (x,y) xyw ->
+	  let wgs84 = geomap#of_world xyw in
+	  Xml.Element ("point", ["x",soi x;"y",soi y;"geo", Latlong.string_of wgs84], []) in
+	let points = [point (0, 0) (xw1,yw1); point (width, height) (xw2,yw2)] in
+	let xml = Xml.Element ("map", 
+			       ["file", Filename.basename jpg;
+				"projection", geomap#projection],
+			       points) in
+	let f = open_out xml_file in
+	Printf.fprintf f "%s\n" (Xml.to_string_fmt xml);
+	close_out f) ()
+
 
 let _ =
   let ivy_bus = ref "127.255.255.255:2010"
   and geo_ref = ref ""
   and map_file = ref ""
-  and mission_file = ref ""
   and projection= ref MapCanvas.UTM in
   let options =
     [ "-b", Arg.String (fun x -> ivy_bus := x), "Bus\tDefault is 127.255.255.25:2010";
@@ -493,13 +530,14 @@ let _ =
   Ivy.start !ivy_bus;
 
   Srtm.add_path default_path_srtm;
-  Gm.cache_path := gm_tiles_path;
+  Gm.cache_path := var_maps_path;
+  IGN.cache_path := var_maps_path;
 
   let window = GWindow.window ~title: "Map2d" ~border_width:1 ~width:400 () in
   let vbox= GPack.vbox ~packing: window#add () in
 
   let vertical_situation = GWindow.window ~title: "Vertical" ~border_width:1 ~width:400 () in
-  let vertical_vbox= GPack.vbox ~packing: vertical_situation#add () in
+  let _vertical_vbox= GPack.vbox ~packing: vertical_situation#add () in
   let quit = fun () -> GMain.Main.quit (); exit 0 in
   ignore (window#connect#destroy ~callback:quit);
 
@@ -512,17 +550,24 @@ let _ =
 
   (** widget displaying aircraft vertical position  *)
 
-  let active_vertical = fun x ->
+  let _active_vertical = fun x ->
     if x then vertical_situation#show () else vertical_situation#misc#hide () in
- 
- 
   ignore (geomap#menu_fact#add_item "Quit" ~key:GdkKeysyms._Q ~callback:quit);
-  ignore (geomap#menu_fact#add_check_item "Vertical View" ~key:GdkKeysyms._V ~callback:active_vertical);
-  ignore (geomap#menu_fact#add_item "GM Fill" ~key:GdkKeysyms._G ~callback:(fun _ -> fill_gm_tiles geomap));
-  ignore (geomap#menu_fact#add_check_item "GM Http" ~key:GdkKeysyms._H ~active:true ~callback:active_gm_http);
-  ignore (geomap#menu_fact#add_check_item "GM Auto" ~key:GdkKeysyms._A ~active:false ~callback:active_gm_auto);
+
+  (* Maps handling *)
+  let map_menu = geomap#factory#add_submenu "Maps" in
+  let map_menu_fact = new GMenu.factory ~accel_group map_menu in
+  ignore (map_menu_fact#add_item "Load" ~key:GdkKeysyms._M ~callback:(load_map geomap));
+  ignore (map_menu_fact#add_item "GM Fill" ~key:GdkKeysyms._G ~callback:(fun _ -> fill_gm_tiles geomap));
+  ignore (map_menu_fact#add_check_item "GM Http" ~key:GdkKeysyms._H ~active:true ~callback:active_gm_http);
+  ignore (map_menu_fact#add_check_item "GM Auto" ~active:false ~callback:active_gm_auto);
+  ignore (map_menu_fact#add_item "Map of region" ~key:GdkKeysyms._R ~callback:(map_from_region geomap));
  
+  (** Connect Google Maps display to view change *)
   geomap#connect_view (fun () -> gm_update geomap);
+
+  (** Separate from A/C menus *)
+  ignore (geomap#factory#add_separator ());
 
   vbox#pack ~expand:true geomap#frame#coerce;
 
@@ -531,7 +576,7 @@ let _ =
     set_georef_if_none geomap (Latlong.of_string !geo_ref)
   else if !map_file <> "" then begin
     let xml_map_file = if !map_file.[0] <> '/' then Filename.concat default_path_maps !map_file else !map_file in
-    load_map geomap xml_map_file
+    display_map geomap xml_map_file
   end;
 
   ignore (Glib.Timeout.add 2000 (fun () -> Ground_Pprz.message_req "map2d" "AIRCRAFTS" [] (fun _sender vs -> live_aircrafts_msg geomap vs); false));

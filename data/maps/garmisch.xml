@@ -1,5 +1,4 @@
-<map file="garmisch.gif" projection="UTM" scale="1.002" utm_zone="32" approx_ground_altitude="720">
-  <point x="163." y="160." utm_x="657582.525008" utm_y="5260978.82657"/>
-  <point x="399." y="294." utm_x="657824.837652" utm_y="5260835.23889"/>
-  <point x="317." y="98." utm_x="657727.389016" utm_y="5261038.3511"/>
+<map file="x.png" projection="UTM">
+  <point x="0" y="0" geo="WGS84 47.483990	11.088149"/>
+  <point x="550" y="413" geo="WGS84 47.480143	11.095297"/>
 </map>

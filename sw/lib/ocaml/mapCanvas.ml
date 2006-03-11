@@ -1,9 +1,34 @@
+(*
+ * $Id$
+ *
+ * Geographic display
+ *  
+ * Copyright (C) 2004-2006 ENAC, Pascal Brisset, Antoine Drouin
+ *
+ * This file is part of paparazzi.
+ *
+ * paparazzi is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * paparazzi is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with paparazzi; see the file COPYING.  If not, write to
+ * the Free Software Foundation, 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA. 
+ *
+ *)
+
 module LL = Latlong
 open Printf
 
-let zoom_factor = 1.5
-  
-let pan_step = 50
+let zoom_factor = 1.5 (* Mouse wheel zoom action *)
+let pan_step = 50 (* Pan keys speed *)
     
 type meter = float
 
@@ -11,13 +36,11 @@ let distance = fun (x1,y1) (x2,y2) -> sqrt ((x1-.x2)**2.+.(y1-.y2)**2.)
       
 let _ = Srtm.add_path "SRTM"
 
-type utm_zone = int
+
 type projection = 
     Mercator (* 1e-6 = 1 world unit, y axis reversed *)
   | UTM (* 1m = 1 world unit, y axis reversed *)
   | LambertIIe (* 1m = 1 world unit, y axis reversed *)
-
-let default_georef = { LL.posn_lat = 0.; LL.posn_long = 0. }
 
 let mercator_coeff = 5e6
 
@@ -31,6 +54,7 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
   let canvas = GnoCanvas.canvas () in
   let background = GnoCanvas.group canvas#root in
   let view_cbs = Hashtbl.create 3 in (* Store for view event callback *)
+  let region_rectangle = GnoCanvas.rect canvas#root ~props:[`WIDTH_PIXELS 2; `OUTLINE_COLOR "red"] in
   object (self)
    
 (** GUI attributes *)
@@ -62,8 +86,10 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
     val mutable georef = georef
     val mutable dragging = None
     val mutable grouping = None
-    val mutable rectangle = None
+    val mutable region = None (* Rectangle selected region *)
 
+
+    method region = region
 
     method pack = 
       frame#pack menubar#coerce;
@@ -120,12 +146,18 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
 	
 (** following display functions can be redefined by subclasses.
    they do nothing in the basic_widget *)
-    method display_geo = fun s -> ()
-    method display_alt = fun wgs84 -> ()
-    method display_group = fun s -> ()
+    method display_geo = fun _s -> ()
+    method display_alt = fun _wgs84 -> ()
+    method display_group = fun _s -> ()
 
     method georef = georef
     method set_georef = fun wgs84 -> georef <- Some wgs84
+
+    method projection =
+      match projection with
+	UTM -> "UTM"
+      | Mercator -> "Mercator"
+      | LambertIIe -> "LBT2e"
 	
     method world_of = fun wgs84 -> 
       match georef with
@@ -185,16 +217,6 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
       and (x, y) = canvas#get_scroll_offsets in
       canvas#scroll_to (x-sx_w/2) (y-sy_w/2)
 			
-    method display_map = fun ?(scale = 1.) ?(anchor = (`ANCHOR `NW)) wgs84 image ->
-      let pix = GnoCanvas.pixbuf ~pixbuf:image ~props:[anchor] background in
-      pix#lower_to_bottom ();
-      let wx, wy = self#world_of wgs84 in
-      pix#move wx wy;
-      let a = pix#i2w_affine in
-      a.(0) <- scale; a.(3) <- scale; 
-      pix#affine_absolute a;
-      pix
-
     method display_pixbuf = fun ((x1,y1), geo1) ((x2,y2), geo2) image ->
       let x1 = float x1 and x2 = float x2
       and y1 = float y1 and y2 = float y2 in
@@ -210,32 +232,50 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
 	
     method zoom = fun value ->
       adj#set_value value
-  
-	  
+  	  
+	(** Mouse button events *******************************************)
+     method button_press = fun ev ->
+      let xc = GdkEvent.Button.x ev in
+      let yc = GdkEvent.Button.y ev in  
+      match GdkEvent.Button.button ev with
+	1 ->
+	  let (x1,y1) = self#window_to_world xc yc in
+	  grouping <- Some (x1,y1);
+	  region_rectangle#set [`X1 x1; `Y1 y1; `X2 x1; `Y2 y1];
+	  true
+      | 2 when Gdk.Convert.test_modifier `SHIFT (GdkEvent.Button.state ev) ->
+	  dragging <- Some (xc, yc);
+	  true
+      |	_ -> false
+	    
     method mouse_motion = fun ev ->
-      let xc = GdkEvent.Motion.x ev 
-      and yc = GdkEvent.Motion.y ev in
-      let (xw, yw) = self#window_to_world xc yc in
-      self#display_geo (self#geo_string (self#of_world (xw,yw)));
-      self#display_alt (self#of_world (xw,yw));
-      begin
-	match dragging with
-	  Some (x0, y0 ) -> 
-	    let (x, y) = self#canvas#get_scroll_offsets in
-	    self#canvas#scroll_to (x+truncate (x0-.xc)) (y+truncate (y0-.yc))
-	| None -> ()
-      end;
-      begin
-	match grouping with
-	  Some starting_point ->
-	    let starting_point = LL.utm_of LL.WGS84 starting_point in
-	    let current_point = LL.utm_of LL.WGS84 (self#of_world (xw, yw)) in
-	    let (east, north) = LL.utm_sub current_point starting_point in
-	    self#display_group (sprintf "[%.1fkm %.1fkm]" (east/.1000.) (north/.1000.))
-	| None -> ()
+      if georef <> None then begin
+	let xc = GdkEvent.Motion.x ev 
+	and yc = GdkEvent.Motion.y ev in
+	let (xw, yw) = self#window_to_world xc yc in
+	self#display_geo (self#geo_string (self#of_world (xw,yw)));
+	self#display_alt (self#of_world (xw,yw));
+	begin
+	  match dragging with
+	    Some (x0, y0 ) -> 
+	      let (x, y) = self#canvas#get_scroll_offsets in
+	      self#canvas#scroll_to (x+truncate (x0-.xc)) (y+truncate (y0-.yc))
+	  | None -> ()
+	end;
+	begin
+	  match grouping with
+	    Some starting_point ->
+	      let starting_point = self#of_world starting_point in
+	      let starting_point = LL.utm_of LL.WGS84 starting_point in
+	      let current_point = LL.utm_of LL.WGS84 (self#of_world (xw, yw)) in
+	      let (east, north) = LL.utm_sub current_point starting_point in
+	      region_rectangle#set [`X2 xw; `Y2 yw];
+	      self#display_group (sprintf "[%.1fkm %.1fkm]" (east/.1000.) (north/.1000.))
+	  | None -> ()
+	end
       end;
       false
-	
+	  
     method button_release = fun ev ->
       match GdkEvent.Button.button ev, grouping with
 	2, _ ->
@@ -243,28 +283,14 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
       | 1, Some starting_point ->
 	  let xc = GdkEvent.Button.x ev in
 	  let yc = GdkEvent.Button.y ev in  
-	  let (xw2, yw2) = self#window_to_world xc yc in
-	  let current_point = self#of_world (xw2, yw2) in
-	  rectangle <- Some (starting_point, current_point);
+	  let current_point = self#window_to_world xc yc in
+	  region <- Some (starting_point, current_point);
 	  self#display_group "";
 	  grouping <- None;
 	  false
       | _ -> false
 	    
-    method button_press = fun ev ->
-      let xc = GdkEvent.Button.x ev in
-      let yc = GdkEvent.Button.y ev in  
-      match GdkEvent.Button.button ev with
-	1 ->
-	  let xyw = self#window_to_world xc yc in
-	  grouping <- Some (self#of_world xyw);
-	  true
-      | 2 when Gdk.Convert.test_modifier `SHIFT (GdkEvent.Button.state ev) ->
-	  dragging <- Some (xc, yc);
-	  true
-      |	_ -> false
-	    
-    method key_press = fun ev ->
+   method key_press = fun ev ->
       let (x, y) = canvas#get_scroll_offsets in
       match GdkEvent.Key.keyval ev with
       | k when k = GdkKeysyms._Up -> canvas#scroll_to x (y-pan_step) ; true

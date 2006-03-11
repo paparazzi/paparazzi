@@ -30,7 +30,7 @@ let sep = Str.regexp "\\."
 
 let child xml ?select c =
   let rec find = function
-      Xml.Element (tag, attributes, _children) as elt :: elts ->
+      Xml.Element (tag, _attributes, _children) as elt :: elts ->
 	if tag = c then
 	  match select with
 	    None -> elt
@@ -94,7 +94,7 @@ let subst_attrib = fun attrib value xml ->
     Xml.Element (tag, attrs, children) ->
       let rec loop = function
 	  [] -> [(attrib, value)]
-	| (a,v) as c::ats ->
+	| (a,_v) as c::ats ->
 	    if u a = uattrib then loop ats else c::loop ats in
       Xml.Element (tag, 
 		   loop attrs,

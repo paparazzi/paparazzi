@@ -42,7 +42,6 @@ type tile_t = {
 
 let (/.=) r x = r := !r /. x
 let (+.=) r x = r := !r +. x
-let (-.=) r x = r := !r -. x
 
 let inv_norm_lat = fun l -> Latlong.inv_mercator_lat (l *. pi)
 let norm_lat = fun l -> Latlong.mercator_lat l /. pi

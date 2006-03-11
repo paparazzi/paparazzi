@@ -125,6 +125,8 @@ val lbt_sub : lambert -> lambert -> (fmeter * fmeter)
 
 val of_string : string -> geographic
 (** [of_string pos] Parses [pos] as "WGS84 45.678 1.2345", "UTM 500123 4500300 31" or "LBT2e 544945 1755355" *) 
+val string_of : geographic -> string
+(** Returns a "WGS84" annotated string *)
 
 val mercator_lat : float -> float
 (** wgs84 -> [-pi; pi] *)

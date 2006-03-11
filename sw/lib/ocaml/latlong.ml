@@ -182,9 +182,6 @@ let lambert_c l =
   let n = lambert_n l in
   l.r0 *. exp (l.lphi0 *. n)
   
-let lambert = function
-    1 -> lambertI |  2 -> lambertII |  3 -> lambertIII |  4 -> lambertIV | _ -> failwith "lambert";;
-
 
 let of_lambert l { lbt_x = x; lbt_y = y } =
   let c = lambert_c l and n = lambert_n l in
@@ -367,6 +364,8 @@ let of_string = fun s ->
   | ["LBT2e";x;y] ->
       of_lambertIIe {lbt_x=ios x; lbt_y=ios y }
   | _ -> invalid_arg (Printf.sprintf "Latlong.of_string: %s" s)
+let string_of = fun geo ->
+  Printf.sprintf "WGS84 %s" (string_degrees_of_geographic geo)
 
 
 let mercator_lat = fun l -> log (tan (pi/.4. +. 0.5*. l))
