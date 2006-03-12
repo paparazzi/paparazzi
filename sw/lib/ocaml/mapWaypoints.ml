@@ -44,6 +44,10 @@ class waypoint = fun (group:group) (name :string) ?(alt=0.) wgs84 ->
   and color = group#color
   and editable = group#editable in
   let xw, yw = geomap#world_of wgs84 in
+  let callbacks = Hashtbl.create 5 in
+  let updated () =
+    Hashtbl.iter (fun cb _ -> cb ()) callbacks in
+
   object (self)
     val mutable x0 = 0.
     val mutable y0 = 0.
@@ -52,14 +56,19 @@ class waypoint = fun (group:group) (name :string) ?(alt=0.) wgs84 ->
 	~props:[`FILL_COLOR color; `OUTLINE_COLOR "midnightblue" ; `WIDTH_UNITS 1.; `FILL_STIPPLE (Gdk.Bitmap.create_from_data ~width:2 ~height:2 "\002\001")]
 	
     val label = GnoCanvas.text group#group ~props:[`TEXT name; `X s; `Y 0.; `ANCHOR `SW; `FILL_COLOR "green"]
-    val mutable name = name
+    val mutable name = name (* FIXME: already in label ! *)
     val mutable alt = alt
     val mutable moved = false
+    val mutable deleted = false
     initializer self#move xw yw
+    method connect = fun (cb:unit -> unit) ->
+      Hashtbl.add callbacks cb ()
     method name = name
     method set_name n =
-      if n <> name then
-	name <- n
+      if n <> name then begin
+	name <- n;
+	label#set [`TEXT name]
+      end
     method alt = alt
     method label = label
     method xy = let a = item#i2w_affine in (a.(4), a.(5)) (*** item#i2w 0. 0. causes Seg Fault !***)
@@ -69,7 +78,7 @@ class waypoint = fun (group:group) (name :string) ?(alt=0.) wgs84 ->
       let dvbx = GPack.box `VERTICAL ~packing:dialog#add () in
       let wgs84 = self#pos in
       let s = sprintf "WGS84 %s" (geomap#geo_string wgs84) in
-      let ename  = GEdit.entry ~text:name ~packing:dvbx#add () in
+      let ename  = GEdit.entry ~text:name ~editable:false ~packing:dvbx#add () in
       let e_pos  = GEdit.entry ~text:s ~packing:dvbx#add () in
       let ea  = GEdit.entry ~text:(string_of_float alt) ~packing:dvbx#add () in
       let cancel = GButton.button ~label:"Cancel" ~packing: dvbx#add () in 
@@ -81,6 +90,7 @@ class waypoint = fun (group:group) (name :string) ?(alt=0.) wgs84 ->
 		 alt <- float_of_string ea#text;
 		 label#set [`TEXT name];
 		 self#set (LL.of_string e_pos#text);
+		 updated ();
 		 dialog#destroy ()
 	       end);
       dialog#show ()
@@ -114,6 +124,7 @@ class waypoint = fun (group:group) (name :string) ?(alt=0.) wgs84 ->
 	      let dx = geomap#current_zoom *. (x-. x0) 
 	      and dy = geomap#current_zoom *. (y -. y0) in
 	      self#move dx dy ;
+	      updated ();
 	      x0 <- x; y0 <- y
 	    end
 	| `BUTTON_RELEASE ev ->
@@ -126,6 +137,7 @@ class waypoint = fun (group:group) (name :string) ?(alt=0.) wgs84 ->
       true
     initializer ignore(if editable then ignore (item#connect#event self#event))
     method moved = moved
+    method deleted = deleted
     method item = item
     method pos = geomap#of_world self#xy
     method set wgs84 = 
@@ -133,6 +145,7 @@ class waypoint = fun (group:group) (name :string) ?(alt=0.) wgs84 ->
       and (xw0, yw0) = self#xy in
       self#move (xw-.xw0) (yw-.yw0)      
     method delete =
+      deleted <- true; (* BOF *)
       item#destroy ();
       label#destroy ()
     method zoom (z:float) =

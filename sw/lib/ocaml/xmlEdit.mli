@@ -39,10 +39,11 @@ type attributes = (string * string) list
 
 type event = Deleted | Modified of attributes | New_child of node
 
-val create : Dtd.dtd -> Xml.xml -> t
+val create : Dtd.dtd -> Xml.xml -> (t * GWindow.window)
 (** [create dtd xml] Opens a display of [xml] with contextual right button
 actions constrained by [dtd]. Returns the corresponding model. *)
 
+val xml_of_node : node -> Xml.xml
 val xml_of_view : t -> Xml.xml
 (** [xml_of_view v] Returns the XML displayed data structure *)
 
@@ -62,4 +63,3 @@ val add_child : node -> tag -> attributes -> node
 
 val connect : node -> (event -> unit) -> unit
 (** To be kept informed about modifications *)
-

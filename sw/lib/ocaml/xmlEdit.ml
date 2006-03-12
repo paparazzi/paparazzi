@@ -37,7 +37,7 @@ open Printf
 type tag = string
 type attributes = (string * string) list
 type t = GTree.tree_store
-type node = t * Gtk.tree_path
+type node = GTree.tree_store * Gtk.tree_path
 
 let cols = new GTree.column_list
 let attribute = cols#add Gobject.Data.string
@@ -249,11 +249,11 @@ let root = fun (model:t) ->
   | Some i -> (model, model#get_path i)
 
   
-let attribs = fun ((model:t), path) ->
+let attribs = fun ((model, path):node) ->
   let row = model#get_iter path in
   model#get ~row ~column:attributes
 
-let set_attribs = fun ((model:t), path) attribs ->
+let set_attribs = fun ((model, path):node) attribs ->
   let row = model#get_iter path in
   model#set ~row ~column:attributes attribs
 
@@ -266,11 +266,11 @@ let attrib = fun node at ->
 	if String.uppercase a = at then v else loop avs in
   loop ats
 
-let tag = fun ((model:t), path) ->
+let tag = fun ((model, path):node) ->
   let row = model#get_iter path in
   model#get ~row ~column:tag_col
 
-let children = fun ((model:t), path) ->
+let children = fun ((model, path):node) ->
   let row = model#get_iter path in
   if model#iter_has_child row then
     let i = model#iter_children (Some row) in
@@ -282,7 +282,7 @@ let children = fun ((model:t), path) ->
   else
     []
 
-let rec xml_of_node = fun node -> 
+let rec xml_of_node = fun (node:node) -> 
   let attrs = attribs node
   and tag = tag node
   and children = List.map xml_of_node (children node) in
@@ -291,7 +291,7 @@ let rec xml_of_node = fun node ->
 let xml_of_view = fun (tree:t) ->
   xml_of_node (root tree)
   
-let child = fun ((model:t), path) (t:string) ->
+let child = fun ((model, path):node) (t:string) ->
   let row = model#get_iter path in
   if model#iter_has_child row then
     let i = model#iter_children (Some row) in
@@ -306,7 +306,7 @@ let child = fun ((model:t), path) (t:string) ->
     failwith (sprintf "XmlEdit.child: %s" t)
     
 
-let delete = fun ((model:t), path) ->
+let delete = fun (model, path) ->
   let row = model#get_iter path in
   if model#iter_is_valid row then
     ignore (model#remove row)
@@ -443,5 +443,4 @@ let create = fun dtd xml ->
   let _ = tree_view#drag#connect#motion ~callback:motion in
   let _ = tree_view#drag#connect#drop ~callback:drop in
 
-  window#show ();
-  tree_model
+  tree_model, window

@@ -320,8 +320,9 @@ let float_attrib = fun x a -> float_of_string (Xml.attrib x a)
 
 
 let load_mission_xml = fun root zoomadj xml ->
-  let xml_tree_view = XmlEdit.create (Dtd.parse_file dtd) xml in
+  let xml_tree_view, window = XmlEdit.create (Dtd.parse_file dtd) xml in
   let xml_root = XmlEdit.root xml_tree_view in
+  window#show ();
   let wpts = XmlEdit.child xml_root "waypoints" in
 
   Ref.set (float_attrib xml "lat0") (float_attrib xml "lon0");

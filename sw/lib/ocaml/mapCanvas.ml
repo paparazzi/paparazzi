@@ -55,6 +55,7 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
   let background = GnoCanvas.group canvas#root in
   let view_cbs = Hashtbl.create 3 in (* Store for view event callback *)
   let region_rectangle = GnoCanvas.rect canvas#root ~props:[`WIDTH_PIXELS 2; `OUTLINE_COLOR "red"] in
+
   object (self)
    
 (** GUI attributes *)
@@ -238,7 +239,7 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
       let xc = GdkEvent.Button.x ev in
       let yc = GdkEvent.Button.y ev in  
       match GdkEvent.Button.button ev with
-	1 ->
+	1 when Gdk.Convert.test_modifier `SHIFT (GdkEvent.Button.state ev) ->
 	  let (x1,y1) = self#window_to_world xc yc in
 	  grouping <- Some (x1,y1);
 	  region_rectangle#set [`X1 x1; `Y1 y1; `X2 x1; `Y2 y1];

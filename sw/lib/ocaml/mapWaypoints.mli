@@ -55,6 +55,8 @@ class waypoint :
     method xy : float * float
     method zoom : float -> unit
     method moved : bool
+    method deleted : bool
+    method connect : (unit -> unit) -> unit
   end
 
 

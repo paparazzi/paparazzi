@@ -31,10 +31,10 @@ module Ground_Pprz = Pprz.Protocol(struct let name = "ground" end)
 
 let float_attr = fun xml a -> float_of_string (ExtXml.attrib xml a)
 let int_attr = fun xml a -> int_of_string (ExtXml.attrib xml a)
-
 type color = string
 
 let soi = string_of_int
+let sof = string_of_float
 let list_separator = Str.regexp ","
 
 (*** parameters used for creating the vertical display window
@@ -51,17 +51,33 @@ let home = Env.paparazzi_home
 let (//) = Filename.concat
 let default_path_srtm = home // "data" // "srtm"
 let default_path_maps = home // "data" // "maps" // ""
+let path_fps = home // "conf" // "flight_plans" // ""
+let fp_dtd = path_fps // "flight_plan.dtd"
 let var_maps_path = home // "var" // "maps"
 let _ = 
   ignore (Sys.command (sprintf "mkdir -p %s" var_maps_path))
+let fp_example = path_fps // "example.xml"
+
+let labelled_entry = fun text value h ->
+  let _ = GMisc.label ~text ~packing:h#add () in
+  GEdit.entry ~text:value ~packing:h#add ()
 
 
-
+(** Dummy flight plan *)
+let dummy_fp = fun latlong ->
+  Xml.Element("flight_plan",
+	      ["lat0", sof ((Rad>>Deg)latlong.posn_lat);
+	       "lon0", sof ((Rad>>Deg)latlong.posn_long);
+	       "alt", "42.";
+	       "MAX_DIST_FROM_HOME", "1000."
+	     ],
+	      [Xml.Element("waypoints", [],[])])
+    
 type aircraft = {
     config : Pprz.values;
     track : MapTrack.track;
     color: color;
-    mutable fp_group : (MapWaypoints.group * (int * MapWaypoints.waypoint) list) option;
+    fp_group : MapFP.flight_plan;
     fp : Xml.xml;
     dl_settings : GWindow.window
   }
@@ -72,7 +88,6 @@ let set_georef_if_none = fun geomap wgs84 ->
   match geomap#georef with
     None -> geomap#set_georef wgs84
   | Some _ -> ()
-	
 
 
 let display_map = fun (geomap:G.widget) xml_map ->
@@ -106,41 +121,22 @@ let display_map = fun (geomap:G.widget) xml_map ->
   | _ -> failwith (sprintf "display_map: two ref points required")
 
 
-let load_map = fun geomap () ->
+let load_map = fun (geomap:G.widget) () ->
   match GToolbox.select_file ~title:"Open Map" ~filename:(default_path_maps^"*.xml") () with
     None -> ()
   | Some f -> display_map geomap f
 
 
-let load_mission = fun color geomap xml ->
+(** FIXME : also in MapFP.ml *)
+let georef_of_fp = fun xml ->
   let lat0 = float_attr xml "lat0"
-  and lon0 = float_attr xml "lon0"
-  and alt0 = float_attr xml "alt" in
-  let ref_wgs84 = {posn_lat = (Deg>>Rad)lat0; posn_long = (Deg>>Rad)lon0 } in
-  let utm0 = utm_of WGS84 ref_wgs84 in
-  let waypoints = ExtXml.child xml "waypoints" in
-  let max_dist_from_home = float_attr xml "MAX_DIST_FROM_HOME" in
-  
-  set_georef_if_none geomap ref_wgs84;
+  and lon0 = float_attr xml "lon0" in
+  {posn_lat = (Deg>>Rad)lat0; posn_long = (Deg>>Rad)lon0 }
 
-  let wgs84_of_xy = fun x y ->
-    Latlong.of_utm WGS84 (utm_add utm0 (x, y) ) in
-
-  let fp = new MapWaypoints.group ~color ~editable:true geomap in
-  let i = ref 0 in
-  let wpts = List.map
-      (fun wp ->
-	let wgs84 = wgs84_of_xy (float_attr wp "x") (float_attr wp "y") in
-	let alt = try float_attr wp "alt" with _ -> alt0 in
-	let w = MapWaypoints.waypoint fp ~name:(ExtXml.attrib wp "name") ~alt wgs84 in
-	if  ExtXml.attrib wp "name" = "HOME" then
-	  ignore (geomap#circle ~color wgs84 max_dist_from_home);
-	incr i;
-	!i, w
-      ) 
-      (Xml.children waypoints) in
-  fp, wpts
-
+	    
+let load_mission = fun color geomap xml ->
+  set_georef_if_none geomap (georef_of_fp xml);
+  new MapFP.flight_plan geomap color fp_dtd xml
 
 let aircraft_pos_msg = fun track wgs84 heading altitude speed climb ->
   let h = 
@@ -166,42 +162,30 @@ let ap_status_msg = fun track flight_time ->
     track#update_ap_status flight_time
     
 
-let display_fp = fun geomap ac ->
-  try
-    let ac = Hashtbl.find live_aircrafts ac in
-    ac.fp_group <- Some (load_mission ac.color geomap ac.fp)
-  with Failure x ->
-    GToolbox.message_box ~title:"Error while loading flight plan" x
-
-
 let show_mission = fun geomap ac on_off ->
+  let a = Hashtbl.find live_aircrafts ac in
   if on_off then
-    display_fp geomap ac
+    a.fp_group#show ()
   else
-    let a = Hashtbl.find live_aircrafts ac in
-    match a.fp_group with
-      None -> ()
-    | Some (g, _wpts) -> 
-	a.fp_group <- None;
-	g#group#destroy ()
+    a.fp_group#hide ()
+
 
 let commit_changes = fun ac ->
   let a = Hashtbl.find live_aircrafts ac in
-  match a.fp_group with
-    Some (_g, wpts) -> 
-      List.iter 
-	(fun (i, w) -> 
-	  if w#moved then 
-	    let wgs84 = w#pos in
-	    let vs = ["ac_id", Pprz.String ac;
-		      "wp_id", Pprz.Int i;
-		      "lat", Pprz.Float ((Rad>>Deg)wgs84.posn_lat);
-		      "long", Pprz.Float ((Rad>>Deg)wgs84.posn_long);
+  List.iter 
+    (fun w ->
+      let (i, w) = a.fp_group#index w in
+      if w#moved then 
+	let wgs84 = w#pos in
+	let vs = ["ac_id", Pprz.String ac;
+		  "wp_id", Pprz.Int i;
+		  "lat", Pprz.Float ((Rad>>Deg)wgs84.posn_lat);
+		  "long", Pprz.Float ((Rad>>Deg)wgs84.posn_long);
 		      "alt", Pprz.Float w#alt
-		    ] in
-	    Ground_Pprz.message_send "map2d" "MOVE_WAYPOINT" vs)
-	wpts
-  | _ -> ()
+		] in
+	Ground_Pprz.message_send "map2d" "MOVE_WAYPOINT" vs)
+    a.fp_group#waypoints
+
 
 let send_event = fun ac e ->
   Ground_Pprz.message_send "map2d" "SEND_EVENT" 
@@ -347,7 +331,9 @@ let create_ac = fun (geomap:MapCanvas.widget) ac_id config ->
 
   let ds = dl_settings ac_id fp_xml in
 
-  Hashtbl.add live_aircrafts ac_id { track = track; color = color; fp_group = None ; config = config ; fp = fp_xml; dl_settings = ds}
+  let fp = load_mission color geomap fp_xml in
+  fp#hide ();
+  Hashtbl.add live_aircrafts ac_id { track = track; color = color; fp_group = fp ; config = config ; fp = fp_xml; dl_settings = ds}
   
 
 
@@ -447,41 +433,12 @@ let gm_auto = ref false
 let active_gm_auto = fun x -> 
   gm_auto := x
 
-let button_press = fun (geomap:MapCanvas.widget) ev ->
-  if GdkEvent.Button.button ev = 3 then begin
-    let xc = GdkEvent.Button.x ev 
-    and yc = GdkEvent.Button.y ev in
-    let (xw,yw) = geomap#window_to_world xc yc in
-    
-    let wgs84 = geomap#of_world (xw,yw) in
-    let display = fun geo ->
-      if Gdk.Convert.test_modifier `SHIFT (GdkEvent.Button.state ev) then
-	MapIGN.display_tile geomap geo
-      else
-	try ignore (MapGoogle.display_tile geomap geo) with
-	  Gm.Not_available -> () in
-
-    ignore(Thread.create display wgs84)
-  end;
-  false
-
 
 let fill_gm_tiles = fun geomap -> 
   ignore (Thread.create MapGoogle.fill_window geomap)
   
 let gm_update = fun geomap ->
   if !gm_auto then fill_gm_tiles geomap
-
-let file_dialog ?(filename="*.xml") ~title ~callback () =
-  let sel = GWindow.file_selection ~title ~filename ~modal:true () in
-  ignore (sel#cancel_button#connect#clicked ~callback:sel#destroy);
-  ignore
-    (sel#ok_button#connect#clicked
-       ~callback:(fun () ->
-	 let name = sel#filename in
-	 sel#destroy ();
-	 callback name));
-  sel#show ()
 
 let map_from_region = fun (geomap:MapCanvas.widget) () ->
   match geomap#region with
@@ -494,20 +451,204 @@ let map_from_region = fun (geomap:MapCanvas.widget) () ->
       let (x0, y0) = geomap#canvas#get_scroll_offsets in
       let xc1= xc1 - x0 and yc1 = yc1 - y0 in
       GdkPixbuf.get_from_drawable ~dest:p ~width ~height ~src_x:xc1 ~src_y:yc1 geomap#canvas#misc#window;
-      file_dialog ~filename:(default_path_maps//".xml") ~title:"Save region map" ~callback:(fun xml_file ->
-	let jpg = Filename.chop_extension xml_file ^ ".png" in
-	GdkPixbuf.save jpg "png" p;
-	let point = fun (x,y) xyw ->
-	  let wgs84 = geomap#of_world xyw in
-	  Xml.Element ("point", ["x",soi x;"y",soi y;"geo", Latlong.string_of wgs84], []) in
-	let points = [point (0, 0) (xw1,yw1); point (width, height) (xw2,yw2)] in
-	let xml = Xml.Element ("map", 
-			       ["file", Filename.basename jpg;
-				"projection", geomap#projection],
+      match GToolbox.select_file ~filename:(default_path_maps//".xml") ~title:"Save region map" () with
+	None -> ()
+      | Some xml_file  ->
+	  let jpg = Filename.chop_extension xml_file ^ ".png" in
+	  GdkPixbuf.save jpg "png" p;
+	  let point = fun (x,y) xyw ->
+	    let wgs84 = geomap#of_world xyw in
+	    Xml.Element ("point", ["x",soi x;"y",soi y;"geo", Latlong.string_of wgs84], []) in
+	  let points = [point (0, 0) (xw1,yw1); point (width, height) (xw2,yw2)] in
+	  let xml = Xml.Element ("map", 
+				 ["file", Filename.basename jpg;
+				  "projection", geomap#projection],
 			       points) in
-	let f = open_out xml_file in
-	Printf.fprintf f "%s\n" (Xml.to_string_fmt xml);
-	close_out f) ()
+	  let f = open_out xml_file in
+	  Printf.fprintf f "%s\n" (Xml.to_string_fmt xml);
+	  close_out f
+
+
+module Edit = struct
+  (** Editing of ONE single flight plan *)
+  let current_fp = ref None
+
+  (** Wrapper checking there is currently no flight plan loaded *)
+  let if_none = fun f ->
+    match !current_fp with
+      Some _ -> GToolbox.message_box "Error" "Only one editable flight plan at a time"
+    | None -> f ()
+
+
+  let load_xml_fp = fun geomap ?(xml_file=path_fps) xml ->
+    set_georef_if_none geomap (georef_of_fp xml);
+    let fp = new MapFP.flight_plan geomap "red" fp_dtd xml in
+    fp#show_xml ();
+    current_fp := Some (fp,xml_file);
+    fp
+
+
+  let new_fp = fun geomap () ->
+    if_none (fun () ->
+      let dialog = GWindow.window ~border_width:10 ~title:"New flight plan" () in
+      let dvbx = GPack.box `VERTICAL ~packing:dialog#add () in
+      let h = GPack.hbox ~packing:dvbx#pack () in
+      let default_latlong =
+	match geomap#georef with
+	  None -> "WGS84 37.21098 -113.45678"
+	| Some geo -> Latlong.string_of geo in
+      let latlong  = labelled_entry "latlong" default_latlong h in
+      let alt0 = labelled_entry "ground_alt" "380" h in
+      let h = GPack.hbox ~packing:dvbx#pack () in
+      let alt = labelled_entry "alt" "430" h in
+      let qfu = labelled_entry "QFU" "270" h in
+      let mdfh = labelled_entry "Max dist" "500" h in
+      
+      let h = GPack.hbox ~packing:dvbx#pack () in
+      let name  = labelled_entry "Name" "Test flight" h in
+      
+      let h = GPack.hbox ~packing:dvbx#pack () in
+      let createfp = GButton.button ~label:"Create FP" ~packing: h#add () in
+      let cancel = GButton.button ~label:"Close" ~packing: h#add () in 
+      ignore(cancel#connect#clicked ~callback:dialog#destroy);
+      ignore(createfp#connect#clicked ~callback:
+	       begin fun _ ->
+		 let xml = Xml.parse_file fp_example in
+		 let s = ExtXml.subst_attrib in
+		 let wgs84 = Latlong.of_string latlong#text in
+		 let xml = s "lat0" (deg_string_of_rad wgs84.posn_lat) xml in
+		 let xml = s "lon0" (deg_string_of_rad wgs84.posn_long) xml in
+		 let xml = s "ground_alt" alt0#text xml in
+		 let xml = s "qfu" qfu#text xml in
+		 let xml = s "alt" alt#text xml in
+		 let xml = s "max_dist_from_home" mdfh#text xml in
+		 let xml = s "name" name#text xml in
+		 ignore (load_xml_fp geomap xml);
+		 dialog#destroy ()
+	       end);
+      dialog#show ())
+
+	
+(** Loading a flight plan for edition *)
+  let load_fp = fun geomap () ->
+    if_none (fun () ->
+      match GToolbox.select_file ~title:"Open flight plan" ~filename:(path_fps^"*.xml") () with
+	None -> ()
+      | Some xml_file ->
+	  let xml = Xml.parse_file xml_file in
+	  ignore (load_xml_fp geomap ~xml_file xml))
+
+  let create_wp = fun geomap geo ->
+    match !current_fp with
+      None -> GToolbox.message_box "Error" "Load a flight plan first"
+    | Some (fp,_) ->
+	ignore (fp#add_waypoint geo)
+
+  let close_fp = fun geomap () ->
+    match !current_fp with
+      None -> () (* Nothing to close *)
+    | Some (fp, filename) -> 
+	fp#destroy ();
+	current_fp := None
+
+  let save_fp = fun geomap () ->
+    match !current_fp with
+      None -> () (* Nothing to save *)
+    | Some (fp, filename) ->
+	match GToolbox.select_file ~title:"Save Flight Plan" ~filename () with
+	  None -> ()
+	| Some file -> 
+	    let f  = open_out file in
+	    fprintf f "%s\n" (Xml.to_string_fmt fp#xml);
+	    close_out f
+
+  let ref_point_of_waypoint = fun xml ->
+    Xml.Element("point", ["x",Xml.attrib xml "x";
+			  "y",Xml.attrib xml "y";
+			  "geo", Xml.attrib xml "name"],[])
+
+(** Calibration of chosen image *)
+  let calibrate_map = fun (geomap:G.widget) () ->
+    match !current_fp with
+    | Some (fp,_) ->  GToolbox.message_box "Error" "Close current flight plan before calibration"
+    | None ->
+	match GToolbox.select_file ~filename:default_path_maps ~title:"Open Image" () with
+	  None -> ()
+	| Some image -> 
+	    (** Displaying the image in the NW corner *)
+	    let pixbuf = GdkPixbuf.from_file image in
+	    let pix = GnoCanvas.pixbuf ~pixbuf ~props:[`ANCHOR `NW] geomap#canvas#root in
+	    let (x0, y0) = geomap#canvas#get_scroll_offsets in
+	    let (x,y) = geomap#canvas#window_to_world (float x0) (float y0) in
+	    pix#move x y;
+
+	    (** Open a dummy flight plan *)
+	    let dummy_georef =
+	      match geomap#georef with
+		None -> {posn_lat = (Deg>>Rad)43.; posn_long = (Deg>>Rad)1. }
+	      | Some geo -> geo in
+	    let fp_xml = dummy_fp dummy_georef in
+	    let fp = load_xml_fp geomap fp_xml in
+	      
+	    (** Dialog to finish calibration *)
+	    let dialog = GWindow.window ~border_width:10 ~title:"Map calibration" () in
+	    let v = GPack.vbox ~packing:dialog#add () in
+	    let _ = GMisc.label ~text:"Choose 2 (or more) waypoints (CTRL Left Button)\nRename the waypoints with their geographic coordinates\nFor example: 'WGS84 43.123456 1.234567' or 'UTM 530134 3987652 12' or 'LBT2e 123456 543210'\nClick the button below to save the XML result file\n" ~packing:v#add () in
+	    let h = GPack.hbox ~packing:v#pack () in
+	    let cal = GButton.button ~label:"Calibrate" ~packing:h#add () in
+	    let cancel = GButton.button ~label:"Close" ~packing:h#add () in
+	    let destroy = fun () ->
+	      dialog#destroy ();
+	      close_fp geomap ();
+	      pix#destroy () in
+	    ignore(cancel#connect#clicked ~callback:destroy);
+	    ignore(cal#connect#clicked ~callback:(fun _ ->
+	      let points = List.map XmlEdit.xml_of_node fp#waypoints in
+	      let points = List.map ref_point_of_waypoint points in
+	      let xml = Xml.Element ("map", 
+				     ["file", Filename.basename image;
+				      "projection", geomap#projection],
+				     points) in
+	      match GToolbox.select_file ~filename:(default_path_maps//".xml") ~title:"Save calibrated map" () with
+		None -> ()
+	      | Some xml_file ->
+		  let f = open_out xml_file in
+		  Printf.fprintf f "%s\n" (Xml.to_string_fmt xml);
+		  close_out f));
+	    dialog#show ()
+end (** Edit module *)
+    
+
+
+let button_press = fun (geomap:MapCanvas.widget) ev ->
+  let state = GdkEvent.Button.state ev in
+  if GdkEvent.Button.button ev = 3 then begin
+    (** Display a tile from Google Maps or IGN *)
+    let xc = GdkEvent.Button.x ev 
+    and yc = GdkEvent.Button.y ev in
+    let (xw,yw) = geomap#window_to_world xc yc in
+    
+    let wgs84 = geomap#of_world (xw,yw) in
+    let display = fun geo ->
+      if Gdk.Convert.test_modifier `SHIFT (GdkEvent.Button.state ev) then
+	MapIGN.display_tile geomap geo
+      else
+	try ignore (MapGoogle.display_tile geomap geo) with
+	  Gm.Not_available -> () in
+
+    ignore(Thread.create display wgs84);
+    true;
+  end else if GdkEvent.Button.button ev = 1 && Gdk.Convert.test_modifier `CONTROL state then begin
+    let xc = GdkEvent.Button.x ev in
+    let yc = GdkEvent.Button.y ev in
+    let xyw = geomap#canvas#window_to_world xc yc in
+    let geo = geomap#of_world xyw in
+    Edit.create_wp geomap geo;
+    true
+  end else
+    false
+
+
 
 
 let _ =
@@ -558,6 +699,7 @@ let _ =
   let map_menu = geomap#factory#add_submenu "Maps" in
   let map_menu_fact = new GMenu.factory ~accel_group map_menu in
   ignore (map_menu_fact#add_item "Load" ~key:GdkKeysyms._M ~callback:(load_map geomap));
+  ignore (map_menu_fact#add_item "Calibrate" ~key:GdkKeysyms._C ~callback:(Edit.calibrate_map geomap));
   ignore (map_menu_fact#add_item "GM Fill" ~key:GdkKeysyms._G ~callback:(fun _ -> fill_gm_tiles geomap));
   ignore (map_menu_fact#add_check_item "GM Http" ~key:GdkKeysyms._H ~active:true ~callback:active_gm_http);
   ignore (map_menu_fact#add_check_item "GM Auto" ~active:false ~callback:active_gm_auto);
@@ -565,6 +707,15 @@ let _ =
  
   (** Connect Google Maps display to view change *)
   geomap#connect_view (fun () -> gm_update geomap);
+
+  
+  (** Flight plan editing *)
+  let fp_menu = geomap#factory#add_submenu "Edit" in
+  let fp_menu_fact = new GMenu.factory ~accel_group fp_menu in
+  ignore (fp_menu_fact#add_item "New flight plan" ~key:GdkKeysyms._N ~callback:(Edit.new_fp geomap));
+  ignore (fp_menu_fact#add_item "Open flight plan" ~key:GdkKeysyms._O ~callback:(Edit.load_fp geomap));
+  ignore (fp_menu_fact#add_item "Save flight plan" ~key:GdkKeysyms._S ~callback:(Edit.save_fp geomap));
+  ignore (fp_menu_fact#add_item "Close flight plan" ~callback:(Edit.close_fp geomap));
 
   (** Separate from A/C menus *)
   ignore (geomap#factory#add_separator ());
