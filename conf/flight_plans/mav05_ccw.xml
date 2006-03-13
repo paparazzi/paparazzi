@@ -1,6 +1,4 @@
-<!DOCTYPE flight_plan SYSTEM "flight_plan.dtd">
-
-<flight_plan SECURITY_HEIGHT="25" lat0="47.4820" lon0="11.0945" ground_alt="730" qfu="280" alt="780" ir_square_utmx_min="657530.0" ir_square_utmy_max="5261130.0" ir_square_width="180.0" ir_correct_steps="2" max_dist_from_home="300" name="Garmisch">
+<flight_plan NAME="Garmisch" LON0="11.0945" IR_SQUARE_WIDTH="180.0" IR_SQUARE_UTMX_MIN="657530.0" IR_SQUARE_UTMY_MAX="5261130.0" MAX_DIST_FROM_HOME="300" GROUND_ALT="730" SECURITY_HEIGHT="25" IR_CORRECT_STEPS="2" QFU="280" ALT="780" LAT0="47.4820">
   <rc_control>
     <mode NAME="AUTO1">
       <setting VAR="ir_pitch_neutral" RANGE="0.1" RC="gain_1_up" TYPE="float"/>
@@ -11,27 +9,43 @@
       <setting VAR="ir_roll_neutral" RANGE="-0.1" RC="gain_1_down" TYPE="float"/>
     </mode>
   </rc_control>
-
   <dl_settings>
-      <dl_setting var="ir_roll_neutral" min="-0.2" max="0.2" step="0.01"/>
-      <dl_setting var="roll_pgain" min="5000" max="15000" step="100"/>
+    <dl_setting VAR="ir_roll_neutral" MAX="0.2" STEP="0.01" MIN="-0.2"/>
+    <dl_setting VAR="roll_pgain" MAX="15000" STEP="100" MIN="5000"/>
   </dl_settings>
-
   <waypoints>
-    <waypoint NAME="HOME" X="-30" Y="30"/>
+    <waypoint Y="30" NAME="HOME" X="-30"/>
+    <waypoint name="wp1" x="-206.000000061" y="-31.0000038929" alt="780."/>
+    <waypoint name="wp2" x="-180.00000006" y="194.999996103" alt="780."/>
+    <waypoint name="wp3" x="60.9999999377" y="218.999996108" alt="780."/>
+    <waypoint name="wp4" x="-159.000000061" y="-108.000003891" alt="780."/>
+    <waypoint name="wp5" x="83.9999999388" y="-134.000003894" alt="780."/>
+    <waypoint name="wp6" x="165.99999994" y="96.9999961117" alt="780."/>
+    <waypoint name="wp7" x="-103.000000062" y="-44.0000038892" alt="780."/>
+    <waypoint name="wp8" x="-23.0000000594" y="113.999996103" alt="780."/>
   </waypoints>
-  <include name="zz" procedure="zigzag.xml" x="0" y="0" rotate="0">
-    <arg name="alt" value="GROUND_ALT+50"/>
-    <arg name="rad" value="-40"/>
-    <with from="end" to="follow"/>
+  <include Y="0" NAME="zz" PROCEDURE="zigzag.xml" X="0" ROTATE="0">
+    <arg NAME="alt" VALUE="GROUND_ALT+50"/>
+    <arg NAME="rad" VALUE="-40"/>
+    <with FROM="end" TO="follow"/>
   </include>
   <blocks>
     <block NAME="init">
-      <deroute BLOCK="zz.takeoff"/>
+      <path radius="40">
+        <path_point wp="HOME"/>
+        <path_point wp="wp1"/>
+        <path_point wp="wp2"/>
+        <path_point wp="wp3"/>
+        <path_point wp="wp4"/>
+        <path_point wp="wp5"/>
+        <path_point wp="wp6"/>
+        <path_point wp="wp7"/>
+        <path_point wp="wp8"/>
+      </path>
+      <deroute block="zz.target"/>
     </block>
     <block NAME="follow">
-      <follow ac_id="1" distance="25" height="25" cam_mode="follow" cam_ac_target="1"/>
+      <follow AC_ID="1" DISTANCE="25" CAM_MODE="follow" CAM_AC_TARGET="1" HEIGHT="25"/>
     </block>
   </blocks>
 </flight_plan>
-

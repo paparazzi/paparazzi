@@ -572,10 +572,12 @@ let _ =
 
     let dir = Filename.dirname !xml_file in
     let xml = Fp_proc.process_includes dir xml in
+    let xml = Fp_proc.process_paths xml in
     let xml = Fp_proc.process_relative_waypoints xml in
     let waypoints = ExtXml.child xml "waypoints"
     and dl_settings = try Xml.children (ExtXml.child xml "dl_settings") with Not_found -> []
     and blocks = Xml.children (ExtXml.child xml "blocks") in
+
 
     compile_blocks blocks;
 

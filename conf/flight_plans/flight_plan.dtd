@@ -13,7 +13,7 @@
 <!ELEMENT waypoint EMPTY>
 
 <!ELEMENT blocks (block+)>
-<!ELEMENT block (exception|while|heading|attitude|go|xyz|set|circle|deroute|stay|follow)*>
+<!ELEMENT block (exception|while|heading|attitude|go|xyz|set|circle|deroute|stay|follow|path)*>
 
 <!ELEMENT include (arg|with)*>
 <!ELEMENT arg EMPTY>
@@ -30,6 +30,8 @@
 <!ELEMENT deroute EMPTY>
 <!ELEMENT stay EMPTY>
 <!ELEMENT follow EMPTY>
+<!ELEMENT path (path_point*)>
+<!ELEMENT path_point EMPTY>
 
 <!ATTLIST flight_plan name CDATA #REQUIRED>
 <!ATTLIST flight_plan lat0 CDATA #REQUIRED>
@@ -116,6 +118,8 @@ until CDATA #IMPLIED
 approaching_time CDATA #IMPLIED
 gaz CDATA #IMPLIED>
 
+<!ATTLIST path_point
+wp CDATA #REQUIRED>
 
 <!ATTLIST set
 var CDATA #REQUIRED
@@ -148,6 +152,9 @@ target CDATA #IMPLIED
 cam_ac_target CDATA #IMPLIED
 climb CDATA #IMPLIED
 until CDATA #IMPLIED>
+
+<!ATTLIST path
+radius CDATA #REQUIRED>
 
 <!ATTLIST stay
 wp CDATA #REQUIRED

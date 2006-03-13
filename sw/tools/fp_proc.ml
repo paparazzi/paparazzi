@@ -26,6 +26,10 @@
 
 open Fp_syntax
 
+let distance = fun (x1,y1) (x2,y2) -> sqrt ((x1-.x2)**2.+.(y1-.y2)**2.)
+
+let nop_stage = Xml.Element ("while", ["cond","FALSE"],[])
+
 
 let parse_expression = fun s ->
   let lexbuf = Lexing.from_string s in
@@ -43,6 +47,7 @@ let parse_expression = fun s ->
 
 
 open Latlong
+let norm_2pi = fun f -> if f < 0. then f +. 2. *. pi else f
 
 (* Translation and rotation *)
 type affine = { dx : float; dy : float; angle : float (* Deg Clockwise *) }
@@ -309,13 +314,14 @@ let remove_attribs = fun xml names ->
   List.filter (fun (x,_) -> not (List.mem (String.lowercase x) names)) (Xml.attribs xml)
 
 let xml_assoc_attrib = fun a v xmls ->
-  match List.filter (fun x -> ExtXml.attrib x a = v) xmls with
-    p::_ -> p
-  | _ -> failwith "xml_assoc_attrib"
+  List.find (fun x -> ExtXml.attrib x a = v) xmls
 
 let coords_of_waypoint = fun wp ->
   (ExtXml.float_attrib wp "x", ExtXml.float_attrib wp "y")
-  
+
+let coords_of_wp_name = fun wp waypoints ->
+  let wp = xml_assoc_attrib "name" wp waypoints in
+  (ExtXml.float_attrib wp "x", ExtXml.float_attrib wp "y")
 
 let new_waypoint = fun wp qdr dist waypoints ->
   let wp_xml = xml_assoc_attrib "name" wp !waypoints in
@@ -393,3 +399,86 @@ let process_relative_waypoints = fun xml ->
 
   replace_children xml ["waypoints", new_waypoints; "blocks", blocks]
 
+let sign = fun f -> f /. abs_float f
+
+
+(** Path preprocessing: a list of waypoints is translated into an alternance of
+  route and circle stages *)
+
+let compile_path = fun wpts radius last_last last ps rest ->
+  let rec loop = fun (x0, y0) last ps ->
+    match ps with
+      [] -> rest
+    | p::ps ->
+	let wp = Xml.attrib p "wp" in
+	let (x1, y1) = coords_of_wp_name last wpts
+	and (x2, y2) = coords_of_wp_name wp wpts in
+	(* The center C of the arc is such that P0P1 _|_ P1C *)
+	let x01 = x1 -. x0 and y01 = y1 -. y0
+	and x02 = x2 -. x0 and y02 = y2 -. y0 in
+	let pvect = x01*. y02 -. y01*.x02 in
+	let s = sign pvect in
+	let alpha_1c = atan2 (y1-.y0) (x1-.x0) +. s *. pi /. 2. in
+	let xc = x1 +. radius *. cos alpha_1c
+	and yc = y1 +. radius *. sin alpha_1c in
+	let d_c2 = distance (xc, yc) (x2, y2) in
+	let d_f2 = sqrt (d_c2*.d_c2 -. radius*.radius) in
+	let alpha_c2f = atan (radius/.d_f2) in
+	let alpha_2f = atan2 (yc-.y2) (xc-.x2) +. s *. alpha_c2f in
+	let xf = x2 +. d_f2 *. cos alpha_2f
+	and yf = y2 +. d_f2 *. sin alpha_2f in
+	Printf.fprintf stderr "%s->%s: xf=%.0f yf=%.0f s=%.0f\n" last wp xf yf s;
+	
+	let alpha_cf = atan2 (y2-.yc) (x2-.xc) +. (pi/.2. -. alpha_c2f) in
+	let theta = abs_float ((pi +. alpha_1c) -. alpha_cf) /. 2. /. pi in
+	let theta = if theta > 1. then theta -. 1. else theta in
+	let c_wp_qdr= norm_2pi (pi /. 2. -. alpha_1c) in
+	let f_wp_qdr= norm_2pi (pi /. 2. -. alpha_2f) in
+	let until = Printf.sprintf "(circle_count > %f)" theta in
+	let sradius = string_of_float (-. s *. radius) in
+	Xml.Element ("circle", ["wp", last;
+				"wp_qdr", string_of_float ((Rad>>Deg)c_wp_qdr);
+				"wp_dist", string_of_float radius;
+		                "radius", sradius;
+				"until", until],[])::
+	Xml.Element ("go", ["from",wp; 
+			    "from_qdr", string_of_float ((Rad>>Deg)f_wp_qdr); 
+			    "from_dist", string_of_float d_f2;
+			    "hmode", "route";
+			    "wp", wp], [])::
+	loop (xf,yf) wp ps in
+  loop last_last last ps;;
+  
+
+let stage_process_path = fun wpts stage rest ->
+  if Xml.tag stage = "path" then
+    let radius = float_of_string (ExtXml.attrib stage "radius") in
+    match Xml.children stage with
+      [] -> nop_stage::rest
+    | [p] -> (* Just go to this single point *)
+	Xml.Element("go", ["wp", Xml.attrib p "wp"], [])::rest
+    | p1::p2::ps -> 
+        (* Start from a route from the first to the second point *)
+	let wp1 = Xml.attrib p1 "wp"
+	and wp2 = Xml.attrib p2 "wp" in
+	Xml.Element("go", ["from", wp1;
+			   "hmode","route";
+			   "wp", wp2], [])::
+	(* Here starts the actual translation *)
+	let x1y1 = coords_of_wp_name wp1 wpts in
+	compile_path wpts radius x1y1 wp2 ps rest
+  else
+    stage::rest
+
+let block_process_path = fun wpts block ->
+  let stages = Xml.children block in
+  let new_stages = List.fold_right (stage_process_path wpts) stages [] in
+  Xml.Element (Xml.tag block, Xml.attribs block, new_stages)
+  
+
+let process_paths = fun xml ->
+  let waypoints = Xml.children (ExtXml.child xml "waypoints")
+  and blocks = ExtXml.child xml "blocks" in
+  let blocks_list = List.map (block_process_path waypoints) (Xml.children blocks) in
+  let new_blocks = Xml.Element ("blocks", Xml.attribs blocks, blocks_list) in
+  replace_children xml ["blocks", new_blocks]

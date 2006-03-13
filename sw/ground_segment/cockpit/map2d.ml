@@ -409,7 +409,7 @@ let listen_flight_params = fun () ->
     try
       let ac = Hashtbl.find live_aircrafts ac_id in
       let a = fun s -> Pprz.float_assoc s vs in
-      let geo1 = { posn_lat = (Deg>>Rad)(a "segment1_lat"); posn_long = (Deg>>Rad)(a "segment2_long") }
+      let geo1 = { posn_lat = (Deg>>Rad)(a "segment1_lat"); posn_long = (Deg>>Rad)(a "segment1_long") }
       and geo2 = { posn_lat = (Deg>>Rad)(a "segment2_lat"); posn_long = (Deg>>Rad)(a "segment2_long") } in
       segment_status_msg ac.track geo1 geo2
     with Not_found -> ()
@@ -543,8 +543,13 @@ module Edit = struct
       match GToolbox.select_file ~title:"Open flight plan" ~filename:(path_fps^"*.xml") () with
 	None -> ()
       | Some xml_file ->
-	  let xml = Xml.parse_file xml_file in
-	  ignore (load_xml_fp geomap ~xml_file xml))
+	 try
+	   let xml = Xml.parse_file xml_file in
+	   ignore (load_xml_fp geomap ~xml_file xml)
+	 with
+	   Dtd.Check_error(e) -> 
+	     let m = sprintf "Error while loading %s:\n%s" xml_file (Dtd.check_error e) in
+	     GToolbox.message_box "Error" m)
 
   let create_wp = fun geomap geo ->
     match !current_fp with
