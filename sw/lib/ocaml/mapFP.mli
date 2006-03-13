@@ -38,7 +38,7 @@ class flight_plan :
     method hide : unit -> unit
     method index : XmlEdit.node -> int * MapWaypoints.waypoint
     method show : unit -> unit
-    method show_xml : unit -> unit
+    method window : GWindow.window
     method waypoints : XmlEdit.node list
     method xml : Xml.xml
   end

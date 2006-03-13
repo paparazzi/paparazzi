@@ -480,10 +480,18 @@ module Edit = struct
     | None -> f ()
 
 
+  let close_fp = fun geomap () ->
+    match !current_fp with
+      None -> () (* Nothing to close *)
+    | Some (fp, filename) ->
+	fp#destroy ();
+	current_fp := None
+	    
   let load_xml_fp = fun geomap ?(xml_file=path_fps) xml ->
     set_georef_if_none geomap (georef_of_fp xml);
     let fp = new MapFP.flight_plan geomap "red" fp_dtd xml in
-    fp#show_xml ();
+    fp#window#show ();
+    ignore (fp#window#connect#destroy ~callback:(close_fp geomap));
     current_fp := Some (fp,xml_file);
     fp
 
@@ -544,12 +552,6 @@ module Edit = struct
     | Some (fp,_) ->
 	ignore (fp#add_waypoint geo)
 
-  let close_fp = fun geomap () ->
-    match !current_fp with
-      None -> () (* Nothing to close *)
-    | Some (fp, filename) -> 
-	fp#destroy ();
-	current_fp := None
 
   let save_fp = fun geomap () ->
     match !current_fp with

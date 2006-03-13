@@ -113,7 +113,7 @@ class flight_plan = fun geomap color fp_dtd xml ->
   object
     val mutable max_dist_from_home = max_dist_from_home
     method georef = ref_wgs84
-    method show_xml () = xml_window#show ()
+    method window = xml_window
     method destroy () = 
       wpts_group#group#destroy ();
       xml_window#destroy ()
