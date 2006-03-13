@@ -142,8 +142,9 @@ class waypoint = fun (group:group) (name :string) ?(alt=0.) wgs84 ->
     method pos = geomap#of_world self#xy
     method set wgs84 = 
       let (xw, yw) = geomap#world_of wgs84
-      and (xw0, yw0) = self#xy in
-      self#move (xw-.xw0) (yw-.yw0)      
+      and (xw0, yw0) = self#xy
+      and z = geomap#zoom_adj#value in
+      self#move ((xw-.xw0)*.z) ((yw-.yw0)*.z)
     method delete =
       deleted <- true; (* BOF *)
       item#destroy ();
