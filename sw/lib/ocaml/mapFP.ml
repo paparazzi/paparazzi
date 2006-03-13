@@ -59,12 +59,11 @@ let update_xml = fun xml_tree utm0 wp ->
   let (dx, dy) = utm_sub utm utm0 in
   XmlEdit.set_attribs node ["name",wp#name; "x",sof dx; "y",sof dy; "alt", sof wp#alt]
 
-let new_wp = fun xml_tree waypoints utm_ref node ->
-  let float_attrib = 
-    fun a -> try float_of_string (XmlEdit.attrib node a) with _ -> 0. in
+let new_wp = fun xml_tree waypoints utm_ref ?(alt = 0.) node ->
+  let float_attrib = fun a -> float_of_string (XmlEdit.attrib node a) in
   let x = (float_attrib "x") and y = (float_attrib "y") in
   let wgs84 = Latlong.of_utm WGS84 (utm_add utm_ref (x, y)) in
-  let alt = float_attrib "alt" in
+  let alt = try float_attrib "alt" with _ -> alt in
   let name = XmlEdit.attrib node "name" in
   let wp = MapWaypoints.waypoint waypoints ~name ~alt wgs84 in
   XmlEdit.connect node (update_wp utm_ref wp);
@@ -85,7 +84,7 @@ class flight_plan = fun geomap color fp_dtd xml ->
   (** Geographic ref *)
   let lat0 = float_attr xml "lat0"
   and lon0 = float_attr xml "lon0"
-  and alt0 = float_attr xml "alt" in
+  and alt = float_attr xml "alt" in
   let ref_wgs84 = {posn_lat = (Deg>>Rad)lat0; posn_long = (Deg>>Rad)lon0 } in
   let utm0 = utm_of WGS84 ref_wgs84 in
 
@@ -94,10 +93,11 @@ class flight_plan = fun geomap color fp_dtd xml ->
 
   let yaws = Hashtbl.create 5 in (* Yes Another Waypoints Store *)
   let create_wp =
-    let i = ref 0 in
+    let i = ref 1 in
     fun node ->
-      let w = new_wp xml_tree_view wpts_group utm0 node in
+      let w = new_wp xml_tree_view wpts_group utm0 ~alt node in
       Hashtbl.add yaws (XmlEdit.attrib node "name") (!i, w);
+      incr i;
       w in
 
   let max_dist_from_home = float_attr xml "MAX_DIST_FROM_HOME" in

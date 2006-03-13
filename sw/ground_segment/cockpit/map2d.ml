@@ -181,7 +181,7 @@ let commit_changes = fun ac ->
 		  "wp_id", Pprz.Int i;
 		  "lat", Pprz.Float ((Rad>>Deg)wgs84.posn_lat);
 		  "long", Pprz.Float ((Rad>>Deg)wgs84.posn_long);
-		      "alt", Pprz.Float w#alt
+		  "alt", Pprz.Float w#alt
 		] in
 	Ground_Pprz.message_send "map2d" "MOVE_WAYPOINT" vs)
     a.fp_group#waypoints
