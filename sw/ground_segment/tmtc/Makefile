@@ -78,7 +78,7 @@ modem.cmo : modem.cmi
 %.cmi : %.mli
 	$(OCAMLC) $(INCLUDES) $<
 
-aircraft.cmo : aircraft.cmi
+airprox.cmi aircraft.cmo : aircraft.cmi
 airprox.cmo : airprox.cmi
 
 wavecard_c : wavecard_c.c wavecard_utils_c.c wavecard_foo_c.c

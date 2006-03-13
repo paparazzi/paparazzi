@@ -25,6 +25,7 @@
 type ac_cam = {
     mutable phi : float; (* Rad, right = >0 *)
     mutable theta : float; (* Rad, front = >0 *)
+    mutable target : (float * float) (* meter*meter relative *)
   }
 
 type inflight_calib = {

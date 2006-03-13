@@ -121,7 +121,9 @@ class track = fun ?(name="coucou") ?(size = 500) ?(color="red") (geomap:MapCanva
 	self#clear_one i seg
       done;
       top := 0
-    method set_cam_state = fun b -> cam_on <- b
+    method set_cam_state = fun b ->
+      cam_on <- b;
+      if b then cam#show () else cam#hide ()
 
     method update_ap_status = fun time -> 
       last_flight_time <- time
@@ -177,9 +179,7 @@ class track = fun ?(name="coucou") ?(size = 500) ?(color="red") (geomap:MapCanva
 	  
 (** moves the rectangle representing the field covered by the camera *)
     method move_cam = fun wgs84 mission_target_wgs84 ->
-      if not cam_on then
-	cam#hide ()
-      else
+      if cam_on then
 	let (xw,yw) = geomap#world_of wgs84 in 
 	let (mission_target_xw, mission_target_yw) = geomap#world_of mission_target_wgs84 in
 	let last_height_scaled = last_height in

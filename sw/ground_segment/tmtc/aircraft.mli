@@ -24,7 +24,12 @@
 
 (** State of an A/C handled by the server *)
 
-type ac_cam = { mutable phi : float; mutable theta : float; }
+type ac_cam = {
+    mutable phi : float; (* Rad, right = >0 *)
+    mutable theta : float; (* Rad, front = >0 *)
+    mutable target : (float * float) (* meter*meter relative *)
+  }
+
 type inflight_calib = {
   mutable if_mode : int;
   mutable if_val1 : float;

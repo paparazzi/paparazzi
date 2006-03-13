@@ -218,6 +218,7 @@ let log_and_parse = fun logging ac_name a msg values ->
     | "CAM" ->
 	a.cam.phi <- (Deg>>Rad) (fvalue  "phi");
 	a.cam.theta <- (Deg>>Rad) (fvalue  "theta");
+	a.cam.target <- (fvalue  "target_x", fvalue  "target_y")
     | "RAD_OF_IR" ->
 	a.infrared.gps_hybrid_factor <- fvalue "rad_of_ir"
     | "CALIB_START" ->
@@ -273,18 +274,25 @@ let ac_msg = fun log ac_name a m ->
 
 let send_cam_status = fun a ->
   if a.gps_mode = gps_mode_3D then
-    let h = a.alt -. float (Srtm.of_utm a.pos) in
-    let dx = h *. tan (a.cam.phi -. a.roll)
-    and dy = h *. tan (a.cam.theta +. a.pitch) in
-    let alpha = -. a.course in
-    let east = dx *. cos alpha -. dy *. sin alpha
-    and north = dx *. sin alpha +. dy *. cos alpha in
-    let utm = Latlong.utm_add a.pos (east, north) in
-    let wgs84 = Latlong.of_utm WGS84 utm in
-    let values = ["ac_id", Pprz.String a.id; 
-		  "cam_lat", Pprz.Float ((Rad>>Deg)wgs84.posn_lat);
-		  "cam_long", Pprz.Float ((Rad>>Deg)wgs84.posn_long)] in
-    Ground_Pprz.message_send my_id "CAM_STATUS" values
+    match a.nav_ref with
+      None -> () (* No geo ref for camera target *)
+    | Some nav_ref ->
+	let h = a.alt -. float (Srtm.of_utm a.pos) in
+	let dx = h *. tan (a.cam.phi -. a.roll)
+	and dy = h *. tan (a.cam.theta +. a.pitch) in
+	let alpha = -. a.course in
+	let east = dx *. cos alpha -. dy *. sin alpha
+	and north = dx *. sin alpha +. dy *. cos alpha in
+	let utm = Latlong.utm_add a.pos (east, north) in
+	let wgs84 = Latlong.of_utm WGS84 utm in
+	let utm_target = Latlong.utm_add nav_ref a.cam.target in
+	let twgs84 =  Latlong.of_utm WGS84 utm_target in
+	let values = ["ac_id", Pprz.String a.id; 
+		      "cam_lat", Pprz.Float ((Rad>>Deg)wgs84.posn_lat);
+		      "cam_long", Pprz.Float ((Rad>>Deg)wgs84.posn_long); 
+		      "cam_target_lat", Pprz.Float ((Rad>>Deg)twgs84.posn_lat);
+		      "cam_target_long", Pprz.Float ((Rad>>Deg)twgs84.posn_long)] in
+	Ground_Pprz.message_send my_id "CAM_STATUS" values
 
 let send_if_calib = fun a ->
   let if_mode = get_indexed_value if_modes a.inflight_calib.if_mode in
@@ -452,7 +460,7 @@ let new_aircraft = fun id ->
       desired_climb = 0.;
       pos = { utm_x = 0.; utm_y = 0.; utm_zone = 0 };
       nav_ref = None;
-      cam = { phi = 0.; theta = 0. };
+      cam = { phi = 0.; theta = 0. ; target=(0.,0.)};
       inflight_calib = { if_mode = 1 ; if_val1 = 0.; if_val2 = 0.};
       infrared = infrared_init;
       fbw = { rc_status = "???"; rc_mode = "???" };
