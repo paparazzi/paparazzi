@@ -661,10 +661,12 @@ let _ =
   let ivy_bus = ref "127.255.255.255:2010"
   and geo_ref = ref ""
   and map_file = ref ""
+  and zoom = ref 1.
   and projection= ref MapCanvas.UTM in
   let options =
     [ "-b", Arg.String (fun x -> ivy_bus := x), "Bus\tDefault is 127.255.255.25:2010";
       "-ref", Arg.Set_string geo_ref, "Geographic ref (default '')";
+      "-zoom", Arg.Set_float zoom, "Initial zoom";
       "-mercator", Arg.Unit (fun () -> projection:=MapCanvas.Mercator),"Switch to (Google Maps) Mercator projection";
       "-lambertIIe", Arg.Unit (fun () -> projection:=MapCanvas.LambertIIe),"Switch to LambertIIe projection";
       "-ign", Arg.Set_string IGN.data_path, "IGN tiles path";
@@ -728,6 +730,8 @@ let _ =
   ignore (geomap#factory#add_separator ());
 
   vbox#pack ~expand:true geomap#frame#coerce;
+
+  geomap#zoom !zoom;
 
   (* Loading an initial map *)
   if !geo_ref <> "" then
