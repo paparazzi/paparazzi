@@ -148,5 +148,4 @@ let fill_window = fun (geomap:MapCanvas.widget) ->
 	New_displayed z when z = zoom ->
 	  trees.(i) <- Tile
       | Gm.Not_available -> () in
-  loop (-1.) (-1.)  2. [|gm_tiles|] 0 18 "t";
-  geomap#canvas#update_now ()
+  loop (-1.) (-1.)  2. [|gm_tiles|] 0 18 "t"
