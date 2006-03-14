@@ -81,15 +81,16 @@ sub on_new_aircraft {
 sub build_gui {
   my ($self) = @_;
   $self->{mw} = MainWindow->new();
+  my $size = 250;
   my $top_frame =  $self->{mw}->Frame()->pack(-side => 'top', -fill => 'both');
-  my ($stp_p, $stp_w, $stp_h) = ([0, 0],                   300, 300);
-  my ($pfd_p, $pfd_w, $pfd_h) = ([$stp_w, 0]             , 300, $stp_h);
-  my ($nd_p,  $nd_w,  $nd_h) =  ([$pfd_p->[0]+ $pfd_w, 0], 300, 300);
+  my ($stp_p, $stp_w, $stp_h) = ([0, 0],                   $size, $size);
+  my ($pfd_p, $pfd_w, $pfd_h) = ([$stp_w, 0]             , $size, $size);
+  my ($nd_p,  $nd_w,  $nd_h) =  ([$pfd_p->[0]+ $pfd_w, 0], $size, $size);
   my ($z_w, $z_h) = ($stp_w + $pfd_w + $nd_w, $nd_h);
   
   if ($options->{vertical}) {
-    ($pfd_p, $pfd_w, $pfd_h) = ([0, $stp_h] , $stp_w, 300);
-    ($nd_p,  $nd_w,  $nd_h) =  ([0, $pfd_p->[1]+ $pfd_h], 300, 300);
+    ($pfd_p, $pfd_w, $pfd_h) = ([0, $stp_h] , $size, $size);
+    ($nd_p,  $nd_w,  $nd_h) =  ([0, $pfd_p->[1]+ $pfd_h], $size, $size);
     ($z_w, $z_h) = ($stp_w, $stp_h + $pfd_h + $nd_h)
   }
   
