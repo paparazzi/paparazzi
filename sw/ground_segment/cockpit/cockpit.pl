@@ -118,7 +118,7 @@ sub build_gui {
 				    -width  => $nd_w,
 				    -height => $nd_h,
  				  );
-  my $sw = MainWindow->new(-title => "Flight Plan");
+  my $sw = MainWindow->new(-title => "Flight Plan", -class => "Flight Plan");
  #  my $bot_frame =  $self->{mw}->Frame()->pack(-side => 'bottom', -fill => 'both', -expand => 1);
 #  my $md = $bot_frame->MissionD(-bg => '#c1daff');
   my $md = $sw->MissionD(-bg => '#c1daff');
