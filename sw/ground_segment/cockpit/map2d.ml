@@ -661,12 +661,14 @@ let _ =
   let ivy_bus = ref "127.255.255.255:2010"
   and geo_ref = ref ""
   and map_file = ref ""
+  and center = ref ""
   and zoom = ref 1.
   and projection= ref MapCanvas.UTM in
   let options =
     [ "-b", Arg.String (fun x -> ivy_bus := x), "Bus\tDefault is 127.255.255.25:2010";
       "-ref", Arg.Set_string geo_ref, "Geographic ref (default '')";
       "-zoom", Arg.Set_float zoom, "Initial zoom";
+      "-center", Arg.Set_string center, "Initial map center";
       "-mercator", Arg.Unit (fun () -> projection:=MapCanvas.Mercator),"Switch to (Google Maps) Mercator projection";
       "-lambertIIe", Arg.Unit (fun () -> projection:=MapCanvas.LambertIIe),"Switch to LambertIIe projection";
       "-ign", Arg.Set_string IGN.data_path, "IGN tiles path";
@@ -741,6 +743,7 @@ let _ =
     display_map geomap xml_map_file
   end;
 
+
   ignore (Glib.Timeout.add 2000 (fun () -> Ground_Pprz.message_req "map2d" "AIRCRAFTS" [] (fun _sender vs -> live_aircrafts_msg geomap vs); false));
 
   ignore (Ground_Pprz.message_bind "NEW_AIRCRAFT" (fun _sender vs -> one_new_ac geomap (Pprz.string_assoc "ac_id" vs)));
@@ -749,5 +752,13 @@ let _ =
 
   window#add_accel_group accel_group;
   window#show ();
+
+  if !center <> "" then begin
+    try
+      geomap#center (Latlong.of_string !center)
+    with
+      _ -> GToolbox.message_box "Error" (sprintf "Cannot center at '%s' (no ref ?)" !center)
+  end;
+
  
   GtkThread.main ()
