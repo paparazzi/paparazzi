@@ -39,6 +39,7 @@ my $options =
   {
    ivy_bus  => "127.255.255.255:2005",
    render => 1,
+   vertical => 0,
    tracelevel => 1,
   };
 
@@ -81,12 +82,19 @@ sub build_gui {
   my ($self) = @_;
   $self->{mw} = MainWindow->new();
   my $top_frame =  $self->{mw}->Frame()->pack(-side => 'top', -fill => 'both');
-  my $bot_frame =  $self->{mw}->Frame()->pack(-side => 'bottom', -fill => 'both', -expand => 1);
-  my ($stp_p, $stp_w, $stp_h) = ([0, 0],                   315, 300);
+  my ($stp_p, $stp_w, $stp_h) = ([0, 0],                   300, 300);
   my ($pfd_p, $pfd_w, $pfd_h) = ([$stp_w, 0]             , 300, $stp_h);
   my ($nd_p,  $nd_w,  $nd_h) =  ([$pfd_p->[0]+ $pfd_w, 0], 300, 300);
-  my $zinc = $top_frame->Zinc(-width => $stp_w + $pfd_w + $nd_w ,
-			      -height => $nd_h,
+  my ($z_w, $z_h) = ($stp_w + $pfd_w + $nd_w, $nd_h);
+  
+  if ($options->{vertical}) {
+    ($pfd_p, $pfd_w, $pfd_h) = ([0, $stp_h] , $stp_w, 300);
+    ($nd_p,  $nd_w,  $nd_h) =  ([0, $pfd_p->[1]+ $pfd_h], 300, 300);
+    ($z_w, $z_h) = ($stp_w, $stp_h + $pfd_h + $nd_h)
+  }
+  
+  my $zinc = $top_frame->Zinc(-width => $z_w ,
+			      -height => $z_h,
 			      -backcolor => 'black',
 			      -borderwidth => 3, -relief => 'sunken',
 			      -render => $options->{render},
@@ -98,7 +106,7 @@ sub build_gui {
 						     -height => $stp_h
 						   );
   $self->{strip_panel}->attach($self, 'SELECTED', ['on_aircraft_selection', ()]);
-
+  
   $self->{pfd} = Paparazzi::PFD->new( -zinc => $zinc,
 				      -origin => $pfd_p,
 				      -width  => $pfd_w,
@@ -106,13 +114,17 @@ sub build_gui {
 				    );
   $self->{pfd}->attach($self, 'SHOW_PAGE', ['onShowPage']);
   $self->{nd} = Paparazzi::ND->new( -zinc => $zinc,
- 				    -origin => $nd_p,
- 				    -width  => $nd_w,
- 				    -height => $nd_h,
+				    -origin => $nd_p,
+				    -width  => $nd_w,
+				    -height => $nd_h,
  				  );
-  my $md = $bot_frame->MissionD(-bg => '#c1daff');
+  my $sw = MainWindow->new(-title => "Flight Plan");
+ #  my $bot_frame =  $self->{mw}->Frame()->pack(-side => 'bottom', -fill => 'both', -expand => 1);
+#  my $md = $bot_frame->MissionD(-bg => '#c1daff');
+  my $md = $sw->MissionD(-bg => '#c1daff');
   $md->pack(-side => 'bottom', -anchor => "n", -fill => 'both', -expand => 1);
   $self->{md} = $md;
+  $sw->configure(-width => 600, -height => 300);
 
 }
 

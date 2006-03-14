@@ -22,6 +22,7 @@ sub Populate {
   my $notebook = $self->NoteBook(-ipadx => 6, -ipady => 6);
   $notebook->pack(-fill => 'both', -expand => "1");
   $self->Advertise('notebook' => $notebook);
+#  $self->configure(-width => 600, -height => 300);
 #  $self->{cur_block} = $self->{cur_stage} = -1;
 }
 
