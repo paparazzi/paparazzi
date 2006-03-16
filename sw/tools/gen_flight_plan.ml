@@ -56,12 +56,6 @@ let parsed_attrib = fun xml a ->
 
 let pi = atan 1. *. 4.
 
-let radE8_of_deg = fun d ->
-  d /. 180. *. pi *. 1e8
-
-let rad_of_deg = fun d ->
-  d /. 180. *. pi
-
 let deg_of_rad = fun r ->
   r /. pi *. 180.
 
@@ -80,7 +74,6 @@ let lprintf = fun f ->
   printf f
 
 let float_attrib = fun xml a -> float_of_string (Xml.attrib xml a)
-let int_attrib = fun xml a -> int_of_string (Xml.attrib xml a)
 let name_of = fun wp -> ExtXml.attrib wp "name"
 
 
@@ -121,7 +114,6 @@ let print_exception = fun x ->
   let c = parsed_attrib x "cond" in
   lprintf "if %s { GotoBlock(%s) }\n" c i
 
-let return_from_excpt l = Xml.Element ("return_from_excpt", ["name",l], [])
 let goto l = Xml.Element ("goto", ["name",l], [])
 let exit_block = Xml.Element ("exit_block", [], [])
   
@@ -362,7 +354,7 @@ let rec print_stage = fun index_of_waypoints x ->
 	stage ();
 	let wp = get_index_waypoint (ExtXml.attrib x "wp") index_of_waypoints in
 	let r = parsed_attrib  x "radius" in
-	let vmode = output_vmode x wp "" in
+	let _vmode = output_vmode x wp "" in
 	lprintf "Circle(%s, %s);\n" wp r;
 	begin
 	  try
@@ -387,7 +379,7 @@ let rec print_stage = fun index_of_waypoints x ->
 	      lprintf "NextStage();\n";
 	end;
 	lprintf "return;\n"
-    | s -> failwith "Unreachable"
+    | _s -> failwith "Unreachable"
   end;
   left ()
 

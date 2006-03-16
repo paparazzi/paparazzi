@@ -125,7 +125,7 @@ let print_loop_declaration = fun mode lp ->
     end;
   nl()
 
-let print_loop_code = fun mode lp ->
+let print_loop_code = fun _mode lp ->
   printf "  {\n";
   printf "    %s err = %s - %s;\n" lp.data_type lp.measure lp.setpoint;
   if is_d lp.loop_type then

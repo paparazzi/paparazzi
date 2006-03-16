@@ -45,8 +45,6 @@ module Syntax = struct
 
   type messages = message list
 
-  let lineno = ref 1 (* For syntax error messages *)  
-
   let assoc_types t =
     try
       List.assoc t Pprz.types
@@ -56,7 +54,6 @@ module Syntax = struct
   let rec sizeof = function
       Basic t -> (assoc_types t).Pprz.size
     | Array (t, i) -> i * sizeof (Basic t)
-  let glibof = fun t -> (assoc_types t).Pprz.glib_type
   let formatof = fun t -> (assoc_types t).Pprz.format
 
   let print_format t = function
@@ -74,8 +71,6 @@ module Syntax = struct
     printf "%s {\n" s;
     List.iter print_field fields;
     printf "}\n"
-
-  let print_messages = List.iter print_message
 
   open Xml
 
@@ -279,7 +274,7 @@ let gen_periodic = fun avr_h messages ->
   let rec gen_or_code = fun tab modulos xors ->
     List.iter
       (fun xor ->
-	let required_modulos = List.map (fun (N (s,p,ms,t)) -> p) xor in
+	let required_modulos = List.map (fun (N (_s,p,_ms,_t)) -> p) xor in
 	let rec add_new_modulos = fun modulos l ->
 	  match l with
 	    [] -> modulos
@@ -316,7 +311,6 @@ let _ =
   end;
   let filename = Sys.argv.(1) in
   let class_name = Sys.argv.(2) in
-  let base = Filename.basename (Filename.chop_extension filename) ^ class_name in
 
   let messages = Syntax.read filename class_name in
 

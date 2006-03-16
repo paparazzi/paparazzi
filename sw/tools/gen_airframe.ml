@@ -36,7 +36,6 @@ type control = { failsafe_value : int; foo : int }
 
 let fos = float_of_string
 let sof = fun x -> if mod_float x 1. = 0. then Printf.sprintf "%.0f" x else string_of_float x
-let soi = string_of_int
 
 let define_macro name n x =
   let a = fun s -> ExtXml.attrib x s in

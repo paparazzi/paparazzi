@@ -841,6 +841,29 @@ let norm_heading_rad a =
     
 let oposite_heading_rad rad =
   norm_heading_rad (rad +. m_pi)
+
+
+let sign = fun f -> f /. abs_float f
+
+let arc_segment = fun p0 p1 p2 radius ->
+  (* C: center of the arc *)
+  let p0p1 = vect_make p0 p1
+  and p0p2 = vect_make p0 p2 in
+  let u = vect_normalize p0p1 in
+  let v = vect_rotate_90 u in
+  let s = sign (cross_product p0p1 p0p2) in
+  let c = vect_add p1 (vect_mul_scal v (s*.radius)) in
+  
+  (* F first point of the segment *)
+  let d_c2 = distance c p2 in
+  assert (radius < d_c2);
+  let alpha_2cf = -. s *. acos (radius /. d_c2) 
+  and alpha_c2 = (cart2polar (vect_make c p2)).theta2D in
+  let alpha_cf = alpha_c2 +. alpha_2cf in
+  let f = vect_add c (polar2cart {theta2D=alpha_cf;r2D=radius}) in
+
+  (c, f, s)
+
    
 
 (* =============================== FIN ========================================= *)

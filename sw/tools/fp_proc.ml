@@ -24,9 +24,9 @@
  *
  *)
 
-open Fp_syntax
+module G2D = Geometry_2d
 
-let distance = fun (x1,y1) (x2,y2) -> sqrt ((x1-.x2)**2.+.(y1-.y2)**2.)
+open Fp_syntax
 
 let nop_stage = Xml.Element ("while", ["cond","FALSE"],[])
 
@@ -73,7 +73,7 @@ let rotate_expression = fun a expression ->
 	Call(op, [rot e1; rot e2]) 
     | CallOperator(op, [e]) -> CallOperator(op, [rot e])
     | CallOperator(op, [e1; e2]) -> CallOperator(op, [rot e1; rot e2])
-    | CallOperator(op, _) -> failwith "fp_proc: Operator should be unary or binary"
+    | CallOperator(_op, _) -> failwith "fp_proc: Operator should be unary or binary"
     | _ -> e in
   rot expression
 
@@ -206,15 +206,6 @@ let transform_block = fun prefix reroutes affine env xml ->
 	       ["name", prefix (ExtXml.attrib xml "name")],
 	       List.map (transform_stage prefix reroutes affine env) (Xml.children xml))
   
-
-let check_params = fun params env ->
-  List.iter
-    (fun p ->
-      if not (List.mem_assoc p env) then begin
-	Printf.fprintf stderr "Parameter '%s' is missing\n" p;
-	exit 1
-      end)
-    params
 
 let parse_include = fun dir include_xml ->
   let f = Filename.concat dir (ExtXml.attrib include_xml "procedure") in
@@ -399,60 +390,37 @@ let process_relative_waypoints = fun xml ->
 
   replace_children xml ["waypoints", new_waypoints; "blocks", blocks]
 
-let sign = fun f -> f /. abs_float f
 
 
 (** Path preprocessing: a list of waypoints is translated into an alternance of
   route and circle stages *)
-let unit_vect = fun (x1,y1) (x2,y2) ->
-  let d = distance (x1,y1) (x2,y2) in
-  ((x2-.x1)/.d, (y2-.y1)/.d)
-let prod_vect = fun (x1, y1) (x2,y2) ->
-  x1*.y2 -. x2*.y1
-let ortho = fun (x, y) -> (-.y, x)
-
-
 let compile_path = fun wpts radius last_last last ps rest ->
-  let rec loop = fun (x0, y0) last ps ->
+  let rec loop = fun p0 last ps ->
     match ps with
       [] -> rest
     | p::ps ->
 	let wp = Xml.attrib p "wp" in
 	let (x1, y1) = coords_of_wp_name last wpts
 	and (x2, y2) = coords_of_wp_name wp wpts in
-
-	(* C: center of the arc *)
-	let u = unit_vect (x0,y0) (x1, y1) in
-	let xv, yv = ortho u in
-	let s = sign (prod_vect (x1 -. x0, y1 -. y0) (x2 -. x0, y2 -. y0)) in
-	let xc = x1 +. s *. xv *. radius	
-	and yc = y1 +. s *. yv *. radius in
-
-	(* F first point of the segment *)
-	let d_c2 = distance (xc, yc) (x2, y2) in
-	assert (radius < d_c2);
-	let alpha_2cf = -. s *. acos (radius /. d_c2) 
-	and alpha_c2 = atan2 (y2-.yc) (x2-.xc) in
-	let alpha_cf = alpha_c2 +. alpha_2cf in
-	let xf = xc +. radius *. cos alpha_cf
-	and yf = yc +. radius *. sin alpha_cf in
-
+	let p1 = {G2D.x2D=x1; y2D=y1}
+	and p2 = {G2D.x2D=x2; y2D=y2} in
+	let (c, f, s) = G2D.arc_segment p0 p1 p2 radius in
+	  
 	(* Angle between P1 and F *)
-	let alpha_c1 = atan2 (y1-.yc) (x1-.xc) in
+	let alpha_cf = (G2D.cart2polar (G2D.vect_make c f)).G2D.theta2D in
+	let alpha_c1 = (G2D.cart2polar (G2D.vect_make c p1)).G2D.theta2D in
 	let alpha_fc1 = norm_2pi (-. s *. (alpha_c1 -. alpha_cf)) in
 
 	let theta = abs_float (alpha_fc1) /. 2. /. pi in
 
 	(* C relative to P1, F relative to P2 *)
-	let alpha_1c = alpha_c1 -. pi
-	and alpha_2f = atan2 (yf-.y2) (xf-.x2)
-	and d_f2 = distance (xf,yf) (x2,y2) in
+	let alpha_1c = (G2D.cart2polar (G2D.vect_make p1 c)).G2D.theta2D
+	and alpha_2f = (G2D.cart2polar (G2D.vect_make p2 f)).G2D.theta2D
+	and d_f2 = G2D.distance f p2 in
 	let c_last_qdr= norm_2pi (pi /. 2. -. alpha_1c)
 	and f_wp_qdr= norm_2pi (pi /. 2. -. alpha_2f) in
 	let until = Printf.sprintf "(circle_count > %f)" theta in
 	let sradius = string_of_float (-. s *. radius) in
-
-	Printf.fprintf stderr "%s->%s: xf=%.0f yf=%.0f s=%.0f ac1=%.1f acf=%.1f t=%.1f\n" last wp xf yf s alpha_c1 alpha_cf theta;
 
 	Xml.Element ("circle", ["wp", last;
 				"wp_qdr", string_of_float ((Rad>>Deg)c_last_qdr);
@@ -465,7 +433,7 @@ let compile_path = fun wpts radius last_last last ps rest ->
 			    "hmode", "route";
 			    "approaching_time", "2";
 			    "wp", wp], [])::
-	loop (xf,yf) wp ps in
+	loop f wp ps in
   loop last_last last ps;;
   
 
@@ -484,8 +452,9 @@ let stage_process_path = fun wpts stage rest ->
 			   "hmode","route";
 			   "wp", wp2], [])::
 	(* Here starts the actual translation *)
-	let x1y1 = coords_of_wp_name wp1 wpts in
-	compile_path wpts radius x1y1 wp2 ps rest
+	let x1, y1 = coords_of_wp_name wp1 wpts in
+	let p1 = {Geometry_2d.x2D=x1; y2D=y1} in
+	compile_path wpts radius p1 wp2 ps rest
   else
     stage::rest
 

@@ -301,3 +301,11 @@ val heading_of_to_angle_rad : float -> float
 val norm_angle_rad : float -> float
 val norm_heading_rad : float -> float
 val oposite_heading_rad : float -> float
+
+(** {6 Misc} *)
+
+val arc_segment : pt_2D -> pt_2D -> pt_2D -> float -> pt_2D*pt_2D*float
+(** [arc_segment p0 p1 p2 r] Returns [(c,f,s)]. Point [c] is the center of the
+arc of radius [r], tangent to segment [po]-[p1] in [p1]. Point [f] is such
+that [f]-[p2] is tangent to the arc. [s] is 1. if [c] is on the left, [-1]
+else *)
