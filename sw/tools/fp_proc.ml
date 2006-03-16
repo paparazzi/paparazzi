@@ -404,6 +404,13 @@ let sign = fun f -> f /. abs_float f
 
 (** Path preprocessing: a list of waypoints is translated into an alternance of
   route and circle stages *)
+let unit_vect = fun (x1,y1) (x2,y2) ->
+  let d = distance (x1,y1) (x2,y2) in
+  ((x2-.x1)/.d, (y2-.y1)/.d)
+let prod_vect = fun (x1, y1) (x2,y2) ->
+  x1*.y2 -. x2*.y1
+let ortho = fun (x, y) -> (-.y, x)
+
 
 let compile_path = fun wpts radius last_last last ps rest ->
   let rec loop = fun (x0, y0) last ps ->
@@ -413,31 +420,42 @@ let compile_path = fun wpts radius last_last last ps rest ->
 	let wp = Xml.attrib p "wp" in
 	let (x1, y1) = coords_of_wp_name last wpts
 	and (x2, y2) = coords_of_wp_name wp wpts in
-	(* The center C of the arc is such that P0P1 _|_ P1C *)
-	let x01 = x1 -. x0 and y01 = y1 -. y0
-	and x02 = x2 -. x0 and y02 = y2 -. y0 in
-	let pvect = x01*. y02 -. y01*.x02 in
-	let s = sign pvect in
-	let alpha_1c = atan2 (y1-.y0) (x1-.x0) +. s *. pi /. 2. in
-	let xc = x1 +. radius *. cos alpha_1c
-	and yc = y1 +. radius *. sin alpha_1c in
+
+	(* C: center of the arc *)
+	let u = unit_vect (x0,y0) (x1, y1) in
+	let xv, yv = ortho u in
+	let s = sign (prod_vect (x1 -. x0, y1 -. y0) (x2 -. x0, y2 -. y0)) in
+	let xc = x1 +. s *. xv *. radius	
+	and yc = y1 +. s *. yv *. radius in
+
+	(* F first point of the segment *)
 	let d_c2 = distance (xc, yc) (x2, y2) in
-	let d_f2 = sqrt (d_c2*.d_c2 -. radius*.radius) in
-	let alpha_c2f = atan (radius/.d_f2) in
-	let alpha_2f = atan2 (yc-.y2) (xc-.x2) +. s *. alpha_c2f in
-	let xf = x2 +. d_f2 *. cos alpha_2f
-	and yf = y2 +. d_f2 *. sin alpha_2f in
-	Printf.fprintf stderr "%s->%s: xf=%.0f yf=%.0f s=%.0f\n" last wp xf yf s;
-	
-	let alpha_cf = atan2 (y2-.yc) (x2-.xc) +. (pi/.2. -. alpha_c2f) in
-	let theta = abs_float ((pi +. alpha_1c) -. alpha_cf) /. 2. /. pi in
-	let theta = if theta > 1. then theta -. 1. else theta in
-	let c_wp_qdr= norm_2pi (pi /. 2. -. alpha_1c) in
-	let f_wp_qdr= norm_2pi (pi /. 2. -. alpha_2f) in
+	assert (radius < d_c2);
+	let alpha_2cf = -. s *. acos (radius /. d_c2) 
+	and alpha_c2 = atan2 (y2-.yc) (x2-.xc) in
+	let alpha_cf = alpha_c2 +. alpha_2cf in
+	let xf = xc +. radius *. cos alpha_cf
+	and yf = yc +. radius *. sin alpha_cf in
+
+	(* Angle between P1 and F *)
+	let alpha_c1 = atan2 (y1-.yc) (x1-.xc) in
+	let alpha_fc1 = norm_2pi (-. s *. (alpha_c1 -. alpha_cf)) in
+
+	let theta = abs_float (alpha_fc1) /. 2. /. pi in
+
+	(* C relative to P1, F relative to P2 *)
+	let alpha_1c = alpha_c1 -. pi
+	and alpha_2f = atan2 (yf-.y2) (xf-.x2)
+	and d_f2 = distance (xf,yf) (x2,y2) in
+	let c_last_qdr= norm_2pi (pi /. 2. -. alpha_1c)
+	and f_wp_qdr= norm_2pi (pi /. 2. -. alpha_2f) in
 	let until = Printf.sprintf "(circle_count > %f)" theta in
 	let sradius = string_of_float (-. s *. radius) in
+
+	Printf.fprintf stderr "%s->%s: xf=%.0f yf=%.0f s=%.0f ac1=%.1f acf=%.1f t=%.1f\n" last wp xf yf s alpha_c1 alpha_cf theta;
+
 	Xml.Element ("circle", ["wp", last;
-				"wp_qdr", string_of_float ((Rad>>Deg)c_wp_qdr);
+				"wp_qdr", string_of_float ((Rad>>Deg)c_last_qdr);
 				"wp_dist", string_of_float radius;
 		                "radius", sradius;
 				"until", until],[])::
@@ -445,6 +463,7 @@ let compile_path = fun wpts radius last_last last ps rest ->
 			    "from_qdr", string_of_float ((Rad>>Deg)f_wp_qdr); 
 			    "from_dist", string_of_float d_f2;
 			    "hmode", "route";
+			    "approaching_time", "2";
 			    "wp", wp], [])::
 	loop (xf,yf) wp ps in
   loop last_last last ps;;

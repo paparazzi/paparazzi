@@ -106,25 +106,24 @@ static float qdr;
 
 #define CircleXY(x, y, radius) { \
   last_alpha = alpha; \
-  alpha = atan2(estimator_y - y, \
-		      estimator_x - x); \
-	if (! new_circle) { \
-	  float alpha_diff = alpha - last_alpha; \
-		NormRadAngle(alpha_diff); \
-	  sum_alpha += alpha_diff; \
-	} \
-	else new_circle = FALSE; \
-	circle_count = fabs(sum_alpha) / (2*M_PI); \
+  alpha = atan2(estimator_y - y, estimator_x - x); \
+  if (! new_circle) { \
+    float alpha_diff = alpha - last_alpha; \
+    NormRadAngle(alpha_diff); \
+    sum_alpha += alpha_diff; \
+  } else \
+    new_circle = FALSE; \
+  circle_count = fabs(sum_alpha) / (2*M_PI); \
   float alpha_carrot = alpha + CARROT / -radius * estimator_hspeed_mod; \
   horizontal_mode = HORIZONTAL_MODE_CIRCLE; \
   fly_to_xy(x+cos(alpha_carrot)*fabs(radius), \
 						y+sin(alpha_carrot)*fabs(radius)); \
   qdr = DegOfRad(M_PI/2 - alpha_carrot); \
   NormCourse(qdr); \
-	in_circle = TRUE; \
-	circle_x = x; \
-	circle_y = y; \
-	circle_radius = radius; \
+  in_circle = TRUE; \
+  circle_x = x; \
+  circle_y = y; \
+  circle_radius = radius; \
 }
 
 #define MAX_DIST_CARROT 250.
@@ -200,32 +199,27 @@ const uint8_t nb_waypoint = NB_WAYPOINT;
 struct point waypoints[NB_WAYPOINT+1] = WAYPOINTS;
 
 
-/** distance of carrot (in meter) */
-static float carrot;
 
-/** static bool_t approaching(uint8_t wp)
- *  \brief Decide if uav is approaching of current waypoint.
- */
-/** Computes \a dist2_to_wp and compare it to square \a carrot.
+/** \brief Decide if uav is approaching of current waypoint.
+ *  Computes \a dist2_to_wp and compare it to square \a carrot.
  *  Return true if it is smaller. Else computes by scalar products if 
  *  uav has not gone past waypoint.
  *  Return true if it is the case.
  */
-static bool_t approaching(uint8_t wp, float carrot_time) {
+static bool_t approaching(uint8_t wp, float approaching_time) {
   /** distance to waypoint in x */
   float pw_x = waypoints[wp].x - estimator_x;
   /** distance to waypoint in y */
   float pw_y = waypoints[wp].y - estimator_y;
 
   dist2_to_wp = pw_x*pw_x + pw_y *pw_y;
-  carrot = carrot_time * estimator_hspeed_mod;
-  //  carrot = (carrot < 40 ? 40 : carrot);
-  if (dist2_to_wp < carrot*carrot)
+  float min_dist = approaching_time * estimator_hspeed_mod;
+  if (dist2_to_wp < min_dist*min_dist)
     return TRUE;
 
   float scal_prod = (waypoints[wp].x - last_x) * pw_x + (waypoints[wp].y - last_y) * pw_y;
   
-  return (scal_prod < 0);
+  return (scal_prod < 0.);
 }
 
 /** static inline void fly_to_xy(float x, float y)
@@ -260,7 +254,10 @@ static void route_to(uint8_t _last_wp, uint8_t wp) {
   alpha = ((estimator_x - last_wp_x) * leg_x + (estimator_y - last_wp_y) * leg_y) / leg2;
   alpha = Max(alpha, 0.);
   leg = sqrt(leg2);
-  /** carrot is computed in approaching() */
+
+  /** distance of carrot (in meter) */
+  float carrot = CARROT * estimator_hspeed_mod;
+
   alpha += Max(carrot / leg, 0.);
   alpha = Min(1., alpha);
   in_segment = TRUE;
