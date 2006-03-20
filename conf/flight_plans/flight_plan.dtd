@@ -119,7 +119,8 @@ approaching_time CDATA #IMPLIED
 gaz CDATA #IMPLIED>
 
 <!ATTLIST path_point
-wp CDATA #REQUIRED>
+wp CDATA #REQUIRED
+radius CDATA #IMPLIED>
 
 <!ATTLIST set
 var CDATA #REQUIRED

@@ -41,4 +41,5 @@ class flight_plan :
     method window : GWindow.window
     method waypoints : XmlEdit.node list
     method xml : Xml.xml
+    method insert_path : (MapWaypoints.waypoint * float) list -> unit
   end

@@ -35,8 +35,9 @@ external gtk_tree_view_get_drag_dest_row : 'a Gtk.obj -> Gtk.tree_path * gtkTree
 open Printf
 
 type tag = string
-type attributes = (string * string) list
-type t = GTree.tree_store
+type attribute = string * string
+type attributes = attribute list
+type t = GTree.tree_store * GTree.view
 type node = GTree.tree_store * Gtk.tree_path
 
 let cols = new GTree.column_list
@@ -190,6 +191,12 @@ let attr_submenu = fun menuitem tag dtd connect ->
    submenu menuitem (allowed_attributes tag dtd) connect
 	
 
+let selection = fun (tree_store, tree_view) ->
+  match tree_view#selection#get_selected_rows with
+    path::_ ->
+      tree_store, path
+  | _ -> raise Not_found 
+	
 let attribs_menu_popup = fun dtd (tree_view:GTree.view) (model:GTree.tree_store) (attrib_row:Gtk.tree_iter) ->
   let menu = GMenu.menu () in
   let menuitem = GMenu.menu_item ~label:"Delete" ~packing:menu#append () in
@@ -243,7 +250,7 @@ let add_context_menu = fun model view ?noselection_menu menu ->
       else
 	false)
 
-let root = fun (model:t) ->
+let root = fun ((model:GTree.tree_store), _) ->
   match model#get_iter_first with
     None -> invalid_arg "XmlEdit.root"
   | Some i -> (model, model#get_path i)
@@ -256,6 +263,17 @@ let attribs = fun ((model, path):node) ->
 let set_attribs = fun ((model, path):node) attribs ->
   let row = model#get_iter path in
   model#set ~row ~column:attributes attribs
+
+let rec replace_assoc a v = function
+    [] -> [(a, v)]
+  | (a', v')::l ->
+      if a = String.uppercase a' 
+      then (a, v)::l
+      else (a', v')::replace_assoc a v l
+
+let set_attrib = fun node (a, v) ->
+  let atbs = attribs node in
+  set_attribs node (replace_assoc (String.uppercase a) v atbs)
 
 let attrib = fun node at ->
   let at = String.uppercase at in
@@ -304,6 +322,17 @@ let child = fun ((model, path):node) (t:string) ->
     loop ()
   else
     failwith (sprintf "XmlEdit.child: %s" t)
+
+let rec parent = fun ((model, path):node) (t:string) ->
+  let row = model#get_iter path in
+  let tag = model#get ~row ~column:tag_col in
+  if tag = t then
+    (model, path)
+  else
+    match model#iter_parent row with
+      None -> failwith (sprintf "XmlEdit.parent: %s" t)
+    | Some p ->
+	parent (model, model#get_path p) t
     
 
 let delete = fun (model, path) ->
@@ -314,13 +343,13 @@ let delete = fun (model, path) ->
 let add_child = fun ((model, path):node) tag attribs ->
   let parent = model#get_iter path in
   let row = model#append ~parent () in
-  model#set ~row ~column:tag_col tag;
-  model#set ~row ~column:attributes attribs;
+  set_xml model row (Xml.Element (tag, attribs, []));
   model, model#get_path row
 
 let connect = fun ((model, path):node) cb ->
   let row = model#get_iter path in
-  model#set ~row ~column:event cb
+  let current_cb = try model#get ~row ~column:event with _ -> fun _ -> () in
+  model#set ~row ~column:event (fun e -> cb e; current_cb e)
 
 let tree_menu_popup = fun dtd (model:GTree.tree_store) (row:Gtk.tree_iter) ->
   let menu = GMenu.menu () in
@@ -443,4 +472,4 @@ let create = fun dtd xml ->
   let _ = tree_view#drag#connect#motion ~callback:motion in
   let _ = tree_view#drag#connect#drop ~callback:drop in
 
-  tree_model, window
+  (tree_model, tree_view), window

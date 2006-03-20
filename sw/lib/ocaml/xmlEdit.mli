@@ -35,7 +35,8 @@ node designation: it may not remain valid after strucure modifications
 (reordering, deletion addition, ... *)
 
 type tag = string
-type attributes = (string * string) list
+type attribute = string * string
+type attributes = attribute list
 
 type event = Deleted | Modified of attributes | New_child of node
 
@@ -54,8 +55,10 @@ val tag : node -> string
 val attribs : node -> attributes
 val attrib : node -> string -> string (* No case match *)
 val children : node -> node list
+val parent : node -> tag -> node (** May raise Failure *)
 (** Xml-light like acces functions *)
 
+val set_attrib : node -> attribute -> unit
 val set_attribs : node -> attributes -> unit
 val delete : node -> unit
 val add_child : node -> tag -> attributes -> node
@@ -63,3 +66,5 @@ val add_child : node -> tag -> attributes -> node
 
 val connect : node -> (event -> unit) -> unit
 (** To be kept informed about modifications *)
+
+val selection : t -> node

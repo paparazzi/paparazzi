@@ -307,19 +307,20 @@ let remove_attribs = fun xml names ->
 let xml_assoc_attrib = fun a v xmls ->
   List.find (fun x -> ExtXml.attrib x a = v) xmls
 
-let coords_of_waypoint = fun wp ->
-  (ExtXml.float_attrib wp "x", ExtXml.float_attrib wp "y")
+let g2D_of_waypoint = fun wp ->
+  { G2D.x2D = ExtXml.float_attrib wp "x"; y2D =  ExtXml.float_attrib wp "y" }
 
-let coords_of_wp_name = fun wp waypoints ->
+let g2D_of_wp_name = fun wp waypoints ->
   let wp = xml_assoc_attrib "name" wp waypoints in
-  (ExtXml.float_attrib wp "x", ExtXml.float_attrib wp "y")
+  g2D_of_waypoint wp
 
 let new_waypoint = fun wp qdr dist waypoints ->
   let wp_xml = xml_assoc_attrib "name" wp !waypoints in
-  let wpx, wpy = coords_of_waypoint wp_xml in
+  let wp2D = g2D_of_waypoint wp_xml in
   let a = (Deg>>Rad)(90. -. qdr) in
-  let x = string_of_float (wpx +. dist *. cos a)
-  and y = string_of_float (wpy +. dist *. sin a) in
+  let xy = G2D.vect_add wp2D (G2D.polar2cart { G2D.r2D = dist; theta2D = a }) in
+  let x = string_of_float xy.G2D.x2D
+  and y = string_of_float xy.G2D.y2D in
   let name = Printf.sprintf "%s_%.0f_%.0f" wp qdr dist in
   let alt = try ["alt", Xml.attrib wp_xml "alt"] with _ -> [] in
   waypoints := Xml.Element("waypoint", ["name", name; "x", x; "y", y]@alt, []) :: !waypoints;
@@ -394,16 +395,15 @@ let process_relative_waypoints = fun xml ->
 
 (** Path preprocessing: a list of waypoints is translated into an alternance of
   route and circle stages *)
-let compile_path = fun wpts radius last_last last ps rest ->
+let compile_path = fun wpts default_radius last_last last ps rest ->
   let rec loop = fun p0 last ps ->
     match ps with
       [] -> rest
     | p::ps ->
 	let wp = Xml.attrib p "wp" in
-	let (x1, y1) = coords_of_wp_name last wpts
-	and (x2, y2) = coords_of_wp_name wp wpts in
-	let p1 = {G2D.x2D=x1; y2D=y1}
-	and p2 = {G2D.x2D=x2; y2D=y2} in
+	let p1 = g2D_of_wp_name last wpts
+	and p2 = g2D_of_wp_name wp wpts in
+	let radius = try ExtXml.float_attrib p "radius" with _ -> default_radius in
 	let (c, f, s) = G2D.arc_segment p0 p1 p2 radius in
 	  
 	(* Angle between P1 and F *)
@@ -452,8 +452,7 @@ let stage_process_path = fun wpts stage rest ->
 			   "hmode","route";
 			   "wp", wp2], [])::
 	(* Here starts the actual translation *)
-	let x1, y1 = coords_of_wp_name wp1 wpts in
-	let p1 = {Geometry_2d.x2D=x1; y2D=y1} in
+	let p1 = g2D_of_wp_name wp1 wpts in
 	compile_path wpts radius p1 wp2 ps rest
   else
     stage::rest

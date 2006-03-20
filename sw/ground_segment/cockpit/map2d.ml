@@ -627,52 +627,93 @@ module Edit = struct
 	    dialog#show ()
 
   let radius = ref 30.
-  let path = ref []
+  let path = ref (ref [])
   let cur_arc = ref None
   and cur_seg = ref None
   and cur_f = ref { G2D.x2D = 0.; y2D = 0. }
+
+  let set_segment = fun s p1 p2 ->
+    let x1 = p1.G2D.x2D and y1 = p1.G2D.y2D
+    and x2 = p2.G2D.x2D and y2 = p2.G2D.y2D in
+    s#set [`POINTS [|x1;y1;x2;y2|]]
+
+  let arc_from_points = fun (geomap:MapCanvas.widget) c l f s ->
+    let cl = G2D.vect_make c l
+    and cf = G2D.vect_make c f in
+    let pol_cl = G2D.cart2polar cl in
+    let al = pol_cl.G2D.theta2D
+    and af = (G2D.cart2polar cf).G2D.theta2D in
+    let xc = c.G2D.x2D and yc = c.G2D.y2D in
+    let (a1, a2) = if s > 0. then (al, af) else (af, al) in
+    geomap#arc ~nb_points:10 ~fill_color:"blue" ~width:2 (xc,yc) pol_cl.G2D.r2D a1 a2
+
+  (** Update path after waypoint move *)
+  let update_path = fun (geomap:MapCanvas.widget) path waypoint ->
+    let n = waypoint#name in
+    let rec loop = function
+	[] -> failwith (sprintf "update_path: %s not found" n)
+      | [p] -> [p]
+      | ((wp, Some arc, Some seg, _f, radius) as pp)::wps ->
+	  let new_wps = if wp#name = waypoint#name then wps else loop wps in
+	  begin
+	    match new_wps with
+	      [] -> failwith "unreachable"
+	    | (wp1, _arc1, _seg1, f1, _r1)::new_wps' -> (* Previous *)
+		let wp1_2D = geomap#pt2D_of wp1#pos
+		and wp_2D = geomap#pt2D_of wp#pos in
+		match new_wps' with
+		  [] -> (* wp is the second point: simple segment *)
+		    set_segment seg wp1_2D wp_2D;
+		    (wp, Some arc, Some seg, wp1_2D, radius)::new_wps
+		| _ -> (* At least 2 points before *)
+		    let (c, f, s) = G2D.arc_segment f1 wp1_2D wp_2D radius in
+		    set_segment seg f wp_2D;
+		    arc#destroy ();
+		    let new_arc = arc_from_points geomap c wp1_2D f s in
+		    (wp, Some new_arc, Some seg, f, radius)::new_wps
+	  end
+      | _ -> failwith "update_path" in
+    path := loop !path
+
+	    
+
   let path_button = fun (geomap:MapCanvas.widget) (xw, yw) ->
     let geo = geomap#of_world (xw, yw) in
     let wp = create_wp geomap geo in
-    if !path = [] then
+    let cur_path = !path in
+    wp#connect (fun () -> update_path geomap cur_path wp);
+    if ! !path = [] then
       cur_f := {G2D.x2D=xw; G2D.y2D=yw};
-    path := (wp, !cur_arc, !cur_seg, !cur_f) :: !path;
+    cur_path := (wp, !cur_arc, !cur_seg, !cur_f, !radius) :: ! cur_path;
     cur_arc := Some (GnoCanvas.line geomap#canvas#root);
     cur_seg := Some (geomap#segment ~fill_color:"blue" ~width:2 geo geo)
 
   let path_notify (geomap:MapCanvas.widget) (xw, yw) =
-    match !path with
-      [] -> false
-    | (wp1, _, _, ll) :: p ->
-	let (xl, yl) = geomap#world_of wp1#pos in
+    match ! !path with
+      [] -> false (** Empty path: nothing to do *)
+    | (wp1, _, _, ll,_) :: p -> (** Last is wp1 *)
 	begin
 	  match !cur_seg with
 	  None -> failwith "path_notify"
 	| Some segment -> 
+	    let l = geomap#pt2D_of wp1#pos
+	    and cur_2D = {G2D.x2D = xw; y2D = yw } in
 	    match p with
-	      [] ->
-		segment#set [`POINTS [|xl;yl;xw;yw|]]
-	    | _::_ ->
+	      [] -> (** Only 1 point in the current path:add a simple segment*)
+		set_segment segment l cur_2D;
+	    | _::_ -> (** Already 2 points: add an arc and a segment *)
 		match !cur_arc with
 		  None -> failwith "path_notify"
 		| Some arc ->
 		    arc#destroy ();
-		    let l = {G2D.x2D = xl; y2D = yl }
-		    and p = {G2D.x2D = xw; y2D = yw } in
-		    let (c, f, s) = G2D.arc_segment ll l p !radius in
-		    let xf = f.G2D.x2D and yf = f.G2D.y2D in
-		    segment#set [`POINTS [|xf;yf;xw;yw|]];
-		    let cl = G2D.vect_make c l
-		    and cf = G2D.vect_make c f in
-		    let al = (G2D.cart2polar cl).G2D.theta2D
-		    and af = (G2D.cart2polar cf).G2D.theta2D in
-		    let xc = c.G2D.x2D and yc = c.G2D.y2D in
-		    let (a1, a2) = if s > 0. then (al, af) else (af, al) in
-		    let arc = geomap#arc ~nb_points:10 ~fill_color:"blue" ~width:2 (xc,yc) !radius a1 a2 in
+		    let (c, f, s) = G2D.arc_segment ll l cur_2D !radius in
+		    set_segment segment f cur_2D;
+		    let arc = arc_from_points geomap c l f s in
 		    cur_arc := Some arc;
 		    cur_f := f
 	end;	    
 	true
+
 	  
   let path_close = fun () ->
     let destroy = fun ref ->
@@ -681,11 +722,17 @@ module Edit = struct
       | Some s -> s#destroy (); ref := None in
     destroy cur_arc;
     destroy cur_seg;
-    path := []
+    begin
+      match !current_fp with
+	None -> ()
+      | Some (fp, _) ->
+	  fp#insert_path (List.map (fun (wp,_,_,_,r) -> (wp, r)) (List.rev ! !path));
+    end;
+    path := ref []
 
   let path_change_radius = function
-      `UP -> radius := !radius *. 1.25
-    | `DOWN -> radius := !radius /. 1.25
+      `UP -> radius := !radius *. 1.1
+    | `DOWN -> radius := !radius /. 1.1
     | _ -> ()
 end (** Edit module *)
     

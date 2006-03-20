@@ -184,6 +184,10 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
 	end
       | None -> failwith "#world_of : no georef"
 
+    method pt2D_of = fun wgs84 ->
+      let (x, y) = self#world_of wgs84 in
+      {G2D.x2D = x; y2D = y}
+
     method of_world = fun (wx, wy) ->
       match georef with
 	Some georef -> begin
