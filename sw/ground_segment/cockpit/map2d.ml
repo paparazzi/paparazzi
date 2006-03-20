@@ -24,6 +24,7 @@
  *
  *)
 
+module G2D = Geometry_2d
 open Printf
 open Latlong
 
@@ -552,9 +553,11 @@ module Edit = struct
 
   let create_wp = fun geomap geo ->
     match !current_fp with
-      None -> GToolbox.message_box "Error" "Load a flight plan first"
+      None -> 
+	GToolbox.message_box "Error" "Load a flight plan first";
+	failwith "create_wp"
     | Some (fp,_) ->
-	ignore (fp#add_waypoint geo)
+	fp#add_waypoint geo
 
 
   let save_fp = fun geomap () ->
@@ -622,13 +625,100 @@ module Edit = struct
 		  Printf.fprintf f "%s\n" (Xml.to_string_fmt xml);
 		  close_out f));
 	    dialog#show ()
+
+  let radius = ref 30.
+  let path = ref []
+  let cur_arc = ref None
+  and cur_seg = ref None
+  and cur_f = ref { G2D.x2D = 0.; y2D = 0. }
+  let path_button = fun (geomap:MapCanvas.widget) (xw, yw) ->
+    let geo = geomap#of_world (xw, yw) in
+    let wp = create_wp geomap geo in
+    if !path = [] then
+      cur_f := {G2D.x2D=xw; G2D.y2D=yw};
+    path := (wp, !cur_arc, !cur_seg, !cur_f) :: !path;
+    cur_arc := Some (GnoCanvas.line geomap#canvas#root);
+    cur_seg := Some (geomap#segment ~fill_color:"blue" ~width:2 geo geo)
+
+  let path_notify (geomap:MapCanvas.widget) (xw, yw) =
+    match !path with
+      [] -> false
+    | (wp1, _, _, ll) :: p ->
+	let (xl, yl) = geomap#world_of wp1#pos in
+	begin
+	  match !cur_seg with
+	  None -> failwith "path_notify"
+	| Some segment -> 
+	    match p with
+	      [] ->
+		segment#set [`POINTS [|xl;yl;xw;yw|]]
+	    | _::_ ->
+		match !cur_arc with
+		  None -> failwith "path_notify"
+		| Some arc ->
+		    arc#destroy ();
+		    let l = {G2D.x2D = xl; y2D = yl }
+		    and p = {G2D.x2D = xw; y2D = yw } in
+		    let (c, f, s) = G2D.arc_segment ll l p !radius in
+		    let xf = f.G2D.x2D and yf = f.G2D.y2D in
+		    segment#set [`POINTS [|xf;yf;xw;yw|]];
+		    let cl = G2D.vect_make c l
+		    and cf = G2D.vect_make c f in
+		    let al = (G2D.cart2polar cl).G2D.theta2D
+		    and af = (G2D.cart2polar cf).G2D.theta2D in
+		    let xc = c.G2D.x2D and yc = c.G2D.y2D in
+		    let (a1, a2) = if s > 0. then (al, af) else (af, al) in
+		    let arc = geomap#arc ~nb_points:10 ~fill_color:"blue" ~width:2 (xc,yc) !radius a1 a2 in
+		    cur_arc := Some arc;
+		    cur_f := f
+	end;	    
+	true
+	  
+  let path_close = fun () ->
+    let destroy = fun ref ->
+      match !ref with
+	None -> () 
+      | Some s -> s#destroy (); ref := None in
+    destroy cur_arc;
+    destroy cur_seg;
+    path := []
+
+  let path_change_radius = function
+      `UP -> radius := !radius *. 1.25
+    | `DOWN -> radius := !radius /. 1.25
+    | _ -> ()
 end (** Edit module *)
     
+
+let motion_notify = fun (geomap:MapCanvas.widget) ev ->
+  let xc = GdkEvent.Motion.x ev 
+  and yc = GdkEvent.Motion.y ev in
+  let xwyw = geomap#window_to_world xc yc in
+  Edit.path_notify geomap xwyw
+
+let any_event = fun (geomap:MapCanvas.widget) ev ->
+  match GdkEvent.get_type ev with
+      `SCROLL ->
+	let state = GdkEvent.Scroll.state (GdkEvent.Scroll.cast ev) in
+	if Gdk.Convert.test_modifier `CONTROL state && Gdk.Convert.test_modifier `SHIFT state then 
+	  let scroll_event = GdkEvent.Scroll.cast ev in
+	  Edit.path_change_radius (GdkEvent.Scroll.direction scroll_event);
+	  let xc = GdkEvent.Scroll.x scroll_event 
+	  and yc = GdkEvent.Scroll.y scroll_event in
+	  let xwyw = geomap#window_to_world xc yc in
+	  Edit.path_notify geomap xwyw
+	else
+	  false
+    | _ ->
+	false
 
 
 let button_press = fun (geomap:MapCanvas.widget) ev ->
   let state = GdkEvent.Button.state ev in
-  if GdkEvent.Button.button ev = 3 then begin
+  if GdkEvent.Button.button ev = 3 && Gdk.Convert.test_modifier `CONTROL state && Gdk.Convert.test_modifier `SHIFT state then begin
+    Edit.path_close ();
+    true
+  end else if GdkEvent.Button.button ev = 3 then begin
     (** Display a tile from Google Maps or IGN *)
     let xc = GdkEvent.Button.x ev 
     and yc = GdkEvent.Button.y ev in
@@ -644,15 +734,22 @@ let button_press = fun (geomap:MapCanvas.widget) ev ->
 
     ignore(Thread.create display wgs84);
     true;
-  end else if GdkEvent.Button.button ev = 1 && Gdk.Convert.test_modifier `CONTROL state then begin
-    let xc = GdkEvent.Button.x ev in
-    let yc = GdkEvent.Button.y ev in
-    let xyw = geomap#canvas#window_to_world xc yc in
-    let geo = geomap#of_world xyw in
-    Edit.create_wp geomap geo;
-    true
-  end else
-    false
+  end else if GdkEvent.Button.button ev = 1 && Gdk.Convert.test_modifier `CONTROL state then
+    if Gdk.Convert.test_modifier `SHIFT state then begin
+      let xc = GdkEvent.Button.x ev in
+      let yc = GdkEvent.Button.y ev in
+      let xyw = geomap#canvas#window_to_world xc yc in
+      Edit.path_button geomap xyw;
+      true
+    end else begin
+      let xc = GdkEvent.Button.x ev in
+      let yc = GdkEvent.Button.y ev in
+      let xyw = geomap#canvas#window_to_world xc yc in
+      let geo = geomap#of_world xyw in
+      ignore (Edit.create_wp geomap geo);
+      true
+    end else 
+      false
 
 
 
@@ -698,6 +795,8 @@ let _ =
   let accel_group = geomap#menu_fact#accel_group in
 
   ignore (geomap#canvas#event#connect#button_press (button_press geomap));
+  ignore (geomap#canvas#event#connect#motion_notify (motion_notify geomap));
+  ignore (geomap#canvas#event#connect#any (any_event geomap));
 
   (** widget displaying aircraft vertical position  *)
 

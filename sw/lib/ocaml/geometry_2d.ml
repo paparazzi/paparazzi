@@ -856,14 +856,25 @@ let arc_segment = fun p0 p1 p2 radius ->
   
   (* F first point of the segment *)
   let d_c2 = distance c p2 in
-  assert (radius < d_c2);
-  let alpha_2cf = -. s *. acos (radius /. d_c2) 
-  and alpha_c2 = (cart2polar (vect_make c p2)).theta2D in
-  let alpha_cf = alpha_c2 +. alpha_2cf in
-  let f = vect_add c (polar2cart {theta2D=alpha_cf;r2D=radius}) in
+  if radius > d_c2 then
+    (** Arc is empty *)
+    (c, p1, s)
+  else
+    let alpha_2cf = -. s *. acos (radius /. d_c2) 
+    and alpha_c2 = (cart2polar (vect_make c p2)).theta2D in
+    let alpha_cf = alpha_c2 +. alpha_2cf in
+    let f = vect_add c (polar2cart {theta2D=alpha_cf;r2D=radius}) in
+    
+    (c, f, s)
 
-  (c, f, s)
 
-   
+let arc = fun ?(nb_points=5) c r a1 a2 ->
+  let a2 = if a2 < a1 then a2 +. 2. *. m_pi else a2 in
+  let da = (a2 -. a1) /. float (nb_points-1) in
+  Array.init nb_points
+    (fun i ->
+      let a = a1 +. float i *. da in
+      vect_add c (polar2cart { r2D = r; theta2D = a }))
+
 
 (* =============================== FIN ========================================= *)

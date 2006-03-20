@@ -309,3 +309,5 @@ val arc_segment : pt_2D -> pt_2D -> pt_2D -> float -> pt_2D*pt_2D*float
 arc of radius [r], tangent to segment [po]-[p1] in [p1]. Point [f] is such
 that [f]-[p2] is tangent to the arc. [s] is 1. if [c] is on the left, [-1]
 else *)
+
+val arc : ?nb_points:int -> pt_2D -> float -> float -> float -> pt_2D array

@@ -25,6 +25,7 @@
  *)
 
 module LL = Latlong
+module G2D = Geometry_2d
 open Printf
 
 let zoom_factor = 1.5 (* Mouse wheel zoom action *)
@@ -44,7 +45,7 @@ type projection =
 
 let mercator_coeff = 5e6
 
-    
+
 (** basic canvas with menubar **************************************
  * (the vertical display in map2.ml is an instance of basic_widget)*
  *******************************************************************)
@@ -239,7 +240,7 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
       let xc = GdkEvent.Button.x ev in
       let yc = GdkEvent.Button.y ev in  
       match GdkEvent.Button.button ev with
-	1 when Gdk.Convert.test_modifier `SHIFT (GdkEvent.Button.state ev) ->
+	1 when Gdk.Convert.test_modifier `SHIFT (GdkEvent.Button.state ev) && not (Gdk.Convert.test_modifier `CONTROL (GdkEvent.Button.state ev)) ->
 	  let (x1,y1) = self#window_to_world xc yc in
 	  grouping <- Some (x1,y1);
 	  region_rectangle#set [`X1 x1; `Y1 y1; `X2 x1; `Y2 y1];
@@ -318,7 +319,7 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
       end;
 
       match GdkEvent.get_type ev with
-      | `SCROLL -> begin
+      | `SCROLL when not (Gdk.Convert.test_modifier `SHIFT (GdkEvent.Scroll.state (GdkEvent.Scroll.cast ev))) -> begin
 	  let scroll_event = GdkEvent.Scroll.cast ev in
 	  let (x, y) = canvas#get_scroll_offsets in
 	  let xr = GdkEvent.Scroll.x_root scroll_event in
@@ -351,6 +352,19 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
       let l = GnoCanvas.line ?fill_color ~props:[`WIDTH_PIXELS width] ~points:[|x1;y1;x2;y2|] group in
       l#show ();
       l
+
+    method arc = fun ?(nb_points=5) ?(width=1) ?fill_color (xw,yw) r a1 a2 ->
+      let c = {G2D.x2D = xw; y2D = yw } in
+      let pts = G2D.arc ~nb_points c r a1 a2 in
+      let points = Array.init (2*nb_points) 
+	  (fun j ->
+	    let i = j / 2 in
+	    if j = i * 2 then pts.(i).G2D.x2D else pts.(i).G2D.y2D) in
+      let p = points in
+      let l = GnoCanvas.line ?fill_color ~props:[`WIDTH_PIXELS width] ~points canvas#root in
+      l#show ();
+      l
+
 	
     method circle = fun ?(group = canvas#root) ?(width=1) ?fill_color ?(color="black") geo radius ->
       let (x, y) = self#world_of geo in
