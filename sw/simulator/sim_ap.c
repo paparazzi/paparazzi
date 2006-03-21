@@ -57,9 +57,9 @@ value set_really_lost(value on) {
 
 value sim_rc_task(value _unit) {
   NormalizePpm(); /** -> rc_values */
-  /***  printf("update: %d : %f (%d)\n", Int_val(c), Double_val(v), rc_values[COMMAND_GAIN1]); ***/
+  /***  printf("sim_rc_task ppm=%d rc_val=%d\n", ppm_pulses[RADIO_MODE], rc_values[RADIO_MODE]); ***/
   int i;
-  for(i = 0; i < COMMANDS_NB; i++)
+  for(i = 0; i < RADIO_CTL_NB; i++)
     from_fbw.from_fbw.channels[i] = rc_values[i];
 
   from_fbw.from_fbw.status = (radio_status << STATUS_RADIO_OK) | (radio_really_lost << RADIO_REALLY_LOST) | (1 << AVERAGED_CHANNELS_SENT);

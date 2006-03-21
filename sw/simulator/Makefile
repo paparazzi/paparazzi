@@ -27,6 +27,10 @@ include ../../conf/Makefile.local
 ACDIR= $(PAPARAZZI_HOME)/var/$(AIRCRAFT)
 OBJDIR= $(ACDIR)/sim
 
+ifeq ($(MAKECMDGOALS),sim_sitl)
+include $(ACDIR)/Makefile.ac
+endif
+
 SIMHML = stdlib.ml data.ml flightModel.ml gps.ml hitl.ml sim.ml
 SIMHCMO=$(SIMHML:%.ml=%.cmo)
 SIMSML = stdlib.ml data.ml flightModel.ml gps.ml sitl.ml sim.ml
@@ -39,7 +43,8 @@ SIMSA=sims.cma
 OCAMLC = ocamlc
 OCAMLOPT=ocamlopt -p
 INCLUDES= -I +lablgtk2 -I ../lib/ocaml
-OCAMLCC = gcc -Werror -O2 -I /usr/include/glib-2.0 -I /usr/lib/glib-2.0/include -DUBX -DMOBILE_CAM -DAP -DDOWNLINK -DSITL -DINFRARED -DGPS -I $(OBJDIR) -I $(ACDIR) 
+# OCAMLCC = gcc -Werror -O2 -I /usr/include/glib-2.0 -I /usr/lib/glib-2.0/include -DSITL -DUBX -DMOBILE_CAM -DAP -DDOWNLINK -DINFRARED -DGPS -I $(OBJDIR) -I $(ACDIR) 
+OCAMLCC = gcc -Werror -O2 -I /usr/include/glib-2.0 -I /usr/lib/glib-2.0/include -DSITL $(ap.CFLAGS) -I $(OBJDIR) -I $(ACDIR) 
 
 AIRBORNE = ../airborne
 VARINCLUDE=$(PAPARAZZI_HOME)/var/include

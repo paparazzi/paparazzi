@@ -107,7 +107,7 @@ static inline uint8_t pprz_mode_update( void ) {
   if ((pprz_mode != PPRZ_MODE_HOME &&
        pprz_mode != PPRZ_MODE_GPS_OUT_OF_ORDER)
       || CheckEvent(rc_event_1)) {
-    ModeUpdate(pprz_mode, PPRZ_MODE_OF_PULSE(from_fbw.from_fbw.channels[COMMAND_MODE], from_fbw.from_fbw.status));
+    ModeUpdate(pprz_mode, PPRZ_MODE_OF_PULSE(from_fbw.from_fbw.channels[RADIO_MODE], from_fbw.from_fbw.status));
   } else
     return FALSE;
 }
@@ -175,16 +175,16 @@ static inline uint8_t inflight_calib_mode_update ( void ) {
 
 static inline void events_update( void ) {
   static uint16_t event1_cpt = 0;
-  EventPos(event1_cpt, COMMAND_GAIN1, rc_event_1);
+  EventPos(event1_cpt, RADIO_GAIN1, rc_event_1);
   static uint16_t event2_cpt = 0;
-  EventNeg(event2_cpt, COMMAND_GAIN1, rc_event_2);
+  EventNeg(event2_cpt, RADIO_GAIN1, rc_event_2);
 }  
 
 
 /** \brief Send back uncontrolled channels (actually only rudder)
  */
 static inline void copy_from_to_fbw ( void ) {
-  from_ap.from_ap.channels[COMMAND_YAW] = from_fbw.from_fbw.channels[COMMAND_YAW];
+  from_ap.from_ap.channels[COMMAND_YAW] = from_fbw.from_fbw.channels[RADIO_YAW];
 }
 
 
@@ -252,13 +252,13 @@ inline void telecommand_task( void ) {
    */
   if (pprz_mode == PPRZ_MODE_AUTO1) {
     /** In Auto1 mode, roll is bounded between [-AUTO1_MAX_ROLL;AUTO1_MAX_ROLL] */
-    desired_roll = FLOAT_OF_PPRZ(from_fbw.from_fbw.channels[COMMAND_ROLL], 0., -AUTO1_MAX_ROLL);
+    desired_roll = FLOAT_OF_PPRZ(from_fbw.from_fbw.channels[RADIO_ROLL], 0., -AUTO1_MAX_ROLL);
     
     /** In Auto1 mode, pitch is bounded between [-AUTO1_MAX_PITCH;AUTO1_MAX_PITCH] */
-    desired_pitch = FLOAT_OF_PPRZ(from_fbw.from_fbw.channels[COMMAND_PITCH], 0., AUTO1_MAX_PITCH);
+    desired_pitch = FLOAT_OF_PPRZ(from_fbw.from_fbw.channels[RADIO_PITCH], 0., AUTO1_MAX_PITCH);
   }
   if (pprz_mode == PPRZ_MODE_MANUAL || pprz_mode == PPRZ_MODE_AUTO1) {
-    desired_gaz = from_fbw.from_fbw.channels[COMMAND_THROTTLE];
+    desired_gaz = from_fbw.from_fbw.channels[RADIO_THROTTLE];
   }
   /** else asynchronously set by climb_pid_run(); */
   
@@ -269,9 +269,9 @@ inline void telecommand_task( void ) {
   
   if (!estimator_flight_time) {
 #ifdef INFRARED
-    ground_calibrate(STICK_PUSHED(from_fbw.from_fbw.channels[COMMAND_ROLL]));
+    ground_calibrate(STICK_PUSHED(from_fbw.from_fbw.channels[RADIO_ROLL]));
 #endif
-    if (pprz_mode == PPRZ_MODE_AUTO2 && from_fbw.from_fbw.channels[COMMAND_THROTTLE] > GAZ_THRESHOLD_TAKEOFF) {
+    if (pprz_mode == PPRZ_MODE_AUTO2 && from_fbw.from_fbw.channels[RADIO_THROTTLE] > GAZ_THRESHOLD_TAKEOFF) {
       launch = TRUE;
     }
   }
@@ -455,7 +455,7 @@ inline void periodic_task( void ) {
     from_ap.from_ap.channels[COMMAND_ROLL] = desired_aileron;
     from_ap.from_ap.channels[COMMAND_PITCH] = desired_elevator;
     
-#ifdef MCU_SPI_LINK
+#if defined MCU_SPI_LINK && !defined SITL
     link_fbw_send();
 #endif
     break;

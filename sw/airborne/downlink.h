@@ -25,15 +25,16 @@
 #ifndef DOWNLINK_H
 #define DOWNLINK_H
 
-#include "modem.h"
+
 
 #ifdef SITL
 #include "sitl_messages.h"
 #else
+#include "modem.h"
 #include "messages.h"
 #endif
 
-#ifdef DOWNLINK
+#if DOWNLINK
 #define Downlink(x) x
 #else
 #define Downlink(x) {}

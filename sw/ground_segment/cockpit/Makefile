@@ -14,7 +14,7 @@ map2d : map2d.ml ../../lib/ocaml/lib-pprz.cma ../../lib/ocaml/xlib-pprz.cma
 	$(OCAMLC) -custom $(INCLUDES) $(LIBS) threads.cma gtkThread.cmo gtkInit.cmo $< -o $@
 
 map2d.opt : map2d.cmx
-	$(OCAMLOPT) $(INCLUDES) str.cmxa unix.cmxa xml-light.cmxa $(LIBS:.cma=.cmxa) threads.cmxa gtkInit.cmx $< -o $@
+	$(OCAMLOPT) $(INCLUDES) str.cmxa unix.cmxa xml-light.cmxa $(LIBS:.cma=.cmxa) threads.cmxa gtkThread.cmx gtkInit.cmx $< -o $@
 
 
 .SUFFIXES: .ml .mli .cmo .cmi .cmx
