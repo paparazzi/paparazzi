@@ -29,3 +29,5 @@ val display_tile : MapCanvas.widget -> Latlong.geographic -> unit
 
 val fill_window : MapCanvas.widget -> unit
 (** Filling the canvas window with Google Maps tiles *)
+
+val pixbuf : Latlong.geographic -> Latlong.geographic -> GdkPixbuf.pixbuf

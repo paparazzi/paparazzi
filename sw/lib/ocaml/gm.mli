@@ -37,21 +37,24 @@ type tile_t = {
       
 val tile_of_geo : Latlong.geographic -> int -> tile_t
 (** [tile_string geo zoom] Returns the tile description containing a
-   given point with a the smalled zoom greater or equal to [zoom]. *)
+  given point with a the smallest available zoom greater or equal to [zoom]. *)
 
 val tile_of_key : string -> tile_t
 (** [tile_of_key google_maps_tile_key] Returns tile description of a
    named tile. *)
 
 val cache_path : string ref
-
-val get_image : string -> tile_t * string
-(** [get_image key] May raise [Not_available] *)
-
-val get_tile : Latlong.geographic -> int -> tile_t*string
-(** May raise [Not_available] *)
+val no_http : bool ref
+(** Initialized to false. Set to use only the cache *)
 
 exception Not_available
 
-val no_http : bool ref
+val get_image : string -> tile_t * string
+(** [get_image key] Returns the tile description and the image file name.
+   May raise [Not_available] *)
+
+val get_tile : Latlong.geographic -> int -> tile_t*string
+(** [get_tile geo zoom] May raise [Not_available] *)
+
+
 

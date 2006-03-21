@@ -43,6 +43,11 @@ type projection =
   | UTM (* 1m = 1 world unit, y axis reversed *)
   | LambertIIe (* 1m = 1 world unit, y axis reversed *)
 
+let string_of_projection = function 
+    UTM -> "UTM"
+  | Mercator -> "Mercator"
+  | LambertIIe -> "LBT2e"
+
 let mercator_coeff = 5e6
 
 
@@ -66,12 +71,12 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
     val frame = GPack.vbox ~height ?width ()
 	
     val menubar = GMenu.menu_bar ()
-	
+
     val adj = GData.adjustment 
 	~value:1. ~lower:0.05 ~upper:10. 
 	~step_incr:0.25 ~page_incr:1.0 ~page_size:1.0 ()
   
-    val bottom = GPack.hbox  ~height:30 ()
+    val bottom = GPack.hbox ~height:30 ()
 	
     val _w = GEdit.spin_button  ~rate:0. ~digits:2 ~width:50 ~height:20 ()
 	
@@ -107,7 +112,7 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
       self#pack;
 
       _w#set_adjustment adj;
-      
+
       factory <- new GMenu.factory menubar;
 
       file_menu#destroy ();
@@ -155,13 +160,10 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
     method georef = georef
     method set_georef = fun wgs84 -> georef <- Some wgs84
 
-    method projection =
-      match projection with
-	UTM -> "UTM"
-      | Mercator -> "Mercator"
-      | LambertIIe -> "LBT2e"
+    method projection = string_of_projection projection
+      
 	
-    method world_of = fun wgs84 -> 
+    method world_of = fun wgs84 ->
       match georef with
 	Some georef -> begin
 	  match projection with

@@ -440,33 +440,59 @@ let fill_gm_tiles = fun geomap ->
 let gm_update = fun geomap ->
   if !gm_auto then fill_gm_tiles geomap
 
+
+let save_map = fun geomap ?(projection=geomap#projection) pixbuf nw se ->
+  match GToolbox.select_file ~filename:(default_path_maps//".xml") ~title:"Save region map" () with
+    None -> ()
+  | Some xml_file  ->
+      let jpg = Filename.chop_extension xml_file ^ ".png" in
+      GdkPixbuf.save jpg "png" pixbuf;
+      let point = fun (x,y) wgs84 ->
+	Xml.Element ("point", ["x",soi x;"y",soi y;"geo", Latlong.string_of wgs84], []) in
+      let width = GdkPixbuf.get_width pixbuf
+      and height = GdkPixbuf.get_height pixbuf in
+      let points = [point (0, 0) nw; point (width, height) se] in
+      let xml = Xml.Element ("map", 
+			     ["file", Filename.basename jpg;
+			      "projection", projection],
+			     points) in
+      let f = open_out xml_file in
+      Printf.fprintf f "%s\n" (Xml.to_string_fmt xml);
+      close_out f
+
+
+let map_from_gm_tiles = fun (geomap:MapCanvas.widget) () ->
+  match geomap#region with
+    None -> GToolbox.message_box "Error" "Select a region first (drag shift-left button)"
+  | Some ((xw1,yw1), (xw2,yw2)) ->
+      let geo1 = geomap#of_world (xw1,yw1)
+      and geo2 = geomap#of_world (xw2,yw2) in
+      let sw = { posn_lat = min geo1.posn_lat geo2.posn_lat;
+		 posn_long = min geo1.posn_long geo2.posn_long }
+      and ne = { posn_lat = max geo1.posn_lat geo2.posn_lat;
+		 posn_long = max geo1.posn_long geo2.posn_long } in
+      let pix = MapGoogle.pixbuf sw ne in
+    let nw = { posn_lat = ne.posn_lat; posn_long = sw.posn_long }
+    and se = { posn_lat = sw.posn_lat; posn_long = ne.posn_long } in
+    save_map geomap ~projection:"Mercator" pix nw se
+      
+
 let map_from_region = fun (geomap:MapCanvas.widget) () ->
   match geomap#region with
-    None -> GToolbox.message_box "Error" "Select a region first (drag left button)"
+    None -> GToolbox.message_box "Error" "Select a region first (drag shif-left button)"
   | Some ((xw1,yw1), (xw2,yw2)) ->
+      let xw1, xw2 = min xw1 xw2, max xw1 xw2
+      and yw1, yw2 = min yw1 yw2, max yw1 yw2 in
       let (xc1, yc1) = geomap#canvas#w2c xw1 yw1
       and (xc2, yc2) = geomap#canvas#w2c xw2 yw2 in
       let width = xc2-xc1 and height = yc2-yc1 in
       let p = GdkPixbuf.create width height () in
       let (x0, y0) = geomap#canvas#get_scroll_offsets in
-      let xc1= xc1 - x0 and yc1 = yc1 - y0 in
+      let xc1 = xc1 - x0 and yc1 = yc1 - y0 in
       GdkPixbuf.get_from_drawable ~dest:p ~width ~height ~src_x:xc1 ~src_y:yc1 geomap#canvas#misc#window;
-      match GToolbox.select_file ~filename:(default_path_maps//".xml") ~title:"Save region map" () with
-	None -> ()
-      | Some xml_file  ->
-	  let jpg = Filename.chop_extension xml_file ^ ".png" in
-	  GdkPixbuf.save jpg "png" p;
-	  let point = fun (x,y) xyw ->
-	    let wgs84 = geomap#of_world xyw in
-	    Xml.Element ("point", ["x",soi x;"y",soi y;"geo", Latlong.string_of wgs84], []) in
-	  let points = [point (0, 0) (xw1,yw1); point (width, height) (xw2,yw2)] in
-	  let xml = Xml.Element ("map", 
-				 ["file", Filename.basename jpg;
-				  "projection", geomap#projection],
-			       points) in
-	  let f = open_out xml_file in
-	  Printf.fprintf f "%s\n" (Xml.to_string_fmt xml);
-	  close_out f
+      let nw = geomap#of_world (xw1,yw1)
+      and se = geomap#of_world (xw2,yw2) in
+      save_map geomap p nw se
 
 
 module Edit = struct
@@ -861,6 +887,7 @@ let _ =
   ignore (map_menu_fact#add_check_item "GM Http" ~key:GdkKeysyms._H ~active:true ~callback:active_gm_http);
   ignore (map_menu_fact#add_check_item "GM Auto" ~active:false ~callback:active_gm_auto);
   ignore (map_menu_fact#add_item "Map of region" ~key:GdkKeysyms._R ~callback:(map_from_region geomap));
+  ignore (map_menu_fact#add_item "Map of GM" ~key:GdkKeysyms._T ~callback:(map_from_gm_tiles geomap));
  
   (** Connect Google Maps display to view change *)
   geomap#connect_view (fun () -> gm_update geomap);

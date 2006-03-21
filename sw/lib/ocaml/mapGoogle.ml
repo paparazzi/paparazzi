@@ -149,3 +149,56 @@ let fill_window = fun (geomap:MapCanvas.widget) ->
 	  trees.(i) <- Tile
       | Gm.Not_available -> () in
   loop (-1.) (-1.)  2. [|gm_tiles|] 0 18 "t"
+
+
+exception To_copy of int * string
+
+let gdk_pixbuf_safe_copy_area ~dest ~dest_x ~dest_y ~width ~height ~src_x ~src_y pixbuf =
+  let dest_x, width, src_x =
+    if dest_x < 0 then 0, width+dest_x, src_x-dest_x else dest_x, width, src_x in
+  let dest_y, height, src_y =
+    if dest_y < 0 then 0, height+dest_y, src_y-dest_y else dest_y, height, src_y in
+  let width = min width (GdkPixbuf.get_width dest - dest_x)
+  and height = min height (GdkPixbuf.get_height dest -dest_y) in
+  GdkPixbuf.copy_area ~dest ~dest_x ~dest_y ~width ~height ~src_x ~src_y pixbuf
+
+let pixbuf = fun sw ne ->
+  assert (sw.LL.posn_lat < ne.LL.posn_lat);
+  assert (sw.LL.posn_long < ne.LL.posn_long);
+  let west = sw.LL.posn_long /. LL.pi
+  and east = ne.LL.posn_long /. LL.pi
+  and north = LL.mercator_lat ne.LL.posn_lat /. LL.pi
+  and south = LL.mercator_lat sw.LL.posn_lat /. LL.pi in
+
+  let pixel_size = 1. /. (2. ** 16.) /. 256. in
+  let width = truncate ((east -. west) /. pixel_size)
+  and height = truncate ((north -. south) /. pixel_size) in
+  let dest = GdkPixbuf.create ~width ~height () in
+  let rec loop = fun twest tsouth tsize zoom key ->
+  if not (twest > east || twest+.tsize < west || tsouth > north || tsouth+.tsize < south) then
+    let tsize2 = tsize /. 2. in
+      try
+	if zoom = 1
+	then
+	  let tile, image = Gm.get_image key in
+	  raise (To_copy (19-String.length tile.Gm.key, image))
+	else begin
+	  let continue = fun j tw ts ->
+	    loop tw ts tsize2 (zoom-1) (key^String.make 1 (char_of j)) in 
+	  continue 0 twest (tsouth+.tsize2);
+	  continue 1 (twest+.tsize2) (tsouth+.tsize2);
+	  continue 2 (twest+.tsize2) tsouth;
+	  continue 3 twest tsouth;
+	end
+      with
+	To_copy (z, image) when z = zoom ->
+	  let dest_x = truncate ((twest -. west) /. pixel_size)
+	  and dest_y = truncate ((north -. (tsouth+.tsize)) /. pixel_size) in
+	  let width = truncate (tsize /. pixel_size) in
+	  let src_x = 0
+	  and src_y = 0 in
+	  let pixbuf = GdkPixbuf.from_file image in
+	  gdk_pixbuf_safe_copy_area ~dest ~dest_x ~dest_y ~width ~height:width ~src_x ~src_y pixbuf
+      | Gm.Not_available -> () in
+  loop (-1.) (-1.)  2. 18 "t";
+  dest
