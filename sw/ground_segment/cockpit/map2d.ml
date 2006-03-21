@@ -95,6 +95,10 @@ let display_map = fun (geomap:G.widget) xml_map ->
   let dir = Filename.dirname xml_map in
   let xml_map = Xml.parse_file xml_map in
   let image = dir // ExtXml.attrib xml_map "file" in
+  let map_projection = Xml.attrib xml_map "projection" in
+  let current_projection = geomap#projection in
+  if map_projection <> current_projection then
+    GToolbox.message_box "Warning" (sprintf "You are loading a map in %s projection while the display use %s" map_projection current_projection);
 
   let pix_ref = fun p ->
     truncate (float_attr p "x"), truncate (float_attr p "y") in
