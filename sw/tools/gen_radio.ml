@@ -82,10 +82,10 @@ let gen_normalize_ppm = fun channels ->
 	else
 	  sprintf "tmp_radio * (tmp_radio >=0 ? (MAX_PPRZ/%s/(float)(SIGNED_SYS_TICS_OF_USEC(%d-%d))) : (MIN_PPRZ/%s/(float)(SIGNED_SYS_TICS_OF_USEC(%d-%d))))" period c.max c.neutral period c.min c.neutral, "MIN_PPRZ" in
       if c.averaged then begin
-	printf "  avg_rc_values[COMMAND_%s] += %s;\\\n" c.name value
+	printf "  avg_rc_values[RADIO_%s] += %s;\\\n" c.name value
       end else begin
-	printf "  rc_values[COMMAND_%s] = %s;\\\n" c.name value;
-	printf "  if (rc_values[COMMAND_%s] > MAX_PPRZ) rc_values[COMMAND_%s] = MAX_PPRZ;\\\n else if (rc_values[COMMAND_%s] < %s) rc_values[COMMAND_%s] = %s; \\\n\\\n" c.name c.name c.name min_pprz c.name min_pprz;
+	printf "  rc_values[RADIO_%s] = %s;\\\n" c.name value;
+	printf "  if (rc_values[RADIO_%s] > MAX_PPRZ) rc_values[RADIO_%s] = MAX_PPRZ;\\\n else if (rc_values[RADIO_%s] < %s) rc_values[RADIO_%s] = %s; \\\n\\\n" c.name c.name c.name min_pprz c.name min_pprz;
       end
       )
     channels;
@@ -95,9 +95,9 @@ let gen_normalize_ppm = fun channels ->
   List.iter
     (fun c ->
       if c.averaged then begin
-	printf "    rc_values[COMMAND_%s] = avg_rc_values[COMMAND_%s];\\\n" c.name c.name;
-	printf "    avg_rc_values[COMMAND_%s] = 0;\\\n" c.name;
-	printf "  if (rc_values[COMMAND_%s] > MAX_PPRZ) rc_values[COMMAND_%s] = MAX_PPRZ;\\\n else if (rc_values[COMMAND_%s] < MIN_PPRZ) rc_values[COMMAND_%s] = MIN_PPRZ; \\\n\\\n" c.name c.name c.name c.name;
+	printf "    rc_values[RADIO_%s] = avg_rc_values[RADIO_%s];\\\n" c.name c.name;
+	printf "    avg_rc_values[RADIO_%s] = 0;\\\n" c.name;
+	printf "  if (rc_values[RADIO_%s] > MAX_PPRZ) rc_values[RADIO_%s] = MAX_PPRZ;\\\n else if (rc_values[RADIO_%s] < MIN_PPRZ) rc_values[RADIO_%s] = MIN_PPRZ; \\\n\\\n" c.name c.name c.name c.name;
       end
     )
     channels;

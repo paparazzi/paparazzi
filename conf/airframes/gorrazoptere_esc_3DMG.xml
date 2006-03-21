@@ -49,13 +49,22 @@
     <define name="IR2" value="1"/>
     <define name="VSUPPLY" value="6"/>
   </section>
+
   <servos min="0" neutral="0" max="0x3ff">
     <servo name="MOTOR_FRONT" no="0" min="0" neutral="0" max="0x3ff"/>
     <servo name="MOTOR_BACK"  no="1" min="0" neutral="0" max="0x3ff"/>
     <servo name="MOTOR_LEFT"  no="2" min="0" neutral="0" max="0x3ff"/>
     <servo name="MOTOR_RIGHT" no="3" min="0" neutral="0" max="0x3ff"/>
   </servos>
-  <command>
+
+  <commands>
+    <axis name="THROTTLE" failsafe_value="0"/>
+    <axis name="ROLL"     failsafe_value="0"/>
+    <axis name="PITCH"    failsafe_value="0"/>
+    <axis name="YAW"    failsafe_value="0"/>
+  </commands>
+
+  <command_laws>
     <let var="roll"     value="0.3  * @ROLL"/>
     <let var="pitch"    value="0.3  * @PITCH"/>
     <let var="yaw"      value="-0.4  * @YAW"/>
@@ -64,7 +73,7 @@
     <set servo="MOTOR_BACK"  value="$throttle - $pitch - $yaw"/>
     <set servo="MOTOR_RIGHT" value="$throttle + $roll  + $yaw"/>
     <set servo="MOTOR_LEFT"  value="$throttle - $roll  + $yaw"/>
-  </command>
+  </command_laws>
   <section name="INFRARED" prefix="IR_">
     <define name="ADC_ROLL_NEUTRAL" value="0"/>
     <define name="ADC_PITCH_NEUTRAL" value="1024"/>
@@ -116,7 +125,7 @@ include $(PAPARAZZI_SRC)/conf/autopilot/disc_board.makefile
 LOCAL_CFLAGS += -DIMU_3DMG
 
 ap.CFLAGS += -DRATE_LOOP
-ap.EXTRA_SRCS += control.c imu.c 3dmg.c
+ap.EXTRA_SRCS += control_grz.c imu.c 3dmg.c
 ap.CFLAGS += -DIMU_RESET_ON_BOOT
 ap.CFLAGS += -DTIMER1_TOP=0x400
 

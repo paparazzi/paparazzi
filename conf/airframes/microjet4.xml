@@ -1,5 +1,6 @@
 <airframe name="Microjet4">
  <!-- tiny test airframe -->
+
 <!-- commands section -->
   <servos>
     <servo name="GAZ"           no="0" min="1000" neutral="1000" max="2000"/>
