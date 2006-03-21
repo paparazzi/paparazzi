@@ -46,7 +46,7 @@
 
 #define COMMAND_(i) MOT_CTL_ ## i
 #define COMMAND(i) COMMAND_(i)
-#define ChopServo(x) (x > MAX_TICK ? MAX_TICK : x)
+#define ChopServo(x,_a,b) (x > b ? b : x)
 #define SERVOS_TICS_OF_USEC(s) (s)
 
 const pprz_t failsafe_values[COMMANDS_NB] = COMMANDS_FAILSAFE;

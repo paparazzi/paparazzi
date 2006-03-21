@@ -37,6 +37,8 @@
 static uint16_t servo_widths[_4017_NB_CHANNELS];
 static const pprz_t failsafe_values[COMMANDS_NB] = COMMANDS_FAILSAFE;
 
+#define ChopServo(x,a,b) Chop(x, a, b)
+
 #define COMMAND(i) servo_widths[i]
 #define SERVOS_TICS_OF_USEC(s) SYS_TICS_OF_USEC(s)
 /*

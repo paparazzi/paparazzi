@@ -42,12 +42,12 @@ void imu_init ( void ) {
 }
 
 void imu_update ( void ) {
-  roll_dot = _3dmg_roll_dot;
-  pitch_dot = _3dmg_pitch_dot;
+  roll_dot = _3dmg_pitch_dot;
+  pitch_dot = - _3dmg_roll_dot;
   yaw_dot = _3dmg_yaw_dot;
 
-  roll = _3dmg_roll;
-  pitch = _3dmg_pitch;
+  roll = -_3dmg_pitch;
+  pitch = -(_3dmg_roll + 32768);
   yaw = _3dmg_yaw;
 }
 

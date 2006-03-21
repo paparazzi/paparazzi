@@ -24,8 +24,8 @@
 
 #include "inter_mcu.h"
 
-struct inter_mcu_msg from_fbw;
-struct inter_mcu_msg from_ap;
+inter_mcu_msg from_fbw;
+inter_mcu_msg from_ap;
 
 volatile bool_t from_fbw_receive_valid = FALSE;
 volatile bool_t from_ap_receive_valid = FALSE;

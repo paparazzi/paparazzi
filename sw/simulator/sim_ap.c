@@ -29,7 +29,7 @@ uint8_t gps_nb_ovrn, modem_nb_ovrn, link_fbw_fbw_nb_err, link_fbw_nb_err;
 
 uint8_t ac_id;
 
-struct inter_mcu_msg from_fbw, from_ap;
+inter_mcu_msg from_fbw, from_ap;
 
 static int16_t values_from_ap[RADIO_CTL_NB];
 
@@ -60,9 +60,9 @@ value sim_rc_task(value _unit) {
   /***  printf("update: %d : %f (%d)\n", Int_val(c), Double_val(v), rc_values[COMMAND_GAIN1]); ***/
   int i;
   for(i = 0; i < COMMANDS_NB; i++)
-    from_fbw.channels[i] = rc_values[i];
+    from_fbw.from_fbw.channels[i] = rc_values[i];
 
-  from_fbw.status = (radio_status << STATUS_RADIO_OK) | (radio_really_lost << RADIO_REALLY_LOST) | (1 << AVERAGED_CHANNELS_SENT);
+  from_fbw.from_fbw.status = (radio_status << STATUS_RADIO_OK) | (radio_really_lost << RADIO_REALLY_LOST) | (1 << AVERAGED_CHANNELS_SENT);
   link_fbw_receive_valid = TRUE;
   telecommand_task();
   return Val_unit;
@@ -85,7 +85,7 @@ value sim_init(value id) {
 }
 
 value update_bat(value bat) {
-  from_fbw.vsupply = Int_val(bat);  
+  from_fbw.from_fbw.vsupply = Int_val(bat);  
   return Val_unit;
 }
 
@@ -100,7 +100,7 @@ value update_rc_channel(value c, value v) {
 #define SERVO_NEUTRAL(i) (SERVO_NEUTRAL_(i))
 #define SERVO_MIN (SERVO_MIN_US)
 #define SERVO_MAX (SERVO_MAX_US)
-#define ChopServo(x) ((x) < SERVO_MIN ? SERVO_MIN : ((x) > SERVO_MAX ? SERVO_MAX : (x)))
+#define ChopServo(x, min, max) ((x) < min ? min : ((x) > max ? max : (x)))
 
 #ifdef SERVO_MOTOR_RIGHT
 #define SERVO_GAZ SERVO_MOTOR_RIGHT
@@ -113,7 +113,7 @@ value set_servos(value servos) {
 
   /** Get values computed by the autopilot */
   for(i = 0; i < RADIO_CTL_NB; i++) {
-    values_from_ap[i] =  US_OF_CLOCK(from_ap.channels[i]);
+    values_from_ap[i] =  US_OF_CLOCK(from_ap.from_ap.channels[i]);
     /***printf("%d:%d\n", i, values_from_ap[i]); ***/
   }
   

@@ -54,8 +54,8 @@
                                     pprz))
 
 /** Data structure shared by fbw and ap sub-mofules */
-struct inter_mcu_msg {
-  pprz_t channels[COMMANDS_NB];  
+struct from_fbw_msg {
+  pprz_t channels[RADIO_CTL_NB];  
   uint8_t ppm_cpt;
   uint8_t status;
   uint8_t nb_err;
@@ -67,6 +67,15 @@ struct inter_mcu_msg {
   int16_t euler[3];
 #endif
 };
+
+struct from_ap_msg {
+  pprz_t channels[COMMANDS_NB];  
+};
+
+typedef union  { 
+  struct from_fbw_msg from_fbw; 
+  struct from_ap_msg from_ap;
+} inter_mcu_msg;
 
 /** Fly by wire modes */
 
@@ -95,8 +104,8 @@ struct inter_mcu_msg {
 
 #define TRESHOLD_MANUAL_PPRZ (MIN_PPRZ / 2)
 
-extern struct inter_mcu_msg from_fbw;
-extern struct inter_mcu_msg from_ap;
+extern inter_mcu_msg from_fbw;
+extern inter_mcu_msg from_ap;
 
 extern volatile bool_t from_fbw_receive_valid;
 extern volatile bool_t from_ap_receive_valid;

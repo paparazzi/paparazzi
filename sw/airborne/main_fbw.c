@@ -33,7 +33,10 @@
 #include "command.h"
 #include "ppm.h"
 #include "inter_mcu.h"
+
+#define RC_AVG_PERIOD 8
 #include "radio.h"
+
 #include "led.h"
 #include "uart_fbw.h"
 
@@ -48,14 +51,11 @@
 
 #if defined IMU_ANALOG || defined IMU_3DMG
 #include "imu.h"
-#include "control.h"
+#include "control_grz.h"
 #endif
 
 #include "adc_fbw.h"
 struct adc_buf vsupply_adc_buf;
-
-#define RC_AVG_PERIOD 10
-
 
 
 static uint8_t mode;
@@ -77,28 +77,34 @@ static uint8_t ppm_cpt, last_ppm_cpt;
 
 /* Prepare data to be sent to mcu0 */
 static inline void to_autopilot_from_rc_values (void) {
+  struct from_fbw_msg *msg = &(from_fbw.from_fbw);
+
   uint8_t i;
-  for(i = 0; i < COMMANDS_NB; i++)
-    from_fbw.channels[i] = rc_values[i];
-  from_fbw.status = (radio_ok ? _BV(STATUS_RADIO_OK) : 0);
-  from_fbw.status |= (radio_really_lost ? _BV(RADIO_REALLY_LOST) : 0);
-  from_fbw.status |= (mode == FBW_MODE_AUTO ? _BV(STATUS_MODE_AUTO) : 0);
-  from_fbw.status |= (failsafe_mode ? _BV(STATUS_MODE_FAILSAFE) : 0);
+  for(i = 0; i < RADIO_CTL_NB; i++)
+    msg->channels[i] = rc_values[i];
+
+  uint8_t status;
+  status = (radio_ok ? _BV(STATUS_RADIO_OK) : 0);
+  status |= (radio_really_lost ? _BV(RADIO_REALLY_LOST) : 0);
+  status |= (mode == FBW_MODE_AUTO ? _BV(STATUS_MODE_AUTO) : 0);
+  status |= (failsafe_mode ? _BV(STATUS_MODE_FAILSAFE) : 0);
+  msg->status  = status;
+
   if (rc_values_contains_avg_channels) {
-    from_fbw.status |= _BV(AVERAGED_CHANNELS_SENT);
+    msg->status |= _BV(AVERAGED_CHANNELS_SENT);
     rc_values_contains_avg_channels = FALSE;
   }
-  from_fbw.ppm_cpt = last_ppm_cpt;
-  from_fbw.vsupply = VoltageOfAdc(vsupply_adc_buf.sum/AV_NB_SAMPLE) * 10;
+  msg->ppm_cpt = last_ppm_cpt;
+  msg->vsupply = VoltageOfAdc(vsupply_adc_buf.sum/AV_NB_SAMPLE) * 10;
 #if defined IMU_3DMG || defined IMU_ANALOG
-  from_fbw.euler_dot[0] = roll_dot;
-  from_fbw.euler_dot[1] = pitch_dot;
-  from_fbw.euler_dot[2] = yaw_dot;
+  msg->euler_dot[0] = roll_dot;
+  msg->euler_dot[1] = pitch_dot;
+  msg->euler_dot[2] = yaw_dot;
 #endif
 #ifdef IMU_3DMG
-  from_fbw.euler[0] = roll;
-  from_fbw.euler[1] = pitch;
-  from_fbw.euler[2] = yaw;
+  msg->euler[0] = roll;
+  msg->euler[1] = pitch;
+  msg->euler[2] = yaw;
 #endif
 }
 
@@ -114,10 +120,10 @@ static inline void radio_control_task(void) {
   time_since_last_ppm = 0;
   rc_values_from_ppm();
   if (rc_values_contains_avg_channels) {
-    mode = FBW_MODE_OF_PPRZ(rc_values[COMMAND_MODE]);
+    mode = FBW_MODE_OF_PPRZ(rc_values[RADIO_MODE]);
   }
-#if defined IMU_ANALOG && defined COMMAND_SWITCH1
-  if (rc_values[COMMAND_SWITCH1] > MAX_PPRZ/2) {
+#if defined IMU_ANALOG && defined RADIO_SWITCH1
+  if (rc_values[RADIO_SWITCH1] > MAX_PPRZ/2) {
     imu_capture_neutral();
     CounterLedOn();
   } else {
@@ -130,10 +136,8 @@ static inline void radio_control_task(void) {
     roll_dot_dgain = 0.; /*** 2.5 - (float)rc_values[RADIO_GAIN2] * 0.00025; ***/
     pitch_dot_pgain = roll_dot_pgain;
     pitch_dot_dgain = roll_dot_dgain;
-    control_set_desired(rc_values);
-#else
-    command_set(rc_values);
-#endif  
+#endif
+    commands_of_radio(rc_values);
   }
 }
 
@@ -245,7 +249,7 @@ void periodic_task_fbw( void ) {
 #if defined IMU_3DMG || defined IMU_ANALOG
   control_run();
   if (radio_ok) {
-    if (rc_values[COMMAND_THROTTLE] > 0.1*MAX_PPRZ) {
+    if (rc_values[RADIO_THROTTLE] > 0.1*MAX_PPRZ) {
       command_set(control_commands);
     }
     else {
