@@ -89,7 +89,7 @@ SIGNAL(SIG_OUTPUT_COMPARE1A) {
     /* notify valid frame                   */
     if (crc_in1 == Crc1(crc_in) && tmp == Crc2(crc_in)) {
       from_fbw_receive_valid = TRUE;
-      link_fbw_fbw_nb_err = from_fbw.nb_err;
+      link_fbw_fbw_nb_err = from_fbw.from_fbw.nb_err;
     } else
       link_fbw_nb_err++;
     /* unselect slave0                      */
@@ -110,7 +110,7 @@ SIGNAL(SIG_OUTPUT_COMPARE1A) {
   /* we are sending/receiving payload       */
   if (idx_buf < FRAME_LENGTH - 2) {
     /* place new payload byte in send register */
-    tmp = ((uint8_t*)&from_ap)[idx_buf];
+    tmp = ((uint8_t*)&from_ap.from_ap)[idx_buf];
     SPI_SEND(tmp);
     crc_out = CrcUpdate(crc_out, tmp);
   } 
@@ -123,6 +123,6 @@ SIGNAL(SIG_OUTPUT_COMPARE1A) {
   
   /* read the byte from receive register */
   tmp = SPDR;
-  ((uint8_t*)&from_fbw)[idx_buf-1] = tmp;
+  ((uint8_t*)&from_fbw.from_fbw)[idx_buf-1] = tmp;
   crc_in = CrcUpdate(crc_in, tmp);
 }

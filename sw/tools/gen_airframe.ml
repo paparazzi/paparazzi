@@ -82,8 +82,8 @@ let parse_servo = fun c ->
 let pprz_value = Str.regexp "@\\([A-Z_0-9]+\\)"
 
 let var_value = Str.regexp "\\$\\([_a-z0-9]+\\)"
-let preprocess_command = fun s ->
-  let s = Str.global_replace pprz_value "values[COMMAND_\\1]" s in
+let preprocess_value = fun s v ->
+  let s = Str.global_replace pprz_value (sprintf "%s[COMMAND_\\1]" v) s in
   Str.global_replace var_value "_var_\\1" s
 
 let parse_command_laws = fun command ->
@@ -92,7 +92,7 @@ let parse_command_laws = fun command ->
      "set" ->
        let servo = a "servo"
        and value = a "value" in
-       let v = preprocess_command value in
+       let v = preprocess_value value "values" in
        printf "  command_value = %s;\\\n" v;
        printf "  command_value *= command_value>0 ? SERVO_%s_TRAVEL_UP : SERVO_%s_TRAVEL_DOWN;\\\n" servo servo;
        printf "  servo_value = SERVO_%s_NEUTRAL + (int16_t)(command_value);\\\n" servo;
@@ -100,25 +100,25 @@ let parse_command_laws = fun command ->
    | "let" ->
        let var = a "var"
        and value = a "value" in
-       let v = preprocess_command value in
+       let v = preprocess_value value "values" in
        printf "  int16_t _var_%s = %s;\\\n" var v 
    | "define" ->
        parse_element "" command
    | _ -> xml_error "set|let"
 
 
-let parse_radio_laws = fun rc ->
+let parse_rc_commands = fun rc ->
   let a = fun s -> ExtXml.attrib rc s in
   match Xml.tag rc with
     "set" ->
       let com = a "command"
       and value = a "value" in
-      let v = preprocess_command value in
-      printf "  values[COMMAND_%s] = %s;\\\n" com v;
+      let v = preprocess_value value "rc_values" in
+      printf "  commands[COMMAND_%s] = %s;\\\n" com v;
    | "let" ->
        let var = a "var"
        and value = a "value" in
-       let v = preprocess_command value in
+       let v = preprocess_value value "rc_values" in
        printf "  int16_t _var_%s = %s;\\\n" var v 
    | "define" ->
        parse_element "" rc
@@ -154,9 +154,9 @@ let parse_section = fun s ->
       let commands_params = Array.to_list commands_params in
       define "COMMANDS_FAILSAFE" (sprint_float_array (List.map (fun x -> string_of_int x.failsafe_value) commands_params));
       nl (); nl ()
-  | "radio_laws" ->
-      printf "#define CommandsOfRC(values) { \\\n";
-      List.iter parse_radio_laws (Xml.children s);
+  | "rc_commands" ->
+      printf "#define CommandsOfRC(commands) { \\\n";
+      List.iter parse_rc_commands (Xml.children s);
       printf "}\n\n"
   | "command_laws" ->
       printf "#define CommandsSet(values) { \\\n";

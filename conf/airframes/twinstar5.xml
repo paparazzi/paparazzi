@@ -15,12 +15,16 @@
     <axis name="ROLL"     failsafe_value="0"/>
     <axis name="PITCH"    failsafe_value="0"/>
     <axis name="YAW"    failsafe_value="0"/>
-    <axis name="MODE"    failsafe_value="0"/>
-    <axis name="GAIN1"    failsafe_value="0"/>
-    <axis name="GAIN2"    failsafe_value="0"/>
-    <axis name="SWITCH1"    failsafe_value="0"/>
-    <axis name="CALIB"    failsafe_value="0"/>
+    <axis name="CAM_ROLL" failsafe_value="0"/>
+    <axis name="CAM_PITCH" failsafe_value="0"/>
   </commands>
+
+  <rc_commands>
+    <set command="THROTTLE" value="@THROTTLE"/>
+    <set command="ROLL" value="@ROLL"/>
+    <set command="PITCH" value="@PITCH"/>
+    <set command="YAW" value="@YAW"/>
+  </rc_commands>
 
   <command_laws>
     <set servo="GAZ" value="2 * @THROTTLE"/>
@@ -29,8 +33,8 @@
     <set servo="AILERON_LEFT" value="($roll > 0 ? 1 : AILERON_DIFF) * $roll"/>
     <set servo="AILERON_RIGHT" value="($roll > 0 ? AILERON_DIFF : 1) * $roll"/>
     <set servo="RUDDER" value="@YAW + @ROLL*COMBI_SWITCH"/>
-    <set servo="CAM_ROLL" value="@GAIN1"/>
-    <set servo="CAM_PITCH" value="@CALIB"/>
+    <set servo="CAM_ROLL" value="@CAM_ROLL"/>
+    <set servo="CAM_PITCH" value="@CAM_PITCH"/>
   </command_laws>
 
   <section name="MIXER">

@@ -22,6 +22,13 @@
     <axis name="CAM_PITCH" failsafe_value="0"/>
   </commands>
 
+  <rc_commands>
+    <set command="THROTTLE" value="@THROTTLE"/>
+    <set command="ROLL" value="@ROLL"/>
+    <set command="PITCH" value="@PITCH"/>
+    <set command="YAW" value="@YAW"/>
+  </rc_commands>
+
   <command_laws>
     <set servo="GAZ" value="2 * @THROTTLE"/>
     <set servo="ELEVATOR" value="@PITCH"/>

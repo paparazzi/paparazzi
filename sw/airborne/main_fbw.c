@@ -137,7 +137,10 @@ static inline void radio_control_task(void) {
     pitch_dot_pgain = roll_dot_pgain;
     pitch_dot_dgain = roll_dot_dgain;
 #endif
-    commands_of_radio(rc_values);
+
+    pprz_t commands[COMMANDS_NB];
+    CommandsOfRC(commands);
+    command_set(commands);
   }
 }
 
@@ -163,7 +166,6 @@ void init_fbw( void ) {
   adc_init();
   adc_buf_channel(ADC_CHANNEL_VSUPPLY, &vsupply_adc_buf);
 #if defined IMU_3DMG || defined IMU_ANALOG
-  CounterLedInit();
   imu_init();
 #endif
   sys_time_init();

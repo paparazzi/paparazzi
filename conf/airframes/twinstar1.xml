@@ -23,12 +23,12 @@
     <axis name="YAW"    failsafe_value="0"/>
   </commands>
 
-  <radio_laws>
+  <rc_commands>
     <set command="THROTTLE" value="@THROTTLE"/>
     <set command="ROLL" value="@ROLL"/>
     <set command="PITCH" value="@PITCH"/>
     <set command="YAW" value="@YAW"/>
-  </radio_laws>
+  </rc_commands>
 
   <command_laws>
     <set servo="GAZ" value="2 * @THROTTLE"/>
