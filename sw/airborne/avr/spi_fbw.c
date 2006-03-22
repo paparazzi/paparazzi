@@ -48,8 +48,8 @@ static volatile uint8_t idx_buf = 0;
 static volatile uint16_t crc_in, crc_out;
 
 void spi_init(void) {
-  from_fbw.status = 0;
-  from_fbw.nb_err = 0;
+  from_fbw.from_fbw.status = 0;
+  from_fbw.from_fbw.nb_err = 0;
 
   /* set it pin output */
   //  IT_DDR |= _BV(IT_PIN);
@@ -67,7 +67,7 @@ void spi_reset(void) {
   crc_in = CRC_INIT;
   crc_out = CRC_INIT;
 
-  uint8_t first_byte = ((uint8_t*)&from_fbw)[0];
+  uint8_t first_byte = ((uint8_t*)&from_fbw.from_fbw)[0];
   crc_out = CrcUpdate(crc_out, first_byte);
   SPDR = first_byte;
 
@@ -93,7 +93,7 @@ SIGNAL(SIG_SPI) {
     if (crc_in1 == Crc1(crc_in) && tmp == Crc2(crc_in))
       from_ap_receive_valid = TRUE;
     else
-      from_fbw.nb_err++;
+      from_fbw.from_fbw.nb_err++;
     return;
   }
 
@@ -109,7 +109,7 @@ SIGNAL(SIG_SPI) {
   /* we are sending/receiving payload       */
   if (idx_buf < FRAME_LENGTH - 2) {
     /* place new payload byte in send register */
-    tmp = ((uint8_t*)&from_fbw)[idx_buf];
+    tmp = ((uint8_t*)&from_fbw.from_fbw)[idx_buf];
     SPDR = tmp;
     crc_out = CrcUpdate(crc_out, tmp);
   } 

@@ -40,7 +40,6 @@ static const pprz_t failsafe_values[COMMANDS_NB] = COMMANDS_FAILSAFE;
 #define ChopServo(x,a,b) Chop(x, a, b)
 
 #define COMMAND(i) servo_widths[i]
-#define SERVOS_TICS_OF_USEC(s) SYS_TICS_OF_USEC(s)
 /*
  * We use the output compare registers to generate our servo pulses.
  * These should be connected to a decade counter that routes the

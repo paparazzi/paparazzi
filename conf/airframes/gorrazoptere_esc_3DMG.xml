@@ -74,6 +74,7 @@
     <set servo="MOTOR_RIGHT" value="$throttle + $roll  + $yaw"/>
     <set servo="MOTOR_LEFT"  value="$throttle - $roll  + $yaw"/>
   </command_laws>
+
   <section name="INFRARED" prefix="IR_">
     <define name="ADC_ROLL_NEUTRAL" value="0"/>
     <define name="ADC_PITCH_NEUTRAL" value="1024"/>

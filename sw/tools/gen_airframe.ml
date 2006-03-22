@@ -107,6 +107,24 @@ let parse_command_laws = fun command ->
    | _ -> xml_error "set|let"
 
 
+let parse_radio_laws = fun rc ->
+  let a = fun s -> ExtXml.attrib rc s in
+  match Xml.tag rc with
+    "set" ->
+      let com = a "command"
+      and value = a "value" in
+      let v = preprocess_command value in
+      printf "  values[COMMAND_%s] = %s;\\\n" com v;
+   | "let" ->
+       let var = a "var"
+       and value = a "value" in
+       let v = preprocess_command value in
+       printf "  int16_t _var_%s = %s;\\\n" var v 
+   | "define" ->
+       parse_element "" rc
+   | _ -> xml_error "set|let"
+
+
 let parse_command = fun commands_params command no ->
    let command_name = "COMMAND_"^ExtXml.attrib command "name" in
    let failsafe_value = int_of_string (ExtXml.attrib command "failsafe_value") in
@@ -136,7 +154,11 @@ let parse_section = fun s ->
       let commands_params = Array.to_list commands_params in
       define "COMMANDS_FAILSAFE" (sprint_float_array (List.map (fun x -> string_of_int x.failsafe_value) commands_params));
       nl (); nl ()
- | "command_laws" ->
+  | "radio_laws" ->
+      printf "#define CommandsOfRC(values) { \\\n";
+      List.iter parse_radio_laws (Xml.children s);
+      printf "}\n\n"
+  | "command_laws" ->
       printf "#define CommandsSet(values) { \\\n";
       printf "  uint16_t servo_value;\\\n";
       printf "  float command_value;\\\n";

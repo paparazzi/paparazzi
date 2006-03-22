@@ -20,4 +20,4 @@ fbw.HIGH_FUSE = cb
 fbw.EXT_FUSE  = ff
 fbw.LOCK_FUSE = ff
 fbw.CFLAGS += -DFBW -DMCU_SPI_LINK -DACTUATORS=\"servos_4017.h\"
-fbw.srcs = $(SRC_ARCH)/ppm_hw.c inter_mcu.c $(SRC_ARCH)/servo.c $(SRC_ARCH)/spi_fbw.c $(SRC_ARCH)/uart_fbw.c $(SRC_ARCH)/adc_fbw.c sys_time.c main_fbw.c main.c
+fbw.srcs = $(SRC_ARCH)/ppm_hw.c inter_mcu.c $(SRC_ARCH)/servos_4017.c $(SRC_ARCH)/spi_fbw.c $(SRC_ARCH)/uart_fbw.c $(SRC_ARCH)/adc_fbw.c sys_time.c main_fbw.c main.c

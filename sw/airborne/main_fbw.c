@@ -204,9 +204,9 @@ void event_task_fbw( void) {
     ap_ok = TRUE;
     if (mode == FBW_MODE_AUTO) {
 #if defined IMU_ANALOG || defined IMU_3DMG
-      control_set_desired(from_ap.channels);
+      control_set_desired(from_ap.from_ap.channels);
 #else
-      command_set(from_ap.channels);
+      command_set(from_ap.from_ap.channels);
 #endif
     }
     to_autopilot_from_rc_values();

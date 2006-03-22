@@ -56,7 +56,7 @@ UISP_FLAGS	= $(ISP_FLAGS)
 
 
 CFLAGS		=							\
-	-W -Wall \
+	-Werror -W -Wall \
 	$(ATMEL_INCLUDES)					  	\
 	$(INCLUDES)					  	\
 	-Wstrict-prototypes						\

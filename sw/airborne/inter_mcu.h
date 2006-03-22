@@ -95,7 +95,7 @@ typedef union  {
 #define STATUS_AUTO_OK  0
 
 /** Two bytes for the CRC */
-#define FRAME_LENGTH (sizeof(struct inter_mcu_msg)+2)
+#define FRAME_LENGTH (sizeof(inter_mcu_msg)+2)
 
 #define CRC_INIT 0xffff
 #define CrcUpdate(_crc, _data) _crc_ccitt_update(_crc, _data)
