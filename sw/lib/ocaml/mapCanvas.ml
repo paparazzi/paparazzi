@@ -30,6 +30,12 @@ open Printf
 
 let zoom_factor = 1.5 (* Mouse wheel zoom action *)
 let pan_step = 50 (* Pan keys speed *)
+
+let grid_color = "#29d3f8"
+let size_utm_grid = 10 (* half the horiz/vert size in km *)
+
+let align = fun x a ->
+  float (truncate (x /. float a) * a)
     
 type meter = float
 
@@ -411,6 +417,7 @@ class widget =  fun ?(height=800) ?width ?projection ?georef () ->
     val mutable lbl_group = GMisc.label  ~height:50 ()   
     val mutable menu_fact = new GMenu.factory (GMenu.menu ())
     val mutable srtm = GMenu.check_menu_item ()
+    val mutable utm_grid_group = None
 
     method pack_labels =
       bottom#pack lbl_xy#coerce;
@@ -424,10 +431,44 @@ class widget =  fun ?(height=800) ?width ?projection ?georef () ->
       menu_fact <- new GMenu.factory file_menu;
       srtm#destroy ();
       srtm <- menu_fact#add_check_item "SRTM" ~active:false;
+      ignore (menu_fact#add_check_item "UTM Grid" ~active:false ~callback:self#switch_utm_grid);
       ignore (menu_fact#add_check_item "Background" ~active:true ~callback:self#switch_background);
       ignore (menu_fact#add_item "Goto" ~callback:self#goto);
      )
 
+    method switch_utm_grid = fun flag ->
+      match georef with
+	None -> ()
+      |	Some georef ->
+	  match utm_grid_group with
+	    None ->
+	      if flag then (** Create and show *)
+		let g = GnoCanvas.group self#canvas#root in
+		let u0 = LL.utm_of LL.WGS84 georef in
+		let u0 = { LL.utm_x = align u0.LL.utm_x 1000; 
+			   LL.utm_zone = u0.LL.utm_zone;
+			   LL.utm_y = align u0.LL.utm_y 1000 } in
+		for i = -size_utm_grid to size_utm_grid do
+		  let h = Array.create (2*(2*size_utm_grid+1)) 0.
+		  and v = Array.create (2*(2*size_utm_grid+1)) 0. in
+		  for j = -size_utm_grid to size_utm_grid do
+		    let k = 2*(j+size_utm_grid) in
+		    let p = fun i j ->
+		      let u = LL.utm_add u0 (float (i*1000), float (j*1000)) in
+		      let wgs84 = LL.of_utm LL.WGS84 u in
+		      self#world_of wgs84 in
+		    let (xw,yw) = p i j in
+		    h.(k) <- xw; h.(k+1) <- yw;
+		    let (xw,yw) = p j i in
+		    v.(k) <- xw; v.(k+1) <- yw
+		  done;
+		  let h = GnoCanvas.line ~fill_color:grid_color ~props:[`WIDTH_PIXELS 1] ~points:h g
+		  and v = GnoCanvas.line ~fill_color:grid_color ~props:[`WIDTH_PIXELS 1] ~points:v g in
+		  h#show (); v#show ()
+		done;
+		utm_grid_group <- Some g
+	  | Some g -> if flag then g#show () else g#hide ()
+	      
     method menu_fact = menu_fact
 	
     (** ground altitude extraction from srtm data *)
