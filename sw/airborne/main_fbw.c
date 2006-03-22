@@ -75,6 +75,17 @@ static uint8_t ppm_cpt, last_ppm_cpt;
 #define REALLY_STALLED_TIME 300 // 5s with a 60Hz timer
 
 
+static pprz_t commands[COMMANDS_NB];
+/** Storage of intermediate command values: these values come from 
+the RC (MANUAL mode), from the autopilot (AUTO mode) or from control loops.
+They are asyncronisly used to set the servos */
+
+#define SetCommands(t) { \
+  int i; \
+  for(i = 0; i < COMMANDS_NB; i++) commands[i] = t[i]; \
+}
+ 
+
 /* Prepare data to be sent to mcu0 */
 static inline void to_autopilot_from_rc_values (void) {
   struct from_fbw_msg *msg = &(from_fbw.from_fbw);
@@ -138,9 +149,7 @@ static inline void radio_control_task(void) {
     pitch_dot_dgain = roll_dot_dgain;
 #endif
 
-    pprz_t commands[COMMANDS_NB];
     CommandsOfRC(commands);
-    command_set(commands);
   }
 }
 
@@ -208,7 +217,7 @@ void event_task_fbw( void) {
 #if defined IMU_ANALOG || defined IMU_3DMG
       control_set_desired(from_ap.from_ap.channels);
 #else
-      command_set(from_ap.from_ap.channels);
+      SetCommands(from_ap.from_ap.channels);
 #endif
     }
     to_autopilot_from_rc_values();
@@ -236,42 +245,38 @@ void event_task_fbw( void) {
   if ((mode == FBW_MODE_MANUAL && !radio_ok) ||
       (mode == FBW_MODE_AUTO && !ap_ok)) {
     failsafe_mode = TRUE;
-    command_set(failsafe);
+    SetCommands(failsafe);
   }
 }
 
 void periodic_task_fbw( void ) {
   static uint8_t _1Hz;
-  static uint8_t _20Hz;
   _1Hz++;
-  _20Hz++;
+
 #if defined IMU_ANALOG
   imu_update();
 #endif
 #if defined IMU_3DMG || defined IMU_ANALOG
-  control_run();
+  control_run(commands);
   if (radio_ok) {
-    if (rc_values[RADIO_THROTTLE] > 0.1*MAX_PPRZ) {
-      command_set(control_commands);
-    }
-    else {
-      command_set(failsafe);
+    if (rc_values[RADIO_THROTTLE] < 0.1*MAX_PPRZ) {
+      SetCommands(failsafe);
     }
   }
 #endif
+
   if (_1Hz >= 60) {
     _1Hz = 0;
     last_ppm_cpt = ppm_cpt;
     ppm_cpt = 0;
   }
-  if (_20Hz >= 3) {
-    _20Hz = 0;
-#ifndef IMU_3DMG
-    /*  	servo_transmit(); */
-#endif
-  }
+
   if (time_since_last_ap < STALLED_TIME)
     time_since_last_ap++;
+
   if (time_since_last_ppm < REALLY_STALLED_TIME)
     time_since_last_ppm++;
+
+  /** Set servo values */
+  command_set(commands);
 }
