@@ -25,7 +25,7 @@
  *
  */
 
-/** \file adc.h
+/** \file adc_ap.h
  *  \brief Analog to Digital Converter API
  *
  * Facility to store last values in a circular buffer for a specific

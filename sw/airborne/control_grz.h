@@ -27,30 +27,18 @@
 
 #include <inttypes.h>
 
-extern int16_t setpoint_roll;
-extern float roll_pgain;
+extern float fbw_roll_pgain;
+extern float fbw_pitch_pgain;
+extern float fbw_yaw_pgain;
 
-extern int16_t setpoint_pitch;
-extern float pitch_pgain;
-
-extern int16_t setpoint_yaw;
-extern float yaw_pgain;
-
-extern int16_t setpoint_roll_dot;
 extern float   roll_dot_pgain;
 extern float   roll_dot_dgain;
 
-extern int16_t setpoint_pitch_dot;
 extern float   pitch_dot_pgain;
 extern float   pitch_dot_dgain;
 
-extern int16_t setpoint_yaw_dot;
 extern float   yaw_dot_dgain;
 extern float   yaw_dot_pgain;
-
-extern int16_t setpoint_throttle;
-
-extern pprz_t  control_commands[];
 
 void control_rate_run ( void );
 void control_attitude_run ( void );

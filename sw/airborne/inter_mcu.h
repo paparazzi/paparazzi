@@ -46,13 +46,6 @@
 
 /* !!!!!!!!!!!!!!!!!!! Value used in gen_airframe.ml !!!!!!!!!!!!!!!!! */
 
-#define TRIM_PPRZ(pprz) (pprz <  MIN_PPRZ ? MIN_PPRZ :  \
-                         (pprz >  MAX_PPRZ ? MAX_PPRZ : \
-                                   pprz))
-#define TRIM_UPPRZ(pprz) (pprz <  0 ? 0 :  \
-                          (pprz >  MAX_PPRZ ? MAX_PPRZ : \
-                                    pprz))
-
 /** Data structure shared by fbw and ap sub-mofules */
 struct from_fbw_msg {
   pprz_t channels[RADIO_CTL_NB];  

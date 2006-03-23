@@ -22,10 +22,6 @@
  *
  */
 
-
-
-#include <inttypes.h>
-
 #include "main_fbw.h"
 #include "int.h"
 //#include "timer_fbw.h"
@@ -35,7 +31,6 @@
 #include "inter_mcu.h"
 
 #define RC_AVG_PERIOD 8
-#include "radio.h"
 
 #include "led.h"
 #include "uart_fbw.h"
@@ -75,7 +70,7 @@ static uint8_t ppm_cpt, last_ppm_cpt;
 #define REALLY_STALLED_TIME 300 // 5s with a 60Hz timer
 
 
-static pprz_t commands[COMMANDS_NB];
+pprz_t commands[COMMANDS_NB];
 /** Storage of intermediate command values: these values come from 
 the RC (MANUAL mode), from the autopilot (AUTO mode) or from control loops.
 They are asyncronisly used to set the servos */
@@ -189,7 +184,6 @@ void init_fbw( void ) {
   int_enable();
 
 #if IMU_RESET_ON_BOOT
-#warning IMU_RESET_ON_BOOT
   imu_capture_neutral();
 #endif
 }
@@ -214,11 +208,7 @@ void event_task_fbw( void) {
     time_since_last_ap = 0;
     ap_ok = TRUE;
     if (mode == FBW_MODE_AUTO) {
-#if defined IMU_ANALOG || defined IMU_3DMG
-      control_set_desired(from_ap.from_ap.channels);
-#else
       SetCommands(from_ap.from_ap.channels);
-#endif
     }
     to_autopilot_from_rc_values();
   }
@@ -257,7 +247,7 @@ void periodic_task_fbw( void ) {
   imu_update();
 #endif
 #if defined IMU_3DMG || defined IMU_ANALOG
-  control_run(commands);
+  control_rate_run();
   if (radio_ok) {
     if (rc_values[RADIO_THROTTLE] < 0.1*MAX_PPRZ) {
       SetCommands(failsafe);

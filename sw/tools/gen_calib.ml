@@ -67,9 +67,9 @@ let parse_setting = fun xml ->
   lprintf "if (mode_changed) {\n";
   right ();
   lprintf "%s = %s;\n" var_init var;
-  lprintf "slider%d_init = from_fbw.channels[RADIO_GAIN%d];\n" cursor cursor;
+  lprintf "slider%d_init = RcChannel(RADIO_GAIN%d);\n" cursor cursor;
   left (); lprintf "}\n";
-  lprintf "%s = %s(%s, %f, from_fbw.channels[RADIO_GAIN%d], slider%d_init);\n" var param_macro var_init range cursor cursor;
+  lprintf "%s = %s(%s, %f, RcChannel(RADIO_GAIN%d), slider%d_init);\n" var param_macro var_init range cursor cursor;
   lprintf "slider_%d_val = (float)%s;\n" cursor var;
   left (); lprintf "}\n"
 

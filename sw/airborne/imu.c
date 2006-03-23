@@ -33,7 +33,6 @@
 int16_t roll_dot, pitch_dot, yaw_dot;
 
 #ifdef IMU_3DMG
-#warning "Compiling imu.c for 3DMG"
 #include "3dmg.h"
 int16_t roll, pitch, yaw;
 
@@ -58,7 +57,6 @@ void imu_capture_neutral ( void ) {
 #endif // 3DMG
 
 #ifdef IMU_ANALOG
-#warning "Compiling imu.c for ANALOG"
 #include "adc_fbw.h"
 
 struct adc_buf buf_roll_dot;

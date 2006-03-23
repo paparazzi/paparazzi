@@ -51,6 +51,19 @@
 
 const pprz_t failsafe_values[COMMANDS_NB] = COMMANDS_FAILSAFE;
 
+void command_init ( void ) {
+  /* OC1A output    */
+  DDRB |= _BV(5); 
+  /* fast PWM, 10 bits */
+  TCCR1A  |= _BV(WGM10) | _BV(WGM11) | _BV(COM1A1);
+  TCCR1B  |= _BV(WGM12);
+  /* OC3A, OC3B, OC3C outputs    */
+  DDRE |= _BV(3) | _BV(4) | _BV(5);
+  /* fast PWM : 10 bits */
+  TCCR3A  |= _BV(WGM30) | _BV(WGM31) | _BV(COM3A1) | _BV(COM3B1) | _BV(COM3C1);
+  TCCR3B  |= _BV(WGM32);
+}
+
 void command_set(const pprz_t values[]) {
   CommandsSet(values); /*Generated from airframe.xml */
 }

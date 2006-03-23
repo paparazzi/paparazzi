@@ -25,6 +25,10 @@
 #ifndef FBW_H
 #define FBW_H
 
+#include "paparazzi.h"
+#include "airframe.h"
+
+extern pprz_t commands[COMMANDS_NB];
 extern void init_fbw( void );
 extern void periodic_task_fbw( void );
 extern void event_task_fbw( void );

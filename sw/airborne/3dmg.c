@@ -24,10 +24,6 @@
 
 #include "airframe.h"
 
-#ifdef IMU_3DMG
-
-#warning "Compiling 3dmg.c"
-
 #include "std.h"
 #include "3dmg.h"
 #include "uart_fbw.h"
@@ -167,5 +163,3 @@ static inline void on_3dmg_receive(uint8_t c) {
 ReceiveUart(on_3dmg_receive);
 
 #endif /* AVR_ARCH */
-
-#endif // IMU_3DMG

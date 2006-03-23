@@ -62,6 +62,9 @@
     <axis name="ROLL"     failsafe_value="0"/>
     <axis name="PITCH"    failsafe_value="0"/>
     <axis name="YAW"      failsafe_value="0"/>
+    <axis name="PHI_DOT"      failsafe_value="0"/>
+    <axis name="THETA_DOT"    failsafe_value="0"/>
+    <axis name="PSI_DOT"      failsafe_value="0"/>
     <axis name="PHI"      failsafe_value="0"/>
     <axis name="THETA"    failsafe_value="0"/>
     <axis name="PSI"      failsafe_value="0"/>

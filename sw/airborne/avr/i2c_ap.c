@@ -21,7 +21,7 @@
  * Boston, MA 02111-1307, USA. 
  *
  */
-/** \file i2c.c
+/** \file i2c_ap.c
  *  \brief Basic library for I2C
  *
  */

@@ -24,7 +24,6 @@
 #ifndef PPM_H
 #define PPM_H
 
-#include <inttypes.h>
 #include "std.h"
 #include "radio.h"
 
