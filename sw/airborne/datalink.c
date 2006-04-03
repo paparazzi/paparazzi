@@ -40,7 +40,6 @@
 
 #define MOfCm(_x) (((float)_x)/100.)
 
-
 #define IdOfMsg(x) (x[1])
 
 void dl_parse_msg(void) {
@@ -68,10 +67,14 @@ void dl_parse_msg(void) {
       case 2 : rc_event_2 = TRUE; break;
       default: ;
       }
-    } else if (msg_id == DL_SETTING_ID) {
-      DlSetting(DL_SETTING_index(dl_buffer), DL_SETTING_value(dl_buffer));
     } else if (msg_id == DL_BLOCK_ID) {
       nav_goto_block(DL_BLOCK_block_id(dl_buffer));
     }
+#ifdef DlSetting
+    else if (msg_id == DL_SETTING_ID) {
+      DlSetting(DL_SETTING_index(dl_buffer), DL_SETTING_value(dl_buffer));
+    }
+#endif /** Else there is no dl_settings section in the flight plan */
+    
   }
 }
