@@ -1,7 +1,7 @@
 (*
  * $Id$
  *
- * XML preprocessing for downlink protocol
+ * XML preprocessing of messages.xml for downlink protocol
  *  
  * Copyright (C) 2003-2005 Pascal Brisset, Antoine Drouin
  *
@@ -27,7 +27,6 @@
 open Printf
 
 let divide = fun a b -> b mod a = 0
-
 
 
 module Syntax = struct
@@ -171,8 +170,19 @@ module Gen_onboard = struct
     List.iter (fun m -> fprintf avr_h "#define DL_%s %d\n" m.name m.id) messages;
     fprintf avr_h "#define DL_MSG_NB %d\n\n" (List.length messages)
 
+  let print_lengths_array = fun avr_h messages ->
+    let sizes = List.map (fun m -> (m.id, size_of_message m)) messages in
+    let max_id = List.fold_right (fun (id, _m) x -> max x id) sizes min_int in
+    let n = max_id + 1 in
+    fprintf avr_h "#define MSG_LENGTHS {";
+    for i = 0 to n - 1 do
+      fprintf avr_h "%d," (try 2 + List.assoc i sizes with Not_found -> 0)
+    done;
+    fprintf avr_h "}\n\n"
+
   let print_avr_macros = fun filename avr_h messages ->
     print_enum avr_h messages;
+    print_lengths_array avr_h messages;
     List.iter (print_avr_macro avr_h) messages;
     let md5sum = Digest.file filename in
     fprintf avr_h "#define MESSAGES_MD5SUM \"";

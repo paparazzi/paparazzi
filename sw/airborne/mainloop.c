@@ -37,6 +37,7 @@
 #include "downlink.h"
 #include "datalink.h"
 #include "wavecard.h"
+#include "maxstream.h"
 #include "downlink.h"
 #include "led.h"
 #include "inter_mcu.h"
@@ -79,7 +80,7 @@ void init_ap( void ) {
 #ifdef TELEMETER
   srf08_init();
 #endif
-#if defined IMU_3DMG || defined IMU_ANALOG || WAVECARD
+#if defined IMU_3DMG || defined IMU_ANALOG || WAVECARD || MAXSTREAM
   uart0_init_tx();
   uart0_init_rx();
 #endif //IMU
@@ -162,6 +163,14 @@ void event_task_ap( void ) {
     wc_msg_received = FALSE;
   }
 #endif /** WAVECARD */
+
+#ifdef MAXSTREAM
+  if (maxstream_msg_received) {
+    maxstream_parse_payload();
+    maxstream_msg_received = FALSE;
+  }
+#endif /** MAXSTREAM */
+
 #ifdef DATALINK
   if (dl_msg_available) {
     dl_parse_msg();

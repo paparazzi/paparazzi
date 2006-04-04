@@ -109,7 +109,9 @@ ap.CFLAGS += -DGPS -DUBX -DINFRARED
 ap.CFLAGS += -DDATALINK
 ap.EXTRA_SRCS += traffic_info.c datalink.c
 ap.CFLAGS += -DMOBILE_CAM
-ap.CFLAGS += -DWAVECARD
-ap.EXTRA_SRCS += wavecard.c
+# ap.CFLAGS += -DWAVECARD
+# ap.EXTRA_SRCS += wavecard.c
+ap.CFLAGS += -DMAXSTREAM
+ap.EXTRA_SRCS += maxstream.c
   </makefile>
 </airframe>
