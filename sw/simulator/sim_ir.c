@@ -21,5 +21,7 @@ value set_ir(value roll, value top) {
 }
 
 /** Required by infrared.c:ir_init() */
-void adc_buf_channel(void* _1, void* _2, void* _3) {
+void adc_buf_channel(void* a __attribute__ ((unused)),
+		     void* b __attribute__ ((unused)),
+		     void* c __attribute__ ((unused))) {
 }

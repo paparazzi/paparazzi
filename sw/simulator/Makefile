@@ -43,8 +43,7 @@ SIMSA=sims.cma
 OCAMLC = ocamlc
 OCAMLOPT=ocamlopt -p
 INCLUDES= -I +lablgtk2 -I ../lib/ocaml
-# OCAMLCC = gcc -Werror -O2 -I /usr/include/glib-2.0 -I /usr/lib/glib-2.0/include -DSITL -DUBX -DMOBILE_CAM -DAP -DDOWNLINK -DINFRARED -DGPS -I $(OBJDIR) -I $(ACDIR) 
-OCAMLCC = gcc -Werror -O2 -I /usr/include/glib-2.0 -I /usr/lib/glib-2.0/include -DSITL $(ap.CFLAGS) -I $(OBJDIR) -I $(ACDIR) 
+OCAMLCC = gcc -Werror -W -Wall -O2 -I /usr/include/glib-2.0 -I /usr/lib/glib-2.0/include -DSITL $(ap.CFLAGS) -I $(OBJDIR) -I $(ACDIR) 
 
 AIRBORNE = ../airborne
 VARINCLUDE=$(PAPARAZZI_HOME)/var/include

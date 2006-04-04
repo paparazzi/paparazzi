@@ -14,6 +14,8 @@
 #include "flight_plan.h"
 #include "nav.h"
 #include "pid.h"
+#include "infrared.h"
+#include "cam.h"
 
 #include <caml/mlvalues.h>
 #include <caml/memory.h>
@@ -35,7 +37,7 @@ static int16_t values_from_ap[RADIO_CTL_NB];
 
 uint16_t ppm_pulses[ PPM_NB_PULSES ]; /** From ppm_hw.c */
 
-value sim_periodic_task(value _unit) {
+value sim_periodic_task(value _unit __attribute__ ((unused))) {
   periodic_task();
   return Val_unit;
 }
@@ -55,7 +57,7 @@ value set_really_lost(value on) {
   return Val_unit;
 }
 
-value sim_rc_task(value _unit) {
+value sim_rc_task(value _unit __attribute__ ((unused))) {
   NormalizePpm(); /** -> rc_values */
   /***  printf("sim_rc_task ppm=%d rc_val=%d\n", ppm_pulses[RADIO_MODE], rc_values[RADIO_MODE]); ***/
   int i;
@@ -160,9 +162,9 @@ value send_event(value event_id) {
   return Val_unit;
 }
 
-value dl_setting(value index, value val) {
-#if defined DlSetting
+value dl_setting(value index __attribute__ ((unused)), 
+		 value val __attribute__ ((unused))) {
+  /** DlSetting macro may be empty: unused attr to get rif of the warning */
   DlSetting(Int_val(index), Double_val(val));
-#endif
   return Val_unit;
 }
