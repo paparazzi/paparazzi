@@ -37,6 +37,7 @@
 #include "traffic_info.h"
 #include "link_mcu.h"
 #include "sys_time.h"
+#include "flight_plan.h"
 
 #ifdef LED
 #include "led.h"

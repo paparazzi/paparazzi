@@ -117,5 +117,7 @@
 
 #define SEND_CAM() Downlink({ int16_t x = target_x; int16_t y = target_y; int8_t phi = DegOfRad(phi_c); int8_t theta = DegOfRad(theta_c); DOWNLINK_SEND_CAM(&phi, &theta, &x, &y);})
 
+#define PERIODIC_SEND_DL_VALUE() PeriodicSendDlValue() /** from flight_plan.h*/
+
 
 #endif /* DOWNLINK_H */

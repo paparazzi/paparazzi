@@ -206,10 +206,15 @@
   <field name="range" type="uint16"/>
  </message>
 
-
-<message name="DEBUG_MODEM" id="30" period="5">
+ <message name="DEBUG_MODEM" id="30" period="5">
     <field name="modem_nb_err" type="uint8"></field>
-</message>
+ </message>
+
+<!-- Current value of one variable from the dl_settings (airframe.xml) -->
+ <message name="DL_VALUE" id="31" period="1">
+    <field name="index" type="uint8"/>
+    <field name="value" type="float"/>
+ </message>
 
 </class>
 
@@ -452,6 +457,11 @@
  <message name="JUMP_TO_BLOCK" ID="27">
   <field name="ac_id" type="string"/>
   <field name="block_id" type="uint8"/>
+ </message>
+
+ <message name="DL_VALUES" ID="28">
+  <field name="ac_id" type="string"/>
+  <field name="values" type="string" format="csv"/>
  </message>
 
 </class>

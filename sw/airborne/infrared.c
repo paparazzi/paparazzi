@@ -62,16 +62,15 @@ float estimator_rad_of_ir, estimator_ir, estimator_rad;
 static struct adc_buf buf_ir1;
 static struct adc_buf buf_ir2;
 
-/** \fn void ir_init(void)
- *  \brief Initialisation of \a ir */
-/** Initialize \a ir with the \a IR_DEFAULT_CONTRAST \n
- *  Initialize \a adc_buf_channel
- */
 #ifndef ADC_CHANNEL_IR_NB_SAMPLES
 #define ADC_CHANNEL_IR_NB_SAMPLES DEFAULT_AV_NB_SAMPLE
 #else
 #warning " ADC_CHANNEL_IR_NB_SAMPLES";
 #endif
+/** \brief Initialisation of \a ir */
+/** Initialize \a ir with the \a IR_DEFAULT_CONTRAST \n
+ *  Initialize \a adc_buf_channel
+ */
 void ir_init(void) {
   RadOfIrFromConstrast(IR_DEFAULT_CONTRAST);
   adc_buf_channel(ADC_CHANNEL_IR1, &buf_ir1, ADC_CHANNEL_IR_NB_SAMPLES);

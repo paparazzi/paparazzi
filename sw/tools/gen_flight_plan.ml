@@ -535,6 +535,7 @@ let print_heights = fun xml wgs84 alt ->
   end
 
 let print_dl_settings = fun settings ->
+  (** Macro to call to set one variable *)
   lprintf "#define DlSetting(_idx, _value) { \\\n";
   right ();
   let idx = ref 0 in
@@ -544,6 +545,26 @@ let print_dl_settings = fun settings ->
       lprintf "if (_idx == %d) %s = _value;\\\n" !idx v; incr idx) 
     settings;
   left ();
+  lprintf "}\n";
+  let nb_values = !idx in
+
+  (** Macro to call to download current values *)
+  lprintf "#define PeriodicSendDlValue() { \\\n";
+  if nb_values > 0 then begin
+    right ();
+    lprintf "static uint8_t i;\\\n";
+    lprintf "float *var = 0;\\\n";
+    lprintf "if (i >= %d) i = 0;;\\\n" nb_values;
+    let idx = ref 0 in
+    List.iter 
+      (fun s ->
+	let v = ExtXml.attrib s "var" in
+	lprintf "if (i == %d) var = &%s;\\\n" !idx v; incr idx) 
+      settings;
+    lprintf "DOWNLINK_SEND_DL_VALUE(&i, var);\\\n";
+    lprintf "i++;\\\n";
+    left ()
+  end;
   lprintf "}\n"
 
 

@@ -26,6 +26,7 @@
 
 let my_id = "ground"
 let gps_mode_3D = 3
+let max_nb_dl_setting_values = 42 (** FIXME *)
 
 open Printf
 open Latlong
@@ -248,7 +249,7 @@ let log_and_parse = fun logging ac_name a msg values ->
 	  | None -> ()
 	end
     | "SEGMENT" ->
-		begin
+	begin
 	  match a.nav_ref with
 	    Some nav_ref ->
 	      let p1 = Latlong.utm_add nav_ref (fvalue "segment_east_1", fvalue "segment_north_1")
@@ -258,6 +259,13 @@ let log_and_parse = fun logging ac_name a msg values ->
 	end
     | "CALIBRATION" ->
 	a.throttle_accu <- fvalue "climb_sum_err"
+    | "DL_VALUE" ->
+	let i = ivalue "index" in
+	if i < max_nb_dl_setting_values then begin
+	  a.dl_setting_values.(i) <- fvalue "value";
+	  a.nb_dl_setting_values <- max a.nb_dl_setting_values (i+1)
+	end else
+	  failwith "Too much dl_setting values !!!"
     | _ -> ()
 
 (** Callback for a message from a registered A/C *)
@@ -318,6 +326,15 @@ let send_infrared = fun a ->
 	       ] in
   Ground_Pprz.message_send my_id "INFRARED"  values
 
+let send_dl_values = fun a ->
+  if a.nb_dl_setting_values > 0 then
+    let csv = ref "" in
+    for i = 0 to a.nb_dl_setting_values - 1 do
+      csv := sprintf "%s%f," !csv a.dl_setting_values.(i)
+    done;
+    let vs = ["ac_id", Pprz.String a.id; "values", Pprz.String !csv] in
+    Ground_Pprz.message_send my_id "DL_VALUES" vs
+
 let send_svsinfo = fun a ->
   let svid = ref ""
   and flags= ref ""
@@ -325,12 +342,12 @@ let send_svsinfo = fun a ->
   and cno = ref ""
   and elev = ref ""
   and azim = ref "" in
+  let concat = fun ref v ->
+    ref := !ref ^ string_of_int v ^ "," in
   for i = 0 to gps_nb_channels - 1 do
-    let concat = fun ref v ->
-      ref := !ref ^ string_of_int v ^ "," in
     concat svid a.svinfo.(i).svid;
     concat flags a.svinfo.(i).flags;
-      concat qi a.svinfo.(i).qi;
+    concat qi a.svinfo.(i).qi;
     concat cno a.svinfo.(i).cno;
     concat elev a.svinfo.(i).elev;
     concat azim a.svinfo.(i).azim
@@ -442,7 +459,8 @@ let send_aircraft_msg = fun ac ->
     send_fbw a;
     send_infrared a;
     send_svsinfo a;
-    send_horiz_status a
+    send_horiz_status a;
+    send_dl_values a
   with
     Not_found -> prerr_endline ac
   | x -> prerr_endline (Printexc.to_string x)
@@ -465,6 +483,8 @@ let new_aircraft = fun id ->
       infrared = infrared_init;
       fbw = { rc_status = "???"; rc_mode = "???" };
       svinfo = Array.create gps_nb_channels svinfo_init;
+      dl_setting_values = Array.create max_nb_dl_setting_values 42.;
+      nb_dl_setting_values = 0;
       flight_time = 0; stage_time = 0; block_time = 0;
       horiz_mode = UnknownHorizMode;
       horizontal_mode = 0

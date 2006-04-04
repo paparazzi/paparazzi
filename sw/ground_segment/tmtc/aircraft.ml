@@ -110,5 +110,7 @@ type aircraft = {
     mutable flight_time : int;
     mutable stage_time : int;
     mutable block_time : int;
-    mutable horiz_mode : horiz_mode
+    mutable horiz_mode : horiz_mode;
+    dl_setting_values : float array;
+    mutable nb_dl_setting_values : int
   }

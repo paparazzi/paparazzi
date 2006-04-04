@@ -80,7 +80,8 @@ type aircraft = {
     color: color;
     fp_group : MapFP.flight_plan;
     fp : Xml.xml;
-    dl_settings : GWindow.window
+    dl_settings_window : GWindow.window;
+    dl_settings_adjustments : float array
   }
 
 let live_aircrafts = Hashtbl.create 3
@@ -257,31 +258,38 @@ let dl_settings = fun ac_id xml ->
   begin
     try
       let settings = Xml.children (ExtXml.child xml "dl_settings") in
+      let n = List.length settings in
+      let current_values = Array.create n 42. in
       let i = ref 0 in
       List.iter
-	(fun s ->
-	  let f = fun a -> float_of_string (ExtXml.attrib s a) in
-	  let lower = f "min"
-	  and upper = f "max"
-	  and step_incr = f "step" in
-	  let value = (lower +. upper) /. 2. in
-	  let text = ExtXml.attrib s "var" in
-	  let adj = GData.adjustment ~value ~lower ~upper:(upper+.10.) ~step_incr () in
-	  let hbox = GPack.hbox ~width:400 ~packing:vbox#add () in
-	  let _l = GMisc.label ~width:100 ~text ~packing:hbox#pack () in
-	  let _scale = GRange.scale `HORIZONTAL ~digits:2 ~adjustment:adj ~packing:hbox#add () in
-	  let ii = !i in
-	  let callback = fun () -> 
-	    let vs = ["ac_id", Pprz.String ac_id; "index", Pprz.Int ii;"value", Pprz.Float adj#value] in
-	    Ground_Pprz.message_send "dl" "DL_SETTING" vs in
-	  let b = GButton.button ~label:"Commit" ~stock:`OK ~packing:hbox#pack () in
-	  ignore (b#connect#clicked ~callback);
-	  incr i
-	)
-      settings
-    with _ -> ()
-  end;
-  window
+	  (fun s ->
+	    let f = fun a -> float_of_string (ExtXml.attrib s a) in
+	    let lower = f "min"
+	    and upper = f "max"
+	    and step_incr = f "step" in
+	    let value = (lower +. upper) /. 2. in
+	    let text = ExtXml.attrib s "var" in
+	    let adj = GData.adjustment ~value ~lower ~upper:(upper+.10.) ~step_incr () in
+	    let hbox = GPack.hbox ~width:400 ~packing:vbox#add () in
+	    let _l = GMisc.label ~width:100 ~text ~packing:hbox#pack () in
+	    let _scale = GRange.scale `HORIZONTAL ~digits:2 ~adjustment:adj ~packing:hbox#add () in
+	    let ii = !i in
+	    let b = GButton.button ~label:"Update" ~stock:`REFRESH ~packing:hbox#pack () in
+	    let update = fun () -> adj#set_value current_values.(ii) in
+	    ignore (b#connect#clicked ~callback:update);
+
+	    let callback = fun () -> 
+	      let vs = ["ac_id", Pprz.String ac_id; "index", Pprz.Int ii;"value", Pprz.Float adj#value] in
+	      Ground_Pprz.message_send "dl" "DL_SETTING" vs in
+	    let b = GButton.button ~label:"Commit" ~stock:`APPLY ~packing:hbox#pack () in
+	    ignore (b#connect#clicked ~callback);
+
+	    incr i
+	  )
+	  settings;
+      window, current_values
+    with _ -> window, [||]
+  end
 
 let center = fun geomap track () ->
   match track#last with
@@ -292,7 +300,7 @@ let center = fun geomap track () ->
 
 let active_dl_settings = fun ac_id x ->
   let ac = Hashtbl.find live_aircrafts ac_id in
-  let w = ac.dl_settings in
+  let w = ac.dl_settings_window in
   if x then w#show () else w#misc#hide ();;
 
 
@@ -333,11 +341,15 @@ let create_ac = fun (geomap:MapCanvas.widget) ac_id config ->
   let fp_xml_dump = Xml.parse_file fp_file in
   let fp_xml = ExtXml.child fp_xml_dump "flight_plan" in
 
-  let ds = dl_settings ac_id fp_xml in
+  let ds_window, ds_adjs = dl_settings ac_id fp_xml in
 
   let fp = load_mission color geomap fp_xml in
   fp#hide ();
-  Hashtbl.add live_aircrafts ac_id { track = track; color = color; fp_group = fp ; config = config ; fp = fp_xml; dl_settings = ds}
+  Hashtbl.add live_aircrafts ac_id { track = track; color = color; 
+				     fp_group = fp ; config = config ; 
+				     fp = fp_xml;
+				     dl_settings_adjustments = ds_adjs;
+				     dl_settings_window = ds_window}
   
 
 
@@ -360,6 +372,22 @@ let live_aircrafts_msg = fun (geomap:MapCanvas.widget) acs ->
   let acs = Pprz.string_assoc "ac_list" acs in
   let acs = Str.split list_separator acs in
   List.iter (one_new_ac geomap) acs
+
+
+let listen_dl_value = fun () ->
+  let get_dl_value = fun _sender vs ->
+    let ac_id = Pprz.string_assoc "ac_id" vs in
+    try
+      let ac = Hashtbl.find live_aircrafts ac_id in
+      let adjs = ac.dl_settings_adjustments in
+      let csv = Pprz.string_assoc "values" vs in
+      let values = Array.of_list (Str.split list_separator csv) in
+      for i = 0 to Array.length values - 1 do
+	adjs.(i) <- float_of_string values.(i)
+      done
+    with Not_found -> ()
+  in
+  ignore (Ground_Pprz.message_bind "DL_VALUES" get_dl_value)
 
 
 let listen_flight_params = fun () ->
@@ -428,7 +456,10 @@ let listen_flight_params = fun () ->
     with 
       Not_found -> ()
   in
-  ignore (Ground_Pprz.message_bind "AP_STATUS" get_ap_status);;
+  ignore (Ground_Pprz.message_bind "AP_STATUS" get_ap_status);
+
+ listen_dl_value ()
+
 
 let active_gm_http = fun x -> 
   Gm.no_http := not x

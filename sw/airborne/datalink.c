@@ -37,6 +37,7 @@
 
 #include "estimator.h"
 #include "pid.h"
+#include "cam.h"
 
 #define MOfCm(_x) (((float)_x)/100.)
 

@@ -12,6 +12,8 @@
   <dl_settings>
     <dl_setting VAR="ir_roll_neutral" MAX="0.2" STEP="0.01" MIN="-0.2"/>
     <dl_setting VAR="roll_pgain" MAX="15000" STEP="100" MIN="5000"/>
+    <dl_setting VAR="phi_c" MIN="-1." STEP="0.05" MAX="1."/>
+    <dl_setting VAR="theta_c" MIN="-1." STEP="0.05" MAX="1."/>
   </dl_settings>
   <waypoints>
     <waypoint Y="30" NAME="HOME" X="-30"/>
