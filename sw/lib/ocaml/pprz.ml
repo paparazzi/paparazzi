@@ -241,15 +241,20 @@ module Protocol(Class:CLASS) = struct
       raise Serial.Not_enough
 
   let (+=) = fun r x -> r := (!r + x) land 0xff
-  let checksum = fun msg ->
+  let compute_checksum = fun msg ->
     let l = String.length msg in
     let ck_a = ref 0  and ck_b = ref 0 in
     for i = 1 to l - 3 do
       ck_a += Char.code msg.[i];
       ck_b += !ck_a
     done;
-    Debug.call 'T' (fun f -> fprintf f "Pprz cs: %d %d\n" !ck_a (Char.code msg.[l-2]));
-    !ck_a = Char.code msg.[l-2] && !ck_b = Char.code msg.[l-1]
+    !ck_a, !ck_b
+
+  let checksum = fun msg ->
+    let l = String.length msg in
+    let ck_a, ck_b = compute_checksum msg in
+    Debug.call 'T' (fun f -> fprintf f "Pprz cs: %d %d\n" ck_a (Char.code msg.[l-2]));
+    ck_a = Char.code msg.[l-2] && ck_b = Char.code msg.[l-1]
 
   let values_of_payload = fun buffer ->
     let id = Char.code buffer.[0] in
@@ -284,6 +289,16 @@ module Protocol(Class:CLASS) = struct
 	)
       message.fields;
     p
+
+  let message_of_payload = fun p ->
+    let n = String.length p in
+    let m = String.create (n+3) in (** + stx, ck_a and ck_b *)
+    String.blit p 0 m 1 n;
+    m.[0] <- stx;
+    let (ck_a, ck_b) = compute_checksum m in
+    m.[n+3-2] <- Char.chr ck_a;
+    m.[n+3-1] <- Char.chr ck_b;
+    m
     
 
   let space = Str.regexp "[ \t]+"

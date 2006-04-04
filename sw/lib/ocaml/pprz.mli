@@ -71,8 +71,13 @@ module Protocol : functor (Class : CLASS) -> sig
   val values_of_bin : string -> message_id * ac_id * values
   (** [values_of_bin raw_message] Same than previous but [raw_message]
   includes header and checksum. *)
+
   val payload_of_values : message_id -> ac_id -> values -> string
-  (** [payload_of_values m vs] Returns a payload *)
+  (** [payload_of_values id ac_id vs] Returns a payload *)
+
+  val message_of_payload : string -> string
+  (** [message_of_payload s]  Returns a full message with header
+     and checksum *)
 
 
   val values_of_string : string -> message_id * values
