@@ -27,18 +27,13 @@ CMO = env_conf.cmo notebook.cmo tty.cmo varXml.cmo console.cmo tkXml.cmo flasher
 
 ABS_CMO = $(CMO:%=$$PAPARAZZI_SRC/sw/configurator/%)
 
-all : configurator medit
+all : configurator
 
 configurator : $(CMO)
 	$(OCAMLC) -custom -o $@ labltk.cma lib-pprz.cma jpflib.cma $^
 	@cat ../../pprz_src_test.sh > $@
 	@echo 'ocaml -I +labltk -I $$PAPARAZZI_SRC/sw/lib/ocaml -I $$PAPARAZZI_SRC/sw/configurator labltk.cma ivy-ocaml.cma lib-pprz.cma jpflib.cma $(ABS_CMO) $$*' >> $@
 	@chmod a+x $@
-
-medit : OCAMLC=ocamlc -I +lablgtk2 -I +camlimages -I ../lib/ocaml -I +lablGL
-
-medit : medit.ml
-	$(OCAMLC) -custom -o $@ glibivy-ocaml.cma -I +lablgtk2 lablgtk.cma lablgnomecanvas.cma lablgl.cma gtkInit.cmo lib-pprz.cma xlib-pprz.cma ci_core.cma ci_png.cma  $^
 
 
 %.cmo : %.ml
@@ -55,7 +50,7 @@ medit : medit.ml
 	$(OCAMLC) -c -i $<
 
 clean :
-	rm -f *~ *.cm* *.out configurator medit .depend
+	rm -f *~ *.cm* *.out configurator .depend
 
 
 #
