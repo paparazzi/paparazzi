@@ -6,7 +6,7 @@ use XML::Parser;
 use XML::DOM;
 use Paparazzi::Environment;
 use Paparazzi::Configuration;
-use Paparazzi::Ploter;
+#use Paparazzi::Ploter;
 
 
 sub get_available {
