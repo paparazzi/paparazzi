@@ -6,22 +6,40 @@
     <define name="CURRENT " value="3"/>
     <define name="BAT" value="4"/>
   </section>
+
   <servos min="1000" neutral="1500" max="2000">
     <servo name="GAZ" no="3" min="1000" neutral="1000" max="2000"/>
     <servo name="AILEVON_LEFT" no="0" min="1800" neutral="1492" max="1179"/>
     <servo name="AILEVON_RIGHT" no="2" min="1990" neutral="1662" max="1389"/>
   </servos>
-  <command>
+
+  <commands>
+    <axis name="THROTTLE" failsafe_value="0"/>
+    <axis name="ROLL"     failsafe_value="0"/>
+    <axis name="PITCH"    failsafe_value="0"/>
+    <axis name="YAW"    failsafe_value="0"/>
+  </commands>
+
+  <rc_commands>
+    <set command="THROTTLE" value="@THROTTLE"/>
+    <set command="ROLL" value="@ROLL"/>
+    <set command="PITCH" value="@PITCH"/>
+    <set command="YAW" value="@YAW"/>
+  </rc_commands>
+
+  <command_laws>
     <set servo="GAZ" value="2 * @THROTTLE"/>
     <let var="aileron" value="@ROLL * AILEVON_AILERON_RATE"/>
     <let var="elevator" value="@PITCH * AILEVON_ELEVATOR_RATE"/>
     <set servo="AILEVON_LEFT" value="$aileron + $elevator"/>
     <set servo="AILEVON_RIGHT" value="$aileron - $elevator"/>
-  </command>
+  </command_laws>
+
   <section name="MIXER">
     <define name="AILEVON_AILERON_RATE" value="0.55"/>
     <define name="AILEVON_ELEVATOR_RATE" value="0.75"/>
   </section>
+
   <section name="INFRARED" prefix="IR_">
     <define name="ADC_ROLL_NEUTRAL" value="0"/>
     <define name="ADC_PITCH_NEUTRAL" value="1040"/>
@@ -82,6 +100,8 @@
   <makefile>
 include $(PAPARAZZI_SRC)/conf/autopilot/v1_2.makefile
 
-ap.CFLAGS += -DUBX
+ap.CFLAGS += -DGPS -DUBX -DINFRARED
+ap.CFLAGS += -Werror
+
   </makefile>
 </airframe>

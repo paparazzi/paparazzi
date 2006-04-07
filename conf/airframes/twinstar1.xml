@@ -110,8 +110,7 @@ include $(PAPARAZZI_SRC)/conf/autopilot/v1_2_1.makefile
 ap.CFLAGS += -DGPS -DUBX -DINFRARED
 ap.CFLAGS += -Werror
 
-# ap.CFLAGS += -DSIMUL
-ap.CFLAGS += -DDATALINK
-ap.EXTRA_SRCS += traffic_info.c datalink.c
+# ap.CFLAGS += -DDATALINK
+# ap.EXTRA_SRCS += traffic_info.c datalink.c
   </makefile>
 </airframe>
