@@ -68,6 +68,13 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
   let view_cbs = Hashtbl.create 3 in (* Store for view event callback *)
   let region_rectangle = GnoCanvas.rect canvas#root ~props:[`WIDTH_PIXELS 2; `OUTLINE_COLOR "red"] in
 
+  let menubar = GMenu.menu_bar () in
+  let file_menu_item = GMenu.menu_item ~label:"Nav" ~packing:menubar#append () in
+  let file_menu = GMenu.menu () in
+  let _ = file_menu_item#set_submenu file_menu in
+
+  let factory = new GMenu.factory menubar in
+
   object (self)
    
 (** GUI attributes *)
@@ -76,8 +83,6 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
 	
     val frame = GPack.vbox ~height ?width ()
 	
-    val menubar = GMenu.menu_bar ()
-
     val adj = GData.adjustment 
 	~value:1. ~lower:0.05 ~upper:10. 
 	~step_incr:0.25 ~page_incr:1.0 ~page_size:1.0 ()
@@ -86,10 +91,6 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
 	
     val _w = GEdit.spin_button  ~rate:0. ~digits:2 ~width:50 ~height:20 ()
 	
-    val mutable factory = new GMenu.factory (GMenu.menu_bar ())
-    
-    val mutable file_menu =  GMenu.menu ()
-    
     val mutable lbl_x_axis = GMisc.label ~height:50 ()
 
 	
@@ -118,12 +119,6 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
       self#pack;
 
       _w#set_adjustment adj;
-
-      factory <- new GMenu.factory menubar;
-
-      file_menu#destroy ();
-
-      file_menu <- factory#add_submenu "Nav";
 
 (** callback bindings *)
 
@@ -408,6 +403,7 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
 
     
 class widget =  fun ?(height=800) ?width ?projection ?georef () ->
+  let srtm = GMenu.check_menu_item ~label:"SRTM" ~active:false () in
   object(self)
     inherit (basic_widget ~height ?width ?projection ?georef ())
 
@@ -416,7 +412,6 @@ class widget =  fun ?(height=800) ?width ?projection ?georef () ->
     val mutable lbl_alt =  GMisc.label  ~height:50 ()
     val mutable lbl_group = GMisc.label  ~height:50 ()   
     val mutable menu_fact = new GMenu.factory (GMenu.menu ())
-    val mutable srtm = GMenu.check_menu_item ()
     val mutable utm_grid_group = None
 
     method pack_labels =
@@ -428,9 +423,8 @@ class widget =  fun ?(height=800) ?width ?projection ?georef () ->
     initializer (
       self#pack_labels;
      (*** menu_fact#destroy (); ***)
-      menu_fact <- new GMenu.factory file_menu;
-      srtm#destroy ();
-      srtm <- menu_fact#add_check_item "SRTM" ~active:false;
+      self#file_menu#append (srtm :> GMenu.menu_item);
+      menu_fact <- new GMenu.factory self#file_menu;
       ignore (menu_fact#add_check_item "UTM Grid" ~active:false ~callback:self#switch_utm_grid);
       ignore (menu_fact#add_check_item "Background" ~active:true ~callback:self#switch_background);
       ignore (menu_fact#add_item "Goto" ~callback:self#goto);
