@@ -39,7 +39,6 @@ use warnings;
 use Paparazzi::Traces;
 use Paparazzi::Utils;
 use Paparazzi::GuiConfig;
-use Paparazzi::SimpleLinearGauge;
 
 
 my $modes_data = 
