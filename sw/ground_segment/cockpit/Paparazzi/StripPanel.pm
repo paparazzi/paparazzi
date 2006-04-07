@@ -29,6 +29,9 @@ sub completeinit {
   $self->build_gui();
 }
 
+use constant H_MARGIN => 5;
+use constant V_MARGIN => 7;
+
 sub build_gui {
   my ($self) = @_;
   my $zinc = $self->get('-zinc');
@@ -40,7 +43,7 @@ sub build_gui {
   $zinc->coords($self->{sp_main_group}, $origin);
 
   my $board = $zinc->add('rectangle', $self->{sp_main_group} ,
-			 [0, 0, $width-5, $height-7],
+			 [0, 0, $width - H_MARGIN , $height - V_MARGIN],
 			 -linewidth => 0,
 			 -filled => 1,
 			 -fillcolor => 'blue',
@@ -52,21 +55,27 @@ sub build_gui {
 
 }
 
+use constant NB_STRIP => 3;
+
 sub add_strip {
   my ($self, $aircraft) = @_;
   # add strip only once
   return if (defined $self->{strips}->{$aircraft->get('-ac_id')});
   my $zinc = $self->get('-zinc');
-  use constant NB_STRIP => 3;
-  my $step = $self->get('-height') / NB_STRIP;
+  my $strip_vspacing = ($self->get('-height') - 2 * V_MARGIN) / NB_STRIP;
+  my $strip_width = $self->get('-width') - H_MARGIN;
+  my $strip_height = $strip_vspacing;
   my $nb_strips = keys %{$self->{strips}};
-  my ($p, $w, $h) = ([5, 5 + $step * $nb_strips], 120, 45);
+  my ($p, $w, $h) = ([H_MARGIN, V_MARGIN + $strip_vspacing * $nb_strips], $strip_width, $strip_height);
   my $strip = Paparazzi::Strip->new( -zinc => $zinc, -parent_grp => $self->{sp_main_group},
 				     -origin => $p, -width  => $w, -height => $h,
 				     -aircraft => $aircraft);
   my $ac_id = $aircraft->get('-ac_id');
   $zinc->bind($strip->{'frame'},'<ButtonPress-1>',[\&OnStripPressed,$self, $ac_id]);
   $self->{strips}->{$ac_id} = $strip;
+  if ($nb_strips == 0) {
+    OnStripPressed($zinc, $self, $ac_id);
+  }
 }
 
 sub OnStripPressed {

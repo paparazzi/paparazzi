@@ -29,7 +29,7 @@ value fg_msg_native(value s, value lat, value lon, value z, value phi, value the
 
   msg.longitude = Double_val(lon);
   msg.latitude = Double_val(lat);
-  msg.altitude = Double_val(z) + 20;
+  msg.altitude = Double_val(z) + 50;
   msg.agl = 0.;
   msg.phi = Double_val(phi);
   msg.theta = Double_val(theta);

@@ -25,9 +25,10 @@ sub populate {
 sub completeinit {
   my ($self) = @_;
   $self->SUPER::completeinit();
-  my $cfg_file = $self->get('-config_file');
-  my $variables = $self->get('-variables');
-  $self->read_cfg($cfg_file);
+#  my $cfg_file = $self->get('-config_file');
+#  my $variables = $self->get('-variables');
+#  $self->read_cfg($cfg_file);
+  $self->check_config();
 }
 
 sub prepare_args {
@@ -89,6 +90,7 @@ sub toggle_program {
 
 sub toggle_program_in_session {
   my ($self, $session_name, $pgm_idx) = @_;
+  $self->check_config();
   my $session = $self->get('-sessions')->{$session_name};
   my $session_program = $session->{pgms}->[$pgm_idx];
 #  print "processing program in session context\n".Dumper($session);
@@ -114,6 +116,7 @@ sub toggle_program_in_session {
 
 sub start_session {
   my ($self, $session_name) = @_;
+  $self->check_config();
 #  print "starting session $session_name\n";
   my $sessions = $self->get('-sessions');
   my $session = $sessions->{$session_name};
@@ -138,6 +141,25 @@ sub get_session_program_status {
   my $session = $self->get('-sessions')->{$session_name};
   my $session_program = $session->{pgms}->[$pgm_idx];
   return (defined $session_program->{pid});
+}
+
+
+#
+# check if the config file has been modified since we parsed it and
+# eventually reread it
+#
+sub check_config {
+  my ($self) = @_;
+  my $cfg_file = $self->get('-config_file');
+  my ($dev,$ino,$mode,$nlink,$uid,$gid,$rdev,$size,
+      $atime,$mtime,$ctime,$blksize,$blocks)
+    = stat($cfg_file);
+
+  if (not exists $self->{last_cfg_read_time} or $mtime > $self->{last_cfg_read_time}) {
+    print("(re) reading config\n");
+    $self->read_cfg($cfg_file);
+    $self->{last_cfg_read_time} = $mtime;
+  }
 }
 
 sub xml_parse_args {

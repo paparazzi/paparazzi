@@ -61,7 +61,7 @@ ignutm.opt : latlong.cmx ignutm.ml
 utm_of.opt : latlong.cmx utm_of.ml
 	$(OCAMLOPT) -o $@ $^
 
-GTKCFLAGS := -I /usr/lib/gtk-2.0/include -I/usr/include/gtk-2.0 -I/usr/include/atk-1.0 -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include -I/usr/include/pango-1.0
+GTKCFLAGS := -I /usr/lib/gtk-2.0/include -I/usr/include/gtk-2.0 -I/usr/include/atk-1.0 -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include -I/usr/include/pango-1.0 -I /usr/include/cairo
 # GTKCFLAGS := $(shell gtk-config --cflags)
 
 %.o   : %.c

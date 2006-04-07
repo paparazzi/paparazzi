@@ -35,7 +35,7 @@ print
   Tr(th(["Id", "Name", "Airframe", "Radio", "Flight plan"]));
 foreach my $ac (@{$configuration->{aircrafts}}) {
   print
-    Tr(td([$ac->{ac_id}, $ac->{name}, 
+    Tr(td([$ac->{ac_id}, $ac->{name},
 	   a({href=>"../conf/$ac->{airframe}"}, foo($ac->{airframe}) ),
 	   a({href=>"../conf/$ac->{radio}"}, foo($ac->{radio}) ),
 	   a({href=>"../conf/$ac->{flight_plan}"}, foo($ac->{flight_plan}) )]));

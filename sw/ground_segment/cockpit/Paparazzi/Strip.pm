@@ -31,7 +31,6 @@ use Subject;
 use Tk;
 use Tk::Zinc;
 
-use XML::DOM;
 use Data::Dumper;
 
 use strict;
@@ -40,10 +39,18 @@ use warnings;
 use Paparazzi::Traces;
 use Paparazzi::Utils;
 use Paparazzi::GuiConfig;
+use Paparazzi::SimpleLinearGauge;
 
-# populate:
-#   this sub is the subject constructor method
-############################################################################## 
+
+my $modes_data = 
+    {
+     ap_mode => { 'MANUAL' => 'sienna', 'AUTO1' => 'blue', 'AUTO2' => 'brown', 'HOME' => 'red'},
+     rc_status => {'OK' => 'brown', 'LOST' => 'orange', 'REALLY_LOST' => 'red'},
+     rc_mode   => {'AUTO'=> 'orange', 'MANUAL' => 'brown', 'FAILSAFE' => 'red'},
+     contrast_status => {'DEFAULT' => 'orange', 'WAITING' => 'brown', 'SET' => 'green'},
+     gps_mode => {'NOFIX' => 'red', 'DRO' => 'red', '2D' => 'orange', '3D' => 'brown', 'GPSDRO' => 'red'},
+    };
+
 sub populate {
   my ($self, $args) = @_;
   $self->SUPER::populate($args);
@@ -57,23 +64,11 @@ sub populate {
 		   );
 }
 
-# completeinit:
-#   this sub complete the init of subject object
-##############################################################################
 sub completeinit {
   my $self = shift;
   $self->SUPER::completeinit();
 
   my $zinc = $self->get(-zinc);
-
-  $self->{new_modes} = 
-    {
-     ap_mode => { 'MANUAL' => 'sienna', 'AUTO1' => 'blue', 'AUTO2' => 'brown', 'HOME' => 'red'},
-     rc_status => {'OK' => 'brown', 'LOST' => 'orange', 'REALLY_LOST' => 'red'},
-     rc_mode   => {'AUTO'=> 'orange', 'MANUAL' => 'brown', 'FAILSAFE' => 'red'},
-     contrast_status => {'DEFAULT' => 'orange', 'WAITING' => 'brown', 'SET' => 'green'},
-     gps_mode => {'NOFIX' => 'red', 'DRO' => 'red', '2D' => 'orange', '3D' => 'brown', 'GPSDRO' => 'red'},
-    };
 
   $self->{frame} = undef;
   $self->{frame_clip} = undef;
@@ -103,13 +98,15 @@ sub completeinit {
 # draw
 #   draw elements of the strip
 ##############################################################################
+
+use constant MARGIN => 3;
 sub draw {
   my $self = shift;
   my $zinc = $self->get(-zinc);
   my $ident = $self->get(-aircraft)->get('-ac_id');
   my ($x, $y) = @{$self->get('-origin')};
-  my $width = 300;
-
+  my $width = $self->get('-width');
+  my $height = $self->get('-height');
 
   ## main group of the strip
   $self->{topgroup} = $zinc->add('group', scalar $self->get('-parent_grp'), -sensitive => 1,
@@ -117,9 +114,18 @@ sub draw {
   $self->{contentgroup} = $zinc->add('group', $self->{topgroup}, -composealpha=>0, -sensitive=>1);
 
   ## the strip
-  $self->{frame} = $zinc->add('rectangle', $self->{topgroup}, [5,5,$width, 95], -fillcolor => $self->{options}->{background_color}, -filled=>1, -linecolor => $self->{options}->{border_color}, -sensitive => 1, -tags => ["strip_".$ident]);
+  my ($actual_width, $actual_height) = ($width - 2 * MARGIN, $height - 2 * MARGIN);
+  my $strip_rect= [MARGIN, MARGIN, $actual_width , $actual_height];
+  $self->{frame} = $zinc->add('rectangle', $self->{topgroup},
+			      , $strip_rect,
+			      -fillcolor => $self->{options}->{background_color},
+			      -filled=>1, -linecolor => $self->{options}->{border_color},
+			      -sensitive => 1,
+			      -tags => ["strip_".$ident]
+			     );
   # cliping contour of the strip
-  $self->{frame_clip} = $zinc->add('rectangle', $self->{contentgroup}, [5,5,$width, 95], -visible=>0);
+  $self->{frame_clip} = $zinc->add('rectangle', $self->{contentgroup}, 
+				   $strip_rect, -visible=>0);
   $zinc->itemconfigure($self->{contentgroup}, -clip=> $self->{frame_clip});
   
   ## bindings to highlight the strip when the mouse is over
@@ -127,20 +133,26 @@ sub draw {
   $zinc->bind($self->{frame}, '<Leave>', sub { $zinc->itemconfigure($self->{frame}, -linecolor => 'sienna'); });
   $zinc->bind($self->{frame}, '<1>', [\&onStripPressed, $self, $ident]);
 
+  my @col_x = ($actual_width * 0.03, $actual_width * 0.23, $actual_width * 0.53);
+  my @row_y = ($actual_height * 0.03, $actual_height * 0.23, $actual_height * 0.36,
+	       $actual_height * 0.48, $actual_height * 0.61, $actual_height * 0.74);
+
   ## ident of the plane
-  $self->{ident} = $zinc->add('text', $self->{contentgroup}, -text => uc($ident), -position=>[10,10], -font => $self->{options}->{normal_font}, -color => "midnightblue");
+  $self->{ident} = $zinc->add('text', $self->{contentgroup}, -text => uc($ident),
+			      -position=>[$col_x[0],$row_y[0]], -font => $self->{options}->{normal_font},
+			      -color => "midnightblue");
   
-  my @label_attr = (['AP',  'ap_mode',          70,  10],
-		    ['RC',  'rc_status',        70,  22],
-		    ['GPS', 'gps_mode',         70,  34],
-		    ['Wind','dir',              70,  46],
-		    ['     ', 'wspeed',         70,  58],
-		    ['Mas', 'mean_aspeed',      70,  70],
-		    ['alt:',  'alt',            160, 10],
-		    ['desired:','target_alt',   160, 22],
-		    ['throttle:',  'throttle',  160, 34],
-		    ['speed:',  'speed',        160, 46],
-		    ['climb:',  'climb',        160, 58],
+  my @label_attr = (['AP',  'ap_mode',          $col_x[1], $row_y[0]],
+		    ['RC',  'rc_status',        $col_x[1], $row_y[1]],
+		    ['GPS', 'gps_mode',         $col_x[1], $row_y[2]],
+		    ['Wind','dir',              $col_x[1], $row_y[3]],
+		    ['     ', 'wspeed',         $col_x[1], $row_y[4]],
+		    ['Mas', 'mean_aspeed',      $col_x[1], $row_y[5]],
+		    ['alt:',  'alt',            $col_x[2], $row_y[0]],
+		    ['desired:','target_alt',   $col_x[2], $row_y[1]],
+		    ['throttle:',  'throttle',  $col_x[2], $row_y[2]],
+		    ['speed:',  'speed',        $col_x[2], $row_y[3]],
+		    ['climb:',  'climb',        $col_x[2], $row_y[4]],
 		   );
   foreach my $attr (@label_attr) {
     $self->add_label($attr->[0], $attr->[1], $attr->[2], $attr->[3]);
@@ -160,9 +172,15 @@ sub draw {
   $self->{zinc_bat_value} = $zinc->add('text', $self->{contentgroup}, -text => sprintf("%s",$self->{battery}), -position=>[12,40], -font => $self->{options}->{small_font});
 
 
+#  my $bat_gauge = Paparazzi::SimpleLinearGauge->new(-zinc => $zinc, -parent_grp => $self->{contentgroup},
+#						    -origin => [10,25], -width => 30, -height => 60 );
+  
+
   $zinc->translate($self->{topgroup}, $x, $y);
   $zinc->raise($self->{topgroup});
   $zinc->raise($self->{contentgroup});
+
+  
 
   return $self->{topgroup};
 }
@@ -231,17 +249,15 @@ sub attach_to_aircraft {
   }
 }
 
-
 sub get_color {
   my ($self, $mode, $value) = @_;
-  if (defined $self->{new_modes}->{$mode}->{$value}) {
-    return $self->{new_modes}->{$mode}->{$value};
+  if (defined $modes_data->{$mode}->{$value}) {
+    return $modes_data->{$mode}->{$value};
   }
   else {
     return 'black';
   }
 }
-
 
 sub aircraft_config_changed {
   my ($self, $aircraft, $event, $new_value) = @_;

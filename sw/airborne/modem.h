@@ -61,12 +61,12 @@ extern uint8_t ck_a, ck_b;
 
 #if TX_BUF_SIZE == 256
 #define UPDATE_HEAD() {			   \
-  tx_head++;				   \
-  if (tx_head >= TX_BUF_SIZE) tx_head = 0; \
+    tx_head++;				   \
 }
 #else
 #define UPDATE_HEAD() {			   \
-    tx_head++;				   \
+  tx_head++;				   \
+  if (tx_head >= TX_BUF_SIZE) tx_head = 0; \
 }
 #endif
 

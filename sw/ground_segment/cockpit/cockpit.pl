@@ -41,6 +41,8 @@ my $options =
    render => 1,
    vertical => 0,
    tracelevel => 1,
+   width => 250,
+   height => 750,
   };
 
 sub populate {
@@ -81,17 +83,17 @@ sub on_new_aircraft {
 sub build_gui {
   my ($self) = @_;
   $self->{mw} = MainWindow->new();
-  my $size = 250;
+  my $size = $options->{width};
   my $top_frame =  $self->{mw}->Frame()->pack(-side => 'top', -fill => 'both');
   my ($stp_p, $stp_w, $stp_h) = ([0, 0],                   $size, $size);
   my ($pfd_p, $pfd_w, $pfd_h) = ([$stp_w, 0]             , $size, $size);
   my ($nd_p,  $nd_w,  $nd_h) =  ([$pfd_p->[0]+ $pfd_w, 0], $size, $size);
-  my ($z_w, $z_h) = ($stp_w + $pfd_w + $nd_w, $nd_h);
+  my ($z_w, $z_h) = ($stp_w + $pfd_w + $nd_w, $size);
   
   if ($options->{vertical}) {
     ($pfd_p, $pfd_w, $pfd_h) = ([0, $stp_h] , $size, $size);
     ($nd_p,  $nd_w,  $nd_h) =  ([0, $pfd_p->[1]+ $pfd_h], $size, $size);
-    ($z_w, $z_h) = ($stp_w, $stp_h + $pfd_h + $nd_h)
+    ($z_w, $z_h) = ($size, $stp_h + $pfd_h + $nd_h)
   }
   
   my $zinc = $top_frame->Zinc(-width => $z_w ,
