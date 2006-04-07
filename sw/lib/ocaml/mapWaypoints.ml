@@ -76,25 +76,30 @@ class waypoint = fun (group:group) (name :string) ?(alt=0.) wgs84 ->
     method edit =
       let dialog = GWindow.window ~border_width:10 ~title:"Waypoint Edit" () in
       let dvbx = GPack.box `VERTICAL ~packing:dialog#add () in
+
       let wgs84 = self#pos in
       let s = sprintf "WGS84 %s" (geomap#geo_string wgs84) in
       let ename  = GEdit.entry ~text:name ~editable:false ~packing:dvbx#add () in
       let e_pos  = GEdit.entry ~text:s ~packing:dvbx#add () in
       let ea  = GEdit.entry ~text:(string_of_float alt) ~packing:dvbx#add () in
-      let cancel = GButton.button ~label:"Cancel" ~packing: dvbx#add () in 
-      let ok = GButton.button ~label:"OK" ~packing: dvbx#add () in
-      ignore(cancel#connect#clicked ~callback:dialog#destroy);
-      ignore(ok#connect#clicked ~callback:
-	       begin fun _ ->
-		 self#set_name ename#text;
-		 alt <- float_of_string ea#text;
-		 label#set [`TEXT name];
-		 self#set (LL.of_string e_pos#text);
-		 updated ();
-		 dialog#destroy ()
-	       end);
-      dialog#show ()
 
+      let callback = fun _ ->
+	self#set_name ename#text;
+	alt <- float_of_string ea#text;
+	label#set [`TEXT name];
+	self#set (LL.of_string e_pos#text);
+	updated ();
+	dialog#destroy () in
+
+      let cancel = GButton.button ~stock:`CANCEL ~packing: dvbx#add () in 
+      ignore(cancel#connect#clicked ~callback:dialog#destroy);
+
+      let ok = GButton.button ~stock:`OK ~packing: dvbx#add () in
+      List.iter (fun e -> ignore (e#connect#activate ~callback)) 
+	[ename; e_pos; ea];
+      ok#grab_default ();
+      ignore(ok#connect#clicked ~callback:dialog#destroy);
+      dialog#show ()
 
 
     method event (ev : GnoCanvas.item_event) =

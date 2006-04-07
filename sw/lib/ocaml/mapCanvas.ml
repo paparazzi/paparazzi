@@ -56,6 +56,14 @@ let string_of_projection = function
 
 let mercator_coeff = 5e6
 
+let my_check_menu_item = fun label ~active ~callback ~packing () ->
+  let mi = GMenu.check_menu_item ~label ~active ~packing () in
+  ignore (mi#connect#toggled ~callback:(fun () -> callback mi#active))
+
+let my_menu_item = fun label ~callback ~packing () ->
+  let mi = GMenu.check_menu_item ~label ~packing () in
+  ignore (mi#connect#activate ~callback)
+
 
 (** basic canvas with menubar **************************************
  * (the vertical display in map2.ml is an instance of basic_widget)*
@@ -147,6 +155,7 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
     method canvas = canvas
     method frame = frame
     method factory = factory
+    method menubar = menubar
     method file_menu = file_menu
     method window_to_world = canvas#window_to_world
     method root = canvas#root
@@ -411,7 +420,6 @@ class widget =  fun ?(height=800) ?width ?projection ?georef () ->
     val mutable lbl_geo = GMisc.label  ~height:50 ()
     val mutable lbl_alt =  GMisc.label  ~height:50 ()
     val mutable lbl_group = GMisc.label  ~height:50 ()   
-    val mutable menu_fact = new GMenu.factory (GMenu.menu ())
     val mutable utm_grid_group = None
 
     method pack_labels =
@@ -422,12 +430,10 @@ class widget =  fun ?(height=800) ?width ?projection ?georef () ->
       
     initializer (
       self#pack_labels;
-     (*** menu_fact#destroy (); ***)
       self#file_menu#append (srtm :> GMenu.menu_item);
-      menu_fact <- new GMenu.factory self#file_menu;
-      ignore (menu_fact#add_check_item "UTM Grid" ~active:false ~callback:self#switch_utm_grid);
-      ignore (menu_fact#add_check_item "Background" ~active:true ~callback:self#switch_background);
-      ignore (menu_fact#add_item "Goto" ~callback:self#goto);
+      my_check_menu_item "UTM Grid" ~active:false ~callback:self#switch_utm_grid ~packing:self#file_menu#append ();
+      my_check_menu_item "Background" ~active:true ~callback:self#switch_background ~packing:self#file_menu#append ();
+      my_menu_item "Goto" ~callback:self#goto ~packing:self#file_menu#append ();
      )
 
     method switch_utm_grid = fun flag ->
@@ -463,8 +469,6 @@ class widget =  fun ?(height=800) ?width ?projection ?georef () ->
 		utm_grid_group <- Some g
 	  | Some g -> if flag then g#show () else g#hide ()
 	      
-    method menu_fact = menu_fact
-	
     (** ground altitude extraction from srtm data *)
     method altitude = fun wgs84 ->
       try

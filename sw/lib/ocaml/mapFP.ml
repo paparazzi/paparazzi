@@ -108,6 +108,11 @@ let rec new_gensym = fun p l ->
   let s = gensym p in
   if List.mem s l then new_gensym p l else s
 
+let georef_of_xml = fun xml ->
+  let lat0 = float_attr xml "lat0"
+  and lon0 = float_attr xml "lon0" in
+  {posn_lat = (Deg>>Rad)lat0; posn_long = (Deg>>Rad)lon0 }
+
  
 class flight_plan = fun geomap color fp_dtd xml ->
   (** Xml Editor *)
@@ -116,10 +121,8 @@ class flight_plan = fun geomap color fp_dtd xml ->
   let xml_wpts = XmlEdit.child xml_root "waypoints" in
 
   (** Geographic ref *)
-  let lat0 = float_attr xml "lat0"
-  and lon0 = float_attr xml "lon0"
-  and alt = float_attr xml "alt" in
-  let ref_wgs84 = {posn_lat = (Deg>>Rad)lat0; posn_long = (Deg>>Rad)lon0 } in
+  let alt = float_attr xml "alt" in
+  let ref_wgs84 = georef_of_xml xml in
   let utm0 = utm_of WGS84 ref_wgs84 in
 
   (** The graphical waypoints *)

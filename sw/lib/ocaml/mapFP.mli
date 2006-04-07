@@ -43,3 +43,6 @@ class flight_plan :
     method xml : Xml.xml
     method insert_path : (MapWaypoints.waypoint * float) list -> unit
   end
+
+(** Extracts [lat0] and [Lon0] attributes *)
+val georef_of_xml : Xml.xml -> Latlong.geographic
