@@ -547,7 +547,10 @@ let button_press = fun (geomap:G.widget) ev ->
       fp_group : MapFP.flight_plan;
       fp : Xml.xml;
       dl_settings_window : GWindow.window;
-      dl_settings_adjustments : float array
+      dl_settings_adjustments : float array;
+      block_label : GMisc.label;
+      apmode_label : GMisc.label;
+      blocks : (int * string) list
     }
 
   let live_aircrafts = Hashtbl.create 3
@@ -664,42 +667,72 @@ let button_press = fun (geomap:G.widget) ev ->
     let w = ac.dl_settings_window in
     if x then w#show () else w#misc#hide ();;
 
+let blocks_of_stages = fun stages ->
+  let blocks = ref [] in
+  List.iter (fun x ->
+    let name = ExtXml.attrib x "block_name"
+    and id = int_attr x "block" in
+    if not (List.mem_assoc id !blocks) then
+      blocks := (id, name) :: !blocks)
+    (Xml.children stages);
+  List.sort compare !blocks
+
+let menu_entry_of_block = fun ac (id, name) ->
+  let send_msg = fun () ->
+    Ground_Pprz.message_send "map2d" "JUMP_TO_BLOCK" 
+      ["ac_id", Pprz.String ac; "block_id", Pprz.Int id] in
+  `I (name, send_msg)
+
 
 let create_ac = fun (geomap:G.widget) ac_id config ->
   let color = Pprz.string_assoc "default_gui_color" config
   and name = Pprz.string_assoc "ac_name" config in
-  let ac_menu = geomap#factory#add_submenu name in
+
+  (** Get the flight plan **)
+  let fp_url = Pprz.string_assoc "flight_plan" config in
+  let fp_file = Http.file_of_url fp_url in
+  let fp_xml_dump = Xml.parse_file fp_file in
+  let stages = ExtXml.child fp_xml_dump "stages" in
+  let blocks = blocks_of_stages stages in
+
+  let label = GPack.hbox ~spacing:3 () in
+  let eb = GBin.event_box ~width:10 ~height:10 ~packing:label#pack () in
+  eb#coerce#misc#modify_bg [`NORMAL, `NAME color];
+  let ac_label = GMisc.label ~text:name ~packing:label#pack () in
+  let apmode_label = GMisc.label ~packing:label#pack () in
+  let block_label = GMisc.label ~packing:label#pack () in
+
+  let ac_mi = GMenu.image_menu_item ~image:label ~packing:geomap#menubar#append () in
+  let ac_menu = GMenu.menu () in
+  ac_mi#set_submenu ac_menu;
   let ac_menu_fact = new GMenu.factory ac_menu in
   let fp = ac_menu_fact#add_check_item "Fligh Plan" ~active:false in
   ignore (fp#connect#toggled (fun () -> show_mission ac_id fp#active));
-  ignore (ac_menu_fact#add_check_item "Datalink Settings" ~callback:(active_dl_settings ac_id));
   
   let track = new MapTrack.track ~name ~color:color geomap in
 
   ignore (ac_menu_fact#add_item "Center A/C" ~callback:(center geomap track));
   
-  let eb = GBin.event_box ~width:10 ~height:10 () in
-  eb#coerce#misc#modify_bg [`NORMAL, `NAME color];
-  let _col_menu = ac_menu_fact#add_image_item ~label:"Color" ~image:eb#coerce ~callback:(fun () -> () (*** TO FIX colorsel track eb#coerce***) ) () in
   ignore (ac_menu_fact#add_item "Clear Track" ~callback:(fun () -> track#clear_map2D));
   ignore (ac_menu_fact#add_item "Resize Track" ~callback:(fun () -> resize_track ac_id track));
-  ignore (ac_menu_fact#add_item "Commit Moves" ~callback:(fun () -> commit_changes ac_id));
-  ignore (ac_menu_fact#add_item "Event 1" ~callback:(fun () -> send_event ac_id 1));
-  ignore (ac_menu_fact#add_item "Event 2" ~callback:(fun () -> send_event ac_id 2));
+
+  let jump_block_entries = List.map (menu_entry_of_block ac_id) blocks in
+  
+  let sm = ac_menu_fact#add_submenu "Datalink" in
+  let dl_menu = [
+    `M ("Jump to block", jump_block_entries);
+    `I ("Commit Moves", (fun () -> commit_changes ac_id));
+    `I ("Event 1", (fun () -> send_event ac_id 1));
+    `I ("Event 2", (fun () -> send_event ac_id 2));
+    `C ("Settings", false, (active_dl_settings ac_id))] in
+
+  GToolbox.build_menu sm ~entries:dl_menu;
+
   let cam = ac_menu_fact#add_check_item "Cam Display" ~active:false in
   ignore (cam#connect#toggled (fun () -> track#set_cam_state cam#active));
   let params = ac_menu_fact#add_check_item "flight param. display" ~active:false in
   ignore (params#connect#toggled (fun () -> track#set_params_state params#active));
-  let event_ac = fun e ->
-    match e with
-      `BUTTON_PRESS _ | `BUTTON_RELEASE _ -> 
-	Ground_Pprz.message_send "ground" "SELECTED" ["aircraft_id", Pprz.String ac_id];
-	true
-    | _ -> false in
-  ignore (track#aircraft#connect#event event_ac);
-  let fp_url = Pprz.string_assoc "flight_plan" config in
-  let fp_file = Http.file_of_url fp_url in
-  let fp_xml_dump = Xml.parse_file fp_file in
+
   let fp_xml = ExtXml.child fp_xml_dump "flight_plan" in
 
   let ds_window, ds_adjs = dl_settings ac_id fp_xml in
@@ -710,7 +743,11 @@ let create_ac = fun (geomap:G.widget) ac_id config ->
 				     fp_group = fp ; config = config ; 
 				     fp = fp_xml;
 				     dl_settings_adjustments = ds_adjs;
-				     dl_settings_window = ds_window}
+				     dl_settings_window = ds_window;
+				     block_label = block_label;
+				     apmode_label = apmode_label;
+				     blocks = blocks
+				   }
     
 
 let ask_config = fun geomap ac ->
@@ -768,7 +805,10 @@ let listen_flight_params = fun () ->
       let ac = Hashtbl.find live_aircrafts ac_id in
       let a = fun s -> Pprz.float_assoc s vs in
       let wgs84 = { posn_lat = (Deg>>Rad)(a "target_lat"); posn_long = (Deg>>Rad)(a "target_long") } in
-      carrot_pos_msg ac.track wgs84
+      carrot_pos_msg ac.track wgs84;
+      let b = List.assoc (Pprz.int_assoc "cur_block" vs) ac.blocks in
+      let b = String.sub b 0 (min 10 (String.length b)) in
+      ac.block_label#set_label b
     with Not_found -> ()
   in
   ignore (Ground_Pprz.message_bind "NAV_STATUS" get_ns);
@@ -812,7 +852,8 @@ let listen_flight_params = fun () ->
     let ac_id = Pprz.string_assoc "ac_id" vs in
     try
       let ac = Hashtbl.find live_aircrafts ac_id in
-      ap_status_msg ac.track ( float_of_int (Pprz.int32_assoc "flight_time" vs ))
+      ap_status_msg ac.track ( float_of_int (Pprz.int32_assoc "flight_time" vs ));
+      ac.apmode_label#set_label (Pprz.string_assoc "ap_mode" vs)
     with 
       Not_found -> ()
   in
@@ -915,14 +956,14 @@ let _main =
   ignore (fp_menu_fact#add_item "Save flight plan" ~key:GdkKeysyms._S ~callback:(Edit.save_fp));
   ignore (fp_menu_fact#add_item "Close flight plan" ~key:GdkKeysyms._W ~callback:(Edit.close_fp));
 
-  (** Separate from A/C menus *)
-  ignore (geomap#factory#add_separator ());
-
   (** Help pushed to the right *)
   let mi = GMenu.menu_item ~label:"Help" ~right_justified:true ~packing:geomap#menubar#append () in
   let help_menu = GMenu.menu () in
   GToolbox.build_menu help_menu ~entries:[`I ("Keys", keys_help)];
   mi#set_submenu help_menu;
+
+  (** Separate from A/C menus *)
+  ignore (geomap#factory#add_separator ());
 
   (** Pack the canvas in the window *)
   vbox#pack ~expand:true geomap#frame#coerce;
