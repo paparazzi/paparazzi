@@ -33,18 +33,7 @@
   </include>
   <blocks>
     <block NAME="init">
-      <path radius="40">
-        <path_point wp="HOME"/>
-        <path_point wp="wp1"/>
-        <path_point wp="wp2"/>
-        <path_point wp="wp3"/>
-        <path_point wp="wp4"/>
-        <path_point wp="wp5"/>
-        <path_point wp="wp6"/>
-        <path_point wp="wp7"/>
-        <path_point wp="wp8"/>
-      </path>
-      <deroute block="zz.target"/>
+      <deroute block="zz.takeoff"/>
     </block>
     <block NAME="follow">
       <follow AC_ID="1" DISTANCE="25" CAM_MODE="follow" CAM_AC_TARGET="1" HEIGHT="25"/>
