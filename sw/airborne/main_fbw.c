@@ -25,7 +25,7 @@
 #include "main_fbw.h"
 #include "int.h"
 #include "sys_time.h"
-#include "command.h"
+#include "actuators.h"
 #include "ppm.h"
 #include "inter_mcu.h"
 

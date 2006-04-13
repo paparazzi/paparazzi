@@ -1,5 +1,5 @@
-#ifndef SERVOS_H
-#define SERVOS_H
+#ifndef SERVOS_4015_HW_H
+#define SERVOS_4015_HW_H
 
 #include "std.h"
 #include "LPC21xx.h"
@@ -38,4 +38,4 @@ static inline void command_init ( void ) {
   command_set(failsafe_values); 
 }
 
-#endif /* SERVOS_H */
+#endif /* SERVOS_4015_HW_H */
