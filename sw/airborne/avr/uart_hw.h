@@ -35,6 +35,8 @@
 #include <avr/interrupt.h>
 #include "std.h"
 
+
+/************************************************************************/
 #if defined  (__AVR_ATmega8__)
 
 #define ReceiveUart(cb) \
@@ -46,6 +48,7 @@
 #endif /* (__AVR_ATmega8__) */
 
 
+/************************************************************************/
 #if defined  (__AVR_ATmega128__)
 
 #define ReceiveUart0(cb) \

@@ -28,7 +28,6 @@
 #include "actuators.h"
 #include "commands.h"
 #include "ppm.h"
-#include "inter_mcu.h"
 
 #include "led.h"
 #include "uart.h"
@@ -53,9 +52,8 @@ struct adc_buf vsupply_adc_buf;
 
 
 static uint8_t mode;
-static uint8_t time_since_last_ap;
 static uint16_t time_since_last_ppm;
-static bool_t radio_ok, ap_ok, radio_really_lost, failsafe_mode;
+static bool_t radio_ok, radio_really_lost, failsafe_mode;
 
 static pprz_t rc_values[ PPM_NB_PULSES ];
 static pprz_t avg_rc_values[ PPM_NB_PULSES ];
@@ -67,38 +65,8 @@ static uint8_t ppm_cpt, last_ppm_cpt;
 #define REALLY_STALLED_TIME 300 // 5s with a 60Hz timer
 
 
-/* Prepare data to be sent to mcu0 */
-static inline void to_autopilot_from_rc_values (void) {
-  struct from_fbw_msg *msg = &(from_fbw.from_fbw);
-
-  uint8_t i;
-  for(i = 0; i < RADIO_CTL_NB; i++)
-    msg->channels[i] = rc_values[i];
-
-  uint8_t status;
-  status = (radio_ok ? _BV(STATUS_RADIO_OK) : 0);
-  status |= (radio_really_lost ? _BV(RADIO_REALLY_LOST) : 0);
-  status |= (mode == FBW_MODE_AUTO ? _BV(STATUS_MODE_AUTO) : 0);
-  status |= (failsafe_mode ? _BV(STATUS_MODE_FAILSAFE) : 0);
-  msg->status  = status;
-
-  if (rc_values_contains_avg_channels) {
-    msg->status |= _BV(AVERAGED_CHANNELS_SENT);
-    rc_values_contains_avg_channels = FALSE;
-  }
-  msg->ppm_cpt = last_ppm_cpt;
-  msg->vsupply = VoltageOfAdc(vsupply_adc_buf.sum/vsupply_adc_buf.av_nb_sample) * 10;
-#if defined IMU_3DMG || defined IMU_ANALOG
-  msg->euler_dot[0] = roll_dot;
-  msg->euler_dot[1] = pitch_dot;
-  msg->euler_dot[2] = yaw_dot;
-#endif
-#ifdef IMU_3DMG
-  msg->euler[0] = roll;
-  msg->euler[1] = pitch;
-  msg->euler[2] = yaw;
-#endif
-}
+#include "inter_mcu.h"
+#include "inter_mcu_fbw.h"
 
 
 #define RC_AVG_PERIOD 8
@@ -196,14 +164,9 @@ void event_task_fbw( void) {
   }
 #endif
 
-  if (from_ap_receive_valid) {
-    time_since_last_ap = 0;
-    ap_ok = TRUE;
-    if (mode == FBW_MODE_AUTO) {
-      SetCommands(from_ap.from_ap.channels);
-    }
-    to_autopilot_from_rc_values();
-  }
+#ifdef INTER_MCU
+  inter_mcu_event_task();
+#endif
 
 #ifdef IMU_3DMG
   if (_3dmg_data_ready) {
@@ -219,13 +182,12 @@ void event_task_fbw( void) {
     radio_really_lost = TRUE;
   }
 
-  if (time_since_last_ap == STALLED_TIME) {
-    ap_ok = FALSE;
-  }
-  
   failsafe_mode = FALSE;
-  if ((mode == FBW_MODE_MANUAL && !radio_ok) ||
-      (mode == FBW_MODE_AUTO && !ap_ok)) {
+  if ((mode == FBW_MODE_MANUAL && !radio_ok)
+#ifdef INTER_MCU
+      || (mode == FBW_MODE_AUTO && !ap_ok)
+#endif
+      ) {
     failsafe_mode = TRUE;
     SetCommands(commands_failsafe);
   }
@@ -253,8 +215,9 @@ void periodic_task_fbw( void ) {
     ppm_cpt = 0;
   }
 
-  if (time_since_last_ap < STALLED_TIME)
-    time_since_last_ap++;
+#ifdef INTER_MCU
+  inter_mcu_periodic_task();
+#endif
 
   if (time_since_last_ppm < REALLY_STALLED_TIME)
     time_since_last_ppm++;

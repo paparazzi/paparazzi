@@ -77,30 +77,6 @@ void uart0_transmit( unsigned char data ) {
   }
 }
 
-void uart0_print_hex ( uint8_t c ) {
-  const uint8_t hex[16] = { '0', '1', '2', '3', '4', '5', '6', '7', 
-                            '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
-  uint8_t high = (c & 0xF0)>>4;
-  uint8_t low  = c & 0x0F;
-  uart0_transmit(hex[high]);
-  uart0_transmit(hex[low]);
-} 
-
-void uart0_print_hex16 ( uint16_t c ) {
-  uint8_t high = (uint8_t)(c>>8);
-  uint8_t low  = (uint8_t)(c);
-  uart0_print_hex(high);
-  uart0_print_hex(low);
-}
-
-void uart0_print_string(const uint8_t* s) {
-  uint8_t i = 0;
-  while (s[i]) {
-    uart0_transmit(s[i]);
-    i++;
-  }
-}
-
 SIGNAL(SIG_UART_TRANS) {
   if (tx_head == tx_tail) {
     /* Nothing more to send */
@@ -155,37 +131,6 @@ void uart1_transmit( unsigned char data ) {
   }
 }
 
-
-void uart0_print_string(const uint8_t* s) {
-  uint8_t i = 0;
-  while (s[i]) {
-    uart0_transmit(s[i]);
-    i++;
-  }
-}
-
-void uart0_print_hex(const uint8_t c) {
-  const uint8_t hex[16] = { '0', '1', '2', '3', '4', '5', '6', '7', 
-                            '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
-  uint8_t high = (c & 0xF0)>>4;
-  uint8_t low  = c & 0x0F;
-  uart0_transmit(hex[high]);
-  uart0_transmit(hex[low]);
-}
-
-void uart0_print_hex16 ( uint16_t c ) {
-  uint8_t high = (uint8_t)(c>>8);
-  uint8_t low  = (uint8_t)(c);
-  uart0_print_hex(high);
-  uart0_print_hex(low);
-}
-
-void uart0_print_hex32 ( uint32_t ui32 ) {
-  uint16_t high = (uint16_t)(ui32>>16);
-  uint16_t low  = (uint16_t)(ui32);
-  uart0_print_hex16(high);
-  uart0_print_hex16(low);
-}
 
 SIGNAL(SIG_UART0_TRANS) {
   if (tx_head0 == tx_tail0) {
