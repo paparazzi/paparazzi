@@ -9,13 +9,29 @@
     <servo name="AILEVON_RIGHT"  no="1" min="1200" neutral="1425" max="2000"/>
     <servo name="AILEVON_LEFT" no="2" min="1200" neutral="1520" max="2000"/>
   </servos>
-  <command>
+
+  <commands>
+    <axis name="THROTTLE" failsafe_value="0"/>
+    <axis name="ROLL"     failsafe_value="0"/>
+    <axis name="PITCH"    failsafe_value="0"/>
+    <axis name="YAW"    failsafe_value="0"/>
+  </commands>
+
+  <rc_commands>
+    <set command="THROTTLE" value="@THROTTLE"/>
+    <set command="ROLL" value="@ROLL"/>
+    <set command="PITCH" value="@PITCH"/>
+    <set command="YAW" value="@YAW"/>
+  </rc_commands>
+
+  <command_laws>
     <set servo="GAZ" value="2 * @THROTTLE"/>
     <let var="aileron" value="@ROLL * AILEVON_AILERON_RATE"/>
     <let var="elevator" value="@PITCH * AILEVON_ELEVATOR_RATE"/>
     <set servo="AILEVON_LEFT" value="$aileron + $elevator"/>
     <set servo="AILEVON_RIGHT" value="$aileron - $elevator"/>
-  </command>
+  </command_laws>
+
   <section name="MIXER">
     <define name="AILEVON_AILERON_RATE" value="0.55"/>
     <define name="AILEVON_ELEVATOR_RATE" value="0.75"/>
@@ -93,7 +109,8 @@
   <makefile>
 include $(PAPARAZZI_SRC)/conf/autopilot/v1_2.makefile
 
-ap.CFLAGS += -DINFRARED -DGPS -DUBX -DRADIO_CONTROL_CALIB
-ap.EXTRA_SRCS += if_calib.c
+ap.CFLAGS += -DINFRARED -DGPS -DUBX
+# -DRADIO_CONTROL_CALIB
+# ap.EXTRA_SRCS += if_calib.c
   </makefile>
 </airframe>

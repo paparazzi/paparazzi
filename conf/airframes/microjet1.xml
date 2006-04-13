@@ -101,7 +101,6 @@
 include $(PAPARAZZI_SRC)/conf/autopilot/v1_2.makefile
 
 ap.CFLAGS += -DGPS -DUBX -DINFRARED
-ap.CFLAGS += -Werror
 
   </makefile>
 </airframe>
