@@ -27,8 +27,8 @@
 <gui>
   <section name="default">
     <resource name="big_font"  value="9x15"/>
-    <resource name="normal_font"  value="8x13"/>
-    <resource name="small_font"  value="6x10"/>
+    <resource name="normal_font"  value="bleriot-radar-m12"/>
+    <resource name="small_font"  value="bleriot-radar-m8"/>
   </section>
   <section name="strip">
     <resource name="background_color" value="=axial -90 |bisque|sandybrown;70"/>
@@ -36,8 +36,8 @@
     <resource name="border_color" value="sienna"/>
     <resource name="label_color"  value="black"/>
     <resource name="value_color"  value="brown"/>
-    <resource name="normal_font"  value="8x13"/>
-    <resource name="small_font"  value="6x10"/>
+    <resource name="normal_font"  value="bleriot-radar-m10"/>
+    <resource name="small_font"   value="bleriot-radar-m8"/>
   </section>
 <!--  
   <section name="map">

@@ -358,7 +358,7 @@ $(OBJDIR)/%.o : %.c
 $(OBJDIR)/%.o : $(SRC_ARCH)/%.c
 	@echo
 	@echo $(MSG_COMPILING_ARM) $<
-	@$(CC) -c $(ALL_CFLAGS) $(CONLYFLAGS) $< -o $@ 
+	$(CC) -c $(ALL_CFLAGS) $(CONLYFLAGS) $< -o $@ 
 
 # grab files in var/$(AIRCRAFT)/$(TARGET) aka $(OBJDIR)
 $(OBJDIR)/%.o : $(OBJDIR)/%.c

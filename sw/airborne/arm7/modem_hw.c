@@ -9,8 +9,8 @@ uint8_t           tx_head;
 volatile uint8_t  tx_tail;
 uint8_t           tx_buf[ TX_BUF_SIZE ];
 uint8_t ck_a, ck_b;
-uint8_t    tx_byte;
-uint8_t    tx_bit_idx;
+uint8_t tx_byte;
+uint8_t tx_bit_idx;
 
 
 #define NB_STATE 2

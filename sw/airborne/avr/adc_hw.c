@@ -143,16 +143,14 @@ SIGNAL( SIG_ADC )
 
 
 
-void 
-adc_init( void )
-{
+void adc_init( void ) {
   uint8_t i;
   /* Ensure that our port is for input with no pull-ups */
-  ANALOG_PORT 	= 0x00;
-  ANALOG_PORT_DIR	= 0x00;
+  ANALOG_PORT = 0x00;
+  ANALOG_PORT_DIR = 0x00;
 
   /* Select our external voltage ref */
-  ADMUX		= ANALOG_VREF;
+  ADMUX	= ANALOG_VREF;
 
   /* Select out clock, turn on the ADC interrupt and start conversion */
   ADCSRA = 0

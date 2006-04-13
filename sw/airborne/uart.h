@@ -22,8 +22,8 @@
  *
  */
 
-#ifndef _UART_H_
-#define _UART_H_
+#ifndef UART_H
+#define UART_H
 
 #include <inttypes.h>
 
@@ -47,4 +47,4 @@ void uart1_transmit( unsigned char data );
 #define Uart0Init() { uart0_init_tx(); uart0_init_rx(); }
 #define Uart1Init() { uart1_init_tx(); uart1_init_rx(); }
 
-#endif
+#endif /* UART_H */
