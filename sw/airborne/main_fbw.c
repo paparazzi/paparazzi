@@ -268,5 +268,5 @@ void periodic_task_fbw( void ) {
   if (time_since_last_ppm < REALLY_STALLED_TIME)
     time_since_last_ppm++;
 
-  //  SetActuatorsFromCommands(commands);
+  SetActuatorsFromCommands(commands);
 }
