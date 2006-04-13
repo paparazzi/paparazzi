@@ -21,14 +21,32 @@
  * Boston, MA 02111-1307, USA. 
  *
  */
-/** \file uart_ap_hw.h
- *  \brief blableubli
+
+/** \file uart_hw.h
+ *  \brief blableublibloblu
  *
  */
+
+#ifndef UART_HW_H
+#define UART_HW_H
+
 #include <avr/io.h>
 #include <avr/signal.h>
 #include <avr/interrupt.h>
 #include "std.h"
+
+#if defined  (__AVR_ATmega8__)
+
+#define ReceiveUart(cb) \
+  SIGNAL( SIG_UART_RECV ) { \
+    uint8_t c = UDR; \
+    cb(c); \
+}
+
+#endif /* (__AVR_ATmega8__) */
+
+
+#if defined  (__AVR_ATmega128__)
 
 #define ReceiveUart0(cb) \
   SIGNAL( SIG_UART0_RECV ) { \
@@ -65,3 +83,7 @@ static inline uint8_t uart1Getch( void ) {
   uart1_char_available = FALSE;
   return uart1_char;
 }
+
+#endif /* (__AVR_ATmega128__) */
+
+#endif /* UART_HW_H */

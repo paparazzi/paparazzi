@@ -21,11 +21,100 @@
  * Boston, MA 02111-1307, USA. 
  *
  */
+
 #include <avr/signal.h>
 #include <avr/interrupt.h>
 #include <avr/io.h>
-#include "uart_ap.h"
+
+
 #include "std.h"
+#include "uart_hw.h"
+
+#if defined  (__AVR_ATmega8__)
+
+#define TX_BUF_SIZE      256
+static uint8_t           tx_head; /* next free in buf */
+static volatile uint8_t  tx_tail; /* next char to send */
+static uint8_t           tx_buf[ TX_BUF_SIZE ];
+
+/*
+ * UART Baud rate generation settings:
+ *
+ * With 16.0 MHz clock,UBRR=25  => 38400 baud
+ *
+ */
+void uart0_init_tx( void ) {
+  /* Baudrate is 38.4k */
+  UBRRH = 0; 
+  UBRRL = 25; 
+  /* single speed */ 
+  UCSRA = 0; 
+  /* Enable transmitter */ 
+  UCSRB = _BV(TXEN); 
+  /* Set frame format: 8data, 1stop bit */ 
+  UCSRC = _BV(URSEL) | _BV(UCSZ1) | _BV(UCSZ0); 
+}
+
+void uart0_init_rx( void ) {
+  /* Enable receiver               */ 
+  UCSRB |= _BV(RXEN); 
+  /* Enable uart receive interrupt */
+  sbi( UCSRB, RXCIE ); 
+}
+
+void uart0_transmit( unsigned char data ) {
+  if (UCSRB & _BV(TXCIE)) {
+    /* we are waiting for the last char to be sent : buffering */
+    if (tx_tail == tx_head + 1) { /* BUF_SIZE = 256 */
+      /* Buffer is full (almost, but tx_head = tx_tail means "empty" */
+      return;
+    }
+    tx_buf[tx_head] = data;
+    tx_head++; /* BUF_SIZE = 256 */
+  } else { /* Channel is free: just send */
+    UDR = data;
+    sbi(UCSRB, TXCIE);
+  }
+}
+
+void uart0_print_hex ( uint8_t c ) {
+  const uint8_t hex[16] = { '0', '1', '2', '3', '4', '5', '6', '7', 
+                            '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
+  uint8_t high = (c & 0xF0)>>4;
+  uint8_t low  = c & 0x0F;
+  uart0_transmit(hex[high]);
+  uart0_transmit(hex[low]);
+} 
+
+void uart0_print_hex16 ( uint16_t c ) {
+  uint8_t high = (uint8_t)(c>>8);
+  uint8_t low  = (uint8_t)(c);
+  uart0_print_hex(high);
+  uart0_print_hex(low);
+}
+
+void uart0_print_string(const uint8_t* s) {
+  uint8_t i = 0;
+  while (s[i]) {
+    uart0_transmit(s[i]);
+    i++;
+  }
+}
+
+SIGNAL(SIG_UART_TRANS) {
+  if (tx_head == tx_tail) {
+    /* Nothing more to send */
+    cbi(UCSRB, TXCIE); /* disable interrupt */
+  } else {
+    UDR = tx_buf[tx_tail];
+    tx_tail++; /* warning tx_buf_len is 256 */
+  }
+}
+
+#endif /*  (__AVR_ATmega8__) */
+
+
+#if defined (__AVR_ATmega128__)
 
 #define TX_BUF_SIZE      256
 static uint8_t           tx_head0; /* next free in buf */
@@ -146,12 +235,7 @@ void uart0_init_rx( void ) {
 void uart1_init( void ) {
   /* Baudrate is 38.4k */
   UBRR1H = 0; 
-#ifdef WAVECARD_ON_GPS
-  UBRR1L = 103; //9600
-#else
   UBRR1L = 25; // 38.4
-#endif
-
 
   /* single speed */ 
   UCSR1A = 0; 
@@ -171,3 +255,5 @@ SIGNAL( SIG_UART1_RECV ) {
   uart1_char = UDR1;
   uart1_char_available = TRUE;
 }
+
+#endif /* (__AVR_ATmega128__) */

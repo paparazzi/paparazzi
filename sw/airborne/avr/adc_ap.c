@@ -31,7 +31,7 @@
 #include <avr/io.h>
 #include "airframe.h"
 #include "std.h"
-#include "adc_ap.h"
+#include "adc.h"
 
 
 /*************************************************************************
