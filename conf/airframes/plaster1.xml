@@ -14,7 +14,7 @@
   </servos>
 
   <commands>
-    <axis name="THROTTLE" failsafe_value="100"/>
+    <axis name="THROTTLE" failsafe_value="0"/>
     <axis name="ROLL"     failsafe_value="0"/>
     <axis name="PITCH"    failsafe_value="0"/>
     <axis name="YAW"    failsafe_value="0"/>
@@ -28,7 +28,7 @@
   </rc_commands>
 
   <command_laws>
-    <set servo="GAZ" value="2 * @THROTTLE"/>
+    <set servo="GAZ" value="@THROTTLE"/>
     <let var="aileron" value="@ROLL * AILEVON_AILERON_RATE"/>
     <let var="elevator" value="@PITCH * AILEVON_ELEVATOR_RATE"/>
     <set servo="AILEVON_LEFT" value="$aileron + $elevator"/>

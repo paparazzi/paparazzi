@@ -252,14 +252,6 @@ void periodic_task_fbw( void ) {
     _1Hz = 0;
     last_ppm_cpt = ppm_cpt;
     ppm_cpt = 0;
-#ifdef DEBUG
-    uint8_t i;
-    for(i = 0; i < 4; i++) {
-      uart0_print_hex16(commands[i]);
-      uart0_print_string(" ");
-    }
-    uart0_print_string("\n");
-#endif
   }
 
   if (time_since_last_ap < STALLED_TIME)

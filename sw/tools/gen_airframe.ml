@@ -74,6 +74,8 @@ let parse_servo = fun c ->
   define (name^"_NEUTRAL") (sof neutral);
   define (name^"_TRAVEL_UP") (sof travel_up);
   define (name^"_TRAVEL_DOWN") (sof travel_down);
+  let min = Pervasives.min min max
+  and max = Pervasives.max min max in
   define (name^"_MAX") (sof max);
   define (name^"_MIN") (sof min);
   nl ()

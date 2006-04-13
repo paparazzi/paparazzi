@@ -28,7 +28,7 @@
   </rc_commands>
 
   <command_laws>
-    <set servo="GAZ" value="2 * @THROTTLE"/>
+    <set servo="GAZ" value="@THROTTLE"/>
     <let var="aileron" value="@ROLL * AILEVON_AILERON_RATE"/>
     <let var="elevator" value="@PITCH * AILEVON_ELEVATOR_RATE"/>
     <set servo="AILEVON_LEFT" value="$aileron + $elevator"/>
