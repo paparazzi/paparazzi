@@ -6,7 +6,7 @@
  *
  * paparazzi is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2, or (at your option)
+ * the Free Software Foundation; either version 2, or extern uint16_t servo_widths[_4017_NB_CHANNELS];(at your option)
  * any later version.
  *
  * paparazzi is distributed in the hope that it will be useful,

@@ -7,7 +7,7 @@ ap.ARCH = arm7tdmi
 ap.TARGET = autopilot
 ap.TARGETDIR = autopilot
 ap.CFLAGS += -DAP -DFBW -DCONFIG=\"config_tiny.h\" -DLED -DACTUATORS=\"servos_4015_hw.h\" 
-ap.srcs = sys_time.c main_fbw_2.c main_ap_2.c main.c $(SRC_ARCH)/armVIC.c $(SRC_ARCH)/servos_4015_hw.c
+ap.srcs = $(SRC_ARCH)/armVIC.c sys_time.c main_fbw.c main_ap.c main.c $(SRC_ARCH)/servos_4015_hw.c
 
 #ap.CFLAGS += -DMODEM
 # -DGPS -DUBX -DDOWNLINK

@@ -30,8 +30,6 @@
 #include "ppm.h"
 #include "inter_mcu.h"
 
-
-
 #include "led.h"
 #include "uart_fbw.h"
 

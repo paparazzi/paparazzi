@@ -25,6 +25,10 @@
 #include "armVIC.h"
 #endif
 
+void uart0_init_tx( void ) {
+  uart0Init(UART_BAUD(38400), UART_8N1, UART_FIFO_8);
+}
+
 #if UART0_SUPPORT
 #ifdef UART0_RX_INT_MODE
 uint8_t  uart0_rx_buffer[UART0_RX_BUFFER_SIZE];

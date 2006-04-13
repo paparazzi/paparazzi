@@ -38,22 +38,30 @@
 
  <makefile>
 include $(PAPARAZZI_SRC)/conf/autopilot/tiny_test.makefile
-ap.CFLAGS += -DTRACES=uart0
-ap.EXTRA_SRCS += $(SRC_ARCH)/traces.c $(SRC_ARCH)/uart.c
-ap.CFLAGS += -DRADIO_CONTROL 
-ap.EXTRA_SRCS += $(SRC_ARCH)/ppm_hw.c radio_control.c 
-ap.CFLAGS += -DAUTOPILOT
-ap.EXTRA_SRCS += autopilot_fbw.c 
-ap.CFLAGS += -DCONTROL 
-ap.EXTRA_SRCS += $(ACINCLUDE)/ap/control.c 
+#ap.CFLAGS += -DTRACES=uart0
+#ap.EXTRA_SRCS += $(SRC_ARCH)/traces.c $(SRC_ARCH)/uart.c
+#ap.CFLAGS += -DRADIO_CONTROL 
+#ap.EXTRA_SRCS += $(SRC_ARCH)/ppm_hw.c radio_control.c 
+#ap.CFLAGS += -DAUTOPILOT
+#ap.EXTRA_SRCS += autopilot_fbw.c 
+#ap.CFLAGS += -DCONTROL 
+#ap.EXTRA_SRCS += $(ACINCLUDE)/ap/control.c 
 #ap.EXTRA_SRCS += control.c 
-ap.CFLAGS += -DESTIMATOR
-ap.EXTRA_SRCS += estimator.c
-ap.CFLAGS += -DGPS -DUBX
-ap.EXTRA_SRCS += gps.c gps_ubx.c
-ap.CFLAGS += -DMODEM
-ap.EXTRA_SRCS += $(SRC_ARCH)/modem_hw.c
-ap.CFLAGS += -DDOWNLINK
+#ap.CFLAGS += -DESTIMATOR
+#ap.EXTRA_SRCS += estimator.c
+#ap.CFLAGS += -DGPS -DUBX
+#ap.EXTRA_SRCS += gps.c gps_ubx.c
+#ap.CFLAGS += -DMODEM
+#ap.EXTRA_SRCS += $(SRC_ARCH)/modem_hw.c
+#ap.CFLAGS += -DDOWNLINK
+
+ap.srcs += commands.c inter_mcu.c
+
+ap.CFLAGS += -DACTUATORS=\"servos_4017_hw.h\"
+ap.srcs += $(SRC_ARCH)/servos_4017_hw.c
+
+ap.CFLAGS += -DRADIO_CONTROL
+ap.srcs += $(SRC_ARCH)/ppm_hw.c  
 
   </makefile>
 </airframe>
