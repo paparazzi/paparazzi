@@ -82,8 +82,8 @@ let parse_servo = fun c ->
 let pprz_value = Str.regexp "@\\([A-Z_0-9]+\\)"
 
 let var_value = Str.regexp "\\$\\([_a-z0-9]+\\)"
-let preprocess_value = fun s v ->
-  let s = Str.global_replace pprz_value (sprintf "%s[COMMAND_\\1]" v) s in
+let preprocess_value = fun s v prefix ->
+  let s = Str.global_replace pprz_value (sprintf "%s[%s_\\1]" v prefix) s in
   Str.global_replace var_value "_var_\\1" s
 
 let parse_command_laws = fun command ->
@@ -92,7 +92,7 @@ let parse_command_laws = fun command ->
      "set" ->
        let servo = a "servo"
        and value = a "value" in
-       let v = preprocess_value value "values" in
+       let v = preprocess_value value "values" "COMMAND" in
        printf "  command_value = %s;\\\n" v;
        printf "  command_value *= command_value>0 ? SERVO_%s_TRAVEL_UP : SERVO_%s_TRAVEL_DOWN;\\\n" servo servo;
        printf "  servo_value = SERVO_%s_NEUTRAL + (int16_t)(command_value);\\\n" servo;
@@ -100,7 +100,7 @@ let parse_command_laws = fun command ->
    | "let" ->
        let var = a "var"
        and value = a "value" in
-       let v = preprocess_value value "values" in
+       let v = preprocess_value value "values" "COMMAND" in
        printf "  int16_t _var_%s = %s;\\\n" var v 
    | "define" ->
        parse_element "" command
@@ -113,24 +113,23 @@ let parse_rc_commands = fun rc ->
     "set" ->
       let com = a "command"
       and value = a "value" in
-      let v = preprocess_value value "rc_values" in
+      let v = preprocess_value value "rc_values" "RADIO" in
       printf "  commands[COMMAND_%s] = %s;\\\n" com v;
    | "let" ->
        let var = a "var"
        and value = a "value" in
-       let v = preprocess_value value "rc_values" in
+       let v = preprocess_value value "rc_values" "RADIO" in
        printf "  int16_t _var_%s = %s;\\\n" var v 
    | "define" ->
        parse_element "" rc
    | _ -> xml_error "set|let"
 
 
-let parse_command = fun commands_params command no ->
+let parse_command = fun command no ->
    let command_name = "COMMAND_"^ExtXml.attrib command "name" in
-   let failsafe_value = int_of_string (ExtXml.attrib command "failsafe_value") in
-   commands_params.(no) <- { failsafe_value = failsafe_value; foo = 0};
    define command_name (string_of_int no);
-   no+1
+   let failsafe_value = int_of_string (ExtXml.attrib command "failsafe_value") in
+   { failsafe_value = failsafe_value; foo = 0}
 
 let parse_section = fun s ->
   match Xml.tag s with
@@ -147,19 +146,17 @@ let parse_section = fun s ->
       List.iter parse_servo servos;
       nl ()
   | "commands" ->
-      let commands = Xml.children s in
-      let commands_params = Array.create (List.length commands) { failsafe_value = 0; foo = 0} in
-      let nb_commands = List.fold_right (parse_command commands_params) commands 0 in
-      define "COMMANDS_NB" (string_of_int nb_commands);
-      let commands_params = Array.to_list commands_params in
-      define "COMMANDS_FAILSAFE" (sprint_float_array (List.map (fun x -> string_of_int x.failsafe_value) commands_params));
+      let commands = Array.of_list (Xml.children s) in
+      let commands_params = Array.mapi (fun i c -> parse_command c i) commands in
+      define "COMMANDS_NB" (string_of_int (Array.length commands));
+      define "COMMANDS_FAILSAFE" (sprint_float_array (List.map (fun x -> string_of_int x.failsafe_value) (Array.to_list commands_params)));
       nl (); nl ()
   | "rc_commands" ->
       printf "#define CommandsOfRC(commands) { \\\n";
       List.iter parse_rc_commands (Xml.children s);
       printf "}\n\n"
   | "command_laws" ->
-      printf "#define CommandsSet(values) { \\\n";
+      printf "#define ActuatorsSet(values) { \\\n";
       printf "  uint16_t servo_value;\\\n";
       printf "  float command_value;\\\n";
       List.iter parse_command_laws (Xml.children s);
