@@ -27,7 +27,7 @@
 
 #include <stdlib.h>
 
-#include "adc_ap.h"
+#include "adc.h"
 #include "infrared.h"
 #include "gps.h"
 #include "autopilot.h"

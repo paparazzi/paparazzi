@@ -24,7 +24,6 @@
 
 #include "main_fbw.h"
 #include "int.h"
-//#include "timer_fbw.h"
 #include "sys_time.h"
 #include "command.h"
 #include "ppm.h"
@@ -49,7 +48,7 @@
 #include "control_grz.h"
 #endif
 
-#include "adc_fbw.h"
+#include "adc.h"
 struct adc_buf vsupply_adc_buf;
 
 
@@ -101,7 +100,7 @@ static inline void to_autopilot_from_rc_values (void) {
     rc_values_contains_avg_channels = FALSE;
   }
   msg->ppm_cpt = last_ppm_cpt;
-  msg->vsupply = VoltageOfAdc(vsupply_adc_buf.sum/AV_NB_SAMPLE) * 10;
+  msg->vsupply = VoltageOfAdc(vsupply_adc_buf.sum/vsupply_adc_buf.av_nb_sample) * 10;
 #if defined IMU_3DMG || defined IMU_ANALOG
   msg->euler_dot[0] = roll_dot;
   msg->euler_dot[1] = pitch_dot;
@@ -168,7 +167,7 @@ void init_fbw( void ) {
   uart0_print_string("FBW Booting $Id$\n");
 #endif
   adc_init();
-  adc_buf_channel(ADC_CHANNEL_VSUPPLY, &vsupply_adc_buf);
+  adc_buf_channel(ADC_CHANNEL_VSUPPLY, &vsupply_adc_buf, DEFAULT_AV_NB_SAMPLE);
 #if defined IMU_3DMG || defined IMU_ANALOG
   imu_init();
 #endif

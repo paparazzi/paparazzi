@@ -29,7 +29,7 @@
 #include <math.h>
 #include "timer_ap.h"
 #include "string.h"
-#include "adc_ap.h"
+#include "adc.h"
 #include "ahrs.h"
 #include "autopilot.h"
 #include "inter_mcu.h"

@@ -15,4 +15,4 @@ fbw.ARCH = arm7tdmi
 fbw.TARGET = fbw
 fbw.TARGETDIR = fbw
 fbw.CFLAGS += -DFBW -DCONFIG=\"config_classix.h\" -DLED
-fbw.srcs = $(SRC_ARCH)/armVIC.c sys_time.c main_fbw_2.c main.c 
+fbw.srcs = $(SRC_ARCH)/armVIC.c sys_time.c $(SRC_ARCH)/tmp_empty_fun.c main_fbw.c main.c

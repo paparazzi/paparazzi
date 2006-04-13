@@ -57,7 +57,7 @@ void imu_capture_neutral ( void ) {
 #endif // 3DMG
 
 #ifdef IMU_ANALOG
-#include "adc_fbw.h"
+#include "adc.h"
 
 struct adc_buf buf_roll_dot;
 struct adc_buf buf_pitch_dot;

@@ -1,9 +1,6 @@
 /*
- * Paparazzi fly by wire adc functions
+ * Paparazzi adc functions
  *  
- * Copied from autopilot (autopilot.sf.net) thanx alot Trammell
- *
- * Copyright (C) 2002 Trammell Hudson <hudson@rotomotion.com>
  * Copyright (C) 2003 Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
@@ -25,33 +22,38 @@
  *
  */
 
+/** \file adc.h
+ *  \brief Analog to Digital Converter API
+ *
+ * Facility to store last values in a circular buffer for a specific
+ *   channel:
+ *  - allocate a (struct adc_buf)
+ *  - register it with the ::adc_buf_channel function
+ */
+
 #ifndef _ADC_H_
 #define _ADC_H_
 
-#include "airframe.h"
-
 #include <inttypes.h>
 
-
 #define NB_ADC 8
+#define MAX_AV_NB_SAMPLE 0x20
+#define DEFAULT_AV_NB_SAMPLE 0x20
 
-/* Array containing the last measured value */
-extern uint16_t		adc_samples[ NB_ADC ];
+/** 
+*/
 
-void adc_init( void );
-
-#define AV_NB_SAMPLE 0x08
-
+/** Data structure used to store samples */
 struct adc_buf {
   uint16_t sum;
-  uint16_t values[AV_NB_SAMPLE];
+  uint16_t values[MAX_AV_NB_SAMPLE];
   uint8_t  head;
+  uint8_t  av_nb_sample;
 };
 
-/* Facility to store last values in a circular buffer for a specific
-   channel: allocate a (struct adc_buf) and register it with the following
-   function */
-void adc_buf_channel(uint8_t adc_channel, struct adc_buf* s);
+/** Registers a buffer to be used to store the specified converted channel */
+void adc_buf_channel(uint8_t adc_channel, struct adc_buf* s, uint8_t av_nb_sample);
 
-
-#endif /* _ADC_H_      */
+/** Starts conversions */
+void adc_init( void );
+#endif

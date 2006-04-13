@@ -24,7 +24,7 @@
 
 #include <math.h>
 
-#include "adc_ap.h"
+#include "adc.h"
 #include "pid.h"
 #include "gps.h"
 #include "infrared.h"
