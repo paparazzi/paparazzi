@@ -32,7 +32,7 @@
 #include <avr/signal.h>
 #include <avr/interrupt.h>
 #include <avr/io.h>
-#include "adc_fbw.h"
+#include "adc.h"
 #include "std.h"
 
 
