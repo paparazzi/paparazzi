@@ -31,7 +31,7 @@
 #include "inter_mcu.h"
 
 #include "led.h"
-#include "uart_fbw.h"
+#include "uart.h"
 #include "print.h"
 
 #ifdef MCU_SPI_LINK
@@ -153,7 +153,7 @@ void init_fbw( void ) {
 #if defined IMU_3DMG
   uart0_init_rx();
 #else
-  PrintString(uart0_transmit, "FBW Booting $Id$\n");
+  Uart0PrintString("FBW Booting $Id$\n");
 #endif
   adc_init();
   adc_buf_channel(ADC_CHANNEL_VSUPPLY, &vsupply_adc_buf, DEFAULT_AV_NB_SAMPLE);

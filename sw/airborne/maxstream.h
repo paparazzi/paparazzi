@@ -27,7 +27,7 @@
 #ifndef MAXSTREAM_H
 #define MAXSTREAM_H
 
-#include "uart_ap.h"
+#include "uart.h"
 
 /** Set when a message (stored in internal buffer) has been parsed with
 correct checksum. A new message cannot be received while this flag is true. */

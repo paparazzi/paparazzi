@@ -14,6 +14,12 @@
     <axis name="PITCH"    failsafe_value="0"/>
   </commands>
 
+  <rc_commands>
+    <set command="THROTTLE" value="@THROTTLE"/>
+    <set command="ROLL" value="@ROLL"/>
+    <set command="PITCH" value="@PITCH"/>
+  </rc_commands>
+
   <section name="MIXER">
     <define name="AILEVON_AILERON_RATE" value="0.55"/>
     <define name="AILEVON_ELEVATOR_RATE" value="0.75"/>
@@ -76,18 +82,28 @@
     <define name="PITCH_OF_VZ_PGAIN" value="0.00"/>
  </section>
 
+  <section name="BAT" channel="3">
+    <define name="MILLIAMP_PER_PERCENT" value="0.0"/>
+    <define name="VoltageOfAdc(adc)" value="4.2"/>
+    <define name="LOW_BATTERY" value="9" unit="V"/>
+  </section>
+
+
  <makefile>
 include $(PAPARAZZI_SRC)/conf/autopilot/robostix.makefile
-ap.CFLAGS += -DRADIO_CONTROL
-ap.EXTRA_SRCS += radio_control.c $(SRC_ARCH)/ppm_hw.c
+# ap.CFLAGS += -DRADIO_CONTROL
+# ap.EXTRA_SRCS += radio_control.c
+
+ap.EXTRA_SRCS += $(SRC_ARCH)/ppm_hw.c
 ap.CFLAGS += -DACTUATORS=\"servos_direct_hw.h\"
 ap.EXTRA_SRCS += $(SRC_ARCH)/servos_direct_hw.c 
 ap.CFLAGS += -DCONTROL -DAUTOPILOT
-ap.EXTRA_SRCS += $(ACINCLUDE)/ap/control.c autopilot_fbw.c
-ap.CFLAGS += -DADC
-ap.EXTRA_SRCS += $(SRC_ARCH)/adc_hw.c
-ap.CFLAGS += -DTRACES -DWAVECARD_ON_GPS
-ap.EXTRA_SRCS += $(SRC_ARCH)/traces.c $(SRC_ARCH)/uart_ap.c
+#ap.EXTRA_SRCS += $(ACINCLUDE)/ap/control.c autopilot_fbw.c
+#ap.CFLAGS += -DADC
+#ap.EXTRA_SRCS += $(SRC_ARCH)/adc_hw.c
+#ap.CFLAGS += -DTRACES
+#ap.EXTRA_SRCS += $(SRC_ARCH)/traces.c
+ap.EXTRA_SRCS += $(SRC_ARCH)/uart_hw.c
 #ap.CFLAGS += -DDATALINK
 #ap.EXTRA_SRCS += datalink.c nav.c estimator.c
   </makefile>

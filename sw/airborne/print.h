@@ -1,3 +1,27 @@
+/*
+ * Paparazzi $I$
+ *  
+ * Copyright (C) 2005 Pascal Brisset, Antoine Drouin
+ *
+ * This file is part of paparazzi.
+ *
+ * paparazzi is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * paparazzi is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with paparazzi; see the file COPYING.  If not, write to
+ * the Free Software Foundation, 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA. 
+ *
+ */
+
 #ifndef PRINT_H
 #define PRINT_H
 
@@ -9,6 +33,8 @@
   }                               \
 }
 
+#define Uart0PrintString(s) PrintString(uart0_transmit, s)
+
 #define PrintHex(out_fun, c) {						\
     const uint8_t hex[16] = { '0', '1', '2', '3', '4', '5', '6', '7',   \
 			      '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' }; \
@@ -19,7 +45,7 @@
   }									\
 }
 
-void PrintHex16 (out_fun, c ) {			\
+#define PrintHex16 (out_fun, c ) {		\
   uint8_t high = (uint8_t)(c>>8);		\
   uint8_t low  = (uint8_t)(c);			\
   uart0_print_hex(high);			\
@@ -27,5 +53,5 @@ void PrintHex16 (out_fun, c ) {			\
 }
 
 
-#enfif PRINT_H
+#endif /* PRINT_H */
 

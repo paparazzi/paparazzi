@@ -17,14 +17,12 @@
     <axis name="THROTTLE" failsafe_value="0"/>
     <axis name="ROLL"     failsafe_value="0"/>
     <axis name="PITCH"    failsafe_value="0"/>
-    <axis name="YAW"    failsafe_value="0"/>
   </commands>
 
   <rc_commands>
     <set command="THROTTLE" value="@THROTTLE"/>
     <set command="ROLL" value="@ROLL"/>
     <set command="PITCH" value="@PITCH"/>
-    <set command="YAW" value="@YAW"/>
   </rc_commands>
 
   <command_laws>
@@ -81,7 +79,7 @@
     <define name="VOLTAGE_ADC_A" value="0.01727"/>
     <define name="VOLTAGE_ADC_B" value="0.2965"/>
     <define name="VoltageOfAdc(adc)" value="(VOLTAGE_ADC_A * adc + VOLTAGE_ADC_B)"/>
-    <define name="LOW_BATTERY" value="90" unit="1e-1V"/>
+    <define name="LOW_BATTERY" value="9" unit="V"/>
   </section>
   <section name="SERVOS" channel="6">
     <define name="SERVOS_VOLTAGE_ADC_A" value="0.005661"/>

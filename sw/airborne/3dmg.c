@@ -26,7 +26,7 @@
 
 #include "std.h"
 #include "3dmg.h"
-#include "uart_fbw.h"
+#include "uart.h"
 
 volatile bool_t _3dmg_data_ready;
 int16_t   _3dmg_roll, _3dmg_pitch, _3dmg_yaw;

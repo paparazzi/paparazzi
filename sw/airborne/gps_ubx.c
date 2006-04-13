@@ -32,7 +32,7 @@
 
 
 #include "flight_plan.h"
-#include "uart_ap.h"
+#include "uart.h"
 #include "gps.h"
 #include "ubx.h"
 
@@ -88,7 +88,7 @@ void gps_init( void ) {
   simul_ir_roll = ir_roll_neutral;
   simul_ir_pitch = ir_pitch_neutral;
 #else
-  uart1_init();
+  Uart1Init();
 #endif
   ubx_status = UNINIT;
 }

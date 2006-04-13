@@ -1,7 +1,7 @@
 /*
  * Paparazzi $Id$
  *  
- * Copyright (C) 2003 Pascal Brisset, Antoine Drouin
+ * Copyright (C) 2006 Pascal Brisset, Antoine Drouin, Michel Gorraz
  *
  * This file is part of paparazzi.
  *
@@ -27,15 +27,24 @@
 
 #include <inttypes.h>
 
-#include "uart_fbw_hw.h"
+#include "uart_hw.h"
 
 void uart0_init_tx( void );
+
 void uart0_init_rx( void );
+/** uart0_init_tx() must be called BEFORE */
+
 void uart0_transmit( unsigned char data );
 
-void uart0_print_hex ( uint8_t c );
-void uart0_print_hex16 ( uint16_t c );
-void uart0_print_string(const uint8_t* s);
-void uart0_print_float( const float * f);
+/** Not necessarily defined */
+void uart1_init_tx( void );
+
+void uart1_init_rx( void );
+/** uart1_init_tx() must be called BEFORE */
+
+void uart1_transmit( unsigned char data );
+
+#define Uart0Init() { uart0_init_tx(); uart0_init_rx(); }
+#define Uart1Init() { uart1_init_tx(); uart1_init_rx(); }
 
 #endif

@@ -232,7 +232,7 @@ void uart0_init_rx( void ) {
   sbi(UCSR0B, RXCIE );
 }
 
-void uart1_init( void ) {
+void uart1_init_tx( void ) {
   /* Baudrate is 38.4k */
   UBRR1H = 0; 
   UBRR1L = 25; // 38.4
@@ -240,9 +240,14 @@ void uart1_init( void ) {
   /* single speed */ 
   UCSR1A = 0; 
   /* Enable receiver and transmitter */ 
-  UCSR1B = _BV(RXEN) | _BV(TXEN);
+  UCSR1B = _BV(TXEN);
   /* Set frame format: 8data, 1stop bit */ 
   UCSR1C = _BV(UCSZ1) | _BV(UCSZ0);
+}
+
+void uart1_init_rx( void ) {
+  /* Enable receiver */ 
+  UCSR1B |= _BV(RXEN);
   /* Enable uart receive interrupt */
   sbi(UCSR1B, RXCIE ); 
 }

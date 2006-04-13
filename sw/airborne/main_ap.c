@@ -59,6 +59,8 @@
 #define AUTO1_MAX_PITCH 0.5
 #endif
 
+#define LOW_BATTERY_DECIVOLT (LOW_BATTERY*10)
+
 
 uint8_t  inflight_calib_mode = IF_CALIB_MODE_NONE;
 
@@ -185,7 +187,9 @@ static inline void events_update( void ) {
 /** \brief Send back uncontrolled channels (actually only rudder)
  */
 static inline void copy_from_to_fbw ( void ) {
-  from_ap.from_ap.channels[COMMAND_YAW] = from_fbw.from_fbw.channels[RADIO_YAW];
+#ifdef COMMAND_YAW /* FIXME */
+  from_ap.from_ap.channels[COMMAND_YAW] =from_fbw.from_fbw.channels[RADIO_YAW];
+#endif
 }
 
 
@@ -394,7 +398,7 @@ inline void periodic_task( void ) {
     block_time++;
 
     static uint8_t t = 0;
-    if (vsupply < LOW_BATTERY) t++; else t = 0;
+    if (vsupply < LOW_BATTERY_DECIVOLT) t++; else t = 0;
     low_battery |= (t >= LOW_BATTERY_DELAY);
   }
   switch (_1Hz) {

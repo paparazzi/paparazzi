@@ -29,7 +29,7 @@
 
 #include "std.h"
 #include "inter_mcu.h"
-#include "uart_ap.h"
+#include "uart.h"
 #include "wavecard.h"
 #include "datalink.h"
 
