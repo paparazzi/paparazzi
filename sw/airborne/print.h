@@ -19,7 +19,7 @@
   }									\
 }
 
-void uart0_print_hex16 (out_fun, c ) {		\
+void PrintHex16 (out_fun, c ) {			\
   uint8_t high = (uint8_t)(c>>8);		\
   uint8_t low  = (uint8_t)(c);			\
   uart0_print_hex(high);			\
