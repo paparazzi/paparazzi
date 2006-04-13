@@ -26,10 +26,11 @@
 #include "int.h"
 #include "sys_time.h"
 #include "actuators.h"
+#include "commands.h"
 #include "ppm.h"
 #include "inter_mcu.h"
 
-#define RC_AVG_PERIOD 8
+
 
 #include "led.h"
 #include "uart_fbw.h"
@@ -61,24 +62,11 @@ static pprz_t rc_values[ PPM_NB_PULSES ];
 static pprz_t avg_rc_values[ PPM_NB_PULSES ];
 static bool_t rc_values_contains_avg_channels = FALSE;
 
-static const pprz_t failsafe[] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
-
 static uint8_t ppm_cpt, last_ppm_cpt;
 
 #define STALLED_TIME        30  // 500ms with a 60Hz timer
 #define REALLY_STALLED_TIME 300 // 5s with a 60Hz timer
 
-
-pprz_t commands[COMMANDS_NB];
-/** Storage of intermediate command values: these values come from 
-the RC (MANUAL mode), from the autopilot (AUTO mode) or from control loops.
-They are asyncronisly used to set the servos */
-
-#define SetCommands(t) { \
-  int i; \
-  for(i = 0; i < COMMANDS_NB; i++) commands[i] = t[i]; \
-}
- 
 
 /* Prepare data to be sent to mcu0 */
 static inline void to_autopilot_from_rc_values (void) {
@@ -113,6 +101,8 @@ static inline void to_autopilot_from_rc_values (void) {
 #endif
 }
 
+
+#define RC_AVG_PERIOD 8
 /* Copy from the ppm receiving buffer to the buffer sent to mcu0 */
 static void rc_values_from_ppm( void ) {
   NormalizePpm();
@@ -143,7 +133,7 @@ static inline void radio_control_task(void) {
     pitch_dot_dgain = roll_dot_dgain;
 #endif
 
-    CommandsOfRC(commands);
+    SetCommandsFromRC(commands);
   }
 }
 
@@ -173,7 +163,11 @@ void init_fbw( void ) {
 #endif
   sys_time_init();
 
-  command_init();
+  actuators_init();
+
+  /* Load the failsafe defaults                     */
+  SetCommands(commands_failsafe);
+  
   ppm_init();
 
 #ifdef MCU_SPI_LINK
@@ -234,7 +228,7 @@ void event_task_fbw( void) {
   if ((mode == FBW_MODE_MANUAL && !radio_ok) ||
       (mode == FBW_MODE_AUTO && !ap_ok)) {
     failsafe_mode = TRUE;
-    SetCommands(failsafe);
+    SetCommands(commands_failsafe);
   }
 }
 
@@ -258,6 +252,14 @@ void periodic_task_fbw( void ) {
     _1Hz = 0;
     last_ppm_cpt = ppm_cpt;
     ppm_cpt = 0;
+#ifdef DEBUG
+    uint8_t i;
+    for(i = 0; i < 4; i++) {
+      uart0_print_hex16(commands[i]);
+      uart0_print_string(" ");
+    }
+    uart0_print_string("\n");
+#endif
   }
 
   if (time_since_last_ap < STALLED_TIME)
@@ -266,6 +268,5 @@ void periodic_task_fbw( void ) {
   if (time_since_last_ppm < REALLY_STALLED_TIME)
     time_since_last_ppm++;
 
-  /** Set servo values */
-  command_set(commands);
+  //  SetActuatorsFromCommands(commands);
 }

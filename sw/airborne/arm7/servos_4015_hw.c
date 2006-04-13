@@ -61,7 +61,3 @@ void PWM_ISR ( void ) {
   VICVectAddr = 0x00000000;
   ISR_EXIT();  
 }
-
-void command_set(const pprz_t values[]) {
-  CommandsSet(values); /*Generated from airframe.xml */
-}

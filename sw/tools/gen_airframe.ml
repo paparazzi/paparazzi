@@ -96,7 +96,7 @@ let parse_command_laws = fun command ->
        printf "  command_value = %s;\\\n" v;
        printf "  command_value *= command_value>0 ? SERVO_%s_TRAVEL_UP : SERVO_%s_TRAVEL_DOWN;\\\n" servo servo;
        printf "  servo_value = SERVO_%s_NEUTRAL + (int16_t)(command_value);\\\n" servo;
-       printf "  COMMAND(SERVO_%s) = SERVOS_TICS_OF_USEC(ChopServo(servo_value, SERVO_%s_MIN, SERVO_%s_MAX));\\\n\\\n" servo servo servo
+       printf "  Actuator(SERVO_%s) = SERVOS_TICS_OF_USEC(ChopServo(servo_value, SERVO_%s_MIN, SERVO_%s_MAX));\\\n\\\n" servo servo servo
    | "let" ->
        let var = a "var"
        and value = a "value" in
@@ -140,8 +140,8 @@ let parse_section = fun s ->
       nl ()
   | "servos" ->
       let servos = Xml.children s in
-      let nb_servos = List.fold_right (fun s m -> Pervasives.max (int_of_string (ExtXml.attrib s "no")) m) servos min_int in
-      define "LAST_SERVO_CHANNEL" (string_of_int nb_servos);
+      let nb_servos = List.fold_right (fun s m -> Pervasives.max (int_of_string (ExtXml.attrib s "no")) m) servos min_int + 1 in
+      define "SERVOS_NB" (string_of_int nb_servos);
       nl ();
       List.iter parse_servo servos;
       nl ()
@@ -152,11 +152,11 @@ let parse_section = fun s ->
       define "COMMANDS_FAILSAFE" (sprint_float_array (List.map (fun x -> string_of_int x.failsafe_value) (Array.to_list commands_params)));
       nl (); nl ()
   | "rc_commands" ->
-      printf "#define CommandsOfRC(commands) { \\\n";
+      printf "#define SetCommandsFromRC(commands) { \\\n";
       List.iter parse_rc_commands (Xml.children s);
       printf "}\n\n"
   | "command_laws" ->
-      printf "#define ActuatorsSet(values) { \\\n";
+      printf "#define SetActuatorsFromCommands(values) { \\\n";
       printf "  uint16_t servo_value;\\\n";
       printf "  float command_value;\\\n";
       List.iter parse_command_laws (Xml.children s);

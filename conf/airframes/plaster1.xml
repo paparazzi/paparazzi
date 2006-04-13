@@ -14,7 +14,7 @@
   </servos>
 
   <commands>
-    <axis name="THROTTLE" failsafe_value="0"/>
+    <axis name="THROTTLE" failsafe_value="100"/>
     <axis name="ROLL"     failsafe_value="0"/>
     <axis name="PITCH"    failsafe_value="0"/>
     <axis name="YAW"    failsafe_value="0"/>

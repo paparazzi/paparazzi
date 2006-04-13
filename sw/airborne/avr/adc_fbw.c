@@ -98,7 +98,7 @@ SIGNAL( SIG_ADC )
 
   if (buf) {
     uint8_t new_head = buf->head + 1;
-    if (new_head >= AV_NB_SAMPLE) new_head = 0;
+    if (new_head >= buf->av_nb_sample) new_head = 0;
     buf->sum -= buf->values[new_head];
     buf->values[new_head] = adc_value;
     buf->sum += adc_value;

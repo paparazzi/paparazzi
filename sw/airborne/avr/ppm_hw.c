@@ -77,7 +77,7 @@ SIGNAL( SIG_INPUT_CAPTURE1 )
   last		= this;
   
   if( state == 0 ) {
-    uint8_t	end = TCNT2;
+    uint8_t end = TCNT2;
     uint8_t diff = (end - sync_start);
     sync_start = end;
 
@@ -99,7 +99,7 @@ SIGNAL( SIG_INPUT_CAPTURE1 )
     ppm_pulses[state - 1] = width;
 
     if (state >= PPM_NB_PULSES) {
-      ppm_valid	= 1;
+      ppm_valid	= TRUE;
       RestartPpmCycle();
     } else 
       state++;

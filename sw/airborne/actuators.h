@@ -26,11 +26,14 @@
 #if defined ACTUATORS
 
 #include "paparazzi.h"
-extern const pprz_t failsafe_values[];
+
+#include "airframe.h"
+/** Defines SetActuatorsFromCommands() macro */
+
 extern void actuators_init( void );
-extern void actuators_set(const pprz_t values[]);
 
-#include ACTUATORS /* ACTUATORS */
+#include ACTUATORS
 
+#endif /* ACTUATORS */
 
-#endif ACTUATORS_H
+#endif /* ACTUATORS_H */

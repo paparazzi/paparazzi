@@ -64,8 +64,6 @@ static struct adc_buf buf_ir2;
 
 #ifndef ADC_CHANNEL_IR_NB_SAMPLES
 #define ADC_CHANNEL_IR_NB_SAMPLES DEFAULT_AV_NB_SAMPLE
-#else
-#warning " ADC_CHANNEL_IR_NB_SAMPLES";
 #endif
 /** \brief Initialisation of \a ir */
 /** Initialize \a ir with the \a IR_DEFAULT_CONTRAST \n

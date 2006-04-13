@@ -46,11 +46,18 @@ static inline void sys_time_init( void ) {
   /* Timer0: Modem clock is started in modem.h in ctc mode*/
 
   /* Timer1 @ Clk/1: System clock */
-  TCCR1A                = 0x00;
-  TCCR1B                = 0x01;
+  TCCR1A = 0x00;
+  TCCR1B = _BV(CS10);
 
   /* Timer2 @ Clk/1024: Periodic clock */
-  TCCR2         = 0x05;
+
+#if defined (__AVR_ATmega8__)
+  TCCR2         = _BV(CS20) | _BV(CS21) | _BV(CS22);
+#elif defined (__AVR_ATmega128__)
+  TCCR2         = _BV(CS20) | _BV(CS22);
+#else
+#warning "Unknown arch"
+#endif
 
   cpu_time = 0;
 }
@@ -68,7 +75,7 @@ static inline void sys_time_init( void ) {
 static inline bool_t sys_time_periodic( void ) {
   if( !bit_is_set( TIFR, TOV2 ) )
     return FALSE;
-  TIFR = 1 << TOV2;
+  TIFR = _BV(TOV2);
   return TRUE;
 }
 

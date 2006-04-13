@@ -26,20 +26,15 @@
 
 #include <avr/io.h>
 #include <avr/signal.h>
-#include "command.h"
+#include "servos_4017.h"
+#include "actuators.h"
 #include "sys_time.h"
-#include "airframe.h"
 #include CONFIG
 
-#define _4017_NB_CHANNELS 10
 
 /* holds the servo pulses width in clock ticks */
-static uint16_t servo_widths[_4017_NB_CHANNELS];
-static const pprz_t failsafe_values[COMMANDS_NB] = COMMANDS_FAILSAFE;
+uint16_t servo_widths[_4017_NB_CHANNELS];
 
-#define ChopServo(x,a,b) Chop(x, a, b)
-
-#define COMMAND(i) servo_widths[i]
 /*
  * We use the output compare registers to generate our servo pulses.
  * These should be connected to a decade counter that routes the
@@ -54,7 +49,7 @@ static const pprz_t failsafe_values[COMMANDS_NB] = COMMANDS_FAILSAFE;
  *
  * Ideally, you can use two decade counters to drive 20 servos.
  */
-void command_init( void ) {
+void actuators_init( void ) {
   uint8_t i;
   /* Configure the reset and clock lines as output  */
   _4017_RESET_DDR |= _BV(_4017_RESET_PIN);
@@ -66,8 +61,6 @@ void command_init( void ) {
   /* Set all servos at their midpoints              */
   for( i=0 ; i < _4017_NB_CHANNELS ; i++ )
     servo_widths[i] = SYS_TICS_OF_USEC(1500);
-  /* Load the failsafe defaults                     */
-  command_set(failsafe_values);
   /* Set servos to go off some long time from now   */
   SERVO_OCR = 32768ul;
   /* Set output compare to toggle the output bits   */
@@ -139,8 +132,4 @@ the sequence:
   TCCR1A |= _BV(SERVO_FORCE);
 
   servo++;
-}
-
-void command_set(const pprz_t values[]) {
-  CommandsSet(values); /*Generated from airframe.xml */
 }

@@ -19,12 +19,12 @@
     gui_color="#800080"
   />
 
-  <aircraft 
-    name="Twin3"
+   <aircraft 
+    name="MJ1"
     ac_id="3"
-    airframe="airframes/twinstar1.xml" 
+    airframe="airframes/microjet1.xml" 
     radio="radios/cockpitMM.xml" 
-    flight_plan="flight_plans/muret_mini.xml"
+    flight_plan="flight_plans/dummy.xml"
   />
 
   <aircraft 
@@ -36,11 +36,11 @@
   />
 
   <aircraft 
-    name="GRZBA"
+    name="Tux"
     ac_id="5"
-    airframe="airframes/gorazoptere_brushless_ANALOG.xml" 
+    airframe="airframes/flyingtux.xml" 
     radio="radios/cockpitMM.xml" 
-    flight_plan="flight_plans/muret_mini.xml"
+    flight_plan="flight_plans/dummy.xml"
   />
 
   <aircraft 
@@ -52,9 +52,9 @@
   />
 
   <aircraft 
-    name="Dragon"
+    name="Plaster"
     ac_id="7"
-    airframe="airframes/dragon.xml" 
+    airframe="airframes/plaster1.xml" 
     radio="radios/cockpitMM.xml" 
     flight_plan="flight_plans/dummy.xml"
   />
