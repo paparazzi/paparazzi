@@ -1,5 +1,7 @@
+# Hey Emacs, this is a -*- makefile -*-
+#
 #   Paparazzi main $Id$
-#   Copyright (C) 2004 Pascal Brisset Antoine Drouin
+#   Copyright (C) 2004-2006 Pascal Brisset Antoine Drouin
 #
 # This file is part of paparazzi.
 #
@@ -28,6 +30,7 @@ XML_GET=sw/lib/ocaml/xml_get.out
 
 STATICINCLUDE =$(PAPARAZZI_HOME)/var/include
 MESSAGES_H=$(STATICINCLUDE)/messages.h
+MESSAGES_FBW_H=$(STATICINCLUDE)/messages_fbw.h
 UBX_PROTOCOL_H=$(STATICINCLUDE)/ubx_protocol.h
 DL_PROTOCOL_H=$(STATICINCLUDE)/dl_protocol.h
 MESSAGES_XML = $(CONF)/messages.xml
@@ -35,12 +38,19 @@ UBX_XML = $(CONF)/ubx.xml
 FBW_MESSAGES_H=$(STATICINCLUDE)/fbw_messages.h
 
 
-static:  $(MESSAGES_H) $(UBX_PROTOCOL_H) $(FBW_MESSAGES_H) $(DL_PROTOCOL_H)
+static:  $(MESSAGES_H) $(MESSAGES_FBW_H) $(UBX_PROTOCOL_H) $(FBW_MESSAGES_H) $(DL_PROTOCOL_H)
 
 $(MESSAGES_H) : $(MESSAGES_XML) $(CONF_XML)
 	test -d $(STATICINCLUDE) || mkdir -p $(STATICINCLUDE)
 	TMP_FILE=`mktemp`;\
 	$(TOOLS)/gen_messages.out $< telemetry_ap > $$TMP_FILE;\
+	mv  $$TMP_FILE $@
+	chmod a+r $@
+
+$(MESSAGES_FBW_H) : $(MESSAGES_XML) $(CONF_XML)
+	test -d $(STATICINCLUDE) || mkdir -p $(STATICINCLUDE)
+	TMP_FILE=`mktemp`;\
+	$(TOOLS)/gen_messages.out $< telemetry_fbw > $$TMP_FILE;\
 	mv  $$TMP_FILE $@
 	chmod a+r $@
 

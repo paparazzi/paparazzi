@@ -29,6 +29,7 @@
 #include "actuators.h"
 #include "commands.h"
 #include "radio_control.h"
+#include "fbw_downlink.h"
 
 #include "led.h"
 #include "uart.h"
@@ -69,12 +70,15 @@ void init_fbw( void ) {
   /** Hardware init */
   hw_init();
 
+#ifdef UART0
   uart0_init_tx();
 #if defined IMU_3DMG
   uart0_init_rx();
 #else
   Uart0PrintString("FBW Booting $Id$\n");
 #endif
+#endif
+
   adc_init();
   adc_buf_channel(ADC_CHANNEL_VSUPPLY, &vsupply_adc_buf, DEFAULT_AV_NB_SAMPLE);
 #if defined IMU_3DMG || defined IMU_ANALOG
@@ -175,6 +179,10 @@ void periodic_task_fbw( void ) {
 
 #ifdef INTER_MCU
   inter_mcu_periodic_task();
+#endif
+
+#ifdef DOWNLINK
+  fbw_downlink_periodic_task();
 #endif
 
   SetActuatorsFromCommands(commands);
