@@ -4,23 +4,46 @@
 #include "LPC21xx.h"
 #include CONFIG
 
-void TIMER0_ISR ( void ) __attribute__((naked));
+
 
 static inline void ppm_init ( void ) {
-  /* select TIMER0 as IRQ    */
-  VICIntSelect &= ~VIC_BIT(VIC_TIMER0);
-  /* enable TIMER0 interrupt */
-  VICIntEnable = VIC_BIT(VIC_TIMER0); 
-  /* on slot vic slot 4      */
-  VICVectCntl4 = VIC_ENABLE | VIC_TIMER0;
-  /* address of the ISR      */
-  VICVectAddr4 = (uint32_t)TIMER0_ISR; 
-  /* select pin for capture */
+   /* select pin for capture */
   PPM_PINSEL |= PPM_PINSEL_VAL << PPM_PINSEL_BIT;
   /* enable capture 0.2 on rising edge + trigger interrupt */
   T0CCR = TCCR_CR2_R | TCCR_CR2_I;
 
   ppm_valid = FALSE;
+}
+
+#define PPM_NB_CHANNEL PPM_NB_PULSES
+
+
+#define PPM_ISR() {						\
+   static uint8_t state = PPM_NB_CHANNEL;			\
+    static uint32_t last;					\
+								\
+    uint32_t now = T0CR2;					\
+    uint32_t length = now - last;				\
+    last = now;							\
+								\
+    if (state == PPM_NB_CHANNEL) {				\
+      if (length > SYS_TICS_OF_USEC(PPM_SYNC_MIN_LEN) &&	\
+	  length < SYS_TICS_OF_USEC(PPM_SYNC_MAX_LEN)) {	\
+	state = 0;						\
+      }								\
+    }								\
+    else {							\
+      if (length > SYS_TICS_OF_USEC(PPM_DATA_MIN_LEN) &&	\
+	  length < SYS_TICS_OF_USEC(PPM_DATA_MAX_LEN)) {	\
+	ppm_pulses[state] = length;				\
+	state++;						\
+	if (state == PPM_NB_CHANNEL) {				\
+	  ppm_valid = TRUE;					\
+	}							\
+      }								\
+      else							\
+	state = PPM_NB_CHANNEL;					\
+    }								\
 }
 
 

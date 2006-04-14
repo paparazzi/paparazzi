@@ -1,22 +1,22 @@
 <airframe name="Twinstar five">
 
   <servos min="1000" neutral="1500" max="2000">
-    <servo name="GAZ" no="3" min="1000" neutral="1000" max="2000"/>
-    <servo name="AILERON_LEFT" no="0" max="1190" neutral="1530" min="1850"/>
-    <servo name="AILERON_RIGHT" no="2" max="1375" neutral="1580" min="2000"/>
-    <servo name="ELEVATOR" no="6" max="1816" neutral="1410" min="1220"/>
-    <servo name="RUDDER"   no="7" max="1270" neutral="1550" min="1850"/>
-    <servo name="CAM_ROLL" no="8" max="1816" neutral="1530" min="1220"/>
-    <servo name="CAM_PITCH" no="4" max="1270" neutral="1450" min="1850"/>
+    <servo name="GAZ" no="3"           min="1000" neutral="1000" max="2000"/>
+    <servo name="AILERON_LEFT" no="0"  min="1000" neutral="1500" max="2000"/>
+    <servo name="AILERON_RIGHT" no="2" min="1000" neutral="1500" max="2000"/>
+    <servo name="ELEVATOR" no="6"      min="1000" neutral="1500" max="2000"/>
+    <servo name="RUDDER"   no="7"      min="1000" neutral="1500" max="2000"/>
+    <servo name="CAM_ROLL" no="8"      min="1000" neutral="1500" max="2000"/>
+    <servo name="CAM_PITCH" no="4"     min="1000" neutral="1500" max="2000"/>
   </servos>
 
   <commands>
-    <axis name="THROTTLE" failsafe_value="0"/>
-    <axis name="ROLL"     failsafe_value="0"/>
-    <axis name="PITCH"    failsafe_value="0"/>
-    <axis name="YAW"    failsafe_value="0"/>
-    <axis name="CAM_ROLL" failsafe_value="0"/>
-    <axis name="CAM_PITCH" failsafe_value="0"/>
+    <axis name="THROTTLE"  failsafe_value="0"/>
+    <axis name="ROLL"      failsafe_value="3000"/>
+    <axis name="PITCH"     failsafe_value="-3000"/>
+    <axis name="YAW"       failsafe_value="5000"/>
+    <axis name="CAM_ROLL"  failsafe_value="-9000"/>
+    <axis name="CAM_PITCH" failsafe_value="9000"/>
   </commands>
 
   <rc_commands>
@@ -27,7 +27,7 @@
   </rc_commands>
 
   <command_laws>
-    <set servo="GAZ" value="2 * @THROTTLE"/>
+    <set servo="GAZ" value="@THROTTLE"/>
     <set servo="ELEVATOR" value="@PITCH"/>
     <let var="roll" value="@ROLL"/>
     <set servo="AILERON_LEFT" value="($roll > 0 ? 1 : AILERON_DIFF) * $roll"/>
@@ -41,6 +41,7 @@
     <define name="AILERON_DIFF" value="0.66"/>
     <define name="COMBI_SWITCH" value="1.0"/>
   </section>
+
   <section name="INFRARED" prefix="IR_">
     <define name="ROLL_NEUTRAL_DEFAULT" value="6" unit="deg"/>
     <define name="PITCH_NEUTRAL_DEFAULT" value="5" unit="deg"/>
@@ -114,12 +115,12 @@ ap.srcs += $(SRC_ARCH)/modem_hw.c
 #ap.EXTRA_SRCS += wavecard.c
 
 
-fbw.srcs += commands.c inter_mcu.c $(SRC_ARCH)/armVIC.c $(SRC_ARCH)/uart_hw.c $(SRC_ARCH)/adc_hw.c
+fbw.srcs += commands.c inter_mcu.c $(SRC_ARCH)/uart_hw.c $(SRC_ARCH)/adc_hw.c
 
 fbw.CFLAGS += -DACTUATORS=\"servos_4017_hw.h\"
 fbw.srcs += $(SRC_ARCH)/servos_4017_hw.c
 
 fbw.CFLAGS += -DRADIO_CONTROL
-fbw.srcs += $(SRC_ARCH)/ppm_hw.c  
+fbw.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c 
   </makefile>
 </airframe>

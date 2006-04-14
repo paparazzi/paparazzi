@@ -37,6 +37,8 @@
 
 static uint32_t last_periodic_event;
 
+void TIMER0_ISR ( void ) __attribute__((naked));
+
 /* T0 prescaler */
 //#define T0_PCLK_DIV     3
 #define T0_PCLK_DIV     1
@@ -57,6 +59,16 @@ static inline void sys_time_init( void ) {
   T0TCR = TCR_ENABLE;
 
   cpu_time = 0;
+
+  /* select TIMER0 as IRQ    */
+  VICIntSelect &= ~VIC_BIT(VIC_TIMER0);
+  /* enable TIMER0 interrupt */
+  VICIntEnable = VIC_BIT(VIC_TIMER0); 
+  /* on slot vic slot 4      */
+  VICVectCntl4 = VIC_ENABLE | VIC_TIMER0;
+  /* address of the ISR      */
+  VICVectAddr4 = (uint32_t)TIMER0_ISR; 
+
 }
 
 #define SYS_TICS_OF_SEC(s)   (uint32_t)(s * PCLK / T0_PCLK_DIV + 0.5)
@@ -79,6 +91,5 @@ static inline bool_t sys_time_periodic( void ) {
   }
   return FALSE;
 }
-
 
 #endif /* SYS_TIME_HW_H */

@@ -22,8 +22,9 @@
  *
  */
 
-#include "init_hw.h"
 #include "main_fbw.h"
+
+#include "init_hw.h"
 #include "int.h"
 #include "sys_time.h"
 #include "actuators.h"
