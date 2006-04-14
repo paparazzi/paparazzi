@@ -82,7 +82,7 @@
     <define name="VOLTAGE_ADC_A" value="0.0175"/>
     <define name="VOLTAGE_ADC_B" value="0.088"/>
     <define name="VoltageOfAdc(adc)" value="(VOLTAGE_ADC_A * adc + VOLTAGE_ADC_B)"/>
-    <define name="LOW_BATTERY" value="93" unit="1e-1V"/>
+    <define name="LOW_BATTERY" value="9.3" unit="V"/>
   </section>
   <section name="MISC">
     <define name="NOMINAL_AIRSPEED" value="12." unit="m/s"/>

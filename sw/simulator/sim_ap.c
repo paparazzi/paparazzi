@@ -108,7 +108,7 @@ value update_rc_channel(value c, value v) {
 #define SERVO_GAZ SERVO_MOTOR_RIGHT
 #endif
 
-#define COMMAND(i) servo_widths[i]
+#define Actuator(i) servo_widths[i]
 
 value set_servos(value servos) {
   int i;
@@ -121,7 +121,7 @@ value set_servos(value servos) {
   
 
   uint16_t servo_widths[_4017_NB_CHANNELS];
-  CommandsSet(values_from_ap);
+  SetActuatorsFromCommands(values_from_ap);
 
   for(i=0; i < _4017_NB_CHANNELS; i++)
     Store_field(servos, i, Val_int(servo_widths[i]));
