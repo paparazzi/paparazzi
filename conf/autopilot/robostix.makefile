@@ -10,6 +10,6 @@ ap.LOW_FUSE  = 0xbf
 ap.HIGH_FUSE = 0xc9
 ap.EXT_FUSE  = ff
 ap.LOCK_FUSE = ff
-ap.CFLAGS += -DFBW -DCONFIG=\"config_robostix.h\" -DLED
-ap.srcs = sys_time.c $(SRC_ARCH)/adc_hw.c $(SRC_ARCH)/uart_hw.c commands.c main_fbw.c main.c
+ap.CFLAGS += -DFBW -DCONFIG=\"config_robostix.h\" -DLED -DRADIO_CONTROL -DACTUATORS=\"servos_direct_hw.h\"
+ap.srcs = sys_time.c radio_control.c  $(SRC_ARCH)/ppm_hw.c $(SRC_ARCH)/adc_hw.c $(SRC_ARCH)/uart_hw.c $(SRC_ARCH)/servos_direct_hw.c commands.c main_fbw.c main.c
 # ap.srcs +=  main_ap.c

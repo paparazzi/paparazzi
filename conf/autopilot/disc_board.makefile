@@ -8,6 +8,6 @@ ap.LOW_FUSE  = a0
 ap.HIGH_FUSE = 99
 ap.EXT_FUSE  = ff
 ap.LOCK_FUSE = ff
-ap.CFLAGS += -DAP -DFBW -DCONFIG=\"config_discboard.h\"
-# ap.srcs = sys_time.c main_fbw_2.c main_ap_2.c main.c
-ap.srcs = $(SRC_ARCH)/ppm_hw.c $(SRC_ARCH)/adc_ap.c $(SRC_ARCH)/uart_ap.c $(SRC_ARCH)/servos_esc_hw.c sys_time.c main_fbw.c inter_mcu.c pid.c estimator.c if_calib.c nav.c main_ap.c mainloop.c main.c
+ap.CFLAGS += -DFBW -DCONFIG=\"config_discboard.h\" -DTIMER3 -DTIMER1_TOP=0x400 -DRADIO_CONTROL -DACTUATORS=\"servos_esc_hw.h\"
+ap.srcs = sys_time.c radio_control.c $(SRC_ARCH)/ppm_hw.c $(SRC_ARCH)/adc_hw.c $(SRC_ARCH)/uart_hw.c $(SRC_ARCH)/servos_esc_hw.c commands.c main_fbw.c main.c
+# inter_mcu.c pid.c estimator.c if_calib.c nav.c main_ap.c mainloop.c main.c

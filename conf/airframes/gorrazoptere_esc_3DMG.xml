@@ -62,9 +62,9 @@
     <axis name="ROLL"     failsafe_value="0"/>
     <axis name="PITCH"    failsafe_value="0"/>
     <axis name="YAW"      failsafe_value="0"/>
-    <axis name="PHI_DOT"      failsafe_value="0"/>
-    <axis name="THETA_DOT"    failsafe_value="0"/>
-    <axis name="PSI_DOT"      failsafe_value="0"/>
+    <axis name="PHI_DOT"  failsafe_value="0"/>
+    <axis name="THETA_DOT" failsafe_value="0"/>
+    <axis name="PSI_DOT"  failsafe_value="0"/>
     <axis name="PHI"      failsafe_value="0"/>
     <axis name="THETA"    failsafe_value="0"/>
     <axis name="PSI"      failsafe_value="0"/>
@@ -72,9 +72,9 @@
 
   <rc_commands>
     <set command="THROTTLE" value="@THROTTLE"/>
-    <set command="PHI" value="@ROLL"/>
-    <set command="THETA" value="@PITCH"/>
-    <set command="PSI" value="@YAW"/>
+    <set command="ROLL" value="@ROLL"/>
+    <set command="PITCH" value="@PITCH"/>
+    <set command="YAW" value="@YAW"/>
   </rc_commands>
 
   <command_laws>
@@ -136,12 +136,13 @@
   <makefile>
 include $(PAPARAZZI_SRC)/conf/autopilot/disc_board.makefile
 
-LOCAL_CFLAGS += -DIMU_3DMG
+# ap.CFLAGS += -DDEBUG_RC
 
-ap.CFLAGS += -DRATE_LOOP
-ap.EXTRA_SRCS += control_grz.c imu.c 3dmg.c
-ap.CFLAGS += -DIMU_RESET_ON_BOOT
-ap.CFLAGS += -DTIMER1_TOP=0x400
+# LOCAL_CFLAGS += -DIMU_3DMG
+
+#ap.CFLAGS += -DRATE_LOOP
+#ap.EXTRA_SRCS += control_grz.c imu.c 3dmg.c
+#ap.CFLAGS += -DIMU_RESET_ON_BOOT
 
   </makefile>
 </airframe>

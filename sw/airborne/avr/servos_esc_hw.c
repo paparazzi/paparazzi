@@ -1,7 +1,6 @@
 /*  $Id$
  *
- * Copied from autopilot (autopilot.sf.net) thanx alot Trammell
- * (c) 2003-2005 Pascal Brisset, Antoine Drouin
+ * (c) 2006 Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
  *
@@ -25,7 +24,7 @@
 
 
 
-/** Implementation of command.h */
+/** Implementation of actuators.h */
 
 /*
  
@@ -34,24 +33,11 @@
 */
 
 #include <avr/io.h>
-#include "command.h"
-#include "std.h"
-#include "airframe.h"
+#include "servos_esc_hw.h"
+#include CONFIG
 
-#define MAX_TICK 0x3FF
-#define MOT_CTL_0 OCR3C
-#define MOT_CTL_1 OCR1A
-#define MOT_CTL_2 OCR3B
-#define MOT_CTL_3 OCR3A
 
-#define COMMAND_(i) MOT_CTL_ ## i
-#define COMMAND(i) COMMAND_(i)
-#define ChopServo(x,_a,b) (x > b ? b : x)
-#define SERVOS_TICS_OF_USEC(s) (s)
-
-const pprz_t failsafe_values[COMMANDS_NB] = COMMANDS_FAILSAFE;
-
-void command_init ( void ) {
+void actuators_init ( void ) {
   /* OC1A output    */
   DDRB |= _BV(5); 
   /* fast PWM, 10 bits */
@@ -62,8 +48,4 @@ void command_init ( void ) {
   /* fast PWM : 10 bits */
   TCCR3A  |= _BV(WGM30) | _BV(WGM31) | _BV(COM3A1) | _BV(COM3B1) | _BV(COM3C1);
   TCCR3B  |= _BV(WGM32);
-}
-
-void command_set(const pprz_t values[]) {
-  CommandsSet(values); /*Generated from airframe.xml */
 }

@@ -91,19 +91,10 @@
 
  <makefile>
 include $(PAPARAZZI_SRC)/conf/autopilot/robostix.makefile
-ap.CFLAGS += -DRADIO_CONTROL
-ap.EXTRA_SRCS += radio_control.c
-
-ap.EXTRA_SRCS += $(SRC_ARCH)/ppm_hw.c
-ap.CFLAGS += -DACTUATORS=\"servos_direct_hw.h\"
-ap.EXTRA_SRCS += $(SRC_ARCH)/servos_direct_hw.c 
-ap.CFLAGS += -DCONTROL -DAUTOPILOT
-#ap.EXTRA_SRCS += $(ACINCLUDE)/ap/control.c autopilot_fbw.c
+#ap.CFLAGS += -DCONTROL -DAUTOPILOT
+#ap.EXTRA_SRCS += $(ACINCLUDE)/ap/control.c
 #ap.CFLAGS += -DADC
 #ap.EXTRA_SRCS += $(SRC_ARCH)/adc_hw.c
-#ap.CFLAGS += -DTRACES
-#ap.EXTRA_SRCS += $(SRC_ARCH)/traces.c
-ap.EXTRA_SRCS += $(SRC_ARCH)/uart_hw.c
 #ap.CFLAGS += -DDATALINK
 #ap.EXTRA_SRCS += datalink.c nav.c estimator.c
   </makefile>

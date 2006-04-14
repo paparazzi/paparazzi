@@ -63,6 +63,8 @@ uint8_t fbw_mode;
 #endif
 
 
+
+/********** INIT *************************************************************/
 void init_fbw( void ) {
   /** Hardware init */
   hw_init();
@@ -99,6 +101,7 @@ void init_fbw( void ) {
 }
 
 
+/********** EVENT ************************************************************/
 void event_task_fbw( void) {
 
 #ifdef RADIO_CONTROL
@@ -107,7 +110,8 @@ void event_task_fbw( void) {
     if (rc_values_contains_avg_channels) {
       fbw_mode = FBW_MODE_OF_PPRZ(rc_values[RADIO_MODE]);
     }
-    SetCommandsFromRC(commands);
+    if (fbw_mode == FBW_MODE_MANUAL)
+      SetCommandsFromRC(commands);
   } else if (fbw_mode == FBW_MODE_MANUAL && rc_status == RC_REALLY_LOST) {
     fbw_mode = FBW_MODE_AUTO;
   }
@@ -141,13 +145,15 @@ void event_task_fbw( void) {
 #ifdef INTER_MCU
       (fbw_mode == FBW_MODE_AUTO && !ap_ok) ||
 #endif
-      TRUE
+      FALSE
       ) {
     fbw_mode = FBW_MODE_FAILSAFE;
     SetCommands(commands_failsafe);
   }
 }
 
+
+/************* PERIODIC ******************************************************/
 void periodic_task_fbw( void ) {
 
 #if defined IMU_ANALOG
@@ -158,7 +164,7 @@ void periodic_task_fbw( void ) {
   control_rate_run();
   if (rc_status == RC_OK) {
     if (rc_values[RADIO_THROTTLE] < 0.1*MAX_PPRZ) {
-      SetCommands(failsafe);
+      SetCommands(commands_failsafe);
     }
   }
 #endif

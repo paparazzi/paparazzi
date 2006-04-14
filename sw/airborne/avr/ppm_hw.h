@@ -82,7 +82,6 @@ ppm_init( void )
   sbi( TIMSK, TOIE1 );
 #endif
   ppm_valid = FALSE;
-
 }
 
 #endif /* PPM_HW_H */

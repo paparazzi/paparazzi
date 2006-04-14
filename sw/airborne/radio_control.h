@@ -31,6 +31,7 @@
 #include "radio.h"
 #include "airframe.h"
 #include "paparazzi.h"
+#include "print.h"
 
 #define RC_AVG_PERIOD 8
 #define RC_LOST_TIME 30  // 500ms with a 60Hz timer
@@ -52,6 +53,7 @@ static inline void radio_control_init ( void ) {
   time_since_last_ppm = RC_REALLY_LOST_TIME;
 }
 
+/************* PERIODIC ******************************************************/
 static inline void radio_control_periodic_task ( void ) {
   static uint8_t _1Hz;
   _1Hz++;
@@ -70,13 +72,25 @@ static inline void radio_control_periodic_task ( void ) {
     time_since_last_ppm++;
 }
 
+
+/********** EVENT ************************************************************/
 static inline void radio_control_event_task ( void ) {
   if (ppm_valid) {
     ppm_cpt++;
     time_since_last_ppm = 0;
     rc_status = RC_OK;
+
+    /** From ppm values to normalised rc_values */
     NormalizePpm();
-    LED_ON(1); 
+
+#ifdef DEBUG_RC
+    uint8_t i;
+    for(i = 0; i < 7; i++) {
+      PrintHex16(uart0_transmit, rc_values[i]);
+    }
+    uart0_transmit('\n');
+#endif
+
     ppm_valid = FALSE;
   }
 }

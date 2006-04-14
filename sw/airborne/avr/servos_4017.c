@@ -1,6 +1,6 @@
 /*  $Id$
  *
- * (c) 2003-2005 Pascal Brisset, Antoine Drouin
+ * (c) 2003-2006 Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
  *
@@ -22,7 +22,7 @@
  */
 
 
-/** Implementation of command.h */
+/** Implementation of actuators.h */
 
 #include <avr/io.h>
 #include <avr/signal.h>

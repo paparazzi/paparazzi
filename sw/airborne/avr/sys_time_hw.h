@@ -50,13 +50,18 @@ static inline void sys_time_init( void ) {
   TCCR1B = _BV(CS10);
 
   /* Timer2 @ Clk/1024: Periodic clock */
-
 #if defined (__AVR_ATmega8__)
   TCCR2         = _BV(CS20) | _BV(CS21) | _BV(CS22);
 #elif defined (__AVR_ATmega128__)
   TCCR2         = _BV(CS20) | _BV(CS22);
 #else
 #warning "Unknown arch"
+#endif
+
+#ifdef TIMER3
+  /* Timer3 @ Clk/1: motor controller */
+  TCCR3A = 0x00;
+  TCCR3B = 0x01;
 #endif
 
   cpu_time = 0;

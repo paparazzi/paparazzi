@@ -25,6 +25,8 @@
 #ifndef PRINT_H
 #define PRINT_H
 
+#include "uart.h"
+
 #define PrintString(out_fun, s) { \
   uint8_t i = 0;                  \
   while (s[i]) {                  \
