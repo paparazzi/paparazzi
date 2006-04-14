@@ -28,8 +28,8 @@
  *
  */
 
-#ifndef LOW_LEVEL_HW_H
-#define LOW_LEVEL_HW_H
+#ifndef INIT_HW_H
+#define INIT_HW_H
 
 #include <inttypes.h>
 #include CONFIG
@@ -41,7 +41,7 @@ extern void reset(void);
 extern void abort(void);
 
 
-static inline void low_level_init(void) {
+static inline void hw_init(void) {
   /* set PLL multiplier & divisor. */
   /* values computed from config.h */
   PLLCFG = PLLCFG_MSEL | PLLCFG_PSEL;
@@ -93,4 +93,4 @@ static inline void low_level_init(void) {
 
 }
 
-#endif /* LOW_LEVEL_HW_H */
+#endif /* INIT_HW_H */
