@@ -34,6 +34,6 @@ volatile bool_t from_fbw_receive_valid = FALSE;
 volatile bool_t from_ap_receive_valid = FALSE;
 
 #ifdef FBW
-bool_t ap_ok;
+uint8_t ap_ok;
 uint8_t time_since_last_ap;
 #endif

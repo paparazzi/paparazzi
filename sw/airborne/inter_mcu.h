@@ -29,8 +29,8 @@
  * communication process (e.g. SPI) must fill and read these data structures.
 */
 
-#ifndef LINK_AUTOPILOT_H
-#define LINK_AUTOPILOT_H
+#ifndef INTER_MCU_H
+#define INTER_MCU_H
 
 #include <inttypes.h>
 
@@ -38,6 +38,8 @@
 #include "radio.h"
 #include "paparazzi.h"
 #include "airframe.h"
+#include "radio_control.h"
+#include "main_fbw.h"
 
 /*
  * System clock in MHz.
@@ -74,6 +76,7 @@ typedef union  {
 
 #define FBW_MODE_MANUAL   0
 #define FBW_MODE_AUTO     1
+#define FBW_MODE_FAILSAFE 2
 #define FBW_MODE_OF_PPRZ(mode) ((mode) < TRESHOLD_MANUAL_PPRZ ? FBW_MODE_MANUAL : FBW_MODE_AUTO)
 
 // Status bits from FBW to AUTOPILOT
@@ -103,5 +106,64 @@ extern inter_mcu_msg from_ap;
 extern volatile bool_t from_fbw_receive_valid;
 extern volatile bool_t from_ap_receive_valid;
 
+extern uint8_t time_since_last_ap;
+extern bool_t ap_ok;
 
-#endif // LINK_AUTOPILOT_H
+
+#ifdef FBW
+
+#define AP_STALLED_TIME        30  // 500ms with a 60Hz timer
+
+
+/* Prepare data to be sent to mcu0 */
+static inline void to_autopilot_from_rc_values (void) {
+  struct from_fbw_msg *msg = &(from_fbw.from_fbw);
+
+  uint8_t i;
+  for(i = 0; i < RADIO_CTL_NB; i++)
+    msg->channels[i] = rc_values[i];
+
+  uint8_t status;
+  status = (rc_status == RC_OK ? _BV(STATUS_RADIO_OK) : 0);
+  status |= (rc_status == RC_REALLY_LOST ? _BV(RADIO_REALLY_LOST) : 0);
+  status |= (fbw_mode == FBW_MODE_AUTO ? _BV(STATUS_MODE_AUTO) : 0);
+  status |= (fbw_mode == FBW_MODE_FAILSAFE ? _BV(STATUS_MODE_FAILSAFE) : 0);
+  msg->status  = status;
+
+  if (rc_values_contains_avg_channels) {
+    msg->status |= _BV(AVERAGED_CHANNELS_SENT);
+    rc_values_contains_avg_channels = FALSE;
+  }
+  msg->ppm_cpt = last_ppm_cpt;
+  msg->vsupply = VoltageOfAdc(vsupply_adc_buf.sum/vsupply_adc_buf.av_nb_sample) * 10;
+#if defined IMU_3DMG || defined IMU_ANALOG
+  msg->euler_dot[0] = roll_dot;
+  msg->euler_dot[1] = pitch_dot;
+  msg->euler_dot[2] = yaw_dot;
+#endif
+#ifdef IMU_3DMG
+  msg->euler[0] = roll;
+  msg->euler[1] = pitch;
+  msg->euler[2] = yaw;
+#endif
+}
+
+static inline void inter_mcu_event_task( void) {
+  if (from_ap_receive_valid) {
+    time_since_last_ap = 0;
+    ap_ok = TRUE;
+    to_autopilot_from_rc_values();
+  }
+}
+
+static inline void inter_mcu_periodic_task(void) {
+  if (time_since_last_ap >= AP_STALLED_TIME) {
+    ap_ok = FALSE;
+  } else
+    time_since_last_ap++;
+}
+
+#endif /* FBW */
+
+
+#endif /* INTER_MCU_H */

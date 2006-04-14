@@ -1,7 +1,7 @@
 /*
  * Paparazzi $Id$
  *  
- * Copyright (C) 2003-2005 Pascal Brisset, Antoine Drouin
+ * Copyright (C) 2003-2006 Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
  *
@@ -28,7 +28,7 @@
 #include "sys_time.h"
 #include "actuators.h"
 #include "commands.h"
-#include "ppm.h"
+#include "radio_control.h"
 
 #include "led.h"
 #include "uart.h"
@@ -52,66 +52,21 @@
 struct adc_buf vsupply_adc_buf;
 
 
-static uint8_t mode;
-static uint16_t time_since_last_ppm;
-static bool_t radio_ok, radio_really_lost, failsafe_mode;
-
-static pprz_t rc_values[ PPM_NB_PULSES ];
-static pprz_t avg_rc_values[ PPM_NB_PULSES ];
-static bool_t rc_values_contains_avg_channels = FALSE;
-
-static uint8_t ppm_cpt, last_ppm_cpt;
-
-#define STALLED_TIME        30  // 500ms with a 60Hz timer
-#define REALLY_STALLED_TIME 300 // 5s with a 60Hz timer
-
+uint8_t fbw_mode;
 
 #include "inter_mcu.h"
-#include "inter_mcu_fbw.h"
 
-
-#define RC_AVG_PERIOD 8
-/* Copy from the ppm receiving buffer to the buffer sent to mcu0 */
-static void rc_values_from_ppm( void ) {
-  NormalizePpm();
-}
-
-static inline void radio_control_task(void) {
-  ppm_cpt++;
-  radio_ok = TRUE;
-  radio_really_lost = FALSE;
-  time_since_last_ppm = 0;
-  rc_values_from_ppm();
-  if (rc_values_contains_avg_channels) {
-    mode = FBW_MODE_OF_PPRZ(rc_values[RADIO_MODE]);
-  }
-#if defined IMU_ANALOG && defined RADIO_SWITCH1
-  if (rc_values[RADIO_SWITCH1] > MAX_PPRZ/2) {
-    imu_capture_neutral();
-    CounterLedOn();
-  } else {
-    CounterLedOff();
-  } 
-#endif
-  if (mode == FBW_MODE_MANUAL) {
-#if defined IMU_3DMG || defined IMU_ANALOG
-    roll_dot_pgain = -100. ; /***  + (float)rc_values[RADIO_GAIN1] * 0.010; ***/
-    roll_dot_dgain = 0.; /*** 2.5 - (float)rc_values[RADIO_GAIN2] * 0.00025; ***/
-    pitch_dot_pgain = roll_dot_pgain;
-    pitch_dot_dgain = roll_dot_dgain;
-#endif
-
-    SetCommandsFromRC(commands);
-  }
-}
 
 #ifndef ADC_CHANNEL_VSUPPLY
 #define ADC_CHANNEL_VSUPPLY 3
 // for compatibility
 #endif
 
+
 void init_fbw( void ) {
+  /** Hardware init */
   hw_init();
+
   uart0_init_tx();
 #if defined IMU_3DMG
   uart0_init_rx();
@@ -145,12 +100,18 @@ void init_fbw( void ) {
 
 
 void event_task_fbw( void) {
-  if( ppm_valid ) {
-    ppm_valid = FALSE;
-    radio_control_task();
-  } else if (mode == FBW_MODE_MANUAL && radio_really_lost) {
-    mode = FBW_MODE_AUTO;
+
+#ifdef RADIO_CONTROL
+  radio_control_event_task();
+  if ( rc_status == RC_OK ) {
+    if (rc_values_contains_avg_channels) {
+      fbw_mode = FBW_MODE_OF_PPRZ(rc_values[RADIO_MODE]);
+    }
+    SetCommandsFromRC(commands);
+  } else if (fbw_mode == FBW_MODE_MANUAL && rc_status == RC_REALLY_LOST) {
+    fbw_mode = FBW_MODE_AUTO;
   }
+#endif
 
 #ifdef MCU_SPI_LINK
   if ( !SpiIsSelected() && spi_was_interrupted ) {
@@ -161,6 +122,10 @@ void event_task_fbw( void) {
 
 #ifdef INTER_MCU
   inter_mcu_event_task();
+  if (ap_ok && fbw_mode == FBW_MODE_AUTO) {
+    SetCommands(from_ap.from_ap.channels);
+  }
+
 #endif
 
 #ifdef IMU_3DMG
@@ -169,53 +134,42 @@ void event_task_fbw( void) {
   }
 #endif
 
-  if (time_since_last_ppm >= STALLED_TIME) {
-    radio_ok = FALSE;
-  }
-
-  if (time_since_last_ppm >= REALLY_STALLED_TIME) {
-    radio_really_lost = TRUE;
-  }
-
-  failsafe_mode = FALSE;
-  if ((mode == FBW_MODE_MANUAL && !radio_ok)
-#ifdef INTER_MCU
-      || (mode == FBW_MODE_AUTO && !ap_ok)
+  if (
+#ifdef RADIO_CONTROL
+      (fbw_mode == FBW_MODE_MANUAL && rc_status == RC_REALLY_LOST) ||
 #endif
+#ifdef INTER_MCU
+      (fbw_mode == FBW_MODE_AUTO && !ap_ok) ||
+#endif
+      TRUE
       ) {
-    failsafe_mode = TRUE;
+    fbw_mode = FBW_MODE_FAILSAFE;
     SetCommands(commands_failsafe);
   }
 }
 
 void periodic_task_fbw( void ) {
-  static uint8_t _1Hz;
-  _1Hz++;
 
 #if defined IMU_ANALOG
   imu_update();
 #endif
+
 #if defined IMU_3DMG || defined IMU_ANALOG
   control_rate_run();
-  if (radio_ok) {
+  if (rc_status == RC_OK) {
     if (rc_values[RADIO_THROTTLE] < 0.1*MAX_PPRZ) {
       SetCommands(failsafe);
     }
   }
 #endif
-
-  if (_1Hz >= 60) {
-    _1Hz = 0;
-    last_ppm_cpt = ppm_cpt;
-    ppm_cpt = 0;
-  }
+  
+#ifdef RADIO_CONTROL
+  radio_control_periodic_task();
+#endif
 
 #ifdef INTER_MCU
   inter_mcu_periodic_task();
 #endif
-
-  if (time_since_last_ppm < REALLY_STALLED_TIME)
-    time_since_last_ppm++;
 
   SetActuatorsFromCommands(commands);
 }

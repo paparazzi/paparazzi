@@ -25,11 +25,15 @@
 #ifndef FBW_H
 #define FBW_H
 
-#include "paparazzi.h"
-#include "airframe.h"
+#include "std.h"
+#include "adc.h"
 
-extern void init_fbw( void );
-extern void periodic_task_fbw( void );
-extern void event_task_fbw( void );
+extern uint8_t fbw_mode;
+extern bool_t failsafe_mode;
+extern struct adc_buf vsupply_adc_buf;
+
+void init_fbw( void );
+void periodic_task_fbw( void );
+void event_task_fbw( void );
 
 #endif
