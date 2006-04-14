@@ -30,6 +30,8 @@
 #ifndef INIT_HW_H
 #define INIT_HW_H
 
+#include <inttypes.h>
+
 static inline void hw_init(void) {
   /** Pause */
   uint8_t foo1 = 25;

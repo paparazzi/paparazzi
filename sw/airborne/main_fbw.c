@@ -22,6 +22,7 @@
  *
  */
 
+#include "init_hw.h"
 #include "main_fbw.h"
 #include "int.h"
 #include "sys_time.h"
@@ -110,13 +111,7 @@ static inline void radio_control_task(void) {
 #endif
 
 void init_fbw( void ) {
-  { /** Pause */
-    uint8_t foo1 = 25;
-    while (foo1--) {
-      uint16_t foo2 = 1;
-      while (foo2++);
-    }
-  }
+  hw_init();
   uart0_init_tx();
 #if defined IMU_3DMG
   uart0_init_rx();
