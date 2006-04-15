@@ -25,15 +25,57 @@
 #ifndef FBW_DOWNLINK_H
 #define FBW_DOWNLINK_H
 
+#include "inttypes.h"
 #include "messages_fbw.h"
+#include "airframe.h"
 
-#define PERIODIC_SEND_PPM() { Uart0PrintString("SEND_PPM\n"); }
+#include "uart.h"
+#include "main_fbw.h"
+#include "radio_control.h"
+
+extern uint8_t ck_a, ck_b;
+extern uint8_t downlink_nb_ovrn;
+#define STX  0x05
+
+#define __DownlinkCheckFreeSpace(dev, _x) dev ##_check_free_space(_x)
+#define _DownlinkCheckFreeSpace(dev, _x)  __DownlinkCheckFreeSpace(dev, _x)
+#define DownlinkCheckFreeSpace(_x) _DownlinkCheckFreeSpace(DOWNLINK_FBW_DEVICE, _x)
+
+#define __DownlinkPut1Byte(dev, _x) dev ##_transmit(_x)
+#define _DownlinkPut1Byte(dev, _x)  __DownlinkPut1Byte(dev, _x)
+#define DownlinkPut1Byte(_x) _DownlinkPut1Byte(DOWNLINK_FBW_DEVICE, _x)
+
+#define PERIODIC_SEND_PPM() {}
+//#define PERIODIC_SEND_SERVOS() { Uart0PrintString("SERVOS\n");}
 #define PERIODIC_SEND_SERVOS() {}
-#define PERIODIC_SEND_FBW_STATUS() {}
+#define PERIODIC_SEND_FBW_STATUS() {DOWNLINK_SEND_FBW_STATUS(&fbw_mode, &rc_status, &fbw_mode)}
 #define PERIODIC_SEND_RC() {}
+
+
+/** 5 = STX + ac_id + msg_id + ck_a + ck_b */
+#define DownlinkSizeOf(_payload) (_payload+5)
+
+#define DownlinkPut1ByteUpdateCs(_byte) { \
+  ck_a += _byte;			  \
+  ck_b += ck_a;				  \
+  DownlinkPut1Byte(_byte);		  \
+}
+
+#define DownlinkPut1ByteByAddr(_byte) {	  \
+  uint8_t _x = *(_byte);		  \
+  DownlinkPut1ByteUpdateCs(_x);		  \
+}
+
+#define DownlinkStartMessage(id)					\
+  { DownlinkPut1Byte(STX); DownlinkPut1Byte(id); ck_a = id; ck_b = id; DownlinkPut1ByteUpdateCs(AC_ID);}
+
+#define DownlinkEndMessage()				\
+  { DownlinkPut1Byte(ck_a); DownlinkPut1Byte(ck_b); }
+
 
 static inline void fbw_downlink_periodic_task(void) {
   PeriodicSend()
-}
+    }
+
 
 #endif /* FBW_DOWNLINK_H */

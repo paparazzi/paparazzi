@@ -1,13 +1,7 @@
 #include "actuators.h"
 
-#include "LPC21xx.h"
-#include CONFIG
-
-#include "std.h"
 #include "paparazzi.h"
 #include "airframe.h"
-#include "actuators.h"
-
 
 uint8_t servos_4017_idx;
 

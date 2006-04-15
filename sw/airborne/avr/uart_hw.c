@@ -22,7 +22,6 @@
  *
  */
 
-#include <avr/signal.h>
 #include <avr/interrupt.h>
 #include <avr/io.h>
 
@@ -60,6 +59,14 @@ void uart0_init_rx( void ) {
   UCSRB |= _BV(RXEN); 
   /* Enable uart receive interrupt */
   sbi( UCSRB, RXCIE ); 
+}
+
+bool_t uart0_check_free_space( uint8_t len) {
+  int8_t space;
+  if ((space = (tx_tail - tx_head)) <= 0)
+    space += TX_BUF_SIZE;
+  
+  return (uint8_t)(space - 1) >= len;
 }
 
 void uart0_transmit( unsigned char data ) {
@@ -101,57 +108,6 @@ static uint8_t           tx_head1; /* next free in buf */
 static volatile uint8_t  tx_tail1; /* next char to send */
 static uint8_t           tx_buf1[ TX_BUF_SIZE ];
 
-void uart0_transmit( unsigned char data ) {
-  if (UCSR0B & _BV(TXCIE)) {
-    /* we are waiting for the last char to be sent : buffering */
-    if (tx_tail0 == tx_head0 + 1) { /* BUF_SIZE = 256 */
-      /* Buffer is full (almost, but tx_head = tx_tail means "empty" */
-      return;
-    }
-    tx_buf0[tx_head0] = data;
-    tx_head0++; /* BUF_SIZE = 256 */
-  } else { /* Channel is free: just send */
-    UDR0 = data;
-    sbi(UCSR0B, TXCIE);
-  }
-}
-
-void uart1_transmit( unsigned char data ) {
-  if (UCSR1B & _BV(TXCIE)) {
-    /* we are waiting for the last char to be sent : buffering */
-    if (tx_tail1 == tx_head1 + 1) { /* BUF_SIZE = 256 */
-      /* Buffer is full (almost, but tx_head = tx_tail means "empty" */
-      return;
-    }
-    tx_buf1[tx_head1] = data;
-    tx_head1++; /* BUF_SIZE = 256 */
-  } else { /* Channel is free: just send */
-    UDR1 = data;
-    sbi(UCSR1B, TXCIE);
-  }
-}
-
-
-SIGNAL(SIG_UART0_TRANS) {
-  if (tx_head0 == tx_tail0) {
-    /* Nothing more to send */
-    cbi(UCSR0B, TXCIE); /* disable interrupt */
-  } else {
-    UDR0 = tx_buf0[tx_tail0];
-    tx_tail0++; /* warning tx_buf_len is 256 */
-  }
-}
-
-SIGNAL(SIG_UART1_TRANS) {
-  if (tx_head1 == tx_tail1) {
-    /* Nothing more to send */
-    cbi(UCSR1B, TXCIE); /* disable interrupt */
-  } else {
-    UDR1 = tx_buf1[tx_tail1];
-    tx_tail1++; /* warning tx_buf_len is 256 */
-  }
-}
-
 void uart0_init_tx( void ) {
   /* Baudrate is 38.4k */
   UBRR0H = 0;
@@ -177,6 +133,40 @@ void uart0_init_rx( void ) {
   sbi(UCSR0B, RXCIE );
 }
 
+bool_t uart0_check_free_space( uint8_t len) {
+  int8_t space;
+  if ((space = (tx_tail0 - tx_head0)) <= 0)
+    space += TX_BUF_SIZE;
+  
+  return (uint16_t)(space - 1) >= len;
+}
+
+void uart0_transmit( unsigned char data ) {
+  if (UCSR0B & _BV(TXCIE)) {
+    /* we are waiting for the last char to be sent : buffering */
+    if (tx_tail0 == tx_head0 + 1) { /* BUF_SIZE = 256 */
+      /* Buffer is full (almost, but tx_head = tx_tail means "empty" */
+      return;
+    }
+    tx_buf0[tx_head0] = data;
+    tx_head0++; /* BUF_SIZE = 256 */
+  } else { /* Channel is free: just send */
+    UDR0 = data;
+    sbi(UCSR0B, TXCIE);
+  }
+}
+
+SIGNAL(SIG_UART0_TRANS) {
+  if (tx_head0 == tx_tail0) {
+    /* Nothing more to send */
+    cbi(UCSR0B, TXCIE); /* disable interrupt */
+  } else {
+    UDR0 = tx_buf0[tx_tail0];
+    tx_tail0++; /* warning tx_buf_len is 256 */
+  }
+}
+
+
 void uart1_init_tx( void ) {
   /* Baudrate is 38.4k */
   UBRR1H = 0; 
@@ -197,6 +187,31 @@ void uart1_init_rx( void ) {
   sbi(UCSR1B, RXCIE ); 
 }
 
+void uart1_transmit( unsigned char data ) {
+  if (UCSR1B & _BV(TXCIE)) {
+    /* we are waiting for the last char to be sent : buffering */
+    if (tx_tail1 == tx_head1 + 1) { /* BUF_SIZE = 256 */
+      /* Buffer is full (almost, but tx_head = tx_tail means "empty" */
+      return;
+    }
+    tx_buf1[tx_head1] = data;
+    tx_head1++; /* BUF_SIZE = 256 */
+  } else { /* Channel is free: just send */
+    UDR1 = data;
+    sbi(UCSR1B, TXCIE);
+  }
+}
+
+
+SIGNAL(SIG_UART1_TRANS) {
+  if (tx_head1 == tx_tail1) {
+    /* Nothing more to send */
+    cbi(UCSR1B, TXCIE); /* disable interrupt */
+  } else {
+    UDR1 = tx_buf1[tx_tail1];
+    tx_tail1++; /* warning tx_buf_len is 256 */
+  }
+}
 
 uint8_t uart1_char;
 bool_t uart1_char_available;

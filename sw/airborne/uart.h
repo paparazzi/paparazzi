@@ -26,7 +26,7 @@
 #define UART_H
 
 #include <inttypes.h>
-
+#include "std.h"
 #include "uart_hw.h"
 
 void uart0_init_tx( void );
@@ -35,6 +35,7 @@ void uart0_init_rx( void );
 /** uart0_init_tx() must be called BEFORE */
 
 void uart0_transmit( unsigned char data );
+bool_t uart0_check_free_space( uint8_t len);
 
 /** Not necessarily defined */
 void uart1_init_tx( void );

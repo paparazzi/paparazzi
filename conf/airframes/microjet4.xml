@@ -14,6 +14,12 @@
     <axis name="PITCH"    failsafe_value="0"/>
   </commands>
 
+  <rc_commands>
+    <set command="THROTTLE" value="@THROTTLE"/>
+    <set command="ROLL"     value="@ROLL"/>
+    <set command="PITCH"    value="@PITCH"/>
+  </rc_commands>
+
   <section name="MIXER">
     <define name="AILEVON_AILERON_RATE" value="0.55"/>
     <define name="AILEVON_ELEVATOR_RATE" value="0.75"/>
@@ -27,17 +33,12 @@
     <set servo="AILEVON_RIGHT" value="$elevator - $aileron"/>
   </command_laws>
 
-<control>
-  <mode name="MANUAL">
-    <input input="rc_values[RADIO_THROTTLE]" output="control_commands[COMMAND_THROTTLE]" range="1"/>
-    <input input="rc_values[RADIO_ROLL]" output="control_commands[COMMAND_ROLL]" range="1"/>
-    <input input="rc_values[RADIO_PITCH]" output="control_commands[COMMAND_PITCH]" range="1"/>
-  </mode>
-</control>
-
+  <section name="DOWNLINK" prefix="DOWNLINK_">
+    <define name="FBW_DEVICE" value="uart0"/>
+  </section>
 
  <makefile>
-include $(PAPARAZZI_SRC)/conf/autopilot/tiny_test.makefile
+include $(PAPARAZZI_SRC)/conf/autopilot/tiny.makefile
 #ap.CFLAGS += -DTRACES=uart0
 #ap.EXTRA_SRCS += $(SRC_ARCH)/traces.c $(SRC_ARCH)/uart.c
 #ap.CFLAGS += -DRADIO_CONTROL 
@@ -55,13 +56,18 @@ include $(PAPARAZZI_SRC)/conf/autopilot/tiny_test.makefile
 #ap.EXTRA_SRCS += $(SRC_ARCH)/modem_hw.c
 #ap.CFLAGS += -DDOWNLINK
 
-ap.srcs += commands.c inter_mcu.c
+ap.srcs += commands.c
 
-ap.CFLAGS += -DACTUATORS=\"servos_4017_hw.h\"
-ap.srcs += $(SRC_ARCH)/servos_4017_hw.c
+ap.CFLAGS += -DACTUATORS=\"servos_4015_hw.h\" -DSERVOS_4015
+ap.srcs += $(SRC_ARCH)/servos_4015_hw.c
 
 ap.CFLAGS += -DRADIO_CONTROL
-ap.srcs += $(SRC_ARCH)/ppm_hw.c  
+ap.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c  
+
+ap.CFLAGS += -DDOWNLINK -DUSE_UART0 
+ap.srcs += fbw_downlink.c $(SRC_ARCH)/uart_hw.c
+
+ap.srcs += inter_mcu.c  $(SRC_ARCH)/adc_hw.c
 
   </makefile>
 </airframe>

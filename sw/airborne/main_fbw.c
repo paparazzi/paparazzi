@@ -87,8 +87,9 @@ void init_fbw( void ) {
 #endif
   sys_time_init();
 
+#ifdef ACTUATORS
   actuators_init();
-
+#endif
   /* Load the failsafe defaults                     */
   SetCommands(commands_failsafe);
   
@@ -134,7 +135,6 @@ void event_task_fbw( void) {
   if (ap_ok && fbw_mode == FBW_MODE_AUTO) {
     SetCommands(from_ap.from_ap.channels);
   }
-
 #endif
 
 #ifdef IMU_3DMG

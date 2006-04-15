@@ -1,16 +1,48 @@
-#include "servos_4015_hw.h"
-#include "command.h"
+#include "actuators.h"
 #include "armVIC.h"
 
 #include "airframe.h"
 #include "sys_time.h"
-//#include "led.h"
-const pprz_t failsafe_values[COMMANDS_NB] = COMMANDS_FAILSAFE;
+
+
 
 #define COMMAND(i) servos_values[i]
 #define SERVOS_TICS_OF_USEC(s) SYS_TICS_OF_USEC(s)
 
+void actuators_init ( void ) {
+  /* PWM selected as IRQ */
+  VICIntSelect &= ~VIC_BIT(VIC_PWM);   
+  /* PWM interrupt enabled */
+  VICIntEnable = VIC_BIT(VIC_PWM);  
+  VICVectCntl3 = VIC_ENABLE | VIC_PWM;
+  /* address of the ISR */
+  VICVectAddr3 = (uint32_t)PWM_ISR;
+  /* PW5 pin (P0.21) used for PWM  */
+  IO0DIR |= _BV(SERV0_CLOCK_PIN);
+  IO1DIR |= _BV(SERV0_DATA_PIN) | _BV(SERV0_RESET_PIN);
+  SERV0_CLOCK_PINSEL |= SERV0_CLOCK_PINSEL_VAL << SERV0_CLOCK_PINSEL_BIT;
 
+  /* set match5 to go of a long time from now */
+  PWMMR0 = 0XFFFFFF;  
+  //PWMMR0 = CLOCK_OF_US(1500);  
+  PWMMR5 = 0XFFF;  
+  /* commit above change        */
+  PWMLER = PWMLER_LATCH0 | PWMLER_LATCH5;
+  /* interrupt on PWMMR5 match  */
+  PWMMCR = PWMMCR_MR0R | PWMMCR_MR5I;
+  /* enable PWM5 ouptput        */
+  PWMPCR = PWMPCR_ENA5;
+  /* enable PWM timer counter and PWM mode  */
+  PWMTCR = PWMTCR_COUNTER_ENABLE | PWMTCR_PWM_ENABLE; 
+  /* Load failsafe values              */
+   /* Set all servos at their midpoints */
+  /* compulsory for unaffected servos  */
+  uint8_t i;
+  for( i=0 ; i < _4015_NB_CHANNELS ; i++ )
+    servos_values[i] = SERVOS_TICS_OF_USEC(1500);
+}
+
+uint16_t servos_values[_4015_NB_CHANNELS];
 
 #define CLOCK_OF_US(us) ((us)*(PCLK/1000000))
 
@@ -20,14 +52,7 @@ const pprz_t failsafe_values[COMMANDS_NB] = COMMANDS_FAILSAFE;
 #define SERV7_START_POS 1600
 
 
-#define NB_SERVOS 4
 #define SERVO_REFRESH_US 25000
-uint32_t servos_values[NB_SERVOS] = 
-  { CLOCK_OF_US(SERV4_START_POS), 
-    CLOCK_OF_US(SERV5_START_POS), 
-    CLOCK_OF_US(SERV6_START_POS), 
-    CLOCK_OF_US(SERV7_START_POS)
-  };
 uint32_t servos_delay = CLOCK_OF_US(SERVO_REFRESH_US - SERV4_START_POS - SERV5_START_POS - SERV6_START_POS - SERV7_START_POS) / 2; 
 uint8_t servos_idx = 0;
 
@@ -44,7 +69,7 @@ void PWM_ISR ( void ) {
     PWMLER = PWMLER_LATCH0;
     servos_idx++;
   }
-  else if (servos_idx < NB_SERVOS) {
+  else if (servos_idx < _4015_NB_CHANNELS) {
     IO1CLR = _BV(SERV0_DATA_PIN);
     PWMMR0 = servos_values[servos_idx];
     PWMLER = PWMLER_LATCH0;

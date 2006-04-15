@@ -26,9 +26,8 @@
 #if defined ACTUATORS
 
 #include "paparazzi.h"
-
-#include "airframe.h"
 /** Defines SetActuatorsFromCommands() macro */
+#include "airframe.h"
 
 extern void actuators_init( void );
 

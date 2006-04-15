@@ -1,9 +1,6 @@
 <airframe name="Twinstar four">
-  <section name="adc" prefix="ADC_CHANNEL_">
-    <define name="IR1" value="1"/>
-    <define name="IR2" value="2"/>
-  </section>
-  <servos min="1000" neutral="1500" max="2000">
+
+  <servos>
     <servo name="GAZ" no="3" min="1000" neutral="1000" max="2000"/>
     <servo name="AILERON_LEFT" no="0" max="1190" neutral="1530" min="1850"/>
     <servo name="AILERON_RIGHT" no="2" max="1375" neutral="1580" min="2000"/>
@@ -25,6 +22,17 @@
     <axis name="CALIB"    failsafe_value="0"/>
   </commands>
 
+  <rc_commands>
+    <set command="THROTTLE" value="@THROTTLE"/>
+    <set command="ROLL" value="@ROLL"/>
+    <set command="PITCH" value="@PITCH"/>
+  </rc_commands>
+
+  <section name="MIXER">
+    <define name="AILERON_DIFF" value="0.66"/>
+    <define name="COMBI_SWITCH" value="1.0"/>
+  </section>
+
   <command_laws>
     <set servo="GAZ" value="2 * @THROTTLE"/>
     <set servo="ELEVATOR" value="@PITCH"/>
@@ -36,10 +44,12 @@
     <set servo="CAM_PITCH" value="@CALIB"/>
   </command_laws>
 
-  <section name="MIXER">
-    <define name="AILERON_DIFF" value="0.66"/>
-    <define name="COMBI_SWITCH" value="1.0"/>
+  <section name="adc" prefix="ADC_CHANNEL_">
+    <define name="IR1" value="1"/>
+    <define name="IR2" value="2"/>
   </section>
+
+
   <section name="INFRARED" prefix="IR_">
     <define name="ROLL_NEUTRAL_DEFAULT" value="6" unit="deg"/>
     <define name="PITCH_NEUTRAL_DEFAULT" value="5" unit="deg"/>
@@ -81,7 +91,7 @@
     <define name="VOLTAGE_ADC_A" value="0.0175"/>
     <define name="VOLTAGE_ADC_B" value="0.088"/>
     <define name="VoltageOfAdc(adc)" value="(VOLTAGE_ADC_A * adc + VOLTAGE_ADC_B)"/>
-    <define name="LOW_BATTERY" value="93" unit="1e-1V"/>
+    <define name="LOW_BATTERY" value="9.3" unit="V"/>
   </section>
   <section name="MISC">
     <define name="NOMINAL_AIRSPEED" value="10." unit="m/s"/>
@@ -99,8 +109,26 @@
     <define name="DEFAULT_PITCH" value="0.08" unit="rad"/>
 		<define name="HOME_RADIUS" value="50" unit="m"/>
 	</section>
-  <makefile>
+  
+  <section name="DOWNLINK" prefix="DOWNLINK_">
+    <define name="FBW_DEVICE" value="uart0"/>
+  </section>
+
+ <makefile>
 include $(PAPARAZZI_SRC)/conf/autopilot/v1_2_1.makefile
+
+fbw.srcs += commands.c
+
+fbw.CFLAGS += -DACTUATORS=\"servos_4017.h\" -DSERVOS_4017
+fbw.srcs += $(SRC_ARCH)/servos_4017.c
+
+fbw.CFLAGS += -DRADIO_CONTROL
+fbw.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c 
+
+fbw.CFLAGS += -DDOWNLINK -DUART0 
+fbw.srcs += fbw_downlink.c $(SRC_ARCH)/uart_hw.c
+
+fbw.CFLAGS += -DDEBUG 
 
 ap.CFLAGS += -DINFRARED -DGPS -DUBX -DRADIO_CONTROL_CALIB
 ap.CFLAGS += -DLED -DLED_1_BANK=D  -DLED_1_PIN=0 -DLED_2_BANK=D -DLED_2_PIN=1

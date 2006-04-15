@@ -25,7 +25,7 @@
 /** Implementation of actuators.h */
 
 #include <avr/io.h>
-#include <avr/signal.h>
+#include <avr/interrupt.h>
 #include "servos_4017.h"
 #include "actuators.h"
 #include "sys_time.h"

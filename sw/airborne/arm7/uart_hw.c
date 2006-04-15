@@ -35,6 +35,13 @@ void uart0_init_rx( void ) {
 
 }
 
+bool_t uart0_check_free_space( uint8_t len) {
+  int16_t space;
+  if ((space = (uart0_tx_extract_idx - uart0_tx_insert_idx)) <= 0)
+    space += UART0_TX_BUFFER_SIZE;
+  
+  return (uint16_t)(space - 1) >= len;
+}
 
 void uart0_transmit( unsigned char data ) {
 #ifdef UART0_TX_INT_MODE

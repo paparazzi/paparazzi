@@ -87,15 +87,36 @@
     <define name="VoltageOfAdc(adc)" value="4.2"/>
     <define name="LOW_BATTERY" value="9" unit="V"/>
   </section>
+ 
+ <section name="DOWNLINK" prefix="DOWNLINK_">
+    <define name="FBW_DEVICE" value="uart0"/>
+  </section>
 
 
  <makefile>
 include $(PAPARAZZI_SRC)/conf/autopilot/robostix.makefile
+
+ap.srcs += commands.c
+
+ap.CFLAGS += -DACTUATORS=\"servos_direct_hw.h\"
+ap.srcs += $(SRC_ARCH)/servos_direct_hw.c
+
+ap.CFLAGS += -DRADIO_CONTROL
+ap.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c 
+
+ap.CFLAGS += -DDOWNLINK -DUART0 
+ap.srcs += fbw_downlink.c $(SRC_ARCH)/uart_hw.c
+
 #ap.CFLAGS += -DCONTROL -DAUTOPILOT
 #ap.EXTRA_SRCS += $(ACINCLUDE)/ap/control.c
 #ap.CFLAGS += -DADC
 #ap.EXTRA_SRCS += $(SRC_ARCH)/adc_hw.c
 #ap.CFLAGS += -DDATALINK
 #ap.EXTRA_SRCS += datalink.c nav.c estimator.c
+
+
+
+
+
   </makefile>
 </airframe>

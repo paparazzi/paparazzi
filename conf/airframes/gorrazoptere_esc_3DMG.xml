@@ -133,8 +133,24 @@
     <define name="NOMINAL_AIRSPEED" value="10." unit="m/s"/>
     <define name="CARROT" value="5." unit="s"/>
   </section>
+ 
+  <section name="DOWNLINK" prefix="DOWNLINK_">
+    <define name="FBW_DEVICE" value="uart0"/>
+  </section>
+
   <makefile>
 include $(PAPARAZZI_SRC)/conf/autopilot/disc_board.makefile
+
+ap.srcs += commands.c
+
+ap.CFLAGS += -DACTUATORS=\"servos_esc_hw.h\" -DTIMER3 -DTIMER1_TOP=0x400
+ap.srcs += $(SRC_ARCH)/servos_esc_hw.c
+
+ap.CFLAGS += -DRADIO_CONTROL
+ap.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c 
+
+ap.CFLAGS += -DDOWNLINK -DUART0 
+ap.srcs += fbw_downlink.c $(SRC_ARCH)/uart_hw.c
 
 # ap.CFLAGS += -DDEBUG_RC
 

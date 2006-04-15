@@ -24,7 +24,6 @@
 
 #include <inttypes.h>
 #include <avr/io.h>
-#include <avr/signal.h>
 #include <avr/interrupt.h>
 
 

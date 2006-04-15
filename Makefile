@@ -166,3 +166,17 @@ clean:
 	find . -name '*~' -exec rm -f {} \;
 
 dist_clean : clean
+
+
+
+test_all_example_airframes:
+	make AIRCRAFT=Tux     clean_ac hard_ac
+	make AIRCRAFT=Plaster clean_ac hard_ac	
+	make AIRCRAFT=Twin1   clean_ac hard_ac
+	make AIRCRAFT=Twin2   clean_ac hard_ac
+	make AIRCRAFT=MJ1     clean_ac hard_ac
+	make AIRCRAFT=TS5     clean_ac fbw
+	make AIRCRAFT=TJ1     clean_ac ap
+	make AIRCRAFT=MJ4     clean_ac ap
+	make AIRCRAFT=GRZE3   clean_ac ap
+	make AIRCRAFT=Twin4   clean_ac hard_ac

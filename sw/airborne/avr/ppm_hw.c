@@ -23,7 +23,7 @@
  *
  */
 
-#include <avr/signal.h>
+#include <avr/interrupt.h>
 #include "ppm.h"
 #include "sys_time.h"
 
@@ -66,8 +66,6 @@ SIGNAL( SIG_INPUT_CAPTURE1 )
   uint16_t		width;
   static uint8_t	state = 0;
   static uint8_t	sync_start;
-
-#include "led.h"
 
   this		= ICR1;
 #ifdef TIMER1_TOP

@@ -19,5 +19,5 @@ fbw.LOW_FUSE  = 2e
 fbw.HIGH_FUSE = cb
 fbw.EXT_FUSE  = ff
 fbw.LOCK_FUSE = ff
-fbw.CFLAGS += -DFBW -DRADIO_CONTROL -DINTER_MCU -DMCU_SPI_LINK -DACTUATORS=\"servos_4017.h\" -DUART0 -DDOWNLINK
-fbw.srcs = $(SRC_ARCH)/ppm_hw.c commands.c radio_control.c inter_mcu.c $(SRC_ARCH)/servos_4017.c $(SRC_ARCH)/spi_fbw.c $(SRC_ARCH)/uart_hw.c $(SRC_ARCH)/adc_hw.c sys_time.c main_fbw.c main.c
+fbw.CFLAGS += -DFBW -DINTER_MCU -DMCU_SPI_LINK
+fbw.srcs = inter_mcu.c $(SRC_ARCH)/spi_fbw.c $(SRC_ARCH)/adc_hw.c sys_time.c main_fbw.c main.c

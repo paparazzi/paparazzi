@@ -2,11 +2,12 @@
 #define SERVOS_4017_HW_H
 
 #include <inttypes.h>
+#include "std.h"
+
+#include "LPC21xx.h"
 #include "sys_time.h"
 
 #include "led.h"
-
-#define SERVOS_4017_CLOCK_FALLING 1
 
 #include CONFIG
 
