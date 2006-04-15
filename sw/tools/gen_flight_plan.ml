@@ -112,7 +112,7 @@ let get_index_block = fun x ->
 let print_exception = fun x ->
   let i = get_index_block (ExtXml.attrib x "deroute") in
   let c = parsed_attrib x "cond" in
-  lprintf "if %s { GotoBlock(%s) }\n" c i
+  lprintf "if ((nav_block!=%s) && %s) { GotoBlock(%s) }\n" i c i
 
 let goto l = Xml.Element ("goto", ["name",l], [])
 let exit_block = Xml.Element ("exit_block", [], [])
@@ -425,16 +425,8 @@ let print_block = fun index_of_waypoints (b:Xml.xml) block_num ->
 
 
 let print_blocks = fun index_of_waypoints bs ->
-  lprintf "#ifdef NAV_C\n";
-  lprintf "\nstatic inline void auto_nav(void) {\n";
-  right ();
-  lprintf "switch (nav_block) {\n";
-  right ();
   let block = ref (-1) in
-  List.iter (fun b -> incr block; print_block index_of_waypoints b !block) bs;
-  left (); lprintf "}\n";
-  left (); lprintf "}\n";
-  lprintf "#endif // NAV_C\n"
+  List.iter (fun b -> incr block; print_block index_of_waypoints b !block) bs
 
 
 let define_home = fun waypoints ->
@@ -589,8 +581,8 @@ let _ =
     let xml = Fp_proc.process_relative_waypoints xml in
     let waypoints = ExtXml.child xml "waypoints"
     and dl_settings = try Xml.children (ExtXml.child xml "dl_settings") with Not_found -> []
-    and blocks = Xml.children (ExtXml.child xml "blocks") in
-
+    and blocks = Xml.children (ExtXml.child xml "blocks")
+    and global_exceptions = try Xml.children (ExtXml.child xml "exceptions") with _ -> [] in
 
     compile_blocks blocks;
 
@@ -662,8 +654,17 @@ let _ =
 	let i = ref (-1) in
 	List.map (fun w -> incr i; (name_of w, !i)) waypoints in
 
+      lprintf "#ifdef NAV_C\n";
+      lprintf "\nstatic inline void auto_nav(void) {\n";
+      right ();
+      List.iter print_exception global_exceptions;
+      lprintf "switch (nav_block) {\n";
+      right ();
       print_blocks index_of_waypoints blocks;
-
+      left (); lprintf "}\n";
+      left (); lprintf "}\n";
+      lprintf "#endif // NAV_C\n";
+      
       print_heights xml wgs84 (int_of_string alt);
 
       print_dl_settings dl_settings;

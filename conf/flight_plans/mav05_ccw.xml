@@ -31,12 +31,23 @@
     <arg NAME="rad" VALUE="-40"/>
     <with FROM="end" TO="follow"/>
   </include>
+
+  <exceptions>
+    <exception cond="110>vsupply" deroute="home"/>
+  </exceptions>
+
   <blocks>
+
+
     <block NAME="init">
       <deroute block="zz.takeoff"/>
     </block>
     <block NAME="follow">
       <follow AC_ID="1" DISTANCE="25" CAM_MODE="follow" CAM_AC_TARGET="1" HEIGHT="25"/>
+    </block>
+
+    <block name="home">
+      <circle wp="HOME" radius="50"/>
     </block>
   </blocks>
 </flight_plan>
