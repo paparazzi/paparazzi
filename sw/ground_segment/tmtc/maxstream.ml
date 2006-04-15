@@ -25,7 +25,7 @@
 open Latlong
 open Printf
 module W = Wavecard
-module Tm_Pprz = Pprz.Protocol(struct let name = "telemetry_fbw" end)
+module Tm_Pprz = Pprz.Protocol(struct let name = "telemetry_ap" end)
 module Ground_Pprz = Pprz.Protocol(struct let name = "ground" end)
 module Dl_Pprz = Pprz.Protocol(struct let name = "datalink" end)
 module PprzTransport = Serial.Transport(Tm_Pprz)
@@ -182,7 +182,7 @@ let _ =
   Ivy.start !ivy_bus;
   
   try
-    let fd = Serial.opendev !port Serial.B38400 in
+    let fd = Serial.opendev !port Serial.B9600 in
     let ac = { fd=fd; } in
     (* Listening on wavecard *)
     let cb = fun _ ->
