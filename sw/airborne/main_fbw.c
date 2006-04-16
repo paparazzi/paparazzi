@@ -89,11 +89,13 @@ void init_fbw( void ) {
 
 #ifdef ACTUATORS
   actuators_init();
-#endif
   /* Load the failsafe defaults                     */
   SetCommands(commands_failsafe);
+#endif
   
-  ppm_init();
+#ifdef RADIO_CONTROL
+ ppm_init();
+#endif
 
 #ifdef MCU_SPI_LINK
   spi_init();

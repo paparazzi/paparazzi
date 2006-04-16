@@ -182,7 +182,7 @@ let _ =
   Ivy.start !ivy_bus;
   
   try
-    let fd = Serial.opendev !port Serial.B9600 in
+    let fd = Serial.opendev !port Serial.B38400 in
     let ac = { fd=fd; } in
     (* Listening on wavecard *)
     let cb = fun _ ->

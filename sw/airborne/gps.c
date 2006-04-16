@@ -32,7 +32,7 @@
 #include "sys_time.h"
 #include "flight_plan.h"
 #include "estimator.h"
-#include "downlink.h"
+#include "ap_downlink.h"
 #include "infrared.h"
 
 uint16_t last_gps_msg_t;	/** cputime of the last gps message */

@@ -28,7 +28,7 @@
 #include "pid.h"
 #include "gps.h"
 #include "infrared.h"
-#include "downlink.h"
+#include "ap_downlink.h"
 #include "nav.h"
 #include "autopilot.h"
 #include "estimator.h"

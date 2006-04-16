@@ -4,8 +4,6 @@
 #include "LPC21xx.h"
 #include CONFIG
 
-
-
 static inline void ppm_init ( void ) {
    /* select pin for capture */
   PPM_PINSEL |= PPM_PINSEL_VAL << PPM_PINSEL_BIT;

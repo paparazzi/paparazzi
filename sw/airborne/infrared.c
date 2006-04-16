@@ -32,7 +32,7 @@
 #include "gps.h"
 #include "autopilot.h"
 #include "estimator.h"
-#include "downlink.h"
+#include "ap_downlink.h"
 #include "sys_time.h"
 #include "airframe.h"
 

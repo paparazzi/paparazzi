@@ -112,14 +112,18 @@
 
   <section name="DOWNLINK" prefix="DOWNLINK_">
     <define name="FBW_DEVICE" value="uart0"/>
+    <define name="AP_DEVICE" value="uart0"/>
   </section>
 
 
   <makefile>
-ap.CFLAGS += -DTIME_LED=2
 include $(PAPARAZZI_SRC)/conf/autopilot/classix.makefile
-ap.CFLAGS += -DMODEM -DDOWNLINK
-ap.srcs += $(SRC_ARCH)/modem_hw.c 
+
+ap.CFLAGS += -DDOWNLINK -DUSE_UART0 
+ap.srcs += downlink.c $(SRC_ARCH)/uart_hw.c
+
+#ap.CFLAGS += -DMODEM -DDOWNLINK
+#ap.srcs += $(SRC_ARCH)/modem_hw.c 
 #ap.CFLAGS += -DINFRARED -DGPS -DUBX -DRADIO_CONTROL_CALIB
 #ap.EXTRA_SRCS += if_calib.c
 #ap.CFLAGS += -DDATALINK
@@ -130,7 +134,7 @@ ap.srcs += $(SRC_ARCH)/modem_hw.c
 fbw.srcs += commands.c
 
 fbw.CFLAGS += -DDOWNLINK -DUSE_UART0 
-fbw.srcs += fbw_downlink.c $(SRC_ARCH)/uart_hw.c
+fbw.srcs += downlink.c $(SRC_ARCH)/uart_hw.c
 
 fbw.CFLAGS += -DACTUATORS=\"servos_4017_hw.h\" -DSERVOS_4017 -DSERVOS_4017_CLOCK_FALLING
 fbw.srcs += $(SRC_ARCH)/servos_4017_hw.c
