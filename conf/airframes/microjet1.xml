@@ -100,10 +100,12 @@
 
   <section name="DOWNLINK" prefix="DOWNLINK_">
     <define name="FBW_DEVICE" value="uart0"/>
+    <define name="AP_DEVICE" value="uart0"/>
   </section>
 
  <makefile>
 include $(PAPARAZZI_SRC)/conf/autopilot/v1_2.makefile
+
 fbw.srcs += commands.c
 
 fbw.CFLAGS += -DACTUATORS=\"servos_4017.h\"
@@ -115,7 +117,10 @@ fbw.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c
 fbw.CFLAGS += -DDOWNLINK -DUART0 
 fbw.srcs += fbw_downlink.c $(SRC_ARCH)/uart_hw.c
 
-ap.CFLAGS += -DGPS -DUBX -DINFRARED
+ap.CFLAGS += -DDOWNLINK -DUSE_UART0 
+ap.srcs += downlink.c $(SRC_ARCH)/uart_hw.c
+
+ap.CFLAGS += -DGPS -DUBX -DINFRARED -DRADIO_CONTROL
 
   </makefile>
 </airframe>

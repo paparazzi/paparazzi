@@ -112,6 +112,7 @@
   
   <section name="DOWNLINK" prefix="DOWNLINK_">
     <define name="FBW_DEVICE" value="uart0"/>
+    <define name="AP_DEVICE"  value="uart0"/>
   </section>
 
  <makefile>
@@ -130,8 +131,11 @@ fbw.srcs += fbw_downlink.c $(SRC_ARCH)/uart_hw.c
 
 fbw.CFLAGS += -DDEBUG 
 
+ap.CFLAGS += -DDOWNLINK -DUSE_UART0 
+ap.srcs += downlink.c $(SRC_ARCH)/uart_hw.c
+
 ap.CFLAGS += -DINFRARED -DGPS -DUBX -DRADIO_CONTROL_CALIB
-ap.CFLAGS += -DLED -DLED_1_BANK=D  -DLED_1_PIN=0 -DLED_2_BANK=D -DLED_2_PIN=1
+ap.CFLAGS += -DLED -DLED_1_BANK=D  -DLED_1_PIN=0 -DLED_2_BANK=D -DLED_2_PIN=1 -DRADIO_CONTROL
 ap.EXTRA_SRCS += if_calib.c
 ap.CFLAGS += -DDATALINK
 ap.EXTRA_SRCS += traffic_info.c datalink.c

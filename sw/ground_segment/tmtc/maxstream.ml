@@ -166,13 +166,27 @@ let jump_block = fun ac _sender vs ->
   send ac s
     
 
+let speed_of_baudrate = fun baudrate ->
+  match baudrate with
+    "1200"   -> Serial.B1200
+  | "2400"   -> Serial.B2400
+  | "4800"   -> Serial.B4800
+  | "9600"   -> Serial.B9600
+  | "19200"  -> Serial.B19200
+  | "38400"  -> Serial.B38400
+  | "57600"  -> Serial.B57600
+  | "115200" -> Serial.B115200
+  | _ -> Serial.B9600
+	
 let _ =
   let ivy_bus = ref "127.255.255.255:2010" in
   let port = ref "/dev/ttyS0" in
+  let baurate = ref "B9600" in
 
   let options =
     [ "-b", Arg.Set_string ivy_bus, (sprintf "Ivy bus (%s)" !ivy_bus);
-      "-d", Arg.Set_string port, (sprintf "Port (%s)" !port)] in
+      "-d", Arg.Set_string port, (sprintf "Port (%s)" !port);
+      "-s", Arg.Set_string baurate, (sprintf "Baudrate (%s)" !baurate)] in
   Arg.parse
     options
     (fun _x -> ())
@@ -182,7 +196,7 @@ let _ =
   Ivy.start !ivy_bus;
   
   try
-    let fd = Serial.opendev !port Serial.B38400 in
+    let fd = Serial.opendev !port (speed_of_baudrate !baurate) in
     let ac = { fd=fd; } in
     (* Listening on wavecard *)
     let cb = fun _ ->
