@@ -37,10 +37,9 @@
 #include "downlink.h"
 
 #define PERIODIC_SEND_PPM() {}
-//#define PERIODIC_SEND_SERVOS() { Uart0PrintString("SERVOS\n");}
 #define PERIODIC_SEND_SERVOS() {}
 #define PERIODIC_SEND_FBW_STATUS() {DOWNLINK_SEND_FBW_STATUS(&fbw_mode, &rc_status, &fbw_mode)}
-#define PERIODIC_SEND_RC() {}
+#define PERIODIC_SEND_RC() {DOWNLINK_SEND_RC(&fbw_mode, rc_values)}
 
 
 

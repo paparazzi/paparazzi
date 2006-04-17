@@ -112,13 +112,30 @@
 
   <section name="DOWNLINK" prefix="DOWNLINK_">
     <define name="FBW_DEVICE" value="uart0"/>
-    <fbw_rates>
-      <message name="PPM" period="1"/>
-      <message name="RC" period="1"/>
-      <message name="SERVOS" period="1"/>
-      <message name="FBW_STATUS" period="1"/>
-    </fbw_rates>
+ <!--
+   <fbw_messages>
+      <mode name="NORMAL">
+        <message name="FBW_STATUS" period="1"/>
+      </mode>
+      <mode name="DEBUG">
+        <message name="FBW_STATUS" period="1"/>
+        <message name="PPM" period="1"/>
+        <message name="RC" period="1"/>
+        <message name="SERVOS" period="1"/>
+      </mode>
+    </fbw_messages>
+-->
     <define name="AP_DEVICE" value="uart0"/>
+<!--
+    <ap_messages>
+      <mode name="NORMAL">
+        <messages name="PPRZ_MODE" period="5"/>
+      </mode>
+      <mode name="DEBUG">
+        <messages name="PPRZ_MODE" period="1"/>
+      </mode>
+    </ap_messages>
+-->
   </section>
 
 

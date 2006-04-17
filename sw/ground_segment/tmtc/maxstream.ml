@@ -25,7 +25,7 @@
 open Latlong
 open Printf
 module W = Wavecard
-module Tm_Pprz = Pprz.Protocol(struct let name = "telemetry_ap" end)
+module Tm_Pprz = Pprz.Protocol(struct let name = "telemetry_fbw" end)
 module Ground_Pprz = Pprz.Protocol(struct let name = "ground" end)
 module Dl_Pprz = Pprz.Protocol(struct let name = "datalink" end)
 module PprzTransport = Serial.Transport(Tm_Pprz)

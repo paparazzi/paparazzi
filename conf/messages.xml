@@ -239,18 +239,7 @@
 
   <message name="RC" ID="0x02" period="1">
     <field name="nb_channels" type="uint8"/>
-    <field name="pprz01" type="int16" unit="pprz"/>
-    <field name="pprz02" type="int16" unit="pprz"/>
-    <field name="pprz03" type="int16" unit="pprz"/>
-    <field name="pprz04" type="int16" unit="pprz"/>
-    <field name="pprz05" type="int16" unit="pprz"/>
-    <field name="pprz06" type="int16" unit="pprz"/>
-    <field name="pprz07" type="int16" unit="pprz"/>
-    <field name="pprz08" type="int16" unit="pprz"/>
-    <field name="pprz09" type="int16" unit="pprz"/>
-    <field name="pprz10" type="int16" unit="pprz"/>
-    <field name="pprz11" type="int16" unit="pprz"/>
-    <field name="pprz12" type="int16" unit="pprz"/>
+    <field name="values" type="int16" unit="pprz" len="7"/>
   </message>
 
   <message name="SERVOS" ID="0x03" period="1">
@@ -272,6 +261,7 @@
     <field name="rc_status" type="uint8" values="OK|LOST|REALLY_LOST"/>
     <field name="mode" type="uint8" values="MANUAL|AUTO|FAILSAFE"/>
   </message>
+
 </class>
 
 

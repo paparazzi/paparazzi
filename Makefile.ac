@@ -24,17 +24,20 @@ include conf/Makefile.local
 
 CONF=$(PAPARAZZI_HOME)/conf
 CONF_XML=$(CONF)/conf.xml
+MESSAGES_XML = $(CONF)/messages.xml
 ACINCLUDE = $(PAPARAZZI_HOME)/var/$(AIRCRAFT)
 AIRFRAME_H=$(ACINCLUDE)/airframe.h
 CONTROL_H=$(ACINCLUDE)/control.h
 CONTROL_C=$(ACINCLUDE)/ap/control.c
+FBW_DOWNLINK_H=$(ACINCLUDE)/fbw_downlink_gen.h
+AP_DOWNLINK_H=$(ACINCLUDE)/ap_downlink_gen.h
 RADIO_H=$(ACINCLUDE)/radio.h
 FLIGHT_PLAN_H=$(ACINCLUDE)/flight_plan.h
 FLIGHT_PLAN_XML=$(ACINCLUDE)/flight_plan.xml
 INFLIGHT_CALIB_H=$(ACINCLUDE)/inflight_calib.h
 MAKEFILE_AC=$(ACINCLUDE)/Makefile.ac
 
-all: $(AIRFRAME_H) $(RADIO_H) $(CONTROL_H) $(CONTROL_C) $(FLIGHT_PLAN_H) $(FLIGHT_PLAN_XML) $(INFLIGHT_CALIB_H) $(MAKEFILE_AC)
+all: $(AIRFRAME_H) $(RADIO_H) $(CONTROL_H) $(CONTROL_C) $(FLIGHT_PLAN_H) $(FLIGHT_PLAN_XML) $(INFLIGHT_CALIB_H) $(MAKEFILE_AC) $(FBW_DOWNLINK_H)
 
 
 $(AIRFRAME_H) : $(CONF)/$(AIRFRAME) $(CONF_XML)
@@ -45,18 +48,17 @@ $(RADIO_H) : $(CONF)/$(RADIO) $(CONF_XML)
 	$(TOOLS)/gen_radio.out $< > /tmp/radio.h
 	mv /tmp/radio.h $@
 
+$(FBW_DOWNLINK_H) : $(MESSAGES_XML) $(CONF)/$(AIRFRAME) $(CONF_XML)
+	TMP_FILE=`mktemp`;\
+	$(TOOLS)/gen_messages.out $< telemetry_fbw > $$TMP_FILE;\
+	mv  $$TMP_FILE $@
+	chmod a+r $@
+
 $(CONTROL_H) : $(CONF)/$(AIRFRAME) $(CONF_XML)
-#	export TMPFILE=$(shell echo `tempfile`)
-#	echo =$(shell echo `echo $TMPFILE`)
-#	$(TOOLS)/gen_control.out h $< > $(shell echo $TMPFILE)
-#	mv $TMPFILE $@
 	$(TOOLS)/gen_control.out h $< > /tmp/control.h
 	mv /tmp/control.h $@
 
 $(CONTROL_C) : $(CONF)/$(AIRFRAME) $(CONF_XML)
-#	TMPFILE=$(shell echo `tempfile`)
-#	$(TOOLS)/gen_control.out c $< > $(shell echo $TMPFILE)
-#	mv $TMPFILE $@
 	mkdir -p $(ACINCLUDE)/ap
 	$(TOOLS)/gen_control.out c $< > /tmp/control.c
 	mv /tmp/control.c $@

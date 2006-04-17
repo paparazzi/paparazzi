@@ -24,7 +24,6 @@
 
 #
 # This is the common Makefile for the arm7-target.
-# Edit the configuration part to suit your local install
 #
 
 OBJDIR = $(PAPARAZZI_HOME)/var/$(AIRCRAFT)/$(TARGET)
