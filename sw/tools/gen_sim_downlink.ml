@@ -79,7 +79,7 @@ let _ =
   if Array.length Sys.argv <> 2 then
     failwith (sprintf "Usage: %s <xml message file>" Sys.argv.(0));
   let xml = Xml2h.start_and_begin Sys.argv.(1) h_name in
-  let xml = ExtXml.child xml ~select:(fun x -> Xml.attrib x "name"="telemetry_ap") "class" in
+  let xml = ExtXml.child xml ~select:(fun x -> Xml.attrib x "name"="telemetry") "class" in
   let messages = (Xml.children xml) in
 
   printf "#include <ivy.h>\n";
