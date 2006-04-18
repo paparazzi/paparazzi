@@ -23,6 +23,7 @@
  */
 
 #include <avr/io.h>
+#include <avr/signal.h>
 #include <avr/interrupt.h>
 //#include <util/crc16.h>
 #include <avr/crc16.h>
