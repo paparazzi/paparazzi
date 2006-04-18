@@ -23,6 +23,7 @@
  *
  */
 
+#include <avr/signal.h>
 #include <avr/interrupt.h>
 #include "ppm.h"
 #include "sys_time.h"

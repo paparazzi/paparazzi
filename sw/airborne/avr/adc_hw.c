@@ -26,6 +26,7 @@
 //// ADC6 MVSERVO
 
 
+#include <avr/signal.h>
 #include <avr/interrupt.h>
 #include <avr/io.h>
 #include "adc.h"
