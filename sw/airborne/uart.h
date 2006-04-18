@@ -31,8 +31,8 @@
 
 void uart0_init_tx( void );
 
+/** uart0_init_rx() is optional but must be called after uart0_init_tx */
 void uart0_init_rx( void );
-/** uart0_init_tx() must be called BEFORE */
 
 void uart0_transmit( unsigned char data );
 bool_t uart0_check_free_space( uint8_t len);
@@ -40,10 +40,11 @@ bool_t uart0_check_free_space( uint8_t len);
 /** Not necessarily defined */
 void uart1_init_tx( void );
 
+/** uart1_init_rx() is optional but must be called after uart1_init_tx */
 void uart1_init_rx( void );
-/** uart1_init_tx() must be called BEFORE */
 
 void uart1_transmit( unsigned char data );
+bool_t uart1_check_free_space( uint8_t len);
 
 #define Uart0Init() { uart0_init_tx(); uart0_init_rx(); }
 #define Uart1Init() { uart1_init_tx(); uart1_init_rx(); }

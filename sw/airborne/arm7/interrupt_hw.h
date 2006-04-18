@@ -21,10 +21,11 @@
  * Boston, MA 02111-1307, USA. 
  *
  */
-/** \file int.h
- *  \brief AVR Low level interrupt handling
+/** \file interrupt_hw.h
+ *  \brief ARM Low level interrupt handling
  *
  */
-#include <avr/interrupt.h>
 
-#define int_enable() sei()
+#include "armVIC.h"
+
+#define int_enable() enableIRQ()

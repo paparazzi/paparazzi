@@ -1,6 +1,6 @@
 #include "main_ap.h"
 #include "init_hw.h"
-#include "int.h"
+#include "interrupt_hw.h"
 #include "sys_time.h"
 #include "led.h"
 #include "modem.h"
@@ -29,6 +29,12 @@ int8_t nav_utm_zone0;
 float estimator_phi;
 float estimator_psi;
 float estimator_theta;
+float estimator_x;
+float estimator_y;
+float estimator_z;
+float estimator_hspeed_mod;
+float estimator_hspeed_dir;
+float estimator_z_dot;
 bool_t in_segment;
 int16_t segment_x_1;
 int16_t segment_y_1;

@@ -25,10 +25,11 @@
 #include "main_fbw.h"
 
 #include "init_hw.h"
-#include "int.h"
+#include "interrupt_hw.h"
+
 #include "sys_time.h"
-#include "actuators.h"
 #include "commands.h"
+#include "actuators.h"
 #include "radio_control.h"
 #include "fbw_downlink.h"
 

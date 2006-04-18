@@ -1,0 +1,61 @@
+<?xml version="1.0"?>
+
+<controllers>
+  <controller name="v1_2"/>
+  <controller name="v1_2_1"/>
+  <controller name="lite"/>
+  <controller name="classix"/>
+  <controller name="tiny"/>
+  <controller name="robostix"/>
+</controllers>
+
+
+<modules_fbw>
+  <module name="commands">
+    <conf section="commands"/>
+
+  </module>
+ 
+  <module name="actuators">
+    <peripheral name="servos_4017"/>
+    <peripheral name="servos_4015"/>
+    <peripheral name="servos_direct"/>
+    <peripheral name="servos_esc"/>
+    <conf section="servos"/>
+  </module>
+ 
+  <module name="radio_control">
+    <peripheral name="ppm">
+    <conf file="conf/radio"/>
+    <conf section="rc_commands"/>
+  </module>
+
+  <module name="downlink">
+    <peripheral name="uart0"/>
+  </module>
+
+  <module name="monitoring">
+    <peripheral name="adc"/>
+  </module>
+
+</modules_fbw>
+
+
+<modules_ap>
+  <module name="gps">
+
+  </module>
+  <module name="navigation">
+    <conf file="conf/flight_plan"/>
+  </module>
+  <module name="infrared">
+
+  </module>
+  <module name="datalink">
+
+  </module>
+
+
+
+
+</modules_ap>

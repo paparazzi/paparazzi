@@ -25,8 +25,8 @@
  */
  
 #include "main_ap.h"
-#include "int.h"
-#include "low_level_hw.h"
+#include "init_hw.h"
+#include "interrupt_hw.h"
 #include "sys_time.h"
 #include "adc.h"
 #include "autopilot.h"
@@ -64,7 +64,7 @@ void init_ap( void ) {
   led_init();
 #endif
 #ifndef FBW /** Dual mcus : init done in main_fbw */
-  low_level_init();
+  hw_init();
   sys_time_init(); 
 #ifdef ADC
   adc_init();
