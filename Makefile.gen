@@ -36,16 +36,9 @@ DL_PROTOCOL_H=$(STATICINCLUDE)/dl_protocol.h
 MESSAGES_XML = $(CONF)/messages.xml
 UBX_XML = $(CONF)/ubx.xml
 
-static:  $(MESSAGES_H) $(MESSAGES_FBW_H) $(UBX_PROTOCOL_H) $(DL_PROTOCOL_H)
+static:  $(MESSAGES_H) $(UBX_PROTOCOL_H) $(DL_PROTOCOL_H)
 
 $(MESSAGES_H) : $(MESSAGES_XML) $(CONF_XML)
-	test -d $(STATICINCLUDE) || mkdir -p $(STATICINCLUDE)
-	TMP_FILE=`mktemp`;\
-	$(TOOLS)/gen_messages.out $< telemetry > $$TMP_FILE;\
-	mv  $$TMP_FILE $@
-	chmod a+r $@
-
-$(MESSAGES_FBW_H) : $(MESSAGES_XML) $(CONF_XML)
 	test -d $(STATICINCLUDE) || mkdir -p $(STATICINCLUDE)
 	TMP_FILE=`mktemp`;\
 	$(TOOLS)/gen_messages.out $< telemetry > $$TMP_FILE;\

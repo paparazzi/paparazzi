@@ -26,7 +26,8 @@
 #define FBW_DOWNLINK_H
 
 #include <inttypes.h>
-#include "messages_fbw.h"
+#include "messages.h"
+#include "periodic.h"
 #include "airframe.h"
 
 #include "uart.h"
@@ -34,6 +35,7 @@
 #include "radio_control.h"
 
 #define DOWNLINK_DEVICE DOWNLINK_FBW_DEVICE
+extern uint8_t telemetry_mode_Fbw;
 #include "downlink.h"
 
 #define PERIODIC_SEND_PPM() {}
@@ -44,7 +46,7 @@
 
 
 static inline void fbw_downlink_periodic_task(void) {
-  PeriodicSend()
+  PeriodicSendFbw()
 }
 
 

@@ -214,14 +214,13 @@ static inline void reporting_task( void ) {
   /** initialisation phase during boot */
   if (boot) {
     DOWNLINK_SEND_BOOT(&version);
-    PERIODIC_SEND_IDENT();
     SEND_RAD_OF_IR();
     boot = FALSE;
   }
   /** then report periodicly */
   else {
 //    IO1CLR = LED_2_BIT;
-    PeriodicSend();
+    PeriodicSendAp();
 //    IO1SET = LED_2_BIT;
   }
 }

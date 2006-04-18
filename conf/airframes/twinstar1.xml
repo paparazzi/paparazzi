@@ -120,7 +120,7 @@ fbw.CFLAGS += -DRADIO_CONTROL
 fbw.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c 
 
 fbw.CFLAGS += -DDOWNLINK -DUART0 
-fbw.srcs += fbw_downlink.c $(SRC_ARCH)/uart_hw.c
+fbw.srcs += downlink.c $(SRC_ARCH)/uart_hw.c
 
 ap.CFLAGS += -DDOWNLINK -DUSE_UART0 
 ap.srcs += downlink.c $(SRC_ARCH)/uart_hw.c

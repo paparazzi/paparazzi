@@ -1,6 +1,7 @@
 <?xml version="1.0"?>
+<!DOCTYPE telemetry SYSTEM "telemetry.dtd">
 <telemetry>
-  <process name="ap">
+  <process name="Ap">
     <mode name="default">
       <message name="CALIB_START"    period="1"/> 
       <message name="CALIB_CONTRAST" period="1"/>
@@ -25,18 +26,18 @@
       <message name="ATTITUDE"       period="0.5"/>
     </mode>
   </process>
-  <process name="fbw">
+  <process name="Fbw">
     <mode name="default">
       <message name="PPM"            period="5"/>
       <message name="RC"             period="5"/>
       <message name="SERVOS"         period="5"/>
-      <message name="FBW_STATUS"     period="1">
+      <message name="FBW_STATUS"     period="1"/>
     </mode>
     <mode name="debug">
       <message name="PPM"            period="0.5"/>
       <message name="RC"             period="0.5"/>
       <message name="SERVOS"         period="0.5"/>
-      <message name="FBW_STATUS"     period="1">
+      <message name="FBW_STATUS"     period="1"/>
     </mode>
   </process>
 </telemetry>

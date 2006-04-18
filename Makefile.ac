@@ -1,3 +1,4 @@
+# Hey Emacs, this is a -*- makefile -*-
 #   Paparazzi main $Id$
 #   Copyright (C) 2004 Pascal Brisset Antoine Drouin
 #
@@ -29,15 +30,14 @@ ACINCLUDE = $(PAPARAZZI_HOME)/var/$(AIRCRAFT)
 AIRFRAME_H=$(ACINCLUDE)/airframe.h
 CONTROL_H=$(ACINCLUDE)/control.h
 CONTROL_C=$(ACINCLUDE)/ap/control.c
-FBW_DOWNLINK_H=$(ACINCLUDE)/fbw_downlink_gen.h
-AP_DOWNLINK_H=$(ACINCLUDE)/ap_downlink_gen.h
+PERIODIC_H=$(ACINCLUDE)/periodic.h
 RADIO_H=$(ACINCLUDE)/radio.h
 FLIGHT_PLAN_H=$(ACINCLUDE)/flight_plan.h
 FLIGHT_PLAN_XML=$(ACINCLUDE)/flight_plan.xml
 INFLIGHT_CALIB_H=$(ACINCLUDE)/inflight_calib.h
 MAKEFILE_AC=$(ACINCLUDE)/Makefile.ac
 
-all: $(AIRFRAME_H) $(RADIO_H) $(CONTROL_H) $(CONTROL_C) $(FLIGHT_PLAN_H) $(FLIGHT_PLAN_XML) $(INFLIGHT_CALIB_H) $(MAKEFILE_AC) $(FBW_DOWNLINK_H)
+all: $(AIRFRAME_H) $(RADIO_H) $(CONTROL_H) $(CONTROL_C) $(FLIGHT_PLAN_H) $(FLIGHT_PLAN_XML) $(INFLIGHT_CALIB_H) $(MAKEFILE_AC) $(PERIODIC_H)
 
 
 $(AIRFRAME_H) : $(CONF)/$(AIRFRAME) $(CONF_XML)
@@ -48,9 +48,9 @@ $(RADIO_H) : $(CONF)/$(RADIO) $(CONF_XML)
 	$(TOOLS)/gen_radio.out $< > /tmp/radio.h
 	mv /tmp/radio.h $@
 
-$(FBW_DOWNLINK_H) : $(MESSAGES_XML) $(CONF)/$(AIRFRAME) $(CONF_XML)
+$(PERIODIC_H) : $(MESSAGES_XML) $(CONF_XML) $(CONF)/$(TELEMETRY)
 	TMP_FILE=`mktemp`;\
-	$(TOOLS)/gen_messages.out $< telemetry_fbw > $$TMP_FILE;\
+	$(TOOLS)/gen_periodic.out $(MESSAGES_XML) $(CONF)/$(TELEMETRY) > $$TMP_FILE;\
 	mv  $$TMP_FILE $@
 	chmod a+r $@
 

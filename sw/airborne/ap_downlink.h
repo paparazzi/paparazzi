@@ -30,6 +30,7 @@
 #include "airframe.h"
 
 #define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
+extern uint8_t telemetry_mode_Ap;
 #include "downlink.h"
 
 #ifdef SITL
@@ -37,6 +38,7 @@
 #else
 #include "modem.h"
 #include "messages.h"
+#include "periodic.h"
 #endif
 
 #if DOWNLINK

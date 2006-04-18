@@ -26,8 +26,6 @@
 
 open Printf
 
-let divide = fun a b -> b mod a = 0
-
 
 module Syntax = struct
   type format = string
@@ -194,125 +192,6 @@ module Gen_onboard = struct
   let print_null_avr_macros = fun avr_h messages ->
     List.iter (print_null_avr_macro avr_h) messages
 
-  let freq = 10
-  let step = 1. /. float freq
-  let nb_steps = (256 / freq) * freq
-  let byte_rate = 480 (** byte/s *)
-  let step_rate = byte_rate / freq
-
-  let is_periodic = fun m -> m.period <> None
-  let period_of = fun m ->
-    match m.period with Some p -> p | None -> failwith "period_of"
-  let morefrequent = fun m1 m2 -> compare (period_of m1) (period_of m2)
-
-  type modulos = node list list (** Or list of Xor lists *)
-  and node = N of int * int * message list * modulos
-      (** [(p, s, msgs, c)] stands for messages [msg] to be send on a period [p]
-	 shifted [s] from the start of the [p] period (i.e. 
-	 when [time == s mod p]). Children [c] are messages for which the same
-	 time condition is needed *)
-      
-  let rec insert_in_or = fun ((s, p, m) as msg) t ->
-    match t with
-      [] -> [[N (s,p,[m], [])]]
-    | l::ls ->
-	let rec insert_in_xor = fun previous exclusive l ->
-	  match l with
-            [] -> 
-              if exclusive then
-		(N (s,p,[m], [])::previous)::ls
-              else
-		previous::insert_in_or msg ls
-	  | (N (s',p',ms',t') as x)::ls' ->
-              if s = s' && p == p' then
-		(previous@N (s', p', m::ms', t')::ls')::ls
-              else
-		let b = divide p' p in
-		if b && divide p' (abs (s-s')) then
-		  (previous@N (s', p', ms', insert_in_or msg t')::ls')::ls
-		else
-		  insert_in_xor (x::previous) (exclusive && b) ls' in
-	insert_in_xor [] true l;;
-
-let gen_periodic = fun avr_h messages ->
-  let indent = fun x -> fprintf avr_h "%s" (String.make x ' ') in
-
-  let periodic_messages = List.filter is_periodic messages in
-  let periodic_messages = List.sort morefrequent periodic_messages in
-  
-  let load = Array.create nb_steps 0 in
-  
-  let scheduled_messages = 
-    List.map
-      (fun m ->
-	let p = period_of m in
-	let period_steps = truncate (p /. step) in
-	let start_step = ref 0 in
-	for i = 1 to period_steps - 1 do
-	  if load.(i) < load.(!start_step) then start_step := i
-	done;
-	for j = 0 to nb_steps/period_steps - 1 do
-	  let s = ref (size_of_message m) in
-	  let i = ref (!start_step+j*period_steps) in
-	  while !s > 0 do
-	    let rest = step_rate - load.(!i) in
-	    let m = min rest !s in
-	    load.(!i) <- load.(!i) + m;
-	    incr i;
-	    s := !s - m
-	  done
-	done;
-	(!start_step, period_steps, m))
-      periodic_messages in
-  
-  fprintf avr_h "/* Periodic messages are sent over %d timeframes. A greedy algorithm is used to smooth the load according to the size of the messages. speed=%d byte/timeframe */\n" nb_steps step_rate;
-  for i = 0 to nb_steps - 1 do
-    fprintf avr_h "//%d:" i; indent load.(i); fprintf avr_h "%d\n" load.(i)
-  done;
-  fprintf avr_h "\n";
-  
-  fprintf avr_h "#define PeriodicSend() {  /* %dHz */ \\\n" freq;
-  fprintf avr_h "  static uint8_t periodic_i;\\\n";
-  fprintf avr_h "  periodic_i++; if (periodic_i == %d) periodic_i = 0;\\\n" nb_steps;
-
-  (** Sorting messages by increasing periods *)
-  let scheduled_messages = List.sort (fun (_,p,_) (_,p',_) -> compare p' p) scheduled_messages in
-
-  (** Hierarchize messages to minimize tests *)
-  let tree = List.fold_right insert_in_or scheduled_messages [] in
-  
-  let rec gen_or_code = fun tab modulos xors ->
-    List.iter
-      (fun xor ->
-	let required_modulos = List.map (fun (N (_s,p,_ms,_t)) -> p) xor in
-	let rec add_new_modulos = fun modulos l ->
-	  match l with
-	    [] -> modulos
-	  | p::ps ->
-	      if not (List.mem p modulos) then begin
-		indent tab;
-		fprintf avr_h "uint8_t i_mod_%d = periodic_i %% %d; \\\n" p p;
-		add_new_modulos (p::modulos) ps
-	      end else
-		add_new_modulos modulos ps in
-	let new_modulos = add_new_modulos modulos required_modulos in
-	List.iter 
-	  (fun (N (s,p,ms,t)) ->
-	    indent tab;
-	    fprintf avr_h "if (i_mod_%d == %d) { \\\n" p s;
-	    List.iter (fun m -> 
-	      indent tab;
-	      fprintf avr_h "  PERIODIC_SEND_%s(); \\\n" m.name) 
-	      ms;
-	    gen_or_code (tab+2) new_modulos t;
-	    indent tab;
-	    fprintf avr_h "} else")
-	  xor;
-	indent tab;
-	fprintf avr_h " {} \\\n")
-      xors in
-  gen_or_code 2 [] tree;
-  fprintf avr_h "}\n"
 end
 
 let _ =
@@ -331,5 +210,4 @@ let _ =
   Gen_onboard.print_avr_macros filename avr_h messages;
   Printf.fprintf avr_h "#else // DOWNLINK\n";
   Gen_onboard.print_null_avr_macros avr_h messages;
-  Printf.fprintf avr_h "#endif // DOWNLINK\n";
-  Gen_onboard.gen_periodic avr_h messages
+  Printf.fprintf avr_h "#endif // DOWNLINK\n"
