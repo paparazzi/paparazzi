@@ -229,9 +229,11 @@
     <field name="ppm12" type="uint16" unit="us"/>
   </message>
 
+<!--
   <message name="RC" ID="101">
     <field name="values" type="int16[]" unit="pprz"/>
   </message>
+-->
 
   <message name="SERVOS" ID="102">
     <field name="nb_servos" type="uint8"/>

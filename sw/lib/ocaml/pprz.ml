@@ -213,7 +213,7 @@ module type CLASS = sig val name : string end
 exception Unknown_msg_name of string * string
 
 module Protocol(Class:CLASS) = struct
-  let stx = Char.chr 0x05 (** sw/airborne/modem.h *)
+  let stx = Char.chr 0x99 (** sw/airborne/modem.h *)
   let index_start = fun buf ->
     String.index buf stx
 
@@ -232,10 +232,12 @@ module Protocol(Class:CLASS) = struct
   let length = fun buf start ->
     let len = String.length buf - start in
     if len >= 2 then
-      let id = Char.code buf.[start+1] in
+   (**   let id = Char.code buf.[start+1] in
       let msg = message_of_id id in
-      let l = size_of_message msg in
-      Debug.call 'T' (fun f -> fprintf f "Pprz id=%d len=%d\n" id l);
+      let l = size_of_message msg in **)
+      let l = Char.code buf.[start+1] in
+(**      Debug.call 'T' (fun f -> fprintf f "Pprz id=%d len=%d\n" id l); **)
+      Debug.call 'T' (fun f -> fprintf f "Pprz len=%d\n" l);
       l
     else
       raise Serial.Not_enough
@@ -257,7 +259,7 @@ module Protocol(Class:CLASS) = struct
     ck_a = Char.code msg.[l-2] && ck_b = Char.code msg.[l-1]
 
   let values_of_payload = fun buffer ->
-    let id = Char.code buffer.[0] in
+    let id = Char.code buffer.[2] in
     let ac_id = Char.code buffer.[1] in
     let message = message_of_id id in
     Debug.call 'T' (fun f -> fprintf f "Pprz.values id=%d\n" id);
@@ -267,11 +269,11 @@ module Protocol(Class:CLASS) = struct
       | (field_name, field_descr)::fs -> 
 	  let n = size_of_field field_descr in
 	  (field_name, value_field buffer index field_descr) :: loop (index+n) fs in
-    (id, ac_id, loop 2 message.fields)
+    (id, ac_id, loop 3 message.fields)
 
   let values_of_bin = fun buffer ->
     values_of_payload (String.sub buffer 1 (String.length buffer - 1))
-
+(** FIXME - this one is wrong since the message lenght introduction **)
   let payload_of_values = fun id ac_id values ->
     let message = message_of_id id in
     let n = payload_size_of_message message in
