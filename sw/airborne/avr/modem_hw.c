@@ -27,12 +27,11 @@
  */
 
 #include <inttypes.h>
-#include <avr/io.h>
+#if (GNUC == 3)
 #include <avr/signal.h>
+#endif
 #include <avr/interrupt.h>
-#include <stdlib.h>
 #include "modem.h"
-#include "std.h"
 
 uint8_t modem_nb_ovrn;
 

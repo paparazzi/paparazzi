@@ -25,7 +25,9 @@
 /** Implementation of actuators.h */
 
 #include <avr/io.h>
+#if (GNUC == 3)
 #include <avr/signal.h>
+#endif
 #include <avr/interrupt.h>
 #include "servos_4017.h"
 #include "actuators.h"

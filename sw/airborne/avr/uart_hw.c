@@ -22,13 +22,11 @@
  *
  */
 
-#include <avr/signal.h>
-#include <avr/interrupt.h>
-#include <avr/io.h>
-
-
-#include "std.h"
-#include "uart_hw.h"
+/** \file uart_hw.c
+ *  \brief avr uart low level functions
+ *
+ */
+#include "uart.h"
 
 #if defined  (__AVR_ATmega8__)
 

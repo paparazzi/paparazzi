@@ -25,9 +25,6 @@
 #ifndef LINK_MCU_AP_H
 #define LINK_MCU_AP_H
 
-#include <inttypes.h>
-
-
 void link_fbw_init(void);
 void link_fbw_send(void);
 void link_fbw_on_spi_it(void);

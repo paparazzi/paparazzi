@@ -23,7 +23,7 @@
  */
 
 /** \file uart_hw.h
- *  \brief blableublibloblu
+ *  \brief avr uart low level headers
  *
  */
 
@@ -31,7 +31,9 @@
 #define UART_HW_H
 
 #include <avr/io.h>
+#if (GNUC == 3)
 #include <avr/signal.h>
+#endif
 #include <avr/interrupt.h>
 #include "std.h"
 

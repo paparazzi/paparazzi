@@ -26,7 +26,9 @@
 //// ADC6 MVSERVO
 
 
+#if (GNUC == 3)
 #include <avr/signal.h>
+#endif
 #include <avr/interrupt.h>
 #include <avr/io.h>
 #include "adc.h"

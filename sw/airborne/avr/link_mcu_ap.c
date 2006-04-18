@@ -23,10 +23,14 @@
  */
 
 #include <avr/io.h>
-#include <avr/signal.h>
 #include <avr/interrupt.h>
-//#include <util/crc16.h>
+#if (GNUC == 3)
+#include <avr/signal.h>
 #include <avr/crc16.h>
+#else
+#include <util/crc16.h>
+#endif
+#include <inttypes.h>
 
 #include "inter_mcu.h"
 #include "link_mcu_ap.h"

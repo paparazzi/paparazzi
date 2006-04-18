@@ -22,6 +22,11 @@
  *
  */
 
+/** \file uart.c
+ *  \brief arch independant uart headers
+ *
+ */
+
 #ifndef UART_H
 #define UART_H
 
