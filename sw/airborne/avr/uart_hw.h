@@ -31,6 +31,7 @@
 #define UART_HW_H
 
 #include <avr/io.h>
+#include <avr/signal.h>
 #include <avr/interrupt.h>
 #include "std.h"
 

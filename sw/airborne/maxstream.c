@@ -30,6 +30,7 @@
 #include "maxstream.h"
 #include "messages.h"
 #include "datalink.h"
+#include "uart.h"
 
 static uint8_t msg_lengths[] = MSG_LENGTHS;
 
