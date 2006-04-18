@@ -64,8 +64,13 @@ extern uint8_t downlink_nb_ovrn;
   DownlinkPut2ByteByAddr(_byte+2); \
 }
 
-#define DownlinkStartMessage(id)					\
-  { DownlinkPut1Byte(STX); DownlinkPut1Byte(id); ck_a = id; ck_b = id; DownlinkPut1ByteUpdateCs(AC_ID);}
+#define DownlinkStartMessage(id,len) { \
+   DownlinkPut1Byte(STX);          \
+   DownlinkPut1Byte(id);           \
+   ck_a = id; ck_b = id;           \
+   DownlinkPut1ByteUpdateCs(AC_ID);\
+   DownlinkPut1ByteUpdateCs(len);  \
+}
 
 #define DownlinkEndMessage()				\
   { DownlinkPut1Byte(ck_a); DownlinkPut1Byte(ck_b); }

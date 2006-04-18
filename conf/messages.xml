@@ -230,8 +230,7 @@
   </message>
 
   <message name="RC" ID="101">
-    <field name="nb_channels" type="uint8"/>
-    <field name="values" type="int16" unit="pprz" len="7"/>
+    <field name="values" type="int16[]" unit="pprz"/>
   </message>
 
   <message name="SERVOS" ID="102">

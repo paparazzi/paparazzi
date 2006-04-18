@@ -41,7 +41,7 @@ extern uint8_t telemetry_mode_Fbw;
 #define PERIODIC_SEND_PPM() {}
 #define PERIODIC_SEND_SERVOS() {}
 #define PERIODIC_SEND_FBW_STATUS() {DOWNLINK_SEND_FBW_STATUS(&fbw_mode, &rc_status, &fbw_mode)}
-#define PERIODIC_SEND_RC() {DOWNLINK_SEND_RC(&fbw_mode, rc_values)}
+#define PERIODIC_SEND_RC() {DOWNLINK_SEND_RC(PPM_NB_PULSES, rc_values)}
 
 
 

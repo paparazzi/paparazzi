@@ -32,7 +32,9 @@ module Syntax = struct
 
   type type_name = string
 
-  type _type = Basic of string | Array of string * int
+  type _type = 
+      Basic of string
+    | Array of string * string
 
   type field = _type  * string * format option
 
@@ -42,6 +44,15 @@ module Syntax = struct
 
   type messages = message list
 
+  let parse_type = fun t varname ->
+    let n = String.length t in
+    if n >=2 && String.sub t (n-2) 2 = "[]" then
+      Array (String.sub t 0 (n-2), varname)
+    else
+      Basic t
+
+  let length_name = fun s -> "nb_"^s
+
   let assoc_types t =
     try
       List.assoc t Pprz.types
@@ -49,25 +60,13 @@ module Syntax = struct
       Not_found -> fprintf stderr "Error: '%s' unknown type\n" t; exit 1
 
   let rec sizeof = function
-      Basic t -> (assoc_types t).Pprz.size
-    | Array (t, i) -> i * sizeof (Basic t)
+      Basic t -> string_of_int (assoc_types t).Pprz.size
+    | Array (t, varname) -> sprintf "%s*%s" (length_name varname) (sizeof (Basic t))
   let formatof = fun t -> (assoc_types t).Pprz.format
 
   let print_format t = function
       None -> printf "(%s)" (formatof t)
     | Some f -> printf "(%s)" f
-
-  let print_field = fun (t, s, f) ->
-    begin
-      match t with
-	Basic t -> printf "%s %s " t s; print_format t f
-      | Array(t, i) -> printf "%s %s[%d] " t s i; print_format t f
-    end; printf "\n"
-
-  let print_message = fun (s, fields) ->
-    printf "%s {\n" s;
-    List.iter print_field fields;
-    printf "}\n"
 
   open Xml
 
@@ -100,7 +99,7 @@ module Syntax = struct
 		let id = assoc_or_fail "name" fields
 		and type_name = assoc_or_fail "type" fields
 		and fmt = try Some (List.assoc "format" fields) with _ -> None in
-		let _type = try Array(type_name, int_of_string (List.assoc "len" fields)) with Not_found -> Basic type_name in
+		let _type = parse_type type_name id in
 		
 		(_type, id, fmt)
 	    | _ -> xml_error "field")
@@ -126,32 +125,38 @@ module Gen_onboard = struct
   let print_avr_field = fun avr_h (t, name, (_f:format option)) ->
     match t with 
       Basic _ ->
-	fprintf avr_h "\t  DownlinkPut%dByteByAddr((const uint8_t*)(%s)); \\\n" (sizeof t) name
-    | Array (t, i) ->
+	fprintf avr_h "\t  DownlinkPut%sByteByAddr((const uint8_t*)(%s)); \\\n" (sizeof t) name
+    | Array (t, varname) ->
 	let s = sizeof (Basic t) in
-	fprintf avr_h "\t  {\\\n\t    int i;\\\n\t    for(i = 0; i < %d; i++) {\\\n" i;
-	fprintf avr_h "\t      DownlinkPut%dByteByAddr((uint8_t*)(&%s[i])); \\\n" s name;
+	fprintf avr_h "\t  {\\\n\t    int i;\\\n\t    for(i = 0; i < %s; i++) {\\\n" (length_name varname);
+	fprintf avr_h "\t      DownlinkPut%sByteByAddr((uint8_t*)(&%s[i])); \\\n" s name;
 	fprintf avr_h "\t    }\\\n";
 	fprintf avr_h "\t  }\\\n"
 
+  let print_one avr_h = function
+      (Array _, s, _) -> fprintf avr_h "%s, %s" (length_name s) s
+    | (_, s, _) -> fprintf avr_h "%s" s
+  
   let print_avr_macro_names avr_h = function
       [] -> ()
-    | (_, s, _)::fields ->
-	fprintf avr_h "%s" s; List.iter (fun (_, s, _) -> fprintf avr_h ", %s" s) fields
+    | f::fields ->
+	print_one avr_h f;
+	List.iter (fun f -> fprintf avr_h ", "; print_one avr_h f) fields
 
   let rec size_fields = fun fields size ->
     match fields with
       [] -> size
-    | (t, _, _)::fields -> size_fields fields (size + sizeof(t))
+    | (t, _, _)::fields -> size_fields fields (size ^"+"^sizeof t)
 
-  let size_of_message = fun m -> size_fields m.fields 0    
+  let size_of_message = fun m -> size_fields m.fields "0"
       
   let print_avr_macro = fun avr_h {name=s; fields = fields} ->
     fprintf avr_h "#define DOWNLINK_SEND_%s(" s;
     print_avr_macro_names avr_h fields;
     fprintf avr_h "){ \\\n";
-    fprintf avr_h "\tif (DownlinkCheckFreeSpace(DownlinkSizeOf(%d))) {\\\n" (size_fields fields 0);
-    fprintf avr_h "\t  DownlinkStartMessage(DL_%s) \\\n" s; 
+    let size = (size_fields fields "0") in
+    fprintf avr_h "\tif (DownlinkCheckFreeSpace(DownlinkSizeOf(%s))) {\\\n" size;
+    fprintf avr_h "\t  DownlinkStartMessage(DL_%s,%s) \\\n" s size;
     List.iter (print_avr_field avr_h) fields;
     fprintf avr_h "\t  DownlinkEndMessage() \\\n";
     fprintf avr_h "\t} \\\n";
@@ -174,7 +179,7 @@ module Gen_onboard = struct
     let n = max_id + 1 in
     fprintf avr_h "#define MSG_LENGTHS {";
     for i = 0 to n - 1 do
-      fprintf avr_h "%d," (try 2 + List.assoc i sizes with Not_found -> 0)
+      fprintf avr_h "%s," (try "(2+" ^ List.assoc i sizes^")" with Not_found -> "0")
     done;
     fprintf avr_h "}\n\n"
 
