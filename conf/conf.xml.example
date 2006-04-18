@@ -17,6 +17,7 @@
     airframe="airframes/twinstar2.xml" 
     radio="radios/cockpitMM.xml" 
     flight_plan="flight_plans/mav05_ccw.xml"
+    telemetry="telemetry/default.xml"
     gui_color="#800080"
   />
 
@@ -25,6 +26,7 @@
     ac_id="3"
     airframe="airframes/microjet1.xml" 
     radio="radios/cockpitMM.xml" 
+    telemetry="telemetry/default.xml"
     flight_plan="flight_plans/dummy.xml"
   />
 
@@ -33,6 +35,7 @@
     ac_id="4"
     airframe="airframes/twinstar4.xml" 
     radio="radios/cockpitMM.xml" 
+    telemetry="telemetry/default.xml"
     flight_plan="flight_plans/muret_follow.xml"
   />
 
@@ -41,6 +44,7 @@
     ac_id="5"
     airframe="airframes/flyingtux.xml" 
     radio="radios/cockpitMM.xml" 
+    telemetry="telemetry/default.xml"
     flight_plan="flight_plans/dummy.xml"
   />
 
@@ -49,6 +53,7 @@
     ac_id="6"
     airframe="airframes/gorrazoptere_esc_3DMG.xml" 
     radio="radios/cockpitMM.xml" 
+    telemetry="telemetry/default.xml"
     flight_plan="flight_plans/dummy.xml"
   />
 
@@ -57,6 +62,7 @@
     ac_id="7"
     airframe="airframes/plaster1.xml" 
     radio="radios/cockpitMM.xml" 
+    telemetry="telemetry/default.xml"
     flight_plan="flight_plans/dummy.xml"
   />
 
@@ -66,6 +72,7 @@
     ac_id="8"
     airframe="airframes/twinjet1.xml" 
     radio="radios/cockpitMM.xml" 
+    telemetry="telemetry/default.xml"
     flight_plan="flight_plans/dummy.xml"
   />
 
@@ -75,6 +82,7 @@
     ac_id="9"
     airframe="airframes/microjet4.xml" 
     radio="radios/cockpitMM.xml" 
+    telemetry="telemetry/default.xml"
     flight_plan="flight_plans/dummy.xml"
   />
 
@@ -84,6 +92,7 @@
     ac_id="10"
     airframe="airframes/twinstar5.xml" 
     radio="radios/cockpitMM.xml" 
+    telemetry="telemetry/default.xml"
     flight_plan="flight_plans/dummy.xml"
   />
 
@@ -93,6 +102,7 @@
     ac_id="11"
     airframe="airframes/gorrazoptere_esc_3DMG_test.xml" 
     radio="radios/cockpitMM.xml" 
+    telemetry="telemetry/default.xml"
     flight_plan="flight_plans/dummy.xml"
   />
 
