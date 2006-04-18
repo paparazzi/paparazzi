@@ -71,7 +71,9 @@ uint8_t fbw_mode;
 void init_fbw( void ) {
   /** Hardware init */
   hw_init();
-
+#ifdef LED
+  led_init();
+#endif
 #ifdef UART0
   uart0_init_tx();
 #if defined IMU_3DMG
