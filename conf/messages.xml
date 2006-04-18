@@ -8,10 +8,10 @@
      <field name="version" type="uint16"></field>
    </message>
 
-   <message name="CALIB_START" ID="2" period="1">
+   <message name="CALIB_START" ID="2">
    </message>
 
-   <message name="CALIB_CONTRAST" ID="3" period="1">
+   <message name="CALIB_CONTRAST" ID="3">
      <field name="adc" type="int16"></field>
    </message>
 
@@ -25,13 +25,13 @@
      <field name="rad_of_ir" type="float" format="%.5f"></field>
    </message>
 
-   <message name="ATTITUDE" ID="6" period="0.5" >
+   <message name="ATTITUDE" ID="6">
      <field name="phi" type="int8" unit="deg"></field>
      <field name="psi" type="int8" unit="deg"></field>
      <field name="theta" type="int8" unit="deg"></field>
    </message>
 
-   <message name="ADC" ID="7" period="0.5" >
+   <message name="ADC" ID="7">
      <field name="roll" type="int16"></field>
      <field name="pitch" type="int16"></field>
    </message>
@@ -49,7 +49,7 @@
      <field name="gps_nb_err" type="uint8"></field>
    </message>
 
-   <message name="NAVIGATION_REF" ID="0x09" period="9" >
+   <message name="NAVIGATION_REF" ID="0x09">
      <field name="utm_east"  type="int32" unit="m"></field>
      <field name="utm_north" type="int32" unit="m"></field>
      <field name="utm_zone" type="uint8"></field>
@@ -65,7 +65,7 @@
      <field name="dist2_home" type="float" format="%.1f" unit="m^2"></field>
    </message>
 
-   <message name="PPRZ_MODE" ID="11" period="5" >
+   <message name="PPRZ_MODE" ID="11">
      <field name="ap_mode" type="uint8" values="MANUAL|AUTO1|AUTO2|HOME|NOGPS|FAILSAFE"/>
      <field name="ap_gaz" type="uint8" values="MANUAL|AUTO_GAZ|AUTO_CLIMB|AUTO_ALT"/>
      <field name="ap_lateral" type="uint8" values="MANUAL|ROLL_RATE|ROLL|COURSE"/>
@@ -75,7 +75,7 @@
      <field name="lls_calib" type="uint8" values="LLS_CALIB_MODE_OFF|LLS_CALIB_MODE_ON"/>
    </message>
 
-   <message name="BAT" ID="12" period="2" >
+   <message name="BAT" ID="12">
      <field name="desired_gaz" type="int16" unit="pprz"></field>
      <field name="voltage" type="uint8" unit="1e-1V"></field>
      <field name="flight_time" type="uint16" unit="s"></field>
@@ -85,24 +85,24 @@
      <field name="energy" type="uint16" unit="mAh"/>
    </message>
 
-   <message name="DEBUG_MCU_LINK" ID="13" period="5" >
+   <message name="DEBUG_MCU_LINK" ID="13">
      <field name="i2c_nb_err" type="uint8"></field>	
      <field name="i2c_mcu1_nb_err" type="uint8"></field>
      <field name="ppm_rate" type="uint8"></field>
    </message>
 
-   <message name="CALIBRATION" ID="14" period="2">
+   <message name="CALIBRATION" ID="14">
      <field name="climb_sum_err" type="float" format="%.1f"></field>
      <field name="climb_pgain" type="float" format="%.3f"></field> 
      <field name="course_pgain" type="float" format="%.3f"></field>
    </message>
 
-   <message name="SETTINGS" ID="15" period="0.5">
+   <message name="SETTINGS" ID="15">
      <field name="slider_1_val" type="float"></field>
      <field name="slider_2_val" type="float"></field>
    </message>
 
-   <message name="DESIRED" ID="16" period="1">
+   <message name="DESIRED" ID="16">
      <field name="roll" type="float" format="%.2f"/>
      <field name="pitch" type="float" format="%.2f"/>
      <field name="desired_x" type="float" format="%.0f"/>
@@ -129,10 +129,6 @@
      <field name="theta_bias" type="float" format="%.3f"/>
    </message>
 
-   <message name="IDENT" ID="19" period="10">
-     <field name="id" type="uint8"/>
-   </message>
-
    <message name="CAM" ID="20">
      <field name="phi" type="int8" unit="deg"/>
      <field name="theta" type="int8" unit="deg"/>
@@ -140,13 +136,13 @@
      <field name="target_y" type="int16" unit="m"/>
    </message>
 	
-  <message name="CIRCLE" ID="21" period="1">
+  <message name="CIRCLE" ID="21">
      <field name="center_east" type="int16" unit="m"/>
      <field name="center_north" type="int16" unit="m"/>
      <field name="radius" type="int16" unit="m"/>
      </message>
 	
-   <message name="SEGMENT" ID="22" period="1">
+   <message name="SEGMENT" ID="22">
       <field name="segment_east_1" type="int16" unit="m"/>
       <field name="segment_north_1" type="int16" unit="m"/>
       <field name="segment_east_2" type="int16" unit="m"/>
@@ -181,7 +177,7 @@
     <field name="Azim" type="int16" unit="deg"/>
   </message>
 
-  <message name="IMU" ID="26" period="0.5">
+  <message name="IMU" ID="26">
     <field name="roll_dot" type="int16"/>
     <field name="pitch_dot" type="int16"/>
     <field name="yaw_dot" type="int16"/>
@@ -190,7 +186,7 @@
     <field name="yaw" type="int16"/>
   </message>
 
-  <message name="ACINFO" ID="27" period="1">
+  <message name="ACINFO" ID="27">
     <field name="east"  type="float" unit="m"/>
     <field name="north"  type="float" unit="m"/>
     <field name="course" type="float" unit="rad"/>
@@ -206,17 +202,17 @@
     <field name="range" type="uint16"/>
   </message>
 
-  <message name="DEBUG_MODEM" id="30" period="5">
+  <message name="DEBUG_MODEM" id="30">
     <field name="modem_nb_err" type="uint8"></field>
   </message>
 
 <!-- Current value of one variable from the dl_settings (airframe.xml) -->
- <message name="DL_VALUE" id="31" period="1">
+ <message name="DL_VALUE" id="31">
     <field name="index" type="uint8"/>
     <field name="value" type="float"/>
  </message>
 
-  <message name="PPM" ID="100" period="1">
+  <message name="PPM" ID="100">
     <field name="nb_channels" type="uint8"/>
     <field name="sync_len" type="uint8"/>
     <field name="ppm01" type="uint16" unit="us"/>
@@ -233,12 +229,12 @@
     <field name="ppm12" type="uint16" unit="us"/>
   </message>
 
-  <message name="RC" ID="101" period="1">
+  <message name="RC" ID="101">
     <field name="nb_channels" type="uint8"/>
     <field name="values" type="int16" unit="pprz" len="7"/>
   </message>
 
-  <message name="SERVOS" ID="102" period="1">
+  <message name="SERVOS" ID="102">
     <field name="nb_servos" type="uint8"/>
     <field name="ser01" type="uint16" unit="us"/>
     <field name="ser02" type="uint16" unit="us"/>
