@@ -2,7 +2,7 @@
 
 <protocol>
  <!-- messages from modem or sim to server -->
- <class name="telemetry_ap" ID="0x40">
+ <class name="telemetry">
  
    <message name="BOOT" id="1">
      <field name="version" type="uint16"></field>
@@ -19,126 +19,126 @@
      <field name="cpu_time" type="uint16" unit="s"></field>
    </message>
 
-  <message name="RAD_OF_IR" ID="5">
-    <field name="ir" type="int16"></field>
-    <field name="rad" type="int16" unit="decideg"></field>
-    <field name="rad_of_ir" type="float" format="%.5f"></field>
-  </message>
+   <message name="RAD_OF_IR" ID="5">
+     <field name="ir" type="int16"></field>
+     <field name="rad" type="int16" unit="decideg"></field>
+     <field name="rad_of_ir" type="float" format="%.5f"></field>
+   </message>
 
-  <message name="ATTITUDE" ID="6" period="0.5" >
-    <field name="phi" type="int8" unit="deg"></field>
-    <field name="psi" type="int8" unit="deg"></field>
-    <field name="theta" type="int8" unit="deg"></field>
-  </message>
+   <message name="ATTITUDE" ID="6" period="0.5" >
+     <field name="phi" type="int8" unit="deg"></field>
+     <field name="psi" type="int8" unit="deg"></field>
+     <field name="theta" type="int8" unit="deg"></field>
+   </message>
 
-  <message name="ADC" ID="7" period="0.5" >
-    <field name="roll" type="int16"></field>
-    <field name="pitch" type="int16"></field>
-  </message>
+   <message name="ADC" ID="7" period="0.5" >
+     <field name="roll" type="int16"></field>
+     <field name="pitch" type="int16"></field>
+   </message>
 
-  <message name="GPS" ID="8">
-    <field name="mode"   type="uint8" unit="byte_mask"></field>
-    <field name="utm_east"  type="int32" unit="cm"></field>
-    <field name="utm_north"  type="int32" unit="cm"></field>
-    <field name="course" type="int16" unit="decideg"></field>
-    <field name="alt"    type="int32" unit="cm"></field>
-    <field name="speed"  type="uint16" unit="cm/s"></field>
-    <field name="climb"  type="int16" unit="cm/s"></field>
-    <field name="itow"  type="uint32" unit="ms"></field>
-    <field name="utm_zone"  type="uint8"></field>
-    <field name="gps_nb_err" type="uint8"></field>
-  </message>
+   <message name="GPS" ID="8">
+     <field name="mode"   type="uint8" unit="byte_mask"></field>
+     <field name="utm_east"  type="int32" unit="cm"></field>
+     <field name="utm_north"  type="int32" unit="cm"></field>
+     <field name="course" type="int16" unit="decideg"></field>
+     <field name="alt"    type="int32" unit="cm"></field>
+     <field name="speed"  type="uint16" unit="cm/s"></field>
+     <field name="climb"  type="int16" unit="cm/s"></field>
+     <field name="itow"  type="uint32" unit="ms"></field>
+     <field name="utm_zone"  type="uint8"></field>
+     <field name="gps_nb_err" type="uint8"></field>
+   </message>
 
-  <message name="NAVIGATION_REF" ID="0x09" period="9" >
-    <field name="utm_east"  type="int32" unit="m"></field>
-    <field name="utm_north" type="int32" unit="m"></field>
-    <field name="utm_zone" type="uint8"></field>
-  </message>
+   <message name="NAVIGATION_REF" ID="0x09" period="9" >
+     <field name="utm_east"  type="int32" unit="m"></field>
+     <field name="utm_north" type="int32" unit="m"></field>
+     <field name="utm_zone" type="uint8"></field>
+   </message>
 
-  <message name="NAVIGATION" ID="10">
-    <field name="cur_block" type="uint8"></field>
-    <field name="cur_stage" type="uint8"></field>
-    <field name="pos_x" type="int16" unit="m"></field>
-    <field name="pos_y" type="int16" unit="m"></field>
-    <field name="desired_course" type="int16" unit="decideg"></field>
-    <field name="dist2_wp" type="float" format="%.1f" unit="m^2"></field>
-    <field name="dist2_home" type="float" format="%.1f" unit="m^2"></field>
-  </message>
+   <message name="NAVIGATION" ID="10">
+     <field name="cur_block" type="uint8"></field>
+     <field name="cur_stage" type="uint8"></field>
+     <field name="pos_x" type="int16" unit="m"></field>
+     <field name="pos_y" type="int16" unit="m"></field>
+     <field name="desired_course" type="int16" unit="decideg"></field>
+     <field name="dist2_wp" type="float" format="%.1f" unit="m^2"></field>
+     <field name="dist2_home" type="float" format="%.1f" unit="m^2"></field>
+   </message>
 
-  <message name="PPRZ_MODE" ID="11" period="5" >
-    <field name="ap_mode" type="uint8" values="MANUAL|AUTO1|AUTO2|HOME|NOGPS|FAILSAFE"/>
-    <field name="ap_gaz" type="uint8" values="MANUAL|AUTO_GAZ|AUTO_CLIMB|AUTO_ALT"/>
-    <field name="ap_lateral" type="uint8" values="MANUAL|ROLL_RATE|ROLL|COURSE"/>
-    <field name="ap_horizontal" type="uint8" values="WAYPOINT|ROUTE|CIRCLE"/>
-    <field name="if_calib_mode" type="uint8" values="NONE|DOWN|UP"/>
-    <field name="mcu1_status" type="uint8" values="LOST|OK|REALLY_LOST"/>	
-    <field name="lls_calib" type="uint8" values="LLS_CALIB_MODE_OFF|LLS_CALIB_MODE_ON"/>
-  </message>
+   <message name="PPRZ_MODE" ID="11" period="5" >
+     <field name="ap_mode" type="uint8" values="MANUAL|AUTO1|AUTO2|HOME|NOGPS|FAILSAFE"/>
+     <field name="ap_gaz" type="uint8" values="MANUAL|AUTO_GAZ|AUTO_CLIMB|AUTO_ALT"/>
+     <field name="ap_lateral" type="uint8" values="MANUAL|ROLL_RATE|ROLL|COURSE"/>
+     <field name="ap_horizontal" type="uint8" values="WAYPOINT|ROUTE|CIRCLE"/>
+     <field name="if_calib_mode" type="uint8" values="NONE|DOWN|UP"/>
+     <field name="mcu1_status" type="uint8" values="LOST|OK|REALLY_LOST"/>	
+     <field name="lls_calib" type="uint8" values="LLS_CALIB_MODE_OFF|LLS_CALIB_MODE_ON"/>
+   </message>
 
-  <message name="BAT" ID="12" period="2" >
-    <field name="desired_gaz" type="int16" unit="pprz"></field>
-    <field name="voltage" type="uint8" unit="1e-1V"></field>
-    <field name="flight_time" type="uint16" unit="s"></field>
-    <field name="status_battery" type="uint8" values="LOW|OK"></field>
-    <field name="block_time" type="uint16" unit="s"></field>
-    <field name="stage_time" type="uint16" unit="s"></field>
-    <field name="energy" type="uint16" unit="mAh"/>
-  </message>
+   <message name="BAT" ID="12" period="2" >
+     <field name="desired_gaz" type="int16" unit="pprz"></field>
+     <field name="voltage" type="uint8" unit="1e-1V"></field>
+     <field name="flight_time" type="uint16" unit="s"></field>
+     <field name="status_battery" type="uint8" values="LOW|OK"></field>
+     <field name="block_time" type="uint16" unit="s"></field>
+     <field name="stage_time" type="uint16" unit="s"></field>
+     <field name="energy" type="uint16" unit="mAh"/>
+   </message>
 
-  <message name="DEBUG_MCU_LINK" ID="13" period="5" >
-    <field name="i2c_nb_err" type="uint8"></field>	
-    <field name="i2c_mcu1_nb_err" type="uint8"></field>
-    <field name="ppm_rate" type="uint8"></field>
-  </message>
+   <message name="DEBUG_MCU_LINK" ID="13" period="5" >
+     <field name="i2c_nb_err" type="uint8"></field>	
+     <field name="i2c_mcu1_nb_err" type="uint8"></field>
+     <field name="ppm_rate" type="uint8"></field>
+   </message>
 
-  <message name="CALIBRATION" ID="14" period="2">
-    <field name="climb_sum_err" type="float" format="%.1f"></field>
-    <field name="climb_pgain" type="float" format="%.3f"></field> 
-    <field name="course_pgain" type="float" format="%.3f"></field>
-  </message>
+   <message name="CALIBRATION" ID="14" period="2">
+     <field name="climb_sum_err" type="float" format="%.1f"></field>
+     <field name="climb_pgain" type="float" format="%.3f"></field> 
+     <field name="course_pgain" type="float" format="%.3f"></field>
+   </message>
 
-  <message name="SETTINGS" ID="15" period="0.5">
-    <field name="slider_1_val" type="float"></field>
-    <field name="slider_2_val" type="float"></field>
-  </message>
+   <message name="SETTINGS" ID="15" period="0.5">
+     <field name="slider_1_val" type="float"></field>
+     <field name="slider_2_val" type="float"></field>
+   </message>
 
-  <message name="DESIRED" ID="16" period="1">
-    <field name="roll" type="float" format="%.2f"/>
-    <field name="pitch" type="float" format="%.2f"/>
-    <field name="desired_x" type="float" format="%.0f"/>
-    <field name="desired_y" type="float" format="%.0f"/>
-    <field name="desired_altitude" type="float" format="%.0f"/>
-    <field name="desired_climb" type="float" format="%.1f"></field>
-  </message>
+   <message name="DESIRED" ID="16" period="1">
+     <field name="roll" type="float" format="%.2f"/>
+     <field name="pitch" type="float" format="%.2f"/>
+     <field name="desired_x" type="float" format="%.0f"/>
+     <field name="desired_y" type="float" format="%.0f"/>
+     <field name="desired_altitude" type="float" format="%.0f"/>
+     <field name="desired_climb" type="float" format="%.1f"></field>
+   </message>
 
-  <message name="RAW_IMU" ID="17">
-    <field name="gyro_x" type="float"/>
-    <field name="gyro_y" type="float"/>
-    <field name="gyro_z" type="float"/>
-    <field name="accel_x" type="float"/>
-    <field name="accel_y" type="float"/>
-    <field name="accel_z" type="float"/>
-  </message>
+   <message name="RAW_IMU" ID="17">
+     <field name="gyro_x" type="float"/>
+     <field name="gyro_y" type="float"/>
+     <field name="gyro_z" type="float"/>
+     <field name="accel_x" type="float"/>
+     <field name="accel_y" type="float"/>
+     <field name="accel_z" type="float"/>
+   </message>
 
-  <message name="KALMAN" ID="18">
-    <field name="phi"        type="float" format="%.3f"/>
-    <field name="phi_dot"    type="float" format="%.3f"/>
-    <field name="phi_bias"   type="float" format="%.3f"/>
-    <field name="theta"      type="float" format="%.3f"/>
-    <field name="theta_dot"  type="float" format="%.3f"/>
-    <field name="theta_bias" type="float" format="%.3f"/>
-  </message>
+   <message name="KALMAN" ID="18">
+     <field name="phi"        type="float" format="%.3f"/>
+     <field name="phi_dot"    type="float" format="%.3f"/>
+     <field name="phi_bias"   type="float" format="%.3f"/>
+     <field name="theta"      type="float" format="%.3f"/>
+     <field name="theta_dot"  type="float" format="%.3f"/>
+     <field name="theta_bias" type="float" format="%.3f"/>
+   </message>
 
    <message name="IDENT" ID="19" period="10">
      <field name="id" type="uint8"/>
    </message>
 
-  <message name="CAM" ID="20">
+   <message name="CAM" ID="20">
      <field name="phi" type="int8" unit="deg"/>
      <field name="theta" type="int8" unit="deg"/>
      <field name="target_x" type="int16" unit="m"/>
      <field name="target_y" type="int16" unit="m"/>
-  </message>
+   </message>
 	
   <message name="CIRCLE" ID="21" period="1">
      <field name="center_east" type="int16" unit="m"/>
@@ -172,13 +172,13 @@
   </message>
 
   <message name="SVINFO" id="25">
-     <field name="chn" type="uint8"/>
-     <field name="SVID" type="uint8"/>
-     <field name="Flags" type="uint8"/>
-     <field name="QI" type="int8"/>
-     <field name="CNO" type="uint8" unit="dbHz"/>
-     <field name="Elev" type="int8" unit="deg"/>
-     <field name="Azim" type="int16" unit="deg"/>
+    <field name="chn" type="uint8"/>
+    <field name="SVID" type="uint8"/>
+    <field name="Flags" type="uint8"/>
+    <field name="QI" type="int8"/>
+    <field name="CNO" type="uint8" unit="dbHz"/>
+    <field name="Elev" type="int8" unit="deg"/>
+    <field name="Azim" type="int16" unit="deg"/>
   </message>
 
   <message name="IMU" ID="26" period="0.5">
@@ -190,25 +190,25 @@
     <field name="yaw" type="int16"/>
   </message>
 
- <message name="ACINFO" ID="27" period="1">
-  <field name="east"  type="float" unit="m"/>
-  <field name="north"  type="float" unit="m"/>
-  <field name="course" type="float" unit="rad"/>
-  <field name="alt"    type="float" unit="m"/>
-  <field name="speed"  type="float" unit="m/s"/>
- </message>
+  <message name="ACINFO" ID="27" period="1">
+    <field name="east"  type="float" unit="m"/>
+    <field name="north"  type="float" unit="m"/>
+    <field name="course" type="float" unit="rad"/>
+    <field name="alt"    type="float" unit="m"/>
+    <field name="speed"  type="float" unit="m/s"/>
+  </message>
 
- <message name="WC_RSSI" id="28">
-  <field name="raw_level" type="uint8"/>
- </message>
+  <message name="WC_RSSI" id="28">
+    <field name="raw_level" type="uint8"/>
+  </message>
 
- <message name="RANGEFINDER" id="29">
-  <field name="range" type="uint16"/>
- </message>
+  <message name="RANGEFINDER" id="29">
+    <field name="range" type="uint16"/>
+  </message>
 
- <message name="DEBUG_MODEM" id="30" period="5">
+  <message name="DEBUG_MODEM" id="30" period="5">
     <field name="modem_nb_err" type="uint8"></field>
- </message>
+  </message>
 
 <!-- Current value of one variable from the dl_settings (airframe.xml) -->
  <message name="DL_VALUE" id="31" period="1">
@@ -216,11 +216,7 @@
     <field name="value" type="float"/>
  </message>
 
-</class>
-
-<class name="telemetry_fbw" ID="0X41">
-
-  <message name="PPM" ID="0x01" period="1">
+  <message name="PPM" ID="100" period="1">
     <field name="nb_channels" type="uint8"/>
     <field name="sync_len" type="uint8"/>
     <field name="ppm01" type="uint16" unit="us"/>
@@ -237,12 +233,12 @@
     <field name="ppm12" type="uint16" unit="us"/>
   </message>
 
-  <message name="RC" ID="0x02" period="1">
+  <message name="RC" ID="101" period="1">
     <field name="nb_channels" type="uint8"/>
     <field name="values" type="int16" unit="pprz" len="7"/>
   </message>
 
-  <message name="SERVOS" ID="0x03" period="1">
+  <message name="SERVOS" ID="102" period="1">
     <field name="nb_servos" type="uint8"/>
     <field name="ser01" type="uint16" unit="us"/>
     <field name="ser02" type="uint16" unit="us"/>
@@ -256,7 +252,7 @@
     <field name="ser10" type="uint16" unit="us"/>
   </message>
 
-  <message name="FBW_STATUS" ID="0x04" period="1">
+  <message name="FBW_STATUS" ID="103" period="1">
     <field name="nb_spi_err" type="uint8"/>
     <field name="rc_status" type="uint8" values="OK|LOST|REALLY_LOST"/>
     <field name="mode" type="uint8" values="MANUAL|AUTO|FAILSAFE"/>
@@ -264,8 +260,44 @@
 
 </class>
 
+<class name="datalink">
+ <message name="ACINFO" ID="1">
+  <field name="ac_id" type="uint8"/>
+  <field name="utm_east"  type="int32" unit="cm"></field>
+  <field name="utm_north"  type="int32" unit="cm"></field>
+  <field name="course" type="int16" unit="decideg"></field>
+  <field name="alt"    type="int32" unit="cm"></field>
+  <field name="speed"  type="uint16" unit="cm/s"></field>
+  <field name="climb"  type="int16" unit="cm/s"></field>
+  <field name="itow"  type="uint32" unit="ms"></field>
+ </message>
 
-<class name="ground" ID="0x42">
+ <message name="MOVE_WP" ID="2">
+  <field name="wp_id" type="uint8"/>
+  <field name="utm_east"  type="int32" unit="cm"></field>
+  <field name="utm_north"  type="int32" unit="cm"></field>
+  <field name="alt"    type="int32" unit="cm"></field>
+ </message>
+
+ <message name="EVENT" ID="3">
+  <field name="event" type="uint8"/>
+ </message>
+
+ <message name="SETTING" ID="4">
+  <field name="index" type="uint8"/>
+  <field name="value" type="float"/>
+ </message>
+
+ <message name="BLOCK" ID="5">
+  <field name="block_id" type="uint8"/>
+ </message>
+
+</class>
+
+
+
+
+<class name="ground">
   <message name="NEW_AIRCRAFT" ID="1">
     <field name="ac_id" type="string"/>
   </message>
@@ -466,38 +498,6 @@
   </message>
 </class>
 
-<class name="datalink">
- <message name="ACINFO" ID="1">
-  <field name="ac_id" type="uint8"/>
-  <field name="utm_east"  type="int32" unit="cm"></field>
-  <field name="utm_north"  type="int32" unit="cm"></field>
-  <field name="course" type="int16" unit="decideg"></field>
-  <field name="alt"    type="int32" unit="cm"></field>
-  <field name="speed"  type="uint16" unit="cm/s"></field>
-  <field name="climb"  type="int16" unit="cm/s"></field>
-  <field name="itow"  type="uint32" unit="ms"></field>
- </message>
 
- <message name="MOVE_WP" ID="2">
-  <field name="wp_id" type="uint8"/>
-  <field name="utm_east"  type="int32" unit="cm"></field>
-  <field name="utm_north"  type="int32" unit="cm"></field>
-  <field name="alt"    type="int32" unit="cm"></field>
- </message>
-
- <message name="EVENT" ID="3">
-  <field name="event" type="uint8"/>
- </message>
-
- <message name="SETTING" ID="4">
-  <field name="index" type="uint8"/>
-  <field name="value" type="float"/>
- </message>
-
- <message name="BLOCK" ID="5">
-  <field name="block_id" type="uint8"/>
- </message>
-
-</class>
 
 </protocol>
