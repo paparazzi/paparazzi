@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <telemetry>
-  <process>
+  <process name="ap">
     <mode name="default">
       <message name="CALIB_START"    period="1"/> 
       <message name="CALIB_CONTRAST" period="1"/>
@@ -14,25 +14,29 @@
       <message name="SETTINGS"       period="0.5"/>
       <message name="DESIRED"        period="1"/>
       <message name="CIRCLE"         period="1"/>
-      <message name="SEGMENT" period="1"/>
-      <message name="IMU" period="0.5"/>
-      <message name="ACINFO" period="1"/>
-      <message name="DEBUG_MODEM" period="5"/>
-      <message name="DL_VALUE" period="1"/>
+      <message name="SEGMENT"        period="1"/>
+      <message name="IMU"            period="0.5"/>
+      <message name="ACINFO"         period="1"/>
+      <message name="DEBUG_MODEM"    period="5"/>
+      <message name="DL_VALUE"       period="1"/>
     </mode>
     <mode name="debug">
-      <message name="CALIB_START"  period="0.5"/> 
-      <message name="ATTITUDE" period="0.5" />
+      <message name="CALIB_START"    period="0.5"/> 
+      <message name="ATTITUDE"       period="0.5"/>
     </mode>
   </process>
-  <process>
+  <process name="fbw">
     <mode name="default">
-      <message name="PPM" period="1"/>
-      <message name="RC" period="1">
+      <message name="PPM"            period="5"/>
+      <message name="RC"             period="5"/>
+      <message name="SERVOS"         period="5"/>
+      <message name="FBW_STATUS"     period="1">
     </mode>
     <mode name="debug">
-      <message name="PPM" period="1"/>
-      <message name="RC" period="1">
+      <message name="PPM"            period="0.5"/>
+      <message name="RC"             period="0.5"/>
+      <message name="SERVOS"         period="0.5"/>
+      <message name="FBW_STATUS"     period="1">
     </mode>
   </process>
 </telemetry>
