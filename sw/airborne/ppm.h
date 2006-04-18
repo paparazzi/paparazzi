@@ -24,10 +24,9 @@
 #ifndef PPM_H
 #define PPM_H
 
-#include "std.h"
-
 #if defined RADIO_CONTROL
 
+#include "std.h"
 #include "radio.h"
 #define PPM_NB_PULSES RADIO_CTL_NB
 extern uint16_t ppm_pulses[ PPM_NB_PULSES ];
