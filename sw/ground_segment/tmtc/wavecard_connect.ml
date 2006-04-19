@@ -27,9 +27,9 @@
 open Latlong
 open Printf
 module W = Wavecard
-module Tm_Pprz = Pprz.Protocol(struct let name = "telemetry_ap" end)
-module Ground_Pprz = Pprz.Protocol(struct let name = "ground" end)
-module Dl_Pprz = Pprz.Protocol(struct let name = "datalink" end)
+module Tm_Pprz = Pprz.Messages(struct let name = "telemetry_ap" end)
+module Ground_Pprz = Pprz.Messages(struct let name = "ground" end)
+module Dl_Pprz = Pprz.Messages(struct let name = "datalink" end)
 
 let ground_id = 0
 
@@ -39,7 +39,7 @@ let send_ack = fun delay fd () ->
   ignore (GMain.Timeout.add delay (fun _ -> W.send fd (W.ACK, ""); false))
 
 let send = fun ac s ->
-  Wavecard.send_addressed ac.fd (W.REQ_SEND_MESSAGE,ac.addr,s)
+  Wavecard.send_addressed ac.fd (W.REQ_SEND_MESSAGE,ac.addr, Serial.string_of_payload s)
 
 let send_dl_msg = fun ac a ->
   let (id, values) = Dl_Pprz.values_of_string a in

@@ -27,7 +27,7 @@
 open Printf
 open Stdlib
 
-module Ground_Pprz = Pprz.Protocol(struct let name = "ground" end)
+module Ground_Pprz = Pprz.Messages(struct let name = "ground" end)
 
 let float_attrib xml a = float_of_string (ExtXml.attrib xml a)
 

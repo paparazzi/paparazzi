@@ -127,7 +127,7 @@ let _ =
   let rec one_class = fun (ident, xml_class, sender) ->
     let name = (Xml.attrib xml_class "name") in
     let messages = Xml.children xml_class in
-    let module P = Pprz.Protocol (struct let name = name end) in
+    let module P = Pprz.Messages (struct let name = name end) in
     let senders = Hashtbl.create 5 in
     match sender with
     | Some "*" ->

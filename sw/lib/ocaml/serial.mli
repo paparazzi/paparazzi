@@ -53,6 +53,11 @@ val input : (string -> int) -> Unix.file_descr -> unit
 time a new character arrives. [f] must return the number of consumed
 characters *)
 
+type payload
+
+val string_of_payload : payload -> string
+val payload_of_string : string -> payload
+
 exception Not_enough
 module type PROTOCOL =
   sig
@@ -63,8 +68,12 @@ module type PROTOCOL =
     val length : string -> int -> int
     (** [length buf start] Must return the length of the message starting at
        [start]. May raise Not_enough *)
+
     val checksum : string -> bool
     (** [checksum message] *)
+
+    val payload : string -> payload
+    val packet : payload -> string
   end
 
 module Transport :
@@ -72,7 +81,7 @@ module Transport :
     sig 
       val nb_err : int ref (* Errors on checksum *)
       val discarded_bytes : int ref
-      val parse : (string -> unit) -> string -> int
+      val parse : (payload -> unit) -> string -> int
       (** [parse f buf] Scans [buf] according to [Protocol] and applies [f] on
-       every recognised message. Returns the number of consumed bytes. *)
+       payload of every recognised message. Returns the number of consumed bytes. *)
     end

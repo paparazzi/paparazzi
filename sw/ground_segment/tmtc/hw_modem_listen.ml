@@ -33,8 +33,8 @@ let modem_msg_period = 1000 (** ms *)
 
 module ModemTransport = Serial.Transport(Modem.Protocol)
 module Tele_Class = struct let name = "telemetry_ap" end
-module Tele_Pprz = Pprz.Protocol(Tele_Class)
-module PprzTransport = Serial.Transport(Tele_Pprz)
+module Tele_Pprz = Pprz.Messages(Tele_Class)
+module PprzTransport = Serial.Transport(Pprz.Transport)
 
 (** Monitoring of the message reception *)
 type status = {
@@ -60,14 +60,16 @@ let listen_pprz_modem = fun pprz_message_cb tty ->
   in
 
   (** Callback for a checksumed pprz message *)
-  let use_pprz_buf = fun buf ->
+  let use_pprz_payload = fun payload ->
+    let buf = Serial.string_of_payload payload in
     status.rx_byte <- status.rx_byte + String.length buf;
     Debug.call 'P' (fun f -> fprintf f "use_pprz: %s\n" (Debug.xprint buf));
-    pprz_message_cb (Tele_Pprz.values_of_bin buf) in
+    pprz_message_cb (Tele_Pprz.values_of_payload payload) in
   (** Callback for a modem message *)
   let use_modem_message =
     let buffer = ref "" in
-    fun msg ->
+    fun payload ->
+      let msg = Serial.string_of_payload payload in
       Debug.call 'M' (fun f -> fprintf f "use_modem: %s\n" (Debug.xprint msg));
       match Modem.parse msg with
 	None -> () (* Only internal modem data *)
@@ -76,7 +78,7 @@ let listen_pprz_modem = fun pprz_message_cb tty ->
 	  let b = !buffer ^ data in
 	  Debug.call 'M' (fun f -> fprintf f "Pprz buffer: %s\n" (Debug.xprint b));
 	  (** Parse as pprz message and ... *)
-	  let x = PprzTransport.parse use_pprz_buf b in
+	  let x = PprzTransport.parse use_pprz_payload b in
 	  status.rx_err <- !PprzTransport.nb_err;
 	  (** ... remove from the buffer the chars which have been used *)
 	  buffer := String.sub b x (String.length b - x)

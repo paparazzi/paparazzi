@@ -39,7 +39,7 @@ extern uint8_t downlink_nb_ovrn;
 #define _DownlinkPut1Byte(dev, _x)  __DownlinkPut1Byte(dev, _x)
 #define DownlinkPut1Byte(_x) _DownlinkPut1Byte(DOWNLINK_DEVICE, _x)
 
-/** 5 = STX + len + ac_id + msg_id + ck_a + ck_b */
+/** 6 = STX + len + ac_id + msg_id + ck_a + ck_b */
 #define DownlinkSizeOf(_payload) (_payload+6)
 
 #define DownlinkPut1ByteUpdateCs(_byte) { \

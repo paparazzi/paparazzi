@@ -537,7 +537,7 @@ let button_press = fun (geomap:G.widget) ev ->
 
 
 (******* Real time handling of flying A/Cs ***********************************) module Live = struct
-  module Ground_Pprz = Pprz.Protocol(struct let name = "ground" end)
+  module Ground_Pprz = Pprz.Messages(struct let name = "ground" end)
 
   type color = string
   type aircraft = {

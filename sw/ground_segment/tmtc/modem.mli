@@ -27,12 +27,10 @@
 
 module Protocol :
   sig
+    include Serial.PROTOCOL
     val stx : char
     val etx : int
-    val index_start : string -> int
     val payload_length : string -> int -> int
-    val length : string -> int -> int
-    val checksum : string -> bool
   end
 
 val parse : string -> string option

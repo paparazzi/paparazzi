@@ -31,8 +31,12 @@ type message_id = int
 type ac_id = int
 type class_name = string
 type format = string
-type _type = string
-type value = Int of int | Float of float | String of string | Int32 of int32
+type _type = 
+    Scalar of string
+  | ArrayType of string
+type value =
+    Int of int | Float of float | String of string | Int32 of int32
+  | Array of value array
 type field = {
     _type : _type;
     fformat : format;
@@ -52,8 +56,12 @@ type type_descr = {
 
 type values = (string * value) list
 
+type payload = string
 
 
+let separator = ","
+let regexp_separator = Str.regexp ","
+let split_array = fun s -> Str.split regexp_separator s
 
 let (//) = Filename.concat
 let lazy_messages_xml = lazy (Xml.parse_file (Env.paparazzi_src // "conf" // "messages.xml"))
@@ -77,23 +85,35 @@ let types = [
   ("string",  { format = "%s" ;  glib_type = "gchar*";  size = max_int; value=String "42" })
 ]
 
+let is_array_type = fun s -> 
+  let n = String.length s in
+  n >= 2 && String.sub s (n-2) 2 = "[]"
+
+let type_of_array_type = fun s ->
+  let n = String.length s in
+  String.sub s 0 (n-2)
+
 let int_of_string = fun x ->
   try int_of_string x with
     _ -> failwith (sprintf "Pprz.int_of_string: %s" x)
 
-let value = fun t v ->
+let rec value = fun t v ->
   match t with 
-    "uint8" | "uint16" | "int8" | "int16" -> Int (int_of_string v)
-  | "uint32" | "int32" -> Int32 (Int32.of_string v)
-  | "float" -> Float (float_of_string v)
-  | "string" -> String v
-  | _ -> failwith (sprintf "Pprz.value: Unexpected type: %s" t)
+    Scalar ("uint8" | "uint16" | "int8" | "int16") -> Int (int_of_string v)
+  | Scalar ("uint32" | "int32") -> Int32 (Int32.of_string v)
+  | Scalar "float" -> Float (float_of_string v)
+  | Scalar "string" -> String v
+  | ArrayType t' ->
+      Array (Array.map (value (Scalar t')) (Array.of_list (split_array v)))
+  | Scalar t -> failwith (sprintf "Pprz.value: Unexpected type: %s" t)
 
-let string_of_value = function
+
+let rec string_of_value = function
     Int x -> string_of_int x
   | Float x -> string_of_float x
   | Int32 x -> Int32.to_string x
   | String s -> s
+  | Array a -> String.concat separator (Array.to_list (Array.map string_of_value a))
 
 
 let magic = fun x -> (Obj.magic x:('a,'b,'c) Pervasives.format)
@@ -104,22 +124,28 @@ let formatted_string_of_value = fun format v ->
     Float x -> sprintf (magic format) x
   | v -> string_of_value v
 
-let size_of_field = fun f -> (List.assoc f._type types).size
-let default_format = fun x -> try (List.assoc x types).format with Not_found -> failwith (sprintf "Unknown format '%s'" x)
-let default_value = fun x -> (List.assoc x types).value
+
+let sizeof = fun f ->
+  match f with
+    Scalar t -> (List.assoc t types).size
+  | ArrayType t -> failwith "sizeof: Array"
+let size_of_field = fun f -> sizeof f._type
+let default_format = fun x -> try (List.assoc x types).format with Not_found -> failwith (sprintf "Unknwon format '%s'" x)
+let default_value = fun x ->
+  match x with
+    Scalar t -> (List.assoc t types).value
+  | ArrayType t -> failwith "default_value: Array"
 
 let payload_size_of_message = fun message ->
   List.fold_right
     (fun (_, f) s -> size_of_field f + s)
     message.fields
-    3 (** message_len + message id + aircraft id *)
-
-let size_of_message = fun m -> 
-  payload_size_of_message m + 3 (* STX, CK_A, CK_B *)
+    2 (** + message id + aircraft id *)
 
 let field_of_xml = fun xml ->
   let t = ExtXml.attrib xml "type" in
   let f = try Xml.attrib xml "format" with _ -> default_format t in
+  let t = if is_array_type t then ArrayType (type_of_array_type t) else Scalar t in
   (ExtXml.attrib xml "name", { _type = t; fformat = f })
 
 let string_of_values = fun vs ->
@@ -177,34 +203,59 @@ let lazy_classes =
 
 let classes = fun () -> Lazy.force lazy_classes
     
-let value_field = fun buffer index (field:field) ->
-  match field._type with
-    "uint8" -> Int (Char.code buffer.[index])
-  | "int8" -> Int (int8_of_bytes buffer index)
-  | "uint16" -> Int (Char.code buffer.[index+1] lsl 8 + Char.code buffer.[index])
-  | "int16" -> Int (int16_of_bytes buffer index)
-  | "float" ->  Float (float_of_bytes buffer index)
-  | "int32"  | "uint32" -> Int32 (int32_of_bytes buffer index)
-  | _ -> failwith "value_field"
+(** Returns a value and its length *)
+let rec value_of_bin = fun buffer index _type ->
+  match _type with
+    Scalar "uint8" -> Int (Char.code buffer.[index]), sizeof _type
+  | Scalar "int8" -> Int (int8_of_bytes buffer index), sizeof _type
+  | Scalar "uint16" -> Int (Char.code buffer.[index+1] lsl 8 + Char.code buffer.[index]), sizeof _type
+  | Scalar "int16" -> Int (int16_of_bytes buffer index), sizeof _type
+  | Scalar "float" ->  Float (float_of_bytes buffer index), sizeof _type
+  | Scalar ("int32"  | "uint32") -> Int32 (int32_of_bytes buffer index), sizeof _type
+  | ArrayType t ->
+      (** First get the number of values *)
+      let n = int8_of_bytes buffer index in
+      let type_of_elt = Scalar t in
+      let s = sizeof type_of_elt in
+      let size = 1 + n * s in
+      (Array (Array.init n 
+	       (fun i -> fst (value_of_bin buffer (index+1+i*s) type_of_elt))), size)
+  | _ -> failwith "value_of_bin"
+
+let value_field = fun buf index field ->
+  value_of_bin buf index field._type
 
 let byte = fun x -> Char.chr (x land 0xff)
 
-let sprint_value = fun buf i field_type v ->
-  match field_type, v with
-    ("int8"|"uint8"), Int x -> buf.[i] <- Char.chr x
-  | "float", Float f -> sprint_float buf i f
-  | "int32", Int32 x -> sprint_int32 buf i x
-  | ("int32" | "uint32"), Int value ->
-      assert (field_type <> "uint32" || value >= 0);
+(** Returns the size of outputed data *)
+let rec sprint_value = fun buf i _type v ->
+  match _type, v with
+    Scalar ("int8"|"uint8"), Int x -> buf.[i] <- Char.chr x; sizeof _type
+  | Scalar "float", Float f -> sprint_float buf i f; sizeof _type
+  | Scalar "int32", Int32 x -> sprint_int32 buf i x; sizeof _type
+  | Scalar ("int32" | "uint32"), Int value ->
+      assert (_type <> Scalar "uint32" || value >= 0);
       buf.[i+3] <- byte (value asr 24);
       buf.[i+2] <- byte (value lsr 16);
       buf.[i+1] <- byte (value lsr 8);
-      buf.[i+0] <- byte value
-  | ("int16"|"uint16"), Int value ->
-      assert (field_type <> "uint16" || value >= 0);
+      buf.[i+0] <- byte value;
+      sizeof _type
+  | Scalar ("int16"|"uint16"), Int value ->
+      assert (_type <> Scalar "uint16" || value >= 0);
       buf.[i+1] <- byte (value lsr 8);
-      buf.[i+0] <- byte value
-  | x, _ -> failwith (sprintf "Pprz.sprint_value (%s)" x)
+      buf.[i+0] <- byte value;
+      sizeof _type
+  | ArrayType t, Array values ->
+      (** Put the size first, then the values *)
+      let n = Array.length values in
+      sprint_value buf i (Scalar "uint8") (Int n);
+      let type_of_elt = Scalar t in
+      let s = sizeof type_of_elt in
+      for j = 0 to n - 1 do
+	sprint_value buf (i+1+j*s) type_of_elt values.(j)
+      done;
+      1 + n * s
+  | (Scalar x|ArrayType x), _ -> failwith (sprintf "Pprz.sprint_value (%s)" x)
   
   
 
@@ -212,31 +263,18 @@ module type CLASS = sig val name : string end
 
 exception Unknown_msg_name of string * string
 
-module Protocol(Class:CLASS) = struct
-  let stx = Char.chr 0x99 (** sw/airborne/modem.h *)
+module Transport = struct
+  let stx = Char.chr 0x99 (** sw/airborne/downlink.h *)
+  let offset_length = 1
+  let offset_payload = 2
+
   let index_start = fun buf ->
     String.index buf stx
 
-  let messages_by_id, messages_by_name = 
-    try
-      Hashtbl.find (classes ()) Class.name
-    with
-      Not_found -> failwith (sprintf "Unknown message class: %s" Class.name)
-  let message_of_id = fun id -> Hashtbl.find messages_by_id id
-  let message_of_name = fun name ->
-    try
-      Hashtbl.find messages_by_name name
-    with
-      Not_found -> raise (Unknown_msg_name (name, Class.name))
-
   let length = fun buf start ->
     let len = String.length buf - start in
-    if len >= 2 then
-   (**   let id = Char.code buf.[start+1] in
-      let msg = message_of_id id in
-      let l = size_of_message msg in **)
-      let l = Char.code buf.[start+1] in
-(**      Debug.call 'T' (fun f -> fprintf f "Pprz id=%d len=%d\n" id l); **)
+    if len > offset_length then
+      let l = Char.code buf.[start+offset_length] in
       Debug.call 'T' (fun f -> fprintf f "Pprz len=%d\n" l);
       l
     else
@@ -258,51 +296,84 @@ module Protocol(Class:CLASS) = struct
     Debug.call 'T' (fun f -> fprintf f "Pprz cs: %d %d\n" ck_a (Char.code msg.[l-2]));
     ck_a = Char.code msg.[l-2] && ck_b = Char.code msg.[l-1]
 
+  let payload = fun msg ->
+    let l = String.length msg in
+    assert(Char.code msg.[offset_length] = l);
+    assert(l >= 4);
+    Serial.payload_of_string (String.sub msg 2 (l-4))
+
+  let packet = fun payload ->
+    let payload = Serial.string_of_payload payload in
+    let n = String.length payload in
+    let msg_length = n + 4 in (** + stx, len, ck_a and ck_b *)
+    let m = String.create msg_length in
+    String.blit payload 0 m offset_payload n;
+    m.[0] <- stx;
+    m.[offset_length] <- Char.chr msg_length;
+    let (ck_a, ck_b) = compute_checksum m in
+    m.[msg_length-2] <- Char.chr ck_a;
+    m.[msg_length-1] <- Char.chr ck_b;
+    m
+end
+
+
+
+module Messages(Class:CLASS) = struct
+  let offset_ac_id = 0
+  let offset_msg_id = 1
+  let offset_fields = 2
+  let max_length = 256
+  let messages_by_id, messages_by_name = 
+    try
+      Hashtbl.find (classes ()) Class.name
+    with
+      Not_found -> failwith (sprintf "Unknown message class: %s" Class.name)
+  let message_of_id = fun id -> Hashtbl.find messages_by_id id
+  let message_of_name = fun name ->
+    try
+      Hashtbl.find messages_by_name name
+    with
+      Not_found -> raise (Unknown_msg_name (name, Class.name))
+
+
   let values_of_payload = fun buffer ->
-    let id = Char.code buffer.[2] in
-    let ac_id = Char.code buffer.[1] in
+    let buffer = Serial.string_of_payload buffer in
+    let id = Char.code buffer.[offset_msg_id] in
+    let ac_id = Char.code buffer.[offset_ac_id] in
     let message = message_of_id id in
     Debug.call 'T' (fun f -> fprintf f "Pprz.values id=%d\n" id);
     let rec loop = fun index fields ->
       match fields with
 	[] -> []
       | (field_name, field_descr)::fs -> 
-	  let n = size_of_field field_descr in
-	  (field_name, value_field buffer index field_descr) :: loop (index+n) fs in
-    (id, ac_id, loop 3 message.fields)
+	  let (value, n) = value_field buffer index field_descr in
+	  (field_name, value) :: loop (index+n) fs in
+    (id, ac_id, loop offset_fields message.fields)
 
-  let values_of_bin = fun buffer ->
-    values_of_payload (String.sub buffer 1 (String.length buffer - 1))
 
-(** FIXME - this one is wrong since the message lenght introduction **)
   let payload_of_values = fun id ac_id values ->
     let message = message_of_id id in
-    let n = payload_size_of_message message in
-    let p = String.make n '#' in
-    p.[0] <- Char.chr id;
-    p.[1] <- Char.chr ac_id;
-    let i = ref 2 in
+
+    (** The actual length is computed from the values *)
+    let p = String.make max_length '#' in
+
+    p.[offset_msg_id] <- Char.chr id;
+    p.[offset_ac_id] <- Char.chr ac_id;
+    let i = ref offset_fields in
     List.iter
       (fun (field_name, field) ->
 	let v =
 	  try List.assoc field_name values with
 	    Not_found -> default_value field._type in
-	sprint_value p !i field._type v;
-	i := !i + size_of_field field	
+	let size = sprint_value p !i field._type v in
+	i := !i + size
 	)
       message.fields;
-    p
-
-  let message_of_payload = fun p ->
-    let n = String.length p in
-    let m = String.create (n+3) in (** + stx, ck_a and ck_b *)
-    String.blit p 0 m 1 n;
-    m.[0] <- stx;
-    let (ck_a, ck_b) = compute_checksum m in
-    m.[n+3-2] <- Char.chr ck_a;
-    m.[n+3-1] <- Char.chr ck_b;
-    m
     
+    (** Cut to the actual length *)
+    let p = String.sub p 0 !i in
+    Serial.payload_of_string p
+   
 
   let space = Str.regexp "[ \t]+"
   let values_of_string = fun s ->

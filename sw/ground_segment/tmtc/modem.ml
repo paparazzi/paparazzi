@@ -29,7 +29,7 @@ open Printf
 module Protocol = struct
 (* Header: STX, length of (payload + checksum) *)
 (* Payload: tag, data *)
-(* Tailer : checksum, ETX *)
+(* Trailer : checksum, ETX *)
 
   let stx = Char.chr 0x02
   let etx = 0x03
@@ -53,6 +53,14 @@ module Protocol = struct
       ck_a := Char.code msg.[i] lxor !ck_a
     done;
     !ck_a = Char.code msg.[l-2] && Char.code msg.[l-1] = etx
+
+  let payload = fun msg ->
+    let l = String.length msg in
+    assert(l >= 4);
+    Serial.payload_of_string (String.sub msg 2 (l-4))
+
+  let packet = fun payload ->
+    failwith "Modem.Protocol.packet not implemented"
 end
 
 let msg_data = 0

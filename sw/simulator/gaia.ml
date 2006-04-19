@@ -30,7 +30,7 @@ open Latlong
 let my_id = "gaia"
 let sending_period = 5000 (* ms *)
 
-module Ground_Pprz = Pprz.Protocol(struct let name = "ground" end)
+module Ground_Pprz = Pprz.Messages(struct let name = "ground" end)
 
 let ivy_bus = ref "127.255.255.255:2010"
 

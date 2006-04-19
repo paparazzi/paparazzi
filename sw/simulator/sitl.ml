@@ -26,7 +26,7 @@
 
 open Printf
 
-module Ground_Pprz = Pprz.Protocol(struct let name = "ground" end)
+module Ground_Pprz = Pprz.Messages(struct let name = "ground" end)
 
 let ios = int_of_string
 let fos = float_of_string

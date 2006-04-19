@@ -35,9 +35,9 @@ module U = Unix
 
 module Tele_Class = struct let name = "telemetry_ap" end
 module Ground = struct let name = "ground" end
-module Tele_Pprz = Pprz.Protocol(Tele_Class)
-module Ground_Pprz = Pprz.Protocol(Ground)
-module Alerts_Pprz = Pprz.Protocol(struct let name = "alert" end)
+module Tele_Pprz = Pprz.Messages(Tele_Class)
+module Ground_Pprz = Pprz.Messages(Ground)
+module Alerts_Pprz = Pprz.Messages(struct let name = "alert" end)
 
 
 let (//) = Filename.concat

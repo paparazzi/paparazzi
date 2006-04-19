@@ -25,10 +25,10 @@
 open Latlong
 open Printf
 module W = Wavecard
-module Tm_Pprz = Pprz.Protocol(struct let name = "telemetry" end)
-module Ground_Pprz = Pprz.Protocol(struct let name = "ground" end)
-module Dl_Pprz = Pprz.Protocol(struct let name = "datalink" end)
-module PprzTransport = Serial.Transport(Tm_Pprz)
+module Tm_Pprz = Pprz.Messages(struct let name = "telemetry" end)
+module Ground_Pprz = Pprz.Messages(struct let name = "ground" end)
+module Dl_Pprz = Pprz.Messages(struct let name = "datalink" end)
+module PprzTransport = Serial.Transport(Pprz.Transport)
 
 let ground_id = 0
 
@@ -68,9 +68,9 @@ let maxstream_send = fun fd data ->
   Debug.call 'm' (fun f -> fprintf f "mm sending: "; for i = 0 to String.length buf - 1 do fprintf f "%x " (Char.code buf.[i]) done; fprintf f "\n");
   flush o
 
-let use_tele_message = fun buf ->
-  Debug.call 'm' (fun f -> fprintf f "mm receiving: "; for i = 0 to String.length buf - 1 do fprintf f "%x " (Char.code buf.[i]) done; fprintf f "\n");
-  let (msg_id, ac_id, values) = Tm_Pprz.values_of_bin buf in
+let use_tele_message = fun payload ->
+  Debug.call 'm' (fun f -> let buf = Serial.string_of_payload payload in fprintf f "mm receiving: "; for i = 0 to String.length buf - 1 do fprintf f "%x " (Char.code buf.[i]) done; fprintf f "\n");
+  let (msg_id, ac_id, values) = Tm_Pprz.values_of_payload payload in
   let msg = Tm_Pprz.message_of_id msg_id in
   Tm_Pprz.message_send (string_of_int ac_id) msg.Pprz.name values
 
@@ -88,7 +88,7 @@ let maxstream_receive = Serial.input (fun b -> maxstream_parse b)
 
 let send = fun ac s ->
 (*  Wavecard.send_addressed ac.fd (W.REQ_SEND_MESSAGE,ac.addr,s) *)
-  maxstream_send ac.fd s
+  maxstream_send ac.fd (Serial.string_of_payload s)
 
 let send_dl_msg = fun ac a ->
   let (id, values) = Dl_Pprz.values_of_string a in

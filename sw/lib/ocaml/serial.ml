@@ -47,6 +47,11 @@ type speed =
   | B115200
   | B230400
 
+type payload = string
+
+let string_of_payload = fun x -> x
+let payload_of_string = fun x -> x
+
 
 external init_serial : string -> speed -> Unix.file_descr = "c_init_serial";;
 
@@ -89,6 +94,8 @@ module type PROTOCOL = sig
   val index_start : string -> int (* raise Not_found *)
   val length : string -> int -> int (* raise Not_enough *)
   val checksum : string -> bool
+  val payload : string -> payload
+  val packet : payload -> string
 end
 
 module Transport(Protocol:PROTOCOL) = struct
