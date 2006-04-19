@@ -31,7 +31,7 @@
       <message name="PPM"            period="5"/>
 <!--      <message name="RC"             period="5"/> -->
       <message name="SERVOS"         period="5"/>
-      <message name="FBW_STATUS"     period="1"/>
+      <message name="FBW_STATUS"     period="2"/>
     </mode>
     <mode name="debug">
       <message name="PPM"            period="0.5"/>

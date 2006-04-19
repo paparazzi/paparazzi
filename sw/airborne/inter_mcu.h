@@ -21,12 +21,12 @@
  *
  */
 
-/** \brief Communication between fbw and ap
+/** \brief Communication between fbw and ap processes
  * This unit contains the data structure used to communicate between the
- * "fly by wire" and the "autopilot" parts. It must be linked once in a
+ * "fly by wire" process and the "autopilot" process. It must be linked once in a
  * monoprocessor architecture, twice in a twin-processors (the historical
  * Atmel AVRs mega8-mega128 one) architecture. In the latter case, the
- * communication process (e.g. SPI) must fill and read these data structures.
+ * inter-mcu communication process (e.g. SPI) must fill and read these data structures.
 */
 
 #ifndef INTER_MCU_H

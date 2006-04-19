@@ -54,9 +54,10 @@ bool_t in_circle;
 int16_t circle_x;
 int16_t circle_y;
 int16_t circle_radius;
+uint8_t modem_nb_ovrn;
 
 #include "ap_downlink.h"
-
+#define PeriodicSendDlValue() {}
 
 void init_ap( void ) {
   /* if AP is running in a separate MCU */
@@ -93,12 +94,12 @@ void init_ap( void ) {
 void periodic_task_ap( void ) {
   //  LED_TOGGLE(1);
   //  LED_TOGGLE(2);
+#ifdef DOWNLINK
+  PeriodicSendAp();
+#endif
 }
 
 void event_task_ap( void ) {
-#ifdef DOWNLINK
-  ap_downlink_periodic_task();
-#endif
 #ifdef GPS
   if (GpsBuffer()) {
     ReadGpsBuffer();

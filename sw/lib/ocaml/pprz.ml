@@ -105,14 +105,14 @@ let formatted_string_of_value = fun format v ->
   | v -> string_of_value v
 
 let size_of_field = fun f -> (List.assoc f._type types).size
-let default_format = fun x -> try (List.assoc x types).format with Not_found -> failwith (sprintf "Unknwon format '%s'" x)
+let default_format = fun x -> try (List.assoc x types).format with Not_found -> failwith (sprintf "Unknown format '%s'" x)
 let default_value = fun x -> (List.assoc x types).value
 
 let payload_size_of_message = fun message ->
   List.fold_right
     (fun (_, f) s -> size_of_field f + s)
     message.fields
-    2 (** message id + aircraft id *)
+    3 (** message_len + message id + aircraft id *)
 
 let size_of_message = fun m -> 
   payload_size_of_message m + 3 (* STX, CK_A, CK_B *)
@@ -273,6 +273,7 @@ module Protocol(Class:CLASS) = struct
 
   let values_of_bin = fun buffer ->
     values_of_payload (String.sub buffer 1 (String.length buffer - 1))
+
 (** FIXME - this one is wrong since the message lenght introduction **)
   let payload_of_values = fun id ac_id values ->
     let message = message_of_id id in

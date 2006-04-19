@@ -229,7 +229,7 @@
     <field name="ppm12" type="uint16" unit="us"/>
   </message>
 
-<!--
+<!-- 
   <message name="RC" ID="101">
     <field name="values" type="int16[]" unit="pprz"/>
   </message>

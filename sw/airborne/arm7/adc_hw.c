@@ -17,7 +17,7 @@ void adc_buf_channel(uint8_t adc_channel, struct adc_buf* s, uint8_t av_nb_sampl
 }
 
 void adc_init( void ) {
-  return;
+  //  return;
 
   /* AD0.6 as ADC */
   PINSEL1 |= 3 << 8;

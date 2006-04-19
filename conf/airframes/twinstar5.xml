@@ -159,8 +159,8 @@ fbw.srcs += inter_mcu.c  $(SRC_ARCH)/adc_hw.c
 ap.CFLAGS += -DDOWNLINK -DUSE_UART0 
 ap.srcs += downlink.c $(SRC_ARCH)/uart_hw.c
 
-ap.CFLAGS += -DGPS -DUBX -DUSE_UART1 
-ap.srcs += gps_ubx.c gps.c
+#ap.CFLAGS += -DGPS -DUBX -DUSE_UART1 
+#ap.srcs += gps_ubx.c gps.c
 
 #ap.CFLAGS += -DMODEM -DDOWNLINK
 #ap.srcs += $(SRC_ARCH)/modem_hw.c 
