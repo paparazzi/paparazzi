@@ -2,6 +2,7 @@
 
 #include "LPC21xx.h"
 #include "armVIC.h"
+#include CONFIG
 
 static struct adc_buf* buffers[NB_ADC];
 
@@ -67,7 +68,6 @@ static const uint32_t ADC_PINSEL0_ONES = 0
 #endif			    
 ;
 
-
 static const uint32_t ADC_PINSEL1_ONES = 0
 #if defined USE_AD0_0 
   | 1 << 22
@@ -95,13 +95,66 @@ static const uint32_t ADC_PINSEL1_ONES = 0
 #endif
 ;
 
+static const uint32_t ADC_AD0CR_SEL_HW_SCAN = 0
+#if defined USE_AD0_0 
+  | 1 << 0
+#endif
+#if defined USE_AD0_1
+  | 1 << 1
+#endif
+#if defined USE_AD0_2
+  | 1 << 2
+#endif
+#if defined USE_AD0_3
+  | 1 << 3
+#endif
+#if defined USE_AD0_4  
+  | 1 << 4
+#endif
+#if defined USE_AD0_5
+  | 1 << 5
+#endif 
+#if defined USE_AD0_6
+  | 1 << 6
+#endif
+#if defined USE_AD0_7
+  | 1 << 7
+#endif
+;
+
+static const uint32_t ADC_AD1CR_SEL_HW_SCAN = 0
+#if defined USE_AD1_0 
+  | 1 << 0
+#endif
+#if defined USE_AD1_1
+  | 1 << 1
+#endif
+#if defined USE_AD1_2
+  | 1 << 2
+#endif
+#if defined USE_AD1_3
+  | 1 << 3
+#endif
+#if defined USE_AD1_4  
+  | 1 << 4
+#endif
+#if defined USE_AD1_5
+  | 1 << 5
+#endif 
+#if defined USE_AD1_6
+  | 1 << 6
+#endif
+#if defined USE_AD1_7
+  | 1 << 7
+#endif
+;
 
 void adc_init( void ) {
 
-  /* AD0.6 as ADC */
+  /* connect pins for selected ADCs */
   PINSEL0 |= ADC_PINSEL0_ONES; 
-  /* AD0.6 - PCLK/4 - BURST ON */
-  AD0CR = 1<<6 | 0x03 << 8 | 1 << 16 | 0x01 << 21 ;
+  /* setup hw scan - PCLK/4 - BURST ON */
+  AD0CR = ADC_AD0CR_SEL_HW_SCAN | 0x03 << 8 | 1 << 16 | 0x01 << 21 ;
   /* AD0 selected as IRQ */
   VICIntSelect &= ~VIC_BIT(VIC_AD0);
   /* AD0 interrupt enabled */
