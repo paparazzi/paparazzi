@@ -24,7 +24,7 @@
 
 #include <inttypes.h>
 #include <avr/io.h>
-#if (GNUC == 3)
+#if (__GNUC__ == 3)
 #include <avr/signal.h>
 #endif
 #include <avr/interrupt.h>

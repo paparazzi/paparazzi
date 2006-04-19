@@ -24,12 +24,14 @@
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
-#if (GNUC == 3)
+
+#if (__GNUC__ == 3)
 #include <avr/signal.h>
 #include <avr/crc16.h>
 #else
 #include <util/crc16.h>
 #endif
+
 #include <inttypes.h>
 
 #include "inter_mcu.h"

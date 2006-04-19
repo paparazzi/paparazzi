@@ -48,8 +48,6 @@ extern uint8_t    tx_byte_idx;
 extern uint8_t ck_a, ck_b;
 
 
-#define STX  0x05
-
 /** 5 = STX + ac_id + msg_id + ck_a + ck_b */
 #define ModemSizeOf(_payload) (_payload+5)
 

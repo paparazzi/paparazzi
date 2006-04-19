@@ -26,7 +26,7 @@
 #define AP_DOWNLINK_H
 
 #include <inttypes.h>
-#include "messages.h"
+
 #include "airframe.h"
 
 #define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
