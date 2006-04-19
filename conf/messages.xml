@@ -230,7 +230,7 @@
   </message>
 
   <message name="RC" ID="101">
-    <field name="values" type="int16[]" unit="pprz"/>
+    <field name="values" type="int16[]" unit="pprz" format="%d"/>
   </message>
 
   <message name="SERVOS" ID="102">

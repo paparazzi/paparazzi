@@ -74,7 +74,7 @@ void init_fbw( void ) {
 #ifdef LED
   led_init();
 #endif
-#ifdef UART0
+#ifdef USE_UART0
   uart0_init_tx();
 #if defined IMU_3DMG
   uart0_init_rx();

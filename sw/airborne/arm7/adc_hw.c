@@ -151,6 +151,8 @@ static const uint32_t ADC_AD1CR_SEL_HW_SCAN = 0
 
 void adc_init( void ) {
 
+  return;
+
   /* connect pins for selected ADCs */
   PINSEL0 |= ADC_PINSEL0_ONES; 
   /* setup hw scan - PCLK/4 - BURST ON */
