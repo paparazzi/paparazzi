@@ -213,38 +213,15 @@
  </message>
 
   <message name="PPM" ID="100">
-    <field name="nb_channels" type="uint8"/>
-    <field name="sync_len" type="uint8"/>
-    <field name="ppm01" type="uint16" unit="us"/>
-    <field name="ppm02" type="uint16" unit="us"/>
-    <field name="ppm03" type="uint16" unit="us"/>
-    <field name="ppm04" type="uint16" unit="us"/>
-    <field name="ppm05" type="uint16" unit="us"/>
-    <field name="ppm06" type="uint16" unit="us"/>
-    <field name="ppm07" type="uint16" unit="us"/>
-    <field name="ppm08" type="uint16" unit="us"/>
-    <field name="ppm09" type="uint16" unit="us"/>
-    <field name="ppm10" type="uint16" unit="us"/>
-    <field name="ppm11" type="uint16" unit="us"/>
-    <field name="ppm12" type="uint16" unit="us"/>
+    <field name="values" type="uint16[]" unit="ticks"/>
   </message>
 
   <message name="RC" ID="101">
     <field name="values" type="int16[]" unit="pprz" format="%d"/>
   </message>
 
-  <message name="SERVOS" ID="102">
-    <field name="nb_servos" type="uint8"/>
-    <field name="ser01" type="uint16" unit="us"/>
-    <field name="ser02" type="uint16" unit="us"/>
-    <field name="ser03" type="uint16" unit="us"/>
-    <field name="ser04" type="uint16" unit="us"/>
-    <field name="ser05" type="uint16" unit="us"/>
-    <field name="ser06" type="uint16" unit="us"/>
-    <field name="ser07" type="uint16" unit="us"/>
-    <field name="ser08" type="uint16" unit="us"/>
-    <field name="ser09" type="uint16" unit="us"/>
-    <field name="ser10" type="uint16" unit="us"/>
+  <message name="COMMANDS" ID="102">
+    <field name="values" type="int16[]" unit="ticks"/>
   </message>
 
   <message name="FBW_STATUS" ID="103" period="1">

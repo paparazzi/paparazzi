@@ -38,11 +38,10 @@
 extern uint8_t telemetry_mode_Fbw;
 #include "downlink.h"
 
-#define PERIODIC_SEND_PPM() {}
-#define PERIODIC_SEND_SERVOS() {}
-#define PERIODIC_SEND_FBW_STATUS() {DOWNLINK_SEND_FBW_STATUS(&fbw_mode, &rc_status, &fbw_mode)}
-#define PERIODIC_SEND_RC() {DOWNLINK_SEND_RC(PPM_NB_PULSES, rc_values)}
-
+#define PERIODIC_SEND_PPM() DOWNLINK_SEND_PPM(PPM_NB_PULSES, ppm_pulses)
+#define PERIODIC_SEND_RC() DOWNLINK_SEND_RC(PPM_NB_PULSES, rc_values)
+#define PERIODIC_SEND_COMMANDS() DOWNLINK_SEND_COMMANDS(COMMANDS_NB, commands)
+#define PERIODIC_SEND_FBW_STATUS() DOWNLINK_SEND_FBW_STATUS(&fbw_mode, &rc_status, &fbw_mode)
 
 
 static inline void fbw_downlink_periodic_task(void) {

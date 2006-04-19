@@ -28,15 +28,13 @@
   </process>
   <process name="Fbw">
     <mode name="default">
-      <message name="PPM"            period="5"/>
-      <message name="RC"             period="5"/> 
-      <message name="SERVOS"         period="5"/>
+      <message name="COMMANDS"         period="5"/>
       <message name="FBW_STATUS"     period="2"/>
     </mode>
     <mode name="debug">
       <message name="PPM"            period="0.5"/>
       <message name="RC"             period="0.5"/>
-      <message name="SERVOS"         period="0.5"/>
+      <message name="COMMANDS"         period="0.5"/>
       <message name="FBW_STATUS"     period="1"/>
     </mode>
   </process>
