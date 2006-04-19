@@ -44,7 +44,6 @@ val separator : string
 (** Separator in array values *)
 
 val size_of_field : field -> int
-val default_format : string -> string
 val string_of_value : value -> string
 type type_descr = {
     format : string ;

@@ -130,7 +130,10 @@ let sizeof = fun f ->
     Scalar t -> (List.assoc t types).size
   | ArrayType t -> failwith "sizeof: Array"
 let size_of_field = fun f -> sizeof f._type
-let default_format = fun x -> try (List.assoc x types).format with Not_found -> failwith (sprintf "Unknwon format '%s'" x)
+let default_format = function
+    Scalar x | ArrayType x ->
+      try (List.assoc x types).format with
+	Not_found -> failwith (sprintf "Unknwon format '%s'" x)
 let default_value = fun x ->
   match x with
     Scalar t -> (List.assoc t types).value
@@ -144,8 +147,8 @@ let payload_size_of_message = fun message ->
 
 let field_of_xml = fun xml ->
   let t = ExtXml.attrib xml "type" in
-  let f = try Xml.attrib xml "format" with _ -> default_format t in
   let t = if is_array_type t then ArrayType (type_of_array_type t) else Scalar t in
+  let f = try Xml.attrib xml "format" with _ -> default_format t in
   (ExtXml.attrib xml "name", { _type = t; fformat = f })
 
 let string_of_values = fun vs ->
@@ -300,7 +303,7 @@ module Transport = struct
     let l = String.length msg in
     assert(Char.code msg.[offset_length] = l);
     assert(l >= 4);
-    Serial.payload_of_string (String.sub msg 2 (l-4))
+    Serial.payload_of_string (String.sub msg offset_payload (l-4))
 
   let packet = fun payload ->
     let payload = Serial.string_of_payload payload in

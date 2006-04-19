@@ -45,6 +45,8 @@ type speed =
   | B115200
   | B230400
 
+val speed_of_baudrate : string -> speed
+
 val opendev : string -> speed -> Unix.file_descr
 val close : Unix.file_descr -> unit
 
