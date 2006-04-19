@@ -61,7 +61,7 @@ module Syntax = struct
 
   let rec sizeof = function
       Basic t -> string_of_int (assoc_types t).Pprz.size
-    | Array (t, varname) -> sprintf "%s*%s" (length_name varname) (sizeof (Basic t))
+    | Array (t, varname) -> sprintf "1+%s*%s" (length_name varname) (sizeof (Basic t))
   let formatof = fun t -> (assoc_types t).Pprz.format
 
   let print_format t = function
