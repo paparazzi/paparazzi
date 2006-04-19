@@ -149,8 +149,8 @@ ap.srcs += $(SRC_ARCH)/servos_esc_hw.c
 ap.CFLAGS += -DRADIO_CONTROL
 ap.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c 
 
-ap.CFLAGS += -DDOWNLINK -DUART0 
-ap.srcs += fbw_downlink.c $(SRC_ARCH)/uart_hw.c
+ap.CFLAGS += -DDOWNLINK -DUSE_UART0 
+ap.srcs += downlink.c $(SRC_ARCH)/uart_hw.c
 
 # ap.CFLAGS += -DDEBUG_RC
 

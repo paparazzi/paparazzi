@@ -33,7 +33,7 @@ open Latlong
 open Aircraft
 module U = Unix
 
-module Tele_Class = struct let name = "telemetry_ap" end
+module Tele_Class = struct let name = "telemetry" end
 module Ground = struct let name = "ground" end
 module Tele_Pprz = Pprz.Messages(Tele_Class)
 module Ground_Pprz = Pprz.Messages(Ground)
@@ -545,12 +545,12 @@ let register_aircraft = fun name a ->
 
 
 (** Identifying message from an A/C *)
-let ident_msg = fun log id name ->
+let ident_msg = fun log name ->
   if not (Hashtbl.mem aircrafts name) then begin
-    let ac = new_aircraft id in
-    let _b = Ivy.bind (fun _ args -> ac_msg log name ac args.(0)) (sprintf "^%s +(.*)" id) in
+    let ac = new_aircraft name in
+    let _b = Ivy.bind (fun _ args -> ac_msg log name ac args.(0)) (sprintf "^%s +(.*)" name) in
     register_aircraft name ac;
-    Ground_Pprz.message_send my_id "NEW_AIRCRAFT" ["ac_id", Pprz.String id]
+    Ground_Pprz.message_send my_id "NEW_AIRCRAFT" ["ac_id", Pprz.String name]
   end
 
 let new_color = fun () ->
@@ -558,7 +558,8 @@ let new_color = fun () ->
 
 (* Waits for new aircrafts *)
 let listen_acs = fun log ->
-  ignore (Ivy.bind (fun _ args -> ident_msg log args.(0) args.(1)) "^(.*) IDENT +(.*)")
+  (** Wait for any message (they all are identified with the A/C) *)
+  ignore (Ivy.bind (fun _ args -> ident_msg log args.(0)) "^(.*) PPRZ_MODE")
 
 let send_config = fun http _asker args ->
   match args with
@@ -611,7 +612,7 @@ let _ =
       "-n", Arg.Clear logging, "Disable log";
       "-http", Arg.Set http, "Send http: URLs (default is file:)"] in
   Arg.parse (options)
-    (fun x -> Printf.fprintf stderr "Warning: Don't do anythig with %s\n" x)
+    (fun x -> Printf.fprintf stderr "Warning: Don't do anything with %s\n" x)
     "Usage: ";
 
   Srtm.add_path srtm_path;

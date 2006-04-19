@@ -92,7 +92,7 @@
       <program name="sim"><arg flag="-a" constant="Twin1"/></program>
       <program name="cockpit"><arg flag="-render" constant="0"/></program>
       <program name="map 2d ml"/>
-      <program name="messages"><arg flag="-c" constant="telemetry_ap:*"/><arg flag="-c" constant="ground:ground"/></program>
+      <program name="messages"><arg flag="-c" constant="telemetry:*"/><arg flag="-c" constant="ground:ground"/></program>
       <program name="gaia"/>
     </session>
 
@@ -104,7 +104,7 @@
       <program name="sim"><arg flag="-a" constant="Twin2"/></program>
       <program name="cockpit"></program>
       <program name="map 2d ml"/>
-      <program name="messages"><arg flag="-c" constant="telemetry_ap:*"/><arg flag="-c" constant="ground"/></program>
+      <program name="messages"><arg flag="-c" constant="telemetry:*"/><arg flag="-c" constant="ground"/></program>
     </session>
 
     <session name="Client 192.168.1">
@@ -121,7 +121,7 @@
       <program name="map 2d ml"/>
       <program name="play"/>
       <program name="gaia"/>
-      <program name="messages"><arg flag="-c" constant="telemetry_ap:*"/><arg flag="-c" constant="ground:ground"/></program>
+      <program name="messages"><arg flag="-c" constant="telemetry:*"/><arg flag="-c" constant="ground:ground"/></program>
     </session>
 
    <session name="Flight audio+tty @Garmish">
@@ -130,7 +130,7 @@
       <program name="modem"><arg flag="-d" constant="/tmp/multimon"/></program>
       <program name="modem"><arg flag="-d" constant="/dev/ttyUSB0"/></program>
       <program name="server"/>     
-      <program name="messages"><arg flag="-c" constant="telemetry_ap:*"/><arg flag="-c" constant="ground"/></program>
+      <program name="messages"><arg flag="-c" constant="telemetry:*"/><arg flag="-c" constant="ground"/></program>
       <program name="cockpit"/>
       <program name="map 2d ml"/>
     </session>
@@ -140,7 +140,7 @@
       <program name="multimon"><arg flag="-p" constant="/tmp/multimon"/></program>
       <program name="modem"><arg flag="-d" constant="/tmp/multimon"/></program>
       <program name="server"/>     
-      <program name="messages"><arg flag="-c" constant="telemetry_ap:*"/><arg flag="-c" constant="ground"/></program>
+      <program name="messages"><arg flag="-c" constant="telemetry:*"/><arg flag="-c" constant="ground"/></program>
       <program name="cockpit"/>
       <program name="map 2d ml"/>
 <!--      <program name="wavecard"/> -->

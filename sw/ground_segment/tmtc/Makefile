@@ -32,7 +32,9 @@ clean:
 
 OCAMLC = ocamlc
 OCAMLOPT = ocamlopt
-INCLUDES= -I ../../lib/ocaml -I +lablgtk2
+OCAMLLIB = ../../lib/ocaml
+INCLUDES= -I $(OCAMLLIB) -I +lablgtk2
+LIBPPRZCMA=$(OCAMLLIB)/lib-pprz.cma
 
 $(VAR)/boa.conf :$(CONF)/boa.conf
 	mkdir -p $(VAR)
@@ -71,10 +73,11 @@ dl_setting : dl_setting.cmo
 	$(OCAMLC) -custom $(INCLUDES) -o $@ lablgtk.cma glibivy-ocaml.cma lib-pprz.cma gtkInit.cmo $^
 
 modem.cmo : modem.cmi
-modem.cmi :  ../../lib/ocaml/lib-pprz.cma
-hw_modem_listen.cmo :  ../../lib/ocaml/lib-pprz.cma
-maxstream.cmo :  ../../lib/ocaml/lib-pprz.cma
-messages.cmo :  ../../lib/ocaml/lib-pprz.cma
+modem.cmi : $(LIBPPRZCMA)
+hw_modem_listen.cmo : $(LIBPPRZCMA)
+maxstream.cmo : $(LIBPPRZCMA)
+messages.cmo : $(LIBPPRZCMA)
+airprox.cmo server.cmo : $(LIBPPRZCMA)
 
 %.cmo : %.ml
 	$(OCAMLC) $(INCLUDES) -c $<

@@ -81,7 +81,7 @@ void init_ap( void ) {
 #ifdef TELEMETER
   srf08_init();
 #endif
-#if defined IMU_3DMG || defined IMU_ANALOG || WAVECARD || MAXSTREAM
+#if defined IMU_3DMG || defined IMU_ANALOG || defined WAVECARD || defined MAXSTREAM || DOWNLINK_AP_DEVICE == uart0
   uart0_init_tx();
   uart0_init_rx();
 #endif //IMU
