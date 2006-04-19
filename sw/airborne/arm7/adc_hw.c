@@ -16,11 +16,90 @@ void adc_buf_channel(uint8_t adc_channel, struct adc_buf* s, uint8_t av_nb_sampl
   s->av_nb_sample = av_nb_sample;
 }
 
+/*
+
+pin11 AD0.0  P0.27   PINSEL1 1 << 22
+pin13 AD0.1  P0.28   PINSEL1 1 << 24
+pin14 AD0.2  P0.29   PINSEL1 1 << 26
+pin15 AD0.3  P0.30   PINSEL1 1 << 28
+pin9  AD0.4  P0.25   PINSEL1 1 << 18
+pin10 AD0.5  P0.26   PINSEL1 1 << 20
+pin27 AD0.6  P0.4    PINSEL0 3 <<  8
+pin29 AD0.7  P0.5    PINSEL0 3 << 10
+
+pin30 AD1.0  P0.6    PINSEL0 3 << 12
+pin33 AD1.1  P0.8    PINSEL0 3 << 16
+pin35 AD1.2  P0.10   PINSEL0 3 << 20
+pin38 AD1.3  P0.12   PINSEL0 3 << 24
+pin39 AD1.4  P0.13   PINSEL0 3 << 26
+pin45 AD1.5  P0.15   PINSEL0 3 << 30
+pin1  AD1.6  P0.21   PINSEL1 2 << 10
+pin2  AD1.7  P0.22   PINSEL1 1 << 12
+
+*/
+
+#define USE_AD0_6
+
+static const uint32_t ADC_PINSEL0_ONES = 0
+#if defined USE_AD0_6       
+  | 3 << 8		    
+#endif			    
+#if defined USE_AD0_7	    
+  | 3 << 10		    
+#endif			    
+#if defined USE_AD1_0	    
+  | 3 << 12		    
+#endif			    
+#if defined USE_AD1_1	    
+  | 3 << 16		    
+#endif			    
+#if defined USE_AD1_2	    
+  | 3 << 20		    
+#endif			   
+#if defined USE_AD1_3	   
+  | 3 << 24		    
+#endif			    
+#if defined USE_AD1_4	    
+  | 3 << 26		    
+#endif			    
+#if defined USE_AD1_5	    
+  | 3 << 30		    
+#endif			    
+;
+
+
+static const uint32_t ADC_PINSEL1_ONES = 0
+#if defined USE_AD0_0 
+  | 1 << 22
+#endif
+#if defined USE_AD0_1
+  | 1 << 24
+#endif
+#if defined USE_AD0_2
+  | 1 << 26
+#endif
+#if defined USE_AD0_3
+  | 1 << 28
+#endif
+#if defined USE_AD0_4  
+  | 1 << 18
+#endif
+#if defined USE_AD0_5
+  | 1 << 20
+#endif 
+#if defined USE_AD1_6
+  | 2 << 10
+#endif
+#if defined USE_AD1_7
+  | 1 << 12
+#endif
+;
+
+
 void adc_init( void ) {
-  //  return;
 
   /* AD0.6 as ADC */
-  PINSEL1 |= 3 << 8;
+  PINSEL0 |= ADC_PINSEL0_ONES; 
   /* AD0.6 - PCLK/4 - BURST ON */
   AD0CR = 1<<6 | 0x03 << 8 | 1 << 16 | 0x01 << 21 ;
   /* AD0 selected as IRQ */
@@ -31,6 +110,7 @@ void adc_init( void ) {
   VICVectCntl2 = VIC_ENABLE | VIC_AD0;
   VICVectAddr2 = (uint32_t)adcISR0;
 
+  PINSEL1 |= ADC_PINSEL1_ONES;
 
 }
 
