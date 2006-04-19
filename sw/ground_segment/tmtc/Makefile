@@ -74,6 +74,7 @@ modem.cmo : modem.cmi
 modem.cmi :  ../../lib/ocaml/lib-pprz.cma
 hw_modem_listen.cmo :  ../../lib/ocaml/lib-pprz.cma
 maxstream.cmo :  ../../lib/ocaml/lib-pprz.cma
+messages.cmo :  ../../lib/ocaml/lib-pprz.cma
 
 %.cmo : %.ml
 	$(OCAMLC) $(INCLUDES) -c $<

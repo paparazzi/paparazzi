@@ -390,7 +390,7 @@ module Messages(Class:CLASS) = struct
 	  with
 	    Invalid_argument "List.map2" -> failwith (sprintf "Pprz.values_of_string: '%s'" s)
 	end
-    | [] -> invalid_arg "Pprz.values_of_string"
+    | [] -> invalid_arg (sprintf "Pprz.values_of_string: %s" s)
 
   let string_of_message = fun msg values ->
     String.concat " "

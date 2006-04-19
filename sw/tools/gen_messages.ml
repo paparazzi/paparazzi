@@ -128,6 +128,7 @@ module Gen_onboard = struct
 	fprintf avr_h "\t  DownlinkPut%sByteByAddr((const uint8_t*)(%s)); \\\n" (sizeof t) name
     | Array (t, varname) ->
 	let s = sizeof (Basic t) in
+	fprintf avr_h "\t  DownlinkPut1ByteUpdateCs(%s);\\\n" (length_name varname);
 	fprintf avr_h "\t  {\\\n\t    int i;\\\n\t    for(i = 0; i < %s; i++) {\\\n" (length_name varname);
 	fprintf avr_h "\t      DownlinkPut%sByteByAddr((uint8_t*)(&%s[i])); \\\n" s name;
 	fprintf avr_h "\t    }\\\n";

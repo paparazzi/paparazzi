@@ -123,7 +123,7 @@ fbw.srcs += $(SRC_ARCH)/servos_4017.c
 fbw.CFLAGS += -DRADIO_CONTROL
 fbw.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c 
 
-fbw.CFLAGS += -DDOWNLINK -DUART0 
+fbw.CFLAGS += -DDOWNLINK -DUSE_UART0 
 fbw.srcs += downlink.c $(SRC_ARCH)/uart_hw.c
 
 fbw.CFLAGS += -DDEBUG 
