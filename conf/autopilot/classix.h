@@ -2,14 +2,14 @@
 #define CONFIG_CLASSIX_H
 
 /* Master oscillator freq.       */
-#define FOSC (14745600) 
+#define FOSC (12000000) 
 /* PLL multiplier                */
-#define PLL_MUL (4)         
+#define PLL_MUL (5)         
 /* CPU clock freq.               */
 #define CCLK (FOSC * PLL_MUL) 
-/* Peripheral bus speed divider */
+/* Peripheral bus speed divider  */
 #define PBSD 2    
-/* Peripheral bus clock freq. */
+/* Peripheral bus clock freq.    */
 #define PCLK (CCLK / PBSD) 
 
 #ifdef FBW
