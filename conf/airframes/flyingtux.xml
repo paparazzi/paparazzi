@@ -121,14 +121,17 @@ fbw.srcs += $(SRC_ARCH)/servos_4017.c
 fbw.CFLAGS += -DRADIO_CONTROL
 fbw.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c 
 
-fbw.CFLAGS += -DDOWNLINK -DUART0 
+fbw.CFLAGS += -DDOWNLINK -DUART0 -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_FBW_DEVICE=uart0
 fbw.srcs += fbw_downlink.c $(SRC_ARCH)/uart_hw.c
 
 fbw.CFLAGS += -DINTER_MCU -DMCU_SPI_LINK
 fbw.srcs += inter_mcu.c $(SRC_ARCH)/spi_hw.c
 
-ap.CFLAGS += -DDOWNLINK -DUSE_UART0 
+ap.CFLAGS += -DDOWNLINK -DUSE_UART0 -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_AP_DEVICE=uart0
 ap.srcs += downlink.c $(SRC_ARCH)/uart_hw.c
+
+ap.CFLAGS += -DMCU_SPI_LINK
+ap.srcs += inter_mcu.c link_mcu.c $(SRC_ARCH)/link_mcu_ap.c $(SRC_ARCH)/spi_hw.c
 
 ap.CFLAGS += -DINFRARED -DGPS -DUBX -DRADIO_CONTROL
 # -DRADIO_CONTROL_CALIB
