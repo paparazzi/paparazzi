@@ -39,8 +39,6 @@ pin2  AD1.7  P0.22   PINSEL1 1 << 12
 
 */
 
-#define USE_AD0_6
-
 static const uint32_t ADC_PINSEL0_ONES = 0
 #if defined USE_AD0_6       
   | 3 << 8		    
@@ -151,8 +149,6 @@ static const uint32_t ADC_AD1CR_SEL_HW_SCAN = 0
 
 void adc_init( void ) {
 
-  return;
-
   /* connect pins for selected ADCs */
   PINSEL0 |= ADC_PINSEL0_ONES; 
   /* setup hw scan - PCLK/4 - BURST ON */
@@ -165,7 +161,7 @@ void adc_init( void ) {
   VICVectCntl2 = VIC_ENABLE | VIC_AD0;
   VICVectAddr2 = (uint32_t)adcISR0;
 
-  PINSEL1 |= ADC_PINSEL1_ONES;
+  //  PINSEL1 |= ADC_PINSEL1_ONES;
 
 }
 

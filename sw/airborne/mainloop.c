@@ -44,7 +44,7 @@
 #include "modem.h"
 
 #ifdef MCU_SPI_LINK /** ap alone, using SPI to communicate with fbw */
-#include "spi_ap.h"
+#include "spi.h"
 #include "link_mcu_ap.h"
 #endif
 /** #else statically linked with fbw */

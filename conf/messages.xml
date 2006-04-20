@@ -31,10 +31,12 @@
      <field name="theta" type="int8" unit="deg"></field>
    </message>
 
+<!--
    <message name="ADC" ID="7">
      <field name="roll" type="int16"></field>
      <field name="pitch" type="int16"></field>
    </message>
+-->
 
    <message name="GPS" ID="8">
      <field name="mode"   type="uint8" unit="byte_mask"></field>
@@ -228,6 +230,11 @@
     <field name="nb_spi_err" type="uint8"/>
     <field name="rc_status" type="uint8" values="OK|LOST|REALLY_LOST"/>
     <field name="mode" type="uint8" values="MANUAL|AUTO|FAILSAFE"/>
+  </message>
+
+  <message name="ADC" ID="104">
+    <field name="mcu" type="uint8" values="FBW|AP"/>
+    <field name="values" type="uint16[]" unit="none"/>
   </message>
 
 </class>

@@ -121,10 +121,16 @@ fbw.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c
 fbw.CFLAGS += -DDOWNLINK -DUSE_UART0 -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_FBW_DEVICE=uart0
 fbw.srcs += pprz_transport.c downlink.c $(SRC_ARCH)/uart_hw.c
 
+fbw.CFLAGS += -DINTER_MCU -DMCU_SPI_LINK
+fbw.srcs += inter_mcu.c $(SRC_ARCH)/spi_hw.c
+
 fbw.CFLAGS += -DDEBUG 
 
 ap.CFLAGS += -DDOWNLINK -DUSE_UART0 -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_AP_DEVICE=uart0
 ap.srcs += pprz_transport.c downlink.c $(SRC_ARCH)/uart_hw.c
+
+ap.CFLAGS += -DMCU_SPI_LINK
+ap.srcs += inter_mcu.c link_mcu.c $(SRC_ARCH)/link_mcu_ap.c $(SRC_ARCH)/spi_hw.c
 
 ap.CFLAGS += -DGPS -DUBX -DINFRARED -DRADIO_CONTROL
 

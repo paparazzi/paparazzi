@@ -37,7 +37,7 @@
 #include "inter_mcu.h"
 #include "link_mcu_ap.h"
 #include "link_mcu.h"
-#include "spi_ap.h"
+#include "spi.h"
 
 static uint8_t idx_buf;
 static uint16_t crc_in, crc_out;

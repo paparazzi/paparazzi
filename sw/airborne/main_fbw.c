@@ -38,8 +38,7 @@
 #include "print.h"
 
 #ifdef MCU_SPI_LINK
-#include "spi_fbw_hw.h"
-#include "spi_fbw.h"
+#include "spi.h"
 #endif
 
 #ifdef IMU_3DMG 

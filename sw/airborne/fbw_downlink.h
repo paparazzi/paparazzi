@@ -44,6 +44,18 @@ extern uint8_t telemetry_mode_Fbw;
 #define PERIODIC_SEND_FBW_STATUS() DOWNLINK_SEND_FBW_STATUS(&fbw_mode, &rc_status, &fbw_mode)
 
 
+#ifdef BRICOLAGE_ADC
+extern uint16_t adc0_val[];
+
+#define PERIODIC_SEND_ADC() {			\
+    static const uint8_t mcu = 0;		\
+    DOWNLINK_SEND_ADC(&mcu, 8, adc0_val);	\
+  }
+#else
+#define PERIODIC_SEND_ADC() {}
+#endif
+
+
 static inline void fbw_downlink_periodic_task(void) {
   PeriodicSendFbw()
 }
