@@ -62,6 +62,10 @@ module Syntax = struct
   let rec sizeof = function
       Basic t -> string_of_int (assoc_types t).Pprz.size
     | Array (t, varname) -> sprintf "1+%s*%s" (length_name varname) (sizeof (Basic t))
+  let rec nameof = function
+      Basic t -> String.capitalize t
+    | Array (t, varname) -> failwith "nameof"
+
   let formatof = fun t -> (assoc_types t).Pprz.format
 
   let print_format t = function
@@ -125,12 +129,12 @@ module Gen_onboard = struct
   let print_avr_field = fun avr_h (t, name, (_f:format option)) ->
     match t with 
       Basic _ ->
-	fprintf avr_h "\t  DownlinkPut%sByteByAddr((const uint8_t*)(%s)); \\\n" (sizeof t) name
+	fprintf avr_h "\t  DownlinkPut%sByAddr((%s)); \\\n" (nameof t) name
     | Array (t, varname) ->
 	let s = sizeof (Basic t) in
-	fprintf avr_h "\t  DownlinkPut1ByteUpdateCs(%s);\\\n" (length_name varname);
+	fprintf avr_h "\t  DownlinkPutUint8(%s);\\\n" (length_name varname);
 	fprintf avr_h "\t  {\\\n\t    int i;\\\n\t    for(i = 0; i < %s; i++) {\\\n" (length_name varname);
-	fprintf avr_h "\t      DownlinkPut%sByteByAddr((uint8_t*)(&%s[i])); \\\n" s name;
+	fprintf avr_h "\t      DownlinkPut%sByAddr((uint8_t*)(&%s[i])); \\\n" (nameof (Basic t)) name;
 	fprintf avr_h "\t    }\\\n";
 	fprintf avr_h "\t  }\\\n"
 
@@ -160,9 +164,8 @@ module Gen_onboard = struct
     fprintf avr_h "\t  DownlinkStartMessage(DL_%s,%s) \\\n" s size;
     List.iter (print_avr_field avr_h) fields;
     fprintf avr_h "\t  DownlinkEndMessage() \\\n";
-    fprintf avr_h "\t} \\\n";
-    fprintf avr_h "\telse \\\n";
-    fprintf avr_h "\t  downlink_nb_ovrn++; \\\n";
+    fprintf avr_h "\t} else \\\n";
+    fprintf avr_h "\t  DonwlinkOverrun(); \\\n";
     fprintf avr_h "}\n\n"
 
   let print_null_avr_macro = fun avr_h {name=s; fields = fields} ->

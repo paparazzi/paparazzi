@@ -107,12 +107,7 @@
     <define name="PHI0" value="-45" unit="deg"/>
   </section>
 
-  <section name="DOWNLINK" prefix="DOWNLINK_">
-    <define name="FBW_DEVICE" value="uart0"/>
-    <define name="AP_DEVICE" value="uart0"/>
-  </section>
-
-  <makefile>
+   <makefile>
 include $(PAPARAZZI_SRC)/conf/autopilot/v1_2_1.makefile
 
 fbw.srcs += commands.c
@@ -123,13 +118,13 @@ fbw.srcs += $(SRC_ARCH)/servos_4017.c
 fbw.CFLAGS += -DRADIO_CONTROL
 fbw.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c 
 
-fbw.CFLAGS += -DDOWNLINK -DUSE_UART0 
-fbw.srcs += downlink.c $(SRC_ARCH)/uart_hw.c
+fbw.CFLAGS += -DDOWNLINK -DUSE_UART0 -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_FBW_DEVICE=uart0
+fbw.srcs += pprz_transport.c downlink.c $(SRC_ARCH)/uart_hw.c
 
 fbw.CFLAGS += -DDEBUG 
 
-ap.CFLAGS += -DDOWNLINK -DUSE_UART0 
-ap.srcs += downlink.c $(SRC_ARCH)/uart_hw.c
+ap.CFLAGS += -DDOWNLINK -DUSE_UART0 -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_AP_DEVICE=uart0
+ap.srcs += pprz_transport.c downlink.c $(SRC_ARCH)/uart_hw.c
 
 ap.CFLAGS += -DGPS -DUBX -DINFRARED -DRADIO_CONTROL
 
