@@ -109,23 +109,8 @@
   </section>
 
  <makefile>
-include $(PAPARAZZI_SRC)/conf/autopilot/v1_2_1.makefile
+include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
 
-fbw.srcs += commands.c
-
-fbw.CFLAGS += -DACTUATORS=\"servos_4017.h\" -DSERVOS_4017
-fbw.srcs += $(SRC_ARCH)/servos_4017.c
-
-fbw.CFLAGS += -DRADIO_CONTROL
-fbw.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c 
-
-fbw.CFLAGS += -DDOWNLINK -DUART0 
-fbw.srcs += downlink.c $(SRC_ARCH)/uart_hw.c
-
-ap.CFLAGS += -DDOWNLINK -DUSE_UART0 
-ap.srcs += downlink.c $(SRC_ARCH)/uart_hw.c
-
-ap.CFLAGS += -DGPS -DUBX -DINFRARED -DRADIO_CONTROL
 ap.CFLAGS += -Werror
 
 # ap.CFLAGS += -DDATALINK
