@@ -2,8 +2,7 @@
 #  
 # Copied from autopilot (autopilot.sf.net) thanx alot Trammell
 #
-# Copyright (C) 2003 Trammell Hudson <hudson@rotomotion.com>
-# Copyright (C) 2003  Pascal Brisset, Antoine Drouin
+# Copyright (C) 2003-2006  Pascal Brisset, Antoine Drouin
 #
 # This file is part of paparazzi.
 #
@@ -25,20 +24,17 @@
 include ../../conf/Makefile.local
 
 ACDIR= $(PAPARAZZI_HOME)/var/$(AIRCRAFT)
-OBJDIR= $(ACDIR)/sim
-
-ifeq ($(MAKECMDGOALS),sim_sitl)
-include $(ACDIR)/Makefile.ac
-endif
 
 SIMHML = stdlib.ml data.ml flightModel.ml gps.ml hitl.ml sim.ml
 SIMHCMO=$(SIMHML:%.ml=%.cmo)
 SIMSML = stdlib.ml data.ml flightModel.ml gps.ml sitl.ml sim.ml
 SIMSCMO=$(SIMSML:%.ml=%.cmo)
 SIMSCMX=$(SIMSML:%.ml=%.cmx)
-SIMSC = sim_ir.c sim_gps.c sim_ap.c sys_time.c estimator.c infrared.c gps.c pid.c nav.c radio_control.c main_ap.c cam.c traffic_info.c
-SIMSO=$(SIMSC:%.c=$(OBJDIR)/%.o)
-SIMSA=sims.cma
+
+#SIMSC = sim_ir.c sim_gps.c sim_ap.c sys_time.c estimator.c infrared.c gps.c pid.c nav.c radio_control.c main_ap.c cam.c traffic_info.c
+#SIMSO=$(SIMSC:%.c=$(OBJDIR)/%.o)
+#SIMSA=sims.cma
+SIMSO = $(sim.srcs:.c=$(OBJDIR)/%.o)
 
 OCAMLC = ocamlc
 OCAMLOPT=ocamlopt -p
@@ -49,22 +45,19 @@ AIRBORNE = ../airborne
 VARINCLUDE=$(PAPARAZZI_HOME)/var/include
 ACINCLUDE = $(PAPARAZZI_HOME)/var/$(AIRCRAFT)
 
-MESSAGES = ../../conf/messages.xml
-GEN_DOWNLINK = $(TOOLS)/gen_sim_downlink.out
 
 SIMDIR=$(shell echo `pwd`)
 
 
 
-#all : simhitl.out sitl.cma $(GEN_DOWNLINK)
-all : gaia sitl.cma $(GEN_DOWNLINK) fg.o
+all : gaia sitl.cma fg.o
 
 sim_sitl : $(OBJDIR)/simsitl
 
 simhitl.out : $(SIMHCMO) simhitl.cmo
 	$(OCAMLC) $(INCLUDES) -o $@ str.cma xml-light.cma unix.cma lib.cma lablgtk.cma gtkInit.cmo $^
 
-sitl.cma : fg.o $(SIMSCMO)
+sitl.cma : $(SIMSCMO)
 	ocamlc -o $@ -a $^ 
 
 fg.o : fg.c
@@ -73,12 +66,11 @@ fg.o : fg.c
 sitl.cmxa : $(SIMSCMX)
 	ocamlopt -o $@ -a $^ 
 
-$(OBJDIR)/$(SIMSA) : $(SIMSO)
-	@touch $(OBJDIR)/dummy.ml
-	@cd $(OBJDIR); ocamlmklib -o sims $^ dummy.ml
+#$(OBJDIR)/$(SIMSA) : $(SIMSO)
+#	@touch $(OBJDIR)/dummy.ml
+#	@cd $(OBJDIR); ocamlmklib -o sims $^ dummy.ml
 
-$(OBJDIR)/simsitl : $(OBJDIR)/$(SIMSA) $(OBJDIR)/simsitl.ml
-	$(OCAMLC) -custom $(INCLUDES) -o $@ glibivy-ocaml.cma lib-pprz.cma lablgtk.cma gtkInit.cmo -I $(OBJDIR) $(SIMSA) sitl.cma $(OBJDIR)/simsitl.ml
+
 
 gaia : gaia.cmo
 	$(OCAMLC) -custom $(INCLUDES) -o $@ glibivy-ocaml.cma lib-pprz.cma lablgtk.cma gtkInit.cmo $<
@@ -98,9 +90,6 @@ $(OBJDIR)/sim_ap.o : $(AIRBORNE)/traffic_info.h $(AIRBORNE)/nav.h
 
 $(OBJDIR)/main_ap.c : $(OBJDIR)/sitl_messages.h $(AIRBORNE)/main_ap.c
 	cp $(AIRBORNE)/main_ap.c $(@)
-
-$(OBJDIR)/sitl_messages.h : $(MESSAGES) $(GEN_DOWNLINK)
-	$(GEN_DOWNLINK) $< > $@
 
 $(OBJDIR)/simsitl.cmo : $(OBJDIR)/simsitl.ml
 	$(OCAMLC) $(INCLUDES) -c -o $@ $<

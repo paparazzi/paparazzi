@@ -27,11 +27,12 @@
 # Edit the configuration part to suit your local install
 #
 
-OBJDIR = $(PAPARAZZI_HOME)/var/$(AIRCRAFT)/$(TARGET)
 SRC_ARCH = $(PAPARAZZI_SRC)/sw/airborne/sim
 
-CC		= gcc
-LD		= $(CC)
+CC = gcc
+OCAMLC = ocamlc
+CAMLINCLUDES = -I +lablgtk2 -I $(PAPARAZZI_SRC)/sw/lib/ocaml -I $(PAPARAZZI_SRC)/sw/simulator
+SITLCMA = $(PAPARAZZI_SRC)/sw/simulator/sitl.cma
 
 
 #
@@ -41,7 +42,6 @@ LD		= $(CC)
 
 CFLAGS		=							\
 	-W -Wall \
-	$(ATMEL_INCLUDES)					  	\
 	$(INCLUDES)					  	\
 	-Wstrict-prototypes						\
 	$($(TARGET).CFLAGS)					\
@@ -58,43 +58,10 @@ $(TARGET).srcsnd = $(notdir $($(TARGET).srcs))
 $(TARGET).objso	= $($(TARGET).srcsnd:%.c=$(OBJDIR)/%.o)
 $(TARGET).objs	= $($(TARGET).objso:%.S=$(OBJDIR)/%.o)
 
+all compile: $(OBJDIR)/simsitl
 
-all compile: $($(TARGET).objs) $(OBJDIR)/$(TARGET).elf
-#all:
-#	@echo !!!!!!!
-#	@echo $($(TARGET).objs)
-#	@echo !!!!!!!
-
-load upload: $(TARGET).install
-
-
-#
-# Fuses
-#
-
-rd_fuses: check_arch
-	$(UISP) $(ISP_FLAGS) --rd_fuses
-
-wr_fuses : check_arch
-	$(UISP) $(ISP_FLAGS) --wr_fuse_h=$($(TARGET).HIGH_FUSE)
-	$(UISP) $(ISP_FLAGS) --wr_fuse_l=$($(TARGET).LOW_FUSE)
-	$(UISP) $(ISP_FLAGS) --wr_fuse_e=$($(TARGET).EXT_FUSE)
-	$(UISP) $(ISP_FLAGS) --wr_lock=$($(TARGET).LOCK_FUSE)
-
-TMPFILE	= '/tmp/check_fuses.tmp'
-
-check_fuses: check_arch
-	@echo "##### Check of fuses #####"
-	@$(UISP) $(ISP_FLAGS) --rd_fuses >$(TMPFILE)
-	@if (grep -i 'Fuse Low Byte' $(TMPFILE) | cut -c24- | grep -iq $($(TARGET).LOW_FUSE)) && (grep -i 'Fuse High Byte' $(TMPFILE) |cut -c24- | grep -iq $($(TARGET).HIGH_FUSE)) && (grep -i 'Fuse Extended Byte' $(TMPFILE) |cut -c24- | grep -iq $($(TARGET).EXT_FUSE)) && (grep -i 'Lock Bits' $(TMPFILE) |cut -c24- | grep -iq $($(TARGET).LOCK_FUSE)); then echo "-> Fuses are Ok"; rm $(TMPFILE); else echo "-> Wrong fuses. Type 'make wr_fuses'"; rm $(TMPFILE); exit 1; fi
-
-
-$(OBJDIR)/%.elf: $($(TARGET).objs)
-	$(LD)								\
-	$(LOCAL_LDFLAGS)						\
-		$^							\
-		-o $@							\
-		$(LDFLAGS)
+$(OBJDIR)/simsitl : $($(TARGET).objs) $(SITLCMA)
+	$(OCAMLC) -custom $(CAMLINCLUDES) -o $@ glibivy-ocaml.cma lib-pprz.cma lablgtk.cma gtkInit.cmo $^
 
 
 %.s: %.c
@@ -111,7 +78,6 @@ $(OBJDIR)/%.o: $(SRC_ARCH)/%.c
 
 $(OBJDIR)/%.o: $(SRC_ARCH)/%.S
 	$(CC) $(CFLAGS) -c -o $@ $<
-
 
 
 avr_clean:

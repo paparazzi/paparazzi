@@ -34,7 +34,7 @@
 #include "flight_plan.h"
 #include "uart.h"
 #include "gps.h"
-#include "ubx.h"
+#include "gps_ubx.h"
 
 uint32_t gps_itow;
 int32_t gps_alt;

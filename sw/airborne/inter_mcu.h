@@ -32,6 +32,14 @@
 #ifndef INTER_MCU_H
 #define INTER_MCU_H
 
+/** Fly by wire modes */
+#define FBW_MODE_MANUAL   0
+#define FBW_MODE_AUTO     1
+#define FBW_MODE_FAILSAFE 2
+#define FBW_MODE_OF_PPRZ(mode) ((mode) < TRESHOLD_MANUAL_PPRZ ? FBW_MODE_MANUAL : FBW_MODE_AUTO)
+
+#ifdef INTER_MCU
+
 #include <inttypes.h>
 
 #include "std.h"
@@ -72,12 +80,6 @@ typedef union  {
   struct from_ap_msg from_ap;
 } inter_mcu_msg;
 
-/** Fly by wire modes */
-
-#define FBW_MODE_MANUAL   0
-#define FBW_MODE_AUTO     1
-#define FBW_MODE_FAILSAFE 2
-#define FBW_MODE_OF_PPRZ(mode) ((mode) < TRESHOLD_MANUAL_PPRZ ? FBW_MODE_MANUAL : FBW_MODE_AUTO)
 
 // Status bits from FBW to AUTOPILOT
 #define STATUS_RADIO_OK 0
@@ -135,7 +137,7 @@ static inline void to_autopilot_from_rc_values (void) {
     rc_values_contains_avg_channels = FALSE;
   }
   msg->ppm_cpt = last_ppm_cpt;
-  msg->vsupply = VoltageOfAdc(vsupply_adc_buf.sum/vsupply_adc_buf.av_nb_sample) * 10;
+  msg->vsupply = fbw_vsupply_decivolt;
 #if defined IMU_3DMG || defined IMU_ANALOG
   msg->euler_dot[0] = roll_dot;
   msg->euler_dot[1] = pitch_dot;
@@ -165,5 +167,6 @@ static inline void inter_mcu_periodic_task(void) {
 
 #endif /* FBW */
 
+#endif /* INTER_MCU */
 
 #endif /* INTER_MCU_H */

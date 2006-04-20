@@ -26,6 +26,7 @@
 #define PID_H
 
 #include <inttypes.h>
+#include "paparazzi.h"
 #include "inter_mcu.h"
 
 extern float desired_roll;

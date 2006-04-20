@@ -29,6 +29,7 @@
 #include "adc.h"
 
 extern uint8_t fbw_mode;
+extern uint8_t fbw_vsupply_decivolt;
 extern bool_t failsafe_mode;
 extern struct adc_buf vsupply_adc_buf;
 

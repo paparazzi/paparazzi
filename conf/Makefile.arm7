@@ -26,7 +26,6 @@
 # This is the common Makefile for the arm7-target.
 #
 
-OBJDIR = $(PAPARAZZI_HOME)/var/$(AIRCRAFT)/$(TARGET)
 SRC_ARCH = $(PAPARAZZI_SRC)/sw/airborne/arm7
 
 CC		= arm-elf-gcc -mmcu=$($(TARGET).ARCH)

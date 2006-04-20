@@ -84,5 +84,6 @@ extern uint8_t ck_a, ck_b;
 #define PprzTransportPutUint32ByAddr(_x) PprzTransportPut4ByteByAddr(_x)
 #define PprzTransportPutFloatByAddr(_x) PprzTransportPut4ByteByAddr(_x)
 
+
 #endif /* PPRZ_TRANSPORT_H */
 

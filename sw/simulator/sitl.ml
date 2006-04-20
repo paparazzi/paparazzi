@@ -50,7 +50,7 @@ module Make(A:Data.MISSION) = struct
   let rservos = ref [||]
   let adj_bat = GData.adjustment ~value:12.5 ~lower:0. ~upper:23. ~step_incr:0.1 ()
 
-  external set_servos : Stdlib.us array -> int = "set_servos"
+  external get_commands : Stdlib.us array -> int = "get_commands"
 (** Returns gaz servo value (us) *)
 
   let energy = ref 0.
@@ -58,7 +58,7 @@ module Make(A:Data.MISSION) = struct
   let update_servos =
     let accu = ref 0. in
     fun bat_button () ->
-      let gaz = set_servos !rservos in
+      let gaz = get_commands !rservos in
       (* 100% = 1W *)
       if bat_button#active then
 	let energy = float (gaz-1000) /. 1000. *. servos_period in
@@ -72,8 +72,7 @@ module Make(A:Data.MISSION) = struct
 
 (* Radio command handling *)
   external update_channel : int -> float -> unit = "update_rc_channel"
-  external set_radio_status : bool -> unit = "set_radio_status"
-  external set_really_lost : bool -> unit = "set_really_lost"
+  external send_ppm : unit = "send_ppm"
 
   let inverted = ["ROLL"; "PITCH"; "YAW"; "GAIN1"; "GAIN2"]
 
@@ -106,13 +105,7 @@ module Make(A:Data.MISSION) = struct
       rc_channels;
     ignore (on_off#connect#toggled (fun () -> sliders#coerce#misc#set_sensitive on_off#active; set_radio_status on_off#active));
 
-    let monitor_on_off = 
-      let t = ref 0 in
-      fun () ->
-	incr t;
-	if on_off#active then t := 0;
-	set_really_lost (!t > 2) in
-    Stdlib.timer 1. monitor_on_off; (** FIXME: should use time_scale *)
+    Stdlib.timer 0.1 send_ppm; (** FIXME: should use time_scale *)
     window#show ()
 
   external periodic_task : unit -> unit = "sim_periodic_task"

@@ -138,7 +138,7 @@ ac_h : tools static_h
 
 sim_ac: ac_h sim_sitl
 hard_ac: ac_h fbw ap
-ac: sim_ac hard_ac
+ac: hard_ac
 
 doxygen:
 	mkdir -p dox

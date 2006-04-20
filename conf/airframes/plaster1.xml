@@ -109,30 +109,13 @@
 
    <makefile>
 include $(PAPARAZZI_SRC)/conf/autopilot/v1_2_1.makefile
+include $(PAPARAZZI_SRC)/conf/autopilot/twin_mcu_avr.makefile
 
-fbw.srcs += commands.c
+ap.CFLAGS +=  -DDOWNLINK -DUSE_UART0 -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_AP_DEVICE=uart0
+ap.srcs += pprz_transport.c downlink.c
 
-fbw.CFLAGS += -DACTUATORS=\"servos_4017.h\" -DSERVOS_4017
-fbw.srcs += $(SRC_ARCH)/servos_4017.c
-
-fbw.CFLAGS += -DRADIO_CONTROL
-fbw.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c 
-
-fbw.CFLAGS += -DDOWNLINK -DUSE_UART0 -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_FBW_DEVICE=uart0
-fbw.srcs += pprz_transport.c downlink.c $(SRC_ARCH)/uart_hw.c
-
-fbw.CFLAGS += -DINTER_MCU -DMCU_SPI_LINK
-fbw.srcs += inter_mcu.c $(SRC_ARCH)/spi_hw.c
-
-fbw.CFLAGS += -DDEBUG 
-
-ap.CFLAGS += -DDOWNLINK -DUSE_UART0 -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_AP_DEVICE=uart0
-ap.srcs += pprz_transport.c downlink.c $(SRC_ARCH)/uart_hw.c
-
-ap.CFLAGS += -DMCU_SPI_LINK
-ap.srcs += inter_mcu.c link_mcu.c $(SRC_ARCH)/link_mcu_ap.c $(SRC_ARCH)/spi_hw.c
-
-ap.CFLAGS += -DGPS -DUBX -DINFRARED -DRADIO_CONTROL
+# ap.CFLAGS += -DMODEM 
+# ap.srcs += $(SRC_ARCH)/modem_hw.c 
 
   </makefile>
 </airframe>

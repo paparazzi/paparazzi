@@ -71,16 +71,22 @@ struct svinfo {
 
 extern struct svinfo gps_svinfos[GPS_NB_CHANNELS];
 
+#define GPS_FIX_VALID(gps_mode) (gps_mode == 3)
+
 #ifdef UBX
-#include "ubx.h"
+#include "gps_ubx.h"
 #endif
 
 #ifndef SITL
 #include "uart.h"
 
-#define GpsBuffer() uart1ChAvailable()
-#define ReadGpsBuffer() { while (uart1ChAvailable()) parse_ubx(uart1Getch()); }
-#define GpsUartSend1(c) uart1_transmit(c)
+#define __GpsLink(dev, _x) dev##_x
+#define _GpsLink(dev, _x)  __GpsLink(dev, _x)
+#define GpsLink(_x) _GpsLink(GPS_LINK, _x)
+
+#define GpsBuffer() GpsLink(ChAvailable())
+#define ReadGpsBuffer() { while (GpsLink(ChAvailable())) parse_ubx(GpsLink(Getch())); }
+#define GpsUartSend1(c) GpsLink(_transmit(c))
 #endif
 
 

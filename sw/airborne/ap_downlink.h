@@ -33,13 +33,8 @@
 extern uint8_t telemetry_mode_Ap;
 #include "downlink.h"
 
-#ifdef SITL
-#include "sitl_messages.h"
-#else
-#include "modem.h"
 #include "messages.h"
 #include "periodic.h"
-#endif
 
 #if DOWNLINK
 #define Downlink(x) x
@@ -58,7 +53,15 @@ extern uint8_t telemetry_mode_Ap;
 #define PERIODIC_SEND_DEBUG_MCU_LINK() {}
 #endif
 
+
+#ifdef MODEM
+#include "modem.h"
 #define PERIODIC_SEND_DEBUG_MODEM() DOWNLINK_SEND_DEBUG_MODEM(&modem_nb_ovrn)
+#else
+#define PERIODIC_SEND_DEBUG_MODEM()
+#endif
+
+
 #define PERIODIC_SEND_ATTITUDE() Downlink({ \
   int8_t phi = DegOfRad(estimator_phi); \
   int8_t psi = DegOfRad(estimator_psi); \

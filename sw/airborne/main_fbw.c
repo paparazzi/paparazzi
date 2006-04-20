@@ -50,9 +50,12 @@
 #include "control_grz.h"
 #endif
 
+#ifdef ADC
 #include "adc.h"
 struct adc_buf vsupply_adc_buf;
+#endif
 
+uint8_t fbw_vsupply_decivolt;
 
 uint8_t fbw_mode;
 
@@ -82,8 +85,11 @@ void init_fbw( void ) {
 #endif
 #endif
 
+#ifdef ADC
   adc_init();
   adc_buf_channel(ADC_CHANNEL_VSUPPLY, &vsupply_adc_buf, DEFAULT_AV_NB_SAMPLE);
+#endif
+
 #if defined IMU_3DMG || defined IMU_ANALOG
   imu_init();
 #endif
@@ -132,6 +138,10 @@ void event_task_fbw( void) {
     spi_was_interrupted = FALSE;
     spi_reset();
   }
+#endif
+
+#ifdef ADC
+  fbw_vsupply_decivolt = VoltageOfAdc(vsupply_adc_buf.sum/vsupply_adc_buf.av_nb_sample) * 10;
 #endif
 
 #ifdef INTER_MCU
@@ -194,5 +204,7 @@ void periodic_task_fbw( void ) {
     fbw_downlink_periodic_task();
 #endif
 
+#ifdef ACTUATORS
   SetActuatorsFromCommands(commands);
+#endif
 }

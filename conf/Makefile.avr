@@ -27,7 +27,6 @@
 # Edit the configuration part to suit your local install
 #
 
-OBJDIR = $(PAPARAZZI_HOME)/var/$(AIRCRAFT)/$(TARGET)
 SRC_ARCH = $(PAPARAZZI_SRC)/sw/airborne/avr
 
 CC		= $(ATMELBIN)/avr-gcc -mmcu=$($(TARGET).ARCH)

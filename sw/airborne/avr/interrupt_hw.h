@@ -25,6 +25,12 @@
  *  \brief AVR Low level interrupt handling
  *
  */
+
+#ifndef INTERRUPT_HW_H
+#define INTERRUPT_HW_H
+
 #include <avr/interrupt.h>
 
 #define int_enable() sei()
+
+#endif /* INTERRUPT_HW_H */
