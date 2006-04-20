@@ -176,23 +176,26 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
     method world_of = fun wgs84 ->
       match georef with
 	Some georef -> begin
-	  match projection with
-	    UTM ->
-	      let utmref = LL.utm_of LL.WGS84 georef
-	      and utm = LL.utm_of LL.WGS84 wgs84 in
-	      let (wx, y) = LL.utm_sub utm utmref in
-	      (wx, -.y)
-	  | Mercator ->
-	      let mlref = LL.mercator_lat georef.LL.posn_lat
-	      and ml = LL.mercator_lat wgs84.LL.posn_lat in
-	      let xw = (wgs84.LL.posn_long -. georef.LL.posn_long) *. mercator_coeff
-	      and yw = -. (ml -. mlref) *. mercator_coeff in
-	      (xw, yw)
-	  | LambertIIe ->
-	      let lbtref = LL.lambertIIe_of georef
-	      and lbt = LL.lambertIIe_of wgs84 in
-	      let (wx, y) = LL.lbt_sub lbt lbtref in
-	      (wx, -.y)
+	  try
+	    match projection with
+	      UTM ->
+		let utmref = LL.utm_of LL.WGS84 georef
+		and utm = LL.utm_of LL.WGS84 wgs84 in
+		let (wx, y) = LL.utm_sub utm utmref in
+		(wx, -.y)
+	    | Mercator ->
+		let mlref = LL.mercator_lat georef.LL.posn_lat
+		and ml = LL.mercator_lat wgs84.LL.posn_lat in
+		let xw = (wgs84.LL.posn_long -. georef.LL.posn_long) *. mercator_coeff
+		and yw = -. (ml -. mlref) *. mercator_coeff in
+		(xw, yw)
+	    | LambertIIe ->
+		let lbtref = LL.lambertIIe_of georef
+		and lbt = LL.lambertIIe_of wgs84 in
+		let (wx, y) = LL.lbt_sub lbt lbtref in
+		(wx, -.y)
+	  with
+	    _ -> (0., 0.) (** Don't want to break everything with bad coordinates *)
 	end
       | None -> failwith "#world_of : no georef"
 

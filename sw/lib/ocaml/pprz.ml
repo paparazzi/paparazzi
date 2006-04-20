@@ -393,6 +393,13 @@ module Messages(Class:CLASS) = struct
     | [] -> invalid_arg (sprintf "Pprz.values_of_string: %s" s)
 
   let string_of_message = fun msg values ->
+    (** Check that the values are compatible with this message *)
+    List.iter 
+      (fun (k, _) ->
+	if not (List.mem_assoc k msg.fields) 
+	then invalid_arg (sprintf "Pprz.string_of_message: unknown field '%s' in message '%s'" k msg.name))
+      values;
+
     String.concat " "
       (msg.name::
        List.map 
