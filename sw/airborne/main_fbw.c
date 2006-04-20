@@ -187,7 +187,11 @@ void periodic_task_fbw( void ) {
 #endif
 
 #ifdef DOWNLINK
-  fbw_downlink_periodic_task();
+  static uint8_t _10Hz; /* FIXME : sys_time should provide it */
+  _10Hz++;
+  if (_10Hz >= 6) _10Hz = 0;
+  if (!_10Hz)
+    fbw_downlink_periodic_task();
 #endif
 
   SetActuatorsFromCommands(commands);
