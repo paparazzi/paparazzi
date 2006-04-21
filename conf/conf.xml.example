@@ -96,16 +96,6 @@
     flight_plan="flight_plans/dummy.xml"
   />
 
-<!-- discboard testbench -->
-  <aircraft 
-    name="GRZT"
-    ac_id="11"
-    airframe="airframes/gorrazoptere_esc_3DMG_test.xml" 
-    radio="radios/cockpitMM.xml" 
-    telemetry="telemetry/default.xml"
-    flight_plan="flight_plans/dummy.xml"
-  />
-
   <ground name="desktop" ivy_bus="127:2010">
     <link name="downlink" port="/dev/ttyS0" protocol="pprz/modem"/>
     <link name="datalink" port="/dev/ttyS1" protocol="pprz/coronis"/>
