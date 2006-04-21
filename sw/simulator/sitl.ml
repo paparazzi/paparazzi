@@ -107,6 +107,9 @@ module Make(A:Data.MISSION) = struct
       rc_channels;
     ignore (on_off#connect#toggled (fun () -> sliders#coerce#misc#set_sensitive on_off#active));
 
+    let send_ppm = fun () ->
+      if on_off#active then send_ppm () in
+
     Stdlib.timer rc_period send_ppm; (** FIXME: should use time_scale *)
     window#show ()
 
