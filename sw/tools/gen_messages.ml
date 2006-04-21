@@ -161,7 +161,7 @@ module Gen_onboard = struct
     fprintf avr_h "){ \\\n";
     let size = (size_fields fields "0") in
     fprintf avr_h "\tif (DownlinkCheckFreeSpace(DownlinkSizeOf(%s))) {\\\n" size;
-    fprintf avr_h "\t  DownlinkStartMessage(DL_%s,%s) \\\n" s size;
+    fprintf avr_h "\t  DownlinkStartMessage(\"%s\", DL_%s, %s) \\\n" s s size;
     List.iter (print_avr_field avr_h) fields;
     fprintf avr_h "\t  DownlinkEndMessage() \\\n";
     fprintf avr_h "\t} else \\\n";

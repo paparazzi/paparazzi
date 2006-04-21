@@ -24,7 +24,9 @@
  *
  *)
 
-type us = int
+type pprz_t = int
+
+let max_pprz = 9600
 
 let pi = 4. *. atan 1.
 let rec norm_angle = fun x ->

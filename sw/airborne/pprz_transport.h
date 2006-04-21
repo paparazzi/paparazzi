@@ -60,6 +60,8 @@ extern uint8_t ck_a, ck_b;
     PprzTransportPut1Byte(_byte);		  \
  }
 
+#define PprzTransportPutNamedUint8(_name, _byte) PprzTransportPutUint8(_byte)
+
 #define PprzTransportPut1ByteByAddr(_byte) {	 \
     uint8_t _x = *(_byte);		 \
     PprzTransportPutUint8(_x);	 \

@@ -49,9 +49,9 @@ test: static ac1 ac2
 	PAPARAZZI_HOME=$(PAPARAZZI_SRC) PAPARAZZI_SRC=$(PAPARAZZI_SRC) $(SUPERVISION)
 
 ac1 : conf sim_static
-	make AIRCRAFT=Twin1 PAPARAZZI_HOME=$(PAPARAZZI_SRC) sim_ac
+	make AIRCRAFT=Twin1 PAPARAZZI_HOME=$(PAPARAZZI_SRC) sim
 ac2 : conf sim_static
-	make AIRCRAFT=Twin2 PAPARAZZI_HOME=$(PAPARAZZI_SRC) sim_ac
+	make AIRCRAFT=Twin2 PAPARAZZI_HOME=$(PAPARAZZI_SRC) sim
 
 lib:
 	cd $(LIB)/ocaml; $(MAKE)
@@ -68,9 +68,6 @@ configurator: lib
 
 sim_static :
 	cd $(SIMULATOR); $(MAKE) PAPARAZZI_SRC=$(PAPARAZZI_SRC)
-
-sim_sitl :
-	cd $(SIMULATOR);  $(MAKE) sim_sitl PAPARAZZI_HOME=$(PAPARAZZI_SRC) PAPARAZZI_SRC=$(PAPARAZZI_SRC) AIRCRAFT=$(AIRCRAFT)
 
 fbw fly_by_wire: ac_h
 	cd $(AIRBORNE); $(MAKE) TARGET=fbw all
@@ -136,7 +133,6 @@ static_h :
 ac_h : tools static_h
 	PAPARAZZI_HOME=`pwd` PAPARAZZI_SRC=`pwd` $(TOOLS)/gen_aircraft.out $(AIRCRAFT)
 
-sim_ac: ac_h sim_sitl
 hard_ac: ac_h fbw ap
 ac: hard_ac
 

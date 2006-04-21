@@ -31,8 +31,10 @@ SRC_ARCH = $(PAPARAZZI_SRC)/sw/airborne/sim
 
 CC = gcc
 OCAMLC = ocamlc
-CAMLINCLUDES = -I +lablgtk2 -I $(PAPARAZZI_SRC)/sw/lib/ocaml -I $(PAPARAZZI_SRC)/sw/simulator
-SITLCMA = $(PAPARAZZI_SRC)/sw/simulator/sitl.cma
+SIMDIR = $(PAPARAZZI_SRC)/sw/simulator
+CAMLINCLUDES = -I +lablgtk2 -I $(PAPARAZZI_SRC)/sw/lib/ocaml -I $(SIMDIR)
+SIMSITLML = $(OBJDIR)/simsitl.ml
+SITLCMA = $(SIMDIR)/sitl.cma
 
 
 #
@@ -41,7 +43,7 @@ SITLCMA = $(PAPARAZZI_SRC)/sw/simulator/sitl.cma
 
 
 CFLAGS		=							\
-	-W -Wall \
+	-W -Wall -Werror \
 	$(INCLUDES)					  	\
 	-Wstrict-prototypes						\
 	$($(TARGET).CFLAGS)					\
@@ -60,9 +62,14 @@ $(TARGET).objs	= $($(TARGET).objso:%.S=$(OBJDIR)/%.o)
 
 all compile: $(OBJDIR)/simsitl
 
-$(OBJDIR)/simsitl : $($(TARGET).objs) $(SITLCMA)
-	$(OCAMLC) -custom $(CAMLINCLUDES) -o $@ glibivy-ocaml.cma lib-pprz.cma lablgtk.cma gtkInit.cmo $^
+$(OBJDIR)/simsitl : $($(TARGET).objs) $(SITLCMA) $(SIMSITLML)
+	$(OCAMLC) -custom $(CAMLINCLUDES) -o $@ glibivy-ocaml.cma lib-pprz.cma lablgtk.cma $($(TARGET).objs) gtkInit.cmo $(SITLCMA) $(SIMSITLML)
 
+
+# The id of the A/C is hardcoded in the code (to be improved with dynlink ?)
+$(SIMSITLML) : $(SIMDIR)/simsitl.ml
+	@echo "Sim.ac_name := \"$(AIRCRAFT)\"" > $@
+	@cat $< >> $@
 
 %.s: %.c
 	$(CC) $(CFLAGS) -S -o $@ $<

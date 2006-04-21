@@ -40,6 +40,7 @@
 #include "link_mcu.h"
 #include "sys_time.h"
 #include "flight_plan.h"
+#include "datalink.h"
 
 #ifdef LED
 #include "led.h"

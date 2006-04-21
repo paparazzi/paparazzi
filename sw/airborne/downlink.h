@@ -26,7 +26,12 @@
 #define DOWNLINK_H
 
 #include <inttypes.h>
+
+#ifdef SITL
+#include "ivy_transport.h"
+#else
 #include "pprz_transport.h"
+#endif
 
 extern uint8_t downlink_nb_ovrn;
 
@@ -50,10 +55,10 @@ extern uint8_t downlink_nb_ovrn;
 
 #define DonwlinkOverrun() downlink_nb_ovrn++;
 
-#define DownlinkStartMessage(msg_id, payload_len) { \
+#define DownlinkStartMessage(_name, msg_id, payload_len) { \
   Transport(Header(payload_len)); \
   Transport(PutUint8(AC_ID)); \
-  Transport(PutUint8(msg_id)); \
+  Transport(PutNamedUint8(_name, msg_id)); \
 }
 
 #define DownlinkEndMessage() Transport(Trailer())

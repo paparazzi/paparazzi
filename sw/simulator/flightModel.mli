@@ -3,7 +3,7 @@
  *
  * Basic flight model for simulation
  *  
- * Copyright (C) 2004-2005 Pascal Brisset, Antoine Drouin
+ * Copyright (C) 2004-2006 Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
  *
@@ -42,8 +42,8 @@ val set_air_speed : state -> meter_s -> unit
 module Make :
   functor (A : Data.MISSION) ->
     sig
-      val do_servos : state -> Stdlib.us array -> unit
-      val nb_servos : int
+      val do_commands : state -> Stdlib.pprz_t array -> unit
+      val nb_commands : int
       val nominal_airspeed : float (* m/s *)
       val roll_neutral_default : float (* rad *)
       val state_update : state -> float * float -> float -> unit

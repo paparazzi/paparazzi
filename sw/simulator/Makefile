@@ -57,8 +57,8 @@ sim_sitl : $(OBJDIR)/simsitl
 simhitl.out : $(SIMHCMO) simhitl.cmo
 	$(OCAMLC) $(INCLUDES) -o $@ str.cma xml-light.cma unix.cma lib.cma lablgtk.cma gtkInit.cmo $^
 
-sitl.cma : $(SIMSCMO)
-	ocamlc -o $@ -a $^ 
+sitl.cma : fg.o $(SIMSCMO)
+	ocamlmklib -o sitl $^ 
 
 fg.o : fg.c
 	$(OCAMLC) -c fg.c
@@ -97,10 +97,6 @@ $(OBJDIR)/simsitl.cmo : $(OBJDIR)/simsitl.ml
 $(OBJDIR)/simsitl.cmx : $(OBJDIR)/simsitl.ml
 	$(OCAMLOPT) $(INCLUDES) -c -o $@ $<
 
-$(OBJDIR)/simsitl.ml : simsitl.ml
-	@echo "Sim.ac_name := \"$(AIRCRAFT)\"" > $@
-	@cat $< >> $@
-
 %.cmo : %.ml
 	$(OCAMLC) $(INCLUDES) -c $<
 
@@ -116,13 +112,13 @@ $(OBJDIR)/simsitl.ml : simsitl.ml
 clean :
 	\rm -f *.cm* *~ *.out .depend *.o *.a *.so gaia
 
-flightModel.cmo: flightModel.cmi 
-hitl.cmo: hitl.cmi 
-sim.cmo: flightModel.cmi sim.cmi 
-simhitl.cmo: hitl.cmi sim.cmi
-simsitl.cmo: sim.cmi sitl.cmi 
-sitl.cmo: sitl.cmi 
-sitl.cmi: sim.cmi 
-data.cmo : data.cmi
-stdlib.cmo : stdlib.cmi
-gps.cmo : gps.cmi
+#
+# Dependencies
+#
+
+.depend:
+	ocamldep *.ml* > .depend
+
+ifneq ($(MAKECMDGOALS),clean) 
+-include .depend
+endif

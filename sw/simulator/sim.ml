@@ -1,9 +1,9 @@
 (*
  *  $Id$
  *
- * Hardware in the loop basic simulator (handling GPS, infrared and servos)
+ * Hardware in the loop basic simulator (handling GPS, infrared and commands)
  *  
- * Copyright (C) 2004 Pascal Brisset, Antoine Drouin
+ * Copyright (C) 2004-2006 Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
  *
@@ -43,7 +43,7 @@ module type AIRCRAFT =
     val boot : Stdlib.value -> unit
     (** [boot time_acceleration] *)
 
-    val servos : us array -> unit
+    val commands : pprz_t array -> unit
 	(** Called once at init *)
 	
     val infrared : float -> float -> float -> unit
@@ -109,9 +109,9 @@ module Make(AircraftItl : AIRCRAFT_ITL) = struct
 
     let reset = fun () -> state := initial_state in 
 
-    let servos = Array.create FM.nb_servos 0 in
+    let commands = Array.create FM.nb_commands 0 in
 
-    Aircraft.servos servos;
+    Aircraft.commands commands;
 
     let north_label = GMisc.label ~text:"000" ()
     and east_label = GMisc.label ~text:"000" ()
@@ -140,7 +140,7 @@ module Make(AircraftItl : AIRCRAFT_ITL) = struct
 
 
     let fm_task = fun () ->
-      FM.do_servos !state servos;
+      FM.do_commands !state commands;
       FM.state_update !state (!wind_x, !wind_y) fm_period
        
     and ir_task = fun () ->

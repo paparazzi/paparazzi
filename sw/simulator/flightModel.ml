@@ -3,7 +3,7 @@
  *
  * Basic flight model for simulation
  *  
- * Copyright (C) 2004-2005 Pascal Brisset, Antoine Drouin
+ * Copyright (C) 2004-2006 Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
  *
@@ -25,6 +25,7 @@
  *)
 
 open Stdlib
+open Printf
 
 let ios = fun x ->
   try int_of_string x with _ -> failwith (Printf.sprintf "int_of_string: '%s'" x)
@@ -123,12 +124,20 @@ module Make(A:Data.MISSION) = struct
 
 
 
-  let servos =
+  let commands =
     try
-      ExtXml.child A.ac.airframe "servos"
+      let l = ExtXml.child A.ac.airframe "commands" in
+      let rec loop i = function
+	  [] -> []
+	| x::xs -> (ExtXml.attrib x "name", i)::loop (i+1) xs in
+      loop 0 (Xml.children l)
     with
       Not_found ->
-	failwith (Printf.sprintf "Child 'servos' expected in '%s'\n" (Xml.to_string A.ac.airframe))
+	failwith (Printf.sprintf "Child 'commands' expected in '%s'\n" (Xml.to_string A.ac.airframe))
+
+  let command = fun n -> 
+    try List.assoc n commands with
+      Not_found -> failwith (sprintf "Unknown command '%s'" n)
 	  
   let misc_section = section "MISC"
 
@@ -139,70 +148,20 @@ module Make(A:Data.MISSION) = struct
   let adc_roll_neutral = ios (defined_value infrared_section "ADC_ROLL_NEUTRAL")
   let roll_neutral_default = rad_of_deg (float_value infrared_section "ROLL_NEUTRAL_DEFAULT")
 
-  let get_servo name =
-    try
-      ExtXml.child servos ~select:(fun x -> ExtXml.attrib x "name" = name) "servo"
-    with
-      Not_found ->
-	failwith (Printf.sprintf "Child 'servo' with name='%s' expected in '%s'\n" name (Xml.to_string servos))
-
-  let us_attrib = fun x a -> int_of_string (ExtXml.attrib x a)
-
-  let gaz = try get_servo "GAZ" with _ -> get_servo "MOTOR_RIGHT"
-  let min_thrust =  us_attrib gaz "min"
-  let max_thrust =  us_attrib gaz "max"
+  let min_thrust =  0
+  let max_thrust =  max_pprz
       
-  type servo_id = int
-  type ppm = int
-
-  let no_thrust = int_of_string (ExtXml.attrib gaz "no")
-
-      
-
-  let some_aileron_left = try Some (get_servo "AILERON_LEFT") with _ -> None
-  let some_ailevon_left = try Some (get_servo "AILEVON_LEFT") with _ -> None
-  let some_ailevon_right = try Some (get_servo "AILEVON_RIGHT") with _ -> None
-
+  let command_throttle = command "THROTTLE"
+  let command_roll = command "ROLL"
+     
   let float_attrib = fun x a -> float_of_string (ExtXml.attrib x a)
   let int_attrib = fun x a -> int_of_string (ExtXml.attrib x a)
 
-  let sign = fun x ->
-    if float_attrib x "min" < float_attrib x "max" then 1 else -1
 
-  let do_thrust = fun state servo ->
-    state.thrust <- (float (servo.(no_thrust) - min_thrust) /. float (max_thrust - min_thrust))
+  let do_commands = fun state commands ->
+    let c_lda = 1e-4 in (* FIXME *)
+    state.delta_a <- c_lda *. float commands.(command_roll);
+    state.thrust <- (float (commands.(command_throttle) - min_thrust) /. float (max_thrust - min_thrust))
 
-  let do_servos =  
-    match some_aileron_left, some_ailevon_left, some_ailevon_right with
-      Some aileron_left, None, None ->
-	let c_lda = 16. *. 9e-5 in (* phi_dot_dot from aileron *)
-
-	let sign_aileron_left = sign aileron_left
-	and n_delta_a = us_attrib aileron_left "neutral"
-	and no_aileron_left = int_attrib aileron_left "no" in
-	fun state servo ->
-	  let left = - sign_aileron_left * (servo.(no_aileron_left) - n_delta_a) in
-	  (** if left <> 0 then Printf.printf "left=%d\n" (servo.(no_aileron_left) - n_delta_a); flush stdout;  **)
-	  state.delta_a <- c_lda *. float left;
-	  do_thrust state servo
-    | None, Some ailevon_left, Some ailevon_right ->
-	let c_lda = 2.5e-4 in (* phi_dot_dot from aileron *)
-
-	let sign_ailevon_left = sign ailevon_left
-	and sign_ailevon_right = sign ailevon_right
-	and left_neutral = us_attrib ailevon_left "neutral"
-	and right_neutral = us_attrib ailevon_right "neutral"
-	and left_travel = float (us_attrib ailevon_left "max" - us_attrib ailevon_left "min") /. 1200.
-	and right_travel = float (us_attrib ailevon_right "max" - us_attrib ailevon_right "min") /. 1200.
-	and no_ailevon_left = int_attrib ailevon_left "no"
-	and no_ailevon_right = int_attrib ailevon_right "no" in
-	fun state servo ->
-	  do_thrust state servo;
-	  let sum = (float (servo.(no_ailevon_left) - left_neutral) /. left_travel +.
-		       float (servo.(no_ailevon_right) - right_neutral) /.  right_travel) /. 2. in
-(*	Printf.printf "%d %f\n" (servo no_ailevon_left - left_neutral) sum; flush stdout; *)
-	  state.delta_a <- c_lda *. (-. sum)
-    | _ -> failwith "Aileron or Ailevon left and right PLEASE"
-
-  let nb_servos = 10 (* 4017 *)
+  let nb_commands = 10 (* FIXME *)
 end

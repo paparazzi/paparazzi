@@ -24,7 +24,8 @@
  *
  *)
 
-type us = int
+type pprz_t = int
+val max_pprz : pprz_t
 val pi : float
 val norm_angle : float -> float
 val deg_of_rad : float -> float

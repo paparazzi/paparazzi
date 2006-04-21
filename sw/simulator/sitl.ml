@@ -1,7 +1,7 @@
 (*
  *  $Id$
  *
- * Software in the loop basic simulator (handling GPS, infrared and servos)
+ * Software in the loop basic simulator (handling GPS, infrared and commands)
  *  
  * Copyright (C) 2004 Pascal Brisset, Antoine Drouin
  *
@@ -41,24 +41,27 @@ module Make(A:Data.MISSION) = struct
     ExtXml.child Data.messages_ap ~select:(fun x -> ExtXml.attrib x "name" = name) "message"
 
 
-(* Servos handling (rservos is the intermediate storage) *)
+(* Commands handling (rcommands is the intermediate storage) *)
   let rc_channels = Array.of_list (Xml.children A.ac.Data.radio)
   let nb_channels = Array.length rc_channels
   let rc_channel_no = fun x -> 
     List.assoc x (Array.to_list (Array.mapi (fun i c -> Xml.attrib c "function", i) rc_channels))
 
-  let rservos = ref [||]
+  let rcommands = ref [||]
   let adj_bat = GData.adjustment ~value:12.5 ~lower:0. ~upper:23. ~step_incr:0.1 ()
 
-  external get_commands : Stdlib.us array -> int = "get_commands"
+  external get_commands : Stdlib.pprz_t array -> int = "get_commands"
 (** Returns gaz servo value (us) *)
 
   let energy = ref 0.
 
+ (** Get the commands from the autopilot, store them
+    (to be used by the flight model)
+     Computes an energy consumption from throttle level *)
   let update_servos =
     let accu = ref 0. in
     fun bat_button () ->
-      let gaz = get_commands !rservos in
+      let gaz = get_commands !rcommands in
       (* 100% = 1W *)
       if bat_button#active then
 	let energy = float (gaz-1000) /. 1000. *. servos_period in
@@ -109,7 +112,6 @@ module Make(A:Data.MISSION) = struct
     window#show ()
 
   external periodic_task : unit -> unit = "sim_periodic_task"
-  external rc_task : unit -> unit = "sim_rc_task"
   external sim_init : int -> unit = "sim_init"
   external update_bat : int -> unit = "update_bat"
 
@@ -182,7 +184,6 @@ module Make(A:Data.MISSION) = struct
   let boot = fun time_scale ->
     Stdlib.timer ~scale:time_scale servos_period (update_servos bat_button);
     Stdlib.timer ~scale:time_scale periodic_period periodic_task;
-    Stdlib.timer ~scale:time_scale rc_period rc_task;
     ignore (Ground_Pprz.message_bind "FLIGHT_PARAM" get_flight_param);
     ignore (Ground_Pprz.message_bind "MOVE_WAYPOINT" get_move_waypoint);
     ignore (Ground_Pprz.message_bind "SEND_EVENT" get_send_event);
@@ -190,7 +191,7 @@ module Make(A:Data.MISSION) = struct
     ignore (Ground_Pprz.message_bind "DL_SETTING" get_dl_setting)
 
 (* Functions called by the simulator *)
-  let servos = fun s -> rservos := s
+  let commands = fun s -> rcommands := s
 
   external set_ir : int -> int -> unit = "set_ir"
   let infrared = fun ir_left ir_front ir_top ->

@@ -106,11 +106,6 @@
  <makefile>
 include $(PAPARAZZI_SRC)/conf/autopilot/v1_2_1.makefile
 include $(PAPARAZZI_SRC)/conf/autopilot/twin_mcu_avr.makefile
-
 include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
-sim.CFLAGS += -Werror
-
-# ap.CFLAGS += -DDATALINK
-# ap.EXTRA_SRCS += traffic_info.c datalink.c
   </makefile>
 </airframe>

@@ -38,9 +38,9 @@ let messages_ap =
 (*  let xml = Xml.parse_file (pprz_conf_path // "messages.xml") in *)
   let xml = Xml.parse_file (user_conf_path // "messages.xml") in
   try
-    ExtXml.child xml ~select:(fun x -> Xml.attrib x "name" = "telemetry_ap") "class"
+    ExtXml.child xml ~select:(fun x -> Xml.attrib x "name" = "telemetry") "class"
   with
-    Not_found -> failwith "'telemetry_ap' class missing in messages.xml"
+    Not_found -> failwith "'telemetry' class missing in messages.xml"
 
 type aircraft = {
     name : string;

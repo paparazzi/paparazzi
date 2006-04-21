@@ -28,11 +28,11 @@ exception Error of string
 val child : Xml.xml -> ?select:(Xml.xml -> bool) -> string -> Xml.xml
 (** [child xml ?p i] If [i] is an integer, returns the [i]'th child of [xml].
 Else returns the child of [xml] with tag [i] (the first one satisfying [p]
-if specified *)
+if specified). Else raises [Not_found]. *)
 
 val get : Xml.xml -> string -> Xml.xml
 (** [get xml path] Returns the son of [xml] specified by [path] (where
-separator is [.] *)
+separator is [.]). May raise [Not_found]. *)
 
 val get_attrib : Xml.xml -> string -> string -> string
 (** [get_attrib xml path attrib_name] *)
