@@ -49,6 +49,10 @@
 #include "radio_control.h"
 #include "main_fbw.h"
 
+#ifdef SITL
+#include <stdio.h>
+#endif
+
 /*
  * System clock in MHz.
  */
@@ -152,9 +156,15 @@ static inline void to_autopilot_from_rc_values (void) {
 
 static inline void inter_mcu_event_task( void) {
   if (from_ap_receive_valid) {
+    from_ap_receive_valid = FALSE;
+    // printf("inter_mcu valid\n");
     time_since_last_ap = 0;
     ap_ok = TRUE;
     to_autopilot_from_rc_values();
+#if defined AP
+    /**Directly set the flag indicating to AP that shared buffer is available*/
+    from_fbw_receive_valid = TRUE;
+#endif
   }
 }
 

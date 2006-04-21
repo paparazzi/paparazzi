@@ -74,7 +74,7 @@ extern uint8_t telemetry_mode_Ap;
 
 #define PERIODIC_SEND_NAVIGATION_REF()  DOWNLINK_SEND_NAVIGATION_REF(&nav_utm_east0, &nav_utm_north0, &nav_utm_zone0);
 
-#ifdef DATALINK
+#if defined DOWNLINK && defined DATALINK
 #define PERIODIC_SEND_ACINFO() { \
   struct ac_info_ *s=get_ac_info(3); \
   DOWNLINK_SEND_ACINFO(&s->east, &s->north, &s->course, &s->alt, &s->gspeed); \

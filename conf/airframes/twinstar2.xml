@@ -113,6 +113,8 @@ include $(PAPARAZZI_SRC)/conf/autopilot/v1_2_1.makefile
 include $(PAPARAZZI_SRC)/conf/autopilot/twin_mcu_avr.makefile
 include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
 
+ap.CFLAGS += -DMOBILE_CAM -DDATALINK
+ap.EXTRA_SRCS += traffic_info.c datalink.c
 sim.CFLAGS += -DDATALINK -DMOBILE_CAM
 sim.EXTRA_SRCS += traffic_info.c datalink.c
 #ap.CFLAGS += -DWAVECARD

@@ -462,8 +462,11 @@ inline void periodic_task_ap( void ) {
     from_ap.from_ap.channels[COMMAND_ROLL] = desired_aileron;
     from_ap.from_ap.channels[COMMAND_PITCH] = desired_elevator;
     
-#if defined MCU_SPI_LINK && !defined SITL
+#if defined MCU_SPI_LINK
     link_fbw_send();
+#elif defined INTER_MCU && defined FBW
+    /**Directly set the flag indicating to FBW that shared buffer is available*/
+    from_ap_receive_valid = TRUE;
 #endif
     break;
   default:

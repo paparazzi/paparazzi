@@ -37,7 +37,6 @@ let xml_file = Env.paparazzi_src // "conf" // "messages.xml"
 
 let _ =
   let ivy_bus = ref "127.255.255.255:2010" in
-(*  let classes = ref ["telemetry_ap";"ground"] in *)
   let classes = ref [] in
   Arg.parse
     [ "-b", Arg.String (fun x -> ivy_bus := x), "Bus\tDefault is 127.255.255.255:2010";
@@ -116,7 +115,11 @@ let _ =
 
 
   let xml_classes =
-    let class_of = fun n -> List.find (fun x -> ExtXml.attrib x "name" = n) (Xml.children xml) in
+    let class_of = fun n ->
+      try
+	List.find (fun x -> ExtXml.attrib x "name" = n) (Xml.children xml)
+      with Not_found -> failwith (sprintf "Unknown messages class: %s" n) in
+
     List.map (fun x -> 
       match Str.split (Str.regexp ":") x with
 	[cl; s] -> (cl, class_of cl, Some s)

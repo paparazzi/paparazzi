@@ -66,7 +66,6 @@ module Make(A:Data.MISSION) = struct
       if bat_button#active then
 	let energy = float (gaz-1000) /. 1000. *. servos_period in
 	accu := !accu +. energy *. 0.00259259259259259252; (* To be improved !!! *)
-	printf "\b\b\b\b\b%.3f%!" !accu;
 	if !accu >= 0.1 then begin
 	  let b = adj_bat#value in
 	  adj_bat#set_value (b -. !accu);
@@ -108,11 +107,11 @@ module Make(A:Data.MISSION) = struct
       rc_channels;
     ignore (on_off#connect#toggled (fun () -> sliders#coerce#misc#set_sensitive on_off#active));
 
-    Stdlib.timer 0.1 send_ppm; (** FIXME: should use time_scale *)
+    Stdlib.timer rc_period send_ppm; (** FIXME: should use time_scale *)
     window#show ()
 
   external periodic_task : unit -> unit = "sim_periodic_task"
-  external sim_init : int -> unit = "sim_init"
+  external sim_init : unit -> unit = "sim_init"
   external update_bat : int -> unit = "update_bat"
 
   let bat_button = GButton.toggle_button ~label:"Bat" ()
@@ -121,7 +120,7 @@ module Make(A:Data.MISSION) = struct
   let init = fun id vbox ->
     rc ();
     my_id := id;
-    sim_init id;
+    sim_init ();
 
     let hbox = GPack.hbox ~packing:vbox#add () in
     hbox#pack bat_button#coerce;

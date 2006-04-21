@@ -34,6 +34,9 @@ uint8_t ac_id;
 
 value sim_periodic_task(value _unit __attribute__ ((unused))) {
   periodic_task_ap();
+  periodic_task_fbw();
+  event_task_ap();
+  event_task_fbw();
   return Val_unit;
 }
 
@@ -45,10 +48,10 @@ float ftimeofday(void) {
   return (t.tv_sec + t.tv_usec/1e6);
 }
 
-value sim_init(value id) {
+value sim_init(value unit) {
+  init_fbw();
   init_ap();
-  ac_id = Int_val(id);
-  return Val_unit;
+  return unit;
 }
 
 value update_bat(value bat) {
