@@ -72,7 +72,7 @@ module Make(A:Data.MISSION) = struct
 
 (* Radio command handling *)
   external update_channel : int -> float -> unit = "update_rc_channel"
-  external send_ppm : unit = "send_ppm"
+  external send_ppm : unit -> unit = "send_ppm"
 
   let inverted = ["ROLL"; "PITCH"; "YAW"; "GAIN1"; "GAIN2"]
 
@@ -103,7 +103,7 @@ module Make(A:Data.MISSION) = struct
 	ignore (adj#connect#value_changed update);
 	update ())
       rc_channels;
-    ignore (on_off#connect#toggled (fun () -> sliders#coerce#misc#set_sensitive on_off#active; set_radio_status on_off#active));
+    ignore (on_off#connect#toggled (fun () -> sliders#coerce#misc#set_sensitive on_off#active));
 
     Stdlib.timer 0.1 send_ppm; (** FIXME: should use time_scale *)
     window#show ()
