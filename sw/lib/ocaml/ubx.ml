@@ -67,16 +67,22 @@ let ubx_get_class = fun name ->
   let ubx_xml = Lazy.force ubx_xml in
   ExtXml.child ubx_xml ~select:(fun x -> ExtXml.attrib x "name" = name) "class"
 
-let ubx_nav () = ubx_get_class "NAV"
-let ubx_nav_id () = int_of_string (ExtXml.attrib (ubx_nav ()) "ID")
 let ubx_get_msg = fun ubx_class name ->
   ExtXml.child ubx_class ~select:(fun x -> ExtXml.attrib x "name" = name) "message"
 
+let ubx_nav () = ubx_get_class "NAV"
+let ubx_nav_id () = int_of_string (ExtXml.attrib (ubx_nav ()) "ID")
+
+let ubx_usr () = ubx_get_class "USR"
+let ubx_usr_id () = int_of_string (ExtXml.attrib (ubx_usr ()) "ID")
+
 let ubx_get_nav_msg = fun name -> ubx_get_msg (ubx_nav ()) name
+let ubx_get_usr_msg = fun name -> ubx_get_msg (ubx_usr ()) name
 
 let nav_posutm () = ubx_nav_id (), ubx_get_nav_msg "POSUTM"
 let nav_status () = ubx_nav_id (), ubx_get_nav_msg "STATUS"
 let nav_velned () = ubx_nav_id (), ubx_get_nav_msg "VELNED"
+let usr_irsim () = ubx_usr_id (), ubx_get_usr_msg "IRSIM"
 
 
 let send_start_sequence = fun gps ->

@@ -45,7 +45,7 @@ module Make(A:Data.MISSION) = struct
     if !tty0 <> "" then uart_mcu0 := open_mcu !tty0;
     if !tty1 <> "" then uart_mcu1 := open_mcu !tty1
 
-  let boot = fun () -> ()
+  let boot = fun time_scale -> ()
 
     let irs =
       try
@@ -57,14 +57,14 @@ module Make(A:Data.MISSION) = struct
 
     let ir_roll_neutral =
       try
-	float_of_string (ExtXml.attrib (ExtXml.child irs ~select:(fun x -> try Xml.attrib x "name" = "ROLL_NEUTRAL_DEFAULT" with Xml.No_attribute _ -> false) "define") "value")
+	int_of_string (ExtXml.attrib (ExtXml.child irs ~select:(fun x -> try Xml.attrib x "name" = "ADC_ROLL_NEUTRAL" with Xml.No_attribute _ -> false) "define") "value")
       with
       Not_found ->
 	failwith "Do not find an ROLL_NEUTRAL_DEFAULT define in IR description" 
     
     let ir_pitch_neutral =
       try
-	float_of_string (ExtXml.attrib (ExtXml.child irs ~select:(fun x -> try Xml.attrib x "name" = "PITCH_NEUTRAL_DEFAULT" with Xml.No_attribute _ -> false) "define") "value")
+	int_of_string (ExtXml.attrib (ExtXml.child irs ~select:(fun x -> try Xml.attrib x "name" = "ADC_PITCH_NEUTRAL" with Xml.No_attribute _ -> false) "define") "value")
       with
 	Not_found ->
 	  failwith "Do not find an PITCH_NEUTRAL_DEFAULT define in IR description"
@@ -76,15 +76,20 @@ module Make(A:Data.MISSION) = struct
 
   open Gps
 
+  let nav_posutm = Ubx.nav_posutm ()
+  let nav_status = Ubx.nav_status ()
+  let nav_velned = Ubx.nav_velned ()
+  let usr_irsim = Ubx.usr_irsim ()
+
   let gps = fun gps ->
     let uart = Unix.out_channel_of_descr !uart_mcu0 in
     let utm = utm_of WGS84 gps.wgs84 in
-    Ubx.send uart Ubx.nav_posutm
+    Ubx.send uart nav_posutm
       ["EAST", scale utm.utm_x 1e2;
        "NORTH", scale utm.utm_y 1e2;
        "ALT", scale gps.alt 1e2];
-    Ubx.send uart Ubx.nav_status ["GPSfix", 3];
-    Ubx.send uart Ubx.nav_velned
+    Ubx.send uart nav_status ["GPSfix", 3];
+    Ubx.send uart nav_velned
       ["ITOW",scale gps.time 1e3;
        "VEL_D", -scale gps.climb 1e2;
        "GSpeed", scale gps.gspeed 1e2;
@@ -96,7 +101,7 @@ module Make(A:Data.MISSION) = struct
     let uart = Unix.out_channel_of_descr !uart_mcu0 in
     let ir_left = ir_left + ir_roll_neutral
     and ir_front = ir_front + ir_pitch_neutral in
-    Ubx.send uart Ubx.usr_irsim
+    Ubx.send uart usr_irsim
       ["ROLL", ir_left;
        "PITCH", ir_front]
 
@@ -109,7 +114,7 @@ module Make(A:Data.MISSION) = struct
 (* nb_servos 2 bytes values, prefixed by 00 ended by \n
    Returns optionaly a function associating the read value to the index *)
   let clock = 16
-  let read_servos = fun servos ->
+  let read_commands = fun servos ->
     let servos_buf = String.create size_servos_buf
     and buf_idx = ref 0 in
     let nb_servos = Array.length servos in
@@ -140,6 +145,6 @@ module Make(A:Data.MISSION) = struct
 
 
 
-  let servos = fun servos ->
-    ignore (GMain.Io.add_watch [`IN] (fun _ -> read_servos servos (); true) (GMain.Io.channel_of_descr !uart_mcu1))
+  let commands = fun commands ->
+    ignore (GMain.Io.add_watch [`IN] (fun _ -> read_commands commands (); true) (GMain.Io.channel_of_descr !uart_mcu1))
 end

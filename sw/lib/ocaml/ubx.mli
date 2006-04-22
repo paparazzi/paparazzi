@@ -37,4 +37,5 @@ module Protocol :
 val nav_posutm : unit -> int * Xml.xml
 val nav_status : unit -> int * Xml.xml
 val nav_velned : unit -> int * Xml.xml
+val usr_irsim : unit -> int * Xml.xml
 val send : out_channel -> int * Xml.xml -> (string * int) list -> unit
