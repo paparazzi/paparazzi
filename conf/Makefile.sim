@@ -36,6 +36,8 @@ CAMLINCLUDES = -I +lablgtk2 -I $(PAPARAZZI_SRC)/sw/lib/ocaml -I $(SIMDIR)
 SIMSITLML = $(OBJDIR)/simsitl.ml
 SITLCMA = $(SIMDIR)/sitl.cma
 
+# Launch with "make Q=''" to get full command display
+Q=@
 
 #
 # End of configuration part.
@@ -62,8 +64,10 @@ $(TARGET).objs	= $($(TARGET).objso:%.S=$(OBJDIR)/%.o)
 
 all compile: $(OBJDIR)/simsitl
 
+
 $(OBJDIR)/simsitl : $($(TARGET).objs) $(SITLCMA) $(SIMSITLML)
-	$(OCAMLC) -custom $(CAMLINCLUDES) -o $@ glibivy-ocaml.cma lib-pprz.cma lablgtk.cma $($(TARGET).objs) gtkInit.cmo $(SITLCMA) $(SIMSITLML)
+	@echo LD $@
+	$(Q)$(OCAMLC) -custom $(CAMLINCLUDES) -o $@ glibivy-ocaml.cma lib-pprz.cma lablgtk.cma $($(TARGET).objs) gtkInit.cmo $(SITLCMA) $(SIMSITLML)
 
 
 # The id of the A/C is hardcoded in the code (to be improved with dynlink ?)
@@ -78,10 +82,12 @@ $(OBJDIR)/%.s: %.c
 	$(CC) $(CFLAGS) -S -o $@ $<
 
 $(OBJDIR)/%.o: %.c
-	$(CC) $(CFLAGS) -c -o $@ $<
+	@echo CC $@
+	$(Q)$(CC) $(CFLAGS) -c -o $@ $<
 
 $(OBJDIR)/%.o: $(SRC_ARCH)/%.c
-	$(CC) $(CFLAGS) -c -o $@ $<
+	@echo CC $@
+	$(Q)$(CC) $(CFLAGS) -c -o $@ $<
 
 $(OBJDIR)/%.o: $(SRC_ARCH)/%.S
 	$(CC) $(CFLAGS) -c -o $@ $<
@@ -94,13 +100,13 @@ avr_clean:
 #
 # Dependencies
 #
-
 $(OBJDIR)/.depend:
 	@test -d $(OBJDIR) || mkdir -p $(OBJDIR)
-	$(CC) -MM -MG $(CFLAGS) $($(TARGET).srcs) | sed 's|\([^\.]*\.o\)|$(OBJDIR)/\1|' > $@
+	@echo DEPEND $@
+	$(Q)$(CC) -MM -MG $(CFLAGS) $($(TARGET).srcs) | sed 's|\([^\.]*\.o\)|$(OBJDIR)/\1|' > $@
 
 ifneq ($(MAKECMDGOALS),clean) 
 ifneq ($(MAKECMDGOALS),erase) 
-include $(OBJDIR)/.depend
+-include $(OBJDIR)/.depend
 endif
 endif

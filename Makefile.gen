@@ -27,7 +27,6 @@ include conf/Makefile.local
 CONF=conf
 XML_GET=sw/lib/ocaml/xml_get.out
 
-
 STATICINCLUDE =$(PAPARAZZI_HOME)/var/include
 MESSAGES_H=$(STATICINCLUDE)/messages.h
 MESSAGES_FBW_H=$(STATICINCLUDE)/messages_fbw.h
@@ -38,7 +37,7 @@ UBX_XML = $(CONF)/ubx.xml
 
 static:  $(MESSAGES_H) $(UBX_PROTOCOL_H) $(DL_PROTOCOL_H)
 
-$(MESSAGES_H) : $(MESSAGES_XML) $(CONF_XML)
+$(MESSAGES_H) : $(MESSAGES_XML) $(CONF_XML) $(TOOLS)/gen_messages.out
 	test -d $(STATICINCLUDE) || mkdir -p $(STATICINCLUDE)
 	TMP_FILE=`mktemp`;\
 	$(TOOLS)/gen_messages.out $< telemetry > $$TMP_FILE;\

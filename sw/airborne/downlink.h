@@ -31,6 +31,7 @@
 #include "ivy_transport.h"
 #else
 #include "pprz_transport.h"
+#include "modem.h"
 #endif
 
 extern uint8_t downlink_nb_ovrn;

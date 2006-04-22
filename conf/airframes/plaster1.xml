@@ -108,14 +108,19 @@
   </section>
 
    <makefile>
+
 include $(PAPARAZZI_SRC)/conf/autopilot/v1_2_1.makefile
 include $(PAPARAZZI_SRC)/conf/autopilot/twin_mcu_avr.makefile
 
-ap.CFLAGS +=  -DDOWNLINK -DUSE_UART0 -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_AP_DEVICE=uart0
+ap.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport
 ap.srcs += pprz_transport.c downlink.c
 
-# ap.CFLAGS += -DMODEM 
-# ap.srcs += $(SRC_ARCH)/modem_hw.c 
+# ap.CFLAGS += -DUSE_UART0 -DDOWNLINK_AP_DEVICE=Uart0
+ap.CFLAGS += -DMODEM  -DDOWNLINK_AP_DEVICE=Modem
+ap.srcs += $(SRC_ARCH)/modem_hw.c 
+
+ap.CFLAGS += -DRADIO_CONTROL_CALIB
+ap.srcs += if_calib.c
 
   </makefile>
 </airframe>

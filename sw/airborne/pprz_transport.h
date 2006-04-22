@@ -38,9 +38,9 @@ extern uint8_t ck_a, ck_b;
 #define _Link(dev, _x)  __Link(dev, _x)
 #define Link(_x) _Link(DOWNLINK_DEVICE, _x)
 
-#define PprzTransportCheckFreeSpace(_x) Link(_check_free_space(_x))
+#define PprzTransportCheckFreeSpace(_x) Link(CheckFreeSpace(_x))
 
-#define PprzTransportPut1Byte(_x) Link(_transmit(_x))
+#define PprzTransportPut1Byte(_x) Link(Transmit(_x))
 
 #define PprzTransportHeader(payload_len) { \
   PprzTransportPut1Byte(STX);				\

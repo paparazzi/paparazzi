@@ -36,7 +36,7 @@
 
 void uart0_init_tx( void );
 
-/** uart0_init_rx() is optional but must be called after uart0_init_tx */
+/** uart0_init_rx() is optional but must be called _after_ uart0_init_tx */
 void uart0_init_rx( void );
 
 void uart0_transmit( unsigned char data );
@@ -45,7 +45,7 @@ bool_t uart0_check_free_space( uint8_t len);
 /** Not necessarily defined */
 void uart1_init_tx( void );
 
-/** uart1_init_rx() is optional but must be called after uart1_init_tx */
+/** uart1_init_rx() is optional but must be called _after_ uart1_init_tx */
 void uart1_init_rx( void );
 
 void uart1_transmit( unsigned char data );
@@ -53,5 +53,11 @@ bool_t uart1_check_free_space( uint8_t len);
 
 #define Uart0Init() { uart0_init_tx(); uart0_init_rx(); }
 #define Uart1Init() { uart1_init_tx(); uart1_init_rx(); }
+
+#define Uart0CheckFreeSpace(_x) uart0_check_free_space(_x)
+#define Uart1CheckFreeSpace(_x) uart1_check_free_space(_x)
+
+#define Uart0Transmit(_x) uart0_transmit(_x)
+#define Uart1Transmit(_x) uart1_transmit(_x)
 
 #endif /* UART_H */

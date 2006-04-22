@@ -18,6 +18,14 @@
 # the Free Software Foundation, 59 Temple Place - Suite 330,
 # Boston, MA 02111-1307, USA.  
 
+# The default is to produce a quiet echo of compilation commands
+# Launch with "make Q=''" to get full echo
+Q=@
+
+ifeq ($(Q),@)
+MAKEFLAGS += --no-print-directory
+endif
+
 PAPARAZZI_SRC=$(shell pwd)
 
 include conf/Makefile.local
@@ -34,6 +42,7 @@ LOGALIZER=sw/logalizer
 SIMULATOR=sw/simulator
 SUPERVISION=sw/supervision/paparazzi.pl
 MAKE=make
+
 
 all: static
 
@@ -131,7 +140,8 @@ static_h :
 	PAPARAZZI_HOME=`pwd` PAPARAZZI_SRC=`pwd` make -f Makefile.gen
 
 ac_h : tools static_h
-	PAPARAZZI_HOME=`pwd` PAPARAZZI_SRC=`pwd` $(TOOLS)/gen_aircraft.out $(AIRCRAFT)
+	@echo BUILD $(AIRCRAFT)
+	$(Q)PAPARAZZI_HOME=`pwd` PAPARAZZI_SRC=`pwd` Q=$(Q) $(TOOLS)/gen_aircraft.out $(AIRCRAFT)
 
 hard_ac: ac_h fbw ap
 ac: hard_ac
@@ -163,6 +173,11 @@ clean:
 
 dist_clean : clean
 
+help:
+	@echo "'make' to compile the libraries and tools"
+	@echo "'make AIRCRAFT=NAME ac' to compile the NAMEd aircraft"
+	@echo "'make AIRCRAFT=NAME sim' to compile the simulated NAMEd aircraft"
+	@echo "'make Q='' ...' to get full echo of commands"
 
 
 test_all_example_airframes:

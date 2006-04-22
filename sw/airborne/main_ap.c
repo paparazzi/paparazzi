@@ -41,6 +41,7 @@
 #include "sys_time.h"
 #include "flight_plan.h"
 #include "datalink.h"
+#include "wavecard.h"
 
 #ifdef LED
 #include "led.h"
@@ -516,9 +517,11 @@ void init_ap( void ) {
   srf08_init();
 #endif
 #if USE_UART0
-  uart0_init_tx();
-  uart0_init_rx();
-#endif //IMU
+  Uart0Init();
+#endif
+#if USE_UART1
+  Uart1Init();
+#endif
 
 
   /************* Links initialization ***************/

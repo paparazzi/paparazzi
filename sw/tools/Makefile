@@ -8,7 +8,7 @@ all: gen_aircraft.out gen_airframe.out gen_calib.out gen_messages.out gen_ubx.ou
 FP_CMO = fp_syntax.cmo fp_parser.cmo fp_lexer.cmo fp_proc.cmo gen_flight_plan.ml
 ABS_FP = $(FP_CMO:%=$$PAPARAZZI_SRC/sw/tools/%)
 
-gen_flight_plan.out : $(FP_CMO)
+gen_flight_plan.out : $(FP_CMO) ../lib/ocaml/lib-pprz.cma
 	$(OCAMLC) -custom -o $@ ivy-ocaml.cma lib-pprz.cma $^
 
 fp_parser.cmo : fp_parser.cmi fp_syntax.cmi

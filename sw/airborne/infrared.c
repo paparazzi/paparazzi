@@ -77,27 +77,26 @@ void ir_init(void) {
   estimator_rad_of_ir = ir_rad_of_ir;
 }
 
-/** \fn void ir_update(void)
- *  \brief Update \a ir */
-/** Different if the \a SIMUL flag is true or not. \n
+/** \brief Update \a ir_roll and ir_pitch from ADCs or from simulator
+ * message in HITL mode
  */
 void ir_update(void) {
-#if defined SITL
-  /** ir_roll set by simulator in sim_ir.c */
-#else
-#if defined SIMUL
-  extern volatile int16_t simul_ir_roll, simul_ir_pitch;
-  ir_roll = simul_ir_roll; 
-  ir_pitch = simul_ir_pitch;
-#else
+#if ! defined SITL
+#if defined HITL
+  extern volatile int16_t hitl_ir_roll, hitl_ir_pitch; /* From gps_ubx.c */
+  ir_roll = hitl_ir_roll; 
+  ir_pitch = hitl_ir_pitch;
+#else /* HITL */
   int16_t x1_mean = buf_ir1.sum/buf_ir1.av_nb_sample;
   int16_t x2_mean = buf_ir2.sum/buf_ir2.av_nb_sample;
   ir_roll = IR_RollOfIrs(x1_mean, x2_mean);
   ir_pitch = IR_PitchOfIrs(x1_mean, x2_mean);
-#endif
+#endif /* !HITL */
+
   ir_roll -= IR_ADC_ROLL_NEUTRAL;
   ir_pitch -= IR_ADC_PITCH_NEUTRAL;
-#endif
+#endif /* !SITL */
+/** #else ir_roll set by simulator in sim_ir.c */
 }
 
 /** \brief Contrast measurement

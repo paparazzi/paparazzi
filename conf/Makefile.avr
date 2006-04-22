@@ -48,6 +48,9 @@ UISP		= uisp
 UISP_FLAGS	= $(ISP_FLAGS)
 #UISP_FLAGS	= $(SERIAL_FLAGS)
 
+# Launch with "make Q=''" to get full command display
+Q=@
+
 
 #
 # End of configuration part.
@@ -105,12 +108,14 @@ check_fuses: check_arch
 
 
 $(OBJDIR)/%.elf: $($(TARGET).objs)
-	$(LD)								\
+	@echo LD $@
+	$(Q)$(LD)								\
 	$(LOCAL_LDFLAGS)						\
 		$^							\
 		-o $@							\
 		$(LDFLAGS)
-	$(SIZE) $@
+	@echo SIZE
+	$(Q)$(SIZE) $@
 
 
 %.s: %.c
@@ -120,10 +125,12 @@ $(OBJDIR)/%.s: %.c
 	$(CC) $(CFLAGS) -S -o $@ $<
 
 $(OBJDIR)/%.o: %.c
-	$(CC) $(CFLAGS) -c -o $@ $<
+	@echo CC $@
+	$(Q)$(CC) $(CFLAGS) -c -o $@ $<
 
 $(OBJDIR)/%.o: $(SRC_ARCH)/%.c
-	$(CC) $(CFLAGS) -c -o $@ $<
+	@echo CC $@
+	$(Q)$(CC) $(CFLAGS) -c -o $@ $<
 
 $(OBJDIR)/%.o: $(SRC_ARCH)/%.S
 	$(CC) $(CFLAGS) -c -o $@ $<
@@ -152,11 +159,12 @@ avr_clean:
 #
 
 $(OBJDIR)/.depend:
+	@echo DEPEND $@
 	@test -d $(OBJDIR) || mkdir -p $(OBJDIR)
-	$(CC) -MM -MG $(CFLAGS) $($(TARGET).srcs) | sed 's|\([^\.]*\.o\)|$(OBJDIR)/\1|' > $@
+	$(Q)$(CC) -MM -MG $(CFLAGS) $($(TARGET).srcs) | sed 's|\([^\.]*\.o\)|$(OBJDIR)/\1|' > $@
 
 ifneq ($(MAKECMDGOALS),clean) 
 ifneq ($(MAKECMDGOALS),erase) 
-include $(OBJDIR)/.depend
+-include $(OBJDIR)/.depend
 endif
 endif

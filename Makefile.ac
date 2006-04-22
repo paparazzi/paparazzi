@@ -37,46 +37,57 @@ FLIGHT_PLAN_XML=$(ACINCLUDE)/flight_plan.xml
 INFLIGHT_CALIB_H=$(ACINCLUDE)/inflight_calib.h
 MAKEFILE_AC=$(ACINCLUDE)/Makefile.ac
 
+# "make Q=''" to get full echo
+Q=@
+
 all: $(AIRFRAME_H) $(RADIO_H) $(CONTROL_H) $(CONTROL_C) $(FLIGHT_PLAN_H) $(FLIGHT_PLAN_XML) $(INFLIGHT_CALIB_H) $(MAKEFILE_AC) $(PERIODIC_H)
 
-
 $(AIRFRAME_H) : $(CONF)/$(AIRFRAME) $(CONF_XML)
-	$(TOOLS)/gen_airframe.out $(AC_ID) $(AIRCRAFT) $< > /tmp/airframe.h
-	mv /tmp/airframe.h $@
+	@echo BUILD $@
+	$(Q)$(TOOLS)/gen_airframe.out $(AC_ID) $(AIRCRAFT) $< > /tmp/airframe.h
+	$(Q)mv /tmp/airframe.h $@
 
 $(RADIO_H) : $(CONF)/$(RADIO) $(CONF_XML)
-	$(TOOLS)/gen_radio.out $< > /tmp/radio.h
-	mv /tmp/radio.h $@
+	@echo BUILD $@
+	$(Q)$(TOOLS)/gen_radio.out $< > /tmp/radio.h
+	$(Q)mv /tmp/radio.h $@
 
 $(PERIODIC_H) : $(MESSAGES_XML) $(CONF_XML) $(CONF)/$(TELEMETRY)
-	TMP_FILE=`mktemp`;\
+	@echo BUILD $@
+	$(Q)TMP_FILE=`mktemp`;\
 	$(TOOLS)/gen_periodic.out $(MESSAGES_XML) $(CONF)/$(TELEMETRY) > $$TMP_FILE;\
 	mv  $$TMP_FILE $@
-	chmod a+r $@
+	$(Q)chmod a+r $@
 
 $(CONTROL_H) : $(CONF)/$(AIRFRAME) $(CONF_XML)
-	$(TOOLS)/gen_control.out h $< > /tmp/control.h
-	mv /tmp/control.h $@
+	@echo BUILD $@
+	$(Q)$(TOOLS)/gen_control.out h $< > /tmp/control.h
+	$(Q)mv /tmp/control.h $@
 
 $(CONTROL_C) : $(CONF)/$(AIRFRAME) $(CONF_XML)
-	mkdir -p $(ACINCLUDE)/ap
-	$(TOOLS)/gen_control.out c $< > /tmp/control.c
-	mv /tmp/control.c $@
+	@echo BUILD $@
+	$(Q)mkdir -p $(ACINCLUDE)/ap
+	$(Q)$(TOOLS)/gen_control.out c $< > /tmp/control.c
+	$(Q)mv /tmp/control.c $@
 
 $(FLIGHT_PLAN_H) : $(CONF)/$(FLIGHT_PLAN) $(CONF_XML)
-	$(TOOLS)/gen_flight_plan.out $< > /tmp/fp.h
-	mv /tmp/fp.h $@
+	@echo BUILD $@
+	$(Q)$(TOOLS)/gen_flight_plan.out $< > /tmp/fp.h
+	$(Q)mv /tmp/fp.h $@
 
 $(FLIGHT_PLAN_XML) : $(CONF)/$(FLIGHT_PLAN) $(CONF_XML)
-	$(TOOLS)/gen_flight_plan.out -dump $< > /tmp/fp.xml
-	mv /tmp/fp.xml $@
+	@echo BUILD $@
+	$(Q)$(TOOLS)/gen_flight_plan.out -dump $< > /tmp/fp.xml
+	$(Q)mv /tmp/fp.xml $@
 
 $(INFLIGHT_CALIB_H) : $(CONF)/$(FLIGHT_PLAN) $(CONF_XML)
-	$(TOOLS)/gen_calib.out $< > /tmp/c.h
-	mv /tmp/c.h $@
+	@echo BUILD $@
+	$(Q)$(TOOLS)/gen_calib.out $< > /tmp/c.h
+	$(Q)mv /tmp/c.h $@
 
 $(MAKEFILE_AC) : $(CONF)/$(AIRFRAME)
-	$(TOOLS)/extract_makefile.out $< > $@
+	@echo BUILD $@
+	$(Q)$(TOOLS)/extract_makefile.out $< > $@
 
 clean :
 	rm -f $(ACINCLUDE)/*.h

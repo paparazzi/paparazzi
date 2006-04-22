@@ -104,8 +104,16 @@
   </section>
 
  <makefile>
+
+# Virtual AC
+
+# Config for HITL simulation on a V1_2_1 bi-AVR board
 include $(PAPARAZZI_SRC)/conf/autopilot/v1_2_1.makefile
 include $(PAPARAZZI_SRC)/conf/autopilot/twin_mcu_avr.makefile
+ap.CFLAGS += -DUSE_UART0 -DHITL
+
+# Config for SITL simulation
 include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
-  </makefile>
+
+ </makefile>
 </airframe>

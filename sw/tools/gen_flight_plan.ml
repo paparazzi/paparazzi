@@ -545,15 +545,15 @@ let print_dl_settings = fun settings ->
   if nb_values > 0 then begin
     right ();
     lprintf "static uint8_t i;\\\n";
-    lprintf "float *var = 0;\\\n";
+    lprintf "float var;\\\n";
     lprintf "if (i >= %d) i = 0;;\\\n" nb_values;
     let idx = ref 0 in
     List.iter 
       (fun s ->
 	let v = ExtXml.attrib s "var" in
-	lprintf "if (i == %d) var = &%s;\\\n" !idx v; incr idx) 
+	lprintf "if (i == %d) var = %s;\\\n" !idx v; incr idx) 
       settings;
-    lprintf "DOWNLINK_SEND_DL_VALUE(&i, var);\\\n";
+    lprintf "DOWNLINK_SEND_DL_VALUE(&i, &var);\\\n";
     lprintf "i++;\\\n";
     left ()
   end;

@@ -109,17 +109,19 @@
 
   <makefile>
 
+# Virtual AC
+
+# Config for HITL simulation on a V1_2_1 bi-AVR board
 include $(PAPARAZZI_SRC)/conf/autopilot/v1_2_1.makefile
 include $(PAPARAZZI_SRC)/conf/autopilot/twin_mcu_avr.makefile
-include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
-
 ap.CFLAGS += -DMOBILE_CAM -DDATALINK
 ap.EXTRA_SRCS += traffic_info.c datalink.c
+ap.CFLAGS += -DUSE_UART0 -DHITL
+
+# Config for SITL simulation
+include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
 sim.CFLAGS += -DDATALINK -DMOBILE_CAM
 sim.EXTRA_SRCS += traffic_info.c datalink.c
-#ap.CFLAGS += -DWAVECARD
-#ap.EXTRA_SRCS += wavecard.c
-#ap.CFLAGS += -DMAXSTREAM
-#ap.EXTRA_SRCS += maxstream.c
+
   </makefile>
 </airframe>

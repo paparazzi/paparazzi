@@ -71,7 +71,7 @@ let finish = fun h_name ->
   printf "\n#endif // %s\n" h_name
 
 let warning s =
-  Printf.fprintf stderr "\n##################################################\n";
+  Printf.fprintf stderr "##################################################\n";
   Printf.fprintf stderr "\n %s\n" s;
   Printf.fprintf stderr "\n##################################################\n"
 	

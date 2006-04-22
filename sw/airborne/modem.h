@@ -104,7 +104,7 @@ extern uint8_t ck_a, ck_b;
     tx_tail = 0; \
 }
 
-
+#define ModemTransmit(_x) ModemPut1Byte(_x)
 
 #endif // MODEM
 

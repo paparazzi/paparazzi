@@ -145,4 +145,14 @@
 
  </class>
 
+ <!-- User class -->
+ <class name="USR" ID="0x40">
+
+  <!-- Infrared values from the HITL simulator -->
+  <message name="IRSIM" ID="0x01" length="4">
+   <field name="ROLL" format="I2"/>
+   <field name="PITCH" format="I2"/>
+  </message>
+  </class>
+
 </ubx>
