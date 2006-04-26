@@ -1,0 +1,23 @@
+<!ELEMENT protocol (class+)>
+<!ATTLIST protocol>
+
+<!ELEMENT class (message+)>
+<!ATTLIST class
+  name CDATA #REQUIRED
+>
+
+<!ELEMENT message (field*)>
+<!ATTLIST message
+  name CDATA #REQUIRED
+  id CDATA #REQUIRED
+>
+
+<!ELEMENT field EMPTY>
+<!ATTLIST field
+  name CDATA #REQUIRED
+  type CDATA #REQUIRED
+  format CDATA #IMPLIED
+  unit CDATA #IMPLIED
+  values CDATA #IMPLIED
+>
+

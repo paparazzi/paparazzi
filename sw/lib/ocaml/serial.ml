@@ -88,6 +88,7 @@ let opendev device speed =
 
 let close = Unix.close
 
+type 'a closure = Closure of 'a
 
 let buffer_len = 256
 let input = fun f ->
@@ -98,7 +99,7 @@ let input = fun f ->
     String.blit buffer start buffer 0 n;
     index := n in
 
-  fun fd ->
+  Closure (fun fd ->
     let n = !index + Unix.read fd buffer !index (buffer_len - !index) in
     Debug.call 'T' (fun f -> fprintf f "input: %d %d\n" !index n);
     let rec parse = fun start n -> 
@@ -109,7 +110,7 @@ let input = fun f ->
 	parse (start + nb_used) (n - nb_used)
       else
 	wait start n in
-    parse 0 n
+    parse 0 n)
 
 
 exception Not_enough

@@ -59,7 +59,7 @@ void link_fbw_send(void) {
   idx_buf = 0;
   crc_in = CRC_INIT;
   crc_out = CRC_INIT;
-  uint8_t byte1 = ((uint8_t*)&from_ap)[0];
+  uint8_t byte1 = ((uint8_t*)&from_ap.from_ap)[0];
   SPDR = byte1;
   crc_out = CrcUpdate(crc_out, byte1);
   from_fbw_receive_valid = FALSE;

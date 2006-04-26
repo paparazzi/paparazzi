@@ -192,7 +192,7 @@ static inline void events_update( void ) {
  */
 static inline void copy_from_to_fbw ( void ) {
 #ifdef COMMAND_YAW /* FIXME */
-  from_ap.from_ap.channels[COMMAND_YAW] =from_fbw.from_fbw.channels[RADIO_YAW];
+  from_ap.from_ap.commands[COMMAND_YAW] =from_fbw.from_fbw.channels[RADIO_YAW];
 #endif
 }
 
@@ -459,9 +459,9 @@ inline void periodic_task_ap( void ) {
     estimator_update_state_infrared();
 #endif
     roll_pitch_pid_run(); /* Set  desired_aileron & desired_elevator */
-    from_ap.from_ap.channels[COMMAND_THROTTLE] = desired_gaz; /* desired_gaz is set upon GPS message reception */
-    from_ap.from_ap.channels[COMMAND_ROLL] = desired_aileron;
-    from_ap.from_ap.channels[COMMAND_PITCH] = desired_elevator;
+    from_ap.from_ap.commands[COMMAND_THROTTLE] = desired_gaz; /* desired_gaz is set upon GPS message reception */
+    from_ap.from_ap.commands[COMMAND_ROLL] = desired_aileron;
+    from_ap.from_ap.commands[COMMAND_PITCH] = desired_elevator;
     
 #if defined MCU_SPI_LINK
     link_fbw_send();
@@ -599,12 +599,12 @@ void event_task_ap( void ) {
   }
 #endif /** WAVECARD */
 
-#ifdef MAXSTREAM
-  if (maxstream_msg_received) {
-    maxstream_parse_payload();
-    maxstream_msg_received = FALSE;
+#ifdef PPRZ_INPUT
+  if (pprz_msg_received) {
+    pprz_msg_received = FALSE;
+    pprz_parse_payload();
   }
-#endif /** MAXSTREAM */
+#endif /** PPRZ_INPUT */
 
 #ifdef DATALINK
   if (dl_msg_available) {

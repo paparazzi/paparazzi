@@ -26,6 +26,8 @@
 #define PPRZ_TRANSPORT_H
 
 #include <inttypes.h>
+#include "std.h"
+#include "datalink.h"
 
 extern uint8_t ck_a, ck_b;
 
@@ -69,22 +71,22 @@ extern uint8_t ck_a, ck_b;
 
 #define PprzTransportPut2ByteByAddr(_byte) { \
     PprzTransportPut1ByteByAddr(_byte);	\
-    PprzTransportPut1ByteByAddr(_byte+1);	\
+    PprzTransportPut1ByteByAddr((uint8_t*)_byte+1);	\
   }
 
 #define PprzTransportPut4ByteByAddr(_byte) { \
     PprzTransportPut2ByteByAddr(_byte);	\
-    PprzTransportPut2ByteByAddr(_byte+2);	\
+    PprzTransportPut2ByteByAddr((uint8_t*)_byte+2);	\
   }
 
 
 #define PprzTransportPutInt8ByAddr(_x) PprzTransportPut1ByteByAddr(_x)
 #define PprzTransportPutUint8ByAddr(_x) PprzTransportPut1ByteByAddr(_x)
-#define PprzTransportPutInt16ByAddr(_x) PprzTransportPut2ByteByAddr(_x)
-#define PprzTransportPutUint16ByAddr(_x) PprzTransportPut2ByteByAddr(_x)
-#define PprzTransportPutInt32ByAddr(_x) PprzTransportPut4ByteByAddr(_x)
-#define PprzTransportPutUint32ByAddr(_x) PprzTransportPut4ByteByAddr(_x)
-#define PprzTransportPutFloatByAddr(_x) PprzTransportPut4ByteByAddr(_x)
+#define PprzTransportPutInt16ByAddr(_x) PprzTransportPut2ByteByAddr((uint8_t*)_x)
+#define PprzTransportPutUint16ByAddr(_x) PprzTransportPut2ByteByAddr((uint8_t*)_x)
+#define PprzTransportPutInt32ByAddr(_x) PprzTransportPut4ByteByAddr((uint8_t*)_x)
+#define PprzTransportPutUint32ByAddr(_x) PprzTransportPut4ByteByAddr((uint8_t*)_x)
+#define PprzTransportPutFloatByAddr(_x) PprzTransportPut4ByteByAddr((uint8_t*)_x)
 
 #define PprzTransportPut(_put, _n, _x) { \
   int i; \
@@ -97,6 +99,76 @@ extern uint8_t ck_a, ck_b;
 #define PprzTransportPutInt16Array(_n, _x) PprzTransportPut(PprzTransportPutInt16ByAddr, _n, _x)
 
 #define PprzTransportPutUint16Array(_n, _x) PprzTransportPut(PprzTransportPutUint16ByAddr, _n, _x)
+#define PprzTransportPutUint8Array(_n, _x) PprzTransportPut(PprzTransportPutUint8ByAddr, _n, _x)
+
+
+/** Receiving pprz messages */
+
+#define UNINIT 0
+#define GOT_STX 1
+#define GOT_LENGTH 2
+#define GOT_PAYLOAD 3
+#define GOT_CRC1 4
+#define GOT_CRC2 5
+
+#define MAX_INPUT_PAYLOAD 256
+extern uint8_t input_payload[MAX_INPUT_PAYLOAD];
+
+extern volatile bool_t pprz_msg_received;
+extern uint8_t pprz_ovrn, pprz_error;
+extern volatile uint8_t payload_length;
+
+static inline void parse_pprz( uint8_t c ) {
+  static uint8_t pprz_status = UNINIT;
+  static uint8_t ck_a, ck_b, payload_idx;
+
+  switch (pprz_status) {
+  case UNINIT:
+    if (c == STX)
+      pprz_status++;
+    break;
+  case GOT_STX:
+    if (pprz_msg_received) {
+      pprz_ovrn++;
+      goto error;
+    }
+    payload_length = c-4; /* Counting STX, LENGTH and CRC1 and CRC2 */
+    ck_a = ck_b = c;
+    pprz_status++;
+    payload_idx = 0;
+    break;
+  case GOT_LENGTH:
+    input_payload[payload_idx] = c;
+    ck_a += c; ck_b += ck_a;
+    payload_idx++;
+    if (payload_idx == payload_length)
+      pprz_status++;
+    break;
+  case GOT_PAYLOAD:
+    if (c != ck_a)
+      goto error;
+    pprz_status++;
+    break;
+  case GOT_CRC1:
+    if (c != ck_b)
+      goto error;
+    pprz_msg_received = TRUE;
+    goto restart;
+  }
+  return;
+ error:
+  pprz_error++;
+ restart:
+  pprz_status = UNINIT;
+  return;
+}
+
+static inline void pprz_parse_payload(void) {
+  uint8_t i;
+  for(i = 0; i < payload_length; i++) 
+    dl_buffer[i] = input_payload[i];
+  dl_msg_available = TRUE;
+}
 
 #endif /* PPRZ_TRANSPORT_H */
 

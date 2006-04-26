@@ -279,8 +279,7 @@ static void glide_to(uint8_t _last_wp, uint8_t wp) {
   pre_climb = NOMINAL_AIRSPEED * (waypoints[wp].a - last_alt) / leg;
 }
 
-/** static inline void compute_dist2_to_home(void)
- *  \brief Compute square distance to waypoint Home and
+/** \brief Compute square distance to waypoint Home and
  *  verify uav is not too far away from Home.
  */
 static inline void compute_dist2_to_home(void) {

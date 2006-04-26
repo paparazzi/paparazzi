@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-
+<!DOCTYPE protocol SYSTEM "messages.dtd">
 <protocol>
  <!-- messages from modem or sim to server -->
  <class name="telemetry">
@@ -214,6 +214,11 @@
     <field name="value" type="float"/>
  </message>
 
+ <message name="DEBUG" id="32">
+    <field name="channels" type="int16[]"/>
+ </message>
+
+
   <message name="PPM" ID="100">
     <field name="values" type="uint16[]" unit="ticks"/>
   </message>
@@ -226,7 +231,7 @@
     <field name="values" type="int16[]" unit="ticks"/>
   </message>
 
-  <message name="FBW_STATUS" ID="103" period="1">
+  <message name="FBW_STATUS" ID="103">
     <field name="nb_spi_err" type="uint8"/>
     <field name="rc_status" type="uint8" values="OK|LOST|REALLY_LOST"/>
     <field name="mode" type="uint8" values="MANUAL|AUTO|FAILSAFE"/>
@@ -238,6 +243,8 @@
   </message>
 
 </class>
+
+
 
 <class name="datalink">
  <message name="ACINFO" ID="1">
@@ -271,6 +278,16 @@
   <field name="block_id" type="uint8"/>
  </message>
 
+ <message name="HITL_UBX" id="6">
+  <field name="class" type="uint8"/>
+  <field name="id" type="uint8"/>
+  <field name="ubx_payload" type="uint8[]"/>
+ </message>
+
+ <message name="HITL_INFRARED" id="7">
+   <field name="roll" type="int16"/>
+   <field name="pitch" type="int16"/>
+ </message>
 </class>
 
 
@@ -461,6 +478,11 @@
  <message name="DL_VALUES" ID="28">
   <field name="ac_id" type="string"/>
   <field name="values" type="string" format="csv"/>
+ </message>
+
+ <message name="RAW_DATALINK" ID="29">
+  <field name="ac_id" type="string"/>
+  <field name="message" type="string" format=";sv"/>
  </message>
 
 </class>

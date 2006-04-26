@@ -48,11 +48,15 @@ val string_of_value : value -> string
 type type_descr = {
     format : string ;
     glib_type : string;
+    inttype : string;
     size : int;
     value : value
   }
 val types : (string * type_descr) list
 type values  = (string * value) list
+
+val assoc : string -> values -> value
+(** Safe assoc taking into accound characters case *)
 
 val string_assoc : string -> values -> string
 (** May raise Not_found *)
@@ -68,6 +72,8 @@ found in class [class_name]. *)
 
 module Transport : Serial.PROTOCOL
 
+val offset_fields : int
+
 module type CLASS = sig val name : string end
 module Messages : functor (Class : CLASS) -> sig
   val message_of_id : message_id -> message
@@ -82,8 +88,8 @@ module Messages : functor (Class : CLASS) -> sig
   val values_of_string : string -> message_id * values
   (** May raise [(Unknown_msg_name msg_name)] *)
 
-  val string_of_message : message -> values -> string
-  (** [string_of_message msg values] *)
+  val string_of_message : ?sep:string -> message -> values -> string
+  (** [string_of_message ?sep msg values] Default [sep] is space *)
 
   val message_send : string -> string -> values -> unit
   (** [message_send sender msg_name values] *)

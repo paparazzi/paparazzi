@@ -31,6 +31,10 @@
 #ifndef UBX_H
 #define UBX_H
 
+extern uint8_t ubx_id, ubx_class;
+#define UBX_MAX_PAYLOAD 255
+uint8_t ubx_msg_buf[UBX_MAX_PAYLOAD];
+
 extern uint8_t send_ck_a, send_ck_b;
 #define UbxInitCheksum() { send_ck_a = send_ck_b = 0; }
 #define UpdateChecksum(c) { send_ck_a += c; send_ck_b += send_ck_a; }
@@ -52,7 +56,7 @@ extern uint8_t send_ck_a, send_ck_b;
 }
 
 
- 
+/** Includes macros generated from ubx.xml */ 
 #include "ubx_protocol.h"
 
 extern void parse_ubx( uint8_t c );

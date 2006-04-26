@@ -38,8 +38,8 @@
 #endif /* DEBUG_RC */
 
 #define RC_AVG_PERIOD 8
-#define RC_LOST_TIME 30  // 500ms with a 60Hz timer
-#define RC_REALLY_LOST_TIME 20
+#define RC_LOST_TIME 30  /* 500ms with a 60Hz timer */
+#define RC_REALLY_LOST_TIME 100 /* ~1.5s */
 
 #define RC_OK          0
 #define RC_LOST        1
@@ -75,10 +75,11 @@ static inline void radio_control_periodic_task ( void ) {
 
   if (time_since_last_ppm >= RC_REALLY_LOST_TIME) {
     rc_status = RC_REALLY_LOST;
-  } else if (time_since_last_ppm >= RC_LOST_TIME) {
-    rc_status = RC_LOST;
-  } else
+  } else {
+    if (time_since_last_ppm >= RC_LOST_TIME)
+      rc_status = RC_LOST;
     time_since_last_ppm++;
+  } 
 }
 
 /********** EVENT ************************************************************/

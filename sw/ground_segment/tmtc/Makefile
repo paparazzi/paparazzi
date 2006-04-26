@@ -1,6 +1,6 @@
 # 
 #   $Id$
-#   Copyright (C) 2003 Pascal Brisset, Antoine Drouin
+#   Copyright (C) 2003-2006 Pascal Brisset, Antoine Drouin
 #
 # This file is part of paparazzi.
 #
@@ -20,11 +20,14 @@
 # Boston, MA 02111-1307, USA.  
 # 
 
+# Quiet
+Q=@
+
 include ../../../conf/Makefile.local
 CONF = ../../../conf
 VAR = ../../../var
 
-all: hw_modem_listen server messages wavecard $(VAR)/boa.conf maxstream
+all: link server messages $(VAR)/boa.conf
 # stereo_demod
 
 clean:
@@ -48,11 +51,13 @@ messages.opt : messages.ml
 	strip $@
 
 messages : messages.cmo
-	$(OCAMLC) -custom $(INCLUDES) -o $@ lablgtk.cma glibivy-ocaml.cma lib-pprz.cma gtkInit.cmo $^
+	@echo OL $@
+	$(Q)$(OCAMLC) -custom $(INCLUDES) -o $@ lablgtk.cma glibivy-ocaml.cma lib-pprz.cma gtkInit.cmo $^
 
 
 hw_modem_listen : modem.cmo hw_modem_listen.cmo
-	$(OCAMLC) -custom $(INCLUDES) -o $@ lablgtk.cma glibivy-ocaml.cma lib-pprz.cma $^
+	@echo OL $@
+	$(Q)$(OCAMLC) -custom $(INCLUDES) -o $@ lablgtk.cma glibivy-ocaml.cma lib-pprz.cma $^
 
 stereo_demod : ../multimon/multimon.cma stereo_demod.ml ../../lib/ocaml/lib-pprz.cma
 	$(OCAMLC) $(INCLUDES) -I ../multimon -o $@ lablgtk.cma glibivy-ocaml.cma lib-pprz.cma multimon.cma $^
@@ -61,29 +66,21 @@ stereo_demod : ../multimon/multimon.cma stereo_demod.ml ../../lib/ocaml/lib-pprz
 	@chmod a+x $@
 
 server : aircraft.cmo wind.cmo airprox.cmo server.cmo
-	$(OCAMLC) -custom $(INCLUDES) -o $@ lablgtk.cma glibivy-ocaml.cma lib-pprz.cma $^
+	@echo OL $@
+	$(Q)$(OCAMLC) -custom $(INCLUDES) -o $@ lablgtk.cma glibivy-ocaml.cma lib-pprz.cma $^
 
-wavecard : wavecard_connect.cmo
-	$(OCAMLC) -custom $(INCLUDES) -o $@ lablgtk.cma glibivy-ocaml.cma lib-pprz.cma $^
+link : modem.cmo link.cmo
+	@echo OL $@
+	$(Q)$(OCAMLC) -custom $(INCLUDES) -o $@ lablgtk.cma glibivy-ocaml.cma lib-pprz.cma $^
 
-maxstream : maxstream.cmo ../../lib/ocaml/lib-pprz.cma
-	$(OCAMLC) -custom $(INCLUDES) -o $@ lablgtk.cma glibivy-ocaml.cma lib-pprz.cma $<
 
-dl_setting : dl_setting.cmo
-	$(OCAMLC) -custom $(INCLUDES) -o $@ lablgtk.cma glibivy-ocaml.cma lib-pprz.cma gtkInit.cmo $^
+%.cmo : %.ml $(LIBPPRZCMA)
+	@echo OC $<
+	$(Q)$(OCAMLC) $(INCLUDES) -c $<
 
-modem.cmo : modem.cmi
-modem.cmi : $(LIBPPRZCMA)
-hw_modem_listen.cmo : $(LIBPPRZCMA)
-maxstream.cmo : $(LIBPPRZCMA)
-messages.cmo : $(LIBPPRZCMA)
-airprox.cmo server.cmo : $(LIBPPRZCMA)
-
-%.cmo : %.ml
-	$(OCAMLC) $(INCLUDES) -c $<
-
-%.cmi : %.mli
-	$(OCAMLC) $(INCLUDES) $<
+%.cmi : %.mli $(LIBPPRZCMA)
+	@echo OC $<
+	$(Q)$(OCAMLC) $(INCLUDES) $<
 
 airprox.cmi aircraft.cmo : aircraft.cmi
 airprox.cmo : airprox.cmi

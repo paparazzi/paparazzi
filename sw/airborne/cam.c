@@ -70,8 +70,8 @@ void cam_manual( void ) {
       cam_pitch += FLOAT_OF_PPRZ(pitch, 0, 300.);
       cam_pitch = TRIM_PPRZ(cam_pitch);
     }
-    from_ap.from_ap.channels[COMMAND_CAM_ROLL] = cam_roll;
-    from_ap.from_ap.channels[COMMAND_CAM_PITCH] = cam_pitch;
+    from_ap.from_ap.commands[COMMAND_CAM_ROLL] = cam_roll;
+    from_ap.from_ap.commands[COMMAND_CAM_PITCH] = cam_pitch;
   }
 }
 

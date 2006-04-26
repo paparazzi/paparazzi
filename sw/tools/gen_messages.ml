@@ -24,6 +24,8 @@
  *
  *)
 
+(** FIXME: Should use the Pprz Module !!! *)
+
 open Printf
 
 
@@ -116,10 +118,12 @@ module Syntax = struct
       try Xml.parse_file filename with
 	Xml.Error (msg, pos) -> fprintf stderr "%s:%d : %s\n" filename (Xml.line pos) (Xml.error_msg msg); exit 1
     in
-    match List.filter (fun x -> assert(Xml.tag x="class"); Xml.attrib x "name" = class_) (Xml.children xml) with
-      [xml_class] -> List.map of_xml (Xml.children xml_class)
-    | [] -> failwith (sprintf "No class '%s' found" class_)
-    | _ -> failwith (sprintf "Several class '%s' found" class_)
+    try
+      let xml_class =
+	List.find (fun x -> Xml.attrib x "name" = class_) (Xml.children xml) in
+      List.map of_xml (Xml.children xml_class)
+    with
+      Not_found -> failwith (sprintf "No class '%s' found" class_)
 end
 
 module Gen_onboard = struct
@@ -197,6 +201,29 @@ module Gen_onboard = struct
   let print_null_avr_macros = fun avr_h messages ->
     List.iter (print_null_avr_macro avr_h) messages
 
+  let print_get_macros = fun avr_h message ->
+    let msg_name = message.name in
+    let offset = ref Pprz.offset_fields in
+    
+    let parse_field = fun (_type, field_name, _format) ->
+      if !offset < 0 then
+	failwith "FIXME: No field allowed after an array field (print_gen_macro)x";
+      let typed = fun o t -> 
+	sprintf "(%s*)(_payload+%d)" (assoc_types t).Pprz.inttype o in
+      match _type with 
+	Basic t ->
+	  fprintf avr_h "#define DL_%s_%s(_payload) (*%s)\n" msg_name field_name (typed !offset t);
+	  offset := !offset + int_of_string (sizeof _type)
+      | Array (t, varname) ->
+	  fprintf avr_h "#define DL_%s_%s_length(_payload) (*%s)\n" msg_name field_name (typed !offset "uint8");
+	  incr offset;
+	  fprintf avr_h "#define DL_%s_%s(_payload) %s\n" msg_name field_name (typed !offset t);
+	  offset := -1 (** Mark for no more fields *)
+    in
+    
+    fprintf avr_h "\n";
+    List.iter parse_field message.fields
+
 end
 
 let _ =
@@ -209,10 +236,22 @@ let _ =
   let messages = Syntax.read filename class_name in
 
   let avr_h = stdout in
+
   Printf.fprintf avr_h "/* Automatically generated from %s */\n" filename;
   Printf.fprintf avr_h "/* Please DO NOT EDIT */\n";
-  Printf.fprintf avr_h "#ifdef DOWNLINK\n";
+
+  Printf.fprintf avr_h "/* Macros to send and receive messages of class %s */\n" class_name;
+
+  (** Macros for airborne downlink (sending) *)
+  if class_name = "telemetry" then (** FIXME *)
+    Printf.fprintf avr_h "#ifdef DOWNLINK\n";
   Gen_onboard.print_avr_macros filename avr_h messages;
-  Printf.fprintf avr_h "#else // DOWNLINK\n";
-  Gen_onboard.print_null_avr_macros avr_h messages;
-  Printf.fprintf avr_h "#endif // DOWNLINK\n"
+  if class_name = "telemetry" then begin
+    Printf.fprintf avr_h "#else // DOWNLINK\n";
+    Gen_onboard.print_null_avr_macros avr_h messages;
+    Printf.fprintf avr_h "#endif // DOWNLINK\n"
+  end;
+
+  (** Macros for airborne datalink (receiving) *)
+  List.iter (Gen_onboard.print_get_macros avr_h) messages
+

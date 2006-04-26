@@ -32,8 +32,13 @@ module PprzTransport = Serial.Transport(Pprz.Transport)
 
 let ground_id = 0
 
+type transport =
+    Modem
+  | Pprz
+  | Wavecard
+  | Maxstream
 
-type modem = { fd : Unix.file_descr; }
+type modem = { fd : Unix.file_descr; transport : transport }
 
 (*let send_ack = fun delay fd () ->
   ignore (GMain.Timeout.add delay (fun _ -> W.send fd (W.ACK, ""); false)) *)
@@ -43,60 +48,24 @@ let stx = Char.chr 0x02
 let etx = Char.chr 0x03
 let wc_received_frame =  Char.chr 0x30
 
-let maxstream_send = fun fd data ->
-  let l = String.length data + 4 + 6 in
-  let buf = String.create (l+3) in
-  buf.[0] <- sync;
-  buf.[1] <- stx;
-  buf.[2] <- Char.chr l;
-  buf.[3] <- wc_received_frame;
-  buf.[4] <- Char.chr 0;
-  buf.[5] <- Char.chr 0;
-  buf.[6] <- Char.chr 0;
-  buf.[7] <- Char.chr 0;
-  buf.[8] <- Char.chr 0;
-  buf.[9] <- Char.chr 0;
- for i = 10 to l - 1 do
-    buf.[i] <- data.[i-10]
-  done;
-  let crc = Wavecard.compute_checksum buf in
-  buf.[l] <- Char.chr (crc land 0xff);
-  buf.[l+1] <- Char.chr (crc lsr 8);
-  buf.[l+2] <- etx;
-  let o = Unix.out_channel_of_descr fd in
-  Printf.fprintf o "%s" buf;
-  Debug.call 'm' (fun f -> fprintf f "mm sending: "; for i = 0 to String.length buf - 1 do fprintf f "%x " (Char.code buf.[i]) done; fprintf f "\n");
-  flush o
-
 let use_tele_message = fun payload ->
   Debug.call 'm' (fun f -> let buf = Serial.string_of_payload payload in fprintf f "mm receiving: "; for i = 0 to String.length buf - 1 do fprintf f "%x " (Char.code buf.[i]) done; fprintf f "\n");
   let (msg_id, ac_id, values) = Tm_Pprz.values_of_payload payload in
   let msg = Tm_Pprz.message_of_id msg_id in
   Tm_Pprz.message_send (string_of_int ac_id) msg.Pprz.name values
 
-let buffer = ref ""
+let parse = fun buf ->
+  PprzTransport.parse use_tele_message buf
 
-let maxstream_parse = fun buf ->
-  let b = !buffer ^ buf in 
-  let nb_used = PprzTransport.parse use_tele_message b in
-  buffer := String.sub b nb_used (String.length b - nb_used);
-  String.length buf
+let send = fun ac payload ->
+  match ac.transport with
+    Pprz ->
+      let o = Unix.out_channel_of_descr ac.fd in
+      let buf = Pprz.Transport.packet payload in
+      Printf.fprintf o "%s" buf; flush o;
+      Debug.call 'm' (fun f -> fprintf f "mm sending: %s\n" (Debug.xprint buf));
+  | _ -> failwith "send: not yet"
 
-let maxstream_receive = 
-  match Serial.input (fun b -> maxstream_parse b) with
-    Serial.Closure f -> f
-
-
-
-let send = fun ac s ->
-(*  Wavecard.send_addressed ac.fd (W.REQ_SEND_MESSAGE,ac.addr,s) *)
-  maxstream_send ac.fd (Serial.string_of_payload s)
-
-let send_dl_msg = fun ac a ->
-  let (id, values) = Dl_Pprz.values_of_string a in
-  let s  = Dl_Pprz.payload_of_values id ground_id values in
-  send ac s
-    
 
 let cm_of_m = fun f -> Pprz.Int (truncate (100. *. f))
 
@@ -104,14 +73,15 @@ let cm_of_m = fun f -> Pprz.Int (truncate (100. *. f))
 let get_fp = fun ac _sender vs ->
   let ac_id = int_of_string (Pprz.string_assoc "ac_id" vs) in
   let f = fun a -> Pprz.float_assoc a vs in
-  let ux = f "east"
-  and uy = f "north"
+  let lat = (Deg>>Rad) (f "lat")
+  and long = (Deg>>Rad) (f "long")
   and course = f "course"
   and alt = f "alt"
   and gspeed = f "speed" in
+  let utm = Latlong.utm_of WGS84 {posn_lat=lat; posn_long=long} in
   let vs = ["ac_id", Pprz.Int ac_id;
-	    "utm_east", cm_of_m ux;
-	    "utm_north", cm_of_m uy;
+	    "utm_east", cm_of_m utm.utm_x;
+	    "utm_north", cm_of_m utm.utm_y;
 	    "course", Pprz.Int (truncate (10. *. course));
 	    "alt", cm_of_m alt;
 	    "speed", cm_of_m gspeed] in
@@ -166,46 +136,57 @@ let jump_block = fun ac _sender vs ->
   let msg_id, _ = Dl_Pprz.message_of_name "BLOCK" in
   let s = Dl_Pprz.payload_of_values msg_id ac_id vs in
   send ac s
+
+(** Got a RAW_DATALINK message *)
+let raw_datalink = fun ac _sender vs ->
+  let m = Pprz.string_assoc "message" vs in
+  let ac_id = int_of_string (Pprz.string_assoc "ac_id" vs) in
+  for i = 0 to String.length m - 1 do
+    if m.[i] = ';' then m.[i] <- ' '
+  done;
+  let msg_id, vs = Dl_Pprz.values_of_string m in
+  let s = Dl_Pprz.payload_of_values msg_id ac_id vs in
+  send ac s
     
 
 let _ =
   let ivy_bus = ref "127.255.255.255:2010" in
   let port = ref "/dev/ttyS0" in
   let baurate = ref "9600" in
+  let transport = ref "pprz" in
 
   let options =
     [ "-b", Arg.Set_string ivy_bus, (sprintf "Ivy bus (%s)" !ivy_bus);
       "-d", Arg.Set_string port, (sprintf "Port (%s)" !port);
+      "-transport", Arg.Set_string port, (sprintf "Transport (%s): modem,pprz,wavecard" !transport);
       "-s", Arg.Set_string baurate, (sprintf "Baudrate (%s)" !baurate)] in
   Arg.parse
     options
     (fun _x -> ())
     "Usage: ";
 
-  Ivy.init "Maxstream connect" "READY" (fun _ _ -> ());
+  Ivy.init "Link" "READY" (fun _ _ -> ());
   Ivy.start !ivy_bus;
   
   try
     let fd = Serial.opendev !port (Serial.speed_of_baudrate !baurate) in
-    let ac = { fd=fd; } in
-    (* Listening on wavecard *)
-    let cb = fun _ ->
-      maxstream_receive fd;
-      true in
+    assert(!transport="pprz");
+    let ac = { fd=fd; transport=Pprz} in
 
+    (* Listening *)
+    let buffered_input = 
+      match Serial.input (fun buf -> parse buf) with
+	Serial.Closure f -> f in
+    let cb = fun _ -> buffered_input fd; true in
     ignore (Glib.Io.add_watch [`IN] cb (GMain.Io.channel_of_descr fd));
 
-    (* Sending request from Ivy *)
-
-
     (** Listening on Ivy *)
-(**    ignore (Ground_Pprz.message_bind "FLIGHT_PARAM" (get_fp ac)); *)
+    ignore (Ground_Pprz.message_bind "FLIGHT_PARAM" (get_fp ac));
     ignore (Ground_Pprz.message_bind "MOVE_WAYPOINT" (move_wp ac));
     ignore (Ground_Pprz.message_bind "SEND_EVENT" (send_event ac));
     ignore (Ground_Pprz.message_bind "DL_SETTING" (setting ac));
     ignore (Ground_Pprz.message_bind "JUMP_TO_BLOCK" (jump_block ac));
-    (* For debug *)
-    ignore (Ivy.bind (fun _ a -> send_dl_msg ac a.(0)) "TO_WAVECARD +(.*)");
+    ignore (Ground_Pprz.message_bind "RAW_DATALINK" (raw_datalink ac));
 
 
     (* Main Loop *)

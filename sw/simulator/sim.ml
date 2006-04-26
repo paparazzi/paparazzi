@@ -40,6 +40,7 @@ let fg_period = 1./.25.
 module type AIRCRAFT = 
   sig
     val init : int -> GPack.box -> unit
+    (** [init ac_id box] *)
     val boot : Stdlib.value -> unit
     (** [boot time_acceleration] *)
 
@@ -60,7 +61,7 @@ external fg_sizeof : unit -> int = "fg_sizeof"
 external fg_msg : string -> float -> float -> float -> float -> float -> float -> unit = "fg_msg_bytecode" "fg_msg_native"
 
 
-let ac_name = ref ""
+let ac_name = ref "A/C not set"
 
 let ivy_bus = ref "127.255.255.255:2010"
 

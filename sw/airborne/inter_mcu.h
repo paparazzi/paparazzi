@@ -76,7 +76,7 @@ struct from_fbw_msg {
 };
 
 struct from_ap_msg {
-  pprz_t channels[COMMANDS_NB];  
+  pprz_t commands[COMMANDS_NB];  
 };
 
 typedef union  { 
@@ -157,7 +157,6 @@ static inline void to_autopilot_from_rc_values (void) {
 static inline void inter_mcu_event_task( void) {
   if (from_ap_receive_valid) {
     from_ap_receive_valid = FALSE;
-    // printf("inter_mcu valid\n");
     time_since_last_ap = 0;
     ap_ok = TRUE;
     to_autopilot_from_rc_values();

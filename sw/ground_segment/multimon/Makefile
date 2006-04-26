@@ -1,3 +1,6 @@
+# Quiet compilation
+Q=@
+
 DEBUG		=n
 
 CFLAGS		=-Wall -Wstrict-prototypes -I/usr/X11R6/include
@@ -38,7 +41,8 @@ $(BINDIR)/%.o:	$(BINDIR)/%.s
 		$(AS) -c -o $@ $<
 
 $(BINDIR)/%.o:	%.c
-		$(CC) $(CFLAGS) -c -o $@ $<
+	@echo CC $<
+	$(Q)$(CC) $(CFLAGS) -c -o $@ $<
 
 SRC_L2		=hdlc.c pprz.c
 SRC_L1		= demod_afsk48p.c demod_display.c
@@ -56,7 +60,8 @@ $(BINDIR):
 		$(MKDIR) $(BINDIR)
 
 $(BINDIR)/multimon:	$(OBJ_L2) $(OBJ_L1) $(OBJ_MISC)
-			$(CC) $^ $(LDFLAGS) $(LDFLAGSX) -o $@
+	@echo LD $@
+	$(Q)$(CC) $^ $(LDFLAGS) $(LDFLAGSX) -o $@
 
 $(BINDIR)/gen:		$(OBJ_GEN)
 			$(CC) $^ $(LDFLAGS) -o $@
@@ -68,7 +73,8 @@ costabi.c costabf.c:	$(BINDIR)/mkcostab
 			$(BINDIR)/mkcostab
 
 multimon.cma : pprzlib.o demodml.o demod.ml
-	ocamlmklib -o multimon $^
+	@echo OLD $@
+	$(Q)$ocamlmklib -o multimon $^
 
 libtest: pprzlib.o demodml.c demod.ml test.ml
 	ocamlc -custom -o $@ pprzlib.o demodml.c -I +lablgtk2 unix.cma lablgtk.cma demod.ml test.ml

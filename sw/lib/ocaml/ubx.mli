@@ -3,7 +3,7 @@
  *
  * UBX protocol handling
  *
- * Copyright (C) 2004 CENA/ENAC, Yann Le Fablec, Pascal Brisset, Antoine Drouin
+ * Copyright (C) 2004-2006 Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
  *
@@ -24,18 +24,13 @@
  *
  *)
 
-module Protocol :
-  sig
-    val index_start : string -> int
-    val payload_length : string -> int -> int
-    val length : string -> int -> int
-    val payload : string -> int -> string
-    val uint8_t : int -> int
-    val checksum : string -> int -> string -> bool
-  end
+module Protocol :  Serial.PROTOCOL
 
-val nav_posutm : unit -> int * Xml.xml
-val nav_status : unit -> int * Xml.xml
-val nav_velned : unit -> int * Xml.xml
-val usr_irsim : unit -> int * Xml.xml
-val send : out_channel -> int * Xml.xml -> (string * int) list -> unit
+type message_spec
+
+type class_id = int
+type msg_id = int
+
+val message : string -> string -> class_id*msg_id*message_spec
+val ubx_payload : message_spec -> (string * int) list -> string
+val payload : string -> string -> (string * int) list -> Serial.payload

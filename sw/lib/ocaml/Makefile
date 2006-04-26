@@ -20,6 +20,8 @@
 # Boston, MA 02111-1307, USA.  
 #
 
+Q=@
+
 INCLUDES=
 XINCLUDES= -I +lablgl -I +camlimages -I +lablgtk2
 OCAMLC=ocamlc $(INCLUDES)
@@ -41,49 +43,55 @@ opt : all lib-pprz.cmxa xlib-pprz.cmxa
 
 
 lib-pprz.cma : $(CMO)
-	ocamlmklib -o lib-pprz str.cma unix.cma xml-light.cma $^
+	@echo OL $@
+	$(Q)ocamlmklib -o lib-pprz str.cma unix.cma xml-light.cma $^
 
 lib-pprz.cmxa : $(CMX)
-	ocamlmklib -o lib-pprz $^
+	@echo OOL $@
+	$(Q)ocamlmklib -o lib-pprz $^
 
 xlib-pprz.cma : $(XCMO)
-	ocamlmklib -o xlib-pprz $^
+	@echo OL $@
+	$(Q)ocamlmklib -o xlib-pprz $^
 
 xlib-pprz.cmxa : $(XCMX)
-	ocamlmklib -o xlib-pprz $^
+	@echo OOL $@
+	$(Q)ocamlmklib -o xlib-pprz $^
 
 xml_get.out : lib-pprz.cma xml_get.cmo
-	$(OCAMLC) -o $@ str.cma xml-light.cma -I . $^
-
-ignutm.opt : latlong.cmx ignutm.ml
-	$(OCAMLOPT) -o $@ -I +camlimages ci_core.cmxa ci_png.cmxa xml-light.cmxa $^
-
-utm_of.opt : latlong.cmx utm_of.ml
-	$(OCAMLOPT) -o $@ $^
+	@echo OL $@
+	$(Q)$(OCAMLC) -o $@ str.cma xml-light.cma -I . $^
 
 GTKCFLAGS := -I /usr/lib/gtk-2.0/include -I/usr/include/gtk-2.0 -I/usr/include/atk-1.0 -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include -I/usr/include/pango-1.0 -I /usr/include/cairo
 # GTKCFLAGS := $(shell gtk-config --cflags)
 
 %.o   : %.c
-	$(OCAMLC) -c $<
+	@echo OC $<
+	$(Q)$(OCAMLC) -c $<
 
 ml_gtk_drag.o : ml_gtk_drag.c
-	$(OCAMLC) -c -ccopt "$(GTKCFLAGS)" $<
+	@echo OC $<
+	$(Q)$(OCAMLC) -c -ccopt "$(GTKCFLAGS)" $<
 
 ml_gtkgl_hack.o   : ml_gtkgl_hack.c
-	$(OCAMLC) -c -ccopt "$(GTKCFLAGS)" $<
+	@echo OC $<
+	$(Q)$(OCAMLC) -c -ccopt "$(GTKCFLAGS)" $<
 
 %.cmo : %.ml
-	$(OCAMLC) -c $<
+	@echo OC $<
+	$(Q)$(OCAMLC) -c $<
 
 %.cmx : %.ml
-	$(OCAMLOPT) -c $<
+	@echo OOC $<
+	$(Q)$(OCAMLOPT) -c $<
 
 %.cmi : %.mli
-	$(OCAMLC) $<
+	@echo OC $<
+	$(Q)$(OCAMLC) $<
 
 %.cmi : %.ml
-	$(OCAMLC) $<
+	@echo OC $<
+	$(Q)$(OCAMLC) $<
 
 clean :
 	rm -f *~ *.cm* *.out *.opt .depend *.a *.o *.so

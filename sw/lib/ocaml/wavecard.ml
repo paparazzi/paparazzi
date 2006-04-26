@@ -172,7 +172,8 @@ let parse = fun buf ?ack f ->
     
 
 let receive = fun ?ack f ->
-  Serial.input (fun b -> parse b ?ack f)
+  match Serial.input (fun b -> parse b ?ack f) with
+    Serial.Closure f -> f
 
 let send = fun fd (cmd, data) ->
   let l = String.length data + 4 in

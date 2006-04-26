@@ -156,7 +156,7 @@ let log_and_parse = fun logging ac_name a msg values ->
 	fprintf log "%.2f %s %s %s\n" t ac_name msg.Pprz.name s; flush log
     | None -> ()
   end;
-  let value = fun x -> try List.assoc x values with Not_found -> failwith (sprintf "Error: field '%s' not found\n" x) in
+  let value = fun x -> try Pprz.assoc x values with Not_found -> failwith (sprintf "Error: field '%s' not found\n" x) in
   let fvalue = fun x -> fvalue (value x)
   and ivalue = fun x -> ivalue (value x) in
     match msg.Pprz.name with

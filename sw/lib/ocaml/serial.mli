@@ -24,6 +24,8 @@
  *
  *)
 
+type 'a closure = Closure of 'a
+
 type speed =
     B0
   | B50
@@ -50,10 +52,11 @@ val speed_of_baudrate : string -> speed
 val opendev : string -> speed -> Unix.file_descr
 val close : Unix.file_descr -> unit
 
-val input : (string -> int) -> Unix.file_descr -> unit
-(** [input f fd] Calls [f] on the buffer of available characters on [fd] each
-time a new character arrives. [f] must return the number of consumed
-characters *)
+val input : (string -> int) -> (Unix.file_descr -> unit) closure
+(** Buffered input. [input f] Returns a closure which must be called when
+characters are available on the stream. These characters are stored in a
+a buffer. [f] is then called on the buffer. [f] must return the number
+of consumed characters. *)
 
 type payload
 

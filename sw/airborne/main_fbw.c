@@ -128,15 +128,8 @@ void event_task_fbw( void) {
     }
     if (fbw_mode == FBW_MODE_MANUAL)
       SetCommandsFromRC(commands);
-  } else if (fbw_mode == FBW_MODE_MANUAL && rc_status == RC_REALLY_LOST) {
+  } else if (rc_status == RC_REALLY_LOST) {
     fbw_mode = FBW_MODE_AUTO;
-  }
-#endif
-
-#ifdef MCU_SPI_LINK
-  if ( !SpiIsSelected() && spi_was_interrupted ) {
-    spi_was_interrupted = FALSE;
-    spi_reset();
   }
 #endif
 
@@ -147,7 +140,14 @@ void event_task_fbw( void) {
 #ifdef INTER_MCU
   inter_mcu_event_task();
   if (ap_ok && fbw_mode == FBW_MODE_AUTO) {
-    SetCommands(from_ap.from_ap.channels);
+    SetCommands(from_ap.from_ap.commands);
+  }
+#endif
+
+#ifdef MCU_SPI_LINK
+  if ( !SpiIsSelected() && spi_was_interrupted ) {
+    spi_was_interrupted = FALSE;
+    spi_reset();
   }
 #endif
 
@@ -158,9 +158,6 @@ void event_task_fbw( void) {
 #endif
 
   if (
-#ifdef RADIO_CONTROL
-      (fbw_mode == FBW_MODE_MANUAL && rc_status == RC_REALLY_LOST) ||
-#endif
 #ifdef INTER_MCU
       (fbw_mode == FBW_MODE_AUTO && !ap_ok) ||
 #endif

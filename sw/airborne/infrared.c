@@ -78,21 +78,16 @@ void ir_init(void) {
 }
 
 /** \brief Update \a ir_roll and ir_pitch from ADCs or from simulator
- * message in HITL mode
+ * message in HITL and SITL modes
  */
 void ir_update(void) {
-#if ! defined SITL
-#if defined HITL
-  extern volatile int16_t hitl_ir_roll, hitl_ir_pitch; /* From gps_ubx.c */
-  ir_roll = hitl_ir_roll; 
-  ir_pitch = hitl_ir_pitch;
-#else /* HITL */
+#if ! (defined SITL || defined HITL)
   int16_t x1_mean = buf_ir1.sum/buf_ir1.av_nb_sample;
   int16_t x2_mean = buf_ir2.sum/buf_ir2.av_nb_sample;
   ir_roll = IR_RollOfIrs(x1_mean, x2_mean);
   ir_pitch = IR_PitchOfIrs(x1_mean, x2_mean);
-#endif /* !HITL */
 
+  /** neutrals are not taken into account in SITL and HITL */
   ir_roll -= IR_ADC_ROLL_NEUTRAL;
   ir_pitch -= IR_ADC_PITCH_NEUTRAL;
 #endif /* !SITL */

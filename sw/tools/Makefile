@@ -1,15 +1,40 @@
+# $Id$
+#  
+# Copyright (C) 2003-2006  Pascal Brisset, Antoine Drouin
+#
+# This file is part of paparazzi.
+#
+# paparazzi is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# paparazzi is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with paparazzi; see the file COPYING.  If not, write to
+# the Free Software Foundation, 59 Temple Place - Suite 330,
+# Boston, MA 02111-1307, USA. 
+
+# Quiet compilation
+Q=@
+
 OCAML=ocaml
 OCAMLC=ocamlc -I ../lib/ocaml
 OCAMLLEX=ocamllex
 OCAMLYACC=ocamlyacc
 
-all: gen_aircraft.out gen_airframe.out gen_calib.out gen_messages.out gen_ubx.out gen_flight_plan.out gen_radio.out gen_dl.out extract_makefile.out gen_control.out gen_periodic.out
+all: gen_aircraft.out gen_airframe.out gen_calib.out gen_messages.out gen_ubx.out gen_flight_plan.out gen_radio.out extract_makefile.out gen_control.out gen_periodic.out
 
 FP_CMO = fp_syntax.cmo fp_parser.cmo fp_lexer.cmo fp_proc.cmo gen_flight_plan.ml
 ABS_FP = $(FP_CMO:%=$$PAPARAZZI_SRC/sw/tools/%)
 
 gen_flight_plan.out : $(FP_CMO) ../lib/ocaml/lib-pprz.cma
-	$(OCAMLC) -custom -o $@ ivy-ocaml.cma lib-pprz.cma $^
+	@echo OL $@
+	$(Q)$(OCAMLC) -custom -o $@ ivy-ocaml.cma lib-pprz.cma $^
 
 fp_parser.cmo : fp_parser.cmi fp_syntax.cmi
 fp_parser.cmi : fp_parser.ml fp_syntax.cmi
@@ -20,25 +45,31 @@ fp_syntax.cmo : fp_syntax.cmi
 
 
 %.out : %.ml
-	$(OCAMLC) -o $@ ivy-ocaml.cma lib-pprz.cma $<
+	@echo OC $<
+	$(Q)$(OCAMLC) -o $@ ivy-ocaml.cma lib-pprz.cma $<
 	@cat ../../pprz_src_test.sh > $@
 	@echo '$(OCAML) -I $$PAPARAZZI_SRC/sw/lib/ocaml ivy-ocaml.cma lib-pprz.cma $$PAPARAZZI_SRC/sw/tools/$< $$*' >> $@
 	@chmod a+x $@
 
 %.cmo : %.ml
-	$(OCAMLC) -c $<
+	@echo OC $<
+	$(Q)$(OCAMLC) -c $<
 
 %.cmi : %.mli
-	$(OCAMLC) -c $<
+	@echo OC $<
+	$(Q)$(OCAMLC) -c $<
 
 %.ml : %.mll
-	$(OCAMLLEX) $<
+	@echo OC $<
+	$(Q)$(OCAMLLEX) $<
 
 %.ml : %.mly
-	$(OCAMLYACC) $<
+	@echo OC $<
+	$(Q)$(OCAMLYACC) $<
 
 %.mli : %.mly
-	$(OCAMLYACC) $<
+	@echo OC $<
+	$(Q)$(OCAMLYACC) $<
 
 clean:
 	rm -f *.cm* *.out *~ fp_parser.ml fp_parser.mli

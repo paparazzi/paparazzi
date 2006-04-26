@@ -43,13 +43,14 @@ type field = {
   }
 
 type message = {
-    name : string;
+    name : string; (** Lowercase *)
     fields : (string * field) list
   }
 
 type type_descr = {
     format : string ;
     glib_type : string;
+    inttype : string;
     size : int;
     value : value
   }
@@ -75,14 +76,14 @@ external sprint_float : string -> int -> float -> unit = "c_sprint_float"
 external sprint_int32 : string -> int -> int32 -> unit = "c_sprint_int32"
 
 let types = [
-  ("uint8",  { format = "%u"; glib_type = "guint8";  size = 1; value=Int 42 });
-  ("uint16", { format = "%u";  glib_type = "guint16"; size = 2; value=Int 42 });
-  ("uint32", { format = "%lu" ;  glib_type = "guint32"; size = 4; value=Int 42 });
-  ("int8",   { format = "%d"; glib_type = "gint8";   size = 1; value= Int 42 });
-  ("int16",  { format = "%d";  glib_type = "gint16";  size = 2; value= Int 42 });
-  ("int32",  { format = "%ld" ;  glib_type = "gint32";  size = 4; value=Int 42 });
-  ("float",  { format = "%f" ;  glib_type = "gfloat";  size = 4; value=Float 4.2 });
-  ("string",  { format = "%s" ;  glib_type = "gchar*";  size = max_int; value=String "42" })
+  ("uint8",  { format = "%u"; glib_type = "guint8"; inttype = "uint8_t";  size = 1; value=Int 42 });
+  ("uint16", { format = "%u";  glib_type = "guint16"; inttype = "uint16_t"; size = 2; value=Int 42 });
+  ("uint32", { format = "%lu" ;  glib_type = "guint32"; inttype = "uint32_t"; size = 4; value=Int 42 });
+  ("int8",   { format = "%d"; glib_type = "gint8"; inttype = "int8_t";   size = 1; value= Int 42 });
+  ("int16",  { format = "%d";  glib_type = "gint16"; inttype = "int16_t";  size = 2; value= Int 42 });
+  ("int32",  { format = "%ld" ;  glib_type = "gint32"; inttype = "int32_t";  size = 4; value=Int 42 });
+  ("float",  { format = "%f" ;  glib_type = "gfloat"; inttype = "float";  size = 4; value=Float 4.2 });
+  ("string",  { format = "%s" ;  glib_type = "gchar*"; inttype = "char*";  size = max_int; value=String "42" })
 ]
 
 let is_array_type = fun s -> 
@@ -149,13 +150,13 @@ let field_of_xml = fun xml ->
   let t = ExtXml.attrib xml "type" in
   let t = if is_array_type t then ArrayType (type_of_array_type t) else Scalar t in
   let f = try Xml.attrib xml "format" with _ -> default_format t in
-  (ExtXml.attrib xml "name", { _type = t; fformat = f })
+  (String.lowercase (ExtXml.attrib xml "name"), { _type = t; fformat = f })
 
 let string_of_values = fun vs ->
   String.concat " " (List.map (fun (a,v) -> sprintf "%s=%s" a (string_of_value v)) vs)
 
 let assoc = fun a vs -> 
-  try List.assoc a vs with Not_found -> 
+  try List.assoc (String.lowercase a) vs with Not_found -> 
     failwith (sprintf "Attribute '%s' not found in '%s'" a (string_of_values vs))
 
 let float_assoc = fun (a:string) vs -> 
@@ -319,12 +320,11 @@ module Transport = struct
     m
 end
 
-
+let offset_ac_id = 0
+let offset_msg_id = 1
+let offset_fields = 2
 
 module Messages(Class:CLASS) = struct
-  let offset_ac_id = 0
-  let offset_msg_id = 1
-  let offset_fields = 2
   let max_length = 256
   let messages_by_id, messages_by_name = 
     try
@@ -392,7 +392,7 @@ module Messages(Class:CLASS) = struct
 	end
     | [] -> invalid_arg (sprintf "Pprz.values_of_string: %s" s)
 
-  let string_of_message = fun msg values ->
+  let string_of_message = fun ?(sep=" ") msg values ->
     (** Check that the values are compatible with this message *)
     List.iter 
       (fun (k, _) ->
@@ -400,7 +400,7 @@ module Messages(Class:CLASS) = struct
 	then invalid_arg (sprintf "Pprz.string_of_message: unknown field '%s' in message '%s'" k msg.name))
       values;
 
-    String.concat " "
+    String.concat sep
       (msg.name::
        List.map 
 	 (fun (field_name, field) ->

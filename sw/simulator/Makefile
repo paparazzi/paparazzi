@@ -1,7 +1,5 @@
 # Paparazzi simulator $Id$
 #  
-# Copied from autopilot (autopilot.sf.net) thanx alot Trammell
-#
 # Copyright (C) 2003-2006  Pascal Brisset, Antoine Drouin
 #
 # This file is part of paparazzi.
@@ -21,6 +19,9 @@
 # the Free Software Foundation, 59 Temple Place - Suite 330,
 # Boston, MA 02111-1307, USA. 
 
+# Quiet compilation
+Q=@
+
 include ../../conf/Makefile.local
 
 SIMML = stdlib.ml data.ml flightModel.ml gps.ml
@@ -39,31 +40,38 @@ AIRBORNE = ../airborne
 VARINCLUDE=$(PAPARAZZI_HOME)/var/include
 ACINCLUDE = $(PAPARAZZI_HOME)/var/$(AIRCRAFT)
 
-all : gaia sitl.cma fg.o
+all : gaia sitl.cma simhitl
 
-simhitl.out : $(SIMHCMO) simhitl.cmo
-	$(OCAMLC) $(INCLUDES) -o $@ str.cma xml-light.cma unix.cma lib.cma lablgtk.cma gtkInit.cmo $^
+simhitl : fg.o $(SIMHCMO) simhitl.cmo
+	@echo OL $@
+	$(Q)$(OCAMLC) -custom $(INCLUDES) -o $@ str.cma xml-light.cma unix.cma glibivy-ocaml.cma lib-pprz.cma lablgtk.cma gtkInit.cmo $^
 
 sitl.cma : fg.o $(SIMSCMO)
-	ocamlmklib -o sitl $^ 
+	@echo OL $@
+	$(Q)ocamlmklib -o sitl $^ 
 
 sitl.cmxa : $(SIMSCMX)
 	ocamlopt -o $@ -a $^ 
 
 gaia : gaia.cmo
-	$(OCAMLC) -custom $(INCLUDES) -o $@ glibivy-ocaml.cma lib-pprz.cma lablgtk.cma gtkInit.cmo $<
+	@echo OL $@
+	$(Q)$(OCAMLC) -custom $(INCLUDES) -o $@ glibivy-ocaml.cma lib-pprz.cma lablgtk.cma gtkInit.cmo $<
 
-%.cmo : %.ml
-	$(OCAMLC) $(INCLUDES) -c $<
+%.cmo : %.ml ../lib/ocaml/lib-pprz.cma
+	@echo OC $<
+	$(Q)$(OCAMLC) $(INCLUDES) -c $<
 
 %.o : %.c
-	$(OCAMLC) -c $<
+	@echo OC $<
+	$(Q)$(OCAMLC) -c $<
 
 %.cmx : %.ml
-	$(OCAMLOPT) $(INCLUDES) -c $<
+	@echo OOC $<
+	$(Q)$(OCAMLOPT) $(INCLUDES) -c $<
 
 %.cmi : %.mli
-	$(OCAMLC) $(INCLUDES) -c $<
+	@echo OC $<
+	$(Q)$(OCAMLC) $(INCLUDES) -c $<
 
 clean :
 	\rm -f *.cm* *~ *.out .depend *.o *.a *.so gaia

@@ -47,7 +47,7 @@ let get_at = fun offset format ->
     | "int8" -> "int8_t"
     | "float" -> "float"
     | _ -> failwith (sprintf "get_at: unknown format '%s'" format) in
-  sprintf "(*((%s*)(_ubx_payload+%d)))" t offset
+  sprintf "(*((%s*)(_payload+%d)))" t offset
 
 let define = fun x y ->
   fprintf out "#define %s %s\n" x y
@@ -62,18 +62,16 @@ let parse_message = fun m ->
   define (sprintf "DL_%s_ID" msg_name) (Xml.attrib m "ID");
   
   let offset = ref 2 in (** message id + sender id *)
-  let rec parse_field = fun f ->
-    match Xml.tag f with
-      "field" ->
-	let field_name = Xml.attrib f "name"
-	and format = Xml.attrib f "type" in
-	define (sprintf "DL_%s_%s(_ubx_payload)" msg_name field_name) (get_at !offset format);
-	offset += sizeof format
-    | x -> failwith ("Unexpected field: " ^ x)
-    in
 
-    List.iter parse_field (Xml.children m)
-  
+  let rec parse_field = fun f ->
+    let field_name = Xml.attrib f "name"
+    and format = Xml.attrib f "type" in
+    define (sprintf "DL_%s_%s(_payload)" msg_name field_name) (get_at !offset format);
+    offset += sizeof format
+  in
+
+  List.iter parse_field (Xml.children m)
+    
 
 let _ =
   if Array.length Sys.argv <> 2 then begin

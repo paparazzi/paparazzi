@@ -85,7 +85,10 @@ let listen_pprz_modem = fun pprz_message_cb tty ->
   in
 
   (** Callback for available chars on the channel *)
-  let scanner = Serial.input (ModemTransport.parse use_modem_message) in
+  let scanner = 
+    match Serial.input (ModemTransport.parse use_modem_message) with
+      Serial.Closure f -> f
+  in
   let cb = fun _ ->
     begin
       try

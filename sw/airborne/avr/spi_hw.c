@@ -59,7 +59,6 @@ void spi_reset(void) {
 }
 
 
-/** c.f. autopilot/link_fbw.c */
 SIGNAL(SIG_SPI) {
   static uint8_t tmp, crc_in1;
   
@@ -110,7 +109,9 @@ SIGNAL(SIG_SPI) {
   crc_in = CrcUpdate(crc_in, tmp);
 }
 
-#endif
+#endif /** FBW */
+
+
 
 #ifdef AP
 

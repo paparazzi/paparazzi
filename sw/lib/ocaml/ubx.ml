@@ -3,7 +3,7 @@
  *
  * UBX protocol handling
  *
- * Copyright (C) 2004 CENA/ENAC, Yann Le Fablec, Pascal Brisset, Antoine Drouin
+ * Copyright (C) 2004-2006 Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
  *
@@ -23,40 +23,69 @@
  * Boston, MA 02111-1307, USA. 
  *
  *)
+
 module Protocol = struct
+  (** SYNC1 SYNC2 CLASS ID LENGTH(2) UBX_PAYLOAD CK_A CK_B
+     LENGTH is the lentgh of UBX_PAYLOAD
+     For us, the 'payload' includes also CLASS, ID and the LENGTH *)
+  let sync1 = Char.chr 0xb5
+  let sync2 = Char.chr 0x62
+  let offset_payload=2
+  let offset_length=4
   let index_start = fun buf ->
     let rec loop = fun i ->
-      let i' = String.index_from buf i (Char.chr 0xb5) in
-      if String.length buf > i'+1 && buf.[i'+1] = Char.chr 0x62 then
+      let i' = String.index_from buf i sync1 in
+      if String.length buf > i'+1 && buf.[i'+1] = sync2 then
 	i'
       else
 	loop (i'+1) in
     loop 0
 
   let payload_length = fun buf start ->
-    Char.code buf.[start+5] lsl 8 + Char.code buf.[start+4]
+    Char.code buf.[start+5] lsl 8 + Char.code buf.[start+4] + 4
 
   let length = fun buf start ->
     let len = String.length buf - start in
-    if len > 6 then
-      payload_length buf start + 8
+    if len >= offset_length+2 then
+      payload_length buf start + 4
     else
       raise Serial.Not_enough
 
-  let payload = fun buf start ->
-    String.sub buf (start+6) (payload_length buf start)
+  let payload = fun buf ->
+    Serial.payload_of_string (String.sub buf offset_payload (payload_length buf 0))
 
   let uint8_t = fun x -> x land 0xff
   let (+=) = fun r x -> r := uint8_t (!r + x)
-  let checksum = fun buf start payload ->
+  let compute_checksum = fun buf ->
     let ck_a = ref 0 and ck_b = ref 0 in
-    let l = String.length payload in
-    for i = 0 to l - 1 do
-      ck_a += Char.code payload.[i];
+    let l = String.length buf in
+    for i = offset_payload to l - 1 - 4 do
+      ck_a += Char.code buf.[i];
       ck_b += !ck_a
     done;
-    !ck_a = Char.code buf.[start+l+6] && !ck_b = Char.code buf.[start+l+7]
+    (!ck_a, !ck_b)
+
+  let checksum = fun buf->
+    let (ck_a, ck_b) = compute_checksum buf in
+    let l = payload_length buf 0 in
+    ck_a = Char.code buf.[offset_payload+l+1] && ck_b = Char.code buf.[offset_payload+l+2]
+
+  let packet = fun payload ->
+    let payload = Serial.string_of_payload payload in
+    let n = String.length payload in
+    let msg_length = n + 4 in
+    let m = String.create msg_length in
+    m.[0] <- sync1;
+    m.[1] <- sync2;
+    String.blit payload 0 m 2 n;
+    let (ck_a, ck_b) = compute_checksum m in
+    m.[msg_length-2] <- Char.chr ck_a;
+    m.[msg_length-1] <- Char.chr ck_b;
+    m
 end
+
+type class_id = int
+type msg_id = int
 
 let (//) = Filename.concat
 
@@ -85,11 +114,6 @@ let nav_velned () = ubx_nav_id (), ubx_get_nav_msg "VELNED"
 let usr_irsim () = ubx_usr_id (), ubx_get_usr_msg "IRSIM"
 
 
-let send_start_sequence = fun gps ->
-  output_byte gps 0xB5;
-  output_byte gps 0x62
-
-
 let sizeof = function
     "U4" | "I4" -> 4
   | "U2" | "I2" -> 2
@@ -108,7 +132,9 @@ let assoc = fun label fields ->
 
 let byte = fun x -> Char.chr (x land 0xff)
 
-let make_payload = fun msg_xml values ->
+type message_spec = Xml.xml
+
+let ubx_payload = fun msg_xml values ->
   let n = int_of_string (ExtXml.attrib msg_xml "length") in
   let p = String.make n '#' in
   let fields = Xml.children msg_xml in
@@ -124,6 +150,9 @@ let make_payload = fun msg_xml values ->
       |	"U1" ->
 	  assert(value >= 0 && value < 0x100);
 	  p.[pos] <- byte value
+      |	"I1" ->
+	  assert(value >= -0x80 && value <= 0x80);
+	  p.[pos] <- byte value
       |	"I4" | "U4" ->
 	  assert(fmt <> "U4" || value >= 0);
 	  p.[pos+3] <- byte (value asr 24);
@@ -137,29 +166,25 @@ let make_payload = fun msg_xml values ->
     )
     values;
   p
+
+let message = fun class_name msg_name ->
+  let _class = ubx_get_class class_name in
+  let class_id = int_of_string (ExtXml.attrib _class "ID") in
+  let msg = ubx_get_msg _class msg_name in
+  let msg_id = int_of_string (ExtXml.attrib msg "ID") in
+  class_id, msg_id, msg
   
   
+let payload = fun class_name msg_name values ->
+  let class_id, msg_id, msg = message class_name msg_name in
+  let u_payload = ubx_payload msg values in
+  let n = String.length u_payload in
 
-
-
-let send = fun gps (msg_class, msg) values ->
-  let msg_id = int_of_string (Xml.attrib msg "ID") in
-  let payload = make_payload msg values in
-  let n = String.length payload in
-  send_start_sequence gps;
-
-  let ck_a = ref 0 and ck_b = ref 0 in
-  let output_byte_ck = fun c -> 
-    ck_a := (!ck_a+c) land 0xff; ck_b := (!ck_b+ !ck_a) land 0xff;
-    output_byte gps c in
-
-  output_byte_ck msg_class;
-  output_byte_ck msg_id;
-  output_byte_ck (n land 0xff);
-  output_byte_ck ((n land 0xff00) lsr 8);
-  String.iter (fun c -> output_byte_ck (Char.code c)) payload;
-  output_byte gps !ck_a;
-  output_byte gps !ck_b;
-  flush gps
-
-
+  (** Just add CLASS_ID, MSG_ID and LENGTH(2) to the ubx payload *)
+  let m = String.create (n+4) in
+  m.[0] <- Char.chr class_id;
+  m.[1] <- Char.chr msg_id;
+  m.[2] <- Char.chr (n land 0xff);
+  m.[3] <- Char.chr ((n land 0xff00) lsr 8);
+  String.blit u_payload 0 m 4 n;
+  Serial.payload_of_string m

@@ -22,6 +22,9 @@
 
 # Preprocessing of XML configuration files
 
+# Quiet compilation
+Q=@
+
 include conf/Makefile.local
 
 CONF=conf
@@ -38,19 +41,21 @@ UBX_XML = $(CONF)/ubx.xml
 static:  $(MESSAGES_H) $(UBX_PROTOCOL_H) $(DL_PROTOCOL_H)
 
 $(MESSAGES_H) : $(MESSAGES_XML) $(CONF_XML) $(TOOLS)/gen_messages.out
-	test -d $(STATICINCLUDE) || mkdir -p $(STATICINCLUDE)
-	TMP_FILE=`mktemp`;\
-	$(TOOLS)/gen_messages.out $< telemetry > $$TMP_FILE;\
-	mv  $$TMP_FILE $@
-	chmod a+r $@
+	$(Q)test -d $(STATICINCLUDE) || mkdir -p $(STATICINCLUDE)
+	@echo BUILD $@
+	$(Q)$(TOOLS)/gen_messages.out $< telemetry > /tmp/msg.h
+	$(Q)mv /tmp/msg.h $@
+	$(Q)chmod a+r $@
 
 $(UBX_PROTOCOL_H) : $(UBX_XML)
-	$(TOOLS)/gen_ubx.out $< > /tmp/ubx.h
-	mv /tmp/ubx.h $@
+	@echo BUILD $@
+	$(Q)$(TOOLS)/gen_ubx.out $< > /tmp/ubx.h
+	$(Q)mv /tmp/ubx.h $@
 
 $(DL_PROTOCOL_H) : $(MESSAGES_XML)
-	$(TOOLS)/gen_dl.out $< > /tmp/dl.h
-	mv /tmp/dl.h $@
+	@echo BUILD $@
+	$(Q)$(TOOLS)/gen_messages.out $< datalink > /tmp/dl.h
+	$(Q)mv /tmp/dl.h $@
 
 clean :
 	rm -f $(H_OF_XML)

@@ -46,19 +46,12 @@ uint8_t gps_utm_zone;
 uint8_t gps_mode;
 volatile bool_t gps_msg_received;
 bool_t gps_pos_available;
+uint8_t ubx_id, ubx_class;
 
 #define UBX_MAX_PAYLOAD 255
-static uint8_t  ubx_msg_buf[UBX_MAX_PAYLOAD];
+uint8_t ubx_msg_buf[UBX_MAX_PAYLOAD];
 
 #define RadianOfDeg(d) ((d)/180.*3.1415927)
-
-#ifdef HITL
-/* With HITL simulation, the GPS uart link is connected to the simulator which
-   sends the UBX frames. This link is also used for the infrared data
-   (replacing the adc, c.f. infrared.c) */
-volatile int16_t hitl_ir_roll;
-volatile int16_t hitl_ir_pitch;
-#endif /* HITL */
 
 #define UNINIT        0
 #define GOT_SYNC1     1
@@ -73,7 +66,7 @@ volatile int16_t hitl_ir_pitch;
 static uint8_t  ubx_status;
 static uint16_t ubx_len;
 static uint8_t  ubx_msg_idx;
-static uint8_t ck_a, ck_b, ubx_id, ubx_class;
+static uint8_t ck_a, ck_b;
 uint8_t send_ck_a, send_ck_b;
 
 void gps_init( void ) {
@@ -154,15 +147,6 @@ void parse_gps_msg( void ) {
       }
     }
   }
-#ifdef HITL
-  if (ubx_class == UBX_USR_ID) {
-    if (ubx_id == UBX_USR_IRSIM_ID) {
-      /** Message from the simalator, containing infrared data */
-      hitl_ir_roll = UBX_USR_IRSIM_ROLL(ubx_msg_buf);
-      hitl_ir_pitch = UBX_USR_IRSIM_PITCH(ubx_msg_buf);
-    }
-  }
-#endif /* HITL */
 }
 
 

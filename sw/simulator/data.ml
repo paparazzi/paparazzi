@@ -54,7 +54,7 @@ type aircraft = {
 let aircraft = fun name ->
   let aircraft_xml, id =
     let rec loop = function
-	[] -> failwith ("Aicraft not found : "^name)
+	[] -> failwith ("Aircraft not found : "^name)
       | x::_ when Xml.tag x = "aircraft" && Xml.attrib x "name" = name ->
 	  begin 
 	    try

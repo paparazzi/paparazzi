@@ -28,6 +28,7 @@
 
 #ifndef DATALINK_H
 #define DATALINK_H
+
 #ifdef DATALINK_C
 #define EXTERN
 #else
@@ -35,11 +36,12 @@
 #endif
 
 EXTERN bool_t dl_msg_available;
+/** Flag provided to control calls to ::dl_parse_msg. NOT used in this module*/
 
 #define MSG_SIZE 128
 EXTERN char dl_buffer[MSG_SIZE];
 
 void dl_parse_msg(void);
-/** Should be called when dl_msg_available is set */
+/** Should be called when chars are available in dl_buffer */
 
 #endif

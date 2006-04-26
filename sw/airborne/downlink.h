@@ -56,6 +56,7 @@ extern uint8_t downlink_nb_ovrn;
 
 #define DownlinkPutInt16Array(_n, _x) Transport(PutInt16Array(_n, _x))
 #define DownlinkPutUint16Array(_n, _x) Transport(PutUint16Array(_n, _x))
+#define DownlinkPutUint8Array(_n, _x) Transport(PutUint8Array(_n, _x))
 
 #define DonwlinkOverrun() downlink_nb_ovrn++;
 

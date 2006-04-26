@@ -84,7 +84,7 @@ fbw fly_by_wire: ac_h
 ap autopilot: ac_h
 	cd $(AIRBORNE); $(MAKE) TARGET=ap all
 
-sim: ac_h
+sim: ac_h sim_static
 	cd $(AIRBORNE); $(MAKE) TARGET=sim ARCHI=sim all
 
 upload_fbw: fbw
