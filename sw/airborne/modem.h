@@ -45,17 +45,8 @@ extern uint8_t           tx_buf[ TX_BUF_SIZE ];
 extern uint8_t    tx_byte;
 extern uint8_t    tx_byte_idx;
 
-extern uint8_t ck_a, ck_b;
 
-
-/** 5 = STX + ac_id + msg_id + ck_a + ck_b */
-#define ModemSizeOf(_payload) (_payload+5)
-
-#define ModemStartMessage(id) \
-  { ModemPut1Byte(STX); ModemPut1Byte(id); ck_a = id; ck_b = id; ModemPut1ByteUpdateCs(AC_ID);}
-
-#define ModemEndMessage() \
-  { ModemPut1Byte(ck_a); ModemPut1Byte(ck_b); MODEM_CHECK_RUNNING(); }
+#define ModemSendMessage() MODEM_CHECK_RUNNING()
 
 #if TX_BUF_SIZE == 256
 #define UPDATE_HEAD() {			   \
@@ -73,27 +64,6 @@ extern uint8_t ck_a, ck_b;
 #define ModemPut1Byte(_byte) { \
   tx_buf[tx_head] = _byte;	  \
   UPDATE_HEAD();		  \
-}
-
-#define ModemPut1ByteUpdateCs(_byte) { \
-  ck_a += _byte;			  \
-  ck_b += ck_a;			  \
-  ModemPut1Byte(_byte) \
-}
-
-#define ModemPut1ByteByAddr(_byte) { \
-  uint8_t _x = *(_byte);		  \
-  ModemPut1ByteUpdateCs(_x); \
-}
-
-#define ModemPut2ByteByAddr(_byte) { \
-  ModemPut1ByteByAddr(_byte); \
-  ModemPut1ByteByAddr(_byte+1); \
-}
-
-#define ModemPut4ByteByAddr(_byte) { \
-  ModemPut2ByteByAddr(_byte); \
-  ModemPut2ByteByAddr(_byte+2); \
 }
 
 #define MODEM_LOAD_NEXT_BYTE() { \

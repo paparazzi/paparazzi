@@ -44,8 +44,6 @@ uint8_t           tx_buf[ TX_BUF_SIZE ];
 uint8_t    tx_byte;
 uint8_t    tx_byte_idx;
 
-uint8_t ck_a, ck_b;
-
 
 SIGNAL( MODEM_CLK_INT_SIG ) {
   /*  start bit         */

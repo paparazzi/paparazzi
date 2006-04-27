@@ -43,6 +43,7 @@ extern uint8_t ck_a, ck_b;
 #define PprzTransportCheckFreeSpace(_x) Link(CheckFreeSpace(_x))
 
 #define PprzTransportPut1Byte(_x) Link(Transmit(_x))
+#define PprzTransportSendMessage() Link(SendMessage())
 
 #define PprzTransportHeader(payload_len) { \
   PprzTransportPut1Byte(STX);				\
@@ -52,8 +53,9 @@ extern uint8_t ck_a, ck_b;
 }
 
 #define PprzTransportTrailer() { \
-  PprzTransportPut1Byte(ck_a);			\
-  PprzTransportPut1Byte(ck_b);			\
+  PprzTransportPut1Byte(ck_a);	\
+  PprzTransportPut1Byte(ck_b);	\
+  PprzTransportSendMessage() \
 }
 
 #define PprzTransportPutUint8(_byte) { \
