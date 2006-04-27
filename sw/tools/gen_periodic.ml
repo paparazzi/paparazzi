@@ -86,26 +86,7 @@ let _ =
       lprintf avr_h "#define PeriodicSend%s() {  /* %dHz */ \\\n" process_name freq;
       right ();
 
-      (** Computes the required modulos *)
-      let messages =
-	List.fold_right (fun mode r ->
-	  List.fold_right
-	    (fun x r -> 
-	      let p = float_of_string (ExtXml.attrib x "period") in
-	      (x, int_of_float (p*.float_of_int freq))::r)
-	    (Xml.children mode)
-	    r)
-	  modes
-	  []
-      in
-      let modulos = remove_dup (List.map snd messages) in
-      List.iter
-	    (fun m ->
-	      let v = sprintf "i%d" m in
-	      lprintf avr_h "static uint8_t %s; %s++; if (%s>=%d) %s=0;\\\n" v v v m v;
-	    )
-	modulos;
-      
+     
       
       (** For each mode in this process *)
       List.iter
@@ -113,6 +94,22 @@ let _ =
 	  let mode_name = ExtXml.attrib mode "name" in
 	  lprintf avr_h "if (telemetry_mode_%s == TELEMETRY_MODE_%s_%s) {\\\n" process_name process_name mode_name;
 	  right ();  
+
+	  (** Computes the required modulos *)
+	  let messages =
+	    List.map
+		(fun x -> 
+		  let p = float_of_string (ExtXml.attrib x "period") in
+		  (x, int_of_float (p*.float_of_int freq)))
+	      (Xml.children mode)
+	  in
+	  let modulos = remove_dup (List.map snd messages) in
+	  List.iter
+	    (fun m ->
+	      let v = sprintf "i%d" m in
+	      lprintf avr_h "static uint8_t %s; %s++; if (%s>=%d) %s=0;\\\n" v v v m v;
+	    )
+	    modulos;
 	  
 	  (** For each message in this mode *)
 	  let messages = List.sort (fun (_,p) (_,p') -> compare p p') messages in
