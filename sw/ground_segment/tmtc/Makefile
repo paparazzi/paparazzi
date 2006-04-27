@@ -88,3 +88,13 @@ airprox.cmo : airprox.cmi
 wavecard_c : wavecard_c.c wavecard_utils_c.c wavecard_foo_c.c
 	gcc -Wall -o $@ $^ `pkg-config --cflags glib-2.0` `pkg-config --libs glib-2.0`
 
+#
+# Dependencies
+#
+
+.depend:
+	ocamldep *.ml* > .depend
+
+ifneq ($(MAKECMDGOALS),clean) 
+-include .depend
+endif
