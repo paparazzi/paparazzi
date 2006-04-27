@@ -280,7 +280,7 @@ module Transport = struct
     if len > offset_length then
       let l = Char.code buf.[start+offset_length] in
       Debug.call 'T' (fun f -> fprintf f "Pprz len=%d\n" l);
-      l
+      max l 4 (** if l<4 (4=stx+length+ck_a+ck_b), it's not a valid length *)
     else
       raise Serial.Not_enough
 
