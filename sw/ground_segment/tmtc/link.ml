@@ -230,11 +230,13 @@ let _ =
   let port = ref "/dev/ttyS0" in
   let baurate = ref "9600" in
   let transport = ref "pprz" in
+  let uplink = ref false in
 
   let options =
     [ "-b", Arg.Set_string ivy_bus, (sprintf "Ivy bus (%s)" !ivy_bus);
       "-d", Arg.Set_string port, (sprintf "Port (%s)" !port);
-      "-transport", Arg.Set_string port, (sprintf "Transport (%s): modem,pprz,wavecard" !transport);
+      "-transport", Arg.Set_string transport, (sprintf "Transport (%s): modem,pprz,wavecard" !transport);
+      "-uplink", Arg.Set uplink, (sprintf "Uplink (%b)" !uplink);
       "-s", Arg.Set_string baurate, (sprintf "Baudrate (%s)" !baurate)] in
   Arg.parse
     options
@@ -247,7 +249,13 @@ let _ =
   let transport = transport_of_string !transport in
   
   try
-    let fd = Serial.opendev !port (Serial.speed_of_baudrate !baurate) in
+    (** Listen on a serial device or on multimon pipe *)
+    let fd = 
+      if String.sub !port 0 4 = "/dev" then (* FIXME *)
+	Serial.opendev !port (Serial.speed_of_baudrate !baurate)
+      else 
+	Unix.descr_of_in_channel (open_in !port)
+    in
     let ac = { fd=fd; transport=transport} in
 
     (* Listening *)
@@ -259,13 +267,15 @@ let _ =
     let cb = fun _ -> buffered_input fd; true in
     ignore (Glib.Io.add_watch [`IN] cb (GMain.Io.channel_of_descr fd));
 
-    (** Listening on Ivy (FIXME: remove the ad hoc messages) *)
-    ignore (Ground_Pprz.message_bind "FLIGHT_PARAM" (get_fp ac));
-    ignore (Ground_Pprz.message_bind "MOVE_WAYPOINT" (move_wp ac));
-    ignore (Ground_Pprz.message_bind "SEND_EVENT" (send_event ac));
-    ignore (Ground_Pprz.message_bind "DL_SETTING" (setting ac));
-    ignore (Ground_Pprz.message_bind "JUMP_TO_BLOCK" (jump_block ac));
-    ignore (Ground_Pprz.message_bind "RAW_DATALINK" (raw_datalink ac));
+    if !uplink then begin
+      (** Listening on Ivy (FIXME: remove the ad hoc messages) *)
+      ignore (Ground_Pprz.message_bind "FLIGHT_PARAM" (get_fp ac));
+      ignore (Ground_Pprz.message_bind "MOVE_WAYPOINT" (move_wp ac));
+      ignore (Ground_Pprz.message_bind "SEND_EVENT" (send_event ac));
+      ignore (Ground_Pprz.message_bind "DL_SETTING" (setting ac));
+      ignore (Ground_Pprz.message_bind "JUMP_TO_BLOCK" (jump_block ac));
+      ignore (Ground_Pprz.message_bind "RAW_DATALINK" (raw_datalink ac))
+    end;
 
     (** Periodic tasks *)
     begin
