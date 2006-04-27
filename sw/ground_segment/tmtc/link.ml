@@ -203,7 +203,7 @@ module PprzModem = struct
     fun payload ->
       let msg = Serial.string_of_payload payload in
       Debug.call 'M' (fun f -> fprintf f "use_modem: %s\n" (Debug.xprint msg));
-      match Modem.parse msg with
+      match Modem.parse_payload payload with
 	None -> () (* Only internal modem data *)
       | Some data ->
 	  (** Accumulate in a buffer *)

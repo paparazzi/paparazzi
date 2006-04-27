@@ -33,7 +33,7 @@ module Protocol :
     val payload_length : string -> int -> int
   end
 
-val parse : string -> string option
+val parse_payload : Serial.payload -> string option
 (* Returns None for modem specific messages (while updating status) *)
 
 type status = {

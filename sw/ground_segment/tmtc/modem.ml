@@ -3,7 +3,7 @@
  *
  * Ground harware modem handling
  *  
- * Copyright (C) 2004 CENA/ENAC, Pascal Brisset, Antoine Drouin
+ * Copyright (C) 2004-2006 CENA/ENAC, Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
  *
@@ -94,25 +94,26 @@ let status = {
   let valim = fun x -> float x *. 0.0162863 -. 1.17483
 (* FIXME *)
 
-let parse = fun msg ->
+let parse_payload = fun payload ->
+  let payload = Serial.string_of_payload payload in
   status.detected <- 1;
-  let len = String.length msg in
+  let len = String.length payload in
   status.nb_byte <- status.nb_byte + len;
   status.nb_msg <- status.nb_msg + 1;
-  let id = Char.code msg.[2] in
+  let id = Char.code payload.[0] in
   if id = msg_data then
-    Some (String.sub msg 3 (len-5))
+    Some (String.sub payload 1 (len-1))
   else begin
     begin
       match id with 
       | x when x = msg_error ->
-	  status.error <- (Char.code msg.[3])
+	  status.error <- (Char.code payload.[1])
       | x when x = msg_cd ->
-	  status.cd <- (Char.code msg.[3])
+	  status.cd <- (Char.code payload.[1])
       | x when x = msg_debug ->
-	  status.debug <- (Char.code msg.[3])
+	  status.debug <- (Char.code payload.[1])
       | x when x = msg_valim ->
-	  status.valim <- (valim (Char.code msg.[4] * 0x100 + Char.code msg.[3]));
+	  status.valim <- (valim (Char.code payload.[2] * 0x100 + Char.code payload.[1]));
       | _ -> (* Uncorrect id *)
 	  status.nb_err <- status.nb_err + 1
     end;

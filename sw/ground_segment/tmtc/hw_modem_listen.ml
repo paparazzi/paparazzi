@@ -32,7 +32,7 @@ id as soon as it is identified (IDENT message) *)
 let modem_msg_period = 1000 (** ms *)
 
 module ModemTransport = Serial.Transport(Modem.Protocol)
-module Tele_Class = struct let name = "telemetry_ap" end
+module Tele_Class = struct let name = "telemetry" end
 module Tele_Pprz = Pprz.Messages(Tele_Class)
 module PprzTransport = Serial.Transport(Pprz.Transport)
 
