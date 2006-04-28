@@ -31,7 +31,8 @@ SRC_ARCH = $(PAPARAZZI_SRC)/sw/airborne/arm7
 CC		= arm-elf-gcc -mmcu=$($(TARGET).ARCH)
 LD		= $(CC)
 
-FLASH_TOOL = lpc21isp 
+# Launch with "make Q=''" to get full command display
+Q=@
 
 # MCU name and submodel
 MCU = $($(TARGET).ARCH)
@@ -179,15 +180,10 @@ endif
 # Flash-Programming support using lpc21isp by Martin Maurer 
 
 # Settings and variables:
-#LPC21ISP = lpc21isp
 LPC21ISP = lpc21isp
 #LPC21ISP_PORT = /dev/ttyUSB0
 LPC21ISP_PORT = /dev/ttyS0
-LPC21ISP_BAUD = 115200
-LPC21ISP_XTAL = 14746
-#LPC21ISP_BAUD = 38400
-#LPC21ISP_XTAL = 12000
-LPC21ISP_FLASHFILE = $(TARGET).hex
+LPC21ISP_FLASHFILE = $(OBJDIR)/$(TARGET).hex
 # verbose output:
 #LPC21ISP_DEBUG = -debug
 # enter bootloader via RS232 DTR/RTS (only if hardware supports this
@@ -262,10 +258,10 @@ all: sizebefore build sizeafter
 
 build: elf hex lss sym
 
-elf: $(TARGET).elf
-hex: $(TARGET).hex
-lss: $(TARGET).lss 
-sym: $(TARGET).sym
+elf: $(OBJDIR)/$(TARGET).elf
+hex: $(OBJDIR)/$(TARGET).hex
+lss: $(OBJDIR)/$(TARGET).lss 
+sym: $(OBJDIR)/$(TARGET).sym
 
 # Eye candy.
 begin:
@@ -281,13 +277,13 @@ end:
 
 
 # Display size of file.
-HEXSIZE = $(SIZE) --target=$(FORMAT) $(TARGET).hex
-ELFSIZE = $(SIZE) -A $(TARGET).elf
+HEXSIZE = $(SIZE) --target=$(FORMAT) $(OBJDIR)/$(TARGET).hex
+ELFSIZE = $(SIZE) -A $(OBJDIR)/$(TARGET).elf
 sizebefore:
-	@if [ -f $(TARGET).elf ]; then echo; echo $(MSG_SIZE_BEFORE); $(ELFSIZE); echo; fi
+	@if [ -f $(OBJDIR)/$(TARGET).elf ]; then echo; echo $(MSG_SIZE_BEFORE); $(ELFSIZE); echo; fi
 
 sizeafter:
-	@if [ -f $(TARGET).elf ]; then echo; echo $(MSG_SIZE_AFTER); $(ELFSIZE); echo; fi
+	@if [ -f $(OBJDIR)/$(TARGET).elf ]; then echo; echo $(MSG_SIZE_AFTER); $(ELFSIZE); echo; fi
 
 
 # Display compiler version information.
@@ -295,106 +291,63 @@ gccversion :
 	@$(CC) --version
 
 
-ifeq ($(FLASH_TOOL),ULINK)
-# Program the device with Keil's ULINK (needs configured uVision-Workspace). 
-load upload program: $(TARGET).hex
-	@echo
-	@echo "Programming with ULINK"
-	C:\Keil\uv3\Uv3.exe -f ulinkflash.Uv2 -oulinkflash.txt
-else
 # Program the device.  
-load upload program: $(TARGET).hex
+load upload program: $(OBJDIR)/$(TARGET).hex
 	@echo
 	@echo $(MSG_LPC21_RESETREMINDER)
 	$(LPC21ISP) $(LPC21ISP_CONTROL) $(LPC21ISP_DEBUG) $(LPC21ISP_FLASHFILE) $(LPC21ISP_PORT) $(LPC21ISP_BAUD) $(LPC21ISP_XTAL)
-endif
 
 # Create final output files (.hex, .eep) from ELF output file.
 # TODO: handling the .eeprom-section should be redundant
 %.hex: %.elf
-	@echo
-	@echo $(MSG_FLASH) $@
-	$(OBJCOPY) -O $(FORMAT) $< $@
+	@echo OBJC $@
+	$(Q)$(OBJCOPY) -O $(FORMAT) $< $@
 
 
 # Create extended listing file from ELF output file.
 # testing: option -C
 %.lss: %.elf
-	@echo
-	@echo $(MSG_EXTENDED_LISTING) $@
-	$(OBJDUMP) -h -S -C $< > $@
+	@echo OBJD $@
+	$(Q)$(OBJDUMP) -h -S -C $< > $@
 
 
 # Create a symbol table from ELF output file.
 %.sym: %.elf
-	@echo
-	@echo $(MSG_SYMBOL_TABLE) $@
-	$(NM) -n $< > $@
+	@echo NM $@
+	$(Q)$(NM) -n $< > $@
 
 
 # Link: create ELF output file from object files.
-.SECONDARY : $(TARGET).elf
+.SECONDARY : $(OBJDIR)/$(TARGET).elf
 .PRECIOUS : $(AOBJARM) $(AOBJ) $(COBJARM) $(COBJ) $(CPPOBJ) $(CPPOBJARM)
 %.elf:  $(AOBJARM) $(AOBJ) $(COBJARM) $(COBJ) $(CPPOBJ) $(CPPOBJARM)
-	@echo
-	@echo $(MSG_LINKING) $@
-	$(CC) $(THUMB) $(ALL_CFLAGS) $(AOBJARM) $(AOBJ) $(COBJARM) $(COBJ) $(CPPOBJ) $(CPPOBJARM) --output $@ $(LDFLAGS)
-#	$(CPP) $(THUMB) $(ALL_CFLAGS) $(AOBJARM) $(AOBJ) $(COBJARM) $(COBJ) $(CPPOBJ) $(CPPOBJARM) --output $@ $(LDFLAGS)
-
-# Compile: create object files from C source files. ARM/Thumb
-#$(COBJ) : $(OBJDIR)/%.o : %.c
-#	@echo
-#	@echo $(MSG_COMPILING) $<
-#	$(CC) -c $(THUMB) $(ALL_CFLAGS) $(CONLYFLAGS) $< -o $@ 
+	@echo LD $@
+	$(Q)$(CC) $(THUMB) $(ALL_CFLAGS) $(AOBJARM) $(AOBJ) $(COBJARM) $(COBJ) $(CPPOBJ) $(CPPOBJARM) --output $@ $(LDFLAGS)
 
 # Compile: create object files from C source files. ARM-only
 $(OBJDIR)/%.o : %.c
-	@echo
-	@echo $(MSG_COMPILING_ARM) $<
-	$(CC) -c $(ALL_CFLAGS) $(CONLYFLAGS) $< -o $@ 
+	@echo CC $@
+	$(Q)$(CC) -c $(ALL_CFLAGS) $(CONLYFLAGS) $< -o $@ 
 
 $(OBJDIR)/%.o : $(SRC_ARCH)/%.c
-	@echo
-	@echo $(MSG_COMPILING_ARM) $<
-	$(CC) -c $(ALL_CFLAGS) $(CONLYFLAGS) $< -o $@ 
+	@echo CC $@
+	$(Q)$(CC) -c $(ALL_CFLAGS) $(CONLYFLAGS) $< -o $@ 
 
 # grab files in var/$(AIRCRAFT)/$(TARGET) aka $(OBJDIR)
 $(OBJDIR)/%.o : $(OBJDIR)/%.c
-	@echo
-	@echo $(MSG_COMPILING_ARM) $<
-	@$(CC) -c $(ALL_CFLAGS) $(CONLYFLAGS) $< -o $@ 
-
-# Compile: create object files from C++ source files. ARM/Thumb
-$(CPPOBJ) : $(OBJDIR)/%.o : %.cpp
-	@echo
-	@echo $(MSG_COMPILINGCPP) $<
-	$(CPP) -c $(THUMB) $(ALL_CFLAGS) $(CPPFLAGS) $< -o $@ 
-
-# Compile: create object files from C++ source files. ARM-only
-$(CPPOBJARM) : $(OBJDIR)/%.o : %.cpp
-	@echo
-	@echo $(MSG_COMPILINGCPP_ARM) $<
-	$(CPP) -c $(ALL_CFLAGS) $(CPPFLAGS) $< -o $@ 
-
-
-# Compile: create assembler files from C source files. ARM/Thumb
-## does not work - TODO - hints welcome
-##$(COBJ) : %.s : %.c
-##	$(CC) $(THUMB) -S $(ALL_CFLAGS) $< -o $@
-
+	@echo CC $@
+	$(Q)$(CC) -c $(ALL_CFLAGS) $(CONLYFLAGS) $< -o $@ 
 
 # Assemble: create object files from assembler source files. ARM/Thumb
 $(AOBJ) : $(OBJDIR)/%.o : %.S
-	@echo
-	@echo $(MSG_ASSEMBLING) $<
-	$(CC) -c $(THUMB) $(ALL_ASFLAGS) $< -o $@
+	@echo AS $@
+	$(Q)$(CC) -c $(THUMB) $(ALL_ASFLAGS) $< -o $@
 
 
 # Assemble: create object files from assembler source files. ARM-only
 $(AOBJARM) : $(OBJDIR)/%.o : $(SRC_ARCH)/%.S
-	@echo
-	@echo $(MSG_ASSEMBLING_ARM) $<
-	$(CC) -c $(ALL_ASFLAGS) $< -o $@
+	@echo AS $@
+	$(Q)$(CC) -c $(ALL_ASFLAGS) $< -o $@
 
 
 # Target: clean project.
@@ -404,15 +357,15 @@ clean: clean_list
 clean_list :
 	@echo
 	@echo $(MSG_CLEANING)
-	$(REMOVE) $(TARGET).hex
-	$(REMOVE) $(TARGET).obj
-	$(REMOVE) $(TARGET).elf
-	$(REMOVE) $(TARGET).map
-	$(REMOVE) $(TARGET).obj
-	$(REMOVE) $(TARGET).a90
-	$(REMOVE) $(TARGET).sym
-	$(REMOVE) $(TARGET).lnk
-	$(REMOVE) $(TARGET).lss
+	$(REMOVE) $(OBJDIR)/$(TARGET).hex
+	$(REMOVE) $(OBJDIR)/$(TARGET).obj
+	$(REMOVE) $(OBJDIR)/$(TARGET).elf
+	$(REMOVE) $(OBJDIR)/$(TARGET).map
+	$(REMOVE) $(OBJDIR)/$(TARGET).obj
+	$(REMOVE) $(OBJDIR)/$(TARGET).a90
+	$(REMOVE) $(OBJDIR)/$(TARGET).sym
+	$(REMOVE) $(OBJDIR)/$(TARGET).lnk
+	$(REMOVE) $(OBJDIR)/$(TARGET).lss
 	$(REMOVE) $(COBJ)
 	$(REMOVE) $(CPPOBJ)
 	$(REMOVE) $(AOBJ)
@@ -432,10 +385,6 @@ clean_list :
 	$(REMOVE) *~
 
 
-# Include the dependency files.
-# -include $(shell mkdir .dep 2>/dev/null) $(wildcard .dep/*)
-
-
 # Listing of phony targets.
 .PHONY : all begin finish end sizebefore sizeafter gccversion \
 build elf hex lss sym clean clean_list program
@@ -446,11 +395,12 @@ build elf hex lss sym clean clean_list program
 #
 
 $(OBJDIR)/.depend:
+	@echo DEPEND $@
 	@test -d $(OBJDIR) || mkdir -p $(OBJDIR)
-	$(CC) -MM -MG $(CFLAGS) $($(TARGET).CFLAGS) $($(TARGET).srcs) | sed 's|\([^\.]*\.o\)|$(OBJDIR)/\1|' > $@
+	$(Q)$(CC) -MM -MG $(CFLAGS) $($(TARGET).CFLAGS) $($(TARGET).srcs) | sed 's|\([^\.]*\.o\)|$(OBJDIR)/\1|' > $@
 
 ifneq ($(MAKECMDGOALS),clean) 
 ifneq ($(MAKECMDGOALS),erase) 
-include $(OBJDIR)/.depend
+-include $(OBJDIR)/.depend
 endif
 endif
