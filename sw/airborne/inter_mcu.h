@@ -154,19 +154,18 @@ static inline void to_autopilot_from_rc_values (void) {
 #endif
 }
 
+/** Prepares date for next comm with AP. Set ::ap_ok to TRUE */
 static inline void inter_mcu_event_task( void) {
-  if (from_ap_receive_valid) {
-    from_ap_receive_valid = FALSE;
-    time_since_last_ap = 0;
-    ap_ok = TRUE;
-    to_autopilot_from_rc_values();
+  time_since_last_ap = 0;
+  ap_ok = TRUE;
+  to_autopilot_from_rc_values();
 #if defined AP
-    /**Directly set the flag indicating to AP that shared buffer is available*/
-    from_fbw_receive_valid = TRUE;
+  /**Directly set the flag indicating to AP that shared buffer is available*/
+  from_fbw_receive_valid = TRUE;
 #endif
-  }
 }
 
+/** Monitors AP. Set ::rc_ok to false if AP is down for a long time. */
 static inline void inter_mcu_periodic_task(void) {
   if (time_since_last_ap >= AP_STALLED_TIME) {
     ap_ok = FALSE;

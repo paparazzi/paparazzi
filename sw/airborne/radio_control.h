@@ -84,24 +84,20 @@ static inline void radio_control_periodic_task ( void ) {
 
 /********** EVENT ************************************************************/
 static inline void radio_control_event_task ( void ) {
-  if (ppm_valid) {
-    ppm_cpt++;
-    time_since_last_ppm = 0;
-    rc_status = RC_OK;
+  ppm_cpt++;
+  time_since_last_ppm = 0;
+  rc_status = RC_OK;
 
-    /** From ppm values to normalised rc_values */
-    NormalizePpm();
+  /** From ppm values to normalised rc_values */
+  NormalizePpm();
 
 #ifdef DEBUG_RC
-    uint8_t i;
-    for(i = 0; i < 7; i++) {
-      PrintHex16(uart0_transmit, rc_values[i]);
-    }
-    uart0_transmit('\n');
-#endif
-
-    ppm_valid = FALSE;
+  uint8_t i;
+  for(i = 0; i < 7; i++) {
+    PrintHex16(uart0_transmit, rc_values[i]);
   }
+  uart0_transmit('\n');
+#endif
 }
 
 #endif /* RADIO_CONTROL */

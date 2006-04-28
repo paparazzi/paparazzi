@@ -91,15 +91,14 @@ void init_fbw( void ) {
 void event_task_fbw( void) {
 
 #ifdef RADIO_CONTROL
-  radio_control_event_task();
-  if ( rc_status == RC_OK ) {
+  if (ppm_valid) {
+    ppm_valid = FALSE;
+    radio_control_event_task();
     if (rc_values_contains_avg_channels) {
       fbw_mode = FBW_MODE_OF_PPRZ(rc_values[RADIO_MODE]);
     }
     if (fbw_mode == FBW_MODE_MANUAL)
       SetCommandsFromRC(commands);
-  } else if (rc_status == RC_REALLY_LOST) {
-    fbw_mode = FBW_MODE_AUTO;
   }
 #endif
 
@@ -108,9 +107,12 @@ void event_task_fbw( void) {
 #endif
 
 #ifdef INTER_MCU
-  inter_mcu_event_task();
-  if (ap_ok && fbw_mode == FBW_MODE_AUTO) {
-    SetCommands(from_ap.from_ap.commands);
+  if (from_ap_receive_valid) {
+    from_ap_receive_valid = FALSE;
+    inter_mcu_event_task();
+    if (fbw_mode == FBW_MODE_AUTO) {
+      SetCommands(from_ap.from_ap.commands);
+    }
   }
 #endif
 
@@ -141,6 +143,9 @@ void periodic_task_fbw( void ) {
 
 #ifdef RADIO_CONTROL
   radio_control_periodic_task();
+  if (rc_status == RC_REALLY_LOST) {
+    fbw_mode = FBW_MODE_AUTO;
+  }
 #endif
 
 #ifdef INTER_MCU
