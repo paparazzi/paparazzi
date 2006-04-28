@@ -26,7 +26,7 @@
     <program name="multimon" command="sw/ground_segment/multimon/multimon">
       <arg flag="-a" variable="multimon_demod"/>
     </program>
-    <program name="modem" command="sw/ground_segment/tmtc/hw_modem_listen">
+    <program name="link" command="sw/ground_segment/tmtc/link">
       <arg flag="-b" variable="ivy_bus"/>
     </program>
     <program name="cockpit" command="sw/ground_segment/cockpit/cockpit.pl">
@@ -146,6 +146,17 @@
 <!--      <program name="wavecard"/> -->
       <program name="sim"><arg flag="-a" constant="Twin3"/></program>
     </session>
+
+   <session name="Flight audio @Muret">
+      <variable name="map" value="muret_UTM.xml"/>
+      <program name="multimon"><arg flag="-p" constant="/tmp/multimon"/></program>
+      <program name="link"><arg flag="-d" constant="/tmp/multimon"/><arg flag="-transport" constant="modem"/></program>
+      <program name="server"/>     
+      <program name="messages"><arg flag="-c" constant="telemetry:*"/><arg flag="-c" constant="ground"/></program>
+      <program name="cockpit"/>
+      <program name="map 2d ml"/>
+    </session>
+
   </section>
 
 </control_panel>

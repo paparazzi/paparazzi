@@ -87,6 +87,12 @@ void init_fbw( void ) {
 }
 
 
+void set_failsafe_mode( void ) {
+  fbw_mode = FBW_MODE_FAILSAFE;
+  SetCommands(commands_failsafe);
+}
+
+
 /********** EVENT ************************************************************/
 void event_task_fbw( void) {
 
@@ -125,17 +131,7 @@ void event_task_fbw( void) {
   //    link_mcu_was_busy = FALSE;
   //    link_mcu_restart();
   //  }
-#endif
-
-  if (
-#ifdef INTER_MCU
-      (fbw_mode == FBW_MODE_AUTO && !ap_ok) ||
-#endif
-      FALSE
-      ) {
-    fbw_mode = FBW_MODE_FAILSAFE;
-    SetCommands(commands_failsafe);
-  }
+#endif  
 }
 
 /************* PERIODIC ******************************************************/
@@ -143,13 +139,15 @@ void periodic_task_fbw( void ) {
 
 #ifdef RADIO_CONTROL
   radio_control_periodic_task();
-  if (rc_status == RC_REALLY_LOST) {
+  if (fbw_mode == FBW_MODE_MANUAL && rc_status == RC_REALLY_LOST) {
     fbw_mode = FBW_MODE_AUTO;
   }
 #endif
 
 #ifdef INTER_MCU
   inter_mcu_periodic_task();
+  if (fbw_mode == FBW_MODE_AUTO && !ap_ok)
+    set_failsafe_mode();
 #endif
 
 #ifdef DOWNLINK
