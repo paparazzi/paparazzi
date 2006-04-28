@@ -22,10 +22,21 @@
  *
  */
 
+/** \brief FBW ( FlyByWire ) process
+ *   This process is responsible for decoding radio control, generating actuators 
+ * signals either from the radio control or from the commands provided by the 
+ * AP (autopilot) process. It also performs a telemetry task and a low level monitoring
+ * ( for parameters the supply )
+ */
+
 #include "main_fbw.h"
 
 #include "init_hw.h"
 #include "interrupt_hw.h"
+#include "led.h"
+#include "uart.h"
+#include "spi.h"
+#include "adc.h"
 
 #include "sys_time.h"
 #include "commands.h"
@@ -33,25 +44,10 @@
 #include "radio_control.h"
 #include "fbw_downlink.h"
 
-#include "led.h"
-#include "uart.h"
-#include "print.h"
-
 #ifdef MCU_SPI_LINK
-#include "spi.h"
+#include "link_mcu.h"
 #endif
-
-#ifdef IMU_3DMG 
-#include "3dmg.h"
-#endif
-
-#if defined IMU_ANALOG || defined IMU_3DMG
-#include "imu.h"
-#include "control_grz.h"
-#endif
-
 #ifdef ADC
-#include "adc.h"
 struct adc_buf vsupply_adc_buf;
 #endif
 
@@ -61,59 +57,33 @@ uint8_t fbw_mode;
 
 #include "inter_mcu.h"
 
-
-#ifndef ADC_CHANNEL_VSUPPLY
-#define ADC_CHANNEL_VSUPPLY 3
-// for compatibility
-#endif
-
-
-
 /********** INIT *************************************************************/
 void init_fbw( void ) {
-  /** Hardware init */
   hw_init();
+  sys_time_init();
 #ifdef LED
   led_init();
 #endif
 #ifdef USE_UART0
   uart0_init_tx();
-#if defined IMU_3DMG
-  uart0_init_rx();
-#else
-  Uart0PrintString("FBW Booting $Id$\n");
 #endif
-#endif
-
 #ifdef ADC
   adc_init();
   adc_buf_channel(ADC_CHANNEL_VSUPPLY, &vsupply_adc_buf, DEFAULT_AV_NB_SAMPLE);
 #endif
-
-#if defined IMU_3DMG || defined IMU_ANALOG
-  imu_init();
-#endif
-  sys_time_init();
-
 #ifdef ACTUATORS
   actuators_init();
-  /* Load the failsafe defaults                     */
+  /* Load the failsafe defaults */
   SetCommands(commands_failsafe);
 #endif
-  
 #ifdef RADIO_CONTROL
  ppm_init();
 #endif
-
 #ifdef MCU_SPI_LINK
   spi_init();
 #endif
 
   int_enable();
-
-#if IMU_RESET_ON_BOOT
-  imu_capture_neutral();
-#endif
 }
 
 
@@ -149,12 +119,10 @@ void event_task_fbw( void) {
     spi_was_interrupted = FALSE;
     spi_reset();
   }
-#endif
-
-#ifdef IMU_3DMG
-  if (_3dmg_data_ready) {
-    imu_update();
-  }
+  //  if (!link_mcu_is_busy && link_mcu_was_busy) {
+  //    link_mcu_was_busy = FALSE;
+  //    link_mcu_restart();
+  //  }
 #endif
 
   if (
@@ -168,23 +136,9 @@ void event_task_fbw( void) {
   }
 }
 
-
 /************* PERIODIC ******************************************************/
 void periodic_task_fbw( void ) {
 
-#if defined IMU_ANALOG
-  imu_update();
-#endif
-
-#if defined IMU_3DMG || defined IMU_ANALOG
-  control_rate_run();
-  if (rc_status == RC_OK) {
-    if (rc_values[RADIO_THROTTLE] < 0.1*MAX_PPRZ) {
-      SetCommands(commands_failsafe);
-    }
-  }
-#endif
-  
 #ifdef RADIO_CONTROL
   radio_control_periodic_task();
 #endif
