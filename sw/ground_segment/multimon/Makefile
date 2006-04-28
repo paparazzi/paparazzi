@@ -74,7 +74,7 @@ costabi.c costabf.c:	$(BINDIR)/mkcostab
 
 multimon.cma : pprzlib.o demodml.o demod.ml
 	@echo OLD $@
-	$(Q)$ocamlmklib -o multimon $^
+	$(Q)ocamlmklib -o multimon $^
 
 libtest: pprzlib.o demodml.c demod.ml test.ml
 	ocamlc -custom -o $@ pprzlib.o demodml.c -I +lablgtk2 unix.cma lablgtk.cma demod.ml test.ml
