@@ -44,7 +44,7 @@ void SPI1_ISR(void) __attribute__((naked));
 #define SSP_SCR  0x0F << 8  /* serial clock rate    :          */
 
 /* SSPCR1 settings */
-#define SSP_LBM  0x0  << 0  /* loopback mode        : disabled */
+#define SSP_LBM  0x00 << 0  /* loopback mode        : disabled */
 #define SSP_SSE  0x01 << 0  /* SSP enable           : disabled */
 #define SSP_MS   0x01 << 2  /* master slave mode    : slave    */
 #define SSP_SOD  0x00 << 3  /* slave output disable : disabled */
@@ -127,7 +127,7 @@ void SPI1_ISR(void) __attribute__((naked));
 #define SSP_SCR  0x0F << 8  /* serial clock rate : divide by 16  */
 
 /* SSPCR1 settings */
-#define SSP_LBM  0x01 << 0  /* loopback mode     : disabled                  */
+#define SSP_LBM  0x00 << 0  /* loopback mode     : disabled                  */
 #define SSP_SSE  0x01 << 0  /* SSP enable        : disabled                  */
 #define SSP_MS   0x00 << 2  /* master slave mode : master                    */
 #define SSP_SOD  0x00 << 3  /* slave output disable : don't care when master */
@@ -161,7 +161,7 @@ void spi_init( void ) {
 
 void SPI1_ISR(void) {
  ISR_ENTRY();
- LED_TOGGLE(2);
+ // LED_TOGGLE(2);
 
  // SPI_SELECT_SLAVE1(); /* debug */
  if (bit_is_set(SSPMIS, TXMIS)) {  /*  Tx fifo is half empty */

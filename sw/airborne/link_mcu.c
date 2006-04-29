@@ -64,7 +64,7 @@ static bool_t compute_checksum_in(void) {
 }
 
 void link_mcu_restart(void) {
-  LED_TOGGLE(2);
+  //  LED_TOGGLE(2);
 
   compute_checksum_out();
 
@@ -90,8 +90,6 @@ void link_mcu_event_task( void ) {
 
 volatile uint8_t link_fbw_nb_err;
 uint8_t link_fbw_fbw_nb_err;
-
-static uint16_t crc_in, crc_out;
 
 void link_fbw_init(void) {
   link_fbw_nb_err = 0;

@@ -68,9 +68,9 @@ static inline void radio_control_periodic_task ( void ) {
     _1Hz = 0;
     last_ppm_cpt = ppm_cpt;
     ppm_cpt = 0;
-#if defined TIME_LED
-    LED_TOGGLE(TIME_LED);
-#endif
+    //#if defined TIME_LED
+    //    LED_TOGGLE(TIME_LED);
+    //#endif
   }
 
   if (time_since_last_ppm >= RC_REALLY_LOST_TIME) {

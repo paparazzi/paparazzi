@@ -28,6 +28,9 @@
 #ifndef LINK_MCU_HW_H
 #define LINK_MCU_HW_H
 
+
+
+
 #ifdef FBW
 #define TX_BUF ((uint8_t*)&link_mcu_from_fbw_msg)
 #define RX_BUF ((uint8_t*)&link_mcu_from_ap_msg)

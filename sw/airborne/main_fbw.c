@@ -100,7 +100,15 @@ static inline void set_failsafe_mode( void ) {
 
 
 /********** EVENT ************************************************************/
+
+#include "LPC21xx.h"
+
 void event_task_fbw( void) {
+
+  if (bit_is_set(SSPSR, BSY))
+    LED_ON(2);
+  else
+    LED_OFF(2);
 
 #ifdef RADIO_CONTROL
   if (ppm_valid) {
