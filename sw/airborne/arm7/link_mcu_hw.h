@@ -29,7 +29,14 @@
 #define LINK_MCU_HW_H
 
 
-
+#define CRC_INIT 0x0
+#define CrcLow(x) ((x)&0xff)
+#define CrcHigh(x) ((x)>>8)
+#define CrcUpdate(_crc,_data) {      \
+  uint8_t a = CrcHigh(_crc) + _data; \
+  uint8_t b = CrcLow(_crc) + a;      \
+  _crc = b | a >> 8;                 \
+}
 
 #ifdef FBW
 #define TX_BUF ((uint8_t*)&link_mcu_from_fbw_msg)
