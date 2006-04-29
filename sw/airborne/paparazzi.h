@@ -15,4 +15,8 @@ typedef int16_t pprz_t; /* type of commands */
                           (pprz >  MAX_PPRZ ? MAX_PPRZ : \
                                     pprz))
 
+#if defined FBW && defined AP
+#define SINGLE_MCU 1
+#endif
+
 #endif /* PAPARAZZI_H */

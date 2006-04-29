@@ -199,7 +199,7 @@ static inline void events_update( void ) {
  */
 static inline void copy_from_to_fbw ( void ) {
 #ifdef COMMAND_YAW /* FIXME */
-  from_ap.from_ap.commands[COMMAND_YAW] =from_fbw.from_fbw.channels[RADIO_YAW];
+  ap_state->commands[COMMAND_YAW] = fbw_state->channels[RADIO_YAW];
 #endif
 }
 

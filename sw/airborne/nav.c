@@ -65,7 +65,7 @@ int16_t circle_x, circle_y, circle_radius;
 int16_t segment_x_1, segment_y_1, segment_x_2, segment_y_2;
 uint8_t horizontal_mode;
 
-#define RcRoll(travel) (from_fbw.from_fbw.channels[RADIO_ROLL]* (float)travel /(float)MAX_PPRZ)
+#define RcRoll(travel) (fbw_state->channels[RADIO_ROLL]* (float)travel /(float)MAX_PPRZ)
 
 #define RcEvent1() CheckEvent(rc_event_1)
 #define RcEvent2() CheckEvent(rc_event_2)
@@ -132,20 +132,20 @@ static float qdr;
 
 #define Goto3D(radius) { \
   if (pprz_mode == PPRZ_MODE_AUTO2) { \
-    int16_t yaw = from_fbw.from_fbw.channels[RADIO_YAW]; \
+    int16_t yaw = fbw_state->channels[RADIO_YAW]; \
     if (yaw > MIN_DX || yaw < -MIN_DX) { \
       carrot_x += FLOAT_OF_PPRZ(yaw, 0, -20.); \
       carrot_x = Min(carrot_x, MAX_DIST_CARROT); \
       carrot_x = Max(carrot_x, -MAX_DIST_CARROT); \
     } \
-    int16_t pitch = from_fbw.from_fbw.channels[RADIO_PITCH]; \
+    int16_t pitch = fbw_state->channels[RADIO_PITCH]; \
     if (pitch > MIN_DX || pitch < -MIN_DX) { \
       carrot_y += FLOAT_OF_PPRZ(pitch, 0, -20.); \
       carrot_y = Min(carrot_y, MAX_DIST_CARROT); \
       carrot_y = Max(carrot_y, -MAX_DIST_CARROT); \
     } \
     vertical_mode = VERTICAL_MODE_AUTO_ALT; \
-    int16_t roll =  from_fbw.from_fbw.channels[RADIO_ROLL]; \
+    int16_t roll =  fbw_state->channels[RADIO_ROLL]; \
     if (roll > MIN_DX || roll < -MIN_DX) { \
       desired_altitude += FLOAT_OF_PPRZ(roll, 0, -1.0);	\
       desired_altitude = Max(desired_altitude, MIN_HEIGHT_CARROT+GROUND_ALT); \
