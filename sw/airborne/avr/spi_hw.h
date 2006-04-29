@@ -1,7 +1,7 @@
 #ifndef SPI_HW_H
 #define SPI_HW_H
 
-extern uint8_t* spi_idx_buf;
+extern volatile uint8_t spi_idx_buf;
 
 #define SpiInitBuf() { \
   spi_idx_buf = 0; \

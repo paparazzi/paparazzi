@@ -43,7 +43,7 @@
 
 #include "estimator.h"
 
-#define RcChannel(x) (from_fbw.from_fbw.channels[x])
+#define RcChannel(x) (fbw_state->channels[x])
 
 /** Includes generated code from airframe.xml */
 #include "inflight_calib.h"

@@ -37,7 +37,7 @@
 
 #include <avr/interrupt.h>
 
-uint8_t* spi_idx_buf;
+volatile uint8_t spi_idx_buf;
 
 #define HandleOneSpiByte() { \
   spi_idx_buf++; \
@@ -49,7 +49,7 @@ uint8_t* spi_idx_buf;
     spi_message_received = TRUE; \
     SpiStop(); \
   } \
-  idx_buf++; \
+  spi_idx_buf++; \
 }
 
 
@@ -65,8 +65,6 @@ uint8_t* spi_idx_buf;
 #define SPI_SCK_PIN  5
 
 volatile bool_t spi_was_interrupted = FALSE;
-
-static volatile uint8_t idx_buf = 0;
 
 void spi_init(void) {
   /* set it pin output */
