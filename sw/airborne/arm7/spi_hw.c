@@ -73,9 +73,9 @@ void spi_init( void ) {
   VICVectAddr7 = (uint32_t)SPI1_ISR;    // address of the ISR
 
   /* enable half empty tx interrupt */
-  SPI_ENABLE_TXI();
+  SpiEnableTxi();
   /* enable SPI */
-  SPI_START();
+  SpiStart();
 
 }
 
@@ -83,16 +83,16 @@ void SPI1_ISR(void) {
  ISR_ENTRY();
 
  if (bit_is_set(SSPMIS, TXMIS)) {  /*  Tx half empty */
-   LINK_MCU_TRANSMIT();
-   LINK_MCU_RECEIVE();
-   SPI_ENABLE_RTI();
+   LinkMcuTransmit();
+   LinkMcuReceive();
+   SpiEnableRti();
  }
  
  if ( bit_is_set(SSPMIS, RTMIS)) { /* Rx timeout     */ 
    //   LED_ON(2);
-   LINK_MCU_RECEIVE();
-   SPI_DISABLE_RTI();
-   SPI_CLEAR_RTI();                /* clear interrupt */
+   LinkMcuReceive();
+   SpiDisableRti();
+   SpiClearRti();                /* clear interrupt */
    link_mcu_is_busy = FALSE;
    link_mcu_was_busy = TRUE;
    //   LED_OFF(2);
@@ -165,16 +165,16 @@ void SPI1_ISR(void) {
 
  // SPI_SELECT_SLAVE1(); /* debug */
  if (bit_is_set(SSPMIS, TXMIS)) {  /*  Tx fifo is half empty */
-   LINK_MCU_TRANSMIT();
-   LINK_MCU_RECEIVE();
+   LinkMcuTransmit();
+   LinkMcuReceive();
  }
 
  if ( bit_is_set(SSPMIS, RTMIS)) { /* Rx fifo is not empty and no receive took place in the last 32 bits period */ 
-   SPI_UNSELECT_SLAVE0();
-   LINK_MCU_RECEIVE();
-   SPI_STOP();
-   SPI_DISABLE_RTI();
-   SPI_CLEAR_RTI();                /* clear interrupt */
+   SpiUnselectSlave0();
+   LinkMcuReceive();
+   SpiStop();
+   SpiDisableRti();
+   SpiClearRti();                /* clear interrupt */
  }
 
  // SPI_UNSELECT_SLAVE1(); /* debug */
