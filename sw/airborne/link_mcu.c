@@ -25,12 +25,6 @@
 #include "link_mcu.h"
 #include "spi.h"
 
-#define CRC_INIT 0xffff
-#define CrcUpdate(_crc, _data) _crc_ccitt_update(_crc, _data)
-#define Crc1(x) ((x)&0xff)
-#define Crc2(x) ((x)>>8)
-
-
 volatile uint8_t link_mcu_tx_idx;
 volatile uint8_t link_mcu_rx_idx;
 

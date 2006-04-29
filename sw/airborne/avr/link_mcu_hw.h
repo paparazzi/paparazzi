@@ -25,6 +25,11 @@
  *  
  */
 
+
+
+#ifndef LINK_MCU_HW_H
+#define LINK_MCU_HW_H
+
 #if (__GNUC__ == 3)
 #include <avr/signal.h>
 #include <avr/crc16.h>
@@ -32,9 +37,10 @@
 #include <util/crc16.h>
 #endif
 
-
-#ifndef LINK_MCU_HW_H
-#define LINK_MCU_HW_H
+#define CRC_INIT 0xffff
+#define CrcUpdate(_crc, _data) _crc_ccitt_update(_crc, _data)
+#define Crc1(x) ((x)&0xff)
+#define Crc2(x) ((x)>>8)
 
 #ifdef FBW
 #define TX_BUF ((uint8_t*)&link_mcu_from_fbw_msg)
