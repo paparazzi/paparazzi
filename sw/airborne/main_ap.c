@@ -1,7 +1,7 @@
 /*
  * $Id$
  *  
- * Copyright (C) 2003-2005  Antoine Drouin
+ * Copyright (C) 2003-2006  Antoine Drouin
  *
  * This file is part of paparazzi.
  *
@@ -121,7 +121,7 @@ static inline uint8_t pprz_mode_update( void ) {
   if ((pprz_mode != PPRZ_MODE_HOME &&
        pprz_mode != PPRZ_MODE_GPS_OUT_OF_ORDER)
       || CheckEvent(rc_event_1)) {
-    ModeUpdate(pprz_mode, PPRZ_MODE_OF_PULSE(from_fbw.from_fbw.channels[RADIO_MODE], from_fbw.from_fbw.status));
+    ModeUpdate(pprz_mode, PPRZ_MODE_OF_PULSE(fbw_state->channels[RADIO_MODE], fbw_state->status));
   } else
     return FALSE;
 }
@@ -131,16 +131,16 @@ static inline uint8_t pprz_mode_update( void ) {
  *  \brief update ir estimation if RADIO_LLS is true \n
  */
 inline uint8_t ir_estim_mode_update( void ) {
-  ModeUpdate(ir_estim_mode, IR_ESTIM_MODE_OF_PULSE(from_fbw.from_fbw.channels[RADIO_LLS]));
+  ModeUpdate(ir_estim_mode, IR_ESTIM_MODE_OF_PULSE(fbw_state->channels[RADIO_LLS]));
 }
 #endif
 
 
 static inline uint8_t mcu1_status_update( void ) {
-  uint8_t new_mode = from_fbw.from_fbw.status;
-  if (mcu1_status != new_mode) {
-    bool_t changed = ((mcu1_status&MASK_FBW_CHANGED) != (new_mode&MASK_FBW_CHANGED));
-    mcu1_status = new_mode;
+  uint8_t new_status = fbw_state->status;
+  if (mcu1_status != new_status) {
+    bool_t changed = ((mcu1_status&MASK_FBW_CHANGED) != (new_status&MASK_FBW_CHANGED));
+    mcu1_status = new_status;
     return changed;
   }
   return FALSE;
@@ -166,21 +166,21 @@ static inline uint8_t mcu1_status_update( void ) {
 
 #if defined RADIO_CALIB && defined RADIO_CONTROL_CALIB
 static inline uint8_t inflight_calib_mode_update ( void ) {
-  ModeUpdate(inflight_calib_mode, IF_CALIB_MODE_OF_PULSE(from_fbw.from_fbw.channels[RADIO_CALIB]));
+  ModeUpdate(inflight_calib_mode, IF_CALIB_MODE_OF_PULSE(fbw_state->channels[RADIO_CALIB]));
 }
 #define EventPos(_cpt, _channel, _event) \
- EventUpdate(_cpt, (inflight_calib_mode==IF_CALIB_MODE_NONE && from_fbw.from_fbw.channels[_channel]>(int)(0.75*MAX_PPRZ)), _event)
+ EventUpdate(_cpt, (inflight_calib_mode==IF_CALIB_MODE_NONE && fbw_state->channels[_channel]>(int)(0.75*MAX_PPRZ)), _event)
 
 #define EventNeg(_cpt, _channel, _event) \
- EventUpdate(_cpt, (inflight_calib_mode==IF_CALIB_MODE_NONE && from_fbw.from_fbw.channels[_channel]<(int)(-0.75*MAX_PPRZ)), _event)
+ EventUpdate(_cpt, (inflight_calib_mode==IF_CALIB_MODE_NONE && fbw_state->channels[_channel]<(int)(-0.75*MAX_PPRZ)), _event)
 
 #else //  RADIO_CALIB && defined RADIO_CONTROL_CALIB
 
 #define EventPos(_cpt, _channel, _event) \
- EventUpdate(_cpt, (from_fbw.from_fbw.channels[_channel]>(int)(0.75*MAX_PPRZ)), _event)
+ EventUpdate(_cpt, (fbw_state->channels[_channel]>(int)(0.75*MAX_PPRZ)), _event)
 
 #define EventNeg(_cpt, _channel, _event) \
- EventUpdate(_cpt, (from_fbw.from_fbw.channels[_channel]<(int)(-0.75*MAX_PPRZ)), _event)
+ EventUpdate(_cpt, (fbw_state->channels[_channel]<(int)(-0.75*MAX_PPRZ)), _event)
 
 #endif //  RADIO_CALIB && defined RADIO_CONTROL_CALIB
 
@@ -241,11 +241,11 @@ static inline void reporting_task( void ) {
 inline void telecommand_task( void ) {
   uint8_t mode_changed = FALSE;
   copy_from_to_fbw();
-  if ((bit_is_set(from_fbw.from_fbw.status, RADIO_REALLY_LOST) && (pprz_mode == PPRZ_MODE_AUTO1 || pprz_mode == PPRZ_MODE_MANUAL)) || too_far_from_home) {
+  if ((bit_is_set(fbw_state->status, RADIO_REALLY_LOST) && (pprz_mode == PPRZ_MODE_AUTO1 || pprz_mode == PPRZ_MODE_MANUAL)) || too_far_from_home) {
     pprz_mode = PPRZ_MODE_HOME;
     mode_changed = TRUE;
   }
-  if (bit_is_set(from_fbw.from_fbw.status, AVERAGED_CHANNELS_SENT)) {
+  if (bit_is_set(fbw_state->status, AVERAGED_CHANNELS_SENT)) {
     bool_t pprz_mode_changed = pprz_mode_update();
     mode_changed |= pprz_mode_changed;
 #ifdef RADIO_LLS
@@ -267,26 +267,26 @@ inline void telecommand_task( void ) {
    */
   if (pprz_mode == PPRZ_MODE_AUTO1) {
     /** In Auto1 mode, roll is bounded between [-AUTO1_MAX_ROLL;AUTO1_MAX_ROLL] */
-    desired_roll = FLOAT_OF_PPRZ(from_fbw.from_fbw.channels[RADIO_ROLL], 0., -AUTO1_MAX_ROLL);
+    desired_roll = FLOAT_OF_PPRZ(fbw_state->channels[RADIO_ROLL], 0., -AUTO1_MAX_ROLL);
     
     /** In Auto1 mode, pitch is bounded between [-AUTO1_MAX_PITCH;AUTO1_MAX_PITCH] */
-    desired_pitch = FLOAT_OF_PPRZ(from_fbw.from_fbw.channels[RADIO_PITCH], 0., AUTO1_MAX_PITCH);
+    desired_pitch = FLOAT_OF_PPRZ(fbw_state->channels[RADIO_PITCH], 0., AUTO1_MAX_PITCH);
   }
   if (pprz_mode == PPRZ_MODE_MANUAL || pprz_mode == PPRZ_MODE_AUTO1) {
-    desired_gaz = from_fbw.from_fbw.channels[RADIO_THROTTLE];
+    desired_gaz = fbw_state->channels[RADIO_THROTTLE];
   }
   /** else asynchronously set by climb_pid_run(); */
   
-  mcu1_ppm_cpt = from_fbw.from_fbw.ppm_cpt;
-  vsupply = from_fbw.from_fbw.vsupply;
+  mcu1_ppm_cpt = fbw_state->ppm_cpt;
+  vsupply = fbw_state->vsupply;
   
   events_update();
   
   if (!estimator_flight_time) {
 #ifdef INFRARED
-    ground_calibrate(STICK_PUSHED(from_fbw.from_fbw.channels[RADIO_ROLL]));
+    ground_calibrate(STICK_PUSHED(fbw_state->channels[RADIO_ROLL]));
 #endif
-    if (pprz_mode == PPRZ_MODE_AUTO2 && from_fbw.from_fbw.channels[RADIO_THROTTLE] > GAZ_THRESHOLD_TAKEOFF) {
+    if (pprz_mode == PPRZ_MODE_AUTO2 && fbw_state->channels[RADIO_THROTTLE] > GAZ_THRESHOLD_TAKEOFF) {
       launch = TRUE;
     }
   }
@@ -466,9 +466,9 @@ inline void periodic_task_ap( void ) {
     estimator_update_state_infrared();
 #endif
     roll_pitch_pid_run(); /* Set  desired_aileron & desired_elevator */
-    from_ap.from_ap.commands[COMMAND_THROTTLE] = desired_gaz; /* desired_gaz is set upon GPS message reception */
-    from_ap.from_ap.commands[COMMAND_ROLL] = desired_aileron;
-    from_ap.from_ap.commands[COMMAND_PITCH] = desired_elevator;
+    ap_state->commands[COMMAND_THROTTLE] = desired_gaz; /* desired_gaz is set upon GPS message reception */
+    ap_state->commands[COMMAND_ROLL] = desired_aileron;
+    ap_state->commands[COMMAND_PITCH] = desired_elevator;
     
 #if defined MCU_SPI_LINK
     link_fbw_send();
@@ -487,7 +487,6 @@ inline void periodic_task_ap( void ) {
 
 #ifdef MCU_SPI_LINK /** ap alone, using SPI to communicate with fbw */
 #include "spi.h"
-#include "link_mcu_ap.h"
 #endif
 /* #else statically linked with fbw */
 

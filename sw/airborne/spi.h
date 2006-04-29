@@ -37,8 +37,9 @@ extern uint8_t* spi_buffer_input;
 extern uint8_t* spi_buffer_output;
 extern uint8_t spi_buffer_length;
 
-#ifdef FBW
 extern volatile bool_t spi_message_received;
+
+#ifdef FBW
 
 void spi_init(void);
 

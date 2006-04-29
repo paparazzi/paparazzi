@@ -39,44 +39,5 @@
 
 #define CRC_INIT 0xffff
 #define CrcUpdate(_crc, _data) _crc_ccitt_update(_crc, _data)
-#define Crc1(x) ((x)&0xff)
-#define Crc2(x) ((x)>>8)
-
-#ifdef FBW
-#define TX_BUF ((uint8_t*)&link_mcu_from_fbw_msg)
-#define RX_BUF ((uint8_t*)&link_mcu_from_ap_msg)
-#define EndTransmit() {}
-
-#define LinkMcuMessageReceived() ( !SpiIsSelected() && link_mcu_was_busy )
-#endif
-
-#ifdef AP 
-#define TX_BUF ((uint8_t*)&link_mcu_from_ap_msg)
-#define RX_BUF ((uint8_t*)&link_mcu_from_fbw_msg)
-#define EndTransmit() \
-      SpiDisableTxi();
-
-
-#define LinkMcuStart() { \
-  LinkMcuTransmit();  /* fill fifo */ \
-  SpiEnableTxi();     /* enable tx fifo half empty interrupt */ \
-  SpiEnableRti();     /* enable rx timeout interrupt         */ \
-}
-#endif
-
-#define FRAME_LENGTH sizeof(struct link_mcu_msg)
-
-#define LinkMcuTransmit() {						\
-    if (link_mcu_tx_idx < FRAME_LENGTH) {				\
-      SpiSend(TX_BUF[link_mcu_tx_idx]);	\
-      link_mcu_tx_idx++;						\
-    } else			\
-      EndTransmit() \
-}
-
-#define LinkMcuReceive() {						\
-      SpiRead(RX_BUF[link_mcu_rx_idx]);	\
-      link_mcu_rx_idx++;						\
-  }
 
 #endif /* LINK_MCU_HW_H */

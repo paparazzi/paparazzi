@@ -1,17 +1,24 @@
 #ifndef SPI_HW_H
 #define SPI_HW_H
 
+extern uint8_t* spi_idx_buf;
+
+#define SpiInitBuf() { \
+  spi_idx_buf = 0; \
+  SPDR = spi_buffer_input[0]; \
+  spi_message_received = FALSE; \
+}
+
 #ifdef FBW
 
 #define SPI_PORT   PORTB
 #define SPI_PIN    PINB
 #define SPI_SS_PIN 2
 
-#define SpiIsSelected() (bit_is_clear(SPI_PIN, SPI_SS_PIN))
+#define SpiStart() SpiInitBuf()
 
-extern void spi_reset(void);
-#define SpiStart() spi_reset()
 #endif /* FBW */
+
 
 #ifdef AP
 
@@ -36,41 +43,33 @@ extern void spi_reset(void);
 #define SPI_DDR  DDRB
 
 /* Enable SPI, Master, clock fck/16, interrupt */ 
-#define SPI_START(_SPCR_VAL) { \
-  uint8_t foo; \
+#define SpiStart() { \
   SPCR = _BV(SPE) | _BV(MSTR) | _BV(SPR0); \
+  uint8_t foo; \
   if (bit_is_set(SPSR, SPIF)) \
     foo = SPDR; \
   SPCR |= _BV(SPIE); \
+  SpiInitBuf(); \
 }
 
-#define SPI_SELECT_SLAVE0() { \
+#define SpiSelectSlave0() { \
   spi_cur_slave = SPI_SLAVE0; \
-  cbi( SPI_SS0_PORT, SPI_SS0_PIN );\
+  ClearBit( SPI_SS0_PORT, SPI_SS0_PIN );\
 }
 
-#define SPI_UNSELECT_SLAVE0() { \
+#define SpiUnselectSlave0() { \
   spi_cur_slave = SPI_NONE; \
-  sbi( SPI_SS0_PORT, SPI_SS0_PIN );\
+  SetBit( SPI_SS0_PORT, SPI_SS0_PIN );\
 }
 
-#define SPI_SELECT_SLAVE1() { \
+#define SpiSelectSlave1() { \
   spi_cur_slave = SPI_SLAVE1; \
-  cbi( SPI_SS1_PORT, SPI_SS1_PIN );\
+  ClearBit( SPI_SS1_PORT, SPI_SS1_PIN );\
 }
 
-#define SPI_UNSELECT_SLAVE1() { \
+#define SpiUnselectSlave1() { \
   spi_cur_slave = SPI_NONE; \
-  sbi( SPI_SS1_PORT, SPI_SS1_PIN );\
-}
-
-#define SPI_SEND(data) { \
-  SPDR = data; \
-}
-
-#define SPI_STOP() { \
- cbi(SPCR,SPIE); \
- cbi(SPCR, SPE); \
+  SetBit( SPI_SS1_PORT, SPI_SS1_PIN );\
 }
 
 #endif /* AP */

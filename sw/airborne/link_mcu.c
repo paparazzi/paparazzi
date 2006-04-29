@@ -31,36 +31,29 @@ volatile uint8_t link_mcu_rx_idx;
 struct link_mcu_msg link_mcu_from_ap_msg;
 struct link_mcu_msg link_mcu_from_fbw_msg;
 
+static uint16_t crc = 0;
+
+#define ComputeChecksum(_buf) { \
+  uint8_t i = 0; \
+  crc = CRC_INIT; \
+  for(i = 0; i < PAYLOAD_LENGTH; i++) { \
+    crc = CrcUpdate(crc, ((uint8_t*)&_buf)[i]); \
+  } \
+}
+
+#define PAYLOAD_LENGTH sizeof(link_mcu_from_fbw_msg.payload)
+#define LINK_MCU_FRAME_LENGTH sizeof(link_mcu_from_fbw_msg)
+
 #ifdef FBW
 
 volatile bool_t link_mcu_is_busy;
 volatile bool_t link_mcu_was_busy;
 
-#define PAYLOAD_LENGTH sizeof(link_mcu_from_fbw_msg.payload)
-#define LINK_MCU_FRAME_LENGTH sizeof(link_mcu_from_fbw_msg)
-
-static void compute_checksum_out(void) {
-  uint8_t i = 0;
-  uint16_t crc = 0;
-  for(i = 0; i < PAYLOAD_LENGTH; i++) {
-    crc = CrcUpdate(crc, ((uint8_t*)&link_mcu_from_fbw_msg)[i]);
-  }
-  link_mcu_from_fbw_msg.checksum = crc;
-}
-
-static bool_t compute_checksum_in(void) {
-  uint8_t i = 0;
-  uint16_t crc = 0;
-  for(i = 0; i < PAYLOAD_LENGTH; i++) {
-    crc = CrcUpdate(crc, ((uint8_t*)&link_mcu_from_fbw_msg)[i]);
-  }
-  return (link_mcu_from_fbw_msg.checksum == crc);
-}
-
 void link_mcu_restart(void) {
   //  LED_TOGGLE(2);
 
-  compute_checksum_out();
+  ComputeChecksum(link_mcu_from_fbw_msg);
+  link_mcu_from_fbw_msg.checksum = crc;
 
   spi_buffer_input = (uint8_t*)&link_mcu_from_ap_msg;
   spi_buffer_output = (uint8_t*)&link_mcu_from_fbw_msg;
@@ -72,7 +65,8 @@ void link_mcu_restart(void) {
 
 void link_mcu_event_task( void ) {
   /* A message has been received */
-  if (compute_checksum_in()) 
+  ComputeChecksum(link_mcu_from_ap_msg);
+  if (link_mcu_from_ap_msg.checksum == crc) 
     from_ap_receive_valid = TRUE;
   else
     link_mcu_from_fbw_msg.payload.from_fbw.nb_err++;
@@ -80,6 +74,9 @@ void link_mcu_event_task( void ) {
    
 #endif /* FBW */
 
+
+
+/*****************************************************************************/
 #ifdef AP
 
 volatile uint8_t link_fbw_nb_err;
@@ -99,13 +96,24 @@ void link_fbw_send(void) {
     return;
   }
 
-  //  from_fbw_receive_valid = FALSE;
-  link_mcu_rx_idx = 0;
-  link_mcu_tx_idx = 0;
-  /* compute checksum */
-  SpiStart();
+  ComputeChecksum(link_mcu_from_ap_msg);
+  link_mcu_from_ap_msg.checksum = crc;
+  spi_buffer_input = (uint8_t*)&link_mcu_from_fbw_msg;
+  spi_buffer_output = (uint8_t*)&link_mcu_from_ap_msg;
+  spi_buffer_length = LINK_MCU_FRAME_LENGTH;
   SpiSelectSlave0();
-  LinkMcuStart();
+  SpiStart();
 }
+
+
+void link_mcu_event_task( void ) {
+  /* A message has been received */
+  ComputeChecksum(link_mcu_from_fbw_msg);
+  if (link_mcu_from_fbw_msg.checksum == crc) 
+    from_fbw_receive_valid = TRUE;
+  else
+    link_fbw_nb_err++;
+}
+
 
 #endif /* AP */

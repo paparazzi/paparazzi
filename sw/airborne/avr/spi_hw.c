@@ -37,7 +37,21 @@
 
 #include <avr/interrupt.h>
 
-#include "inter_mcu.h"
+uint8_t* spi_idx_buf;
+
+#define HandleOneSpiByte() { \
+  spi_idx_buf++; \
+  if (spi_idx_buf < spi_buffer_length) { \
+    SPDR = spi_buffer_output[spi_idx_buf]; \
+    spi_buffer_input[spi_idx_buf-1] = SPDR; \
+  } else if (spi_idx_buf == spi_buffer_length) { \
+    spi_buffer_input[spi_idx_buf-1] = SPDR; \
+    spi_message_received = TRUE; \
+    SpiStop(); \
+  } \
+  idx_buf++; \
+}
+
 
 #ifdef FBW
 
@@ -66,32 +80,17 @@ void spi_init(void) {
   SPCR |= _BV(SPIE);
 }
 
-void spi_reset(void) {
-  idx_buf = 0;
-  SPDR = spi_buffer_input[0];
-
-  spi_message_received = FALSE;
-}
+#define SpiStop() {}
 
 
 SIGNAL(SIG_SPI) {
-  idx_buf++;
-
-  spi_was_interrupted = TRUE;
-
-  if (idx_buf < spi_buffer_length) {
-    SPDR = spi_buffer_output[idx_buf];
-    spi_buffer_input[idx_buf-1] = SPDR;
-  } else if (idx_buf ==spi_buffer_length) {
-    spi_buffer_input[idx_buf-1] = SPDR;
-    spi_message_received = TRUE;
-  }
-  idx_buf++;
+  HandleOneSpiByte();
 }
 
 #endif /** FBW */
 
 
+/****************************************************************************/
 #ifdef AP
 
 #include "autopilot.h"
@@ -107,14 +106,14 @@ void spi_init( void) {
   //  SPI_PORT |= _BV(SPI_MISO_PIN);
 
   /* Set SS0 output */
-  sbi( SPI_SS0_DDR, SPI_SS0_PIN);
+  SetBit( SPI_SS0_DDR, SPI_SS0_PIN);
   /* SS0 idles high (don't select slave yet)*/
-  SPI_UNSELECT_SLAVE0();
+  SpiUnselectSlave0();
 
   /* Set SS1 output */
-  sbi( SPI_SS1_DDR, SPI_SS1_PIN);
+  SetBit( SPI_SS1_DDR, SPI_SS1_PIN);
   /* SS1 idles high (don't select slave yet)*/
-  SPI_UNSELECT_SLAVE1();
+  SpiUnselectSlave1();
   
   spi_cur_slave = SPI_NONE;
 }
@@ -128,67 +127,28 @@ SIGNAL(SIG_SPI) {
     /* prepare a new one to be sent           */
     OCR1A = TCNT1 + 200;
     /* clear interrupt flag  */
-    sbi(TIFR, OCF1A);
+    SetBit(TIFR, OCF1A);
     /* enable OC1A interrupt */
-    sbi(TIMSK, OCIE1A);
+    SetBit(TIMSK, OCIE1A);
   }
   else
     fatal_error_nb++;
 }
 
+#define SpiStop() { \
+  cbi(SPCR,SPIE); \
+  cbi(SPCR, SPE); \
+  SpiUnselectSlave0(); \
+}
+
+
 /** send the next byte
     c.f. fly_by_wire/spi.c */
 SIGNAL(SIG_OUTPUT_COMPARE1A) {
-  static uint8_t tmp, crc_in1;
-
   /* disable OC1A interrupt */
-  cbi(TIMSK, OCIE1A); 
+  ClearBit(TIMSK, OCIE1A);
 
-  idx_buf++;
-
-  /* we have sent/received a complete frame */
-  if (idx_buf == FRAME_LENGTH) {
-    /* read second byte of crc from receive register  */
-    tmp = SPDR;
-    /* notify valid frame                   */
-    if (crc_in1 == Crc1(crc_in) && tmp == Crc2(crc_in)) {
-      from_fbw_receive_valid = TRUE;
-      link_fbw_fbw_nb_err = from_fbw.from_fbw.nb_err;
-    } else
-      link_fbw_nb_err++;
-    /* unselect slave0                      */
-    SPI_UNSELECT_SLAVE0();
-    SPI_STOP();
-    return;
-  }
-
-  if (idx_buf == FRAME_LENGTH - 1) {
-    /* send the second byte of the crc_out */
-    tmp = Crc2(crc_out);
-    SPDR = tmp;
-    /* get the first byte of the crc_in */
-    crc_in1 = SPDR;
-    return;
-  } 
-
-  /* we are sending/receiving payload       */
-  if (idx_buf < FRAME_LENGTH - 2) {
-    /* place new payload byte in send register */
-    tmp = ((uint8_t*)&from_ap.from_ap)[idx_buf];
-    SPI_SEND(tmp);
-    crc_out = CrcUpdate(crc_out, tmp);
-  } 
-  /* we are done sending the payload */
-  else { // idx_buf == FRAME_LENGTH - 2
-    /* Send first byte of crc_out */
-    tmp = Crc1(crc_out);
-    SPI_SEND(tmp);
-  }
-  
-  /* read the byte from receive register */
-  tmp = SPDR;
-  ((uint8_t*)&from_fbw.from_fbw)[idx_buf-1] = tmp;
-  crc_in = CrcUpdate(crc_in, tmp);
+  HandleOneSpiByte();
 }
 
 #endif /* AP */
