@@ -218,6 +218,10 @@
     <field name="channels" type="int16[]"/>
  </message>
 
+ <message name="DEBUG2" id="33">
+    <field name="foo" type="uint8[]"/>
+ </message>
+
 
   <message name="PPM" ID="100">
     <field name="values" type="uint16[]" unit="ticks"/>

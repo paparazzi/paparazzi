@@ -96,7 +96,7 @@ void init_ap( void ) {
 
 #if defined MCU_SPI_LINK
   spi_init();
-  link_fbw_init();
+  link_mcu_init();
 #endif
 
   /* if AP is running in a separate MCU */
@@ -112,7 +112,7 @@ void periodic_task_ap( void ) {
   PeriodicSendAp();
 #endif
 #if defined MCU_SPI_LINK
-  link_fbw_send();
+  link_mcu_send();
 #endif
 }
 
