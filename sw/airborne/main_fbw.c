@@ -82,6 +82,9 @@ void init_fbw( void ) {
 #ifdef RADIO_CONTROL
  ppm_init();
 #endif
+#ifdef INTER_MCU
+ inter_mcu_init();
+#endif
 #ifdef MCU_SPI_LINK
   spi_init();
 #endif
@@ -122,7 +125,9 @@ void event_task_fbw( void) {
     if (fbw_mode == FBW_MODE_AUTO) {
       SetCommands(ap_state->commands);
     }
-
+#ifdef MCU_SPI_LINK
+    link_mcu_restart();
+#endif
   }
 #endif
 
@@ -131,9 +136,16 @@ void event_task_fbw( void) {
   //    spi_was_interrupted = FALSE;
   //    spi_reset();
   //  }
-  if (!link_mcu_is_busy && link_mcu_was_busy) {
-    link_mcu_was_busy = FALSE;
-    link_mcu_restart();
+/*   if (!link_mcu_is_busy && link_mcu_was_busy) { */
+/*     /\* Waiting for the next SPI message from ap *\/ */
+/*     link_mcu_was_busy = FALSE; */
+/*     link_mcu_restart(); */
+/*   } */
+
+  if (spi_message_received) {
+    /* Got a message on SPI. */
+    spi_message_received = FALSE;
+    link_mcu_event_task();
   }
 #endif
 

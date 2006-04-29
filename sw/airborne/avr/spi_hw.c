@@ -33,9 +33,6 @@
 
 #if (__GNUC__ == 3)
 #include <avr/signal.h>
-#include <avr/crc16.h>
-#else
-#include <util/crc16.h>
 #endif
 
 #include <avr/interrupt.h>
@@ -56,12 +53,8 @@
 volatile bool_t spi_was_interrupted = FALSE;
 
 static volatile uint8_t idx_buf = 0;
-static volatile uint16_t crc_in, crc_out;
 
 void spi_init(void) {
-  from_fbw.from_fbw.status = 0;
-  from_fbw.from_fbw.nb_err = 0;
-
   /* set it pin output */
   //  IT_DDR |= _BV(IT_PIN);
 
@@ -75,65 +68,25 @@ void spi_init(void) {
 
 void spi_reset(void) {
   idx_buf = 0;
-  crc_in = CRC_INIT;
-  crc_out = CRC_INIT;
+  SPDR = spi_buffer_input[0];
 
-  uint8_t first_byte = ((uint8_t*)&from_fbw.from_fbw)[0];
-  crc_out = CrcUpdate(crc_out, first_byte);
-  SPDR = first_byte;
-
-  from_ap_receive_valid = FALSE;
+  spi_message_received = FALSE;
 }
 
 
 SIGNAL(SIG_SPI) {
-  static uint8_t tmp, crc_in1;
-  
   idx_buf++;
 
   spi_was_interrupted = TRUE;
 
-  if (idx_buf > FRAME_LENGTH)
-    return;
-  /* we have sent/received a complete frame */
-  if (idx_buf == FRAME_LENGTH) {
-    /* read second byte of crc from receive register */
-    tmp = SPDR;
-    /* notify valid frame  */
-    if (crc_in1 == Crc1(crc_in) && tmp == Crc2(crc_in))
-      from_ap_receive_valid = TRUE;
-    else
-      from_fbw.from_fbw.nb_err++;
-    return;
+  if (idx_buf < spi_buffer_length) {
+    SPDR = spi_buffer_output[idx_buf];
+    spi_buffer_input[idx_buf-1] = SPDR;
+  } else if (idx_buf ==spi_buffer_length) {
+    spi_buffer_input[idx_buf-1] = SPDR;
+    spi_message_received = TRUE;
   }
-
-  if (idx_buf == FRAME_LENGTH - 1) {
-    /* send the second byte of the crc_out */
-    tmp = Crc2(crc_out);
-    SPDR = tmp;
-    /* get the first byte of the crc_in */
-    crc_in1 = SPDR;
-    return;
-  } 
-
-  /* we are sending/receiving payload       */
-  if (idx_buf < FRAME_LENGTH - 2) {
-    /* place new payload byte in send register */
-    tmp = ((uint8_t*)&from_fbw.from_fbw)[idx_buf];
-    SPDR = tmp;
-    crc_out = CrcUpdate(crc_out, tmp);
-  } 
-  /* we are done sending the payload */
-  else { // idx_buf == FRAME_LENGTH - 2
-    /* place first byte of crc_out */
-    tmp = Crc1(crc_out);
-    SPDR = tmp;
-  }
-  
-  /* read the byte from receive register */
-  tmp = SPDR;
-  ((uint8_t*)&from_ap)[idx_buf-1] = tmp;
-  crc_in = CrcUpdate(crc_in, tmp);
+  idx_buf++;
 }
 
 #endif /** FBW */

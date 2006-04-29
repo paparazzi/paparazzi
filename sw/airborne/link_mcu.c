@@ -24,7 +24,6 @@
 
 #include "link_mcu.h"
 #include "spi.h"
-#include "crc_hw.h"
 
 #define CRC_INIT 0xffff
 #define CrcUpdate(_crc, _data) _crc_ccitt_update(_crc, _data)
@@ -43,14 +42,48 @@ struct link_mcu_msg link_mcu_from_fbw_msg;
 volatile bool_t link_mcu_is_busy;
 volatile bool_t link_mcu_was_busy;
 
-void link_mcu_restart(void) {
-  LED_TOGGLE(2);
-  link_mcu_rx_idx = 0;
-  link_mcu_tx_idx = 0;
-  LinkMcuTransmit();
-  link_mcu_is_busy = TRUE;
+#define PAYLOAD_LENGTH sizeof(link_mcu_from_fbw_msg.payload)
+#define LINK_MCU_FRAME_LENGTH sizeof(link_mcu_from_fbw_msg)
+
+static void compute_checksum_out(void) {
+  uint8_t i = 0;
+  uint16_t crc = 0;
+  for(i = 0; i < PAYLOAD_LENGTH; i++) {
+    crc = CrcUpdate(crc, ((uint8_t*)&link_mcu_from_fbw_msg)[i]);
+  }
+  link_mcu_from_fbw_msg.checksum = crc;
 }
 
+static bool_t compute_checksum_in(void) {
+  uint8_t i = 0;
+  uint16_t crc = 0;
+  for(i = 0; i < PAYLOAD_LENGTH; i++) {
+    crc = CrcUpdate(crc, ((uint8_t*)&link_mcu_from_fbw_msg)[i]);
+  }
+  return (link_mcu_from_fbw_msg.checksum == crc);
+}
+
+void link_mcu_restart(void) {
+  LED_TOGGLE(2);
+
+  compute_checksum_out();
+
+  spi_buffer_input = (uint8_t*)&link_mcu_from_ap_msg;
+  spi_buffer_output = (uint8_t*)&link_mcu_from_fbw_msg;
+  spi_buffer_length = LINK_MCU_FRAME_LENGTH;
+  SpiStart();
+
+  from_ap_receive_valid = FALSE;
+}
+
+void link_mcu_event_task( void ) {
+  /* A message has been received */
+  if (compute_checksum_in()) 
+    from_ap_receive_valid = TRUE;
+  else
+    link_mcu_from_fbw_msg.payload.from_fbw.nb_err++;
+}
+   
 #endif /* FBW */
 
 #ifdef AP
@@ -69,7 +102,6 @@ void link_fbw_init(void) {
 }
 
 void link_fbw_send(void) {
-
   if (!SpiCheckAvailable()) {
     SpiOverRun();
     return;

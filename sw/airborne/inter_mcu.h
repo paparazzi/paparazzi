@@ -90,9 +90,14 @@ extern bool_t ap_ok;
 #define AP_STALLED_TIME        30  // 500ms with a 60Hz timer
 
 
+static inline void inter_mcu_init(void) {
+  fbw_state->status = 0;
+  fbw_state->nb_err = 0;
+}
+
+
 /* Prepare data to be sent to mcu0 */
 static inline void inter_mcu_fill_fbw_state (void) {
-
   uint8_t i;
   for(i = 0; i < RADIO_CTL_NB; i++)
     fbw_state->channels[i] = rc_values[i];

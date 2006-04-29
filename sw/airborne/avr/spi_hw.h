@@ -9,6 +9,8 @@
 
 #define SpiIsSelected() (bit_is_clear(SPI_PIN, SPI_SS_PIN))
 
+extern void spi_reset(void);
+#define SpiStart() spi_reset()
 #endif /* FBW */
 
 #ifdef AP

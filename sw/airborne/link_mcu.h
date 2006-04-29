@@ -45,9 +45,7 @@ extern volatile uint8_t link_mcu_rx_idx;
 
 #ifdef FBW
 
-extern volatile bool_t link_mcu_is_busy;
-extern volatile bool_t link_mcu_was_busy;
-
+extern void link_mcu_event_task(void);
 extern void link_mcu_restart(void);
 
 #endif /* FBW */

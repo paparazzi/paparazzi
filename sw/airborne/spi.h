@@ -33,11 +33,14 @@
 
 #include "spi_hw.h"
 
+extern uint8_t* spi_buffer_input;
+extern uint8_t* spi_buffer_output;
+extern uint8_t spi_buffer_length;
+
 #ifdef FBW
-extern volatile bool_t spi_was_interrupted;
+extern volatile bool_t spi_message_received;
 
 void spi_init(void);
-void spi_reset(void);
 
 #endif /* FBW */
 
