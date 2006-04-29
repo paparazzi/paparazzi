@@ -32,11 +32,6 @@
 #ifndef INTER_MCU_H
 #define INTER_MCU_H
 
-/** Fly by wire modes */
-#define FBW_MODE_MANUAL   0
-#define FBW_MODE_AUTO     1
-#define FBW_MODE_FAILSAFE 2
-#define FBW_MODE_OF_PPRZ(mode) ((mode) < TRESHOLD_MANUAL_PPRZ ? FBW_MODE_MANUAL : FBW_MODE_AUTO)
 
 #ifdef INTER_MCU
 
@@ -79,13 +74,14 @@ struct ap_state {
 extern struct fbw_state* fbw_state;
 extern struct ap_state*  ap_state;
 
-extern volatile bool_t from_fbw_receive_valid;
-extern volatile bool_t from_ap_receive_valid;
+extern volatile bool_t inter_mcu_received_fbw;
+extern volatile bool_t inter_mcu_received_ap;
+
+
+#ifdef FBW
 
 extern uint8_t time_since_last_ap;
 extern bool_t ap_ok;
-
-#ifdef FBW
 
 #define AP_STALLED_TIME        30  // 500ms with a 60Hz timer
 
@@ -128,7 +124,7 @@ static inline void inter_mcu_event_task( void) {
 #endif
 }
 
-/** Monitors AP. Set ::rc_ok to false if AP is down for a long time. */
+/** Monitors AP. Set ::ap_ok to false if AP is down for a long time. */
 static inline void inter_mcu_periodic_task(void) {
   if (time_since_last_ap >= AP_STALLED_TIME) {
     ap_ok = FALSE;

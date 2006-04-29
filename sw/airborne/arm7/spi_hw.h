@@ -31,11 +31,34 @@
 #include "std.h"
 #include "LPC21xx.h"
 
-#define SpiStart() {		\
+
+#define SpiTransmitTransmit() {						\
+    while (link_mcu_tx_idx < spi_buffer_length	                 	\
+	   && bit_is_set(SSPSR, TNF)) {					\
+      SpiSend(spi_buffer_output[link_mcu_tx_idx]);	                \
+      link_mcu_tx_idx++;						\
+    }			                                                \
+    SpiEndTransmit()                                                    \
+}
+
+#define SpiReceive() {		         				\
+    while ( bit_is_set(SSPSR, RNE)) {					\
+      SpiRead(spi_buffer_input[link_mcu_rx_idx]);	                \
+      link_mcu_rx_idx++;						\
+    }									\
+  }
+
+#define SpiStart() {                                                    \
+  LinkMcuTransmit();  /* fill fifo */                                   \
+  SpiEnableTxi();     /* enable tx fifo half empty interrupt */         \
+  SpiEnableRti();     /* enable rx timeout interrupt         */         \
+}
+
+#define SpiEnable() {		\
     SetBit(SSPCR1, SSE);	\
   }
 
-#define SpiStop() {		\
+#define SpiDisable() {		\
     ClearBit(SSPCR1, SSE);	\
   }
 
@@ -76,10 +99,14 @@
   }
 
 #ifdef FBW
-
+  #define SpiEndTransmit() {}
 #endif /* FBW */
 
 #ifdef AP
+
+#define SpiEndTransmit()                                                \
+  if (link_mcu_tx_idx == spi_buffer_length)	        		\
+      SpiDisableTxi();
 
 /* 
  * Slave0 select : P0.20  PINSEL1 00 << 8

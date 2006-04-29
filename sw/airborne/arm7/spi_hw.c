@@ -31,7 +31,8 @@
 #include "LPC21xx.h"
 #include "armVIC.h"
 
-#include "link_mcu.h"
+volatile uint8_t spi_tx_idx;
+volatile uint8_t spi_rx_idx;
 
 #ifdef FBW
 void SPI1_ISR(void) __attribute__((naked));
@@ -75,28 +76,31 @@ void spi_init( void ) {
   /* enable half empty tx interrupt */
   SpiEnableTxi();
   /* enable SPI */
-  SpiStart();
+  SpiEnable();
 
 }
 
 void SPI1_ISR(void) {
  ISR_ENTRY();
+ 
+ LED_ON(2);
 
  if (bit_is_set(SSPMIS, TXMIS)) {  /*  Tx half empty */
-   LinkMcuTransmit();
-   LinkMcuReceive();
+   SpiTransmit();
+   SpiReceive();
    SpiEnableRti();
  }
  
  if ( bit_is_set(SSPMIS, RTMIS)) { /* Rx timeout     */ 
-   //   LED_ON(2);
-   LinkMcuReceive();
+   SpiReceive();
    SpiDisableRti();
    SpiClearRti();                /* clear interrupt */
-   link_mcu_is_busy = FALSE;
-   link_mcu_was_busy = TRUE;
-   //   LED_OFF(2);
-}
+   //   link_mcu_is_busy = FALSE;
+   //   link_mcu_was_busy = TRUE;
+   spi_message_received = TRUE;
+ }
+ 
+ LED_OFF(2);
  
  VICVectAddr = 0x00000000; /* clear this interrupt from the VIC */
  ISR_EXIT();
@@ -165,14 +169,14 @@ void SPI1_ISR(void) {
 
  // SPI_SELECT_SLAVE1(); /* debug */
  if (bit_is_set(SSPMIS, TXMIS)) {  /*  Tx fifo is half empty */
-   LinkMcuTransmit();
-   LinkMcuReceive();
+   SpiTransmit();
+   SpiReceive();
  }
 
  if ( bit_is_set(SSPMIS, RTMIS)) { /* Rx fifo is not empty and no receive took place in the last 32 bits period */ 
    SpiUnselectSlave0();
-   LinkMcuReceive();
-   SpiStop();
+   SpiReceiveReceive();
+   SpiDisable();
    SpiDisableRti();
    SpiClearRti();                /* clear interrupt */
  }

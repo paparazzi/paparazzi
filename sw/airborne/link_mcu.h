@@ -43,6 +43,8 @@ extern struct link_mcu_msg link_mcu_from_fbw_msg;
 extern volatile uint8_t link_mcu_tx_idx;
 extern volatile uint8_t link_mcu_rx_idx;
 
+extern bool_t link_mcu_received;
+
 #ifdef FBW
 
 extern void link_mcu_event_task(void);

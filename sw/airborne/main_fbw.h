@@ -33,6 +33,12 @@
 #include "std.h"
 #include "adc.h"
 
+/** Fly by wire modes */
+#define FBW_MODE_MANUAL   0
+#define FBW_MODE_AUTO     1
+#define FBW_MODE_FAILSAFE 2
+#define FBW_MODE_OF_PPRZ(mode) ((mode) < TRESHOLD_MANUAL_PPRZ ? FBW_MODE_MANUAL : FBW_MODE_AUTO)
+
 extern uint8_t fbw_mode;
 extern uint8_t fbw_vsupply_decivolt;
 extern bool_t failsafe_mode;

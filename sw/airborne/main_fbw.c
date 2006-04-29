@@ -86,7 +86,7 @@ void init_fbw( void ) {
  inter_mcu_init();
 #endif
 #ifdef MCU_SPI_LINK
-  spi_init();
+ spi_init();
 #endif
 
   int_enable();
@@ -102,6 +102,11 @@ static inline void set_failsafe_mode( void ) {
 /********** EVENT ************************************************************/
 
 void event_task_fbw( void) {
+
+  //  if (bit_is_set(SSPSR, BSY))
+  //    LED_ON(2);
+  //  else
+  //    LED_OFF(2);
 
 #ifdef RADIO_CONTROL
   if (ppm_valid) {
@@ -120,36 +125,26 @@ void event_task_fbw( void) {
 #endif
 
 #ifdef INTER_MCU
-  if (from_ap_receive_valid) {
-    from_ap_receive_valid = FALSE;
+  if (inter_mcu_received_ap) {
+    //    DOWNLINK_SEND_DEBUG(sizeof(link_mcu_from_ap_msg), ((uint8_t*)&link_mcu_from_ap_msg));
+    inter_mcu_received_ap = FALSE;
     inter_mcu_event_task();
     if (fbw_mode == FBW_MODE_AUTO) {
       SetCommands(ap_state->commands);
     }
-#ifdef MCU_SPI_LINK
-    link_mcu_restart();
-#endif
   }
-#endif
-
 #ifdef MCU_SPI_LINK
-  //  if ( !SpiIsSelected() && spi_was_interrupted ) {
-  //    spi_was_interrupted = FALSE;
-  //    spi_reset();
-  //  }
-/*   if (!link_mcu_is_busy && link_mcu_was_busy) { */
-/*     /\* Waiting for the next SPI message from ap *\/ */
-/*     link_mcu_was_busy = FALSE; */
-/*     link_mcu_restart(); */
-/*   } */
-
+  if (link_mcu_received) {
+    link_mcu_received = FALSE;
+    link_mcu_restart();
+  }
   if (spi_message_received) {
     /* Got a message on SPI. */
     spi_message_received = FALSE;
     link_mcu_event_task();
   }
-#endif
-
+#endif /* MCU_SPI_LINK */
+#endif /* INTER_MCU */
 }
 
 /************* PERIODIC ******************************************************/
