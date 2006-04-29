@@ -472,9 +472,9 @@ inline void periodic_task_ap( void ) {
     
 #if defined MCU_SPI_LINK
     link_fbw_send();
-#elif defined INTER_MCU && defined FBW
+#elif defined INTER_MCU && defined SINGLE_MCU
     /**Directly set the flag indicating to FBW that shared buffer is available*/
-    from_ap_receive_valid = TRUE;
+    inter_mcu_received_ap = TRUE;
 #endif
     break;
   default:
@@ -504,7 +504,7 @@ void init_ap( void ) {
 #ifdef LED
   led_init();
 #endif
-#ifndef FBW /** Dual mcus : init done in main_fbw */
+#ifndef SINGLE_MCU /** Dual mcus : init done in main_fbw */
   hw_init();
   sys_time_init(); 
 #ifdef ADC
@@ -579,6 +579,7 @@ void init_ap( void ) {
 }
 
 
+/*********** EVENT ***********************************************************/
 void event_task_ap( void ) {
 #ifdef GPS
   if (GpsBuffer()) {
@@ -629,9 +630,17 @@ void event_task_ap( void ) {
   }
 #endif
 
-  if (from_fbw_receive_valid) {
+#ifdef MCU_SPI_LINK
+  if (spi_message_received) {
+    /* Got a message on SPI. */
+    spi_message_received = FALSE;
+    link_mcu_event_task();
+  }
+#endif
+
+  if (inter_mcu_received_fbw) {
     /* receive radio control task from fbw */
-    from_fbw_receive_valid = FALSE;
+    inter_mcu_received_fbw = FALSE;
     telecommand_task();
 
 #ifdef IMU_3DMG

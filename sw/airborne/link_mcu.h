@@ -59,6 +59,7 @@ extern uint8_t link_fbw_fbw_nb_err;
 
 extern void link_fbw_init(void);
 extern void link_fbw_send(void);
+extern void link_mcu_event_task(void);
 
 #endif /* AP */
 
