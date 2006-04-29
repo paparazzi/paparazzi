@@ -90,7 +90,7 @@ void init_fbw( void ) {
 }
 
 
-void set_failsafe_mode( void ) {
+static inline void set_failsafe_mode( void ) {
   fbw_mode = FBW_MODE_FAILSAFE;
   SetCommands(commands_failsafe);
 }
@@ -120,7 +120,7 @@ void event_task_fbw( void) {
     from_ap_receive_valid = FALSE;
     inter_mcu_event_task();
     if (fbw_mode == FBW_MODE_AUTO) {
-      SetCommands(from_ap.from_ap.commands);
+      SetCommands(ap_state->commands);
     }
 
   }

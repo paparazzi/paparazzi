@@ -47,7 +47,7 @@ void link_mcu_restart(void) {
   LED_TOGGLE(2);
   link_mcu_rx_idx = 0;
   link_mcu_tx_idx = 0;
-  LINK_MCU_TRANSMIT();
+  LinkMcuTransmit();
   link_mcu_is_busy = TRUE;
 }
 
