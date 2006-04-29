@@ -75,14 +75,14 @@ void link_mcu_event_task( void ) {
 /*****************************************************************************/
 #ifdef AP
 
-volatile uint8_t link_fbw_nb_err;
-uint8_t link_fbw_fbw_nb_err;
+volatile uint8_t link_mcu_nb_err;
+uint8_t link_mcu_fbw_nb_err;
 
-void link_fbw_init(void) {
-  link_fbw_nb_err = 0;
+void link_mcu_init(void) {
+  link_mcu_nb_err = 0;
 }
 
-void link_fbw_send(void) {
+void link_mcu_send(void) {
   if (!SpiCheckAvailable()) {
     SpiOverRun();
     return;
@@ -103,7 +103,7 @@ void link_mcu_event_task( void ) {
   if (link_mcu_from_fbw_msg.checksum == crc) 
     inter_mcu_received_fbw = TRUE;
   else
-    link_fbw_nb_err++;
+    link_mcu_nb_err++;
 }
 
 

@@ -31,25 +31,31 @@
 #include "std.h"
 #include "LPC21xx.h"
 
+extern volatile uint8_t spi_tx_idx;
+extern volatile uint8_t spi_rx_idx;
 
-#define SpiTransmitTransmit() {						\
-    while (link_mcu_tx_idx < spi_buffer_length	                 	\
+
+#define SpiTransmit() {						        \
+    while (spi_tx_idx < spi_buffer_length	                 	\
 	   && bit_is_set(SSPSR, TNF)) {					\
-      SpiSend(spi_buffer_output[link_mcu_tx_idx]);	                \
-      link_mcu_tx_idx++;						\
+      SpiSend(spi_buffer_output[spi_tx_idx]);	                        \
+      spi_tx_idx++;						\
     }			                                                \
-    SpiEndTransmit()                                                    \
+    SpiEndTransmit();                                                   \
 }
 
 #define SpiReceive() {		         				\
     while ( bit_is_set(SSPSR, RNE)) {					\
-      SpiRead(spi_buffer_input[link_mcu_rx_idx]);	                \
-      link_mcu_rx_idx++;						\
+      SpiRead(spi_buffer_input[spi_rx_idx]);	                        \
+      spi_rx_idx++;						\
     }									\
   }
 
 #define SpiStart() {                                                    \
-  LinkMcuTransmit();  /* fill fifo */                                   \
+  spi_rx_idx = 0;                                                       \
+  spi_tx_idx = 0;                                                       \
+  spi_message_received = FALSE;                                         \
+  SpiTransmit();      /* fill fifo */                                   \
   SpiEnableTxi();     /* enable tx fifo half empty interrupt */         \
   SpiEnableRti();     /* enable rx timeout interrupt         */         \
 }
@@ -105,7 +111,7 @@
 #ifdef AP
 
 #define SpiEndTransmit()                                                \
-  if (link_mcu_tx_idx == spi_buffer_length)	        		\
+  if (spi_tx_idx == spi_buffer_length)	        		\
       SpiDisableTxi();
 
 /* 

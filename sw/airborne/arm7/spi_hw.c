@@ -83,7 +83,7 @@ void spi_init( void ) {
 void SPI1_ISR(void) {
  ISR_ENTRY();
  
- LED_ON(2);
+ // LED_ON(2);
 
  if (bit_is_set(SSPMIS, TXMIS)) {  /*  Tx half empty */
    SpiTransmit();
@@ -93,14 +93,12 @@ void SPI1_ISR(void) {
  
  if ( bit_is_set(SSPMIS, RTMIS)) { /* Rx timeout     */ 
    SpiReceive();
-   SpiDisableRti();
    SpiClearRti();                /* clear interrupt */
-   //   link_mcu_is_busy = FALSE;
-   //   link_mcu_was_busy = TRUE;
+   SpiDisableRti();
    spi_message_received = TRUE;
  }
  
- LED_OFF(2);
+ // LED_OFF(2);
  
  VICVectAddr = 0x00000000; /* clear this interrupt from the VIC */
  ISR_EXIT();
@@ -175,11 +173,11 @@ void SPI1_ISR(void) {
 
  if ( bit_is_set(SSPMIS, RTMIS)) { /* Rx fifo is not empty and no receive took place in the last 32 bits period */ 
    SpiUnselectSlave0();
-   SpiReceiveReceive();
-   SpiDisable();
+   SpiReceive();
    SpiDisableRti();
    SpiClearRti();                /* clear interrupt */
- }
+   SpiDisable();
+}
 
  // SPI_UNSELECT_SLAVE1(); /* debug */
  VICVectAddr = 0x00000000; /* clear this interrupt from the VIC */
