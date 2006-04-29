@@ -22,13 +22,19 @@
  *
  */
 
-#define INTER_MCU_C
-
 #include "inter_mcu.h"
 
+#if defined FBW && defined AP
+struct fbw_state _fbw_state;
+struct ap_state _ap_state;
+struct fbw_state* fbw_state = &_fbw_state;
+struct ap_state* ap_state = &_ap_state;
+#else
+#include "link_mcu.h"
+struct fbw_state* fbw_state = &link_mcu_from_fbw_msg.payload.from_fbw;
+struct ap_state*  ap_state = &link_mcu_from_ap_msg.payload.from_ap;
+#endif
 
-inter_mcu_msg from_fbw;
-inter_mcu_msg from_ap;
 
 volatile bool_t from_fbw_receive_valid = FALSE;
 volatile bool_t from_ap_receive_valid = FALSE;

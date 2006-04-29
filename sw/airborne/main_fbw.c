@@ -22,11 +22,13 @@
  *
  */
 
-/** \brief FBW ( FlyByWire ) process
+/** \file main_fbw.c
+ *  \brief FBW ( FlyByWire ) process
+ *
  *   This process is responsible for decoding radio control, generating actuators 
  * signals either from the radio control or from the commands provided by the 
  * AP (autopilot) process. It also performs a telemetry task and a low level monitoring
- * ( for parameters the supply )
+ * ( for parameters like the supply )
  */
 
 #include "main_fbw.h"
@@ -43,6 +45,7 @@
 #include "actuators.h"
 #include "radio_control.h"
 #include "fbw_downlink.h"
+#include "autopilot.h"
 
 #ifdef MCU_SPI_LINK
 #include "link_mcu.h"
@@ -119,19 +122,21 @@ void event_task_fbw( void) {
     if (fbw_mode == FBW_MODE_AUTO) {
       SetCommands(from_ap.from_ap.commands);
     }
+
   }
 #endif
 
 #ifdef MCU_SPI_LINK
-  if ( !SpiIsSelected() && spi_was_interrupted ) {
-    spi_was_interrupted = FALSE;
-    spi_reset();
-  }
-  //  if (!link_mcu_is_busy && link_mcu_was_busy) {
-  //    link_mcu_was_busy = FALSE;
-  //    link_mcu_restart();
+  //  if ( !SpiIsSelected() && spi_was_interrupted ) {
+  //    spi_was_interrupted = FALSE;
+  //    spi_reset();
   //  }
-#endif  
+  if (!link_mcu_is_busy && link_mcu_was_busy) {
+    link_mcu_was_busy = FALSE;
+    link_mcu_restart();
+  }
+#endif
+
 }
 
 /************* PERIODIC ******************************************************/

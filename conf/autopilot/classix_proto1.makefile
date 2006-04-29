@@ -16,3 +16,6 @@ fbw.TARGET = fbw
 fbw.TARGETDIR = fbw
 fbw.CFLAGS += -DFBW -DCONFIG=\"classix_proto1.h\" -DLED -DTIME_LED=1
 fbw.srcs = sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c main_fbw.c main.c
+
+LPC21ISP_BAUD = 115200
+LPC21ISP_XTAL = 14746

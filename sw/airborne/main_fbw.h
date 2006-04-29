@@ -22,6 +22,11 @@
  *
  */
 
+/** \file main_fbw.h
+ *  \brief FBW ( FlyByWire ) process API
+ *
+ */
+
 #ifndef FBW_H
 #define FBW_H
 

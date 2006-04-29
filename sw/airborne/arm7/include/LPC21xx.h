@@ -179,6 +179,48 @@
 #define S1SPCCR         SPI1->ccr       /* Clock Counter Register */
 #define S1SPINT         SPI1->flag      /* Interrupt Flag Register */
 
+#define SSPCR0   (*(REG16*) 0xE0068000) /* Control Register 0               */
+#define SSPCR1   (*(REG_8*) 0xE0068004) /* Control Register 1               */
+#define SSPDR    (*(REG16*) 0xE0068008) /* Data register                    */
+#define SSPSR    (*(REG_8*) 0xE006800C) /* Status register                  */
+#define SSPCPSR  (*(REG_8*) 0xE0068010) /* Clock prescale register          */
+#define SSPIMSC  (*(REG_8*) 0xE0068014) /* Interrupt mask register          */
+#define SSPRIS   (*(REG_8*) 0xE0068018) /* Raw interrupt status register    */
+#define SSPMIS   (*(REG_8*) 0xE006801C) /* Masked interrupt status register */
+#define SSPICR   (*(REG_8*) 0xE0068020) /* Interrupt clear register         */
+
+/* SSPCR1 bits definition */
+#define LBM   0
+#define SSE   1
+#define MS    2
+#define SOD   3
+
+/*  SSPIMSC bits definition */
+#define RORIM 0
+#define RTIM  1
+#define RXIM  2
+#define TXIM  3
+
+/* SSPSR bits definition */
+#define TFE   0
+#define TNF   1
+#define RNE   2
+#define RFF   3
+#define BSY   4
+
+/* SSPMIS bits definition */
+#define RORMIS 0
+#define RTMIS  1
+#define RXMIS  2
+#define TXMIS  3
+
+/* SSPICR bits definition */
+#define RORIC 0
+#define RTIC  1
+
+
+
+
 ///////////////////////////////////////////////////////////////////////////////
 // Real Time Clock
 #define RTC             ((rtcRegs_t *)0xE0024000)

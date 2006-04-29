@@ -22,7 +22,7 @@
  * Boston, MA 02111-1307, USA. 
  *
  */
-/** \file srf08.h
+/** \file srf08.c
  *  \brief Basic library for SRF08 telemeter
  *
  */

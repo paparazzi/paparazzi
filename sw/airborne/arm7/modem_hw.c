@@ -2,8 +2,6 @@
 #include "types.h"
 #include "armVIC.h"
 
-
-
 uint8_t           modem_nb_ovrn;
 uint8_t           tx_head;
 volatile uint8_t  tx_tail;
@@ -76,7 +74,6 @@ void TIMER1_ISR ( void ) {
   /* clear interrupt */
   T1IR = TIR_MR0I;
   VICVectAddr = 0x00000000;
-  //  IO1SET = LED_2_BIT;  
   ISR_EXIT();
 }
 

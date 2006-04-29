@@ -184,7 +184,7 @@ void nav_goto_block(uint8_t b) {
 
 const int32_t nav_utm_east0 = NAV_UTM_EAST0;
 const int32_t nav_utm_north0 = NAV_UTM_NORTH0;
-const int8_t nav_utm_zone0 = NAV_UTM_ZONE0;
+const uint8_t nav_utm_zone0 = NAV_UTM_ZONE0;
 
 float desired_altitude = GROUND_ALT + MIN_HEIGHT_CARROT;
 float desired_x, desired_y;

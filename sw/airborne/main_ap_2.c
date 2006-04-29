@@ -1,3 +1,9 @@
+
+/** \file main_ap_2.c
+ *  \brief Dummy file to ease the transistion to ARM code
+ *
+ */
+
 #include "main_ap.h"
 #include "init_hw.h"
 #include "interrupt_hw.h"
@@ -6,6 +12,9 @@
 #include "modem.h"
 #include "gps.h"
 #include "print.h"
+
+#include "spi.h"
+#include "link_mcu.h"
 
 #include "airframe.h"
 uint8_t ac_ident = AC_ID;
@@ -24,7 +33,6 @@ uint8_t mcu1_status;
 uint8_t ir_estim_mode;
 int32_t nav_utm_east0;
 int32_t nav_utm_north0;
-/* why not uint8_t */
 int8_t nav_utm_zone0;
 float estimator_phi;
 float estimator_psi;
@@ -55,6 +63,7 @@ int16_t circle_x;
 int16_t circle_y;
 int16_t circle_radius;
 uint8_t modem_nb_ovrn;
+uint8_t mcu1_ppm_cpt;
 
 #include "ap_downlink.h"
 #define PeriodicSendDlValue() {}
@@ -85,6 +94,11 @@ void init_ap( void ) {
 
 #endif /* ADC */
 
+#if defined MCU_SPI_LINK
+  spi_init();
+  link_fbw_init();
+#endif
+
   /* if AP is running in a separate MCU */
 #ifndef FBW
  int_enable();
@@ -96,6 +110,9 @@ void periodic_task_ap( void ) {
   //  LED_TOGGLE(2);
 #ifdef DOWNLINK
   PeriodicSendAp();
+#endif
+#if defined MCU_SPI_LINK
+  link_fbw_send();
 #endif
 }
 

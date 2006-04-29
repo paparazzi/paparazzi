@@ -7,8 +7,6 @@
 #include "LPC21xx.h"
 #include "sys_time.h"
 
-#include "led.h"
-
 #include CONFIG
 
 #define SERVOS_TICS_OF_USEC(s) SYS_TICS_OF_USEC(s)
@@ -39,7 +37,6 @@ extern uint8_t servos_4017_idx;
 #define SERVOS_4017_RESET_WIDTH SERVOS_TICS_OF_USEC(1000)
 #define SERVOS_4017_FIRST_PULSE_WIDTH SERVOS_TICS_OF_USEC(100)
 #define SERVOS_4017_ISR() {					\
-    LED_TOGGLE(2);						\
   if (servos_4017_idx == _4017_NB_CHANNELS) {			\
       IO1SET = _BV(SERVO_RESET_PIN);				\
       /* Start a long 1ms reset, keep clock low */		\

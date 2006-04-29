@@ -33,9 +33,10 @@
 #define SPI_PORT PORTB
 #define SPI_DDR  DDRB
 
+/* Enable SPI, Master, clock fck/16, interrupt */ 
 #define SPI_START(_SPCR_VAL) { \
   uint8_t foo; \
-  SPCR = _SPCR_VAL; \
+  SPCR = _BV(SPE) | _BV(MSTR) | _BV(SPR0); \
   if (bit_is_set(SPSR, SPIF)) \
     foo = SPDR; \
   SPCR |= _BV(SPIE); \

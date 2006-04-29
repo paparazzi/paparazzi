@@ -47,7 +47,7 @@ extern float dist2_to_wp, dist2_to_home;
 
 extern const int32_t nav_utm_east0; 
 extern const int32_t nav_utm_north0;
-extern const int8_t nav_utm_zone0;
+extern const uint8_t nav_utm_zone0;
 
 extern const uint8_t nb_waypoint;
 extern struct point waypoints[];

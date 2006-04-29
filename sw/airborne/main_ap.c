@@ -22,6 +22,13 @@
  *
  */
 
+/** \file main_ap.c
+ *  \brief AP ( AutoPilot ) process
+ *
+ *   This process is reponsible for the collecting the different sensors data, fusing them to obtain
+ * aircraft attitude and running the different control loops
+ */
+
 #include <math.h>
 
 #include "interrupt_hw.h"
@@ -53,7 +60,7 @@
 
 #if defined AHRS
 #include "ahrs.h"
-#endif // AHRS
+#endif /* AHRS */
 
 #ifndef AUTO1_MAX_ROLL
 #define AUTO1_MAX_ROLL 0.6
@@ -482,7 +489,7 @@ inline void periodic_task_ap( void ) {
 #include "spi.h"
 #include "link_mcu_ap.h"
 #endif
-/** #else statically linked with fbw */
+/* #else statically linked with fbw */
 
 
 #ifdef TELEMETER
@@ -577,10 +584,6 @@ void event_task_ap( void ) {
 #ifdef GPS
   if (GpsBuffer()) {
     ReadGpsBuffer();
-    /*     if (IO1PIN & LED_2_BIT) */
-    /*       IO1CLR = LED_2_BIT; */
-    /*     else */
-    /*       IO1SET = LED_2_BIT; */
   }
   if (gps_msg_received) {
     /* parse and use GPS messages */
@@ -592,6 +595,7 @@ void event_task_ap( void ) {
     }
   }
 #endif /** GPS */
+
 #ifdef WAVECARD
   if (wc_msg_received) {
     wc_parse_payload();
@@ -612,6 +616,7 @@ void event_task_ap( void ) {
     dl_msg_available = FALSE;
   }
 #endif
+
 #ifdef TELEMETER
   /** Handling of data sent by the device (initiated by srf08_receive() */
   if (srf08_received) {

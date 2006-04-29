@@ -122,7 +122,7 @@ extern volatile uint8_t payload_length;
 
 static inline void parse_pprz( uint8_t c ) {
   static uint8_t pprz_status = UNINIT;
-  static uint8_t ck_a, ck_b, payload_idx;
+  static uint8_t _ck_a, _ck_b, payload_idx;
 
   switch (pprz_status) {
   case UNINIT:
@@ -135,24 +135,24 @@ static inline void parse_pprz( uint8_t c ) {
       goto error;
     }
     payload_length = c-4; /* Counting STX, LENGTH and CRC1 and CRC2 */
-    ck_a = ck_b = c;
+    _ck_a = _ck_b = c;
     pprz_status++;
     payload_idx = 0;
     break;
   case GOT_LENGTH:
     input_payload[payload_idx] = c;
-    ck_a += c; ck_b += ck_a;
+    _ck_a += c; _ck_b += _ck_a;
     payload_idx++;
     if (payload_idx == payload_length)
       pprz_status++;
     break;
   case GOT_PAYLOAD:
-    if (c != ck_a)
+    if (c != _ck_a)
       goto error;
     pprz_status++;
     break;
   case GOT_CRC1:
-    if (c != ck_b)
+    if (c != _ck_b)
       goto error;
     pprz_msg_received = TRUE;
     goto restart;

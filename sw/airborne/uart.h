@@ -22,8 +22,8 @@
  *
  */
 
-/** \file uart.c
- *  \brief arch independant uart headers
+/** \file uart.h
+ *  \brief arch independant UART (Universal Asynchronous Receiver/Transmitter) API
  *
  */
 

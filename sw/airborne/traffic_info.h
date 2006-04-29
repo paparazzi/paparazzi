@@ -21,7 +21,7 @@
  * Boston, MA 02111-1307, USA. 
  *
  */
-/** \file nav.c
+/** \file traffic_info.h
  *  \brief Informations relative to the other aircrafts
  *
  */

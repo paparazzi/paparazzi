@@ -31,47 +31,47 @@
 #include "std.h"
 #include "LPC21xx.h"
 
-#define SPI_START() {		\
-    SET_BIT(SSPCR1, SSE);	\
+#define SpiStart() {		\
+    SetBit(SSPCR1, SSE);	\
   }
 
-#define SPI_STOP() {		\
-    CLEAR_BIT(SSPCR1, SSE);	\
+#define SpiStop() {		\
+    ClearBit(SSPCR1, SSE);	\
   }
 
-#define SPI_ENABLE_RTI() {	\
-    SET_BIT(SSPIMSC, RTIM);	\
+#define SpiEnableRti() {	\
+    SetBit(SSPIMSC, RTIM);	\
   }
 
-#define SPI_DISABLE_RTI() {	\
-    CLEAR_BIT(SSPIMSC, RTIM);	\
+#define SpiDisableRti() {	\
+    ClearBit(SSPIMSC, RTIM);	\
   }
 
-#define SPI_CLEAR_RTI() {       \
-    SET_BIT(SSPICR, RTIC);	\
+#define SpiClearRti() {       \
+    SetBit(SSPICR, RTIC);	\
   }
 
-#define SPI_ENABLE_TXI() {	\
-    SET_BIT(SSPIMSC, TXIM);	\
+#define SpiEnableTxi() {	\
+    SetBit(SSPIMSC, TXIM);	\
   }
 
-#define SPI_DISABLE_TXI() {	\
-    CLEAR_BIT(SSPIMSC, TXIM);	\
+#define SpiDisableTxi() {	\
+    ClearBit(SSPIMSC, TXIM);	\
   }
 
-#define SPI_ENABLE_RXI() {	\
-    SET_BIT(SSPIMSC, RXIM);	\
+#define SpiEnableRxi() {	\
+    SetBit(SSPIMSC, RXIM);	\
   }
 
-#define SPI_DISABLE_RXI() {	\
-    CLEAR_BIT(SSPIMSC, RXIM);	\
+#define SpiDsiableRxi() {	\
+    ClearBit(SSPIMSC, RXIM);	\
   }
 
-#define SPI_SEND(a) {           \
+#define SpiSend(a) {           \
     SSPDR = a;			\
   }
 
-#define SPI_READ(a) {           \
+#define SpiRead(a) {           \
     a = SSPDR;			\
   }
 
@@ -87,24 +87,24 @@
  *
  */
 
-#define SPI_SELECT_SLAVE0() {	\
+#define SpiSelectSlave0() {	\
     spi_cur_slave = SPI_SLAVE0;	\
-    SET_BIT(IO0CLR, 20);	\
+    SetBit(IO0CLR, 20);	\
   }
 
-#define SPI_UNSELECT_SLAVE0() { \
+#define SpiUnselectSlave0() { \
     spi_cur_slave = SPI_NONE;	\
-    SET_BIT(IO0SET, 20);	\
+    SetBit(IO0SET, 20);	\
   }
 
-#define SPI_SELECT_SLAVE1() {	\
+#define SpiSelectSlave1() {	\
     spi_cur_slave = SPI_SLAVE1;	\
-    SET_BIT(IO1CLR, 20);	\
+    SetBit(IO1CLR, 20);	\
   }
 
-#define SPI_UNSELECT_SLAVE1() { \
+#define SpiUnselectSlave1() { \
     spi_cur_slave = SPI_NONE;	\
-    SET_BIT(IO1SET, 20);	\
+    SetBit(IO1SET, 20);	\
   }
 
 #endif /* AP */

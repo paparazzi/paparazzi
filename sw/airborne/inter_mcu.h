@@ -53,37 +53,18 @@
 #include <stdio.h>
 #endif
 
-/*
- * System clock in MHz.
- */
-#define CLOCK		16
-
-/* !!!!!!!!!!!!!!!!!!! Value used in gen_airframe.ml !!!!!!!!!!!!!!!!! */
-
-/** Data structure shared by fbw and ap sub-mofules */
-struct from_fbw_msg {
+/** Data structure shared by fbw and ap process */
+struct fbw_state {
   pprz_t channels[RADIO_CTL_NB];  
   uint8_t ppm_cpt;
   uint8_t status;
   uint8_t nb_err;
   uint8_t vsupply; /* 1e-1 V */
-#if defined IMU_ANALOG || defined IMU_3DMG
-  int16_t euler_dot[3];
-#endif
-#ifdef IMU_3DMG
-  int16_t euler[3];
-#endif
 };
 
-struct from_ap_msg {
+struct ap_state {
   pprz_t commands[COMMANDS_NB];  
 };
-
-typedef union  { 
-  struct from_fbw_msg from_fbw; 
-  struct from_ap_msg from_ap;
-} inter_mcu_msg;
-
 
 // Status bits from FBW to AUTOPILOT
 #define STATUS_RADIO_OK 0
@@ -93,21 +74,10 @@ typedef union  {
 #define AVERAGED_CHANNELS_SENT 4
 #define MASK_FBW_CHANGED 0xf
 
-// Statut bits from AUTOPILOT to FBW
-#define STATUS_AUTO_OK  0
+//#define TRESHOLD_MANUAL_PPRZ (MIN_PPRZ / 2)
 
-/** Two bytes for the CRC */
-#define FRAME_LENGTH (sizeof(inter_mcu_msg)+2)
-
-#define CRC_INIT 0xffff
-#define CrcUpdate(_crc, _data) _crc_ccitt_update(_crc, _data)
-#define Crc1(x) ((x)&0xff)
-#define Crc2(x) ((x)>>8)
-
-#define TRESHOLD_MANUAL_PPRZ (MIN_PPRZ / 2)
-
-extern inter_mcu_msg from_fbw;
-extern inter_mcu_msg from_ap;
+extern struct fbw_state* fbw_state;
+extern struct ap_state*  ap_state;
 
 extern volatile bool_t from_fbw_receive_valid;
 extern volatile bool_t from_ap_receive_valid;
@@ -115,43 +85,31 @@ extern volatile bool_t from_ap_receive_valid;
 extern uint8_t time_since_last_ap;
 extern bool_t ap_ok;
 
-
 #ifdef FBW
 
 #define AP_STALLED_TIME        30  // 500ms with a 60Hz timer
 
 
 /* Prepare data to be sent to mcu0 */
-static inline void to_autopilot_from_rc_values (void) {
-  struct from_fbw_msg *msg = &(from_fbw.from_fbw);
+static inline void inter_mcu_fill_fbw_state (void) {
 
   uint8_t i;
   for(i = 0; i < RADIO_CTL_NB; i++)
-    msg->channels[i] = rc_values[i];
+    fbw_state->channels[i] = rc_values[i];
 
   uint8_t status;
   status = (rc_status == RC_OK ? _BV(STATUS_RADIO_OK) : 0);
   status |= (rc_status == RC_REALLY_LOST ? _BV(RADIO_REALLY_LOST) : 0);
   status |= (fbw_mode == FBW_MODE_AUTO ? _BV(STATUS_MODE_AUTO) : 0);
   status |= (fbw_mode == FBW_MODE_FAILSAFE ? _BV(STATUS_MODE_FAILSAFE) : 0);
-  msg->status  = status;
+  fbw_state->status  = status;
 
   if (rc_values_contains_avg_channels) {
-    msg->status |= _BV(AVERAGED_CHANNELS_SENT);
+    fbw_state->status |= _BV(AVERAGED_CHANNELS_SENT);
     rc_values_contains_avg_channels = FALSE;
   }
-  msg->ppm_cpt = last_ppm_cpt;
-  msg->vsupply = fbw_vsupply_decivolt;
-#if defined IMU_3DMG || defined IMU_ANALOG
-  msg->euler_dot[0] = roll_dot;
-  msg->euler_dot[1] = pitch_dot;
-  msg->euler_dot[2] = yaw_dot;
-#endif
-#ifdef IMU_3DMG
-  msg->euler[0] = roll;
-  msg->euler[1] = pitch;
-  msg->euler[2] = yaw;
-#endif
+  fbw_state->ppm_cpt = last_ppm_cpt;
+  fbw_state->vsupply = fbw_vsupply_decivolt;
 }
 
 /** Prepares date for next comm with AP. Set ::ap_ok to TRUE */

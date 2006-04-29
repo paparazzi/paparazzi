@@ -43,6 +43,7 @@ typedef uint8_t bool_t;
 #ifndef sbi
 #define sbi(sfr, bit) (_SFR_BYTE(sfr) |= _BV(bit))
 #endif
+
 #ifndef bit_is_set
 #define bit_is_set(x, b) ((x >> b) & 0x1)
 #endif
@@ -51,6 +52,8 @@ typedef uint8_t bool_t;
 #define _BV(bit) (1 << (bit))
 #endif
 
+#define SetBit(a, n) a |= 1 << n
+#define ClearBit(a, n) a &= ~(1 << n)
 
 
 #define NormRadAngle(x) { \

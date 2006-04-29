@@ -22,7 +22,7 @@
  *
  */
 /** \file cam.h
- *  \brief Regroup functions to control the camera
+ *  \brief Pan/Tilt camera API
  *
  */
 

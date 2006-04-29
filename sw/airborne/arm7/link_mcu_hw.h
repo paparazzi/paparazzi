@@ -29,43 +29,41 @@
 #define LINK_MCU_HW_H
 
 #ifdef FBW
-
-#define LINK_MCU_TRANSMIT() {						\
-    while (link_mcu_tx_idx < FRAME_LENGTH && bit_is_set(SSPSR, TNF)) {	\
-      SPI_SEND(((uint8_t*)&from_ap)[link_mcu_tx_idx]);			\
-      link_mcu_tx_idx++;						\
-    }									\
-}
-
-#define LINK_MCU_RECEIVE() {				\
-    while ( bit_is_set(SSPSR, RNE)) {			\
-      SPI_READ(((uint8_t*)&from_fbw)[link_mcu_rx_idx]);	\
-      link_mcu_rx_idx++;				\
-    }							\
-  }
-
-#endif /* FBW */
-
+#define TX_BUF ((uint8_t*)&link_mcu_from_fbw_msg)
+#define RX_BUF ((uint8_t*)&link_mcu_from_ap_msg)
+#define EndTransmit() {}
+#endif
 
 #ifdef AP 
+#define TX_BUF ((uint8_t*)&link_mcu_from_ap_msg)
+#define RX_BUF ((uint8_t*)&link_mcu_from_fbw_msg)
+#define EndTransmit() \
+  if (link_mcu_tx_idx == FRAME_LENGTH)			\
+      SpiDisableTxi();
+#endif
 
-#define LINK_MCU_TRANSMIT() { \
-    while (link_mcu_tx_idx < FRAME_LENGTH && bit_is_set(SSPSR, TNF)) {	\
-      SPI_SEND(((uint8_t*)&from_ap)[link_mcu_tx_idx]);			\
+#define FRAME_LENGTH sizeof(struct link_mcu_msg)
+
+#define LinkMcuTransmit() {						\
+    while (link_mcu_tx_idx < FRAME_LENGTH		\
+	   && bit_is_set(SSPSR, TNF)) {					\
+      SpiSend(TX_BUF[link_mcu_tx_idx]);	\
       link_mcu_tx_idx++;						\
-    }									\
-    if (link_mcu_tx_idx == FRAME_LENGTH)				\
-      SPI_DISABLE_TXI();						\
+    }			\
+    EndTransmit() \
 }
 
-#define LINK_MCU_RECEIVE() {				\
-    while ( bit_is_set(SSPSR, RNE)) {			\
-      SPI_READ(((uint8_t*)&from_fbw)[link_mcu_rx_idx]);	\
-      link_mcu_rx_idx++;				\
-    }							\
+#define LinkMcuReceive() {						\
+    while ( bit_is_set(SSPSR, RNE)) {					\
+      SpiRead(RX_BUF[link_mcu_rx_idx]);	\
+      link_mcu_rx_idx++;						\
+    }									\
   }
 
-#endif /* AP */
-
+#define LinkMcuStart() { \
+  LinkMcuTransmit();  /* fill fifo */ \
+  SpiEnableTxi();     /* enable tx fifo half empty interrupt */ \
+  SpiEnableRti();     /* enable rx timeout interrupt         */ \
+}
 
 #endif /* LINK_MCU_HW_H */

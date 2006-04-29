@@ -22,6 +22,11 @@
  *
  */
 
+/** \file main_ap.h
+ *  \brief AP ( AutoPilot ) process API
+ *
+ */
+
 #ifndef AP_H
 #define AP_H
 

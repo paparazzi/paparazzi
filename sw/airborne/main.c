@@ -21,7 +21,8 @@
  * Boston, MA 02111-1307, USA. 
  *
  */
-/** \brief mono and dual mcus mainloop */
+/** \file main.c
+ * \brief main loop used both on single and dual MCU configuration */
 
 
 #include "sys_time.h"

@@ -1,13 +1,11 @@
 #include "armVIC.h"
 #include "sys_time.h"
 
-#if defined SERVOS_4017
+#if defined ACTUATORS
 #include ACTUATORS
 #include "ppm.h"
-#endif /* SERVOS_4017 */
+#endif /* ACTUATORS */
 
-#warning "FIXMEEE - i fear that if two T0IR flags are up together I might discard an IT"
-#warning "And I've seen crashes: don't fly with that"
 
 #define TIMER0_IT_MASK (TIR_CR2I | TIR_MR1I)
 

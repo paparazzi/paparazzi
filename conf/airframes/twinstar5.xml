@@ -110,12 +110,6 @@
     <define name="HOME_RADIUS" value="50" unit="m"/>
   </section>
 
-  <section name="DOWNLINK" prefix="DOWNLINK_">
-    <define name="FBW_DEVICE" value="uart0"/>
-    <define name="AP_DEVICE" value="uart0"/>
-  </section>
-
-
   <makefile>
 include $(PAPARAZZI_SRC)/conf/autopilot/classix_proto1.makefile
 
@@ -127,17 +121,20 @@ fbw.srcs += $(SRC_ARCH)/servos_4017_hw.c
 fbw.CFLAGS += -DRADIO_CONTROL
 fbw.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c 
 
-fbw.CFLAGS += -DINTER_MCU -DMCU_SPI_LINK
-fbw.srcs += inter_mcu.c $(SRC_ARCH)/spi_hw.c
+fbw.CFLAGS += -DDOWNLINK -DUSE_UART0 -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_FBW_DEVICE=Uart0
+fbw.srcs += downlink.c pprz_transport.c $(SRC_ARCH)/uart_hw.c
 
-fbw.CFLAGS += -DDOWNLINK -DUSE_UART0 -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_FBW_DEVICE=uart0
-fbw.srcs += downlink.c $(SRC_ARCH)/uart_hw.c
+fbw.CFLAGS += -DINTER_MCU -DMCU_SPI_LINK
+fbw.srcs += inter_mcu.c link_mcu.c spi.c $(SRC_ARCH)/spi_hw.c
 
 fbw.srcs += $(SRC_ARCH)/adc_hw.c
 
 
-ap.CFLAGS += -DDOWNLINK -DUSE_UART0 -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_AP_DEVICE=uart0
-ap.srcs += downlink.c $(SRC_ARCH)/uart_hw.c
+ap.CFLAGS += -DDOWNLINK -DUSE_UART0 -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_AP_DEVICE=Uart0
+ap.srcs += downlink.c pprz_transport.c $(SRC_ARCH)/uart_hw.c
+
+ap.CFLAGS += -DINTER_MCU -DMCU_SPI_LINK
+ap.srcs += inter_mcu.c link_mcu.c spi.c $(SRC_ARCH)/spi_hw.c
 
 #ap.CFLAGS += -DGPS -DUBX -DUSE_UART1 
 #ap.srcs += gps_ubx.c gps.c
