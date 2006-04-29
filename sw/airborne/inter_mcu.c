@@ -36,8 +36,8 @@ struct ap_state*  ap_state = &link_mcu_from_ap_msg.payload.from_ap;
 #endif
 
 
-volatile bool_t from_fbw_receive_valid = FALSE;
-volatile bool_t from_ap_receive_valid = FALSE;
+volatile bool_t inter_mcu_received_fbw = FALSE;
+volatile bool_t inter_mcu_received_ap  = FALSE;
 
 #ifdef FBW
 uint8_t ap_ok;
