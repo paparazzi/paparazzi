@@ -1,7 +1,7 @@
 /*
  * $Id$
  *  
- * Copyright (C) 2003 Pascal Brisset, Antoine Drouin
+ * Copyright (C) 2003-2006 Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
  *
@@ -20,6 +20,10 @@
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA. 
  *
+ */
+
+/** \brief Transport for the communication between FBW and AP in a bi-process
+    architecture. Essentially adds a checksum to the inter_mcu structure.
  */
 
 #ifndef LINK_MCU_H

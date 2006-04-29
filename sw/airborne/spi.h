@@ -1,7 +1,7 @@
 /*
  * Paparazzi $Id$
  *  
- * Copyright (C) 2005 Pascal Brisset, Antoine Drouin
+ * Copyright (C) 2005-2006 Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
  *
@@ -30,7 +30,6 @@
 #define SPI_H
 
 #include "std.h"
-
 #include "spi_hw.h"
 
 extern uint8_t* spi_buffer_input;
@@ -39,11 +38,7 @@ extern uint8_t spi_buffer_length;
 
 extern volatile bool_t spi_message_received;
 
-#ifdef FBW
-
 void spi_init(void);
-
-#endif /* FBW */
 
 #ifdef AP
 
@@ -53,8 +48,6 @@ void spi_init(void);
 
 extern volatile uint8_t spi_cur_slave;
 extern uint8_t spi_nb_ovrn;
-
-void spi_init( void);
 
 #define SpiCheckAvailable() (spi_cur_slave == SPI_NONE)
 #define SpiOverRun() {spi_nb_ovrn++;}

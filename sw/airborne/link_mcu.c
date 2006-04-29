@@ -1,7 +1,7 @@
 /*
  * $Id$
  *  
- * Copyright (C) 2003-2005  Pascal Brisset, Antoine Drouin
+ * Copyright (C) 2003-2006  Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
  *
@@ -105,6 +105,5 @@ void link_mcu_event_task( void ) {
   else
     link_mcu_nb_err++;
 }
-
 
 #endif /* AP */

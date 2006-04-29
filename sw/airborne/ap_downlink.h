@@ -48,7 +48,7 @@ extern uint8_t telemetry_mode_Ap;
 #define PERIODIC_SEND_BAT() Downlink({ int16_t e = energy; DOWNLINK_SEND_BAT(&desired_gaz, &vsupply, &estimator_flight_time, &low_battery, &block_time, &stage_time, &e); })
 
 #ifdef MCU_SPI_LINK
-#define PERIODIC_SEND_DEBUG_MCU_LINK() DOWNLINK_SEND_DEBUG_MCU_LINK(&link_fbw_nb_err, &link_fbw_fbw_nb_err, &mcu1_ppm_cpt);
+#define PERIODIC_SEND_DEBUG_MCU_LINK() DOWNLINK_SEND_DEBUG_MCU_LINK(&link_mcu_nb_err, &link_mcu_fbw_nb_err, &mcu1_ppm_cpt);
 #else
 #define PERIODIC_SEND_DEBUG_MCU_LINK() {}
 #endif
