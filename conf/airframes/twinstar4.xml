@@ -15,17 +15,15 @@
     <axis name="ROLL"     failsafe_value="0"/>
     <axis name="PITCH"    failsafe_value="0"/>
     <axis name="YAW"    failsafe_value="0"/>
-    <axis name="MODE"    failsafe_value="0"/>
-    <axis name="GAIN1"    failsafe_value="0"/>
-    <axis name="GAIN2"    failsafe_value="0"/>
-    <axis name="SWITCH1"    failsafe_value="0"/>
-    <axis name="CALIB"    failsafe_value="0"/>
+    <axis name="CAM_ROLL"    failsafe_value="0"/>
+    <axis name="CAM_PITCH"    failsafe_value="0"/>
   </commands>
 
   <rc_commands>
     <set command="THROTTLE" value="@THROTTLE"/>
     <set command="ROLL" value="@ROLL"/>
     <set command="PITCH" value="@PITCH"/>
+    <set command="YAW" value="@YAW"/>
   </rc_commands>
 
   <section name="MIXER">
@@ -40,8 +38,8 @@
     <set servo="AILERON_LEFT" value="($roll > 0 ? 1 : AILERON_DIFF) * $roll"/>
     <set servo="AILERON_RIGHT" value="($roll > 0 ? AILERON_DIFF : 1) * $roll"/>
     <set servo="RUDDER" value="@YAW + @ROLL*COMBI_SWITCH"/>
-    <set servo="CAM_ROLL" value="@GAIN1"/>
-    <set servo="CAM_PITCH" value="@CALIB"/>
+    <set servo="CAM_ROLL" value="@CAM_ROLL"/>
+    <set servo="CAM_PITCH" value="@CAM_PITCH"/>
   </command_laws>
 
   <section name="adc" prefix="ADC_CHANNEL_">
@@ -88,7 +86,7 @@
   </section>
   <section name="BAT">
     <define name="MILLIAMP_PER_PERCENT" value="0.86"/>
-    <define name="VOLTAGE_ADC_A" value="0.0175"/>
+    <define name="VOLTAGE_ADC_A" value="0.0164"/>
     <define name="VOLTAGE_ADC_B" value="0.088"/>
     <define name="VoltageOfAdc(adc)" value="(VOLTAGE_ADC_A * adc + VOLTAGE_ADC_B)"/>
     <define name="LOW_BATTERY" value="9.3" unit="V"/>

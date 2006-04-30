@@ -83,7 +83,7 @@ extern uint8_t telemetry_mode_Ap;
 #define PERIODIC_SEND_ACINFO() {}
 #endif
 
-#ifdef COMMAND_CALIB
+#ifdef RADIO_CONTROL_CALIB
 #define PERIODIC_SEND_SETTINGS() if (inflight_calib_mode != IF_CALIB_MODE_NONE)	DOWNLINK_SEND_SETTINGS(&slider_1_val, &slider_2_val);
 #else
 #define PERIODIC_SEND_SETTINGS() {}

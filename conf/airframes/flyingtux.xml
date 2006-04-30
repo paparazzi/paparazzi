@@ -3,6 +3,7 @@
     <define name="IR1" value="1"/>
     <define name="IR2" value="0"/>
     <define name="IR_NB_SAMPLES" value="16"/>
+    <define name="VSUPPLY" value="3" />
   </section>
   <servos min="1000" neutral="1500" max="2000">
     <servo name="GAZ"    no="0" min="1250" neutral="1250" max="1850"/>
@@ -107,7 +108,7 @@
 
   <makefile>
 
-include $(PAPARAZZI_SRC)/conf/autopilot/v1_2_1.makefile
+include $(PAPARAZZI_SRC)/conf/autopilot/v1_2.makefile
 include $(PAPARAZZI_SRC)/conf/autopilot/twin_mcu_avr.makefile
 
 ap.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport

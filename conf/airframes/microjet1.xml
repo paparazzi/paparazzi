@@ -38,6 +38,7 @@
     <define name="AIRSPEED" value="2"/>
     <define name="CURRENT " value="3"/>
     <define name="BAT" value="4"/>
+    <define name="VSUPPLY" value="3" />
   </section>
 
  <section name="INFRARED" prefix="IR_">
@@ -100,7 +101,7 @@
 
  <makefile>
 
-include $(PAPARAZZI_SRC)/conf/autopilot/v1_2_1.makefile
+include $(PAPARAZZI_SRC)/conf/autopilot/v1_2.makefile
 include $(PAPARAZZI_SRC)/conf/autopilot/twin_mcu_avr.makefile
 
 ap.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport

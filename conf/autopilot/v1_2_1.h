@@ -25,4 +25,6 @@
 #define SERVO_COM0		COM1A0
 #define SERVO_COM1		COM1A1
 
+#define ADC_CHANNEL_VSUPPLY     3
+
 #endif /* CONFIG_V1_2_1_H */

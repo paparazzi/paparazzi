@@ -92,9 +92,9 @@
     <define name="CARROT" value="5." unit="s"/>
   </section>
   <section name="SIMU">
-    <define name="ROLL_RESPONSE_FACTOR" value="-10."/>
+    <define name="ROLL_RESPONSE_FACTOR" value="14."/>
     <define name="YAW_RESPONSE_FACTOR" value="1."/>
-    <define name="WEIGHT" value="0.45"/>
+    <define name="WEIGHT" value="0.3"/>
   </section>
   <section name="FAILSAFE" prefix="FAILSAFE_">
     <define name="DELAY_WITHOUT_GPS" value="2" unit="s"/>
@@ -122,6 +122,9 @@ ap.srcs += $(SRC_ARCH)/modem_hw.c
 
 ap.CFLAGS += -DRADIO_CONTROL_CALIB
 ap.srcs += if_calib.c
+
+# Config for SITL simulation
+include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
 
   </makefile>
 </airframe>
