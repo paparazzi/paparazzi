@@ -30,7 +30,7 @@ extern volatile uint8_t spi_idx_buf;
 
 #define SpiInitBuf() { \
   spi_idx_buf = 0; \
-  SPDR = spi_buffer_input[0]; \
+  SPDR = spi_buffer_output[0]; \
   spi_message_received = FALSE; \
 }
 #define SPI_IT1_PIN  6
