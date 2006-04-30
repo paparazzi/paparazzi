@@ -87,6 +87,7 @@ void init_fbw( void ) {
 #endif
 #ifdef MCU_SPI_LINK
  spi_init();
+ link_mcu_restart();
 #endif
 
   int_enable();
