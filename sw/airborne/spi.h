@@ -29,6 +29,8 @@
 #ifndef SPI_H
 #define SPI_H
 
+#ifdef MCU_SPI_LINK
+
 #include "std.h"
 #include "spi_hw.h"
 
@@ -45,6 +47,7 @@ void spi_init(void);
 #define SPI_NONE   0
 #define SPI_SLAVE0 1
 #define SPI_SLAVE1 2
+#define SPI_SLAVE2 3
 
 extern volatile uint8_t spi_cur_slave;
 extern uint8_t spi_nb_ovrn;
@@ -53,6 +56,8 @@ extern uint8_t spi_nb_ovrn;
 #define SpiOverRun() {spi_nb_ovrn++;}
 
 #endif /* AP */
+
+#endif /* MCU_SPI_LINK */
 
 #endif /* SPI_H */
 

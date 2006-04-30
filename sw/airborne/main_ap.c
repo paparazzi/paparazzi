@@ -378,6 +378,7 @@ static void navigation_task( void ) {
  *   - do navigation with \a navigation_task
  *
  */
+
 inline void periodic_task_ap( void ) {
   static uint8_t _20Hz   = 0;
   static uint8_t _10Hz   = 0;
@@ -471,7 +472,11 @@ inline void periodic_task_ap( void ) {
     ap_state->commands[COMMAND_PITCH] = desired_elevator;
     
 #if defined MCU_SPI_LINK
+
+    //   ClearBit( SPI_SS2_PORT, SPI_SS2_PIN );
     link_mcu_send();
+    //    SetBit( SPI_SS2_PORT, SPI_SS2_PIN );
+
 #elif defined INTER_MCU && defined SINGLE_MCU
     /**Directly set the flag indicating to FBW that shared buffer is available*/
     inter_mcu_received_ap = TRUE;
@@ -632,10 +637,10 @@ void event_task_ap( void ) {
 
 #ifdef MCU_SPI_LINK
   if (spi_message_received) {
+    DOWNLINK_SEND_DEBUG2(sizeof(link_mcu_from_fbw_msg), ((uint8_t*)&link_mcu_from_fbw_msg));
     /* Got a message on SPI. */
     spi_message_received = FALSE;
     link_mcu_event_task();
-    DOWNLINK_SEND_DEBUG2(sizeof(link_mcu_from_fbw_msg), ((uint8_t*)&link_mcu_from_fbw_msg));
   }
 #endif
 

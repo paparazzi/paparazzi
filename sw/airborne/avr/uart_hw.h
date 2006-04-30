@@ -74,8 +74,8 @@ extern void uart1_transmit(const uint8_t);
 extern uint8_t uart1_char;
 extern bool_t uart1_char_available;
 
-#define uart1ChAvailable() (uart1_char_available)
-static inline uint8_t uart1Getch( void ) {
+#define Uart1ChAvailable() (uart1_char_available)
+static inline uint8_t Uart1Getch( void ) {
   uart1_char_available = FALSE;
   return uart1_char;
 }

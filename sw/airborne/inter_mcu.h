@@ -117,7 +117,6 @@ static inline void inter_mcu_fill_fbw_state (void) {
 static inline void inter_mcu_event_task( void) {
   time_since_last_ap = 0;
   ap_ok = TRUE;
-  inter_mcu_fill_fbw_state();
 #if defined SINGLE_MCU
   /**Directly set the flag indicating to AP that shared buffer is available*/
   inter_mcu_received_fbw = TRUE;

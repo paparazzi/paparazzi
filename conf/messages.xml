@@ -218,7 +218,11 @@
     <field name="channels" type="int16[]"/>
  </message>
 
- <message name="DEBUG2" id="33">
+ <message name="DEBUG1" id="33">
+    <field name="foo" type="uint8[]"/>
+ </message>
+
+ <message name="DEBUG2" id="34">
     <field name="foo" type="uint8[]"/>
  </message>
 

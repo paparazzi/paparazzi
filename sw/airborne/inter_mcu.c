@@ -24,7 +24,7 @@
 
 #include "inter_mcu.h"
 
-#if defined FBW && defined AP
+#if defined SINGLE_MCU
 struct fbw_state _fbw_state;
 struct ap_state _ap_state;
 struct fbw_state* fbw_state = &_fbw_state;

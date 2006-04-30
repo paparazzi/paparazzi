@@ -8,7 +8,9 @@ extern volatile uint8_t spi_idx_buf;
   SPDR = spi_buffer_input[0]; \
   spi_message_received = FALSE; \
 }
-
+#define SPI_IT1_PIN  6
+#define SPI_IT1_PORT PORTE
+#define SPI_IT1_DDR  DDRE 
 #ifdef FBW
 
 #define SPI_PORT   PORTB
@@ -25,16 +27,24 @@ extern volatile uint8_t spi_idx_buf;
 #define SPI_SS0_PIN  0
 #define SPI_SS0_PORT PORTB
 #define SPI_SS0_DDR  DDRB
-#define SPI_IT0_PIN  1
-#define SPI_IT0_PORT PORTD
-#define SPI_IT0_DDR  DDRD
+#define SPI_IT0_PIN  7
+#define SPI_IT0_PORT PORTE
+#define SPI_IT0_DDR  DDRE
 
-#define SPI_SS1_PIN  7
+#define SPI_SS1_PIN  3
 #define SPI_SS1_PORT PORTE
 #define SPI_SS1_DDR  DDRE
 #define SPI_IT1_PIN  6
 #define SPI_IT1_PORT PORTE
 #define SPI_IT1_DDR  DDRE 
+
+#define SPI_SS2_PIN  2
+#define SPI_SS2_PORT PORTE
+#define SPI_SS2_DDR  DDRE
+#define SPI_IT2_PIN  5
+#define SPI_IT2_PORT PORTE
+#define SPI_IT2_DDR  DDRE 
+
 
 #define SPI_SCK_PIN  1
 #define SPI_MOSI_PIN 2
@@ -70,6 +80,16 @@ extern volatile uint8_t spi_idx_buf;
 #define SpiUnselectSlave1() { \
   spi_cur_slave = SPI_NONE; \
   SetBit( SPI_SS1_PORT, SPI_SS1_PIN );\
+}
+
+#define SpiSelectSlave2() { \
+  spi_cur_slave = SPI_SLAVE2; \
+  ClearBit( SPI_SS2_PORT, SPI_SS2_PIN );\
+}
+
+#define SpiUnselectSlave2() { \
+  spi_cur_slave = SPI_NONE; \
+  SetBit( SPI_SS2_PORT, SPI_SS2_PIN );\
 }
 
 #endif /* AP */

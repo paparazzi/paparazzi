@@ -125,12 +125,12 @@ void event_task_fbw( void) {
     /* Got a message on SPI. */
     spi_message_received = FALSE;
     link_mcu_event_task(); /** Sets inter_mcu_received_ap if checksum is ok */
-    DOWNLINK_SEND_DEBUG2(sizeof(link_mcu_from_ap_msg), ((uint8_t*)&link_mcu_from_ap_msg));
+    DOWNLINK_SEND_DEBUG1(sizeof(link_mcu_from_ap_msg), ((uint8_t*)&link_mcu_from_ap_msg));
   }
 #endif /* MCU_SPI_LINK */
   if (inter_mcu_received_ap) {
     inter_mcu_received_ap = FALSE;
-    inter_mcu_event_task(); /** Prepares the next message for AP */
+    inter_mcu_event_task();
     if (fbw_mode == FBW_MODE_AUTO) {
       SetCommands(ap_state->commands);
     }
@@ -138,6 +138,7 @@ void event_task_fbw( void) {
 #ifdef MCU_SPI_LINK
   if (link_mcu_received) {
     link_mcu_received = FALSE;
+    inter_mcu_fill_fbw_state(); /** Prepares the next message for AP */
     link_mcu_restart(); /** Prepares the next SPI communication */
   }
 #endif /* MCU_SPI_LINK */

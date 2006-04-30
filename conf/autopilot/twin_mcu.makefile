@@ -1,4 +1,4 @@
-ap.srcs += main_ap.c sys_time.c main.c inter_mcu.c link_mcu.c gps_ubx.c gps.c infrared.c pid.c nav.c estimator.c cam.c downlink.c spi.c
+ap.srcs += main_ap.c sys_time.c main.c inter_mcu.c link_mcu.c gps_ubx.c gps.c infrared.c pid.c nav.c estimator.c cam.c spi.c
 ap.CFLAGS += -DMCU_SPI_LINK -DGPS -DUBX -DINFRARED -DRADIO_CONTROL -DINTER_MCU
 
 fbw.srcs +=  sys_time.c main_fbw.c main.c commands.c radio_control.c pprz_transport.c downlink.c  inter_mcu.c spi.c link_mcu.c

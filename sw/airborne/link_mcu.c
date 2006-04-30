@@ -37,10 +37,11 @@ static uint16_t crc = 0;
 #define LINK_MCU_FRAME_LENGTH sizeof(link_mcu_from_fbw_msg)
 
 #define ComputeChecksum(_buf) { \
-  uint8_t i = 0; \
+  uint8_t i; \
   crc = CRC_INIT; \
   for(i = 0; i < PAYLOAD_LENGTH; i++) { \
-    crc = CrcUpdate(crc, ((uint8_t*)&_buf)[i]); \
+    uint8_t _byte = ((uint8_t*)&_buf)[i]; \
+    crc = CrcUpdate(crc, _byte); \
   } \
 }
 
@@ -82,12 +83,17 @@ void link_mcu_init(void) {
   link_mcu_nb_err = 0;
 }
 
+#include "spi_hw.h"
+
 void link_mcu_send(void) {
+
+  ClearBit( SPI_SS2_PORT, SPI_SS2_PIN );
+
   if (!SpiCheckAvailable()) {
     SpiOverRun();
     return;
   }
-
+  
   ComputeChecksum(link_mcu_from_ap_msg);
   link_mcu_from_ap_msg.checksum = crc;
   spi_buffer_input = (uint8_t*)&link_mcu_from_fbw_msg;
@@ -95,6 +101,9 @@ void link_mcu_send(void) {
   spi_buffer_length = LINK_MCU_FRAME_LENGTH;
   SpiSelectSlave0();
   SpiStart();
+
+  SetBit( SPI_SS2_PORT, SPI_SS2_PIN );
+
 }
 
 void link_mcu_event_task( void ) {

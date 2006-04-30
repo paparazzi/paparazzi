@@ -49,7 +49,6 @@ volatile uint8_t spi_idx_buf;
     spi_message_received = TRUE; \
     SpiStop(); \
   } \
-  spi_idx_buf++; \
 }
 
 
@@ -113,6 +112,11 @@ void spi_init( void) {
   /* SS1 idles high (don't select slave yet)*/
   SpiUnselectSlave1();
   
+  /* Set SS2 output */
+  SetBit( SPI_SS2_DDR, SPI_SS2_PIN);
+  /* SS2 idles high (don't select slave yet)*/
+  SpiUnselectSlave2();
+
   spi_cur_slave = SPI_NONE;
 }
 
@@ -134,8 +138,8 @@ SIGNAL(SIG_SPI) {
 }
 
 #define SpiStop() { \
-  cbi(SPCR,SPIE); \
-  cbi(SPCR, SPE); \
+  ClearBit(SPCR,SPIE); \
+  ClearBit(SPCR, SPE); \
   SpiUnselectSlave0(); \
 }
 
