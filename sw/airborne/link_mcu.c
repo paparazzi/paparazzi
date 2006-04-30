@@ -86,9 +86,6 @@ void link_mcu_init(void) {
 #include "spi_hw.h"
 
 void link_mcu_send(void) {
-
-  ClearBit( SPI_SS2_PORT, SPI_SS2_PIN );
-
   if (!SpiCheckAvailable()) {
     SpiOverRun();
     return;
@@ -101,9 +98,6 @@ void link_mcu_send(void) {
   spi_buffer_length = LINK_MCU_FRAME_LENGTH;
   SpiSelectSlave0();
   SpiStart();
-
-  SetBit( SPI_SS2_PORT, SPI_SS2_PIN );
-
 }
 
 void link_mcu_event_task( void ) {

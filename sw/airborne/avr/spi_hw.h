@@ -1,6 +1,31 @@
+/*
+ * Paparazzi $Id$
+ *  
+ * Copyright (C) 2005-2006 Pascal Brisset, Antoine Drouin
+ *
+ * This file is part of paparazzi.
+ *
+ * paparazzi is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * paparazzi is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with paparazzi; see the file COPYING.  If not, write to
+ * the Free Software Foundation, 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA. 
+ *
+ */
+
 #ifndef SPI_HW_H
 #define SPI_HW_H
 
+/** Index in SPI buffers: one is enough for full duplex communication */
 extern volatile uint8_t spi_idx_buf;
 
 #define SpiInitBuf() { \
@@ -62,14 +87,16 @@ extern volatile uint8_t spi_idx_buf;
   SpiInitBuf(); \
 }
 
+#define SpiUnselectAllSlaves() { \
+  spi_cur_slave = SPI_NONE; \
+  SetBit( SPI_SS0_PORT, SPI_SS0_PIN );\
+  SetBit( SPI_SS1_PORT, SPI_SS1_PIN );\
+  SetBit( SPI_SS2_PORT, SPI_SS2_PIN );\
+}
+
 #define SpiSelectSlave0() { \
   spi_cur_slave = SPI_SLAVE0; \
   ClearBit( SPI_SS0_PORT, SPI_SS0_PIN );\
-}
-
-#define SpiUnselectSlave0() { \
-  spi_cur_slave = SPI_NONE; \
-  SetBit( SPI_SS0_PORT, SPI_SS0_PIN );\
 }
 
 #define SpiSelectSlave1() { \
@@ -77,19 +104,9 @@ extern volatile uint8_t spi_idx_buf;
   ClearBit( SPI_SS1_PORT, SPI_SS1_PIN );\
 }
 
-#define SpiUnselectSlave1() { \
-  spi_cur_slave = SPI_NONE; \
-  SetBit( SPI_SS1_PORT, SPI_SS1_PIN );\
-}
-
 #define SpiSelectSlave2() { \
   spi_cur_slave = SPI_SLAVE2; \
   ClearBit( SPI_SS2_PORT, SPI_SS2_PIN );\
-}
-
-#define SpiUnselectSlave2() { \
-  spi_cur_slave = SPI_NONE; \
-  SetBit( SPI_SS2_PORT, SPI_SS2_PIN );\
 }
 
 #endif /* AP */

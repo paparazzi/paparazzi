@@ -83,7 +83,7 @@ extern uint8_t ck_a, ck_b;
 
 
 #define PprzTransportPutInt8ByAddr(_x) PprzTransportPut1ByteByAddr(_x)
-#define PprzTransportPutUint8ByAddr(_x) PprzTransportPut1ByteByAddr(_x)
+#define PprzTransportPutUint8ByAddr(_x) PprzTransportPut1ByteByAddr((uint8_t*)_x)
 #define PprzTransportPutInt16ByAddr(_x) PprzTransportPut2ByteByAddr((uint8_t*)_x)
 #define PprzTransportPutUint16ByAddr(_x) PprzTransportPut2ByteByAddr((uint8_t*)_x)
 #define PprzTransportPutInt32ByAddr(_x) PprzTransportPut4ByteByAddr((uint8_t*)_x)

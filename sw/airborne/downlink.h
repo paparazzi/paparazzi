@@ -42,7 +42,7 @@ extern uint8_t downlink_nb_ovrn;
 
 #define DownlinkSizeOf(_x) Transport(SizeOf(_x))
 
-#define DownlinkCheckFreeSpace(_x) Transport(CheckFreeSpace(_x))
+#define DownlinkCheckFreeSpace(_x) Transport(CheckFreeSpace((uint8_t)(_x)))
 
 #define DownlinkPutUint8(_x) Transport(PutUint8(_x))
 

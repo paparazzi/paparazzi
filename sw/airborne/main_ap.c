@@ -637,7 +637,6 @@ void event_task_ap( void ) {
 
 #ifdef MCU_SPI_LINK
   if (spi_message_received) {
-    DOWNLINK_SEND_DEBUG2(sizeof(link_mcu_from_fbw_msg), ((uint8_t*)&link_mcu_from_fbw_msg));
     /* Got a message on SPI. */
     spi_message_received = FALSE;
     link_mcu_event_task();

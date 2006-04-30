@@ -91,7 +91,13 @@ SIGNAL(SIG_SPI) {
 #ifdef AP
 
 #include "autopilot.h"
-#include "link_mcu.h"
+
+#define SpiStop() { \
+  ClearBit(SPCR,SPIE); \
+  ClearBit(SPCR, SPE); \
+  SpiUnselectAllSlaves(); \
+}
+
 volatile uint8_t spi_cur_slave;
 uint8_t spi_nb_ovrn;
 
@@ -105,22 +111,22 @@ void spi_init( void) {
   /* Set SS0 output */
   SetBit( SPI_SS0_DDR, SPI_SS0_PIN);
   /* SS0 idles high (don't select slave yet)*/
-  SpiUnselectSlave0();
 
   /* Set SS1 output */
   SetBit( SPI_SS1_DDR, SPI_SS1_PIN);
   /* SS1 idles high (don't select slave yet)*/
-  SpiUnselectSlave1();
   
   /* Set SS2 output */
   SetBit( SPI_SS2_DDR, SPI_SS2_PIN);
   /* SS2 idles high (don't select slave yet)*/
-  SpiUnselectSlave2();
+
+  SpiUnselectAllSlaves();
 
   spi_cur_slave = SPI_NONE;
 }
 
 
+/** SPI interrupt: starts a delay */
 SIGNAL(SIG_SPI) {
   if (spi_cur_slave == SPI_SLAVE0) {
     /* setup OCR1A to pop in 200 clock cycles */
@@ -132,20 +138,11 @@ SIGNAL(SIG_SPI) {
     SetBit(TIFR, OCF1A);
     /* enable OC1A interrupt */
     SetBit(TIMSK, OCIE1A);
-  }
-  else
+  } else
     fatal_error_nb++;
 }
 
-#define SpiStop() { \
-  ClearBit(SPCR,SPIE); \
-  ClearBit(SPCR, SPE); \
-  SpiUnselectSlave0(); \
-}
-
-
-/** send the next byte
-    c.f. fly_by_wire/spi.c */
+/** Send a byte */
 SIGNAL(SIG_OUTPUT_COMPARE1A) {
   /* disable OC1A interrupt */
   ClearBit(TIMSK, OCIE1A);

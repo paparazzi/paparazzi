@@ -125,7 +125,6 @@ void event_task_fbw( void) {
     /* Got a message on SPI. */
     spi_message_received = FALSE;
     link_mcu_event_task(); /** Sets inter_mcu_received_ap if checksum is ok */
-    DOWNLINK_SEND_DEBUG1(sizeof(link_mcu_from_ap_msg), ((uint8_t*)&link_mcu_from_ap_msg));
   }
 #endif /* MCU_SPI_LINK */
   if (inter_mcu_received_ap) {

@@ -44,10 +44,6 @@
 #include "radio_control.h"
 #include "main_fbw.h"
 
-#ifdef SITL
-#include <stdio.h>
-#endif
-
 /** Data structure shared by fbw and ap process */
 struct fbw_state {
   pprz_t channels[RADIO_CTL_NB];  
@@ -69,7 +65,6 @@ struct ap_state {
 #define AVERAGED_CHANNELS_SENT 4
 #define MASK_FBW_CHANGED 0xf
 
-//#define TRESHOLD_MANUAL_PPRZ (MIN_PPRZ / 2)
 
 extern struct fbw_state* fbw_state;
 extern struct ap_state*  ap_state;
