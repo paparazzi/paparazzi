@@ -36,6 +36,8 @@
 #ifndef PPM_HW_H
 #define PPM_HW_H
 
+#ifdef FBW
+
 #include <inttypes.h>
 #include <avr/io.h>
 
@@ -74,5 +76,7 @@ ppm_init( void )
 #endif
   ppm_valid = FALSE;
 }
+
+#endif /* FBW */
 
 #endif /* PPM_HW_H */
