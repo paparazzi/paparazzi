@@ -30,127 +30,202 @@ module Ground_Pprz = Pprz.Messages(struct let name = "ground" end)
 module Dl_Pprz = Pprz.Messages(struct let name = "datalink" end)
 module PprzTransport = Serial.Transport(Pprz.Transport)
 
-let ground_id = 0
-
 type transport =
     Modem
   | Pprz
   | Wavecard
   | Maxstream
 
-let transport_of_string = function
-    "modem" -> Modem
-  | "pprz" -> Pprz
-  | "wavecard" -> Wavecard
-  | "maxstream" -> Maxstream
-  | x -> invalid_arg (sprintf "transport_of_string: %s" x)
+type ground_device = { fd : Unix.file_descr; transport : transport }
 
-type modem = { fd : Unix.file_descr; transport : transport }
+type maxstream_addr = int
+type airborne_device = 
+    WavecardDevice of W.addr
+  | MaxstreamDevice of maxstream_addr
+  | Uart (** For HITL for example *)
 
-(*let send_ack = fun delay fd () ->
-  ignore (GMain.Timeout.add delay (fun _ -> W.send fd (W.ACK, ""); false)) *)
+let my_id = 0
 
-let sync = Char.chr 0xff
-let stx = Char.chr 0x02
-let etx = Char.chr 0x03
-let wc_received_frame =  Char.chr 0x30
+let ios = int_of_string
+
+let (//) = Filename.concat
+let conf = Env.paparazzi_home // "conf"
+
+let airborne_device = fun device addr ->
+  match device with
+    "WAVECARD" -> WavecardDevice (W.addr_of_string addr)
+  | "MAXSTREAM" -> MaxstreamDevice (int_of_string addr)
+  | _ -> failwith (sprintf "Link: unknown datalink: %s" device)
+
+let get_define = fun xml name ->
+  let xml = ExtXml.child ~select:(fun d -> ExtXml.tag_is d "define" && ExtXml.attrib d "name" = name) xml "define" in
+  ExtXml.attrib xml "value"
+
+let airframes =
+  let conf_file = conf // "conf.xml" in
+  List.fold_right (fun a r ->
+    if ExtXml.tag_is a "aircraft" then
+      try
+	let airframe_xml = Xml.parse_file (conf // ExtXml.attrib a "airframe") in
+	let dls = ExtXml.child ~select:(fun s -> Xml.attrib s "name" = "DATALINK") airframe_xml "section" in
+	let device = get_define dls "DEVICE_TYPE"
+	and addr = get_define dls "DEVICE_ADDRESS" in
+	let dl = airborne_device device addr in
+	(ios (ExtXml.attrib a "ac_id"), dl)::r
+      with
+	Xml.File_not_found f ->
+	  fprintf stderr "Error in '%s', file not found: %s\n" conf_file f;
+	  r
+      |	Not_found -> r
+    else
+      r)
+    (Xml.children (Xml.parse_file conf_file))
+    []
+
+exception NotSendingToThis
+
+let airborne_device = fun ac_id airframes device ->
+  let ac_device = try Some (List.assoc ac_id airframes) with Not_found -> None in
+  match ac_device, device with
+    _, Pprz -> Uart
+  | (Some (WavecardDevice _ as ac_device), Wavecard) |
+    (Some (MaxstreamDevice _ as ac_device), Maxstream) ->
+      ac_device
+  | _ -> raise NotSendingToThis
+
+
+let ground_id = 0
 
 let use_tele_message = fun payload ->
-  Debug.call 'm' (fun f -> let buf = Serial.string_of_payload payload in fprintf f "mm receiving: "; for i = 0 to String.length buf - 1 do fprintf f "%x " (Char.code buf.[i]) done; fprintf f "\n");
+  Debug.call 'l' (fun f -> let buf = Serial.string_of_payload payload in fprintf f "mm receiving: "; for i = 0 to String.length buf - 1 do fprintf f "%x " (Char.code buf.[i]) done; fprintf f "\n");
   let (msg_id, ac_id, values) = Tm_Pprz.values_of_payload payload in
   let msg = Tm_Pprz.message_of_id msg_id in
   Tm_Pprz.message_send (string_of_int ac_id) msg.Pprz.name values
 
-let send = fun ac payload ->
-  match ac.transport with
-    Pprz ->
-      let o = Unix.out_channel_of_descr ac.fd in
+let send = fun device ac_device payload ->
+  match ac_device with
+    Uart ->
+      let o = Unix.out_channel_of_descr device.fd in
       let buf = Pprz.Transport.packet payload in
       Printf.fprintf o "%s" buf; flush o;
-      Debug.call 'm' (fun f -> fprintf f "mm sending: %s\n" (Debug.xprint buf));
+      Debug.call 'l' (fun f -> fprintf f "mm sending: %s\n" (Debug.xprint buf));
+  | WavecardDevice addr ->
+      W.send_addressed device.fd (W.REQ_SEND_MESSAGE, addr, Serial.string_of_payload payload)
   | _ -> failwith "send: not yet"
 
 
 let cm_of_m = fun f -> Pprz.Int (truncate (100. *. f))
 
 (** Got a FLIGHT_PARAM message and dispatch a ACINFO *)
-let get_fp = fun ac _sender vs ->
+let i = ref 0
+let get_fp = fun device _sender vs ->
+  incr i; i := !i mod 16; (** DEBUG: discarding messages *)
+  if !i = 0 then
   let ac_id = int_of_string (Pprz.string_assoc "ac_id" vs) in
-  let f = fun a -> Pprz.float_assoc a vs in
-  let lat = (Deg>>Rad) (f "lat")
-  and long = (Deg>>Rad) (f "long")
-  and course = f "course"
-  and alt = f "alt"
-  and gspeed = f "speed" in
-  let utm = Latlong.utm_of WGS84 {posn_lat=lat; posn_long=long} in
-  let vs = ["ac_id", Pprz.Int ac_id;
-	    "utm_east", cm_of_m utm.utm_x;
-	    "utm_north", cm_of_m utm.utm_y;
-	    "course", Pprz.Int (truncate (10. *. course));
-	    "alt", cm_of_m alt;
-	    "speed", cm_of_m gspeed] in
-  let msg_id, _ = Dl_Pprz.message_of_name "ACINFO" in
-  let s = Dl_Pprz.payload_of_values msg_id ac_id vs in
-  send ac s
+  List.iter 
+    (fun (dest_id, _) ->
+      if dest_id <> ac_id then (** Do not send to itself *)
+	try
+	  let ac_device = airborne_device dest_id airframes device.transport in
+	  let f = fun a -> Pprz.float_assoc a vs in
+	  let lat = (Deg>>Rad) (f "lat")
+	  and long = (Deg>>Rad) (f "long")
+	  and course = f "course"
+	  and alt = f "alt"
+	  and gspeed = f "speed" in
+	  let utm = Latlong.utm_of WGS84 {posn_lat=lat; posn_long=long} in
+	  let vs = ["ac_id", Pprz.Int ac_id;
+		    "utm_east", cm_of_m utm.utm_x;
+		    "utm_north", cm_of_m utm.utm_y;
+		    "course", Pprz.Int (truncate (10. *. course));
+		    "alt", cm_of_m alt;
+		    "speed", cm_of_m gspeed] in
+	  let msg_id, _ = Dl_Pprz.message_of_name "ACINFO" in
+	  let s = Dl_Pprz.payload_of_values msg_id my_id vs in
+	  send device ac_device s
+	with
+	  NotSendingToThis -> ())
+    airframes
 
 (** Got a MOVE_WAYPOINT and send a MOVE_WP *)
-let move_wp = fun ac _sender vs ->
+let move_wp = fun device _sender vs ->
   Debug.call 'm' (fun f -> fprintf f "mm MOVE WAYPOINT\n");
   let ac_id = int_of_string (Pprz.string_assoc "ac_id" vs) in
-  let f = fun a -> Pprz.float_assoc a vs in
-  let lat = f "lat"
-  and long = f "long"
-  and alt = f "alt"
-  and wp_id = Pprz.int_assoc "wp_id" vs in
-  let wgs84 = {posn_lat=(Deg>>Rad)lat;posn_long=(Deg>>Rad)long} in
-  let utm = Latlong.utm_of WGS84 wgs84 in
-  let vs = ["wp_id", Pprz.Int wp_id;
-	    "utm_east", cm_of_m utm.utm_x;
-	    "utm_north", cm_of_m utm.utm_y;
-	    "alt", cm_of_m alt] in
-  let msg_id, _ = Dl_Pprz.message_of_name "MOVE_WP" in
-  let s = Dl_Pprz.payload_of_values msg_id ac_id vs in
-  send ac s
+  try
+    let ac_device = airborne_device ac_id airframes device.transport in
+    let f = fun a -> Pprz.float_assoc a vs in
+    let lat = f "lat"
+    and long = f "long"
+    and alt = f "alt"
+    and wp_id = Pprz.int_assoc "wp_id" vs in
+    let wgs84 = {posn_lat=(Deg>>Rad)lat;posn_long=(Deg>>Rad)long} in
+    let utm = Latlong.utm_of WGS84 wgs84 in
+    let vs = ["wp_id", Pprz.Int wp_id;
+	      "utm_east", cm_of_m utm.utm_x;
+	      "utm_north", cm_of_m utm.utm_y;
+	      "alt", cm_of_m alt] in
+    let msg_id, _ = Dl_Pprz.message_of_name "MOVE_WP" in
+    let s = Dl_Pprz.payload_of_values msg_id my_id vs in
+    send device ac_device s
+  with
+    NotSendingToThis -> ()
 
 (** Got a SEND_EVENT, and send an EVENT *)
-let send_event = fun ac _sender vs ->
+let send_event = fun device _sender vs ->
   let ac_id = int_of_string (Pprz.string_assoc "ac_id" vs) in
-  let ev_id = Pprz.int_assoc "event_id" vs in
-  let vs = ["event", Pprz.Int ev_id] in
-  let msg_id, _ = Dl_Pprz.message_of_name "EVENT" in
-  let s = Dl_Pprz.payload_of_values msg_id ac_id vs in
-  send ac s
+  try
+    let ac_device = airborne_device ac_id airframes device.transport in
+    let ev_id = Pprz.int_assoc "event_id" vs in
+    let vs = ["event", Pprz.Int ev_id] in
+    let msg_id, _ = Dl_Pprz.message_of_name "EVENT" in
+    let s = Dl_Pprz.payload_of_values msg_id my_id vs in
+    send device ac_device s
+  with
+    NotSendingToThis -> ()
     
 
 (** Got a DL_SETTING, and send an SETTING *)
-let setting = fun ac _sender vs ->
+let setting = fun device _sender vs ->
   let ac_id = int_of_string (Pprz.string_assoc "ac_id" vs) in
-  let idx = Pprz.int_assoc "index" vs in
-  let vs = ["event", Pprz.Int idx; "value", List.assoc "value" vs] in
-  let msg_id, _ = Dl_Pprz.message_of_name "SETTING" in
-  let s = Dl_Pprz.payload_of_values msg_id ac_id vs in
-  send ac s
+  try
+    let ac_device = airborne_device ac_id airframes device.transport in
+    let idx = Pprz.int_assoc "index" vs in
+    let vs = ["index", Pprz.Int idx; "value", List.assoc "value" vs] in
+    let msg_id, _ = Dl_Pprz.message_of_name "SETTING" in
+    let s = Dl_Pprz.payload_of_values msg_id my_id vs in
+    send device ac_device s
+  with
+    NotSendingToThis -> ()
 
 (** Got a JUMP_TO_BLOCK, and send an BLOCK *)
-let jump_block = fun ac _sender vs ->
-  Debug.call 'm' (fun f -> fprintf f "mm JUMP_TO_BLOCK\n");
+let jump_block = fun device _sender vs ->
+  Debug.call 'j' (fun f -> fprintf f "mm JUMP_TO_BLOCK\n");
   let ac_id = int_of_string (Pprz.string_assoc "ac_id" vs) in
-  let block_id = Pprz.int_assoc "block_id" vs in
-  let vs = ["block_id", Pprz.Int block_id] in
-  let msg_id, _ = Dl_Pprz.message_of_name "BLOCK" in
-  let s = Dl_Pprz.payload_of_values msg_id ac_id vs in
-  send ac s
+  try
+    let ac_device = airborne_device ac_id airframes device.transport in
+    let block_id = Pprz.int_assoc "block_id" vs in
+    let vs = ["block_id", Pprz.Int block_id] in
+    let msg_id, _ = Dl_Pprz.message_of_name "BLOCK" in
+    let s = Dl_Pprz.payload_of_values msg_id my_id vs in
+    send device ac_device s
+  with
+    NotSendingToThis -> ()
 
 (** Got a RAW_DATALINK message *)
-let raw_datalink = fun ac _sender vs ->
-  let m = Pprz.string_assoc "message" vs in
+let raw_datalink = fun device _sender vs ->
   let ac_id = int_of_string (Pprz.string_assoc "ac_id" vs) in
-  for i = 0 to String.length m - 1 do
-    if m.[i] = ';' then m.[i] <- ' '
-  done;
-  let msg_id, vs = Dl_Pprz.values_of_string m in
-  let s = Dl_Pprz.payload_of_values msg_id ac_id vs in
-  send ac s
+  try
+    let ac_device = airborne_device ac_id airframes device.transport in
+    let m = Pprz.string_assoc "message" vs in
+    for i = 0 to String.length m - 1 do
+      if m.[i] = ';' then m.[i] <- ' '
+    done;
+    let msg_id, vs = Dl_Pprz.values_of_string m in
+    let s = Dl_Pprz.payload_of_values msg_id my_id vs in
+    send device ac_device s
+  with
+    NotSendingToThis -> ()
+
 
 module PprzModem = struct
   type status = {
@@ -194,6 +269,7 @@ module PprzModem = struct
   let use_tele_message_modem = fun payload ->
     let buf = Serial.string_of_payload payload in
     status.rx_byte <- status.rx_byte + String.length buf;
+    status.rx_msg <- status.rx_msg + 1;
     Debug.call 'P' (fun f -> fprintf f "use_pprz: %s\n" (Debug.xprint buf));
     use_tele_message payload
 
@@ -217,11 +293,36 @@ module PprzModem = struct
 end (* PprzModem module *)
 
 
-let parse_of_transport = function
-    Pprz -> PprzTransport.parse use_tele_message
+let wc_ack_delay = 10 (* ms *)
+let wc_send_ack = fun fd () ->
+  ignore (GMain.Timeout.add wc_ack_delay (fun _ -> W.send fd (W.ACK, ""); false))
+let wc_use_message = fun (com, data) ->
+  match com with
+    W.RECEIVED_FRAME ->
+      use_tele_message (Serial.payload_of_string data)
+  | W.RES_READ_REMOTE_RSSI ->
+      Tm_Pprz.message_send "link" "WC_RSSI" ["raw_level", Pprz.Int (Char.code data.[0])];
+      Debug.call 'w' (fun f -> fprintf f "wv remote RSSI %d\n" (Char.code data.[0]));
+  | W.RES_READ_RADIO_PARAM ->
+      Ivy.send (sprintf "WC_ADDR %s" data);
+      Debug.call 'w' (fun f -> fprintf f "wv local addr : %s\n" (Debug.xprint data));
+  | _ -> 
+      Debug.call 'w' (fun f -> fprintf f "wv receiving: %02x %s\n" (W.code_of_cmd com) (Debug.xprint data));;
+let rssi_period = 10000 (** ms *)
+let req_rssi = fun device addr ->
+  Wavecard.send_addressed device.fd (W.REQ_READ_REMOTE_RSSI, addr,"")
+
+
+
+
+let parse_of_transport device = function
+    Pprz -> 
+      PprzTransport.parse use_tele_message
   | Modem -> 
       let module ModemTransport = Serial.Transport(Modem.Protocol) in
       ModemTransport.parse PprzModem.use_message
+  | Wavecard ->
+      fun buf -> Wavecard.parse buf ~ack:(wc_send_ack device.fd) (wc_use_message)
   | _ -> failwith "parse_of_transport: not yet"
     
 
@@ -231,10 +332,12 @@ let _ =
   let baurate = ref "9600" in
   let transport = ref "pprz" in
   let uplink = ref false in
-
+  let rssi_addr = ref "" in
+  
   let options =
     [ "-b", Arg.Set_string ivy_bus, (sprintf "Ivy bus (%s)" !ivy_bus);
       "-d", Arg.Set_string port, (sprintf "Port (%s)" !port);
+      "-rssi", Arg.Set_string rssi_addr, (sprintf "Rssi addr (%s)" !rssi_addr);
       "-transport", Arg.Set_string transport, (sprintf "Transport (%s): modem,pprz,wavecard" !transport);
       "-uplink", Arg.Set uplink, (sprintf "Uplink (%b)" !uplink);
       "-s", Arg.Set_string baurate, (sprintf "Baudrate (%s)" !baurate)] in
@@ -246,8 +349,6 @@ let _ =
   Ivy.init "Link" "READY" (fun _ _ -> ());
   Ivy.start !ivy_bus;
 
-  let transport = transport_of_string !transport in
-  
   try
     (** Listen on a serial device or on multimon pipe *)
     let fd = 
@@ -256,10 +357,20 @@ let _ =
       else 
 	Unix.descr_of_in_channel (open_in !port)
     in
-    let ac = { fd=fd; transport=transport} in
+    
+    let transport = 
+      match !transport with
+	"modem" -> Modem
+      | "pprz" -> Pprz
+      | "wavecard" -> Wavecard
+      | "maxstream" -> Maxstream
+      | x -> invalid_arg (sprintf "transport_of_string: %s" x)
+    in
+    
+    let device = { fd=fd; transport=transport } in
 
     (* Listening *)
-    let parse = parse_of_transport transport in
+    let parse = parse_of_transport device transport in
     
     let buffered_input = 
       match Serial.input parse with
@@ -269,12 +380,18 @@ let _ =
 
     if !uplink then begin
       (** Listening on Ivy (FIXME: remove the ad hoc messages) *)
-      ignore (Ground_Pprz.message_bind "FLIGHT_PARAM" (get_fp ac));
-      ignore (Ground_Pprz.message_bind "MOVE_WAYPOINT" (move_wp ac));
-      ignore (Ground_Pprz.message_bind "SEND_EVENT" (send_event ac));
-      ignore (Ground_Pprz.message_bind "DL_SETTING" (setting ac));
-      ignore (Ground_Pprz.message_bind "JUMP_TO_BLOCK" (jump_block ac));
-      ignore (Ground_Pprz.message_bind "RAW_DATALINK" (raw_datalink ac))
+      ignore (Ground_Pprz.message_bind "FLIGHT_PARAM" (get_fp device));
+      ignore (Ground_Pprz.message_bind "MOVE_WAYPOINT" (move_wp device));
+      ignore (Ground_Pprz.message_bind "SEND_EVENT" (send_event device));
+      ignore (Ground_Pprz.message_bind "DL_SETTING" (setting device));
+      ignore (Ground_Pprz.message_bind "JUMP_TO_BLOCK" (jump_block device));
+      ignore (Ground_Pprz.message_bind "RAW_DATALINK" (raw_datalink device))
+    end;
+
+    if transport = Wavecard then begin
+      (* request own address *)
+      let s = String.make 1 (char_of_int 5) in
+      Wavecard.send device.fd (W.REQ_READ_RADIO_PARAM, s)
     end;
 
     (** Periodic tasks *)
@@ -283,6 +400,10 @@ let _ =
 	Modem ->
 	  (** Sending periodically modem and downlink status messages *)
 	  ignore (Glib.Timeout.add PprzModem.msg_period (fun () -> PprzModem.send_msg (); true))
+      | Wavecard ->
+	  if !rssi_addr <> "" then
+	    let addr = W.addr_of_string !rssi_addr in
+	    ignore (GMain.Timeout.add rssi_period (fun _ -> req_rssi device addr; true));
       | _ -> ()
     end;
 

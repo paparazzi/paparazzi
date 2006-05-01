@@ -40,6 +40,9 @@ val get_attrib : Xml.xml -> string -> string -> string
 val attrib : Xml.xml -> string -> string
 (** [get xml attribute_name] May raise [Error] *)
 
+val tag_is : Xml.xml -> string -> bool
+(** [tag_is xml s] Case safe test *)
+
 val attrib_or_default : Xml.xml -> string -> string -> string
 (** [get xml attribute_name default_value] *)
 

@@ -72,6 +72,11 @@ let attrib = fun x a ->
     Xml.No_attribute _ ->
       raise (Error (Printf.sprintf "Error: Attribute '%s' expected in <%a>" a sprint_fields (Xml.attribs x)))
 
+let tag_is = fun x v ->
+  String.lowercase (Xml.tag x) = String.lowercase v
+  
+
+
 let attrib_or_default = fun x a default ->
   try Xml.attrib x a with _ -> default
 

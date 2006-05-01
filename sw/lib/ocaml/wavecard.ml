@@ -201,6 +201,7 @@ type addr = Int64.t
 let addr_length = 6
 
 let addr_of_string = Int64.of_string
+let string_of_addr = Int64.to_string
 
 let send_addressed = fun fd (cmd, addr, data) ->
   let s = String.create addr_length in

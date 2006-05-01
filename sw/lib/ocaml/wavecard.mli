@@ -72,6 +72,7 @@ type cmd = cmd_name * data
 (** A command is composed of a command name and some untyped data *)
 
 type addr
+val string_of_addr : addr -> string
 val addr_of_string : string -> addr
 (** [addr_of_string address] where [address] is a 64 bits number, for example
 [0x011804c0012d] *)
@@ -82,6 +83,9 @@ val send :  Unix.file_descr -> cmd -> unit
 val send_addressed : Unix.file_descr -> (cmd_name*addr*data) -> unit
 (** [send_addressed fd (cmd, a, data)] Sends [cmd] with data obtained by
 concatenation of codinf of [a] and [data] *)
+
+val parse : string -> ?ack:(unit -> unit) -> (cmd_name * string -> 'a) -> int
+(** [parse buffer ?acknowdledger callback] *)
 
 val receive : ?ack:(unit -> unit) -> (cmd -> 'a) -> (Unix.file_descr -> unit)
 (** [receive ?acknowledger callbkack] Returns a listener for wavecard messages *)
