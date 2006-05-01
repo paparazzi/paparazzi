@@ -73,22 +73,22 @@ extern uint8_t ck_a, ck_b;
 
 #define PprzTransportPut2ByteByAddr(_byte) { \
     PprzTransportPut1ByteByAddr(_byte);	\
-    PprzTransportPut1ByteByAddr((uint8_t*)_byte+1);	\
+    PprzTransportPut1ByteByAddr((const uint8_t*)_byte+1);	\
   }
 
 #define PprzTransportPut4ByteByAddr(_byte) { \
     PprzTransportPut2ByteByAddr(_byte);	\
-    PprzTransportPut2ByteByAddr((uint8_t*)_byte+2);	\
+    PprzTransportPut2ByteByAddr((const uint8_t*)_byte+2);	\
   }
 
 
 #define PprzTransportPutInt8ByAddr(_x) PprzTransportPut1ByteByAddr(_x)
-#define PprzTransportPutUint8ByAddr(_x) PprzTransportPut1ByteByAddr((uint8_t*)_x)
-#define PprzTransportPutInt16ByAddr(_x) PprzTransportPut2ByteByAddr((uint8_t*)_x)
-#define PprzTransportPutUint16ByAddr(_x) PprzTransportPut2ByteByAddr((uint8_t*)_x)
-#define PprzTransportPutInt32ByAddr(_x) PprzTransportPut4ByteByAddr((uint8_t*)_x)
-#define PprzTransportPutUint32ByAddr(_x) PprzTransportPut4ByteByAddr((uint8_t*)_x)
-#define PprzTransportPutFloatByAddr(_x) PprzTransportPut4ByteByAddr((uint8_t*)_x)
+#define PprzTransportPutUint8ByAddr(_x) PprzTransportPut1ByteByAddr((const uint8_t*)_x)
+#define PprzTransportPutInt16ByAddr(_x) PprzTransportPut2ByteByAddr((const uint8_t*)_x)
+#define PprzTransportPutUint16ByAddr(_x) PprzTransportPut2ByteByAddr((const uint8_t*)_x)
+#define PprzTransportPutInt32ByAddr(_x) PprzTransportPut4ByteByAddr((const uint8_t*)_x)
+#define PprzTransportPutUint32ByAddr(_x) PprzTransportPut4ByteByAddr((const uint8_t*)_x)
+#define PprzTransportPutFloatByAddr(_x) PprzTransportPut4ByteByAddr((const uint8_t*)_x)
 
 #define PprzTransportPutArray(_put, _n, _x) { \
   uint8_t i; \

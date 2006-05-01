@@ -24,6 +24,12 @@
 #ifndef PPM_H
 #define PPM_H
 
+/**
+ *  Radio control type : futaba is falling edge clocked whereas JR is rising edge
+ */
+#define RC_FUTABA 0
+#define RC_JR     1
+
 #if defined RADIO_CONTROL
 
 #include "std.h"

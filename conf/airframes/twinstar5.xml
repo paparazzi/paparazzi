@@ -118,7 +118,7 @@ fbw.srcs += commands.c
 fbw.CFLAGS += -DACTUATORS=\"servos_4017_hw.h\" -DSERVOS_4017 -DSERVOS_4017_CLOCK_FALLING
 fbw.srcs += $(SRC_ARCH)/servos_4017_hw.c
 
-fbw.CFLAGS += -DRADIO_CONTROL
+fbw.CFLAGS += -DRADIO_CONTROL -DRADIO_CONTROL_TYPE=RC_FUTABA
 fbw.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c 
 
 fbw.CFLAGS += -DDOWNLINK -DUSE_UART0 -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_FBW_DEVICE=Uart0

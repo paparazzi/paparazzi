@@ -66,7 +66,7 @@ void link_mcu_event_task( void ) {
   if (link_mcu_from_ap_msg.checksum == crc) 
     inter_mcu_received_ap = TRUE;
   else
-    link_mcu_from_fbw_msg.payload.from_fbw.nb_err++;
+    fbw_state->nb_err++;
 }
    
 #endif /* FBW */
@@ -76,7 +76,7 @@ void link_mcu_event_task( void ) {
 /*****************************************************************************/
 #ifdef AP
 
-volatile uint8_t link_mcu_nb_err;
+uint8_t link_mcu_nb_err;
 uint8_t link_mcu_fbw_nb_err;
 
 void link_mcu_init(void) {

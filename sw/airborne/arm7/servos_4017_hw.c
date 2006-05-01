@@ -14,6 +14,7 @@ void actuators_init ( void ) {
 
   /* select reset pin as GPIO output */
   IO1DIR |= _BV(SERVO_RESET_PIN);
+  PINSEL2 &= ~(_BV(3)); /* P1.25-16 are used as GPIO */
   //  SERVO_RESET_PINSEL |= SERVO_RESET_PINSEL_VAL << SERVO_RESET_PINSEL_BIT;
   /* assert RESET */
   IO1SET = _BV(SERVO_RESET_PIN);

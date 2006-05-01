@@ -7,18 +7,23 @@
 static inline void ppm_init ( void ) {
    /* select pin for capture */
   PPM_PINSEL |= PPM_PINSEL_VAL << PPM_PINSEL_BIT;
-  /* enable capture 0.2 on rising edge + trigger interrupt */
+  /* enable capture 0.2 on falling edge + trigger interrupt */
+#if defined RADIO_CONTROL_TYPE && RADIO_CONTROL_TYPE == RC_FUTABA
+  T0CCR = TCCR_CR2_F | TCCR_CR2_I;
+#elif defined RADIO_CONTROL_TYPE && RADIO_CONTROL_TYPE == RC_JR
   T0CCR = TCCR_CR2_R | TCCR_CR2_I;
+#else
+#error "ppm_hw.h: Unknown RADIO_CONTROL_TYPE"
+#endif
 
   ppm_valid = FALSE;
 }
 
 #define PPM_NB_CHANNEL PPM_NB_PULSES
 
-
 #define PPM_ISR() {						\
    static uint8_t state = PPM_NB_CHANNEL;			\
-    static uint32_t last;					\
+   static uint32_t last;					\
 								\
     uint32_t now = T0CR2;					\
     uint32_t length = now - last;				\

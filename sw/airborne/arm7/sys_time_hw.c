@@ -12,20 +12,22 @@
 void TIMER0_ISR ( void ) {
   ISR_ENTRY();
   
+  while (T0IR & TIMER0_IT_MASK) {
 #ifdef RADIO_CONTROL
-  if (T0IR&TIR_CR2I) {
-    PPM_ISR();
-    /* clear interrupt */
-    T0IR = TIR_CR2I;
-  }
+    if (T0IR&TIR_CR2I) {
+      PPM_ISR();
+      /* clear interrupt */
+      T0IR = TIR_CR2I;
+    }
 #endif
 #ifdef SERVOS_4017
-  if (T0IR&TIR_MR1I) {
-    SERVOS_4017_ISR();
-    /* clear interrupt */
-    T0IR = TIR_MR1I; 
-  }
+    if (T0IR&TIR_MR1I) {
+      SERVOS_4017_ISR();
+      /* clear interrupt */
+      T0IR = TIR_MR1I; 
+    }
 #endif
+  }
   VICVectAddr = 0x00000000;
   ISR_EXIT();
 }

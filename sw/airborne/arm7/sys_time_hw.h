@@ -64,10 +64,10 @@ static inline void sys_time_init( void ) {
   VICIntSelect &= ~VIC_BIT(VIC_TIMER0);
   /* enable TIMER0 interrupt */
   VICIntEnable = VIC_BIT(VIC_TIMER0); 
-  /* on slot vic slot 4      */
-  VICVectCntl4 = VIC_ENABLE | VIC_TIMER0;
+  /* on slot vic slot 1      */
+  VICVectCntl1 = VIC_ENABLE | VIC_TIMER0;
   /* address of the ISR      */
-  VICVectAddr4 = (uint32_t)TIMER0_ISR; 
+  VICVectAddr1 = (uint32_t)TIMER0_ISR; 
 
 }
 

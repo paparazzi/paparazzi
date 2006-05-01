@@ -93,6 +93,8 @@ static inline void inter_mcu_fill_fbw_state (void) {
   for(i = 0; i < RADIO_CTL_NB; i++)
     fbw_state->channels[i] = rc_values[i];
 
+  fbw_state->ppm_cpt = last_ppm_cpt;
+
   uint8_t status;
   status = (rc_status == RC_OK ? _BV(STATUS_RADIO_OK) : 0);
   status |= (rc_status == RC_REALLY_LOST ? _BV(RADIO_REALLY_LOST) : 0);
@@ -104,12 +106,8 @@ static inline void inter_mcu_fill_fbw_state (void) {
     fbw_state->status |= _BV(AVERAGED_CHANNELS_SENT);
     rc_values_contains_avg_channels = FALSE;
   }
-  fbw_state->ppm_cpt = last_ppm_cpt;
   fbw_state->vsupply = fbw_vsupply_decivolt;
-  /***
-  for(i = 0; i < 10; i++)
-    ((uint8_t*)fbw_state)[i] = i+42;
-  ***/
+
 }
 
 /** Prepares date for next comm with AP. Set ::ap_ok to TRUE */

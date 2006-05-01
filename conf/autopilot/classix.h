@@ -42,8 +42,8 @@
 /* reset on P1.25 */
 #define SERVO_RESET_PIN 25
 #define SERVO_RESET_PINSEL PINSEL2
-#define SERVO_RESET_PINSEL_VAL 0
-#define SERVO_RESET_PINSEL_BIT 3
+//#define SERVO_RESET_PINSEL_VAL 0
+//#define SERVO_RESET_PINSEL_BIT 3
 
 /* ADCs : supply on AD0.6 ( P0.4 ) */
 #define USE_AD0_6

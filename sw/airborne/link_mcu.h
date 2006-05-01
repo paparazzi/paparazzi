@@ -30,8 +30,8 @@
 #define LINK_MCU_H
 
 #include <inttypes.h>
-#include "link_mcu_hw.h"
 #include "inter_mcu.h"
+#include "link_mcu_hw.h"
 
 struct link_mcu_msg {
   union  { 
@@ -46,14 +46,14 @@ extern struct link_mcu_msg link_mcu_from_fbw_msg;
 
 extern bool_t link_mcu_received;
 
-void link_mcu_event_task( void );
+extern void link_mcu_event_task( void );
 
 #ifdef FBW
 extern void link_mcu_restart(void);
 #endif /* FBW */
 
 #ifdef AP
-extern volatile uint8_t link_mcu_nb_err;
+extern uint8_t link_mcu_nb_err;
 extern uint8_t link_mcu_fbw_nb_err;
 
 extern void link_mcu_init(void);

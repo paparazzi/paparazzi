@@ -31,6 +31,8 @@
 
 #include <math.h>
 
+#include "main_ap.h"
+
 #include "interrupt_hw.h"
 #include "init_hw.h"
 #include "adc.h"
@@ -230,9 +232,7 @@ static inline void reporting_task( void ) {
   }
   /** then report periodicly */
   else {
-//    IO1CLR = LED_2_BIT;
     PeriodicSendAp();
-//    IO1SET = LED_2_BIT;
   }
 }
 
@@ -355,7 +355,7 @@ static void navigation_task( void ) {
 }
 
 
-#define PERIOD (256. * 1024. / CLOCK / 1000000.)
+//#define PERIOD (256. * 1024. / CLOCK / 1000000.)
 
 /** Maximum time allowed for low battery level */
 #define LOW_BATTERY_DELAY 5
@@ -385,7 +385,7 @@ inline void periodic_task_ap( void ) {
   static uint8_t _4Hz   = 0;
   static uint8_t _1Hz   = 0;
 
-  estimator_t += PERIOD;
+  //  estimator_t += PERIOD;
 
   _20Hz++;
   if (_20Hz>=3) _20Hz=0;

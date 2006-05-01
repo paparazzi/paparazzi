@@ -36,15 +36,6 @@
 #ifndef PPM_HW_H
 #define PPM_HW_H
 
-
-/**
- *  Receiver types
- */
-#define RXFUTABA 0
-#define RXJR     1
-
-#define PPM_RX_TYPE  RXFUTABA
-
 #include <inttypes.h>
 #include <avr/io.h>
 
@@ -60,12 +51,12 @@
 static inline void
 ppm_init( void )
 {
-#if   PPM_RX_TYPE == RXFUTABA
+#if defined RADIO_CONTROL_TYPE && RADIO_CONTROL_TYPE == RC_FUTABA
   cbi( TCCR1B, ICES1 );
-#elif PPM_RX_TYPE == RXJR
+#elif defined RADIO_CONTROL_TYPE && RADIO_CONTROL_TYPE == RC_JR
   sbi( TCCR1B, ICES1 );
 #else
-#	error "ppm.h: Unknown receiver type in PPM_RX_TYPE"
+#error "ppm_hw.h: Unknown RADIO_CONTROL_TYPE"
 #endif
   /* No noise cancelation */
   sbi( TCCR1B, ICNC1 );

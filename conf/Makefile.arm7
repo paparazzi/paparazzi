@@ -181,8 +181,8 @@ endif
 
 # Settings and variables:
 LPC21ISP = lpc21isp
-LPC21ISP_PORT = /dev/ttyUSB0
-#LPC21ISP_PORT = /dev/ttyS0
+#LPC21ISP_PORT = /dev/ttyUSB0
+LPC21ISP_PORT = /dev/ttyS0
 LPC21ISP_FLASHFILE = $(OBJDIR)/$(TARGET).hex
 # verbose output:
 #LPC21ISP_DEBUG = -debug
