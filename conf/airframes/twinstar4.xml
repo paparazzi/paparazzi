@@ -32,7 +32,7 @@
   </section>
 
   <command_laws>
-    <set servo="GAZ" value="2 * @THROTTLE"/>
+    <set servo="GAZ" value="@THROTTLE"/>
     <set servo="ELEVATOR" value="@PITCH"/>
     <let var="roll" value="@ROLL"/>
     <set servo="AILERON_LEFT" value="($roll > 0 ? 1 : AILERON_DIFF) * $roll"/>
@@ -108,6 +108,11 @@
 		<define name="HOME_RADIUS" value="50" unit="m"/>
 	</section>
 
+  <section name="DATALINK" prefix="DATALINK_">
+    <define name="DEVICE_TYPE" value="WAVECARD"/>
+    <define name="DEVICE_ADDRESS" value="0x011804c0012d"/>
+  </section>
+
  <makefile>
 include $(PAPARAZZI_SRC)/conf/autopilot/v1_2_1.makefile
 include $(PAPARAZZI_SRC)/conf/autopilot/twin_mcu_avr.makefile
@@ -123,7 +128,7 @@ ap.srcs += if_calib.c
 
 ap.CFLAGS += -DDATALINK
 ap.srcs += traffic_info.c datalink.c
-ap.CFLAGS += -DWAVECARD
+ap.CFLAGS += -DWAVECARD -DUSE_UART0
 ap.srcs += wavecard.c
 
   </makefile>
