@@ -134,7 +134,9 @@ void event_task_fbw( void) {
     if (fbw_mode == FBW_MODE_AUTO) {
       SetCommands(ap_state->commands);
     }
-    //    DOWNLINK_SEND_DEBUG1((uint8_t)sizeof(struct link_mcu_msg), ((uint8_t*)&link_mcu_from_ap_msg));
+#ifdef SINGLE_MCU
+    inter_mcu_fill_fbw_state();
+#endif /**Else the buffer is filled even if the last receive was not correct */
   }
 #ifdef MCU_SPI_LINK
   if (link_mcu_received) {
