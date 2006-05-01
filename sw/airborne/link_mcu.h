@@ -31,7 +31,10 @@
 
 #include <inttypes.h>
 #include "inter_mcu.h"
+
+#ifndef SITL
 #include "link_mcu_hw.h"
+#endif
 
 struct link_mcu_msg {
   union  { 
