@@ -320,6 +320,7 @@ void uart1_transmit( unsigned char data ) {
   //  return (uint8_t)ch;
 }
 
+
 void uart1_ISR(void)
 {
   uint8_t iid;
@@ -343,7 +344,6 @@ void uart1_ISR(void)
         do
           {
           uint16_t temp;
-
           // calc next insert index & store character
           temp = (uart1_rx_insert_idx + 1) % UART1_RX_BUFFER_SIZE;
           uart1_rx_buffer[uart1_rx_insert_idx] = U1RBR;

@@ -73,11 +73,8 @@ void spi_init( void ) {
   VICVectCntl7 = VIC_ENABLE | VIC_SPI1;
   VICVectAddr7 = (uint32_t)SPI1_ISR;    // address of the ISR
 
-  /* enable half empty tx interrupt */
-  SpiEnableTxi();
   /* enable SPI */
   SpiEnable();
-
 }
 
 void SPI1_ISR(void) {
@@ -169,9 +166,10 @@ void SPI1_ISR(void) {
  if (bit_is_set(SSPMIS, TXMIS)) {  /*  Tx fifo is half empty */
    SpiTransmit();
    SpiReceive();
+   SpiEnableRti();
  }
 
- if ( bit_is_set(SSPMIS, RTMIS)) { /* Rx fifo is not empty and no receive took place in the last 32 bits period */ 
+ if (bit_is_set(SSPMIS, RTMIS)) { /* Rx fifo is not empty and no receive took place in the last 32 bits period */ 
    SpiUnselectSlave0();
    SpiReceive();
    SpiDisableRti();

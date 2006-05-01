@@ -136,18 +136,11 @@ ap.srcs += downlink.c pprz_transport.c $(SRC_ARCH)/uart_hw.c
 ap.CFLAGS += -DINTER_MCU -DMCU_SPI_LINK
 ap.srcs += inter_mcu.c link_mcu.c spi.c $(SRC_ARCH)/spi_hw.c
 
-#ap.CFLAGS += -DGPS -DUBX -DUSE_UART1 
-#ap.srcs += gps_ubx.c gps.c
+ap.CFLAGS += -DGPS -DUBX -DUSE_UART1 -DGPS_LINK=Uart1
+ap.srcs += gps_ubx.c gps.c
 
-#ap.CFLAGS += -DMODEM -DDOWNLINK
-#ap.srcs += $(SRC_ARCH)/modem_hw.c 
-#ap.CFLAGS += -DINFRARED -DGPS -DUBX -DRADIO_CONTROL_CALIB
-#ap.EXTRA_SRCS += if_calib.c
-#ap.CFLAGS += -DDATALINK
-#ap.EXTRA_SRCS += traffic_info.c datalink.c
-#ap.CFLAGS += -DWAVECARD
-#ap.EXTRA_SRCS += wavecard.c
-
+ap.CFLAGS += -DADC -DUSE_AD0_3
+ap.srcs += $(SRC_ARCH)/adc_hw.c 
 
   </makefile>
 </airframe>

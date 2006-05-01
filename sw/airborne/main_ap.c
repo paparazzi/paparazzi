@@ -472,11 +472,7 @@ inline void periodic_task_ap( void ) {
     ap_state->commands[COMMAND_PITCH] = desired_elevator;
     
 #if defined MCU_SPI_LINK
-
-    //   ClearBit( SPI_SS2_PORT, SPI_SS2_PIN );
     link_mcu_send();
-    //    SetBit( SPI_SS2_PORT, SPI_SS2_PIN );
-
 #elif defined INTER_MCU && defined SINGLE_MCU
     /**Directly set the flag indicating to FBW that shared buffer is available*/
     inter_mcu_received_ap = TRUE;

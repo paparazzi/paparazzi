@@ -38,4 +38,18 @@
 #define UART_FIFO_8   (uint8_t)(UFCR_FIFO_ENABLE + UFCR_FIFO_TRIG8)
 #define UART_FIFO_14  (uint8_t)(UFCR_FIFO_ENABLE + UFCR_FIFO_TRIG14)
 
+
+extern uint16_t uart1_rx_insert_idx, uart1_rx_extract_idx;
+extern uint8_t uart1_rx_buffer[UART0_RX_BUFFER_SIZE];
+
+#define Uart1ChAvailable() (uart1_rx_insert_idx != uart1_rx_extract_idx)
+
+#define Uart1Getch() ({\
+   uint8_t ret = uart1_rx_buffer[uart1_rx_extract_idx]; \
+   uart1_rx_extract_idx = (uart1_rx_extract_idx + 1)%UART1_RX_BUFFER_SIZE;        \
+   ret;                                                 \
+})
+
+
+
 #endif /* UART_HW_H */

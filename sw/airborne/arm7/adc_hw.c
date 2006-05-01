@@ -165,11 +165,14 @@ void adc_init( void ) {
 
 }
 
+#include "led.h"
+
 void adcISR0 ( void ) {
   ISR_ENTRY();
   uint32_t tmp = AD0DR;
   uint8_t channel = (uint8_t)(tmp >> 24) & 0x07;
   adc0_val[channel] = (uint16_t)(tmp >> 6) & 0x03FF;
+  //  LED_TOGGLE(1);
   VICVectAddr = 0x00000000;                 // clear this interrupt from the VIC
   ISR_EXIT();                               // recover registers and return
 }
@@ -179,6 +182,7 @@ void adcISR1 ( void ) {
   uint32_t tmp = AD1DR;
   uint8_t channel = (uint8_t)(tmp >> 24) & 0x07;
   adc1_val[channel] = (uint16_t)(tmp >> 6) & 0x03FF;
+  //  LED_TOGGLE(1);
   VICVectAddr = 0x00000000;                 // clear this interrupt from the VIC
   ISR_EXIT();                               // recover registers and return
 }

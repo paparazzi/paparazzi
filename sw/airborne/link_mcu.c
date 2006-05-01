@@ -83,9 +83,8 @@ void link_mcu_init(void) {
   link_mcu_nb_err = 0;
 }
 
-#include "spi_hw.h"
-
 void link_mcu_send(void) {
+
   if (!SpiCheckAvailable()) {
     SpiOverRun();
     return;

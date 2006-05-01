@@ -34,31 +34,35 @@
 extern volatile uint8_t spi_tx_idx;
 extern volatile uint8_t spi_rx_idx;
 
+#define SpiInitBuf() {                                                  \
+  spi_rx_idx = 0;                                                       \
+  spi_tx_idx = 0;                                                       \
+  spi_message_received = FALSE;                                         \
+  SpiTransmit();      /* fill fifo */                                   \
+}
 
 #define SpiTransmit() {						        \
     while (spi_tx_idx < spi_buffer_length	                 	\
 	   && bit_is_set(SSPSR, TNF)) {					\
       SpiSend(spi_buffer_output[spi_tx_idx]);	                        \
-      spi_tx_idx++;						\
+      spi_tx_idx++;						        \
     }			                                                \
-    SpiEndTransmit();                                                   \
+    if (spi_tx_idx == spi_buffer_length)	        		\
+      SpiDisableTxi();                                                  \
 }
 
 #define SpiReceive() {		         				\
-    while ( bit_is_set(SSPSR, RNE)) {					\
-      SpiRead(spi_buffer_input[spi_rx_idx]);	                        \
-      spi_rx_idx++;						\
+    while (bit_is_set(SSPSR, RNE)) {					\
+      if (spi_rx_idx < spi_buffer_length) {                             \
+          SpiRead(spi_buffer_input[spi_rx_idx])                         \
+          spi_rx_idx++;						        \
+      }                                                                 \
+      else {                                                            \
+         uint8_t foo;                                                   \
+	 SpiRead(foo);                                                  \
+      }                                                                 \
     }									\
   }
-
-#define SpiStart() {                                                    \
-  spi_rx_idx = 0;                                                       \
-  spi_tx_idx = 0;                                                       \
-  spi_message_received = FALSE;                                         \
-  SpiTransmit();      /* fill fifo */                                   \
-  SpiEnableTxi();     /* enable tx fifo half empty interrupt */         \
-  SpiEnableRti();     /* enable rx timeout interrupt         */         \
-}
 
 #define SpiEnable() {		\
     SetBit(SSPCR1, SSE);	\
@@ -76,7 +80,7 @@ extern volatile uint8_t spi_rx_idx;
     ClearBit(SSPIMSC, RTIM);	\
   }
 
-#define SpiClearRti() {       \
+#define SpiClearRti() {         \
     SetBit(SSPICR, RTIC);	\
   }
 
@@ -92,27 +96,33 @@ extern volatile uint8_t spi_rx_idx;
     SetBit(SSPIMSC, RXIM);	\
   }
 
-#define SpiDsiableRxi() {	\
+#define SpiDisableRxi() {	\
     ClearBit(SSPIMSC, RXIM);	\
   }
 
-#define SpiSend(a) {           \
+#define SpiSend(a) {            \
     SSPDR = a;			\
   }
 
-#define SpiRead(a) {           \
+#define SpiRead(a) {            \
     a = SSPDR;			\
   }
 
 #ifdef FBW
-  #define SpiEndTransmit() {}
+#define SpiStart() {                                                    \
+   SpiInitBuf();                                                        \
+   SpiEnableTxi();     /* enable tx fifo half empty interrupt */        \
+}
+
 #endif /* FBW */
 
 #ifdef AP
 
-#define SpiEndTransmit()                                                \
-  if (spi_tx_idx == spi_buffer_length)	        		\
-      SpiDisableTxi();
+#define SpiStart() {                                                    \
+   SpiEnable();                                                         \
+   SpiInitBuf();                                                        \
+   SpiEnableTxi();     /* enable tx fifo half empty interrupt */        \
+}
 
 /* 
  * Slave0 select : P0.20  PINSEL1 00 << 8

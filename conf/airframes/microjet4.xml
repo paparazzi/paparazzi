@@ -33,28 +33,8 @@
     <set servo="AILEVON_RIGHT" value="$elevator - $aileron"/>
   </command_laws>
 
-  <section name="DOWNLINK" prefix="DOWNLINK_">
-    <define name="FBW_DEVICE" value="uart0"/>
-  </section>
-
  <makefile>
 include $(PAPARAZZI_SRC)/conf/autopilot/tiny.makefile
-#ap.CFLAGS += -DTRACES=uart0
-#ap.EXTRA_SRCS += $(SRC_ARCH)/traces.c $(SRC_ARCH)/uart.c
-#ap.CFLAGS += -DRADIO_CONTROL 
-#ap.EXTRA_SRCS += $(SRC_ARCH)/ppm_hw.c radio_control.c 
-#ap.CFLAGS += -DAUTOPILOT
-#ap.EXTRA_SRCS += autopilot_fbw.c 
-#ap.CFLAGS += -DCONTROL 
-#ap.EXTRA_SRCS += $(ACINCLUDE)/ap/control.c 
-#ap.EXTRA_SRCS += control.c 
-#ap.CFLAGS += -DESTIMATOR
-#ap.EXTRA_SRCS += estimator.c
-#ap.CFLAGS += -DGPS -DUBX
-#ap.EXTRA_SRCS += gps.c gps_ubx.c
-#ap.CFLAGS += -DMODEM
-#ap.EXTRA_SRCS += $(SRC_ARCH)/modem_hw.c
-#ap.CFLAGS += -DDOWNLINK
 
 ap.srcs += commands.c
 
@@ -64,10 +44,14 @@ ap.srcs += $(SRC_ARCH)/servos_4015_hw.c
 ap.CFLAGS += -DRADIO_CONTROL
 ap.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c  
 
-ap.CFLAGS += -DDOWNLINK -DUSE_UART0 
-ap.srcs += fbw_downlink.c $(SRC_ARCH)/uart_hw.c
+ap.CFLAGS += -DDOWNLINK -DUSE_UART0 -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_FBW_DEVICE=Uart0 -DDOWNLINK_AP_DEVICE=Uart0
+ap.srcs += downlink.c pprz_transport.c $(SRC_ARCH)/uart_hw.c
 
-ap.srcs += inter_mcu.c  $(SRC_ARCH)/adc_hw.c
+ap.CFLAGS += -DINTER_MCU
+ap.srcs += inter_mcu.c 
+
+ap.CFLAGS += -DGPS -DUBX -DUSE_UART1 -DGPS_LINK=Uart1
+ap.srcs += gps_ubx.c gps.c
 
   </makefile>
 </airframe>

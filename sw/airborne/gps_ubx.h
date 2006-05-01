@@ -33,7 +33,7 @@
 
 extern uint8_t ubx_id, ubx_class;
 #define UBX_MAX_PAYLOAD 255
-uint8_t ubx_msg_buf[UBX_MAX_PAYLOAD];
+extern uint8_t ubx_msg_buf[UBX_MAX_PAYLOAD];
 
 extern uint8_t send_ck_a, send_ck_b;
 #define UbxInitCheksum() { send_ck_a = send_ck_b = 0; }

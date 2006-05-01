@@ -33,13 +33,11 @@
 #define CrcLow(x) ((x)&0xff)
 #define CrcHigh(x) ((x)>>8)
 
-/*
-#define CrcUpdate(_crc,_data) {       \
-   uint8_t a = CrcHigh(_crc) + _data; \
-   uint8_t b = CrcLow(_crc) + a;      \
-   _crc = b | a >> 8;                 \
+static inline uint16_t CrcUpdate(uint16_t crc, uint8_t data) {
+  uint8_t a = CrcHigh(crc) + data; 
+  uint8_t b = CrcLow(crc) + a;
+  crc = b | a >> 8; 
+  return crc;
 }
-*/
-#define CrcUpdate(_crc,_data) 0
 
 #endif /* LINK_MCU_HW_H */

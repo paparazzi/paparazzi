@@ -81,6 +81,12 @@ void init_ap( void ) {
   uart0_init_rx();
   Uart0PrintString("AP Booting $Id$\n");
 #endif  /* USE_UART0 */
+#if USE_UART1
+  Uart1Init();
+#endif
+#ifdef ADC
+  adc_init();
+#endif
 #endif  /* FBW */
 
 #ifdef MODEM
@@ -112,7 +118,12 @@ void periodic_task_ap( void ) {
   PeriodicSendAp();
 #endif
 #if defined MCU_SPI_LINK
+  uint8_t j;
+  for (j=0; j<10; j++) {
+    ((uint8_t*)&link_mcu_from_ap_msg)[j] = 42+j;
+  }
   link_mcu_send();
+  DOWNLINK_SEND_DEBUG2((uint8_t)sizeof(struct link_mcu_msg), ((uint8_t*)&link_mcu_from_fbw_msg));
 #endif
 }
 
@@ -120,16 +131,23 @@ void event_task_ap( void ) {
 #ifdef GPS
   if (GpsBuffer()) {
     ReadGpsBuffer();
-    if (gps_msg_received) {
-      /* parse and use GPS messages */
-      parse_gps_msg();
-      gps_msg_received = FALSE;
-      if (gps_pos_available) {
-	LED_TOGGLE(1);
-	use_gps_pos();
-	gps_pos_available = FALSE;
-      }
+  }
+  if (gps_msg_received) {
+    /* parse and use GPS messages */
+    parse_gps_msg();
+    gps_msg_received = FALSE;
+    if (gps_pos_available) {
+      //      LED_TOGGLE(2);
+      use_gps_pos();
+      gps_pos_available = FALSE;
     }
   }
 #endif /* GPS */
+#ifdef MCU_SPI_LINK
+  if (spi_message_received) {
+    /* Got a message on SPI. */
+    spi_message_received = FALSE;
+    link_mcu_event_task();
+  }
+#endif
 }
