@@ -42,8 +42,8 @@
 
 
 extern uint8_t wc_msg_received;
-
-extern uint8_t  wc_length;
+extern uint8_t wc_length;
+extern uint8_t wc_payload[]; /** Only for debuging purporse */
 void wc_parse_payload(void);
 
 void wc_reset( void );
