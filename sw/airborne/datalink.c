@@ -47,61 +47,57 @@
 #define IdOfMsg(x) (x[1])
 
 void dl_parse_msg(void) {
-  /** Hack: id of the sender is used in uplink to select the receiver */
-  if (SenderIdOfMsg(dl_buffer) == AC_ID) {   
-    uint8_t msg_id = IdOfMsg(dl_buffer);
-    if (msg_id == DL_ACINFO) {
-      uint8_t id = DL_ACINFO_ac_id(dl_buffer);
-      float ux = MOfCm(DL_ACINFO_utm_east(dl_buffer));
-      float uy = MOfCm(DL_ACINFO_utm_north(dl_buffer));
-      float a = MOfCm(DL_ACINFO_alt(dl_buffer));
-      float c = RadOfDeg(((float)DL_ACINFO_course(dl_buffer))/ 10.);
-      float s = MOfCm(DL_ACINFO_speed(dl_buffer));
-      SetAcInfo(id, ux, uy, c, a, s);
-    } else if (msg_id == DL_MOVE_WP) {
-      uint8_t wp_id = DL_MOVE_WP_wp_id(dl_buffer);
-      float ux = MOfCm(DL_MOVE_WP_utm_east(dl_buffer));
-      float uy = MOfCm(DL_MOVE_WP_utm_north(dl_buffer));
-      float a = MOfCm(DL_MOVE_WP_alt(dl_buffer));
-      MoveWaypoint(wp_id, ux, uy, a);
-    } else if (msg_id == DL_EVENT) {
-      uint8_t event = DL_EVENT_event(dl_buffer);
-      switch (event) {
-      case 1 : rc_event_1 = TRUE; break; // FIXME !
-      case 2 : rc_event_2 = TRUE; break;
-      default: ;
-      }
-    } else if (msg_id == DL_BLOCK) {
-      nav_goto_block(DL_BLOCK_block_id(dl_buffer));
+  uint8_t msg_id = IdOfMsg(dl_buffer);
+  if (msg_id == DL_ACINFO) {
+    uint8_t id = DL_ACINFO_ac_id(dl_buffer);
+    float ux = MOfCm(DL_ACINFO_utm_east(dl_buffer));
+    float uy = MOfCm(DL_ACINFO_utm_north(dl_buffer));
+    float a = MOfCm(DL_ACINFO_alt(dl_buffer));
+    float c = RadOfDeg(((float)DL_ACINFO_course(dl_buffer))/ 10.);
+    float s = MOfCm(DL_ACINFO_speed(dl_buffer));
+    SetAcInfo(id, ux, uy, c, a, s);
+  } else if (msg_id == DL_MOVE_WP) {
+    uint8_t wp_id = DL_MOVE_WP_wp_id(dl_buffer);
+    float ux = MOfCm(DL_MOVE_WP_utm_east(dl_buffer));
+    float uy = MOfCm(DL_MOVE_WP_utm_north(dl_buffer));
+    float a = MOfCm(DL_MOVE_WP_alt(dl_buffer));
+    MoveWaypoint(wp_id, ux, uy, a);
+  } else if (msg_id == DL_EVENT) {
+    uint8_t event = DL_EVENT_event(dl_buffer);
+    switch (event) {
+    case 1 : rc_event_1 = TRUE; break; // FIXME !
+    case 2 : rc_event_2 = TRUE; break;
+    default: ;
     }
+  } else if (msg_id == DL_BLOCK) {
+    nav_goto_block(DL_BLOCK_block_id(dl_buffer));
+  }
 #ifdef HITL
-    /** Infrared and GPS sensors are replaced by messages on the datalink */
-    else if (msg_id == DL_HITL_INFRARED) {
-      /** This code simulates infrared.c:ir_update() */
-      ir_roll = DL_HITL_INFRARED_roll(dl_buffer);
-      ir_pitch = DL_HITL_INFRARED_pitch(dl_buffer);
-    } else if (msg_id == DL_HITL_UBX) {
-      /** This code simulates gps_ubx.c:parse_ubx() */
-      if (gps_msg_received) {
-	gps_nb_ovrn++;
-      } else {
-	ubx_class = DL_HITL_UBX_class(dl_buffer);
-	ubx_id = DL_HITL_UBX_id(dl_buffer);
-	uint8_t l = DL_HITL_UBX_ubx_payload_length(dl_buffer);
-	uint8_t *ubx_payload = DL_HITL_UBX_ubx_payload(dl_buffer);
-	uint8_t i;
-	for(i=0; i<l; i++) {
-	  ubx_msg_buf[i] = ubx_payload[i];
-	}
-	gps_msg_received = TRUE;
+  /** Infrared and GPS sensors are replaced by messages on the datalink */
+  else if (msg_id == DL_HITL_INFRARED) {
+    /** This code simulates infrared.c:ir_update() */
+    ir_roll = DL_HITL_INFRARED_roll(dl_buffer);
+    ir_pitch = DL_HITL_INFRARED_pitch(dl_buffer);
+  } else if (msg_id == DL_HITL_UBX) {
+    /** This code simulates gps_ubx.c:parse_ubx() */
+    if (gps_msg_received) {
+      gps_nb_ovrn++;
+    } else {
+      ubx_class = DL_HITL_UBX_class(dl_buffer);
+      ubx_id = DL_HITL_UBX_id(dl_buffer);
+      uint8_t l = DL_HITL_UBX_ubx_payload_length(dl_buffer);
+      uint8_t *ubx_payload = DL_HITL_UBX_ubx_payload(dl_buffer);
+      uint8_t i;
+      for(i=0; i<l; i++) {
+	ubx_msg_buf[i] = ubx_payload[i];
       }
+      gps_msg_received = TRUE;
     }
+  }
 #endif
 #ifdef DlSetting
-    else if (msg_id == DL_SETTING) {
-      DlSetting(DL_SETTING_index(dl_buffer), DL_SETTING_value(dl_buffer));
-    }
-#endif /** Else there is no dl_settings section in the flight plan */
-    
+  else if (msg_id == DL_SETTING) {
+    DlSetting(DL_SETTING_index(dl_buffer), DL_SETTING_value(dl_buffer));
   }
+#endif /** Else there is no dl_settings section in the flight plan */
 }
