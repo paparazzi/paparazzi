@@ -64,38 +64,45 @@ let set_georef_if_none = fun geomap wgs84 ->
 
 (** Display a calibrated (XML) map *)
 let display_map = fun (geomap:G.widget) xml_map ->
-  let dir = Filename.dirname xml_map in
-  let xml_map = Xml.parse_file xml_map in
-  let image = dir // ExtXml.attrib xml_map "file" in
-  let map_projection = Xml.attrib xml_map "projection" in
-  let current_projection = geomap#projection in
-  if map_projection <> current_projection then
-    GToolbox.message_box "Warning" (sprintf "You are loading a map in %s projection while the display use %s" map_projection current_projection);
+  try
+    let dir = Filename.dirname xml_map in
+    let xml_map = Xml.parse_file xml_map in
+    let image = dir // ExtXml.attrib xml_map "file" in
+    let map_projection = Xml.attrib xml_map "projection" in
+    let current_projection = geomap#projection in
+    if map_projection <> current_projection then
+      GToolbox.message_box "Warning" (sprintf "You are loading a map in %s projection while the display use %s" map_projection current_projection);
 
-  let pix_ref = fun p ->
-    truncate (float_attr p "x"), truncate (float_attr p "y") in
-  let geo_ref = fun p ->
-    try Latlong.of_string (Xml.attrib p "geo") with
-      _ -> (* Compatibility with the old UTM format *)
-	let utm_x = float_attr p "utm_x"
-	and utm_y = float_attr p "utm_y" in
-	let utm_zone = int_attr xml_map "utm_zone" in
-	let utm = {utm_x = utm_x;  utm_y = utm_y; utm_zone = utm_zone } in
-	Latlong.of_utm WGS84 utm in
-
-  match Xml.children xml_map with
-    p1::p2::_ ->
-      let x1y1 = pix_ref p1
-      and x2y2 = pix_ref p2
-      and geo1 = geo_ref p1
-      and geo2 = geo_ref p2 in
-      
-      (* Take this point as a reference for the display if none currently *)
-      set_georef_if_none geomap geo1;
-      
-      ignore (geomap#display_pixbuf ((x1y1),geo1) ((x2y2),geo2) (GdkPixbuf.from_file image));
-      geomap#center geo1
-  | _ -> failwith (sprintf "display_map: two ref points required")
+    let pix_ref = fun p ->
+      truncate (float_attr p "x"), truncate (float_attr p "y") in
+    let geo_ref = fun p ->
+      try Latlong.of_string (Xml.attrib p "geo") with
+	_ -> (* Compatibility with the old UTM format *)
+	  let utm_x = float_attr p "utm_x"
+	  and utm_y = float_attr p "utm_y" in
+	  let utm_zone = int_attr xml_map "utm_zone" in
+	  let utm = {utm_x = utm_x;  utm_y = utm_y; utm_zone = utm_zone } in
+	  Latlong.of_utm WGS84 utm in
+    
+    match Xml.children xml_map with
+      p1::p2::_ ->
+	let x1y1 = pix_ref p1
+	and x2y2 = pix_ref p2
+	and geo1 = geo_ref p1
+	and geo2 = geo_ref p2 in
+	
+	(* Take this point as a reference for the display if none currently *)
+	set_georef_if_none geomap geo1;
+	
+	ignore (geomap#display_pixbuf ((x1y1),geo1) ((x2y2),geo2) (GdkPixbuf.from_file image));
+	geomap#center geo1
+    | _ -> failwith (sprintf "display_map: two ref points required")
+  with
+    Xml.File_not_found f ->
+      GToolbox.message_box "Error" (sprintf "File does not exist: %s" f)
+  | ExtXml.Error s ->
+      GToolbox.message_box "Error" (sprintf "Error in XML file: %s" s)
+	
 
 
 let load_map = fun (geomap:G.widget) () ->
@@ -779,7 +786,7 @@ let listen_dl_value = fun () ->
       let adjs = ac.dl_settings_adjustments in
       let csv = Pprz.string_assoc "values" vs in
       let values = Array.of_list (Str.split list_separator csv) in
-      for i = 0 to Array.length values - 1 do
+      for i = 0 to min (Array.length values) (Array.length adjs) - 1 do
 	adjs.(i) <- float_of_string values.(i)
       done
     with Not_found -> ()

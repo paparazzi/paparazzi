@@ -59,7 +59,7 @@ let stop = fun () ->
 
 
 let file_dialog ~title ~callback () =
-  let sel = GWindow.file_selection ~title ~filename:"*.xml" ~modal:true () in
+  let sel = GWindow.file_selection ~title ~filename:"*.data[.*]" ~modal:true () in
   ignore (sel#cancel_button#connect#clicked ~callback:sel#destroy);
   ignore
     (sel#ok_button#connect#clicked
