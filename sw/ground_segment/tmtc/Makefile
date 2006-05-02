@@ -31,7 +31,7 @@ all: link server messages $(VAR)/boa.conf
 # stereo_demod
 
 clean:
-	rm -f hw_modem_listen wavecard maxstream server messages *.bak *~ core *.o .depend *.opt *.out *.cm*
+	rm -f link server messages *.bak *~ core *.o .depend *.opt *.out *.cm*
 
 OCAMLC = ocamlc
 OCAMLOPT = ocamlopt
