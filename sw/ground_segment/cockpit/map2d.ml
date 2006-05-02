@@ -35,6 +35,9 @@ let int_attr = fun xml a -> int_of_string (ExtXml.attrib xml a)
 let soi = string_of_int
 let sof = string_of_float
 
+let bat_max = 13.
+let bat_min = 8.
+
 let home = Env.paparazzi_home
 let (//) = Filename.concat
 let default_path_srtm = home // "data" // "srtm"
@@ -45,6 +48,11 @@ let var_maps_path = home // "var" // "maps"
 let _ = 
   ignore (Sys.command (sprintf "mkdir -p %s" var_maps_path))
 let fp_example = path_fps // "example.xml"
+
+(** window for the strip panel *)
+let strip_panel = GWindow.window ~title: "Strip Panel" ~width: 330 ~height:300 ()
+let strip_scrolled = GBin.scrolled_window ~hpolicy: `AUTOMATIC ~vpolicy: `AUTOMATIC ~packing: strip_panel#add ()
+let strip_table = GPack.table ~rows: 0 ~columns: 1 ~row_spacings: 5 ~packing: (strip_scrolled#add_with_viewport) ()
 
 (** Dummy flight plan (for map calibration) *)
 let dummy_fp = fun latlong ->
@@ -157,6 +165,86 @@ let map_from_region = fun (geomap:G.widget) () ->
       let nw = geomap#of_world (xw1,yw1)
       and se = geomap#of_world (xw2,yw2) in
       save_map geomap dest nw se
+(************ Strip handling ***********************************************)
+module Strip = struct
+  type t = {
+      ac_id: string;
+      gauge: GRange.progress_bar ;
+      labels: (string * GMisc.label) list
+    }
+
+  let panel = Hashtbl.create 3
+
+  let pad = 4
+  let i2s = string_of_int
+  let labels_name =  [| 
+    [| "AP" ; "alt" ; "->" |]; [| "RC"; "climb"; "/" |]; [| "GPS"; "speed"; "" |];
+    [| "settings" ; "throttle"; "" |]; [| ""; "wind"; "dir" |];
+  |]
+
+  let labels_print = [| 
+    [| "AP" ; "alt" ; "->" |]; [| "RC"; "climb"; "->" |]; [| "GPS"; "speed"; "" |];
+    [| "settings" ; "throttle"; "" |]; [| ""; "wind"; "dir" |];
+  |]
+  let gen_int = let i = ref (-1) in fun () -> incr i; !i
+
+
+  (** add a strip to the panel *)
+  let add (widget: GPack.table) ac_id config color =
+    (* number of the strip *)
+    let strip_number = gen_int () in
+    widget#set_rows strip_number;
+
+    let strip_labels = ref  [] in
+    let add_label = fun name value -> 
+      strip_labels := (name, value) :: !strip_labels in
+
+    let ac_name = Pprz.string_assoc "ac_name" config in
+
+    (* frame of the strip *)
+    let frame = GBin.frame ~shadow_type: `IN ~packing: (widget#attach ~top: (strip_number) ~left: 0) () in
+    let strip = GPack.table ~rows: 2 ~columns: 2 ~col_spacings: 10 ~packing: frame#add () in
+    add_label "name" (GMisc.label ~text: (ac_name) ~packing: (strip#attach ~top: 0 ~left: 0) ());
+    
+    let plane_color = GBin.event_box ~width:10 ~height:10 ~packing:(strip#attach ~top:0 ~left: 1) () in
+    plane_color#coerce#misc#modify_bg [`NORMAL, `NAME color];
+
+    (* battery and flight time *)
+    let bat_table = GPack.table ~rows: 2 ~columns: 1 ~packing: (strip#attach ~top:1 ~left:0) () in
+    let pb = GRange.progress_bar ~orientation: `BOTTOM_TO_TOP ~packing: (bat_table#attach ~top:0 ~left:0) () in
+    let ft = GMisc.label ~text: "00:00:00" ~packing: (bat_table#attach ~top:1 ~left:0) () in
+    ft#set_width_chars 8;
+    add_label ("flight_time_value") ft;
+ 
+    let left_box = GPack.table ~rows: 5 ~columns: 6 ~col_spacings: 5 
+      ~packing: (strip#attach ~top: 1 ~left: 1) () in
+
+    Array.iteri 
+      (fun i a ->
+	Array.iteri
+	  (fun j s ->
+	    add_label s (GMisc.label ~text: labels_print.(i).(j) ~justify: `LEFT ~packing: (left_box#attach ~top: i ~left: (2*j)) ());
+	    let lvalue = (GMisc.label ~text: "" ~justify: `RIGHT ~packing: (left_box#attach ~top: i ~left: (2*j+1)) ()) in
+	    lvalue#set_width_chars 6;
+	    add_label (s^"_value") lvalue;
+	  ) a
+      ) labels_name;
+    Hashtbl.add panel ac_id {ac_id = ac_id; gauge=pb ; labels= (!strip_labels)}
+
+  (** find an aircraft in the list of aircraft *)
+  let find ac_id = Hashtbl.find panel ac_id
+
+  (** set a label *)
+  let set_label strip name value = 
+    let l = List.assoc (name^"_value") strip.labels in
+    l#set_label value
+
+  (** set the battery *)
+  let set_bat strip value = strip.gauge#set_text (sof value);
+    strip.gauge#set_fraction (((bat_max -. bat_min) -. (bat_max -. value)) /. (bat_max -. bat_min))
+
+end
+
 
 
 (************ Google Maps handling *****************************************)
@@ -754,7 +842,8 @@ let create_ac = fun (geomap:G.widget) ac_id config ->
 				     block_label = block_label;
 				     apmode_label = apmode_label;
 				     blocks = blocks
-				   }
+				   };
+    ignore (Strip.add strip_table ac_id config color)
     
 
 let ask_config = fun geomap ac ->
@@ -769,6 +858,41 @@ let one_new_ac = fun (geomap:G.widget) ac ->
   if not (Hashtbl.mem live_aircrafts ac) then begin
     ask_config geomap ac
   end
+
+let get_wind_msg = fun sender vs ->
+  let ac_strip = Strip.find (Pprz.string_assoc "ac_id" vs) in
+  let set_label = fun label_name field_name ->
+    Strip.set_label ac_strip label_name 
+      (Printf.sprintf "%.1f" (Pprz.float_assoc field_name vs))
+  in
+  set_label "wind" "wspeed";
+  set_label "dir" "dir"
+
+let get_fbw_msg = fun sender vs ->
+  let ac_strip = Strip.find (Pprz.string_assoc "ac_id" vs) in
+  Strip.set_label ac_strip "RC" (Pprz.string_assoc "rc_status" vs)
+
+let get_engine_status_msg = fun sender vs ->
+  let ac_strip = Strip.find (Pprz.string_assoc "ac_id" vs) in
+  Strip.set_label ac_strip "throttle" 
+    (string_of_float (Pprz.float_assoc "throttle" vs));
+  Strip.set_bat ac_strip (Pprz.float_assoc "bat" vs)
+
+let get_if_calib_msg = fun sender vs ->
+  let ac_strip = Strip.find (Pprz.string_assoc "ac_id" vs) in
+  Strip.set_label ac_strip "settings" (Pprz.string_assoc "if_mode" vs)
+
+let listen_wind_msg = fun () ->
+  ignore (Ground_Pprz.message_bind "WIND" get_wind_msg)
+
+let listen_fbw_msg = fun () ->
+  ignore (Ground_Pprz.message_bind "FLY_BY_WIRE" get_fbw_msg)
+
+let listen_engine_status_msg = fun () ->
+  ignore (Ground_Pprz.message_bind "ENGINE_STATUS" get_engine_status_msg)
+
+let listen_if_calib_msg = fun () ->
+  ignore (Ground_Pprz.message_bind "INFLIGH_CALIB" get_if_calib_msg)
 
 let list_separator = Str.regexp ","
       
@@ -797,17 +921,32 @@ let listen_dl_value = fun () ->
 let listen_flight_params = fun () ->
   let get_fp = fun _sender vs ->
     let ac_id = Pprz.string_assoc "ac_id" vs in
+    let ac_strip = Strip.find ac_id in
     try
       let ac = Hashtbl.find live_aircrafts ac_id in
       let a = fun s -> Pprz.float_assoc s vs in
       let wgs84 = { posn_lat = (Deg>>Rad)(a "lat"); posn_long = (Deg>>Rad)(a "long") } in
-      aircraft_pos_msg ac.track wgs84 (a "course") (a "alt")  (a "speed") (a "climb")
+      aircraft_pos_msg ac.track wgs84 (a "course") (a "alt")  (a "speed") (a "climb");
+      let set_label lbl_name field_name =
+	let s = 
+	  if (a field_name) < 0. 
+	  then 
+	    "- "^(Printf.sprintf "%.1f" (abs_float (a field_name)))
+	  else
+	    Printf.sprintf "%.1f" (a field_name)
+	in
+	Strip.set_label ac_strip lbl_name s
+      in
+      set_label "alt" "alt";
+      set_label "speed" "speed";
+      set_label "climb" "climb"
     with Not_found -> ()
   in
   ignore (Ground_Pprz.message_bind "FLIGHT_PARAM" get_fp);
 
   let get_ns = fun _sender vs ->
     let ac_id = Pprz.string_assoc "ac_id" vs in
+    let ac_strip = Strip.find ac_id in
     try
       let ac = Hashtbl.find live_aircrafts ac_id in
       let a = fun s -> Pprz.float_assoc s vs in
@@ -815,7 +954,11 @@ let listen_flight_params = fun () ->
       carrot_pos_msg ac.track wgs84;
       let b = List.assoc (Pprz.int_assoc "cur_block" vs) ac.blocks in
       let b = String.sub b 0 (min 10 (String.length b)) in
-      ac.block_label#set_label b
+      ac.block_label#set_label b;
+      let set_label = fun l f ->
+	Strip.set_label ac_strip l (Printf.sprintf "%.1f" (Pprz.float_assoc f vs)) in
+      set_label "->" "target_alt";
+      set_label "/" "target_climb"
     with Not_found -> ()
   in
   ignore (Ground_Pprz.message_bind "NAV_STATUS" get_ns);
@@ -857,10 +1000,17 @@ let listen_flight_params = fun () ->
 
   let get_ap_status = fun _sender vs ->
     let ac_id = Pprz.string_assoc "ac_id" vs in
+    let ac_strip = Strip.find ac_id in
     try
       let ac = Hashtbl.find live_aircrafts ac_id in
       ap_status_msg ac.track ( float_of_int (Pprz.int32_assoc "flight_time" vs ));
-      ac.apmode_label#set_label (Pprz.string_assoc "ap_mode" vs)
+      ac.apmode_label#set_label (Pprz.string_assoc "ap_mode" vs);
+            Strip.set_label ac_strip "AP" (Pprz.string_assoc "ap_mode" vs);
+      Strip.set_label ac_strip "GPS" (Pprz.string_assoc "gps_mode" vs);
+      let ft = 
+	let t = Int32.to_int (Int32.of_string (Pprz.string_assoc "flight_time" vs)) in
+	Printf.sprintf "%02d:%02d:%02d" (t / 3600) ((t mod 3600) / 60) ((t mod 3600) mod 60) in
+      Strip.set_label ac_strip "flight_time" ft
     with 
       Not_found -> ()
   in
@@ -894,9 +1044,11 @@ let _main =
   and map_file = ref ""
   and center = ref ""
   and zoom = ref 1.
-  and projection= ref G.UTM in
+  and projection= ref G.UTM
+  and display_strip = ref false in
   let options =
     [ "-b", Arg.String (fun x -> ivy_bus := x), "Bus\tDefault is 127.255.255.25:2010";
+      "-strip", Arg.Unit (fun () -> display_strip := true), "Display strip";
       "-ref", Arg.Set_string geo_ref, "Geographic ref (default '')";
       "-zoom", Arg.Set_float zoom, "Initial zoom";
       "-center", Arg.Set_string center, "Initial map center";
@@ -914,16 +1066,19 @@ let _main =
   Srtm.add_path default_path_srtm;
   Gm.cache_path := var_maps_path;
   IGN.cache_path := var_maps_path;
-
+  
+  (** window for map2d **)
   let window = GWindow.window ~title: "Map2d" ~border_width:1 ~width:400 () in
   let vbox= GPack.vbox ~packing: window#add () in
 
+  (** window for vertical situation *)
   let vertical_situation = GWindow.window ~title: "Vertical" ~border_width:1 ~width:400 () in
   let _vertical_vbox= GPack.vbox ~packing: vertical_situation#add () in
   let quit = fun () -> GMain.Main.quit (); exit 0 in
-  ignore (window#connect#destroy ~callback:quit);
 
+  ignore (window#connect#destroy ~callback:quit);
   ignore (vertical_situation#connect#destroy ~callback:quit);
+  ignore (strip_panel#connect#destroy ~callback:quit);
 
   let geomap = new G.widget ~projection:!projection ~height:400 () in
 
@@ -986,10 +1141,16 @@ let _main =
 
   (** Listen for all messages on ivy *)
   Live.listen_flight_params ();
+  Live.listen_wind_msg ();
+  Live.listen_fbw_msg ();
+  Live.listen_engine_status_msg ();
+  Live.listen_if_calib_msg ();
 
   (** Display the window *)
   window#add_accel_group accel_group;
   window#show ();
+
+  if !display_strip then strip_panel#show ();
 
   (** Center the map as required *)
   if !center <> "" then begin
