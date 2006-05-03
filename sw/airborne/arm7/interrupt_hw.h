@@ -29,3 +29,4 @@
 #include "armVIC.h"
 
 #define int_enable() enableIRQ()
+#define int_disable() disableIRQ()

@@ -90,7 +90,7 @@ void ir_update(void) {
   /** neutrals are not taken into account in SITL and HITL */
   ir_roll -= IR_ADC_ROLL_NEUTRAL;
   ir_pitch -= IR_ADC_PITCH_NEUTRAL;
-#endif /* !SITL */
+#endif /* !SITL && !HITL */
 /** #else ir_roll set by simulator in sim_ir.c */
 }
 

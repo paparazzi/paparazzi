@@ -60,10 +60,6 @@
 #include "srf08.h"
 #endif
 
-#if defined AHRS
-#include "ahrs.h"
-#endif /* AHRS */
-
 #ifndef AUTO1_MAX_ROLL
 #define AUTO1_MAX_ROLL 0.6
 #endif
@@ -89,11 +85,7 @@ uint8_t pprz_mode = PPRZ_MODE_MANUAL;
 uint8_t vertical_mode = VERTICAL_MODE_MANUAL;
 uint8_t lateral_mode = LATERAL_MODE_MANUAL;
 
-#ifdef AHRS
-uint8_t ir_estim_mode = IR_ESTIM_MODE_OFF;
-#else
 uint8_t ir_estim_mode = IR_ESTIM_MODE_ON;
-#endif // AHRS
 
 bool_t auto_pitch = FALSE;
 
@@ -441,9 +433,6 @@ inline void periodic_task_ap( void ) {
     break;
     /*  default: */
   }
-#if defined AHRS
-  ahrs_update();//<8,6 ms called at 60hz
-#endif
   switch (_20Hz) {
   case 0:
     break;
@@ -456,16 +445,10 @@ inline void periodic_task_ap( void ) {
   }
   case 2:
     
-#if defined IMU_3DMG
-  //estimator_update_state_3DMG( );
-
-#elif defined IMU_ANALOG && defined AHRS
-   //ahrs_update();show up (it's called at 60/4 Hz)
-   estimator_update_state_ANALOG( );
-#elif defined INFRARED /*NO IMU*/
+#if defined INFRARED
     ir_update();
     estimator_update_state_infrared();
-#endif
+#endif /* INFRARED */
     roll_pitch_pid_run(); /* Set  desired_aileron & desired_elevator */
     ap_state->commands[COMMAND_THROTTLE] = desired_gaz; /* desired_gaz is set upon GPS message reception */
     ap_state->commands[COMMAND_ROLL] = desired_aileron;
@@ -489,17 +472,10 @@ inline void periodic_task_ap( void ) {
 #ifdef MCU_SPI_LINK /** ap alone, using SPI to communicate with fbw */
 #include "spi.h"
 #endif
-/* #else statically linked with fbw */
-
 
 #ifdef TELEMETER
 #include "srf08.h"
 #endif
-
-#ifdef AHRS
-#include "ahrs.h"
-#endif // AHRS
-
 
 void init_ap( void ) {
 #ifdef LED
@@ -562,21 +538,6 @@ void init_ap( void ) {
   wc_end_reset();
 #endif
  
-#if defined AHRS
-  /** - ahrs init(do_calibration)
-   *  - Warning if do_calibration is TRUE this will provide an asynchronous
-   *  - calibration process, and it will take some calls to ahrs_update() to
-   *  - end. So Don't take off before ahrs_state == AHRS_RUNNING
-   */
-  ahrs_init(TRUE);
-#endif //AHRS
-
-  /** - enter mainloop:
-   *    - do periodic task by calling \a periodic_task
-   *    - parse and use GPS messages with \a parse_gps_msg and \a use_gps_pos
-   *    - receive radio control task from fbw and use it with
-   * \a telecommand_task
-   */
 }
 
 
@@ -643,22 +604,5 @@ void event_task_ap( void ) {
     /* receive radio control task from fbw */
     inter_mcu_received_fbw = FALSE;
     telecommand_task();
-
-#ifdef IMU_3DMG
-    DOWNLINK_SEND_IMU(&from_fbw.euler_dot[0], &from_fbw.euler_dot[1], &from_fbw.euler_dot[2], &from_fbw.euler[0], &from_fbw.euler[1], &from_fbw.euler[2]);
-    estimator_update_state_3DMG();
-#elif defined IMU_ANALOG
-    /** -Saving now the pqr values from the fbw struct since
-	*  -it's not safe always
-	*  only if gyro are connected to fbw
-	*/
-#if defined AHRS && ((!defined IMU_GYROS_CONNECTED_TO_AP) || (!IMU_GYROS_CONNECTED_TO_AP))
-    /* it can be called at 20 hz and gyros data come from the fbw so call have to be here */
-    ahrs_gyro_update();
-#endif //!IMU_GYROS_CONNECTED_TO_AP	 	  
-    int16_t dummy;
-    //      DOWNLINK_SEND_IMU_3DMG(&from_fbw.euler_dot[0], &from_fbw.euler_dot[1], &from_fbw.euler_dot[2], &dummy, &dummy, &dummy);
-#endif //IMU
-
   }
 } 

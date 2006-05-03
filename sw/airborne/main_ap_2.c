@@ -70,16 +70,14 @@ uint8_t mcu1_ppm_cpt;
 
 void init_ap( void ) {
   /* if AP is running in a separate MCU */
-#ifndef FBW
+#ifndef SINGLE_MCU
   hw_init();
   sys_time_init();
 #ifdef LED
   led_init();
 #endif /* LED */
 #ifdef USE_UART0
-  uart0_init_tx();
-  uart0_init_rx();
-  Uart0PrintString("AP Booting $Id$\n");
+  Uart0Init();
 #endif  /* USE_UART0 */
 #if USE_UART1
   Uart1Init();
@@ -87,7 +85,7 @@ void init_ap( void ) {
 #ifdef ADC
   adc_init();
 #endif
-#endif  /* FBW */
+#endif  /* !SINGLE_MCU */
 
 #ifdef MODEM
   modem_init();
@@ -96,35 +94,35 @@ void init_ap( void ) {
   gps_init();
   gps_configure();
 #endif
-#ifdef ADC
-
-#endif /* ADC */
-
 #if defined MCU_SPI_LINK
   spi_init();
   link_mcu_init();
 #endif
 
   /* if AP is running in a separate MCU */
-#ifndef FBW
+#ifndef SINGLE_MCU
  int_enable();
 #endif /* FBW */
 }
 
 void periodic_task_ap( void ) {
-  //  LED_TOGGLE(1);
-  //  LED_TOGGLE(2);
 #ifdef DOWNLINK
   PeriodicSendAp();
 #endif
+
 #if defined MCU_SPI_LINK
   uint8_t j;
   for (j=0; j<10; j++) {
     ((uint8_t*)&link_mcu_from_ap_msg)[j] = 42+j;
   }
   link_mcu_send();
-  DOWNLINK_SEND_DEBUG2((uint8_t)sizeof(struct link_mcu_msg), ((uint8_t*)&link_mcu_from_fbw_msg));
 #endif
+  {
+    extern volatile uint16_t adc0_val[];
+    //    int_disable();
+    DOWNLINK_SEND_ADC(&ac_ident, NB_ADC, adc0_val);
+    //    int_enable();
+  }
 }
 
 void event_task_ap( void ) {
@@ -150,4 +148,9 @@ void event_task_ap( void ) {
     link_mcu_event_task();
   }
 #endif
+ if (inter_mcu_received_fbw) {
+   /* receive radio control task from fbw */
+   inter_mcu_received_fbw = FALSE;
+   DOWNLINK_SEND_DEBUG2((uint8_t)sizeof(struct link_mcu_msg), ((uint8_t*)&link_mcu_from_fbw_msg));
+ }
 }

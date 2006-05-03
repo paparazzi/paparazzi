@@ -52,9 +52,8 @@ typedef uint8_t bool_t;
 #define _BV(bit) (1 << (bit))
 #endif
 
-#define SetBit(a, n) a |= 1 << n
+#define SetBit(a, n) a |= (1 << n)
 #define ClearBit(a, n) a &= ~(1 << n)
-
 
 #define NormRadAngle(x) { \
     while (x > M_PI) x -= 2 * M_PI; \

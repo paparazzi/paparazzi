@@ -6,8 +6,8 @@
 
 static struct adc_buf* buffers[NB_ADC];
 
-volatile uint16_t adc0_val[NB_ADC] = {0, 0, 0, 0, 0, 0, 0, 0};
-volatile uint16_t adc1_val[NB_ADC] = {0, 0, 0, 0, 0, 0, 0, 0};
+volatile uint16_t adc0_val[NB_ADC] = {1,  2,  3,  4,  5,  6,  7,  8};
+volatile uint16_t adc1_val[NB_ADC] = {9, 10, 11, 12, 13, 14, 15, 16};
 
 void adcISR0 ( void ) __attribute__((naked));
 void adcISR1 ( void ) __attribute__((naked));
@@ -150,9 +150,14 @@ static const uint32_t ADC_AD1CR_SEL_HW_SCAN = 0
 void adc_init( void ) {
 
   /* connect pins for selected ADCs */
-  PINSEL0 |= ADC_PINSEL0_ONES; 
-  /* setup hw scan - PCLK/4 - BURST ON */
-  AD0CR = ADC_AD0CR_SEL_HW_SCAN | 0x03 << 8 | 1 << 16 | 0x01 << 21 ;
+  /* if I configure both PINSEL0 and 1 it crashes
+     even with PINSEL0 |= 0 !!!!!!! */
+  //  PINSEL0 |= ADC_PINSEL0_ONES; 
+  //  PINSEL0 |= 0;
+  PINSEL1 |= ADC_PINSEL1_ONES;
+
+  /* setup hw scan - PCLK/7 ( 4.3MHz)  - BURST ON */
+  AD0CR = ADC_AD0CR_SEL_HW_SCAN | 0x06 << 8 | 1 << 16 | 0x01 << 21 ;
   /* AD0 selected as IRQ */
   VICIntSelect &= ~VIC_BIT(VIC_AD0);
   /* AD0 interrupt enabled */
@@ -161,7 +166,6 @@ void adc_init( void ) {
   VICVectCntl2 = VIC_ENABLE | VIC_AD0;
   VICVectAddr2 = (uint32_t)adcISR0;
 
-  //  PINSEL1 |= ADC_PINSEL1_ONES;
 
 }
 
@@ -169,10 +173,24 @@ void adc_init( void ) {
 
 void adcISR0 ( void ) {
   ISR_ENTRY();
+  LED_ON(1);
   uint32_t tmp = AD0DR;
-  uint8_t channel = (uint8_t)(tmp >> 24) & 0x07;
-  adc0_val[channel] = (uint16_t)(tmp >> 6) & 0x03FF;
-  //  LED_TOGGLE(1);
+  uint8_t  channel = (uint8_t)(tmp >> 24) & 0x07;
+  uint16_t value = (uint16_t)(tmp >> 6) & 0x03FF;
+  adc0_val[channel] = value;
+  //  LED_TOGGLE(2);
+  /*
+  struct adc_buf* buf = buffers[channel];
+  if (buf) {
+    uint8_t new_head = buf->head + 1;
+    if (new_head >= buf->av_nb_sample) new_head = 0;
+    buf->sum -= buf->values[new_head];
+    buf->values[new_head] = adc_value;
+    buf->sum += adc_value;
+    buf->head = new_head;   
+  }
+  */
+  LED_OFF(1);
   VICVectAddr = 0x00000000;                 // clear this interrupt from the VIC
   ISR_EXIT();                               // recover registers and return
 }

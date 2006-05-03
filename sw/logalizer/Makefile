@@ -30,3 +30,6 @@ clean:
 
 play : play.ml
 	$(OCAMLC) -custom -o $@ unix.cma glibivy-ocaml.cma -I +lablgtk2 -I ../lib/ocaml lablgtk.cma lib-pprz.cma gtkInit.cmo  $^
+
+plot_adc : plot_adc.c
+	gcc -Wall `pkg-config gtk+-2.0 --cflags` -o plot_adc plot_adc.c `pkg-config gtk+-2.0 --libs` -lgtkdatabox -lglibivy -lpcre
