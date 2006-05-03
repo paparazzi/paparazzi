@@ -24,18 +24,75 @@
  *
  *)
 
+open Printf
+
 module Ground_Pprz = Pprz.Messages(struct let name = "ground" end)
+
+let (//) = Filename.concat
+let replay_dir = Env.paparazzi_home // "var" // "replay"
+let dump_fp = Env.paparazzi_src // "sw" // "tools" // "gen_flight_plan.out -dump"
+
 
 let log = ref [||]
 
-let load_log = fun window (adj:GData.adjustment) name ->
-  let f = Ocaml_tools.open_compress name  in
+let write_xml = fun f xml ->
+  let d = Filename.dirname f in
+  ignore (Sys.command (sprintf "mkdir -p %s" d));
+  let m = open_out f in
+  fprintf m "%s" (Xml.to_string_fmt xml);
+  close_out m
+
+
+let store_conf = fun conf acs ->
+  let l = 
+    List.fold_right (fun x r ->
+      if ExtXml.tag_is x "aircraft" then
+	if List.mem (ExtXml.attrib x "ac_id") acs then
+	  let w = fun s ->
+	    let f = replay_dir // ExtXml.attrib x s in
+	    write_xml f (ExtXml.child x s);
+	    f in
+	  ignore (w "airframe");
+	  ignore (w "radio");
+	  let fp = w "flight_plan" in
+	  (** We must "dump" the flight plan from the original one *)
+	  let ac_name = ExtXml.attrib x "name" in
+	  let ac_dir = replay_dir // "var" // ac_name in
+	  ignore (Sys.command (sprintf "mkdir -p %s" ac_dir));
+	  let dump = ac_dir // "flight_plan.xml" in
+	  let c = sprintf "%s %s > %s" dump_fp fp dump in
+	  if Sys.command c <> 0 then
+	    failwith c;
+	  Xml.Element ("aircraft", Xml.attribs x, [])::r
+	else r
+      else (** Keep ground section *)
+	x::r)
+      (Xml.children conf) [] in
+  let orig_conf = Xml.Element ("conf", [], l) in
+  write_xml (replay_dir // "conf" // "conf.xml") orig_conf
+
+let store_messages = fun protocol ->
+  write_xml (replay_dir // "conf" // "messages.xml") protocol
+
+let time_of = fun (t, _, _) -> t
+
+let load_log = fun window (adj:GData.adjustment) xml_file ->
+  let xml = Xml.parse_file xml_file in
+  let data_file =  ExtXml.attrib xml "data_file" in
+
+  let f = Ocaml_tools.find_file [Filename.dirname xml_file] data_file in
+  let f = Ocaml_tools.open_compress f in
   let lines = ref [] in
+  let acs = ref [] in
   try
     while true do
       let l = input_line f in
       try
-	Scanf.sscanf l "%f %[^\n]" (fun t m -> lines := (t,m):: !lines)
+	Scanf.sscanf l "%f %s %[^\n]"
+	  (fun t ac m -> 
+	    lines := (t,ac,m):: !lines;
+	    if not (List.mem ac !acs) then acs := ac :: !acs
+	  )
       with
 	_ -> ()
     done
@@ -43,10 +100,14 @@ let load_log = fun window (adj:GData.adjustment) name ->
     End_of_file ->
       close_in f;
       log := Array.of_list (List.rev !lines);
-      let start = fst !log.(0) in
-      let end_ = fst !log.(Array.length !log - 1) in
+      let start = time_of !log.(0) in
+      let end_ = time_of !log.(Array.length !log - 1) in
       adj#set_bounds ~lower:start ~upper:end_ ();
-      window#set_title (Filename.basename name)
+      window#set_title (Filename.basename xml_file);
+
+      store_conf (ExtXml.child xml "conf") !acs;
+      store_messages (ExtXml.child xml "protocol")
+      
 
 
 let timer = ref None
@@ -59,7 +120,7 @@ let stop = fun () ->
 
 
 let file_dialog ~title ~callback () =
-  let sel = GWindow.file_selection ~title ~filename:"*.data[.*]" ~modal:true () in
+  let sel = GWindow.file_selection ~title ~filename:"*.log" ~modal:true () in
   ignore (sel#cancel_button#connect#clicked ~callback:sel#destroy);
   ignore
     (sel#ok_button#connect#clicked
@@ -78,15 +139,15 @@ let index_of_time log t =
   let rec loop = fun a b ->
     if a >= b then a else
     let c = (a+b)/ 2 in
-    if t <= fst log.(c) then loop a c else loop (c+1) b in
+    if t <= time_of log.(c) then loop a c else loop (c+1) b in
   loop 0 (Array.length log - 1)
 
 let rec run log adj i speed =
-  let (t, m) = log.(i) in
-  Ivy.send (Printf.sprintf "%s" m);
+  let (t, ac, m) = log.(i) in
+  Ivy.send (Printf.sprintf "replay%s %s" ac m);
   adj#set_value t;
   if i + 1 < Array.length log then
-    let dt = fst log.(i+1) -. t in
+    let dt = time_of log.(i+1) -. t in
     timer := Some (GMain.Timeout.add (truncate (1000. *. dt /. speed#value)) (fun () -> run log adj (i+1) speed; false))
       
 let play adj speed =
@@ -109,7 +170,7 @@ let _ =
     val mutable v = 1. method value = v method set_value x = v <- x
   end in
 
-  let bus = ref "127.255.255.255:3333" in
+  let bus = ref "127.255.255.255:2010" in
   Arg.parse 
     [ "-b", Arg.String (fun x -> bus := x), "Bus\tDefault is 127.255.255.25:2010"]
     (fun x -> load_log window adj x)

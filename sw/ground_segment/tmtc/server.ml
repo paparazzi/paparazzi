@@ -561,38 +561,47 @@ let listen_acs = fun log ->
   (** Wait for any message (they all are identified with the A/C) *)
   ignore (Ivy.bind (fun _ args -> ident_msg log args.(0)) "^(.*) PPRZ_MODE")
 
+(** c.f. sw/logalizer/play.ml *)
+let replayed = fun s ->
+  let n = String.length s in
+  if n > 6 && String.sub s 0 6 = "replay" then
+    Some (String.sub s 6 (n - 6))
+  else
+    None
+
 let send_config = fun http _asker args ->
-  match args with
-    ["ac_id", Pprz.String ac_id] -> begin
-      try
-	let conf = ExtXml.child conf_xml "aircraft" ~select:(fun x -> ExtXml.attrib x "ac_id" = ac_id) in
-	let ac_name = ExtXml.attrib conf "name" in
-	let protocol =
-	  if http then
-	    sprintf "http://%s:8889" (Unix.gethostname ())
-	  else
-	    sprintf "file://%s" Env.paparazzi_home in
-	let prefix = fun s -> sprintf "%s/%s" protocol s in
-	(** Expanded flight plan has been compiled in var/ *)
-	let fp = prefix ("var" // ac_name // "flight_plan.xml")
-	and af = prefix ("conf" // ExtXml.attrib conf "airframe")
-	and rc = prefix ("conf" // ExtXml.attrib conf "radio") in
-	let col = try Xml.attrib conf "gui_color" with _ -> new_color () in
-	let ac_name = try Xml.attrib conf "name" with _ -> "" in
-	["ac_id", Pprz.String ac_id;
-	 "flight_plan", Pprz.String fp;
-	 "airframe", Pprz.String af;
-	 "radio", Pprz.String rc;
-	 "default_gui_color", Pprz.String col;
-	 "ac_name", Pprz.String ac_name
-       ]
-      with
-	Not_found ->
-	  failwith (sprintf "ground UNKNOWN %s" ac_id)     
-    end
-  | _ ->
-      let s = String.concat " " (List.map (fun (a,v) -> a^"="^Pprz.string_of_value v) args) in
-      failwith (sprintf "Error, Receive.send_config: %s" s)
+  let ac_id' = Pprz.string_assoc "ac_id" args in
+  try
+    let ac_id, root_dir, conf_xml =
+      match replayed ac_id' with
+	Some ac_id -> 
+	  ac_id, "var/replay/", Xml.parse_file (Env.paparazzi_home // "var/replay/conf/conf.xml")
+      | None -> ac_id', "", conf_xml in
+
+    let conf = ExtXml.child conf_xml "aircraft" ~select:(fun x -> ExtXml.attrib x "ac_id" = ac_id) in
+    let ac_name = ExtXml.attrib conf "name" in
+    let protocol =
+      if http then
+	sprintf "http://%s:8889" (Unix.gethostname ())
+      else
+	sprintf "file://%s" Env.paparazzi_home in
+    let prefix = fun s -> sprintf "%s/%s%s" protocol root_dir s in
+    (** Expanded flight plan has been compiled in var/ *)
+    let fp = prefix ("var" // ac_name // "flight_plan.xml")
+    and af = prefix ("conf" // ExtXml.attrib conf "airframe")
+    and rc = prefix ("conf" // ExtXml.attrib conf "radio") in
+    let col = try Xml.attrib conf "gui_color" with _ -> new_color () in
+    let ac_name = try Xml.attrib conf "name" with _ -> "" in
+    ["ac_id", Pprz.String ac_id;
+     "flight_plan", Pprz.String fp;
+     "airframe", Pprz.String af;
+     "radio", Pprz.String rc;
+     "default_gui_color", Pprz.String col;
+     "ac_name", Pprz.String ac_name
+   ]
+  with
+    Not_found ->
+      failwith (sprintf "ground UNKNOWN %s" ac_id')     
     
 let ivy_server = fun http ->
   ignore (Ground_Pprz.message_answerer my_id "AIRCRAFTS" send_aircrafts_msg);
@@ -612,7 +621,7 @@ let _ =
       "-n", Arg.Clear logging, "Disable log";
       "-http", Arg.Set http, "Send http: URLs (default is file:)"] in
   Arg.parse (options)
-    (fun x -> Printf.fprintf stderr "Warning: Don't do anything with %s\n" x)
+    (fun x -> Printf.fprintf stderr "%s: Warning: Don't do anything with '%s' argument\n" Sys.argv.(0) x)
     "Usage: ";
 
   Srtm.add_path srtm_path;

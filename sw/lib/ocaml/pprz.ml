@@ -428,9 +428,13 @@ module Messages(Class:CLASS) = struct
     let ivy_cb = fun _ args ->
       let asker = args.(0)
       and asker_id = args.(1) in
-      let values = cb asker (snd (values_of_string args.(2))) in
-      let m = string_of_message (snd (message_of_name msg_name)) values in
-      Ivy.send (sprintf "%s %s %s" asker_id sender m) in
+      try (** Against [cb] exceptions *)
+	let values = cb asker (snd (values_of_string args.(2))) in
+	let m = string_of_message (snd (message_of_name msg_name)) values in
+	Ivy.send (sprintf "%s %s %s" asker_id sender m)
+      with
+	exc -> fprintf stderr "Pprz.answerer %s:%s: %s\n%!" sender msg_name (Printexc.to_string exc)
+    in
     Ivy.bind ivy_cb (sprintf "^([^ ]*) +([^ ]*) +(%s_REQ.*)" msg_name)
 
   let gen_id = let r = ref 0 in fun () -> incr r; !r

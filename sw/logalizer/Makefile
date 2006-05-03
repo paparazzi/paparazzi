@@ -29,7 +29,4 @@ clean:
 	rm -f *.opt *.out *~ core *.o *.bak .depend *.cm* play
 
 play : play.ml
-	$(OCAMLC) -o $@ unix.cma glibivy-ocaml.cma -I +lablgtk2 -I ../lib/ocaml lablgtk.cma lib-pprz.cma gtkInit.cmo  $^ # to check
-	cat ../../pprz_src_test.sh > $@
-	echo 'exec lablgtk2 unix.cma glibivy-ocaml.cma -I $$PAPARAZZI_SRC/sw/lib/ocaml lib-pprz.cma $$PAPARAZZI_SRC/sw/logalizer/$< $$*' >> $@
-	chmod a+x $@
+	$(OCAMLC) -custom -o $@ unix.cma glibivy-ocaml.cma -I +lablgtk2 -I ../lib/ocaml lablgtk.cma lib-pprz.cma gtkInit.cmo  $^
