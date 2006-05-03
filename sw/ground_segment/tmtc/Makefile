@@ -55,10 +55,6 @@ messages : messages.cmo
 	$(Q)$(OCAMLC) -custom $(INCLUDES) -o $@ lablgtk.cma glibivy-ocaml.cma lib-pprz.cma gtkInit.cmo $^
 
 
-hw_modem_listen : modem.cmo hw_modem_listen.cmo
-	@echo OL $@
-	$(Q)$(OCAMLC) -custom $(INCLUDES) -o $@ lablgtk.cma glibivy-ocaml.cma lib-pprz.cma $^
-
 stereo_demod : ../multimon/multimon.cma stereo_demod.ml ../../lib/ocaml/lib-pprz.cma
 	$(OCAMLC) $(INCLUDES) -I ../multimon -o $@ lablgtk.cma glibivy-ocaml.cma lib-pprz.cma multimon.cma $^
 	@cat ../../../pprz_src_test.sh > $@

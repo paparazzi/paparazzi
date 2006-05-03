@@ -52,7 +52,7 @@ let fp_example = path_fps // "example.xml"
 (** window for the strip panel *)
 let strip_panel = GWindow.window ~title: "Strip Panel" ~width: 330 ~height:300 ()
 let strip_scrolled = GBin.scrolled_window ~hpolicy: `AUTOMATIC ~vpolicy: `AUTOMATIC ~packing: strip_panel#add ()
-let strip_table = GPack.table ~rows: 0 ~columns: 1 ~row_spacings: 5 ~packing: (strip_scrolled#add_with_viewport) ()
+let strip_table = GPack.table ~rows: 1 ~columns: 1 ~row_spacings: 5 ~packing: (strip_scrolled#add_with_viewport) ()
 
 (** Dummy flight plan (for map calibration) *)
 let dummy_fp = fun latlong ->
@@ -193,7 +193,7 @@ module Strip = struct
   let add (widget: GPack.table) ac_id config color =
     (* number of the strip *)
     let strip_number = gen_int () in
-    widget#set_rows strip_number;
+    if strip_number > 1 then widget#set_rows strip_number;
 
     let strip_labels = ref  [] in
     let add_label = fun name value -> 
@@ -212,6 +212,8 @@ module Strip = struct
     (* battery and flight time *)
     let bat_table = GPack.table ~rows: 2 ~columns: 1 ~packing: (strip#attach ~top:1 ~left:0) () in
     let pb = GRange.progress_bar ~orientation: `BOTTOM_TO_TOP ~packing: (bat_table#attach ~top:0 ~left:0) () in
+    pb#coerce#misc#modify_fg [`PRELIGHT, `NAME "green"];
+    pb#coerce#misc#modify_font_by_name "sans 18";
     let ft = GMisc.label ~text: "00:00:00" ~packing: (bat_table#attach ~top:1 ~left:0) () in
     ft#set_width_chars 8;
     add_label ("flight_time_value") ft;
@@ -240,8 +242,11 @@ module Strip = struct
     l#set_label value
 
   (** set the battery *)
-  let set_bat strip value = strip.gauge#set_text (sof value);
-    strip.gauge#set_fraction (((bat_max -. bat_min) -. (bat_max -. value)) /. (bat_max -. bat_min))
+  let set_bat strip value =
+    strip.gauge#set_text (sof value);
+    let f = (value -. bat_min) /. (bat_max -. bat_min) in
+    let f = max 0. (min 1. f) in
+    strip.gauge#set_fraction f
 
 end
 
@@ -860,27 +865,40 @@ let one_new_ac = fun (geomap:G.widget) ac ->
   end
 
 let get_wind_msg = fun sender vs ->
-  let ac_strip = Strip.find (Pprz.string_assoc "ac_id" vs) in
-  let set_label = fun label_name field_name ->
-    Strip.set_label ac_strip label_name 
-      (Printf.sprintf "%.1f" (Pprz.float_assoc field_name vs))
-  in
-  set_label "wind" "wspeed";
-  set_label "dir" "dir"
+  try
+    let ac_strip = Strip.find (Pprz.string_assoc "ac_id" vs) in
+    let set_label = fun label_name field_name ->
+      Strip.set_label ac_strip label_name 
+	(Printf.sprintf "%.1f" (Pprz.float_assoc field_name vs))
+    in
+    set_label "wind" "wspeed";
+    set_label "dir" "dir"
+  with
+    Not_found -> ()
 
 let get_fbw_msg = fun sender vs ->
-  let ac_strip = Strip.find (Pprz.string_assoc "ac_id" vs) in
-  Strip.set_label ac_strip "RC" (Pprz.string_assoc "rc_status" vs)
+  try
+    let ac_strip = Strip.find (Pprz.string_assoc "ac_id" vs) in
+    Strip.set_label ac_strip "RC" (Pprz.string_assoc "rc_status" vs)
+  with
+    Not_found -> ()
+	
 
 let get_engine_status_msg = fun sender vs ->
-  let ac_strip = Strip.find (Pprz.string_assoc "ac_id" vs) in
-  Strip.set_label ac_strip "throttle" 
-    (string_of_float (Pprz.float_assoc "throttle" vs));
-  Strip.set_bat ac_strip (Pprz.float_assoc "bat" vs)
-
+  try
+    let ac_strip = Strip.find (Pprz.string_assoc "ac_id" vs) in
+    Strip.set_label ac_strip "throttle" 
+      (string_of_float (Pprz.float_assoc "throttle" vs));
+    Strip.set_bat ac_strip (Pprz.float_assoc "bat" vs)
+  with
+    Not_found -> ()
+      
 let get_if_calib_msg = fun sender vs ->
-  let ac_strip = Strip.find (Pprz.string_assoc "ac_id" vs) in
-  Strip.set_label ac_strip "settings" (Pprz.string_assoc "if_mode" vs)
+  try
+    let ac_strip = Strip.find (Pprz.string_assoc "ac_id" vs) in
+    Strip.set_label ac_strip "settings" (Pprz.string_assoc "if_mode" vs)
+  with
+    Not_found -> ()
 
 let listen_wind_msg = fun () ->
   ignore (Ground_Pprz.message_bind "WIND" get_wind_msg)
@@ -921,8 +939,8 @@ let listen_dl_value = fun () ->
 let listen_flight_params = fun () ->
   let get_fp = fun _sender vs ->
     let ac_id = Pprz.string_assoc "ac_id" vs in
-    let ac_strip = Strip.find ac_id in
     try
+      let ac_strip = Strip.find ac_id in
       let ac = Hashtbl.find live_aircrafts ac_id in
       let a = fun s -> Pprz.float_assoc s vs in
       let wgs84 = { posn_lat = (Deg>>Rad)(a "lat"); posn_long = (Deg>>Rad)(a "long") } in
@@ -946,8 +964,8 @@ let listen_flight_params = fun () ->
 
   let get_ns = fun _sender vs ->
     let ac_id = Pprz.string_assoc "ac_id" vs in
-    let ac_strip = Strip.find ac_id in
     try
+      let ac_strip = Strip.find ac_id in
       let ac = Hashtbl.find live_aircrafts ac_id in
       let a = fun s -> Pprz.float_assoc s vs in
       let wgs84 = { posn_lat = (Deg>>Rad)(a "target_lat"); posn_long = (Deg>>Rad)(a "target_long") } in
@@ -1000,8 +1018,8 @@ let listen_flight_params = fun () ->
 
   let get_ap_status = fun _sender vs ->
     let ac_id = Pprz.string_assoc "ac_id" vs in
-    let ac_strip = Strip.find ac_id in
     try
+      let ac_strip = Strip.find ac_id in
       let ac = Hashtbl.find live_aircrafts ac_id in
       ap_status_msg ac.track ( float_of_int (Pprz.int32_assoc "flight_time" vs ));
       ac.apmode_label#set_label (Pprz.string_assoc "ap_mode" vs);

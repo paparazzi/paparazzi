@@ -51,7 +51,7 @@ fp_syntax.cmo : fp_syntax.cmi
 	@echo '$(OCAML) -I $$PAPARAZZI_SRC/sw/lib/ocaml ivy-ocaml.cma lib-pprz.cma $$PAPARAZZI_SRC/sw/tools/$< $$*' >> $@
 	@chmod a+x $@
 
-%.cmo : %.ml
+%.cmo : %.ml ../lib/ocaml/lib-pprz.cma
 	@echo OC $<
 	$(Q)$(OCAMLC) -c $<
 
