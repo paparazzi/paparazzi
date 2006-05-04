@@ -64,6 +64,8 @@
     cb(c); \
 }
 
+extern uint8_t           tx_buf0[256]; /** For debugging purpose */
+
 extern void uart0_init_tx(void);
 extern void uart0_init_rx(void);
 extern void uart1_init(void);

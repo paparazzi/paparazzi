@@ -75,6 +75,10 @@ void wc_configure( void ) {
   waiting_ack = TRUE;
 }
 
+void wc_debug( void ) {
+  WcSendReadRadioParamReq(0x00);
+}
+
 
 /** Delayed ACK */
 SIGNAL(SIG_OUTPUT_COMPARE1B) {
@@ -110,7 +114,6 @@ void wc_parse_payload() {
     delayed_send_ack();
     break;
   }
-    
   default:
     delayed_send_ack();
   }

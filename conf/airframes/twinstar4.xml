@@ -120,6 +120,7 @@ include $(PAPARAZZI_SRC)/conf/autopilot/twin_mcu_avr.makefile
 ap.CFLAGS +=  -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport
 ap.srcs += pprz_transport.c downlink.c
 
+# ap.CFLAGS += -DUSE_UART0 -DDOWNLINK_AP_DEVICE=Uart0
 ap.CFLAGS += -DMODEM  -DDOWNLINK_AP_DEVICE=Modem
 ap.srcs += $(SRC_ARCH)/modem_hw.c 
 

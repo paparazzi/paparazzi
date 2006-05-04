@@ -29,13 +29,9 @@
 
 #include "uart.h"
 
-#ifdef WAVECARD_ON_GPS
-#define WcPut1CtlByte(x) uart1_transmit(x)
-#else
 #define WcPut1CtlByte(x) uart0_transmit(x)
-#endif
 
-#define g_message(_,...)
+#define g_message(_,...) {}
 
 #define WC_CTL_BYTE_LEN 4
 #define WC_ADDR_LEN     6
@@ -49,6 +45,7 @@ void wc_parse_payload(void);
 void wc_reset( void );
 void wc_end_reset( void );
 void wc_configure( void );
+void wc_debug( void );
 
 
 #define WC_SYNC 0xff
@@ -124,48 +121,59 @@ void wc_configure( void );
   update_crc(_byte);\
 }
 
-#define WcStart() \
+#define WcStart() { \
   WcPut1CtlByte(WC_SYNC); \
   WcPut1CtlByte(WC_STX); \
-  crc = 0;
+  crc = 0; \
+}
 
-#define WcEnd() \
+#define WcEnd() { \
   WcPut1CtlByte(crc&0xff); \
   WcPut1CtlByte(crc>>8); \
-  WcPut1CtlByte(WC_ETX);
+  WcPut1CtlByte(WC_ETX); \
+}
 
-#define WcSendAck() \
+
+#define WcSendAck() { \
   g_message("sending ACK"); \
   WcStart(); \
   WcPut1PayloadByte(WC_CTL_BYTE_LEN); \
   WcPut1PayloadByte(WC_ACK); \
-  WcEnd()
+  WcEnd() \
+}
+
   
-#define WcSendFirmwareReq() \
+#define WcSendFirmwareReq() { \
   g_message("sending REQ_FIRMWARE_VERSION");	\
   WcStart();							\
   WcPut1PayloadByte(WC_CTL_BYTE_LEN); \
   WcPut1PayloadByte(WC_REQ_FIRMWARE_VERSION); \
-  WcEnd()
+  WcEnd() \
+}
 
-#define WcSendReadRadioParamReq(no_param) \
+
+#define WcSendReadRadioParamReq(no_param) { \
   g_message("sending REQ_READ_RADIO_PARAM %d", no_param);	\
   WcStart(); \
   WcPut1PayloadByte( WC_CTL_BYTE_LEN + 1); \
   WcPut1PayloadByte(WC_REQ_READ_RADIO_PARAM); \
   WcPut1PayloadByte(no_param); \
-  WcEnd()
+  WcEnd() \
+}
 
-#define WcSendWriteRadioParamReq(no_param, value)			\
+
+#define WcSendWriteRadioParamReq(no_param, value) { 	\
   g_message("sending REQ_WRITE_RADIO_PARAM %d %d", no_param, value);		\
   WcStart(); \
   WcPut1PayloadByte( WC_CTL_BYTE_LEN + 2); \
   WcPut1PayloadByte(WC_REQ_WRITE_RADIO_PARAM); \
   WcPut1PayloadByte(no_param); \
   WcPut1PayloadByte(value); \
-  WcEnd()
+  WcEnd() \
+}
 
-#define WcSendReqSendService(addr, type)						\
+
+#define WcSendReqSendService(addr, type)  			     	\
   {                                                                     \
     uint8_t i;								\
     g_message("sending REQ_SEND_SERVICE %02x %02x %02x %02x %02x %02x", addr[0], addr[1], addr[2] , addr[3], addr[4], addr[5]); \

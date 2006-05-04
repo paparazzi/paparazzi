@@ -536,7 +536,14 @@ void init_ap( void ) {
   }
 #ifdef WAVECARD
   wc_end_reset();
+  init_cpt = 60;
+  while (init_cpt) {
+    if (sys_time_periodic())
+      init_cpt--;
+  }
+  uart0_transmit(42);
   wc_configure();
+  DOWNLINK_SEND_DEBUG2(16, tx_buf0);
 #endif
  
 }
@@ -561,6 +568,7 @@ void event_task_ap( void ) {
 
 #ifdef WAVECARD
   if (wc_msg_received) {
+    DOWNLINK_SEND_DEBUG1(10, wc_payload);
     wc_parse_payload();
     wc_msg_received = FALSE;
   }

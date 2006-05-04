@@ -145,7 +145,7 @@ $(OBJDIR)/%.hex: $(OBJDIR)/%.elf
 	# stk200 needs to be erased first
 	$(UISP) $(UISP_FLAGS) --erase
 	@echo SIZE
-	$(Q)$(SIZE) $@
+	$(Q)$(SIZE) $<
 	$(UISP) $(UISP_FLAGS) --upload $(VERIFY) if=$<
 
 erase: check_arch

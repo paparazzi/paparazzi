@@ -101,7 +101,7 @@ SIGNAL(SIG_UART_TRANS) {
 #define TX_BUF_SIZE      256
 static uint8_t           tx_head0; /* next free in buf */
 static volatile uint8_t  tx_tail0; /* next char to send */
-static uint8_t           tx_buf0[ TX_BUF_SIZE ];
+uint8_t           tx_buf0[ TX_BUF_SIZE ];
 
 static uint8_t           tx_head1; /* next free in buf */
 static volatile uint8_t  tx_tail1; /* next char to send */
@@ -122,6 +122,9 @@ void uart0_init_tx( void ) {
   UCSR0B = _BV(TXEN);
   /* Set frame format: 8data, 1stop bit */ 
   UCSR0C = _BV(UCSZ1) | _BV(UCSZ0);
+
+  tx_head0 = 0;
+  tx_tail0 = 0;
 }
 
 void uart0_init_rx( void ) {

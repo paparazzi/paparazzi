@@ -113,13 +113,25 @@ module Wc = struct
   let null_buffer_entry = (Null, Unix.stdout, (W.ACK, ""))
   let priority_of = fun (p, _, _) -> p
   let buffer = (ref Ready, Array.create buffer_size null_buffer_entry)
-  let flush = fun () ->
+  let timer = ref None
+  let remove_timer = fun () ->
+    match !timer with
+      None -> ()
+    | Some t -> GMain.Timeout.remove t
+
+  let rec repeat_send = fun fd cmd ->
+    W.send fd cmd;
+    timer := Some (GMain.Timeout.add 300 (fun _ -> repeat_send fd cmd; false))
+
+
+  let rec flush = fun () ->
     let status, b = buffer in
     if !status = Ready then
       let (priority, fd, cmd) = b.(0) in
       if priority <> Null then begin
 	status := Busy;
-	W.send fd cmd;
+	Debug.trace 'w' (sprintf "%.2f send" (Unix.gettimeofday ()));
+	repeat_send fd cmd;
 	for i = 0 to buffer_size - 2 do (** A circular buf would be better *)
 	  b.(i) <- b.(i+1)
 	done;
@@ -127,6 +139,7 @@ module Wc = struct
       end
 
   let buffer_ready = fun () ->
+    remove_timer ();
     let (status, _) = buffer in
     status := Ready;
     flush ()
@@ -135,14 +148,17 @@ module Wc = struct
 	  
   let send_buffered = fun fd cmd priority ->
     let status, b = buffer in
-    if !status = Ready then begin
+(***    if !status = Ready then begin
+      printf "ready\n%!";
       status := Busy;
-      W.send fd cmd
-    end else
+      Debug.trace 'w' (sprintf "%.2f send" (Unix.gettimeofday ()));
+      W.send fd cmd;
+      timer := Some (GMain.Timeout.add 500 (fun _ -> assert(!status = Busy); prerr_endline "LOST"; status := Ready; flush (); false))
+    end else ***)
       (** Set the message in the right place in the buffer *)
       let rec loop = fun i ->
 	if i < buffer_size then
-	  if priority_of b.(i) > priority
+	  if priority_of b.(i) >= priority
 	  then loop (i+1)
 	  else begin
 	    for j = i + 1 to buffer_size - 1 do (** Shift *)
@@ -159,6 +175,7 @@ module Wc = struct
 
   let ack_delay = 10 (* ms *)
   let send_ack = fun fd () ->
+    Debug.trace 'w' (sprintf "%.2f send ACK" (Unix.gettimeofday ()));
     ignore (GMain.Timeout.add ack_delay (fun _ -> W.send fd (W.ACK, ""); false))
   let use_message = fun (com, data) ->
     match com with
@@ -166,12 +183,12 @@ module Wc = struct
 	use_tele_message (Serial.payload_of_string data)
     | W.RES_READ_REMOTE_RSSI ->
       Tm_Pprz.message_send "link" "WC_RSSI" ["raw_level", Pprz.Int (Char.code data.[0])];
-	Debug.call 'w' (fun f -> fprintf f "wv remote RSSI %d\n" (Char.code data.[0]));
+	Debug.call 'w' (fun f -> fprintf f "%.2f wv remote RSSI %d\n" (Unix.gettimeofday ()) (Char.code data.[0]));
     | W.RES_READ_RADIO_PARAM ->
 	Ivy.send (sprintf "WC_ADDR %s" data);
 	Debug.call 'w' (fun f -> fprintf f "wv local addr : %s\n" (Debug.xprint data));
     | W.ACK -> 
-	Debug.trace 'w' "wv ACK";
+	Debug.trace 'w' (sprintf "%.2f wv ACK" (Unix.gettimeofday ()));
 	buffer_ready ()
     | _ -> 
 	Debug.call 'w' (fun f -> fprintf f "wv receiving: %02x %s\n" (W.code_of_cmd com) (Debug.xprint data));
@@ -204,7 +221,7 @@ let cm_of_m = fun f -> Pprz.Int (truncate (100. *. f))
 (** Got a FLIGHT_PARAM message and dispatch a ACINFO *)
 let i = ref 0
 let get_fp = fun device _sender vs ->
-  incr i; i := !i mod 16; (** DEBUG: discarding messages *)
+  incr i; i := !i mod 1; (** DEBUG: discarding messages *)
   if !i = 0 then
   let ac_id = int_of_string (Pprz.string_assoc "ac_id" vs) in
   List.iter 
@@ -467,14 +484,16 @@ let _ =
 	  let data = String.create 2 in
 	  data.[0] <- Char.chr (W.code_of_config_param W.WAKEUP_TYPE);
 	  data.[1] <- Char.chr (W.code_of_wakeup_type W.SHORT_WAKEUP);
+(***          data.[0] <- Char.chr (W.code_of_config_param W.AWAKENING_PERIOD);
+          data.[1] <- Char.chr 10; ***)
 	  W.send fd (W.REQ_WRITE_RADIO_PARAM,data);
 
 	  (* request own address *)
 	  let s = String.make 1 (char_of_int 5) in
-	  ignore (GMain.Timeout.add 500 (fun _ -> W.send device.fd (W.REQ_READ_RADIO_PARAM, s); false));
+	  ignore (GMain.Timeout.add 1500 (fun _ -> W.send device.fd (W.REQ_READ_RADIO_PARAM, s); false));
 
 	  (** Ask for rssi if required *)
-	  if !rssi_id > 0 then begin
+	  if !rssi_id >= 0 then begin
 	    match airborne_device !rssi_id airframes transport with
 	      WavecardDevice addr ->
 		ignore (GMain.Timeout.add Wc.rssi_period (fun _ -> Wc.req_rssi device addr; true))

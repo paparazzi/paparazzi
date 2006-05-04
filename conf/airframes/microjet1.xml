@@ -113,5 +113,8 @@ ap.srcs += $(SRC_ARCH)/modem_hw.c
 ap.CFLAGS += -DRADIO_CONTROL_CALIB
 ap.srcs += if_calib.c
 
-  </makefile>
+# Config for SITL simulation
+include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
+
+ </makefile>
 </airframe>
