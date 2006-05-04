@@ -16,6 +16,9 @@
 #include "spi.h"
 #include "link_mcu.h"
 
+#include "infrared.h"
+#include "estimator.h"
+
 #include "airframe.h"
 uint8_t ac_ident = AC_ID;
 float desired_roll = 0.;
@@ -34,15 +37,16 @@ uint8_t ir_estim_mode;
 int32_t nav_utm_east0;
 int32_t nav_utm_north0;
 int8_t nav_utm_zone0;
-float estimator_phi;
-float estimator_psi;
-float estimator_theta;
-float estimator_x;
-float estimator_y;
-float estimator_z;
-float estimator_hspeed_mod;
-float estimator_hspeed_dir;
-float estimator_z_dot;
+//float estimator_phi;
+//float estimator_psi;
+//float estimator_theta;
+//float estimator_x;
+//float estimator_y;
+//float estimator_z;
+//float estimator_hspeed_mod;
+//float estimator_hspeed_dir;
+//float estimator_z_dot;
+//uint16_t estimator_flight_time;
 bool_t in_segment;
 int16_t segment_x_1;
 int16_t segment_y_1;
@@ -51,7 +55,6 @@ int16_t segment_y_2;
 float energy;
 int16_t desired_gaz;
 uint8_t vsupply;
-uint16_t estimator_flight_time;
 bool_t low_battery;
 uint16_t block_time;
 uint16_t stage_time;
