@@ -113,6 +113,20 @@ let rec cossa = fun x l ->
 let cmd_of_code = fun x -> try List.assoc x cmd_names with Not_found -> failwith (sprintf "Unknown command: %2x" x)
 let code_of_cmd = fun x -> cossa x cmd_names
 
+
+type config_param =
+    AWAKENING_PERIOD
+  | WAKEUP_TYPE
+  | WAKEUP_LENGTH
+
+let code_of_config_param = fun x -> Obj.magic x
+
+type wakeup_type =
+    LONG_WAKEUP
+  | SHORT_WAKEUP
+
+let code_of_wakeup_type = fun x -> Obj.magic x
+
 let sync = Char.chr 0xff
 let stx = Char.chr 0x02
 let etx = Char.chr 0x03
@@ -203,9 +217,12 @@ let addr_length = 6
 let addr_of_string = Int64.of_string
 let string_of_addr = Int64.to_string
 
-let send_addressed = fun fd (cmd, addr, data) ->
+let addressed = fun addr data ->
   let s = String.create addr_length in
   for i = 0 to addr_length - 1 do
     s.[addr_length-i-1] <- Char.chr (Int64.to_int (Int64.shift_right addr (8*i)) land 0xff)
   done;
-  send fd (cmd, s^data)
+  s^data
+
+let send_addressed = fun fd (cmd, addr, data) ->
+  send fd (cmd, addressed addr data)

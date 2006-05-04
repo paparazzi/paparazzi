@@ -37,16 +37,6 @@
 #define WC_RESET_PIN 1
 #define WC_RESET_PORT PORTD
 
-void wc_reset( void ) {
-  WC_RESET_DDR |= _BV(WC_RESET_PIN);
-  sbi(WC_RESET_PORT, WC_RESET_PIN);
-}
-
-void wc_end_reset( void ) {
-  cbi(WC_RESET_PORT, WC_RESET_PIN);
-}
-
-
 #define WC_MAX_PAYLOAD 256
 uint8_t  wc_payload[WC_MAX_PAYLOAD];
 
@@ -68,6 +58,22 @@ uint8_t wc_length, payload_idx;
 bool_t waiting_ack, wc_msg_received;
 
 uint8_t wc_protocol_error, wc_ovrn, wc_error;
+
+
+void wc_reset( void ) {
+  WC_RESET_DDR |= _BV(WC_RESET_PIN);
+  sbi(WC_RESET_PORT, WC_RESET_PIN);
+}
+
+void wc_end_reset( void ) {
+  cbi(WC_RESET_PORT, WC_RESET_PIN);
+}
+
+void wc_configure( void ) {
+  /** Set a minimal awakening period (20ms, c.f. manual p. 17) */
+  WcSendWriteRadioParamReq(0x00, 0);
+  waiting_ack = TRUE;
+}
 
 
 /** Delayed ACK */
@@ -111,7 +117,6 @@ void wc_parse_payload() {
 }
 
 static inline void parse_wc( uint8_t c ) {
-  //  printf("s=%d\n", wc_status);
   switch (wc_status) {
   case UNINIT:
     if (c == WC_SYNC)

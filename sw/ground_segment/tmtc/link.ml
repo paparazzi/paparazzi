@@ -102,7 +102,92 @@ let use_tele_message = fun payload ->
   let msg = Tm_Pprz.message_of_id msg_id in
   Tm_Pprz.message_send (string_of_int ac_id) msg.Pprz.name values
 
-let send = fun device ac_device payload ->
+
+type priority = Null | Low | Normal | High
+
+(******** Wavecard ******************************************************)
+module Wc = struct
+  type status = Ready | Busy
+    
+  let buffer_size = 5
+  let null_buffer_entry = (Null, Unix.stdout, (W.ACK, ""))
+  let priority_of = fun (p, _, _) -> p
+  let buffer = (ref Ready, Array.create buffer_size null_buffer_entry)
+  let flush = fun () ->
+    let status, b = buffer in
+    if !status = Ready then
+      let (priority, fd, cmd) = b.(0) in
+      if priority <> Null then begin
+	status := Busy;
+	W.send fd cmd;
+	for i = 0 to buffer_size - 2 do (** A circular buf would be better *)
+	  b.(i) <- b.(i+1)
+	done;
+	b.(buffer_size-1) <- null_buffer_entry
+      end
+
+  let buffer_ready = fun () ->
+    let (status, _) = buffer in
+    status := Ready;
+    flush ()
+	
+	  
+	  
+  let send_buffered = fun fd cmd priority ->
+    let status, b = buffer in
+    if !status = Ready then begin
+      status := Busy;
+      W.send fd cmd
+    end else
+      (** Set the message in the right place in the buffer *)
+      let rec loop = fun i ->
+	if i < buffer_size then
+	  if priority_of b.(i) > priority
+	  then loop (i+1)
+	  else begin
+	    for j = i + 1 to buffer_size - 1 do (** Shift *)
+	      b.(j) <- b.(j-1)
+	    done;
+	    b.(i) <- (priority, fd, cmd)
+	  end in
+      loop 0;
+      flush ()
+
+  let send = fun fd addr payload priority ->
+    let data = W.addressed addr (Serial.string_of_payload payload) in
+    send_buffered fd (W.REQ_SEND_MESSAGE, data) priority
+
+  let ack_delay = 10 (* ms *)
+  let send_ack = fun fd () ->
+    ignore (GMain.Timeout.add ack_delay (fun _ -> W.send fd (W.ACK, ""); false))
+  let use_message = fun (com, data) ->
+    match com with
+      W.RECEIVED_FRAME ->
+	use_tele_message (Serial.payload_of_string data)
+    | W.RES_READ_REMOTE_RSSI ->
+      Tm_Pprz.message_send "link" "WC_RSSI" ["raw_level", Pprz.Int (Char.code data.[0])];
+	Debug.call 'w' (fun f -> fprintf f "wv remote RSSI %d\n" (Char.code data.[0]));
+    | W.RES_READ_RADIO_PARAM ->
+	Ivy.send (sprintf "WC_ADDR %s" data);
+	Debug.call 'w' (fun f -> fprintf f "wv local addr : %s\n" (Debug.xprint data));
+    | W.ACK -> 
+	Debug.trace 'w' "wv ACK";
+	buffer_ready ()
+    | _ -> 
+	Debug.call 'w' (fun f -> fprintf f "wv receiving: %02x %s\n" (W.code_of_cmd com) (Debug.xprint data));
+	()
+
+  let rssi_period = 5000 (** ms *)
+  let req_rssi = fun device addr ->
+    let data = W.addressed addr "" in
+    send_buffered device.fd (W.REQ_READ_REMOTE_RSSI, data) Low
+end (** Wc module *)
+
+
+
+
+
+let send = fun device ac_device payload priority ->
   match ac_device with
     Uart ->
       let o = Unix.out_channel_of_descr device.fd in
@@ -110,7 +195,7 @@ let send = fun device ac_device payload ->
       Printf.fprintf o "%s" buf; flush o;
       Debug.call 'l' (fun f -> fprintf f "mm sending: %s\n" (Debug.xprint buf));
   | WavecardDevice addr ->
-      W.send_addressed device.fd (W.REQ_SEND_MESSAGE, addr, Serial.string_of_payload payload)
+      Wc.send device.fd addr payload priority
   | _ -> failwith "send: not yet"
 
 
@@ -142,7 +227,7 @@ let get_fp = fun device _sender vs ->
 		    "speed", cm_of_m gspeed] in
 	  let msg_id, _ = Dl_Pprz.message_of_name "ACINFO" in
 	  let s = Dl_Pprz.payload_of_values msg_id my_id vs in
-	  send device ac_device s
+	  send device ac_device s Low
 	with
 	  NotSendingToThis -> ())
     airframes
@@ -166,7 +251,7 @@ let move_wp = fun device _sender vs ->
 	      "alt", cm_of_m alt] in
     let msg_id, _ = Dl_Pprz.message_of_name "MOVE_WP" in
     let s = Dl_Pprz.payload_of_values msg_id my_id vs in
-    send device ac_device s
+    send device ac_device s High
   with
     NotSendingToThis -> ()
 
@@ -179,7 +264,7 @@ let send_event = fun device _sender vs ->
     let vs = ["event", Pprz.Int ev_id] in
     let msg_id, _ = Dl_Pprz.message_of_name "EVENT" in
     let s = Dl_Pprz.payload_of_values msg_id my_id vs in
-    send device ac_device s
+    send device ac_device s High
   with
     NotSendingToThis -> ()
     
@@ -193,7 +278,7 @@ let setting = fun device _sender vs ->
     let vs = ["index", Pprz.Int idx; "value", List.assoc "value" vs] in
     let msg_id, _ = Dl_Pprz.message_of_name "SETTING" in
     let s = Dl_Pprz.payload_of_values msg_id my_id vs in
-    send device ac_device s
+    send device ac_device s High
   with
     NotSendingToThis -> ()
 
@@ -207,7 +292,7 @@ let jump_block = fun device _sender vs ->
     let vs = ["block_id", Pprz.Int block_id] in
     let msg_id, _ = Dl_Pprz.message_of_name "BLOCK" in
     let s = Dl_Pprz.payload_of_values msg_id my_id vs in
-    send device ac_device s
+    send device ac_device s High
   with
     NotSendingToThis -> ()
 
@@ -222,7 +307,7 @@ let raw_datalink = fun device _sender vs ->
     done;
     let msg_id, vs = Dl_Pprz.values_of_string m in
     let s = Dl_Pprz.payload_of_values msg_id my_id vs in
-    send device ac_device s
+    send device ac_device s Normal
   with
     NotSendingToThis -> ()
 
@@ -293,24 +378,6 @@ module PprzModem = struct
 end (* PprzModem module *)
 
 
-let wc_ack_delay = 10 (* ms *)
-let wc_send_ack = fun fd () ->
-  ignore (GMain.Timeout.add wc_ack_delay (fun _ -> W.send fd (W.ACK, ""); false))
-let wc_use_message = fun (com, data) ->
-  match com with
-    W.RECEIVED_FRAME ->
-      use_tele_message (Serial.payload_of_string data)
-  | W.RES_READ_REMOTE_RSSI ->
-      Tm_Pprz.message_send "link" "WC_RSSI" ["raw_level", Pprz.Int (Char.code data.[0])];
-      Debug.call 'w' (fun f -> fprintf f "wv remote RSSI %d\n" (Char.code data.[0]));
-  | W.RES_READ_RADIO_PARAM ->
-      Ivy.send (sprintf "WC_ADDR %s" data);
-      Debug.call 'w' (fun f -> fprintf f "wv local addr : %s\n" (Debug.xprint data));
-  | _ -> 
-      Debug.call 'w' (fun f -> fprintf f "wv receiving: %02x %s\n" (W.code_of_cmd com) (Debug.xprint data));;
-let rssi_period = 10000 (** ms *)
-let req_rssi = fun device addr ->
-  Wavecard.send_addressed device.fd (W.REQ_READ_REMOTE_RSSI, addr,"")
 
 
 
@@ -322,7 +389,7 @@ let parse_of_transport device = function
       let module ModemTransport = Serial.Transport(Modem.Protocol) in
       ModemTransport.parse PprzModem.use_message
   | Wavecard ->
-      fun buf -> Wavecard.parse buf ~ack:(wc_send_ack device.fd) (wc_use_message)
+      fun buf -> Wavecard.parse buf ~ack:(Wc.send_ack device.fd) (Wc.use_message)
   | _ -> failwith "parse_of_transport: not yet"
     
 
@@ -332,12 +399,12 @@ let _ =
   let baurate = ref "9600" in
   let transport = ref "pprz" in
   let uplink = ref false in
-  let rssi_addr = ref "" in
+  let rssi_id = ref (-1) in
   
   let options =
     [ "-b", Arg.Set_string ivy_bus, (sprintf "Ivy bus (%s)" !ivy_bus);
       "-d", Arg.Set_string port, (sprintf "Port (%s)" !port);
-      "-rssi", Arg.Set_string rssi_addr, (sprintf "Rssi addr (%s)" !rssi_addr);
+      "-rssi", Arg.Set_int rssi_id, (sprintf "Rssi A/C id");
       "-transport", Arg.Set_string transport, (sprintf "Transport (%s): modem,pprz,wavecard" !transport);
       "-uplink", Arg.Set uplink, (sprintf "Uplink (%b)" !uplink);
       "-s", Arg.Set_string baurate, (sprintf "Baudrate (%s)" !baurate)] in
@@ -388,22 +455,31 @@ let _ =
       ignore (Ground_Pprz.message_bind "RAW_DATALINK" (raw_datalink device))
     end;
 
-    if transport = Wavecard then begin
-      (* request own address *)
-      let s = String.make 1 (char_of_int 5) in
-      Wavecard.send device.fd (W.REQ_READ_RADIO_PARAM, s)
-    end;
 
-    (** Periodic tasks *)
+    (** Init and Periodic tasks *)
     begin
       match transport with
 	Modem ->
 	  (** Sending periodically modem and downlink status messages *)
 	  ignore (Glib.Timeout.add PprzModem.msg_period (fun () -> PprzModem.send_msg (); true))
       | Wavecard ->
-	  if !rssi_addr <> "" then
-	    let addr = W.addr_of_string !rssi_addr in
-	    ignore (GMain.Timeout.add rssi_period (fun _ -> req_rssi device addr; true));
+	  (** Set the wavecard in short wakeup mode *)
+	  let data = String.create 2 in
+	  data.[0] <- Char.chr (W.code_of_config_param W.WAKEUP_TYPE);
+	  data.[1] <- Char.chr (W.code_of_wakeup_type W.SHORT_WAKEUP);
+	  W.send fd (W.REQ_WRITE_RADIO_PARAM,data);
+
+	  (* request own address *)
+	  let s = String.make 1 (char_of_int 5) in
+	  ignore (GMain.Timeout.add 500 (fun _ -> W.send device.fd (W.REQ_READ_RADIO_PARAM, s); false));
+
+	  (** Ask for rssi if required *)
+	  if !rssi_id > 0 then begin
+	    match airborne_device !rssi_id airframes transport with
+	      WavecardDevice addr ->
+		ignore (GMain.Timeout.add Wc.rssi_period (fun _ -> Wc.req_rssi device addr; true))
+	    | _ -> failwith (sprintf "Rssi not supported by A/C '%d'" !rssi_id)
+	  end
       | _ -> ()
     end;
 

@@ -536,6 +536,7 @@ void init_ap( void ) {
   }
 #ifdef WAVECARD
   wc_end_reset();
+  wc_configure();
 #endif
  
 }

@@ -63,9 +63,21 @@ type cmd_name =
   |  SERVICE_RESPONSE
 (** available commands *)
 
-
 val code_of_cmd : cmd_name -> int
 (** Code of command *)
+
+type config_param =
+    AWAKENING_PERIOD
+  | WAKEUP_TYPE
+  | WAKEUP_LENGTH
+
+val code_of_config_param : config_param -> int
+
+type wakeup_type =
+    LONG_WAKEUP
+  | SHORT_WAKEUP
+
+val code_of_wakeup_type : wakeup_type -> int
 
 type data = string
 type cmd = cmd_name * data
@@ -80,6 +92,7 @@ val addr_of_string : string -> addr
 val send :  Unix.file_descr -> cmd -> unit
 (** Send a command on the channel connected to the serial port of the wavecard *)
 
+val addressed : addr -> data -> data
 val send_addressed : Unix.file_descr -> (cmd_name*addr*data) -> unit
 (** [send_addressed fd (cmd, a, data)] Sends [cmd] with data obtained by
 concatenation of codinf of [a] and [data] *)

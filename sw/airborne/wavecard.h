@@ -35,7 +35,7 @@
 #define WcPut1CtlByte(x) uart0_transmit(x)
 #endif
 
-#define g_message(_)
+#define g_message(_,...)
 
 #define WC_CTL_BYTE_LEN 4
 #define WC_ADDR_LEN     6
@@ -48,6 +48,7 @@ void wc_parse_payload(void);
 
 void wc_reset( void );
 void wc_end_reset( void );
+void wc_configure( void );
 
 
 #define WC_SYNC 0xff

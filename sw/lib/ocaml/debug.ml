@@ -34,6 +34,8 @@ let call lev f =
     flush !log
   end;
   true)
+
+let trace lev s = call lev (fun f -> Printf.fprintf f "%s\n" s)
     
 let xprint = fun s ->
   let n = String.length s in

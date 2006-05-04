@@ -46,5 +46,7 @@ val call : char -> (out_channel -> unit) -> unit
 (** No debug information is output if the program was compiled with the
     -noassert flag *)
 
+val trace : char -> string -> unit
+
 val xprint : string -> string
 (** Returns the hexadecimal representation of a string *)
