@@ -713,8 +713,8 @@ let button_press = fun (geomap:G.widget) ev ->
     Ground_Pprz.message_send "map2d" "SEND_EVENT" 
       ["ac_id", Pprz.String ac; "event_id", Pprz.Int e]
 
-  let dl_settings = fun ac_id xml ->
-    let window = GWindow.window ~title:("Datalink settings ") () in
+  let dl_settings = fun ac_id ac_name xml ->
+    let window = GWindow.window ~title:(sprintf "Datalink settings %s" ac_name) () in
     let quit = fun () -> GMain.Main.quit (); exit 0 in
     ignore (window#connect#destroy ~callback:quit);
     let vbox = GPack.vbox ~packing:window#add () in
@@ -734,13 +734,22 @@ let button_press = fun (geomap:G.widget) ev ->
 	    let value = (lower +. upper) /. 2. in
 	    let text = ExtXml.attrib s "var" in
 	    let adj = GData.adjustment ~value ~lower ~upper:(upper+.10.) ~step_incr () in
-	    let hbox = GPack.hbox ~width:400 ~packing:vbox#add () in
+	    let hbox = GPack.hbox ~width:500 ~packing:vbox#add () in
 	    let _l = GMisc.label ~width:100 ~text ~packing:hbox#pack () in
+	    let _v = GMisc.label ~width:50 ~text:"N/A" ~packing:hbox#pack () in
 	    let _scale = GRange.scale `HORIZONTAL ~digits:2 ~adjustment:adj ~packing:hbox#add () in
 	    let ii = !i in
-	    let b = GButton.button ~label:"Update" ~stock:`REFRESH ~packing:hbox#pack () in
+(***	    let b = GButton.button ~label:"Update" ~stock:`REFRESH ~packing:hbox#pack () in
 	    let update = fun () -> adj#set_value current_values.(ii) in
-	    ignore (b#connect#clicked ~callback:update);
+	    ignore (b#connect#clicked ~callback:update); ***)
+
+	    let update_current_value = fun _ ->
+	      let s = string_of_float current_values.(ii) in
+	      if _v#text <> s then
+		_v#set_text s;
+	      true in
+
+	    ignore (Glib.Timeout.add 500 update_current_value);
 
 	    let callback = fun () -> 
 	      let vs = ["ac_id", Pprz.String ac_id; "index", Pprz.Int ii;"value", Pprz.Float adj#value] in
@@ -835,7 +844,7 @@ let create_ac = fun (geomap:G.widget) ac_id config ->
 
   let fp_xml = ExtXml.child fp_xml_dump "flight_plan" in
 
-  let ds_window, ds_adjs = dl_settings ac_id fp_xml in
+  let ds_window, ds_adjs = dl_settings ac_id name fp_xml in
 
   let fp = load_mission color geomap fp_xml in
   fp#hide ();

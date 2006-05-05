@@ -11,6 +11,12 @@
       <setting VAR="pitch_of_vz" RANGE=".1" RC="gain_1_up" TYPE="float"/>
     </mode>
   </rc_control>
+
+  <dl_settings>
+      <dl_setting var="ir_roll_neutral" min="-0.2" max="0.2" step="0.01"/>
+      <dl_setting var="course_pgain" min="-1" max="-0.1" step="0.05"/>
+  </dl_settings>
+
   <waypoints utm_x0="360284.8" utm_y0="4813595.5">
     <waypoint name="HOME" x="0.0" y="120.0" alt="250."/>
      </waypoints>

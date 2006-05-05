@@ -125,15 +125,18 @@ module Wc = struct
     done;
     b.(buffer_size-1) <- null_buffer_entry
 
-  let rec flush = fun () ->
+  let rec repeat_send = fun fd cmd n ->
+    W.send fd cmd;
+    timer := Some (GMain.Timeout.add 300 (fun _ -> Debug.trace 'b' (sprintf "Retry %d" n); repeat_send fd cmd (n+1); false))
+
+  let rec flush = fun n ->
     let status, b = buffer in
     if !status = Ready then
       let (priority, fd, cmd) = b.(0) in
       if priority <> Null then begin
-	Debug.trace 'w' (sprintf "%.2f send" (Unix.gettimeofday ()));
-	W.send fd cmd;
+	shift_buffer b;
 	status := Busy;
-	timer := Some (GMain.Timeout.add 300 (fun _ -> Debug.trace 'b' "Retry"; flush (); false))
+	repeat_send fd cmd 0
       end
 
   let buffer_ready = fun () ->
@@ -155,6 +158,7 @@ module Wc = struct
 	    for j = i + 1 to buffer_size - 1 do (** Shift *)
 	      b.(j) <- b.(j-1)
 	    done;
+	    Debug.trace 'b' (sprintf "Set in %d" i);
 	    b.(i) <- (priority, fd, cmd)
 	  end 
       else
@@ -174,15 +178,19 @@ module Wc = struct
     match com with
       W.RECEIVED_FRAME ->
 	use_tele_message (Serial.payload_of_string data)
+    | W.RES_SEND_FRAME ->
+	Debug.trace 'b' "RES_SEND_FRAME";
+	ignore (GMain.Timeout.add 100 (fun _ -> buffer_ready (); false))
+	
     | W.RES_READ_REMOTE_RSSI ->
-      Tm_Pprz.message_send "link" "WC_RSSI" ["raw_level", Pprz.Int (Char.code data.[0])];
+	Tm_Pprz.message_send "link" "WC_RSSI" ["raw_level", Pprz.Int (Char.code data.[0])];
 	Debug.call 'w' (fun f -> fprintf f "%.2f wv remote RSSI %d\n" (Unix.gettimeofday ()) (Char.code data.[0]));
+	ignore (GMain.Timeout.add 100 (fun _ -> buffer_ready (); false))
     | W.RES_READ_RADIO_PARAM ->
 	Ivy.send (sprintf "WC_ADDR %s" data);
 	Debug.call 'w' (fun f -> fprintf f "wv local addr : %s\n" (Debug.xprint data));
     | W.ACK -> 
-	Debug.trace 'w' (sprintf "%.2f wv ACK" (Unix.gettimeofday ()));
-	buffer_ready ()
+	Debug.trace 'w' (sprintf "%.2f wv ACK" (Unix.gettimeofday ()))
     | _ -> 
 	Debug.call 'w' (fun f -> fprintf f "wv receiving: %02x %s\n" (W.code_of_cmd com) (Debug.xprint data));
 	()
@@ -221,6 +229,7 @@ let get_fp = fun device _sender vs ->
     (fun (dest_id, _) ->
       if dest_id <> ac_id then (** Do not send to itself *)
 	try
+	  Debug.trace 'b' (sprintf "ACINFO %d for %d" ac_id dest_id);
 	  let ac_device = airborne_device dest_id airframes device.transport in
 	  let f = fun a -> Pprz.float_assoc a vs in
 	  let lat = (Deg>>Rad) (f "lat")
