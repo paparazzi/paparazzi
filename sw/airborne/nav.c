@@ -197,6 +197,7 @@ bool_t too_far_from_home;
 const uint8_t nb_waypoint = NB_WAYPOINT;
 
 struct point waypoints[NB_WAYPOINT+1] = WAYPOINTS;
+bool_t moved_waypoints[NB_WAYPOINT+1];
 
 
 

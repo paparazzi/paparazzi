@@ -145,6 +145,9 @@ let ivalue = fun x ->
     Pprz.Int x -> x 
   | _ -> failwith "Receive.log_and_parse: int expected"
 
+let update_waypoint = fun ac wp_id p alt ->
+  Hashtbl.replace ac.waypoints wp_id {altitude = alt; wp_utm = p }
+
 
 
 let log_and_parse = fun logging ac_name a msg values ->
@@ -266,6 +269,16 @@ let log_and_parse = fun logging ac_name a msg values ->
 	  a.nb_dl_setting_values <- max a.nb_dl_setting_values (i+1)
 	end else
 	  failwith "Too much dl_setting values !!!"
+    | "WP_MOVED" ->
+	begin
+	  match a.nav_ref with
+	    Some nav_ref ->
+	      let p = { Latlong.utm_x = fvalue "utm_east";
+			 utm_y = fvalue "utm_north";
+			 utm_zone = nav_ref.Latlong.utm_zone } in
+	      update_waypoint a (ivalue "wp_id") p (fvalue "alt")
+	  | None -> () (** Can't use this message  *)
+	end
     | _ -> ()
 
 (** Callback for a message from a registered A/C *)
@@ -392,7 +405,20 @@ let send_wind = fun a ->
     Ground_Pprz.message_send my_id "WIND" vs
   with
     exc -> ()
-      
+
+let send_moved_waypoints = fun a ->
+  Hashtbl.iter
+    (fun wp_id wp ->
+      let geo = Latlong.of_utm WGS84 wp.wp_utm in
+      let vs =
+	["ac_id", Pprz.String a.id;
+	 "wp_id", Pprz.Int wp_id;
+	 "long", Pprz.Float ((Rad>>Deg)geo.posn_long);
+	 "lat", Pprz.Float ((Rad>>Deg)geo.posn_lat);
+	 "alt", Pprz.Float wp.altitude] in
+      Ground_Pprz.message_send my_id "WAYPOINT_MOVED" vs)
+    a.waypoints
+	 
 
 let send_aircraft_msg = fun ac ->
   try
@@ -460,7 +486,8 @@ let send_aircraft_msg = fun ac ->
     send_infrared a;
     send_svsinfo a;
     send_horiz_status a;
-    send_dl_values a
+    send_dl_values a;
+    send_moved_waypoints a
   with
     Not_found -> prerr_endline ac
   | x -> prerr_endline (Printexc.to_string x)
@@ -487,7 +514,8 @@ let new_aircraft = fun id ->
       nb_dl_setting_values = 0;
       flight_time = 0; stage_time = 0; block_time = 0;
       horiz_mode = UnknownHorizMode;
-      horizontal_mode = 0
+      horizontal_mode = 0;
+      waypoints = Hashtbl.create 3
     }
 
 let check_alerts = fun a ->

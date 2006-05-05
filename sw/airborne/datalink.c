@@ -34,6 +34,8 @@
 #include "datalink.h"
 #include "flight_plan.h"
 #include "autopilot.h"
+#include "ap_downlink.h"
+#include "messages.h"
 
 #include "estimator.h"
 #include "pid.h"
@@ -62,6 +64,7 @@ void dl_parse_msg(void) {
     float uy = MOfCm(DL_MOVE_WP_utm_north(dl_buffer));
     float a = MOfCm(DL_MOVE_WP_alt(dl_buffer));
     MoveWaypoint(wp_id, ux, uy, a);
+    DOWNLINK_SEND_WP_MOVED(&wp_id, &ux, &uy, &a);
   } else if (msg_id == DL_EVENT) {
     uint8_t event = DL_EVENT_event(dl_buffer);
     switch (event) {

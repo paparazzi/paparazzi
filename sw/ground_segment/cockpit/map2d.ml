@@ -774,9 +774,9 @@ let button_press = fun (geomap:G.widget) ev ->
   let active_dl_settings = fun ac_id x ->
     let ac = Hashtbl.find live_aircrafts ac_id in
     let w = ac.dl_settings_window in
-    if x then w#show () else w#misc#hide ();;
+    if x then w#show () else w#misc#hide ()
 
-let blocks_of_stages = fun stages ->
+  let blocks_of_stages = fun stages ->
   let blocks = ref [] in
   List.iter (fun x ->
     let name = ExtXml.attrib x "block_name"
@@ -786,264 +786,299 @@ let blocks_of_stages = fun stages ->
     (Xml.children stages);
   List.sort compare !blocks
 
-let menu_entry_of_block = fun ac (id, name) ->
-  let send_msg = fun () ->
-    Ground_Pprz.message_send "map2d" "JUMP_TO_BLOCK" 
-      ["ac_id", Pprz.String ac; "block_id", Pprz.Int id] in
-  `I (name, send_msg)
+  let menu_entry_of_block = fun ac (id, name) ->
+    let send_msg = fun () ->
+      Ground_Pprz.message_send "map2d" "JUMP_TO_BLOCK" 
+	["ac_id", Pprz.String ac; "block_id", Pprz.Int id] in
+    `I (name, send_msg)
+
+  let reset_waypoints = fun fp () ->
+    List.iter (fun w ->
+      let (i, w) = fp#index w in
+      w#reset_moved ())
+      fp#waypoints
 
 
-let create_ac = fun (geomap:G.widget) ac_id config ->
-  let color = Pprz.string_assoc "default_gui_color" config
-  and name = Pprz.string_assoc "ac_name" config in
+  let create_ac = fun (geomap:G.widget) ac_id config ->
+    let color = Pprz.string_assoc "default_gui_color" config
+    and name = Pprz.string_assoc "ac_name" config in
 
-  (** Get the flight plan **)
-  let fp_url = Pprz.string_assoc "flight_plan" config in
-  let fp_file = Http.file_of_url fp_url in
-  let fp_xml_dump = Xml.parse_file fp_file in
-  let stages = ExtXml.child fp_xml_dump "stages" in
-  let blocks = blocks_of_stages stages in
+    (** Get the flight plan **)
+    let fp_url = Pprz.string_assoc "flight_plan" config in
+    let fp_file = Http.file_of_url fp_url in
+    let fp_xml_dump = Xml.parse_file fp_file in
+    let stages = ExtXml.child fp_xml_dump "stages" in
+    let blocks = blocks_of_stages stages in
 
-  let label = GPack.hbox ~spacing:3 () in
-  let eb = GBin.event_box ~width:10 ~height:10 ~packing:label#pack () in
-  eb#coerce#misc#modify_bg [`NORMAL, `NAME color];
-  let ac_label = GMisc.label ~text:name ~packing:label#pack () in
-  let apmode_label = GMisc.label ~packing:label#pack () in
-  let block_label = GMisc.label ~packing:label#pack () in
+    let label = GPack.hbox ~spacing:3 () in
+    let eb = GBin.event_box ~width:10 ~height:10 ~packing:label#pack () in
+    eb#coerce#misc#modify_bg [`NORMAL, `NAME color];
+    let ac_label = GMisc.label ~text:name ~packing:label#pack () in
+    let apmode_label = GMisc.label ~packing:label#pack () in
+    let block_label = GMisc.label ~packing:label#pack () in
 
-  let ac_mi = GMenu.image_menu_item ~image:label ~packing:geomap#menubar#append () in
-  let ac_menu = GMenu.menu () in
-  ac_mi#set_submenu ac_menu;
-  let ac_menu_fact = new GMenu.factory ac_menu in
-  let fp = ac_menu_fact#add_check_item "Fligh Plan" ~active:false in
-  ignore (fp#connect#toggled (fun () -> show_mission ac_id fp#active));
-  
-  let track = new MapTrack.track ~name ~color:color geomap in
+    let ac_mi = GMenu.image_menu_item ~image:label ~packing:geomap#menubar#append () in
+    let ac_menu = GMenu.menu () in
+    ac_mi#set_submenu ac_menu;
+    let ac_menu_fact = new GMenu.factory ac_menu in
+    let fp = ac_menu_fact#add_check_item "Fligh Plan" ~active:false in
+    ignore (fp#connect#toggled (fun () -> show_mission ac_id fp#active));
+    
+    let track = new MapTrack.track ~name ~color:color geomap in
 
-  ignore (ac_menu_fact#add_item "Center A/C" ~callback:(center geomap track));
-  
-  ignore (ac_menu_fact#add_item "Clear Track" ~callback:(fun () -> track#clear_map2D));
-  ignore (ac_menu_fact#add_item "Resize Track" ~callback:(fun () -> resize_track ac_id track));
+    ignore (ac_menu_fact#add_item "Center A/C" ~callback:(center geomap track));
+    
+    ignore (ac_menu_fact#add_item "Clear Track" ~callback:(fun () -> track#clear_map2D));
+    ignore (ac_menu_fact#add_item "Resize Track" ~callback:(fun () -> resize_track ac_id track));
+    let reset_wp_menu = ac_menu_fact#add_item "Reset Waypoints" in
 
-  let jump_block_entries = List.map (menu_entry_of_block ac_id) blocks in
-  
-  let sm = ac_menu_fact#add_submenu "Datalink" in
-  let dl_menu = [
-    `M ("Jump to block", jump_block_entries);
-    `I ("Commit Moves", (fun () -> commit_changes ac_id));
-    `I ("Event 1", (fun () -> send_event ac_id 1));
-    `I ("Event 2", (fun () -> send_event ac_id 2));
-    `C ("Settings", false, (active_dl_settings ac_id))] in
+    let jump_block_entries = List.map (menu_entry_of_block ac_id) blocks in
+    
+    let sm = ac_menu_fact#add_submenu "Datalink" in
+    let dl_menu = [
+      `M ("Jump to block", jump_block_entries);
+      `I ("Commit Moves", (fun () -> commit_changes ac_id));
+      `I ("Event 1", (fun () -> send_event ac_id 1));
+      `I ("Event 2", (fun () -> send_event ac_id 2));
+      `C ("Settings", false, (active_dl_settings ac_id))] in
 
-  GToolbox.build_menu sm ~entries:dl_menu;
+    GToolbox.build_menu sm ~entries:dl_menu;
 
-  let cam = ac_menu_fact#add_check_item "Cam Display" ~active:false in
-  ignore (cam#connect#toggled (fun () -> track#set_cam_state cam#active));
-  let params = ac_menu_fact#add_check_item "flight param. display" ~active:false in
-  ignore (params#connect#toggled (fun () -> track#set_params_state params#active));
+    let cam = ac_menu_fact#add_check_item "Cam Display" ~active:false in
+    ignore (cam#connect#toggled (fun () -> track#set_cam_state cam#active));
+    let params = ac_menu_fact#add_check_item "flight param. display" ~active:false in
+    ignore (params#connect#toggled (fun () -> track#set_params_state params#active));
 
-  let fp_xml = ExtXml.child fp_xml_dump "flight_plan" in
+    let fp_xml = ExtXml.child fp_xml_dump "flight_plan" in
 
-  let ds_window, ds_adjs = dl_settings ac_id name fp_xml in
+    let ds_window, ds_adjs = dl_settings ac_id name fp_xml in
 
-  let fp = load_mission color geomap fp_xml in
-  fp#hide ();
-  Hashtbl.add live_aircrafts ac_id { track = track; color = color; 
-				     fp_group = fp ; config = config ; 
-				     fp = fp_xml;
-				     dl_settings_adjustments = ds_adjs;
-				     dl_settings_window = ds_window;
-				     block_label = block_label;
-				     apmode_label = apmode_label;
-				     blocks = blocks
-				   };
+    let fp = load_mission color geomap fp_xml in
+    fp#hide ();
+    ignore (reset_wp_menu#connect#activate (reset_waypoints fp));
+    Hashtbl.add live_aircrafts ac_id { track = track; color = color; 
+				       fp_group = fp ; config = config ; 
+				       fp = fp_xml;
+				       dl_settings_adjustments = ds_adjs;
+				       dl_settings_window = ds_window;
+				       block_label = block_label;
+				       apmode_label = apmode_label;
+				       blocks = blocks
+				     };
     ignore (Strip.add strip_table ac_id config color)
-    
 
-let ask_config = fun geomap ac ->
-  let get_config = fun _sender values ->
-    create_ac geomap ac values
-  in
-  Ground_Pprz.message_req "map2d" "CONFIG" ["ac_id", Pprz.String ac] get_config
+  (** Bind to message while catching all the esceptions of the callback *)
+  let safe_bind = fun msg cb ->
+    let safe_cb = fun sender vs ->
+      try cb sender vs with _ -> () in
+    ignore (Ground_Pprz.message_bind msg safe_cb)
+      
 
-    
-
-let one_new_ac = fun (geomap:G.widget) ac ->
-  if not (Hashtbl.mem live_aircrafts ac) then begin
-    ask_config geomap ac
-  end
-
-let get_wind_msg = fun sender vs ->
-  try
-    let ac_strip = Strip.find (Pprz.string_assoc "ac_id" vs) in
-    let set_label = fun label_name field_name ->
-      Strip.set_label ac_strip label_name 
-	(Printf.sprintf "%.1f" (Pprz.float_assoc field_name vs))
+  let ask_config = fun geomap ac ->
+    let get_config = fun _sender values ->
+      create_ac geomap ac values
     in
-    set_label "wind" "wspeed";
-    set_label "dir" "dir"
-  with
-    Not_found -> ()
+    Ground_Pprz.message_req "map2d" "CONFIG" ["ac_id", Pprz.String ac] get_config
 
-let get_fbw_msg = fun sender vs ->
-  try
-    let ac_strip = Strip.find (Pprz.string_assoc "ac_id" vs) in
-    Strip.set_label ac_strip "RC" (Pprz.string_assoc "rc_status" vs)
-  with
-    Not_found -> ()
-	
-
-let get_engine_status_msg = fun sender vs ->
-  try
-    let ac_strip = Strip.find (Pprz.string_assoc "ac_id" vs) in
-    Strip.set_label ac_strip "throttle" 
-      (string_of_float (Pprz.float_assoc "throttle" vs));
-    Strip.set_bat ac_strip (Pprz.float_assoc "bat" vs)
-  with
-    Not_found -> ()
       
-let get_if_calib_msg = fun sender vs ->
-  try
-    let ac_strip = Strip.find (Pprz.string_assoc "ac_id" vs) in
-    Strip.set_label ac_strip "settings" (Pprz.string_assoc "if_mode" vs)
-  with
-    Not_found -> ()
 
-let listen_wind_msg = fun () ->
-  ignore (Ground_Pprz.message_bind "WIND" get_wind_msg)
+  let one_new_ac = fun (geomap:G.widget) ac ->
+    if not (Hashtbl.mem live_aircrafts ac) then begin
+      ask_config geomap ac
+    end
 
-let listen_fbw_msg = fun () ->
-  ignore (Ground_Pprz.message_bind "FLY_BY_WIRE" get_fbw_msg)
-
-let listen_engine_status_msg = fun () ->
-  ignore (Ground_Pprz.message_bind "ENGINE_STATUS" get_engine_status_msg)
-
-let listen_if_calib_msg = fun () ->
-  ignore (Ground_Pprz.message_bind "INFLIGH_CALIB" get_if_calib_msg)
-
-let list_separator = Str.regexp ","
-      
-let aircrafts_msg = fun (geomap:G.widget) acs ->
-  let acs = Pprz.string_assoc "ac_list" acs in
-  let acs = Str.split list_separator acs in
-  List.iter (one_new_ac geomap) acs
-
-
-let listen_dl_value = fun () ->
-  let get_dl_value = fun _sender vs ->
-    let ac_id = Pprz.string_assoc "ac_id" vs in
+  let get_wind_msg = fun sender vs ->
     try
-      let ac = Hashtbl.find live_aircrafts ac_id in
-      let adjs = ac.dl_settings_adjustments in
-      let csv = Pprz.string_assoc "values" vs in
-      let values = Array.of_list (Str.split list_separator csv) in
-      for i = 0 to min (Array.length values) (Array.length adjs) - 1 do
-	adjs.(i) <- float_of_string values.(i)
-      done
-    with Not_found -> ()
-  in
-  ignore (Ground_Pprz.message_bind "DL_VALUES" get_dl_value)
-
-
-let listen_flight_params = fun () ->
-  let get_fp = fun _sender vs ->
-    let ac_id = Pprz.string_assoc "ac_id" vs in
-    try
-      let ac_strip = Strip.find ac_id in
-      let ac = Hashtbl.find live_aircrafts ac_id in
-      let a = fun s -> Pprz.float_assoc s vs in
-      let wgs84 = { posn_lat = (Deg>>Rad)(a "lat"); posn_long = (Deg>>Rad)(a "long") } in
-      aircraft_pos_msg ac.track wgs84 (a "course") (a "alt")  (a "speed") (a "climb");
-      let set_label lbl_name field_name =
-	let s = 
-	  if (a field_name) < 0. 
-	  then 
-	    "- "^(Printf.sprintf "%.1f" (abs_float (a field_name)))
-	  else
-	    Printf.sprintf "%.1f" (a field_name)
-	in
-	Strip.set_label ac_strip lbl_name s
+      let ac_strip = Strip.find (Pprz.string_assoc "ac_id" vs) in
+      let set_label = fun label_name field_name ->
+	Strip.set_label ac_strip label_name 
+	  (Printf.sprintf "%.1f" (Pprz.float_assoc field_name vs))
       in
-      set_label "alt" "alt";
-      set_label "speed" "speed";
-      set_label "climb" "climb"
-    with Not_found -> ()
-  in
-  ignore (Ground_Pprz.message_bind "FLIGHT_PARAM" get_fp);
-
-  let get_ns = fun _sender vs ->
-    let ac_id = Pprz.string_assoc "ac_id" vs in
-    try
-      let ac_strip = Strip.find ac_id in
-      let ac = Hashtbl.find live_aircrafts ac_id in
-      let a = fun s -> Pprz.float_assoc s vs in
-      let wgs84 = { posn_lat = (Deg>>Rad)(a "target_lat"); posn_long = (Deg>>Rad)(a "target_long") } in
-      carrot_pos_msg ac.track wgs84;
-      let b = List.assoc (Pprz.int_assoc "cur_block" vs) ac.blocks in
-      let b = String.sub b 0 (min 10 (String.length b)) in
-      ac.block_label#set_label b;
-      let set_label = fun l f ->
-	Strip.set_label ac_strip l (Printf.sprintf "%.1f" (Pprz.float_assoc f vs)) in
-      set_label "->" "target_alt";
-      set_label "/" "target_climb"
-    with Not_found -> ()
-  in
-  ignore (Ground_Pprz.message_bind "NAV_STATUS" get_ns);
-
-  let get_cam_status = fun _sender vs ->
-    let ac_id = Pprz.string_assoc "ac_id" vs in
-    try
-      let ac = Hashtbl.find live_aircrafts ac_id in
-      let a = fun s -> Pprz.float_assoc s vs in
-      let wgs84 = { posn_lat = (Deg>>Rad)(a "cam_lat"); posn_long = (Deg>>Rad)(a "cam_long") }
-      and target_wgs84 = { posn_lat = (Deg>>Rad)(a "cam_target_lat"); posn_long = (Deg>>Rad)(a "cam_target_long") } in
-      
-      cam_pos_msg ac.track wgs84 target_wgs84
-    with Not_found -> ()
-  in ignore (Ground_Pprz.message_bind "CAM_STATUS" get_cam_status);
-
-  let get_circle_status = fun _sender vs ->
-    let ac_id = Pprz.string_assoc "ac_id" vs in
-    try
-      let ac = Hashtbl.find live_aircrafts ac_id in
-      let a = fun s -> Pprz.float_assoc s vs in
-      let wgs84 = { posn_lat = (Deg>>Rad)(a "circle_lat"); posn_long = (Deg>>Rad)(a "circle_long") } in
-      circle_status_msg ac.track wgs84 (float_of_string (Pprz.string_assoc "radius" vs)) 
-    with Not_found -> ()
-  in
-  ignore (Ground_Pprz.message_bind "CIRCLE_STATUS" get_circle_status);
-
-  let get_segment_status = fun _sender vs ->
-    let ac_id = Pprz.string_assoc "ac_id" vs in
-    try
-      let ac = Hashtbl.find live_aircrafts ac_id in
-      let a = fun s -> Pprz.float_assoc s vs in
-      let geo1 = { posn_lat = (Deg>>Rad)(a "segment1_lat"); posn_long = (Deg>>Rad)(a "segment1_long") }
-      and geo2 = { posn_lat = (Deg>>Rad)(a "segment2_lat"); posn_long = (Deg>>Rad)(a "segment2_long") } in
-      segment_status_msg ac.track geo1 geo2
-    with Not_found -> ()
-  in
-  ignore (Ground_Pprz.message_bind "SEGMENT_STATUS" get_segment_status);
-
-  let get_ap_status = fun _sender vs ->
-    let ac_id = Pprz.string_assoc "ac_id" vs in
-    try
-      let ac_strip = Strip.find ac_id in
-      let ac = Hashtbl.find live_aircrafts ac_id in
-      ap_status_msg ac.track ( float_of_int (Pprz.int32_assoc "flight_time" vs ));
-      ac.apmode_label#set_label (Pprz.string_assoc "ap_mode" vs);
-            Strip.set_label ac_strip "AP" (Pprz.string_assoc "ap_mode" vs);
-      Strip.set_label ac_strip "GPS" (Pprz.string_assoc "gps_mode" vs);
-      let ft = 
-	let t = Int32.to_int (Int32.of_string (Pprz.string_assoc "flight_time" vs)) in
-	Printf.sprintf "%02d:%02d:%02d" (t / 3600) ((t mod 3600) / 60) ((t mod 3600) mod 60) in
-      Strip.set_label ac_strip "flight_time" ft
-    with 
+      set_label "wind" "wspeed";
+      set_label "dir" "dir"
+    with
       Not_found -> ()
-  in
-  ignore (Ground_Pprz.message_bind "AP_STATUS" get_ap_status);
 
-  listen_dl_value ()
+  let get_fbw_msg = fun sender vs ->
+    try
+      let ac_strip = Strip.find (Pprz.string_assoc "ac_id" vs) in
+      Strip.set_label ac_strip "RC" (Pprz.string_assoc "rc_status" vs)
+    with
+      Not_found -> ()
+	  
+
+  let get_engine_status_msg = fun sender vs ->
+    try
+      let ac_strip = Strip.find (Pprz.string_assoc "ac_id" vs) in
+      Strip.set_label ac_strip "throttle" 
+	(string_of_float (Pprz.float_assoc "throttle" vs));
+      Strip.set_bat ac_strip (Pprz.float_assoc "bat" vs)
+    with
+      Not_found -> ()
+	  
+  let get_if_calib_msg = fun sender vs ->
+    try
+      let ac_strip = Strip.find (Pprz.string_assoc "ac_id" vs) in
+      Strip.set_label ac_strip "settings" (Pprz.string_assoc "if_mode" vs)
+    with
+      Not_found -> ()
+
+  let listen_wind_msg = fun () ->
+    safe_bind "WIND" get_wind_msg
+
+  let listen_fbw_msg = fun () ->
+    safe_bind "FLY_BY_WIRE" get_fbw_msg
+
+  let listen_engine_status_msg = fun () ->
+    safe_bind "ENGINE_STATUS" get_engine_status_msg
+
+  let listen_if_calib_msg = fun () ->
+   safe_bind "INFLIGH_CALIB" get_if_calib_msg
+
+  let list_separator = Str.regexp ","
+      
+  let aircrafts_msg = fun (geomap:G.widget) acs ->
+    let acs = Pprz.string_assoc "ac_list" acs in
+    let acs = Str.split list_separator acs in
+    List.iter (one_new_ac geomap) acs
+
+
+  let listen_dl_value = fun () ->
+    let get_dl_value = fun _sender vs ->
+      let ac_id = Pprz.string_assoc "ac_id" vs in
+      try
+	let ac = Hashtbl.find live_aircrafts ac_id in
+	let adjs = ac.dl_settings_adjustments in
+	let csv = Pprz.string_assoc "values" vs in
+	let values = Array.of_list (Str.split list_separator csv) in
+	for i = 0 to min (Array.length values) (Array.length adjs) - 1 do
+	  adjs.(i) <- float_of_string values.(i)
+	done
+      with Not_found -> ()
+    in
+    safe_bind "DL_VALUES" get_dl_value
+
+
+  let listen_flight_params = fun () ->
+    let get_fp = fun _sender vs ->
+      let ac_id = Pprz.string_assoc "ac_id" vs in
+      try
+	let ac_strip = Strip.find ac_id in
+	let ac = Hashtbl.find live_aircrafts ac_id in
+	let a = fun s -> Pprz.float_assoc s vs in
+	let wgs84 = { posn_lat = (Deg>>Rad)(a "lat"); posn_long = (Deg>>Rad)(a "long") } in
+	aircraft_pos_msg ac.track wgs84 (a "course") (a "alt")  (a "speed") (a "climb");
+	let set_label lbl_name field_name =
+	  let s = 
+	    if (a field_name) < 0. 
+	    then 
+	      "- "^(Printf.sprintf "%.1f" (abs_float (a field_name)))
+	    else
+	      Printf.sprintf "%.1f" (a field_name)
+	  in
+	  Strip.set_label ac_strip lbl_name s
+	in
+	set_label "alt" "alt";
+	set_label "speed" "speed";
+	set_label "climb" "climb"
+      with Not_found -> ()
+    in
+    safe_bind "FLIGHT_PARAM" get_fp;
+
+    let get_ns = fun _sender vs ->
+      let ac_id = Pprz.string_assoc "ac_id" vs in
+      try
+	let ac_strip = Strip.find ac_id in
+	let ac = Hashtbl.find live_aircrafts ac_id in
+	let a = fun s -> Pprz.float_assoc s vs in
+	let wgs84 = { posn_lat = (Deg>>Rad)(a "target_lat"); posn_long = (Deg>>Rad)(a "target_long") } in
+	carrot_pos_msg ac.track wgs84;
+	let b = List.assoc (Pprz.int_assoc "cur_block" vs) ac.blocks in
+	let b = String.sub b 0 (min 10 (String.length b)) in
+	ac.block_label#set_label b;
+	let set_label = fun l f ->
+	  Strip.set_label ac_strip l (Printf.sprintf "%.1f" (Pprz.float_assoc f vs)) in
+	set_label "->" "target_alt";
+	set_label "/" "target_climb"
+      with Not_found -> ()
+    in
+    safe_bind "NAV_STATUS" get_ns;
+
+    let get_cam_status = fun _sender vs ->
+      let ac_id = Pprz.string_assoc "ac_id" vs in
+      try
+	let ac = Hashtbl.find live_aircrafts ac_id in
+	let a = fun s -> Pprz.float_assoc s vs in
+	let wgs84 = { posn_lat = (Deg>>Rad)(a "cam_lat"); posn_long = (Deg>>Rad)(a "cam_long") }
+	and target_wgs84 = { posn_lat = (Deg>>Rad)(a "cam_target_lat"); posn_long = (Deg>>Rad)(a "cam_target_long") } in
+	
+	cam_pos_msg ac.track wgs84 target_wgs84
+      with Not_found -> () in
+    safe_bind "CAM_STATUS" get_cam_status;
+
+    let get_circle_status = fun _sender vs ->
+      let ac_id = Pprz.string_assoc "ac_id" vs in
+      try
+	let ac = Hashtbl.find live_aircrafts ac_id in
+	let a = fun s -> Pprz.float_assoc s vs in
+	let wgs84 = { posn_lat = (Deg>>Rad)(a "circle_lat"); posn_long = (Deg>>Rad)(a "circle_long") } in
+	circle_status_msg ac.track wgs84 (float_of_string (Pprz.string_assoc "radius" vs)) 
+      with Not_found -> ()
+    in
+    safe_bind "CIRCLE_STATUS" get_circle_status;
+
+    let get_segment_status = fun _sender vs ->
+      let ac_id = Pprz.string_assoc "ac_id" vs in
+      try
+	let ac = Hashtbl.find live_aircrafts ac_id in
+	let a = fun s -> Pprz.float_assoc s vs in
+	let geo1 = { posn_lat = (Deg>>Rad)(a "segment1_lat"); posn_long = (Deg>>Rad)(a "segment1_long") }
+	and geo2 = { posn_lat = (Deg>>Rad)(a "segment2_lat"); posn_long = (Deg>>Rad)(a "segment2_long") } in
+	segment_status_msg ac.track geo1 geo2
+      with Not_found -> ()
+    in
+    safe_bind "SEGMENT_STATUS" get_segment_status;
+
+    let get_ap_status = fun _sender vs ->
+      let ac_id = Pprz.string_assoc "ac_id" vs in
+      try
+	let ac_strip = Strip.find ac_id in
+	let ac = Hashtbl.find live_aircrafts ac_id in
+	ap_status_msg ac.track ( float_of_int (Pprz.int32_assoc "flight_time" vs ));
+	ac.apmode_label#set_label (Pprz.string_assoc "ap_mode" vs);
+	Strip.set_label ac_strip "AP" (Pprz.string_assoc "ap_mode" vs);
+	Strip.set_label ac_strip "GPS" (Pprz.string_assoc "gps_mode" vs);
+	let ft = 
+	  let t = Int32.to_int (Int32.of_string (Pprz.string_assoc "flight_time" vs)) in
+	  Printf.sprintf "%02d:%02d:%02d" (t / 3600) ((t mod 3600) / 60) ((t mod 3600) mod 60) in
+	Strip.set_label ac_strip "flight_time" ft
+      with 
+	Not_found -> ()
+    in
+    safe_bind "AP_STATUS" get_ap_status;
+
+    listen_dl_value ()
+
+  let listen_waypoint_moved = fun () ->
+    let get_values = fun _sender vs ->
+      let ac_id = Pprz.string_assoc "ac_id" vs in
+      let ac = Hashtbl.find live_aircrafts ac_id in
+      (** Not_found catched by safe_bind *)
+      let wp_id = Pprz.int_assoc "wp_id" vs in
+      let a = fun s -> Pprz.float_assoc s vs in
+      let geo = { posn_lat = (Deg>>Rad)(a "lat"); posn_long = (Deg>>Rad)(a "long") } in
+
+      (** No indexed access to waypoints: iter and compare: *)
+      List.iter (fun w ->
+	let (i, w) = ac.fp_group#index w in
+	if i = wp_id then begin
+	  if not w#moved then w#set geo;
+	  raise Exit (** catched by  safe_bind *)
+	end)
+	ac.fp_group#waypoints
+    in
+    safe_bind "WAYPOINT_MOVED" get_values
+    
 end (** module Live *)
 
 
@@ -1164,7 +1199,7 @@ let _main =
   ignore (Glib.Timeout.add 2000 (fun () -> Live.Ground_Pprz.message_req "map2d" "AIRCRAFTS" [] (fun _sender vs -> Live.aircrafts_msg geomap vs); false));
 
   (** New aircraft message *)
-  ignore (Live.Ground_Pprz.message_bind "NEW_AIRCRAFT" (fun _sender vs -> Live.one_new_ac geomap (Pprz.string_assoc "ac_id" vs)));
+  Live.safe_bind "NEW_AIRCRAFT" (fun _sender vs -> Live.one_new_ac geomap (Pprz.string_assoc "ac_id" vs));
 
   (** Listen for all messages on ivy *)
   Live.listen_flight_params ();
@@ -1172,6 +1207,7 @@ let _main =
   Live.listen_fbw_msg ();
   Live.listen_engine_status_msg ();
   Live.listen_if_calib_msg ();
+  Live.listen_waypoint_moved ();
 
   (** Display the window *)
   window#add_accel_group accel_group;

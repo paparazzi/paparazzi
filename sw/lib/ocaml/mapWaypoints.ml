@@ -130,6 +130,7 @@ class waypoint = fun (group:group) (name :string) ?(alt=0.) wgs84 ->
 	      and dy = geomap#current_zoom *. (y -. y0) in
 	      self#move dx dy ;
 	      updated ();
+	      moved <- true;
 	      x0 <- x; y0 <- y
 	    end
 	| `BUTTON_RELEASE ev ->
@@ -142,6 +143,7 @@ class waypoint = fun (group:group) (name :string) ?(alt=0.) wgs84 ->
       true
     initializer ignore(if editable then ignore (item#connect#event self#event))
     method moved = moved
+    method reset_moved () = moved <- false
     method deleted = deleted
     method item = item
     method pos = geomap#of_world self#xy

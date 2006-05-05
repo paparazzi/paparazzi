@@ -75,13 +75,27 @@ extern uint8_t telemetry_mode_Ap;
 #define PERIODIC_SEND_NAVIGATION_REF()  DOWNLINK_SEND_NAVIGATION_REF(&nav_utm_east0, &nav_utm_north0, &nav_utm_zone0);
 
 #if defined DOWNLINK && defined DATALINK
-#define PERIODIC_SEND_ACINFO() { \
+#define PERIODIC_SEND_DEBUG_ACINFO() { \
   struct ac_info_ *s=get_ac_info(3); \
-  DOWNLINK_SEND_ACINFO(&s->east, &s->north, &s->course, &s->alt, &s->gspeed); \
+  DOWNLINK_SEND_DEBUG_ACINFO(&s->east, &s->north, &s->course, &s->alt, &s->gspeed); \
 }
 #else
-#define PERIODIC_SEND_ACINFO() {}
+#define PERIODIC_SEND_DEBUG_ACINFO() {}
 #endif
+
+#define PERIODIC_SEND_WP_MOVED() { \
+  static uint8_t i; \
+  uint8_t j = 0; \
+  i++; if (i > nb_waypoint) i = 0; \
+  while (! moved_waypoints[i] && j <= nb_waypoint) { \
+    j++; i++; if (i > nb_waypoint) i = 0; \
+  } \
+ if (j <= nb_waypoint) { \
+    float x = nav_utm_east0 +  waypoints[i].x; \
+    float y = nav_utm_north0 + waypoints[i].y; \
+    DOWNLINK_SEND_WP_MOVED(&i, &x, &y, &(waypoints[i].a)); \
+  } \
+}
 
 #ifdef RADIO_CONTROL_CALIB
 #define PERIODIC_SEND_SETTINGS() if (inflight_calib_mode != IF_CALIB_MODE_NONE)	DOWNLINK_SEND_SETTINGS(&slider_1_val, &slider_2_val);

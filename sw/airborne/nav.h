@@ -50,7 +50,9 @@ extern const int32_t nav_utm_north0;
 extern const uint8_t nav_utm_zone0;
 
 extern const uint8_t nb_waypoint;
-extern struct point waypoints[];
+extern struct point waypoints[]; /** size == nb_waypoint + 1 */
+extern bool_t moved_waypoints[]; /** size == nb_waypoint + 1 */
+
 extern float desired_altitude, desired_x, desired_y;
 
 extern uint16_t nav_desired_gaz;
@@ -85,6 +87,7 @@ extern uint8_t horizontal_mode;
     waypoints[_id].x = _ux - nav_utm_east0; \
     waypoints[_id].y = _uy - nav_utm_north0; \
     waypoints[_id].a = _a; \
+    moved_waypoints[_id] = TRUE; \
   } \
 }
 

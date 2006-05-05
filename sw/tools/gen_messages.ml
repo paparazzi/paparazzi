@@ -173,23 +173,23 @@ module Gen_onboard = struct
     print_avr_macro_names avr_h fields;
     fprintf avr_h ") {}\n"
 
-  let print_enum = fun avr_h messages ->
+  let print_enum = fun avr_h class_ messages ->
     List.iter (fun m -> fprintf avr_h "#define DL_%s %d\n" m.name m.id) messages;
-    fprintf avr_h "#define DL_MSG_NB %d\n\n" (List.length messages)
+    fprintf avr_h "#define DL_MSG_%s_NB %d\n\n" class_ (List.length messages)
 
-  let print_lengths_array = fun avr_h messages ->
+  let print_lengths_array = fun avr_h class_ messages ->
     let sizes = List.map (fun m -> (m.id, size_of_message m)) messages in
     let max_id = List.fold_right (fun (id, _m) x -> max x id) sizes min_int in
     let n = max_id + 1 in
-    fprintf avr_h "#define MSG_LENGTHS {";
+    fprintf avr_h "#define MSG_%s_LENGTHS {" class_;
     for i = 0 to n - 1 do
       fprintf avr_h "%s," (try "(2+" ^ List.assoc i sizes^")" with Not_found -> "0")
     done;
     fprintf avr_h "}\n\n"
 
-  let print_avr_macros = fun filename avr_h messages ->
-    print_enum avr_h messages;
-    print_lengths_array avr_h messages;
+  let print_avr_macros = fun filename avr_h class_ messages ->
+    print_enum avr_h class_ messages;
+    print_lengths_array avr_h class_ messages;
     List.iter (print_avr_macro avr_h) messages;
     let md5sum = Digest.file filename in
     fprintf avr_h "#define MESSAGES_MD5SUM \"";
@@ -245,7 +245,7 @@ let _ =
   (** Macros for airborne downlink (sending) *)
   if class_name = "telemetry" then (** FIXME *)
     Printf.fprintf avr_h "#ifdef DOWNLINK\n";
-  Gen_onboard.print_avr_macros filename avr_h messages;
+  Gen_onboard.print_avr_macros filename avr_h class_name messages;
   if class_name = "telemetry" then begin
     Printf.fprintf avr_h "#else // DOWNLINK\n";
     Gen_onboard.print_null_avr_macros avr_h messages;

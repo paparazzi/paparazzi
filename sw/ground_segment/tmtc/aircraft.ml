@@ -73,6 +73,8 @@ type horiz_mode =
   | Segment of Latlong.utm * Latlong.utm
   | UnknownHorizMode
 
+type waypoint = { altitude : float; wp_utm : Latlong.utm }
+
 type aircraft = { 
     id : string;
     mutable pos : Latlong.utm;
@@ -107,6 +109,7 @@ type aircraft = {
     infrared : infrared;
     fbw : fbw;
     svinfo : svinfo array;
+    waypoints : (int, waypoint) Hashtbl.t;
     mutable flight_time : int;
     mutable stage_time : int;
     mutable block_time : int;
