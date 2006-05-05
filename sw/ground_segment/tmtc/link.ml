@@ -119,55 +119,48 @@ module Wc = struct
       None -> ()
     | Some t -> GMain.Timeout.remove t
 
-  let rec repeat_send = fun fd cmd ->
-    W.send fd cmd;
-    timer := Some (GMain.Timeout.add 300 (fun _ -> repeat_send fd cmd; false))
-
+  let shift_buffer = fun b ->
+    for i = 0 to buffer_size - 2 do (** A circular buf would be better *)
+      b.(i) <- b.(i+1)
+    done;
+    b.(buffer_size-1) <- null_buffer_entry
 
   let rec flush = fun () ->
     let status, b = buffer in
     if !status = Ready then
       let (priority, fd, cmd) = b.(0) in
       if priority <> Null then begin
-	status := Busy;
 	Debug.trace 'w' (sprintf "%.2f send" (Unix.gettimeofday ()));
-	repeat_send fd cmd;
-	for i = 0 to buffer_size - 2 do (** A circular buf would be better *)
-	  b.(i) <- b.(i+1)
-	done;
-	b.(buffer_size-1) <- null_buffer_entry
+	W.send fd cmd;
+	status := Busy;
+	timer := Some (GMain.Timeout.add 300 (fun _ -> Debug.trace 'b' "Retry"; flush (); false))
       end
 
   let buffer_ready = fun () ->
     remove_timer ();
-    let (status, _) = buffer in
+    let (status, b) = buffer in
+    shift_buffer b;
     status := Ready;
     flush ()
 	
-	  
-	  
+	  	  
   let send_buffered = fun fd cmd priority ->
     let status, b = buffer in
-(***    if !status = Ready then begin
-      printf "ready\n%!";
-      status := Busy;
-      Debug.trace 'w' (sprintf "%.2f send" (Unix.gettimeofday ()));
-      W.send fd cmd;
-      timer := Some (GMain.Timeout.add 500 (fun _ -> assert(!status = Busy); prerr_endline "LOST"; status := Ready; flush (); false))
-    end else ***)
-      (** Set the message in the right place in the buffer *)
-      let rec loop = fun i ->
-	if i < buffer_size then
-	  if priority_of b.(i) >= priority
-	  then loop (i+1)
+    (** Set the message in the right place in the buffer *)
+    let rec loop = fun i ->
+      if i < buffer_size then
+	if priority_of b.(i) >= priority
+	then loop (i+1)
 	  else begin
 	    for j = i + 1 to buffer_size - 1 do (** Shift *)
 	      b.(j) <- b.(j-1)
 	    done;
 	    b.(i) <- (priority, fd, cmd)
-	  end in
-      loop 0;
-      flush ()
+	  end 
+      else
+	Debug.trace 'b' "Buffer full" in
+    loop 0;
+    flush ()
 
   let send = fun fd addr payload priority ->
     let data = W.addressed addr (Serial.string_of_payload payload) in
