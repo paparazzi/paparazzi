@@ -541,9 +541,7 @@ void init_ap( void ) {
     if (sys_time_periodic())
       init_cpt--;
   }
-  uart0_transmit(42);
   wc_configure();
-  DOWNLINK_SEND_DEBUG2(16, tx_buf0);
 #endif
  
 }
@@ -567,17 +565,22 @@ void event_task_ap( void ) {
 #endif /** GPS */
 
 #ifdef WAVECARD
-  if (wc_msg_received) {
-    DOWNLINK_SEND_DEBUG1(10, wc_payload);
-    wc_parse_payload();
-    wc_msg_received = FALSE;
+  if (WavecardBuffer()) {
+    ReadWavecardBuffer();
+    if (wc_msg_received) {
+      wc_parse_payload();
+      wc_msg_received = FALSE;
+    }
   }
 #endif /** WAVECARD */
 
 #ifdef PPRZ_INPUT
-  if (pprz_msg_received) {
-    pprz_msg_received = FALSE;
-    pprz_parse_payload();
+  if (PprzBuffer()) {
+    ReadPprzBuffer();
+    if (pprz_msg_received) {
+      pprz_msg_received = FALSE;
+      pprz_parse_payload();
+    }
   }
 #endif /** PPRZ_INPUT */
 
@@ -604,6 +607,7 @@ void event_task_ap( void ) {
 #ifdef MCU_SPI_LINK
   if (spi_message_received) {
     /* Got a message on SPI. */
+    DOWNLINK_SEND_DEBUG1((uint8_t)sizeof(link_mcu_from_fbw_msg), ((uint8_t*)&(link_mcu_from_fbw_msg)));
     spi_message_received = FALSE;
     link_mcu_event_task();
   }

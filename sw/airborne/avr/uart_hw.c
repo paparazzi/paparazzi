@@ -168,6 +168,14 @@ SIGNAL(SIG_UART0_TRANS) {
   }
 }
 
+uint8_t uart0_char;
+bool_t uart0_char_available;
+
+SIGNAL( SIG_UART0_RECV ) {
+  uart0_char = UDR0;
+  uart0_char_available = TRUE;
+}
+
 
 void uart1_init_tx( void ) {
   /* Baudrate is 38.4k */

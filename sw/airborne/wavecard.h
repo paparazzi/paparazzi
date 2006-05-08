@@ -297,6 +297,15 @@ void wc_debug( void );
     WcPut1PayloadByte(channel);				                \
     WcEnd()								\
   }									\
+
+void parse_wc( uint8_t c );
+
+#define __WavecardLink(dev, _x) dev##_x
+#define _WavecardLink(dev, _x)  __WavecardLink(dev, _x)
+#define WavecardLink(_x) _WavecardLink(WAVECARD_UART, _x)
+
+#define WavecardBuffer() WavecardLink(ChAvailable())
+#define ReadWavecardBuffer() { while (WavecardLink(ChAvailable())&&!wc_msg_received) parse_wc(WavecardLink(Getch())); }
     
     
 #endif /* WAVECARD_H */

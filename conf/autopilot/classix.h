@@ -46,8 +46,7 @@
 //#define SERVO_RESET_PINSEL_BIT 3
 
 /* ADCs : supply on AD0.6 ( P0.4 ) */
-#define USE_AD0_6
-#define BRICOLAGE_ADC
+//#define USE_AD0_6
 
 
 #endif /* FBW */

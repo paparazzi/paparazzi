@@ -39,7 +39,7 @@
 
 #define RC_AVG_PERIOD 8
 #define RC_LOST_TIME 30  /* 500ms with a 60Hz timer */
-#define RC_REALLY_LOST_TIME 100 /* ~1.5s */
+#define RC_REALLY_LOST_TIME 60 /* ~1s */
 
 #define RC_OK          0
 #define RC_LOST        1

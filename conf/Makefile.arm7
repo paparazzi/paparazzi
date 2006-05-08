@@ -188,7 +188,8 @@ LPC21ISP_FLASHFILE = $(OBJDIR)/$(TARGET).hex
 #LPC21ISP_DEBUG = -debug
 # enter bootloader via RS232 DTR/RTS (only if hardware supports this
 # feature - see Philips AppNote):
-LPC21ISP_CONTROL = -control
+LPC21ISP_CONTROL =
+# -control
 
 
 # ---------------------------------------------------------------------------

@@ -54,7 +54,7 @@ conf/%.xml :conf/%.xml.example
 	[ -L $@ ] || [ -f $@ ] || cp $< $@ 
 
 
-test: static ac1 ac2
+demo: static ac1 ac2
 	PAPARAZZI_HOME=$(PAPARAZZI_SRC) PAPARAZZI_SRC=$(PAPARAZZI_SRC) $(SUPERVISION)
 
 ac1 : conf sim_static
@@ -81,6 +81,9 @@ sim_static :
 fbw fly_by_wire: ac_h
 	cd $(AIRBORNE); $(MAKE) TARGET=fbw all
 
+%.compile: ac_h
+	cd $(AIRBORNE); $(MAKE) TARGET=$* all
+
 ap autopilot: ac_h
 	cd $(AIRBORNE); $(MAKE) TARGET=ap all
 
@@ -89,6 +92,9 @@ sim: ac_h sim_static
 
 upload_fbw: fbw
 	cd $(AIRBORNE); $(MAKE) TARGET=fbw upload
+
+%.upload: %.compile
+	cd $(AIRBORNE); $(MAKE) TARGET=$* upload
 
 upload_ap: ap
 	cd $(AIRBORNE); $(MAKE) TARGET=ap upload

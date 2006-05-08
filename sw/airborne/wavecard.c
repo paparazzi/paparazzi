@@ -119,7 +119,7 @@ void wc_parse_payload() {
   }
 }
 
-static inline void parse_wc( uint8_t c ) {
+void parse_wc( uint8_t c ) {
   switch (wc_status) {
   case UNINIT:
     if (c == WC_SYNC)
@@ -172,6 +172,3 @@ static inline void parse_wc( uint8_t c ) {
   wc_status = UNINIT;
   return;
 }
-
-ReceiveUart0(parse_wc);
-

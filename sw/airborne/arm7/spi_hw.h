@@ -105,13 +105,14 @@ extern volatile uint8_t spi_rx_idx;
   }
 
 #define SpiRead(a) {            \
-    a = SSPDR;			\
+   a = SSPDR;			\
   }
 
 #ifdef FBW
 #define SpiStart() {                                                    \
-   SpiInitBuf();                                                        \
-   SpiEnableTxi();     /* enable tx fifo half empty interrupt */        \
+ SpiEnable(); \
+ SpiInitBuf();         \
+ SpiEnableTxi();     /* enable tx fifo half empty interrupt */        \
 }
 
 #endif /* FBW */

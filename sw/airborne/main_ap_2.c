@@ -18,8 +18,12 @@
 
 #include "infrared.h"
 #include "estimator.h"
+#include "nav.h"
 
 #include "airframe.h"
+float pitch_of_vz;
+float pitch_of_vz_pgain;
+bool_t auto_pitch = FALSE;
 uint8_t ac_ident = AC_ID;
 float desired_roll = 0.;
 float desired_pitch = 0.;
@@ -34,9 +38,9 @@ uint8_t horizontal_mode;
 uint8_t inflight_calib_mode;
 uint8_t mcu1_status;
 uint8_t ir_estim_mode;
-int32_t nav_utm_east0;
-int32_t nav_utm_north0;
-int8_t nav_utm_zone0;
+//int32_t nav_utm_east0;
+//int32_t nav_utm_north0;
+//int8_t nav_utm_zone0;
 //float estimator_phi;
 //float estimator_psi;
 //float estimator_theta;
@@ -47,24 +51,24 @@ int8_t nav_utm_zone0;
 //float estimator_hspeed_dir;
 //float estimator_z_dot;
 //uint16_t estimator_flight_time;
-bool_t in_segment;
-int16_t segment_x_1;
-int16_t segment_y_1;
-int16_t segment_x_2;
-int16_t segment_y_2;
+//bool_t in_segment;
+//int16_t segment_x_1;
+//int16_t segment_y_1;
+//int16_t segment_x_2;
+//int16_t segment_y_2;
 float energy;
 int16_t desired_gaz;
 uint8_t vsupply;
 bool_t low_battery;
-uint16_t block_time;
-uint16_t stage_time;
-float climb_sum_err;
-float climb_pgain;
-float course_pgain;
-bool_t in_circle;
-int16_t circle_x;
-int16_t circle_y;
-int16_t circle_radius;
+//uint16_t block_time;
+//uint16_t stage_time;
+//float climb_sum_err;
+//float climb_pgain;
+//float course_pgain;
+//bool_t in_circle;
+//int16_t circle_x;
+//int16_t circle_y;
+//int16_t circle_radius;
 uint8_t modem_nb_ovrn;
 uint8_t mcu1_ppm_cpt;
 

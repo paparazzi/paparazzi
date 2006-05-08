@@ -108,6 +108,12 @@ static inline void inter_mcu_fill_fbw_state (void) {
   }
   fbw_state->vsupply = fbw_vsupply_decivolt;
 
+  /**
+  for(i = 0; i < sizeof(*fbw_state); i++) {
+    ((uint8_t*)fbw_state)[i] = i;
+  }
+      **/
+
 }
 
 /** Prepares date for next comm with AP. Set ::ap_ok to TRUE */

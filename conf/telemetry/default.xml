@@ -29,11 +29,8 @@
   </process>
   <process name="Fbw">
     <mode name="default">
-      <message name="PPM"            period="0.5"/>
-      <message name="RC"             period="0.5"/>
       <message name="COMMANDS"       period="1"/>
       <message name="FBW_STATUS"     period="1"/>
-      <message name="ADC"            period="1"/>
     </mode>
     <mode name="debug">
       <message name="PPM"            period="0.5"/>

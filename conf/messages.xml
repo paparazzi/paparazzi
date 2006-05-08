@@ -250,6 +250,7 @@
     <field name="nb_spi_err" type="uint8"/>
     <field name="rc_status" type="uint8" values="OK|LOST|REALLY_LOST"/>
     <field name="mode" type="uint8" values="MANUAL|AUTO|FAILSAFE"/>
+    <field name="vsupply" type="uint8" unit="decivolt"/>
   </message>
 
   <message name="ADC" ID="104">
@@ -302,6 +303,11 @@
  <message name="HITL_INFRARED" id="7">
    <field name="roll" type="int16"/>
    <field name="pitch" type="int16"/>
+ </message>
+
+ <message name="SET_ACTUATOR" id="100">
+   <field name="no" type="uint8"/>
+   <field name="value" type="uint16"/>
  </message>
 </class>
 

@@ -31,9 +31,6 @@ all : configurator
 
 configurator : $(CMO)
 	$(OCAMLC) -custom -o $@ labltk.cma lib-pprz.cma jpflib.cma $^
-	@cat ../../pprz_src_test.sh > $@
-	@echo 'ocaml -I +labltk -I $$PAPARAZZI_SRC/sw/lib/ocaml -I $$PAPARAZZI_SRC/sw/configurator labltk.cma ivy-ocaml.cma lib-pprz.cma jpflib.cma $(ABS_CMO) $$*' >> $@
-	@chmod a+x $@
 
 
 %.cmo : %.ml

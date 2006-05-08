@@ -32,9 +32,3 @@ volatile bool_t pprz_msg_received = FALSE;
 uint8_t pprz_ovrn, pprz_error;
 volatile uint8_t payload_length;
 uint8_t input_payload[MAX_INPUT_PAYLOAD];
-
-
-#ifdef PPRZ_INPUT
-/** FIXME: Where to put it ??? */
-ReceiveUart0(parse_pprz);
-#endif

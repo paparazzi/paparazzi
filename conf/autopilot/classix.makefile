@@ -13,5 +13,10 @@ fbw.ARCH = arm7tdmi
 fbw.TARGET = fbw
 fbw.TARGETDIR = fbw
 
+test.ARCHDIR = $(ARCHI)
+test.ARCH = arm7tdmi
+test.TARGET = fbw
+test.TARGETDIR = fbw
+
 LPC21ISP_BAUD = 38400
 LPC21ISP_XTAL = 12000

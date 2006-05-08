@@ -46,7 +46,7 @@ void SPI1_ISR(void) __attribute__((naked));
 
 /* SSPCR1 settings */
 #define SSP_LBM  0x00 << 0  /* loopback mode        : disabled */
-#define SSP_SSE  0x01 << 0  /* SSP enable           : disabled */
+#define SSP_SSE  0x00 << 1  /* SSP enable           : disabled */
 #define SSP_MS   0x01 << 2  /* master slave mode    : slave    */
 #define SSP_SOD  0x00 << 3  /* slave output disable : disabled */
 
@@ -74,7 +74,7 @@ void spi_init( void ) {
   VICVectAddr7 = (uint32_t)SPI1_ISR;    // address of the ISR
 
   /* enable SPI */
-  SpiEnable();
+  //  SpiEnable();
 }
 
 void SPI1_ISR(void) {
@@ -92,6 +92,7 @@ void SPI1_ISR(void) {
    SpiReceive();
    SpiClearRti();                /* clear interrupt */
    SpiDisableRti();
+   SpiDisable();
    spi_message_received = TRUE;
  }
  
@@ -127,7 +128,7 @@ void SPI1_ISR(void) __attribute__((naked));
 
 /* SSPCR1 settings */
 #define SSP_LBM  0x00 << 0  /* loopback mode     : disabled                  */
-#define SSP_SSE  0x01 << 0  /* SSP enable        : disabled                  */
+#define SSP_SSE  0x00 << 1  /* SSP enable        : disabled                  */
 #define SSP_MS   0x00 << 2  /* master slave mode : master                    */
 #define SSP_SOD  0x00 << 3  /* slave output disable : don't care when master */
 
@@ -147,7 +148,7 @@ void spi_init( void ) {
 
   /* setup SSP */
   SSPCR0 = SSP_DDS | SSP_FRF | SSP_CPOL | SSP_CPHA | SSP_SCR;
-  SSPCR1 = SSP_LBM | SSP_SSE | SSP_MS | SSP_SOD;
+  SSPCR1 = SSP_LBM | SSP_MS | SSP_SOD;
   SSPCPSR = 0x20;
 
   /* initialize interrupt vector */
@@ -175,6 +176,7 @@ void SPI1_ISR(void) {
    SpiDisableRti();
    SpiClearRti();                /* clear interrupt */
    SpiDisable();
+   spi_message_received = TRUE;
 }
 
  // SPI_UNSELECT_SLAVE1(); /* debug */

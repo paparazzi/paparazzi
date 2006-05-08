@@ -53,17 +53,6 @@
 /************************************************************************/
 #if defined  (__AVR_ATmega128__)
 
-#define ReceiveUart0(cb) \
-  SIGNAL( SIG_UART0_RECV ) { \
-    uint8_t c = UDR0; \
-    cb(c); \
-}
-#define ReceiveUart1(cb) \
-  SIGNAL( SIG_UART1_RECV ) { \
-    uint8_t c = UDR1; \
-    cb(c); \
-}
-
 extern uint8_t           tx_buf0[256]; /** For debugging purpose */
 
 extern void uart0_init_tx(void);
@@ -73,10 +62,17 @@ extern void uart1_init(void);
 extern void uart0_transmit(const uint8_t);
 extern void uart1_transmit(const uint8_t);
 
-extern uint8_t uart1_char;
-extern bool_t uart1_char_available;
+extern uint8_t uart1_char, uart0_char;
+extern bool_t uart1_char_available, uart0_char_available;
 
+#define Uart0ChAvailable() (uart0_char_available)
 #define Uart1ChAvailable() (uart1_char_available)
+
+static inline uint8_t Uart0Getch( void ) {
+  uart0_char_available = FALSE;
+  return uart0_char;
+}
+
 static inline uint8_t Uart1Getch( void ) {
   uart1_char_available = FALSE;
   return uart1_char;

@@ -35,6 +35,8 @@
 #define EXTERN extern
 #endif
 
+#include "dl_protocol.h"
+
 EXTERN bool_t dl_msg_available;
 /** Flag provided to control calls to ::dl_parse_msg. NOT used in this module*/
 

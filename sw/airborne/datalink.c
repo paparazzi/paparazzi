@@ -28,7 +28,6 @@
 #define DATALINK_C
 
 #include <inttypes.h>
-#include "dl_protocol.h"
 #include "traffic_info.h"
 #include "nav.h"
 #include "datalink.h"
