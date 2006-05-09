@@ -21,6 +21,7 @@
       <message name="DEBUG_MODEM"    period="5"/>
       <message name="DL_VALUE"       period="1"/>
       <message name="WP_MOVED"       period="0.5"/>
+      <message name="RAD_OF_IR"      period="1"/>
     </mode>
     <mode name="debug">
       <message name="CALIB_START"    period="0.5"/> 

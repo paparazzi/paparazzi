@@ -219,7 +219,6 @@ static inline void reporting_task( void ) {
   /** initialisation phase during boot */
   if (boot) {
     DOWNLINK_SEND_BOOT(&version);
-    SEND_RAD_OF_IR();
     boot = FALSE;
   }
   /** then report periodicly */
@@ -412,9 +411,6 @@ inline void periodic_task_ap( void ) {
   case 5:
     /** 65ms since initiate_ranging() (the spec ask for 65ms) */
     srf08_receive();
-    break;
-  case 10:
-    SEND_RAD_OF_IR();
     break;
 #endif
   }
