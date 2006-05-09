@@ -33,9 +33,6 @@
 #include "radio.h"
 #include "airframe.h"
 #include "paparazzi.h"
-#ifdef DEBUG_RC
-#include "print.h"
-#endif /* DEBUG_RC */
 
 #define RC_AVG_PERIOD 8
 #define RC_LOST_TIME 30  /* 500ms with a 60Hz timer */
@@ -90,14 +87,6 @@ static inline void radio_control_event_task ( void ) {
 
   /** From ppm values to normalised rc_values */
   NormalizePpm();
-
-#ifdef DEBUG_RC
-  uint8_t i;
-  for(i = 0; i < 7; i++) {
-    PrintHex16(uart0_transmit, rc_values[i]);
-  }
-  uart0_transmit('\n');
-#endif
 }
 
 #endif /* RADIO_CONTROL */

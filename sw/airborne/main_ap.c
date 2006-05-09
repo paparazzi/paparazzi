@@ -568,6 +568,7 @@ void event_task_ap( void ) {
   if (WavecardBuffer()) {
     ReadWavecardBuffer();
     if (wc_msg_received) {
+      DOWNLINK_SEND_DEBUG1(8, wc_payload);
       wc_parse_payload();
       wc_msg_received = FALSE;
     }
@@ -607,7 +608,6 @@ void event_task_ap( void ) {
 #ifdef MCU_SPI_LINK
   if (spi_message_received) {
     /* Got a message on SPI. */
-    DOWNLINK_SEND_DEBUG1((uint8_t)sizeof(link_mcu_from_fbw_msg), ((uint8_t*)&(link_mcu_from_fbw_msg)));
     spi_message_received = FALSE;
     link_mcu_event_task();
   }
