@@ -110,6 +110,6 @@ typedef struct
 
 ///////////////////////////////////////////////////////////////////////////////
 // VPBDIV defines & computations
-#define VPBDIV_VALUE  (PBSD & 0x03)     // VPBDIV value
+#define VPBDIV_VALUE  (PBSD_BITS & 0x03)     // VPBDIV value
 
 #endif

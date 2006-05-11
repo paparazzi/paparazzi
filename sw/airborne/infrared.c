@@ -61,6 +61,9 @@ float estimator_rad_of_ir, estimator_ir, estimator_rad;
 
 static struct adc_buf buf_ir1;
 static struct adc_buf buf_ir2;
+#ifdef ADC_CHANNEL_IR_TOP
+static struct adc_buf buf_ir_top;
+#endif
 
 #ifndef ADC_CHANNEL_IR_NB_SAMPLES
 #define ADC_CHANNEL_IR_NB_SAMPLES DEFAULT_AV_NB_SAMPLE
@@ -73,7 +76,9 @@ void ir_init(void) {
   RadOfIrFromConstrast(IR_DEFAULT_CONTRAST);
   adc_buf_channel(ADC_CHANNEL_IR1, &buf_ir1, ADC_CHANNEL_IR_NB_SAMPLES);
   adc_buf_channel(ADC_CHANNEL_IR2, &buf_ir2, ADC_CHANNEL_IR_NB_SAMPLES);
- 
+#ifdef ADC_CHANNEL_IR_TOP
+  adc_buf_channel(ADC_CHANNEL_IR_TOP, &buf_ir_top, ADC_CHANNEL_IR_NB_SAMPLES);
+#endif
   estimator_rad_of_ir = ir_rad_of_ir;
 }
 
@@ -86,6 +91,9 @@ void ir_update(void) {
   int16_t x2_mean = buf_ir2.sum/buf_ir2.av_nb_sample;
   ir_roll = IR_RollOfIrs(x1_mean, x2_mean);
   ir_pitch = IR_PitchOfIrs(x1_mean, x2_mean);
+#ifdef ADC_CHANNEL_IR_TOP
+  ir_top =  buf_ir_top.sum/buf_ir_top.av_nb_sample;
+#endif
 
   /** neutrals are not taken into account in SITL and HITL */
   ir_roll -= IR_ADC_ROLL_NEUTRAL;

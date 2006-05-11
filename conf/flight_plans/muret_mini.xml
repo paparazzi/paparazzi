@@ -1,6 +1,6 @@
 <!-- DOCTYPE flight_plan SYSTEM "flight_plan.dtd" -->
 
-<flight_plan NAME="Muret mini" LON0="1.27289" MAX_DIST_FROM_HOME="1000" GROUND_ALT="185" SECURITY_HEIGHT="25" QFU="270" ALT="250" LAT0="43.46223">
+<flight_plan NAME="Muret mini" LON0="1.27289" MAX_DIST_FROM_HOME="300" GROUND_ALT="185" SECURITY_HEIGHT="25" QFU="270" ALT="250" LAT0="43.46223">
   <rc_control>
     <mode NAME="AUTO1">
       <setting VAR="ir_pitch_neutral" RANGE="0.1" RC="gain_1_up" TYPE="float"/>
@@ -13,7 +13,12 @@
   </rc_control>
 
   <dl_settings>
-      <dl_setting var="ir_roll_neutral" min="-0.2" max="0.2" step="0.01"/>
+      <dl_setting var="ir_roll_neutral" min="-0.3" max="0.3" step="0.01"/>
+      <dl_setting var="ir_pitch_neutral" min="-0.3" max="0.3" step="0.01"/>
+      <dl_setting var="roll_pgain" min="1000" max="15000" step="250"/>
+      <dl_setting var="pitch_pgain" min="1000" max="15000" step="250"/>
+      <dl_setting var="climb_level_gaz" min="0.3" max="0.7" step="0.05"/>
+      <dl_setting var="climb_pgain" min="-0.5" max="-0.01" step="0.01"/>
       <dl_setting var="course_pgain" min="-1" max="-0.1" step="0.05"/>
   </dl_settings>
 

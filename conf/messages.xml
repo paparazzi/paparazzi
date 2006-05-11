@@ -31,12 +31,11 @@
      <field name="theta" type="int8" unit="deg"></field>
    </message>
 
-<!--
-   <message name="ADC" ID="7">
-     <field name="roll" type="int16"></field>
-     <field name="pitch" type="int16"></field>
+   <message name="IR_SENSORS" ID="7">
+     <field name="longitudinal" type="int16"></field>
+     <field name="lateral" type="int16"></field>
+     <field name="vertical" type="int16"></field>
    </message>
--->
 
    <message name="GPS" ID="8">
      <field name="mode"   type="uint8" unit="byte_mask"></field>

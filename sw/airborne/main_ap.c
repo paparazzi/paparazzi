@@ -60,13 +60,6 @@
 #include "srf08.h"
 #endif
 
-#ifndef AUTO1_MAX_ROLL
-#define AUTO1_MAX_ROLL 0.6
-#endif
-
-#ifndef AUTO1_MAX_PITCH
-#define AUTO1_MAX_PITCH 0.5
-#endif
 
 #define LOW_BATTERY_DECIVOLT (LOW_BATTERY*10)
 

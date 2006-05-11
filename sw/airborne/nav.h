@@ -95,8 +95,8 @@ extern float course_pgain;
 extern float desired_course;
 void course_pid_run( void );
 
-extern const float climb_pgain;
-extern const float climb_igain;
+extern float climb_pgain;
+extern float climb_igain;
 extern float climb_sum_err;
 extern float desired_climb, pre_climb;
 

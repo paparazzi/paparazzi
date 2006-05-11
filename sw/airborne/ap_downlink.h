@@ -104,7 +104,7 @@ extern uint8_t telemetry_mode_Ap;
 #endif
 
 #ifdef INFRARED
-//#define PERIODIC_SEND_ADC() DOWNLINK_SEND_ADC(&ir_roll, &ir_pitch);
+#define PERIODIC_SEND_IR_SENSORS() DOWNLINK_SEND_IR_SENSORS(&ir_pitch, &ir_roll, &ir_top);
 #define PERIODIC_SEND_ADC() {}
 
 #define PERIODIC_SEND_RAD_OF_IR() Downlink({ int16_t rad = DeciDegOfRad(estimator_rad); DOWNLINK_SEND_RAD_OF_IR(&ir_roll, &rad, &estimator_rad_of_ir);})
@@ -138,5 +138,6 @@ extern uint8_t telemetry_mode_Ap;
 #endif
 
 #define PERIODIC_SEND_DL_VALUE() PeriodicSendDlValue() /** from flight_plan.h*/
+
 
 #endif /* AP_DOWNLINK_H */

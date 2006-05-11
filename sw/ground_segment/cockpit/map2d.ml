@@ -49,6 +49,12 @@ let _ =
   ignore (Sys.command (sprintf "mkdir -p %s" var_maps_path))
 let fp_example = path_fps // "example.xml"
 
+let speech = ref false
+
+let say = fun s ->
+  if !speech then
+    ignore (Sys.command (sprintf "spd-say '%s'&" s))
+
 (** window for the strip panel *)
 let strip_panel = GWindow.window ~title: "Strip Panel" ~width: 330 ~height:300 ()
 let strip_scrolled = GBin.scrolled_window ~hpolicy: `AUTOMATIC ~vpolicy: `AUTOMATIC ~packing: strip_panel#add ()
@@ -641,6 +647,7 @@ let button_press = fun (geomap:G.widget) ev ->
 
   type color = string
   type aircraft = {
+      ac_name : string;
       config : Pprz.values;
       track : MapTrack.track;
       color: color;
@@ -650,7 +657,8 @@ let button_press = fun (geomap:G.widget) ev ->
       dl_settings_adjustments : float array;
       block_label : GMisc.label;
       apmode_label : GMisc.label;
-      blocks : (int * string) list
+      blocks : (int * string) list;
+      mutable last_ap_mode : string
     }
 
   let live_aircrafts = Hashtbl.create 3
@@ -858,12 +866,12 @@ let button_press = fun (geomap:G.widget) ev ->
     ignore (reset_wp_menu#connect#activate (reset_waypoints fp));
     Hashtbl.add live_aircrafts ac_id { track = track; color = color; 
 				       fp_group = fp ; config = config ; 
-				       fp = fp_xml;
+				       fp = fp_xml; ac_name = name;
 				       dl_settings_adjustments = ds_adjs;
 				       dl_settings_window = ds_window;
 				       block_label = block_label;
 				       apmode_label = apmode_label;
-				       blocks = blocks
+				       blocks = blocks; last_ap_mode= ""
 				     };
     ignore (Strip.add strip_table ac_id config color)
 
@@ -1039,13 +1047,19 @@ let button_press = fun (geomap:G.widget) ev ->
     in
     safe_bind "SEGMENT_STATUS" get_segment_status;
 
+
     let get_ap_status = fun _sender vs ->
       let ac_id = Pprz.string_assoc "ac_id" vs in
       try
 	let ac_strip = Strip.find ac_id in
 	let ac = Hashtbl.find live_aircrafts ac_id in
 	ap_status_msg ac.track ( float_of_int (Pprz.int32_assoc "flight_time" vs ));
-	ac.apmode_label#set_label (Pprz.string_assoc "ap_mode" vs);
+	let ap_mode = Pprz.string_assoc "ap_mode" vs in
+	if ap_mode <> ac.last_ap_mode then begin
+	  say (sprintf "%s, %s" ac.ac_name ap_mode);
+	  ac.last_ap_mode <- ap_mode
+	end;
+	ac.apmode_label#set_label ap_mode;
 	Strip.set_label ac_strip "AP" (Pprz.string_assoc "ap_mode" vs);
 	Strip.set_label ac_strip "GPS" (Pprz.string_assoc "gps_mode" vs);
 	let ft = 
@@ -1117,6 +1131,7 @@ let _main =
       "-mercator", Arg.Unit (fun () -> projection:=G.Mercator),"Switch to (Google Maps) Mercator projection";
       "-lambertIIe", Arg.Unit (fun () -> projection:=G.LambertIIe),"Switch to LambertIIe projection";
       "-ign", Arg.Set_string IGN.data_path, "IGN tiles path";
+      "-speech", Arg.Set speech, "Speech";
       "-m", Arg.String (fun x -> map_file := x), "Map description file"] in
   Arg.parse (options)
     (fun x -> Printf.fprintf stderr "Warning: Don't do anythig with %s\n" x)
@@ -1228,6 +1243,8 @@ let _main =
     let xml_map_file = if !map_file.[0] <> '/' then Filename.concat default_path_maps !map_file else !map_file in
     display_map geomap xml_map_file
   end;
+
+  say "Welcome to paparazzi";
 
   (** Threaded main loop (map tiles loaded concurently) *)
   GtkThread.main ()

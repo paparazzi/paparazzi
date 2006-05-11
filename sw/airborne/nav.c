@@ -369,8 +369,8 @@ void course_pid_run( void ) {
 #define MAX_CLIMB_SUM_ERR 150
 #define MAX_PITCH_CLIMB_SUM_ERR 100
 
-const float climb_pgain   = CLIMB_PGAIN;
-const float climb_igain   =  CLIMB_IGAIN;
+float climb_pgain   = CLIMB_PGAIN;
+float climb_igain   =  CLIMB_IGAIN;
 float desired_climb = 0., pre_climb = 0.;
 float climb_sum_err  = 0;
 
