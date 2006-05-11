@@ -42,6 +42,11 @@
     <define name="VSUPPLY" value="3"/>
   </section>
 
+  <section name="AUTO1" prefix="AUTO1_">
+    <define name="MAX_ROLL" value="0.6"/>
+    <define name="MAX_PITCH" value="0.6"/>
+  </section>
+
   <section name="INFRARED" prefix="IR_">
     <define name="ROLL_NEUTRAL_DEFAULT" value="0" unit="deg"/>
     <define name="PITCH_NEUTRAL_DEFAULT" value="0" unit="deg"/>
