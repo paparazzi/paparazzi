@@ -246,7 +246,6 @@
   </message>
 
   <message name="FBW_STATUS" ID="103">
-    <field name="nb_spi_err" type="uint8"/>
     <field name="rc_status" type="uint8" values="OK|LOST|REALLY_LOST"/>
     <field name="mode" type="uint8" values="MANUAL|AUTO|FAILSAFE"/>
     <field name="vsupply" type="uint8" unit="decivolt"/>

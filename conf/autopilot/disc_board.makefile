@@ -9,5 +9,5 @@ ap.HIGH_FUSE = 99
 ap.EXT_FUSE  = ff
 ap.LOCK_FUSE = ff
 ap.CFLAGS += -DFBW -DCONFIG=\"disc_board.h\"  
-ap.srcs = inter_mcu.c $(SRC_ARCH)/adc_hw.c sys_time.c main_fbw.c main.c
+ap.srcs = $(SRC_ARCH)/adc_hw.c sys_time.c main_fbw.c main.c
 # pid.c estimator.c if_calib.c nav.c main_ap.c mainloop.c main.c

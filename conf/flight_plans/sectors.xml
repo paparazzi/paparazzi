@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<!DOCTYPE sectors SYSTEM "sectors.dtd">
+
+<sectors>
+  <sector name="airexpo">
+    <polygon>
+     <point pos="WGS84 43.4487 1.2687"/>
+     <point pos="WGS84 43.4515 1.2609"/>
+     <point pos="WGS84 43.4498 1.2596"/>
+     <point pos="WGS84 43.4470 1.2676"/>
+    </polygon>
+  </sector>
+  <sector name="airexpo_discs">
+    <union>
+      <disc radius="200"><point pos="WGS84 43.45 1.262"/></disc>
+      <disc radius="300"><point pos="WGS84 43.4477 1.2648"/></disc>
+    </union>
+  </sector>
+</sectors>

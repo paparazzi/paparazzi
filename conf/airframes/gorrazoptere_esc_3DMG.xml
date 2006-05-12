@@ -134,10 +134,6 @@
     <define name="CARROT" value="5." unit="s"/>
   </section>
  
-  <section name="DOWNLINK" prefix="DOWNLINK_">
-    <define name="FBW_DEVICE" value="uart0"/>
-  </section>
-
   <makefile>
 include $(PAPARAZZI_SRC)/conf/autopilot/disc_board.makefile
 
@@ -146,11 +142,14 @@ ap.srcs += commands.c
 ap.CFLAGS += -DACTUATORS=\"servos_esc_hw.h\" -DTIMER3 -DTIMER1_TOP=0x400
 ap.srcs += $(SRC_ARCH)/servos_esc_hw.c
 
-ap.CFLAGS += -DRADIO_CONTROL
+ap.CFLAGS += -DRADIO_CONTROL -DRADIO_CONTROL_TYPE=RC_FUTABA
 ap.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c 
 
-ap.CFLAGS += -DDOWNLINK -DUSE_UART0 
-ap.srcs += downlink.c $(SRC_ARCH)/uart_hw.c
+#ap.CFLAGS += -DINTER_MCU
+#ap.CFLAGS += inter_mcu.c
+
+ap.CFLAGS += -DDOWNLINK -DUSE_UART0 -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_FBW_DEVICE=Uart0
+ap.srcs += downlink.c pprz_transport.c $(SRC_ARCH)/uart_hw.c
 
 # ap.CFLAGS += -DDEBUG_RC
 

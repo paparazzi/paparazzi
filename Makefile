@@ -78,35 +78,6 @@ configurator: lib
 sim_static :
 	cd $(SIMULATOR); $(MAKE) PAPARAZZI_SRC=$(PAPARAZZI_SRC)
 
-fbw fly_by_wire: ac_h
-	cd $(AIRBORNE); $(MAKE) TARGET=fbw all
-
-%.compile: ac_h
-	cd $(AIRBORNE); $(MAKE) TARGET=$* all
-
-ap autopilot: ac_h
-	cd $(AIRBORNE); $(MAKE) TARGET=ap all
-
-sim: ac_h sim_static
-	cd $(AIRBORNE); $(MAKE) TARGET=sim ARCHI=sim all
-
-upload_fbw: fbw
-	cd $(AIRBORNE); $(MAKE) TARGET=fbw upload
-
-%.upload: %.compile
-	cd $(AIRBORNE); $(MAKE) TARGET=$* upload
-
-upload_ap: ap
-	cd $(AIRBORNE); $(MAKE) TARGET=ap upload
-
-erase_fbw:
-	cd $(AIRBORNE); $(MAKE) TARGET=fbw erase
-
-erase_ap:
-	cd $(AIRBORNE); $(MAKE) TARGET=ap erase
-
-airborne: fbw ap
-
 cockpit: lib
 	cd $(COCKPIT); $(MAKE) all
 
@@ -121,31 +92,57 @@ visu3d: lib
 wind:
 	cd $(WIND); $(MAKE)
 
-wr_fuses_ap:
-	cd $(AIRBORNE); make TARGET=ap wr_fuses
+%.compile: ac_h
+	cd $(AIRBORNE); $(MAKE) TARGET=$* all
 
-wr_fuses_fbw:
-	cd $(AIRBORNE); make TARGET=fbw wr_fuses
+%.wr_fuses: %.compile
+	cd $(AIRBORNE); $(MAKE) TARGET=$* wr_fuses
+
+%.rd_fuses: %.compile
+	cd $(AIRBORNE); $(MAKE) TARGET=$* rd_fuses
+
+%.check_fuses: %.compile
+	cd $(AIRBORNE); $(MAKE) TARGET=$* check_fuses
+
+%.erase: %.compile
+	cd $(AIRBORNE); $(MAKE) TARGET=$* erase
+
+%.upload: %.compile
+	cd $(AIRBORNE); $(MAKE) TARGET=$* upload
+
+sim: ac_h sim_static
+	cd $(AIRBORNE); $(MAKE) TARGET=sim ARCHI=sim all
+
+fbw : fbw.compile
+
+ap: ap.compile
+
+upload_fbw: fbw.upload
+
+upload_ap: ap.upload
+
+erase_fbw: fbw.erase
+
+erase_ap: ap.erase
 
 
-rd_fuses_ap:
-	cd $(AIRBORNE); make TARGET=ap rd_fuses
+wr_fuses_ap: ap.wr_fuses
 
-rd_fuses_fbw:
-	cd $(AIRBORNE); make TARGET=fbw rd_fuses
+wr_fuses_fbw: fbw.wr_fuses
 
+rd_fuses_ap: ap.rd_fuses
 
-check_fuses_ap:
-	cd $(AIRBORNE); make TARGET=ap check_fuses
+rd_fuses_fbw: fbw.rd_fuses
 
-check_fuses_fbw:
-	cd $(AIRBORNE); make TARGET=fbw check_fuses
+check_fuses_ap: ap.check_fuses
 
+check_fuses_fbw: fbw.check_fuses
 
 static_h :
 	PAPARAZZI_HOME=`pwd` PAPARAZZI_SRC=`pwd` make -f Makefile.gen
 
 ac_h : tools static_h
+	$(Q)if (expr "$(AIRCRAFT)"); then : ; else echo "AIRCRAFT undefined: type 'make AIRCRAFT=AircraftName ...'"; exit 1; fi
 	@echo BUILD $(AIRCRAFT)
 	$(Q)PAPARAZZI_HOME=`pwd` PAPARAZZI_SRC=`pwd` Q=$(Q) $(TOOLS)/gen_aircraft.out $(AIRCRAFT)
 

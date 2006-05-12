@@ -27,6 +27,11 @@
 # Edit the configuration part to suit your local install
 #
 
+ATMELBIN = /usr/bin
+ATMEL_INCLUDES = -I /usr/avr/include
+ATMEL_LIBPATH = -B /usr/avr/lib/avr4 -B /usr/avr/lib/avr5
+PROG_PORT = /dev/parport0
+
 VERIFY=--verify
 
 SRC_ARCH = $(PAPARAZZI_SRC)/sw/airborne/avr
@@ -152,7 +157,9 @@ erase: check_arch
 	$(UISP) $(ISP_FLAGS) --erase
 
 check_arch :
-	if ($(UISP) $(UISP_FLAGS) 2>&1 | tr '[:upper:]' '[:lower:]' | grep $($(TARGET).ARCH)); then : ; else echo "Wrong architecture (mcu0 vs mcu1 ?)"; exit 1; fi
+	@echo "CHECKING link with device $($(TARGET).ARCH) on $(PROG_PORT)"
+	$(Q)$(UISP) $(UISP_FLAGS)
+	$(Q)if ($(UISP) $(UISP_FLAGS) 2>&1 | tr '[:upper:]' '[:lower:]' | grep $($(TARGET).ARCH)); then : ; else echo "Wrong architecture (mcu0 vs mcu1 ?)"; exit 1; fi
 
 avr_clean:
 	rm -rf $(OBJDIR)

@@ -10,10 +10,3 @@ else
 TOOLS=$(PAPARAZZI_SRC)/sw/tools
 endif
 
-AIRCRAFT=twinstar1
-
-ATMELBIN = /usr/bin
-ATMEL_INCLUDES = -I /usr/avr/include
-ATMEL_LIBPATH = -B /usr/avr/lib/avr4 -B /usr/avr/lib/avr5
-PROG_PORT = /dev/parport0
-

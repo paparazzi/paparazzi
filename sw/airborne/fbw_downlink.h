@@ -42,7 +42,7 @@ extern uint8_t telemetry_mode_Fbw;
 #define PERIODIC_SEND_PPM() DOWNLINK_SEND_PPM(PPM_NB_PULSES, ppm_pulses)
 #define PERIODIC_SEND_RC() DOWNLINK_SEND_RC(PPM_NB_PULSES, rc_values)
 #define PERIODIC_SEND_COMMANDS() DOWNLINK_SEND_COMMANDS(COMMANDS_NB, commands)
-#define PERIODIC_SEND_FBW_STATUS() DOWNLINK_SEND_FBW_STATUS(&fbw_state->nb_err, &rc_status, &fbw_mode, &fbw_vsupply_decivolt)
+#define PERIODIC_SEND_FBW_STATUS() DOWNLINK_SEND_FBW_STATUS(&rc_status, &fbw_mode, &fbw_vsupply_decivolt)
 
 #ifdef BRICOLAGE_ADC
 extern uint16_t adc0_val[];

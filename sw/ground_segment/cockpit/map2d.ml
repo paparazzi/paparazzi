@@ -1113,6 +1113,42 @@ let keys_help = fun () ->
     Path End: Ctrl-Shift-Right"
 
 
+(******** Sectors **********************************************************)
+
+module Sector = struct
+  let rec display = fun (geomap:G.widget) r ->
+    
+    match String.lowercase (Xml.tag r) with
+      "disc" ->
+	let rad = float_of_string (ExtXml.attrib r "radius")
+	and geo = Latlong.of_string (ExtXml.attrib (ExtXml.child r "point") "pos") in
+	prerr_endline (Latlong.string_of geo);
+	ignore (geomap#circle ~width:5 ~color:"red" geo rad)
+	  
+    | "union" ->
+	List.iter (display geomap) (Xml.children r)
+    |x -> fprintf stderr "Sectro.display: '%s' not yet\n%!" x	    
+	  
+
+  let display_sector = fun (geomap:G.widget) sector ->
+    display geomap (ExtXml.child sector "0")
+
+    
+  let load = fun geomap () ->
+    match GToolbox.select_file ~title:"Load sectors" ~filename:(path_fps^"*.xml") () with
+      None -> ()
+    | Some f ->
+	try
+	  let xml = Xml.parse_file f in
+	  List.iter (display_sector geomap) (Xml.children xml)
+	with
+	  Dtd.Prove_error(e) -> 
+	    let m = sprintf "Error while loading %s:\n%s" f (Dtd.prove_error e) in
+	    GToolbox.message_box "Error" m
+end
+      
+
+
 (***************** MAIN ******************************************************)
 let _main =
   let ivy_bus = ref "127.255.255.255:2010"
@@ -1183,6 +1219,7 @@ let _main =
   ignore (map_menu_fact#add_check_item "GoogleMaps Auto" ~active:false ~callback:GM.active_auto);
   ignore (map_menu_fact#add_item "Map of Region" ~key:GdkKeysyms._R ~callback:(map_from_region geomap));
   ignore (map_menu_fact#add_item "Map of Google Tiles" ~key:GdkKeysyms._T ~callback:(GM.map_from_tiles geomap));
+  ignore (map_menu_fact#add_item "Load sector" ~key:GdkKeysyms._T ~callback:(Sector.load geomap));
   
   (** Connect Google Maps display to view change *)
   geomap#connect_view (fun () -> GM.update geomap);

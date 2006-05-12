@@ -311,3 +311,6 @@ that [f]-[p2] is tangent to the arc. [s] is 1. if [c] is on the left, [-1]
 else *)
 
 val arc : ?nb_points:int -> pt_2D -> float -> float -> float -> pt_2D array
+
+type slice = { top : float; left_side : float * float; right_side : float * float }
+val slice_polygon : pt_2D array -> slice array

@@ -35,6 +35,12 @@
     <define name="AILEVON_AILERON_RATE" value="0.55"/>
     <define name="AILEVON_ELEVATOR_RATE" value="0.75"/>
   </section>
+
+  <section name="AUTO1" prefix="AUTO1_">
+    <define name="MAX_ROLL" value="0.8"/>
+    <define name="MAX_PITCH" value="0.6"/>
+  </section>
+
   <section name="INFRARED" prefix="IR_">
     <define name="ROLL_NEUTRAL_DEFAULT" value="-3" unit="deg"/>
     <define name="PITCH_NEUTRAL_DEFAULT" value="6" unit="deg"/>
@@ -52,7 +58,6 @@
     <define name="PITCH_OF_ROLL" value="0.2"/>
     <define name="PITCH_PGAIN" value="10000."/>
     <define name="MAX_ROLL" value="0.4"/>
-    <define name="AUTO1_MAX_ROLL" value="0.8"/>
     <define name="MAX_PITCH" value="0.25"/>
     <define name="MIN_PITCH" value="-0.35"/>
     <define name="AILERON_OF_GAZ" value="-0.13"/>

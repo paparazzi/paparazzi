@@ -1,0 +1,25 @@
+<!ELEMENT sectors (sector+)>
+<!ELEMENT sector (disc|rectangle|polygon|union|intersection)>
+<!ELEMENT union (disc|rectangle|polygon|union|intersection)+>
+<!ELEMENT intersection (disc|rectangle|polygon|union|intersection)+>
+<!ELEMENT disc (point)>
+<!ELEMENT rectangle (point,point)>
+<!ELEMENT polygon (point,point,point+)>
+<!ELEMENT point EMPTY>
+
+<!ATTLIST sectors>
+<!ATTLIST union>
+<!ATTLIST intersection>
+<!ATTLIST rectangle>
+
+<!ATTLIST sector
+  name CDATA #REQUIRED
+>
+
+<!ATTLIST disc
+  radius CDATA #REQUIRED
+>
+
+<!ATTLIST point
+  pos CDATA #REQUIRED
+>
