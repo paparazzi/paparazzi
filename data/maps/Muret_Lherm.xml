@@ -1,0 +1,4 @@
+<map file="Muret_Lherm.png" projection="Mercator">
+  <point x="0" y="0" geo="WGS84 43.453733	1.257960"/>
+  <point x="1192" y="1003" geo="WGS84 43.445915	1.270751"/>
+</map>

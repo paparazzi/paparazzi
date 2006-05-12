@@ -1,0 +1,42 @@
+<flight_plan SECURITY_HEIGHT="25" lat0="43.449300" lon0="1.266300" ground_alt="189" qfu="270" alt="250" max_dist_from_home="630" name="AirExpo" airspace="sectors.airexpo">
+  <rc_control>
+    <mode NAME="AUTO1">
+      <setting VAR="ir_pitch_neutral" RANGE="60." RC="gain_1_up" TYPE="int16"/>
+      <setting VAR="ir_roll_neutral" RANGE="-60." RC="gain_1_down" TYPE="int16"/>
+    </mode>
+    <mode NAME="AUTO2">
+      <setting VAR="course_pgain" RANGE="0.1" RC="gain_1_up" TYPE="float"/>
+      <setting VAR="pitch_of_roll" RANGE=".2" RC="gain_1_down" TYPE="float"/>
+    </mode>
+  </rc_control>
+  <dl_settings>
+    <dl_setting VAR="ir_roll_neutral" MAX="0.2" STEP="0.01" MIN="-0.2"/>
+    <dl_setting VAR="roll_pgain" MAX="15000" STEP="100" MIN="5000"/>
+    <dl_setting VAR="course_pgain" MIN="-1." STEP="0.05" MAX="-0.1"/>
+  </dl_settings>
+  <waypoints>
+    <waypoint name="HOME" x="106.685022674" y="-77.8219785336" alt="250."/>
+    <waypoint name="TX_W" x="-423.602508952" y="146.01665498" alt="250."/>
+    <waypoint name="TX_E" x="30.9328902388" y="-76.0521636186" alt="250."/>
+    <waypoint name="NW" x="-407.280953556" y="172.480783324" alt="250."/>
+  </waypoints>
+  <blocks>
+    <block NAME="init">
+      <while COND="(!launch)"/>
+      <heading GAZ="0.8" PITCH="0.15" COURSE="QFU" UNTIL="(estimator_flight_time > 8)" VMODE="gaz"/>
+      <heading PITCH="0.15" CLIMB="3.0" COURSE="QFU" UNTIL="(estimator_z > SECURITY_ALT)" VMODE="climb"/>
+      <deroute BLOCK="circlehome"/>
+    </block>
+    <block NAME="circlehome">
+      <exception COND="(RcEvent1())" DEROUTE="circuit"/>
+      <circle WP="HOME" RADIUS="-50"/>
+    </block>
+    <block name="circuit">
+      <exception COND="(RcEvent1())" DEROUTE="circlehome"/>
+      <go wp="NW" FROM="TX_E" hmode="route" approaching_time="1"/>
+      <go wp="TX_W" approaching_time="1"/>
+      <go wp="TX_E" from="TX_W" hmode="route"/>
+      <deroute block="circlehome"/>
+    </block>
+  </blocks>
+</flight_plan>

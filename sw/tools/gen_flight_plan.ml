@@ -560,6 +560,12 @@ let print_dl_settings = fun settings ->
   lprintf "}\n"
 
 
+let print_inside_sector = fun rel_utm_of_wgs84 xml ->
+  match String.lowercase (Xml.tag xml) with
+    _ -> ()
+  
+
+
 
 let _ =
   let xml_file = ref "fligh_plan.xml"
@@ -668,6 +674,22 @@ let _ =
       print_heights xml wgs84 (int_of_string alt);
 
       print_dl_settings dl_settings;
+
+      begin
+	try
+	  let airspace = ExtXml.attrib xml "airspace" in
+	  begin
+	    match Str.split (Str.regexp "\\.") airspace with
+	      [base; sector_name] ->
+		let file =  dir ^ "/" ^ base ^".xml" in
+		let sectors_xml = Xml.parse_file file in
+		let sector = ExtXml.child sectors_xml "sector" ~select:(fun x -> ExtXml.attrib x "name" = sector_name) in
+		print_inside_sector rel_utm_of_wgs84 (ExtXml.child sector "0")
+	    | _ -> failwith "airspace"
+	  end
+	with
+	  _ -> ()
+      end;
 
       Xml2h.finish h_name
     end
