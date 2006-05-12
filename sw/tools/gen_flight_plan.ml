@@ -559,10 +559,48 @@ let print_dl_settings = fun settings ->
   end;
   lprintf "}\n"
 
+module G2D = Geometry_2d
+
+
+let print_inside_polygon = fun pts ->
+  let layers = Geometry_2d.slice_polygon (Array.of_list pts) in
+  let rec f = fun i j ->
+    if i = j then
+      let {G2D.top=yl; left_side=(xg, ag); right_side=(xd, ad)} = layers.(i) in
+      if xg > xd then begin
+	lprintf "return FALSE;\n"
+      end else begin
+      lprintf "float dy = y - %f;\n" yl;
+      lprintf "return (%f+dy*%f <= x && x <= %f+dy*%f);\n" xg ag xd ad
+      end
+    else
+      let ij2 = (i+j) / 2 in
+      let yl = layers.(ij2).G2D.top in
+      lprintf "if (y <= %f) {\n" yl;
+      right (); f i ij2; left ();
+      lprintf "} else {\n";
+      right (); f (ij2+1) j; left ();
+      lprintf "}\n"
+  in
+  f 0 (Array.length layers - 1);;
+
+
 
 let print_inside_sector = fun rel_utm_of_wgs84 xml ->
   match String.lowercase (Xml.tag xml) with
-    _ -> ()
+    "polygon" ->
+      let p2D_of = fun x ->
+	let geo = Latlong.of_string (ExtXml.attrib x "pos") in
+	let (x, y) = rel_utm_of_wgs84 geo in
+	{G2D.x2D = x; G2D.y2D = y } in
+      let pts =  List.map p2D_of (Xml.children xml) in
+      lprintf "static inline bool_t in_airspace(float x, float y) {\n";
+      right ();
+      print_inside_polygon pts;
+      left ();
+      lprintf "}\n";
+      lprintf "#define InAirspace() in_airspace(estimator_x, estimator_y)\n";
+  | x -> failwith (sprintf "sector: %s not yet" x)
   
 
 
@@ -615,6 +653,7 @@ let _ =
       Xml2h.define h_name "";
       printf "\n";
       
+      printf "#include \"std.h\"\n";
 
       let name = ExtXml.attrib xml "name" in
       Xml2h.warning ("FLIGHT PLAN: "^name);

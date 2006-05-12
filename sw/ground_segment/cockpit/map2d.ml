@@ -1122,12 +1122,17 @@ module Sector = struct
       "disc" ->
 	let rad = float_of_string (ExtXml.attrib r "radius")
 	and geo = Latlong.of_string (ExtXml.attrib (ExtXml.child r "point") "pos") in
-	prerr_endline (Latlong.string_of geo);
 	ignore (geomap#circle ~width:5 ~color:"red" geo rad)
-	  
     | "union" ->
 	List.iter (display geomap) (Xml.children r)
-    |x -> fprintf stderr "Sectro.display: '%s' not yet\n%!" x	    
+    | "polygon" ->
+	let pts = List.map (fun x ->  Latlong.of_string (ExtXml.attrib x "pos")) (Xml.children r) in
+	let pts = Array.of_list pts in
+	let n = Array.length pts in
+	for i = 0 to n - 1 do
+	  ignore (geomap#segment ~width:5 ~fill_color:"red" pts.(i) pts.((i+1)mod n))
+	done
+    |x -> fprintf stderr "Sector.display: '%s' not yet\n%!" x	    
 	  
 
   let display_sector = fun (geomap:G.widget) sector ->

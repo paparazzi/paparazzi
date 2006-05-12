@@ -15,7 +15,7 @@
     <dl_setting VAR="course_pgain" MIN="-1." STEP="0.05" MAX="-0.1"/>
   </dl_settings>
   <waypoints>
-    <waypoint name="HOME" x="106.685022674" y="-77.8219785336" alt="250."/>
+    <waypoint name="HOME" x="94.9434219762" y="-107.156517486" alt="250."/>
     <waypoint name="TX_W" x="-423.602508952" y="146.01665498" alt="250."/>
     <waypoint name="TX_E" x="30.9328902388" y="-76.0521636186" alt="250."/>
     <waypoint name="NW" x="-407.280953556" y="172.480783324" alt="250."/>

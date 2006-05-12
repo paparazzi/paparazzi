@@ -10,10 +10,4 @@
      <point pos="WGS84 43.4470 1.2676"/>
     </polygon>
   </sector>
-  <sector name="airexpo_discs">
-    <union>
-      <disc radius="200"><point pos="WGS84 43.45 1.262"/></disc>
-      <disc radius="300"><point pos="WGS84 43.4477 1.2648"/></disc>
-    </union>
-  </sector>
 </sectors>
