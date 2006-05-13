@@ -1,7 +1,7 @@
 (*
  * $Id$
  *
- * XML editor
+ * XML graphics editor
  *  
  * Copyright (C) 2004 CENA/ENAC, Pascal Brisset, Antoine Drouin
  *
@@ -24,7 +24,7 @@
  *
  *)
 
-(** XML types base on th xml-light library *)
+(** XML types base on the xml-light library *)
 
 type t
 (** The whole XML data structure *)
@@ -40,7 +40,7 @@ type attributes = attribute list
 
 type event = Deleted | Modified of attributes | New_child of node
 
-val create : Dtd.dtd -> Xml.xml -> (t * GWindow.window)
+val create : ?edit:bool -> Dtd.dtd -> Xml.xml -> (t * GWindow.window)
 (** [create dtd xml] Opens a display of [xml] with contextual right button
 actions constrained by [dtd]. Returns the corresponding model. *)
 
@@ -53,7 +53,7 @@ val root : t -> node
 val child : node -> tag -> node
 val tag : node -> string
 val attribs : node -> attributes
-val attrib : node -> string -> string (* No case match *)
+val attrib : node -> string -> string (* Safe case match *)
 val children : node -> node list
 val parent : node -> tag -> node (** May raise Failure *)
 (** Xml-light like acces functions *)
@@ -68,3 +68,7 @@ val connect : node -> (event -> unit) -> unit
 (** To be kept informed about modifications *)
 
 val selection : t -> node
+
+val expand_node : ?all:bool -> t -> node -> unit
+
+val set_background : ?all:bool -> node -> string -> unit

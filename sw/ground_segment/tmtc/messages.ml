@@ -26,6 +26,8 @@
 
 open Printf
 
+let list_sort = fun f l -> List.sort (fun x y -> compare (f x) (f y)) l
+
 let update_delay = 0.25 (* Min time in second before two updates *)
 let led_delay = 500 (* Time in milliseconds while the green led is displayed *)
 
@@ -60,13 +62,12 @@ let _ =
   let one_page = fun (notebook:GPack.notebook) bind m ->
     let id = (Xml.attrib m "name") in
     let h = GPack.hbox () in
+    h#misc#set_property "name" (`STRING (Some id));
     let v = GPack.vbox ~width:200 () in
     let _l = GMisc.label ~text:id ~packing:h#add () in
     let eb = GBin.event_box ~packing:h#pack () in
     let time = GMisc.label ~width:40 ~packing:eb#add () in
     eb#coerce#misc#modify_bg [`SELECTED, `NAME "green"];
-    notebook#append_page ~tab_label:h#coerce v#coerce;
-    let page_num = notebook#page_num v#coerce in
     let fields = 
       List.fold_left
 	(fun rest f ->
@@ -77,9 +78,8 @@ let _ =
 	    let _ = GMisc.label ~text:name ~packing:h#pack () in
 	    let l = GMisc.label ~text:"XXXX" ~packing:h#pack () in
 	    let update = fun (_a, x) -> 
-	      if notebook#current_page = page_num then
-		let fx = Pprz.string_of_value x in
-		if l#label <> fx then l#set_text fx in
+	      let fx = Pprz.string_of_value x in
+	      if l#label <> fx then l#set_text fx in
 	    update::rest
 	  with
 	    _ -> 
@@ -96,7 +96,25 @@ let _ =
       incr time_since_last;
       time#set_text (sprintf "%2d" !time_since_last); true in
     ignore (GMain.Timeout.add 1000 update_time);
+    let show = ref false in
     let display = fun _sender values ->
+      if not !show then begin
+	show := true;
+	(** Look for the right position in alphabetic order *)
+	let rec loop = fun i ->
+	  let p = notebook#get_nth_page i in
+	  let t = notebook#get_tab_label p in
+	  match t#misc#get_property "name" with
+	  | `STRING (Some x) -> if x < id then loop (i+1) else i
+	  | _ -> raise Not_found
+	in
+	try
+	  let pos = loop 0 in
+	  notebook#insert_page ~pos ~tab_label:h#coerce v#coerce
+	with _ ->
+	  notebook#append_page ~tab_label:h#coerce v#coerce;
+	
+      end;
       time_since_last := 0;
       let t = Unix.gettimeofday () in
       if t > !last_update +. update_delay then begin
@@ -144,7 +162,7 @@ let _ =
 	  (fun m -> ignore (P.message_bind (Xml.attrib m "name") get_one))
 	  messages
     | _ -> 
-	let class_notebook = GPack.notebook ~tab_pos:`LEFT () in
+	let class_notebook = GPack.notebook ~tab_border:0 ~tab_pos:`LEFT () in
 	let l = match sender with None -> "" | Some s -> ":"^s in
 	let label = GMisc.label ~text:(ident^l) () in
 (***	let label = GButton.button ~label:(ident^l) () in ***)
@@ -154,6 +172,7 @@ let _ =
 	| Some sender -> fun m cb -> P.message_bind ~sender m cb in
 	let _bindings = 
 	  (** Forall messages in the class *)
+	  let messages = list_sort (fun x -> Xml.attrib x "name") messages in
 	  List.map (fun m -> one_page class_notebook bind m) messages in
 (***	label#connect#clicked ~callback:(fun () -> prerr_endline "clicked"); ***)
 	() in

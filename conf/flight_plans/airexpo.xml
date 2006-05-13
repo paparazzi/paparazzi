@@ -1,4 +1,4 @@
-<flight_plan SECURITY_HEIGHT="25" lat0="43.449300" lon0="1.266300" ground_alt="189" qfu="270" alt="250" max_dist_from_home="630" name="AirExpo" airspace="sectors.airexpo">
+<flight_plan SECURITY_HEIGHT="25" lat0="43.449300" lon0="1.266300" ground_alt="189" qfu="270" alt="250" max_dist_from_home="450" name="AirExpo" airspace="sectors.airexpo">
   <rc_control>
     <mode NAME="AUTO1">
       <setting VAR="ir_pitch_neutral" RANGE="60." RC="gain_1_up" TYPE="int16"/>
@@ -11,14 +11,16 @@
   </rc_control>
   <dl_settings>
     <dl_setting VAR="ir_roll_neutral" MAX="0.2" STEP="0.01" MIN="-0.2"/>
+    <dl_setting VAR="ir_pitch_neutral" MAX="0.2" STEP="0.01" MIN="-0.2"/>
     <dl_setting VAR="roll_pgain" MAX="15000" STEP="100" MIN="5000"/>
-    <dl_setting VAR="course_pgain" MIN="-1." STEP="0.05" MAX="-0.1"/>
+    <dl_setting VAR="pitch_pgain" MAX="20000" STEP="100" MIN="10000"/>
+    <dl_setting VAR="course_pgain" MAX="-0.1" STEP="0.05" MIN="-1"/>
   </dl_settings>
   <waypoints>
-    <waypoint name="HOME" x="94.9434219762" y="-107.156517486" alt="250."/>
-    <waypoint name="TX_W" x="-423.602508952" y="146.01665498" alt="250."/>
-    <waypoint name="TX_E" x="30.9328902388" y="-76.0521636186" alt="250."/>
-    <waypoint name="NW" x="-407.280953556" y="172.480783324" alt="250."/>
+    <waypoint name="HOME" x="-271.330646709" y="43.9746582191" alt="250."/>
+    <waypoint name="TX_W" x="-547.990853153" y="186.049398384" alt="250."/>
+    <waypoint name="TX_E" x="-99.807450281" y="-37.0290245749" alt="250."/>
+    <waypoint name="NW" x="-525.280122141" y="218.618616053" alt="250."/>
   </waypoints>
   <blocks>
     <block NAME="init">

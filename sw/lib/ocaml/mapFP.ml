@@ -114,9 +114,9 @@ let georef_of_xml = fun xml ->
   {posn_lat = (Deg>>Rad)lat0; posn_long = (Deg>>Rad)lon0 }
 
  
-class flight_plan = fun geomap color fp_dtd xml ->
+class flight_plan = fun ?edit geomap color fp_dtd xml ->
   (** Xml Editor *)
-  let xml_tree_view, xml_window = XmlEdit.create (Dtd.parse_file fp_dtd) xml in
+  let xml_tree_view, xml_window = XmlEdit.create ?edit (Dtd.parse_file fp_dtd) xml in
   let xml_root = XmlEdit.root xml_tree_view in
   let xml_wpts = XmlEdit.child xml_root "waypoints" in
 
@@ -137,18 +137,37 @@ class flight_plan = fun geomap color fp_dtd xml ->
       incr i;
       w in
 
-  let max_dist_from_home = float_attr xml "MAX_DIST_FROM_HOME" in
-
   let _ = List.iter
       (fun wp ->
 	let w = create_wp wp in
 	let name = XmlEdit.attrib wp "name" in
-	if name = "HOME" then
-	  ignore (geomap#circle ~color w#pos max_dist_from_home)) 
+	if name = "HOME" then begin
+	  let c = ref (GnoCanvas.ellipse geomap#canvas#root) in
+	  let update = fun _ ->
+	    try
+	      let max_dist_from_home = float_of_string (XmlEdit.attrib xml_root "MAX_DIST_FROM_HOME") in
+	      !c#destroy ();
+	      c :=  geomap#circle ~width:5 ~color w#pos max_dist_from_home
+	    with _ -> () in
+	  update ();
+	  w#connect update;
+	  XmlEdit.connect wp update;
+	  XmlEdit.connect xml_root update
+	end)
       (XmlEdit.children xml_wpts) in
+
+  let _ =
+    XmlEdit.expand_node xml_tree_view xml_root;
+    let blocks = XmlEdit.child xml_root "blocks" in
+    XmlEdit.expand_node xml_tree_view blocks;
+    List.iter
+      (fun b -> 
+	XmlEdit.expand_node ~all:true xml_tree_view b
+      )
+      (XmlEdit.children blocks) in
+  
   
   object
-    val mutable max_dist_from_home = max_dist_from_home
     method georef = ref_wgs84
     method window = xml_window
     method destroy () = 
@@ -159,6 +178,13 @@ class flight_plan = fun geomap color fp_dtd xml ->
     method index wp = Hashtbl.find yaws (XmlEdit.attrib wp "name")
     method waypoints = XmlEdit.children (waypoints_node xml_tree_view)
     method xml = XmlEdit.xml_of_view xml_tree_view
+    method highlight_block = fun x ->
+      let blocks = XmlEdit.child xml_root "blocks" in
+      List.iter
+	(fun b ->
+	  XmlEdit.set_background ~all:true b (if XmlEdit.attrib b "name" = x then "green" else "white"))
+	(XmlEdit.children blocks)
+	  
     method add_waypoint (geo:geographic) =
       let wpt_names = List.map (fun n -> XmlEdit.attrib n "name") (XmlEdit.children xml_wpts) in
       let name = new_gensym "wp" wpt_names in

@@ -26,12 +26,12 @@
 
 (** [flight_plan geomap color dtd_tile xml] *)
 class flight_plan :
+  ?edit:bool ->
   MapCanvas.widget ->
   string ->
   string ->
   Xml.xml ->
   object
-    val mutable max_dist_from_home : float
     method add_waypoint : Latlong.geographic -> MapWaypoints.waypoint
     method destroy : unit -> unit
     method georef : Latlong.geographic
@@ -42,6 +42,7 @@ class flight_plan :
     method waypoints : XmlEdit.node list
     method xml : Xml.xml
     method insert_path : (MapWaypoints.waypoint * float) list -> unit
+    method highlight_block : string -> unit
   end
 
 (** Extracts [lat0] and [Lon0] attributes *)

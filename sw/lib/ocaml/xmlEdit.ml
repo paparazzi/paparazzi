@@ -24,6 +24,8 @@
  *
  *)
 
+let default_background = "white"
+
 type gtkTreeViewDropPosition =
     GTK_TREE_VIEW_DROP_BEFORE
   | GTK_TREE_VIEW_DROP_AFTER
@@ -75,13 +77,16 @@ let editable_renderer = fun (model:GTree.tree_store) column ->
       ) in
   r
 
-let attribs_view = fun model window ->
-  let view = GTree.view ~model ~packing:window#add () in
+let attribs_view = fun model ->
+  let view = GTree.view ~model () in
+  view#set_rules_hint true;
   let r = editable_renderer model attribute in
   let col = GTree.view_column ~title:"Attribute" ()
       ~renderer:(r, ["text",attribute]) in
   
   ignore (view#append_column col);
+  col#set_max_width 100;
+
   let r = editable_renderer model value in
   let col = GTree.view_column ~title:"Value" () ~renderer:(r, ["text",value]) in
   ignore (view#append_column col);
@@ -93,12 +98,14 @@ let cols = new GTree.column_list
 let tag_col = cols#add Gobject.Data.string
 let attributes = cols#add Gobject.Data.caml
 let event = cols#add Gobject.Data.caml
+let background = cols#add Gobject.Data.string
 
 let string_of_attribs = fun attribs ->
   List.fold_right (fun (a,v) r -> sprintf " %s=\"%s\"%s" a v r) attribs ""
 
 let set_xml = fun (store:GTree.tree_store) row xml ->
   store#set ~row ~column:tag_col (Xml.tag xml);
+  store#set ~row ~column:background default_background;
   store#set ~row ~column:attributes (Xml.attribs xml);
   store#set ~row ~column:event (fun _ -> ())
 
@@ -119,20 +126,25 @@ let tree_model_of_xml = fun xml ->
 
 let attrib_cell_data_func = fun renderer (model:GTree.model) iter ->
   let value = model#get ~row:iter ~column:attributes in
-  renderer#set_properties [`TEXT (string_of_attribs value)]
+  let bg = model#get ~row:iter ~column:background in
+  renderer#set_properties [`TEXT (string_of_attribs value); `CELL_BACKGROUND bg]
+
+let set_bg_color = fun renderer (model:GTree.model) iter ->
+  let bg = model#get ~row:iter ~column:background in
+  renderer#set_properties [`CELL_BACKGROUND bg]
 
 let tree_view = fun (model:GTree.tree_store) window ->
   let view = GTree.view ~model ~reorderable:true ~packing:window#add () in
   let r = GTree.cell_renderer_text [] in
   let col = GTree.view_column ~title:"Tag" () ~renderer:(r, ["text",tag_col]) in
+  col#set_cell_data_func r (set_bg_color r);
   let _ = r#connect#edited ~callback:
       (fun path s ->
 	model#set ~row:(model#get_iter path) ~column:tag_col s
       ) in
   ignore (view#append_column col);
   let r = GTree.cell_renderer_text [] in
-  let col = GTree.view_column ~title:"Attributes" ()
-      ~renderer:(r, []) in
+  let col = GTree.view_column ~title:"Attributes" () ~renderer:(r, []) in
   col#set_cell_data_func r (attrib_cell_data_func r);
   col#set_max_width 300;
   ignore (view#append_column col);
@@ -233,6 +245,8 @@ let add_one_menu = fun dtd (tree_view:GTree.view) (model:GTree.tree_store) ->
 	menu#popup ~button:1 ~time:(GtkMain.Main.get_current_event_time ())
    | _ -> ()
 
+  
+
 
 let add_context_menu = fun model view ?noselection_menu menu ->
   view#event#connect#button_press ~callback:
@@ -249,6 +263,18 @@ let add_context_menu = fun model view ?noselection_menu menu ->
 	| _ -> false
       else
 	false)
+
+let add_delete_key = fun model (view:GTree.view) ->
+  view#event#connect#key_press (fun ev ->
+    if GdkEvent.Key.keyval ev = GdkKeysyms._Delete then
+      match view#selection#get_selected_rows with
+	path::_ ->
+	  let row = model#get_iter path in
+	  model#remove row;
+	  true
+      | _ -> false
+    else false)
+
 
 let root = fun ((model:GTree.tree_store), _) ->
   match model#get_iter_first with
@@ -351,6 +377,18 @@ let connect = fun ((model, path):node) cb ->
   let current_cb = try model#get ~row ~column:event with _ -> fun _ -> () in
   model#set ~row ~column:event (fun e -> cb e; current_cb e)
 
+
+let expand_node = fun ?all (_, (tree_view:GTree.view)) ((model, path):node) ->
+  tree_view#expand_row ?all path
+
+let rec set_background = fun ?(all=false) ((model, path):node) color ->
+  let row = model#get_iter path in
+  model#set ~row ~column:background color;
+  if all then
+    List.iter (fun x -> set_background ~all x color) (children (model,path))
+      
+  
+
 let tree_menu_popup = fun dtd (model:GTree.tree_store) (row:Gtk.tree_iter) ->
   let menu = GMenu.menu () in
   let menuitem = GMenu.menu_item ~label:"Delete" ~packing:menu#append () in
@@ -397,16 +435,26 @@ let tree_menu_popup = fun dtd (model:GTree.tree_store) (row:Gtk.tree_iter) ->
   menu#popup ~button:1 ~time:(GtkMain.Main.get_current_event_time ())
 
 
-  
-let create = fun dtd xml ->
+
+ 
+let create = fun ?(edit=true) dtd xml ->
   let tree_model = tree_model_of_xml xml in
   let attribs_model = model_of_attribs () in
   let window = GWindow.window () in
+  window#set_default_size ~width:700 ~height:250;
   let hbox = GPack.hbox ~packing:window#add () in
-  let tree_view = tree_view tree_model hbox in
+  let sw = GBin.scrolled_window ~width:420 ~hpolicy:`AUTOMATIC
+      ~vpolicy:`AUTOMATIC ~packing:hbox#add () in
+  let tree_view = tree_view tree_model sw in
   tree_view#set_border_width 10;
-  let attribs_view = attribs_view attribs_model hbox in
+
+  let sw = GBin.scrolled_window ~width:150 ~hpolicy:`AUTOMATIC
+      ~vpolicy:`AUTOMATIC () in
+  let attribs_view = attribs_view attribs_model in
   attribs_view#set_border_width 10;
+  sw#add attribs_view#coerce;
+  if edit then
+    hbox#add sw#coerce;
 
   let update_tree = fun _path ->
     match tree_view#selection#get_selected_rows with
@@ -423,19 +471,22 @@ let create = fun dtd xml ->
   let tag_of_last_selection = ref "" in
 
   let selection_changed = fun () ->
-      match tree_view#selection#get_selected_rows with
-	path::_ ->
-	  let row = tree_model#get_iter path in
-	  let attribs = tree_model#get ~row ~column:attributes in
-	  attribs_model#clear ();
-	  tag_of_last_selection := tree_model#get ~row ~column:tag_col;
-	  set_attributes attribs_model attribs
-      | _ -> () in
+    match tree_view#selection#get_selected_rows with
+      path::_ ->
+	let row = tree_model#get_iter path in
+	let attribs = tree_model#get ~row ~column:attributes in
+	attribs_model#clear ();
+	tag_of_last_selection := tree_model#get ~row ~column:tag_col;
+	set_attributes attribs_model attribs
+    | _ -> () in
 
   let _c = tree_view#selection#connect#after#changed ~callback:selection_changed in
 
   let _c = add_context_menu tree_model tree_view (tree_menu_popup dtd) in
   let _c = add_context_menu attribs_model attribs_view ~noselection_menu:(add_one_menu dtd tree_view) (attribs_menu_popup dtd tree_view) in
+
+  ignore (add_delete_key tree_model tree_view);
+  ignore (add_delete_key attribs_model attribs_view);
 
   (* Controlled drag and drop.
      Handling of dropable row cannot be done inside motion handling since
@@ -471,5 +522,4 @@ let create = fun dtd xml ->
     end in
   let _ = tree_view#drag#connect#motion ~callback:motion in
   let _ = tree_view#drag#connect#drop ~callback:drop in
-
   (tree_model, tree_view), window

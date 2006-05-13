@@ -17,7 +17,6 @@
       <message name="CIRCLE"         period="1"/>
       <message name="SEGMENT"        period="1"/>
       <message name="IMU"            period="0.5"/>
-      <message name="DEBUG_ACINFO"   period="1"/>
       <message name="DEBUG_MODEM"    period="5"/>
       <message name="DL_VALUE"       period="1"/>
       <message name="WP_MOVED"       period="0.5"/>

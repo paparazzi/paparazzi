@@ -126,9 +126,9 @@ let load_map = fun (geomap:G.widget) () ->
 
 
 (** Load a mission. Returns the XML window *)
-let load_mission = fun color geomap xml ->
+let load_mission = fun ?edit color geomap xml ->
   set_georef_if_none geomap (MapFP.georef_of_xml xml);
-  new MapFP.flight_plan geomap color fp_dtd xml
+  new MapFP.flight_plan ?edit geomap color fp_dtd xml
 
 
 (** Save the given pixbuf calibrated with NW and SE corners *)
@@ -658,7 +658,8 @@ let button_press = fun (geomap:G.widget) ev ->
       block_label : GMisc.label;
       apmode_label : GMisc.label;
       blocks : (int * string) list;
-      mutable last_ap_mode : string
+      mutable last_ap_mode : string;
+      mutable last_block : string
     }
 
   let live_aircrafts = Hashtbl.create 3
@@ -861,7 +862,8 @@ let button_press = fun (geomap:G.widget) ev ->
 
     let ds_window, ds_adjs = dl_settings ac_id name fp_xml in
 
-    let fp = load_mission color geomap fp_xml in
+    let fp = load_mission ~edit:false color geomap fp_xml in
+    fp#window#show ();
     fp#hide ();
     ignore (reset_wp_menu#connect#activate (reset_waypoints fp));
     Hashtbl.add live_aircrafts ac_id { track = track; color = color; 
@@ -871,7 +873,8 @@ let button_press = fun (geomap:G.widget) ev ->
 				       dl_settings_window = ds_window;
 				       block_label = block_label;
 				       apmode_label = apmode_label;
-				       blocks = blocks; last_ap_mode= ""
+				       blocks = blocks; last_ap_mode= "";
+				       last_block = ""
 				     };
     ignore (Strip.add strip_table ac_id config color)
 
@@ -890,7 +893,7 @@ let button_press = fun (geomap:G.widget) ev ->
 
       
 
-  let one_new_ac = fun (geomap:G.widget) ac ->
+  let one_new_ac = fun (geomap:G.widget) fp_notebook ac ->
     if not (Hashtbl.mem live_aircrafts ac) then begin
       ask_config geomap ac
     end
@@ -966,6 +969,12 @@ let button_press = fun (geomap:G.widget) ev ->
     in
     safe_bind "DL_VALUES" get_dl_value
 
+  let highlight_fp_block = fun ac b ->
+    if b <> ac.last_block then begin
+      ac.last_block <- b;
+      ac.fp_group#highlight_block b
+    end
+
 
   let listen_flight_params = fun () ->
     let get_fp = fun _sender vs ->
@@ -1004,6 +1013,7 @@ let button_press = fun (geomap:G.widget) ev ->
 	let b = List.assoc (Pprz.int_assoc "cur_block" vs) ac.blocks in
 	let b = String.sub b 0 (min 10 (String.length b)) in
 	ac.block_label#set_label b;
+	highlight_fp_block ac b;
 	let set_label = fun l f ->
 	  Strip.set_label ac_strip l (Printf.sprintf "%.1f" (Pprz.float_assoc f vs)) in
 	set_label "->" "target_alt";
@@ -1246,6 +1256,9 @@ let _main =
   (** Separate from A/C menus *)
   ignore (geomap#factory#add_separator ());
 
+  (** Flight plan notebook *)
+  let fp_notebook = GPack.notebook ~tab_border:0 ~packing:vbox#add () in
+
   (** Pack the canvas in the window *)
   vbox#pack ~expand:true geomap#frame#coerce;
 
@@ -1256,7 +1269,7 @@ let _main =
   ignore (Glib.Timeout.add 2000 (fun () -> Live.Ground_Pprz.message_req "map2d" "AIRCRAFTS" [] (fun _sender vs -> Live.aircrafts_msg geomap vs); false));
 
   (** New aircraft message *)
-  Live.safe_bind "NEW_AIRCRAFT" (fun _sender vs -> Live.one_new_ac geomap (Pprz.string_assoc "ac_id" vs));
+  Live.safe_bind "NEW_AIRCRAFT" (fun _sender vs -> Live.one_new_ac geomap fp_notebook (Pprz.string_assoc "ac_id" vs));
 
   (** Listen for all messages on ivy *)
   Live.listen_flight_params ();
