@@ -40,7 +40,7 @@ type attributes = attribute list
 
 type event = Deleted | Modified of attributes | New_child of node
 
-val create : ?edit:bool -> Dtd.dtd -> Xml.xml -> (t * GWindow.window)
+val create : ?edit:bool -> Dtd.dtd -> Xml.xml -> (t * GObj.widget)
 (** [create dtd xml] Opens a display of [xml] with contextual right button
 actions constrained by [dtd]. Returns the corresponding model. *)
 

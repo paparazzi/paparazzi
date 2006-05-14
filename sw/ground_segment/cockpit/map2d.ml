@@ -316,9 +316,12 @@ module Edit = struct
   let load_xml_fp = fun geomap accel_group ?(xml_file=path_fps) xml ->
     set_georef_if_none geomap (MapFP.georef_of_xml xml);
     let fp = new MapFP.flight_plan geomap "red" fp_dtd xml in
-    fp#window#show ();
-    fp#window#add_accel_group accel_group;
-    ignore (fp#window#connect#destroy ~callback:close_fp);
+    let window = GWindow.window () in
+    window#set_default_size ~width:700 ~height:250;
+    window#add fp#window;
+    window#add_accel_group accel_group;
+    window#show();
+    ignore (window#connect#destroy ~callback:close_fp);
     current_fp := Some (fp,xml_file);
     fp
 
@@ -808,7 +811,7 @@ let button_press = fun (geomap:G.widget) ev ->
       fp#waypoints
 
 
-  let create_ac = fun (geomap:G.widget) ac_id config ->
+  let create_ac = fun (geomap:G.widget) fp_notebook ac_id config ->
     let color = Pprz.string_assoc "default_gui_color" config
     and name = Pprz.string_assoc "ac_name" config in
 
@@ -863,7 +866,7 @@ let button_press = fun (geomap:G.widget) ev ->
     let ds_window, ds_adjs = dl_settings ac_id name fp_xml in
 
     let fp = load_mission ~edit:false color geomap fp_xml in
-    fp#window#show ();
+    (fp_notebook:GPack.notebook)#append_page ~tab_label:(GMisc.label ~text:name ())#coerce fp#window#coerce;
     fp#hide ();
     ignore (reset_wp_menu#connect#activate (reset_waypoints fp));
     Hashtbl.add live_aircrafts ac_id { track = track; color = color; 
@@ -885,9 +888,9 @@ let button_press = fun (geomap:G.widget) ev ->
     ignore (Ground_Pprz.message_bind msg safe_cb)
       
 
-  let ask_config = fun geomap ac ->
+  let ask_config = fun geomap fp_notebook ac ->
     let get_config = fun _sender values ->
-      create_ac geomap ac values
+      create_ac geomap fp_notebook ac values
     in
     Ground_Pprz.message_req "map2d" "CONFIG" ["ac_id", Pprz.String ac] get_config
 
@@ -895,7 +898,7 @@ let button_press = fun (geomap:G.widget) ev ->
 
   let one_new_ac = fun (geomap:G.widget) fp_notebook ac ->
     if not (Hashtbl.mem live_aircrafts ac) then begin
-      ask_config geomap ac
+      ask_config geomap fp_notebook ac
     end
 
   let get_wind_msg = fun sender vs ->
@@ -948,10 +951,10 @@ let button_press = fun (geomap:G.widget) ev ->
 
   let list_separator = Str.regexp ","
       
-  let aircrafts_msg = fun (geomap:G.widget) acs ->
+  let aircrafts_msg = fun (geomap:G.widget) fp_notebook acs ->
     let acs = Pprz.string_assoc "ac_list" acs in
     let acs = Str.split list_separator acs in
-    List.iter (one_new_ac geomap) acs
+    List.iter (one_new_ac geomap fp_notebook) acs
 
 
   let listen_dl_value = fun () ->
@@ -1256,17 +1259,17 @@ let _main =
   (** Separate from A/C menus *)
   ignore (geomap#factory#add_separator ());
 
-  (** Flight plan notebook *)
-  let fp_notebook = GPack.notebook ~tab_border:0 ~packing:vbox#add () in
-
   (** Pack the canvas in the window *)
   vbox#pack ~expand:true geomap#frame#coerce;
 
   (** Set the initial soom *)
   geomap#zoom !zoom;
 
+  (** Flight plan notebook *)
+  let fp_notebook = GPack.notebook ~tab_border:0 ~packing:vbox#add () in
+
   (** Periodically probe new A/Cs *)
-  ignore (Glib.Timeout.add 2000 (fun () -> Live.Ground_Pprz.message_req "map2d" "AIRCRAFTS" [] (fun _sender vs -> Live.aircrafts_msg geomap vs); false));
+  ignore (Glib.Timeout.add 2000 (fun () -> Live.Ground_Pprz.message_req "map2d" "AIRCRAFTS" [] (fun _sender vs -> Live.aircrafts_msg geomap fp_notebook vs); false));
 
   (** New aircraft message *)
   Live.safe_bind "NEW_AIRCRAFT" (fun _sender vs -> Live.one_new_ac geomap fp_notebook (Pprz.string_assoc "ac_id" vs));

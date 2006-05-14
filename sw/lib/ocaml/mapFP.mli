@@ -38,7 +38,7 @@ class flight_plan :
     method hide : unit -> unit
     method index : XmlEdit.node -> int * MapWaypoints.waypoint
     method show : unit -> unit
-    method window : GWindow.window
+    method window : GObj.widget
     method waypoints : XmlEdit.node list
     method xml : Xml.xml
     method insert_path : (MapWaypoints.waypoint * float) list -> unit

@@ -90,6 +90,7 @@ let attribs_view = fun model ->
   let r = editable_renderer model value in
   let col = GTree.view_column ~title:"Value" () ~renderer:(r, ["text",value]) in
   ignore (view#append_column col);
+  view#set_headers_visible false;
   view
 
 type event = Deleted | Modified of attributes | New_child of node
@@ -148,6 +149,7 @@ let tree_view = fun (model:GTree.tree_store) window ->
   col#set_cell_data_func r (attrib_cell_data_func r);
   col#set_max_width 300;
   ignore (view#append_column col);
+  view#set_headers_visible false;
   view
 
 (** Returns the list of all the tags appearing in the given DTD element *)
@@ -440,9 +442,7 @@ let tree_menu_popup = fun dtd (model:GTree.tree_store) (row:Gtk.tree_iter) ->
 let create = fun ?(edit=true) dtd xml ->
   let tree_model = tree_model_of_xml xml in
   let attribs_model = model_of_attribs () in
-  let window = GWindow.window () in
-  window#set_default_size ~width:700 ~height:250;
-  let hbox = GPack.hbox ~packing:window#add () in
+  let hbox = GPack.hbox () in
   let sw = GBin.scrolled_window ~width:420 ~hpolicy:`AUTOMATIC
       ~vpolicy:`AUTOMATIC ~packing:hbox#add () in
   let tree_view = tree_view tree_model sw in
@@ -522,4 +522,4 @@ let create = fun ?(edit=true) dtd xml ->
     end in
   let _ = tree_view#drag#connect#motion ~callback:motion in
   let _ = tree_view#drag#connect#drop ~callback:drop in
-  (tree_model, tree_view), window
+  (tree_model, tree_view), hbox#coerce

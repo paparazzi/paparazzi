@@ -156,16 +156,6 @@ class flight_plan = fun ?edit geomap color fp_dtd xml ->
 	end)
       (XmlEdit.children xml_wpts) in
 
-  let _ =
-    XmlEdit.expand_node xml_tree_view xml_root;
-    let blocks = XmlEdit.child xml_root "blocks" in
-    XmlEdit.expand_node xml_tree_view blocks;
-    List.iter
-      (fun b -> 
-	XmlEdit.expand_node ~all:true xml_tree_view b
-      )
-      (XmlEdit.children blocks) in
-  
   
   object
     method georef = ref_wgs84
