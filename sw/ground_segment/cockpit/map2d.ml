@@ -866,7 +866,11 @@ let button_press = fun (geomap:G.widget) ev ->
     let ds_window, ds_adjs = dl_settings ac_id name fp_xml in
 
     let fp = load_mission ~edit:false color geomap fp_xml in
-    (fp_notebook:GPack.notebook)#append_page ~tab_label:(GMisc.label ~text:name ())#coerce fp#window#coerce;
+
+    let eb = GBin.event_box () in
+    let label = GMisc.label ~text:name ~packing:eb#add () in
+    eb#coerce#misc#modify_bg [`NORMAL, `NAME color;`ACTIVE, `NAME color];
+    (fp_notebook:GPack.notebook)#append_page ~tab_label:eb#coerce fp#window#coerce;
     fp#hide ();
     ignore (reset_wp_menu#connect#activate (reset_waypoints fp));
     Hashtbl.add live_aircrafts ac_id { track = track; color = color; 
