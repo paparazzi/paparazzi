@@ -51,6 +51,10 @@ val to_string_fmt : Xml.xml -> string
 names are lowercase *)
 
 val subst_attrib : string -> string -> Xml.xml -> Xml.xml
+(** [subst_attrib attrib_name new_value xml] *)
+
 val subst_child : string -> Xml.xml -> Xml.xml -> Xml.xml
+(** [subst_child child_tag new_child xml] *)
+
 val float_attrib : Xml.xml -> string -> float
 

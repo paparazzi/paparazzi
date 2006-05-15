@@ -168,11 +168,25 @@ class flight_plan = fun ?edit geomap color fp_dtd xml ->
     method index wp = Hashtbl.find yaws (XmlEdit.attrib wp "name")
     method waypoints = XmlEdit.children (waypoints_node xml_tree_view)
     method xml = XmlEdit.xml_of_view xml_tree_view
-    method highlight_block = fun x ->
+    method highlight_stage = fun block_no stage_no ->
+      let block_no = string_of_int block_no in
+      let stage_no = string_of_int stage_no in
       let blocks = XmlEdit.child xml_root "blocks" in
       List.iter
 	(fun b ->
-	  XmlEdit.set_background ~all:true b (if XmlEdit.attrib b "name" = x then "green" else "white"))
+	  if XmlEdit.attrib b "no" = block_no then begin
+	    XmlEdit.set_background ~all:true b "#00c000";
+	    let rec f = fun s ->
+	      try
+		if XmlEdit.attrib s "no" = stage_no then
+		  XmlEdit.set_background s "green"
+		else
+		  List.iter f (XmlEdit.children s)
+	      with
+		Not_found -> () in
+	    List.iter f (XmlEdit.children b)
+	  end else
+	    XmlEdit.set_background ~all:true b "white")
 	(XmlEdit.children blocks)
 	  
     method add_waypoint (geo:geographic) =

@@ -482,11 +482,13 @@ let create = fun ?(edit=true) dtd xml ->
 
   let _c = tree_view#selection#connect#after#changed ~callback:selection_changed in
 
-  let _c = add_context_menu tree_model tree_view (tree_menu_popup dtd) in
-  let _c = add_context_menu attribs_model attribs_view ~noselection_menu:(add_one_menu dtd tree_view) (attribs_menu_popup dtd tree_view) in
-
-  ignore (add_delete_key tree_model tree_view);
-  ignore (add_delete_key attribs_model attribs_view);
+  if edit then begin
+    let _c = add_context_menu tree_model tree_view (tree_menu_popup dtd) in
+    let _c = add_context_menu attribs_model attribs_view ~noselection_menu:(add_one_menu dtd tree_view) (attribs_menu_popup dtd tree_view) in
+    
+    ignore (add_delete_key tree_model tree_view);
+    ignore (add_delete_key attribs_model attribs_view)
+  end;
 
   (* Controlled drag and drop.
      Handling of dropable row cannot be done inside motion handling since

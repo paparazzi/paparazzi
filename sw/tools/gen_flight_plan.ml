@@ -28,6 +28,7 @@ open Printf
 open Latlong
 
 let sof = string_of_float
+let soi = string_of_int
 
 let check_expressions = ref true
 
@@ -99,9 +100,7 @@ let print_waypoint = fun rel_utm_of_wgs84 default_alt waypoint ->
   printf " {%.1f, %.1f, %s},\\\n" x y alt
 
 
-let blocks = Hashtbl.create 11
 let index_of_blocks = ref []
-let stages = Hashtbl.create 11
 
 let get_index_block = fun x ->
   try
@@ -217,19 +216,21 @@ let output_hmode x wp last_wp =
 
 
 	
-let rec compile_stage = fun block x ->
-  incr stage;
-  Hashtbl.add stages x (block, !stage);
+let rec index_stage = fun x ->
   begin
     match Xml.tag x with
-     "while" ->
-       List.iter (compile_stage block) (Xml.children x);
-       incr stage (* To count the loop stage *)
-    | "for" ->
-       List.iter (compile_stage block) (Xml.children x);
-       incr stage (* To count the loop stage *)
+     "while" | "for" ->
+       incr stage;
+       let n = !stage in
+       let l = List.map index_stage (Xml.children x) in
+       incr stage; (* To count the loop stage *)
+       Xml.Element (Xml.tag x, Xml.attribs x@["no", soi n], l)
     | "return_from_excpt" | "goto"  | "deroute" | "exit_block" | "follow"
-    | "heading" | "attitude" | "go" | "stay" | "xyz" | "set" | "circle" -> ()
+    | "heading" | "attitude" | "go" | "stay" | "xyz" | "set" | "circle" ->
+	incr stage;
+	Xml.Element (Xml.tag x, Xml.attribs x@["no", soi !stage], Xml.children x)
+    | "exception" ->
+	x
     | s -> failwith (sprintf "Unknown stage: %s\n" s)
   end
 
@@ -383,25 +384,45 @@ let rec print_stage = fun index_of_waypoints x ->
   end;
   left ()
 
-let compile_block = fun block_num (b:Xml.xml) ->
-  Hashtbl.add blocks b block_num;
-  index_of_blocks := (name_of b, block_num) :: !index_of_blocks;
-  stage := (-1);
-  let stages =
-    List.filter (fun x -> Xml.tag x <> "exception") (Xml.children b) in
 
-  List.iter (compile_stage block_num) stages;
-
-  compile_stage block_num exit_block
-
-let compile_blocks = fun bs ->
-  let block = ref (-1) in
+let indexed_stages = fun blocks ->
+  let lstages = ref [] in
   List.iter
     (fun b ->
-      incr block;
-      compile_block !block b)
-    bs
+      let block_name = name_of b
+      and block_no = ExtXml.attrib b "no" in
+      let rec f = fun stage ->
+	try
+	  let stage_no = Xml.attrib stage "no" in
+	  lstages :=
+	    Xml.Element ("stage", [ "block", block_no;
+				    "block_name", block_name;
+				    "stage", stage_no], [stage]):: !lstages;
+	  if (ExtXml.tag_is stage "for" || ExtXml.tag_is stage "while") then
+	    List.iter f (Xml.children stage)
+	with Xml.No_attribute "no" ->
+	  assert (ExtXml.tag_is stage "exception")
+      in
+      List.iter f (Xml.children b))
+    blocks;
+  !lstages
+    
 
+
+
+let index_blocks = fun xml ->
+  let block = ref (-1) in
+  let indexed_blocks =
+    List.map
+      (fun b ->
+	incr block;
+	index_of_blocks := (name_of b, !block) :: !index_of_blocks;
+	stage := -1;
+	let indexed_stages = List.map index_stage (Xml.children b) in
+	Xml.Element (Xml.tag b, Xml.attribs b@["no", soi !block], indexed_stages))
+      (Xml.children xml) in
+  Xml.Element (Xml.tag xml, Xml.attribs xml, indexed_blocks)
+  
 
 
 let print_block = fun index_of_waypoints (b:Xml.xml) block_num ->
@@ -623,25 +644,14 @@ let _ =
     let xml = Fp_proc.process_includes dir xml in
     let xml = Fp_proc.process_paths xml in
     let xml = Fp_proc.process_relative_waypoints xml in
+    let xml = ExtXml.subst_child "blocks" (index_blocks (ExtXml.child xml "blocks")) xml in
     let waypoints = ExtXml.child xml "waypoints"
     and dl_settings = try Xml.children (ExtXml.child xml "dl_settings") with Not_found -> []
     and blocks = Xml.children (ExtXml.child xml "blocks")
     and global_exceptions = try Xml.children (ExtXml.child xml "exceptions") with _ -> [] in
 
-    compile_blocks blocks;
-
     if !dump then
-      let block_names = List.map (fun (x,y) -> (y, x)) !index_of_blocks in
-      let lstages = ref [] in
-      Hashtbl.iter 
-	(fun xml (b,s) ->
-	  lstages :=
-	    Xml.Element ("stage", [ "block", string_of_int b;
-				    "block_name", List.assoc b block_names;
-				    "stage", string_of_int s], [xml])
-	    :: !lstages)
-	stages;
-      let xml_stages = Xml.Element ("stages", [], !lstages) in
+      let xml_stages = Xml.Element ("stages", [], indexed_stages blocks) in
       let dump_xml = Xml.Element ("dump", [], [xml; xml_stages]) in
       printf "%s\n" (ExtXml.to_string_fmt dump_xml)
     else begin
