@@ -87,7 +87,7 @@ exception NotSendingToThis
 let airborne_device = fun ac_id airframes device ->
   let ac_device = try Some (List.assoc ac_id airframes) with Not_found -> None in
   match ac_device, device with
-    _, Pprz -> Uart
+    None, Pprz -> Uart
   | (Some (WavecardDevice _ as ac_device), Wavecard) |
     (Some (MaxstreamDevice _ as ac_device), Maxstream) ->
       ac_device

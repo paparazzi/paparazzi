@@ -49,7 +49,8 @@ bool_t gps_pos_available;
 uint8_t ubx_id, ubx_class;
 
 #define UBX_MAX_PAYLOAD 255
-uint8_t ubx_msg_buf[UBX_MAX_PAYLOAD];
+
+uint8_t ubx_msg_buf[UBX_MAX_PAYLOAD] __attribute__ ((aligned));
 
 #define RadianOfDeg(d) ((d)/180.*3.1415927)
 

@@ -41,7 +41,7 @@ EXTERN bool_t dl_msg_available;
 /** Flag provided to control calls to ::dl_parse_msg. NOT used in this module*/
 
 #define MSG_SIZE 128
-EXTERN char dl_buffer[MSG_SIZE];
+EXTERN uint8_t dl_buffer[MSG_SIZE]  __attribute__ ((aligned));
 
 void dl_parse_msg(void);
 /** Should be called when chars are available in dl_buffer */

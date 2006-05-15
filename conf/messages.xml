@@ -262,18 +262,19 @@
 
 <class name="datalink">
  <message name="ACINFO" ID="1">
-  <field name="ac_id" type="uint8"/>
+  <field name="course" type="int16" unit="decideg"></field>
   <field name="utm_east"  type="int32" unit="cm"></field>
   <field name="utm_north"  type="int32" unit="cm"></field>
-  <field name="course" type="int16" unit="decideg"></field>
   <field name="alt"    type="int32" unit="cm"></field>
+  <field name="itow"  type="uint32" unit="ms"></field>
   <field name="speed"  type="uint16" unit="cm/s"></field>
   <field name="climb"  type="int16" unit="cm/s"></field>
-  <field name="itow"  type="uint32" unit="ms"></field>
+  <field name="ac_id" type="uint8"/>
  </message>
 
  <message name="MOVE_WP" ID="2">
   <field name="wp_id" type="uint8"/>
+  <field name="pad0" type="uint8"/>
   <field name="utm_east"  type="int32" unit="cm"></field>
   <field name="utm_north"  type="int32" unit="cm"></field>
   <field name="alt"    type="int32" unit="cm"></field>
@@ -285,6 +286,7 @@
 
  <message name="SETTING" ID="4">
   <field name="index" type="uint8"/>
+  <field name="pad0" type="uint8"/>
   <field name="value" type="float"/>
  </message>
 
@@ -304,8 +306,8 @@
  </message>
 
  <message name="SET_ACTUATOR" id="100">
-   <field name="no" type="uint8"/>
    <field name="value" type="uint16"/>
+   <field name="no" type="uint8"/>
  </message>
 </class>
 

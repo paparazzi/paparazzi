@@ -508,6 +508,9 @@ void init_ap( void ) {
   /** Reset the wavecard during the init pause */
   wc_reset();
 #endif
+#if defined GPS && defined GPS_CONFIGURE
+  gps_configure();
+#endif
 
   /************ Internal status ***************/
   estimator_init();
@@ -539,9 +542,11 @@ void init_ap( void ) {
 /*********** EVENT ***********************************************************/
 void event_task_ap( void ) {
 #ifdef GPS
+#ifndef HITL /** else comes through the datalink */
   if (GpsBuffer()) {
     ReadGpsBuffer();
   }
+#endif
   if (gps_msg_received) {
     /* parse and use GPS messages */
     parse_gps_msg();
@@ -553,7 +558,18 @@ void event_task_ap( void ) {
   }
 #endif /** GPS */
 
-#ifdef WAVECARD
+#if defined DATALINK 
+
+
+#if DATALINK == PPRZ
+  if (PprzBuffer()) {
+    ReadPprzBuffer();
+    if (pprz_msg_received) {
+      pprz_parse_payload();
+      pprz_msg_received = FALSE;
+    }
+  }
+#elif DATALINK == WAVECARD
   if (WavecardBuffer()) {
     ReadWavecardBuffer();
     if (wc_msg_received) {
@@ -562,24 +578,13 @@ void event_task_ap( void ) {
       wc_msg_received = FALSE;
     }
   }
-#endif /** WAVECARD */
+#endif
 
-#ifdef PPRZ_INPUT
-  if (PprzBuffer()) {
-    ReadPprzBuffer();
-    if (pprz_msg_received) {
-      pprz_msg_received = FALSE;
-      pprz_parse_payload();
-    }
-  }
-#endif /** PPRZ_INPUT */
-
-#ifdef DATALINK
   if (dl_msg_available) {
     dl_parse_msg();
     dl_msg_available = FALSE;
   }
-#endif
+#endif /** DATALINK */
 
 #ifdef TELEMETER
   /** Handling of data sent by the device (initiated by srf08_receive() */

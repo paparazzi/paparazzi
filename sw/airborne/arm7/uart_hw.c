@@ -29,7 +29,7 @@ static void uart0_init_param( uint16_t baud, uint8_t mode, uint8_t fmode);
 
 void uart0_init_tx( void ) {
   /**  uart0_init_param(UART_BAUD(38400), UART_8N1, UART_FIFO_8); **/
-  uart0_init_param(UART_BAUD(9600), UART_8N1, UART_FIFO_8);
+  uart0_init_param(UART0_BAUD, UART_8N1, UART_FIFO_8);
 }
 
 void uart0_init_rx( void ) {}
@@ -224,7 +224,7 @@ uint8_t  uart1_tx_running;
 static void uart1_init_param( uint16_t baud, uint8_t mode, uint8_t fmode);
 
 void uart1_init_tx( void ) {
-  uart1_init_param(UART_BAUD(38400), UART_8N1, UART_FIFO_8);
+  uart1_init_param(UART1_BAUD, UART_8N1, UART_FIFO_8);
 }
 
 void uart1_init_rx( void ) {}

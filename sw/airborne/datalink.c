@@ -28,6 +28,7 @@
 #define DATALINK_C
 
 #include <inttypes.h>
+#include <string.h>
 #include "traffic_info.h"
 #include "nav.h"
 #include "datalink.h"
@@ -78,6 +79,7 @@ void dl_parse_msg(void) {
   /** Infrared and GPS sensors are replaced by messages on the datalink */
   else if (msg_id == DL_HITL_INFRARED) {
     /** This code simulates infrared.c:ir_update() */
+    DOWNLINK_SEND_DEBUG1(10, dl_buffer);
     ir_roll = DL_HITL_INFRARED_roll(dl_buffer);
     ir_pitch = DL_HITL_INFRARED_pitch(dl_buffer);
   } else if (msg_id == DL_HITL_UBX) {
@@ -99,7 +101,10 @@ void dl_parse_msg(void) {
 #endif
 #ifdef DlSetting
   else if (msg_id == DL_SETTING) {
-    DlSetting(DL_SETTING_index(dl_buffer), DL_SETTING_value(dl_buffer));
+    uint8_t i = DL_SETTING_index(dl_buffer);
+    float var = DL_SETTING_value(dl_buffer);
+    DlSetting(i, var);
+    DOWNLINK_SEND_DL_VALUE(&i, &var);
   }
 #endif /** Else there is no dl_settings section in the flight plan */
 }

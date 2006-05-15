@@ -74,6 +74,7 @@ external int8_of_bytes : string -> int -> int = "c_int8_of_indexed_bytes"
 external int16_of_bytes : string -> int -> int = "c_int16_of_indexed_bytes"
 external sprint_float : string -> int -> float -> unit = "c_sprint_float"
 external sprint_int32 : string -> int -> int32 -> unit = "c_sprint_int32"
+external sprint_int16 : string -> int -> int -> unit = "c_sprint_int16"
 
 let types = [
   ("uint8",  { format = "%u"; glib_type = "guint8"; inttype = "uint8_t";  size = 1; value=Int 42 });
@@ -237,6 +238,7 @@ let rec sprint_value = fun buf i _type v ->
     Scalar ("int8"|"uint8"), Int x -> buf.[i] <- Char.chr x; sizeof _type
   | Scalar "float", Float f -> sprint_float buf i f; sizeof _type
   | Scalar "int32", Int32 x -> sprint_int32 buf i x; sizeof _type
+  | Scalar "int16", Int x -> sprint_int16 buf i x; sizeof _type
   | Scalar ("int32" | "uint32"), Int value ->
       assert (_type <> Scalar "uint32" || value >= 0);
       buf.[i+3] <- byte (value asr 24);

@@ -131,7 +131,7 @@ ap.srcs += $(SRC_ARCH)/modem_hw.c
 ap.CFLAGS += -DRADIO_CONTROL_CALIB
 ap.srcs += if_calib.c
 
-ap.CFLAGS += -DDATALINK
+ap.CFLAGS += -DDATALINK=WAVECARD
 ap.srcs += traffic_info.c datalink.c
 ap.CFLAGS += -DWAVECARD -DWAVECARD_UART=Uart0 -DUSE_UART0
 ap.srcs += wavecard.c

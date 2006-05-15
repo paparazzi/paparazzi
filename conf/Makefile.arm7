@@ -120,8 +120,8 @@ ADEFS =  -D$(RUN_MODE)
 #CFLAGS =  -g0
 CFLAGS = $(CDEFS) $(CINCS)
 CFLAGS += -O$(OPT)
-CFLAGS += -Wall -Wcast-qual -Wimplicit 
-# -Wcast-align # Incompatible with GPS message parsing
+# CFLAGS += -malignment-traps
+CFLAGS += -Wall -Wcast-qual -Wimplicit -Wcast-align
 CFLAGS += -Wpointer-arith -Wswitch
 CFLAGS += -Wredundant-decls -Wreturn-type -Wshadow -Wunused
 CFLAGS += -Wa,-adhlns=$(OBJDIR)/$(notdir $(subst $(suffix $<),.lst,$<))
