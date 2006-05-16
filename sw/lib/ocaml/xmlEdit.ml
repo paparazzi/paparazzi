@@ -134,8 +134,8 @@ let set_bg_color = fun renderer (model:GTree.model) iter ->
   let bg = model#get ~row:iter ~column:background in
   renderer#set_properties [`CELL_BACKGROUND bg]
 
-let tree_view = fun (model:GTree.tree_store) window ->
-  let view = GTree.view ~model ~reorderable:true ~packing:window#add () in
+let tree_view = fun ?(edit=true) (model:GTree.tree_store) window ->
+  let view = GTree.view ~model ~reorderable:edit ~packing:window#add () in
   let r = GTree.cell_renderer_text [] in
   let col = GTree.view_column ~title:"Tag" () ~renderer:(r, ["text",tag_col]) in
   col#set_cell_data_func r (set_bg_color r);
@@ -445,7 +445,7 @@ let create = fun ?(edit=true) dtd xml ->
   let hbox = GPack.hbox () in
   let sw = GBin.scrolled_window ~width:420 ~hpolicy:`AUTOMATIC
       ~vpolicy:`AUTOMATIC ~packing:hbox#add () in
-  let tree_view = tree_view tree_model sw in
+  let tree_view = tree_view ~edit tree_model sw in
   tree_view#set_border_width 10;
 
   let sw = GBin.scrolled_window ~width:150 ~hpolicy:`AUTOMATIC
