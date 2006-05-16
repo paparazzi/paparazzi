@@ -1252,14 +1252,16 @@ let _main =
   (** Separate from A/C menus *)
   ignore (geomap#factory#add_separator ());
 
+  let paned = GPack.paned ~show:true `VERTICAL ~packing:(vbox#pack ~expand:true) () in
+
   (** Pack the canvas in the window *)
-  vbox#pack ~expand:true geomap#frame#coerce;
+  paned#pack1 ~shrink:true (*** ~expand:true ***) geomap#frame#coerce;
 
   (** Set the initial soom *)
   geomap#zoom !zoom;
 
   (** Flight plan notebook *)
-  let fp_notebook = GPack.notebook ~tab_border:0 ~packing:vbox#add () in
+  let fp_notebook = GPack.notebook ~tab_border:0 ~packing:(paned#add2) () in
 
   (** Periodically probe new A/Cs *)
   ignore (Glib.Timeout.add 2000 (fun () -> Live.Ground_Pprz.message_req "map2d" "AIRCRAFTS" [] (fun _sender vs -> Live.aircrafts_msg geomap fp_notebook vs); false));
