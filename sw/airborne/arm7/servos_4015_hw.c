@@ -5,6 +5,20 @@
 #include "sys_time.h"
 
 
+uint16_t servos_values[_4015_NB_CHANNELS];
+
+#define PWMMR_SERV0 PWMMR5
+#define PWMMR_SERV1 PWMMR2
+#define PWMLER_LATCH_SERV0 PWMLER_LATCH5
+#define PWMLER_LATCH_SERV1 PWMLER_LATCH2
+#define PWMMCR_MRI_SERV0 PWMMCR_MR5I
+#define PWMMCR_MRI_SERV1 PWMMCR_MR2I
+#define PWMPCR_ENA_SERV0 PWMPCR_ENA5
+#define PWMPCR_ENA_SERV1 PWMPCR_ENA2
+#define PWMIR_MRI_SERV0 PWMIR_MR5I
+#define PWMIR_MRI_SERV1 PWMIR_MR2I
+
+
 void actuators_init ( void ) {
   /* PWM selected as IRQ */
   VICIntSelect &= ~VIC_BIT(VIC_PWM);   
@@ -14,20 +28,19 @@ void actuators_init ( void ) {
   /* address of the ISR */
   VICVectAddr3 = (uint32_t)PWM_ISR;
   /* PW5 pin (P0.21) used for PWM  */
-  IO0DIR |= _BV(SERV0_CLOCK_PIN);
-  IO1DIR |= _BV(SERV0_DATA_PIN) | _BV(SERV0_RESET_PIN);
-  SERV0_CLOCK_PINSEL |= SERV0_CLOCK_PINSEL_VAL << SERV0_CLOCK_PINSEL_BIT;
+  IO0DIR |= _BV(SERV1_CLOCK_PIN);
+  IO1DIR |= _BV(SERV1_DATA_PIN) | _BV(SERV1_RESET_PIN);
+  SERV1_CLOCK_PINSEL |= SERV1_CLOCK_PINSEL_VAL << SERV1_CLOCK_PINSEL_BIT;
 
   /* set match5 to go of a long time from now */
   PWMMR0 = 0XFFFFFF;  
-  //PWMMR0 = CLOCK_OF_US(1500);  
-  PWMMR5 = 0XFFF;  
+  PWMMR_SERV1 = 0XFFF;  
   /* commit above change        */
-  PWMLER = PWMLER_LATCH0 | PWMLER_LATCH5;
+  PWMLER = PWMLER_LATCH0 | PWMLER_LATCH_SERV1;
   /* interrupt on PWMMR5 match  */
-  PWMMCR = PWMMCR_MR0R | PWMMCR_MR5I;
+  PWMMCR = PWMMCR_MR0R | PWMMCR_MRI_SERV1;
   /* enable PWM5 ouptput        */
-  PWMPCR = PWMPCR_ENA5;
+  PWMPCR = PWMPCR_ENA_SERV1;
 
   /* Prescaler */
   PWMPR = PWM_PRESCALER-1;
@@ -42,14 +55,6 @@ void actuators_init ( void ) {
     servos_values[i] = SERVOS_TICS_OF_USEC(1500);
 }
 
-uint16_t servos_values[_4015_NB_CHANNELS];
-
-#define CLOCK_OF_US(us) ((us)*(PCLK/1000000))
-
-#define SERV4_START_POS 1000
-#define SERV5_START_POS 1200
-#define SERV6_START_POS 1400
-#define SERV7_START_POS 1600
 
 
 #define SERVO_REFRESH_TICS SERVOS_TICS_OF_USEC(25000)
@@ -62,28 +67,28 @@ void PWM_ISR ( void ) {
   ISR_ENTRY();
   //  LED_TOGGLE(2);
   if (servos_idx == 0) {
-    IO1CLR = _BV(SERV0_RESET_PIN);
-    IO1SET = _BV(SERV0_DATA_PIN);
+    IO1CLR = _BV(SERV1_RESET_PIN);
+    IO1SET = _BV(SERV1_DATA_PIN);
     PWMMR0 = servos_values[servos_idx];
     servos_delay = SERVO_REFRESH_TICS - servos_values[servos_idx];
     PWMLER = PWMLER_LATCH0;
     servos_idx++;
   }
   else if (servos_idx < _4015_NB_CHANNELS) {
-    IO1CLR = _BV(SERV0_DATA_PIN);
+    IO1CLR = _BV(SERV1_DATA_PIN);
     PWMMR0 = servos_values[servos_idx];
     servos_delay -= servos_values[servos_idx];
     PWMLER = PWMLER_LATCH0;
     servos_idx++;
   }
   else {
-    IO1SET = _BV(SERV0_RESET_PIN);
+    IO1SET = _BV(SERV1_RESET_PIN);
     PWMMR0 = servos_delay;
     PWMLER = PWMLER_LATCH0;
     servos_idx = 0;
   }
   /* clear the interrupt */
-  PWMIR = PWMIR_MR5I;
+  PWMIR = PWMIR_MRI_SERV1;
   VICVectAddr = 0x00000000;
   ISR_EXIT();  
 }
