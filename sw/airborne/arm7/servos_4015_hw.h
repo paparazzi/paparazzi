@@ -9,7 +9,11 @@
 
 #include CONFIG
 
-#define SERVOS_TICS_OF_USEC(s) SYS_TICS_OF_USEC(s)
+#define PWM_PRESCALER 1
+
+#define PWM_TICS_OF_USEC(us)   (uint32_t)((us) *1e-6 * PCLK / PWM_PRESCALER + 0.5)
+
+#define SERVOS_TICS_OF_USEC(s) PWM_TICS_OF_USEC(s)
 #define ChopServo(x,a,b) Chop(x, a, b)
 
 #define _4015_NB_CHANNELS 8

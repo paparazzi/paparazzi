@@ -7,5 +7,10 @@ ap.ARCH = arm7tdmi
 ap.TARGET = autopilot
 ap.TARGETDIR = autopilot
 
+test.ARCHDIR = $(ARCHI)
+test.ARCH = arm7tdmi
+test.TARGET = autopilot
+test.TARGETDIR = autopilot
+
 LPC21ISP_BAUD = 115200
 LPC21ISP_XTAL = 14746

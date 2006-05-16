@@ -203,29 +203,33 @@ void uart0_ISR(void)
  * for both uarts
  *
  */
-#define UART1_TX_INT_MODE 1
-#define UART1_RX_INT_MODE 1
 
-#if defined(UART1_TX_INT_MODE) || defined(UART1_RX_INT_MODE)
+#ifdef USE_UART1
+
 void uart1_ISR(void) __attribute__((naked));
-#endif
 
-#ifdef UART1_RX_INT_MODE
 uint8_t  uart1_rx_buffer[UART1_RX_BUFFER_SIZE];
 uint16_t uart1_rx_insert_idx, uart1_rx_extract_idx;
-#endif
 
-#ifdef UART1_TX_INT_MODE
+
+static void uart1_init_param( uint16_t baud, uint8_t mode, uint8_t fmode);
+
 uint8_t  uart1_tx_buffer[UART1_TX_BUFFER_SIZE];
 uint16_t uart1_tx_insert_idx, uart1_tx_extract_idx;
 uint8_t  uart1_tx_running;
-#endif
-
-static void uart1_init_param( uint16_t baud, uint8_t mode, uint8_t fmode);
 
 void uart1_init_tx( void ) {
   uart1_init_param(UART1_BAUD, UART_8N1, UART_FIFO_8);
 }
+
+bool_t uart1_check_free_space( uint8_t len) {
+  int16_t space;
+  if ((space = (uart1_tx_extract_idx - uart1_tx_insert_idx)) <= 0)
+    space += UART1_TX_BUFFER_SIZE;
+  
+  return (uint16_t)(space - 1) >= len;
+}
+
 
 void uart1_init_rx( void ) {}
 
@@ -247,41 +251,28 @@ static void uart1_init_param( uint16_t baud, uint8_t mode, uint8_t fmode) {
   // user specified operating parameters
   U1LCR = (mode & ~ULCR_DLAB_ENABLE);
   U1FCR = fmode;
-#if defined(UART1_TX_INT_MODE) || defined(UART1_RX_INT_MODE)
+
   // initialize the interrupt vector
   VICIntSelect &= ~VIC_BIT(VIC_UART1);  // UART0 selected as IRQ
   VICIntEnable = VIC_BIT(VIC_UART1);    // UART0 interrupt enabled
   VICVectCntl6 = VIC_ENABLE | VIC_UART1;
   VICVectAddr6 = (uint32_t)uart1_ISR;    // address of the ISR
 
-#ifdef UART1_TX_INT_MODE
   // initialize the transmit data queue
   uart1_tx_extract_idx = 0;
   uart1_tx_insert_idx = 0;
   uart1_tx_running = 0;
-#endif
 
-#ifdef UART1_RX_INT_MODE
   // initialize the receive data queue
   uart1_rx_extract_idx = 0;
   uart1_rx_insert_idx = 0;
 
   // enable receiver interrupts
   U1IER = UIER_ERBFI;
-#endif
-#endif
 }
 
-bool_t uart1_check_free_space( uint8_t len) {
-  int16_t space;
-  if ((space = (uart1_tx_extract_idx - uart1_tx_insert_idx)) <= 0)
-    space += UART1_TX_BUFFER_SIZE;
-  
-  return (uint16_t)(space - 1) >= len;
-}
 
 void uart1_transmit( unsigned char data ) {
-#ifdef UART1_TX_INT_MODE
   uint16_t temp;
   unsigned cpsr;
 
@@ -312,13 +303,6 @@ void uart1_transmit( unsigned char data ) {
   cpsr = disableIRQ();                  // disable global interrupts
   U1IER |= UIER_ETBEI;                  // enable TX interrupts
   restoreIRQ(cpsr);                     // restore global interrupts
-#else
-  while (!(U1LSR & ULSR_THRE))          // wait for TX buffer to empty
-    continue;                           // also either WDOG() or swap()
-
-  U1THR = (uint8_t)ch;
-#endif
-  //  return (uint8_t)ch;
 }
 
 
@@ -339,7 +323,6 @@ void uart1_ISR(void)
         U1LSR;                          // read LSR to clear
         break;
 
-#ifdef UART1_RX_INT_MODE
       case UIIR_CTI_INT:                // Character Timeout Indicator
       case UIIR_RDA_INT:                // Receive Data Available
         do
@@ -356,9 +339,7 @@ void uart1_ISR(void)
         while (U1LSR & ULSR_RDR);
 
         break;
-#endif
 
-#ifdef UART1_TX_INT_MODE
       case UIIR_THRE_INT:               // Transmit Holding Register Empty
         while (U1LSR & ULSR_THRE)
           {
@@ -377,7 +358,6 @@ void uart1_ISR(void)
           }
 
         break;
-#endif // UART1_TX_INT_MODE
 
       case UIIR_MS_INT:                 // MODEM Status
         U1MSR;                          // read MSR to clear
@@ -394,3 +374,5 @@ void uart1_ISR(void)
   VICVectAddr = 0x00000000;             // clear this interrupt from the VIC
   ISR_EXIT();                           // recover registers and return
 }
+
+#endif /* USE_UART1 */

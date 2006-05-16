@@ -246,8 +246,8 @@ let rec sprint_value = fun buf i _type v ->
       buf.[i+1] <- byte (value lsr 8);
       buf.[i+0] <- byte value;
       sizeof _type
-  | Scalar ("int16"|"uint16"), Int value ->
-      assert (_type <> Scalar "uint16" || value >= 0);
+  | Scalar "uint16", Int value ->
+      assert (value >= 0);
       buf.[i+1] <- byte (value lsr 8);
       buf.[i+0] <- byte value;
       sizeof _type

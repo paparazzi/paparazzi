@@ -5,10 +5,6 @@
 #include "sys_time.h"
 
 
-
-#define COMMAND(i) servos_values[i]
-#define SERVOS_TICS_OF_USEC(s) SYS_TICS_OF_USEC(s)
-
 void actuators_init ( void ) {
   /* PWM selected as IRQ */
   VICIntSelect &= ~VIC_BIT(VIC_PWM);   
@@ -32,6 +28,10 @@ void actuators_init ( void ) {
   PWMMCR = PWMMCR_MR0R | PWMMCR_MR5I;
   /* enable PWM5 ouptput        */
   PWMPCR = PWMPCR_ENA5;
+
+  /* Prescaler */
+  PWMPR = PWM_PRESCALER-1;
+
   /* enable PWM timer counter and PWM mode  */
   PWMTCR = PWMTCR_COUNTER_ENABLE | PWMTCR_PWM_ENABLE; 
   /* Load failsafe values              */
@@ -52,12 +52,11 @@ uint16_t servos_values[_4015_NB_CHANNELS];
 #define SERV7_START_POS 1600
 
 
-#define SERVO_REFRESH_US 25000
-uint32_t servos_delay = CLOCK_OF_US(SERVO_REFRESH_US - SERV4_START_POS - SERV5_START_POS - SERV6_START_POS - SERV7_START_POS) / 2; 
-uint8_t servos_idx = 0;
+#define SERVO_REFRESH_TICS SERVOS_TICS_OF_USEC(25000)
 
 
-
+static uint8_t servos_idx = 0;
+static uint32_t servos_delay;
 
 void PWM_ISR ( void ) {
   ISR_ENTRY();
@@ -66,12 +65,14 @@ void PWM_ISR ( void ) {
     IO1CLR = _BV(SERV0_RESET_PIN);
     IO1SET = _BV(SERV0_DATA_PIN);
     PWMMR0 = servos_values[servos_idx];
+    servos_delay = SERVO_REFRESH_TICS - servos_values[servos_idx];
     PWMLER = PWMLER_LATCH0;
     servos_idx++;
   }
   else if (servos_idx < _4015_NB_CHANNELS) {
     IO1CLR = _BV(SERV0_DATA_PIN);
     PWMMR0 = servos_values[servos_idx];
+    servos_delay -= servos_values[servos_idx];
     PWMLER = PWMLER_LATCH0;
     servos_idx++;
   }
