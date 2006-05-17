@@ -546,6 +546,9 @@ void event_task_ap( void ) {
 
 #if defined DATALINK 
 
+  /** These definitions are required to be able to do the tests in #if's */
+#define PPRZ 42
+#define WAVECARD 1729
 
 #if DATALINK == PPRZ
   if (PprzBuffer()) {
