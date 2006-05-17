@@ -43,7 +43,7 @@
 #include "nav.h"
 #include "autopilot.h"
 #include "estimator.h"
-#include "if_calib.h"
+#include "rc_settings.h"
 #include "cam.h"
 #include "traffic_info.h"
 #include "link_mcu.h"
@@ -64,7 +64,8 @@
 #define LOW_BATTERY_DECIVOLT (LOW_BATTERY*10)
 
 
-uint8_t  inflight_calib_mode = IF_CALIB_MODE_NONE;
+/** FIXME: should be in rc_settings but required by telemetry (ap_downlink.h)*/
+uint8_t rc_settings_mode = RC_SETTINGS_MODE_NONE;
 
 
 /** Define minimal speed for takeoff in m/s */
@@ -108,7 +109,7 @@ static inline uint8_t pprz_mode_update( void ) {
   if ((pprz_mode != PPRZ_MODE_HOME &&
        pprz_mode != PPRZ_MODE_GPS_OUT_OF_ORDER)
       || CheckEvent(rc_event_1)) {
-    ModeUpdate(pprz_mode, PPRZ_MODE_OF_PULSE(fbw_state->channels[RADIO_MODE], fbw_state->status));
+    return ModeUpdate(pprz_mode, PPRZ_MODE_OF_PULSE(fbw_state->channels[RADIO_MODE], fbw_state->status));
   } else
     return FALSE;
 }
@@ -118,7 +119,7 @@ static inline uint8_t pprz_mode_update( void ) {
  *  \brief update ir estimation if RADIO_LLS is true \n
  */
 inline uint8_t ir_estim_mode_update( void ) {
-  ModeUpdate(ir_estim_mode, IR_ESTIM_MODE_OF_PULSE(fbw_state->channels[RADIO_LLS]));
+  return ModeUpdate(ir_estim_mode, IR_ESTIM_MODE_OF_PULSE(fbw_state->channels[RADIO_LLS]));
 }
 #endif
 
@@ -133,12 +134,9 @@ static inline uint8_t mcu1_status_update( void ) {
   return FALSE;
 }
 
-/** Delay between @@@@@ A FIXER @@@@@ */
+/** Minimum delay before an event is enabled */
 #define EVENT_DELAY 20
 
-/** \def EventUpdate(_cpt, _cond, _event)
- *  @@@@@ A FIXER @@@@@
- */
 #define EventUpdate(_cpt, _cond, _event) \
   if (_cond) { \
     if (_cpt < EVENT_DELAY) { \
@@ -151,26 +149,14 @@ static inline uint8_t mcu1_status_update( void ) {
   }
 
 
-#if defined RADIO_CALIB && defined RADIO_CONTROL_CALIB
-static inline uint8_t inflight_calib_mode_update ( void ) {
-  ModeUpdate(inflight_calib_mode, IF_CALIB_MODE_OF_PULSE(fbw_state->channels[RADIO_CALIB]));
-}
-#define EventPos(_cpt, _channel, _event) \
- EventUpdate(_cpt, (inflight_calib_mode==IF_CALIB_MODE_NONE && fbw_state->channels[_channel]>(int)(0.75*MAX_PPRZ)), _event)
-
-#define EventNeg(_cpt, _channel, _event) \
- EventUpdate(_cpt, (inflight_calib_mode==IF_CALIB_MODE_NONE && fbw_state->channels[_channel]<(int)(-0.75*MAX_PPRZ)), _event)
-
-#else //  RADIO_CALIB && defined RADIO_CONTROL_CALIB
+#define Event(_cpt, _channel, _event, _cond) \
+ EventUpdate(_cpt, (RcSettingsOff() && fbw_state->channels[_channel] _cond), _event)
 
 #define EventPos(_cpt, _channel, _event) \
- EventUpdate(_cpt, (fbw_state->channels[_channel]>(int)(0.75*MAX_PPRZ)), _event)
+  Event(_cpt, _channel, _event, >(int)(0.75*MAX_PPRZ))
 
 #define EventNeg(_cpt, _channel, _event) \
- EventUpdate(_cpt, (fbw_state->channels[_channel]<(int)(-0.75*MAX_PPRZ)), _event)
-
-#endif //  RADIO_CALIB && defined RADIO_CONTROL_CALIB
-
+ Event(_cpt, _channel, _event, <(int)(-0.75*MAX_PPRZ))
 
 
 
@@ -235,9 +221,9 @@ inline void telecommand_task( void ) {
 #ifdef RADIO_LLS
     mode_changed |= ir_estim_mode_update();
 #endif
-#if defined RADIO_CALIB && defined RADIO_CONTROL_CALIB
-    bool_t calib_mode_changed = inflight_calib_mode_update();
-    inflight_calib(calib_mode_changed || pprz_mode_changed);
+#if defined RADIO_CALIB && defined RADIO_CONTROL_SETTINGS
+    bool_t calib_mode_changed = RcSettingsModeUpdate(fbw_state->channels);
+    rc_settings(calib_mode_changed || pprz_mode_changed);
     mode_changed |= calib_mode_changed;
 #endif
   }

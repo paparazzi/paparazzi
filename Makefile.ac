@@ -80,7 +80,7 @@ $(FLIGHT_PLAN_XML) : $(CONF)/$(FLIGHT_PLAN) $(CONF_XML)
 	$(Q)$(TOOLS)/gen_flight_plan.out -dump $< > /tmp/fp.xml
 	$(Q)mv /tmp/fp.xml $@
 
-$(INFLIGHT_CALIB_H) : $(CONF)/$(FLIGHT_PLAN) $(CONF_XML)
+$(INFLIGHT_CALIB_H) : $(CONF)/$(FLIGHT_PLAN) $(CONF_XML) $(TOOLS)/gen_calib.out
 	@echo BUILD $@
 	$(Q)$(TOOLS)/gen_calib.out $< > /tmp/c.h
 	$(Q)mv /tmp/c.h $@

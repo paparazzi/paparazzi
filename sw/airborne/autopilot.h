@@ -98,12 +98,12 @@ extern float slider_1_val, slider_2_val;
 
 extern bool_t launch;
 
-
-#define ModeUpdate(_mode, _value) { \
+/** Assignment, returning _old_value != _value
+ * Using GCC expression statements */
+#define ModeUpdate(_mode, _value) ({ \
   uint8_t new_mode = _value; \
-  if (_mode != new_mode) { _mode = new_mode; return TRUE; } \
-  return FALSE; \
-}
+  (_mode != new_mode ? _mode = new_mode, TRUE : FALSE); \
+})
 
 #define CheckEvent(_event) (_event ? _event = FALSE, TRUE : FALSE)
 

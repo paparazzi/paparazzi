@@ -128,8 +128,8 @@ ap.srcs += pprz_transport.c downlink.c
 ap.CFLAGS += -DMODEM  -DDOWNLINK_AP_DEVICE=Modem
 ap.srcs += $(SRC_ARCH)/modem_hw.c 
 
-ap.CFLAGS += -DRADIO_CONTROL_CALIB
-ap.srcs += if_calib.c
+ap.CFLAGS += -DRADIO_CONTROL_SETTINGS
+ap.srcs += rc_settings.c
 
 ap.CFLAGS += -DDATALINK=WAVECARD
 ap.srcs += traffic_info.c datalink.c

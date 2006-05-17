@@ -116,7 +116,7 @@ ap.CFLAGS += -DMODEM  -DDOWNLINK_AP_DEVICE=Modem
 ap.srcs += $(SRC_ARCH)/modem_hw.c 
 
 ap.CFLAGS += -DRADIO_CONTROL_CALIB
-ap.srcs += if_calib.c
+ap.srcs += rc_settings.c
 
 # Config for SITL simulation
 include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile

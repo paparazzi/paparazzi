@@ -25,12 +25,13 @@
 
 
 #include <inttypes.h>
+#include "rc_settings.h"
 #include "radio.h"
 #include "autopilot.h"
-#include "if_calib.h"
 #include "infrared.h"
 #include "pid.h"
 #include "nav.h"
+#include "estimator.h"
 
 
 #define ParamValInt16(param_init_val, param_travel, cur_pulse, init_pulse) \
@@ -38,10 +39,6 @@
 
 #define ParamValFloat(param_init_val, param_travel, cur_pulse, init_pulse) \
 (param_init_val + ((float)(cur_pulse - init_pulse)) * param_travel / (float)MAX_PPRZ)
-
-
-
-#include "estimator.h"
 
 #define RcChannel(x) (fbw_state->channels[x])
 

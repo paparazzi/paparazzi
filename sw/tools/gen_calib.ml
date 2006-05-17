@@ -3,7 +3,7 @@
  *
  * XML preprocessing for in flight calibration
  *  
- * Copyright (C) 2003 Pascal Brisset, Antoine Drouin
+ * Copyright (C) 2003-2006 Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
  *
@@ -60,7 +60,7 @@ let parse_setting = fun xml ->
   let param_macro = param_macro_of_type t in
   let var_init = var ^ "_init" in
 
-  lprintf "if (inflight_calib_mode == IF_CALIB_MODE_%s) {\n" (String.uppercase cm);
+  lprintf "if (rc_settings_mode == RC_SETTINGS_MODE_%s) {\n" (String.uppercase cm);
   right ();
   lprintf "static %s %s;\n" (inttype t) var_init;
   lprintf "static int16_t slider%d_init;\n" cursor;
@@ -93,7 +93,7 @@ let _ =
     let xml = start_and_begin xml_file h_name in
 
     let rc_control = try ExtXml.child xml "rc_control" with Not_found -> failwith (sprintf "Error: 'rc_control' child expected in %s" (Xml.to_string xml)) in
-    lprintf "void inflight_calib(bool_t mode_changed) {\n";
+    lprintf "void rc_settings(bool_t mode_changed) {\n";
     right ();
     parse_modes rc_control;
     left (); lprintf "}\n";
