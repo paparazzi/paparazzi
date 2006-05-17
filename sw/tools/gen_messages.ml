@@ -126,6 +126,9 @@ module Syntax = struct
       Not_found -> failwith (sprintf "No class '%s' found" class_)
 end
 
+
+let check_alignment = ref true
+
 module Gen_onboard = struct
   open Printf
   open Syntax
@@ -208,7 +211,9 @@ module Gen_onboard = struct
     let parse_field = fun (_type, field_name, _format) ->
       if !offset < 0 then
 	failwith "FIXME: No field allowed after an array field (print_gen_macro)x";
-      let typed = fun o t -> 
+      let typed = fun o t ->
+	if !check_alignment && o mod (assoc_types t).Pprz.size <> 0 then
+	  failwith (sprintf "Wrong alignment of field '%s' in message '%s" field_name msg_name);
 	sprintf "(%s*)(_payload+%d)" (assoc_types t).Pprz.inttype o in
       match _type with 
 	Basic t ->
@@ -243,8 +248,10 @@ let _ =
   Printf.fprintf avr_h "/* Macros to send and receive messages of class %s */\n" class_name;
 
   (** Macros for airborne downlink (sending) *)
-  if class_name = "telemetry" then (** FIXME *)
+  if class_name = "telemetry" then begin (** FIXME *)
     Printf.fprintf avr_h "#ifdef DOWNLINK\n";
+    check_alignment := false
+  end;
   Gen_onboard.print_avr_macros filename avr_h class_name messages;
   if class_name = "telemetry" then begin
     Printf.fprintf avr_h "#else // DOWNLINK\n";
