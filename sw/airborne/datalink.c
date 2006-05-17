@@ -74,7 +74,9 @@ void dl_parse_msg(void) {
     }
   } else if (msg_id == DL_BLOCK) {
     nav_goto_block(DL_BLOCK_block_id(dl_buffer));
-  }
+  } else if (msg_id == DL_TELEMETRY_MODE) {
+    telemetry_mode_Ap = DL_TELEMETRY_MODE_mode(dl_buffer);
+  } 
 #ifdef HITL
   /** Infrared and GPS sensors are replaced by messages on the datalink */
   else if (msg_id == DL_HITL_INFRARED) {

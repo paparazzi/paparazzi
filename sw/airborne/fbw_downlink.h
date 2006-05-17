@@ -36,7 +36,6 @@
 #include "inter_mcu.h"
 
 #define DOWNLINK_DEVICE DOWNLINK_FBW_DEVICE
-extern uint8_t telemetry_mode_Fbw;
 #include "downlink.h"
 
 #define PERIODIC_SEND_PPM() DOWNLINK_SEND_PPM(PPM_NB_PULSES, ppm_pulses)

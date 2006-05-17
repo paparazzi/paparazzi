@@ -30,7 +30,6 @@
 #include "airframe.h"
 
 #define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
-extern uint8_t telemetry_mode_Ap;
 #include "downlink.h"
 
 #include "messages.h"

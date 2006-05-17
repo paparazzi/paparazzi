@@ -34,6 +34,14 @@
 #include "modem.h"
 #endif
 
+#ifdef AP
+extern uint8_t telemetry_mode_Ap;
+#endif
+
+#ifdef FBW
+extern uint8_t telemetry_mode_Fbw;
+#endif
+
 extern uint8_t downlink_nb_ovrn;
 
 #define __Transport(dev, _x) dev##_x

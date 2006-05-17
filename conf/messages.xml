@@ -305,6 +305,10 @@
    <field name="pitch" type="int16"/>
  </message>
 
+ <message name="TELEMETRY_MODE" id="8">
+   <field name="mode" type="uint8"/>
+ </message>
+
  <message name="SET_ACTUATOR" id="100">
    <field name="value" type="uint16"/>
    <field name="no" type="uint8"/>
