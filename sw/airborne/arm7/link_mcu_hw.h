@@ -34,9 +34,9 @@
 #define CrcHigh(x) ((x)>>8)
 
 static inline uint16_t CrcUpdate(uint16_t crc, uint8_t data) {
-  uint8_t a = CrcHigh(crc) + data; 
-  uint8_t b = CrcLow(crc) + a;
-  crc = b | a >> 8; 
+  uint8_t a = ((uint8_t)CrcHigh(crc)) + data; 
+  uint8_t b = ((uint8_t)CrcLow(crc)) + a;
+  crc = b | a << 8; 
   return crc;
 }
 
