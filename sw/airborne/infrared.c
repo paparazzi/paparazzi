@@ -92,7 +92,7 @@ void ir_update(void) {
   ir_roll = IR_RollOfIrs(x1_mean, x2_mean);
   ir_pitch = IR_PitchOfIrs(x1_mean, x2_mean);
 #ifdef ADC_CHANNEL_IR_TOP
-  ir_top =  buf_ir_top.sum/buf_ir_top.av_nb_sample;
+  ir_top =  buf_ir_top.sum/buf_ir_top.av_nb_sample - IR_ADC_TOP_NEUTRAL;
 #endif
 
   /** neutrals are not taken into account in SITL and HITL */

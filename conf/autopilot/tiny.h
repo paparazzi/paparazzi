@@ -5,7 +5,7 @@
 #include "LPC21xx.h"
 
 /* Master oscillator freq.       */
-#define FOSC (1200000) 
+#define FOSC (12000000) 
 
 /* PLL multiplier                */
 #define PLL_MUL (5)         

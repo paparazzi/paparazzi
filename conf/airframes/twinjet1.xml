@@ -55,6 +55,7 @@
     <define name="RAD_OF_IR_MIN_VALUE" value="0.00075"/>
     <define name="ADC_ROLL_NEUTRAL" value="-512"/>
     <define name="ADC_PITCH_NEUTRAL" value="-512"/>
+    <define name="ADC_TOP_NEUTRAL" value="512"/>
   </section>
  
   <section name="PID">
@@ -147,7 +148,7 @@ ap.srcs += inter_mcu.c link_mcu.c spi.c $(SRC_ARCH)/spi_hw.c
 ap.CFLAGS += -DGPS -DUBX -DUSE_UART1 -DGPS_LINK=Uart1 -DUART1_BAUD=B38400
 ap.srcs += gps_ubx.c gps.c
 
-ap.CFLAGS += -DADC -DUSE_AD0_1 -DUSE_AD0_2 -DUSE_AD0_3
+ap.CFLAGS += -DADC -DUSE_AD0 -DUSE_AD0_1 -DUSE_AD0_2 -DUSE_AD0_3
 ap.srcs += $(SRC_ARCH)/adc_hw.c
 
 ap.CFLAGS += -DINFRARED 
