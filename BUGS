@@ -1,7 +1,8 @@
-paparazzi.pl
-CpGui et CpSeesionManager n'ont pas les meme variables !!!
-
-
+twinjet1
+ plus de commandes en auto1
+ manuel ok - les gouvernes bougent quand on passe la main en auto1
+ reboot de ap seul retabli la situation???
+apres ca je peux reproduire le bug etrange de lundi en mettant les aileroins en buté
 
 
 receive

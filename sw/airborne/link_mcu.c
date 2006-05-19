@@ -34,7 +34,7 @@ bool_t link_mcu_received;
 static uint16_t crc = 0;
 
 #define PAYLOAD_LENGTH sizeof(link_mcu_from_fbw_msg.payload)
-#define LINK_MCU_FRAME_LENGTH sizeof(link_mcu_from_fbw_msg)
+#define LINK_MCU_FRAME_LENGTH sizeof(struct link_mcu_msg)
 
 #define ComputeChecksum(_buf) { \
   uint8_t i; \

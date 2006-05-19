@@ -5,10 +5,10 @@
 #include "LPC21xx.h"
 
 /* Master oscillator freq.       */
-#define FOSC (14745600) 
+#define FOSC (1200000) 
 
 /* PLL multiplier                */
-#define PLL_MUL (4)         
+#define PLL_MUL (5)         
 
 /* CPU clock freq.               */
 #define CCLK (FOSC * PLL_MUL) 

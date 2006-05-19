@@ -112,7 +112,7 @@ static inline void inter_mcu_fill_fbw_state (void) {
   for(i = 0; i < sizeof(*fbw_state); i++) {
     ((uint8_t*)fbw_state)[i] = i;
   }
-      **/
+  **/
 
 }
 
