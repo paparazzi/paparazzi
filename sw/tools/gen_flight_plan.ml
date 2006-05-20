@@ -27,6 +27,8 @@
 open Printf
 open Latlong
 
+module G2D = Geometry_2d
+
 let sof = string_of_float
 let soi = string_of_int
 
@@ -229,14 +231,19 @@ let rec index_stage = fun x ->
     | "heading" | "attitude" | "go" | "stay" | "xyz" | "set" | "circle" ->
 	incr stage;
 	Xml.Element (Xml.tag x, Xml.attribs x@["no", soi !stage], Xml.children x)
+    | "survey" ->
+	incr stage; incr stage;
+	Xml.Element (Xml.tag x, Xml.attribs x@["no", soi !stage], Xml.children x)
     | "exception" ->
 	x
     | s -> failwith (sprintf "Unknown stage: %s\n" s)
   end
 
-let rec print_stage = fun index_of_waypoints x ->
-  incr stage;
-  let stage () = lprintf "Stage(%d)\n" !stage; right () in
+
+let inside_function = fun name -> "Inside" ^ String.capitalize name
+
+let rec print_stage = fun index_of_waypoints sectors x ->
+  let stage () = incr stage;lprintf "Stage(%d)\n" !stage; right () in
   begin
     match String.lowercase (Xml.tag x) with
       "return_from_excpt" ->
@@ -258,8 +265,8 @@ let rec print_stage = fun index_of_waypoints x ->
 	stage ();
 	let c = try parsed_attrib x "cond" with _ -> "TRUE" in
 	lprintf "if (! (%s)) Goto(%s) else NextStage();\n" c e;
-	List.iter (print_stage index_of_waypoints) (Xml.children x);
-	print_stage index_of_waypoints (goto w);
+	List.iter (print_stage index_of_waypoints sectors) (Xml.children x);
+	print_stage index_of_waypoints sectors (goto w);
 	output_label e
     | "for" ->
 	let f = gen_label "for" in
@@ -273,8 +280,8 @@ let rec print_stage = fun index_of_waypoints x ->
 	output_label f;
 	stage ();
 	lprintf "if (++%s > %s) Goto(%s) else NextStage();\n" v to_var e;
-	List.iter (print_stage index_of_waypoints) (Xml.children x);
-	print_stage index_of_waypoints (goto f);
+	List.iter (print_stage index_of_waypoints sectors) (Xml.children x);
+	print_stage index_of_waypoints sectors (goto f);
 	output_label e
     | "heading" ->
 	stage ();
@@ -380,6 +387,23 @@ let rec print_stage = fun index_of_waypoints x ->
 	      lprintf "NextStage();\n";
 	end;
 	lprintf "return;\n"
+    | "survey" ->
+	let grid = parsed_attrib x "grid"
+	and sector_name = ExtXml.attrib x "sector" in
+	let s = try List.assoc sector_name sectors with Not_found -> failwith (sprintf "Error, sector %s unknown" sector_name) in
+	let x1 = ref max_float and x2 = ref min_float
+	and y1 = ref max_float and y2 = ref min_float in
+	List.iter (fun {G2D.x2D=x; G2D.y2D=y} ->
+	  x1 := min !x1 x; y1 := min !y1 y;
+	  x2 := max !x2 x; y2 := max !y2 y)
+	  s;
+	stage ();
+	lprintf "survey_init(%f, %f, %s);\n" !y1 !y2 grid;
+	lprintf "NextStage();\n";
+	stage ();
+	let inside_sector = inside_function sector_name in
+	lprintf "Survey(%s,%f,%f,%f,%f);\n" inside_sector !x1 !x2 !y1 !y2;
+	lprintf "return;\n"
     | _s -> failwith "Unreachable"
   end;
   left ()
@@ -425,7 +449,7 @@ let index_blocks = fun xml ->
   
 
 
-let print_block = fun index_of_waypoints (b:Xml.xml) block_num ->
+let print_block = fun index_of_waypoints sectors (b:Xml.xml) block_num ->
   let n = name_of b in
   lprintf "Block(%d) // %s\n" block_num n;
 
@@ -437,17 +461,17 @@ let print_block = fun index_of_waypoints (b:Xml.xml) block_num ->
   lprintf "switch(nav_stage) {\n";
   right ();
   stage := (-1);
-  List.iter (print_stage index_of_waypoints) stages;
+  List.iter (print_stage index_of_waypoints sectors) stages;
 
-  print_stage index_of_waypoints exit_block;
+  print_stage index_of_waypoints sectors exit_block;
 
   left (); lprintf "}\n\n"
 
 
 
-let print_blocks = fun index_of_waypoints bs ->
+let print_blocks = fun index_of_waypoints sectors bs ->
   let block = ref (-1) in
-  List.iter (fun b -> incr block; print_block index_of_waypoints b !block) bs
+  List.iter (fun b -> incr block; print_block index_of_waypoints sectors b !block) bs
 
 
 let define_home = fun waypoints ->
@@ -580,8 +604,6 @@ let print_dl_settings = fun settings ->
   end;
   lprintf "}\n"
 
-module G2D = Geometry_2d
-
 
 let print_inside_polygon = fun pts ->
   let layers = Geometry_2d.slice_polygon (Array.of_list pts) in
@@ -591,13 +613,13 @@ let print_inside_polygon = fun pts ->
       if xg > xd then begin
 	lprintf "return FALSE;\n"
       end else begin
-      lprintf "float dy = y - %f;\n" yl;
-      lprintf "return (%f+dy*%f <= x && x <= %f+dy*%f);\n" xg ag xd ad
+      lprintf "float dy = _y - %f;\n" yl;
+      lprintf "return (%f+dy*%f <= _x && _x <= %f+dy*%f);\n" xg ag xd ad
       end
     else
       let ij2 = (i+j) / 2 in
       let yl = layers.(ij2).G2D.top in
-      lprintf "if (y <= %f) {\n" yl;
+      lprintf "if (_y <= %f) {\n" yl;
       right (); f i ij2; left ();
       lprintf "} else {\n";
       right (); f (ij2+1) j; left ();
@@ -607,7 +629,16 @@ let print_inside_polygon = fun pts ->
 
 
 
-let print_inside_sector = fun rel_utm_of_wgs84 xml ->
+let print_inside_sector = fun (s, pts) ->
+  lprintf "static inline bool_t %s(float _x, float _y) { \\\n" (inside_function s);
+  right ();
+  print_inside_polygon pts;
+  left ();
+  lprintf "}\n"
+
+
+let parse_sector = fun rel_utm_of_wgs84 x ->
+  let xml = ExtXml.child x "0" in
   match String.lowercase (Xml.tag xml) with
     "polygon" ->
       let p2D_of = fun x ->
@@ -615,15 +646,8 @@ let print_inside_sector = fun rel_utm_of_wgs84 xml ->
 	let (x, y) = rel_utm_of_wgs84 geo in
 	{G2D.x2D = x; G2D.y2D = y } in
       let pts =  List.map p2D_of (Xml.children xml) in
-      lprintf "static inline bool_t in_airspace(float x, float y) {\n";
-      right ();
-      print_inside_polygon pts;
-      left ();
-      lprintf "}\n";
-      lprintf "#define InAirspace() in_airspace(estimator_x, estimator_y)\n";
-  | x -> failwith (sprintf "sector: %s not yet" x)
-  
-
+      (ExtXml.attrib x "name", pts)
+  | s -> failwith (sprintf "sector: %s not yet" s)
 
 
 let _ =
@@ -709,13 +733,18 @@ let _ =
 	let i = ref (-1) in
 	List.map (fun w -> incr i; (name_of w, !i)) waypoints in
 
+      let sectors_filename = Filename.concat dir "sectors.xml" in
+      let sectors_xml = Xml.parse_file sectors_filename in
+      let sectors = List.map (parse_sector rel_utm_of_wgs84) (Xml.children sectors_xml) in
+      List.iter print_inside_sector sectors;
+
       lprintf "#ifdef NAV_C\n";
       lprintf "\nstatic inline void auto_nav(void) {\n";
       right ();
       List.iter print_exception global_exceptions;
       lprintf "switch (nav_block) {\n";
       right ();
-      print_blocks index_of_waypoints blocks;
+      print_blocks index_of_waypoints sectors blocks;
       left (); lprintf "}\n";
       left (); lprintf "}\n";
       lprintf "#endif // NAV_C\n";
@@ -724,6 +753,7 @@ let _ =
 
       print_dl_settings dl_settings;
 
+(***
       begin
 	try
 	  let airspace = ExtXml.attrib xml "airspace" in
@@ -739,6 +769,7 @@ let _ =
 	with
 	  _ -> ()
       end;
+***)
 
       Xml2h.finish h_name
     end

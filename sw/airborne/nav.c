@@ -91,6 +91,7 @@ static inline void fly_to_xy(float x, float y);
 static void fly_to(uint8_t wp) __attribute__ ((unused));
 static void route_to(uint8_t _last_wp, uint8_t _wp) __attribute__ ((unused));
 static void glide_to(uint8_t _last_wp, uint8_t _wp) __attribute__ ((unused));
+static void route_to_xy(float last_wp_x, float last_wp_y, float wp_x, float wp_y);
 
 #define MIN_DX ((int16_t)(MAX_PPRZ * 0.05))
 
@@ -171,9 +172,39 @@ static float qdr;
   fly_to_xy(ac->east - _distance*cos(alpha), ac->north - _distance*sin(alpha)); \
 }
 
+/** Automatic survey of a sector (south-north sweep) */
+static struct point survey_from;
+static struct point survey_to;
+static float shift;
+static bool_t survey_uturn = FALSE;
+
+#include <stdio.h>
+
+#define Survey(_inside_sector, x_east, x_west, y_south, y_north) { \
+  if (!_inside_sector(estimator_x, estimator_y)) { \
+    if (! survey_uturn) { \
+      survey_uturn = TRUE; \
+      float x0 = survey_from.x; \
+      if (x0+shift > x_west || x0+shift < x_east) { \
+        shift = -shift; \
+      } \
+      x0 = x0 + shift; \
+      survey_from.x = survey_to.x = x0; \
+      float tmp = survey_from.y; \
+      survey_from.y = survey_to.y; \
+      survey_to.y = tmp; \
+    } \
+  } else \
+    survey_uturn = FALSE; \
+  route_to_xy(survey_from.x, survey_from.y, survey_to.x, survey_to.y); \
+}
+
+
 void nav_goto_block(uint8_t b) {
   GotoBlock(b);
 }
+
+static void survey_init(float y_south, float y_north, float grid);
 
 #include "flight_plan.h"
 
@@ -246,11 +277,9 @@ static float leg;
  *  \brief Computes where the uav is on a route and call
  *  \a fly_to_xy to follow it.
  */
-static void route_to(uint8_t _last_wp, uint8_t wp) {
-  float last_wp_x = waypoints[_last_wp].x;
-  float last_wp_y = waypoints[_last_wp].y;
-  float leg_x = waypoints[wp].x - last_wp_x;
-  float leg_y = waypoints[wp].y - last_wp_y;
+static void route_to_xy(float last_wp_x, float last_wp_y, float wp_x, float wp_y) {
+  float leg_x = wp_x - last_wp_x;
+  float leg_y = wp_y - last_wp_y;
   float leg2 = leg_x * leg_x + leg_y * leg_y;
   alpha = ((estimator_x - last_wp_x) * leg_x + (estimator_y - last_wp_y) * leg_y) / leg2;
   alpha = Max(alpha, 0.);
@@ -264,12 +293,18 @@ static void route_to(uint8_t _last_wp, uint8_t wp) {
   in_segment = TRUE;
   segment_x_1 = last_wp_x;
   segment_y_1 = last_wp_y;
-  segment_x_2 = waypoints[wp].x;
-  segment_y_2 = waypoints[wp].y;
+  segment_x_2 = wp_x;
+  segment_y_2 = wp_y;
   horizontal_mode = HORIZONTAL_MODE_ROUTE;
 
   fly_to_xy(last_wp_x + alpha*leg_x, last_wp_y + alpha*leg_y);
 }
+
+static void route_to(uint8_t _last_wp, uint8_t wp) {
+  route_to_xy(waypoints[_last_wp].x, waypoints[_last_wp].y, 
+	      waypoints[wp].x, waypoints[wp].y);
+}
+
 
 /** static void glide_to(uint8_t _last_wp, uint8_t wp)
  *  \brief Computes \a desired_altitude and \a pre_climb to stay on a glide.
@@ -292,6 +327,15 @@ static inline void compute_dist2_to_home(void) {
   too_far_from_home = too_far_from_home || !(InAirspace());
 #endif
 }
+
+
+static void survey_init(float y_south, float y_north, float grid) {
+  survey_from.x = survey_to.x = estimator_x;
+  survey_from.y = y_south;
+  survey_to.y = y_north;
+  shift = grid;
+}
+
 
 #ifndef FAILSAFE_HOME_RADIUS
 #define FAILSAFE_HOME_RADIUS 50

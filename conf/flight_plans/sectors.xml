@@ -4,10 +4,12 @@
 <sectors>
   <sector name="airexpo">
     <polygon>
-     <point pos="WGS84 43.4487 1.2687"/>
+     <point pos="WGS84 43.4491 1.2674"/>
+     <point pos="WGS84 43.4520 1.2637"/>
      <point pos="WGS84 43.4519 1.2592"/>
      <point pos="WGS84 43.4504 1.2582"/>
-     <point pos="WGS84 43.4470 1.2676"/>
+     <point pos="WGS84 43.4472 1.2618"/>
+     <point pos="WGS84 43.4475 1.2663"/>
     </polygon>
   </sector>
 </sectors>
