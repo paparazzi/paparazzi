@@ -28,7 +28,6 @@ CONF = ../../../conf
 VAR = ../../../var
 
 all: link server messages $(VAR)/boa.conf
-# stereo_demod
 
 clean:
 	rm -f link server messages *.bak *~ core *.o .depend *.opt *.out *.cm*
@@ -36,7 +35,7 @@ clean:
 OCAMLC = ocamlc
 OCAMLOPT = ocamlopt
 OCAMLLIB = ../../lib/ocaml
-INCLUDES= -I $(OCAMLLIB) -I +lablgtk2
+INCLUDES= -I $(OCAMLLIB) -I ../multimon -I +lablgtk2
 LIBPPRZCMA=$(OCAMLLIB)/lib-pprz.cma
 
 $(VAR)/boa.conf :$(CONF)/boa.conf
@@ -45,29 +44,18 @@ $(VAR)/boa.conf :$(CONF)/boa.conf
 	chmod a+x boa
 
 
-
-messages.opt : messages.ml
-	$(OCAMLOPT) $(INCLUDES) -o $@ str.cmxa unix.cmxa xml-light.cmxa glibivy-ocaml.cmxa -I +lablgtk2 lablgtk.cmxa gtkInit.cmx lib-pprz.cmxa $^ 
-	strip $@
-
 messages : messages.cmo
 	@echo OL $@
 	$(Q)$(OCAMLC) -custom $(INCLUDES) -o $@ lablgtk.cma glibivy-ocaml.cma lib-pprz.cma gtkInit.cmo $^
 
 
-stereo_demod : ../multimon/multimon.cma stereo_demod.ml ../../lib/ocaml/lib-pprz.cma
-	$(OCAMLC) $(INCLUDES) -I ../multimon -o $@ lablgtk.cma glibivy-ocaml.cma lib-pprz.cma multimon.cma $^
-	@cat ../../../pprz_src_test.sh > $@
-	@echo 'exec lablgtk2 -I $$PAPARAZZI_SRC/sw/lib/ocaml -I $$PAPARAZZI_SRC/sw/ground_segment/multimon glibivy-ocaml.cma lib-pprz.cma -I $$PAPARAZZI_SRC/sw/ground_segment/tmtc $$PAPARAZZI_SRC/sw/ground_segment/multimon/multimon.cma $$PAPARAZZI_SRC/sw/ground_segment/tmtc/stereo_demod.ml $$*' >> $@
-	@chmod a+x $@
-
 server : aircraft.cmo wind.cmo airprox.cmo server.cmo
 	@echo OL $@
 	$(Q)$(OCAMLC) -custom $(INCLUDES) -o $@ lablgtk.cma glibivy-ocaml.cma lib-pprz.cma $^
 
-link : modem.cmo link.cmo
+link :  modem.cmo link.cmo
 	@echo OL $@
-	$(Q)$(OCAMLC) -custom $(INCLUDES) -o $@ lablgtk.cma glibivy-ocaml.cma lib-pprz.cma $^
+	$(Q)$(OCAMLC) -custom $(INCLUDES) -o $@ lablgtk.cma glibivy-ocaml.cma lib-pprz.cma multimon.cma $^
 
 
 %.cmo : %.ml $(LIBPPRZCMA)
@@ -78,11 +66,6 @@ link : modem.cmo link.cmo
 	@echo OC $<
 	$(Q)$(OCAMLC) $(INCLUDES) $<
 
-airprox.cmi aircraft.cmo : aircraft.cmi
-airprox.cmo : airprox.cmi
-
-wavecard_c : wavecard_c.c wavecard_utils_c.c wavecard_foo_c.c
-	gcc -Wall -o $@ $^ `pkg-config --cflags glib-2.0` `pkg-config --libs glib-2.0`
 
 #
 # Dependencies

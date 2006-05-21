@@ -391,18 +391,19 @@ let rec print_stage = fun index_of_waypoints sectors x ->
 	let grid = parsed_attrib x "grid"
 	and sector_name = ExtXml.attrib x "sector" in
 	let s = try List.assoc sector_name sectors with Not_found -> failwith (sprintf "Error, sector %s unknown" sector_name) in
-	let x1 = ref max_float and x2 = ref min_float
-	and y1 = ref max_float and y2 = ref min_float in
+	let x1 = ref max_float and x2 = ref (-.max_float)
+	and y1 = ref max_float and y2 = ref (-.max_float) in
 	List.iter (fun {G2D.x2D=x; G2D.y2D=y} ->
 	  x1 := min !x1 x; y1 := min !y1 y;
 	  x2 := max !x2 x; y2 := max !y2 y)
 	  s;
 	stage ();
-	lprintf "survey_init(%f, %f, %s);\n" !y1 !y2 grid;
+	lprintf "survey_init(%.1f, %.1f, %s);\n" !y1 !y2 grid;
 	lprintf "NextStage();\n";
+	left ();
 	stage ();
 	let inside_sector = inside_function sector_name in
-	lprintf "Survey(%s,%f,%f,%f,%f);\n" inside_sector !x1 !x2 !y1 !y2;
+	lprintf "Survey(%s,%.1f,%.1f,%.1f,%.1f);\n" inside_sector !x1 !x2 !y1 !y2;
 	lprintf "return;\n"
     | _s -> failwith "Unreachable"
   end;
@@ -613,13 +614,13 @@ let print_inside_polygon = fun pts ->
       if xg > xd then begin
 	lprintf "return FALSE;\n"
       end else begin
-      lprintf "float dy = _y - %f;\n" yl;
-      lprintf "return (%f+dy*%f <= _x && _x <= %f+dy*%f);\n" xg ag xd ad
+      lprintf "float dy = _y - %.1f;\n" yl;
+      lprintf "return (%.1f+dy*%.1f <= _x && _x <= %.1f+dy*%f);\n" xg ag xd ad
       end
     else
       let ij2 = (i+j) / 2 in
       let yl = layers.(ij2).G2D.top in
-      lprintf "if (_y <= %f) {\n" yl;
+      lprintf "if (_y <= %.1f) {\n" yl;
       right (); f i ij2; left ();
       lprintf "} else {\n";
       right (); f (ij2+1) j; left ();
@@ -733,7 +734,7 @@ let _ =
 	let i = ref (-1) in
 	List.map (fun w -> incr i; (name_of w, !i)) waypoints in
 
-      let sectors_filename = Filename.concat dir "sectors.xml" in
+      let sectors_filename = Filename.concat dir "sectors.xml" in (** FIXME **)
       let sectors_xml = Xml.parse_file sectors_filename in
       let sectors = List.map (parse_sector rel_utm_of_wgs84) (Xml.children sectors_xml) in
       List.iter print_inside_sector sectors;
@@ -753,23 +754,13 @@ let _ =
 
       print_dl_settings dl_settings;
 
-(***
       begin
 	try
-	  let airspace = ExtXml.attrib xml "airspace" in
-	  begin
-	    match Str.split (Str.regexp "\\.") airspace with
-	      [base; sector_name] ->
-		let file =  dir ^ "/" ^ base ^".xml" in
-		let sectors_xml = Xml.parse_file file in
-		let sector = ExtXml.child sectors_xml "sector" ~select:(fun x -> ExtXml.attrib x "name" = sector_name) in
-		print_inside_sector rel_utm_of_wgs84 (ExtXml.child sector "0")
-	    | _ -> failwith "airspace"
-	  end
+	  let airspace = Xml.attrib xml "airspace" in
+	  lprintf "#define InAirspace(_x, _y) %s(_x, _y)\n" (inside_function airspace)
 	with
 	  _ -> ()
       end;
-***)
 
       Xml2h.finish h_name
     end

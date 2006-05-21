@@ -1,4 +1,4 @@
-<flight_plan SECURITY_HEIGHT="25" lat0="43.449300" lon0="1.266300" ground_alt="189" qfu="270" alt="250" max_dist_from_home="450" name="AirExpo">
+<flight_plan SECURITY_HEIGHT="25" lat0="43.449300" lon0="1.266300" ground_alt="189" qfu="270" alt="250" max_dist_from_home="450" name="AirExpo" airspace="airexpo">
   <rc_control>
     <mode NAME="AUTO1">
       <setting VAR="ir_pitch_neutral" RANGE="60." RC="gain_1_up" TYPE="int16"/>
@@ -34,7 +34,7 @@
       <circle WP="HOME" RADIUS="-50"/>
     </block>
     <block name="survey">
-       <survey sector="airexpo" grid="100"/>
+       <survey sector="survey" grid="70"/>
     </block>
     <block name="circuit">
       <exception COND="(RcEvent1())" DEROUTE="circlehome"/>

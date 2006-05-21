@@ -176,7 +176,7 @@ static float qdr;
 static struct point survey_from;
 static struct point survey_to;
 static float shift;
-static bool_t survey_uturn = FALSE;
+static bool_t survey_uturn __attribute__ ((unused)) = FALSE;
 
 #include <stdio.h>
 
@@ -204,7 +204,12 @@ void nav_goto_block(uint8_t b) {
   GotoBlock(b);
 }
 
-static void survey_init(float y_south, float y_north, float grid);
+static inline void survey_init(float y_south, float y_north, float grid) {
+  survey_from.x = survey_to.x = estimator_x;
+  survey_from.y = y_south;
+  survey_to.y = y_north;
+  shift = grid;
+}
 
 #include "flight_plan.h"
 
@@ -324,16 +329,8 @@ static inline void compute_dist2_to_home(void) {
   dist2_to_home = ph_x*ph_x + ph_y *ph_y;
   too_far_from_home = dist2_to_home > (MAX_DIST_FROM_HOME*MAX_DIST_FROM_HOME);
 #if defined InAirspace
-  too_far_from_home = too_far_from_home || !(InAirspace());
+  too_far_from_home = too_far_from_home || !(InAirspace(estimator_x, estimator_y));
 #endif
-}
-
-
-static void survey_init(float y_south, float y_north, float grid) {
-  survey_from.x = survey_to.x = estimator_x;
-  survey_from.y = y_south;
-  survey_to.y = y_north;
-  shift = grid;
 }
 
 
