@@ -61,6 +61,50 @@ let get_define = fun xml name ->
   let xml = ExtXml.child ~select:(fun d -> ExtXml.tag_is d "define" && ExtXml.attrib d "name" = name) xml "define" in
   ExtXml.attrib xml "value"
 
+
+(*********** Monitoring *************************************************)
+type status = {
+    mutable rx_byte : int;
+    mutable rx_msg : int;
+    mutable rx_err : int;
+  }
+
+let statuss = Hashtbl.create 3
+let update_status = fun ac_id buf ->
+  let status = 
+    try Hashtbl.find statuss ac_id with Not_found ->
+      let s = { rx_byte = 0; rx_msg = 0; rx_err = 0 } in
+      Hashtbl.add statuss ac_id s;
+      s in
+  status.rx_byte <- status.rx_byte + String.length buf;
+  status.rx_msg <- status.rx_msg + 1;
+  status.rx_msg <- !PprzTransport.nb_err
+
+let status_msg_period = 1000 (** ms *)
+
+let send_status_msg =
+  let rx_msg = ref 0 
+  and rx_byte = ref 0 
+  and start = Unix.gettimeofday () in
+  fun () ->
+    Hashtbl.iter (fun ac_id status ->
+      let dt = float status_msg_period /. 1000. in
+      let t = int_of_float (Unix.gettimeofday () -. start) in
+      let byte_rate = float (status.rx_byte - !rx_byte) /. dt
+      and msg_rate = float (status.rx_msg - !rx_msg) /. dt in
+      rx_msg := status.rx_msg;
+      rx_byte := status.rx_byte;
+      let vs = ["run_time", Pprz.Int t;
+		"rx_bytes_rate", Pprz.Float byte_rate; 
+		"rx_msgs_rate", Pprz.Float msg_rate;
+		"rx_err", Pprz.Int status.rx_err;
+		"rx_bytes", Pprz.Int status.rx_byte;
+		"rx_msgs", Pprz.Int status.rx_msg
+	      ] in
+      Tm_Pprz.message_send "link" "DOWNLINK_STATUS" vs)
+      statuss 
+
+
 let airframes =
   let conf_file = conf // "conf.xml" in
   List.fold_right (fun a r ->
@@ -97,10 +141,12 @@ let airborne_device = fun ac_id airframes device ->
 let ground_id = 0
 
 let use_tele_message = fun payload ->
-  Debug.call 'l' (fun f -> let buf = Serial.string_of_payload payload in fprintf f "mm receiving: "; for i = 0 to String.length buf - 1 do fprintf f "%x " (Char.code buf.[i]) done; fprintf f "\n");
+  let buf = Serial.string_of_payload payload in
+  Debug.call 'l' (fun f ->  fprintf f "mm receiving: %s\n" (Debug.xprint buf));
   let (msg_id, ac_id, values) = Tm_Pprz.values_of_payload payload in
   let msg = Tm_Pprz.message_of_id msg_id in
-  Tm_Pprz.message_send (string_of_int ac_id) msg.Pprz.name values
+  Tm_Pprz.message_send (string_of_int ac_id) msg.Pprz.name values;
+  update_status ac_id buf
 
 
 type priority = Null | Low | Normal | High
@@ -199,6 +245,28 @@ module Wc = struct
   let req_rssi = fun device addr ->
     let data = W.addressed addr "" in
     send_buffered device.fd (W.REQ_READ_REMOTE_RSSI, data) Low
+
+  let init = fun device rssi_id ->
+    (** Set the wavecard in short wakeup mode *)
+    let data = String.create 2 in
+    data.[0] <- Char.chr (W.code_of_config_param W.WAKEUP_TYPE);
+    data.[1] <- Char.chr (W.code_of_wakeup_type W.SHORT_WAKEUP);
+(***          data.[0] <- Char.chr (W.code_of_config_param W.AWAKENING_PERIOD);
+   data.[1] <- Char.chr 10; ***)
+    W.send device.fd (W.REQ_WRITE_RADIO_PARAM,data);
+    
+    (* request own address *)
+    let s = String.make 1 (char_of_int 5) in
+    ignore (GMain.Timeout.add 1500 (fun _ -> W.send device.fd (W.REQ_READ_RADIO_PARAM, s); false));
+    
+    (** Ask for rssi if required *)
+    if rssi_id >= 0 then begin
+      match airborne_device rssi_id airframes device.transport with
+	WavecardDevice addr ->
+	  ignore (GMain.Timeout.add rssi_period (fun _ -> req_rssi device addr; true))
+      | _ -> failwith (sprintf "Rssi not supported by A/C '%d'" rssi_id)
+    end
+	
 end (** Wc module *)
 
 
@@ -332,52 +400,20 @@ let raw_datalink = fun device _sender vs ->
 
 
 module PprzModem = struct
-  type status = {
-      mutable rx_byte : int;
-      mutable rx_msg : int;
-      mutable rx_err : int
-    }
-  let status = { rx_byte = 0; rx_msg = 0; rx_err = 0 }
 
   let msg_period = 1000 (** ms *)
 
 (** Modem monitoring messages *)
-  let send_msg =
-    let rx_msg = ref 0 
-    and rx_byte = ref 0 
-    and start = Unix.gettimeofday () in
-    fun () ->
-      let dt = float msg_period /. 1000. in
-      let t = int_of_float (Unix.gettimeofday () -. start) in
-      let byte_rate = float (status.rx_byte - !rx_byte) /. dt
-      and msg_rate = float (status.rx_msg - !rx_msg) /. dt in
-      rx_msg := status.rx_msg;
-      rx_byte := status.rx_byte;
-      let vs = ["run_time", Pprz.Int t;
-		"rx_bytes_rate", Pprz.Float byte_rate; 
-		"rx_msgs_rate", Pprz.Float msg_rate;
-		"rx_err", Pprz.Int status.rx_err;
-		"rx_bytes", Pprz.Int status.rx_byte;
-		"rx_msgs", Pprz.Int status.rx_msg
-	      ] in
-      Tm_Pprz.message_send "modem" "DOWNLINK_STATUS" vs;
-      let vs = ["valim", Pprz.Float Modem.status.Modem.valim;
-		"detected", Pprz.Int Modem.status.Modem.detected;
-		"cd", Pprz.Int Modem.status.Modem.cd;
-		"nb_err", Pprz.Int Modem.status.Modem.nb_err;
-		"nb_byte", Pprz.Int Modem.status.Modem.nb_byte;
-		"nb_msg", Pprz.Int Modem.status.Modem.nb_msg
-	      ] in
-      Tm_Pprz.message_send "modem" "MODEM_STATUS" vs
-
-  let use_tele_message_modem = fun payload ->
-    let buf = Serial.string_of_payload payload in
-    status.rx_byte <- status.rx_byte + String.length buf;
-    status.rx_msg <- status.rx_msg + 1;
-    Debug.call 'P' (fun f -> fprintf f "use_pprz: %s\n" (Debug.xprint buf));
-    use_tele_message payload
-
-
+  let send_msg = fun () ->
+    let vs = ["valim", Pprz.Float Modem.status.Modem.valim;
+	      "detected", Pprz.Int Modem.status.Modem.detected;
+	      "cd", Pprz.Int Modem.status.Modem.cd;
+	      "nb_err", Pprz.Int Modem.status.Modem.nb_err;
+	      "nb_byte", Pprz.Int Modem.status.Modem.nb_byte;
+	      "nb_msg", Pprz.Int Modem.status.Modem.nb_msg
+	    ] in
+    Tm_Pprz.message_send "modem" "MODEM_STATUS" vs
+      
   let use_message =
     let buffer = ref "" in
     fun payload ->
@@ -390,13 +426,21 @@ module PprzModem = struct
 	  let b = !buffer ^ data in
 	  Debug.call 'M' (fun f -> fprintf f "Pprz buffer: %s\n" (Debug.xprint b));
 	  (** Parse as pprz message and ... *)
-	  let x = PprzTransport.parse use_tele_message_modem b in
-	  status.rx_err <- !PprzTransport.nb_err;
+	  let x = PprzTransport.parse use_tele_message b in
 	  (** ... remove from the buffer the chars which have been used *)
 	  buffer := String.sub b x (String.length b - x)
 end (* PprzModem module *)
 
 
+(*************** Audio *******************************************************)
+module Audio = struct
+  let use_data =
+    let buffer = ref "" in
+    fun data -> 
+      let b = !buffer ^ data in
+      let n = PprzTransport.parse use_tele_message b in
+      buffer := String.sub b n (String.length b - n)
+end
 
 
 
@@ -418,15 +462,17 @@ let _ =
   let baurate = ref "9600" in
   let transport = ref "pprz" in
   let uplink = ref false in
+  let audio = ref false in
   let rssi_id = ref (-1) in
   
   let options =
-    [ "-b", Arg.Set_string ivy_bus, (sprintf "Ivy bus (%s)" !ivy_bus);
-      "-d", Arg.Set_string port, (sprintf "Port (%s)" !port);
-      "-rssi", Arg.Set_int rssi_id, (sprintf "Rssi A/C id");
-      "-transport", Arg.Set_string transport, (sprintf "Transport (%s): modem,pprz,wavecard" !transport);
-      "-uplink", Arg.Set uplink, (sprintf "Uplink (%b)" !uplink);
-      "-s", Arg.Set_string baurate, (sprintf "Baudrate (%s)" !baurate)] in
+    [ "-b", Arg.Set_string ivy_bus, (sprintf "<ivy bus> Default is %s" !ivy_bus);
+      "-d", Arg.Set_string port, (sprintf "<port> Default is %s" !port);
+      "-rssi", Arg.Set_int rssi_id, (sprintf "<ac_id> Periodically requests rssi level from the distant wavecard");
+      "-transport", Arg.Set_string transport, (sprintf "<transport> Available protocols are modem,pprz,wavecard and maxstream. Default is %s" !transport);
+      "-uplink", Arg.Set uplink, (sprintf "Uses the link as uplink also.");
+      "-audio", Arg.Unit (fun () -> audio := true; port := "/dev/dsp"), (sprintf "Listen a modulated audio signal on <port>. Sets <port> to /dev/dsp (the -d option must used after this one if needed)");
+      "-s", Arg.Set_string baurate, (sprintf "<baudrate>  Default is %s" !baurate)] in
   Arg.parse
     options
     (fun _x -> ())
@@ -435,15 +481,7 @@ let _ =
   Ivy.init "Link" "READY" (fun _ _ -> ());
   Ivy.start !ivy_bus;
 
-  try
-    (** Listen on a serial device or on multimon pipe *)
-    let fd = 
-      if String.sub !port 0 4 = "/dev" then (* FIXME *)
-	Serial.opendev !port (Serial.speed_of_baudrate !baurate)
-      else 
-	Unix.descr_of_in_channel (open_in !port)
-    in
-    
+  try    
     let transport = 
       match !transport with
 	"modem" -> Modem
@@ -452,16 +490,35 @@ let _ =
       | "maxstream" -> Maxstream
       | x -> invalid_arg (sprintf "transport_of_string: %s" x)
     in
+
+    (** Listen on a serial device or on multimon pipe or on audio *)
+    let fd = 
+      if !audio then
+	Demod.init !port
+      else
+	if String.sub !port 0 4 = "/dev" then (* FIXME *)
+	  Serial.opendev !port (Serial.speed_of_baudrate !baurate)
+	else 
+	  Unix.descr_of_in_channel (open_in !port)
+    in
+
     
     let device = { fd=fd; transport=transport } in
 
     (* Listening *)
-    let parse = parse_of_transport device transport in
-    
-    let buffered_input = 
+    let buffered_input =
+      let parse = parse_of_transport device transport in
       match Serial.input parse with
 	Serial.Closure f -> f in
-    let cb = fun _ -> buffered_input fd; true in
+    let cb = 
+      if !audio then
+	fun _ ->
+	  let (data_left, data_right) = Demod.get_data () in
+	  Audio.use_data data_left;
+	  true
+      else
+	fun _ -> buffered_input fd; true
+    in
     ignore (Glib.Io.add_watch [`IN] cb (GMain.Io.channel_of_descr fd));
 
     if !uplink then begin
@@ -477,30 +534,13 @@ let _ =
 
     (** Init and Periodic tasks *)
     begin
+      ignore (Glib.Timeout.add status_msg_period (fun () -> send_status_msg (); true));
       match transport with
 	Modem ->
 	  (** Sending periodically modem and downlink status messages *)
 	  ignore (Glib.Timeout.add PprzModem.msg_period (fun () -> PprzModem.send_msg (); true))
       | Wavecard ->
-	  (** Set the wavecard in short wakeup mode *)
-	  let data = String.create 2 in
-	  data.[0] <- Char.chr (W.code_of_config_param W.WAKEUP_TYPE);
-	  data.[1] <- Char.chr (W.code_of_wakeup_type W.SHORT_WAKEUP);
-(***          data.[0] <- Char.chr (W.code_of_config_param W.AWAKENING_PERIOD);
-          data.[1] <- Char.chr 10; ***)
-	  W.send fd (W.REQ_WRITE_RADIO_PARAM,data);
-
-	  (* request own address *)
-	  let s = String.make 1 (char_of_int 5) in
-	  ignore (GMain.Timeout.add 1500 (fun _ -> W.send device.fd (W.REQ_READ_RADIO_PARAM, s); false));
-
-	  (** Ask for rssi if required *)
-	  if !rssi_id >= 0 then begin
-	    match airborne_device !rssi_id airframes transport with
-	      WavecardDevice addr ->
-		ignore (GMain.Timeout.add Wc.rssi_period (fun _ -> Wc.req_rssi device addr; true))
-	    | _ -> failwith (sprintf "Rssi not supported by A/C '%d'" !rssi_id)
-	  end
+	  Wc.init device !rssi_id
       | _ -> ()
     end;
 
