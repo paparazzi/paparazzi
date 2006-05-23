@@ -46,7 +46,7 @@ MAKE=make
 
 all: static
 
-static : lib tools configurator cockpit tmtc logalizer sim_static wind static_h multimon
+static : lib tools configurator cockpit multimon tmtc logalizer sim_static wind static_h
 
 conf: conf/conf.xml conf/control_panel.xml
 
