@@ -45,7 +45,7 @@ Q=@
 
 
 CFLAGS		=							\
-	-W -Wall -Werror \
+	-W -Wall \
 	$(INCLUDES)					  	\
 	-Wstrict-prototypes						\
 	$($(TARGET).CFLAGS)					\

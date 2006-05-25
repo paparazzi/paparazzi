@@ -123,6 +123,9 @@ ap.CFLAGS += -DMOBILE_CAM -DDATALINK
 ap.EXTRA_SRCS += traffic_info.c datalink.c
 ap.CFLAGS += -DUSE_UART0 -DHITL
 
+-DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_AP_DEVICE=Uart0
+ap.EXTRA_SRCS += pprz_transport.c downlink.c
+
 # Config for SITL simulation
 include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
 sim.CFLAGS += -DDATALINK -DMOBILE_CAM

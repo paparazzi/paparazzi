@@ -65,7 +65,7 @@ Q=@
 
 
 CFLAGS		=							\
-	-Werror -W -Wall -Wundef \
+	-W -Wall -Wundef \
 	$(ATMEL_INCLUDES)					  	\
 	$(INCLUDES)					  	\
 	-Wstrict-prototypes						\

@@ -35,7 +35,7 @@
 #include "messages.h"
 #include "periodic.h"
 
-#if DOWNLINK
+#if defined DOWNLINK
 #define Downlink(x) x
 #else
 #define Downlink(x) {}
