@@ -67,7 +67,7 @@ sub build_gui {
     $mw->Frame( -relief => 'ridge')->pack(-side => 'top', -fill => 'x');
   my $session_menu = $menubar->Menubutton(-text => 'Sessions')->pack(-side => 'left');;
   my $sessions = $self->get('-sessions');
-  foreach my $session_name (keys %{$sessions}) {
+  foreach my $session_name (sort keys %{$sessions}) {
     $self->{'session_command_'.$session_name} =
       $session_menu->command( -label  => $session_name,
 			      -command => [\&onSessionSelected, $self, $session_name] );

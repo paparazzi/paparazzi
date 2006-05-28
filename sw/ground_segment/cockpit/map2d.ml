@@ -1283,18 +1283,18 @@ let _main =
 
   if !display_strip then strip_panel#show ();
 
-  (** Center the map as required *)
-  if !center <> "" then begin
-    try geomap#center (Latlong.of_string !center) with
-      _ -> GToolbox.message_box "Error" (sprintf "Cannot center at '%s' (no ref ?)" !center)
-  end;
-
   (** Loading an initial map *)
   if !geo_ref <> "" then
     set_georef_if_none geomap (Latlong.of_string !geo_ref);
   if !map_file <> "" then begin
     let xml_map_file = if !map_file.[0] <> '/' then Filename.concat default_path_maps !map_file else !map_file in
     display_map geomap xml_map_file
+  end;
+
+  (** Center the map as required *)
+  if !center <> "" then begin
+    try geomap#center (Latlong.of_string !center) with
+      _ -> GToolbox.message_box "Error" (sprintf "Cannot center at '%s' (no ref ?)" !center)
   end;
 
   say "Welcome to paparazzi";

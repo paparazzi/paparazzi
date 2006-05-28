@@ -2,12 +2,6 @@
 
 <control_panel name="paparazzi control panel">
 
-  <section name="hosts">
-   <host name="localhost"/>
-   <host name="dolis" ip="192.168.1.33"/>
-   <host name="benito"/>
-  </section>
-
   <section name="variables">
     <variable name="render" value="1"/>
     <variable name="downlink_serial_port" value="/dev/ttyUSB0"/>
@@ -16,15 +10,11 @@
     <variable name="ivy_bus"              value="127:2010"/>
     <variable name="map"                  value="muret_UTM.xml"/>
     <variable name="flight_plan"          value="flight_plans/muret1.xml"/>
-    <variable name="multimon_demod"       value="AFSK4800_P"/>
   </section>
 
   <section name="programs">
     <program name="server" command="sw/ground_segment/tmtc/server">
       <arg flag="-b" variable="ivy_bus"/>
-    </program>
-    <program name="multimon" command="sw/ground_segment/multimon/multimon">
-      <arg flag="-a" variable="multimon_demod"/>
     </program>
     <program name="link" command="sw/ground_segment/tmtc/link">
       <arg flag="-b" variable="ivy_bus"/>
@@ -33,15 +23,8 @@
       <arg flag="-b" variable="ivy_bus"/>
       <arg flag="-r" variable="render"/>
     </program>
-    <program name="map 2d" command="sw/ground_segment/cockpit/map.pl">
-      <arg flag="-b" variable="ivy_bus"/>
-      <arg flag="-m" variable="map"/>
-      <arg flag="-f" variable="flight_plan"/>
-      <arg flag="-r" variable="render"/>
-    </program>
     <program name="map 2d ml" command="sw/ground_segment/cockpit/map2d">
       <arg flag="-b" variable="ivy_bus"/>
-      <arg flag="-m" variable="map"/>
     </program>
     <program name="map 3d" command="sw/ground_segment/visu3d/mapGL">
       <arg flag="-b" variable="ivy_bus"/>
@@ -58,9 +41,10 @@
     </program>
     <program name="speech" command="sw/ground_segment/speech/paparazzi_speak.pl">
       <arg flag="-b" variable="ivy_bus"/>
-<!--      <arg flag="-t" variable="paparazzi_home"/> -->
     </program>
-    <program name="wind" command ="sw/ground_segment/wind/wind"><arg flag="-b" variable="ivy_bus"/></program>
+    <program name="wind" command ="sw/ground_segment/wind/wind">
+      <arg flag="-b" variable="ivy_bus"/>
+    </program>
     <program name="plot" command ="sw/logalizer/plot.pl"/>
     <program name="play" command="sw/logalizer/play">
       <arg flag="-b" variable="ivy_bus"/>
@@ -82,8 +66,29 @@
     <program name="stereo" command="sw/ground_segment/tmtc/stereo_demod"/>
 
  </section>
+  
+
+
 
   <section name="sessions">
+
+    <session name=" Sim1@Muret">
+      <program name="server"><arg flag="-n"/></program>
+      <program name="sim"><arg flag="-a" constant="Twin3"/></program>
+      <program name="cockpit">
+        <arg flag="-render" constant="1"/>     
+        <arg flag="-vertical" constant="1"/>
+      </program>
+      <program name="map 2d ml">
+        <arg flag="-mercator" constant=""/>
+        <arg flag="-ref" constant="WGS84 43.462510 1.273169"/>
+        <arg flag="-center" constant="WGS84 43.462510 1.273169"/>
+        <arg flag="-zoom" constant="0.42"/>
+        <arg flag="-strip" constant=""/>
+      </program> 
+      <program name="gaia"/>
+    </session>
+
     <session name="Sim 1@Garmisch : 192.168.1">
       <variable name="ivy_bus" value="192.168.1:2010"/>
       <variable name="map" value="garmisch.xml"/>
@@ -105,13 +110,6 @@
       <program name="cockpit"></program>
       <program name="map 2d ml"/>
       <program name="messages"><arg flag="-c" constant="telemetry:*"/><arg flag="-c" constant="ground"/></program>
-    </session>
-
-    <session name="Client 192.168.1">
-       <variable name="ivy_bus" value="192.168.1:2010"/>
-       <program name="cockpit"></program>
-      <program name="map 2d ml"/>
-      <program name="messages"><arg flag="-c" constant="ground"/></program>
     </session>
 
   <session name="Replay MAV05">

@@ -357,7 +357,7 @@ let ios = int_of_string
 let rodg = fun s -> (Deg>>Rad)(fos s)
 let of_string = fun s ->
   match Str.split space s with
-    ["WGS84"; lat ; long] ->
+    ["WGS84"; lat; long] ->
       {posn_lat = rodg lat; posn_long = rodg long}
   | ["UTM";x;y;zone] ->
       of_utm WGS84 { utm_x = fos x; utm_y = fos y; utm_zone = ios zone}

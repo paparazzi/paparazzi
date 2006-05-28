@@ -77,7 +77,7 @@ sub on_new_aircraft {
   trace(TRACE_DEBUG, "cockpit::on_new_aircraft $ac_id");
   my $aircraft = $self->{aircrafts_manager}->get_aircraft_by_id($ac_id);
   $self->{strip_panel}->add_strip($aircraft);
-  $self->{md}->add_aircraft($aircraft);
+#  $self->{md}->add_aircraft($aircraft);
 }
 
 sub build_gui {
@@ -121,14 +121,15 @@ sub build_gui {
 				    -width  => $nd_w,
 				    -height => $nd_h,
  				  );
-  my $sw = MainWindow->new(-title => "Flight Plan", -class => "Flight Plan");
+  if ( 0) { 
+    my $sw = MainWindow->new(-title => "Flight Plan", -class => "Flight Plan");
  #  my $bot_frame =  $self->{mw}->Frame()->pack(-side => 'bottom', -fill => 'both', -expand => 1);
 #  my $md = $bot_frame->MissionD(-bg => '#c1daff');
-  my $md = $sw->MissionD(-bg => '#c1daff');
-  $md->pack(-side => 'bottom', -anchor => "n", -fill => 'both', -expand => 1);
-  $self->{md} = $md;
-  $sw->configure(-width => 600, -height => 300);
-
+    my $md = $sw->MissionD(-bg => '#c1daff');
+    $md->pack(-side => 'bottom', -anchor => "n", -fill => 'both', -expand => 1);
+    $self->{md} = $md;
+    $sw->configure(-width => 600, -height => 300);
+  }
 }
 
 sub on_foo {
@@ -162,7 +163,7 @@ sub select_ac {
   my $aircraft = $self->{aircrafts_manager}->get_aircraft_by_id($ac_id);
   $self->{pfd}->configure('-selected_ac', $aircraft);
   $self->{nd}->configure('-selected_ac', $aircraft);
-  $self->{md}->set_selected_ac($aircraft);
+#  $self->{md}->set_selected_ac($aircraft);
 }
 
 sub onShowPage {
