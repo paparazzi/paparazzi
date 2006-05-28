@@ -146,6 +146,7 @@ sub parse_rc_control {
   my ($self, $doc) = @_;
   my $rc_control = {};
   my $rc_control_elt = $doc->getElementsByTagName('rc_control')->[0];
+  return unless defined $rc_control_elt;
   my @modes = $rc_control_elt->getElementsByTagName('mode');
   foreach my $mode (@modes) {
     my $mode_name = $mode->getAttribute('name');
