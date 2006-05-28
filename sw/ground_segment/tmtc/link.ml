@@ -78,7 +78,7 @@ let update_status = fun ac_id buf ->
       s in
   status.rx_byte <- status.rx_byte + String.length buf;
   status.rx_msg <- status.rx_msg + 1;
-  status.rx_msg <- !PprzTransport.nb_err
+  status.rx_err <- !PprzTransport.nb_err
 
 let status_msg_period = 1000 (** ms *)
 

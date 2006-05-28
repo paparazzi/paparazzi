@@ -1146,11 +1146,8 @@ let keys_help = fun () ->
     Load Map Tile: Right\n\
     Select Region: Shift-Left + Drag\n\
     Create Waypoint: Ctrl-Left\n\
-    Move Waypoint: Middle\n\
-    Edit Waypoint: Left\n\
-    Path Point: Ctrl-Shift-Left\n\
-    Path Radius: Ctrl-Shift-Wheel\n\
-    Path End: Ctrl-Shift-Right"
+    Move Waypoint: Left\n\
+    Edit Waypoint: Middle\n"
 
 
 (******** Sectors **********************************************************)
