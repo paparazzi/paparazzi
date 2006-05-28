@@ -2,8 +2,8 @@
 
   <servos>
     <servo name="GAZ"           no="0" min="1000" neutral="1000" max="2000"/>
-    <servo name="AILEVON_RIGHT" no="1" min="1230" neutral="1640" max="2100"/>
-    <servo name="AILEVON_LEFT" no="2" min="2120" neutral="1700" max="1300"/>
+    <servo name="AILEVON_RIGHT" no="1" min="1230" neutral="1652" max="2100"/>
+    <servo name="AILEVON_LEFT" no="2" min="2120" neutral="1750" max="1300"/>
   </servos>
 
   <commands>
@@ -59,9 +59,9 @@
   </section>
  
   <section name="PID">
-    <define name="ROLL_PGAIN" value="5000."/>
+    <define name="ROLL_PGAIN" value="8000."/>
     <define name="PITCH_OF_ROLL" value="0.0"/>
-    <define name="PITCH_PGAIN" value="5000."/>
+    <define name="PITCH_PGAIN" value="8000."/>
     <define name="MAX_ROLL" value="0.35"/>
     <define name="MAX_PITCH" value="0.35"/>
     <define name="MIN_PITCH" value="-0.35"/>
@@ -71,16 +71,16 @@
   <section name="ALT" prefix="CLIMB_">
     <define name="PITCH_PGAIN" value="-0.1"/>
     <define name="PITCH_IGAIN" value="0.025"/>
-    <define name="PGAIN" value="-0.03"/>
+    <define name="PGAIN" value="-0.01"/>
     <define name="IGAIN" value="0.1"/>
     <define name="MAX" value="1."/>
-    <define name="LEVEL_GAZ" value="0.50"/>
+    <define name="LEVEL_GAZ" value="0.30"/>
     <define name="PITCH_OF_VZ_PGAIN" value="0.05"/>
     <define name="GAZ_OF_CLIMB" value="0.2" unit="%/(m/s)"/>
   </section>
  
   <section name="NAV">
-    <define name="COURSE_PGAIN" value="-0.2"/>
+    <define name="COURSE_PGAIN" value="-0.3"/>
     <define name="ALTITUDE_PGAIN" value="-0.025"/>
     <define name="NAV_PITCH" value="0."/>
   </section>
@@ -126,13 +126,13 @@ fbw.srcs += $(SRC_ARCH)/servos_4017_hw.c
 fbw.CFLAGS += -DRADIO_CONTROL -DRADIO_CONTROL_TYPE=RC_FUTABA
 fbw.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c 
 
-fbw.CFLAGS += -DDOWNLINK -DUSE_UART0 -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_FBW_DEVICE=Uart0
+fbw.CFLAGS += -DDOWNLINK -DUSE_UART0 -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_FBW_DEVICE=Uart0 -DUART0_BAUD=B9600
 fbw.srcs += downlink.c pprz_transport.c $(SRC_ARCH)/uart_hw.c
 
 fbw.CFLAGS += -DINTER_MCU -DMCU_SPI_LINK
 fbw.srcs += inter_mcu.c link_mcu.c spi.c $(SRC_ARCH)/spi_hw.c
 
-fbw.CFLAGS += -DADC -DUSE_AD0_6
+fbw.CFLAGS += -DADC -DUSE_AD0 -DUSE_AD0_6
 fbw.srcs += $(SRC_ARCH)/adc_hw.c
 
 
