@@ -25,8 +25,8 @@ Q=@
 
 OCAMLC=ocamlc -thread
 OCAMLOPT=ocamlopt -thread
-INCLUDES=-I +lablgtk2 -I +camlimages -I ../../lib/ocaml
-LIBS=glibivy-ocaml.cma lablgtk.cma ci_core.cma ci_png.cma ci_gif.cma ci_jpeg.cma ci_tiff.cma ci_bmp.cma ci_ppm.cma ci_ps.cma lib-pprz.cma lablgnomecanvas.cma xlib-pprz.cma
+INCLUDES=-I +lablgtk2 -I ../../lib/ocaml
+LIBS=glibivy-ocaml.cma lablgtk.cma lib-pprz.cma lablgnomecanvas.cma xlib-pprz.cma
 CMXA=$(LIBS:.cma=.cmxa)
 
 

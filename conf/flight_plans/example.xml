@@ -18,19 +18,7 @@
 
   <include name="up_and_down" procedure="circles.xml" x="00" y="100" rotate="0">
     <arg name="bottom" value="GROUND_ALT+50"/>
-    <with from="event1" to="bh50.go"/>
-  </include>
-
-  <include name="bh50" procedure="bh.xml" x="0" y="200" rotate="0">
-   <arg name="height" value="50"/>
-   <with from="event1" to="bh30.go"/>
-   <with from="event2" to="circlehome"/>
-  </include>
-
-  <include name="bh30" procedure="bh.xml" x="0" y="200" rotate="0">
-   <arg name="height" value="30"/>
-   <with from="event1" to="circlehome"/>
-   <with from="event2" to="circlehome"/>
+    <with from="event1" to="circlehome"/>
   </include>
 
   <blocks>

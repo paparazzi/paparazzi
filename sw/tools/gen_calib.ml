@@ -92,8 +92,9 @@ let _ =
   try
     let xml = start_and_begin xml_file h_name in
 
-    let rc_control = try ExtXml.child xml "rc_control" with Not_found -> failwith (sprintf "Error: 'rc_control' child expected in %s" (Xml.to_string xml)) in
-    lprintf "void rc_settings(bool_t mode_changed) {\n";
+    let rc_control = 
+      try ExtXml.child xml "rc_control" with Not_found -> Xml.Element("",[],[]) in
+    lprintf "void rc_settings(bool_t mode_changed __attribute__ ((unused))) {\n";
     right ();
     parse_modes rc_control;
     left (); lprintf "}\n";

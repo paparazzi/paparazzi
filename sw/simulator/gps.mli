@@ -33,7 +33,8 @@ type state = {
     gspeed : float;
     course : float; (** North = 0 *)
   }
-val state :
-  float -> float -> float -> (float * float * float -> float -> state)
-(** [state lat0 lon0 alt0] Returns a function which must be called with
+val state : unit -> (float * float * float -> float -> state)
+(** [state ()] Returns a function which must be called with
 an updated position [xyz] and time [t] *)
+
+val set_ref : Latlong.geographic -> float -> unit

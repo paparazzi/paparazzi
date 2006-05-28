@@ -23,7 +23,7 @@
 Q=@
 
 INCLUDES=
-XINCLUDES= -I +lablgl -I +camlimages -I +lablgtk2
+XINCLUDES= -I +lablgl -I +lablgtk2
 OCAMLC=ocamlc $(INCLUDES)
 OCAMLOPT=ocamlopt $(INCLUDES)
 
@@ -32,7 +32,7 @@ SRC = debug.ml env.ml serial.ml ocaml_tools.ml extXml.ml xml2h.ml latlong.ml srt
 CMO = $(SRC:.ml=.cmo)
 CMX = $(SRC:.ml=.cmx)
 
-XSRC = platform.ml gtkgl_Hack.ml ml_gtkgl_hack.o gtk_image.ml gtk_tools_icons.ml gtk_tools.ml gtk_draw.ml gtk_tools_GL.ml gtk_3d.ml mapCanvas.ml mapWaypoints.ml mapTrack.ml mapGoogle.ml mapIGN.ml ml_gtk_drag.o xmlEdit.ml mapFP.ml
+XSRC = platform.ml gtkgl_Hack.ml ml_gtkgl_hack.o gtk_tools_icons.ml gtk_tools.ml gtk_draw.ml gtk_tools_GL.ml gtk_3d.ml mapCanvas.ml mapWaypoints.ml mapTrack.ml mapGoogle.ml mapIGN.ml ml_gtk_drag.o xmlEdit.ml mapFP.ml
 XCMO = $(XSRC:.ml=.cmo)
 XCMX = $(XSRC:.ml=.cmx)
 

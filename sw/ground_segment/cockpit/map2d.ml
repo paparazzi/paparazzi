@@ -51,6 +51,10 @@ let fp_example = path_fps // "example.xml"
 
 let speech = ref false
 
+let ign = ref false
+
+let get_bdortho = ref ""
+
 let say = fun s ->
   if !speech then
     ignore (Sys.command (sprintf "spd-say '%s'&" s))
@@ -291,6 +295,30 @@ module GM = struct
 	and se = { posn_lat = sw.posn_lat; posn_long = ne.posn_long } in
 	save_map geomap ~projection:"Mercator" pix nw se
 end (* GM module *)
+
+let bdortho_size = 400
+let display_bdortho = fun  (geomap:G.widget) wgs84 () ->
+  let r = bdortho_size / 2 in
+  let { lbt_x = lx; lbt_y = ly} = lambertIIe_of wgs84 in
+  let lx = lx - ((lx+ bdortho_size) mod bdortho_size)
+  and ly = ly - ((ly- bdortho_size) mod bdortho_size) in
+  let f = sprintf "ortho_%d_%d_%d.jpg" lx ly r in
+  let f = var_maps_path // f in
+  let display = fun _ ->
+    let nw = of_lambertIIe {lbt_x = lx - r; lbt_y = ly + r}
+    and se = of_lambertIIe {lbt_x = lx + r; lbt_y = ly - r} in
+    ignore (geomap#display_pixbuf ((0,0), nw) ((bdortho_size, bdortho_size), se)  (GdkPixbuf.from_file f))
+  in
+  if Sys.file_exists f then
+    display f
+  else
+    ignore (Thread.create
+      (fun f ->
+	let c = sprintf "%s %d %d %d %s" !get_bdortho lx ly r f in
+	ignore (Sys.command c);
+	display f)
+      f)
+
     
 
 (***************** Editing ONE (single) flight plan **************************)
@@ -623,8 +651,14 @@ let button_press = fun (geomap:G.widget) ev ->
 	  Gm.Not_available -> ())
 	() in
 
-    GToolbox.popup_menu ~entries:[`I ("Load Google tile", display_gm);
-				  `I ("Load IGN tile", display_ign)]
+    let m = if !ign then [`I ("Load IGN tile", display_ign)] else [] in
+    let m =
+      if !get_bdortho <> "" then
+	(`I ("Load BDORTHO", display_bdortho geomap wgs84))::m
+      else 
+	m in
+
+    GToolbox.popup_menu ~entries:([`I ("Load Google tile", display_gm)]@m)
       ~button:3 ~time:(Int32.of_int 00);
     true;
   end else if GdkEvent.Button.button ev = 1 && Gdk.Convert.test_modifier `CONTROL state then
@@ -1177,7 +1211,8 @@ let _main =
       "-center", Arg.Set_string center, "Initial map center";
       "-mercator", Arg.Unit (fun () -> projection:=G.Mercator),"Switch to (Google Maps) Mercator projection";
       "-lambertIIe", Arg.Unit (fun () -> projection:=G.LambertIIe),"Switch to LambertIIe projection";
-      "-ign", Arg.Set_string IGN.data_path, "IGN tiles path";
+      "-ign", Arg.String (fun s -> ign:=true; IGN.data_path := s), "IGN tiles path";
+      "-ortho", Arg.Set_string get_bdortho, "IGN tiles path";
       "-speech", Arg.Set speech, "Speech";
       "-m", Arg.String (fun x -> map_file := x), "Map description file"] in
   Arg.parse (options)

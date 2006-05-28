@@ -807,46 +807,6 @@ val select_colors :
   GData.tooltips option -> (unit -> unit) -> unit
 
 
-(** {6 Captures d'écran} *)
-
-
-(** [creation_fen_capture default_filename default_format tooltips with_caption]
- fonction interne de création d'une boite de capture d'écran *)
-val creation_fen_capture :
-  string ->
-  Gtk_image.format_capture ->
-  GData.tooltips option ->
-  bool ->
-  string ref * Gtk_image.format_capture ref *
-  (Gtk_image.progress_save -> float -> unit) option * [> `DELETE_EVENT ] GWindow.dialog *
-  GButton.button * GEdit.entry *
-  (unit ->
-   (string * GDraw.color * GDraw.color * GDraw.color * Gdk.font) option)
-
-(** [gtk_tools_screenshot_box default_filename default_format drawable
-   tooltips x y width height] crée une boite de capture d'écran sans légende *)
-val screenshot_box :
-  string ->
-  Gtk_image.format_capture ->
-  [> `drawable ] Gobject.obj ->
-  GData.tooltips option -> int -> int -> int -> int -> unit
-
-(** [gtk_tools_screenshot_box_with_func default_filename default_format drawable
-	tooltips x y width height after_func] identique à la fonction précédente sauf
-   que la fonction [after_func] est appelée après la capture *)
-val screenshot_box_with_func :
-  string ->
-  Gtk_image.format_capture ->
-  [> `drawable ] Gobject.obj ->
-  GData.tooltips option -> int -> int -> int -> int -> (unit -> unit) -> unit
-
-(** [gtk_tools_screenshot_box_with_caption default_filename default_format
-	drawable tooltips x y width height] boite de capture écran avec légende. Ne
-   fonctionne qu'avec des pixmaps à cause de la légende *)
-val screenshot_box_with_caption :
-  string ->
-  Gtk_image.format_capture ->
-  Gdk.pixmap -> GData.tooltips option -> int -> int -> int -> int -> unit
 
 
 (** {6 Sélection de valeurs entières} *)

@@ -24,7 +24,7 @@
  *
  *)
 
-module Ground_Pprz = Pprz.Protocol(struct let name = "ground" end)
+module Ground_Pprz = Pprz.Messages(struct let name = "ground" end)
 
 module OT = Ocaml_tools
 module G3d = Geometry_3d

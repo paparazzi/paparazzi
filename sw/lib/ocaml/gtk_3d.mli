@@ -238,15 +238,4 @@ class widget_3d :
     (** force l'utilisation du lissage *)
     method smooth_switch : unit
     (** change l'état d'utilisation du lissage *)
-
-
-    (** {6 Captures écran} *)
-
-    method set_screenshot :
-      Gtk_image.format_capture -> string -> string -> unit
-	(** [set_screenshot def_format def_path def_filename] met à jour les
-	   paramètres de capture d'écran *)
-
-    method screenshot : Gtk_image.format_capture -> string -> unit
-    (** [screenshot format filename] ouvre une boite de capture écran *)
   end

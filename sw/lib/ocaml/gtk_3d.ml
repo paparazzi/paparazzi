@@ -206,23 +206,23 @@ type obj3d = {o_obj              : tobj3d ;   (* L'objet                *)
 (* = Creation d'une texture a partir d'une image                               = *)
 (* ============================================================================= *)
 let make_image filename =
-  let img =
-    match OImages.tag (OImages.load filename []) with
-      OImages.Rgb24 rgb24 ->
-	rgb24
-    | OImages.Index8 img | OImages.Index16 img ->
-	let rgb = img#to_rgb24 in
-	img#destroy;
-	rgb
-    | _ -> failwith "Gtk_3d.make_image"  in
-  let w = img#width and h = img#height in 
+  let img = GdkPixbuf.from_file filename in
+  let w = GdkPixbuf.get_width img
+  and h = GdkPixbuf.get_height img
+  and region = GdkPixbuf.get_pixels img in 
+  let n_channels = GdkPixbuf.get_n_channels img in
+  let row = GdkPixbuf.get_rowstride img in
+
+  assert(GdkPixbuf.get_bits_per_sample img = 8);
+  assert(row = n_channels * w);
+
   let image = GlPix.create `ubyte ~format:`rgb ~width:w ~height:h in
   for i = 0 to h - 1 do
     for j = 0 to w - 1 do
-      let pixel = img#get j i in (* pixel is a Color.rgb *)
-      let red = pixel.Images.r in
-      let green = pixel.Images.g in
-      let blue = pixel.Images.b in
+      let pos = i*row + j*n_channels in 
+      let red = Gpointer.get_byte region ~pos in
+      let green = Gpointer.get_byte region ~pos:(pos+1) in
+      let blue = Gpointer.get_byte region ~pos:(pos+2) in
       Raw.sets (GlPix.to_raw image) ~pos:(3*(i*w+j))
         [| red; green; blue |]
     done
@@ -576,8 +576,6 @@ class widget_3d pack with_status_bar n =
     val mutable screenshot_path   = "Captures/"
 	(* nom par defaut de la capture *)
     val mutable screenshot_name   = "capture3d.png"
-	(* format par defaut des captures *)
-    val mutable screenshot_format = Gtk_image.PNG
 
 	(* [triangle_fan] ou [triangle] pour afficher les surfaces triangulees *)
     val mutable use_fans_for_tesselation = true
@@ -1311,8 +1309,6 @@ class widget_3d pack with_status_bar n =
 	 ([_a],         fun () -> self#incr_light_rot rot_incr) ;
 	 ([_z],         fun () -> self#incr_light_rot (-.rot_incr)) ;
 	 ([_L],         fun () -> show_light <- not show_light; self#change_and_redraw) ;
-	 ([_F12],       fun () -> self#screenshot screenshot_format
-	     (screenshot_path^screenshot_name));
 	 ([_space],     fun () -> self#start_stop_animation);
 	 ([_Escape],    fun () -> self#redo_all);
 	 ([_i], fun () -> Printf.printf "%s" (get_gl_infos ()); flush stdout);
@@ -1337,17 +1333,6 @@ class widget_3d pack with_status_bar n =
     (* tourne la lumiere *)
 	method incr_light_rot d = lightrot<-add_coord_360 lightrot Z_AXIS d;
 	  self#change_and_redraw
-
-    (* [set_screenshot def_format def_path def_filename] met a jour les
-	   parametres de capture d'ecran *)
-	method set_screenshot def_format def_path def_filename =
-	  screenshot_path <- def_path; screenshot_name <- def_filename;
-	  screenshot_format <- def_format
-
-    (* [screenshot format filename] ouvre une boite de capture ecran *)
-	method screenshot format filename =
-	  Gtk_tools.screenshot_box filename format area#misc#window
-		None 0 0 width height
 
     (* Manipulations generales des objets *)
 	method private get_object id =

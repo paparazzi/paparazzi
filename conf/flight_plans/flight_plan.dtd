@@ -1,6 +1,6 @@
 <!-- Paparazzi flight plan DTD -->
 
-<!ELEMENT flight_plan (rc_control,dl_settings?,waypoints,include*,exceptions?,blocks)>
+<!ELEMENT flight_plan (rc_control?,dl_settings?,waypoints,include*,exceptions?,blocks)>
 
 <!ELEMENT rc_control (mode*)>
 <!ELEMENT mode (setting*)>

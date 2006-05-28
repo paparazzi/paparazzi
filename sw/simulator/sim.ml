@@ -89,6 +89,8 @@ module Make(AircraftItl : AIRCRAFT_ITL) = struct
   let qfu = (float_attrib flight_plan "qfu")
   let alt0 = (float_attrib flight_plan "ground_alt")
 
+  let pos0 = ref {Latlong.posn_lat=lat0; posn_long=lon0}
+
   let main () =
     let window = GWindow.window ~title:("Aircraft "^ !ac_name) () in
     let quit = fun () -> GMain.Main.quit (); exit 0 in
@@ -100,9 +102,7 @@ module Make(AircraftItl : AIRCRAFT_ITL) = struct
 
     let gps_period = 0.25 in
     
-    let compute_gps_state = Gps.state lat0 lon0 (alt0) in
-
-    let utm0 = Latlong.utm_of Latlong.WGS84 {Latlong.posn_long = lon0; Latlong.posn_lat = lat0}  in
+    let compute_gps_state = Gps.state () in
 
     let initial_state = FlightModel.init (pi/.2. -. qfu/.180.*.pi) in
 
@@ -195,7 +195,15 @@ module Make(AircraftItl : AIRCRAFT_ITL) = struct
 	Unix.Unix_error (e,f,a) -> Printf.fprintf stderr "Error fg: %s (%s(%s))\n" (Unix.error_message e) f a
     in
 
+    let set_pos = fun _ ->
+      let current_pos = Latlong.string_of !pos0 in
+      match GToolbox.input_string ~title:"Setting geographic position" ~text:current_pos "Geographic position"  with
+	Some s -> pos0 := Latlong.of_string s
+      | _ -> ()
+    in
+
     let boot = fun () ->
+      Gps.set_ref !pos0 alt0;
       Aircraft.boot (time_scale:>value);
       Stdlib.timer ~scale:time_scale fm_period fm_task;
       Stdlib.timer ~scale:time_scale ir_period ir_task;
@@ -222,6 +230,8 @@ module Make(AircraftItl : AIRCRAFT_ITL) = struct
     ignore (t#connect#clicked ~callback:take_off);
     let ir_srtm_button = GButton.toggle_button ~label:"IR/srtm" ~packing:hbox#pack () in
     ignore (ir_srtm_button#connect#toggled (fun () -> ir_srtm := not !ir_srtm));
+    let s = GButton.button ~label:"Set Pos" ~packing:hbox#pack () in
+    ignore (s#connect#clicked ~callback:set_pos);
 
     let hbox = GPack.hbox ~packing:vbox#pack () in
     let l = fun s -> ignore(GMisc.label ~text:s ~packing:hbox#pack ()) in

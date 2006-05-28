@@ -1,0 +1,22 @@
+<flight_plan SECURITY_HEIGHT="25" lat0="42.000000" lon0="3" ground_alt="420" qfu="270" alt="450" max_dist_from_home="500" name="Generic">
+  <waypoints>
+    <waypoint Y="0" NAME="HOME" X="0"/>
+  </waypoints>
+  <include Y="100" NAME="up_and_down" PROCEDURE="circles.xml" X="00" ROTATE="0">
+    <arg NAME="bottom" VALUE="GROUND_ALT+50"/>
+    <with FROM="event1" TO="circlehome"/>
+  </include>
+  <blocks>
+    <block NAME="init">
+      <while COND="!GPS_FIX_VALID(gps_mode)"/>
+      <set var="nav_utm_east0" value="gps_utm_east"/>
+      <set var="nav_utm_north0" value="gps_utm_north"/>
+      <set var="nav_utm_zone0" value="gps_utm_zone"/>
+      <deroute BLOCK="circlehome"/>
+    </block>
+    <block NAME="circlehome">
+      <exception COND="(RcEvent1())" DEROUTE="up_and_down.climb"/>
+      <circle WP="HOME" ALT="GROUND_ALT+50" RADIUS="75"/>
+    </block>
+  </blocks>
+</flight_plan>

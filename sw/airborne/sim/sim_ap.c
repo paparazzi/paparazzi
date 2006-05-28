@@ -32,12 +32,12 @@ uint8_t gps_nb_ovrn, modem_nb_ovrn, link_fbw_fbw_nb_err, link_fbw_nb_err;
 
 uint8_t ac_id;
 
-value sim_periodic_task(value _unit __attribute__ ((unused))) {
+value sim_periodic_task(value unit) {
   periodic_task_ap();
   periodic_task_fbw();
   event_task_ap();
   event_task_fbw();
-  return Val_unit;
+  return unit;
 }
 
 
@@ -104,7 +104,7 @@ value send_event(value event_id) {
 
 value dl_setting(value index __attribute__ ((unused)), 
 		 value val __attribute__ ((unused))) {
-  /** DlSetting macro may be empty: unused attr to get rif of the warning */
+  /** DlSetting macro may be empty: unused attr to get rid of the warnings */
   DlSetting(Int_val(index), Double_val(val));
   return Val_unit;
 }
