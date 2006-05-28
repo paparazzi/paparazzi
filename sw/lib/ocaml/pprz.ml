@@ -235,7 +235,10 @@ let byte = fun x -> Char.chr (x land 0xff)
 (** Returns the size of outputed data *)
 let rec sprint_value = fun buf i _type v ->
   match _type, v with
-    Scalar ("int8"|"uint8"), Int x -> buf.[i] <- Char.chr x; sizeof _type
+    Scalar ("int8"|"uint8"), Int x ->
+      if x < 0 || x > 0xff then
+	failwith (sprintf "Value too large to fit in a (u)int8: %d" x);
+      buf.[i] <- Char.chr x; sizeof _type
   | Scalar "float", Float f -> sprint_float buf i f; sizeof _type
   | Scalar "int32", Int32 x -> sprint_int32 buf i x; sizeof _type
   | Scalar "int16", Int x -> sprint_int16 buf i x; sizeof _type
