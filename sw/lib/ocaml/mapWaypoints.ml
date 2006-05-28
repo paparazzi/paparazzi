@@ -108,11 +108,11 @@ class waypoint = fun (group:group) (name :string) ?(alt=0.) wgs84 ->
 	| `BUTTON_PRESS ev ->
 	    begin
 	      match GdkEvent.Button.button ev with
-	      |	1 -> self#edit
+	      |	2 -> self#edit
 	      |	3 -> 
 		  if (GToolbox.question_box ~title:"Confirm delete" ~buttons:["Cancel";"Delete"] ~default:2 (sprintf "Delete '%s' ?" name)) = 2 then
 		    self#delete
-	      | 2 ->
+	      | 1 ->
 		  let x = GdkEvent.Button.x ev
 		  and y = GdkEvent.Button.y ev in
 		  x0 <- x; y0 <- y;
@@ -123,7 +123,7 @@ class waypoint = fun (group:group) (name :string) ?(alt=0.) wgs84 ->
 	    end
 	| `MOTION_NOTIFY ev ->
 	    let state = GdkEvent.Motion.state ev in
-	    if Gdk.Convert.test_modifier `BUTTON2 state then begin
+	    if Gdk.Convert.test_modifier `BUTTON1 state then begin
 	      let x = GdkEvent.Motion.x ev
 	      and y = GdkEvent.Motion.y ev in
 	      let dx = geomap#current_zoom *. (x-. x0) 
@@ -134,7 +134,7 @@ class waypoint = fun (group:group) (name :string) ?(alt=0.) wgs84 ->
 	      x0 <- x; y0 <- y
 	    end
 	| `BUTTON_RELEASE ev ->
-	    if GdkEvent.Button.button ev = 2 then begin
+	    if GdkEvent.Button.button ev = 1 then begin
 	      item#ungrab (GdkEvent.Button.time ev);
 	      moved <- true
 	    end
