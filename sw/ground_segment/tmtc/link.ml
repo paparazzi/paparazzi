@@ -34,14 +34,13 @@ type transport =
     Modem
   | Pprz
   | Wavecard
-  | Maxstream
+  | XBee
 
 type ground_device = { fd : Unix.file_descr; transport : transport }
 
-type maxstream_addr = int
 type airborne_device = 
     WavecardDevice of W.addr
-  | MaxstreamDevice of maxstream_addr
+  | XBeeDevice
   | Uart (** For HITL for example *)
 
 let my_id = 0
@@ -54,7 +53,7 @@ let conf = Env.paparazzi_home // "conf"
 let airborne_device = fun device addr ->
   match device with
     "WAVECARD" -> WavecardDevice (W.addr_of_string addr)
-  | "MAXSTREAM" -> MaxstreamDevice (int_of_string addr)
+  | "XBEE" -> XBeeDevice
   | _ -> failwith (sprintf "Link: unknown datalink: %s" device)
 
 let get_define = fun xml name ->
@@ -133,7 +132,7 @@ let airborne_device = fun ac_id airframes device ->
   match ac_device, device with
     None, Pprz -> Uart
   | (Some (WavecardDevice _ as ac_device), Wavecard) |
-    (Some (MaxstreamDevice _ as ac_device), Maxstream) ->
+    (Some (XBeeDevice as ac_device), XBee) ->
       ac_device
   | _ -> raise NotSendingToThis
 
@@ -271,9 +270,38 @@ end (** Wc module *)
 
 
 
+module XB = struct
+  let at_init_period = 2000 (* ms *)
+
+  let switch_to_api = fun device ->
+    let o = Unix.out_channel_of_descr device.fd in
+(***    fprintf o "%s%!" (Xbee.at_set_my 255); ***)
+    fprintf o "%s%!" Xbee.at_api_enable;
+    fprintf o "%s%!" Xbee.at_exit;
+    Debug.trace 'x' "fin init xbee"
+
+  let init = fun device ->
+    Debug.trace 'x' "init xbee";
+    let o = Unix.out_channel_of_descr device.fd in
+    fprintf o "%s%!" Xbee.at_command_sequence;
+    ignore (Glib.Timeout.add at_init_period (fun () -> switch_to_api device; false))
+
+  let use_message = fun s ->
+    let s = Serial.string_of_payload s in
+    Debug.trace 'x' (Debug.xprint s)
+
+  let send = fun ac_id device rf_data ->
+    let frame_data = Xbee.api_tx16 ac_id rf_data in
+    let packet = Xbee.Protocol.packet (Serial.payload_of_string frame_data) in
+    let o = Unix.out_channel_of_descr device.fd in
+    fprintf o "%s%!" packet;
+    Debug.call 'x' (fun f -> fprintf f "link sending: %s\n" (Debug.xprint packet));
+end
 
 
-let send = fun device ac_device payload priority ->
+
+
+let send = fun ac_id device ac_device payload priority ->
   match ac_device with
     Uart ->
       let o = Unix.out_channel_of_descr device.fd in
@@ -282,7 +310,10 @@ let send = fun device ac_device payload priority ->
       Debug.call 'l' (fun f -> fprintf f "mm sending: %s\n" (Debug.xprint buf));
   | WavecardDevice addr ->
       Wc.send device.fd addr payload priority
-  | _ -> failwith "send: not yet"
+
+  | XBeeDevice ->
+      let buf = Pprz.Transport.packet payload in
+      XB.send ac_id device buf
 
 
 let cm_of_m = fun f -> Pprz.Int (truncate (100. *. f))
@@ -314,7 +345,7 @@ let get_fp = fun device _sender vs ->
 		    "speed", cm_of_m gspeed] in
 	  let msg_id, _ = Dl_Pprz.message_of_name "ACINFO" in
 	  let s = Dl_Pprz.payload_of_values msg_id my_id vs in
-	  send device ac_device s Low
+	  send dest_id device ac_device s Low
 	with
 	  NotSendingToThis -> ())
     airframes
@@ -338,7 +369,7 @@ let move_wp = fun device _sender vs ->
 	      "alt", cm_of_m alt] in
     let msg_id, _ = Dl_Pprz.message_of_name "MOVE_WP" in
     let s = Dl_Pprz.payload_of_values msg_id my_id vs in
-    send device ac_device s High
+    send ac_id device ac_device s High
   with
     NotSendingToThis -> ()
 
@@ -351,7 +382,7 @@ let send_event = fun device _sender vs ->
     let vs = ["event", Pprz.Int ev_id] in
     let msg_id, _ = Dl_Pprz.message_of_name "EVENT" in
     let s = Dl_Pprz.payload_of_values msg_id my_id vs in
-    send device ac_device s High
+    send ac_id device ac_device s High
   with
     NotSendingToThis -> ()
     
@@ -365,7 +396,7 @@ let setting = fun device _sender vs ->
     let vs = ["index", Pprz.Int idx; "value", List.assoc "value" vs] in
     let msg_id, _ = Dl_Pprz.message_of_name "SETTING" in
     let s = Dl_Pprz.payload_of_values msg_id my_id vs in
-    send device ac_device s High
+    send ac_id device ac_device s High
   with
     NotSendingToThis -> ()
 
@@ -379,7 +410,7 @@ let jump_block = fun device _sender vs ->
     let vs = ["block_id", Pprz.Int block_id] in
     let msg_id, _ = Dl_Pprz.message_of_name "BLOCK" in
     let s = Dl_Pprz.payload_of_values msg_id my_id vs in
-    send device ac_device s High
+    send ac_id device ac_device s High
   with
     NotSendingToThis -> ()
 
@@ -394,7 +425,7 @@ let raw_datalink = fun device _sender vs ->
     done;
     let msg_id, vs = Dl_Pprz.values_of_string m in
     let s = Dl_Pprz.payload_of_values msg_id my_id vs in
-    send device ac_device s Normal
+    send ac_id device ac_device s Normal
   with
     NotSendingToThis -> ()
 
@@ -445,6 +476,9 @@ end
 
 
 
+
+
+
 let parse_of_transport device = function
     Pprz -> 
       PprzTransport.parse use_tele_message
@@ -453,7 +487,9 @@ let parse_of_transport device = function
       ModemTransport.parse PprzModem.use_message
   | Wavecard ->
       fun buf -> Wavecard.parse buf ~ack:(Wc.send_ack device.fd) (Wc.use_message)
-  | _ -> failwith "parse_of_transport: not yet"
+  | XBee ->
+      let module XbeeTransport = Serial.Transport (Xbee.Protocol) in
+      XbeeTransport.parse XB.use_message
     
 
 let _ =
@@ -469,7 +505,7 @@ let _ =
     [ "-b", Arg.Set_string ivy_bus, (sprintf "<ivy bus> Default is %s" !ivy_bus);
       "-d", Arg.Set_string port, (sprintf "<port> Default is %s" !port);
       "-rssi", Arg.Set_int rssi_id, (sprintf "<ac_id> Periodically requests rssi level from the distant wavecard");
-      "-transport", Arg.Set_string transport, (sprintf "<transport> Available protocols are modem,pprz,wavecard and maxstream. Default is %s" !transport);
+      "-transport", Arg.Set_string transport, (sprintf "<transport> Available protocols are modem,pprz,wavecard and xbee. Default is %s" !transport);
       "-uplink", Arg.Set uplink, (sprintf "Uses the link as uplink also.");
       "-audio", Arg.Unit (fun () -> audio := true; port := "/dev/dsp"), (sprintf "Listen a modulated audio signal on <port>. Sets <port> to /dev/dsp (the -d option must used after this one if needed)");
       "-s", Arg.Set_string baurate, (sprintf "<baudrate>  Default is %s" !baurate)] in
@@ -487,7 +523,7 @@ let _ =
 	"modem" -> Modem
       | "pprz" -> Pprz
       | "wavecard" -> Wavecard
-      | "maxstream" -> Maxstream
+      | "xbee" -> XBee
       | x -> invalid_arg (sprintf "transport_of_string: %s" x)
     in
 
@@ -541,6 +577,8 @@ let _ =
 	  ignore (Glib.Timeout.add PprzModem.msg_period (fun () -> PprzModem.send_msg (); true))
       | Wavecard ->
 	  Wc.init device !rssi_id
+      | XBee ->
+	  XB.init device
       | _ -> ()
     end;
 
