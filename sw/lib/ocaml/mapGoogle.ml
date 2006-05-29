@@ -74,7 +74,7 @@ let add_tile = fun tile_key ->
   loop 0 [|gm_tiles|] 0
 
 
-let display_the_tile = fun geomap tile jpg_file ->
+let display_the_tile = fun (geomap:MapCanvas.widget) tile jpg_file ->
   let south_lat = tile.Gm.sw_corner.LL.posn_lat
   and west_long = tile.Gm.sw_corner.LL.posn_long in
   let north_lat = south_lat +. tile.Gm.height

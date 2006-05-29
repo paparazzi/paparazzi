@@ -65,6 +65,23 @@ let my_menu_item = fun label ~callback ~packing () ->
   ignore (mi#connect#activate ~callback)
 
 
+let set_opacity = fun pixbuf opacity ->
+  let pixbuf = GdkPixbuf.add_alpha pixbuf in
+
+  let region = GdkPixbuf.get_pixels pixbuf
+  and w = GdkPixbuf.get_width pixbuf
+  and h = GdkPixbuf.get_height pixbuf in
+  let n_channels = GdkPixbuf.get_n_channels pixbuf in
+  assert(n_channels = 4);
+  for i = 0 to h - 1 do
+    for j = 0 to w - 1 do
+      let pos = n_channels* (i*w + j) + 3 in 
+      Gpointer.set_byte region ~pos opacity
+    done
+  done;
+  pixbuf
+
+
 (** basic canvas with menubar **************************************
  * (the vertical display in map2.ml is an instance of basic_widget)*
  *******************************************************************)
@@ -238,9 +255,13 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
       and (x, y) = canvas#get_scroll_offsets in
       canvas#scroll_to (x-sx_w/2) (y-sy_w/2)
 			
-    method display_pixbuf = fun ((x1,y1), geo1) ((x2,y2), geo2) image ->
+    method display_pixbuf = fun ?opacity ((x1,y1), geo1) ((x2,y2), geo2) image ->
       let x1 = float x1 and x2 = float x2
       and y1 = float y1 and y2 = float y2 in
+      let image = 
+	match opacity with
+	  None -> image
+	| Some o -> set_opacity image o in
       let pix = GnoCanvas.pixbuf ~x:(-.x1) ~y:(-.y1)~pixbuf:image ~props:[`ANCHOR `NW] background in
       let xw1, yw1 = self#world_of geo1
       and xw2, yw2 = self#world_of geo2 in

@@ -87,6 +87,7 @@ let display_map = fun (geomap:G.widget) xml_map ->
     let xml_map = Xml.parse_file xml_map in
     let image = dir // ExtXml.attrib xml_map "file" in
     let map_projection = Xml.attrib xml_map "projection" in
+    let opacity = try Some (int_of_string (Xml.attrib xml_map "opacity")) with _ -> None in
     let current_projection = geomap#projection in
     if map_projection <> current_projection then
       GToolbox.message_box "Warning" (sprintf "You are loading a map in %s projection while the display use %s" map_projection current_projection);
@@ -112,7 +113,7 @@ let display_map = fun (geomap:G.widget) xml_map ->
 	(* Take this point as a reference for the display if none currently *)
 	set_georef_if_none geomap geo1;
 	
-	ignore (geomap#display_pixbuf ((x1y1),geo1) ((x2y2),geo2) (GdkPixbuf.from_file image));
+	ignore (geomap#display_pixbuf ?opacity ((x1y1),geo1) ((x2y2),geo2) (GdkPixbuf.from_file image));
 	geomap#center geo1
     | _ -> failwith (sprintf "display_map: two ref points required")
   with
@@ -1195,7 +1196,7 @@ end
 let _main =
   let ivy_bus = ref "127.255.255.255:2010"
   and geo_ref = ref ""
-  and map_file = ref ""
+  and map_files = ref []
   and center = ref ""
   and zoom = ref 1.
   and projection= ref G.UTM
@@ -1211,7 +1212,7 @@ let _main =
       "-ign", Arg.String (fun s -> ign:=true; IGN.data_path := s), "IGN tiles path";
       "-ortho", Arg.Set_string get_bdortho, "IGN tiles path";
       "-speech", Arg.Set speech, "Speech";
-      "-m", Arg.String (fun x -> map_file := x), "Map description file"] in
+      "-m", Arg.String (fun x -> map_files := x :: !map_files), "Map description file"] in
   Arg.parse (options)
     (fun x -> Printf.fprintf stderr "Warning: Don't do anythig with %s\n" x)
     "Usage: ";
@@ -1318,10 +1319,10 @@ let _main =
   (** Loading an initial map *)
   if !geo_ref <> "" then
     set_georef_if_none geomap (Latlong.of_string !geo_ref);
-  if !map_file <> "" then begin
-    let xml_map_file = if !map_file.[0] <> '/' then Filename.concat default_path_maps !map_file else !map_file in
-    display_map geomap xml_map_file
-  end;
+  List.iter (fun map_file ->
+    let xml_map_file = if map_file.[0] <> '/' then default_path_maps // map_file else map_file in
+    display_map geomap xml_map_file)
+    !map_files;
 
   (** Center the map as required *)
   if !center <> "" then begin

@@ -30,6 +30,9 @@ let displayed_tiles = Hashtbl.create 41
 let mem_tile = fun t -> Hashtbl.mem displayed_tiles t.IGN.key
 let add_tile = fun t -> Hashtbl.add displayed_tiles t.IGN.key ()
 
+
+let opacity = 100 (* FIXME *)
+
 (** Displaying the tile around the given point *)
 let display_tile = fun (geomap:MapCanvas.widget) wgs84 ->
   let tile = IGN.tile_of_geo wgs84 in
@@ -38,6 +41,8 @@ let display_tile = fun (geomap:MapCanvas.widget) wgs84 ->
     let jpg_file = IGN.get_tile tile in
     
     let (sx,sy) = IGN.tile_size in
-    let map = geomap#display_pixbuf ((0,sx), tile.IGN.sw_corner) ((sy,0),tile.IGN.ne_corner) (GdkPixbuf.from_file jpg_file) in
+    let pixbuf = GdkPixbuf.from_file jpg_file in
+
+    let map = geomap#display_pixbuf ~opacity ((0,sx), tile.IGN.sw_corner) ((sy,0),tile.IGN.ne_corner) pixbuf in
     map#raise 1;
     add_tile tile
