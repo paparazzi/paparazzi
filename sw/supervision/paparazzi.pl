@@ -7,7 +7,7 @@ BEGIN {
     $ENV{PAPARAZZI_SRC}."/sw/lib/perl" : "/usr/lib/paparazzi/";
 }
 use lib ($paparazzi_lib);
-use lib ($ENV{PAPARAZZI_SRC}."/sw/supervision");
+#use lib ($ENV{PAPARAZZI_SRC}."/sw/supervision");
 
 use Paparazzi::CpGui;
 @ISA = qw(Paparazzi::CpGui);
@@ -29,7 +29,7 @@ sub populate {
   Paparazzi::Environment::check_paparazzi_home();
   $args->{-config_file} = $paparazzi_home."/conf/control_panel.xml";
   $args->{-variables} = {paparazzi_home => $paparazzi_home};
-  $args->{-bin_base_dir} = $paparazzi_src;
+  $args->{-bin_base_dir} = defined $paparazzi_src ? $paparazzi_src : "/usr/share/paparazzi";
   $args->{-logo_file} = $paparazzi_home."/data/pictures/penguin_logo.gif";
   $self->SUPER::populate($args);
   $self->configspec(-variables => [S_SUPER,    S_SUPER,    S_SUPER,  S_SUPER,  S_SUPER, {}]);

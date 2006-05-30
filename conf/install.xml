@@ -4,264 +4,39 @@
   <file name="sw/supervision/paparazzi.pl"/>
 </section>
 
-<section name="priv_binaries" dest="share/paparazzi/bin" comment="helpers program">
-   <file name="sw/configurator/medit.out"/>
-   <file name="sw/ground_segment/cockpit/cockpit.pl"/>
-   <file name="sw/ground_segment/cockpit/map.pl"/>
-   <file name="sw/ground_segment/cockpit/map2d"/>
-   <file name="sw/ground_segment/speech/paparazzi_speak.pl"/>
-   <file name="sw/ground_segment/tmtc/messages"/>
-   <file name="sw/ground_segment/tmtc/receive"/>
-   <file name="sw/ground_segment/visu3d/mapGL"/>
-   <file name="sw/logalizer/play"/>
-   <file name="sw/simulator/simsitl.pl"/>
-   <file name="sw/tools/gen_sim_downlink.out"/>
-   <file name="sw/tools/gen_aircraft.out"/>
-   <file name="sw/tools/gen_airframe.out"/>
-   <file name="sw/tools/gen_calib.out"/>
-   <file name="sw/tools/gen_flight_plan.out"/>
-   <file name="sw/tools/gen_messages.out"/>
-   <file name="sw/tools/gen_radio.out"/>
-   <file name="sw/tools/gen_ubx.out"/>
+<section name="p_binaries" dest="share/paparazzi/sw/ground_segment/cockpit" comment="programs">
+  <file name="sw/ground_segment/cockpit/map2d"/>
+</section>
+
+
+<section name="skeleton" dest="share/paparazzi/conf" comment="">
+  <file name="conf/messages.xml"/>
+  <file name="conf/messages.dtd"/>
+  <file name="conf/ubx.xml"/>
+  <file name="conf/ubx.dtd"/>
+</section>
+
+<section name="data" dest="share/paparazzi/data">
+   <directory name="data/pictures"/>
 </section>
 
 <section name="perl_lib" dest="lib/perl5/Paparazzi" comment="perl modules">
-<!--  
-  <directory name="sw/lib/perl/Paparazzi"/>
-  <directory name="sw/ground_segment/cockpit/Paparazzi"/>
--->
    <file name="sw/supervision/Paparazzi/CpPgmMgr.pm"/>
    <file name="sw/supervision/Paparazzi/CpSessionMgr.pm"/>
    <file name="sw/supervision/Paparazzi/CpGui.pm"/>
    <file name="sw/lib/perl/Paparazzi/Environment.pm"/>
    <file name="sw/lib/perl/Paparazzi/IvyProtocol.pm"/>
    <file name="sw/lib/perl/Paparazzi/Utils.pm"/>
-   <file name="sw/ground_segment/cockpit/Paparazzi/EngineView.pm"/>
-   <file name="sw/ground_segment/cockpit/Paparazzi/Horizon.pm"/>
-   <file name="sw/ground_segment/cockpit/Paparazzi/LensScale.pm"/>
-   <file name="sw/ground_segment/cockpit/Paparazzi/MapView.pm"/>
-   <file name="sw/ground_segment/cockpit/Paparazzi/MissionD.pm"/>
-   <file name="sw/ground_segment/cockpit/Paparazzi/PFD.pm"/>
-   <file name="sw/ground_segment/cockpit/Paparazzi/PFD_Panel.pm"/>
-   <file name="sw/ground_segment/cockpit/Paparazzi/RotaryGauge.pm"/>
-   <file name="sw/ground_segment/cockpit/Paparazzi/SatSigView.pm"/>
-   <file name="sw/ground_segment/cockpit/Paparazzi/SatView.pm"/>
-   <file name="sw/ground_segment/cockpit/Paparazzi/Scale.pm"/>
-   <file name="sw/ground_segment/cockpit/Paparazzi/Strip.pm"/>
-   <file name="sw/ground_segment/cockpit/Paparazzi/StripPanel.pm"/>
-   <file name="sw/ground_segment/cockpit/Paparazzi/ND.pm"/>
-   <file name="sw/ground_segment/cockpit/Paparazzi/NDPage.pm"/>
-   <file name="sw/ground_segment/cockpit/Paparazzi/SatPage.pm"/>
-   <file name="sw/ground_segment/cockpit/Paparazzi/EnginePage.pm"/>
-   <file name="sw/ground_segment/cockpit/Paparazzi/APPage.pm"/>
-   <file name="sw/ground_segment/cockpit/Paparazzi/IRPage.pm"/>
-   <file name="sw/ground_segment/cockpit/Paparazzi/HistoryView.pm"/>
-   <file name="sw/ground_segment/cockpit/Paparazzi/Geometry.pm"/>
 </section>
 
 <section name="conf" dest="share/paparazzi/conf">
   <file name="conf/Makefile.avr"/>
   <file name="conf/Makefile.local"/>
-  <file name="conf/ubx.xml"/>
-  <file name="conf/ubx.dtd"/>
-  <file name="conf/conf.xml"/>
-  <file name="conf/control_panel.xml.sys" new_name="control_panel.xml"/>
-<!--  <file name="conf/ground_segment.xml"/> -->
+  <file name="conf/conf.xml.example" new_name="conf.xml"/>
+  <file name="conf/control_panel.xml.example" new_name="control_panel.xml"/>
   <file name="conf/hosts_wavecard.xml"/>
   <file name="conf/messages.xml"/>
   <file name="conf/wavecard.xml"/>
-</section>
-
-<section name="conf_airframes" dest="share/paparazzi/conf/airframes">
-  <file name="conf/airframes/twinstar1.xml"/>
-  <file name="conf/airframes/twinstar2.xml"/>
-  <file name="conf/airframes/microjet1.xml"/>
-  <file name="conf/airframes/microjet2.xml"/>
-</section>
-
-<section name="conf_flight_plans" dest="share/paparazzi/conf/flight_plans">
- <file name="conf/flight_plans/circles.xml"/>
- <file name="conf/flight_plans/flight_plan.dtd"/>
- <file name="conf/flight_plans/hippo.xml"/>
- <file name="conf/flight_plans/huit.xml"/>
- <file name="conf/flight_plans/muret1.xml"/>
- <file name="conf/flight_plans/muret2.xml"/>
- <file name="conf/flight_plans/muret3.xml"/>
- <file name="conf/flight_plans/procedure.dtd"/>
-</section>
-
-<section name="conf_radios" dest="share/paparazzi/conf/radios">
- <file name="conf/radios/cockpitMM.xml"/>
- <file name="conf/radios/mc3030.xml"/>
- <file name="conf/radios/fc28.xml"/>
-</section>
-
-<section name="data_SRTM" dest="share/paparazzi/data/srtm">
- <file name="data/SRTM/N43E001.hgt"/>
-</section>
-
-<section name="data_maps" dest="share/paparazzi/data/maps">
- <file name="data/maps/garmisch.xml"/>
- <file name="data/maps/garmisch.gif"/>
- <file name="data/maps/nasa_strasbourg.xml"/>
- <file name="data/maps/nasa_strasbourg.jpg"/>
-</section>
-
-<section name="data_pictures" dest="share/paparazzi/data/pictures">
- <file name="data/pictures/penguin_logo.gif"/>
- <file name="data/pictures/fc28.gif"/>
- <file name="data/pictures/cockpitMM.gif"/>
-</section>
-
-<section name="main_makefiles" dest="share/paparazzi/">
-   <file name="Makefile.sys"/>
-   <file name="pprz_src_test.sh"/>
-   <file name="Makefile.gen"/>
-   <file name="Makefile.ac"/>
-</section>
-
-<section name="sw_tmtc" dest="share/paparazzi/sw/ground_segment/tmtc" comment="ocaml objects">
-   <file name="sw/ground_segment/tmtc/modem.cmo"/>
-   <file name="sw/ground_segment/tmtc/modem.cmi"/>
-   <file name="sw/ground_segment/tmtc/receive.ml"/>
-   <file name="sw/ground_segment/tmtc/messages.ml"/>
-</section>
-
-<section name="sw_cockpit" dest="share/paparazzi/sw/ground_segment/cockpit" comment="ocaml objects">
-   <file name="sw/ground_segment/cockpit/map2d.ml"/>
-</section>
-
-<section name="sw_visu3d" dest="share/paparazzi/sw/ground_segment/visu3d" comment="ocaml objects">
-   <file name="sw/ground_segment/visu3d/mapGL.ml"/>
-</section>
-
-<section name="sw_log" dest="share/paparazzi/sw/logalizer" comment="ocaml objects">
-   <file name="sw/logalizer/play.ml"/>
-</section>
-
-<section name="sw_tools" dest="share/paparazzi/sw/tools" comment="ocaml objects">
-   <file name="sw/tools/gen_aircraft.ml"/>
-   <file name="sw/tools/gen_sim_downlink.ml"/>
-   <file name="sw/tools/gen_airframe.ml"/>
-   <file name="sw/tools/gen_calib.ml"/>
-   <file name="sw/tools/gen_radio.ml"/>
-   <file name="sw/tools/gen_ubx.ml"/>
-   <file name="sw/tools/gen_messages.ml"/>
-   <file name="sw/tools/gen_flight_plan.ml"/>
-   <file name="sw/tools/fp_syntax.cmo"/>
-   <file name="sw/tools/fp_parser.cmo"/>
-   <file name="sw/tools/fp_lexer.cmo"/>
-   <file name="sw/tools/fp_proc.cmo"/>
-   <file name="sw/tools/fp_proc.cmi"/>
-   <file name="sw/tools/fp_syntax.cmi"/>
-</section>
-
-<section name="sw_lib_ocaml" dest="share/paparazzi/sw/lib/ocaml" comment="ocaml objects and libs needed during airborne code generation">
-   <file name="sw/lib/ocaml/env.cmi"/>
-   <file name="sw/lib/ocaml/extXml.cmi"/>
-   <file name="sw/lib/ocaml/latlong.cmi"/>
-   <file name="sw/lib/ocaml/xml2h.cmi"/>
-   <file name="sw/lib/ocaml/serial.cmi"/>
-   <file name="sw/lib/ocaml/pprz.cmi"/>
-   <file name="sw/lib/ocaml/debug.cmi"/>
-   <file name="sw/lib/ocaml/geometry_2d.cmi"/>
-   <file name="sw/lib/ocaml/geometry_3d.cmi"/>
-   <file name="sw/lib/ocaml/gtk_3d.cmi"/>
-   <file name="sw/lib/ocaml/gtk_tools.cmi"/>
-   <file name="sw/lib/ocaml/srtm.cmi"/>
-   <file name="sw/lib/ocaml/ocaml_tools.cmi"/>
-   <file name="sw/lib/ocaml/mapCanvas.cmi"/>
-   <file name="sw/lib/ocaml/mapTrack.cmi"/>
-   <file name="sw/lib/ocaml/mapWaypoints.cmi"/>
-   <file name="sw/lib/ocaml/lib-pprz.cma"/>
-   <file name="sw/lib/ocaml/liblib-pprz.a"/>
-   <file name="sw/lib/ocaml/dlllib-pprz.so"/>
-   <file name="sw/lib/ocaml/xlib-pprz.cma"/>
-   <file name="sw/lib/ocaml/libxlib-pprz.a"/>
-   <file name="sw/lib/ocaml/dllxlib-pprz.so"/>
-</section>
-
-<section name="sw_simulator" dest="share/paparazzi/sw/simulator" comment="ocaml objects and C hooks for airborne code simulation">
-   <file name="sw/simulator/Makefile"/>
-   <file name="sw/simulator/flightModelHeli.ml.sav"/>
-   <file name="sw/simulator/sim.cmi"/>
-   <file name="sw/simulator/sim_ap.c"/>
-   <file name="sw/simulator/sim_gps.c"/>
-   <file name="sw/simulator/sim_ir.c"/>
-   <file name="sw/simulator/simsitl.ml"/>
-   <file name="sw/simulator/simsitl.pl"/>
-   <file name="sw/simulator/sitl.cma"/>
-   <file name="sw/simulator/sitl.cmi"/>
-   <file name="sw/simulator/timer.h"/>
-</section>
-
-<section name="sw_include" dest="share/paparazzi/sw/include" comment="common headers for airborne code">
-   <file name="sw/include/std.h"/>
-</section>
-
-<section name="sw_fly_by_wire" dest="share/paparazzi/sw/airborne/fly_by_wire" comment="airborne code for the mega8 - aka flybywire MCU">
-   <file name="sw/airborne/fly_by_wire/Makefile"/>
-   <file name="sw/airborne/fly_by_wire/README"/>
-   <file name="sw/airborne/fly_by_wire/adc_fbw.h" comment="analog to digital converter handling header"/>
-   <file name="sw/airborne/fly_by_wire/adc_fbw.c" comment="analog to digital converter handling code"/>
-   <file name="sw/airborne/fly_by_wire/link_autopilot.h" comment="protocol for spi link with autopilot MCU"/>
-   <file name="sw/airborne/fly_by_wire/main.c" comment="initialisation and main loop"/>
-   <file name="sw/airborne/fly_by_wire/ppm.h" comment="radio control decoder header"/>
-   <file name="sw/airborne/fly_by_wire/ppm.c" comment="radio control decoder code"/>
-   <file name="sw/airborne/fly_by_wire/servo.h" comment="servo pulse generation header"/>
-   <file name="sw/airborne/fly_by_wire/servo.c" comment="servo pulse generation code"/>
-   <file name="sw/airborne/fly_by_wire/spi.h" comment="serial peripheral interface handling header"/>
-   <file name="sw/airborne/fly_by_wire/spi.c" comment="serial peripheral interface handling code"/>
-   <file name="sw/airborne/fly_by_wire/timer.h" comment="timer handling code"/>
-   <file name="sw/airborne/fly_by_wire/uart.h" comment="buffered asynchronous serial port handling header"/>
-   <file name="sw/airborne/fly_by_wire/uart.c" comment="buffered asynchronous serial port handling code"/>
-</section>
-
-<section name="sw_autopilot" dest="share/paparazzi/sw/airborne/autopilot" comment="airborne code for the mega128 - aka autopilot MCU">
-   <file name="sw/airborne/autopilot/Makefile"/>
-   <file name="sw/airborne/autopilot/README"/>
-   <file name="sw/airborne/autopilot/adc.h" comment="analog to digital converter handling header"/>
-   <file name="sw/airborne/autopilot/adc.c" comment="analog to digital converter handling code"/>
-   <file name="sw/airborne/autopilot/autopilot.h"/>
-   <file name="sw/airborne/autopilot/downlink.h"/>
-   <file name="sw/airborne/autopilot/estimator.c"/>
-   <file name="sw/airborne/autopilot/estimator.h"/>
-   <file name="sw/airborne/autopilot/gps.h"/>
-   <file name="sw/airborne/autopilot/gps_sirf.c"/>
-   <file name="sw/airborne/autopilot/gps_ubx.c"/>
-   <file name="sw/airborne/autopilot/if_calib.c"/>
-   <file name="sw/airborne/autopilot/if_calib.h"/>
-   <file name="sw/airborne/autopilot/infrared.c"/>
-   <file name="sw/airborne/autopilot/infrared.h"/>
-   <file name="sw/airborne/autopilot/link_fbw.c"/>
-   <file name="sw/airborne/autopilot/link_fbw.h"/>
-   <file name="sw/airborne/autopilot/lls.c"/>
-   <file name="sw/airborne/autopilot/lls.h"/>
-   <file name="sw/airborne/autopilot/main.c"/>
-   <file name="sw/airborne/autopilot/mainloop.c"/>
-   <file name="sw/airborne/autopilot/modem.c"/>
-   <file name="sw/airborne/autopilot/modem.h"/>
-   <file name="sw/airborne/autopilot/nav.c"/>
-   <file name="sw/airborne/autopilot/nav.h"/>
-   <file name="sw/airborne/autopilot/pid.c"/>
-   <file name="sw/airborne/autopilot/pid.h"/>
-   <file name="sw/airborne/autopilot/sirf.h"/>
-   <file name="sw/airborne/autopilot/spi.c"/>
-   <file name="sw/airborne/autopilot/spi.h"/>
-   <file name="sw/airborne/autopilot/timer.h"/>
-   <file name="sw/airborne/autopilot/uart.c"/>
-   <file name="sw/airborne/autopilot/uart.h"/>
-   <file name="sw/airborne/autopilot/ubx.h"/>
-</section>
-
-<section name="var_log" dest="share/paparazzi/var/logs">
-   <file name="var/logs/04_12_29__15_11_08.log"/>
-</section>
-
-<section name="var_include" dest="share/paparazzi/var/include">
-   <file name="var/include/fbw_messages.h"/>
-   <file name="var/include/messages.h"/>
-   <file name="var/include/ubx_protocol.h"/>
 </section>
 
 </install>

@@ -13,33 +13,28 @@
   </section>
 
   <section name="programs">
-    <program name="server" command="sw/ground_segment/tmtc/server">
+    <program name="server" command="bin/server">
       <arg flag="-b" variable="ivy_bus"/>
     </program>
-    <program name="link" command="sw/ground_segment/tmtc/link">
+    <program name="link" command="bin/link">
       <arg flag="-b" variable="ivy_bus"/>
     </program>
-    <program name="cockpit" command="sw/ground_segment/cockpit/cockpit.pl">
+    <program name="cockpit" command="bin/cockpit.pl">
       <arg flag="-b" variable="ivy_bus"/>
       <arg flag="-r" variable="render"/>
     </program>
-    <program name="map 2d ml" command="sw/ground_segment/cockpit/map2d">
+    <program name="map 2d" command="bin/map2d">
       <arg flag="-b" variable="ivy_bus"/>
     </program>
-    <program name="map 3d" command="sw/ground_segment/visu3d/mapGL">
-      <arg flag="-b" variable="ivy_bus"/>
-      <arg flag="-m" variable="map"/>
-      <arg flag="-f" variable="flight_plan"/>
-    </program>
-    <program name="mission" command="sw/ground_segment/cockpit/mission.pl">
+    <program name="map 3d" command="bin/mapGL">
       <arg flag="-b" variable="ivy_bus"/>
       <arg flag="-m" variable="map"/>
       <arg flag="-f" variable="flight_plan"/>
     </program>
-    <program name="messages" command="sw/ground_segment/tmtc/messages">
+    <program name="messages" command="bin/messages">
       <arg flag="-b" variable="ivy_bus"/>
     </program>
-    <program name="speech" command="sw/ground_segment/speech/paparazzi_speak.pl">
+    <program name="speech" command="bin/paparazzi_speak.pl">
       <arg flag="-b" variable="ivy_bus"/>
     </program>
     <program name="wind" command ="sw/ground_segment/wind/wind">
@@ -49,14 +44,14 @@
     <program name="play" command="sw/logalizer/play">
       <arg flag="-b" variable="ivy_bus"/>
     </program>
-    <program name="sim" command="sw/simulator/simsitl.pl">
+    <program name="sim" command="bin/simsitl.pl">
       <arg flag="-b" variable="ivy_bus"/>
     </program>
-    <program name="hitl" command="sw/simulator/simhitl">
+    <program name="hitl" command="bin/simhitl">
       <arg flag="-fbw" variable="fbw_serial_port"/>
       <arg flag="-ap" variable="ap_serial_port"/>
     </program>
-    <program name="gaia" command="sw/simulator/gaia">
+    <program name="gaia" command="bin/gaia">
       <arg flag="-b" variable="ivy_bus"/>
     </program>
     <program name="configurator" command="sw/configurator/configurator"/>
@@ -79,80 +74,14 @@
         <arg flag="-render" constant="1"/>     
         <arg flag="-vertical" constant="1"/>
       </program>
-      <program name="map 2d ml">
+      <program name="map 2d">
         <arg flag="-mercator" constant=""/>
-        <arg flag="-ref" constant="WGS84 43.462510 1.273169"/>
-        <arg flag="-center" constant="WGS84 43.462510 1.273169"/>
-        <arg flag="-zoom" constant="0.42"/>
+        <arg flag="-ref" constant="'WGS84 43.46223 1.272890'"/>
+        <arg flag="-center" constant="'WGS84 43.4623 1.2730'"/>
+        <arg flag="-zoom" constant="0.75"/>
         <arg flag="-strip" constant=""/>
       </program> 
       <program name="gaia"/>
-    </session>
-
-    <session name="Sim 1@Garmisch : 192.168.1">
-      <variable name="ivy_bus" value="192.168.1:2010"/>
-      <variable name="map" value="garmisch.xml"/>
-      <program name="server"><arg flag="-n"/><arg flag="-http"/></program>
-      <program name="http server"/>     
-      <program name="sim"><arg flag="-a" constant="Twin1"/></program>
-      <program name="cockpit"><arg flag="-render" constant="0"/></program>
-      <program name="map 2d ml"/>
-      <program name="messages"><arg flag="-c" constant="telemetry:*"/><arg flag="-c" constant="ground:ground"/></program>
-      <program name="gaia"/>
-    </session>
-
-    <session name="Sim 2@Garmisch">
-      <variable name="map" value="garmisch.xml"/>
-      <program name="server"/>     
-      <program name="gaia"/>
-      <program name="sim"><arg flag="-a" constant="Twin1"/></program>
-      <program name="sim"><arg flag="-a" constant="Twin2"/></program>
-      <program name="cockpit"></program>
-      <program name="map 2d ml"/>
-      <program name="messages"><arg flag="-c" constant="telemetry:*"/><arg flag="-c" constant="ground"/></program>
-    </session>
-
-  <session name="Replay MAV05">
-      <variable name="map" value="garmisch.xml"/>
-      <program name="server"><arg flag="-n"/></program>
-      <program name="cockpit"></program>
-      <program name="map 2d ml"/>
-      <program name="play"/>
-      <program name="gaia"/>
-      <program name="messages"><arg flag="-c" constant="telemetry:*"/><arg flag="-c" constant="ground:ground"/></program>
-    </session>
-
-   <session name="Flight audio+tty @Garmish">
-      <variable name="map" value="garmisch.xml"/>
-      <program name="multimon"><arg flag="-p" constant="/tmp/multimon"/></program>
-      <program name="modem"><arg flag="-d" constant="/tmp/multimon"/></program>
-      <program name="modem"><arg flag="-d" constant="/dev/ttyUSB0"/></program>
-      <program name="server"/>     
-      <program name="messages"><arg flag="-c" constant="telemetry:*"/><arg flag="-c" constant="ground"/></program>
-      <program name="cockpit"/>
-      <program name="map 2d ml"/>
-    </session>
-
-   <session name="Flight audio+sim+wavecard@Muret">
-      <variable name="map" value="muret_UTM.xml"/>
-      <program name="multimon"><arg flag="-p" constant="/tmp/multimon"/></program>
-      <program name="modem"><arg flag="-d" constant="/tmp/multimon"/></program>
-      <program name="server"/>     
-      <program name="messages"><arg flag="-c" constant="telemetry:*"/><arg flag="-c" constant="ground"/></program>
-      <program name="cockpit"/>
-      <program name="map 2d ml"/>
-<!--      <program name="wavecard"/> -->
-      <program name="sim"><arg flag="-a" constant="Twin3"/></program>
-    </session>
-
-   <session name="Flight audio @Muret">
-      <variable name="map" value="muret_UTM.xml"/>
-      <program name="multimon"><arg flag="-p" constant="/tmp/multimon"/></program>
-      <program name="link"><arg flag="-d" constant="/tmp/multimon"/><arg flag="-transport" constant="modem"/></program>
-      <program name="server"/>     
-      <program name="messages"><arg flag="-c" constant="telemetry:*"/><arg flag="-c" constant="ground"/></program>
-      <program name="cockpit"/>
-      <program name="map 2d ml"/>
     </session>
 
   </section>

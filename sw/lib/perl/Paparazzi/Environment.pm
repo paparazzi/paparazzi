@@ -13,7 +13,12 @@ if (defined $ENV{PAPARAZZI_SRC}) {
   $paparazzi_src = $ENV{PAPARAZZI_SRC};
   $paparazzi_home =  $ENV{PAPARAZZI_SRC};
 }
-$paparazzi_home = $ENV{PAPARAZZI_HOME} if (defined $ENV{PAPARAZZI_HOME});
+if (defined $ENV{PAPARAZZI_HOME}) {
+  $paparazzi_home = $ENV{PAPARAZZI_HOME}
+}
+else {
+  $paparazzi_home = "/usr/share/paparazzi" unless defined $ENV{PAPARAZZI_SRC};
+}
 #print "\nEnvironment : ";
 #if (defined $paparazzi_src) {
 #  print "source directory mode\n  paparazzi_src  $paparazzi_src\n";
@@ -21,7 +26,7 @@ $paparazzi_home = $ENV{PAPARAZZI_HOME} if (defined $ENV{PAPARAZZI_HOME});
 #else {
 #  print "system mode\n  inst_prefix     INST_PREFIX";
 #}
-#print "  paparazzi_home $paparazzi_home\n\n";
+print "  paparazzi_home $paparazzi_home\n\n";
 
 
 sub set_env {

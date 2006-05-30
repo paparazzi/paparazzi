@@ -1,0 +1,44 @@
+
+PREFIX=/usr
+DESTDIR=$(PREFIX)/share/paparazzi
+
+install: install_data install_conf install_libs install_bin
+
+
+install_demo:
+	cp -a var/Twin1 $(DESTDIR)/var
+	cp -a var/Twin2 $(DESTDIR)/var
+	cp -a var/Twin3 $(DESTDIR)/var
+
+install_data:
+	install -d $(DESTDIR)/data/maps
+	install -t $(DESTDIR)/data/maps data/maps/*.xml 
+	install -t $(DESTDIR)/data/maps data/maps/*.gif	
+	install -d $(DESTDIR)/data/pictures
+	install -t $(DESTDIR)/data/pictures data/pictures/*.gif 
+	install -t $(DESTDIR)/data/pictures data/pictures/*.svg 
+	install -t $(DESTDIR)/data/pictures data/pictures/*.jpg
+
+install_conf:
+	install -d $(DESTDIR)/conf	
+	install conf/conf.xml.example $(DESTDIR)/conf/conf.xml
+	install conf/control_panel.xml.example $(DESTDIR)/conf/control_panel.xml
+	install conf/messages.xml $(DESTDIR)/conf/
+	install conf/messages.dtd $(DESTDIR)/conf/
+	install conf/gui.xml $(DESTDIR)/conf/
+
+install_bin:
+	install -d $(PREFIX)/bin/
+	install sw/supervision/paparazzi.pl $(PREFIX)/bin/
+	install -d $(DESTDIR)/bin/
+	install sw/ground_segment/cockpit/map2d $(DESTDIR)/bin/
+	install sw/simulator/gaia $(DESTDIR)/bin/
+	install sw/simulator/simsitl.pl $(DESTDIR)/bin/
+	install sw/ground_segment/cockpit/cockpit.pl $(DESTDIR)/bin/
+	install sw/ground_segment/tmtc/server $(DESTDIR)/bin/
+
+install_libs:
+	install -d $(PREFIX)/lib/perl5/Paparazzi
+	install sw/lib/perl/Paparazzi/*.pm $(PREFIX)/lib/perl5/Paparazzi
+	install sw/supervision/Paparazzi/*.pm $(PREFIX)/lib/perl5/Paparazzi	
+	install sw/ground_segment/cockpit/Paparazzi/*.pm $(PREFIX)/lib/perl5/Paparazzi

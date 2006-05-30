@@ -162,7 +162,7 @@ run_sitl :
 	$(PAPARAZZI_HOME)/var/$(AIRCRAFT)/sim/simsitl
 
 install :
-	./Makefile.pl -install -destdir $(DESTDIR)
+	make -f conf/Makefile.install PREFIX=$(PREFIX)
 
 uninstall :
 	./Makefile.pl -uninstall -destdir $(DESTDIR)

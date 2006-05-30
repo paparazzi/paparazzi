@@ -63,10 +63,22 @@ sub read_xml {
       my $dirname=$dir->getAttribute('name');
       opendir(DIR,$dirname);
       my @dir_files = grep { -f "$dirname/$_" } readdir(DIR);
+      foreach my $foo (@dir_files) { print "$foo\n"; }
+
+
       map { s#^(.*)#$dirname/$1# } @dir_files;
       closedir(DIR);
-      push @{$file_a}, @dir_files;
+      foreach my $file (@dir_files) {
+	push @{$file_a}, [$file, $file];
+      }
     }
     push @sections, [$dest_loc, $file_a];
   }
+}
+
+sub read_fs_dir {
+#  my (
+
+
+
 }
