@@ -46,17 +46,6 @@ install_bin:
 	install sw/simulator/simsitl.pl $(DESTDIR)/bin/
 	install sw/ground_segment/cockpit/cockpit.pl $(DESTDIR)/bin/
 	install sw/ground_segment/tmtc/server $(DESTDIR)/bin/
-	install -t  $(DESTDIR)/bin/ sw/tools/*.out
-	install -t  $(DESTDIR)/bin/ sw/tools/extract_makefile.ml
-	install -t  $(DESTDIR)/bin/ sw/tools/gen_aircraft.ml
-	install -t  $(DESTDIR)/bin/ sw/tools/gen_airframe.ml
-	install -t  $(DESTDIR)/bin/ sw/tools/gen_calib.ml
-	install -t  $(DESTDIR)/bin/ sw/tools/gen_control.ml
-	install -t  $(DESTDIR)/bin/ sw/tools/gen_flight_plan.ml
-	install -t  $(DESTDIR)/bin/ sw/tools/gen_messages.ml
-	install -t  $(DESTDIR)/bin/ sw/tools/gen_periodic.ml
-	install -t  $(DESTDIR)/bin/ sw/tools/gen_radio.ml
-	install -t  $(DESTDIR)/bin/ sw/tools/gen_ubx.ml
 
 install_libs:
 	install -d $(PREFIX)/lib/perl5/Paparazzi
@@ -75,6 +64,19 @@ install_libs:
 install_tools:
 	install -t $(DESTDIR) Makefile*
 	install -t $(DESTDIR)/conf conf/Makefile*
+	install -t $(DESTDIR)/bin/ sw/tools/*.out
+	install -t $(DESTDIR)/bin/ sw/tools/extract_makefile.ml
+	install -t $(DESTDIR)/bin/ sw/tools/gen_aircraft.ml
+	install -t $(DESTDIR)/bin/ sw/tools/gen_airframe.ml
+	install -t $(DESTDIR)/bin/ sw/tools/gen_calib.ml
+	install -t $(DESTDIR)/bin/ sw/tools/gen_control.ml
+	install -t $(DESTDIR)/bin/ sw/tools/gen_flight_plan.ml
+	install -t $(DESTDIR)/bin/ sw/tools/gen_messages.ml
+	install -t $(DESTDIR)/bin/ sw/tools/gen_periodic.ml
+	install -t $(DESTDIR)/bin/ sw/tools/gen_radio.ml
+	install -t $(DESTDIR)/bin/ sw/tools/gen_ubx.ml
+	install -d $(DESTDIR)/sw/simulator
+	install -t $(DESTDIR)/sw/simulator sw/simulator/Makefile 
 
 install_airborne_sources:
 	install -d $(PREFIX)/sw/
@@ -83,4 +85,5 @@ install_airborne_sources:
 install_skel:
 	cp -a conf $(DESTDIR)/
 	cp -a data $(DESTDIR)/
+	install -d $(DESTDIR)/var
 	cp -a var/Twin3 $(DESTDIR)/var/
