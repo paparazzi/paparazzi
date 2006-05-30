@@ -1,0 +1,89 @@
+<?xml version="1.0"?>
+
+<control_panel name="paparazzi control panel">
+
+  <section name="variables">
+    <variable name="render" value="1"/>
+    <variable name="downlink_serial_port" value="/dev/ttyUSB0"/>
+    <variable name="fbw_serial_port"      value="/dev/ttyS1"/>
+    <variable name="ap_serial_port"       value="/dev/ttyS0"/>
+    <variable name="ivy_bus"              value="127:2010"/>
+    <variable name="map"                  value="muret_UTM.xml"/>
+    <variable name="flight_plan"          value="flight_plans/muret1.xml"/>
+  </section>
+
+  <section name="programs">
+    <program name="server" command="bin/server">
+      <arg flag="-b" variable="ivy_bus"/>
+    </program>
+    <program name="link" command="bin/link">
+      <arg flag="-b" variable="ivy_bus"/>
+    </program>
+    <program name="cockpit" command="bin/cockpit.pl">
+      <arg flag="-b" variable="ivy_bus"/>
+      <arg flag="-r" variable="render"/>
+    </program>
+    <program name="map 2d" command="bin/map2d">
+      <arg flag="-b" variable="ivy_bus"/>
+    </program>
+    <program name="map 3d" command="bin/mapGL">
+      <arg flag="-b" variable="ivy_bus"/>
+      <arg flag="-m" variable="map"/>
+      <arg flag="-f" variable="flight_plan"/>
+    </program>
+    <program name="messages" command="bin/messages">
+      <arg flag="-b" variable="ivy_bus"/>
+    </program>
+    <program name="speech" command="bin/paparazzi_speak.pl">
+      <arg flag="-b" variable="ivy_bus"/>
+    </program>
+    <program name="wind" command ="sw/ground_segment/wind/wind">
+      <arg flag="-b" variable="ivy_bus"/>
+    </program>
+    <program name="plot" command ="sw/logalizer/plot.pl"/>
+    <program name="play" command="sw/logalizer/play">
+      <arg flag="-b" variable="ivy_bus"/>
+    </program>
+    <program name="sim" command="bin/simsitl.pl">
+      <arg flag="-b" variable="ivy_bus"/>
+    </program>
+    <program name="hitl" command="bin/simhitl">
+      <arg flag="-fbw" variable="fbw_serial_port"/>
+      <arg flag="-ap" variable="ap_serial_port"/>
+    </program>
+    <program name="gaia" command="bin/gaia">
+      <arg flag="-b" variable="ivy_bus"/>
+    </program>
+    <program name="configurator" command="sw/configurator/configurator"/>
+    <program name="medit" command="sw/configurator/medit"/>
+    <program name="make aircraft" command="sw/configurator/configurator"/>
+    <program name="http server" command="sw/ground_segment/tmtc/boa"/>
+    <program name="stereo" command="sw/ground_segment/tmtc/stereo_demod"/>
+
+ </section>
+  
+
+
+
+  <section name="sessions">
+
+    <session name=" Sim1@Muret">
+      <program name="server"><arg flag="-n"/></program>
+      <program name="sim"><arg flag="-a" constant="Twin3"/></program>
+      <program name="cockpit">
+        <arg flag="-render" constant="0"/>     
+        <arg flag="-vertical" constant="1"/>
+      </program>
+      <program name="map 2d">
+        <arg flag="-mercator" constant=""/>
+        <arg flag="-ref" constant="WGS84 43.46223 1.272890"/>
+        <arg flag="-center" constant="WGS84 43.4623 1.2730"/>
+        <arg flag="-zoom" constant="0.75"/>
+        <arg flag="-strip" constant=""/>
+      </program> 
+      <program name="gaia"/>
+    </session>
+
+  </section>
+
+</control_panel>
