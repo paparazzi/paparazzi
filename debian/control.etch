@@ -1,0 +1,33 @@
+Source: paparazzi
+Section: extra
+Priority: optional
+Maintainer: Pascal Brisset <pascal.brisset@enac.fr>
+Build-Depends: debhelper (>= 4.0.0)
+Standards-Version: 3.6.1
+
+
+Package: paparazzi-base
+Architecture: any
+Suggests: mlview, lustre, paparazzi-avr, paparazzi-arm
+Recommends: eagle, cvs, gs-common, tetex-extra, dia-gnome
+Depends: ivy-c-dev, ivy-c, ivy-perl, libsubject-perl, zinc-perl, zinc-tk, ivy-ocaml, xml-light-ocaml, libxml-dom-perl, libpcre3-dev, liblablgtk2-ocaml-dev, libexpect-perl, libgnomecanvas2-dev, libcamlimages-ocaml-dev, libfile-ncopy-perl, libtext-csv-perl, make, gcc, patch, gnuplot, digikit, bzip2, liblablgtk2-gnome-ocaml-dev, boa, bleriot-fonts
+Description: Paparazzi Meta Package : common support
+
+
+Package: paparazzi-avr
+Architecture: any
+Depends: uisp, gcc-avr, avr-libc, binutils-avr,
+Description: Paparazzi Meta Package. Atmel AVR support
+
+
+Package: paparazzi-arm7
+Architecture: any
+Depends: lpc21isp, gcc-arm, binutils-arm, newlib-arm
+Description: Paparazzi Meta Package. Philips ARM7 support
+
+
+Package: paparazzi-bin
+Architecture: i386
+Depends: ivy-c-dev, ivy-c, ivy-perl, libsubject-perl, zinc-perl, zinc-tk, ivy-ocaml, xml-light-ocaml, libxml-dom-perl, libpcre3-dev, liblablgtk2-ocaml-dev, gcc-avr, avr-libc, binutils-avr, libexpect-perl, libgnomecanvas2-dev, libcamlimages-ocaml-dev, uisp, libfile-ncopy-perl, libtext-csv-perl, digikit, make, gcc, patch, boa, dia-gnome, tetex-extra
+Description: Paparazzi main package
+
