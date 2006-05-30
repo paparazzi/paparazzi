@@ -24,7 +24,7 @@ PAPARAZZI_HOME=$(HOME)/paparazzi
 endif
 
 ac: ac_h sim_ac ap fbw
-	
+
 sim_ac : sim_sitl
 
 ac_h :

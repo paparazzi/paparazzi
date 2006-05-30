@@ -46,7 +46,7 @@ MAKE=make
 
 all: static
 
-static : lib tools configurator cockpit multimon tmtc logalizer sim_static wind static_h
+static : lib tools configurator cockpit visu3d multimon tmtc logalizer sim_static wind static_h
 
 conf: conf/conf.xml conf/control_panel.xml
 
@@ -66,7 +66,6 @@ ac3 : conf sim_static
 
 lib:
 	cd $(LIB)/ocaml; $(MAKE)
-	cd $(LIB)/perl; $(MAKE)
 
 tools: lib
 	cd $(TOOLS); make
@@ -167,8 +166,12 @@ install :
 uninstall :
 	./Makefile.pl -uninstall -destdir $(DESTDIR)
 
+
+DISTRO=etch
 deb :
 	chmod u+x debian/rules
+	cp debian/control.$(DISTRO) debian/control
+	cp debian/changelog.$(DISTRO) debian/changelog
 	dpkg-buildpackage -rfakeroot
 
 clean:

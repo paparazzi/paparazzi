@@ -50,6 +50,12 @@
 //#define USE_AD0_6
 
 
+/* ADCs */
+/* AD0.6 ( on pin P0.4 ) is supply monitoring */
+//#define ARM7_TMP_ADC
+#define USE_AD0_6
+
+
 #endif /* FBW */
 
 #ifdef AP

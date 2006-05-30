@@ -99,7 +99,39 @@ sub build_gui {
 #  my $sessions_page = $notebook->add("sessions", -label => "Sessions", -underline => 0);
 
   $self->{session_frame} = $session_frame;
+
+  check_paparazzi_home($mw);
+
 }
+
+sub check_paparazzi_home {
+  my ($mw) = @_;
+  if (Paparazzi::Environment::paparazzi_home() eq "/usr/share/paparazzi") {
+    my $button = $mw->messageBox(
+				 -title => 'Welcome to Paparazzi',
+				 -type =>  'YesNo',
+				 -message => "Paparazzi needs access to a writable directory to store your data and settings. Do you want Paparazzi to use a temporary system directory ?");
+    
+    my $pph = "";
+
+    if ($button eq "Yes") {
+      $pph = `mktemp -d /tmp/paparazzi.XXXXXXXX`;
+      print "using dir $pph as paparazzi_home\n"
+    }
+    else {
+      $pph = $mw->chooseDirectory(-title => 'choose a directory',
+				  -initialdir => '~/paparazzi'
+				      );
+#      print "choosed $file_name\n";
+      if ($pph eq "") {
+	die("need a writable dir. Exiting");
+      }
+    }
+    my $pps = "/usr/share/paparazzi";
+    `cd $pps && make -f conf/Makefile.install DESTDIR=$pph install_skel\n`;
+  }
+}
+
 
 
 sub build_logo_page {

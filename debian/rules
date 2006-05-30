@@ -56,7 +56,7 @@ install: build
 	dh_installdirs
 
 	# Add here commands to install the package.
-	$(MAKE) install PREFIX=$(CURDIR)/debian/paparazzi/usr
+	$(MAKE) install PREFIX=$(CURDIR)/debian/paparazzi-bin/usr
 
 
 # Build architecture-independent files here.
