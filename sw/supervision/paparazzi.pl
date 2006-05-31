@@ -4,13 +4,13 @@ package Paparazzi;
 my $paparazzi_lib;
 BEGIN {
   $paparazzi_lib = (defined $ENV{PAPARAZZI_SRC}) ?
-    $ENV{PAPARAZZI_SRC}."/sw/lib/perl:".$ENV{PAPARAZZI_SRC}."/sw/supervision" : 
+    $ENV{PAPARAZZI_SRC}."/sw/lib/perl" : 
       "/usr/lib/paparazzi/";
 }
 use lib ($paparazzi_lib);
-#if (exists $ENV{PAPARAZZI_SRC} and defined $ENV{PAPARAZZI_SRC}) {
-#use lib ($ENV{PAPARAZZI_SRC}."/sw/supervision");
-#}
+if (exists $ENV{PAPARAZZI_SRC} and defined $ENV{PAPARAZZI_SRC}) {
+use lib ($ENV{PAPARAZZI_SRC}."/sw/supervision");
+}
 
 use Paparazzi::CpGui;
 @ISA = qw(Paparazzi::CpGui);
