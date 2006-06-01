@@ -71,8 +71,8 @@
       </program>
       <program name="map 2d">
         <arg flag="-mercator" constant=""/>
-        <arg flag="-ref" constant="'WGS84 43.46223 1.272890'"/>
-        <arg flag="-center" constant="'WGS84 43.4623 1.2730'"/>
+        <arg flag="-ref" constant="WGS84 43.4623 1.2730"/>
+        <arg flag="-center" constant="WGS84 43.4623 1.2730"/>
         <arg flag="-zoom" constant="0.75"/>
         <arg flag="-strip" constant=""/>
       </program> 
