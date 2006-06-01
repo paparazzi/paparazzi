@@ -1,3 +1,26 @@
+(*
+ * $Id$
+ *
+ * Copyright (C) 2006 ENAC, Pascal Brisset, Antoine Drouin
+ *
+ * This file is part of paparazzi.
+ *
+ * paparazzi is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * paparazzi is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with paparazzi; see the file COPYING.  If not, write to
+ * the Free Software Foundation, 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA. 
+ *
+ *)
 
 
 module Protocol = struct
@@ -41,8 +64,27 @@ module Protocol = struct
     m
 end
 
+type frame_data = string
+type frame_id = int
+type addr64 = Int64.t
+type addr16 = int
+
+type frame =
+    Modem_Status of int
+  | AT_Command_Response of frame_id * string * int * string
+  | TX_Status of frame_id * int
+  | RX_Packet_64 of addr64 * int * int * string
+  | RX_Packet_16 of addr16 * int * int * string
+ 
+
+
 let api_tx64_id = Char.chr 0x00
 let api_tx16_id = Char.chr 0x01
+let api_rx64_id = Char.chr 0x80
+let api_rx16_id = Char.chr 0x81
+let api_at_command_response_id = Char.chr 0x88
+let api_tx_status_id = Char.chr 0x89
+let api_modem_status_id = Char.chr 0x8a
 let api_rx64_id = Char.chr 0x80
 let api_rx16_id = Char.chr 0x81
 
@@ -51,9 +93,19 @@ let write_int64 = fun buf offset x ->
     buf.[offset+7-i] <- Char.chr (Int64.to_int (Int64.shift_right x (8*i)) land 0xff)
   done
 
+let read_int64 = fun buf offset ->
+  let x = ref Int64.zero in
+  for i = 0 to 7 do
+    x := Int64.logor (Int64.shift_left !x 8) (Int64.of_int (Char.code buf.[offset+i]))
+  done;
+  !x
+
 let write_int16 = fun buf offset x ->
   buf.[offset] <- Char.chr (x lsr 8);
   buf.[offset+1] <- Char.chr (x land 0xff)
+
+let read_int16 = fun buf offset ->
+  (Char.code buf.[offset] lsl 8) lor (Char.code buf.[offset+1])
 
 let api_tx64 = fun ?(frame_id = 0) dest data ->
   assert (frame_id >=0 && frame_id < 0x100);
@@ -89,3 +141,25 @@ let at_set_my = fun addr ->
   Printf.sprintf "ATMY%04x\n" addr
 let at_exit = "ATCN\n"
 let at_api_enable = "ATAP1\n"
+
+let api_parse_frame = fun s ->
+  let n = String.length s in    
+  assert(n>0);
+  match s.[0] with
+    x when x = api_at_command_response_id ->
+      assert(n >= 5);
+      AT_Command_Response (Char.code s.[1], String.sub s 2 2, 
+			   Char.code s.[4], String.sub s 5 (n-5))
+  | x when x = api_tx_status_id ->
+      assert(n = 3);
+      TX_Status (Char.code s.[1], Char.code s.[2])
+  | x when x = api_modem_status_id -> 
+      Modem_Status (Char.code s.[1])
+  | x when x = api_rx64_id ->
+      assert(n >= 11);
+      RX_Packet_64 (read_int64 s 1, Char.code s.[9],
+		    Char.code s.[10], String.sub s 11 (n-11))
+  | x when x = api_rx16_id ->
+      RX_Packet_16 (read_int16 s 1, Char.code s.[3], Char.code  s.[4], String.sub s 5 (n-5))
+  | x -> failwith (Printf.sprintf "Xbee.parse_frame: unknown frame id '%d'" (Char.code x))
+
