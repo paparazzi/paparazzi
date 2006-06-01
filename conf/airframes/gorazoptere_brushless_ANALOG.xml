@@ -14,11 +14,11 @@
     <define name="ADC_ROLL_DOT_SCALE" value="(real_t) (0.9444 * 3.14159 / 180.0)"/>
     <define name="ADC_PITCH_DOT_SCALE" value="(real_t) (0.9444 * 3.14159 / 180.0)"/>
     <define name="ADC_YAW_DOT_SCALE" value="(real_t) (0.9444 * 3.14159 / 180.0)"/>
-    <define name="ADC_ACCELX" value="3"/>
-    <define name="ADC_ACCELY" value="4"/>
-    <define name="ADC_ACCELZ" value="5"/>
+    <define name="ADC_ACCELX" value="4"/>
+    <define name="ADC_ACCELY" value="3"/>
+    <define name="ADC_ACCELZ" value="2"/>
     <define name="ADC_ACCELX_SIGN" value="-"/>
-    <define name="ADC_ACCELY_SIGN" value="+"/>
+    <define name="ADC_ACCELY_SIGN" value="-"/>
     <define name="ADC_ACCELZ_SIGN" value="-"/>
     <define name="ADC_ACCELX_ZERO" value="0x24A"/>
     <define name="ADC_ACCELY_ZERO" value="0x280"/>

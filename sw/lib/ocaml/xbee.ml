@@ -35,7 +35,7 @@ module Protocol = struct
     if String.length s < i+offset_length+2 then
       raise Serial.Not_enough
     else
-      (Char.code s.[i+offset_length] lsl 8) lor (Char.code s.[i+offset_length+1])
+      (Char.code s.[i+offset_length] lsl 8) lor (Char.code s.[i+offset_length+1]) + size_packet
 
   let compute_checksum = fun s ->
     let cs = ref 0 in
@@ -45,7 +45,9 @@ module Protocol = struct
     0xff - !cs
 
   let checksum = fun s ->
-    compute_checksum s + Char.code s.[String.length s-1] = 0xff
+    let c = compute_checksum s in
+    Debug.call 'x' (fun f -> Printf.fprintf f "BX.cs=%x\n" c);
+    c = Char.code s.[String.length s-1]
 
   let payload = fun s ->
     Serial.payload_of_string (String.sub s offset_payload (String.length s - size_packet))
@@ -57,8 +59,8 @@ module Protocol = struct
     let m = String.create msg_length in
     String.blit payload 0 m offset_payload n;
     m.[0] <- start_delimiter;
-    m.[offset_length] <- Char.chr (msg_length lsr 8);
-    m.[offset_length+1] <- Char.chr (msg_length land 0xff);
+    m.[offset_length] <- Char.chr (n lsr 8);
+    m.[offset_length+1] <- Char.chr (n land 0xff);
     let cs = compute_checksum m in
     m.[msg_length-1] <- Char.chr cs;
     m
@@ -138,9 +140,9 @@ let api_tx16 = fun ?(frame_id = 0) dest data ->
 let at_command_sequence = "+++"
 let at_set_my = fun addr ->
   assert (addr >= 0 && addr < 0x10000);
-  Printf.sprintf "ATMY%04x\n" addr
-let at_exit = "ATCN\n"
-let at_api_enable = "ATAP1\n"
+  Printf.sprintf "ATMY%04x\r" addr
+let at_exit = "ATCN\r"
+let at_api_enable = "ATAP1\r"
 
 let api_parse_frame = fun s ->
   let n = String.length s in    

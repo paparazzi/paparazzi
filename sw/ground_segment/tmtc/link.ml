@@ -141,11 +141,14 @@ let ground_id = 0
 
 let use_tele_message = fun payload ->
   let buf = Serial.string_of_payload payload in
-  Debug.call 'l' (fun f ->  fprintf f "mm receiving: %s\n" (Debug.xprint buf));
-  let (msg_id, ac_id, values) = Tm_Pprz.values_of_payload payload in
-  let msg = Tm_Pprz.message_of_id msg_id in
-  Tm_Pprz.message_send (string_of_int ac_id) msg.Pprz.name values;
-  update_status ac_id buf
+  Debug.call 'l' (fun f ->  fprintf f "pprz receiving: %s\n" (Debug.xprint buf));
+  try
+    let (msg_id, ac_id, values) = Tm_Pprz.values_of_payload payload in
+    let msg = Tm_Pprz.message_of_id msg_id in
+    Tm_Pprz.message_send (string_of_int ac_id) msg.Pprz.name values;
+    update_status ac_id buf
+  with
+    _ -> ()
 
 
 type priority = Null | Low | Normal | High
@@ -276,6 +279,7 @@ module XB = struct (** XBee module *)
   let switch_to_api = fun device ->
     let o = Unix.out_channel_of_descr device.fd in
 (***    fprintf o "%s%!" (Xbee.at_set_my 255); ***)
+    Debug.trace 'x' "config xbee";
     fprintf o "%s%!" Xbee.at_api_enable;
     fprintf o "%s%!" Xbee.at_exit;
     Debug.trace 'x' "end init xbee"
