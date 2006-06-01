@@ -113,12 +113,12 @@ extern uint8_t ck_a, ck_b;
 #define GOT_CRC1 4
 #define GOT_CRC2 5
 
-#define MAX_INPUT_PAYLOAD 256
-extern uint8_t input_payload[MAX_INPUT_PAYLOAD];
+#define PPRZ_PAYLOAD_LEN 256
+extern uint8_t pprz_payload[PPRZ_PAYLOAD_LEN];
 
 extern volatile bool_t pprz_msg_received;
 extern uint8_t pprz_ovrn, pprz_error;
-extern volatile uint8_t payload_length;
+extern volatile uint8_t pprz_payload_len;
 
 static inline void parse_pprz( uint8_t c ) {
   static uint8_t pprz_status = UNINIT;
@@ -134,16 +134,16 @@ static inline void parse_pprz( uint8_t c ) {
       pprz_ovrn++;
       goto error;
     }
-    payload_length = c-4; /* Counting STX, LENGTH and CRC1 and CRC2 */
+    pprz_payload_len = c-4; /* Counting STX, LENGTH and CRC1 and CRC2 */
     _ck_a = _ck_b = c;
     pprz_status++;
     payload_idx = 0;
     break;
   case GOT_LENGTH:
-    input_payload[payload_idx] = c;
+    pprz_payload[payload_idx] = c;
     _ck_a += c; _ck_b += _ck_a;
     payload_idx++;
-    if (payload_idx == payload_length)
+    if (payload_idx == pprz_payload_len)
       pprz_status++;
     break;
   case GOT_PAYLOAD:
@@ -167,8 +167,8 @@ static inline void parse_pprz( uint8_t c ) {
 
 static inline void pprz_parse_payload(void) {
   uint8_t i;
-  for(i = 0; i < payload_length; i++) 
-    dl_buffer[i] = input_payload[i];
+  for(i = 0; i < pprz_payload_len; i++) 
+    dl_buffer[i] = pprz_payload[i];
   dl_msg_available = TRUE;
 }
 

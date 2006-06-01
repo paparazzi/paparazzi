@@ -1,7 +1,7 @@
 /*
- * Paparazzi mcu0 $Id$
+ * $Id$
  *  
- * Copyright (C) 2005  Pascal Brisset, Antoine Drouin
+ * Copyright (C) 2006  Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
  *
@@ -22,25 +22,29 @@
  *
  */
 
-/* Maxstream serial input and output */
+/* Maxstream XBee serial input and output */
 
-#ifndef MAXSTREAM_H
-#define MAXSTREAM_H
+#include "datalink.h"
 
-#include "uart.h"
+#ifndef XBEE_H
+#define XBEE_H
 
-/** Set when a message (stored in internal buffer) has been parsed with
-correct checksum. A new message cannot be received while this flag is true. */
-extern bool_t maxstream_msg_received;
+#define __XBeeLink(dev, _x) dev##_x
+#define _XBeeLink(dev, _x)  __XBeeLink(dev, _x)
+#define XBeeLink(_x) _XBeeLink(XBEE_UART, _x)
 
-/** Incremented when chars are received while ::maxstream_msg_received is set*/
-extern uint8_t maxstream_ovrn;
+#define XBeeBuffer() XBeeLink(ChAvailable())
+#define ReadXBeeBuffer() { while (XBeeLink(ChAvailable())&&!wc_msg_received) parse_xbee(XBeeLink(Getch())); }
 
-/** Incremented if error (e.g. checksum) is detected in frame */
-extern uint8_t maxstream_error;
+#define XBeePrintString(s) XBeeLink(PrintString(s))
+#define XBeePrintHex16(x) XBeeLink(PrintHex16(x))
 
-/** To be called when ::maxstream_msg_received is set. Fills ::dl_buffer and
-    sets ::dl_msg_available if message approved. */
-void maxstream_parse_payload(void);
+/** Using "Transparent Operation" mode, the messages have to be packed with the pprz
+    protocol */
+#if DATALINK == XBEE
+#define PPRZ_UART XBEE_UART
+#endif
 
-#endif /* MAXSTREAM_H */
+void xbee_init( void );
+
+#endif /* XBEE_H */

@@ -51,6 +51,7 @@
 #include "flight_plan.h"
 #include "datalink.h"
 #include "wavecard.h"
+#include "xbee.h"
 
 #ifdef LED
 #include "led.h"
@@ -490,9 +491,12 @@ void init_ap( void ) {
 #ifdef MODEM
   modem_init();
 #endif
-#ifdef WAVECARD
+#if DATALINK == WAVECARD
   /** Reset the wavecard during the init pause */
   wc_reset();
+#endif
+#if DATALINK == XBEE
+  xbee_init();
 #endif
 #if defined GPS && defined GPS_CONFIGURE
   gps_configure();
@@ -512,7 +516,7 @@ void init_ap( void ) {
     if (sys_time_periodic())
       init_cpt--;
   }
-#ifdef WAVECARD
+#if DATALINK == WAVECARD
   wc_end_reset();
   init_cpt = 60;
   while (init_cpt) {
@@ -546,11 +550,7 @@ void event_task_ap( void ) {
 
 #if defined DATALINK 
 
-  /** These definitions are required to be able to do the tests in #if's */
-#define PPRZ 42
-#define WAVECARD 1729
-
-#if DATALINK == PPRZ
+#if DATALINK == PPRZ || DATALINK == XBEE
   if (PprzBuffer()) {
     ReadPprzBuffer();
     if (pprz_msg_received) {
@@ -562,7 +562,6 @@ void event_task_ap( void ) {
   if (WavecardBuffer()) {
     ReadWavecardBuffer();
     if (wc_msg_received) {
-      DOWNLINK_SEND_DEBUG1(8, wc_payload);
       wc_parse_payload();
       wc_msg_received = FALSE;
     }

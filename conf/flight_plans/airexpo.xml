@@ -1,14 +1,4 @@
 <flight_plan SECURITY_HEIGHT="25" lat0="43.449300" lon0="1.266300" ground_alt="189" qfu="270" alt="250" max_dist_from_home="450" name="AirExpo" airspace="airexpo">
-  <rc_control>
-    <mode NAME="AUTO1">
-      <setting VAR="ir_pitch_neutral" RANGE="60." RC="gain_1_up" TYPE="int16"/>
-      <setting VAR="ir_roll_neutral" RANGE="-60." RC="gain_1_down" TYPE="int16"/>
-    </mode>
-    <mode NAME="AUTO2">
-      <setting VAR="course_pgain" RANGE="0.1" RC="gain_1_up" TYPE="float"/>
-      <setting VAR="pitch_of_roll" RANGE=".2" RC="gain_1_down" TYPE="float"/>
-    </mode>
-  </rc_control>
   <dl_settings>
     <dl_setting VAR="ir_roll_neutral" MAX="0.2" STEP="0.01" MIN="-0.2"/>
     <dl_setting VAR="ir_pitch_neutral" MAX="0.2" STEP="0.01" MIN="-0.2"/>

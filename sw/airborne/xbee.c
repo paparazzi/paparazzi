@@ -1,5 +1,5 @@
 /*
- * Paparazzi mcu0 $Id$
+ * $Id$
  *  
  * Copyright (C) 2006  Pascal Brisset, Antoine Drouin
  *
@@ -22,13 +22,27 @@
  *
  */
 
-#include <inttypes.h>
-#include "pprz_transport.h"
-#include "uart.h"
+#include "sys_time.h"
+#include "print.h"
+#include "xbee.h"
+#include "airframe.h"
 
-uint8_t ck_a, ck_b;
-uint8_t downlink_nb_ovrn;
-volatile bool_t pprz_msg_received = FALSE;
-uint8_t pprz_ovrn, pprz_error;
-volatile uint8_t pprz_payload_len;
-uint8_t pprz_payload[PPRZ_PAYLOAD_LEN];
+#define AT_COMMAND_SEQUENCE "+++"
+#define AT_INIT_PERIOD_US 2000000
+#define AT_SET_MY "ATMY"
+#define AT_EXIT "ATCN\n"
+
+void xbee_init( void ) {
+  /** Switching to AT mode (FIXME: busy waiting) */
+  XBeePrintString(AT_COMMAND_SEQUENCE);
+  DelayUS(AT_INIT_PERIOD_US);
+
+  /** Setting my address */
+  XBeePrintString(AT_SET_MY);
+  uint16_t addr = AC_ID;
+  XBeePrintHex16(addr);
+  XBeePrintString("\n");
+
+  /** Switching back to normal mode */
+  XBeePrintString(AT_EXIT);
+}

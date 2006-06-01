@@ -128,6 +128,12 @@ ap.srcs += $(SRC_ARCH)/modem_hw.c
 ap.CFLAGS += -DRADIO_CONTROL_CALIB
 ap.srcs += rc_settings.c
 
+ap.CFLAGS += -DDATALINK=XBEE
+ap.srcs += traffic_info.c datalink.c
+ap.CFLAGS += -DXBEE_UART=Uart0 -DUSE_UART0
+ap.srcs += xbee.c
+
+
 # Config for SITL simulation
 include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
 

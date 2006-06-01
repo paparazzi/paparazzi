@@ -73,15 +73,6 @@
 
 #define PERIODIC_SEND_NAVIGATION_REF()  DOWNLINK_SEND_NAVIGATION_REF(&nav_utm_east0, &nav_utm_north0, &nav_utm_zone0);
 
-#if defined DOWNLINK && defined DATALINK
-#define PERIODIC_SEND_DEBUG_ACINFO() { \
-  struct ac_info_ *s=get_ac_info(3); \
-  DOWNLINK_SEND_DEBUG_ACINFO(&s->east, &s->north, &s->course, &s->alt, &s->gspeed); \
-}
-#else
-#define PERIODIC_SEND_DEBUG_ACINFO() {}
-#endif
-
 #define PERIODIC_SEND_WP_MOVED() { \
   static uint8_t i; \
   uint8_t j = 0; \
