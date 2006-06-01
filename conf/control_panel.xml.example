@@ -13,28 +13,28 @@
   </section>
 
   <section name="programs">
-    <program name="server" command="bin/server">
+    <program name="server" command="sw/ground_segment/tmtc/server">
       <arg flag="-b" variable="ivy_bus"/>
     </program>
-    <program name="link" command="bin/link">
+    <program name="link" command="sw/ground_segment/tmtc/link">
       <arg flag="-b" variable="ivy_bus"/>
     </program>
-    <program name="cockpit" command="bin/cockpit.pl">
+    <program name="cockpit" command="sw/ground_segment/cockpit/cockpit.pl">
       <arg flag="-b" variable="ivy_bus"/>
       <arg flag="-r" variable="render"/>
     </program>
-    <program name="map 2d" command="bin/map2d">
+    <program name="map 2d" command="sw/ground_segment/cockpit/map2d">
       <arg flag="-b" variable="ivy_bus"/>
     </program>
-    <program name="map 3d" command="bin/mapGL">
+    <program name="map 3d" command="sw/ground_segment/visu3d/mapGL">
       <arg flag="-b" variable="ivy_bus"/>
       <arg flag="-m" variable="map"/>
       <arg flag="-f" variable="flight_plan"/>
     </program>
-    <program name="messages" command="bin/messages">
+    <program name="messages" command="sw/ground_segment/tmtc/messages">
       <arg flag="-b" variable="ivy_bus"/>
     </program>
-    <program name="speech" command="bin/paparazzi_speak.pl">
+    <program name="speech" command="sw/ground_segment/speech/paparazzi_speak.pl">
       <arg flag="-b" variable="ivy_bus"/>
     </program>
     <program name="wind" command ="sw/ground_segment/wind/wind">
@@ -44,22 +44,17 @@
     <program name="play" command="sw/logalizer/play">
       <arg flag="-b" variable="ivy_bus"/>
     </program>
-    <program name="sim" command="bin/simsitl.pl">
+    <program name="sim" command="sw/simulator/simsitl.pl">
       <arg flag="-b" variable="ivy_bus"/>
     </program>
-    <program name="hitl" command="bin/simhitl">
+    <program name="hitl" command="sw/simulator/simhitl">
       <arg flag="-fbw" variable="fbw_serial_port"/>
       <arg flag="-ap" variable="ap_serial_port"/>
     </program>
-    <program name="gaia" command="bin/gaia">
+    <program name="gaia" command="sw/simulator/gaia">
       <arg flag="-b" variable="ivy_bus"/>
     </program>
-    <program name="configurator" command="sw/configurator/configurator"/>
-    <program name="medit" command="sw/configurator/medit"/>
-    <program name="make aircraft" command="sw/configurator/configurator"/>
     <program name="http server" command="sw/ground_segment/tmtc/boa"/>
-    <program name="stereo" command="sw/ground_segment/tmtc/stereo_demod"/>
-
  </section>
   
 
