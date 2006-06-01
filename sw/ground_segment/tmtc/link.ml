@@ -270,7 +270,7 @@ end (** Wc module *)
 
 
 
-module XB = struct
+module XB = struct (** XBee module *)
   let at_init_period = 2000 (* ms *)
 
   let switch_to_api = fun device ->
@@ -278,7 +278,7 @@ module XB = struct
 (***    fprintf o "%s%!" (Xbee.at_set_my 255); ***)
     fprintf o "%s%!" Xbee.at_api_enable;
     fprintf o "%s%!" Xbee.at_exit;
-    Debug.trace 'x' "fin init xbee"
+    Debug.trace 'x' "end init xbee"
 
   let init = fun device ->
     Debug.trace 'x' "init xbee";
@@ -286,17 +286,32 @@ module XB = struct
     fprintf o "%s%!" Xbee.at_command_sequence;
     ignore (Glib.Timeout.add at_init_period (fun () -> switch_to_api device; false))
 
-  let use_message = fun s ->
-    let s = Serial.string_of_payload s in
-    Debug.trace 'x' (Debug.xprint s)
+  let use_message = fun frame_data ->
+    let frame_data = Serial.string_of_payload frame_data in
+    Debug.trace 'x' (Debug.xprint frame_data);
+    match Xbee.api_parse_frame frame_data with
+      Xbee.Modem_Status x ->
+	Debug.trace 'x' (sprintf "getting XBee status %d" x)
+    | Xbee.AT_Command_Response (frame_id, comm, status, value) ->
+	Debug.trace 'x' (sprintf "getting XBee AT command response: %d %s %d %s" frame_id comm status (Debug.xprint value))
+    | Xbee.TX_Status (frame_id, status) ->
+	Debug.trace 'x' (sprintf "getting XBee TX status: %d %d" frame_id status)
+    | Xbee.RX_Packet_64 (addr64, rssi, options, data) ->
+	Debug.trace 'x' (sprintf "getting XBee RX64: %Lx %d %d %s" addr64 rssi options (Debug.xprint data));
+	use_tele_message (Serial.payload_of_string data)
+    | Xbee.RX_Packet_16 (addr16, rssi, options, data) ->
+	Debug.trace 'x' (sprintf "getting XBee RX16: %x %d %d %s" addr16 rssi options (Debug.xprint data));
+	use_tele_message (Serial.payload_of_string data)
+
 
   let send = fun ac_id device rf_data ->
+    let rf_data = Serial.string_of_payload rf_data in
     let frame_data = Xbee.api_tx16 ac_id rf_data in
     let packet = Xbee.Protocol.packet (Serial.payload_of_string frame_data) in
     let o = Unix.out_channel_of_descr device.fd in
     fprintf o "%s%!" packet;
     Debug.call 'x' (fun f -> fprintf f "link sending: %s\n" (Debug.xprint packet));
-end
+end (** XBee module *)
 
 
 
@@ -312,8 +327,7 @@ let send = fun ac_id device ac_device payload priority ->
       Wc.send device.fd addr payload priority
 
   | XBeeDevice ->
-      let buf = Pprz.Transport.packet payload in
-      XB.send ac_id device buf
+      XB.send ac_id device payload
 
 
 let cm_of_m = fun f -> Pprz.Int (truncate (100. *. f))
