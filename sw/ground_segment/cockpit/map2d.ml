@@ -1200,6 +1200,7 @@ let _main =
   and center = ref ""
   and zoom = ref 1.
   and projection= ref G.UTM
+  and plugin_window = ref ""
   and display_strip = ref false in
   let options =
     [ "-b", Arg.String (fun x -> ivy_bus := x), "Bus\tDefault is 127.255.255.25:2010";
@@ -1207,6 +1208,7 @@ let _main =
       "-ref", Arg.Set_string geo_ref, "Geographic ref (default '')";
       "-zoom", Arg.Set_float zoom, "Initial zoom";
       "-center", Arg.Set_string center, "Initial map center";
+      "-plugin", Arg.Set_string  plugin_window, "External X application (launched the id of the plugin window as argument)";
       "-mercator", Arg.Unit (fun () -> projection:=G.Mercator),"Switch to (Google Maps) Mercator projection";
       "-lambertIIe", Arg.Unit (fun () -> projection:=G.LambertIIe),"Switch to LambertIIe projection";
       "-ign", Arg.String (fun s -> ign:=true; IGN.data_path := s), "IGN tiles path";
@@ -1225,7 +1227,7 @@ let _main =
   IGN.cache_path := var_maps_path;
   
   (** window for map2d **)
-  let window = GWindow.window ~title: "Map2d" ~border_width:1 ~width:400 () in
+  let window = GWindow.window ~title: "Map2d" ~border_width:1 ~width:800 ~height:800 () in
   let vbox= GPack.vbox ~packing: window#add () in
 
   (** window for vertical situation *)
@@ -1237,7 +1239,7 @@ let _main =
   ignore (vertical_situation#connect#destroy ~callback:quit);
   ignore (strip_panel#connect#destroy ~callback:quit);
 
-  let geomap = new G.widget ~projection:!projection ~height:400 () in
+  let geomap = new G.widget ~projection:!projection () in
 
   let menu_fact = new GMenu.factory geomap#file_menu in
   let accel_group = menu_fact#accel_group in
@@ -1263,7 +1265,7 @@ let _main =
   ignore (map_menu_fact#add_check_item "GoogleMaps Auto" ~active:false ~callback:GM.active_auto);
   ignore (map_menu_fact#add_item "Map of Region" ~key:GdkKeysyms._R ~callback:(map_from_region geomap));
   ignore (map_menu_fact#add_item "Map of Google Tiles" ~key:GdkKeysyms._T ~callback:(GM.map_from_tiles geomap));
-  ignore (map_menu_fact#add_item "Load sector" ~key:GdkKeysyms._T ~callback:(Sector.load geomap));
+  ignore (map_menu_fact#add_item "Load sector" ~callback:(Sector.load geomap));
   
   (** Connect Google Maps display to view change *)
   geomap#connect_view (fun () -> GM.update geomap);
@@ -1286,15 +1288,37 @@ let _main =
   ignore (geomap#factory#add_separator ());
 
   let paned = GPack.paned ~show:true `VERTICAL ~packing:(vbox#pack ~expand:true) () in
+  let frame1 = GPack.vbox  ~height:600 () in
+  paned#pack1 ~shrink:true (*** ~expand:true ***) frame1#coerce;
+  let hpaned = GPack.paned ~show:true `HORIZONTAL ~packing:paned#add2 () in
 
+  if !plugin_window <> "" then begin
+    let plugin_width=400 and plugin_height=300 in
+    let frame2 = GPack.vbox ~width:plugin_width () in
+    
+    hpaned#pack1 frame2#coerce;
+    let frame = GBin.frame ~packing:frame2#add ~width:plugin_width ~height:plugin_height () in
+    let s = GWindow.socket ~packing:frame#add () in
+    let com = sprintf "%s 0x%lx -geometry %dx%d &" !plugin_window s#xwindow plugin_width plugin_height in
+    ignore (Sys.command com);
+    
+    let swap = fun _ ->
+      let child1 = List.hd frame1#children in
+      let child2 = List.hd frame2#children in
+      child2#misc#reparent frame1#coerce;
+      child1#misc#reparent frame2#coerce in
+    
+    ignore (map_menu_fact#add_item "Switch map/video" ~key:GdkKeysyms._V ~callback:swap);
+  end;
+  
   (** Pack the canvas in the window *)
-  paned#pack1 ~shrink:true (*** ~expand:true ***) geomap#frame#coerce;
-
+  frame1#add geomap#frame#coerce;
+  
   (** Set the initial soom *)
   geomap#zoom !zoom;
 
   (** Flight plan notebook *)
-  let fp_notebook = GPack.notebook ~tab_border:0 ~packing:(paned#add2) () in
+  let fp_notebook = GPack.notebook ~tab_border:0 ~packing:(hpaned#add2) () in
 
   (** Periodically probe new A/Cs *)
   ignore (Glib.Timeout.add 2000 (fun () -> Live.Ground_Pprz.message_req "map2d" "AIRCRAFTS" [] (fun _sender vs -> Live.aircrafts_msg geomap fp_notebook vs); false));
@@ -1331,6 +1355,8 @@ let _main =
   end;
 
   say "Welcome to paparazzi";
+
+  
 
   (** Threaded main loop (map tiles loaded concurently) *)
   GtkThread.main ()
