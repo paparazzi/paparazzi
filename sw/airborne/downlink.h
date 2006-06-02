@@ -32,6 +32,7 @@
 #else
 #include "pprz_transport.h"
 #include "modem.h"
+#include "xbee.h"
 #endif
 
 #ifdef AP

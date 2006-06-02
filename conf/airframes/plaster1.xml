@@ -113,25 +113,29 @@
     <define name="PHI0" value="-45" unit="deg"/>
   </section>
 
+  <section name="DATALINK" prefix="DATALINK_">
+    <define name="DEVICE_TYPE" value="XBEE"/>
+    <define name="DEVICE_ADDRESS" value=""/>
+  </section>
+
    <makefile>
 
 include $(PAPARAZZI_SRC)/conf/autopilot/v1_2_1.makefile
 include $(PAPARAZZI_SRC)/conf/autopilot/twin_mcu_avr.makefile
 
-ap.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport
-ap.srcs += pprz_transport.c downlink.c
+ap.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=XBeeTransport
+ap.srcs += downlink.c
 
-# ap.CFLAGS += -DUSE_UART0 -DDOWNLINK_AP_DEVICE=Uart0
-ap.CFLAGS += -DMODEM  -DDOWNLINK_AP_DEVICE=Modem
-ap.srcs += $(SRC_ARCH)/modem_hw.c 
+ap.CFLAGS += -DUSE_UART0 -DDOWNLINK_AP_DEVICE=Uart0
+#ap.CFLAGS += -DMODEM  -DDOWNLINK_AP_DEVICE=Modem
+#ap.srcs += $(SRC_ARCH)/modem_hw.c 
 
-ap.CFLAGS += -DRADIO_CONTROL_CALIB
-ap.srcs += rc_settings.c
+#ap.CFLAGS += -DRADIO_CONTROL_CALIB
+#ap.srcs += rc_settings.c
 
 ap.CFLAGS += -DDATALINK=XBEE
-ap.srcs += traffic_info.c datalink.c
-ap.CFLAGS += -DXBEE_UART=Uart0 -DUSE_UART0
-ap.srcs += xbee.c
+ap.srcs += traffic_info.c datalink.c xbee.c
+ap.CFLAGS += -DXBEE_UART=Uart0 -DUART0_BAUD=B9600
 
 
 # Config for SITL simulation

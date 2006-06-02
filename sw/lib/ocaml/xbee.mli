@@ -30,6 +30,7 @@ val at_command_sequence : string
 val at_set_my : int -> string
 val at_exit : string
 val at_api_enable : string
+val at_set_baud_rate : int -> string
 
 
 (** API protocol (payload is a frame_data) *)

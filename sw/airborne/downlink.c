@@ -15,3 +15,5 @@ uint8_t telemetry_mode_Fbw = TELEMETRY_MODE_FBW;
 
 uint8_t telemetry_mode_Ap =TELEMETRY_MODE_AP;
 #endif
+
+uint8_t downlink_nb_ovrn;

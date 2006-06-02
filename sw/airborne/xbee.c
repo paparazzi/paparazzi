@@ -25,23 +25,41 @@
 #include "sys_time.h"
 #include "print.h"
 #include "xbee.h"
-#include "airframe.h"
+
+uint8_t xbee_cs;
+uint8_t xbee_payload[XBEE_PAYLOAD_LEN];
+volatile bool_t xbee_msg_received;
+volatile uint8_t xbee_payload_len;
+uint8_t xbee_rssi;
+uint8_t xbee_ovrn, xbee_error;
+
 
 #define AT_COMMAND_SEQUENCE "+++"
 #define AT_INIT_PERIOD_US 2000000
 #define AT_SET_MY "ATMY"
-#define AT_EXIT "ATCN\n"
+#define AT_AP_MODE "ATAP1\r"
+#define AT_EXIT "ATCN\r"
+
 
 void xbee_init( void ) {
   /** Switching to AT mode (FIXME: busy waiting) */
   XBeePrintString(AT_COMMAND_SEQUENCE);
-  DelayUS(AT_INIT_PERIOD_US);
+
+  /** - busy wait 2s FIXME */
+  uint8_t init_cpt = 120;
+  while (init_cpt) {
+    if (sys_time_periodic())
+      init_cpt--;
+  }
+
 
   /** Setting my address */
   XBeePrintString(AT_SET_MY);
-  uint16_t addr = AC_ID;
+  uint16_t addr = XBEE_MY_ADDR;
   XBeePrintHex16(addr);
-  XBeePrintString("\n");
+  XBeePrintString("\r");
+
+  XBeePrintString(AT_AP_MODE);
 
   /** Switching back to normal mode */
   XBeePrintString(AT_EXIT);

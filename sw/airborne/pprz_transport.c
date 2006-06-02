@@ -27,7 +27,6 @@
 #include "uart.h"
 
 uint8_t ck_a, ck_b;
-uint8_t downlink_nb_ovrn;
 volatile bool_t pprz_msg_received = FALSE;
 uint8_t pprz_ovrn, pprz_error;
 volatile uint8_t pprz_payload_len;

@@ -133,7 +133,7 @@ ap.srcs += rc_settings.c
 
 ap.CFLAGS += -DDATALINK=WAVECARD
 ap.srcs += traffic_info.c datalink.c
-ap.CFLAGS += -DWAVECARD_UART=Uart0 -DUSE_UART0
+ap.CFLAGS += -DWAVECARD_UART=Uart0 -DUSE_UART0 -DUART0_BAUD=B9600
 ap.srcs += wavecard.c
 
   </makefile>

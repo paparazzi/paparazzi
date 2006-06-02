@@ -111,7 +111,7 @@ extern uint8_t ck_a, ck_b;
 #define GOT_LENGTH 2
 #define GOT_PAYLOAD 3
 #define GOT_CRC1 4
-#define GOT_CRC2 5
+
 
 #define PPRZ_PAYLOAD_LEN 256
 extern uint8_t pprz_payload[PPRZ_PAYLOAD_LEN];

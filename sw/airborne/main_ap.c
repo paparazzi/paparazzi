@@ -475,10 +475,10 @@ void init_ap( void ) {
 #ifdef TELEMETER
   srf08_init();
 #endif
-#if USE_UART0
+#ifdef USE_UART0
   Uart0Init();
 #endif
-#if USE_UART1
+#ifdef USE_UART1
   Uart1Init();
 #endif
 
@@ -491,12 +491,9 @@ void init_ap( void ) {
 #ifdef MODEM
   modem_init();
 #endif
-#if DATALINK == WAVECARD
+#if defined DATALINK && DATALINK == WAVECARD
   /** Reset the wavecard during the init pause */
   wc_reset();
-#endif
-#if DATALINK == XBEE
-  xbee_init();
 #endif
 #if defined GPS && defined GPS_CONFIGURE
   gps_configure();
@@ -510,13 +507,18 @@ void init_ap( void ) {
   /** - start interrupt task */
   int_enable();
 
+#if defined DATALINK && DATALINK == XBEE
+  xbee_init();
+#endif
+
+
   /** - wait 0.5s (for modem init ?) */
   uint8_t init_cpt = 30;
   while (init_cpt) {
     if (sys_time_periodic())
       init_cpt--;
   }
-#if DATALINK == WAVECARD
+#if defined DATALINK && DATALINK == WAVECARD
   wc_end_reset();
   init_cpt = 60;
   while (init_cpt) {
@@ -550,12 +552,21 @@ void event_task_ap( void ) {
 
 #if defined DATALINK 
 
-#if DATALINK == PPRZ || DATALINK == XBEE
+#if DATALINK == PPRZ
   if (PprzBuffer()) {
     ReadPprzBuffer();
     if (pprz_msg_received) {
       pprz_parse_payload();
       pprz_msg_received = FALSE;
+    }
+  }
+#elif DATALINK == XBEE
+  if (XBeeBuffer()) {
+    ReadXBeeBuffer();
+    if (xbee_msg_received) {
+      DOWNLINK_SEND_DEBUG1(17, xbee_payload);
+      xbee_parse_payload();
+      xbee_msg_received = FALSE;
     }
   }
 #elif DATALINK == WAVECARD

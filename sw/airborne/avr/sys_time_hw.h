@@ -32,8 +32,8 @@
 
 #include "std.h"
 #include <avr/io.h>
-#define F_CPU (CLOCK*1000000)
-#include <avr/delay.h>
+
+#define F_CPU (CLOCK*1000000UL)
 
 /*
  * Enable Timer1 (16-bit) running at Clk/1 for the global system
@@ -86,8 +86,6 @@ static inline bool_t sys_time_periodic( void ) {
   return TRUE;
 }
 
-
-#define DelayUS(x) _delay_us(x)
 
 
 #endif /* SYS_TIME_HW_H */

@@ -148,7 +148,7 @@ ap.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c
 #ap.CFLAGS += -DINTER_MCU
 #ap.CFLAGS += inter_mcu.c
 
-ap.CFLAGS += -DDOWNLINK -DUSE_UART0 -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_FBW_DEVICE=Uart0
+ap.CFLAGS += -DDOWNLINK -DUSE_UART0 -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_FBW_DEVICE=Uart0 -DUART0_BAUD=B38400
 ap.srcs += downlink.c pprz_transport.c $(SRC_ARCH)/uart_hw.c
 
 # ap.CFLAGS += -DDEBUG_RC

@@ -27,6 +27,10 @@
  *
  */
 #include "uart.h"
+#include "sys_time.h"
+
+#define B9600 9600UL
+#define B38400 38400UL
 
 #if defined  (__AVR_ATmega8__)
 
@@ -41,10 +45,11 @@ static uint8_t           tx_buf[ TX_BUF_SIZE ];
  * With 16.0 MHz clock,UBRR=25  => 38400 baud
  *
  */
+
 void uart0_init_tx( void ) {
-  /* Baudrate is 38.4k */
   UBRRH = 0; 
-  UBRRL = 25; 
+  UBRRL = F_CPU/(16*UART0_BAUD)-1;
+
   /* single speed */ 
   UCSRA = 0; 
   /* Enable transmitter */ 
@@ -83,6 +88,7 @@ void uart0_transmit( unsigned char data ) {
   }
 }
 
+
 SIGNAL(SIG_UART_TRANS) {
   if (tx_head == tx_tail) {
     /* Nothing more to send */
@@ -99,22 +105,16 @@ SIGNAL(SIG_UART_TRANS) {
 #if defined (__AVR_ATmega128__)
 
 #define TX_BUF_SIZE      256
+
+#ifdef USE_UART0
 static uint8_t           tx_head0; /* next free in buf */
 static volatile uint8_t  tx_tail0; /* next char to send */
 uint8_t           tx_buf0[ TX_BUF_SIZE ];
 
-static uint8_t           tx_head1; /* next free in buf */
-static volatile uint8_t  tx_tail1; /* next char to send */
-static uint8_t           tx_buf1[ TX_BUF_SIZE ];
 
 void uart0_init_tx( void ) {
-  /* Baudrate is 38.4k */
   UBRR0H = 0;
-#ifdef WAVECARD
-  UBRR0L = 103; //9600
-#else
-  UBRR0L = 25; // 38.4
-#endif
+  UBRR0L = F_CPU/(16*UART0_BAUD)-1;
 
   /* single speed */ 
   UCSR0A = 0; 
@@ -176,6 +176,11 @@ SIGNAL( SIG_UART0_RECV ) {
   uart0_char_available = TRUE;
 }
 
+#endif /** USE_UART0 */
+
+static uint8_t           tx_head1; /* next free in buf */
+static volatile uint8_t  tx_tail1; /* next char to send */
+static uint8_t           tx_buf1[ TX_BUF_SIZE ];
 
 void uart1_init_tx( void ) {
   /* Baudrate is 38.4k */

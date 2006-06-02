@@ -141,6 +141,14 @@ let at_command_sequence = "+++"
 let at_set_my = fun addr ->
   assert (addr >= 0 && addr < 0x10000);
   Printf.sprintf "ATMY%04x\r" addr
+let baud_rates = [1200, 0; 2400, 1; 4800, 2; 9600, 3; 19200, 4; 
+		  38400, 5; 57600, 6; 115200,  7]
+let at_set_baud_rate = fun baud ->
+  try
+    Printf.sprintf "ATBD%d\r" (List.assoc baud baud_rates)
+  with
+    Not_found -> invalid_arg "at_set_baud_rate"
+
 let at_exit = "ATCN\r"
 let at_api_enable = "ATAP1\r"
 

@@ -121,7 +121,7 @@ include $(PAPARAZZI_SRC)/conf/autopilot/twin_mcu_avr.makefile
 ap.CFLAGS += -DHITL
 
 # Downlink on uart0
-ap.CFLAGS += -DUSE_UART0 -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_AP_DEVICE=Uart0
+ap.CFLAGS += -DUSE_UART0 -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_AP_DEVICE=Uart0 -DUART0_BAUD=B38400
 ap.EXTRA_SRCS += pprz_transport.c downlink.c
 
 # Datalink (on uart0) used to emulate sensors (infrared and gps)

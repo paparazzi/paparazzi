@@ -36,7 +36,7 @@ type transport =
   | Wavecard
   | XBee
 
-type ground_device = { fd : Unix.file_descr; transport : transport }
+type ground_device = { fd : Unix.file_descr; transport : transport ; baud_rate : int}
 
 type airborne_device = 
     WavecardDevice of W.addr
@@ -280,6 +280,7 @@ module XB = struct (** XBee module *)
     let o = Unix.out_channel_of_descr device.fd in
 (***    fprintf o "%s%!" (Xbee.at_set_my 255); ***)
     Debug.trace 'x' "config xbee";
+    fprintf o "%s%!" (Xbee.at_set_baud_rate device.baud_rate);
     fprintf o "%s%!" Xbee.at_api_enable;
     fprintf o "%s%!" Xbee.at_exit;
     Debug.trace 'x' "end init xbee"
@@ -304,7 +305,7 @@ module XB = struct (** XBee module *)
 	Debug.trace 'x' (sprintf "getting XBee RX64: %Lx %d %d %s" addr64 rssi options (Debug.xprint data));
 	use_tele_message (Serial.payload_of_string data)
     | Xbee.RX_Packet_16 (addr16, rssi, options, data) ->
-	Debug.trace 'x' (sprintf "getting XBee RX16: %x %d %d %s" addr16 rssi options (Debug.xprint data));
+	Debug.trace 'x' (sprintf "getting XBee RX16: from=%x %d %d %s" addr16 rssi options (Debug.xprint data));
 	use_tele_message (Serial.payload_of_string data)
 
 
@@ -314,7 +315,7 @@ module XB = struct (** XBee module *)
     let packet = Xbee.Protocol.packet (Serial.payload_of_string frame_data) in
     let o = Unix.out_channel_of_descr device.fd in
     fprintf o "%s%!" packet;
-    Debug.call 'x' (fun f -> fprintf f "link sending: %s\n" (Debug.xprint packet));
+    Debug.call 'y' (fun f -> fprintf f "link sending: (%s) %s\n" (Debug.xprint rf_data) (Debug.xprint packet));
 end (** XBee module *)
 
 
@@ -337,10 +338,7 @@ let send = fun ac_id device ac_device payload priority ->
 let cm_of_m = fun f -> Pprz.Int (truncate (100. *. f))
 
 (** Got a FLIGHT_PARAM message and dispatch a ACINFO *)
-let i = ref 0
 let get_fp = fun device _sender vs ->
-  incr i; i := !i mod 1; (** DEBUG: discarding messages *)
-  if !i = 0 then
   let ac_id = int_of_string (Pprz.string_assoc "ac_id" vs) in
   List.iter 
     (fun (dest_id, _) ->
@@ -409,6 +407,7 @@ let send_event = fun device _sender vs ->
 let setting = fun device _sender vs ->
   let ac_id = int_of_string (Pprz.string_assoc "ac_id" vs) in
   try
+    printf "%d\n%!" ac_id;
     let ac_device = airborne_device ac_id airframes device.transport in
     let idx = Pprz.int_assoc "index" vs in
     let vs = ["index", Pprz.Int idx; "value", List.assoc "value" vs] in
@@ -557,7 +556,7 @@ let _ =
     in
 
     
-    let device = { fd=fd; transport=transport } in
+    let device = { fd=fd; transport=transport; baud_rate=int_of_string !baurate } in
 
     (* Listening *)
     let buffered_input =
