@@ -107,8 +107,8 @@ sub parse_class() {
 	my $class_name;
   foreach my $class ($protocol->getElementsByTagName('class')) {
     $class_name = $class->getAttribute('name');
-		if ($class_name eq "telemetry_ap") {
-			print "found telemetry_ap class \n";
+		if ($class_name eq "telemetry") {
+			print "found telemetry class \n";
 			$self->parse_msg($class, $ac_menu, $ac_id);
 		}
 	}

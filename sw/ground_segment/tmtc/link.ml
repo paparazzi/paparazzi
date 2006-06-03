@@ -407,7 +407,6 @@ let send_event = fun device _sender vs ->
 let setting = fun device _sender vs ->
   let ac_id = int_of_string (Pprz.string_assoc "ac_id" vs) in
   try
-    printf "%d\n%!" ac_id;
     let ac_device = airborne_device ac_id airframes device.transport in
     let idx = Pprz.int_assoc "index" vs in
     let vs = ["index", Pprz.Int idx; "value", List.assoc "value" vs] in

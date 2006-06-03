@@ -60,8 +60,7 @@ let say = fun s ->
     ignore (Sys.command (sprintf "spd-say '%s'&" s))
 
 (** window for the strip panel *)
-let strip_panel = GWindow.window ~title: "Strip Panel" ~width: 330 ~height:300 ()
-let strip_scrolled = GBin.scrolled_window ~hpolicy: `AUTOMATIC ~vpolicy: `AUTOMATIC ~packing: strip_panel#add ()
+let strip_scrolled = GBin.scrolled_window ~width:380 ~hpolicy: `AUTOMATIC ~vpolicy: `AUTOMATIC ()
 let strip_table = GPack.table ~rows: 1 ~columns: 1 ~row_spacings: 5 ~packing: (strip_scrolled#add_with_viewport) ()
 
 (** Dummy flight plan (for map calibration) *)
@@ -857,14 +856,15 @@ let button_press = fun (geomap:G.widget) ev ->
     let stages = ExtXml.child fp_xml_dump "stages" in
     let blocks = blocks_of_stages stages in
 
-    let label = GPack.hbox ~spacing:3 () in
+    let label_box = GBin.event_box () in
+    let label = GPack.hbox ~packing:label_box#add ~spacing:3 () in
     let eb = GBin.event_box ~width:10 ~height:10 ~packing:label#pack () in
     eb#coerce#misc#modify_bg [`NORMAL, `NAME color];
     let ac_label = GMisc.label ~text:name ~packing:label#pack () in
     let apmode_label = GMisc.label ~packing:label#pack () in
     let block_label = GMisc.label ~packing:label#pack () in
 
-    let ac_mi = GMenu.image_menu_item ~image:label ~packing:geomap#menubar#append () in
+    let ac_mi = GMenu.image_menu_item ~image:label_box ~packing:geomap#menubar#append () in
     let ac_menu = GMenu.menu () in
     ac_mi#set_submenu ac_menu;
     let ac_menu_fact = new GMenu.factory ac_menu in
@@ -1199,12 +1199,12 @@ let _main =
   and map_files = ref []
   and center = ref ""
   and zoom = ref 1.
+  and maximize = ref false
   and projection= ref G.UTM
-  and plugin_window = ref ""
-  and display_strip = ref false in
+  and plugin_window = ref "" in
   let options =
     [ "-b", Arg.String (fun x -> ivy_bus := x), "Bus\tDefault is 127.255.255.25:2010";
-      "-strip", Arg.Unit (fun () -> display_strip := true), "Display strip";
+      "-maximize", Arg.Set maximize, "Maximize window";
       "-ref", Arg.Set_string geo_ref, "Geographic ref (default '')";
       "-zoom", Arg.Set_float zoom, "Initial zoom";
       "-center", Arg.Set_string center, "Initial map center";
@@ -1228,6 +1228,8 @@ let _main =
   
   (** window for map2d **)
   let window = GWindow.window ~title: "Map2d" ~border_width:1 ~width:800 ~height:800 () in
+  if !maximize then
+    window#maximize ();
   let vbox= GPack.vbox ~packing: window#add () in
 
   (** window for vertical situation *)
@@ -1237,7 +1239,6 @@ let _main =
 
   ignore (window#connect#destroy ~callback:quit);
   ignore (vertical_situation#connect#destroy ~callback:quit);
-  ignore (strip_panel#connect#destroy ~callback:quit);
 
   let geomap = new G.widget ~projection:!projection () in
 
@@ -1317,8 +1318,12 @@ let _main =
   (** Set the initial soom *)
   geomap#zoom !zoom;
 
+  let hpaned2 = GPack.paned ~show:true `HORIZONTAL ~packing:hpaned#add2 () in
+  (** Strips *)
+  hpaned#add1 strip_scrolled#coerce;
+
   (** Flight plan notebook *)
-  let fp_notebook = GPack.notebook ~tab_border:0 ~packing:(hpaned#add2) () in
+  let fp_notebook = GPack.notebook ~tab_border:0 ~packing:(hpaned2#add2) () in
 
   (** Periodically probe new A/Cs *)
   ignore (Glib.Timeout.add 2000 (fun () -> Live.Ground_Pprz.message_req "map2d" "AIRCRAFTS" [] (fun _sender vs -> Live.aircrafts_msg geomap fp_notebook vs); false));
@@ -1337,8 +1342,6 @@ let _main =
   (** Display the window *)
   window#add_accel_group accel_group;
   window#show ();
-
-  if !display_strip then strip_panel#show ();
 
   (** Loading an initial map *)
   if !geo_ref <> "" then
