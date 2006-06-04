@@ -22,6 +22,7 @@
       <message name="WP_MOVED"       period="0.5"/>
       <message name="RAD_OF_IR"      period="1"/>
       <message name="IR_SENSORS"     period="1"/>
+      <message name="GYRO_RATES"     period="1"/>
     </mode>
     <mode name="debug">
       <message name="CALIB_START"    period="0.5"/> 

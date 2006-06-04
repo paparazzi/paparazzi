@@ -906,6 +906,8 @@ let button_press = fun (geomap:G.widget) ev ->
     let label = GMisc.label ~text:name ~packing:eb#add () in
     eb#coerce#misc#modify_bg [`NORMAL, `NAME color;`ACTIVE, `NAME color];
     (fp_notebook:GPack.notebook)#append_page ~tab_label:eb#coerce fp#window#coerce;
+    fp#connect_selection (fun _ -> prerr_endline "click");
+
     fp#hide ();
     ignore (reset_wp_menu#connect#activate (reset_waypoints fp));
     Hashtbl.add live_aircrafts ac_id { track = track; color = color; 

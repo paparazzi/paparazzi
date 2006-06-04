@@ -33,8 +33,11 @@ extern float desired_roll;
 extern float max_roll;
 extern float desired_pitch;
 extern float roll_pgain;
+extern float roll_rate_pgain;
+extern float attitude_pgain;
 extern float pitch_pgain;
 extern float pitch_of_roll;
+extern float rate_mode;
 void roll_pitch_pid_run( void );
 
 

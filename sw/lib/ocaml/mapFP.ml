@@ -216,6 +216,8 @@ class flight_plan = fun ?edit geomap color fp_dtd xml ->
 	)
 	path
 
+    method connect_selection = fun cb -> XmlEdit.connect_selection xml_tree_view cb 
+
     initializer (
   (** Create a graphic waypoint when it is created from the xml editor *)
       XmlEdit.connect xml_wpts (function XmlEdit.New_child node -> ignore (create_wp  node) | _ -> ())

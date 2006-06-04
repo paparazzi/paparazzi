@@ -232,6 +232,11 @@
     <field name="alt" type="float" unit="m"></field>
  </message>
 
+ <message name="GYRO_RATES" id="36">
+    <field name="roll" type="float" unit="rad/s"></field>
+    <field name="pitch" type="float" unit="rad/s"></field>
+ </message>
+
 
   <message name="PPM" ID="100">
     <field name="values" type="uint16[]" unit="ticks"/>

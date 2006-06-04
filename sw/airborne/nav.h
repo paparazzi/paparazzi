@@ -104,6 +104,7 @@ extern float pitch_of_vz_pgain;
 extern float pitch_of_vz;
 extern float aileron_of_gaz;
 extern float climb_level_gaz;
+extern float nav_prebank, nav_speed_depend;
 
 void climb_pid_run(void);
 void altitude_pid_run(void);

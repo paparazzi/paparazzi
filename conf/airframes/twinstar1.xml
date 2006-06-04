@@ -61,7 +61,7 @@
     <define name="ROLL_PGAIN" value="10000."/>
     <define name="PITCH_OF_ROLL" value="0.0"/>
     <define name="PITCH_PGAIN" value="15000."/>
-    <define name="MAX_ROLL" value="0.35"/>
+    <define name="MAX_ROLL" value="0.55"/>
     <define name="MAX_PITCH" value="0.35"/>
     <define name="MIN_PITCH" value="-0.35"/>
     <define name="AILERON_OF_GAZ" value="0"/>    

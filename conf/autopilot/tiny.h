@@ -51,4 +51,14 @@
 #define PPM_PINSEL_VAL 0x02
 #define PPM_PINSEL_BIT 12
 
+/* ADC */
+#define ADC_0 AdcBank0(3)
+#define ADC_1 AdcBank0(2)
+#define ADC_2 AdcBank0(1)
+#define ADC_3 AdcBank1(7)
+#define ADC_4 AdcBank1(3)
+#define ADC_5 AdcBank1(4)
+#define ADC_6 AdcBank1(5)
+#define ADC_7 AdcBank1(2)
+
 #endif /* CONFIG_TINY_H */

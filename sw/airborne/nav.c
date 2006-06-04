@@ -40,6 +40,10 @@
 #include "cam.h"
 #include "traffic_info.h"
 
+#define Distance2(p1_x, p1_y, p2_x, p2_y) ((p1_x-p2_x)*(p1_x-p2_x)+(p1_y-p2_y)*(p1_y-p2_y))
+#define Square(_x) ((_x)*(_x))
+#define G 9.81
+
 uint8_t nav_stage, nav_block;
 /** To save the current stage when an exception is raised */
 uint8_t excpt_stage;
@@ -65,6 +69,9 @@ bool_t in_segment = FALSE;
 int16_t circle_x, circle_y, circle_radius;
 int16_t segment_x_1, segment_y_1, segment_x_2, segment_y_2;
 uint8_t horizontal_mode;
+float circle_bank = 0;
+float nav_prebank, nav_speed_depend;
+
 
 #define RcRoll(travel) (fbw_state->channels[RADIO_ROLL]* (float)travel /(float)MAX_PPRZ)
 
@@ -115,12 +122,27 @@ static float qdr;
     sum_alpha += alpha_diff; \
   } else \
     new_circle = FALSE; \
+  float dist2_center = Distance2(estimator_x, estimator_y, x, y); \
+  float dist_carrot = CARROT*estimator_hspeed_mod; \
+  float abs_radius = fabs(radius); \
+  float sign_radius = radius > 0 ? 1 : -1; \
+  circle_bank = \
+    (dist2_center > Square(abs_radius + dist_carrot) \
+      || dist2_center < Square(abs_radius - dist_carrot)) ? \
+    0 : \
+     sign_radius * atan2(estimator_hspeed_mod*estimator_hspeed_mod, \
+                         G*abs_radius); \
+  circle_bank *= nav_prebank; \
   circle_count = fabs(sum_alpha) / (2*M_PI); \
-  float alpha_carrot = alpha + CARROT / -radius * estimator_hspeed_mod; \
+  float carrot_angle = CARROT / abs_radius * estimator_hspeed_mod; \
+  carrot_angle = Min(carrot_angle, M_PI/4); \
+  carrot_angle = Max(carrot_angle, M_PI/16); \
+  float alpha_carrot = alpha - sign_radius * carrot_angle; \
   horizontal_mode = HORIZONTAL_MODE_CIRCLE; \
-  fly_to_xy(x+cos(alpha_carrot)*fabs(radius), \
-						y+sin(alpha_carrot)*fabs(radius)); \
-  qdr = DegOfRad(M_PI/2 - alpha_carrot); \
+  float radius_carrot = abs_radius + nav_prebank * (abs_radius / cos(carrot_angle) - abs_radius); \
+  fly_to_xy(x+cos(alpha_carrot)*radius_carrot, \
+	    y+sin(alpha_carrot)*radius_carrot); \
+  qdr = DegOfRad(M_PI/2 - alpha); \
   NormCourse(qdr); \
   in_circle = TRUE; \
   circle_x = x; \
@@ -217,7 +239,7 @@ static inline void survey_init(float y_south, float y_north, float grid) {
 
 #define MIN_DIST2_WP (15.*15.)
 
-#define DISTANCE2(p1_x, p1_y, p2) ((p1_x-p2.x)*(p1_x-p2.x)+(p1_y-p2.y)*(p1_y-p2.y))
+// #define DISTANCE2(p1_x, p1_y, p2) ((p1_x-p2.x)*(p1_x-p2.x)+(p1_y-p2.y)*(p1_y-p2.y))
 
 int32_t nav_utm_east0 = NAV_UTM_EAST0;
 int32_t nav_utm_north0 = NAV_UTM_NORTH0;
@@ -380,14 +402,12 @@ void nav_without_gps(void) {
 #ifdef SECTION_FAILSAFE
   lateral_mode = LATERAL_MODE_ROLL;
   nav_desired_roll = FAILSAFE_DEFAULT_ROLL;
-  auto_pitch = FALSE;
   nav_pitch = FAILSAFE_DEFAULT_PITCH;
   vertical_mode = VERTICAL_MODE_AUTO_GAZ;
   nav_desired_gaz = TRIM_UPPRZ((FAILSAFE_DEFAULT_GAZ)*MAX_PPRZ);
 #else
   lateral_mode = LATERAL_MODE_ROLL;
   nav_desired_roll = 0;
-  auto_pitch = FALSE;
   nav_pitch = 0;
   vertical_mode = VERTICAL_MODE_AUTO_GAZ;
   nav_desired_gaz = TRIM_UPPRZ((CLIMB_LEVEL_GAZ)*MAX_PPRZ);
@@ -397,6 +417,15 @@ void nav_without_gps(void) {
 float course_pgain = COURSE_PGAIN;
 float desired_course = 0.;
 float max_roll = MAX_ROLL;
+float altitude_error;
+
+#define CLIMB_MODE_GAZ 0 
+#define CLIMB_MODE_PITCH 1
+#define CLIMB_MODE_AGRESSIVE 2
+#define CLIMB_MODE_BLENDED 3
+
+uint8_t climb_mode = CLIMB_MODE_GAZ;
+
 
 /** \brief Computes ::nav_desired_roll from course estimation and expected
  course.
@@ -404,7 +433,20 @@ float max_roll = MAX_ROLL;
 void course_pid_run( void ) {
   float err = estimator_hspeed_dir - desired_course;
   NormRadAngle(err);
-  nav_desired_roll = course_pgain * err;
+  float speed_depend_nav = estimator_hspeed_mod/NOMINAL_AIRSPEED; 
+  speed_depend_nav = Max(speed_depend_nav,0.66);
+  speed_depend_nav = Min(speed_depend_nav,1.5);
+  speed_depend_nav = 1. + nav_speed_depend * (speed_depend_nav-1.);
+  float roll_from_err = course_pgain * speed_depend_nav * err;
+#if defined  AGR_CLIMB_GAZ
+  if (climb_mode == CLIMB_MODE_AGRESSIVE) {
+    if (altitude_error < 0)
+      roll_from_err *= AGR_CLIMB_NAV_RATIO;
+    else
+      roll_from_err *= AGR_DESCENT_NAV_RATIO;
+  }
+#endif
+  nav_desired_roll = (in_circle ? circle_bank : 0) + roll_from_err;
   if (nav_desired_roll > max_roll)
     nav_desired_roll = max_roll;
   else if (nav_desired_roll < -max_roll)
@@ -427,31 +469,73 @@ float climb_level_gaz = CLIMB_LEVEL_GAZ;
 /** \brief Computes desired_gaz and updates nav_pitch from desired_climb */
 void 
 climb_pid_run ( void ) {
+  float fgaz = 0;
   float err  = estimator_z_dot - desired_climb;
-  if (auto_pitch) { /* gaz constant */
-    desired_gaz = nav_desired_gaz;
+  float controlled_gaz = climb_pgain * (err + climb_igain * climb_sum_err) + climb_level_gaz + CLIMB_GAZ_OF_CLIMB*desired_climb;
+  /* pitch offset for climb */
+  pitch_of_vz = desired_climb * pitch_of_vz_pgain;
+  switch (climb_mode) {
+  case CLIMB_MODE_GAZ:
+    fgaz = controlled_gaz;
+    climb_sum_err += err;
+    if (climb_sum_err > MAX_CLIMB_SUM_ERR) climb_sum_err = MAX_CLIMB_SUM_ERR;
+    if (climb_sum_err < - MAX_CLIMB_SUM_ERR) climb_sum_err = - MAX_CLIMB_SUM_ERR;
+    nav_pitch += pitch_of_vz;
+    break;
+    
+  case CLIMB_MODE_PITCH:
+    fgaz = nav_desired_gaz;
     nav_pitch = climb_pitch_pgain * (err + climb_pitch_igain * climb_pitch_sum_err);
     Bound(nav_pitch, MIN_PITCH, MAX_PITCH);
     climb_pitch_sum_err += err;
     BoundAbs(climb_pitch_sum_err, MAX_PITCH_CLIMB_SUM_ERR);
-  } else { /* pitch almost constant */
-    /* pitch offset for climb */
-    pitch_of_vz = (desired_climb > 0) ? desired_climb * pitch_of_vz_pgain : 0.;
-    float fgaz = climb_pgain * (err + climb_igain * climb_sum_err) + climb_level_gaz + CLIMB_GAZ_OF_CLIMB*desired_climb;
-    climb_sum_err += err;
-    if (climb_sum_err > MAX_CLIMB_SUM_ERR) climb_sum_err = MAX_CLIMB_SUM_ERR;
-    if (climb_sum_err < - MAX_CLIMB_SUM_ERR) climb_sum_err = - MAX_CLIMB_SUM_ERR;
-    desired_gaz = TRIM_UPPRZ(fgaz * MAX_PPRZ);
-    nav_pitch += pitch_of_vz;
+    break;
+
+#if defined AGR_CLIMB_GAZ
+  case CLIMB_MODE_AGRESSIVE:
+    if (altitude_error < 0) {
+      fgaz =  AGR_CLIMB_GAZ;
+      nav_pitch = AGR_CLIMB_PITCH;
+    } else {
+      fgaz =  AGR_DESCENT_GAZ;
+      nav_pitch = AGR_DESCENT_PITCH;
+    }
+    break;
+    
+  case CLIMB_MODE_BLENDED: {
+    float ratio = (fabs(altitude_error) - AGR_BLEND_END) / (AGR_BLEND_START-AGR_BLEND_END);
+    if (altitude_error < 0) {
+      fgaz =  ratio*AGR_CLIMB_GAZ + (1-ratio)*controlled_gaz;
+      nav_pitch = ratio*AGR_CLIMB_PITCH + (1-ratio)*pitch_of_vz;
+    } else {
+      fgaz =  ratio*AGR_DESCENT_GAZ + (1-ratio)*controlled_gaz;
+      nav_pitch = ratio*AGR_DESCENT_PITCH + (1-ratio)*pitch_of_vz;
+    }
+    break;
   }
+#endif
+  }
+  desired_gaz = TRIM_UPPRZ(fgaz * MAX_PPRZ);
 }
 
 float altitude_pgain = ALTITUDE_PGAIN;
 
 
 void altitude_pid_run(void) {
-  float err = estimator_z - desired_altitude;
-  desired_climb = pre_climb + altitude_pgain * err;
-  if (desired_climb < -CLIMB_MAX) desired_climb = -CLIMB_MAX;
-  if (desired_climb > CLIMB_MAX) desired_climb = CLIMB_MAX;
+  altitude_error = estimator_z - desired_altitude;
+  
+#ifdef AGR_CLIMB_GAZ
+  float dist = fabs(altitude_error);
+  if (dist < AGR_BLEND_END) {
+#endif
+    desired_climb = pre_climb + altitude_pgain * altitude_error;
+    if (desired_climb < -CLIMB_MAX) desired_climb = -CLIMB_MAX;
+    if (desired_climb > CLIMB_MAX) desired_climb = CLIMB_MAX;
+    climb_mode = CLIMB_MODE_GAZ;
+#ifdef AGR_CLIMB_GAZ
+  } else if (dist > AGR_BLEND_START)
+    climb_mode = CLIMB_MODE_AGRESSIVE;
+  else
+    climb_mode = CLIMB_MODE_BLENDED;
+#endif
 }

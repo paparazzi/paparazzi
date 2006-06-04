@@ -40,6 +40,8 @@ int16_t ir_roll;
 int16_t ir_pitch;
 int16_t ir_top;
 
+float z_constrast_mode;
+
 /** Initialized to \a IR_DEFAULT_CONTRAST. Changed with calibration */
 int16_t ir_contrast     = IR_DEFAULT_CONTRAST;
 /** Initialized to \a IR_DEFAULT_CONTRAST.
@@ -92,7 +94,7 @@ void ir_update(void) {
   ir_roll = IR_RollOfIrs(x1_mean, x2_mean);
   ir_pitch = IR_PitchOfIrs(x1_mean, x2_mean);
 #ifdef ADC_CHANNEL_IR_TOP
-  ir_top =  buf_ir_top.sum/buf_ir_top.av_nb_sample - IR_ADC_TOP_NEUTRAL;
+  ir_top =  IR_TopOfIr(buf_ir_top.sum/buf_ir_top.av_nb_sample - IR_ADC_TOP_NEUTRAL);
 #endif
 
   /** neutrals are not taken into account in SITL and HITL */
@@ -199,7 +201,11 @@ void estimator_update_state_infrared( void ) {
   float rad_of_ir = (ir_estim_mode == IR_ESTIM_MODE_ON ? 
 		     estimator_rad_of_ir :
 		     ir_rad_of_ir);
-		     
-  estimator_phi  = rad_of_ir * ir_roll - ir_roll_neutral;
-  estimator_theta = rad_of_ir * ir_pitch - ir_pitch_neutral;
+#ifndef ADC_CHANNEL_IR_TOP
+  z_constrast_mode = 0;
+#endif
+  ir_top = Max(ir_top, 1);
+  float c = rad_of_ir*(1-z_constrast_mode)+z_constrast_mode*(IR_RAD_OF_IR_CONTRAST/ir_top);
+  estimator_phi  = c * ir_roll - ir_roll_neutral;
+  estimator_theta = c * ir_pitch - ir_pitch_neutral;
 }

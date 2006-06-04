@@ -363,7 +363,7 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
 	  let scroll_event = GdkEvent.Scroll.cast ev in
 	  let (x, y) = canvas#get_scroll_offsets in
 	  let xr = GdkEvent.Scroll.x_root scroll_event in
-	  let yr = GdkEvent.Scroll.y_root scroll_event -. 35. in
+	  let yr = GdkEvent.Scroll.y_root scroll_event -. 50. in
 	  match GdkEvent.Scroll.direction scroll_event with
 	    `UP    ->
 	      canvas#scroll_to (x+truncate xr) (y+truncate yr);

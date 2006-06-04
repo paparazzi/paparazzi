@@ -95,16 +95,25 @@
 
 #ifdef INFRARED
 #define PERIODIC_SEND_IR_SENSORS() DOWNLINK_SEND_IR_SENSORS(&ir_pitch, &ir_roll, &ir_top);
-#define PERIODIC_SEND_ADC() {}
 
 #define PERIODIC_SEND_RAD_OF_IR() Downlink({ int16_t rad = DeciDegOfRad(estimator_rad); DOWNLINK_SEND_RAD_OF_IR(&ir_roll, &rad, &estimator_rad_of_ir);})
 #define PERIODIC_SEND_CALIB_START() if (!estimator_flight_time && calib_status == WAITING_CALIB_CONTRAST) { DOWNLINK_SEND_CALIB_START(); }
 #define PERIODIC_SEND_CALIB_CONTRAST() if (!estimator_flight_time && calib_status == CALIB_DONE) { DOWNLINK_SEND_CALIB_CONTRAST(&ir_contrast); }
 #else
-#define PERIODIC_SEND_ADC() {}
 #define SEND_RAD_OF_IR() {}
 #define PERIODIC_SEND_CALIB_START() {}
 #define PERIODIC_SEND_CALIB_CONTRAST() {}
+#endif
+
+#define PERIODIC_SEND_ADC() {}
+
+#ifdef IDC300
+#include "gyro.h"
+#define PERIODIC_SEND_GYRO_RATES() DOWNLINK_SEND_GYRO_RATES(&roll_rate, &pitch_rate)
+#elif defined SPARK_FUN
+#define PERIODIC_SEND_GYRO_RATES() DOWNLINK_SEND_GYRO_RATES(&roll_rate, &temp_comp)
+#else
+#define PERIODIC_SEND_GYRO_RATES() {}
 #endif
 
 #define PERIODIC_SEND_CALIBRATION() DOWNLINK_SEND_CALIBRATION(&climb_sum_err, &climb_pgain, &course_pgain)

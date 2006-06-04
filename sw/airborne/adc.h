@@ -35,6 +35,7 @@
 #define _ADC_H_
 
 #include <inttypes.h>
+#include "adc_hw.h"
 
 #define NB_ADC 8
 #define MAX_AV_NB_SAMPLE 0x20

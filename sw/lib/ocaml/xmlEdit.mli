@@ -65,6 +65,7 @@ val add_child : node -> tag -> attributes -> node
 (** Modifications *)
 
 val connect : node -> (event -> unit) -> unit
+val connect_selection : t -> (node -> unit) -> unit
 (** To be kept informed about modifications *)
 
 val selection : t -> node

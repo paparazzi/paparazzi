@@ -189,13 +189,14 @@ help:
 
 
 test_all_example_airframes:
-	make AIRCRAFT=Tux     clean_ac ac
+	make AIRCRAFT=TJ1     clean_ac ap
+	make AIRCRAFT=MJ4     clean_ac ap
+	make AIRCRAFT=Slayer  clean_ac ac
 	make AIRCRAFT=Plaster clean_ac sim ac	
+	make AIRCRAFT=Twin4   clean_ac ac
+	make AIRCRAFT=Tux     clean_ac ac
 	make AIRCRAFT=Twin1   clean_ac sim ac
 	make AIRCRAFT=Twin2   clean_ac sim
 	make AIRCRAFT=MJ1     clean_ac ac
-	make AIRCRAFT=TJ1     clean_ac ap
-	make AIRCRAFT=MJ4     clean_ac ap
 	make AIRCRAFT=GRZE3   clean_ac ap
-	make AIRCRAFT=Twin4   clean_ac ac
 	make AIRCRAFT=TS5     clean_ac ac

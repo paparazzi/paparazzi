@@ -21,4 +21,13 @@
       <point pos="WGS84 43.448759	1.264170"/>
     </polygon>
   </sector>
+
+  <sector name="latrape">
+    <polygon>
+      <point pos="WGS84 43.239970	1.333672"/>
+      <point pos="WGS84 43.241134	1.298982"/>
+      <point pos="WGS84 43.232172	1.299416"/>
+      <point pos="WGS84 43.232776	1.334940"/>
+    </polygon>
+  </sector>
 </sectors>

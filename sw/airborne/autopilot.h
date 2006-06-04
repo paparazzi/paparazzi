@@ -88,7 +88,6 @@ extern uint8_t fatal_error_nb;
 #define GAZ_THRESHOLD_TAKEOFF (pprz_t)(MAX_PPRZ * 0.9)
 
 extern uint8_t vertical_mode;
-extern bool_t auto_pitch;
 extern uint8_t lateral_mode;
 extern uint8_t vsupply;
 

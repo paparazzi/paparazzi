@@ -4,7 +4,8 @@
 #include "armVIC.h"
 #include CONFIG
 
-static struct adc_buf* buffers[NB_ADC];
+/** First NB_ADC for bank 0, others for bank 2 */
+static struct adc_buf* buffers[NB_ADC*2];
 
 volatile uint16_t adc0_val[NB_ADC] = {1,  2,  3,  4,  5,  6,  7,  8};
 volatile uint16_t adc1_val[NB_ADC] = {9, 10, 11, 12, 13, 14, 15, 16};
@@ -211,7 +212,7 @@ void adcISR1 ( void ) {
   uint16_t value = (uint16_t)(tmp >> 6) & 0x03FF;
   adc1_val[channel] = value;
   LED_TOGGLE(2);
-  struct adc_buf* buf = buffers[channel];
+  struct adc_buf* buf = buffers[channel+NB_ADC];
   if (buf) {
     uint8_t new_head = buf->head + 1;
     if (new_head >= buf->av_nb_sample) new_head = 0;

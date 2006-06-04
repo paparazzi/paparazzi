@@ -37,11 +37,14 @@
   </section>
 
   <section name="adc" prefix="ADC_CHANNEL_">
-    <define name="IR1" value="1"/>
-    <define name="IR2" value="2"/>
-    <define name="IR_TOP" value="3"/>
+    <define name="IR1" value="AdcBank0(1)"/>
+    <define name="IR2" value="AdcBank0(2)"/>
+    <define name="IR_TOP" value="AdcBank0(3)"/>
+    <define name="GYRO_ROLL" value="AdcBank1(2)"/>
+    <define name="GYRO_TEMP" value="AdcBank1(3)"/>
     <define name="IR_NB_SAMPLES" value="16"/>
-    <define name="VSUPPLY" value="6"/>
+    <define name="GYRO_NB_SAMPLES" value="16"/>
+    <define name="VSUPPLY" value="AdcBank0(6)"/>
   </section>
 
   <section name="INFRARED" prefix="IR_">
@@ -51,11 +54,18 @@
     <define name="RAD_OF_IR_CONTRAST" value="0.75"/>
     <linear name="RollOfIrs" arity="2" coeff1="0" coeff2="-1"/>
     <linear name="PitchOfIrs" arity="2" coeff1="-1" coeff2="0"/>
+    <linear name="TopOfIr" arity="1" coeff1="1"/>
     <define name="RAD_OF_IR_MAX_VALUE" value="0.0045"/>
     <define name="RAD_OF_IR_MIN_VALUE" value="0.00075"/>
     <define name="ADC_ROLL_NEUTRAL" value="-512"/>
     <define name="ADC_PITCH_NEUTRAL" value="-512"/>
     <define name="ADC_TOP_NEUTRAL" value="512"/>
+  </section>
+
+  <section name="GYRO" prefix="GYRO_">
+    <define name="ADC_ROLL_NEUTRAL" value="316"/>
+    <define name="ADC_TEMP_NEUTRAL" value="328"/>   
+    <define name="ADC_TEMP_SLOPE" value="-0.36"/>   
   </section>
  
   <section name="PID">
@@ -68,6 +78,16 @@
     <define name="AILERON_OF_GAZ" value="0.0"/>
   </section>
  
+  <section name="GYRO">
+    <define name="GYRO_MAX_RATE" value="150."/>
+    <define name="ROLLRATESUM_NB_SAMPLES" value="60"/>
+    <define name="ATTITUDE_PGAIN" value="25.0"/>
+    <define name="ROLL_RATE_PGAIN" value="85.0"/>
+    <define name="ROLL_RATE_IGAIN" value="0.0"/>
+    <define name="ROLL_RATE_DGAIN" value="0.0"/>
+    <define name="ROLL_ATTITUDE_PGAIN" value="120.0"/><!-- new gyro ,was 600-->
+  </section>
+
   <section name="ALT" prefix="CLIMB_">
     <define name="PITCH_PGAIN" value="-0.1"/>
     <define name="PITCH_IGAIN" value="0.025"/>
@@ -112,6 +132,19 @@
     <define name="HOME_RADIUS" value="50" unit="m"/>
   </section>
 
+
+   <section name="AGGRESSIVE" prefix="AGR_">
+    <define name="CLIMB_GAZ" value="0.65"/><!-- Gaz for Aggressive Climb -->
+    <define name="DESCENT_GAZ" value="0.1"/><!-- Gaz for Aggressive Decent -->
+    <define name="CLIMB_PITCH" value="0.2"/><!-- Pitch for Aggressive Climb -->
+    <define name="DESCENT_PITCH" value="-0.25"/><!-- Pitch for Aggressive Decent -->
+    <define name="BLEND_START" value="20"/><!-- Altitude Error to Initiate Aggressive Climb CANNOT BE ZERO!!-->
+    <define name="BLEND_END" value="10"/><!-- Altitude Error to Blend Aggressive to Regular Climb Modes  CANNOT BE ZERO!!-->
+    <define name="CLIMB_NAV_RATIO" value="0.8"/><!-- Percent Navigation for Altitude Error Equal to Start Altitude -->
+    <define name="DESCENT_NAV_RATIO" value="1.0"/>
+    </section>
+
+
   <makefile>
 include $(PAPARAZZI_SRC)/conf/autopilot/classix.makefile
 
@@ -148,11 +181,18 @@ ap.srcs += inter_mcu.c link_mcu.c spi.c $(SRC_ARCH)/spi_hw.c
 ap.CFLAGS += -DGPS -DUBX -DUSE_UART1 -DGPS_LINK=Uart1 -DUART1_BAUD=B38400
 ap.srcs += gps_ubx.c gps.c
 
+# ADCs for infrared
 ap.CFLAGS += -DADC -DUSE_AD0 -DUSE_AD0_1 -DUSE_AD0_2 -DUSE_AD0_3
+# ADCs for gyro
+ap.CFLAGS += -DUSE_AD1 -DUSE_AD1_2 -DUSE_AD1_3
 ap.srcs += $(SRC_ARCH)/adc_hw.c
+
 
 ap.CFLAGS += -DINFRARED 
 ap.srcs += infrared.c estimator.c
+
+ap.CFLAGS += -DGYRO -DATTITUDE_RATE_MODE -DSPARK_FUN
+ap.srcs += gyro.c
 
 ap.srcs += nav.c pid.c
 

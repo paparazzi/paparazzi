@@ -23,7 +23,6 @@
 #include "airframe.h"
 float pitch_of_vz;
 float pitch_of_vz_pgain;
-bool_t auto_pitch = FALSE;
 uint8_t ac_ident = AC_ID;
 float desired_roll = 0.;
 float desired_pitch = 0.;

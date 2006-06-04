@@ -379,6 +379,12 @@ let connect = fun ((model, path):node) cb ->
   let current_cb = try model#get ~row ~column:event with _ -> fun _ -> () in
   model#set ~row ~column:event (fun e -> cb e; current_cb e)
 
+let selection_cbs = Hashtbl.create 3
+let connect_selection = fun (model,_) cb ->
+  let l = try Hashtbl.find selection_cbs model with Not_found -> [] in
+  Hashtbl.replace selection_cbs model (cb::l)
+
+
 
 let expand_node = fun ?all (_, (tree_view:GTree.view)) ((model, path):node) ->
   tree_view#expand_row ?all path
@@ -477,7 +483,8 @@ let create = fun ?(edit=true) dtd xml ->
 	let attribs = tree_model#get ~row ~column:attributes in
 	attribs_model#clear ();
 	tag_of_last_selection := tree_model#get ~row ~column:tag_col;
-	set_attributes attribs_model attribs
+	set_attributes attribs_model attribs;
+	List.iter (fun cb -> cb (tree_model, path)) (Hashtbl.find selection_cbs tree_model)
     | _ -> () in
 
   let _c = tree_view#selection#connect#after#changed ~callback:selection_changed in

@@ -16,6 +16,8 @@
     <dl_setting VAR="phi_c" MIN="-1." STEP="0.05" MAX="1."/>
     <dl_setting VAR="theta_c" MIN="-1." STEP="0.05" MAX="1."/>
     <dl_setting VAR="course_pgain" MIN="-1." STEP="0.05" MAX="-0.1"/>
+    <dl_setting VAR="nav_prebank" MIN="0." STEP="0.1" MAX="1."/>
+    <dl_setting VAR="nav_speed_depend" MIN="0." STEP="0.1" MAX="1."/>
   </dl_settings>
 
   <waypoints>
@@ -31,7 +33,7 @@
   </waypoints>
   <include Y="0" NAME="zz" PROCEDURE="zigzag.xml" X="0" ROTATE="0">
     <arg NAME="alt" VALUE="GROUND_ALT+50"/>
-    <arg NAME="rad" VALUE="-40"/>
+    <arg NAME="rad" VALUE="40"/>
     <with FROM="end" TO="follow"/>
   </include>
 

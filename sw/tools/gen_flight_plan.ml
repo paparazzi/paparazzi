@@ -155,10 +155,9 @@ let output_vmode x wp last_wp =
   let pitch = try Xml.attrib x "pitch" with _ -> "0.0" in
   if pitch = "auto"
   then begin
-    lprintf "auto_pitch = TRUE;\n";
-    lprintf "nav_desired_gaz = TRIM_UPPRZ(%s*MAX_PPRZ);\n" (parsed_attrib x "gaz")
+    lprintf "climb_mode = CLIMB_MODE_PITCH;\n";
+    lprintf "nav_desired_gaz = %s;\n" (parsed_attrib x "gaz")
   end else begin
-    lprintf "auto_pitch = FALSE;\n";
     lprintf "nav_pitch = %s;\n" (parse pitch);
   end;
   let vmode = try ExtXml.attrib x "vmode" with _ -> "alt" in
@@ -194,7 +193,7 @@ let output_vmode x wp last_wp =
 	if (pitch = "auto") then
 	  failwith "auto pich mode not compatible with vmode=gaz";
 	lprintf "vertical_mode = VERTICAL_MODE_AUTO_GAZ;\n";
-	lprintf "nav_desired_gaz = TRIM_UPPRZ(%s*MAX_PPRZ);\n" (parsed_attrib x "gaz")
+	lprintf "nav_desired_gaz = %s;\n" (parsed_attrib x "gaz")
     | x -> failwith (sprintf "Unknown vmode '%s'" x)
   end;
   vmode

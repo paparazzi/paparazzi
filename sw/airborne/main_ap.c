@@ -39,6 +39,7 @@
 #include "pid.h"
 #include "gps.h"
 #include "infrared.h"
+#include "gyro.h"
 #include "ap_downlink.h"
 #include "nav.h"
 #include "autopilot.h"
@@ -82,8 +83,6 @@ uint8_t lateral_mode = LATERAL_MODE_MANUAL;
 
 uint8_t ir_estim_mode = IR_ESTIM_MODE_ON;
 
-bool_t auto_pitch = FALSE;
-
 bool_t rc_event_1, rc_event_2;
 
 uint8_t vsupply;
@@ -119,7 +118,7 @@ static inline uint8_t pprz_mode_update( void ) {
 /** \fn inline uint8_t ir_estim_mode_update( void )
  *  \brief update ir estimation if RADIO_LLS is true \n
  */
-inline uint8_t ir_estim_mode_update( void ) {
+static inline uint8_t ir_estim_mode_update( void ) {
   return ModeUpdate(ir_estim_mode, IR_ESTIM_MODE_OF_PULSE(fbw_state->channels[RADIO_LLS]));
 }
 #endif
@@ -411,6 +410,9 @@ inline void periodic_task_ap( void ) {
   }
   switch (_20Hz) {
   case 0:
+#if defined GYRO
+    gyro_update();
+#endif
     break;
   case 1: {
     static uint8_t odd;
@@ -468,6 +470,9 @@ void init_ap( void ) {
   /************* Sensors initialization ***************/
 #ifdef INFRARED
   ir_init();
+#endif
+#ifdef GYRO
+  gyro_init();
 #endif
 #ifdef GPS
   gps_init();
