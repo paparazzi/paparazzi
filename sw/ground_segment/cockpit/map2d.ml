@@ -297,28 +297,55 @@ module GM = struct
 end (* GM module *)
 
 let bdortho_size = 400
+let bdortho_store = Hashtbl.create 97
 let display_bdortho = fun  (geomap:G.widget) wgs84 () ->
   let r = bdortho_size / 2 in
   let { lbt_x = lx; lbt_y = ly} = lambertIIe_of wgs84 in
-  let lx = lx - ((lx+ bdortho_size) mod bdortho_size)
-  and ly = ly - ((ly- bdortho_size) mod bdortho_size) in
+  let lx = lx + r and ly = ly + 2 in
+  let lx = lx - (lx mod bdortho_size)
+  and ly = ly - (ly mod bdortho_size) in
   let f = sprintf "ortho_%d_%d_%d.jpg" lx ly r in
   let f = var_maps_path // f in
-  let display = fun _ ->
-    let nw = of_lambertIIe {lbt_x = lx - r; lbt_y = ly + r}
-    and se = of_lambertIIe {lbt_x = lx + r; lbt_y = ly - r} in
-    ignore (geomap#display_pixbuf ((0,0), nw) ((bdortho_size, bdortho_size), se)  (GdkPixbuf.from_file f))
-  in
-  if Sys.file_exists f then
-    display f
-  else
-    ignore (Thread.create
-      (fun f ->
-	let c = sprintf "%s %d %d %d %s" !get_bdortho lx ly r f in
-	ignore (Sys.command c);
-	display f)
-      f)
+  if not (Hashtbl.mem bdortho_store f) then begin
+    Hashtbl.add bdortho_store f true;
+    let display = fun _ ->
+      let nw = of_lambertIIe {lbt_x = lx - r; lbt_y = ly + r}
+      and se = of_lambertIIe {lbt_x = lx + r; lbt_y = ly - r} in
+      ignore (geomap#display_pixbuf ((0,0), nw) ((bdortho_size, bdortho_size), se)  (GdkPixbuf.from_file f));
+      
+    in
+    if Sys.file_exists f then
+      display f
+    else
+      ignore (Thread.create
+		(fun f ->
+		  let c = sprintf "%s %d %d %d %s" !get_bdortho lx ly r f in
+		  ignore (Sys.command c);
+		  display f)
+		f)
+  end
 
+
+let fill_ortho = fun (geomap:MapCanvas.widget) ->
+  (** First estimate the coverage of the window *)
+  let width_c, height_c = Gdk.Drawable.get_size geomap#canvas#misc#window
+  and (xc0, yc0) = geomap#canvas#get_scroll_offsets in
+  let (xw0, yw0) = geomap#window_to_world (float xc0) (float (yc0+height_c))
+  and (xw1, yw1) = geomap#window_to_world (float (xc0+width_c)) (float yc0) in
+  let sw = geomap#of_world (xw0, yw0)
+  and ne = geomap#of_world (xw1, yw1) in
+  let lbt2e_sw = lambertIIe_of sw
+  and lbt2e_ne = lambertIIe_of ne in
+  let w = lbt2e_ne.lbt_x - lbt2e_sw.lbt_x
+  and h = lbt2e_ne.lbt_y - lbt2e_sw.lbt_y in
+  for i = 0 to w / bdortho_size + 2 do
+    let lbt_x = lbt2e_sw.lbt_x + bdortho_size * i in
+    for j = 0 to h / bdortho_size + 2 do
+      let lbt_y = lbt2e_sw.lbt_y + bdortho_size * j in
+      let geo = of_lambertIIe {lbt_x = lbt_x; lbt_y = lbt_y } in
+      display_bdortho geomap geo ()
+    done
+  done
     
 
 (***************** Editing ONE (single) flight plan **************************)
@@ -906,7 +933,6 @@ let button_press = fun (geomap:G.widget) ev ->
     let label = GMisc.label ~text:name ~packing:eb#add () in
     eb#coerce#misc#modify_bg [`NORMAL, `NAME color;`ACTIVE, `NAME color];
     (fp_notebook:GPack.notebook)#append_page ~tab_label:eb#coerce fp#window#coerce;
-    fp#connect_selection (fun _ -> prerr_endline "click");
 
     fp#hide ();
     ignore (reset_wp_menu#connect#activate (reset_waypoints fp));
@@ -1203,6 +1229,7 @@ let _main =
   and zoom = ref 1.
   and maximize = ref false
   and projection= ref G.UTM
+  and auto_ortho = ref false
   and plugin_window = ref "" in
   let options =
     [ "-b", Arg.String (fun x -> ivy_bus := x), "Bus\tDefault is 127.255.255.25:2010";
@@ -1215,6 +1242,7 @@ let _main =
       "-lambertIIe", Arg.Unit (fun () -> projection:=G.LambertIIe),"Switch to LambertIIe projection";
       "-ign", Arg.String (fun s -> ign:=true; IGN.data_path := s), "IGN tiles path";
       "-ortho", Arg.Set_string get_bdortho, "IGN tiles path";
+      "-auto_ortho", Arg.Set auto_ortho, "IGN tiles path";
       "-speech", Arg.Set speech, "Speech";
       "-m", Arg.String (fun x -> map_files := x :: !map_files), "Map description file"] in
   Arg.parse (options)
@@ -1272,6 +1300,8 @@ let _main =
   
   (** Connect Google Maps display to view change *)
   geomap#connect_view (fun () -> GM.update geomap);
+  if !auto_ortho then
+    geomap#connect_view (fun () -> fill_ortho geomap);
   
   (** Flight plan editing *)
   let fp_menu = geomap#factory#add_submenu "Edit" in
@@ -1360,8 +1390,6 @@ let _main =
   end;
 
   say "Welcome to paparazzi";
-
-  
 
   (** Threaded main loop (map tiles loaded concurently) *)
   GtkThread.main ()
