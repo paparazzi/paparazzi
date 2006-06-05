@@ -95,6 +95,7 @@
   <section name="MISC">
     <define name="NOMINAL_AIRSPEED" value="12."/>
     <define name="CARROT" value="5." unit="s"/>
+    <define name="KILL_MODE_DISTANCE" value="(MAX_DIST_FROM_HOME*1.5)" unit="m"/>
   </section>
   <section name="SIMU">
     <define name="ROLL_RESPONSE_FACTOR" value="14."/>
@@ -119,23 +120,22 @@
   </section>
 
    <section name="AGGRESSIVE" prefix="AGR_">
-    <define name="CLIMB_GAZ" value="1.0"/><!-- Gaz for Aggressive Climb -->
+    <define name="CLIMB_GAZ" value="0.8"/><!-- Gaz for Aggressive Climb -->
     <define name="DESCENT_GAZ" value="0.1"/><!-- Gaz for Aggressive Decent -->
-    <define name="CLIMB_PITCH" value="0.52"/><!-- Pitch for Aggressive Climb -->
-    <define name="DESCENT_PITCH" value="-0.7"/><!-- Pitch for Aggressive Decent -->
-    <define name="BLEND_START" value="30"/><!-- Altitude Error to Initiate Aggressive Climb CANNOT BE ZERO!!-->
-    <define name="BLEND_END" value="15"/><!-- Altitude Error to Blend Aggressive to Regular Climb Modes  CANNOT BE ZERO!!-->
+    <define name="CLIMB_PITCH" value="0.2"/><!-- Pitch for Aggressive Climb -->
+    <define name="DESCENT_PITCH" value="-0.2"/><!-- Pitch for Aggressive Decent -->
+    <define name="BLEND_START" value="15"/><!-- Altitude Error to Initiate Aggressive Climb CANNOT BE ZERO!!-->
+    <define name="BLEND_END" value="8"/><!-- Altitude Error to Blend Aggressive to Regular Climb Modes  CANNOT BE ZERO!!-->
     <define name="CLIMB_NAV_RATIO" value="0.8"/><!-- Percent Navigation for Altitude Error Equal to Start Altitude -->
     <define name="DESCENT_NAV_RATIO" value="1.0"/>
     </section>
-
 
    <makefile>
 
 include $(PAPARAZZI_SRC)/conf/autopilot/v1_2_1.makefile
 include $(PAPARAZZI_SRC)/conf/autopilot/twin_mcu_avr.makefile
 
-fbw.CFLAGS += -DTELEMETRY_MODE_FBW=1
+# fbw.CFLAGS += -DTELEMETRY_MODE_FBW=1
 
 ap.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=XBeeTransport
 ap.srcs += downlink.c

@@ -180,7 +180,7 @@ module Strip = struct
   type t = {
       ac_id: string;
       gauge: GRange.progress_bar ;
-      labels: (string * GMisc.label) list
+      labels: (string * (GBin.event_box * GMisc.label)) list
     }
 
   let panel = Hashtbl.create 3
@@ -189,12 +189,12 @@ module Strip = struct
   let i2s = string_of_int
   let labels_name =  [| 
     [| "AP" ; "alt" ; "->" |]; [| "RC"; "climb"; "/" |]; [| "GPS"; "speed"; "" |];
-    [| "settings" ; "throttle"; "" |]; [| ""; "wind"; "dir" |];
+    [| "settings" ; "throttle"; "rate" |]; [| ""; "wind"; "dir" |];
   |]
 
   let labels_print = [| 
     [| "AP" ; "alt" ; "->" |]; [| "RC"; "climb"; "->" |]; [| "GPS"; "speed"; "" |];
-    [| "settings" ; "throttle"; "" |]; [| ""; "wind"; "dir" |];
+    [| "settings" ; "throttle"; "rate" |]; [| ""; "wind"; "dir" |];
   |]
   let gen_int = let i = ref (-1) in fun () -> incr i; !i
 
@@ -214,7 +214,7 @@ module Strip = struct
     (* frame of the strip *)
     let frame = GBin.frame ~shadow_type: `IN ~packing: (widget#attach ~top: (strip_number) ~left: 0) () in
     let strip = GPack.table ~rows: 2 ~columns: 2 ~col_spacings: 10 ~packing: frame#add () in
-    add_label "name" (GMisc.label ~text: (ac_name) ~packing: (strip#attach ~top: 0 ~left: 0) ());
+    ignore (GMisc.label ~text: (ac_name) ~packing: (strip#attach ~top: 0 ~left: 0) ());
     
     let plane_color = GBin.event_box ~width:10 ~height:10 ~packing:(strip#attach ~top:0 ~left: 1) () in
     plane_color#coerce#misc#modify_bg [`NORMAL, `NAME color];
@@ -224,9 +224,10 @@ module Strip = struct
     let pb = GRange.progress_bar ~orientation: `BOTTOM_TO_TOP ~packing: (bat_table#attach ~top:0 ~left:0) () in
     pb#coerce#misc#modify_fg [`PRELIGHT, `NAME "green"];
     pb#coerce#misc#modify_font_by_name "sans 18";
-    let ft = GMisc.label ~text: "00:00:00" ~packing: (bat_table#attach ~top:1 ~left:0) () in
+    let eb = GBin.event_box ~packing: (bat_table#attach ~top:1 ~left:0) () in
+    let ft = GMisc.label ~text: "00:00:00" ~packing:eb#add () in
     ft#set_width_chars 8;
-    add_label ("flight_time_value") ft;
+    add_label ("flight_time_value") (eb, ft);
  
     let left_box = GPack.table ~rows: 5 ~columns: 6 ~col_spacings: 5 
       ~packing: (strip#attach ~top: 1 ~left: 1) () in
@@ -235,10 +236,11 @@ module Strip = struct
       (fun i a ->
 	Array.iteri
 	  (fun j s ->
-	    add_label s (GMisc.label ~text: labels_print.(i).(j) ~justify: `LEFT ~packing: (left_box#attach ~top: i ~left: (2*j)) ());
-	    let lvalue = (GMisc.label ~text: "" ~justify: `RIGHT ~packing: (left_box#attach ~top: i ~left: (2*j+1)) ()) in
+	    ignore (GMisc.label ~text: labels_print.(i).(j) ~justify: `LEFT ~packing: (left_box#attach ~top: i ~left: (2*j)) ());
+	    let eb = GBin.event_box  ~packing: (left_box#attach ~top: i ~left: (2*j+1)) () in
+	    let lvalue = (GMisc.label ~text: "" ~justify: `RIGHT ~packing:eb#add ()) in
 	    lvalue#set_width_chars 6;
-	    add_label (s^"_value") lvalue;
+	    add_label (s^"_value") (eb, lvalue);
 	  ) a
       ) labels_name;
     Hashtbl.add panel ac_id {ac_id = ac_id; gauge=pb ; labels= (!strip_labels)}
@@ -248,7 +250,7 @@ module Strip = struct
 
   (** set a label *)
   let set_label strip name value = 
-    let l = List.assoc (name^"_value") strip.labels in
+    let eb, l = List.assoc (name^"_value") strip.labels in
     l#set_label value
 
   (** set the battery *)
@@ -983,7 +985,13 @@ let button_press = fun (geomap:G.widget) ev ->
   let get_fbw_msg = fun sender vs ->
     try
       let ac_strip = Strip.find (Pprz.string_assoc "ac_id" vs) in
-      Strip.set_label ac_strip "RC" (Pprz.string_assoc "rc_status" vs)
+      let status = Pprz.string_assoc "rc_status" vs in
+      Strip.set_label ac_strip "RC" status;
+(***      Strip.set_color ac_strip "RC"
+	(match status with
+	  "LOST" -> "orange"
+	| "REALLY_LOST" -> "red" 
+	| _ -> "white") ***)
     with
       Not_found -> ()
 	  

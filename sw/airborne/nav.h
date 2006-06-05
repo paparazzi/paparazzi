@@ -34,6 +34,8 @@
 
 #include <std.h>
 
+#define Square(_x) ((_x)*(_x))
+
 struct point {
   float x;
   float y;

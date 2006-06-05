@@ -187,7 +187,14 @@ let log_and_parse = fun logging ac_name a msg values ->
     | "NAVIGATION" -> 
 	a.cur_block <- ivalue "cur_block";
 	a.cur_stage <- ivalue "cur_stage";
-	a.desired_course <- norm_course ((Deg>>Rad)(fvalue "desired_course" /. 10.))
+	a.desired_course <- norm_course ((Deg>>Rad)(fvalue "desired_course" /. 10.));
+	(** Update the position: this messagee may survive the GPS one ! *)
+	begin
+	  match a.nav_ref with
+	    None -> ()
+	  | Some ref ->
+	      a.pos <- utm_add ref (fvalue "pos_x", fvalue "pos_y")
+	end
     | "BAT" ->
 	a.throttle <- fvalue "desired_gaz" /. 9600. *. 100.;
 	a.flight_time <- ivalue "flight_time";

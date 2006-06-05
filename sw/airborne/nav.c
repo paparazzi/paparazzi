@@ -41,7 +41,6 @@
 #include "traffic_info.h"
 
 #define Distance2(p1_x, p1_y, p2_x, p2_y) ((p1_x-p2_x)*(p1_x-p2_x)+(p1_y-p2_y)*(p1_y-p2_y))
-#define Square(_x) ((_x)*(_x))
 #define G 9.81
 
 uint8_t nav_stage, nav_block;

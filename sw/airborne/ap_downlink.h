@@ -44,7 +44,7 @@
 
 #define PERIODIC_SEND_IDENT()  DOWNLINK_SEND_IDENT(&ac_ident);
 
-#define PERIODIC_SEND_BAT() Downlink({ int16_t e = energy; DOWNLINK_SEND_BAT(&desired_gaz, &vsupply, &estimator_flight_time, &low_battery, &block_time, &stage_time, &e); })
+#define PERIODIC_SEND_BAT() Downlink({ int16_t e = energy; DOWNLINK_SEND_BAT(&desired_gaz, &vsupply, &estimator_flight_time, &kill_throttle, &block_time, &stage_time, &e); })
 
 #ifdef MCU_SPI_LINK
 #define PERIODIC_SEND_DEBUG_MCU_LINK() DOWNLINK_SEND_DEBUG_MCU_LINK(&link_mcu_nb_err, &link_mcu_fbw_nb_err, &mcu1_ppm_cpt);

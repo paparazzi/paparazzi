@@ -38,8 +38,9 @@ extern float attitude_pgain;
 extern float pitch_pgain;
 extern float pitch_of_roll;
 extern float rate_mode;
-void roll_pitch_pid_run( void );
 
+void roll_pitch_pid_run( void );
+void pid_slew_gaz( void );
 
 extern pprz_t desired_gaz, desired_aileron, desired_elevator;
 

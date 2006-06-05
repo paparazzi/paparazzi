@@ -81,8 +81,8 @@
   <section name="GYRO">
     <define name="GYRO_MAX_RATE" value="150."/>
     <define name="ROLLRATESUM_NB_SAMPLES" value="60"/>
-    <define name="ATTITUDE_PGAIN" value="25.0"/>
-    <define name="ROLL_RATE_PGAIN" value="85.0"/>
+    <define name="ATTITUDE_PGAIN" value="100.0"/>
+    <define name="ROLL_RATE_PGAIN" value="45.0"/>
     <define name="ROLL_RATE_IGAIN" value="0.0"/>
     <define name="ROLL_RATE_DGAIN" value="0.0"/>
     <define name="ROLL_ATTITUDE_PGAIN" value="120.0"/><!-- new gyro ,was 600-->
@@ -97,6 +97,7 @@
     <define name="LEVEL_GAZ" value="0.30"/>
     <define name="PITCH_OF_VZ_PGAIN" value="0.05"/>
     <define name="GAZ_OF_CLIMB" value="0.2" unit="%/(m/s)"/>
+    <define name="MAX_DIFF_GAZ" value="0.05" unit="%"/>
   </section>
  
   <section name="NAV">
@@ -116,6 +117,7 @@
   <section name="MISC">
     <define name="NOMINAL_AIRSPEED" value="10." unit="m/s"/>
     <define name="CARROT" value="5." unit="s"/>
+    <define name="KILL_MODE_DISTANCE" value="(MAX_DIST_FROM_HOME*1.5)" unit="s"/>
   </section>
  
   <section name="SIMU">

@@ -100,7 +100,7 @@ let send_status_msg =
 		"rx_bytes", Pprz.Int status.rx_byte;
 		"rx_msgs", Pprz.Int status.rx_msg
 	      ] in
-      Tm_Pprz.message_send "link" "DOWNLINK_STATUS" vs)
+      Tm_Pprz.message_send (string_of_int ac_id) "DOWNLINK_STATUS" vs)
       statuss 
 
 

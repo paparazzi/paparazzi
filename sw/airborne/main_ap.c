@@ -89,7 +89,7 @@ uint8_t vsupply;
 
 static uint8_t  mcu1_status, mcu1_ppm_cpt;
 
-static bool_t low_battery = FALSE;
+static bool_t kill_throttle = FALSE;
 
 float slider_1_val, slider_2_val;
 
@@ -266,11 +266,10 @@ inline void telecommand_task( void ) {
  *  \brief Compute desired_course
  */
 static void navigation_task( void ) {
-#if defined GPS && defined FAILSAFE_DELAY_WITHOUT_GPS
+#if defined FAILSAFE_DELAY_WITHOUT_GPS
   /** This section is used for the failsafe of GPS */
   static uint8_t last_pprz_mode;
   static bool_t has_lost_gps = FALSE;
-	
   /** Test if we lost the GPS */
   if (!GPS_FIX_VALID(gps_mode) ||
       (cpu_time - last_gps_msg_t > FAILSAFE_DELAY_WITHOUT_GPS)) {
@@ -318,7 +317,7 @@ static void navigation_task( void ) {
     if (vertical_mode == VERTICAL_MODE_AUTO_GAZ)
       desired_gaz = nav_desired_gaz;
     desired_pitch = nav_pitch;
-    if (low_battery || (!estimator_flight_time && !launch))
+    if (kill_throttle || (!estimator_flight_time && !launch))
       desired_gaz = 0;
   }  
   energy += (float)desired_gaz * (MILLIAMP_PER_PERCENT / MAX_PPRZ * 0.25);
@@ -370,7 +369,9 @@ inline void periodic_task_ap( void ) {
   
   if (!_10Hz) {
     stage_time_ds = stage_time_ds + .1;
+    reporting_task();
   }
+
   if (!_1Hz) {
     if (estimator_flight_time) estimator_flight_time++;
     cpu_time++;
@@ -380,7 +381,8 @@ inline void periodic_task_ap( void ) {
 
     static uint8_t t = 0;
     if (vsupply < LOW_BATTERY_DECIVOLT) t++; else t = 0;
-    low_battery |= (t >= LOW_BATTERY_DELAY);
+    kill_throttle |= (t >= LOW_BATTERY_DELAY);
+    kill_throttle |= (dist2_to_home > Square(KILL_MODE_DISTANCE));
   }
   switch (_1Hz) {
 #ifdef TELEMETER
@@ -393,6 +395,7 @@ inline void periodic_task_ap( void ) {
     break;
 #endif
   }
+
   switch(_4Hz) {
   case 0:
     estimator_propagate_state();
@@ -408,40 +411,40 @@ inline void periodic_task_ap( void ) {
     break;
     /*  default: */
   }
-  switch (_20Hz) {
-  case 0:
+
+#ifndef CONTROL_RATE
+#define CONTROL_RATE 20
+#endif
+
+#if CONTROL_RATE != 60 && CONTROL_RATE != 20
+#error "Only 20 and 60 allowed for CONTROL_RATE"
+#endif
+
+#if CONTROL_RATE == 20
+  if (!_20Hz)
+#endif
+    {
 #if defined GYRO
-    gyro_update();
+      gyro_update();
 #endif
-    break;
-  case 1: {
-    static uint8_t odd;
-    odd++;
-    if (odd & 0x01)
-      reporting_task();
-    break;
-  }
-  case 2:
-    
-#if defined INFRARED
-    ir_update();
-    estimator_update_state_infrared();
+#ifdef INFRARED
+      ir_update();
+      estimator_update_state_infrared();
 #endif /* INFRARED */
-    roll_pitch_pid_run(); /* Set  desired_aileron & desired_elevator */
-    ap_state->commands[COMMAND_THROTTLE] = desired_gaz; /* desired_gaz is set upon GPS message reception */
-    ap_state->commands[COMMAND_ROLL] = desired_aileron;
-    ap_state->commands[COMMAND_PITCH] = desired_elevator;
-    
+      roll_pitch_pid_run(); /* Set  desired_aileron & desired_elevator */
+      pid_slew_gaz();
+      ap_state->commands[COMMAND_THROTTLE] = desired_gaz; /* desired_gaz is set upon GPS message reception */
+      ap_state->commands[COMMAND_ROLL] = desired_aileron;
+      ap_state->commands[COMMAND_PITCH] = desired_elevator;
+      
 #if defined MCU_SPI_LINK
-    link_mcu_send();
+      link_mcu_send();
 #elif defined INTER_MCU && defined SINGLE_MCU
-    /**Directly set the flag indicating to FBW that shared buffer is available*/
-    inter_mcu_received_ap = TRUE;
+      /**Directly set the flag indicating to FBW that shared buffer is available*/
+      inter_mcu_received_ap = TRUE;
 #endif
-    break;
-  default:
-    fatal_error_nb++;
-  }
+    }
+
 }
 
 

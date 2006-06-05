@@ -34,8 +34,8 @@
   </command_laws>
 
   <section name="AUTO1" prefix="AUTO1_">
-    <define name="MAX_ROLL" value="0.6"/>
-    <define name="MAX_PITCH" value="0.6"/>
+    <define name="MAX_ROLL" value="0.96"/>
+    <define name="MAX_PITCH" value="0.8"/>
   </section>
 
   <section name="adc" prefix="ADC_CHANNEL_">
@@ -78,34 +78,36 @@
   </section>
  
   <section name="MISC">
-    <define name="NOMINAL_AIRSPEED" value="10." unit="m/s"/>
-    <define name="CARROT" value="5." unit="s"/>
+    <define name="NOMINAL_AIRSPEED" value="20." unit="m/s"/>
+    <define name="CARROT" value="3." unit="s"/>
+    <define name="CONTROL_RATE" value="60"/>
   </section>
  
   <section name="PID">
-    <define name="ROLL_PGAIN" value="5000."/>
+    <define name="ROLL_PGAIN" value="10000."/>
     <define name="PITCH_OF_ROLL" value="0.0"/>
-    <define name="PITCH_PGAIN" value="5000."/>
-    <define name="MAX_ROLL" value="0.35"/>
-    <define name="MAX_PITCH" value="0.35"/>
-    <define name="MIN_PITCH" value="-0.35"/>
+    <define name="PITCH_PGAIN" value="6000."/>
+    <define name="MAX_ROLL" value="0.73"/>
+    <define name="MAX_PITCH" value="0.7"/>
+    <define name="MIN_PITCH" value="-0.7"/>
     <define name="AILERON_OF_GAZ" value="0.0"/>
   </section>
  
   <section name="ALT" prefix="CLIMB_">
     <define name="PITCH_PGAIN" value="-0.1"/>
     <define name="PITCH_IGAIN" value="0.025"/>
-    <define name="PGAIN" value="-0.03"/>
-    <define name="IGAIN" value="0.1"/>
-    <define name="MAX" value="1."/>
+    <define name="PGAIN" value="-0.025"/>
+    <define name="IGAIN" value="0.25"/>
+    <define name="MAX" value="3."/>
     <define name="LEVEL_GAZ" value="0.50"/>
-    <define name="PITCH_OF_VZ_PGAIN" value="0.05"/>
-    <define name="GAZ_OF_CLIMB" value="0.2" unit="%/(m/s)"/>
+    <define name="PITCH_OF_VZ_PGAIN" value="0.5"/>
+    <define name="GAZ_OF_CLIMB" value="0.15" unit="%/(m/s)"/>
+    <define name="MAX_DIFF_GAZ" value="0.05" unit="%"/>
   </section>
  
   <section name="NAV">
-    <define name="COURSE_PGAIN" value="-0.2"/>
-    <define name="ALTITUDE_PGAIN" value="-0.025"/>
+    <define name="COURSE_PGAIN" value="-1.3"/>
+    <define name="ALTITUDE_PGAIN" value="-0.065"/>
     <define name="NAV_PITCH" value="0."/>
   </section>
 
@@ -127,14 +129,22 @@
     </section>
 
   <section name="GYRO">
-    <define name="GYRO_MAX_RATE" value="150."/>
+    <define name="GYRO_MAX_RATE" value="200."/>
     <define name="ROLLRATESUM_NB_SAMPLES" value="60"/>
-    <define name="ATTITUDE_PGAIN" value="100.0"/>
+    <define name="ATTITUDE_PGAIN" value="120.0"/>
     <define name="ROLL_RATE_PGAIN" value="85.0"/>
     <define name="ROLL_RATE_IGAIN" value="0.0"/>
     <define name="ROLL_RATE_DGAIN" value="0.0"/>
     <define name="ROLL_ATTITUDE_PGAIN" value="120.0"/><!-- new gyro ,was 600-->
   </section>
+
+  <section name="FAILSAFE" prefix="FAILSAFE_">
+	<define name="DELAY_WITHOUT_GPS" value="1" unit="s"/>
+    	<define name="DEFAULT_GAZ" value="0.0" unit="%"/>
+    	<define name="DEFAULT_ROLL" value="0.3" unit="rad"/>
+    	<define name="DEFAULT_PITCH" value="0.5" unit="rad"/>
+	<define name="HOME_RADIUS" value="100" unit="m"/>
+</section>
 
  
 <!--
