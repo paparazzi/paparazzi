@@ -250,8 +250,13 @@ module Strip = struct
 
   (** set a label *)
   let set_label strip name value = 
-    let eb, l = List.assoc (name^"_value") strip.labels in
+    let _eb, l = List.assoc (name^"_value") strip.labels in
     l#set_label value
+
+  (** set a label *)
+  let set_color strip name color = 
+    let eb, _l = List.assoc (name^"_value") strip.labels in
+    eb#coerce#misc#modify_bg [`NORMAL, `NAME color]
 
   (** set the battery *)
   let set_bat strip value =
@@ -708,8 +713,10 @@ let button_press = fun (geomap:G.widget) ev ->
     false
 
 
-(******* Real time handling of flying A/Cs ***********************************) module Live = struct
+(******* Real time handling of flying A/Cs ***********************************)
+module Live = struct
   module Ground_Pprz = Pprz.Messages(struct let name = "ground" end)
+  module Alert_Pprz = Pprz.Messages(struct let name = "alert" end)
 
   type color = string
   type aircraft = {
@@ -725,7 +732,10 @@ let button_press = fun (geomap:G.widget) ev ->
       apmode_label : GMisc.label;
       blocks : (int * string) list;
       mutable last_ap_mode : string;
-      mutable last_stage : int * int
+      mutable last_stage : int * int;
+      ir_page : Pages.infrared;
+      gps_page : Pages.gps;
+      pfd_page : Pages.pfd;
     }
 
   let live_aircrafts = Hashtbl.create 3
@@ -889,7 +899,7 @@ let button_press = fun (geomap:G.widget) ev ->
     let label = GPack.hbox ~packing:label_box#add ~spacing:3 () in
     let eb = GBin.event_box ~width:10 ~height:10 ~packing:label#pack () in
     eb#coerce#misc#modify_bg [`NORMAL, `NAME color];
-    let ac_label = GMisc.label ~text:name ~packing:label#pack () in
+    let _ac_label = GMisc.label ~text:name ~packing:label#pack () in
     let apmode_label = GMisc.label ~packing:label#pack () in
     let block_label = GMisc.label ~packing:label#pack () in
 
@@ -934,8 +944,27 @@ let button_press = fun (geomap:G.widget) ev ->
     let eb = GBin.event_box () in
     let label = GMisc.label ~text:name ~packing:eb#add () in
     eb#coerce#misc#modify_bg [`NORMAL, `NAME color;`ACTIVE, `NAME color];
-    (fp_notebook:GPack.notebook)#append_page ~tab_label:eb#coerce fp#window#coerce;
 
+    let ac_frame = GBin.frame ~packing: ((fp_notebook:GPack.notebook)#append_page ~tab_label:eb#coerce)() in
+    let ac_notebook = GPack.notebook ~packing: ac_frame#add () in
+    let fp_label = GMisc.label ~text: "Flight Plan" () in
+    (ac_notebook:GPack.notebook)#append_page ~tab_label:fp_label#coerce fp#window#coerce;
+    
+    let infrared_label = GMisc.label ~text: "Infrared" () in
+    let infrared_frame = GBin.frame ~shadow_type: `NONE
+	~packing: (ac_notebook#append_page ~tab_label: infrared_label#coerce) () in
+    let ir_page = new Pages.infrared infrared_frame in
+    
+    let gps_label = GMisc.label ~text: "GPS" () in
+    let gps_frame = GBin.frame ~shadow_type: `NONE
+	~packing: (ac_notebook#append_page ~tab_label: gps_label#coerce) () in
+    let gps_page = new Pages.gps gps_frame in
+    
+    let pfd_label = GMisc.label ~text: "PFD" () in
+    let pfd_frame = GBin.frame ~shadow_type: `NONE
+	~packing: (ac_notebook#append_page ~tab_label: pfd_label#coerce) () in
+    let pfd_page = new Pages.pfd pfd_frame in
+    
     fp#hide ();
     ignore (reset_wp_menu#connect#activate (reset_waypoints fp));
     Hashtbl.add live_aircrafts ac_id { track = track; color = color; 
@@ -946,7 +975,10 @@ let button_press = fun (geomap:G.widget) ev ->
 				       block_label = block_label;
 				       apmode_label = apmode_label;
 				       blocks = blocks; last_ap_mode= "";
-				       last_stage = (-1,-1)
+				       last_stage = (-1,-1);
+				       ir_page = ir_page;
+				       gps_page = gps_page;
+				       pfd_page = pfd_page
 				     };
     ignore (Strip.add strip_table ac_id config color)
 
@@ -955,7 +987,11 @@ let button_press = fun (geomap:G.widget) ev ->
     let safe_cb = fun sender vs ->
       try cb sender vs with _ -> () in
     ignore (Ground_Pprz.message_bind msg safe_cb)
-      
+
+  let alert_bind = fun msg cb ->
+    let safe_cb = fun sender vs ->
+      try cb sender vs with _ -> () in
+    ignore (Alert_Pprz.message_bind msg safe_cb)
 
   let ask_config = fun geomap fp_notebook ac ->
     let get_config = fun _sender values ->
@@ -987,11 +1023,11 @@ let button_press = fun (geomap:G.widget) ev ->
       let ac_strip = Strip.find (Pprz.string_assoc "ac_id" vs) in
       let status = Pprz.string_assoc "rc_status" vs in
       Strip.set_label ac_strip "RC" status;
-(***      Strip.set_color ac_strip "RC"
+      Strip.set_color ac_strip "RC"
 	(match status with
 	  "LOST" -> "orange"
 	| "REALLY_LOST" -> "red" 
-	| _ -> "white") ***)
+	| _ -> "white")
     with
       Not_found -> ()
 	  
@@ -1057,6 +1093,12 @@ let button_press = fun (geomap:G.widget) ev ->
       let ac_id = Pprz.string_assoc "ac_id" vs in
       let ac_strip = Strip.find ac_id in
       let ac = Hashtbl.find live_aircrafts ac_id in
+      let pfd_page = ac.pfd_page in
+(***      pfd_page#set_roll (Pprz.float_assoc "roll" vs);
+      pfd_page#set_pitch (Pprz.float_assoc "pitch" vs);
+      pfd_page#set_alt (Pprz.float_assoc "alt" vs);
+      pfd_page#set_climb (Pprz.float_assoc "climb" vs);
+***)
       let a = fun s -> Pprz.float_assoc s vs in
       let wgs84 = { posn_lat = (Deg>>Rad)(a "lat"); posn_long = (Deg>>Rad)(a "long") } in
       aircraft_pos_msg ac.track wgs84 (a "course") (a "alt")  (a "speed") (a "climb");
@@ -1170,6 +1212,53 @@ let button_press = fun (geomap:G.widget) ev ->
     in
     safe_bind "WAYPOINT_MOVED" get_values
     
+ let get_alert_bat_low = fun a sender vs -> 
+    let ac_id = Pprz.string_assoc "ac_id" vs in
+    let ac_name = ref "" in
+    let level = Pprz.string_assoc "level" vs in
+    let get_config = fun sender config ->
+      ac_name := Pprz.string_assoc "ac_name" config;
+      a#add (!ac_name^" "^"BAT_LOW"^" "^level)
+    in
+      Ground_Pprz.message_req "map2d" "CONFIG" ["ac_id", Pprz.String ac_id] get_config
+     
+
+  let listen_alert = fun a -> 
+    alert_bind "BAT_LOW" (get_alert_bat_low a)
+    
+
+  let get_infrared = fun sender vs ->
+    let ac_id = Pprz.string_assoc "ac_id" vs in
+    let ac = Hashtbl.find live_aircrafts ac_id in
+    let ir_page = ac.ir_page in
+    let gps_hybrid_mode = Pprz.string_assoc "gps_hybrid_mode" vs in
+    let gps_hybrid_factor = Pprz.float_assoc "gps_hybrid_factor" vs in
+    let contrast_status = Pprz.string_assoc "contrast_status" vs in
+    let contrast_value = Pprz.int_assoc "contrast_value" vs in
+
+    ir_page#set_gps_hybrid_mode gps_hybrid_mode;
+    ir_page#set_gps_hybrid_factor gps_hybrid_factor;
+    ir_page#set_contrast_status contrast_status;
+    ir_page#set_contrast_value contrast_value
+      
+  let listen_infrared = fun () -> safe_bind "INFRARED" get_infrared
+
+  let get_svsinfo = fun sender vs ->
+    let ac_id = Pprz.string_assoc "ac_id" vs in
+    let ac = Hashtbl.find live_aircrafts ac_id in
+    let gps_page = ac.gps_page in
+    let svid = Array.of_list
+      (Str.split (Str.regexp ",") (Pprz.string_assoc "svid" vs)) in
+    let cno = Array.of_list
+      (Str.split (Str.regexp ",") (Pprz.string_assoc "cno" vs)) in
+     let flags = Array.of_list
+      (Str.split (Str.regexp ",") (Pprz.string_assoc "flags" vs)) in 
+
+      Array.iteri (fun i id ->
+		     if id<>"0" then
+		     gps_page#svsinfo id cno.(i) flags.(i)) svid
+
+  let listen_svsinfo = fun () -> safe_bind "SVSINFO" get_svsinfo
 end (** module Live *)
 
 
@@ -1362,8 +1451,14 @@ let _main =
   (** Strips *)
   hpaned#add1 strip_scrolled#coerce;
 
-  (** Flight plan notebook *)
-  let fp_notebook = GPack.notebook ~tab_border:0 ~packing:(hpaned2#add2) () in
+  let hpaned3 = GPack.paned ~show:true `HORIZONTAL ~packing:hpaned2#add2 () in
+
+  (** Aircraft notebook *)
+  let fp_notebook = GPack.notebook ~tab_border:0 ~packing:(hpaned3#add1) () in
+
+  (** Alerts text frame *)
+  let alert_page = GBin.frame  ~packing:hpaned3#add2 () in
+  let my_alert = new Pages.alert alert_page in
 
   (** Periodically probe new A/Cs *)
   ignore (Glib.Timeout.add 2000 (fun () -> Live.Ground_Pprz.message_req "map2d" "AIRCRAFTS" [] (fun _sender vs -> Live.aircrafts_msg geomap fp_notebook vs); false));
@@ -1378,6 +1473,9 @@ let _main =
   Live.listen_engine_status_msg ();
   Live.listen_if_calib_msg ();
   Live.listen_waypoint_moved ();
+  Live.listen_infrared ();
+  Live.listen_svsinfo ();
+  Live.listen_alert my_alert;
 
   (** Display the window *)
   window#add_accel_group accel_group;
