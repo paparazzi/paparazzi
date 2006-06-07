@@ -42,7 +42,11 @@
 #define PERIODIC_SEND_RC() DOWNLINK_SEND_RC(PPM_NB_PULSES, rc_values)
 #define PERIODIC_SEND_COMMANDS() DOWNLINK_SEND_COMMANDS(COMMANDS_NB, commands)
 #define PERIODIC_SEND_FBW_STATUS() DOWNLINK_SEND_FBW_STATUS(&rc_status, &fbw_mode, &fbw_vsupply_decivolt)
+#ifdef ACTUATORS
 #define PERIODIC_SEND_ACTUATORS() DOWNLINK_SEND_ACTUATORS(SERVOS_NB, actuators)
+#else
+#define PERIODIC_SEND_ACTUATORS() {}
+#endif
 
 #ifdef BRICOLAGE_ADC
 extern uint16_t adc0_val[];
