@@ -4,8 +4,8 @@
 <!-- commands section -->
   <servos>
     <servo name="GAZ"           no="0" min="1000" neutral="1000" max="2000"/>
-    <servo name="AILEVON_LEFT"  no="1" min="1100" neutral="1600" max="2000"/>
-    <servo name="AILEVON_RIGHT" no="2" min="2100" neutral="1500" max="1000"/>
+    <servo name="AILEVON_LEFT"  no="1" min="1100" neutral="1660" max="2000"/>
+    <servo name="AILEVON_RIGHT" no="2" min="2100" neutral="1367" max="1000"/>
   </servos>
 
   <commands>
