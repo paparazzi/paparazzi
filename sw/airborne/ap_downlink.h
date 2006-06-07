@@ -109,9 +109,9 @@
 
 #ifdef IDC300
 #include "gyro.h"
-#define PERIODIC_SEND_GYRO_RATES() DOWNLINK_SEND_GYRO_RATES(&roll_rate, &pitch_rate)
+#define PERIODIC_SEND_GYRO_RATES() DOWNLINK_SEND_GYRO_RATES(&roll_rate_adc, &roll_rate, &pitch_rate)
 #elif defined SPARK_FUN
-#define PERIODIC_SEND_GYRO_RATES() DOWNLINK_SEND_GYRO_RATES(&roll_rate, &temp_comp)
+#define PERIODIC_SEND_GYRO_RATES() DOWNLINK_SEND_GYRO_RATES(&roll_rate_adc, &roll_rate, &temp_comp)
 #else
 #define PERIODIC_SEND_GYRO_RATES() {}
 #endif

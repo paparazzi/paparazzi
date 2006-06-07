@@ -4,6 +4,7 @@
 #include "adc.h"
 #include "airframe.h"
 
+int16_t roll_rate_adc;
 float roll_rate;
 
 static struct adc_buf buf_roll;
@@ -34,11 +35,11 @@ void gyro_update( void ) {
 #ifdef SPARK_FUN
   temp_comp = buf_temp.sum/buf_temp.av_nb_sample - GYRO_ADC_TEMP_NEUTRAL;
   
-  roll_rate = (buf_roll.sum/buf_roll.av_nb_sample) - (GYRO_ADC_ROLL_NEUTRAL+(GYRO_ADC_TEMP_SLOPE*temp_comp)); 
+  roll_rate_adc = (buf_roll.sum/buf_roll.av_nb_sample) - (GYRO_ADC_ROLL_NEUTRAL+(GYRO_ADC_TEMP_SLOPE*temp_comp)); 
 #elif defined IDC300
   pitch_rate = buf_pitch.sum/buf_pitch.av_nb_sample - GYRO_ADC_PITCH_NEUTRAL;
   pitch_rate = RadiansOfADC(pitch_rate);
-  roll_rate = buf_roll.sum/buf_roll.av_nb_sample - GYRO_ADC_ROLL_NEUTRAL;
+  roll_rate_adc = buf_roll.sum/buf_roll.av_nb_sample - GYRO_ADC_ROLL_NEUTRAL;
 #endif
-  roll_rate = RadiansOfADC(roll_rate);
+  roll_rate = RadiansOfADC(roll_rate_adc);
 }

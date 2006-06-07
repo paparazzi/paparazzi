@@ -1,6 +1,7 @@
 #ifndef GYRO_H
 #define GYRO_H
 
+extern int16_t roll_rate_adc;
 extern float roll_rate;
 
 #if defined SPARK_FUN

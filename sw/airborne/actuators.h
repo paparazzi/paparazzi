@@ -30,6 +30,7 @@
 #include "airframe.h"
 
 extern void actuators_init( void );
+extern uint16_t actuators[SERVOS_NB];
 
 #include ACTUATORS
 

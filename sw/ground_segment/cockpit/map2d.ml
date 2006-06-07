@@ -1182,7 +1182,10 @@ module Live = struct
       end;
       ac.apmode_label#set_label ap_mode;
       Strip.set_label ac_strip "AP" (Pprz.string_assoc "ap_mode" vs);
-      Strip.set_label ac_strip "GPS" (Pprz.string_assoc "gps_mode" vs);
+      Strip.set_color ac_strip "AP" (if ap_mode="HOME" then "red" else "white");
+      let gps_mode = Pprz.string_assoc "gps_mode" vs in
+      Strip.set_label ac_strip "GPS" gps_mode;
+      Strip.set_color ac_strip "GPS" (if gps_mode<>"3D" then "red" else "white");
       let ft = 
 	let t = Int32.to_int (Int32.of_string (Pprz.string_assoc "flight_time" vs)) in
 	Printf.sprintf "%02d:%02d:%02d" (t / 3600) ((t mod 3600) / 60) ((t mod 3600) mod 60) in
@@ -1354,7 +1357,7 @@ let _main =
   IGN.cache_path := var_maps_path;
   
   (** window for map2d **)
-  let window = GWindow.window ~title: "Map2d" ~border_width:1 ~width:800 ~height:800 () in
+  let window = GWindow.window ~title: "Map2d" ~border_width:1 ~width:1024 ~height:768 () in
   if !maximize then
     window#maximize ();
   let vbox= GPack.vbox ~packing: window#add () in
@@ -1421,13 +1424,31 @@ let _main =
   let frame1 = GPack.vbox  ~height:600 () in
   paned#pack1 ~shrink:true (*** ~expand:true ***) frame1#coerce;
   let hpaned = GPack.paned ~show:true `HORIZONTAL ~packing:paned#add2 () in
+  
+  (** Pack the canvas in the window *)
+  frame1#add geomap#frame#coerce;
+  (** Set the initial soom *)
+  geomap#zoom !zoom;
+
+  (** Strips on the left *)
+  hpaned#add1 strip_scrolled#coerce;
+  let hpaned2 = GPack.paned ~show:true `HORIZONTAL ~packing:hpaned#add2 () in
+
+  (** Aircraft notebook *)
+  let fp_notebook = GPack.notebook ~tab_border:0 ~packing:(hpaned2#add1) () in
+
+  let hpaned3 = GPack.paned ~show:true `HORIZONTAL ~packing:hpaned2#add2 () in
+
+  (** Alerts text frame *)
+  let alert_page = GBin.frame  ~packing:hpaned3#add1 () in
+  let my_alert = new Pages.alert alert_page in
 
   if !plugin_window <> "" then begin
     let plugin_width=400 and plugin_height=300 in
     let frame2 = GPack.vbox ~width:plugin_width () in
     
-    hpaned#pack1 frame2#coerce;
-    let frame = GBin.frame ~packing:frame2#add ~width:plugin_width ~height:plugin_height () in
+    hpaned3#pack2 frame2#coerce;
+    let frame = GBin.event_box ~packing:frame2#add ~width:plugin_width ~height:plugin_height () in
     let s = GWindow.socket ~packing:frame#add () in
     let com = sprintf "%s 0x%lx -geometry %dx%d &" !plugin_window s#xwindow plugin_width plugin_height in
     ignore (Sys.command com);
@@ -1438,27 +1459,9 @@ let _main =
       child2#misc#reparent frame1#coerce;
       child1#misc#reparent frame2#coerce in
     
-    ignore (map_menu_fact#add_item "Switch map/video" ~key:GdkKeysyms._V ~callback:swap);
+    ignore (frame#event#connect#button_press ~callback:(fun _ -> swap (); true))
   end;
-  
-  (** Pack the canvas in the window *)
-  frame1#add geomap#frame#coerce;
-  
-  (** Set the initial soom *)
-  geomap#zoom !zoom;
 
-  let hpaned2 = GPack.paned ~show:true `HORIZONTAL ~packing:hpaned#add2 () in
-  (** Strips *)
-  hpaned#add1 strip_scrolled#coerce;
-
-  let hpaned3 = GPack.paned ~show:true `HORIZONTAL ~packing:hpaned2#add2 () in
-
-  (** Aircraft notebook *)
-  let fp_notebook = GPack.notebook ~tab_border:0 ~packing:(hpaned3#add1) () in
-
-  (** Alerts text frame *)
-  let alert_page = GBin.frame  ~packing:hpaned3#add2 () in
-  let my_alert = new Pages.alert alert_page in
 
   (** Periodically probe new A/Cs *)
   ignore (Glib.Timeout.add 2000 (fun () -> Live.Ground_Pprz.message_req "map2d" "AIRCRAFTS" [] (fun _sender vs -> Live.aircrafts_msg geomap fp_notebook vs); false));

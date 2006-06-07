@@ -97,6 +97,8 @@ extern float slider_1_val, slider_2_val;
 
 extern bool_t launch;
 
+extern uint8_t light_mode;
+
 /** Assignment, returning _old_value != _value
  * Using GCC expression statements */
 #define ModeUpdate(_mode, _value) ({ \

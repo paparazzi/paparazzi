@@ -98,6 +98,13 @@ bool_t launch = FALSE;
 float energy; /** Fuel consumption */
 
 
+#define LIGHT_MODE_OFF 0
+#define LIGHT_MODE_ON 1
+#define LIGHT_MODE_FLASH 2
+
+uint8_t light_mode = 0;
+
+
 #define Min(x, y) (x < y ? x : y)
 #define Max(x, y) (x > y ? x : y)
 
@@ -394,6 +401,7 @@ inline void periodic_task_ap( void ) {
     srf08_receive();
     break;
 #endif
+
   }
 
   switch(_4Hz) {
@@ -409,6 +417,17 @@ inline void periodic_task_ap( void ) {
       DOWNLINK_SEND_TAKEOFF(&cpu_time);
     }
     break;
+
+#ifdef LIGHT_PIN
+  case 2:
+    if (light_mode == LIGHT_MODE_OFF)
+      LED_ON(LIGHT_PIN);
+    else if (light_mode == LIGHT_MODE_ON)
+      LED_OFF(LIGHT_PIN);
+    else
+      LED_TOGGLE(LIGHT_PIN);
+#endif
+
     /*  default: */
   }
 
@@ -461,6 +480,10 @@ inline void periodic_task_ap( void ) {
 void init_ap( void ) {
 #ifdef LED
   led_init();
+
+  IO0DIR |= 1<<2;
+  IO0SET = 1<<2;
+
 #endif
 #ifndef SINGLE_MCU /** Dual mcus : init done in main_fbw */
   hw_init();
@@ -536,6 +559,8 @@ void init_ap( void ) {
   wc_configure();
 #endif
  
+  //  LED_ON(3);
+
 }
 
 

@@ -484,7 +484,8 @@ let create = fun ?(edit=true) dtd xml ->
 	attribs_model#clear ();
 	tag_of_last_selection := tree_model#get ~row ~column:tag_col;
 	set_attributes attribs_model attribs;
-	List.iter (fun cb -> cb (tree_model, path)) (Hashtbl.find selection_cbs tree_model)
+	let cbs = try  (Hashtbl.find selection_cbs tree_model) with Not_found -> [] in
+	List.iter (fun cb -> cb (tree_model, path)) cbs
     | _ -> () in
 
   let _c = tree_view#selection#connect#after#changed ~callback:selection_changed in

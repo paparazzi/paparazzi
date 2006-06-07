@@ -27,7 +27,7 @@
 module LL = Latlong
 open Printf
 
-let s = 5.
+let s = 8.
 let losange = [|s;0.; 0.;s; -.s;0.; 0.;-.s|]
 
 class group = fun ?(color="red") ?(editable=true) (geomap:MapCanvas.widget) ->
@@ -89,13 +89,15 @@ class waypoint = fun (group:group) (name :string) ?(alt=0.) wgs84 ->
 	label#set [`TEXT name];
 	self#set (LL.of_string e_pos#text);
 	updated ();
+	moved <- true;
 	dialog#destroy () in
 
       let cancel = GButton.button ~stock:`CANCEL ~packing: dvbx#add () in 
       ignore(cancel#connect#clicked ~callback:dialog#destroy);
 
       let ok = GButton.button ~stock:`OK ~packing: dvbx#add () in
-      List.iter (fun e -> ignore (e#connect#activate ~callback)) 
+      List.iter
+	(fun e -> ignore (e#connect#activate ~callback))
 	[ename; e_pos; ea];
       ok#grab_default ();
       ignore(ok#connect#clicked ~callback:dialog#destroy);

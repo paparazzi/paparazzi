@@ -13,7 +13,7 @@
 
 #define IdOfMsg(x) (x[1])
 
-#define SetServo(x, v) Actuator(x) = SERVOS_TICS_OF_USEC(ChopServo(v,1000,2200));
+#define SetServo(x, v) Actuator(x) = SERVOS_TICS_OF_USEC(ChopServo(v,700,2400));
 
 void dl_parse_msg( void ) {
   uint8_t msg_id = IdOfMsg(dl_buffer);

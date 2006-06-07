@@ -33,6 +33,7 @@
     <mode name="default">
       <message name="COMMANDS"       period="1"/>
       <message name="FBW_STATUS"     period="1"/>
+      <message name="ACTUATORS"      period="5"/> <!-- For trimming -->
     </mode>
     <mode name="debug">
       <message name="PPM"            period="0.5"/>
