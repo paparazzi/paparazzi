@@ -4,8 +4,8 @@
 <!-- commands section -->
   <servos>
     <servo name="GAZ"           no="0" min="1000" neutral="1000" max="2000"/>
-    <servo name="AILEVON_LEFT"  no="1" min="1900" neutral="1480" max="1100"/>
-    <servo name="AILEVON_RIGHT" no="2" min="1100" neutral="1600" max="2000"/>
+    <servo name="AILEVON_LEFT"  no="1" min="1900" neutral="1530" max="1100"/>
+    <servo name="AILEVON_RIGHT" no="2" min="1100" neutral="1580" max="2000"/>
   </servos>
 
   <commands>
@@ -73,6 +73,7 @@
   <section name="MISC">
     <define name="NOMINAL_AIRSPEED" value="10." unit="m/s"/>
     <define name="CARROT" value="5." unit="s"/>
+    <define name="KILL_MODE_DISTANCE" value="1.5*MAX_DIST_FROM_HOME"/>
   </section>
  
   <section name="PID">
