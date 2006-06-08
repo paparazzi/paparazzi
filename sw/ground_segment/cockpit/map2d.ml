@@ -194,9 +194,11 @@ module Strip = struct
 
   let labels_print = [| 
     [| "AP" ; "alt" ; "->" |]; [| "RC"; "climb"; "->" |]; [| "GPS"; "speed"; "" |];
-    [| "settings" ; "throttle"; "rate" |]; [| ""; "wind"; "dir" |];
+    [| "CAL" ; "throttle"; "rate" |]; [| ""; "wind"; "dir" |];
   |]
   let gen_int = let i = ref (-1) in fun () -> incr i; !i
+
+  let rows = Array.length labels_name    
 
 
   (** add a strip to the panel *)
@@ -229,14 +231,14 @@ module Strip = struct
     ft#set_width_chars 8;
     add_label ("flight_time_value") (eb, ft);
  
-    let left_box = GPack.table ~rows: 5 ~columns: 6 ~col_spacings: 5 
+    let left_box = GPack.table ~rows ~columns: 6 ~col_spacings: 5 
       ~packing: (strip#attach ~top: 1 ~left: 1) () in
 
     Array.iteri 
       (fun i a ->
 	Array.iteri
 	  (fun j s ->
-	    ignore (GMisc.label ~text: labels_print.(i).(j) ~justify: `LEFT ~packing: (left_box#attach ~top: i ~left: (2*j)) ());
+	    ignore (GMisc.label ~text: labels_print.(i).(j) ~justify:`RIGHT ~packing: (left_box#attach ~top: i ~left: (2*j)) ());
 	    let eb = GBin.event_box  ~packing: (left_box#attach ~top: i ~left: (2*j+1)) () in
 	    let lvalue = (GMisc.label ~text: "" ~justify: `RIGHT ~packing:eb#add ()) in
 	    lvalue#set_width_chars 6;
@@ -726,8 +728,6 @@ module Live = struct
       color: color;
       fp_group : MapFP.flight_plan;
       fp : Xml.xml;
-      block_label : GMisc.label;
-      apmode_label : GMisc.label;
       blocks : (int * string) list;
       mutable last_ap_mode : string;
       mutable last_stage : int * int;
@@ -843,8 +843,6 @@ module Live = struct
     let eb = GBin.event_box ~width:10 ~height:10 ~packing:label#pack () in
     eb#coerce#misc#modify_bg [`NORMAL, `NAME color];
     let _ac_label = GMisc.label ~text:name ~packing:label#pack () in
-    let apmode_label = GMisc.label ~packing:label#pack () in
-    let block_label = GMisc.label ~packing:label#pack () in
 
     let ac_mi = GMenu.image_menu_item ~image:label_box ~packing:geomap#menubar#append () in
     let ac_menu = GMenu.menu () in
@@ -923,8 +921,6 @@ module Live = struct
     Hashtbl.add live_aircrafts ac_id { track = track; color = color; 
 				       fp_group = fp ; config = config ; 
 				       fp = fp_xml; ac_name = name;
-				       block_label = block_label;
-				       apmode_label = apmode_label;
 				       blocks = blocks; last_ap_mode= "";
 				       last_stage = (-1,-1);
 				       ir_page = ir_page;
@@ -1083,7 +1079,6 @@ module Live = struct
       and cur_stage = Pprz.int_assoc "cur_stage" vs in
       let b = List.assoc cur_block ac.blocks in
       let b = String.sub b 0 (min 10 (String.length b)) in
-      ac.block_label#set_label b;
       highlight_fp ac cur_block cur_stage;
       let set_label = fun l f ->
 	Strip.set_label ac_strip l (Printf.sprintf "%.1f" (Pprz.float_assoc f vs)) in
@@ -1134,7 +1129,6 @@ module Live = struct
 	say (sprintf "%s, %s" ac.ac_name ap_mode);
 	ac.last_ap_mode <- ap_mode
       end;
-      ac.apmode_label#set_label ap_mode;
       Strip.set_label ac_strip "AP" (Pprz.string_assoc "ap_mode" vs);
       Strip.set_color ac_strip "AP" (if ap_mode="HOME" then "red" else "white");
       let gps_mode = Pprz.string_assoc "gps_mode" vs in

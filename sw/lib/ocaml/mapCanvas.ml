@@ -87,18 +87,25 @@ let set_opacity = fun pixbuf opacity ->
  *******************************************************************)
     
 (* world_unit: m:pixel at scale 1. *)
-class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef () ->  
-  let canvas = GnoCanvas.canvas () in
-  let background = GnoCanvas.group canvas#root in
-  let view_cbs = Hashtbl.create 3 in (* Store for view event callback *)
-  let region_rectangle = GnoCanvas.rect canvas#root ~props:[`WIDTH_PIXELS 2; `OUTLINE_COLOR "red"] in
+class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef () -> 
+  let frame = GPack.vbox ~height ?width () in
 
-  let menubar = GMenu.menu_bar () in
+  let top_bar = GPack.hbox ~packing:frame#pack () in
+
+  let menubar = GMenu.menu_bar ~packing:(top_bar#pack ~expand:true) () in
   let file_menu_item = GMenu.menu_item ~label:"Nav" ~packing:menubar#append () in
   let file_menu = GMenu.menu () in
   let _ = file_menu_item#set_submenu file_menu in
-
   let factory = new GMenu.factory menubar in
+
+  let info = GPack.hbox ~packing:top_bar#pack () in
+
+  let spin_button = GEdit.spin_button  ~rate:0. ~digits:2 ~width:50 (*** ~height:20 ***) ~packing:top_bar#pack () in
+
+  let canvas = GnoCanvas.canvas ~packing:(frame#pack ~expand:true) () in
+  let background = GnoCanvas.group canvas#root in
+  let view_cbs = Hashtbl.create 3 in (* Store for view event callback *)
+  let region_rectangle = GnoCanvas.rect canvas#root ~props:[`WIDTH_PIXELS 2; `OUTLINE_COLOR "red"] in
 
   object (self)
    
@@ -106,19 +113,14 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
 
     val background = background
 	
-    val frame = GPack.vbox ~height ?width ()
-	
     val adj = GData.adjustment 
 	~value:1. ~lower:0.05 ~upper:10. 
 	~step_incr:0.25 ~page_incr:1.0 ~page_size:1.0 ()
   
-    val bottom = GPack.hbox ~height:30 ()
+    val info = info
 	
-    val _w = GEdit.spin_button  ~rate:0. ~digits:2 ~width:50 ~height:20 ()
 	
-    val mutable lbl_x_axis = GMisc.label ~height:50 ()
 
-	
 (** other attributes *)
 
     val mutable projection = projection	
@@ -127,23 +129,13 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
     val mutable grouping = None
     val mutable region = None (* Rectangle selected region *)
 
-
     method region = region
-
-    method pack = 
-      frame#pack menubar#coerce;
-      frame#pack ~expand:true canvas#coerce;
-      frame#pack bottom#coerce;
-      bottom#pack _w#coerce;
-      bottom#pack lbl_x_axis#coerce;
 
 (** initialization of instance attributes *)
 
     initializer (
 
-      self#pack;
-
-      _w#set_adjustment adj;
+      spin_button#set_adjustment adj;
 
 (** callback bindings *)
 
@@ -165,8 +157,6 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
 
 (** methods *)
 
-    method set_lbl_x_axis = fun s -> lbl_x_axis#set_text s
-	
 (** accessors to instance variables *)	
     method current_zoom = adj#value
     method canvas = canvas
@@ -440,17 +430,17 @@ class widget =  fun ?(height=800) ?width ?projection ?georef () ->
   object(self)
     inherit (basic_widget ~height ?width ?projection ?georef ())
 
-    val mutable lbl_xy = GMisc.label  ~height:50 ()
-    val mutable lbl_geo = GMisc.label  ~height:50 ()
-    val mutable lbl_alt =  GMisc.label  ~height:50 ()
-    val mutable lbl_group = GMisc.label  ~height:50 ()   
+    val mutable lbl_xy = GMisc.label ()
+    val mutable lbl_geo = GMisc.label  ()
+    val mutable lbl_alt =  GMisc.label ()
+    val mutable lbl_group = GMisc.label ()   
     val mutable utm_grid_group = None
 
     method pack_labels =
-      bottom#pack lbl_xy#coerce;
-      bottom#pack lbl_geo#coerce;
-      bottom#pack lbl_alt#coerce;
-      bottom#pack lbl_group#coerce;
+      info#pack lbl_xy#coerce;
+      info#pack lbl_geo#coerce;
+      info#pack lbl_alt#coerce;
+      info#pack lbl_group#coerce;
       
     initializer (
       self#pack_labels;

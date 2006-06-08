@@ -37,7 +37,7 @@ all : map2d
 opt : map2d.opt
 
 
-map2d : $(CMO) ../../lib/ocaml/lib-pprz.cma ../../lib/ocaml/xlib-pprz.cma
+map2d : $(CMO)
 	@echo OL $@
 	$(Q)$(OCAMLC) -custom $(INCLUDES) $(LIBS) threads.cma gtkThread.cmo gtkInit.cmo $(CMO) -o $@
 
@@ -46,7 +46,7 @@ map2d.opt : map2d.cmx
 	$(Q)$(OCAMLOPT) $(INCLUDES) str.cmxa unix.cmxa xml-light.cmxa $(LIBS:.cma=.cmxa) threads.cmxa gtkThread.cmx gtkInit.cmx $< -o $@
 
 
-%.cmo: %.ml
+%.cmo: %.ml  ../../lib/ocaml/lib-pprz.cma ../../lib/ocaml/xlib-pprz.cma
 	@echo OC $<
 	$(Q)$(OCAMLC) $(INCLUDES) -c $<
 %.cmi: %.mli
