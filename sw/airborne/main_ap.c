@@ -218,7 +218,9 @@ static inline void reporting_task( void ) {
 inline void telecommand_task( void ) {
   uint8_t mode_changed = FALSE;
   copy_from_to_fbw();
-  if ((bit_is_set(fbw_state->status, RADIO_REALLY_LOST) && (pprz_mode == PPRZ_MODE_AUTO1 || pprz_mode == PPRZ_MODE_MANUAL)) || too_far_from_home) {
+  
+  uint8_t really_lost = bit_is_set(fbw_state->status, RADIO_REALLY_LOST) && (pprz_mode == PPRZ_MODE_AUTO1 || pprz_mode == PPRZ_MODE_MANUAL);
+  if (launch && (really_lost || too_far_from_home)) {
     pprz_mode = PPRZ_MODE_HOME;
     mode_changed = TRUE;
   }
@@ -331,7 +333,10 @@ static void navigation_task( void ) {
 }
 
 
-//#define PERIOD (256. * 1024. / CLOCK / 1000000.)
+#ifndef KILL_MODE_DISTANCE
+#define KILL_MODE_DISTANCE (1.5*MAX_DIST_FROM_HOME)
+#endif 
+
 
 /** Maximum time allowed for low battery level */
 #define LOW_BATTERY_DELAY 5
