@@ -63,6 +63,8 @@ let get_define = fun xml name ->
 
 (*********** Monitoring *************************************************)
 type status = {
+    mutable last_rx_byte : int;
+    mutable last_rx_msg : int;
     mutable rx_byte : int;
     mutable rx_msg : int;
     mutable rx_err : int;
@@ -72,7 +74,7 @@ let statuss = Hashtbl.create 3
 let update_status = fun ac_id buf ->
   let status = 
     try Hashtbl.find statuss ac_id with Not_found ->
-      let s = { rx_byte = 0; rx_msg = 0; rx_err = 0 } in
+      let s = { last_rx_byte = 0; last_rx_msg = 0; rx_byte = 0; rx_msg = 0; rx_err = 0 } in
       Hashtbl.add statuss ac_id s;
       s in
   status.rx_byte <- status.rx_byte + String.length buf;
@@ -82,17 +84,15 @@ let update_status = fun ac_id buf ->
 let status_msg_period = 1000 (** ms *)
 
 let send_status_msg =
-  let rx_msg = ref 0 
-  and rx_byte = ref 0 
-  and start = Unix.gettimeofday () in
+  let start = Unix.gettimeofday () in
   fun () ->
     Hashtbl.iter (fun ac_id status ->
       let dt = float status_msg_period /. 1000. in
       let t = int_of_float (Unix.gettimeofday () -. start) in
-      let byte_rate = float (status.rx_byte - !rx_byte) /. dt
-      and msg_rate = float (status.rx_msg - !rx_msg) /. dt in
-      rx_msg := status.rx_msg;
-      rx_byte := status.rx_byte;
+      let byte_rate = float (status.rx_byte - status.last_rx_byte) /. dt
+      and msg_rate = float (status.rx_msg - status.last_rx_msg) /. dt in
+      status.last_rx_msg <- status.rx_msg;
+      status.last_rx_byte <- status.rx_byte;
       let vs = ["run_time", Pprz.Int t;
 		"rx_bytes_rate", Pprz.Float byte_rate; 
 		"rx_msgs_rate", Pprz.Float msg_rate;
