@@ -162,131 +162,131 @@ let log_and_parse = fun logging ac_name a msg values ->
   let value = fun x -> try Pprz.assoc x values with Not_found -> failwith (sprintf "Error: field '%s' not found\n" x) in
   let fvalue = fun x -> fvalue (value x)
   and ivalue = fun x -> ivalue (value x) in
-    match msg.Pprz.name with
-      "GPS" ->
-	a.pos <- { utm_x = fvalue "utm_east" /. 100.;
-		   utm_y = fvalue "utm_north" /. 100.;
-		   utm_zone = ivalue "utm_zone" };
-	a.gspeed  <- fvalue "speed" /. 100.;
-	a.course  <- norm_course ((Deg>>Rad)(fvalue "course" /. 10.));
-	a.alt     <- fvalue "alt" /. 100.;
-	a.climb   <- fvalue "climb" /. 100.;
-	a.gps_mode <- check_index (ivalue "mode") gps_modes "GPS_MODE";
-	if a.gspeed > 3. then
-	  Wind.update ac_name a.gspeed a.course
-    | "DESIRED" ->
-	a.desired_east <- fvalue "desired_x";
-	a.desired_north <- fvalue "desired_y";
-	a.desired_altitude <- fvalue "desired_altitude";
-	a.desired_climb <- fvalue "desired_climb"
-    | "NAVIGATION_REF" ->
-	a.nav_ref <- Some { utm_x = fvalue "utm_east"; utm_y = fvalue "utm_north"; utm_zone = ivalue "utm_zone" }
-    | "ATTITUDE" ->
-	a.roll <- (Deg>>Rad) (fvalue "phi");
-	a.pitch <- (Deg>>Rad) (fvalue "theta")
-    | "NAVIGATION" -> 
-	a.cur_block <- ivalue "cur_block";
-	a.cur_stage <- ivalue "cur_stage";
-	a.desired_course <- norm_course ((Deg>>Rad)(fvalue "desired_course" /. 10.));
-	(** Update the position: this messagee may survive the GPS one ! *)
-	begin
-	  match a.nav_ref with
-	    None -> ()
-	  | Some ref ->
-	      a.pos <- utm_add ref (fvalue "pos_x", fvalue "pos_y")
-	end
-    | "BAT" ->
-	a.throttle <- fvalue "desired_gaz" /. 9600. *. 100.;
-	a.flight_time <- ivalue "flight_time";
-	a.rpm <- a.throttle *. 100.;
-	a.bat <- fvalue "voltage" /. 10.;
-	a.stage_time <- ivalue "stage_time";
-	a.block_time <- ivalue "block_time";
-	a.energy <- ivalue "energy";
-	if a.flight_time > 0 && a.infrared.contrast_status = "WAITING" then
-	  a.infrared.contrast_status <- "SKIPPED"
-    | "PPRZ_MODE" ->
-	a.ap_mode <- check_index (ivalue "ap_mode") ap_modes "AP_MODE";
-	a.gaz_mode <- check_index (ivalue "ap_gaz") gaz_modes "AP_GAZ";
-	a.lateral_mode <- check_index (ivalue "ap_lateral") lat_modes "AP_LAT";
-	a.horizontal_mode <- check_index (ivalue "ap_horizontal") horiz_modes "AP_HORIZ";
-	a.inflight_calib.if_mode <- check_index (ivalue "if_calib_mode") if_modes "IF_MODE";
-	let mcu1_status = ivalue "mcu1_status" in
-	(** c.f. link_autopilot.h *)
-	a.fbw.rc_status <- 
-	  if mcu1_status land 0b1 > 0
-	  then "OK"
-	  else if mcu1_status land 0b10 > 0
-	  then "REALLY_LOST"
-	  else "LOST";
-	a.fbw.rc_mode <-
-	  if mcu1_status land 0b1000 > 0
-	  then "FAILSAFE"
-	  else if mcu1_status land 0b100 > 0
-	  then "AUTO"
-	  else "MANUAL";
-	a.infrared.gps_hybrid_mode <- check_index (ivalue "lls_calib") gps_hybrid_modes "HYBRID MODE"
-    | "CAM" ->
-	a.cam.phi <- (Deg>>Rad) (fvalue  "phi");
-	a.cam.theta <- (Deg>>Rad) (fvalue  "theta");
-	a.cam.target <- (fvalue  "target_x", fvalue  "target_y")
-    | "RAD_OF_IR" ->
-	a.infrared.gps_hybrid_factor <- fvalue "rad_of_ir"
-    | "CALIB_START" ->
-	a.infrared.contrast_status <- "WAITING"
-    | "CALIB_CONTRAST" ->
-	a.infrared.contrast_value <- ivalue "adc";
-	a.infrared.contrast_status <- "SET"
-    | "SETTINGS" ->
-	a.inflight_calib.if_val1 <- fvalue "slider_1_val";
-	a.inflight_calib.if_val2 <- fvalue "slider_2_val";
-    | "SVINFO" ->
-	let i = ivalue "chn" in
-	assert(i < Array.length a.svinfo);
-	a.svinfo.(i) <- {  
-	  svid = ivalue "SVID";
-	  flags = ivalue "Flags";
-	  qi = ivalue "QI";
-	  cno = ivalue "CNO";
-	  elev = ivalue "Elev";
-	  azim = ivalue "Azim";
-	}
-    | "CIRCLE" ->
-	begin
-	  match a.nav_ref with
-	    Some nav_ref ->
-	      a.horiz_mode <- Circle (Latlong.utm_add nav_ref (fvalue "center_east", fvalue "center_north"), ivalue "radius")
-	  | None -> ()
-	end
-    | "SEGMENT" ->
-	begin
-	  match a.nav_ref with
-	    Some nav_ref ->
-	      let p1 = Latlong.utm_add nav_ref (fvalue "segment_east_1", fvalue "segment_north_1")
-	      and p2 = Latlong.utm_add nav_ref (fvalue "segment_east_2",  fvalue "segment_north_2") in
-	a.horiz_mode <- Segment (p1, p2)
-	  | None -> ()
-	end
-    | "CALIBRATION" ->
-	a.throttle_accu <- fvalue "climb_sum_err"
-    | "DL_VALUE" ->
-	let i = ivalue "index" in
-	if i < max_nb_dl_setting_values then begin
-	  a.dl_setting_values.(i) <- fvalue "value";
-	  a.nb_dl_setting_values <- max a.nb_dl_setting_values (i+1)
-	end else
-	  failwith "Too much dl_setting values !!!"
-    | "WP_MOVED" ->
-	begin
-	  match a.nav_ref with
-	    Some nav_ref ->
-	      let p = { Latlong.utm_x = fvalue "utm_east";
-			 utm_y = fvalue "utm_north";
-			 utm_zone = nav_ref.Latlong.utm_zone } in
-	      update_waypoint a (ivalue "wp_id") p (fvalue "alt")
-	  | None -> () (** Can't use this message  *)
-	end
-    | _ -> ()
+  match msg.Pprz.name with
+    "GPS" ->
+      a.pos <- { utm_x = fvalue "utm_east" /. 100.;
+		 utm_y = fvalue "utm_north" /. 100.;
+		 utm_zone = ivalue "utm_zone" };
+      a.gspeed  <- fvalue "speed" /. 100.;
+      a.course  <- norm_course ((Deg>>Rad)(fvalue "course" /. 10.));
+      a.alt     <- fvalue "alt" /. 100.;
+      a.climb   <- fvalue "climb" /. 100.;
+      a.gps_mode <- check_index (ivalue "mode") gps_modes "GPS_MODE";
+      if a.gspeed > 3. then
+	Wind.update ac_name a.gspeed a.course
+  | "DESIRED" ->
+      a.desired_east <- fvalue "desired_x";
+      a.desired_north <- fvalue "desired_y";
+      a.desired_altitude <- fvalue "desired_altitude";
+      a.desired_climb <- fvalue "desired_climb"
+  | "NAVIGATION_REF" ->
+      a.nav_ref <- Some { utm_x = fvalue "utm_east"; utm_y = fvalue "utm_north"; utm_zone = ivalue "utm_zone" }
+  | "ATTITUDE" ->
+      a.roll <- (Deg>>Rad) (fvalue "phi");
+      a.pitch <- (Deg>>Rad) (fvalue "theta")
+  | "NAVIGATION" -> 
+      a.cur_block <- ivalue "cur_block";
+      a.cur_stage <- ivalue "cur_stage";
+      a.desired_course <- norm_course ((Deg>>Rad)(fvalue "desired_course" /. 10.));
+      (** Update the position: this messagee may survive the GPS one ! *)
+      begin
+	match a.nav_ref with
+	  None -> ()
+	| Some ref ->
+	    a.pos <- utm_add ref (fvalue "pos_x", fvalue "pos_y")
+      end
+  | "BAT" ->
+      a.throttle <- fvalue "desired_gaz" /. 9600. *. 100.;
+      a.flight_time <- ivalue "flight_time";
+      a.rpm <- a.throttle *. 100.;
+      a.bat <- fvalue "voltage" /. 10.;
+      a.stage_time <- ivalue "stage_time";
+      a.block_time <- ivalue "block_time";
+      a.energy <- ivalue "energy";
+      if a.flight_time > 0 && a.infrared.contrast_status = "WAITING" then
+	a.infrared.contrast_status <- "SKIPPED"
+  | "PPRZ_MODE" ->
+      a.ap_mode <- check_index (ivalue "ap_mode") ap_modes "AP_MODE";
+      a.gaz_mode <- check_index (ivalue "ap_gaz") gaz_modes "AP_GAZ";
+      a.lateral_mode <- check_index (ivalue "ap_lateral") lat_modes "AP_LAT";
+      a.horizontal_mode <- check_index (ivalue "ap_horizontal") horiz_modes "AP_HORIZ";
+      a.inflight_calib.if_mode <- check_index (ivalue "if_calib_mode") if_modes "IF_MODE";
+      let mcu1_status = ivalue "mcu1_status" in
+      (** c.f. link_autopilot.h *)
+      a.fbw.rc_status <- 
+	if mcu1_status land 0b1 > 0
+	then "OK"
+	else if mcu1_status land 0b10 > 0
+	then "REALLY_LOST"
+	else "LOST";
+      a.fbw.rc_mode <-
+	if mcu1_status land 0b1000 > 0
+	then "FAILSAFE"
+	else if mcu1_status land 0b100 > 0
+	then "AUTO"
+	else "MANUAL";
+      a.infrared.gps_hybrid_mode <- check_index (ivalue "lls_calib") gps_hybrid_modes "HYBRID MODE"
+  | "CAM" ->
+      a.cam.phi <- (Deg>>Rad) (fvalue  "phi");
+      a.cam.theta <- (Deg>>Rad) (fvalue  "theta");
+      a.cam.target <- (fvalue  "target_x", fvalue  "target_y")
+  | "RAD_OF_IR" ->
+      a.infrared.gps_hybrid_factor <- fvalue "rad_of_ir"
+  | "CALIB_START" ->
+      a.infrared.contrast_status <- "WAITING"
+  | "CALIB_CONTRAST" ->
+      a.infrared.contrast_value <- ivalue "adc";
+      a.infrared.contrast_status <- "SET"
+  | "SETTINGS" ->
+      a.inflight_calib.if_val1 <- fvalue "slider_1_val";
+      a.inflight_calib.if_val2 <- fvalue "slider_2_val";
+  | "SVINFO" ->
+      let i = ivalue "chn" in
+      assert(i < Array.length a.svinfo);
+      a.svinfo.(i) <- {  
+	svid = ivalue "SVID";
+	flags = ivalue "Flags";
+	qi = ivalue "QI";
+	cno = ivalue "CNO";
+	elev = ivalue "Elev";
+	azim = ivalue "Azim";
+      }
+  | "CIRCLE" ->
+      begin
+	match a.nav_ref with
+	  Some nav_ref ->
+	    a.horiz_mode <- Circle (Latlong.utm_add nav_ref (fvalue "center_east", fvalue "center_north"), ivalue "radius")
+	| None -> ()
+      end
+  | "SEGMENT" ->
+      begin
+	match a.nav_ref with
+	  Some nav_ref ->
+	    let p1 = Latlong.utm_add nav_ref (fvalue "segment_east_1", fvalue "segment_north_1")
+	    and p2 = Latlong.utm_add nav_ref (fvalue "segment_east_2",  fvalue "segment_north_2") in
+	    a.horiz_mode <- Segment (p1, p2)
+	| None -> ()
+      end
+  | "CALIBRATION" ->
+      a.throttle_accu <- fvalue "climb_sum_err"
+  | "DL_VALUE" ->
+      let i = ivalue "index" in
+      if i < max_nb_dl_setting_values then begin
+	a.dl_setting_values.(i) <- fvalue "value";
+	a.nb_dl_setting_values <- max a.nb_dl_setting_values (i+1)
+      end else
+	failwith "Too much dl_setting values !!!"
+  | "WP_MOVED" ->
+      begin
+	match a.nav_ref with
+	  Some nav_ref ->
+	    let p = { Latlong.utm_x = fvalue "utm_east";
+		      utm_y = fvalue "utm_north";
+		      utm_zone = nav_ref.Latlong.utm_zone } in
+	    update_waypoint a (ivalue "wp_id") p (fvalue "alt")
+	| None -> () (** Can't use this message  *)
+      end
+  | _ -> ()
 
 (** Callback for a message from a registered A/C *)
 let ac_msg = fun log ac_name a m ->
