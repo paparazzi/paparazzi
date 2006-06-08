@@ -726,8 +726,6 @@ module Live = struct
       color: color;
       fp_group : MapFP.flight_plan;
       fp : Xml.xml;
-      dl_settings_window : GWindow.window;
-      dl_settings_adjustments : float array;
       block_label : GMisc.label;
       apmode_label : GMisc.label;
       blocks : (int * string) list;
@@ -736,6 +734,7 @@ module Live = struct
       ir_page : Pages.infrared;
       gps_page : Pages.gps;
       pfd_page : Pages.pfd;
+      settings_page : Pages.settings option
     }
 
   let live_aircrafts = Hashtbl.create 3
@@ -798,68 +797,12 @@ module Live = struct
     Ground_Pprz.message_send "map2d" "SEND_EVENT" 
       ["ac_id", Pprz.String ac; "event_id", Pprz.Int e]
 
-  let dl_settings = fun ac_id ac_name xml ->
-    let window = GWindow.window ~title:(sprintf "Datalink settings %s" ac_name) () in
-    let quit = fun () -> GMain.Main.quit (); exit 0 in
-    ignore (window#connect#destroy ~callback:quit);
-    let vbox = GPack.vbox ~packing:window#add () in
-
-    begin
-      try
-	let settings = Xml.children (ExtXml.child xml "dl_settings") in
-	let n = List.length settings in
-	let current_values = Array.create n 42. in
-	let i = ref 0 in
-	List.iter
-	  (fun s ->
-	    let f = fun a -> float_of_string (ExtXml.attrib s a) in
-	    let lower = f "min"
-	    and upper = f "max"
-	    and step_incr = f "step" in
-	    let value = (lower +. upper) /. 2. in
-	    let text = ExtXml.attrib s "var" in
-	    let adj = GData.adjustment ~value ~lower ~upper:(upper+.10.) ~step_incr () in
-	    let hbox = GPack.hbox ~width:500 ~packing:vbox#add () in
-	    let _l = GMisc.label ~width:100 ~text ~packing:hbox#pack () in
-	    let _v = GMisc.label ~width:50 ~text:"N/A" ~packing:hbox#pack () in
-	    let _scale = GRange.scale `HORIZONTAL ~digits:2 ~adjustment:adj ~packing:hbox#add () in
-	    let ii = !i in
-(***	    let b = GButton.button ~label:"Update" ~stock:`REFRESH ~packing:hbox#pack () in
-	    let update = fun () -> adj#set_value current_values.(ii) in
-	    ignore (b#connect#clicked ~callback:update); ***)
-
-	    let update_current_value = fun _ ->
-	      let s = string_of_float current_values.(ii) in
-	      if _v#text <> s then
-		_v#set_text s;
-	      true in
-
-	    ignore (Glib.Timeout.add 500 update_current_value);
-
-	    let callback = fun () -> 
-	      let vs = ["ac_id", Pprz.String ac_id; "index", Pprz.Int ii;"value", Pprz.Float adj#value] in
-	      Ground_Pprz.message_send "dl" "DL_SETTING" vs in
-	    let b = GButton.button ~label:"Commit" ~stock:`APPLY ~packing:hbox#pack () in
-	    ignore (b#connect#clicked ~callback);
-
-	    incr i
-	  )
-	  settings;
-	window, current_values
-      with _ -> window, [||]
-    end
-
   let center = fun geomap track () ->
     match track#last with
       None -> ()
     | Some geo ->
 	geomap#center geo
 
-
-  let active_dl_settings = fun ac_id x ->
-    let ac = Hashtbl.find live_aircrafts ac_id in
-    let w = ac.dl_settings_window in
-    if x then w#show () else w#misc#hide ()
 
   let blocks_of_stages = fun stages ->
     let blocks = ref [] in
@@ -884,7 +827,7 @@ module Live = struct
       fp#waypoints
 
 
-  let create_ac = fun (geomap:G.widget) fp_notebook ac_id config ->
+  let create_ac = fun (geomap:G.widget) (fp_notebook:GPack.notebook) ac_id config ->
     let color = Pprz.string_assoc "default_gui_color" config
     and name = Pprz.string_assoc "ac_name" config in
 
@@ -925,8 +868,7 @@ module Live = struct
       `M ("Jump to block", jump_block_entries);
       `I ("Commit Moves", (fun () -> commit_changes ac_id));
       `I ("Event 1", (fun () -> send_event ac_id 1));
-      `I ("Event 2", (fun () -> send_event ac_id 2));
-      `C ("Settings", false, (active_dl_settings ac_id))] in
+      `I ("Event 2", (fun () -> send_event ac_id 2))] in
 
     GToolbox.build_menu sm ~entries:dl_menu;
 
@@ -936,8 +878,6 @@ module Live = struct
     ignore (params#connect#toggled (fun () -> track#set_params_state params#active));
 
     let fp_xml = ExtXml.child fp_xml_dump "flight_plan" in
-
-    let ds_window, ds_adjs = dl_settings ac_id name fp_xml in
 
     let fp = load_mission ~edit:false color geomap fp_xml in
 
@@ -964,21 +904,33 @@ module Live = struct
     let pfd_frame = GBin.frame ~shadow_type: `NONE
 	~packing: (ac_notebook#append_page ~tab_label: pfd_label#coerce) () in
     let pfd_page = new Pages.pfd pfd_frame in
+
+    let settings_page =
+      try
+	let xml_settings = Xml.children (ExtXml.child fp_xml "dl_settings") in
+	let callback = fun idx value -> 
+	  let vs = ["ac_id", Pprz.String ac_id; "index", Pprz.Int idx;"value", Pprz.Float value] in
+	  Ground_Pprz.message_send "dl" "DL_SETTING" vs in
+	let settings_tab = new Pages.settings xml_settings callback in
+	let tab_label = (GMisc.label ~text:"Settings" ())#coerce in
+	ac_notebook#append_page ~tab_label settings_tab#widget;
+	Some settings_tab
+      with
+	_ -> None in
     
     fp#hide ();
     ignore (reset_wp_menu#connect#activate (reset_waypoints fp));
     Hashtbl.add live_aircrafts ac_id { track = track; color = color; 
 				       fp_group = fp ; config = config ; 
 				       fp = fp_xml; ac_name = name;
-				       dl_settings_adjustments = ds_adjs;
-				       dl_settings_window = ds_window;
 				       block_label = block_label;
 				       apmode_label = apmode_label;
 				       blocks = blocks; last_ap_mode= "";
 				       last_stage = (-1,-1);
 				       ir_page = ir_page;
 				       gps_page = gps_page;
-				       pfd_page = pfd_page
+				       pfd_page = pfd_page;
+				       settings_page = settings_page
 				     };
     ignore (Strip.add strip_table ac_id config color)
 
@@ -1072,14 +1024,16 @@ module Live = struct
     let get_dl_value = fun _sender vs ->
       let ac_id = Pprz.string_assoc "ac_id" vs in
       let ac = Hashtbl.find live_aircrafts ac_id in
-      let adjs = ac.dl_settings_adjustments in
-      let csv = Pprz.string_assoc "values" vs in
-      let values = Array.of_list (Str.split list_separator csv) in
-      for i = 0 to min (Array.length values) (Array.length adjs) - 1 do
-	adjs.(i) <- float_of_string values.(i)
-      done
-    in
+      match ac.settings_page with
+	Some settings ->
+	  let csv = Pprz.string_assoc "values" vs in
+	  let values = Array.of_list (Str.split list_separator csv) in
+	  for i = 0 to min (Array.length values) settings#length - 1 do
+	    settings#set i (float_of_string values.(i))
+	  done
+      | None -> () in
     safe_bind "DL_VALUES" get_dl_value
+
 
   let highlight_fp = fun ac b s ->
     if (b, s) <> ac.last_stage then begin
@@ -1259,7 +1213,7 @@ module Live = struct
 
       Array.iteri (fun i id ->
 		     if id<>"0" then
-		     gps_page#svsinfo id cno.(i) flags.(i)) svid
+		     gps_page#svsinfo id cno.(i) (int_of_string flags.(i))) svid
 
   let listen_svsinfo = fun () -> safe_bind "SVSINFO" get_svsinfo
 end (** module Live *)

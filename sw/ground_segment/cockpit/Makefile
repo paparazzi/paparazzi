@@ -49,7 +49,7 @@ map2d.opt : map2d.cmx
 %.cmo: %.ml
 	@echo OC $<
 	$(Q)$(OCAMLC) $(INCLUDES) -c $<
-%.cmi: %.ml
+%.cmi: %.mli
 	@echo OCI $<
 	$(Q)$(OCAMLC) $(INCLUDES) -c $<
 %.cmx: %.ml
@@ -57,6 +57,7 @@ map2d.opt : map2d.cmx
 	$(Q)$(OCAMLOPT) $(INCLUDES) -c $<
 
 map2d.cmo : pages.cmi
+pages.cmo : pages.cmi
 
 clean:
 	rm -f *~* *.cm* *.o *.out *.opt map2d

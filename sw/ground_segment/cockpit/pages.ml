@@ -79,49 +79,43 @@ end
 (* gps page                                                                  *)
 (*****************************************************************************)
 class gps (widget: GBin.frame) =
-    let table = GPack.table
-    ~rows: 1
-    ~columns: 3
-    ~row_spacings: 5
-    ~col_spacings: 40
-    ~packing: widget#add
-    ()
-  in
+  let table = GPack.table
+      ~rows: 1
+      ~columns: 3
+      ~row_spacings: 5
+      ~col_spacings: 40
+      ~packing: widget#add
+      () in
+  let update_color = fun flags_eb flags ->
+    let color = if flags land 0x01 = 1 then "green" else "red" in
+    flags_eb#coerce#misc#modify_bg [`NORMAL, `NAME color] in
 object (this)
   val parent = widget
   val table = table
   val mutable active_cno = []
   val mutable active_flags = []
 
-  method svsinfo svid cno (flags:string) =
+  method svsinfo svid cno flags =
     if not (List.mem_assoc svid active_cno)
     then begin
-	let rows = table#rows in
-	let _svid_label = GMisc.label 
+      let rows = table#rows in
+      let _svid_label = GMisc.label 
 	  ~text: ("sat "^ svid) ~packing: (table#attach ~top: rows ~left: 0) () in
-	let cno_label = GMisc.label 
+      let cno_label = GMisc.label 
 	  ~text:(cno^" dB Hz") ~packing: (table#attach ~top: rows ~left: 1) () in
-	let flags_eb = GBin.event_box ~width: 20 ~packing:(table#attach ~top: rows ~left: 2) ()
-	in
-	  if flags="1" 
-	  then
-	    flags_eb#coerce#misc#modify_bg [`NORMAL, `NAME "green";`ACTIVE, `NAME "green"]
-	  else
-	    flags_eb#coerce#misc#modify_bg [`NORMAL, `NAME "red";`ACTIVE, `NAME "red"];
-	  active_cno <- (svid, cno_label)::active_cno;
-	  active_flags <- (svid, flags_eb)::active_flags;
-	  table#set_rows (table#rows +1)
-      end
+      let flags_eb = GBin.event_box ~width: 20 ~packing:(table#attach ~top: rows ~left: 2) ()
+      in
+      update_color flags_eb flags;
+      active_cno <- (svid, cno_label)::active_cno;
+      active_flags <- (svid, flags_eb)::active_flags;
+      table#set_rows (table#rows +1)
+    end
     else begin
-	let cno_label = List.assoc svid active_cno in
-	let flags_eb = List.assoc svid active_flags in
-	  cno_label#set_label (cno^" dB Hz");
-	   if flags="1" 
-	  then
-	    flags_eb#coerce#misc#modify_bg [`NORMAL, `NAME "green";`ACTIVE, `NAME "green"]
-	  else
-	    flags_eb#coerce#misc#modify_bg [`NORMAL, `NAME "red";`ACTIVE, `NAME "red"]
-      end
+      let cno_label = List.assoc svid active_cno in
+      let flags_eb = List.assoc svid active_flags in
+      cno_label#set_label (cno^" dB Hz");
+      update_color flags_eb flags
+    end
 end
 
 (*****************************************************************************)
@@ -175,3 +169,47 @@ object (this)
   method set_alt a = alt_l#set_label (Printf.sprintf "%.1f" a)
   method set_climb c = climb_l#set_label (Printf.sprintf "%.1f" c)
 end
+
+class settings = fun xml_settings callback ->
+  let sw = GBin.scrolled_window ~hpolicy:`AUTOMATIC ~vpolicy:`AUTOMATIC () in
+  let vbox = GPack.vbox ~packing:sw#add_with_viewport () in
+  let n = List.length xml_settings in
+  let current_values = Array.create n 42. in
+  let i = ref 0 in
+  let _ =
+    List.iter
+      (fun s ->
+	let f = fun a -> float_of_string (ExtXml.attrib s a) in
+	let lower = f "min"
+	and upper = f "max"
+	and step_incr = f "step" in
+	let value = (lower +. upper) /. 2. in
+	let text = ExtXml.attrib s "var" in
+	let adj = GData.adjustment ~value ~lower ~upper:(upper+.10.) ~step_incr () in
+	let hbox = GPack.hbox ~width:400 ~packing:vbox#add () in
+	let _l = GMisc.label ~width:100 ~text ~packing:hbox#pack () in
+	let _v = GMisc.label ~width:50 ~text:"N/A" ~packing:hbox#pack () in
+	let _scale = GRange.scale `HORIZONTAL ~digits:2 ~adjustment:adj ~packing:hbox#add () in
+	let ii = !i in
+	
+	let update_current_value = fun _ ->
+	  let s = string_of_float current_values.(ii) in
+	  if _v#text <> s then
+	    _v#set_text s;
+	  true in
+	
+	ignore (Glib.Timeout.add 500 update_current_value);
+	let callback = fun _ -> callback ii adj#value in
+	let b = GButton.button ~label:"Commit" ~stock:`APPLY ~packing:hbox#pack () in
+	ignore (b#connect#clicked ~callback);
+	
+	incr i
+      )
+      xml_settings in
+  object
+    method length = n
+    method widget = sw#coerce
+    method set = fun i v -> current_values.(i) <- v
+  end
+
+
