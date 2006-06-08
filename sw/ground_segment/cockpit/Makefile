@@ -57,7 +57,7 @@ map2d.opt : map2d.cmx
 	$(Q)$(OCAMLOPT) $(INCLUDES) -c $<
 
 map2d.cmo : pages.cmi
-pages.cmo : pages.cmi
+pages.cmo : pages.cmi horizon.cmi
 
 clean:
 	rm -f *~* *.cm* *.o *.out *.opt map2d

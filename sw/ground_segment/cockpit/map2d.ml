@@ -1044,11 +1044,10 @@ module Live = struct
       let ac_strip = Strip.find ac_id in
       let ac = Hashtbl.find live_aircrafts ac_id in
       let pfd_page = ac.pfd_page in
-(***      pfd_page#set_roll (Pprz.float_assoc "roll" vs);
+      pfd_page#set_roll (Pprz.float_assoc "roll" vs);
       pfd_page#set_pitch (Pprz.float_assoc "pitch" vs);
       pfd_page#set_alt (Pprz.float_assoc "alt" vs);
       pfd_page#set_climb (Pprz.float_assoc "climb" vs);
-***)
       let a = fun s -> Pprz.float_assoc s vs in
       let wgs84 = { posn_lat = (Deg>>Rad)(a "lat"); posn_long = (Deg>>Rad)(a "long") } in
       aircraft_pos_msg ac.track wgs84 (a "course") (a "alt")  (a "speed") (a "climb");

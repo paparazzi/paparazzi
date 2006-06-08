@@ -122,52 +122,20 @@ end
 (* pfd page                                                                  *)
 (*****************************************************************************)
 class pfd (widget: GBin.frame) =
-  let vbox = GPack.vbox ~packing: widget#add () in
-  let attitude_table = GPack.table 
-    ~rows: 2
-    ~columns: 4
-    ~row_spacings: 5
-    ~col_spacings: 40
-    ~packing: vbox#pack
-    ()
-  in
-  let horizon_f = 
-    GBin.frame ~packing: vbox#pack () in
-  let horizon = new Horizon.h ~packing: horizon_f#add 300 in
-  let roll = GMisc.label ~packing:(attitude_table#attach ~top:0 ~left:1) () in
-  let pitch= GMisc.label ~packing:(attitude_table#attach ~top:0 ~left:3) () in
-  let alt  = GMisc.label ~packing:(attitude_table#attach ~top:1 ~left:1) () in
-  let climb= GMisc.label ~packing:(attitude_table#attach ~top:1 ~left:3) () in
-  let _labels = 
-    ignore (GMisc.label 
-      ~text: "roll" ~packing:(attitude_table#attach ~top:0 ~left:0) ());
-    ignore (GMisc.label 
-      ~text: "pitch" ~packing:(attitude_table#attach ~top:0 ~left:2) ());
-    ignore (GMisc.label 
-      ~text: "alt" ~packing:(attitude_table#attach ~top:1 ~left:0) ());
-    ignore (GMisc.label 
-      ~text: "climb" ~packing:(attitude_table#attach ~top:1 ~left:2) ());
-  in
+  let horizon = new Horizon.h ~packing: widget#add 150 in
     
 object (this)
-  val parent = widget
-  val attitude_table = attitude_table
-  val roll_l = roll
-  val pitch_l = pitch
-  val alt_l = alt
-  val climb_l = climb
-  val horizon = horizon
   val mutable pitch = 0.
   val mutable roll = 0.
 
-  method set_roll r = roll_l#set_label (Printf.sprintf "%.1f" r);
+  method set_roll r =
     roll <- r;
     horizon#draw ((Deg>>Rad)roll) ((Deg>>Rad)pitch)
-  method set_pitch p = pitch_l#set_label (Printf.sprintf "%.1f" p);
+  method set_pitch p =
     pitch <- p;
     horizon#draw ((Deg>>Rad)roll) ((Deg>>Rad)pitch)
-  method set_alt a = alt_l#set_label (Printf.sprintf "%.1f" a)
-  method set_climb c = climb_l#set_label (Printf.sprintf "%.1f" c)
+  method set_alt (a:float) = ()
+  method set_climb (c:float) = ()
 end
 
 class settings = fun xml_settings callback ->
