@@ -1,6 +1,8 @@
 #ifndef GYRO_H
 #define GYRO_H
 
+#include <inttypes.h>
+
 extern int16_t roll_rate_adc;
 extern float roll_rate;
 

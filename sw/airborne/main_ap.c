@@ -543,17 +543,18 @@ void init_ap( void ) {
   /** - start interrupt task */
   int_enable();
 
-#if defined DATALINK && DATALINK == XBEE
-  xbee_init();
-#endif
-
-
   /** - wait 0.5s (for modem init ?) */
   uint8_t init_cpt = 30;
   while (init_cpt) {
     if (sys_time_periodic())
       init_cpt--;
   }
+
+#if defined DATALINK && DATALINK == XBEE
+  xbee_init();
+#endif
+
+
 #if defined DATALINK && DATALINK == WAVECARD
   wc_end_reset();
   init_cpt = 60;

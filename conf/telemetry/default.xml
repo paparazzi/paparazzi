@@ -40,6 +40,7 @@
       <message name="RC"             period="0.5"/>
       <message name="COMMANDS"       period="0.5"/>
       <message name="FBW_STATUS"     period="1"/>
+      <message name="ACTUATORS"      period="5"/> <!-- For trimming -->
     </mode>
   </process>
 </telemetry>

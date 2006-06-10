@@ -41,5 +41,5 @@ void gyro_update( void ) {
   pitch_rate = RadiansOfADC(pitch_rate);
   roll_rate_adc = buf_roll.sum/buf_roll.av_nb_sample - GYRO_ADC_ROLL_NEUTRAL;
 #endif
-  roll_rate = RadiansOfADC(roll_rate_adc);
+  roll_rate = GYRO_ADC_ROLL_COEF * RadiansOfADC(roll_rate_adc);
 }
