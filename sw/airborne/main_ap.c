@@ -77,7 +77,7 @@ uint8_t rc_settings_mode = RC_SETTINGS_MODE_NONE;
 uint8_t fatal_error_nb = 0;
 static const uint16_t version = 1;
 
-uint8_t pprz_mode = PPRZ_MODE_MANUAL;
+uint8_t pprz_mode = PPRZ_MODE_AUTO2;
 uint8_t vertical_mode = VERTICAL_MODE_MANUAL;
 uint8_t lateral_mode = LATERAL_MODE_MANUAL;
 

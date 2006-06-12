@@ -1,3 +1,4 @@
+open Printf
 open Latlong
 
 let affine_pos_and_angle xw yw angle =
@@ -5,6 +6,7 @@ let affine_pos_and_angle xw yw angle =
   let sin_a = sin angle in
   [| cos_a ; sin_a ; ~-. sin_a; cos_a; xw ; yw |]
 
+let affine_pos xw yw = affine_pos_and_angle xw yw 0.
 
 let arc = fun n r start stop ->
   let s = (stop -. start) /. float (n-1) in
@@ -20,39 +22,82 @@ let floats_of_points = fun ps ->
   done;
   a
 
+let ruler = fun ?(index_on_right=false) ~text_props ~max ~scale ~w ~index_width ~step ~h root ->
+  let r = GnoCanvas.group root in
+  let height = scale *. float max in
+  let _ = GnoCanvas.rect ~x1:0. ~y1:(-.height) ~x2:w ~y2:height ~fill_color:"#808080" r in
+  for i = 0 to max/step do 
+    let i = i * step in
+    let y = -. scale *. float i in
+    let text = Printf.sprintf "%d" i in
+    let _ = GnoCanvas.text ~text ~props:(text_props@[`ANCHOR `EAST]) ~y ~x:(w*.0.75) r in
+    let _ = GnoCanvas.line ~points:[|w*.0.8;y;w;y|] ~fill_color:"white" r in
+    let y = y -. float step /. 2. *. scale in
+    let _ = GnoCanvas.line ~points:[|w*.0.8;y;w;y|] ~fill_color:"white" r in
+    ()
+  done;
+  (** Yellow index *)
+  let _ = GnoCanvas.line ~points:[|0.;0.;w;0.|] ~fill_color:"yellow" root in
+  let s = index_width in
+  let idx = GnoCanvas.polygon ~points:[|0.;0.;-.s;s/.2.;-.s;-.s/.2.|] ~fill_color:"yellow" root in
+  if index_on_right then
+    idx#affine_absolute (affine_pos_and_angle w 0. pi);
+
+  (** Mask (bottom & top) *)
+  let _ = GnoCanvas.rect ~x1:0. ~y1:(-.height) ~x2:w ~y2:(-.h) ~fill_color:"black" root in
+  let _ = GnoCanvas.rect ~x1:0. ~y1:height ~x2:w ~y2:h ~fill_color:"black" root in
+  r
+    
+    
 class h = fun ?packing size  ->
   let canvas = GnoCanvas.canvas ~aa:true ~width:size ~height:size ?packing () in
+  let _ = 
+    canvas#set_center_scroll_region false;
+  in
+
   let size = float size in
   let size2 = size /. 2. in
 
+  let left_margin = size2 /. 10. in
   let pitch_scale = fun pitch -> pitch *. size2 *. 2. in
+  let speed_scale = size2 /. 10. in
+  let alt_scale = size2 /. 50. in
+  let speed_width = size2/.5. in
+  let alt_width = size2/.2.5 in
+  let index_width = size2 /. 15. in
+
+  let xc = left_margin +. speed_width +. size2
+  and yc = size2*.1.1 in
+
+  let text_props = [`FONT "Sans 10"; `ANCHOR `CENTER; `FILL_COLOR "white"] in
 
   let disc = GnoCanvas.group canvas#root in
   let top = GnoCanvas.rect ~x1:(-.size2) ~y1:(-.size2*.5.) ~x2:size2 ~y2:0. ~fill_color:"#0099cb" disc
   and bottom = GnoCanvas.rect ~x1:(-.size2) ~y1:0. ~x2:size2 ~y2:(size2*.5.) ~fill_color:"#986701" disc
-  and line = GnoCanvas.line ~props:[`WIDTH_PIXELS 4] ~points:[|-.size2;0.;size2;0.|] ~fill_color:"white" disc in
+  and line = GnoCanvas.line ~props:[`WIDTH_PIXELS 4] ~points:[|-.size2;0.;size2;0.|] ~fill_color:"white" disc
+  and _ = GnoCanvas.line ~points:[|0.;-.size2;0.;size2|] ~fill_color:"white" disc
+ in
   let grads = fun ?(text=false) n s a b ->
     for i = 0 to n do
-      let a = float i *. a in
-      let y = pitch_scale ((Deg>>Rad)(a+.b)) in
+      let deg = float i *. a +. b in
+      let y = pitch_scale ((Deg>>Rad)deg) in
       ignore (GnoCanvas.line ~points:[|-.s; y; s; y|] ~fill_color:"white" disc);
       ignore (GnoCanvas.line ~points:[|-.s; -.y; s; -.y|] ~fill_color:"white" disc);
       if text then
-	let text = Printf.sprintf "-%d" (truncate a)
+	let text = Printf.sprintf "%d" (truncate deg)
 	and x = 2.*.s in
-	ignore (GnoCanvas.text ~props:[`ANCHOR `CENTER; `FILL_COLOR "white"] ~text ~y ~x disc);
-	ignore (GnoCanvas.text ~props:[`ANCHOR `CENTER; `FILL_COLOR "white"] ~text ~y ~x:(-.x) disc);
-	let y = -. y
-	and text = Printf.sprintf "-%d" (truncate a) in
-	ignore (GnoCanvas.text ~props:[`ANCHOR `CENTER; `FILL_COLOR "white"] ~text ~y ~x disc);
-	ignore (GnoCanvas.text ~props:[`ANCHOR `CENTER; `FILL_COLOR "white"] ~text ~y ~x:(-.x) disc);
+	ignore (GnoCanvas.text ~props:text_props ~text ~y:(-.y) ~x disc);
+	ignore (GnoCanvas.text ~props:text_props ~text ~y:(-.y) ~x:(-.x) disc);
+	let text = "-"^text in
+	ignore (GnoCanvas.text ~props:text_props ~text ~y ~x disc);
+	ignore (GnoCanvas.text ~props:text_props ~text ~y ~x:(-.x) disc);
     done in
   let _ = 
     grads 10 (size2/.10.) 5. 2.5;
     grads 5 (size2/.7.) 10. 5.;
     grads ~text:true 5 (size2/.5.) 10. 10. in
 
-  let mask = GnoCanvas.group canvas#root in
+  let mask = GnoCanvas.group ~x:xc ~y:yc canvas#root in
   let center = GnoCanvas.ellipse ~x1:(-3.) ~y1:(-.3.) ~x2:3. ~y2:3. ~fill_color:"black" mask in
   let pi6 = pi/.6. in
   let n = 20 in
@@ -68,9 +113,60 @@ class h = fun ?packing size  ->
     ignore (GnoCanvas.polygon ~fill_color:"black" ~points mask);
     let s = size2/. 5. in
     ignore (GnoCanvas.line  ~props:[`WIDTH_PIXELS 4] ~points:[|-.x;0.;-.x-.s;0.;-.x-.s;s|] ~fill_color:"black" mask);
-    ignore (GnoCanvas.line  ~props:[`WIDTH_PIXELS 4] ~points:[|x;0.;x+.s;0.;x+.s;s|] ~fill_color:"black" mask) in
+    ignore (GnoCanvas.line  ~props:[`WIDTH_PIXELS 4] ~points:[|x;0.;x+.s;0.;x+.s;s|] ~fill_color:"black" mask);
+
+    (* Top and bottom graduations *)
+    let g = fun a ->
+      let l = GnoCanvas.line~props:[`WIDTH_PIXELS 2]  ~fill_color:"white" ~points:[|0.;-.size2;0.;-.1.2*.size2|] mask in
+      l#affine_relative (affine_pos_and_angle 0. 0. ((Deg>>Rad)a)) in
+    for i = 0 to 4 do
+      let a = float (i*10) in
+      g a; g (-.a)
+    done;
+    let _30 = fun a -> 
+      let t = GnoCanvas.text ~text:"30" ~props:text_props ~x:0. ~y:(-1.1*.size2) mask in
+      t#affine_relative (affine_pos_and_angle 0. 0. ((Deg>>Rad)a)) in
+    _30 30.; _30 (-30.)
+  in
+
+  let speed = 
+    let g = GnoCanvas.group ~x:left_margin ~y:yc canvas#root in
+    let r = ruler ~text_props ~index_on_right:true ~max:50 ~scale:speed_scale ~w:speed_width ~step:2 ~index_width ~h:(0.75*.size2) g in
+    let mx = 
+      GnoCanvas.text ~x:(speed_width/.2.) ~y:(-0.85*.size2) ~props:text_props g
+    and mi =
+      GnoCanvas.text ~x:(speed_width/.2.) ~y:(0.80*.size2) ~props:text_props g in
+    mx#set [`FILL_COLOR "yellow"];
+    mi#set [`FILL_COLOR "yellow"];
+    r, mi, mx
+
+  and alt = 
+    let g = GnoCanvas.group ~x:(xc+.size2) ~y:yc canvas#root in
+    ruler ~text_props ~max:3000 ~scale:alt_scale ~w:alt_width ~step:10
+      ~index_width ~h:(0.75*.size2) g
+  in
   
   object (self)
-      method draw = fun roll pitch ->
-	disc#affine_absolute (affine_pos_and_angle 0. (pitch_scale pitch) (-.roll))
+    method set_attitude = fun roll pitch ->
+      disc#affine_absolute (affine_pos_and_angle xc (yc+.pitch_scale pitch) (-.roll))
+
+    val mutable max_speed = 0.
+    val mutable min_speed = max_float
+    method set_speed = fun (s:float) ->
+      let (r, mi, mx) = speed in
+      r#affine_absolute (affine_pos 0. (speed_scale*.s));
+      min_speed <- min min_speed s;
+      max_speed <- max max_speed s; 
+      mi#set [`TEXT (sprintf "%.1f" min_speed)];
+      mx#set [`TEXT (sprintf "%.1f" max_speed)]
+    initializer
+      let (r, _, _) = speed in
+      ignore (r#connect#event (function
+	  `BUTTON_PRESS ev -> 
+	    max_speed <- 0.; min_speed <- max_float; true
+	| _ -> false))
+      
+    method set_alt = fun (s:float) ->
+      alt#affine_absolute (affine_pos 0. (alt_scale*.s))
+	
   end

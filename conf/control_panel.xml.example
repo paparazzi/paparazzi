@@ -79,6 +79,19 @@
       <program name="gaia"/>
     </session>
 
+    <session name="Generic sim">
+      <program name="server"/>     
+      <program name="map 2d ml">
+        <arg flag="-mercator" constant=""/>
+        <arg flag="-google_fill" constant=""/>
+        <arg flag="-center_ac" constant=""/>
+        <arg flag="-no_alarm" constant=""/>
+<!--    <arg flag="-mplayer" constant="rtsp://localhost:7070/webcam"/> -->
+      </program>
+      <program name="sim"><arg flag="-a" constant="Plaster"/></program>
+    </session>
+
+
   </section>
 
 </control_panel>

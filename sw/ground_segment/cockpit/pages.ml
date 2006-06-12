@@ -130,14 +130,41 @@ object (this)
 
   method set_roll r =
     roll <- r;
-    horizon#draw ((Deg>>Rad)roll) ((Deg>>Rad)pitch)
+    horizon#set_attitude ((Deg>>Rad)roll) ((Deg>>Rad)pitch)
   method set_pitch p =
     pitch <- p;
-    horizon#draw ((Deg>>Rad)roll) ((Deg>>Rad)pitch)
-  method set_alt (a:float) = ()
+    horizon#set_attitude ((Deg>>Rad)roll) ((Deg>>Rad)pitch)
+  method set_alt (a:float) = horizon#set_alt a
   method set_climb (c:float) = ()
+  method set_speed (c:float) = horizon#set_speed c
 end
 
+
+(*****************************************************************************)
+(* Misc page                                                                 *)
+(*****************************************************************************)
+class misc ~packing (widget: GBin.frame) =
+  let table = GPack.table
+      ~rows: 2
+      ~columns: 2
+      ~row_spacings: 5
+      ~col_spacings: 40
+      ~packing
+      () in
+  let label = fun text i j ->GMisc.label ~text ~packing:(table#attach ~top:i ~left:j) () in
+  let _init =
+    ignore (label "Wind speed" 0 0);
+    ignore (label "Wind direction" 1 0) in
+  let wind_speed = label "" 0 1
+  and wind_dir = label "" 1 1 in
+  object
+    method set_wind_speed s = wind_speed#set_text s
+    method set_wind_dir s = wind_dir#set_text s
+  end
+
+(*****************************************************************************)
+(* Dataling settings paged                                                   *)
+(*****************************************************************************)
 class settings = fun xml_settings callback ->
   let sw = GBin.scrolled_window ~hpolicy:`AUTOMATIC ~vpolicy:`AUTOMATIC () in
   let vbox = GPack.vbox ~packing:sw#add_with_viewport () in

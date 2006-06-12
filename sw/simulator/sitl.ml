@@ -107,6 +107,8 @@ module Make(A:Data.MISSION) = struct
       rc_channels;
     ignore (on_off#connect#toggled (fun () -> sliders#coerce#misc#set_sensitive on_off#active));
 
+    on_off#set_active false;
+
     let send_ppm = fun () ->
       if on_off#active then send_ppm () in
 

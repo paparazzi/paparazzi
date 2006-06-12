@@ -379,10 +379,10 @@ let connect = fun ((model, path):node) cb ->
   let current_cb = try model#get ~row ~column:event with _ -> fun _ -> () in
   model#set ~row ~column:event (fun e -> cb e; current_cb e)
 
-let selection_cbs = Hashtbl.create 3
-let connect_selection = fun (model,_) cb ->
-  let l = try Hashtbl.find selection_cbs model with Not_found -> [] in
-  Hashtbl.replace selection_cbs model (cb::l)
+let activated_cbs = Hashtbl.create 3
+let connect_activated = fun (model,_) cb ->
+  let l = try Hashtbl.find activated_cbs model with Not_found -> [] in
+  Hashtbl.replace activated_cbs model (cb::l)
 
 
 
@@ -483,12 +483,15 @@ let create = fun ?(edit=true) dtd xml ->
 	let attribs = tree_model#get ~row ~column:attributes in
 	attribs_model#clear ();
 	tag_of_last_selection := tree_model#get ~row ~column:tag_col;
-	set_attributes attribs_model attribs;
-	let cbs = try  (Hashtbl.find selection_cbs tree_model) with Not_found -> [] in
-	List.iter (fun cb -> cb (tree_model, path)) cbs
+	set_attributes attribs_model attribs
     | _ -> () in
 
   let _c = tree_view#selection#connect#after#changed ~callback:selection_changed in
+
+  let _ = tree_view#connect#after#row_activated ~callback:
+      (fun path vcol ->
+	let cbs = try  (Hashtbl.find activated_cbs tree_model) with Not_found -> [] in
+	List.iter (fun cb -> cb (tree_model, path)) cbs) in
 
   if edit then begin
     let _c = add_context_menu tree_model tree_view (tree_menu_popup dtd) in

@@ -71,7 +71,7 @@ class waypoint = fun (group:group) (name :string) ?(alt=0.) wgs84 ->
       end
     method alt = alt
     method label = label
-    method xy = let a = item#i2w_affine in (a.(4), a.(5)) (*** item#i2w 0. 0. causes Seg Fault !***)
+    method xy = let a = item#i2w_affine in (a.(4), a.(5))
     method move dx dy = item#move dx dy; label#move dx dy
     method edit =
       let dialog = GWindow.window ~border_width:10 ~title:"Waypoint Edit" () in
@@ -81,7 +81,14 @@ class waypoint = fun (group:group) (name :string) ?(alt=0.) wgs84 ->
       let s = sprintf "WGS84 %s" (geomap#geo_string wgs84) in
       let ename  = GEdit.entry ~text:name ~editable:false ~packing:dvbx#add () in
       let e_pos  = GEdit.entry ~text:s ~packing:dvbx#add () in
-      let ea  = GEdit.entry ~text:(string_of_float alt) ~packing:dvbx#add () in
+      let ha = GPack.hbox ~packing:dvbx#add () in
+      let minus10= GButton.button ~label:"-10" ~packing:ha#add () in
+      let ea  = GEdit.entry ~text:(string_of_float alt) ~packing:ha#add () in
+      let plus10= GButton.button ~label:"+10" ~packing:ha#add () in
+      let change_alt = fun x ->
+	ea#set_text (string_of_float (float_of_string ea#text +. x)) in
+      ignore(minus10#connect#pressed (fun _ -> change_alt (-10.)));
+      ignore(plus10#connect#pressed (fun _ -> change_alt (10.)));
 
       let callback = fun _ ->
 	self#set_name ename#text;
@@ -100,21 +107,18 @@ class waypoint = fun (group:group) (name :string) ?(alt=0.) wgs84 ->
 	(fun e -> ignore (e#connect#activate ~callback))
 	[ename; e_pos; ea];
       ok#grab_default ();
-      ignore(ok#connect#clicked ~callback:dialog#destroy);
+      ignore(ok#connect#clicked ~callback:(fun _ -> callback (); dialog#destroy ()));
       dialog#show ()
 
-
+    val mutable motion = false
     method event (ev : GnoCanvas.item_event) =
       begin
 	match ev with
 	| `BUTTON_PRESS ev ->
 	    begin
 	      match GdkEvent.Button.button ev with
-	      |	2 -> self#edit
-	      |	3 -> 
-		  if (GToolbox.question_box ~title:"Confirm delete" ~buttons:["Cancel";"Delete"] ~default:2 (sprintf "Delete '%s' ?" name)) = 2 then
-		    self#delete
 	      | 1 ->
+		  motion <- false;
 		  let x = GdkEvent.Button.x ev
 		  and y = GdkEvent.Button.y ev in
 		  x0 <- x; y0 <- y;
@@ -126,6 +130,7 @@ class waypoint = fun (group:group) (name :string) ?(alt=0.) wgs84 ->
 	| `MOTION_NOTIFY ev ->
 	    let state = GdkEvent.Motion.state ev in
 	    if Gdk.Convert.test_modifier `BUTTON1 state then begin
+	      motion <- true;
 	      let x = GdkEvent.Motion.x ev
 	      and y = GdkEvent.Motion.y ev in
 	      let dx = geomap#current_zoom *. (x-. x0) 
@@ -138,7 +143,8 @@ class waypoint = fun (group:group) (name :string) ?(alt=0.) wgs84 ->
 	| `BUTTON_RELEASE ev ->
 	    if GdkEvent.Button.button ev = 1 then begin
 	      item#ungrab (GdkEvent.Button.time ev);
-	      moved <- true
+	      if not motion then
+		self#edit
 	    end
 	| _ -> ()
       end;
@@ -149,11 +155,17 @@ class waypoint = fun (group:group) (name :string) ?(alt=0.) wgs84 ->
     method deleted = deleted
     method item = item
     method pos = geomap#of_world self#xy
-    method set wgs84 = 
+    method set ?altitude ?(update=false) wgs84 = 
       let (xw, yw) = geomap#world_of wgs84
       and (xw0, yw0) = self#xy
       and z = geomap#zoom_adj#value in
-      self#move ((xw-.xw0)*.z) ((yw-.yw0)*.z)
+      self#move ((xw-.xw0)*.z) ((yw-.yw0)*.z);
+      begin
+	match altitude with
+	  Some a -> alt <- a
+	| _ -> ()
+      end;
+      if update then updated ()
     method delete =
       deleted <- true; (* BOF *)
       item#destroy ();

@@ -377,7 +377,6 @@ void nav_home(void) {
  */
 void nav_update(void) {
   compute_dist2_to_home();
-
   auto_nav();
 }
 

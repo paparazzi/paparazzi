@@ -1,22 +1,42 @@
 <flight_plan SECURITY_HEIGHT="25" lat0="42.000000" lon0="3" ground_alt="420" qfu="270" alt="450" max_dist_from_home="500" name="Generic">
+  <dl_settings>
+    <dl_setting VAR="ir_roll_neutral" MAX="0.2" STEP="0.01" MIN="-0.2"/>
+    <dl_setting VAR="ir_pitch_neutral" MAX="0.2" STEP="0.01" MIN="-0.2"/>
+    <dl_setting VAR="roll_pgain" MAX="15000" STEP="100" MIN="5000"/>
+    <dl_setting VAR="pitch_pgain" MAX="20000" STEP="100" MIN="10000"/>
+    <dl_setting VAR="course_pgain" MAX="-0.1" STEP="0.05" MIN="-1"/>
+    <dl_setting VAR="pprz_mode" MAX="2" STEP="1" MIN="0"/>
+  </dl_settings>
   <waypoints>
     <waypoint Y="0" NAME="HOME" X="0"/>
+    <waypoint Y="0" NAME="1" X="200"/>
+    <waypoint Y="200" NAME="2" X="0"/>
   </waypoints>
-  <include Y="100" NAME="up_and_down" PROCEDURE="circles.xml" X="00" ROTATE="0">
-    <arg NAME="bottom" VALUE="GROUND_ALT+50"/>
-    <with FROM="event1" TO="circlehome"/>
-  </include>
   <blocks>
-    <block NAME="init">
+    <block NAME="wait GPS">
       <while COND="!GPS_FIX_VALID(gps_mode)"/>
-      <set var="nav_utm_east0" value="gps_utm_east"/>
-      <set var="nav_utm_north0" value="gps_utm_north"/>
+    </block>
+    <block name="init">
+      <while COND="10>block_time"/>
+      <set var="nav_utm_east0" value="gps_utm_east/100"/>
+      <set var="nav_utm_north0" value="gps_utm_north/100"/>
       <set var="nav_utm_zone0" value="gps_utm_zone"/>
+      <set var="waypoints[WP_HOME].a" value="gps_alt/100+50"/>
+      <set var="moved_waypoints[WP_HOME]" value="TRUE"/>
+      <set var="waypoints[WP_1].a" value="gps_alt/100+50"/>
+      <set var="moved_waypoints[WP_1]" value="TRUE"/>
+      <set var="waypoints[WP_2].a" value="gps_alt/100+50"/>
+      <set var="moved_waypoints[WP_2]" value="TRUE"/>
       <deroute BLOCK="circlehome"/>
     </block>
     <block NAME="circlehome">
-      <exception COND="(RcEvent1())" DEROUTE="up_and_down.climb"/>
-      <circle WP="HOME" ALT="GROUND_ALT+50" RADIUS="75"/>
+      <circle WP="HOME" RADIUS="75"/>
+    </block>
+    <block NAME="stack 1">
+      <circle WP="1" RADIUS="75"/>
+    </block>
+    <block NAME="stack 2">
+      <circle WP="2" RADIUS="75"/>
     </block>
   </blocks>
 </flight_plan>

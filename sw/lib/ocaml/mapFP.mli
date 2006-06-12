@@ -43,7 +43,7 @@ class flight_plan :
     method xml : Xml.xml
     method insert_path : (MapWaypoints.waypoint * float) list -> unit
     method highlight_stage : int -> int -> unit
-    method connect_selection : (XmlEdit.node->unit) -> unit
+    method connect_activated : (XmlEdit.node->unit) -> unit
   end
 
 (** Extracts [lat0] and [Lon0] attributes *)

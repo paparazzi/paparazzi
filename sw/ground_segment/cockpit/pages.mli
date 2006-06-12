@@ -15,6 +15,7 @@ class gps : GBin.frame ->
   end
 class pfd : GBin.frame ->
   object
+    method set_speed : float -> unit
     method set_alt : float -> unit
     method set_climb : float -> unit
     method set_pitch : float -> unit
@@ -25,4 +26,11 @@ class settings : Xml.xml list -> (int -> float -> unit) ->
     method length : int
     method set : int -> float -> unit
     method widget : GObj.widget
+  end
+class misc :
+  packing:(GObj.widget -> unit) ->
+  GBin.frame ->
+  object
+    method set_wind_dir : string -> unit
+    method set_wind_speed : string -> unit
   end

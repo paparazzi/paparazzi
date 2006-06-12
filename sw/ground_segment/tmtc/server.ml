@@ -305,7 +305,7 @@ let send_cam_status = fun a ->
     match a.nav_ref with
       None -> () (* No geo ref for camera target *)
     | Some nav_ref ->
-	let h = a.alt -. float (Srtm.of_utm a.pos) in
+	let h = a.alt -. float (try Srtm.of_utm a.pos with _ -> 0) in
 	let dx = h *. tan (a.cam.phi -. a.roll)
 	and dy = h *. tan (a.cam.theta +. a.pitch) in
 	let alpha = -. a.course in

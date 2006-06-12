@@ -34,7 +34,7 @@ let rec assoc_nocase at = function
       if String.uppercase at = String.uppercase a then v else assoc_nocase at avs
 
 (** Connect a change in the XML editor to the graphical rep *)
-let update_wp utm_ref wp = function
+let update_wp utm_ref (wp:MapWaypoints.waypoint) = function
     XmlEdit.Deleted -> wp#delete
   | XmlEdit.New_child _ -> failwith "update_wp"
   | XmlEdit.Modified attribs ->
@@ -216,7 +216,7 @@ class flight_plan = fun ?edit geomap color fp_dtd xml ->
 	)
 	path
 
-    method connect_selection = fun cb -> XmlEdit.connect_selection xml_tree_view cb 
+    method connect_activated = fun cb -> XmlEdit.connect_activated xml_tree_view cb 
 
     initializer (
   (** Create a graphic waypoint when it is created from the xml editor *)

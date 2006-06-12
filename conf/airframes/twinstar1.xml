@@ -108,7 +108,6 @@
     <define name="THETA0" value="0" unit="deg"/>
     <define name="PHI0" value="30" unit="deg"/>
   </section>
-
  <makefile>
 
 # Virtual AC
