@@ -187,12 +187,11 @@
     <field name="yaw" type="int16"/>
   </message>
 
-  <message name="DEBUG_ACINFO" ID="27">
-    <field name="east"  type="float" unit="m"/>
-    <field name="north"  type="float" unit="m"/>
-    <field name="course" type="float" unit="rad"/>
-    <field name="alt"    type="float" unit="m"/>
-    <field name="speed"  type="float" unit="m/s"/>
+  <message name="SURVEY" ID="27">
+    <field name="east" type="float" unit="m"/>
+    <field name="north" type="float" unit="m"/>
+    <field name="west" type="float" unit="m"/>
+    <field name="south" type="float" unit="m"/>
   </message>
 
   <message name="WC_RSSI" id="28">
@@ -526,6 +525,15 @@
     <field name="long"  type="float" unit="deg"></field>
     <field name="alt" type="float" unit="m"></field>
  </message>
+
+  <message name="SURVEY_STATUS" ID="31">
+    <field name="ac_id" type="uint8"/>
+    <field name="east_long" type="float" unit="deg"/>
+    <field name="north_lat" type="float" unit="deg"/>
+    <field name="west_long" type="float" unit="deg"/>
+    <field name="south_lat" type="float" unit="deg"/>
+  </message>
+
 </class>
 
 <class name="alert">

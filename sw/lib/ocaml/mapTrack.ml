@@ -102,6 +102,7 @@ class track = fun ?(name="coucou") ?(size = 500) ?(color="red") (geomap:MapCanva
     val mutable params_on = false
     val mutable v_params_on = false
     val mutable desired_track =  ((GnoCanvas.ellipse group) :> GnoCanvas.base_item)
+    val mutable zone = GnoCanvas.rect group
     val mutable ac_cam_cover = GnoCanvas.rect cam
     method color = color
     method set_color c = color <- c
@@ -176,6 +177,12 @@ class track = fun ?(name="coucou") ?(size = 500) ?(color="red") (geomap:MapCanva
     method draw_segment = fun en en2 ->
       desired_track#destroy ();
       desired_track <-  ((geomap#segment ~fill_color:"green" en en2) :> GnoCanvas.base_item)
+
+    method draw_zone = fun geo1 geo2 ->
+      zone#destroy ();
+      let (x1, y1) = geomap#world_of geo1
+      and (x2, y2) = geomap#world_of geo2 in
+      zone <- GnoCanvas.rect ~props:[`X1 x1; `Y1 y1; `X2 x2; `Y2 y2; `FILL_COLOR "#ffc0c0"; `FILL_STIPPLE (Gdk.Bitmap.create_from_data ~width:4 ~height:4 "\008\004\002\001")] geomap#canvas#root
 	  
 (** moves the rectangle representing the field covered by the camera *)
     method move_cam = fun wgs84 mission_target_wgs84 ->

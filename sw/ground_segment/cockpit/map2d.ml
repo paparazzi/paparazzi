@@ -797,6 +797,9 @@ module Live = struct
   let segment_status_msg = fun track geo1 geo2 ->
     track#draw_segment geo1 geo2
 
+  let survey_status_msg = fun track geo1 geo2 ->
+    track#draw_zone geo1 geo2
+
   let ap_status_msg = fun track flight_time ->
     track#update_ap_status flight_time
       
@@ -1163,6 +1166,16 @@ module Live = struct
       segment_status_msg ac.track geo1 geo2
     in
     safe_bind "SEGMENT_STATUS" get_segment_status;
+
+
+    let get_survey_status = fun _sender vs ->
+      let ac = get_ac vs in
+      let a = fun s -> Pprz.float_assoc s vs in
+      let geo1 = { posn_lat = (Deg>>Rad)(a "south_lat"); posn_long = (Deg>>Rad)(a "west_long") }
+      and geo2 = { posn_lat = (Deg>>Rad)(a "north_lat"); posn_long = (Deg>>Rad)(a "east_long") } in
+      survey_status_msg ac.track geo1 geo2
+    in
+    safe_bind "SURVEY_STATUS" get_survey_status;
 
 
     let get_ap_status = fun _sender vs ->

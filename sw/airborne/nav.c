@@ -199,6 +199,7 @@ static struct point survey_from;
 static struct point survey_to;
 static float shift;
 static bool_t survey_uturn __attribute__ ((unused)) = FALSE;
+float survey_west, survey_east, survey_north, survey_south;
 
 #include <stdio.h>
 
@@ -222,6 +223,38 @@ static bool_t survey_uturn __attribute__ ((unused)) = FALSE;
 }
 
 
+#define SurveyRectangle(wp1, wp2) { \
+  survey_west = Min(waypoints[wp1].x, waypoints[wp2].x); \
+  survey_east = Max(waypoints[wp1].x, waypoints[wp2].x); \
+  survey_south = Min(waypoints[wp1].y, waypoints[wp2].y); \
+  survey_north = Max(waypoints[wp1].y, waypoints[wp2].y); \
+  if (survey_from.y < survey_to.y) { \
+    survey_to.y = survey_north; \
+    survey_from.y = survey_south; \
+  } \
+  if (survey_to.y < survey_from.y) { \
+    survey_to.y = survey_south; \
+    survey_from.y = survey_north; \
+  } \
+  if (estimator_y > survey_north || estimator_y < survey_south) { \
+    if (! survey_uturn) { \
+      survey_uturn = TRUE; \
+      float x0 = survey_from.x; \
+      if (x0+shift < survey_west || x0+shift > survey_east) { \
+        shift = -shift; \
+      } \
+      x0 = x0 + shift; \
+      survey_from.x = survey_to.x = x0; \
+      float tmp = survey_from.y; \
+      survey_from.y = survey_to.y; \
+      survey_to.y = tmp; \
+    } \
+  } else \
+    survey_uturn = FALSE; \
+  route_to_xy(survey_from.x, survey_from.y, survey_to.x, survey_to.y); \
+}
+
+
 void nav_goto_block(uint8_t b) {
   GotoBlock(b);
 }
@@ -231,6 +264,24 @@ static inline void survey_init(float y_south, float y_north, float grid) {
   survey_from.y = y_south;
   survey_to.y = y_north;
   shift = grid;
+}
+
+static inline void survey_rectangle_init(uint8_t wp1, uint8_t wp2, float grid) {
+  survey_west = Min(waypoints[wp1].x, waypoints[wp2].x);
+  survey_east = Max(waypoints[wp1].x, waypoints[wp2].x);
+  survey_south = Min(waypoints[wp1].y, waypoints[wp2].y);
+  survey_north = Max(waypoints[wp1].y, waypoints[wp2].y);
+  survey_from.x = survey_to.x = Min(Max(estimator_x+grid/2, survey_west), survey_east);
+  if (estimator_y > survey_north || (estimator_hspeed_dir > M_PI/2. && estimator_hspeed_dir < 3*M_PI/2)) {
+    survey_to.y = survey_south;
+    survey_from.y = survey_north;
+  } else {
+    survey_from.y = survey_south;
+    survey_to.y = survey_north;
+  }
+  shift = grid;
+  survey_uturn = (estimator_x < survey_west || estimator_y > survey_east ||
+		  estimator_y < survey_south || estimator_y > survey_north);
 }
 
 #include "flight_plan.h"

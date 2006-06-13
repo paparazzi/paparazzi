@@ -334,11 +334,11 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
 	      1 ->
 		begin
 		  match Gdk.Convert.modifier state with
-		    [`SHIFT] ->
+		    [] ->
 		drawing <- Rectangle (x1,y1);
 		      region_rectangle#set [`X1 x1; `Y1 y1; `X2 x1; `Y2 y1];
 		      true
-		  | [] ->
+		  | [`SHIFT] ->
 		      drawing <- Polygon [(x1, y1)];
 		      true;
 		  | _ -> false

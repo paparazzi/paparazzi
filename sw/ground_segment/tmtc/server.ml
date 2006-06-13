@@ -267,6 +267,15 @@ let log_and_parse = fun logging ac_name a msg values ->
 	    a.horiz_mode <- Segment (p1, p2)
 	| None -> ()
       end
+  | "SURVEY" ->
+      begin
+	match a.nav_ref with
+	  Some nav_ref ->
+	    let p1 = Latlong.utm_add nav_ref (fvalue "west", fvalue "south")
+	    and p2 = Latlong.utm_add nav_ref (fvalue "east",  fvalue "north") in
+	    a.survey <- Some (Latlong.of_utm WGS84 p1, Latlong.of_utm WGS84 p2)
+	| None -> ()
+      end
   | "CALIBRATION" ->
       a.throttle_accu <- fvalue "climb_sum_err"
   | "DL_VALUE" ->
@@ -398,6 +407,18 @@ let send_horiz_status = fun a ->
       Ground_Pprz.message_send my_id "SEGMENT_STATUS" vs
   | UnknownHorizMode -> ()
 
+let send_survey_status = fun a ->
+  match a.survey with
+    None -> ()
+  | Some (geo1, geo2) ->
+      let vs = [ "ac_id", Pprz.String a.id; 
+		 "south_lat", Pprz.Float ((Rad>>Deg)geo1.posn_lat);
+		 "west_long", Pprz.Float ((Rad>>Deg)geo1.posn_long);
+		 "north_lat", Pprz.Float ((Rad>>Deg)geo2.posn_lat);
+		 "east_long", Pprz.Float ((Rad>>Deg)geo2.posn_long) ] in
+      Ground_Pprz.message_send my_id "SURVEY_STATUS" vs
+      
+
 
 let send_wind = fun a ->
   let id = a.id in
@@ -493,6 +514,7 @@ let send_aircraft_msg = fun ac ->
     send_infrared a;
     send_svsinfo a;
     send_horiz_status a;
+    send_survey_status a;
     send_dl_values a;
     send_moved_waypoints a
   with
@@ -522,7 +544,7 @@ let new_aircraft = fun id ->
       flight_time = 0; stage_time = 0; block_time = 0;
       horiz_mode = UnknownHorizMode;
       horizontal_mode = 0;
-      waypoints = Hashtbl.create 3
+      waypoints = Hashtbl.create 3; survey = None
     }
 
 let check_alerts = fun a ->

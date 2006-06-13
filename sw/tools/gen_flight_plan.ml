@@ -230,7 +230,7 @@ let rec index_stage = fun x ->
     | "heading" | "attitude" | "go" | "stay" | "xyz" | "set" | "circle" ->
 	incr stage;
 	Xml.Element (Xml.tag x, Xml.attribs x@["no", soi !stage], Xml.children x)
-    | "survey" ->
+    | "survey" | "survey_rectangle" ->
 	incr stage; incr stage;
 	Xml.Element (Xml.tag x, Xml.attribs x@["no", soi !stage], Xml.children x)
     | "exception" ->
@@ -403,6 +403,17 @@ let rec print_stage = fun index_of_waypoints sectors x ->
 	stage ();
 	let inside_sector = inside_function sector_name in
 	lprintf "Survey(%s,%.1f,%.1f,%.1f,%.1f);\n" inside_sector !x1 !x2 !y1 !y2;
+	lprintf "return;\n"
+    | "survey_rectangle" ->
+	let grid = parsed_attrib x "grid"
+	and wp1 = get_index_waypoint (ExtXml.attrib x "wp1") index_of_waypoints
+	and wp2 = get_index_waypoint (ExtXml.attrib x "wp2") index_of_waypoints in
+	stage ();
+	lprintf "survey_rectangle_init(%s, %s, %s);\n" wp1 wp2 grid;
+	lprintf "NextStage();\n";
+	left ();
+	stage ();
+	lprintf "SurveyRectangle(%s, %s);\n" wp1 wp2;
 	lprintf "return;\n"
     | _s -> failwith "Unreachable"
   end;

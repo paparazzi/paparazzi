@@ -138,5 +138,6 @@
 
 #define PERIODIC_SEND_DL_VALUE() PeriodicSendDlValue() /** from flight_plan.h*/
 
+#define PERIODIC_SEND_SURVEY() DOWNLINK_SEND_SURVEY(&survey_east, &survey_north, &survey_west, &survey_south)
 
 #endif /* AP_DOWNLINK_H */

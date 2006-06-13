@@ -332,7 +332,7 @@ let rec xml_of_node = fun (node:node) ->
   let attrs = attribs node
   and tag = tag node
   and children = List.map xml_of_node (children node) in
-  Xml.Element (tag, attrs, children)
+  Xml.Element (tag, List.sort compare attrs, children)
 
 let xml_of_view = fun (tree:t) ->
   xml_of_node (root tree)

@@ -76,7 +76,7 @@
     <define name="PITCH_OF_VZ_PGAIN" value="0.1"/>
   </section>
   <section name="NAV">
-    <define name="COURSE_PGAIN" value="-0.3"/>
+    <define name="COURSE_PGAIN" value="-0.2"/>
     <define name="ALTITUDE_PGAIN" value="-0.05"/>
     <define name="NAV_PITCH" value="0."/>
   </section>

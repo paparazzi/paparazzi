@@ -108,6 +108,8 @@ extern float aileron_of_gaz;
 extern float climb_level_gaz;
 extern float nav_prebank, nav_speed_depend;
 
+extern float survey_west, survey_east, survey_north, survey_south;
+
 void climb_pid_run(void);
 void altitude_pid_run(void);
 
