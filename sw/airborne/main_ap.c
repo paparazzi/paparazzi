@@ -394,7 +394,7 @@ inline void periodic_task_ap( void ) {
     static uint8_t t = 0;
     if (vsupply < LOW_BATTERY_DECIVOLT) t++; else t = 0;
     kill_throttle |= (t >= LOW_BATTERY_DELAY);
-    kill_throttle |= (dist2_to_home > Square(KILL_MODE_DISTANCE));
+    kill_throttle |= launch && (dist2_to_home > Square(KILL_MODE_DISTANCE));
   }
   switch (_1Hz) {
 #ifdef TELEMETER
