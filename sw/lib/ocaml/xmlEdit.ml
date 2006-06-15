@@ -445,11 +445,11 @@ let tree_menu_popup = fun dtd (model:GTree.tree_store) (row:Gtk.tree_iter) ->
 
 
  
-let create = fun ?(edit=true) dtd xml ->
+let create = fun ?(edit=true) ?(width = 400) dtd xml ->
   let tree_model = tree_model_of_xml xml in
   let attribs_model = model_of_attribs () in
   let hbox = GPack.hbox () in
-  let sw = GBin.scrolled_window ~width:420 ~hpolicy:`AUTOMATIC
+  let sw = GBin.scrolled_window ~width ~hpolicy:`AUTOMATIC
       ~vpolicy:`AUTOMATIC ~packing:hbox#add () in
   let tree_view = tree_view ~edit tree_model sw in
   tree_view#set_border_width 10;

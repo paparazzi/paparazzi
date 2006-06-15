@@ -409,41 +409,41 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
     method any_event =
       let rec last_view = ref (0,0,0,0) in
       fun ev ->
-      (** View has changed ? *)
-      let width_c, height_c = Gdk.Drawable.get_size canvas#misc#window
-      and (xc0, yc0) = canvas#get_scroll_offsets in
-      let view = (xc0, yc0, width_c, height_c) in
-      if view <> !last_view then begin
-	last_view := view;
-	Hashtbl.iter (fun cb _ -> cb ()) view_cbs
-      end;
-
-      match GdkEvent.get_type ev with
-      | `SCROLL when not (Gdk.Convert.test_modifier `SHIFT (GdkEvent.Scroll.state (GdkEvent.Scroll.cast ev))) -> begin
-	  let scroll_event = GdkEvent.Scroll.cast ev in
-	  let (x, y) = canvas#get_scroll_offsets in
-	  let xr = GdkEvent.Scroll.x_root scroll_event in
-	  let yr = GdkEvent.Scroll.y_root scroll_event -. 50. in
-	  match GdkEvent.Scroll.direction scroll_event with
-	    `UP    ->
-	      canvas#scroll_to (x+truncate xr) (y+truncate yr);
-
-	      adj#set_value (adj#value*.zoom_factor);
-
-	      let (x, y) = canvas#get_scroll_offsets in
-	      canvas#scroll_to (x-truncate (xr)) (y-truncate (yr));
-	      true
-	  | `DOWN  ->
-	      canvas#scroll_to (x+truncate xr) (y+truncate yr);
-
-	      adj#set_value (adj#value/.zoom_factor);
-
-	      let (x, y) = canvas#get_scroll_offsets in
-	      canvas#scroll_to (x-truncate (xr)) (y-truncate (yr));
-	      true
-	  | _  -> false
-      end
-      | _ -> false
+	let width_c, height_c = Gdk.Drawable.get_size canvas#misc#window
+	and (xc0, yc0) = canvas#get_scroll_offsets in
+	let view = (xc0, yc0, width_c, height_c) in
+	(** View has changed ? *)
+	if view <> !last_view then begin
+	  last_view := view;
+	  Hashtbl.iter (fun cb _ -> cb ()) view_cbs
+	end;
+	
+	match GdkEvent.get_type ev with
+	| `SCROLL when not (Gdk.Convert.test_modifier `SHIFT (GdkEvent.Scroll.state (GdkEvent.Scroll.cast ev))) -> begin
+	    let scroll_event = GdkEvent.Scroll.cast ev in
+	    let (x, y) = canvas#get_scroll_offsets in
+	    let xr = GdkEvent.Scroll.x_root scroll_event in
+	    let yr = GdkEvent.Scroll.y_root scroll_event -. 50. in
+	    match GdkEvent.Scroll.direction scroll_event with
+	      `UP    ->
+		canvas#scroll_to (x+truncate xr) (y+truncate yr);
+		
+		adj#set_value (adj#value*.zoom_factor);
+		
+		let (x, y) = canvas#get_scroll_offsets in
+		canvas#scroll_to (x-truncate (xr)) (y-truncate (yr));
+		true
+	    | `DOWN  ->
+		canvas#scroll_to (x+truncate xr) (y+truncate yr);
+		
+		adj#set_value (adj#value/.zoom_factor);
+		
+		let (x, y) = canvas#get_scroll_offsets in
+		canvas#scroll_to (x-truncate (xr)) (y-truncate (yr));
+		true
+	    | _  -> false
+	end
+	| _ -> false
 	    
 	    
     method segment = fun ?(group = canvas#root) ?(width=1) ?fill_color geo1 geo2 ->

@@ -27,10 +27,12 @@
 class group :
   ?color:string ->
   ?editable:bool ->
+  ?show_moved:bool ->
   MapCanvas.widget ->
   object
     method color : string
     method editable : bool
+    method show_moved : bool
     method geomap : MapCanvas.widget
     method group : GnoCanvas.group
   end
@@ -46,11 +48,11 @@ class waypoint :
     method edit : unit
     method pos : Latlong.geographic
     method event : GnoCanvas.item_event -> bool
-    method item : GnoCanvas.polygon
+    method item : GnoCanvas.rect
     method label : GnoCanvas.text
     method move : float -> float -> unit
     method name : string
-    method set : ?altitude:float -> ?update:bool -> Latlong.geographic -> unit
+    method set : ?if_not_moved:bool -> ?altitude:float -> ?update:bool -> Latlong.geographic -> unit
     method set_name : string -> unit
     method xy : float * float
     method zoom : float -> unit

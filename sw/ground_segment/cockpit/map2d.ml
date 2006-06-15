@@ -90,7 +90,7 @@ let say = fun s ->
     ignore (Sys.command (sprintf "spd-say '%s'&" s))
 
 (** window for the strip panel *)
-let strip_scrolled = GBin.scrolled_window ~width:380 ~hpolicy: `AUTOMATIC ~vpolicy: `AUTOMATIC ()
+let strip_scrolled = GBin.scrolled_window ~width:300 ~hpolicy: `AUTOMATIC ~vpolicy: `AUTOMATIC ()
 let strip_table = GPack.table ~rows: 1 ~columns: 1 ~row_spacings: 5 ~packing: (strip_scrolled#add_with_viewport) ()
 
 (** Dummy flight plan (for map calibration) *)
@@ -162,7 +162,7 @@ let load_map = fun (geomap:G.widget) () ->
 (** Load a mission. Returns the XML window *)
 let load_mission = fun ?edit color geomap xml ->
   set_georef_if_none geomap (MapFP.georef_of_xml xml);
-  new MapFP.flight_plan ?edit geomap color fp_dtd xml
+  new MapFP.flight_plan ?edit ~show_moved:true geomap color fp_dtd xml
 
 
 (** Save the given pixbuf calibrated with NW and SE corners *)
@@ -411,7 +411,7 @@ module Edit = struct
 	    
   let load_xml_fp = fun geomap accel_group ?(xml_file=path_fps) xml ->
     set_georef_if_none geomap (MapFP.georef_of_xml xml);
-    let fp = new MapFP.flight_plan geomap "red" fp_dtd xml in
+    let fp = new MapFP.flight_plan ~show_moved:false geomap "red" fp_dtd xml in
     let window = GWindow.window () in
     window#set_default_size ~width:700 ~height:250;
     window#add fp#window;
@@ -891,7 +891,7 @@ module Live = struct
     let ac_menu = GMenu.menu () in
     ac_mi#set_submenu ac_menu;
     let ac_menu_fact = new GMenu.factory ac_menu in
-    let fp = ac_menu_fact#add_check_item "Fligh Plan" ~active:false in
+    let fp = ac_menu_fact#add_check_item "Fligh Plan" ~active:true in
     ignore (fp#connect#toggled (fun () -> show_mission ac_id fp#active));
     
     let track = new MapTrack.track ~name ~color:color geomap in
@@ -1090,14 +1090,17 @@ module Live = struct
     let get_fp = fun _sender vs ->
       let ac = get_ac vs in
       let pfd_page = ac.pfd_page in
+
       pfd_page#set_roll (Pprz.float_assoc "roll" vs);
       pfd_page#set_pitch (Pprz.float_assoc "pitch" vs);
       pfd_page#set_alt (Pprz.float_assoc "alt" vs);
       pfd_page#set_climb (Pprz.float_assoc "climb" vs);
       pfd_page#set_speed (Pprz.float_assoc "speed" vs);
+
       let a = fun s -> Pprz.float_assoc s vs in
       let wgs84 = { posn_lat = (Deg>>Rad)(a "lat"); posn_long = (Deg>>Rad)(a "long") } in
       aircraft_pos_msg ac.track wgs84 (a "course") (a "alt")  (a "speed") (a "climb");
+
       if !auto_center_new_ac && ac.first_pos then begin
 	center geomap ac.track ();
 	ac.first_pos <- false
@@ -1214,7 +1217,7 @@ module Live = struct
       List.iter (fun w ->
 	let (i, w) = ac.fp_group#index w in
 	if i = wp_id then begin
-	  if not w#moved then w#set ~altitude ~update:true geo;
+	  w#set ~if_not_moved:true ~altitude ~update:true geo;
 	  raise Exit (** catched by  safe_bind *)
 	end)
 	ac.fp_group#waypoints
@@ -1264,9 +1267,9 @@ module Live = struct
       (Str.split (Str.regexp ",") (Pprz.string_assoc "flags" vs)) in 
 
       Array.iteri (fun i id ->
-		     if id<>"0" then
-		     gps_page#svsinfo id cno.(i) (int_of_string flags.(i))) svid
-
+	if id<>"0" then
+	  gps_page#svsinfo id cno.(i) (int_of_string flags.(i))) svid
+       
   let listen_svsinfo = fun () -> safe_bind "SVSINFO" get_svsinfo
 end (** module Live *)
 
@@ -1368,7 +1371,7 @@ let _main =
   IGN.cache_path := var_maps_path;
   
   (** window for map2d **)
-  let window = GWindow.window ~title: "Map2d" ~border_width:1 ~width:1024 ~height:750 () in
+  let window = GWindow.window ~title:"Paparazzi GCS" ~border_width:1 ~width:1024 ~height:750 () in
   if !maximize then
     window#maximize ();
   let vbox= GPack.vbox ~packing: window#add () in

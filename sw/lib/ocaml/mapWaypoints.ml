@@ -27,40 +27,55 @@
 module LL = Latlong
 open Printf
 
-let s = 8.
+let s = 6.
 let losange = [|s;0.; 0.;s; -.s;0.; 0.;-.s|]
 
-class group = fun ?(color="red") ?(editable=true) (geomap:MapCanvas.widget) ->
+class group = fun ?(color="red") ?(editable=true) ?(show_moved=false) (geomap:MapCanvas.widget) ->
   let g = GnoCanvas.group geomap#canvas#root in
   object
     method group=g
     method geomap=geomap
     method color=color
     method editable=editable
+    method show_moved = show_moved
   end
 
-class waypoint = fun (group:group) (name :string) ?(alt=0.) wgs84 ->
-  let geomap=group#geomap
-  and color = group#color
-  and editable = group#editable in
+let rotation_45 =
+  let s = sin (Latlong.pi/.4.) in
+  [|s;s;-.s;s;0.;0.|]
+
+class waypoint = fun (wpts_group:group) (name :string) ?(alt=0.) wgs84 ->
+  let geomap=wpts_group#geomap
+  and color = wpts_group#color
+  and editable = wpts_group#editable in
   let xw, yw = geomap#world_of wgs84 in
   let callbacks = Hashtbl.create 5 in
   let updated () =
     Hashtbl.iter (fun cb _ -> cb ()) callbacks in
 
+  let wpt_group = GnoCanvas.group wpts_group#group in
+
+  let item = 
+    GnoCanvas.rect wpt_group ~x1:(-.s) ~y1:(-.s) ~x2:s ~y2:s ~props:[`FILL_COLOR color; `FILL_STIPPLE (Gdk.Bitmap.create_from_data ~width:2 ~height:2 "\002\001")] in
+
+  let anim = function
+      None ->
+	Some (Glib.Timeout.add 500 (fun () -> Gdk.X.beep (); item#affine_relative rotation_45; true))
+    | Some x -> Some x in
+	
+
   object (self)
     val mutable x0 = 0.
     val mutable y0 = 0.
-    val item = 
-      GnoCanvas.polygon group#group ~points:losange
-	~props:[`FILL_COLOR color; `OUTLINE_COLOR "midnightblue" ; `WIDTH_UNITS 1.; `FILL_STIPPLE (Gdk.Bitmap.create_from_data ~width:2 ~height:2 "\002\001")]
-	
-    val label = GnoCanvas.text group#group ~props:[`TEXT name; `X s; `Y 0.; `ANCHOR `SW; `FILL_COLOR "green"]
+
+    val label = GnoCanvas.text wpt_group ~props:[`TEXT name; `X s; `Y 0.; `ANCHOR `SW; `FILL_COLOR "green"]
     val mutable name = name (* FIXME: already in label ! *)
     val mutable alt = alt
-    val mutable moved = false
+    val mutable moved = None
     val mutable deleted = false
-    initializer self#move xw yw
+    initializer
+      item#affine_absolute rotation_45;
+      self#move xw yw
     method connect = fun (cb:unit -> unit) ->
       Hashtbl.add callbacks cb ()
     method name = name
@@ -71,8 +86,9 @@ class waypoint = fun (group:group) (name :string) ?(alt=0.) wgs84 ->
       end
     method alt = alt
     method label = label
-    method xy = let a = item#i2w_affine in (a.(4), a.(5))
-    method move dx dy = item#move dx dy; label#move dx dy
+    method xy = let a = wpt_group#i2w_affine in (a.(4), a.(5))
+    method move dx dy = 
+      wpt_group#move dx dy
     method edit =
       let dialog = GWindow.window ~border_width:10 ~title:"Waypoint Edit" () in
       let dvbx = GPack.box `VERTICAL ~packing:dialog#add () in
@@ -96,8 +112,10 @@ class waypoint = fun (group:group) (name :string) ?(alt=0.) wgs84 ->
 	label#set [`TEXT name];
 	self#set (LL.of_string e_pos#text);
 	updated ();
-	moved <- true;
-	dialog#destroy () in
+	if wpts_group#show_moved then
+	  moved <- anim moved;
+	dialog#destroy ()
+      in
 
       let cancel = GButton.button ~stock:`CANCEL ~packing: dvbx#add () in 
       ignore(cancel#connect#clicked ~callback:dialog#destroy);
@@ -137,7 +155,8 @@ class waypoint = fun (group:group) (name :string) ?(alt=0.) wgs84 ->
 	      and dy = geomap#current_zoom *. (y -. y0) in
 	      self#move dx dy ;
 	      updated ();
-	      moved <- true;
+	      if wpts_group#show_moved then
+		moved <- anim moved;
 	      x0 <- x; y0 <- y
 	    end
 	| `BUTTON_RELEASE ev ->
@@ -150,31 +169,45 @@ class waypoint = fun (group:group) (name :string) ?(alt=0.) wgs84 ->
       end;
       true
     initializer ignore(if editable then ignore (item#connect#event self#event))
-    method moved = moved
-    method reset_moved () = moved <- false
+    method moved = moved <> None
+    method reset_moved () = 
+      match moved with
+	None -> ()
+      | Some x ->
+	  Glib.Timeout.remove x;
+	  item#affine_absolute rotation_45;
+	  moved <- None
+	  
     method deleted = deleted
     method item = item
     method pos = geomap#of_world self#xy
-    method set ?altitude ?(update=false) wgs84 = 
+    method set ?(if_not_moved = false) ?altitude ?(update=false) wgs84 = 
       let (xw, yw) = geomap#world_of wgs84
       and (xw0, yw0) = self#xy
       and z = geomap#zoom_adj#value in
-      self#move ((xw-.xw0)*.z) ((yw-.yw0)*.z);
-      begin
+      let dx = (xw-.xw0)*.z
+      and dy = (yw-.yw0)*.z
+      and dz =
 	match altitude with
-	  Some a -> alt <- a
-	| _ -> ()
-      end;
-      if update then updated ()
+	  Some a -> 
+	    let dz = a -. alt in
+	    dz
+	| _ -> 0. in
+      let new_pos = dx*.dx +. dy*.dy +. dz*.dz > 0.1 in
+      match moved, new_pos with
+	None, true ->
+	  self#move dx dy;
+	  alt <- alt+.dz;
+	  if update then updated ()
+      | (None, false) | (Some _, true) -> ()
+      | Some x, false -> self#reset_moved ()
     method delete =
       deleted <- true; (* BOF *)
-      item#destroy ();
-      label#destroy ()
+      wpt_group#destroy ()
     method zoom (z:float) =
-      let a = item#i2w_affine in
+      let a = wpt_group#i2w_affine in
       a.(0) <- 1./.z; a.(3) <- 1./.z; 
-      item#affine_absolute a;
-      label#affine_absolute a
+      wpt_group#affine_absolute a
     initializer self#zoom geomap#zoom_adj#value
     initializer ignore(geomap#zoom_adj#connect#value_changed (fun () -> self#zoom geomap#zoom_adj#value))
   end

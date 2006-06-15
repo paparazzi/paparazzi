@@ -114,7 +114,7 @@ let georef_of_xml = fun xml ->
   {posn_lat = (Deg>>Rad)lat0; posn_long = (Deg>>Rad)lon0 }
 
  
-class flight_plan = fun ?edit geomap color fp_dtd xml ->
+class flight_plan = fun ?edit ~show_moved geomap color fp_dtd xml ->
   (** Xml Editor *)
   let xml_tree_view, xml_window = XmlEdit.create ?edit (Dtd.parse_file fp_dtd) xml in
   let xml_root = XmlEdit.root xml_tree_view in
@@ -126,7 +126,7 @@ class flight_plan = fun ?edit geomap color fp_dtd xml ->
   let utm0 = utm_of WGS84 ref_wgs84 in
 
   (** The graphical waypoints *)
-  let wpts_group = new MapWaypoints.group ~color ~editable:true geomap in
+  let wpts_group = new MapWaypoints.group ~show_moved ~color ~editable:true geomap in
 
   let yaws = Hashtbl.create 5 in (* Yes Another Waypoints Store *)
   let create_wp =
