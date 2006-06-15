@@ -87,7 +87,7 @@ module Make(AircraftItl : AIRCRAFT_ITL) = struct
   let lat0 = rad_of_deg (float_attrib flight_plan "lat0")
   let lon0 = rad_of_deg (float_attrib flight_plan "lon0")
   let qfu = (float_attrib flight_plan "qfu")
-  let alt0 = (float_attrib flight_plan "ground_alt")
+  let alt0 = ref (float_attrib flight_plan "ground_alt")
 
   let pos0 = ref {Latlong.posn_lat=lat0; posn_long=lon0}
 
@@ -197,13 +197,21 @@ module Make(AircraftItl : AIRCRAFT_ITL) = struct
 
     let set_pos = fun _ ->
       let current_pos = Latlong.string_of !pos0 in
-      match GToolbox.input_string ~title:"Setting geographic position" ~text:current_pos "Geographic position"  with
-	Some s -> pos0 := Latlong.of_string s
-      | _ -> ()
+      begin
+	match GToolbox.input_string ~title:"Setting geographic position" ~text:current_pos "Geographic position"  with
+	  Some s -> pos0 := Latlong.of_string s
+	| _ -> ()
+      end;
+      begin
+	let text = string_of_float !alt0 in
+	match GToolbox.input_string ~title:"Setting initial altitude" ~text "Geographic altitude"  with
+	  Some s -> alt0 := float_of_string s
+	| _ -> ()
+      end
     in
 
     let boot = fun () ->
-      Gps.set_ref !pos0 alt0;
+      Gps.set_ref !pos0 !alt0;
       Aircraft.boot (time_scale:>value);
       Stdlib.timer ~scale:time_scale fm_period fm_task;
       Stdlib.timer ~scale:time_scale ir_period ir_task;
