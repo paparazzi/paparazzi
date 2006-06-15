@@ -31,6 +31,7 @@ CMXA=$(LIBS:.cma=.cmxa)
 
 ML=horizon.ml pages.ml map2d.ml
 CMO=$(ML:.ml=.cmo)
+CMX=$(ML:.ml=.cmx)
 
 all : map2d
 
@@ -41,9 +42,9 @@ map2d : $(CMO)
 	@echo OL $@
 	$(Q)$(OCAMLC) -custom $(INCLUDES) $(LIBS) threads.cma gtkThread.cmo gtkInit.cmo $(CMO) -o $@
 
-map2d.opt : map2d.cmx
+map2d.opt : $(CMX)
 	@echo OOL $@
-	$(Q)$(OCAMLOPT) $(INCLUDES) str.cmxa unix.cmxa xml-light.cmxa $(LIBS:.cma=.cmxa) threads.cmxa gtkThread.cmx gtkInit.cmx $< -o $@
+	$(Q)$(OCAMLOPT) $(INCLUDES) str.cmxa unix.cmxa xml-light.cmxa $(LIBS:.cma=.cmxa) threads.cmxa gtkThread.cmx gtkInit.cmx $(CMX) -o $@
 
 
 %.cmo: %.ml  ../../lib/ocaml/lib-pprz.cma ../../lib/ocaml/xlib-pprz.cma
@@ -57,7 +58,7 @@ map2d.opt : map2d.cmx
 	$(Q)$(OCAMLOPT) $(INCLUDES) -c $<
 
 map2d.cmo : pages.cmi
-pages.cmo : pages.cmi horizon.cmi
+pages.cmo pages.cmx : pages.cmi horizon.cmi
 
 clean:
 	rm -f *~* *.cm* *.o *.out *.opt map2d
