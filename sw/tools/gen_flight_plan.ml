@@ -375,7 +375,7 @@ let rec print_stage = fun index_of_waypoints sectors x ->
     | "set" ->
 	stage ();
 	let var = ExtXml.attrib  x "var" in
-	let valuee = parsed_attrib  x "value" in
+	let valuee = ExtXml.attrib  x "value" in
 	lprintf "%s = %s;\n" var valuee;
 	begin
 	  try
@@ -485,22 +485,16 @@ let print_blocks = fun index_of_waypoints sectors bs ->
   List.iter (fun b -> incr block; print_block index_of_waypoints sectors b !block) bs
 
 
-let define_waypoint_ids = fun waypoints ->
-  let i = ref 0 in
-  List.iter (fun w ->
-    Xml2h.define (sprintf "WP_%s" (name_of w)) (string_of_int !i);
-    incr i)
-    waypoints
-
 let home = fun waypoints ->
-  let rec loop = function
+  let rec loop i = function
       [] -> failwith "Waypoint 'HOME' required"
     | w::ws ->
 	if name_of w = "HOME" then begin
+	  Xml2h.define "WP_HOME" (string_of_int i);
 	  (float_attrib w "x", float_attrib w "y")
 	end else
-	  loop ws in
-  loop waypoints
+	  loop (i+1) ws in
+  loop 0 waypoints
 
 
 let check_distance = fun (hx, hy) max_d wp ->
@@ -735,7 +729,6 @@ let _ =
 
       
       let waypoints = dummy_waypoint :: Xml.children waypoints in
-      define_waypoint_ids waypoints;
       let (hx, hy) = home waypoints in
       List.iter (check_distance (hx, hy) mdfh) waypoints;
 
