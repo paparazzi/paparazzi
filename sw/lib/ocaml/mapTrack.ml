@@ -48,7 +48,7 @@ let cam_half_aperture = LL.pi /. 6.0
 let half_pi = LL.pi /. 2.0
 
 
-class track = fun ?(name="coucou") ?(size = 500) ?(color="red") (geomap:MapCanvas.widget) ->
+class track = fun ?(name="Noname") ?(size = 500) ?(color="red") (geomap:MapCanvas.widget) ->
   let group = GnoCanvas.group geomap#canvas#root in
   let empty = ({LL.posn_lat=0.; LL.posn_long=0.},  GnoCanvas.line group) in
 
@@ -157,7 +157,7 @@ class track = fun ?(name="coucou") ?(size = 500) ?(color="red") (geomap:MapCanva
       last_height <- (altitude -. relief_height);
       last_speed <- speed ;
       last_climb <- climb;
-      
+
       if params_on then
 	  ac_label#set [`TEXT ( name^" \n"^(string_of_float last_height)^" m\n"^(string_of_float last_speed)^" m/s\n" ); `Y 70. ] else
 	ac_label#set [`TEXT name; `Y 25.];
@@ -182,7 +182,7 @@ class track = fun ?(name="coucou") ?(size = 500) ?(color="red") (geomap:MapCanva
       zone#destroy ();
       let (x1, y1) = geomap#world_of geo1
       and (x2, y2) = geomap#world_of geo2 in
-      zone <- GnoCanvas.rect ~props:[`X1 x1; `Y1 y1; `X2 x2; `Y2 y2; `FILL_COLOR "#ffc0c0"; `FILL_STIPPLE (Gdk.Bitmap.create_from_data ~width:4 ~height:4 "\008\004\002\001")] geomap#canvas#root
+      zone <- GnoCanvas.rect ~props:[`X1 x1; `Y1 y1; `X2 x2; `Y2 y2; `OUTLINE_COLOR "#ffc0c0"; `WIDTH_PIXELS 2] geomap#canvas#root
 	  
 (** moves the rectangle representing the field covered by the camera *)
     method move_cam = fun wgs84 mission_target_wgs84 ->
