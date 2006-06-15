@@ -171,8 +171,8 @@ static float qdr;
     int16_t roll =  fbw_state->channels[RADIO_ROLL]; \
     if (roll > MIN_DX || roll < -MIN_DX) { \
       desired_altitude += FLOAT_OF_PPRZ(roll, 0, -1.0);	\
-      desired_altitude = Max(desired_altitude, MIN_HEIGHT_CARROT+GROUND_ALT); \
-      desired_altitude = Min(desired_altitude, MAX_HEIGHT_CARROT+GROUND_ALT); \
+      desired_altitude = Max(desired_altitude, MIN_HEIGHT_CARROT+ground_alt); \
+      desired_altitude = Min(desired_altitude, MAX_HEIGHT_CARROT+ground_alt); \
     } \
   } \
   CircleXY(carrot_x, carrot_y, radius); \
@@ -251,6 +251,8 @@ float survey_west, survey_east, survey_north, survey_south;
     } \
   } else \
     survey_uturn = FALSE; \
+  vertical_mode = VERTICAL_MODE_AUTO_ALT; \
+  desired_altitude = waypoints[wp1].a; \
   route_to_xy(survey_from.x, survey_from.y, survey_to.x, survey_to.y); \
 }
 
@@ -284,7 +286,35 @@ static inline void survey_rectangle_init(uint8_t wp1, uint8_t wp2, float grid) {
 		  estimator_y < survey_south || estimator_y > survey_north);
 }
 
+typedef uint8_t unit_;
+static unit_ unit;
+
+static unit_ reset_nav_reference( void );
+
+static unit_ reset_waypoints( void );
+
+
 #include "flight_plan.h"
+
+float ground_alt = GROUND_ALT;
+
+static unit_ reset_nav_reference( void ) {
+  nav_utm_east0 = gps_utm_east/100;
+  nav_utm_north0 = gps_utm_north/100;
+  nav_utm_zone0 = gps_utm_zone;
+  ground_alt = gps_alt/100;
+  return 0;
+}
+
+static unit_ reset_waypoints( void ) {
+  uint8_t i;
+  for(i = 0; i <= NB_WAYPOINT; i++) {
+    waypoints[i].a = waypoints[i].a + ground_alt - GROUND_ALT;
+    moved_waypoints[i] = TRUE;
+  }
+  return 0;
+}
+
 
 
 #define MIN_DIST2_WP (15.*15.)
@@ -418,7 +448,7 @@ void nav_home(void) {
   /** Nominal speed */ 
   nav_pitch = 0.;
   vertical_mode = VERTICAL_MODE_AUTO_ALT;
-  desired_altitude = GROUND_ALT+50;
+  desired_altitude = ground_alt+50;
   compute_dist2_to_home();
   dist2_to_wp = dist2_to_home;
 }

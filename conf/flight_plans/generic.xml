@@ -1,11 +1,22 @@
-<flight_plan SECURITY_HEIGHT="25" alt="450" ground_alt="420" lat0="44.000000" lon0="1" max_dist_from_home="500" name="Generic" qfu="270">
+<flight_plan SECURITY_HEIGHT="25" alt="450" ground_alt="400" lat0="44.000000" lon0="1" max_dist_from_home="500" name="Generic" qfu="270">
   <dl_settings>
-    <dl_setting MAX="0.2" MIN="-0.2" STEP="0.01" VAR="ir_roll_neutral"/>
-    <dl_setting MAX="0.2" MIN="-0.2" STEP="0.01" VAR="ir_pitch_neutral"/>
-    <dl_setting MAX="15000" MIN="5000" STEP="100" VAR="roll_pgain"/>
-    <dl_setting MAX="20000" MIN="10000" STEP="100" VAR="pitch_pgain"/>
-    <dl_setting MAX="-0.1" MIN="-1" STEP="0.05" VAR="course_pgain"/>
+    <dl_setting VAR="ir_roll_neutral" MAX="0.3" STEP="0.01" MIN="-0.3"/>
+    <dl_setting VAR="ir_pitch_neutral" MAX="0.3" STEP="0.01" MIN="-0.3"/>
+    <dl_setting VAR="roll_pgain" MAX="15000" STEP="250" MIN="1000"/>
+    <dl_setting VAR="pitch_pgain" MAX="15000" STEP="250" MIN="1000"/>
+    <dl_setting VAR="climb_level_gaz" MAX="0.7" STEP="0.05" MIN="0.3"/>
+    <dl_setting VAR="climb_pgain" MAX="-0.01" STEP="0.01" MIN="-0.5"/>
+    <dl_setting VAR="course_pgain" MAX="-0.1" STEP="0.05" MIN="-2"/>
+    <dl_setting VAR="nav_prebank" MIN="0." STEP="0.1" MAX="1."/>
+    <dl_setting VAR="nav_speed_depend" MIN="0." STEP="0.1" MAX="1."/>
+    <dl_setting VAR="z_constrast_mode" MIN="0." STEP="0.1" MAX="1."/>
+    <dl_setting VAR="rate_mode" MIN="0." STEP="0.1" MAX="1."/>
+<!--
+    <dl_setting VAR="roll_rate_pgain" MIN="0." STEP="1.0" MAX="2000."/>
+    <dl_setting VAR="attitude_pgain" MAX="100" STEP="1" MIN="10"/>
+-->
     <dl_setting MAX="2" MIN="0" STEP="1" VAR="pprz_mode"/>
+    <dl_setting MAX="2" MIN="0" STEP="1" VAR="light_mode"/>
   </dl_settings>
   <waypoints>
     <waypoint NAME="HOME" X="0" Y="0"/>
@@ -19,16 +30,9 @@
       <while COND="!GPS_FIX_VALID(gps_mode)"/>
     </block>
     <block name="init">
-      <while COND="10>block_time"/>
-      <set value="gps_utm_east/100" var="nav_utm_east0"/>
-      <set value="gps_utm_north/100" var="nav_utm_north0"/>
-      <set value="gps_utm_zone" var="nav_utm_zone0"/>
-      <set value="gps_alt/100+50" var="waypoints[WP_HOME].a"/>
-      <set value="TRUE" var="moved_waypoints[WP_HOME]"/>
-      <set value="gps_alt/100+50" var="waypoints[WP_1].a"/>
-      <set value="TRUE" var="moved_waypoints[WP_1]"/>
-      <set value="gps_alt/100+50" var="waypoints[WP_2].a"/>
-      <set value="TRUE" var="moved_waypoints[WP_2]"/>
+      <while COND="10 > block_time"/>
+      <set var="unit" value="reset_nav_reference()"/>
+      <set var="unit" value="reset_waypoints()"/>
       <deroute BLOCK="circlehome"/>
     </block>
     <block NAME="circlehome">
