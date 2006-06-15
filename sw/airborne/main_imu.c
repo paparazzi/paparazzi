@@ -17,6 +17,7 @@ static void imu_reporting_task ( void );
 static void imu_init_spi1( void );
 static void imu_read_max1167( void );
 static void SPI1_ISR(void) __attribute__((naked));
+static void EXTINT0_ISR(void) __attribute__((naked));
 
 struct adc_buf buf_ax;
 struct adc_buf buf_ay;
@@ -24,7 +25,7 @@ struct adc_buf buf_az;
 struct adc_buf buf_bat;
 
 volatile uint8_t gotcha = 0;
-volatile uint16_t rz = 0;
+volatile uint16_t rx = 0, ry = 0, rz = 0;
 
 int main( void ) {
   imu_init();
@@ -53,7 +54,11 @@ void imu_init( void ) {
 void imu_event_task( void ) {
   if (gotcha) {
     gotcha = 0;
-    Uart0PrintString("GOTCHA ");
+    Uart0PrintString("GYRO ");
+    Uart0PrintHex16(rx);
+    uart0_transmit(' ');
+    Uart0PrintHex16(ry);
+    uart0_transmit(' ');
     Uart0PrintHex16(rz);
     uart0_transmit('\n');
   }
@@ -99,7 +104,7 @@ void imu_reporting_task ( void ) {
 #define SSP_DDS  0x07 << 0  /* data size         : 8 bits        */
 #define SSP_FRF  0x00 << 4  /* frame format      : SPI           */
 #define SSP_CPOL 0x00 << 6  /* clock polarity    : data captured on first clock transition */  
-#define SSP_CPHA 0x00 << 7  /* clock phase       :  SCK idles low */
+#define SSP_CPHA 0x00 << 7  /* clock phase       : SCK idles low */
 #define SSP_SCR  0x0F << 8  /* serial clock rate : divide by 16  */
 
 /* SSPCR1 settings */
@@ -113,6 +118,24 @@ static void imu_init_spi1( void ) {
   SetBit(IO1DIR, MAX1167_SS_PIN);
   /* unselected max1167 */
   SetBit(IO1SET, MAX1167_SS_PIN);
+
+  /* connect P0.16 to extint0 (EOC) */
+  PINSEL1 |= 1 << 0;
+
+  /* extint0 is edge trigered */
+  EXTMODE |= 1 << 0;
+
+  /* extint0 is trigered on falling edge */
+  EXTPOLAR |= 0 << 0;
+
+  /* clear pending extint0 before enabling interrupts */
+  EXTINT |= 1 << 0;
+
+   /* initialize interrupt vector */
+  VICIntSelect &= ~VIC_BIT( VIC_EINT0 );  // EXTINT0 selected as IRQ
+  VICIntEnable = VIC_BIT( VIC_EINT0 );    // EXTINT0 interrupt enabled
+  VICVectCntl8 = VIC_ENABLE | VIC_EINT0;
+  VICVectAddr8 = (uint32_t)EXTINT0_ISR;    // address of the ISR 
 
   /* setup pins for SSP (SCK, MISO, MOSI) */
   PINSEL1 |= 2 << 2 | 2 << 4 | 2 << 6;
@@ -132,7 +155,10 @@ static void imu_init_spi1( void ) {
 void SPI1_ISR(void) {
  ISR_ENTRY();
  if (bit_is_set(SSPMIS, RTMIS)) {
-   uint8_t foo = SSPDR;
+   rx = SSPDR << 8;
+   rx += SSPDR;
+   ry = SSPDR << 8;
+   ry += SSPDR;
    rz = SSPDR << 8;
    rz += SSPDR;
    gotcha = 1;
@@ -150,16 +176,33 @@ void SPI1_ISR(void) {
  ISR_EXIT();
 }
 
+void EXTINT0_ISR(void) {
+  ISR_ENTRY();
+  
+  /* read dummy control byte reply */
+  uint8_t foo = SSPDR;
+  /* trigger 6 bytes read */
+  SSPDR = 0;
+  SSPDR = 0;
+  SSPDR = 0;
+  SSPDR = 0;
+  SSPDR = 0;
+  SSPDR = 0;
+  /* enable timeout interrupt */
+  SetBit(SSPIMSC, RTIM);
+  /* clear extint0 */
+  EXTINT |= 1 << 0;
+
+  VICVectAddr = 0x00000000; /* clear this interrupt from the VIC */
+  ISR_EXIT();
+}
+
 static void imu_read_max1167( void ) {
   /* select max1167 */ 
   SetBit(IO1CLR, MAX1167_SS_PIN);
   /* enable SPI */
   SetBit(SSPCR1, SSE);
-  /* writecontol byte + 2 dummy bytes for reading */
-  uint8_t control_byte = 2<<5;
+  /* write control byte - wait for eoc on extint0 */
+  uint8_t control_byte = 1 << 0 | 1 << 3 | 2 << 5;
   SSPDR = control_byte;
-  SSPDR = 0;
-  SSPDR = 0;
-  /* enable timeout interrupt */
-  SetBit(SSPIMSC, RTIM);
 }
