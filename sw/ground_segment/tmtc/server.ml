@@ -253,19 +253,19 @@ let log_and_parse = fun logging ac_name a msg values ->
       }
   | "CIRCLE" ->
       begin
-	match a.nav_ref with
-	  Some nav_ref ->
+	match a.nav_ref, a.horizontal_mode with
+	  Some nav_ref, 2 -> (** FIXME *)
 	    a.horiz_mode <- Circle (Latlong.utm_add nav_ref (fvalue "center_east", fvalue "center_north"), ivalue "radius")
-	| None -> ()
+	| _ -> ()
       end
   | "SEGMENT" ->
       begin
-	match a.nav_ref with
-	  Some nav_ref ->
+	match a.nav_ref, a.horizontal_mode with
+	  Some nav_ref, 1 -> (** FIXME *)
 	    let p1 = Latlong.utm_add nav_ref (fvalue "segment_east_1", fvalue "segment_north_1")
 	    and p2 = Latlong.utm_add nav_ref (fvalue "segment_east_2",  fvalue "segment_north_2") in
 	    a.horiz_mode <- Segment (p1, p2)
-	| None -> ()
+	| _ -> ()
       end
   | "SURVEY" ->
       begin
