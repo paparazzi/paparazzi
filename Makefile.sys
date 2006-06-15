@@ -23,10 +23,6 @@ ifeq ($(PAPARAZZI_HOME),)
 PAPARAZZI_HOME=$(HOME)/paparazzi
 endif
 
-ac: ac_h sim_ac ap fbw
-
-sim_ac : sim_sitl
-
 ac_h :
 	$(PAPARAZZI_DIR)/bin/gen_aircraft.out $(AIRCRAFT)
 
