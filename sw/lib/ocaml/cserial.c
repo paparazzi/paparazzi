@@ -28,6 +28,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <sys/termios.h>
+#include <sys/ioctl.h>
+
 #include <caml/mlvalues.h>
 #include <caml/fail.h>
 #include <caml/alloc.h>
@@ -73,4 +75,17 @@ value c_init_serial(value device, value speed)
   if (tcsetattr(fd, TCSADRAIN, &cur_termios)) failwith("setting modem serial device attr");
   
   return Val_int(fd);
+}
+
+value c_set_rts(value val_fd, value val_bit) {
+  int status;
+  int fd = Int_val(val_fd);
+  
+  ioctl(fd, TIOCMGET, &status);
+  if (Bool_val(val_bit))
+    status |= TIOCM_RTS;
+  else
+    status &= ~TIOCM_RTS;
+  ioctl(fd, TIOCMSET, &status);
+  return Val_unit;
 }
