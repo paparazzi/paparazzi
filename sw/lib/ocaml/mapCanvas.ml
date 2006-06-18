@@ -36,7 +36,7 @@ let size_utm_grid = 10 (* half the horiz/vert size in km *)
 
 let align = fun x a ->
   float (truncate (x /. float a) * a)
-    
+
 type meter = float
 
 let distance = fun (x1,y1) (x2,y2) -> sqrt ((x1-.x2)**2.+.(y1-.y2)**2.)
@@ -205,7 +205,7 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
       ignore (adj#connect#value_changed (fun () -> canvas#set_pixels_per_unit adj#value));
 
       canvas#set_center_scroll_region false ;
-      canvas#set_scroll_region (-2500000.) (-2500000.) 2500000. 2500000.;
+      canvas#set_scroll_region (-25000000.) (-25000000.) 25000000. 25000000.;
 
      )
  
@@ -239,26 +239,23 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
     method world_of = fun wgs84 ->
       match georef with
 	Some georef -> begin
-	  try
-	    match projection with
-	      UTM ->
-		let utmref = LL.utm_of LL.WGS84 georef
-		and utm = LL.utm_of LL.WGS84 wgs84 in
-		let (wx, y) = LL.utm_sub utm utmref in
-		(wx, -.y)
-	    | Mercator ->
-		let mlref = LL.mercator_lat georef.LL.posn_lat
-		and ml = LL.mercator_lat wgs84.LL.posn_lat in
-		let xw = (wgs84.LL.posn_long -. georef.LL.posn_long) *. mercator_coeff
-		and yw = -. (ml -. mlref) *. mercator_coeff in
-		(xw, yw)
-	    | LambertIIe ->
-		let lbtref = LL.lambertIIe_of georef
-		and lbt = LL.lambertIIe_of wgs84 in
-		let (wx, y) = LL.lbt_sub lbt lbtref in
-		(wx, -.y)
-	  with
-	    _ -> (0., 0.) (** Don't want to break everything with bad coordinates *)
+	  match projection with
+	    UTM ->
+	      let utmref = LL.utm_of LL.WGS84 georef
+	      and utm = LL.utm_of LL.WGS84 wgs84 in
+	      let (wx, y) = LL.utm_sub utm utmref in
+	      (wx, -.y)
+	  | Mercator ->
+	      let mlref = LL.mercator_lat georef.LL.posn_lat
+	      and ml = LL.mercator_lat wgs84.LL.posn_lat in
+	      let xw = (wgs84.LL.posn_long -. georef.LL.posn_long) *. mercator_coeff
+	      and yw = -. (ml -. mlref) *. mercator_coeff in
+	      (xw, yw)
+	  | LambertIIe ->
+	      let lbtref = LL.lambertIIe_of georef
+	      and lbt = LL.lambertIIe_of wgs84 in
+	      let (wx, y) = LL.lbt_sub lbt lbtref in
+	      (wx, -.y)
 	end
       | None -> failwith "#world_of : no georef"
 

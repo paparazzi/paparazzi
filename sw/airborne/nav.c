@@ -200,6 +200,7 @@ static struct point survey_to;
 static float shift;
 static bool_t survey_uturn __attribute__ ((unused)) = FALSE;
 float survey_west, survey_east, survey_north, survey_south;
+static float survey_radius;
 
 #include <stdio.h>
 
@@ -222,6 +223,9 @@ float survey_west, survey_east, survey_north, survey_south;
   route_to_xy(survey_from.x, survey_from.y, survey_to.x, survey_to.y); \
 }
 
+#define SurveyGoingNorth() (survey_to.y > survey_from.y)
+#define SurveyGoingSouth() (survey_to.y < survey_from.y)
+
 
 #define SurveyRectangle(wp1, wp2) { \
   survey_west = Min(waypoints[wp1].x, waypoints[wp2].x); \
@@ -236,9 +240,13 @@ float survey_west, survey_east, survey_north, survey_south;
     survey_to.y = survey_south; \
     survey_from.y = survey_north; \
   } \
-  if (estimator_y > survey_north || estimator_y < survey_south) { \
-    if (! survey_uturn) { \
+  if (! survey_uturn) { \
+    if ((estimator_y < survey_north && SurveyGoingNorth()) || \
+        (estimator_y > survey_south && SurveyGoingSouth())) { \
+      route_to_xy(survey_from.x, survey_from.y, survey_to.x, survey_to.y); \
+    } else { \
       survey_uturn = TRUE; \
+      /** Prepare the next leg */ \
       float x0 = survey_from.x; \
       if (x0+shift < survey_west || x0+shift > survey_east) { \
         shift = -shift; \
@@ -248,12 +256,24 @@ float survey_west, survey_east, survey_north, survey_south;
       float tmp = survey_from.y; \
       survey_from.y = survey_to.y; \
       survey_to.y = tmp; \
+      /** Do half a circle */ \
+      waypoints[0].x = x0 - shift/2.; \
+      waypoints[0].y = survey_from.y; \
+      survey_radius = shift / 2.; \
+      if (survey_to.y > survey_from.y) \
+        survey_radius = -survey_radius; \
+      sum_alpha = 0.; circle_count = 0.; new_circle = TRUE; in_segment = FALSE; \
     } \
-  } else \
-    survey_uturn = FALSE; \
+  } else { \
+    if (circle_count < 0.5) { \
+      Circle(0, survey_radius); \
+    } else { \
+      survey_uturn = FALSE; \
+      in_circle = FALSE; \
+    } \
+  } \
   vertical_mode = VERTICAL_MODE_AUTO_ALT; \
   desired_altitude = waypoints[wp1].a; \
-  route_to_xy(survey_from.x, survey_from.y, survey_to.x, survey_to.y); \
 }
 
 
@@ -273,8 +293,8 @@ static inline void survey_rectangle_init(uint8_t wp1, uint8_t wp2, float grid) {
   survey_east = Max(waypoints[wp1].x, waypoints[wp2].x);
   survey_south = Min(waypoints[wp1].y, waypoints[wp2].y);
   survey_north = Max(waypoints[wp1].y, waypoints[wp2].y);
-  survey_from.x = survey_to.x = Min(Max(estimator_x+grid/2, survey_west), survey_east);
-  if (estimator_y > survey_north || (estimator_hspeed_dir > M_PI/2. && estimator_hspeed_dir < 3*M_PI/2)) {
+  survey_from.x = survey_to.x = Min(Max(estimator_x, survey_west+grid/2.), survey_east-grid/2.);
+  if (estimator_y > survey_north || (estimator_y > survey_south && estimator_hspeed_dir > M_PI/2. && estimator_hspeed_dir < 3*M_PI/2)) {
     survey_to.y = survey_south;
     survey_from.y = survey_north;
   } else {
@@ -282,8 +302,7 @@ static inline void survey_rectangle_init(uint8_t wp1, uint8_t wp2, float grid) {
     survey_to.y = survey_north;
   }
   shift = grid;
-  survey_uturn = (estimator_x < survey_west || estimator_y > survey_east ||
-		  estimator_y < survey_south || estimator_y > survey_north);
+  survey_uturn = FALSE;
 }
 
 typedef uint8_t unit_;

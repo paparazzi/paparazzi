@@ -308,17 +308,16 @@ module GM = struct
   let active_http = fun x -> 
     Gm.no_http := not x
 
-  let auto = ref false
-  let active_auto = fun x -> 
-    auto := x
-
-
+  (** Fill the visible background with Google tiles *)
   let fill_tiles = fun geomap -> 
     ignore (Thread.create MapGoogle.fill_window geomap)
-      
+
+  let auto = ref false
   let update = fun geomap ->
     if !auto then fill_tiles geomap
-
+  let active_auto = fun geomap x -> 
+    auto := x;
+    update geomap      
 
 (** Creates a calibrated map from the Google tiles (selected region) *)
   let map_from_tiles = fun (geomap:G.widget) () ->
@@ -1360,7 +1359,7 @@ let _main =
       "-speech", Arg.Set speech, "Speech";
       "-m", Arg.String (fun x -> map_files := x :: !map_files), "Map description file"] in
   Arg.parse (options)
-    (fun x -> Printf.fprintf stderr "Warning: Don't do anythig with %s\n" x)
+    (fun x -> Printf.fprintf stderr "Warning: Don't do anything with '%s'\n" x)
     "Usage: ";
   (*                                 *)
   Ivy.init "Paparazzi map 2D" "READY" (fun _ _ -> ());
@@ -1407,7 +1406,7 @@ let _main =
   ignore (map_menu_fact#add_item "Calibrate" ~key:GdkKeysyms._C ~callback:(Edit.calibrate_map geomap accel_group));
   ignore (map_menu_fact#add_item "GoogleMaps Fill" ~key:GdkKeysyms._G ~callback:(fun _ -> GM.fill_tiles geomap));
   ignore (map_menu_fact#add_check_item "GoogleMaps Http" ~key:GdkKeysyms._H ~active:true ~callback:GM.active_http);
-  ignore (map_menu_fact#add_check_item "GoogleMaps Auto" ~active:false ~callback:GM.active_auto);
+  ignore (map_menu_fact#add_check_item "GoogleMaps Auto" ~active:false ~callback:(GM.active_auto geomap));
   ignore (map_menu_fact#add_item "Map of Region" ~key:GdkKeysyms._R ~callback:(map_from_region geomap));
   ignore (map_menu_fact#add_item "Map of Google Tiles" ~key:GdkKeysyms._T ~callback:(GM.map_from_tiles geomap));
   ignore (map_menu_fact#add_item "Load sector" ~callback:(Sector.load geomap));

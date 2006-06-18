@@ -1,4 +1,4 @@
-<flight_plan SECURITY_HEIGHT="25" alt="450" ground_alt="400" lat0="44.000000" lon0="1" max_dist_from_home="500" name="Generic" qfu="270">
+<flight_plan SECURITY_HEIGHT="25" alt="450" ground_alt="400" lat0="43.4624" lon0="1.2727" max_dist_from_home="500" name="Generic" qfu="270">
   <dl_settings>
     <dl_setting VAR="ir_roll_neutral" MAX="0.3" STEP="0.01" MIN="-0.3"/>
     <dl_setting VAR="ir_pitch_neutral" MAX="0.3" STEP="0.01" MIN="-0.3"/>
