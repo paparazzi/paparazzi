@@ -140,7 +140,7 @@ include $(PAPARAZZI_SRC)/conf/autopilot/disc_board.makefile
 ap.srcs += commands.c
 
 ap.CFLAGS += -DACTUATORS=\"servos_esc_hw.h\" -DTIMER3 -DTIMER1_TOP=0x400
-ap.srcs += $(SRC_ARCH)/servos_esc_hw.c
+ap.srcs += $(SRC_ARCH)/servos_esc_hw.c actuators.c
 
 ap.CFLAGS += -DRADIO_CONTROL -DRADIO_CONTROL_TYPE=RC_FUTABA
 ap.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c 
