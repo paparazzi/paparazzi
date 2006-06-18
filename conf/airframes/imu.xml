@@ -1,14 +1,5 @@
 <airframe name="IMU">
 
-
-  <section name="ADC" prefix="ADC_">
-    <define name="CHANNEL_AX" value="1"/>
-    <define name="CHANNEL_AY" value="2"/>
-    <define name="CHANNEL_AZ" value="3"/>
-    <define name="CHANNEL_BAT" value="4"/>
-  </section>
-
-
   <makefile>
 
 ARCHI=arm7
@@ -29,7 +20,11 @@ imu.srcs += $(SRC_ARCH)/uart_hw.c
 imu.CFLAGS += -DADC -DUSE_AD0 -DUSE_AD0_1 -DUSE_AD0_2 -DUSE_AD0_3 -DUSE_AD0_4
 imu.srcs += $(SRC_ARCH)/adc_hw.c
 
+imu.srcs += $(SRC_ARCH)/max1167.c
+imu.srcs += $(SRC_ARCH)/micromag.c
+
   </makefile>
+
 </airframe>
 
 

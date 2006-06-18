@@ -8,37 +8,45 @@
 #include "print.h"
 
 #include "adc.h"
+#include "max1167.h"
+#include "micromag.h"
+
 #include "airframe.h"
 
-static void imu_init( void );
-static void imu_periodic_task( void );
-static void imu_event_task( void);
-static void imu_reporting_task ( void );
+
+
+static inline void imu_init( void );
+static inline void imu_periodic_task( void );
+static inline void imu_event_task( void);
+
+static void imu_print_accel_and_bat ( void );
 static void imu_init_spi1( void );
-static void imu_read_max1167( void );
+
 static void SPI1_ISR(void) __attribute__((naked));
-static void EXTINT0_ISR(void) __attribute__((naked));
 
 struct adc_buf buf_ax;
 struct adc_buf buf_ay;
 struct adc_buf buf_az;
 struct adc_buf buf_bat;
 
-volatile uint8_t gotcha = 0;
-volatile uint16_t rx = 0, ry = 0, rz = 0;
+
+#define SPI_SLAVE_NONE 0
+#define SPI_SLAVE_MAG 1
+#define SPI_SLAVE_MAX 2
+
+uint8_t spi_cur_slave = SPI_SLAVE_NONE;
 
 int main( void ) {
   imu_init();
   while (1) {
-    if (sys_time_periodic()) {
+    if (sys_time_periodic())
       imu_periodic_task();
-    }
     imu_event_task();
   }
   return 0;
 }
 
-void imu_init( void ) {
+static inline void imu_init( void ) {
   hw_init();
   sys_time_init();
   uart0_init_tx();
@@ -48,32 +56,57 @@ void imu_init( void ) {
   adc_buf_channel(ADC_CHANNEL_AZ, &buf_az, DEFAULT_AV_NB_SAMPLE);
   adc_buf_channel(ADC_CHANNEL_BAT, &buf_bat, DEFAULT_AV_NB_SAMPLE);
   imu_init_spi1();
+  max1167_init();
+  micromag_init();
   int_enable();
 }
 
-void imu_event_task( void ) {
-  if (gotcha) {
-    gotcha = 0;
+static inline void imu_event_task( void ) {
+
+  if (micromag_data_available) {
+    micromag_data_available = FALSE;
+    spi_cur_slave = SPI_SLAVE_MAX;
+    max1167_read();
+
+    Uart0PrintString("MAG ");
+    Uart0PrintHex16(micromag_values[0]);
+    uart0_transmit(' ');
+    Uart0PrintHex16(micromag_values[1]);
+    uart0_transmit(' ');
+    Uart0PrintHex16(micromag_values[2]);
+    uart0_transmit('\n');
+  }
+
+  if (max1167_data_available) {
+    max1167_data_available = FALSE;
+    spi_cur_slave = SPI_SLAVE_NONE;
+
     Uart0PrintString("GYRO ");
-    Uart0PrintHex16(rx);
+    Uart0PrintHex16(max1167_values[0]);
     uart0_transmit(' ');
-    Uart0PrintHex16(ry);
+    Uart0PrintHex16(max1167_values[1]);
     uart0_transmit(' ');
-    Uart0PrintHex16(rz);
+    Uart0PrintHex16(max1167_values[2]);
     uart0_transmit('\n');
   }
 }
 
-void imu_periodic_task( void ) {
+static inline void imu_periodic_task( void ) {
   static uint8_t foo = 0;
   foo++;
   if (!(foo % 10)) {
-    imu_reporting_task();
-    imu_read_max1167();
+    if (spi_cur_slave == SPI_SLAVE_NONE) {
+      spi_cur_slave = SPI_SLAVE_MAG;
+      micromag_read();
+    }
+    else {
+      Uart0PrintString("OVERRUN\n");
+    }
+    imu_print_accel_and_bat();
   }
 }
 
-void imu_reporting_task ( void ) {
+static void imu_print_accel_and_bat ( void ) {
   Uart0PrintString("ACCEL ");
   uint16_t val = buf_ax.sum / DEFAULT_AV_NB_SAMPLE;
   Uart0PrintHex16(val);
@@ -92,13 +125,7 @@ void imu_reporting_task ( void ) {
 
 }
 
-/*
-  MAX1167 connected on SPI1 
-  select on P1.29
-  eoc on P0.16 ( eint0 )
-*/
 
-#define MAX1167_SS_PIN 29
 
 /* SSPCR0 settings */
 #define SSP_DDS  0x07 << 0  /* data size         : 8 bits        */
@@ -113,31 +140,10 @@ void imu_reporting_task ( void ) {
 #define SSP_MS   0x00 << 2  /* master slave mode : master                    */
 #define SSP_SOD  0x00 << 3  /* slave output disable : don't care when master */
 
+
+
 static void imu_init_spi1( void ) {
-  /* configure max1167 CS as output */
-  SetBit(IO1DIR, MAX1167_SS_PIN);
-  /* unselected max1167 */
-  SetBit(IO1SET, MAX1167_SS_PIN);
-
-  /* connect P0.16 to extint0 (EOC) */
-  PINSEL1 |= 1 << 0;
-
-  /* extint0 is edge trigered */
-  EXTMODE |= 1 << 0;
-
-  /* extint0 is trigered on falling edge */
-  EXTPOLAR |= 0 << 0;
-
-  /* clear pending extint0 before enabling interrupts */
-  EXTINT |= 1 << 0;
-
-   /* initialize interrupt vector */
-  VICIntSelect &= ~VIC_BIT( VIC_EINT0 );  // EXTINT0 selected as IRQ
-  VICIntEnable = VIC_BIT( VIC_EINT0 );    // EXTINT0 interrupt enabled
-  VICVectCntl8 = VIC_ENABLE | VIC_EINT0;
-  VICVectAddr8 = (uint32_t)EXTINT0_ISR;    // address of the ISR 
-
-  /* setup pins for SSP (SCK, MISO, MOSI) */
+   /* setup pins for SSP (SCK, MISO, MOSI) */
   PINSEL1 |= 2 << 2 | 2 << 4 | 2 << 6;
   
   /* setup SSP */
@@ -154,55 +160,18 @@ static void imu_init_spi1( void ) {
 
 void SPI1_ISR(void) {
  ISR_ENTRY();
- if (bit_is_set(SSPMIS, RTMIS)) {
-   rx = SSPDR << 8;
-   rx += SSPDR;
-   ry = SSPDR << 8;
-   ry += SSPDR;
-   rz = SSPDR << 8;
-   rz += SSPDR;
-   gotcha = 1;
-   /* clear RTI */
-   SetBit(SSPIMSC, RTIM);
-   /* disable RTI */
-   ClearBit(SSPIMSC, RTIM);
-   /* disable SPI */
-   ClearBit(SSPCR1, SSE);
-   /* unselected max1167 */
-   SetBit(IO1SET, MAX1167_SS_PIN);
+ switch (spi_cur_slave) {
+ case SPI_SLAVE_MAG :
+   MmOnSpiIt();
+   break;
+ case SPI_SLAVE_MAX :
+   Max1167OnSpiInt();
+   break;
  }
 
  VICVectAddr = 0x00000000; /* clear this interrupt from the VIC */
  ISR_EXIT();
 }
 
-void EXTINT0_ISR(void) {
-  ISR_ENTRY();
-  
-  /* read dummy control byte reply */
-  uint8_t foo = SSPDR;
-  /* trigger 6 bytes read */
-  SSPDR = 0;
-  SSPDR = 0;
-  SSPDR = 0;
-  SSPDR = 0;
-  SSPDR = 0;
-  SSPDR = 0;
-  /* enable timeout interrupt */
-  SetBit(SSPIMSC, RTIM);
-  /* clear extint0 */
-  EXTINT |= 1 << 0;
 
-  VICVectAddr = 0x00000000; /* clear this interrupt from the VIC */
-  ISR_EXIT();
-}
 
-static void imu_read_max1167( void ) {
-  /* select max1167 */ 
-  SetBit(IO1CLR, MAX1167_SS_PIN);
-  /* enable SPI */
-  SetBit(SSPCR1, SSE);
-  /* write control byte - wait for eoc on extint0 */
-  uint8_t control_byte = 1 << 0 | 1 << 3 | 2 << 5;
-  SSPDR = control_byte;
-}
