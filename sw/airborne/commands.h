@@ -21,6 +21,11 @@
  *
  */
 
+/** \file commands.h
+ *  \brief Hardware independent code for commands handling
+ *
+ */
+
 #ifndef COMMANDS_H
 #define COMMANDS_H
 

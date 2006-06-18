@@ -1,7 +1,7 @@
 /*
  * Paparazzi $Id$
  *  
- * Copyright (C) 2003  Pascal Brisset, Antoine Drouin
+ * Copyright (C) 2003-2006  Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
  *
@@ -22,33 +22,44 @@
  *
  */
 
+/** \file downlink.h
+ *  \brief Common code for AP and FBW telemetry
+ *
+ */
+
 #ifndef DOWNLINK_H
 #define DOWNLINK_H
 
 #include <inttypes.h>
 
 #ifdef SITL
+/** Software In The Loop simulation uses IVY bus directly as the transport layer */
 #include "ivy_transport.h"
-#else
+#else /** SITL */
 #include "pprz_transport.h"
 #include "modem.h"
 #include "xbee.h"
-#endif
+#endif /** !SITL */
 
 #ifdef AP
+/** Telemetry mode for FBW process: index in the telemetry.xml file */
 extern uint8_t telemetry_mode_Ap;
 #endif
 
 #ifdef FBW
+/** Telemetry mode for AP process: index in the telemetry.xml file */
 extern uint8_t telemetry_mode_Fbw;
 #endif
 
+/** Counter of messages not sent because of unavailibity of the output buffer*/
 extern uint8_t downlink_nb_ovrn;
 
 #define __Transport(dev, _x) dev##_x
 #define _Transport(dev, _x) __Transport(dev, _x)
 #define Transport(_x) _Transport(DOWNLINK_TRANSPORT, _x)
 
+
+/** Set of macros for generated code (messages.h) from messages.xml */
 #define DownlinkSizeOf(_x) Transport(SizeOf(_x))
 
 #define DownlinkCheckFreeSpace(_x) Transport(CheckFreeSpace((uint8_t)(_x)))

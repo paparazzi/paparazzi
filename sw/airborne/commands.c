@@ -21,6 +21,11 @@
  *
  */
 
+/** \file commands.c
+ *  \brief Hardware independent data structures for commands handling
+ *
+ */
+
 #include "commands.h"
 
 pprz_t commands[COMMANDS_NB];

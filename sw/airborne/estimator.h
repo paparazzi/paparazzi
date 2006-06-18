@@ -1,7 +1,7 @@
 /*
  * $Id$
  *  
- * Copyright (C) 2004  Pascal Brisset, Antoine Drouin
+ * Copyright (C) 2004-2006  Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
  *
@@ -20,6 +20,10 @@
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA. 
  *
+ */
+
+/** \file estimator.h
+ * \brief State estimation, fusioning sensors
  */
 
 #ifndef ESTIMATOR_H

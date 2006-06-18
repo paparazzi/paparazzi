@@ -22,6 +22,16 @@
  *
  */
 
+/** \file fbw_downlink.h
+ *  \brief Set of macros defining the periodic telemetry messages of FBW process
+ *
+ * The PeriodicSendAp() macro is generated from the telemetry description
+ * (named in conf.xml, usually in conf/telemetry directory). This macro
+ * is a sequence of calls to PERIODIC_SEND_message() which have to be defined
+ * in the present file.
+ *
+ */
+
 #ifndef FBW_DOWNLINK_H
 #define FBW_DOWNLINK_H
 

@@ -1,7 +1,7 @@
 /*
  * Paparazzi autopilot $Id$
  *  
- * Copyright (C) 2004  Pascal Brisset, Antoine Drouin
+ * Copyright (C) 2004-2006  Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
  *
@@ -22,8 +22,8 @@
  *
  */
 
-/*
- * UBX protocol specific code
+/** \file gps_ubx.h
+ * \brief UBX protocol specific code
  *
 */
 
@@ -31,34 +31,13 @@
 #ifndef UBX_H
 #define UBX_H
 
+#define GPS_NB_CHANNELS 16
+
 extern uint8_t ubx_id, ubx_class;
 #define UBX_MAX_PAYLOAD 255
 extern uint8_t ubx_msg_buf[UBX_MAX_PAYLOAD];
 
-extern uint8_t send_ck_a, send_ck_b;
-#define UbxInitCheksum() { send_ck_a = send_ck_b = 0; }
-#define UpdateChecksum(c) { send_ck_a += c; send_ck_b += send_ck_a; }
-#define UbxTrailer() { GpsUartSend1(send_ck_a);  GpsUartSend1(send_ck_b); }
-
-#define UbxSend1(c) { uint8_t i8=c; GpsUartSend1(i8); UpdateChecksum(i8); }
-#define UbxSend2(c) { uint16_t i16=c; UbxSend1(i16&0xff); UbxSend1(i16 >> 8); }
-#define UbxSend1ByAddr(x) { UbxSend1(*x); }
-#define UbxSend2ByAddr(x) { UbxSend1(*x); UbxSend1(*(x+1)); }
-#define UbxSend4ByAddr(x) { UbxSend1(*x); UbxSend1(*(x+1)); UbxSend1(*(x+2)); UbxSend1(*(x+3)); }
-
-#define UbxHeader(nav_id, msg_id, len) { \
-  GpsUartSend1(UBX_SYNC1); \
-  GpsUartSend1(UBX_SYNC2); \
-  UbxInitCheksum(); \
-  UbxSend1(nav_id); \
-  UbxSend1(msg_id); \
-  UbxSend2(len); \
-}
-
-
-/** Includes macros generated from ubx.xml */ 
-#include "ubx_protocol.h"
-
+/** The function to be called when a characted friom the device is available */
 extern void parse_ubx( uint8_t c );
 
 #define GpsParse(_gps_buffer, _gps_buffer_size) { \
@@ -67,5 +46,7 @@ extern void parse_ubx( uint8_t c );
     parse_ubx(_gps_buffer[i]); \
   } \
 }
+
+#define GPS_FIX_VALID(gps_mode) (gps_mode == 3)
 
 #endif /* UBX_H */

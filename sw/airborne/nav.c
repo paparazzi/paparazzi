@@ -200,7 +200,7 @@ static struct point survey_to;
 static float shift;
 static bool_t survey_uturn __attribute__ ((unused)) = FALSE;
 float survey_west, survey_east, survey_north, survey_south;
-static float survey_radius;
+static float survey_radius __attribute__ ((unused));
 
 #include <stdio.h>
 
@@ -306,11 +306,11 @@ static inline void survey_rectangle_init(uint8_t wp1, uint8_t wp2, float grid) {
 }
 
 typedef uint8_t unit_;
-static unit_ unit;
+static unit_ unit __attribute__ ((unused));
 
-static unit_ reset_nav_reference( void );
+static unit_ reset_nav_reference( void ) __attribute__ ((unused));
 
-static unit_ reset_waypoints( void );
+static unit_ reset_waypoints( void ) __attribute__ ((unused));
 
 
 #include "flight_plan.h"

@@ -1,5 +1,5 @@
 /*
- * Paparazzi mcu0 $Id$
+ * $Id$
  *  
  * Copyright (C) 2003  Pascal Brisset, Antoine Drouin
  *
@@ -22,8 +22,8 @@
  *
  */
 
-/*
- * Parse SIRF protocol from ublox SAM module
+/** \file gps.h
+ *  \brief Device independent GPS code
  *
 */
 
@@ -33,6 +33,9 @@
 
 #include "std.h"
 
+#ifdef UBX
+#include "gps_ubx.h"
+#endif
 
 extern uint8_t gps_mode; /* Receiver status */
 extern uint32_t gps_itow;    /* ms */
@@ -54,8 +57,6 @@ extern volatile uint8_t gps_msg_received;
 extern bool_t gps_pos_available;
 extern uint8_t gps_nb_ovrn;
 
-#define GPS_NB_CHANNELS 16
-
 /** Number of scanned satellites */
 extern uint8_t gps_nb_channels;
 
@@ -71,12 +72,6 @@ struct svinfo {
 
 extern struct svinfo gps_svinfos[GPS_NB_CHANNELS];
 
-#define GPS_FIX_VALID(gps_mode) (gps_mode == 3)
-
-#ifdef UBX
-#include "gps_ubx.h"
-#endif
-
 #ifndef SITL
 #include "uart.h"
 
@@ -87,7 +82,7 @@ extern struct svinfo gps_svinfos[GPS_NB_CHANNELS];
 #define GpsBuffer() GpsLink(ChAvailable())
 #define ReadGpsBuffer() { while (GpsLink(ChAvailable())&&!gps_msg_received) parse_ubx(GpsLink(Getch())); }
 #define GpsUartSend1(c) GpsLink(Transmit(c))
-#endif
+#endif /** !SITL */
 
 
 #endif /* GPS_H */

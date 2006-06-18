@@ -20,16 +20,25 @@
  * Boston, MA 02111-1307, USA.  
  *
  */
+
+/** \file actuators.h
+ *  \brief Hardware independent API for actuators (servos, motor controllers)
+ *
+ */
 #ifndef ACTUATORS_H
 #define ACTUATORS_H
 
 #if defined ACTUATORS
 
 #include "paparazzi.h"
+
 /** Defines SetActuatorsFromCommands() macro */
 #include "airframe.h"
 
+/** Must be defined by specific hardware implementation */
 extern void actuators_init( void );
+
+/** Temporary storage (for debugging purpose, downlinked via telemetry) */
 extern uint16_t actuators[SERVOS_NB];
 
 #include ACTUATORS
