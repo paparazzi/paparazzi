@@ -1,0 +1,4 @@
+
+alias usb:v0403pEE18d*dc*dsc*dp*ic*isc*ip* ftdi_sio
+options ftdi_sio product=0xEE18
+

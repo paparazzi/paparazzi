@@ -1,0 +1,6 @@
+
+#BUS=="usb", SYSFS{serial}=="*_fbw", NAME="test_fbw", SYMLINK="paparazzi/%s{serial}", MODE="0666"
+
+BUS=="usb", SYSFS{product}=="MaxStream PKG-U", SYMLINK="paparazzi/xbee"
+
+
