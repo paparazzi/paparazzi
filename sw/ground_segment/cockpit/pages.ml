@@ -78,7 +78,7 @@ end
 (*****************************************************************************)
 (* gps page                                                                  *)
 (*****************************************************************************)
-class gps (widget: GBin.frame) =
+class gps ?(visible = fun _ -> true) (widget: GBin.frame) =
   let table = GPack.table
       ~rows: 1
       ~columns: 3
@@ -96,8 +96,7 @@ object (this)
   val mutable active_flags = []
 
   method svsinfo svid cno flags =
-    if not (List.mem_assoc svid active_cno)
-    then begin
+    if not (List.mem_assoc svid active_cno) then
       let rows = table#rows in
       let _svid_label = GMisc.label 
 	  ~text: ("sat "^ svid) ~packing: (table#attach ~top: rows ~left: 0) () in
@@ -109,34 +108,26 @@ object (this)
       active_cno <- (svid, cno_label)::active_cno;
       active_flags <- (svid, flags_eb)::active_flags;
       table#set_rows (table#rows +1)
-    end
-    else begin
+    else if visible widget then
       let cno_label = List.assoc svid active_cno in
       let flags_eb = List.assoc svid active_flags in
       cno_label#set_label (cno^" dB Hz");
       update_color flags_eb flags
-    end
 end
 
 (*****************************************************************************)
 (* pfd page                                                                  *)
 (*****************************************************************************)
-class pfd (widget: GBin.frame) =
+class pfd ?(visible = fun _ -> true) (widget: GBin.frame) =
   let horizon = new Horizon.h ~packing: widget#add 150 in
+  let _lazy = fun f x -> if visible widget then f x in
     
 object (this)
-  val mutable pitch = 0.
-  val mutable roll = 0.
-
-  method set_roll r =
-    roll <- r;
-    horizon#set_attitude ((Deg>>Rad)roll) ((Deg>>Rad)pitch)
-  method set_pitch p =
-    pitch <- p;
-    horizon#set_attitude ((Deg>>Rad)roll) ((Deg>>Rad)pitch)
-  method set_alt (a:float) = horizon#set_alt a
+  method set_attitude roll pitch =
+    _lazy (horizon#set_attitude ((Deg>>Rad)roll)) ((Deg>>Rad)pitch)
+  method set_alt (a:float) = _lazy horizon#set_alt a
   method set_climb (c:float) = ()
-  method set_speed (c:float) = horizon#set_speed c
+  method set_speed (c:float) = _lazy horizon#set_speed c
 end
 
 
@@ -165,15 +156,13 @@ class misc ~packing (widget: GBin.frame) =
 (*****************************************************************************)
 (* Dataling settings paged                                                   *)
 (*****************************************************************************)
-class settings = fun xml_settings callback ->
+class settings = fun ?(visible = fun _ -> true) xml_settings callback ->
   let sw = GBin.scrolled_window ~hpolicy:`AUTOMATIC ~vpolicy:`AUTOMATIC () in
   let vbox = GPack.vbox ~packing:sw#add_with_viewport () in
   let n = List.length xml_settings in
-  let current_values = Array.create n 42. in
-  let i = ref 0 in
-  let _ =
-    List.iter
-      (fun s ->
+  let current_values =
+    Array.mapi
+      (fun i s ->
 	let f = fun a -> float_of_string (ExtXml.attrib s a) in
 	let lower = f "min"
 	and upper = f "max"
@@ -185,26 +174,22 @@ class settings = fun xml_settings callback ->
 	let _l = GMisc.label ~width:100 ~text ~packing:hbox#pack () in
 	let _v = GMisc.label ~width:50 ~text:"N/A" ~packing:hbox#pack () in
 	let _scale = GRange.scale `HORIZONTAL ~digits:2 ~adjustment:adj ~packing:hbox#add () in
-	let ii = !i in
 	
-	let update_current_value = fun _ ->
-	  let s = string_of_float current_values.(ii) in
-	  if _v#text <> s then
-	    _v#set_text s;
-	  true in
-	
-	ignore (Glib.Timeout.add 500 update_current_value);
-	let callback = fun _ -> callback ii adj#value in
+	let callback = fun _ -> callback i adj#value in
 	let b = GButton.button ~label:"Commit" ~stock:`APPLY ~packing:hbox#pack () in
 	ignore (b#connect#clicked ~callback);
 	
-	incr i
+	_v
       )
-      xml_settings in
-  object
+      (Array.of_list xml_settings) in
+  object (self)
     method length = n
     method widget = sw#coerce
-    method set = fun i v -> current_values.(i) <- v
+    method set = fun i v ->
+      if visible self#widget then
+	let s = string_of_float v in
+	if current_values.(i)#text <> s then
+	  current_values.(i)#set_text s
   end
 
 

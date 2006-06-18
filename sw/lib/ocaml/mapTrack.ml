@@ -47,6 +47,11 @@ let rec norm_angle_360 = fun alpha ->
 let cam_half_aperture = LL.pi /. 6.0
 let half_pi = LL.pi /. 2.0
 
+type desired =
+    NoDesired
+  | DesiredCircle of LL.geographic*float*GnoCanvas.ellipse
+  | DesiredSegment of LL.geographic*LL.geographic*GnoCanvas.line
+
 
 class track = fun ?(name="Noname") ?(size = 500) ?(color="red") (geomap:MapCanvas.widget) ->
   let group = GnoCanvas.group geomap#canvas#root in
@@ -82,6 +87,9 @@ class track = fun ?(name="Noname") ?(size = 500) ?(color="red") (geomap:MapCanva
   let min_distance_scaled = 10.  in
   let min_height_scaled = 0.1 in
 
+  let desired_circle = GnoCanvas.ellipse group
+  and desired_segment = GnoCanvas.line group in
+    
 
  let top = ref 0  in
   object (self)
@@ -101,8 +109,8 @@ class track = fun ?(name="Noname") ?(size = 500) ?(color="red") (geomap:MapCanva
     val mutable cam_on = false
     val mutable params_on = false
     val mutable v_params_on = false
-    val mutable desired_track =  ((GnoCanvas.ellipse group) :> GnoCanvas.base_item)
-    val mutable zone = GnoCanvas.rect group
+    val mutable desired_track = NoDesired
+    val zone = GnoCanvas.rect group
     val mutable ac_cam_cover = GnoCanvas.rect cam
     method color = color
     method set_color c = color <- c
@@ -170,19 +178,40 @@ class track = fun ?(name="Noname") ?(size = 500) ?(color="red") (geomap:MapCanva
 
 (** draws the circular path to be followed by the aircraft in circle mode *)
     method draw_circle = fun en radius ->
-      desired_track#destroy ();
-      desired_track <- ((geomap#circle ~color:"green" en radius) :> GnoCanvas.base_item);
+      let create = fun () ->
+	desired_track <- DesiredCircle (en, radius, geomap#circle ~color:"green" en radius) in
+      match desired_track with
+	DesiredCircle (c, r, circle) ->
+	  if c <> en || r <> radius then begin
+	    circle#destroy ();
+	    create ()
+	  end
+      | DesiredSegment (p1,p2,s) ->
+	  s#destroy ();
+	  create ()
+      | NoDesired ->
+	  create ()
 
 (** draws the linear path to be followed by the aircraft between two waypoints *)
-    method draw_segment = fun en en2 ->
-      desired_track#destroy ();
-      desired_track <-  ((geomap#segment ~fill_color:"green" en en2) :> GnoCanvas.base_item)
+    method draw_segment = fun en1 en2 ->
+      let create = fun () ->
+	desired_track <- DesiredSegment (en1, en2, geomap#segment ~fill_color:"green" en1 en2) in
+      match desired_track with
+	DesiredCircle (c, r, circle) ->
+	  circle#destroy ();
+	  create ()
+      | DesiredSegment (p1,p2,s) ->
+	  if p1 <> en1 || p2 <> en2 then begin
+	    s#destroy ();
+	    create ()
+	  end
+      | NoDesired ->
+	  create ()
 
     method draw_zone = fun geo1 geo2 ->
-      zone#destroy ();
       let (x1, y1) = geomap#world_of geo1
       and (x2, y2) = geomap#world_of geo2 in
-      zone <- GnoCanvas.rect ~props:[`X1 x1; `Y1 y1; `X2 x2; `Y2 y2; `OUTLINE_COLOR "#ffc0c0"; `WIDTH_PIXELS 2] geomap#canvas#root
+      zone#set [`X1 x1; `Y1 y1; `X2 x2; `Y2 y2; `OUTLINE_COLOR "#ffc0c0"; `WIDTH_PIXELS 2]
 	  
 (** moves the rectangle representing the field covered by the camera *)
     method move_cam = fun wgs84 mission_target_wgs84 ->

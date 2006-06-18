@@ -37,6 +37,14 @@ let pvect (x1,y1) (x2,y2) = x1*.y2-.y1*.x2
 let angle (x1,y1) (x2,y2) (x3,y3) =
   pvect (x3-.x2, y3-.y2) (x1-.x2,y1-.y2)
 
+let rec list_iter3 = fun f l1 l2 l3 ->
+  match l1, l2, l3 with
+    [], [], [] -> ()
+  | x1::x1s, x2::x2s, x3::x3s ->
+      f x1 x2 x3;
+      list_iter3 f x1s x2s x3s
+  | _ -> invalid_arg "list_iter3"
+
 let rec n_first n = function
     [] -> []
   | x::xs -> if n > 0 then x::n_first (n-1) xs else []
@@ -869,7 +877,7 @@ module Live = struct
       fp#waypoints
 
 
-  let create_ac = fun (geomap:G.widget) (fp_notebook:GPack.notebook) ac_id config ->
+  let create_ac = fun (geomap:G.widget) (acs_notebook:GPack.notebook) ac_id config ->
     let color = Pprz.string_assoc "default_gui_color" config
     and name = Pprz.string_assoc "ac_name" config in
 
@@ -920,16 +928,29 @@ module Live = struct
     let params = ac_menu_fact#add_check_item "flight param. display" ~active:false in
     ignore (params#connect#toggled (fun () -> track#set_params_state params#active));
 
+    (** Build the XML flight plan, connect then "jump_to_block" *)
     let fp_xml = ExtXml.child fp_xml_dump "flight_plan" in
-
     let fp = load_mission ~edit:false color geomap fp_xml in
+    fp#connect_activated (fun node ->
+      if XmlEdit.tag node = "block" then
+	let block = XmlEdit.attrib node "name" in
+	let id = list_casso block blocks in
+	jump_to_block ac_id id);
+    ignore (reset_wp_menu#connect#activate (reset_waypoints fp));
 
+
+    (** Add a new tab in the A/Cs notebook, with a colored label *)
     let eb = GBin.event_box () in
     let label = GMisc.label ~text:name ~packing:eb#add () in
     eb#coerce#misc#modify_bg [`NORMAL, `NAME color;`ACTIVE, `NAME color];
 
-    let ac_frame = GBin.frame ~packing: ((fp_notebook:GPack.notebook)#append_page ~tab_label:eb#coerce)() in
+    (** Put a notebook for this A/C *)
+    let ac_frame = GBin.frame ~packing:(acs_notebook#append_page ~tab_label:eb#coerce) () in
     let ac_notebook = GPack.notebook ~packing: ac_frame#add () in
+    let visible = fun w ->
+      ac_notebook#page_num w#coerce = ac_notebook#current_page in      
+
+    (** Insert the flight plan tab *)
     let fp_label = GMisc.label ~text: "Flight Plan" () in
     (ac_notebook:GPack.notebook)#append_page ~tab_label:fp_label#coerce fp#window#coerce;
     
@@ -941,12 +962,13 @@ module Live = struct
     let gps_label = GMisc.label ~text: "GPS" () in
     let gps_frame = GBin.frame ~shadow_type: `NONE
 	~packing: (ac_notebook#append_page ~tab_label: gps_label#coerce) () in
-    let gps_page = new Pages.gps gps_frame in
-    
+    let gps_page = new Pages.gps ~visible gps_frame in
+
     let pfd_label = GMisc.label ~text: "PFD" () in
     let pfd_frame = GBin.frame ~shadow_type: `NONE
 	~packing: (ac_notebook#append_page ~tab_label: pfd_label#coerce) () in
-    let pfd_page = new Pages.pfd pfd_frame in
+    let pfd_page = new Pages.pfd pfd_frame
+    and pfd_page_num = ac_notebook#page_num pfd_frame#coerce in
 
     let misc_label = GMisc.label ~text: "Misc" () in
     let misc_frame = GBin.frame ~shadow_type: `NONE
@@ -959,25 +981,20 @@ module Live = struct
 	let callback = fun idx value -> 
 	  let vs = ["ac_id", Pprz.String ac_id; "index", Pprz.Int idx;"value", Pprz.Float value] in
 	  Ground_Pprz.message_send "dl" "DL_SETTING" vs in
-	let settings_tab = new Pages.settings xml_settings callback in
+	let settings_tab = new Pages.settings ~visible xml_settings callback in
 	let tab_label = (GMisc.label ~text:"Settings" ())#coerce in
 	ac_notebook#append_page ~tab_label settings_tab#widget;
 	Some settings_tab
       with
 	_ -> None in
     
-    fp#connect_activated (fun node ->
-      if XmlEdit.tag node = "block" then
-	let block = XmlEdit.attrib node "name" in
-	let id = list_casso block blocks in
-	jump_to_block ac_id id);
-    ignore (reset_wp_menu#connect#activate (reset_waypoints fp));
-
+    (** Add a strip and connect it to the A/C notebook *)
     let select_this_tab =
-      let n = fp_notebook#page_num ac_frame#coerce in
-      fun () -> fp_notebook#goto_page n in
-
+      let n = acs_notebook#page_num ac_frame#coerce in
+      fun () -> acs_notebook#goto_page n in
     let strip = Strip.add strip_table config color select_this_tab center_ac commit_moves in
+
+
     Hashtbl.add live_aircrafts ac_id { track = track; color = color; 
 				       fp_group = fp ; config = config ; 
 				       fp = fp_xml; ac_name = name;
@@ -1090,8 +1107,7 @@ module Live = struct
       let ac = get_ac vs in
       let pfd_page = ac.pfd_page in
 
-      pfd_page#set_roll (Pprz.float_assoc "roll" vs);
-      pfd_page#set_pitch (Pprz.float_assoc "pitch" vs);
+      pfd_page#set_attitude (Pprz.float_assoc "roll" vs) (Pprz.float_assoc "pitch" vs);
       pfd_page#set_alt (Pprz.float_assoc "alt" vs);
       pfd_page#set_climb (Pprz.float_assoc "climb" vs);
       pfd_page#set_speed (Pprz.float_assoc "speed" vs);
@@ -1151,8 +1167,7 @@ module Live = struct
     safe_bind "CAM_STATUS" get_cam_status;
 
     let get_circle_status = fun _sender vs ->
-      let ac_id = Pprz.string_assoc "ac_id" vs in
-      let ac = Hashtbl.find live_aircrafts ac_id in
+      let ac = get_ac vs in
       let a = fun s -> Pprz.float_assoc s vs in
       let wgs84 = { posn_lat = (Deg>>Rad)(a "circle_lat"); posn_long = (Deg>>Rad)(a "circle_long") } in
       circle_status_msg ac.track wgs84 (float_of_string (Pprz.string_assoc "radius" vs)) 
@@ -1204,20 +1219,18 @@ module Live = struct
 
   let listen_waypoint_moved = fun () ->
     let get_values = fun _sender vs ->
-      let ac_id = Pprz.string_assoc "ac_id" vs in
-      let ac = Hashtbl.find live_aircrafts ac_id in
-      (** Not_found catched by safe_bind *)
+      let ac = get_ac vs in
       let wp_id = Pprz.int_assoc "wp_id" vs in
       let a = fun s -> Pprz.float_assoc s vs in
       let geo = { posn_lat = (Deg>>Rad)(a "lat"); posn_long = (Deg>>Rad)(a "long") }
       and altitude = a "alt" in
 
-      (** No indexed access to waypoints: iter and compare: *)
+      (** FIXME: No indexed access to waypoints: iter and compare: *)
       List.iter (fun w ->
 	let (i, w) = ac.fp_group#index w in
 	if i = wp_id then begin
 	  w#set ~if_not_moved:true ~altitude ~update:true geo;
-	  raise Exit (** catched by  safe_bind *)
+	  raise Exit (** catched by safe_bind *)
 	end)
 	ac.fp_group#waypoints
     in
@@ -1258,16 +1271,14 @@ module Live = struct
     let ac_id = Pprz.string_assoc "ac_id" vs in
     let ac = Hashtbl.find live_aircrafts ac_id in
     let gps_page = ac.gps_page in
-    let svid = Array.of_list
-      (Str.split (Str.regexp ",") (Pprz.string_assoc "svid" vs)) in
-    let cno = Array.of_list
-      (Str.split (Str.regexp ",") (Pprz.string_assoc "cno" vs)) in
-     let flags = Array.of_list
-      (Str.split (Str.regexp ",") (Pprz.string_assoc "flags" vs)) in 
-
-      Array.iteri (fun i id ->
-	if id<>"0" then
-	  gps_page#svsinfo id cno.(i) (int_of_string flags.(i))) svid
+    let svid = Str.split list_separator (Pprz.string_assoc "svid" vs)
+    and cn0 = Str.split list_separator (Pprz.string_assoc "cno" vs)
+    and flags = Str.split list_separator (Pprz.string_assoc "flags" vs) in 
+    
+    list_iter3
+      (fun id cno flags ->
+	if id <> "0" then gps_page#svsinfo id cno (int_of_string flags))
+      svid cn0 flags
        
   let listen_svsinfo = fun () -> safe_bind "SVSINFO" get_svsinfo
 end (** module Live *)

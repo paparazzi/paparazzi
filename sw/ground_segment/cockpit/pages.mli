@@ -9,24 +9,26 @@ class infrared : GBin.frame ->
     method set_gps_hybrid_factor : float -> unit
     method set_gps_hybrid_mode : string -> unit
   end
-class gps : GBin.frame ->
+class gps : ?visible:(GBin.frame -> bool) -> GBin.frame ->
   object
     method svsinfo : string -> string -> int -> unit
   end
-class pfd : GBin.frame ->
+
+class pfd : ?visible:(GBin.frame -> bool) -> GBin.frame ->
   object
     method set_speed : float -> unit
     method set_alt : float -> unit
     method set_climb : float -> unit
-    method set_pitch : float -> unit
-    method set_roll : float -> unit
+    method set_attitude : float -> float -> unit
   end
-class settings : Xml.xml list -> (int -> float -> unit) ->
+
+class settings : ?visible:(GObj.widget -> bool) -> Xml.xml list -> (int -> float -> unit) ->
   object
     method length : int
     method set : int -> float -> unit
     method widget : GObj.widget
   end
+
 class misc :
   packing:(GObj.widget -> unit) ->
   GBin.frame ->
