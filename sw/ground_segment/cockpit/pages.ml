@@ -167,18 +167,38 @@ class settings = fun ?(visible = fun _ -> true) xml_settings callback ->
 	let lower = f "min"
 	and upper = f "max"
 	and step_incr = f "step" in
-	let value = (lower +. upper) /. 2. in
-	let text = ExtXml.attrib s "var" in
-	let adj = GData.adjustment ~value ~lower ~upper:(upper+.10.) ~step_incr () in
+
 	let hbox = GPack.hbox ~width:400 ~packing:vbox#add () in
+	let text = ExtXml.attrib s "var" in
 	let _l = GMisc.label ~width:100 ~text ~packing:hbox#pack () in
 	let _v = GMisc.label ~width:50 ~text:"N/A" ~packing:hbox#pack () in
-	let _scale = GRange.scale `HORIZONTAL ~digits:2 ~adjustment:adj ~packing:hbox#add () in
-	
-	let callback = fun _ -> callback i adj#value in
-	let b = GButton.button ~label:"Commit" ~stock:`APPLY ~packing:hbox#pack () in
-	ignore (b#connect#clicked ~callback);
-	
+	let commit = GButton.button ~label:"Commit" ~stock:`APPLY () in
+	(** For a small number of values, radio buttons *)
+	let n = truncate ((upper -. lower) /. step_incr) in
+	let callback =
+	  if step_incr = 1. && upper -. lower <= 2. then
+	    let ilower = truncate lower
+	    and iupper = truncate upper in
+	    let label = Printf.sprintf "%d" ilower in
+	    let first = GButton.radio_button ~label ~packing:hbox#add () in
+	    let value = ref lower in
+	    ignore (first#connect#clicked (fun () -> value := lower));
+	    let group = first#group in
+	    for j = ilower+1 to iupper do
+	      let label = Printf.sprintf "%d" j in
+	      let b = GButton.radio_button ~group ~label ~packing:hbox#add () in
+	      ignore (b#connect#clicked (fun () -> value := float j))
+	    done;
+	    (fun _ -> callback i !value)
+	  else (* slider *)
+	    let value = (lower +. upper) /. 2. in
+	    let adj = GData.adjustment ~value ~lower ~upper:(upper+.10.) ~step_incr () in
+	    let _scale = GRange.scale `HORIZONTAL ~digits:2 ~adjustment:adj ~packing:hbox#add () in
+	    
+	    (fun _ -> callback i adj#value)
+	in
+	hbox#pack commit#coerce;
+	ignore (commit#connect#clicked ~callback);
 	_v
       )
       (Array.of_list xml_settings) in
