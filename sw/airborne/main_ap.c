@@ -97,6 +97,8 @@ bool_t launch = FALSE;
 
 float energy; /** Fuel consumption */
 
+bool_t gps_lost = FALSE;
+
 
 #define LIGHT_MODE_OFF 0
 #define LIGHT_MODE_ON 1
@@ -278,7 +280,6 @@ static void navigation_task( void ) {
 #if defined FAILSAFE_DELAY_WITHOUT_GPS
   /** This section is used for the failsafe of GPS */
   static uint8_t last_pprz_mode;
-  static bool_t has_lost_gps = FALSE;
   /** Test if we lost the GPS */
   if (!GPS_FIX_VALID(gps_mode) ||
       (cpu_time - last_gps_msg_t > FAILSAFE_DELAY_WITHOUT_GPS)) {
@@ -289,13 +290,13 @@ static void navigation_task( void ) {
       last_pprz_mode = pprz_mode;
       pprz_mode = PPRZ_MODE_GPS_OUT_OF_ORDER;
       PERIODIC_SEND_PPRZ_MODE();
-      has_lost_gps = TRUE;
+      gps_lost = TRUE;
     }
   }
   /** If aircraft was in failsafe mode, come back in previous mode */
-  else if (has_lost_gps) {
+  else if (gps_lost) {
     pprz_mode = last_pprz_mode;
-    has_lost_gps = FALSE;
+    gps_lost = FALSE;
     PERIODIC_SEND_PPRZ_MODE();
   }
 #endif /* GPS && FAILSAFE_DELAY_WITHOUT_GPS */

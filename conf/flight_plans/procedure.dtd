@@ -1,11 +1,13 @@
 <!-- Paparazzi procedure DTD -->
 
-<!ELEMENT procedure (param*,waypoints,blocks)>
+<!ELEMENT procedure (param*,waypoints,exceptions?,blocks)>
 
 <!ELEMENT param EMPTY>
 
-<!ELEMENT waypoints (waypoint+)>
+<!ELEMENT waypoints (waypoint*)>
 <!ELEMENT waypoint EMPTY>
+
+<!ELEMENT exceptions (exception+)>
 
 <!ELEMENT blocks (block+)>
 <!ELEMENT block (exception|while|heading|go|xyz|circle|deroute|stay)*>
@@ -52,6 +54,7 @@ from_qdr CDATA #IMPLIED
 from_dist CDATA #IMPLIED
 hmode CDATA #IMPLIED
 vmode CDATA #IMPLIED
+pitch CDATA #IMPLIED
 alt CDATA #IMPLIED
 until CDATA #IMPLIED
 approaching_time CDATA #IMPLIED

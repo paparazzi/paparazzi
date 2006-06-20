@@ -1,4 +1,6 @@
-<flight_plan SECURITY_HEIGHT="25" alt="450" ground_alt="400" lat0="43.4624" lon0="1.2727" max_dist_from_home="500" name="Generic" qfu="270">
+<!DOCTYPE flight_plan SYSTEM "flight_plan.dtd">
+
+<flight_plan SECURITY_HEIGHT="25" alt="450" ground_alt="400" lat0="43.4624" lon0="1.2727" max_dist_from_home="1000" name="Generic" qfu="270">
   <dl_settings>
     <dl_setting VAR="ir_roll_neutral" MAX="0.3" STEP="0.01" MIN="-0.3"/>
     <dl_setting VAR="ir_pitch_neutral" MAX="0.3" STEP="0.01" MIN="-0.3"/>
@@ -18,6 +20,7 @@
     <dl_setting MAX="2" MIN="0" STEP="1" VAR="pprz_mode"/>
     <dl_setting MAX="2" MIN="0" STEP="1" VAR="light_mode"/>
   </dl_settings>
+
   <waypoints>
     <waypoint NAME="HOME" X="0" Y="0"/>
     <waypoint NAME="1" X="200" Y="0"/>
@@ -25,6 +28,17 @@
     <waypoint alt="450." name="S1" x="-181.37499716" y="122.374998203"/>
     <waypoint alt="450." name="S2" x="136.75000196" y="308.874998301"/>
   </waypoints>
+
+  <include name="fs" procedure="failsafe_modes.xml">
+    <arg name="kill_pitch" value="-0.5"/>
+  </include>
+
+  <exceptions>
+    <exception cond="And(block_time>20, dist2_to_home > 500*500)" deroute="home"/>
+    <exception cond="And(block_time>20, dist2_to_home > 600*600)" deroute="kill"/>
+    <exception cond="And(launch, gps_lost)" deroute="kill"/>
+  </exceptions>
+
   <blocks>
     <block NAME="wait GPS">
       <while COND="!GPS_FIX_VALID(gps_mode)"/>
@@ -47,5 +61,14 @@
     <block NAME="survey">
       <survey_rectangle grid="70" wp1="S1" wp2="S2"/>
     </block>
+
+    <block name="home">
+      <circle wp="HOME" radius="50"/>
+    </block>
+
+    <block name="kill">
+      <go wp="HOME" vmode="gaz" gaz="0" pitch="-0.5"/>
+    </block>
+
   </blocks>
 </flight_plan>

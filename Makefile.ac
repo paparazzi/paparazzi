@@ -70,7 +70,7 @@ $(CONTROL_C) : $(CONF)/$(AIRFRAME) $(CONF_XML)
 	$(Q)$(TOOLS)/gen_control.out c $< > /tmp/control.c
 	$(Q)mv /tmp/control.c $@
 
-$(FLIGHT_PLAN_H) : $(CONF)/$(FLIGHT_PLAN) $(CONF_XML)
+$(FLIGHT_PLAN_H) : $(CONF)/$(FLIGHT_PLAN) $(CONF_XML) $(TOOLS)/gen_flight_plan.out
 	@echo BUILD $@
 	$(Q)$(TOOLS)/gen_flight_plan.out $< > /tmp/fp.h
 	$(Q)mv /tmp/fp.h $@

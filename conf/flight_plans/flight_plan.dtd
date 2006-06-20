@@ -15,7 +15,7 @@
 <!ELEMENT exceptions (exception*)>
 
 <!ELEMENT blocks (block+)>
-<!ELEMENT block (exception|while|heading|attitude|go|xyz|set|circle|deroute|stay|follow)*>
+<!ELEMENT block (exception|while|heading|attitude|go|xyz|set|circle|deroute|stay|follow|survey_rectangle)*>
 
 <!ELEMENT include (arg|with)*>
 <!ELEMENT arg EMPTY>
@@ -29,6 +29,7 @@
 <!ELEMENT xyz EMPTY>
 <!ELEMENT set EMPTY>
 <!ELEMENT circle EMPTY>
+<!ELEMENT survey_rectangle EMPTY>
 <!ELEMENT deroute EMPTY>
 <!ELEMENT stay EMPTY>
 <!ELEMENT follow EMPTY>
@@ -149,6 +150,12 @@ target CDATA #IMPLIED
 cam_ac_target CDATA #IMPLIED
 climb CDATA #IMPLIED
 until CDATA #IMPLIED>
+
+<!ATTLIST survey_rectangle
+grid CDATA #REQUIRED
+wp1 CDATA #REQUIRED
+wp2 CDATA #REQUIRED>
+
 
 <!ATTLIST stay
 wp CDATA #REQUIRED

@@ -28,6 +28,11 @@ module G2D = Geometry_2d
 
 open Fp_syntax
 
+let rec list_split3 = function
+    [] -> ([], [], [])
+  | (x,y,z)::l ->
+      let (rx, ry, rz) = list_split3 l in (x::rx, y::ry, z::rz)
+
 let nop_stage = Xml.Element ("while", ["cond","FALSE"],[])
 
 
@@ -211,10 +216,11 @@ let parse_include = fun dir include_xml ->
   let f = Filename.concat dir (ExtXml.attrib include_xml "procedure") in
   let proc_name = ExtXml.attrib include_xml "name" in
   let prefix = fun x -> proc_name ^ "." ^ x in
+  let a = fun a b -> float_of_string (ExtXml.attrib_or_default include_xml a b) in
   let affine = { 
-    dx = ExtXml.float_attrib  include_xml "x";
-    dy = ExtXml.float_attrib  include_xml "y";
-    angle = ExtXml.float_attrib  include_xml "rotate"
+    dx = a "x" "0";
+    dy = a "y" "0";
+    angle = a "rotate" "0"
   } in
   let reroutes = 
     List.filter 
@@ -249,11 +255,12 @@ let parse_include = fun dir include_xml ->
     let env =  List.map (fun xml -> value xml env) params in
 
     let waypoints = Xml.children (ExtXml.child proc "waypoints")
+    and exceptions = Xml.children (ExtXml.child proc "exceptions")
     and blocks = Xml.children (ExtXml.child proc "blocks") in
 
     let waypoints = List.map (transform_waypoint prefix affine) waypoints in
     let blocks = List.map (transform_block prefix reroutes affine env) blocks in
-    (waypoints, blocks)
+    (waypoints, exceptions, blocks)
   with
     Dtd.Prove_error e -> dtd_error f (Dtd.prove_error e)
   | Dtd.Check_error e -> dtd_error f (Dtd.check_error e)
@@ -289,15 +296,18 @@ let process_includes = fun dir xml ->
   let includes, children =
    List.partition (fun x -> Xml.tag x = "include") (Xml.children xml) in
 
-  (* List of pairs of list (waypoints, blocks) *)
+  (* List of triples of lists (waypoints, exceptions, blocks) *)
   let waypoints_and_blocks = List.map (parse_include dir) includes in
 
-  let (inc_waypoints, inc_blocks) = List.split waypoints_and_blocks in
+  let (inc_waypoints, inc_exceptions, inc_blocks) = list_split3 waypoints_and_blocks in
   let inc_waypoints = List.flatten inc_waypoints
+  and inc_exceptions = List.flatten inc_exceptions
   and inc_blocks = List.flatten inc_blocks in
 
   let new_children = insert_children children
-      ["waypoints", inc_waypoints; "blocks", inc_blocks] in
+      ["waypoints", inc_waypoints; 
+       "exceptions", inc_exceptions; 
+       "blocks", inc_blocks] in
 
   Xml.Element (Xml.tag xml, Xml.attribs xml, new_children)
 
