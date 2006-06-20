@@ -1347,7 +1347,7 @@ let _main =
   and center = ref ""
   and zoom = ref 1.
   and maximize = ref false
-  and projection= ref G.UTM
+  and projection = ref G.Mercator
   and auto_ortho = ref false
   and mplayer = ref ""
   and plugin_window = ref "" in
@@ -1360,7 +1360,8 @@ let _main =
       "-center_ac", Arg.Set auto_center_new_ac, "Centers the map on any new A/C";
       "-plugin", Arg.Set_string  plugin_window, "External X application (launched the id of the plugin window as argument)";
       "-mplayer", Arg.Set_string mplayer, "Launch mplayer with the given argument as X plugin";
-      "-mercator", Arg.Unit (fun () -> projection:=G.Mercator),"Switch to (Google Maps) Mercator projection";
+      "-utm", Arg.Unit (fun () -> projection:=G.Mercator),"Switch to UTM local projection";
+      "-mercator", Arg.Unit (fun () -> projection:=G.Mercator),"Switch to (Google Maps) Mercator projection, default";
       "-lambertIIe", Arg.Unit (fun () -> projection:=G.LambertIIe),"Switch to LambertIIe projection";
       "-ign", Arg.String (fun s -> ign:=true; IGN.data_path := s), "IGN tiles path";
       "-ortho", Arg.Set_string get_bdortho, "IGN tiles path";
