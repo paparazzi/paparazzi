@@ -33,12 +33,6 @@
     <arg name="kill_pitch" value="-0.5"/>
   </include>
 
-  <exceptions>
-    <exception cond="And(block_time>20, dist2_to_home > 500*500)" deroute="home"/>
-    <exception cond="And(block_time>20, dist2_to_home > 600*600)" deroute="kill"/>
-    <exception cond="And(launch, gps_lost)" deroute="kill"/>
-  </exceptions>
-
   <blocks>
     <block NAME="wait GPS">
       <while COND="!GPS_FIX_VALID(gps_mode)"/>
@@ -61,14 +55,5 @@
     <block NAME="survey">
       <survey_rectangle grid="70" wp1="S1" wp2="S2"/>
     </block>
-
-    <block name="home">
-      <circle wp="HOME" radius="50"/>
-    </block>
-
-    <block name="kill">
-      <go wp="HOME" vmode="gaz" gaz="0" pitch="-0.5"/>
-    </block>
-
   </blocks>
 </flight_plan>

@@ -114,6 +114,7 @@ let transform_values = fun attribs_not_modified affine env attribs ->
       (a, v'))
     attribs
 
+
 let transform_waypoint = fun prefix affine xml ->
   let x = ExtXml.float_attrib xml "x"
   and y = ExtXml.float_attrib xml "y" in
@@ -145,6 +146,17 @@ let prefix_or_deroute = fun prefix reroutes name attribs ->
       (a, v'))
     attribs
 
+let transform_exception = fun prefix reroutes affine env xml  ->
+  match xml with
+    Xml.Element (tag, attribs, children) ->
+      assert (children=[]);
+      let attribs = prefix_or_deroute prefix reroutes "deroute" attribs in
+      let attribs = transform_values [] affine env attribs in
+      Xml.Element (tag, attribs, children)
+  | _ -> failwith "transform_exception"
+  
+
+
 let transform_attribs = fun affine attribs ->
   List.map
     (fun (a, v) ->
@@ -162,10 +174,7 @@ let transform_stage = fun prefix reroutes affine env xml ->
       Xml.Element (tag, attribs, children) -> begin
 	match tag with
 	  "exception" ->
-	    assert (children=[]);
-	    let attribs = prefix_or_deroute prefix reroutes "deroute" attribs in
-	    let attribs = transform_values [] affine env attribs in
-	    Xml.Element (tag, attribs, children)
+	    transform_exception prefix reroutes affine env xml
 	| "while" ->
 	    let attribs = transform_values [] affine env attribs in
 	  Xml.Element (tag, attribs, List.map tr children)
@@ -258,8 +267,9 @@ let parse_include = fun dir include_xml ->
     and exceptions = Xml.children (ExtXml.child proc "exceptions")
     and blocks = Xml.children (ExtXml.child proc "blocks") in
 
-    let waypoints = List.map (transform_waypoint prefix affine) waypoints in
-    let blocks = List.map (transform_block prefix reroutes affine env) blocks in
+    let waypoints = List.map (transform_waypoint prefix affine) waypoints
+    and exceptions = List.map (transform_exception prefix reroutes affine env) exceptions
+    and blocks = List.map (transform_block prefix reroutes affine env) blocks in
     (waypoints, exceptions, blocks)
   with
     Dtd.Prove_error e -> dtd_error f (Dtd.prove_error e)
@@ -303,6 +313,9 @@ let process_includes = fun dir xml ->
   let inc_waypoints = List.flatten inc_waypoints
   and inc_exceptions = List.flatten inc_exceptions
   and inc_blocks = List.flatten inc_blocks in
+
+  (* FIXME (exceptions seciton is not mandatory) *)
+  let children = children @ [Xml.Element ("exceptions",[],[])] in
 
   let new_children = insert_children children
       ["waypoints", inc_waypoints; 

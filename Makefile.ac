@@ -75,7 +75,7 @@ $(FLIGHT_PLAN_H) : $(CONF)/$(FLIGHT_PLAN) $(CONF_XML) $(TOOLS)/gen_flight_plan.o
 	$(Q)$(TOOLS)/gen_flight_plan.out $< > /tmp/fp.h
 	$(Q)mv /tmp/fp.h $@
 
-$(FLIGHT_PLAN_XML) : $(CONF)/$(FLIGHT_PLAN) $(CONF_XML)
+$(FLIGHT_PLAN_XML) : $(CONF)/$(FLIGHT_PLAN) $(CONF_XML) $(TOOLS)/gen_flight_plan.out
 	@echo BUILD $@
 	$(Q)$(TOOLS)/gen_flight_plan.out -dump $< > /tmp/fp.xml
 	$(Q)mv /tmp/fp.xml $@
