@@ -35,8 +35,7 @@ OBJS =	crt.o startup.o printf.o console.o bootloader.o
 
 LIBOBJS =	usbhw_lpc.o usbcontrol.o usbstdreq.o usbinit.o usbdescrip.o
 
-all: lib app
-# app_ram
+all: lib app app_ram
 
 clean:
 	$(RM) -f $(LIBNAME).a $(LIBOBJS)
