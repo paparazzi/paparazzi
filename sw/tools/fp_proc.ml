@@ -264,7 +264,7 @@ let parse_include = fun dir include_xml ->
     let env =  List.map (fun xml -> value xml env) params in
 
     let waypoints = Xml.children (ExtXml.child proc "waypoints")
-    and exceptions = Xml.children (ExtXml.child proc "exceptions")
+    and exceptions = try Xml.children (ExtXml.child proc "exceptions") with Not_found -> []
     and blocks = Xml.children (ExtXml.child proc "blocks") in
 
     let waypoints = List.map (transform_waypoint prefix affine) waypoints
