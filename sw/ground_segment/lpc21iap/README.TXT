@@ -1,3 +1,20 @@
+simple answer
+=============
+
+[preliminary]
+
+re-make your aircraft, use $PAPARAZZI_SRC/sw/airborne/arm7/LPC2138-ROM-bl.ld instead of LPC2138-ROM.ld (rename it)
+
+apt-get install libusb
+cp $PAPARAZZI_SRC/conf/system/udev/rules/10-paparazzi.rules /etc/udev/rules.d/
+cd $PAPARAZZI_SRC/sw/airborne/arm7/test/bootloader/
+make
+lpc21isp -control bl.hex /dev/ttyS0 38400 12000
+cd $PAPARAZZI_SRC/sw/ground_segment/lpc21iap/
+make
+./lpc21iap $PAPARAZZI_SRC/var/(your aircraft)/ap/ap.elf
+./lpc21iap $PAPARAZZI_SRC/var/(your aircraft)/fbw/fbw.elf
+
 lpc21iap
 ========
 
