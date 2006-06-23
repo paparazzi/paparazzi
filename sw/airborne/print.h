@@ -55,6 +55,10 @@
 #define Uart0PrintHex16(c) _PrintHex16(uart0_transmit, c)
 #define Uart0PrintString(s) _PrintString(uart0_transmit, s)
 
+#define Uart1PrintHex(c) _PrintHex(uart1_transmit, c)
+#define Uart1PrintHex16(c) _PrintHex16(uart1_transmit, c)
+#define Uart1PrintString(s) _PrintString(uart1_transmit, s)
+
 
 #endif /* PRINT_H */
 

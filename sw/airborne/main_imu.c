@@ -13,8 +13,6 @@
 
 #include "airframe.h"
 
-
-
 static inline void imu_init( void );
 static inline void imu_periodic_task( void );
 static inline void imu_event_task( void);
@@ -35,6 +33,8 @@ struct adc_buf buf_bat;
 #define SPI_SLAVE_MAX 2
 
 uint8_t spi_cur_slave = SPI_SLAVE_NONE;
+#define AHRS_NB_STATE 3
+uint8_t ahrs_state = 0;
 
 int main( void ) {
   imu_init();
@@ -50,6 +50,7 @@ static inline void imu_init( void ) {
   hw_init();
   sys_time_init();
   uart0_init_tx();
+  uart1_init_tx();
   adc_init();
   adc_buf_channel(ADC_CHANNEL_AX, &buf_ax, DEFAULT_AV_NB_SAMPLE);
   adc_buf_channel(ADC_CHANNEL_AY, &buf_ay, DEFAULT_AV_NB_SAMPLE);
@@ -65,8 +66,9 @@ static inline void imu_event_task( void ) {
 
   if (micromag_data_available) {
     micromag_data_available = FALSE;
-    spi_cur_slave = SPI_SLAVE_MAX;
-    max1167_read();
+    spi_cur_slave = SPI_SLAVE_NONE;
+    //    spi_cur_slave = SPI_SLAVE_MAX;
+    //    max1167_read();
 
     Uart0PrintString("MAG ");
     Uart0PrintHex16(micromag_values[0]);
@@ -81,48 +83,63 @@ static inline void imu_event_task( void ) {
     max1167_data_available = FALSE;
     spi_cur_slave = SPI_SLAVE_NONE;
 
-    Uart0PrintString("GYRO ");
-    Uart0PrintHex16(max1167_values[0]);
-    uart0_transmit(' ');
-    Uart0PrintHex16(max1167_values[1]);
-    uart0_transmit(' ');
-    Uart0PrintHex16(max1167_values[2]);
-    uart0_transmit('\n');
+    //    if (ahrs_state == 0) {
+      Uart1PrintString("GYRO ");
+      Uart1PrintHex16(max1167_values[0]);
+      uart1_transmit(' ');
+      Uart1PrintHex16(max1167_values[1]);
+      uart1_transmit(' ');
+      Uart1PrintHex16(max1167_values[2]);
+      uart1_transmit('\n');
+      //    }
+    imu_print_accel_and_bat();
+    
   }
 }
 
 static inline void imu_periodic_task( void ) {
   static uint8_t foo = 0;
   foo++;
-  if (!(foo % 10)) {
-    if (spi_cur_slave == SPI_SLAVE_NONE) {
-      spi_cur_slave = SPI_SLAVE_MAG;
-      micromag_read();
+  if (!(foo % 4)) {
+    ahrs_state++;
+    if (ahrs_state == AHRS_NB_STATE)
+      ahrs_state = 0;
+    switch (ahrs_state) {
+    case 0:
+      spi_cur_slave = SPI_SLAVE_MAX;
+      max1167_read();
+      break;
+    case 1:
+      spi_cur_slave = SPI_SLAVE_MAX;
+      max1167_read();
+      break;
+    case 2:
+      spi_cur_slave = SPI_SLAVE_MAX;
+      max1167_read();
+      //      imu_print_accel_and_bat();
+      break;
     }
-    else {
-      Uart0PrintString("OVERRUN\n");
-    }
-    imu_print_accel_and_bat();
   }
 }
 
 static void imu_print_accel_and_bat ( void ) {
-  Uart0PrintString("ACCEL ");
+  Uart1PrintString("ACCEL ");
   uint16_t val = buf_ax.sum / DEFAULT_AV_NB_SAMPLE;
-  Uart0PrintHex16(val);
-  uart0_transmit(' ');
+  Uart1PrintHex16(val);
+  uart1_transmit(' ');
   val = buf_ay.sum / DEFAULT_AV_NB_SAMPLE;
-  Uart0PrintHex16(val);
-  uart0_transmit(' ');
+  Uart1PrintHex16(val);
+  uart1_transmit(' ');
   val = buf_az.sum / DEFAULT_AV_NB_SAMPLE;
-  Uart0PrintHex16(val);
-  uart0_transmit('\n');
+  Uart1PrintHex16(val);
+  uart1_transmit('\n');
   
-  Uart0PrintString("BAT ");
-  val = buf_bat.sum / DEFAULT_AV_NB_SAMPLE;
-  Uart0PrintHex16(val);
-  uart0_transmit('\n');
-
+  if (ahrs_state == 0) {
+    Uart1PrintString("BAT ");
+    val = buf_bat.sum / DEFAULT_AV_NB_SAMPLE;
+    Uart1PrintHex16(val);
+    uart1_transmit('\n');
+  }
 }
 
 
