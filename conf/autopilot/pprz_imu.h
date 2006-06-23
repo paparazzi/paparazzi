@@ -13,8 +13,8 @@
 /* Peripheral bus clock freq.    */
 #define PCLK (CCLK / PBSD_VAL) 
 
-#define ADC_CHANNEL_AX  1
-#define ADC_CHANNEL_AY  2
+#define ADC_CHANNEL_AX  2
+#define ADC_CHANNEL_AY  1
 #define ADC_CHANNEL_AZ  3
 #define ADC_CHANNEL_BAT 4
 
