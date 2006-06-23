@@ -170,9 +170,9 @@ static float qdr;
     vertical_mode = VERTICAL_MODE_AUTO_ALT; \
     int16_t roll =  fbw_state->channels[RADIO_ROLL]; \
     if (roll > MIN_DX || roll < -MIN_DX) { \
-      desired_altitude += FLOAT_OF_PPRZ(roll, 0, -1.0);	\
-      desired_altitude = Max(desired_altitude, MIN_HEIGHT_CARROT+ground_alt); \
-      desired_altitude = Min(desired_altitude, MAX_HEIGHT_CARROT+ground_alt); \
+      nav_altitude += FLOAT_OF_PPRZ(roll, 0, -1.0);	\
+      nav_altitude = Max(nav_altitude, MIN_HEIGHT_CARROT+ground_alt); \
+      nav_altitude = Min(nav_altitude, MAX_HEIGHT_CARROT+ground_alt); \
     } \
   } \
   CircleXY(carrot_x, carrot_y, radius); \
@@ -189,7 +189,7 @@ static float qdr;
 #define Follow(_ac_id, _distance, _height) { \
   struct ac_info_ * ac = get_ac_info(_ac_id); \
   vertical_mode = VERTICAL_MODE_AUTO_ALT; \
-  desired_altitude = Max(ac->alt + _height, SECURITY_ALT); \
+  nav_altitude = Max(ac->alt + _height, SECURITY_ALT); \
   float alpha = M_PI/2 - ac->course; \
   fly_to_xy(ac->east - _distance*cos(alpha), ac->north - _distance*sin(alpha)); \
 }
@@ -273,7 +273,7 @@ static float survey_radius __attribute__ ((unused));
     } \
   } \
   vertical_mode = VERTICAL_MODE_AUTO_ALT; \
-  desired_altitude = waypoints[wp1].a; \
+  nav_altitude = waypoints[wp1].a; \
 }
 
 
@@ -312,6 +312,7 @@ static unit_ reset_nav_reference( void ) __attribute__ ((unused));
 
 static unit_ reset_waypoints( void ) __attribute__ ((unused));
 
+extern float nav_altitude;
 
 #include "flight_plan.h"
 
@@ -344,7 +345,8 @@ int32_t nav_utm_east0 = NAV_UTM_EAST0;
 int32_t nav_utm_north0 = NAV_UTM_NORTH0;
 uint8_t nav_utm_zone0 = NAV_UTM_ZONE0;
 
-float desired_altitude = GROUND_ALT + MIN_HEIGHT_CARROT;
+float nav_altitude = GROUND_ALT + MIN_HEIGHT_CARROT;
+float desired_altitude, altitude_shift = 0;
 float desired_x, desired_y;
 uint16_t nav_desired_gaz;
 float nav_pitch = NAV_PITCH;
@@ -434,11 +436,11 @@ static void route_to(uint8_t _last_wp, uint8_t wp) {
 
 
 /** static void glide_to(uint8_t _last_wp, uint8_t wp)
- *  \brief Computes \a desired_altitude and \a pre_climb to stay on a glide.
+ *  \brief Computes \a nav_altitude and \a pre_climb to stay on a glide.
  */
 static void glide_to(uint8_t _last_wp, uint8_t wp) {
   float last_alt = waypoints[_last_wp].a;
-  desired_altitude = last_alt + alpha * (waypoints[wp].a - last_alt);
+  nav_altitude = last_alt + alpha * (waypoints[wp].a - last_alt);
   pre_climb = NOMINAL_AIRSPEED * (waypoints[wp].a - last_alt) / leg;
 }
 
@@ -467,7 +469,7 @@ void nav_home(void) {
   /** Nominal speed */ 
   nav_pitch = 0.;
   vertical_mode = VERTICAL_MODE_AUTO_ALT;
-  desired_altitude = ground_alt+50;
+  nav_altitude = ground_alt+50;
   compute_dist2_to_home();
   dist2_to_wp = dist2_to_home;
 }
@@ -620,6 +622,7 @@ float altitude_pgain = ALTITUDE_PGAIN;
 
 
 void altitude_pid_run(void) {
+  desired_altitude = nav_altitude + altitude_shift;
   altitude_error = estimator_z - desired_altitude;
   
 #ifdef AGR_CLIMB_GAZ

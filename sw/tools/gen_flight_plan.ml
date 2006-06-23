@@ -183,7 +183,7 @@ let output_vmode x wp last_wp =
 	    if wp = "" 
 	    then failwith "alt or waypoint required in alt vmode" 
 	    else sprintf "waypoints[%s].a" wp in
-	lprintf "desired_altitude = %s;\n" alt;
+	lprintf "nav_altitude = %s;\n" alt;
 	lprintf "pre_climb = 0.;\n"
     | "xyz" -> () (** Handled in Goto3D() *)
     | "glide" ->

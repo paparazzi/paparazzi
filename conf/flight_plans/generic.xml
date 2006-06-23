@@ -13,6 +13,7 @@
     <dl_setting VAR="nav_speed_depend" MIN="0." STEP="1" MAX="1."/>
     <dl_setting VAR="z_constrast_mode" MIN="0." STEP="1" MAX="1."/>
     <dl_setting VAR="rate_mode" MIN="0." STEP="1" MAX="1."/>
+    <dl_setting VAR="altitude_shift" MIN="-50" STEP="10" MAX="1000"/>
 <!--
     <dl_setting VAR="roll_rate_pgain" MIN="0." STEP="1.0" MAX="2000."/>
     <dl_setting VAR="attitude_pgain" MAX="100" STEP="1" MIN="10"/>
