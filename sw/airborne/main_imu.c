@@ -17,7 +17,8 @@ static inline void imu_init( void );
 static inline void imu_periodic_task( void );
 static inline void imu_event_task( void);
 
-static void imu_print_accel_and_bat ( void );
+static void imu_print_accel ( void );
+static void imu_print_bat ( void );
 static void imu_init_spi1( void );
 
 static void SPI1_ISR(void) __attribute__((naked));
@@ -67,33 +68,34 @@ static inline void imu_event_task( void ) {
   if (micromag_data_available) {
     micromag_data_available = FALSE;
     spi_cur_slave = SPI_SLAVE_NONE;
-    //    spi_cur_slave = SPI_SLAVE_MAX;
-    //    max1167_read();
 
-    Uart0PrintString("MAG ");
-    Uart0PrintHex16(micromag_values[0]);
-    uart0_transmit(' ');
-    Uart0PrintHex16(micromag_values[1]);
-    uart0_transmit(' ');
-    Uart0PrintHex16(micromag_values[2]);
-    uart0_transmit('\n');
+    Uart1PrintString("MAG ");
+    Uart1PrintHex16(micromag_values[0]);
+    uart1_transmit(' ');
+    Uart1PrintHex16(micromag_values[1]);
+    uart1_transmit(' ');
+    Uart1PrintHex16(micromag_values[2]);
+    uart1_transmit('\n');
   }
 
   if (max1167_data_available) {
     max1167_data_available = FALSE;
     spi_cur_slave = SPI_SLAVE_NONE;
 
-    //    if (ahrs_state == 0) {
-      Uart1PrintString("GYRO ");
-      Uart1PrintHex16(max1167_values[0]);
-      uart1_transmit(' ');
-      Uart1PrintHex16(max1167_values[1]);
-      uart1_transmit(' ');
-      Uart1PrintHex16(max1167_values[2]);
-      uart1_transmit('\n');
-      //    }
-    imu_print_accel_and_bat();
+    Uart1PrintString("GYRO ");
+    Uart1PrintHex16(max1167_values[0]);
+    uart1_transmit(' ');
+    Uart1PrintHex16(max1167_values[1]);
+    uart1_transmit(' ');
+    Uart1PrintHex16(max1167_values[2]);
+    uart1_transmit('\n');
+
+    imu_print_accel();
     
+    if (ahrs_state == 2) {
+      spi_cur_slave = SPI_SLAVE_MAG;
+      micromag_read();
+    }
   }
 }
 
@@ -108,6 +110,7 @@ static inline void imu_periodic_task( void ) {
     case 0:
       spi_cur_slave = SPI_SLAVE_MAX;
       max1167_read();
+      imu_print_bat();
       break;
     case 1:
       spi_cur_slave = SPI_SLAVE_MAX;
@@ -116,13 +119,12 @@ static inline void imu_periodic_task( void ) {
     case 2:
       spi_cur_slave = SPI_SLAVE_MAX;
       max1167_read();
-      //      imu_print_accel_and_bat();
       break;
     }
   }
 }
 
-static void imu_print_accel_and_bat ( void ) {
+static void imu_print_accel ( void ) {
   Uart1PrintString("ACCEL ");
   uint16_t val = buf_ax.sum / DEFAULT_AV_NB_SAMPLE;
   Uart1PrintHex16(val);
@@ -133,13 +135,13 @@ static void imu_print_accel_and_bat ( void ) {
   val = buf_az.sum / DEFAULT_AV_NB_SAMPLE;
   Uart1PrintHex16(val);
   uart1_transmit('\n');
-  
-  if (ahrs_state == 0) {
-    Uart1PrintString("BAT ");
-    val = buf_bat.sum / DEFAULT_AV_NB_SAMPLE;
-    Uart1PrintHex16(val);
-    uart1_transmit('\n');
-  }
+}
+
+static void imu_print_bat ( void ) {
+  Uart1PrintString("BAT ");
+   uint16_t val = buf_bat.sum / DEFAULT_AV_NB_SAMPLE;
+  Uart1PrintHex16(val);
+  uart1_transmit('\n');
 }
 
 
