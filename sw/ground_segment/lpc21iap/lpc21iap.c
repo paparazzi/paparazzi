@@ -274,7 +274,7 @@ int main(int argc, char *argv[])
 
     if(!found)
     {
-        perror("no USB device" );
+        printf("\nno USB device\n");
         exit(1);
     }
 
@@ -426,7 +426,7 @@ int main(int argc, char *argv[])
                         elfCnt = destDat;
                     }
                     /* more than one block, last block, not filled completely? */
-                    else  if ((countPgd == endPgd) && (end != endPgd))
+                    else  if ((countPgd+MAX_SECT == endPgd) && (end != endPgd))
                     {
                         /* number of bytes in the last sector */
                         endDat  = end  % MAX_SECT;
@@ -468,7 +468,7 @@ int main(int argc, char *argv[])
 
                         dat[5] = (unsigned long) -crc;
 
-                        printf("Changing vector table\n");
+                        printf("changing vector table");
                     }
 
                     if (!writeRAM(udev, ramAddr, MAX_SECT)) exit(1);
