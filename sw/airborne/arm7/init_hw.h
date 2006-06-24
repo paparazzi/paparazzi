@@ -74,15 +74,15 @@ static inline void hw_init(void) {
   VPBDIV = VPBDIV_VALUE;
  
   /* set the interrupt controller defaults  */
-#if defined(RAM_RUN)
+  //#if defined(RAM_RUN)
   /* map interrupt vectors space into SRAM  */
-  MEMMAP = MEMMAP_SRAM;
-#elif defined(ROM_RUN)
+  //  MEMMAP = MEMMAP_SRAM;
+  //#elif defined(ROM_RUN)
   /* map interrupt vectors space into FLASH */
   MEMMAP = MEMMAP_FLASH;
-#else
-#error RUN_MODE not defined!
-#endif
+  //#else
+  //#error RUN_MODE not defined!
+  //#endif
 
   /* clear all interrupts     */
   VICIntEnClear = 0xFFFFFFFF;
