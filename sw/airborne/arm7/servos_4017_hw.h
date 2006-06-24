@@ -42,6 +42,7 @@ extern uint8_t servos_4017_idx;
       /* Start a long 1ms reset, keep clock low */		\
       T0MR1 += SERVOS_4017_RESET_WIDTH;				\
       servos_4017_idx++;					\
+      T0EMR &= ~TEMR_EM1;					\
     }								\
     else if (servos_4017_idx > _4017_NB_CHANNELS) {		\
       /* Clear the reset*/					\
@@ -53,10 +54,13 @@ extern uint8_t servos_4017_idx;
       servos_4017_idx=0; /** Starts a new sequence next time */	\
     }								\
     else {							\
-      /* request clock low on next match */			\
+      /* request next match */					\
       T0MR1 += servos_values[servos_4017_idx];			\
-      /* raise clock pin */					\
-      T0EMR |= TEMR_EM1;					\
+      /* clock low if not last one, last is done with reset */	\
+      if (servos_4017_idx != _4017_NB_CHANNELS-1) {		\
+        /* raise clock pin */					\
+        T0EMR |= TEMR_EM1;					\
+      }								\
       servos_4017_idx++;					\
     }								\
   }
