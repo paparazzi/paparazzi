@@ -150,6 +150,25 @@ ac_h : tools static_h
 hard_ac: ac_h fbw ap
 ac: hard_ac
 
+
+##### preliminary hard wired arm7 bootloader rules
+#
+#
+# call with : make bl PROC=[TINY|FBW|AP|GENERIC]
+bl:
+	cd $(AIRBORNE)/arm7/test/bootloader; make 
+
+upload_bl: bl
+	lpc21isp -control $(AIRBORNE)/arm7/test/bootloader/bl.hex /dev/ttyS0 38400 12000
+
+lpc21iap:
+	cd sw/ground_segment/lpc21iap; make
+
+
+
+#####
+#####
+
 doxygen:
 	mkdir -p dox
 	doxygen Doxyfile
