@@ -51,6 +51,7 @@ THUMB_IW = -mthumb-interwork
 # Output format. (can be srec, ihex, binary)
 FORMAT = ihex
 
+FLASH_MODE=ISP
 
 $(TARGET).srcsnd = $(notdir $($(TARGET).srcs))
 SRCARM = $($(TARGET).srcsnd)
@@ -95,7 +96,11 @@ LDFLAGS += $(NEWLIBLPC) $(MATH_LIB)
 LDFLAGS += -lc -lgcc 
 LDFLAGS += $(CPLUSPLUS_LIB)
 
+ifeq ($(FLASH_MODE),ISP)
 LDSCRIPT = $(SRC_ARCH)/LPC2148-ROM.ld
+else
+LDSCRIPT = $(SRC_ARCH)/LPC2148-ROM-bl.ld
+endif
 LDFLAGS +=-T$(LDSCRIPT)
 #endif
 
@@ -114,6 +119,13 @@ LPC21ISP_FLASHFILE = $(OBJDIR)/$(TARGET).hex
 # feature - see Philips AppNote):
 LPC21ISP_CONTROL =
 # -control
+
+# ---------------------------------------------------------------------------
+# Flash-Programming support using lpc21iap by Martin Muller  (usb bootloader) 
+
+LPC21IAP = $(PAPARAZZI_SRC)/sw/ground_segment/lpc21iap/lpc21iap
+
+
 
 
 # Define all object files.
@@ -157,8 +169,12 @@ sizeafter:
 
 # Program the device.  
 load upload program: $(OBJDIR)/$(TARGET).hex
+ifeq ($(FLASH_MODE),IAP)
+	$(LPC21IAP)  $(OBJDIR)/$(TARGET).elf
+else 
 	@echo
 	$(LPC21ISP) $(LPC21ISP_CONTROL) $(LPC21ISP_DEBUG) $(LPC21ISP_FLASHFILE) $(LPC21ISP_PORT) $(LPC21ISP_BAUD) $(LPC21ISP_XTAL)
+endif
 
 # Create final output files (.hex, .eep) from ELF output file.
 # TODO: handling the .eeprom-section should be redundant
