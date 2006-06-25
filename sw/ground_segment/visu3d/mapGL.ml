@@ -234,12 +234,12 @@ let add_point (view3d:Gtk_3d.widget_3d) (point, id) =
 let load_surface view3d id_sol xml_map_file =
   let min_x = ref max_int and min_y = ref max_int
   and max_x = ref min_int and max_y = ref min_int  
-  and texture_file = ref "" in 
+  and _texture_file = ref "" in 
   let xml = Xml.parse_file xml_map_file in
   let texture_file = Xml.attrib xml "file" in
   let texture_file = Filename.concat (Filename.dirname xml_map_file) texture_file in
   let (_format, header) = Images.file_format texture_file in
-  let int_attrib x a = int_of_string (Xml.attrib x a) in
+  let _int_attrib x a = int_of_string (Xml.attrib x a) in
   begin
     match Xml.children xml with
       p::_ ->

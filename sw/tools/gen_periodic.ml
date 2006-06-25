@@ -52,7 +52,7 @@ let _ =
     failwith (sprintf "Usage: %s <messages.xml> <telemetry.xml>" Sys.argv.(0)) 
   end;
 
-  let messages_xml = Xml.parse_file Sys.argv.(1) in
+  let _messages_xml = Xml.parse_file Sys.argv.(1) in
   let telemetry_xml = 
     try
       Xml.parse_file Sys.argv.(2)

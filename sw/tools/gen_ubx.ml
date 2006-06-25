@@ -125,7 +125,7 @@ let parse_message = fun class_name m ->
     
     
 let parse_class = fun c ->
-  let class_id = int_of_string (Xml.attrib c "id")
+  let _class_id = int_of_string (Xml.attrib c "id")
   and class_name = Xml.attrib c "name" in
 
   fprintf out "\n";

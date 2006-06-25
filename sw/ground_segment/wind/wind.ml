@@ -214,7 +214,7 @@ let _ =
     end
   in
 
-  let on_wind_clear _ args = speeds := []; wind_init := null_vector in
+  let _on_wind_clear _ args = speeds := []; wind_init := null_vector in
 
   let on_flight_param = fun _ args ->
 (*    Array.iter (printf "%s ") args; printf "\n%!"; *)

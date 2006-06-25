@@ -87,8 +87,8 @@ class track = fun ?(name="Noname") ?(size = 500) ?(color="red") (geomap:MapCanva
   let min_distance_scaled = 10.  in
   let min_height_scaled = 0.1 in
 
-  let desired_circle = GnoCanvas.ellipse group
-  and desired_segment = GnoCanvas.line group in
+  let _desired_circle = GnoCanvas.ellipse group
+  and _desired_segment = GnoCanvas.line group in
     
 
  let top = ref 0  in

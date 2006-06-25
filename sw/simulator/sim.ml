@@ -108,7 +108,7 @@ module Make(AircraftItl : AIRCRAFT_ITL) = struct
 
     let state = ref initial_state in
 
-    let reset = fun () -> state := initial_state in 
+    let _reset = fun () -> state := initial_state in 
 
     let commands = Array.create FM.nb_commands 0 in
 
@@ -120,7 +120,7 @@ module Make(AircraftItl : AIRCRAFT_ITL) = struct
 
     let half_aperture = (Latlong.pi /. 4.) in
     let last_gps_state = ref None in
-    let run = ref false in
+    let _run = ref false in
     let ir_srtm = ref false in
 
     let wind_x = ref 0.

@@ -457,7 +457,7 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
 	  (fun j ->
 	    let i = j / 2 in
 	    if j = i * 2 then pts.(i).G2D.x2D else pts.(i).G2D.y2D) in
-      let p = points in
+      let _p = points in
       let l = GnoCanvas.line ?fill_color ~props:[`WIDTH_PIXELS width] ~points canvas#root in
       l#show ();
       l

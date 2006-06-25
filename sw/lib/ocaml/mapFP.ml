@@ -215,7 +215,7 @@ class flight_plan = fun ?edit ~show_moved geomap color fp_dtd xml ->
       let path_node = XmlEdit.add_child xml_block "path" ["radius", "42."] in
       List.iter
 	(fun ((wp:MapWaypoints.waypoint), r) ->
-	  let n = XmlEdit.add_child path_node "path_point" ["wp", wp#name; "radius", sof r] in
+	  let _n = XmlEdit.add_child path_node "path_point" ["wp", wp#name; "radius", sof r] in
 	  ()
 	)
 	path

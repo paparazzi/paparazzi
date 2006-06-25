@@ -941,7 +941,7 @@ module Live = struct
 
     (** Add a new tab in the A/Cs notebook, with a colored label *)
     let eb = GBin.event_box () in
-    let label = GMisc.label ~text:name ~packing:eb#add () in
+    let _label = GMisc.label ~text:name ~packing:eb#add () in
     eb#coerce#misc#modify_bg [`NORMAL, `NAME color;`ACTIVE, `NAME color];
 
     (** Put a notebook for this A/C *)
@@ -968,7 +968,7 @@ module Live = struct
     let pfd_frame = GBin.frame ~shadow_type: `NONE
 	~packing: (ac_notebook#append_page ~tab_label: pfd_label#coerce) () in
     let pfd_page = new Pages.pfd pfd_frame
-    and pfd_page_num = ac_notebook#page_num pfd_frame#coerce in
+    and _pfd_page_num = ac_notebook#page_num pfd_frame#coerce in
 
     let misc_label = GMisc.label ~text: "Misc" () in
     let misc_frame = GBin.frame ~shadow_type: `NONE

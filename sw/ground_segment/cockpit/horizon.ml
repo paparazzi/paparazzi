@@ -72,9 +72,9 @@ class h = fun ?packing size  ->
   let text_props = [`FONT "Sans 10"; `ANCHOR `CENTER; `FILL_COLOR "white"] in
 
   let disc = GnoCanvas.group canvas#root in
-  let top = GnoCanvas.rect ~x1:(-.size2) ~y1:(-.size2*.5.) ~x2:size2 ~y2:0. ~fill_color:"#0099cb" disc
-  and bottom = GnoCanvas.rect ~x1:(-.size2) ~y1:0. ~x2:size2 ~y2:(size2*.5.) ~fill_color:"#986701" disc
-  and line = GnoCanvas.line ~props:[`WIDTH_PIXELS 4] ~points:[|-.size2;0.;size2;0.|] ~fill_color:"white" disc
+  let _top = GnoCanvas.rect ~x1:(-.size2) ~y1:(-.size2*.5.) ~x2:size2 ~y2:0. ~fill_color:"#0099cb" disc
+  and _bottom = GnoCanvas.rect ~x1:(-.size2) ~y1:0. ~x2:size2 ~y2:(size2*.5.) ~fill_color:"#986701" disc
+  and _line = GnoCanvas.line ~props:[`WIDTH_PIXELS 4] ~points:[|-.size2;0.;size2;0.|] ~fill_color:"white" disc
   and _ = GnoCanvas.line ~points:[|0.;-.size2;0.;size2|] ~fill_color:"white" disc
  in
   let grads = fun ?(text=false) n s a b ->
@@ -98,7 +98,7 @@ class h = fun ?packing size  ->
     grads ~text:true 5 (size2/.5.) 10. 10. in
 
   let mask = GnoCanvas.group ~x:xc ~y:yc canvas#root in
-  let center = GnoCanvas.ellipse ~x1:(-3.) ~y1:(-.3.) ~x2:3. ~y2:3. ~fill_color:"black" mask in
+  let _center = GnoCanvas.ellipse ~x1:(-3.) ~y1:(-.3.) ~x2:3. ~y2:3. ~fill_color:"black" mask in
   let pi6 = pi/.6. in
   let n = 20 in
   let arc_above = arc n size2 pi6 (5.*.pi6) in

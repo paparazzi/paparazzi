@@ -97,7 +97,7 @@ module Make(A:Data.MISSION) = struct
 	let adj = GData.adjustment ~value ~lower ~upper ~step_incr:1.0 () in
 	let hbox = GPack.hbox ~packing:sliders#add () in
 	let f = (ExtXml.attrib c "function") in
-	let l = GMisc.label ~width:75 ~text:f ~packing:hbox#pack () in
+	let _l = GMisc.label ~width:75 ~text:f ~packing:hbox#pack () in
 	let inv = not ((List.mem f inverted) == (ma < mi)) in
 	let _scale = GRange.scale `HORIZONTAL ~inverted:inv ~adjustment:adj ~packing:hbox#add () in
 	let update = fun () -> update_channel i adj#value in

@@ -31,7 +31,7 @@ let create_sheet = fun sheets xml ->
 
   let label = fun l -> Widget.forget_type (Label.create ~text:l f) in
 
-  let empty = Widget.dummy in
+  let _empty = Widget.dummy in
 
   let entry _ = Widget.forget_type (Label.create f) in
 

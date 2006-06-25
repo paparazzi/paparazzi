@@ -138,7 +138,7 @@ module Gen_onboard = struct
       Basic _ ->
 	fprintf avr_h "\t  DownlinkPut%sByAddr((%s)); \\\n" (nameof t) name
     | Array (t, varname) ->
-	let s = sizeof (Basic t) in
+	let _s = sizeof (Basic t) in
 	fprintf avr_h "\t  DownlinkPut%sArray(%s, %s); \\\n" (nameof (Basic t)) (length_name varname) name
 
   let print_one avr_h = function

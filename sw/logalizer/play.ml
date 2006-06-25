@@ -189,7 +189,7 @@ let _ =
   ignore (file_menu_fact#add_item "Quit" ~key:GdkKeysyms._Q ~callback:quit);  
 
 
-  let timescale = GRange.scale `HORIZONTAL ~adjustment:adj ~packing:window#vbox#pack () in
+  let _timescale = GRange.scale `HORIZONTAL ~adjustment:adj ~packing:window#vbox#pack () in
 
   window#add_accel_group accel_group;
   window#show ();

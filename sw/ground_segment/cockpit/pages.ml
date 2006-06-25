@@ -174,7 +174,7 @@ class settings = fun ?(visible = fun _ -> true) xml_settings callback ->
 	let _v = GMisc.label ~width:50 ~text:"N/A" ~packing:hbox#pack () in
 	let commit = GButton.button ~label:"Commit" ~stock:`APPLY () in
 	(** For a small number of values, radio buttons *)
-	let n = truncate ((upper -. lower) /. step_incr) in
+	let _n = truncate ((upper -. lower) /. step_incr) in
 	let callback =
 	  if step_incr = 1. && upper -. lower <= 2. then
 	    let ilower = truncate lower
