@@ -2,12 +2,12 @@
 /*  ROM.ld:  Linker Script File                                        */
 /***********************************************************************/
 ENTRY(_boot)
-STACK_SIZE = 0x400;
+STACK_SIZE = 0x1000;
 
 /* Memory Definitions */
 MEMORY
 {
-  ROM (rx) : ORIGIN = 0x00000000, LENGTH = 512k
+  ROM (rx) : ORIGIN = 0x00000000, LENGTH = 500k
   RAM (rw) : ORIGIN = 0x40000000, LENGTH = 32k
 }
 
