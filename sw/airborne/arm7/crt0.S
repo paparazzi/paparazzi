@@ -119,7 +119,7 @@ _mainCRTStartup:
 
 // Copy initialized data to its execution address in RAM
 // -----------------------------------------------------
-#ifdef ROM_RUN
+//#ifdef ROM_RUN
         ldr   r1,=_etext                // -> ROM data start
         ldr   r2,=_data                 // -> data start
         ldr   r3,=_edata                // -> end of data
@@ -127,7 +127,7 @@ _mainCRTStartup:
         ldrlo r0,[r1],#4                // copy it
         strlo r0,[r2],#4
         blo   1b                        // loop until done
-#endif
+//#endif
 // Clear .bss
 // ----------
         mov   r0,#0                     // get a zero
