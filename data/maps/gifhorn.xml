@@ -1,0 +1,4 @@
+<map file="gifhorn.jpg" projection="Mercator">
+  <point x="0" y="0" geo="WGS84 52.527982	10.452157"/>
+  <point x="1965" y="1284" geo="WGS84 52.519595	10.473248"/>
+</map>

@@ -194,11 +194,10 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
 
 (** callback bindings *)
 
-      canvas#coerce#misc#modify_bg [`NORMAL, `NAME "black"];
-      ignore (canvas#event#connect#button_press self#button_press);
-      ignore (canvas#event#connect#button_release self#button_release);
+(***      canvas#coerce#misc#modify_bg [`NORMAL, `NAME "black"];***)
+      ignore (background#connect#event self#background_event);
+
       ignore (canvas#event#connect#motion_notify self#mouse_motion);
-      ignore (canvas#event#connect#button_press self#button_press);
       ignore (canvas#event#connect#after#key_press self#key_press) ;
       ignore (canvas#event#connect#enter_notify (fun _ -> self#canvas#misc#grab_focus () ; false));
       ignore (canvas#event#connect#any self#any_event);
@@ -206,6 +205,7 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
 
       canvas#set_center_scroll_region false ;
       canvas#set_scroll_region (-25000000.) (-25000000.) 25000000. 25000000.;
+      ignore (GnoCanvas.rect ~props:[`X1 (-25000000.); `Y1 (-25000000.); `X2 25000000.; `Y2 25000000.; `FILL_COLOR "black"] background);
 
      )
  
@@ -314,35 +314,77 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
       pix#move xw1 yw1;
       pix#affine_relative [| cos_a; sin_a; -. sin_a; cos_a; 0.;0.|];
       pix
+
+    method fix_bg_coords (xw, yw) = (** FIXME: how to do it properly ? *)
+      let z = self#current_zoom in
+      ((xw +. 25000000.) *. z, (yw +. 25000000.) *. z)
 	
     method zoom = fun value ->
       adj#set_value value
 
    (**  events *******************************************)
-    method button_press = fun ev ->
-      let xc = GdkEvent.Button.x ev
-      and yc = GdkEvent.Button.y ev
-      and state = GdkEvent.Button.state ev in
-      let (x1,y1) = self#window_to_world xc yc in
-      try let _ = canvas#get_item_at x1 y1 in false with
-	Not_found ->
+    method background_event = fun ev ->
+      match ev with
+      | `BUTTON_PRESS ev when GdkEvent.Button.button ev = 1 ->
 	  begin
-	    match GdkEvent.Button.button ev with
-	      1 ->
-		begin
-		  match Gdk.Convert.modifier state with
-		    [] ->
-		drawing <- Rectangle (x1,y1);
-		      region_rectangle#set [`X1 x1; `Y1 y1; `X2 x1; `Y2 y1];
-		      true
-		  | [`SHIFT] ->
-		      drawing <- Polygon [(x1, y1)];
-		      true;
-		  | _ -> false
-		end
-	    |	_ -> false
+	    let xc = GdkEvent.Button.x ev
+	    and yc = GdkEvent.Button.y ev
+	    and state = GdkEvent.Button.state ev in
+	    let (xw,yw) = self#window_to_world xc yc in
+	    let (xw, yw) = self#fix_bg_coords (xw, yw) in
+	    match Gdk.Convert.modifier state with
+	      [] ->
+		drawing <- Rectangle (xw,yw);
+		region_rectangle#set [`X1 xw; `Y1 yw; `X2 xw; `Y2 yw];
+		region_rectangle#raise_to_top ();
+		true
+	    | [`SHIFT] ->
+		drawing <- Polygon [(xw, yw)];
+		true;
+	    | _ -> false
 	  end
-
+      | `MOTION_NOTIFY ev ->
+	  begin
+	    let xc = GdkEvent.Motion.x ev 
+	    and yc = GdkEvent.Motion.y ev in
+	    let (xw, yw) = self#window_to_world xc yc in
+	    let (xw, yw) = self#fix_bg_coords (xw, yw) in
+	    match drawing with
+	      Rectangle (x1,y1) ->
+		let starting_point = self#of_world (x1,y1) in
+		let starting_point = LL.utm_of LL.WGS84 starting_point in
+		let current_point = LL.utm_of LL.WGS84 (self#of_world (xw, yw)) in
+		let (east, north) = LL.utm_sub current_point starting_point in
+		region_rectangle#set [`X2 xw; `Y2 yw];
+		self#display_group (sprintf "[%.1fkm %.1fkm]" (east/.1000.) (north/.1000.))
+	    | Polygon ps ->
+		let points = convex ((xw,yw)::ps) in
+		drawing <- Polygon points;
+		region_polygon#set [`POINTS (float_array_of_points points)]
+	    | _ -> ()
+	  end;
+	  false
+      | `BUTTON_RELEASE ev when GdkEvent.Button.button ev = 1 ->
+	  begin
+	    let xc = GdkEvent.Button.x ev in
+	    let yc = GdkEvent.Button.y ev in
+	    let current_point = self#window_to_world xc yc in
+	    let current_point = self#fix_bg_coords  current_point in
+	    match drawing with
+	      Rectangle (x1,y1) ->
+		    region <- Some ((x1,y1), current_point);
+		self#display_group "";
+		drawing <- NotDrawing;
+		true
+	    | Polygon points ->
+		    drawing <- NotDrawing;
+		polygon <- Some points;
+		true
+	    | _ -> false
+	  end
+      | _ -> false
+		
+		
     method mouse_motion = fun ev ->
       if georef <> None then begin
 	let xc = GdkEvent.Motion.x ev 
@@ -350,45 +392,9 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
 	let (xw, yw) = self#window_to_world xc yc in
 	self#display_geo (self#geo_string (self#of_world (xw,yw)));
 	self#display_alt (self#of_world (xw,yw));
-	begin
-	  match drawing with
-	    Rectangle (x1,y1) ->
-	      let starting_point = self#of_world (x1,y1) in
-	      let starting_point = LL.utm_of LL.WGS84 starting_point in
-	      let current_point = LL.utm_of LL.WGS84 (self#of_world (xw, yw)) in
-	      let (east, north) = LL.utm_sub current_point starting_point in
-	      region_rectangle#set [`X2 xw; `Y2 yw];
-	      self#display_group (sprintf "[%.1fkm %.1fkm]" (east/.1000.) (north/.1000.))
-	  | Polygon ps ->
-	      let points = convex ((xw,yw)::ps) in
-	      drawing <- Polygon points;
-	      region_polygon#set [`POINTS (float_array_of_points points)]
-	  | _ -> ()
-	end;
       end;
       false
 	  
-    method button_release = fun ev ->
-      match GdkEvent.Button.button ev with
-	1 ->
-	  begin
-	    let xc = GdkEvent.Button.x ev in
-	    let yc = GdkEvent.Button.y ev in
-	    let current_point = self#window_to_world xc yc in
-	    match drawing with
-	      Rectangle (x1,y1) ->
-		region <- Some ((x1,y1), current_point);
-		self#display_group "";
-		drawing <- NotDrawing;
-		true
-	    | Polygon points ->
-		drawing <- NotDrawing;
-		polygon <- Some points;
-		true
-	    | _ -> false
-	  end
-      | _ -> false
-	    
    method key_press = fun ev ->
       let (x, y) = canvas#get_scroll_offsets in
       match GdkEvent.Key.keyval ev with
