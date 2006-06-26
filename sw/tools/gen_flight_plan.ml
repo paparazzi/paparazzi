@@ -583,16 +583,32 @@ let print_heights = fun xml wgs84 alt ->
     lprintf "} \n"; 
   end
 
+
+let rec flatten = fun xml r ->
+  if ExtXml.tag_is xml "dl_setting" then
+    xml::r
+  else
+    match Xml.children xml with
+      [] -> r
+    | x::xs ->
+	List.iter (fun y -> assert(ExtXml.tag_is y (Xml.tag x))) xs;
+	List.fold_right flatten (x::xs) r
+	  
 let print_dl_settings = fun settings ->
+  let settings = flatten settings [] in
   (** Macro to call to set one variable *)
   lprintf "#define DlSetting(_idx, _value) { \\\n";
+  right ();
+  lprintf "switch (_idx) { \\\n";
   right ();
   let idx = ref 0 in
   List.iter 
     (fun s ->
       let v = ExtXml.attrib s "var" in
-      lprintf "if (_idx == %d) %s = _value;\\\n" !idx v; incr idx) 
+      lprintf "case %d: %s = _value; break;\\\n" !idx v; incr idx) 
     settings;
+  left ();
+  lprintf "}\\\n";
   left ();
   lprintf "}\n";
   let nb_values = !idx in
@@ -605,11 +621,15 @@ let print_dl_settings = fun settings ->
     lprintf "float var;\\\n";
     lprintf "if (i >= %d) i = 0;;\\\n" nb_values;
     let idx = ref 0 in
+    lprintf "switch (i) { \\\n";
+    right ();
     List.iter 
       (fun s ->
 	let v = ExtXml.attrib s "var" in
-	lprintf "if (i == %d) var = %s;\\\n" !idx v; incr idx) 
+	lprintf "case %d: var = %s; break;\\\n" !idx v; incr idx) 
       settings;
+    left ();
+    lprintf "}\\\n";
     lprintf "DOWNLINK_SEND_DL_VALUE(&i, &var);\\\n";
     lprintf "i++;\\\n";
     left ()
@@ -682,7 +702,7 @@ let _ =
     let xml = Fp_proc.process_relative_waypoints xml in
     let xml = ExtXml.subst_child "blocks" (index_blocks (ExtXml.child xml "blocks")) xml in
     let waypoints = ExtXml.child xml "waypoints"
-    and dl_settings = try Xml.children (ExtXml.child xml "dl_settings") with Not_found -> []
+    and dl_settings = try (ExtXml.child xml "dl_settings") with Not_found -> Xml.Element("dl_settings",[],[])
     and blocks = Xml.children (ExtXml.child xml "blocks")
     and global_exceptions = try Xml.children (ExtXml.child xml "exceptions") with _ -> [] in
 
@@ -777,7 +797,7 @@ let _ =
     end
   with
     Xml.Error e -> prerr_endline (Xml.error e); exit 1
-  | Dtd.Prove_error e ->  prerr_endline (Dtd.prove_error e); exit 1
-  | Dtd.Check_error e ->  prerr_endline (Dtd.check_error e); exit 1
-  | Dtd.Parse_error e ->  prerr_endline (Dtd.parse_error e); exit 1
+  | Dtd.Prove_error e -> fprintf stderr "DTD error:%s\n%!" (Dtd.prove_error e); exit 1
+  | Dtd.Check_error e -> fprintf stderr "DTD error:%s\n%!" (Dtd.check_error e); exit 1
+  | Dtd.Parse_error e -> fprintf stderr "DTD error:%s\n%!" (Dtd.parse_error e); exit 1
 

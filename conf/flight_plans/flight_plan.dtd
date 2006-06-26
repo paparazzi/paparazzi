@@ -6,7 +6,7 @@
 <!ELEMENT mode (setting*)>
 <!ELEMENT setting EMPTY>
 
-<!ELEMENT dl_settings (dl_setting*)>
+<!ELEMENT dl_settings (dl_setting|dl_settings)*>
 <!ELEMENT dl_setting EMPTY>
 
 <!ELEMENT waypoints (waypoint+)>
@@ -53,6 +53,10 @@
 <!ATTLIST setting type (int16|float) #REQUIRED>
 <!ATTLIST setting range CDATA #REQUIRED>
 <!ATTLIST setting rc (gain_1_up|gain_2_up|gain_1_down|gain_2_down) #REQUIRED>
+
+<!ATTLIST dl_settings
+name CDATA #IMPLIED
+>
 
 <!ATTLIST dl_setting
 var CDATA #REQUIRED

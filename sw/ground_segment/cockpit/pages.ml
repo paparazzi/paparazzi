@@ -178,71 +178,103 @@ class misc ~packing (widget: GBin.frame) =
 (*****************************************************************************)
 (* Dataling settings paged                                                   *)
 (*****************************************************************************)
+let one_setting = fun i do_change packing s (tooltips:GData.tooltips) ->
+  let f = fun a -> float_of_string (ExtXml.attrib s a) in
+  let lower = f "min"
+  and upper = f "max"
+  and step_incr = f "step" in
+  
+  let hbox = GPack.hbox ~packing () in
+  let text = ExtXml.attrib s "var" in
+  let _l = GMisc.label ~width:100 ~text ~packing:hbox#pack () in
+  let _v = GMisc.label ~width:50 ~text:"N/A" ~packing:hbox#pack () in
+  (** For a small number of values, radio buttons *)
+  let _n = truncate ((upper -. lower) /. step_incr) in
+  let commit =
+    if step_incr = 1. && upper -. lower <= 2. then
+      let ilower = truncate lower
+      and iupper = truncate upper in
+      let label = Printf.sprintf "%d" ilower in
+      let first = GButton.radio_button ~label ~packing:hbox#add () in
+      let value = ref lower in
+      ignore (first#connect#clicked (fun () -> value := lower));
+      let group = first#group in
+      for j = ilower+1 to iupper do
+	let label = Printf.sprintf "%d" j in
+	let b = GButton.radio_button ~group ~label ~packing:hbox#add () in
+	ignore (b#connect#clicked (fun () -> value := float j))
+      done;
+      (fun _ -> do_change i !value)
+    else (* slider *)
+      let value = (lower +. upper) /. 2. in
+      let adj = GData.adjustment ~value ~lower ~upper:(upper+.10.) ~step_incr () in
+      let _scale = GRange.scale `HORIZONTAL ~digits:2 ~adjustment:adj ~packing:hbox#add () in
+      
+      (fun _ -> do_change i adj#value)
+  in
+  let prev_value = ref None in
+  let commit_but = GButton.button ~packing:hbox#pack () in
+  commit_but#set_border_width 2;
+  let icon = GMisc.image ~stock:`APPLY ~packing:commit_but#add () in
+  let callback = fun x ->
+    prev_value := Some (float_of_string _v#text);
+    commit x
+  in
+  ignore (commit_but#connect#clicked ~callback);
+  tooltips#set_tip commit_but#coerce ~text:"Commit";
+  let undo_but = GButton.button ~packing:hbox#pack () in
+  let icon = GMisc.image ~stock:`UNDO ~packing:undo_but#add () in
+  let callback = fun _ ->
+    match !prev_value with
+      None -> ()
+    | Some v -> do_change i v in
+  ignore (undo_but#connect#clicked ~callback);
+  tooltips#set_tip undo_but#coerce ~text:"Undo";
+  _v  
+  
+  
+let rec build_settings = fun do_change i flat_list xml_settings packing tooltips ->
+  match xml_settings with
+    [] -> ()
+  | x::xs ->
+      List.iter (fun y -> assert(ExtXml.tag_is y (Xml.tag x))) xs;
+      if ExtXml.tag_is x "dl_setting" then
+	List.iter
+	  (fun s ->
+	    let label_value = one_setting !i do_change packing s tooltips in
+	    flat_list := label_value :: !flat_list;
+	    incr i)
+	  xml_settings
+      else begin
+	assert (ExtXml.tag_is x "dl_settings");
+	let n = GPack.notebook ~packing () in
+	
+	List.iter (fun p ->
+	  let text = ExtXml.attrib p "name" in
+	  let sw = GBin.scrolled_window ~hpolicy:`AUTOMATIC ~vpolicy:`AUTOMATIC () in
+	  let vbox = GPack.vbox  () in
+	  
+	  let tab_label = (GMisc.label ~text ())#coerce in
+	  n#append_page ~tab_label vbox#coerce;
+
+	  build_settings do_change i flat_list (Xml.children p) vbox#pack tooltips)
+	  xml_settings
+      end
+  
+  
+
+
 class settings = fun ?(visible = fun _ -> true) xml_settings do_change ->
   let sw = GBin.scrolled_window ~hpolicy:`AUTOMATIC ~vpolicy:`AUTOMATIC () in
   let vbox = GPack.vbox ~packing:sw#add_with_viewport () in
-  let n = List.length xml_settings in
   let tooltips = GData.tooltips () in
+  let i = ref 0 and l = ref [] in
   let current_values =
-    Array.mapi
-      (fun i s ->
-	let f = fun a -> float_of_string (ExtXml.attrib s a) in
-	let lower = f "min"
-	and upper = f "max"
-	and step_incr = f "step" in
-
-	let hbox = GPack.hbox ~packing:vbox#add () in
-	let text = ExtXml.attrib s "var" in
-	let _l = GMisc.label ~width:100 ~text ~packing:hbox#pack () in
-	let _v = GMisc.label ~width:50 ~text:"N/A" ~packing:hbox#pack () in
-	(** For a small number of values, radio buttons *)
-	let _n = truncate ((upper -. lower) /. step_incr) in
-	let commit =
-	  if step_incr = 1. && upper -. lower <= 2. then
-	    let ilower = truncate lower
-	    and iupper = truncate upper in
-	    let label = Printf.sprintf "%d" ilower in
-	    let first = GButton.radio_button ~label ~packing:hbox#add () in
-	    let value = ref lower in
-	    ignore (first#connect#clicked (fun () -> value := lower));
-	    let group = first#group in
-	    for j = ilower+1 to iupper do
-	      let label = Printf.sprintf "%d" j in
-	      let b = GButton.radio_button ~group ~label ~packing:hbox#add () in
-	      ignore (b#connect#clicked (fun () -> value := float j))
-	    done;
-	    (fun _ -> do_change i !value)
-	  else (* slider *)
-	    let value = (lower +. upper) /. 2. in
-	    let adj = GData.adjustment ~value ~lower ~upper:(upper+.10.) ~step_incr () in
-	    let _scale = GRange.scale `HORIZONTAL ~digits:2 ~adjustment:adj ~packing:hbox#add () in
-	    
-	    (fun _ -> do_change i adj#value)
-	in
-	let prev_value = ref None in
-	let commit_but = GButton.button ~packing:hbox#pack () in
-	commit_but#set_border_width 2;
-	let icon = GMisc.image ~stock:`APPLY ~packing:commit_but#add () in
-	let callback = fun x ->
-	  prev_value := Some (float_of_string _v#text);
-	  commit x
-	in
-	ignore (commit_but#connect#clicked ~callback);
-	tooltips#set_tip commit_but#coerce ~text:"Commit";
-	let undo_but = GButton.button ~packing:hbox#pack () in
-	let icon = GMisc.image ~stock:`UNDO ~packing:undo_but#add () in
-	let callback = fun _ ->
-	  match !prev_value with
-	    None -> ()
-	  | Some v -> do_change i v in
-	ignore (undo_but#connect#clicked ~callback);
-	tooltips#set_tip undo_but#coerce ~text:"Undo";
-	_v
-      )
-      (Array.of_list xml_settings) in
+    build_settings do_change i l xml_settings vbox#add tooltips;
+    Array.of_list (List.rev !l) in
   object (self)
-    method length = n
     method widget = sw#coerce
+    method length = !i
     method set = fun i v ->
       if visible self#widget then
 	let s = string_of_float v in

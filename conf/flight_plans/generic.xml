@@ -2,22 +2,37 @@
 
 <flight_plan SECURITY_HEIGHT="25" alt="450" ground_alt="400" lat0="43.4624" lon0="1.2727" max_dist_from_home="1000" name="Generic" qfu="270">
   <dl_settings>
-    <dl_setting VAR="ir_roll_neutral" MAX="0.3" STEP="0.01" MIN="-0.3"/>
-    <dl_setting VAR="ir_pitch_neutral" MAX="0.3" STEP="0.01" MIN="-0.3"/>
-    <dl_setting VAR="roll_pgain" MAX="15000" STEP="250" MIN="1000"/>
-    <dl_setting VAR="pitch_pgain" MAX="15000" STEP="250" MIN="1000"/>
-    <dl_setting VAR="climb_level_gaz" MAX="0.7" STEP="0.05" MIN="0.3"/>
-    <dl_setting VAR="climb_pgain" MAX="-0.01" STEP="0.01" MIN="-0.5"/>
-    <dl_setting VAR="course_pgain" MAX="-0.1" STEP="0.05" MIN="-2"/>
-    <dl_setting VAR="z_constrast_mode" MIN="0." STEP="1" MAX="1."/>
-    <dl_setting VAR="rate_mode" MIN="0." STEP="1" MAX="1."/>
-    <dl_setting VAR="altitude_shift" MIN="-50" STEP="10" MAX="1000"/>
+    <dl_settings name="flight params">
+      <dl_setting MAX="2" MIN="0" STEP="1" VAR="light_mode"/>
+      <dl_setting VAR="altitude_shift" MIN="-50" STEP="10" MAX="1000"/>
+    </dl_settings>
+
+    <dl_settings name="mode">
+      <dl_setting VAR="z_constrast_mode" MIN="0." STEP="1" MAX="1."/>
+      <dl_setting VAR="rate_mode" MIN="0." STEP="1" MAX="1."/>
+      <dl_setting MAX="2" MIN="0" STEP="1" VAR="pprz_mode"/>
+    </dl_settings>
+
+    <dl_settings name="control">
+      <dl_settings name="attitude">
+        <dl_setting VAR="ir_roll_neutral" MAX="0.3" STEP="0.01" MIN="-0.3"/>
+        <dl_setting VAR="ir_pitch_neutral" MAX="0.3" STEP="0.01" MIN="-0.3"/>
+        <dl_setting VAR="roll_pgain" MAX="15000" STEP="250" MIN="1000"/>
+        <dl_setting VAR="pitch_pgain" MAX="15000" STEP="250" MIN="1000"/>
+      </dl_settings>
+
+      <dl_settings name="nav">
+        <dl_setting VAR="climb_level_gaz" MAX="0.7" STEP="0.05" MIN="0.3"/>
+        <dl_setting VAR="climb_pgain" MAX="-0.01" STEP="0.01" MIN="-0.5"/>
+        <dl_setting VAR="course_pgain" MAX="-0.1" STEP="0.05" MIN="-2"/>
+      </dl_settings>
+    </dl_settings>
+
+
 <!--
     <dl_setting VAR="roll_rate_pgain" MIN="0." STEP="1.0" MAX="2000."/>
     <dl_setting VAR="attitude_pgain" MAX="100" STEP="1" MIN="10"/>
 -->
-    <dl_setting MAX="2" MIN="0" STEP="1" VAR="pprz_mode"/>
-    <dl_setting MAX="2" MIN="0" STEP="1" VAR="light_mode"/>
   </dl_settings>
 
   <waypoints>
