@@ -1,7 +1,29 @@
+(*
+* $Id$
+*
+* Copyright (C) 2006 ENAC, Pierre-Sélim Huard, Pascal Brisset, Antoine Drouin
+*
+* This file is part of paparazzi.
+*
+* paparazzi is free software; you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation; either version 2, or (at your option)
+* any later version.
+*
+* paparazzi is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with paparazzi; see the file COPYING.  If not, write to
+* the Free Software Foundation, 59 Temple Place - Suite 330,
+* Boston, MA 02111-1307, USA. 
+*
+*)
+
 (*****************************************************************************)
-(* $id$                                                                      *)
-(*                                                                           *)
-(* information pages such as alert, infrared, gps, artificial horizon        *)
+(* Information pages such as alert, infrared, gps, artificial horizon        *)
 (*****************************************************************************)
 
 open Latlong
@@ -156,10 +178,11 @@ class misc ~packing (widget: GBin.frame) =
 (*****************************************************************************)
 (* Dataling settings paged                                                   *)
 (*****************************************************************************)
-class settings = fun ?(visible = fun _ -> true) xml_settings callback ->
+class settings = fun ?(visible = fun _ -> true) xml_settings do_change ->
   let sw = GBin.scrolled_window ~hpolicy:`AUTOMATIC ~vpolicy:`AUTOMATIC () in
   let vbox = GPack.vbox ~packing:sw#add_with_viewport () in
   let n = List.length xml_settings in
+  let tooltips = GData.tooltips () in
   let current_values =
     Array.mapi
       (fun i s ->
@@ -168,14 +191,13 @@ class settings = fun ?(visible = fun _ -> true) xml_settings callback ->
 	and upper = f "max"
 	and step_incr = f "step" in
 
-	let hbox = GPack.hbox ~width:400 ~packing:vbox#add () in
+	let hbox = GPack.hbox ~packing:vbox#add () in
 	let text = ExtXml.attrib s "var" in
 	let _l = GMisc.label ~width:100 ~text ~packing:hbox#pack () in
 	let _v = GMisc.label ~width:50 ~text:"N/A" ~packing:hbox#pack () in
-	let commit = GButton.button ~label:"Commit" ~stock:`APPLY () in
 	(** For a small number of values, radio buttons *)
 	let _n = truncate ((upper -. lower) /. step_incr) in
-	let callback =
+	let commit =
 	  if step_incr = 1. && upper -. lower <= 2. then
 	    let ilower = truncate lower
 	    and iupper = truncate upper in
@@ -189,16 +211,32 @@ class settings = fun ?(visible = fun _ -> true) xml_settings callback ->
 	      let b = GButton.radio_button ~group ~label ~packing:hbox#add () in
 	      ignore (b#connect#clicked (fun () -> value := float j))
 	    done;
-	    (fun _ -> callback i !value)
+	    (fun _ -> do_change i !value)
 	  else (* slider *)
 	    let value = (lower +. upper) /. 2. in
 	    let adj = GData.adjustment ~value ~lower ~upper:(upper+.10.) ~step_incr () in
 	    let _scale = GRange.scale `HORIZONTAL ~digits:2 ~adjustment:adj ~packing:hbox#add () in
 	    
-	    (fun _ -> callback i adj#value)
+	    (fun _ -> do_change i adj#value)
 	in
-	hbox#pack commit#coerce;
-	ignore (commit#connect#clicked ~callback);
+	let prev_value = ref None in
+	let commit_but = GButton.button ~packing:hbox#pack () in
+	commit_but#set_border_width 2;
+	let icon = GMisc.image ~stock:`APPLY ~packing:commit_but#add () in
+	let callback = fun x ->
+	  prev_value := Some (float_of_string _v#text);
+	  commit x
+	in
+	ignore (commit_but#connect#clicked ~callback);
+	tooltips#set_tip commit_but#coerce ~text:"Commit";
+	let undo_but = GButton.button ~packing:hbox#pack () in
+	let icon = GMisc.image ~stock:`UNDO ~packing:undo_but#add () in
+	let callback = fun _ ->
+	  match !prev_value with
+	    None -> ()
+	  | Some v -> do_change i v in
+	ignore (undo_but#connect#clicked ~callback);
+	tooltips#set_tip undo_but#coerce ~text:"Undo";
 	_v
       )
       (Array.of_list xml_settings) in
