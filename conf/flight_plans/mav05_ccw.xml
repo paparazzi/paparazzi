@@ -16,8 +16,6 @@
     <dl_setting VAR="phi_c" MIN="-1." STEP="0.05" MAX="1."/>
     <dl_setting VAR="theta_c" MIN="-1." STEP="0.05" MAX="1."/>
     <dl_setting VAR="course_pgain" MIN="-1." STEP="0.05" MAX="-0.1"/>
-    <dl_setting VAR="nav_prebank" MIN="0." STEP="0.1" MAX="1."/>
-    <dl_setting VAR="nav_speed_depend" MIN="0." STEP="0.1" MAX="1."/>
   </dl_settings>
 
   <waypoints>

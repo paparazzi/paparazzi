@@ -69,7 +69,6 @@ int16_t circle_x, circle_y, circle_radius;
 int16_t segment_x_1, segment_y_1, segment_x_2, segment_y_2;
 uint8_t horizontal_mode;
 float circle_bank = 0;
-float nav_prebank, nav_speed_depend;
 
 
 #define RcRoll(travel) (fbw_state->channels[RADIO_ROLL]* (float)travel /(float)MAX_PPRZ)
@@ -131,14 +130,13 @@ static float qdr;
     0 : \
      sign_radius * atan2(estimator_hspeed_mod*estimator_hspeed_mod, \
                          G*abs_radius); \
-  circle_bank *= nav_prebank; \
   circle_count = fabs(sum_alpha) / (2*M_PI); \
   float carrot_angle = CARROT / abs_radius * estimator_hspeed_mod; \
   carrot_angle = Min(carrot_angle, M_PI/4); \
   carrot_angle = Max(carrot_angle, M_PI/16); \
   float alpha_carrot = alpha - sign_radius * carrot_angle; \
   horizontal_mode = HORIZONTAL_MODE_CIRCLE; \
-  float radius_carrot = abs_radius + nav_prebank * (abs_radius / cos(carrot_angle) - abs_radius); \
+  float radius_carrot = abs_radius + (abs_radius / cos(carrot_angle) - abs_radius); \
   fly_to_xy(x+cos(alpha_carrot)*radius_carrot, \
 	    y+sin(alpha_carrot)*radius_carrot); \
   qdr = DegOfRad(M_PI/2 - alpha); \
@@ -536,7 +534,6 @@ void course_pid_run( void ) {
   float speed_depend_nav = estimator_hspeed_mod/NOMINAL_AIRSPEED; 
   speed_depend_nav = Max(speed_depend_nav,0.66);
   speed_depend_nav = Min(speed_depend_nav,1.5);
-  speed_depend_nav = 1. + nav_speed_depend * (speed_depend_nav-1.);
   float roll_from_err = course_pgain * speed_depend_nav * err;
 #if defined  AGR_CLIMB_GAZ
   if (climb_mode == CLIMB_MODE_AGRESSIVE) {
