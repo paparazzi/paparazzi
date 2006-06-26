@@ -1,6 +1,7 @@
 
 #include "uart.h"
 
+
 #define UART0_TX_INT_MODE 1
 #define UART0_RX_INT_MODE 1
 
@@ -8,6 +9,9 @@
     defined(UART1_TX_INT_MODE) || defined(UART1_RX_INT_MODE)
 #include "armVIC.h"
 #endif
+
+#ifdef USE_UART0
+
 
 #if defined(UART0_TX_INT_MODE) || defined(UART0_RX_INT_MODE)
 void uart0_ISR(void) __attribute__((naked));
@@ -195,6 +199,8 @@ void uart0_ISR(void)
   VICVectAddr = 0x00000000;             // clear this interrupt from the VIC
   ISR_EXIT();                           // recover registers and return
 }
+
+#endif /* USE_UART0 */
 
 /*
  *

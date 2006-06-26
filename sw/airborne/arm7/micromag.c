@@ -6,8 +6,8 @@
 #include "micromag.h"
 
 volatile uint8_t micromag_data_available;
-int16_t micromag_values[MM_NB_AXIS];
-uint8_t volatile micromag_cur_axe;
+volatile int16_t micromag_values[MM_NB_AXIS];
+volatile uint8_t micromag_cur_axe;
 
 static void EXTINT2_ISR(void) __attribute__((naked));
 
@@ -45,7 +45,7 @@ void micromag_read( void ) {
 void EXTINT2_ISR(void) {
   ISR_ENTRY();
   /* read dummy control byte reply */
-  uint8_t foo = SSPDR;
+  uint8_t foo __attribute__ ((unused)) = SSPDR;
   /* trigger 2 bytes read */
   SSPDR = 0;
   SSPDR = 0;

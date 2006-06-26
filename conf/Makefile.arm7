@@ -51,7 +51,7 @@ THUMB_IW = -mthumb-interwork
 # Output format. (can be srec, ihex, binary)
 FORMAT = ihex
 
-FLASH_MODE=ISP
+#FLASH_MODE=ISP
 
 $(TARGET).srcsnd = $(notdir $($(TARGET).srcs))
 SRCARM = $($(TARGET).srcsnd)
@@ -62,6 +62,7 @@ ASRCARM = crt0.S
 # 0 = turn off optimization. s = optimize for size.
 # (Note: 3 is not always the best optimization level. See avr-libc FAQ.)
 OPT = s
+#OPT=3
 
 CSTANDARD = -std=gnu99
 

@@ -112,24 +112,6 @@
      <field name="desired_climb" type="float" format="%.1f"></field>
    </message>
 
-   <message name="RAW_IMU" ID="17">
-     <field name="gyro_x" type="float"/>
-     <field name="gyro_y" type="float"/>
-     <field name="gyro_z" type="float"/>
-     <field name="accel_x" type="float"/>
-     <field name="accel_y" type="float"/>
-     <field name="accel_z" type="float"/>
-   </message>
-
-   <message name="KALMAN" ID="18">
-     <field name="phi"        type="float" format="%.3f"/>
-     <field name="phi_dot"    type="float" format="%.3f"/>
-     <field name="phi_bias"   type="float" format="%.3f"/>
-     <field name="theta"      type="float" format="%.3f"/>
-     <field name="theta_dot"  type="float" format="%.3f"/>
-     <field name="theta_bias" type="float" format="%.3f"/>
-   </message>
-
    <message name="CAM" ID="20">
      <field name="phi" type="int8" unit="deg"/>
      <field name="theta" type="int8" unit="deg"/>
@@ -176,15 +158,6 @@
     <field name="CNO" type="uint8" unit="dbHz"/>
     <field name="Elev" type="int8" unit="deg"/>
     <field name="Azim" type="int16" unit="deg"/>
-  </message>
-
-  <message name="IMU" ID="26">
-    <field name="roll_dot" type="int16"/>
-    <field name="pitch_dot" type="int16"/>
-    <field name="yaw_dot" type="int16"/>
-    <field name="roll" type="int16"/>
-    <field name="pitch" type="int16"/>
-    <field name="yaw" type="int16"/>
   </message>
 
   <message name="SURVEY" ID="27">
@@ -264,6 +237,20 @@
   <message name="ACTUATORS" ID="105">
     <field name="values" type="uint16[]" unit="none"/>
   </message>
+
+
+  <message name="IMU_SENSORS" ID="200">
+      <field name="accel_x" type="int16"/>
+      <field name="accel_y" type="int16"/>
+      <field name="accel_z" type="int16"/>
+      <field name="gyro_p" type="float" unit="rad/s"/>
+      <field name="gyro_q" type="float" unit="rad/s"/>
+      <field name="gyro_r" type="float" unit="rad/s"/>
+      <field name="mag_x" type="int16"/>
+      <field name="mag_y" type="int16"/>
+      <field name="mag_z" type="int16"/>
+  </message>
+
 </class>
 
 

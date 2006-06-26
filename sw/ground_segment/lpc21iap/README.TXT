@@ -3,9 +3,14 @@ simple answer
 
 [preliminary]
 
-re-make your aircraft, use $PAPARAZZI_SRC/sw/airborne/arm7/LPC2138-ROM-bl.ld instead of LPC2138-ROM.ld (rename it)
+link your airborne programs using the bootloader-specific linker script
+make AIRCRAFT=TJ1 LDSCRIPT=arm7/LPC2148-ROM-bl.ld clean_ac fbw.compile
+make AIRCRAFT=TJ1 LDSCRIPT=arm7/LPC2148-ROM-bl.ld ap.compile
+
 
 apt-get install libusb
+( warning on sid I had to do apt-get install libusb-0.1-4 )
+
 cp $PAPARAZZI_SRC/conf/system/udev/rules/10-paparazzi.rules /etc/udev/rules.d/
 cd $PAPARAZZI_SRC/sw/airborne/arm7/test/bootloader/
 make

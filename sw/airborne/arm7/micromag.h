@@ -12,7 +12,7 @@ extern void micromag_init( void );
 extern void micromag_read( void );
 
 extern volatile uint8_t micromag_data_available;
-extern int16_t micromag_values[MM_NB_AXIS];
+extern volatile int16_t micromag_values[MM_NB_AXIS];
 extern volatile uint8_t micromag_cur_axe;
 
 #define MM_SS_PIN 20

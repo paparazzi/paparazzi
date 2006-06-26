@@ -164,8 +164,6 @@ upload_bl: bl
 lpc21iap:
 	cd sw/ground_segment/lpc21iap; make
 
-
-
 #####
 #####
 

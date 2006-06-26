@@ -44,7 +44,7 @@ void EXTINT0_ISR(void) {
   ISR_ENTRY();
   
   /* read dummy control byte reply */
-  uint8_t foo = SSPDR;
+  uint8_t foo __attribute__ ((unused)) = SSPDR;
   /* trigger 6 bytes read */
   SSPDR = 0;
   SSPDR = 0;

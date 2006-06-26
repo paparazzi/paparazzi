@@ -1,5 +1,6 @@
 #PROC_AP PROC_FBW PROC_TINY
-ALLFLAGS = -DPROC_AP
+PROC = AP
+ALLFLAGS = -DPROC_$(PROC)
 
 LIBNAME	= usbstack
 APPNAME = bl
@@ -71,7 +72,7 @@ $(APPNAME_RAM).elf: $(OBJS) $(LIBNAME).a $(LINKFILE_RAM)
 crt.o: crt.S
 	@ echo ".assembling"
 	$(CC) -c $(ASFLAGS) -Wa,-ahlms=crt.lst crt.S -o crt.o
-	
+
 # Builds archive tar file
 arch: clean
 	cd .. && $(TAR) --exclude={CVS,cvs} -cvzf $(PKG_NAME)-$(DATEL).tar.gz $(PKG_NAME)
