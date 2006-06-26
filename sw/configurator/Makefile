@@ -33,10 +33,10 @@ configurator : $(CMO)
 	$(OCAMLC) -custom -o $@ labltk.cma lib-pprz.cma jpflib.cma $^
 
 
-%.cmo : %.ml
+%.cmo : %.ml ../lib/ocaml/lib-pprz.cma
 	$(OCAMLC) -c $<
 
-%.cmi : %.mli
+%.cmi : %.mli ../lib/ocaml/lib-pprz.cma
 	$(OCAMLC) $<
 
 %.cmi : %.ml
