@@ -19,3 +19,8 @@ fbw.HIGH_FUSE = cb
 fbw.EXT_FUSE  = ff
 fbw.LOCK_FUSE = ff
 fbw.CFLAGS += -DFBW
+
+tunnel.ARCHDIR = $(ARCHI)
+tunnel.ARCH = atmega128
+tunnel.TARGET = autopilot
+tunnel.TARGETDIR = autopilot

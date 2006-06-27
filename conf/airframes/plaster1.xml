@@ -155,5 +155,7 @@ ap.CFLAGS += -DXBEE_UART=Uart0 -DUART0_BAUD=B9600
 # Config for SITL simulation
 include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
 
+tunnel.srcs += $(SRC_ARCH)/uart_tunnel.c
+
   </makefile>
 </airframe>
