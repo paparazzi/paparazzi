@@ -215,7 +215,7 @@ let one_setting = fun i do_change packing s (tooltips:GData.tooltips) ->
   let prev_value = ref None in
   let commit_but = GButton.button ~packing:hbox#pack () in
   commit_but#set_border_width 2;
-  let icon = GMisc.image ~stock:`APPLY ~packing:commit_but#add () in
+  let _icon = GMisc.image ~stock:`APPLY ~packing:commit_but#add () in
   let callback = fun x ->
     prev_value := Some (float_of_string _v#text);
     commit x
@@ -223,7 +223,7 @@ let one_setting = fun i do_change packing s (tooltips:GData.tooltips) ->
   ignore (commit_but#connect#clicked ~callback);
   tooltips#set_tip commit_but#coerce ~text:"Commit";
   let undo_but = GButton.button ~packing:hbox#pack () in
-  let icon = GMisc.image ~stock:`UNDO ~packing:undo_but#add () in
+  let _icon = GMisc.image ~stock:`UNDO ~packing:undo_but#add () in
   let callback = fun _ ->
     match !prev_value with
       None -> ()
@@ -251,7 +251,7 @@ let rec build_settings = fun do_change i flat_list xml_settings packing tooltips
 	
 	List.iter (fun p ->
 	  let text = ExtXml.attrib p "name" in
-	  let sw = GBin.scrolled_window ~hpolicy:`AUTOMATIC ~vpolicy:`AUTOMATIC () in
+	  let _sw = GBin.scrolled_window ~hpolicy:`AUTOMATIC ~vpolicy:`AUTOMATIC () in
 	  let vbox = GPack.vbox  () in
 	  
 	  let tab_label = (GMisc.label ~text ())#coerce in
