@@ -20,6 +20,8 @@
 extern uint16_t servos_values[_4015_NB_CHANNELS];
 #define Actuator(i) servos_values[i]
 
+#define ActuatorsCommit() {}
+
 void PWM_ISR ( void ) __attribute__((naked));
 
 

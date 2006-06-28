@@ -45,4 +45,6 @@
 #define ChopServo(x,_a,b) (x > b ? b : x)
 #define SERVOS_TICS_OF_USEC(s) (s)
 
+#define ActuatorsCommit() {}
+
 #endif /* SERVOS_ESC_HW_H */

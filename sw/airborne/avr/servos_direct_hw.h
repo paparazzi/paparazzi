@@ -18,6 +18,6 @@
 #define COMMAND_(i) SERVO_REG_ ## i
 #define Actuator(i) COMMAND_(i)
 
-
+#define ActuatorsCommit() {}
 
 #endif /* SERVOS_DIRECT_HW_H */

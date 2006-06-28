@@ -31,6 +31,8 @@
 extern uint16_t servo_widths[_4017_NB_CHANNELS];
 #define Actuator(i) servo_widths[i]
 
+#define ActuatorsCommit() {}
+
 #endif /* SERVO_4017_H */
 
 

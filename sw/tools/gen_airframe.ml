@@ -163,6 +163,7 @@ let parse_section = fun s ->
       printf "  uint16_t servo_value;\\\n";
       printf "  float command_value;\\\n";
       List.iter parse_command_laws (Xml.children s);
+      printf "  ActuatorsCommit();\\\n";
       printf "}\n"
   | "makefile" ->
       ()
