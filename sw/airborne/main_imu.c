@@ -21,10 +21,10 @@ static inline void main_init( void );
 static inline void main_periodic_task( void );
 static inline void main_event_task( void);
 
-struct adc_buf buf_ax;
+//struct adc_buf buf_ax;
 struct adc_buf buf_ay;
-struct adc_buf buf_az;
-struct adc_buf buf_bat;
+//struct adc_buf buf_az;
+//struct adc_buf buf_bat;
 
 static void imu_print_bat  ( void );
 static void imu_print_accel( void );
