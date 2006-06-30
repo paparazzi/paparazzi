@@ -27,21 +27,19 @@
 
 #include <inttypes.h>
 
-extern float fbw_roll_pgain;
-extern float fbw_pitch_pgain;
-extern float fbw_yaw_pgain;
+extern float   ctl_grz_roll_dot_pgain;
+extern float   ctl_grz_roll_dot_igain;
+extern float   ctl_grz_roll_dot_dgain;
 
-extern float   roll_dot_pgain;
-extern float   roll_dot_dgain;
+extern float   ctl_grz_pitch_dot_pgain;
+extern float   ctl_grz_pitch_dot_igain;
+extern float   ctl_grz_pitch_dot_dgain;
 
-extern float   pitch_dot_pgain;
-extern float   pitch_dot_dgain;
+extern float   ctl_grz_yaw_dot_pgain;
+extern float   ctl_grz_yaw_dot_igain;
+extern float   ctl_grz_yaw_dot_dgain;
 
-extern float   yaw_dot_dgain;
-extern float   yaw_dot_pgain;
-
-void control_rate_run ( void );
-void control_attitude_run ( void );
-void control_heading_run ( void );
-
+extern void ctl_grz_set_setpoints_rate( void );
+extern void ctl_grz_set_measures( void );
+extern void ctl_grz_rate_run ( void );
 #endif // CONTROL_GRZ_H

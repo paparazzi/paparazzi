@@ -69,6 +69,9 @@ ap.srcs += downlink.c pprz_transport.c $(SRC_ARCH)/uart_hw.c
 ap.CFLAGS += -DLINK_IMU -DSPI_MASTER -DUSE_SPI
 ap.srcs += link_imu.c spi.c $(SRC_ARCH)/spi_hw.c
 
+ap.CFLAGS += -DCTL_GRZ
+ap.srcs += control_grz.c
+
 #ap.CFLAGS += -DAP
 #ap.srcs += main_ap_heli.c
 

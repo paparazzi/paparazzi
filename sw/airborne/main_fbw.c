@@ -50,7 +50,9 @@
 #ifdef MCU_SPI_LINK
 #include "link_mcu.h"
 #endif
+
 #include "link_imu.h"
+#include "control_grz.h"
 
 #ifdef ADC
 struct adc_buf vsupply_adc_buf;
@@ -121,8 +123,13 @@ void event_task_fbw( void) {
     if (rc_values_contains_avg_channels) {
       fbw_mode = FBW_MODE_OF_PPRZ(rc_values[RADIO_MODE]);
     }
+#ifdef CTL_GRZ
+    if (fbw_mode == FBW_MODE_MANUAL)
+      ctl_grz_set_setpoints_rate();
+#else
     if (fbw_mode == FBW_MODE_MANUAL)
       SetCommandsFromRC(commands);
+#endif /* CTL_GRZ */
   }
 #endif
 
@@ -162,6 +169,9 @@ void event_task_fbw( void) {
     /* Got a message on SPI. */
     spi_message_received = FALSE;
     link_imu_event_task();
+#ifdef CTL_GRZ
+    ctl_grz_set_measures();
+#endif /* CTL_GRZ */
   }
 #endif /* LINK_IMU */
 
@@ -192,6 +202,10 @@ void periodic_task_fbw( void ) {
 #endif
 
 #ifdef ACTUATORS
+#ifdef CTL_GRZ
+  ctl_grz_rate_run();
+#else
   SetActuatorsFromCommands(commands);
+#endif /* CTL_GRZ */
 #endif
 }
