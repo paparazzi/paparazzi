@@ -168,6 +168,10 @@
 #define S0SPCCR         SPI0->ccr       /* Clock Counter Register */
 #define S0SPINT         SPI0->flag      /* Interrupt Flag Register */
 
+/* S0SPINT bits definition */
+#define SPI0IF 0
+
+
 ///////////////////////////////////////////////////////////////////////////////
 // Serial Peripheral Interface 1 (SPI1)
 #define SPI1            ((spiRegs_t *)0xE0030000)

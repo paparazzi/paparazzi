@@ -39,6 +39,8 @@
 #include "messages.h"
 #include "periodic.h"
 #include "airframe.h"
+#include "commands.h"
+#include "actuators.h"
 
 #include "uart.h"
 #include "main_fbw.h"

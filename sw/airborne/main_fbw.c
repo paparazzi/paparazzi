@@ -50,6 +50,8 @@
 #ifdef MCU_SPI_LINK
 #include "link_mcu.h"
 #endif
+#include "link_imu.h"
+
 #ifdef ADC
 struct adc_buf vsupply_adc_buf;
 #endif
@@ -70,6 +72,9 @@ void init_fbw( void ) {
 #ifdef USE_UART0
   uart0_init_tx();
 #endif
+#ifdef USE_UART1
+  uart1_init_tx();
+#endif
 #ifdef ADC
   adc_init();
   adc_buf_channel(ADC_CHANNEL_VSUPPLY, &vsupply_adc_buf, DEFAULT_AV_NB_SAMPLE);
@@ -89,8 +94,13 @@ void init_fbw( void ) {
  spi_init();
  link_mcu_restart();
 #endif
-
+#ifdef LINK_IMU
+ spi_init();
+ link_imu_init();
+#endif
+#ifndef SINGLE_MCU
   int_enable();
+#endif
 }
 
 
@@ -146,6 +156,15 @@ void event_task_fbw( void) {
   }
 #endif /* MCU_SPI_LINK */
 #endif /* INTER_MCU */
+
+#ifdef LINK_IMU
+  if (spi_message_received) {
+    /* Got a message on SPI. */
+    spi_message_received = FALSE;
+    link_imu_event_task();
+  }
+#endif /* LINK_IMU */
+
 }
 
 /************* PERIODIC ******************************************************/

@@ -486,10 +486,6 @@ inline void periodic_task_ap( void ) {
 void init_ap( void ) {
 #ifdef LED
   led_init();
-
-  IO0DIR |= 1<<2;
-  IO0SET = 1<<2;
-
 #endif
 #ifndef SINGLE_MCU /** Dual mcus : init done in main_fbw */
   hw_init();
@@ -497,7 +493,7 @@ void init_ap( void ) {
 #ifdef ADC
   adc_init();
 #endif
-#endif
+#endif /* SINGLE_MCU */
 
   /************* Sensors initialization ***************/
 #ifdef INFRARED
@@ -565,9 +561,6 @@ void init_ap( void ) {
   }
   wc_configure();
 #endif
- 
-  //  LED_ON(3);
-
 }
 
 

@@ -29,7 +29,7 @@
 #ifndef SPI_H
 #define SPI_H
 
-#ifdef MCU_SPI_LINK
+#ifdef USE_SPI
 
 #include "std.h"
 #include "spi_hw.h"
@@ -42,7 +42,7 @@ extern volatile bool_t spi_message_received;
 
 void spi_init(void);
 
-#ifdef AP
+#ifdef SPI_MASTER
 
 #define SPI_NONE   0
 #define SPI_SLAVE0 1
@@ -55,9 +55,9 @@ extern uint8_t spi_nb_ovrn;
 #define SpiCheckAvailable() (spi_cur_slave == SPI_NONE)
 #define SpiOverRun() {spi_nb_ovrn++;}
 
-#endif /* AP */
+#endif /* SPI_MASTER */
 
-#endif /* MCU_SPI_LINK */
+#endif /* USE_SPI */
 
 #endif /* SPI_H */
 

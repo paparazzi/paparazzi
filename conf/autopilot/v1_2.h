@@ -1,6 +1,8 @@
 #ifndef CONFIG_V1_2_H
 #define CONFIG_V1_2_H
 
+#include "twin_avr.h"
+
 /* clock in MHz */
 #define CLOCK 16
 

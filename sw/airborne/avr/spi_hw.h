@@ -33,49 +33,18 @@ extern volatile uint8_t spi_idx_buf;
   SPDR = spi_buffer_output[0]; \
   spi_message_received = FALSE; \
 }
-#define SPI_IT1_PIN  6
-#define SPI_IT1_PORT PORTE
-#define SPI_IT1_DDR  DDRE 
-#ifdef FBW
 
-#define SPI_PORT   PORTB
-#define SPI_PIN    PINB
-#define SPI_SS_PIN 2
+#ifdef SPI_SLAVE
 
 #define SpiStart() SpiInitBuf()
 
-#endif /* FBW */
+#endif /* SPI_SLAVE */
 
 
-#ifdef AP
-
-#define SPI_SS0_PIN  0
-#define SPI_SS0_PORT PORTB
-#define SPI_SS0_DDR  DDRB
-#define SPI_IT0_PIN  7
-#define SPI_IT0_PORT PORTE
-#define SPI_IT0_DDR  DDRE
-
-#define SPI_SS1_PIN  3
-#define SPI_SS1_PORT PORTE
-#define SPI_SS1_DDR  DDRE
-#define SPI_IT1_PIN  6
-#define SPI_IT1_PORT PORTE
-#define SPI_IT1_DDR  DDRE 
-
-#define SPI_SS2_PIN  2
-#define SPI_SS2_PORT PORTE
-#define SPI_SS2_DDR  DDRE
-#define SPI_IT2_PIN  5
-#define SPI_IT2_PORT PORTE
-#define SPI_IT2_DDR  DDRE 
 
 
-#define SPI_SCK_PIN  1
-#define SPI_MOSI_PIN 2
-#define SPI_MISO_PIN 3
-#define SPI_PORT PORTB
-#define SPI_DDR  DDRB
+
+#ifdef SPI_MASTER
 
 /* Enable SPI, Master, clock fck/16, interrupt */ 
 #define SpiStart() { \
@@ -89,27 +58,29 @@ extern volatile uint8_t spi_idx_buf;
 
 #define SpiUnselectAllSlaves() { \
   spi_cur_slave = SPI_NONE; \
-  SetBit( SPI_SS0_PORT, SPI_SS0_PIN );\
-  SetBit( SPI_SS1_PORT, SPI_SS1_PIN );\
-  SetBit( SPI_SS2_PORT, SPI_SS2_PIN );\
+  SetBit( MASTER_SPI_SS0_PORT, MASTER_SPI_SS0_PIN );\
+  /*							\
+  SetBit( MASTER_SPI_SS1_PORT, MASTER_SPI_SS1_PIN );	\
+  SetBit( MASTER_SPI_SS2_PORT, MASTER_SPI_SS2_PIN );\
+  */						    \
 }
 
 #define SpiSelectSlave0() { \
   spi_cur_slave = SPI_SLAVE0; \
-  ClearBit( SPI_SS0_PORT, SPI_SS0_PIN );\
+  ClearBit( MASTER_SPI_SS0_PORT, MASTER_SPI_SS0_PIN );\
 }
 
 #define SpiSelectSlave1() { \
   spi_cur_slave = SPI_SLAVE1; \
-  ClearBit( SPI_SS1_PORT, SPI_SS1_PIN );\
+  ClearBit( MASTER_SPI_SS1_PORT, MASTER_SPI_SS1_PIN );\
 }
 
 #define SpiSelectSlave2() { \
   spi_cur_slave = SPI_SLAVE2; \
-  ClearBit( SPI_SS2_PORT, SPI_SS2_PIN );\
+  ClearBit( MASTER_SPI_SS2_PORT, MASTER_SPI_SS2_PIN );\
 }
 
-#endif /* AP */
+#endif /* SPI_MASTER */
 
 
 #endif /* SPI_HW_H */

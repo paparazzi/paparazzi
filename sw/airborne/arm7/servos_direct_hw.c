@@ -74,14 +74,6 @@ void actuators_init ( void ) {
   /* commit PWMMRx changes */
   PWMLER = PWMLER_LATCH0;
 
-  Actuator(0) = SERVOS_TICS_OF_USEC(1500);
-  Actuator(1) = SERVOS_TICS_OF_USEC(1500);
-  Actuator(2) = SERVOS_TICS_OF_USEC(1500);
-  Actuator(3) = SERVOS_TICS_OF_USEC(1500);
-  Actuator(4) = SERVOS_TICS_OF_USEC(1500);
-  Actuator(5) = SERVOS_TICS_OF_USEC(1500);
-
-
   /* enable PWM timer in PWM mode */
   PWMTCR = PWMTCR_COUNTER_ENABLE | PWMTCR_PWM_ENABLE;
 

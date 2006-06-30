@@ -240,16 +240,13 @@
 
 
   <message name="IMU_SENSORS" ID="200">
-      <field name="accel_x" type="int16"/>
-      <field name="accel_y" type="int16"/>
-      <field name="accel_z" type="int16"/>
-      <field name="gyro_p" type="float" unit="rad/s"/>
-      <field name="gyro_q" type="float" unit="rad/s"/>
-      <field name="gyro_r" type="float" unit="rad/s"/>
-      <field name="mag_x" type="int16"/>
-      <field name="mag_y" type="int16"/>
-      <field name="mag_z" type="int16"/>
+      <field name="rates" type="float[]" unit="rad/s"/>
   </message>
+
+  <message name="IMU_FOO" ID="201">
+      <field name="rate" type="float" unit="rad/s"/>
+  </message>
+
 
 </class>
 

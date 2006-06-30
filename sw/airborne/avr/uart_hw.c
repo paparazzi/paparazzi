@@ -29,7 +29,8 @@
 #include "uart.h"
 #include "sys_time.h"
 
-#define B9600 9600UL
+#define B2400  2400UL
+#define B9600  9600UL
 #define B38400 38400UL
 
 #if defined  (__AVR_ATmega8__)
@@ -178,21 +179,26 @@ SIGNAL( SIG_UART0_RECV ) {
 
 #endif /** USE_UART0 */
 
+#ifdef USE_UART1
+
 static uint8_t           tx_head1; /* next free in buf */
 static volatile uint8_t  tx_tail1; /* next char to send */
 static uint8_t           tx_buf1[ TX_BUF_SIZE ];
 
 void uart1_init_tx( void ) {
-  /* Baudrate is 38.4k */
+  /* set baud rate */
   UBRR1H = 0; 
-  UBRR1L = 25; // 38.4
+  UBRR1L = F_CPU/(16*UART1_BAUD)-1;
 
   /* single speed */ 
   UCSR1A = 0; 
-  /* Enable receiver and transmitter */ 
+  /* Enable transmitter */ 
   UCSR1B = _BV(TXEN);
   /* Set frame format: 8data, 1stop bit */ 
   UCSR1C = _BV(UCSZ1) | _BV(UCSZ0);
+
+  tx_head1 = 0;
+  tx_tail1 = 0;
 }
 
 void uart1_init_rx( void ) {
@@ -200,6 +206,14 @@ void uart1_init_rx( void ) {
   UCSR1B |= _BV(RXEN);
   /* Enable uart receive interrupt */
   sbi(UCSR1B, RXCIE ); 
+}
+
+bool_t uart1_check_free_space( uint8_t len) {
+  int8_t space;
+  if ((space = (tx_tail1 - tx_head1)) <= 0)
+    space += TX_BUF_SIZE;
+  
+  return (uint16_t)(space - 1) >= len;
 }
 
 void uart1_transmit( unsigned char data ) {
@@ -236,4 +250,8 @@ SIGNAL( SIG_UART1_RECV ) {
   uart1_char_available = TRUE;
 }
 
+#endif /* USE_UART1 */
+
 #endif /* (__AVR_ATmega128__) */
+
+

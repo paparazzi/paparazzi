@@ -12,10 +12,11 @@
 #include "micromag.h"
 #include "imu_v3.h"
 #include "ahrs_new.h"
+#include "link_imu.h"
 
-#include "airframe.h"
-#include "messages.h"
-#include "downlink.h"
+//#include "airframe.h"
+//#include "messages.h"
+//#include "downlink.h"
 
 static inline void main_init( void );
 static inline void main_periodic_task( void );
@@ -62,6 +63,8 @@ static inline void main_init( void ) {
   main_init_spi1();
   max1167_init();
   micromag_init();
+  //  spi0_init();
+  link_imu_init();
   int_enable();
 }
 
@@ -81,6 +84,10 @@ static inline void main_event_task( void ) {
     imu_print_gyro();
     ImuUpdateAccels();
     imu_print_accel();
+    link_imu_state.rates[AXIS_X] = imu_gyro[AXIS_X];
+    link_imu_state.rates[AXIS_Y] = imu_gyro[AXIS_Y];
+    link_imu_state.rates[AXIS_Z] = imu_gyro[AXIS_Z];
+    link_imu_send();
     //    DOWNLINK_SEND_IMU_SENSORS(&imu_accel[AXIS_X], &imu_accel[AXIS_Y], &imu_accel[AXIS_Z],
     //    			      &imu_gyro[AXIS_X], &imu_gyro[AXIS_Y], &imu_gyro[AXIS_Z],
     //    			      &imu_mag[AXIS_X], &imu_mag[AXIS_Y], &imu_mag[AXIS_Z]);

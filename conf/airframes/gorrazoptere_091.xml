@@ -8,7 +8,7 @@
   </servos>
 
   <commands>
-    <axis name="THROTTLE" failsafe_value="5000"/>
+    <axis name="THROTTLE" failsafe_value="0"/>
     <axis name="ROLL"     failsafe_value="0"/>
     <axis name="PITCH"    failsafe_value="0"/>
     <axis name="YAW"      failsafe_value="0"/>
@@ -36,41 +36,13 @@
     <define name="VSUPPLY" value="6"/>
   </section>
 
-  <section name="PID">
-    <define name="ROLL_PGAIN" value="23000."/>
-    <define name="PITCH_OF_ROLL" value="0.0"/>
-    <define name="PITCH_PGAIN" value="23000."/>
-    <define name="MAX_ROLL" value="0.35"/>
-    <define name="MAX_PITCH" value="0.35"/>
-    <define name="MIN_PITCH" value="-0.35"/>
-    <define name="AILERON_OF_GAZ" value="-0.13"/>
-  </section>
-  <section name="ALT" prefix="CLIMB_">
-    <define name="PITCH_PGAIN" value="-0.1"/>
-    <define name="PITCH_IGAIN" value="0.025"/>
-    <define name="PGAIN" value="-0.03"/>
-    <define name="IGAIN" value="0.1"/>
-    <define name="MAX" value="1."/>
-    <define name="LEVEL_GAZ" value="0.31"/>
-    <define name="PITCH_OF_VZ_PGAIN" value="0.05"/>
-    <define name="GAZ_OF_CLIMB" value="0.2" unit="%/(m/s)"/>
-  </section>
-  <section name="NAV">
-    <define name="COURSE_PGAIN" value="-0.2"/>
-    <define name="ALTITUDE_PGAIN" value="-0.025"/>
-    <define name="NAV_PITCH" value="0."/>
-  </section>
-  <section name="BAT">
-    <define name="MILLIAMP_PER_PERCENT" value="2.16"/>
-    <define name="VOLTAGE_ADC_A" value="0.0175"/>
-    <define name="VOLTAGE_ADC_B" value="0.088"/>
+ <section name="BAT">
+    <define name="VOLTAGE_ADC_A" value="0.01"/>
+    <define name="VOLTAGE_ADC_B" value="0."/>
     <define name="VoltageOfAdc(adc)" value="(VOLTAGE_ADC_A * adc + VOLTAGE_ADC_B)"/>
-    <define name="LOW_BATTERY" value="93" unit="1e-1V"/>
   </section>
-  <section name="MISC">
-    <define name="NOMINAL_AIRSPEED" value="10." unit="m/s"/>
-    <define name="CARROT" value="5." unit="s"/>
-  </section>
+
+
  
   <makefile>
 include $(PAPARAZZI_SRC)/conf/autopilot/gorrazoptere_091.makefile
@@ -88,10 +60,17 @@ ap.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c
 
 ap.srcs += $(SRC_ARCH)/adc_hw.c
 
-ap.CFLAGS += -DDOWNLINK -DUSE_UART0 -DUART0_BAUD=B38400 
-ap.CFLAGS += -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_FBW_DEVICE=Uart0 -DDOWNLINK_AP_DEVICE=Uart0 
+ap.CFLAGS += -DDOWNLINK -DUSE_UART1 -DUART1_BAUD=B2400 
+ap.CFLAGS += -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_FBW_DEVICE=Uart1 -DDOWNLINK_AP_DEVICE=Uart1 
+#ap.CFLAGS += -DDOWNLINK -DUSE_UART0 -DUART0_BAUD=B9600 
+#ap.CFLAGS += -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_FBW_DEVICE=Uart0 -DDOWNLINK_AP_DEVICE=Uart0 
 ap.srcs += downlink.c pprz_transport.c $(SRC_ARCH)/uart_hw.c
 
+ap.CFLAGS += -DLINK_IMU -DSPI_MASTER -DUSE_SPI
+ap.srcs += link_imu.c spi.c $(SRC_ARCH)/spi_hw.c
+
+#ap.CFLAGS += -DAP
+#ap.srcs += main_ap_heli.c
 
 
   </makefile>
