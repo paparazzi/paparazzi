@@ -123,24 +123,24 @@ void spi_init( void) {
 /** SPI interrupt: starts a delay */
 SIGNAL(SIG_SPI) {
   /*  if (spi_cur_slave == SPI_SLAVE0) { */
-    /* setup OCR1A to pop in 200 clock cycles */
+    /* setup OCR1C to pop in 200 clock cycles */
     /* this leaves time for the slave (fbw) */
     /* to process the byte we've sent and to  */
     /* prepare a new one to be sent           */
-    OCR1A = TCNT1 + 200;
+    OCR1C = TCNT1 + 200;
     /* clear interrupt flag  */
-    SetBit(TIFR, OCF1A);
-    /* enable OC1A interrupt */
-    SetBit(TIMSK, OCIE1A);
+    SetBit(TIFR, OCF1C);
+    /* enable OC1C interrupt */
+    SetBit(TIMSK, OCIE1C);
     /*  } else
     fatal_error_nb++;
     */
 }
 
 /** Send a byte */
-SIGNAL(SIG_OUTPUT_COMPARE1A) {
-  /* disable OC1A interrupt */
-  ClearBit(TIMSK, OCIE1A);
+SIGNAL(SIG_OUTPUT_COMPARE1C) {
+  /* disable OC1C interrupt */
+  ClearBit(TIMSK, OCIE1C);
 
   HandleOneSpiByte();
 }

@@ -63,7 +63,7 @@ static inline void sys_time_init( void ) {
 #ifdef TIMER3
   /* Timer3 @ Clk/1: motor controller */
   TCCR3A = 0x00;
-  TCCR3B = 0x01;
+  TCCR3B = _BV(CS10);
 #endif
 
   cpu_time = 0;
