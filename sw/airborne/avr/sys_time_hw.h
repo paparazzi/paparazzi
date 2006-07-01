@@ -55,7 +55,14 @@ static inline void sys_time_init( void ) {
 #if defined (__AVR_ATmega8__)
   TCCR2         = _BV(CS20) | _BV(CS21) | _BV(CS22);
 #elif defined (__AVR_ATmega128__)
+#if CLOCK == 16
   TCCR2         = _BV(CS20) | _BV(CS22);
+#elif CLOCK == 8
+  TCCR2         = _BV(CS22);
+  sbi( TIMSK, TOIE2 );
+#else
+#error "Unknwon CLOCK"
+#endif
 #else
 #warning "Unknown arch"
 #endif
@@ -72,20 +79,45 @@ static inline void sys_time_init( void ) {
 
 #define SYS_TICS_OF_USEC(us) (uint16_t)((us)*CLOCK)
 #define SIGNED_SYS_TICS_OF_USEC(us) (int16_t)((us)*CLOCK)
+
+#if CLOCK == 8
+#define LONG_SYS_TICS_OF_USEC(us) (uint16_t)(((uint32_t)(us)*CLOCK)/256ul)
+#else
 #define LONG_SYS_TICS_OF_USEC(us) (uint8_t)(((uint32_t)(us)*CLOCK)/1024ul)
+#endif
 
 /*
  *  Periodic tasks occur when Timer2 overflows.  Check and unset
- * the overflow bit. Occurs at 61.03515625 Hz
+ * the overflow bit. Occurs at 61.03515625 Hz with CLOCK = 16
+ * Occurs at 122Hz with CLOCK = 8
  *
  */
+
+#if CLOCK == 8
+extern volatile uint8_t tmr2_ov_cnt;
+extern volatile bool_t tmr2_overflow;
+#endif
+
+
+#if CLOCK == 8
+static inline bool_t sys_time_periodic( void ) {
+  if( !tmr2_overflow )
+    return FALSE;
+  tmr2_overflow = FALSE;
+
+  return (tmr2_ov_cnt & 0x1);
+}
+
+#else 
+
 static inline bool_t sys_time_periodic( void ) {
   if( !bit_is_set( TIFR, TOV2 ) )
     return FALSE;
   TIFR = _BV(TOV2);
+
   return TRUE;
 }
 
-
+#endif
 
 #endif /* SYS_TIME_HW_H */

@@ -22,6 +22,7 @@
  *
  */
 
+#include "std.h"
 #include "spi.h"
 
 uint8_t* spi_buffer_input;
