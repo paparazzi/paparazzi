@@ -119,7 +119,7 @@
     <define name="NOMINAL_AIRSPEED" value="10." unit="m/s"/>
     <define name="CARROT" value="5." unit="s"/>
     <define name="KILL_MODE_DISTANCE" value="(MAX_DIST_FROM_HOME*1.5)" unit="s"/>
-    <define name="LIGHT_PIN" value="3"/>
+    <define name="LIGHT_PIN_1" value="3"/>
   </section>
  
   <section name="SIMU">
@@ -155,11 +155,10 @@
   </section>
 -->
 
-
   <makefile>
 include $(PAPARAZZI_SRC)/conf/autopilot/classix.makefile
 
-FLASH_MODE = ISP
+FLASH_MODE=ISP
 
 fbw.CFLAGS += -DFBW -DCONFIG=\"classix.h\" -DLED -DTIME_LED=1
 fbw.srcs = sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c main_fbw.c main.c
@@ -175,7 +174,7 @@ fbw.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c
 fbw.CFLAGS += -DDOWNLINK -DUSE_UART0 -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_FBW_DEVICE=Uart0 -DUART0_BAUD=B9600
 fbw.srcs += downlink.c pprz_transport.c $(SRC_ARCH)/uart_hw.c
 
-fbw.CFLAGS += -DINTER_MCU -DMCU_SPI_LINK -DUSE_SPI
+fbw.CFLAGS += -DINTER_MCU -DMCU_SPI_LINK -DUSE_SPI -DSPI_SLAVE
 fbw.srcs += inter_mcu.c link_mcu.c spi.c $(SRC_ARCH)/spi_hw.c
 
 fbw.CFLAGS += -DADC -DUSE_AD0
@@ -186,12 +185,12 @@ ap.CFLAGS += -DAP -DCONFIG=\"classix.h\" -DLED -DTIME_LED=2
 ap.srcs = sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c main_ap.c main.c
 
 #ap.CFLAGS += -DDOWNLINK -DUSE_UART0 -DDOWNLINK_TRANSPORT=XBeeTransport -DDOWNLINK_AP_DEVICE=Uart0 -DXBEE_UART=Uart0 -DDATALINK=XBEE -DUART0_BAUD=B9600
-#ap.srcs += downlink.c pprz_transport.c $(SRC_ARCH)/uart_hw.c datalink.c traffic_info.c xbee.c
+#ap.srcs += downlink.c $(SRC_ARCH)/uart_hw.c datalink.c traffic_info.c xbee.c
 
-ap.CFLAGS += -DDOWNLINK -DUSE_UART0 -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_AP_DEVICE=Uart0 -DDATALINK=Pprz -DUART0_BAUD=B9600
-ap.srcs += downlink.c pprz_transport.c $(SRC_ARCH)/uart_hw.c datalink.c traffic_info.c
+ap.CFLAGS += -DDOWNLINK -DUSE_UART0 -DPPRZ_UART=Uart0 -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_AP_DEVICE=Uart0 -DDATALINK=PPRZ -DUART0_BAUD=B57600 -DAEROCOMM_DATA_PIN=14
+ap.srcs += downlink.c $(SRC_ARCH)/uart_hw.c datalink.c traffic_info.c pprz_transport.c
 
-ap.CFLAGS += -DINTER_MCU -DMCU_SPI_LINK
+ap.CFLAGS += -DINTER_MCU -DMCU_SPI_LINK -DUSE_SPI -DSPI_MASTER
 ap.srcs += inter_mcu.c link_mcu.c spi.c $(SRC_ARCH)/spi_hw.c
 
 ap.CFLAGS += -DGPS -DUBX -DUSE_UART1 -DGPS_LINK=Uart1 -DUART1_BAUD=B38400
