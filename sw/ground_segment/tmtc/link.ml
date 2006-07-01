@@ -108,18 +108,22 @@ let airframes =
   let conf_file = conf // "conf.xml" in
   List.fold_right (fun a r ->
     if ExtXml.tag_is a "aircraft" then
+      let airframe_file = conf // ExtXml.attrib a "airframe" in
       try
-	let airframe_xml = Xml.parse_file (conf // ExtXml.attrib a "airframe") in
+	let airframe_xml = Xml.parse_file airframe_file in
 	let dls = ExtXml.child ~select:(fun s -> Xml.attrib s "name" = "DATALINK") airframe_xml "section" in
 	let device = get_define dls "DEVICE_TYPE"
 	and addr = get_define dls "DEVICE_ADDRESS" in
 	let dl = airborne_device device addr in
 	(ios (ExtXml.attrib a "ac_id"), dl)::r
       with
-	Xml.File_not_found f ->
+	Not_found -> r
+      |	Xml.File_not_found f ->
 	  fprintf stderr "Error in '%s', file not found: %s\n" conf_file f;
 	  r
-      |	Not_found -> r
+      |	_ ->
+	  fprintf stderr "Error in '%s', ignoring\n" airframe_file;
+	  r
     else
       r)
     (Xml.children (Xml.parse_file conf_file))
