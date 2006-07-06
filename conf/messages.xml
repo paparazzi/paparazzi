@@ -247,6 +247,41 @@
       <field name="rate" type="float" unit="rad/s"/>
   </message>
 
+  <message name="AHRS" ID="202">
+      <field name="q0" type="float"/>
+      <field name="q1" type="float"/>
+      <field name="q2" type="float"/>
+      <field name="q3" type="float"/>
+      <field name="bx" type="float"/>
+      <field name="by" type="float"/>
+      <field name="bz" type="float"/>
+  </message>
+
+  <message name="AHRS2" ID="203">
+    <field name="roll" type="float"/>
+    <field name="pitch" type="float"/>
+    <field name="yaw" type="float"/>
+  </message>
+
+  <message name="AHRS_ACCEL" ID="204">
+    <field name="ax" type="float"/>
+    <field name="ay" type="float"/>
+    <field name="az" type="float"/>
+  </message>
+
+  <message name="AHRS_MAG" ID="205">
+    <field name="mx" type="int16"/>
+    <field name="my" type="int16"/>
+    <field name="mz" type="int16"/>
+  </message>
+
+  <message name="TIME" ID="206">
+    <field name="t" type="uint32"/>
+  </message>
+
+  <message name="AHRS_OVERRUN" ID="207">
+  </message>
+
 
 </class>
 
