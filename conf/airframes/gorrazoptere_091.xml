@@ -1,10 +1,10 @@
 <airframe name="Gorrazoptere_091">
 
   <servos min="0" neutral="0" max="0x3ff">
-    <servo name="MOTOR_FRONT" no="0" min="0" neutral="0" max="0x3ff"/>
-    <servo name="MOTOR_BACK"  no="1" min="0" neutral="0" max="0x3ff"/>
-    <servo name="MOTOR_LEFT"  no="2" min="0" neutral="0" max="0x3ff"/>
-    <servo name="MOTOR_RIGHT" no="3" min="0" neutral="0" max="0x3ff"/>
+    <servo name="MOTOR_FRONT" no="1" min="0" neutral="0" max="0x3ff"/>
+    <servo name="MOTOR_BACK"  no="0" min="0" neutral="0" max="0x3ff"/>
+    <servo name="MOTOR_LEFT"  no="3" min="0" neutral="0" max="0x3ff"/>
+    <servo name="MOTOR_RIGHT" no="2" min="0" neutral="0" max="0x3ff"/>
   </servos>
 
   <commands>
@@ -12,13 +12,17 @@
     <axis name="ROLL"     failsafe_value="0"/>
     <axis name="PITCH"    failsafe_value="0"/>
     <axis name="YAW"      failsafe_value="0"/>
+    <axis name="Z" failsafe_value="0"/>
+    <axis name="ROLL_DOT"     failsafe_value="0"/>
+    <axis name="PITCH_DOT"    failsafe_value="0"/>
+    <axis name="YAW_DOT"      failsafe_value="0"/>
   </commands>
 
   <rc_commands>
-    <set command="THROTTLE" value="@THROTTLE"/>
-    <set command="ROLL" value="@ROLL"/>
-    <set command="PITCH" value="@PITCH"/>
-    <set command="YAW" value="@YAW"/>
+    <set command="Z" value="@THROTTLE"/>
+    <set command="ROLL_DOT" value="@ROLL"/>
+    <set command="PITCH_DOT" value="@PITCH"/>
+    <set command="YAW_DOT" value="@YAW"/>
   </rc_commands>
 
   <command_laws>
@@ -26,19 +30,24 @@
     <let var="pitch"    value="0.3  * @PITCH"/>
     <let var="yaw"      value="-0.4  * @YAW"/>
     <let var="throttle" value="@THROTTLE"/>
-    <set servo="MOTOR_FRONT" value="$throttle + $pitch - $yaw"/>
-    <set servo="MOTOR_BACK"  value="$throttle - $pitch - $yaw"/>
-    <set servo="MOTOR_RIGHT" value="$throttle + $roll  + $yaw"/>
-    <set servo="MOTOR_LEFT"  value="$throttle - $roll  + $yaw"/>
+    <set servo="MOTOR_FRONT" value="$throttle < 500 ? 0 : $throttle + $pitch - $yaw"/>
+    <set servo="MOTOR_BACK"  value="$throttle < 500 ? 0 : $throttle - $pitch - $yaw"/>
+    <set servo="MOTOR_RIGHT" value="$throttle < 500 ? 0 : $throttle + $roll  + $yaw"/>
+    <set servo="MOTOR_LEFT"  value="$throttle < 500 ? 0 : $throttle - $roll  + $yaw"/>
   </command_laws>
 
   <section name="adc" prefix="ADC_CHANNEL_">
     <define name="VSUPPLY" value="6"/>
+    <define name="RANGEMETER" value="0"/>
+  </section>
+
+  <section name="altimetry">
+    <define name="RangeCmOfAdc(adc)" value="(adc*600./791.)"/>
   </section>
 
  <section name="BAT">
-    <define name="VOLTAGE_ADC_A" value="0.01"/>
-    <define name="VOLTAGE_ADC_B" value="0."/>
+    <define name="VOLTAGE_ADC_A" value="0.0177"/>
+    <define name="VOLTAGE_ADC_B" value="0.44"/>
     <define name="VoltageOfAdc(adc)" value="(VOLTAGE_ADC_A * adc + VOLTAGE_ADC_B)"/>
   </section>
 
@@ -48,7 +57,7 @@
 include $(PAPARAZZI_SRC)/conf/autopilot/gorrazoptere_091.makefile
 
 ap.CFLAGS += -DFBW -DCONFIG=\"gorrazoptere_091.h\"  
-ap.srcs = sys_time.c main_fbw.c main.c
+ap.srcs = sys_time.c main_fbw.c main.c $(SRC_ARCH)/sys_time_hw.c 
 
 ap.srcs += commands.c
 
@@ -60,7 +69,7 @@ ap.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c
 
 ap.srcs += $(SRC_ARCH)/adc_hw.c
 
-ap.CFLAGS += -DDOWNLINK -DUSE_UART1 -DUART1_BAUD=B2400 
+ap.CFLAGS += -DDOWNLINK -DUSE_UART1 -DUART1_BAUD=B2400
 ap.CFLAGS += -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_FBW_DEVICE=Uart1 -DDOWNLINK_AP_DEVICE=Uart1 
 #ap.CFLAGS += -DDOWNLINK -DUSE_UART0 -DUART0_BAUD=B9600 
 #ap.CFLAGS += -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_FBW_DEVICE=Uart0 -DDOWNLINK_AP_DEVICE=Uart0 
@@ -72,8 +81,14 @@ ap.srcs += link_imu.c spi.c $(SRC_ARCH)/spi_hw.c
 ap.CFLAGS += -DCTL_GRZ
 ap.srcs += control_grz.c
 
-#ap.CFLAGS += -DAP
-#ap.srcs += main_ap_heli.c
+ap.CFLAGS += -DAP -DDATALINK=PPRZ -DPPRZ_UART=Uart1
+ap.srcs += main_grz.c datalink.c pprz_transport.c
+
+calib.ARCHDIR = $(ARCHI)
+calib.ARCH = atmega128
+calib.TARGET = test_calib
+calib.TARGETDIR = test_calib
+calib.srcs = $(SRC_ARCH)/test_calib.c
 
 
   </makefile>
