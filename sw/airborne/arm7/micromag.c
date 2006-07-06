@@ -38,7 +38,7 @@ void micromag_init( void ) {
 void micromag_read( void ) {
   MmSelect();
   SpiEnable();
-  micromag_cur_axe = 0;
+  //  micromag_cur_axe = 0;
   MmTriggerRead();
 }
 

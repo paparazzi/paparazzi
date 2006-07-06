@@ -39,6 +39,9 @@ extern volatile uint8_t micromag_cur_axe;
 
 #define MmTriggerRead() {					\
     MmSet();							\
+    micromag_cur_axe++;						\
+    if (micromag_cur_axe == MM_NB_AXIS)				\
+      micromag_cur_axe = 0;					\
     MmReset();							\
     uint8_t control_byte = (micromag_cur_axe+1) << 0 | 4 << 4;	\
     SpiSend(control_byte);					\
@@ -52,17 +55,11 @@ extern volatile uint8_t micromag_cur_axe;
       SpiClearRti();					\
       /* disable RTI */					\
       SpiDisableRti();					\
-      micromag_cur_axe++;				\
-      if (micromag_cur_axe > MM_NB_AXIS) {		\
-	micromag_data_available = TRUE;			\
-	/* disable SPI */				\
-	SpiDisable();					\
-	/* unselected max1167 */			\
-	MmUnselect();					\
-      }							\
-      else {						\
-	MmTriggerRead();				\
-      }							\
+      micromag_data_available = TRUE;			\
+      /* disable SPI */					\
+      SpiDisable();					\
+      /* unselected device */				\
+      MmUnselect();					\
     }							\
 }
 

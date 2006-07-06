@@ -15,9 +15,11 @@
  * angular rates.
  */
 //#define dt              0.04
-#define dt              0.0625
+//#define dt              0.0625
+//#define dt                0.0117185
+#define dt                0.015625
 
-#define CONFIG_SPLIT_COVARIANCE
+//#define CONFIG_SPLIT_COVARIANCE
 
 #ifdef CONFIG_SPLIT_COVARIANCE
 #define dt_covariance   2 * dt
@@ -575,7 +577,7 @@ ahrs_roll_update(
 {
 
   // Reuse the DCM and A matrix from the compass computations
-  //compute_DCM();
+  compute_DCM();
   compute_euler_roll();
   compute_dphi_dq();
 
@@ -590,6 +592,7 @@ ahrs_roll_update(
     roll -= 2 * C_PI;
 
   run_kalman( R_roll, roll );
+  norm_quat();
 }
 
 void
@@ -599,7 +602,7 @@ ahrs_pitch_update(
 {
 
   // Reuse DCM
-  //compute_DCM();
+  compute_DCM();
   compute_euler_pitch();
   compute_dtheta_dq();
 
@@ -706,6 +709,7 @@ ahrs_compass_update(
     heading -= 2 * C_PI;
 
   run_kalman( R_yaw, heading );
+  norm_quat();
 }
 
 

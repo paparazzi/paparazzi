@@ -6,7 +6,7 @@
 #include "frames.h"
 
 /* accelerometers in arbitrary unit */
-extern int16_t imu_accel[AXIS_NB];
+extern float imu_accel[AXIS_NB];
 /* gyros in rad/s                   */
 extern float   imu_gyro[AXIS_NB];
 /* magnetometer in arbitrary unit   */
@@ -26,11 +26,25 @@ extern struct adc_buf buf_bat;
 #define IMU_ACCEL_Y_NEUTRAL 506
 #define IMU_ACCEL_Z_NEUTRAL 506
 
+#if 0
+#define ImuUpdateAccels() {						\
+    int_disable();							\
+    imu_accel[AXIS_X]= buf_ax.sum;					\
+    imu_accel[AXIS_Y]= buf_ay.sum;					\
+    imu_accel[AXIS_Z]= buf_az.sum;					\
+    int_enable();							\
+    imu_accel[AXIS_X] = -((imu_accel[AXIS_X] / DEFAULT_AV_NB_SAMPLE) - IMU_ACCEL_X_NEUTRAL); \
+    imu_accel[AXIS_Y] = (imu_accel[AXIS_Y] / DEFAULT_AV_NB_SAMPLE) - IMU_ACCEL_Y_NEUTRAL; \
+    imu_accel[AXIS_Z] = (imu_accel[AXIS_Z] / DEFAULT_AV_NB_SAMPLE) - IMU_ACCEL_Z_NEUTRAL; \
+  }
+#else
 #define ImuUpdateAccels() {             					   \
-    imu_accel[AXIS_X]= -(buf_ax.sum / DEFAULT_AV_NB_SAMPLE) - IMU_ACCEL_X_NEUTRAL; \
+    imu_accel[AXIS_X]= -((buf_ax.sum / DEFAULT_AV_NB_SAMPLE) - IMU_ACCEL_X_NEUTRAL); \
     imu_accel[AXIS_Y]= (buf_ay.sum / DEFAULT_AV_NB_SAMPLE) - IMU_ACCEL_Y_NEUTRAL;  \
     imu_accel[AXIS_Z]= (buf_az.sum / DEFAULT_AV_NB_SAMPLE) - IMU_ACCEL_Z_NEUTRAL;  \
 }
+#endif
+
 
 #define IMU_GYRO_X_NEUTRAL 40867
 #define IMU_GYRO_Y_NEUTRAL 40852
@@ -53,7 +67,7 @@ extern struct adc_buf buf_bat;
 #define ImuUpdateMag() {		   \
     imu_mag[AXIS_X] = -micromag_values[0]; \
     imu_mag[AXIS_Y] = -micromag_values[1]; \
-    imu_mag[AXIS_Z] = micromag_values[1];  \
+    imu_mag[AXIS_Z] = micromag_values[2];  \
   }
 
 

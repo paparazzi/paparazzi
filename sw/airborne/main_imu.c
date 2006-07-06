@@ -14,9 +14,9 @@
 #include "ahrs_new.h"
 #include "link_imu.h"
 
-//#include "airframe.h"
-//#include "messages.h"
-//#include "downlink.h"
+#include "messages.h"
+#include "downlink.h"
+
 
 static inline void main_init( void );
 static inline void main_periodic_task( void );
@@ -27,10 +27,7 @@ struct adc_buf buf_ay;
 //struct adc_buf buf_az;
 //struct adc_buf buf_bat;
 
-static void imu_print_bat  ( void );
-static void imu_print_accel( void );
-static void imu_print_gyro ( void );
-static void imu_print_mag  ( void );
+static inline void ahrs_task( void );
 
 static void main_init_spi1( void );
 
@@ -41,8 +38,14 @@ static void SPI1_ISR(void) __attribute__((naked));
 #define SPI_SLAVE_MAX  2
 
 uint8_t spi_cur_slave = SPI_SLAVE_NONE;
-#define AHRS_NB_STATE 3
-uint8_t ahrs_state = 0;
+
+
+#define AHRS_STEP_UNINIT -1
+#define AHRS_STEP_ROLL    0
+#define AHRS_STEP_PITCH   1
+#define AHRS_STEP_YAW     2
+#define AHRS_STEP_NB      3
+int8_t ahrs_step = AHRS_STEP_UNINIT;
 
 int main( void ) {
   main_init();
@@ -68,105 +71,94 @@ static inline void main_init( void ) {
   int_enable();
 }
 
+static uint32_t t0, t1;
+
 static inline void main_event_task( void ) {
 
   if (micromag_data_available) {
     micromag_data_available = FALSE;
     spi_cur_slave = SPI_SLAVE_NONE;
     ImuUpdateMag();
-    imu_print_mag();
+    //    DOWNLINK_SEND_AHRS_MAG(&imu_mag[AXIS_X], &imu_mag[AXIS_Y], &imu_mag[AXIS_Z]);
+    spi_cur_slave = SPI_SLAVE_MAX;
+    max1167_read();
   }
 
   if (max1167_data_available) {
     max1167_data_available = FALSE;
     spi_cur_slave = SPI_SLAVE_NONE;
     ImuUpdateGyros();
-    imu_print_gyro();
     ImuUpdateAccels();
-    imu_print_accel();
+    ahrs_task();
+
+    t1=T0TC;
+    uint32_t dt = t1 - t0;
+    //    DOWNLINK_SEND_TIME(&dt);
+
     link_imu_state.rates[AXIS_X] = imu_gyro[AXIS_X];
     link_imu_state.rates[AXIS_Y] = imu_gyro[AXIS_Y];
     link_imu_state.rates[AXIS_Z] = imu_gyro[AXIS_Z];
+    link_imu_state.eulers[AXIS_X] = ahrs_euler[AXIS_X];
+    link_imu_state.eulers[AXIS_Y] = ahrs_euler[AXIS_Y];
+    link_imu_state.eulers[AXIS_Z] = ahrs_euler[AXIS_Z];
     link_imu_send();
-    //    DOWNLINK_SEND_IMU_SENSORS(&imu_accel[AXIS_X], &imu_accel[AXIS_Y], &imu_accel[AXIS_Z],
-    //    			      &imu_gyro[AXIS_X], &imu_gyro[AXIS_Y], &imu_gyro[AXIS_Z],
-    //    			      &imu_mag[AXIS_X], &imu_mag[AXIS_Y], &imu_mag[AXIS_Z]);
-    
-    if (ahrs_state == 2) {
-      spi_cur_slave = SPI_SLAVE_MAG;
-      micromag_read();
-    }
   }
 }
 
 static inline void main_periodic_task( void ) {
-  static uint8_t foo = 0;
-  foo++;
-  if (!(foo % 4)) {
-    ahrs_state++;
-    if (ahrs_state == AHRS_NB_STATE)
-      ahrs_state = 0;
-    
-    if (spi_cur_slave != SPI_SLAVE_NONE)
-      Uart1PrintString("OVERUN");
+  if (spi_cur_slave != SPI_SLAVE_NONE)
+    DOWNLINK_SEND_AHRS_OVERRUN();
+  t0 = T0TC;
 
-    switch (ahrs_state) {
-    case 0:
-      spi_cur_slave = SPI_SLAVE_MAX;
-      max1167_read();
-      imu_print_bat();
-      break;
-    case 1:
-      spi_cur_slave = SPI_SLAVE_MAX;
-      max1167_read();
-      break;
-    case 2:
-      spi_cur_slave = SPI_SLAVE_MAX;
-      max1167_read();
-      break;
+  // spi_cur_slave = SPI_SLAVE_MAX;
+  //  max1167_read();
+
+  spi_cur_slave = SPI_SLAVE_MAG;
+  micromag_read();
+
+}
+
+
+static inline void ahrs_task( void ) {
+
+
+  ahrs_pqr[AXIS_X] = imu_gyro[AXIS_X];
+  ahrs_pqr[AXIS_Y] = imu_gyro[AXIS_Y];
+  ahrs_pqr[AXIS_Z] = imu_gyro[AXIS_Z];
+
+  switch (ahrs_step) {
+  case AHRS_STEP_UNINIT : {
+    static uint8_t init_count = 0;
+    init_count++;
+    if (init_count < 100) ahrs_step--;
+    else {
+      ahrs_euler[AXIS_X] = ahrs_roll_of_accel(imu_accel);
+      ahrs_euler[AXIS_Y] = ahrs_pitch_of_accel(imu_accel);
+      ahrs_euler[AXIS_Z] = 0.;
+      imu_mag[AXIS_X] = 100; imu_mag[AXIS_Y] = 0;  imu_mag[AXIS_Z] = 0; 
+      ahrs_init(imu_mag);
     }
   }
+    break;
+  case AHRS_STEP_ROLL: 
+    ahrs_state_update();
+    ahrs_roll_update(ahrs_roll_of_accel(imu_accel)); 
+    break;
+  case AHRS_STEP_PITCH:
+    ahrs_state_update();
+    ahrs_pitch_update(ahrs_pitch_of_accel(imu_accel)); 
+    break;
+  case AHRS_STEP_YAW:  
+    ahrs_state_update();
+    ahrs_compass_update(ahrs_heading_of_mag(imu_mag));
+    DOWNLINK_SEND_AHRS(&q0, &q1, &q2, &q3, &bias_p, &bias_q, &bias_r);
+    //DOWNLINK_SEND_AHRS2(&ahrs_euler[AXIS_X], &ahrs_euler[AXIS_Y], &ahrs_euler[AXIS_Z]);
+    break;
+  }
+  ahrs_step++;
+  if (ahrs_step == AHRS_STEP_NB) ahrs_step = AHRS_STEP_ROLL;
 }
 
-static void imu_print_bat ( void ) {
-  Uart1PrintString("BAT ");
-  uint16_t val = buf_bat.sum / DEFAULT_AV_NB_SAMPLE;
-  Uart1PrintHex16(val);
-  uart1_transmit('\n');
-}
-
-static void imu_print_accel ( void ) {
-  Uart1PrintString("ACCEL ");
-  uint16_t val = buf_ax.sum / DEFAULT_AV_NB_SAMPLE;
-  Uart1PrintHex16(val);
-  uart1_transmit(' ');
-  val = buf_ay.sum / DEFAULT_AV_NB_SAMPLE;
-  Uart1PrintHex16(val);
-  uart1_transmit(' ');
-  val = buf_az.sum / DEFAULT_AV_NB_SAMPLE;
-  Uart1PrintHex16(val);
-  uart1_transmit('\n');
-}
-
-static void imu_print_gyro ( void ) {
-  Uart1PrintString("GYRO ");
-  Uart1PrintHex16(max1167_values[0]);
-  uart1_transmit(' ');
-  Uart1PrintHex16(max1167_values[1]);
-  uart1_transmit(' ');
-  Uart1PrintHex16(max1167_values[2]);
-  uart1_transmit('\n');
-}
-
-static void imu_print_mag ( void ) {
-    Uart1PrintString("MAG ");
-    Uart1PrintHex16(micromag_values[0]);
-    uart1_transmit(' ');
-    Uart1PrintHex16(micromag_values[1]);
-    uart1_transmit(' ');
-    Uart1PrintHex16(micromag_values[2]);
-    uart1_transmit('\n');
-}
 
 /* SSPCR0 settings */
 #define SSP_DDS  0x07 << 0  /* data size         : 8 bits        */

@@ -4,7 +4,7 @@
 #include "adc.h"
 
 /* accelerometers in arbitrary unit */
-int16_t imu_accel[AXIS_NB];
+float imu_accel[AXIS_NB];
 /* gyros in rad/s                   */
 float   imu_gyro[AXIS_NB];
 /* magnetometer in arbitrary unit   */
