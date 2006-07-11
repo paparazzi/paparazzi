@@ -133,10 +133,6 @@ void event_task_fbw( void) {
   }
 #endif
 
-#ifdef ADC
-  fbw_vsupply_decivolt = VoltageOfAdc(vsupply_adc_buf.sum/vsupply_adc_buf.av_nb_sample) * 10;
-#endif
-
 #ifdef INTER_MCU
 #ifdef MCU_SPI_LINK
   if (spi_message_received) {
@@ -193,13 +189,20 @@ void periodic_task_fbw( void ) {
     set_failsafe_mode();
 #endif
 
-#ifdef DOWNLINK
   static uint8_t _10Hz; /* FIXME : sys_time should provide it */
   _10Hz++;
   if (_10Hz >= 6) _10Hz = 0;
+
+#ifdef DOWNLINK
   if (!_10Hz)
     fbw_downlink_periodic_task();
 #endif
+
+#ifdef ADC
+  if (!_10Hz)
+    fbw_vsupply_decivolt = VoltageOfAdc((10*(vsupply_adc_buf.sum/vsupply_adc_buf.av_nb_sample)));
+#endif
+
 
 #ifdef ACTUATORS
 #ifdef CTL_GRZ
