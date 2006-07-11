@@ -47,7 +47,7 @@ $(AIRFRAME_H) : $(CONF)/$(AIRFRAME) $(CONF_XML)
 	$(Q)$(TOOLS)/gen_airframe.out $(AC_ID) $(AIRCRAFT) $< > /tmp/airframe.h
 	$(Q)mv /tmp/airframe.h $@
 
-$(RADIO_H) : $(CONF)/$(RADIO) $(CONF_XML)
+$(RADIO_H) : $(CONF)/$(RADIO) $(CONF_XML) $(TOOLS)/gen_radio.out
 	@echo BUILD $@
 	$(Q)$(TOOLS)/gen_radio.out $< > /tmp/radio.h
 	$(Q)mv /tmp/radio.h $@
