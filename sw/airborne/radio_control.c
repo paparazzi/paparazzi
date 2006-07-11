@@ -26,7 +26,7 @@
 
 pprz_t rc_values[PPM_NB_PULSES];
 uint8_t rc_status;
-pprz_t avg_rc_values[PPM_NB_PULSES];
+int32_t avg_rc_values[PPM_NB_PULSES];
 uint8_t rc_values_contains_avg_channels = FALSE;
 uint8_t time_since_last_ppm;
 uint8_t ppm_cpt, last_ppm_cpt;

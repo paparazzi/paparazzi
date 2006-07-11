@@ -44,7 +44,7 @@
 
 extern pprz_t rc_values[PPM_NB_PULSES];
 extern uint8_t rc_status;
-extern pprz_t avg_rc_values[PPM_NB_PULSES];
+extern int32_t avg_rc_values[PPM_NB_PULSES];
 extern uint8_t rc_values_contains_avg_channels;
 extern uint8_t time_since_last_ppm;
 extern uint8_t ppm_cpt, last_ppm_cpt;
