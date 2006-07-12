@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<!DOCTYPE telemetry SYSTEM "telemetry.dtd">
+<telemetry>
+  <process name="Ap">
+    <mode name="default">
+      <message name="PPRZ_MODE"         period="5"/>
+      <message name="DL_VALUE"          period="1"/>
+      <message name="RANGEFINDER"       period="2"/>
+      <message name="GRZ_MEASURE"    period="0.5"/>
+      <message name="GRZ_RATE_LOOP"     period="0.5"/>
+      <message name="GRZ_ATTITUDE_LOOP" period="0.5"/>
+      <message name="SPEED_LOOP" period="0.5"/>
+      <message name="ATTITUDE"       period="0.5"/>
+    </mode>
+    <mode name="debug">
+      <message name="PPRZ_MODE"      period="5"/>
+    </mode>
+  </process>
+  <process name="Fbw">
+    <mode name="default">
+      <message name="COMMANDS"       period="1"/>
+      <message name="FBW_STATUS"     period="1"/>
+      <message name="ACTUATORS"      period="5"/>
+      <message name="RC"             period="1"/>
+    </mode>
+    <mode name="debug">
+      <message name="PPM"            period="0.5"/>
+      <message name="RC"             period="0.5"/>
+      <message name="COMMANDS"       period="0.5"/>
+      <message name="FBW_STATUS"     period="1"/>
+      <message name="ACTUATORS"      period="5"/>
+    </mode>
+  </process>
+</telemetry>

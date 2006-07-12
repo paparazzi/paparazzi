@@ -1,8 +1,11 @@
+#include <inttypes.h>
+#if (__GNUC__ == 3)
+#include <avr/signal.h>
+#endif
+#include <avr/interrupt.h>
+
 #include CONFIG
 #include "std.h"
-
-#include <inttypes.h>
-#include <avr/interrupt.h>
 
 #if CLOCK == 8
 volatile uint8_t tmr2_ov_cnt;
