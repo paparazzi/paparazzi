@@ -520,6 +520,7 @@ let _ =
   let uplink = ref false in
   let audio = ref false in
   let rssi_id = ref (-1) in
+  let dtr = ref false in
   
   let options =
     [ "-b", Arg.Set_string ivy_bus, (sprintf "<ivy bus> Default is %s" !ivy_bus);
@@ -527,6 +528,7 @@ let _ =
       "-rssi", Arg.Set_int rssi_id, (sprintf "<ac_id> Periodically requests rssi level from the distant wavecard");
       "-transport", Arg.Set_string transport, (sprintf "<transport> Available protocols are modem,pprz,wavecard and xbee. Default is %s" !transport);
       "-uplink", Arg.Set uplink, (sprintf "Uses the link as uplink also.");
+      "-dtr", Arg.Set dtr, "Set serial DTR to false (aerocomm)";
       "-audio", Arg.Unit (fun () -> audio := true; port := "/dev/dsp"), (sprintf "Listen a modulated audio signal on <port>. Sets <port> to /dev/dsp (the -d option must used after this one if needed)");
       "-s", Arg.Set_string baurate, (sprintf "<baudrate>  Default is %s" !baurate)] in
   Arg.parse
@@ -557,6 +559,9 @@ let _ =
 	else 
 	  Unix.descr_of_in_channel (open_in !port)
     in
+
+    if !dtr then
+      Serial.set_dtr fd false;
 
     
     let device = { fd=fd; transport=transport; baud_rate=int_of_string !baurate } in
@@ -609,4 +614,5 @@ let _ =
       ignore (Glib.Main.iteration true)
     done
   with
-    exn -> fprintf stderr "%s\n" (Printexc.to_string exn)
+    Xml.Error e -> prerr_endline (Xml.error e); exit 1
+  | exn -> fprintf stderr "%s\n" (Printexc.to_string exn)

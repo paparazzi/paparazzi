@@ -107,9 +107,7 @@ static inline bool_t sys_time_periodic( void ) {
 
   return (tmr2_ov_cnt & 0x1);
 }
-
 #else 
-
 static inline bool_t sys_time_periodic( void ) {
   if( !bit_is_set( TIFR, TOV2 ) )
     return FALSE;
@@ -117,7 +115,6 @@ static inline bool_t sys_time_periodic( void ) {
 
   return TRUE;
 }
-
 #endif
 
 #endif /* SYS_TIME_HW_H */

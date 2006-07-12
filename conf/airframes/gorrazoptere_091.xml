@@ -48,7 +48,7 @@
  <section name="BAT">
     <define name="VOLTAGE_ADC_A" value="0.0177"/>
     <define name="VOLTAGE_ADC_B" value="0.44"/>
-    <define name="VoltageOfAdc(adc)" value="(VOLTAGE_ADC_A * adc + VOLTAGE_ADC_B)"/>
+    <define name="VoltageOfAdc(adc)" value="(VOLTAGE_ADC_A * (adc) + VOLTAGE_ADC_B)"/>
   </section>
 
 
@@ -69,7 +69,7 @@ ap.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c
 
 ap.srcs += $(SRC_ARCH)/adc_hw.c
 
-ap.CFLAGS += -DDOWNLINK -DUSE_UART1 -DUART1_BAUD=B2400
+ap.CFLAGS += -DDOWNLINK -DUSE_UART1 -DUART1_BAUD=B9600
 ap.CFLAGS += -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_FBW_DEVICE=Uart1 -DDOWNLINK_AP_DEVICE=Uart1 
 #ap.CFLAGS += -DDOWNLINK -DUSE_UART0 -DUART0_BAUD=B9600 
 #ap.CFLAGS += -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_FBW_DEVICE=Uart0 -DDOWNLINK_AP_DEVICE=Uart0 
@@ -83,6 +83,9 @@ ap.srcs += control_grz.c
 
 ap.CFLAGS += -DAP -DDATALINK=PPRZ -DPPRZ_UART=Uart1
 ap.srcs += main_grz.c datalink.c pprz_transport.c
+
+ap.CFLAGS += -DGPS -DUBX -DUSE_UART0 -DGPS_LINK=Uart0 -DUART0_BAUD=B9600
+ap.srcs += estimator.c gps_ubx.c gps.c
 
 calib.ARCHDIR = $(ARCHI)
 calib.ARCH = atmega128

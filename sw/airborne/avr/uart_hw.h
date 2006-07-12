@@ -62,21 +62,46 @@ extern void uart1_init(void);
 extern void uart0_transmit(const uint8_t);
 extern void uart1_transmit(const uint8_t);
 
-extern uint8_t uart1_char, uart0_char;
-extern bool_t uart1_char_available, uart0_char_available;
+#define UART0_RX_BUFFER_SIZE 32        // UART0 receive buffer size
+#define UART1_RX_BUFFER_SIZE 32        // UART1 receive buffer size
+#define UART0_RX_BUFFER_SIZE_MASK 0x1f
+#define UART1_RX_BUFFER_SIZE_MASK 0x1f
 
-#define Uart0ChAvailable() (uart0_char_available)
-#define Uart1ChAvailable() (uart1_char_available)
+#ifdef UART0_RX_BUFFER_SIZE_MASK
+#define Uart0RxBufferNext(_x) ((_x+1)&UART0_RX_BUFFER_SIZE_MASK)
+#else
+#define Uart0RxBufferNext(_x) ((_x+1)%UART0_RX_BUFFER_SIZE)
+#endif
 
-static inline uint8_t Uart0Getch( void ) {
-  uart0_char_available = FALSE;
-  return uart0_char;
-}
+#ifdef UART1_RX_BUFFER_SIZE_MASK
+#define Uart1RxBufferNext(_x) ((_x+1)&UART1_RX_BUFFER_SIZE_MASK)
+#else
+#define Uart1RxBufferNext(_x) ((_x+1)%UART1_RX_BUFFER_SIZE)
+#endif
 
-static inline uint8_t Uart1Getch( void ) {
-  uart1_char_available = FALSE;
-  return uart1_char;
-}
+
+extern uint16_t uart0_rx_insert_idx, uart0_rx_extract_idx;
+extern uint8_t uart0_rx_buffer[UART0_RX_BUFFER_SIZE];
+
+#define Uart0ChAvailable() (uart0_rx_insert_idx != uart0_rx_extract_idx)
+
+#define Uart0Getch() ({\
+   uint8_t ret = uart0_rx_buffer[uart0_rx_extract_idx]; \
+   uart0_rx_extract_idx = Uart0RxBufferNext(uart0_rx_extract_idx);        \
+   ret;                                                 \
+})
+
+
+extern uint16_t uart1_rx_insert_idx, uart1_rx_extract_idx;
+extern uint8_t uart1_rx_buffer[UART1_RX_BUFFER_SIZE];
+
+#define Uart1ChAvailable() (uart1_rx_insert_idx != uart1_rx_extract_idx)
+
+#define Uart1Getch() ({\
+   uint8_t ret = uart1_rx_buffer[uart1_rx_extract_idx]; \
+   uart1_rx_extract_idx = Uart1RxBufferNext(uart1_rx_extract_idx);        \
+   ret;                                                 \
+})
 
 #endif /* (__AVR_ATmega128__) */
 

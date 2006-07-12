@@ -172,7 +172,12 @@
   </message>
 
   <message name="RANGEFINDER" id="29">
-    <field name="range" type="uint16"/>
+    <field name="range" type="uint16" unit="cm"/>
+    <field name="z_dot" type="float" unit="m/s"/>
+    <field name="z_dot_sum_err" type="float" unit="m/s"/>
+    <field name="z_dot_setpoint" type="float" unit="m/s"/>
+    <field name="z_sum_err" type="float" unit="m/s"/>
+    <field name="z_setpoint" type="float" unit="m"/>
   </message>
 
   <message name="DEBUG_MODEM" id="30">
@@ -190,6 +195,7 @@
  </message>
 
  <message name="DEBUG1" id="33">
+    <field name="xxx" type="uint8"/>
     <field name="foo" type="uint8[]"/>
  </message>
 
@@ -209,6 +215,44 @@
     <field name="roll" type="float" unit="rad/s"></field>
     <field name="pitch" type="float" unit="rad/s"></field>
  </message>
+
+
+  <message name="GRZ_MEASURE" id="37">
+      <field name="roll_dot" type="float" unit="rad/s"></field>
+      <field name="pitch_dot" type="float" unit="rad/s"></field>
+      <field name="yaw_dot" type="float" unit="rad/s"></field>
+
+      <field name="roll" type="float" unit="rad"></field>
+      <field name="pitch" type="float" unit="rad"></field>
+      <field name="yaw" type="float" unit="rad"></field>
+  </message>
+
+  <message name="GRZ_RATE_LOOP" id="38">
+      <field name="roll_dot_meas" type="float" unit="rad"></field>
+      <field name="roll_dot_sp"   type="float" unit="rad"></field>
+      <field name="pitch_dot_meas" type="float" unit="rad"></field>
+      <field name="pitch_dot_sp" type="float" unit="rad"></field>
+      <field name="yaw_dot_meas" type="float" unit="rad"></field>
+      <field name="yaw_dot_sp" type="float" unit="rad"></field>
+  </message>
+
+  <message name="GRZ_ATTITUDE_LOOP" id="39">
+      <field name="roll_meas" type="float" unit="rad"></field>
+      <field name="roll_sp"   type="float" unit="rad"></field>
+      <field name="pitch_meas" type="float" unit="rad"></field>
+      <field name="pitch_sp" type="float" unit="rad"></field>
+      <field name="yaw_meas" type="float" unit="rad"></field>
+      <field name="yaw_sp" type="float" unit="rad"></field>
+  </message>
+
+  <message name="SPEED_LOOP" id="40">
+    <field name="ve_set_point" type="float" unit="m/s"/>
+    <field name="ve" type="float" unit="m/s"/>
+    <field name="vn_set_point" type="float" unit="m/s"/>
+    <field name="vn" type="float" unit="m/s"/>
+    <field name="north_sp" type="float" unit="rad"/>
+    <field name="east_sp" type="float" unit="rad"/>
+  </message>
 
 
   <message name="PPM" ID="100">
@@ -236,6 +280,11 @@
 
   <message name="ACTUATORS" ID="105">
     <field name="values" type="uint16[]" unit="none"/>
+  </message>
+
+
+    <message name="DEBUG16" ID="106">
+    <field name="xxx" type="uint16" unit="none"/>
   </message>
 
 

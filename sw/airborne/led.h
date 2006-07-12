@@ -40,18 +40,41 @@ static inline void led_init ( void ) {
   LED_INIT(1);
   LED_OFF(1);
 #endif /* LED_1_BANK */
+
 #ifdef LED_2_BANK
   LED_INIT(2);
   LED_OFF(2);
 #endif /* LED_2_BANK */
+
 #ifdef LED_3_BANK
   LED_INIT(3);
   LED_OFF(3);
 #endif /* LED_3_BANK */
+
 #ifdef LED_4_BANK
   LED_INIT(4);
   LED_OFF(4);
 #endif /* LED_4_BANK */
+
+#ifdef LED_5_BANK
+  LED_INIT(5);
+  LED_OFF(5);
+#endif /* LED_5_BANK */
+
+#ifdef LED_6_BANK
+  LED_INIT(6);
+  LED_OFF(6);
+#endif /* LED_6_BANK */
+
+#ifdef LED_7_BANK
+  LED_INIT(7);
+  LED_OFF(7);
+#endif /* LED_7_BANK */
+
+#ifdef LED_8_BANK
+  LED_INIT(8);
+  LED_OFF(8);
+#endif /* LED_8_BANK */
 }
 
 #else /* LED */

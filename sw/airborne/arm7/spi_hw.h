@@ -108,16 +108,16 @@ extern volatile uint8_t spi_rx_idx;
    a = SSPDR;			\
   }
 
-#ifdef FBW
+#ifdef SPI_SLAVE
 #define SpiStart() {                                                    \
  SpiEnable(); \
  SpiInitBuf();         \
  SpiEnableTxi();     /* enable tx fifo half empty interrupt */        \
 }
 
-#endif /* FBW */
+#endif /* SPI_SLAVE */
 
-#ifdef AP
+#ifdef SPI_MASTER
 
 #define SpiStart() {                                                    \
    SpiEnable();                                                         \
@@ -151,6 +151,6 @@ extern volatile uint8_t spi_rx_idx;
     SetBit(IO1SET, 20);	\
   }
 
-#endif /* AP */
+#endif /* SPI_MASTER */
 
 #endif /* SPI_HW_H */

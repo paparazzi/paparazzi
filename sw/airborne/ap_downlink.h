@@ -150,4 +150,16 @@
 
 #define PERIODIC_SEND_SURVEY() DOWNLINK_SEND_SURVEY(&survey_east, &survey_north, &survey_west, &survey_south)
 
+#define PERIODIC_SEND_RANGEFINDER() DOWNLINK_SEND_RANGEFINDER(&rangemeter, &ctl_grz_z_dot, &ctl_grz_z_dot_sum_err, &ctl_grz_z_dot_setpoint, &ctl_grz_z_sum_err, &ctl_grz_z_setpoint)
+
+#ifdef CTL_GRZ
+
+#define PERIODIC_SEND_GRZ_MEASURE() DOWNLINK_SEND_GRZ_MEASURE(&roll_dot_pid.measure, &pitch_dot_pid.measure, &yaw_dot_pid.measure, &roll_pid.measure, &pitch_pid.measure, &yaw_pid.measure);
+#define PERIODIC_SEND_GRZ_RATE_LOOP() DOWNLINK_SEND_GRZ_RATE_LOOP(&roll_dot_pid.measure, &roll_dot_pid.set_point, &pitch_dot_pid.measure, &pitch_dot_pid.set_point, &yaw_dot_pid.measure, &yaw_dot_pid.set_point);
+#define PERIODIC_SEND_GRZ_ATTITUDE_LOOP() DOWNLINK_SEND_GRZ_ATTITUDE_LOOP(&roll_pid.measure, &roll_pid.set_point, &pitch_pid.measure, &pitch_pid.set_point, &yaw_pid.measure, &yaw_pid.set_point);
+
+#define PERIODIC_SEND_SPEED_LOOP() DOWNLINK_SEND_SPEED_LOOP(&ve_pid.set_point, &ve_pid.measure, &vn_pid.set_point, &vn_pid.measure, &north_angle_set_point, &east_angle_set_point);
+
+#endif
+
 #endif /* AP_DOWNLINK_H */

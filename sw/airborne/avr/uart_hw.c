@@ -112,6 +112,8 @@ static uint8_t           tx_head0; /* next free in buf */
 static volatile uint8_t  tx_tail0; /* next char to send */
 uint8_t           tx_buf0[ TX_BUF_SIZE ];
 
+uint16_t uart0_rx_insert_idx, uart0_rx_extract_idx;
+uint8_t uart0_rx_buffer[UART0_RX_BUFFER_SIZE];
 
 void uart0_init_tx( void ) {
   UBRR0H = 0;
@@ -169,12 +171,10 @@ SIGNAL(SIG_UART0_TRANS) {
   }
 }
 
-uint8_t uart0_char;
-bool_t uart0_char_available;
 
 SIGNAL( SIG_UART0_RECV ) {
-  uart0_char = UDR0;
-  uart0_char_available = TRUE;
+  uart0_rx_buffer[uart0_rx_insert_idx] = UDR0;
+  uart0_rx_insert_idx = Uart0RxBufferNext(uart0_rx_insert_idx);
 }
 
 #endif /** USE_UART0 */
@@ -184,6 +184,9 @@ SIGNAL( SIG_UART0_RECV ) {
 static uint8_t           tx_head1; /* next free in buf */
 static volatile uint8_t  tx_tail1; /* next char to send */
 static uint8_t           tx_buf1[ TX_BUF_SIZE ];
+
+uint16_t uart1_rx_insert_idx, uart1_rx_extract_idx;
+uint8_t uart1_rx_buffer[UART1_RX_BUFFER_SIZE];
 
 void uart1_init_tx( void ) {
   /* set baud rate */
@@ -242,12 +245,10 @@ SIGNAL(SIG_UART1_TRANS) {
   }
 }
 
-uint8_t uart1_char;
-bool_t uart1_char_available;
 
 SIGNAL( SIG_UART1_RECV ) {
-  uart1_char = UDR1;
-  uart1_char_available = TRUE;
+  uart1_rx_buffer[uart1_rx_insert_idx] = UDR1;
+  uart1_rx_insert_idx = Uart0RxBufferNext(uart1_rx_insert_idx);
 }
 
 #endif /* USE_UART1 */

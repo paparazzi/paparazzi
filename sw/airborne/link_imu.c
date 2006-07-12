@@ -147,7 +147,12 @@ SIGNAL( SIG_INTERRUPT6 ) {
 }
 
 void link_imu_event_task( void ) {
-  DOWNLINK_SEND_IMU_SENSORS(3, link_imu_state.rates);
+/*   static uint8_t foo; */
+/*   foo++; */
+/*   if (foo > 10) foo = 0; */
+/*   if (!foo) { */
+/*     DOWNLINK_SEND_IMU_SENSORS(3, link_imu_state.rates); */
+/*   } */
 }
 
 #endif /* FBW */

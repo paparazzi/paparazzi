@@ -51,7 +51,7 @@ val speed_of_baudrate : string -> speed
 
 val opendev : string -> speed -> Unix.file_descr
 val close : Unix.file_descr -> unit
-val set_rts : Unix.file_descr -> bool -> unit
+val set_dtr : Unix.file_descr -> bool -> unit
 
 val input : (string -> int) -> (Unix.file_descr -> unit) closure
 (** Buffered input. [input f] Returns a closure which must be called when

@@ -65,8 +65,8 @@ void use_gps_pos( void ) {
   if (GPS_FIX_VALID(gps_mode)) {
     last_gps_msg_t = cpu_time;
     estimator_update_state_gps();
-    DOWNLINK_SEND_GPS(&gps_mode, &gps_utm_east, &gps_utm_north, &gps_course, &gps_alt, &gps_gspeed,&gps_climb, &gps_itow, &gps_utm_zone, &gps_nb_ovrn);
   }
+  DOWNLINK_SEND_GPS(&gps_mode, &gps_utm_east, &gps_utm_north, &gps_course, &gps_alt, &gps_gspeed,&gps_climb, &gps_itow, &gps_utm_zone, &gps_nb_ovrn);
   
   static uint8_t i;
   if (i == gps_nb_channels) i = 0;

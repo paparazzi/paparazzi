@@ -361,7 +361,7 @@ static void navigation_task( void ) {
  *
  */
 
-inline void periodic_task_ap( void ) {
+void periodic_task_ap( void ) {
   static uint8_t _20Hz   = 0;
   static uint8_t _10Hz   = 0;
   static uint8_t _4Hz   = 0;
@@ -547,12 +547,11 @@ void init_ap( void ) {
       init_cpt--;
   }
 
-#if defined DATALINK && DATALINK == XBEE
+#if defined DATALINK
+
+#if DATALINK == XBEE
   xbee_init();
-#endif
-
-
-#if defined DATALINK && DATALINK == WAVECARD
+#elif DATALINK == WAVECARD
   wc_end_reset();
   init_cpt = 60;
   while (init_cpt) {
@@ -560,6 +559,12 @@ void init_ap( void ) {
       init_cpt--;
   }
   wc_configure();
+#endif
+#endif /* DATALINK */
+
+#if defined AEROCOMM_DATA_PIN
+  IO0DIR |= _BV(AEROCOMM_DATA_PIN);
+  IO0SET = _BV(AEROCOMM_DATA_PIN);
 #endif
 }
 
@@ -597,7 +602,6 @@ void event_task_ap( void ) {
   if (XBeeBuffer()) {
     ReadXBeeBuffer();
     if (xbee_msg_received) {
-      DOWNLINK_SEND_DEBUG1(17, xbee_payload);
       xbee_parse_payload();
       xbee_msg_received = FALSE;
     }
@@ -610,6 +614,8 @@ void event_task_ap( void ) {
       wc_msg_received = FALSE;
     }
   }
+#elif
+#error "Unknown DATALINK"
 #endif
 
   if (dl_msg_available) {

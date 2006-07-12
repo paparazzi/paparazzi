@@ -52,7 +52,7 @@ extern uint8_t uart0_rx_buffer[UART0_RX_BUFFER_SIZE];
 
 
 extern uint16_t uart1_rx_insert_idx, uart1_rx_extract_idx;
-extern uint8_t uart1_rx_buffer[UART0_RX_BUFFER_SIZE];
+extern uint8_t uart1_rx_buffer[UART1_RX_BUFFER_SIZE];
 
 #define Uart1ChAvailable() (uart1_rx_insert_idx != uart1_rx_extract_idx)
 

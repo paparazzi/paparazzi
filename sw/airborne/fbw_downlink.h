@@ -71,7 +71,6 @@ extern uint16_t adc0_val[];
 #define PERIODIC_SEND_ADC() {}
 #endif
 
-
 static inline void fbw_downlink_periodic_task(void) {
   PeriodicSendFbw()
 }

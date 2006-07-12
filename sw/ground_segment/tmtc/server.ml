@@ -198,6 +198,8 @@ let log_and_parse = fun logging ac_name a msg values ->
       a.energy <- ivalue "energy";
       if a.flight_time > 0 && a.infrared.contrast_status = "WAITING" then
 	a.infrared.contrast_status <- "SKIPPED"
+  | "FBW_STATUS" ->
+      a.bat <- fvalue "vsupply" /. 10.		
   | "PPRZ_MODE" ->
       a.ap_mode <- check_index (ivalue "ap_mode") ap_modes "AP_MODE";
       a.gaz_mode <- check_index (ivalue "ap_gaz") gaz_modes "AP_GAZ";

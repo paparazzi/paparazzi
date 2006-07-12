@@ -36,6 +36,8 @@
 #include "link_mcu_hw.h"
 #endif
 
+#define USE_SPI 1
+
 struct link_mcu_msg {
   union  { 
     struct fbw_state from_fbw; 
@@ -52,10 +54,12 @@ extern bool_t link_mcu_received;
 extern void link_mcu_event_task( void );
 
 #ifdef FBW
+#define SPI_SLAVE 1
 extern void link_mcu_restart(void);
 #endif /* FBW */
 
 #ifdef AP
+#define SPI_MASTER 1
 extern uint8_t link_mcu_nb_err;
 extern uint8_t link_mcu_fbw_nb_err;
 

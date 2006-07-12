@@ -28,7 +28,7 @@
   </section>
 
   <command_laws>
-    <set servo="GAZ" value="2 * @THROTTLE"/>
+    <set servo="GAZ" value="@THROTTLE"/>
     <set servo="ELEVATOR" value="@PITCH"/>
     <let var="roll" value="@ROLL"/>
     <set servo="AILERON_LEFT" value="($roll > 0 ? 1 : AILERON_DIFF) * $roll"/>

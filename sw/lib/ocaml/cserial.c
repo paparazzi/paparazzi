@@ -77,15 +77,15 @@ value c_init_serial(value device, value speed)
   return Val_int(fd);
 }
 
-value c_set_rts(value val_fd, value val_bit) {
+value c_set_dtr(value val_fd, value val_bit) {
   int status;
   int fd = Int_val(val_fd);
   
   ioctl(fd, TIOCMGET, &status);
   if (Bool_val(val_bit))
-    status |= TIOCM_RTS;
+    status |= TIOCM_DTR;
   else
-    status &= ~TIOCM_RTS;
+    status &= ~TIOCM_DTR;
   ioctl(fd, TIOCMSET, &status);
   return Val_unit;
 }

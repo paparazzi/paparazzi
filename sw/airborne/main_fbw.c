@@ -46,6 +46,8 @@
 #include "radio_control.h"
 #include "fbw_downlink.h"
 #include "autopilot.h"
+#include "paparazzi.h"
+#include "estimator.h"
 
 #ifdef MCU_SPI_LINK
 #include "link_mcu.h"
@@ -100,6 +102,9 @@ void init_fbw( void ) {
  spi_init();
  link_imu_init();
 #endif
+#ifdef CTL_GRZ
+ ctl_grz_init();
+#endif
 #ifndef SINGLE_MCU
   int_enable();
 #endif
@@ -115,7 +120,6 @@ static inline void set_failsafe_mode( void ) {
 /********** EVENT ************************************************************/
 
 void event_task_fbw( void) {
-
 #ifdef RADIO_CONTROL
   if (ppm_valid) {
     ppm_valid = FALSE;
@@ -123,15 +127,18 @@ void event_task_fbw( void) {
     if (rc_values_contains_avg_channels) {
       fbw_mode = FBW_MODE_OF_PPRZ(rc_values[RADIO_MODE]);
     }
+    if (fbw_mode == FBW_MODE_MANUAL)
+      SetCommandsFromRC(commands);
 #ifdef CTL_GRZ
     if (fbw_mode == FBW_MODE_MANUAL)
       ctl_grz_set_setpoints_rate();
-#else
-    if (fbw_mode == FBW_MODE_MANUAL)
-      SetCommandsFromRC(commands);
+/*     else if (fbw_mode == FBW_MODE_AUTO) { */
+/*       SetCommandsFromRC(commands); */
+/*     } */
 #endif /* CTL_GRZ */
   }
 #endif
+
 
 #ifdef INTER_MCU
 #ifdef MCU_SPI_LINK
@@ -165,16 +172,20 @@ void event_task_fbw( void) {
     /* Got a message on SPI. */
     spi_message_received = FALSE;
     link_imu_event_task();
+    EstimatorSetAtt(link_imu_state.rates[AXIS_X], link_imu_state.rates[AXIS_Z],  link_imu_state.rates[AXIS_Y]);
 #ifdef CTL_GRZ
-    ctl_grz_set_measures();
+    ctl_grz_set_measures(); 
 #endif /* CTL_GRZ */
   }
 #endif /* LINK_IMU */
-
 }
+
 
 /************* PERIODIC ******************************************************/
 void periodic_task_fbw( void ) {
+  static uint8_t _10Hz; /* FIXME : sys_time should provide it */
+  _10Hz++;
+  if (_10Hz >= 6) _10Hz = 0;
 
 #ifdef RADIO_CONTROL
   radio_control_periodic_task();
@@ -189,10 +200,6 @@ void periodic_task_fbw( void ) {
     set_failsafe_mode();
 #endif
 
-  static uint8_t _10Hz; /* FIXME : sys_time should provide it */
-  _10Hz++;
-  if (_10Hz >= 6) _10Hz = 0;
-
 #ifdef DOWNLINK
   if (!_10Hz)
     fbw_downlink_periodic_task();
@@ -203,12 +210,16 @@ void periodic_task_fbw( void ) {
     fbw_vsupply_decivolt = VoltageOfAdc((10*(vsupply_adc_buf.sum/vsupply_adc_buf.av_nb_sample)));
 #endif
 
-
 #ifdef ACTUATORS
 #ifdef CTL_GRZ
-  ctl_grz_rate_run();
-#else
-  SetActuatorsFromCommands(commands);
+  if (rc_status == RC_REALLY_LOST) {
+    set_failsafe_mode();
+  } else {
+    ctl_grz_rate_run();
+  }
 #endif /* CTL_GRZ */
+  SetActuatorsFromCommands(commands);
 #endif
+
+
 }

@@ -34,7 +34,7 @@
 volatile uint8_t spi_tx_idx;
 volatile uint8_t spi_rx_idx;
 
-#ifdef FBW
+#ifdef SPI_SLAVE
 void SPI1_ISR(void) __attribute__((naked));
 
 /* SSPCR0 settings */
@@ -102,7 +102,7 @@ void SPI1_ISR(void) {
  ISR_EXIT();
 }
 
-#endif /* FBW */
+#endif /* SPI_SLAVE */
 
 
 /*
@@ -112,7 +112,7 @@ void SPI1_ISR(void) {
  *
  */
 
-#ifdef AP
+#ifdef SPI_MASTER
 
 #include "led.h"  /* FIXME remove that */
 
@@ -184,4 +184,4 @@ void SPI1_ISR(void) {
  ISR_EXIT();
 }
 
-#endif
+#endif /** SPI_MASTER */

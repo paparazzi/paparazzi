@@ -25,7 +25,6 @@
 #include "link_mcu.h"
 #include "spi.h"
 
-
 struct link_mcu_msg link_mcu_from_ap_msg;
 struct link_mcu_msg link_mcu_from_fbw_msg;
 

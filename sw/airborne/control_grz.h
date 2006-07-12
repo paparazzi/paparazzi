@@ -27,19 +27,61 @@
 
 #include <inttypes.h>
 
-extern float   ctl_grz_roll_dot_pgain;
-extern float   ctl_grz_roll_dot_igain;
-extern float   ctl_grz_roll_dot_dgain;
+struct pid {
+  float measure;
+  float set_point;
+  float p_gain;
+  float i_gain;
+  float d_gain;
+  float last_err;
+  float sum_err;
+  float saturation;
+};
 
-extern float   ctl_grz_pitch_dot_pgain;
-extern float   ctl_grz_pitch_dot_igain;
-extern float   ctl_grz_pitch_dot_dgain;
+extern float  max_roll_dot_sp;
+extern float  max_pitch_dot_sp;
+extern float  max_yaw_dot_sp;
 
-extern float   ctl_grz_yaw_dot_pgain;
-extern float   ctl_grz_yaw_dot_igain;
-extern float   ctl_grz_yaw_dot_dgain;
+extern float ctl_grz_throttle_level;
+extern float ctl_grz_z_dot;
+extern float ctl_grz_z;
+extern float ctl_grz_z_dot_sum_err;
+extern float ctl_grz_z_sum_err;
 
+extern float ctl_grz_z_dot_pgain;
+extern float ctl_grz_z_dot_igain;
+extern float ctl_grz_z_dot_dgain;
+extern float ctl_grz_z_dot_setpoint;
+
+extern float ctl_grz_z_pgain;
+extern float ctl_grz_z_igain;
+extern float ctl_grz_z_dgain;
+extern float ctl_grz_z_setpoint;
+
+extern struct pid roll_pid;
+extern struct pid pitch_pid;
+extern struct pid yaw_pid;
+
+extern struct pid roll_dot_pid;
+extern struct pid pitch_dot_pid;
+extern struct pid yaw_dot_pid;
+
+extern void ctl_grz_init( void );
 extern void ctl_grz_set_setpoints_rate( void );
+extern void ctl_grz_set_setpoints_auto1( void );
+extern void ctl_grz_set_setpoints_auto2( void );
 extern void ctl_grz_set_measures( void );
 extern void ctl_grz_rate_run ( void );
+extern void ctl_grz_attitude_run ( void );
+
+extern void ctl_grz_speed_run ( void );
+extern void ctl_grz_alt_run ( void );
+extern void ctl_grz_horiz_speed_run ( void );
+
+extern float north_angle_set_point;
+extern float east_angle_set_point;
+extern struct pid vn_pid;
+extern struct pid ve_pid;
+
+
 #endif // CONTROL_GRZ_H

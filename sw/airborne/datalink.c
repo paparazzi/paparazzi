@@ -42,6 +42,9 @@
 #include "cam.h"
 #include "infrared.h"
 #include "gps.h"
+#include "uart.h"
+
+#include "control_grz.h"
 
 #define MOfCm(_x) (((float)_x)/100.)
 
@@ -50,6 +53,7 @@
 
 void dl_parse_msg(void) {
   uint8_t msg_id = IdOfMsg(dl_buffer);
+#ifdef NAV
   if (msg_id == DL_ACINFO) {
     uint8_t id = DL_ACINFO_ac_id(dl_buffer);
     float ux = MOfCm(DL_ACINFO_utm_east(dl_buffer));
@@ -74,14 +78,15 @@ void dl_parse_msg(void) {
     }
   } else if (msg_id == DL_BLOCK) {
     nav_goto_block(DL_BLOCK_block_id(dl_buffer));
-  } else if (msg_id == DL_TELEMETRY_MODE) {
+  } else
+#endif /** NAV */
+    if (msg_id == DL_TELEMETRY_MODE) {
     telemetry_mode_Ap = DL_TELEMETRY_MODE_mode(dl_buffer);
   } 
 #ifdef HITL
   /** Infrared and GPS sensors are replaced by messages on the datalink */
   else if (msg_id == DL_HITL_INFRARED) {
     /** This code simulates infrared.c:ir_update() */
-    DOWNLINK_SEND_DEBUG1(10, dl_buffer);
     ir_roll = DL_HITL_INFRARED_roll(dl_buffer);
     ir_pitch = DL_HITL_INFRARED_pitch(dl_buffer);
   } else if (msg_id == DL_HITL_UBX) {

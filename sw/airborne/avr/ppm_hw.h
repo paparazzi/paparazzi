@@ -79,4 +79,8 @@ ppm_init( void )
 
 #endif /* FBW */
 
+extern volatile uint16_t ppm_diff;
+
+
+
 #endif /* PPM_HW_H */

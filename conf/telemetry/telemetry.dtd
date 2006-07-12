@@ -1,6 +1,6 @@
 <!ELEMENT telemetry (process+)>
 <!ELEMENT process (mode+)>
-<!ELEMENT mode (message+)>
+<!ELEMENT mode (message*)>
 <!ELEMENT message EMPTY>
 
 <!ATTLIST telemetry>

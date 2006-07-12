@@ -78,7 +78,7 @@ let payload_of_string = fun x -> x
 
 
 external init_serial : string -> speed -> Unix.file_descr = "c_init_serial";;
-external set_rts : Unix.file_descr -> bool -> unit = "c_set_rts"
+external set_dtr : Unix.file_descr -> bool -> unit = "c_set_dtr"
 
 let opendev device speed =
   try

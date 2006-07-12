@@ -215,5 +215,4 @@ test_all_example_airframes:
 	make AIRCRAFT=Twin1   clean_ac sim ac
 	make AIRCRAFT=Twin2   clean_ac sim
 	make AIRCRAFT=MJ1     clean_ac ac
-	make AIRCRAFT=GRZE3   clean_ac ap
-	make AIRCRAFT=TS5     clean_ac ac
+	make AIRCRAFT=G91     clean_ac ap

@@ -53,7 +53,11 @@ volatile bool_t ppm_valid;
 /* MC3030, Trame PPM7: 25ms, 10.4 au neutre, 
    sync pulse = 16.2ms with low value on every channels */
 
+#if CLOCK == 8
+#define RestartPpmCycle() { state = 0;  sync_start = TCNT2 + (tmr2_ov_cnt << 8); return; }
+#else
 #define RestartPpmCycle() { state = 0;  sync_start = TCNT2; return; }
+#endif
 
 #ifdef TIMER1_TOP
 static volatile uint16_t tmr1_ov_cnt = 0;
@@ -63,13 +67,14 @@ SIGNAL(SIG_OVERFLOW1) {
 }
 #endif
 
+
 SIGNAL( SIG_INPUT_CAPTURE1 )
 {
   static uint16_t	last;
   uint16_t		this;
   uint16_t		width;
   static uint8_t	state = 0;
-  static uint8_t	sync_start;
+  static uint16_t	sync_start;
 
   this		= ICR1;
 #ifdef TIMER1_TOP
@@ -79,8 +84,13 @@ SIGNAL( SIG_INPUT_CAPTURE1 )
   last		= this;
   
   if( state == 0 ) {
-    uint8_t end = TCNT2;
+    uint16_t end = TCNT2;
+#if CLOCK == 8
+    end += tmr2_ov_cnt << 8;
+    uint16_t diff = (end - sync_start);
+#else
     uint8_t diff = (end - sync_start);
+#endif
     sync_start = end;
 
     /* The frame period of the mc3030 seems to be 25ms. 
@@ -88,8 +98,7 @@ SIGNAL( SIG_INPUT_CAPTURE1 )
      * Sync pulse is at least 7ms : (7000*CLOCK)/1024 = 109
      */
     if( diff > LONG_SYS_TICS_OF_USEC(PPM_SYNC_MIN_LEN) &&
-	diff < LONG_SYS_TICS_OF_USEC(PPM_SYNC_MAX_LEN)) {
-      //  if( diff > (uint8_t)(((uint32_t)7000ul*16)/1024ul) ) {
+	diff < LONG_SYS_TICS_OF_USEC(PPM_SYNC_MAX_LEN) ) {
       state = 1;
     }
   } 
