@@ -30,6 +30,7 @@
 #include "radio_control.h"
 #include "commands.h"
 #include "estimator.h"
+#include "fbw_downlink.h"
 
 #define NORMALIZE(n, lower, uper) {		\
     while ( n > uper)  { n -= (uper - lower);}	\
@@ -46,13 +47,13 @@ float max_pitch_sp = (0.8/MAX_PPRZ);
 #define UPDATE_SP_DT 0.016384
 float max_yaw_sp   = (0.8/MAX_PPRZ*UPDATE_SP_DT);
 
-float max_v_sp   = (1./MAX_PPRZ);
+float max_v_sp   = (3./MAX_PPRZ);
 
 static float throttle_setpoint = 0.;
 
 float max_z_dot_sp =  (10./MAX_PPRZ);
 float ctl_grz_z_dot_pgain = -1200;
-float ctl_grz_z_dot_igain = 0.;
+float ctl_grz_z_dot_igain = 3.;
 float ctl_grz_z_dot_dgain = 5.;
 float ctl_grz_z_dot = 0;
 float ctl_grz_z_dot_setpoint = 0.;
@@ -60,13 +61,16 @@ float ctl_grz_z_dot_sum_err = 0.;
 float ctl_grz_throttle_level = 6700.;
 
 
-float max_z_sp =  (2./MAX_PPRZ);
+float max_z_sp =  (4./MAX_PPRZ);
 float ctl_grz_z_pgain = -1.2;
 float ctl_grz_z_igain = 0.;
 float ctl_grz_z_dgain = 5.;
 float ctl_grz_z = 0;
 float ctl_grz_z_setpoint = 0.;
 float ctl_grz_z_sum_err = 0.;
+
+
+bool_t flying = FALSE;
 
 #define MIN_Z_DOT -1.
 #define MAX_Z_DOT 1.
@@ -84,27 +88,27 @@ struct pid ve_pid;
 
 void ctl_grz_init( void ) {
 
-  roll_dot_pid.p_gain = 4500.;
+  roll_dot_pid.p_gain = 4000.;
   roll_dot_pid.i_gain = 0.;
-  roll_dot_pid.d_gain = 0.;
+  roll_dot_pid.d_gain = 2.5;
 
-  pitch_dot_pid.p_gain = -4500.;
+  pitch_dot_pid.p_gain = -4000.;
   pitch_dot_pid.i_gain = 0.;
-  pitch_dot_pid.d_gain = 0.;
+  pitch_dot_pid.d_gain = 2.5;
 
   yaw_dot_pid.p_gain = -4500.;
   yaw_dot_pid.i_gain = 0.;
   yaw_dot_pid.d_gain = 0.;
 
 
-  roll_pid.p_gain = -1.;
+  roll_pid.p_gain = -2.5;
   roll_pid.i_gain = 0.;
-  roll_pid.d_gain = 0.;
+  roll_pid.d_gain = 1.;
   roll_pid.saturation = 3.;
 
-  pitch_pid.p_gain = -1.;
+  pitch_pid.p_gain = -2.5;
   pitch_pid.i_gain = 0.;
-  pitch_pid.d_gain = 0.;
+  pitch_pid.d_gain = 1.;
   pitch_pid.saturation = 3.;
 
   yaw_pid.p_gain = -1.;
@@ -112,15 +116,15 @@ void ctl_grz_init( void ) {
   yaw_pid.d_gain = 0.;
   yaw_pid.saturation = 2.;
 
-  vn_pid.p_gain = -1.;
+  vn_pid.p_gain = -0.1;
   vn_pid.i_gain = 0.;
   vn_pid.d_gain = 0.;
-  vn_pid.saturation = .5;
+  vn_pid.saturation = .2;
 
-  ve_pid.p_gain = -1.;
+  ve_pid.p_gain = -0.1;
   ve_pid.i_gain = 0.;
   ve_pid.d_gain = 0.;
-  ve_pid.saturation = .5;
+  ve_pid.saturation = .2;
 }
 
 /** FIXME: should be done by SetCommandsFromRC(commands); */
@@ -136,31 +140,32 @@ void ctl_grz_set_setpoints_rate( void ) {
 void ctl_grz_set_setpoints_auto1( void ) {
   roll_pid.set_point = - rc_values[RADIO_ROLL] * max_roll_sp;
   pitch_pid.set_point = rc_values[RADIO_PITCH] * max_pitch_sp;
-#if 0
+  #if 0
   //  yaw_dot_pid.set_point = - rc_values[RADIO_YAW] * max_yaw_dot_sp;
   /* yaw stick increments yaw setpoint */
   if (rc_values[RADIO_YAW] > YAW_GAP || rc_values[RADIO_YAW] < -YAW_GAP) {
     yaw_pid.set_point += - rc_values[RADIO_YAW] * max_yaw_dot_sp;
     NORMALIZE(yaw_pid.set_point, -M_PI, M_PI);  
   }
-#endif
+  #endif
   //  ctl_grz_z_dot_setpoint = (rc_values[RADIO_THROTTLE] - MAX_PPRZ/2) * max_z_dot_sp;
-  throttle_setpoint = rc_values[RADIO_THROTTLE];
+  // throttle_setpoint = rc_values[RADIO_THROTTLE];
+  ctl_grz_z_setpoint = rc_values[RADIO_THROTTLE] * max_z_sp - 0.4;
 }
 
 void ctl_grz_set_setpoints_auto2( void ) {
-  roll_pid.set_point = - rc_values[RADIO_ROLL] * max_roll_sp;
-  pitch_pid.set_point = rc_values[RADIO_PITCH] * max_pitch_sp;
+/*   roll_pid.set_point = - rc_values[RADIO_ROLL] * max_roll_sp; */
+/*   pitch_pid.set_point = rc_values[RADIO_PITCH] * max_pitch_sp; */
 
-/*   float vright = rc_values[RADIO_ROLL] * max_v_sp; */
-/*   float vfront = rc_values[RADIO_PITCH] * max_v_sp; */
+  float vright = rc_values[RADIO_ROLL] * max_v_sp;
+  float vfront = rc_values[RADIO_PITCH] * max_v_sp;
   
-/*   float alpha = M_PI/2. - yaw_pid.measure; */
-/*   float cos_alpha = cos(alpha); */
-/*   float sin_alpha = sin(alpha); */
-/*   ve_pid.set_point = cos_alpha*vright + sin_alpha*vfront; */
-/*   vn_pid.set_point = sin_alpha*vright - cos_alpha*vfront; */
-
+  float alpha = M_PI/2. - yaw_pid.measure;
+  float cos_alpha = cos(alpha);
+  float sin_alpha = sin(alpha);
+  ve_pid.set_point = cos_alpha*vright + sin_alpha*vfront;
+  vn_pid.set_point = sin_alpha*vright - cos_alpha*vfront;
+  
   yaw_dot_pid.set_point = - rc_values[RADIO_YAW] * max_yaw_dot_sp;
   ctl_grz_z_setpoint = rc_values[RADIO_THROTTLE] * max_z_sp - 0.4;
   // throttle_setpoint = rc_values[RADIO_THROTTLE];
@@ -230,7 +235,7 @@ void ctl_grz_alt_run( void ) {
   static float z_last_err;
   float d_err = err - z_last_err;
   z_last_err = err;
-  ctl_grz_z_sum_err += err;
+  //  ctl_grz_z_sum_err += err;
 
   if (ctl_grz_z_setpoint < 0.1)
     ctl_grz_z_dot_setpoint = -10;
@@ -243,7 +248,11 @@ void ctl_grz_speed_run( void ) {
   static float z_dot_last_err;
   float d_err = err - z_dot_last_err;
   z_dot_last_err = err;
-  ctl_grz_z_dot_sum_err += err;
+  
+  if (flying) {
+    ctl_grz_z_dot_sum_err += err/600;
+    Bound(ctl_grz_z_dot_sum_err, -1., 1.);
+  }
 
   throttle_setpoint = TRIM_PPRZ(ctl_grz_throttle_level + (int16_t)((err + d_err * ctl_grz_z_dot_dgain + ctl_grz_z_dot_sum_err * ctl_grz_z_dot_igain) * ctl_grz_z_dot_pgain));
 }
@@ -260,10 +269,10 @@ void ctl_grz_horiz_speed_run ( void ) {
   east_angle_set_point = (err + d_err * ve_pid.d_gain) * ve_pid.p_gain; 
   Bound(east_angle_set_point, ve_pid.saturation, -ve_pid.saturation);
 
-  err = vn_pid.measure - vn_pid.set_point;
+  err = ve_pid.measure - vn_pid.set_point;
   d_err = err - vn_pid.last_err;
   vn_pid.last_err = err;
-  north_angle_set_point = (err + d_err * vn_pid.d_gain) * vn_pid.p_gain; 
+  north_angle_set_point = (err + d_err * ve_pid.d_gain) * ve_pid.p_gain; 
   Bound(north_angle_set_point, vn_pid.saturation, -vn_pid.saturation);
 
   float alpha = - (M_PI/2. - yaw_pid.measure);

@@ -32,10 +32,15 @@ uint16_t rangemeter; /* cm */
 
 
 #define NB_RANGES 30
+#define FLYING_MIN_CM 30
+#define STILL_MAX_CM 18
+#define SWITCH_PEDIOD_MIN 30 /* 60Hz */
 
 
 /** 60Hz */
 void periodic_task_ap( void ) {
+
+  PORTD |= 1 << 5;
 
   static uint8_t _10Hz   = 0;
   _10Hz++;
@@ -49,8 +54,8 @@ void periodic_task_ap( void ) {
   static uint16_t sum_rangemeters = 0;
   // ClearBit(ADCSRA, ADIE);
   rangemeter = RangeCmOfAdc(rangemeter_adc_buf.sum/rangemeter_adc_buf.av_nb_sample);
-  ctl_grz_z = rangemeter / 100.;
   // SetBit(ADCSRA, ADIE);
+  ctl_grz_z = rangemeter / 100.; /* cm -> m */
   last_idx++;
   if (last_idx >= NB_RANGES) last_idx = 0;
   float last_avg = (float)sum_rangemeters / NB_RANGES;
@@ -59,36 +64,58 @@ void periodic_task_ap( void ) {
   float avg = (float)sum_rangemeters / NB_RANGES;
   ctl_grz_z_dot = ((avg - last_avg) * 61. / 100.);
 
+
+  /** Flying ? */
+  static uint8_t flying_cpt;
+  if (!flying) {
+    if (rangemeter > FLYING_MIN_CM) {
+      flying_cpt++;
+      if (flying_cpt > SWITCH_PEDIOD_MIN) {
+	flying = TRUE;
+	flying_cpt = 0;
+      }
+    } else
+      flying_cpt = 0;
+  } else if (rangemeter < STILL_MAX_CM) {
+    flying_cpt++;
+    if (flying_cpt > SWITCH_PEDIOD_MIN) {
+      flying = FALSE;
+      flying_cpt = 0;
+    }
+  } else
+    flying_cpt = 0;
+
+
   pprz_mode = PPRZ_MODE_OF_PULSE(rc_values[RADIO_MODE], FIXME);
 
   if (pprz_mode == PPRZ_MODE_AUTO2) {
     ctl_grz_set_setpoints_auto2();
   } 
   else if (pprz_mode == PPRZ_MODE_AUTO1) {
+    ctl_grz_alt_run();
     ctl_grz_set_setpoints_auto1();
   }
 
   if (pprz_mode >= PPRZ_MODE_AUTO2) {
-    ctl_grz_alt_run();
-    ctl_grz_speed_run();
-    // ctl_grz_horiz_speed_run();
+    if (!_10Hz)
+      ctl_grz_horiz_speed_run();
   }
 
   if (pprz_mode >= PPRZ_MODE_AUTO1) {
-    //    ctl_grz_speed_run();
+    ctl_grz_speed_run();
     ctl_grz_attitude_run();
   }
+
+  PORTD &= ~ (1 << 5);
 }
 
 void event_task_ap( void ) {
+
   /***** Datalink *******/
   if (PprzBuffer()) {
     ReadPprzBuffer();
     if (pprz_msg_received) {
-      PORTD |= 1 << 5; /*** debug ***/
-
       pprz_parse_payload();
-      PORTD &= ~ (1 << 5); /*** debug ***/
       pprz_msg_received = FALSE;
 
       if (dl_msg_available) {
@@ -110,6 +137,8 @@ void event_task_ap( void ) {
       gps_pos_available = FALSE;
     }
   }
+
+  
 }
 
 

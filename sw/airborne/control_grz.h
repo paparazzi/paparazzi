@@ -83,5 +83,7 @@ extern float east_angle_set_point;
 extern struct pid vn_pid;
 extern struct pid ve_pid;
 
+extern bool_t flying;
+
 
 #endif // CONTROL_GRZ_H

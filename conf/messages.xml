@@ -178,6 +178,7 @@
     <field name="z_dot_setpoint" type="float" unit="m/s"/>
     <field name="z_sum_err" type="float" unit="m/s"/>
     <field name="z_setpoint" type="float" unit="m"/>
+    <field name="flying" type="uint8" unit="bool"/>
   </message>
 
   <message name="DEBUG_MODEM" id="30">

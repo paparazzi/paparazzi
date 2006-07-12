@@ -121,7 +121,6 @@ void SPI0_ISR(void) {
 #include "fbw_downlink.h"
 
 void link_imu_init ( void ) {
-  spi_init();
   spi_buffer_input = (uint8_t*)&link_imu_state;
   spi_buffer_output = (uint8_t*)&link_imu_state_foo;
   spi_buffer_length = sizeof(link_imu_state);
