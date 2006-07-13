@@ -95,12 +95,6 @@ static inline void main_event_task( void ) {
     uint32_t dt = t1 - t0;
     //    DOWNLINK_SEND_TIME(&dt);
 
-    link_imu_state.rates[AXIS_X] = imu_gyro[AXIS_X];
-    link_imu_state.rates[AXIS_Y] = imu_gyro[AXIS_Y];
-    link_imu_state.rates[AXIS_Z] = imu_gyro[AXIS_Z];
-    link_imu_state.eulers[AXIS_X] = ahrs_euler[AXIS_X];
-    link_imu_state.eulers[AXIS_Y] = ahrs_euler[AXIS_Y];
-    link_imu_state.eulers[AXIS_Z] = ahrs_euler[AXIS_Z];
     link_imu_send();
   }
 }

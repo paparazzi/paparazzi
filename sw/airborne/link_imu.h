@@ -5,9 +5,21 @@
 
 #include "frames.h"
 
+/* angles are transmitted as int16 : PI -> 16384 */
+/* rates are transmitted as int16 : 1 PI s-1 -> 16384 */
+#define ANGLE_PI 0X3FFF
+#define RATE_PI_S 0X3FF
+
+#define IMU_UNINIT  0
+#define IMU_RUNNING 1
+#define IMU_CRASHED 2
+
 struct imu_state {
-  float rates[AXIS_NB];
-  float eulers[AXIS_NB];
+  int16_t rates[AXIS_NB];
+  int16_t eulers[AXIS_NB];
+  float cos_theta;
+  float sin_theta;
+  uint8_t status;
 };
 
 
