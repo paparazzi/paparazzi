@@ -57,7 +57,7 @@
     <define name="RAD_OF_IR_CONTRAST" value="0.75"/>
     <linear name="RollOfIrs" arity="2" coeff1="0.5" coeff2="-0.5"/>
     <linear name="PitchOfIrs" arity="2" coeff1="0.5" coeff2="0.5"/>
-    <linear name="TopOfIr" arity="1" coeff1="1"/>
+    <linear name="TopOfIr" arity="1" coeff1="-1"/>
     <define name="RAD_OF_IR_MAX_VALUE" value="0.0045"/>
     <define name="RAD_OF_IR_MIN_VALUE" value="0.00075"/>
     <define name="ADC_ROLL_NEUTRAL" value="0"/>
@@ -158,6 +158,8 @@
   </section>
 
  <makefile>
+FLASH_MODE=IAP
+
 include $(PAPARAZZI_SRC)/conf/autopilot/tiny.makefile
 
 ap.CFLAGS +=  -DFBW -DAP -DCONFIG=\"tiny.h\" -DLED -DTIME_LED=1
