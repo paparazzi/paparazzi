@@ -10,6 +10,8 @@ make AIRCRAFT=TJ1 LDSCRIPT=arm7/LPC2148-ROM-bl.ld ap.compile
 
 apt-get install libusb
 ( warning on sid I had to do apt-get install libusb-0.1-4 )
+apt-get install libusb-dev
+(maybe this also needs a version?)
 
 cp $PAPARAZZI_SRC/conf/system/udev/rules/10-paparazzi.rules /etc/udev/rules.d/
 cd $PAPARAZZI_SRC/sw/airborne/arm7/test/bootloader/
