@@ -172,7 +172,7 @@ void event_task_fbw( void) {
     /* Got a message on SPI. */
     spi_message_received = FALSE;
     link_imu_event_task();
-    EstimatorSetAtt(link_imu_state.rates[AXIS_X], link_imu_state.rates[AXIS_Z],  link_imu_state.rates[AXIS_Y]);
+    EstimatorSetAtt(link_imu_state.eulers[AXIS_X], link_imu_state.eulers[AXIS_Z],  link_imu_state.eulers[AXIS_Y]);
 #ifdef CTL_GRZ
     ctl_grz_set_measures(); 
 #endif /* CTL_GRZ */
