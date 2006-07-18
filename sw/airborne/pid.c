@@ -132,8 +132,8 @@ void roll_pitch_pid_run( void ) {
 #endif
 
 void pid_slew_gaz( void ) {
-  static float last_gaz;
-  float diff_gaz = desired_gaz - last_gaz;
+  static pprz_t last_gaz;
+  pprz_t diff_gaz = desired_gaz - last_gaz;
   Bound(diff_gaz, -TRIM_PPRZ(CLIMB_MAX_DIFF_GAZ*MAX_PPRZ), TRIM_PPRZ(CLIMB_MAX_DIFF_GAZ*MAX_PPRZ));
   desired_gaz = last_gaz + diff_gaz;
   last_gaz = desired_gaz;
