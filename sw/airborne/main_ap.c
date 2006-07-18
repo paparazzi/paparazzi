@@ -222,7 +222,7 @@ inline void telecommand_task( void ) {
   copy_from_to_fbw();
   
   uint8_t really_lost = bit_is_set(fbw_state->status, RADIO_REALLY_LOST) && (pprz_mode == PPRZ_MODE_AUTO1 || pprz_mode == PPRZ_MODE_MANUAL);
-  if (launch && (really_lost || too_far_from_home)) {
+  if (pprz_mode != PPRZ_MODE_HOME && pprz_mode != PPRZ_MODE_GPS_OUT_OF_ORDER && launch && (really_lost || too_far_from_home)) {
     pprz_mode = PPRZ_MODE_HOME;
     mode_changed = TRUE;
   }
@@ -381,6 +381,7 @@ void periodic_task_ap( void ) {
  
   
   if (!_10Hz) {
+
     stage_time_ds = stage_time_ds + .1;
     reporting_task();
   }
@@ -469,7 +470,6 @@ void periodic_task_ap( void ) {
       inter_mcu_received_ap = TRUE;
 #endif
     }
-
 }
 
 
@@ -650,4 +650,4 @@ void event_task_ap( void ) {
     inter_mcu_received_fbw = FALSE;
     telecommand_task();
   }
-} 
+} /* event_task_ap() */
