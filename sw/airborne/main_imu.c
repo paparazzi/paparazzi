@@ -79,7 +79,7 @@ static inline void main_event_task( void ) {
     micromag_data_available = FALSE;
     spi_cur_slave = SPI_SLAVE_NONE;
     ImuUpdateMag();
-    //    DOWNLINK_SEND_AHRS_MAG(&imu_mag[AXIS_X], &imu_mag[AXIS_Y], &imu_mag[AXIS_Z]);
+    DOWNLINK_SEND_AHRS_MAG(&imu_mag[AXIS_X], &imu_mag[AXIS_Y], &imu_mag[AXIS_Z]);
     spi_cur_slave = SPI_SLAVE_MAX;
     max1167_read();
   }
@@ -146,7 +146,8 @@ static inline void ahrs_task( void ) {
     ahrs_state_update();
     ahrs_compass_update(ahrs_heading_of_mag(imu_mag));
     DOWNLINK_SEND_AHRS(&q0, &q1, &q2, &q3, &bias_p, &bias_q, &bias_r);
-    //DOWNLINK_SEND_AHRS2(&ahrs_euler[AXIS_X], &ahrs_euler[AXIS_Y], &ahrs_euler[AXIS_Z]);
+    //    DOWNLINK_SEND_AHRS2(&ahrs_euler[AXIS_X], &ahrs_euler[AXIS_Y], &ahrs_euler[AXIS_Z]);
+    //    DOWNLINK_SEND_AHRS2(&imu_gyro[AXIS_X], &imu_gyro[AXIS_Y], &imu_gyro[AXIS_Z]);
     break;
   }
   ahrs_step++;

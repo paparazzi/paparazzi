@@ -37,6 +37,10 @@ uint16_t rangemeter; /* cm */
 #define SWITCH_PEDIOD_MIN 30 /* 60Hz */
 
 
+
+bool_t sum_err_reset;
+
+
 /** 60Hz */
 void periodic_task_ap( void ) {
 
@@ -46,8 +50,13 @@ void periodic_task_ap( void ) {
   _10Hz++;
   if (_10Hz>=6) _10Hz = 0;
 
-  if (!_10Hz)
+  if (!_10Hz) {
     PeriodicSendAp();
+    if (sum_err_reset) {
+      sum_err_reset = FALSE;
+      ctl_grz_reset();
+    }
+  }
 
   static uint16_t last_rangemeters[NB_RANGES];
   static uint8_t last_idx;
@@ -55,13 +64,13 @@ void periodic_task_ap( void ) {
   // ClearBit(ADCSRA, ADIE);
   rangemeter = RangeCmOfAdc(rangemeter_adc_buf.sum/rangemeter_adc_buf.av_nb_sample);
   // SetBit(ADCSRA, ADIE);
-  ctl_grz_z = rangemeter / 100.; /* cm -> m */
   last_idx++;
   if (last_idx >= NB_RANGES) last_idx = 0;
   float last_avg = (float)sum_rangemeters / NB_RANGES;
   sum_rangemeters += rangemeter - last_rangemeters[last_idx];
   last_rangemeters[last_idx] = rangemeter;
   float avg = (float)sum_rangemeters / NB_RANGES;
+  ctl_grz_z = avg / 100.; /* cm -> m */
   ctl_grz_z_dot = ((avg - last_avg) * 61. / 100.);
 
 
@@ -90,19 +99,19 @@ void periodic_task_ap( void ) {
 
   if (pprz_mode == PPRZ_MODE_AUTO2) {
     ctl_grz_set_setpoints_auto2();
-  } 
-  else if (pprz_mode == PPRZ_MODE_AUTO1) {
-    ctl_grz_alt_run();
+  } else if (pprz_mode == PPRZ_MODE_AUTO1) {
     ctl_grz_set_setpoints_auto1();
   }
 
   if (pprz_mode >= PPRZ_MODE_AUTO2) {
-    if (!_10Hz)
-      ctl_grz_horiz_speed_run();
+    ctl_grz_z_dot_run();
+/*     if (!_10Hz) */
+/*       ctl_grz_horiz_speed_run(); */
   }
 
   if (pprz_mode >= PPRZ_MODE_AUTO1) {
-    ctl_grz_speed_run();
+    //    ctl_grz_alt_run();
+    // ctl_grz_z_dot_run();
     ctl_grz_attitude_run();
   }
 

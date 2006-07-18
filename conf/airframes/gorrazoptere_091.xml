@@ -26,14 +26,14 @@
   </rc_commands>
 
   <command_laws>
-    <let var="roll"     value="0.3  * @ROLL"/>
-    <let var="pitch"    value="0.3  * @PITCH"/>
-    <let var="yaw"      value="-0.4  * @YAW"/>
+    <let var="roll"     value="trim_roll + 0.3  * @ROLL"/>
+    <let var="pitch"    value="trim_pitch + 0.3  * @PITCH"/>
+    <let var="yaw"      value="trim_yaw + -0.4  * @YAW"/>
     <let var="throttle" value="@THROTTLE"/>
-    <set servo="MOTOR_FRONT" value="$throttle < 500 ? 0 : $throttle + $pitch - $yaw"/>
-    <set servo="MOTOR_BACK"  value="$throttle < 500 ? 0 : $throttle - $pitch - $yaw"/>
-    <set servo="MOTOR_RIGHT" value="$throttle < 500 ? 0 : $throttle + $roll  + $yaw"/>
-    <set servo="MOTOR_LEFT"  value="$throttle < 500 ? 0 : $throttle - $roll  + $yaw"/>
+    <set servo="MOTOR_FRONT" value="rc_values[RADIO_THROTTLE] < 500 ? 0 : $throttle + $pitch - $yaw"/>
+    <set servo="MOTOR_BACK"  value="rc_values[RADIO_THROTTLE] < 500 ? 0 : $throttle - $pitch - $yaw"/>
+    <set servo="MOTOR_RIGHT" value="rc_values[RADIO_THROTTLE] < 500 ? 0 : $throttle + $roll  + $yaw"/>
+    <set servo="MOTOR_LEFT"  value="rc_values[RADIO_THROTTLE] < 500 ? 0 : $throttle - $roll  + $yaw"/>
   </command_laws>
 
   <section name="adc" prefix="ADC_CHANNEL_">

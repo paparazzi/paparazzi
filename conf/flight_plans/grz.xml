@@ -4,29 +4,52 @@
 
   <dl_settings>
 
-<dl_setting VAR="roll_dot_pid.p_gain" MAX="6000" STEP="100" MIN="2000"/>
-<dl_setting VAR="roll_dot_pid.i_gain" MAX="1000" STEP="10" MIN="0"/>
-<dl_setting VAR="roll_dot_pid.d_gain" MAX="10" STEP="0.5" MIN="0"/>
+<dl_settings name="trim">
+ <dl_setting var="trim_roll" min="-1000" step="10" max="1000"/>
+ <dl_setting var="trim_pitch" min="-1000" step="10" max="1000"/>
+ <dl_setting var="trim_yaw" min="-1000" step="10" max="1000"/>
+</dl_settings>
 
-<dl_setting VAR="pitch_dot_pid.p_gain" MAX="-2000" STEP="100" MIN="-6000"/>
-<dl_setting VAR="pitch_dot_pid.i_gain" MAX="1000" STEP="10" MIN="0"/>
+<dl_settings name="rate">
+
+<dl_setting VAR="roll_dot_pid.p_gain" MAX="6000" STEP="100" MIN="2000"/>
+<dl_setting VAR="roll_dot_pid.i_gain" MAX="750" STEP="0.05" MIN="0"/>
+<dl_setting VAR="roll_dot_pid.d_gain" MAX="10" STEP="0.5" MIN="0"/>
+<dl_setting VAR="roll_dot_pid.sum_err" MAX="1" STEP="1" MIN="0"/>
+
+<dl_setting VAR="pitch_dot_pid.p_gain" MAX="-2000" STEP="100" MIN="-16000"/>
+<dl_setting VAR="pitch_dot_pid.i_gain" MAX="5" STEP="0.05" MIN="0"/>
 <dl_setting VAR="pitch_dot_pid.d_gain" MAX="10" STEP="0.5" MIN="0"/>
+<dl_setting VAR="pitch_dot_pid.sum_err" MAX="1" STEP="1" MIN="0"/>
 
 <dl_setting VAR="yaw_dot_pid.p_gain" MAX="-2000" STEP="100" MIN="-6000"/>
-<dl_setting VAR="yaw_dot_pid.i_gain" MAX="10" STEP="0.5" MIN="0"/>
+<dl_setting VAR="yaw_dot_pid.i_gain" MAX="5" STEP="0.05" MIN="0"/>
 <dl_setting VAR="yaw_dot_pid.d_gain" MAX="10" STEP="0.5" MIN="0"/>
+<dl_setting VAR="yaw_dot_pid.sum_err" MAX="1" STEP="1" MIN="0"/>
+
+</dl_settings>
+
+<dl_settings name="att">
 
 <dl_setting VAR="roll_pid.p_gain" MAX="-0.1" STEP="0.1" MIN="-5."/>
 <dl_setting VAR="roll_pid.i_gain" MAX="10" STEP="0.1" MIN="0"/>
 <dl_setting VAR="roll_pid.d_gain" MAX="10" STEP="0.1" MIN="0"/>
 
-<dl_setting VAR="pitch_pid.p_gain" MAX="-.1" STEP="0.1" MIN="-5."/>
+<dl_setting VAR="pitch_pid.p_gain" MAX="-.1" STEP="0.1" MIN="-15."/>
 <dl_setting VAR="pitch_pid.i_gain" MAX="10" STEP="0.1" MIN="0"/>
 <dl_setting VAR="pitch_pid.d_gain" MAX="10" STEP="0.1" MIN="0"/>
 
 <dl_setting VAR="yaw_pid.p_gain" MAX="-0.1" STEP="0.1" MIN="-5."/>
 <dl_setting VAR="yaw_pid.i_gain" MAX="10" STEP="0.1" MIN="0"/>
 <dl_setting VAR="yaw_pid.d_gain" MAX="10" STEP="0.1" MIN="0"/>
+
+<dl_setting VAR="yaw_pid.set_point" MAX="3" STEP="0.1" MIN="-3"/>
+<dl_setting VAR="pitch_pid.set_point" MAX="0.3" STEP="0.05" MIN="-0.3"/>
+<dl_setting VAR="roll_pid.set_point" MAX="0.3" STEP="0.05" MIN="-0.3"/>
+
+</dl_settings>
+
+<dl_settings name="alt">
 
 <dl_setting VAR="ctl_grz_z_dot_pgain" MAX="-500" STEP="100" MIN="-6000"/>
 <dl_setting VAR="ctl_grz_z_dot_igain" MAX="5" STEP="0.05" MIN="0"/>
@@ -38,9 +61,22 @@
 <dl_setting VAR="ctl_grz_z_igain" MAX="10" STEP="0.5" MIN="0"/>
 <dl_setting VAR="ctl_grz_z_dgain" MAX="10" STEP="0.5" MIN="0"/>
 
+</dl_settings>
+
+<dl_settings name="speed">
+
 <dl_setting VAR="ve_pid.p_gain" MAX="-0.01" STEP="0.01" MIN="-0.5"/>
 <dl_setting VAR="ve_pid.i_gain" MAX="10" STEP="0.1" MIN="0"/>
 <dl_setting VAR="ve_pid.d_gain" MAX="10" STEP="0.1" MIN="0"/>
+
+<dl_setting VAR="estimator_hspeed_mod" MAX="2" STEP="0.1" MIN="0"/>
+<dl_setting VAR="estimator_hspeed_dir" MAX="3" STEP="0.1" MIN="-3"/>
+
+<dl_setting VAR="ve_pid.sum_err" MAX="1" STEP="1" MIN="0"/>
+<dl_setting VAR="vn_pid.sum_err" MAX="1" STEP="1" MIN="0"/>
+<dl_setting VAR="sum_err_reset" MAX="1" STEP="1" MIN="0"/>
+
+</dl_settings>
 
   </dl_settings>
 

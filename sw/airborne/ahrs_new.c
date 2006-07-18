@@ -1,4 +1,5 @@
 
+#include "std.h"
 #include "ahrs_new.h"
 
 #include <math.h>
@@ -118,7 +119,7 @@ real_t           Qdot[4];
  */
 //#define Q_gyro          0.0075
 /* I measured about 0.009 rad/s noise */
-#define Q_gyro          8e-05
+#define Q_gyro          8e-03
 
 
 /*
@@ -131,6 +132,7 @@ real_t           Qdot[4];
 #define R_pitch         1.3 * 1.3
 #define R_roll          1.3 * 1.3
 #define R_yaw           2.5 * 2.5
+// #define R_yaw           1. * 1.
 //#define R_pitch         0.1 * 0.1
 //#define R_roll          0.1 * 0.1
 //#define R_yaw            0.5 * 0.5
@@ -535,13 +537,17 @@ run_kalman(
   bias_p += K[4] * error;
   bias_q += K[5] * error;
   bias_r += K[6] * error;
+
+/*   Bound(bias_p, -0.1, 0.1); */
+/*   Bound(bias_q, -0.1, 0.1); */
+/*   Bound(bias_r, -0.1, 0.1); */
 #endif
 
   /*
    * We would normally normalize our quaternion here, but
    * instead we will allow our caller to do it
    */
-  //norm_quat();
+  //  norm_quat();
 }
 
 
@@ -660,11 +666,27 @@ ahrs_pitch_update(
  */
 real_t ahrs_heading_of_mag( const int16_t* mag ) {
   const real_t    ctheta  = cos( ahrs_euler[1] );
-  const real_t    mn = ctheta * mag[0]
-    - (dcm12 * mag[1] + dcm22 * mag[2]) * dcm02 / ctheta;
+
+/*   const real_t    mn = ctheta * mag[0] */
+/*     - (dcm12 * mag[1] + dcm22 * mag[2]) * dcm02 / ctheta; */
   
-  const real_t    me =
-    (dcm22 * mag[1] - dcm12 * mag[2]) / ctheta;
+/*   const real_t    me = */
+/*     (dcm22 * mag[1] - dcm12 * mag[2]) / ctheta; */
+
+  /***/
+  const real_t    stheta  = sin( ahrs_euler[AXIS_Y] );
+  const real_t    cphi  = cos( ahrs_euler[AXIS_X] );
+  const real_t    sphi  = sin( ahrs_euler[AXIS_X] );
+
+  const real_t mn = 
+    ctheta*      mag[0]+
+    sphi*stheta* mag[1]+
+    cphi*stheta* mag[2];
+  const real_t me = 
+    0*     mag[0]+
+    cphi*  mag[1]+
+    -sphi* mag[2];
+  /***/
   
   const real_t heading = -atan2( me, mn );
 

@@ -52,7 +52,7 @@ extern struct adc_buf buf_bat;
 
 #define IMU_GYRO_X_GAIN -0.000220177991888642784
 #define IMU_GYRO_Y_GAIN -0.000214915108532129801
-#define IMU_GYRO_Z_GAIN  0.0002
+#define IMU_GYRO_Z_GAIN  0.0002104
 
 #define ImuUpdateGyros() {					                \
     									        \

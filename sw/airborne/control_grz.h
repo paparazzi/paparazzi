@@ -74,7 +74,7 @@ extern void ctl_grz_set_measures( void );
 extern void ctl_grz_rate_run ( void );
 extern void ctl_grz_attitude_run ( void );
 
-extern void ctl_grz_speed_run ( void );
+extern void ctl_grz_z_dot_run ( void );
 extern void ctl_grz_alt_run ( void );
 extern void ctl_grz_horiz_speed_run ( void );
 
@@ -84,6 +84,10 @@ extern struct pid vn_pid;
 extern struct pid ve_pid;
 
 extern bool_t flying;
+
+void ctl_grz_reset( void );
+
+extern float trim_roll, trim_yaw, trim_pitch;
 
 
 #endif // CONTROL_GRZ_H
