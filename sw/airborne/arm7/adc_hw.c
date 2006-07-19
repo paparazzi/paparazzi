@@ -211,7 +211,6 @@ void adcISR1 ( void ) {
   uint8_t channel = (uint8_t)(tmp >> 24) & 0x07;
   uint16_t value = (uint16_t)(tmp >> 6) & 0x03FF;
   adc1_val[channel] = value;
-  LED_TOGGLE(2);
   struct adc_buf* buf = buffers[channel+NB_ADC];
   if (buf) {
     uint8_t new_head = buf->head + 1;
