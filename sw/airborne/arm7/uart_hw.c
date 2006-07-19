@@ -1,38 +1,21 @@
 
 #include "uart.h"
-
-
-#define UART0_TX_INT_MODE 1
-#define UART0_RX_INT_MODE 1
-
-#if defined(UART0_TX_INT_MODE) || defined(UART0_RX_INT_MODE) || \
-    defined(UART1_TX_INT_MODE) || defined(UART1_RX_INT_MODE)
 #include "armVIC.h"
-#endif
 
 #ifdef USE_UART0
 
-
-#if defined(UART0_TX_INT_MODE) || defined(UART0_RX_INT_MODE)
 void uart0_ISR(void) __attribute__((naked));
-#endif
 
-
-#ifdef UART0_RX_INT_MODE
 uint8_t  uart0_rx_buffer[UART0_RX_BUFFER_SIZE];
 uint16_t uart0_rx_insert_idx, uart0_rx_extract_idx;
-#endif
 
-#ifdef UART0_TX_INT_MODE
 uint8_t  uart0_tx_buffer[UART0_TX_BUFFER_SIZE];
 uint16_t uart0_tx_insert_idx, uart0_tx_extract_idx;
 uint8_t  uart0_tx_running;
-#endif
 
 static void uart0_init_param( uint16_t baud, uint8_t mode, uint8_t fmode);
 
 void uart0_init_tx( void ) {
-  /**  uart0_init_param(UART_BAUD(38400), UART_8N1, UART_FIFO_8); **/
   uart0_init_param(UART0_BAUD, UART_8N1, UART_FIFO_8);
 }
 
@@ -56,41 +39,35 @@ static void uart0_init_param( uint16_t baud, uint8_t mode, uint8_t fmode) {
   // user specified operating parameters
   U0LCR = (mode & ~ULCR_DLAB_ENABLE);
   U0FCR = fmode;
-#if defined(UART0_TX_INT_MODE) || defined(UART0_RX_INT_MODE)
+
   // initialize the interrupt vector
   VICIntSelect &= ~VIC_BIT(VIC_UART0);  // UART0 selected as IRQ
   VICIntEnable = VIC_BIT(VIC_UART0);    // UART0 interrupt enabled
   VICVectCntl5 = VIC_ENABLE | VIC_UART0;
   VICVectAddr5 = (uint32_t)uart0_ISR;    // address of the ISR
 
-#ifdef UART0_TX_INT_MODE
   // initialize the transmit data queue
   uart0_tx_extract_idx = 0;
   uart0_tx_insert_idx = 0;
   uart0_tx_running = 0;
-#endif
 
-#ifdef UART0_RX_INT_MODE
   // initialize the receive data queue
   uart0_rx_extract_idx = 0;
   uart0_rx_insert_idx = 0;
 
   // enable receiver interrupts
   U0IER = UIER_ERBFI;
-#endif
-#endif
 }
 
 bool_t uart0_check_free_space( uint8_t len) {
-  int16_t space;
-  if ((space = (uart0_tx_extract_idx - uart0_tx_insert_idx)) <= 0)
+  int16_t space = uart0_tx_extract_idx - uart0_tx_insert_idx;
+  if (space <= 0)
     space += UART0_TX_BUFFER_SIZE;
   
   return (uint16_t)(space - 1) >= len;
 }
 
 void uart0_transmit( unsigned char data ) {
-#ifdef UART0_TX_INT_MODE
   uint16_t temp;
   unsigned cpsr;
 
@@ -121,12 +98,6 @@ void uart0_transmit( unsigned char data ) {
   cpsr = disableIRQ();                  // disable global interrupts
   U0IER |= UIER_ETBEI;                  // enable TX interrupts
   restoreIRQ(cpsr);                     // restore global interrupts
-#else
-  while (!(U0LSR & ULSR_THRE))          // wait for TX buffer to empty
-    continue;                           // also either WDOG() or swap()
-
-  U0THR = (uint8_t)ch;
-#endif
   //  return (uint8_t)ch;
 }
 
@@ -148,7 +119,6 @@ void uart0_ISR(void)
         U0LSR;                          // read LSR to clear
         break;
 
-#ifdef UART0_RX_INT_MODE
       case UIIR_CTI_INT:                // Character Timeout Indicator
       case UIIR_RDA_INT:                // Receive Data Available
         do
@@ -166,16 +136,15 @@ void uart0_ISR(void)
         while (U0LSR & ULSR_RDR);
 
         break;
-#endif
 
-#ifdef UART0_TX_INT_MODE
       case UIIR_THRE_INT:               // Transmit Holding Register Empty
         while (U0LSR & ULSR_THRE)
           {
           // check if more data to send
           if (uart0_tx_insert_idx != uart0_tx_extract_idx)
             {
-            U0THR = uart0_tx_buffer[uart0_tx_extract_idx++];
+            U0THR = uart0_tx_buffer[uart0_tx_extract_idx];
+	    uart0_tx_extract_idx++;
             uart0_tx_extract_idx %= UART0_TX_BUFFER_SIZE;
             }
           else
@@ -187,7 +156,6 @@ void uart0_ISR(void)
           }
 
         break;
-#endif // UART0_TX_INT_MODE
 
       default:                          // Unknown
         U0LSR;
@@ -217,7 +185,6 @@ void uart1_ISR(void) __attribute__((naked));
 uint8_t  uart1_rx_buffer[UART1_RX_BUFFER_SIZE];
 uint16_t uart1_rx_insert_idx, uart1_rx_extract_idx;
 
-
 static void uart1_init_param( uint16_t baud, uint8_t mode, uint8_t fmode);
 
 uint8_t  uart1_tx_buffer[UART1_TX_BUFFER_SIZE];
@@ -229,8 +196,8 @@ void uart1_init_tx( void ) {
 }
 
 bool_t uart1_check_free_space( uint8_t len) {
-  int16_t space;
-  if ((space = (uart1_tx_extract_idx - uart1_tx_insert_idx)) <= 0)
+  int16_t space = uart1_tx_extract_idx - uart1_tx_insert_idx;
+  if (space <= 0)
     space += UART1_TX_BUFFER_SIZE;
   
   return (uint16_t)(space - 1) >= len;
@@ -352,8 +319,9 @@ void uart1_ISR(void)
           // check if more data to send
           if (uart1_tx_insert_idx != uart1_tx_extract_idx)
             {
-            U1THR = uart1_tx_buffer[uart1_tx_extract_idx++];
-            uart1_tx_extract_idx %= UART1_TX_BUFFER_SIZE;
+            U1THR = uart1_tx_buffer[uart1_tx_extract_idx];
+            uart1_tx_extract_idx++;
+	    uart1_tx_extract_idx %= UART1_TX_BUFFER_SIZE;
             }
           else
             {
