@@ -140,6 +140,7 @@ class track = fun ?(name="Noname") ?(size = 500) ?(color="red") (geomap:MapCanva
     method set_v_params_state = fun b -> v_params_on <- b
     method set_last = fun x -> last <- x
     method last = last
+    method last_heading = last_heading
 
     (** add track points on map2D, according to the
        track parameter *)
