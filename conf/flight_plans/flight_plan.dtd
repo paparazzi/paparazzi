@@ -121,7 +121,8 @@ pitch CDATA #IMPLIED
 alt CDATA #IMPLIED
 until CDATA #IMPLIED
 approaching_time CDATA #IMPLIED
-gaz CDATA #IMPLIED>
+gaz CDATA #IMPLIED
+climb CDATA #IMPLIED>
 
 <!ATTLIST set
 var CDATA #REQUIRED
@@ -153,6 +154,8 @@ cam_mode (null|fix|manual|nadir|target|follow) #IMPLIED
 target CDATA #IMPLIED
 cam_ac_target CDATA #IMPLIED
 climb CDATA #IMPLIED
+pitch CDATA #IMPLIED
+gaz CDATA #IMPLIED
 until CDATA #IMPLIED>
 
 <!ATTLIST survey_rectangle

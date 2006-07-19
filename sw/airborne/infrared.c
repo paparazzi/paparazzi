@@ -205,7 +205,7 @@ void estimator_update_state_infrared( void ) {
   z_constrast_mode = 0;
 #endif
   ir_top = Max(ir_top, 1);
-  float c = rad_of_ir*(1-z_constrast_mode)+z_constrast_mode*(IR_RAD_OF_IR_CONTRAST/ir_top);
+  float c = rad_of_ir*(1-z_constrast_mode)+z_constrast_mode*((float)IR_RAD_OF_IR_CONTRAST/ir_top);
   estimator_phi  = c * ir_roll - ir_roll_neutral;
   estimator_theta = c * ir_pitch - ir_pitch_neutral;
 }

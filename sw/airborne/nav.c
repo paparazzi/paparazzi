@@ -312,6 +312,13 @@ static unit_ reset_waypoints( void ) __attribute__ ((unused));
 
 extern float nav_altitude;
 
+#define CLIMB_MODE_GAZ 0 
+#define CLIMB_MODE_PITCH 1
+#define CLIMB_MODE_AGRESSIVE 2
+#define CLIMB_MODE_BLENDED 3
+
+uint8_t climb_mode = CLIMB_MODE_GAZ;
+
 #include "flight_plan.h"
 
 float ground_alt = GROUND_ALT;
@@ -517,12 +524,6 @@ float desired_course = 0.;
 float max_roll = MAX_ROLL;
 float altitude_error;
 
-#define CLIMB_MODE_GAZ 0 
-#define CLIMB_MODE_PITCH 1
-#define CLIMB_MODE_AGRESSIVE 2
-#define CLIMB_MODE_BLENDED 3
-
-uint8_t climb_mode = CLIMB_MODE_GAZ;
 
 
 /** \brief Computes ::nav_desired_roll from course estimation and expected

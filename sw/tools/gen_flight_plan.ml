@@ -151,12 +151,18 @@ let output_cam_mode = fun x index_of_waypoints ->
       lprintf "cam_ac_target(%s);\n" i
   | _ -> failwith (sprintf "Error: unknown '%s' cam mode" m)
 
+let pprz_gaz = fun s ->
+  let g = float_of_string s in
+  if g < 0. || g > 1. then
+    failwith "gaz must be > 0 and < 1";
+  g*. 9600.
+
 let output_vmode x wp last_wp =
   let pitch = try Xml.attrib x "pitch" with _ -> "0.0" in
   if pitch = "auto"
   then begin
     lprintf "climb_mode = CLIMB_MODE_PITCH;\n";
-    lprintf "nav_desired_gaz = %s;\n" (parsed_attrib x "gaz")
+    lprintf "nav_desired_gaz = %f;\n" (pprz_gaz (parsed_attrib x "gaz"))
   end else begin
     lprintf "nav_pitch = %s;\n" (parse pitch);
   end;
@@ -193,7 +199,7 @@ let output_vmode x wp last_wp =
 	if (pitch = "auto") then
 	  failwith "auto pich mode not compatible with vmode=gaz";
 	lprintf "vertical_mode = VERTICAL_MODE_AUTO_GAZ;\n";
-	lprintf "nav_desired_gaz = %s;\n" (parsed_attrib x "gaz")
+	lprintf "nav_desired_gaz = %f;\n" (pprz_gaz (parsed_attrib x "gaz"))
     | x -> failwith (sprintf "Unknown vmode '%s'" x)
   end;
   vmode

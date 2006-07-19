@@ -156,7 +156,7 @@ ac: hard_ac
 #
 # call with : make bl PROC=[TINY|FBW|AP|GENERIC]
 bl:
-	cd $(AIRBORNE)/arm7/test/bootloader; make 
+	cd $(AIRBORNE)/arm7/test/bootloader; make clean; make 
 
 upload_bl: bl
 	lpc21isp -control $(AIRBORNE)/arm7/test/bootloader/bl.hex /dev/ttyS0 38400 12000
