@@ -93,6 +93,8 @@ let get_bdortho = ref ""
 let auto_center_new_ac = ref false
 let no_alarm = ref false
 
+let plugin_frame = ref None
+
 let say = fun s ->
   if !speech then
     ignore (Sys.command (sprintf "spd-say '%s'&" s))
@@ -237,7 +239,7 @@ module Strip = struct
 
 
   (** add a strip to the panel *)
-  let add (widget: GPack.table) config color select center_ac commit_moves =
+  let add (widget: GPack.table) config color select center_ac commit_moves mark =
     (* number of the strip *)
     let strip_number = gen_int () in
     if strip_number > 1 then widget#set_rows strip_number;
@@ -287,7 +289,9 @@ module Strip = struct
     ignore(b#connect#clicked ~callback:center_ac);
     let b = GButton.button ~label:"Commit Moves" ~packing:(left_box#attach ~top:4 ~left:2 ~right:4) () in
     ignore (b#connect#clicked  ~callback:commit_moves);
-    {gauge=pb ; labels= (!strip_labels)}
+    let b = GButton.button ~label:"Mark" ~packing:(left_box#attach ~top:4 ~left:4) () in
+    ignore (b#connect#clicked  ~callback:mark);
+    {gauge=pb ; labels= !strip_labels}
 
 
   (** set a label *)
@@ -756,6 +760,7 @@ let button_press = fun (geomap:G.widget) ev ->
 
 (******* Real time handling of flying A/Cs ***********************************)
 module Live = struct
+  module Tele_Pprz = Pprz.Messages(struct let name = "telemetry" end)
   module Ground_Pprz = Pprz.Messages(struct let name = "ground" end)
   module Alert_Pprz = Pprz.Messages(struct let name = "alert" end)
 
@@ -876,6 +881,35 @@ module Live = struct
       w#reset_moved ())
       fp#waypoints
 
+  let mark = fun ac_id track ->
+    let i = ref 1 in fun () ->
+    match track#last with
+      Some geo ->
+	begin
+	  let lat = (Rad>>Deg)geo.posn_lat
+	  and long = (Rad>>Deg)geo.posn_long in
+	  Tele_Pprz.message_send ac_id "MARK" 
+	    ["ac_id", Pprz.String ac_id;
+	     "lat", Pprz.Float lat;
+	     "long", Pprz.Float long];
+	  match !plugin_frame with
+	    None -> () 
+	  | Some frame ->
+	      let width, height = Gdk.Drawable.get_size frame#misc#window in
+	      let dest = GdkPixbuf.create width height() in
+	      GdkPixbuf.get_from_drawable ~dest ~width ~height frame#misc#window;
+	      let tmp = Filename.temp_file "snapshot" "png" in
+	      GdkPixbuf.save tmp "png" dest;
+	      let png = sprintf "%s/var/logs/Snapshot-%s-%d.png" home ac_id !i in
+	      let annot = sprintf "%f %f %f" lat long (track#last_heading) in
+	      let tag = sprintf "convert -annotate 0x0+10+10 '%s' %s %s"  annot tmp png in
+	      prerr_endline tag;
+	      incr i
+	end
+    | None -> ()
+
+
+
 
   let create_ac = fun (geomap:G.widget) (acs_notebook:GPack.notebook) ac_id config ->
     let color = Pprz.string_assoc "default_gui_color" config
@@ -992,7 +1026,7 @@ module Live = struct
     let select_this_tab =
       let n = acs_notebook#page_num ac_frame#coerce in
       fun () -> acs_notebook#goto_page n in
-    let strip = Strip.add strip_table config color select_this_tab center_ac commit_moves in
+    let strip = Strip.add strip_table config color select_this_tab center_ac commit_moves (mark ac_id track) in
 
 
     Hashtbl.add live_aircrafts ac_id { track = track; color = color; 
@@ -1336,7 +1370,9 @@ module Sector = struct
 	    let m = sprintf "Error while loading %s:\n%s" f (Dtd.prove_error e) in
 	    GToolbox.message_box "Error" m
 end
-      
+
+
+  
 
 
 (***************** MAIN ******************************************************)
@@ -1480,6 +1516,8 @@ let _main =
     let s = GWindow.socket ~packing:frame#add () in
     let com = sprintf "%s 0x%lx -geometry %dx%d &" !plugin_window s#xwindow plugin_width plugin_height in
     ignore (Sys.command com);
+
+    plugin_frame := Some frame;
     
     let swap = fun _ ->
       let child1 = List.hd frame1#children in
