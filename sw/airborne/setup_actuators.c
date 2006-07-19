@@ -57,7 +57,6 @@ void event_task_fbw(void) {
   }
   if (pprz_msg_received) {
     pprz_msg_received = FALSE;
-    LED_TOGGLE(2);
     pprz_parse_payload();
   } 
   if (dl_msg_available) {
