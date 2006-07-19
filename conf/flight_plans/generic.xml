@@ -1,26 +1,22 @@
-<!DOCTYPE flight_plan SYSTEM "flight_plan.dtd">
-
-<flight_plan SECURITY_HEIGHT="25" alt="450" ground_alt="400" lat0="43.4624" lon0="1.2727" max_dist_from_home="1000" name="Generic" qfu="270">
+<flight_plan ALT="450" GROUND_ALT="400" LAT0="43.4624" LON0="1.2727" MAX_DIST_FROM_HOME="1500" NAME="Generic" QFU="270" SECURITY_HEIGHT="25">
   <dl_settings>
-    <dl_settings name="flight params">
+    <dl_settings NAME="flight params">
       <dl_setting MAX="2" MIN="0" STEP="1" VAR="light_mode"/>
-      <dl_setting VAR="altitude_shift" MIN="-50" STEP="10" MAX="1000"/>
+      <dl_setting MAX="1000" MIN="-50" STEP="10" VAR="altitude_shift"/>
     </dl_settings>
-
-    <dl_settings name="mode">
-      <dl_setting VAR="z_constrast_mode" MIN="0." STEP="1" MAX="1."/>
-      <dl_setting VAR="rate_mode" MIN="0." STEP="1" MAX="1."/>
+    <dl_settings NAME="mode">
+      <dl_setting MAX="1." MIN="0." STEP="1" VAR="z_constrast_mode"/>
+      <dl_setting MAX="1." MIN="0." STEP="1" VAR="rate_mode"/>
       <dl_setting MAX="2" MIN="0" STEP="1" VAR="pprz_mode"/>
+      <dl_setting MAX="1" MIN="0" STEP="1" VAR="launch"/>
     </dl_settings>
-
-    <dl_settings name="control">
-      <dl_settings name="attitude">
-        <dl_setting VAR="ir_roll_neutral" MAX="0.3" STEP="0.01" MIN="-0.3"/>
-        <dl_setting VAR="ir_pitch_neutral" MAX="0.3" STEP="0.01" MIN="-0.3"/>
-        <dl_setting VAR="roll_pgain" MAX="15000" STEP="250" MIN="1000"/>
-        <dl_setting VAR="pitch_pgain" MAX="15000" STEP="250" MIN="1000"/>
+    <dl_settings NAME="control">
+      <dl_settings NAME="attitude">
+        <dl_setting MAX="0.3" MIN="-0.3" STEP="0.01" VAR="ir_roll_neutral"/>
+        <dl_setting MAX="0.5" MIN="-0.3" STEP="0.01" VAR="ir_pitch_neutral"/>
+        <dl_setting MAX="15000" MIN="1000" STEP="250" VAR="roll_pgain"/>
+        <dl_setting MAX="15000" MIN="1000" STEP="250" VAR="pitch_pgain"/>
       </dl_settings>
-
       <dl_settings name="rate_loop">
         <dl_setting VAR="roll_rate_pgain" MIN="0." STEP="1.0" MAX="2000."/>
         <dl_setting VAR="attitude_pgain" MAX="100" STEP="1" MIN="10"/>
@@ -34,13 +30,12 @@
     </dl_settings>
   </dl_settings>
 
-
   <waypoints>
     <waypoint NAME="HOME" X="0" Y="0"/>
     <waypoint NAME="1" X="200" Y="0"/>
     <waypoint NAME="2" X="0" Y="200"/>
-    <waypoint alt="450." name="S1" x="-181.37499716" y="122.374998203"/>
-    <waypoint alt="450." name="S2" x="136.75000196" y="308.874998301"/>
+    <waypoint ALT="450." NAME="S1" X="-181.37499716" Y="122.374998203"/>
+    <waypoint ALT="450." NAME="S2" X="136.75000196" Y="308.874998301"/>
   </waypoints>
 
 <!--
@@ -53,10 +48,10 @@
     <block NAME="wait GPS">
       <while COND="!GPS_FIX_VALID(gps_mode)"/>
     </block>
-    <block name="init">
+    <block NAME="init">
       <while COND="10 > block_time"/>
-      <set var="unit" value="reset_nav_reference()"/>
-      <set var="unit" value="reset_waypoints()"/>
+      <set VALUE="reset_nav_reference()" VAR="unit"/>
+      <set VALUE="reset_waypoints()" VAR="unit"/>
       <deroute BLOCK="circlehome"/>
     </block>
     <block NAME="circlehome">
@@ -65,11 +60,19 @@
     <block NAME="stack 1">
       <circle RADIUS="75" WP="1"/>
     </block>
+    <block NAME="route12">
+      <go approaching_time="1" from="1" hmode="route" wp="2"/>
+      <deroute block="stack 2"/>
+    </block>
+    <block NAME="route21">
+      <go approaching_time="1" from="2" hmode="route" wp="1"/>
+      <deroute block="stack 1"/>
+    </block>
     <block NAME="stack 2">
       <circle RADIUS="75" WP="2"/>
     </block>
     <block NAME="survey">
-      <survey_rectangle grid="70" wp1="S1" wp2="S2"/>
+      <survey_rectangle GRID="150" WP1="S1" WP2="S2"/>
     </block>
   </blocks>
 </flight_plan>

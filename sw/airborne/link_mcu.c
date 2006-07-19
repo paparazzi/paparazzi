@@ -47,8 +47,6 @@ static uint16_t crc = 0;
 #ifdef FBW
 
 void link_mcu_restart(void) {
-  //  LED_TOGGLE(2);
-
   ComputeChecksum(link_mcu_from_fbw_msg);
   link_mcu_from_fbw_msg.checksum = crc;
 

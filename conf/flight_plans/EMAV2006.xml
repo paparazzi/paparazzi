@@ -50,20 +50,20 @@
       <circle RADIUS="-50" WP="HOME" wp_dist="50" wp_qdr="0"/>
     </block>
     <block NAME="ABCDEFAFEDCBA">
-      <go wp="A" approaching_time="1"/>
-      <go from="A" hmode="route" wp="B" approaching_time="1"/>
-      <go from="B" hmode="route" wp="C" approaching_time="1"/>
-      <go from="C" hmode="route" wp="D" approaching_time="1"/>
-      <go from="D" hmode="route" wp="E" approaching_time="1"/>
-      <go from="E" hmode="route" wp="F" approaching_time="1"/>
-      <go from="F" hmode="route" wp="A" approaching_time="1"/>
-      <go wp="A" wp_dist="20" wp_qdr="0"/>
-      <go from="A" hmode="route" wp="F" approaching_time="1"/>
-      <go from="F" hmode="route" wp="E" approaching_time="1"/>
-      <go from="E" hmode="route" wp="D" approaching_time="1"/>
-      <go from="D" hmode="route" wp="C" approaching_time="1"/>
-      <go from="C" hmode="route" wp="B" approaching_time="1"/>
-      <go from="B" hmode="route" wp="A" approaching_time="1"/>
+      <go approaching_time="1" wp="A"/>
+      <go approaching_time="1" from="A" hmode="route" wp="B"/>
+      <go approaching_time="1" from="B" hmode="route" wp="C"/>
+      <go approaching_time="1" from="C" hmode="route" wp="D"/>
+      <go approaching_time="1" from="D" hmode="route" wp="E"/>
+      <go approaching_time="1" from="E" hmode="route" wp="F"/>
+      <go approaching_time="1" from="F" hmode="route" wp="A"/>
+      <go approaching_time="1" wp="A" wp_dist="20" wp_qdr="0"/>
+      <go approaching_time="1" from="A" hmode="route" wp="F"/>
+      <go approaching_time="1" from="F" hmode="route" wp="E"/>
+      <go approaching_time="1" from="E" hmode="route" wp="D"/>
+      <go approaching_time="1" from="D" hmode="route" wp="C"/>
+      <go approaching_time="1" from="C" hmode="route" wp="B"/>
+      <go approaching_time="1" from="B" hmode="route" wp="A"/>
     </block>
     <block name="Detection">
       <go approaching_time="1" from="SW" wp="SE"/>
