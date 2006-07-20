@@ -96,6 +96,7 @@
      <field name="climb_sum_err" type="float" format="%.1f"></field>
      <field name="climb_pgain" type="float" format="%.3f"></field> 
      <field name="course_pgain" type="float" format="%.3f"></field>
+     <field name="climb_gaz_submode" type="uint8"></field>
    </message>
 
    <message name="SETTINGS" ID="15">

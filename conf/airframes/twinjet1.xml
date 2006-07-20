@@ -51,7 +51,7 @@
     <define name="ROLL_NEUTRAL_DEFAULT" value="0" unit="deg"/>
     <define name="PITCH_NEUTRAL_DEFAULT" value="-1" unit="deg"/>
     <define name="DEFAULT_CONTRAST" value="200"/>
-    <define name="RAD_OF_IR_CONTRAST" value="0.75"/>
+    <define name="RAD_OF_IR_CONTRAST" value="0.5"/>
     <linear name="RollOfIrs" arity="2" coeff1="0" coeff2="-1"/>
     <linear name="PitchOfIrs" arity="2" coeff1="-1" coeff2="0"/>
     <linear name="TopOfIr" arity="1" coeff1="1"/>
@@ -103,7 +103,7 @@
  
   <section name="NAV">
     <define name="COURSE_PGAIN" value="-0.9"/>
-    <define name="ALTITUDE_PGAIN" value="-0.025"/>
+    <define name="ALTITUDE_PGAIN" value="-0.05" unit="m/s/m" />
     <define name="NAV_PITCH" value="0."/>
   </section>
  

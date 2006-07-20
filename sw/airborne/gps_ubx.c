@@ -108,9 +108,7 @@ void gps_init( void ) {
 #define NAV_DYN_AIRBORNE_4G 7
 
 void gps_configure ( void ) {
-  //    UbxSend_CFG_PRT(0x01, 0x00, 0x0000, 0x000080C0, 0x00009600, UBX_PROTO_MASK, UBX_PROTO_MASK, 0x0000, 0x0000);
-  /* remember to change host baudrate on ack */
-
+  UbxSend_CFG_PRT(0x01, 0x00, 0x0000, 0x000080C0, 19200, UBX_PROTO_MASK, UBX_PROTO_MASK, 0x0000, 0x0000);
   UbxSend_CFG_NAV(NAV_DYN_AIRBORNE_2G, 3, 16, 24, 20, 5, 0, 0x3C, 0x3C, 0x14, 0x03E8 ,0x0000, 0x0, 0x17, 0x00FA, 0x00FA, 0x0064, 0x012C, 0x000F, 0x00, 0x00);
   UbxSend_CFG_MSG(UBX_NAV_ID, UBX_NAV_POSUTM_ID, 0, 1, 0, 0);
   UbxSend_CFG_MSG(UBX_NAV_ID, UBX_NAV_VELNED_ID, 0, 1, 0, 0);

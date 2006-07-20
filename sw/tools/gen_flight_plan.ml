@@ -165,6 +165,7 @@ let output_vmode x wp last_wp =
     lprintf "nav_desired_gaz = %f;\n" (pprz_gaz (parsed_attrib x "gaz"))
   end else begin
     lprintf "nav_pitch = %s;\n" (parse pitch);
+    lprintf "climb_mode = CLIMB_MODE_GAZ;\n";
   end;
   let vmode = try ExtXml.attrib x "vmode" with _ -> "alt" in
   begin

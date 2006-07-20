@@ -79,6 +79,7 @@ extern int16_t circle_x, circle_y, circle_radius;
 extern int16_t segment_x_1, segment_y_1, segment_x_2, segment_y_2;
 
 extern uint8_t horizontal_mode;
+extern uint8_t climb_gaz_submode;
 
 #define HORIZONTAL_MODE_WAYPOINT 0
 #define HORIZONTAL_MODE_ROUTE 1
@@ -101,6 +102,9 @@ extern float climb_pgain;
 extern float climb_igain;
 extern float climb_sum_err;
 extern float desired_climb, pre_climb;
+extern float altitude_pgain;
+extern float climb_pitch_pgain;
+extern float climb_pitch_igain;
 
 extern float pitch_of_vz_pgain;
 extern float pitch_of_vz;

@@ -100,6 +100,8 @@ extern bool_t launch;
 extern uint8_t light_mode;
 extern bool_t gps_lost;
 
+extern bool_t sum_err_reset;
+
 /** Assignment, returning _old_value != _value
  * Using GCC expression statements */
 #define ModeUpdate(_mode, _value) ({ \

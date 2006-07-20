@@ -314,10 +314,13 @@ extern float nav_altitude;
 
 #define CLIMB_MODE_GAZ 0 
 #define CLIMB_MODE_PITCH 1
-#define CLIMB_MODE_AGRESSIVE 2
-#define CLIMB_MODE_BLENDED 3
+
+#define CLIMB_MODE_GAZ_STANDARD 0
+#define CLIMB_MODE_GAZ_AGRESSIVE 1
+#define CLIMB_MODE_GAZ_BLENDED 2
 
 uint8_t climb_mode = CLIMB_MODE_GAZ;
+uint8_t climb_gaz_submode = CLIMB_MODE_GAZ_STANDARD;
 
 #include "flight_plan.h"
 
@@ -537,7 +540,7 @@ void course_pid_run( void ) {
   speed_depend_nav = Min(speed_depend_nav,1.5);
   float roll_from_err = course_pgain * speed_depend_nav * err;
 #if defined  AGR_CLIMB_GAZ
-  if (climb_mode == CLIMB_MODE_AGRESSIVE) {
+  if (climb_gaz_submode == CLIMB_MODE_GAZ_AGRESSIVE) {
     if (altitude_error < 0)
       roll_from_err *= AGR_CLIMB_NAV_RATIO;
     else
@@ -557,7 +560,7 @@ void course_pid_run( void ) {
 float climb_pgain   = CLIMB_PGAIN;
 float climb_igain   =  CLIMB_IGAIN;
 float desired_climb = 0., pre_climb = 0.;
-float climb_sum_err  = 0;
+float climb_sum_err  = 0.;
 
 float climb_pitch_pgain = CLIMB_PITCH_PGAIN;
 float climb_pitch_igain = CLIMB_PITCH_IGAIN;
@@ -574,45 +577,53 @@ climb_pid_run ( void ) {
   pitch_of_vz = desired_climb * pitch_of_vz_pgain;
   switch (climb_mode) {
   case CLIMB_MODE_GAZ:
-    fgaz = controlled_gaz;
-    climb_sum_err += err;
-    Bound(climb_sum_err, -MAX_CLIMB_SUM_ERR, MAX_CLIMB_SUM_ERR);
-    nav_pitch += pitch_of_vz;
-    break;
+#if defined AGR_CLIMB_GAZ
+    switch (climb_gaz_submode) {
+    case CLIMB_MODE_GAZ_AGRESSIVE:
+      if (altitude_error < 0) { /* Climbing */
+	fgaz =  AGR_CLIMB_GAZ;
+	nav_pitch = AGR_CLIMB_PITCH;
+      } else { /* Going down */
+	fgaz =  AGR_DESCENT_GAZ;
+	nav_pitch = AGR_DESCENT_PITCH;
+      }
+      break;
+    
+    case CLIMB_MODE_GAZ_BLENDED: {
+      float ratio = (fabs(altitude_error) - AGR_BLEND_END) / (AGR_BLEND_START-AGR_BLEND_END);
+      if (altitude_error < 0) {
+	fgaz =  ratio*AGR_CLIMB_GAZ + (1-ratio)*controlled_gaz;
+	nav_pitch = ratio*AGR_CLIMB_PITCH + (1-ratio)*pitch_of_vz;
+      } else {
+	fgaz =  ratio*AGR_DESCENT_GAZ + (1-ratio)*controlled_gaz;
+	nav_pitch = ratio*AGR_DESCENT_PITCH + (1-ratio)*pitch_of_vz;
+      }
+      break;
+    }
+    
+    case CLIMB_MODE_GAZ_STANDARD:
+#endif
+
+      fgaz = controlled_gaz;
+      climb_sum_err += err;
+      Bound(climb_sum_err, -MAX_CLIMB_SUM_ERR, MAX_CLIMB_SUM_ERR);
+      nav_pitch += pitch_of_vz;
+      break;
+
+#if defined AGR_CLIMB_GAZ
+    } /* switch submode */
+#endif
+    desired_gaz = TRIM_UPPRZ(fgaz * MAX_PPRZ);
+    return;
     
   case CLIMB_MODE_PITCH:
-    fgaz = nav_desired_gaz;
+    desired_gaz = nav_desired_gaz;
     nav_pitch = climb_pitch_pgain * (err + climb_pitch_igain * climb_pitch_sum_err);
     Bound(nav_pitch, MIN_PITCH, MAX_PITCH);
     climb_pitch_sum_err += err;
     BoundAbs(climb_pitch_sum_err, MAX_PITCH_CLIMB_SUM_ERR);
-    break;
-
-#if defined AGR_CLIMB_GAZ
-  case CLIMB_MODE_AGRESSIVE:
-    if (altitude_error < 0) {
-      fgaz =  AGR_CLIMB_GAZ;
-      nav_pitch = AGR_CLIMB_PITCH;
-    } else {
-      fgaz =  AGR_DESCENT_GAZ;
-      nav_pitch = AGR_DESCENT_PITCH;
-    }
-    break;
-    
-  case CLIMB_MODE_BLENDED: {
-    float ratio = (fabs(altitude_error) - AGR_BLEND_END) / (AGR_BLEND_START-AGR_BLEND_END);
-    if (altitude_error < 0) {
-      fgaz =  ratio*AGR_CLIMB_GAZ + (1-ratio)*controlled_gaz;
-      nav_pitch = ratio*AGR_CLIMB_PITCH + (1-ratio)*pitch_of_vz;
-    } else {
-      fgaz =  ratio*AGR_DESCENT_GAZ + (1-ratio)*controlled_gaz;
-      nav_pitch = ratio*AGR_DESCENT_PITCH + (1-ratio)*pitch_of_vz;
-    }
-    break;
+    return;
   }
-#endif
-  }
-  desired_gaz = TRIM_UPPRZ(fgaz * MAX_PPRZ);
 }
 
 float altitude_pgain = ALTITUDE_PGAIN;
@@ -621,17 +632,19 @@ float altitude_pgain = ALTITUDE_PGAIN;
 void altitude_pid_run(void) {
   desired_altitude = nav_altitude + altitude_shift;
   altitude_error = estimator_z - desired_altitude;
-  
+
+  desired_climb = pre_climb + altitude_pgain * altitude_error;
+  Bound(desired_climb, -CLIMB_MAX, CLIMB_MAX);
+
 #ifdef AGR_CLIMB_GAZ
-  float dist = fabs(altitude_error);
-  if (climb_mode == CLIMB_MODE_PITCH || dist < AGR_BLEND_END) {
-#endif
-    desired_climb = pre_climb + altitude_pgain * altitude_error;
-    Bound(desired_climb, -CLIMB_MAX, CLIMB_MAX);
-#ifdef AGR_CLIMB_GAZ
-  } else if (dist > AGR_BLEND_START)
-    climb_mode = CLIMB_MODE_AGRESSIVE;
-  else
-    climb_mode = CLIMB_MODE_BLENDED;
+  if (climb_mode == CLIMB_MODE_GAZ) {
+    float dist = fabs(altitude_error);
+    if (dist < AGR_BLEND_END) {
+      climb_gaz_submode = CLIMB_MODE_GAZ_STANDARD;
+    } else if (dist > AGR_BLEND_START)
+      climb_gaz_submode = CLIMB_MODE_GAZ_AGRESSIVE;
+    else
+      climb_gaz_submode = CLIMB_MODE_GAZ_BLENDED;
+  }
 #endif
 }
