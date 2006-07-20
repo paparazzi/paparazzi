@@ -54,7 +54,7 @@
     <define name="ROLL_NEUTRAL_DEFAULT" value="6" unit="deg"/>
     <define name="PITCH_NEUTRAL_DEFAULT" value="9" unit="deg"/>
     <define name="DEFAULT_CONTRAST" value="200"/>
-    <define name="RAD_OF_IR_CONTRAST" value="1."/>
+    <define name="RAD_OF_IR_CONTRAST" value="0.75"/>
     <linear name="RollOfIrs" arity="2" coeff1="-0.7" coeff2="0.7"/>
     <linear name="PitchOfIrs" arity="2" coeff1="-0.7" coeff2="-0.7"/>
     <linear name="TopOfIr" arity="1" coeff1="-1"/>
@@ -103,7 +103,7 @@
     <define name="PGAIN" value="-0.02"/>
     <define name="IGAIN" value="0.1"/>
     <define name="MAX" value="1."/>
-    <define name="LEVEL_GAZ" value="0.50"/>
+    <define name="LEVEL_GAZ" value="0.45"/>
     <define name="PITCH_OF_VZ_PGAIN" value="0.05"/>
     <define name="GAZ_OF_CLIMB" value="0.15" unit="%/(m/s)"/>
   </section>
