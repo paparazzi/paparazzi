@@ -32,11 +32,6 @@ open Latlong
 let float_attr = fun xml a -> float_of_string (ExtXml.attrib xml a)
 let int_attr = fun xml a -> int_of_string (ExtXml.attrib xml a)
 
-let pvect (x1,y1) (x2,y2) = x1*.y2-.y1*.x2
-
-let angle (x1,y1) (x2,y2) (x3,y3) =
-  pvect (x3-.x2, y3-.y2) (x1-.x2,y1-.y2)
-
 let rec list_iter3 = fun f l1 l2 l3 ->
   match l1, l2, l3 with
     [], [], [] -> ()
@@ -49,22 +44,6 @@ let rec n_first n = function
     [] -> []
   | x::xs -> if n > 0 then x::n_first (n-1) xs else []
 
-
-let discretise = fun n l ->
-  match l with
-    [] -> l
-  | first::ps ->
-      match List.rev l with
-	[] -> failwith "impossible"
-      | last::_ ->
-	  let rec angles i previous = function 
-	      [] -> failwith ""
-	    | [p1] -> [(angle first p1 previous, i), p1]
-	    | p1::p2::ps ->
-		((angle p2 p1 previous, i), p1)::angles (i+1) p1 (p2::ps) in
-	  let l = angles 0 last l in
-	  let l = List.sort (fun x y -> compare x y) l in
-	  List.map snd (n_first n l)
 
 let rec list_casso x = function
     [] -> raise Not_found
@@ -92,6 +71,18 @@ let ign = ref false
 let get_bdortho = ref ""
 let auto_center_new_ac = ref false
 let no_alarm = ref false
+
+
+let new_process = fun cmd ->
+  match Unix.fork () with
+    0 ->
+      Unix.execv "/bin/sh" [| "/bin/sh"; "-c"; cmd |]
+  | id -> id
+
+let rec respawn = fun com ->
+  let pid = new_process com in
+  ignore (Thread.create (fun p -> let _ = Unix.waitpid [] p in respawn com) pid)
+    
 
 let plugin_frame = ref None
 
@@ -222,8 +213,6 @@ module Strip = struct
       labels: (string * (GBin.event_box * GMisc.label)) list
     }
 
-  let pad = 4
-  let i2s = string_of_int
   let labels_name =  [| 
     [| "AP" ; "alt" ; "->" |]; [| "RC"; "climb"; "/" |]; [| "GPS"; "speed"; "" |];
     [| "settings" ; "throttle"; "" |]
@@ -877,7 +866,7 @@ module Live = struct
 
   let reset_waypoints = fun fp () ->
     List.iter (fun w ->
-      let (i, w) = fp#index w in
+      let (_i, w) = fp#index w in
       w#reset_moved ())
       fp#waypoints
 
@@ -899,11 +888,8 @@ module Live = struct
 	      let dest = GdkPixbuf.create width height() in
 	      GdkPixbuf.get_from_drawable ~dest ~width ~height frame#misc#window;
 	      let tmp = Filename.temp_file "snapshot" "png" in
-	      GdkPixbuf.save tmp "png" dest;
-	      let png = sprintf "%s/var/logs/Snapshot-%s-%d.png" home ac_id !i in
-	      let annot = sprintf "%f %f %f" lat long (track#last_heading) in
-	      let tag = sprintf "convert -annotate 0x0+10+10 '%s' %s %s"  annot tmp png in
-	      prerr_endline tag;
+	      let png = sprintf "%s/var/logs/Snapshot-%s-%d_%f_%f_%f.png" home ac_id !i lat long (track#last_heading) in
+	      GdkPixbuf.save png "png" dest;
 	      incr i
 	end
     | None -> ()
@@ -1066,13 +1052,13 @@ module Live = struct
       ask_config geomap fp_notebook ac
     end
 
-  let get_wind_msg = fun sender vs ->
+  let get_wind_msg = fun _sender vs ->
     let ac = get_ac vs in
     let value = fun field_name -> sprintf "%.1f" (Pprz.float_assoc field_name vs) in
     ac.misc_page#set_wind_speed (value "wspeed");
     ac.misc_page#set_wind_dir (value "dir")
 
-  let get_fbw_msg = fun sender vs ->
+  let get_fbw_msg = fun _sender vs ->
     let ac = get_ac vs in
     let status = Pprz.string_assoc "rc_status" vs in
     Strip.set_label ac.strip "RC" status;
@@ -1084,13 +1070,13 @@ module Live = struct
 
 	  
 
-  let get_engine_status_msg = fun sender vs ->
+  let get_engine_status_msg = fun _sender vs ->
     let ac = get_ac vs in
     Strip.set_label ac.strip "throttle" 
       (string_of_float (Pprz.float_assoc "throttle" vs));
     Strip.set_bat ac.strip (Pprz.float_assoc "bat" vs)
 	  
-  let get_if_calib_msg = fun sender vs ->
+  let get_if_calib_msg = fun _sender vs ->
     let ac = get_ac vs in
     Strip.set_label ac.strip "settings" (Pprz.string_assoc "if_mode" vs)
 
@@ -1270,11 +1256,11 @@ module Live = struct
     in
     safe_bind "WAYPOINT_MOVED" get_values
     
- let get_alert_bat_low = fun a sender vs -> 
+ let get_alert_bat_low = fun a _sender vs -> 
     let ac_id = Pprz.string_assoc "ac_id" vs in
     let ac_name = ref "" in
     let level = Pprz.string_assoc "level" vs in
-    let get_config = fun sender config ->
+    let get_config = fun _sender config ->
       ac_name := Pprz.string_assoc "ac_name" config;
       a#add (!ac_name^" "^"BAT_LOW"^" "^level)
     in
@@ -1285,7 +1271,7 @@ module Live = struct
     alert_bind "BAT_LOW" (get_alert_bat_low a)
     
 
-  let get_infrared = fun sender vs ->
+  let get_infrared = fun _sender vs ->
     let ac_id = Pprz.string_assoc "ac_id" vs in
     let ac = Hashtbl.find live_aircrafts ac_id in
     let ir_page = ac.ir_page in
@@ -1301,7 +1287,7 @@ module Live = struct
       
   let listen_infrared = fun () -> safe_bind "INFRARED" get_infrared
 
-  let get_svsinfo = fun sender vs ->
+  let get_svsinfo = fun _sender vs ->
     let ac_id = Pprz.string_assoc "ac_id" vs in
     let ac = Hashtbl.find live_aircrafts ac_id in
     let gps_page = ac.gps_page in
@@ -1514,8 +1500,8 @@ let _main =
     hpaned3#pack2 frame2#coerce;
     let frame = GBin.event_box ~packing:frame2#add ~width:plugin_width ~height:plugin_height () in
     let s = GWindow.socket ~packing:frame#add () in
-    let com = sprintf "%s 0x%lx -geometry %dx%d &" !plugin_window s#xwindow plugin_width plugin_height in
-    ignore (Sys.command com);
+    let com = sprintf "%s 0x%lx -geometry %dx%d" !plugin_window s#xwindow plugin_width plugin_height in
+    respawn com;
 
     plugin_frame := Some frame;
     
