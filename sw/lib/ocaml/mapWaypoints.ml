@@ -56,7 +56,7 @@ class waypoint = fun (wpts_group:group) (name :string) ?(alt=0.) wgs84 ->
   let wpt_group = GnoCanvas.group wpts_group#group in
 
   let item = 
-    GnoCanvas.rect wpt_group ~x1:(-.s) ~y1:(-.s) ~x2:s ~y2:s ~props:[`FILL_COLOR color; `FILL_STIPPLE (Gdk.Bitmap.create_from_data ~width:2 ~height:2 "\002\001")] in
+    GnoCanvas.rect wpt_group ~x1:(-.s) ~y1:(-.s) ~x2:s ~y2:s ~props:[`FILL_COLOR color] in
 
   let anim = function
       None ->

@@ -32,6 +32,10 @@ open Latlong
 let float_attr = fun xml a -> float_of_string (ExtXml.attrib xml a)
 let int_attr = fun xml a -> int_of_string (ExtXml.attrib xml a)
 
+let rotate = fun a (x, y) ->
+  let cosa = cos a and sina = sin a in
+  (cosa *.x +. sina *.y, -. sina*.x +. cosa *. y)
+
 let rec list_iter3 = fun f l1 l2 l3 ->
   match l1, l2, l3 with
     [], [], [] -> ()
@@ -72,17 +76,7 @@ let get_bdortho = ref ""
 let auto_center_new_ac = ref false
 let no_alarm = ref false
 
-
-let new_process = fun cmd ->
-  match Unix.fork () with
-    0 ->
-      Unix.execv "/bin/sh" [| "/bin/sh"; "-c"; cmd |]
-  | id -> id
-
-let rec respawn = fun com ->
-  let pid = new_process com in
-  ignore (Thread.create (fun p -> let _ = Unix.waitpid [] p in respawn com) pid)
-    
+  
 
 let plugin_frame = ref None
 
@@ -870,11 +864,43 @@ module Live = struct
       w#reset_moved ())
       fp#waypoints
 
-  let mark = fun ac_id track ->
+  let icon = ref None
+  let show_snapshot = fun (geomap:G.widget) geo_FL geo_BR point pixbuf name ev ->
+    match ev with
+    | `BUTTON_PRESS ev ->
+	let image = GMisc.image ~pixbuf () in
+	let icon = image#coerce in
+	begin
+	  match GToolbox.question_box ~title:name ~buttons:["Delete"; "Close"] ~icon "" with
+	    1  -> 
+	      point#destroy ()
+	  | _ -> ()
+	end;
+	true
+    | `LEAVE_NOTIFY ev ->
+	begin
+	  match !icon with
+	    None -> ()
+	  | Some i -> i#destroy ()
+	end;
+	false
+    | `ENTER_NOTIFY ev ->
+	let w = GdkPixbuf.get_width pixbuf
+	and h = GdkPixbuf.get_height pixbuf in
+	icon := Some (geomap#display_pixbuf ((0,0), geo_FL) ((w,h), geo_BR) pixbuf);
+	false
+
+    | _ -> false
+    
+
+  let mark = fun (geomap:G.widget) ac_id track ->
     let i = ref 1 in fun () ->
     match track#last with
       Some geo ->
 	begin
+	  let group = geomap#background in
+	  let point = geomap#circle ~group ~fill_color:"blue" geo 5. in
+	  point#raise_to_top ();
 	  let lat = (Rad>>Deg)geo.posn_lat
 	  and long = (Rad>>Deg)geo.posn_long in
 	  Tele_Pprz.message_send ac_id "MARK" 
@@ -887,10 +913,23 @@ module Live = struct
 	      let width, height = Gdk.Drawable.get_size frame#misc#window in
 	      let dest = GdkPixbuf.create width height() in
 	      GdkPixbuf.get_from_drawable ~dest ~width ~height frame#misc#window;
-	      let tmp = Filename.temp_file "snapshot" "png" in
-	      let png = sprintf "%s/var/logs/Snapshot-%s-%d_%f_%f_%f.png" home ac_id !i lat long (track#last_heading) in
+	      let name = sprintf "Snapshot-%s-%d_%f_%f_%f.png" ac_id !i lat long (track#last_heading) in
+	      let png = sprintf "%s/var/logs/%s" home name in
 	      GdkPixbuf.save png "png" dest;
-	      incr i
+	      incr i;
+
+	      (* Computing the footprint: front_left and back_right *)
+	      let cam_aperture = 2.4/.1.9 in (* width over distance FIXME *)
+	      let alt = track#last_altitude -. float (Srtm.of_wgs84 geo) in
+	      let width = cam_aperture *. alt in
+	      let height = width *. 3. /. 4. in
+	      let utm = utm_of WGS84 geo in
+	      let a = (Deg>>Rad)track#last_heading in
+	      let (xfl,yfl) = rotate a (-.width/.2., height/.2.)
+	      and (xbr,ybr) = rotate a (width/.2., -.height/.2.) in
+	      let geo_FL = of_utm WGS84 (utm_add utm (xfl,yfl))
+	      and geo_BR = of_utm WGS84 (utm_add utm (xbr,ybr)) in
+	      ignore (point#connect#event (show_snapshot geomap geo_FL geo_BR point dest name))
 	end
     | None -> ()
 
@@ -1012,7 +1051,7 @@ module Live = struct
     let select_this_tab =
       let n = acs_notebook#page_num ac_frame#coerce in
       fun () -> acs_notebook#goto_page n in
-    let strip = Strip.add strip_table config color select_this_tab center_ac commit_moves (mark ac_id track) in
+    let strip = Strip.add strip_table config color select_this_tab center_ac commit_moves (mark geomap ac_id track) in
 
 
     Hashtbl.add live_aircrafts ac_id { track = track; color = color; 
@@ -1501,8 +1540,19 @@ let _main =
     let frame = GBin.event_box ~packing:frame2#add ~width:plugin_width ~height:plugin_height () in
     let s = GWindow.socket ~packing:frame#add () in
     let com = sprintf "%s 0x%lx -geometry %dx%d" !plugin_window s#xwindow plugin_width plugin_height in
-    respawn com;
 
+    let pid = ref None in
+    let callback = fun () ->
+      begin match !pid with
+	None -> ()
+      | Some p -> try Unix.kill p 9 with _ -> () 
+      end;
+      pid := Some (Unix.create_process "/bin/sh" [|"/bin/sh"; "-c"; com|] Unix.stdin Unix.stdout Unix.stderr) in
+
+    callback ();
+
+    ignore (menu_fact#add_item "Restart plugin" ~key:GdkKeysyms._P ~callback);
+    
     plugin_frame := Some frame;
     
     let swap = fun _ ->

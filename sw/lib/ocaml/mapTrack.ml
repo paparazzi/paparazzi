@@ -141,6 +141,7 @@ class track = fun ?(name="Noname") ?(size = 500) ?(color="red") (geomap:MapCanva
     method set_last = fun x -> last <- x
     method last = last
     method last_heading = last_heading
+    method last_altitude = last_altitude
 
     (** add track points on map2D, according to the
        track parameter *)
@@ -162,6 +163,7 @@ class track = fun ?(name="Noname") ?(size = 500) ?(color="red") (geomap:MapCanva
       let (xw,yw) = geomap#world_of wgs84 in
       aircraft#affine_absolute (affine_pos_and_angle geomap#zoom_adj#value xw yw heading);
       last_heading <- heading;
+      last_altitude <- altitude;
       last_yw <- yw;
       last_height <- (altitude -. relief_height);
       last_speed <- speed ;

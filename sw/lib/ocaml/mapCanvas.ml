@@ -163,6 +163,7 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
 (** GUI attributes *)
 
     val background = background
+    method background = background
     method still = still
     method top_still = 3.5*.s
 	
