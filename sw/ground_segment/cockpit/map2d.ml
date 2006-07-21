@@ -1408,6 +1408,7 @@ let _main =
   and center = ref ""
   and zoom = ref 1.
   and maximize = ref false
+  and fullscreen = ref false
   and projection = ref G.Mercator
   and auto_ortho = ref false
   and mplayer = ref ""
@@ -1446,6 +1447,8 @@ let _main =
   let window = GWindow.window ~title:"Paparazzi GCS" ~border_width:1 ~width:1024 ~height:750 () in
   if !maximize then
     window#maximize ();
+  if !fullscreen then
+    window#fullscreen ();
   let vbox= GPack.vbox ~packing: window#add () in
 
   (** window for vertical situation *)
@@ -1533,7 +1536,7 @@ let _main =
   if !mplayer <> "" then
     plugin_window := sprintf "mplayer -nomouseinput '%s' -wid " !mplayer;
   if !plugin_window <> "" then begin
-    let plugin_width=400 and plugin_height=300 in
+    let plugin_width = 400 and plugin_height = 300 in
     let frame2 = GPack.vbox ~width:plugin_width () in
     
     hpaned3#pack2 frame2#coerce;
@@ -1542,16 +1545,16 @@ let _main =
     let com = sprintf "%s 0x%lx -geometry %dx%d" !plugin_window s#xwindow plugin_width plugin_height in
 
     let pid = ref None in
-    let callback = fun () ->
+    let restart = fun () ->
       begin match !pid with
 	None -> ()
       | Some p -> try Unix.kill p 9 with _ -> () 
       end;
       pid := Some (Unix.create_process "/bin/sh" [|"/bin/sh"; "-c"; com|] Unix.stdin Unix.stdout Unix.stderr) in
 
-    callback ();
+    restart ();
 
-    ignore (menu_fact#add_item "Restart plugin" ~key:GdkKeysyms._P ~callback);
+    ignore (menu_fact#add_item "Restart plugin" ~key:GdkKeysyms._P ~callback:restart);
     
     plugin_frame := Some frame;
     
@@ -1560,8 +1563,15 @@ let _main =
       let child2 = List.hd frame2#children in
       child2#misc#reparent frame1#coerce;
       child1#misc#reparent frame2#coerce in
-    
-    ignore (frame#event#connect#button_press ~callback:(fun _ -> swap (); true))
+
+    let callback = fun ev ->
+      Printf.printf "%d\n%!" (GdkEvent.Button.button ev);
+      match GdkEvent.Button.button ev with
+	1 -> swap (); true
+      | 3 -> restart (); true
+      | _ -> false in
+      
+    ignore (frame#event#connect#button_press ~callback)
   end;
 
 
