@@ -1474,6 +1474,12 @@ let _main =
   let _active_vertical = fun x ->
     if x then vertical_situation#show () else vertical_situation#misc#hide () in
   ignore (menu_fact#add_item "Redraw" ~key:GdkKeysyms._L ~callback:geomap#canvas#update_now);
+  let switch_fullscreen = fun x ->
+    if x then
+      window#fullscreen ()
+    else
+      window#unfullscreen () in
+  ignore (menu_fact#add_check_item "Fullscreen" ~key:GdkKeysyms._F ~active: !fullscreen ~callback:switch_fullscreen);
   ignore (menu_fact#add_item "Quit" ~key:GdkKeysyms._Q ~callback:quit);
 
   (* Maps handling *)
