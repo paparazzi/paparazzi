@@ -580,7 +580,9 @@ let _ =
       else
 	fun _ -> buffered_input fd; true
     in
+    ignore (Glib.Io.add_watch [`HUP] (fun _ -> exit 1)  (GMain.Io.channel_of_descr fd));
     ignore (Glib.Io.add_watch [`IN] cb (GMain.Io.channel_of_descr fd));
+
 
     if !uplink then begin
       (** Listening on Ivy (FIXME: remove the ad hoc messages) *)
