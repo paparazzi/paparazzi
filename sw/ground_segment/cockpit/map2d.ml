@@ -1416,6 +1416,7 @@ let _main =
   let options =
     [ "-b", Arg.String (fun x -> ivy_bus := x), "Bus\tDefault is 127.255.255.25:2010";
       "-maximize", Arg.Set maximize, "Maximize window";
+      "-fullscreen", Arg.Set fullscreen, "Fullscreen window";
       "-ref", Arg.Set_string geo_ref, "Geographic ref (default '')";
       "-zoom", Arg.Set_float zoom, "Initial zoom";
       "-center", Arg.Set_string center, "Initial map center";
