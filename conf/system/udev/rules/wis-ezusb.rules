@@ -1,0 +1,8 @@
+ACTION=="add", BUS=="usb", ENV{PRODUCT}=="93b/a002/*", \
+RUN+="/sbin/fxload -t fx2 -I /lib/firmware/ezusb/hpi_PX-M402U.hex"
+ACTION=="add", BUS=="usb", ENV{PRODUCT}=="93b/a004/*", \
+RUN+="/sbin/fxload -t fx2 -I /lib/firmware/ezusb/hpi_PX-TV402U.hex"
+ACTION=="add", BUS=="usb", ENV{PRODUCT}=="eb1/6666/*", \
+RUN+="/sbin/fxload -t fx2 -I /lib/firmware/ezusb/hpi_LR192.hex"
+ACTION=="add", BUS=="usb", ENV{PRODUCT}=="eb1/6668/*", \
+RUN+="/sbin/fxload -t fx2 -I /lib/firmware/ezusb/hpi_StarTrek.hex"
