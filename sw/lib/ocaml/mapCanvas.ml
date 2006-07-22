@@ -298,6 +298,14 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
       let sx_w, sy_w = Gdk.Drawable.get_size canvas#misc#window
       and (x, y) = canvas#get_scroll_offsets in
       canvas#scroll_to (x-sx_w/2) (y-sy_w/2)
+
+    method get_center = fun () ->
+      let (x, y) = canvas#get_scroll_offsets
+      and (sx_w, sy_w) = Gdk.Drawable.get_size canvas#misc#window in
+      let xc = x + sx_w/2 and yc = y + sy_w/2 in
+      let (xw, yw) = canvas#window_to_world  (float xc) (float yc) in
+      self#of_world (xw, yw)
+      
 			
     method display_pixbuf = fun ?opacity ((x1,y1), geo1) ((x2,y2), geo2) image ->
       let x1 = float x1 and x2 = float x2

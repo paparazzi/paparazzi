@@ -270,9 +270,9 @@ module Strip = struct
       ) labels_name;
     let b = GButton.button ~label:"Center A/C" ~packing:(left_box#attach ~top:4 ~left:0 ~right:2) () in
     ignore(b#connect#clicked ~callback:center_ac);
-    let b = GButton.button ~label:"Commit Moves" ~packing:(left_box#attach ~top:4 ~left:2 ~right:4) () in
+    let b = GButton.button ~label:"Commit WPs" ~packing:(left_box#attach ~top:4 ~left:2 ~right:4) () in
     ignore (b#connect#clicked  ~callback:commit_moves);
-    let b = GButton.button ~label:"Mark" ~packing:(left_box#attach ~top:4 ~left:4) () in
+    let b = GButton.button ~label:"Mark" ~packing:(left_box#attach ~top:4 ~left:4 ~right:6) () in
     ignore (b#connect#clicked  ~callback:mark);
     {gauge=pb ; labels= !strip_labels}
 
@@ -1566,10 +1566,18 @@ let _main =
     plugin_frame := Some frame;
     
     let swap = fun _ ->
+      (** Keep the center of the geo canvas *)
+      let c = geomap#get_center () in
+
       let child1 = List.hd frame1#children in
       let child2 = List.hd frame2#children in
       child2#misc#reparent frame1#coerce;
-      child1#misc#reparent frame2#coerce in
+      child1#misc#reparent frame2#coerce;
+
+      (* Strange: the centering does not work if done inside this callback.
+	 It is postponed to be called by the mainloop(). *)
+      ignore (GMain.Idle.add (fun () -> geomap#center c; false));
+    in
 
     let callback = fun ev ->
       Printf.printf "%d\n%!" (GdkEvent.Button.button ev);

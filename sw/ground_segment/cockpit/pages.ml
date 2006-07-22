@@ -78,7 +78,7 @@ class infrared (widget: GBin.frame) =
     ignore (GMisc.label ~text: "gps hybrid mode" ~packing: (table#attach ~top:2 ~left: 0) ());
     ignore (GMisc.label ~text: "gps hybrid factor" ~packing: (table#attach ~top:3 ~left: 0) ())
   in
-object (this)
+object
   val parent = widget
   val table = table
 
@@ -111,7 +111,7 @@ class gps ?(visible = fun _ -> true) (widget: GBin.frame) =
   let update_color = fun flags_eb flags ->
     let color = if flags land 0x01 = 1 then "green" else "red" in
     flags_eb#coerce#misc#modify_bg [`NORMAL, `NAME color] in
-object (this)
+object
   val parent = widget
   val table = table
   val mutable active_cno = []
@@ -144,11 +144,11 @@ class pfd ?(visible = fun _ -> true) (widget: GBin.frame) =
   let horizon = new Horizon.h ~packing: widget#add 150 in
   let _lazy = fun f x -> if visible widget then f x in
     
-object (this)
+object
   method set_attitude roll pitch =
     _lazy (horizon#set_attitude ((Deg>>Rad)roll)) ((Deg>>Rad)pitch)
   method set_alt (a:float) = _lazy horizon#set_alt a
-  method set_climb (c:float) = ()
+  method set_climb (_c:float) = ()
   method set_speed (c:float) = _lazy horizon#set_speed c
 end
 

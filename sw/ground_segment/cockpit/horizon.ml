@@ -1,3 +1,29 @@
+(*
+* $Id$
+*
+* Multi aircrafts map display and flight plan editor
+*  
+* Copyright (C) 2004-2006 ENAC, Pascal Brisset, Antoine Drouin
+*
+* This file is part of paparazzi.
+*
+* paparazzi is free software; you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation; either version 2, or (at your option)
+* any later version.
+*
+* paparazzi is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with paparazzi; see the file COPYING.  If not, write to
+* the Free Software Foundation, 59 Temple Place - Suite 330,
+* Boston, MA 02111-1307, USA. 
+*
+*)
+
 open Printf
 open Latlong
 
@@ -25,17 +51,32 @@ let floats_of_points = fun ps ->
 let ruler = fun ?(index_on_right=false) ~text_props ~max ~scale ~w ~index_width ~step ~h root ->
   let r = GnoCanvas.group root in
   let height = scale *. float max in
+
+  (* Grey background *)
   let _ = GnoCanvas.rect ~x1:0. ~y1:(-.height) ~x2:w ~y2:height ~fill_color:"#808080" r in
-  for i = 0 to max/step do 
+  let props = (text_props@[`ANCHOR `EAST]) in
+
+  (* One step drawer *)
+  let tab = Array.create (max/step) false in
+  let draw = fun i ->
     let i = i * step in
     let y = -. scale *. float i in
     let text = Printf.sprintf "%d" i in
-    let _ = GnoCanvas.text ~text ~props:(text_props@[`ANCHOR `EAST]) ~y ~x:(w*.0.75) r in
+    let _ = GnoCanvas.text ~text ~props ~y ~x:(w*.0.75) r in
     let _ = GnoCanvas.line ~points:[|w*.0.8;y;w;y|] ~fill_color:"white" r in
     let y = y -. float step /. 2. *. scale in
     let _ = GnoCanvas.line ~points:[|w*.0.8;y;w;y|] ~fill_color:"white" r in
-    ()
-  done;
+    () in
+
+  let lazy_drawer = fun v ->
+    let v = truncate v / step in
+    for i = Pervasives.max 0 (v - 5) to min (v + 5) (Array.length tab - 1) do (* FIXME *)
+      if not tab.(i) then begin
+	tab.(i) <- true;
+	draw i
+      end
+    done in
+
   (** Yellow index *)
   let _ = GnoCanvas.line ~points:[|0.;0.;w;0.|] ~fill_color:"yellow" root in
   let s = index_width in
@@ -46,7 +87,7 @@ let ruler = fun ?(index_on_right=false) ~text_props ~max ~scale ~w ~index_width 
   (** Mask (bottom & top) *)
   let _ = GnoCanvas.rect ~x1:0. ~y1:(-.height) ~x2:w ~y2:(-.h) ~fill_color:"black" root in
   let _ = GnoCanvas.rect ~x1:0. ~y1:height ~x2:w ~y2:h ~fill_color:"black" root in
-  r
+  r, lazy_drawer
     
     
 class h = fun ?packing size  ->
@@ -102,8 +143,8 @@ class h = fun ?packing size  ->
   let pi6 = pi/.6. in
   let n = 20 in
   let arc_above = arc n size2 pi6 (5.*.pi6) in
-  let (x,y) = arc_above.(n-1) in
-  let rest = [|(x, 0.);(size, 0.); (size, size); (-.size,size);(-.size,0.);(-.x,0.)|] in
+  let (x, _y) = arc_above.(n-1) in
+  let rest = [|(x, 0.);(size, 0.); (size, 10.*.size); (-.size, 10.*.size);(-.size,0.);(-.x,0.)|] in
   let points = floats_of_points (Array.append arc_above rest) in
   let _ = 
     ignore (GnoCanvas.polygon ~fill_color:"black" ~points mask);
@@ -129,44 +170,48 @@ class h = fun ?packing size  ->
     _30 30.; _30 (-30.)
   in
 
-  let speed = 
+  (* Speedometer on the left side *)
+  let speed, mi, mx, lazy_speed = 
     let g = GnoCanvas.group ~x:left_margin ~y:yc canvas#root in
-    let r = ruler ~text_props ~index_on_right:true ~max:50 ~scale:speed_scale ~w:speed_width ~step:2 ~index_width ~h:(0.75*.size2) g in
+    let r, lazy_ruler = ruler ~text_props ~index_on_right:true ~max:50 ~scale:speed_scale ~w:speed_width ~step:2 ~index_width ~h:(0.75*.size2) g in
     let mx = 
       GnoCanvas.text ~x:(speed_width/.2.) ~y:(-0.85*.size2) ~props:text_props g
     and mi =
       GnoCanvas.text ~x:(speed_width/.2.) ~y:(0.80*.size2) ~props:text_props g in
     mx#set [`FILL_COLOR "yellow"];
     mi#set [`FILL_COLOR "yellow"];
-    r, mi, mx
+    lazy_ruler 0.;
+    r, mi, mx, lazy_ruler
 
-  and alt = 
+  (* Altimeter on the right side *)
+  and alt, lazy_alt = 
     let g = GnoCanvas.group ~x:(xc+.size2) ~y:yc canvas#root in
-    ruler ~text_props ~max:3000 ~scale:alt_scale ~w:alt_width ~step:10
-      ~index_width ~h:(0.75*.size2) g
+    ruler ~text_props ~max:3000 ~scale:alt_scale ~w:alt_width ~step:10 ~index_width ~h:(0.75*.size2) g
   in
   
-  object (self)
+  object
     method set_attitude = fun roll pitch ->
       disc#affine_absolute (affine_pos_and_angle xc (yc+.pitch_scale pitch) (-.roll))
 
     val mutable max_speed = 0.
     val mutable min_speed = max_float
     method set_speed = fun (s:float) ->
-      let (r, mi, mx) = speed in
-      r#affine_absolute (affine_pos 0. (speed_scale*.s));
+      speed#affine_absolute (affine_pos 0. 0.);
+      lazy_speed s;
+      speed#affine_absolute (affine_pos 0. (speed_scale*.s));
       min_speed <- min min_speed s;
       max_speed <- max max_speed s; 
       mi#set [`TEXT (sprintf "%.1f" min_speed)];
       mx#set [`TEXT (sprintf "%.1f" max_speed)]
     initializer
-      let (r, _, _) = speed in
-      ignore (r#connect#event (function
-	  `BUTTON_PRESS ev -> 
+      ignore (speed#connect#event (function
+	  `BUTTON_PRESS _ev -> 
 	    max_speed <- 0.; min_speed <- max_float; true
 	| _ -> false))
       
     method set_alt = fun (s:float) ->
+      alt#affine_absolute (affine_pos 0. 0.);
+      lazy_alt s;
       alt#affine_absolute (affine_pos 0. (alt_scale*.s))
 	
   end
