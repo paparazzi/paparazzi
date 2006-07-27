@@ -27,6 +27,8 @@
 # - 29. Arp. 2005  - changed handling for lst-Filename (mth)
 #
 
+LPC21IAP = $(PAPARAZZI_SRC)/sw/ground_segment/lpc21iap/lpc21iap
+
 # MCU name and submodel
 MCU = arm7tdmi
 SUBMDL = LPC2138
@@ -295,11 +297,14 @@ gccversion :
 
 
 # Program the device.  
-load: $(TARGET).hex
+load upload program: $(TARGET).hex
+ifeq ($(FLASH_MODE),IAP)
+	$(LPC21IAP)  $(TARGET).elf
+else 
 	@echo
 	@echo $(MSG_LPC21_RESETREMINDER)
 	$(LPC21ISP) $(LPC21ISP_CONTROL) $(LPC21ISP_DEBUG) $(LPC21ISP_FLASHFILE) $(LPC21ISP_PORT) $(LPC21ISP_BAUD) $(LPC21ISP_XTAL)
-
+endif
 
 # Create final output files (.hex, .eep) from ELF output file.
 # TODO: handling the .eeprom-section should be redundant
