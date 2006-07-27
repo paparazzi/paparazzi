@@ -165,6 +165,8 @@ LDFLAGS = -nostartfiles -Wl,-Map=$(TARGET).map,--cref
 LDFLAGS += -lc
 LDFLAGS += $(NEWLIBLPC) $(MATH_LIB)
 LDFLAGS += -lc -lgcc
+# for bootloader, don't use 0x8000 alignment
+LDFLAGS += -n
 
 # Set Linker-Script Depending On Selected Memory
 ifeq ($(RUN_MODE),RAM_RUN)
