@@ -518,9 +518,14 @@ DEBUG_LED_OFF(10);
 **************************************************************************/
 BOOL USBHwInit(void)
 {
+#ifdef PROC_TINYJ
+    /* turn on Vbus as not connected in hardware */
+    IOPIN0 |= (1 << 23); //TODO FIXME
+#endif
+
 #ifdef PROC_TINY
-	/* turn on Vbus as not connected in hardware */
-	IOPIN0 |= (1 << 23); //TODO FIXME
+    /* turn on Vbus as not connected in hardware */
+    IOPIN0 |= (1 << 23); //TODO FIXME
 #endif
 
 #ifdef PROC_FBW

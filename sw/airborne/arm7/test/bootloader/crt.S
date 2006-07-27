@@ -21,7 +21,16 @@
 #ifdef PROC_TINY
 #define BOARD_TINY
 #endif
+#ifdef PROC_TINYJ
+#define BOARD_TINYJ
+#endif
 
+#ifdef BOARD_TINYJ
+/* TINY Jeremy old    MOSI P0.19 */
+/* .set  BOOT_PIN,  0x00080000 */
+/* TINY Jeremy old    SCK P0.17 */
+.set BOOT_PIN, 0x00020000
+#else
 #ifdef BOARD_TINY
 /* TINY old    LPC_SSEL P0.20 */
 .set  BOOT_PIN,  0x00100000
@@ -32,6 +41,7 @@
 #else
 /* Vbus P0.23 */
 .set  BOOT_PIN,  0x00800000
+#endif
 #endif
 #endif
 

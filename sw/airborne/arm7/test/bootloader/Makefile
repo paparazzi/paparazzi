@@ -1,5 +1,5 @@
-#PROC_AP PROC_FBW PROC_TINY
-#PROC = AP
+#PROC_AP PROC_FBW PROC_TINY PROC_TINYJ
+#PROC = TINYJ
 ALLFLAGS = -DPROC_$(PROC)
 
 LIBNAME	= usbstack
@@ -24,8 +24,7 @@ OD		= arm-elf-objdump
 RM		= rm
 TAR		= tar
 
-CFLAGS  = -I./ -c -W -Wall -Os -g -mcpu=arm7tdmi -mthumb-interwork $(ALLFLAGS) 
-# -DDEBUG 
+CFLAGS  = -I./ -c -W -Wall -Os -g -mcpu=arm7tdmi -mthumb-interwork $(ALLFLAGS) -DDEBUG 
 ASFLAGS = $(ALLFLAGS) -mapcs-32
 LFLAGS  = -T $(LINKFILE) -nostartfiles --warn-common -n
 LFLAGS_RAM  = -T $(LINKFILE_RAM) -nostartfiles --warn-common -n

@@ -108,6 +108,14 @@ static const U8 abDescriptors[] = {
     DESC_STRING,
     'B', 0, 'o', 0, 'o', 0, 't', 0, 'l', 0, 'o', 0, 'a', 0, 'd', 0, 'e', 0, 'r', 0,
 
+#ifdef PROC_TINYJ
+    0x26,
+    DESC_STRING,
+    'T', 0, 'I', 0, 'N', 0, 'Y', 0, 'J', 0, ' ', 0,
+    '0', 0, '1', 0, '2', 0, '3', 0,
+    '4', 0, '5', 0, '6', 0, '7', 0,
+    '8', 0, '9', 0, 'A', 0, 'B', 0,
+#else
 #ifdef PROC_TINY
     0x24,
     DESC_STRING,
@@ -138,6 +146,7 @@ static const U8 abDescriptors[] = {
     '1', 0, '1', 0, '2', 0, '2', 0,
     '4', 0, '4', 0, '5', 0, '5', 0,
     '6', 0, '6', 0, '7', 0, '7', 0,
+#endif
 #endif
 #endif
 #endif
@@ -244,6 +253,7 @@ void isp_entry(unsigned int command[5], unsigned int result[3])
         else {
             result[0] = CMD_LOCKED;
         }
+DBG("%X\n",*(unsigned int*) (0x40004624+4));
         break;
     case ISP_ERASE_SECTORS:
         if (unlocked) {
@@ -270,6 +280,17 @@ void isp_entry(unsigned int command[5], unsigned int result[3])
     case ISP_COMPARE:
         cmd[0] = IAP_COMPARE;
         iap_entry(cmd, result);
+DBG("%X\n",*(unsigned int*) (0xA624-20));
+DBG("%X\n",*(unsigned int*) (0xA624-16));
+DBG("%X\n",*(unsigned int*) (0xA624-12));
+DBG("%X\n",*(unsigned int*) (0xA624-8));
+DBG("%X\n",*(unsigned int*) (0xA624-4));
+DBG(" %X\n",*(unsigned int*) 0xA624);
+DBG("%X\n",*(unsigned int*) (0xA624+4));
+DBG("%X\n",*(unsigned int*) (0xA624+8));
+DBG("%X\n",*(unsigned int*) (0xA624+12));
+DBG("%X\n",*(unsigned int*) (0xA624+16));
+DBG("%X\n",*(unsigned int*) (0xA624+20));
         break;
 
   default:
