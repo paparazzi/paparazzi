@@ -172,7 +172,7 @@ LDFLAGS += -n
 ifeq ($(RUN_MODE),RAM_RUN)
 LDFLAGS +=-T$(SUBMDL)-RAM.ld
 else 
-LDFLAGS +=-T$(SUBMDL)-ROM.ld
+LDFLAGS +=-T$(SUBMDL)-ROM-bl.ld
 endif
 
 
