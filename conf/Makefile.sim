@@ -43,16 +43,17 @@ Q=@
 # End of configuration part.
 #
 
+INCLUDES += -I `ocamlc -where`
 
-CFLAGS		=							\
-	-W -Wall \
+CFLAGS		=						\
+	-W -Wall 						\
 	$(INCLUDES)					  	\
-	-Wstrict-prototypes						\
+	-Wstrict-prototypes					\
 	$($(TARGET).CFLAGS)					\
-	$(LOCAL_CFLAGS)					\
-	-O2								\
+	$(LOCAL_CFLAGS)						\
+	-O2							\
 
-LDFLAGS		=	-lm						\
+LDFLAGS		=	-lm					\
 
 #
 # General rules

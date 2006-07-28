@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include <ivy.h>
+#include <Ivy/ivy.h>
 
 extern char ivy_buf[];
 extern char* ivy_p;

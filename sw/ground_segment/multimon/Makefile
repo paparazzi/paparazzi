@@ -3,7 +3,7 @@ Q=@
 
 DEBUG		=n
 
-CFLAGS		=-Wall -Wstrict-prototypes -I/usr/X11R6/include
+CFLAGS		=-Wall -Wstrict-prototypes -I/usr/X11R6/include -I `ocamlc -where`
 ifeq ($(DEBUG),y)
 CFLAGS		+=-g -O -march=i486 -falign-loops=2 -falign-jumps=2 \
 		  -falign-functions=2 -DARCH_I386
