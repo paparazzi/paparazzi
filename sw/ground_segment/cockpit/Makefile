@@ -34,9 +34,13 @@ MAIN=gcs
 CMO=$(ML:.ml=.cmo)
 CMX=$(ML:.ml=.cmx)
 
-all : $(MAIN)
+all : $(MAIN) map2d
 
 opt : $(MAIN).opt
+
+# Only for backward compatibility: should disappear
+map2d : gcs
+	[ -L $@ ] || [ -f $@ ] || ln -s $< $@ 
 
 
 $(MAIN) : $(CMO)
@@ -69,4 +73,4 @@ editFP.cmo : editFP.cmi
 sectors.cmo : sectors.cmi
 
 clean:
-	rm -f *~* *.cm* *.o *.out *.opt map2d
+	rm -f *~* *.cm* *.o *.out *.opt map2d gcs
