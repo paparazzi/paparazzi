@@ -24,6 +24,8 @@
  *
  *)
 
+let (//) = Filename.concat
+
 let paparazzi_src =
   try
     Sys.getenv "PAPARAZZI_SRC"
@@ -35,3 +37,8 @@ let paparazzi_home =
     Sys.getenv "PAPARAZZI_HOME"
   with
     _ -> Filename.concat (Sys.getenv "HOME") "paparazzi"
+
+
+let flight_plans_path = paparazzi_home // "conf" // "flight_plans"
+
+let flight_plan_dtd = flight_plans_path // "flight_plan.dtd"
