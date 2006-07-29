@@ -151,7 +151,7 @@ class flight_plan = fun ?edit ~show_moved geomap color fp_dtd xml ->
 	    try
 	      let max_dist_from_home = float_of_string (XmlEdit.attrib xml_root "MAX_DIST_FROM_HOME") in
 	      !c#destroy ();
-	      c :=  geomap#circle ~width:5 ~color w#pos max_dist_from_home
+	      c :=  geomap#circle ~group:wpts_group#group ~width:5 ~color w#pos max_dist_from_home
 	    with _ -> () in
 	  update ();
 	  w#connect update;
