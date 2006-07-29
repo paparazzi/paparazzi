@@ -183,6 +183,8 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
     val mutable drawing  = NotDrawing
     val mutable region = None (* Rectangle selected region *)
     val mutable polygon = None (* Polygon selected region *)
+    val mutable last_mouse_x = 0
+    val mutable last_mouse_y = 0
 
     method region = region
     method polygon = polygon
@@ -401,6 +403,9 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
 	let (xw, yw) = self#window_to_world xc yc in
 	self#display_geo (self#geo_string (self#of_world (xw,yw)));
 	self#display_alt (self#of_world (xw,yw));
+	let (x, y) = canvas#get_scroll_offsets in
+	last_mouse_x <- truncate xc - x;
+	last_mouse_y <- truncate yc - y
       end;
       false
 	  
@@ -411,13 +416,31 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
       | k when k = GdkKeysyms._Down -> canvas#scroll_to x (y+pan_step) ; true
       | k when k = GdkKeysyms._Left -> canvas#scroll_to (x-pan_step) y ; true
       | k when k = GdkKeysyms._Right -> canvas#scroll_to (x+pan_step) y ; true
-      | k when k = GdkKeysyms._Page_Up -> adj#set_value (adj#value+.adj#step_increment) ; true
-      | k when k = GdkKeysyms._Page_Down -> adj#set_value (adj#value-.adj#step_increment) ; true
+      | k when k = GdkKeysyms._Page_Up -> 
+	  self#zoom_up ();
+	  true
+      | k when k = GdkKeysyms._Page_Down -> 
+	  self#zoom_down ();
+	  true
       | _ -> false
 
     method connect_view = fun cb ->
       Hashtbl.add view_cbs cb ()
 
+    method zoom_in_place = fun z ->
+      let (x, y) = canvas#get_scroll_offsets in
+      canvas#scroll_to (x+last_mouse_x) (y+last_mouse_y);
+      
+      adj#set_value z;
+
+      let (x, y) = canvas#get_scroll_offsets in
+      canvas#scroll_to (x-last_mouse_x) (y-last_mouse_y)
+
+    method zoom_up () =
+      self#zoom_in_place (adj#value*.zoom_factor);
+    method zoom_down () =
+      self#zoom_in_place (adj#value/.zoom_factor);
+   
     method any_event =
       let rec last_view = ref (0,0,0,0) in
       fun ev ->
@@ -433,27 +456,10 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
 	match GdkEvent.get_type ev with
 	| `SCROLL when not (Gdk.Convert.test_modifier `SHIFT (GdkEvent.Scroll.state (GdkEvent.Scroll.cast ev))) -> begin
 	    let scroll_event = GdkEvent.Scroll.cast ev in
-	    let (x, y) = canvas#get_scroll_offsets in
-	    let xr = GdkEvent.Scroll.x_root scroll_event in
-	    let yr = GdkEvent.Scroll.y_root scroll_event -. 50. in
 	    match GdkEvent.Scroll.direction scroll_event with
-	      `UP    ->
-		canvas#scroll_to (x+truncate xr) (y+truncate yr);
-		
-		adj#set_value (adj#value*.zoom_factor);
-		
-		let (x, y) = canvas#get_scroll_offsets in
-		canvas#scroll_to (x-truncate (xr)) (y-truncate (yr));
-		true
-	    | `DOWN  ->
-		canvas#scroll_to (x+truncate xr) (y+truncate yr);
-		
-		adj#set_value (adj#value/.zoom_factor);
-		
-		let (x, y) = canvas#get_scroll_offsets in
-		canvas#scroll_to (x-truncate (xr)) (y-truncate (yr));
-		true
-	    | _  -> false
+	      `UP   -> self#zoom_up (); true
+	    | `DOWN -> self#zoom_down (); true
+	    | _     -> false
 	end
 	| _ -> false
 	    
