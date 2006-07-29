@@ -29,20 +29,21 @@ INCLUDES=-I +lablgtk2 -I ../../lib/ocaml
 LIBS=glibivy-ocaml.cma lablgtk.cma lib-pprz.cma lablgnomecanvas.cma xlib-pprz.cma
 CMXA=$(LIBS:.cma=.cmxa)
 
-ML=horizon.ml pages.ml map2d.ml
+ML= speech.ml horizon.ml pages.ml strip.ml plugin.ml sectors.ml map2d.ml editFP.ml live.ml gcs.ml
+MAIN=gcs
 CMO=$(ML:.ml=.cmo)
 CMX=$(ML:.ml=.cmx)
 
-all : map2d
+all : $(MAIN)
 
-opt : map2d.opt
+opt : $(MAIN).opt
 
 
-map2d : $(CMO)
+$(MAIN) : $(CMO)
 	@echo OL $@
 	$(Q)$(OCAMLC) -custom $(INCLUDES) $(LIBS) threads.cma gtkThread.cmo gtkInit.cmo $(CMO) -o $@
 
-map2d.opt : $(CMX)
+$(MAIN).opt : $(CMX)
 	@echo OOL $@
 	$(Q)$(OCAMLOPT) $(INCLUDES) str.cmxa unix.cmxa xml-light.cmxa $(LIBS:.cma=.cmxa) threads.cmxa gtkThread.cmx gtkInit.cmx $(CMX) -o $@
 
@@ -50,15 +51,22 @@ map2d.opt : $(CMX)
 %.cmo: %.ml  ../../lib/ocaml/lib-pprz.cma ../../lib/ocaml/xlib-pprz.cma
 	@echo OC $<
 	$(Q)$(OCAMLC) $(INCLUDES) -c $<
-%.cmi: %.mli
+%.cmi: %.mli  ../../lib/ocaml/lib-pprz.cma ../../lib/ocaml/xlib-pprz.cma
 	@echo OCI $<
 	$(Q)$(OCAMLC) $(INCLUDES) -c $<
 %.cmx: %.ml
 	@echo OOC $<
 	$(Q)$(OCAMLOPT) $(INCLUDES) -c $<
 
-map2d.cmo : pages.cmi
+gcs.cmo : pages.cmi speech.cmi editFP.cmi sectors.cmi
 pages.cmo pages.cmx : pages.cmi horizon.cmi
+live.cmo : plugin.cmi live.cmi strip.cmi speech.cmi
+map2d.cmo : map2d.cmi
+strip.cmo : strip.cmi
+speech.cmo : speech.cmi
+plugin.cmo : plugin.cmi
+editFP.cmo : editFP.cmi
+sectors.cmo : sectors.cmi
 
 clean:
 	rm -f *~* *.cm* *.o *.out *.opt map2d

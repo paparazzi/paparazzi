@@ -22,7 +22,4 @@
 *
 *)
 
-let set_georef_if_none = fun geomap wgs84 ->
-  match geomap#georef with
-    None -> geomap#set_georef wgs84
-  | Some _ -> ()
+val set_georef_if_none : MapCanvas.widget -> Latlong.geographic -> unit
