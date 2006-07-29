@@ -266,13 +266,14 @@ let add_context_menu = fun model view ?noselection_menu menu ->
       else
 	false)
 
-let add_delete_key = fun model (view:GTree.view) ->
+let add_delete_key = fun (model:GTree.tree_store) (view:GTree.view) ->
   view#event#connect#key_press (fun ev ->
     if GdkEvent.Key.keyval ev = GdkKeysyms._Delete then
       match view#selection#get_selected_rows with
 	path::_ ->
 	  let row = model#get_iter path in
-	  model#remove row;
+	  model#get ~row ~column:event Deleted; 
+	  ignore (model#remove row);
 	  true
       | _ -> false
     else false)
