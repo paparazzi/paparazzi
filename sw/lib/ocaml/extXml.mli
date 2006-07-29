@@ -38,6 +38,8 @@ val get_attrib : Xml.xml -> string -> string -> string
 (** [get_attrib xml path attrib_name] *)
 
 val attrib : Xml.xml -> string -> string
+val int_attrib : Xml.xml -> string -> int
+val float_attrib : Xml.xml -> string -> float
 (** [get xml attribute_name] May raise [Error] *)
 
 val tag_is : Xml.xml -> string -> bool
@@ -56,5 +58,4 @@ val subst_attrib : string -> string -> Xml.xml -> Xml.xml
 val subst_child : string -> Xml.xml -> Xml.xml -> Xml.xml
 (** [subst_child child_tag new_child xml] *)
 
-val float_attrib : Xml.xml -> string -> float
 

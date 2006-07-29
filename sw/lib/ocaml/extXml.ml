@@ -124,3 +124,10 @@ let float_attrib = fun xml a ->
   with
     _ -> failwith (Printf.sprintf "Error: float expected in '%s'" v)
 
+let int_attrib = fun xml a ->
+  let v = attrib xml a in
+  try
+    int_of_string v
+  with
+    _ -> failwith (Printf.sprintf "Error: integer expected in '%s'" v)
+
