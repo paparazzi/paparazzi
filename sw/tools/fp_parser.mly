@@ -6,13 +6,14 @@ open Fp_syntax
 %token <float> FLOAT
 %token <string> IDENT
 %token EOF
-%token COMMA SEMICOLON LP RP LC RC LB RB AND COLON
+%token COMMA SEMICOLON LP RP LC RC LB RB AND COLON OR
 %token EQ GT ASSIGN GEQ NOT
 %token PLUS MINUS
 %token MULT DIV
 
 
-%left EQ GT ASSIGN GEQ	/* lowest precedence */
+%left AND OR	/* lowest precedence */
+%left EQ GT ASSIGN GEQ
 %left PLUS MINUS
 %left MULT DIV
 %nonassoc NOT
@@ -28,6 +29,7 @@ expression:
   | expression GEQ expression { CallOperator (">=",[$1;$3]) }
   | expression EQ expression { CallOperator ("==",[$1;$3]) }
   | expression AND expression { CallOperator ("&&",[$1;$3]) }
+  | expression OR expression { CallOperator ("||",[$1;$3]) }
   | expression PLUS expression { CallOperator ("+",[$1;$3]) }
   | expression MINUS expression { CallOperator ("-",[$1;$3]) }
   | expression MULT expression { CallOperator ("*",[$1;$3]) }

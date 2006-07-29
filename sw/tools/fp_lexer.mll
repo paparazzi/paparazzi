@@ -21,6 +21,7 @@ rule token = parse
   | ']' { RB }
   | "==" { EQ }
   | "&&" { AND }
+  | "||" { OR }
   | ">" { GT }
   | ">=" { GEQ }
   | "+" { PLUS }
