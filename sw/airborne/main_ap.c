@@ -45,6 +45,7 @@
 #include "autopilot.h"
 #include "estimator.h"
 #include "rc_settings.h"
+#include "settings.h"
 #include "cam.h"
 #include "traffic_info.h"
 #include "link_mcu.h"

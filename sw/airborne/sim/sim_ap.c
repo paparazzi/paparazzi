@@ -12,12 +12,14 @@
 #include "gps.h"
 #include "traffic_info.h"
 #include "flight_plan.h"
+#include "settings.h"
 #include "nav.h"
 #include "pid.h"
 #include "infrared.h"
 #include "cam.h"
 #include "commands.h"
 #include "main_ap.h"
+#include "ap_downlink.h"
 
 #include <caml/mlvalues.h>
 #include <caml/memory.h>
@@ -105,6 +107,9 @@ value send_event(value event_id) {
 value dl_setting(value index __attribute__ ((unused)), 
 		 value val __attribute__ ((unused))) {
   /** DlSetting macro may be empty: unused attr to get rid of the warnings */
-  DlSetting(Int_val(index), Double_val(val));
+  uint8_t i = Int_val(index);
+  float var = Double_val(val);
+  DlSetting(i, var);
+  DOWNLINK_SEND_DL_VALUE(&i, &var);
   return Val_unit;
 }

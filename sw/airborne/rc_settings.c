@@ -43,4 +43,9 @@
 #define RcChannel(x) (fbw_state->channels[x])
 
 /** Includes generated code from airframe.xml */
-#include "inflight_calib.h"
+#include "settings.h"
+
+
+void rc_settings(bool_t mode_changed __attribute__ ((unused))) {
+  RCSettings(mode_changed);
+}

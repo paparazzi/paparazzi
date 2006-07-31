@@ -1,20 +1,6 @@
 <!DOCTYPE flight_plan SYSTEM "flight_plan.dtd">
 
 <flight_plan NAME="example - Muret4" LON0="1.27289" MAX_DIST_FROM_HOME="1000" GROUND_ALT="185" SECURITY_HEIGHT="25" QFU="270" ALT="250" LAT0="43.46223">
-   <rc_control>
-     <mode NAME="AUTO1">
-      <setting VAR="ir_pitch_neutral" RANGE="60." RC="gain_1_up" TYPE="int16"/>
-      <setting VAR="ir_roll_neutral" RANGE="-60." RC="gain_2_up" TYPE="int16"/>
-      <setting VAR="pitch_pgain" RANGE="1000." RC="gain_1_down" TYPE="int16"/>
-      <setting VAR="roll_pgain" RANGE="-1000." RC="gain_2_down" TYPE="int16"/>
-    </mode>
-    <mode NAME="AUTO2">
-      <setting VAR="pitch_of_roll" RANGE="0.1" RC="gain_1_down" TYPE="float"/>
-      <setting VAR="pitch_of_vz" RANGE=".2" RC="gain_2_down" TYPE="float"/>
-      <setting VAR="ir_pitch_neutral" RANGE="60." RC="gain_1_up" TYPE="int16"/>
-      <setting VAR="ir_roll_neutral" RANGE="-60." RC="gain_2_up" TYPE="int16"/>
-    </mode>
-  </rc_control>
 
   <dl_settings>
       <dl_setting var="ir_roll_neutral" min="-0.3" max="0.3" step="0.01"/>

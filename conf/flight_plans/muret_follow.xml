@@ -1,21 +1,6 @@
 <!DOCTYPE flight_plan SYSTEM "flight_plan.dtd">
 
 <flight_plan NAME="example - Muret for loops" LON0="1.27289" MAX_DIST_FROM_HOME="1000" GROUND_ALT="185" SECURITY_HEIGHT="25" QFU="270" ALT="250" LAT0="43.46223">
-  <rc_control>
-    <mode NAME="AUTO1">
-      <setting VAR="ir_pitch_neutral" RANGE="0.1" RC="gain_1_up" TYPE="float"/>
-      <setting VAR="ir_roll_neutral" RANGE="-0.1" RC="gain_1_down" TYPE="float"/>
-    </mode>
-    <mode NAME="AUTO2">
-      <setting VAR="ir_pitch_neutral" RANGE="0.1" RC="gain_1_up" TYPE="float"/>
-      <setting VAR="ir_roll_neutral" RANGE="-0.1" RC="gain_1_down" TYPE="float"/>
-    </mode>
-  </rc_control>
-
-  <dl_settings>
-      <dl_setting var="ir_roll_neutral" min="-0.2" max="0.2" step="0.01"/>
-      <dl_setting var="nav_block" min="0" max="1" step="1"/>
-  </dl_settings>
 
   <waypoints utm_x0="360284.8" utm_y0="4813595.5">
     <waypoint name="HOME" x="0.0" y="30.0" lat="43.4625000078" lon="1.27288231142" alt="250."/>

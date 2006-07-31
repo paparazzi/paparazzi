@@ -1,9 +1,6 @@
 <flight_plan NAME="demo 1" LON0="1.27289" MAX_DIST_FROM_HOME="400" GROUND_ALT="185" SECURITY_HEIGHT="25" QFU="270" ALT="250" LAT0="43.46223">
-  <rc_control/>
-  <dl_settings>
-    <dl_setting VAR="ir_roll_neutral" MAX="0.2" STEP="0.01" MIN="-0.2"/>
-    <dl_setting VAR="course_pgain" MAX="-0.1" STEP="0.01" MIN="-0.8"/>
-  </dl_settings>
+
+
   <waypoints UTM_X0="360284.8" UTM_Y0="4813595.5">
     <waypoint Y="30.0" LON="1.27288231142" NAME="HOME" X="0.0" LAT="43.4625000078" ALT="250."/>
     <waypoint name="road_start" x="-337" y="17" alt="250."/>

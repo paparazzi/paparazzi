@@ -23,7 +23,7 @@
       <arg flag="-b" variable="ivy_bus"/>
       <arg flag="-r" variable="render"/>
     </program>
-    <program name="map 2d" command="sw/ground_segment/cockpit/map2d">
+    <program name="gcs" command="sw/ground_segment/cockpit/gcs">
       <arg flag="-b" variable="ivy_bus"/>
     </program>
     <program name="map 3d" command="sw/ground_segment/visu3d/mapGL">
@@ -69,7 +69,7 @@
         <arg flag="-render" constant="1"/>     
         <arg flag="-vertical" constant="1"/>
       </program>
-      <program name="map 2d">
+      <program name="gcs">
         <arg flag="-mercator" constant=""/>
         <arg flag="-ref" constant="WGS84 43.4623 1.2730"/>
         <arg flag="-center" constant="WGS84 43.4623 1.2730"/>
@@ -80,7 +80,7 @@
 
     <session name="Generic sim">
       <program name="server"/>     
-      <program name="map 2d ml">
+      <program name="gcs">
         <arg flag="-mercator" constant=""/>
         <arg flag="-google_fill" constant=""/>
         <arg flag="-center_ac" constant=""/>

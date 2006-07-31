@@ -34,13 +34,13 @@ PERIODIC_H=$(ACINCLUDE)/periodic.h
 RADIO_H=$(ACINCLUDE)/radio.h
 FLIGHT_PLAN_H=$(ACINCLUDE)/flight_plan.h
 FLIGHT_PLAN_XML=$(ACINCLUDE)/flight_plan.xml
-INFLIGHT_CALIB_H=$(ACINCLUDE)/inflight_calib.h
+SETTINGS_H=$(ACINCLUDE)/settings.h
 MAKEFILE_AC=$(ACINCLUDE)/Makefile.ac
 
 # "make Q=''" to get full echo
 Q=@
 
-all: $(AIRFRAME_H) $(RADIO_H) $(CONTROL_H) $(CONTROL_C) $(FLIGHT_PLAN_H) $(FLIGHT_PLAN_XML) $(INFLIGHT_CALIB_H) $(MAKEFILE_AC) $(PERIODIC_H)
+all: $(AIRFRAME_H) $(RADIO_H) $(CONTROL_H) $(CONTROL_C) $(FLIGHT_PLAN_H) $(FLIGHT_PLAN_XML) $(SETTINGS_H) $(MAKEFILE_AC) $(PERIODIC_H)
 
 $(AIRFRAME_H) : $(CONF)/$(AIRFRAME) $(CONF_XML)
 	@echo BUILD $@
@@ -54,36 +54,34 @@ $(RADIO_H) : $(CONF)/$(RADIO) $(CONF_XML) $(TOOLS)/gen_radio.out
 
 $(PERIODIC_H) : $(MESSAGES_XML) $(CONF_XML) $(CONF)/$(TELEMETRY)
 	@echo BUILD $@
-	$(Q)TMP_FILE=`mktemp`;\
-	$(TOOLS)/gen_periodic.out $(MESSAGES_XML) $(CONF)/$(TELEMETRY) > $$TMP_FILE;\
-	mv  $$TMP_FILE $@
+	$(Q)$(TOOLS)/gen_periodic.out $(MESSAGES_XML) $(CONF)/$(TELEMETRY) > $@
 	$(Q)chmod a+r $@
 
 $(CONTROL_H) : $(CONF)/$(AIRFRAME) $(CONF_XML)
 	@echo BUILD $@
-	$(Q)$(TOOLS)/gen_control.out h $< > /tmp/control.h
-	$(Q)mv /tmp/control.h $@
+	$(Q)$(TOOLS)/gen_control.out h $< > $@
+	$(Q)chmod a+r $@
 
 $(CONTROL_C) : $(CONF)/$(AIRFRAME) $(CONF_XML)
 	@echo BUILD $@
 	$(Q)mkdir -p $(ACINCLUDE)/ap
-	$(Q)$(TOOLS)/gen_control.out c $< > /tmp/control.c
-	$(Q)mv /tmp/control.c $@
+	$(Q)$(TOOLS)/gen_control.out c $< > $@
+	$(Q)chmod a+r $@
 
 $(FLIGHT_PLAN_H) : $(CONF)/$(FLIGHT_PLAN) $(CONF_XML) $(TOOLS)/gen_flight_plan.out
 	@echo BUILD $@
-	$(Q)$(TOOLS)/gen_flight_plan.out $< > /tmp/fp.h
-	$(Q)mv /tmp/fp.h $@
+	$(Q)$(TOOLS)/gen_flight_plan.out $< > $@
+	$(Q)chmod a+r $@
 
 $(FLIGHT_PLAN_XML) : $(CONF)/$(FLIGHT_PLAN) $(CONF_XML) $(TOOLS)/gen_flight_plan.out
 	@echo BUILD $@
-	$(Q)$(TOOLS)/gen_flight_plan.out -dump $< > /tmp/fp.xml
-	$(Q)mv /tmp/fp.xml $@
+	$(Q)$(TOOLS)/gen_flight_plan.out -dump $< > $@
+	$(Q)chmod a+r $@
 
-$(INFLIGHT_CALIB_H) : $(CONF)/$(FLIGHT_PLAN) $(CONF_XML) $(TOOLS)/gen_calib.out
+$(SETTINGS_H) : $(CONF)/$(SETTINGS) $(CONF_XML) $(TOOLS)/gen_settings.out
 	@echo BUILD $@
-	$(Q)$(TOOLS)/gen_calib.out $< > /tmp/c.h
-	$(Q)mv /tmp/c.h $@
+	$(Q)$(TOOLS)/gen_settings.out $< > $@
+	$(Q)chmod a+r $@
 
 $(MAKEFILE_AC) : $(CONF)/$(AIRFRAME)
 	@echo BUILD $@

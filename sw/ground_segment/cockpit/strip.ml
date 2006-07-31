@@ -14,13 +14,11 @@ type t = {
   }
 
 let labels_name =  [| 
-  [| "AP" ; "alt" ; "->" |]; [| "RC"; "climb"; "/" |]; [| "GPS"; "speed"; "" |];
-  [| "settings" ; "throttle"; "" |]
+  [| "AP" ; "alt" ; "->" |]; [| "RC"; "climb"; "/" |]; [| "GPS"; "speed"; "throttle" |]
 |]
 
 let labels_print = [| 
-  [| "AP" ; "alt" ; "->" |]; [| "RC"; "climb"; "->" |]; [| "GPS"; "speed"; "" |];
-  [| "CAL" ; "throttle"; "" |]
+  [| "AP" ; "alt" ; "->" |]; [| "RC"; "climb"; "->" |]; [| "GPS"; "speed"; "throttle" |]
 |]
 let gen_int = let i = ref (-1) in fun () -> incr i; !i
 

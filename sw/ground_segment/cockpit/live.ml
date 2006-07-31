@@ -318,17 +318,17 @@ let create_ac = fun (geomap:G.widget) (acs_notebook:GPack.notebook) ac_id config
   let misc_page = new Pages.misc ~packing:misc_frame#add misc_frame in
 
   let settings_page =
-    try
-      let xml_settings = Xml.children (ExtXml.child fp_xml "dl_settings") in
-      let callback = fun idx value -> 
-	let vs = ["ac_id", Pprz.String ac_id; "index", Pprz.Int idx;"value", Pprz.Float value] in
-	Ground_Pprz.message_send "dl" "DL_SETTING" vs in
-      let settings_tab = new Pages.settings ~visible xml_settings callback in
-      let tab_label = (GMisc.label ~text:"Settings" ())#coerce in
-      ac_notebook#append_page ~tab_label settings_tab#widget;
-      Some settings_tab
-    with
-      _ -> None in
+    let settings_url = Pprz.string_assoc "settings" config in
+    let settings_file = Http.file_of_url settings_url in
+    let settings_xml = Xml.parse_file settings_file in
+    let xml_settings = Xml.children (ExtXml.child settings_xml "dl_settings") in
+    let callback = fun idx value -> 
+      let vs = ["ac_id", Pprz.String ac_id; "index", Pprz.Int idx;"value", Pprz.Float value] in
+      Ground_Pprz.message_send "dl" "DL_SETTING" vs in
+    let settings_tab = new Pages.settings ~visible xml_settings callback in
+    let tab_label = (GMisc.label ~text:"Settings" ())#coerce in
+    ac_notebook#append_page ~tab_label settings_tab#widget;
+    Some settings_tab in
   
   (** Add a strip and connect it to the A/C notebook *)
   let select_this_tab =
@@ -400,7 +400,8 @@ let get_engine_status_msg = fun _sender vs ->
     
 let get_if_calib_msg = fun _sender vs ->
   let ac = get_ac vs in
-  Strip.set_label ac.strip "settings" (Pprz.string_assoc "if_mode" vs)
+  (** No longer in the strip Strip.set_label ac.strip "settings" (Pprz.string_assoc "if_mode" vs) *)
+  ()
 
 let listen_wind_msg = fun () ->
   safe_bind "WIND" get_wind_msg

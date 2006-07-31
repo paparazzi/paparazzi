@@ -638,16 +638,19 @@ let send_config = fun http _asker args ->
       else
 	sprintf "file://%s" Env.paparazzi_home in
     let prefix = fun s -> sprintf "%s/%s%s" protocol root_dir s in
+    let settings_file = try ExtXml.attrib conf "settings" with _ -> "settings/basic.xml" in (* c.f. gen_aircraft.ml *)
     (** Expanded flight plan has been compiled in var/ *)
     let fp = prefix ("var" // ac_name // "flight_plan.xml")
     and af = prefix ("conf" // ExtXml.attrib conf "airframe")
-    and rc = prefix ("conf" // ExtXml.attrib conf "radio") in
+    and rc = prefix ("conf" // ExtXml.attrib conf "radio")
+    and settings = prefix ("conf" // settings_file) in
     let col = try Xml.attrib conf "gui_color" with _ -> new_color () in
     let ac_name = try Xml.attrib conf "name" with _ -> "" in
     ["ac_id", Pprz.String ac_id;
      "flight_plan", Pprz.String fp;
      "airframe", Pprz.String af;
      "radio", Pprz.String rc;
+     "settings", Pprz.String settings;
      "default_gui_color", Pprz.String col;
      "ac_name", Pprz.String ac_name
    ]

@@ -1,43 +1,4 @@
 <flight_plan ALT="450" GROUND_ALT="400" LAT0="43.4624" LON0="1.2727" MAX_DIST_FROM_HOME="1000" NAME="Generic" QFU="270" SECURITY_HEIGHT="25">
-  <dl_settings>
-    <dl_settings NAME="flight params">
-      <dl_setting MAX="2" MIN="0" STEP="1" VAR="light_mode"/>
-      <dl_setting MAX="1000" MIN="-50" STEP="10" VAR="altitude_shift"/>
-    </dl_settings>
-    <dl_settings NAME="mode">
-      <dl_setting MAX="1." MIN="0." STEP="1" VAR="z_constrast_mode"/>
-      <dl_setting MAX="1." MIN="0." STEP="1" VAR="rate_mode"/>
-      <dl_setting MAX="2" MIN="0" STEP="1" VAR="pprz_mode"/>
-      <dl_setting MAX="1" MIN="0" STEP="1" VAR="launch"/>
-    </dl_settings>
-    <dl_settings NAME="control">
-      <dl_settings NAME="attitude">
-        <dl_setting MAX="0.3" MIN="-0.3" STEP="0.01" VAR="ir_roll_neutral"/>
-        <dl_setting MAX="0.5" MIN="-0.3" STEP="0.01" VAR="ir_pitch_neutral"/>
-        <dl_setting MAX="15000" MIN="1000" STEP="250" VAR="roll_pgain"/>
-        <dl_setting MAX="15000" MIN="1000" STEP="250" VAR="pitch_pgain"/>
-        <dl_setting MAX="1" MIN="0" STEP="0.01" VAR="pitch_of_roll"/>
-        <dl_setting MAX="1" MIN="0" STEP="0.01" VAR="pitch_of_vz_pgain"/>
-      </dl_settings>
-
-<!--
-      <dl_settings name="rate_loop">
-        <dl_setting MAX="2000." MIN="0." STEP="1.0" VAR="roll_rate_pgain"/>
-        <dl_setting MAX="100" MIN="10" STEP="1" VAR="attitude_pgain"/>
-      </dl_settings>
- -->
-
-      <dl_settings name="nav">
-        <dl_setting MAX="0.7" MIN="0.3" STEP="0.05" VAR="climb_level_gaz"/>
-        <dl_setting MAX="-0.01" MIN="-0.1" STEP="0.01" VAR="climb_pgain"/>
-        <dl_setting MAX="0" MIN="-0.1" STEP="0.01" VAR="altitude_pgain"/>
-        <dl_setting MAX="1" MIN="0.05" STEP="0.05" VAR="climb_igain"/>
-        <dl_setting MAX="-0.1" MIN="-2" STEP="0.05" VAR="course_pgain"/>
-        <dl_setting MAX="-0.01" MIN="-0.1" STEP="0.01" VAR="climb_pitch_pgain"/>
-        <dl_setting MAX="0.1" MIN="0" STEP="0.01" VAR="climb_pitch_igain"/>
-      </dl_settings>
-    </dl_settings>
-  </dl_settings>
   <waypoints>
     <waypoint NAME="HOME" X="0" Y="0"/>
     <waypoint NAME="1" X="200" Y="0"/>
@@ -45,6 +6,7 @@
     <waypoint ALT="450." NAME="S1" X="-181.37499716" Y="122.374998203"/>
     <waypoint ALT="450." NAME="S2" X="136.75000196" Y="308.874998301"/>
   </waypoints>
+
   <blocks>
     <block NAME="wait GPS">
       <while COND="!GPS_FIX_VALID(gps_mode)"/>

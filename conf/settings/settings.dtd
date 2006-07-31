@@ -1,0 +1,28 @@
+<!-- Dataling and RC settings DTD -->
+
+<!ELEMENT settings (rc_settings?,dl_settings?)>
+
+<!ELEMENT rc_settings (rc_mode*)>
+<!ELEMENT rc_mode (rc_setting*)>
+<!ELEMENT rc_setting EMPTY>
+
+<!ATTLIST rc_mode name CDATA #REQUIRED>
+
+<!ATTLIST rc_setting var CDATA #REQUIRED>
+<!ATTLIST rc_setting type (int16|float) #REQUIRED>
+<!ATTLIST rc_setting range CDATA #REQUIRED>
+<!ATTLIST rc_setting rc (gain_1_up|gain_2_up|gain_1_down|gain_2_down) #REQUIRED>
+
+<!ELEMENT dl_settings (dl_setting|dl_settings)*>
+<!ELEMENT dl_setting EMPTY>
+
+<!ATTLIST dl_settings
+name CDATA #IMPLIED
+>
+
+<!ATTLIST dl_setting
+var CDATA #REQUIRED
+min CDATA #REQUIRED
+max CDATA #REQUIRED
+step CDATA #IMPLIED
+>

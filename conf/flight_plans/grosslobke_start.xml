@@ -1,27 +1,5 @@
 <flight_plan ALT="70" GROUND_ALT="68" LAT0="52.26483" LON0="9.99394" MAX_DIST_FROM_HOME="500" NAME="Gross Lobke, verschiedene Kreise" QFU="270" SECURITY_HEIGHT="30">
-  <dl_settings>
-    <dl_setting MAX="0.3" MIN="-0.3" STEP="0.01" VAR="ir_roll_neutral"/>
-    <dl_setting MAX="0.3" MIN="-0.3" STEP="0.01" VAR="ir_pitch_neutral"/>
-    <dl_setting MAX="15000" MIN="1000" STEP="250" VAR="roll_pgain"/>
-    <dl_setting MAX="15000" MIN="1000" STEP="250" VAR="pitch_pgain"/>
-    <dl_setting MAX="0.7" MIN="0.3" STEP="0.05" VAR="climb_level_gaz"/>
-    <dl_setting MAX="-0.01" MIN="-0.5" STEP="0.01" VAR="climb_pgain"/>
-    <dl_setting MAX="-0.1" MIN="-2" STEP="0.05" VAR="course_pgain"/>
-    <dl_setting MAX="1." MIN="0." STEP="0.1" VAR="nav_prebank"/>
-    <dl_setting MAX="1." MIN="0." STEP="0.1" VAR="nav_speed_depend"/>
-    <dl_setting MAX="1." MIN="0." STEP="0.1" VAR="z_constrast_mode"/>
-    <dl_setting MAX="1." MIN="0." STEP="0.1" VAR="rate_mode"/>
-  </dl_settings>
-  <rc_control>
-    <mode NAME="AUTO1">
-      <setting RANGE="30." RC="gain_1_up" TYPE="int16" VAR="ir_pitch_neutral"/>
-      <setting RANGE="-30." RC="gain_1_down" TYPE="int16" VAR="ir_roll_neutral"/>
-    </mode>
-    <mode NAME="AUTO2">
-      <setting RANGE="0.1" RC="gain_1_up" TYPE="float" VAR="pitch_pgain"/>
-      <setting RANGE="-0.02" RC="gain_1_down" TYPE="float" VAR="max_roll"/>
-    </mode>
-  </rc_control>
+
   <waypoints utm_x0="567831.0" utm_y0="5790955.0">
     <waypoint alt="150." name="HOME" x="12.5630359771" y="36.3278824799"/>
     <waypoint alt="170." name="1" x="131.545403407" y="27.1758122239"/>

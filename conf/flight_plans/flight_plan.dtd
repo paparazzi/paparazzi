@@ -1,13 +1,7 @@
 <!-- Paparazzi flight plan DTD -->
 
-<!ELEMENT flight_plan (rc_control?,dl_settings?,waypoints,include*,exceptions?,blocks)>
+<!ELEMENT flight_plan (waypoints,include*,exceptions?,blocks)>
 
-<!ELEMENT rc_control (mode*)>
-<!ELEMENT mode (setting*)>
-<!ELEMENT setting EMPTY>
-
-<!ELEMENT dl_settings (dl_setting|dl_settings)*>
-<!ELEMENT dl_setting EMPTY>
 
 <!ELEMENT waypoints (waypoint+)>
 <!ELEMENT waypoint EMPTY>
@@ -46,24 +40,6 @@
 <!ATTLIST flight_plan ir_square_utmy_max CDATA #IMPLIED>
 <!ATTLIST flight_plan ir_square_width CDATA #IMPLIED>
 <!ATTLIST flight_plan ir_correct_steps CDATA #IMPLIED>
-
-<!ATTLIST mode name CDATA #REQUIRED>
-
-<!ATTLIST setting var CDATA #REQUIRED>
-<!ATTLIST setting type (int16|float) #REQUIRED>
-<!ATTLIST setting range CDATA #REQUIRED>
-<!ATTLIST setting rc (gain_1_up|gain_2_up|gain_1_down|gain_2_down) #REQUIRED>
-
-<!ATTLIST dl_settings
-name CDATA #IMPLIED
->
-
-<!ATTLIST dl_setting
-var CDATA #REQUIRED
-min CDATA #REQUIRED
-max CDATA #REQUIRED
-step CDATA #IMPLIED
->
 
 <!ATTLIST waypoints
 utm_x0 CDATA #IMPLIED
