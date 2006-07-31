@@ -65,7 +65,7 @@ let my_check_menu_item = fun label ~active ~callback ~packing () ->
   ignore (mi#connect#toggled ~callback:(fun () -> callback mi#active))
 
 let my_menu_item = fun label ~callback ~packing () ->
-  let mi = GMenu.check_menu_item ~label ~packing () in
+  let mi = GMenu.menu_item ~label ~packing () in
   ignore (mi#connect#activate ~callback)
 
 
@@ -115,6 +115,11 @@ let convex = fun l ->
 	    then loop ((x1,y1)::pts)
 	    else l in
       (x3,y3)::List.rev (loop (List.rev ps))
+
+
+class type geographic = object
+    method pos : Latlong.geographic
+end
 	    
 
 
@@ -186,9 +191,34 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
     val mutable last_mouse_x = 0
     val mutable last_mouse_y = 0
 
+    val mutable fitted_objects = ([] : geographic list)
+
     method region = region
     method polygon = polygon
 
+    method register_to_fit = fun o -> fitted_objects <- o :: fitted_objects
+
+    method fit_to_window () =
+      let min_lat, max_lat, min_long, max_long =
+	List.fold_right
+	  (fun p (min_lat, max_lat, min_long, max_long) ->
+	    let pos = p#pos in
+	    let lat = pos.LL.posn_lat
+	    and long = pos.LL.posn_long in
+	    (min min_lat lat, max max_lat lat, 
+	     min min_long long, max max_long long))
+	  fitted_objects
+	  (max_float, min_float, max_float, min_float) in
+      let c = {LL.posn_lat = (min_lat+.max_lat)/.2.; posn_long=(min_long+.max_long)/.2.}
+      and nw_xw, nw_yw = self#world_of {LL.posn_lat = max_lat; posn_long=min_long}
+      and se_xw, se_yw = self#world_of {LL.posn_lat = min_lat; posn_long=max_long} in
+      let width, height = Gdk.Drawable.get_size canvas#misc#window in
+      let margin = 10 in
+      let width = width - 2*margin and height = height - 2*margin in
+      let zoom = min (float width/.(se_xw-.nw_xw)) (float height/.(se_yw-.nw_yw)) in
+      self#zoom zoom;
+      self#center c
+      
 (** initialization of instance attributes *)
 
     initializer (
@@ -564,6 +594,7 @@ class widget =  fun ?(height=800) ?width ?projection ?georef () ->
       my_check_menu_item "UTM Grid" ~active:false ~callback:self#switch_utm_grid ~packing:self#file_menu#append ();
       my_check_menu_item "Background" ~active:true ~callback:self#switch_background ~packing:self#file_menu#append ();
       my_menu_item "Goto" ~callback:self#goto ~packing:self#file_menu#append ();
+      my_menu_item "Fit to window" ~callback:self#fit_to_window ~packing:self#file_menu#append ();
      )
 
     method switch_utm_grid = fun flag ->

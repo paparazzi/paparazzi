@@ -78,8 +78,9 @@ class track = fun ?(name="Noname") ?(size = 500) ?(color="red") (geomap:MapCanva
   let mission_target = GnoCanvas.group group in
   
 (** red circle : target of the mission *)
-  let _ac_mission_target =
-    ignore ( GnoCanvas.ellipse ~x1: (-5.) ~y1: (-5.) ~x2: 5. ~y2: 5. ~fill_color:"red" ~props:[`WIDTH_UNITS 1.; `OUTLINE_COLOR "red"; `FILL_STIPPLE (Gdk.Bitmap.create_from_data ~width:2 ~height:2 "\002\001")] mission_target ) in
+  let ac_mission_target =
+    GnoCanvas.ellipse ~x1: (-5.) ~y1: (-5.) ~x2: 5. ~y2: 5. ~fill_color:"red" ~props:[`WIDTH_UNITS 1.; `OUTLINE_COLOR "red"; `FILL_STIPPLE (Gdk.Bitmap.create_from_data ~width:2 ~height:2 "\002\001")] mission_target in
+  let _ = ac_mission_target#hide () in
   
  (** data at map scale *)
   let max_cam_half_height_scaled = 10000.0  in
@@ -132,7 +133,13 @@ class track = fun ?(name="Noname") ?(size = 500) ?(color="red") (geomap:MapCanva
       top := 0
     method set_cam_state = fun b ->
       cam_on <- b;
-      if b then cam#show () else cam#hide ()
+      if b then begin
+	cam#show ();
+	mission_target#show ()
+      end else begin
+	cam#hide ();
+	mission_target#hide ()
+      end
 
     method update_ap_status = fun time -> 
       last_flight_time <- time
@@ -140,6 +147,7 @@ class track = fun ?(name="Noname") ?(size = 500) ?(color="red") (geomap:MapCanva
     method set_v_params_state = fun b -> v_params_on <- b
     method set_last = fun x -> last <- x
     method last = last
+    method pos = match last with Some pos -> pos | None -> failwith "No pos"
     method last_heading = last_heading
     method last_altitude = last_altitude
 
@@ -263,8 +271,7 @@ class track = fun ?(name="Noname") ?(size = 500) ?(color="red") (geomap:MapCanva
 	    end
 	  end;
 	  cam#affine_absolute (affine_pos_and_angle 1.0 xw yw cam_heading);
-	  mission_target#affine_absolute (affine_pos_and_angle geomap#zoom_adj#value mission_target_xw mission_target_yw 0.0);
-	  cam#show ()
+	  mission_target#affine_absolute (affine_pos_and_angle geomap#zoom_adj#value mission_target_xw mission_target_yw 0.0)
 	end;
       end
 	

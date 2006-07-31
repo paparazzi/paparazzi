@@ -163,6 +163,7 @@ let show_snapshot = fun (geomap:G.widget) geo_FL geo_BR point pixbuf name ev ->
       let w = GdkPixbuf.get_width pixbuf
       and h = GdkPixbuf.get_height pixbuf in
       icon := Some (geomap#display_pixbuf ((0,0), geo_FL) ((w,h), geo_BR) pixbuf);
+      point#raise_to_top ();
       false
 
   | _ -> false
@@ -182,29 +183,30 @@ let mark = fun (geomap:G.widget) ac_id track plugin_frame ->
 	    ["ac_id", Pprz.String ac_id;
 	     "lat", Pprz.Float lat;
 	     "long", Pprz.Float long];
-	  match plugin_frame with
-	    None -> () 
-	  | Some frame ->
-	      let width, height = Gdk.Drawable.get_size frame#misc#window in
-	      let dest = GdkPixbuf.create width height() in
-	      GdkPixbuf.get_from_drawable ~dest ~width ~height frame#misc#window;
-	      let name = sprintf "Snapshot-%s-%d_%f_%f_%f.png" ac_id !i lat long (track#last_heading) in
-	      let png = sprintf "%s/var/logs/%s" Env.paparazzi_home name in
-	      GdkPixbuf.save png "png" dest;
-	      incr i;
-
-	      (* Computing the footprint: front_left and back_right *)
-	      let cam_aperture = 2.4/.1.9 in (* width over distance FIXME *)
-	      let alt = track#last_altitude -. float (Srtm.of_wgs84 geo) in
-	      let width = cam_aperture *. alt in
-	      let height = width *. 3. /. 4. in
-	      let utm = utm_of WGS84 geo in
-	      let a = (Deg>>Rad)track#last_heading in
-	      let (xfl,yfl) = rotate a (-.width/.2., height/.2.)
-	      and (xbr,ybr) = rotate a (width/.2., -.height/.2.) in
-	      let geo_FL = of_utm WGS84 (utm_add utm (xfl,yfl))
-	      and geo_BR = of_utm WGS84 (utm_add utm (xbr,ybr)) in
-	      ignore (point#connect#event (show_snapshot geomap geo_FL geo_BR point dest name))
+	  let frame =
+	    match plugin_frame with
+	      None -> geomap#canvas#coerce
+	    | Some pf -> pf#coerce in
+	  let width, height = Gdk.Drawable.get_size frame#misc#window in
+	  let dest = GdkPixbuf.create width height() in
+	  GdkPixbuf.get_from_drawable ~dest ~width ~height frame#misc#window;
+	  let name = sprintf "Snapshot-%s-%d_%f_%f_%f.png" ac_id !i lat long (track#last_heading) in
+	  let png = sprintf "%s/var/logs/%s" Env.paparazzi_home name in
+	  GdkPixbuf.save png "png" dest;
+	  incr i;
+	  
+	  (* Computing the footprint: front_left and back_right *)
+	  let cam_aperture = 2.4/.1.9 in (* width over distance FIXME *)
+	  let alt = track#last_altitude -. float (Srtm.of_wgs84 geo) in
+	  let width = cam_aperture *. alt in
+	  let height = width *. 3. /. 4. in
+	  let utm = utm_of WGS84 geo in
+	  let a = (Deg>>Rad)track#last_heading in
+	  let (xfl,yfl) = rotate a (-.width/.2., height/.2.)
+	  and (xbr,ybr) = rotate a (width/.2., -.height/.2.) in
+	  let geo_FL = of_utm WGS84 (utm_add utm (xfl,yfl))
+	  and geo_BR = of_utm WGS84 (utm_add utm (xbr,ybr)) in
+	  ignore (point#connect#event (show_snapshot geomap geo_FL geo_BR point dest name))
 	end
     | None -> ()
 
@@ -241,6 +243,7 @@ let create_ac = fun (geomap:G.widget) (acs_notebook:GPack.notebook) ac_id config
   ignore (fp#connect#toggled (fun () -> show_mission ac_id fp#active));
   
   let track = new MapTrack.track ~name ~color:color geomap in
+  geomap#register_to_fit (track:>MapCanvas.geographic);
 
   let center_ac = center geomap track in
   ignore (ac_menu_fact#add_item "Center A/C" ~callback:center_ac);
