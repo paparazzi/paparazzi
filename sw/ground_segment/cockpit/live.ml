@@ -212,9 +212,9 @@ let mark = fun (geomap:G.widget) ac_id track plugin_frame ->
 
 
 (** Load a mission. Returns the XML window *)
-let load_mission = fun ?edit color geomap xml ->
+let load_mission = fun ?editable color geomap xml ->
   Map2d.set_georef_if_none geomap (MapFP.georef_of_xml xml);
-  new MapFP.flight_plan ?edit ~show_moved:true geomap color Env.flight_plan_dtd xml
+  new MapFP.flight_plan ?editable ~show_moved:true geomap color Env.flight_plan_dtd xml
 
 
 
@@ -270,7 +270,7 @@ let create_ac = fun (geomap:G.widget) (acs_notebook:GPack.notebook) ac_id config
 
   (** Build the XML flight plan, connect then "jump_to_block" *)
   let fp_xml = ExtXml.child fp_xml_dump "flight_plan" in
-  let fp = load_mission ~edit:false color geomap fp_xml in
+  let fp = load_mission ~editable:false color geomap fp_xml in
   fp#connect_activated (fun node ->
     if XmlEdit.tag node = "block" then
       let block = XmlEdit.attrib node "name" in

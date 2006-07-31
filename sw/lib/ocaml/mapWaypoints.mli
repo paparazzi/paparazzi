@@ -44,7 +44,7 @@ class waypoint :
   Latlong.geographic ->
   object
     method alt : float
-    method delete : unit
+    method delete : unit -> unit
     method edit : unit
     method pos : Latlong.geographic
     method event : GnoCanvas.item_event -> bool

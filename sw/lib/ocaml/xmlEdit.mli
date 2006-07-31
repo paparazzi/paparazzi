@@ -40,7 +40,7 @@ type attributes = attribute list
 
 type event = Deleted | Modified of attributes | New_child of node
 
-val create : ?edit:bool -> ?width:int -> Dtd.dtd -> Xml.xml -> (t * GObj.widget)
+val create : ?editable:bool -> ?width:int -> Dtd.dtd -> Xml.xml -> (t * GObj.widget)
 (** [create dtd xml] Opens a display of [xml] with contextual right button
 actions constrained by [dtd]. Returns the corresponding model. *)
 
@@ -73,3 +73,6 @@ val selection : t -> node
 val expand_node : ?all:bool -> t -> node -> unit
 
 val set_background : ?all:bool -> node -> string -> unit
+
+type id = int
+val id : node -> id

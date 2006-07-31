@@ -100,15 +100,22 @@ let tag_col = cols#add Gobject.Data.string
 let attributes = cols#add Gobject.Data.caml
 let event = cols#add Gobject.Data.caml
 let background = cols#add Gobject.Data.string
+let id = cols#add Gobject.Data.int
 
 let string_of_attribs = fun attribs ->
   List.fold_right (fun (a,v) r -> sprintf " %s=\"%s\"%s" a v r) attribs ""
+
+type id = int
+let gen_id = 
+  let x = ref 0 in 
+  fun () -> incr x; !x
 
 let set_xml = fun (store:GTree.tree_store) row xml ->
   store#set ~row ~column:tag_col (Xml.tag xml);
   store#set ~row ~column:background default_background;
   store#set ~row ~column:attributes (Xml.attribs xml);
-  store#set ~row ~column:event (fun _ -> ())
+  store#set ~row ~column:event (fun _ -> ());
+  store#set ~row ~column:id (gen_id ())
 
 
 let rec insert_xml = fun (store:GTree.tree_store) parent xml ->
@@ -375,6 +382,10 @@ let add_child = fun ((model, path):node) tag attribs ->
   set_xml model row (Xml.Element (tag, attribs, []));
   model, model#get_path row
 
+let id = fun ((model, path):node) ->
+  let row = model#get_iter path in
+  model#get ~row ~column:id
+
 let connect = fun ((model, path):node) cb ->
   let row = model#get_iter path in
   let current_cb = try model#get ~row ~column:event with _ -> fun _ -> () in
@@ -446,13 +457,13 @@ let tree_menu_popup = fun dtd (model:GTree.tree_store) (row:Gtk.tree_iter) ->
 
 
  
-let create = fun ?(edit=true) ?(width = 400) dtd xml ->
+let create = fun ?(editable=true) ?(width = 400) dtd xml ->
   let tree_model = tree_model_of_xml xml in
   let attribs_model = model_of_attribs () in
   let hbox = GPack.hbox () in
   let sw = GBin.scrolled_window ~width ~hpolicy:`AUTOMATIC
       ~vpolicy:`AUTOMATIC ~packing:hbox#add () in
-  let tree_view = tree_view ~edit tree_model sw in
+  let tree_view = tree_view ~edit:editable tree_model sw in
   tree_view#set_border_width 10;
 
   let sw = GBin.scrolled_window ~width:150 ~hpolicy:`AUTOMATIC
@@ -460,7 +471,7 @@ let create = fun ?(edit=true) ?(width = 400) dtd xml ->
   let attribs_view = attribs_view attribs_model in
   attribs_view#set_border_width 10;
   sw#add attribs_view#coerce;
-  if edit then
+  if editable then
     hbox#add sw#coerce;
 
   let update_tree = fun _path ->
@@ -494,7 +505,7 @@ let create = fun ?(edit=true) ?(width = 400) dtd xml ->
 	let cbs = try  (Hashtbl.find activated_cbs tree_model) with Not_found -> [] in
 	List.iter (fun cb -> cb (tree_model, path)) cbs) in
 
-  if edit then begin
+  if editable then begin
     let _c = add_context_menu tree_model tree_view (tree_menu_popup dtd) in
     let _c = add_context_menu attribs_model attribs_view ~noselection_menu:(add_one_menu dtd tree_view) (attribs_menu_popup dtd tree_view) in
     

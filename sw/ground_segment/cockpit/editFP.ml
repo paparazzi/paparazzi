@@ -105,7 +105,8 @@ let load_fp = fun geomap accel_group () ->
     | Some xml_file ->
 	try
 	  let xml = Xml.parse_file xml_file in
-	  ignore (load_xml_fp geomap accel_group ~xml_file xml)
+	  ignore (load_xml_fp geomap accel_group ~xml_file xml);
+	  geomap#fit_to_window ()
 	with
 	  Dtd.Check_error(e) -> 
 	    let m = sprintf "Error while loading %s:\n%s" xml_file (Dtd.check_error e) in

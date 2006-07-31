@@ -95,7 +95,7 @@ class waypoint = fun (wpts_group:group) (name :string) ?(alt=0.) wgs84 ->
 
       let wgs84 = self#pos in
       let s = sprintf "WGS84 %s" (geomap#geo_string wgs84) in
-      let ename  = GEdit.entry ~text:name ~editable:false ~packing:dvbx#add () in
+      let ename  = GEdit.entry ~text:name ~editable ~packing:dvbx#add () in
       let e_pos  = GEdit.entry ~text:s ~packing:dvbx#add () in
       let ha = GPack.hbox ~packing:dvbx#add () in
       let minus10= GButton.button ~label:"-10" ~packing:ha#add () in
@@ -116,11 +116,22 @@ class waypoint = fun (wpts_group:group) (name :string) ?(alt=0.) wgs84 ->
 	  moved <- anim moved;
 	dialog#destroy ()
       in
+      let dhbx = GPack.box `HORIZONTAL ~packing: dvbx#add () in
 
-      let cancel = GButton.button ~stock:`CANCEL ~packing: dvbx#add () in 
+      let cancel = GButton.button ~stock:`CANCEL ~packing: dhbx#add () in 
       ignore(cancel#connect#clicked ~callback:dialog#destroy);
 
-      let ok = GButton.button ~stock:`OK ~packing: dvbx#add () in
+      if editable then begin
+	let delete = GButton.button ~stock:`DELETE ~packing: dhbx#add () in 
+	let delete_callback = fun () ->
+	  dialog#destroy ();
+	self#delete ();
+	  updated ()
+	in
+	ignore(delete#connect#clicked ~callback:delete_callback)
+      end;
+
+      let ok = GButton.button ~stock:`OK ~packing: dhbx#add () in
       List.iter
 	(fun e -> ignore (e#connect#activate ~callback))
 	[ename; e_pos; ea];
@@ -168,7 +179,7 @@ class waypoint = fun (wpts_group:group) (name :string) ?(alt=0.) wgs84 ->
 	| _ -> ()
       end;
       true
-    initializer ignore(if editable then ignore (item#connect#event self#event))
+    initializer ignore(item#connect#event self#event)
     method moved = moved <> None
     method reset_moved () = 
       match moved with
@@ -201,7 +212,7 @@ class waypoint = fun (wpts_group:group) (name :string) ?(alt=0.) wgs84 ->
 	  if update then updated ()
       | (None, false) | (Some _, true) -> ()
       | Some x, false -> self#reset_moved ()
-    method delete =
+    method delete () =
       deleted <- true; (* BOF *)
       wpt_group#destroy ()
     method zoom (z:float) =
