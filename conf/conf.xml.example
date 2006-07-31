@@ -30,6 +30,7 @@
     radio="radios/cockpitMM.xml" 
     flight_plan="flight_plans/muret_demo_1.xml"
     telemetry="telemetry/default.xml"
+    settings="settings/tuning.xml"
     gui_color="#800080"
   />
 
