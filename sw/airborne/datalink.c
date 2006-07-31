@@ -69,13 +69,6 @@ void dl_parse_msg(void) {
     float a = MOfCm(DL_MOVE_WP_alt(dl_buffer));
     MoveWaypoint(wp_id, ux, uy, a);
     DOWNLINK_SEND_WP_MOVED(&wp_id, &ux, &uy, &a);
-  } else if (msg_id == DL_EVENT) {
-    uint8_t event = DL_EVENT_event(dl_buffer);
-    switch (event) {
-    case 1 : rc_event_1 = TRUE; break; // FIXME !
-    case 2 : rc_event_2 = TRUE; break;
-    default: ;
-    }
   } else if (msg_id == DL_BLOCK) {
     nav_goto_block(DL_BLOCK_block_id(dl_buffer));
   } else

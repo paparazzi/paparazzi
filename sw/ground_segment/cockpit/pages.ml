@@ -38,7 +38,7 @@ class alert (widget: GBin.frame) =
   in
   let view = GText.view ~editable:false ~packing: scrolled#add () in
 (* the object itselft *)
-object (this)
+object
   val active = Hashtbl.create 5
   method add text = 
     if not (Hashtbl.mem active text) then begin

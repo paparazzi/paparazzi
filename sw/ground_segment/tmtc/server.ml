@@ -418,16 +418,16 @@ let send_survey_status = fun a ->
 let send_wind = fun a ->
   let id = a.id in
   try
-    let (wind_cap_deg, wind_polar, mean, stddev, nb_sample) = Wind.get id in
+    let (wind_cap_rad, wind_polar, mean, stddev, _nb_sample) = Wind.get id in
     let vs =
       ["ac_id", Pprz.String id;
-       "dir", Pprz.Float wind_cap_deg;
+       "dir", Pprz.Float ((Rad>>Deg)wind_cap_rad);
        "wspeed", Pprz.Float wind_polar;
        "mean_aspeed", Pprz.Float mean;
        "stddev", Pprz.Float stddev] in
     Ground_Pprz.message_send my_id "WIND" vs
   with
-    exc -> ()
+    _exc -> ()
 
 let send_moved_waypoints = fun a ->
   Hashtbl.iter
@@ -563,7 +563,7 @@ let periodic_airprox_check = fun name ->
   let thisac = Hashtbl.find aircrafts name in
   let aircrafts2list = fun () ->
     let list = ref [] in
-    Hashtbl.iter (fun name a -> list := name :: !list) aircrafts;
+    Hashtbl.iter (fun name _a -> list := name :: !list) aircrafts;
     !list in
   let ac_names = List.filter (fun a -> a <> name) (aircrafts2list ()) in
   let list_ac = List.map (fun name -> Hashtbl.find aircrafts name) ac_names in

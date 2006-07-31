@@ -141,8 +141,6 @@ let airborne_device = fun ac_id airframes device ->
   | _ -> raise NotSendingToThis
 
 
-let ground_id = 0
-
 let use_tele_message = fun payload ->
   let buf = Serial.string_of_payload payload in
   Debug.call 'l' (fun f ->  fprintf f "pprz receiving: %s\n" (Debug.xprint buf));
@@ -181,7 +179,7 @@ module Wc = struct
     W.send fd cmd;
     timer := Some (GMain.Timeout.add 300 (fun _ -> Debug.trace 'b' (sprintf "Retry %d" n); repeat_send fd cmd (n+1); false))
 
-  let rec flush = fun n ->
+  let rec flush = fun () ->
     let status, b = buffer in
     if !status = Ready then
       let (priority, fd, cmd) = b.(0) in
@@ -200,7 +198,7 @@ module Wc = struct
 	
 	  	  
   let send_buffered = fun fd cmd priority ->
-    let status, b = buffer in
+    let _status, b = buffer in
     (** Set the message in the right place in the buffer *)
     let rec loop = fun i ->
       if i < buffer_size then
@@ -393,20 +391,6 @@ let move_wp = fun device _sender vs ->
   with
     NotSendingToThis -> ()
 
-(** Got a SEND_EVENT, and send an EVENT *)
-let send_event = fun device _sender vs ->
-  let ac_id = int_of_string (Pprz.string_assoc "ac_id" vs) in
-  try
-    let ac_device = airborne_device ac_id airframes device.transport in
-    let ev_id = Pprz.int_assoc "event_id" vs in
-    let vs = ["event", Pprz.Int ev_id] in
-    let msg_id, _ = Dl_Pprz.message_of_name "EVENT" in
-    let s = Dl_Pprz.payload_of_values msg_id my_id vs in
-    send ac_id device ac_device s High
-  with
-    NotSendingToThis -> ()
-    
-
 (** Got a DL_SETTING, and send an SETTING *)
 let setting = fun device _sender vs ->
   let ac_id = int_of_string (Pprz.string_assoc "ac_id" vs) in
@@ -574,7 +558,7 @@ let _ =
     let cb = 
       if !audio then
 	fun _ ->
-	  let (data_left, data_right) = Demod.get_data () in
+	  let (data_left, _data_right) = Demod.get_data () in
 	  Audio.use_data data_left;
 	  true
       else
@@ -588,7 +572,6 @@ let _ =
       (** Listening on Ivy (FIXME: remove the ad hoc messages) *)
       ignore (Ground_Pprz.message_bind "FLIGHT_PARAM" (get_fp device));
       ignore (Ground_Pprz.message_bind "MOVE_WAYPOINT" (move_wp device));
-      ignore (Ground_Pprz.message_bind "SEND_EVENT" (send_event device));
       ignore (Ground_Pprz.message_bind "DL_SETTING" (setting device));
       ignore (Ground_Pprz.message_bind "JUMP_TO_BLOCK" (jump_block device));
       ignore (Ground_Pprz.message_bind "RAW_DATALINK" (raw_datalink device))

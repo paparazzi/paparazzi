@@ -32,7 +32,7 @@
  *
  *)
 
-let debug = false
+type id = string
 
 open Printf
 
@@ -72,10 +72,6 @@ let simplex p fmax step max_iter precision =
 
   let rec loop num_iter vs =
     if num_iter < max_iter && norme2 (vect_make vs.a.p vs.c.p) > precision then begin
-      begin if debug then
-	let pa = cart2polar vs.a.p in
-	Printf.printf "%f %f %f\n" pa.theta2D pa.r2D (-. vs.a.f) end;
-
       let vb = bary vs in
       let vr = calcnew vs.c.p vb (-1.) in
       let fvr = f vr in
@@ -101,7 +97,6 @@ let simplex p fmax step max_iter precision =
       loop (num_iter + 1) new_vs end
     else vs.a in
 
-  if debug then Printf.printf "%f %f %f\n" p.x2D p.y2D (fmax p);
   let vs = init p step f in
   let vs = triangle_sort vs in
   loop 0 vs
@@ -159,7 +154,6 @@ let isotropic_wind wind_init speeds precision =
 
   let step = 2. and max_iter = 100 in
   let wind = simplex wind_init cost step max_iter precision in
-  if debug then Printf.printf "nb calls: %d\n" !nb_calls;
 
   let (mean, _, _) = mean wind.p in
   (wind.p, mean, wind.f)
@@ -189,7 +183,6 @@ let wind wind_init speeds precision =
 
   let step = 2. and max_iter = 100 in
   let wind = simplex wind_init cost step max_iter precision in
-  if debug then Printf.printf "nb calls: %d\n" !nb_calls;
 
   (wind.p, mean wind.p, wind.f)
 
@@ -235,9 +228,9 @@ let compute = fun compute_wind id ->
       let (wind, mean, stddev) = compute_wind wind_init speeds precision in
       wind_ac.wind_init <- wind;
       let wind_polar = cart2polar wind in
-      let wind_cap_deg = rad2deg (wind_dir_from_angle_rad wind_polar.theta2D) in
-      let nb_sample = Array.length speeds in
-      (wind_cap_deg, wind_polar.r2D, mean, stddev, nb_sample)
+      let wind_cap_rad = wind_dir_from_angle_rad wind_polar.theta2D
+      and nb_sample = Array.length speeds in
+      (wind_cap_rad, wind_polar.r2D, mean, stddev, nb_sample)
     end else
       failwith (Printf.sprintf "Wind.on_wind_compute: ac %s not enough data\n%!" id)
   with Not_found ->

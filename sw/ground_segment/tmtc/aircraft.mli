@@ -73,10 +73,10 @@ type aircraft = {
     mutable desired_altitude : float;
     mutable desired_course : float;
     mutable desired_climb : float;
-    mutable gspeed : float;
-    mutable course : float;
+    mutable gspeed : float; (* m/s *)
+    mutable course : float; (* rad *)
     mutable alt : float;
-  mutable climb : float;
+    mutable climb : float;
     mutable cur_block : int;
     mutable cur_stage : int;
     mutable throttle : float;

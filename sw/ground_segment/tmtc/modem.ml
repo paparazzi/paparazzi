@@ -59,7 +59,7 @@ module Protocol = struct
     assert(l >= 4);
     Serial.payload_of_string (String.sub msg 2 (l-4))
 
-  let packet = fun payload ->
+  let packet = fun _payload ->
     failwith "Modem.Protocol.packet not implemented"
 end
 

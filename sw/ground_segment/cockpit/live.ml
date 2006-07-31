@@ -107,10 +107,6 @@ let commit_changes = fun ac ->
 	Ground_Pprz.message_send "map2d" "MOVE_WAYPOINT" vs)
     a.fp_group#waypoints
 
-let send_event = fun ac e ->
-  Ground_Pprz.message_send "map2d" "SEND_EVENT" 
-    ["ac_id", Pprz.String ac; "event_id", Pprz.Int e]
-
 let center = fun geomap track () ->
   match track#last with
     None -> ()
@@ -145,7 +141,7 @@ let reset_waypoints = fun fp () ->
 let icon = ref None
 let show_snapshot = fun (geomap:G.widget) geo_FL geo_BR point pixbuf name ev ->
   match ev with
-  | `BUTTON_PRESS ev ->
+  | `BUTTON_PRESS _ev ->
       let image = GMisc.image ~pixbuf () in
       let icon = image#coerce in
       begin
@@ -155,14 +151,14 @@ let show_snapshot = fun (geomap:G.widget) geo_FL geo_BR point pixbuf name ev ->
 	| _ -> ()
       end;
       true
-  | `LEAVE_NOTIFY ev ->
+  | `LEAVE_NOTIFY _ev ->
       begin
 	match !icon with
 	  None -> ()
 	| Some i -> i#destroy ()
       end;
       false
-  | `ENTER_NOTIFY ev ->
+  | `ENTER_NOTIFY _ev ->
       let w = GdkPixbuf.get_width pixbuf
       and h = GdkPixbuf.get_height pixbuf in
       icon := Some (geomap#display_pixbuf ((0,0), geo_FL) ((w,h), geo_BR) pixbuf);
@@ -259,9 +255,7 @@ let create_ac = fun (geomap:G.widget) (acs_notebook:GPack.notebook) ac_id config
   let sm = ac_menu_fact#add_submenu "Datalink" in
   let dl_menu = [
     `M ("Jump to block", jump_block_entries);
-    `I ("Commit Moves", commit_moves);
-    `I ("Event 1", (fun () -> send_event ac_id 1));
-    `I ("Event 2", (fun () -> send_event ac_id 2))] in
+    `I ("Commit Moves", commit_moves)] in
 
   GToolbox.build_menu sm ~entries:dl_menu;
 
@@ -398,9 +392,8 @@ let get_engine_status_msg = fun _sender vs ->
     (string_of_float (Pprz.float_assoc "throttle" vs));
   Strip.set_bat ac.strip (Pprz.float_assoc "bat" vs)
     
-let get_if_calib_msg = fun _sender vs ->
-  let ac = get_ac vs in
-  (** No longer in the strip Strip.set_label ac.strip "settings" (Pprz.string_assoc "if_mode" vs) *)
+let get_if_calib_msg = fun _sender _vs ->
+  (** FIXME No longer in the strip *)
   ()
 
 let listen_wind_msg = fun () ->
