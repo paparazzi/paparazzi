@@ -64,7 +64,7 @@ $(MAIN).opt : $(CMX)
 
 gcs.cmo : pages.cmi speech.cmi editFP.cmi sectors.cmi
 pages.cmo pages.cmx : pages.cmi horizon.cmi
-live.cmo : plugin.cmi live.cmi strip.cmi speech.cmi
+live.cmo : plugin.cmi live.cmi strip.cmi speech.cmi pages.cmi
 map2d.cmo : map2d.cmi
 strip.cmo : strip.cmi
 speech.cmo : speech.cmi

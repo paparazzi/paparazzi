@@ -36,3 +36,16 @@ class misc :
     method set_wind_dir : string -> unit
     method set_wind_speed : string -> unit
   end
+
+type rc_mode = string
+type rc_setting_mode = string
+class rc_settings :
+  ?visible:(GObj.widget -> bool) ->
+  Xml.xml list ->
+  object
+    method set : float -> float -> unit
+    method set_rc_mode : rc_mode -> unit
+    method set_rc_setting_mode : rc_setting_mode -> unit
+    method widget : GObj.widget
+  end
+

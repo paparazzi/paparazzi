@@ -27,6 +27,7 @@
 (*****************************************************************************)
 
 open Latlong
+open Printf
 
 (** alert page *)
 class alert (widget: GBin.frame) =
@@ -282,4 +283,78 @@ class settings = fun ?(visible = fun _ -> true) xml_settings do_change ->
 	  current_values.(i)#set_text s
   end
 
+
+type rc_mode = string
+type rc_setting_mode = string
+
+let rc_setting_index = function
+    "gain_1_up" -> 0, 0
+  | "gain_1_down" -> 1, 0
+  | "gain_2_up" -> 0, 1
+  | "gain_2_down" -> 1, 1
+  | x -> failwith (sprintf "Unknown rc_setting: %s" x)
+
+let rc_mode_index = function
+    "AUTO1" -> 0 | "AUTO2" -> 1
+  | x -> failwith (sprintf "Unknown rc_setting mode: %s" x)
+
+let rc_setting_mode_index = function
+    "UP" -> 0 | "DOWN" -> 1
+  | x -> failwith (sprintf "Unknown rc_setting submode: %s" x)
+
+let one_rc_mode = fun (table:GPack.table) rc_mode ->
+  let i = rc_mode_index (ExtXml.attrib rc_mode "name") in
+  List.iter (fun rc_setting ->
+    let name = ExtXml.attrib rc_setting "rc"
+    and text = ExtXml.attrib rc_setting "var" in
+    let (j, k) = rc_setting_index name in
+    ignore (GMisc.label ~text ~packing:(table#attach ~top:(1+2*j+k) ~left:(1+2*i)) ())
+    )
+    (Xml.children rc_mode)
+  
+
+class rc_settings = fun ?(visible = fun _ -> true) xmls ->
+  let sw = GBin.scrolled_window ~hpolicy:`AUTOMATIC ~vpolicy:`AUTOMATIC () in
+  let table = GPack.table ~rows:5 ~columns:5 ~row_spacings:8 ~packing:sw#add_with_viewport () in
+  let auto1 = GBin.event_box ~packing:(table#attach ~top:0 ~left:1 ~right:3) () in
+  let _ = GMisc.label ~text:"AUTO1" ~packing:auto1#add () in
+  let auto2 = GBin.event_box ~packing:(table#attach ~top:0 ~left:3 ~right:5) () in
+  let _ = GMisc.label ~text:"AUTO2" ~packing:auto2#add () in
+  let up = GBin.event_box ~packing:(table#attach ~top:1 ~bottom:3 ~left:0) () in
+  let _ = GMisc.label ~text:"UP" ~packing:up#add () in
+  let down = GBin.event_box ~packing:(table#attach ~top:3 ~bottom:5 ~left:0) () in
+  let _ = GMisc.label ~text:"DOWN" ~packing:down#add () in
+  let update_bg = fun ev active ->
+    ev#coerce#misc#modify_bg [`NORMAL, `NAME (if active then "green" else "white")] in
+  (* first index is auto1/auto2, second is up/down, third is value 1/2 *)
+  let values = Array.init 2 (fun i -> Array.init 2 (fun j -> Array.init 2 (fun k -> GMisc.label ~text:"  N/A  " ~packing:(table#attach ~top:(1+j*2+k) ~left:(2+i*2)) ()))) in
+
+  let _ = List.iter (one_rc_mode table) xmls in
+
+  object (self)
+    val mutable rc_mode = "N/A"
+    val mutable rc_setting_mode = "N/A"
+    method set_rc_mode m = 
+      rc_mode <- m;
+      update_bg auto1 (m="AUTO1");
+      update_bg auto2 (m="AUTO2")
+
+    method set_rc_setting_mode m = 
+      rc_setting_mode <- m;
+      update_bg up (m="UP");
+      update_bg down (m="DOWN")
+
+    method widget = sw#coerce
+    method set = fun v1 v2 ->
+      if visible self#widget then
+	let i = rc_mode_index rc_mode 
+	and j = rc_setting_mode_index rc_setting_mode in
+	(* May raise an exception for non valid modes *)
+
+	let s1 = string_of_float v1 in
+	let s2 = string_of_float v2 in
+	
+	values.(i).(j).(0)#set_text s1;
+	values.(i).(j).(1)#set_text s2
+  end
 

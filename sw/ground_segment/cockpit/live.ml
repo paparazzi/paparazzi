@@ -40,7 +40,8 @@ type aircraft = {
     gps_page : Pages.gps;
     pfd_page : Pages.pfd;
     misc_page : Pages.misc;
-    settings_page : Pages.settings option;
+    dl_settings_page : Pages.settings option;
+    rc_settings_page : Pages.rc_settings option;
     strip : Strip.t;
     mutable first_pos : bool
   }
@@ -311,18 +312,29 @@ let create_ac = fun (geomap:G.widget) (acs_notebook:GPack.notebook) ac_id config
       ~packing: (ac_notebook#append_page ~tab_label:misc_label#coerce) () in
   let misc_page = new Pages.misc ~packing:misc_frame#add misc_frame in
 
-  let settings_page =
-    let settings_url = Pprz.string_assoc "settings" config in
-    let settings_file = Http.file_of_url settings_url in
-    let settings_xml = Xml.parse_file settings_file in
-    let xml_settings = Xml.children (ExtXml.child settings_xml "dl_settings") in
-    let callback = fun idx value -> 
-      let vs = ["ac_id", Pprz.String ac_id; "index", Pprz.Int idx;"value", Pprz.Float value] in
-      Ground_Pprz.message_send "dl" "DL_SETTING" vs in
-    let settings_tab = new Pages.settings ~visible xml_settings callback in
-    let tab_label = (GMisc.label ~text:"Settings" ())#coerce in
-    ac_notebook#append_page ~tab_label settings_tab#widget;
-    Some settings_tab in
+  let settings_url = Pprz.string_assoc "settings" config in
+  let settings_file = Http.file_of_url settings_url in
+  let settings_xml = Xml.parse_file settings_file in
+  let dl_settings_page =
+    try
+      let xml_settings = Xml.children (ExtXml.child settings_xml "dl_settings") in
+      let callback = fun idx value -> 
+	let vs = ["ac_id", Pprz.String ac_id; "index", Pprz.Int idx;"value", Pprz.Float value] in
+	Ground_Pprz.message_send "dl" "DL_SETTING" vs in
+      let settings_tab = new Pages.settings ~visible xml_settings callback in
+      let tab_label = (GMisc.label ~text:"Settings" ())#coerce in
+      ac_notebook#append_page ~tab_label settings_tab#widget;
+      Some settings_tab
+    with _ -> None in
+  
+  let rc_settings_page =
+    try
+      let xml_settings = Xml.children (ExtXml.child settings_xml "rc_settings") in
+      let settings_tab = new Pages.rc_settings ~visible xml_settings in
+      let tab_label = (GMisc.label ~text:"RC Settings" ())#coerce in
+      ac_notebook#append_page ~tab_label settings_tab#widget;
+      Some settings_tab
+    with _ -> None in
   
   (** Add a strip and connect it to the A/C notebook *)
   let select_this_tab =
@@ -340,7 +352,8 @@ let create_ac = fun (geomap:G.widget) (acs_notebook:GPack.notebook) ac_id config
 				     gps_page = gps_page;
 				     pfd_page = pfd_page;
 				     misc_page = misc_page;
-				     settings_page = settings_page;
+				     dl_settings_page = dl_settings_page;
+				     rc_settings_page = rc_settings_page;
 				     strip = strip; first_pos = true
 				   }
 
@@ -392,9 +405,13 @@ let get_engine_status_msg = fun _sender vs ->
     (string_of_float (Pprz.float_assoc "throttle" vs));
   Strip.set_bat ac.strip (Pprz.float_assoc "bat" vs)
     
-let get_if_calib_msg = fun _sender _vs ->
-  (** FIXME No longer in the strip *)
-  ()
+let get_if_calib_msg = fun _sender vs ->
+  let ac = get_ac vs in
+  match ac.rc_settings_page with
+    None -> ()
+  | Some p ->
+      p#set_rc_setting_mode (Pprz.string_assoc "if_mode" vs);
+      p#set (Pprz.float_assoc "if_value1" vs) (Pprz.float_assoc "if_value2" vs)
 
 let listen_wind_msg = fun () ->
   safe_bind "WIND" get_wind_msg
@@ -420,7 +437,7 @@ let listen_dl_value = fun () ->
   let get_dl_value = fun _sender vs ->
     let ac_id = Pprz.string_assoc "ac_id" vs in
     let ac = Hashtbl.find live_aircrafts ac_id in
-    match ac.settings_page with
+    match ac.dl_settings_page with
       Some settings ->
 	let csv = Pprz.string_assoc "values" vs in
 	let values = Array.of_list (Str.split list_separator csv) in
@@ -537,17 +554,21 @@ let listen_flight_params = fun geomap auto_center_new_ac ->
     let ap_mode = Pprz.string_assoc "ap_mode" vs in
     if ap_mode <> ac.last_ap_mode then begin
       Speech.say (sprintf "%s, %s" ac.ac_name ap_mode);
-      ac.last_ap_mode <- ap_mode
+      ac.last_ap_mode <- ap_mode;
+      Strip.set_label ac.strip "AP" (Pprz.string_assoc "ap_mode" vs);
+      Strip.set_color ac.strip "AP" (if ap_mode="HOME" then "red" else "white");
     end;
-    Strip.set_label ac.strip "AP" (Pprz.string_assoc "ap_mode" vs);
-    Strip.set_color ac.strip "AP" (if ap_mode="HOME" then "red" else "white");
     let gps_mode = Pprz.string_assoc "gps_mode" vs in
     Strip.set_label ac.strip "GPS" gps_mode;
     Strip.set_color ac.strip "GPS" (if gps_mode<>"3D" then "red" else "white");
     let ft = 
       let t = Int32.to_int (Int32.of_string (Pprz.string_assoc "flight_time" vs)) in
       sprintf "%02d:%02d:%02d" (t / 3600) ((t mod 3600) / 60) ((t mod 3600) mod 60) in
-    Strip.set_label ac.strip "flight_time" ft
+    Strip.set_label ac.strip "flight_time" ft;
+    match ac.rc_settings_page with
+      None -> ()
+    | Some p -> 
+	p#set_rc_mode ap_mode
   in
   safe_bind "AP_STATUS" get_ap_status;
 
