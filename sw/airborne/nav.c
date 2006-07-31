@@ -608,9 +608,9 @@ climb_pid_run ( void ) {
       climb_sum_err += err;
       Bound(climb_sum_err, -MAX_CLIMB_SUM_ERR, MAX_CLIMB_SUM_ERR);
       nav_pitch += pitch_of_vz;
-      break;
 
 #if defined AGR_CLIMB_GAZ
+      break;
     } /* switch submode */
 #endif
     desired_gaz = TRIM_UPPRZ(fgaz * MAX_PPRZ);
