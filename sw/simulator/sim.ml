@@ -67,8 +67,13 @@ let ivy_bus = ref "127.255.255.255:2010"
 
 let fg_client = ref ""
 
+let autoboot = ref false
+let autolaunch = ref false
+
 let common_options = [
   "-b", Arg.Set_string ivy_bus, "Bus\tDefault is 127.255.255.25:2010";
+  "-boot", Arg.Set autoboot, "Boot the A/C on start";
+  "-launch", Arg.Set autolaunch, "Launch the A/C on start";
   "-fg", Arg.Set_string fg_client, "Flight gear client address"
 ]
 
@@ -232,10 +237,18 @@ module Make(AircraftItl : AIRCRAFT_ITL) = struct
     let take_off = fun () -> FlightModel.set_air_speed !state FM.nominal_airspeed in 
 
     let hbox = GPack.hbox ~packing:vbox#pack () in
-    let s = GButton.button ~label:"Boot" ~packing:(hbox#pack ~padding:5) () in
-    ignore (s#connect#clicked ~callback:boot);
-    let t = GButton.button ~label:"Launch" ~packing:hbox#pack () in
-    ignore (t#connect#clicked ~callback:take_off);
+    if not !autoboot then begin
+      let s = GButton.button ~label:"Boot" ~packing:(hbox#pack ~padding:5) () in
+      ignore (s#connect#clicked ~callback:boot)
+    end else
+      boot ();
+    
+    if not !autolaunch then begin
+      let t = GButton.button ~label:"Launch" ~packing:hbox#pack () in
+      ignore (t#connect#clicked ~callback:take_off)
+    end else
+      take_off ();
+
     let ir_srtm_button = GButton.toggle_button ~label:"IR/srtm" ~packing:hbox#pack () in
     ignore (ir_srtm_button#connect#toggled (fun () -> ir_srtm := not !ir_srtm));
     let s = GButton.button ~label:"Set Pos" ~packing:hbox#pack () in
