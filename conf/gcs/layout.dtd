@@ -1,0 +1,22 @@
+<!ELEMENT layout (rows|columns|widget)>
+<!ELEMENT rows (columns|widget)*>
+<!ELEMENT columns (rows|widget)*>
+<!ELEMENT widget EMPTY>
+
+<!ATTLIST layout
+width CDATA #IMPLIED
+height CDATA #IMPLIED
+>
+
+<!ATTLIST rows
+size CDATA #IMPLIED
+>
+
+<!ATTLIST columns
+name CDATA #REQUIRED
+size CDATA #IMPLIED
+>
+
+<!ATTLIST widget
+size CDATA #IMPLIED
+>

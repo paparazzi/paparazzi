@@ -605,7 +605,7 @@ class widget =  fun ?(height=800) ?width ?projection ?georef () ->
 	    None ->
 	      if flag then (** Create and show *)
 		let g = GnoCanvas.group self#canvas#root in
-		let u0 = LL.utm_of LL.WGS84 georef in
+		let u0 = LL.utm_of LL.WGS84 (self#get_center ()) in
 		let u0 = { LL.utm_x = align u0.LL.utm_x 1000; 
 			   LL.utm_zone = u0.LL.utm_zone;
 			   LL.utm_y = align u0.LL.utm_y 1000 } in

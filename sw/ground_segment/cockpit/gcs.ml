@@ -34,6 +34,7 @@ let home = Env.paparazzi_home
 let (//) = Filename.concat
 let default_path_srtm = home // "data" // "srtm"
 let default_path_maps = home // "data" // "maps"
+let layout_path = home // "conf" // "gcs"
 let var_maps_path = home // "var" // "maps"
 let _ = 
   ignore (Sys.command (sprintf "mkdir -p %s" var_maps_path))
@@ -322,65 +323,43 @@ let keys_help = fun () ->
 
 
 (***************** MAIN ******************************************************)
-let _main =
-  let ivy_bus = ref "127.255.255.255:2010"
-  and geo_ref = ref ""
-  and map_files = ref []
-  and center = ref ""
-  and zoom = ref 1.
-  and maximize = ref false
-  and fullscreen = ref false
-  and projection = ref G.Mercator
-  and auto_ortho = ref false
-  and mplayer = ref ""
-  and plugin_window = ref "" in
-  let options =
-    [ "-b", Arg.String (fun x -> ivy_bus := x), "Bus\tDefault is 127.255.255.25:2010";
-      "-maximize", Arg.Set maximize, "Maximize window";
-      "-fullscreen", Arg.Set fullscreen, "Fullscreen window";
-      "-ref", Arg.Set_string geo_ref, "Geographic ref (default '')";
-      "-zoom", Arg.Set_float zoom, "Initial zoom";
-      "-center", Arg.Set_string center, "Initial map center";
-      "-center_ac", Arg.Set auto_center_new_ac, "Centers the map on any new A/C";
-      "-plugin", Arg.Set_string  plugin_window, "External X application (launched the id of the plugin window as argument)";
-      "-mplayer", Arg.Set_string mplayer, "Launch mplayer with the given argument as X plugin";
-      "-utm", Arg.Unit (fun () -> projection:=G.Mercator),"Switch to UTM local projection";
-      "-mercator", Arg.Unit (fun () -> projection:=G.Mercator),"Switch to (Google Maps) Mercator projection, default";
-      "-lambertIIe", Arg.Unit (fun () -> projection:=G.LambertIIe),"Switch to LambertIIe projection";
-      "-ign", Arg.String (fun s -> ign:=true; IGN.data_path := s), "IGN tiles path";
-      "-ortho", Arg.Set_string get_bdortho, "IGN tiles path";
-      "-no_alarm", Arg.Set no_alarm, "Disables alarm page";
-      "-auto_ortho", Arg.Set auto_ortho, "IGN tiles path";
-      "-google_fill", Arg.Set GM.auto, "Google maps auto fill";
-      "-speech", Arg.Set Speech.active, "Speech";
-      "-m", Arg.String (fun x -> map_files := x :: !map_files), "Map description file"] in
-  Arg.parse (options)
-    (fun x -> Printf.fprintf stderr "Warning: Don't do anything with '%s'\n" x)
-    "Usage: ";
-  (*                                 *)
-  Ivy.init "Paparazzi map 2D" "READY" (fun _ _ -> ());
-  Ivy.start !ivy_bus;
+let ivy_bus = ref "127.255.255.255:2010"
+and geo_ref = ref ""
+and map_files = ref []
+and center = ref ""
+and zoom = ref 1.
+and maximize = ref false
+and fullscreen = ref false
+and projection = ref G.Mercator
+and auto_ortho = ref false
+and mplayer = ref ""
+and plugin_window = ref ""
+and layout_file = ref "horizontal.xml"
 
-  Srtm.add_path default_path_srtm;
-  Gm.cache_path := var_maps_path;
-  IGN.cache_path := var_maps_path;
-  
-  (** window for map2d **)
-  let window = GWindow.window ~title:"Paparazzi GCS" ~border_width:1 ~width:1024 ~height:750 () in
-  if !maximize then
-    window#maximize ();
-  if !fullscreen then
-    window#fullscreen ();
-  let vbox= GPack.vbox ~packing: window#add () in
+let options =
+  [ "-b", Arg.String (fun x -> ivy_bus := x), "Bus\tDefault is 127.255.255.25:2010";
+    "-maximize", Arg.Set maximize, "Maximize window";
+    "-fullscreen", Arg.Set fullscreen, "Fullscreen window";
+    "-ref", Arg.Set_string geo_ref, "Geographic ref (default '')";
+    "-zoom", Arg.Set_float zoom, "Initial zoom";
+    "-center", Arg.Set_string center, "Initial map center";
+    "-center_ac", Arg.Set auto_center_new_ac, "Centers the map on any new A/C";
+    "-plugin", Arg.Set_string  plugin_window, "External X application (launched with the id of the plugin window as argument)";
+    "-mplayer", Arg.Set_string mplayer, "Launch mplayer with the given argument as X plugin";
+    "-utm", Arg.Unit (fun () -> projection:=G.Mercator),"Switch to UTM local projection";
+    "-mercator", Arg.Unit (fun () -> projection:=G.Mercator),"Switch to (Google Maps) Mercator projection, default";
+    "-lambertIIe", Arg.Unit (fun () -> projection:=G.LambertIIe),"Switch to LambertIIe projection";
+    "-ign", Arg.String (fun s -> ign:=true; IGN.data_path := s), "IGN tiles path";
+    "-ortho", Arg.Set_string get_bdortho, "IGN tiles path";
+    "-layout", Arg.Set_string layout_file, "XML layout specification";
+    "-no_alarm", Arg.Set no_alarm, "Disables alarm page";
+    "-auto_ortho", Arg.Set auto_ortho, "IGN tiles path";
+    "-google_fill", Arg.Set GM.auto, "Google maps auto fill";
+    "-speech", Arg.Set Speech.active, "Speech";
+    "-m", Arg.String (fun x -> map_files := x :: !map_files), "Map description file"]
 
-  (** window for vertical situation *)
-  let vertical_situation = GWindow.window ~title: "Vertical" ~border_width:1 ~width:400 () in
-  let _vertical_vbox= GPack.vbox ~packing: vertical_situation#add () in
-  let quit = fun () -> GMain.Main.quit (); exit 0 in
 
-  ignore (window#connect#destroy ~callback:quit);
-  ignore (vertical_situation#connect#destroy ~callback:quit);
-
+let create_geomap = fun window quit ->
   let geomap = new G.widget ~height:500 ~projection:!projection () in
 
   let menu_fact = new GMenu.factory geomap#file_menu in
@@ -390,10 +369,6 @@ let _main =
   ignore (geomap#canvas#event#connect#motion_notify (motion_notify geomap));
   ignore (geomap#canvas#event#connect#any (any_event geomap));
 
-  (** widget displaying aircraft vertical position  *)
-
-  let _active_vertical = fun x ->
-    if x then vertical_situation#show () else vertical_situation#misc#hide () in
   ignore (menu_fact#add_item "Redraw" ~key:GdkKeysyms._L ~callback:geomap#canvas#update_now);
   let switch_fullscreen = fun x ->
     if x then
@@ -437,29 +412,72 @@ let _main =
   (** Separate from A/C menus *)
   ignore (geomap#factory#add_separator ());
 
-  let paned = GPack.paned ~show:true `VERTICAL ~packing:(vbox#pack ~expand:true) () in
+  (** Set the initial soom *)
+  geomap#zoom !zoom;
+  geomap, menu_fact
+
+
+    
+
+let _main =
+  Arg.parse options
+    (fun x -> Printf.fprintf stderr "Warning: Don't do anything with '%s'\n" x)
+    "Usage: ";
+  (*                                 *)
+  Ivy.init "Paparazzi map 2D" "READY" (fun _ _ -> ());
+  Ivy.start !ivy_bus;
+
+  Srtm.add_path default_path_srtm;
+  Gm.cache_path := var_maps_path;
+  IGN.cache_path := var_maps_path;
+
+  let layout_file = layout_path // !layout_file in
+  let layout = Xml.parse_file layout_file in
+  let width = ExtXml.int_attrib layout "width"
+  and height = ExtXml.int_attrib layout "height" in
+  
+  (** The whole window map2d **)
+  let window = GWindow.window ~title:"Paparazzi GCS" ~border_width:1 ~width ~height () in
+  if !maximize then
+    window#maximize ();
+  if !fullscreen then
+    window#fullscreen ();
+  let vbox= GPack.vbox ~packing: window#add () in
+
+  let quit = fun () -> GMain.Main.quit (); exit 0 in
+  ignore (window#connect#destroy ~callback:quit);
+
+  let geomap, menu_fact = create_geomap window quit in
+
   let frame1 = GPack.vbox () in
+  (** Put the canvas in a frame *)
+  frame1#add geomap#frame#coerce;
+
+  (** Aircraft notebook *)
+  let ac_notebook = GPack.notebook ~tab_border:0 () in
+
+  (** Alerts text frame *)
+  let alert_page = GBin.frame () in
+  let my_alert = new Pages.alert alert_page in
+
+  let widgets = ["map2d", frame1#coerce; 
+		 "strips", Strip.scrolled#coerce;
+		 "aircraft", ac_notebook#coerce;
+		 "alarms", alert_page#coerce] in (* To be continued *)
+
+  let paned = GPack.paned ~show:true `VERTICAL ~packing:(vbox#pack ~expand:true) () in
   paned#pack1 ~shrink:true (*** ~expand:true ***) frame1#coerce;
   let hpaned = GPack.paned ~show:true `HORIZONTAL ~packing:paned#add2 () in
   
-  (** Pack the canvas in the window *)
-  frame1#add geomap#frame#coerce;
-  (** Set the initial soom *)
-  geomap#zoom !zoom;
-
   (** Strips on the left *)
   hpaned#add1 Strip.scrolled#coerce;
   let hpaned2 = GPack.paned ~show:true `HORIZONTAL ~packing:hpaned#add2 () in
 
-  (** Aircraft notebook *)
-  let fp_notebook = GPack.notebook ~tab_border:0 ~packing:(hpaned2#add1) () in
+  hpaned2#add1 ac_notebook#coerce;
 
   let hpaned3 = GPack.paned ~show:true `HORIZONTAL ~packing:hpaned2#add2 () in
 
-  (** Alerts text frame *)
-  let packing = if !no_alarm then fun _ -> () else hpaned3#add1 in
-  let alert_page = GBin.frame ~packing () in
-  let my_alert = new Pages.alert alert_page in
+  let packing = if not !no_alarm then hpaned3#add1 alert_page#coerce in
 
   if !mplayer <> "" then
     plugin_window := sprintf "mplayer -nomouseinput '%s' -wid " !mplayer;
@@ -512,10 +530,10 @@ let _main =
 
 
   (** Periodically probe new A/Cs *)
-  ignore (Glib.Timeout.add 2000 (fun () -> Live.message_request "map2d" "AIRCRAFTS" [] (fun _sender vs -> Live.aircrafts_msg geomap fp_notebook vs); false));
+  ignore (Glib.Timeout.add 2000 (fun () -> Live.message_request "map2d" "AIRCRAFTS" [] (fun _sender vs -> Live.aircrafts_msg geomap ac_notebook vs); false));
 
   (** New aircraft message *)
-  Live.safe_bind "NEW_AIRCRAFT" (fun _sender vs -> Live.one_new_ac geomap fp_notebook (Pprz.string_assoc "ac_id" vs));
+  Live.safe_bind "NEW_AIRCRAFT" (fun _sender vs -> Live.one_new_ac geomap ac_notebook (Pprz.string_assoc "ac_id" vs));
 
   (** Listen for all messages on ivy *)
   Live.listen_flight_params geomap !auto_center_new_ac;
@@ -529,6 +547,7 @@ let _main =
   Live.listen_alert my_alert;
 
   (** Display the window *)
+  let accel_group = menu_fact#accel_group in
   window#add_accel_group accel_group;
   window#show ();
 
