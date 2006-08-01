@@ -601,7 +601,15 @@
     <field name="west_long" type="float" unit="deg"/>
     <field name="south_lat" type="float" unit="deg"/>
   </message>
+
+  <message name="TELEMETRY_STATUS" ID="32">
+    <field name="ac_id" type="uint8"/>
+    <field name="time_since_last_bat_msg" type="float" unit="s"/>
+  </message>
 </class>
+
+
+
 
 <class name="alert">
    <message name="BAT_LOW" ID="1">

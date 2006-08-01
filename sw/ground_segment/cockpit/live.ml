@@ -643,3 +643,13 @@ let get_svsinfo = fun _sender vs ->
 let listen_svsinfo = fun () -> safe_bind "SVSINFO" get_svsinfo
 
 let message_request = Ground_Pprz.message_req
+
+let get_ts = fun _sender vs ->
+  let ac = get_ac vs in
+  let t = Pprz.float_assoc "time_since_last_bat_msg" vs in
+  Strip.set_label ac.strip "telemetry_status" (if t > 2. then sprintf "%.1f" t else "   ");
+  Strip.set_color ac.strip "telemetry_status" (if t > 5. then "red" else "green")
+  
+
+let listen_telemetry_status = fun () ->
+  safe_bind "TELEMETRY_STATUS" get_ts

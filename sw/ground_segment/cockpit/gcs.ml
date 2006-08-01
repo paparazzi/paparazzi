@@ -575,6 +575,7 @@ let _main =
   Live.listen_waypoint_moved ();
   Live.listen_infrared ();
   Live.listen_svsinfo ();
+  Live.listen_telemetry_status ();
   Live.listen_alert my_alert;
 
   (** Display the window *)

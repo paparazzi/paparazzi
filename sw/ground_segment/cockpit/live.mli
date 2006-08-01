@@ -13,3 +13,4 @@ val listen_waypoint_moved : unit -> unit
 val listen_infrared : unit -> unit
 val listen_svsinfo : unit -> unit
 val listen_alert : < add : string -> unit; .. > -> unit
+val listen_telemetry_status : unit -> unit

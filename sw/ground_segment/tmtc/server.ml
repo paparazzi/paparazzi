@@ -189,6 +189,7 @@ let log_and_parse = fun logging ac_name a msg values ->
       a.cur_stage <- ivalue "cur_stage";
       a.desired_course <- norm_course ((Deg>>Rad)(fvalue "desired_course" /. 10.));
   | "BAT" ->
+      a.last_bat_msg_date <- U.gettimeofday ();
       a.throttle <- fvalue "desired_gaz" /. 9600. *. 100.;
       a.flight_time <- ivalue "flight_time";
       a.rpm <- a.throttle *. 100.;
@@ -429,6 +430,16 @@ let send_wind = fun a ->
   with
     _exc -> ()
 
+let send_telemetry_status = fun a ->
+  let id = a.id in
+  try
+    let vs =
+      ["ac_id", Pprz.String id;
+       "time_since_last_bat_msg", Pprz.Float (U.gettimeofday () -. a.last_bat_msg_date)] in
+    Ground_Pprz.message_send my_id "TELEMETRY_STATUS" vs
+  with
+    _exc -> ()
+
 let send_moved_waypoints = fun a ->
   Hashtbl.iter
     (fun wp_id wp ->
@@ -511,7 +522,8 @@ let send_aircraft_msg = fun ac ->
     send_horiz_status a;
     send_survey_status a;
     send_dl_values a;
-    send_moved_waypoints a
+    send_moved_waypoints a;
+    send_telemetry_status a
   with
     Not_found -> prerr_endline ac
   | x -> prerr_endline (Printexc.to_string x)
@@ -539,7 +551,7 @@ let new_aircraft = fun id ->
       flight_time = 0; stage_time = 0; block_time = 0;
       horiz_mode = UnknownHorizMode;
       horizontal_mode = 0;
-      waypoints = Hashtbl.create 3; survey = None
+      waypoints = Hashtbl.create 3; survey = None; last_bat_msg_date = 0.
     }
 
 let check_alerts = fun a ->

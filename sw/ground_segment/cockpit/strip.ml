@@ -38,9 +38,11 @@ let add config color select center_ac commit_moves mark =
 
   let ac_name = Pprz.string_assoc "ac_name" config in
 
+  let tooltips = GData.tooltips () in
+
   (* frame of the strip *)
   let frame = GBin.frame ~shadow_type: `IN ~packing: (widget#attach ~top: (strip_number) ~left: 0) () in
-  let strip = GPack.table ~rows: 2 ~columns: 2 ~col_spacings: 10 ~packing: frame#add () in
+  let strip = GPack.table ~rows:2 ~columns: 2 ~col_spacings: 10 ~packing: frame#add () in
   ignore (GMisc.label ~text: (ac_name) ~packing: (strip#attach ~top: 0 ~left: 0) ());
   
   let plane_color = GBin.event_box ~width:10 ~height:10 ~packing:(strip#attach ~top:0 ~left: 1) () in
@@ -53,12 +55,18 @@ let add config color select center_ac commit_moves mark =
   let block_name = GMisc.label ~text: "______" ~packing:h#add () in
   add_label ("block_name_value") (plane_color, block_name);
 
-
-  (* battery and flight time *)
-  let pb = GRange.progress_bar ~orientation: `BOTTOM_TO_TOP ~packing:(strip#attach ~top:1 ~left:0) () in
+  (* battery and telemetry status *)
+  let vb = GPack.vbox ~packing:(strip#attach ~top:1 ~left:0) () in
+  let pb = GRange.progress_bar ~orientation: `BOTTOM_TO_TOP ~packing:vb#add () in
+  pb#misc#set_size_request ~height:50 ();
   pb#coerce#misc#modify_fg [`PRELIGHT, `NAME "green"];
   pb#coerce#misc#modify_font_by_name "sans 12";
-  
+
+  let eb = GBin.event_box ~packing:vb#add () in
+  let ts = GMisc.label ~text:"N/A" ~packing:eb#add () in
+  add_label "telemetry_status_value" (eb, ts);
+  tooltips#set_tip eb#coerce ~text:"Telemetry status\nGreen if time since last bat message < 5s";
+
   let left_box = GPack.table ~rows ~columns: 6 ~col_spacings: 5 
       ~packing: (strip#attach ~top: 1 ~left: 1) () in
 
