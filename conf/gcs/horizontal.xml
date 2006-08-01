@@ -1,13 +1,15 @@
-<!-- <!DOCTYPE layout SYSTEM "layout.dtd"> -->
+<!DOCTYPE layout SYSTEM "layout.dtd">
 
-<layout width="1024" height="750">
+<layout width="1024" height="768">
  <rows>
-  <widget size="60%" name="map2d"/>
+  <widget size="500" name="map2d"/>
   <columns>
-   <widget size="25%" name="strips"/>
-   <widget size="40%" name="aircraft"/>
-   <widget name="alarms"/>
-   <widget name="plugin"/>
+   <rows size="350">
+    <widget size="120" name="strips"/>
+    <widget name="alarms"/>
+   </rows>
+   <widget size="400" name="aircraft"/>
+   <widget size="00" name="plugin"/>
   </columns>
  </rows>
 </layout>

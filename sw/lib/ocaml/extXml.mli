@@ -26,7 +26,7 @@
 
 exception Error of string
 val child : Xml.xml -> ?select:(Xml.xml -> bool) -> string -> Xml.xml
-(** [child xml ?p i] If [i] is an integer, returns the [i]'th child of [xml].
+(** [child xml ?p i] If [i] is an integer, returns the [i]'th (first is 0) child of [xml].
 Else returns the child of [xml] with tag [i] (the first one satisfying [p]
 if specified). Else raises [Not_found]. *)
 
@@ -58,4 +58,5 @@ val subst_attrib : string -> string -> Xml.xml -> Xml.xml
 val subst_child : string -> Xml.xml -> Xml.xml -> Xml.xml
 (** [subst_child child_tag new_child xml] *)
 
-
+val parse_file : string -> Xml.xml
+(** Identical to Xml.parse_file with Failure exceptions *)

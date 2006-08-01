@@ -417,6 +417,46 @@ let create_geomap = fun window quit ->
   geomap, menu_fact
 
 
+
+let resize = fun (widget:GObj.widget) orientation size ->
+  match size with
+    Some size ->
+      if orientation = `HORIZONTAL then
+	widget#misc#set_size_request ~width:size ()
+      else
+	widget#misc#set_size_request ~height:size ()
+  | None -> ()
+
+
+let rec pack_widgets = fun orientation xml widgets packing ->
+  let size = try Some (ExtXml.int_attrib xml "size") with _ -> None in
+  match String.lowercase (Xml.tag xml) with
+    "widget" ->
+      let name = ExtXml.attrib xml "name" in
+      let widget =
+	try List.assoc name widgets with
+	  Not_found -> failwith (sprintf "Unknown widget: '%s'" name)
+      in
+      resize widget orientation size;
+      packing widget
+  | "rows" ->
+      let resize = match size with None -> fun _ -> () | Some width -> fun (x:GObj.widget) -> x#misc#set_size_request ~width () in
+      pack_list resize `VERTICAL (Xml.children xml) widgets packing
+  | "columns" -> 
+      let resize = match size with None -> fun _ -> () | Some height -> fun (x:GObj.widget) -> x#misc#set_size_request ~height () in
+      pack_list resize `HORIZONTAL (Xml.children xml) widgets packing
+  | x -> failwith (sprintf "pack_widgets: %s" x)
+and pack_list = fun resize orientation xmls widgets packing ->
+  match xmls with
+    [] -> ()
+  | x::xs ->
+      let paned = GPack.paned orientation ~show:true ~packing () in
+      resize paned#coerce;
+      pack_widgets orientation x widgets paned#add1;
+      pack_list resize orientation xs widgets paned#add2
+
+      
+      
     
 
 let _main =
@@ -432,7 +472,7 @@ let _main =
   IGN.cache_path := var_maps_path;
 
   let layout_file = layout_path // !layout_file in
-  let layout = Xml.parse_file layout_file in
+  let layout = ExtXml.parse_file layout_file in
   let width = ExtXml.int_attrib layout "width"
   and height = ExtXml.int_attrib layout "height" in
   
@@ -442,16 +482,16 @@ let _main =
     window#maximize ();
   if !fullscreen then
     window#fullscreen ();
-  let vbox= GPack.vbox ~packing: window#add () in
+(***  let vbox= GPack.vbox ~packing: window#add () in ***)
 
   let quit = fun () -> GMain.Main.quit (); exit 0 in
   ignore (window#connect#destroy ~callback:quit);
 
   let geomap, menu_fact = create_geomap window quit in
 
-  let frame1 = GPack.vbox () in
+  let map_frame = GPack.vbox () in
   (** Put the canvas in a frame *)
-  frame1#add geomap#frame#coerce;
+  map_frame#add geomap#frame#coerce;
 
   (** Aircraft notebook *)
   let ac_notebook = GPack.notebook ~tab_border:0 () in
@@ -460,33 +500,24 @@ let _main =
   let alert_page = GBin.frame () in
   let my_alert = new Pages.alert alert_page in
 
-  let widgets = ["map2d", frame1#coerce; 
+  (** plugin frame *)
+  let plugin_width = 400 and plugin_height = 300 in
+  let plugin_frame = GPack.vbox ~width:plugin_width () in
+
+
+  let widgets = ["map2d", map_frame#coerce; 
 		 "strips", Strip.scrolled#coerce;
 		 "aircraft", ac_notebook#coerce;
-		 "alarms", alert_page#coerce] in (* To be continued *)
+		 "alarms", alert_page#coerce;
+	         "plugin", plugin_frame#coerce] in
 
-  let paned = GPack.paned ~show:true `VERTICAL ~packing:(vbox#pack ~expand:true) () in
-  paned#pack1 ~shrink:true (*** ~expand:true ***) frame1#coerce;
-  let hpaned = GPack.paned ~show:true `HORIZONTAL ~packing:paned#add2 () in
-  
-  (** Strips on the left *)
-  hpaned#add1 Strip.scrolled#coerce;
-  let hpaned2 = GPack.paned ~show:true `HORIZONTAL ~packing:hpaned#add2 () in
 
-  hpaned2#add1 ac_notebook#coerce;
-
-  let hpaned3 = GPack.paned ~show:true `HORIZONTAL ~packing:hpaned2#add2 () in
-
-  let packing = if not !no_alarm then hpaned3#add1 alert_page#coerce in
+  pack_widgets `HORIZONTAL (ExtXml.child layout "0") widgets window#add;
 
   if !mplayer <> "" then
     plugin_window := sprintf "mplayer -nomouseinput '%s' -wid " !mplayer;
-  if !plugin_window <> "" then begin
-    let plugin_width = 400 and plugin_height = 300 in
-    let frame2 = GPack.vbox ~width:plugin_width () in
-    
-    hpaned3#pack2 frame2#coerce;
-    let frame = GBin.event_box ~packing:frame2#add ~width:plugin_width ~height:plugin_height () in
+  if !plugin_window <> "" then begin  
+    let frame = GBin.event_box ~packing:plugin_frame#add ~width:plugin_width ~height:plugin_height () in
     let s = GWindow.socket ~packing:frame#add () in
     let com = sprintf "%s 0x%lx -geometry %dx%d" !plugin_window s#xwindow plugin_width plugin_height in
 
@@ -508,10 +539,10 @@ let _main =
       (** Keep the center of the geo canvas *)
       let c = geomap#get_center () in
 
-      let child1 = List.hd frame1#children in
-      let child2 = List.hd frame2#children in
-      child2#misc#reparent frame1#coerce;
-      child1#misc#reparent frame2#coerce;
+      let child1 = List.hd map_frame#children in
+      let child2 = List.hd plugin_frame#children in
+      child2#misc#reparent map_frame#coerce;
+      child1#misc#reparent plugin_frame#coerce;
 
       (* Strange: the centering does not work if done inside this callback.
 	 It is postponed to be called by the mainloop(). *)

@@ -13,10 +13,10 @@ size CDATA #IMPLIED
 >
 
 <!ATTLIST columns
-name CDATA #REQUIRED
 size CDATA #IMPLIED
 >
 
 <!ATTLIST widget
+name CDATA #REQUIRED
 size CDATA #IMPLIED
 >

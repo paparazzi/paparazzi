@@ -131,3 +131,13 @@ let int_attrib = fun xml a ->
   with
     _ -> failwith (Printf.sprintf "Error: integer expected in '%s'" v)
 
+
+
+let parse_file = fun file ->
+  try
+    Xml.parse_file file
+  with
+    Xml.Error e -> failwith (Printf.sprintf "%s: %s" file (Xml.error e))
+  | Dtd.Prove_error e -> failwith (Printf.sprintf "%s: %s" file (Dtd.prove_error e))
+  | Dtd.Check_error e -> failwith (Printf.sprintf "%s: %s" file (Dtd.check_error e))
+  | Dtd.Parse_error e -> failwith (Printf.sprintf "%s: %s" file (Dtd.parse_error e))
