@@ -22,7 +22,7 @@ Description: Paparazzi Meta Package. Atmel AVR support
 
 Package: paparazzi-arm7
 Architecture: any
-Depends: lpc21isp, gcc-arm, binutils-arm, newlib-arm
+Depends: lpc21isp, gcc-arm, binutils-arm, newlib-arm, libusb-dev
 Description: Paparazzi Meta Package. Philips ARM7 support
 
 
