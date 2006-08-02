@@ -23,33 +23,14 @@
     <block NAME="circle left home">
       <circle RADIUS="-75" WP="HOME"/>
     </block>
-    <block NAME="circlehome pitch">
-      <circle RADIUS="75" WP="HOME" gaz="0.6" pitch="auto"/>
-    </block>
-    <block name="att20">
-      <attitude gaz="0.5" roll="20" until="FALSE" vmode="gaz"/>
-    </block>
-    <block name="att30">
-      <attitude gaz="0.5" roll="30" until="FALSE" vmode="gaz"/>
-    </block>
-    <block name="climb0_att">
-      <attitude climb="0" roll="0" until="block_time > 20" vmode="climb"/>
-      <deroute block="circlehome"/>
-    </block>
-    <block name="climb1_att">
-      <attitude climb="1" roll="0" until="block_time > 20" vmode="climb"/>
-      <deroute block="circlehome"/>
-    </block>
-    <block name="climb0">
-      <go climb="0" vmode="climb" wp="1"/>
-      <deroute block="circlehome"/>
-    </block>
-    <block name="climb1">
-      <go climb="1" vmode="climb" wp="1"/>
-      <deroute block="circlehome"/>
+    <block NAME="climb 75">
+      <circle RADIUS="estimator_z/2" WP="1" vmode="gaz" gaz="0.75" pitch="0.3"/>
     </block>
     <block NAME="stack 1">
-      <circle RADIUS="75" WP="1"/>
+      <circle RADIUS="estimator_z/2" WP="1"/>
+    </block>
+    <block NAME="descent 0">
+      <circle RADIUS="estimator_z/2" WP="1" vmode="gaz" gaz="0.0" pitch="-0.3"/>
     </block>
     <block NAME="route12">
       <go approaching_time="0" from="1" hmode="route" wp="2"/>
