@@ -32,7 +32,6 @@ include conf/Makefile.local
 
 LIB=sw/lib
 AIRBORNE=sw/airborne
-CONFIGURATOR=sw/configurator
 COCKPIT=sw/ground_segment/cockpit
 TMTC=sw/ground_segment/tmtc
 MULTIMON=sw/ground_segment/multimon
@@ -46,7 +45,7 @@ MAKE=make
 
 all: static
 
-static : lib tools configurator cockpit visu3d multimon tmtc logalizer sim_static wind static_h
+static : lib tools cockpit visu3d multimon tmtc logalizer sim_static wind static_h
 
 conf: conf/conf.xml conf/control_panel.xml
 
@@ -72,9 +71,6 @@ tools: lib
 
 logalizer: lib
 	cd $(LOGALIZER); $(MAKE)
-
-configurator: lib
-	cd $(CONFIGURATOR); $(MAKE)
 
 sim_static :
 	cd $(SIMULATOR); $(MAKE) PAPARAZZI_SRC=$(PAPARAZZI_SRC)
