@@ -122,21 +122,21 @@ int USBFindDevice(usb_dev_handle *udev)
 
     for(count = 0; count < 100 && !found; count++)
     {
-		printf(".");
+        printf(".");
 
         if (usb_find_devices())
         {
             for (bus = usb_get_busses(); bus && (!found); bus = bus->next)
             {
                 struct usb_device *dev;
-        
+
                 for (dev = bus->devices; dev && (!found); dev = dev->next)
                 {
                     if ((dev->descriptor.idVendor  == VENDOR_ID) &&
                         (dev->descriptor.idProduct == DEVICE_ID))
                     {
                         udev = usb_open(dev);
-        
+
                         if (udev)
                         {
                             // TODO check USB serial number
@@ -164,7 +164,7 @@ int USBReqISP(usb_dev_handle *udev,
 {
     int cmdret;
     int resret;
-    
+
     // default to unknown error
     result[0] = LPC_MAX_ERROR;
 
@@ -191,7 +191,7 @@ int USBReqISP(usb_dev_handle *udev,
         0,          // value
         0,          // index
         (char*) result,    // *bytes 
-        12+20,      // size 
+        12+20,      // size
         100);       // timeout
 //printf("\ncmdret %d, resret %d cmd %d res %d cmdo %d \n",cmdret, resret, command[0], result[0], result[3]);
 //printf("\ncmdret %d, cmd0 %d/%c, cmd1 0x%08X, cmd2 0x%08X, cmd3 0x%08X\n", cmdret, command[0], command[0], command[1], command[2], command[3]);
@@ -201,35 +201,35 @@ int USBReqISP(usb_dev_handle *udev,
         perror("USB error");
         return(0);
     }
-    
+
     if (result[0] != 0)
     {
-	    printf("ISP error (%d:%s)\n", result[0]&0xFF, IspError(result[0]&0xFF));
+        printf("ISP error (%d:%s)\n", result[0]&0xFF, IspError(result[0]&0xFF));
         return(0);
     }
     if ((cmdret != 20) || 
         (resret != 12+20) || 
         (memcmp(command, &result[3], 20)))
     {
-	    printf("Unknown error\n");
+        printf("Unknown error\n");
         return(0);
     }
-    
+
     return(1);
 }
 
-int USBReqData(usb_dev_handle *udev, char* data, int size)
+int USBReqData(usb_dev_handle *udev, unsigned char* data, int size)
 {
     int datret;
     int size1, size2;
     int count;
-    
+
     /* make small chunks for libusb */
     for (count = 0; count < size; count += USB_MAXCHUNK)
     {
         size1 = ((size-count)/USB_MAXCHUNK) > 0 ? USB_MAXCHUNK : size%USB_MAXCHUNK;
         size2 = size1;
-        
+
         datret = usb_control_msg(
             udev,               // dev_handle
             0x00 | USB_TYPE_VENDOR | USB_RECIP_INTERFACE,// requesttype
@@ -239,7 +239,7 @@ int USBReqData(usb_dev_handle *udev, char* data, int size)
             (char*)(data+count),// *bytes
             size1,              // size
             1000);              // timeout
-            
+
 //        printf("\ndatret %d, size %d\n", datret, size);
 //        printf(" %d %d\n", size1, size2);
 
@@ -251,10 +251,10 @@ int USBReqData(usb_dev_handle *udev, char* data, int size)
 
         if (size1 != size2)
         {
-    	    printf("write data failed\n");
+            printf("write data failed\n");
             return(0);
         }
-    }        
+    }
     return(1);
 }
 
@@ -264,7 +264,7 @@ int USBReqBTL(usb_dev_handle *udev,
 {
     int cmdret;
     int resret;
-    
+
     // default to unknown error
     result[0] = LPC_MAX_ERROR;
 
@@ -301,20 +301,20 @@ int USBReqBTL(usb_dev_handle *udev,
         perror("USB error");
         return(0);
     }
-    
+
     if (result[0] != 0)
     {
-	    printf("BTL error (%d:%s)\n", result[0]&0xFF, IspError(result[0]&0xFF));
+        printf("BTL error (%d:%s)\n", result[0]&0xFF, IspError(result[0]&0xFF));
         return(0);
     }
     if ((cmdret != 20) || 
         (resret != 12+20) || 
         (memcmp(command, &result[3], 20)))
     {
-	    printf("Unknown error\n");
+        printf("Unknown error\n");
         return(0);
     }
-    
+
     return(1);
 }
 
@@ -327,10 +327,10 @@ int unlock(usb_dev_handle *udev)
     command[1] = UNLOCK_CODE;
 
     if (!USBReqISP(udev, command, result))
-	{
-	    printf("unlock failed\n");
-	    return(0);
-	}       
+    {
+        printf("unlock failed\n");
+        return(0);
+    }
     return(1);
 }
 
@@ -342,10 +342,10 @@ int readBootCode(usb_dev_handle *udev, unsigned int * bootCode)
     command[0] = ISP_READ_BOOT_CODE_VERSION;
 
     if (!USBReqISP(udev, command, result))
-	{
-	    printf("read boot code failed\n");
-	    return(0);
-	}       
+    {
+        printf("read boot code failed\n");
+        return(0);
+    }
 
     *bootCode = result[1];
 
@@ -360,10 +360,10 @@ int readPartID(usb_dev_handle *udev, unsigned int * partID)
     command[0] = ISP_READ_PART_ID;
 
     if (!USBReqISP(udev, command, result))
-	{
-	    printf("read part ID failed\n");
-	    return(0);
-	}       
+    {
+        printf("read part ID failed\n");
+        return(0);
+    }
 
     *partID = result[1];
 
@@ -380,10 +380,10 @@ int prepareSectors(usb_dev_handle *udev, int startSec, int endSec)
     command[2] = endSec;
 
     if (!USBReqISP(udev, command, result))
-	{
-	    printf("prepare failed at sectors %d-%d", startSec, endSec);
-	    return(0);
-	}       
+    {
+        printf("prepare failed at sectors %d-%d", startSec, endSec);
+        return(0);
+    }
     return(1);
 }
 
@@ -397,10 +397,10 @@ int eraseSectors(usb_dev_handle *udev, int startSec, int endSec)
     command[2] = endSec;
 
     if (!USBReqISP(udev, command, result))
-	{
-	    printf("erase failed at sectors %d-%d\n", startSec, endSec);
-	    return(0);
-	}       
+    {
+        printf("erase failed at sectors %d-%d\n", startSec, endSec);
+        return(0);
+    }
     return(1);
 }
 
@@ -424,10 +424,10 @@ int blankCheckSectors(usb_dev_handle *udev, int startSec, int endSec)
     command[2] = endSec;
 
     if (!USBReqISP(udev, command, result))
-	{
-	    printf("blank check failed at sectors %d-%d\n", startSec, endSec);
-	    return(0);
-	}       
+    {
+        printf("blank check failed at sectors %d-%d\n", startSec, endSec);
+        return(0);
+    }
     return(1);
 }
 
@@ -441,10 +441,10 @@ int writeRAM(usb_dev_handle *udev, unsigned int startAdr, unsigned int size)
     command[2] = size;
 
     if (!USBReqISP(udev, command, result))
-	{
-	    printf("write failed at 0x%08X size 0x%08X\n", startAdr, size);
-	    return(0);
-	}       
+    {
+        printf("write failed at 0x%08X size 0x%08X\n", startAdr, size);
+        return(0);
+    }
     return(1);
 }
 
@@ -459,10 +459,10 @@ int copyRAMFlash(usb_dev_handle *udev, unsigned int startAdr, unsigned int base,
     command[3] = size;
 
     if (!USBReqISP(udev, command, result))
-	{
-	    printf("copy RAM to flash failed at 0x%08X base 0x%08X size 0x%08X\n", startAdr, base, size);
-	    return(0);
-	}       
+    {
+        printf("copy RAM to flash failed at 0x%08X base 0x%08X size 0x%08X\n", startAdr, base, size);
+        return(0);
+    }
     return(1);
 }
 
@@ -477,10 +477,10 @@ int compareMem(usb_dev_handle *udev, unsigned int dst, unsigned int src, unsigne
     command[3] = size;
 
     if (!USBReqISP(udev, command, result))
-	{
-	    printf("compare MEM failed at 0x%08X base 0x%08X size 0x%08X\n", dst, src, size);
-	    return(0);
-	}
+    {
+        printf("compare MEM failed at 0x%08X base 0x%08X size 0x%08X\n", dst, src, size);
+        return(0);
+    }
     return(1);
 }
 
@@ -510,10 +510,10 @@ int readBootloaderVersion(usb_dev_handle *udev, unsigned int * bootVersion)
     command[0] = BTL_READ_VERSION;
 
     if (!USBReqBTL(udev, command, result))
-	{
-	    printf("read bootloader version failed\n");
-	    return(0);
-	}       
+    {
+        printf("read bootloader version failed\n");
+        return(0);
+    }
 
     *bootVersion = result[1];
 

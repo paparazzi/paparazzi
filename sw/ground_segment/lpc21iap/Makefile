@@ -18,7 +18,7 @@ OD		= objdump
 RM		= rm
 TAR		= tar
 
-CFLAGS  = -Wall
+CFLAGS  = -Wall -g
 
 SOURCES =	lpc21iap.c elf.c lpcusb.c
 

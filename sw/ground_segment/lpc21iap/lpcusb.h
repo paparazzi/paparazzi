@@ -26,7 +26,7 @@ int USBFindDevice(usb_dev_handle *udev);
 int USBReqISP(usb_dev_handle *udev, 
               unsigned int *command,
               unsigned int *result);
-int USBReqData(usb_dev_handle *udev, char* data, int size);
+int USBReqData(usb_dev_handle *udev, unsigned char* data, int size);
 int unlock(usb_dev_handle *udev);
 int readBootCode(usb_dev_handle *udev, unsigned int * bootCode);
 int readPartID(usb_dev_handle *udev, unsigned int * partID);

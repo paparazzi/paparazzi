@@ -78,6 +78,13 @@ typedef struct
     char name[50];
 } LPC_DEVICE;
 
+typedef struct
+{
+    unsigned int start;
+    void * nextBuf;
+    unsigned char data[MAX_SECT];
+} tIntermediateBuffer;
+
 static int SectorTable_214x[] = { 4096, 4096, 4096, 4096, 4096, 4096, 4096, 4096,
                                   32768, 32768, 32768, 32768, 32768, 32768, 32768, 32768,
                                   32768, 32768, 32768, 32768, 32768, 32768, 
@@ -129,10 +136,11 @@ int main(int argc, char *argv[])
     unsigned int entryElf;
     unsigned int flagsElf;
     unsigned int ramAddr;
-    int romram;
+    unsigned int romram;
     int secElf;
     int count;
     int temp;
+    unsigned int utemp;
     int startSec, endSec;
     unsigned int dest, src, size, end, type, flag;
     unsigned int maxFlash, lowFlash, highFlash;
@@ -141,6 +149,8 @@ int main(int argc, char *argv[])
     int found;
     struct usb_bus *bus;
     char cserial[256];
+    tIntermediateBuffer* actBuf = NULL;
+    tIntermediateBuffer* startBuf = NULL;
 
     if ((argc < 2) || (argc > 3))
     {
@@ -281,18 +291,18 @@ int main(int argc, char *argv[])
 
     if (!unlock(udev)) exit(1);
 
-    if (!readBootCode(udev, &temp)) exit(1);
-    printf("BootROM code: %d.%d\n", (temp >> 8) & 0xFF, temp & 0xFF);
+    if (!readBootCode(udev, &utemp)) exit(1);
+    printf("BootROM code: %d.%d\n", (utemp >> 8) & 0xFF, utemp & 0xFF);
 
-    if (!readPartID(udev, &temp)) exit(1);
+    if (!readPartID(udev, &utemp)) exit(1);
     for (count = 0; LPCtypes[count].id != 0; count++)
     {
-        if (temp == LPCtypes[count].id) break;
+        if (utemp == LPCtypes[count].id) break;
     }
-    printf("Part ID: 0x%08X (%s)\n", temp, LPCtypes[count].name);
+    printf("Part ID: 0x%08X (%s)\n", utemp, LPCtypes[count].name);
 
-    if (!readBootloaderVersion(udev, &temp)) exit(1);
-    printf("BootLoader version: %d.%d\n", (temp >> 8) & 0xFF, temp & 0xFF);
+    if (!readBootloaderVersion(udev, &utemp)) exit(1);
+    printf("BootLoader version: %d.%d\n", (utemp >> 8) & 0xFF, utemp & 0xFF);
 
     if (!readRAMAddress(udev, &ramAddr)) exit(1);
 
@@ -398,61 +408,6 @@ int main(int argc, char *argv[])
                 /* always 4k "blocks" are written */
                 for (countPgd = destPgd; countPgd < endPgd; countPgd += MAX_SECT)
                 {
-                    printf("#");
-                    fflush(stdout);
-                    temp = getSec(countPgd);
-
-                    /* first block, not filled completely? */
-                    if ((countPgd == destPgd) && (dest != destPgd))
-                    {
-                        /* gap of non programmed bytes at the beginning of the first block to flash */
-                        destGap = dest % MAX_SECT;
-                        /* number of bytes in the first block */
-                        if ((destGap + size) < MAX_SECT) {
-                            /* data ends within first block */
-                            destDat = size;
-                        }
-                        else {
-                            destDat = MAX_SECT - destGap;
-                        }
-
-                        /* fill buffer with 0xFF */
-                        memset(binFF, 0xFF, MAX_SECT);
-                        /* copy data to buffer */
-                        // read(binFF + destGap, destDat):
-                        memcpy(binFF + destGap, binElf+src+cnt, destDat);
-
-                        elfGap = destGap;
-                        elfCnt = destDat;
-                    }
-                    /* more than one block, last block, not filled completely? */
-                    else  if ((countPgd+MAX_SECT == endPgd) && (end != endPgd))
-                    {
-                        /* number of bytes in the last sector */
-                        endDat  = end  % MAX_SECT;
-                        /* gap of non programmed bytes at the end of the first sector to flash */
-                        endGap  = MAX_SECT - endDat;
-
-                        /* fill buffer with 0xFF */
-                        memset(binFF, 0xFF, MAX_SECT);
-                        /* copy data to buffer */
-                        // read(binFF, endDat):
-                        memcpy(binFF, binElf+src+cnt, endDat);
-
-                        elfGap = 0;
-                        elfCnt = endDat;
-                    }
-                    /* full filled 4k block */
-                    else
-                    {
-                        /* copy data to buffer */
-                        // read(binFF, MAX_SECT):
-                        memcpy(binFF, binElf+src+cnt, MAX_SECT);
-
-                        elfGap = 0;
-                        elfCnt = MAX_SECT;
-                    }
-
                     /* do checksum (LE machines) */
                     if (countPgd == 0)
                     {
@@ -471,11 +426,104 @@ int main(int argc, char *argv[])
                         printf("changing vector table");
                     }
 
-                    if (!writeRAM(udev, ramAddr, MAX_SECT)) exit(1);
-                    if (!USBReqData(udev, binFF, MAX_SECT)) exit(1);
-                    if (!prepareSectors(udev, temp, temp)) exit(1);
-                    if (!copyRAMFlash(udev, countPgd, ramAddr, MAX_SECT)) exit(1);
-                    if (!compareMem(udev, countPgd+elfGap, ramAddr+elfGap, elfCnt)) exit(1);
+                    printf("#");
+                    fflush(stdout);
+                    temp = getSec(countPgd);
+
+                    /* first block, not filled completely? */
+                    if ((countPgd == destPgd) && (dest != destPgd))
+                    {
+                        /* gap of non programmed bytes at the beginning of the first block to flash */
+                        destGap = dest % MAX_SECT;
+                        /* number of bytes in the first block */
+                        if ((destGap + size) < MAX_SECT) {
+                            /* data ends within first block */
+                            destDat = size;
+                        }
+                        else {
+                            destDat = MAX_SECT - destGap;
+                        }
+
+                        /* block already there? */
+                        actBuf=startBuf;
+                        while(1)
+                        {
+                            if (actBuf == NULL)
+                            {
+                                actBuf = malloc(sizeof(tIntermediateBuffer));
+                                if(startBuf == NULL) startBuf = actBuf;
+                                actBuf->start = countPgd;
+                                actBuf->nextBuf = NULL;
+                                memset(actBuf->data, 0xFF, MAX_SECT);
+                                break;
+                            }
+
+                            if (actBuf->start == countPgd)
+                            {
+                                break;
+                            }
+                            actBuf = actBuf->nextBuf;
+                        }
+
+                        /* copy data to buffer */
+                        // read(binFF + destGap, destDat):
+                        memcpy(actBuf->data + destGap, binElf+src+cnt, destDat);
+
+                        elfGap = destGap;
+                        elfCnt = destDat;
+                    }
+                    /* more than one block, last block, not filled completely? */
+                    else  if ((countPgd+MAX_SECT == endPgd) && (end != endPgd))
+                    {
+                        /* number of bytes in the last sector */
+                        endDat  = end  % MAX_SECT;
+                        /* gap of non programmed bytes at the end of the first sector to flash */
+                        endGap  = MAX_SECT - endDat;
+
+                        /* block already there? */
+                        actBuf=startBuf;
+                        while(1)
+                        {
+                            if (actBuf == NULL)
+                            {
+                                actBuf = malloc(sizeof(tIntermediateBuffer));
+                                if(startBuf == NULL) startBuf = actBuf;
+                                actBuf->start = countPgd;
+                                actBuf->nextBuf = NULL;
+                                memset(actBuf->data, 0xFF, MAX_SECT);
+                                break;
+                            }
+
+                            if (actBuf->start == countPgd)
+                            {
+                                break;
+                            }
+                            actBuf = actBuf->nextBuf;
+                        }
+
+                        /* copy data to buffer */
+                        // read(binFF, endDat):
+                        memcpy(actBuf->data, binElf+src+cnt, endDat);
+
+                        elfGap = 0;
+                        elfCnt = endDat;
+                    }
+                    /* full filled 4k block */
+                    else
+                    {
+                        /* copy data to buffer */
+                        // read(binFF, MAX_SECT):
+                        memcpy(binFF, binElf+src+cnt, MAX_SECT);
+
+                        elfGap = 0;
+                        elfCnt = MAX_SECT;
+
+                        if (!writeRAM(udev, ramAddr, MAX_SECT)) exit(1);
+                        if (!USBReqData(udev, binFF, MAX_SECT)) exit(1);
+                        if (!prepareSectors(udev, temp, temp)) exit(1);
+                        if (!copyRAMFlash(udev, countPgd, ramAddr, MAX_SECT)) exit(1);
+                        if (!compareMem(udev, countPgd+elfGap, ramAddr+elfGap, elfCnt)) exit(1);
+                    }
                     cnt += elfCnt;
                 }
             }
@@ -494,9 +542,24 @@ int main(int argc, char *argv[])
 
                 /* copy it in one piece */
                 if (!writeRAM(udev, dest, size)) exit(1);
-                if (!USBReqData(udev, (char*) (binElf+src), size)) exit(1);
+                if (!USBReqData(udev, (unsigned char*) (binElf+src), size)) exit(1);
             }
         }
+    }
+
+    actBuf = startBuf;
+
+    /* go through all the split sectors */
+    while (actBuf != NULL)
+    {
+        if (!writeRAM(udev, ramAddr, MAX_SECT)) exit(1);
+        if (!USBReqData(udev, actBuf->data, MAX_SECT)) exit(1);
+        if (!prepareSectors(udev, getSec(actBuf->start), getSec(actBuf->start))) exit(1);
+        if (!copyRAMFlash(udev, actBuf->start & ~(MAX_SECT-1), ramAddr, MAX_SECT)) exit(1);
+        if (!compareMem(udev, actBuf->start & ~(MAX_SECT-1), ramAddr, MAX_SECT)) exit(1);
+        startBuf = actBuf;
+        actBuf = actBuf->nextBuf;
+        free(startBuf);
     }
 
     printf("\n");
