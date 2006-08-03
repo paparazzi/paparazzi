@@ -311,7 +311,8 @@ let button_press = fun (geomap:G.widget) ev ->
 let keys_help = fun () ->
   GToolbox.message_box ~title:"Keys" ~ok:"Close"
     "Zoom: Mouse Wheel, PgUp, PgDown\n\
-    Pan: Arrows\n\
+    Pan: Map & keyboard arrows\n\
+    Fit to window: f\n\
     Load Map Tile: Right\n\
     Select Region: Left + Drag\n\
     Create Waypoint: Ctrl-Left\n\
@@ -355,7 +356,7 @@ let options =
     "-no_alarm", Arg.Set no_alarm, "Disables alarm page";
     "-auto_ortho", Arg.Set auto_ortho, "IGN tiles path";
     "-google_fill", Arg.Set GM.auto, "Google maps auto fill";
-    "-speech", Arg.Set Speech.active, "Speech";
+    "-speech", Arg.Set Speech.active, "Active vocal messages";
     "-m", Arg.String (fun x -> map_files := x :: !map_files), "Map description file"]
 
 
