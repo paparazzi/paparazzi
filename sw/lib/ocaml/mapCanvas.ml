@@ -208,7 +208,7 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
 	    (min min_lat lat, max max_lat lat, 
 	     min min_long long, max max_long long))
 	  fitted_objects
-	  (max_float, min_float, max_float, min_float) in
+	  (max_float, -.max_float, max_float, -.max_float) in
       let c = {LL.posn_lat = (min_lat+.max_lat)/.2.; posn_long=(min_long+.max_long)/.2.}
       and nw_xw, nw_yw = self#world_of {LL.posn_lat = max_lat; posn_long=min_long}
       and se_xw, se_yw = self#world_of {LL.posn_lat = min_lat; posn_long=max_long} in
