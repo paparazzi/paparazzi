@@ -29,10 +29,10 @@ open Latlong
 type error = string
 exception Tile_not_found of string
 
-let srtm_url = "ftp://e0dps01u.ecs.nasa.gov/srtm"
+let srtm_url = "ftp://e0srp01u.ecs.nasa.gov/srtm/version2/SRTM3"
 
 let error = fun string ->
-  Printf.sprintf "wget %s/Eurasia/%s.hgt.zip" srtm_url string
+  Printf.sprintf "put %s/???/%s.hgt.zip in data/srtm/" srtm_url string
 
 let tile_size = 1201
 
@@ -73,7 +73,7 @@ let of_wgs84 = fun geo ->
   and long = (Rad>>Deg)geo.posn_long in
   let bottom = floor lat and left = floor long in
   let tile =
-    Printf.sprintf "%c%.0f%c%03.0f" (if lat > 0. then 'N' else 'S') bottom (if long > 0. then 'E' else 'W') (abs_float left) in
+    Printf.sprintf "%c%.0f%c%03.0f" (if lat > 0. then 'N' else 'S') (abs_float bottom) (if long > 0. then 'E' else 'W') (abs_float left) in
 
   get tile (truncate ((lat-.bottom)*.1200.+.0.5)) (truncate ((long-.left)*.1200.+.0.5))
 
