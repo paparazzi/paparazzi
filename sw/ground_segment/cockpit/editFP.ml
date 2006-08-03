@@ -143,7 +143,7 @@ let calibrate_map = fun (geomap:MapCanvas.widget) accel_group () ->
   match !current_fp with
   | Some (_fp,_,_) ->  GToolbox.message_box "Error" "Close current flight plan before calibration"
   | None ->
-      match GToolbox.select_file ~filename:default_path_maps ~title:"Open Image" () with
+      match GToolbox.select_file ~filename:(default_path_maps // "") ~title:"Open Image" () with
 	None -> ()
       | Some image -> 
 	  (** Displaying the image in the NW corner *)
