@@ -203,6 +203,10 @@ void estimator_update_state_infrared( void ) {
 		     ir_rad_of_ir);
 #ifndef ADC_CHANNEL_IR_TOP
   z_constrast_mode = 0;
+#else
+#ifdef Z_CONTRAST_START
+  z_constrast_mode = 1;
+#endif
 #endif
   ir_top = Max(ir_top, 1);
   float c = rad_of_ir*(1-z_constrast_mode)+z_constrast_mode*((float)IR_RAD_OF_IR_CONTRAST/ir_top);
