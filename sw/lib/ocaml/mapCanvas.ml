@@ -446,6 +446,7 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
       | k when k = GdkKeysyms._Down -> canvas#scroll_to x (y+pan_step) ; true
       | k when k = GdkKeysyms._Left -> canvas#scroll_to (x-pan_step) y ; true
       | k when k = GdkKeysyms._Right -> canvas#scroll_to (x+pan_step) y ; true
+      | k when k = GdkKeysyms._f -> self#fit_to_window () ; true
       | k when k = GdkKeysyms._Page_Up -> 
 	  self#zoom_up ();
 	  true
