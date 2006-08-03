@@ -43,7 +43,8 @@ type aircraft = {
     dl_settings_page : Pages.settings option;
     rc_settings_page : Pages.rc_settings option;
     strip : Strip.t;
-    mutable first_pos : bool
+    mutable first_pos : bool;
+    mutable last_block_name : string
   }
 
 let live_aircrafts = Hashtbl.create 3
@@ -263,9 +264,9 @@ let create_ac = fun (geomap:G.widget) (acs_notebook:GPack.notebook) ac_id config
 
   GToolbox.build_menu sm ~entries:dl_menu;
 
-  let cam = ac_menu_fact#add_check_item "Cam Display" ~active:false in
+  let cam = ac_menu_fact#add_check_item "Cam footprint" ~active:false in
   ignore (cam#connect#toggled (fun () -> track#set_cam_state cam#active));
-  let params = ac_menu_fact#add_check_item "flight param. display" ~active:false in
+  let params = ac_menu_fact#add_check_item "A/C label" ~active:false in
   ignore (params#connect#toggled (fun () -> track#set_params_state params#active));
 
   (** Build the XML flight plan, connect then "jump_to_block" *)
@@ -357,7 +358,8 @@ let create_ac = fun (geomap:G.widget) (acs_notebook:GPack.notebook) ac_id config
 				     misc_page = misc_page;
 				     dl_settings_page = dl_settings_page;
 				     rc_settings_page = rc_settings_page;
-				     strip = strip; first_pos = true
+				     strip = strip; first_pos = true;
+				     last_block_name = ""
 				   }
 
     (** Bind to message while catching all the esceptions of the callback *)
@@ -500,14 +502,18 @@ let listen_flight_params = fun geomap auto_center_new_ac ->
     carrot_pos_msg ac.track wgs84;
     let cur_block = Pprz.int_assoc "cur_block" vs
     and cur_stage = Pprz.int_assoc "cur_stage" vs in
-    let b = List.assoc cur_block ac.blocks in
-    let b = String.sub b 0 (min 10 (String.length b)) in
     highlight_fp ac cur_block cur_stage;
     let set_label = fun l f ->
       Strip.set_label ac.strip l (sprintf "%.1f" (Pprz.float_assoc f vs)) in
     set_label "->" "target_alt";
     set_label "/" "target_climb";
-    Strip.set_label ac.strip "block_name" b
+    let b = List.assoc cur_block ac.blocks in
+    if b <> ac.last_block_name then begin
+      Speech.say (sprintf "%s, %s" ac.ac_name b);
+      ac.last_block_name <- b;
+      let b = String.sub b 0 (min 10 (String.length b)) in
+      Strip.set_label ac.strip "block_name" b
+    end
   in
   safe_bind "NAV_STATUS" get_ns;
 
