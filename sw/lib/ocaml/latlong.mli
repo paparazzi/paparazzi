@@ -94,7 +94,7 @@ val lambert_of : lambert_zone -> ntf -> lambert
 
 val utm_of : geodesic -> geographic -> utm
 val of_utm : geodesic -> utm -> geographic
-(** Conversions between geographic and UTM *)
+(** Conversions between geographic and UTM. May raise Invalid_argument. *)
 
 val cartesian_of : geodesic -> geographic -> float -> cartesian
 (** [cartesian_of geode geo alt] converts position [geo] at altitude [alt]

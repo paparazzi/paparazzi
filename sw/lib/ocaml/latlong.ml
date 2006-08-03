@@ -36,6 +36,8 @@ module C = struct
     i (scal (-. 0.5) (sub (exp iz) (exp (scal (-1.) iz))))
 end
 
+let pi = 3.14159265358979323846;;
+
 type degree = float
 type radian = float
 type semi = float
@@ -44,11 +46,12 @@ type dms = int * int * float
 type semicircle = { lat : semi; long : semi }
 type geographic = { posn_lat : radian ; posn_long : radian }
 
+let valid_geo = fun {posn_long = lambda; posn_lat = phi} ->
+  phi > (-.pi/.2.) && phi < pi/.2. && lambda > -.pi && lambda < pi
+
 type angle_unit = Semi | Rad | Deg | Grd
 
 type cartesian = {x : float; y : float; z: float }
-
-let pi = 3.14159265358979323846;;
 
 let piradian = function
   Semi -> 2. ** 31. | Rad -> pi | Deg -> 180. | Grd -> 200.
@@ -194,7 +197,9 @@ let of_lambert l { lbt_x = x; lbt_y = y } =
   {posn_long = lambda; posn_lat = phi};;
 
 
-let lambert_of l {posn_long = lambda; posn_lat = phi} =
+let lambert_of l ({posn_long = lambda; posn_lat = phi} as pos) =
+  if not (valid_geo pos) then
+    invalid_arg "Latlong.lambert_of";
   let n = lambert_n l in
   let e = l.ellipsoid.e in
   let ll = latitude_isometrique phi e in
@@ -231,7 +236,9 @@ let coeff_proj_mercator_inverse =
     [|0.;0.;0.; 17./.30720.;283./.430080.|];
     [|0.;0.;0.;0.;4397./.41287680.|]|];;
 
-let utm_of geo {posn_long = lambda; posn_lat = phi} =
+let utm_of geo ({posn_long = lambda; posn_lat = phi} as pos) =
+  if not (valid_geo pos) then
+    invalid_arg "Latlong.utm_of";
   let ellipsoid =  ellipsoid_of geo in
   let k0 = 0.9996
   and xs = 500000.
@@ -256,6 +263,8 @@ let utm_of geo {posn_long = lambda; posn_lat = phi} =
   { utm_zone = zone; utm_x = xs +. C.im !z'; utm_y = ys +. C.re !z' };;
 
 let of_utm geo { utm_zone = f; utm_x = x; utm_y = y } =
+  if x < 0. || x > 1e6 || y < 0. || y > 10e6 || f < 0 || f > 60 then
+    invalid_arg "Latlong.of_utm";
   let ellipsoid =  ellipsoid_of geo in
   let k0 = 0.9996
   and xs = 500000.
@@ -278,7 +287,9 @@ let of_utm geo { utm_zone = f; utm_x = x; utm_y = y } =
   {posn_long = lambda; posn_lat = phi};;
 
 
-let (<<) geo1 geo2 {posn_long = lambda; posn_lat = phi} =
+let (<<) geo1 geo2 ({posn_long = lambda; posn_lat = phi} as pos) =
+  if not (valid_geo pos) then
+    invalid_arg "Latlong.(<<)";
   let elps1 = ellipsoid_of geo1
   and elps2 = ellipsoid_of geo2 in
   let d12 = sin phi
@@ -303,7 +314,9 @@ let (<<) geo1 geo2 {posn_long = lambda; posn_lat = phi} =
   let d4 = atan2 d24 d23 in
   {posn_long = d4; posn_lat = d3};;
 
-let cartesian_of ellips {posn_long = lambda; posn_lat = phi} h =
+let cartesian_of ellips ({posn_long = lambda; posn_lat = phi} as pos) h =
+  if not (valid_geo pos) || h < 0. then
+    invalid_arg "Latlong.(<<)";
   let geo = ellipsoid_of ellips in
   let w = sqrt (1. -. geo.e**2. *. sin phi ** 2.)in
   let n = geo.a /. w in
