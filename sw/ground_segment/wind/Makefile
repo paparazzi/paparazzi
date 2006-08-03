@@ -36,7 +36,7 @@ wind : wind.cmi
 wind : wind.ml
 	$(OCAMLC) -o $@ xml-light.cma glibivy-ocaml.cma lablgtk.cma str.cma lib-pprz.cma $< # To check
 	cat ../../../pprz_src_test.sh > $@
-	echo 'ocaml -I +lablgtk2 -I $$PAPARAZZI_SRC/sw/lib/ocaml xml-light.cma glibivy-ocaml.cma lablgtk.cma str.cma lib-pprz.cma $$PAPARAZZI_SRC/sw/ground_segment/wind/$< $$*' >> $@
+	echo 'ocaml -I +lablgtk2 -I $$PAPARAZZI_SRC/sw/lib/ocaml -I +xml-light xml-light.cma glibivy-ocaml.cma lablgtk.cma str.cma lib-pprz.cma $$PAPARAZZI_SRC/sw/ground_segment/wind/$< $$*' >> $@
 	chmod a+x $@
 
 
