@@ -305,27 +305,35 @@ let ac_msg = fun log ac_name a m ->
   | x -> prerr_endline (Printexc.to_string x)
 
 
+(** If you are 1km above the ground, an angle of 89 degrees between the vertical and
+your camera axis allow you to look 57km away: it should be enough ! **)
+let cam_max_angle = (Deg>>Rad) 89.
+
 let send_cam_status = fun a ->
   if a.gps_mode = gps_mode_3D then
     match a.nav_ref with
       None -> () (* No geo ref for camera target *)
     | Some nav_ref ->
 	let h = a.alt -. float (try Srtm.of_utm a.pos with _ -> 0) in
-	let dx = h *. tan (a.cam.phi -. a.roll)
-	and dy = h *. tan (a.cam.theta +. a.pitch) in
-	let alpha = -. a.course in
-	let east = dx *. cos alpha -. dy *. sin alpha
-	and north = dx *. sin alpha +. dy *. cos alpha in
-	let utm = Latlong.utm_add a.pos (east, north) in
-	let wgs84 = Latlong.of_utm WGS84 utm in
-	let utm_target = Latlong.utm_add nav_ref a.cam.target in
-	let twgs84 =  Latlong.of_utm WGS84 utm_target in
-	let values = ["ac_id", Pprz.String a.id; 
-		      "cam_lat", Pprz.Float ((Rad>>Deg)wgs84.posn_lat);
-		      "cam_long", Pprz.Float ((Rad>>Deg)wgs84.posn_long); 
-		      "cam_target_lat", Pprz.Float ((Rad>>Deg)twgs84.posn_lat);
-		      "cam_target_long", Pprz.Float ((Rad>>Deg)twgs84.posn_long)] in
-	Ground_Pprz.message_send my_id "CAM_STATUS" values
+	let phi_absolute = a.cam.phi -. a.roll
+	and theta_absolute = a.cam.theta +. a.pitch in
+	if phi_absolute > -. cam_max_angle && phi_absolute < cam_max_angle &&
+	  theta_absolute > -. cam_max_angle && theta_absolute < cam_max_angle then
+	  let dx = h *. tan phi_absolute
+	  and dy = h *. tan theta_absolute in
+	  let alpha = -. a.course in
+	  let east = dx *. cos alpha -. dy *. sin alpha
+	  and north = dx *. sin alpha +. dy *. cos alpha in
+	  let utm = Latlong.utm_add a.pos (east, north) in
+	  let wgs84 = Latlong.of_utm WGS84 utm in
+	  let utm_target = Latlong.utm_add nav_ref a.cam.target in
+	  let twgs84 =  Latlong.of_utm WGS84 utm_target in
+	  let values = ["ac_id", Pprz.String a.id; 
+			"cam_lat", Pprz.Float ((Rad>>Deg)wgs84.posn_lat);
+			"cam_long", Pprz.Float ((Rad>>Deg)wgs84.posn_long); 
+			"cam_target_lat", Pprz.Float ((Rad>>Deg)twgs84.posn_lat);
+			"cam_target_long", Pprz.Float ((Rad>>Deg)twgs84.posn_long)] in
+	  Ground_Pprz.message_send my_id "CAM_STATUS" values
 
 let send_if_calib = fun a ->
   let if_mode = get_indexed_value if_modes a.inflight_calib.if_mode in
