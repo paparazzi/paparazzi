@@ -25,4 +25,6 @@ var CDATA #REQUIRED
 min CDATA #REQUIRED
 max CDATA #REQUIRED
 step CDATA #IMPLIED
+strip_button CDATA #IMPLIED
+button_value CDATA #IMPLIED
 >

@@ -269,17 +269,6 @@ let create_ac = fun (geomap:G.widget) (acs_notebook:GPack.notebook) ac_id config
   let params = ac_menu_fact#add_check_item "A/C label" ~active:false in
   ignore (params#connect#toggled (fun () -> track#set_params_state params#active));
 
-  (** Build the XML flight plan, connect then "jump_to_block" *)
-  let fp_xml = ExtXml.child fp_xml_dump "flight_plan" in
-  let fp = load_mission ~editable:false color geomap fp_xml in
-  fp#connect_activated (fun node ->
-    if XmlEdit.tag node = "block" then
-      let block = XmlEdit.attrib node "name" in
-      let id = list_casso block blocks in
-      jump_to_block ac_id id);
-  ignore (reset_wp_menu#connect#activate (reset_waypoints fp));
-
-
   (** Add a new tab in the A/Cs notebook, with a colored label *)
   let eb = GBin.event_box () in
   let _label = GMisc.label ~text:name ~packing:eb#add () in
@@ -290,6 +279,35 @@ let create_ac = fun (geomap:G.widget) (acs_notebook:GPack.notebook) ac_id config
   let ac_notebook = GPack.notebook ~packing: ac_frame#add () in
   let visible = fun w ->
     ac_notebook#page_num w#coerce = ac_notebook#current_page in      
+
+  (** Add a strip and connect it to the A/C notebook *)
+  let select_this_tab =
+    let n = acs_notebook#page_num ac_frame#coerce in
+    fun () -> acs_notebook#goto_page n in
+  let strip = Strip.add config color select_this_tab center_ac commit_moves (mark geomap ac_id track !Plugin.frame) in
+
+
+  (** Build the XML flight plan, connect then "jump_to_block" *)
+  let fp_xml = ExtXml.child fp_xml_dump "flight_plan" in
+  let fp = load_mission ~editable:false color geomap fp_xml in
+  fp#connect_activated (fun node ->
+    if XmlEdit.tag node = "block" then
+      let block = XmlEdit.attrib node "name" in
+      let id = list_casso block blocks in
+      jump_to_block ac_id id);
+  ignore (reset_wp_menu#connect#activate (reset_waypoints fp));
+  
+  (** Add the short cut buttons in the strip *)
+  List.iter (fun b ->
+    try
+      let label = ExtXml.attrib b "strip_button"
+      and id = ExtXml.int_attrib b "no" in
+      let  b = GButton.button ~label () in
+      Strip.add_widget strip b#coerce;
+      ignore (b#connect#clicked (fun _ -> jump_to_block ac_id id))
+    with
+       _ -> ())
+    (Xml.children (ExtXml.child (ExtXml.child fp_xml_dump "flight_plan") "blocks"));
 
   (** Insert the flight plan tab *)
   let fp_label = GMisc.label ~text: "Flight Plan" () in
@@ -325,11 +343,13 @@ let create_ac = fun (geomap:G.widget) (acs_notebook:GPack.notebook) ac_id config
       let callback = fun idx value -> 
 	let vs = ["ac_id", Pprz.String ac_id; "index", Pprz.Int idx;"value", Pprz.Float value] in
 	Ground_Pprz.message_send "dl" "DL_SETTING" vs in
-      let settings_tab = new Pages.settings ~visible xml_settings callback in
+      let settings_tab = new Pages.settings ~visible xml_settings callback strip in
       let tab_label = (GMisc.label ~text:"Settings" ())#coerce in
       ac_notebook#append_page ~tab_label settings_tab#widget;
       Some settings_tab
-    with _ -> None in
+    with exc ->
+      prerr_endline (Printexc.to_string exc);
+      None in
   
   let rc_settings_page =
     try
@@ -340,12 +360,6 @@ let create_ac = fun (geomap:G.widget) (acs_notebook:GPack.notebook) ac_id config
       Some settings_tab
     with _ -> None in
   
-  (** Add a strip and connect it to the A/C notebook *)
-  let select_this_tab =
-    let n = acs_notebook#page_num ac_frame#coerce in
-    fun () -> acs_notebook#goto_page n in
-  let strip = Strip.add config color select_this_tab center_ac commit_moves (mark geomap ac_id track !Plugin.frame) in
-
 
   Hashtbl.add live_aircrafts ac_id { track = track; color = color; 
 				     fp_group = fp ; config = config ; 

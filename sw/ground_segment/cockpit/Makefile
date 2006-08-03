@@ -29,7 +29,7 @@ INCLUDES=-I +lablgtk2 -I ../../lib/ocaml
 LIBS=glibivy-ocaml.cma lablgtk.cma lib-pprz.cma lablgnomecanvas.cma xlib-pprz.cma
 CMXA=$(LIBS:.cma=.cmxa)
 
-ML= speech.ml horizon.ml pages.ml strip.ml plugin.ml sectors.ml map2d.ml editFP.ml live.ml gcs.ml
+ML= speech.ml horizon.ml strip.ml pages.ml plugin.ml sectors.ml map2d.ml editFP.ml live.ml gcs.ml
 MAIN=gcs
 CMO=$(ML:.ml=.cmo)
 CMX=$(ML:.ml=.cmx)
@@ -62,15 +62,18 @@ $(MAIN).opt : $(CMX)
 	@echo OOC $<
 	$(Q)$(OCAMLOPT) $(INCLUDES) -c $<
 
-gcs.cmo : pages.cmi speech.cmi editFP.cmi sectors.cmi
-pages.cmo pages.cmx : pages.cmi horizon.cmi
-live.cmo : plugin.cmi live.cmi strip.cmi speech.cmi pages.cmi
-map2d.cmo : map2d.cmi
-strip.cmo : strip.cmi
-speech.cmo : speech.cmi
-plugin.cmo : plugin.cmi
-editFP.cmo : editFP.cmi
-sectors.cmo : sectors.cmi
 
 clean:
 	rm -f *~* *.cm* *.o *.out *.opt map2d gcs
+
+
+#
+# Dependencies
+#
+
+.depend:
+	ocamldep *.ml* > .depend
+
+ifneq ($(MAKECMDGOALS),clean) 
+-include .depend
+endif

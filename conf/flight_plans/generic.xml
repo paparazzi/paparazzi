@@ -29,7 +29,7 @@
     <block NAME="stack 1">
       <circle RADIUS="estimator_z/2" WP="1"/>
     </block>
-    <block NAME="descent 0">
+    <block NAME="descent 0" strip_button="Descent">
       <circle RADIUS="estimator_z/2" WP="1" vmode="gaz" gaz="0.0" pitch="-0.3"/>
     </block>
     <block NAME="route12">

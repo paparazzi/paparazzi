@@ -87,7 +87,7 @@ let update_xml = fun xml_tree utm0 wp id ->
   if wp#deleted then begin
     XmlEdit.delete node
   end else
-    let utm = utm_of WGS84 (wp#pos) in
+    let utm = utm_of WGS84 wp#pos in
     try
       let (dx, dy) = utm_sub utm utm0 in
       XmlEdit.set_attribs node ["name",wp#name; "x",sof dx; "y",sof dy; "alt", sof wp#alt]

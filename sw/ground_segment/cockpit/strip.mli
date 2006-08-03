@@ -7,3 +7,4 @@ val set_label : t -> string -> string -> unit
 val set_color : t -> string -> string -> unit
 val set_bat : t -> float -> unit
 val scrolled : GBin.scrolled_window
+val add_widget : t -> GObj.widget -> unit

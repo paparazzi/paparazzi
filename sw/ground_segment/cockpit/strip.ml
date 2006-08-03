@@ -10,7 +10,8 @@ let table = GPack.table ~rows: 1 ~columns: 1 ~row_spacings: 5 ~packing: (scrolle
 
 type t = {
     gauge: GRange.progress_bar ;
-    labels: (string * (GBin.event_box * GMisc.label)) list
+    labels: (string * (GBin.event_box * GMisc.label)) list;
+    buttons_box : GPack.box
   }
 
 let labels_name =  [| 
@@ -42,7 +43,8 @@ let add config color select center_ac commit_moves mark =
 
   (* frame of the strip *)
   let frame = GBin.frame ~shadow_type: `IN ~packing: (widget#attach ~top: (strip_number) ~left: 0) () in
-  let strip = GPack.table ~rows:2 ~columns: 2 ~col_spacings: 10 ~packing: frame#add () in
+  let framevb = GPack.vbox ~packing:frame#add () in
+  let strip = GPack.table ~rows:2 ~columns: 2 ~col_spacings: 10 ~packing: framevb#add () in
   ignore (GMisc.label ~text: (ac_name) ~packing: (strip#attach ~top: 0 ~left: 0) ());
   
   let plane_color = GBin.event_box ~width:10 ~height:10 ~packing:(strip#attach ~top:0 ~left: 1) () in
@@ -87,7 +89,9 @@ let add config color select center_ac commit_moves mark =
   ignore (b#connect#clicked  ~callback:commit_moves);
   let b = GButton.button ~label:"Mark" ~packing:(left_box#attach ~top:4 ~left:4 ~right:6) () in
   ignore (b#connect#clicked  ~callback:mark);
-  {gauge=pb ; labels= !strip_labels}
+
+  let hbox = GPack.hbox ~packing:framevb#add () in
+  {gauge=pb ; labels= !strip_labels; buttons_box = hbox}
 
 
     (** set a label *)
@@ -107,3 +111,6 @@ let set_bat strip value =
   let f = max 0. (min 1. f) in
   strip.gauge#set_fraction f
 
+
+let add_widget = fun strip widget ->
+  strip.buttons_box#add widget

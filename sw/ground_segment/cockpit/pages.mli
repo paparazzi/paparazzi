@@ -22,7 +22,7 @@ class pfd : ?visible:(GBin.frame -> bool) -> GBin.frame ->
     method set_attitude : float -> float -> unit
   end
 
-class settings : ?visible:(GObj.widget -> bool) -> Xml.xml list -> (int -> float -> unit) ->
+class settings : ?visible:(GObj.widget -> bool) -> Xml.xml list -> (int -> float -> unit) -> Strip.t ->
   object
     method length : int
     method set : int -> float -> unit

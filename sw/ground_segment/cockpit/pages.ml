@@ -179,7 +179,7 @@ class misc ~packing (widget: GBin.frame) =
 (*****************************************************************************)
 (* Dataling settings paged                                                   *)
 (*****************************************************************************)
-let one_setting = fun i do_change packing s (tooltips:GData.tooltips) ->
+let one_setting = fun i do_change packing s (tooltips:GData.tooltips) strip ->
   let f = fun a -> float_of_string (ExtXml.attrib s a) in
   let lower = f "min"
   and upper = f "max"
@@ -189,7 +189,8 @@ let one_setting = fun i do_change packing s (tooltips:GData.tooltips) ->
   let text = ExtXml.attrib s "var" in
   let _l = GMisc.label ~width:100 ~text ~packing:hbox#pack () in
   let _v = GMisc.label ~width:50 ~text:"N/A" ~packing:hbox#pack () in
-  (** For a small number of values, radio buttons *)
+
+  (** For a small number of values, radio buttons, else a slider *)
   let _n = truncate ((upper -. lower) /. step_incr) in
   let commit =
     if step_incr = 1. && upper -. lower <= 2. then
@@ -231,10 +232,20 @@ let one_setting = fun i do_change packing s (tooltips:GData.tooltips) ->
     | Some v -> do_change i v in
   ignore (undo_but#connect#clicked ~callback);
   tooltips#set_tip undo_but#coerce ~text:"Undo";
+  begin
+    try
+      let label = ExtXml.attrib s "strip_button"
+      and sp_value = f "button_value" in
+      let b = GButton.button ~label () in
+      Strip.add_widget strip b#coerce;
+      ignore (b#connect#clicked (fun _ -> do_change i sp_value))
+    with
+      ExtXml.Error _ -> ()
+  end;
   _v  
   
   
-let rec build_settings = fun do_change i flat_list xml_settings packing tooltips ->
+let rec build_settings = fun do_change i flat_list xml_settings packing tooltips strip ->
   match xml_settings with
     [] -> ()
   | x::xs ->
@@ -242,7 +253,7 @@ let rec build_settings = fun do_change i flat_list xml_settings packing tooltips
       if ExtXml.tag_is x "dl_setting" then
 	List.iter
 	  (fun s ->
-	    let label_value = one_setting !i do_change packing s tooltips in
+	    let label_value = one_setting !i do_change packing s tooltips strip in
 	    flat_list := label_value :: !flat_list;
 	    incr i)
 	  xml_settings
@@ -258,20 +269,20 @@ let rec build_settings = fun do_change i flat_list xml_settings packing tooltips
 	  let tab_label = (GMisc.label ~text ())#coerce in
 	  n#append_page ~tab_label vbox#coerce;
 
-	  build_settings do_change i flat_list (Xml.children p) vbox#pack tooltips)
+	  build_settings do_change i flat_list (Xml.children p) vbox#pack tooltips strip)
 	  xml_settings
       end
   
   
 
 
-class settings = fun ?(visible = fun _ -> true) xml_settings do_change ->
+class settings = fun ?(visible = fun _ -> true) xml_settings do_change strip ->
   let sw = GBin.scrolled_window ~hpolicy:`AUTOMATIC ~vpolicy:`AUTOMATIC () in
   let vbox = GPack.vbox ~packing:sw#add_with_viewport () in
   let tooltips = GData.tooltips () in
   let i = ref 0 and l = ref [] in
   let current_values =
-    build_settings do_change i l xml_settings vbox#add tooltips;
+    build_settings do_change i l xml_settings vbox#add tooltips strip;
     Array.of_list (List.rev !l) in
   object (self)
     method widget = sw#coerce

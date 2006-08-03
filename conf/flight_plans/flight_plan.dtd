@@ -55,6 +55,7 @@ alt CDATA #IMPLIED>
 
 <!ATTLIST block 
 name CDATA #REQUIRED
+strip_button CDATA #IMPLIED
 description CDATA #IMPLIED>
 
 <!ATTLIST while cond CDATA #IMPLIED>
