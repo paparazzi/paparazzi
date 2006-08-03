@@ -24,7 +24,7 @@ include ../../../conf/Makefile.local
 
 all: wind
 
-INCLUDES= -I ../../lib/ocaml -I +lablgtk2
+INCLUDES= -I ../../lib/ocaml -I +lablgtk2 -I +xml-light
 
 OCAMLC= ocamlc $(INCLUDES)
 OCAMLMLI= ocamlc $(INCLUDES)

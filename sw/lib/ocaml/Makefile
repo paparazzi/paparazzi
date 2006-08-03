@@ -22,8 +22,8 @@
 
 Q=@
 
-INCLUDES=
-XINCLUDES= -I +lablgl -I +lablgtk2
+INCLUDES= -I +xml-light
+XINCLUDES= -I +lablgl -I +lablgtk2 -I +xml-light
 OCAMLC=ocamlc $(INCLUDES)
 OCAMLOPT=ocamlopt $(INCLUDES)
 
@@ -44,7 +44,7 @@ opt : all lib-pprz.cmxa xlib-pprz.cmxa
 
 lib-pprz.cma : $(CMO)
 	@echo OL $@
-	$(Q)ocamlmklib -o lib-pprz str.cma unix.cma xml-light.cma $^
+	$(Q)ocamlmklib -I +xml-light -o lib-pprz str.cma unix.cma xml-light.cma $^
 
 lib-pprz.cmxa : $(CMX)
 	@echo OOL $@
@@ -52,11 +52,11 @@ lib-pprz.cmxa : $(CMX)
 
 xlib-pprz.cma : $(XCMO)
 	@echo OL $@
-	$(Q)ocamlmklib -o xlib-pprz $^
+	$(Q)ocamlmklib -I +xml-light -o xlib-pprz $^
 
 xlib-pprz.cmxa : $(XCMX)
 	@echo OOL $@
-	$(Q)ocamlmklib -o xlib-pprz $^
+	$(Q)ocamlmklib -I +xml-light -o xlib-pprz $^
 
 xml_get.out : lib-pprz.cma xml_get.cmo
 	@echo OL $@

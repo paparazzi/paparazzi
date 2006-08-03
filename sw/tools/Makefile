@@ -23,7 +23,7 @@
 Q=@
 
 OCAML=ocaml
-OCAMLC=ocamlc -I ../lib/ocaml
+OCAMLC=ocamlc -I ../lib/ocaml -I +xml-light
 OCAMLLEX=ocamllex
 OCAMLYACC=ocamlyacc
 

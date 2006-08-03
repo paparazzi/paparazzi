@@ -20,7 +20,7 @@
 # Boston, MA 02111-1307, USA.  
 # 
 
-OCAMLC = ocamlc
+OCAMLC = ocamlc -I +xml-light
 OCAMLOPT = ocamlopt
 
 all: play

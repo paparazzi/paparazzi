@@ -32,8 +32,8 @@ SIMSCMO=$(SIMSML:%.ml=%.cmo)
 SIMSCMX=$(SIMSML:%.ml=%.cmx)
 
 
-OCAMLC = ocamlc
-OCAMLOPT=ocamlopt -p
+OCAMLC = ocamlc -I +xml-light
+OCAMLOPT=ocamlopt -I +xml-light -p
 INCLUDES= -I +lablgtk2 -I ../lib/ocaml
 
 AIRBORNE = ../airborne

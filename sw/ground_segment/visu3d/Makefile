@@ -1,5 +1,5 @@
 OCAMLOPT0 = ocamlopt
-OCAMLC    = ocamlc
+OCAMLC    = ocamlc -I +xml-light
 
 MLFLAGS   = -I +lablgtk2 -I +lablGL -I +camlimages -I ../../lib/ocaml
 

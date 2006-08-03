@@ -35,7 +35,7 @@ clean:
 OCAMLC = ocamlc
 OCAMLOPT = ocamlopt
 OCAMLLIB = ../../lib/ocaml
-INCLUDES= -I $(OCAMLLIB) -I ../multimon -I +lablgtk2
+INCLUDES= -I $(OCAMLLIB) -I ../multimon -I +lablgtk2 -I +xml-light
 LIBPPRZCMA=$(OCAMLLIB)/lib-pprz.cma
 
 $(VAR)/boa.conf :$(CONF)/boa.conf

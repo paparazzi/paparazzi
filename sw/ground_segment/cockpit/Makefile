@@ -23,8 +23,8 @@
 # Quiet compilation
 Q=@
 
-OCAMLC=ocamlc -thread
-OCAMLOPT=ocamlopt -thread
+OCAMLC=ocamlc -thread -I +xml-light
+OCAMLOPT=ocamlopt -thread -I +xml-light
 INCLUDES=-I +lablgtk2 -I ../../lib/ocaml
 LIBS=glibivy-ocaml.cma lablgtk.cma lib-pprz.cma lablgnomecanvas.cma xlib-pprz.cma
 CMXA=$(LIBS:.cma=.cmxa)
