@@ -241,8 +241,7 @@ let utm_of geo ({posn_long = lambda; posn_lat = phi} as pos) =
     invalid_arg "Latlong.utm_of";
   let ellipsoid =  ellipsoid_of geo in
   let k0 = 0.9996
-  and xs = 500000.
-  and ys = if phi > 0. then 0. else 10000000. in
+  and xs = 500000. in
   let lambda_deg = truncate (floor ((Rad>>Deg)lambda)) in
   let zone = (lambda_deg + 180) / 6 + 1 in
   let lambda_c = (Deg>>Rad) (float (lambda_deg - ((lambda_deg mod 6)+6)mod 6 + 3)) in
@@ -260,10 +259,10 @@ let utm_of geo ({posn_long = lambda; posn_lat = phi} as pos) =
     z' := C.add !z' (C.scal c.(k) (C.sin (C.scal (float (2*k)) z)))
   done;
   z' := C.scal n !z';
-  { utm_zone = zone; utm_x = xs +. C.im !z'; utm_y = ys +. C.re !z' };;
+  { utm_zone = zone; utm_x = xs +. C.im !z'; utm_y = C.re !z' };;
 
 let of_utm geo { utm_zone = f; utm_x = x; utm_y = y } =
-  if x < 0. || x > 1e6 || y < 0. || y > 10e6 || f < 0 || f > 60 then
+  if x < 0. || x > 1e6 || y < -10e6 || y > 10e6 || f < 0 || f > 60 then
     invalid_arg "Latlong.of_utm";
   let ellipsoid =  ellipsoid_of geo in
   let k0 = 0.9996
