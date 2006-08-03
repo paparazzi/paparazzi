@@ -110,7 +110,7 @@ class h = fun ?packing size  ->
   let xc = left_margin +. speed_width +. size2
   and yc = size2*.1.1 in
 
-  let text_props = [`FONT "Sans 10"; `ANCHOR `CENTER; `FILL_COLOR "white"] in
+  let text_props = [`FONT "Sans 8"; `ANCHOR `CENTER; `FILL_COLOR "white"] in
 
   let disc = GnoCanvas.group canvas#root in
   let _top = GnoCanvas.rect ~x1:(-.size2) ~y1:(-.size2*.5.) ~x2:size2 ~y2:0. ~fill_color:"#0099cb" disc
@@ -144,7 +144,7 @@ class h = fun ?packing size  ->
   let n = 20 in
   let arc_above = arc n size2 pi6 (5.*.pi6) in
   let (x, _y) = arc_above.(n-1) in
-  let rest = [|(x, 0.);(size, 0.); (size, 10.*.size); (-.size, 10.*.size);(-.size,0.);(-.x,0.)|] in
+  let rest = [|(x, 0.);(10.*.size, 0.); (10.*.size, 10.*.size); (-.size, 10.*.size);(-.size,0.);(-.x,0.)|] in
   let points = floats_of_points (Array.append arc_above rest) in
   let _ = 
     ignore (GnoCanvas.polygon ~fill_color:"black" ~points mask);
