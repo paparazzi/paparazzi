@@ -45,6 +45,7 @@
 #include "uart.h"
 
 #include "control_grz.h"
+#include "settings.h"
 
 #define MOfCm(_x) (((float)_x)/100.)
 
