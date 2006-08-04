@@ -1,6 +1,12 @@
 #ifndef CONFIG_CLASSIX_H
 #define CONFIG_CLASSIX_H
 
+#ifdef SITL
+/* Dummy definitions: adc are unused anyway */
+#define AdcBank0(x) (x)
+#define AdcBank1(x) (x)
+#endif
+
 /* Master oscillator freq.       */
 #define FOSC (12000000) 
 /* PLL multiplier                */
@@ -13,6 +19,8 @@
 /* Peripheral bus clock freq.    */
 #define PCLK (CCLK / PBSD_VAL) 
 
+
+
 #ifdef FBW
 #define LED_1_BANK 1
 #define LED_1_PIN 24
@@ -21,10 +29,11 @@
 #define LED_2_PIN 31
 
 
-/* PPM : rc rx on P0.16 : FBW_RC1 connector */
-//#define PPM_PINSEL PINSEL1
-//#define PPM_PINSEL_VAL 0x03
-//#define PPM_PINSEL_BIT 0
+/* PPM : rc rx on P0.16 : FBW_RC1 connector
+#define PPM_PINSEL PINSEL1
+#define PPM_PINSEL_VAL 0x03
+#define PPM_PINSEL_BIT 0
+*/
 
 
 /* PPM : rc rx on P0.6 : FBW_RC0 connector */
@@ -43,33 +52,31 @@
 /* reset on P1.25 */
 #define SERVO_RESET_PIN 25
 #define SERVO_RESET_PINSEL PINSEL2
-//#define SERVO_RESET_PINSEL_VAL 0
-//#define SERVO_RESET_PINSEL_BIT 3
-
-/* ADCs : supply on AD0.6 ( P0.4 ) */
-//#define USE_AD0_6
-
 
 /* ADCs */
 /* AD0.6 ( on pin P0.4 ) is supply monitoring */
-//#define ARM7_TMP_ADC
 #define USE_AD0_6
-
 
 #endif /* FBW */
 
+
+
 #ifdef AP
+
+#ifndef SITL
+/* sitl handles this board as a mono-processor one: unfortunately these
+   definitions are already in FBW */
+
 #define LED_1_BANK 1
 #define LED_1_PIN 18
 
 #define LED_2_BANK 1
 #define LED_2_PIN 19
 
-//#define LED_3_BANK 0
-//#define LED_3_PIN 2
-
 #define LED_3_BANK 1
 #define LED_3_PIN 20
+
+#endif /* !SITL */
 
 #endif /* AP */
 

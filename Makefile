@@ -202,8 +202,9 @@ help:
 
 
 test_all_example_airframes:
-	make AIRCRAFT=TJ1     clean_ac ap
+	make AIRCRAFT=TJ1     clean_ac fbw ap sim
 	make AIRCRAFT=MJ4     clean_ac ap
+	make AIRCRAFT=MJ5     clean_ac ap sim
 	make AIRCRAFT=Slayer  clean_ac ap
 	make AIRCRAFT=Plaster clean_ac sim ac	
 	make AIRCRAFT=Twin4   clean_ac ac

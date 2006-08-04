@@ -5,10 +5,7 @@
 /* Dummy definitions: adc are unused anyway */
 #define AdcBank0(x) (x)
 #define AdcBank1(x) (x)
-#else /* SITL */
-#include "types.h"
-#include "LPC21xx.h"
-#endif /* !SITL */
+#endif /* SITL */
 
 /* Master oscillator freq.       */
 #define FOSC (12000000) 

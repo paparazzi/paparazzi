@@ -429,11 +429,11 @@ void periodic_task_ap( void ) {
 #ifdef LIGHT_PIN_1
   case 2:
     if (light_mode == LIGHT_MODE_OFF)
-      LED_ON(LIGHT_PIN_1);
+      LED_ON(LIGHT_PIN_1)
     else if (light_mode == LIGHT_MODE_ON)
-      LED_OFF(LIGHT_PIN_1);
+      LED_OFF(LIGHT_PIN_1)
     else
-      LED_TOGGLE(LIGHT_PIN_1);
+      LED_TOGGLE(LIGHT_PIN_1)
 #endif /* LIGHT_PIN_1 */
 
     /*  default: */
