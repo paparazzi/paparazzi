@@ -1,8 +1,14 @@
 #ifndef CONFIG_TINY_H
 #define CONFIG_TINY_H
 
+#ifdef SITL
+/* Dummy definitions: adc are unused anyway */
+#define AdcBank0(x) (x)
+#define AdcBank1(x) (x)
+#else /* SITL */
 #include "types.h"
 #include "LPC21xx.h"
+#endif /* !SITL */
 
 /* Master oscillator freq.       */
 #define FOSC (12000000) 
@@ -52,6 +58,7 @@
 #define PPM_PINSEL_BIT 12
 
 /* ADC */
+
 #define ADC_0 AdcBank0(3)
 #define ADC_1 AdcBank0(2)
 #define ADC_2 AdcBank0(1)
