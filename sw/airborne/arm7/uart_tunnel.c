@@ -1,5 +1,7 @@
 
-#include "lpc2138.h"
+#include "LPC21xx.h"
+
+#include "std.h"
 
 #define TXD0_PIN 0
 #define RXD0_PIN 1
@@ -8,19 +10,22 @@
 
 int main (int argc, char** argv) {
   /* TXD0 and TXD1 output */
-  IODIR0 |= (1<<TXD0_PIN)|(1<<TXD1_PIN);
+  SetBit(IO0DIR, TXD0_PIN);
+  SetBit(IO0DIR, TXD1_PIN);
+
   /* RXD0 and RXD1 input */
-  IODIR0 &= ~((1<<RXD0_PIN)|(1<<RXD1_PIN));
+  ClearBit(IO0DIR,RXD0_PIN);
+  ClearBit(IO0DIR,RXD1_PIN);
 
   while(1) {
-    if (IOPIN0 & (1<<RXD0_PIN))
-      IOSET0 = (1<<TXD1_PIN);
+    if (bit_is_set(IO0PIN,RXD0_PIN))
+      SetBit(IO0SET, TXD1_PIN);
     else
-      IOCLR0 = (1<<TXD1_PIN);
-    if (IOPIN0 & (1<<RXD1_PIN))
-      IOSET0 = (1<<TXD0_PIN);
+      SetBit(IO0CLR, TXD1_PIN);
+    if (bit_is_set(IO0PIN, RXD1_PIN))
+      SetBit(IO0SET, TXD0_PIN);
     else
-      IOCLR0 = (1<<TXD0_PIN);
+      SetBit(IO0CLR, TXD0_PIN);
   }
   return 0;
 }
