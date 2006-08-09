@@ -35,7 +35,6 @@ AIRBORNE=sw/airborne
 COCKPIT=sw/ground_segment/cockpit
 TMTC=sw/ground_segment/tmtc
 MULTIMON=sw/ground_segment/multimon
-WIND=sw/ground_segment/wind
 VISU3D=sw/ground_segment/visu3d
 LOGALIZER=sw/logalizer
 SIMULATOR=sw/simulator
@@ -45,7 +44,7 @@ MAKE=make
 
 all: static
 
-static : lib tools cockpit visu3d multimon tmtc logalizer sim_static wind static_h
+static : lib tools cockpit visu3d multimon tmtc logalizer sim_static static_h
 
 conf: conf/conf.xml conf/control_panel.xml
 
@@ -86,8 +85,6 @@ multimon:
 
 visu3d: lib
 	cd $(VISU3D); $(MAKE)
-wind:
-	cd $(WIND); $(MAKE)
 
 %.compile: ac_h
 	cd $(AIRBORNE); $(MAKE) TARGET=$* all
