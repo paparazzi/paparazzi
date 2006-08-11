@@ -174,8 +174,7 @@ install :
 	make -f conf/Makefile.install PREFIX=$(PREFIX)
 
 uninstall :
-	./Makefile.pl -uninstall -destdir $(DESTDIR)
-
+	make -f conf/Makefile.install PREFIX=$(PREFIX) uninstall
 
 DISTRO=etch
 deb :

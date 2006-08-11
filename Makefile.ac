@@ -28,8 +28,6 @@ CONF_XML=$(CONF)/conf.xml
 MESSAGES_XML = $(CONF)/messages.xml
 ACINCLUDE = $(PAPARAZZI_HOME)/var/$(AIRCRAFT)
 AIRFRAME_H=$(ACINCLUDE)/airframe.h
-CONTROL_H=$(ACINCLUDE)/control.h
-CONTROL_C=$(ACINCLUDE)/ap/control.c
 PERIODIC_H=$(ACINCLUDE)/periodic.h
 RADIO_H=$(ACINCLUDE)/radio.h
 FLIGHT_PLAN_H=$(ACINCLUDE)/flight_plan.h
@@ -40,7 +38,7 @@ MAKEFILE_AC=$(ACINCLUDE)/Makefile.ac
 # "make Q=''" to get full echo
 Q=@
 
-all: $(AIRFRAME_H) $(RADIO_H) $(CONTROL_H) $(CONTROL_C) $(FLIGHT_PLAN_H) $(FLIGHT_PLAN_XML) $(SETTINGS_H) $(MAKEFILE_AC) $(PERIODIC_H)
+all: $(AIRFRAME_H) $(RADIO_H) $(FLIGHT_PLAN_H) $(FLIGHT_PLAN_XML) $(SETTINGS_H) $(MAKEFILE_AC) $(PERIODIC_H)
 
 $(AIRFRAME_H) : $(CONF)/$(AIRFRAME) $(CONF_XML)
 	@echo BUILD $@
@@ -55,17 +53,6 @@ $(RADIO_H) : $(CONF)/$(RADIO) $(CONF_XML) $(TOOLS)/gen_radio.out
 $(PERIODIC_H) : $(MESSAGES_XML) $(CONF_XML) $(CONF)/$(TELEMETRY)
 	@echo BUILD $@
 	$(Q)$(TOOLS)/gen_periodic.out $(MESSAGES_XML) $(CONF)/$(TELEMETRY) > $@
-	$(Q)chmod a+r $@
-
-$(CONTROL_H) : $(CONF)/$(AIRFRAME) $(CONF_XML)
-	@echo BUILD $@
-	$(Q)$(TOOLS)/gen_control.out h $< > $@
-	$(Q)chmod a+r $@
-
-$(CONTROL_C) : $(CONF)/$(AIRFRAME) $(CONF_XML)
-	@echo BUILD $@
-	$(Q)mkdir -p $(ACINCLUDE)/ap
-	$(Q)$(TOOLS)/gen_control.out c $< > $@
 	$(Q)chmod a+r $@
 
 $(FLIGHT_PLAN_H) : $(CONF)/$(FLIGHT_PLAN) $(CONF_XML) $(TOOLS)/gen_flight_plan.out

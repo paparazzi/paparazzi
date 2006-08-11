@@ -1,3 +1,9 @@
+paparazzi (3.1-rc1) unstable; urgency=low
+
+  * Introduction of binary package.
+
+ -- Antoine Drouin <poine@recherche.enac.fr>  Fri,  04 Aug 2006 12:21:28 +0100
+
 paparazzi (2.99-1) unstable; urgency=low
 
   * Initial Release.
