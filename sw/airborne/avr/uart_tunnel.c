@@ -1,9 +1,9 @@
 #include <inttypes.h>
 #include <avr/io.h>
+#if (__GNUC__ == 3)
 #include <avr/signal.h>
+#endif
 #include <avr/interrupt.h>
-#include <math.h>
-
 
 #define UART_PC_PORT    PORTE
 #define UART_PC_DDR     DDRE

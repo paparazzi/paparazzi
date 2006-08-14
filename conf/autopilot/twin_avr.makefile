@@ -24,3 +24,4 @@ tunnel.ARCHDIR = $(ARCHI)
 tunnel.ARCH = atmega128
 tunnel.TARGET = autopilot
 tunnel.TARGETDIR = autopilot
+tunnel.srcs += $(SRC_ARCH)/uart_tunnel.c
