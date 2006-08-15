@@ -3,7 +3,6 @@
 <control_panel name="paparazzi control panel">
 
   <section name="variables">
-    <variable name="render" value="1"/>
     <variable name="downlink_serial_port" value="/dev/ttyUSB0"/>
     <variable name="fbw_serial_port"      value="/dev/ttyS1"/>
     <variable name="ap_serial_port"       value="/dev/ttyS0"/>
@@ -18,10 +17,6 @@
     </program>
     <program name="link" command="sw/ground_segment/tmtc/link">
       <arg flag="-b" variable="ivy_bus"/>
-    </program>
-    <program name="cockpit" command="sw/ground_segment/cockpit/cockpit.pl">
-      <arg flag="-b" variable="ivy_bus"/>
-      <arg flag="-r" variable="render"/>
     </program>
     <program name="gcs" command="sw/ground_segment/cockpit/gcs">
       <arg flag="-b" variable="ivy_bus"/>
@@ -65,10 +60,6 @@
     <session name=" Sim1@Muret">
       <program name="server"><arg flag="-n"/></program>
       <program name="sim"><arg flag="-a" constant="Twin3"/></program>
-      <program name="cockpit">
-        <arg flag="-render" constant="1"/>     
-        <arg flag="-vertical" constant="1"/>
-      </program>
       <program name="gcs">
         <arg flag="-mercator" constant=""/>
         <arg flag="-ref" constant="WGS84 43.4623 1.2730"/>
