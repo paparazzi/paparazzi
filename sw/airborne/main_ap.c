@@ -90,7 +90,7 @@ uint8_t vsupply;
 
 static uint8_t  mcu1_status, mcu1_ppm_cpt;
 
-static bool_t kill_throttle = FALSE;
+bool_t kill_throttle = FALSE;
 
 float slider_1_val, slider_2_val;
 

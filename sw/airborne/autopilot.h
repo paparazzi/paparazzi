@@ -53,6 +53,7 @@
         (pprz > TRESHOLD1 ? PPRZ_MODE_AUTO1 : PPRZ_MODE_MANUAL))
 
 extern uint8_t pprz_mode;
+extern bool_t kill_throttle;
 
 
 #define VERTICAL_MODE_MANUAL      0

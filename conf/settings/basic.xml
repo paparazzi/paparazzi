@@ -10,6 +10,7 @@
     <dl_settings NAME="mode">
       <dl_setting MAX="2" MIN="0" STEP="1" VAR="pprz_mode" strip_button="AUTO2" button_value="2"/>
       <dl_setting MAX="1" MIN="0" STEP="1" VAR="launch" strip_button="Launch" button_value="1"/>
+      <dl_setting MAX="1" MIN="0" STEP="1" VAR="kill_throttle"/>
     </dl_settings>
   </dl_settings>
 </settings>
