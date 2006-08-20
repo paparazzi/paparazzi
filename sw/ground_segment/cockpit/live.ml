@@ -44,7 +44,8 @@ type aircraft = {
     rc_settings_page : Pages.rc_settings option;
     strip : Strip.t;
     mutable first_pos : bool;
-    mutable last_block_name : string
+    mutable last_block_name : string;
+    mutable in_kill_mode : bool
   }
 
 let live_aircrafts = Hashtbl.create 3
@@ -52,32 +53,14 @@ let get_ac = fun vs ->
   let ac_id = Pprz.string_assoc "ac_id" vs in
   Hashtbl.find live_aircrafts ac_id
 
-let aircraft_pos_msg = fun track wgs84 heading altitude speed climb ->
-  let h = 
-    try
-      Srtm.of_wgs84 wgs84
-    with
-      _ -> truncate altitude in
-  track#move_icon wgs84 heading altitude (float_of_int h) speed climb
-
-let carrot_pos_msg = fun track wgs84 ->
-  track#move_carrot wgs84
-
-let cam_pos_msg = fun track wgs84 target_wgs84 ->
-  track#move_cam wgs84 target_wgs84
-
-let circle_status_msg = fun track wgs84 radius ->
-  track#draw_circle wgs84 radius
-
-let segment_status_msg = fun track geo1 geo2 ->
-  track#draw_segment geo1 geo2
-
-let survey_status_msg = fun track geo1 geo2 ->
-  track#draw_zone geo1 geo2
-
-let ap_status_msg = fun track flight_time ->
-  track#update_ap_status flight_time
-    
+let log_and_say = 
+  let last = ref "" in
+  fun (a:Pages.alert) s ->
+    if s <> !last then begin
+      a#add s;
+      Speech.say s;
+      last := s
+    end
 
 let show_mission = fun ac on_off ->
   let a = Hashtbl.find live_aircrafts ac in
@@ -373,8 +356,13 @@ let create_ac = fun (geomap:G.widget) (acs_notebook:GPack.notebook) ac_id config
 				     dl_settings_page = dl_settings_page;
 				     rc_settings_page = rc_settings_page;
 				     strip = strip; first_pos = true;
-				     last_block_name = ""
+				     last_block_name = "";
+				     in_kill_mode = false
 				   }
+
+let ok_color = "green"
+let warning_color = "orange"
+let alert_color = "red"
 
     (** Bind to message while catching all the esceptions of the callback *)
 let safe_bind = fun msg cb ->
@@ -412,9 +400,8 @@ let get_fbw_msg = fun _sender vs ->
   Strip.set_label ac.strip "RC" status;
   Strip.set_color ac.strip "RC"
     (match status with
-      "LOST" -> "orange"
-    | "REALLY_LOST" -> "red" 
-    | _ -> "white")
+      "LOST" | "REALLY_LOST" -> warning_color 
+    | _ -> ok_color)
 
     
 
@@ -474,38 +461,38 @@ let highlight_fp = fun ac b s ->
   end
 
 
-let listen_flight_params = fun geomap auto_center_new_ac ->
+let listen_flight_params = fun geomap auto_center_new_ac alert ->
   let get_fp = fun _sender vs ->
     let ac = get_ac vs in
     let pfd_page = ac.pfd_page in
-
-    pfd_page#set_attitude (Pprz.float_assoc "roll" vs) (Pprz.float_assoc "pitch" vs);
-    pfd_page#set_alt (Pprz.float_assoc "alt" vs);
-    pfd_page#set_climb (Pprz.float_assoc "climb" vs);
-    pfd_page#set_speed (Pprz.float_assoc "speed" vs);
-
     let a = fun s -> Pprz.float_assoc s vs in
-    let wgs84 = { posn_lat = (Deg>>Rad)(a "lat"); posn_long = (Deg>>Rad)(a "long") } in
-    aircraft_pos_msg ac.track wgs84 (a "course") (a "alt")  (a "speed") (a "climb");
+    let alt = a "alt"
+    and climb = a "climb"
+    and speed = a "speed" in
+    pfd_page#set_attitude (a "roll") (a "pitch");
+    pfd_page#set_alt alt;
+    pfd_page#set_climb climb;
+    pfd_page#set_speed speed;
+
+    let wgs84 = { posn_lat=(Deg>>Rad)(a "lat"); posn_long = (Deg>>Rad)(a "long") } in
+    ac.track#move_icon wgs84 (a "course") alt speed climb;
 
     if auto_center_new_ac && ac.first_pos then begin
       center geomap ac.track ();
       ac.first_pos <- false
     end;
 
-    let set_label lbl_name field_name =
+    let set_label lbl_name value =
       let s = 
-	if (a field_name) < 0. 
-	then 
-	  "- "^(sprintf "%.1f" (abs_float (a field_name)))
-	else
-	  sprintf "%.1f" (a field_name)
+	if value < 0. 
+	then sprintf "- %.1f" (abs_float value)
+	else sprintf "%.1f" value
       in
       Strip.set_label ac.strip lbl_name s
     in
-    set_label "alt" "alt";
-    set_label "speed" "speed";
-    set_label "climb" "climb"
+    set_label "alt" alt;
+    set_label "speed" speed;
+    set_label "climb" climb
   in
   safe_bind "FLIGHT_PARAM" get_fp;
 
@@ -513,7 +500,7 @@ let listen_flight_params = fun geomap auto_center_new_ac ->
     let ac = get_ac vs in
     let a = fun s -> Pprz.float_assoc s vs in
     let wgs84 = { posn_lat = (Deg>>Rad)(a "target_lat"); posn_long = (Deg>>Rad)(a "target_long") } in
-    carrot_pos_msg ac.track wgs84;
+    ac.track#move_carrot wgs84;
     let cur_block = Pprz.int_assoc "cur_block" vs
     and cur_stage = Pprz.int_assoc "cur_stage" vs in
     highlight_fp ac cur_block cur_stage;
@@ -523,7 +510,7 @@ let listen_flight_params = fun geomap auto_center_new_ac ->
     set_label "/" "target_climb";
     let b = List.assoc cur_block ac.blocks in
     if b <> ac.last_block_name then begin
-      Speech.say (sprintf "%s, %s" ac.ac_name b);
+      log_and_say alert (sprintf "%s, %s" ac.ac_name b);
       ac.last_block_name <- b;
       let b = String.sub b 0 (min 10 (String.length b)) in
       Strip.set_label ac.strip "block_name" b
@@ -535,10 +522,10 @@ let listen_flight_params = fun geomap auto_center_new_ac ->
     let ac_id = Pprz.string_assoc "ac_id" vs in
     let ac = Hashtbl.find live_aircrafts ac_id in
     let a = fun s -> Pprz.float_assoc s vs in
-    let wgs84 = { posn_lat = (Deg>>Rad)(a "cam_lat"); posn_long = (Deg>>Rad)(a "cam_long") }
+    let cam_wgs84 = { posn_lat = (Deg>>Rad)(a "cam_lat"); posn_long = (Deg>>Rad)(a "cam_long") }
     and target_wgs84 = { posn_lat = (Deg>>Rad)(a "cam_target_lat"); posn_long = (Deg>>Rad)(a "cam_target_long") } in
     
-    cam_pos_msg ac.track wgs84 target_wgs84
+    ac.track#move_cam cam_wgs84 target_wgs84
   in
   safe_bind "CAM_STATUS" get_cam_status;
 
@@ -546,7 +533,7 @@ let listen_flight_params = fun geomap auto_center_new_ac ->
     let ac = get_ac vs in
     let a = fun s -> Pprz.float_assoc s vs in
     let wgs84 = { posn_lat = (Deg>>Rad)(a "circle_lat"); posn_long = (Deg>>Rad)(a "circle_long") } in
-    circle_status_msg ac.track wgs84 (float_of_string (Pprz.string_assoc "radius" vs)) 
+    ac.track#draw_circle wgs84 (float_of_string (Pprz.string_assoc "radius" vs)) 
   in
   safe_bind "CIRCLE_STATUS" get_circle_status;
 
@@ -556,7 +543,7 @@ let listen_flight_params = fun geomap auto_center_new_ac ->
     let a = fun s -> Pprz.float_assoc s vs in
     let geo1 = { posn_lat = (Deg>>Rad)(a "segment1_lat"); posn_long = (Deg>>Rad)(a "segment1_long") }
     and geo2 = { posn_lat = (Deg>>Rad)(a "segment2_lat"); posn_long = (Deg>>Rad)(a "segment2_long") } in
-    segment_status_msg ac.track geo1 geo2
+    ac.track#draw_segment geo1 geo2
   in
   safe_bind "SEGMENT_STATUS" get_segment_status;
 
@@ -566,28 +553,35 @@ let listen_flight_params = fun geomap auto_center_new_ac ->
     let a = fun s -> Pprz.float_assoc s vs in
     let geo1 = { posn_lat = (Deg>>Rad)(a "south_lat"); posn_long = (Deg>>Rad)(a "west_long") }
     and geo2 = { posn_lat = (Deg>>Rad)(a "north_lat"); posn_long = (Deg>>Rad)(a "east_long") } in
-    survey_status_msg ac.track geo1 geo2
+    ac.track#draw_zone geo1 geo2
   in
   safe_bind "SURVEY_STATUS" get_survey_status;
 
 
   let get_ap_status = fun _sender vs ->
     let ac = get_ac vs in
-    ap_status_msg ac.track ( float_of_int (Pprz.int32_assoc "flight_time" vs ));
+    ac.track#update_ap_status ( float_of_int (Pprz.int32_assoc "flight_time" vs ));
     let ap_mode = Pprz.string_assoc "ap_mode" vs in
     if ap_mode <> ac.last_ap_mode then begin
-      Speech.say (sprintf "%s, %s" ac.ac_name ap_mode);
+      log_and_say alert (sprintf "%s, %s" ac.ac_name ap_mode);
       ac.last_ap_mode <- ap_mode;
       Strip.set_label ac.strip "AP" (Pprz.string_assoc "ap_mode" vs);
-      Strip.set_color ac.strip "AP" (if ap_mode="HOME" then "red" else "white");
+      Strip.set_color ac.strip "AP" (if ap_mode="HOME" then alert_color else ok_color);
     end;
     let gps_mode = Pprz.string_assoc "gps_mode" vs in
     Strip.set_label ac.strip "GPS" gps_mode;
-    Strip.set_color ac.strip "GPS" (if gps_mode<>"3D" then "red" else "white");
+    Strip.set_color ac.strip "GPS" (if gps_mode<>"3D" then alert_color else ok_color);
     let ft = 
       let t = Int32.to_int (Int32.of_string (Pprz.string_assoc "flight_time" vs)) in
       sprintf "%02d:%02d:%02d" (t / 3600) ((t mod 3600) / 60) ((t mod 3600) mod 60) in
     Strip.set_label ac.strip "flight_time" ft;
+    let kill_mode = Pprz.string_assoc "kill_mode" vs in
+    if not ac.in_kill_mode then
+      if kill_mode <> "OFF" then begin
+	log_and_say alert (sprintf "%s, mayday, kill mode" ac.ac_name);
+	ac.in_kill_mode <- true
+      end else
+	ac.in_kill_mode <- false;
     match ac.rc_settings_page with
       None -> ()
     | Some p -> 
@@ -617,15 +611,9 @@ let listen_waypoint_moved = fun () ->
   safe_bind "WAYPOINT_MOVED" get_values
     
 let get_alert_bat_low = fun a _sender vs -> 
-  let ac_id = Pprz.string_assoc "ac_id" vs in
-  let ac_name = ref "" in
+  let ac = get_ac vs in
   let level = Pprz.string_assoc "level" vs in
-  let get_config = fun _sender config ->
-    ac_name := Pprz.string_assoc "ac_name" config;
-    a#add (!ac_name^" "^"BAT_LOW"^" "^level)
-  in
-  Ground_Pprz.message_req "map2d" "CONFIG" ["ac_id", Pprz.String ac_id] get_config
-    
+  log_and_say a (sprintf "%s %s %s" ac.ac_name "BAT_LOW" level)
 
 let listen_alert = fun a -> 
   alert_bind "BAT_LOW" (get_alert_bat_low a)
@@ -668,7 +656,7 @@ let get_ts = fun _sender vs ->
   let ac = get_ac vs in
   let t = Pprz.float_assoc "time_since_last_bat_msg" vs in
   Strip.set_label ac.strip "telemetry_status" (if t > 2. then sprintf "%.1f" t else "   ");
-  Strip.set_color ac.strip "telemetry_status" (if t > 5. then "red" else "green")
+  Strip.set_color ac.strip "telemetry_status" (if t > 5. then alert_color else ok_color)
   
 
 let listen_telemetry_status = fun () ->

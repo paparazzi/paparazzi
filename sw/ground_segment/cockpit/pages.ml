@@ -39,14 +39,16 @@ class alert (widget: GBin.frame) =
   in
   let view = GText.view ~editable:false ~packing: scrolled#add () in
 (* the object itselft *)
-object
-  val active = Hashtbl.create 5
-  method add text = 
-    if not (Hashtbl.mem active text) then begin
-      view#buffer#insert text;
-      view#buffer#insert "\n";
-      Hashtbl.add active text ()
-    end
+  object (self)
+    val mutable last = ""
+    method add text = 
+      if text <> last then begin
+	let l = Unix.localtime (Unix.gettimeofday ()) in
+	view#buffer#insert (sprintf "%2d:%2d:%2d " l.Unix.tm_hour l.Unix.tm_min l.Unix.tm_sec);
+	view#buffer#insert text;
+	view#buffer#insert "\n";
+	last <- text
+      end
  end
 
 (*****************************************************************************)

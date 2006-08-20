@@ -97,7 +97,8 @@ let add config color select center_ac commit_moves mark =
     (** set a label *)
 let set_label strip name value = 
   let _eb, l = List.assoc (name^"_value") strip.labels in
-  l#set_label value
+  if l#text <> value then
+    l#set_label value
 
     (** set a label *)
 let set_color strip name color = 

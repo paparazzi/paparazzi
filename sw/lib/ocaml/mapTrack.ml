@@ -91,9 +91,8 @@ class track = fun ?(name="Noname") ?(size = 500) ?(color="red") (geomap:MapCanva
   let _desired_circle = GnoCanvas.ellipse group
   and _desired_segment = GnoCanvas.line group in
     
-
- let top = ref 0  in
   object (self)
+    val mutable top = 0
     val mutable color = color
     val mutable segments = Array.create size empty
     val mutable v_segments = Array.create size empty
@@ -102,9 +101,6 @@ class track = fun ?(name="Noname") ?(size = 500) ?(color="red") (geomap:MapCanva
     val mutable last_altitude = 0.0
     val mutable last_speed = 0.0
     val mutable last_climb = 0.0
-    val mutable last_height = 0.0
-    val mutable last_xw = 0.0
-    val mutable last_yw = 0.0
     val mutable last_flight_time = 0.0
     val mutable last_x_val = 0.0
     val mutable cam_on = false
@@ -112,25 +108,25 @@ class track = fun ?(name="Noname") ?(size = 500) ?(color="red") (geomap:MapCanva
     val mutable v_params_on = false
     val mutable desired_track = NoDesired
     val zone = GnoCanvas.rect group
-    val mutable ac_cam_cover = GnoCanvas.rect cam
+    val mutable ac_cam_cover = GnoCanvas.rect ~fill_color:"grey" ~props:[`WIDTH_PIXELS 1 ; `FILL_STIPPLE (Gdk.Bitmap.create_from_data ~width:2 ~height:2 "\002\001")] cam
     method color = color
     method set_color c = color <- c
     method track = track
     method aircraft = aircraft
     method set_label = fun s -> ac_label#set [`TEXT s]
-    method clear_one = fun i seg ->
-      if seg.(i) != empty then begin
-	(snd seg.(i))#destroy ();
-	seg.(i) <- empty
+    method clear_one = fun i ->
+      if segments.(i) != empty then begin
+	(snd segments.(i))#destroy ();
+	segments.(i) <- empty
       end
     method incr = fun seg ->
       let s = Array.length seg in
-      top := (!top + 1) mod s
-    method clear = fun seg top ->
-      for i = 0 to Array.length seg - 1 do
-	self#clear_one i seg
+      top <- (top + 1) mod s
+    method clear = fun () ->
+      for i = 0 to Array.length segments - 1 do
+	self#clear_one i
       done;
-      top := 0
+      top <- 0
     method set_cam_state = fun b ->
       cam_on <- b;
       if b then begin
@@ -143,7 +139,10 @@ class track = fun ?(name="Noname") ?(size = 500) ?(color="red") (geomap:MapCanva
 
     method update_ap_status = fun time -> 
       last_flight_time <- time
-    method set_params_state = fun b -> params_on <- b 
+    method set_params_state = fun b -> 
+      params_on <- b;
+      if not b then (* Reset to the default simple label *)
+	ac_label#set [`TEXT name; `Y 25.]
     method set_v_params_state = fun b -> v_params_on <- b
     method set_last = fun x -> last <- x
     method last = last
@@ -151,37 +150,42 @@ class track = fun ?(name="Noname") ?(size = 500) ?(color="red") (geomap:MapCanva
     method last_heading = last_heading
     method last_altitude = last_altitude
 
+    method height = fun () ->
+      match last with
+	None -> last_altitude
+      | Some wgs84 ->
+	  let h = try float (Srtm.of_wgs84 wgs84) with _ -> 0. in
+	  last_altitude -. h
+
     (** add track points on map2D, according to the
        track parameter *)
-    method add_point = fun geo seg set_last_point last_point top track ->
-      self#clear_one (!top) seg ;
-      begin
-	match last_point with
-	  None -> 
-	    seg.((!top)) <- (geo, geomap#segment ~group:track ~fill_color:color geo geo)
-	| Some last_geo ->
-	    seg.((!top)) <- (geo, geomap#segment ~group:track ~width:2 ~fill_color:color last_geo geo);
-      end;
-      self#incr seg;
-      (set_last_point (Some geo) : unit)
+    method add_point = fun geo ->
+      self#clear_one top;
+      let last_geo =
+	match last with
+	  None -> geo
+	| Some last_geo -> last_geo in
+      segments.(top) <- (geo, geomap#segment ~group ~fill_color:color last_geo geo);
+      self#incr segments;
+      self#set_last (Some geo)
 
-    method clear_map2D = self#clear segments top 
+    method clear_map2D = self#clear ()
 
-    method move_icon = fun wgs84 heading altitude relief_height speed climb ->
+    method move_icon = fun wgs84 heading altitude speed climb ->
       let (xw,yw) = geomap#world_of wgs84 in
       aircraft#affine_absolute (affine_pos_and_angle geomap#zoom_adj#value xw yw heading);
       last_heading <- heading;
       last_altitude <- altitude;
-      last_yw <- yw;
-      last_height <- (altitude -. relief_height);
       last_speed <- speed ;
       last_climb <- climb;
 
-      if params_on then
-	  ac_label#set [`TEXT ( name^" \n"^(string_of_float last_height)^" m\n"^(string_of_float last_speed)^" m/s\n" ); `Y 70. ] else
-	ac_label#set [`TEXT name; `Y 25.];
+      if params_on then begin
+	let last_height = self#height () in
+	ac_label#set [`TEXT ( name^" \n"^(string_of_float last_height)^" m\n"^(string_of_float last_speed)^" m/s\n" ); `Y 70. ]
+      end;
+      
       ac_label#affine_absolute (affine_pos_and_angle geomap#zoom_adj#value xw yw 0.);
-      self#add_point wgs84 segments (self#set_last) last top group;
+      self#add_point wgs84;
 
     method move_carrot = fun wgs84 ->
       let (xw,yw) = geomap#world_of wgs84 in
@@ -225,76 +229,75 @@ class track = fun ?(name="Noname") ?(size = 500) ?(color="red") (geomap:MapCanva
       zone#set [`X1 x1; `Y1 y1; `X2 x2; `Y2 y2; `OUTLINE_COLOR "#ffc0c0"; `WIDTH_PIXELS 2]
 	  
 (** moves the rectangle representing the field covered by the camera *)
-    method move_cam = fun wgs84 mission_target_wgs84 ->
-      if cam_on then
-	let (xw,yw) = geomap#world_of wgs84 in 
-	let (mission_target_xw, mission_target_yw) = geomap#world_of mission_target_wgs84 in
-	let last_height_scaled = last_height in
+    method move_cam = fun cam_wgs84 mission_target_wgs84 ->
+      match last, cam_on with
+	Some last_ac, true ->
+	  let (cam_xw, cam_yw) = geomap#world_of cam_wgs84
+	  and (last_xw, last_yw) = geomap#world_of last_ac
+	  and last_height_scaled = self#height () in
 	
-(** all data are at map scale *)
-	
-	begin
-	let pt1 = { G2d.x2D = last_xw; y2D = last_yw} in
-	let pt2 = { G2d.x2D = xw ; y2D = yw } in
-	
+	  let pt1 = { G2d.x2D = last_xw; y2D = last_yw} in
+	  let pt2 = { G2d.x2D = cam_xw ; y2D = cam_yw } in
+	  
 (** y axis is downwards so North vector is as follows: *)
-	let vect_north = (G2d.vect_make  { G2d.x2D = 0.0 ; y2D = 0.0 } { G2d.x2D = 0.0 ; y2D = -1.0 } ) in
-	let d = G2d.distance pt1 pt2 in
-	begin
+	  let vect_north = { G2d.x2D = 0.0 ; y2D = -1.0 } in
+	  let d = G2d.distance pt1 pt2 in
 	  let cam_heading = 
 	    if d > min_distance_scaled then
 	      let cam_vect_normalized = (G2d.vect_normalize (G2d.vect_make pt1 pt2)) in
 	      if (G2d.dot_product vect_north cam_vect_normalized) > 0.0 then
 		norm_angle_360 ( G2d.rad2deg (asin (G2d.cross_product vect_north cam_vect_normalized)))
-	      else norm_angle_360 ( G2d.rad2deg (G2d.m_pi -. asin (G2d.cross_product vect_north cam_vect_normalized)))
+		else norm_angle_360 ( G2d.rad2deg (G2d.m_pi -. asin (G2d.cross_product vect_north cam_vect_normalized)))
 	    else last_heading in
 	  let (angle_of_view, oblic_distance) = 
-	    if last_height < min_height_scaled then 
+	    if last_height_scaled < min_height_scaled then 
 	      (half_pi, max_oblic_distance_scaled)
 	    else
 	      let oav = atan ( d /. last_height_scaled) in
 	      (oav, last_height_scaled /. (cos oav))
 	  in
 	  let alpha_1 = angle_of_view +. cam_half_aperture in
-	  begin
-	    let cam_field_half_height_1 =
-	      if alpha_1 < half_pi then
-		(tan alpha_1) *. last_height_scaled -. d
-	      else max_cam_half_height_scaled in
-	    let cam_field_half_height_2 = d -. (tan ( angle_of_view -. cam_half_aperture)) *. last_height_scaled in
-	    let cam_field_half_width = ( tan (cam_half_aperture) ) *. oblic_distance in
-	    begin
-(***	      Printf.printf "dist %.2f aoview %.2f oblic_distance %.2f cfh1 %.2f cfh2 %.2f cfhw %.2f last_xw %.2f last_yw %.2f cam_heading %.2f \n%!" (d  *. (geomap#get_world_unit ()) ) angle_of_view (oblic_distance  *. (geomap#get_world_unit ()) ) (cam_field_half_height_1  *. (geomap#get_world_unit ()) ) (cam_field_half_height_2  *. (geomap#get_world_unit ()) ) (cam_field_half_width  *. (geomap#get_world_unit ()) ) last_xw last_yw cam_heading; ***)
-	      
-	      ac_cam_cover#destroy ();
-	      ac_cam_cover <- GnoCanvas.rect ~x1:(-. cam_field_half_width) ~y1:(-. cam_field_half_height_1) ~x2:(cam_field_half_width) ~y2:(cam_field_half_height_2) ~fill_color:"grey" ~props:[`WIDTH_PIXELS 1 ; `OUTLINE_COLOR color; `FILL_STIPPLE (Gdk.Bitmap.create_from_data ~width:2 ~height:2 "\002\001")] cam
-	    end
-	  end;
-	  cam#affine_absolute (affine_pos_and_angle 1.0 xw yw cam_heading);
+	  let cam_field_half_height_1 =
+	    if alpha_1 < half_pi then
+	      (tan alpha_1) *. last_height_scaled -. d
+	    else max_cam_half_height_scaled in
+	  let cam_field_half_height_2 = d -. (tan ( angle_of_view -. cam_half_aperture)) *. last_height_scaled in
+	  let cam_field_half_width = ( tan (cam_half_aperture) ) *. oblic_distance in
+	  ac_cam_cover#set [`X1 (-. cam_field_half_width);
+			    `Y1 (-. cam_field_half_height_1);
+			    `X2 (cam_field_half_width);
+			    `Y2(cam_field_half_height_2);
+			    `OUTLINE_COLOR color];	  
+	  cam#affine_absolute (affine_pos_and_angle 1.0 cam_xw cam_yw cam_heading);
+	  let (mission_target_xw, mission_target_yw) = geomap#world_of mission_target_wgs84 in
 	  mission_target#affine_absolute (affine_pos_and_angle geomap#zoom_adj#value mission_target_xw mission_target_yw 0.0)
-	end;
-      end
+      | _ -> ()
 	
     method zoom = fun z ->
       let a = aircraft#i2w_affine in
       let z' = sqrt (a.(0)*.a.(0)+.a.(1)*.a.(1)) in
       for i = 0 to 3 do a.(i) <- a.(i) /. z' *. 1./.z done;
-      aircraft#affine_absolute a	
+      aircraft#affine_absolute a
+
     method resize =  fun new_size ->
-	let a = Array.create new_size empty in
-	let size =  Array.length segments in	
-	let m = min new_size size in
-	let j = ref ((!top - m + size) mod size) in
-	for i = 0 to m - 1 do
-	  a.(i) <- segments.(!j);
-	  j := (!j + 1) mod size
-	done;
-	for i = 1 to size - new_size do (* Never done if new_size > size *)
-	  self#clear_one !j segments;
-	  j := (!j + 1) mod size
-	done;
-	top := m mod new_size;
-	segments <- a
+      let a = Array.create new_size empty in
+      let size =  Array.length segments in	
+      let m = min new_size size in
+      let j = ref ((top - m + size) mod size) in
+      for i = 0 to m - 1 do
+	a.(i) <- segments.(!j);
+	j := (!j + 1) mod size
+      done;
+      for i = 1 to size - new_size do (* Never done if new_size > size *)
+	self#clear_one !j;
+	j := (!j + 1) mod size
+      done;
+      top <- m mod new_size;
+      segments <- a
+
     method size = Array.length segments
-    initializer ignore(geomap#zoom_adj#connect#value_changed (fun () -> self#zoom geomap#zoom_adj#value))
+
+    initializer 
+      ignore(geomap#zoom_adj#connect#value_changed 
+	       (fun () -> self#zoom geomap#zoom_adj#value))
 end

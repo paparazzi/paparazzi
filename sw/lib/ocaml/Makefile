@@ -24,8 +24,8 @@ Q=@
 
 INCLUDES= -I +xml-light
 XINCLUDES= -I +lablgl -I +lablgtk2 -I +xml-light
-OCAMLC=ocamlc $(INCLUDES)
-OCAMLOPT=ocamlopt $(INCLUDES)
+OCAMLC=ocamlc
+OCAMLOPT=ocamlopt
 
 
 SRC = debug.ml env.ml serial.ml ocaml_tools.ml extXml.ml xml2h.ml latlong.ml srtm.ml http.ml gm.ml iGN.ml wavecard.ml geometry_2d.ml geometry_3d.ml cserial.o convert.o ubx.ml pprz.ml xbee.ml
@@ -60,38 +60,38 @@ xlib-pprz.cmxa : $(XCMX)
 
 xml_get.out : lib-pprz.cma xml_get.cmo
 	@echo OL $@
-	$(Q)$(OCAMLC) -o $@ str.cma xml-light.cma -I . $^
+	$(Q)$(OCAMLC) $(INCLUDES) -o $@ str.cma xml-light.cma -I . $^
 
 GTKCFLAGS := -I /usr/lib/gtk-2.0/include -I/usr/include/gtk-2.0 -I/usr/include/atk-1.0 -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include -I/usr/include/pango-1.0 -I /usr/include/cairo
 # GTKCFLAGS := $(shell gtk-config --cflags)
 
 %.o   : %.c
 	@echo OC $<
-	$(Q)$(OCAMLC) -c $<
+	$(Q)$(OCAMLC) $(INCLUDES) -c $<
 
 ml_gtk_drag.o : ml_gtk_drag.c
 	@echo OC $<
-	$(Q)$(OCAMLC) -c -ccopt "$(GTKCFLAGS)" $<
+	$(Q)$(OCAMLC) $(INCLUDES) -c -ccopt "$(GTKCFLAGS)" $<
 
 ml_gtkgl_hack.o   : ml_gtkgl_hack.c
 	@echo OC $<
-	$(Q)$(OCAMLC) -c -ccopt "$(GTKCFLAGS)" $<
+	$(Q)$(OCAMLC) $(INCLUDES) -c -ccopt "$(GTKCFLAGS)" $<
 
 %.cmo : %.ml
 	@echo OC $<
-	$(Q)$(OCAMLC) -c $<
+	$(Q)$(OCAMLC) $(INCLUDES) -c $<
 
 %.cmx : %.ml
 	@echo OOC $<
-	$(Q)$(OCAMLOPT) -c $<
+	$(Q)$(OCAMLOPT) $(INCLUDES) -c $<
 
 %.cmi : %.mli
 	@echo OC $<
-	$(Q)$(OCAMLC) $<
+	$(Q)$(OCAMLC) $(INCLUDES) $<
 
 %.cmi : %.ml
 	@echo OC $<
-	$(Q)$(OCAMLC) $<
+	$(Q)$(OCAMLC) $(INCLUDES) $<
 
 clean :
 	rm -f *~ *.cm* *.out *.opt .depend *.a *.o *.so
