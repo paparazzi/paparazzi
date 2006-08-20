@@ -82,8 +82,10 @@ let display_the_tile = fun (geomap:MapCanvas.widget) tile jpg_file ->
   let ne = { LL.posn_lat = north_lat; posn_long = east_long } in
   
   let (tx, ty) = Gm.tile_size in
-  let map = geomap#display_pixbuf ((0,tx), tile.Gm.sw_corner) ((ty,0),ne) (GdkPixbuf.from_file jpg_file) in
-  map#raise 1;
+  ignore (GMain.Idle.add (fun () -> 
+    let map = geomap#display_pixbuf ((0,tx), tile.Gm.sw_corner) ((ty,0),ne) (GdkPixbuf.from_file jpg_file) in
+    map#raise 1;
+    false));
   add_tile tile.Gm.key
     
 
