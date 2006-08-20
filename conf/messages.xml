@@ -80,7 +80,7 @@
      <field name="desired_gaz" type="int16" unit="pprz"></field>
      <field name="voltage" type="uint8" unit="1e-1V"></field>
      <field name="flight_time" type="uint16" unit="s"></field>
-     <field name="status_battery" type="uint8" values="LOW|OK"></field>
+     <field name="kill_auto_throttle" type="uint8" unit="bool"></field>
      <field name="block_time" type="uint16" unit="s"></field>
      <field name="stage_time" type="uint16" unit="s"></field>
      <field name="energy" type="uint16" unit="mAh"/>
@@ -466,6 +466,7 @@
     <field name="horiz_mode" type="string" values="WAYPOINT|ROUTE|CIRCLE"/>
     <field name="gaz_mode" type="string" values="MANUAL|GAZ|CLIMB|ALT"/>
     <field name="gps_mode" type="string" values="NOFIX|DRO|2D|3D|GPSDRO"/>
+    <field name="kill_mode" type="string" values="OFF|ON"/>
     <field name="flight_time" type="uint32" />
   </message>
 

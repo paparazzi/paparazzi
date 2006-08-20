@@ -80,6 +80,7 @@ type aircraft = {
     mutable cur_block : int;
     mutable cur_stage : int;
     mutable throttle : float;
+    mutable kill_mode : bool;
     mutable throttle_accu : float;
     mutable rpm : float;
     mutable temp : float;

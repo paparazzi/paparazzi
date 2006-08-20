@@ -191,6 +191,7 @@ let log_and_parse = fun logging ac_name a msg values ->
   | "BAT" ->
       a.last_bat_msg_date <- U.gettimeofday ();
       a.throttle <- fvalue "desired_gaz" /. 9600. *. 100.;
+      a.kill_mode <- ivalue "kill_auto_throttle" <> 0;
       a.flight_time <- ivalue "flight_time";
       a.rpm <- a.throttle *. 100.;
       a.bat <- fvalue "voltage" /. 10.;
@@ -512,14 +513,17 @@ let send_aircraft_msg = fun ac ->
     let gaz_mode = get_indexed_value gaz_modes a.gaz_mode in
     let lat_mode = get_indexed_value lat_modes a.lateral_mode in
     let horiz_mode = get_indexed_value horiz_modes a.horizontal_mode in
-    let gps_mode = get_indexed_value gps_modes a.gps_mode in
+    let gps_mode = get_indexed_value gps_modes a.gps_mode
+    and kill_mode = if a.kill_mode then "ON" else "OFF" in
     let values = ["ac_id", Pprz.String ac; 
 		  "flight_time", Pprz.Int a.flight_time;
 		  "ap_mode", Pprz.String ap_mode; 
 		  "gaz_mode", Pprz.String gaz_mode;
 		  "lat_mode", Pprz.String lat_mode;
 		  "horiz_mode", Pprz.String horiz_mode;
-		  "gps_mode", Pprz.String gps_mode] in
+		  "gps_mode", Pprz.String gps_mode;
+		  "kill_mode", Pprz.String kill_mode
+		] in
     Ground_Pprz.message_send my_id "AP_STATUS" values;
 
     send_cam_status a;
@@ -551,7 +555,7 @@ let new_aircraft = fun id ->
       nav_ref = None;
       cam = { phi = 0.; theta = 0. ; target=(0.,0.)};
       inflight_calib = { if_mode = 1 ; if_val1 = 0.; if_val2 = 0.};
-      infrared = infrared_init;
+      infrared = infrared_init; kill_mode = false;
       fbw = { rc_status = "???"; rc_mode = "???" };
       svinfo = Array.create gps_nb_channels svinfo_init;
       dl_setting_values = Array.create max_nb_dl_setting_values 42.;
@@ -564,8 +568,9 @@ let new_aircraft = fun id ->
 
 let check_alerts = fun a ->
   let send = fun level ->
-    let vs =
-      ["ac_id", Pprz.String a.id; "level", Pprz.String level; "value", Pprz.Float a.bat] in
+    let vs = [ "ac_id", Pprz.String a.id; 
+	       "level", Pprz.String level; 
+	       "value", Pprz.Float a.bat] in
     Alerts_Pprz.message_send my_id "BAT_LOW" vs in
   if a.bat < 9. then send "CATASTROPHIC"
   else if a.bat < 10. then send "CRITIC"

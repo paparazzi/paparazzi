@@ -38,6 +38,9 @@ OCAMLLIB = ../../lib/ocaml
 INCLUDES= -I $(OCAMLLIB) -I ../multimon -I +lablgtk2 -I +xml-light
 LIBPPRZCMA=$(OCAMLLIB)/lib-pprz.cma
 
+SERVERCMO = aircraft.cmo wind.cmo airprox.cmo server.cmo
+SERVERCMX = $(SERVERCMO:.cmo=.cmx)
+
 $(VAR)/boa.conf :$(CONF)/boa.conf
 	mkdir -p $(VAR)
 	sed 's|PAPARAZZI_HOME|$(PAPARAZZI_HOME)|' < $< > $@
@@ -49,9 +52,13 @@ messages : messages.cmo
 	$(Q)$(OCAMLC) -custom $(INCLUDES) -o $@ lablgtk.cma glibivy-ocaml.cma lib-pprz.cma gtkInit.cmo $^
 
 
-server : aircraft.cmo wind.cmo airprox.cmo server.cmo
+server : $(SERVERCMO)
 	@echo OL $@
 	$(Q)$(OCAMLC) -custom $(INCLUDES) -o $@ lablgtk.cma glibivy-ocaml.cma lib-pprz.cma $^
+
+server.opt :  $(SERVERCMX)
+	@echo OOL $@
+	$(Q)$(OCAMLOPT) $(INCLUDES) -o $@ str.cmxa unix.cmxa xml-light.cmxa lablgtk.cmxa glibivy-ocaml.cmxa lib-pprz.cmxa $^
 
 link :  modem.cmo link.cmo
 	@echo OL $@
@@ -61,6 +68,10 @@ link :  modem.cmo link.cmo
 %.cmo : %.ml $(LIBPPRZCMA)
 	@echo OC $<
 	$(Q)$(OCAMLC) $(INCLUDES) -c $<
+
+%.cmx : %.ml
+	@echo OOC $<
+	$(Q)$(OCAMLOPT) $(INCLUDES) -c $<
 
 %.cmi : %.mli $(LIBPPRZCMA)
 	@echo OC $<
