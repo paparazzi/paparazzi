@@ -47,34 +47,33 @@ let add_path = fun p -> path := p :: !path
 let open_compressed = fun f ->
   Ocaml_tools.open_compress (Ocaml_tools.find_file !path f)
  
-let find tile =
-  if not (Hashtbl.mem htiles tile) then begin
-    try
-      let f = open_compressed (tile^".hgt") in
-      let n = tile_size*tile_size*2 in
-      let buf = String.create n in
-      really_input f buf 0 n;
-      Hashtbl.add htiles tile buf
-    with Not_found ->
-      raise (Tile_not_found tile)
-  end;
-  Hashtbl.find htiles tile 
+let find = fun tile ->
+  try Hashtbl.find htiles tile with
+    Not_found ->
+      let (bottom, left) = tile in
+      let tile_name =
+	Printf.sprintf "%c%.0f%c%03.0f" (if bottom >= 0. then 'N' else 'S') (abs_float bottom) (if left >= 0. then 'E' else 'W') (abs_float left) in
+      try
+	let f = open_compressed (tile_name ^".hgt") in
+	let n = tile_size*tile_size*2 in
+	let buf = String.create n in
+	really_input f buf 0 n;
+	Hashtbl.add htiles tile buf;
+	buf
+      with Not_found ->
+	raise (Tile_not_found tile_name)
+
   
 let get = fun tile y x ->
-    let tile = find tile in
-    let pos0 = (2*((tile_size-y)*tile_size+x)) in
-    let rec skip_bad = fun pos ->
-      let a = (Char.code tile.[pos] lsl 8) lor Char.code tile.[pos+1] in
-      if a > 8848 || a < 0 then skip_bad (pos+2) else a in
-    skip_bad pos0
+  let tile = find tile in
+  let pos = (2*((tile_size-y)*tile_size+x)) in
+  (Char.code tile.[pos] lsl 8) lor Char.code tile.[pos+1]
 
 let of_wgs84 = fun geo ->
   let lat = (Rad>>Deg)geo.posn_lat
   and long = (Rad>>Deg)geo.posn_long in
   let bottom = floor lat and left = floor long in
-  let tile =
-    Printf.sprintf "%c%.0f%c%03.0f" (if lat > 0. then 'N' else 'S') (abs_float bottom) (if long > 0. then 'E' else 'W') (abs_float left) in
-
+  let tile = (bottom, left) in
   get tile (truncate ((lat-.bottom)*.1200.+.0.5)) (truncate ((long-.left)*.1200.+.0.5))
 
 let of_utm = fun utm ->
