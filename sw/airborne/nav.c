@@ -187,7 +187,7 @@ static float qdr;
 #define Follow(_ac_id, _distance, _height) { \
   struct ac_info_ * ac = get_ac_info(_ac_id); \
   vertical_mode = VERTICAL_MODE_AUTO_ALT; \
-  nav_altitude = Max(ac->alt + _height, SECURITY_ALT); \
+  nav_altitude = Max(ac->alt + _height, ground_alt+SECURITY_HEIGHT); \
   float alpha = M_PI/2 - ac->course; \
   fly_to_xy(ac->east - _distance*cos(alpha), ac->north - _distance*sin(alpha)); \
 }
@@ -477,7 +477,7 @@ void nav_home(void) {
   /** Nominal speed */ 
   nav_pitch = 0.;
   vertical_mode = VERTICAL_MODE_AUTO_ALT;
-  nav_altitude = ground_alt+50;
+  nav_altitude = ground_alt+SECURITY_HEIGHT;
   compute_dist2_to_home();
   dist2_to_wp = dist2_to_home;
 }

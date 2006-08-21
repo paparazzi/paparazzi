@@ -713,6 +713,7 @@ let _ =
       Xml2h.define "NB_WAYPOINT" (string_of_int (List.length waypoints));
 
       Xml2h.define "GROUND_ALT" (sof !ground_alt);
+      Xml2h.define "SECURITY_HEIGHT" (sof !security_height);
       Xml2h.define "SECURITY_ALT" (sof (!security_height +. !ground_alt));
       Xml2h.define "MAX_DIST_FROM_HOME" (sof mdfh);
       
