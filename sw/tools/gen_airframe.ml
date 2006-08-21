@@ -3,7 +3,7 @@
  *
  * XML preprocessing for airframe parameters
  *  
- * Copyright (C) 2003 Pascal Brisset, Antoine Drouin
+ * Copyright (C) 2003-2006 Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
  *
@@ -25,7 +25,6 @@
  *)
 
 let max_pprz = 9600. (* !!!! MAX_PPRZ From paparazzi.h !!!! *)
-(* let nb_servo_4017 = 10  From servo.h *)
 
 open Printf
 open Xml2h
@@ -168,9 +167,8 @@ let parse_section = fun s ->
   | "makefile" ->
       ()
       (** Ignoring this section *)
-  | _ -> ignore()
-(*xml_error (Printf.sprintf "[%s] section|servos|command_laws|conmmands|makefile" (Xml.tag s)) *)
-      
+  | _ -> ()
+     
 
 let h_name = "AIRFRAME_H"
 
