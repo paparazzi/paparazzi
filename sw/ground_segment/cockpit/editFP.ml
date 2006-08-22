@@ -129,7 +129,7 @@ let save_fp = fun () ->
 	None -> ()
       | Some file -> 
 	  let f  = open_out file in
-	  fprintf f "%s\n" (Xml.to_string_fmt fp#xml);
+	  fprintf f "%s\n" (ExtXml.to_string_fmt fp#xml);
 	  close_out f
 
 let ref_point_of_waypoint = fun xml ->

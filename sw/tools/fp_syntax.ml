@@ -57,7 +57,7 @@ let variables = [
   "stage_time_ds";
   "block_time";
   "SECURITY_ALT";
-  "GROUND_ALT";
+  "ground_alt"; "GROUND_ALT";
   "TRUE";
   "FALSE";
   "QFU";
