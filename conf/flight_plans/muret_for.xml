@@ -9,7 +9,7 @@
   <blocks>
     <block name="init">
       <while cond="(!launch)"/>
-      <heading course="QFU" gaz="0.8" pitch="0.15" until="(estimator_flight_time > 8)" vmode="gaz"/>
+      <heading course="QFU" throttle="0.8" pitch="0.15" until="(estimator_flight_time > 8)" vmode="throttle"/>
       <heading climb="3.0" course="QFU" pitch="0.15" until="(estimator_z > SECURITY_ALT)" vmode="climb"/>
     </block>
     <block name="for">

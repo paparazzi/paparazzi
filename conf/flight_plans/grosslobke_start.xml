@@ -11,7 +11,7 @@
       <go wp="1"/>
       <go WP="2"/>
       <go WP="RWAY"/>
-      <stay gaz="0" vmode="gaz" wp="RWAY"/>
+      <stay throttle="0" vmode="throttle" wp="RWAY"/>
     </block>
   </blocks>
 </flight_plan>

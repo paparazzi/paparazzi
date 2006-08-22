@@ -16,7 +16,7 @@
     <block NAME="takeoff">
       <exception COND="(RcEvent1())" DEROUTE="back"/>
       <exception COND="(RcEvent2())" DEROUTE="target"/>
-      <heading vmode="gaz" gaz="0.7" pitch="0.15" course="280" until="(estimator_flight_time > 5)"/>
+      <heading vmode="throttle" throttle="0.7" pitch="0.15" course="280" until="(estimator_flight_time > 5)"/>
       <go wp="WP1" alt="alt" approaching_time="1"/>
       <go wp="WP2" alt="alt" approaching_time="1"/>
       <go wp="WP3" alt="alt" approaching_time="1"/>

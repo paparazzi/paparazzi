@@ -2,16 +2,6 @@
 
 <flight_plan NAME="example - Muret4" LON0="1.27289" MAX_DIST_FROM_HOME="1000" GROUND_ALT="185" SECURITY_HEIGHT="25" QFU="270" ALT="250" LAT0="43.46223">
 
-  <dl_settings>
-      <dl_setting var="ir_roll_neutral" min="-0.3" max="0.3" step="0.01"/>
-      <dl_setting var="ir_pitch_neutral" min="-0.3" max="0.3" step="0.01"/>
-      <dl_setting var="roll_pgain" min="1000" max="15000" step="250"/>
-      <dl_setting var="pitch_pgain" min="1000" max="15000" step="250"/>
-      <dl_setting var="climb_level_gaz" min="0.3" max="0.7" step="0.05"/>
-      <dl_setting var="climb_pgain" min="-0.5" max="-0.01" step="0.01"/>
-      <dl_setting var="course_pgain" min="-1" max="-0.1" step="0.05"/>
-  </dl_settings>
-
   <waypoints utm_x0="360284.8" utm_y0="4813595.5">
     <waypoint name="AF" x="267.5" y="35.0" lat="43.4625948985" lon="1.27618631405" alt="215."/>
     <waypoint name="3" x="25.0" y="285.0" lat="43.464799741" lon="1.27312587027" alt="250."/>
@@ -45,7 +35,7 @@
   <blocks>
     <block NAME="init">
       <while COND="(!launch)"/>
-      <heading VMODE="gaz" GAZ="0.8" PITCH="0.15" COURSE="QFU" UNTIL="(estimator_flight_time > 8)"/>
+      <heading VMODE="throttle" THROTTLE="0.8" PITCH="0.15" COURSE="QFU" UNTIL="(estimator_flight_time > 8)"/>
       <heading CLIMB="3.0" VMODE="climb" PITCH="0.15" COURSE="QFU" UNTIL="(estimator_z > SECURITY_ALT)"/>
     </block>
 
@@ -85,7 +75,7 @@
     </block>
   <block name="stop">
       <exception COND="(RcEvent1())" DEROUTE="rdg"/>
-   <stay wp="HOME" vmode="gaz" gaz="0"/>
+   <stay wp="HOME" vmode="throttle" throttle="0"/>
   </block>
   </blocks>
 </flight_plan>

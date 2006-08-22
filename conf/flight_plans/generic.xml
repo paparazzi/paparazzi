@@ -23,13 +23,13 @@
       <circle radius="-75" wp="HOME"/>
     </block>
     <block name="climb 75">
-      <circle radius="estimator_z/2" wp="1" gaz="0.75" pitch="0.3" vmode="gaz"/>
+      <circle radius="estimator_z/2" wp="1" throttle="0.75" pitch="0.3" vmode="throttle"/>
     </block>
     <block name="stack 1">
       <circle radius="estimator_z/2" wp="1"/>
     </block>
     <block name="descent 0" strip_button="Descent">
-      <circle radius="estimator_z/2" wp="1" gaz="0.0" pitch="-0.3" vmode="gaz"/>
+      <circle radius="estimator_z/2" wp="1" throttle="0.0" pitch="-0.3" vmode="throttle"/>
     </block>
     <block name="route12">
       <go approaching_time="0" from="1" hmode="route" wp="2"/>

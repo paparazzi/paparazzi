@@ -1,19 +1,4 @@
 <flight_plan NAME="Ricou Mini" LON0="1.327747" MAX_DIST_FROM_HOME="400" GROUND_ALT="340" SECURITY_HEIGHT="25" QFU="245" ALT="390" LAT0="43.237535">
-  <dl_settings>
-    <dl_setting VAR="ir_roll_neutral" MAX="0.3" STEP="0.01" MIN="-0.3"/>
-    <dl_setting VAR="ir_pitch_neutral" MAX="0.3" STEP="0.01" MIN="-0.3"/>
-    <dl_setting VAR="roll_pgain" MAX="15000" STEP="250" MIN="1000"/>
-    <dl_setting VAR="pitch_pgain" MAX="15000" STEP="250" MIN="1000"/>
-    <dl_setting VAR="climb_level_gaz" MAX="0.7" STEP="0.05" MIN="0.3"/>
-    <dl_setting VAR="climb_pgain" MAX="-0.01" STEP="0.01" MIN="-0.5"/>
-    <dl_setting VAR="course_pgain" MAX="-0.1" STEP="0.05" MIN="-2"/>
-    <dl_setting VAR="z_constrast_mode" MIN="0." STEP="0.1" MAX="1."/>
-    <dl_setting VAR="rate_mode" MIN="0." STEP="0.1" MAX="1."/>
-<!--
-    <dl_setting VAR="roll_rate_pgain" MIN="0." STEP="1.0" MAX="2000."/>
-    <dl_setting VAR="attitude_pgain" MAX="100" STEP="1" MIN="10"/>
--->
-  </dl_settings>
   <waypoints UTM_X0="364222.4" UTM_Y0="4788550.7">
     <waypoint Y="-100.0" LON="1.32741460722" NAME="HOME" X="-29.0" LAT="43.2366296919" alt="390"/>
     <waypoint name="1" x="-193.99999994" y="47.9999975627" alt="390."/>

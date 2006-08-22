@@ -35,7 +35,7 @@
   <blocks>
     <block NAME="init">
       <while COND="(!launch)"/>
-      <heading VMODE="gaz" GAZ="0.8" PITCH="0.15" COURSE="QFU" UNTIL="(estimator_flight_time > 8)"/>
+      <heading VMODE="throttle" THROTTLE="0.8" PITCH="0.15" COURSE="QFU" UNTIL="(estimator_flight_time > 8)"/>
       <heading CLIMB="3.0" VMODE="climb" PITCH="0.15" COURSE="QFU" UNTIL="(estimator_z > SECURITY_ALT)"/>
     </block>
 
@@ -75,7 +75,7 @@
     </block>
   <block name="stop">
       <exception COND="(RcEvent1())" DEROUTE="rdg"/>
-   <stay wp="HOME" vmode="gaz" gaz="0"/>
+   <stay wp="HOME" vmode="throttle" throttle="0"/>
   </block>
   </blocks>
 </flight_plan>
