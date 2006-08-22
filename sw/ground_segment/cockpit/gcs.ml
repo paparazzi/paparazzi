@@ -360,7 +360,14 @@ let options =
     "-m", Arg.String (fun x -> map_files := x :: !map_files), "Map description file"]
 
 
-let create_geomap = fun window quit ->
+let quit = fun () ->
+  match GToolbox.question_box ~title:"Leaving GCS" ~buttons:["Quit"; "Cancel"] "Do you want to quit ?" with
+    1 ->
+      GMain.Main.quit (); 
+      exit 0
+  | _ -> ()
+
+let create_geomap = fun window ->
   let geomap = new G.widget ~height:500 ~projection:!projection () in
 
   let menu_fact = new GMenu.factory geomap#file_menu in
@@ -485,10 +492,9 @@ let _main =
     window#fullscreen ();
 (***  let vbox= GPack.vbox ~packing: window#add () in ***)
 
-  let quit = fun () -> GMain.Main.quit (); exit 0 in
   ignore (window#connect#destroy ~callback:quit);
 
-  let geomap, menu_fact = create_geomap window quit in
+  let geomap, menu_fact = create_geomap window in
 
   let map_frame = GPack.vbox () in
   (** Put the canvas in a frame *)
