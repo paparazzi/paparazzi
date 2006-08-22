@@ -2,6 +2,7 @@
 
 <!ELEMENT flight_plan (waypoints,include*,exceptions?,blocks)>
 
+<!ELEMENT procedure (param*,waypoints,exceptions?,blocks)>
 
 <!ELEMENT waypoints (waypoint+)>
 <!ELEMENT waypoint EMPTY>
@@ -9,13 +10,14 @@
 <!ELEMENT exceptions (exception*)>
 
 <!ELEMENT blocks (block+)>
-<!ELEMENT block (exception|while|heading|attitude|go|xyz|set|circle|deroute|stay|follow|survey_rectangle)*>
+<!ELEMENT block (exception|while|heading|attitude|go|xyz|set|circle|deroute|stay|follow|survey_rectangle|for)*>
 
 <!ELEMENT include (arg|with)*>
 <!ELEMENT arg EMPTY>
 <!ELEMENT with EMPTY>
 
-<!ELEMENT while (while|heading|attitude|go|xyz|set|circle|deroute|stay)*>
+<!ELEMENT while (exception|while|heading|attitude|go|xyz|set|circle|deroute|stay|follow|survey_rectangle|for)*>
+<!ELEMENT for (exception|while|heading|attitude|go|xyz|set|circle|deroute|stay|follow|survey_rectangle|for)*>
 <!ELEMENT exception EMPTY>
 <!ELEMENT heading EMPTY>
 <!ELEMENT attitude EMPTY>
@@ -27,6 +29,8 @@
 <!ELEMENT deroute EMPTY>
 <!ELEMENT stay EMPTY>
 <!ELEMENT follow EMPTY>
+<!ELEMENT param EMPTY>
+
 
 <!ATTLIST flight_plan name CDATA #REQUIRED>
 <!ATTLIST flight_plan lat0 CDATA #REQUIRED>
@@ -58,11 +62,16 @@ name CDATA #REQUIRED
 strip_button CDATA #IMPLIED
 description CDATA #IMPLIED>
 
-<!ATTLIST while cond CDATA #IMPLIED>
-
 <!ATTLIST exception
 cond CDATA #REQUIRED
 deroute CDATA #REQUIRED>
+
+<!ATTLIST while cond CDATA #IMPLIED>
+
+<!ATTLIST for
+var CDATA #REQUIRED
+from CDATA #REQUIRED
+to CDATA #REQUIRED>
 
 <!ATTLIST heading 
 course CDATA #REQUIRED
@@ -163,3 +172,7 @@ value CDATA #REQUIRED>
 <!ATTLIST with
 from CDATA #REQUIRED
 to CDATA #REQUIRED>
+
+<!ATTLIST param
+name CDATA #REQUIRED
+default_value CDATA #IMPLIED>

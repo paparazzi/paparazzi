@@ -1,4 +1,4 @@
-<!DOCTYPE procedure SYSTEM "procedure.dtd">
+<!DOCTYPE procedure SYSTEM "flight_plan.dtd">
 
 <procedure>
   <param name="rad" default_value="75"/>

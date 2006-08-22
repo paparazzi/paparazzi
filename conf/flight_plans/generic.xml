@@ -1,50 +1,49 @@
-<flight_plan ALT="450" GROUND_ALT="400" LAT0="43.4624" LON0="1.2727" MAX_DIST_FROM_HOME="1000" NAME="Generic" QFU="270" SECURITY_HEIGHT="25">
+<flight_plan alt="450" ground_alt="400" lat0="43.4624" lon0="1.2727" max_dist_from_home="1000" name="Generic" qfu="270" security_height="25">
   <waypoints>
-    <waypoint NAME="HOME" X="0" Y="0"/>
-    <waypoint NAME="1" X="200" Y="0"/>
-    <waypoint NAME="2" X="0" Y="200"/>
-    <waypoint ALT="450." NAME="S1" X="-181.37499716" Y="122.374998203"/>
-    <waypoint ALT="450." NAME="S2" X="136.75000196" Y="308.874998301"/>
+    <waypoint name="HOME" x="0" y="0"/>
+    <waypoint name="1" x="200" y="0"/>
+    <waypoint name="2" x="0" y="200"/>
+    <waypoint alt="450." name="S1" x="-181.37499716" y="122.374998203"/>
+    <waypoint alt="450." name="S2" x="136.75000196" y="308.874998301"/>
   </waypoints>
-
   <blocks>
-    <block NAME="wait GPS">
-      <while COND="!GPS_FIX_VALID(gps_mode)"/>
+    <block name="wait GPS">
+      <while cond="!GPS_FIX_VALID(gps_mode)"/>
     </block>
-    <block NAME="init">
-      <while COND="10 > block_time"/>
-      <set VALUE="reset_nav_reference()" VAR="unit"/>
-      <set VALUE="reset_waypoints()" VAR="unit"/>
-      <deroute BLOCK="circlehome"/>
+    <block name="init">
+      <while cond="10 > block_time"/>
+      <set value="reset_nav_reference()" var="unit"/>
+      <set value="reset_waypoints()" var="unit"/>
+      <deroute block="circlehome"/>
     </block>
-    <block NAME="circlehome">
-      <circle RADIUS="75" WP="HOME"/>
+    <block name="circlehome">
+      <circle radius="75" wp="HOME"/>
     </block>
-    <block NAME="circle left home">
-      <circle RADIUS="-75" WP="HOME"/>
+    <block name="circle left home">
+      <circle radius="-75" wp="HOME"/>
     </block>
-    <block NAME="climb 75">
-      <circle RADIUS="estimator_z/2" WP="1" vmode="gaz" gaz="0.75" pitch="0.3"/>
+    <block name="climb 75">
+      <circle radius="estimator_z/2" wp="1" gaz="0.75" pitch="0.3" vmode="gaz"/>
     </block>
-    <block NAME="stack 1">
-      <circle RADIUS="estimator_z/2" WP="1"/>
+    <block name="stack 1">
+      <circle radius="estimator_z/2" wp="1"/>
     </block>
-    <block NAME="descent 0" strip_button="Descent">
-      <circle RADIUS="estimator_z/2" WP="1" vmode="gaz" gaz="0.0" pitch="-0.3"/>
+    <block name="descent 0" strip_button="Descent">
+      <circle radius="estimator_z/2" wp="1" gaz="0.0" pitch="-0.3" vmode="gaz"/>
     </block>
-    <block NAME="route12">
+    <block name="route12">
       <go approaching_time="0" from="1" hmode="route" wp="2"/>
       <deroute block="stack 2"/>
     </block>
-    <block NAME="route21">
+    <block name="route21">
       <go approaching_time="0" from="2" hmode="route" wp="1"/>
       <deroute block="stack 1"/>
     </block>
-    <block NAME="stack 2">
-      <circle RADIUS="75" WP="2"/>
+    <block name="stack 2">
+      <circle radius="75" wp="2"/>
     </block>
-    <block NAME="survey">
-      <survey_rectangle GRID="150" WP1="S1" WP2="S2"/>
+    <block name="survey">
+      <survey_rectangle grid="150" wp1="S1" wp2="S2"/>
     </block>
   </blocks>
 </flight_plan>
