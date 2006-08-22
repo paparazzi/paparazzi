@@ -151,10 +151,10 @@ let output_cam_mode = fun x index_of_waypoints ->
       lprintf "cam_ac_target(%s);\n" i
   | _ -> failwith (sprintf "Error: unknown '%s' cam mode" m)
 
-let pprz_gaz = fun s ->
+let pprz_throttle = fun s ->
   let g = float_of_string s in
   if g < 0. || g > 1. then
-    failwith "gaz must be > 0 and < 1";
+    failwith "throttle must be > 0 and < 1";
   g*. 9600.
 
 let output_vmode x wp last_wp =
@@ -162,7 +162,7 @@ let output_vmode x wp last_wp =
   if pitch = "auto"
   then begin
     lprintf "climb_mode = CLIMB_MODE_PITCH;\n";
-    lprintf "nav_desired_gaz = %f;\n" (pprz_gaz (parsed_attrib x "gaz"))
+    lprintf "nav_desired_gaz = %f;\n" (pprz_throttle (parsed_attrib x "throttle"))
   end else begin
     lprintf "nav_pitch = %s;\n" (parse pitch);
     lprintf "climb_mode = CLIMB_MODE_GAZ;\n";
@@ -196,11 +196,11 @@ let output_vmode x wp last_wp =
     | "glide" ->
 	lprintf "vertical_mode = VERTICAL_MODE_AUTO_ALT;\n";
 	lprintf "glide_to(%s, %s);\n" last_wp wp
-    | "gaz" ->
+    | "throttle" ->
 	if (pitch = "auto") then
-	  failwith "auto pich mode not compatible with vmode=gaz";
+	  failwith "auto pich mode not compatible with vmode=throttle";
 	lprintf "vertical_mode = VERTICAL_MODE_AUTO_GAZ;\n";
-	lprintf "nav_desired_gaz = %f;\n" (pprz_gaz (parsed_attrib x "gaz"))
+	lprintf "nav_desired_gaz = %f;\n" (pprz_throttle (parsed_attrib x "throttle"))
     | x -> failwith (sprintf "Unknown vmode '%s'" x)
   end;
   vmode
@@ -227,7 +227,14 @@ let output_hmode x wp last_wp =
 let rec index_stage = fun x ->
   begin
     match Xml.tag x with
-     "while" | "for" ->
+     "for" ->
+       incr stage; (* Init of i *)
+       incr stage;
+       let n = !stage in
+       let l = List.map index_stage (Xml.children x) in
+       incr stage; (* To count the loop stage *)
+       Xml.Element (Xml.tag x, Xml.attribs x@["no", soi n], l)
+    | "while" ->
        incr stage;
        let n = !stage in
        let l = List.map index_stage (Xml.children x) in
@@ -281,8 +288,15 @@ let rec print_stage = fun index_of_waypoints sectors x ->
 	and from_ = parsed_attrib x "from" 
 	and to_expr = parsed_attrib x "to"  in
 	let to_var = v ^ "_to" in
-	lprintf "static int8_t %s = %s - 1;\n" v from_;
-	lprintf "static const int8_t %s = %s;\n" to_var to_expr;
+	lprintf "static int8_t %s;\n" v;
+	lprintf "static int8_t %s;\n" to_var;
+	
+	(* init *)
+	stage ();
+	lprintf "%s = %s - 1;\n" v from_;
+	lprintf "%s = %s;\n" to_var to_expr;
+	left ();
+
 	output_label f;
 	stage ();
 	lprintf "if (++%s > %s) Goto(%s) else NextStage();\n" v to_var e;
