@@ -164,3 +164,4 @@ let _ =
   with
     Xml.Error e -> prerr_endline (Xml.error e)
   | Dtd.Prove_error e ->  prerr_endline (Dtd.prove_error e); exit 1
+  | Dtd.Parse_error e ->  prerr_endline (Dtd.parse_error e); exit 1

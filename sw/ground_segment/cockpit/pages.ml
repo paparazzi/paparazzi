@@ -44,7 +44,7 @@ class alert (widget: GBin.frame) =
     method add text = 
       if text <> last then begin
 	let l = Unix.localtime (Unix.gettimeofday ()) in
-	view#buffer#insert (sprintf "%2d:%2d:%2d " l.Unix.tm_hour l.Unix.tm_min l.Unix.tm_sec);
+	view#buffer#insert (sprintf "%02d:%02d:%02d " l.Unix.tm_hour l.Unix.tm_min l.Unix.tm_sec);
 	view#buffer#insert text;
 	view#buffer#insert "\n";
 	last <- text
@@ -234,16 +234,14 @@ let one_setting = fun i do_change packing s (tooltips:GData.tooltips) strip ->
     | Some v -> do_change i v in
   ignore (undo_but#connect#clicked ~callback);
   tooltips#set_tip undo_but#coerce ~text:"Undo";
-  begin
-    try
-      let label = ExtXml.attrib s "strip_button"
-      and sp_value = f "button_value" in
-      let b = GButton.button ~label () in
-      Strip.add_widget strip b#coerce;
-      ignore (b#connect#clicked (fun _ -> do_change i sp_value))
-    with
-      ExtXml.Error _ -> ()
-  end;
+  List.iter (fun x ->
+    assert(ExtXml.tag_is x "strip_button");
+    let label = ExtXml.attrib x "name"
+    and sp_value = ExtXml.float_attrib x "value" in
+    let b = GButton.button ~label () in
+    Strip.add_widget strip b#coerce;
+    ignore (b#connect#clicked (fun _ -> do_change i sp_value)))
+    (Xml.children s);
   _v  
   
   
