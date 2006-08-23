@@ -70,7 +70,7 @@ int16_t segment_x_1, segment_y_1, segment_x_2, segment_y_2;
 uint8_t horizontal_mode;
 float circle_bank = 0;
 
-
+#define PowerVoltage() (vsupply/10.)
 #define RcRoll(travel) (fbw_state->channels[RADIO_ROLL]* (float)travel /(float)MAX_PPRZ)
 
 #define RcEvent1() CheckEvent(rc_event_1)

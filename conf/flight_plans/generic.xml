@@ -1,3 +1,5 @@
+<!DOCTYPE flight_plan SYSTEM "flight_plan.dtd">
+
 <flight_plan alt="450" ground_alt="400" lat0="43.4624" lon0="1.2727" max_dist_from_home="1000" name="Generic" qfu="270" security_height="25">
   <waypoints>
     <waypoint name="HOME" x="0" y="0"/>
@@ -23,7 +25,7 @@
       <circle radius="-75" wp="HOME"/>
     </block>
     <block name="climb 75">
-      <circle radius="estimator_z/2" wp="1" throttle="0.75" pitch="0.3" vmode="throttle"/>
+      <circle radius="50+(estimator_z-ground_alt)/2" wp="1" throttle="0.75" pitch="0.3" vmode="throttle" until="10>PowerVoltage()"/>
     </block>
     <block name="stack 1">
       <circle radius="estimator_z/2" wp="1"/>
