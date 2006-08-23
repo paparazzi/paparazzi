@@ -19,7 +19,7 @@
     </block>
 
     <block name="kill">
-      <go wp="BACK" vmode="gaz" gaz="0" pitch="kill_pitch"/>
+      <go wp="BACK" vmode="throttle" throttle="0" pitch="kill_pitch"/>
     </block>
 
   </blocks>
