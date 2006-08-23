@@ -169,7 +169,8 @@ let api_parse_frame = fun s ->
       assert(n >= 11);
       RX_Packet_64 (read_int64 s 1, Char.code s.[9],
 		    Char.code s.[10], String.sub s 11 (n-11))
-  | x when x = api_rx16_id ->
+  | x when x = api_rx16_id || x = api_tx16_id ->
+      (* tx16 here allows to receive simulated xbee messages *)
       RX_Packet_16 (read_int16 s 1, Char.code s.[3], Char.code  s.[4], String.sub s 5 (n-5))
   | x -> failwith (Printf.sprintf "Xbee.parse_frame: unknown frame id '%d'" (Char.code x))
 

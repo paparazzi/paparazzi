@@ -58,6 +58,7 @@ void xbee_init( void );
 #define XBeeTransportPut1Byte(x) XBeeLink(Transmit(x))
 #define XBeeTransportCheckFreeSpace(x) XBeeLink(CheckFreeSpace(x))
 #define XBeeTransportSizeOf(_x) (_x+5)
+#define XBeeTransportSendMessage() XBeeLink(SendMessage())
 
 #define XBeeTransportPutUint8(_x) { \
   xbee_cs += _x; \
@@ -136,7 +137,8 @@ void xbee_init( void );
 
 #define XBeeTransportTrailer() { \
   xbee_cs = 0xff - xbee_cs; \
-  XBeeTransportPut1Byte(xbee_cs);	\
+  XBeeTransportPut1Byte(xbee_cs); \
+  XBeeTransportSendMessage() \
 }
 
 

@@ -534,11 +534,13 @@ let _ =
     in
 
     (** Listen on a serial device or on multimon pipe or on audio *)
+    let on_serial_device = 
+      String.length !port >= 4 && String.sub !port 0 4 = "/dev" in (* FIXME *)
     let fd = 
       if !audio then
 	Demod.init !port
       else
-	if String.sub !port 0 4 = "/dev" then (* FIXME *)
+	if on_serial_device then
 	  Serial.opendev !port (Serial.speed_of_baudrate !baurate)
 	else 
 	  Unix.descr_of_in_channel (open_in !port)
@@ -587,7 +589,7 @@ let _ =
 	  ignore (Glib.Timeout.add PprzModem.msg_period (fun () -> PprzModem.send_msg (); true))
       | Wavecard ->
 	  Wc.init device !rssi_id
-      | XBee ->
+      | XBee when on_serial_device -> (* Else on a pipe *)
 	  XB.init device
       | _ -> ()
     end;

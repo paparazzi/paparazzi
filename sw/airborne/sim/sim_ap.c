@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <assert.h>
 #include <sys/time.h>
+#include <sys/stat.h>
 #include <time.h>
 #include "std.h"
 #include "inter_mcu.h"
@@ -20,6 +21,7 @@
 #include "commands.h"
 #include "main_ap.h"
 #include "ap_downlink.h"
+#include "sim_uart.h"
 
 #include <caml/mlvalues.h>
 #include <caml/memory.h>
@@ -53,6 +55,22 @@ float ftimeofday(void) {
 value sim_init(value unit) {
   init_fbw();
   init_ap();
+#ifdef SIM_UART
+  /* open named pipe */
+  char link_pipe_name[128];
+  sprintf(link_pipe_name, "/tmp/pprz_link_%d", AC_ID);
+  struct stat st;
+  if (stat(link_pipe_name, &st)) {
+    if (mkfifo(link_pipe_name, 0644) == -1) {
+      perror("make pipe");
+      exit (10);
+    }
+  }	
+  if ( !(pipe_stream = fopen(link_pipe_name, "w")) ) {
+    perror("open pipe");
+    exit (10);
+  }
+#endif
   return unit;
 }
 

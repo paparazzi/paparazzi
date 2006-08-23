@@ -26,6 +26,10 @@
 #include "print.h"
 #include "xbee.h"
 
+#ifdef SIM_UART
+#include "sim_uart.h"
+#endif
+
 uint8_t xbee_cs;
 uint8_t xbee_payload[XBEE_PAYLOAD_LEN];
 volatile bool_t xbee_msg_received;

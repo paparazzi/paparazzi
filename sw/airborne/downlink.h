@@ -32,9 +32,17 @@
 
 #include <inttypes.h>
 
-#ifdef SITL
+#if defined SITL
+
+#ifdef SIM_UART
+#include "sim_uart.h"
+#include "pprz_transport.h"
+#include "xbee.h"
+#else /* SIM_UART */
 /** Software In The Loop simulation uses IVY bus directly as the transport layer */
 #include "ivy_transport.h"
+#endif
+
 #else /** SITL */
 #include "pprz_transport.h"
 #include "modem.h"
