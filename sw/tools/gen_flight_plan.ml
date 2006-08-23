@@ -323,8 +323,12 @@ let rec print_stage = fun index_of_waypoints sectors x ->
 	lprintf "return;\n"
     | "attitude" ->
 	stage ();
-	let until = parsed_attrib x "until" in
-	lprintf "if (%s) NextStage() else {\n" until;
+	begin
+	  try
+	    let until = parsed_attrib x "until" in
+	    lprintf "if (%s) NextStage() else {\n" until;
+	  with ExtXml.Error _ -> ()
+	end;
 	right ();
 	lprintf "lateral_mode = LATERAL_MODE_ROLL;\n";
 	lprintf "nav_desired_roll = RadOfDeg(%s);\n" (parsed_attrib x "roll");
