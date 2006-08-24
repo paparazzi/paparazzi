@@ -543,7 +543,7 @@ let _ =
 	if on_serial_device then
 	  Serial.opendev !port (Serial.speed_of_baudrate !baurate)
 	else 
-	  Unix.descr_of_in_channel (open_in !port)
+	  Unix.openfile !port [Unix.O_RDWR] 0o640
     in
 
     if !dtr then
@@ -589,7 +589,7 @@ let _ =
 	  ignore (Glib.Timeout.add PprzModem.msg_period (fun () -> PprzModem.send_msg (); true))
       | Wavecard ->
 	  Wc.init device !rssi_id
-      | XBee when on_serial_device -> (* Else on a pipe *)
+      | XBee ->
 	  XB.init device
       | _ -> ()
     end;
