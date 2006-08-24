@@ -64,7 +64,11 @@ value sim_init(value unit) {
 #ifdef SIM_UART
   /* open named pipe */
   char link_pipe_name[128];
+#ifdef SIM_XBEE
+  sprintf(link_pipe_name, "/tmp/pprz_xbee");
+#else
   sprintf(link_pipe_name, "/tmp/pprz_link_%d", AC_ID);
+#endif
   struct stat st;
   if (stat(link_pipe_name, &st)) {
     if (mkfifo(link_pipe_name, 0644) == -1) {
