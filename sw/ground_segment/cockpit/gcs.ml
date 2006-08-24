@@ -377,7 +377,7 @@ let create_geomap = fun window ->
   ignore (geomap#canvas#event#connect#motion_notify (motion_notify geomap));
   ignore (geomap#canvas#event#connect#any (any_event geomap));
 
-  ignore (menu_fact#add_item "Redraw" ~key:GdkKeysyms._L ~callback:geomap#canvas#update_now);
+  ignore (menu_fact#add_item "Redraw" ~key:GdkKeysyms._L ~callback:(fun _ -> geomap#canvas#misc#draw None));
   let switch_fullscreen = fun x ->
     if x then
       window#fullscreen ()
