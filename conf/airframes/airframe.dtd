@@ -1,0 +1,63 @@
+<!-- Paparazzi airframe DTD -->
+
+<!ELEMENT airframe (servos|commands|rc_commands|command_laws|section|makefile)*>
+<!ELEMENT servos (servo)*>
+<!ELEMENT commands (axis)*>
+<!ELEMENT rc_commands (set)*>
+<!ELEMENT command_laws (let|set)*>
+<!ELEMENT section (define|linear)*>
+<!ELEMENT servo EMPTY>
+<!ELEMENT axis EMPTY>
+<!ELEMENT set EMPTY>
+<!ELEMENT let EMPTY>
+<!ELEMENT define EMPTY>
+<!ELEMENT linear EMPTY>
+<!ELEMENT makefile (#PCDATA)>
+
+<!ATTLIST airframe
+name CDATA #IMPLIED>
+
+<!ATTLIST servos>
+
+<!ATTLIST commands>
+<!ATTLIST rc_commands>
+<!ATTLIST command_laws>
+
+<!ATTLIST section
+name CDATA #IMPLIED
+prefix CDATA #IMPLIED>
+
+<!ATTLIST servo
+name CDATA #REQUIRED
+no CDATA #REQUIRED
+min CDATA #REQUIRED
+neutral CDATA #REQUIRED
+max CDATA #REQUIRED>
+
+<!ATTLIST axis
+name CDATA #REQUIRED
+failsafe_value CDATA #REQUIRED>
+
+<!ATTLIST set
+value CDATA #REQUIRED
+command CDATA #IMPLIED
+servo CDATA #IMPLIED>
+
+<!ATTLIST let
+var CDATA #REQUIRED
+value CDATA #REQUIRED>
+
+<!ATTLIST define
+name CDATA #REQUIRED
+value CDATA #REQUIRED
+unit CDATA #IMPLIED>
+
+<!ATTLIST linear
+name CDATA #REQUIRED
+arity CDATA #REQUIRED
+coeff1 CDATA #REQUIRED
+coeff2 CDATA #IMPLIED
+coeff3 CDATA #IMPLIED>
+
+<!ATTLIST makefile
+target CDATA #IMPLIED>

@@ -1,5 +1,7 @@
 <!-- axi 2204-54 / GWS 8*4.3 / 3 lipos 740mah / 9.5a -->
 
+<!DOCTYPE airframe SYSTEM "airframe.dtd">
+
 <airframe name="Plaster White 1">
   <section name="adc" prefix="ADC_CHANNEL_">
     <define name="IR1" value="1"/>
@@ -8,7 +10,7 @@
     <define name="IR_NB_SAMPLES" value="16"/>
   </section>
 
-  <servos min="1000" neutral="1500" max="2000">
+  <servos>
     <servo name="GAZ"           no="0" min="1000" neutral="1000" max="1750"/>
     <servo name="AILEVON_RIGHT"  no="2" min="1800" neutral="1480" max="1200"/>
     <servo name="AILEVON_LEFT" no="6" min="1800" neutral="1440" max="1200"/>
@@ -51,8 +53,12 @@
     <define name="RAD_OF_IR_CONTRAST" value="0.6"/>
     <define name="RAD_OF_IR_MIN_VALUE" value="0.0008"/>
     <define name="RAD_OF_IR_MAX_VALUE" value="0.008"/>
+<!--
     <linear name="RollOfIrs" arity="2" coeff1="-1" coeff2="-1"/>
     <linear name="PitchOfIrs" arity="2" coeff1="-1" coeff2="1"/>
+-->
+    <define name="RollOfIrs(i1, i2)" value="(-i1 -i2)"/>
+    <define name="PitchOfIrs(i1, i2)" value="(i2-i1)"/>
     <define name="ADC_ROLL_NEUTRAL" value="-1042"/>
     <define name="ADC_PITCH_NEUTRAL" value="10"/>
   </section>
@@ -80,14 +86,14 @@
     <define name="ALTITUDE_PGAIN" value="-0.05"/>
     <define name="NAV_PITCH" value="0."/>
   </section>
-  <section name="BAT" channel="3">
+  <section name="BAT">
     <define name="MILLIAMP_PER_PERCENT" value="1.24"/>
     <define name="VOLTAGE_ADC_A" value="0.01727"/>
     <define name="VOLTAGE_ADC_B" value="0.2965"/>
     <define name="VoltageOfAdc(adc)" value="(VOLTAGE_ADC_A * adc + VOLTAGE_ADC_B)"/>
     <define name="LOW_BATTERY" value="9" unit="V"/>
   </section>
-  <section name="SERVOS" channel="6">
+  <section name="SERVOS">
     <define name="SERVOS_VOLTAGE_ADC_A" value="0.005661"/>
     <define name="SERVOS_VOLTAGE_ADC_B" value="0.014948"/>
     <define name="ServosVoltageOfAdc(adc)" value="(VOLTAGE_ADC_A * adc + VOLTAGE_ADC_B)"/>

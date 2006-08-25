@@ -187,5 +187,8 @@ let _ =
     List.iter parse_section (Xml.children xml);
     finish h_name
   with
-    Xml.Error e -> prerr_endline (Xml.error e)
+    Xml.Error e -> prerr_endline (Xml.error e); exit 1
+  | Dtd.Parse_error e -> prerr_endline (Dtd.parse_error e); exit 1
+  | Dtd.Prove_error e -> prerr_endline (Dtd.prove_error e); exit 1
+  | Dtd.Check_error e -> prerr_endline (Dtd.check_error e); exit 1
 	  
