@@ -23,7 +23,8 @@
 Q=@
 
 OCAML=ocaml
-OCAMLC=ocamlc -I ../lib/ocaml -I +xml-light
+OCAMLC=ocamlc
+INCLUDES=-I ../lib/ocaml -I +xml-light
 OCAMLLEX=ocamllex
 OCAMLYACC=ocamlyacc
 
@@ -34,7 +35,7 @@ ABS_FP = $(FP_CMO:%=$$PAPARAZZI_SRC/sw/tools/%)
 
 gen_flight_plan.out : $(FP_CMO) ../lib/ocaml/lib-pprz.cma
 	@echo OL $@
-	$(Q)$(OCAMLC) -custom -o $@ ivy-ocaml.cma lib-pprz.cma $^
+	$(Q)$(OCAMLC) $(INCLUDES) -custom -o $@ ivy-ocaml.cma lib-pprz.cma $^
 
 fp_parser.cmo : fp_parser.cmi fp_syntax.cmi
 fp_parser.cmi : fp_parser.ml fp_syntax.cmi
@@ -46,18 +47,18 @@ fp_syntax.cmo : fp_syntax.cmi
 
 %.out : %.ml
 	@echo OC $<
-	$(Q)$(OCAMLC) -o $@ ivy-ocaml.cma lib-pprz.cma $<
+	$(Q)$(OCAMLC) $(INCLUDES) -o $@ ivy-ocaml.cma lib-pprz.cma $<
 	@cat ../../pprz_src_test.sh > $@
 	@echo '$(OCAML) -I +xml-light -I $$PAPARAZZI_SRC/sw/lib/ocaml ivy-ocaml.cma lib-pprz.cma $$PAPARAZZI_BIN/$< $$*' >> $@
 	@chmod a+x $@
 
 %.cmo : %.ml ../lib/ocaml/lib-pprz.cma
 	@echo OC $<
-	$(Q)$(OCAMLC) -c $<
+	$(Q)$(OCAMLC) $(INCLUDES) -c $<
 
 %.cmi : %.mli
 	@echo OC $<
-	$(Q)$(OCAMLC) -c $<
+	$(Q)$(OCAMLC) $(INCLUDES) -c $<
 
 %.ml : %.mll
 	@echo OC $<

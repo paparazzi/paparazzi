@@ -32,9 +32,9 @@ SIMSCMO=$(SIMSML:%.ml=%.cmo)
 SIMSCMX=$(SIMSML:%.ml=%.cmx)
 
 
-OCAMLC = ocamlc -I +xml-light
-OCAMLOPT=ocamlopt -I +xml-light -p
-INCLUDES= -I +lablgtk2 -I ../lib/ocaml
+OCAMLC = ocamlc -g
+OCAMLOPT=ocamlopt
+INCLUDES= -I +lablgtk2 -I ../lib/ocaml -I +xml-light
 
 AIRBORNE = ../airborne
 VARINCLUDE=$(PAPARAZZI_HOME)/var/include
@@ -74,7 +74,7 @@ gaia : gaia.cmo
 	$(Q)$(OCAMLC) $(INCLUDES) -c $<
 
 clean :
-	\rm -f *.cm* *~ *.out .depend *.o *.a *.so gaia
+	rm -f *.cm* *~ *.out .depend *.o *.a *.so gaia
 
 #
 # Dependencies

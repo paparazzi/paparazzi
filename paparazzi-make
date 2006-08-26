@@ -1,0 +1,3 @@
+#!/bin/bash
+
+make -C /usr/share/paparazzi -f Makefile.ac $*

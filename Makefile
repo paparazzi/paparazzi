@@ -38,8 +38,15 @@ MULTIMON=sw/ground_segment/multimon
 VISU3D=sw/ground_segment/visu3d
 LOGALIZER=sw/logalizer
 SIMULATOR=sw/simulator
-SUPERVISION=sw/supervision/paparazzi.pl
-MAKE=make
+MAKE=make PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME)
+CONF=$(PAPARAZZI_SRC)/conf
+STATICINCLUDE =$(PAPARAZZI_HOME)/var/include
+MESSAGES_H=$(STATICINCLUDE)/messages.h
+MESSAGES_FBW_H=$(STATICINCLUDE)/messages_fbw.h
+UBX_PROTOCOL_H=$(STATICINCLUDE)/ubx_protocol.h
+DL_PROTOCOL_H=$(STATICINCLUDE)/dl_protocol.h
+MESSAGES_XML = $(CONF)/messages.xml
+UBX_XML = $(CONF)/ubx.xml
 
 
 all: static
@@ -52,15 +59,7 @@ conf/%.xml :conf/%.xml.example
 	[ -L $@ ] || [ -f $@ ] || cp $< $@ 
 
 
-demo: static ac1 ac2 ac3
-	PAPARAZZI_HOME=$(PAPARAZZI_SRC) PAPARAZZI_SRC=$(PAPARAZZI_SRC) $(SUPERVISION)
-
-ac1 : conf sim_static
-	make AIRCRAFT=Twin1 PAPARAZZI_HOME=$(PAPARAZZI_SRC) sim
-ac2 : conf sim_static
-	make AIRCRAFT=Twin2 PAPARAZZI_HOME=$(PAPARAZZI_SRC) sim
-ac3 : conf sim_static
-	make AIRCRAFT=Twin3 PAPARAZZI_HOME=$(PAPARAZZI_SRC) sim
+demo: static
 
 lib:
 	cd $(LIB)/ocaml; $(MAKE)
@@ -86,63 +85,29 @@ multimon:
 visu3d: lib
 	cd $(VISU3D); $(MAKE)
 
-%.compile: ac_h
-	cd $(AIRBORNE); $(MAKE) TARGET=$* all
-
-%.wr_fuses: %.compile
-	cd $(AIRBORNE); $(MAKE) TARGET=$* wr_fuses
-
-%.rd_fuses: %.compile
-	cd $(AIRBORNE); $(MAKE) TARGET=$* rd_fuses
-
-%.check_fuses: %.compile
-	cd $(AIRBORNE); $(MAKE) TARGET=$* check_fuses
-
-%.erase: %.compile
-	cd $(AIRBORNE); $(MAKE) TARGET=$* erase
-
-%.upload: %.compile
-	cd $(AIRBORNE); $(MAKE) TARGET=$* upload
-
-sim: ac_h sim_static
-	cd $(AIRBORNE); $(MAKE) TARGET=sim ARCHI=sim all
-
-fbw : fbw.compile
-
-ap: ap.compile
-
-upload_fbw: fbw.upload
-
-upload_ap: ap.upload
-
-erase_fbw: fbw.erase
-
-erase_ap: ap.erase
+static_h : $(MESSAGES_H) $(UBX_PROTOCOL_H) $(DL_PROTOCOL_H)
 
 
-wr_fuses_ap: ap.wr_fuses
+$(MESSAGES_H) : $(MESSAGES_XML) $(CONF_XML) $(TOOLS)/gen_messages.out
+	$(Q)test -d $(STATICINCLUDE) || mkdir -p $(STATICINCLUDE)
+	@echo BUILD $@
+	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) $(TOOLS)/gen_messages.out $< telemetry > /tmp/msg.h
+	$(Q)mv /tmp/msg.h $@
+	$(Q)chmod a+r $@
 
-wr_fuses_fbw: fbw.wr_fuses
+$(UBX_PROTOCOL_H) : $(UBX_XML)
+	@echo BUILD $@
+	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) $(TOOLS)/gen_ubx.out $< > /tmp/ubx.h
+	$(Q)mv /tmp/ubx.h $@
 
-rd_fuses_ap: ap.rd_fuses
+$(DL_PROTOCOL_H) : $(MESSAGES_XML)
+	@echo BUILD $@
+	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) $(TOOLS)/gen_messages.out $< datalink > /tmp/dl.h
+	$(Q)mv /tmp/dl.h $@
 
-rd_fuses_fbw: fbw.rd_fuses
-
-check_fuses_ap: ap.check_fuses
-
-check_fuses_fbw: fbw.check_fuses
-
-static_h :
-	PAPARAZZI_HOME=`pwd` PAPARAZZI_SRC=`pwd` make -f Makefile.gen
-
-ac_h : tools static_h
-	$(Q)if (expr "$(AIRCRAFT)"); then : ; else echo "AIRCRAFT undefined: type 'make AIRCRAFT=AircraftName ...'"; exit 1; fi
-	@echo BUILD $(AIRCRAFT)
-	$(Q)PAPARAZZI_HOME=`pwd` PAPARAZZI_SRC=`pwd` Q=$(Q) $(TOOLS)/gen_aircraft.out $(AIRCRAFT)
-
-hard_ac: ac_h fbw ap
-ac: hard_ac
-
+include Makefile.ac
+sim : sim_static
+ac_h : tools static_h 
 
 ##### preliminary hard wired arm7 bootloader rules
 #
@@ -164,27 +129,28 @@ doxygen:
 	mkdir -p dox
 	doxygen Doxyfile
 
-clean_ac :
-	rm -fr $(PAPARAZZI_HOME)/var/$(AIRCRAFT)
-
 run_sitl :
 	$(PAPARAZZI_HOME)/var/$(AIRCRAFT)/sim/simsitl
 
 install :
-	make -f conf/Makefile.install PREFIX=$(PREFIX)
+	make -f Makefile.install PREFIX=$(PREFIX)
 
 uninstall :
-	make -f conf/Makefile.install PREFIX=$(PREFIX) uninstall
+	make -f Makefile.install PREFIX=$(PREFIX) uninstall
 
-DISTRO=etch
+DISTRO=sarge
 deb :
 	chmod u+x debian/rules
 	cp debian/control.$(DISTRO) debian/control
 	cp debian/changelog.$(DISTRO) debian/changelog
-	dpkg-buildpackage -rfakeroot
+	dpkg-buildpackage $(DEBFLAGS) -Ivar -rfakeroot
+
+fast_deb:
+	make deb OCAMLC=ocamlc.opt DEBFLAGS=-b
 
 clean:
 	rm -fr dox
+	rm -f  $(MESSAGES_H) $(UBX_PROTOCOL_H) $(DL_PROTOCOL_H)
 	find . -mindepth 2 -name Makefile -exec sh -c '$(MAKE) -C `dirname {}` $@' \; 
 	find . -name '*~' -exec rm -f {} \;
 

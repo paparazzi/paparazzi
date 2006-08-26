@@ -691,8 +691,7 @@ let ivy_server = fun http ->
 
 (* main loop *)
 let _ =
-  let xml_ground = ExtXml.child conf_xml "ground" in
-  let ivy_bus = ref (ExtXml.attrib xml_ground "ivy_bus")
+  let ivy_bus = ref "127.255.255.255:2010"
   and logging = ref true
   and http = ref false in
 

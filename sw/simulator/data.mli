@@ -26,7 +26,6 @@
 
 val user_conf_path : string
 val conf_xml : Xml.xml
-val ground : Xml.xml
 val messages_ap : Xml.xml
 type aircraft = {
   name : string;

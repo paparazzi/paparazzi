@@ -21,10 +21,13 @@
 
 # Preprocessing of XML configuration files
 
+PAPARAZZI_SRC=$(shell pwd)
+
 include conf/Makefile.local
 
 CONF=$(PAPARAZZI_HOME)/conf
 CONF_XML=$(CONF)/conf.xml
+AIRBORNE=sw/airborne
 MESSAGES_XML = $(CONF)/messages.xml
 ACINCLUDE = $(PAPARAZZI_HOME)/var/$(AIRCRAFT)
 AIRFRAME_H=$(ACINCLUDE)/airframe.h
@@ -34,13 +37,42 @@ FLIGHT_PLAN_H=$(ACINCLUDE)/flight_plan.h
 FLIGHT_PLAN_XML=$(ACINCLUDE)/flight_plan.xml
 SETTINGS_H=$(ACINCLUDE)/settings.h
 MAKEFILE_AC=$(ACINCLUDE)/Makefile.ac
+ifeq ($(PAPARAZZI_SRC),/usr/share/paparazzi)
+SUPERVISION=paparazzi
+else
+SUPERVISION=sw/supervision/paparazzi.pl
+endif
+MAKE=make PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME)
+
 
 # "make Q=''" to get full echo
 Q=@
 
-all: $(AIRFRAME_H) $(RADIO_H) $(FLIGHT_PLAN_H) $(FLIGHT_PLAN_XML) $(SETTINGS_H) $(MAKEFILE_AC) $(PERIODIC_H)
+help:
+	@echo "'paparazzi-make init' to init your configuration"
+	@echo "'paparazzi-make demo' to compile demo aircraft and simulate them"
+	@echo "'paparazzi-make AIRCRAFT=<ac_name> [sim|ap.<action>|fbw.<action>|clean_ac]' where <action> is 'compile' or 'upload'"
 
-$(AIRFRAME_H) : $(CONF)/$(AIRFRAME) $(CONF_XML)
+init:
+	@echo "Copying config example in your $(PAPARAZZI_HOME) directory"
+	@mkdir -p $(PAPARAZZI_HOME)
+	cp -a conf $(PAPARAZZI_HOME)
+	cp -a data $(PAPARAZZI_HOME)
+
+demo: ac1 ac2 ac3
+	PAPARAZZI_HOME=$(PAPARAZZI_HOME) PAPARAZZI_SRC=$(PAPARAZZI_SRC) $(SUPERVISION)
+
+ac1 :
+	make -f Makefile.ac AIRCRAFT=Twin1 sim
+ac2 :
+	make -f Makefile.ac AIRCRAFT=TJ1 sim
+ac3 :
+	make -f Makefile.ac AIRCRAFT=MJ5 sim
+
+
+all_ac_h: $(AIRFRAME_H) $(RADIO_H) $(FLIGHT_PLAN_H) $(FLIGHT_PLAN_XML) $(SETTINGS_H) $(MAKEFILE_AC) $(PERIODIC_H)
+
+$(AIRFRAME_H) : $(CONF)/$(AIRFRAME_XML) $(CONF_XML)
 	@echo BUILD $@
 	$(Q)$(TOOLS)/gen_airframe.out $(AC_ID) $(AIRCRAFT) $< > /tmp/airframe.h
 	$(Q)mv /tmp/airframe.h $@
@@ -70,9 +102,52 @@ $(SETTINGS_H) : $(CONF)/$(SETTINGS) $(CONF_XML) $(TOOLS)/gen_settings.out
 	$(Q)$(TOOLS)/gen_settings.out $< > $@
 	$(Q)chmod a+r $@
 
-$(MAKEFILE_AC) : $(CONF)/$(AIRFRAME)
+$(MAKEFILE_AC) : $(CONF)/$(AIRFRAME_XML)
 	@echo BUILD $@
 	$(Q)$(TOOLS)/extract_makefile.out $< > $@
 
-clean :
-	rm -f $(ACINCLUDE)/*.h
+
+ac_h :
+	$(Q)if (expr "$(AIRCRAFT)"); then : ; else echo "AIRCRAFT undefined: type 'make AIRCRAFT=AircraftName ...'"; exit 1; fi
+	@echo BUILD $(AIRCRAFT)
+	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) Q=$(Q) $(TOOLS)/gen_aircraft.out $(AIRCRAFT)
+
+%.compile: ac_h
+	cd $(AIRBORNE); $(MAKE) TARGET=$* all
+
+%.wr_fuses: %.compile
+	cd $(AIRBORNE); $(MAKE) TARGET=$* wr_fuses
+
+%.rd_fuses: %.compile
+	cd $(AIRBORNE); $(MAKE) TARGET=$* rd_fuses
+
+%.check_fuses: %.compile
+	cd $(AIRBORNE); $(MAKE) TARGET=$* check_fuses
+
+%.erase: %.compile
+	cd $(AIRBORNE); $(MAKE) TARGET=$* erase
+
+%.upload: %.compile
+	cd $(AIRBORNE); $(MAKE) TARGET=$* upload
+
+sim: ac_h
+	cd $(AIRBORNE); $(MAKE) TARGET=sim ARCHI=sim all
+
+# Rules for backward compatibility (old guys are used to !)
+fbw : fbw.compile
+ap: ap.compile
+upload_fbw: fbw.upload
+upload_ap: ap.upload
+erase_fbw: fbw.erase
+erase_ap: ap.erase
+wr_fuses_ap: ap.wr_fuses
+wr_fuses_fbw: fbw.wr_fuses
+rd_fuses_ap: ap.rd_fuses
+rd_fuses_fbw: fbw.rd_fuses
+check_fuses_ap: ap.check_fuses
+check_fuses_fbw: fbw.check_fuses
+hard_ac ac: ac_h fbw ap
+
+clean_ac :
+	$(Q)if (expr "$(AIRCRAFT)"); then : ; else echo "AIRCRAFT undefined: type 'make AIRCRAFT=AircraftName ...'"; exit 1; fi
+	rm -fr $(PAPARAZZI_HOME)/var/$(AIRCRAFT)

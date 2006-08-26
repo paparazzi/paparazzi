@@ -23,9 +23,11 @@
 # Quiet compilation
 Q=@
 
-OCAMLC=ocamlc -thread -I +xml-light
-OCAMLOPT=ocamlopt -thread -I +xml-light
-INCLUDES=-I +lablgtk2 -I ../../lib/ocaml
+OCAMLC=ocamlc
+OCAMLCFLAGS=-thread
+OCAMLOPT=ocamlopt -thread
+OCAMLOPTFLAGS=-thread
+INCLUDES=-I +lablgtk2 -I ../../lib/ocaml -I +xml-light
 LIBS=glibivy-ocaml.cma lablgtk.cma lib-pprz.cma lablgnomecanvas.cma xlib-pprz.cma
 CMXA=$(LIBS:.cma=.cmxa)
 
@@ -45,22 +47,22 @@ map2d : gcs
 
 $(MAIN) : $(CMO)
 	@echo OL $@
-	$(Q)$(OCAMLC) -custom $(INCLUDES) $(LIBS) threads.cma gtkThread.cmo gtkInit.cmo $(CMO) -o $@
+	$(Q)$(OCAMLC) $(OCAMLCFLAGS) -custom $(INCLUDES) $(LIBS) threads.cma gtkThread.cmo gtkInit.cmo $(CMO) -o $@
 
 $(MAIN).opt : $(CMX)
 	@echo OOL $@
-	$(Q)$(OCAMLOPT) $(INCLUDES) str.cmxa unix.cmxa xml-light.cmxa $(LIBS:.cma=.cmxa) threads.cmxa gtkThread.cmx gtkInit.cmx $(CMX) -o $@
+	$(Q)$(OCAMLOPT) $(OCAMLCFLAGS) $(INCLUDES) str.cmxa unix.cmxa xml-light.cmxa $(LIBS:.cma=.cmxa) threads.cmxa gtkThread.cmx gtkInit.cmx $(CMX) -o $@
 
 
 %.cmo: %.ml  ../../lib/ocaml/lib-pprz.cma ../../lib/ocaml/xlib-pprz.cma
 	@echo OC $<
-	$(Q)$(OCAMLC) $(INCLUDES) -c $<
+	$(Q)$(OCAMLC) $(OCAMLCFLAGS) $(INCLUDES) -c $<
 %.cmi: %.mli  ../../lib/ocaml/lib-pprz.cma ../../lib/ocaml/xlib-pprz.cma
 	@echo OCI $<
-	$(Q)$(OCAMLC) $(INCLUDES) -c $<
+	$(Q)$(OCAMLC) $(OCAMLCFLAGS) $(INCLUDES) -c $<
 %.cmx: %.ml
 	@echo OOC $<
-	$(Q)$(OCAMLOPT) $(INCLUDES) -c $<
+	$(Q)$(OCAMLOPT) $(OCAMLCFLAGS) $(INCLUDES) -c $<
 
 
 clean:

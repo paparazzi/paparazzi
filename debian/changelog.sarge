@@ -1,3 +1,10 @@
+paparazzi (3.1-1) unstable; urgency=low
+
+  * Initial Release.
+
+ -- Pascal Brisset <pascal.brisset@enac.fr>  Sat, 26 Aug 2006 22:28:35 +0200
+
+
 paparazzi (1.0-3) unstable; urgency=low
 
   * Initial Release.

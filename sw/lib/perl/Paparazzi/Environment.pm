@@ -16,9 +16,9 @@ if (defined $ENV{PAPARAZZI_SRC}) {
 if (defined $ENV{PAPARAZZI_HOME}) {
   $paparazzi_home = $ENV{PAPARAZZI_HOME}
 }
-else {
-  $paparazzi_home = "/usr/share/paparazzi" unless defined $ENV{PAPARAZZI_SRC};
-}
+#else {
+#  $paparazzi_home = "/usr/share/paparazzi" unless defined $ENV{PAPARAZZI_SRC};
+#}
 #print "\nEnvironment : ";
 #if (defined $paparazzi_src) {
 #  print "source directory mode\n  paparazzi_src  $paparazzi_src\n";

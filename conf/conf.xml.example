@@ -43,7 +43,7 @@
     airframe="airframes/microjet1.xml" 
     radio="radios/cockpitMM.xml" 
     telemetry="telemetry/default.xml"
-    flight_plan="flight_plans/dummy.xml"
+    flight_plan="flight_plans/muret_demo_1.xml"
   />
 
   <aircraft 
@@ -91,7 +91,8 @@
     airframe="airframes/twinjet1.xml" 
     radio="radios/cockpitMM.xml" 
     telemetry="telemetry/default.xml"
-    flight_plan="flight_plans/dummy.xml"
+    flight_plan="flight_plans/generic.xml"
+    settings="settings/tuning.xml"
   />
 
 <!-- tiny testbench -->
@@ -104,6 +105,15 @@
     flight_plan="flight_plans/dummy.xml"
   />
 
+  <aircraft 
+    name="MJ5"
+    ac_id="12"
+    airframe="airframes/microjet5.xml" 
+    radio="radios/cockpitMM.xml" 
+    telemetry="telemetry/default.xml"
+    flight_plan="flight_plans/muret_demo_1.xml"
+  />
+
 <!-- classix testbench -->
   <aircraft 
     name="TS5"
@@ -113,11 +123,4 @@
     telemetry="telemetry/default.xml"
     flight_plan="flight_plans/dummy.xml"
   />
-
-  <ground name="desktop" ivy_bus="127:2010">
-    <link name="downlink" port="/dev/ttyS0" protocol="pprz/modem"/>
-    <link name="datalink" port="/dev/ttyS1" protocol="pprz/coronis"/>
-    <link name="ap" port="/dev/ttyS1" protocol="pprz"/>
-    <link name="fbw" port="/dev/ttyS0" protocol="pprz"/>
-  </ground>
 </conf>

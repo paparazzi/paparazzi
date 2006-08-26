@@ -32,7 +32,6 @@ let (//) = Filename.concat
 let user_conf_path = Env.paparazzi_home // "conf"
 
 let conf_xml = Xml.parse_file (user_conf_path // "conf.xml")
-let ground = ExtXml.child conf_xml "ground"
 
 let messages_ap =
 (*  let xml = Xml.parse_file (pprz_conf_path // "messages.xml") in *)

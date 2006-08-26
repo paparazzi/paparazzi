@@ -75,9 +75,6 @@ module Make(A:Data.MISSION) = struct
       Not_found ->
 	failwith (Printf.sprintf "Child 'section' with 'name=%s' expected in '%s'\n" name (Xml.to_string A.ac.airframe))
 
-
-  let simu_section = section "SIMU"
-
   let defined_value = fun sect name ->
     try
       (Xml.attrib (ExtXml.child sect ~select:(fun x -> ExtXml.attrib x "name" = name) "define") "value")
@@ -87,11 +84,17 @@ module Make(A:Data.MISSION) = struct
 
   let float_value = fun section s ->  float_of_string (defined_value section s)
 
-  let roll_response_factor = float_value simu_section "ROLL_RESPONSE_FACTOR"
+  let simu_section = 
+    try section "SIMU" with _ -> Xml.Element("", [], [])
 
-  let yaw_response_factor = float_value simu_section "YAW_RESPONSE_FACTOR"
+  let roll_response_factor = 
+    try float_value simu_section "ROLL_RESPONSE_FACTOR" with _ -> 10.
 
-  let weight = float_value simu_section "WEIGHT"
+  let yaw_response_factor = 
+    try float_value simu_section "YAW_RESPONSE_FACTOR" with _ -> 1.
+
+  let weight = 
+    try float_value simu_section "WEIGHT" with _ -> 1.
 
   let max_phi = 0.7 (* rad *)
   let bound = fun x mi ma -> if x > ma then ma else if x < mi then mi else x

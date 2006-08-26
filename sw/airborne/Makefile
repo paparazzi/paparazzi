@@ -29,10 +29,12 @@ INCLUDES = -I $(PAPARAZZI_SRC)/sw/include -I $(PAPARAZZI_SRC)/sw/airborne -I $(P
 
 SRC_ARCH = $(PAPARAZZI_SRC)/sw/airborne/$(ARCHDIR)
 
+ifneq ($(MAKECMDGOALS),clean) 
 include $(PAPARAZZI_HOME)/var/$(AIRCRAFT)/Makefile.ac
 $(TARGET).srcs += $($(TARGET).EXTRA_SRCS)
 include ../../conf/Makefile.local
 include ../../conf/Makefile.$(ARCHI)
+endif
 
 $(TARGET).install : warn_conf
 
@@ -46,4 +48,4 @@ warn_conf :
 	@echo
 
 clean :
-	rm *~
+	rm -f *~
