@@ -27,8 +27,10 @@ MAKEFLAGS += --no-print-directory
 endif
 
 PAPARAZZI_SRC=$(shell pwd)
+ifeq ($(PAPARAZZI_HOME),)
+PAPARAZZI_HOME=$(PAPARAZZI_SRC)
+endif
 
-include conf/Makefile.local
 
 LIB=sw/lib
 AIRBORNE=sw/airborne
@@ -47,6 +49,7 @@ UBX_PROTOCOL_H=$(STATICINCLUDE)/ubx_protocol.h
 DL_PROTOCOL_H=$(STATICINCLUDE)/dl_protocol.h
 MESSAGES_XML = $(CONF)/messages.xml
 UBX_XML = $(CONF)/ubx.xml
+TOOLS=$(PAPARAZZI_SRC)/sw/tools
 
 
 all: static
@@ -155,12 +158,6 @@ clean:
 	find . -name '*~' -exec rm -f {} \;
 
 dist_clean : clean
-
-help:
-	@echo "'make' to compile the libraries and tools"
-	@echo "'make AIRCRAFT=NAME ac' to compile the NAMEd aircraft"
-	@echo "'make AIRCRAFT=NAME sim' to compile the simulated NAMEd aircraft"
-	@echo "'make Q='' ...' to get full echo of commands"
 
 
 test_all_example_airframes:
