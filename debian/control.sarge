@@ -9,8 +9,8 @@ Standards-Version: 3.6.1
 Package: paparazzi-base
 Architecture: any
 Suggests: paparazzi-arm7, paparazzi-avr
-Recommends: eagle, cvs, gs-common, tetex-extra, dia-gnome
-Depends: ivy-c-dev, ivy-c, ivy-perl, ivy-ocaml, xml-light-ocaml, liblablgtk2-ocaml-dev, make, gcc, boa, gnuplot, libgnomecanvas2-dev, libxml-dom-perl, libsubject-perl, libfile-ncopy-perl, libpcre3-dev, bzip2, libexpect-perl
+Recommends: eagle, gs-common, tetex-extra, dia-gnome
+Depends: ivy-c-dev, ivy-c, ivy-perl, ivy-ocaml, xml-light-ocaml, liblablgtk2-ocaml-dev, make, gcc, boa, gnuplot, libgnomecanvas2-dev, libxml-dom-perl, libsubject-perl, libfile-ncopy-perl, libpcre3-dev, bzip2, libexpect-perl, cvs, libcamlimages-ocaml-dev
 Description: Paparazzi Meta Package : common support
 
 
