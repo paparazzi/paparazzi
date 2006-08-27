@@ -47,6 +47,7 @@ install_bin:
 	install -d  $(DESTDIR)/sw/logalizer
 	install sw/logalizer/play $(DESTDIR)/sw/logalizer
 	install sw/logalizer/plot.pl $(DESTDIR)/sw/logalizer
+	ln -sf ../share/paparazzi/sw/ground_segment/cockpit/gcs $(PREFIX)/bin/paparazzi-gcs
 
 install_libs:
 	install -d $(PREFIX)/lib/perl5/Paparazzi
