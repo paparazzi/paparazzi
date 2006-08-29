@@ -263,7 +263,7 @@ static float survey_radius __attribute__ ((unused));
       sum_alpha = 0.; circle_count = 0.; new_circle = TRUE; in_segment = FALSE; \
     } \
   } else { \
-    if (circle_count < 0.5) { \
+    if (circle_count < 0.45) { \
       Circle(0, survey_radius); \
     } else { \
       survey_uturn = FALSE; \
