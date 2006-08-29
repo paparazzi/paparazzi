@@ -5,8 +5,8 @@
     <waypoint name="HOME" x="0" y="0"/>
     <waypoint name="1" x="200" y="0"/>
     <waypoint name="2" x="0" y="200"/>
-    <waypoint alt="450." name="S1" x="-181.37499716" y="122.374998203"/>
-    <waypoint alt="450." name="S2" x="136.75000196" y="308.874998301"/>
+    <waypoint name="S1" x="-200" y="-200"/>
+    <waypoint name="S2" x="300" y="400"/>
   </waypoints>
   <blocks>
     <block name="wait GPS">
