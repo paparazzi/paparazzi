@@ -514,7 +514,13 @@ let listen_flight_params = fun geomap auto_center_new_ac alert ->
       ac.last_block_name <- b;
       let b = String.sub b 0 (min 10 (String.length b)) in
       Strip.set_label ac.strip "block_name" b
-    end
+    end;
+    let block_time = Int32.to_int (Pprz.int32_assoc "block_time" vs)
+    and stage_time = Int32.to_int (Pprz.int32_assoc "stage_time" vs) in
+    let bt = sprintf "%02d:%02d" (block_time / 60) (block_time mod 60) in
+    Strip.set_label ac.strip "block_time" bt;
+    let st = sprintf "%02d:%02d" (stage_time / 60) (block_time mod 60) in
+    Strip.set_label ac.strip "stage_time" st
   in
   safe_bind "NAV_STATUS" get_ns;
 
@@ -560,7 +566,8 @@ let listen_flight_params = fun geomap auto_center_new_ac alert ->
 
   let get_ap_status = fun _sender vs ->
     let ac = get_ac vs in
-    ac.track#update_ap_status ( float_of_int (Pprz.int32_assoc "flight_time" vs ));
+    let flight_time = Int32.to_int (Pprz.int32_assoc "flight_time" vs) in
+    ac.track#update_ap_status (float_of_int flight_time);
     let ap_mode = Pprz.string_assoc "ap_mode" vs in
     if ap_mode <> ac.last_ap_mode then begin
       log_and_say alert (sprintf "%s, %s" ac.ac_name ap_mode);
@@ -572,8 +579,7 @@ let listen_flight_params = fun geomap auto_center_new_ac alert ->
     Strip.set_label ac.strip "GPS" gps_mode;
     Strip.set_color ac.strip "GPS" (if gps_mode<>"3D" then alert_color else ok_color);
     let ft = 
-      let t = Int32.to_int (Int32.of_string (Pprz.string_assoc "flight_time" vs)) in
-      sprintf "%02d:%02d:%02d" (t / 3600) ((t mod 3600) / 60) ((t mod 3600) mod 60) in
+      sprintf "%02d:%02d:%02d" (flight_time / 3600) ((flight_time / 60) mod 60) (flight_time mod 60) in
     Strip.set_label ac.strip "flight_time" ft;
     let kill_mode = Pprz.string_assoc "kill_mode" vs in
     if not ac.in_kill_mode then

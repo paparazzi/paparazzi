@@ -47,7 +47,9 @@ let add config color select center_ac commit_moves mark =
   let framevb = GPack.vbox ~packing:frame#add () in
 
   (** Table (everything except the user buttons) *)
-  let strip = GPack.table ~rows ~columns ~col_spacings:5 ~row_spacings:3 ~packing:framevb#add () in
+  let strip = GPack.table ~rows ~columns ~col_spacings:3 ~packing:framevb#add () in
+  strip#set_row_spacing 0 3;
+  strip#set_row_spacing (rows-2) 3;
 
   (* Name in top left *)
   let name = (GMisc.label ~text: (ac_name) ~packing: (strip#attach ~top: 0 ~left: 0) ()) in
@@ -60,9 +62,18 @@ let add config color select center_ac commit_moves mark =
   let h = GPack.hbox ~packing:plane_color#add () in
   let ft = GMisc.label ~text: "00:00:00" ~packing:h#add () in
   ft#set_width_chars 8;
-  add_label ("flight_time_value") (plane_color, ft);
+  add_label "flight_time_value" (plane_color, ft);
+
+  let block_time = GMisc.label ~text: "00:00" ~packing:h#add () in
+  add_label "block_time_value" (plane_color, block_time);
+
+  let stage_time = GMisc.label ~text: "00:00" ~packing:h#add () in
+  add_label "stage_time_value" (plane_color, stage_time);
+
   let block_name = GMisc.label ~text: "______" ~packing:h#add () in
-  add_label ("block_name_value") (plane_color, block_name);
+  add_label "block_name_value" (plane_color, block_name);
+
+  tooltips#set_tip plane_color#coerce ~text:"Flight time - Block time - Stage  time - Block name";
 
   (* battery gauge *)
   let gauge = GMisc.drawing_area ~height:60 ~show:true ~packing:(strip#attach ~top:1 ~bottom:(rows-1) ~left:0) () in
@@ -105,9 +116,13 @@ let add config color select center_ac commit_moves mark =
 
     (** set a label *)
 let set_label strip name value = 
-  let _eb, l = List.assoc (name^"_value") strip.labels in
-  if l#text <> value then
-    l#set_label value
+  try
+    let _eb, l = List.assoc (name^"_value") strip.labels in
+    if l#text <> value then
+      l#set_label value
+  with
+    Not_found ->
+      Printf.fprintf stderr "Strip.set_label: '%s' unknown\n%!" name
 
     (** set a label *)
 let set_color strip name color = 
