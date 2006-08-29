@@ -24,12 +24,10 @@
         <dl_setting MAX="1" MIN="0" STEP="0.01" VAR="pitch_of_vz_pgain"/>
       </dl_settings>
 
-<!--
       <dl_settings name="rate_loop">
         <dl_setting MAX="2000." MIN="0." STEP="1.0" VAR="roll_rate_pgain"/>
         <dl_setting MAX="100" MIN="10" STEP="1" VAR="attitude_pgain"/>
       </dl_settings>
- -->
 
       <dl_settings name="nav">
         <dl_setting MAX="0.7" MIN="0.3" STEP="0.05" VAR="climb_level_gaz"/>
