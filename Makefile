@@ -109,7 +109,7 @@ $(DL_PROTOCOL_H) : $(MESSAGES_XML)
 include Makefile.ac
 
 sim : sim_static
-ac_h ac1 ac2 ac3: static
+ac_h ac1 ac2 ac3: static conf
 
 ##### preliminary hard wired arm7 bootloader rules
 #
