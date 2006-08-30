@@ -93,6 +93,7 @@
     telemetry="telemetry/default.xml"
     flight_plan="flight_plans/generic.xml"
     settings="settings/tuning.xml"
+    gui_color="#ba6293"
   />
 
 <!-- tiny testbench -->
@@ -112,6 +113,7 @@
     radio="radios/cockpitMM.xml" 
     telemetry="telemetry/default.xml"
     flight_plan="flight_plans/muret_demo_1.xml"
+    gui_color="#6293ba"
   />
 
 <!-- classix testbench -->
