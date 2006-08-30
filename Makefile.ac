@@ -63,11 +63,11 @@ demo: ac1 ac2 ac3
 	PAPARAZZI_HOME=$(PAPARAZZI_HOME) PAPARAZZI_SRC=$(PAPARAZZI_SRC) $(SUPERVISION)
 
 ac1 :
-	make -f Makefile.ac AIRCRAFT=Twin1 sim
+	$(MAKE) -f Makefile.ac AIRCRAFT=Twin1 sim
 ac2 :
-	make -f Makefile.ac AIRCRAFT=TJ1 sim
+	$(MAKE) -f Makefile.ac AIRCRAFT=TJ1 sim
 ac3 :
-	make -f Makefile.ac AIRCRAFT=MJ5 sim
+	$(MAKE) -f Makefile.ac AIRCRAFT=MJ5 sim
 
 
 all_ac_h: $(AIRFRAME_H) $(RADIO_H) $(FLIGHT_PLAN_H) $(FLIGHT_PLAN_XML) $(SETTINGS_H) $(MAKEFILE_AC) $(PERIODIC_H)

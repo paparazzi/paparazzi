@@ -62,8 +62,6 @@ conf/%.xml :conf/%.xml.example
 	[ -L $@ ] || [ -f $@ ] || cp $< $@ 
 
 
-demo: static
-
 lib:
 	cd $(LIB)/ocaml; $(MAKE)
 
@@ -109,8 +107,9 @@ $(DL_PROTOCOL_H) : $(MESSAGES_XML)
 	$(Q)mv /tmp/dl.h $@
 
 include Makefile.ac
+
 sim : sim_static
-ac_h : tools static_h 
+ac_h ac1 ac2 ac3: static
 
 ##### preliminary hard wired arm7 bootloader rules
 #
