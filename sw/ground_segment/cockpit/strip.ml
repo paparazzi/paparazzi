@@ -9,7 +9,7 @@ let table = GPack.table ~rows: 1 ~columns: 1 ~row_spacings: 5 ~packing: (scrolle
 
 
 type t = {
-    gauge: GMisc.drawing_area * (GDraw.pixmap option ref);
+    gauge: GMisc.drawing_area;
     labels: (string * (GBin.event_box * GMisc.label)) list;
     buttons_box : GPack.box
   }
@@ -78,7 +78,6 @@ let add config color select center_ac commit_moves mark =
   (* battery gauge *)
   let gauge = GMisc.drawing_area ~height:60 ~show:true ~packing:(strip#attach ~top:1 ~bottom:(rows-1) ~left:0) () in
   gauge#misc#realize ();
-  let {Gtk.x=x0; y=y0; width=width; height=height} = gauge#misc#allocation in
 
   (* Telemetry *)
   let eb = GBin.event_box ~packing:(strip#attach ~top:(rows-1) ~left:0) () in
@@ -111,7 +110,7 @@ let add config color select center_ac commit_moves mark =
   (* User buttons *)
   let hbox = GPack.hbox ~packing:framevb#add () in
 
-  {gauge=(gauge, ref None) ; labels= !strip_labels; buttons_box = hbox}
+  {gauge=gauge ; labels= !strip_labels; buttons_box = hbox}
 
 
     (** set a label *)
@@ -131,8 +130,8 @@ let set_color strip name color =
 
     (** set the battery *)
 let set_bat ?(color="green") strip value =
-  let gauge, drref = strip.gauge in
-  let {Gtk.x=x0; y=y0; width=width; height=height} = gauge#misc#allocation in
+  let gauge = strip.gauge in
+  let {Gtk.width=width; height=height} = gauge#misc#allocation in
   let dr = GDraw.pixmap ~width ~height ~window:gauge () in
   dr#set_foreground (`NAME "orange");
   dr#rectangle ~x:0 ~y:0 ~width ~height ~filled:true ();

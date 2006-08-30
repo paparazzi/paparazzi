@@ -39,7 +39,7 @@ class alert (widget: GBin.frame) =
   in
   let view = GText.view ~editable:false ~packing: scrolled#add () in
 (* the object itselft *)
-  object (self)
+  object
     val mutable last = ""
     method add text = 
       if text <> last then begin
