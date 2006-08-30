@@ -82,6 +82,7 @@ let print_dl_settings = fun settings ->
 	let v = ExtXml.attrib s "var" in
 	lprintf "case %d: var = %s; break;\\\n" !idx v; incr idx) 
       settings;
+    lprintf "default: var = 0.; break;\\\n";
     left ();
     lprintf "}\\\n";
     lprintf "DOWNLINK_SEND_DL_VALUE(&i, &var);\\\n";
