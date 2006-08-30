@@ -109,7 +109,7 @@ $(DL_PROTOCOL_H) : $(MESSAGES_XML)
 include Makefile.ac
 
 sim : sim_static
-ac_h ac1 ac2 ac3: static conf
+ac_h ac1 ac2 ac3 ac fbw ap: static conf
 
 ##### preliminary hard wired arm7 bootloader rules
 #
@@ -160,14 +160,14 @@ dist_clean : clean
 
 
 test_all_example_airframes:
-	make AIRCRAFT=TJ1     clean_ac fbw ap sim
-	make AIRCRAFT=MJ4     clean_ac ap
-	make AIRCRAFT=MJ5     clean_ac ap sim
-	make AIRCRAFT=Slayer  clean_ac ap
-	make AIRCRAFT=Plaster clean_ac sim ac	
-	make AIRCRAFT=Twin4   clean_ac ac
-	make AIRCRAFT=Tux     clean_ac ac
-	make AIRCRAFT=Twin1   clean_ac sim ac
-	make AIRCRAFT=Twin2   clean_ac sim
-	make AIRCRAFT=MJ1     clean_ac ac
-	make AIRCRAFT=G91     clean_ac ap
+	$(MAKE) AIRCRAFT=TJ1     clean_ac fbw ap sim
+	$(MAKE) AIRCRAFT=MJ4     clean_ac ap
+	$(MAKE) AIRCRAFT=MJ5     clean_ac ap sim
+	$(MAKE) AIRCRAFT=Slayer  clean_ac ap
+	$(MAKE) AIRCRAFT=Plaster clean_ac sim ac	
+	$(MAKE) AIRCRAFT=Twin4   clean_ac ac
+	$(MAKE) AIRCRAFT=Tux     clean_ac ac
+	$(MAKE) AIRCRAFT=Twin1   clean_ac sim ac
+	$(MAKE) AIRCRAFT=Twin2   clean_ac sim
+	$(MAKE) AIRCRAFT=MJ1     clean_ac ac
+	$(MAKE) AIRCRAFT=G91     clean_ac ap

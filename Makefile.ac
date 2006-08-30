@@ -110,7 +110,7 @@ $(MAKEFILE_AC) : $(CONF)/$(AIRFRAME_XML)
 ac_h :
 	$(Q)if (expr "$(AIRCRAFT)"); then : ; else echo "AIRCRAFT undefined: type 'make AIRCRAFT=AircraftName ...'"; exit 1; fi
 	@echo BUILD $(AIRCRAFT)
-	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) Q=$(Q) $(TOOLS)/gen_aircraft.out $(AIRCRAFT)
+	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) Q=$(Q) $(TOOLS)/gen_aircraft.out $(AIRCRAFT)
 
 %.compile: ac_h
 	cd $(AIRBORNE); $(MAKE) TARGET=$* all

@@ -11,6 +11,7 @@
 #include "autopilot.h"
 #include "gps.h"
 #include "estimator.h"
+#include "settings.h"
 
 
 uint8_t pprz_mode = PPRZ_MODE_MANUAL;

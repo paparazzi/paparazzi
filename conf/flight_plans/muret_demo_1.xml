@@ -8,25 +8,22 @@
     <waypoint name="too far" x="529" y="-23" alt="250."/>
   </waypoints>
   <blocks>
-    <block NAME="takeoff">
-      <while COND="(!launch)"/>
-      <heading COURSE="QFU" PITCH="0.15" VMODE="throttle" THROTTLE="0.8" UNTIL="(estimator_flight_time > 8)"/>
-      <heading COURSE="QFU" PITCH="0.15" VMODE="climb" CLIMB="3.0"UNTIL="(estimator_z > SECURITY_ALT)"/>
-    </block>
-    <block NAME="survey road 1">
-      <go WP="road_start"/>
-      <go WP="road_end"/>
+    <block name="survey road 1">
+      <go wp="road_start"/>
+      <go wp="road_end"/>
     </block>
     <block NAME="survey road 2">
-      <go WP="road_start"/>
-      <go WP="road_end" HMODE="route" FROM="road_start"/>
+      <while cond="TRUE">
+        <go wp="road_start" from="road_end" hmode="route"/>
+        <go wp="road_end" from="road_start" hmode="route"/>
+      </while>
     </block>
-    <block NAME="wait">
-      <circle WP="HOME" ALT="GROUND_ALT+50" RADIUS="75"/>
+    <block name="circle">
+      <circle wp="road_end" ALT="ground_alt+50" radius="75"/>
     </block>
-    <block NAME="go too far">
-      <go WP="too far"/>
-      <circle WP="too far" RADIUS="50"/>
+    <block name="go too far">
+      <go wp="too far"/>
+      <circle wp="too far" radius="50"/>
     </block>
   </blocks>
 </flight_plan>
