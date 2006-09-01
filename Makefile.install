@@ -33,7 +33,8 @@ install_conf:
 
 install_bin:
 	install -d $(PREFIX)/bin/
-	install sw/supervision/paparazzi.pl $(PREFIX)/bin/paparazzi
+	install -d $(DESTDIR)/sw/supervision
+	install sw/supervision/paparazzi.pl $(DESTDIR)/sw/supervision
 	install paparazzi-make $(PREFIX)/bin/
 	install -d $(DESTDIR)/sw/simulator
 	install sw/simulator/gaia $(DESTDIR)/sw/simulator
@@ -48,6 +49,7 @@ install_bin:
 	install sw/logalizer/play $(DESTDIR)/sw/logalizer
 	install sw/logalizer/plot.pl $(DESTDIR)/sw/logalizer
 	ln -sf ../share/paparazzi/sw/ground_segment/cockpit/gcs $(PREFIX)/bin/paparazzi-gcs
+	ln -sf ../share/paparazzi/sw/supervision/paparazzi.pl $(PREFIX)/bin/paparazzi
 
 install_libs:
 	install -d $(PREFIX)/lib/perl5/Paparazzi

@@ -37,11 +37,7 @@ FLIGHT_PLAN_H=$(ACINCLUDE)/flight_plan.h
 FLIGHT_PLAN_XML=$(ACINCLUDE)/flight_plan.xml
 SETTINGS_H=$(ACINCLUDE)/settings.h
 MAKEFILE_AC=$(ACINCLUDE)/Makefile.ac
-ifeq ($(PAPARAZZI_SRC),/usr/share/paparazzi)
-SUPERVISION=paparazzi
-else
 SUPERVISION=sw/supervision/paparazzi.pl
-endif
 MAKE=make PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME)
 
 
