@@ -75,6 +75,8 @@ install_tools:
 	install sw/tools/gen_radio.ml $(DESTDIR)/sw/tools/
 	install sw/tools/gen_settings.ml $(DESTDIR)/sw/tools/
 	install sw/tools/gen_ubx.ml $(DESTDIR)/sw/tools/
+	install -d $(DESTDIR)/sw/ground_segment/lpc21iap
+	install sw/ground_segment/lpc21iap/lpc21iap $(DESTDIR)/sw/ground_segment/lpc21iap/
 	install -d $(DESTDIR)/sw/simulator
 	install sw/simulator/sitl.cma  $(DESTDIR)/sw/simulator
 	install sw/simulator/simsitl.ml  $(DESTDIR)/sw/simulator

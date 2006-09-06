@@ -54,7 +54,7 @@ TOOLS=$(PAPARAZZI_SRC)/sw/tools
 
 all: static
 
-static : lib tools cockpit visu3d multimon tmtc logalizer sim_static static_h
+static : lib tools cockpit visu3d multimon tmtc logalizer lpc21iap sim_static static_h
 
 conf: conf/conf.xml conf/control_panel.xml
 
