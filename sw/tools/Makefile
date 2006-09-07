@@ -30,12 +30,12 @@ OCAMLYACC=ocamlyacc
 
 all: gen_aircraft.out gen_airframe.out gen_messages.out gen_ubx.out gen_flight_plan.out gen_radio.out extract_makefile.out gen_periodic.out gen_settings.out
 
-FP_CMO = fp_syntax.cmo fp_parser.cmo fp_lexer.cmo fp_proc.cmo gen_flight_plan.ml
+FP_CMO = fp_syntax.cmo fp_parser.cmo fp_lexer.cmo fp_proc.cmo gen_flight_plan.cmo
 ABS_FP = $(FP_CMO:%=$$PAPARAZZI_SRC/sw/tools/%)
 
 gen_flight_plan.out : $(FP_CMO) ../lib/ocaml/lib-pprz.cma
 	@echo OL $@
-	$(Q)$(OCAMLC) $(INCLUDES) -custom -o $@ ivy-ocaml.cma lib-pprz.cma $^
+	$(Q)$(OCAMLC) $(INCLUDES) -custom -o $@ unix.cma str.cma xml-light.cma ivy-ocaml.cma lib-pprz.cma $^
 
 fp_parser.cmo : fp_parser.cmi fp_syntax.cmi
 fp_parser.cmi : fp_parser.ml fp_syntax.cmi
@@ -47,9 +47,9 @@ fp_syntax.cmo : fp_syntax.cmi
 
 %.out : %.ml
 	@echo OC $<
-	$(Q)$(OCAMLC) $(INCLUDES) -o $@ ivy-ocaml.cma lib-pprz.cma $<
+	$(Q)$(OCAMLC) $(INCLUDES) -o $@ unix.cma str.cma ivy-ocaml.cma xml-light.cma lib-pprz.cma $<
 	@cat ../../pprz_src_test.sh > $@
-	@echo '$(OCAML) -I +xml-light -I $$PAPARAZZI_SRC/sw/lib/ocaml ivy-ocaml.cma lib-pprz.cma $$PAPARAZZI_BIN/$< $$*' >> $@
+	@echo '$(OCAML) -I +xml-light -I $$PAPARAZZI_SRC/sw/lib/ocaml unix.cma str.cma ivy-ocaml.cma xml-light.cma lib-pprz.cma $$PAPARAZZI_BIN/$< $$*' >> $@
 	@chmod a+x $@
 
 %.cmo : %.ml ../lib/ocaml/lib-pprz.cma

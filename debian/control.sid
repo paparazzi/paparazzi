@@ -6,7 +6,7 @@ Build-Depends: debhelper (>= 4.0.0)
 Standards-Version: 3.6.1
 
 
-Package: paparazzi-base
+Package: paparazzi-dev
 Architecture: any
 Suggests: mlview, lustre, paparazzi-avr, paparazzi-arm
 Recommends: eagle, gs-common, tetex-extra, dia-gnome

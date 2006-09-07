@@ -1,98 +1,130 @@
 # Hey Emacs, this is a -*- makefile -*-
 
-PREFIX=/usr
-DESTDIR=$(PREFIX)/share/paparazzi
+PREFIX=/
+DESTDIR=$(PREFIX)/usr/share/paparazzi
+INSTALL=install -o root
+INSTALLDATA=install -o root -m 644
 
-install: install_data install_conf install_bin install_libs install_tools install_airborne_sources
+install : install_files post_install
 
+install_files: install_data install_conf install_bin install_libs install_tools install_airborne_sources
+
+post_install :
+	debian/paparazzi-bin.postinst
 
 install_data:
-	install -d $(DESTDIR)/data/maps
-	install data/maps/*.xml data/maps/*.gif data/maps/*.png $(DESTDIR)/data/maps
-	install -d $(DESTDIR)/data/pictures
-	install data/pictures/*.gif data/pictures/*.svg data/pictures/*.jpg $(DESTDIR)/data/pictures
-	install -d $(DESTDIR)/data/srtm
-	install data/srtm/N43E001.hgt.bz2 $(DESTDIR)/data/srtm
+	$(INSTALL) -d $(DESTDIR)/data/maps
+	$(INSTALLDATA) data/maps/*.xml data/maps/*.gif $(DESTDIR)/data/maps
+	$(INSTALL) -d $(DESTDIR)/data/pictures
+	$(INSTALLDATA) data/pictures/*.gif data/pictures/*.svg data/pictures/*.jpg $(DESTDIR)/data/pictures
+	$(INSTALL) -d $(DESTDIR)/data/srtm
+	$(INSTALLDATA) data/srtm/N43E001.hgt.bz2 $(DESTDIR)/data/srtm
 
 
 install_conf:
-	install -d $(DESTDIR)/conf	
-	install conf/conf.xml.example $(DESTDIR)/conf/conf.xml
-	install conf/control_panel.xml.example $(DESTDIR)/conf/control_panel.xml
-	install conf/messages.xml $(DESTDIR)/conf/
-	install conf/messages.dtd $(DESTDIR)/conf/
-	install conf/gui.xml $(DESTDIR)/conf/
-	cp -a conf/airframes $(DESTDIR)/conf/
-	cp -a conf/autopilot $(DESTDIR)/conf/
-	cp -a conf/flight_plans $(DESTDIR)/conf/
-	cp -a conf/gps $(DESTDIR)/conf/
-	cp -a conf/radios $(DESTDIR)/conf/
-	cp -a conf/telemetry $(DESTDIR)/conf/
-	cp -a conf/settings $(DESTDIR)/conf/
-	cp -a conf/gcs $(DESTDIR)/conf/
+	$(INSTALL) -d $(DESTDIR)/conf	
+	$(INSTALLDATA) conf/conf.xml.example $(DESTDIR)/conf/conf.xml
+	$(INSTALLDATA) conf/control_panel.xml.example $(DESTDIR)/conf/control_panel.xml
+	$(INSTALLDATA) conf/messages.xml $(DESTDIR)/conf/
+	$(INSTALLDATA) conf/messages.dtd $(DESTDIR)/conf/
+	$(INSTALLDATA) conf/gui.xml $(DESTDIR)/conf/
+	$(INSTALL) -d $(DESTDIR)/conf/airframes
+	$(INSTALLDATA) conf/airframes/airframe.dtd $(DESTDIR)/conf/airframes
+	$(INSTALLDATA) conf/airframes/microjet5.xml $(DESTDIR)/conf/airframes
+	$(INSTALLDATA) conf/airframes/twinstar1.xml $(DESTDIR)/conf/airframes
+	$(INSTALLDATA) conf/airframes/twinjet1.xml $(DESTDIR)/conf/airframes
+	$(INSTALL) -d $(DESTDIR)/conf/autopilot
+	$(INSTALLDATA) conf/autopilot/*.makefile $(DESTDIR)/conf/autopilot
+	$(INSTALLDATA) conf/autopilot/*.h $(DESTDIR)/conf/autopilot
+	$(INSTALL) -d $(DESTDIR)/conf/flight_plans
+	$(INSTALLDATA) conf/flight_plans/*.dtd $(DESTDIR)/conf/flight_plans
+	$(INSTALLDATA) conf/flight_plans/*.xml $(DESTDIR)/conf/flight_plans
+	$(INSTALL) -d $(DESTDIR)/conf/gps
+	$(INSTALLDATA) conf/gps/Makefile $(DESTDIR)/conf/gps
+	$(INSTALLDATA) conf/gps/ublox_conf.c $(DESTDIR)/conf/gps
+	$(INSTALLDATA) conf/gps/README $(DESTDIR)/conf/gps
+	$(INSTALLDATA) conf/gps/*.inf $(DESTDIR)/conf/gps
+	$(INSTALLDATA) conf/gps/*.txt $(DESTDIR)/conf/gps
+	$(INSTALL) -d $(DESTDIR)/conf/radios
+	$(INSTALLDATA) conf/radios/radio.dtd $(DESTDIR)/conf/radios
+	$(INSTALLDATA) conf/radios/*.xml $(DESTDIR)/conf/radios
+	$(INSTALL) -d $(DESTDIR)/conf/telemetry
+	$(INSTALLDATA) conf/telemetry/telemetry.dtd $(DESTDIR)/conf/telemetry
+	$(INSTALLDATA) conf/telemetry/*.xml $(DESTDIR)/conf/telemetry
+	$(INSTALL) -d $(DESTDIR)/conf/settings
+	$(INSTALLDATA) conf/settings/settings.dtd $(DESTDIR)/conf/settings
+	$(INSTALLDATA) conf/settings/*.xml $(DESTDIR)/conf/settings
+	$(INSTALL) -d $(DESTDIR)/conf/gcs
+	$(INSTALLDATA) conf/gcs/layout.dtd $(DESTDIR)/conf/gcs
+	$(INSTALLDATA) conf/gcs/*.xml $(DESTDIR)/conf/gcs
+	$(INSTALL) -d $(PREFIX)/etc/udev
+	$(INSTALLDATA) conf/system/udev/rules/*.rules $(PREFIX)/etc/udev
+	$(INSTALL) -d $(PREFIX)/etc/modprobe.d
+	$(INSTALLDATA) conf/system/modprobe.d/paparazzi $(PREFIX)/etc/modprobe.d
+
 
 install_bin:
-	install -d $(PREFIX)/bin/
-	install -d $(DESTDIR)/sw/supervision
-	install sw/supervision/paparazzi.pl $(DESTDIR)/sw/supervision
-	install paparazzi-make $(PREFIX)/bin/
-	install -d $(DESTDIR)/sw/simulator
-	install sw/simulator/gaia $(DESTDIR)/sw/simulator
-	install sw/simulator/simsitl.pl $(DESTDIR)/sw/simulator
-	install -d  $(DESTDIR)/sw/ground_segment/cockpit
-	install -d  $(DESTDIR)/sw/ground_segment/tmtc
-	install sw/ground_segment/cockpit/gcs $(DESTDIR)/sw/ground_segment/cockpit
-	install sw/ground_segment/tmtc/server $(DESTDIR)/sw/ground_segment/tmtc
-	install sw/ground_segment/tmtc/link $(DESTDIR)/sw/ground_segment/tmtc
-	install sw/ground_segment/tmtc/messages $(DESTDIR)/sw/ground_segment/tmtc
-	install -d  $(DESTDIR)/sw/logalizer
-	install sw/logalizer/play $(DESTDIR)/sw/logalizer
-	install sw/logalizer/plot.pl $(DESTDIR)/sw/logalizer
-	ln -sf ../share/paparazzi/sw/ground_segment/cockpit/gcs $(PREFIX)/bin/paparazzi-gcs
-	ln -sf ../share/paparazzi/sw/supervision/paparazzi.pl $(PREFIX)/bin/paparazzi
+	$(INSTALL) -d $(PREFIX)/usr/bin/
+	$(INSTALL) -d $(DESTDIR)/sw/supervision
+	$(INSTALL) sw/supervision/paparazzi.pl $(DESTDIR)/sw/supervision
+	$(INSTALL) paparazzi-make $(PREFIX)/usr/bin/
+	$(INSTALLDATA) -d $(DESTDIR)/sw/simulator
+	$(INSTALL) sw/simulator/*.cmo $(DESTDIR)/sw/simulator
+	$(INSTALL) sw/simulator/simsitl.pl $(DESTDIR)/sw/simulator
+	$(INSTALL) -d  $(DESTDIR)/sw/ground_segment/cockpit
+	$(INSTALL) -d  $(DESTDIR)/sw/ground_segment/tmtc
+	$(INSTALL) -d  $(DESTDIR)/sw/ground_segment/multimon
+	$(INSTALL) sw/ground_segment/cockpit/*.cmo $(DESTDIR)/sw/ground_segment/cockpit
+	$(INSTALLDATA) sw/ground_segment/tmtc/*.cmo $(DESTDIR)/sw/ground_segment/tmtc
+	$(INSTALLDATA) sw/ground_segment/multimon/multimon.cma $(DESTDIR)/sw/ground_segment/multimon
+	$(INSTALLDATA) sw/ground_segment/multimon/libmultimon.a $(DESTDIR)/sw/ground_segment/multimon
+	$(INSTALL) -d  $(DESTDIR)/sw/logalizer
+	$(INSTALLDATA) sw/logalizer/*.cmo $(DESTDIR)/sw/logalizer
+	$(INSTALL) sw/logalizer/plot.pl $(DESTDIR)/sw/logalizer
+	ln -sf ../share/paparazzi/sw/ground_segment/cockpit/gcs $(PREFIX)/usr/bin/paparazzi-gcs
+	ln -sf ../share/paparazzi/sw/supervision/paparazzi.pl $(PREFIX)/usr/bin/paparazzi
 
 install_libs:
-	install -d $(PREFIX)/lib/perl5/Paparazzi
-	install sw/lib/perl/Paparazzi/*.pm $(PREFIX)/lib/perl5/Paparazzi
-	install sw/supervision/Paparazzi/*.pm $(PREFIX)/lib/perl5/Paparazzi	
-	install -d $(DESTDIR)/sw/lib/ocaml
-	install sw/lib/ocaml/*.cma $(DESTDIR)/sw/lib/ocaml
-	install sw/lib/ocaml/*.so $(DESTDIR)/sw/lib/ocaml
-	install sw/lib/ocaml/*.a $(DESTDIR)/sw/lib/ocaml
-	install sw/lib/ocaml/*.cmi $(DESTDIR)/sw/lib/ocaml
+	$(INSTALL) -d $(PREFIX)/usr/lib/perl5/Paparazzi
+	$(INSTALLDATA) sw/lib/perl/Paparazzi/*.pm $(PREFIX)/usr/lib/perl5/Paparazzi
+	$(INSTALLDATA) sw/supervision/Paparazzi/*.pm $(PREFIX)/usr/lib/perl5/Paparazzi	
+	$(INSTALL) -d $(DESTDIR)/sw/lib/ocaml
+	$(INSTALLDATA) sw/lib/ocaml/*.cma $(DESTDIR)/sw/lib/ocaml
+	$(INSTALLDATA) sw/lib/ocaml/*.so $(DESTDIR)/sw/lib/ocaml
+	$(INSTALLDATA) sw/lib/ocaml/*.a $(DESTDIR)/sw/lib/ocaml
+	$(INSTALLDATA) sw/lib/ocaml/*.cmi $(DESTDIR)/sw/lib/ocaml
 
 install_tools:
-	install Makefile.ac $(DESTDIR)
-	install -d $(DESTDIR)/sw/tools/
-	install conf/Makefile* $(DESTDIR)/conf
-	install sw/tools/*.out $(DESTDIR)/sw/tools/
-	install sw/tools/extract_makefile.ml $(DESTDIR)/sw/tools/
-	install sw/tools/gen_aircraft.ml $(DESTDIR)/sw/tools/
-	install sw/tools/gen_airframe.ml $(DESTDIR)/sw/tools/
-	install sw/tools/gen_flight_plan.ml $(DESTDIR)/sw/tools/
-	install sw/tools/gen_messages.ml $(DESTDIR)/sw/tools/
-	install sw/tools/gen_periodic.ml $(DESTDIR)/sw/tools/
-	install sw/tools/gen_radio.ml $(DESTDIR)/sw/tools/
-	install sw/tools/gen_settings.ml $(DESTDIR)/sw/tools/
-	install sw/tools/gen_ubx.ml $(DESTDIR)/sw/tools/
-	install -d $(DESTDIR)/sw/ground_segment/lpc21iap
-	install sw/ground_segment/lpc21iap/lpc21iap $(DESTDIR)/sw/ground_segment/lpc21iap/
-	install -d $(DESTDIR)/sw/simulator
-	install sw/simulator/sitl.cma  $(DESTDIR)/sw/simulator
-	install sw/simulator/simsitl.ml  $(DESTDIR)/sw/simulator
-	install sw/simulator/sim.cmi  $(DESTDIR)/sw/simulator
-	install sw/simulator/sitl.cmi  $(DESTDIR)/sw/simulator
-	install sw/simulator/libsitl.a  $(DESTDIR)/sw/simulator
+	$(INSTALLDATA) Makefile.ac $(DESTDIR)
+	$(INSTALL) -d $(DESTDIR)/sw/tools/
+	$(INSTALLDATA) conf/Makefile* $(DESTDIR)/conf
+	$(INSTALL) sw/tools/*.out $(DESTDIR)/sw/tools/
+	rm -f $(DESTDIR)/sw/tools/gen_flight_plan.out
+	$(INSTALLDATA) sw/tools/fp_syntax.cmo $(DESTDIR)/sw/tools
+	$(INSTALLDATA) sw/tools/fp_parser.cmo $(DESTDIR)/sw/tools
+	$(INSTALLDATA) sw/tools/fp_lexer.cmo $(DESTDIR)/sw/tools
+	$(INSTALLDATA) sw/tools/fp_proc.cmo $(DESTDIR)/sw/tools
+	$(INSTALLDATA) sw/tools/gen_flight_plan.cmo $(DESTDIR)/sw/tools
+	$(INSTALLDATA) sw/tools/extract_makefile.ml $(DESTDIR)/sw/tools/
+	$(INSTALLDATA) sw/tools/gen_aircraft.ml $(DESTDIR)/sw/tools/
+	$(INSTALLDATA) sw/tools/gen_airframe.ml $(DESTDIR)/sw/tools/
+	$(INSTALLDATA) sw/tools/gen_messages.ml $(DESTDIR)/sw/tools/
+	$(INSTALLDATA) sw/tools/gen_periodic.ml $(DESTDIR)/sw/tools/
+	$(INSTALLDATA) sw/tools/gen_radio.ml $(DESTDIR)/sw/tools/
+	$(INSTALLDATA) sw/tools/gen_settings.ml $(DESTDIR)/sw/tools/
+	$(INSTALLDATA) sw/tools/gen_ubx.ml $(DESTDIR)/sw/tools/
+	$(INSTALL) -d $(DESTDIR)/sw/ground_segment/lpc21iap
+	$(INSTALL) sw/ground_segment/lpc21iap/lpc21iap $(DESTDIR)/sw/ground_segment/lpc21iap/
+	$(INSTALL) -d $(DESTDIR)/sw/simulator
+	$(INSTALLDATA) sw/simulator/sitl.cma  $(DESTDIR)/sw/simulator
+	$(INSTALLDATA) sw/simulator/simsitl.ml  $(DESTDIR)/sw/simulator
+	$(INSTALLDATA) sw/simulator/sim.cmi  $(DESTDIR)/sw/simulator
+	$(INSTALLDATA) sw/simulator/sitl.cmi  $(DESTDIR)/sw/simulator
+	$(INSTALLDATA) sw/simulator/libsitl.a  $(DESTDIR)/sw/simulator
 
 install_airborne_sources:
-	install -d $(DESTDIR)/sw/
-	cp -a sw/airborne $(DESTDIR)/sw
-	install -d $(DESTDIR)/sw/include
-	install sw/include/std.h $(DESTDIR)/sw/include
-	install var/include/*.h $(DESTDIR)/sw/include
-
-
-install_skel:
-#	cp -a conf $(DESTDIR)/
-#	cp -a data $(DESTDIR)/
-#	install -d $(DESTDIR)/var
+	$(INSTALL) -d $(DESTDIR)/sw/
+	tar --exclude=CVS -cf - sw/airborne/ | tar -C $(DESTDIR) -xf -
+	$(INSTALL) -d $(DESTDIR)/sw/include
+	$(INSTALLDATA) sw/include/std.h $(DESTDIR)/sw/include
+	$(INSTALLDATA) var/include/*.h $(DESTDIR)/sw/include

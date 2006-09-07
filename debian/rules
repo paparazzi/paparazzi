@@ -54,9 +54,7 @@ install: build
 	dh_testroot
 	dh_clean -k 
 	dh_installdirs
-
-	# Add here commands to install the package.
-	$(MAKE) install PREFIX=$(CURDIR)/debian/paparazzi-bin/usr
+	$(MAKE) -f Makefile.install install_files PREFIX=$(CURDIR)/debian/paparazzi-bin
 
 
 # Build architecture-independent files here.

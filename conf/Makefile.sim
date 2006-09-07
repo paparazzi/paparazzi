@@ -68,7 +68,7 @@ all compile: $(OBJDIR)/simsitl
 
 $(OBJDIR)/simsitl : $($(TARGET).objs) $(SITLCMA) $(SIMSITLML)
 	@echo LD $@
-	$(Q)$(OCAMLC) -custom $(CAMLINCLUDES) -o $@ glibivy-ocaml.cma lib-pprz.cma lablgtk.cma $($(TARGET).objs) gtkInit.cmo $(SITLCMA) $(SIMSITLML)
+	$(Q)$(OCAMLC) -custom $(CAMLINCLUDES) -o $@ unix.cma str.cma xml-light.cma glibivy-ocaml.cma lib-pprz.cma lablgtk.cma $($(TARGET).objs) gtkInit.cmo $(SITLCMA) $(SIMSITLML)
 
 
 # The id of the A/C is hardcoded in the code (to be improved with dynlink ?)

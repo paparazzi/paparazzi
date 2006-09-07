@@ -55,7 +55,7 @@ sitl.cmxa : $(SIMSCMX)
 
 gaia : gaia.cmo
 	@echo OL $@
-	$(Q)$(OCAMLC) -custom $(INCLUDES) -o $@ glibivy-ocaml.cma lib-pprz.cma lablgtk.cma gtkInit.cmo $<
+	$(Q)$(OCAMLC) -custom $(INCLUDES) -o $@ unix.cma str.cma xml-light.cma glibivy-ocaml.cma lib-pprz.cma lablgtk.cma gtkInit.cmo $<
 
 %.cmo : %.ml ../lib/ocaml/lib-pprz.cma
 	@echo OC $<

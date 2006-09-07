@@ -44,19 +44,19 @@ opt : all lib-pprz.cmxa xlib-pprz.cmxa
 
 lib-pprz.cma : $(CMO)
 	@echo OL $@
-	$(Q)ocamlmklib -I +xml-light -o lib-pprz str.cma unix.cma xml-light.cma $^
+	$(Q)ocamlmklib $(INCLUDES) -o lib-pprz $^
 
 lib-pprz.cmxa : $(CMX)
 	@echo OOL $@
-	$(Q)ocamlmklib -o lib-pprz $^
+	$(Q)ocamlmklib $(INCLUDES) -o lib-pprz $^
 
 xlib-pprz.cma : $(XCMO)
 	@echo OL $@
-	$(Q)ocamlmklib -I +xml-light -o xlib-pprz $^
+	$(Q)ocamlmklib $(XINCLUDES) -o xlib-pprz $^
 
 xlib-pprz.cmxa : $(XCMX)
 	@echo OOL $@
-	$(Q)ocamlmklib -I +xml-light -o xlib-pprz $^
+	$(Q)ocamlmklib $(XINCLUDES) -o xlib-pprz $^
 
 xml_get.out : lib-pprz.cma xml_get.cmo
 	@echo OL $@

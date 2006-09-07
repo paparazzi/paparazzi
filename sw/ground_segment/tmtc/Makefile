@@ -49,12 +49,12 @@ $(VAR)/boa.conf :$(CONF)/boa.conf
 
 messages : messages.cmo
 	@echo OL $@
-	$(Q)$(OCAMLC) -custom $(INCLUDES) -o $@ lablgtk.cma glibivy-ocaml.cma lib-pprz.cma gtkInit.cmo $^
+	$(Q)$(OCAMLC) -custom $(INCLUDES) -o $@ unix.cma str.cma xml-light.cma lablgtk.cma glibivy-ocaml.cma lib-pprz.cma gtkInit.cmo $^
 
 
 server : $(SERVERCMO)
 	@echo OL $@
-	$(Q)$(OCAMLC) -custom $(INCLUDES) -o $@ lablgtk.cma glibivy-ocaml.cma lib-pprz.cma $^
+	$(Q)$(OCAMLC) -custom $(INCLUDES) -o $@ unix.cma str.cma xml-light.cma lablgtk.cma glibivy-ocaml.cma lib-pprz.cma $^
 
 server.opt :  $(SERVERCMX)
 	@echo OOL $@
@@ -62,7 +62,7 @@ server.opt :  $(SERVERCMX)
 
 link :  modem.cmo link.cmo
 	@echo OL $@
-	$(Q)$(OCAMLC) -custom $(INCLUDES) -o $@ lablgtk.cma glibivy-ocaml.cma lib-pprz.cma multimon.cma $^
+	$(Q)$(OCAMLC) -custom $(INCLUDES) -o $@ unix.cma str.cma xml-light.cma lablgtk.cma glibivy-ocaml.cma lib-pprz.cma multimon.cma $^
 
 
 %.cmo : %.ml $(LIBPPRZCMA)

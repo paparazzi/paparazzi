@@ -20,16 +20,14 @@
 # Boston, MA 02111-1307, USA.  
 # 
 
-OCAMLC = ocamlc -I +xml-light
+OCAMLC = ocamlc
 OCAMLOPT = ocamlopt
+INCLUDES= -I +xml-light
 
 all: play
 
+play : play.ml
+	$(OCAMLC) $(INCLUDES) -custom -o $@ unix.cma str.cma xml-light.cma glibivy-ocaml.cma -I +lablgtk2 -I ../lib/ocaml lablgtk.cma lib-pprz.cma gtkInit.cmo  $^
+
 clean:
 	rm -f *.opt *.out *~ core *.o *.bak .depend *.cm* play
-
-play : play.ml
-	$(OCAMLC) -custom -o $@ unix.cma glibivy-ocaml.cma -I +lablgtk2 -I ../lib/ocaml lablgtk.cma lib-pprz.cma gtkInit.cmo  $^
-
-plot_adc : plot_adc.c
-	gcc -Wall `pkg-config gtk+-2.0 --cflags` -o plot_adc plot_adc.c `pkg-config gtk+-2.0 --libs` -lgtkdatabox -lglibivy -lpcre

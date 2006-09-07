@@ -36,18 +36,13 @@ MAIN=gcs
 CMO=$(ML:.ml=.cmo)
 CMX=$(ML:.ml=.cmx)
 
-all : $(MAIN) map2d
+all : $(MAIN)
 
 opt : $(MAIN).opt
 
-# Only for backward compatibility: should disappear
-map2d : gcs
-	[ -L $@ ] || [ -f $@ ] || ln -s $< $@ 
-
-
 $(MAIN) : $(CMO)
 	@echo OL $@
-	$(Q)$(OCAMLC) $(OCAMLCFLAGS) -custom $(INCLUDES) $(LIBS) threads.cma gtkThread.cmo gtkInit.cmo $(CMO) -o $@
+	$(Q)$(OCAMLC) $(OCAMLCFLAGS) -custom $(INCLUDES) unix.cma str.cma xml-light.cma $(LIBS) threads.cma gtkThread.cmo gtkInit.cmo $(CMO) -o $@
 
 $(MAIN).opt : $(CMX)
 	@echo OOL $@
