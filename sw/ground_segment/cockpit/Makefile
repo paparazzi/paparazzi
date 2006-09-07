@@ -25,7 +25,7 @@ Q=@
 
 OCAMLC=ocamlc
 OCAMLCFLAGS=-thread
-OCAMLOPT=ocamlopt -thread
+OCAMLOPT=ocamlopt
 OCAMLOPTFLAGS=-thread
 INCLUDES=-I +lablgtk2 -I ../../lib/ocaml -I +xml-light
 LIBS=glibivy-ocaml.cma lablgtk.cma lib-pprz.cma lablgnomecanvas.cma xlib-pprz.cma
