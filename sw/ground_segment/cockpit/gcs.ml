@@ -177,7 +177,7 @@ let bdortho_store = Hashtbl.create 97
 let display_bdortho = fun  (geomap:G.widget) wgs84 () ->
   let r = bdortho_size / 2 in
   let { lbt_x = lx; lbt_y = ly} = lambertIIe_of wgs84 in
-  let lx = lx + r and ly = ly + 2 in
+  let lx = lx + r and ly = ly + bdortho_size/2 in
   let lx = lx - (lx mod bdortho_size)
   and ly = ly - (ly mod bdortho_size) in
   let f = sprintf "ortho_%d_%d_%d.jpg" lx ly r in
@@ -214,9 +214,9 @@ let fill_ortho = fun (geomap:G.widget) ->
   and lbt2e_ne = lambertIIe_of ne in
   let w = lbt2e_ne.lbt_x - lbt2e_sw.lbt_x
   and h = lbt2e_ne.lbt_y - lbt2e_sw.lbt_y in
-  for i = 0 to w / bdortho_size + 2 do
+  for i = 0 to w / bdortho_size + 1 do
     let lbt_x = lbt2e_sw.lbt_x + bdortho_size * i in
-    for j = 0 to h / bdortho_size + 2 do
+    for j = 0 to h / bdortho_size + 1 do
       let lbt_y = lbt2e_sw.lbt_y + bdortho_size * j in
       let geo = of_lambertIIe {lbt_x = lbt_x; lbt_y = lbt_y } in
       display_bdortho geomap geo ()
