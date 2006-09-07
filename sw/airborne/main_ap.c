@@ -460,7 +460,7 @@ void periodic_task_ap( void ) {
 #endif /* INFRARED */
       roll_pitch_pid_run(); /* Set  desired_aileron & desired_elevator */
       pid_slew_gaz();
-      ap_state->commands[COMMAND_THROTTLE] = desired_gaz; /* desired_gaz is set upon GPS message reception */
+      ap_state->commands[COMMAND_THROTTLE] = desired_gaz;
       ap_state->commands[COMMAND_ROLL] = desired_aileron;
       ap_state->commands[COMMAND_PITCH] = desired_elevator;
       

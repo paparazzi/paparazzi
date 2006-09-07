@@ -145,9 +145,13 @@ void event_task_fbw( void) {
   if (spi_message_received) {
     /* Got a message on SPI. */
     spi_message_received = FALSE;
-    link_mcu_event_task(); /** Sets inter_mcu_received_ap if checksum is ok */
+
+    /* Sets link_mcu_received */
+    /* Sets inter_mcu_received_ap if checksum is ok */
+    link_mcu_event_task();
   }
 #endif /* MCU_SPI_LINK */
+
   if (inter_mcu_received_ap) {
     inter_mcu_received_ap = FALSE;
     inter_mcu_event_task();
@@ -158,6 +162,7 @@ void event_task_fbw( void) {
     inter_mcu_fill_fbw_state();
 #endif /**Else the buffer is filled even if the last receive was not correct */
   }
+
 #ifdef MCU_SPI_LINK
   if (link_mcu_received) {
     link_mcu_received = FALSE;
