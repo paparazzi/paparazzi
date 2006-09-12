@@ -1,0 +1,58 @@
+<!DOCTYPE flight_plan SYSTEM "flight_plan.dtd">
+
+<flight_plan ground_alt="200" alt="250" lat0="43.4624" lon0="1.2727" max_dist_from_home="1000" name="Versatile" qfu="270" security_height="25">
+  <waypoints>
+    <waypoint name="HOME" x="0" y="0"/>
+    <waypoint name="1" x="200" y="0"/>
+    <waypoint name="2" x="0" y="200"/>
+    <waypoint name="S1" x="-200" y="-200"/>
+    <waypoint name="S2" x="300" y="400"/>
+  </waypoints>
+  <blocks>
+    <block name="wait GPS">
+      <while cond="!GPS_FIX_VALID(gps_mode)"/>
+    </block>
+
+    <block name="init">
+      <while cond="10 > block_time"/>
+      <set value="reset_nav_reference()" var="unit"/>
+      <set value="reset_waypoints()" var="unit"/>
+      <deroute block="circle 1"/>
+    </block>
+
+    <block name="circle 1">
+      <circle radius="75" wp="1"/>
+    </block>
+
+    <block name="circle left 1">
+      <circle radius="-75" wp="1"/>
+    </block>
+
+    <block name="climb 75">
+      <circle radius="50+(estimator_z-ground_alt)/2" wp="1" throttle="0.75" pitch="0.3" vmode="throttle" until="10 > PowerVoltage()"/>
+    </block>
+
+    <block name="descent 0" strip_button="Descent">
+      <circle radius="50+(estimator_z-ground_alt)/2" wp="1" throttle="0.0" pitch="-0.3" vmode="throttle" until="ground_altitude+50 > estimator_z"/>
+      <deroute block="circle 1"/>
+    </block>
+
+    <block name="route12">
+      <go approaching_time="0" from="1" hmode="route" wp="2"/>
+      <deroute block="stack 2"/>
+    </block>
+
+    <block name="route21">
+      <go approaching_time="0" from="2" hmode="route" wp="1"/>
+      <deroute block="stack 1"/>
+    </block>
+
+    <block name="stack 2">
+      <circle radius="75" wp="2"/>
+    </block>
+
+    <block name="survey">
+      <survey_rectangle grid="150" wp1="S1" wp2="S2"/>
+    </block>
+  </blocks>
+</flight_plan>
