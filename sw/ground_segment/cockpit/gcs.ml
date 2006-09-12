@@ -336,6 +336,7 @@ and auto_ortho = ref false
 and mplayer = ref ""
 and plugin_window = ref ""
 and layout_file = ref "horizontal.xml"
+and edit = ref false
 
 let options =
   [ "-b", Arg.String (fun x -> ivy_bus := x), "Bus\tDefault is 127.255.255.25:2010";
@@ -352,6 +353,7 @@ let options =
     "-lambertIIe", Arg.Unit (fun () -> projection:=G.LambertIIe),"Switch to LambertIIe projection";
     "-ign", Arg.String (fun s -> ign:=true; IGN.data_path := s), "IGN tiles path";
     "-ortho", Arg.Set_string get_bdortho, "IGN tiles path";
+    "-edit", Arg.Unit (fun () -> edit := true; layout_file := "editor.xml"), "Flight plan editor";
     "-layout", Arg.Set_string layout_file, "XML layout specification";
     "-no_alarm", Arg.Set no_alarm, "Disables alarm page";
     "-auto_ortho", Arg.Set auto_ortho, "IGN tiles path";
@@ -367,7 +369,7 @@ let quit = fun () ->
       exit 0
   | _ -> ()
 
-let create_geomap = fun window ->
+let create_geomap = fun window editor_frame ->
   let geomap = new G.widget ~height:500 ~projection:!projection () in
 
   let menu_fact = new GMenu.factory geomap#file_menu in
@@ -390,7 +392,8 @@ let create_geomap = fun window ->
   let map_menu = geomap#factory#add_submenu "Maps" in
   let map_menu_fact = new GMenu.factory ~accel_group map_menu in
   ignore (map_menu_fact#add_item "Load" ~key:GdkKeysyms._M ~callback:(load_map geomap));
-  ignore (map_menu_fact#add_item "Calibrate" ~key:GdkKeysyms._C ~callback:(EditFP.calibrate_map geomap accel_group));
+  if !edit then
+    ignore (map_menu_fact#add_item "Calibrate" ~key:GdkKeysyms._C ~callback:(EditFP.calibrate_map geomap editor_frame accel_group));
   ignore (map_menu_fact#add_item "GoogleMaps Fill" ~key:GdkKeysyms._G ~callback:(fun _ -> GM.fill_tiles geomap));
   ignore (map_menu_fact#add_check_item "GoogleMaps Http" ~key:GdkKeysyms._H ~active:true ~callback:GM.active_http);
   ignore (map_menu_fact#add_check_item "GoogleMaps Auto" ~active:!GM.auto ~callback:(GM.active_auto geomap));
@@ -404,12 +407,14 @@ let create_geomap = fun window ->
     geomap#connect_view (fun () -> fill_ortho geomap);
   
   (** Flight plan editing *)
-  let fp_menu = geomap#factory#add_submenu "Edit" in
-  let fp_menu_fact = new GMenu.factory ~accel_group fp_menu in
-  ignore (fp_menu_fact#add_item "New flight plan" ~key:GdkKeysyms._N ~callback:(EditFP.new_fp geomap accel_group));
-  ignore (fp_menu_fact#add_item "Open flight plan" ~key:GdkKeysyms._O ~callback:(EditFP.load_fp geomap accel_group));
-  ignore (fp_menu_fact#add_item "Save flight plan" ~key:GdkKeysyms._S ~callback:(EditFP.save_fp));
-  ignore (fp_menu_fact#add_item "Close flight plan" ~key:GdkKeysyms._W ~callback:(EditFP.close_fp));
+  if !edit then begin
+    let fp_menu = geomap#factory#add_submenu "Edit" in
+    let fp_menu_fact = new GMenu.factory ~accel_group fp_menu in
+    ignore (fp_menu_fact#add_item "New flight plan" ~key:GdkKeysyms._N ~callback:(EditFP.new_fp geomap editor_frame accel_group));
+    ignore (fp_menu_fact#add_item "Open flight plan" ~key:GdkKeysyms._O ~callback:(EditFP.load_fp geomap editor_frame accel_group));
+    ignore (fp_menu_fact#add_item "Save flight plan" ~key:GdkKeysyms._S ~callback:(EditFP.save_fp));
+    ignore (fp_menu_fact#add_item "Close flight plan" ~key:GdkKeysyms._W ~callback:(EditFP.close_fp))
+  end;
 
   (** Help pushed to the right *)
   let mi = GMenu.menu_item ~label:"Help" ~right_justified:true ~packing:geomap#menubar#append () in
@@ -490,11 +495,13 @@ let _main =
     window#maximize ();
   if !fullscreen then
     window#fullscreen ();
-(***  let vbox= GPack.vbox ~packing: window#add () in ***)
-
+  
   ignore (window#connect#destroy ~callback:quit);
 
-  let geomap, menu_fact = create_geomap window in
+  (* Editor frame *)
+  let editor_frame = GBin.frame () in
+
+  let geomap, menu_fact = create_geomap window editor_frame in
 
   let map_frame = GPack.vbox () in
   (** Put the canvas in a frame *)
@@ -511,10 +518,10 @@ let _main =
   let plugin_width = 400 and plugin_height = 300 in
   let plugin_frame = GPack.vbox ~width:plugin_width () in
 
-
   let widgets = ["map2d", map_frame#coerce; 
 		 "strips", Strip.scrolled#coerce;
 		 "aircraft", ac_notebook#coerce;
+		 "editor", editor_frame#coerce;
 		 "alarms", alert_page#coerce;
 	         "plugin", plugin_frame#coerce] in
 

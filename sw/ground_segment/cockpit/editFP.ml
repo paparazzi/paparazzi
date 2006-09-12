@@ -21,7 +21,7 @@ let dummy_fp = fun latlong ->
 
 let current_fp = ref None
 
-    (** Wrapper checking there is currently no flight plan loaded *)
+(** Wrapper checking there is currently no flight plan loaded *)
 let if_none = fun f ->
   match !current_fp with
     Some _ ->
@@ -29,32 +29,42 @@ let if_none = fun f ->
   | None ->
       f ()
 
+let save_fp = fun () ->
+  match !current_fp with
+    None -> () (* Nothing to save *)
+  | Some (fp, filename) ->
+      match GToolbox.select_file ~title:"Save Flight Plan" ~filename () with
+	None -> ()
+      | Some file -> 
+	  let f  = open_out file in
+	  fprintf f "%s\n" (ExtXml.to_string_fmt fp#xml);
+	  close_out f
 
 let close_fp = fun () ->
   match !current_fp with
     None -> () (* Nothing to close *)
-  | Some (fp, _filename, window) ->
-      window#destroy ();
-      fp#destroy ();
-      current_fp := None
+  | Some (fp, _filename) ->
+      let close = fun () ->
+	fp#destroy ();
+	current_fp := None in
+      match GToolbox.question_box ~title:"Closing flight plan" ~buttons:["Close"; "Save&Close"; "Cancel"] "Do you want to save/close ?" with
+	2 -> save_fp (); close ()
+      | 1 -> close ()	  
+      | _ -> ()
 	  
-let load_xml_fp = fun geomap accel_group ?(xml_file=Env.flight_plans_path) xml ->
+let load_xml_fp = fun geomap editor_frame accel_group ?(xml_file=Env.flight_plans_path) xml ->
   Map2d.set_georef_if_none geomap (MapFP.georef_of_xml xml);
   let fp = new MapFP.flight_plan ~show_moved:false geomap "red" Env.flight_plan_dtd xml in
   let window = GWindow.window ~title:"Flight Plan" () in
-  window#set_default_size ~width:700 ~height:250;
-  window#add fp#window;
-  window#add_accel_group accel_group;
-  window#show();
-  ignore (window#connect#destroy ~callback:close_fp);
-  current_fp := Some (fp,xml_file, window);
+  editor_frame#add fp#window;
+  current_fp := Some (fp,xml_file);
   fp
 
 let labelled_entry = fun ?width_chars text value h ->
   let _ = GMisc.label ~text ~packing:h#add () in
   GEdit.entry ?width_chars ~text:value ~packing:h#add ()
 
-let new_fp = fun geomap accel_group () ->
+let new_fp = fun geomap editor_frame accel_group () ->
   if_none (fun () ->
     let dialog = GWindow.window ~border_width:10 ~title:"New flight plan" () in
     let dvbx = GPack.box `VERTICAL ~packing:dialog#add () in
@@ -91,21 +101,21 @@ let new_fp = fun geomap accel_group () ->
 	       let xml = s "alt" alt#text xml in
 	       let xml = s "max_dist_from_home" mdfh#text xml in
 	       let xml = s "name" name#text xml in
-	       ignore (load_xml_fp geomap accel_group xml);
+	       ignore (load_xml_fp geomap editor_frame accel_group xml);
 	       dialog#destroy ()
 	     end);
     dialog#show ())
 
       
 (** Loading a flight plan for edition *)
-let load_fp = fun geomap accel_group () ->
+let load_fp = fun geomap editor_frame accel_group () ->
   if_none (fun () ->
     match GToolbox.select_file ~title:"Open flight plan" ~filename:(Env.flight_plans_path // "*.xml") () with
       None -> ()
     | Some xml_file ->
 	try
 	  let xml = Xml.parse_file xml_file in
-	  ignore (load_xml_fp geomap accel_group ~xml_file xml);
+	  ignore (load_xml_fp geomap editor_frame accel_group ~xml_file xml);
 	  geomap#fit_to_window ()
 	with
 	  Dtd.Check_error(e) -> 
@@ -117,20 +127,9 @@ let create_wp = fun geo ->
     None -> 
       GToolbox.message_box "Error" "Load a flight plan first";
       failwith "create_wp"
-  | Some (fp,_,_) ->
+  | Some (fp,_) ->
       fp#add_waypoint geo
 
-
-let save_fp = fun () ->
-  match !current_fp with
-    None -> () (* Nothing to save *)
-  | Some (fp, filename,_) ->
-      match GToolbox.select_file ~title:"Save Flight Plan" ~filename () with
-	None -> ()
-      | Some file -> 
-	  let f  = open_out file in
-	  fprintf f "%s\n" (ExtXml.to_string_fmt fp#xml);
-	  close_out f
 
 let ref_point_of_waypoint = fun xml ->
   Xml.Element("point", ["x",Xml.attrib xml "x";
@@ -139,9 +138,9 @@ let ref_point_of_waypoint = fun xml ->
 
 
 (** Calibration of chosen image (requires a dummy flight plan) *)
-let calibrate_map = fun (geomap:MapCanvas.widget) accel_group () ->
+let calibrate_map = fun (geomap:MapCanvas.widget) editor_frame accel_group () ->
   match !current_fp with
-  | Some (_fp,_,_) ->  GToolbox.message_box "Error" "Close current flight plan before calibration"
+  | Some (_fp,_) ->  GToolbox.message_box "Error" "Close current flight plan before calibration"
   | None ->
       match GToolbox.select_file ~filename:(default_path_maps // "") ~title:"Open Image" () with
 	None -> ()
@@ -159,7 +158,7 @@ let calibrate_map = fun (geomap:MapCanvas.widget) accel_group () ->
 	      None -> {posn_lat = (Deg>>Rad)43.; posn_long = (Deg>>Rad)1. }
 	    | Some geo -> geo in
 	  let fp_xml = dummy_fp dummy_georef in
-	  let fp = load_xml_fp geomap accel_group fp_xml in
+	  let fp = load_xml_fp geomap editor_frame accel_group fp_xml in
 	  
 	  (** Dialog to finish calibration *)
 	  let dialog = GWindow.window ~border_width:10 ~title:"Map calibration" () in
@@ -288,7 +287,7 @@ let path_close = fun () ->
   begin
     match !current_fp with
       None -> ()
-    | Some (fp, _,_) ->
+    | Some (fp, _) ->
 	fp#insert_path (List.map (fun (wp,_,_,_,r) -> (wp, r)) (List.rev ! !path));
   end;
   path := ref []
