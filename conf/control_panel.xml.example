@@ -55,7 +55,7 @@
 
   <section name="sessions">
 
-    <session name="Muret sim">
+    <session name="1 Simple Sim">
       <program name="server"><arg flag="-n"/></program>
       <program name="sim"><arg flag="-a" constant="MJ5"/></program>
       <program name="gcs">
@@ -66,7 +66,7 @@
       <program name="gaia"/>
     </session>
 
-    <session name="Generic sim">
+    <session name="2 Versatile Sim">
       <program name="server"/>     
       <program name="gcs">
 <!--    <arg flag="-mplayer" constant="rtsp://localhost:7070/webcam"/> -->
@@ -75,14 +75,14 @@
       <program name="messages"><arg flag="-c" constant="telemetry:*"/><arg flag="-c" constant="ground:ground"/></program>
     </session>
 
-    <session name="Multi-A/C sim">
+    <session name="3 Multi-A/C Sim">
       <program name="sim"><arg flag="-a" constant="MJ5"/></program>
       <program name="sim"><arg flag="-a" constant="TJ1"/></program>
       <program name="server"/>
       <program name="gcs"/>
     </session>
 
-   <session name="Generic flight">
+   <session name="4 Versatile Flight">
       <program name="link">
         <arg flag="-d" constant="/dev/paparazzi/xbee"/>
         <arg flag="-transport" constant="xbee"/>

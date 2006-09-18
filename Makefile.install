@@ -16,6 +16,7 @@ install_data:
 	$(INSTALL) -d $(DESTDIR)/data/maps
 	$(INSTALLDATA) data/maps/*.xml data/maps/*.gif $(DESTDIR)/data/maps
 	$(INSTALL) -d $(DESTDIR)/data/pictures
+	$(INSTALLDATA) var/maps/trtqtttqtsrrt*.jpg $(DESTDIR)/data/maps
 	$(INSTALLDATA) data/pictures/*.gif data/pictures/*.svg data/pictures/*.jpg data/pictures/*.png $(DESTDIR)/data/pictures
 	$(INSTALL) -d $(DESTDIR)/data/srtm
 	$(INSTALLDATA) data/srtm/N43E001.hgt.bz2 $(DESTDIR)/data/srtm

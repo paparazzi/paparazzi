@@ -91,7 +91,7 @@
     airframe="airframes/twinjet1.xml" 
     radio="radios/cockpitMM.xml" 
     telemetry="telemetry/default.xml"
-    flight_plan="flight_plans/generic.xml"
+    flight_plan="flight_plans/versatile.xml"
     settings="settings/tuning.xml"
     gui_color="#ba6293"
   />
