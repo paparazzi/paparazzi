@@ -50,7 +50,7 @@ help:
 	@echo "'paparazzi-make AIRCRAFT=<ac_name> [sim|ap.<action>|fbw.<action>|clean_ac]' where <action> is 'compile' or 'upload'"
 
 init:
-	@[ -d $(PAPARAZZI_HOME) ] || (echo "Copying config example in your $(PAPARAZZI_HOME) directory"; mkdir -p $(PAPARAZZI_HOME); cp -a conf $(PAPARAZZI_HOME); cp -a data $(PAPARAZZI_HOME); mkdir -p var/maps; mv $(PAPARAZZI_HOME)/data/maps/trtqtttqtsrrt*.jpg $(PAPARAZZI_HOME)/var/maps)
+	@[ -d $(PAPARAZZI_HOME) ] || (echo "Copying config example in your $(PAPARAZZI_HOME) directory"; mkdir -p $(PAPARAZZI_HOME); cp -a conf $(PAPARAZZI_HOME); cp -a data $(PAPARAZZI_HOME); mkdir -p $(PAPARAZZI_HOME)/var/maps; mv $(PAPARAZZI_HOME)/data/maps/trtqtttqtsrrt*.jpg $(PAPARAZZI_HOME)/var/maps)
 
 demo: ac1 ac2 ac3
 	PAPARAZZI_HOME=$(PAPARAZZI_HOME) PAPARAZZI_SRC=$(PAPARAZZI_SRC) $(SUPERVISION)

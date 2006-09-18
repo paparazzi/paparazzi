@@ -33,22 +33,24 @@
     </block>
 
     <block name="descent 0" strip_button="Descent">
-      <circle radius="50+(estimator_z-ground_alt)/2" wp="1" throttle="0.0" pitch="-0.3" vmode="throttle" until="ground_altitude+50 > estimator_z"/>
+      <circle radius="50+(estimator_z-ground_alt)/2" wp="1" throttle="0.0" pitch="-0.3" vmode="throttle" until="ground_alt+50 > estimator_z"/>
       <deroute block="circle 1"/>
     </block>
 
     <block name="route12">
       <go approaching_time="0" from="1" hmode="route" wp="2"/>
-      <deroute block="stack 2"/>
-    </block>
-
-    <block name="route21">
-      <go approaching_time="0" from="2" hmode="route" wp="1"/>
-      <deroute block="stack 1"/>
     </block>
 
     <block name="stack 2">
       <circle radius="75" wp="2"/>
+    </block>
+
+    <block name="route21">
+      <go approaching_time="0" from="2" hmode="route" wp="1"/>
+    </block>
+
+    <block name="stack 1">
+      <circle radius="75" wp="1"/>
     </block>
 
     <block name="survey">
