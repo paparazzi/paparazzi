@@ -31,7 +31,7 @@ function varargout = dialog(varargin)
 
 % Edit the above text to modify the response to help dialog
 
-% Last Modified by GUIDE v2.5 10-Nov-2005 18:47:16
+% Last Modified by GUIDE v2.5 18-Sep-2006 11:05:50
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -51,6 +51,72 @@ else
     gui_mainfcn(gui_State, varargin{:});
 end
 % End initialization code - DO NOT EDIT
+
+function [m,n]=set2Plot(handles,section,field)
+
+axes(handles.axes1);
+
+global labelsSections;
+global sectionsIndex;
+global labelsFields;
+global fieldsIndex;
+N=max(size(labelsSections));
+n=1; while n<=N && ~strcmpi(labelsSections(n),section), n=n+1; end;
+if strcmpi(labelsSections(n),section),
+    set(handles.ListSections,'Value',n);
+    ListSections_Callback(0, 0, handles);
+    M=max(size(labelsFields));
+    m=1; while m<=M && ~strcmpi(labelsFields(m),field), m=m+1; end;
+    if strcmpi(labelsFields(m),field),
+        return;
+    end;
+end;
+m=0;
+n=0;
+return;
+
+function [x,y]=setXY2plot(m,n,k)
+%fetch xy data for section n, field m
+global X0;
+global logData;
+global x;
+global y;
+x=[]; y=[];
+len=max(size(logData));
+last_time=0;
+for j=1:len,
+    if logData(j).type==n && logData(j).plane_id==k,
+        if logData(j).time>last_time,
+            x=[x;logData(j).time];
+            y=[y;logData(j).fields(m)];
+            last_time=x(max(size(x)));
+        end;
+    end;
+end;
+
+x=x-X0; % shift timer to start at the boot time
+
+function h=plotlog(x,y)
+%plot data for section n, field m, plane_id k
+
+% minimum number of points in the plot (resolution)
+%if actual number of points if greater we dont need to change anything, but
+%if it is less, interpolate using nearest neighbor as closest model of
+%signals incoming to ground station. Previous value is used in the ap
+%until a new value is obtained
+Nres=1000; 
+
+if ~isempty(x) && ~isempty(y),
+    MIN=min(x);
+    MAX=max(x);
+    X=MIN:(MAX-MIN)/Nres:MAX;
+    if max(size(X))<=max(size(x)) %plot as it is
+        h=plot(x,y);
+    else
+        h=plot(x,y,'x');
+        %plot(X,interp1(x,y,X,'nearest')); %interpolate using nearest neighbor
+    end;
+end;
 
 % --- Executes just before dialog is made visible.
 function dialog_OpeningFcn(hObject, eventdata, handles, varargin)
@@ -74,7 +140,8 @@ set(handles.ListSections,'Enable','off');
 set(handles.ListFields,'Enable','off');
 set(handles.ListDevices,'Enable','off');
 
-
+global X0;
+X0=0;
 % UIWAIT makes dialog wait for user response (see UIRESUME)
 % uiwait(handles.figure1);
 
@@ -185,6 +252,21 @@ if res~=0,
     
     %find name of the data file
     dataFileName=char(node.getFirstChild.getAttributes.item(0).getValue);
+    %find ground altitude
+    global ground_alt;
+    j=0; 
+    found=0
+    while ~found && j<=node.getFirstChild.getChildNodes.item(1).getChildNodes.item(1).getChildNodes.item(1).getAttributes.getLength,
+        if ~strcmpi(node.getFirstChild.getChildNodes.item(1).getChildNodes.item(1).getChildNodes.item(1).getAttributes.item(j).getName,'GROUND_ALT'),
+            j=j+1;
+            found=1;
+        end;
+    end;
+    if j<=node.getFirstChild.getChildNodes.item(1).getChildNodes.item(1).getChildNodes.item(1).getAttributes.getLength,
+        ground_alt=str2num(char(node.getFirstChild.getChildNodes.item(1).getChildNodes.item(1).getChildNodes.item(1).getAttributes.item(j).getValue));
+    else ground_alt=0;
+    end;
+    
     
     %---read protocol---------------------------------
     set(handles.text1,'String','Reading protocol specification');
@@ -287,8 +369,9 @@ if res~=0,
         fld=sscanf(tline,'%g'); %extract a vector of fields
         found=0; j=1; count=max(size(labelsSections));
         %find index of the message label in the protocol
-        while j<count && ~found,
-            found=~isempty(strmatch(lab,cell2mat(labelsSections(j))));
+        while j<count+1 && ~found,
+            %found=~isempty(strmatch(lab,cell2mat(labelsSections(j))));
+            found=strcmp(lab,cell2mat(labelsSections(j)));            
             j=j+1;
         end;
         j=j-1;
@@ -308,6 +391,7 @@ if res~=0,
     end;
     
     %make labels for Device ID listbox
+    global id_Devices;
     id_Devices=[];
     count=max(size(logData));
     for j=1:count,
@@ -339,9 +423,19 @@ else
     %file was not selected
 end;
 
-
-
-
+j=1; 
+while (~strcmp(labelsSections{j},'BOOT') && j<max(size(labelsSections)) )
+    j=j+1;
+end;
+k=1;
+while logData(k).type~=j && k<max(size(logData))
+    k=k+1;
+end;
+if (k<max(size(logData)))
+    X0=logData(k).time;
+else
+    warning('BOOT message not found.. Corrupted log?');
+end;
 
 % --- Executes during object creation, after setting all properties.
 function ListFields_CreateFcn(hObject, eventdata, handles)
@@ -405,6 +499,34 @@ function ListSections_Callback(hObject, eventdata, handles)
 
 % Hints: contents = get(hObject,'String') returns ListSections contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from ListSections
+% global nodeList;
+% global labelsSections;
+% global sectionsIndex;
+% global labelsFields;
+% global fieldsIndex;
+% 
+% nn=get(handles.ListSections,'Value');
+% nn=nn(1);
+% childList=nodeList.item(sectionsIndex(nn)).getChildNodes;
+% count=childList.getLength;
+% labelsFields=[];
+% for j=0:count-1,
+%     if childList.item(j).getNodeName=='field',
+%         attr=childList.item(j).getAttributes;
+%         cattr=attr.getLength; k=0;
+%         while k<cattr && ~strcmp(attr.item(k).getName,'name'),
+%             k=k+1;
+%         end;
+%         labelsFields=[labelsFields,char(attr.item(k).getValue),'|'];
+%         fieldsIndex=[fieldsIndex,k];
+%     end;
+% end;
+% labelsFields=labelsFields(1:max(size(labelsFields))-1); %cut off last '|' character
+% set(handles.ListFields,'String',labelsFields);
+% set(handles.ListFields,'Value',1);
+
+
+
 global nodeList;
 global labelsSections;
 global sectionsIndex;
@@ -416,6 +538,8 @@ nn=nn(1);
 childList=nodeList.item(sectionsIndex(nn)).getChildNodes;
 count=childList.getLength;
 labelsFields=[];
+lineFields=[];
+fieldsIndex=[];
 for j=0:count-1,
     if childList.item(j).getNodeName=='field',
         attr=childList.item(j).getAttributes;
@@ -423,13 +547,16 @@ for j=0:count-1,
         while k<cattr && ~strcmp(attr.item(k).getName,'name'),
             k=k+1;
         end;
-        labelsFields=[labelsFields,char(attr.item(k).getValue),'|'];
+        labelsFields=[labelsFields,{char(attr.item(k).getValue)}];
+        lineFields=[lineFields,char(attr.item(k).getValue),'|'];
         fieldsIndex=[fieldsIndex,k];
     end;
 end;
-labelsFields=labelsFields(1:max(size(labelsFields))-1); %cut off last '|' character
-set(handles.ListFields,'String',labelsFields);
+lineFields=lineFields(1:max(size(lineFields))-1); %cut off last '|' character
+set(handles.ListFields,'String',lineFields);
 set(handles.ListFields,'Value',1);
+
+
 
 % --- Executes on button press in plotButton.
 function plotButton_Callback(hObject, eventdata, handles)
@@ -454,32 +581,22 @@ if ~get(handles.keepToggleButton,'Value')
 else
     hold on;
 end;
-
-n=get(handles.ListSections,'Value'); n=n(1);
+n=get(handles.ListSections,'Value'); 
+n=n(1);
 m=get(handles.ListFields,'Value'); m=m(1);
-g=get(handles.ListDevices,'Value'); dev=id_Devices(g(1));
-x=[]; y=[];
-len=max(size(logData));
-for j=1:len,
-    if logData(j).type==n && logData(j).plane_id==dev,
-        x=[x;logData(j).time];
-        y=[y;logData(j).fields(m)];
-    end;
-end;
- 
-if ~isempty(x) && ~isempty(y),
-    MIN=min(x-x(1));
-    MAX=max(x-x(1));
-    X=MIN:(MAX-MIN)/Nres:MAX;
-    if max(size(X))<=max(size(x)) %plot as it is
-        plot(x-x(1),y);
-    else
-        plot(X,interp1(x-x(1),y,X,'nearest')); %interpolate using nearest neighbor
-    end;
-end;
-%plot(1:0.01:25,rand*sin(1:0.01:25));
-%axis([1 25 -1 1]);
+k=get(handles.ListDevices,'Value');
+global id_Devices;
+k=id_Devices(k);
 
+[x,y]=setXY2plot(m,n,k);
+h=plotlog(x,y);
+
+t1=str2num(get(handles.edit1,'String'));
+t2=str2num(get(handles.edit2,'String'));
+if t1~=t2 && t1<t2,
+    xlim([t1 t2]);
+    axis 'auto y';
+end;
 
 % --- Executes on button press in printButton.
 function printButton_Callback(hObject, eventdata, handles)
@@ -524,5 +641,467 @@ function ListDevices_Callback(hObject, eventdata, handles)
 
 % Hints: contents = get(hObject,'String') returns ListDevices contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from ListDevices
+
+
+% --- Executes on button press in zoomin.
+function zoomin_Callback(hObject, eventdata, handles)
+% hObject    handle to zoomin (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+if get(hObject,'Value')==get(hObject,'Max')
+    zoom on;
+else
+    zoom off;
+end;
+
+% --- Executes on button press in zoomout.
+function zoomout_Callback(hObject, eventdata, handles)
+% hObject    handle to zoomout (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+if get(hObject,'Value')==get(hObject,'Min')
+    zoom on;
+else
+    zoom off;
+end;
+
+
+% --- Executes during object creation, after setting all properties.
+function edit1_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit1 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc
+    set(hObject,'BackgroundColor','white');
+else
+    set(hObject,'BackgroundColor',get(0,'defaultUicontrolBackgroundColor'));
+end
+
+
+
+function edit1_Callback(hObject, eventdata, handles)
+% hObject    handle to edit1 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit1 as text
+%        str2double(get(hObject,'String')) returns contents of edit1 as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function edit2_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit2 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc
+    set(hObject,'BackgroundColor','white');
+else
+    set(hObject,'BackgroundColor',get(0,'defaultUicontrolBackgroundColor'));
+end
+
+
+
+function edit2_Callback(hObject, eventdata, handles)
+% hObject    handle to edit2 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit2 as text
+%        str2double(get(hObject,'String')) returns contents of edit2 as a double
+
+
+% --- Executes on button press in rotate3d.
+function rotate3d_Callback(hObject, eventdata, handles)
+% hObject    handle to rotate3d (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of rotate3d
+
+if get(hObject,'Value')==get(hObject,'Min')
+    rotate3d off;
+else
+    rotate3d on;
+end;
+
+
+
+% --- Executes on button press in roll_button_button.
+function roll_button_Callback(hObject, eventdata, handles)
+% hObject    handle to roll_button_button (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+global x;
+global y;
+global id_Devices;
+
+axes(handles.axes1);
+[m,n]=set2Plot(handles,'attitude','phi');
+k=get(handles.ListDevices,'Value'); k=id_Devices(k);
+if m*n~=0, 
+    [x,y]=setXY2plot(m,n,k);
+    h=plotlog(x,y);
+    set(h,'LineWidth',0.5);
+    set(h,'Marker','none');
+    set(h,'LineStyle','-');
+end;
+hold on;
+[m,n]=set2Plot(handles,'desired','roll');
+if m*n~=0, 
+    [x,y]=setXY2plot(m,n,k);
+    h=plotlog(x,y);
+    set(h,'LineWidth',2.0);
+    set(h,'Marker','none');
+    set(h,'LineStyle','-');
+end;
+hold off;
+
+t1=str2num(get(handles.edit1,'String'));
+t2=str2num(get(handles.edit2,'String'));
+if t1~=t2 && t1<t2,
+    axis([t1 t2 -inf inf]); axis 'auto y';
+end;
+
+legend('estimated\_roll','desired\_roll');
+
+
+% --- Executes on button press in pitch_button.
+function pitch_button_Callback(hObject, eventdata, handles)
+% hObject    handle to pitch_button (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+global x;
+global y;
+global id_Devices;
+
+axes(handles.axes1);
+
+k=get(handles.ListDevices,'Value'); k=id_Devces(k);
+
+[m,n]=set2Plot(handles,'attitude','theta');
+if m*n~=0, 
+    [x,y]=setXY2plot(m,n,k);
+    h=plotlog(x,y);
+    set(h,'LineWidth',0.5);
+    set(h,'Marker','none');
+    set(h,'LineStyle','-');
+end;
+hold on;
+[m,n]=set2Plot(handles,'desired','pitch');
+if m*n~=0, 
+    [x,y]=setXY2plot(m,n,k);
+    h=plotlog(x,y);
+    set(h,'LineWidth',2.0);
+    set(h,'Marker','none');
+    set(h,'LineStyle','-');
+end;
+hold off;
+
+t1=str2num(get(handles.edit1,'String'));
+t2=str2num(get(handles.edit2,'String'));
+if t1~=t2 && t1<t2,
+    axis([t1 t2 -inf inf]); axis 'auto y';
+end;
+
+legend('estimated\_pitch','desired\_pitch');
+
+% --- Executes on button press in heading_button.
+function heading_button_Callback(hObject, eventdata, handles)
+% hObject    handle to heading_button (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+global x;
+global y;
+global id_Devices;
+
+axes(handles.axes1);
+k=get(handles.ListDevices,'Value'); k=id_Devices(k);
+
+[m,n]=set2Plot(handles,'GPS','course');
+if m*n~=0, 
+    [x,y]=setXY2plot(m,n,k);
+    h=plotlog(x,y);
+    set(h,'LineWidth',0.5);
+    set(h,'Marker','none');
+    set(h,'LineStyle','-');
+end;
+hold on;
+[m,n]=set2Plot(handles,'navigation','desired_course');
+if m*n~=0, 
+    [x,y]=setXY2plot(m,n,k);
+    h=plotlog(x,y);
+    set(h,'LineWidth',2.0);
+    set(h,'Marker','none');
+    set(h,'LineStyle','-');
+end;
+hold off;
+
+t1=str2num(get(handles.edit1,'String'));
+t2=str2num(get(handles.edit2,'String'));
+if t1~=t2 && t1<t2,
+    axis([t1 t2 -inf inf]); axis 'auto y';
+end;
+
+legend('estimated\_course','desired\_course');
+
+
+% --- Executes on button press in altitude_button.
+function altitude_button_Callback(hObject, eventdata, handles)
+% hObject    handle to altitude_button (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+global x;
+global y;
+global id_Devices;
+
+axes(handles.axes1);
+k=get(handles.ListDevices,'Value'); k=id_Devices(k);
+
+[m,n]=set2Plot(handles,'GPS','alt');
+if m*n~=0, 
+    [x,y]=setXY2plot(m,n,k);
+    h=plotlog(x,y);
+    set(h,'LineWidth',0.5);
+    set(h,'Marker','none');
+    set(h,'LineStyle','-');
+end;
+hold on;
+[m,n]=set2Plot(handles,'desired','desired_altitude');
+if m*n~=0, 
+    [x,y]=setXY2plot(m,n,k);
+    h=plotlog(x,y);
+    set(h,'LineWidth',2.0);
+    set(h,'Marker','none');
+    set(h,'LineStyle','-');
+end;
+hold off;
+
+t1=str2num(get(handles.edit1,'String'));
+t2=str2num(get(handles.edit2,'String'));
+if t1~=t2 && t1<t2,
+    axis([t1 t2 -inf inf]); axis 'auto y';
+end;
+
+legend('estimated\_altitude','desired\_altitude');
+
+
+% --- Executes on button press in traj_button.
+function traj_button_Callback(hObject, eventdata, handles)
+% hObject    handle to traj_button (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+global x;
+global y;
+global z;
+global t;
+global id_Devices;
+
+axes(handles.axes1);
+
+xx=[];
+yy=[];
+zz=[];
+k=get(handles.ListDevices,'Value'); k=id_Devices(1);
+
+[m,n]=set2Plot(handles,'navigation','pos_x');
+if m*n~=0,
+    [tx,xx]=setXY2plot(m,n,k);
+end;
+[m,n]=set2Plot(handles,'navigation','pos_y');
+if m*n~=0,
+    [ty,yy]=setXY2plot(m,n,k);
+    yy=interp1(ty,yy,tx);
+end;
+[m,n]=set2Plot(handles,'GPS','alt');
+if m*n~=0,
+    [tz,zz]=setXY2plot(m,n,k);
+    zz=interp1(tz,zz,tx);
+end;
+
+x=xx;
+y=yy;
+global ground_alt;
+z=zz-ground_alt;
+t=tx;
+
+if ~isempty(x) && ~isempty(y) && ~isempty(z) && ~isempty(t),
+    t1=str2num(get(handles.edit1,'String'));
+    t2=str2num(get(handles.edit2,'String'));
+    if t1~=t2 && t1<t2 && t1<=t(max(size(t)-1)),
+        N=max(size(t));
+        n1=1; while n1<=N && t(n1)<t1, n1=n1+1; end;
+        n2=n1+1; while n2<=N && t(n2)<t2, n2=n2+1; end;
+        h=plot3(x(n1:n2),y(n1:n2),z(n1:n2));
+    else
+        h=plot3(x,y,z);
+    end;
+    set(h,'LineWidth',1.0);
+    set(h,'Marker','none');
+    set(h,'LineStyle','-');
+    box;
+    grid on;
+end;
+
+% --- Executes on button press in vel_button.
+function vel_button_Callback(hObject, eventdata, handles)
+% hObject    handle to vel_button (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+global x;
+global y;
+global z;
+global t;
+
+
+axes(handles.axes1);
+k=get(handles.ListDevices,'Value'); 
+global id_Devices;
+k=id_Devices(k);
+
+[m,n]=set2Plot(handles,'GPS','speed');
+if m*n~=0, 
+    [x,y]=setXY2plot(m,n,k);
+    h=plotlog(x,y);
+    set(h,'LineWidth',0.5);
+    set(h,'Marker','none');
+    set(h,'LineStyle','-');
+end;
+hold on;
+
+xx=[];
+yy=[];
+zz=[];
+
+[m,n]=set2Plot(handles,'navigation','pos_x');
+if m*n~=0,
+    [tx,xx]=setXY2plot(m,n,k);
+end;
+[m,n]=set2Plot(handles,'navigation','pos_y');
+if m*n~=0,
+    [ty,yy]=setXY2plot(m,n,k);
+    yy=interp1(ty,yy,tx);
+end;
+[m,n]=set2Plot(handles,'GPS','alt');
+if m*n~=0,
+    [tz,zz]=setXY2plot(m,n,k);
+    zz=interp1(tz,zz,tx);
+end;
+v=[];N=max(size(xx));
+for j=2:N, v=[v sqrt((xx(j)-xx(j-1))^2+(yy(j)-yy(j-1))^2+(zz(j)-zz(j-1))^2)/(tx(j)-tx(j-1))]; end;
+y=v;
+x=tx(2:N);
+h=plotlog(x,y);
+if ~isempty(x) && ~isempty(y),
+    t1=str2num(get(handles.edit1,'String'));
+    t2=str2num(get(handles.edit2,'String'));
+    if t1~=t2 && t1<t2 && t1<=t(max(size(t)-1)),
+        axis([t1 t2 -inf inf]); axis 'auto y';
+    end;
+    set(h,'LineWidth',2.0);
+    set(h,'Marker','none');
+    set(h,'LineStyle','-');
+end;
+hold off;
+legend('GPS\_speed','computed\_speed');
+
+% --- Executes on button press in gaz_button.
+function gaz_button_Callback(hObject, eventdata, handles)
+% hObject    handle to gaz_button (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+global x;
+global y;
+
+axes(handles.axes1);
+k=get(handles.ListDevices,'Value');
+global id_Devices;
+k=id_Devices(k);
+
+
+[m,n]=set2Plot(handles,'servos','thrust');
+if m*n~=0, 
+    [x,y]=setXY2plot(m,n,k);
+    h=plotlog(x,y);
+    set(h,'LineWidth',0.5);
+    set(h,'Marker','none');
+    set(h,'LineStyle','-');
+end;
+t1=str2num(get(handles.edit1,'String'));
+t2=str2num(get(handles.edit2,'String'));
+if t1~=t2 && t1<t2,
+    axis([t1 t2 -inf inf]); axis 'auto y';
+end;
+
+% --- Executes on button press in ap_mode_pushbutton_pushbutton.
+function ap_mode_pushbutton_Callback(hObject, eventdata, handles)
+% hObject    handle to ap_mode_pushbutton_pushbutton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+xl=xlim;
+yl=ylim;
+xscale=xl(2)-xl(1);
+yscale=yl(2)-yl(1);
+
+
+k=get(handles.ListDevices,'Value');
+global id_Devices;
+k=id_Devices(k);
+
+
+[m,n]=set2Plot(handles,'PPRZ_MODE','ap_mode');
+if m*n==0, 
+    return;
+end;
+n1=1;
+[x,y]=setXY2plot(m,n,k);
+N=max(size(x));
+while x(n1)<xl(1) && n1<N, n1=n1+1; end;
+while x(n1)<xl(2) && n1<N,
+    m1=y(n1+1);
+    C=[0 0 0]; %color
+    switch m1
+        case 0
+            C=[1 0.3 0];
+            txt='manual';
+        case 1
+            C=[1 0.5 0];
+            txt='auto1';
+        case 2
+            C=[1 0.7 0];
+            txt='auto2';
+        case 3
+            C=[1 1 0];
+            txt='home';
+    end;    
+    n2=n1+1; while y(n2)==m1 && x(n2)<xl(2) && n2<N, n2=n2+1; end;
+    hold on;
+    if x(n1)<xl(1), t1=xl(1)+0.01*xscale; else t1=x(n1); end;
+    if x(n2)>xl(2), t2=xl(2)-0.01*xscale; else t2=x(n2); end;
+    line([t1 t2],[yl(1)+0.1*yscale yl(1)+0.1*yscale],'LineWidth',0.5,'Color',C);   
+    if x(n1)>=xl(1), patch([1,0,1]*xscale*0.01+x(n1),[-1 0 1]*yscale*0.01+yl(1)+0.1*yscale,C); end;
+    if x(n2)<=xl(2), patch(-1*[1,0,1]*xscale*0.01+x(n2),[-1 0 1]*yscale*0.01+yl(1)+0.1*yscale,C); end;
+    if t2-t1>0.15*xscale, text(t1+0.5*(t2-t1),yl(1)+0.1*yscale,txt,...
+            'EdgeColor',C,'BackgroundColor',get(handles.axes1,'Color'),'HorizontalAlignment','Center'); end;
+    hold off;
+    n1=n2;
+end;
+legend_handle=legend;
+if ~isempty(legend_handle), legend(legend_handle); end; %refresh legend
+
+
+
+% --- Executes during object creation, after setting all properties.
+function vel_button_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to vel_button (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+
 
 
