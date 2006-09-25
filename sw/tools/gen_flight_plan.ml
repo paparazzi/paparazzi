@@ -503,7 +503,7 @@ let print_blocks = fun index_of_waypoints sectors bs ->
   List.iter (fun b -> incr block; print_block index_of_waypoints sectors b !block) bs
 
 let c_suffix =
-  let r = Str.regexp "[a-zA-Z0-9_]*" in
+  let r = Str.regexp "^[a-zA-Z0-9_]*$" in
   fun s -> Str.string_match r s 0
 
 let define_waypoints_indices = fun wpts ->
@@ -702,7 +702,7 @@ let _ =
 	try
 	  let header = ExtXml.child (ExtXml.child xml "header") "0" in
 	  printf "%s\n" (Xml.pcdata header)
-	with Exit -> ()
+	with _ -> ()
       end;
 
       let name = ExtXml.attrib xml "name" in
