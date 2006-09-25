@@ -1,8 +1,8 @@
 <flight_plan NAME="demo 1" LON0="1.27289" MAX_DIST_FROM_HOME="400" GROUND_ALT="185" SECURITY_HEIGHT="25" QFU="270" ALT="250" LAT0="43.46223">
 
 
-  <waypoints UTM_X0="360284.8" UTM_Y0="4813595.5">
-    <waypoint Y="30.0" LON="1.27288231142" NAME="HOME" X="0.0" LAT="43.4625000078" ALT="250."/>
+  <waypoints>
+    <waypoint Y="30.0" NAME="HOME" X="0.0" ALT="250."/>
     <waypoint name="road_start" x="-337" y="17" alt="250."/>
     <waypoint name="road_end" x="238" y="-30" alt="250."/>
     <waypoint name="too far" x="529" y="-23" alt="250."/>

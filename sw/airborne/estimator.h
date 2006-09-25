@@ -45,14 +45,7 @@ extern float estimator_psi;
 extern float estimator_theta;
 
 /* speed in meters per second */
-extern float estimator_x_dot;
-extern float estimator_y_dot;
 extern float estimator_z_dot;
-
-/* rotational speed in radians per second */
-extern float estimator_phi_dot;
-extern float estimator_psi_dot;
-extern float estimator_teta_dot;
 
 /* flight time in seconds */
 extern uint16_t estimator_flight_time;
@@ -61,6 +54,10 @@ extern float estimator_t;
 /* horizontal ground speed in module and dir (m/s, rad (CW/North)) */
 extern float estimator_hspeed_mod;
 extern float estimator_hspeed_dir;
+
+/* wind */
+extern float wind_east, wind_north;
+
 
 void estimator_init( void );
 #ifdef IMU_3DMG

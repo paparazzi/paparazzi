@@ -37,6 +37,9 @@
 /* Boolean values */
 typedef uint8_t bool_t;
 
+/* Unit (void) values */
+typedef uint8_t unit_t;
+
 #ifndef cbi
 #define cbi(sfr, bit) (_SFR_BYTE(sfr) &= ~_BV(bit))
 #endif

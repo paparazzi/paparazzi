@@ -1,8 +1,8 @@
 <!DOCTYPE layout SYSTEM "layout.dtd">
 
-<layout width="1024" height="768">
+<layout width="512" height="384">
  <rows>
-  <widget size="500" name="map2d"/>
+  <widget size="256" name="map2d"/>
   <widget name="editor"/>
  </rows>
 </layout>

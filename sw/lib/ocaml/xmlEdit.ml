@@ -119,9 +119,13 @@ let set_xml = fun (store:GTree.tree_store) row xml ->
 
 
 let rec insert_xml = fun (store:GTree.tree_store) parent xml ->
-  let row = store#append ~parent () in
-  set_xml store row xml;
-  List.iter (fun x -> insert_xml store row x) (Xml.children xml)
+  match xml with
+    Xml.Element _ ->
+      let row = store#append ~parent () in
+      set_xml store row xml;
+      List.iter (fun x -> insert_xml store row x) (Xml.children xml)
+  | _ ->
+      fprintf stderr "Warning: Ignoring PCData '%s'\n%!" (Xml.pcdata xml)
 
 
 let tree_model_of_xml = fun xml ->

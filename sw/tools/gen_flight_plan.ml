@@ -399,17 +399,10 @@ let rec print_stage = fun index_of_waypoints sectors x ->
 	lprintf "return;\n"
     | "set" ->
 	stage ();
-	let var = ExtXml.attrib  x "var" in
-	let valuee = ExtXml.attrib  x "value" in
-	lprintf "%s = %s;\n" var valuee;
-	begin
-	  try
-	    let c = parsed_attrib x "until" in
-	    lprintf "if (%s) NextStage();\n" c
-	  with
-	    ExtXml.Error _ ->
-	      lprintf "NextStage();\n";
-	end;
+	let var = ExtXml.attrib  x "var"
+	and value = ExtXml.attrib  x "value" in
+	lprintf "%s = %s;\n" var value;
+	lprintf "NextStage();\n";
 	lprintf "return;\n"
     | "survey" ->
 	let grid = parsed_attrib x "grid"
@@ -509,15 +502,26 @@ let print_blocks = fun index_of_waypoints sectors bs ->
   let block = ref (-1) in
   List.iter (fun b -> incr block; print_block index_of_waypoints sectors b !block) bs
 
+let c_suffix =
+  let r = Str.regexp "[a-zA-Z0-9_]*" in
+  fun s -> Str.string_match r s 0
+
+let define_waypoints_indices = fun wpts ->
+  let i = ref 0 in
+  List.iter (fun w ->
+    let n = name_of w in
+    if c_suffix n then
+      Xml2h.define (sprintf "WP_%s" n) (string_of_int !i);
+    incr i)
+    wpts
 
 let home = fun waypoints ->
   let rec loop i = function
       [] -> failwith "Waypoint 'HOME' required"
     | w::ws ->
-	if name_of w = "HOME" then begin
-	  Xml2h.define "WP_HOME" (string_of_int i);
+	if name_of w = "HOME" then
 	  (float_attrib w "x", float_attrib w "y")
-	end else
+	else
 	  loop (i+1) ws in
   loop 0 waypoints
 
@@ -694,6 +698,13 @@ let _ =
       
       printf "#include \"std.h\"\n";
 
+      begin
+	try
+	  let header = ExtXml.child (ExtXml.child xml "header") "0" in
+	  printf "%s\n" (Xml.pcdata header)
+	with Exit -> ()
+      end;
+
       let name = ExtXml.attrib xml "name" in
       Xml2h.warning ("FLIGHT PLAN: "^name);
       Xml2h.define_string "FLIGHT_PLAN_NAME" name;
@@ -724,6 +735,7 @@ let _ =
       let waypoints = dummy_waypoint :: Xml.children waypoints in
       let (hx, hy) = home waypoints in
       List.iter (check_distance (hx, hy) mdfh) waypoints;
+      define_waypoints_indices waypoints;
 
       Xml2h.define "WAYPOINTS" "{ \\";
       List.iter (print_waypoint rel_utm_of_wgs84 alt) waypoints;

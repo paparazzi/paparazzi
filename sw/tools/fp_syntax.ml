@@ -70,18 +70,21 @@ exception Unknown_ident of string
 exception Unknown_operator of string
 exception Unknown_function of string
 
+let unexpected = fun kind x ->
+  fprintf stderr "Warning: unexpected %s in expression: '%s' \n" kind x
+
 let rec check_expression = fun e ->
   match e with
     Ident i when i.[0] = '$' -> ()
   | Ident i ->
       if not (List.mem i variables) then
-	raise (Unknown_ident i)
+	unexpected "ident" i
   | Int _  | Float _ | CallOperator _ -> ()
   | Call (i, es) ->
       if not (List.mem i functions) then
-	raise (Unknown_function i);
+	unexpected "function" i;
       List.iter check_expression es
   | Index (i,e) ->
       if not (List.mem i variables) then
-	raise (Unknown_ident i);
+	unexpected "ident" i;
       check_expression e

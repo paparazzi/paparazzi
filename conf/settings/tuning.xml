@@ -7,6 +7,8 @@
     <dl_settings NAME="flight params">
       <dl_setting MAX="2" MIN="0" STEP="1" VAR="light_mode"/>
       <dl_setting MAX="1000" MIN="-50" STEP="10" VAR="altitude_shift"/>
+      <dl_setting MAX="10" MIN="-10" STEP="0.5" VAR="wind_east"/>
+      <dl_setting MAX="10" MIN="-10" STEP="0.5" VAR="wind_north"/>
     </dl_settings>
     <dl_settings NAME="mode">
       <dl_setting MAX="1." MIN="0." STEP="1" VAR="z_constrast_mode"/>

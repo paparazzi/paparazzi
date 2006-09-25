@@ -40,9 +40,6 @@
 #include "cam.h"
 #include "traffic_info.h"
 
-#define Distance2(p1_x, p1_y, p2_x, p2_y) ((p1_x-p2_x)*(p1_x-p2_x)+(p1_y-p2_y)*(p1_y-p2_y))
-#define G 9.81
-
 uint8_t nav_stage, nav_block;
 /** To save the current stage when an exception is raised */
 uint8_t excpt_stage;
@@ -120,7 +117,7 @@ static float qdr;
     sum_alpha += alpha_diff; \
   } else \
     new_circle = FALSE; \
-  float dist2_center = Distance2(estimator_x, estimator_y, x, y); \
+  float dist2_center = DistanceSquare(estimator_x, estimator_y, x, y); \
   float dist_carrot = CARROT*estimator_hspeed_mod; \
   float abs_radius = fabs(radius); \
   float sign_radius = radius > 0 ? 1 : -1; \
@@ -303,12 +300,11 @@ static inline void survey_rectangle_init(uint8_t wp1, uint8_t wp2, float grid) {
   survey_uturn = FALSE;
 }
 
-typedef uint8_t unit_;
-static unit_ unit __attribute__ ((unused));
+static unit_t unit __attribute__ ((unused));
 
-static unit_ reset_nav_reference( void ) __attribute__ ((unused));
+static unit_t reset_nav_reference( void ) __attribute__ ((unused));
 
-static unit_ reset_waypoints( void ) __attribute__ ((unused));
+static unit_t reset_waypoints( void ) __attribute__ ((unused));
 
 extern float nav_altitude;
 
@@ -326,7 +322,7 @@ uint8_t climb_gaz_submode = CLIMB_MODE_GAZ_STANDARD;
 
 float ground_alt = GROUND_ALT;
 
-static unit_ reset_nav_reference( void ) {
+static unit_t reset_nav_reference( void ) {
   nav_utm_east0 = gps_utm_east/100;
   nav_utm_north0 = gps_utm_north/100;
   nav_utm_zone0 = gps_utm_zone;
@@ -334,7 +330,7 @@ static unit_ reset_nav_reference( void ) {
   return 0;
 }
 
-static unit_ reset_waypoints( void ) {
+static unit_t reset_waypoints( void ) {
   uint8_t i;
   for(i = 0; i <= NB_WAYPOINT; i++) {
     waypoints[i].a = waypoints[i].a + ground_alt - GROUND_ALT;
@@ -347,7 +343,6 @@ static unit_ reset_waypoints( void ) {
 
 #define MIN_DIST2_WP (15.*15.)
 
-// #define DISTANCE2(p1_x, p1_y, p2) ((p1_x-p2.x)*(p1_x-p2.x)+(p1_y-p2.y)*(p1_y-p2.y))
 
 int32_t nav_utm_east0 = NAV_UTM_EAST0;
 int32_t nav_utm_north0 = NAV_UTM_NORTH0;

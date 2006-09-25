@@ -57,6 +57,9 @@ float estimator_t;
 float estimator_hspeed_mod;
 float estimator_hspeed_dir;
 
+/* wind */
+float wind_east, wind_north;
+
 
 #define NORM_RAD_ANGLE2(x) { \
     while (x > 2 * M_PI) x -= 2 * M_PI; \
