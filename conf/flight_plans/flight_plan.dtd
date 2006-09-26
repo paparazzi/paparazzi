@@ -1,8 +1,10 @@
 <!-- Paparazzi flight plan DTD -->
 
-<!ELEMENT flight_plan (waypoints,include*,exceptions?,blocks)>
+<!ELEMENT flight_plan (header?, waypoints,include*,exceptions?,blocks)>
 
 <!ELEMENT procedure (param*,waypoints,exceptions?,blocks)>
+
+<!ELEMENT header (#PCDATA)>
 
 <!ELEMENT waypoints (waypoint+)>
 <!ELEMENT waypoint EMPTY>
@@ -111,8 +113,7 @@ climb CDATA #IMPLIED>
 
 <!ATTLIST set
 var CDATA #REQUIRED
-value CDATA #REQUIRED
-until CDATA #IMPLIED>
+value CDATA #REQUIRED>
 
 <!ATTLIST follow
 ac_id CDATA #REQUIRED
@@ -175,3 +176,5 @@ to CDATA #REQUIRED>
 <!ATTLIST param
 name CDATA #REQUIRED
 default_value CDATA #IMPLIED>
+
+<!ATTLIST header>
