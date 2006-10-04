@@ -65,6 +65,10 @@ void xbee_init( void ) {
 
   XBeePrintString(AT_AP_MODE);
 
+#ifdef XBEE_INIT
+  XBeePrintString(XBEE_INIT);
+#endif
+
   /** Switching back to normal mode */
   XBeePrintString(AT_EXIT);
 }
