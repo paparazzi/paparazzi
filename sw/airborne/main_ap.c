@@ -485,12 +485,12 @@ void periodic_task_ap( void ) {
 #endif
 
 void init_ap( void ) {
-#ifdef LED
-  led_init();
-#endif
 #ifndef SINGLE_MCU /** Dual mcus : init done in main_fbw */
   hw_init();
   sys_time_init(); 
+#ifdef LED
+  led_init();
+#endif
 #ifdef ADC
   adc_init();
 #endif
