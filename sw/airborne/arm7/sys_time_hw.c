@@ -11,7 +11,7 @@
 
 void TIMER0_ISR ( void ) {
   ISR_ENTRY();
-  
+
   while (T0IR & TIMER0_IT_MASK) {
 #ifdef RADIO_CONTROL
     if (T0IR&TIR_CR2I) {
@@ -27,7 +27,15 @@ void TIMER0_ISR ( void ) {
       T0IR = TIR_MR1I; 
     }
 #endif
+#ifdef SERVOS_4015_MAT
+    if (T0IR&TIR_MR1I) {
+      Servos4015Mat_ISR();
+      /* clear interrupt */
+      T0IR = TIR_MR1I; 
+    }
+#endif
   }
   VICVectAddr = 0x00000000;
+
   ISR_EXIT();
 }
