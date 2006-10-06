@@ -70,6 +70,16 @@ static struct adc_buf buf_ir_top;
 #ifndef ADC_CHANNEL_IR_NB_SAMPLES
 #define ADC_CHANNEL_IR_NB_SAMPLES DEFAULT_AV_NB_SAMPLE
 #endif
+
+#ifndef Z_CONTRAST_DEFAULT
+#define Z_CONTRAST_DEFAULT 1
+#endif
+#ifdef Z_CONTRAST_START
+#warning "z_contrast mode default to Z_CONTRAST_DEFAULT  or 1"
+#endif
+
+
+
 /** \brief Initialisation of \a ir */
 /** Initialize \a ir with the \a IR_DEFAULT_CONTRAST \n
  *  Initialize \a adc_buf_channel
@@ -80,6 +90,9 @@ void ir_init(void) {
   adc_buf_channel(ADC_CHANNEL_IR2, &buf_ir2, ADC_CHANNEL_IR_NB_SAMPLES);
 #ifdef ADC_CHANNEL_IR_TOP
   adc_buf_channel(ADC_CHANNEL_IR_TOP, &buf_ir_top, ADC_CHANNEL_IR_NB_SAMPLES);
+  z_contrast_mode = Z_CONTRAST_DEFAULT;
+#else
+  z_contrast_mode = 0;
 #endif
   estimator_rad_of_ir = ir_rad_of_ir;
 }
@@ -201,20 +214,6 @@ void estimator_update_state_infrared( void ) {
   float rad_of_ir = (ir_estim_mode == IR_ESTIM_MODE_ON ? 
 		     estimator_rad_of_ir :
 		     ir_rad_of_ir);
-#ifndef ADC_CHANNEL_IR_TOP
-  z_contrast_mode = 0;
-#else
-
-#ifdef Z_CONTRAST_START
-#warning "z_contrast mode default to Z_CONTRAST_DEFAULT  or 1"
-#endif
-
-#ifndef Z_CONTRAST_DEFAULT
-#define Z_CONTRAST_DEFAULT 1
-#endif
-
-  z_contrast_mode = Z_CONTRAST_DEFAULT;
-#endif
   ir_top = Max(ir_top, 1);
   float c = rad_of_ir*(1-z_contrast_mode)+z_contrast_mode*((float)IR_RAD_OF_IR_CONTRAST/ir_top);
   estimator_phi  = c * ir_roll - ir_roll_neutral;

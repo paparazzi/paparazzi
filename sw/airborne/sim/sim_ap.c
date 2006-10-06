@@ -81,6 +81,9 @@ value sim_init(value unit) {
     exit (10);
   }
 #endif
+
+  rate_mode = 0;
+  z_contrast_mode = 0;
   return unit;
 }
 
