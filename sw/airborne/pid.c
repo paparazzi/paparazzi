@@ -67,7 +67,11 @@ float pitch_of_vz = 0.;
 
 float aileron_of_gaz = AILERON_OF_GAZ;
 
-float rate_mode = 0;
+#ifndef RATE_MODE_DEFAULT
+#define RATE_MODE_DEFAULT 1
+#endif
+
+float rate_mode = RATE_MODE_DEFAULT;
 
 
 /** \brief Computes ::desired_aileron and ::desired_elevator from attitude
