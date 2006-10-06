@@ -137,9 +137,13 @@ let logger = fun () ->
 let fvalue = fun x ->
   match x with
     Pprz.Float x -> x 
-  | Pprz.Int32 x -> Int32.to_float x 
-  | Pprz.Int x -> float_of_int x 
-  | _ -> failwith (sprintf "Receive.log_and_parse: float expected, got '%s'" (Pprz.string_of_value x))
+    | Pprz.Int32 x -> Int32.to_float x 
+    | Pprz.Int x -> float_of_int x 
+    | _ -> failwith (sprintf "Receive.log_and_parse: float expected, got '%s'" (Pprz.string_of_value x))
+
+	  
+
+
 let ivalue = fun x ->
   match x with
     Pprz.Int x -> x 
@@ -149,18 +153,36 @@ let update_waypoint = fun ac wp_id p alt ->
   Hashtbl.replace ac.waypoints wp_id {altitude = alt; wp_utm = p }
 
 
+let format_string_field = fun s ->
+  let s = String.copy s in
+  for i = 0 to String.length s - 1 do
+    match s.[i] with
+      ' ' -> s.[i] <- '_'
+    | _ -> ()
+  done;
+  s
 
-let log_and_parse = fun logging ac_name a msg values ->
+
+
+let log_and_parse = fun logging ac_name (a:Aircraft.aircraft) msg values ->
+  let s = String.concat " " (List.map (fun (_, v) -> Pprz.string_of_value v) values) in
   begin
     match logging with
       Some log ->
 	let t = U.gettimeofday () -. start_time in
-	let s = String.concat " " (List.map (fun (_, v) -> Pprz.string_of_value v) values) in
 	fprintf log "%.2f %s %s %s\n" t ac_name msg.Pprz.name s; flush log
     | None -> ()
   end;
   let value = fun x -> try Pprz.assoc x values with Not_found -> failwith (sprintf "Error: field '%s' not found\n" x) in
-  let fvalue = fun x -> fvalue (value x)
+
+  let fvalue = fun x -> 
+    let f = fvalue (value x) in
+      match classify_float f with
+	FP_infinite | FP_nan ->
+	  let msg = sprintf "Non normal number: %f in '%s %s %s'" f ac_name msg.Pprz.name s in
+	  Ground_Pprz.message_send my_id "TELEMETRY_ERROR" ["ac_id", Pprz.String ac_name;"message", Pprz.String (format_string_field msg)];
+	  failwith msg
+      | _ -> f
   and ivalue = fun x -> ivalue (value x) in
   match msg.Pprz.name with
     "GPS" ->
@@ -295,11 +317,11 @@ let log_and_parse = fun logging ac_name a msg values ->
   | _ -> ()
 
 (** Callback for a message from a registered A/C *)
-let ac_msg = fun log ac_name a m ->
+let ac_msg = fun log ac_name ac m ->
   try
     let (msg_id, values) = Tele_Pprz.values_of_string m in
     let msg = Tele_Pprz.message_of_id msg_id in
-    log_and_parse log ac_name a msg values
+    log_and_parse log ac_name ac msg values
   with
     Pprz.Unknown_msg_name (x, c) ->
       fprintf stderr "Unknown message %s in class %s from %s: %s\n" x c ac_name m

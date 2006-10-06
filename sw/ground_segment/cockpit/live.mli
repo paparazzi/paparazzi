@@ -13,4 +13,5 @@ val listen_waypoint_moved : unit -> unit
 val listen_infrared : unit -> unit
 val listen_svsinfo : unit -> unit
 val listen_alert : Pages.alert -> unit
+val listen_error : Pages.alert -> unit
 val listen_telemetry_status : unit -> unit

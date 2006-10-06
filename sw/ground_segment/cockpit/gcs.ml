@@ -591,6 +591,7 @@ let _main =
   Live.listen_svsinfo ();
   Live.listen_telemetry_status ();
   Live.listen_alert my_alert;
+  Live.listen_error my_alert;
 
   (** Display the window *)
   let accel_group = menu_fact#accel_group in

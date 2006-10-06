@@ -202,7 +202,7 @@ let load_mission = fun ?editable color geomap xml ->
 
 
 
-let create_ac = fun (geomap:G.widget) (acs_notebook:GPack.notebook) ac_id config ->
+let create_ac = fun (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id:string) config ->
   let color = Pprz.string_assoc "default_gui_color" config
   and name = Pprz.string_assoc "ac_name" config in
 
@@ -319,7 +319,13 @@ let create_ac = fun (geomap:G.widget) (acs_notebook:GPack.notebook) ac_id config
 
   let settings_url = Pprz.string_assoc "settings" config in
   let settings_file = Http.file_of_url settings_url in
-  let settings_xml = Xml.parse_file settings_file in
+  let settings_xml = 
+    try
+      Xml.parse_file settings_file
+    with exc ->
+      prerr_endline (Printexc.to_string exc);
+      Xml.Element("empty", [], [])
+  in
   let dl_settings_page =
     try
       let xml_settings = Xml.children (ExtXml.child settings_xml "dl_settings") in
@@ -667,3 +673,10 @@ let get_ts = fun _sender vs ->
 
 let listen_telemetry_status = fun () ->
   safe_bind "TELEMETRY_STATUS" get_ts
+
+let listen_error = fun a ->
+  let get_error = fun _sender vs ->
+    let ac = get_ac vs
+    and msg = Pprz.string_assoc "message" vs in
+    log_and_say a msg in
+  safe_bind "TELEMETRY_ERROR" get_error
