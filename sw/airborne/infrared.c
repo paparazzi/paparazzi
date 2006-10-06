@@ -40,18 +40,18 @@ int16_t ir_roll;
 int16_t ir_pitch;
 int16_t ir_top;
 
-float z_constrast_mode;
+float z_contrast_mode;
 
 /** Initialized to \a IR_DEFAULT_CONTRAST. Changed with calibration */
 int16_t ir_contrast     = IR_DEFAULT_CONTRAST;
 /** Initialized to \a IR_DEFAULT_CONTRAST.
  *  Changed with @@@@@ EST-CE QUE CA CHANGE @@@@@ */
 
-/** \def RadOfIrFromConstrast(c)
+/** \def RadOfIrFromContrast(c)
  *  \brief Contrast measurement
  *  \note <b>Plane must be nose down !</b>
  */
-#define RadOfIrFromConstrast(c) ir_rad_of_ir = IR_RAD_OF_IR_CONTRAST / c;
+#define RadOfIrFromContrast(c) ir_rad_of_ir = IR_RAD_OF_IR_CONTRAST / c;
 
 /** rad_of_ir variable factor: let convert \a ir value in radian.
  *  Initialized with airframe \a IR_RAD_OF_IR_CONTRAST and \a IR_DEFAULT_CONTRAST constants. \n
@@ -75,7 +75,7 @@ static struct adc_buf buf_ir_top;
  *  Initialize \a adc_buf_channel
  */
 void ir_init(void) {
-  RadOfIrFromConstrast(IR_DEFAULT_CONTRAST);
+  RadOfIrFromContrast(IR_DEFAULT_CONTRAST);
   adc_buf_channel(ADC_CHANNEL_IR1, &buf_ir1, ADC_CHANNEL_IR_NB_SAMPLES);
   adc_buf_channel(ADC_CHANNEL_IR2, &buf_ir2, ADC_CHANNEL_IR_NB_SAMPLES);
 #ifdef ADC_CHANNEL_IR_TOP
@@ -110,7 +110,7 @@ void ir_update(void) {
 static void ir_gain_calib(void) {
   /* plane nose down -> negativ value */
   ir_contrast = abs(ir_pitch);
-  RadOfIrFromConstrast(ir_contrast);
+  RadOfIrFromContrast(ir_contrast);
 }
 
 /** Maximal delay waits before calibration.
@@ -202,14 +202,21 @@ void estimator_update_state_infrared( void ) {
 		     estimator_rad_of_ir :
 		     ir_rad_of_ir);
 #ifndef ADC_CHANNEL_IR_TOP
-  z_constrast_mode = 0;
+  z_contrast_mode = 0;
 #else
+
 #ifdef Z_CONTRAST_START
-  z_constrast_mode = 1;
+#warning "z_contrast mode default to Z_CONTRAST_DEFAULT  or 1"
 #endif
+
+#ifndef Z_CONTRAST_DEFAULT
+#define Z_CONTRAST_DEFAULT 1
+#endif
+
+  z_contrast_mode = Z_CONTRAST_DEFAULT;
 #endif
   ir_top = Max(ir_top, 1);
-  float c = rad_of_ir*(1-z_constrast_mode)+z_constrast_mode*((float)IR_RAD_OF_IR_CONTRAST/ir_top);
+  float c = rad_of_ir*(1-z_contrast_mode)+z_contrast_mode*((float)IR_RAD_OF_IR_CONTRAST/ir_top);
   estimator_phi  = c * ir_roll - ir_roll_neutral;
   estimator_theta = c * ir_pitch - ir_pitch_neutral;
 }

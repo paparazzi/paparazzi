@@ -46,7 +46,7 @@ extern int16_t ir_top;  /* averaged vertical ir adc */
 
 extern float   ir_rad_of_ir;
 extern int16_t ir_contrast;
-extern float z_constrast_mode;
+extern float z_contrast_mode;
 
 /** Status of the calibration. Can be one of the \a calibration \a states */
 extern uint8_t calib_status;
