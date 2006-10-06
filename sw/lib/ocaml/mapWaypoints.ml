@@ -204,7 +204,7 @@ class waypoint = fun (wpts_group:group) (name :string) ?(alt=0.) wgs84 ->
 	    let dz = a -. alt in
 	    dz
 	| _ -> 0. in
-      let new_pos = dx*.dx +. dy*.dy +. dz*.dz > 0.1 in
+      let new_pos = dx*.dx +. dy*.dy +. dz*.dz > 3. in
       match moved, new_pos with
 	None, true ->
 	  self#move dx dy;
