@@ -1,12 +1,39 @@
-(******* Real time handling of flying A/Cs ***********************************)
+(*
+* $Id$
+*
+* Real time handling of flying A/Cs
+*  
+* Copyright (C) 2004-2006 ENAC, Pascal Brisset, Antoine Drouin
+*
+* This file is part of paparazzi.
+*
+* paparazzi is free software; you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation; either version 2, or (at your option)
+* any later version.
+*
+* paparazzi is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with paparazzi; see the file COPYING.  If not, write to
+* the Free Software Foundation, 59 Temple Place - Suite 330,
+* Boston, MA 02111-1307, USA. 
+*
+*)
 
 module G = MapCanvas
 open Latlong
+module LL = Latlong
 open Printf
 
 module Tele_Pprz = Pprz.Messages(struct let name = "telemetry" end)
 module Ground_Pprz = Pprz.Messages(struct let name = "ground" end)
 module Alert_Pprz = Pprz.Messages(struct let name = "alert" end)
+
+let approaching_alert_time = 3.
 
 let rotate = fun a (x, y) ->
   let cosa = cos a and sina = sin a in
@@ -45,7 +72,8 @@ type aircraft = {
     strip : Strip.t;
     mutable first_pos : bool;
     mutable last_block_name : string;
-    mutable in_kill_mode : bool
+    mutable in_kill_mode : bool;
+    mutable speed : float
   }
 
 let live_aircrafts = Hashtbl.create 3
@@ -363,7 +391,7 @@ let create_ac = fun (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id:strin
 				     rc_settings_page = rc_settings_page;
 				     strip = strip; first_pos = true;
 				     last_block_name = "";
-				     in_kill_mode = false
+				     in_kill_mode = false; speed = 0.
 				   }
 
 let ok_color = "green"
@@ -467,6 +495,15 @@ let highlight_fp = fun ac b s ->
   end
 
 
+let check_approaching = fun ac geo alert ->
+  match ac.track#last with
+    None -> ()
+  | Some ac_pos ->
+      let d = LL.utm_distance (LL.utm_of WGS84 ac_pos) (LL.utm_of WGS84 geo) in
+      if d < ac.speed *. approaching_alert_time then
+	log_and_say alert (sprintf "%s, approaching" ac.ac_name)
+
+
 let listen_flight_params = fun geomap auto_center_new_ac alert ->
   let get_fp = fun _sender vs ->
     let ac = get_ac vs in
@@ -482,6 +519,7 @@ let listen_flight_params = fun geomap auto_center_new_ac alert ->
 
     let wgs84 = { posn_lat=(Deg>>Rad)(a "lat"); posn_long = (Deg>>Rad)(a "long") } in
     ac.track#move_icon wgs84 (a "course") alt speed climb;
+    ac.speed <- speed;
 
     if auto_center_new_ac && ac.first_pos then begin
       center geomap ac.track ();
@@ -555,7 +593,10 @@ let listen_flight_params = fun geomap auto_center_new_ac alert ->
     let a = fun s -> Pprz.float_assoc s vs in
     let geo1 = { posn_lat = (Deg>>Rad)(a "segment1_lat"); posn_long = (Deg>>Rad)(a "segment1_long") }
     and geo2 = { posn_lat = (Deg>>Rad)(a "segment2_lat"); posn_long = (Deg>>Rad)(a "segment2_long") } in
-    ac.track#draw_segment geo1 geo2
+    ac.track#draw_segment geo1 geo2;
+    
+    (* Check if approaching the end of the segment *)
+    check_approaching ac geo2 alert
   in
   safe_bind "SEGMENT_STATUS" get_segment_status;
 

@@ -180,8 +180,8 @@ class misc ~packing (widget: GBin.frame) =
   let set_east_north = fun () ->
     let w = float_of_string wind_speed#text
     and a = (Deg>>Rad)(90. -. float_of_string wind_dir#text) in
-    wind_east#set_text (sprintf "%.1f" (cos a *. w));
-    wind_north#set_text (sprintf "%.1f" (sin a *. w)) in
+    wind_east#set_text (sprintf "%.1f" (-. cos a *. w));
+    wind_north#set_text (sprintf "%.1f" (-. sin a *. w)) in
   object
     method set_wind_speed s = wind_speed#set_text s
     method set_wind_dir s = wind_dir#set_text s; set_east_north ()
