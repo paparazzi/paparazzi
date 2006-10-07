@@ -51,25 +51,27 @@ extern uint32_t servos_delay;
 
 #define SERVO_REFRESH_TICS SERVOS_TICS_OF_USEC(20000)
 
-#define Servos4015Mat_ISR() {					\
-  if (servos_4015_idx == 0) { \
-    IO1SET = _BV(SERVO_DATA_PIN); \
-    SetBit(IO1CLR, SERVO_RESET_PIN);	 \
-    servos_delay = SERVO_REFRESH_TICS; \
-  } else { \
-    IO1CLR = _BV(SERVO_DATA_PIN); \
-  } \
-  if (servos_4015_idx >= _4015_NB_CHANNELS) {			\
-    SetBit(IO1SET, SERVO_RESET_PIN);				\
-    servos_4015_idx = 0;					\
-    T0MR1 += servos_delay;			\
-  } else { \
-    T0MR1 += servos_values[servos_4015_idx];	\
-    servos_delay -= servos_values[servos_4015_idx]; \
-    servos_4015_idx++;						\
-  } \
-  /* lower clock pin */	\
-  T0EMR &= ~TEMR_EM1;	\
+#define Servos4015Mat_ISR() {				\
+  if (servos_4015_idx == 0) {				\
+    servos_delay = SERVO_REFRESH_TICS;			\
+    IO1CLR = _BV(SERVO_DATA_PIN);			\
+  }							\
+  if (servos_4015_idx < _4015_NB_CHANNELS ) {		\
+    T0MR1 += servos_values[servos_4015_idx];		\
+    servos_delay -= servos_values[servos_4015_idx];	\
+    servos_4015_idx++;					\
+  } else if (servos_4015_idx == _4015_NB_CHANNELS) {	\
+    SetBit(IO1SET, SERVO_RESET_PIN);			\
+    servos_4015_idx++;					\
+    T0MR1 += servos_delay/2;				\
+  } else  {						\
+    IO1SET = _BV(SERVO_DATA_PIN);			\
+    SetBit(IO1CLR, SERVO_RESET_PIN);			\
+    servos_4015_idx = 0;				\
+    T0MR1 += servos_delay/2;				\
+  }							\
+  /* lower clock pin */					\
+  T0EMR &= ~TEMR_EM1;					\
 }
 
 #endif /* SERVOS_4015_HW_H */
