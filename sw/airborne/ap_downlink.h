@@ -146,7 +146,7 @@
 #define SEND_CAM() {}
 #endif
 
-#define PERIODIC_SEND_DL_VALUE() PeriodicSendDlValue() /** from flight_plan.h*/
+#define PERIODIC_SEND_DL_VALUE() PeriodicSendDlValue() /** generated from the xml settings config in conf/settings */
 
 #define PERIODIC_SEND_SURVEY() DOWNLINK_SEND_SURVEY(&survey_east, &survey_north, &survey_west, &survey_south)
 
