@@ -202,6 +202,7 @@ uint8_t ac_ident = AC_ID;
  *
  * Called at 10Hz.
  */
+static float psdvar;
 static inline void reporting_task( void ) {
   static uint8_t boot = TRUE;
 
@@ -463,7 +464,12 @@ void periodic_task_ap( void ) {
       ap_state->commands[COMMAND_THROTTLE] = desired_gaz;
       ap_state->commands[COMMAND_ROLL] = desired_aileron;
       ap_state->commands[COMMAND_PITCH] = desired_elevator;
-      
+
+#ifdef COMMAND_HATCH_CMD
+      extern pprz_t hatch_cmd;
+      ap_state->commands[COMMAND_HATCH_CMD] = hatch_cmd;
+#endif
+
 #if defined MCU_SPI_LINK
       link_mcu_send();
 #elif defined INTER_MCU && defined SINGLE_MCU
