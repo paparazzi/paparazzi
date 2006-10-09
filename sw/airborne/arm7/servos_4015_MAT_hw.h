@@ -45,7 +45,6 @@ extern uint16_t servos_values[_4015_NB_CHANNELS];
 #define Actuator(i) servos_values[i]
 
 #define ActuatorsCommit() {}
-
 extern uint8_t servos_4015_idx;
 extern uint32_t servos_delay;
 
@@ -54,7 +53,7 @@ extern uint32_t servos_delay;
 #define Servos4015Mat_ISR() {				\
   if (servos_4015_idx == 0) {				\
     servos_delay = SERVO_REFRESH_TICS;			\
-    IO1CLR = _BV(SERVO_DATA_PIN);			\
+    SetBit(IO1CLR, SERVO_DATA_PIN);			\
   }							\
   if (servos_4015_idx < _4015_NB_CHANNELS ) {		\
     T0MR1 += servos_values[servos_4015_idx];		\
@@ -65,7 +64,7 @@ extern uint32_t servos_delay;
     servos_4015_idx++;					\
     T0MR1 += servos_delay/2;				\
   } else  {						\
-    IO1SET = _BV(SERVO_DATA_PIN);			\
+    SetBit(IO1SET, SERVO_DATA_PIN);			\
     SetBit(IO1CLR, SERVO_RESET_PIN);			\
     servos_4015_idx = 0;				\
     T0MR1 += servos_delay/2;				\

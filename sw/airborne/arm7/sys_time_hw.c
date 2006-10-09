@@ -3,8 +3,9 @@
 
 #if defined ACTUATORS
 #include ACTUATORS
-#include "ppm.h"
 #endif /* ACTUATORS */
+
+#include "ppm.h"
 
 
 #define TIMER0_IT_MASK (TIR_CR2I | TIR_MR1I)
