@@ -62,6 +62,7 @@
         <arg flag="-ref" constant="WGS84 43.4623 1.2730"/>
         <arg flag="-center" constant="WGS84 43.4623 1.2730"/>
         <arg flag="-zoom" constant="0.75"/>
+        <arg flag="-speech"/>
       </program> 
       <program name="gaia"/>
     </session>
