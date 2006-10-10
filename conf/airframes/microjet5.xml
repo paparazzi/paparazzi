@@ -53,7 +53,7 @@
   </section>
 
   <section name="INFRARED" prefix="IR_">
-    <define name="ROLL_NEUTRAL_DEFAULT" value="DegOfRad(0.1)" unit="deg"/>
+    <define name="ROLL_NEUTRAL_DEFAULT" value="6" unit="deg"/>
     <define name="PITCH_NEUTRAL_DEFAULT" value="9" unit="deg"/>
     <define name="DEFAULT_CONTRAST" value="200"/>
     <define name="RAD_OF_IR_CONTRAST" value="0.75"/>
