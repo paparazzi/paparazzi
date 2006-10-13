@@ -202,7 +202,6 @@ uint8_t ac_ident = AC_ID;
  *
  * Called at 10Hz.
  */
-static float psdvar;
 static inline void reporting_task( void ) {
   static uint8_t boot = TRUE;
 
