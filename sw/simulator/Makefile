@@ -74,7 +74,7 @@ gaia : gaia.cmo
 	$(Q)$(OCAMLC) $(INCLUDES) -c $<
 
 clean :
-	rm -f *.cm* *~ *.out .depend *.o *.a *.so gaia
+	rm -f *.cm* *~ *.out .depend *.o *.a *.so gaia simhitl
 
 #
 # Dependencies

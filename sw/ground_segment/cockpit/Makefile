@@ -61,7 +61,7 @@ $(MAIN).opt : $(CMX)
 
 
 clean:
-	rm -f *~* *.cm* *.o *.out *.opt map2d gcs
+	rm -f *~* *.cm* *.o *.out *.opt map2d gcs .depend
 
 
 #
