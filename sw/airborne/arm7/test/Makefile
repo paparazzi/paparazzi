@@ -414,7 +414,7 @@ clean_list :
 	$(REMOVE) $(CPPSRC:.cpp=.d)
 	$(REMOVE) $(CPPSRCARM:.cpp=.s) 
 	$(REMOVE) $(CPPSRCARM:.cpp=.d)
-	$(REMOVE) .dep
+	$(REMOVE) -r .dep
 	$(REMOVE) *~
 
 # Include the dependency files.
