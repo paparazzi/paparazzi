@@ -315,17 +315,20 @@ extern float nav_altitude;
 #define CLIMB_MODE_GAZ_AGRESSIVE 1
 #define CLIMB_MODE_GAZ_BLENDED 2
 
-uint8_t climb_mode = CLIMB_MODE_GAZ;
-uint8_t climb_gaz_submode = CLIMB_MODE_GAZ_STANDARD;
+uint8_t climb_mode;
+uint8_t climb_gaz_submode;
 
 #include "flight_plan.h"
 
-float ground_alt = GROUND_ALT;
+float ground_alt;
+
+static float previous_ground_alt;
 
 static unit_t reset_nav_reference( void ) {
   nav_utm_east0 = gps_utm_east/100;
   nav_utm_north0 = gps_utm_north/100;
   nav_utm_zone0 = gps_utm_zone;
+  previous_ground_alt = ground_alt;
   ground_alt = gps_alt/100;
   return 0;
 }
@@ -333,7 +336,7 @@ static unit_t reset_nav_reference( void ) {
 static unit_t reset_waypoints( void ) {
   uint8_t i;
   for(i = 0; i <= NB_WAYPOINT; i++) {
-    waypoints[i].a = waypoints[i].a + ground_alt - GROUND_ALT;
+    waypoints[i].a += ground_alt - previous_ground_alt;
     moved_waypoints[i] = TRUE;
   }
   return 0;
@@ -492,6 +495,9 @@ void nav_update(void) {
 void nav_init(void) {
   nav_block = 0;
   nav_stage = 0;
+  ground_alt = GROUND_ALT;
+  climb_mode = CLIMB_MODE_GAZ;
+  climb_gaz_submode = CLIMB_MODE_GAZ_STANDARD;
 }
 
 /** void nav_wihtout_gps(void)
