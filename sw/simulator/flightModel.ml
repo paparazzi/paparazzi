@@ -82,7 +82,10 @@ module Make(A:Data.MISSION) = struct
       Not_found ->
 	failwith (Printf.sprintf "Child 'define' with 'name=%s' expected in '%s'\n" name (Xml.to_string sect))
 
-  let float_value = fun section s ->  float_of_string (defined_value section s)
+  let float_value = fun section s ->
+    let x = (defined_value section s) in
+    try float_of_string x with Failure "float_of_string" ->
+      failwith (sprintf "float_of_string: %s" x)
 
   let simu_section = 
     try section "SIMU" with _ -> Xml.Element("", [], [])
