@@ -104,19 +104,19 @@ end
 (* gps page                                                                  *)
 (*****************************************************************************)
 class gps ?(visible = fun _ -> true) (widget: GBin.frame) =
+  let sw = GBin.scrolled_window ~hpolicy:`AUTOMATIC ~vpolicy:`AUTOMATIC ~packing:widget#add () in
   let table = GPack.table
       ~rows: 1
       ~columns: 3
       ~row_spacings: 5
       ~col_spacings: 40
-      ~packing: widget#add
+      ~packing:sw#add_with_viewport
       () in
   let update_color = fun flags_eb flags ->
     let color = if flags land 0x01 = 1 then "green" else "red" in
     flags_eb#coerce#misc#modify_bg [`NORMAL, `NAME color] in
+
 object
-  val parent = widget
-  val table = table
   val mutable active_cno = []
   val mutable active_flags = []
 
@@ -161,7 +161,7 @@ end
 (*****************************************************************************)
 class misc ~packing (widget: GBin.frame) =
   let table = GPack.table
-      ~rows: 4
+      ~rows: 5
       ~columns: 2
       ~row_spacings: 5
       ~col_spacings: 40
@@ -172,11 +172,13 @@ class misc ~packing (widget: GBin.frame) =
     ignore (label "Wind speed" 0 0);
     ignore (label "Wind direction" 1 0);
     ignore (label "Wind east" 2 0);
-    ignore (label "Wind north" 3 0) in
+    ignore (label "Wind north" 3 0);
+    ignore (label "Mean airspeed" 4 0) in
   let wind_speed = label "" 0 1
   and wind_dir = label "" 1 1
   and wind_east = label "" 2 1
-  and wind_north = label "" 3 1 in
+  and wind_north = label "" 3 1
+  and mean_aspeed = label "" 4 1 in
   let set_east_north = fun () ->
     let w = float_of_string wind_speed#text
     and a = (Deg>>Rad)(90. -. float_of_string wind_dir#text) in
@@ -185,6 +187,7 @@ class misc ~packing (widget: GBin.frame) =
   object
     method set_wind_speed s = wind_speed#set_text s
     method set_wind_dir s = wind_dir#set_text s; set_east_north ()
+    method set_mean_aspeed s = mean_aspeed#set_text s
   end
 
 (*****************************************************************************)

@@ -58,5 +58,5 @@ val subst_attrib : string -> string -> Xml.xml -> Xml.xml
 val subst_child : string -> Xml.xml -> Xml.xml -> Xml.xml
 (** [subst_child child_tag new_child xml] *)
 
-val parse_file : string -> Xml.xml
-(** Identical to Xml.parse_file with Failure exceptions *)
+val parse_file : ?noprovedtd:bool -> string -> Xml.xml
+(** Identical to Xml.parse_file with Failure exceptions. [nodtdprove] default is false. *)

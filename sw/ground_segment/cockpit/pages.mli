@@ -2,6 +2,7 @@ class alert : GBin.frame ->
   object
     method add : string -> unit
   end
+
 class infrared : GBin.frame ->
   object
     method set_contrast_status : string -> unit
@@ -9,6 +10,7 @@ class infrared : GBin.frame ->
     method set_gps_hybrid_factor : float -> unit
     method set_gps_hybrid_mode : string -> unit
   end
+
 class gps : ?visible:(GBin.frame -> bool) -> GBin.frame ->
   object
     method svsinfo : string -> string -> int -> unit
@@ -35,6 +37,7 @@ class misc :
   object
     method set_wind_dir : string -> unit
     method set_wind_speed : string -> unit
+    method set_mean_aspeed : string -> unit
   end
 
 type rc_mode = string

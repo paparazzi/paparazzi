@@ -45,12 +45,11 @@ let auto_center_new_ac = ref false
 let no_alarm = ref false
 
 
-
 (** Display a calibrated (XML) map *)
 let display_map = fun (geomap:G.widget) xml_map ->
   try
     let dir = Filename.dirname xml_map in
-    let xml_map = Xml.parse_file xml_map in
+    let xml_map = ExtXml.parse_file xml_map in
     let image = dir // ExtXml.attrib xml_map "file" in
     let map_projection = Xml.attrib xml_map "projection" in
     let opacity = try Some (int_of_string (Xml.attrib xml_map "opacity")) with _ -> None in

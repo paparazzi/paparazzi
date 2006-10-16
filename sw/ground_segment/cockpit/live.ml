@@ -237,7 +237,7 @@ let create_ac = fun (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id:strin
   (** Get the flight plan **)
   let fp_url = Pprz.string_assoc "flight_plan" config in
   let fp_file = Http.file_of_url fp_url in
-  let fp_xml_dump = Xml.parse_file fp_file in
+  let fp_xml_dump = ExtXml.parse_file ~noprovedtd:true fp_file in
   let stages = ExtXml.child fp_xml_dump "stages" in
   let blocks = blocks_of_stages stages in
 
@@ -349,7 +349,7 @@ let create_ac = fun (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id:strin
   let settings_file = Http.file_of_url settings_url in
   let settings_xml = 
     try
-      Xml.parse_file settings_file
+      ExtXml.parse_file ~noprovedtd:true settings_file
     with exc ->
       prerr_endline (Printexc.to_string exc);
       Xml.Element("empty", [], [])
@@ -425,6 +425,7 @@ let one_new_ac = fun (geomap:G.widget) fp_notebook ac ->
 let get_wind_msg = fun _sender vs ->
   let ac = get_ac vs in
   let value = fun field_name -> sprintf "%.1f" (Pprz.float_assoc field_name vs) in
+  ac.misc_page#set_mean_aspeed (value "mean_aspeed");
   ac.misc_page#set_wind_speed (value "wspeed");
   ac.misc_page#set_wind_dir (value "dir")
 
@@ -717,7 +718,6 @@ let listen_telemetry_status = fun () ->
 
 let listen_error = fun a ->
   let get_error = fun _sender vs ->
-    let ac = get_ac vs
-    and msg = Pprz.string_assoc "message" vs in
+    let msg = Pprz.string_assoc "message" vs in
     log_and_say a msg in
   safe_bind "TELEMETRY_ERROR" get_error

@@ -132,10 +132,19 @@ let int_attrib = fun xml a ->
     _ -> failwith (Printf.sprintf "Error: integer expected in '%s'" v)
 
 
+(* When an .xml is coming through http, the dtd is not available. We disable
+the DTD proving feature in this case. FIXME: We should use the resolve
+feature *)
+let my_xml_parse_file =
+  let parser = XmlParser.make () in
+  XmlParser.prove parser false;
+  fun f ->
+    XmlParser.parse parser (XmlParser.SFile f)
 
-let parse_file = fun file ->
+
+let parse_file = fun ?(noprovedtd = false) file ->
   try
-    Xml.parse_file file
+    (if noprovedtd then my_xml_parse_file else Xml.parse_file) file
   with
     Xml.Error e -> failwith (Printf.sprintf "%s: %s" file (Xml.error e))
   | Dtd.Prove_error e -> failwith (Printf.sprintf "%s: %s" file (Dtd.prove_error e))
