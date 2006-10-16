@@ -469,7 +469,10 @@ let index_blocks = fun xml ->
     List.map
       (fun b ->
 	incr block;
-	index_of_blocks := (name_of b, !block) :: !index_of_blocks;
+	let name = name_of b in
+	if List.mem_assoc name !index_of_blocks then
+	  failwith (Printf.sprintf "Error in flight plan: Block '%s' defined twice" name);
+	index_of_blocks := (name, !block) :: !index_of_blocks;
 	stage := -1;
 	let indexed_stages = List.map index_stage (Xml.children b) in
 	Xml.Element (Xml.tag b, Xml.attribs b@["no", soi !block], indexed_stages))
