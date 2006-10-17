@@ -150,7 +150,8 @@ let use_tele_message = fun payload ->
     Tm_Pprz.message_send (string_of_int ac_id) msg.Pprz.name values;
     update_status ac_id buf
   with
-    _ -> ()
+    _ ->
+      Debug.call 'W' (fun f ->  fprintf f "Warning, cannot use: %s\n" (Debug.xprint buf));
 
 
 type priority = Null | Low | Normal | High
@@ -278,10 +279,12 @@ end (** Wc module *)
 module XB = struct (** XBee module *)
   let at_init_period = 2000 (* ms *)
 
+  let my_addr = ref 0x100
+
   let switch_to_api = fun device ->
     let o = Unix.out_channel_of_descr device.fd in
-(***    fprintf o "%s%!" (Xbee.at_set_my 255); ***)
     Debug.trace 'x' "config xbee";
+    fprintf o "%s%!" (Xbee.at_set_my !my_addr);
     fprintf o "%s%!" (Xbee.at_set_baud_rate device.baud_rate);
     fprintf o "%s%!" Xbee.at_api_enable;
     fprintf o "%s%!" Xbee.at_exit;
@@ -365,7 +368,7 @@ let get_fp = fun device _sender vs ->
 	  let s = Dl_Pprz.payload_of_values msg_id my_id vs in
 	  send dest_id device ac_device s Low
 	with
-	  NotSendingToThis -> ())
+	  _NotSendingToThis -> ())
     airframes
 
 (** Got a MOVE_WAYPOINT and send a MOVE_WP *)
@@ -510,6 +513,7 @@ let _ =
     [ "-b", Arg.Set_string ivy_bus, (sprintf "<ivy bus> Default is %s" !ivy_bus);
       "-d", Arg.Set_string port, (sprintf "<port> Default is %s" !port);
       "-rssi", Arg.Set_int rssi_id, (sprintf "<ac_id> Periodically requests rssi level from the distant wavecard");
+      "-xbee_addr", Arg.Set_int XB.my_addr, (sprintf "<my_addr> (%d)" !XB.my_addr);
       "-transport", Arg.Set_string transport, (sprintf "<transport> Available protocols are modem,pprz,wavecard and xbee. Default is %s" !transport);
       "-uplink", Arg.Set uplink, (sprintf "Uses the link as uplink also.");
       "-dtr", Arg.Set dtr, "Set serial DTR to false (aerocomm)";
@@ -572,7 +576,7 @@ let _ =
 
     if !uplink then begin
       (** Listening on Ivy (FIXME: remove the ad hoc messages) *)
-      ignore (Ground_Pprz.message_bind "FLIGHT_PARAM" (get_fp device));
+(***      ignore (Ground_Pprz.message_bind "FLIGHT_PARAM" (get_fp device)); ***)
       ignore (Ground_Pprz.message_bind "MOVE_WAYPOINT" (move_wp device));
       ignore (Ground_Pprz.message_bind "DL_SETTING" (setting device));
       ignore (Ground_Pprz.message_bind "JUMP_TO_BLOCK" (jump_block device));
