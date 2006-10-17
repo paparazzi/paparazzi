@@ -315,14 +315,17 @@ static void navigation_task( void ) {
 
   SEND_CAM();
   
-  
+  /* The nav task computes only nav_altitude. However, we are interested
+     by desired_altitude (= nav_alt+alt_shift) in any case.
+     So we always run the altitude control loop */
+  if (vertical_mode == VERTICAL_MODE_AUTO_ALT)
+    altitude_pid_run();
+
   if (pprz_mode == PPRZ_MODE_AUTO2 || pprz_mode == PPRZ_MODE_HOME
 			|| pprz_mode == PPRZ_MODE_GPS_OUT_OF_ORDER) {
     if (lateral_mode >=LATERAL_MODE_COURSE)
       course_pid_run(); /* aka compute nav_desired_roll */
     desired_roll = nav_desired_roll;
-    if (vertical_mode == VERTICAL_MODE_AUTO_ALT)
-      altitude_pid_run();
     if (vertical_mode >= VERTICAL_MODE_AUTO_CLIMB)
       climb_pid_run();
     if (vertical_mode == VERTICAL_MODE_AUTO_GAZ)
