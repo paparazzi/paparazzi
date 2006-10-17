@@ -574,6 +574,7 @@ climb_pid_run ( void ) {
   float fgaz = 0;
   float err  = estimator_z_dot - desired_climb;
   float controlled_gaz = climb_pgain * (err + climb_igain * climb_sum_err) + climb_level_gaz + CLIMB_GAZ_OF_CLIMB*desired_climb;
+
   /* pitch offset for climb */
   pitch_of_vz = desired_climb * pitch_of_vz_pgain;
   switch (climb_mode) {
@@ -592,12 +593,15 @@ climb_pid_run ( void ) {
     
     case CLIMB_MODE_GAZ_BLENDED: {
       float ratio = (fabs(altitude_error) - AGR_BLEND_END) / (AGR_BLEND_START-AGR_BLEND_END);
+      fgaz = (1-ratio)*controlled_gaz;
+      nav_pitch = (1-ratio)*pitch_of_vz;
+      climb_sum_err += (1-ratio)*err;
       if (altitude_error < 0) {
-	fgaz =  ratio*AGR_CLIMB_GAZ + (1-ratio)*controlled_gaz;
-	nav_pitch = ratio*AGR_CLIMB_PITCH + (1-ratio)*pitch_of_vz;
+	fgaz +=  ratio*AGR_CLIMB_GAZ;
+	nav_pitch += ratio*AGR_CLIMB_PITCH;
       } else {
-	fgaz =  ratio*AGR_DESCENT_GAZ + (1-ratio)*controlled_gaz;
-	nav_pitch = ratio*AGR_DESCENT_PITCH + (1-ratio)*pitch_of_vz;
+	fgaz += ratio*AGR_DESCENT_GAZ;
+	nav_pitch += ratio*AGR_DESCENT_PITCH;
       }
       break;
     }
@@ -629,7 +633,7 @@ climb_pid_run ( void ) {
 
 float altitude_pgain = ALTITUDE_PGAIN;
 
-
+/** Computes desired_altitude and climb_gaz_submode */
 void altitude_pid_run(void) {
   desired_altitude = nav_altitude + altitude_shift;
   altitude_error = estimator_z - desired_altitude;
