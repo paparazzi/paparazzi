@@ -14,8 +14,9 @@
 void ir_gain_calib(void) {
 }
 
-value set_ir(value roll, value top) {
+value set_ir(value roll, value front, value top) {
   ir_roll = Int_val(roll);
+  ir_pitch = Int_val(front);
   ir_top = Int_val(top);
   return Val_unit;
 }

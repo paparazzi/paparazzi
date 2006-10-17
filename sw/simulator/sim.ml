@@ -109,7 +109,7 @@ module Make(AircraftItl : AIRCRAFT_ITL) = struct
     
     let compute_gps_state = Gps.state () in
 
-    let initial_state = FlightModel.init (pi/.2. -. qfu/.180.*.pi) in
+    let initial_state = FM.init (pi/.2. -. qfu/.180.*.pi) in
 
     let state = ref initial_state in
 
@@ -150,7 +150,7 @@ module Make(AircraftItl : AIRCRAFT_ITL) = struct
       FM.state_update !state (!wind_x, !wind_y) fm_period
        
     and ir_task = fun () ->
-      let phi = FlightModel.get_phi !state in
+      let phi, theta, _ = FlightModel.get_attitude !state in
       let horizon_distance = 1000. in
       try
 	match !last_gps_state with
@@ -166,7 +166,7 @@ module Make(AircraftItl : AIRCRAFT_ITL) = struct
 		0. in
 	    let phi = phi +. FM.roll_neutral_default in
 	    let ir_left = (phi +. delta_ir ) *. !infrared_contrast
-	    and ir_front = 0.
+	    and ir_front = (FM.pitch_neutral_default +. theta) *. !infrared_contrast
 	    and ir_top = pi /. 2. *. !infrared_contrast in
 	    Aircraft.infrared ir_left ir_front ir_top
       with

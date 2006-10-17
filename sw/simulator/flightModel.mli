@@ -30,11 +30,8 @@ type radian = float
 type radian_s = float
 type state
 
-val init : radian -> state
-
 val get_xyz : state -> meter * meter * meter
 val get_time : state -> float
-val get_phi : state -> radian
 val get_attitude : state -> radian * radian * radian
 
 val set_air_speed : state -> meter_s -> unit
@@ -42,10 +39,12 @@ val set_air_speed : state -> meter_s -> unit
 module Make :
   functor (A : Data.MISSION) ->
     sig
+      val init : radian -> state
       val do_commands : state -> Stdlib.pprz_t array -> unit
       val nb_commands : int
       val nominal_airspeed : float (* m/s *)
       val roll_neutral_default : float (* rad *)
+      val pitch_neutral_default : float (* rad *)
       val state_update : state -> float * float -> float -> unit
       (** [state_update state (wind_x, wind_y) dt] With m/s for wind and s for
 	 dt *)

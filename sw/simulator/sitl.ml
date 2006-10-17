@@ -197,10 +197,10 @@ module Make(A:Data.MISSION) = struct
 (* Functions called by the simulator *)
   let commands = fun s -> rcommands := s
 
-  external set_ir : int -> int -> unit = "set_ir"
+  external set_ir : int -> int -> int -> unit = "set_ir"
   let infrared = fun ir_left ir_front ir_top ->
     (** ADC neutral is not taken into account in the soft sim (c.f. sim_ir.c)*)
-    set_ir (truncate ir_left) (truncate ir_top)
+    set_ir (truncate ir_left) (truncate ir_front) (truncate ir_top)
 
   external use_gps_pos: int -> int -> int -> float -> float -> float -> float -> float -> bool -> unit = "sim_use_gps_pos_bytecode" "sim_use_gps_pos"
   let gps = fun gps ->
