@@ -11,8 +11,6 @@
       <dl_setting MAX="10" MIN="-10" STEP="0.5" VAR="wind_north"/>
     </dl_settings>
     <dl_settings NAME="mode">
-      <dl_setting MAX="1." MIN="0." STEP="1" VAR="z_contrast_mode"/>
-      <dl_setting MAX="1." MIN="0." STEP="1" VAR="rate_mode"/>
       <dl_setting MAX="2" MIN="0" STEP="1" VAR="pprz_mode"/>
       <dl_setting MAX="1" MIN="0" STEP="1" VAR="launch"/>
     </dl_settings>
@@ -24,11 +22,6 @@
         <dl_setting MAX="15000" MIN="1000" STEP="250" VAR="pitch_pgain"/>
         <dl_setting MAX="1" MIN="0" STEP="0.01" VAR="pitch_of_roll"/>
         <dl_setting MAX="1" MIN="0" STEP="0.01" VAR="pitch_of_vz_pgain"/>
-      </dl_settings>
-
-      <dl_settings name="rate_loop">
-        <dl_setting MAX="2000." MIN="0." STEP="1.0" VAR="roll_rate_pgain"/>
-        <dl_setting MAX="100" MIN="10" STEP="1" VAR="alt_roll_pgain"/>
       </dl_settings>
 
       <dl_settings name="nav">
