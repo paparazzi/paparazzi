@@ -30,7 +30,7 @@
 #include "datalink.h"
 #include "airframe.h"
 
-#define GROUND_STATION_ADDR 0 /* FIXME */
+#define GROUND_STATION_ADDR 0x100
 
 extern uint8_t xbee_cs;
 #define XBEE_PAYLOAD_LEN 256
@@ -122,8 +122,8 @@ void xbee_init( void );
 #define XBeeTransportPutTX16Header() { \
   XBeeTransportPutUint8(XBEE_TX16_ID); \
   XBeeTransportPutUint8(NO_FRAME_ID); \
-  uint16_t addr = GROUND_STATION_ADDR; \
-  XBeeTransportPut2ByteByAddr(&addr); \
+  XBeeTransportPutUint8(GROUND_STATION_ADDR >> 8); \
+  XBeeTransportPutUint8(GROUND_STATION_ADDR & 0xff); \
   XBeeTransportPutUint8(TX16_OPTIONS); \
 }
 
