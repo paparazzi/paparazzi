@@ -29,20 +29,31 @@
 #include "paparazzi.h"
 #include "inter_mcu.h"
 
+/* roll loop parameters */
 extern float desired_roll;
-extern float max_roll;
-extern float desired_pitch;
 extern float roll_pgain;
-extern float roll_rate_pgain;
-extern float attitude_pgain;
-extern float pitch_pgain;
-extern float pitch_of_roll;
-extern float rate_mode;
+extern pprz_t desired_aileron;
 
-void roll_pitch_pid_run( void );
+/* pitch loop parameters */
+extern float desired_pitch;
+extern float pitch_pgain;
+extern pprz_t desired_elevator;
+
+/* pre-command */
+extern float pitch_of_roll;
+
+#ifdef PID_RATE_LOOP
+extern float alt_roll_pgain;
+extern float rate_mode;
+extern float roll_rate_pgain;
+#endif
+
+
+void pid_init( void );
+void pid_attitude_loop_run( void );
 void pid_slew_gaz( void );
 
-extern pprz_t desired_gaz, desired_aileron, desired_elevator;
+extern pprz_t desired_gaz;
 
 
 #endif /* PID_H */

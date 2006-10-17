@@ -38,12 +38,12 @@ float roll_rate;
 
 static struct adc_buf buf_roll;
 
-#if defined SPARK_FUN
-#define RadiansOfADC(_adc) RadOfDeg((_adc/3.41))
+#define RadiansOfADC(_adc, scale) RadOfDeg((_adc * scale))
+
+#if defined ADXRS150
 static struct adc_buf buf_temp;
 float temp_comp;
-#elif defined IDC300
-#define RadiansOfADC(_adc) RadOfDeg((_adc/3.41))
+#elif defined IDG300
 static struct adc_buf buf_pitch;
 float pitch_rate;
 #endif
@@ -51,9 +51,9 @@ float pitch_rate;
 void gyro_init( void) {
   adc_buf_channel(ADC_CHANNEL_GYRO_ROLL, &buf_roll, ADC_CHANNEL_GYRO_NB_SAMPLES);
 
-#if defined SPARK_FUN
+#if defined ADXRS150
   adc_buf_channel(ADC_CHANNEL_GYRO_TEMP, &buf_temp, ADC_CHANNEL_GYRO_NB_SAMPLES);
-#elif defined IDC300
+#elif defined IDG300
   adc_buf_channel(ADC_CHANNEL_GYRO_PITCH, &buf_pitch, ADC_CHANNEL_GYRO_NB_SAMPLES);
 #endif
 }
@@ -61,14 +61,13 @@ void gyro_init( void) {
 
 
 void gyro_update( void ) {
-#ifdef SPARK_FUN
+  roll_rate_adc = (buf_roll.sum/buf_roll.av_nb_sample) - GYRO_ADC_ROLL_NEUTRAL; 
+#ifdef ADXRS150
   temp_comp = buf_temp.sum/buf_temp.av_nb_sample - GYRO_ADC_TEMP_NEUTRAL;
-  
-  roll_rate_adc = (buf_roll.sum/buf_roll.av_nb_sample) - (GYRO_ADC_ROLL_NEUTRAL+(GYRO_ADC_TEMP_SLOPE*temp_comp)); 
-#elif defined IDC300
+  roll_rate_adc += GYRO_ADC_TEMP_SLOPE * temp_comp; 
+#elif defined IDG300
   pitch_rate = buf_pitch.sum/buf_pitch.av_nb_sample - GYRO_ADC_PITCH_NEUTRAL;
-  pitch_rate = RadiansOfADC(pitch_rate);
-  roll_rate_adc = buf_roll.sum/buf_roll.av_nb_sample - GYRO_ADC_ROLL_NEUTRAL;
+  pitch_rate = GYRO_PITCH_DIRECTION * RadiansOfADC(pitch_rate, GYRO_PITCH_SCALE);
 #endif
-  roll_rate = GYRO_ADC_ROLL_COEF * RadiansOfADC(roll_rate_adc);
+  roll_rate = GYRO_ROLL_DIRECTION * RadiansOfADC(roll_rate_adc, GYRO_ROLL_SCALE);
 }

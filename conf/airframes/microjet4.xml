@@ -139,11 +139,10 @@
   <section name="GYRO_GAINS">
     <define name="GYRO_MAX_RATE" value="200."/>
     <define name="ROLLRATESUM_NB_SAMPLES" value="60"/>
-    <define name="ATTITUDE_PGAIN" value="120.0"/>
+    <define name="ALT_ROLL_PGAIN" value="120.0"/>
     <define name="ROLL_RATE_PGAIN" value="85.0"/>
     <define name="ROLL_RATE_IGAIN" value="0.0"/>
     <define name="ROLL_RATE_DGAIN" value="0.0"/>
-    <define name="ROLL_ATTITUDE_PGAIN" value="120.0"/><!-- new gyro ,was 600-->
   </section>
 
   <section name="FAILSAFE" prefix="FAILSAFE_">
@@ -196,7 +195,7 @@ ap.srcs += infrared.c estimator.c
 
 ap.srcs += nav.c pid.c
 
-ap.CFLAGS += -DGYRO -DSPARK_FUN -DATTITUDE_RATE_MODE
+ap.CFLAGS += -DGYRO -DADXRS150 -DPID_RATE_LOOP
 ap.srcs += gyro.c
 
 # Harware In The Loop

@@ -35,7 +35,7 @@ uint8_t inflight_calib_mode;
 bool_t rc_event_1, rc_event_2;
 bool_t launch;
 uint8_t gps_nb_ovrn, modem_nb_ovrn, link_fbw_fbw_nb_err, link_fbw_nb_err;
-float attitude_pgain;
+float alt_roll_pgain;
 float roll_rate_pgain;
 
 

@@ -28,7 +28,7 @@
 
       <dl_settings name="rate_loop">
         <dl_setting MAX="2000." MIN="0." STEP="1.0" VAR="roll_rate_pgain"/>
-        <dl_setting MAX="100" MIN="10" STEP="1" VAR="attitude_pgain"/>
+        <dl_setting MAX="100" MIN="10" STEP="1" VAR="alt_roll_pgain"/>
       </dl_settings>
 
       <dl_settings name="nav">

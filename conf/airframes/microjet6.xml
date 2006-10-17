@@ -66,6 +66,9 @@
     <define name="ADC_ROLL_COEF" value="1"/>
     <define name="ADC_ROLL_NEUTRAL" value="503"/>
     <define name="ADC_PITCH_NEUTRAL" value="469"/>   
+    <define name="ADC_TEMP_SLOPE" value="0"/>   
+    <define name="ROLL_SCALE" value="0.44"/>
+    <define name="ROLL_DIRECTION" value="1"/>
   </section>
  
   <section name="BAT">
@@ -77,8 +80,6 @@
     <define name="NOMINAL_AIRSPEED" value="20." unit="m/s"/>
     <define name="CARROT" value="3." unit="s"/>
     <define name="CONTROL_RATE" value="60"/> 
-  <define name="GYRO_ADC_ROLL_COEF" value="1"/>
-
   </section>
  
   <section name="PID">
@@ -129,11 +130,10 @@
   <section name="GYRO">
     <define name="GYRO_MAX_RATE" value="200."/>
     <define name="ROLLRATESUM_NB_SAMPLES" value="60"/>
-    <define name="ATTITUDE_PGAIN" value="120.0"/>
+    <define name="ALT_ROLL_PGAIN" value="120.0"/>
     <define name="ROLL_RATE_PGAIN" value="85.0"/>
     <define name="ROLL_RATE_IGAIN" value="0.0"/>
     <define name="ROLL_RATE_DGAIN" value="0.0"/>
-    <define name="ROLL_ATTITUDE_PGAIN" value="120.0"/><!-- new gyro ,was 600-->
   </section>
 
   <section name="FAILSAFE" prefix="FAILSAFE_">
@@ -191,7 +191,7 @@ ap.srcs += infrared.c estimator.c
 
 ap.srcs += nav.c pid.c
 
-ap.CFLAGS += -DGYRO -DIDC300 -DATTITUDE_RATE_MODE
+ap.CFLAGS += -DGYRO -DIDG300 -DPID_RATE_LOOP
 ap.srcs += gyro.c
 
 

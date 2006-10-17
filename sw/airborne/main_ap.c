@@ -354,7 +354,7 @@ static void navigation_task( void ) {
  *   - lets use \a reporting_task at 10 Hz
  *   - updates ir with \a ir_update
  *   - updates estimator of ir with \a estimator_update_state_infrared
- *   - set \a desired_aileron and \a desired_elevator with \a roll_pitch_pid_run
+ *   - set \a desired_aileron and \a desired_elevator with \a pid_attitude_loop_run
  *   - sends to \a fbw \a desired_gaz, \a desired_aileron and
  *     \a desired_elevator \note \a desired_gaz is set upon GPS
  *     message reception
@@ -461,7 +461,7 @@ void periodic_task_ap( void ) {
       ir_update();
       estimator_update_state_infrared();
 #endif /* INFRARED */
-      roll_pitch_pid_run(); /* Set  desired_aileron & desired_elevator */
+      pid_attitude_loop_run(); /* Set  desired_aileron & desired_elevator */
       pid_slew_gaz();
       ap_state->commands[COMMAND_THROTTLE] = desired_gaz;
       ap_state->commands[COMMAND_ROLL] = desired_aileron;
@@ -542,6 +542,7 @@ void init_ap( void ) {
 #endif
 
   /************ Internal status ***************/
+  pid_init();
   estimator_init();
   nav_init();
 

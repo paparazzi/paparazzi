@@ -42,6 +42,16 @@ int16_t ir_top;
 
 float z_contrast_mode;
 
+#if defined IR_CORRECTION_LEFT && defined IR_CORRECTION_RIGHT
+float ir_correction_left;
+float ir_correction_right;
+#endif
+
+#if defined IR_CORRECTION_UP && defined IR_CORRECTION_DOWN
+float ir_correction_up;
+float ir_correction_down;
+#endif
+
 /** Initialized to \a IR_DEFAULT_CONTRAST. Changed with calibration */
 int16_t ir_contrast     = IR_DEFAULT_CONTRAST;
 /** Initialized to \a IR_DEFAULT_CONTRAST.
@@ -75,7 +85,7 @@ static struct adc_buf buf_ir_top;
 #define Z_CONTRAST_DEFAULT 1
 #endif
 #ifdef Z_CONTRAST_START
-#warning "z_contrast mode default to Z_CONTRAST_DEFAULT  or 1"
+#warning "Z_CONTRAST_START deprecated !! z_contrast mode now defaults to Z_CONTRAST_DEFAULT or 1"
 #endif
 
 
@@ -95,6 +105,17 @@ void ir_init(void) {
   z_contrast_mode = 0;
 #endif
   estimator_rad_of_ir = ir_rad_of_ir;
+
+#if defined IR_CORRECTION_LEFT && defined IR_CORRECTION_RIGHT
+  ir_correction_left = IR_CORRECTION_LEFT;
+  ir_correction_right = IR_CORRECTION_RIGHT;
+#endif
+
+#if defined IR_CORRECTION_UP && defined IR_CORRECTION_DOWN
+  ir_correction_up = IR_CORRECTION_UP;
+  ir_correction_down = IR_CORRECTION_DOWN;
+#endif
+
 }
 
 /** \brief Update \a ir_roll and ir_pitch from ADCs or from simulator
@@ -214,8 +235,41 @@ void estimator_update_state_infrared( void ) {
   float rad_of_ir = (ir_estim_mode == IR_ESTIM_MODE_ON ? 
 		     estimator_rad_of_ir :
 		     ir_rad_of_ir);
+#if defined ADC_CHANNEL_IR_TOP && defined IR_ALLOW_INVERTED
+  if (ir_top == 0) ir_top = 1;
+#else
   ir_top = Max(ir_top, 1);
-  float c = rad_of_ir*(1-z_contrast_mode)+z_contrast_mode*((float)IR_RAD_OF_IR_CONTRAST/ir_top);
+#endif
+
+  float c = rad_of_ir*(1-z_contrast_mode)+z_contrast_mode*((float)IR_RAD_OF_IR_CONTRAST/fabs(ir_top));
   estimator_phi  = c * ir_roll - ir_roll_neutral;
   estimator_theta = c * ir_pitch - ir_pitch_neutral;
+
+  /* infrared compensation */
+#if defined IR_CORRECTION_LEFT && defined IR_CORRECTION_RIGHT
+  if (estimator_phi >= 0) 
+    estimator_phi *= IR_CORRECTION_RIGHT;
+  else
+    estimator_phi *= IR_CORRECTION_LEFT;
+#endif
+
+
+#if defined IR_CORRECTION_UP && defined IR_CORRECTION_DOWN
+  if (estimator_theta >= 0)
+    estimator_theta *= IR_CORRECTION_UP;
+  else
+    estimator_theta *= IR_CORRECTION_DOWN;
+#endif
+
+  /* limit */
+  Bound(estimator_phi, -M_PI/2, M_PI/2);
+
+#if defined ADC_CHANNEL_IR_TOP && defined IR_ALLOW_INVERTED
+  if (ir_top < 0) {
+    if (estimator_phi > 0)
+      estimator_phi = M_PI - estimator_phi;
+    else
+      estimator_phi = -(M_PI + estimator_phi);
+  }
+#endif
 }

@@ -38,55 +38,83 @@
 #include "estimator.h"
 #include "nav.h"
 
+/* roll loop parameters */
+float desired_roll;
+float roll_pgain;
+pprz_t desired_aileron;
 
-float desired_roll = 0.;
-float desired_pitch = 0.;
-int16_t desired_gaz, desired_aileron, desired_elevator;
-float roll_pgain = ROLL_PGAIN;
-float pitch_pgain = PITCH_PGAIN;
-#ifdef PITCH_IGAIN
-float pitch_igain = PITCH_IGAIN;
-#endif
-float pitch_of_roll = PITCH_OF_ROLL;
+/* pitch loop parameters */
+float desired_pitch;
+float pitch_pgain;
+pprz_t desired_elevator;
 
-#ifdef ATTITUDE_RATE_MODE
-float attitude_pgain = ATTITUDE_PGAIN;
-float roll_rate_pgain = ROLL_RATE_PGAIN;
-float roll_rate_dgain = ROLL_RATE_DGAIN;
-float roll_rate_igain = ROLL_RATE_IGAIN;
+/* pre-command */
+float pitch_of_roll;
+float pitch_of_vz_pgain;
+float pitch_of_vz;
+float aileron_of_gaz;
 
-#ifdef PITCH_RATE_PGAIN
-float pitch_rate_pgain = PITCH_RATE_PGAIN;
-float pitch_rate_dgain = PITCH_RATE_DGAIN;
-float pitch_rate_igain = PITCH_RATE_IGAIN;
-#endif
-#endif
+pprz_t desired_gaz;
 
-float pitch_of_vz_pgain = CLIMB_PITCH_OF_VZ_PGAIN;
-float pitch_of_vz = 0.;
-
-float aileron_of_gaz = AILERON_OF_GAZ;
-
+#ifdef PID_RATE_LOOP
+float alt_roll_pgain;  // alternate roll pgain
+float roll_rate_pgain;
+float roll_rate_dgain;
+float roll_rate_igain;
+float rate_mode;
 #ifndef RATE_MODE_DEFAULT
 #define RATE_MODE_DEFAULT 1
 #endif
+#endif
 
-float rate_mode = RATE_MODE_DEFAULT;
+inline static void pid_roll_loop_run(void);
+inline static void pid_pitch_loop_run(void);
 
+void pid_init( void ) {
+  desired_roll = 0.;
+  roll_pgain = ROLL_PGAIN;
+
+  desired_pitch = 0.;
+  pitch_pgain = PITCH_PGAIN;
+
+  pitch_of_roll = PITCH_OF_ROLL;
+  pitch_of_vz = 0.;
+  pitch_of_vz_pgain = CLIMB_PITCH_OF_VZ_PGAIN;
+  aileron_of_gaz = AILERON_OF_GAZ;
+
+  desired_gaz = 0;
+  desired_aileron = 0;
+  desired_elevator = 0;
+
+#ifdef PID_RATE_LOOP
+  alt_roll_pgain = ALT_ROLL_PGAIN;
+  roll_rate_pgain = ROLL_RATE_PGAIN;
+  roll_rate_igain = ROLL_RATE_IGAIN;
+  roll_rate_dgain = ROLL_RATE_DGAIN;
+  rate_mode = RATE_MODE_DEFAULT;
+#endif
+
+}
 
 /** \brief Computes ::desired_aileron and ::desired_elevator from attitude
  * estimation and expected attitude.
 */
-void roll_pitch_pid_run( void ) {
+void pid_attitude_loop_run( void ) {
+  pid_roll_loop_run();
+  pid_pitch_loop_run();
+}
+
+
+inline static void pid_roll_loop_run(void) {
   /** Attitude PID */
   float err =  estimator_phi - desired_roll;
   Bound(err, -M_PI/2., M_PI/2);
 
   float std_desired_aileron = TRIM_PPRZ(roll_pgain * err + desired_gaz * aileron_of_gaz);
-#ifndef ATTITUDE_RATE_MODE
+#ifndef PID_RATE_LOOP
   desired_aileron = std_desired_aileron;
 #else
-  float desired_roll_rate = -attitude_pgain*err;
+  float desired_roll_rate = -alt_roll_pgain*err;
   Bound(desired_roll_rate, -GYRO_MAX_RATE, GYRO_MAX_RATE);
 
   /** Roll rate pid */
@@ -113,23 +141,19 @@ void roll_pitch_pid_run( void ) {
   desired_aileron = rate_mode*rate_desired_aileron+(1-rate_mode)*std_desired_aileron;
 #endif
 
-  /** Pitch pi */
+}
+
+/** Pitch loop */
+inline static void pid_pitch_loop_run(void) {
+  /* sanity check */
   if (pitch_of_roll <0.)
     pitch_of_roll = 0.;
-  err = -(estimator_theta - desired_pitch - pitch_of_roll*fabs(estimator_phi));
-  Bound(err, -M_PI/2, M_PI/2);
 
-#ifdef PITCH_IGAIN
-  pitch_sum_err -= pitchsum_values[pitchsum_idx];
-  pitchsum_values[pitchsum_idx] = err;
-  pitch_sum_err += pitchsum_values[pitchsum_idx];
-  pitchsum_idx++;
-  if (pitchsum_idx >= PITCHSUM_NB_SAMPLES) pitchsum_idx = 0;
-  desired_elevator = TRIM_PPRZ(pitch_pgain * thr_pitch_multi * (err + (pitch_sum_err/(pitchsum_nb_samples))*pitch_igain));
-#else
+  float err = -(estimator_theta - desired_pitch - pitch_of_roll*fabs(estimator_phi));
+  Bound(err, -M_PI/2, M_PI/2);
   desired_elevator = TRIM_PPRZ(pitch_pgain * err);
-#endif
 }
+
 
 #ifndef CLIMB_MAX_DIFF_GAZ
 #define CLIMB_MAX_DIFF_GAZ 1.

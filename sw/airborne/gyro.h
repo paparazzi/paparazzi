@@ -40,9 +40,9 @@ extern int16_t roll_rate_adc;
 
 
 /** Hardware dependent code */
-#if defined SPARK_FUN
+#if defined ADXRS150
 extern float temp_comp;
-#elif defined IDC300
+#elif defined IDG300
 extern float pitch_rate;
 #endif
 

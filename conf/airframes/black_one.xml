@@ -70,6 +70,8 @@
     <define name="ADC_ROLL_NEUTRAL" value="474"/>
     <define name="ADC_TEMP_NEUTRAL" value="470"/>   
     <define name="ADC_TEMP_SLOPE" value="0"/>   
+    <define name="ROLL_SCALE" value="0.44"/>
+    <define name="ROLL_DIRECTION" value="1"/>
   </section>
 
   <section name="BAT">
@@ -136,11 +138,10 @@
   <section name="GYRO_GAINS">
     <define name="GYRO_MAX_RATE" value="200."/>
     <define name="ROLLRATESUM_NB_SAMPLES" value="60"/>
-    <define name="ATTITUDE_PGAIN" value="120.0"/>
+    <define name="ALT_ROLL_PGAIN" value="120.0"/>
     <define name="ROLL_RATE_PGAIN" value="85.0"/>
     <define name="ROLL_RATE_IGAIN" value="0.0"/>
     <define name="ROLL_RATE_DGAIN" value="0.0"/>
-    <define name="ROLL_ATTITUDE_PGAIN" value="120.0"/><!-- new gyro ,was 600-->
   </section>
 
   <section name="FAILSAFE" prefix="FAILSAFE_">
@@ -189,7 +190,7 @@ ap.srcs += gps_ubx.c gps.c
 ap.CFLAGS += -DINFRARED 
 ap.srcs += infrared.c estimator.c
 
-ap.CFLAGS += -DGYRO -DSPARK_FUN -DATTITUDE_RATE_MODE
+ap.CFLAGS += -DGYRO -DADXRS150 -DPID_RATE_LOOP
 ap.srcs += gyro.c
 
 ap.srcs += nav.c pid.c
