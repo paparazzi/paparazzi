@@ -208,6 +208,7 @@ let one_setting = fun i do_change packing s (tooltips:GData.tooltips) strip ->
   let _n = truncate ((upper -. lower) /. step_incr) in
   let commit =
     if step_incr = 1. && upper -. lower <= 2. then
+      (* Discrete values: radio buttons *)
       let ilower = truncate lower
       and iupper = truncate upper in
       let label = Printf.sprintf "%d" ilower in
@@ -233,7 +234,7 @@ let one_setting = fun i do_change packing s (tooltips:GData.tooltips) strip ->
   commit_but#set_border_width 2;
   let _icon = GMisc.image ~stock:`APPLY ~packing:commit_but#add () in
   let callback = fun x ->
-    prev_value := Some (float_of_string _v#text);
+    prev_value := (try Some (float_of_string _v#text) with _ -> None);
     commit x
   in
   ignore (commit_but#connect#clicked ~callback);
