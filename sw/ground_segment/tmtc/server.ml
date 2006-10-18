@@ -192,6 +192,7 @@ let log_and_parse = fun logging ac_name (a:Aircraft.aircraft) msg values ->
       a.gspeed  <- fvalue "speed" /. 100.;
       a.course  <- norm_course ((Deg>>Rad)(fvalue "course" /. 10.));
       a.alt     <- fvalue "alt" /. 100.;
+      a.agl     <- a.alt -. float (try Srtm.of_utm a.pos with _ -> 0);
       a.climb   <- fvalue "climb" /. 100.;
       a.gps_mode <- check_index (ivalue "mode") gps_modes "GPS_MODE";
       if a.gspeed > 3. then
@@ -337,7 +338,7 @@ let send_cam_status = fun a ->
     match a.nav_ref with
       None -> () (* No geo ref for camera target *)
     | Some nav_ref ->
-	let h = a.alt -. float (try Srtm.of_utm a.pos with _ -> 0) in
+	let h = a.agl in
 	let phi_absolute = a.cam.phi -. a.roll
 	and theta_absolute = a.cam.theta +. a.pitch in
 	if phi_absolute > -. cam_max_angle && phi_absolute < cam_max_angle &&
@@ -498,6 +499,7 @@ let send_aircraft_msg = fun ac ->
 		  "speed", f a.gspeed;
 		  "course", f (Geometry_2d.rad2deg a.course);
 		  "alt", f a.alt;
+		  "agl", f a.agl;
 		  "climb", f a.climb] in
     Ground_Pprz.message_send my_id "FLIGHT_PARAM" values;
 
@@ -568,7 +570,7 @@ let new_aircraft = fun id ->
     { id = id ; roll = 0.; pitch = 0.; desired_east = 0.; desired_north = 0.; 
       desired_course = 0.;
 	gspeed=0.; course = 0.; alt=0.; climb=0.; cur_block=0; cur_stage=0;
-      throttle = 0.; throttle_accu = 0.; rpm = 0.; temp = 0.; bat = 42.; amp = 0.; energy = 0; ap_mode= -1;
+      throttle = 0.; throttle_accu = 0.; rpm = 0.; temp = 0.; bat = 42.; amp = 0.; energy = 0; ap_mode= -1; agl = 0.;
       gaz_mode= -1; lateral_mode= -1;
       gps_mode =0;
       desired_altitude = 0.;

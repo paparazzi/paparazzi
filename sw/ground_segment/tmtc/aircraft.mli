@@ -76,6 +76,7 @@ type aircraft = {
     mutable gspeed : float; (* m/s *)
     mutable course : float; (* rad *)
     mutable alt : float;
+    mutable agl : float; (* m *)
     mutable climb : float;
     mutable cur_block : int;
     mutable cur_stage : int;

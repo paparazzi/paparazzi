@@ -457,6 +457,7 @@
     <field name="course" type="float" unit="deg" format="%.1f"/>
     <field name="alt"     type="float" unit="m"/>
     <field name="climb"   type="float" unit="m/s"/>
+    <field name="agl"     type="float" unit="m"/>
   </message>
 
   <message name="AP_STATUS" ID="12">
