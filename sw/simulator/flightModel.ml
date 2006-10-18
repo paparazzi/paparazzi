@@ -47,14 +47,15 @@ type state = {
     mutable delta_a : float;
     mutable delta_b : float;
     mutable thrust : float;
-    mutable air_speed : meter_s
+    mutable air_speed : meter_s;
+    mutable nominal_air_speed : meter_s
   }
 
 let get_xyz state = (state.x, state.y, state.z)
 let get_time state = state.t
 let get_attitude state = (state.phi, state.theta, state.psi)
 
-let set_air_speed state x = state.air_speed <- x
+let set_air_speed state x = state.nominal_air_speed <- x
 
 let drag = 0.45
 let c_lp = -10.
@@ -147,6 +148,7 @@ module Make(A:Data.MISSION) = struct
     start = Unix.gettimeofday (); t = 0.; x = 0.; y = 0. ; z = 0.;
     psi = route; phi = 0.; phi_dot = 0.;
     delta_a = 0.; delta_b = 0.; thrust = 0.; air_speed = 0.;
+    nominal_air_speed = 0.;
     theta = pitch_neutral_default;
   }
 
@@ -157,6 +159,7 @@ module Make(A:Data.MISSION) = struct
  *)
   let state_update = fun state (wx, wy) dt ->
     let now = state.t +. dt in
+    state.air_speed <- state.nominal_air_speed*.(1.-.sin state.theta);
     if state.air_speed > 0. then begin
       let phi_dot_dot = roll_response_factor *. state.delta_a +. c_lp *. state.phi_dot /. state.air_speed in
       state.phi_dot <- state.phi_dot +. phi_dot_dot *. dt;
