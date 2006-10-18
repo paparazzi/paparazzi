@@ -89,3 +89,31 @@ value c_set_dtr(value val_fd, value val_bit) {
   ioctl(fd, TIOCMSET, &status);
   return Val_unit;
 }
+
+
+/* From the gPhoto I/O library */
+value c_serial_set_baudrate(value val_fd, value speed)
+{  
+  struct termios tio;
+  int fd = Int_val(val_fd);
+  
+  if (tcgetattr(fd, &tio) < 0) {
+    failwith("tcgetattr");
+  }
+  tio.c_iflag = 0;
+  tio.c_oflag = 0;
+  tio.c_cflag = CS8 | CREAD | CLOCAL;
+  tio.c_cc[VMIN] = 1;
+  tio.c_cc[VTIME] = 5;
+  
+  tio.c_lflag &= ~(ICANON | ISIG | ECHO | ECHONL | ECHOE | ECHOK);
+
+  int br = baudrates[Int_val(speed)];
+
+  cfsetispeed(&tio, br);
+  cfsetospeed(&tio, br);
+  if (tcsetattr(fd, TCSANOW | TCSAFLUSH, &tio) < 0) {
+    failwith("tcsetattr");
+  }
+  return Val_unit;
+}

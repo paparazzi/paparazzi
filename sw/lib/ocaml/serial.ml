@@ -77,8 +77,9 @@ let string_of_payload = fun x -> x
 let payload_of_string = fun x -> x
 
 
-external init_serial : string -> speed -> Unix.file_descr = "c_init_serial";;
+external init_serial : string -> speed -> Unix.file_descr = "c_init_serial"
 external set_dtr : Unix.file_descr -> bool -> unit = "c_set_dtr"
+external set_speed : Unix.file_descr -> speed -> unit = "c_serial_set_baudrate"
 
 let opendev device speed =
   try
@@ -109,6 +110,10 @@ let input = fun f ->
 (* 	Printf.fprintf stderr "n'=%d\n" nb_used; flush stderr; *)
       if nb_used > 0 then
 	parse (start + nb_used) (n - nb_used)
+      else if n = buffer_len then
+	(* The buffer is full and the user does not consume any. We have to
+	   discard one char to avoid a dead lock *)
+        parse (start + 1) (n - 1)
       else
 	wait start n in
     parse 0 n)
