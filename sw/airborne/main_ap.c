@@ -36,7 +36,8 @@
 #include "interrupt_hw.h"
 #include "init_hw.h"
 #include "adc.h"
-#include "pid.h"
+#include "fw_h_ctl.h"
+#include "fw_v_ctl.h"
 #include "gps.h"
 #include "infrared.h"
 #include "gyro.h"
@@ -249,15 +250,15 @@ inline void telecommand_task( void ) {
    */
   if (pprz_mode == PPRZ_MODE_AUTO1) {
     /** In Auto1 mode, roll is bounded between [-AUTO1_MAX_ROLL;AUTO1_MAX_ROLL] */
-    desired_roll = FLOAT_OF_PPRZ(fbw_state->channels[RADIO_ROLL], 0., -AUTO1_MAX_ROLL);
+    h_ctl_roll_setpoint = FLOAT_OF_PPRZ(fbw_state->channels[RADIO_ROLL], 0., -AUTO1_MAX_ROLL);
     
     /** In Auto1 mode, pitch is bounded between [-AUTO1_MAX_PITCH;AUTO1_MAX_PITCH] */
-    desired_pitch = FLOAT_OF_PPRZ(fbw_state->channels[RADIO_PITCH], 0., AUTO1_MAX_PITCH);
+    h_ctl_pitch_setpoint = FLOAT_OF_PPRZ(fbw_state->channels[RADIO_PITCH], 0., AUTO1_MAX_PITCH);
   }
   if (pprz_mode == PPRZ_MODE_MANUAL || pprz_mode == PPRZ_MODE_AUTO1) {
-    desired_gaz = fbw_state->channels[RADIO_THROTTLE];
+    v_ctl_throttle_setpoint = fbw_state->channels[RADIO_THROTTLE];
   }
-  /** else asynchronously set by climb_pid_run(); */
+  /** else asynchronously set by v_ctl_climb_loop(); */
   
   mcu1_ppm_cpt = fbw_state->ppm_cpt;
   vsupply = fbw_state->vsupply;
@@ -319,22 +320,21 @@ static void navigation_task( void ) {
      by desired_altitude (= nav_alt+alt_shift) in any case.
      So we always run the altitude control loop */
   if (vertical_mode == VERTICAL_MODE_AUTO_ALT)
-    altitude_pid_run();
+    v_ctl_altitude_loop();
 
   if (pprz_mode == PPRZ_MODE_AUTO2 || pprz_mode == PPRZ_MODE_HOME
 			|| pprz_mode == PPRZ_MODE_GPS_OUT_OF_ORDER) {
     if (lateral_mode >=LATERAL_MODE_COURSE)
-      course_pid_run(); /* aka compute nav_desired_roll */
-    desired_roll = nav_desired_roll;
+      h_ctl_course_loop(); /* aka compute nav_desired_roll */
     if (vertical_mode >= VERTICAL_MODE_AUTO_CLIMB)
-      climb_pid_run();
+      v_ctl_climb_loop();
     if (vertical_mode == VERTICAL_MODE_AUTO_GAZ)
-      desired_gaz = nav_desired_gaz;
-    desired_pitch = nav_pitch;
+      v_ctl_throttle_setpoint = nav_desired_gaz;
+    h_ctl_pitch_setpoint = nav_pitch;
     if (kill_throttle || (!estimator_flight_time && !launch))
-      desired_gaz = 0;
+      v_ctl_throttle_setpoint = 0;
   }  
-  energy += (float)desired_gaz * (MILLIAMP_PER_PERCENT / MAX_PPRZ * 0.25);
+  energy += (float)v_ctl_throttle_setpoint * (MILLIAMP_PER_PERCENT / MAX_PPRZ * 0.25);
 }
 
 
@@ -354,9 +354,9 @@ static void navigation_task( void ) {
  *   - lets use \a reporting_task at 10 Hz
  *   - updates ir with \a ir_update
  *   - updates estimator of ir with \a estimator_update_state_infrared
- *   - set \a desired_aileron and \a desired_elevator with \a pid_attitude_loop_run
- *   - sends to \a fbw \a desired_gaz, \a desired_aileron and
- *     \a desired_elevator \note \a desired_gaz is set upon GPS
+ *   - set \a desired_aileron and \a desired_elevator with \a pid_attitude_loop
+ *   - sends to \a fbw \a desired_throttle, \a desired_aileron and
+ *     \a desired_elevator \note \a desired_throttle is set upon GPS
  *     message reception
  * - 10 Hz: to get a \a stage_time_ds
  * - 4 Hz:
@@ -461,11 +461,11 @@ void periodic_task_ap( void ) {
       ir_update();
       estimator_update_state_infrared();
 #endif /* INFRARED */
-      pid_attitude_loop_run(); /* Set  desired_aileron & desired_elevator */
-      pid_slew_gaz();
-      ap_state->commands[COMMAND_THROTTLE] = desired_gaz;
-      ap_state->commands[COMMAND_ROLL] = desired_aileron;
-      ap_state->commands[COMMAND_PITCH] = desired_elevator;
+      h_ctl_attitude_loop(); /* Set  h_ctl_aileron_setpoint & h_ctl_elevator_setpoint */
+      v_ctl_throttle_slew();
+      ap_state->commands[COMMAND_THROTTLE] = v_ctl_throttle_setpoint;
+      ap_state->commands[COMMAND_ROLL] = h_ctl_aileron_setpoint;
+      ap_state->commands[COMMAND_PITCH] = h_ctl_elevator_setpoint;
 
 #ifdef COMMAND_HATCH_CMD
       extern pprz_t hatch_cmd;
@@ -542,7 +542,8 @@ void init_ap( void ) {
 #endif
 
   /************ Internal status ***************/
-  pid_init();
+  h_ctl_init();
+  v_ctl_init();
   estimator_init();
   nav_init();
 

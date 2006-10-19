@@ -38,7 +38,8 @@
 #include "messages.h"
 
 #include "estimator.h"
-#include "pid.h"
+#include "fw_v_ctl.h"
+#include "fw_h_ctl.h"
 #include "cam.h"
 #include "infrared.h"
 #include "gps.h"

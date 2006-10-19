@@ -161,19 +161,18 @@ let output_vmode x wp last_wp =
   let pitch = try Xml.attrib x "pitch" with _ -> "0.0" in
   if pitch = "auto"
   then begin
-    lprintf "climb_mode = CLIMB_MODE_PITCH;\n";
+    lprintf "v_ctl_climb_mode = V_CTL_CLIMB_MODE_AUTO_PITCH;\n";
     lprintf "nav_desired_gaz = %f;\n" (pprz_throttle (parsed_attrib x "throttle"))
   end else begin
     lprintf "nav_pitch = %s;\n" (parse pitch);
-    lprintf "climb_mode = CLIMB_MODE_GAZ;\n";
+    lprintf "v_ctl_climb_mode = V_CTL_CLIMB_MODE_AUTO_THROTTLE;\n";
   end;
   let vmode = try ExtXml.attrib x "vmode" with _ -> "alt" in
   begin
     match vmode with
       "climb" ->
-	lprintf "climb_gaz_submode = CLIMB_MODE_GAZ_STANDARD;\n";
 	lprintf "vertical_mode = VERTICAL_MODE_AUTO_CLIMB;\n";
-	lprintf "desired_climb = %s;\n" (parsed_attrib x "climb")
+	lprintf "v_ctl_climb_setpoint = %s;\n" (parsed_attrib x "climb")
     | "alt" ->
 	lprintf "vertical_mode = VERTICAL_MODE_AUTO_ALT;\n";
 	let alt =
@@ -192,7 +191,7 @@ let output_vmode x wp last_wp =
 	    then failwith "alt or waypoint required in alt vmode" 
 	    else sprintf "waypoints[%s].a" wp in
 	lprintf "nav_altitude = %s;\n" alt;
-	lprintf "pre_climb = 0.;\n"
+	lprintf "v_ctl_altitude_pre_climb = 0.;\n"
     | "xyz" -> () (** Handled in Goto3D() *)
     | "glide" ->
 	lprintf "vertical_mode = VERTICAL_MODE_AUTO_ALT;\n";
@@ -333,7 +332,7 @@ let rec print_stage = fun index_of_waypoints sectors x ->
 	end;
 	right ();
 	lprintf "lateral_mode = LATERAL_MODE_ROLL;\n";
-	lprintf "nav_desired_roll = RadOfDeg(%s);\n" (parsed_attrib x "roll");
+	lprintf "h_ctl_roll_setpoint = RadOfDeg(%s);\n" (parsed_attrib x "roll");
 	ignore (output_vmode x "" "");
 	output_cam_mode x index_of_waypoints;
 	left (); lprintf "}\n";

@@ -119,7 +119,7 @@ bl:
 	cd $(AIRBORNE)/arm7/test/bootloader; make clean; make 
 
 upload_bl: bl
-	lpc21isp -control $(AIRBORNE)/arm7/test/bootloader/bl.hex /dev/ttyS0 38400 12000
+	lpc21isp -control $(AIRBORNE)/arm7/test/bootloader/bl.hex /dev/ttyUSB0 38400 12000
 
 lpc21iap:
 	cd sw/ground_segment/lpc21iap; make

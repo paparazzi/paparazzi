@@ -44,6 +44,10 @@ float estimator_phi;
 float estimator_psi;
 float estimator_theta;
 
+/* rates in radians per second */
+float estimator_p;
+float estimator_q;
+
 /* flight time in seconds */
 uint16_t estimator_flight_time; 
 /* flight time in seconds */
@@ -85,6 +89,8 @@ void estimator_init( void ) {
   EstimatorSetAtt (0., 0., 0);
 
   EstimatorSetSpeedPol ( 0., 0., 0.);
+
+  EstimatorSetRate(0., 0.);
 
   estimator_flight_time = 0;
 }

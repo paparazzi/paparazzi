@@ -15,7 +15,8 @@
 #include "flight_plan.h"
 #include "settings.h"
 #include "nav.h"
-#include "pid.h"
+#include "fw_h_ctl.h"
+#include "fw_v_ctl.h"
 #include "infrared.h"
 #include "cam.h"
 #include "commands.h"
@@ -82,7 +83,7 @@ value sim_init(value unit) {
   }
 #endif
 
-  rate_mode = 0;
+  //  rate_mode = 0;
   z_contrast_mode = 0;
   return unit;
 }

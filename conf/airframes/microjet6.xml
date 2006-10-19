@@ -90,6 +90,7 @@
     <define name="MAX_PITCH" value="0.7"/>
     <define name="MIN_PITCH" value="-0.7"/>
     <define name="AILERON_OF_GAZ" value="0.0"/>
+    <define name="CRUISE_THROTTLE" value="0.50"/>
   </section>
  
   <section name="ALT" prefix="CLIMB_">
@@ -98,7 +99,6 @@
     <define name="PGAIN" value="-0.025"/>
     <define name="IGAIN" value="0.25"/>
     <define name="MAX" value="3."/>
-    <define name="LEVEL_GAZ" value="0.50"/>
     <define name="PITCH_OF_VZ_PGAIN" value="0.5"/>
     <define name="GAZ_OF_CLIMB" value="0.15" unit="%/(m/s)"/>
     <define name="MAX_DIFF_GAZ" value="0.05" unit="%"/>
@@ -137,12 +137,12 @@
   </section>
 
   <section name="FAILSAFE" prefix="FAILSAFE_">
-	<define name="DELAY_WITHOUT_GPS" value="1" unit="s"/>
-    	<define name="DEFAULT_GAZ" value="0.0" unit="%"/>
-    	<define name="DEFAULT_ROLL" value="0.3" unit="rad"/>
-    	<define name="DEFAULT_PITCH" value="0.5" unit="rad"/>
-	<define name="HOME_RADIUS" value="100" unit="m"/>
-</section>
+    <define name="DELAY_WITHOUT_GPS" value="1" unit="s"/>
+    <define name="DEFAULT_GAZ" value="0.0" unit="%"/>
+    <define name="DEFAULT_ROLL" value="0.3" unit="rad"/>
+    <define name="DEFAULT_PITCH" value="0.5" unit="rad"/>
+    <define name="HOME_RADIUS" value="100" unit="m"/>
+  </section>
 
  <!--
   <section name="DATALINK">

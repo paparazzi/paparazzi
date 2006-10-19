@@ -1,0 +1,70 @@
+/*
+ * Paparazzi $Id$
+ *  
+ * Copyright (C) 2006  Pascal Brisset, Antoine Drouin, Michel Gorraz
+ *
+ * This file is part of paparazzi.
+ *
+ * paparazzi is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * paparazzi is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with paparazzi; see the file COPYING.  If not, write to
+ * the Free Software Foundation, 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA. 
+ *
+ */
+
+/** 
+ *
+ * fixed wing horizontal control
+ *
+ */
+
+#ifndef FW_H_CTL_H
+#define FW_H_CTL_H
+
+#include <inttypes.h>
+#include "paparazzi.h"
+
+/* outer loop parameters */
+extern float h_ctl_course_setpoint;
+extern float h_ctl_course_pre_bank;
+extern float h_ctl_course_pgain;
+extern float h_ctl_roll_max_setpoint;
+
+/* inner roll loop parameters */
+extern float  h_ctl_roll_setpoint;
+extern float  h_ctl_roll_pgain;
+extern pprz_t h_ctl_aileron_setpoint;
+
+/* inner pitch loop parameters */
+extern float  h_ctl_pitch_setpoint;
+extern float  h_ctl_pitch_pgain;
+extern pprz_t h_ctl_elevator_setpoint;
+
+/* inner loop pre-command */
+extern float h_ctl_aileron_of_throttle;
+extern float h_ctl_elevator_of_roll;
+
+/* rate loop */
+#ifdef H_CTL_RATE_LOOP
+extern float h_ctl_roll_rate_mode;
+extern float h_ctl_roll_rate_setpoint_pgain;
+extern float h_ctl_roll_rate_pgain;
+extern float h_ctl_roll_rate_igain;
+extern float h_ctl_roll_rate_dgain;
+#endif
+
+extern void h_ctl_init( void );
+extern void h_ctl_course_loop ( void );
+extern void h_ctl_attitude_loop ( void );
+
+#endif /* FW_H_CTL_H */

@@ -57,7 +57,7 @@ extern const uint8_t nb_waypoint;
 extern struct point waypoints[]; /** size == nb_waypoint + 1 */
 extern bool_t moved_waypoints[]; /** size == nb_waypoint + 1 */
 
-extern float desired_altitude, desired_x, desired_y, altitude_shift;
+extern float desired_x, desired_y, altitude_shift, nav_altitude;
 
 extern uint16_t nav_desired_gaz;
 extern float nav_pitch, rc_pitch;
@@ -72,7 +72,6 @@ extern float stage_time_ds;
 /** One full circle == 1. */
 extern float circle_count;
 
-extern float nav_desired_roll;
 extern float carrot_x, carrot_y;
 
 extern bool_t in_circle;
@@ -81,7 +80,6 @@ extern int16_t circle_x, circle_y, circle_radius;
 extern int16_t segment_x_1, segment_y_1, segment_x_2, segment_y_2;
 
 extern uint8_t horizontal_mode;
-extern uint8_t climb_gaz_submode;
 
 #define HORIZONTAL_MODE_WAYPOINT 0
 #define HORIZONTAL_MODE_ROUTE 1
@@ -96,28 +94,10 @@ extern uint8_t climb_gaz_submode;
   } \
 }
 
-extern float course_pgain;
-extern float desired_course;
-void course_pid_run( void );
-
-extern float climb_pgain;
-extern float climb_igain;
-extern float climb_sum_err;
-extern float desired_climb, pre_climb;
-extern float altitude_pgain;
-extern float climb_pitch_pgain;
-extern float climb_pitch_igain;
-
-extern float pitch_of_vz_pgain;
-extern float pitch_of_vz;
-extern float aileron_of_gaz;
-extern float climb_level_gaz;
 extern float ground_alt;
 
 extern float survey_west, survey_east, survey_north, survey_south;
 
-void climb_pid_run(void);
-void altitude_pid_run(void);
 
 void nav_update(void);
 void nav_home(void);

@@ -54,7 +54,7 @@
 
 #define PERIODIC_SEND_IDENT()  DOWNLINK_SEND_IDENT(&ac_ident);
 
-#define PERIODIC_SEND_BAT() Downlink({ int16_t e = energy; DOWNLINK_SEND_BAT(&desired_gaz, &vsupply, &estimator_flight_time, &kill_throttle, &block_time, &stage_time, &e); })
+#define PERIODIC_SEND_BAT() Downlink({ int16_t e = energy; DOWNLINK_SEND_BAT(&v_ctl_throttle_setpoint, &vsupply, &estimator_flight_time, &kill_throttle, &block_time, &stage_time, &e); })
 
 #ifdef MCU_SPI_LINK
 #define PERIODIC_SEND_DEBUG_MCU_LINK() DOWNLINK_SEND_DEBUG_MCU_LINK(&link_mcu_nb_err, &link_mcu_fbw_nb_err, &mcu1_ppm_cpt);
@@ -79,7 +79,7 @@
 })
 
 #define PERIODIC_SEND_PPRZ_MODE() DOWNLINK_SEND_PPRZ_MODE(&pprz_mode, &vertical_mode, &lateral_mode, &horizontal_mode, &rc_settings_mode, &mcu1_status, &ir_estim_mode);
-#define PERIODIC_SEND_DESIRED() DOWNLINK_SEND_DESIRED(&desired_roll, &desired_pitch, &desired_x, &desired_y, &desired_altitude, &desired_climb);
+#define PERIODIC_SEND_DESIRED() DOWNLINK_SEND_DESIRED(&h_ctl_roll_setpoint, &h_ctl_pitch_setpoint, &desired_x, &desired_y, &v_ctl_altitude_setpoint, &v_ctl_climb_setpoint);
 
 #define PERIODIC_SEND_NAVIGATION_REF()  DOWNLINK_SEND_NAVIGATION_REF(&nav_utm_east0, &nav_utm_north0, &nav_utm_zone0);
 
@@ -119,14 +119,18 @@
 
 #ifdef IDG300
 #include "gyro.h"
-#define PERIODIC_SEND_GYRO_RATES() DOWNLINK_SEND_GYRO_RATES(&roll_rate_adc, &roll_rate, &pitch_rate)
+#define PERIODIC_SEND_GYRO_RATES() DOWNLINK_SEND_GYRO_RATES(&roll_rate_adc, &estimator_p, &estimator_q)
 #elif defined ADXRS150
-#define PERIODIC_SEND_GYRO_RATES() DOWNLINK_SEND_GYRO_RATES(&roll_rate_adc, &roll_rate, &temp_comp)
+#define PERIODIC_SEND_GYRO_RATES() DOWNLINK_SEND_GYRO_RATES(&roll_rate_adc, &estimator_p, &temp_comp)
 #else
 #define PERIODIC_SEND_GYRO_RATES() {}
 #endif
 
-#define PERIODIC_SEND_CALIBRATION() DOWNLINK_SEND_CALIBRATION(&climb_sum_err, &climb_pgain, &course_pgain, &climb_gaz_submode)
+#ifdef AGR_CLIMB
+#define PERIODIC_SEND_CALIBRATION() DOWNLINK_SEND_CALIBRATION(&v_ctl_auto_throttle_sum_err, &v_ctl_auto_throttle_pgain, &h_ctl_course_pgain, &v_ctl_auto_throttle_submode)
+#else
+#define PERIODIC_SEND_CALIBRATION() DOWNLINK_SEND_CALIBRATION(&v_ctl_auto_throttle_sum_err, &v_ctl_auto_throttle_pgain, &h_ctl_course_pgain, &pprz_mode)
+#endif
 
 #define PERIODIC_SEND_CIRCLE() if (in_circle) { DOWNLINK_SEND_CIRCLE(&circle_x, &circle_y, &circle_radius); }
 
@@ -138,7 +142,7 @@
 #define PERIODIC_SEND_IMU() {}
 #endif
 
-#define SEND_NAVIGATION() Downlink({ int16_t pos_x = estimator_x; int16_t pos_y = estimator_y; int16_t d_course = DeciDegOfRad(desired_course); DOWNLINK_SEND_NAVIGATION(&nav_block, &nav_stage, &pos_x, &pos_y, &d_course, &dist2_to_wp, &dist2_to_home);})
+#define SEND_NAVIGATION() Downlink({ int16_t pos_x = estimator_x; int16_t pos_y = estimator_y; int16_t d_course = DeciDegOfRad(h_ctl_course_pgain); DOWNLINK_SEND_NAVIGATION(&nav_block, &nav_stage, &pos_x, &pos_y, &d_course, &dist2_to_wp, &dist2_to_home);})
 
 #ifdef CAM
 #define SEND_CAM() Downlink({ int16_t x = target_x; int16_t y = target_y; int8_t phi = DegOfRad(phi_c); int8_t theta = DegOfRad(theta_c); DOWNLINK_SEND_CAM(&phi, &theta, &x, &y);})

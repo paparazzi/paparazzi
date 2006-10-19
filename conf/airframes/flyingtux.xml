@@ -61,14 +61,15 @@
     <define name="MAX_PITCH" value="0.25"/>
     <define name="MIN_PITCH" value="-0.35"/>
     <define name="AILERON_OF_GAZ" value="-0.13"/>
+    <define name="CRUISE_THROTTLE" value="0.5"/>
    </section>
+
   <section name="ALT" prefix="CLIMB_">
-      <define name="PITCH_PGAIN" value="-0.1"/>
+    <define name="PITCH_PGAIN" value="-0.1"/>
     <define name="PITCH_IGAIN" value="1.0"/>
     <define name="PGAIN" value="-0.025"/>
     <define name="IGAIN" value="0.01"/>
     <define name="MAX" value="1."/>
-    <define name="LEVEL_GAZ" value="0.5"/>
     <define name="GAZ_OF_CLIMB" value="0.15" unit="% / m/s"/>
     <define name="PITCH_OF_VZ_PGAIN" value="0.05"/>
   </section>
@@ -101,7 +102,7 @@
   </section>
 	<section name="FAILSAFE" prefix="FAILSAFE_">
 		<define name="DELAY_WITHOUT_GPS" value="2" unit="s"/>
-    <define name="DEFAULT_GAZ" value="CLIMB_LEVEL_GAZ+0.05" unit="%"/>
+    <define name="DEFAULT_GAZ" value="CRUISE_THROTTLE+0.05" unit="%"/>
     <define name="DEFAULT_ROLL" value="0.17" unit="rad"/>
     <define name="DEFAULT_PITCH" value="0.08" unit="rad"/>
 		<define name="HOME_RADIUS" value="50" unit="m"/>

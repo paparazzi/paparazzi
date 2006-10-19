@@ -116,18 +116,18 @@
     <define name="LOITER_TRIM" value="1000"/>
     <define name="DASH_TRIM" value="-2500"/>
     <define name="AILERON_OF_GAZ" value="0.0"/>
-  </section>
+    <define name="CRUISE_THROTTLE" value="0.65"/>
+    <define name="CLIMB_AUTO_PITCH_PGAIN" value="-0.1"/>
+    <define name="CLIMB_AUTO_PITCH_IGAIN" value="0.025"/>
+    <define name="CLIMB_AUTO_THROTTLE_PGAIN" value="-0.008"/>
+    <define name="CLIMB_AUTO_THROTTLE_IGAIN" value="0.25"/>
+    <define name="CLIMB_THROTTLE_INCREMENT" value="0.15" unit="%/(m/s)"/>
+ </section>
     
  
   <section name="ALT" prefix="CLIMB_">
-    <define name="PITCH_PGAIN" value="-0.1"/>
-    <define name="PITCH_IGAIN" value="0.025"/>
-    <define name="PGAIN" value="-0.008"/>
-    <define name="IGAIN" value="0.25"/>
     <define name="MAX" value="3."/>
-    <define name="LEVEL_GAZ" value="0.65"/>
     <define name="PITCH_OF_VZ_PGAIN" value="0.35"/>
-    <define name="GAZ_OF_CLIMB" value="0.15" unit="%/(m/s)"/>
     <define name="MAX_DIFF_GAZ" value="0.05" unit="%"/>
   </section>
  

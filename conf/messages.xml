@@ -68,7 +68,7 @@
 
    <message name="PPRZ_MODE" ID="11">
      <field name="ap_mode" type="uint8" values="MANUAL|AUTO1|AUTO2|HOME|NOGPS|FAILSAFE"/>
-     <field name="ap_gaz" type="uint8" values="MANUAL|AUTO_GAZ|AUTO_CLIMB|AUTO_ALT"/>
+     <field name="ap_gaz" type="uint8" values="MANUAL|AUTO_THROTTLE|AUTO_CLIMB|AUTO_ALT"/>
      <field name="ap_lateral" type="uint8" values="MANUAL|ROLL_RATE|ROLL|COURSE"/>
      <field name="ap_horizontal" type="uint8" values="WAYPOINT|ROUTE|CIRCLE"/>
      <field name="if_calib_mode" type="uint8" values="NONE|DOWN|UP"/>
@@ -465,7 +465,7 @@
     <field name="ap_mode" type="string" values="MANUAL|AUTO1|AUTO2|HOME|FAILSAFE"/>
     <field name="lat_mode" type="string" values="MANUAL|ROLL_RATE|ROLL|COURSE"/>
     <field name="horiz_mode" type="string" values="WAYPOINT|ROUTE|CIRCLE"/>
-    <field name="gaz_mode" type="string" values="MANUAL|GAZ|CLIMB|ALT"/>
+    <field name="gaz_mode" type="string" values="MANUAL|THROTTLE|CLIMB|ALT"/>
     <field name="gps_mode" type="string" values="NOFIX|DRO|2D|3D|GPSDRO"/>
     <field name="kill_mode" type="string" values="OFF|ON"/>
     <field name="flight_time" type="uint32" />

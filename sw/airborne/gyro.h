@@ -32,9 +32,6 @@
 
 #include <inttypes.h>
 
-/** In rad/s */
-extern float roll_rate;
-
 /** Raw (for debug), taking into accound neutral and temp compensation (if any) */
 extern int16_t roll_rate_adc;
 
@@ -43,7 +40,7 @@ extern int16_t roll_rate_adc;
 #if defined ADXRS150
 extern float temp_comp;
 #elif defined IDG300
-extern float pitch_rate;
+extern int16_t pitch_rate_adc;
 #endif
 
 void gyro_init( void );

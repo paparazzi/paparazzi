@@ -97,6 +97,7 @@
     <define name="MAX_PITCH" value="0.35"/>
     <define name="MIN_PITCH" value="-0.35"/>
     <define name="AILERON_OF_GAZ" value="0.0"/>
+    <define name="CRUISE_THROTTLE" value="0.50"/>
   </section>
  
   <section name="ALT" prefix="CLIMB_">
@@ -105,7 +106,6 @@
     <define name="PGAIN" value="-0.03"/>
     <define name="IGAIN" value="0.1"/>
     <define name="MAX" value="1."/>
-    <define name="LEVEL_GAZ" value="0.50"/>
     <define name="PITCH_OF_VZ_PGAIN" value="0.05"/>
     <define name="GAZ_OF_CLIMB" value="0.2" unit="%/(m/s)"/>
   </section>

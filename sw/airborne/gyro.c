@@ -32,10 +32,9 @@
 #include "std.h"
 #include "adc.h"
 #include "airframe.h"
+#include "estimator.h"
 
 int16_t roll_rate_adc;
-float roll_rate;
-
 static struct adc_buf buf_roll;
 
 #define RadiansOfADC(_adc, scale) RadOfDeg((_adc * scale))
@@ -44,13 +43,12 @@ static struct adc_buf buf_roll;
 static struct adc_buf buf_temp;
 float temp_comp;
 #elif defined IDG300
+int16_t pitch_rate_adc;
 static struct adc_buf buf_pitch;
-float pitch_rate;
 #endif
 
 void gyro_init( void) {
   adc_buf_channel(ADC_CHANNEL_GYRO_ROLL, &buf_roll, ADC_CHANNEL_GYRO_NB_SAMPLES);
-
 #if defined ADXRS150
   adc_buf_channel(ADC_CHANNEL_GYRO_TEMP, &buf_temp, ADC_CHANNEL_GYRO_NB_SAMPLES);
 #elif defined IDG300
@@ -61,13 +59,15 @@ void gyro_init( void) {
 
 
 void gyro_update( void ) {
+  float pitch_rate = 0.;
   roll_rate_adc = (buf_roll.sum/buf_roll.av_nb_sample) - GYRO_ADC_ROLL_NEUTRAL; 
 #ifdef ADXRS150
   temp_comp = buf_temp.sum/buf_temp.av_nb_sample - GYRO_ADC_TEMP_NEUTRAL;
   roll_rate_adc += GYRO_ADC_TEMP_SLOPE * temp_comp; 
 #elif defined IDG300
-  pitch_rate = buf_pitch.sum/buf_pitch.av_nb_sample - GYRO_ADC_PITCH_NEUTRAL;
-  pitch_rate = GYRO_PITCH_DIRECTION * RadiansOfADC(pitch_rate, GYRO_PITCH_SCALE);
+  pitch_rate_adc = buf_pitch.sum/buf_pitch.av_nb_sample - GYRO_ADC_PITCH_NEUTRAL;
+  pitch_rate = GYRO_PITCH_DIRECTION * RadiansOfADC(pitch_rate_adc, GYRO_PITCH_SCALE);
 #endif
-  roll_rate = GYRO_ROLL_DIRECTION * RadiansOfADC(roll_rate_adc, GYRO_ROLL_SCALE);
+  float roll_rate = GYRO_ROLL_DIRECTION * RadiansOfADC(roll_rate_adc, GYRO_ROLL_SCALE);
+  EstimatorSetRate(roll_rate, pitch_rate);
 }
