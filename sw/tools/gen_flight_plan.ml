@@ -171,6 +171,7 @@ let output_vmode x wp last_wp =
   begin
     match vmode with
       "climb" ->
+	lprintf "climb_gaz_submode = CLIMB_MODE_GAZ_STANDARD;\n";
 	lprintf "vertical_mode = VERTICAL_MODE_AUTO_CLIMB;\n";
 	lprintf "desired_climb = %s;\n" (parsed_attrib x "climb")
     | "alt" ->
@@ -327,7 +328,8 @@ let rec print_stage = fun index_of_waypoints sectors x ->
 	  try
 	    let until = parsed_attrib x "until" in
 	    lprintf "if (%s) NextStage() else {\n" until;
-	  with ExtXml.Error _ -> ()
+	  with ExtXml.Error _ ->
+	    lprintf "{\n"
 	end;
 	right ();
 	lprintf "lateral_mode = LATERAL_MODE_ROLL;\n";
