@@ -29,7 +29,6 @@
 #include "radio.h"
 #include "autopilot.h"
 #include "infrared.h"
-#include "pid.h"
 #include "nav.h"
 #include "estimator.h"
 
