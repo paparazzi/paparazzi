@@ -68,8 +68,7 @@
     <define name="CORRECTION_LEFT" value="1."/>
     <define name="CORRECTION_RIGHT" value="1."/>
 
-
-est pi /4 : 0.9
+    <define name="ESTIMATED_PHI_PI_4" value="M_PI_4"/>
 
     <define name="ALLOW_INVERTED" value="1"/>
   </section>
@@ -224,7 +223,7 @@ ap.srcs += gyro.c
 
 # Config for SITL simulation
 include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
-sim.CFLAGS += -DCONFIG=\"tiny.h\" -DAGR_CLIMB
+sim.CFLAGS += -DCONFIG=\"tiny.h\" -DAGR_CLIMB -DH_CTL_RATE_LOOP
 
 
 # a test program to setup actuators 
