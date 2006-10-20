@@ -667,7 +667,7 @@ let listen_waypoint_moved = fun () ->
 let get_alert_bat_low = fun a _sender vs -> 
   let ac = get_ac vs in
   let level = Pprz.string_assoc "level" vs in
-  log_and_say a (sprintf "%s %s %s" ac.ac_name "BAT_LOW" level)
+  log_and_say a (sprintf "%s %s %s" ac.ac_name "BAT LOW" level)
 
 let listen_alert = fun a -> 
   alert_bind "BAT_LOW" (get_alert_bat_low a)
