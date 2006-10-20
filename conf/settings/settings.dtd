@@ -26,6 +26,7 @@ var CDATA #REQUIRED
 min CDATA #REQUIRED
 max CDATA #REQUIRED
 step CDATA #IMPLIED
+shortname CDATA #IMPLIED
 >
 
 <!ATTLIST strip_button
