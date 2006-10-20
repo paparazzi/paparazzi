@@ -113,9 +113,9 @@ class h = fun ?packing size  ->
   let text_props = [`FONT "Sans 8"; `ANCHOR `CENTER; `FILL_COLOR "white"] in
 
   let disc = GnoCanvas.group canvas#root in
-  let _top = GnoCanvas.rect ~x1:(-.size2) ~y1:(-.size2*.5.) ~x2:size2 ~y2:0. ~fill_color:"#0099cb" disc
-  and _bottom = GnoCanvas.rect ~x1:(-.size2) ~y1:0. ~x2:size2 ~y2:(size2*.5.) ~fill_color:"#986701" disc
-  and _line = GnoCanvas.line ~props:[`WIDTH_PIXELS 4] ~points:[|-.size2;0.;size2;0.|] ~fill_color:"white" disc
+  let _top = GnoCanvas.rect ~x1:(-.size) ~y1:(-.size2*.5.) ~x2:size ~y2:0. ~fill_color:"#0099cb" disc
+  and _bottom = GnoCanvas.rect ~x1:(-.size) ~y1:0. ~x2:size ~y2:(size2*.5.) ~fill_color:"#986701" disc
+  and _line = GnoCanvas.line ~props:[`WIDTH_PIXELS 4] ~points:[|-.size;0.;size;0.|] ~fill_color:"white" disc
   and _ = GnoCanvas.line ~points:[|0.;-.size2;0.;size2|] ~fill_color:"white" disc
  in
   let grads = fun ?(text=false) n s a b ->
