@@ -47,6 +47,12 @@ class alert (widget: GBin.frame) =
 	view#buffer#insert (sprintf "%02d:%02d:%02d " l.Unix.tm_hour l.Unix.tm_min l.Unix.tm_sec);
 	view#buffer#insert text;
 	view#buffer#insert "\n";
+	
+	(* Scroll to the bottom line *)
+	let end_iter = view#buffer#end_iter in
+	let end_mark = view#buffer#create_mark end_iter in
+	view#scroll_mark_onscreen (`MARK end_mark);
+	
 	last <- text
       end
  end
@@ -200,7 +206,7 @@ let one_setting = fun i do_change packing s (tooltips:GData.tooltips) strip ->
   and step_incr = f "step" in
   
   let hbox = GPack.hbox ~packing () in
-  let text = ExtXml.attrib s "var" in
+  let text = try ExtXml.attrib s "shortname" with _ -> ExtXml.attrib s "var" in
   let _l = GMisc.label ~width:100 ~text ~packing:hbox#pack () in
   let _v = GMisc.label ~width:50 ~text:"N/A" ~packing:hbox#pack () in
 
