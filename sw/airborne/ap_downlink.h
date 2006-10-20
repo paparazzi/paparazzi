@@ -72,9 +72,9 @@
 
 
 #define PERIODIC_SEND_ATTITUDE() Downlink({ \
-  int8_t phi = DegOfRad(estimator_phi); \
-  int8_t psi = DegOfRad(estimator_psi); \
-  int8_t theta = DegOfRad(estimator_theta); \
+  int16_t phi = DegOfRad(estimator_phi); \
+  int16_t psi = DegOfRad(estimator_psi); \
+  int16_t theta = DegOfRad(estimator_theta); \
   DOWNLINK_SEND_ATTITUDE(&phi, &psi, &theta); \
 })
 

@@ -26,9 +26,9 @@
    </message>
 
    <message name="ATTITUDE" ID="6">
-     <field name="phi" type="int8" unit="deg"></field>
-     <field name="psi" type="int8" unit="deg"></field>
-     <field name="theta" type="int8" unit="deg"></field>
+     <field name="phi" type="int16" unit="deg"></field>
+     <field name="psi" type="int16" unit="deg"></field>
+     <field name="theta" type="int16" unit="deg"></field>
    </message>
 
    <message name="IR_SENSORS" ID="7">
