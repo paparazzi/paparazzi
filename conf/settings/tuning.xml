@@ -14,6 +14,9 @@
       <dl_setting MAX="2" MIN="0" STEP="1" VAR="pprz_mode"/>
       <dl_setting MAX="0" MIN="0" STEP="1" VAR="estimator_flight_time" shortname="flight time"/>
       <dl_setting MAX="1" MIN="0" STEP="1" VAR="launch"/>
+      <dl_setting MAX="1" MIN="0" STEP="1" VAR="kill_throttle">
+        <strip_button name="KILL" value="1"/>
+      </dl_setting>
     </dl_settings>
     <dl_settings NAME="control">
 
@@ -24,7 +27,7 @@
         <dl_setting MAX="1.5" MIN="0.5" STEP="0.1" VAR="ir_correction_right" shortname="corr_right"/>
         <dl_setting MAX="1.5" MIN="0.5" STEP="0.1" VAR="ir_correction_up" shortname="corr_up"/>
         <dl_setting MAX="1.5" MIN="0.5" STEP="0.1" VAR="ir_correction_down" shortname="corr_down"/>
-        <dl_setting MAX="1." MIN="0.1" STEP="0.05" VAR="estimated_phi_pi_4" shortname="est. phi pi/4"/>
+        <dl_setting MAX="1." MIN="0.1" STEP="0.05" VAR="ir_estimated_phi_pi_4" shortname="est. phi pi/4"/>
         <dl_setting MAX="1" MIN="0" STEP="1" VAR="ir_allow_inverted" shortname="allow_inverted"/>
       </dl_settings>
 
