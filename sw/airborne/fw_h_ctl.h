@@ -37,6 +37,7 @@
 /* outer loop parameters */
 extern float h_ctl_course_setpoint;
 extern float h_ctl_course_pre_bank;
+extern float h_ctl_course_pre_bank_correction;
 extern float h_ctl_course_pgain;
 extern float h_ctl_roll_max_setpoint;
 

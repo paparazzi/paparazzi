@@ -38,6 +38,7 @@
 /* outer loop parameters */
 float h_ctl_course_setpoint;
 float h_ctl_course_pre_bank;
+float h_ctl_course_pre_bank_correction;
 float h_ctl_course_pgain;
 float h_ctl_roll_max_setpoint;
 
@@ -57,6 +58,7 @@ float h_ctl_elevator_of_roll;
 
 /* rate loop */
 #ifdef H_CTL_RATE_LOOP
+float h_ctl_roll_rate_setpoint;
 float h_ctl_roll_rate_mode;
 float h_ctl_roll_rate_setpoint_pgain;
 float h_ctl_roll_rate_pgain;
@@ -67,13 +69,18 @@ float h_ctl_roll_rate_dgain;
 inline static void h_ctl_roll_loop( void );
 inline static void h_ctl_pitch_loop( void );
 #ifdef H_CTL_RATE_LOOP
-static inline void h_ctl_roll_rate_loop( float err_roll );
+static inline void h_ctl_roll_rate_loop( void );
+#endif
+
+#ifndef H_CTL_COURSE_PRE_BANK_CORRECTION
+#define H_CTL_COURSE_PRE_BANK_CORRECTION 1.
 #endif
 
 void h_ctl_init( void ) {
 
   h_ctl_course_setpoint = 0.;
   h_ctl_course_pre_bank = 0.;
+  h_ctl_course_pre_bank_correction = H_CTL_COURSE_PRE_BANK_CORRECTION;
   h_ctl_course_pgain = H_CTL_COURSE_PGAIN;
   h_ctl_roll_max_setpoint = H_CTL_ROLL_MAX_SETPOINT;
 
@@ -112,7 +119,7 @@ void h_ctl_course_loop ( void ) {
     cmd *= ((altitude_error < 0) ? AGR_CLIMB_NAV_RATIO : AGR_DESCENT_NAV_RATIO);
   }
 #endif
-  h_ctl_roll_setpoint = cmd + h_ctl_course_pre_bank;
+  h_ctl_roll_setpoint = cmd + h_ctl_course_pre_bank_correction * h_ctl_course_pre_bank;
   BoundAbs(h_ctl_roll_setpoint, h_ctl_roll_max_setpoint);
 }
 
@@ -126,23 +133,26 @@ inline static void h_ctl_roll_loop( void ) {
   float cmd = h_ctl_roll_pgain * err 
     + v_ctl_throttle_setpoint * h_ctl_aileron_of_throttle;
   h_ctl_aileron_setpoint = TRIM_PPRZ(cmd);
+
 #ifdef H_CTL_RATE_LOOP
-  h_ctl_roll_rate_loop(err);
+  h_ctl_roll_rate_setpoint = h_ctl_roll_rate_setpoint_pgain * err;
+  BoundAbs(h_ctl_roll_rate_setpoint, H_CTL_ROLL_RATE_MAX_SETPOINT);
+
+  float saved_aileron_setpoint = h_ctl_aileron_setpoint;
+  h_ctl_roll_rate_loop();
+  h_ctl_aileron_setpoint = Blend(h_ctl_aileron_setpoint, saved_aileron_setpoint, h_ctl_roll_rate_mode) ;
 #endif
 }
 
 #ifdef H_CTL_RATE_LOOP
-static inline void h_ctl_roll_rate_loop( float err_roll ) {
-  float roll_rate_setpoint = h_ctl_roll_rate_setpoint_pgain * err_roll;
-  BoundAbs(roll_rate_setpoint, H_CTL_ROLL_RATE_MAX_SETPOINT);
-
-  float err = estimator_p - roll_rate_setpoint;
+static inline void h_ctl_roll_rate_loop() {
+  float err = estimator_p - h_ctl_roll_rate_setpoint;
   
   /* I term calculation */
   static float roll_rate_sum_err = 0.;
   static uint8_t roll_rate_sum_idx = 0;
   static float roll_rate_sum_values[H_CTL_ROLL_RATE_SUM_NB_SAMPLES];
-
+  
   roll_rate_sum_err -= roll_rate_sum_values[roll_rate_sum_idx];
   roll_rate_sum_values[roll_rate_sum_idx] = err;
   roll_rate_sum_err += err;
@@ -155,10 +165,8 @@ static inline void h_ctl_roll_rate_loop( float err_roll ) {
   last_err = err;
 
   float cmd = h_ctl_roll_rate_pgain * ( err + h_ctl_roll_rate_igain * roll_rate_sum_err / H_CTL_ROLL_RATE_SUM_NB_SAMPLES + h_ctl_roll_rate_dgain * d_err);
-  cmd = TRIM_PPRZ(cmd);
 
-  h_ctl_aileron_setpoint = h_ctl_roll_rate_mode * cmd
-    + (1 - h_ctl_roll_rate_mode) * h_ctl_aileron_setpoint;
+  h_ctl_aileron_setpoint = TRIM_PPRZ(cmd);
 }
 #endif /* H_CTL_RATE_LOOP */
 

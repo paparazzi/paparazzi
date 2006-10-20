@@ -26,6 +26,7 @@
 #define INFRARED_H
 
 #include "std.h"
+#include "airframe.h"
 
 /** @name Calibration states
  *  Successive states for initial infrared contrast calibration
@@ -47,6 +48,18 @@ extern int16_t ir_top;  /* averaged vertical ir adc */
 extern float   ir_rad_of_ir;
 extern int16_t ir_contrast;
 extern float z_contrast_mode;
+extern bool_t ir_allow_inverted;
+extern float ir_estimated_phi_pi_4;
+
+#if defined IR_CORRECTION_LEFT && defined IR_CORRECTION_RIGHT
+extern float ir_correction_left;
+extern float ir_correction_right;
+#endif
+
+#if defined IR_CORRECTION_UP && defined IR_CORRECTION_DOWN
+extern float ir_correction_up;
+extern float ir_correction_down;
+#endif
 
 /** Status of the calibration. Can be one of the \a calibration \a states */
 extern uint8_t calib_status;

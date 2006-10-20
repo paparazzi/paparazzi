@@ -73,7 +73,7 @@
     <define name="CORRECTION_LEFT" value="1."/>
     <define name="CORRECTION_RIGHT" value="1."/>
 
-est pi : 0.81
+    <define name="ESTIMATED_PHI_PI_4" value="M_PI_4"/>
 
     <define name="ALLOW_INVERTED" value="0"/>
   </section>

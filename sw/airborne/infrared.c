@@ -42,6 +42,17 @@ int16_t ir_top;
 
 float z_contrast_mode;
 
+float ir_roll_neutral;
+float ir_pitch_neutral;
+
+bool_t ir_allow_inverted;
+float ir_estimated_phi_pi_4;
+
+#ifndef IR_ALLOW_INVERTED
+#define IR_ALLOW_INVERTED FALSE
+#endif
+
+
 #if defined IR_CORRECTION_LEFT && defined IR_CORRECTION_RIGHT
 float ir_correction_left;
 float ir_correction_right;
@@ -53,7 +64,7 @@ float ir_correction_down;
 #endif
 
 /** Initialized to \a IR_DEFAULT_CONTRAST. Changed with calibration */
-int16_t ir_contrast     = IR_DEFAULT_CONTRAST;
+int16_t ir_contrast;
 /** Initialized to \a IR_DEFAULT_CONTRAST.
  *  Changed with @@@@@ EST-CE QUE CA CHANGE @@@@@ */
 
@@ -67,7 +78,7 @@ int16_t ir_contrast     = IR_DEFAULT_CONTRAST;
  *  Initialized with airframe \a IR_RAD_OF_IR_CONTRAST and \a IR_DEFAULT_CONTRAST constants. \n
  *  Change when \a lls work.
  */
-float ir_rad_of_ir = IR_RAD_OF_IR_CONTRAST / IR_DEFAULT_CONTRAST;
+float ir_rad_of_ir;
 
 float estimator_rad_of_ir, estimator_ir, estimator_rad;
 
@@ -104,6 +115,10 @@ void ir_init(void) {
 #else
   z_contrast_mode = 0;
 #endif
+ 
+  ir_roll_neutral  = RadOfDeg(IR_ROLL_NEUTRAL_DEFAULT);
+  ir_pitch_neutral = RadOfDeg(IR_PITCH_NEUTRAL_DEFAULT);
+
   estimator_rad_of_ir = ir_rad_of_ir;
 
 #if defined IR_CORRECTION_LEFT && defined IR_CORRECTION_RIGHT
@@ -116,6 +131,11 @@ void ir_init(void) {
   ir_correction_down = IR_CORRECTION_DOWN;
 #endif
 
+  ir_allow_inverted = IR_ALLOW_INVERTED;
+  ir_estimated_phi_pi_4 = IR_ESTIMATED_PHI_PI_4;
+
+  ir_contrast = IR_DEFAULT_CONTRAST;
+  ir_rad_of_ir = IR_RAD_OF_IR_CONTRAST / IR_DEFAULT_CONTRAST;
 }
 
 /** \brief Update \a ir_roll and ir_pitch from ADCs or from simulator
@@ -228,48 +248,67 @@ void estimator_update_ir_estim( void ) {
   last_t = gps_itow;
 }
 
-float ir_roll_neutral  = RadOfDeg(IR_ROLL_NEUTRAL_DEFAULT);
-float ir_pitch_neutral = RadOfDeg(IR_PITCH_NEUTRAL_DEFAULT);
+
+static inline float correct_angle(float m_angle, float est_pi_4) {
+  if (fabs(m_angle) < est_pi_4) 
+    return (m_angle * M_PI_4 / est_pi_4);
+  else if (m_angle > M_PI - est_pi_4)
+    return (m_angle - (M_PI - est_pi_4))* M_PI_4 / est_pi_4 + 3*M_PI_4;
+  else if (m_angle >= est_pi_4)
+    return (m_angle - est_pi_4) * M_PI_4 / (M_PI_2 - est_pi_4) + M_PI_4;
+  else if (m_angle < - (M_PI - est_pi_4))
+    return (m_angle + M_PI)* M_PI_4 / est_pi_4 + -M_PI;
+  else
+    return (m_angle - (-M_PI+est_pi_4)) * M_PI_4 / (M_PI_2 - est_pi_4) - 3 * M_PI_4;
+}
+
+
+
+
 
 void estimator_update_state_infrared( void ) {
   float rad_of_ir = (ir_estim_mode == IR_ESTIM_MODE_ON ? 
 		     estimator_rad_of_ir :
 		     ir_rad_of_ir);
-#if defined ADC_CHANNEL_IR_TOP && defined IR_ALLOW_INVERTED
-  if (ir_top == 0) ir_top = 1;
-#else
-  ir_top = Max(ir_top, 1);
-#endif
 
-  float c = rad_of_ir*(1-z_contrast_mode)+z_contrast_mode*((float)IR_RAD_OF_IR_CONTRAST/fabs(ir_top));
-  estimator_phi  = c * ir_roll - ir_roll_neutral;
-  estimator_theta = c * ir_pitch - ir_pitch_neutral;
+  if (!ir_allow_inverted) {
 
-  /* infrared compensation */
+    ir_top = Max(ir_top, 1);
+    float c = rad_of_ir*(1-z_contrast_mode)+z_contrast_mode*((float)IR_RAD_OF_IR_CONTRAST/fabs(ir_top));
+    estimator_phi  = c * ir_roll - ir_roll_neutral;
+    estimator_theta = c * ir_pitch - ir_pitch_neutral;
+    
+
+    
+    /* infrared compensation */
 #if defined IR_CORRECTION_LEFT && defined IR_CORRECTION_RIGHT
-  if (estimator_phi >= 0) 
-    estimator_phi *= IR_CORRECTION_RIGHT;
-  else
-    estimator_phi *= IR_CORRECTION_LEFT;
-#endif
-
-
-#if defined IR_CORRECTION_UP && defined IR_CORRECTION_DOWN
-  if (estimator_theta >= 0)
-    estimator_theta *= IR_CORRECTION_UP;
-  else
-    estimator_theta *= IR_CORRECTION_DOWN;
-#endif
-
-  /* limit */
-  Bound(estimator_phi, -M_PI/2, M_PI/2);
-
-#if defined ADC_CHANNEL_IR_TOP && defined IR_ALLOW_INVERTED
-  if (ir_top < 0) {
-    if (estimator_phi > 0)
-      estimator_phi = M_PI - estimator_phi;
+    if (estimator_phi >= 0) 
+      estimator_phi *= ir_correction_right;
     else
-      estimator_phi = -(M_PI + estimator_phi);
-  }
+      estimator_phi *= ir_correction_left;
 #endif
+    
+    
+#if defined IR_CORRECTION_UP && defined IR_CORRECTION_DOWN
+    if (estimator_theta >= 0)
+      estimator_theta *= ir_correction_up;
+    else
+      estimator_theta *= ir_correction_down;
+#endif
+
+    Bound(estimator_phi, -M_PI/2, M_PI/2);
+    Bound(estimator_theta, -M_PI/2, M_PI/2);
+
+  } else { /* allow_inverted */
+    /* 250 us for the whole block */
+    estimator_phi  = atan2(ir_roll, ir_top) - ir_roll_neutral;
+    estimator_phi = correct_angle(estimator_phi, ir_estimated_phi_pi_4);
+
+    estimator_theta  = atan2(ir_pitch, ir_top) - ir_pitch_neutral;
+    estimator_theta = correct_angle(estimator_theta, ir_estimated_phi_pi_4);
+    if (estimator_theta < -M_PI_2)
+      estimator_theta += M_PI;
+    else if (estimator_theta > M_PI_2)
+      estimator_theta -= M_PI;
+  }
 }

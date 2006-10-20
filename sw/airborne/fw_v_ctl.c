@@ -40,6 +40,9 @@ float v_ctl_altitude_pre_climb;
 float v_ctl_altitude_pgain;
 float v_ctl_altitude_error;
 
+/** Dynamically adjustable, reset to nav_altitude when it is changing */
+float v_ctl_flight_altitude;
+
 /* inner loop */
 float v_ctl_climb_setpoint;
 uint8_t v_ctl_climb_mode;
@@ -100,9 +103,15 @@ void v_ctl_init( void ) {
  * outer loop
  * \brief Computes v_ctl_climb_setpoint and sets v_ctl_auto_throttle_submode 
  */
+static float last_nav_altitude;
 void v_ctl_altitude_loop( void ) {
   //mmmm LOOKATME : should that be in nav ???
-  v_ctl_altitude_setpoint = nav_altitude + altitude_shift; 
+  if (nav_altitude != last_nav_altitude) {
+    v_ctl_flight_altitude = nav_altitude;
+    last_nav_altitude = nav_altitude;
+  }
+
+  v_ctl_altitude_setpoint = v_ctl_flight_altitude + altitude_shift; 
 
   v_ctl_altitude_error = estimator_z - v_ctl_altitude_setpoint;
   v_ctl_climb_setpoint = v_ctl_altitude_pgain * v_ctl_altitude_error
