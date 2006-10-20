@@ -611,7 +611,7 @@ let _main =
     geomap#center (Latlong.of_string !center)
   end;
 
-  Speech.say "Welcome to paparazzi";
+  Speech.say "Welcome to papa radsi";
 
   (** Threaded main loop (map tiles loaded concurently) *)
   GtkThread.main ()
