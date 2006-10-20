@@ -123,7 +123,6 @@ module Make(AircraftItl : AIRCRAFT_ITL) = struct
     and east_label = GMisc.label ~text:"000" ()
     and alt_label = GMisc.label ~text:"000" () in
 
-    let half_aperture = (Latlong.pi /. 4.) in
     let last_gps_state = ref None in
     let _run = ref false in
     let ir_srtm = ref false in
@@ -151,26 +150,14 @@ module Make(AircraftItl : AIRCRAFT_ITL) = struct
        
     and ir_task = fun () ->
       let phi, theta, _ = FlightModel.get_attitude !state in
-      let horizon_distance = 1000. in
-      try
-	match !last_gps_state with
-	  None -> ()
-	| Some gps_state ->
-	    let delta_ir = 
-	      if !ir_srtm then
-		let altitude = (int_of_float gps_state.Gps.alt) in
-		let horizon_right = Srtm.horizon_slope gps_state.Gps.wgs84 altitude (gps_state.Gps.course +. Latlong.pi /. 2.)  half_aperture horizon_distance in
-		let horizon_left = Srtm.horizon_slope gps_state.Gps.wgs84 altitude (gps_state.Gps.course -. Latlong.pi /. 2.) half_aperture horizon_distance in
-		horizon_right -. horizon_left
-	      else
-		0. in
-	    let phi = phi +. FM.roll_neutral_default in
-	    let ir_left = (phi +. delta_ir ) *. !infrared_contrast
-	    and ir_front = (FM.pitch_neutral_default +. theta) *. !infrared_contrast
-	    and ir_top = pi /. 2. *. !infrared_contrast in
-	    Aircraft.infrared ir_left ir_front ir_top
-      with
-	x -> Printf.printf "%s\n%!" (Printexc.to_string x)
+
+      let phi_sensor = phi +. FM.roll_neutral_default
+      and theta_sensor = theta +. FM.pitch_neutral_default in
+   
+      let ir_left = sin phi_sensor *. !infrared_contrast
+      and ir_front = sin theta_sensor *. !infrared_contrast
+      and ir_top = cos phi_sensor *. cos theta_sensor *. !infrared_contrast in
+      Aircraft.infrared ir_left ir_front ir_top
 	    
     and gps_task = fun () ->
       let (x,y,z) = FlightModel.get_xyz !state in
