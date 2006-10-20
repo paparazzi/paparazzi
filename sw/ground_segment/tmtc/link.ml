@@ -36,7 +36,9 @@ type transport =
   | Wavecard
   | XBee
 
-type ground_device = { fd : Unix.file_descr; transport : transport ; baud_rate : int}
+type ground_device = {
+    fd : Unix.file_descr; transport : transport ; baud_rate : int
+  }
 
 type airborne_device = 
     WavecardDevice of W.addr
@@ -46,7 +48,6 @@ type airborne_device =
 let my_id = 0
 
 let ios = int_of_string
-
 let (//) = Filename.concat
 let conf = Env.paparazzi_home // "conf"
 
@@ -277,6 +278,9 @@ end (** Wc module *)
 
 
 module XB = struct (** XBee module *)
+  let nb_retries = ref 10
+  let retry_delay = 200 (* ms *) 
+
   let at_init_period = 2000 (* ms *)
 
   let my_addr = ref 0x100
@@ -288,6 +292,7 @@ module XB = struct (** XBee module *)
     fprintf o "%s%!" (Xbee.at_set_baud_rate device.baud_rate);
     fprintf o "%s%!" Xbee.at_api_enable;
     fprintf o "%s%!" Xbee.at_exit;
+    fprintf o "ATRR14\r%!";
     Debug.trace 'x' "end init xbee"
 
   let init = fun device ->
@@ -296,7 +301,19 @@ module XB = struct (** XBee module *)
     fprintf o "%s%!" Xbee.at_command_sequence;
     ignore (Glib.Timeout.add at_init_period (fun () -> switch_to_api device; false))
 
-  let use_message = fun frame_data ->
+  (* Array of sent packets for retry: (packet, nb of retries) *)
+  let packets = Array.create 256 ("", -1)
+
+  (* Frame id generation > 0 and < 256 *)
+  let gen_frame_id = 
+    let x = ref 0 in
+    fun () -> 
+      incr x;
+      if !x >= 256 then
+	x := 1;
+      !x
+
+  let use_message = fun device frame_data ->
     let frame_data = Serial.string_of_payload frame_data in
     Debug.trace 'x' (Debug.xprint frame_data);
     match Xbee.api_parse_frame frame_data with
@@ -305,7 +322,20 @@ module XB = struct (** XBee module *)
     | Xbee.AT_Command_Response (frame_id, comm, status, value) ->
 	Debug.trace 'x' (sprintf "getting XBee AT command response: %d %s %d %s" frame_id comm status (Debug.xprint value))
     | Xbee.TX_Status (frame_id, status) ->
-	Debug.trace 'x' (sprintf "getting XBee TX status: %d %d" frame_id status)
+	Debug.trace 'x' (sprintf "getting XBee TX status: %d %d" frame_id status);
+	if status = 1 then (* no ack, retry *)
+	  let (packet, nb_prev_retries) = packets.(frame_id) in
+	  if nb_prev_retries < !nb_retries then begin
+	    packets.(frame_id) <- (packet, nb_prev_retries+1);
+	    let o = Unix.out_channel_of_descr device.fd in
+	    ignore (GMain.Timeout.add (10 + Random.int retry_delay)
+	      (fun _ -> 
+		fprintf o "%s%!" packet;
+		Debug.call 'y' (fun f -> fprintf f "Resending (%d) %s\n" (nb_prev_retries+1) (Debug.xprint packet));
+		false));
+	  end else
+	    fprintf stderr "FIXME: nb_retries exceeded\n"
+	  
     | Xbee.RX_Packet_64 (addr64, rssi, options, data) ->
 	Debug.trace 'x' (sprintf "getting XBee RX64: %Lx %d %d %s" addr64 rssi options (Debug.xprint data));
 	use_tele_message (Serial.payload_of_string data)
@@ -316,11 +346,16 @@ module XB = struct (** XBee module *)
 
   let send = fun ac_id device rf_data ->
     let rf_data = Serial.string_of_payload rf_data in
-    let frame_data = Xbee.api_tx16 ac_id rf_data in
+    let frame_id = gen_frame_id () in
+    let frame_data = Xbee.api_tx16 ~frame_id ac_id rf_data in
     let packet = Xbee.Protocol.packet (Serial.payload_of_string frame_data) in
+
+    (* Store the packet for further retry *)
+    packets.(frame_id) <- (packet, 1);
+
     let o = Unix.out_channel_of_descr device.fd in
     fprintf o "%s%!" packet;
-    Debug.call 'y' (fun f -> fprintf f "link sending: (%s) %s\n" (Debug.xprint rf_data) (Debug.xprint packet));
+    Debug.call 'y' (fun f -> fprintf f "link sending (%d): (%s) %s\n" frame_id (Debug.xprint rf_data) (Debug.xprint packet));
 end (** XBee module *)
 
 
@@ -496,7 +531,7 @@ let parse_of_transport device = function
       fun buf -> Wavecard.parse buf ~ack:(Wc.send_ack device.fd) (Wc.use_message)
   | XBee ->
       let module XbeeTransport = Serial.Transport (Xbee.Protocol) in
-      XbeeTransport.parse XB.use_message
+      XbeeTransport.parse (XB.use_message device)
     
 
 let _ =
@@ -514,6 +549,7 @@ let _ =
       "-d", Arg.Set_string port, (sprintf "<port> Default is %s" !port);
       "-rssi", Arg.Set_int rssi_id, (sprintf "<ac_id> Periodically requests rssi level from the distant wavecard");
       "-xbee_addr", Arg.Set_int XB.my_addr, (sprintf "<my_addr> (%d)" !XB.my_addr);
+      "-xbee_retries", Arg.Set_int XB.my_addr, (sprintf "<my_addr> (%d)" !XB.my_addr);
       "-transport", Arg.Set_string transport, (sprintf "<transport> Available protocols are modem,pprz,wavecard and xbee. Default is %s" !transport);
       "-uplink", Arg.Set uplink, (sprintf "Uses the link as uplink also.");
       "-dtr", Arg.Set dtr, "Set serial DTR to false (aerocomm)";
