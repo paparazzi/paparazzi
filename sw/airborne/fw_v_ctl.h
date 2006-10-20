@@ -38,7 +38,6 @@
 extern float v_ctl_altitude_setpoint;
 extern float v_ctl_altitude_pre_climb;
 extern float v_ctl_altitude_pgain;
-extern float v_ctl_flight_altitude;
 
 /* inner loop */
 extern float v_ctl_climb_setpoint;

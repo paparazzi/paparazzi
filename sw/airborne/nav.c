@@ -68,6 +68,10 @@ int16_t segment_x_1, segment_y_1, segment_x_2, segment_y_2;
 uint8_t horizontal_mode;
 float circle_bank = 0;
 
+/** Dynamically adjustable, reset to nav_altitude when it is changing */
+float flight_altitude;
+
+
 #define PowerVoltage() (vsupply/10.)
 #define RcRoll(travel) (fbw_state->channels[RADIO_ROLL]* (float)travel /(float)MAX_PPRZ)
 
@@ -479,6 +483,13 @@ void nav_update(void) {
   if ( vertical_mode == VERTICAL_MODE_AUTO_CLIMB)
     v_ctl_auto_throttle_submode =  V_CTL_AUTO_THROTTLE_STANDARD;
 #endif
+
+  static float last_nav_altitude;
+  if (fabs(nav_altitude - last_nav_altitude) > 1.) {
+    flight_altitude = nav_altitude;
+    last_nav_altitude = nav_altitude;
+  }
+  v_ctl_altitude_setpoint = flight_altitude + altitude_shift;
 }
 
 

@@ -57,7 +57,7 @@ extern const uint8_t nb_waypoint;
 extern struct point waypoints[]; /** size == nb_waypoint + 1 */
 extern bool_t moved_waypoints[]; /** size == nb_waypoint + 1 */
 
-extern float desired_x, desired_y, altitude_shift, nav_altitude;
+extern float desired_x, desired_y, altitude_shift, nav_altitude, flight_altitude;
 
 extern uint16_t nav_desired_gaz;
 extern float nav_pitch, rc_pitch;
