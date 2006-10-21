@@ -32,6 +32,7 @@
 #define FW_H_CTL_H
 
 #include <inttypes.h>
+#include "std.h"
 #include "paparazzi.h"
 
 /* outer loop parameters */
@@ -41,6 +42,9 @@ extern float h_ctl_course_pre_bank_correction;
 extern float h_ctl_course_pgain;
 extern float h_ctl_roll_max_setpoint;
 
+/* roll and pitch disabling */
+extern bool_t h_ctl_disabled;
+
 /* inner roll loop parameters */
 extern float  h_ctl_roll_setpoint;
 extern float  h_ctl_roll_pgain;
@@ -49,6 +53,7 @@ extern pprz_t h_ctl_aileron_setpoint;
 /* inner pitch loop parameters */
 extern float  h_ctl_pitch_setpoint;
 extern float  h_ctl_pitch_pgain;
+extern float  h_ctl_pitch_dgain;
 extern pprz_t h_ctl_elevator_setpoint;
 
 /* inner loop pre-command */

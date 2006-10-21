@@ -46,6 +46,7 @@ uint8_t v_ctl_auto_throttle_submode;
 
 /* "auto throttle" inner loop parameters */
 float v_ctl_auto_throttle_cruise_throttle;
+float v_ctl_auto_throttle_nominal_cruise_throttle;
 float v_ctl_auto_throttle_climb_throttle_increment;
 float v_ctl_auto_throttle_pgain;
 float v_ctl_auto_throttle_igain;
@@ -79,7 +80,8 @@ void v_ctl_init( void ) {
 #endif
 
   /* "auto throttle" inner loop parameters */
-  v_ctl_auto_throttle_cruise_throttle = V_CTL_AUTO_THROTTLE_CRUISE_THROTTLE;
+  v_ctl_auto_throttle_nominal_cruise_throttle = V_CTL_AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE;
+  v_ctl_auto_throttle_cruise_throttle = v_ctl_auto_throttle_nominal_cruise_throttle;
   v_ctl_auto_throttle_climb_throttle_increment = 
     V_CTL_AUTO_THROTTLE_CLIMB_THROTTLE_INCREMENT;
   v_ctl_auto_throttle_pgain = V_CTL_AUTO_THROTTLE_PGAIN;

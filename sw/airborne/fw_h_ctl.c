@@ -42,6 +42,9 @@ float h_ctl_course_pre_bank_correction;
 float h_ctl_course_pgain;
 float h_ctl_roll_max_setpoint;
 
+/* roll and pitch disabling */
+bool_t h_ctl_disabled;
+
 /* inner roll loop parameters */
 float  h_ctl_roll_setpoint;
 float  h_ctl_roll_pgain;
@@ -50,6 +53,7 @@ pprz_t h_ctl_aileron_setpoint;
 /* inner pitch loop parameters */
 float  h_ctl_pitch_setpoint;
 float  h_ctl_pitch_pgain;
+float  h_ctl_pitch_dgain;
 pprz_t h_ctl_elevator_setpoint;
 
 /* inner loop pre-command */
@@ -84,6 +88,8 @@ void h_ctl_init( void ) {
   h_ctl_course_pgain = H_CTL_COURSE_PGAIN;
   h_ctl_roll_max_setpoint = H_CTL_ROLL_MAX_SETPOINT;
 
+  h_ctl_disabled = FALSE;
+
   h_ctl_roll_setpoint = 0.;
   h_ctl_roll_pgain = H_CTL_ROLL_PGAIN;
   h_ctl_aileron_setpoint = 0;
@@ -91,6 +97,7 @@ void h_ctl_init( void ) {
 
   h_ctl_pitch_setpoint = 0.;
   h_ctl_pitch_pgain = H_CTL_PITCH_PGAIN;
+  h_ctl_pitch_dgain = H_CTL_PITCH_DGAIN;
   h_ctl_elevator_setpoint = 0;
   h_ctl_elevator_of_roll = H_CTL_ELEVATOR_OF_ROLL;
 
@@ -124,8 +131,10 @@ void h_ctl_course_loop ( void ) {
 }
 
 void h_ctl_attitude_loop ( void ) {
-  h_ctl_roll_loop();
-  h_ctl_pitch_loop();
+  if (!h_ctl_disabled) {
+    h_ctl_roll_loop();
+    h_ctl_pitch_loop();
+  }
 }
 
 inline static void h_ctl_roll_loop( void ) {
@@ -170,12 +179,45 @@ static inline void h_ctl_roll_rate_loop() {
 }
 #endif /* H_CTL_RATE_LOOP */
 
+
+
+
+#ifdef LOITER_TRIM
+
+float v_ctl_auto_throttle_loiter_trim = V_CTL_AUTO_THROTTLE_LOITER_TRIM;
+float v_ctl_auto_throttle_dash_trim = V_CTL_AUTO_THROTTLE_DASH_TRIM;
+
+inline static float loiter(void) {
+  static float last_elevator_trim;
+  float elevator_trim;
+
+  float throttle_dif = v_ctl_auto_throttle_cruise_throttle - v_ctl_auto_throttle_nominal_cruise_throttle;
+  if (throttle_dif > 0) {
+    float max_dif = Max(V_CTL_AUTO_THROTTLE_MAX_CRUISE_THROTTLE - v_ctl_auto_throttle_nominal_cruise_throttle, 0.1);
+    elevator_trim = throttle_dif / max_dif * v_ctl_auto_throttle_dash_trim;
+  } else {
+    float max_dif = Max(v_ctl_auto_throttle_nominal_cruise_throttle - V_CTL_AUTO_THROTTLE_MIN_CRUISE_THROTTLE, 0.1);
+    elevator_trim = throttle_dif / max_dif * v_ctl_auto_throttle_loiter_trim;
+  }
+
+  float max_change = (v_ctl_auto_throttle_loiter_trim - v_ctl_auto_throttle_dash_trim) / 80.;
+  Bound(elevator_trim, last_elevator_trim - max_change, last_elevator_trim + max_change);
+
+  last_elevator_trim = elevator_trim;
+  return elevator_trim;
+}
+#endif
+
+
 inline static void h_ctl_pitch_loop( void ) {
+  static float last_err;
   /* sanity check */
   if (h_ctl_elevator_of_roll <0.)
     h_ctl_elevator_of_roll = 0.;
   float err = estimator_theta - h_ctl_pitch_setpoint;
-  float cmd = err * h_ctl_pitch_pgain 
+  float d_err = err - last_err;
+  last_err = err;
+  float cmd = h_ctl_pitch_pgain * (err + h_ctl_pitch_dgain * d_err)   
     + h_ctl_elevator_of_roll * fabs(estimator_phi);
 #ifdef LOITER_TRIM
   cmd += loiter();
@@ -183,34 +225,4 @@ inline static void h_ctl_pitch_loop( void ) {
   h_ctl_elevator_setpoint = TRIM_PPRZ(cmd);
 }
 
-
-
-
-
-#ifdef LOITER_TRIM
-
-float loiter_trim = V_CTL_AUTO_THROTTLE_MIN_CRUISE_THROTTLE;
-float dash_trim = V_CTL_AUTO_THROTTLE_MAX_CRUISE_THROTTLE;
-
-inline static void loiter(void) {
-  static float last_elevator_trim = 0;
-  float elevator_trim;
-  Bound(v_ctl_auto_throttle_cruise_throttle, 
-	V_CTL_AUTO_THROTTLE_MIN_CRUISE_THROTTLE, 
-	V_CTL_AUTO_THROTTLE_MAX_CRUISE_THROTTLE);
-  float cruise_trim = v_ctl_auto_throttle_cruise_throttle 
-    - V_CTL_AUTO_THROTTLE_CRUISE_THROTTLE;
-  float max_change = (loiter_trim-dash_trim)/80.;
-  if (cruise_trim > 0) {
-    elevator_trim = cruise_trim * dash_trim / (V_CTL_AUTO_THROTTLE_MAX_CRUISE_THROTTLE - V_CTL_AUTO_THROTTLE_CRUISE_THROTTLE);
-    elevator_trim=Max(last_elevator_trim - max_change, elevator_trim);
-  }
-  else {
-    elevator_trim = cruise_trim * loiter_trim / (V_CTL_AUTO_THROTTLE_CRUISE_THROTTLE- V_CTL_AUTO_THROTTLE_MIN_CRUISE_THROTTLE);
-    elevator_trim=Min(last_elevator_trim+ max_change, elevator_trim);
-  }
-  last_elevator_trim = elevator_trim;
-  return elevator_trim;
-}
-#endif
 
