@@ -110,7 +110,11 @@
     <define name="ALTITUDE_MAX_CLIMB" value="2."/>
 
     <!-- auto throttle inner loop -->
-    <define name="AUTO_THROTTLE_CRUISE_THROTTLE" value="0.40"/>
+    <define name="AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE" value="0.40"/>
+    <define name="AUTO_THROTTLE_MIN_CRUISE_THROTTLE" value="0.30"/>
+    <define name="AUTO_THROTTLE_MAX_CRUISE_THROTTLE" value="0.80"/>
+    <define name="AUTO_THROTTLE_LOITER_TRIM" value="1000"/>
+    <define name="AUTO_THROTTLE_DASH_TRIM" value="-1000"/>
     <define name="AUTO_THROTTLE_CLIMB_THROTTLE_INCREMENT" value="0.15" unit="%/(m/s)"/>
     <define name="AUTO_THROTTLE_PGAIN" value="-0.01"/>
     <define name="AUTO_THROTTLE_IGAIN" value="0.1"/>
@@ -133,6 +137,7 @@
     <define name="ROLL_PGAIN" value="5000."/>
     <define name="AILERON_OF_THROTTLE" value="0.0"/>
     <define name="PITCH_PGAIN" value="-8000."/>
+    <define name="PITCH_DGAIN" value="0."/>
     <define name="ELEVATOR_OF_ROLL" value="1250"/>
     
     <!--  roll rate loop -->
@@ -220,7 +225,7 @@ ap.srcs += gps_ubx.c gps.c
 ap.CFLAGS += -DINFRARED 
 ap.srcs += infrared.c estimator.c
 
-ap.CFLAGS += -DNAV -DH_CTL_RATE_LOOP -DAGR_CLIMB
+ap.CFLAGS += -DNAV -DH_CTL_RATE_LOOP -DAGR_CLIMB -DLOITER_TRIM
 ap.srcs += nav.c fw_h_ctl.c fw_v_ctl.c
 
 
@@ -236,7 +241,7 @@ ap.srcs += bomb.c
 
 # Config for SITL simulation
 include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
-sim.CFLAGS += -DCONFIG=\"tiny.h\" -DAGR_CLIMB -DH_CTL_RATE_LOOP
+sim.CFLAGS += -DCONFIG=\"tiny.h\" -DAGR_CLIMB -DH_CTL_RATE_LOOP -DLOITER_TRIM
 sim.srcs += bomb.c
 
 

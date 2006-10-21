@@ -1,26 +1,26 @@
-<airframe name="ENAC 1 Ball Dropper">
- <!-- tiny v1.1 -->
+<airframe name="Miraterre Test AC">
+ <!-- tiny airframe -->
 
 <!-- commands section -->
   <servos>
-    <servo name="AILEVON_RIGHT" no="0" min="1000" neutral="1500" max="2000"/>
-    <servo name="AILEVON_LEFT"  no="1" min="2000" neutral="1500" max="1000"/>
-    <servo name="GAZ"           no="2" min="1250" neutral="1262" max="1850"/>
-    <servo name="PAYLOAD" no="3" max="1000" neutral="2000" min="2000"/>
+    <servo name="AILEVON_RIGHT" no="1" min="1000" neutral="1500" max="2000"/>
+    <servo name="AILEVON_LEFT"  no="0" min="2000" neutral="1500" max="1000"/>
+    <servo name="GAZ"           no="2" min="1250" neutral="1250" max="1850"/>
+    <servo name="HATCH"         no="3" min="1000" neutral="2000" max="2000"/>
   </servos>
 
   <commands>
     <axis name="THROTTLE" failsafe_value="0"/>
     <axis name="ROLL"     failsafe_value="0"/>
     <axis name="PITCH"    failsafe_value="0"/>
-    <axis name="PAYLOAD"    failsafe_value="0"/>
+    <axis name="HATCH"    failsafe_value="0"/>
   </commands>
 
   <rc_commands>
     <set command="THROTTLE" value="@THROTTLE"/>
     <set command="ROLL"     value="@ROLL"/>
     <set command="PITCH"    value="@PITCH"/>
-    <set command="PAYLOAD"    value="@YAW"/>
+    <set command="HATCH"    value="@LLS"/>
   </rc_commands>
 
   <section name="MIXER">
@@ -32,9 +32,9 @@
     <let var="aileron"  value="@ROLL  * AILEVON_AILERON_RATE"/>
     <let var="elevator" value="@PITCH * AILEVON_ELEVATOR_RATE"/>  
     <set servo="GAZ"           value="@THROTTLE"/>
-    <set servo="AILEVON_LEFT"  value="-$elevator + $aileron"/>
-    <set servo="AILEVON_RIGHT" value="-$elevator - $aileron"/>
-    <set servo="PAYLOAD" value="@PAYLOAD"/>
+    <set servo="AILEVON_LEFT"  value="$elevator + $aileron"/>
+    <set servo="AILEVON_RIGHT" value="$elevator - $aileron"/>
+    <set servo="HATCH"           value="@HATCH"/>
   </command_laws>
 
   <section name="AUTO1" prefix="AUTO1_">
@@ -65,133 +65,122 @@
     <define name="ADC_ROLL_NEUTRAL" value="507"/>
     <define name="ADC_PITCH_NEUTRAL" value="-16"/>
     <define name="ADC_TOP_NEUTRAL" value="488"/>
-    <define name="ALLOW_INVERTED" value="1"/>
-    <define name="CORRECTION_RIGHT" value="1.3"/>
-    <define name="CORRECTION_LEFT"  value="1.3"/>
-    <define name="CORRECTION_UP"    value="1.6"/>
-    <define name="CORRECTION_DOWN"  value="1.4"/>
-  </section>
- 
-  <section name="GYRO" prefix="GYRO_">
-    <define name="ADC_ROLL_NEUTRAL" value="464"/><!--459-->
-    <define name="ADC_PITCH_NEUTRAL" value="471"/>   
-    <define name="ADC_TEMP_NEUTRAL" value="802"/>   
-    <define name="ADC_TEMP_SLOPE" value="-0.0"/>   
-    <define name="ROLL_SCALE" value="1.3846"/>
-    <define name="ROLL_DIRECTION" value="1."/>
-    <define name="PITCH_SCALE" value="1.3846"/>
-    <define name="PITCH_DIRECTION" value="1."/>
-  </section>
- 
-  <section name="BAT">
-    <define name="MILLIAMP_PER_PERCENT" value="0.86"/>
-    <!--  <define name="VOLTAGE_ADC_A" value="0.0175"/>
-    <define name="VOLTAGE_ADC_B" value="0.525"/>
-    -->
-  <!--  <define name="VOLTAGE_ADC_A" value="0.01818"/>
-    <define name="VOLTAGE_ADC_B" value="-0.09"/>
 
-    <define name="VoltageOfAdc(adc)" value="(VOLTAGE_ADC_A * adc + VOLTAGE_ADC_B)"/>-->
+    <define name="CORRECTION_UP" value="1.6"/>
+    <define name="CORRECTION_DOWN" value="1.4"/>
+    <define name="CORRECTION_LEFT" value="1."/>
+    <define name="CORRECTION_RIGHT" value="1."/>
+
+    <define name="ESTIMATED_PHI_PI_4" value="M_PI_4"/>
+
+    <define name="ALLOW_INVERTED" value="1"/>
+  </section>
+
+ <section name="GYRO" prefix="GYRO_">
+    <define name="ADC_ROLL_NEUTRAL" value="470"/>
+    <define name="ADC_PITCH_NEUTRAL" value="471"/>
+    <define name="ROLL_SCALE" value="1.3846"/>
+    <define name="ROLL_DIRECTION" value="1."/> 
+    <define name="PITCH_SCALE" value="1.3846"/>
+    <define name="PITCH_DIRECTION" value="1."/> 
+  </section>
+
+ <section name="BAT">
+    <define name="MILLIAMP_PER_PERCENT" value="0.86"/>
     <define name="LOW_BATTERY" value="9.3" unit="V"/>
   </section>
  
-  <section name="MISC">
+ <section name="MISC">
     <define name="NOMINAL_AIRSPEED" value="20." unit="m/s"/>
     <define name="CARROT" value="3." unit="s"/>
-    <define name="CONTROL_RATE" value="60"/>
-    <define name="KILL_MODE_DISTANCE" value="1.5*MAX_DIST_FROM_HOME"/>
-   <!-- <define name="TELEMETRY_MODE_FBW" value="1"/>-->
-    <define name="Z_CONTRAST_DEFAULT" value="1"/>
+    <define name="KILL_MODE_DISTANCE" value="(1.5*MAX_DIST_FROM_HOME)"/>
+    <define name="CONTROL_RATE" value="60" unit="Hz"/>
+    <define name="XBEE_INIT" value="\"ATPL2\rATRN1\rATTT80\r\""/>
   </section>
- 
-  <section name="PID">
-    <define name="ROLL_PGAIN" value="10000."/>
-    <define name="PITCH_OF_ROLL" value="0.0"/>
-    <define name="PITCH_PGAIN" value="6000."/>
-    <define name="MAX_ROLL" value="0.73"/>
-    <define name="MAX_PITCH" value="0.5"/>
-    <define name="MIN_PITCH" value="-0.5"/>
-    <define name="LOITER_PITCH" value="0.0"/>
-    <define name="DASH_PITCH" value="-0.0"/>
-    <define name="LOITER_TRIM" value="1000"/>
-    <define name="DASH_TRIM" value="-2500"/>
-    <define name="AILERON_OF_GAZ" value="0.0"/>
-    <define name="CRUISE_THROTTLE" value="0.65"/>
-    <define name="CLIMB_AUTO_PITCH_PGAIN" value="-0.1"/>
-    <define name="CLIMB_AUTO_PITCH_IGAIN" value="0.025"/>
-    <define name="CLIMB_AUTO_THROTTLE_PGAIN" value="-0.008"/>
-    <define name="CLIMB_AUTO_THROTTLE_IGAIN" value="0.25"/>
-    <define name="CLIMB_THROTTLE_INCREMENT" value="0.15" unit="%/(m/s)"/>
- </section>
-    
- 
-  <section name="ALT" prefix="CLIMB_">
-    <define name="MAX" value="3."/>
-    <define name="PITCH_OF_VZ_PGAIN" value="0.35"/>
-    <define name="MAX_DIFF_GAZ" value="0.05" unit="%"/>
-  </section>
- 
-  <section name="THR">
- <define name="DASH_THR" value="1.0"/> 
- <define name="LOITER_THR" value=".40"/> 
-  </section>
-  
-  <section name="NAV">
-    <define name="COURSE_PGAIN" value="-0.6"/>
-    <define name="COURSE_IGAIN" value="0.0"/>
+
+ <section name="VERTICAL CONTROL" prefix="V_CTL_">
+    <!-- outer loop proportional gain -->
     <define name="ALTITUDE_PGAIN" value="-0.065"/>
+    <!-- outer loop saturation -->
+    <define name="ALTITUDE_MAX_CLIMB" value="3."/>
+
+    <!-- auto throttle inner loop -->
+    <define name="AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE" value="0.65"/>
+    <define name="AUTO_THROTTLE_MIN_CRUISE_THROTTLE" value=".4"/>
+    <define name="AUTO_THROTTLE_MAX_CRUISE_THROTTLE" value="1"/>
+    <define name="AUTO_THROTTLE_LOITER_TRIM" value="1000"/>
+    <define name="AUTO_THROTTLE_DASH_TRIM" value="-2500"/>
+    <define name="AUTO_THROTTLE_CLIMB_THROTTLE_INCREMENT" value="0.15" unit="%/(m/s)"/>
+    <define name="AUTO_THROTTLE_PGAIN" value="-0.008"/>
+    <define name="AUTO_THROTTLE_IGAIN" value="0.25"/>
+    <define name="AUTO_THROTTLE_PITCH_OF_VZ_PGAIN" value="0.35"/>
+
+    <!-- auto pitch inner loop -->
+    <define name="AUTO_PITCH_PGAIN" value="-0.1"/>
+    <define name="AUTO_PITCH_IGAIN" value="0.025"/>
+    <define name="AUTO_PITCH_MAX_PITCH" value="0.5"/>
+    <define name="AUTO_PITCH_MIN_PITCH" value="-0.5"/>
+
+   <define name="THROTTLE_SLEW" value="0.05"/>
+
+  </section>
+
+  <section name="HORIZONTAL CONTROL" prefix="H_CTL_">
+    <define name="COURSE_PGAIN" value="-0.88"/>
+    <define name="COURSE_PRE_BANK_CORRECTION" value="1."/>
+    <define name="ROLL_MAX_SETPOINT" value="0.73" unit="radians"/>
+
+    <define name="ROLL_PGAIN" value="10000."/>
+    <define name="AILERON_OF_THROTTLE" value="0.0"/>
+    <define name="PITCH_PGAIN" value="-6000."/>
+    <define name="PITCH_DGAIN" value="0."/>
+    <define name="ELEVATOR_OF_ROLL" value="0"/>
+    
+    <!--  roll rate loop -->
+    <define name="ROLL_RATE_MODE_DEFAULT" value="1"/>
+    <define name="ROLL_RATE_SETPOINT_PGAIN" value="-5.5"/>
+    <define name="ROLL_RATE_MAX_SETPOINT" value="10"/>
+    <define name="ROLL_RATE_PGAIN" value="1000."/>
+    <define name="ROLL_RATE_IGAIN" value="0."/>
+    <define name="ROLL_RATE_DGAIN" value="0."/>
+    <define name="ROLL_RATE_SUM_NB_SAMPLES" value="64"/>
+
+  </section>
+
+  <section name="NAV">
     <define name="NAV_PITCH" value="0."/>
-    <define name="PRE_BANK_COEFF" value="0.9"/>
   </section>
 
-  <section name="SIMU">
-    <define name="ROLL_RESPONSE_FACTOR" value="2."/>
-    <define name="YAW_RESPONSE_FACTOR" value="1.35"/>
-    <define name="WEIGHT" value="1.3"/>
-  </section>
 
-   <section name="AGGRESSIVE" prefix="AGR_">
-    <define name="CLIMB_GAZ" value="1.0"/><!-- Gaz for Aggressive Climb -->
-    <define name="DESCENT_GAZ" value="0.1"/><!-- Gaz for Aggressive Decent -->
-    <define name="CLIMB_PITCH" value="0.42"/><!-- Pitch for Aggressive Climb -->
-    <define name="DESCENT_PITCH" value="-0.5"/><!-- Pitch for Aggressive Decent -->
+ <section name="AGGRESSIVE" prefix="AGR_">
     <define name="BLEND_START" value="50"/><!-- Altitude Error to Initiate Aggressive Climb CANNOT BE ZERO!!-->
     <define name="BLEND_END" value="15"/><!-- Altitude Error to Blend Aggressive to Regular Climb Modes  CANNOT BE ZERO!!-->
+    <define name="CLIMB_THROTTLE" value="1."/><!-- Gaz for Aggressive Climb -->
+    <define name="CLIMB_PITCH" value="0.42"/><!-- Pitch for Aggressive Climb -->
+    <define name="DESCENT_THROTTLE" value="0.1"/><!-- Gaz for Aggressive Decent -->
+    <define name="DESCENT_PITCH" value="-0.5"/><!-- Pitch for Aggressive Decent -->
     <define name="CLIMB_NAV_RATIO" value="0.5"/><!-- Percent Navigation for Altitude Error Equal to Start Altitude -->
     <define name="DESCENT_NAV_RATIO" value="1.0"/>
     </section>
 
-   <section name="GYRO">
-    <define name="GYRO_MAX_RATE" value="500."/>
-    <define name="ROLLRATESUM_NB_SAMPLES" value="60"/>
-    <define name="ALT_ROLL_PGAIN" value="5.5"/>
-    <define name="ROLL_RATE_PGAIN" value="860.0"/>
-    <define name="ROLL_RATE_IGAIN" value="0.0"/>
-    <define name="ROLL_RATE_DGAIN" value="0.0"/>
-    <define name="CONFIDENCE_COEFF" value="34.0"/>
-    <define name="J_FILTER" value="0"/>
-  </section>
 
   <section name="FAILSAFE" prefix="FAILSAFE_">
 	<define name="DELAY_WITHOUT_GPS" value="1" unit="s"/>
-    	<define name="DEFAULT_GAZ" value="0.0" unit="%"/>
+    	<define name="DEFAULT_GAZ" value="0." unit="%"/>
     	<define name="DEFAULT_ROLL" value="0.6" unit="rad"/>
     	<define name="DEFAULT_PITCH" value="0.5" unit="rad"/>
 	<define name="HOME_RADIUS" value="100" unit="m"/>
 </section>
 
  
-<!--
-  <section name="DATALINK" prefix="DATALINK_">
-    <define name="DEVICE_TYPE" value="AEROCOMM"/>
+ <section name="DATALINK" prefix="DATALINK_">
+    <define name="DEVICE_TYPE" value="XBEE"/>
     <define name="DEVICE_ADDRESS" value="...."/>
   </section>
 
--->
+
  <makefile>
 include $(PAPARAZZI_SRC)/conf/autopilot/tiny.makefile
-
-
 
 FLASH_MODE=IAP
 
@@ -206,44 +195,60 @@ ap.srcs += $(SRC_ARCH)/servos_4015_MAT_hw.c actuators.c
 ap.CFLAGS += -DRADIO_CONTROL -DRADIO_CONTROL_TYPE=RC_FUTABA
 ap.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c  
 
-ap.CFLAGS += -DDOWNLINK -DUSE_UART0 -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_FBW_DEVICE=Uart0 -DDOWNLINK_AP_DEVICE=Uart0 -DPPRZ_UART=Uart0 -DDATALINK=PPRZ -DUART0_BAUD=B9600
-ap.srcs += downlink.c pprz_transport.c $(SRC_ARCH)/uart_hw.c datalink.c
+ap.CFLAGS += -DDOWNLINK -DUSE_UART0 -DDOWNLINK_TRANSPORT=XBeeTransport -DDOWNLINK_FBW_DEVICE=Uart0 -DDOWNLINK_AP_DEVICE=Uart0 -DXBEE_UART=Uart0 -DDATALINK=XBEE -DUART0_BAUD=B9600
+ap.srcs += downlink.c $(SRC_ARCH)/uart_hw.c datalink.c xbee.c
+
+#TRANSPARENT   ap.CFLAGS += -DDOWNLINK -DUSE_UART0 -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_FBW_DEVICE=Uart0 -DDOWNLINK_AP_DEVICE=Uart0 -DPPRZ_UART=Uart0 -DDATALINK=PPRZ -DUART0_BAUD=B9600
+#TRANSPARENT ap.srcs += downlink.c $(SRC_ARCH)/uart_hw.c datalink.c pprz_transport.c
+
 
 ap.CFLAGS += -DINTER_MCU
 ap.srcs += inter_mcu.c 
 
-ap.CFLAGS += -DADC -DUSE_ADC_0 -DUSE_ADC_1 -DUSE_ADC_4 -DUSE_ADC_5 -DUSE_ADC_6 
+ap.CFLAGS += -DADC -DUSE_ADC_0 -DUSE_ADC_1 -DUSE_ADC_4 -DUSE_ADC_5 -DUSE_ADC_6
 ap.srcs += $(SRC_ARCH)/adc_hw.c
-
 
 ap.CFLAGS += -DGPS -DUBX -DUSE_UART1 -DGPS_LINK=Uart1 -DUART1_BAUD=B19200
 
 ap.srcs += gps_ubx.c gps.c
 
-
-ap.CFLAGS += -DINFRARED
+ap.CFLAGS += -DINFRARED 
 ap.srcs += infrared.c estimator.c
 
-ap.CFLAGS += -DNAV
-ap.srcs += nav.c pid.c
+ap.CFLAGS += -DNAV -DH_CTL_RATE_LOOP -DAGR_CLIMB -DLOITER_TRIM
+ap.srcs += nav.c fw_h_ctl.c fw_v_ctl.c
 
-ap.CFLAGS += -DGYRO -DIDG300 -DPID_RATE_LOOP
-ap.srcs += gyro.c
 
+ap.CFLAGS += -DGYRO -DIDG300
+ap.srcs += gyro.c bomb.c
 
 # Harware In The Loop
 
 #ap.CFLAGS += -DHITL
 
-test.CFLAGS += -DFBW -DCONFIG=\"tiny.h\" -DLED -DTIME_LED=1 -DACTUATORS=\"servos_4015_hw.h\" -DSERVOS_4015 -DUSE_UART0 -DUART0_BAUD=B9600 -DDATALINK=PPRZ -DPPRZ_UART=Uart0
-test.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c pprz_transport.c setup_actuators.c $(SRC_ARCH)/uart_hw.c $(SRC_ARCH)/servos_4015_hw.c main.c
 
-#tunel.CFLAGS += -DFBW -DCONFIG=\"tiny.h\" -DLED -DTIME_LED=1 
-tunnel.srcs += $(SRC_ARCH)/uart_tunnel.c
-
-# config for SITL simulation
+# Config for SITL simulation
 include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
-sim.CFLAGS += -DCONFIG=\"tiny.h\"
+sim.CFLAGS += -DCONFIG=\"tiny.h\" -DAGR_CLIMB -DH_CTL_RATE_LOOP -DLOITER_TRIM
 
+
+# a test program to setup actuators 
+setup_actuators.ARCHDIR = $(ARCHI)
+setup_actuators.ARCH = arm7tdmi
+setup_actuators.TARGET = setup_actuators
+setup_actuators.TARGETDIR = setup_actuators
+
+setup_actuators.CFLAGS += -DFBW -DCONFIG=\"tiny.h\" -DLED -DTIME_LED=1 -DACTUATORS=\"servos_4015_hw.h\" -DSERVOS_4015 -DUSE_UART0 -DUART0_BAUD=B9600 -DDATALINK=PPRZ -DPPRZ_UART=Uart0
+setup_actuators.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c pprz_transport.c setup_actuators.c $(SRC_ARCH)/uart_hw.c $(SRC_ARCH)/servos_4015_hw.c main.c
+
+
+# a test program to tunnel between both uart
+tunnel.ARCHDIR = $(ARCHI)
+tunnel.ARCH = arm7tdmi
+tunnel.TARGET = tunnel
+tunnel.TARGETDIR = tunnel
+
+tunnel.CFLAGS += -DFBW -DCONFIG=\"tiny.h\" -DLED -DTIME_LED=1 
+tunnel.srcs += $(SRC_ARCH)/uart_tunnel.c
   </makefile>
 </airframe>
