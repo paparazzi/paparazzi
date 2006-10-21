@@ -104,20 +104,24 @@ let resize_track = fun ac track ->
     None -> ()
   | Some s -> track#resize (int_of_string s)
 
+
+let send_move_waypoint_msg = fun ac i w ->
+  let wgs84 = w#pos in
+  let vs = ["ac_id", Pprz.String ac;
+	    "wp_id", Pprz.Int i;
+	    "lat", Pprz.Float ((Rad>>Deg)wgs84.posn_lat);
+	    "long", Pprz.Float ((Rad>>Deg)wgs84.posn_long);
+	    "alt", Pprz.Float w#alt
+	  ] in
+  Ground_Pprz.message_send "map2d" "MOVE_WAYPOINT" vs
+
 let commit_changes = fun ac ->
   let a = Hashtbl.find live_aircrafts ac in
   List.iter 
     (fun w ->
       let (i, w) = a.fp_group#index w in
       if w#moved then 
-	let wgs84 = w#pos in
-	let vs = ["ac_id", Pprz.String ac;
-		  "wp_id", Pprz.Int i;
-		  "lat", Pprz.Float ((Rad>>Deg)wgs84.posn_lat);
-		  "long", Pprz.Float ((Rad>>Deg)wgs84.posn_long);
-		  "alt", Pprz.Float w#alt
-		] in
-	Ground_Pprz.message_send "map2d" "MOVE_WAYPOINT" vs)
+	send_move_waypoint_msg ac i w)
     a.fp_group#waypoints
 
 let center = fun geomap track () ->
@@ -307,6 +311,13 @@ let create_ac = fun (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id:strin
       let id = list_casso block blocks in
       jump_to_block ac_id id);
   ignore (reset_wp_menu#connect#activate (reset_waypoints fp));
+
+  (** Monitor waypoints changes *)
+   List.iter 
+    (fun w ->
+      let (i, w) = fp#index w in
+      w#set_commit_callback (fun () -> send_move_waypoint_msg ac_id i w))
+    fp#waypoints;
   
   (** Add the short cut buttons in the strip *)
   List.iter (fun b ->

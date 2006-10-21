@@ -73,11 +73,13 @@ class waypoint = fun (wpts_group:group) (name :string) ?(alt=0.) wgs84 ->
     val mutable alt = alt
     val mutable moved = None
     val mutable deleted = false
+    val mutable commit_cb = None
     initializer
       item#affine_absolute rotation_45;
       self#move xw yw
     method connect = fun (cb:unit -> unit) ->
       Hashtbl.add callbacks cb ()
+    method set_commit_callback = fun (cb:unit -> unit) -> commit_cb <- Some cb
     method name = name
     method set_name n =
       if n <> name then begin
@@ -90,7 +92,7 @@ class waypoint = fun (wpts_group:group) (name :string) ?(alt=0.) wgs84 ->
     method move dx dy = 
       wpt_group#move dx dy
     method edit =
-      let dialog = GWindow.window ~border_width:10 ~title:"Waypoint Edit" () in
+      let dialog = GWindow.window ~position:`MOUSE ~border_width:10 ~title:"Waypoint Edit" () in
       let dvbx = GPack.box `VERTICAL ~packing:dialog#add () in
 
       let wgs84 = self#pos in
@@ -114,12 +116,20 @@ class waypoint = fun (wpts_group:group) (name :string) ?(alt=0.) wgs84 ->
 	updated ();
 	if wpts_group#show_moved then
 	  moved <- anim moved;
+	begin
+	  match commit_cb with
+	    Some cb -> cb ()
+	  | None -> ()
+	end;
 	dialog#destroy ()
       in
       let dhbx = GPack.box `HORIZONTAL ~packing: dvbx#add () in
 
-      let cancel = GButton.button ~stock:`CANCEL ~packing: dhbx#add () in 
-      ignore(cancel#connect#clicked ~callback:dialog#destroy);
+      let cancel = GButton.button ~stock:`CANCEL ~packing: dhbx#add () in
+      let destroy = fun () ->
+	self#reset_moved ();
+	dialog#destroy () in
+      ignore(cancel#connect#clicked ~callback:destroy);
 
       if editable then begin
 	let delete = GButton.button ~stock:`DELETE ~packing: dhbx#add () in 
@@ -173,8 +183,7 @@ class waypoint = fun (wpts_group:group) (name :string) ?(alt=0.) wgs84 ->
 	| `BUTTON_RELEASE ev ->
 	    if GdkEvent.Button.button ev = 1 then begin
 	      item#ungrab (GdkEvent.Button.time ev);
-	      if not motion then
-		self#edit
+	      self#edit
 	    end
 	| _ -> ()
       end;

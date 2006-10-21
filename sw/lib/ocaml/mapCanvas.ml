@@ -397,7 +397,7 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
 		let current_point = LL.utm_of LL.WGS84 (self#of_world (xw, yw)) in
 		let (east, north) = LL.utm_sub current_point starting_point in
 		region_rectangle#set [`X2 xw; `Y2 yw];
-		self#display_group (sprintf "[%.1fkm %.1fkm]" (east/.1000.) (north/.1000.))
+		self#display_group (sprintf "[%.0fm %.0fm]" east north)
 	    | Polygon ps ->
 		let points = convex ((xw,yw)::ps) in
 		drawing <- Polygon points;

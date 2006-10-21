@@ -60,6 +60,7 @@ class waypoint :
     method reset_moved : unit -> unit
     method deleted : bool
     method connect : (unit -> unit) -> unit
+    method set_commit_callback : (unit -> unit) -> unit
   end
 
 
