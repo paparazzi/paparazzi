@@ -12,14 +12,14 @@
 <!ELEMENT exceptions (exception*)>
 
 <!ELEMENT blocks (block+)>
-<!ELEMENT block (exception|while|heading|attitude|go|xyz|set|circle|deroute|stay|follow|survey_rectangle|for)*>
+<!ELEMENT block (exception|while|heading|attitude|go|xyz|set|circle|deroute|stay|follow|survey_rectangle|for|return)*>
 
 <!ELEMENT include (arg|with)*>
 <!ELEMENT arg EMPTY>
 <!ELEMENT with EMPTY>
 
-<!ELEMENT while (exception|while|heading|attitude|go|xyz|set|circle|deroute|stay|follow|survey_rectangle|for)*>
-<!ELEMENT for (exception|while|heading|attitude|go|xyz|set|circle|deroute|stay|follow|survey_rectangle|for)*>
+<!ELEMENT while (exception|while|heading|attitude|go|xyz|set|circle|deroute|stay|follow|survey_rectangle|for|return)*>
+<!ELEMENT for (exception|while|heading|attitude|go|xyz|set|circle|deroute|stay|follow|survey_rectangle|for|return)*>
 <!ELEMENT exception EMPTY>
 <!ELEMENT heading EMPTY>
 <!ELEMENT attitude EMPTY>
@@ -32,6 +32,7 @@
 <!ELEMENT stay EMPTY>
 <!ELEMENT follow EMPTY>
 <!ELEMENT param EMPTY>
+<!ELEMENT return EMPTY>
 
 
 <!ATTLIST flight_plan name CDATA #REQUIRED>
@@ -178,3 +179,5 @@ name CDATA #REQUIRED
 default_value CDATA #IMPLIED>
 
 <!ATTLIST header>
+
+<!ATTLIST return>

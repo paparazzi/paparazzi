@@ -259,6 +259,17 @@
     <field name="east_sp" type="float" unit="rad"/>
   </message>
 
+  <message name="ALT_KALMAN" ID="41">
+    <field name="p00" type="float"/>
+    <field name="p01" type="float"/>
+    <field name="p10" type="float"/>
+    <field name="p11" type="float"/>
+  </message>
+
+  <message name="ESTIMATOR" ID="42">
+    <field name="z" type="float" unit="m"/>
+    <field name="z_dot" type="float" unit="m/s"/>
+  </message>
 
   <message name="PPM" ID="100">
     <field name="values" type="uint16[]" unit="ticks"/>

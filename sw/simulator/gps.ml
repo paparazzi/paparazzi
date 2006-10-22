@@ -49,6 +49,10 @@ let set_ref = fun wgs84 alt ->
   lon0 := wgs84.posn_long;
   alt0 := alt
 
+let climb_noise = fun c -> c +. Random.float 1.
+
+  
+
 
 let state = fun () ->
   let last_x = ref 0. and last_y = ref 0. 
@@ -78,7 +82,7 @@ let state = fun () ->
      wgs84 = { posn_lat=lat;posn_long=long };
      alt = alt;
      time = t;
-     climb = climb;
+     climb = climb_noise climb;
      gspeed = gspeed;
      course = course;
      availability = true;

@@ -545,6 +545,9 @@ void init_ap( void ) {
   h_ctl_init();
   v_ctl_init();
   estimator_init();
+#ifdef ALT_KALMAN
+  alt_kalman_init();
+#endif
   nav_init();
 
 

@@ -30,6 +30,8 @@
 #include <math.h>
 
 #include "estimator.h"
+#include "uart.h"
+#include "ap_downlink.h"
 
 
 /* position in meters */
@@ -118,3 +120,60 @@ void estimator_update_state_ANALOG( void ) {
 void estimator_propagate_state( void ) {
   
 }
+
+bool_t alt_kalman_enabled;
+
+#ifdef ALT_KALMAN
+
+#define DT 0.25
+#define SIGMA2 1.
+#define R 2.
+
+static float p[2][2];
+
+void alt_kalman_reset( void ) {
+  p[0][0] = 1.;
+  p[0][1] = 0.;
+  p[1][0] = 0.;
+  p[1][1] = 1.;
+}
+
+void alt_kalman_init( void ) {
+  alt_kalman_enabled = FALSE;
+  alt_kalman_reset();
+}
+
+void alt_kalman(float gps_z) {
+  static const float q[2][2] = {{DT*DT*DT*DT/4., DT*DT*DT/2.},
+				{DT*DT*DT/2., DT*DT}};
+
+
+  /* predict */
+  estimator_z += estimator_z_dot * DT;
+  p[0][0] = p[0][0]+p[1][0]*DT+DT*(p[0][1]+p[1][1]*DT) + SIGMA2*q[0][0];
+  p[0][1] = p[0][1]+p[1][1]*DT + SIGMA2*q[0][1];
+  p[1][0] = p[1][0]+p[1][1]*DT + SIGMA2*q[1][0];
+  p[1][1] = p[1][1] + SIGMA2*q[1][1];
+
+  /* error estimate */
+  float e = p[0][0] + R;
+
+  if (fabs(e) > 1e-5) {
+    float k_0 = p[0][0] / e;
+    float k_1 =  p[1][0] / e;
+    e = gps_z - estimator_z;
+    
+    /* correction */
+    estimator_z += k_0 * e;
+    estimator_z_dot += k_1 * e;
+    
+    p[0][0] = p[0][0] * (1-k_0);
+    p[0][1] = p[0][1] * (1-k_0);
+    p[1][0] = -p[0][0]*k_1+p[1][0];
+    p[1][1] = -p[0][1]*k_1+p[1][1];
+  }
+
+  DOWNLINK_SEND_ALT_KALMAN(&(p[0][0]),&(p[0][1]),&(p[1][0]), &(p[1][1]));
+}
+
+#endif

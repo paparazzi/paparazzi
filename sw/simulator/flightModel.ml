@@ -58,7 +58,6 @@ let get_attitude state = (state.phi, state.theta, state.psi)
 let set_air_speed state x = state.nominal_air_speed <- x
 
 let drag = 0.45
-let c_lp = -10.
 let g = 9.81
 
 module Make(A:Data.MISSION) = struct
@@ -161,7 +160,7 @@ module Make(A:Data.MISSION) = struct
     let now = state.t +. dt in
     state.air_speed <- state.nominal_air_speed*.(1.-.sin state.theta);
     if state.air_speed > 0. then begin
-      let phi_dot_dot = roll_response_factor *. state.delta_a +. c_lp *. state.phi_dot /. state.air_speed in
+      let phi_dot_dot = roll_response_factor *. state.delta_a -. state.phi_dot in
       state.phi_dot <- state.phi_dot +. phi_dot_dot *. dt;
       state.phi <- norm_angle (state.phi +. state.phi_dot *. dt);
 

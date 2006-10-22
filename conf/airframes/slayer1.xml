@@ -1,4 +1,4 @@
-<airframe name="Miraterre Test AC">
+<airframe name="Slayer 1">
  <!-- tiny airframe -->
 
 <!-- commands section -->
@@ -6,7 +6,7 @@
     <servo name="AILEVON_RIGHT" no="1" min="1000" neutral="1500" max="2000"/>
     <servo name="AILEVON_LEFT"  no="0" min="2000" neutral="1500" max="1000"/>
     <servo name="GAZ"           no="2" min="1250" neutral="1250" max="1850"/>
-    <servo name="HATCH"         no="3" min="1000" neutral="2000" max="2000"/>
+    <servo name="HATCH"         no="3" min="2000" neutral="2000" max="1000"/>
   </servos>
 
   <commands>
@@ -178,7 +178,6 @@
     <define name="DEVICE_ADDRESS" value="...."/>
   </section>
 
-
  <makefile>
 include $(PAPARAZZI_SRC)/conf/autopilot/tiny.makefile
 
@@ -198,8 +197,8 @@ ap.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c
 ap.CFLAGS += -DDOWNLINK -DUSE_UART0 -DDOWNLINK_TRANSPORT=XBeeTransport -DDOWNLINK_FBW_DEVICE=Uart0 -DDOWNLINK_AP_DEVICE=Uart0 -DXBEE_UART=Uart0 -DDATALINK=XBEE -DUART0_BAUD=B9600
 ap.srcs += downlink.c $(SRC_ARCH)/uart_hw.c datalink.c xbee.c
 
-#TRANSPARENT   ap.CFLAGS += -DDOWNLINK -DUSE_UART0 -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_FBW_DEVICE=Uart0 -DDOWNLINK_AP_DEVICE=Uart0 -DPPRZ_UART=Uart0 -DDATALINK=PPRZ -DUART0_BAUD=B9600
-#TRANSPARENT ap.srcs += downlink.c $(SRC_ARCH)/uart_hw.c datalink.c pprz_transport.c
+#transp ap.CFLAGS += -DDOWNLINK -DUSE_UART0 -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_FBW_DEVICE=Uart0 -DDOWNLINK_AP_DEVICE=Uart0 -DPPRZ_UART=Uart0 -DDATALINK=PPRZ -DUART0_BAUD=B9600
+#transp ap.srcs += downlink.c $(SRC_ARCH)/uart_hw.c datalink.c pprz_transport.c
 
 
 ap.CFLAGS += -DINTER_MCU
@@ -212,7 +211,7 @@ ap.CFLAGS += -DGPS -DUBX -DUSE_UART1 -DGPS_LINK=Uart1 -DUART1_BAUD=B19200
 
 ap.srcs += gps_ubx.c gps.c
 
-ap.CFLAGS += -DINFRARED 
+ap.CFLAGS += -DINFRARED -DALT_KALMAN
 ap.srcs += infrared.c estimator.c
 
 ap.CFLAGS += -DNAV -DH_CTL_RATE_LOOP -DAGR_CLIMB -DLOITER_TRIM
@@ -222,6 +221,9 @@ ap.srcs += nav.c fw_h_ctl.c fw_v_ctl.c
 ap.CFLAGS += -DGYRO -DIDG300
 ap.srcs += gyro.c bomb.c
 
+# Video switch
+ap.CFLAGS += -DLIGHT_PIN_1=3
+
 # Harware In The Loop
 
 #ap.CFLAGS += -DHITL
@@ -229,7 +231,8 @@ ap.srcs += gyro.c bomb.c
 
 # Config for SITL simulation
 include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
-sim.CFLAGS += -DCONFIG=\"tiny.h\" -DAGR_CLIMB -DH_CTL_RATE_LOOP -DLOITER_TRIM
+sim.CFLAGS += -DCONFIG=\"tiny.h\" -DAGR_CLIMB -DH_CTL_RATE_LOOP -DLOITER_TRIM -DALT_KALMAN
+sim.srcs += bomb.c
 
 
 # a test program to setup actuators 

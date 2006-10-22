@@ -191,12 +191,14 @@ let log_and_parse = fun logging ac_name (a:Aircraft.aircraft) msg values ->
 		 utm_zone = ivalue "utm_zone" };
       a.gspeed  <- fvalue "speed" /. 100.;
       a.course  <- norm_course ((Deg>>Rad)(fvalue "course" /. 10.));
-      a.alt     <- fvalue "alt" /. 100.;
+
       a.agl     <- a.alt -. float (try Srtm.of_utm a.pos with _ -> 0);
-      a.climb   <- fvalue "climb" /. 100.;
       a.gps_mode <- check_index (ivalue "mode") gps_modes "GPS_MODE";
       if a.gspeed > 3. then
 	Wind.update ac_name a.gspeed a.course
+  | "ESTIMATOR" ->
+      a.alt     <- fvalue "z";
+      a.climb   <- fvalue "z_dot"
   | "DESIRED" ->
       a.desired_east <- fvalue "desired_x";
       a.desired_north <- fvalue "desired_y";

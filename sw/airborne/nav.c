@@ -42,8 +42,10 @@
 #include "traffic_info.h"
 
 uint8_t nav_stage, nav_block;
-/** To save the current stage when an exception is raised */
-uint8_t excpt_stage;
+
+/** To save the current block/stage to enable return */
+static uint8_t last_block, last_stage;
+
 static float last_x, last_y;
 
 /** Index of last waypoint. Used only in "go" stage in "route" horiz mode */
@@ -81,6 +83,7 @@ float flight_altitude;
 #define InitBlock() { nav_stage = 0; block_time = 0; InitStage(); }
 #define NextBlock() { nav_block++; InitBlock(); }
 #define GotoBlock(b) { nav_block=b; InitBlock(); }
+#define Return() { nav_block=last_block; nav_stage=last_stage; block_time=0; return;}
 
 #define Stage(s) case s: nav_stage=s;
 #define InitStage() { last_x = estimator_x; last_y = estimator_y; stage_time = 0; stage_time_ds = 0; sum_alpha = 0; new_circle = TRUE; in_circle = FALSE; in_segment = FALSE; return; }
@@ -90,9 +93,6 @@ float flight_altitude;
 
 #define Label(x) label_ ## x:
 #define Goto(x) { goto label_ ## x; }
-
-#define Exception(x) { excpt_stage = nav_stage; goto label_ ## x; }
-#define ReturnFromException(_) { GotoStage(excpt_stage) }
 
 static bool_t approaching(uint8_t, float) __attribute__ ((unused));
 static inline void fly_to_xy(float x, float y);
@@ -278,6 +278,10 @@ static float survey_radius __attribute__ ((unused));
 
 
 void nav_goto_block(uint8_t b) {
+  if (b != nav_block) { /* To avoid a loop in a the current block */
+    last_block = nav_block;
+    last_stage = nav_stage;
+  }
   GotoBlock(b);
 }
 

@@ -31,6 +31,8 @@
 
 #include <inttypes.h>
 
+#include "std.h"
+
 extern float ir_roll_neutral;
 extern float ir_pitch_neutral;
 
@@ -72,13 +74,37 @@ void estimator_update_state_ANALOG( void );
 #endif
 void estimator_propagate_state( void );
 
+extern bool_t alt_kalman_enabled;
+#ifdef ALT_KALMAN
+extern void alt_kalman_reset( void );
+extern void alt_kalman_init( void );
+extern void alt_kalman( float );
+#endif
 
+#ifdef ALT_KALMAN
+#define EstimatorSetPos(x, y, z) { estimator_x = x; estimator_y = y; \
+  if (!alt_kalman_enabled) \
+    estimator_z = z; \
+  else { \
+    alt_kalman(z); \
+  } \
+}
+#define EstimatorSetSpeedPol(vhmod, vhdir, vz) { \
+  estimator_hspeed_mod = vhmod; \
+  estimator_hspeed_dir = vhdir; \
+  if (!alt_kalman_enabled) estimator_z_dot = vz; \
+}
+#else /* ALT_KALMAN */
 #define EstimatorSetPos(x, y, z) { estimator_x = x; estimator_y = y; estimator_z = z; }
 #define EstimatorSetSpeedPol(vhmod, vhdir, vz) { \
   estimator_hspeed_mod = vhmod; \
   estimator_hspeed_dir = vhdir; \
   estimator_z_dot = vz; \
 }
+
+#endif
+
+
 #define EstimatorSetAtt(phi, psi, theta) { estimator_phi = phi; estimator_psi = psi; estimator_theta = theta; }
 #define EstimatorSetPhiPsi(phi, psi) { estimator_phi = phi; estimator_psi = psi; }
 

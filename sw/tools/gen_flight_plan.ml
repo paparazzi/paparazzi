@@ -240,7 +240,7 @@ let rec index_stage = fun x ->
        let l = List.map index_stage (Xml.children x) in
        incr stage; (* To count the loop stage *)
        Xml.Element (Xml.tag x, Xml.attribs x@["no", soi n], l)
-    | "return_from_excpt" | "goto"  | "deroute" | "exit_block" | "follow"
+    | "return" | "goto"  | "deroute" | "exit_block" | "follow"
     | "heading" | "attitude" | "go" | "stay" | "xyz" | "set" | "circle" ->
 	incr stage;
 	Xml.Element (Xml.tag x, Xml.attribs x@["no", soi !stage], Xml.children x)
@@ -259,9 +259,9 @@ let rec print_stage = fun index_of_waypoints sectors x ->
   let stage () = incr stage;lprintf "Stage(%d)\n" !stage; right () in
   begin
     match String.lowercase (Xml.tag x) with
-      "return_from_excpt" ->
+      "return" ->
 	stage ();
-	lprintf "ReturnFromException(%s)\n" (name_of x)
+	lprintf "Return()\n"
     | "goto" ->
 	stage ();
 	lprintf "Goto(%s)\n" (name_of x)

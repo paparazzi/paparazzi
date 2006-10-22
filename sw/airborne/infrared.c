@@ -296,8 +296,8 @@ void estimator_update_state_infrared( void ) {
       estimator_theta *= ir_correction_down;
 #endif
 
-    Bound(estimator_phi, -M_PI/2, M_PI/2);
-    Bound(estimator_theta, -M_PI/2, M_PI/2);
+    Bound(estimator_phi, -M_PI_2, M_PI_2);
+    Bound(estimator_theta, -M_PI_2, M_PI_2);
 
   } else { /* allow_inverted */
     /* 250 us for the whole block */
