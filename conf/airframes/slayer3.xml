@@ -71,7 +71,9 @@
 
     <define name="ESTIMATED_PHI_PI_4" value="M_PI_4"/>
 
-    <define name="ALLOW_INVERTED" value="1"/>
+    <define name="360_LATERAL_CORRECTION" value="1."/>
+    <define name="360_LONGITUDINAL_CORRECTION" value="1."/>
+    <define name="360_VERTICAL_CORRECTION" value="1.5"/>
   </section>
 
  <section name="GYRO" prefix="GYRO_">
@@ -96,6 +98,7 @@
     <define name="KILL_MODE_DISTANCE" value="(1.5*MAX_DIST_FROM_HOME)"/>
     <define name="CONTROL_RATE" value="60" unit="Hz"/>
     <define name="XBEE_INIT" value="\"ATPL2\rATRN1\rATTT80\r\""/>
+    <define name="ALT_KALMAN_ENABLED" value="TRUE"/>
   </section>
 
  <section name="VERTICAL CONTROL" prefix="V_CTL_">
@@ -212,7 +215,7 @@ ap.CFLAGS += -DGPS -DUBX -DUSE_UART1 -DGPS_LINK=Uart1 -DUART1_BAUD=B19200
 
 ap.srcs += gps_ubx.c gps.c
 
-ap.CFLAGS += -DINFRARED -DALT_KALMAN
+ap.CFLAGS += -DINFRARED -DALT_KALMAN -DIR_360
 ap.srcs += infrared.c estimator.c
 
 ap.CFLAGS += -DNAV -DH_CTL_RATE_LOOP -DAGR_CLIMB -DLOITER_TRIM
@@ -229,7 +232,7 @@ ap.srcs += gyro.c bomb.c
 
 # Config for SITL simulation
 include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
-sim.CFLAGS += -DCONFIG=\"tiny.h\" -DAGR_CLIMB -DH_CTL_RATE_LOOP -DLOITER_TRIM -DALT_KALMAN
+sim.CFLAGS += -DCONFIG=\"tiny.h\" -DAGR_CLIMB -DH_CTL_RATE_LOOP -DLOITER_TRIM -DALT_KALMAN -DIR_360
 sim.srcs += bomb.c
 
 

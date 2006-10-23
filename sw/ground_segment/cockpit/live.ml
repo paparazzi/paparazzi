@@ -73,7 +73,9 @@ type aircraft = {
     mutable first_pos : bool;
     mutable last_block_name : string;
     mutable in_kill_mode : bool;
-    mutable speed : float
+    mutable speed : float;
+    mutable alt : float;
+    mutable flight_time : int
   }
 
 let live_aircrafts = Hashtbl.create 3
@@ -394,14 +396,14 @@ let create_ac = fun (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id:strin
 				     fp = fp_xml; ac_name = name;
 				     blocks = blocks; last_ap_mode= "";
 				     last_stage = (-1,-1);
-				     ir_page = ir_page;
+				     ir_page = ir_page; flight_time = 0;
 				     gps_page = gps_page;
 				     pfd_page = pfd_page;
 				     misc_page = misc_page;
 				     dl_settings_page = dl_settings_page;
 				     rc_settings_page = rc_settings_page;
 				     strip = strip; first_pos = true;
-				     last_block_name = "";
+				     last_block_name = ""; alt = 0.;
 				     in_kill_mode = false; speed = 0.
 				   }
 
@@ -548,7 +550,13 @@ let listen_flight_params = fun geomap auto_center_new_ac alert ->
     in
     set_label "alt" alt;
     set_label "speed" speed;
-    set_label "climb" climb
+    set_label "climb" climb;
+    let agl = (a "agl") in
+    ac.alt <- alt;
+    Strip.set_agl ac.strip agl;
+    if (ac.flight_time > 10 && agl < 20.) then
+      log_and_say alert (sprintf "%s, %s" ac.ac_name "Ground Proximity Warning")
+
   in
   safe_bind "FLIGHT_PARAM" get_fp;
 
@@ -564,6 +572,9 @@ let listen_flight_params = fun geomap auto_center_new_ac alert ->
       Strip.set_label ac.strip l (sprintf "%.1f" (Pprz.float_assoc f vs)) in
     set_label "->" "target_alt";
     set_label "/" "target_climb";
+    let target_alt = Pprz.float_assoc "target_alt" vs in
+    Strip.set_label ac.strip "diff_target_alt" (sprintf "%+.0f" (ac.alt -. target_alt));
+
     let b = List.assoc cur_block ac.blocks in
     if b <> ac.last_block_name then begin
       log_and_say alert (sprintf "%s, %s" ac.ac_name b);
@@ -627,6 +638,7 @@ let listen_flight_params = fun geomap auto_center_new_ac alert ->
     let ac = get_ac vs in
     let flight_time = Int32.to_int (Pprz.int32_assoc "flight_time" vs) in
     ac.track#update_ap_status (float_of_int flight_time);
+    ac.flight_time <- flight_time;
     let ap_mode = Pprz.string_assoc "ap_mode" vs in
     if ap_mode <> ac.last_ap_mode then begin
       log_and_say alert (sprintf "%s, %s" ac.ac_name ap_mode);

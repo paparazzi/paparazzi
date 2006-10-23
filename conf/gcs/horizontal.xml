@@ -4,7 +4,7 @@
  <rows>
   <widget size="500" name="map2d"/>
   <columns>
-   <rows size="350">
+   <rows size="380">
     <widget size="120" name="strips"/>
     <widget name="alarms"/>
    </rows>

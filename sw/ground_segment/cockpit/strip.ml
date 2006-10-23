@@ -2,13 +2,15 @@
 
 let bat_max = 12.5
 let bat_min = 9.
+let agl_max = 150.
 
 (** window for the strip panel *)
-let scrolled = GBin.scrolled_window ~width:300 ~hpolicy: `AUTOMATIC ~vpolicy: `AUTOMATIC ()
+let scrolled = GBin.scrolled_window ~hpolicy: `AUTOMATIC ~vpolicy: `AUTOMATIC ()
 let table = GPack.table ~rows: 1 ~columns: 1 ~row_spacings: 5 ~packing: (scrolled#add_with_viewport) ()
 
 
 type t = {
+    agl: GMisc.drawing_area;
     gauge: GMisc.drawing_area;
     labels: (string * (GBin.event_box * GMisc.label)) list;
     buttons_box : GPack.box
@@ -24,7 +26,7 @@ let labels_print = [|
 let gen_int = let i = ref (-1) in fun () -> incr i; !i
 
 let rows = 1 + Array.length labels_name + 1
-let columns = 1 + 2 * Array.length labels_name.(0)
+let columns = 1 + 2 * Array.length labels_name.(0) + 1
 
 
     (** add a strip to the panel *)
@@ -79,6 +81,18 @@ let add config color select center_ac commit_moves mark =
   let gauge = GMisc.drawing_area ~height:60 ~show:true ~packing:(strip#attach ~top:1 ~bottom:(rows-1) ~left:0) () in
   gauge#misc#realize ();
 
+  (* AGL gauge *)
+  let agl_box = GBin.event_box ~packing:(strip#attach ~top:1 ~bottom:(rows-1) ~left:(columns-1)) () in
+  let agl = GMisc.drawing_area ~width:30 ~height:60 ~show:true ~packing:agl_box#add () in
+  agl#misc#realize ();
+  tooltips#set_tip agl_box#coerce ~text:"AGL (m)";
+
+  (* Diff to target altitude *)
+  let dta_box = GBin.event_box ~packing:(strip#attach ~top:(rows-1) ~left:(columns-1)) () in
+  let diff_target_alt = GMisc.label ~text: "+0" ~packing:dta_box#add () in
+  add_label "diff_target_alt_value" (plane_color, diff_target_alt);
+  tooltips#set_tip dta_box#coerce ~text:"Height to target (m)";
+
   (* Telemetry *)
   let eb = GBin.event_box ~packing:(strip#attach ~top:(rows-1) ~left:0) () in
   let ts = GMisc.label ~text:"N/A" ~packing:eb#add () in
@@ -102,18 +116,17 @@ let add config color select center_ac commit_moves mark =
   let top = rows - 1 in
   let b = GButton.button ~label:"Center A/C" ~packing:(strip#attach ~top ~left:1 ~right:3) () in
   ignore(b#connect#clicked ~callback:center_ac);
-  let b = GButton.button ~label:"Send WPs" ~packing:(strip#attach ~top ~left:3 ~right:5) () in
-  ignore (b#connect#clicked  ~callback:commit_moves);
   let b = GButton.button ~label:"Mark" ~packing:(strip#attach ~top ~left:5 ~right:7) () in
   ignore (b#connect#clicked  ~callback:mark);
 
   (* User buttons *)
   let hbox = GPack.hbox ~packing:framevb#add () in
 
-  {gauge=gauge ; labels= !strip_labels; buttons_box = hbox}
+  { agl=agl; gauge=gauge ; labels= !strip_labels; buttons_box = hbox}
 
 
-    (** set a label *)
+
+(** set a label *)
 let set_label strip name value = 
   try
     let _eb, l = List.assoc (name^"_value") strip.labels in
@@ -123,20 +136,19 @@ let set_label strip name value =
     Not_found ->
       Printf.fprintf stderr "Strip.set_label: '%s' unknown\n%!" name
 
-    (** set a label *)
+(** set a color *)
 let set_color strip name color = 
   let eb, _l = List.assoc (name^"_value") strip.labels in
   eb#coerce#misc#modify_bg [`NORMAL, `NAME color]
 
-    (** set the battery *)
-let set_bat ?(color="green") strip value =
-  let gauge = strip.gauge in
+
+let set_gauge = fun ?(color="green") gauge v_min v_max value string ->
   let {Gtk.width=width; height=height} = gauge#misc#allocation in
   let dr = GDraw.pixmap ~width ~height ~window:gauge () in
   dr#set_foreground (`NAME "orange");
   dr#rectangle ~x:0 ~y:0 ~width ~height ~filled:true ();
   
-  let f = (value -. bat_min) /. (bat_max -. bat_min) in
+  let f = (value -. v_min) /. (v_max -. v_min) in
   let f = max 0. (min 1. f) in
   let h = truncate (float height *. f) in
   dr#set_foreground (`NAME color);
@@ -144,11 +156,22 @@ let set_bat ?(color="green") strip value =
 
   let context = gauge#misc#create_pango_context in
   let layout = context#create_layout in
-  Pango.Layout.set_text layout (string_of_float value);
+  Pango.Layout.set_text layout string;
   let (w,h) = Pango.Layout.get_pixel_size layout in
   dr#put_layout ~x:((width-w)/2) ~y:((height-h)/2) ~fore:`BLACK layout;
   
   (new GDraw.drawable gauge#misc#window)#put_pixmap ~x:0 ~y:0 dr#pixmap
+
+
+
+(** set the battery *)
+let set_bat ?color strip value =
+  set_gauge ?color strip.gauge bat_min bat_max value (string_of_float value)
+
+
+(** set the AGL *)
+let set_agl ?color strip value =
+  set_gauge ?color strip.agl 0. agl_max value (Printf.sprintf "%3.0f" value)
 
 
 let add_widget = fun strip widget ->

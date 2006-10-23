@@ -25,6 +25,7 @@
  *)
 
 module LL = Latlong
+open LL
 module G2D = Geometry_2d
 open Printf
 
@@ -176,9 +177,7 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
 	~value:1. ~lower:0.05 ~upper:10. 
 	~step_incr:0.25 ~page_incr:1.0 ~page_size:1.0 ()
   
-    val info = info
-	
-	
+    method info = info
 
 (** other attributes *)
 
@@ -431,7 +430,7 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
 	let xc = GdkEvent.Motion.x ev 
 	and yc = GdkEvent.Motion.y ev in
 	let (xw, yw) = self#window_to_world xc yc in
-	self#display_geo (self#geo_string (self#of_world (xw,yw)));
+	self#display_geo (self#of_world (xw,yw));
 	self#display_alt (self#of_world (xw,yw));
 	let (x, y) = canvas#get_scroll_offsets in
 	last_mouse_x <- truncate xc - x;
@@ -574,20 +573,22 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
     
 class widget =  fun ?(height=800) ?width ?projection ?georef () ->
   let srtm = GMenu.check_menu_item ~label:"SRTM" ~active:false () in
+  let lbl_xy = GMisc.label ()
+  and lbl_geo = GMisc.label ()
+  and lbl_alt =  GMisc.label ()
+  and lbl_group = GMisc.label () in
+
   object(self)
     inherit (basic_widget ~height ?width ?projection ?georef ())
 
-    val mutable lbl_xy = GMisc.label ()
-    val mutable lbl_geo = GMisc.label  ()
-    val mutable lbl_alt =  GMisc.label ()
-    val mutable lbl_group = GMisc.label ()   
     val mutable utm_grid_group = None
+    val mutable info_georef = None
 
     method pack_labels =
-      info#pack lbl_xy#coerce;
-      info#pack lbl_geo#coerce;
-      info#pack lbl_alt#coerce;
-      info#pack lbl_group#coerce;
+      self#info#pack lbl_xy#coerce;
+      self#info#pack lbl_geo#coerce;
+      self#info#pack lbl_alt#coerce;
+      self#info#pack lbl_group#coerce;
       
     initializer (
       self#pack_labels;
@@ -641,10 +642,20 @@ class widget =  fun ?(height=800) ?width ?projection ?georef () ->
 	  GToolbox.message_box "SRTM" (sprintf "SRTM tile %s not found: %s ?" x (Srtm.error x));
 	  0
 
+    method set_info_georef = fun ?(name="") geo ->
+      info_georef <- Some (name, geo)
+
     (** display methods *)
-	   
     method display_xy = fun s ->  lbl_xy#set_text s
-    method display_geo = fun s ->  lbl_geo#set_text s
+    method display_geo = fun geo ->
+      match info_georef with
+	None -> lbl_geo#set_text (self#geo_string geo)
+      | Some (name, (georef:< pos : LL.geographic>)) ->
+	  let (dx, dy) = Latlong.utm_sub (LL.utm_of LL.WGS84 geo) (LL.utm_of LL.WGS84 georef#pos) in
+	  let d = sqrt (dx*.dx+.dy*.dy) in
+	  lbl_geo#set_text (sprintf "%.0f %.0fm/%s" ((Rad>>Deg)(atan2 dx dy)) d name)
+	  
+
     method display_alt = fun wgs84 ->
       if srtm#active then
 	lbl_alt#set_text (sprintf "\t%dm"(self#altitude wgs84))

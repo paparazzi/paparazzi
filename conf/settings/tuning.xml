@@ -29,7 +29,7 @@
         <dl_setting MAX="1.5" MIN="0.5" STEP="0.1" VAR="ir_correction_up" shortname="corr_up"/>
         <dl_setting MAX="1.5" MIN="0.5" STEP="0.1" VAR="ir_correction_down" shortname="corr_down"/>
         <dl_setting MAX="1." MIN="0.1" STEP="0.05" VAR="ir_estimated_phi_pi_4" shortname="est. phi pi/4"/>
-        <dl_setting MAX="1" MIN="0" STEP="1" VAR="ir_allow_inverted" shortname="allow_inverted"/>
+        <dl_setting MAX="1" MIN="0" STEP="1" VAR="ir_360" shortname="ir_360"/>
       </dl_settings>
 
       <dl_settings NAME="attitude">

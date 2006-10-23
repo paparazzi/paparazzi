@@ -292,7 +292,6 @@ module XB = struct (** XBee module *)
     fprintf o "%s%!" (Xbee.at_set_baud_rate device.baud_rate);
     fprintf o "%s%!" Xbee.at_api_enable;
     fprintf o "%s%!" Xbee.at_exit;
-    fprintf o "ATRR14\r%!";
     Debug.trace 'x' "end init xbee"
 
   let init = fun device ->

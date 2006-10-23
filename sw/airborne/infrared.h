@@ -48,7 +48,7 @@ extern int16_t ir_top;  /* averaged vertical ir adc */
 extern float   ir_rad_of_ir;
 extern int16_t ir_contrast;
 extern float z_contrast_mode;
-extern bool_t ir_allow_inverted;
+extern bool_t ir_360;
 extern float ir_estimated_phi_pi_4;
 
 #if defined IR_CORRECTION_LEFT && defined IR_CORRECTION_RIGHT

@@ -161,7 +161,8 @@ class flight_plan = fun ?editable ~show_moved geomap color fp_dtd xml ->
 	  update ();
 	  w#connect update;
 	  XmlEdit.connect wp update;
-	  XmlEdit.connect xml_root update
+	  XmlEdit.connect xml_root update;
+	  geomap#set_info_georef ~name:"HOME" (w :> < pos : geographic>)
 	end)
       (XmlEdit.children xml_wpts) in
 

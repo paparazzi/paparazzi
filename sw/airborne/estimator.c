@@ -125,6 +125,10 @@ bool_t alt_kalman_enabled;
 
 #ifdef ALT_KALMAN
 
+#ifndef ALT_KALMAN_ENABLED
+#define ALT_KALMAN_ENABLED FALSE
+#endif
+
 #define DT 0.25
 #define SIGMA2 1.
 #define R 2.
@@ -139,7 +143,7 @@ void alt_kalman_reset( void ) {
 }
 
 void alt_kalman_init( void ) {
-  alt_kalman_enabled = FALSE;
+  alt_kalman_enabled = ALT_KALMAN_ENABLED;
   alt_kalman_reset();
 }
 
