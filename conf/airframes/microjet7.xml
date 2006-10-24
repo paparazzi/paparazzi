@@ -104,6 +104,8 @@
     <define name="CONTROL_RATE" value="60" unit="Hz"/>
     <define name="XBEE_INIT" value="\"ATPL2\rATRN1\rATTT80\r\""/>
     <define name="ALT_KALMAN_ENABLED" value="TRUE"/>
+
+    <define name="TRIGGER_DELAY" value="1."/>
   </section>
  
   <section name="VERTICAL CONTROL" prefix="V_CTL_">
@@ -116,7 +118,7 @@
     <define name="AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE" value="0.35"/>
     <define name="AUTO_THROTTLE_MIN_CRUISE_THROTTLE" value="0.30"/>
     <define name="AUTO_THROTTLE_MAX_CRUISE_THROTTLE" value="0.80"/>
-    <define name="AUTO_THROTTLE_LOITER_TRIM" value="1000"/>
+    <define name="AUTO_THROTTLE_LOITER_TRIM" value="1500"/>
     <define name="AUTO_THROTTLE_DASH_TRIM" value="-1000"/>
     <define name="AUTO_THROTTLE_CLIMB_THROTTLE_INCREMENT" value="0.15" unit="%/(m/s)"/>
     <define name="AUTO_THROTTLE_PGAIN" value="-0.01"/>

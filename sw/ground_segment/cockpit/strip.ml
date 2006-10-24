@@ -1,4 +1,28 @@
-(************ Strip handling ***********************************************)
+(*
+ * $Id$
+ *
+ * Strip handling
+ *  
+ * Copyright (C) 2006 ENAC, Pascal Brisset, Antoine Drouin
+ *
+ * This file is part of paparazzi.
+ *
+ * paparazzi is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * paparazzi is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with paparazzi; see the file COPYING.  If not, write to
+ * the Free Software Foundation, 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA. 
+ *
+ *)
 
 let bat_max = 12.5
 let bat_min = 9.
@@ -45,7 +69,8 @@ let add config color select center_ac commit_moves mark =
   let tooltips = GData.tooltips () in
 
   (* frame of the strip *)
-  let frame = GBin.frame ~shadow_type: `IN ~packing: (widget#attach ~top: (strip_number) ~left: 0) () in
+  let strip_ebox = GBin.event_box ~packing:(widget#attach ~top:strip_number ~left:0) () in 
+  let frame = GBin.frame ~shadow_type: `IN ~packing:strip_ebox#add () in
   let framevb = GPack.vbox ~packing:frame#add () in
 
   (** Table (everything except the user buttons) *)
@@ -60,7 +85,7 @@ let add config color select center_ac commit_moves mark =
   
   let plane_color = GBin.event_box ~packing:(strip#attach ~top:0 ~left:1 ~right:columns) () in
   plane_color#coerce#misc#modify_bg [`NORMAL, `NAME color];
-  ignore (plane_color#event#connect#button_press ~callback:(fun _ -> select (); true));
+  ignore (strip_ebox#event#connect#button_press ~callback:(fun _ -> select (); true));
   let h = GPack.hbox ~packing:plane_color#add () in
   let ft = GMisc.label ~text: "00:00:00" ~packing:h#add () in
   ft#set_width_chars 8;

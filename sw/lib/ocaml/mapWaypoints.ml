@@ -98,10 +98,21 @@ class waypoint = fun (wpts_group:group) (name :string) ?(alt=0.) wgs84 ->
       let wgs84 = self#pos in
       let s = sprintf "WGS84 %s" (geomap#geo_string wgs84) in
       let ename  = GEdit.entry ~text:name ~editable ~packing:dvbx#add () in
-      let e_pos  = GEdit.entry ~text:s ~packing:dvbx#add () in
+      let hbox = GPack.hbox ~packing:dvbx#add () in
+      let optmenu = GMenu.option_menu ~packing:hbox#add () in
+
+      (***
+      let menu = in
+      optmenu#set_menu menu;
+      ***)
+
+
+      let e_pos  = GEdit.entry ~text:s ~packing:hbox#add () in
       let ha = GPack.hbox ~packing:dvbx#add () in
       let minus10= GButton.button ~label:"-10" ~packing:ha#add () in
       let ea  = GEdit.entry ~text:(string_of_float alt) ~packing:ha#add () in
+      let agl = alt -. float (try Srtm.of_wgs84 wgs84 with _ -> 0) in
+      let agl_lab  = GMisc.label ~text:(sprintf " AGL: %4.0fm" agl) ~packing:ha#add () in
       let plus10= GButton.button ~label:"+10" ~packing:ha#add () in
       let change_alt = fun x ->
 	ea#set_text (string_of_float (float_of_string ea#text +. x)) in
@@ -128,6 +139,7 @@ class waypoint = fun (wpts_group:group) (name :string) ?(alt=0.) wgs84 ->
       let cancel = GButton.button ~stock:`CANCEL ~packing: dhbx#add () in
       let destroy = fun () ->
 	self#reset_moved ();
+	wpt_group#lower_to_bottom ();
 	dialog#destroy () in
       ignore(cancel#connect#clicked ~callback:destroy);
 
@@ -146,7 +158,19 @@ class waypoint = fun (wpts_group:group) (name :string) ?(alt=0.) wgs84 ->
 	(fun e -> ignore (e#connect#activate ~callback))
 	[ename; e_pos; ea];
       ok#grab_default ();
+
       ignore(ok#connect#clicked ~callback:(fun _ -> callback (); dialog#destroy ()));
+
+      (* Update AGL on pos or alt change *)
+      let callback = fun _ ->
+	try
+	  let wgs84 = LL.of_string e_pos#text in
+	  let agl  = float_of_string ea#text -. float (try Srtm.of_wgs84 wgs84 with _ -> 0) in
+	  agl_lab#set_text (sprintf " AGL: %4.0fm" agl)
+	with _ -> ()
+      in
+      ignore (ea#connect#changed ~callback);
+      ignore (e_pos#connect#changed ~callback);
       dialog#show ()
 
     val mutable motion = false

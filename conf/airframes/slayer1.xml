@@ -73,9 +73,9 @@
 
     <define name="ESTIMATED_PHI_PI_4" value="0.55"/>
 
-    <define name="360_LATERAL_CORRECTION" value="1."/>
-    <define name="360_LONGITUDINAL_CORRECTION" value="1."/>
-    <define name="360_VERTICAL_CORRECTION" value="1.5"/>
+    <define name="360_LATERAL_CORRECTION" value="1.25"/>
+    <define name="360_LONGITUDINAL_CORRECTION" value="1.25"/>
+    <define name="360_VERTICAL_CORRECTION" value="1."/>
   </section>
 
  <section name="GYRO" prefix="GYRO_">
@@ -99,20 +99,22 @@
     <define name="CONTROL_RATE" value="60" unit="Hz"/>
     <define name="XBEE_INIT" value="\"ATPL2\rATRN1\rATTT80\r\""/>
     <define name="ALT_KALMAN_ENABLED" value="TRUE"/>
+
+    <define name="TRIGGER_DELAY" value="1.1"/>
   </section>
 
  <section name="VERTICAL CONTROL" prefix="V_CTL_">
     <!-- outer loop proportional gain -->
-    <define name="ALTITUDE_PGAIN" value="-0.065"/>
+    <define name="ALTITUDE_PGAIN" value="-0.045"/>
     <!-- outer loop saturation -->
     <define name="ALTITUDE_MAX_CLIMB" value="3."/>
 
     <!-- auto throttle inner loop -->
-    <define name="AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE" value="0.65"/>
-    <define name="AUTO_THROTTLE_MIN_CRUISE_THROTTLE" value=".4"/>
+    <define name="AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE" value="0.60"/>
+    <define name="AUTO_THROTTLE_MIN_CRUISE_THROTTLE" value=".45"/>
     <define name="AUTO_THROTTLE_MAX_CRUISE_THROTTLE" value="1"/>
-    <define name="AUTO_THROTTLE_LOITER_TRIM" value="1000"/>
-    <define name="AUTO_THROTTLE_DASH_TRIM" value="-2500"/>
+    <define name="AUTO_THROTTLE_LOITER_TRIM" value="2000"/>
+    <define name="AUTO_THROTTLE_DASH_TRIM" value="-1500"/>
     <define name="AUTO_THROTTLE_CLIMB_THROTTLE_INCREMENT" value="0.15" unit="%/(m/s)"/>
     <define name="AUTO_THROTTLE_PGAIN" value="-0.008"/>
     <define name="AUTO_THROTTLE_IGAIN" value="0.25"/>

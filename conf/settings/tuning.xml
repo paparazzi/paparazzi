@@ -33,8 +33,8 @@
       </dl_settings>
 
       <dl_settings NAME="attitude">
-        <dl_setting MAX="15000" MIN="1000" STEP="250" VAR="h_ctl_roll_pgain" shortname="roll_pgain"/>
-        <dl_setting MAX="-1000" MIN="-15000" STEP="250" VAR="h_ctl_pitch_pgain" shortname="pitch_pgain"/>
+        <dl_setting MAX="15000" MIN="000" STEP="250" VAR="h_ctl_roll_pgain" shortname="roll_pgain"/>
+        <dl_setting MAX="000" MIN="-15000" STEP="250" VAR="h_ctl_pitch_pgain" shortname="pitch_pgain"/>
         <dl_setting MAX="2" MIN="0." STEP="0.1" VAR="h_ctl_pitch_dgain" shortname="pitch_dgain"/>
         <dl_setting MAX="5000" MIN="0" STEP="100" VAR="h_ctl_elevator_of_roll" shortname="elevator_of_roll"/>
         <dl_setting MAX="5000" MIN="0" STEP="100" VAR="h_ctl_aileron_of_throttle" shortname="aileron_of_throttle"/>
@@ -52,14 +52,15 @@
 
       <dl_settings name="auto_throttle">
         <dl_setting MAX="0.9" MIN="0.3" STEP="0.05" VAR="v_ctl_auto_throttle_cruise_throttle" shortname="cruise throttle">
-        <strip_button name="Dash" value="0.8"/>
-        <strip_button name="Loiter" value="0.3"/>
+        <strip_button name="Dash" value="1"/>
+        <strip_button name="Loiter" value="0.45"/>
+        <strip_button name="Cruise" value="0.6"/>
       </dl_setting>
        
 
         <dl_setting MAX="-0.01" MIN="-0.1" STEP="0.01" VAR="v_ctl_auto_throttle_pgain" shortname="throttle_pgain"/>
         <dl_setting MAX="1" MIN="0.05" STEP="0.05" VAR="v_ctl_auto_throttle_igain" shortname="throttle_igain"/>
-        <dl_setting MAX="0" MIN="-3000" STEP="100" VAR="v_ctl_auto_throttle_dash_trim" shortname="dash trim"/>
+        <dl_setting MAX="0" MIN="-4000" STEP="100" VAR="v_ctl_auto_throttle_dash_trim" shortname="dash trim"/>
         <dl_setting MIN="0" MAX="3000" STEP="100" VAR="v_ctl_auto_throttle_loiter_trim" shortname="loiter trim"/>
         <dl_setting MAX="1" MIN="0" STEP="0.01" VAR="v_ctl_auto_throttle_climb_throttle_increment" shortname="throttle_incr"/>
       </dl_settings>

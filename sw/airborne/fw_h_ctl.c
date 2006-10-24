@@ -197,7 +197,7 @@ inline static float loiter(void) {
     elevator_trim = throttle_dif / max_dif * v_ctl_auto_throttle_dash_trim;
   } else {
     float max_dif = Max(v_ctl_auto_throttle_nominal_cruise_throttle - V_CTL_AUTO_THROTTLE_MIN_CRUISE_THROTTLE, 0.1);
-    elevator_trim = throttle_dif / max_dif * v_ctl_auto_throttle_loiter_trim;
+    elevator_trim = - throttle_dif / max_dif * v_ctl_auto_throttle_loiter_trim;
   }
 
   float max_change = (v_ctl_auto_throttle_loiter_trim - v_ctl_auto_throttle_dash_trim) / 80.;

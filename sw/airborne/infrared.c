@@ -301,14 +301,14 @@ void estimator_update_state_infrared( void ) {
 
   } else { /* 360° estimation */
     /* 250 us for the whole block */
-    ir_roll *= IR_360_LATERAL_CORRECTION;
-    ir_pitch *= IR_360_LONGITUDINAL_CORRECTION;
-    ir_top *= IR_360_VERTICAL_CORRECTION;
+    float tmp_ir_roll = ir_roll * IR_360_LATERAL_CORRECTION;
+    float tmp_ir_pitch = ir_pitch * IR_360_LONGITUDINAL_CORRECTION;
+    float tmp_ir_top = ir_top * IR_360_VERTICAL_CORRECTION;
 
-    estimator_phi  = atan2(ir_roll, ir_top) - ir_roll_neutral;
+    estimator_phi  = atan2(tmp_ir_roll, tmp_ir_top) - ir_roll_neutral;
     estimator_phi = correct_angle(estimator_phi, ir_estimated_phi_pi_4);
 
-    estimator_theta  = atan2(ir_pitch, ir_top) - ir_pitch_neutral;
+    estimator_theta  = atan2(tmp_ir_pitch, tmp_ir_top) - ir_pitch_neutral;
     estimator_theta = correct_angle(estimator_theta, ir_estimated_phi_pi_4);
     if (estimator_theta < -M_PI_2)
       estimator_theta += M_PI;
