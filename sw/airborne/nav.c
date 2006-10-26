@@ -73,6 +73,8 @@ float circle_bank = 0;
 /** Dynamically adjustable, reset to nav_altitude when it is changing */
 float flight_altitude;
 
+float nav_glide_pitch_trim;
+
 
 #define PowerVoltage() (vsupply/10.)
 #define RcRoll(travel) (fbw_state->channels[RADIO_ROLL]* (float)travel /(float)MAX_PPRZ)
@@ -504,6 +506,7 @@ void nav_init(void) {
   nav_block = 0;
   nav_stage = 0;
   ground_alt = GROUND_ALT;
+  nav_glide_pitch_trim = NAV_GLIDE_PITCH_TRIM;
 }
 
 /** void nav_wihtout_gps(void)

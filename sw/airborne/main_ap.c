@@ -334,7 +334,9 @@ static void navigation_task( void ) {
       v_ctl_climb_loop();
     if (vertical_mode == VERTICAL_MODE_AUTO_GAZ)
       v_ctl_throttle_setpoint = nav_desired_gaz;
+
     h_ctl_pitch_setpoint = nav_pitch;
+    Bound(h_ctl_pitch_setpoint, H_CTL_PITCH_MIN_SETPOINT, H_CTL_PITCH_MAX_SETPOINT);
     if (kill_throttle || (!estimator_flight_time && !launch))
       v_ctl_throttle_setpoint = 0;
   }  

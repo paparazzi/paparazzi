@@ -2,9 +2,9 @@
 
 <layout width="1024" height="768">
  <columns>
-   <rows size="360">
-      <widget size="120" name="strips"/>
-      <widget size="300" name="plugin"/>
+   <rows size="400">
+      <widget size="250" name="strips"/>
+<!--      <widget size="300" name="plugin"/> -->
       <widget name="alarms"/>
    </rows>
    <rows>

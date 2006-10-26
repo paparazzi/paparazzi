@@ -75,6 +75,7 @@
       <dl_settings name="nav">
         <dl_setting MAX="-0.1" MIN="-2" STEP="0.05" VAR="h_ctl_course_pgain" shortname="course pgain"/>
         <dl_setting MAX="2" MIN="0.1" STEP="0.05" VAR="h_ctl_course_pre_bank_correction" shortname="pre bank cor"/>
+        <dl_setting MAX="1" MIN="0.0" STEP="0.05" VAR="nav_glide_pitch_trim" shortname="glide pitch trim"/>
       </dl_settings>
     </dl_settings>
   </dl_settings>
