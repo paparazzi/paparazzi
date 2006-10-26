@@ -371,6 +371,12 @@ let of_string = fun s ->
   match Str.split space s with
     ["WGS84"; lat; long] ->
       {posn_lat = rodg lat; posn_long = rodg long}
+  | ["WGS84_bearing"; lat; long; dir; dist] ->
+      let utm_ref = utm_of WGS84 {posn_lat = rodg lat; posn_long = rodg long} in
+      let dir = rodg dir and dist = fos dist in
+      let dx = dist *. sin dir
+      and dy = dist *. cos dir in
+      of_utm WGS84 (utm_add utm_ref (dx, dy))
   | ["UTM";x;y;zone] ->
       of_utm WGS84 { utm_x = fos x; utm_y = fos y; utm_zone = ios zone}
   | ["LBT2e";x;y] ->
@@ -383,3 +389,9 @@ let string_of = fun geo ->
 let mercator_lat = fun l -> log (tan (pi/.4. +. 0.5*. l))
 let inv_mercator_lat = fun l -> 2. *. atan (exp l) -. pi/.2.
 
+
+let bearing = fun geo1 geo2 ->
+  let utm1 = utm_of WGS84 geo1
+  and utm2 = utm_of WGS84 geo2 in
+  let (dx, dy) = utm_sub utm2 utm1 in
+  ((Rad>>Deg)(atan2 dx dy), sqrt(dx*.dx+.dy*.dy))

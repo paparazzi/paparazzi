@@ -54,7 +54,7 @@
 
   <section name="INFRARED" prefix="IR_">
     <define name="ROLL_NEUTRAL_DEFAULT" value="0" unit="deg"/>
-    <define name="PITCH_NEUTRAL_DEFAULT" value="0" unit="deg"/>
+    <define name="PITCH_NEUTRAL_DEFAULT" value="7" unit="deg"/>
     <define name="DEFAULT_CONTRAST" value="200"/>
     <define name="RAD_OF_IR_CONTRAST" value="0.75"/>
     <linear name="RollOfIrs" arity="2" coeff1=".5" coeff2="0.5"/>
@@ -71,7 +71,7 @@
     <define name="CORRECTION_LEFT" value="1."/>
     <define name="CORRECTION_RIGHT" value="1."/>
 
-    <define name="ESTIMATED_PHI_PI_4" value="0.55"/>
+    <define name="ESTIMATED_PHI_PI_4" value="0.44"/>
 
     <define name="360_LATERAL_CORRECTION" value="1.25"/>
     <define name="360_LONGITUDINAL_CORRECTION" value="1.25"/>
@@ -118,7 +118,7 @@
     <define name="AUTO_THROTTLE_CLIMB_THROTTLE_INCREMENT" value="0.15" unit="%/(m/s)"/>
     <define name="AUTO_THROTTLE_PGAIN" value="-0.008"/>
     <define name="AUTO_THROTTLE_IGAIN" value="0.25"/>
-    <define name="AUTO_THROTTLE_PITCH_OF_VZ_PGAIN" value="0.35"/>
+    <define name="AUTO_THROTTLE_PITCH_OF_VZ_PGAIN" value="0.14"/>
 
     <!-- auto pitch inner loop -->
     <define name="AUTO_PITCH_PGAIN" value="-0.1"/>
@@ -145,7 +145,7 @@
     <define name="ROLL_RATE_MODE_DEFAULT" value="1"/>
     <define name="ROLL_RATE_SETPOINT_PGAIN" value="-5.5"/>
     <define name="ROLL_RATE_MAX_SETPOINT" value="10"/>
-    <define name="ROLL_RATE_PGAIN" value="1000."/>
+    <define name="ROLL_RATE_PGAIN" value="1200."/>
     <define name="ROLL_RATE_IGAIN" value="0."/>
     <define name="ROLL_RATE_DGAIN" value="0."/>
     <define name="ROLL_RATE_SUM_NB_SAMPLES" value="64"/>
@@ -163,7 +163,7 @@
     <define name="CLIMB_THROTTLE" value="1."/><!-- Gaz for Aggressive Climb -->
     <define name="CLIMB_PITCH" value="0.42"/><!-- Pitch for Aggressive Climb -->
     <define name="DESCENT_THROTTLE" value="0.1"/><!-- Gaz for Aggressive Decent -->
-    <define name="DESCENT_PITCH" value="-0.5"/><!-- Pitch for Aggressive Decent -->
+    <define name="DESCENT_PITCH" value="-0.4"/><!-- Pitch for Aggressive Decent -->
     <define name="CLIMB_NAV_RATIO" value="0.5"/><!-- Percent Navigation for Altitude Error Equal to Start Altitude -->
     <define name="DESCENT_NAV_RATIO" value="1.0"/>
     </section>

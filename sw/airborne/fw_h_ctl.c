@@ -28,6 +28,7 @@
  *
  */
 
+#include "led.h"
 #include "fw_h_ctl.h"
 #include "estimator.h"
 #include "nav.h"
@@ -44,6 +45,10 @@ float h_ctl_roll_max_setpoint;
 
 /* roll and pitch disabling */
 bool_t h_ctl_disabled;
+
+/* AUTO1 rate mode */
+bool_t h_ctl_auto1_rate;
+
 
 /* inner roll loop parameters */
 float  h_ctl_roll_setpoint;
@@ -137,6 +142,7 @@ void h_ctl_attitude_loop ( void ) {
   }
 }
 
+/** Computes h_ctl_aileron_setpoint from h_ctl_roll_setpoint */
 inline static void h_ctl_roll_loop( void ) {
   float err = estimator_phi - h_ctl_roll_setpoint;
   float cmd = h_ctl_roll_pgain * err 
@@ -144,12 +150,18 @@ inline static void h_ctl_roll_loop( void ) {
   h_ctl_aileron_setpoint = TRIM_PPRZ(cmd);
 
 #ifdef H_CTL_RATE_LOOP
-  h_ctl_roll_rate_setpoint = h_ctl_roll_rate_setpoint_pgain * err;
-  BoundAbs(h_ctl_roll_rate_setpoint, H_CTL_ROLL_RATE_MAX_SETPOINT);
-
-  float saved_aileron_setpoint = h_ctl_aileron_setpoint;
-  h_ctl_roll_rate_loop();
-  h_ctl_aileron_setpoint = Blend(h_ctl_aileron_setpoint, saved_aileron_setpoint, h_ctl_roll_rate_mode) ;
+  if (h_ctl_auto1_rate) {
+    /** Runs only the roll rate loop */
+    h_ctl_roll_rate_setpoint = h_ctl_roll_setpoint * 10.;
+    h_ctl_roll_rate_loop();
+  } else {
+    h_ctl_roll_rate_setpoint = h_ctl_roll_rate_setpoint_pgain * err;
+    BoundAbs(h_ctl_roll_rate_setpoint, H_CTL_ROLL_RATE_MAX_SETPOINT);
+    
+    float saved_aileron_setpoint = h_ctl_aileron_setpoint;
+    h_ctl_roll_rate_loop();
+    h_ctl_aileron_setpoint = Blend(h_ctl_aileron_setpoint, saved_aileron_setpoint, h_ctl_roll_rate_mode) ;
+  }
 #endif
 }
 

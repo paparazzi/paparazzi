@@ -54,6 +54,7 @@ let rec norm_course =
 
 (** FIXME: Should be read from messages.xml *)
 let ap_modes = [|"MANUAL";"AUTO1";"AUTO2";"HOME";"NOGPS"|]
+let _AUTO2 = 2
 let gaz_modes = [|"MANUAL";"GAZ";"CLIMB";"ALT"|]
 let lat_modes = [|"MANUAL";"ROLL_RATE";"ROLL";"COURSE"|]
 let gps_modes = [|"NOFIX";"DRO";"2D";"3D";"GPSDRO"|]
@@ -194,7 +195,7 @@ let log_and_parse = fun logging ac_name (a:Aircraft.aircraft) msg values ->
 
       a.agl     <- a.alt -. float (try Srtm.of_utm a.pos with _ -> 0);
       a.gps_mode <- check_index (ivalue "mode") gps_modes "GPS_MODE";
-      if a.gspeed > 3. then
+      if a.gspeed > 3. && a.ap_mode = _AUTO2 then
 	Wind.update ac_name a.gspeed a.course
   | "ESTIMATOR" ->
       a.alt     <- fvalue "z";

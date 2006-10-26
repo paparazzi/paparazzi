@@ -5,8 +5,8 @@
 <!-- commands section -->
   <servos>
     <servo name="GAZ"           no="0" min="1000" neutral="1000" max="2000"/>
-    <servo name="AILEVON_LEFT"  no="3" max="1150" neutral="1520" min="1950"/>
-    <servo name="AILEVON_RIGHT" no="6" max="1900" neutral="1460" min="1050"/>
+    <servo name="AILEVON_LEFT"  no="3" max="1150" neutral="1525" min="1950"/>
+    <servo name="AILEVON_RIGHT" no="6" max="1900" neutral="1480" min="1050"/>
     <servo name="HATCH" no="2" max="2000" neutral="1000" min="1000"/>
   </servos>
 
@@ -55,8 +55,8 @@
   </section>
 
   <section name="INFRARED" prefix="IR_">
-    <define name="ROLL_NEUTRAL_DEFAULT" value="6" unit="deg"/>
-    <define name="PITCH_NEUTRAL_DEFAULT" value="9" unit="deg"/>
+    <define name="ROLL_NEUTRAL_DEFAULT" value="3" unit="deg"/>
+    <define name="PITCH_NEUTRAL_DEFAULT" value="10" unit="deg"/>
     <define name="DEFAULT_CONTRAST" value="200"/>
     <define name="RAD_OF_IR_CONTRAST" value="0.75"/>
     <linear name="RollOfIrs" arity="2" coeff1="-0.7" coeff2="0.7"/>

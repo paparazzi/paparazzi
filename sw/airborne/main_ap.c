@@ -224,7 +224,7 @@ inline void telecommand_task( void ) {
   copy_from_to_fbw();
   
   uint8_t really_lost = bit_is_set(fbw_state->status, RADIO_REALLY_LOST) && (pprz_mode == PPRZ_MODE_AUTO1 || pprz_mode == PPRZ_MODE_MANUAL);
-  if (pprz_mode != PPRZ_MODE_HOME && pprz_mode != PPRZ_MODE_GPS_OUT_OF_ORDER && launch && (really_lost || too_far_from_home)) {
+  if (pprz_mode != PPRZ_MODE_HOME && pprz_mode != PPRZ_MODE_GPS_OUT_OF_ORDER && launch && (/*  really_lost || */ too_far_from_home)) {
     pprz_mode = PPRZ_MODE_HOME;
     mode_changed = TRUE;
   }
@@ -324,6 +324,10 @@ static void navigation_task( void ) {
 
   if (pprz_mode == PPRZ_MODE_AUTO2 || pprz_mode == PPRZ_MODE_HOME
 			|| pprz_mode == PPRZ_MODE_GPS_OUT_OF_ORDER) {
+#ifdef H_CTL_RATE_LOOP
+    /* Be sure to be in attitude mode, not roll */
+    h_ctl_auto1_rate = FALSE;
+#endif
     if (lateral_mode >=LATERAL_MODE_COURSE)
       h_ctl_course_loop(); /* aka compute nav_desired_roll */
     if (vertical_mode >= VERTICAL_MODE_AUTO_CLIMB)

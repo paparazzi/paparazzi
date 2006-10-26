@@ -30,6 +30,13 @@ open Printf
 let s = 6.
 let losange = [|s;0.; 0.;s; -.s;0.; 0.;-.s|]
 
+
+let wgs84_of_string = fun georef s ->
+  match georef with
+    None -> LL.of_string ("WGS84 " ^ s)
+  | Some (georef:< pos : LL.geographic>) ->
+      LL.of_string (sprintf "WGS84_bearing %s %s" (LL.string_degrees_of_geographic georef#pos) s)
+
 class group = fun ?(color="red") ?(editable=true) ?(show_moved=false) (geomap:MapCanvas.widget) ->
   let g = GnoCanvas.group geomap#canvas#root in
   object
@@ -96,18 +103,31 @@ class waypoint = fun (wpts_group:group) (name :string) ?(alt=0.) wgs84 ->
       let dvbx = GPack.box `VERTICAL ~packing:dialog#add () in
 
       let wgs84 = self#pos in
-      let s = sprintf "WGS84 %s" (geomap#geo_string wgs84) in
+      let s = sprintf "%s" (geomap#geo_string wgs84) in
       let ename  = GEdit.entry ~text:name ~editable ~packing:dvbx#add () in
       let hbox = GPack.hbox ~packing:dvbx#add () in
+
       let optmenu = GMenu.option_menu ~packing:hbox#add () in
-
-      (***
-      let menu = in
-      optmenu#set_menu menu;
-      ***)
-
-
       let e_pos  = GEdit.entry ~text:s ~packing:hbox#add () in
+
+      (* We would like to share the menu of the map: it does not work ! *)
+      let selected_georef = ref None in
+      let menu = GMenu.menu () in
+      let callback = fun () ->
+	e_pos#set_text (sprintf "%s" (geomap#geo_string wgs84));
+	selected_georef := None in
+      let mi = GMenu.menu_item ~label:"WGS84" ~packing:menu#append () in
+      ignore (mi#connect#activate ~callback);
+      List.iter (fun (label, geo) ->
+	let callback = fun () ->
+	  let (a, d) = LL.bearing geo#pos wgs84 in
+	  e_pos#set_text (sprintf "%.1f %.1f" a d);
+	  selected_georef := Some geo in
+	let mi = GMenu.menu_item ~label ~packing:menu#append () in
+	ignore (mi#connect#activate ~callback))
+	geomap#georefs;
+      optmenu#set_menu menu;
+
       let ha = GPack.hbox ~packing:dvbx#add () in
       let minus10= GButton.button ~label:"-10" ~packing:ha#add () in
       let ea  = GEdit.entry ~text:(string_of_float alt) ~packing:ha#add () in
@@ -123,7 +143,8 @@ class waypoint = fun (wpts_group:group) (name :string) ?(alt=0.) wgs84 ->
 	self#set_name ename#text;
 	alt <- float_of_string ea#text;
 	label#set [`TEXT name];
-	self#set (LL.of_string e_pos#text);
+	let wgs84 = wgs84_of_string !selected_georef e_pos#text in
+	self#set wgs84;
 	updated ();
 	if wpts_group#show_moved then
 	  moved <- anim moved;
@@ -164,7 +185,7 @@ class waypoint = fun (wpts_group:group) (name :string) ?(alt=0.) wgs84 ->
       (* Update AGL on pos or alt change *)
       let callback = fun _ ->
 	try
-	  let wgs84 = LL.of_string e_pos#text in
+	  let wgs84 = LL.of_string (sprintf "WGS84 %s" e_pos#text) in
 	  let agl  = float_of_string ea#text -. float (try Srtm.of_wgs84 wgs84 with _ -> 0) in
 	  agl_lab#set_text (sprintf " AGL: %4.0fm" agl)
 	with _ -> ()

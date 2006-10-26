@@ -38,6 +38,7 @@ class misc :
     method set_wind_dir : string -> unit
     method set_wind_speed : string -> unit
     method set_mean_aspeed : string -> unit
+    method periodic_send : bool  
   end
 
 type rc_mode = string

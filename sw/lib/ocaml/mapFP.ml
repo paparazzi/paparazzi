@@ -95,7 +95,7 @@ let update_xml = fun xml_tree utm0 wp id ->
       _ ->
 	prerr_endline "MapFP.update_xml: waypoint too far from ref (FIXME)"
       
-let new_wp = fun geomap xml_tree waypoints utm_ref ?(alt = 0.) node ->
+let new_wp = fun (geomap:MapCanvas.widget) xml_tree waypoints utm_ref ?(alt = 0.) node ->
   let float_attrib = fun a -> float_of_string (XmlEdit.attrib node a) in
   let x = (float_attrib "x") and y = (float_attrib "y") in
   let wgs84 = Latlong.of_utm WGS84 (utm_add utm_ref (x, y)) in
@@ -161,8 +161,7 @@ class flight_plan = fun ?editable ~show_moved geomap color fp_dtd xml ->
 	  update ();
 	  w#connect update;
 	  XmlEdit.connect wp update;
-	  XmlEdit.connect xml_root update;
-	  geomap#set_info_georef ~name:"HOME" (w :> < pos : geographic>)
+	  XmlEdit.connect xml_root update
 	end)
       (XmlEdit.children xml_wpts) in
 

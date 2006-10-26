@@ -33,8 +33,8 @@
       </dl_settings>
 
       <dl_settings NAME="attitude">
-        <dl_setting MAX="15000" MIN="000" STEP="250" VAR="h_ctl_roll_pgain" shortname="roll_pgain"/>
-        <dl_setting MAX="000" MIN="-15000" STEP="250" VAR="h_ctl_pitch_pgain" shortname="pitch_pgain"/>
+        <dl_setting MAX="25000" MIN="000" STEP="250" VAR="h_ctl_roll_pgain" shortname="roll_pgain"/>
+        <dl_setting MAX="000" MIN="-25000" STEP="250" VAR="h_ctl_pitch_pgain" shortname="pitch_pgain"/>
         <dl_setting MAX="2" MIN="0." STEP="0.1" VAR="h_ctl_pitch_dgain" shortname="pitch_dgain"/>
         <dl_setting MAX="5000" MIN="0" STEP="100" VAR="h_ctl_elevator_of_roll" shortname="elevator_of_roll"/>
         <dl_setting MAX="5000" MIN="0" STEP="100" VAR="h_ctl_aileron_of_throttle" shortname="aileron_of_throttle"/>
@@ -42,8 +42,10 @@
 
       <dl_settings name="rate">
         <dl_setting MAX="1" MIN="0" STEP="0.1" VAR="h_ctl_roll_rate_mode" shortname="mode"/>
-        <dl_setting MAX="2000" MIN="0" STEP="100" VAR="h_ctl_roll_rate_pgain" shortname="pgain"/>
+        <dl_setting MAX="5000" MIN="0" STEP="100" VAR="h_ctl_roll_rate_pgain" shortname="pgain"/>
+        <dl_setting MAX="2" MIN="-2" STEP="0.1" VAR="h_ctl_roll_rate_dgain" shortname="dgain"/>
         <dl_setting MAX="0" MIN="-20" STEP="1" VAR="h_ctl_roll_rate_setpoint_pgain" shortname="roll_pgain"/>
+        <dl_setting MAX="1" MIN="0" STEP="1" VAR="h_ctl_auto1_rate" shortname="AUTO1 rate"/>
       </dl_settings>
 
       <dl_settings name="alt">
@@ -51,10 +53,10 @@
       </dl_settings>
 
       <dl_settings name="auto_throttle">
-        <dl_setting MAX="0.9" MIN="0.3" STEP="0.05" VAR="v_ctl_auto_throttle_cruise_throttle" shortname="cruise throttle">
+        <dl_setting MAX="1" MIN="0.0" STEP="0.05" VAR="v_ctl_auto_throttle_cruise_throttle" shortname="cruise throttle">
         <strip_button name="Dash" value="1"/>
         <strip_button name="Loiter" value="0.45"/>
-        <strip_button name="Cruise" value="0.6"/>
+        <strip_button name="Cruise" value="0.65"/>
       </dl_setting>
        
 

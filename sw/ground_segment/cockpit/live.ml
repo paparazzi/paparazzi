@@ -75,7 +75,9 @@ type aircraft = {
     mutable in_kill_mode : bool;
     mutable speed : float;
     mutable alt : float;
-    mutable flight_time : int
+    mutable flight_time : int;
+    mutable wind_speed : float;
+    mutable wind_dir : float (* Rad *)
   }
 
 let live_aircrafts = Hashtbl.create 3
@@ -83,14 +85,18 @@ let get_ac = fun vs ->
   let ac_id = Pprz.string_assoc "ac_id" vs in
   Hashtbl.find live_aircrafts ac_id
 
-let log_and_say = 
-  let last = ref "" in
-  fun (a:Pages.alert) s ->
-    if s <> !last then begin
-      a#add s;
-      Speech.say s;
-      last := s
+
+module M = Map.Make (struct type t = string let compare = compare end)
+let log = 
+  let last = ref M.empty in
+  fun ?(say = false) (a:Pages.alert) ac_id s ->
+    if not (M.mem ac_id !last) || M.find ac_id !last <> s then begin
+      last := M.add ac_id s !last;
+      if say then Speech.say s;
+      a#add s
     end
+
+let log_and_say = fun a ac_id s -> log ~say:true a ac_id s
 
 let show_mission = fun ac on_off ->
   let a = Hashtbl.find live_aircrafts ac in
@@ -236,7 +242,7 @@ let load_mission = fun ?editable color geomap xml ->
 
 
 
-let create_ac = fun (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id:string) config ->
+let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id:string) config ->
   let color = Pprz.string_assoc "default_gui_color" config
   and name = Pprz.string_assoc "ac_name" config in
 
@@ -320,6 +326,13 @@ let create_ac = fun (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id:strin
       let (i, w) = fp#index w in
       w#set_commit_callback (fun () -> send_move_waypoint_msg ac_id i w))
     fp#waypoints;
+
+  (** Add waypoints as geo references *)
+   List.iter 
+    (fun w ->
+      let (i, w) = fp#index w in
+      geomap#add_info_georef (sprintf "%s.%s" name w#name) (w :> < pos : geographic>))
+    fp#waypoints;
   
   (** Add the short cut buttons in the strip *)
   List.iter (fun b ->
@@ -389,23 +402,50 @@ let create_ac = fun (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id:strin
       ac_notebook#append_page ~tab_label settings_tab#widget;
       Some settings_tab
     with _ -> None in
-  
 
-  Hashtbl.add live_aircrafts ac_id { track = track; color = color; 
-				     fp_group = fp ; config = config ; 
-				     fp = fp_xml; ac_name = name;
-				     blocks = blocks; last_ap_mode= "";
-				     last_stage = (-1,-1);
-				     ir_page = ir_page; flight_time = 0;
-				     gps_page = gps_page;
-				     pfd_page = pfd_page;
-				     misc_page = misc_page;
-				     dl_settings_page = dl_settings_page;
-				     rc_settings_page = rc_settings_page;
-				     strip = strip; first_pos = true;
-				     last_block_name = ""; alt = 0.;
-				     in_kill_mode = false; speed = 0.
-				   }
+    let ac = { track = track; color = color; 
+	       fp_group = fp ; config = config ; 
+	       fp = fp_xml; ac_name = name;
+	       blocks = blocks; last_ap_mode= "";
+	       last_stage = (-1,-1);
+	       ir_page = ir_page; flight_time = 0;
+	       gps_page = gps_page;
+	       pfd_page = pfd_page;
+	       misc_page = misc_page;
+	       dl_settings_page = dl_settings_page;
+	       rc_settings_page = rc_settings_page;
+	       strip = strip; first_pos = true;
+	       last_block_name = ""; alt = 0.;
+	       in_kill_mode = false; speed = 0.;
+	       wind_dir = 42.;
+	       wind_speed = 0.; } in
+    Hashtbl.add live_aircrafts ac_id ac;
+
+  (** Periodically send the wind estimation through
+      a WIND_INFO message packed into a RAW_DATALINK *)
+  let send_wind = fun () ->
+    if misc_page#periodic_send then begin
+      (* FIXME: Disabling the timeout would be preferable *)
+      try
+	let a = (pi/.2. -. ac.wind_dir)
+	and w =  ac.wind_speed in
+
+	let wind_east = (sprintf "%.1f" (-. cos a *. w))
+	and wind_north = (sprintf "%.1f" (-. sin a *. w)) in
+	
+	let msg_items = ["WIND_INFO"; "42"; wind_east; wind_north] in
+	let value = String.concat ";" msg_items in
+	let vs = ["ac_id", Pprz.String ac_id; "message", Pprz.String value] in
+	Ground_Pprz.message_send "dl" "RAW_DATALINK" vs;
+      with
+	exc -> log alert ac_id (sprintf "send_wind (%s): %s" ac_id (Printexc.to_string exc))
+    end;
+    true
+  in
+
+  ignore (Glib.Timeout.add 10000 send_wind)
+
+
 
 let ok_color = "green"
 let warning_color = "orange"
@@ -422,25 +462,28 @@ let alert_bind = fun msg cb ->
     try cb sender vs with _ -> () in
   ignore (Alert_Pprz.message_bind msg safe_cb)
 
-let ask_config = fun geomap fp_notebook ac ->
+let ask_config = fun alert geomap fp_notebook ac ->
   let get_config = fun _sender values ->
-    create_ac geomap fp_notebook ac values
+    create_ac alert geomap fp_notebook ac values
   in
   Ground_Pprz.message_req "map2d" "CONFIG" ["ac_id", Pprz.String ac] get_config
 
     
 
-let one_new_ac = fun (geomap:G.widget) fp_notebook ac ->
+let one_new_ac = fun alert (geomap:G.widget) fp_notebook ac ->
   if not (Hashtbl.mem live_aircrafts ac) then begin
-    ask_config geomap fp_notebook ac
+    ask_config alert geomap fp_notebook ac
   end
 
-let get_wind_msg = fun _sender vs ->
+let get_wind_msg = fun (geomap:G.widget) _sender vs ->
   let ac = get_ac vs in
-  let value = fun field_name -> sprintf "%.1f" (Pprz.float_assoc field_name vs) in
-  ac.misc_page#set_mean_aspeed (value "mean_aspeed");
-  ac.misc_page#set_wind_speed (value "wspeed");
-  ac.misc_page#set_wind_dir (value "dir")
+  let value = fun field_name -> Pprz.float_assoc field_name vs in
+  ac.misc_page#set_mean_aspeed (sprintf "%.1f" (value "mean_aspeed"));
+  ac.wind_speed <- value "wspeed";
+  let deg_dir = value "dir" in
+  ac.wind_dir <- (Deg>>Rad)deg_dir;
+  ac.misc_page#set_wind_speed (sprintf "%.1f" ac.wind_speed);
+  ac.misc_page#set_wind_dir (sprintf "%.1f" deg_dir)
 
 let get_fbw_msg = fun _sender vs ->
   let ac = get_ac vs in
@@ -467,8 +510,8 @@ let get_if_calib_msg = fun _sender vs ->
       p#set_rc_setting_mode (Pprz.string_assoc "if_mode" vs);
       p#set (Pprz.float_assoc "if_value1" vs) (Pprz.float_assoc "if_value2" vs)
 
-let listen_wind_msg = fun () ->
-  safe_bind "WIND" get_wind_msg
+let listen_wind_msg = fun (geomap:G.widget) ->
+  safe_bind "WIND" (get_wind_msg geomap)
 
 let listen_fbw_msg = fun () ->
   safe_bind "FLY_BY_WIRE" get_fbw_msg
@@ -481,10 +524,10 @@ let listen_if_calib_msg = fun () ->
 
 let list_separator = Str.regexp ","
     
-let aircrafts_msg = fun (geomap:G.widget) fp_notebook acs ->
+let aircrafts_msg = fun alert (geomap:G.widget) fp_notebook acs ->
   let acs = Pprz.string_assoc "ac_list" acs in
   let acs = Str.split list_separator acs in
-  List.iter (one_new_ac geomap fp_notebook) acs
+  List.iter (one_new_ac alert geomap fp_notebook) acs
 
 
 let listen_dl_value = fun () ->
@@ -515,7 +558,7 @@ let check_approaching = fun ac geo alert ->
   | Some ac_pos ->
       let d = LL.utm_distance (LL.utm_of WGS84 ac_pos) (LL.utm_of WGS84 geo) in
       if d < ac.speed *. approaching_alert_time then
-	log_and_say alert (sprintf "%s, approaching" ac.ac_name)
+	log_and_say alert ac.ac_name (sprintf "%s, approaching" ac.ac_name)
 
 
 let listen_flight_params = fun geomap auto_center_new_ac alert ->
@@ -555,7 +598,7 @@ let listen_flight_params = fun geomap auto_center_new_ac alert ->
     ac.alt <- alt;
     Strip.set_agl ac.strip agl;
     if (ac.flight_time > 10 && agl < 20.) then
-      log_and_say alert (sprintf "%s, %s" ac.ac_name "Ground Proximity Warning")
+      log_and_say alert ac.ac_name (sprintf "%s, %s" ac.ac_name "Ground Proximity Warning")
 
   in
   safe_bind "FLIGHT_PARAM" get_fp;
@@ -577,7 +620,7 @@ let listen_flight_params = fun geomap auto_center_new_ac alert ->
 
     let b = List.assoc cur_block ac.blocks in
     if b <> ac.last_block_name then begin
-      log_and_say alert (sprintf "%s, %s" ac.ac_name b);
+      log_and_say alert ac.ac_name (sprintf "%s, %s" ac.ac_name b);
       ac.last_block_name <- b;
       let b = String.sub b 0 (min 10 (String.length b)) in
       Strip.set_label ac.strip "block_name" b
@@ -641,7 +684,7 @@ let listen_flight_params = fun geomap auto_center_new_ac alert ->
     ac.flight_time <- flight_time;
     let ap_mode = Pprz.string_assoc "ap_mode" vs in
     if ap_mode <> ac.last_ap_mode then begin
-      log_and_say alert (sprintf "%s, %s" ac.ac_name ap_mode);
+      log_and_say alert ac.ac_name (sprintf "%s, %s" ac.ac_name ap_mode);
       ac.last_ap_mode <- ap_mode;
       Strip.set_label ac.strip "AP" (Pprz.string_assoc "ap_mode" vs);
       Strip.set_color ac.strip "AP" (if ap_mode="HOME" then alert_color else ok_color);
@@ -655,7 +698,7 @@ let listen_flight_params = fun geomap auto_center_new_ac alert ->
     let kill_mode = Pprz.string_assoc "kill_mode" vs in
     if not ac.in_kill_mode then
       if kill_mode <> "OFF" then begin
-	log_and_say alert (sprintf "%s, mayday, kill mode" ac.ac_name);
+	log_and_say alert ac.ac_name (sprintf "%s, mayday, kill mode" ac.ac_name);
 	ac.in_kill_mode <- true
       end else
 	ac.in_kill_mode <- false;
@@ -690,7 +733,7 @@ let listen_waypoint_moved = fun () ->
 let get_alert_bat_low = fun a _sender vs -> 
   let ac = get_ac vs in
   let level = Pprz.string_assoc "level" vs in
-  log_and_say a (sprintf "%s %s %s" ac.ac_name "BAT LOW" level)
+  log_and_say a ac.ac_name (sprintf "%s %s %s" ac.ac_name "BAT LOW" level)
 
 let listen_alert = fun a -> 
   alert_bind "BAT_LOW" (get_alert_bat_low a)
@@ -742,5 +785,5 @@ let listen_telemetry_status = fun () ->
 let listen_error = fun a ->
   let get_error = fun _sender vs ->
     let msg = Pprz.string_assoc "message" vs in
-    log_and_say a msg in
+    log_and_say a "gcs" msg in
   safe_bind "TELEMETRY_ERROR" get_error

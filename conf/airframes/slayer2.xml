@@ -4,7 +4,7 @@
 <!-- commands section -->
   <servos>
     <servo name="AILEVON_RIGHT" no="1" min="1000" neutral="1500" max="2000"/>
-    <servo name="AILEVON_LEFT"  no="0" min="2000" neutral="1500" max="1000"/>
+    <servo name="AILEVON_LEFT"  no="0" min="2000" neutral="1500" max="900"/>
     <servo name="GAZ"           no="2" min="1250" neutral="1250" max="1850"/>
   </servos>
 
@@ -51,7 +51,7 @@
 
   <section name="INFRARED" prefix="IR_">
     <define name="ROLL_NEUTRAL_DEFAULT" value="0" unit="deg"/>
-    <define name="PITCH_NEUTRAL_DEFAULT" value="0" unit="deg"/>
+    <define name="PITCH_NEUTRAL_DEFAULT" value="-4" unit="deg"/>
     <define name="DEFAULT_CONTRAST" value="200"/>
     <define name="RAD_OF_IR_CONTRAST" value="0.75"/>
     <linear name="RollOfIrs" arity="2" coeff1=".5" coeff2="0.5"/>
@@ -59,20 +59,20 @@
     <linear name="TopOfIr" arity="1" coeff1="-1"/>
     <define name="RAD_OF_IR_MAX_VALUE" value="0.0045"/>
     <define name="RAD_OF_IR_MIN_VALUE" value="0.00075"/>
-    <define name="ADC_ROLL_NEUTRAL" value="507"/>
-    <define name="ADC_PITCH_NEUTRAL" value="-16"/>
-    <define name="ADC_TOP_NEUTRAL" value="488"/>
+    <define name="ADC_ROLL_NEUTRAL" value="512"/>
+    <define name="ADC_PITCH_NEUTRAL" value="-7"/>
+    <define name="ADC_TOP_NEUTRAL" value="530"/>
 
     <define name="CORRECTION_UP" value="1.6"/>
     <define name="CORRECTION_DOWN" value="1.4"/>
     <define name="CORRECTION_LEFT" value="1."/>
     <define name="CORRECTION_RIGHT" value="1."/>
 
-    <define name="ESTIMATED_PHI_PI_4" value="M_PI_4"/>
+    <define name="ESTIMATED_PHI_PI_4" value="0.8"/>
 
     <define name="360_LATERAL_CORRECTION" value="1."/>
     <define name="360_LONGITUDINAL_CORRECTION" value="1."/>
-    <define name="360_VERTICAL_CORRECTION" value="1.5"/>
+    <define name="360_VERTICAL_CORRECTION" value="1.66"/>
   </section>
 
  <section name="GYRO" prefix="GYRO_">
@@ -113,7 +113,7 @@
     <define name="AUTO_THROTTLE_CLIMB_THROTTLE_INCREMENT" value="0.15" unit="%/(m/s)"/>
     <define name="AUTO_THROTTLE_PGAIN" value="-0.008"/>
     <define name="AUTO_THROTTLE_IGAIN" value="0.25"/>
-    <define name="AUTO_THROTTLE_PITCH_OF_VZ_PGAIN" value="0.35"/>
+    <define name="AUTO_THROTTLE_PITCH_OF_VZ_PGAIN" value="0.1"/>
 
     <!-- auto pitch inner loop -->
     <define name="AUTO_PITCH_PGAIN" value="-0.1"/>
@@ -126,13 +126,13 @@
   </section>
 
   <section name="HORIZONTAL CONTROL" prefix="H_CTL_">
-    <define name="COURSE_PGAIN" value="-0.88"/>
+    <define name="COURSE_PGAIN" value="-0.7"/>
     <define name="COURSE_PRE_BANK_CORRECTION" value="1."/>
     <define name="ROLL_MAX_SETPOINT" value="0.73" unit="radians"/>
 
     <define name="ROLL_PGAIN" value="10000."/>
     <define name="AILERON_OF_THROTTLE" value="0.0"/>
-    <define name="PITCH_PGAIN" value="-6000."/>
+    <define name="PITCH_PGAIN" value="-9000."/>
     <define name="PITCH_DGAIN" value="0."/>
     <define name="ELEVATOR_OF_ROLL" value="0"/>
     

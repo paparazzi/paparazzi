@@ -167,24 +167,26 @@ end
 (*****************************************************************************)
 class misc ~packing (widget: GBin.frame) =
   let table = GPack.table
-      ~rows: 5
+      ~rows: 6
       ~columns: 2
       ~row_spacings: 5
       ~col_spacings: 40
       ~packing
       () in
-  let label = fun text i j ->GMisc.label ~text ~packing:(table#attach ~top:i ~left:j) () in
+  let label = fun text i j -> GMisc.label ~text ~packing:(table#attach ~top:i ~left:j) () in
   let _init =
     ignore (label "Wind speed" 0 0);
     ignore (label "Wind direction" 1 0);
     ignore (label "Wind east" 2 0);
     ignore (label "Wind north" 3 0);
-    ignore (label "Mean airspeed" 4 0) in
+    ignore (label "Mean airspeed" 4 0);
+    ignore (label "Send periodically" 5 0) in
   let wind_speed = label "" 0 1
   and wind_dir = label "" 1 1
   and wind_east = label "" 2 1
   and wind_north = label "" 3 1
-  and mean_aspeed = label "" 4 1 in
+  and mean_aspeed = label "" 4 1
+  and periodic_send = GButton.check_button ~active:true ~packing:(table#attach ~top:5 ~left:1) () in
   let set_east_north = fun () ->
     let w = float_of_string wind_speed#text
     and a = (Deg>>Rad)(90. -. float_of_string wind_dir#text) in
@@ -194,6 +196,7 @@ class misc ~packing (widget: GBin.frame) =
     method set_wind_speed s = wind_speed#set_text s
     method set_wind_dir s = wind_dir#set_text s; set_east_north ()
     method set_mean_aspeed s = mean_aspeed#set_text s
+    method periodic_send = periodic_send#active
   end
 
 (*****************************************************************************)

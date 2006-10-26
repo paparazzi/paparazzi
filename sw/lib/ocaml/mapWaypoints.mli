@@ -35,7 +35,7 @@ class group :
     method show_moved : bool
     method geomap : MapCanvas.widget
     method group : GnoCanvas.group
-  end
+   end
 
 class waypoint :
   group ->

@@ -45,6 +45,9 @@ extern float h_ctl_roll_max_setpoint;
 /* roll and pitch disabling */
 extern bool_t h_ctl_disabled;
 
+/* AUTO1 rate mode */
+extern bool_t h_ctl_auto1_rate;
+
 /* inner roll loop parameters */
 extern float  h_ctl_roll_setpoint;
 extern float  h_ctl_roll_pgain;

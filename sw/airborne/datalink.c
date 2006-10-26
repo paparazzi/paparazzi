@@ -73,6 +73,9 @@ void dl_parse_msg(void) {
     DOWNLINK_SEND_WP_MOVED(&wp_id, &ux, &uy, &a);
   } else if (msg_id == DL_BLOCK) {
     nav_goto_block(DL_BLOCK_block_id(dl_buffer));
+  } else if (msg_id == DL_WIND_INFO) {
+    wind_east = DL_WIND_INFO_east(dl_buffer);
+    wind_north = DL_WIND_INFO_north(dl_buffer);
   } else
 #endif /** NAV */
     if (msg_id == DL_TELEMETRY_MODE) {

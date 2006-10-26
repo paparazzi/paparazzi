@@ -574,14 +574,14 @@ let _main =
 
 
   (** Periodically probe new A/Cs *)
-  ignore (Glib.Timeout.add 2000 (fun () -> Live.message_request "map2d" "AIRCRAFTS" [] (fun _sender vs -> Live.aircrafts_msg geomap ac_notebook vs); false));
+  ignore (Glib.Timeout.add 2000 (fun () -> Live.message_request "map2d" "AIRCRAFTS" [] (fun _sender vs -> Live.aircrafts_msg my_alert geomap ac_notebook vs); false));
 
   (** New aircraft message *)
-  Live.safe_bind "NEW_AIRCRAFT" (fun _sender vs -> Live.one_new_ac geomap ac_notebook (Pprz.string_assoc "ac_id" vs));
+  Live.safe_bind "NEW_AIRCRAFT" (fun _sender vs -> Live.one_new_ac my_alert geomap ac_notebook (Pprz.string_assoc "ac_id" vs));
 
   (** Listen for all messages on ivy *)
   Live.listen_flight_params geomap !auto_center_new_ac my_alert;
-  Live.listen_wind_msg ();
+  Live.listen_wind_msg geomap;
   Live.listen_fbw_msg ();
   Live.listen_engine_status_msg ();
   Live.listen_if_calib_msg ();

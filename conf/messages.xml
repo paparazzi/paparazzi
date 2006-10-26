@@ -372,8 +372,11 @@
   <field name="alt"    type="int32" unit="cm"></field>
  </message>
 
-
-
+ <message name="WIND_INFO" ID="3">
+  <field name="pad0" type="uint16"/>
+  <field name="east" type="float" unit="m/s"/>
+  <field name="north" type="float" unit="m/s"/>
+ </message>
 
  <message name="SETTING" ID="4">
   <field name="index" type="uint8"/>

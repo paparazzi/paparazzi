@@ -133,3 +133,7 @@ val mercator_lat : float -> float
 
 val inv_mercator_lat : float -> float
 (** [-pi; pi] -> wgs84 *)
+
+val bearing : geographic -> geographic -> float * float
+(** [bearing from to] returns (degrees CW/north, m) *)
+

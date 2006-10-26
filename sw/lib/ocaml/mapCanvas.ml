@@ -151,7 +151,7 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
   let region_rectangle = GnoCanvas.rect canvas#root ~props:[`WIDTH_PIXELS 2; `OUTLINE_COLOR "red"] in
   let region_polygon = GnoCanvas.polygon canvas#root ~props:[`WIDTH_PIXELS 2; `OUTLINE_COLOR "red"] in
 
-  let s = 50. in
+  let s = 40. in
   let s2 = s/.2. and s4=s/.4. in
   let points = [|0.;0.; s2;s2; s4;s2; s4;s; -.s4;s; -.s4;s2; -.s2;s2|] in
   let props = [`FILL_COLOR "#a0a0ff"; `FILL_STIPPLE (Gdk.Bitmap.create_from_data ~width:2 ~height:2 "\002\001")] in
@@ -578,14 +578,19 @@ class widget =  fun ?(height=800) ?width ?projection ?georef () ->
   and lbl_alt =  GMisc.label ()
   and lbl_group = GMisc.label () in
 
+  let georef_menu = GMenu.menu ()
+  and optmenu = GMenu.option_menu () in
+
   object(self)
     inherit (basic_widget ~height ?width ?projection ?georef ())
 
     val mutable utm_grid_group = None
-    val mutable info_georef = None
+    val mutable georefs = []
+    val mutable selected_georef = None
 
     method pack_labels =
       self#info#pack lbl_xy#coerce;
+      self#info#pack optmenu#coerce;
       self#info#pack lbl_geo#coerce;
       self#info#pack lbl_alt#coerce;
       self#info#pack lbl_group#coerce;
@@ -597,6 +602,10 @@ class widget =  fun ?(height=800) ?width ?projection ?georef () ->
       my_check_menu_item "Background" ~active:true ~callback:self#switch_background ~packing:self#file_menu#append ();
       my_menu_item "Goto" ~callback:self#goto ~packing:self#file_menu#append ();
       my_menu_item "Fit to window" ~callback:self#fit_to_window ~packing:self#file_menu#append ();
+
+      let callback = fun () -> selected_georef <- None in
+      my_menu_item "WGS84" ~packing:georef_menu#append ~callback ();
+      optmenu#set_menu georef_menu
      )
 
     method switch_utm_grid = fun flag ->
@@ -642,18 +651,22 @@ class widget =  fun ?(height=800) ?width ?projection ?georef () ->
 	  GToolbox.message_box "SRTM" (sprintf "SRTM tile %s not found: %s ?" x (Srtm.error x));
 	  0
 
-    method set_info_georef = fun ?(name="") geo ->
-      info_georef <- Some (name, geo)
+    method georefs = georefs
+
+    method add_info_georef = fun name geo ->
+      georefs <- (name, geo) :: georefs;
+      let callback = fun () -> selected_georef <- Some geo in
+      my_menu_item name ~packing:georef_menu#append ~callback ();
 
     (** display methods *)
     method display_xy = fun s ->  lbl_xy#set_text s
     method display_geo = fun geo ->
-      match info_georef with
+      match selected_georef with
 	None -> lbl_geo#set_text (self#geo_string geo)
-      | Some (name, (georef:< pos : LL.geographic>)) ->
+      | Some (georef:< pos : LL.geographic>) ->
 	  let (dx, dy) = Latlong.utm_sub (LL.utm_of LL.WGS84 geo) (LL.utm_of LL.WGS84 georef#pos) in
 	  let d = sqrt (dx*.dx+.dy*.dy) in
-	  lbl_geo#set_text (sprintf "%.0f %.0fm/%s" ((Rad>>Deg)(atan2 dx dy)) d name)
+	  lbl_geo#set_text (sprintf "%4.0f %4.0fm" ((Rad>>Deg)(atan2 dx dy)) d)
 	  
 
     method display_alt = fun wgs84 ->
