@@ -220,7 +220,7 @@ ap.srcs += inter_mcu.c
 ap.CFLAGS += -DADC -DUSE_AD0 -DUSE_AD0_1 -DUSE_AD0_2 -DUSE_AD0_3 -DUSE_AD1 -DUSE_AD1_7 -DUSE_AD1_3 -DUSE_AD1_2
 ap.srcs += $(SRC_ARCH)/adc_hw.c
 
-ap.CFLAGS += -DGPS -DUBX -DUSE_UART1 -DGPS_LINK=Uart1 -DUART1_BAUD=B19200 -DGPS_CONFIGURE -DZ_CONTRAST_DEFAULT
+ap.CFLAGS += -DGPS -DUBX -DUSE_UART1 -DGPS_LINK=Uart1 -DUART1_BAUD=B19200 -DGPS_CONFIGURE -DZ_CONTRAST_DEFAULT=1
 
 ap.srcs += gps_ubx.c gps.c
 
@@ -235,13 +235,10 @@ ap.srcs += gyro.c
 
 ap.srcs += bomb.c
 
-ap.CFLAGS += -DMOBILE_CAM
-ap.srcs += traffic_info.c cam.c
+ap.CFLAGS += -DMOBILE_CAM -DPOINT_CAM
+ap.srcs += traffic_info.c point.c cam.c
 
-#ap.CFLAGS += -DPOINT_CAM
-#ap.srcs += point.c
-
-# Harware In The Loop
+# Hardware In The Loop
 
 #ap.CFLAGS += -DHITL
 
