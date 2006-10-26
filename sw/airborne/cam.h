@@ -39,6 +39,7 @@ extern float target_x, target_y;
 #define CamFix() {}
 
 void cam_nadir(void);
+void cam_target(void);
 void cam_manual(void);
 void cam_manual_target(void);
 void cam_waypoint_target(uint8_t wp);
