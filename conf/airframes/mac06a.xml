@@ -57,8 +57,8 @@
   </section>
 
   <section name="INFRARED" prefix="IR_">
-    <define name="ROLL_NEUTRAL_DEFAULT" value="3" unit="deg"/>
-    <define name="PITCH_NEUTRAL_DEFAULT" value="6" unit="deg"/>
+    <define name="ROLL_NEUTRAL_DEFAULT" value="6" unit="deg"/>
+    <define name="PITCH_NEUTRAL_DEFAULT" value="9" unit="deg"/>
     <define name="DEFAULT_CONTRAST" value="200"/>
     <define name="RAD_OF_IR_CONTRAST" value="0.75"/>
     <linear name="RollOfIrs" arity="2" coeff1="0.7" coeff2="-0.7"/>
@@ -67,7 +67,7 @@
     <define name="RAD_OF_IR_MAX_VALUE" value="0.0045"/>
     <define name="RAD_OF_IR_MIN_VALUE" value="0.00075"/>
     <define name="ADC_ROLL_NEUTRAL" value="0"/>
-    <define name="ADC_PITCH_NEUTRAL" value="716"/>
+    <define name="ADC_PITCH_NEUTRAL" value="-716"/>
     <define name="ADC_TOP_NEUTRAL" value="512"/>
 
     <define name="CORRECTION_UP" value="1."/>
@@ -77,8 +77,8 @@
 
     <define name="ESTIMATED_PHI_PI_4" value="1."/>
 
-    <define name="360_LATERAL_CORRECTION" value="1.6"/>
-    <define name="360_LONGITUDINAL_CORRECTION" value="1.6"/>
+    <define name="360_LATERAL_CORRECTION" value="1."/>
+    <define name="360_LONGITUDINAL_CORRECTION" value="1."/>
     <define name="360_VERTICAL_CORRECTION" value="1."/>
   </section>
 

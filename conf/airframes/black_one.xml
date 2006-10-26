@@ -1,14 +1,14 @@
 <!DOCTYPE airframe SYSTEM "airframe.dtd">
 
-<airframe name="Microjet7 Tiny 1.1">
+<airframe name="BlackOne Tiny 0.9">
 
 <!-- commands section -->
   <servos>
     <servo name="GAZ"           no="4" min="1000" neutral="1000" max="2000"/>
     <servo name="AILEVON_LEFT"  no="5" min="1900" neutral="1470" max="1100"/>
     <servo name="AILEVON_RIGHT" no="6" min="1100" neutral="1595" max="2000"/>
-    <servo name="HATCH"         no="1" min="1000" neutral="1000" max="1725"/>
-    <servo name="CAM_ROLL"      no="0" min="1025"  neutral="1600" max="2175"/>
+    <servo name="HATCH"         no="1" min="1725" neutral="1725" max="1000"/>
+    <servo name="CAM_ROLL"      no="0" min="1025" neutral="1600" max="2175"/>
     <servo name="CAM_PITCH"     no="2" min="1000" neutral="1500" max="2000"/>
   </servos>
 
@@ -66,13 +66,13 @@
     <define name="PITCH_NEUTRAL_DEFAULT" value="6" unit="deg"/>
     <define name="DEFAULT_CONTRAST" value="200"/>
     <define name="RAD_OF_IR_CONTRAST" value="0.75"/>
-    <linear name="RollOfIrs" arity="2" coeff1="-0.5" coeff2="0.5"/>
-    <linear name="PitchOfIrs" arity="2" coeff1="0.5" coeff2="0.5"/>
+    <linear name="RollOfIrs" arity="2" coeff1="-0.7" coeff2="0.7"/>
+    <linear name="PitchOfIrs" arity="2" coeff1="0.7" coeff2="0.7"/>
     <linear name="TopOfIr" arity="1" coeff1="-1"/>
     <define name="RAD_OF_IR_MAX_VALUE" value="0.0045"/>
     <define name="RAD_OF_IR_MIN_VALUE" value="0.00075"/>
     <define name="ADC_ROLL_NEUTRAL" value="0"/>
-    <define name="ADC_PITCH_NEUTRAL" value="512"/>
+    <define name="ADC_PITCH_NEUTRAL" value="716"/>
     <define name="ADC_TOP_NEUTRAL" value="512"/>
 
     <define name="CORRECTION_UP" value="1."/>
@@ -80,9 +80,11 @@
     <define name="CORRECTION_LEFT" value="1."/>
     <define name="CORRECTION_RIGHT" value="1."/>
 
-    <define name="ESTIMATED_PHI_PI_4" value="M_PI_4"/>
+    <define name="ESTIMATED_PHI_PI_4" value="1."/>
 
-    <define name="ALLOW_INVERTED" value="0"/>
+    <define name="360_LATERAL_CORRECTION" value="1.3"/>
+    <define name="360_LONGITUDINAL_CORRECTION" value="1.3"/>
+    <define name="360_VERTICAL_CORRECTION" value="1."/>
   </section>
 
  <section name="GYRO" prefix="GYRO_">
@@ -201,7 +203,7 @@ ap.srcs = sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c main_fbw.c m
 ap.srcs += commands.c
 
 ap.CFLAGS += -DACTUATORS=\"servos_4015_hw.h\" -DSERVOS_4015
-ap.srcs += $(SRC_ARCH)/servos_4015_hw_new.c actuators.c
+ap.srcs += $(SRC_ARCH)/servos_4015_hw.c actuators.c
 
 ap.CFLAGS += -DRADIO_CONTROL -DRADIO_CONTROL_TYPE=RC_FUTABA
 ap.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c  
@@ -218,21 +220,26 @@ ap.srcs += inter_mcu.c
 ap.CFLAGS += -DADC -DUSE_AD0 -DUSE_AD0_1 -DUSE_AD0_2 -DUSE_AD0_3 -DUSE_AD1 -DUSE_AD1_7 -DUSE_AD1_3 -DUSE_AD1_2
 ap.srcs += $(SRC_ARCH)/adc_hw.c
 
-ap.CFLAGS += -DGPS -DUBX -DUSE_UART1 -DGPS_LINK=Uart1 -DUART1_BAUD=B19200
+ap.CFLAGS += -DGPS -DUBX -DUSE_UART1 -DGPS_LINK=Uart1 -DUART1_BAUD=B19200 -DGPS_CONFIGURE -DZ_CONTRAST_START
 
 ap.srcs += gps_ubx.c gps.c
 
-ap.CFLAGS += -DINFRARED 
+ap.CFLAGS += -DINFRARED -DALT_KALMAN -DIR_360
 ap.srcs += infrared.c estimator.c
 
 ap.CFLAGS += -DNAV -DH_CTL_RATE_LOOP -DAGR_CLIMB -DLOITER_TRIM
 ap.srcs += nav.c fw_h_ctl.c fw_v_ctl.c
 
-
 ap.CFLAGS += -DGYRO -DADXRS150
 ap.srcs += gyro.c
 
-#ap.srcs += bomb.c
+ap.srcs += bomb.c
+
+ap.CFLAGS += -DMOBILE_CAM
+ap.srcs += traffic_info.c cam.c
+
+#ap.CFLAGS += -DPOINT_CAM
+#ap.srcs += point.c
 
 # Harware In The Loop
 
