@@ -34,6 +34,9 @@
 #include "estimator.h"
 #include "inter_mcu.h"
 #include "traffic_info.h"
+#ifdef POINT_CAM
+#include "point.h"
+#endif // POINT_CAM
 
 #define MIN_PPRZ_CAM ((int16_t)(MAX_PPRZ * 0.05))
 #define DELTA_ALPHA 0.2
@@ -81,6 +84,36 @@ void cam_nadir( void ) {
 }
 
 void cam_target( void ) {
+#ifdef POINT_CAM
+  float fRoll;
+  float fTilt;
+
+  float cam_roll;
+
+  cam_roll = ((estimator_phi + (M_PI/4.0)) * MAX_PPRZ) / (M_PI/4.0);
+  cam_roll = TRIM_PPRZ(cam_roll);
+  ap_state->commands[COMMAND_CAM_ROLL_CMD] = MAX_PPRZ;
+
+#if 0
+  vPoint(estimator_x, estimator_y, estimator_z,
+         estimator_hspeed_dir, estimator_theta, estimator_phi,
+         target_x, target_y, target_alt,
+         &fRoll, &fTilt);
+
+  ap_state->commands[COMMAND_CAM_ROLL] = cam_roll;
+      cam_roll = TRIM_PPRZ(cam_roll);
+#endif
+
+#if 0
+printf("pitch %f, roll %f, croll %f, ctilt %f\n", 
+       estimator_theta, estimator_phi, fRoll, fTilt);
+
+printf("alt = %f\n", estimator_z - target_alt);
+printf("y = %f\n", target_y-estimator_y);
+printf("x = %f\n", target_x-estimator_x);
+#endif
+
+#if 0
   /** Relative height of the target */
   float h = estimator_z - target_alt;
 
@@ -97,6 +130,25 @@ void cam_target( void ) {
   float psi_alpha = - (pseudo_psi - M_PI/2 - alpha);
   phi_c = atan(d_h * cos (psi_alpha)) + estimator_phi;
   theta_c = atan(d_h * sin (psi_alpha)) - estimator_theta;
+#endif
+#else
+  /** Relative height of the target */
+  float h = estimator_z - target_alt;
+
+  /** Relative heading of the target (trigo) */
+  float dy = target_y-estimator_y;
+  float dx = target_x-estimator_x;
+  float alpha = atan2(dy, dx);
+
+  /** Projection in a horizontal plane of the distance ac-target */
+  float d = sqrt (dy*dy + dx*dx);
+
+  float d_h = d / h;
+  float pseudo_psi = M_PI/2 - estimator_hspeed_dir; /** Trigo */
+  float psi_alpha = - (pseudo_psi - M_PI/2 - alpha);
+  phi_c = atan(d_h * cos (psi_alpha)) + estimator_phi;
+  theta_c = atan(d_h * sin (psi_alpha)) - estimator_theta;
+#endif // POINT_CAM
 }
 
 #define MAX_DIST_TARGET 500.
