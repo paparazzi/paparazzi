@@ -244,7 +244,7 @@ let rec index_stage = fun x ->
     | "heading" | "attitude" | "go" | "stay" | "xyz" | "set" | "circle" ->
 	incr stage;
 	Xml.Element (Xml.tag x, Xml.attribs x@["no", soi !stage], Xml.children x)
-    | "survey" | "survey_rectangle" ->
+    | "survey" | "survey_rectangle" | "eight" ->
 	incr stage; incr stage;
 	Xml.Element (Xml.tag x, Xml.attribs x@["no", soi !stage], Xml.children x)
     | "exception" ->
@@ -396,6 +396,19 @@ let rec print_stage = fun index_of_waypoints sectors x ->
 	  with
 	    ExtXml.Error _ -> ()
 	end;
+	output_cam_mode x index_of_waypoints;
+	lprintf "return;\n"
+    | "eight" ->
+	stage ();
+	lprintf "nav_eight_init();\n";
+	lprintf "NextStage();\n";
+	left ();
+	stage ();
+	let center = get_index_waypoint (ExtXml.attrib x "center") index_of_waypoints
+	and turn_about = get_index_waypoint (ExtXml.attrib x "turn_around") index_of_waypoints in
+	let r = parsed_attrib  x "radius" in
+	let _vmode = output_vmode x center "" in
+	lprintf "Eight(%s, %s, %s);\n" center turn_about r;
 	output_cam_mode x index_of_waypoints;
 	lprintf "return;\n"
     | "set" ->

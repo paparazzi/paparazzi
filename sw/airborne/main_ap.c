@@ -116,10 +116,16 @@ uint8_t light_mode = 0;
 /** \brief Update paparazzi mode
  */
 static inline uint8_t pprz_mode_update( void ) {
-  /** We remain in home mode until explicit reset from the RC */
   if ((pprz_mode != PPRZ_MODE_HOME &&
        pprz_mode != PPRZ_MODE_GPS_OUT_OF_ORDER)
-      || CheckEvent(rc_event_1)) {
+      ||
+#ifdef UNLOCKED_HOME_MODE
+      TRUE
+#else
+      /** We remain in home mode until explicit reset from the RC */
+      CheckEvent(rc_event_1)
+#endif
+      ) {
     return ModeUpdate(pprz_mode, PPRZ_MODE_OF_PULSE(fbw_state->channels[RADIO_MODE], fbw_state->status));
   } else
     return FALSE;
@@ -224,7 +230,7 @@ inline void telecommand_task( void ) {
   copy_from_to_fbw();
   
   uint8_t really_lost = bit_is_set(fbw_state->status, RADIO_REALLY_LOST) && (pprz_mode == PPRZ_MODE_AUTO1 || pprz_mode == PPRZ_MODE_MANUAL);
-  if (pprz_mode != PPRZ_MODE_HOME && pprz_mode != PPRZ_MODE_GPS_OUT_OF_ORDER && launch && (/*  really_lost || */ too_far_from_home)) {
+  if (pprz_mode != PPRZ_MODE_HOME && pprz_mode != PPRZ_MODE_GPS_OUT_OF_ORDER && launch && (really_lost || too_far_from_home)) {
     pprz_mode = PPRZ_MODE_HOME;
     mode_changed = TRUE;
   }
@@ -472,11 +478,6 @@ void periodic_task_ap( void ) {
       ap_state->commands[COMMAND_THROTTLE] = v_ctl_throttle_setpoint;
       ap_state->commands[COMMAND_ROLL] = h_ctl_aileron_setpoint;
       ap_state->commands[COMMAND_PITCH] = h_ctl_elevator_setpoint;
-
-#ifdef COMMAND_HATCH_CMD
-      extern pprz_t hatch_cmd;
-      ap_state->commands[COMMAND_HATCH_CMD] = hatch_cmd;
-#endif
 
 #if defined MCU_SPI_LINK
       link_mcu_send();

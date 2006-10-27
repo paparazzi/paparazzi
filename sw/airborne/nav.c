@@ -371,21 +371,27 @@ bool_t moved_waypoints[NB_WAYPOINT+1];
  *  uav has not gone past waypoint.
  *  Return true if it is the case.
  */
-static bool_t approaching(uint8_t wp, float approaching_time) {
+static bool_t approaching_xy(float x, float y, float approaching_time) {
   /** distance to waypoint in x */
-  float pw_x = waypoints[wp].x - estimator_x;
+  float pw_x = x - estimator_x;
   /** distance to waypoint in y */
-  float pw_y = waypoints[wp].y - estimator_y;
+  float pw_y = y - estimator_y;
 
   dist2_to_wp = pw_x*pw_x + pw_y *pw_y;
   float min_dist = approaching_time * estimator_hspeed_mod;
   if (dist2_to_wp < min_dist*min_dist)
     return TRUE;
 
-  float scal_prod = (waypoints[wp].x - last_x) * pw_x + (waypoints[wp].y - last_y) * pw_y;
+  float scal_prod = (x - last_x) * pw_x + (y - last_y) * pw_y;
   
   return (scal_prod < 0.);
 }
+
+static bool_t approaching(uint8_t wp, float approaching_time) {
+  return approaching_xy(waypoints[wp].x, waypoints[wp].y, approaching_time);
+}
+
+
 
 /** static inline void fly_to_xy(float x, float y)
  *  \brief Computes \a desired_x, \a desired_y and \a desired_course.
@@ -422,7 +428,6 @@ static void route_to_xy(float last_wp_x, float last_wp_y, float wp_x, float wp_y
   float carrot = CARROT * estimator_hspeed_mod;
 
   alpha += Max(carrot / leg, 0.);
-  alpha = Min(1., alpha);
   in_segment = TRUE;
   segment_x_1 = last_wp_x;
   segment_y_1 = last_wp_y;
@@ -530,4 +535,76 @@ void nav_without_gps(void) {
   vertical_mode = VERTICAL_MODE_AUTO_GAZ;
   nav_desired_gaz = TRIM_UPPRZ((CRUISE_THROTTLE)*MAX_PPRZ);
 #endif
+}
+
+
+enum eight_status { EW, CW, WE, CE };
+
+static enum eight_status eight_status;
+void nav_eight_init( void ) {
+  eight_status = CE;
+}
+
+void nav_eight(uint8_t center, uint8_t TA1, float radius) {
+  float alt = waypoints[center].a;
+  waypoints[TA1].a = alt;
+
+  float center_TA1_x = waypoints[TA1].x - waypoints[center].x;
+  float center_TA1_y = waypoints[TA1].y - waypoints[center].y;
+
+  struct point TA2 = { waypoints[TA1].x - 2*center_TA1_x,
+		       waypoints[TA1].y - 2*center_TA1_y,
+		       alt };
+
+  float d = sqrt(center_TA1_x*center_TA1_x+center_TA1_y*center_TA1_y);
+  float u_x = center_TA1_x / d;
+  float u_y = center_TA1_y / d;
+
+  struct point TA1N = { waypoints[TA1].x + radius * -u_y,
+		 waypoints[TA1].y + radius * u_x,
+		       alt  };
+  struct point TA1S = { waypoints[TA1].x - radius * -u_y,
+			waypoints[TA1].y - radius * u_x,
+		       alt  };
+		 
+  struct point TA2N = { TA2.x + radius * -u_y,
+			TA2.y + radius * u_x,
+			alt  };
+  struct point TA2S = { TA2.x - radius * -u_y,
+			TA2.y - radius * u_x,
+			alt  };
+
+  float qdr_out = M_PI - atan2(u_y, u_x);
+		 
+  switch (eight_status) {
+  case CE :
+    Circle(TA1, radius);
+    if (Qdr(DegOfRad(qdr_out)-10)) {
+      eight_status = EW;
+      InitStage();
+    }
+    return;
+  case EW:
+    route_to_xy(TA1S.x, TA1S.y, TA2N.x, TA2N.y);
+    if (approaching_xy(TA2N.x, TA2N.y,CARROT)) { 
+      eight_status = CW;
+      InitStage();
+    }
+    return;
+  case CW :
+    CircleXY(TA2.x, TA2.y, -radius);
+    if (Qdr(DegOfRad(qdr_out)+10)) {
+      eight_status = WE;
+      InitStage();
+    }
+   return;
+  case WE:
+    route_to_xy(TA2S.x, TA2S.y, TA1N.x, TA1N.y);
+    if (approaching_xy(TA1N.x, TA1N.y,CARROT)) { 
+      eight_status = CE;
+      InitStage();
+    }
+    return;
+
+  }
 }

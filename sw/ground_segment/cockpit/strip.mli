@@ -1,11 +1,19 @@
-type t
+type t =
+    < add_widget : GObj.widget -> unit;
+      connect_shift_alt : (float -> unit) -> unit;
+	set_agl : ?color:string -> float -> unit;
+	set_bat : ?color:string -> float -> unit;
+	  set_color : string -> string -> unit;
+	    set_label : string -> string -> unit >
+
+
+val scrolled : GBin.scrolled_window
+
 val add :
   Pprz.values ->
   string ->
-  (unit -> 'a) -> (unit -> unit) -> (unit -> unit) -> (unit -> unit) -> t
-val set_label : t -> string -> string -> unit
-val set_color : t -> string -> string -> unit
-val set_bat : ?color:string -> t -> float -> unit
-val set_agl : ?color:string -> t -> float -> unit
-val scrolled : GBin.scrolled_window
-val add_widget : t -> GObj.widget -> unit
+  (unit -> 'a) -> (unit -> unit) -> (unit -> unit) ->
+    t
+
+
+

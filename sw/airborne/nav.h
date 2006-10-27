@@ -94,6 +94,10 @@ extern uint8_t horizontal_mode;
   } \
 }
 
+extern void nav_eight_init( void );
+extern void nav_eight(uint8_t, uint8_t, float);
+#define Eight(a, b, c) nav_eight((a), (b), (c))
+
 extern float ground_alt;
 
 extern float survey_west, survey_east, survey_north, survey_south;

@@ -99,6 +99,9 @@
     <define name="CONTROL_RATE" value="60" unit="Hz"/>
     <define name="XBEE_INIT" value="\"ATPL2\rATRN1\rATTT80\r\""/>
     <define name="ALT_KALMAN_ENABLED" value="TRUE"/>
+    <define name="DEFAULT_CIRCLE_RADIUS" value="100"/>
+
+    <define name="UNLOCKED_HOME_MODE" value="TRUE"/>
   </section>
 
  <section name="VERTICAL CONTROL" prefix="V_CTL_">

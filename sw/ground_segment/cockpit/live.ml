@@ -75,6 +75,7 @@ type aircraft = {
     mutable in_kill_mode : bool;
     mutable speed : float;
     mutable alt : float;
+    mutable target_alt : float;
     mutable flight_time : int;
     mutable wind_speed : float;
     mutable wind_dir : float (* Rad *)
@@ -91,7 +92,7 @@ let log =
   let last = ref M.empty in
   fun ?(say = false) (a:Pages.alert) ac_id s ->
     if not (M.mem ac_id !last) || M.find ac_id !last <> s then begin
-      last := M.add ac_id s !last;
+      last := M.add ac_id s (M.remove ac_id !last);
       if say then Speech.say s;
       a#add s
     end
@@ -307,7 +308,7 @@ let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id
   let select_this_tab =
     let n = acs_notebook#page_num ac_frame#coerce in
     fun () -> acs_notebook#goto_page n in
-  let strip = Strip.add config color select_this_tab center_ac commit_moves (mark geomap ac_id track !Plugin.frame) in
+  let strip = Strip.add config color select_this_tab center_ac (mark geomap ac_id track !Plugin.frame) in
 
 
   (** Build the XML flight plan, connect then "jump_to_block" *)
@@ -340,7 +341,7 @@ let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id
       let label = ExtXml.attrib b "strip_button"
       and id = ExtXml.int_attrib b "no" in
       let  b = GButton.button ~label () in
-      Strip.add_widget strip b#coerce;
+      strip#add_widget b#coerce;
       ignore (b#connect#clicked (fun _ -> jump_to_block ac_id id))
     with
        _ -> ())
@@ -380,18 +381,19 @@ let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id
       prerr_endline (Printexc.to_string exc);
       Xml.Element("empty", [], [])
   in
+  let dl_setting_callback = fun idx value -> 
+    let vs = ["ac_id", Pprz.String ac_id; "index", Pprz.Int idx;"value", Pprz.Float value] in
+    Ground_Pprz.message_send "dl" "DL_SETTING" vs in
   let dl_settings_page =
     try
       let xml_settings = Xml.children (ExtXml.child settings_xml "dl_settings") in
-      let callback = fun idx value -> 
-	let vs = ["ac_id", Pprz.String ac_id; "index", Pprz.Int idx;"value", Pprz.Float value] in
-	Ground_Pprz.message_send "dl" "DL_SETTING" vs in
-      let settings_tab = new Pages.settings ~visible xml_settings callback strip in
+      let settings_tab = new Pages.settings ~visible xml_settings dl_setting_callback strip in
+
       let tab_label = (GMisc.label ~text:"Settings" ())#coerce in
       ac_notebook#append_page ~tab_label settings_tab#widget;
       Some settings_tab
     with exc ->
-      prerr_endline (Printexc.to_string exc);
+      log alert ac_id (Printexc.to_string exc);
       None in
   
   let rc_settings_page =
@@ -415,7 +417,7 @@ let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id
 	       dl_settings_page = dl_settings_page;
 	       rc_settings_page = rc_settings_page;
 	       strip = strip; first_pos = true;
-	       last_block_name = ""; alt = 0.;
+	       last_block_name = ""; alt = 0.; target_alt = 0.;
 	       in_kill_mode = false; speed = 0.;
 	       wind_dir = 42.;
 	       wind_speed = 0.; } in
@@ -443,7 +445,24 @@ let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id
     true
   in
 
-  ignore (Glib.Timeout.add 10000 send_wind)
+  ignore (Glib.Timeout.add 10000 send_wind);
+
+  (** Connect the shift altitude buttons *)
+  begin
+    match dl_settings_page with
+      Some settings_tab ->
+	let flight_altitude_id, _flight_altitude_label = 
+	  try
+	    settings_tab#assoc "flight_altitude"
+	  with Not_found ->
+	    failwith "flight_altitude not setable" in
+	strip#connect_shift_alt
+	  (fun x -> 
+	    dl_setting_callback flight_altitude_id (ac.target_alt +. x));
+    | None -> ()
+  end
+      
+
 
 
 
@@ -488,8 +507,8 @@ let get_wind_msg = fun (geomap:G.widget) _sender vs ->
 let get_fbw_msg = fun _sender vs ->
   let ac = get_ac vs in
   let status = Pprz.string_assoc "rc_status" vs in
-  Strip.set_label ac.strip "RC" status;
-  Strip.set_color ac.strip "RC"
+  ac.strip#set_label "RC" status;
+  ac.strip#set_color "RC"
     (match status with
       "LOST" | "REALLY_LOST" -> warning_color 
     | _ -> ok_color)
@@ -498,9 +517,9 @@ let get_fbw_msg = fun _sender vs ->
 
 let get_engine_status_msg = fun _sender vs ->
   let ac = get_ac vs in
-  Strip.set_label ac.strip "throttle" 
+  ac.strip#set_label "throttle" 
     (string_of_float (Pprz.float_assoc "throttle" vs));
-  Strip.set_bat ac.strip (Pprz.float_assoc "bat" vs)
+  ac.strip#set_bat (Pprz.float_assoc "bat" vs)
     
 let get_if_calib_msg = fun _sender vs ->
   let ac = get_ac vs in
@@ -589,14 +608,14 @@ let listen_flight_params = fun geomap auto_center_new_ac alert ->
 	then sprintf "- %.1f" (abs_float value)
 	else sprintf "%.1f" value
       in
-      Strip.set_label ac.strip lbl_name s
+      ac.strip#set_label lbl_name s
     in
     set_label "alt" alt;
     set_label "speed" speed;
     set_label "climb" climb;
     let agl = (a "agl") in
     ac.alt <- alt;
-    Strip.set_agl ac.strip agl;
+    ac.strip#set_agl agl;
     if (ac.flight_time > 10 && agl < 20.) then
       log_and_say alert ac.ac_name (sprintf "%s, %s" ac.ac_name "Ground Proximity Warning")
 
@@ -612,25 +631,25 @@ let listen_flight_params = fun geomap auto_center_new_ac alert ->
     and cur_stage = Pprz.int_assoc "cur_stage" vs in
     highlight_fp ac cur_block cur_stage;
     let set_label = fun l f ->
-      Strip.set_label ac.strip l (sprintf "%.1f" (Pprz.float_assoc f vs)) in
+      ac.strip#set_label l (sprintf "%.1f" (Pprz.float_assoc f vs)) in
     set_label "->" "target_alt";
     set_label "/" "target_climb";
     let target_alt = Pprz.float_assoc "target_alt" vs in
-    Strip.set_label ac.strip "diff_target_alt" (sprintf "%+.0f" (ac.alt -. target_alt));
-
+    ac.strip#set_label "diff_target_alt" (sprintf "%+.0f" (ac.alt -. target_alt));
+    ac.target_alt <- target_alt;
     let b = List.assoc cur_block ac.blocks in
     if b <> ac.last_block_name then begin
       log_and_say alert ac.ac_name (sprintf "%s, %s" ac.ac_name b);
       ac.last_block_name <- b;
       let b = String.sub b 0 (min 10 (String.length b)) in
-      Strip.set_label ac.strip "block_name" b
+      ac.strip#set_label "block_name" b
     end;
     let block_time = Int32.to_int (Pprz.int32_assoc "block_time" vs)
     and stage_time = Int32.to_int (Pprz.int32_assoc "stage_time" vs) in
     let bt = sprintf "%02d:%02d" (block_time / 60) (block_time mod 60) in
-    Strip.set_label ac.strip "block_time" bt;
+    ac.strip#set_label "block_time" bt;
     let st = sprintf "%02d:%02d" (stage_time / 60) (block_time mod 60) in
-    Strip.set_label ac.strip "stage_time" st
+    ac.strip#set_label "stage_time" st
   in
   safe_bind "NAV_STATUS" get_ns;
 
@@ -686,15 +705,15 @@ let listen_flight_params = fun geomap auto_center_new_ac alert ->
     if ap_mode <> ac.last_ap_mode then begin
       log_and_say alert ac.ac_name (sprintf "%s, %s" ac.ac_name ap_mode);
       ac.last_ap_mode <- ap_mode;
-      Strip.set_label ac.strip "AP" (Pprz.string_assoc "ap_mode" vs);
-      Strip.set_color ac.strip "AP" (if ap_mode="HOME" then alert_color else ok_color);
+      ac.strip#set_label "AP" (Pprz.string_assoc "ap_mode" vs);
+      ac.strip#set_color "AP" (if ap_mode="HOME" then alert_color else ok_color);
     end;
     let gps_mode = Pprz.string_assoc "gps_mode" vs in
-    Strip.set_label ac.strip "GPS" gps_mode;
-    Strip.set_color ac.strip "GPS" (if gps_mode<>"3D" then alert_color else ok_color);
+    ac.strip#set_label "GPS" gps_mode;
+    ac.strip#set_color "GPS" (if gps_mode<>"3D" then alert_color else ok_color);
     let ft = 
       sprintf "%02d:%02d:%02d" (flight_time / 3600) ((flight_time / 60) mod 60) (flight_time mod 60) in
-    Strip.set_label ac.strip "flight_time" ft;
+    ac.strip#set_label "flight_time" ft;
     let kill_mode = Pprz.string_assoc "kill_mode" vs in
     if not ac.in_kill_mode then
       if kill_mode <> "OFF" then begin
@@ -775,8 +794,8 @@ let message_request = Ground_Pprz.message_req
 let get_ts = fun _sender vs ->
   let ac = get_ac vs in
   let t = Pprz.float_assoc "time_since_last_bat_msg" vs in
-  Strip.set_label ac.strip "telemetry_status" (if t > 2. then sprintf "%.1f" t else "   ");
-  Strip.set_color ac.strip "telemetry_status" (if t > 5. then alert_color else ok_color)
+  ac.strip#set_label "telemetry_status" (if t > 2. then sprintf "%.1f" t else "   ");
+  ac.strip#set_color "telemetry_status" (if t > 5. then alert_color else ok_color)
   
 
 let listen_telemetry_status = fun () ->

@@ -575,7 +575,7 @@ let new_aircraft = fun id ->
 	gspeed=0.; course = 0.; alt=0.; climb=0.; cur_block=0; cur_stage=0;
       throttle = 0.; throttle_accu = 0.; rpm = 0.; temp = 0.; bat = 42.; amp = 0.; energy = 0; ap_mode= -1; agl = 0.;
       gaz_mode= -1; lateral_mode= -1;
-      gps_mode =0;
+      gps_mode =0; periodic_callbacks = [];
       desired_altitude = 0.;
       desired_climb = 0.;
       pos = { utm_x = 0.; utm_y = 0.; utm_zone = 0 };
@@ -607,7 +607,11 @@ let wind_clear = fun _sender vs ->
   Wind.clear (Pprz.string_assoc "ac_id" vs)
 
 let periodic = fun period cb ->
-  ignore (Glib.Timeout.add period (fun () -> cb (); true))
+  Glib.Timeout.add period (fun () -> cb (); true)
+
+
+let register_periodic = fun ac x ->
+      ac.periodic_callbacks <- x :: ac.periodic_callbacks
 
 (** add the periodic airprox check for the aircraft (name) on all aircraft     *)
 (**    already known                                                           *)
@@ -635,15 +639,15 @@ let periodic_airprox_check = fun name ->
   
   List.iter 
     (fun ac ->
-      periodic aircraft_alerts_period (fun () -> check_airprox ac)
+      register_periodic thisac (periodic aircraft_alerts_period (fun () -> check_airprox ac))
     ) list_ac
 
 let register_aircraft = fun name a ->
   Hashtbl.add aircrafts name a;
-  periodic aircraft_msg_period (fun () -> send_aircraft_msg name);
-  periodic aircraft_alerts_period (fun () -> check_alerts a);
+  register_periodic a (periodic aircraft_msg_period (fun () -> send_aircraft_msg name));
+  register_periodic a (periodic aircraft_alerts_period (fun () -> check_alerts a));
   periodic_airprox_check name;
-  periodic wind_msg_period (fun () -> send_wind a);
+  register_periodic a (periodic wind_msg_period (fun () -> send_wind a));
   Wind.new_ac name 1000;
   ignore(Ground_Pprz.message_bind "WIND_CLEAR" wind_clear)
 

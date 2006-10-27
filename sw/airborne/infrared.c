@@ -46,10 +46,27 @@ float ir_roll_neutral;
 float ir_pitch_neutral;
 
 bool_t ir_360;
-float ir_estimated_phi_pi_4;
+float ir_estimated_phi_pi_4, ir_estimated_phi_minus_pi_4;
+float ir_estimated_theta_pi_4, ir_estimated_theta_minus_pi_4;
 
 #ifndef IR_360
+
 #define IR_360 FALSE
+
+#else
+
+#ifndef IR_ESTIMATED_PHI_MINUS_PI_4
+#define IR_ESTIMATED_PHI_MINUS_PI_4 IR_ESTIMATED_PHI_PI_4
+#endif
+
+#ifndef IR_ESTIMATED_THETA_PI_4
+#define IR_ESTIMATED_THETA_PI_4 IR_ESTIMATED_PHI_PI_4
+#endif
+
+#ifndef IR_ESTIMATED_THETA_MINUS_PI_4
+#define IR_ESTIMATED_THETA_MINUS_PI_4 IR_ESTIMATED_THETA_PI_4
+#endif
+
 #endif
 
 
@@ -133,6 +150,9 @@ void ir_init(void) {
 
   ir_360 = IR_360;
   ir_estimated_phi_pi_4 = IR_ESTIMATED_PHI_PI_4;
+  ir_estimated_phi_minus_pi_4 = IR_ESTIMATED_PHI_MINUS_PI_4;
+  ir_estimated_theta_pi_4 = IR_ESTIMATED_THETA_PI_4;
+  ir_estimated_theta_minus_pi_4 = IR_ESTIMATED_THETA_MINUS_PI_4;
 
   ir_contrast = IR_DEFAULT_CONTRAST;
   ir_rad_of_ir = IR_RAD_OF_IR_CONTRAST / IR_DEFAULT_CONTRAST;
@@ -249,17 +269,27 @@ void estimator_update_ir_estim( void ) {
 }
 
 
-static inline float correct_angle(float m_angle, float est_pi_4) {
-  if (fabs(m_angle) < est_pi_4) 
+/* Correction of the infrared estimation roll angle: returns pi/4 for
+   est_pi_4 */
+static inline float correct_angle(float m_angle, float est_pi_4, float est_minus_pi_4) {
+  if (m_angle >= 0 && m_angle < est_pi_4) 
+    /* 0 .. est_pi_4 */
     return (m_angle * M_PI_4 / est_pi_4);
   else if (m_angle > M_PI - est_pi_4)
+    /* pi-est_pi_4 .. pi */
     return (m_angle - (M_PI - est_pi_4))* M_PI_4 / est_pi_4 + 3*M_PI_4;
   else if (m_angle >= est_pi_4)
+    /* est_pi_4 .. pi-est_pi_4 */
     return (m_angle - est_pi_4) * M_PI_4 / (M_PI_2 - est_pi_4) + M_PI_4;
-  else if (m_angle < - (M_PI - est_pi_4))
-    return (m_angle + M_PI)* M_PI_4 / est_pi_4 + -M_PI;
+  else if (m_angle <= 0 && m_angle > -est_minus_pi_4) 
+    /* -est_pi_4 .. 0 */
+    return (m_angle * M_PI_4 / est_minus_pi_4);
+  else if (m_angle < - (M_PI - est_minus_pi_4))
+    /* -pi .. -(pi-est_pi_4) */
+    return (m_angle + M_PI)* M_PI_4 / est_minus_pi_4 + -M_PI;
   else
-    return (m_angle - (-M_PI+est_pi_4)) * M_PI_4 / (M_PI_2 - est_pi_4) - 3 * M_PI_4;
+    /* -(pi-est_pi_4) .. -est_pi_4 */
+    return (m_angle - (-M_PI+est_minus_pi_4)) * M_PI_4 / (M_PI_2 - est_minus_pi_4) - 3 * M_PI_4;
 }
 
 
@@ -306,10 +336,10 @@ void estimator_update_state_infrared( void ) {
     float tmp_ir_top = ir_top * IR_360_VERTICAL_CORRECTION;
 
     estimator_phi  = atan2(tmp_ir_roll, tmp_ir_top) - ir_roll_neutral;
-    estimator_phi = correct_angle(estimator_phi, ir_estimated_phi_pi_4);
+    estimator_phi = correct_angle(estimator_phi, ir_estimated_phi_pi_4, ir_estimated_phi_minus_pi_4);
 
     estimator_theta  = atan2(tmp_ir_pitch, tmp_ir_top) - ir_pitch_neutral;
-    estimator_theta = correct_angle(estimator_theta, ir_estimated_phi_pi_4);
+    estimator_theta = correct_angle(estimator_theta, ir_estimated_theta_pi_4, ir_estimated_theta_minus_pi_4);
     if (estimator_theta < -M_PI_2)
       estimator_theta += M_PI;
     else if (estimator_theta > M_PI_2)

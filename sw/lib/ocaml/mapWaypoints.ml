@@ -185,7 +185,7 @@ class waypoint = fun (wpts_group:group) (name :string) ?(alt=0.) wgs84 ->
       (* Update AGL on pos or alt change *)
       let callback = fun _ ->
 	try
-	  let wgs84 = LL.of_string (sprintf "WGS84 %s" e_pos#text) in
+	  let wgs84 = wgs84_of_string !selected_georef e_pos#text in
 	  let agl  = float_of_string ea#text -. float (try Srtm.of_wgs84 wgs84 with _ -> 0) in
 	  agl_lab#set_text (sprintf " AGL: %4.0fm" agl)
 	with _ -> ()

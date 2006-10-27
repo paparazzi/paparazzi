@@ -105,6 +105,7 @@ type aircraft = {
     mutable gaz_mode : int;
     mutable lateral_mode : int;
     mutable horizontal_mode : int;
+    mutable periodic_callbacks : Glib.Timeout.id list;
     cam : ac_cam;
     mutable gps_mode : int;
     inflight_calib : inflight_calib;

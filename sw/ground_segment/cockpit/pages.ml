@@ -202,14 +202,15 @@ class misc ~packing (widget: GBin.frame) =
 (*****************************************************************************)
 (* Dataling settings paged                                                   *)
 (*****************************************************************************)
-let one_setting = fun i do_change packing s (tooltips:GData.tooltips) strip ->
+let one_setting = fun i do_change packing s (tooltips:GData.tooltips) (strip:Strip.t) ->
   let f = fun a -> float_of_string (ExtXml.attrib s a) in
   let lower = f "min"
   and upper = f "max"
   and step_incr = f "step" in
   
   let hbox = GPack.hbox ~packing () in
-  let text = try ExtXml.attrib s "shortname" with _ -> ExtXml.attrib s "var" in
+  let varname = ExtXml.attrib s "var" in
+  let text = try ExtXml.attrib s "shortname" with _ -> varname in
   let _l = GMisc.label ~width:100 ~text ~packing:hbox#pack () in
   let _v = GMisc.label ~width:50 ~text:"N/A" ~packing:hbox#pack () in
 
@@ -261,10 +262,10 @@ let one_setting = fun i do_change packing s (tooltips:GData.tooltips) strip ->
     let label = ExtXml.attrib x "name"
     and sp_value = ExtXml.float_attrib x "value" in
     let b = GButton.button ~label () in
-    Strip.add_widget strip b#coerce;
+    strip#add_widget b#coerce;
     ignore (b#connect#clicked (fun _ -> do_change i sp_value)))
     (Xml.children s);
-  _v  
+  (i, varname, _v)
   
   
 let rec build_settings = fun do_change i flat_list xml_settings packing tooltips strip ->
@@ -303,17 +304,21 @@ class settings = fun ?(visible = fun _ -> true) xml_settings do_change strip ->
   let vbox = GPack.vbox ~packing:sw#add_with_viewport () in
   let tooltips = GData.tooltips () in
   let i = ref 0 and l = ref [] in
-  let current_values =
+  let ordered_list =
     build_settings do_change i l xml_settings vbox#add tooltips strip;
-    Array.of_list (List.rev !l) in
+    List.rev !l in
+  let variables = Array.of_list ordered_list in
+  let assocs = List.map (fun (i,var,_v) -> (var, (i, _v))) ordered_list in
   object (self)
     method widget = sw#coerce
     method length = !i
     method set = fun i v ->
       if visible self#widget then
 	let s = string_of_float v in
-	if current_values.(i)#text <> s then
-	  current_values.(i)#set_text s
+	let (_, _, current_value) = variables.(i) in
+	if current_value#text <> s then
+	  current_value#set_text s
+    method assoc var = List.assoc var assocs
   end
 
 

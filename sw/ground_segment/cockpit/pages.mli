@@ -28,6 +28,7 @@ class settings : ?visible:(GObj.widget -> bool) -> Xml.xml list -> (int -> float
   object
     method length : int
     method set : int -> float -> unit
+    method assoc : string -> int * GMisc.label
     method widget : GObj.widget
   end
 

@@ -24,11 +24,18 @@
       <dl_settings NAME="ir">
         <dl_setting MAX="0.3" MIN="-0.3" STEP="0.01" VAR="ir_roll_neutral" shortname="roll_neutral"/>
         <dl_setting MAX="0.5" MIN="-0.3" STEP="0.01" VAR="ir_pitch_neutral" shortname="pitch_neutral"/>
+
+<!--
         <dl_setting MAX="1.5" MIN="0.5" STEP="0.1" VAR="ir_correction_left" shortname="corr_left"/>
         <dl_setting MAX="1.5" MIN="0.5" STEP="0.1" VAR="ir_correction_right" shortname="corr_right"/>
         <dl_setting MAX="1.5" MIN="0.5" STEP="0.1" VAR="ir_correction_up" shortname="corr_up"/>
         <dl_setting MAX="1.5" MIN="0.5" STEP="0.1" VAR="ir_correction_down" shortname="corr_down"/>
-        <dl_setting MAX="1." MIN="0.1" STEP="0.05" VAR="ir_estimated_phi_pi_4" shortname="est. phi pi/4"/>
+-->
+
+        <dl_setting MAX="1.5" MIN="0.4" STEP="0.05" VAR="ir_estimated_phi_pi_4" shortname="est. right"/>
+        <dl_setting MAX="1.5" MIN="0.4" STEP="0.05" VAR="ir_estimated_phi_minus_pi_4" shortname="est. left"/>
+        <dl_setting MAX="1.5" MIN="0.4" STEP="0.05" VAR="ir_estimated_theta_pi_4" shortname="est. up"/>
+        <dl_setting MAX="1.5" MIN="0.4" STEP="0.05" VAR="ir_estimated_phi_minus_pi_4" shortname="est. down"/>
         <dl_setting MAX="1" MIN="0" STEP="1" VAR="ir_360" shortname="ir_360"/>
       </dl_settings>
 
