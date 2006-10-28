@@ -46,6 +46,7 @@ uint8_t xbee_ovrn, xbee_error;
 
 
 void xbee_init( void ) {
+#ifndef NO_XBEE_API_INIT
   /** Switching to AT mode (FIXME: busy waiting) */
   XBeePrintString(AT_COMMAND_SEQUENCE);
 
@@ -71,4 +72,5 @@ void xbee_init( void ) {
 
   /** Switching back to normal mode */
   XBeePrintString(AT_EXIT);
+#endif
 }

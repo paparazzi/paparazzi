@@ -97,7 +97,8 @@
     <define name="CARROT" value="3." unit="s"/>
     <define name="KILL_MODE_DISTANCE" value="(1.5*MAX_DIST_FROM_HOME)"/>
     <define name="CONTROL_RATE" value="60" unit="Hz"/>
-    <define name="XBEE_INIT" value="\"ATPL2\rATRN1\rATTT80\r\""/>
+    <define name="XBEE_INIT" value="\"ATPL2\rATRN1\rATTT80\rATWR\r\""/>
+    <define name="NO_XBEE_API_INIT" value="TRUE"/>
     <define name="ALT_KALMAN_ENABLED" value="TRUE"/>
 
     <define name="TRIGGER_DELAY" value="1.1"/>
@@ -235,7 +236,9 @@ ap.CFLAGS += -DGYRO -DIDG300
 ap.srcs += gyro.c bomb.c
 
 # Video switch
-ap.CFLAGS += -DLIGHT_PIN_1=3
+ap.CFLAGS += -DLIGHT_PIN_1=3 -DUSE_GPIO
+ap.srcs += $(SRC_ARCH)/gpio.c
+
 
 # Harware In The Loop
 

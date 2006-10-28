@@ -7,6 +7,7 @@
     <dl_settings NAME="flight params">
       <dl_setting MAX="2000" MIN="0" STEP="10" VAR="flight_altitude" shortname="altitude"/>
       <dl_setting MAX="1" MIN="0" STEP="1" VAR="light_mode"/>
+      <dl_setting MAX="1" MIN="0" STEP="1" VAR="gpio1_status"/>
       <dl_setting MAX="10" MIN="-10" STEP="0.5" VAR="wind_east"/>
       <dl_setting MAX="10" MIN="-10" STEP="0.5" VAR="wind_north"/>
     </dl_settings>

@@ -55,6 +55,7 @@
 #include "datalink.h"
 #include "wavecard.h"
 #include "xbee.h"
+#include "gpio.h"
 
 #ifdef LED
 #include "led.h"
@@ -106,7 +107,7 @@ bool_t gps_lost = FALSE;
 #define LIGHT_MODE_ON 1
 #define LIGHT_MODE_FLASH 2
 
-uint8_t light_mode = 0;
+uint8_t light_mode = 1;
 
 
 #define Min(x, y) (x < y ? x : y)
@@ -464,7 +465,14 @@ void periodic_task_ap( void ) {
       LED_OFF(LIGHT_PIN_1)
     else
       LED_TOGGLE(LIGHT_PIN_1)
+    break;
 #endif /* LIGHT_PIN_1 */
+
+#ifdef USE_GPIO
+  case 3:
+    GpioUpdate1();
+    break;
+#endif
 
     /*  default: */
   }
@@ -545,6 +553,10 @@ void init_ap( void ) {
 #ifdef USE_UART1
   Uart1Init();
 #endif
+#ifdef USE_GPIO
+  GpioInit();
+#endif
+
 
 
   /************* Links initialization ***************/
