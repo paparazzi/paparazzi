@@ -149,7 +149,8 @@
     <define name="ROLL_RATE_MODE_DEFAULT" value="1"/>
     <define name="ROLL_RATE_SETPOINT_PGAIN" value="-5.5"/>
     <define name="ROLL_RATE_MAX_SETPOINT" value="10"/>
-    <define name="ROLL_RATE_PGAIN" value="1000."/>
+    <define name="LO_THROTTLE_ROLL_RATE_PGAIN" value="1500."/>
+    <define name="HI_THROTTLE_ROLL_RATE_PGAIN" value="900."/>
     <define name="ROLL_RATE_IGAIN" value="0."/>
     <define name="ROLL_RATE_DGAIN" value="0."/>
     <define name="ROLL_RATE_SUM_NB_SAMPLES" value="64"/>

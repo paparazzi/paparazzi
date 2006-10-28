@@ -235,7 +235,7 @@ let one_setting = fun i do_change packing s (tooltips:GData.tooltips) (strip:Str
     else (* slider *)
       let value = (lower +. upper) /. 2. in
       let adj = GData.adjustment ~value ~lower ~upper:(upper+.10.) ~step_incr () in
-      let _scale = GRange.scale `HORIZONTAL ~digits:2 ~adjustment:adj ~packing:hbox#add () in
+      let _scale = GRange.scale `HORIZONTAL ~digits:3 ~adjustment:adj ~packing:hbox#add () in
       
       (fun _ -> do_change i adj#value)
   in

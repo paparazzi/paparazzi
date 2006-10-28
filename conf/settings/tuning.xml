@@ -49,7 +49,8 @@
 
       <dl_settings name="rate">
         <dl_setting MAX="1" MIN="0" STEP="0.1" VAR="h_ctl_roll_rate_mode" shortname="mode"/>
-        <dl_setting MAX="5000" MIN="0" STEP="100" VAR="h_ctl_roll_rate_pgain" shortname="pgain"/>
+        <dl_setting MAX="5000" MIN="0" STEP="100" VAR="h_ctl_hi_throttle_roll_rate_pgain" shortname="hi th pgain"/>
+        <dl_setting MAX="5000" MIN="0" STEP="100" VAR="h_ctl_lo_throttle_roll_rate_pgain" shortname="lo th pgain"/>
         <dl_setting MAX="2" MIN="-2" STEP="0.1" VAR="h_ctl_roll_rate_dgain" shortname="dgain"/>
         <dl_setting MAX="0" MIN="-20" STEP="1" VAR="h_ctl_roll_rate_setpoint_pgain" shortname="roll_pgain"/>
         <dl_setting MAX="1" MIN="0" STEP="1" VAR="h_ctl_auto1_rate" shortname="AUTO1 rate"/>
@@ -62,12 +63,12 @@
       <dl_settings name="auto_throttle">
         <dl_setting MAX="1" MIN="0.0" STEP="0.05" VAR="v_ctl_auto_throttle_cruise_throttle" shortname="cruise throttle">
         <strip_button name="Dash" value="1"/>
-        <strip_button name="Loiter" value="0.45"/>
+        <strip_button name="Loiter" value="0.47"/>
         <strip_button name="Cruise" value="0.65"/>
       </dl_setting>
        
 
-        <dl_setting MAX="-0.01" MIN="-0.1" STEP="0.01" VAR="v_ctl_auto_throttle_pgain" shortname="throttle_pgain"/>
+        <dl_setting MAX="-0.005" MIN="-0.1" STEP="0.005" VAR="v_ctl_auto_throttle_pgain" shortname="throttle_pgain"/>
         <dl_setting MAX="1" MIN="0.05" STEP="0.05" VAR="v_ctl_auto_throttle_igain" shortname="throttle_igain"/>
         <dl_setting MAX="0" MIN="-4000" STEP="100" VAR="v_ctl_auto_throttle_dash_trim" shortname="dash trim"/>
         <dl_setting MIN="0" MAX="3000" STEP="100" VAR="v_ctl_auto_throttle_loiter_trim" shortname="loiter trim"/>

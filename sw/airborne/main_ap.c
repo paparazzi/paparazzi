@@ -223,6 +223,10 @@ static inline void reporting_task( void ) {
   }
 }
 
+#ifndef RC_LOST_MODE
+#define RC_LOST_MODE PPRZ_MODE_HOME
+#endif
+
 /** \brief Function to be called when a command is available (usually comming from the radio command)
  */
 inline void telecommand_task( void ) {
@@ -230,9 +234,15 @@ inline void telecommand_task( void ) {
   copy_from_to_fbw();
   
   uint8_t really_lost = bit_is_set(fbw_state->status, RADIO_REALLY_LOST) && (pprz_mode == PPRZ_MODE_AUTO1 || pprz_mode == PPRZ_MODE_MANUAL);
-  if (pprz_mode != PPRZ_MODE_HOME && pprz_mode != PPRZ_MODE_GPS_OUT_OF_ORDER && launch && (really_lost || too_far_from_home)) {
-    pprz_mode = PPRZ_MODE_HOME;
-    mode_changed = TRUE;
+  if (pprz_mode != PPRZ_MODE_HOME && pprz_mode != PPRZ_MODE_GPS_OUT_OF_ORDER && launch) {
+    if  (too_far_from_home) {
+      pprz_mode = PPRZ_MODE_HOME;
+      mode_changed = TRUE;
+    }
+    if  (really_lost) {
+      pprz_mode = RC_LOST_MODE;
+      mode_changed = TRUE;
+    }
   }
   if (bit_is_set(fbw_state->status, AVERAGED_CHANNELS_SENT)) {
     bool_t pprz_mode_changed = pprz_mode_update();
@@ -340,6 +350,11 @@ static void navigation_task( void ) {
       v_ctl_climb_loop();
     if (vertical_mode == VERTICAL_MODE_AUTO_GAZ)
       v_ctl_throttle_setpoint = nav_desired_gaz;
+
+#ifdef V_CTL_POWER_CTL_BAT_NOMINAL
+    v_ctl_throttle_setpoint *= 10. * V_CTL_POWER_CTL_BAT_NOMINAL / (float)vsupply;
+    v_ctl_throttle_setpoint = TRIM_UPPRZ(v_ctl_throttle_setpoint);
+#endif
 
     h_ctl_pitch_setpoint = nav_pitch;
     Bound(h_ctl_pitch_setpoint, H_CTL_PITCH_MIN_SETPOINT, H_CTL_PITCH_MAX_SETPOINT);

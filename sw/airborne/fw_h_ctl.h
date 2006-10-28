@@ -68,6 +68,8 @@ extern float h_ctl_elevator_of_roll;
 extern float h_ctl_roll_rate_mode;
 extern float h_ctl_roll_rate_setpoint_pgain;
 extern float h_ctl_roll_rate_pgain;
+extern float h_ctl_hi_throttle_roll_rate_pgain;
+extern float h_ctl_lo_throttle_roll_rate_pgain;
 extern float h_ctl_roll_rate_igain;
 extern float h_ctl_roll_rate_dgain;
 #endif

@@ -110,6 +110,8 @@
   </section>
  
   <section name="VERTICAL CONTROL" prefix="V_CTL_">
+
+    <define name="POWER_CTL_BAT_NOMINAL" value="11.1" unit="volt"/>
     <!-- outer loop proportional gain -->
     <define name="ALTITUDE_PGAIN" value="-0.03"/>
     <!-- outer loop saturation -->
@@ -153,7 +155,8 @@
     <define name="ROLL_RATE_MODE_DEFAULT" value="1"/>
     <define name="ROLL_RATE_SETPOINT_PGAIN" value="-5." unit="rad/s/rad"/>
     <define name="ROLL_RATE_MAX_SETPOINT" value="10"/>
-    <define name="ROLL_RATE_PGAIN" value="1000."/>
+    <define name="LO_THROTTLE_ROLL_RATE_PGAIN" value="1000."/>
+    <define name="HI_THROTTLE_ROLL_RATE_PGAIN" value="1000."/>
     <define name="ROLL_RATE_IGAIN" value="0."/>
     <define name="ROLL_RATE_DGAIN" value="0."/>
     <define name="ROLL_RATE_SUM_NB_SAMPLES" value="64"/>

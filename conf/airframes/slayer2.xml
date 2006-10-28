@@ -69,6 +69,7 @@
     <define name="CORRECTION_RIGHT" value="1."/>
 
     <define name="ESTIMATED_PHI_PI_4" value="0.7"/>
+    <define name="ESTIMATED_PHI_MINUS_PI_4" value="0.76"/>
 
     <define name="360_LATERAL_CORRECTION" value="1."/>
     <define name="360_LONGITUDINAL_CORRECTION" value="1."/>
@@ -99,6 +100,7 @@
     <define name="DEFAULT_CIRCLE_RADIUS" value="100"/>
 
     <define name="UNLOCKED_HOME_MODE" value="TRUE"/>
+    <define name="RC_LOST_MODE" value="PPRZ_MODE_AUTO2"/>
   </section>
 
  <section name="VERTICAL CONTROL" prefix="V_CTL_">
@@ -109,12 +111,12 @@
 
     <!-- auto throttle inner loop -->
     <define name="AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE" value="0.65"/>
-    <define name="AUTO_THROTTLE_MIN_CRUISE_THROTTLE" value=".4"/>
+    <define name="AUTO_THROTTLE_MIN_CRUISE_THROTTLE" value=".47"/>
     <define name="AUTO_THROTTLE_MAX_CRUISE_THROTTLE" value="1"/>
-    <define name="AUTO_THROTTLE_LOITER_TRIM" value="1000"/>
+    <define name="AUTO_THROTTLE_LOITER_TRIM" value="1250"/>
     <define name="AUTO_THROTTLE_DASH_TRIM" value="-2500"/>
     <define name="AUTO_THROTTLE_CLIMB_THROTTLE_INCREMENT" value="0.15" unit="%/(m/s)"/>
-    <define name="AUTO_THROTTLE_PGAIN" value="-0.008"/>
+    <define name="AUTO_THROTTLE_PGAIN" value="-0.01"/>
     <define name="AUTO_THROTTLE_IGAIN" value="0.25"/>
     <define name="AUTO_THROTTLE_PITCH_OF_VZ_PGAIN" value="0.1"/>
 
@@ -129,7 +131,7 @@
   </section>
 
   <section name="HORIZONTAL CONTROL" prefix="H_CTL_">
-    <define name="COURSE_PGAIN" value="-0.85"/>
+    <define name="COURSE_PGAIN" value="-1."/>
     <define name="COURSE_PRE_BANK_CORRECTION" value="1."/>
     <define name="ROLL_MAX_SETPOINT" value="0.73" unit="radians"/>
     <define name="PITCH_MAX_SETPOINT" value="0.5" unit="radians"/>
@@ -139,13 +141,14 @@
     <define name="AILERON_OF_THROTTLE" value="0.0"/>
     <define name="PITCH_PGAIN" value="-9000."/>
     <define name="PITCH_DGAIN" value="0."/>
-    <define name="ELEVATOR_OF_ROLL" value="0"/>
+    <define name="ELEVATOR_OF_ROLL" value="1000"/>
     
     <!--  roll rate loop -->
     <define name="ROLL_RATE_MODE_DEFAULT" value="1"/>
     <define name="ROLL_RATE_SETPOINT_PGAIN" value="-5.5"/>
     <define name="ROLL_RATE_MAX_SETPOINT" value="10"/>
-    <define name="ROLL_RATE_PGAIN" value="1000."/>
+    <define name="LO_THROTTLE_ROLL_RATE_PGAIN" value="1500."/>
+    <define name="HI_THROTTLE_ROLL_RATE_PGAIN" value="900."/>
     <define name="ROLL_RATE_IGAIN" value="0."/>
     <define name="ROLL_RATE_DGAIN" value="0."/>
     <define name="ROLL_RATE_SUM_NB_SAMPLES" value="64"/>
@@ -165,7 +168,7 @@
     <define name="CLIMB_PITCH" value="0.42"/><!-- Pitch for Aggressive Climb -->
     <define name="DESCENT_THROTTLE" value="0.1"/><!-- Gaz for Aggressive Decent -->
     <define name="DESCENT_PITCH" value="-0.5"/><!-- Pitch for Aggressive Decent -->
-    <define name="CLIMB_NAV_RATIO" value="0.5"/><!-- Percent Navigation for Altitude Error Equal to Start Altitude -->
+    <define name="CLIMB_NAV_RATIO" value="0.4"/><!-- Percent Navigation for Altitude Error Equal to Start Altitude -->
     <define name="DESCENT_NAV_RATIO" value="1.0"/>
     </section>
 

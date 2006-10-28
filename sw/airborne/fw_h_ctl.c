@@ -28,6 +28,7 @@
  *
  */
 
+#include "std.h"
 #include "led.h"
 #include "fw_h_ctl.h"
 #include "estimator.h"
@@ -70,7 +71,8 @@ float h_ctl_elevator_of_roll;
 float h_ctl_roll_rate_setpoint;
 float h_ctl_roll_rate_mode;
 float h_ctl_roll_rate_setpoint_pgain;
-float h_ctl_roll_rate_pgain;
+float h_ctl_hi_throttle_roll_rate_pgain;
+float h_ctl_lo_throttle_roll_rate_pgain;
 float h_ctl_roll_rate_igain;
 float h_ctl_roll_rate_dgain;
 #endif
@@ -109,7 +111,8 @@ void h_ctl_init( void ) {
 #ifdef H_CTL_RATE_LOOP
   h_ctl_roll_rate_mode = H_CTL_ROLL_RATE_MODE_DEFAULT;
   h_ctl_roll_rate_setpoint_pgain = H_CTL_ROLL_RATE_SETPOINT_PGAIN;
-  h_ctl_roll_rate_pgain = H_CTL_ROLL_RATE_PGAIN;
+  h_ctl_hi_throttle_roll_rate_pgain = H_CTL_HI_THROTTLE_ROLL_RATE_PGAIN;
+  h_ctl_lo_throttle_roll_rate_pgain = H_CTL_LO_THROTTLE_ROLL_RATE_PGAIN;
   h_ctl_roll_rate_igain = H_CTL_ROLL_RATE_IGAIN;
   h_ctl_roll_rate_dgain = H_CTL_ROLL_RATE_DGAIN;
 #endif
@@ -184,8 +187,10 @@ static inline void h_ctl_roll_rate_loop() {
   static float last_err = 0;
   float d_err = err - last_err;
   last_err = err;
-
-  float cmd = h_ctl_roll_rate_pgain * ( err + h_ctl_roll_rate_igain * roll_rate_sum_err / H_CTL_ROLL_RATE_SUM_NB_SAMPLES + h_ctl_roll_rate_dgain * d_err);
+  
+  float throttle_dep_pgain =
+    Blend(h_ctl_hi_throttle_roll_rate_pgain, h_ctl_lo_throttle_roll_rate_pgain, v_ctl_throttle_setpoint/((float)MAX_PPRZ));
+  float cmd = throttle_dep_pgain * ( err + h_ctl_roll_rate_igain * roll_rate_sum_err / H_CTL_ROLL_RATE_SUM_NB_SAMPLES + h_ctl_roll_rate_dgain * d_err);
 
   h_ctl_aileron_setpoint = TRIM_PPRZ(cmd);
 }
