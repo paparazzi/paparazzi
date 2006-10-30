@@ -1,0 +1,4 @@
+<map file="practice_mav06.png" projection="Mercator">
+  <point x="0" y="0" geo="WGS84 30.695373	-86.401376"/>
+  <point x="1321" y="1944" geo="WGS84 30.677436	-86.387195"/>
+</map>

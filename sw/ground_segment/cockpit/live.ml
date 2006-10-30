@@ -78,7 +78,8 @@ type aircraft = {
     mutable target_alt : float;
     mutable flight_time : int;
     mutable wind_speed : float;
-    mutable wind_dir : float (* Rad *)
+    mutable wind_dir : float; (* Rad *)
+    mutable ground_prox : bool;
   }
 
 let live_aircrafts = Hashtbl.create 3
@@ -419,7 +420,7 @@ let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id
 	       strip = strip; first_pos = true;
 	       last_block_name = ""; alt = 0.; target_alt = 0.;
 	       in_kill_mode = false; speed = 0.;
-	       wind_dir = 42.;
+	       wind_dir = 42.; ground_prox = false;
 	       wind_speed = 0.; } in
     Hashtbl.add live_aircrafts ac_id ac;
 
@@ -616,8 +617,11 @@ let listen_flight_params = fun geomap auto_center_new_ac alert ->
     let agl = (a "agl") in
     ac.alt <- alt;
     ac.strip#set_agl agl;
-    if (ac.flight_time > 10 && agl < 20.) then
-      log_and_say alert ac.ac_name (sprintf "%s, %s" ac.ac_name "Ground Proximity Warning")
+    if not ac.ground_prox && ac.flight_time > 10 && agl < 20. then begin
+      log_and_say alert ac.ac_name (sprintf "%s, %s" ac.ac_name "Ground Proximity Warning");
+      ac.ground_prox <- true
+    end else if agl > 25. then
+      ac.ground_prox <- false
 
   in
   safe_bind "FLIGHT_PARAM" get_fp;

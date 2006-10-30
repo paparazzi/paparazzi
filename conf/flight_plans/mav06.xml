@@ -1,0 +1,156 @@
+<!DOCTYPE flight_plan SYSTEM "flight_plan.dtd">
+
+<flight_plan alt="120" ground_alt="62" lat0="30.686793" lon0="-86.394285" max_dist_from_home="950" name="MAV06" qfu="270" security_height="25">
+<!--
+<flight_plan alt="870" ground_alt="809" lat0="32.129622" lon0="-110.902775" max_dist_from_home="1000" name="MAV06" qfu="270" security_height="25">
+-->
+<header>
+#include "bomb.h"
+</header>
+  <waypoints>
+    <waypoint alt="61." name="TARGET" x="0" y="20"/>
+    <waypoint name="TARGET1" x="0" y="200"/>
+    <waypoint name="TARGET2" x="-20" y="420"/>
+    <waypoint name="TARGET3" x="12" y="430"/>
+    <waypoint name="BASELEG" x="236.648237551" y="11.8457887582"/>
+    <waypoint alt="100." name="START" x="222.553515882" y="20"/>
+    <waypoint name="RELEASE" x="149.970542131" y="126.560028979"/>
+    <waypoint name="HOME" x="0" y="0"/>
+    <waypoint name="WAIT" x="23.5391029402" y="100.6799967308"/>
+    <waypoint name="CLIMB" x="-136.641743479" y="-0.226266639773"/>
+    <waypoint name="C" x="120" y="200"/>
+    <waypoint alt="92" name="AF" x="300.092754213" y="25"/>
+    <waypoint alt="62." name="TD" x="0" y="50"/>
+    <waypoint name="TOD" x="273.76053547" y="40.3822643566"/>
+    <waypoint name="OVERRUN" x="-73.8720565479" y="-55.1558631952"/>
+
+<!--
+    <waypoint alt="810." name="TARGET" x="5" y="16"/>
+    <waypoint name="TARGET1" x="50" y="250"/>
+    <waypoint name="TARGET2" x="-25" y="250"/>
+    <waypoint name="TARGET3" x="-100" y="250"/>
+    <waypoint name="BASELEG" x="130" y="125"/>
+    <waypoint name="START" x="249.532398818" y="30.4443135639"/>
+    <waypoint name="RELEASE" x="50" y="25"/>
+    <waypoint name="HOME" x="0" y="0"/>
+    <waypoint name="WAIT" x="0" y="100"/>
+    <waypoint name="CLIMB" x="-100" y="100"/>
+    <waypoint name="C" x="-300" y="300"/>
+    <waypoint name="AF" x="352.390500091" y="30" alt="840"/>
+    <waypoint name="TD" x="-10" y="30" alt="809."/>
+    <waypoint name="TOD" x="200.390500091" y="30.474189617"/>
+    <waypoint name="OVERRUN" x="-100.390500091" y="10.474189617"/>
+-->
+  </waypoints>
+  <blocks>
+<!--
+    <block name="wait GPS">
+      <while cond="!GPS_FIX_VALID(gps_mode)"/>
+    </block>
+
+    <block name="init">
+      <while cond="10 > block_time"/>
+      <set value="reset_nav_reference()" var="unit"/>
+      <set value="reset_waypoints()" var="unit"/>
+    </block>
+-->
+
+    <block name="kill">
+      <attitude roll="0" throttle="0" vmode="throttle"/>
+    </block>
+
+    <block name="climb">
+      <exception cond=" estimator_z > ground_alt +30" deroute="wait"/>
+      <attitude roll="0" vmode="throttle" throttle="0.8" pitch="0.3" until="10> stage_time"/>
+    </block>
+
+    <block name="wait" strip_button="Wait">
+      <set value="v_ctl_auto_throttle_nominal_cruise_throttle" var="v_ctl_auto_throttle_cruise_throttle"/>
+      <circle radius="-100" wp="WAIT"/>
+    </block>
+
+     <block name="Climb 0">
+      <circle climb="0" radius="100" vmode="climb" wp="WAIT"/>
+    </block>
+
+
+
+
+<!-- ********* Circles around targets ************ -->
+    <block name="target1" strip_button="T1">
+      <eight center="TARGET1" turn_around="C" radius="80"/>
+    </block>
+    <block name="target2" strip_button="T2">
+      <circle radius="-80" wp="TARGET2"/>
+    </block>
+    <block name="target3" strip_button="T3">
+      <eight center="TARGET3" turn_around="C" radius="DEFAULT_CIRCLE_RADIUS"/>
+    </block>
+
+
+<!-- ********* Drop ******************** -->
+    <block name="bomb" strip_button="Bomb">
+      <set value="BombComputeApproach()" var="unit"/>
+      <circle radius="BOMB_RADIUS" until="Qdr(DegOfRad(bomb_start_qdr)-10)" wp="BASELEG"/>
+    </block>
+    <block name="align">
+      <exception cond="BombUpdateRelease()" deroute="kill"/>
+      <go approaching_time="bomb_trigger_delay" from="START" hmode="route" wp="RELEASE"/>
+    </block>
+    <block name="shoot">
+      <set value="BombShoot()" var="unit"/>
+      <go approaching_time="0" from="RELEASE" hmode="route" wp="CLIMB"/>
+      <set value="BombCloseHatch()" var="unit"/>
+      <deroute block="wait"/>
+    </block>
+    <block name="close">
+      <set value="BombCloseHatch()" var="unit"/>
+      <deroute block="wait"/>
+    </block>
+
+
+
+<!-- ****************** Landing **************** -->
+    <block name="land">
+       <set value="compute_baseleg()" var="unit"/>
+        <circle wp="BASELEG" radius="BOMB_RADIUS" until="circle_count > 0.5" alt="downwind_altitude"/>
+	<set value="V_CTL_AUTO_THROTTLE_MIN_CRUISE_THROTTLE" var="v_ctl_auto_throttle_cruise_throttle"/>
+        <circle wp="BASELEG" radius="BOMB_RADIUS" until="Qdr(DegOfRad(bomb_start_qdr)-10) && baseleg_alt_tolerance > fabs(estimator_z - baseleg_alt)"/>
+    </block>
+
+   <block name="final"> 
+     <exception cond="ground_alt + 10 > estimator_z" deroute="flare"/>
+     <go from="AF" hmode="route" wp="TD" approaching_time="16" alt="baseleg_alt"/>
+     <go from="AF" hmode="route" wp="TD" approaching_time="2" throttle="0.1" vmode="throttle" />
+   </block>
+
+   <block name="flare">
+     <go approaching_time="0" from="AF" hmode="route" wp="TD" throttle="0.0" vmode="throttle" />
+      <attitude roll="0.0" throttle="0.0" until="FALSE" vmode="throttle"/>
+   </block>
+
+<!-- *************** ROLL ******************* -->
+    <block name="roll" strip_button="Roll">
+      <set value="TRUE" var="h_ctl_disabled"/>
+      <set value="(-0.75*MAX_PPRZ)" var="h_ctl_aileron_setpoint"/>
+      <while cond="3 > stage_time && (estimator_phi > 0 ||  -M_PI_2 > estimator_phi)"/>
+      <set value="FALSE" var="h_ctl_disabled"/>
+      <return/>
+    </block>
+
+    <block name="aligned roll">
+      <set value="BombComputeApproach()" var="unit"/>
+      <circle radius="BOMB_RADIUS" until="Qdr(DegOfRad(bomb_start_qdr)-10)" wp="BASELEG"/>
+      <set value="0.9" var="v_ctl_auto_throttle_cruise_throttle"/>
+      <go approaching_time="1" from="START" hmode="route" wp="TARGET"/>
+      <set value="TRUE" var="h_ctl_disabled"/>
+      <set value="-MAX_PPRZ" var="h_ctl_aileron_setpoint"/>
+      <while cond="3 > stage_time && (estimator_phi > 0 ||  -M_PI_2 > estimator_phi)"/>
+      <set value="FALSE" var="h_ctl_disabled"/>
+      <set value="v_ctl_auto_throttle_nominal_cruise_throttle" var="v_ctl_auto_throttle_cruise_throttle"/>
+      <deroute block="wait"/>
+    </block>
+
+
+  </blocks>
+</flight_plan>

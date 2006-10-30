@@ -236,7 +236,7 @@ ap.srcs += gyro.c bomb.c
 
 # Hack to use the same tuning file than slayer1
 ap.CFLAGS += -DUSE_GPIO
-ap.srcs += gpio.c
+ap.srcs += $(SRC_ARCH)/gpio.c
 
 
 # Harware In The Loop
