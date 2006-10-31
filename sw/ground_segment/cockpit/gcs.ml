@@ -296,7 +296,7 @@ let button_press = fun (geomap:G.widget) ev ->
       let yc = GdkEvent.Button.y ev in
       let xyw = geomap#canvas#window_to_world xc yc in
       let geo = geomap#of_world xyw in
-      ignore (EditFP.create_wp geo);
+      ignore (EditFP.create_wp geomap geo);
       true
     end else 
     false

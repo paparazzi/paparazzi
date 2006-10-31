@@ -57,6 +57,14 @@ let load_xml_fp = fun geomap editor_frame accel_group ?(xml_file=Env.flight_plan
   let fp = new MapFP.flight_plan ~show_moved:false geomap "red" Env.flight_plan_dtd xml in
   editor_frame#add fp#window;
   current_fp := Some (fp,xml_file);
+
+  (** Add waypoints as geo references *)
+   List.iter 
+    (fun w ->
+      let (i, w) = fp#index w in
+      geomap#add_info_georef (sprintf "%s" w#name) (w :> < pos : geographic>))
+    fp#waypoints;
+  
   fp
 
 let labelled_entry = fun ?width_chars text value h ->
@@ -121,13 +129,16 @@ let load_fp = fun geomap editor_frame accel_group () ->
 	    let m = sprintf "Error while loading %s:\n%s" xml_file (Dtd.check_error e) in
 	    GToolbox.message_box "Error" m)
 
-let create_wp = fun geo ->
+let create_wp = fun geomap geo ->
   match !current_fp with
     None -> 
       GToolbox.message_box "Error" "Load a flight plan first";
       failwith "create_wp"
   | Some (fp,_) ->
-      fp#add_waypoint geo
+      let w = fp#add_waypoint geo in 
+      geomap#add_info_georef (sprintf "%s" w#name) (w :> < pos : geographic>);
+      w
+
 
 
 let ref_point_of_waypoint = fun xml ->
@@ -240,7 +251,7 @@ let update_path = fun (geomap:MapCanvas.widget) path waypoint ->
 
 let path_button = fun (geomap:MapCanvas.widget) (xw, yw) ->
   let geo = geomap#of_world (xw, yw) in
-  let wp = create_wp geo in
+  let wp = create_wp geomap geo in
   let cur_path = !path in
   wp#connect (fun () -> update_path geomap cur_path wp);
   if ! !path = [] then
