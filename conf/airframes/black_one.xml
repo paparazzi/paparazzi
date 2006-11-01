@@ -8,7 +8,8 @@
     <servo name="AILEVON_LEFT"  no="5" min="1900" neutral="1470" max="1100"/>
     <servo name="AILEVON_RIGHT" no="6" min="1100" neutral="1595" max="2000"/>
     <servo name="HATCH"         no="1" min="1725" neutral="1725" max="1000"/>
-    <servo name="CAM_ROLL"      no="0" min="1025" neutral="1600" max="2175"/>
+    <!--servo name="CAM_ROLL"      no="0" min="1025" neutral="1600" max="2175"/-->
+    <servo name="CAM_ROLL"      no="0" min="2150" neutral="1585" max="1020"/>
     <servo name="CAM_PITCH"     no="2" min="1000" neutral="1500" max="2000"/>
   </servos>
 
@@ -41,7 +42,7 @@
     <set servo="AILEVON_LEFT"  value="$elevator + $aileron"/>
     <set servo="AILEVON_RIGHT" value="$elevator - $aileron"/>
     <set servo="HATCH"         value="@HATCH"/>
-    <set servo="CAM_ROLL"      value="@CAM_ROLL"/>
+    <!--set servo="CAM_ROLL"      value="@CAM_ROLL"/-->
   </command_laws>
 
   <section name="AUTO1" prefix="AUTO1_">
@@ -62,8 +63,8 @@
   </section>
 
   <section name="INFRARED" prefix="IR_">
-    <define name="ROLL_NEUTRAL_DEFAULT" value="3" unit="deg"/>
-    <define name="PITCH_NEUTRAL_DEFAULT" value="6" unit="deg"/>
+    <define name="ROLL_NEUTRAL_DEFAULT" value="0" unit="deg"/>
+    <define name="PITCH_NEUTRAL_DEFAULT" value="12" unit="deg"/>
     <define name="DEFAULT_CONTRAST" value="200"/>
     <define name="RAD_OF_IR_CONTRAST" value="0.75"/>
     <linear name="RollOfIrs" arity="2" coeff1="-0.7" coeff2="0.7"/>
@@ -108,6 +109,8 @@
     <define name="CARROT" value="5." unit="s"/>
     <define name="KILL_MODE_DISTANCE" value="(1.5*MAX_DIST_FROM_HOME)"/>
     <define name="CONTROL_RATE" value="60" unit="Hz"/>
+
+    <define name="TRIGGER_DELAY" value="2."/>
   </section>
  
   <section name="VERTICAL CONTROL" prefix="V_CTL_">
@@ -138,20 +141,20 @@
   </section>
 
   <section name="HORIZONTAL CONTROL" prefix="H_CTL_">
-    <define name="COURSE_PGAIN" value="-0.18"/>
+    <define name="COURSE_PGAIN" value="-0.85"/>
     <define name="ROLL_MAX_SETPOINT" value="0.5" unit="radians"/>
 
     <define name="ROLL_PGAIN" value="8000."/>
     <define name="AILERON_OF_THROTTLE" value="0.0"/>
     <define name="PITCH_PGAIN" value="-8000."/>
     <define name="PITCH_DGAIN" value="0."/>
-    <define name="ELEVATOR_OF_ROLL" value="1250"/>
+    <define name="ELEVATOR_OF_ROLL" value="1750"/>
     
     <!--  roll rate loop -->
     <define name="ROLL_RATE_MODE_DEFAULT" value="1"/>
     <define name="ROLL_RATE_SETPOINT_PGAIN" value="-5." unit="rad/s/rad"/>
     <define name="ROLL_RATE_MAX_SETPOINT" value="10"/>
-    <define name="ROLL_RATE_PGAIN" value="1000."/>
+    <define name="ROLL_RATE_PGAIN" value="1500."/>
     <define name="ROLL_RATE_IGAIN" value="0."/>
     <define name="ROLL_RATE_DGAIN" value="0."/>
     <define name="ROLL_RATE_SUM_NB_SAMPLES" value="64"/>
@@ -190,7 +193,10 @@
     	<define name="DEFAULT_PITCH" value="0.5" unit="rad"/>
 	<define name="HOME_RADIUS" value="100" unit="m"/>
 </section>
- 
+
+<section name="CAM" prefix="CAM_">
+  <define name="PHI0" value="-45" unit="deg"/>
+</section>
 
  <makefile>
 include $(PAPARAZZI_SRC)/conf/autopilot/tiny.makefile
@@ -235,8 +241,8 @@ ap.srcs += gyro.c
 
 ap.srcs += bomb.c
 
-ap.CFLAGS += -DMOBILE_CAM -DPOINT_CAM
-ap.srcs += traffic_info.c point.c cam.c
+#Cap.CFLAGS += -DCAM -DMOBILE_CAM -DPOINT_CAM
+#Cap.srcs += traffic_info.c point.c cam.c
 
 # Hardware In The Loop
 
@@ -247,6 +253,9 @@ ap.srcs += traffic_info.c point.c cam.c
 include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
 sim.CFLAGS += -DCONFIG=\"tiny.h\" -DAGR_CLIMB -DH_CTL_RATE_LOOP -DLOITER_TRIM
 sim.srcs += bomb.c
+
+#Csim.CFLAGS += -DCAM -DMOBILE_CAM -DPOINT_CAM
+#Csim.srcs += traffic_info.c point.c
 
 
 # a test program to setup actuators 
