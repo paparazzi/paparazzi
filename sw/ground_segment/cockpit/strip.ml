@@ -99,7 +99,7 @@ let labels_name =  [|
 |]
 
 let labels_print = [| 
-  [| "AP" ; "alt" ; "->" |]; [| "RC"; "climb"; "->" |]; [| "GPS"; "speed"; "throttle" |]
+  [| "AP" ; "alt" ; "->" |]; [| "RC"; "climb"; "->" |]; [| "GPS"; "speed"; "throtl" |]
 |]
 let gen_int = let i = ref (-1) in fun () -> incr i; !i
 
@@ -166,7 +166,7 @@ let add config color select center_ac mark =
 
   (* AGL gauge *)
   let agl_box = GBin.event_box ~packing:(strip#attach ~top:1 ~bottom:3 ~left:(columns-1)) () in
-  let agl = GMisc.drawing_area ~width:30 ~height:60 ~show:true ~packing:agl_box#add () in
+  let agl = GMisc.drawing_area ~width:40 ~height:60 ~show:true ~packing:agl_box#add () in
   agl#misc#realize ();
   tooltips#set_tip agl_box#coerce ~text:"AGL (m)";
 

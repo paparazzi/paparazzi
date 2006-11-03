@@ -79,11 +79,70 @@
     <define name="PITCH_OF_VZ_PGAIN" value="0.00"/>
   </section>
  
-  <section name="NAV">
+
+
+  <section name="HORIZONTAL CONTROL" prefix="H_CTL_">
     <define name="COURSE_PGAIN" value="-0.4"/>
-    <define name="ALTITUDE_PGAIN" value="-0.025"/>
-    <define name="NAV_PITCH" value="0."/>
+    <define name="COURSE_PRE_BANK_CORRECTION" value="1."/>
+    <define name="ROLL_MAX_SETPOINT" value="0.73" unit="radians"/>
+    <define name="PITCH_MAX_SETPOINT" value="0.5" unit="radians"/>
+    <define name="PITCH_MIN_SETPOINT" value="-0.5" unit="radians"/>
+
+    <define name="ROLL_PGAIN" value="10000."/>
+    <define name="AILERON_OF_THROTTLE" value="0.0"/>
+    <define name="PITCH_PGAIN" value="-6000."/>
+    <define name="PITCH_DGAIN" value="0."/>
+    <define name="ELEVATOR_OF_ROLL" value="0"/>
+    
+    <!--  roll rate loop -->
+    <define name="ROLL_RATE_MODE_DEFAULT" value="1"/>
+    <define name="ROLL_RATE_SETPOINT_PGAIN" value="-5.5"/>
+    <define name="ROLL_RATE_MAX_SETPOINT" value="10"/>
+    <define name="LO_THROTTLE_ROLL_RATE_PGAIN" value="1500."/>
+    <define name="HI_THROTTLE_ROLL_RATE_PGAIN" value="900."/>
+    <define name="ROLL_RATE_IGAIN" value="0."/>
+    <define name="ROLL_RATE_DGAIN" value="0."/>
+    <define name="ROLL_RATE_SUM_NB_SAMPLES" value="64"/>
+
   </section>
+
+
+
+ <section name="VERTICAL CONTROL" prefix="V_CTL_">
+    <!-- outer loop proportional gain -->
+    <define name="ALTITUDE_PGAIN" value="-0.025"/>
+    <!-- outer loop saturation -->
+    <define name="ALTITUDE_MAX_CLIMB" value="3."/>
+
+    <!-- auto throttle inner loop -->
+    <define name="AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE" value="0.60"/>
+    <define name="AUTO_THROTTLE_MIN_CRUISE_THROTTLE" value=".45"/>
+    <define name="AUTO_THROTTLE_MAX_CRUISE_THROTTLE" value="1"/>
+    <define name="AUTO_THROTTLE_LOITER_TRIM" value="2000"/>
+    <define name="AUTO_THROTTLE_DASH_TRIM" value="-1500"/>
+    <define name="AUTO_THROTTLE_CLIMB_THROTTLE_INCREMENT" value="0.15" unit="%/(m/s)"/>
+    <define name="AUTO_THROTTLE_PGAIN" value="-0.008"/>
+    <define name="AUTO_THROTTLE_IGAIN" value="0.25"/>
+    <define name="AUTO_THROTTLE_PITCH_OF_VZ_PGAIN" value="0.14"/>
+
+    <!-- auto pitch inner loop -->
+    <define name="AUTO_PITCH_PGAIN" value="-0.1"/>
+    <define name="AUTO_PITCH_IGAIN" value="0.025"/>
+    <define name="AUTO_PITCH_MAX_PITCH" value="0.5"/>
+    <define name="AUTO_PITCH_MIN_PITCH" value="-0.5"/>
+
+   <define name="THROTTLE_SLEW" value="0.05"/>
+
+  </section>
+
+
+
+  <section name="NAV">
+    <define name="NAV_PITCH" value="0."/>
+    <define name="NAV_GLIDE_PITCH_TRIM" value="0"/>
+  </section>
+
+
   <section name="BAT">
     <define name="MILLIAMP_PER_PERCENT" value="2.16"/>
     <define name="VOLTAGE_ADC_A" value="0.0175"/>

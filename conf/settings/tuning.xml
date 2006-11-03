@@ -5,7 +5,7 @@
 <settings>
   <dl_settings>
     <dl_settings NAME="flight params">
-      <dl_setting MAX="2000" MIN="0" STEP="10" VAR="flight_altitude" shortname="altitude"/>
+      <dl_setting MAX="1000" MIN="0" STEP="10" VAR="flight_altitude" shortname="altitude"/>
       <dl_setting MAX="1" MIN="0" STEP="1" VAR="light_mode"/>
       <dl_setting MAX="1" MIN="0" STEP="1" VAR="gpio1_status"/>
       <dl_setting MAX="10" MIN="-10" STEP="0.5" VAR="wind_east"/>
@@ -46,15 +46,6 @@
         <dl_setting MAX="2" MIN="0." STEP="0.1" VAR="h_ctl_pitch_dgain" shortname="pitch_dgain"/>
         <dl_setting MAX="5000" MIN="0" STEP="100" VAR="h_ctl_elevator_of_roll" shortname="elevator_of_roll"/>
         <dl_setting MAX="5000" MIN="0" STEP="100" VAR="h_ctl_aileron_of_throttle" shortname="aileron_of_throttle"/>
-      </dl_settings>
-
-      <dl_settings name="rate">
-        <dl_setting MAX="1" MIN="0" STEP="0.1" VAR="h_ctl_roll_rate_mode" shortname="mode"/>
-        <dl_setting MAX="5000" MIN="0" STEP="100" VAR="h_ctl_hi_throttle_roll_rate_pgain" shortname="hi th pgain"/>
-        <dl_setting MAX="5000" MIN="0" STEP="100" VAR="h_ctl_lo_throttle_roll_rate_pgain" shortname="lo th pgain"/>
-        <dl_setting MAX="2" MIN="-2" STEP="0.1" VAR="h_ctl_roll_rate_dgain" shortname="dgain"/>
-        <dl_setting MAX="0" MIN="-20" STEP="1" VAR="h_ctl_roll_rate_setpoint_pgain" shortname="roll_pgain"/>
-        <dl_setting MAX="1" MIN="0" STEP="1" VAR="h_ctl_auto1_rate" shortname="AUTO1 rate"/>
       </dl_settings>
 
       <dl_settings name="alt">

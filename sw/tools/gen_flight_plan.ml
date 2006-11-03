@@ -308,7 +308,7 @@ let rec print_stage = fun index_of_waypoints sectors x ->
 	let until = parsed_attrib x "until" in
 	lprintf "if (%s) NextStage() else {\n" until;
 	right (); 
-	lprintf "desired_course = RadOfDeg(%s);\n" (parsed_attrib x "course");
+	lprintf "h_ctl_course_setpoint = RadOfDeg(%s);\n" (parsed_attrib x "course");
 	ignore (output_vmode x "" "");
 	output_cam_mode x index_of_waypoints;
 	left (); lprintf "}\n";

@@ -111,6 +111,8 @@
     <define name="CONTROL_RATE" value="60" unit="Hz"/>
 
     <define name="TRIGGER_DELAY" value="2."/>
+    <define name="NAV_GLIDE_PITCH_TRIM" value="(V_CTL_AUTO_THROTTLE_PITCH_OF_VZ_PGAIN*V_CTL_ALTITUDE_MAX_CLIMB)"/>
+
   </section>
  
   <section name="VERTICAL CONTROL" prefix="V_CTL_">
@@ -143,6 +145,9 @@
   <section name="HORIZONTAL CONTROL" prefix="H_CTL_">
     <define name="COURSE_PGAIN" value="-0.85"/>
     <define name="ROLL_MAX_SETPOINT" value="0.5" unit="radians"/>
+    <define name="PITCH_MAX_SETPOINT" value="0.5" unit="radians"/>
+    <define name="PITCH_MIN_SETPOINT" value="-0.5" unit="radians"/>
+
 
     <define name="ROLL_PGAIN" value="8000."/>
     <define name="AILERON_OF_THROTTLE" value="0.0"/>
@@ -154,7 +159,8 @@
     <define name="ROLL_RATE_MODE_DEFAULT" value="1"/>
     <define name="ROLL_RATE_SETPOINT_PGAIN" value="-5." unit="rad/s/rad"/>
     <define name="ROLL_RATE_MAX_SETPOINT" value="10"/>
-    <define name="ROLL_RATE_PGAIN" value="1500."/>
+    <define name="HI_THROTTLE_ROLL_RATE_PGAIN" value="1500."/>
+    <define name="LO_THROTTLE_ROLL_RATE_PGAIN" value="1500."/>
     <define name="ROLL_RATE_IGAIN" value="0."/>
     <define name="ROLL_RATE_DGAIN" value="0."/>
     <define name="ROLL_RATE_SUM_NB_SAMPLES" value="64"/>
@@ -244,6 +250,12 @@ ap.srcs += bomb.c
 #Cap.CFLAGS += -DCAM -DMOBILE_CAM -DPOINT_CAM
 #Cap.srcs += traffic_info.c point.c cam.c
 
+
+# Video switch
+ap.CFLAGS += -DUSE_GPIO
+ap.srcs += $(SRC_ARCH)/gpio.c
+
+
 # Hardware In The Loop
 
 #ap.CFLAGS += -DHITL
@@ -251,7 +263,7 @@ ap.srcs += bomb.c
 
 # Config for SITL simulation
 include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
-sim.CFLAGS += -DCONFIG=\"tiny.h\" -DAGR_CLIMB -DH_CTL_RATE_LOOP -DLOITER_TRIM
+sim.CFLAGS += -DCONFIG=\"tiny.h\" -DAGR_CLIMB -DH_CTL_RATE_LOOP -DLOITER_TRIM -DIR_360
 sim.srcs += bomb.c
 
 #Csim.CFLAGS += -DCAM -DMOBILE_CAM -DPOINT_CAM

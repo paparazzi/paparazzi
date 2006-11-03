@@ -420,7 +420,7 @@ let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id
 	       strip = strip; first_pos = true;
 	       last_block_name = ""; alt = 0.; target_alt = 0.;
 	       in_kill_mode = false; speed = 0.;
-	       wind_dir = 42.; ground_prox = false;
+	       wind_dir = 42.; ground_prox = true;
 	       wind_speed = 0.; } in
     Hashtbl.add live_aircrafts ac_id ac;
 

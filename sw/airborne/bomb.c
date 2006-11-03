@@ -6,6 +6,7 @@
 #include "inter_mcu.h"
 
 
+#if defined WP_RELEASE
 /** Speed limit of the paint ball */
 #ifndef TRIGGER_DELAY
 #define TRIGGER_DELAY 1.
@@ -16,23 +17,6 @@
 #define ALPHA_M (ALPHA / MASS)
 #define DT 0.1
 #define MAX_STEPS 100
-
-/*
-Twinjet, z=30, x0=8, w =-4
-DT=0.01 : 2.82 12.37 0.00 -0.13
-DT=0.05 : 2.80 12.18 0.00 -0.26
-DT=0.1 : 2.80 11.96 0.00 -0.88
-DT=0.2 : 2.80 11.52 0.00 -2.13
-
-Slayer, z=30, x0=15, w=-5
-DT=0.01 : 2.89 21.35 0.00 -0.09
-DT=0.1 : 2.90 20.45 0.00 -1.41
-
-Slayer, z=50, x0=10, w=-10
-DT=0.001 : 3.96 2.43 0.00 -0.00
-DT=0.1 : 3.90 1.46 0.00 -0.40
-*/
-
 
 float bomb_trigger_delay = TRIGGER_DELAY;
 float airspeed = 14.;
@@ -133,10 +117,6 @@ unit_t bomb_compute_approach( void ) {
 
   integrate();
 
-  /***
-printf("x0=%.1f y0=%.1f z=%.1f x=%.1f y=%1.f vx=%.1f vy=%.1f\n", x0, y_0, z, x, y, vx, vy);
-***/
-
   waypoints[WP_CLIMB].x = waypoints[WP_RELEASE].x + CLIMB_TIME * vx0;
   waypoints[WP_CLIMB].y = waypoints[WP_RELEASE].y + CLIMB_TIME * vy0;
   waypoints[WP_CLIMB].a = waypoints[WP_RELEASE].a + SAFE_CLIMB;
@@ -146,6 +126,16 @@ printf("x0=%.1f y0=%.1f z=%.1f x=%.1f y=%1.f vx=%.1f vy=%.1f\n", x0, y_0, z, x, 
 }
 
 
+
+unit_t bomb_shoot( void ) {
+  ap_state->commands[COMMAND_HATCH] = MAX_PPRZ;
+  return 0;
+}
+
+#endif /* WP_RELEASE */
+
+
+#if defined WP_TD
 
 float baseleg_alt, downwind_altitude;
 const float baseleg_alt_tolerance = 15.;
@@ -204,9 +194,4 @@ bool_t compute_tod( void ) {
   return (distance_to_TD_2 < d1*d1);
 }
 
-
-
-unit_t bomb_shoot( void ) {
-  ap_state->commands[COMMAND_HATCH] = MAX_PPRZ;
-  return 0;
-}
+#endif /* WP_TD */

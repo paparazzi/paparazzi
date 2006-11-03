@@ -163,6 +163,7 @@ module Make(A:Data.MISSION) = struct
       let phi_dot_dot = roll_response_factor *. state.delta_a -. state.phi_dot in
       state.phi_dot <- state.phi_dot +. phi_dot_dot *. dt;
       state.phi <- norm_angle (state.phi +. state.phi_dot *. dt);
+      state.phi <- bound state.phi (-.max_phi) max_phi;
 
       let psi_dot = -. g /. state.air_speed *. tan (yaw_response_factor *. state.phi) in
       state.psi <- norm_angle (state.psi +. psi_dot *. dt);

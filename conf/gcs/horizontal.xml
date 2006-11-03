@@ -4,8 +4,8 @@
  <rows>
   <widget size="500" name="map2d"/>
   <columns>
-   <rows size="380">
-    <widget size="120" name="strips"/>
+   <rows size="390">
+    <widget size="200" name="strips"/>
     <widget name="alarms"/>
    </rows>
    <widget size="400" name="aircraft"/>

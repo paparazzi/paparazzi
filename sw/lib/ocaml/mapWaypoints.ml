@@ -26,6 +26,7 @@
 
 module LL = Latlong
 open Printf
+open LL
 
 let s = 6.
 let losange = [|s;0.; 0.;s; -.s;0.; 0.;-.s|]
@@ -144,6 +145,7 @@ class waypoint = fun (wpts_group:group) (name :string) ?(alt=0.) wgs84 ->
 	alt <- float_of_string ea#text;
 	label#set [`TEXT name];
 	let wgs84 = wgs84_of_string !selected_georef e_pos#text in
+
 	self#set wgs84;
 	updated ();
 	if wpts_group#show_moved then

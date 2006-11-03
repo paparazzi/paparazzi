@@ -4,8 +4,6 @@
 </header>
   <waypoints>
     <waypoint name="TARGET" x="700.251490867" y="100.691196656"/>
-    <waypoint name="TARGET1" x="700.251490867" y="-200.691196656"/>
-    <waypoint name="C1" x="691.245871547" y="-81.6928060302"/>
     <waypoint name="TARGET2" x="223.530834534" y="-344.157380864"/>
     <waypoint name="C2" x="223.530834534" y="-244.157380864"/>
     <waypoint name="TARGET3" x="-245.243284406" y="-341.332207266"/>
@@ -29,7 +27,7 @@
 
     <block name="land">
       <set value="compute_baseleg()" var="unit"/>
-      <circle alt="downwind_altitude" radius="BOMB_RADIUS" until="circle_count > 0.5" wp="BASELEG"/>
+      <circle radius="BOMB_RADIUS" until="circle_count > 0.5" wp="BASELEG"/>
       <set value="V_CTL_AUTO_THROTTLE_MIN_CRUISE_THROTTLE" var="v_ctl_auto_throttle_cruise_throttle"/>
       <circle radius="BOMB_RADIUS" until="Qdr(DegOfRad(bomb_start_qdr)-10) && baseleg_alt_tolerance > fabs(estimator_z - baseleg_alt)" wp="BASELEG"/>
     </block>
@@ -45,6 +43,17 @@
       <attitude roll="0.0" throttle="0.0" until="FALSE" vmode="throttle"/>
     </block>
 
+
+    <block name="circle 2">
+      <exception cond="block_time > 300" deroute="wait"/>
+      <circle wp="C2" radius="-80"/>
+    </block>
+
+    <block name="circle 3">
+      <exception cond="block_time > 300" deroute="wait"/>
+      <circle wp="C3" radius="80"/>
+    </block>
+
     <block name="climb">
       <exception cond=" estimator_z > ground_alt +30" deroute="wait"/>
       <attitude pitch="0.3" roll="0" throttle="0.8" until="10> stage_time" vmode="throttle"/>
@@ -58,13 +67,12 @@
     </block>
 
 
-    <block name="target1" strip_button="T1">
-      <eight center="TARGET1" radius="80" turn_around="C1"/>
-    </block>
     <block name="target2" strip_button="T2">
+      <exception cond="block_time > 300" deroute="wait"/>
       <eight center="TARGET2" radius="80" turn_around="C2"/>
     </block>
     <block name="target3" strip_button="T3">
+      <exception cond="block_time > 300" deroute="wait"/>
       <eight center="TARGET3" radius="80" turn_around="C3"/>
     </block>
 
