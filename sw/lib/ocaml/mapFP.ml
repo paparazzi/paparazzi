@@ -84,13 +84,17 @@ let waypoints_node = fun xml_tree ->
 let update_xml = fun xml_tree utm0 wp id ->
   let xml_wpts = XmlEdit.children (waypoints_node xml_tree) in
   let node = List.find (fun w -> XmlEdit.id w = id) xml_wpts in
+  let default_alt = float_of_string (XmlEdit.attrib (XmlEdit.root xml_tree) "alt") in
   if wp#deleted then begin
     XmlEdit.delete node
   end else
     let utm = utm_of WGS84 wp#pos in
     try
       let (dx, dy) = utm_sub utm utm0 in
-      XmlEdit.set_attribs node ["name",wp#name; "x",sof dx; "y",sof dy; "alt", sof wp#alt]
+      let attribs = ["name",wp#name; "x",sof dx; "y",sof dy] in
+      let attribs = attribs @
+	if abs_float (wp#alt -. default_alt) < 1. then [] else ["alt", sof wp#alt] in
+      XmlEdit.set_attribs node attribs
     with
       _ ->
 	prerr_endline "MapFP.update_xml: waypoint too far from ref (FIXME)"
