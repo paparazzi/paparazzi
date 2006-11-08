@@ -336,7 +336,6 @@ static unit_t reset_waypoints( void ) {
   uint8_t i;
   for(i = 0; i <= NB_WAYPOINT; i++) {
     waypoints[i].a += ground_alt - previous_ground_alt;
-    moved_waypoints[i] = TRUE;
   }
   return 0;
 }
@@ -361,8 +360,6 @@ bool_t too_far_from_home;
 const uint8_t nb_waypoint = NB_WAYPOINT;
 
 struct point waypoints[NB_WAYPOINT+1] = WAYPOINTS;
-bool_t moved_waypoints[NB_WAYPOINT+1];
-
 
 
 /** \brief Decide if uav is approaching of current waypoint.
@@ -538,73 +535,97 @@ void nav_without_gps(void) {
 }
 
 
-enum eight_status { EW, CW, WE, CE };
+
+/**************** 8 Navigation **********************************************/
+
+
+enum eight_status { R12, C2, R21, C1 };
 
 static enum eight_status eight_status;
 void nav_eight_init( void ) {
-  eight_status = CE;
+  eight_status = C1;
 }
 
-void nav_eight(uint8_t center, uint8_t TA1, float radius) {
-  float alt = waypoints[center].a;
-  waypoints[TA1].a = alt;
+/** Navigation along a figure 8. The cross center is defined by the waypoint
+    [target], the center of one of the circles is defined by [c1]. Altitude is
+    given by [target].
+    The navigation goes through 4 states: C1 (circle around [c1]), R12 (route
+    from circle 1 to circle 2 over [target], C2 and R21.
+    If necessary, the [c1] waypoint is moved in the direction of [target]
+    to be not far than [2*radius].
+*/
+void nav_eight(uint8_t target, uint8_t c1, float radius) {
+  float alt = waypoints[target].a;
+  waypoints[c1].a = alt;
 
-  float center_TA1_x = waypoints[TA1].x - waypoints[center].x;
-  float center_TA1_y = waypoints[TA1].y - waypoints[center].y;
+  float target_c1_x = waypoints[c1].x - waypoints[target].x;
+  float target_c1_y = waypoints[c1].y - waypoints[target].y;
+  float d = sqrt(target_c1_x*target_c1_x+target_c1_y*target_c1_y);
 
-  struct point TA2 = { waypoints[TA1].x - 2*center_TA1_x,
-		       waypoints[TA1].y - 2*center_TA1_y,
-		       alt };
+  /* Unit vector from target to c1 */
+  float u_x = target_c1_x / d;
+  float u_y = target_c1_y / d;
 
-  float d = sqrt(center_TA1_x*center_TA1_x+center_TA1_y*center_TA1_y);
-  float u_x = center_TA1_x / d;
-  float u_y = center_TA1_y / d;
+  /* Move [c1] closer if needed */
+  if (d > 2 * radius) {
+    d = 2*radius;
+    waypoints[c1].x = waypoints[target].x + d*u_x;
+    waypoints[c1].y = waypoints[target].y + d*u_y;
+  }
 
-  struct point TA1N = { waypoints[TA1].x + radius * -u_y,
-		 waypoints[TA1].y + radius * u_x,
+  /* The other center */
+  struct point c2 = { waypoints[target].x - d*u_x,
+		      waypoints[target].y - d*u_y,
+		      alt };
+
+
+  struct point c1_in = { waypoints[c1].x + radius * -u_y,
+		       waypoints[c1].y + radius * u_x,
 		       alt  };
-  struct point TA1S = { waypoints[TA1].x - radius * -u_y,
-			waypoints[TA1].y - radius * u_x,
+  struct point c1_out = { waypoints[c1].x - radius * -u_y,
+		       waypoints[c1].y - radius * u_x,
 		       alt  };
-		 
-  struct point TA2N = { TA2.x + radius * -u_y,
-			TA2.y + radius * u_x,
+  
+  struct point c2_in = { c2.x + radius * -u_y,
+		       c2.y + radius * u_x,
 			alt  };
-  struct point TA2S = { TA2.x - radius * -u_y,
-			TA2.y - radius * u_x,
-			alt  };
-
+  struct point c2_out = { c2.x - radius * -u_y,
+		       c2.y - radius * u_x,
+		       alt  };
+  
   float qdr_out = M_PI - atan2(u_y, u_x);
-		 
+  
   switch (eight_status) {
-  case CE :
-    Circle(TA1, radius);
+  case C1 :
+    Circle(c1, radius);
     if (Qdr(DegOfRad(qdr_out)-10)) {
-      eight_status = EW;
+      eight_status = R12;
       InitStage();
     }
     return;
-  case EW:
-    route_to_xy(TA1S.x, TA1S.y, TA2N.x, TA2N.y);
-    if (approaching_xy(TA2N.x, TA2N.y,CARROT)) { 
-      eight_status = CW;
+
+  case R12:
+    route_to_xy(c1_out.x, c1_out.y, c2_in.x, c2_in.y);
+    if (approaching_xy(c2_in.x, c2_in.y,CARROT)) { 
+      eight_status = C2;
       InitStage();
     }
     return;
-  case CW :
-    CircleXY(TA2.x, TA2.y, -radius);
+
+  case C2 :
+    CircleXY(c2.x, c2.y, -radius);
     if (Qdr(DegOfRad(qdr_out)+10)) {
-      eight_status = WE;
+      eight_status = R21;
       InitStage();
     }
    return;
-  case WE:
-    route_to_xy(TA2S.x, TA2S.y, TA1N.x, TA1N.y);
-    if (approaching_xy(TA1N.x, TA1N.y,CARROT)) { 
-      eight_status = CE;
+
+  case R21:
+    route_to_xy(c2_out.x, c2_out.y, c1_in.x, c1_in.y);
+    if (approaching_xy(c1_in.x, c1_in.y,CARROT)) { 
+      eight_status = C1;
       InitStage();
     }
     return;
-
   }
 }

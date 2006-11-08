@@ -85,16 +85,10 @@
 
 #define PERIODIC_SEND_WP_MOVED() { \
   static uint8_t i; \
-  uint8_t j = 0; \
   i++; if (i > nb_waypoint) i = 0; \
-  while (! moved_waypoints[i] && j <= nb_waypoint) { \
-    j++; i++; if (i > nb_waypoint) i = 0; \
-  } \
- if (j <= nb_waypoint) { \
-    float x = nav_utm_east0 +  waypoints[i].x; \
-    float y = nav_utm_north0 + waypoints[i].y; \
-    DOWNLINK_SEND_WP_MOVED(&i, &x, &y, &(waypoints[i].a)); \
-  } \
+  float x = nav_utm_east0 +  waypoints[i].x; \
+  float y = nav_utm_north0 + waypoints[i].y; \
+  DOWNLINK_SEND_WP_MOVED(&i, &x, &y, &(waypoints[i].a)); \
 }
 
 #ifdef RADIO_CONTROL_SETTINGS

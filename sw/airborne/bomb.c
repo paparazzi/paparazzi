@@ -63,7 +63,6 @@ static void integrate( void ) {
 
   waypoints[WP_RELEASE].x = waypoints[WP_TARGET].x - bomb_x;
   waypoints[WP_RELEASE].y = waypoints[WP_TARGET].y - bomb_y;
-  moved_waypoints[WP_RELEASE] = TRUE;
 }
 
 
@@ -105,7 +104,6 @@ unit_t bomb_compute_approach( void ) {
   waypoints[WP_BASELEG].x = waypoints[WP_START].x + y_1 * BOMB_RADIUS;
   waypoints[WP_BASELEG].y = waypoints[WP_START].y - x1 * BOMB_RADIUS;
   waypoints[WP_BASELEG].a = waypoints[WP_START].a;
-  moved_waypoints[WP_BASELEG] = TRUE;
   bomb_start_qdr = M_PI - atan2(-y_1, -x1);
 
   bomb_vx = x1 * airspeed + wind_east;
@@ -120,7 +118,6 @@ unit_t bomb_compute_approach( void ) {
   waypoints[WP_CLIMB].x = waypoints[WP_RELEASE].x + CLIMB_TIME * vx0;
   waypoints[WP_CLIMB].y = waypoints[WP_RELEASE].y + CLIMB_TIME * vy0;
   waypoints[WP_CLIMB].a = waypoints[WP_RELEASE].a + SAFE_CLIMB;
-  moved_waypoints[WP_CLIMB] = TRUE;
 
   return 0;
 }
@@ -154,7 +151,6 @@ unit_t compute_baseleg( void ) {
   waypoints[WP_BASELEG].x = waypoints[WP_AF].x + y_1 * BOMB_RADIUS;
   waypoints[WP_BASELEG].y = waypoints[WP_AF].y - x_1 * BOMB_RADIUS;
   waypoints[WP_BASELEG].a = waypoints[WP_AF].a;
-  moved_waypoints[WP_BASELEG] = TRUE;
   bomb_start_qdr = M_PI - atan2(-y_1, -x_1);
 
   baseleg_alt = waypoints[WP_BASELEG].a;
@@ -183,12 +179,10 @@ bool_t compute_tod( void ) {
 
   waypoints[WP_TOD].x = waypoints[WP_TD].x - d1 * x_1;
   waypoints[WP_TOD].y = waypoints[WP_TD].y - d1 * y_1;
-  moved_waypoints[WP_TOD] = TRUE;
 
   waypoints[WP_OVERRUN].a = waypoints[WP_TD].a;
   waypoints[WP_OVERRUN].x = waypoints[WP_TD].x + overrun * x_1;
   waypoints[WP_OVERRUN].y = waypoints[WP_TD].y + overrun * y_1;
-  moved_waypoints[WP_OVERRUN] = TRUE;
 
   float distance_to_TD_2 = DistanceSquare(estimator_x, estimator_y, waypoints[WP_TD].x, waypoints[WP_TD].y);
   return (distance_to_TD_2 < d1*d1);
