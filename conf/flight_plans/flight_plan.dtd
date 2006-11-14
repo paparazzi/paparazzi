@@ -12,20 +12,21 @@
 <!ELEMENT exceptions (exception*)>
 
 <!ELEMENT blocks (block+)>
-<!ELEMENT block (exception|while|heading|attitude|go|xyz|set|circle|deroute|stay|follow|survey_rectangle|for|return|eight)*>
+<!ELEMENT block (exception|while|heading|attitude|go|xyz|set|call|circle|deroute|stay|follow|survey_rectangle|for|return|eight)*>
 
 <!ELEMENT include (arg|with)*>
 <!ELEMENT arg EMPTY>
 <!ELEMENT with EMPTY>
 
-<!ELEMENT while (exception|while|heading|attitude|go|xyz|set|circle|deroute|stay|follow|survey_rectangle|for|return|eight)*>
-<!ELEMENT for (exception|while|heading|attitude|go|xyz|set|circle|deroute|stay|follow|survey_rectangle|for|return|eight)*>
+<!ELEMENT while (exception|while|heading|attitude|go|xyz|set|call|circle|deroute|stay|follow|survey_rectangle|for|return|eight)*>
+<!ELEMENT for (exception|while|heading|attitude|go|xyz|set|call|circle|deroute|stay|follow|survey_rectangle|for|return|eight)*>
 <!ELEMENT exception EMPTY>
 <!ELEMENT heading EMPTY>
 <!ELEMENT attitude EMPTY>
 <!ELEMENT go EMPTY>
 <!ELEMENT xyz EMPTY>
 <!ELEMENT set EMPTY>
+<!ELEMENT call EMPTY>
 <!ELEMENT circle EMPTY>
 <!ELEMENT eight EMPTY>
 <!ELEMENT survey_rectangle EMPTY>
@@ -116,6 +117,9 @@ climb CDATA #IMPLIED>
 <!ATTLIST set
 var CDATA #REQUIRED
 value CDATA #REQUIRED>
+
+<!ATTLIST call
+fun CDATA #REQUIRED>
 
 <!ATTLIST follow
 ac_id CDATA #REQUIRED

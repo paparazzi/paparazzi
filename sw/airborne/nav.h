@@ -32,7 +32,8 @@
 #ifndef NAV_H
 #define NAV_H
 
-#include <std.h>
+#include "std.h"
+#include "paparazzi.h"
 
 #define G 9.806
 #define Square(_x) ((_x)*(_x))
@@ -56,9 +57,11 @@ extern uint8_t nav_utm_zone0;
 extern const uint8_t nb_waypoint;
 extern struct point waypoints[]; /** size == nb_waypoint + 1 */
 
+#define WaypointAlt(_wp) (waypoints[_wp].a)
+
 extern float desired_x, desired_y, altitude_shift, nav_altitude, flight_altitude, nav_glide_pitch_trim;
 
-extern uint16_t nav_desired_gaz;
+extern pprz_t nav_throttle_setpoint;
 extern float nav_pitch, rc_pitch;
 extern bool_t too_far_from_home;
 
@@ -73,10 +76,10 @@ extern float circle_count;
 
 extern float carrot_x, carrot_y;
 
-extern bool_t in_circle;
-extern bool_t in_segment;
-extern int16_t circle_x, circle_y, circle_radius;
-extern int16_t segment_x_1, segment_y_1, segment_x_2, segment_y_2;
+extern bool_t nav_in_circle;
+extern bool_t nav_in_segment;
+extern int16_t nav_circle_x, nav_circle_y, nav_circle_radius;
+extern int16_t nav_segment_x_1, nav_segment_y_1, nav_segment_x_2, nav_segment_y_2;
 
 extern uint8_t horizontal_mode;
 
@@ -107,5 +110,6 @@ void nav_init(void);
 void nav_without_gps(void);
 
 extern void nav_goto_block(uint8_t block_id);
+
 
 #endif /* NAV_H */

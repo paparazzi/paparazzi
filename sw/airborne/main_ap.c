@@ -81,7 +81,6 @@ uint8_t fatal_error_nb = 0;
 static const uint16_t version = 1;
 
 uint8_t pprz_mode = PPRZ_MODE_AUTO2;
-uint8_t vertical_mode = VERTICAL_MODE_MANUAL;
 uint8_t lateral_mode = LATERAL_MODE_MANUAL;
 
 uint8_t ir_estim_mode = IR_ESTIM_MODE_ON;
@@ -286,7 +285,7 @@ inline void telecommand_task( void ) {
 #ifdef INFRARED
     ground_calibrate(STICK_PUSHED(fbw_state->channels[RADIO_ROLL]));
 #endif
-    if (pprz_mode == PPRZ_MODE_AUTO2 && fbw_state->channels[RADIO_THROTTLE] > GAZ_THRESHOLD_TAKEOFF) {
+    if (pprz_mode == PPRZ_MODE_AUTO2 && fbw_state->channels[RADIO_THROTTLE] > THROTTLE_THRESHOLD_TAKEOFF) {
       launch = TRUE;
     }
   }
@@ -300,7 +299,7 @@ static void navigation_task( void ) {
   /** This section is used for the failsafe of GPS */
   static uint8_t last_pprz_mode;
   /** Test if we lost the GPS */
-  if (!GPS_FIX_VALID(gps_mode) ||
+  if (!GpsFixValid() ||
       (cpu_time - last_gps_msg_t > FAILSAFE_DELAY_WITHOUT_GPS)) {
     /** If aircraft is launch and is in autonomus mode, go into
 	PPRZ_MODE_GPS_OUT_OF_ORDER mode (Failsafe). */
@@ -336,7 +335,7 @@ static void navigation_task( void ) {
   /* The nav task computes only nav_altitude. However, we are interested
      by desired_altitude (= nav_alt+alt_shift) in any case.
      So we always run the altitude control loop */
-  if (vertical_mode == VERTICAL_MODE_AUTO_ALT)
+  if (v_ctl_mode == V_CTL_MODE_AUTO_ALT)
     v_ctl_altitude_loop();
 
   if (pprz_mode == PPRZ_MODE_AUTO2 || pprz_mode == PPRZ_MODE_HOME
@@ -347,10 +346,10 @@ static void navigation_task( void ) {
 #endif
     if (lateral_mode >=LATERAL_MODE_COURSE)
       h_ctl_course_loop(); /* aka compute nav_desired_roll */
-    if (vertical_mode >= VERTICAL_MODE_AUTO_CLIMB)
+    if (v_ctl_mode >= V_CTL_MODE_AUTO_CLIMB)
       v_ctl_climb_loop();
-    if (vertical_mode == VERTICAL_MODE_AUTO_GAZ)
-      v_ctl_throttle_setpoint = nav_desired_gaz;
+    if (v_ctl_mode == V_CTL_MODE_AUTO_THROTTLE)
+      v_ctl_throttle_setpoint = nav_throttle_setpoint;
 
 #ifdef V_CTL_POWER_CTL_BAT_NOMINAL
     v_ctl_throttle_setpoint *= 10. * V_CTL_POWER_CTL_BAT_NOMINAL / (float)vsupply;
@@ -498,7 +497,7 @@ void periodic_task_ap( void ) {
 #endif /* INFRARED */
       h_ctl_attitude_loop(); /* Set  h_ctl_aileron_setpoint & h_ctl_elevator_setpoint */
       v_ctl_throttle_slew();
-      ap_state->commands[COMMAND_THROTTLE] = v_ctl_throttle_setpoint;
+      ap_state->commands[COMMAND_THROTTLE] = v_ctl_throttle_slewed;
       ap_state->commands[COMMAND_ROLL] = h_ctl_aileron_setpoint;
       ap_state->commands[COMMAND_PITCH] = h_ctl_elevator_setpoint;
 

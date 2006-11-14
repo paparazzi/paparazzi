@@ -135,7 +135,7 @@
     <define name="AUTO_PITCH_MAX_PITCH" value="0.35"/>
     <define name="AUTO_PITCH_MIN_PITCH" value="-0.35"/>
 
-   <define name="THROTTLE_SLEW" value="0.1"/>
+   <define name="THROTTLE_SLEW" value="0.05"/>
 
   </section>
 
@@ -246,7 +246,7 @@ ap.srcs += nav.c fw_h_ctl.c fw_v_ctl.c
 ap.CFLAGS += -DGYRO -DADXRS150
 ap.srcs += gyro.c
 
-ap.srcs += bomb.c
+# ap.srcs += bomb.c
 
 # Hack to use the same tuning file than slayer1
 ap.CFLAGS += -DUSE_GPIO
@@ -261,7 +261,8 @@ ap.srcs += $(SRC_ARCH)/gpio.c
 # Config for SITL simulation
 include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
 sim.CFLAGS += -DCONFIG=\"tiny.h\" -DAGR_CLIMB -DH_CTL_RATE_LOOP -DLOITER_TRIM -DALT_KALMAN -DIR_360
-sim.srcs += bomb.c
+sim.srcs += traffic_info.c
+# sim.srcs += bomb.c
 
 
 # a test program to setup actuators 

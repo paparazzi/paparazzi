@@ -37,7 +37,7 @@
 #include "gps_ubx.h"
 #elif defined SITL
 #define GPS_NB_CHANNELS 16
-#define GPS_FIX_VALID(gps_mode) (gps_mode == 3)
+#define GpsFixValid() (gps_mode == 3)
 #endif
 
 

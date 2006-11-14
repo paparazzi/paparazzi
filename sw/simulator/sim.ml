@@ -238,6 +238,7 @@ module Make(AircraftItl : AIRCRAFT_ITL) = struct
 
     let ir_srtm_button = GButton.toggle_button ~label:"IR/srtm" ~packing:hbox#pack () in
     ignore (ir_srtm_button#connect#toggled (fun () -> ir_srtm := not !ir_srtm));
+
     let s = GButton.button ~label:"Set Pos" ~packing:hbox#pack () in
     ignore (s#connect#clicked ~callback:set_pos);
 

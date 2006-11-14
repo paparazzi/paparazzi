@@ -65,7 +65,6 @@ class track = fun ?(name="Noname") ?(size = 500) ?(color="red") (geomap:MapCanva
     ignore (GnoCanvas.line ~fill_color:color ~props:[`WIDTH_PIXELS 4;`CAP_STYLE `ROUND] ~points:[|-4.;10.;4.;10.|] aircraft) in
   let ac_label =
     GnoCanvas.text group ~props:[`TEXT name; `X 25.; `Y 25.; `ANCHOR `SW; `FILL_COLOR color] in
-  let vertical_indicator = GnoCanvas.line ~fill_color:color ~props:[`WIDTH_PIXELS 2] ~points:[|0.;0.;0.;100.|] group in
   let carrot = GnoCanvas.group group in
   let _ac_carrot =
     ignore (GnoCanvas.polygon ~points:[|0.;0.;-5.;-10.;5.;-10.|] ~props:[`WIDTH_UNITS 1.;`FILL_COLOR "orange"; `OUTLINE_COLOR "orange"; `FILL_STIPPLE (Gdk.Bitmap.create_from_data ~width:2 ~height:2 "\002\001")] carrot) in
@@ -186,8 +185,6 @@ class track = fun ?(name="Noname") ?(size = 500) ?(color="red") (geomap:MapCanva
       end;
       
       ac_label#affine_absolute (affine_pos_and_angle geomap#zoom_adj#value xw yw 0.);
-      vertical_indicator#affine_absolute (affine_pos_and_angle geomap#zoom_adj#value xw yw 0.);
-      vertical_indicator#set [`POINTS [|0.; 0.;0.; (self#height ())|]];
       self#add_point wgs84;
 
     method move_carrot = fun wgs84 ->

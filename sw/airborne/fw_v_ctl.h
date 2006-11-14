@@ -34,6 +34,14 @@
 #include <inttypes.h>
 #include "paparazzi.h"
 
+/* Vertical mode */
+#define V_CTL_MODE_MANUAL        0
+#define V_CTL_MODE_AUTO_THROTTLE 1
+#define V_CTL_MODE_AUTO_CLIMB    2
+#define V_CTL_MODE_AUTO_ALT      3
+#define V_CTL_MODE_NB            4
+extern uint8_t v_ctl_mode;
+
 /* outer loop */
 extern float v_ctl_altitude_setpoint;
 extern float v_ctl_altitude_pre_climb;
@@ -72,10 +80,13 @@ extern float v_ctl_auto_pitch_igain;
 extern float v_ctl_auto_pitch_sum_err;
 
 extern pprz_t v_ctl_throttle_setpoint;
+extern pprz_t v_ctl_throttle_slewed;
 
 extern void v_ctl_init( void );
 extern void v_ctl_altitude_loop( void );
 extern void v_ctl_climb_loop ( void );
+
+/** Computes throttle_slewed from throttle_setpoint */
 extern void v_ctl_throttle_slew( void );
 
 #endif /* FW_V_CTL_H */

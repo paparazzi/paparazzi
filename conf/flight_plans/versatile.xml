@@ -10,18 +10,25 @@
   </waypoints>
   <blocks>
     <block name="wait GPS">
-      <while cond="!GPS_FIX_VALID(gps_mode)"/>
+      <while cond="!GpsFixValid()"/>
     </block>
 
     <block name="init">
-      <while cond="10 > block_time"/>
-      <set value="reset_nav_reference()" var="unit"/>
-      <set value="reset_waypoints()" var="unit"/>
+      <while cond="LessThan(NavBlockTime(), 10)"/>
+      <call fun="NavSetGroundReferenceHere()"/>
       <deroute block="circle 1"/>
     </block>
 
     <block name="circle 1">
       <circle radius="75" wp="1"/>
+    </block>
+
+    <block name="eight 1">
+      <eight radius="75" center="1" turn_around="2"/>
+    </block>
+
+    <block name="circle 1 auto pitch">
+      <circle radius="75" wp="1" pitch="auto" throttle="0.7"/>
     </block>
 
     <block name="circle left 1">
@@ -32,6 +39,10 @@
       <circle radius="50+(estimator_z-ground_alt)/2" wp="1" throttle="0.75" pitch="0.3" vmode="throttle" until="10 > PowerVoltage()"/>
     </block>
 
+    <block name="climb 1">
+      <circle radius="50+(estimator_z-ground_alt)/2" wp="1" climb="1" pitch="0.1" vmode="climb" until="10 > PowerVoltage()"/>
+    </block>
+
     <block name="descent 0" strip_button="Descent">
       <circle radius="50+(estimator_z-ground_alt)/2" wp="1" throttle="0.0" pitch="-0.3" vmode="throttle" until="ground_alt+50 > estimator_z"/>
       <deroute block="circle 1"/>
@@ -39,6 +50,10 @@
 
     <block name="route12">
       <go approaching_time="0" from="1" hmode="route" wp="2"/>
+    </block>
+
+    <block name="glide12">
+      <go from="1" hmode="route" vmode="glide" wp="2"/>
     </block>
 
     <block name="stack 2">
@@ -55,6 +70,10 @@
 
     <block name="survey">
       <survey_rectangle grid="150" wp1="S1" wp2="S2"/>
+    </block>
+
+    <block name="follow">
+      <follow ac_id="5" distance="25" height="10"/>
     </block>
   </blocks>
 </flight_plan>

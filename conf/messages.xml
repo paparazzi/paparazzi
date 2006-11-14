@@ -77,7 +77,7 @@
    </message>
 
    <message name="BAT" ID="12">
-     <field name="desired_gaz" type="int16" unit="pprz"></field>
+     <field name="throttle" type="int16" unit="pprz"></field>
      <field name="voltage" type="uint8" unit="1e-1V"></field>
      <field name="flight_time" type="uint16" unit="s"></field>
      <field name="kill_auto_throttle" type="uint8" unit="bool"></field>

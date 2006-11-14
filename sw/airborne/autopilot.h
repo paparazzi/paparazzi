@@ -56,20 +56,11 @@ extern uint8_t pprz_mode;
 extern bool_t kill_throttle;
 
 
-#define VERTICAL_MODE_MANUAL      0
-#define VERTICAL_MODE_AUTO_GAZ    1
-#define VERTICAL_MODE_AUTO_CLIMB  2
-#define VERTICAL_MODE_AUTO_ALT    3
-#define VERTICAL_MODE_NB          4
-
 #define LATERAL_MODE_MANUAL    0
 #define LATERAL_MODE_ROLL_RATE 1
 #define LATERAL_MODE_ROLL      2
 #define LATERAL_MODE_COURSE    3
 #define LATERAL_MODE_NB        4
-
-#define VERTICAL_MODE_OF_PULSE(pprz) (pprz < TRESHOLD2 ? VERTICAL_MODE_MANUAL:  \
-                                                          VERTICAL_MODE_AUTO_ALT)
 
 #define IR_ESTIM_MODE_OFF        0
 #define IR_ESTIM_MODE_ON         1
@@ -86,9 +77,8 @@ extern uint8_t ir_estim_mode;
 
 extern uint8_t fatal_error_nb;
 
-#define GAZ_THRESHOLD_TAKEOFF (pprz_t)(MAX_PPRZ * 0.9)
+#define THROTTLE_THRESHOLD_TAKEOFF (pprz_t)(MAX_PPRZ * 0.9)
 
-extern uint8_t vertical_mode;
 extern uint8_t lateral_mode;
 extern uint8_t vsupply;
 

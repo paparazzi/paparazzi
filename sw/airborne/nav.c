@@ -55,18 +55,25 @@ float rc_pitch;
 uint16_t stage_time, block_time;
 float stage_time_ds;
 float carrot_x, carrot_y;
-static float sum_alpha, last_alpha;
-/** represents in percent the stage where the uav is on a route
- *  or the qdr when uav circles.
- */
-static float alpha;
-/** Number of circle done */
-float circle_count;
-static bool_t new_circle;
-bool_t in_circle = FALSE;
-bool_t in_segment = FALSE;
-int16_t circle_x, circle_y, circle_radius;
-int16_t segment_x_1, segment_y_1, segment_x_2, segment_y_2;
+
+/** Status on the current circle */
+static float nav_circle_radians; /* Cumulated */
+static float nav_circle_trigo_qdr; /* Angle from center to mobile */
+
+#define NavCircleCount() (fabs(nav_circle_radians) / (2*M_PI))
+#define NavCircleQdr() ({ float qdr = DegOfRad(M_PI_2 - nav_circle_trigo_qdr); NormCourse(qdr); qdr; })
+
+
+/** Status on the current leg (percentage, 0. < < 1.) in route mode */
+static float nav_leg_progress;
+
+/** length of the current leg (m) */
+static float nav_leg_length;
+
+bool_t nav_in_circle = FALSE;
+bool_t nav_in_segment = FALSE;
+int16_t nav_circle_x, nav_circle_y, nav_circle_radius;
+int16_t nav_segment_x_1, nav_segment_y_1, nav_segment_x_2, nav_segment_y_2;
 uint8_t horizontal_mode;
 float circle_bank = 0;
 
@@ -88,7 +95,7 @@ float nav_glide_pitch_trim;
 #define Return() { nav_block=last_block; nav_stage=last_stage; block_time=0; return;}
 
 #define Stage(s) case s: nav_stage=s;
-#define InitStage() { last_x = estimator_x; last_y = estimator_y; stage_time = 0; stage_time_ds = 0; sum_alpha = 0; new_circle = TRUE; in_circle = FALSE; in_segment = FALSE; return; }
+#define InitStage() { last_x = estimator_x; last_y = estimator_y; stage_time = 0; stage_time_ds = 0; nav_circle_radians = 0; nav_in_circle = FALSE; nav_in_segment = FALSE; return; }
 #define NextStage() { nav_stage++; InitStage() }
 #define NextStageFrom(wp) { last_wp = wp; NextStage() }
 #define GotoStage(s) { nav_stage = s; InitStage() }
@@ -99,9 +106,7 @@ float nav_glide_pitch_trim;
 static bool_t approaching(uint8_t, float) __attribute__ ((unused));
 static inline void fly_to_xy(float x, float y);
 static void fly_to(uint8_t wp) __attribute__ ((unused));
-static void route_to(uint8_t _last_wp, uint8_t _wp) __attribute__ ((unused));
-static void glide_to(uint8_t _last_wp, uint8_t _wp) __attribute__ ((unused));
-static void route_to_xy(float last_wp_x, float last_wp_y, float wp_x, float wp_y);
+static void nav_route_xy(float last_wp_x, float last_wp_y, float wp_x, float wp_y);
 
 #define MIN_DX ((int16_t)(MAX_PPRZ * 0.05))
 
@@ -112,44 +117,87 @@ static void route_to_xy(float last_wp_x, float last_wp_y, float wp_x, float wp_y
   while (x >= 360) x -= 360; \
 }
 
-/** Degrees from 0 to 360 */
-static float qdr;
+static inline void nav_circle_XY(float x, float y, float radius) {
+  float last_trigo_qdr = nav_circle_trigo_qdr;
+  nav_circle_trigo_qdr = atan2(estimator_y - y, estimator_x - x);
 
-#define CircleXY(x, y, radius) { \
-  last_alpha = alpha; \
-  alpha = atan2(estimator_y - y, estimator_x - x); \
-  if (! new_circle) { \
-    float alpha_diff = alpha - last_alpha; \
-    NormRadAngle(alpha_diff); \
-    sum_alpha += alpha_diff; \
-  } else \
-    new_circle = FALSE; \
-  float dist2_center = DistanceSquare(estimator_x, estimator_y, x, y); \
-  float dist_carrot = CARROT*estimator_hspeed_mod; \
-  float abs_radius = fabs(radius); \
-  float sign_radius = radius > 0 ? 1 : -1; \
-  circle_bank = \
-    (dist2_center > Square(abs_radius + dist_carrot) \
-      || dist2_center < Square(abs_radius - dist_carrot)) ? \
-    0 : \
-     sign_radius * atan2(estimator_hspeed_mod*estimator_hspeed_mod, \
-                         G*abs_radius); \
-  circle_count = fabs(sum_alpha) / (2*M_PI); \
-  float carrot_angle = CARROT / abs_radius * estimator_hspeed_mod; \
-  carrot_angle = Min(carrot_angle, M_PI/4); \
-  carrot_angle = Max(carrot_angle, M_PI/16); \
-  float alpha_carrot = alpha - sign_radius * carrot_angle; \
-  horizontal_mode = HORIZONTAL_MODE_CIRCLE; \
-  float radius_carrot = abs_radius + (abs_radius / cos(carrot_angle) - abs_radius); \
-  fly_to_xy(x+cos(alpha_carrot)*radius_carrot, \
-	    y+sin(alpha_carrot)*radius_carrot); \
-  qdr = DegOfRad(M_PI/2 - alpha); \
-  NormCourse(qdr); \
-  in_circle = TRUE; \
-  circle_x = x; \
-  circle_y = y; \
-  circle_radius = radius; \
+  if (nav_in_circle) {
+    float trigo_diff = nav_circle_trigo_qdr - last_trigo_qdr;
+    NormRadAngle(trigo_diff);
+    nav_circle_radians += trigo_diff;
+  }
+
+  float dist2_center = DistanceSquare(estimator_x, estimator_y, x, y);
+  float dist_carrot = CARROT*estimator_hspeed_mod;
+  float abs_radius = fabs(radius);
+  float sign_radius = radius > 0 ? 1 : -1;
+  
+  /** Computesa prebank. Go straight if inside or outside the circe */
+  circle_bank =
+    (dist2_center > Square(abs_radius + dist_carrot)
+      || dist2_center < Square(abs_radius - dist_carrot)) ?
+    0 :
+    atan(estimator_hspeed_mod*estimator_hspeed_mod / (G*radius));
+
+  float carrot_angle = CARROT / abs_radius * estimator_hspeed_mod;
+  carrot_angle = Min(carrot_angle, M_PI/4);
+  carrot_angle = Max(carrot_angle, M_PI/16);
+  float alpha_carrot = nav_circle_trigo_qdr - sign_radius * carrot_angle;
+  horizontal_mode = HORIZONTAL_MODE_CIRCLE;
+  float radius_carrot = abs_radius + (abs_radius / cos(carrot_angle) - abs_radius);
+  fly_to_xy(x+cos(alpha_carrot)*radius_carrot,
+	    y+sin(alpha_carrot)*radius_carrot);
+  nav_in_circle = TRUE;
+  nav_circle_x = x;
+  nav_circle_y = y;
+  nav_circle_radius = radius;
 }
+
+#define NavCircle(wp, radius) \
+  nav_circle_XY(waypoints[wp].x, waypoints[wp].y, radius)
+
+#define NavRoute(_start, _end) \
+  nav_route_xy(waypoints[_start].x, waypoints[_start].y, waypoints[_end].x, waypoints[_end].y)
+
+#define NavSurveyRectangleInit(_wp1, _wp2, _grid) nav_survey_rectangle_init(_wp1, _wp2, _grid)
+#define NavSurveyRectangle(_wp1, _wp2) nav_survey_rectangle(_wp1, _wp2)
+
+#define NavVerticalAutoThrottleMode(_pitch) { \
+  v_ctl_climb_mode = V_CTL_CLIMB_MODE_AUTO_THROTTLE; \
+  nav_pitch = _pitch; \
+}
+
+#define NavVerticalAutoPitchMode(_throttle) { \
+  v_ctl_climb_mode = V_CTL_CLIMB_MODE_AUTO_PITCH; \
+  nav_throttle_setpoint = _throttle; \
+}
+
+#define NavVerticalAltitudeMode(_alt, _pre_climb) { \
+  v_ctl_mode = V_CTL_MODE_AUTO_ALT; \
+  nav_altitude = _alt; \
+  v_ctl_altitude_pre_climb = _pre_climb; \
+}
+
+#define NavVerticalClimbMode(_climb) { \
+  v_ctl_mode = V_CTL_MODE_AUTO_CLIMB; \
+  v_ctl_climb_setpoint = _climb; \
+}
+
+#define NavVerticalThrottleMode(_throttle) { \
+  v_ctl_mode = V_CTL_MODE_AUTO_THROTTLE; \
+  nav_throttle_setpoint = _throttle; \
+}
+
+#define NavGlide(_last_wp, _wp) { \
+  float start_alt = waypoints[_last_wp].a; \
+  float diff_alt = waypoints[_wp].a - start_alt; \
+  float alt = start_alt + nav_leg_progress * diff_alt; \
+  float pre_climb = NOMINAL_AIRSPEED * diff_alt / nav_leg_length; \
+  NavVerticalAltitudeMode(alt, pre_climb); \
+}
+
+
+
 
 #define MAX_DIST_CARROT 250.
 #define MIN_HEIGHT_CARROT 50.
@@ -169,7 +217,7 @@ static float qdr;
       carrot_y = Min(carrot_y, MAX_DIST_CARROT); \
       carrot_y = Max(carrot_y, -MAX_DIST_CARROT); \
     } \
-    vertical_mode = VERTICAL_MODE_AUTO_ALT; \
+    v_ctl_mode = V_CTL_MODE_AUTO_ALT; \
     int16_t roll =  fbw_state->channels[RADIO_ROLL]; \
     if (roll > MIN_DX || roll < -MIN_DX) { \
       nav_altitude += FLOAT_OF_PPRZ(roll, 0, -1.0);	\
@@ -177,105 +225,95 @@ static float qdr;
       nav_altitude = Min(nav_altitude, MAX_HEIGHT_CARROT+ground_alt); \
     } \
   } \
-  CircleXY(carrot_x, carrot_y, radius); \
+  nav_circle_XY(carrot_x, carrot_y, radius); \
 }
-#define Circle(wp, radius) \
-  CircleXY(waypoints[wp].x, waypoints[wp].y, radius);
 
 #define And(x, y) ((x) && (y))
 #define Or(x, y) ((x) || (y))
 #define Min(x,y) (x < y ? x : y)
 #define Max(x,y) (x > y ? x : y)
-#define Qdr(x) (Min(x, 350) < qdr && qdr < x+10)
+#define NavQdrCloseTo(x) ({ float circle_qdr = NavCircleQdr(); (Min(x, 350) < circle_qdr && circle_qdr < x+10); })
+#define NavBlockTime() (block_time)
+#define LessThan(_x, _y) ((_x) < (_y))
 
-#define Follow(_ac_id, _distance, _height) { \
+#define NavFollow(_ac_id, _distance, _height) { \
   struct ac_info_ * ac = get_ac_info(_ac_id); \
-  vertical_mode = VERTICAL_MODE_AUTO_ALT; \
-  nav_altitude = Max(ac->alt + _height, ground_alt+SECURITY_HEIGHT); \
+  NavVerticalAutoThrottleMode(0.); \
+  NavVerticalAltitudeMode(Max(ac->alt + _height, ground_alt+SECURITY_HEIGHT), 0.); \
   float alpha = M_PI/2 - ac->course; \
   fly_to_xy(ac->east - _distance*cos(alpha), ac->north - _distance*sin(alpha)); \
 }
 
+#define NavSetGroundReferenceHere() { nav_reset_reference(); nav_update_waypoints_alt(); }
+
 /** Automatic survey of a sector (south-north sweep) */
 static struct point survey_from;
 static struct point survey_to;
-static float shift;
+static float survey_shift;
 static bool_t survey_uturn __attribute__ ((unused)) = FALSE;
 float survey_west, survey_east, survey_north, survey_south;
-static float survey_radius __attribute__ ((unused));
-
-#include <stdio.h>
-
-#define Survey(_inside_sector, x_east, x_west, y_south, y_north) { \
-  if (!_inside_sector(estimator_x, estimator_y)) { \
-    if (! survey_uturn) { \
-      survey_uturn = TRUE; \
-      float x0 = survey_from.x; \
-      if (x0+shift > x_west || x0+shift < x_east) { \
-        shift = -shift; \
-      } \
-      x0 = x0 + shift; \
-      survey_from.x = survey_to.x = x0; \
-      float tmp = survey_from.y; \
-      survey_from.y = survey_to.y; \
-      survey_to.y = tmp; \
-    } \
-  } else \
-    survey_uturn = FALSE; \
-  route_to_xy(survey_from.x, survey_from.y, survey_to.x, survey_to.y); \
-}
 
 #define SurveyGoingNorth() (survey_to.y > survey_from.y)
 #define SurveyGoingSouth() (survey_to.y < survey_from.y)
 
+static inline void nav_survey_rectangle(uint8_t wp1, uint8_t wp2) {
+  static float survey_radius;
 
-#define SurveyRectangle(wp1, wp2) { \
-  survey_west = Min(waypoints[wp1].x, waypoints[wp2].x); \
-  survey_east = Max(waypoints[wp1].x, waypoints[wp2].x); \
-  survey_south = Min(waypoints[wp1].y, waypoints[wp2].y); \
-  survey_north = Max(waypoints[wp1].y, waypoints[wp2].y); \
-  if (survey_from.y < survey_to.y) { \
-    survey_to.y = survey_north; \
-    survey_from.y = survey_south; \
-  } \
-  if (survey_to.y < survey_from.y) { \
-    survey_to.y = survey_south; \
-    survey_from.y = survey_north; \
-  } \
-  if (! survey_uturn) { \
-    if ((estimator_y < survey_north && SurveyGoingNorth()) || \
-        (estimator_y > survey_south && SurveyGoingSouth())) { \
-      route_to_xy(survey_from.x, survey_from.y, survey_to.x, survey_to.y); \
-    } else { \
-      survey_uturn = TRUE; \
-      /** Prepare the next leg */ \
-      float x0 = survey_from.x; \
-      if (x0+shift < survey_west || x0+shift > survey_east) { \
-        shift = -shift; \
-      } \
-      x0 = x0 + shift; \
-      survey_from.x = survey_to.x = x0; \
-      float tmp = survey_from.y; \
-      survey_from.y = survey_to.y; \
-      survey_to.y = tmp; \
-      /** Do half a circle */ \
-      waypoints[0].x = x0 - shift/2.; \
-      waypoints[0].y = survey_from.y; \
-      survey_radius = shift / 2.; \
-      if (survey_to.y > survey_from.y) \
-        survey_radius = -survey_radius; \
-      sum_alpha = 0.; circle_count = 0.; new_circle = TRUE; in_segment = FALSE; \
-    } \
-  } else { \
-    if (circle_count < 0.45) { \
-      Circle(0, survey_radius); \
-    } else { \
-      survey_uturn = FALSE; \
-      in_circle = FALSE; \
-    } \
-  } \
-  vertical_mode = VERTICAL_MODE_AUTO_ALT; \
-  nav_altitude = waypoints[wp1].a; \
+  survey_west = Min(waypoints[wp1].x, waypoints[wp2].x);
+  survey_east = Max(waypoints[wp1].x, waypoints[wp2].x);
+  survey_south = Min(waypoints[wp1].y, waypoints[wp2].y);
+  survey_north = Max(waypoints[wp1].y, waypoints[wp2].y);
+  if (SurveyGoingNorth()) {
+    survey_to.y = survey_north;
+    survey_from.y = survey_south;
+  }
+  if (SurveyGoingSouth()) {
+    survey_to.y = survey_south;
+    survey_from.y = survey_north;
+  }
+  if (! survey_uturn) { /* S-N or N-S straight route */
+    if ((estimator_y < survey_north && SurveyGoingNorth()) ||
+        (estimator_y > survey_south && SurveyGoingSouth())) {
+      /* Continue ... */
+      nav_route_xy(survey_from.x, survey_from.y, survey_to.x, survey_to.y);
+    } else {
+      /* North or South limit reached, prepare U-turn and next leg */
+      nav_in_segment = FALSE;
+      float x0 = survey_from.x; /* Current longitude */
+      if (x0+survey_shift < survey_west || x0+survey_shift > survey_east) {
+        survey_shift = -survey_shift;
+      }
+      x0 = x0 + survey_shift; /* Longitude of next leg */
+      survey_from.x = survey_to.x = x0;
+
+      /* Swap South and North extremities */
+      float tmp = survey_from.y;
+      survey_from.y = survey_to.y;
+      survey_to.y = tmp;
+
+      /** Do half a circle around WP 0 */
+      waypoints[0].x = x0 - survey_shift/2.;
+      waypoints[0].y = survey_from.y;
+
+      /* Computes the right direction for the circle */
+      survey_radius = survey_shift / 2.;
+      if (SurveyGoingNorth())
+        survey_radius = -survey_radius;
+
+      nav_circle_radians = 0.;
+      survey_uturn = TRUE;
+    }
+  } else { /* U-turn */
+    if (NavCircleCount() < 0.45) {
+      NavCircle(0, survey_radius);
+    } else {
+      /* U-turn finished, back on a segment */
+      survey_uturn = FALSE;
+      nav_in_circle = FALSE;
+    }
+  }
+  NavVerticalAutoThrottleMode(0.); /* No pitch */
+  NavVerticalAltitudeMode(WaypointAlt(wp1), 0.); /* No preclimb */
 }
 
 
@@ -287,14 +325,7 @@ void nav_goto_block(uint8_t b) {
   GotoBlock(b);
 }
 
-static inline void survey_init(float y_south, float y_north, float grid) {
-  survey_from.x = survey_to.x = estimator_x;
-  survey_from.y = y_south;
-  survey_to.y = y_north;
-  shift = grid;
-}
-
-static inline void survey_rectangle_init(uint8_t wp1, uint8_t wp2, float grid) {
+static inline void nav_survey_rectangle_init(uint8_t wp1, uint8_t wp2, float grid) {
   survey_west = Min(waypoints[wp1].x, waypoints[wp2].x);
   survey_east = Max(waypoints[wp1].x, waypoints[wp2].x);
   survey_south = Min(waypoints[wp1].y, waypoints[wp2].y);
@@ -307,15 +338,15 @@ static inline void survey_rectangle_init(uint8_t wp1, uint8_t wp2, float grid) {
     survey_from.y = survey_south;
     survey_to.y = survey_north;
   }
-  shift = grid;
+  survey_shift = grid;
   survey_uturn = FALSE;
 }
 
 static unit_t unit __attribute__ ((unused));
 
-static unit_t reset_nav_reference( void ) __attribute__ ((unused));
+static unit_t nav_reset_reference( void ) __attribute__ ((unused));
 
-static unit_t reset_waypoints( void ) __attribute__ ((unused));
+static unit_t nav_update_waypoints_alt( void ) __attribute__ ((unused));
 
 #include "flight_plan.h"
 
@@ -323,7 +354,8 @@ float ground_alt;
 
 static float previous_ground_alt;
 
-static unit_t reset_nav_reference( void ) {
+/** Reset the geographic reference to the current GPS fix */
+static unit_t nav_reset_reference( void ) {
   nav_utm_east0 = gps_utm_east/100;
   nav_utm_north0 = gps_utm_north/100;
   nav_utm_zone0 = gps_utm_zone;
@@ -332,7 +364,8 @@ static unit_t reset_nav_reference( void ) {
   return 0;
 }
 
-static unit_t reset_waypoints( void ) {
+/** Shift altitude of the waypoint accorgint to a new ground altitude */
+static unit_t nav_update_waypoints_alt( void ) {
   uint8_t i;
   for(i = 0; i <= NB_WAYPOINT; i++) {
     waypoints[i].a += ground_alt - previous_ground_alt;
@@ -352,7 +385,7 @@ uint8_t nav_utm_zone0 = NAV_UTM_ZONE0;
 float nav_altitude = GROUND_ALT + MIN_HEIGHT_CARROT;
 float altitude_shift = 0;
 float desired_x, desired_y;
-uint16_t nav_desired_gaz;
+pprz_t nav_throttle_setpoint;
 float nav_pitch = NAV_PITCH;
 
 float dist2_to_wp, dist2_to_home;
@@ -407,48 +440,28 @@ static void fly_to(uint8_t wp) {
   fly_to_xy(waypoints[wp].x, waypoints[wp].y);
 }
 
-/** length of the leg */
-static float leg;
-/** static void route_to(uint8_t _last_wp, uint8_t wp)
- *  \brief Computes where the uav is on a route and call
- *  \a fly_to_xy to follow it.
- */
-static void route_to_xy(float last_wp_x, float last_wp_y, float wp_x, float wp_y) {
+static void nav_route_xy(float last_wp_x, float last_wp_y, float wp_x, float wp_y) {
   float leg_x = wp_x - last_wp_x;
   float leg_y = wp_y - last_wp_y;
   float leg2 = leg_x * leg_x + leg_y * leg_y;
-  alpha = ((estimator_x - last_wp_x) * leg_x + (estimator_y - last_wp_y) * leg_y) / leg2;
-  alpha = Max(alpha, 0.);
-  leg = sqrt(leg2);
+  nav_leg_progress = ((estimator_x - last_wp_x) * leg_x + (estimator_y - last_wp_y) * leg_y) / leg2;
+  nav_leg_progress = Max(nav_leg_progress, 0.);
+  nav_leg_length = sqrt(leg2);
 
   /** distance of carrot (in meter) */
   float carrot = CARROT * estimator_hspeed_mod;
 
-  alpha += Max(carrot / leg, 0.);
-  in_segment = TRUE;
-  segment_x_1 = last_wp_x;
-  segment_y_1 = last_wp_y;
-  segment_x_2 = wp_x;
-  segment_y_2 = wp_y;
+  nav_leg_progress += Max(carrot / nav_leg_length, 0.);
+  nav_in_segment = TRUE;
+  nav_segment_x_1 = last_wp_x;
+  nav_segment_y_1 = last_wp_y;
+  nav_segment_x_2 = wp_x;
+  nav_segment_y_2 = wp_y;
   horizontal_mode = HORIZONTAL_MODE_ROUTE;
 
-  fly_to_xy(last_wp_x + alpha*leg_x, last_wp_y + alpha*leg_y);
+  fly_to_xy(last_wp_x + nav_leg_progress*leg_x, last_wp_y + nav_leg_progress*leg_y);
 }
 
-static void route_to(uint8_t _last_wp, uint8_t wp) {
-  route_to_xy(waypoints[_last_wp].x, waypoints[_last_wp].y, 
-	      waypoints[wp].x, waypoints[wp].y);
-}
-
-
-/** static void glide_to(uint8_t _last_wp, uint8_t wp)
- *  \brief Computes \a nav_altitude and \a v_ctl_altitude_pre_climb to stay on a glide.
- */
-static void glide_to(uint8_t _last_wp, uint8_t wp) {
-  float last_alt = waypoints[_last_wp].a;
-  nav_altitude = last_alt + alpha * (waypoints[wp].a - last_alt);
-  v_ctl_altitude_pre_climb = NOMINAL_AIRSPEED * (waypoints[wp].a - last_alt) / leg;
-}
 
 /** \brief Compute square distance to waypoint Home and
  *  verify uav is not too far away from Home.
@@ -471,10 +484,10 @@ static inline void compute_dist2_to_home(void) {
 /** \brief Occurs when it switchs in Home mode.
  */
 void nav_home(void) {
-  Circle(WP_HOME, FAILSAFE_HOME_RADIUS);
+  NavCircle(WP_HOME, FAILSAFE_HOME_RADIUS);
   /** Nominal speed */ 
   nav_pitch = 0.;
-  vertical_mode = VERTICAL_MODE_AUTO_ALT;
+  v_ctl_mode = V_CTL_MODE_AUTO_ALT;
   nav_altitude = ground_alt+SECURITY_HEIGHT;
   compute_dist2_to_home();
   dist2_to_wp = dist2_to_home;
@@ -486,9 +499,9 @@ void nav_home(void) {
 void nav_update(void) {
   compute_dist2_to_home();
   auto_nav();
-  h_ctl_course_pre_bank = in_circle ? circle_bank : 0;
+  h_ctl_course_pre_bank = nav_in_circle ? circle_bank : 0;
 #ifdef AGR_CLIMB
-  if ( vertical_mode == VERTICAL_MODE_AUTO_CLIMB)
+  if ( v_ctl_mode == V_CTL_MODE_AUTO_CLIMB)
     v_ctl_auto_throttle_submode =  V_CTL_AUTO_THROTTLE_STANDARD;
 #endif
 
@@ -515,7 +528,7 @@ void nav_init(void) {
  *  \brief 
  */
 /** Don't navigate anymore. It's impossible without GPS.
- *	Just set attitude and gaz to failsafe values
+ *	Just set attitude and throttle to failsafe values
  *	to prevent the plane from crashing.
  */
 void nav_without_gps(void) {
@@ -523,14 +536,14 @@ void nav_without_gps(void) {
   lateral_mode = LATERAL_MODE_ROLL;
   h_ctl_roll_setpoint = FAILSAFE_DEFAULT_ROLL;
   nav_pitch = FAILSAFE_DEFAULT_PITCH;
-  vertical_mode = VERTICAL_MODE_AUTO_GAZ;
-  nav_desired_gaz = TRIM_UPPRZ((FAILSAFE_DEFAULT_GAZ)*MAX_PPRZ);
+  v_ctl_mode = V_CTL_MODE_AUTO_THROTTLE;
+  nav_throttle_setpoint = TRIM_UPPRZ((FAILSAFE_DEFAULT_THROTTLE)*MAX_PPRZ);
 #else
   lateral_mode = LATERAL_MODE_ROLL;
   h_ctl_roll_setpoint = 0;
   nav_pitch = 0;
-  vertical_mode = VERTICAL_MODE_AUTO_GAZ;
-  nav_desired_gaz = TRIM_UPPRZ((CRUISE_THROTTLE)*MAX_PPRZ);
+  v_ctl_mode = V_CTL_MODE_AUTO_THROTTLE;
+  nav_throttle_setpoint = TRIM_UPPRZ((CRUISE_THROTTLE)*MAX_PPRZ);
 #endif
 }
 
@@ -597,15 +610,15 @@ void nav_eight(uint8_t target, uint8_t c1, float radius) {
   
   switch (eight_status) {
   case C1 :
-    Circle(c1, radius);
-    if (Qdr(DegOfRad(qdr_out)-10)) {
+    NavCircle(c1, radius);
+    if (NavQdrCloseTo(DegOfRad(qdr_out)-10)) {
       eight_status = R12;
       InitStage();
     }
     return;
 
   case R12:
-    route_to_xy(c1_out.x, c1_out.y, c2_in.x, c2_in.y);
+    nav_route_xy(c1_out.x, c1_out.y, c2_in.x, c2_in.y);
     if (approaching_xy(c2_in.x, c2_in.y,CARROT)) { 
       eight_status = C2;
       InitStage();
@@ -613,15 +626,15 @@ void nav_eight(uint8_t target, uint8_t c1, float radius) {
     return;
 
   case C2 :
-    CircleXY(c2.x, c2.y, -radius);
-    if (Qdr(DegOfRad(qdr_out)+10)) {
+    nav_circle_XY(c2.x, c2.y, -radius);
+    if (NavQdrCloseTo(DegOfRad(qdr_out)+10)) {
       eight_status = R21;
       InitStage();
     }
    return;
 
   case R21:
-    route_to_xy(c2_out.x, c2_out.y, c1_in.x, c1_in.y);
+    nav_route_xy(c2_out.x, c2_out.y, c1_in.x, c1_in.y);
     if (approaching_xy(c1_in.x, c1_in.y,CARROT)) { 
       eight_status = C1;
       InitStage();

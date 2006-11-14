@@ -47,6 +47,6 @@ extern void parse_ubx( uint8_t c );
   } \
 }
 
-#define GPS_FIX_VALID(gps_mode) (gps_mode == 3)
+#define GpsFixValid() (gps_mode == 3)
 
 #endif /* UBX_H */

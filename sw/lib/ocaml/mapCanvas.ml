@@ -666,12 +666,13 @@ class widget =  fun ?(height=800) ?width ?projection ?georef () ->
       | Some (georef:< pos : LL.geographic>) ->
 	  let (dx, dy) = Latlong.utm_sub (LL.utm_of LL.WGS84 geo) (LL.utm_of LL.WGS84 georef#pos) in
 	  let d = sqrt (dx*.dx+.dy*.dy) in
-	  lbl_geo#set_text (sprintf "%4.0f %4.0fm" ((Rad>>Deg)(atan2 dx dy)) d)
+	  let bearing = (int_of_float ((Rad>>Deg)(atan2 dx dy)) + 360) mod 360 in
+	  lbl_geo#set_text (sprintf "%4ddeg %4.0fm" bearing d)
 	  
 
     method display_alt = fun wgs84 ->
       if srtm#active then
-	lbl_alt#set_text (sprintf "\t%dm"(self#altitude wgs84))
+	lbl_alt#set_text (sprintf " SRTM:%dm"(self#altitude wgs84))
 	
     method display_group = fun s ->  lbl_group#set_text s
 	

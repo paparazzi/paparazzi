@@ -33,6 +33,9 @@
 #include "nav.h"
 #include "airframe.h"
 
+/* mode */
+uint8_t v_ctl_mode;
+
 /* outer loop */
 float v_ctl_altitude_setpoint;
 float v_ctl_altitude_pre_climb;
@@ -61,11 +64,15 @@ float v_ctl_auto_pitch_sum_err;
 #define V_CTL_AUTO_PITCH_MAX_SUM_ERR 100
 
 pprz_t v_ctl_throttle_setpoint;
+pprz_t v_ctl_throttle_slewed;
 
 inline static void v_ctl_climb_auto_throttle_loop( void );
 inline static void v_ctl_climb_auto_pitch_loop( void );
 
 void v_ctl_init( void ) {
+  /* mode */
+  v_ctl_mode = V_CTL_MODE_MANUAL;
+
   /* outer loop */
   v_ctl_altitude_setpoint = 0.;
   v_ctl_altitude_pre_climb = 0.;
@@ -198,7 +205,7 @@ inline static void v_ctl_climb_auto_throttle_loop(void) {
  */
 inline static void v_ctl_climb_auto_pitch_loop(void) {
   float err  = estimator_z_dot - v_ctl_climb_setpoint;
-  v_ctl_throttle_setpoint = nav_desired_gaz;
+  v_ctl_throttle_setpoint = nav_throttle_setpoint;
   v_ctl_auto_pitch_sum_err += err;
   BoundAbs(v_ctl_auto_pitch_sum_err, V_CTL_AUTO_PITCH_MAX_SUM_ERR);
   nav_pitch = v_ctl_auto_pitch_pgain * 
@@ -210,12 +217,7 @@ inline static void v_ctl_climb_auto_pitch_loop(void) {
 #define V_CTL_THROTTLE_SLEW 1.
 #endif
 void v_ctl_throttle_slew( void ) {
-  static pprz_t last_throttle;
-  pprz_t diff_throttle = v_ctl_throttle_setpoint - last_throttle;
+  pprz_t diff_throttle = v_ctl_throttle_setpoint - v_ctl_throttle_slewed;
   BoundAbs(diff_throttle, TRIM_PPRZ(V_CTL_THROTTLE_SLEW*MAX_PPRZ));
-  v_ctl_throttle_setpoint = last_throttle + diff_throttle;
-  last_throttle = v_ctl_throttle_setpoint;
+  v_ctl_throttle_slewed += diff_throttle;
 }
-
-
-

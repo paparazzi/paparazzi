@@ -216,7 +216,7 @@ let log_and_parse = fun logging ac_name (a:Aircraft.aircraft) msg values ->
       a.desired_course <- norm_course ((Deg>>Rad)(fvalue "desired_course" /. 10.));
   | "BAT" ->
       a.last_bat_msg_date <- U.gettimeofday ();
-      a.throttle <- fvalue "desired_gaz" /. 9600. *. 100.;
+      a.throttle <- fvalue "throttle" /. 9600. *. 100.;
       a.kill_mode <- ivalue "kill_auto_throttle" <> 0;
       a.flight_time <- ivalue "flight_time";
       a.rpm <- a.throttle *. 100.;

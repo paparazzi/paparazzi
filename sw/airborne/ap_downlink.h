@@ -54,7 +54,7 @@
 
 #define PERIODIC_SEND_IDENT()  DOWNLINK_SEND_IDENT(&ac_ident);
 
-#define PERIODIC_SEND_BAT() Downlink({ int16_t e = energy; DOWNLINK_SEND_BAT(&v_ctl_throttle_setpoint, &vsupply, &estimator_flight_time, &kill_throttle, &block_time, &stage_time, &e); })
+#define PERIODIC_SEND_BAT() Downlink({ int16_t e = energy; DOWNLINK_SEND_BAT(&v_ctl_throttle_slewed, &vsupply, &estimator_flight_time, &kill_throttle, &block_time, &stage_time, &e); })
 
 #ifdef MCU_SPI_LINK
 #define PERIODIC_SEND_DEBUG_MCU_LINK() DOWNLINK_SEND_DEBUG_MCU_LINK(&link_mcu_nb_err, &link_mcu_fbw_nb_err, &mcu1_ppm_cpt);
@@ -78,7 +78,7 @@
   DOWNLINK_SEND_ATTITUDE(&phi, &psi, &theta); \
 })
 
-#define PERIODIC_SEND_PPRZ_MODE() DOWNLINK_SEND_PPRZ_MODE(&pprz_mode, &vertical_mode, &lateral_mode, &horizontal_mode, &rc_settings_mode, &mcu1_status, &ir_estim_mode);
+#define PERIODIC_SEND_PPRZ_MODE() DOWNLINK_SEND_PPRZ_MODE(&pprz_mode, &v_ctl_mode, &lateral_mode, &horizontal_mode, &rc_settings_mode, &mcu1_status, &ir_estim_mode);
 #define PERIODIC_SEND_DESIRED() DOWNLINK_SEND_DESIRED(&h_ctl_roll_setpoint, &h_ctl_pitch_setpoint, &desired_x, &desired_y, &v_ctl_altitude_setpoint, &v_ctl_climb_setpoint);
 
 #define PERIODIC_SEND_NAVIGATION_REF()  DOWNLINK_SEND_NAVIGATION_REF(&nav_utm_east0, &nav_utm_north0, &nav_utm_zone0);
@@ -126,9 +126,9 @@
 #define PERIODIC_SEND_CALIBRATION() DOWNLINK_SEND_CALIBRATION(&v_ctl_auto_throttle_sum_err, &v_ctl_auto_throttle_pgain, &h_ctl_course_pgain, &pprz_mode)
 #endif
 
-#define PERIODIC_SEND_CIRCLE() if (in_circle) { DOWNLINK_SEND_CIRCLE(&circle_x, &circle_y, &circle_radius); }
+#define PERIODIC_SEND_CIRCLE() if (nav_in_circle) { DOWNLINK_SEND_CIRCLE(&nav_circle_x, &nav_circle_y, &nav_circle_radius); }
 
-#define PERIODIC_SEND_SEGMENT() if (in_segment) { DOWNLINK_SEND_SEGMENT(&segment_x_1, &segment_y_1, &segment_x_2, &segment_y_2); }
+#define PERIODIC_SEND_SEGMENT() if (nav_in_segment) { DOWNLINK_SEND_SEGMENT(&nav_segment_x_1, &nav_segment_y_1, &nav_segment_x_2, &nav_segment_y_2); }
 
 #ifdef IMU_ANALOG
 #define PERIODIC_SEND_IMU() { int16_t dummy = 42; DOWNLINK_SEND_IMU(&(from_fbw.euler_dot[0]), &(from_fbw.euler_dot[1]), &(from_fbw.euler_dot[2]), &dummy, &dummy, &dummy); }

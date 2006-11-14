@@ -62,7 +62,7 @@ void estimator_update_state_gps( void ) {
  * \a DOWNLINK_SEND_TAKEOFF
  */
 void use_gps_pos( void ) {
-  if (GPS_FIX_VALID(gps_mode)) {
+  if (GpsFixValid()) {
     last_gps_msg_t = cpu_time;
     estimator_update_state_gps();
   }
