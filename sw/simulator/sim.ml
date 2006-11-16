@@ -107,7 +107,7 @@ module Make(AircraftItl : AIRCRAFT_ITL) = struct
 
     let gps_period = 0.25 in
     
-    let compute_gps_state = Gps.state () in
+    let compute_gps_state = Gps.state pos0 alt0 in
 
     let initial_state = FM.init (pi/.2. -. qfu/.180.*.pi) in
 
@@ -203,7 +203,6 @@ module Make(AircraftItl : AIRCRAFT_ITL) = struct
     in
 
     let boot = fun () ->
-      Gps.set_ref !pos0 !alt0;
       Aircraft.boot (time_scale:>value);
       Stdlib.timer ~scale:time_scale fm_period fm_task;
       Stdlib.timer ~scale:time_scale ir_period ir_task;

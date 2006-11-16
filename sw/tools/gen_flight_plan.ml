@@ -206,13 +206,13 @@ let output_hmode x wp last_wp =
 	"route" ->
 	  if last_wp = "last_wp" then
 	    fprintf stderr "WARNING: Deprecated use of 'route' using last waypoint in %s\n"(Xml.to_string x);
-	  lprintf "NavRoute(%s, %s);\n" last_wp wp
-      | "direct" -> lprintf "fly_to(%s);\n" wp
+	  lprintf "NavSegment(%s, %s);\n" last_wp wp
+      | "direct" -> lprintf "NavGotoWaypoint(%s);\n" wp
       | x -> failwith (sprintf "Unknown hmode '%s'" x)
     end;
     hmode
   with
-    ExtXml.Error _ -> lprintf "fly_to(%s);\n" wp; "direct" (* Default behaviour *)
+    ExtXml.Error _ -> lprintf "NavGotoWaypoint(%s);\n" wp; "direct" (* Default behaviour *)
 	  
 
 
@@ -360,11 +360,11 @@ let rec print_stage = fun index_of_waypoints x ->
 	begin
 	  try
 	    let wp = get_index_waypoint (ExtXml.attrib x "wp") index_of_waypoints in
-	    ignore(output_hmode x wp "");
+	    ignore (output_hmode x wp "");
 	    ignore (output_vmode x wp "");
 	  with
 	    Xml2h.Error _ ->
-	      lprintf "fly_to_xy(last_x, last_y);\n";
+	      lprintf "NavGotoXY(last_x, last_y);\n";
 		ignore(output_vmode x "" "")
 	end;
 	lprintf "return;\n"
@@ -381,7 +381,7 @@ let rec print_stage = fun index_of_waypoints x ->
 	let wp = get_index_waypoint (ExtXml.attrib x "wp") index_of_waypoints in
 	let r = parsed_attrib  x "radius" in
 	let _vmode = output_vmode x wp "" in
-	lprintf "NavCircle(%s, %s);\n" wp r;
+	lprintf "NavCircleWaypoint(%s, %s);\n" wp r;
 	begin
 	  try
 	    let c = parsed_attrib x "until" in

@@ -38,23 +38,10 @@ type state = {
   }
 
 
-let earth_radius = 6378388.
-
-let lat0 = ref 0.
-let lon0 = ref 0. 
-let alt0 = ref 0.
-
-let set_ref = fun wgs84 alt ->
-  lat0 := wgs84.posn_lat;
-  lon0 := wgs84.posn_long;
-  alt0 := alt
-
 let climb_noise = fun c -> c +. Random.float 1.
 
   
-
-
-let state = fun () ->
+let state = fun pos0 alt0 ->
   let last_x = ref 0. and last_y = ref 0. 
   and last_t = ref 0. and last_z = ref 0. in
 
@@ -66,9 +53,9 @@ let state = fun () ->
     and course = norm_angle (pi/.2. -. atan2 dy dx)
     and climb = (z -. !last_z) /. dt in
 
-    (** FIXME, should be utm -> geo *)
-    let lat = !lat0 +. y /. earth_radius
-    and long = !lon0 +. x /.earth_radius /. cos !lat0
+    let utm0 = utm_of WGS84 !pos0 in
+    let utm = utm_add utm0 (x, y) in
+    let wgs84 = of_utm WGS84 utm
     and alt = !alt0 +. z in
 
     last_x := x;
@@ -76,10 +63,10 @@ let state = fun () ->
     last_z := z;
     last_t := t;
 
-    let course = if course < 0. then course +. 2. *. pi else course in (* ???? *)
+    let course = if course < 0. then course +. 2. *. pi else course in
     
     {
-     wgs84 = { posn_lat=lat;posn_long=long };
+     wgs84 = wgs84;
      alt = alt;
      time = t;
      climb = climb_noise climb;

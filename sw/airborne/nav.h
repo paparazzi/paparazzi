@@ -45,6 +45,10 @@ struct point {
   float a;
 };
 
+#define WaypointX(_wp) (waypoints[_wp].x)
+#define WaypointY(_wp) (waypoints[_wp].y)
+#define WaypointAlt(_wp) (waypoints[_wp].a)
+
 extern float cur_pos_x;
 extern float cur_pos_y;
 extern uint8_t nav_stage, nav_block;
@@ -56,8 +60,6 @@ extern uint8_t nav_utm_zone0;
 
 extern const uint8_t nb_waypoint;
 extern struct point waypoints[]; /** size == nb_waypoint + 1 */
-
-#define WaypointAlt(_wp) (waypoints[_wp].a)
 
 extern float desired_x, desired_y, altitude_shift, nav_altitude, flight_altitude, nav_glide_pitch_trim;
 

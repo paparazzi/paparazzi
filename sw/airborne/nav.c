@@ -105,7 +105,6 @@ float nav_glide_pitch_trim;
 
 static bool_t approaching(uint8_t, float) __attribute__ ((unused));
 static inline void fly_to_xy(float x, float y);
-static void fly_to(uint8_t wp) __attribute__ ((unused));
 static void nav_route_xy(float last_wp_x, float last_wp_y, float wp_x, float wp_y);
 
 #define MIN_DX ((int16_t)(MAX_PPRZ * 0.05))
@@ -153,10 +152,16 @@ static inline void nav_circle_XY(float x, float y, float radius) {
   nav_circle_radius = radius;
 }
 
-#define NavCircle(wp, radius) \
+
+#define NavGotoWaypoint(_wp) { \
+  horizontal_mode = HORIZONTAL_MODE_WAYPOINT; \
+  fly_to_xy(waypoints[_wp].x, waypoints[_wp].y); \
+}
+
+#define NavCircleWaypoint(wp, radius) \
   nav_circle_XY(waypoints[wp].x, waypoints[wp].y, radius)
 
-#define NavRoute(_start, _end) \
+#define NavSegment(_start, _end) \
   nav_route_xy(waypoints[_start].x, waypoints[_start].y, waypoints[_end].x, waypoints[_end].y)
 
 #define NavSurveyRectangleInit(_wp1, _wp2, _grid) nav_survey_rectangle_init(_wp1, _wp2, _grid)
@@ -305,7 +310,7 @@ static inline void nav_survey_rectangle(uint8_t wp1, uint8_t wp2) {
     }
   } else { /* U-turn */
     if (NavCircleCount() < 0.45) {
-      NavCircle(0, survey_radius);
+      NavCircleWaypoint(0, survey_radius);
     } else {
       /* U-turn finished, back on a segment */
       survey_uturn = FALSE;
@@ -375,9 +380,6 @@ static unit_t nav_update_waypoints_alt( void ) {
 
 
 
-#define MIN_DIST2_WP (15.*15.)
-
-
 int32_t nav_utm_east0 = NAV_UTM_EAST0;
 int32_t nav_utm_north0 = NAV_UTM_NORTH0;
 uint8_t nav_utm_zone0 = NAV_UTM_ZONE0;
@@ -432,13 +434,6 @@ static inline void fly_to_xy(float x, float y) {
   h_ctl_course_setpoint = M_PI/2.-atan2(y - estimator_y, x - estimator_x);
 }
 
-/** static void fly_to(uint8_t wp)
- *  \brief Just call \a fly_to_xy with x and y of current waypoint.
- */
-static void fly_to(uint8_t wp) { 
-  horizontal_mode = HORIZONTAL_MODE_WAYPOINT;
-  fly_to_xy(waypoints[wp].x, waypoints[wp].y);
-}
 
 static void nav_route_xy(float last_wp_x, float last_wp_y, float wp_x, float wp_y) {
   float leg_x = wp_x - last_wp_x;
@@ -484,7 +479,7 @@ static inline void compute_dist2_to_home(void) {
 /** \brief Occurs when it switchs in Home mode.
  */
 void nav_home(void) {
-  NavCircle(WP_HOME, FAILSAFE_HOME_RADIUS);
+  NavCircleWaypoint(WP_HOME, FAILSAFE_HOME_RADIUS);
   /** Nominal speed */ 
   nav_pitch = 0.;
   v_ctl_mode = V_CTL_MODE_AUTO_ALT;
@@ -610,7 +605,7 @@ void nav_eight(uint8_t target, uint8_t c1, float radius) {
   
   switch (eight_status) {
   case C1 :
-    NavCircle(c1, radius);
+    NavCircleWaypoint(c1, radius);
     if (NavQdrCloseTo(DegOfRad(qdr_out)-10)) {
       eight_status = R12;
       InitStage();
