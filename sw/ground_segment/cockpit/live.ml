@@ -298,6 +298,7 @@ let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id
   let eb = GBin.event_box () in
   let _label = GMisc.label ~text:name ~packing:eb#add () in
   eb#coerce#misc#modify_bg [`NORMAL, `NAME color;`ACTIVE, `NAME color];
+  _label#set_width_chars 20;
 
   (** Put a notebook for this A/C *)
   let ac_frame = GBin.frame ~packing:(acs_notebook#append_page ~tab_label:eb#coerce) () in
@@ -309,7 +310,11 @@ let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id
   let select_this_tab =
     let n = acs_notebook#page_num ac_frame#coerce in
     fun () -> acs_notebook#goto_page n in
-  let strip = Strip.add config color select_this_tab center_ac (mark geomap ac_id track !Plugin.frame) in
+  let strip = Strip.add config color center_ac (mark geomap ac_id track !Plugin.frame) in
+  let deselect_others = fun () ->
+    Hashtbl.iter (fun ac_id' ac -> if ac_id' <> ac_id then ac.strip#hide_buttons ()) live_aircrafts in
+  strip#connect (fun () -> select_this_tab (); deselect_others ());
+  deselect_others ();
 
 
   (** Build the XML flight plan, connect then "jump_to_block" *)
@@ -484,16 +489,17 @@ let alert_bind = fun msg cb ->
 
 let ask_config = fun alert geomap fp_notebook ac ->
   let get_config = fun _sender values ->
-    create_ac alert geomap fp_notebook ac values
+    if not (Hashtbl.mem live_aircrafts ac) then
+      create_ac alert geomap fp_notebook ac values
   in
   Ground_Pprz.message_req "map2d" "CONFIG" ["ac_id", Pprz.String ac] get_config
 
     
 
 let one_new_ac = fun alert (geomap:G.widget) fp_notebook ac ->
-  if not (Hashtbl.mem live_aircrafts ac) then begin
+  if not (Hashtbl.mem live_aircrafts ac) then
     ask_config alert geomap fp_notebook ac
-  end
+      
 
 let get_wind_msg = fun (geomap:G.widget) _sender vs ->
   let ac = get_ac vs in

@@ -508,6 +508,7 @@ let _main =
 
   (** Aircraft notebook *)
   let ac_notebook = GPack.notebook ~tab_border:0 () in
+  ac_notebook#connect#switch_page ~callback:(fun i -> Printf.printf "tab=%d -> %d\n%!" ac_notebook#current_page i);
 
   (** Alerts text frame *)
   let alert_page = GBin.frame () in
