@@ -69,6 +69,8 @@ type aircraft = {
     misc_page : Pages.misc;
     dl_settings_page : Pages.settings option;
     rc_settings_page : Pages.rc_settings option;
+    pages : GObj.widget;
+    notebook_label : GMisc.label;
     strip : Strip.t;
     mutable first_pos : bool;
     mutable last_block_name : string;
@@ -83,9 +85,25 @@ type aircraft = {
   }
 
 let live_aircrafts = Hashtbl.create 3
+let active_ac = ref ""
 let get_ac = fun vs ->
   let ac_id = Pprz.string_assoc "ac_id" vs in
   Hashtbl.find live_aircrafts ac_id
+
+let select_ac = fun ?(switch_notebook = true) acs_notebook ac_id ->
+  if !active_ac <> ac_id then
+    let ac = Hashtbl.find live_aircrafts ac_id in
+    ac.notebook_label#set_width_chars 20;
+    ac.strip#show_buttons ();
+    if !active_ac <> "" then begin
+      let ac' = Hashtbl.find live_aircrafts !active_ac in
+      ac'.strip#hide_buttons ();
+      ac'.notebook_label#set_width_chars (String.length ac'.notebook_label#text)  
+    end;
+    active_ac := ac_id;
+    if switch_notebook then
+      let n = acs_notebook#page_num ac.pages in
+      acs_notebook#goto_page n
 
 
 module M = Map.Make (struct type t = string let compare = compare end)
@@ -298,7 +316,6 @@ let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id
   let eb = GBin.event_box () in
   let _label = GMisc.label ~text:name ~packing:eb#add () in
   eb#coerce#misc#modify_bg [`NORMAL, `NAME color;`ACTIVE, `NAME color];
-  _label#set_width_chars 20;
 
   (** Put a notebook for this A/C *)
   let ac_frame = GBin.frame ~packing:(acs_notebook#append_page ~tab_label:eb#coerce) () in
@@ -306,16 +323,9 @@ let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id
   let visible = fun w ->
     ac_notebook#page_num w#coerce = ac_notebook#current_page in      
 
-  (** Add a strip and connect it to the A/C notebook *)
-  let select_this_tab =
-    let n = acs_notebook#page_num ac_frame#coerce in
-    fun () -> acs_notebook#goto_page n in
+  (** Add a strip *)
   let strip = Strip.add config color center_ac (mark geomap ac_id track !Plugin.frame) in
-  let deselect_others = fun () ->
-    Hashtbl.iter (fun ac_id' ac -> if ac_id' <> ac_id then ac.strip#hide_buttons ()) live_aircrafts in
-  strip#connect (fun () -> select_this_tab (); deselect_others ());
-  deselect_others ();
-
+  strip#connect (fun () -> select_ac acs_notebook ac_id);
 
   (** Build the XML flight plan, connect then "jump_to_block" *)
   let fp_xml = ExtXml.child fp_xml_dump "flight_plan" in
@@ -426,8 +436,12 @@ let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id
 	       last_block_name = ""; alt = 0.; target_alt = 0.;
 	       in_kill_mode = false; speed = 0.;
 	       wind_dir = 42.; ground_prox = true;
-	       wind_speed = 0.; } in
+	       wind_speed = 0.;
+	       pages = ac_frame#coerce;
+	       notebook_label = _label
+	     } in
     Hashtbl.add live_aircrafts ac_id ac;
+    select_ac acs_notebook ac_id;
 
   (** Periodically send the wind estimation through
       a WIND_INFO message packed into a RAW_DATALINK *)
@@ -816,3 +830,34 @@ let listen_error = fun a ->
     let msg = Pprz.string_assoc "message" vs in
     log_and_say a "gcs" msg in
   safe_bind "TELEMETRY_ERROR" get_error
+
+
+let listen_acs_and_msgs = fun geomap ac_notebook my_alert auto_center_new_ac ->
+  (** Periodically probe new A/Cs *)
+  ignore (Glib.Timeout.add 2000 (fun () -> message_request "map2d" "AIRCRAFTS" [] (fun _sender vs -> aircrafts_msg my_alert geomap ac_notebook vs); false));
+
+  (** New aircraft message *)
+  safe_bind "NEW_AIRCRAFT" (fun _sender vs -> one_new_ac my_alert geomap ac_notebook (Pprz.string_assoc "ac_id" vs));
+
+  (** Listen for all messages on ivy *)
+  listen_flight_params geomap auto_center_new_ac my_alert;
+  listen_wind_msg geomap;
+  listen_fbw_msg ();
+  listen_engine_status_msg ();
+  listen_if_calib_msg ();
+  listen_waypoint_moved ();
+  listen_infrared ();
+  listen_svsinfo ();
+  listen_telemetry_status ();
+  listen_alert my_alert;
+  listen_error my_alert;
+
+  (** Select the active aircraft on notebook page selection *)
+  let callback = fun i ->
+    let ac_page = ac_notebook#get_nth_page i in
+    Hashtbl.iter
+      (fun ac_id ac -> 
+	if ac.pages#get_oid = ac_page#get_oid
+	then select_ac ~switch_notebook:false ac_notebook ac_id) 
+      live_aircrafts in
+  ignore (ac_notebook#connect#switch_page ~callback)

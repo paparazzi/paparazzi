@@ -31,7 +31,9 @@ type t =
 	set_bat : float -> unit;
 	  set_color : string -> string -> unit;
 	    set_label : string -> string -> unit;
-	      connect : (unit -> unit) -> unit; hide_buttons : unit -> unit >
+	      connect : (unit -> unit) -> unit; 
+		hide_buttons : unit -> unit; 
+		show_buttons : unit -> unit >
 
 let bat_max = 12.5
 let bat_min = 9.
@@ -66,44 +68,45 @@ class gauge = fun ?(color="green") ?(history_len=50) gauge v_min v_max ->
     val mutable history_index = -1
     method set = fun value string ->
       let {Gtk.width=width; height=height} = gauge#misc#allocation in
-      let dr = GDraw.pixmap ~width ~height ~window:gauge () in
-      dr#set_foreground (`NAME "orange");
-      dr#rectangle ~x:0 ~y:0 ~width ~height ~filled:true ();
-      
-      let f = (value -. v_min) /. (v_max -. v_min) in
-      let f = max 0. (min 1. f) in
-      let h = truncate (float height *. f) in
-
-      (* First call: fill the array with the given value *)
-      if history_index < 0 then begin
+      if height > 1 then (* Else the drawing area is not allocated already *)
+	let dr = GDraw.pixmap ~width ~height ~window:gauge () in
+	dr#set_foreground (`NAME "orange");
+	dr#rectangle ~x:0 ~y:0 ~width ~height ~filled:true ();
+	
+	let f = (value -. v_min) /. (v_max -. v_min) in
+	let f = max 0. (min 1. f) in
+	let h = truncate (float height *. f) in
+	
+	(* First call: fill the array with the given value *)
+	if history_index < 0 then begin
+	  for i = 0 to history_len - 1 do
+	    history.(i) <- h
+	  done;
+	  history_index <- 0;
+	end;
+	
+	(* Store the value in the history array and update index *)
+	history.(history_index) <- h;
+	history_index <- (history_index+1) mod history_len;
+	
+	dr#set_foreground (`NAME color);
+	
+	(* From left to right, older to new values *)
+	let polygon = ref [0,height; width,height] in
 	for i = 0 to history_len - 1 do
-	  history.(i) <- h
+	  let idx = (history_index+i) mod history_len in
+	  polygon := ((i*width)/history_len, (height-history.(idx))):: !polygon;
 	done;
-	history_index <- 0;
-      end;
-
-      (* Store the value in the history array and update index *)
-      history.(history_index) <- h;
-      history_index <- (history_index+1) mod history_len;
-
-      dr#set_foreground (`NAME color);
-
-      (* From left to right, older to new values *)
-      let polygon = ref [0,height; width,height] in
-      for i = 0 to history_len - 1 do
-	let idx = (history_index+i) mod history_len in
-	polygon := ((i*width)/history_len, (height-history.(idx))):: !polygon;
-      done;
-      polygon := (width,height-h):: !polygon;
-      dr#polygon ~filled:true !polygon;
-      
-      let context = gauge#misc#create_pango_context in
-      let layout = context#create_layout in
-      Pango.Layout.set_text layout string;
-      let (w,h) = Pango.Layout.get_pixel_size layout in
-      dr#put_layout ~x:((width-w)/2) ~y:((height-h)/2) ~fore:`BLACK layout;
-      
-      (new GDraw.drawable gauge#misc#window)#put_pixmap ~x:0 ~y:0 dr#pixmap
+	polygon := (width,height-h):: !polygon;
+	dr#polygon ~filled:true !polygon;
+	
+	let context = gauge#misc#create_pango_context in
+	let layout = context#create_layout in
+	Pango.Layout.set_text layout string;
+	let (w,h) = Pango.Layout.get_pixel_size layout in
+	dr#put_layout ~x:((width-w)/2) ~y:((height-h)/2) ~fore:`BLACK layout;
+	
+	(new GDraw.drawable gauge#misc#window)#put_pixmap ~x:0 ~y:0 dr#pixmap
   end
 
 
@@ -160,8 +163,10 @@ let add config color center_ac mark =
 
   (** Table (everything except the user buttons) *)
   let strip = GPack.table ~rows ~columns ~col_spacings:3 ~packing:framevb#add () in
-  strip#set_row_spacing 0 3;
-  strip#set_row_spacing (rows-2) 3;
+  strip#set_row_spacing 0 2;
+  strip#set_row_spacing 1 2;
+  strip#set_row_spacing (rows-1) 2;
+  strip#set_row_spacing (rows-2) 2;
 
   (* Name in top left *)
   let name = (GMisc.label ~text: (ac_name) ~packing: (strip#attach ~top: 0 ~left: 0) ()) in
@@ -187,13 +192,13 @@ let add config color center_ac mark =
   tooltips#set_tip plane_color#coerce ~text:"Flight time - Block time - Stage  time - Block name";
 
   (* battery gauge *)
-  let bat_da = GMisc.drawing_area ~height:60 ~show:true ~packing:(strip#attach ~top:1 ~bottom:(rows-1) ~left:0) () in
+  let bat_da = GMisc.drawing_area ~show:true ~packing:(strip#attach ~top:1 ~bottom:(rows-1) ~left:0) () in
   bat_da#misc#realize ();
   let bat = new gauge bat_da bat_min bat_max in
 
   (* AGL gauge *)
   let agl_box = GBin.event_box ~packing:(strip#attach ~top:1 ~bottom:3 ~left:(columns-1)) () in
-  let agl_da = GMisc.drawing_area ~width:40 ~height:60 ~show:true ~packing:agl_box#add () in
+  let agl_da = GMisc.drawing_area ~width:30 ~show:true ~packing:agl_box#add () in
   agl_da#misc#realize ();
   tooltips#set_tip agl_box#coerce ~text:"AGL (m)";
   let agl = new gauge agl_da 0. agl_max in
@@ -225,7 +230,7 @@ let add config color center_ac mark =
     ) labels_name;
 
   (* Buttons *)
-  let hbox = GPack.hbox ~packing:framevb#add () in
+  let hbox = GPack.hbox ~spacing:2 ~packing:framevb#add () in
   let b = GButton.button ~label:"Center A/C" ~packing:hbox#add () in
   ignore(b#connect#clicked ~callback:center_ac);
   let b = GButton.button ~label:"Mark" ~packing:hbox#add () in
@@ -237,9 +242,9 @@ let add config color center_ac mark =
   ignore (b#connect#clicked  ~callback:mark);
 
   (* User buttons *)
-  let user_hbox = GPack.hbox ~packing:framevb#add () in
+  let user_hbox = GPack.hbox ~spacing:2 ~packing:framevb#add () in
 
-  (object
+  object
     method set_agl value = set_agl agl value
     method set_bat value = set_bat bat value
     method set_label name value = set_label !strip_labels name value
@@ -250,10 +255,8 @@ let add config color center_ac mark =
       ignore (plus30#connect#clicked (fun () -> callback 30.));
       ignore (minus5#connect#clicked (fun () -> callback (-5.)))
     method hide_buttons () = hbox#misc#hide (); user_hbox#misc#hide ()
+    method show_buttons () = hbox#misc#show (); user_hbox#misc#show ()
     method connect = fun (select: unit -> unit) ->
-      let callback = fun _ -> 
-	select ();
-	hbox#misc#show (); user_hbox#misc#show ();
-	true in
+      let callback = fun _ -> select (); true in
       ignore (strip_ebox#event#connect#button_press ~callback)
-  end:t)
+  end

@@ -508,7 +508,6 @@ let _main =
 
   (** Aircraft notebook *)
   let ac_notebook = GPack.notebook ~tab_border:0 () in
-  ac_notebook#connect#switch_page ~callback:(fun i -> Printf.printf "tab=%d -> %d\n%!" ac_notebook#current_page i);
 
   (** Alerts text frame *)
   let alert_page = GBin.frame () in
@@ -573,25 +572,8 @@ let _main =
     ignore (frame#event#connect#button_press ~callback)
   end;
 
-
-  (** Periodically probe new A/Cs *)
-  ignore (Glib.Timeout.add 2000 (fun () -> Live.message_request "map2d" "AIRCRAFTS" [] (fun _sender vs -> Live.aircrafts_msg my_alert geomap ac_notebook vs); false));
-
-  (** New aircraft message *)
-  Live.safe_bind "NEW_AIRCRAFT" (fun _sender vs -> Live.one_new_ac my_alert geomap ac_notebook (Pprz.string_assoc "ac_id" vs));
-
-  (** Listen for all messages on ivy *)
-  Live.listen_flight_params geomap !auto_center_new_ac my_alert;
-  Live.listen_wind_msg geomap;
-  Live.listen_fbw_msg ();
-  Live.listen_engine_status_msg ();
-  Live.listen_if_calib_msg ();
-  Live.listen_waypoint_moved ();
-  Live.listen_infrared ();
-  Live.listen_svsinfo ();
-  Live.listen_telemetry_status ();
-  Live.listen_alert my_alert;
-  Live.listen_error my_alert;
+  (** Wait for A/Cs and subsequent messages *)
+  Live.listen_acs_and_msgs geomap ac_notebook my_alert !auto_center_new_ac;
 
   (** Display the window *)
   let accel_group = menu_fact#accel_group in
