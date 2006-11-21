@@ -192,7 +192,7 @@
 
   <section name="FAILSAFE" prefix="FAILSAFE_">
 	<define name="DELAY_WITHOUT_GPS" value="1" unit="s"/>
-    	<define name="DEFAULT_GAZ" value="0.3" unit="%"/>
+    	<define name="DEFAULT_THROTTLE" value="0.3" unit="%"/>
     	<define name="DEFAULT_ROLL" value="0.3" unit="rad"/>
     	<define name="DEFAULT_PITCH" value="0.5" unit="rad"/>
 	<define name="HOME_RADIUS" value="100" unit="m"/>

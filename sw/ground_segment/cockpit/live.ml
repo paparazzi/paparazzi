@@ -90,21 +90,25 @@ let get_ac = fun vs ->
   let ac_id = Pprz.string_assoc "ac_id" vs in
   Hashtbl.find live_aircrafts ac_id
 
-let select_ac = fun ?(switch_notebook = true) acs_notebook ac_id ->
+let select_ac = fun acs_notebook ac_id ->
   if !active_ac <> ac_id then
     let ac = Hashtbl.find live_aircrafts ac_id in
-    ac.notebook_label#set_width_chars 20;
+
+    (* Show the buttons in the active strip and hide the previous active one *)
     ac.strip#show_buttons ();
     if !active_ac <> "" then begin
       let ac' = Hashtbl.find live_aircrafts !active_ac in
       ac'.strip#hide_buttons ();
       ac'.notebook_label#set_width_chars (String.length ac'.notebook_label#text)  
     end;
-    active_ac := ac_id;
-    if switch_notebook then
-      let n = acs_notebook#page_num ac.pages in
-      acs_notebook#goto_page n
 
+    (* Set the new active *)
+    active_ac := ac_id;
+
+    (* Select and enlarge the label of the A/C notebook *)
+    let n = acs_notebook#page_num ac.pages in
+    acs_notebook#goto_page n;
+    ac.notebook_label#set_width_chars 20;
 
 module M = Map.Make (struct type t = string let compare = compare end)
 let log = 
@@ -818,7 +822,7 @@ let message_request = Ground_Pprz.message_req
 let get_ts = fun _sender vs ->
   let ac = get_ac vs in
   let t = Pprz.float_assoc "time_since_last_bat_msg" vs in
-  ac.strip#set_label "telemetry_status" (if t > 2. then sprintf "%.1f" t else "   ");
+  ac.strip#set_label "telemetry_status" (if t > 2. then sprintf "%.0f" t else "   ");
   ac.strip#set_color "telemetry_status" (if t > 5. then alert_color else ok_color)
   
 
@@ -858,6 +862,6 @@ let listen_acs_and_msgs = fun geomap ac_notebook my_alert auto_center_new_ac ->
     Hashtbl.iter
       (fun ac_id ac -> 
 	if ac.pages#get_oid = ac_page#get_oid
-	then select_ac ~switch_notebook:false ac_notebook ac_id) 
+	then select_ac ac_notebook ac_id) 
       live_aircrafts in
   ignore (ac_notebook#connect#switch_page ~callback)

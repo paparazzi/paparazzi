@@ -41,7 +41,7 @@ let agl_max = 150.
 
 (** window for the strip panel *)
 let scrolled = GBin.scrolled_window ~hpolicy: `AUTOMATIC ~vpolicy: `AUTOMATIC ()
-let table = GPack.table ~rows: 1 ~columns: 1 ~row_spacings: 5 ~packing: (scrolled#add_with_viewport) ()
+let strips_table = GPack.vbox ~spacing:5 ~packing:scrolled#add_with_viewport ()
 
 
 
@@ -143,11 +143,6 @@ let columns = 1 + 2 * Array.length labels_name.(0) + 1
 
     (** add a strip to the panel *)
 let add config color center_ac mark =
-  let widget = table in
-  (* number of the strip *)
-  let strip_number = gen_int () in
-  if strip_number > 1 then widget#set_rows strip_number;
-
   let strip_labels = ref  [] in
   let add_label = fun name value -> 
     strip_labels := (name, value) :: !strip_labels in
@@ -157,7 +152,7 @@ let add config color center_ac mark =
   let tooltips = GData.tooltips () in
 
   (* frame of the strip *)
-  let strip_ebox = GBin.event_box ~packing:(widget#attach ~top:strip_number ~left:0) () in 
+  let strip_ebox = GBin.event_box ~packing:strips_table#add () in 
   let frame = GBin.frame ~shadow_type: `IN ~packing:strip_ebox#add () in
   let framevb = GPack.vbox ~packing:frame#add () in
 
@@ -214,6 +209,7 @@ let add config color center_ac mark =
   let eb = GBin.event_box ~packing:(strip#attach ~top:(rows-1) ~left:0) () in
   let ts = GMisc.label ~text:"N/A" ~packing:eb#add () in
   add_label "telemetry_status_value" (eb, ts);
+  ts#set_width_chars 3;
   tooltips#set_tip eb#coerce ~text:"Telemetry status\nGreen if time since last bat message < 5s";
 
   (* Labels *)
