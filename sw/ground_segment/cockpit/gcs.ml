@@ -345,6 +345,7 @@ let options =
     "-zoom", Arg.Set_float zoom, "Initial zoom";
     "-center", Arg.Set_string center, "Initial map center";
     "-center_ac", Arg.Set auto_center_new_ac, "Centers the map on any new A/C";
+    "-track_size", Arg.Set_int Live.track_size, (sprintf "Default track length (%d)" !Live.track_size);
     "-plugin", Arg.Set_string  plugin_window, "External X application (launched with the id of the plugin window as argument)";
     "-mplayer", Arg.Set_string mplayer, "Launch mplayer with the given argument as X plugin";
     "-utm", Arg.Unit (fun () -> projection:=G.Mercator),"Switch to UTM local projection";

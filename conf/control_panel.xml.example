@@ -80,7 +80,9 @@
       <program name="sim"><arg flag="-a" constant="MJ5"/></program>
       <program name="sim"><arg flag="-a" constant="TJ1"/></program>
       <program name="server"/>
-      <program name="gcs"/>
+      <program name="gcs">
+        <arg flag="-track_size" constant="10"/>
+      </program>
     </session>
 
    <session name="4 Versatile Flight">

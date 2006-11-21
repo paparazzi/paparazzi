@@ -240,7 +240,7 @@ let log_and_parse = fun logging ac_name (a:Aircraft.aircraft) msg values ->
 	if mcu1_status land 0b1 > 0
 	then "OK"
 	else if mcu1_status land 0b10 > 0
-	then "REALLY_LOST"
+	then "NONE"
 	else "LOST";
       a.fbw.rc_mode <-
 	if mcu1_status land 0b1000 > 0

@@ -181,7 +181,7 @@ class track = fun ?(name="Noname") ?(size = 500) ?(color="red") (geomap:MapCanva
 
       if params_on then begin
 	let last_height = self#height () in
-	ac_label#set [`TEXT ( name^" \n"^(string_of_float last_height)^" m\n"^(string_of_float last_speed)^" m/s\n" ); `Y 70. ]
+	ac_label#set [`TEXT (sprintf "%s\n%+.0f m\n%.1f m/s" name last_height last_speed); `Y 70. ]
       end;
       
       ac_label#affine_absolute (affine_pos_and_angle geomap#zoom_adj#value xw yw 0.);

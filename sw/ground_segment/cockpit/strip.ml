@@ -133,15 +133,14 @@ let labels_print = [|
 |]
 let gen_int = let i = ref (-1) in fun () -> incr i; !i
 
-let rows = 1 + Array.length labels_name
+(** Number of rows: colored line + labels + buttons + user buttons *)
+let rows = 1 + Array.length labels_name + 2
+
+(** Numnber of columns: battey gauge + labels & values + AGL gauge *)
 let columns = 1 + 2 * Array.length labels_name.(0) + 1
 
 
-
-
-
-
-    (** add a strip to the panel *)
+(** add a strip to the panel *)
 let add config color center_ac mark =
   let strip_labels = ref  [] in
   let add_label = fun name value -> 
@@ -152,16 +151,12 @@ let add config color center_ac mark =
   let tooltips = GData.tooltips () in
 
   (* frame of the strip *)
-  let strip_ebox = GBin.event_box ~packing:strips_table#add () in 
+  let strip_ebox = GBin.event_box ~packing:strips_table#pack () in 
   let frame = GBin.frame ~shadow_type: `IN ~packing:strip_ebox#add () in
   let framevb = GPack.vbox ~packing:frame#add () in
 
   (** Table (everything except the user buttons) *)
-  let strip = GPack.table ~rows ~columns ~col_spacings:3 ~packing:framevb#add () in
-  strip#set_row_spacing 0 2;
-  strip#set_row_spacing 1 2;
-  strip#set_row_spacing (rows-1) 2;
-  strip#set_row_spacing (rows-2) 2;
+  let strip = GPack.table ~rows ~columns ~col_spacings:3 ~row_spacings:2 ~packing:framevb#pack () in
 
   (* Name in top left *)
   let name = (GMisc.label ~text: (ac_name) ~packing: (strip#attach ~top: 0 ~left: 0) ()) in
@@ -187,13 +182,13 @@ let add config color center_ac mark =
   tooltips#set_tip plane_color#coerce ~text:"Flight time - Block time - Stage  time - Block name";
 
   (* battery gauge *)
-  let bat_da = GMisc.drawing_area ~show:true ~packing:(strip#attach ~top:1 ~bottom:(rows-1) ~left:0) () in
+  let bat_da = GMisc.drawing_area ~show:true ~packing:(strip#attach ~top:1 ~bottom:3 ~left:0) () in
   bat_da#misc#realize ();
   let bat = new gauge bat_da bat_min bat_max in
 
   (* AGL gauge *)
   let agl_box = GBin.event_box ~packing:(strip#attach ~top:1 ~bottom:3 ~left:(columns-1)) () in
-  let agl_da = GMisc.drawing_area ~width:30 ~show:true ~packing:agl_box#add () in
+  let agl_da = GMisc.drawing_area ~width:40 ~show:true ~packing:agl_box#add () in
   agl_da#misc#realize ();
   tooltips#set_tip agl_box#coerce ~text:"AGL (m)";
   let agl = new gauge agl_da 0. agl_max in
@@ -206,7 +201,7 @@ let add config color center_ac mark =
   tooltips#set_tip dta_box#coerce ~text:"Height to target (m)";
 
   (* Telemetry *)
-  let eb = GBin.event_box ~packing:(strip#attach ~top:(rows-1) ~left:0) () in
+  let eb = GBin.event_box ~packing:(strip#attach ~top:3 ~left:0) () in
   let ts = GMisc.label ~text:"N/A" ~packing:eb#add () in
   add_label "telemetry_status_value" (eb, ts);
   ts#set_width_chars 3;
@@ -226,7 +221,7 @@ let add config color center_ac mark =
     ) labels_name;
 
   (* Buttons *)
-  let hbox = GPack.hbox ~spacing:2 ~packing:framevb#add () in
+  let hbox = GPack.hbox ~width:300  ~spacing:2 ~packing:(strip#attach ~top:4 ~left:0 ~right:columns) () in
   let b = GButton.button ~label:"Center A/C" ~packing:hbox#add () in
   ignore(b#connect#clicked ~callback:center_ac);
   let b = GButton.button ~label:"Mark" ~packing:hbox#add () in
@@ -238,7 +233,7 @@ let add config color center_ac mark =
   ignore (b#connect#clicked  ~callback:mark);
 
   (* User buttons *)
-  let user_hbox = GPack.hbox ~spacing:2 ~packing:framevb#add () in
+  let user_hbox = GPack.hbox ~spacing:2 ~packing:(strip#attach ~top:5 ~left:0 ~right:columns) () in
 
   object
     method set_agl value = set_agl agl value

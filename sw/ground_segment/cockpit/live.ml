@@ -34,6 +34,7 @@ module Ground_Pprz = Pprz.Messages(struct let name = "ground" end)
 module Alert_Pprz = Pprz.Messages(struct let name = "alert" end)
 
 let approaching_alert_time = 3.
+let track_size = ref 500
 
 let rotate = fun a (x, y) ->
   let cosa = cos a and sina = sin a in
@@ -290,7 +291,7 @@ let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id
   let fp = ac_menu_fact#add_check_item "Fligh Plan" ~active:true in
   ignore (fp#connect#toggled (fun () -> show_mission ac_id fp#active));
   
-  let track = new MapTrack.track ~name ~color:color geomap in
+  let track = new MapTrack.track ~size: !track_size ~name ~color:color geomap in
   geomap#register_to_fit (track:>MapCanvas.geographic);
 
   let center_ac = center geomap track in
@@ -535,8 +536,8 @@ let get_fbw_msg = fun _sender vs ->
   ac.strip#set_label "RC" status;
   ac.strip#set_color "RC"
     (match status with
-      "LOST" | "REALLY_LOST" -> warning_color 
-    | _ -> ok_color)
+      "OK" -> ok_color 
+    | _ -> warning_color)
 
     
 
