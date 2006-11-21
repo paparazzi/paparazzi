@@ -119,7 +119,7 @@ module Make(A:Data.MISSION) = struct
   external sim_init : unit -> unit = "sim_init"
   external update_bat : int -> unit = "update_bat"
 
-  let bat_button = GButton.toggle_button ~label:"Bat" ()
+  let bat_button = GButton.check_button ~label:"Auto" ~active:false ()
 
   let my_id = ref (-1)
   let init = fun id vbox ->
@@ -127,12 +127,13 @@ module Make(A:Data.MISSION) = struct
     my_id := id;
     sim_init ();
 
-    let hbox = GPack.hbox ~packing:vbox#add () in
+    let hbox = GPack.hbox ~spacing:4 ~packing:vbox#add () in
+    let _label = GMisc.label ~text:"Bat (V) " ~packing:hbox#pack () in
+    let _scale = GRange.scale `HORIZONTAL ~adjustment:adj_bat ~packing:hbox#add () in
+    let update = fun () -> update_bat (truncate (adj_bat#value *. 10.)) in
     hbox#pack bat_button#coerce;
     let tips = GData.tooltips () in
     tips#set_tip bat_button#coerce ~text:"Select for auto-decreasing voltage";
-    let _scale = GRange.scale `HORIZONTAL ~adjustment:adj_bat ~packing:hbox#add () in
-    let update = fun () -> update_bat (truncate (adj_bat#value *. 10.)) in
     ignore (adj_bat#connect#value_changed update);
     update ()
 

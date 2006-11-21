@@ -222,9 +222,9 @@ module Make(AircraftItl : AIRCRAFT_ITL) = struct
     
     let take_off = fun () -> FlightModel.set_air_speed !state FM.nominal_airspeed in 
 
-    let hbox = GPack.hbox ~packing:vbox#pack () in
+    let hbox = GPack.hbox ~spacing:4 ~packing:vbox#pack () in
     if not !autoboot then begin
-      let s = GButton.button ~label:"Boot" ~packing:(hbox#pack ~padding:5) () in
+      let s = GButton.button ~label:"Boot" ~packing:(hbox#pack) () in
       ignore (s#connect#clicked ~callback:boot)
     end else
       boot ();
