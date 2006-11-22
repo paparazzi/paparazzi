@@ -127,9 +127,9 @@ let georef_of_xml = fun xml ->
   {posn_lat = (Deg>>Rad)lat0; posn_long = (Deg>>Rad)lon0 }
 
  
-class flight_plan = fun ?editable ~show_moved geomap color fp_dtd xml ->
+class flight_plan = fun ?format_attribs ?editable ~show_moved geomap color fp_dtd xml ->
   (** Xml Editor *)
-  let xml_tree_view, xml_window = XmlEdit.create ?editable (Dtd.parse_file fp_dtd) xml in
+  let xml_tree_view, xml_window = XmlEdit.create ?format_attribs ?editable (Dtd.parse_file fp_dtd) xml in
   let xml_root = XmlEdit.root xml_tree_view in
   let xml_wpts = XmlEdit.child xml_root "waypoints" in
 

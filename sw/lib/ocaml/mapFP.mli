@@ -26,6 +26,7 @@
 
 (** [flight_plan geomap color dtd_tile xml] *)
 class flight_plan :
+  ?format_attribs:((string * string) list -> string) ->
   ?editable:bool ->
   show_moved:bool ->
   MapCanvas.widget ->

@@ -103,7 +103,7 @@ let background = cols#add Gobject.Data.string
 let id = cols#add Gobject.Data.int
 
 let string_of_attribs = fun attribs ->
-  List.fold_right (fun (a,v) r -> sprintf " %s=\"%s\"%s" a v r) attribs ""
+  String.concat " " (List.map (fun (a,v) -> sprintf "%s=\"%s\"" a v) attribs)
 
 type id = int
 let gen_id = 
@@ -136,16 +136,16 @@ let tree_model_of_xml = fun xml ->
   store;;
 
 
-let attrib_cell_data_func = fun renderer (model:GTree.model) iter ->
+let attrib_cell_data_func = fun format_attribs renderer (model:GTree.model) iter ->
   let value = model#get ~row:iter ~column:attributes in
   let bg = model#get ~row:iter ~column:background in
-  renderer#set_properties [`TEXT (string_of_attribs value); `CELL_BACKGROUND bg]
+  renderer#set_properties [`TEXT (format_attribs value); `CELL_BACKGROUND bg]
 
 let set_bg_color = fun renderer (model:GTree.model) iter ->
   let bg = model#get ~row:iter ~column:background in
   renderer#set_properties [`CELL_BACKGROUND bg]
 
-let tree_view = fun ?(edit=true) (model:GTree.tree_store) window ->
+let tree_view = fun format_attribs ?(edit=true) (model:GTree.tree_store) window ->
   let view = GTree.view ~model ~reorderable:edit ~packing:window#add () in
   let r = GTree.cell_renderer_text [] in
   let col = GTree.view_column ~title:"Tag" () ~renderer:(r, ["text",tag_col]) in
@@ -157,7 +157,7 @@ let tree_view = fun ?(edit=true) (model:GTree.tree_store) window ->
   ignore (view#append_column col);
   let r = GTree.cell_renderer_text [] in
   let col = GTree.view_column ~title:"Attributes" () ~renderer:(r, []) in
-  col#set_cell_data_func r (attrib_cell_data_func r);
+  col#set_cell_data_func r (attrib_cell_data_func format_attribs r);
   col#set_max_width 300;
   ignore (view#append_column col);
   view#set_headers_visible false;
@@ -461,13 +461,13 @@ let tree_menu_popup = fun dtd (model:GTree.tree_store) (row:Gtk.tree_iter) ->
 
 
  
-let create = fun ?(editable=true) ?(width = 400) dtd xml ->
+let create = fun ?(format_attribs = string_of_attribs) ?(editable=true) ?(width = 400) dtd xml ->
   let tree_model = tree_model_of_xml xml in
   let attribs_model = model_of_attribs () in
   let hbox = GPack.hbox () in
   let sw = GBin.scrolled_window ~width ~hpolicy:`AUTOMATIC
       ~vpolicy:`AUTOMATIC ~packing:hbox#add () in
-  let tree_view = tree_view ~edit:editable tree_model sw in
+  let tree_view = tree_view format_attribs ~edit:editable tree_model sw in
   tree_view#set_border_width 10;
 
   let sw = GBin.scrolled_window ~width:150 ~hpolicy:`AUTOMATIC

@@ -40,8 +40,8 @@ type attributes = attribute list
 
 type event = Deleted | Modified of attributes | New_child of node
 
-val create : ?editable:bool -> ?width:int -> Dtd.dtd -> Xml.xml -> (t * GObj.widget)
-(** [create dtd xml] Opens a display of [xml] with contextual right button
+val create : ?format_attribs:((string * string) list -> string) -> ?editable:bool -> ?width:int -> Dtd.dtd -> Xml.xml -> (t * GObj.widget)
+(** [create ?format_attribs ?editable dtd xml] Opens a display of [xml] with contextual right button
 actions constrained by [dtd]. Returns the corresponding model. *)
 
 val xml_of_node : node -> Xml.xml
@@ -67,6 +67,9 @@ val add_child : node -> tag -> attributes -> node
 val connect : node -> (event -> unit) -> unit
 val connect_activated : t -> (node -> unit) -> unit
 (** To be kept informed about modifications *)
+
+val string_of_attribs : attributes -> string
+(** Default formatter for attributes *)
 
 val selection : t -> node
 
