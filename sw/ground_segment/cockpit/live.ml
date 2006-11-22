@@ -260,10 +260,25 @@ let mark = fun (geomap:G.widget) ac_id track plugin_frame ->
     | None -> ()
 
 
+(** Light display of attributes in the flight plan. *)
+let attributes_pretty_printer = fun attribs ->
+  (* Remove the "no" an "strip_button" attributes *)
+  let valid = fun a ->
+    let a = String.lowercase a in
+    a <> "no" && a <> "strip_button" in
+
+  let attribs = List.filter (fun (a, _) -> valid a) attribs in
+
+  (* Don't print the name of the attribute if there is only one *)
+  match attribs with
+    [(_, v)] -> v
+  | _        -> XmlEdit.string_of_attribs attribs
+
+
 (** Load a mission. Returns the XML window *)
 let load_mission = fun ?editable color geomap xml ->
   Map2d.set_georef_if_none geomap (MapFP.georef_of_xml xml);
-  new MapFP.flight_plan ?editable ~show_moved:true geomap color Env.flight_plan_dtd xml
+  new MapFP.flight_plan ~format_attribs:attributes_pretty_printer ?editable ~show_moved:true geomap color Env.flight_plan_dtd xml
 
 
 
@@ -838,8 +853,10 @@ let listen_error = fun a ->
 
 
 let listen_acs_and_msgs = fun geomap ac_notebook my_alert auto_center_new_ac ->
-  (** Periodically probe new A/Cs *)
-  ignore (Glib.Timeout.add 2000 (fun () -> message_request "map2d" "AIRCRAFTS" [] (fun _sender vs -> aircrafts_msg my_alert geomap ac_notebook vs); false));
+  (** Probe live A/Cs *)
+  let probe = fun () ->
+    message_request "map2d" "AIRCRAFTS" [] (fun _sender vs -> aircrafts_msg my_alert geomap ac_notebook vs) in
+  let _ = GMain.Idle.add (fun () -> probe (); false) in
 
   (** New aircraft message *)
   safe_bind "NEW_AIRCRAFT" (fun _sender vs -> one_new_ac my_alert geomap ac_notebook (Pprz.string_assoc "ac_id" vs));
