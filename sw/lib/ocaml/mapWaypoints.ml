@@ -211,7 +211,7 @@ class waypoint = fun (wpts_group:group) (name :string) ?(alt=0.) wgs84 ->
 		  let curs = Gdk.Cursor.create `FLEUR in
 		  item#grab [`POINTER_MOTION; `BUTTON_RELEASE] curs 
 		    (GdkEvent.Button.time ev)
-	      | x ->   printf "%d\n" x; flush stdout;
+	      | _ -> ()
 	    end
 	| `MOTION_NOTIFY ev ->
 	    let state = GdkEvent.Motion.state ev in
