@@ -27,6 +27,10 @@
       <eight radius="75" center="1" turn_around="2"/>
     </block>
 
+    <block name="oval" strip_button="Oval">
+      <oval p1="1" p2="2" radius="80"/>
+    </block>
+
     <block name="circle 1 auto pitch">
       <circle radius="75" wp="1" pitch="auto" throttle="0.7"/>
     </block>

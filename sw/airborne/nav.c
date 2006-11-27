@@ -237,7 +237,7 @@ static inline void nav_circle_XY(float x, float y, float radius) {
 #define Or(x, y) ((x) || (y))
 #define Min(x,y) (x < y ? x : y)
 #define Max(x,y) (x > y ? x : y)
-#define NavQdrCloseTo(x) ({ float circle_qdr = NavCircleQdr(); (Min(x, 350) < circle_qdr && circle_qdr < x+10); })
+#define NavQdrCloseTo(x) ({ float _course = x; NormCourse(_course); float circle_qdr = NavCircleQdr(); (Min(_course, 350) < circle_qdr && circle_qdr < _course+10); })
 #define NavBlockTime() (block_time)
 #define LessThan(_x, _y) ((_x) < (_y))
 
@@ -637,3 +637,87 @@ void nav_eight(uint8_t target, uint8_t c1, float radius) {
     return;
   }
 }
+
+/************** Oval Navigation **********************************************/
+
+/** Navigation along a figure O. One side leg is defined by waypoints [p1] and
+    [p2]. 
+    The navigation goes through 4 states: OC1 (half circle next to [p1]),
+    OR21 (route [p2] to [p1], OC2 (half circle next to [p2]) and OR12 
+    (opposite leg).
+
+    Initial state is the route along the desired segment (OC2).
+*/
+
+enum oval_status { OR12, OC2, OR21, OC1 };
+
+static enum oval_status oval_status;
+void nav_oval_init( void ) {
+  oval_status = OC2;
+}
+
+void nav_oval(uint8_t p1, uint8_t p2, float radius) {
+  float alt = waypoints[p1].a;
+  waypoints[p1].a = alt;
+
+  float p2_p1_x = waypoints[p1].x - waypoints[p2].x;
+  float p2_p1_y = waypoints[p1].y - waypoints[p2].y;
+  float d = sqrt(p2_p1_x*p2_p1_x+p2_p1_y*p2_p1_y);
+
+  /* Unit vector from p1 to p2 */
+  float u_x = p2_p1_x / d;
+  float u_y = p2_p1_y / d;
+
+  /* The half circle centers and the other leg */
+  struct point p1_center = { waypoints[p1].x + radius * -u_y,
+			     waypoints[p1].y + radius * u_x,
+			     alt  };
+  struct point p1_out = { waypoints[p1].x + 2*radius * -u_y,
+			  waypoints[p1].y + 2*radius * u_x,
+			  alt  };
+  
+  struct point p2_in = { waypoints[p2].x + 2*radius * -u_y,
+			 waypoints[p2].y + 2*radius * u_x,
+			 alt  };
+  struct point p2_center = { waypoints[p2].x + radius * -u_y,
+			     waypoints[p2].y + radius * u_x,
+			     alt  };
+ 
+  float qdr_out_2 = M_PI - atan2(u_y, u_x);
+  float qdr_out_1 = qdr_out_2 + M_PI;
+  
+  switch (oval_status) {
+  case OC1 :
+    nav_circle_XY(p1_center.x,p1_center.y, -radius);
+    if (NavQdrCloseTo(DegOfRad(qdr_out_1)-10)) {
+      oval_status = OR12;
+      InitStage();
+    }
+    return;
+
+  case OR12:
+    nav_route_xy(p1_out.x, p1_out.y, p2_in.x, p2_in.y);
+    if (approaching_xy(p2_in.x, p2_in.y,CARROT)) { 
+      oval_status = OC2;
+      InitStage();
+    }
+    return;
+
+  case OC2 :
+    nav_circle_XY(p2_center.x, p2_center.y, -radius);
+    if (NavQdrCloseTo(DegOfRad(qdr_out_2)-10)) {
+      oval_status = OR21;
+      InitStage();
+    }
+   return;
+
+  case OR21:
+    nav_route_xy(waypoints[p2].x, waypoints[p2].y, waypoints[p1].x, waypoints[p1].y);
+    if (approaching_xy(waypoints[p1].x, waypoints[p1].y,CARROT)) { 
+      oval_status = OC1;
+      InitStage();
+    }
+    return;
+  }
+}
+

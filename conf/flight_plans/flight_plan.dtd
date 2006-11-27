@@ -12,14 +12,14 @@
 <!ELEMENT exceptions (exception*)>
 
 <!ELEMENT blocks (block+)>
-<!ELEMENT block (exception|while|heading|attitude|go|xyz|set|call|circle|deroute|stay|follow|survey_rectangle|for|return|eight)*>
+<!ELEMENT block (exception|while|heading|attitude|go|xyz|set|call|circle|deroute|stay|follow|survey_rectangle|for|return|eight|oval)*>
 
 <!ELEMENT include (arg|with)*>
 <!ELEMENT arg EMPTY>
 <!ELEMENT with EMPTY>
 
-<!ELEMENT while (exception|while|heading|attitude|go|xyz|set|call|circle|deroute|stay|follow|survey_rectangle|for|return|eight)*>
-<!ELEMENT for (exception|while|heading|attitude|go|xyz|set|call|circle|deroute|stay|follow|survey_rectangle|for|return|eight)*>
+<!ELEMENT while (exception|while|heading|attitude|go|xyz|set|call|circle|deroute|stay|follow|survey_rectangle|for|return|eight|oval)*>
+<!ELEMENT for (exception|while|heading|attitude|go|xyz|set|call|circle|deroute|stay|follow|survey_rectangle|for|return|eight|oval)*>
 <!ELEMENT exception EMPTY>
 <!ELEMENT heading EMPTY>
 <!ELEMENT attitude EMPTY>
@@ -29,6 +29,7 @@
 <!ELEMENT call EMPTY>
 <!ELEMENT circle EMPTY>
 <!ELEMENT eight EMPTY>
+<!ELEMENT oval EMPTY>
 <!ELEMENT survey_rectangle EMPTY>
 <!ELEMENT deroute EMPTY>
 <!ELEMENT stay EMPTY>
@@ -153,6 +154,11 @@ until CDATA #IMPLIED>
 <!ATTLIST eight
 center CDATA #REQUIRED
 turn_around CDATA #REQUIRED
+radius CDATA #REQUIRED>
+
+<!ATTLIST oval
+p1 CDATA #REQUIRED
+p2 CDATA #REQUIRED
 radius CDATA #REQUIRED>
 
 <!ATTLIST survey_rectangle
