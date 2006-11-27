@@ -117,5 +117,11 @@ void nav_without_gps(void);
 
 extern void nav_goto_block(uint8_t block_id);
 
+#define NavSetWaypointHere(_wp) { \
+  waypoints[_wp].x = estimator_x; \
+  waypoints[_wp].y = estimator_y; \
+}
+
+
 
 #endif /* NAV_H */

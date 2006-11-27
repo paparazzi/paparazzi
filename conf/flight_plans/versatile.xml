@@ -5,6 +5,7 @@
     <waypoint name="HOME" x="0" y="0"/>
     <waypoint name="1" x="200" y="0"/>
     <waypoint name="2" x="0" y="200"/>
+    <waypoint name="MOB" x="200" y="200"/>
     <waypoint name="S1" x="-200" y="-200"/>
     <waypoint name="S2" x="300" y="400"/>
   </waypoints>
@@ -29,6 +30,11 @@
 
     <block name="oval" strip_button="Oval">
       <oval p1="1" p2="2" radius="80"/>
+    </block>
+
+    <block name="MOB" strip_button="MOB">
+      <call fun="NavSetWaypointHere(WP_MOB)"/>
+      <circle wp="MOB" radius="100"/>
     </block>
 
     <block name="circle 1 auto pitch">
