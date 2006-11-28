@@ -658,7 +658,7 @@ void nav_oval_init( void ) {
 
 void nav_oval(uint8_t p1, uint8_t p2, float radius) {
   float alt = waypoints[p1].a;
-  waypoints[p1].a = alt;
+  waypoints[p2].a = alt;
 
   float p2_p1_x = waypoints[p1].x - waypoints[p2].x;
   float p2_p1_y = waypoints[p1].y - waypoints[p2].y;
