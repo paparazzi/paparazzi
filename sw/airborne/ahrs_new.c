@@ -15,9 +15,6 @@
  * frequency with which ahrs_state_update() is called with the body
  * angular rates.
  */
-//#define dt              0.04
-//#define dt              0.0625
-//#define dt                0.0117185
 #define dt                0.015625
 
 //#define CONFIG_SPLIT_COVARIANCE
@@ -75,11 +72,8 @@ static real_t           dcm22;
  * every other state step.  This is because the covariance should change
  * at a rate somewhat slower than the dynamics of the system.
  */
-static real_t           P[7][7];
+real_t           P[7][7];
 static real_t           Pdot[7][7];
-#ifdef CONFIG_SPLIT_COVARIANCE
-static index_t          covariance_state;
-#endif
 
 /*
  * A represents the Jacobian of the derivative of the system with respect
@@ -89,8 +83,7 @@ static index_t          covariance_state;
 real_t           A[4][7];
 
 /*
- * These Kalman filter variables share space with A when the filter
- * is being updated.
+ * Kalman filter variables.
  */
 real_t           PCt[7];
 real_t           K[7];
@@ -104,7 +97,7 @@ real_t           E;
  *
  * Since we compute each axis independently, we only allocate one
  * column out of the C matrix at a time.  This allows us to reuse the
- * matrix.  Additionally, this space is shared by Qdot.
+ * matrix.
  */
 real_t           C[4];
 real_t           Qdot[4];
@@ -140,28 +133,17 @@ real_t           Qdot[4];
 
 
 /*
- * Simple helper to normalize our quaternion attitude estimate.  We could
- * probably do this at a lower time step to save on calls to sqrt().
+ * Simple helper to normalize our quaternion attitude estimate.
  */
 void
 norm_quat( void )
 {
-  //        index_t         i;
-  real_t mag = 0;
-
-  //        for( i=0 ; i<4 ; i++ )
-  //                mag += quat[i] * quat[i];
-  mag = q0*q0 + q1*q1 + q2*q2 + q3*q3;
-  
+  real_t  mag = q0*q0 + q1*q1 + q2*q2 + q3*q3;
   mag = sqrt( mag );
-
-  //        for( i=0 ; i<4 ; i++ )
-  //                quat[i] /= mag;
   q0 /= mag;
   q1 /= mag;
   q2 /= mag;
   q3 /= mag;
-
 }
 
 /*
@@ -231,16 +213,17 @@ compute_A_bias( void )
  *
  *      P_dot = A*P + P*A_transpose + Q
  *
- * However, this takes a very long time to compute.  So we split
- * the multiplications and additions into two separate routines.
- *
  * The first of these zeros P_dot, computes part of (A*P + P*A_tranpose)
  * and adds in the parts of Q that are non-zero.  Note that we know that
  * A has three zero rows at the bottom, so we do not include those in our
  * math.
+ *
+ * The second part of the covariance update computes the inner portion
+ * of Pdot, the 4x4 region that corresponds to the quaternion.  It also
+ * updates the covariance matrix P.
  */
 static void
-covariance_update_0( void )
+covariance_update( void )
 {
   index_t         i;
   index_t         j;
@@ -270,20 +253,6 @@ covariance_update_0( void )
    */
   for( i=4 ; i<7 ; i++ )
     Pdot[i][i] += Q_gyro;
-}
-
-
-/*
- * The second part of the covariance update computes the inner portion
- * of Pdot, the 4x4 region that corresponds to the quaternion.  It also
- * updates the covariance matrix P.
- */
-static void
-covariance_update_1( void )
-{
-  index_t                 i;
-  index_t                 j;
-  index_t                 k;
 
   /*
    * Compute A*P + P*At for the region [0..3][0..3]
@@ -373,20 +342,7 @@ ahrs_state_update( void )
    */
   //norm_quat();
 
-#ifdef CONFIG_SPLIT_COVARIANCE
-  /* Compute our split covariance update */
-  if( covariance_state == 0 ) {
-    covariance_state = 1;
-    covariance_update_0();
-  } 
-  else {
-    covariance_state = 0;
-    covariance_update_1();
-  }
-#else
-  covariance_update_0();
-  covariance_update_1();
-#endif
+  covariance_update();
 }
 
 /*
@@ -413,17 +369,14 @@ compute_DCM( void )
 static inline void
 compute_dphi_dq( void )
 {
-  index_t                 i;
-
   const real_t phi_err =  2 / (dcm22*dcm22 + dcm12*dcm12);
 
-  C[0] = (q1 * dcm22);
-  C[1] = (q0 * dcm22 + 2 * q1 * dcm12);
-  C[2] = (q3 * dcm22 + 2 * q2 * dcm12);
-  C[3] = (q2 * dcm22);
-
-  for( i=0 ; i<4 ; i++ )
-    C[i] *= phi_err;
+  C[0] = (q1 * dcm22) * phi_err;
+  C[1] = (q0 * dcm22 + 2 * q1 * dcm12) * phi_err;
+  //C[1] = (q0 * dcm22 ) * phi_err;
+  C[2] = (q3 * dcm22 + 2 * q2 * dcm12) * phi_err;
+  //C[2] = (q3 * dcm22) * phi_err;
+  C[3] = (q2 * dcm22) * phi_err;
 }
 
 static inline void
@@ -440,17 +393,14 @@ compute_dtheta_dq( void )
 static inline void
 compute_dpsi_dq( void )
 {
-  index_t                 i;
+  const float psi_err    =  2 / (dcm00*dcm00 + dcm01*dcm01);
 
-  const real_t psi_err    =  2 / (dcm00*dcm00 + dcm01*dcm01);
-
-  C[0] = (q3 * dcm00);
-  C[1] = (q2 * dcm00);
-  C[2] = (q1 * dcm00 + 2 * q2 * dcm01);
-  C[3] = (q0 * dcm00 + 2 * q3 * dcm01);
-
-  for( i=0 ; i<4 ; i++ )
-    C[i] *= psi_err;
+  C[0] = (q3 * dcm00) * psi_err;
+  C[1] = (q2 * dcm00) * psi_err;
+  C[2] = (q1 * dcm00 + 2 * q2 * dcm01) * psi_err;
+  //C[2] = (q1 * dcm00) * psi_err;
+  C[3] = (q0 * dcm00 + 2 * q3 * dcm01) * psi_err;
+  //C[3] = (q0 * dcm00) * psi_err;
 }
 
 
@@ -711,9 +661,11 @@ real_t ahrs_pitch_of_accel( real_t* accel_cal) {
  */
 void
 ahrs_compass_update(
-		    real_t                  heading
+		    const int16_t* mag
 		    )
 {
+ 
+  real_t heading = ahrs_heading_of_mag(mag);
   // Update the DCM since this will require
   compute_DCM();
   compute_euler_heading();
@@ -738,23 +690,23 @@ ahrs_compass_update(
 static void
 euler2quat( void )
 {
-  const real_t            phi     = ahrs_euler[0] / 2.0;
-  const real_t            theta   = ahrs_euler[1] / 2.0;
-  const real_t            psi     = ahrs_euler[2] / 2.0;
+  const real_t            phi0     = ahrs_euler[0] / 2.0;
+  const real_t            theta0   = ahrs_euler[1] / 2.0;
+  const real_t            psi0     = ahrs_euler[2] / 2.0;
 
-  const real_t            shphi0   = sin( phi );
-  const real_t            chphi0   = cos( phi );
+  const real_t            sinphi0   = sin( phi0 );
+  const real_t            cosphi0   = cos( phi0 );
 
-  const real_t            shtheta0 = sin( theta );
-  const real_t            chtheta0 = cos( theta );
+  const real_t            sintheta0 = sin( theta0 );
+  const real_t            costheta0 = cos( theta0 );
 
-  const real_t            shpsi0   = sin( psi );
-  const real_t            chpsi0   = cos( psi );
+  const real_t            sinpsi0   = sin( psi0 );
+  const real_t            cospsi0   = cos( psi0 );
 
-  q0 =  chphi0 * chtheta0 * chpsi0 + shphi0 * shtheta0 * shpsi0;
-  q1 = -chphi0 * shtheta0 * shpsi0 + shphi0 * chtheta0 * chpsi0;
-  q2 =  chphi0 * shtheta0 * chpsi0 + shphi0 * chtheta0 * shpsi0;
-  q3 =  chphi0 * chtheta0 * shpsi0 - shphi0 * shtheta0 * chpsi0;
+  q0 =  cosphi0 * costheta0 * cospsi0 + sinphi0 * sintheta0 * sinpsi0;
+  q1 = -cosphi0 * sintheta0 * sinpsi0 + sinphi0 * costheta0 * cospsi0;
+  q2 =  cosphi0 * sintheta0 * cospsi0 + sinphi0 * costheta0 * sinpsi0;
+  q3 =  cosphi0 * costheta0 * sinpsi0 - sinphi0 * sintheta0 * cospsi0;
 }
 
 /*

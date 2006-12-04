@@ -13,7 +13,7 @@ int16_t imu_mag[AXIS_NB];
 float imu_bat;
 
 struct adc_buf buf_ax;
-/* struct adc_buf buf_ay; */
+struct adc_buf buf_ay;
 struct adc_buf buf_az;
 struct adc_buf buf_bat;
 

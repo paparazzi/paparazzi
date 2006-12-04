@@ -29,6 +29,11 @@ all: play
 play : play.ml
 	$(OCAMLC) $(INCLUDES) -custom -o $@ unix.cma str.cma xml-light.cma glibivy-ocaml.cma -I +lablgtk2 -I ../lib/ocaml lablgtk.cma lib-pprz.cma gtkInit.cmo  $^
 
+
+
+
+pt : ahrsview imuview ahrs2fg
+
 CC = gcc
 CFLAGS=-g -O2 -Wall `pkg-config gtk+-2.0 --cflags`
 LDFLAGS=`pkg-config gtk+-2.0 --libs` -s -lgtkdatabox `pcre-config --libs` -lglibivy

@@ -17,13 +17,18 @@
 #include "messages.h"
 #include "downlink.h"
 
+#define SEND_ACCEL 1
+#define SEND_MAG   1
+#define SEND_GYRO  1
+#define SEND_AHRS_STATE 1
+#define SEND_AHRS_COV   1
 
 static inline void main_init( void );
 static inline void main_periodic_task( void );
 static inline void main_event_task( void);
 
 //struct adc_buf buf_ax;
-struct adc_buf buf_ay;
+//struct adc_buf buf_ay;
 //struct adc_buf buf_az;
 //struct adc_buf buf_bat;
 
@@ -66,7 +71,6 @@ static inline void main_init( void ) {
   main_init_spi1();
   max1167_init();
   micromag_init();
-  //  spi0_init();
   link_imu_init();
   int_enable();
 }
@@ -79,7 +83,9 @@ static inline void main_event_task( void ) {
     micromag_data_available = FALSE;
     spi_cur_slave = SPI_SLAVE_NONE;
     ImuUpdateMag();
-    DOWNLINK_SEND_AHRS_MAG(&imu_mag[AXIS_X], &imu_mag[AXIS_Y], &imu_mag[AXIS_Z]);
+#ifdef SEND_MAG
+    DOWNLINK_SEND_IMU_MAG(&imu_mag[AXIS_X], &imu_mag[AXIS_Y], &imu_mag[AXIS_Z]);
+#endif
     spi_cur_slave = SPI_SLAVE_MAX;
     max1167_read();
   }
@@ -88,11 +94,17 @@ static inline void main_event_task( void ) {
     max1167_data_available = FALSE;
     spi_cur_slave = SPI_SLAVE_NONE;
     ImuUpdateGyros();
+#ifdef SEND_GYRO
+    DOWNLINK_SEND_IMU_GYRO(&imu_gyro[AXIS_X], &imu_gyro[AXIS_Y], &imu_gyro[AXIS_Z]);
+#endif
     ImuUpdateAccels();
+#ifdef SEND_ACCEL
+    DOWNLINK_SEND_IMU_ACCEL(&imu_accel[AXIS_X], &imu_accel[AXIS_Y], &imu_accel[AXIS_Z]);
+#endif
     ahrs_task();
 
     t1=T0TC;
-    uint32_t dt = t1 - t0;
+    //    uint32_t dt = t1 - t0;
     //    DOWNLINK_SEND_TIME(&dt);
 
     link_imu_send();
@@ -137,17 +149,26 @@ static inline void ahrs_task( void ) {
   case AHRS_STEP_ROLL: 
     ahrs_state_update();
     ahrs_roll_update(ahrs_roll_of_accel(imu_accel)); 
+#ifdef SEND_AHRS_STATE
+    DOWNLINK_SEND_AHRS_STATE(&q0, &q1, &q2, &q3, &bias_p, &bias_q, &bias_r);
+#endif
     break;
   case AHRS_STEP_PITCH:
     ahrs_state_update();
     ahrs_pitch_update(ahrs_pitch_of_accel(imu_accel)); 
+#ifdef SEND_AHRS_STATE
+    DOWNLINK_SEND_AHRS_STATE(&q0, &q1, &q2, &q3, &bias_p, &bias_q, &bias_r);
+#endif
     break;
   case AHRS_STEP_YAW:  
     ahrs_state_update();
-    ahrs_compass_update(ahrs_heading_of_mag(imu_mag));
-    DOWNLINK_SEND_AHRS(&q0, &q1, &q2, &q3, &bias_p, &bias_q, &bias_r);
-    //    DOWNLINK_SEND_AHRS2(&ahrs_euler[AXIS_X], &ahrs_euler[AXIS_Y], &ahrs_euler[AXIS_Z]);
-    //    DOWNLINK_SEND_AHRS2(&imu_gyro[AXIS_X], &imu_gyro[AXIS_Y], &imu_gyro[AXIS_Z]);
+    ahrs_compass_update(imu_mag);
+#ifdef SEND_AHRS_STATE
+    DOWNLINK_SEND_AHRS_STATE(&q0, &q1, &q2, &q3, &bias_p, &bias_q, &bias_r);
+#endif
+#ifdef SEND_AHRS_COV
+    DOWNLINK_SEND_AHRS_COV(&P[0][0], &P[1][1]);
+#endif
     break;
   }
   ahrs_step++;
