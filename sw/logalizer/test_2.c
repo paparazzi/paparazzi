@@ -30,10 +30,10 @@ void test_dphi_dq ( void ) {
   float dcm22_sq = my_dcm22 * my_dcm22;
   float my_dcm12 = 2*(q2*q3 + q0*q1);
   float dcm12_sq = my_dcm12 * my_dcm12;
-  C[0] = 2 * q1 * dcm22 / (dcm22_sq + dcm12_sq);
-  C[1] = 2 * q0 * dcm22 / (dcm22_sq + dcm12_sq);
-  C[2] = 2 * q3 * dcm22 / (dcm22_sq + dcm12_sq);
-  C[3] = 2 * q2 * dcm22 / (dcm22_sq + dcm12_sq);
+  C[0] = 2 * q1 * my_dcm22 / (dcm22_sq + dcm12_sq);
+  C[1] = 2 * q0 * my_dcm22 / (dcm22_sq + dcm12_sq);
+  C[2] = 2 * q3 * my_dcm22 / (dcm22_sq + dcm12_sq);
+  C[3] = 2 * q2 * my_dcm22 / (dcm22_sq + dcm12_sq);
 }
 /*
   theta = asin(-2(q1q3 - q0q2))
@@ -60,10 +60,10 @@ void test_dpsi_dq ( void ) {
   float my_dcm01 = 2*(q1*q2 +q0*q3);
   float dcm00_sq = my_dcm00 * my_dcm00;
   float dcm01_sq = my_dcm01 * my_dcm01;
-  C[0] = 2. * q3 * dcm00 / (dcm00_sq + dcm01_sq); 
-  C[1] = 2. * q2 * dcm00 / (dcm00_sq + dcm01_sq);
-  C[2] = 2. * q1 * dcm00 / (dcm00_sq + dcm01_sq);
-  C[3] = 2. * q0 * dcm00 / (dcm00_sq + dcm01_sq);
+  C[0] = 2. * q3 * my_dcm00 / (dcm00_sq + dcm01_sq); 
+  C[1] = 2. * q2 * my_dcm00 / (dcm00_sq + dcm01_sq);
+  C[2] = 2. * q1 * my_dcm00 / (dcm00_sq + dcm01_sq);
+  C[3] = 2. * q0 * my_dcm00 / (dcm00_sq + dcm01_sq);
 }
 
 
@@ -73,8 +73,8 @@ void test_dpsi_dq ( void ) {
 int main (int argc, char** argv) {
 
  phi = 0.3;
- theta = 0.5;
- psi = 0.5;
+ theta = 0.1;
+ psi = 0.2;
  PrintEuler()
 
  quat_of_eulers();
