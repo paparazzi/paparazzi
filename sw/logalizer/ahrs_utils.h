@@ -21,6 +21,7 @@
 #define PrintC() {					\
     printf("C %.2f %.2f %.2f %.2f\n\n", C[0], C[1], C[2], C[3]); \
   }
+
 extern float C[4];
 
 extern float dcm00;
