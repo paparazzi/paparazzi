@@ -304,15 +304,25 @@
   </message>
 
 
-  <message name="IMU_SENSORS" ID="200">
-      <field name="rates" type="float[]" unit="rad/s"/>
+  <message name="IMU_GYRO" ID="200">
+    <field name="gx" type="float" unit="rad/s"/>
+    <field name="gy" type="float" unit="rad/s"/>
+    <field name="gz" type="float" unit="rad/s"/>
   </message>
 
-  <message name="IMU_FOO" ID="201">
-      <field name="rate" type="float" unit="rad/s"/>
+  <message name="IMU_MAG" ID="201">
+    <field name="ax" type="int16" />
+    <field name="ay" type="int16" />
+    <field name="az" type="int16" />
   </message>
 
-  <message name="AHRS" ID="202">
+  <message name="IMU_ACCEL" ID="202">
+    <field name="ax" type="float" unit="rad/s"/>
+    <field name="ay" type="float" unit="rad/s"/>
+    <field name="az" type="float" unit="rad/s"/>
+  </message>
+
+  <message name="AHRS_STATE" ID="203">
       <field name="q0" type="float"/>
       <field name="q1" type="float"/>
       <field name="q2" type="float"/>
@@ -322,25 +332,12 @@
       <field name="bz" type="float"/>
   </message>
 
-  <message name="AHRS2" ID="203">
-    <field name="roll" type="float"/>
-    <field name="pitch" type="float"/>
-    <field name="yaw" type="float"/>
+  <message name="AHRS_COV" ID="204">
+    <field name="p00" type="float"/>
+    <field name="p11" type="float"/>
   </message>
 
-  <message name="AHRS_ACCEL" ID="204">
-    <field name="ax" type="float"/>
-    <field name="ay" type="float"/>
-    <field name="az" type="float"/>
-  </message>
-
-  <message name="AHRS_MAG" ID="205">
-    <field name="mx" type="int16"/>
-    <field name="my" type="int16"/>
-    <field name="mz" type="int16"/>
-  </message>
-
-  <message name="TIME" ID="206">
+   <message name="TIME" ID="206">
     <field name="t" type="uint32"/>
   </message>
 

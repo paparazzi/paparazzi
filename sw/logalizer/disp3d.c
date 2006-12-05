@@ -78,7 +78,7 @@ GTimer *gtimer = NULL;
 
 double game_time;
 double game_tick;
-int draw_fast = 0;
+int draw_fast = 1;
 
 
 

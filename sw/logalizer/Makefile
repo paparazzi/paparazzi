@@ -63,9 +63,11 @@ clean:
 	rm -f *.opt *.out *~ core *.o *.bak .depend *.cm* play ahrsview imuview ahrs2fg
 
 FGFS_ROOT = /home/poine/work/flightgear_cvs
-FGFS = $(FGFS_ROOT)/bin/fgfs
+#FGFS = $(FGFS_ROOT)/bin/fgfs
+FGFS = fgfs
 FGFS_ENV = LD_LIBRARY_PATH=/usr/local/lib:$(FGFS_ROOT)/lib
-FGFS_COMMON_ARGS = --fg-root=$(FGFS_ROOT)  --aircraft=A320 --timeofday=noon
+#FGFS_COMMON_ARGS = --fg-root=$(FGFS_ROOT)  --aircraft=A320 --timeofday=noon
+FGFS_COMMON_ARGS = --aircraft=737-300 --timeofday=noon
 FGFS_IN_FDM_ARGS = $(FGFS_COMMON_ARGS) --fdm=null --native-fdm=socket,in,30,,5501,udp
 FGFS_OUT_FDM_ARGS = $(FGFS_COMMON_ARGS) --native-fdm=socket,out,30,,5500,udp
 FGFS_IN_GUI_ARGS = $(FGFS_COMMON_ARGS) --fdm=null --native-gui=socket,in,30,,5501,udp

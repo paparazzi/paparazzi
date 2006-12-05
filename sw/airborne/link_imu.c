@@ -90,30 +90,30 @@ void link_imu_init ( void ) {
 }
 
 void link_imu_send ( void ) {
-    if (!isnan(link_imu_state.eulers[AXIS_X]) &&
-	!isnan(link_imu_state.eulers[AXIS_X]) &&
-	!isnan(link_imu_state.eulers[AXIS_X])) {
-      link_imu_state.rates[AXIS_X] = ahrs_pqr[AXIS_X]*RATE_PI_S/M_PI;
-      link_imu_state.rates[AXIS_Y] = ahrs_pqr[AXIS_Y]*RATE_PI_S/M_PI;
-      link_imu_state.rates[AXIS_Z] = ahrs_pqr[AXIS_Z]*RATE_PI_S/M_PI;
-      link_imu_state.eulers[AXIS_X] = ahrs_euler[AXIS_X]*ANGLE_PI/M_PI;
-      link_imu_state.eulers[AXIS_Y] = ahrs_euler[AXIS_Y]*ANGLE_PI/M_PI;
-      link_imu_state.eulers[AXIS_Z] = ahrs_euler[AXIS_Z]*ANGLE_PI/M_PI;
-      link_imu_state.cos_theta = cos(link_imu_state.eulers[AXIS_Z]);
-      link_imu_state.sin_theta = sin(link_imu_state.eulers[AXIS_Z]);
-      link_imu_state.status = IMU_RUNNING;
-    }
-    else {
-      link_imu_state.rates[AXIS_X] = imu_gyro[AXIS_X]*RATE_PI_S/M_PI;
-      link_imu_state.rates[AXIS_Y] = imu_gyro[AXIS_Y]*RATE_PI_S/M_PI;
-      link_imu_state.rates[AXIS_Z] = imu_gyro[AXIS_Z]*RATE_PI_S/M_PI;
-      link_imu_state.eulers[AXIS_X] = 0;
-      link_imu_state.eulers[AXIS_Y] = 0;
-      link_imu_state.eulers[AXIS_Z] = 0;
-      link_imu_state.cos_theta = 1.;
-      link_imu_state.sin_theta = 0.;
-      link_imu_state.status = IMU_CRASHED;
-    }
+  if (!isnan(ahrs_phi)   &&
+      !isnan(ahrs_theta) &&
+      !isnan(ahrs_psi)) {
+    link_imu_state.rates[AXIS_X] = ahrs_p * RATE_PI_S/M_PI;
+    link_imu_state.rates[AXIS_Y] = ahrs_q * RATE_PI_S/M_PI;
+    link_imu_state.rates[AXIS_Z] = ahrs_r * RATE_PI_S/M_PI;
+    link_imu_state.eulers[AXIS_X] = ahrs_phi  * ANGLE_PI/M_PI;
+    link_imu_state.eulers[AXIS_Y] = ahrs_theta* ANGLE_PI/M_PI;
+    link_imu_state.eulers[AXIS_Z] = ahrs_psi  * ANGLE_PI/M_PI;
+    link_imu_state.cos_theta = cos(link_imu_state.eulers[AXIS_Z]);
+    link_imu_state.sin_theta = sin(link_imu_state.eulers[AXIS_Z]);
+    link_imu_state.status = IMU_RUNNING;
+  }
+  else {
+    link_imu_state.rates[AXIS_X] = imu_gyro[AXIS_X]*RATE_PI_S/M_PI;
+    link_imu_state.rates[AXIS_Y] = imu_gyro[AXIS_Y]*RATE_PI_S/M_PI;
+    link_imu_state.rates[AXIS_Z] = imu_gyro[AXIS_Z]*RATE_PI_S/M_PI;
+    link_imu_state.eulers[AXIS_X] = 0;
+    link_imu_state.eulers[AXIS_Y] = 0;
+    link_imu_state.eulers[AXIS_Z] = 0;
+    link_imu_state.cos_theta = 1.;
+    link_imu_state.sin_theta = 0.;
+    link_imu_state.status = IMU_CRASHED;
+  }
   Spi0InitBuf();
 }
 

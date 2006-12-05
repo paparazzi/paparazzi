@@ -1,6 +1,7 @@
 
 #include "std.h"
 #include "ahrs_new.h"
+#include "ahrs_utils.h"
 
 #include <math.h>
 #include <inttypes.h>
@@ -8,22 +9,14 @@
 
 #include "frames.h"
 
-#define C_PI		((real_t) 3.14159265358979323846264338327950)
-
 /*
  * dt is our time step.  It is important to be close to the actual
  * frequency with which ahrs_state_update() is called with the body
  * angular rates.
  */
-#define dt                0.015625
-
-//#define CONFIG_SPLIT_COVARIANCE
-
-#ifdef CONFIG_SPLIT_COVARIANCE
-#define dt_covariance   2 * dt
-#else
+#define dt              0.015625
 #define dt_covariance   dt
-#endif
+
 
 /*
  * We have seven variables in our state -- the quaternion attitude
@@ -34,24 +27,18 @@
  *      Bias_dot        = 0
  */
 
-real_t q0, q1, q2, q3;
-real_t bias_p, bias_q, bias_r;
-
-
-/*
- * The user inputs the acceleration and rotational rates here, then
- * calls the update functions.
- */
-real_t  ahrs_pqr[3];
-//int16_t accel[3];
-
+float q0, q1, q2, q3;
+float bias_p, bias_q, bias_r;
 
 /*
- * The euler estimate will be updated less frequently than the
- * quaternion, but some applications are ok with that.
+ * We maintain eulers.
  */
-real_t  ahrs_euler[3];
+float ahrs_phi, ahrs_theta, ahrs_psi;
 
+/*
+ * We maintain unbiased rates.
+ */
+float ahrs_p, ahrs_q, ahrs_r;
 
 /*
  * The Direction Cosine Matrix is used to help rotate measurements
@@ -61,33 +48,33 @@ real_t  ahrs_euler[3];
  * External routines might want these (to until sensor readings),
  * so we export them.
  */
-static real_t           dcm00;
-static real_t           dcm01;
-static real_t           dcm02;
-static real_t           dcm12;
-static real_t           dcm22;
+static float           dcm00;
+static float           dcm01;
+static float           dcm02;
+static float           dcm12;
+static float           dcm22;
 
 /*
  * Covariance matrix and covariance matrix derivative are updated
  * every other state step.  This is because the covariance should change
  * at a rate somewhat slower than the dynamics of the system.
  */
-real_t           P[7][7];
-static real_t           Pdot[7][7];
+float        P[7][7];
+static float Pdot[7][7];
 
 /*
  * A represents the Jacobian of the derivative of the system with respect
  * its states.  We do not allocate the bottom three rows since we know that
  * the derivatives of bias_dot are all zero.
  */
-real_t           A[4][7];
+float           A[4][7];
 
 /*
  * Kalman filter variables.
  */
-real_t           PCt[7];
-real_t           K[7];
-real_t           E;
+float           PCt[7];
+float           K[7];
+float           E;
 
 /*
  * C represents the Jacobian of the measurements of the attitude
@@ -99,8 +86,8 @@ real_t           E;
  * column out of the C matrix at a time.  This allows us to reuse the
  * matrix.
  */
-real_t           C[4];
-real_t           Qdot[4];
+float           C[4];
+float           Qdot[4];
 
 
 /*
@@ -125,26 +112,6 @@ real_t           Qdot[4];
 #define R_pitch         1.3 * 1.3
 #define R_roll          1.3 * 1.3
 #define R_yaw           2.5 * 2.5
-// #define R_yaw           1. * 1.
-//#define R_pitch         0.1 * 0.1
-//#define R_roll          0.1 * 0.1
-//#define R_yaw            0.5 * 0.5
-
-
-
-/*
- * Simple helper to normalize our quaternion attitude estimate.
- */
-void
-norm_quat( void )
-{
-  real_t  mag = q0*q0 + q1*q1 + q2*q2 + q3*q3;
-  mag = sqrt( mag );
-  q0 /= mag;
-  q1 /= mag;
-  q2 /= mag;
-  q3 /= mag;
-}
 
 /*
  * These are the rows and columns of A that relate the derivative
@@ -160,19 +127,21 @@ norm_quat( void )
  *
  * Call compute_A_quat() before calling compute_A_bias
  */
-static inline void
-compute_A_quat( void )
+static inline void compute_A_quat( const float* gyro )
 {
   /* Unbias our gyro values */
+  ahrs_p = gyro[0] -  bias_p;
+  ahrs_q = gyro[1] -  bias_q;
+  ahrs_r = gyro[2] -  bias_r;
 
   /* Zero our A matrix since it is shared with K */
   memset( (void*) A, 0, sizeof( A ) );
 
   /* Fill in Wxq(pqr) into A */
   /* A[0][0] = A[1][1] = A[2][2] = A[3][3] = 0; */
-  A[1][0] = A[2][3] = (ahrs_pqr[0] -= bias_p) * 0.5;
-  A[2][0] = A[3][1] = (ahrs_pqr[1] -= bias_q) * 0.5;
-  A[3][0] = A[1][2] = (ahrs_pqr[2] -= bias_r) * 0.5;
+  A[1][0] = A[2][3] = ahrs_p * 0.5;
+  A[2][0] = A[3][1] = ahrs_q * 0.5;
+  A[3][0] = A[1][2] = ahrs_r * 0.5;
 
   A[0][1] = A[3][2] = -A[1][0];
   A[0][2] = A[1][3] = -A[2][0];
@@ -241,7 +210,7 @@ covariance_update( void )
     for( j=0 ; j<7 ; j++ )
       for( k=4 ; k<7 ; k++ )
 	{
-	  const real_t A_i_k = A[i][k];
+	  const float A_i_k = A[i][k];
 
 	  Pdot[i][j] += A_i_k * P[k][j];
 	  Pdot[j][i] += P[j][k] * A_i_k;
@@ -297,113 +266,31 @@ covariance_update( void )
  *              [ q, -r,  0,  p ]
  *              [ r,  q, -p,  0 ]
  */
-void
-ahrs_state_update( void )
-{
-#if 0
-  index_t                 i;
-  index_t                 j;
-#endif
-  
-  compute_A_quat();
+void ahrs_predict( const float* gyro ) {
+
+  compute_A_quat( gyro );
   memset( Qdot, 0, sizeof(Qdot) );
   
   /* Compute Q_dot = Wxq(pqr) * Q (storing temp in C) */
-#if 0
-  for( i=0 ; i<4 ; i++ )
-    {
-      for( j=0 ; j<4 ; j++ )
-	{
-	  if( i == j )
-	    continue;
-	  Qdot[i] += A[i][j] * quat[j];
-	}
-    }
-#else
   Qdot[0] =                A[0][1] * q1 + A[0][2] * q2 + A[0][3] * q3;
   Qdot[1] = A[1][0] * q0                + A[1][2] * q2 + A[1][3] * q3;
   Qdot[2] = A[2][0] * q0 + A[2][1] * q1                + A[2][3] * q3;
   Qdot[3] = A[3][0] * q0 + A[3][1] * q1 + A[3][2] * q2;
-#endif
   
   /* Compute Q = Q + Q_dot * dt */
-#if 0
-  for( i=0 ; i<4 ; i++ )
-    quat[i] += Qdot[i] * dt;
-#else
   q0 += Qdot[0] * dt;
   q1 += Qdot[1] * dt;
   q2 += Qdot[2] * dt;
   q3 += Qdot[3] * dt;
-#endif
+
   /*
    * We would normally renormalize our quaternion, but we will
    * allow it to drift until the next kalman update.
    */
-  //norm_quat();
+  norm_quat();
 
   covariance_update();
 }
-
-/*
- * Compute the five elements of the DCM that we use for our
- * rotations and Jacobians.  This is used by several other functions
- * to speedup their computations.
- */
-static void
-compute_DCM( void )
-{
-  dcm00 = 1.0-2*(q2*q2 + q3*q3);
-  dcm01 =     2*(q1*q2 + q0*q3);
-  dcm02 =     2*(q1*q3 - q0*q2);
-  dcm12 =     2*(q2*q3 + q0*q1);
-  dcm22 = 1.0-2*(q1*q1 + q2*q2);
-}
-
-
-/*
- * Compute the Jacobian of the measurements to the system states.
- * You must have already computed the DCM for the quaternion before
- * calling this function.
- */
-static inline void
-compute_dphi_dq( void )
-{
-  const real_t phi_err =  2 / (dcm22*dcm22 + dcm12*dcm12);
-
-  C[0] = (q1 * dcm22) * phi_err;
-  C[1] = (q0 * dcm22 + 2 * q1 * dcm12) * phi_err;
-  //C[1] = (q0 * dcm22 ) * phi_err;
-  C[2] = (q3 * dcm22 + 2 * q2 * dcm12) * phi_err;
-  //C[2] = (q3 * dcm22) * phi_err;
-  C[3] = (q2 * dcm22) * phi_err;
-}
-
-static inline void
-compute_dtheta_dq( void )
-{
-  const real_t theta_err  = -2 / sqrt( 1 - dcm02*dcm02 );
-
-  C[0] = -q2 * theta_err;
-  C[1] =  q3 * theta_err;
-  C[2] = -q0 * theta_err;
-  C[3] =  q1 * theta_err;
-}
-
-static inline void
-compute_dpsi_dq( void )
-{
-  const float psi_err    =  2 / (dcm00*dcm00 + dcm01*dcm01);
-
-  C[0] = (q3 * dcm00) * psi_err;
-  C[1] = (q2 * dcm00) * psi_err;
-  C[2] = (q1 * dcm00 + 2 * q2 * dcm01) * psi_err;
-  //C[2] = (q1 * dcm00) * psi_err;
-  C[3] = (q0 * dcm00 + 2 * q3 * dcm01) * psi_err;
-  //C[3] = (q0 * dcm00) * psi_err;
-}
-
-
 
 /*
  * Translate our quaternion attitude estimate into Euler angles.
@@ -413,19 +300,19 @@ compute_dpsi_dq( void )
 static inline void
 compute_euler_roll( void )
 {
-  ahrs_euler[0] = atan2( dcm12, dcm22 );
+  ahrs_phi = atan2( dcm12, dcm22 );
 }
 
 static inline void
 compute_euler_pitch( void )
 {
-  ahrs_euler[1] = -asin( dcm02 );
+  ahrs_theta = -asin( dcm02 );
 }
 
 static inline void
 compute_euler_heading( void )
 {
-  ahrs_euler[2] = atan2( dcm01, dcm00 );
+  ahrs_psi = atan2( dcm01, dcm00 );
 }
 
 
@@ -435,8 +322,8 @@ compute_euler_heading( void )
  */
 static void
 run_kalman(
-	   const real_t    R_axis,
-	   const real_t    error
+	   const float    R_axis,
+	   const float    error
 	   )
 {
   index_t         i;
@@ -527,13 +414,10 @@ run_kalman(
  */
 
 void
-ahrs_roll_update(
-		 real_t                  roll
-		 )
-{
-
+ahrs_roll_update( const float* accel ) {
+  float accel_roll = ahrs_roll_of_accel(accel);
   // Reuse the DCM and A matrix from the compass computations
-  compute_DCM();
+  DCM_of_quat();
   compute_euler_roll();
   compute_dphi_dq();
 
@@ -541,24 +425,21 @@ ahrs_roll_update(
    * Compute the error in our roll estimate and measurement.
    * This can be between -180 and +180 degrees.
    */
-  roll -= ahrs_euler[0];
-  if( roll < -C_PI )
-    roll += 2 * C_PI;
-  if( roll > C_PI )
-    roll -= 2 * C_PI;
+  accel_roll -= ahrs_phi;
+  if( accel_roll < -M_PI )
+    accel_roll += 2 * M_PI;
+  if( accel_roll > M_PI )
+    accel_roll -= 2 * M_PI;
 
-  run_kalman( R_roll, roll );
+  run_kalman( R_roll, accel_roll );
   norm_quat();
 }
 
 void
-ahrs_pitch_update(
-		  real_t                  pitch
-		  )
-{
-
+ahrs_pitch_update( const float* accel ) {
+  float accel_pitch = ahrs_pitch_of_accel(accel);
   // Reuse DCM
-  compute_DCM();
+  DCM_of_quat();
   compute_euler_pitch();
   compute_dtheta_dq();
 
@@ -567,107 +448,24 @@ ahrs_pitch_update(
    * Pitch can be between -90 and +90 degrees, so wrap it around
    * for the shortest distance.
    */
-  pitch -= ahrs_euler[1];
-  if( pitch < -C_PI / 2 )
-    pitch += C_PI;
-  if( pitch > C_PI / 2 )
-    pitch -= C_PI;
+  accel_pitch -= ahrs_theta;
+  if( accel_pitch < -M_PI_2 )
+    accel_pitch += M_PI;
+  if( accel_pitch > M_PI_2 )
+    accel_pitch -= M_PI;
 
-  run_kalman( R_pitch, pitch );
+  run_kalman( R_pitch, accel_pitch );
 
   // We'll normalize our quaternion here only
   norm_quat();
 }
 
-
-/*
- * The rotation matrix to rotate from NED frame to body frame without
- * rotating in the yaw axis is:
- *
- * [ 1      0         0    ] [ cos(Theta)  0  -sin(Theta) ]
- * [ 0  cos(Phi)  sin(Phi) ] [      0      1       0      ]
- * [ 0 -sin(Phi)  cos(Phi) ] [ sin(Theta)  0   cos(Theta) ]
- *
- * This expands to:
- *
- * [  cos(Theta)              0      -sin(Theta)         ]
- * [  sin(Phi)*sin(Theta)  cos(Phi)   sin(Phi)*cos(Theta)]
- * [  cos(Phi)*sin(Theta)  -sin(Phi)  cos(Phi)*cos(Theta)]
- *
- * However, to untilt the compass reading, we need to use the 
- * transpose of this matrix.
- *
- * [  cos(Theta)  sin(Phi)*sin(Theta)  cos(Phi)*sin(Theta) ]
- * [      0       cos(Phi)            -sin(Phi)            ]
- * [ -sin(Theta)  sin(Phi)*cos(Theta)  cos(Phi)*cos(Theta) ]
- *
- * Additionally,
- * since we already have the DCM computed for our current attitude,
- * we can short cut all of the trig. substituting
- * in from the definition of euler2quat and quat2euler, we have:
- *
- * [ cos(Theta)   -dcm12*dcm02   -dcm22*dcm02 ]
- * [    0          dcm22         -dcm12       ]
- * [ dcm02         dcm12          dcm22       ]
- *
- * As installed in my AHRS, the magnetomer is rotated 180 degrees
- * about the Z axis relative to the IMU.  Thus, we must negate
- * mag[0] and mag[1], while mag[2] is still positive.
- */
-real_t ahrs_heading_of_mag( const int16_t* mag ) {
-  const real_t    ctheta  = cos( ahrs_euler[1] );
-
-/*   const real_t    mn = ctheta * mag[0] */
-/*     - (dcm12 * mag[1] + dcm22 * mag[2]) * dcm02 / ctheta; */
-  
-/*   const real_t    me = */
-/*     (dcm22 * mag[1] - dcm12 * mag[2]) / ctheta; */
-
-  /***/
-  const real_t    stheta  = sin( ahrs_euler[AXIS_Y] );
-  const real_t    cphi  = cos( ahrs_euler[AXIS_X] );
-  const real_t    sphi  = sin( ahrs_euler[AXIS_X] );
-
-  const real_t mn = 
-    ctheta*      mag[0]+
-    sphi*stheta* mag[1]+
-    cphi*stheta* mag[2];
-  const real_t me = 
-    0*     mag[0]+
-    cphi*  mag[1]+
-    -sphi* mag[2];
-  /***/
-  
-  const real_t heading = -atan2( me, mn );
-
-  //  const real_t heading = -atan2( mag[AXIS_Y], mag[AXIS_X] );
-  return heading;
-}
-
-real_t ahrs_roll_of_accel( real_t* accel_cal ) {
-  return atan2(accel_cal[AXIS_Y], accel_cal[AXIS_Z]);
-}
-
-real_t ahrs_pitch_of_accel( real_t* accel_cal) {			
-  float g2 =					
-    accel_cal[AXIS_X]*accel_cal[AXIS_X] +	
-    accel_cal[AXIS_Y]*accel_cal[AXIS_Y] +	
-    accel_cal[AXIS_Z]*accel_cal[AXIS_Z];
-  return -asin( accel_cal[AXIS_X] / sqrt( g2 ) );     
-}
-
-/*
- * Call this with an untilted heading
- */
 void
-ahrs_compass_update(
-		    const int16_t* mag
-		    )
-{
+ahrs_yaw_update( const int16_t* mag ) {
  
-  real_t heading = ahrs_heading_of_mag(mag);
+  float mag_yaw = ahrs_yaw_of_mag(mag);
   // Update the DCM since this will require
-  compute_DCM();
+  DCM_of_quat();
   compute_euler_heading();
   compute_dpsi_dq();
 
@@ -676,37 +474,14 @@ ahrs_compass_update(
    * Heading can be between -180 and +180 degrees, so we wrap
    * to find the shortest turn between the two.
    */
-  heading -= ahrs_euler[2];
-  if( heading < -C_PI )
-    heading += 2 * C_PI;
-  if( heading > C_PI )
-    heading -= 2 * C_PI;
+  mag_yaw -= ahrs_psi;
+  if( mag_yaw < -M_PI )
+    mag_yaw += 2 * M_PI;
+  if( mag_yaw > M_PI )
+    mag_yaw -= 2 * M_PI;
 
-  run_kalman( R_yaw, heading );
+  run_kalman( R_yaw, mag_yaw );
   norm_quat();
-}
-
-
-static void
-euler2quat( void )
-{
-  const real_t            phi0     = ahrs_euler[0] / 2.0;
-  const real_t            theta0   = ahrs_euler[1] / 2.0;
-  const real_t            psi0     = ahrs_euler[2] / 2.0;
-
-  const real_t            sinphi0   = sin( phi0 );
-  const real_t            cosphi0   = cos( phi0 );
-
-  const real_t            sintheta0 = sin( theta0 );
-  const real_t            costheta0 = cos( theta0 );
-
-  const real_t            sinpsi0   = sin( psi0 );
-  const real_t            cospsi0   = cos( psi0 );
-
-  q0 =  cosphi0 * costheta0 * cospsi0 + sinphi0 * sintheta0 * sinpsi0;
-  q1 = -cosphi0 * sintheta0 * sinpsi0 + sinphi0 * costheta0 * cospsi0;
-  q2 =  cosphi0 * sintheta0 * cospsi0 + sinphi0 * costheta0 * sinpsi0;
-  q3 =  cosphi0 * costheta0 * sinpsi0 - sinphi0 * sintheta0 * cospsi0;
 }
 
 /*
@@ -715,25 +490,28 @@ euler2quat( void )
  * They should also have set euler[2] from an untilted compass reading
  * and the euler[0], euler[1] from the accel2roll / accel2pitch values.
  */
-void
-ahrs_init(
-	  const int16_t *         mag
-	  )
-{
+void ahrs_init( const int16_t *mag, const float* accel, const float* gyro ) {
+
+  ahrs_phi = ahrs_roll_of_accel(accel);
+  ahrs_theta = ahrs_pitch_of_accel(accel);
+  ahrs_psi = 0.;
+
+  quat_of_eulers();
+  DCM_of_quat();
+  ahrs_psi = ahrs_yaw_of_mag( mag );
+
+ //  imu_mag[AXIS_X] = 100; imu_mag[AXIS_Y] = 0;  imu_mag[AXIS_Z] = 0; 
+  
   index_t                 i;
 
-  euler2quat();
-  compute_DCM();
 
-  ahrs_euler[2] = ahrs_heading_of_mag( mag );
-
-  euler2quat();
-  compute_DCM();
+  quat_of_eulers();
+  DCM_of_quat();
 
   /* Initialize the bias terms so the filter doesn't work as hard */
-  bias_p = ahrs_pqr[0];
-  bias_q = ahrs_pqr[1];
-  bias_r = ahrs_pqr[2];
+  bias_p = gyro[0];
+  bias_q = gyro[1];
+  bias_r = gyro[2];
 
   /*
    * Setup our covariance matrix

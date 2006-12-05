@@ -20,7 +20,7 @@ imu.srcs = main_imu.c sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
 #imu.CFLAGS += -DUSE_UART0 -DUART0_BAUD=B38400
 imu.srcs += $(SRC_ARCH)/uart_hw.c
 
-imu.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B9600 -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart1 
+imu.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B38400 -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart1 
 imu.srcs += downlink.c pprz_transport.c
 
 imu.CFLAGS += -DADC -DUSE_AD0 -DUSE_AD0_1 -DUSE_AD0_2 -DUSE_AD0_3 -DUSE_AD0_4
