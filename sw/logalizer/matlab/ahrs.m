@@ -32,11 +32,10 @@ if (status == AHRS_UNINIT)
   no_iter = 0;
   
 else
-  
   [ahrs_quat ...
    ahrs_rates...
    ahrs_P] = ahrs_predict(ahrs_P, ahrs_Q, gyro, ahrs_quat, ahrs_biases,...
-			  ahrs_dt);
+			  ahrs_dt, no_iter);
 
   if (status == AHRS_STEP_PHI)
     measure = phi_of_accel(accel);
@@ -57,10 +56,11 @@ else
   error = measure - estimate;
   [ahrs_quat   ...
    ahrs_biases ...
-   ahrs_P] = ahrs_update(C, error, R(status), ahrs_P, ahrs_quat, ahrs_biases);
-
+   ahrs_P] = ahrs_update(C, error, R(status), ahrs_P, ahrs_quat, ...
+			 ahrs_biases, no_iter);
 end;
 
+no_iter = no_iter+1;
 
 quat = ahrs_quat;
 biases = ahrs_biases;
@@ -103,7 +103,7 @@ Q = [ 0 0 0 0  0  0  0
 %
 function [quat_out, rates_out, P_out] = ahrs_predict(P_in, Q_in, ...
 						     gyro, quat_in,  biases, ...
-						     dt)
+						     dt, no_iter)
 rates_out = gyro - biases;
 p = rates_out(1);
 q = rates_out(2);
@@ -145,8 +145,8 @@ P_out = P_in + P_dot * dt;
 %
 %
 function [quat_out, biases_out, P_out] = ahrs_update(C, err, R, P_in, ...
-						     quat_in, biases_in ...
-						    )
+						     quat_in, biases_in, ...
+						     no_iter)
 E = C * P_in * C' + R;
 
 K = P_in * C' * inv(E);

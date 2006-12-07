@@ -61,11 +61,17 @@ for idx = 1:m-1
     
 end;
 
-subplot(2,1,1)
-plot(saved_t, saved_phi, saved_t, saved_theta, saved_t, saved_psi, saved_t, theta_measure, saved_t, psi_measure);
+subplot(3,1,1)
+plot(saved_t, saved_phi, saved_t, saved_theta, saved_t, saved_psi, ...
+     saved_t, phi_measure, saved_t, theta_measure, saved_t, psi_measure);
 title('eulers (matlab)');
 
-subplot(2,1,2)
+subplot(3,1,2)
+plot (saved_t, gyro(1,1:3569), saved_t, gyro(2,1:3569), saved_t, gyro(3,1:3569));
+title('gyros');
+
+
+subplot(3,1,3)
 plot(saved_t, saved_bx, saved_t, saved_by, saved_t, saved_bz);
 title('biases (matlab)');
 
