@@ -1,27 +1,10 @@
-
 %
 %
 %
 
 clear
-fid = fopen('data/log_ahrs_still', 'r');
 
-mag=[];
-accel=[];
-
-while 1
-  tline = fgetl(fid);
-  if ~ischar(tline),   break,   end
-  [A, count] = sscanf(tline, 'IMU_MAG %d %d %d');
-  if (count == 3), mag = [mag A];, end;
-  [A, count] = sscanf(tline, 'IMU_ACCEL %f %f %f');
-  if (count == 3), accel = [accel A];, end;
-end
-
-
-%m_accel = mean(accel, 2)
-%plot(accel(3,:))
-%hist(accel(3,:))
+[gyro, accel, mag] = read_imu_log('data/log_ahrs_still');
 
 [n m] = size(accel);
 for idx = 1:m
