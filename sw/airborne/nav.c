@@ -37,7 +37,6 @@
 #include "fw_v_ctl.h"
 #include "autopilot.h"
 #include "inter_mcu.h"
-#include "airframe.h"
 #include "cam.h"
 #include "traffic_info.h"
 

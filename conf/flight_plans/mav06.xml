@@ -1,11 +1,13 @@
 <flight_plan alt="100" ground_alt="59" lat0="30.6478" lon0="-86.3253" max_dist_from_home="1500" name="MAV06" qfu="90" security_height="25">
 <header>
 #include "bomb.h"
+#include "nav_line.h"
 </header>
   <waypoints>
     <waypoint alt="59." name="TARGET" x="85.1922610838" y="8.50236448925"/>
     <waypoint name="TARGET1" x="700.251490867" y="-210.691196656"/>
-    <waypoint name="C1" x="691.245871547" y="-91.6928060302"/>
+    <waypoint name="11" x="0." y="-150."/>
+    <waypoint name="22" x="0." y="150."/>
     <waypoint name="BASELEG" x="-2.87161011167" y="-163.418097454"/>
     <waypoint alt="90." name="START" x="-61.4546727629" y="-124.362795495"/>
     <waypoint name="RELEASE" x="149.970542131" y="126.560028979"/>
@@ -16,6 +18,7 @@
     <waypoint alt="59." name="TD" x="27.3293594896" y="1.40175988153"/>
     <waypoint name="TOD" x="-142.91998501" y="2.3426450938"/>
     <waypoint name="OVERRUN" x="207.635718161" y="109.431672315"/>
+    <waypoint name="CIRCLE" x="10" y="10"/>
   </waypoints>
   <blocks>
     <block name="kill">
@@ -23,7 +26,7 @@
     </block>
 
 
-    <block name="land">
+   <!-- <block name="land">
       <set value="compute_baseleg()" var="unit"/>
       <circle radius="BOMB_RADIUS" until="circle_count > 0.5" wp="BASELEG"/>
       <set value="V_CTL_AUTO_THROTTLE_MIN_CRUISE_THROTTLE" var="v_ctl_auto_throttle_cruise_throttle"/>
@@ -49,12 +52,12 @@
     <block name="climb">
       <exception cond=" estimator_z > ground_alt +30" deroute="wait"/>
       <attitude pitch="0.3" roll="0" throttle="0.8" until="10> stage_time" vmode="throttle"/>
-    </block>
+    </block>-->
     <block name="wait" strip_button="Wait">
       <set value="v_ctl_auto_throttle_nominal_cruise_throttle" var="v_ctl_auto_throttle_cruise_throttle"/>
       <circle radius="-100" wp="WAIT"/>
     </block>
-    <block name="Climb 0">
+   <!-- <block name="Climb 0">
       <circle climb="0" radius="100" vmode="climb" wp="WAIT"/>
     </block>
 
@@ -89,6 +92,15 @@
       <while cond="3 > stage_time && (estimator_phi > 0 ||  -M_PI_2 > estimator_phi)"/>
       <set value="FALSE" var="h_ctl_disabled"/>
       <return/>
+    </block>-->
+<!--   <block name="circle_here" strip_button="circle_here">
+      <set value="compute_loiter()" var="unit"/>
+      <circle radius="-100" wp="CIRCLE"/>
+      </block>-->
+
+       <block name="Line" strip_button="Line">
+         <call fun="nav_line_init()"/>
+         <call fun="nav_line(WP_11, WP_22, 100)"/>
     </block>
   </blocks>
 </flight_plan>

@@ -34,6 +34,7 @@
 
 #include "std.h"
 #include "paparazzi.h"
+#include "airframe.h"
 
 #define G 9.806
 #define Square(_x) ((_x)*(_x))

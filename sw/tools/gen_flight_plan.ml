@@ -743,7 +743,7 @@ let _ =
       Xml2h.finish h_name
     end
   with
-    Xml.Error e -> prerr_endline (Xml.error e); exit 1
+    Xml.Error e -> fprintf stderr "%s: XML error:%s\n" !xml_file (Xml.error e); exit 1
   | Dtd.Prove_error e -> fprintf stderr "%s: DTD error:%s\n%!" !xml_file (Dtd.prove_error e); exit 1
   | Dtd.Check_error e -> fprintf stderr "%s: DTD error:%s\n%!" !xml_file (Dtd.check_error e); exit 1
   | Dtd.Parse_error e -> fprintf stderr "%s: DTD error:%s\n%!" !xml_file (Dtd.parse_error e); exit 1
