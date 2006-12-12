@@ -31,7 +31,7 @@ INCLUDES=-I +lablgtk2 -I ../../lib/ocaml -I +xml-light
 LIBS=glibivy-ocaml.cma lablgtk.cma lib-pprz.cma lablgnomecanvas.cma xlib-pprz.cma
 CMXA=$(LIBS:.cma=.cmxa)
 
-ML= horizon.ml strip.ml pages.ml speech.ml plugin.ml sectors.ml map2d.ml editFP.ml live.ml gcs.ml
+ML= horizon.ml strip.ml pages.ml speech.ml plugin.ml sectors.ml map2d.ml editFP.ml live.ml particules.ml gcs.ml
 MAIN=gcs
 CMO=$(ML:.ml=.cmo)
 CMX=$(ML:.ml=.cmx)

@@ -31,6 +31,8 @@ module Ground_Pprz = Pprz.Messages(struct let name = "ground" end)
 let ios = int_of_string
 let fos = float_of_string
 
+let raw_datalink_msg_separator = Str.regexp ";"
+
 module Make(A:Data.MISSION) = struct
 
   let servos_period = 1./.40. (* s *)
@@ -185,6 +187,17 @@ module Make(A:Data.MISSION) = struct
     if ac_id = !my_id then
       dl_setting (Pprz.int_assoc "index" vs) (Pprz.float_assoc "value" vs)
 
+  external set_wind : float -> float -> unit = "set_wind"
+  let get_raw_datalink = fun _sender vs ->
+    let ac_id = int_of_string (Pprz.string_assoc "ac_id" vs) in
+    if ac_id = !my_id then
+      match Str.split raw_datalink_msg_separator (Pprz.string_assoc "message" vs) with
+	"WIND_INFO"::_::wind_east::wind_north::_ ->
+	  set_wind (fos wind_east) (fos wind_north)
+      | x::_ -> fprintf stderr "Sim: Warning, ingoring RAW_DATALINK '%s' message" x
+      | [] -> ()
+
+
 
   let boot = fun time_scale ->
     Stdlib.timer ~scale:time_scale servos_period (update_servos bat_button);
@@ -193,7 +206,8 @@ module Make(A:Data.MISSION) = struct
     ignore (Ground_Pprz.message_bind "MOVE_WAYPOINT" get_move_waypoint);
     ignore (Ground_Pprz.message_bind "SEND_EVENT" get_send_event);
     ignore (Ground_Pprz.message_bind "JUMP_TO_BLOCK" get_jump_to_block);
-    ignore (Ground_Pprz.message_bind "DL_SETTING" get_dl_setting)
+    ignore (Ground_Pprz.message_bind "DL_SETTING" get_dl_setting);
+    ignore (Ground_Pprz.message_bind "RAW_DATALINK" get_raw_datalink)
 
 (* Functions called by the simulator *)
   let commands = fun s -> rcommands := s

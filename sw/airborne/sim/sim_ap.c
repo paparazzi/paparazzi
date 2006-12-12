@@ -146,3 +146,9 @@ value dl_setting(value index __attribute__ ((unused)),
   DOWNLINK_SEND_DL_VALUE(&i, &var);
   return Val_unit;
 }
+
+value set_wind(value east, value north) {
+  wind_east = Double_val(east);
+  wind_north = Double_val(north);
+  return Val_unit;
+}

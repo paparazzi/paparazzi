@@ -342,7 +342,7 @@ let rec print_stage = fun index_of_waypoints x ->
 	      "0"
 	in
 	let at = try ExtXml.attrib x "approaching_time" with _ -> "CARROT" in
-	lprintf "if (approaching(%s,%s)) NextStageFrom(%s) else {\n" wp at wp;
+	lprintf "if (NavApproaching(%s,%s)) NextStageFrom(%s) else {\n" wp at wp;
 	right ();
 	let last_wp =
 	  try
@@ -427,8 +427,8 @@ let rec print_stage = fun index_of_waypoints x ->
     | "call" ->
 	stage ();
 	let statement = ExtXml.attrib  x "fun" in
-	lprintf "%s;\n" statement;
-	lprintf "NextStage();\n";
+	lprintf "if (! (%s))\n" statement;
+	lprintf "  NextStage();\n";
 	lprintf "return;\n"
     | "survey_rectangle" ->
 	let grid = parsed_attrib x "grid"

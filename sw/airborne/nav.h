@@ -117,11 +117,37 @@ void nav_without_gps(void);
 
 extern void nav_goto_block(uint8_t block_id);
 
-#define NavSetWaypointHere(_wp) { \
+#define NavSetWaypointHere(_wp) ({ \
   waypoints[_wp].x = estimator_x; \
   waypoints[_wp].y = estimator_y; \
+  FALSE; \
+})
+
+extern float nav_circle_trigo_qdr; /** Angle from center to mobile */
+extern void nav_circle_XY(float x, float y, float radius);
+
+#define NavCircleWaypoint(wp, radius) \
+  nav_circle_XY(waypoints[wp].x, waypoints[wp].y, radius)
+
+#define NormCourse(x) { \
+  while (x < 0) x += 360; \
+  while (x >= 360) x -= 360; \
 }
 
+#define NavCircleCount() (fabs(nav_circle_radians) / (2*M_PI))
+#define NavCircleQdr() ({ float qdr = DegOfRad(M_PI_2 - nav_circle_trigo_qdr); NormCourse(qdr); qdr; })
+#define NavQdrCloseTo(x) ({ float _course = x; NormCourse(_course); float circle_qdr = NavCircleQdr(); (Min(_course, 350) < circle_qdr && circle_qdr < _course+10); })
 
+extern void nav_init_stage( void );
+#define InitStage() { nav_init_stage(); return; }
+
+
+/*********** Navigation along a line *************************************/
+extern void nav_route_xy(float last_wp_x, float last_wp_y, float wp_x, float wp_y);
+#define NavSegment(_start, _end) \
+  nav_route_xy(waypoints[_start].x, waypoints[_start].y, waypoints[_end].x, waypoints[_end].y)
+
+bool_t nav_approaching_xy(float x, float y, float approaching_time);
+#define NavApproaching(wp, time) nav_approaching_xy(waypoints[wp].x, waypoints[wp].y, time)
 
 #endif /* NAV_H */

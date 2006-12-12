@@ -166,6 +166,7 @@ class waypoint = fun (wpts_group:group) (name :string) ?(alt=0.) wgs84 ->
 	dialog#destroy () in
       ignore(cancel#connect#clicked ~callback:destroy);
 
+      (** Delete button for editable waypoints *)
       if editable then begin
 	let delete = GButton.button ~stock:`DELETE ~packing: dhbx#add () in 
 	let delete_callback = fun () ->

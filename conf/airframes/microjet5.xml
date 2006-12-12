@@ -263,7 +263,7 @@ ap.srcs += gyro.c
 
 # Config for SITL simulation
 include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
-sim.CFLAGS += -DCONFIG=\"tiny.h\"
+sim.CFLAGS += -DCONFIG=\"tiny.h\" -DLOITER_TRIM
 
 
 # a test program to setup actuators 

@@ -85,20 +85,20 @@ type aircraft = {
     mutable ground_prox : bool;
   }
 
-let live_aircrafts = Hashtbl.create 3
+let aircrafts = Hashtbl.create 3
 let active_ac = ref ""
 let get_ac = fun vs ->
   let ac_id = Pprz.string_assoc "ac_id" vs in
-  Hashtbl.find live_aircrafts ac_id
+  Hashtbl.find aircrafts ac_id
 
 let select_ac = fun acs_notebook ac_id ->
   if !active_ac <> ac_id then
-    let ac = Hashtbl.find live_aircrafts ac_id in
+    let ac = Hashtbl.find aircrafts ac_id in
 
     (* Show the buttons in the active strip and hide the previous active one *)
     ac.strip#show_buttons ();
     if !active_ac <> "" then begin
-      let ac' = Hashtbl.find live_aircrafts !active_ac in
+      let ac' = Hashtbl.find aircrafts !active_ac in
       ac'.strip#hide_buttons ();
       ac'.notebook_label#set_width_chars (String.length ac'.notebook_label#text)  
     end;
@@ -124,7 +124,7 @@ let log =
 let log_and_say = fun a ac_id s -> log ~say:true a ac_id s
 
 let show_mission = fun ac on_off ->
-  let a = Hashtbl.find live_aircrafts ac in
+  let a = Hashtbl.find aircrafts ac in
   if on_off then
     a.fp_group#show ()
   else
@@ -149,7 +149,7 @@ let send_move_waypoint_msg = fun ac i w ->
   Ground_Pprz.message_send "map2d" "MOVE_WAYPOINT" vs
 
 let commit_changes = fun ac ->
-  let a = Hashtbl.find live_aircrafts ac in
+  let a = Hashtbl.find aircrafts ac in
   List.iter 
     (fun w ->
       let (i, w) = a.fp_group#index w in
@@ -460,7 +460,7 @@ let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id
 	       pages = ac_frame#coerce;
 	       notebook_label = _label
 	     } in
-    Hashtbl.add live_aircrafts ac_id ac;
+    Hashtbl.add aircrafts ac_id ac;
     select_ac acs_notebook ac_id;
 
   (** Periodically send the wind estimation through
@@ -510,10 +510,10 @@ let ok_color = "green"
 let warning_color = "orange"
 let alert_color = "red"
 
-    (** Bind to message while catching all the esceptions of the callback *)
+(** Bind to message while catching all the esceptions of the callback *)
 let safe_bind = fun msg cb ->
   let safe_cb = fun sender vs ->
-    try cb sender vs with _ -> () in
+    try cb sender vs with x -> prerr_endline (Printexc.to_string x) in
   ignore (Ground_Pprz.message_bind msg safe_cb)
 
 let alert_bind = fun msg cb ->
@@ -523,7 +523,7 @@ let alert_bind = fun msg cb ->
 
 let ask_config = fun alert geomap fp_notebook ac ->
   let get_config = fun _sender values ->
-    if not (Hashtbl.mem live_aircrafts ac) then
+    if not (Hashtbl.mem aircrafts ac) then
       create_ac alert geomap fp_notebook ac values
   in
   Ground_Pprz.message_req "map2d" "CONFIG" ["ac_id", Pprz.String ac] get_config
@@ -531,7 +531,7 @@ let ask_config = fun alert geomap fp_notebook ac ->
     
 
 let one_new_ac = fun alert (geomap:G.widget) fp_notebook ac ->
-  if not (Hashtbl.mem live_aircrafts ac) then
+  if not (Hashtbl.mem aircrafts ac) then
     ask_config alert geomap fp_notebook ac
       
 
@@ -593,7 +593,7 @@ let aircrafts_msg = fun alert (geomap:G.widget) fp_notebook acs ->
 let listen_dl_value = fun () ->
   let get_dl_value = fun _sender vs ->
     let ac_id = Pprz.string_assoc "ac_id" vs in
-    let ac = Hashtbl.find live_aircrafts ac_id in
+    let ac = Hashtbl.find aircrafts ac_id in
     match ac.dl_settings_page with
       Some settings ->
 	let csv = Pprz.string_assoc "values" vs in
@@ -699,7 +699,7 @@ let listen_flight_params = fun geomap auto_center_new_ac alert ->
 
   let get_cam_status = fun _sender vs ->
     let ac_id = Pprz.string_assoc "ac_id" vs in
-    let ac = Hashtbl.find live_aircrafts ac_id in
+    let ac = Hashtbl.find aircrafts ac_id in
     let a = fun s -> Pprz.float_assoc s vs in
     let cam_wgs84 = { posn_lat = (Deg>>Rad)(a "cam_lat"); posn_long = (Deg>>Rad)(a "cam_long") }
     and target_wgs84 = { posn_lat = (Deg>>Rad)(a "cam_target_lat"); posn_long = (Deg>>Rad)(a "cam_target_long") } in
@@ -718,7 +718,7 @@ let listen_flight_params = fun geomap auto_center_new_ac alert ->
 
   let get_segment_status = fun _sender vs ->
     let ac_id = Pprz.string_assoc "ac_id" vs in
-    let ac = Hashtbl.find live_aircrafts ac_id in
+    let ac = Hashtbl.find aircrafts ac_id in
     let a = fun s -> Pprz.float_assoc s vs in
     let geo1 = { posn_lat = (Deg>>Rad)(a "segment1_lat"); posn_long = (Deg>>Rad)(a "segment1_long") }
     and geo2 = { posn_lat = (Deg>>Rad)(a "segment2_lat"); posn_long = (Deg>>Rad)(a "segment2_long") } in
@@ -783,13 +783,16 @@ let listen_waypoint_moved = fun () ->
     and altitude = a "alt" in
 
     (** FIXME: No indexed access to waypoints: iter and compare: *)
-    List.iter (fun w ->
-      let (i, w) = ac.fp_group#index w in
-      if i = wp_id then begin
-	w#set ~if_not_moved:true ~altitude ~update:true geo;
-	raise Exit (** catched by safe_bind *)
-      end)
-      ac.fp_group#waypoints
+    try
+      List.iter (fun w ->
+	let (i, w) = ac.fp_group#index w in
+	if i = wp_id then begin
+	  w#set ~if_not_moved:true ~altitude ~update:true geo;
+	  raise Exit
+	end)
+	ac.fp_group#waypoints
+    with
+      Exit -> ()
   in
   safe_bind "WAYPOINT_MOVED" get_values
     
@@ -804,7 +807,7 @@ let listen_alert = fun a ->
 
 let get_infrared = fun _sender vs ->
   let ac_id = Pprz.string_assoc "ac_id" vs in
-  let ac = Hashtbl.find live_aircrafts ac_id in
+  let ac = Hashtbl.find aircrafts ac_id in
   let ir_page = ac.ir_page in
   let gps_hybrid_mode = Pprz.string_assoc "gps_hybrid_mode" vs in
   let gps_hybrid_factor = Pprz.float_assoc "gps_hybrid_factor" vs in
@@ -820,7 +823,7 @@ let listen_infrared = fun () -> safe_bind "INFRARED" get_infrared
 
 let get_svsinfo = fun _sender vs ->
   let ac_id = Pprz.string_assoc "ac_id" vs in
-  let ac = Hashtbl.find live_aircrafts ac_id in
+  let ac = Hashtbl.find aircrafts ac_id in
   let gps_page = ac.gps_page in
   let svid = Str.split list_separator (Pprz.string_assoc "svid" vs)
   and cn0 = Str.split list_separator (Pprz.string_assoc "cno" vs)
@@ -881,5 +884,5 @@ let listen_acs_and_msgs = fun geomap ac_notebook my_alert auto_center_new_ac ->
       (fun ac_id ac -> 
 	if ac.pages#get_oid = ac_page#get_oid
 	then select_ac ac_notebook ac_id) 
-      live_aircrafts in
+      aircrafts in
   ignore (ac_notebook#connect#switch_page ~callback)

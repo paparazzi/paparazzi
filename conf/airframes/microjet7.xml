@@ -108,6 +108,7 @@
 
     <define name="TRIGGER_DELAY" value="1."/>
     <define name="DEFAULT_CIRCLE_RADIUS" value="80."/>
+    <define name="MIN_CIRCLE_RADIUS" value="50."/>
   </section>
  
   <section name="VERTICAL CONTROL" prefix="V_CTL_">
@@ -203,6 +204,10 @@
     <define name="DEVICE_ADDRESS" value="...."/>
   </section>
 
+  <section name="SIMU">
+    <define name="YAW_RESPONSE_FACTOR" value="0.5"/>
+  </section>
+
  <makefile>
 include $(PAPARAZZI_SRC)/conf/autopilot/tiny.makefile
 
@@ -262,7 +267,7 @@ ap.srcs += $(SRC_ARCH)/gpio.c
 include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
 sim.CFLAGS += -DCONFIG=\"tiny.h\" -DAGR_CLIMB -DH_CTL_RATE_LOOP -DLOITER_TRIM -DALT_KALMAN -DIR_360
 sim.srcs += traffic_info.c
-# sim.srcs += bomb.c
+sim.srcs += anemotaxis.c chemotaxis.c discsurvey.c
 
 
 # a test program to setup actuators 

@@ -184,6 +184,7 @@
  
   <section name="SIMU">
     <define name="WEIGHT" value="1."/>
+    <define name="YAW_RESPONSE_FACTOR" value="0.5"/>
   </section>
 
   <section name="FAILSAFE" prefix="FAILSAFE_">

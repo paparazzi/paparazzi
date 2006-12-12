@@ -624,6 +624,13 @@
     <field name="ac_id" type="string"/>
     <field name="message" type="string"/>
   </message>
+
+  <message name="PLUMES" ID="100">
+    <field name="ids" type="string" format="csv"/>
+    <field name="lats" type="string" format="csv"/>
+    <field name="longs" type="string" format="csv"/>
+    <field name="values" type="string" format="csv"/>
+  </message>
 </class>
 
 

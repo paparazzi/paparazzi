@@ -336,6 +336,7 @@ and mplayer = ref ""
 and plugin_window = ref ""
 and layout_file = ref "horizontal.xml"
 and edit = ref false
+and display_particules = ref false
 
 let options =
   [ "-b", Arg.String (fun x -> ivy_bus := x), "Bus\tDefault is 127.255.255.25:2010";
@@ -359,6 +360,7 @@ let options =
     "-auto_ortho", Arg.Set auto_ortho, "IGN tiles path";
     "-google_fill", Arg.Set GM.auto, "Google maps auto fill";
     "-speech", Arg.Set Speech.active, "Active vocal messages";
+    "-particules", Arg.Set display_particules, "Display particules";
     "-m", Arg.String (fun x -> map_files := x :: !map_files), "Map description file"]
 
 
@@ -596,6 +598,9 @@ let _main =
   end;
 
   Speech.say "Welcome to papa ratsi";
+
+  if !display_particules then
+    Particules.listen geomap ;
 
   (** Threaded main loop (map tiles loaded concurently) *)
   GtkThread.main ()

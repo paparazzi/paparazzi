@@ -83,12 +83,18 @@
 
 #define PERIODIC_SEND_NAVIGATION_REF()  DOWNLINK_SEND_NAVIGATION_REF(&nav_utm_east0, &nav_utm_north0, &nav_utm_zone0);
 
-#define PERIODIC_SEND_WP_MOVED() { \
-  static uint8_t i; \
-  i++; if (i > nb_waypoint) i = 0; \
+
+#define DownlinkSendWp(i) { \
   float x = nav_utm_east0 +  waypoints[i].x; \
   float y = nav_utm_north0 + waypoints[i].y; \
   DOWNLINK_SEND_WP_MOVED(&i, &x, &y, &(waypoints[i].a)); \
+}
+
+
+#define PERIODIC_SEND_WP_MOVED() { \
+  static uint8_t i; \
+  i++; if (i > nb_waypoint) i = 0; \
+  DownlinkSendWp(i); \
 }
 
 #ifdef RADIO_CONTROL_SETTINGS

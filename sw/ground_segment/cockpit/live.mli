@@ -24,6 +24,44 @@
 *
 *)
 
+
+type color = string
+type aircraft = {
+    ac_name : string;
+    config : Pprz.values;
+    track : MapTrack.track;
+    color: color;
+    fp_group : MapFP.flight_plan;
+    fp : Xml.xml;
+    blocks : (int * string) list;
+    mutable last_ap_mode : string;
+    mutable last_stage : int * int;
+    ir_page : Pages.infrared;
+    gps_page : Pages.gps;
+    pfd_page : Pages.pfd;
+    misc_page : Pages.misc;
+    dl_settings_page : Pages.settings option;
+    rc_settings_page : Pages.rc_settings option;
+    pages : GObj.widget;
+    notebook_label : GMisc.label;
+    strip : Strip.t;
+    mutable first_pos : bool;
+    mutable last_block_name : string;
+    mutable in_kill_mode : bool;
+    mutable speed : float;
+    mutable alt : float;
+    mutable target_alt : float;
+    mutable flight_time : int;
+    mutable wind_speed : float;
+    mutable wind_dir : float; (* Rad *)
+    mutable ground_prox : bool;
+  }
+
+val aircrafts : (string, aircraft) Hashtbl.t
+
+
+val safe_bind : string -> (string -> Pprz.values -> unit) -> unit
+
 val track_size : int ref
 (** Default length for A/C tracks on the 2D view *)
 

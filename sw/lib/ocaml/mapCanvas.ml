@@ -29,6 +29,8 @@ open LL
 module G2D = Geometry_2d
 open Printf
 
+type world = float * float
+
 let zoom_factor = 1.5 (* Mouse wheel zoom action *)
 let pan_step = 50 (* Pan keys speed *)
 
@@ -44,10 +46,10 @@ let distance = fun (x1,y1) (x2,y2) -> sqrt ((x1-.x2)**2.+.(y1-.y2)**2.)
       
 let _ = Srtm.add_path "SRTM"
 
-let affine_pos_and_angle xw yw angle =
+let affine_pos_and_angle ?(z = 1.) xw yw angle =
   let cos_a = cos angle in
   let sin_a = sin angle in
-  [| cos_a ; sin_a ; ~-. sin_a; cos_a; xw ; yw |]
+  [| cos_a /. z; sin_a /. z; ~-. sin_a /. z; cos_a /. z; xw ; yw |]
 
 type projection = 
     Mercator (* 1e-6 = 1 world unit, y axis reversed *)
@@ -122,7 +124,6 @@ class type geographic = object
     method pos : Latlong.geographic
 end
 	    
-
 
 (** basic canvas with menubar **************************************
  * (the vertical display in map2.ml is an instance of basic_widget)*
@@ -318,6 +319,10 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
     method geo_string = fun wgs84 ->
       LL.string_degrees_of_geographic wgs84
 
+
+    method move_item = fun (item:GnomeCanvas.re_p GnoCanvas.item) wgs84 ->
+      let (xw,yw) = self#world_of wgs84 in
+      item#affine_absolute (affine_pos_and_angle ~z:self#zoom_adj#value xw yw 0.);
     	    
     method moveto = fun wgs84 ->
       let (xw, yw) = self#world_of wgs84 in

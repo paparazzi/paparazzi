@@ -58,10 +58,7 @@ float carrot_x, carrot_y;
 
 /** Status on the current circle */
 static float nav_circle_radians; /* Cumulated */
-static float nav_circle_trigo_qdr; /* Angle from center to mobile */
-
-#define NavCircleCount() (fabs(nav_circle_radians) / (2*M_PI))
-#define NavCircleQdr() ({ float qdr = DegOfRad(M_PI_2 - nav_circle_trigo_qdr); NormCourse(qdr); qdr; })
+float nav_circle_trigo_qdr; /* Angle from center to mobile */
 
 
 /** Status on the current leg (percentage, 0. < < 1.) in route mode */
@@ -82,6 +79,14 @@ float flight_altitude;
 
 float nav_glide_pitch_trim;
 
+void nav_init_stage( void ) {
+  last_x = estimator_x; last_y = estimator_y;
+  stage_time = 0;
+  stage_time_ds = 0;
+  nav_circle_radians = 0;
+  nav_in_circle = FALSE;
+  nav_in_segment = FALSE;
+}
 
 #define PowerVoltage() (vsupply/10.)
 #define RcRoll(travel) (fbw_state->channels[RADIO_ROLL]* (float)travel /(float)MAX_PPRZ)
@@ -95,7 +100,6 @@ float nav_glide_pitch_trim;
 #define Return() { nav_block=last_block; nav_stage=last_stage; block_time=0; return;}
 
 #define Stage(s) case s: nav_stage=s;
-#define InitStage() { last_x = estimator_x; last_y = estimator_y; stage_time = 0; stage_time_ds = 0; nav_circle_radians = 0; nav_in_circle = FALSE; nav_in_segment = FALSE; return; }
 #define NextStage() { nav_stage++; InitStage() }
 #define NextStageFrom(wp) { last_wp = wp; NextStage() }
 #define GotoStage(s) { nav_stage = s; InitStage() }
@@ -103,20 +107,14 @@ float nav_glide_pitch_trim;
 #define Label(x) label_ ## x:
 #define Goto(x) { goto label_ ## x; }
 
-static bool_t approaching(uint8_t, float) __attribute__ ((unused));
 static inline void fly_to_xy(float x, float y);
-static void nav_route_xy(float last_wp_x, float last_wp_y, float wp_x, float wp_y);
 
 #define MIN_DX ((int16_t)(MAX_PPRZ * 0.05))
 
 #define DegOfRad(x) ((x) / M_PI * 180.)
 #define RadOfDeg(x) ((x)/180. * M_PI)
-#define NormCourse(x) { \
-  while (x < 0) x += 360; \
-  while (x >= 360) x -= 360; \
-}
 
-static inline void nav_circle_XY(float x, float y, float radius) {
+void nav_circle_XY(float x, float y, float radius) {
   float last_trigo_qdr = nav_circle_trigo_qdr;
   nav_circle_trigo_qdr = atan2(estimator_y - y, estimator_x - x);
 
@@ -157,12 +155,6 @@ static inline void nav_circle_XY(float x, float y, float radius) {
   horizontal_mode = HORIZONTAL_MODE_WAYPOINT; \
   fly_to_xy(waypoints[_wp].x, waypoints[_wp].y); \
 }
-
-#define NavCircleWaypoint(wp, radius) \
-  nav_circle_XY(waypoints[wp].x, waypoints[wp].y, radius)
-
-#define NavSegment(_start, _end) \
-  nav_route_xy(waypoints[_start].x, waypoints[_start].y, waypoints[_end].x, waypoints[_end].y)
 
 #define NavSurveyRectangleInit(_wp1, _wp2, _grid) nav_survey_rectangle_init(_wp1, _wp2, _grid)
 #define NavSurveyRectangle(_wp1, _wp2) nav_survey_rectangle(_wp1, _wp2)
@@ -237,7 +229,6 @@ static inline void nav_circle_XY(float x, float y, float radius) {
 #define Or(x, y) ((x) || (y))
 #define Min(x,y) (x < y ? x : y)
 #define Max(x,y) (x > y ? x : y)
-#define NavQdrCloseTo(x) ({ float _course = x; NormCourse(_course); float circle_qdr = NavCircleQdr(); (Min(_course, 350) < circle_qdr && circle_qdr < _course+10); })
 #define NavBlockTime() (block_time)
 #define LessThan(_x, _y) ((_x) < (_y))
 
@@ -249,7 +240,7 @@ static inline void nav_circle_XY(float x, float y, float radius) {
   fly_to_xy(ac->east - _distance*cos(alpha), ac->north - _distance*sin(alpha)); \
 }
 
-#define NavSetGroundReferenceHere() { nav_reset_reference(); nav_update_waypoints_alt(); }
+#define NavSetGroundReferenceHere() ({ nav_reset_reference(); nav_update_waypoints_alt(); FALSE; })
 
 /** Automatic survey of a sector (south-north sweep) */
 static struct point survey_from;
@@ -403,7 +394,7 @@ struct point waypoints[NB_WAYPOINT+1] = WAYPOINTS;
  *  uav has not gone past waypoint.
  *  Return true if it is the case.
  */
-static bool_t approaching_xy(float x, float y, float approaching_time) {
+bool_t nav_approaching_xy(float x, float y, float approaching_time) {
   /** distance to waypoint in x */
   float pw_x = x - estimator_x;
   /** distance to waypoint in y */
@@ -419,11 +410,6 @@ static bool_t approaching_xy(float x, float y, float approaching_time) {
   return (scal_prod < 0.);
 }
 
-static bool_t approaching(uint8_t wp, float approaching_time) {
-  return approaching_xy(waypoints[wp].x, waypoints[wp].y, approaching_time);
-}
-
-
 
 /** static inline void fly_to_xy(float x, float y)
  *  \brief Computes \a desired_x, \a desired_y and \a desired_course.
@@ -435,7 +421,7 @@ static inline void fly_to_xy(float x, float y) {
 }
 
 
-static void nav_route_xy(float last_wp_x, float last_wp_y, float wp_x, float wp_y) {
+void nav_route_xy(float last_wp_x, float last_wp_y, float wp_x, float wp_y) {
   float leg_x = wp_x - last_wp_x;
   float leg_y = wp_y - last_wp_y;
   float leg2 = leg_x * leg_x + leg_y * leg_y;
@@ -614,7 +600,7 @@ void nav_eight(uint8_t target, uint8_t c1, float radius) {
 
   case R12:
     nav_route_xy(c1_out.x, c1_out.y, c2_in.x, c2_in.y);
-    if (approaching_xy(c2_in.x, c2_in.y,CARROT)) { 
+    if (nav_approaching_xy(c2_in.x, c2_in.y,CARROT)) { 
       eight_status = C2;
       InitStage();
     }
@@ -630,7 +616,7 @@ void nav_eight(uint8_t target, uint8_t c1, float radius) {
 
   case R21:
     nav_route_xy(c2_out.x, c2_out.y, c1_in.x, c1_in.y);
-    if (approaching_xy(c1_in.x, c1_in.y,CARROT)) { 
+    if (nav_approaching_xy(c1_in.x, c1_in.y,CARROT)) { 
       eight_status = C1;
       InitStage();
     }
@@ -697,7 +683,7 @@ void nav_oval(uint8_t p1, uint8_t p2, float radius) {
 
   case OR12:
     nav_route_xy(p1_out.x, p1_out.y, p2_in.x, p2_in.y);
-    if (approaching_xy(p2_in.x, p2_in.y,CARROT)) { 
+    if (nav_approaching_xy(p2_in.x, p2_in.y,CARROT)) { 
       oval_status = OC2;
       InitStage();
     }
@@ -713,7 +699,7 @@ void nav_oval(uint8_t p1, uint8_t p2, float radius) {
 
   case OR21:
     nav_route_xy(waypoints[p2].x, waypoints[p2].y, waypoints[p1].x, waypoints[p1].y);
-    if (approaching_xy(waypoints[p1].x, waypoints[p1].y,CARROT)) { 
+    if (nav_approaching_xy(waypoints[p1].x, waypoints[p1].y,CARROT)) { 
       oval_status = OC1;
       InitStage();
     }
