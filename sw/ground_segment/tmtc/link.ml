@@ -548,7 +548,7 @@ let _ =
       "-d", Arg.Set_string port, (sprintf "<port> Default is %s" !port);
       "-rssi", Arg.Set_int rssi_id, (sprintf "<ac_id> Periodically requests rssi level from the distant wavecard");
       "-xbee_addr", Arg.Set_int XB.my_addr, (sprintf "<my_addr> (%d)" !XB.my_addr);
-      "-xbee_retries", Arg.Set_int XB.my_addr, (sprintf "<my_addr> (%d)" !XB.my_addr);
+      "-xbee_retries", Arg.Set_int XB.my_addr, (sprintf "<nb retries> (%d)" !XB.nb_retries);
       "-transport", Arg.Set_string transport, (sprintf "<transport> Available protocols are modem,pprz,wavecard and xbee. Default is %s" !transport);
       "-uplink", Arg.Set uplink, (sprintf "Uses the link as uplink also.");
       "-dtr", Arg.Set dtr, "Set serial DTR to false (aerocomm)";
