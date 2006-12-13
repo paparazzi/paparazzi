@@ -198,7 +198,7 @@ static inline float ahrs_pitch_of_accel( const float* accel) {
  */
 static inline float ahrs_yaw_of_mag( const int16_t* mag ) {
   const float ctheta  = cos( ahrs_theta );
-#if 1
+#if 0
   const float    mn = ctheta * mag[0] 
     - (dcm12 * mag[1] + dcm22 * mag[2]) * dcm02 / ctheta;
   

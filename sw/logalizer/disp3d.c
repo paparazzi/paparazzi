@@ -35,17 +35,6 @@
 #include <Ivy/ivy.h>
 #include <Ivy/ivyglibloop.h>
 
-#ifndef M_PI
-#define M_PI 3.14
-#endif
-
-
-/* #define FULLSCREEN_MESA_3DFX    /* uncomment this to get 3DFX acceleration */
-
-#ifdef FULLSCREEN_MESA_3DFX
-#include <GL/xmesa.h>
-#endif 
-
 static GLfloat          yellow[4]       = { 0.90, 0.90, 0.00, 1.00 };
 
 void on_IMU_MAG(IvyClientPtr app, void *user_data, int argc, char *argv[]);
@@ -111,14 +100,14 @@ void game_play()
 }
 
 void quat_to_euler( gfloat* quat, gfloat* euler) {
-  //  float q02 = quat[0] * quat[0];
+  float q02 = quat[0] * quat[0];
   float q12 = quat[1] * quat[1];
   float q22 = quat[2] * quat[2];
   float q32 = quat[3] * quat[3];
 
-  euler[0] = atan2( 2*(quat[2]*quat[3] + quat[0]*quat[1]),(1-2*(q12 + q22)) );
+  euler[0] = atan2( 2*(quat[2]*quat[3] + quat[0]*quat[1]),(q02 - q12 - q22 + q32));
   euler[1] = -asin(2*(quat[1]*quat[3] - quat[0]*quat[2]));
-  euler[2] = atan2( 2*(quat[1]*quat[2] + quat[0]*quat[3]),(1-2*(q22 + q32)) );
+  euler[2] = atan2( 2*(quat[1]*quat[2] + quat[0]*quat[3]),(q02 + q12 - q22 - q32));
 }
 
 
@@ -359,60 +348,6 @@ void game_render()
 }
 
 
-
-/* --------------------------------------- */
-
-
-#ifdef FULLSCREEN_MESA_3DFX
-
-gint switch_fullscreen(GtkWidget *gl_area)
-{
-  static GtkWidget *fullscreenwidget = NULL;
-
-  if (!fullscreenwidget)
-    {
-      /* Grab keyboard and pointer so that user does not wander off the game
-	 window while in fullscreen mode.
-      */
-      if (gdk_keyboard_grab(gl_area->window, FALSE, GDK_CURRENT_TIME) == 0)
-	{
-	  if (gdk_pointer_grab(gl_area->window, FALSE, 0, NULL, NULL, GDK_CURRENT_TIME) == 0)
-	    {
-	      gtk_widget_grab_focus(gl_area);
-	      if (gtk_gl_area_make_current(GTK_GL_AREA(gl_area)))
-		{
-		  if (XMesaSetFXmode((XMESA_FX_FULLSCREEN)))
-		    {
-		      fullscreenwidget = gl_area;
-		      return TRUE;
-		    }
-		}
-	      gdk_pointer_ungrab(GDK_CURRENT_TIME);
-	    }
-	  gdk_keyboard_ungrab(GDK_CURRENT_TIME);
-	}
-      return FALSE;
-    }
-
-  if (fullscreenwidget == gl_area)
-    {
-      if (gtk_gl_area_make_current(GTK_GL_AREA(gl_area)))
-	XMesaSetFXmode(XMESA_FX_WINDOW);
-      
-      gdk_keyboard_ungrab(GDK_CURRENT_TIME);
-      gdk_pointer_ungrab(GDK_CURRENT_TIME);
-      fullscreenwidget = NULL;
-      return TRUE;
-    }
-  
-  return FALSE;
-}
-
-#endif
-
-
-
-
 gint init(GtkWidget *widget)
 {
   /* OpenGL functions can be called only if makecurrent returns true */
@@ -527,11 +462,6 @@ int main(int argc, char **argv)
     GDK_GL_DOUBLEBUFFER,
     GDK_GL_NONE
   };
-
-#ifdef FULLSCREEN_MESA_3DFX
-  setenv("MESA_GLX_FX", "", 1);
-  setenv("FX_GLIDE_NO_SPLASH", "", 1);
-#endif
 
   /* initialize gtk */
   gtk_init(&argc, &argv);

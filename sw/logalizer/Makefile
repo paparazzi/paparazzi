@@ -58,14 +58,20 @@ disp3d: disp3d.c
 test1: test1.c
 	$(CC) $(MORE_CFLAGS) -g -o $@ $^ $(MORE_FLAGS) -lglut
 
+test3: test3.c sliding_plot.c
+	$(CC) $(CFLAGS) -g -o $@ $^ $(LDFLAGS)
 
 clean:
 	rm -f *.opt *.out *~ core *.o *.bak .depend *.cm* play ahrsview imuview ahrs2fg
 
-FGFS_ROOT = /home/poine/work/flightgear_cvs
-#FGFS = $(FGFS_ROOT)/bin/fgfs
-FGFS = fgfs
-FGFS_ENV = LD_LIBRARY_PATH=/usr/local/lib:$(FGFS_ROOT)/lib
+#FGFS_PREFIX=/home/poine/local
+FGFS_PREFIX=/usr/local
+
+FGFS_ROOT = /home/poine/local
+#FGFS = $(FGFS_PREFIX)/bin/fgfs
+FGFS = /usr/games/fgfs
+#FGFS_ENV = LD_LIBRARY_PATH=/usr/local/lib:$(FGFS_ROOT)/lib
+FGFS_ENV = LD_LIBRARY_PATH=$(FGFS_ROOT)/lib
 #FGFS_COMMON_ARGS = --fg-root=$(FGFS_ROOT)  --aircraft=A320 --timeofday=noon
 FGFS_COMMON_ARGS = --aircraft=737-300 --timeofday=noon
 FGFS_IN_FDM_ARGS = $(FGFS_COMMON_ARGS) --fdm=null --native-fdm=socket,in,30,,5501,udp

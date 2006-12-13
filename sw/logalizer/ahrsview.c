@@ -45,7 +45,7 @@ int main (int argc, char** argv) {
   gtk_init(&argc, &argv); 
   
   GtkWidget *window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-  gtk_widget_set_size_request (window, 1280, 480);
+  gtk_widget_set_size_request (window, 640, 400);
 
   GtkWidget *vbox1 = gtk_vbox_new (FALSE, 0);
   gtk_container_add (GTK_CONTAINER (window), vbox1);
