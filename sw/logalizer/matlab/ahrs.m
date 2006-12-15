@@ -12,13 +12,11 @@ persistent ahrs_rates;
 persistent ahrs_P;     % covariance matrix
 persistent ahrs_Q;     % estimate noise variance
 
-persistent no_iter;
-
 ahrs_dt = 0.015625;
-R = [ 1.3^2          % R is our measurement noise estimate
+R = [ 1.3^2            % R is our measurement noise estimate
       1.3^2
-      2.6^2 ];
-%R = [ 0.0046^2          % R is our measurement noise estimate
+      2.5^2 ];
+%R = [ 0.0046^2       
 %      0.0046^2
 %      2.5^2 ];
 
@@ -29,13 +27,12 @@ if (status == AHRS_UNINIT)
    ahrs_rates ...
    ahrs_P ...
    ahrs_Q ] = ahrs_init(gyro, accel, mag);
-  no_iter = 0;
   
 else
   [ahrs_quat ...
    ahrs_rates...
    ahrs_P] = ahrs_predict(ahrs_P, ahrs_Q, gyro, ahrs_quat, ahrs_biases,...
-			  ahrs_dt, no_iter);
+			  ahrs_dt);
 
   if (status == AHRS_STEP_PHI)
     measure = phi_of_accel(accel);
@@ -52,15 +49,13 @@ else
     estimate = psi_of_quat(ahrs_quat);
     C = get_dpsi_dq(ahrs_quat);
   end;
-
+  
   error = measure - estimate;
   [ahrs_quat   ...
    ahrs_biases ...
    ahrs_P] = ahrs_update(C, error, R(status), ahrs_P, ahrs_quat, ...
-			 ahrs_biases, no_iter);
+			 ahrs_biases);
 end;
-
-no_iter = no_iter+1;
 
 quat = ahrs_quat;
 biases = ahrs_biases;
@@ -87,6 +82,7 @@ P = [ 1 0 0 0 0 0 0
       0 0 0 0 0 0 0 ];
 
 qg = 8e-03;
+%qg = 1e-04;
 Q = [ 0 0 0 0  0  0  0
       0 0 0 0  0  0  0
       0 0 0 0  0  0  0
@@ -103,7 +99,7 @@ Q = [ 0 0 0 0  0  0  0
 %
 function [quat_out, rates_out, P_out] = ahrs_predict(P_in, Q_in, ...
 						     gyro, quat_in,  biases, ...
-						     dt, no_iter)
+						     dt)
 rates_out = gyro - biases;
 p = rates_out(1);
 q = rates_out(2);
@@ -114,13 +110,14 @@ omega = 0.5 * [ 0 -p -q -r
 		q -r  0  p
 		r  q -p  0 ]; 
 
+
 quat_dot = omega * quat_in;
 
 quat_out = quat_in + quat_dot * dt;
 
 quat_out = normalize_quat(quat_out);
 
-% Jacobian matrix A
+% A is the Jacobian of Xdot with respect to the states
 q0 = quat_out(1);
 q1 = quat_out(2);
 q2 = quat_out(3);
@@ -145,8 +142,7 @@ P_out = P_in + P_dot * dt;
 %
 %
 function [quat_out, biases_out, P_out] = ahrs_update(C, err, R, P_in, ...
-						     quat_in, biases_in, ...
-						     no_iter)
+						     quat_in, biases_in)
 E = C * P_in * C' + R;
 
 K = P_in * C' * inv(E);
@@ -168,11 +164,15 @@ quat_out = normalize_quat(quat_out);
 function [C] = get_dphi_dq(quat)
 dcm = dcm_of_quat(quat);
 phi_err = 2 / (dcm(3,3)^2 + dcm(2,3)^2);
+q0 = quat(1);
+q1 = quat(2);
+q2 = quat(3);
+q3 = quat(4);
 C = [ 
-    (quat(2) * dcm(3,3))                          * phi_err
-    (quat(1) * dcm(3,3) + 2 * quat(2) * dcm(2,3)) * phi_err
-    (quat(4) * dcm(3,3) + 2 * quat(3) * dcm(2,3)) * phi_err
-    (quat(3) * dcm(3,3))                          * phi_err 
+    (q1 * dcm(3,3))                     * phi_err
+    (q0 * dcm(3,3) + 2 * q1 * dcm(2,3)) * phi_err
+    (q3 * dcm(3,3) + 2 * q2 * dcm(2,3)) * phi_err
+    (q2 * dcm(3,3))                     * phi_err 
     0
     0
     0 
@@ -180,25 +180,33 @@ C = [
 
 function [C] = get_dtheta_dq(quat)
 dcm = dcm_of_quat(quat);
-theta_err = -2 / sqrt(1 - dcm(1,3)^2);
+theta_err = 2 / sqrt(1 - dcm(1,3)^2);
+q0 = quat(1);
+q1 = quat(2);
+q2 = quat(3);
+q3 = quat(4);
 C = [
-    -quat(3) * theta_err
-    quat(4) * theta_err
-    -quat(1) * theta_err
-    quat(2) * theta_err 
-    0
-    0
-    0 
+     q2 * theta_err
+    -q3 * theta_err
+     q0 * theta_err
+    -q1 * theta_err 
+     0
+     0
+     0 
     ]';
 
 function [C] = get_dpsi_dq(quat)
 dcm = dcm_of_quat(quat);
 psi_err = 2 / (dcm(1,1)^2 + dcm(1,2)^2);
+q0 = quat(1);
+q1 = quat(2);
+q2 = quat(3);
+q3 = quat(4);
 C = [
-    (quat(4) * dcm(1,1))                          * psi_err
-    (quat(3) * dcm(1,1))                          * psi_err
-    (quat(2) * dcm(1,1) + 2 * quat(3) * dcm(1,2)) * psi_err
-    (quat(1) * dcm(1,1) + 2 * quat(3) * dcm(1,2)) * psi_err 
+    (q3 * dcm(1,1))                     * psi_err
+    (q2 * dcm(1,1))                     * psi_err
+    (q1 * dcm(1,1) + 2 * q2 * dcm(1,2)) * psi_err
+    (q0 * dcm(1,1) + 2 * q3 * dcm(1,2)) * psi_err 
     0
     0
     0

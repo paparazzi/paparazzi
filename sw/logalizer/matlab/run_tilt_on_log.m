@@ -1,30 +1,15 @@
 clear
-fid = fopen('data/log_ahrs_bug', 'r');
 
-mag=[];
-accel=[];
-gyro=[];
+log = 'data/log_ahrs_bug';
+%log = 'data/log_imu_still';
+%log = 'data/log_imu_roll';
+%log = 'data/log_ahrs_still';
+%log = 'data/log_ahrs_roll';
+%log = 'data/log_ahrs_yaw';
+%log = 'data/log_ahrs_yaw_pitched';
 
-while 1
-  tline = fgetl(fid);
-  if ~ischar(tline),   break,   end
-%  disp(tline)
-  [A, count] = sscanf(tline, 'IMU_MAG %d %d %d');
-  if (count == 3), mag = [mag A];, end;
-  [A, count] = sscanf(tline, 'IMU_ACCEL %f %f %f');
-  if (count == 3), accel = [accel A];, end;
-  [A, count] = sscanf(tline, 'IMU_GYRO %f %f %f');
-  if (count == 3), gyro = [gyro A];, end;
-end
+[gyro, accel, mag] = read_imu_log(log);
 
-%mag
-%accel
-%gyro
-%ab_ahrs
-
-%plot(mag(3,:))
-%plot(gyro(3,:))
-%plot(accel(3,:))
 
 tilt_status = 0;                      % uninit
 [angle, bias] = tilt(tilt_status, gyro(:,1), accel(:,1));
@@ -43,13 +28,13 @@ for idx = 1:m
 end;
 
 subplot(3,1,1)
-plot(saved_t, saved_theta, ...
-     saved_t, theta_measure);
+plot(saved_t, theta_measure, saved_t, saved_theta);
 title('angle');
+legend('measure', 'estimation');
 
 subplot(3,1,2)
-plot (saved_t, gyro(1,:), saved_t, gyro(2,:), saved_t, gyro(3,:));
-title('gyros');
+plot (saved_t, gyro(2,:));
+title('rate');
 
 
 subplot(3,1,3)
