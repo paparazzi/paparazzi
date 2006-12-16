@@ -1,7 +1,7 @@
 clear
 
 dt = 0.015625;
-nb_samples = 600;
+nb_samples = 1500;
 
 %
 % generate a set of flight parameters

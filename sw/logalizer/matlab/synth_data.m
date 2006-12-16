@@ -15,16 +15,16 @@ amp_q = 2;
 osc_start = floor(nb_samples/2);
 osc_end = floor(osc_start+2*pi/(omega_q*dt));
 for idx=osc_start:osc_end
-  rates(2, idx) = amp_q*(1 - cos((idx-osc_start)*(omega_q*dt)));
+  rates(2, idx) = -amp_q*(1 - cos((idx-osc_start)*(omega_q*dt)));
 end
 
 osc_start = floor(nb_samples/2 + 8*pi/(omega_q*dt));
 osc_end = floor(osc_start+2*pi/(omega_q*dt));
 for idx=osc_start:osc_end
-  rates(2, idx) = -amp_q*(1 - cos((idx-osc_start)*(omega_q*dt)));
+  rates(2, idx) = amp_q*(1 - cos((idx-osc_start)*(omega_q*dt)));
 end
 
-quat(:, 1) = quat_of_eulers([0.2 -0.4 1.5]');
+quat(:, 1) = quat_of_eulers([0.2 -0.4 0.5]');
 
 for idx=2:nb_samples
   p = rates(1, idx-1);

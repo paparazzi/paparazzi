@@ -2,16 +2,13 @@ function [angle, bias, rate] = tilt(status, gyro, accel)
 
 
 TILT_UNINIT     = 0;
-TILT_RUNNING    = 1;
+TILT_PREDICT    = 1;
+TILT_UPDATE     = 2;
 
 persistent tilt_angle; % our state
 persistent tilt_bias;  %
-
 persistent tilt_rate;  % unbiased rate
-
 persistent tilt_P;     % covariance matrix
-persistent tilt_Q;     % process covariance noise ( how much we
-                       % trust the accel relative to the gyro )
 
 tilt_dt = 0.015625;    % time step
 tilt_R =  0.3;         % measurement covariance noise
@@ -21,13 +18,16 @@ tilt_R =  0.3;         % measurement covariance noise
 		       
 		       
 if (status == TILT_UNINIT)
-  [tilt_angle, tilt_bias, tilt_rate, tilt_P, tilt_Q] = tilt_init(gyro, accel);
+  [tilt_angle, tilt_bias, tilt_rate, tilt_P] = tilt_init(gyro, accel);
 else
-  [tilt_angle, tilt_rate, tilt_P] = tilt_predict(tilt_P, tilt_Q, ...
-						 gyro, tilt_angle, tilt_bias, ...
+  [tilt_angle, tilt_rate, tilt_P] = tilt_predict(gyro, tilt_P, ...
+						 tilt_angle, tilt_bias, ...
 						 tilt_dt);
-  [tilt_angle, tilt_bias, tilt_P] = tilt_update(accel, tilt_R, tilt_P, ...
-						tilt_angle, tilt_bias);
+  if (status == TILT_UPDATE)
+    [tilt_angle, tilt_bias, tilt_P] = tilt_update(accel, tilt_R, tilt_P, ...
+						  tilt_angle, ...
+						  tilt_bias);
+  end
 end		       
 
 angle = tilt_angle;
@@ -40,26 +40,26 @@ rate = tilt_rate;
 % Initialisation
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function [angle, bias, rate, P, Q] = tilt_init(gyro, accel)
+function [angle, bias, rate, P] = tilt_init(gyro, accel)
 angle = theta_of_accel(accel);
 
 bias = gyro(2);
 
 rate = 0;
 
+%P = [ 1 0
+%      0 1 ];
 P = [ 1 0
-      0 1 ];
+      0 0 ];
 
-Q = [ 0.1  0
-      0    0.3 ];
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % Prediction
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function [angle_out, rate_out, P_out] = tilt_predict(P_in, Q, ...
-						     gyro, angle_in,  bias, ...
+function [angle_out, rate_out, P_out] = tilt_predict(gyro, P_in, ...
+						     angle_in,  bias, ...
 						     dt)
 rate_out = gyro(2) - bias;
 
@@ -75,10 +75,11 @@ angle_out = angle_in + rate_out * dt;
 %          [ d(gyro_bias_dot)/d(angle) d(gyro_bias_dot)/d(gyro_bias) ]
 %
 
-A = [ 0 -1
+A = [ 0 -1            % jacobian of state dot wrt state
       0  0 ];
 
-P_in;
+Q = [ 0  0            % process covariance noise
+      0  8e-3 ];
 
 Pdot = A * P_in + P_in * A' + Q;
 

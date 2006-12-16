@@ -12,7 +12,7 @@ log = 'data/log_ahrs_bug';
 
 
 ahrs_status = 0;                      % uninit
-nb_init = 160;
+nb_init = 100;
 m_gyro = [ mean(gyro(1, 1:nb_init))
 	   mean(gyro(2, 1:nb_init))
 	   mean(gyro(3, 1:nb_init)) ]
@@ -30,15 +30,9 @@ m = min(sensor_length)
 for idx = 1:m
   
   ahrs_status = 1 + mod(idx, 3);
-  [quat, biases] = ahrs(ahrs_status, gyro(:,idx), accel(:,idx), mag(:,idx));
+ [ahrs_quat(:, idx), ahrs_biases(:, idx)]= ahrs(ahrs_status, gyro(:,idx), accel(:,idx), mag(:,idx));
   saved_t(idx) = idx;
-  eulers = eulers_of_quat(quat);
-  saved_phi(idx) = eulers(1);
-  saved_theta(idx) = eulers(2);
-  saved_psi(idx) = eulers(3);
-  saved_bx(idx) = biases(1);
-  saved_by(idx) = biases(2);
-  saved_bz(idx) = biases(3);
+  ahrs_eulers(:,idx) = eulers_of_quat(ahrs_quat(:, idx));
   phi_measure(idx) = phi_of_accel(accel(:,idx));
   theta_measure(idx) = theta_of_accel(accel(:,idx));
   psi_measure(idx) = psi_of_mag(mag(:,idx), phi_measure(idx), theta_measure(idx));
@@ -46,8 +40,12 @@ for idx = 1:m
 end;
 
 subplot(3,1,1)
-plot(saved_t, saved_phi, saved_t, saved_theta, saved_t, saved_psi, ...
-     saved_t, phi_measure, saved_t, theta_measure, saved_t, psi_measure);
+plot(saved_t, ahrs_eulers(1,:),...
+     saved_t, ahrs_eulers(2,:),...
+     saved_t, ahrs_eulers(3,:), ...
+     saved_t, phi_measure, ...
+     saved_t, theta_measure,...
+     saved_t, psi_measure);
 title('eulers (matlab)');
 legend('ahrs phi','ahrs theta','ahrs psi', 'measure phi', 'measure theta', ...
        'measure psi');
@@ -58,7 +56,7 @@ title('gyros');
 legend('gyro x','gyro y','gyro z');
 
 subplot(3,1,3)
-plot(saved_t, saved_bx, saved_t, saved_by, saved_t, saved_bz);
+plot(saved_t, ahrs_biases(1,:), saved_t, ahrs_biases(2,:), saved_t, ahrs_biases(3,:));
 title('biases (matlab)');
 legend('bias x','bias y','bias z');
 
