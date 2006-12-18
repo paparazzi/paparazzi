@@ -1,10 +1,8 @@
 clear
 
-log = 'data/log_ahrs_bug';
-%log = 'data/log_imu_still';
-%log = 'data/log_imu_roll';
+%log = 'data/log_ahrs_bug';
 %log = 'data/log_ahrs_still';
-%log = 'data/log_ahrs_roll';
+log = 'data/log_ahrs_roll';
 %log = 'data/log_ahrs_yaw';
 %log = 'data/log_ahrs_yaw_pitched';
 

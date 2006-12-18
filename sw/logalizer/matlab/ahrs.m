@@ -117,14 +117,14 @@ quat_out = quat_in + quat_dot * dt;
 
 quat_out = normalize_quat(quat_out);
 
-% A is the Jacobian of Xdot with respect to the states
+% F is the Jacobian of Xdot with respect to the states
 q0 = quat_out(1);
 q1 = quat_out(2);
 q2 = quat_out(3);
 q3 = quat_out(4);
 
 
-A =  0.5 * [ 0 -p -q -r  q1  q2  q3
+F =  0.5 * [ 0 -p -q -r  q1  q2  q3
 	     p  0  r -q -q0  q3 -q2 
 	     q -r  0  p -q3 -q0  q1
 	     r  q -p  0  q2 -q1 -q0 
@@ -132,7 +132,7 @@ A =  0.5 * [ 0 -p -q -r  q1  q2  q3
 	     0  0  0  0  0   0   0 
 	     0  0  0  0  0   0   0 ];
 
-P_dot = A * P_in + P_in * A' + Q_in;
+P_dot = F * P_in + P_in * F' + Q_in;
 
 P_out = P_in + P_dot * dt;
 

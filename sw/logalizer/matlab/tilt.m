@@ -1,3 +1,9 @@
+%
+% this is a 2 states kalman filter used to fuse the readings of a
+% two axis accelerometer and one axis gyro.
+% The filter estimates the angle and the gyro bias.
+%
+%
 function [angle, bias, rate] = tilt(status, gyro, accel)
 
 
@@ -10,23 +16,21 @@ persistent tilt_bias;  %
 persistent tilt_rate;  % unbiased rate
 persistent tilt_P;     % covariance matrix
 
-tilt_dt = 0.015625;    % time step
+tilt_dt = 0.015625;    % prediction time step
 tilt_R =  0.3;         % measurement covariance noise
                        % means we expect a 0.3 rad jitter from the
                        % accelerometer
-
-		       
 		       
 if (status == TILT_UNINIT)
   [tilt_angle, tilt_bias, tilt_rate, tilt_P] = tilt_init(gyro, accel);
 else
-  [tilt_angle, tilt_rate, tilt_P] = tilt_predict(gyro, tilt_P, ...
-						 tilt_angle, tilt_bias, ...
-						 tilt_dt);
+  [tilt_angle, tilt_rate, tilt_P] = ...
+      tilt_predict(gyro, tilt_P, ...
+		   tilt_angle, tilt_bias, tilt_rate, ...
+		   tilt_dt);
   if (status == TILT_UPDATE)
     [tilt_angle, tilt_bias, tilt_P] = tilt_update(accel, tilt_R, tilt_P, ...
-						  tilt_angle, ...
-						  tilt_bias);
+						  tilt_angle, tilt_bias);
   end
 end		       
 
@@ -42,6 +46,7 @@ rate = tilt_rate;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 function [angle, bias, rate, P] = tilt_init(gyro, accel)
 angle = theta_of_accel(accel);
+%angle = phi_of_accel(accel);
 
 bias = gyro(2);
 
@@ -59,12 +64,13 @@ P = [ 1 0
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 function [angle_out, rate_out, P_out] = tilt_predict(gyro, P_in, ...
-						     angle_in,  bias, ...
+						     angle_in,  bias, rate,...
 						     dt)
 rate_out = gyro(2) - bias;
+%rate_out = gyro(1) - bias;
 
 % update state ( X += Xdot * dt )
-angle_out = angle_in + rate_out * dt;
+angle_out = angle_in + (rate + rate_out) / 2 * dt;
 
 % update covariance ( Pdot = A*P + P*A' + Q )
 %                   ( P += Pdot * dt        ) 
@@ -98,6 +104,7 @@ function [angle_out, bias_out, P_out] = tilt_update(accel, R, P_in, ...
 						    bias_in)
 
 measure_angle = theta_of_accel(accel);
+%measure_angle = phi_of_accel(accel);
 err = measure_angle - angle_in;
 
 C = [ 1 0 ];
