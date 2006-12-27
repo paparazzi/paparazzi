@@ -416,7 +416,7 @@ int main(int argc, char *argv[])
                     /* do checksum for first block (LE machines) */
                     if (countPage == 0)
                     {
-                        unsigned int * dat = (unsigned int *) startBuf->data;
+                        unsigned int * dat = (unsigned int *) (binElf+src);
                         unsigned int crc = 0;
                         int count;
 
