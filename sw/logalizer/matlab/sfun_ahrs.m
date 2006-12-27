@@ -34,6 +34,7 @@ Q = [ 0 0 0 0  0  0  0
       0 0 0 0  0 qg  0
       0 0 0 0  0  0 qg ];
 
+%disp(sprintf('flag %d', flag));
 switch flag,
 
   %%%%%%%%%%%%%%%%%%
@@ -41,16 +42,11 @@ switch flag,
   %%%%%%%%%%%%%%%%%%
  case 0,
   ahrs_state = 0;
-  ahrs_quat = quat_of_eulers([0 0 0]);
+  ahrs_quat = quat_of_eulers([0 0 0]');
   ahrs_biases = [0 0 0]';
   ahrs_rates = [0 0 0]';
+  ahrs_init(1, [0 0 0]', [0 0 0], [0 0 0]);
   [sys,x0,str,ts]=mdlInitializeSizes(ahrs_dt);
-  
-  %%%%%%%%%%%%%%%
-  % Derivatives %
-  %%%%%%%%%%%%%%%
- case 1,
-  sys=mdlDerivatives(t,x,u);
   
   %%%%%%%%%%
   % Update %
@@ -60,8 +56,9 @@ switch flag,
   mag   = u(4:6);
   accel = u(7:9);
   if (ahrs_state == AHRS_UNINIT)
-    [ahrs_quat ahrs_biases ahrs_rates ahrs_P] = ...
-	ahrs_init(gyro, accel, mag);
+    [filter_initialised, ahrs_quat ahrs_biases ahrs_rates ahrs_P] = ...
+	ahrs_init(0, gyro, accel, mag);
+    if( filter_initialised ) ahrs_state = AHRS_STEP_PHI;, end;
   else
     [ahrs_quat ahrs_rates ahrs_P] = ...
 	ahrs_predict(ahrs_P, Q, gyro, ahrs_quat, ahrs_biases,...
@@ -85,32 +82,25 @@ switch flag,
       wrap = pi;
       H = get_dpsi_dq(ahrs_quat);
     end;
-    error = get_error(measure, estimate, pi);
+    error = get_error(measure, estimate, wrap);
     [ahrs_quat ahrs_biases ahrs_P] = ...
 	ahrs_update(H, error, R(ahrs_state), ahrs_P, ahrs_quat, ahrs_biases);
+    ahrs_state = ahrs_state+1;
+    if (ahrs_state > AHRS_STEP_PSI), ahrs_state = AHRS_STEP_PHI;, end; 
   end;
-  ahrs_state = ahrs_state+1;
-  if (ahrs_state > AHRS_STEP_PSI), ahrs_state = AHRS_STEP_PHI;, end; 
-  sys=mdlUpdate(t,x,u);
-
+  sys = [];
   %%%%%%%%%%%
   % Outputs %
   %%%%%%%%%%%
   case 3,
-   sys=mdlOutputs(t,x,u, ahrs_quat, ahrs_biases, ahrs_rates);
-
-  %%%%%%%%%%%%%%%%%%%%%%%
-  % GetTimeOfNextVarHit %
-  %%%%%%%%%%%%%%%%%%%%%%%
-  case 4,
-    sys=mdlGetTimeOfNextVarHit(t,x,u);
-
+   eulers = eulers_of_quat(ahrs_quat);
+   sys = [eulers(1) eulers(2) eulers(3) ahrs_rates(1) ahrs_rates(2) ...
+	  ahrs_rates(3) ahrs_biases(1) ahrs_biases(2) ahrs_biases(3)];
   %%%%%%%%%%%%%
   % Terminate %
   %%%%%%%%%%%%%
   case 9,
-    sys=mdlTerminate(t,x,u);
-
+    sys = [];
   %%%%%%%%%%%%%%%%%%%%
   % Unexpected flags %
   %%%%%%%%%%%%%%%%%%%%
@@ -142,79 +132,60 @@ str = [];
 ts  = [period 0];
 
 % end mdlInitializeSizes 
-   
-   
-%
-% begin mdlDerivatives 
-%
-function sys=mdlDerivatives(t,x,u)
-
-sys = [];
-% end mdlDerivatives   
-
-%
-% begin mdlUpdate 
-%   
-function sys=mdlUpdate(t,x,u)
-
-sys = [];
-% end mdlUpdate  
-   
-
-%
-% begin mdlOutputs 
-%   
-function sys=mdlOutputs(t,x,u, ahrs_quat, ahrs_biases, ahrs_rates)
-eulers = eulers_of_quat(ahrs_quat);
-
-sys = [eulers(1) eulers(2) eulers(3) ahrs_rates(1) ahrs_rates(2) ...
-       ahrs_rates(3) ahrs_biases(1) ahrs_biases(2) ahrs_biases(3)];
-% end mdlOutputs
-
-%
-% begin mdlGetTimeOfNextVarHit 
-%   
-function sys=mdlGetTimeOfNextVarHit(t,x,u)
-sampleTime = 1; 
-sys = t + sampleTime;
-% end mdlGetTimeOfNextVarHit
-
-%
-% begin mdlTerminate 
-%   
-function sys=mdlTerminate(t,x,u)
-sys = [];
-% end mdlTerminate
 
 %
 %
 % Initialisation
 %
 %
-function [quat, biases, rates, P] = ahrs_init(gyro, accel, mag)
-persistent mean_gyro;
-persistent mean_accel;
-persistent mean_mag;
+function [filter_initialised, quat, biases, rates, P] = ...
+    ahrs_init(reset, gyro, accel, mag)
+persistent saved_gyro;
+persistent saved_accel;
+persistent saved_mag;
+persistent nb_init;
 
-mean_gyro
+if (reset)
+  nb_init = 0;
+  saved_gyro = [];
+  saved_accel = [];
+  saved_mag = [];
+  return;
+end;
 
-phi = phi_of_accel(accel);
-theta = theta_of_accel(accel);
-psi = psi_of_mag(mag, phi, theta);
+nb_init = nb_init+1;
+saved_gyro(:, nb_init) = gyro;
+saved_accel(:, nb_init) = accel;
+saved_mag(:, nb_init) = mag;
 
-quat = quat_of_eulers([phi, theta, psi]);
-%quat = quat_of_eulers([0 0 0]);
-biases = gyro;
-%biases = [0 0 0]';
-rates = [0 0 0]';
-P = [ 1 0 0 0 0 0 0
-      0 1 0 0 0 0 0
-      0 0 1 0 0 0 0
-      0 0 0 1 0 0 0
-      0 0 0 0 0 0 0
-      0 0 0 0 0 0 0
-      0 0 0 0 0 0 0 ];
-
+if (nb_init < 50)
+  quat = quat_of_eulers([0 0 0]');
+  biases = [0 0 0]';
+  filter_initialised = 0;
+else
+  mean_gyro = average_vector(saved_gyro);
+  mean_accel = average_vector(saved_accel);
+  mean_mag = average_vector(saved_mag);
+  phi = phi_of_accel(mean_accel);
+  theta = theta_of_accel(mean_accel);
+  psi = psi_of_mag(mean_mag, phi, theta);
+  quat = quat_of_eulers([phi, theta, psi]);
+  biases = mean_gyro;
+  mgd = mean_gyro * 180 / pi;
+  atd = [phi, theta, psi] * 180 / pi;
+  disp('init done');
+  disp(sprintf('initial biases %f %f %f',mgd(1), mgd(2), mgd(3))); 
+  disp(sprintf('initial attitude %f %f %f',atd(1), atd(2), atd(3))); 
+  filter_initialised = 1;
+end;
+  rates = [0 0 0];
+  P = [ 1 0 0 0 0 0 0
+	0 1 0 0 0 0 0
+	0 0 1 0 0 0 0
+	0 0 0 1 0 0 0
+	0 0 0 0 0 0 0
+	0 0 0 0 0 0 0
+	0 0 0 0 0 0 0 ];
 
 %
 %
@@ -341,3 +312,7 @@ err = measure - estimate;
 if (err > wrap), err = err - 2*wrap, end;
 if (err < -wrap), err = err + 2*wrap, end;
 
+function [avg] = average_vector(vector)
+avg = [ mean(vector(1, 1:length(vector)))
+	mean(vector(2, 1:length(vector)))
+	mean(vector(3, 1:length(vector))) ];
