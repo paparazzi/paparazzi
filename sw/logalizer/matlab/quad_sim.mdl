@@ -6,7 +6,7 @@ Model {
     NumRootInports	    0
     NumRootOutports	    0
     ParameterArgumentNames  ""
-    ComputedModelVersion    "1.128"
+    ComputedModelVersion    "1.130"
     NumModelReferences	    0
     NumTestPointedSignals   0
   }
@@ -55,8 +55,8 @@ Model {
   ModifiedByFormat	  "%<Auto>"
   LastModifiedBy	  "poine"
   ModifiedDateFormat	  "%<Auto>"
-  LastModifiedDate	  "Thu Dec 28 00:11:03 2006"
-  ModelVersionFormat	  "1.%<AutoIncrement:128>"
+  LastModifiedDate	  "Fri Dec 29 01:09:45 2006"
+  ModelVersionFormat	  "1.%<AutoIncrement:130>"
   ConfigurationManager	  "none"
   LinearizationMsg	  "none"
   Profile		  off
@@ -494,10 +494,6 @@ Model {
       SampleTime	      "-1"
     }
     Block {
-      BlockType		      SignalConversion
-      OverrideOpt	      off
-    }
-    Block {
       BlockType		      Inport
       UseBusObject	      off
       BusObject		      "BusObject"
@@ -695,17 +691,6 @@ Model {
       LockScale		      off
       RndMeth		      "Floor"
       SaturateOnIntegerOverflow	on
-      SampleTime	      "-1"
-    }
-    Block {
-      BlockType		      Switch
-      Criteria		      "u2 >= Threshold"
-      Threshold		      "0"
-      InputSameDT	      on
-      OutDataTypeMode	      "Inherit via internal rule"
-      RndMeth		      "Floor"
-      SaturateOnIntegerOverflow	on
-      ZeroCross		      on
       SampleTime	      "-1"
     }
     Block {
@@ -1590,6 +1575,7 @@ Model {
 	DialogParameters {
 	  Mass			  "0.5"
 	  Vm_0			  "[0 0 0]"
+	  Inertia		  "[0.0112 0 0; 0 0.0112 0; 0 0 0.0225]"
 	}
       }
       BlockChoice	      "Euler Angles"
@@ -1661,7 +1647,7 @@ Model {
 	  eul_0			  "[0 0 0]"
 	  pm_0			  "[0 0 0]"
 	  Mass			  "0.5"
-	  Inertia		  "eye(3)"
+	  Inertia		  "[0.0112 0 0; 0 0.0112 0; 0 0 0.0225]"
 	}
 	Block {
 	  BlockType		  Outport
@@ -1806,7 +1792,7 @@ Model {
       System {
 	Name			"FDM"
 	Location		[13, 122, 1278, 905]
-	Open			off
+	Open			on
 	ModelBrowserVisibility	off
 	ModelBrowserWidth	200
 	ScreenColor		"white"
@@ -2149,18 +2135,6 @@ Model {
       LimitDataPoints	      off
     }
     Block {
-      BlockType		      Reference
-      Name		      "Manual Switch"
-      Ports		      [2, 1]
-      Position		      [425, 652, 455, 688]
-      Orientation	      "left"
-      SourceBlock	      "simulink/Signal\nRouting/Manual Switch"
-      SourceType	      "Manual Switch"
-      ShowPortLabels	      on
-      sw		      "1"
-      action		      "0"
-    }
-    Block {
       BlockType		      Mux
       Name		      "Mux"
       Ports		      [2, 1]
@@ -2216,8 +2190,8 @@ Model {
       RTWSystemCode	      "Auto"
       System {
 	Name			"Sensors"
-	Location		[183, 100, 1278, 938]
-	Open			on
+	Location		[183, 77, 1278, 915]
+	Open			off
 	ModelBrowserVisibility	off
 	ModelBrowserWidth	200
 	ScreenColor		"white"

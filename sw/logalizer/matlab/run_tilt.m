@@ -30,36 +30,48 @@ m_accel = [ mean(accel(1, 1:nb_init))
 
 tilt(tilt_status, m_gyro, m_accel);
 
-[n, m] = size(gyro);
-
-for idx = 1:m
+for idx = 1:length(gyro)
   if ( mod(idx, 10) == 0)
     tilt_status = 2;
   else
     tilt_status = 1;
   end
-  [theta_est(idx), bias(idx)] = tilt(tilt_status, gyro(:,idx), accel(:,idx));
+  [theta_est(idx), bias(idx), rate_est(idx), cov(:,:,idx)] = tilt(tilt_status, gyro(:,idx), accel(:,idx));
   theta_measure(idx) = theta_of_accel(accel(:,idx));
 %  theta_measure(idx) = phi_of_accel(accel(:,idx));
 end;
 
-subplot(3,1,1)
-plot(t, theta_measure, t, theta_est, 'r');
+subplot(4,1,1)
+plot(t, theta_measure*180/pi, t, theta_est*180/pi, 'r');
 title('angle');
 legend('measure', 'estimation');
+xlabel('time in s');
+ylabel('angle in degres');
 
-subplot(3,1,2)
-plot (t, gyro(2,:));
+subplot(4,1,2)
+plot (t, gyro(2,:)*180/pi, t, rate_est*180/pi);
 title('rate');
+legend('measure', 'estimation');
+ylabel('rate in degres/s');
 
+avg_bias = mean(bias)*180/pi
+std_bias = std(bias)*180/pi
 
-avg_bias = mean(bias)
-std_bias = std(bias)
-
-subplot(3,1,3)
-plot(t, bias, t, avg_bias * ones(size(bias)),...
+subplot(4,1,3)
+plot(t, bias*180/pi, ...
+     t, avg_bias * ones(size(bias)),...
      t, (avg_bias + std_bias) * ones(size(bias)),...
      t, (avg_bias - std_bias) * ones(size(bias)));
 title('bias');
+ylabel('bias in degres/s');
 
+for idx=1:length(gyro)
+  P00(idx) = cov(1,1,idx);
+  P01(idx) = cov(1,2,idx);
+  P11(idx) = cov(2,2,idx);
+end;
 
+subplot(4,1,4)
+plot(t, P00, t, P01, t, P11)
+legend('P00', 'P01', 'P11');
+title('error covariance');
