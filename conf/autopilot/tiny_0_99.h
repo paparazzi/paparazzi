@@ -71,23 +71,15 @@
 #define USE_AD0_1
 #endif
 
-#define ADC_3 AdcBank0(4)
+#define ADC_3 AdcBank1(7)
 #ifdef USE_ADC_3
-#ifndef USE_AD0
-#define USE_AD0
-#endif
-#define USE_AD0_4
-#endif
-
-#define ADC_4 AdcBank1(7)
-#ifdef USE_ADC_4
 #ifndef USE_AD1
 #define USE_AD1
 #endif
 #define USE_AD1_7
 #endif
 
-#define ADC_5 AdcBank1(3)
+#define ADC_4 AdcBank1(3)
 #ifdef USE_ADC_4
 #ifndef USE_AD1
 #define USE_AD1
@@ -95,20 +87,28 @@
 #define USE_AD1_3
 #endif
 
-#define ADC_6 AdcBank1(4)
-#ifdef USE_ADC_4
+#define ADC_5 AdcBank1(4)
+#ifdef USE_ADC_5
 #ifndef USE_AD1
 #define USE_AD1
 #endif
 #define USE_AD1_4
 #endif
 
-#define ADC_7 AdcBank1(5)
-#ifdef USE_ADC_4
+#define ADC_6 AdcBank1(5)
+#ifdef USE_ADC_6
 #ifndef USE_AD1
 #define USE_AD1
 #endif
 #define USE_AD1_5
+#endif
+
+#define ADC_7 AdcBank1(2)
+#ifdef USE_ADC_7
+#ifndef USE_AD1
+#define USE_AD1
+#endif
+#define USE_AD1_2
 #endif
 
 #define ADC_CHANNEL_VSUPPLY AdcBank1(6)
