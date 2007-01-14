@@ -103,7 +103,10 @@ let background = cols#add Gobject.Data.string
 let id = cols#add Gobject.Data.int
 
 let string_of_attribs = fun attribs ->
-  String.concat " " (List.map (fun (a,v) -> sprintf "%s=\"%s\"" a v) attribs)
+  match attribs with
+    ["PCData", data] -> data
+  | _ ->
+      String.concat " " (List.map (fun (a,v) -> sprintf "%s=\"%s\"" a v) attribs)
 
 type id = int
 let gen_id = 
@@ -117,6 +120,34 @@ let set_xml = fun (store:GTree.tree_store) row xml ->
   store#set ~row ~column:event (fun _ -> ());
   store#set ~row ~column:id (gen_id ())
 
+let encode_crs =
+  let r = Str.regexp "\n" in
+  fun s ->
+    Str.global_replace r "\\n" s
+
+(** Doesn' work. OCaml bug ?
+let recode_crs = 
+  let r = Str.regexp "\\n" in
+  fun s ->
+    Str.global_replace r "\n" s
+*)
+
+let recode_crs = fun s ->
+  let n = String.length s in
+  let s' = String.create n in
+  let i = ref 0 and j = ref 0 in
+  while !i < n do
+    if !i < n-1 && s.[!i] == '\\' && s.[!i+1] == 'n' then begin
+      s'.[!j] <- '\n';
+      incr i
+    end else
+      s'.[!j] <- s.[!i];
+    incr i; incr j
+  done;
+  String.sub s' 0 !j
+    
+
+
 
 let rec insert_xml = fun (store:GTree.tree_store) parent xml ->
   match xml with
@@ -124,8 +155,14 @@ let rec insert_xml = fun (store:GTree.tree_store) parent xml ->
       let row = store#append ~parent () in
       set_xml store row xml;
       List.iter (fun x -> insert_xml store row x) (Xml.children xml)
-  | _ ->
-      fprintf stderr "Warning: Ignoring PCData '%s'\n%!" (Xml.pcdata xml)
+  | Xml.PCData data ->
+      let row = store#append ~parent () in
+      store#set ~row ~column:tag_col "PCData";
+      store#set ~row ~column:background default_background;
+      store#set ~row ~column:attributes ["PCData", encode_crs data];
+      store#set ~row ~column:event (fun _ -> ());
+      store#set ~row ~column:id (gen_id ())
+
 
 
 let tree_model_of_xml = fun xml ->
@@ -342,9 +379,14 @@ let children = fun ((model, path):node) ->
 
 let rec xml_of_node = fun (node:node) -> 
   let attrs = attribs node
-  and tag = tag node
-  and children = List.map xml_of_node (children node) in
-  Xml.Element (tag, List.sort compare attrs, children)
+  and tag = tag node in
+  if tag = "PCData" then
+    match attrs with
+      ["PCData", data] -> Xml.PCData (sprintf "\n%s\n" (recode_crs data))
+    | _ -> failwith (sprintf "Wrong data in %s\n" tag)
+  else
+    let children = List.map xml_of_node (children node) in
+    Xml.Element (tag, List.sort compare attrs, children)
 
 let xml_of_view = fun (tree:t) ->
   xml_of_node (root tree)

@@ -81,6 +81,65 @@ let attrib_or_default = fun x a default ->
   try Xml.attrib x a with _ -> default
 
 
+(** Code patched from xml.ml from xml-light package: PC Data formatting removed *)
+let tmp = Buffer.create 200
+let buffer_attr (n,v) =
+        Buffer.add_char tmp ' ';
+        Buffer.add_string tmp n;
+        Buffer.add_string tmp "=\"";
+        let l = String.length v in
+        for p = 0 to l-1 do
+                match v.[p] with
+                | '\\' -> Buffer.add_string tmp "\\\\"
+                | '"' -> Buffer.add_string tmp "\\\""
+                | c -> Buffer.add_char tmp c
+        done;
+        Buffer.add_char tmp '"'
+let buffer_pcdata = Buffer.add_string tmp
+let my_to_string_fmt x =
+  let rec loop ?(newl=false) tab = function
+    | Xml.Element (tag,alist,[]) ->
+        Buffer.add_string tmp tab;
+        Buffer.add_char tmp '<';
+        Buffer.add_string tmp tag;
+        List.iter buffer_attr alist;
+        Buffer.add_string tmp "/>";
+        if newl then Buffer.add_char tmp '\n';
+    | Xml.Element (tag,alist,[Xml.PCData text]) ->
+        Buffer.add_string tmp tab;
+        Buffer.add_char tmp '<';
+        Buffer.add_string tmp tag;
+        List.iter buffer_attr alist;
+        Buffer.add_string tmp ">";
+        buffer_pcdata text;
+        Buffer.add_string tmp "</";
+        Buffer.add_string tmp tag;
+        Buffer.add_char tmp '>';
+        if newl then Buffer.add_char tmp '\n';
+    | Xml.Element (tag,alist,l) ->
+        Buffer.add_string tmp tab;
+        Buffer.add_char tmp '<';
+        Buffer.add_string tmp tag;
+        List.iter buffer_attr alist;
+        Buffer.add_string tmp ">\n";
+        List.iter (loop ~newl:true (tab^"  ")) l;
+        Buffer.add_string tmp tab;
+        Buffer.add_string tmp "</";
+        Buffer.add_string tmp tag;
+        Buffer.add_char tmp '>';
+        if newl then Buffer.add_char tmp '\n';
+    | Xml.PCData text ->
+        buffer_pcdata text;
+        if newl then Buffer.add_char tmp '\n';
+  in
+  Buffer.reset tmp;
+  loop "" x;
+  let s = Buffer.contents tmp in
+  Buffer.reset tmp;
+  s
+
+
+
 let to_string_fmt = fun xml ->
   let l = String.lowercase in
   let rec lower = function
@@ -89,7 +148,7 @@ let to_string_fmt = fun xml ->
 	Xml.Element(l t,
 		    List.map (fun (a,v) -> (l a, v)) ats,
 		    List.map lower cs) in
-  Xml.to_string_fmt (lower xml)
+  my_to_string_fmt (lower xml)
 
 
 let subst_attrib = fun attrib value xml ->
