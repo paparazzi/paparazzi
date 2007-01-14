@@ -378,7 +378,7 @@ static void navigation_task( void ) {
  */
 /**There are four @@@@@ boucles @@@@@:
  * - 20 Hz:
- *   - lets use \a reporting_task at 10 Hz
+ *   - lets use \a reporting_task at 60 Hz
  *   - updates ir with \a ir_update
  *   - updates estimator of ir with \a estimator_update_state_infrared
  *   - set \a desired_aileron and \a desired_elevator with \a pid_attitude_loop
@@ -408,13 +408,11 @@ void periodic_task_ap( void ) {
   if (_4Hz>=15) _4Hz=0;
   _1Hz++;
   if (_1Hz>=61) _1Hz=0;
-	  
- 
+
+  reporting_task();
   
   if (!_10Hz) {
-
     stage_time_ds = stage_time_ds + .1;
-    reporting_task();
   }
 
   if (!_1Hz) {

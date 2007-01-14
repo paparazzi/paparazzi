@@ -206,8 +206,7 @@ void periodic_task_fbw( void ) {
 #endif
 
 #ifdef DOWNLINK
-  if (!_10Hz)
-    fbw_downlink_periodic_task();
+  fbw_downlink_periodic_task();
 #endif
 
 #ifdef ADC
