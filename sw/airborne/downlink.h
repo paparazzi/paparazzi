@@ -50,12 +50,12 @@
 #endif /** !SITL */
 
 #ifdef AP
-/** Telemetry mode for FBW process: index in the telemetry.xml file */
+/** Telemetry mode for AP process: index in the telemetry.xml file */
 extern uint8_t telemetry_mode_Ap;
 #endif
 
 #ifdef FBW
-/** Telemetry mode for AP process: index in the telemetry.xml file */
+/** Telemetry mode for FBW process: index in the telemetry.xml file */
 extern uint8_t telemetry_mode_Fbw;
 #endif
 

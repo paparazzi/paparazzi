@@ -1,5 +1,5 @@
-#ifndef CONFIG_PPRZ_IMU_H
-#define CONFIG_PPRZ_IMU_H
+#ifndef CONFIG_MOTOR_BENCH_H
+#define CONFIG_MOTOR_BENCH_H
 
 /* Master oscillator freq.       */
 #define FOSC (12000000) 
@@ -13,17 +13,10 @@
 /* Peripheral bus clock freq.    */
 #define PCLK (CCLK / PBSD_VAL) 
 
-#define ADC_CHANNEL_AX  2
-#define ADC_CHANNEL_AY  1
-#define ADC_CHANNEL_AZ  3
-#define ADC_CHANNEL_BAT 4
-
 #define LED_1_BANK 0
-#define LED_1_PIN 2
+#define LED_1_PIN 12
 
 #define LED_2_BANK 0
-#define LED_2_PIN 3
+#define LED_2_PIN 13
 
-
-
-#endif /* CONFIG_PPRZ_IMU_H */
+#endif /* CONFIG_MOTOR_BENCH_H */

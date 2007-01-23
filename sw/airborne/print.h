@@ -51,8 +51,16 @@
     _PrintHex(out_fun, low16);				\
 }
 
+#define _PrintHex32(out_fun, c ) {			\
+    uint16_t high32 = (uint16_t)(c>>16);			\
+    uint16_t low32  = (uint16_t)(c);			\
+    _PrintHex16(out_fun, high32);				\
+    _PrintHex16(out_fun, low32);				\
+}
+
 #define Uart0PrintHex(c) _PrintHex(uart0_transmit, c)
 #define Uart0PrintHex16(c) _PrintHex16(uart0_transmit, c)
+#define Uart0PrintHex32(c) _PrintHex32(uart0_transmit, c)
 #define Uart0PrintString(s) _PrintString(uart0_transmit, s)
 
 #define Uart1PrintHex(c) _PrintHex(uart1_transmit, c)
