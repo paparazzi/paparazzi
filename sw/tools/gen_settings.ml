@@ -46,22 +46,27 @@ let rec flatten = fun xml r ->
     | x::xs ->
 	List.iter (fun y -> assert(ExtXml.tag_is y (Xml.tag x))) xs;
 	List.fold_right flatten (x::xs) r
+
+
+module StringSet = Set.Make(struct type t = string let compare = compare end)
 	  
 
 let print_dl_settings = fun settings ->
   let settings = flatten settings [] in
-    (** include  headers **)
-    (** FIXME : add header only once **)
-    printf "\n";
-    List.iter 
+
+  (** include  headers **)
+  let modules = ref StringSet.empty in
+  List.iter 
     (fun s ->
-       try
-	 let v = ExtXml.attrib s "module" in
-	   printf "#include \"%s.h\"\n" v
-       with  ExtXml.Error e -> ()
+      try
+	modules := StringSet.add (ExtXml.attrib s "module") !modules
+      with ExtXml.Error e -> ()
     ) 
-      settings;
-    printf "\n";
+    settings;
+
+  lprintf "\n";
+  StringSet.iter (fun m -> lprintf "#include \"%s.h\"\n" m) !modules;
+  lprintf "\n";
     
   (** Macro to call to set one variable *)
   lprintf "#define DlSetting(_idx, _value) { \\\n";
