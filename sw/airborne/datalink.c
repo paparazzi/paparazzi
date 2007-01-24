@@ -45,6 +45,7 @@
 #include "gps.h"
 #include "uart.h"
 #include "gpio.h"
+#include "ant_tracker.h"
 
 #include "control_grz.h"
 #include "settings.h"

@@ -20,6 +20,8 @@ static inline void main_init( void );
 static inline void main_periodic_task( void );
 static inline void main_event_task( void);
 
+uint8_t track_mode;
+
 int main( void ) {
   main_init();
   LED_ON(1);
