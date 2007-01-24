@@ -64,6 +64,17 @@ clean:
 	rm -f *~* *.cm* *.o *.out *.opt map2d gcs .depend
 
 
+
+
+CC = gcc
+CFLAGS=-g -O2 -Wall `pkg-config gtk+-2.0 --cflags`
+LDFLAGS=`pkg-config gtk+-2.0 --libs` -s `pcre-config --libs` -lglibivy
+
+
+ant_track : ant_track.c
+	$(CC) $(CFLAGS) -g -o $@ $^ $(LDFLAGS)
+
+
 #
 # Dependencies
 #

@@ -356,6 +356,13 @@
       <field name="mag_cal_status" type="uint8"/>
   </message>
 
+  <message name="ANTENNA_STATUS" ID="221">
+      <field name="azim_sp" type="float"/>
+      <field name="elev_sp" type="float"/>
+      <field name="id_sp" type="uint8"/>
+      <field name="mode" type="uint8"/>
+  </message>
+
 </class>
 
 

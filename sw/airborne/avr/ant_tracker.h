@@ -11,7 +11,19 @@ extern float ant_track_azim;
 extern float ant_track_elev;
 extern uint8_t ant_track_id;
 
-#define ant_tracker_SetId(i) { ant_track_id = i; }
+#include "led.h"
 
+#define ant_tracker_SetId(i) { ant_track_id = i; }
+#define ant_tracker_SetMode(i) \
+  {			       \
+    ant_track_mode = i;	       \
+    if(ant_track_mode)	       \
+      LED_ON(1);	       \
+    else		       \
+      LED_OFF(1);	       \
+  }
+
+
+extern void ant_tracker_update( void );
 
 #endif /* ANT_TRACKER_H */

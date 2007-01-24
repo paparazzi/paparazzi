@@ -16,6 +16,8 @@
 #include "messages.h"
 #include "downlink.h"
 
+#include "ant_tracker.h"
+
 static inline void main_init( void );
 static inline void main_periodic_task( void );
 static inline void main_event_task( void);
@@ -39,6 +41,7 @@ static inline void main_init( void ) {
   sys_time_init();
   led_init();
   uart1_init_tx();
+  uart1_init_rx();
   adc_init();
   int_enable();
 }
@@ -56,6 +59,7 @@ static inline void main_event_task( void ) {
   }
 
   if (PprzBuffer()) {
+    LED_TOGGLE(1);
     ReadPprzBuffer();
     if (pprz_msg_received) {
       pprz_parse_payload();
@@ -74,9 +78,10 @@ static inline void main_periodic_task( void ) {
   cnt++;
   if (!(cnt%16)) {
     LED_TOGGLE(2);
-    //    uart1_transmit('#');
-    //    Uart1PrintHex(cnt);
-    //    uart1_transmit('\n');
+    DOWNLINK_SEND_ANTENNA_STATUS(&ant_track_azim, &ant_track_elev, &ant_track_id, &ant_track_mode);
+  }
+  if (!(cnt%4)) {
+    ant_tracker_update();
   }
 }
 
