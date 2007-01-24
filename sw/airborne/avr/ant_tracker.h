@@ -11,4 +11,7 @@ extern float ant_track_azim;
 extern float ant_track_elev;
 extern uint8_t ant_track_id;
 
+#define ant_tracker_SetId(i) { ant_track_id = i; }
+
+
 #endif /* ANT_TRACKER_H */

@@ -27,6 +27,8 @@ min CDATA #REQUIRED
 max CDATA #REQUIRED
 step CDATA #IMPLIED
 shortname CDATA #IMPLIED
+module CDATA #IMPLIED
+handler CDATA #IMPLIED
 >
 
 <!ATTLIST strip_button

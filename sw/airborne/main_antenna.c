@@ -44,6 +44,7 @@ static inline void main_init( void ) {
 }
 
 static inline void main_event_task( void ) {
+ 
   if (ant_v2x_data_available) {
     ant_v2x_read_data();
     DOWNLINK_SEND_ANTENNA_DEBUG(&ant_v2x_data.xraw, &ant_v2x_data.yraw, \
@@ -53,6 +54,19 @@ static inline void main_event_task( void ) {
                                 &ant_v2x_data.cal_status);
     ant_v2x_data_available = FALSE;
   }
+
+  if (PprzBuffer()) {
+    ReadPprzBuffer();
+    if (pprz_msg_received) {
+      pprz_parse_payload();
+      pprz_msg_received = FALSE;
+    }
+  }
+  if (dl_msg_available) {
+    dl_parse_msg();
+    dl_msg_available = FALSE;
+  }
+
 }
 
 static inline void main_periodic_task( void ) {

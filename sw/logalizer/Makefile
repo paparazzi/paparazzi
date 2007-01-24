@@ -47,7 +47,6 @@ imuview : imuview.c sliding_plot.c
 test_sliding_plot: test_sliding_plot.c sliding_plot.c
 	$(CC) $(CFLAGS) -g -o $@ $^ $(LDFLAGS)
 
-#MORE_FLAGS = -I/usr/include/gtk-1.2 -I/usr/include/glib-1.2 -I/usr/lib/glib/include -rdynamic  /home/poine/tmp/gtkglarea-1.2.3/gtkgl/.libs/libgtkgl.so -L/usr/lib -L/usr/X11R6/lib /usr/lib/libgtk.so /usr/lib/libgdk.so /usr/lib/libgmodule.so /usr/lib/libglib.so -ldl -lXi -lXext -lX11 -lm -lGLU -lGL  -Wl,--rpath -Wl,/usr/local/lib
 MORE_FLAGS = -I/usr/include/gtk-1.2 -I/usr/include/glib-1.2 -I/usr/lib/glib/include -rdynamic  /usr/lib/libgtkgl.so -L/usr/lib -L/usr/X11R6/lib /usr/lib/libgtk.so /usr/lib/libgdk.so /usr/lib/libgmodule.so /usr/lib/libglib.so -ldl -lXi -lXext -lX11 -lm -lGLU -lGL  -Wl,--rpath -Wl,/usr/local/lib `pcre-config --libs` -lglibivy
  
 MORE_CFLAGS = -DHAVE_DLFCN_H=1 -DSTDC_HEADERS=1  -I. -I.  -I..    -g -O2 -I/usr/include/gtk-1.2 -I/usr/include/glib-1.2 -I/usr/lib/glib/include
@@ -65,15 +64,17 @@ clean:
 	rm -f *.opt *.out *~ core *.o *.bak .depend *.cm* play ahrsview imuview ahrs2fg
 
 #FGFS_PREFIX=/home/poine/local
-FGFS_PREFIX=/usr/local
+FGFS_PREFIX=/home/poine/flightgear
+#FGFS_PREFIX=/usr/local
 
-FGFS_ROOT = /home/poine/local
-#FGFS = $(FGFS_PREFIX)/bin/fgfs
-FGFS = /usr/games/fgfs
+#FGFS_ROOT = /home/poine/local
+FGFS_ROOT = /home/poine/flightgear
+FGFS = $(FGFS_PREFIX)/bin/fgfs
+#FGFS = /usr/games/fgfs
 #FGFS_ENV = LD_LIBRARY_PATH=/usr/local/lib:$(FGFS_ROOT)/lib
 FGFS_ENV = LD_LIBRARY_PATH=$(FGFS_ROOT)/lib
-#FGFS_COMMON_ARGS = --fg-root=$(FGFS_ROOT)  --aircraft=A320 --timeofday=noon
-FGFS_COMMON_ARGS = --aircraft=737-300 --timeofday=noon
+FGFS_COMMON_ARGS = --fg-root=$(FGFS_ROOT)  --aircraft=A320 --timeofday=noon
+#FGFS_COMMON_ARGS = --aircraft=737-300 --timeofday=noon
 FGFS_IN_FDM_ARGS = $(FGFS_COMMON_ARGS) --fdm=null --native-fdm=socket,in,30,,5501,udp
 FGFS_OUT_FDM_ARGS = $(FGFS_COMMON_ARGS) --native-fdm=socket,out,30,,5500,udp
 FGFS_IN_GUI_ARGS = $(FGFS_COMMON_ARGS) --fdm=null --native-gui=socket,in,30,,5501,udp

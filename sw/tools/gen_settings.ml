@@ -50,6 +50,19 @@ let rec flatten = fun xml r ->
 
 let print_dl_settings = fun settings ->
   let settings = flatten settings [] in
+    (** include  headers **)
+    (** FIXME : add header only once **)
+    printf "\n";
+    List.iter 
+    (fun s ->
+       try
+	 let v = ExtXml.attrib s "module" in
+	   printf "#include \"%s.h\"\n" v
+       with  ExtXml.Error e -> ()
+    ) 
+      settings;
+    printf "\n";
+    
   (** Macro to call to set one variable *)
   lprintf "#define DlSetting(_idx, _value) { \\\n";
   right ();
@@ -59,7 +72,16 @@ let print_dl_settings = fun settings ->
   List.iter 
     (fun s ->
       let v = ExtXml.attrib s "var" in
-      lprintf "case %d: %s = _value; break;\\\n" !idx v; incr idx) 
+	begin
+	try
+	  let h = ExtXml.attrib s "handler" and
+	      m =  ExtXml.attrib s "module" in
+	    lprintf "case %d: %s_%s( _value ); break;\\\n" !idx m h 
+	with  
+	    ExtXml.Error e -> lprintf "case %d: %s = _value; break;\\\n" !idx v
+	end;
+	incr idx
+    ) 
     settings;
   left ();
   lprintf "}\\\n";
@@ -67,7 +89,7 @@ let print_dl_settings = fun settings ->
   lprintf "}\n";
   let nb_values = !idx in
 
-  (** Macro to call to download current values *)
+  (** Macro to call to downlink current values *)
   lprintf "#define PeriodicSendDlValue() { \\\n";
   if nb_values > 0 then begin
     right ();
