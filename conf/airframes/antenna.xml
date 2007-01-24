@@ -1,0 +1,44 @@
+<airframe name="ANTENNA">
+
+  <makefile>
+
+ARCHI=avr
+ant.ARCHDIR = $(ARCHI)
+ant.ARCH = atmega128
+ant.TARGET = ant
+ant.TARGETDIR = ant
+
+
+# 16MHz resonator
+ant.LOW_FUSE  = CF
+ant.HIGH_FUSE = 89
+ant.EXT_FUSE  = ff
+ant.LOCK_FUSE = ff
+
+
+ant.CFLAGS += -DCONFIG=\"antenna.h\"
+ant.srcs = main_antenna.c sys_time.c $(SRC_ARCH)/sys_time_hw.c
+
+ant.CFLAGS += -DLED
+
+ant.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B38400
+ant.srcs += $(SRC_ARCH)/uart_hw.c
+
+ant.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart1 
+ant.srcs += downlink.c pprz_transport.c
+
+ant.CFLAGS += -DDATALINK=PPRZ -DPPRZ_UART=Uart1
+ant.srcs += datalink.c
+
+#ant.CFLAGS += 
+ant.srcs += avr/ant_v2x.c avr/ant_spi.c
+
+ant.CFLAGS += -DADC -DUSE_AD0 -DUSE_AD0_1 -DUSE_AD0_2 -DUSE_AD0_3 -DUSE_AD0_4
+ant.srcs += $(SRC_ARCH)/adc_hw.c
+
+
+  </makefile>
+
+</airframe>
+
+
