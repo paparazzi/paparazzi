@@ -79,19 +79,19 @@ let output_modes = fun avr_h process_name modes ->
       (** For each message in this mode *)
       let messages = List.sort (fun (_,p) (_,p') -> compare p p') messages in
       let i = ref 0 in (** Basic balancing:1 message every 10Hz *)
-      let last_p = ref 0 in
+      let l = ref [] in
       List.iter
 	(fun (message, p) ->
 	  let message_name = ExtXml.attrib message "name" in
 	  i := !i mod p;
-	  let else_ = if p == !last_p then "else " else "" in
+	  let else_ = if List.mem_assoc p !l && not (List.mem (p, !i) !l) then "else " else "" in
 	  lprintf avr_h "%sif (i%d == %d) {\\\n" else_ p !i;
+	  l := (p, !i) :: !l;
 	  i := !i + freq/10;
 	  right ();
 	  lprintf avr_h "PERIODIC_SEND_%s();\\\n" message_name;
 	  left ();
-	  lprintf avr_h "} \\\n";
-	  last_p := p
+	  lprintf avr_h "} \\\n"
 	)
 	messages;
       left ();
