@@ -55,6 +55,7 @@ let airborne_device = fun device addr ->
   match device with
     "WAVECARD" -> WavecardDevice (W.addr_of_string addr)
   | "XBEE" -> XBeeDevice
+  | "PPRZ" -> Uart
   | _ -> failwith (sprintf "Link: unknown datalink: %s" device)
 
 let get_define = fun xml name ->
@@ -116,6 +117,7 @@ let airframes =
 	let device = get_define dls "DEVICE_TYPE"
 	and addr = get_define dls "DEVICE_ADDRESS" in
 	let dl = airborne_device device addr in
+	printf "%s %b\n%!" (ExtXml.attrib a "ac_id") (dl = Uart);
 	(ios (ExtXml.attrib a "ac_id"), dl)::r
       with
 	Not_found -> r
@@ -135,7 +137,7 @@ exception NotSendingToThis
 let airborne_device = fun ac_id airframes device ->
   let ac_device = try Some (List.assoc ac_id airframes) with Not_found -> None in
   match ac_device, device with
-    None, Pprz -> Uart
+    (None, Pprz) | (Some Uart, Pprz) -> Uart
   | (Some (WavecardDevice _ as ac_device), Wavecard) |
     (Some (XBeeDevice as ac_device), XBee) ->
       ac_device
@@ -611,7 +613,7 @@ let _ =
 
     if !uplink then begin
       (** Listening on Ivy (FIXME: remove the ad hoc messages) *)
-(***      ignore (Ground_Pprz.message_bind "FLIGHT_PARAM" (get_fp device)); ***)
+      ignore (Ground_Pprz.message_bind "FLIGHT_PARAM" (get_fp device));
       ignore (Ground_Pprz.message_bind "MOVE_WAYPOINT" (move_wp device));
       ignore (Ground_Pprz.message_bind "DL_SETTING" (setting device));
       ignore (Ground_Pprz.message_bind "JUMP_TO_BLOCK" (jump_block device));

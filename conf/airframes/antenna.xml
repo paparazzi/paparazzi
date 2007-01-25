@@ -1,14 +1,10 @@
 <airframe name="ANTENNA">
 
 
-<!--
- <section name="DATALINK" prefix="DATALINK_">
-    <define name="DEVICE_TYPE" value="XBEE"/>
+<section name="DATALINK" prefix="DATALINK_">
+    <define name="DEVICE_TYPE" value="PPRZ"/>
     <define name="DEVICE_ADDRESS" value="...."/>
-  </section>
--->
- <section name="DATALINK" prefix="DATALINK_">
-  </section>
+</section>
 
   <makefile>
 
