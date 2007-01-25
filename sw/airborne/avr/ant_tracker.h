@@ -18,12 +18,12 @@ extern uint8_t ant_track_id;
   {			       \
     ant_track_mode = i;	       \
     if(ant_track_mode)	       \
-      LED_ON(1);	       \
+      LED_ON(2);	       \
     else		       \
-      LED_OFF(1);	       \
+      LED_OFF(2);	       \
   }
 
 
-extern void ant_tracker_update( void );
-
+extern void ant_tracker_init( void );
+extern void ant_tracker_periodic( void );
 #endif /* ANT_TRACKER_H */

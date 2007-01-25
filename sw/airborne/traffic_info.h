@@ -29,7 +29,7 @@
 #ifndef TI_H
 #define TI_H
 
-#define NB_ACS 8
+#define NB_ACS 24
 
 struct ac_info_ {
   float east; /* m */

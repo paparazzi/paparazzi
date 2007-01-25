@@ -1,5 +1,15 @@
 <airframe name="ANTENNA">
 
+
+<!--
+ <section name="DATALINK" prefix="DATALINK_">
+    <define name="DEVICE_TYPE" value="XBEE"/>
+    <define name="DEVICE_ADDRESS" value="...."/>
+  </section>
+-->
+ <section name="DATALINK" prefix="DATALINK_">
+  </section>
+
   <makefile>
 
 ARCHI=avr
@@ -36,6 +46,7 @@ ant.srcs += avr/ant_tracker.c
 
 ant.CFLAGS += -DDATALINK=PPRZ -DPPRZ_UART=Uart1
 ant.srcs += datalink.c
+ant.srcs += traffic_info.c
 
 #ant.CFLAGS += 
 ant.srcs += avr/ant_v2x.c avr/ant_spi.c
