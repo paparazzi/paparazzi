@@ -1,5 +1,10 @@
 <airframe name="MOTOR_BENCH">
 
+<section name="DATALINK" prefix="DATALINK_">
+    <define name="DEVICE_TYPE" value="PPRZ"/>
+    <define name="DEVICE_ADDRESS" value="...."/>
+</section>
+
   <makefile>
 
 ARCHI=arm7
@@ -14,7 +19,7 @@ LPC21ISP_XTAL = 12000
 #FLASH_MODE = IAP
 FLASH_MODE = ISP
 
-mb.CFLAGS += -DCONFIG=\"motor_bench.h\" -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(10e-3)'
+mb.CFLAGS += -DCONFIG=\"conf_motor_bench.h\" -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(10e-3)'
 mb.srcs = main_motor_bench.c sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
 
 mb.CFLAGS += -DLED
@@ -25,6 +30,9 @@ mb.srcs += $(SRC_ARCH)/uart_hw.c
 mb.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart0 
 mb.srcs += downlink.c pprz_transport.c
 
+mb.CFLAGS += -DDATALINK=PPRZ -DPPRZ_UART=Uart0
+#mb.srcs += datalink.c
+
 mb.CFLAGS += -DADC -DUSE_AD0 -DUSE_AD0_1 -DUSE_AD0_2 -DUSE_AD0_3 -DUSE_AD0_4
 mb.srcs += $(SRC_ARCH)/adc_hw.c
 
@@ -33,6 +41,8 @@ mb.CFLAGS += -DICP_SCALE
 
 mb.CFLAGS += -DTACHO_MB
 mb.srcs += $(SRC_ARCH)/tacho_mb.c
+
+mb.srcs += prbs.c motor_bench.c
 
   </makefile>
 

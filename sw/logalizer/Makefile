@@ -38,7 +38,7 @@ CC = gcc
 CFLAGS=-g -O2 -Wall `pkg-config gtk+-2.0 --cflags`
 LDFLAGS=`pkg-config gtk+-2.0 --libs` -s -lgtkdatabox `pcre-config --libs` -lglibivy
 
-motor_bench : motor_bench.c
+motor_bench : motor_bench.c sliding_plot.c
 	$(CC) $(CFLAGS) -g -o $@ $^ $(LDFLAGS)
 
 ahrsview : ahrsview.c sliding_plot.c

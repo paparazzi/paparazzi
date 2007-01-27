@@ -38,6 +38,8 @@
 #elif defined SITL
 #define GPS_NB_CHANNELS 16
 #define GpsFixValid() (gps_mode == 3)
+#else
+#define GPS_NB_CHANNELS 1
 #endif
 
 
