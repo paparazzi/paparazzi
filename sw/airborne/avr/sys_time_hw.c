@@ -7,6 +7,8 @@
 #include CONFIG
 #include "std.h"
 
+uint16_t cpu_time_ticks;
+
 #if CLOCK == 8
 volatile uint8_t tmr2_ov_cnt;
 volatile bool_t tmr2_overflow;

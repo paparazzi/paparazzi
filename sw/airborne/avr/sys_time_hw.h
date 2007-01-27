@@ -33,6 +33,8 @@
 #include "std.h"
 #include <avr/io.h>
 
+extern uint16_t cpu_time_ticks;
+
 #define F_CPU (CLOCK*1000000UL)
 
 /*
@@ -73,7 +75,8 @@ static inline void sys_time_init( void ) {
   TCCR3B = _BV(CS10);
 #endif
 
-  cpu_time = 0;
+  cpu_time_sec = 0;
+  cpu_time_ticks = 0;
 }
 
 
@@ -98,6 +101,7 @@ extern volatile uint8_t tmr2_ov_cnt;
 extern volatile bool_t tmr2_overflow;
 #endif
 
+#define TICKS_PER_SEC (CLOCK * 1e6 / 1024 * 256)
 
 #if CLOCK == 8
 static inline bool_t sys_time_periodic( void ) {
@@ -108,11 +112,16 @@ static inline bool_t sys_time_periodic( void ) {
   return (tmr2_ov_cnt & 0x1);
 }
 #else 
+//#define TMR2_PER_SEC 7812
 static inline bool_t sys_time_periodic( void ) {
   if( !bit_is_set( TIFR, TOV2 ) )
     return FALSE;
   TIFR = _BV(TOV2);
-
+  cpu_time_ticks += 256;
+  if (cpu_time_ticks > TICKS_PER_SEC) {
+    cpu_time_ticks -= TICKS_PER_SEC;
+    cpu_time_sec++;
+  }
   return TRUE;
 }
 #endif
