@@ -101,7 +101,7 @@ extern volatile uint8_t tmr2_ov_cnt;
 extern volatile bool_t tmr2_overflow;
 #endif
 
-#define TICKS_PER_SEC (CLOCK * 1e6 / 1024 * 256)
+#define TICKS_PER_SEC (CLOCK * 1e6 / 1024)
 
 #if CLOCK == 8
 static inline bool_t sys_time_periodic( void ) {

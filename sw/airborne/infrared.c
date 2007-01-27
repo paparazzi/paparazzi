@@ -198,7 +198,7 @@ uint8_t calib_status = NO_CALIB;
 void ground_calibrate( bool_t triggered ) {
   switch (calib_status) {
   case NO_CALIB:
-    if (cpu_time < MAX_DELAY_FOR_CALIBRATION && pprz_mode == PPRZ_MODE_AUTO1 ) {
+    if (cpu_time_sec < MAX_DELAY_FOR_CALIBRATION && pprz_mode == PPRZ_MODE_AUTO1 ) {
       calib_status = WAITING_CALIB_CONTRAST;
       DOWNLINK_SEND_CALIB_START();
     }

@@ -300,7 +300,7 @@ static void navigation_task( void ) {
   static uint8_t last_pprz_mode;
   /** Test if we lost the GPS */
   if (!GpsFixValid() ||
-      (cpu_time - last_gps_msg_t > FAILSAFE_DELAY_WITHOUT_GPS)) {
+      (cpu_time_sec - last_gps_msg_t > FAILSAFE_DELAY_WITHOUT_GPS)) {
     /** If aircraft is launch and is in autonomus mode, go into
 	PPRZ_MODE_GPS_OUT_OF_ORDER mode (Failsafe). */
     if (launch && (pprz_mode == PPRZ_MODE_AUTO2 ||
@@ -417,7 +417,7 @@ void periodic_task_ap( void ) {
 
   if (!_1Hz) {
     if (estimator_flight_time) estimator_flight_time++;
-    cpu_time++;
+    cpu_time_sec++;
     stage_time_ds = (int16_t)(stage_time_ds+.5);
     stage_time++;
     block_time++;
@@ -450,7 +450,7 @@ void periodic_task_ap( void ) {
 	estimator_hspeed_mod > MIN_SPEED_FOR_TAKEOFF) {
       estimator_flight_time = 1;
       launch = TRUE; /* Not set in non auto launch */
-      DOWNLINK_SEND_TAKEOFF(&cpu_time);
+      DOWNLINK_SEND_TAKEOFF(&cpu_time_sec);
     }
     break;
 
