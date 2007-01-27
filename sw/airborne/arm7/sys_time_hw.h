@@ -35,6 +35,7 @@
 #include CONFIG
 #include "led.h"
 
+extern uint32_t cpu_time_ticks;
 static uint32_t last_periodic_event;
 
 void TIMER0_ISR ( void ) __attribute__((naked));
@@ -58,7 +59,8 @@ static inline void sys_time_init( void ) {
   /* enable timer 0                  */
   T0TCR = TCR_ENABLE;
 
-  cpu_time = 0;
+  cpu_time_sec = 0;
+  cpu_time_ticks = 0;
 
   /* select TIMER0 as IRQ    */
   VICIntSelect &= ~VIC_BIT(VIC_TIMER0);
@@ -78,15 +80,25 @@ static inline void sys_time_init( void ) {
 
 #define FIFTY_MS          SYS_TICS_OF_SEC( 50e-3 )
 #define AVR_PERIOD_MS     SYS_TICS_OF_SEC( 15.625e-3 )
+#ifndef PERIODIC_TASK_PERIOD
 #define PERIODIC_TASK_PERIOD AVR_PERIOD_MS
+#endif
+
+#define TIME_TICKS_PER_SEC SYS_TICS_OF_SEC(1)
 
 static inline bool_t sys_time_periodic( void ) {
   uint32_t now = T0TC;
-  if (now - last_periodic_event >= PERIODIC_TASK_PERIOD) {
+  uint32_t dif = now - last_periodic_event;
+  if ( dif >= PERIODIC_TASK_PERIOD) {
     last_periodic_event += PERIODIC_TASK_PERIOD;
+    cpu_time_ticks += PERIODIC_TASK_PERIOD;
+    if (cpu_time_ticks > TIME_TICKS_PER_SEC) {
+      cpu_time_ticks -= TIME_TICKS_PER_SEC;
+      cpu_time_sec++;
 #ifdef TIME_LED
-    LED_TOGGLE(TIME_LED)
+      LED_TOGGLE(TIME_LED)
 #endif
+      }
     return TRUE;
   }
   return FALSE;

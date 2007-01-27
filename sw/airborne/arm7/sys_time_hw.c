@@ -1,6 +1,9 @@
 #include "armVIC.h"
 #include "sys_time.h"
 
+
+uint32_t cpu_time_ticks;
+
 #if defined ACTUATORS
 #include ACTUATORS
 #endif /* ACTUATORS */

@@ -4,7 +4,7 @@
 #include <inttypes.h>
 #include CONFIG
 
-extern uint16_t cpu_time;
+extern uint16_t cpu_time_sec;
 
 #include "sys_time_hw.h"
 
