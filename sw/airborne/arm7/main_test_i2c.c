@@ -4,21 +4,12 @@
 #include "init_hw.h"
 #include "interrupt_hw.h"
 
-#include "adc.h"
-
-#include "icp_scale.h"
-
-#include "tacho_mb.h"
-
-#include "mb_servo.h"
 
 #include "messages.h"
 #include "downlink.h"
 #include "uart.h"
 
-#include "motor_bench.h"
-
-
+static uint8_t mode;
 
 static inline void main_init( void );
 static inline void main_periodic_task( void );
@@ -40,11 +31,6 @@ static inline void main_init( void ) {
   sys_time_init();
   led_init();
   uart0_init_tx();
-  adc_init();
-  icp_scale_init();
-  tacho_mb_init();
-  mb_servo_init();
-  motor_bench_init();
   int_enable();
 }
 
@@ -64,10 +50,6 @@ static inline void main_event_task( void ) {
 }
 
 static inline void main_periodic_task( void ) {
-  motor_bench_periodic();
-  mb_servo_set(motor_bench_throttle);
-  DOWNLINK_SEND_MOTOR_BENCH_STATUS(&cpu_time_ticks, &cpu_time_sec, &motor_bench_throttle, &motor_bench_mode);
-
   static uint8_t cnt;
   cnt++;
   if (!(cnt%16)) {

@@ -13,6 +13,7 @@ GtkWidget *throttle_plot;
 GtkWidget *rpm_plot;
 
 GtkWidget *manual_throttle_scale;
+GtkWidget *ramp_period_scale;
 
 GSList *radiobutton_group = NULL;
 
@@ -74,6 +75,14 @@ void on_manual_throttle_value_changed (GtkScale  *scale, gpointer user_data) {
   guint foo = (new_throttle/100.*9600.);
   IvySendMsg("ME RAW_DATALINK 78 SETTING;3;0;%d", foo);
 }
+
+void on_ramp_period_value_changed (GtkScale  *scale, gpointer user_data) {
+  gfloat new_period = gtk_range_get_value(GTK_RANGE(scale));
+  g_message("ramp period %f", new_period);
+  guint foo = (new_period*1000);
+  IvySendMsg("ME RAW_DATALINK 78 SETTING;4;0;%d", foo);
+}
+
 
 
 #define TICK_PER_SEC 15000000.
@@ -165,7 +174,6 @@ GtkWidget* build_gui ( void ) {
   }
 
   manual_throttle_scale = gtk_hscale_new (GTK_ADJUSTMENT (gtk_adjustment_new (0., 0, 100, 1, 1, 1)));
-  gtk_widget_show (manual_throttle_scale);
   gtk_table_attach (GTK_TABLE (table1), manual_throttle_scale, 1, 1+PARAM_NB, 1+MODE_MANUAL, 2+MODE_MANUAL,
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
                     (GtkAttachOptions) (GTK_FILL), 0, 0);
@@ -173,6 +181,19 @@ GtkWidget* build_gui ( void ) {
   g_signal_connect ((gpointer) manual_throttle_scale, "value_changed",
                     G_CALLBACK (on_manual_throttle_value_changed),
                     NULL);
+
+  ramp_period_scale = gtk_hscale_new (GTK_ADJUSTMENT (gtk_adjustment_new (0., 1, 100, 1, 1, 1)));
+  gtk_table_attach (GTK_TABLE (table1), ramp_period_scale, 1, 1+PARAM_NB, 2+MODE_MANUAL, 3+MODE_MANUAL,
+                    (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
+                    (GtkAttachOptions) (GTK_FILL), 0, 0);
+  gtk_range_set_update_policy (GTK_RANGE (ramp_period_scale), GTK_UPDATE_DELAYED);
+  g_signal_connect ((gpointer) ramp_period_scale, "value_changed",
+                    G_CALLBACK (on_ramp_period_value_changed),
+                    NULL);
+
+
+
+
 
 
 
