@@ -146,16 +146,16 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 // I2C Interface
-#define I2C             ((i2cRegs_t *)0xE001C000)
+#define I2C0             ((i2cRegs_t *)0xE001C000)
 
 // I2C Registers
-#define I2CONSET        I2C->conset     /* Control Set Register */
-#define I2STAT          I2C->stat       /* Status Register */
-#define I2DAT           I2C->dat        /* Data Register */
-#define I2ADR           I2C->adr        /* Slave Address Register */
-#define I2SCLH          I2C->sclh       /* SCL Duty Cycle Register (high half word) */
-#define I2SCLL          I2C->scll       /* SCL Duty Cycle Register (low half word) */
-#define I2CONCLR        I2C->conclr     /* Control Clear Register */
+#define I2C0CONSET        I2C0->conset     /* Control Set Register */
+#define I2C0STAT          I2C0->stat       /* Status Register */
+#define I2C0DAT           I2C0->dat        /* Data Register */
+#define I2C0ADR           I2C0->adr        /* Slave Address Register */
+#define I2C0SCLH          I2C0->sclh       /* SCL Duty Cycle Register (high half word) */
+#define I2C0SCLL          I2C0->scll       /* SCL Duty Cycle Register (low half word) */
+#define I2C0CONCLR        I2C0->conclr     /* Control Clear Register */
 
 ///////////////////////////////////////////////////////////////////////////////
 // Serial Peripheral Interface 0 (SPI0)

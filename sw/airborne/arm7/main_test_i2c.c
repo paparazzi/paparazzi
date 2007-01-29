@@ -18,6 +18,8 @@ static inline void main_dl_parse_msg( void );
 
 int main( void ) {
   main_init();
+  /* send start_bit */
+  I2C0CONSET = 0x60;
   while (1) {
     if (sys_time_periodic())
       main_periodic_task();
@@ -78,4 +80,70 @@ static inline void main_dl_parse_msg(void) {
 }
 
 
+/* SDA0 on P0.3 */
+/* SCL0 on P0.2 */
 
+/* A0 A1 A2 are low */
+#define SLAVE_ADDR 0x20
+
+void i2c0_ISR(void) __attribute__((naked));
+
+static inline void main_i2c_init ( void ) {
+  /* set P0.2 and P0.3 to I2C0 */
+  PINSEL0 |= 1 << 4 | 1 << 6;
+  /* clear all flags */
+  I2C0CONCLR = 0x6C;
+  /* enable I2C */
+  I2C0CONSET = 0x40;
+  /* set bitrate */
+  I2C0SCLL = 200;  
+  I2C0SCLH = 200;  
+  
+  //  I2C0CONSET = ;
+  // initialize the interrupt vector
+  VICIntSelect &= ~VIC_BIT(VIC_I2C0);  // I2C0 selected as IRQ
+  VICIntEnable = VIC_BIT(VIC_I2C0);    // I2C0 interrupt enabled
+  VICVectCntl9 = VIC_ENABLE | VIC_I2C0;
+  VICVectAddr9 = (uint32_t)i2c0_ISR;    // address of the ISR
+  
+}
+
+void i2c0_ISR(void)
+{
+  // perform proper ISR entry so thumb-interwork works properly
+  ISR_ENTRY();
+  uint32_t state = I2C0STAT;
+
+  switch (state) {
+  case 8:
+    /* start condition transmitted */
+    /* send slave addr + W */
+    I2C0DAT = 0x74;
+    /* clear SI and start flag */
+    I2C0CONCLR = 0x28;
+    
+    break;
+    
+  case 24:
+    /* ack received from slave for address */
+    /* send data */
+    I2C0DAT = 0x55;
+    /* clear SI */
+    I2C0CONCLR = 0x8;
+  break;
+  
+  /* ack received from slave for byte */
+  case 40:
+    /* transmitt stop condition */
+    I2C0CONSET = 0x10;
+    /* clear SI */
+    I2C0CONCLR = 0x8;
+    break;
+
+  default:
+    break;
+  }
+
+  VICVectAddr = 0x00000000;             // clear this interrupt from the VIC
+  ISR_EXIT();                           // recover registers and return
+}
