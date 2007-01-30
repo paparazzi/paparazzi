@@ -158,27 +158,35 @@ void nav_circle_XY(float x, float y, float radius) {
 #define NavSurveyRectangleInit(_wp1, _wp2, _grid) nav_survey_rectangle_init(_wp1, _wp2, _grid)
 #define NavSurveyRectangle(_wp1, _wp2) nav_survey_rectangle(_wp1, _wp2)
 
+/** Set the climb control to auto-throttle with the specified pitch
+    pre-command */
 #define NavVerticalAutoThrottleMode(_pitch) { \
   v_ctl_climb_mode = V_CTL_CLIMB_MODE_AUTO_THROTTLE; \
   nav_pitch = _pitch; \
 }
 
+/** Set the climb control to auto-pitch with the specified throttle
+    pre-command */
 #define NavVerticalAutoPitchMode(_throttle) { \
   v_ctl_climb_mode = V_CTL_CLIMB_MODE_AUTO_PITCH; \
   nav_throttle_setpoint = _throttle; \
 }
 
+/** Set the vertical mode to altitude control with the specified altitude
+ setpoint and climb pre-command. */
 #define NavVerticalAltitudeMode(_alt, _pre_climb) { \
   v_ctl_mode = V_CTL_MODE_AUTO_ALT; \
   nav_altitude = _alt; \
   v_ctl_altitude_pre_climb = _pre_climb; \
 }
 
+/** Set the vertical mode to climb control with the specified climb setpoint */
 #define NavVerticalClimbMode(_climb) { \
   v_ctl_mode = V_CTL_MODE_AUTO_CLIMB; \
   v_ctl_climb_setpoint = _climb; \
 }
 
+/** Set the vertical mode to fixed throttle with the specified setpoint */
 #define NavVerticalThrottleMode(_throttle) { \
   v_ctl_mode = V_CTL_MODE_AUTO_THROTTLE; \
   nav_throttle_setpoint = _throttle; \
