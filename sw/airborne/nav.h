@@ -35,6 +35,7 @@
 #include "std.h"
 #include "paparazzi.h"
 #include "airframe.h"
+#include "fw_v_ctl.h"
 
 #define G 9.806
 #define Square(_x) ((_x)*(_x))
@@ -150,5 +151,41 @@ extern void nav_route_xy(float last_wp_x, float last_wp_y, float wp_x, float wp_
 
 bool_t nav_approaching_xy(float x, float y, float approaching_time);
 #define NavApproaching(wp, time) nav_approaching_xy(waypoints[wp].x, waypoints[wp].y, time)
+
+/** Set the climb control to auto-throttle with the specified pitch
+    pre-command */
+#define NavVerticalAutoThrottleMode(_pitch) { \
+  v_ctl_climb_mode = V_CTL_CLIMB_MODE_AUTO_THROTTLE; \
+  nav_pitch = _pitch; \
+}
+
+/** Set the climb control to auto-pitch with the specified throttle
+    pre-command */
+#define NavVerticalAutoPitchMode(_throttle) { \
+  v_ctl_climb_mode = V_CTL_CLIMB_MODE_AUTO_PITCH; \
+  nav_throttle_setpoint = _throttle; \
+}
+
+/** Set the vertical mode to altitude control with the specified altitude
+ setpoint and climb pre-command. */
+#define NavVerticalAltitudeMode(_alt, _pre_climb) { \
+  v_ctl_mode = V_CTL_MODE_AUTO_ALT; \
+  nav_altitude = _alt; \
+  v_ctl_altitude_pre_climb = _pre_climb; \
+}
+
+/** Set the vertical mode to climb control with the specified climb setpoint */
+#define NavVerticalClimbMode(_climb) { \
+  v_ctl_mode = V_CTL_MODE_AUTO_CLIMB; \
+  v_ctl_climb_setpoint = _climb; \
+}
+
+/** Set the vertical mode to fixed throttle with the specified setpoint */
+#define NavVerticalThrottleMode(_throttle) { \
+  v_ctl_mode = V_CTL_MODE_AUTO_THROTTLE; \
+  nav_throttle_setpoint = _throttle; \
+}
+
+
 
 #endif /* NAV_H */

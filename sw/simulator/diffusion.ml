@@ -8,7 +8,7 @@ type plume = { mutable utm_x : float; mutable utm_y : float; mutable value : int
 
 (* NW of Muret ref *)
 let muret = utm_of WGS84 {LL.posn_lat=(Deg>>Rad)43.4624; posn_long=(Deg>>Rad)1.2727}
-let source = fun () -> { utm_x = muret.LL.utm_x -. 500.; utm_y = muret.LL.utm_y +. 500.; value = 255}
+let source = fun () -> { utm_x = muret.LL.utm_x -. 275.; utm_y = muret.LL.utm_y +. 275.; value = 255}
 
 let available_ids = ref []
 let gen_id =

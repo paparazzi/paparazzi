@@ -70,20 +70,31 @@ type status = {
     mutable rx_byte : int;
     mutable rx_msg : int;
     mutable rx_err : int;
+    mutable ms_since_last_msg : int
   }
 
 let statuss = Hashtbl.create 3
+let dead_aircraft_time_ms = 5000
 let update_status = fun ac_id buf ->
   let status = 
     try Hashtbl.find statuss ac_id with Not_found ->
-      let s = { last_rx_byte = 0; last_rx_msg = 0; rx_byte = 0; rx_msg = 0; rx_err = 0 } in
+      let s = { last_rx_byte = 0; last_rx_msg = 0; rx_byte = 0; rx_msg = 0; rx_err = 0; ms_since_last_msg = dead_aircraft_time_ms } in
       Hashtbl.add statuss ac_id s;
       s in
   status.rx_byte <- status.rx_byte + String.length buf;
   status.rx_msg <- status.rx_msg + 1;
-  status.rx_err <- !PprzTransport.nb_err
+  status.rx_err <- !PprzTransport.nb_err;
+  status.ms_since_last_msg <- 0
 
 let status_msg_period = 1000 (** ms *)
+
+
+let live_aircraft = fun ac_id ->
+  try
+    let s = Hashtbl.find statuss ac_id in
+    s.ms_since_last_msg < dead_aircraft_time_ms
+  with
+    Not_found -> false
 
 let send_status_msg =
   let start = Unix.gettimeofday () in
@@ -95,6 +106,7 @@ let send_status_msg =
       and msg_rate = float (status.rx_msg - status.last_rx_msg) /. dt in
       status.last_rx_msg <- status.rx_msg;
       status.last_rx_byte <- status.rx_byte;
+      status.ms_since_last_msg <- status.ms_since_last_msg + status_msg_period;
       let vs = ["run_time", Pprz.Int t;
 		"rx_bytes_rate", Pprz.Float byte_rate; 
 		"rx_msgs_rate", Pprz.Float msg_rate;
@@ -117,7 +129,6 @@ let airframes =
 	let device = get_define dls "DEVICE_TYPE"
 	and addr = get_define dls "DEVICE_ADDRESS" in
 	let dl = airborne_device device addr in
-	printf "%s %b\n%!" (ExtXml.attrib a "ac_id") (dl = Uart);
 	(ios (ExtXml.attrib a "ac_id"), dl)::r
       with
 	Not_found -> r
@@ -383,7 +394,7 @@ let get_fp = fun device _sender vs ->
   let ac_id = int_of_string (Pprz.string_assoc "ac_id" vs) in
   List.iter 
     (fun (dest_id, _) ->
-      if dest_id <> ac_id then (** Do not send to itself *)
+      if dest_id <> ac_id && live_aircraft dest_id then (** Do not send to itself *)
 	try
 	  Debug.trace 'b' (sprintf "ACINFO %d for %d" ac_id dest_id);
 	  let ac_device = airborne_device dest_id airframes device.transport in
@@ -613,7 +624,7 @@ let _ =
 
     if !uplink then begin
       (** Listening on Ivy (FIXME: remove the ad hoc messages) *)
-      ignore (Ground_Pprz.message_bind "FLIGHT_PARAM" (get_fp device));
+(***)       ignore (Ground_Pprz.message_bind "FLIGHT_PARAM" (get_fp device)); (***)
       ignore (Ground_Pprz.message_bind "MOVE_WAYPOINT" (move_wp device));
       ignore (Ground_Pprz.message_bind "DL_SETTING" (setting device));
       ignore (Ground_Pprz.message_bind "JUMP_TO_BLOCK" (jump_block device));

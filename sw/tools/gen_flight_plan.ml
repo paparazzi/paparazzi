@@ -126,7 +126,7 @@ let get_index_waypoint = fun x l ->
   try
     string_of_int (List.assoc x l)
   with
-    Not_found -> failwith (sprintf "Unknown waypoint: %s\n" x)
+    Not_found -> failwith (sprintf "Unknown waypoint: %s" x)
 
 let output_cam_mode = fun x index_of_waypoints ->
   let m =  try Xml.attrib x "cam_mode" with _ -> "fix" in
@@ -336,7 +336,7 @@ let rec print_stage = fun index_of_waypoints x ->
 	  try
 	    get_index_waypoint (ExtXml.attrib x "wp") index_of_waypoints
 	  with
-	    _ ->
+	    ExtXml.Error _ ->
 	      lprintf "waypoints[0].x = %s;\n" (parsed_attrib x "x");
 	      lprintf "waypoints[0].y = %s;\n" (parsed_attrib x "y");
 	      "0"
@@ -747,4 +747,5 @@ let _ =
   | Dtd.Prove_error e -> fprintf stderr "%s: DTD error:%s\n%!" !xml_file (Dtd.prove_error e); exit 1
   | Dtd.Check_error e -> fprintf stderr "%s: DTD error:%s\n%!" !xml_file (Dtd.check_error e); exit 1
   | Dtd.Parse_error e -> fprintf stderr "%s: DTD error:%s\n%!" !xml_file (Dtd.parse_error e); exit 1
+  | Failure x -> fprintf stderr "%s: %s\n" !xml_file x; exit 1
 

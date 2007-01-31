@@ -17,10 +17,10 @@ static void last_plume_was_here( void ) {
   last_plume.y = estimator_y;
 }
 
-bool_t nav_anemotaxis_downwind( uint8_t c ) {
+bool_t nav_anemotaxis_downwind( uint8_t c, float radius ) {
   float wind_dir = atan2(wind_north, wind_east);
-  waypoints[c].x = waypoints[WP_HOME].x + MAX_DIST_FROM_HOME*0.9*cos(wind_dir);
-  waypoints[c].y = waypoints[WP_HOME].y + MAX_DIST_FROM_HOME*0.9*sin(wind_dir);
+  waypoints[c].x = waypoints[WP_HOME].x + radius*cos(wind_dir);
+  waypoints[c].y = waypoints[WP_HOME].y + radius*sin(wind_dir);
   return FALSE;
 }
 
@@ -39,7 +39,7 @@ bool_t nav_anemotaxis( uint8_t c, uint8_t c1, uint8_t c2, uint8_t plume ) {
     last_plume_was_here();
     waypoints[plume].x = estimator_x;
     waypoints[plume].y = estimator_y;
-    DownlinkSendWp(plume);
+    //    DownlinkSendWp(plume);
   }
 
   float wind_dir = atan2(wind_north, wind_east) + M_PI;
@@ -62,8 +62,8 @@ bool_t nav_anemotaxis( uint8_t c, uint8_t c1, uint8_t c2, uint8_t plume ) {
       waypoints[c2].x = waypoints[c1].x - width*crosswind_x*sign;
       waypoints[c2].y = waypoints[c1].y - width*crosswind_y*sign;
 
-      DownlinkSendWp(c1);
-      DownlinkSendWp(c2);
+      //      DownlinkSendWp(c1);
+      //      DownlinkSendWp(c2);
 
       status = CROSSWIND;
       nav_init_stage();
@@ -76,7 +76,7 @@ bool_t nav_anemotaxis( uint8_t c, uint8_t c1, uint8_t c2, uint8_t plume ) {
       waypoints[c].x = waypoints[c2].x + MIN_CIRCLE_RADIUS*upwind_x;
       waypoints[c].y = waypoints[c2].y + MIN_CIRCLE_RADIUS*upwind_y;
 
-      DownlinkSendWp(c);
+      // DownlinkSendWp(c);
      
       sign = -sign;
       status = UTURN;
@@ -87,7 +87,7 @@ bool_t nav_anemotaxis( uint8_t c, uint8_t c1, uint8_t c2, uint8_t plume ) {
       waypoints[c].x = estimator_x + MIN_CIRCLE_RADIUS*upwind_x;
       waypoints[c].y = estimator_y + MIN_CIRCLE_RADIUS*upwind_y;
 
-      DownlinkSendWp(c);
+      // DownlinkSendWp(c);
      
       sign = -sign;
       status = UTURN;

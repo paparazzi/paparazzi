@@ -4,7 +4,7 @@
 
 <!-- commands section -->
   <servos>
-    <servo name="THROTTLE"   no="0" min="1000" neutral="1000" max="2000"/>
+    <servo name="THROTTLE"   no="0" min="1200" neutral="1200" max="2000"/>
 <!-- Servo aileron gauche = couleur blanche -->
 <!-- Aileron gauche oppose de l'aileron droit -->
     <servo name="AILERON_LEFT"  no="1" min="1675" neutral="1500" max="1150"/>
@@ -12,7 +12,7 @@
     <servo name="AILERON_RIGHT" no="3" min="1775" neutral="1475" max="1325"/>
     <!-- Rudder = Couleur rouge droite gauche -->
     <servo name="RUDDER" no="4" min="1875" neutral="1500" max="1250"/>
-    <servo name="ELEVATOR" no="5" min="1850" neutral="1500" max="1150"/>
+    <servo name="ELEVATOR" no="5" min="1850" neutral="1586" max="1150"/>
 
   </servos>
 
@@ -59,18 +59,18 @@
   </section>
 
   <section name="INFRARED" prefix="IR_">
-    <define name="ROLL_NEUTRAL_DEFAULT" value="0" unit="deg"/>
+    <define name="ROLL_NEUTRAL_DEFAULT" value="6" unit="deg"/>
     <define name="PITCH_NEUTRAL_DEFAULT" value="0" unit="deg"/>
     <define name="DEFAULT_CONTRAST" value="200"/>
     <define name="RAD_OF_IR_CONTRAST" value="0.75"/>
-    <linear name="RollOfIrs" arity="2" coeff1="-0.7" coeff2="0.7"/>
-    <linear name="PitchOfIrs" arity="2" coeff1="-0.7" coeff2="-0.7"/>
+    <linear name="RollOfIrs" arity="2" coeff1="0.7" coeff2="0.7"/>
+    <linear name="PitchOfIrs" arity="2" coeff1="-0.7" coeff2="0.7"/>
 
     <linear name="TopOfIr" arity="1" coeff1="1"/>
     <define name="RAD_OF_IR_MAX_VALUE" value="0.0045"/>
     <define name="RAD_OF_IR_MIN_VALUE" value="0.00075"/>
-    <define name="ADC_ROLL_NEUTRAL" value="0"/>
-    <define name="ADC_PITCH_NEUTRAL" value="-716"/>
+    <define name="ADC_ROLL_NEUTRAL" value="716"/>
+    <define name="ADC_PITCH_NEUTRAL" value="0"/>
 
     <define name="ADC_TOP_NEUTRAL" value="512"/>
 
@@ -117,7 +117,7 @@
     <define name="ALTITUDE_MAX_CLIMB" value="2."/>
 
     <!-- auto throttle inner loop -->
-    <define name="AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE" value="0.35"/>
+    <define name="AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE" value="0.45"/>
     <define name="AUTO_THROTTLE_MIN_CRUISE_THROTTLE" value="0.30"/>
     <define name="AUTO_THROTTLE_MAX_CRUISE_THROTTLE" value="0.80"/>
     <define name="AUTO_THROTTLE_LOITER_TRIM" value="1500"/>
@@ -144,7 +144,7 @@
     <define name="PITCH_MIN_SETPOINT" value="-0.5" unit="radians"/>
 
 
-    <define name="ROLL_PGAIN" value="5000."/>
+    <define name="ROLL_PGAIN" value="12000."/>
     <define name="AILERON_OF_THROTTLE" value="0.0"/>
     <define name="PITCH_PGAIN" value="-9000."/>
     <define name="PITCH_DGAIN" value="1.5"/>

@@ -5,8 +5,12 @@
 <!-- commands section -->
   <servos>
     <servo name="GAZ"           no="0" min="1000" neutral="1000" max="2000"/>
-    <servo name="AILEVON_LEFT"  no="3" min="1075" neutral="1516" max="2025"/>
-    <servo name="AILEVON_RIGHT" no="6" min="1975" neutral="1468" max="975"/>
+<!--
+    <servo name="AILEVON_LEFT"  no="3" min="1075" neutral="1487" max="2025"/>
+    <servo name="AILEVON_RIGHT" no="6" min="1975" neutral="1433" max="975"/>
+-->
+    <servo name="AILEVON_LEFT"  no="6" min="1075" neutral="1480" max="2025"/>
+    <servo name="AILEVON_RIGHT" no="3" min="1975" neutral="1515" max="975"/>
     <servo name="HATCH" no="2" max="2000" neutral="1000" min="1000"/>
   </servos>
 
@@ -102,8 +106,8 @@
     <define name="CARROT" value="5." unit="s"/>
     <define name="KILL_MODE_DISTANCE" value="(1.5*MAX_DIST_FROM_HOME)"/>
     <define name="CONTROL_RATE" value="60" unit="Hz"/>
-<!--    <define name="XBEE_INIT" value="\"ATPL2\rATRN1\rATTT80\r\""/> -->
-    <define name="NO_XBEE_API_INIT" value="TRUE"/>
+    <define name="XBEE_INIT" value="\"ATPL2\rATRN1\rATTT80\r\""/> 
+<!--    <define name="NO_XBEE_API_INIT" value="TRUE"/> -->
     <define name="ALT_KALMAN_ENABLED" value="TRUE"/>
 
     <define name="TRIGGER_DELAY" value="1."/>
@@ -249,9 +253,10 @@ ap.srcs += nav.c fw_h_ctl.c fw_v_ctl.c
 
 
 ap.CFLAGS += -DGYRO -DADXRS150
-ap.srcs += gyro.c
+ap.srcs += gyro.c nav_line.c chemotaxis.c anemotaxis.c discsurvey.c
+ap.srcs += traffic_info.c
 
-# ap.srcs += bomb.c
+ap.srcs += bomb.c
 
 # Hack to use the same tuning file than slayer1
 ap.CFLAGS += -DUSE_GPIO
@@ -267,7 +272,7 @@ ap.srcs += $(SRC_ARCH)/gpio.c
 include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
 sim.CFLAGS += -DCONFIG=\"tiny.h\" -DAGR_CLIMB -DH_CTL_RATE_LOOP -DLOITER_TRIM -DALT_KALMAN -DIR_360
 sim.srcs += traffic_info.c
-sim.srcs += anemotaxis.c chemotaxis.c discsurvey.c nav_line.c
+sim.srcs += bomb.c nav_line.c chemotaxis.c anemotaxis.c discsurvey.c
 
 
 

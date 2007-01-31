@@ -1,22 +1,29 @@
 <!DOCTYPE flight_plan SYSTEM "flight_plan.dtd">
 
-<flight_plan ground_alt="200" alt="250" lat0="43.4624" lon0="1.2727" max_dist_from_home="1500" name="Intelligent Surveillance" qfu="270" security_height="25">
+<flight_plan ground_alt="185" alt="250" lat0="43.4624" lon0="1.2727" max_dist_from_home="500" name="Intelligent Surveillance" qfu="270" security_height="25">
 <header>
 #include "anemotaxis.h"
 #include "chemotaxis.h"
 #include "discsurvey.h"
+#include "nav_line.h"
+#include "bomb.h"
 </header>
   <waypoints>
     <waypoint name="HOME" x="0" y="0"/>
-    <waypoint name="1" x="200" y="0"/>
-    <waypoint name="2" x="0" y="200"/>
+    <waypoint name="1" x="-75" y="75"/>
+    <waypoint name="2" x="75" y="75"/>
     <waypoint name="MOB" x="200" y="200"/>
     <waypoint name="S1" x="-200" y="-200"/>
     <waypoint name="S2" x="300" y="400"/>
     <waypoint name="C" x="-250" y="-200"/>
     <waypoint name="C1" x="-200" y="-200"/>
     <waypoint name="C2" x="300" y="400"/>
-    <waypoint name="PLUME" x="400" y="400"/>
+    <waypoint name="PLUME" x="400" y="300"/>
+    <waypoint name="BASELEG" x="400" y="300"/>
+    <waypoint name="RELEASE" x="400" y="300"/>
+    <waypoint name="CLIMB" x="400" y="300"/>
+    <waypoint name="TARGET" x="0" y="30" alt="185"/>
+    <waypoint name="START" x="200" y="30"/>
   </waypoints>
   <blocks>
 <!--
@@ -27,17 +34,23 @@
     <block name="init">
       <while cond="LessThan(NavBlockTime(), 10)"/>
       <call fun="NavSetGroundReferenceHere()"/>
-      <deroute block="circle 1"/>
+      <deroute block="wait"/>
     </block>
 -->
 
-    <block name="circle 1">
+    <block name="wait">
       <circle radius="75" wp="1"/>
     </block>
 
     <block name="eight 1">
       <eight radius="75" center="1" turn_around="2"/>
     </block>
+
+    <block name="Line" strip_button="Line">
+         <call fun="nav_line_init()"/>
+         <call fun="nav_line(WP_1, WP_2, 75)"/>
+    </block>
+
 
     <block name="oval" strip_button="Oval">
       <oval p1="1" p2="2" radius="80"/>
@@ -48,21 +61,28 @@
       <circle wp="MOB" radius="100"/>
     </block>
 
-    <block name="Anemotaxis" strip_button="Anemotaxis">
-      <call fun="nav_anemotaxis_downwind(WP_C)"/>
+    <block name="Anemotaxis" strip_button="Anem">
+      <call fun="nav_anemotaxis_downwind(WP_C, 400)"/>
       <go wp="C" hmode="route" approaching_time="0"/>
       <call fun="nav_anemotaxis_init(WP_C)"/>
       <call fun="nav_anemotaxis(WP_C, WP_C1, WP_C2, WP_PLUME)"/>
     </block>
 
-    <block name="Chemotaxis" strip_button="Chemotaxis">
-      <call fun="nav_chemotaxis_init()"/>
+    <block name="Chemotaxis" strip_button="Chem">
+      <call fun="nav_chemotaxis_init(WP_C, WP_PLUME)"/>
       <call fun="nav_chemotaxis(WP_C, WP_PLUME)"/>
     </block>
 
+    <block name="ChemotaxisHere">
+      <set var="waypoints[WP_C].x" value="estimator_x"/>
+      <set var="waypoints[WP_C].y" value="estimator_y"/>
+      <deroute block="Chemotaxis"/>
+    </block>
+
     <block name="Disc survey" strip_button="DS">
+      <exception cond="chemo_sensor > 0" deroute="ChemotaxisHere"/>
       <call fun="disc_survey_init()"/>
-      <call fun="disc_survey(WP_HOME, 500)"/>
+      <call fun="disc_survey(WP_HOME, 350, 75)"/>
     </block>
 
     <block name="circle 1 auto pitch">
@@ -83,7 +103,7 @@
 
     <block name="descent 0" strip_button="Descent">
       <circle radius="50+(estimator_z-ground_alt)/2" wp="1" throttle="0.0" pitch="-0.3" vmode="throttle" until="ground_alt+50 > estimator_z"/>
-      <deroute block="circle 1"/>
+      <deroute block="wait"/>
     </block>
 
     <block name="route12">
@@ -113,5 +133,26 @@
     <block name="follow">
       <follow ac_id="5" distance="25" height="10"/>
     </block>
+
+    <block name="bomb" strip_button="Bomb">
+      <set value="BombComputeApproach()" var="unit"/>
+      <circle radius="BOMB_RADIUS" until="NavQdrCloseTo(DegOfRad(bomb_start_qdr)-10)" wp="BASELEG"/>
+    </block>
+    <block name="align">
+      <exception cond="BombUpdateRelease()" deroute="wait"/>
+      <go approaching_time="bomb_trigger_delay" from="START" hmode="route" wp="RELEASE"/>
+    </block>
+    <block name="shoot">
+      <set value="BombShoot()" var="unit"/>
+      <go approaching_time="0" from="RELEASE" hmode="route" wp="CLIMB"/>
+      <set value="BombCloseHatch()" var="unit"/>
+      <deroute block="wait"/>
+    </block>
+    <block name="close">
+      <set value="BombCloseHatch()" var="unit"/>
+      <deroute block="wait"/>
+    </block>
+
+
   </blocks>
 </flight_plan>
