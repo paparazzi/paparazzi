@@ -66,6 +66,17 @@
     <define name="ADC_ROLL_NEUTRAL" value="-512"/>
     <define name="ADC_PITCH_NEUTRAL" value="-512"/>
     <define name="ADC_TOP_NEUTRAL" value="512"/>
+
+    <define name="CORRECTION_UP" value="1."/>
+    <define name="CORRECTION_DOWN" value="1."/>
+    <define name="CORRECTION_LEFT" value="1."/>
+    <define name="CORRECTION_RIGHT" value="1."/>
+
+    <define name="ESTIMATED_PHI_PI_4" value="0.9"/>
+
+    <define name="360_LATERAL_CORRECTION" value="1."/>
+    <define name="360_LONGITUDINAL_CORRECTION" value="1."/>
+    <define name="360_VERTICAL_CORRECTION" value="1."/>
   </section>
 
   <section name="GYRO" prefix="GYRO_">
@@ -179,7 +190,10 @@
     <define name="NOMINAL_AIRSPEED" value="12." unit="m/s"/>
     <define name="CARROT" value="5." unit="s"/>
     <define name="KILL_MODE_DISTANCE" value="(MAX_DIST_FROM_HOME*1.5)" unit="s"/>
+    <define name="XBEE_INIT" value="\"ATPL2\rATRN1\rATTT80\r\""/> 
+
     <define name="LIGHT_PIN_1" value="3"/>
+    <define name="MIN_CIRCLE_RADIUS" value="50."/>
   </section>
  
   <section name="SIMU">
@@ -258,16 +272,24 @@ ap.CFLAGS += -DUSE_AD1 -DUSE_AD1_2 -DUSE_AD1_3
 ap.srcs += $(SRC_ARCH)/adc_hw.c
 
 
-ap.CFLAGS += -DINFRARED 
+ap.CFLAGS += -DINFRARED -DIR_360
 ap.srcs += infrared.c estimator.c
 
 ap.CFLAGS += -DGYRO -DADXRS150 -DPID_RATE_LOOP 
 ap.srcs += gyro.c
 
 ap.CFLAGS += -DNAV -DAGR_CLIMB -DLOITER_TRIM
-ap.srcs += nav.c pid.c
+ap.srcs += nav.c fw_h_ctl.c fw_v_ctl.c
 
-ap.srcs += bomb3.c
+ap.srcs += nav_line.c chemotaxis.c anemotaxis.c discsurvey.c
+
+ap.srcs += bomb.c
+
+# Hack to use the same tuning file than slayer1
+ap.CFLAGS += -DUSE_GPIO
+ap.srcs += $(SRC_ARCH)/gpio.c
+
+
 
 
 test.CFLAGS += -DFBW -DCONFIG=\"classix.h\" -DLED -DTIME_LED=1 -DACTUATORS=\"servos_4017_hw.h\" -DSERVOS_4017 -DSERVOS_4017_CLOCK_FALLING  -DUSE_UART0 -DDATALINK -DPPRZ_INPUT -DPPRZ_UART=Uart0 -DUART0_BAUD=B9600
