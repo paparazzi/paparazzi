@@ -92,6 +92,9 @@ void ant_v2x_init( void )
 
   ant_v2x_data_available = FALSE;
   ant_v2x_com_status = MAG_CS_IDLE;
+
+  ant_v2x_data.heading = 0.;
+
   ant_v2x_reset();
 }
 

@@ -24,20 +24,13 @@ void ant_tracker_init( void ) {
 
 void ant_tracker_periodic( void ) {
   if (ant_track_mode == ANT_TRACK_AUTO) {
-#if 0
-    ant_track_azim += 0.5;
-    if (ant_track_azim > 360.)
-      ant_track_azim = 0.;
-    ant_track_elev += 0.1;
-    if (ant_track_elev > 90.)
-      ant_track_elev = 0.;
-#endif
     struct ac_info_ * ac = get_ac_info(ant_track_id);
     ant_track_azim =  atan2(ac->north, ac->east) * 180. / M_PI;
     ant_track_azim = 90. - ant_track_azim;
     if (ant_track_azim < 0)
       ant_track_azim += 360.;
     float dist = sqrt(ac->north*ac->north + ac->east*ac->east);
+    if ( dist < 1.) dist = 1.;
     float height = ac->alt - ant_track_elev;
     ant_track_elev =  atan2( height, dist) * 180. / M_PI;
   }
