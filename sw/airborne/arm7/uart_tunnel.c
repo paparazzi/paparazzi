@@ -3,12 +3,15 @@
 
 #include "std.h"
 
+#include "init_hw.h"
+
 #define TXD0_PIN 0
 #define RXD0_PIN 1
 #define TXD1_PIN 8
 #define RXD1_PIN 9
 
 int main (int argc, char** argv) {
+  hw_init();
   /* TXD0 and TXD1 output */
   SetBit(IO0DIR, TXD0_PIN);
   SetBit(IO0DIR, TXD1_PIN);
