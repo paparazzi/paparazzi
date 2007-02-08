@@ -39,7 +39,7 @@ void init_fbw( void ) {
   for(i = 0; i < SERVOS_NB; i++)
     SetServo(i, 1500);
 
-  SetServo(SERVO_GAZ, SERVO_GAZ_MIN);
+  //  SetServo(SERVO_GAZ, SERVO_GAZ_MIN);
 
   int_enable();
 }
