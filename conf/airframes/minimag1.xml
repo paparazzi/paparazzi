@@ -263,7 +263,5 @@ sim.CFLAGS += -DCONFIG=\"tiny.h\" -DAGR_CLIMB -DH_CTL_RATE_LOOP -DLOITER_TRIM -D
 sim.srcs += traffic_info.c
 # sim.srcs += bomb.c
 
-
-
   </makefile>
 </airframe>

@@ -97,10 +97,10 @@ void xbee_init( void );
 #define XBeeTransportPutNamedUint8(_name, _byte) XBeeTransportPutUint8(_byte)
 
 #define XBeeTransportPutArray(_put, _n, _x) { \
-  uint8_t i; \
+  uint8_t _i; \
   XBeeTransportPutUint8(_n); \
-  for(i = 0; i < _n; i++) { \
-    _put(&_x[i]); \
+  for(_i = 0; _i < _n; _i++) { \
+    _put(&_x[_i]); \
   } \
 }
 

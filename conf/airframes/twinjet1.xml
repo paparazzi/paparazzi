@@ -87,6 +87,7 @@
     <define name="ROLL_SCALE" value="0.44"/>   
   </section>
  
+<!-- cf section HORIZONTAL CONTROL
   <section name="PID">
     <define name="ROLL_PGAIN" value="5000."/>
     <define name="PITCH_OF_ROLL" value="0.0"/>
@@ -97,6 +98,7 @@
     <define name="AILERON_OF_GAZ" value="0.0"/>
     <define name="CRUISE_THROTTLE" value="0.30"/>
   </section>
+-->
  
   <section name="GYRO">
     <define name="GYRO_MAX_RATE" value="150."/>
@@ -107,6 +109,7 @@
     <define name="ROLL_RATE_DGAIN" value="0.0"/>
   </section>
 
+<!-- cf section VERTICAL CONTROL
   <section name="ALT" prefix="CLIMB_">
     <define name="PITCH_PGAIN" value="-0.1"/>
     <define name="PITCH_IGAIN" value="0.025"/>
@@ -117,6 +120,7 @@
     <define name="GAZ_OF_CLIMB" value="0.2" unit="%/(m/s)"/>
     <define name="MAX_DIFF_GAZ" value="0.05" unit="%"/>
   </section>
+-->
  
   <section name="HORIZONTAL CONTROL" prefix="H_CTL_">
     <define name="COURSE_PGAIN" value="-0.9"/>
@@ -203,7 +207,7 @@
 
   <section name="FAILSAFE" prefix="FAILSAFE_">
     <define name="DELAY_WITHOUT_GPS" value="2" unit="s"/>
-    <define name="DEFAULT_THROTTLE" value="CRUISE_THROTTLE+0.05" unit="%"/>
+    <define name="DEFAULT_THROTTLE" value="V_CTL_AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE+0.05" unit="%"/>
     <define name="DEFAULT_ROLL" value="0.17" unit="rad"/>
     <define name="DEFAULT_PITCH" value="0.08" unit="rad"/>
     <define name="HOME_RADIUS" value="50" unit="m"/>

@@ -93,8 +93,8 @@ extern uint8_t ck_a, ck_b;
 #define PprzTransportPutArray(_put, _n, _x) { \
   uint8_t i; \
   PprzTransportPutUint8(_n); \
-  for(i = 0; i < _n; i++) { \
-    _put(&_x[i]); \
+  for(_i = 0; _i < _n; _i++) { \
+    _put(&_x[_i]); \
   } \
 }
 
