@@ -298,6 +298,7 @@ static void navigation_task( void ) {
 #if defined FAILSAFE_DELAY_WITHOUT_GPS
   /** This section is used for the failsafe of GPS */
   static uint8_t last_pprz_mode;
+
   /** If aircraft is launched and is in autonomus mode, go into
       PPRZ_MODE_GPS_OUT_OF_ORDER mode (Failsafe) if we lost the GPS */
   if (launch) {
@@ -312,6 +313,7 @@ static void navigation_task( void ) {
       /** If aircraft was in failsafe mode, come back in previous mode */
       pprz_mode = last_pprz_mode;
       gps_lost = FALSE;
+
       PERIODIC_SEND_PPRZ_MODE();
     }
   }
@@ -415,7 +417,6 @@ void periodic_task_ap( void ) {
 
   if (!_1Hz) {
     if (estimator_flight_time) estimator_flight_time++;
-    cpu_time_sec++;
     stage_time_ds = (int16_t)(stage_time_ds+.5);
     stage_time++;
     block_time++;
