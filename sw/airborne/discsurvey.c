@@ -60,7 +60,7 @@ bool_t disc_survey( uint8_t center, float radius, float grid ) {
 
   case SEGMENT:
     nav_route_xy(c1.x, c1.y, c2.x, c2.y);
-    if (nav_approaching_xy(c2.x, c2.y, CARROT)) {
+    if (nav_approaching_xy(c2.x, c2.y, c1.x, c1.y, CARROT)) {
       c.x = c2.x + grid*upwind_x;
       c.y = c2.y + grid*upwind_y;
 

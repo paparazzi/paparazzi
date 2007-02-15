@@ -342,12 +342,15 @@ let rec print_stage = fun index_of_waypoints x ->
 	      "0"
 	in
 	let at = try ExtXml.attrib x "approaching_time" with _ -> "CARROT" in
-	lprintf "if (NavApproaching(%s,%s)) NextStageFrom(%s) else {\n" wp at wp;
-	right ();
 	let last_wp =
 	  try
 	    get_index_waypoint (ExtXml.attrib x "from") index_of_waypoints
 	  with ExtXml.Error _ -> "last_wp" in
+	if last_wp = "last_wp" then
+	  lprintf "if (NavApproaching(%s,%s)) NextStageFrom(%s) else {\n" wp at wp
+	else
+	  lprintf "if (NavApproachingFrom(%s,%s,%s)) NextStageFrom(%s) else {\n" wp last_wp at wp;
+	right ();
 	let hmode = output_hmode x wp last_wp in
 	let vmode = output_vmode x wp last_wp in
 	if vmode = "glide" && hmode <> "route" then

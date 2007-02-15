@@ -45,7 +45,7 @@ uint8_t nav_stage, nav_block;
 /** To save the current block/stage to enable return */
 static uint8_t last_block, last_stage;
 
-static float last_x, last_y;
+float last_x, last_y;
 
 /** Index of last waypoint. Used only in "go" stage in "route" horiz mode */
 static uint8_t last_wp __attribute__ ((unused));
@@ -367,7 +367,7 @@ struct point waypoints[NB_WAYPOINT+1] = WAYPOINTS;
  *  uav has not gone past waypoint.
  *  Return true if it is the case.
  */
-bool_t nav_approaching_xy(float x, float y, float approaching_time) {
+bool_t nav_approaching_xy(float x, float y, float from_x, float from_y, float approaching_time) {
   /** distance to waypoint in x */
   float pw_x = x - estimator_x;
   /** distance to waypoint in y */
@@ -378,7 +378,7 @@ bool_t nav_approaching_xy(float x, float y, float approaching_time) {
   if (dist2_to_wp < min_dist*min_dist)
     return TRUE;
 
-  float scal_prod = (x - last_x) * pw_x + (y - last_y) * pw_y;
+  float scal_prod = (x - from_x) * pw_x + (y - from_y) * pw_y;
   
   return (scal_prod < 0.);
 }
@@ -573,7 +573,7 @@ void nav_eight(uint8_t target, uint8_t c1, float radius) {
 
   case R12:
     nav_route_xy(c1_out.x, c1_out.y, c2_in.x, c2_in.y);
-    if (nav_approaching_xy(c2_in.x, c2_in.y,CARROT)) { 
+    if (nav_approaching_xy(c2_in.x, c2_in.y, c1_out.x, c1_out.y, CARROT)) { 
       eight_status = C2;
       InitStage();
     }
@@ -589,7 +589,7 @@ void nav_eight(uint8_t target, uint8_t c1, float radius) {
 
   case R21:
     nav_route_xy(c2_out.x, c2_out.y, c1_in.x, c1_in.y);
-    if (nav_approaching_xy(c1_in.x, c1_in.y,CARROT)) { 
+    if (nav_approaching_xy(c1_in.x, c1_in.y, c2_out.x, c2_out.y, CARROT)) { 
       eight_status = C1;
       InitStage();
     }
@@ -656,7 +656,7 @@ void nav_oval(uint8_t p1, uint8_t p2, float radius) {
 
   case OR12:
     nav_route_xy(p1_out.x, p1_out.y, p2_in.x, p2_in.y);
-    if (nav_approaching_xy(p2_in.x, p2_in.y,CARROT)) { 
+    if (nav_approaching_xy(p2_in.x, p2_in.y, p1_out.x, p1_out.y, CARROT)) { 
       oval_status = OC2;
       InitStage();
     }
@@ -672,7 +672,7 @@ void nav_oval(uint8_t p1, uint8_t p2, float radius) {
 
   case OR21:
     nav_route_xy(waypoints[p2].x, waypoints[p2].y, waypoints[p1].x, waypoints[p1].y);
-    if (nav_approaching_xy(waypoints[p1].x, waypoints[p1].y,CARROT)) { 
+    if (nav_approaching_xy(waypoints[p1].x, waypoints[p1].y, waypoints[p2].x, waypoints[p2].y, CARROT)) { 
       oval_status = OC1;
       InitStage();
     }

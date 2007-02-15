@@ -66,7 +66,7 @@
     </block>
 
     <block name="Anemotaxis" strip_button="Anem">
-      <call fun="nav_anemotaxis_downwind(WP_C, 400)"/>
+      <call fun="nav_anemotaxis_downwind(WP_C, 300)"/>
       <go from="HOME" wp="C" hmode="route" approaching_time="0"/>
       <call fun="nav_anemotaxis_init(WP_C)"/>
       <call fun="nav_anemotaxis(WP_C, WP_C1, WP_C2, WP_PLUME)"/>
