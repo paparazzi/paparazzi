@@ -347,7 +347,7 @@ let rec print_stage = fun index_of_waypoints x ->
 	let last_wp =
 	  try
 	    get_index_waypoint (ExtXml.attrib x "from") index_of_waypoints
-	  with _ -> "last_wp" in
+	  with ExtXml.Error _ -> "last_wp" in
 	let hmode = output_hmode x wp last_wp in
 	let vmode = output_vmode x wp last_wp in
 	if vmode = "glide" && hmode <> "route" then

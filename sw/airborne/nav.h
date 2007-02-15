@@ -75,9 +75,6 @@ extern uint16_t stage_time, block_time;
 /** in second */
 extern float stage_time_ds;
 
-/** One full circle == 1. */
-extern float circle_count;
-
 extern float carrot_x, carrot_y;
 
 extern bool_t nav_in_circle;

@@ -36,6 +36,8 @@ module Alert_Pprz = Pprz.Messages(struct let name = "alert" end)
 let approaching_alert_time = 3.
 let track_size = ref 500
 
+let ok_modes = ["MANUAL"; "AUTO1"; "AUTO2"]
+
 let rotate = fun a (x, y) ->
   let cosa = cos a and sina = sin a in
   (cosa *.x +. sina *.y, -. sina*.x +. cosa *. y)
@@ -750,7 +752,7 @@ let listen_flight_params = fun geomap auto_center_new_ac alert ->
       log_and_say alert ac.ac_name (sprintf "%s, %s" ac.ac_name ap_mode);
       ac.last_ap_mode <- ap_mode;
       ac.strip#set_label "AP" (Pprz.string_assoc "ap_mode" vs);
-      ac.strip#set_color "AP" (if ap_mode="HOME" then alert_color else ok_color);
+      ac.strip#set_color "AP" (if List.mem ap_mode ok_modes then ok_color else alert_color);
     end;
     let gps_mode = Pprz.string_assoc "gps_mode" vs in
     ac.strip#set_label "GPS" gps_mode;

@@ -399,7 +399,7 @@ void nav_route_xy(float last_wp_x, float last_wp_y, float wp_x, float wp_y) {
   float leg_y = wp_y - last_wp_y;
   float leg2 = Max(leg_x * leg_x + leg_y * leg_y, 1.);
   nav_leg_progress = ((estimator_x - last_wp_x) * leg_x + (estimator_y - last_wp_y) * leg_y) / leg2;
-  nav_leg_progress = Max(nav_leg_progress, 0.);
+  // nav_leg_progress = Max(nav_leg_progress, 0.);
   nav_leg_length = sqrt(leg2);
 
   /** distance of carrot (in meter) */

@@ -10,6 +10,10 @@
 </header>
   <waypoints>
     <waypoint name="HOME" x="0" y="0"/>
+    <waypoint name="AF" x="-200" y="100" alt="215"/>
+    <waypoint name="TOD" x="-150" y="0"/>
+    <waypoint name="OVERRUN" x="50" y="0"/>
+    <waypoint name="TD" x="100" y="0" alt="185"/>
     <waypoint name="1" x="-75" y="75"/>
     <waypoint name="2" x="75" y="75"/>
     <waypoint name="MOB" x="200" y="200"/>
@@ -52,18 +56,18 @@
     </block>
 
 
-    <block name="oval" strip_button="Oval">
+    <block name="oval">
       <oval p1="1" p2="2" radius="80"/>
     </block>
 
-    <block name="MOB" strip_button="MOB">
+    <block name="MOB">
       <call fun="NavSetWaypointHere(WP_MOB)"/>
       <circle wp="MOB" radius="100"/>
     </block>
 
     <block name="Anemotaxis" strip_button="Anem">
       <call fun="nav_anemotaxis_downwind(WP_C, 400)"/>
-      <go wp="C" hmode="route" approaching_time="0"/>
+      <go from="HOME" wp="C" hmode="route" approaching_time="0"/>
       <call fun="nav_anemotaxis_init(WP_C)"/>
       <call fun="nav_anemotaxis(WP_C, WP_C1, WP_C2, WP_PLUME)"/>
     </block>
@@ -134,7 +138,7 @@
       <follow ac_id="5" distance="25" height="10"/>
     </block>
 
-    <block name="bomb" strip_button="Bomb">
+    <block name="bomb">
       <set value="BombComputeApproach()" var="unit"/>
       <circle radius="BOMB_RADIUS" until="NavQdrCloseTo(DegOfRad(bomb_start_qdr)-10)" wp="BASELEG"/>
     </block>
@@ -152,6 +156,25 @@
       <set value="BombCloseHatch()" var="unit"/>
       <deroute block="wait"/>
     </block>
+
+   <block name="land">
+      <set value="compute_baseleg()" var="unit"/>
+      <circle radius="BOMB_RADIUS" until="NavCircleCount() > 0.5" wp="BASELEG"/>
+      <set value="V_CTL_AUTO_THROTTLE_MIN_CRUISE_THROTTLE" var="v_ctl_auto_throttle_cruise_throttle"/>
+      <circle radius="BOMB_RADIUS" until="NavQdrCloseTo(DegOfRad(bomb_start_qdr)-10) && baseleg_alt_tolerance > fabs(estimator_z - baseleg_alt)" wp="BASELEG"/>
+    </block>
+
+    <block name="final">
+      <exception cond="ground_alt + 10 > estimator_z" deroute="flare"/>
+      <go alt="baseleg_alt" approaching_time="16" from="AF" hmode="route" wp="TD"/>
+      <go approaching_time="2" from="AF" hmode="route" throttle="0.1" vmode="throttle" wp="TD"/>
+    </block>
+
+    <block name="flare">
+      <go approaching_time="0" from="AF" hmode="route" throttle="0.0" vmode="throttle" wp="TD"/>
+      <attitude roll="0.0" throttle="0.0" until="FALSE" vmode="throttle"/>
+    </block>
+
 
 
   </blocks>

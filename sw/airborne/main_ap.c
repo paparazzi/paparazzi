@@ -298,24 +298,22 @@ static void navigation_task( void ) {
 #if defined FAILSAFE_DELAY_WITHOUT_GPS
   /** This section is used for the failsafe of GPS */
   static uint8_t last_pprz_mode;
-  /** Test if we lost the GPS */
-  if (!GpsFixValid() ||
-      (cpu_time_sec - last_gps_msg_t > FAILSAFE_DELAY_WITHOUT_GPS)) {
-    /** If aircraft is launch and is in autonomus mode, go into
-	PPRZ_MODE_GPS_OUT_OF_ORDER mode (Failsafe). */
-    if (launch && (pprz_mode == PPRZ_MODE_AUTO2 ||
-		   pprz_mode == PPRZ_MODE_HOME)) {
-      last_pprz_mode = pprz_mode;
-      pprz_mode = PPRZ_MODE_GPS_OUT_OF_ORDER;
+  /** If aircraft is launched and is in autonomus mode, go into
+      PPRZ_MODE_GPS_OUT_OF_ORDER mode (Failsafe) if we lost the GPS */
+  if (launch) {
+    if (cpu_time_sec - last_gps_msg_t > FAILSAFE_DELAY_WITHOUT_GPS) {
+      if (pprz_mode == PPRZ_MODE_AUTO2 || pprz_mode == PPRZ_MODE_HOME) {
+	last_pprz_mode = pprz_mode;
+	pprz_mode = PPRZ_MODE_GPS_OUT_OF_ORDER;
+	PERIODIC_SEND_PPRZ_MODE();
+	gps_lost = TRUE;
+      }
+    } else /* GPS is ok */ if (gps_lost) {
+      /** If aircraft was in failsafe mode, come back in previous mode */
+      pprz_mode = last_pprz_mode;
+      gps_lost = FALSE;
       PERIODIC_SEND_PPRZ_MODE();
-      gps_lost = TRUE;
     }
-  }
-  /** If aircraft was in failsafe mode, come back in previous mode */
-  else if (gps_lost) {
-    pprz_mode = last_pprz_mode;
-    gps_lost = FALSE;
-    PERIODIC_SEND_PPRZ_MODE();
   }
 #endif /* GPS && FAILSAFE_DELAY_WITHOUT_GPS */
   

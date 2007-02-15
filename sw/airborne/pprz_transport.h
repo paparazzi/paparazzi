@@ -91,7 +91,7 @@ extern uint8_t ck_a, ck_b;
 #define PprzTransportPutFloatByAddr(_x) PprzTransportPut4ByteByAddr((const uint8_t*)_x)
 
 #define PprzTransportPutArray(_put, _n, _x) { \
-  uint8_t i; \
+  uint8_t _i; \
   PprzTransportPutUint8(_n); \
   for(_i = 0; _i < _n; _i++) { \
     _put(&_x[_i]); \
