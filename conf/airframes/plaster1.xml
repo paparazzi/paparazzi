@@ -143,11 +143,8 @@
 include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
    </makefile>
 
-   <makefile target="tunnel">
-tunnel.srcs += $(SRC_ARCH)/uart_tunnel.c
-   </makefile>
 
-<makefile target="ac">
+  <makefile target="ac">
 include $(PAPARAZZI_SRC)/conf/autopilot/v1_2_1.makefile
 include $(PAPARAZZI_SRC)/conf/autopilot/twin_mcu_avr.makefile
 
@@ -166,6 +163,6 @@ ap.CFLAGS += -DUSE_UART0 -DDOWNLINK_AP_DEVICE=Uart0
 ap.CFLAGS += -DDATALINK=XBEE
 ap.srcs += traffic_info.c datalink.c xbee.c
 ap.CFLAGS += -DXBEE_UART=Uart0 -DUART0_BAUD=B9600
-</makefile>
+  </makefile>
 
 </airframe>
