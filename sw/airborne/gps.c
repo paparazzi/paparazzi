@@ -35,6 +35,7 @@
 #include "ap_downlink.h"
 #include "infrared.h"
 #include "nav.h"
+#include "led.h"
 
 uint16_t last_gps_msg_t;	/** cputime of the last gps message */
 
@@ -65,7 +66,14 @@ void use_gps_pos( void ) {
   if (GpsFixValid()) {
     last_gps_msg_t = cpu_time_sec;
     estimator_update_state_gps();
+#ifdef GPS_LED
+    LED_TOGGLE(GPS_LED);
   }
+  else {
+    LED_ON(GPS_LED);
+#endif
+  }
+
   DOWNLINK_SEND_GPS(&gps_mode, &gps_utm_east, &gps_utm_north, &gps_course, &gps_alt, &gps_gspeed,&gps_climb, &gps_itow, &gps_utm_zone, &gps_nb_ovrn);
   
   static uint8_t i;
