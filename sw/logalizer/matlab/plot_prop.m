@@ -15,22 +15,29 @@ function [] = plot_prop()
     torque_n = torque_g .* ( 9.81 / 1000 ); 
 
     K = fminsearch(@lin_model, [1, 1]);
-    Kt = K(1)
-    Kq = K(2)
-
+    Kt = K(1);
+    Kq = K(2);
+    
+    % F = 0.5 * rho * prop_area * ct * prop_rad^2 * omega^2
+    rho = 1.225;
+    prop_area = 0.005;
+    prop_rad = 0.125;
+    Ct = Kt / (0.5 * rho * prop_area * prop_rad^2)  
+    Cq = Kq / (0.5 * rho * prop_area * prop_rad^2)
+    
     plot(omega_square, thrust_n, ...
          omega_square, Kt * omega_square, ...
          omega_square, torque_n, ...
          omega_square, Kq * omega_square )
      
-    title('EPP 10*4.5');
+    title('Propeller caracterisation (EPP 10*4.5)');
     legend('thrust', 'fitted thrust', 'torque', 'fitted torque');
     xlabel('omega square in rad^2/s^2');
     ylabel('forces in N');
     tb = annotation('textbox', [0.2 0.65 0.1 0.1]);
     set(tb, 'String', ...
-        [sprintf('Kt = %.2e\n\n', Kt) ...
-         sprintf('Kq = %.2e', Kq)], ... 
+        [sprintf('Thrust = %.2e * omega^2 ( Ct = %.2e )\n\n', Kt, Ct) ...
+         sprintf('Torque = %.2e * omega^2 ( Cq = %.2e )', Kq, Cq)], ... 
         'FitHeightToText', 'on' );
     
     function [sse] = lin_model(params)

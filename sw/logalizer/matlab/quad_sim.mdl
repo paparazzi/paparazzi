@@ -1,12 +1,12 @@
 Model {
   Name			  "quad_sim"
-  Version		  6.2
+  Version		  6.3
   MdlSubVersion		  0
   GraphicalInterface {
     NumRootInports	    0
     NumRootOutports	    0
     ParameterArgumentNames  ""
-    ComputedModelVersion    "1.130"
+    ComputedModelVersion    "1.131"
     NumModelReferences	    0
     NumTestPointedSignals   0
   }
@@ -55,8 +55,8 @@ Model {
   ModifiedByFormat	  "%<Auto>"
   LastModifiedBy	  "poine"
   ModifiedDateFormat	  "%<Auto>"
-  LastModifiedDate	  "Fri Dec 29 01:09:45 2006"
-  ModelVersionFormat	  "1.%<AutoIncrement:130>"
+  LastModifiedDate	  "Mon Feb 26 17:47:34 2007"
+  ModelVersionFormat	  "1.%<AutoIncrement:131>"
   ConfigurationManager	  "none"
   LinearizationMsg	  "none"
   Profile		  off
@@ -142,6 +142,7 @@ Model {
 	  SaveOutput		  on
 	  SaveState		  off
 	  SignalLogging		  on
+	  InspectSignalLogs	  off
 	  SaveTime		  on
 	  StateSaveName		  "xout"
 	  TimeSaveName		  "tout"
@@ -197,6 +198,9 @@ Model {
 	  ConsistencyChecking	  "none"
 	  ArrayBoundsChecking	  "none"
 	  SignalInfNanChecking	  "none"
+	  ReadBeforeWriteMsg	  "UseLocalSettings"
+	  WriteAfterWriteMsg	  "UseLocalSettings"
+	  WriteAfterReadMsg	  "UseLocalSettings"
 	  AlgebraicLoopMsg	  "warning"
 	  ArtificialAlgebraicLoopMsg "warning"
 	  CheckSSInitialOutputMsg on
@@ -212,11 +216,13 @@ Model {
 	  MultiTaskRateTransMsg	  "error"
 	  SingleTaskRateTransMsg  "none"
 	  TasksWithSamePriorityMsg "warning"
+	  SigSpecEnsureSampleTimeMsg "warning"
 	  CheckMatrixSingularityMsg "none"
 	  IntegerOverflowMsg	  "warning"
 	  Int32ToFloatConvMsg	  "warning"
 	  ParameterDowncastMsg	  "error"
 	  ParameterOverflowMsg	  "error"
+	  ParameterUnderflowMsg	  "none"
 	  ParameterPrecisionLossMsg "warning"
 	  UnderSpecifiedDataTypeMsg "none"
 	  UnnecessaryDatatypeConvMsg "none"
@@ -495,6 +501,7 @@ Model {
     }
     Block {
       BlockType		      Inport
+      Port		      "1"
       UseBusObject	      off
       BusObject		      "BusObject"
       BusOutputAsStruct	      off
@@ -505,6 +512,8 @@ Model {
       OutScaling	      "2^0"
       SignalType	      "auto"
       SamplingMode	      "auto"
+      LatchByDelayingOutsideSignal off
+      LatchByCopyingInsideSignal off
       Interpolate	      on
     }
     Block {
@@ -622,7 +631,6 @@ Model {
     }
     Block {
       BlockType		      Scope
-      Floating		      off
       ModelBased	      off
       TickLabels	      "OneTimeTick"
       ZoomMode		      "on"
@@ -636,7 +644,7 @@ Model {
       MaxDataPoints	      "5000"
       Decimation	      "1"
       SampleInput	      off
-      SampleTime	      "0"
+      SampleTime	      "-1"
     }
     Block {
       BlockType		      Selector
@@ -726,7 +734,7 @@ Model {
   }
   System {
     Name		    "quad_sim"
-    Location		    [2, 77, 1277, 949]
+    Location		    [5, 343, 1280, 1215]
     Open		    on
     ModelBrowserVisibility  off
     ModelBrowserWidth	    200
@@ -745,6 +753,7 @@ Model {
       TreatAsAtomicUnit	      off
       MinAlgLoopOccurrences   off
       RTWSystemCode	      "Auto"
+      MaskHideContents	      off
       MaskPromptString	      "Kv|Tau|Kq"
       MaskStyleString	      "edit,edit,edit"
       MaskTunableValueString  "on,on,on"
@@ -766,7 +775,6 @@ Model {
 	PropagatedSignals	", , , "
 	RTWStorageClass		"Auto"
 	DataLoggingNameMode	"SignalName"
-	ShowSigGenPortName	on
       }
       System {
 	Name			"Actuators"
@@ -785,9 +793,7 @@ Model {
 	  Name			  "motor commands"
 	  Position		  [55, 488, 85, 502]
 	  NamePlacement		  "alternate"
-	  Port			  "1"
 	  IconDisplay		  "Port number"
-	  LatchInput		  off
 	}
 	Block {
 	  BlockType		  Inport
@@ -796,7 +802,6 @@ Model {
 	  NamePlacement		  "alternate"
 	  Port			  "2"
 	  IconDisplay		  "Port number"
-	  LatchInput		  off
 	}
 	Block {
 	  BlockType		  Demux
@@ -832,6 +837,7 @@ Model {
 	  TreatAsAtomicUnit	  off
 	  MinAlgLoopOccurrences	  off
 	  RTWSystemCode		  "Auto"
+	  MaskHideContents	  off
 	  System {
 	    Name		    "motor E"
 	    Location		    [1527, 49, 1982, 295]
@@ -848,9 +854,7 @@ Model {
 	      BlockType		      Inport
 	      Name		      "voltage"
 	      Position		      [25, 188, 55, 202]
-	      Port		      "1"
 	      IconDisplay	      "Port number"
-	      LatchInput	      off
 	    }
 	    Block {
 	      BlockType		      Sum
@@ -912,6 +916,7 @@ Model {
 	      Name		      "omega"
 	      Position		      [400, 178, 430, 192]
 	      IconDisplay	      "Port number"
+	      BusOutputAsStruct	      off
 	    }
 	    Line {
 	      SrcBlock		      "Gain"
@@ -984,6 +989,7 @@ Model {
 	  TreatAsAtomicUnit	  off
 	  MinAlgLoopOccurrences	  off
 	  RTWSystemCode		  "Auto"
+	  MaskHideContents	  off
 	  System {
 	    Name		    "motor N"
 	    Location		    [1527, 49, 1982, 295]
@@ -999,165 +1005,8 @@ Model {
 	    Block {
 	      BlockType		      Inport
 	      Name		      "voltage"
-	      Position		      [25, 190, 55, 204]
-	      Port		      "1"
-	      IconDisplay	      "Port number"
-	      LatchInput	      off
-	    }
-	    Block {
-	      BlockType		      Sum
-	      Name		      "Add"
-	      Ports		      [3, 1]
-	      Position		      [200, 169, 230, 201]
-	      Inputs		      "--+"
-	      InputSameDT	      off
-	      OutDataTypeMode	      "Inherit via internal rule"
-	      OutScaling	      "2^-10"
-	      SaturateOnIntegerOverflow	off
-	    }
-	    Block {
-	      BlockType		      Gain
-	      Name		      "Gain"
-	      Position		      [80, 173, 135, 217]
-	      Gain		      "Kv/Tau"
-	      ParameterDataTypeMode   "Inherit via internal rule"
-	      OutDataTypeMode	      "Inherit via internal rule"
-	      SaturateOnIntegerOverflow	off
-	    }
-	    Block {
-	      BlockType		      Gain
-	      Name		      "Gain1"
-	      Position		      [195, 92, 255, 138]
-	      Orientation	      "left"
-	      Gain		      "1/Tau"
-	      ParameterDataTypeMode   "Inherit via internal rule"
-	      OutDataTypeMode	      "Inherit via internal rule"
-	      SaturateOnIntegerOverflow	off
-	    }
-	    Block {
-	      BlockType		      Gain
-	      Name		      "Gain2"
-	      Position		      [200, 23, 255, 67]
-	      Orientation	      "left"
-	      Gain		      "Kq"
-	      ParameterDataTypeMode   "Inherit via internal rule"
-	      OutDataTypeMode	      "Inherit via internal rule"
-	      SaturateOnIntegerOverflow	off
-	    }
-	    Block {
-	      BlockType		      Integrator
-	      Name		      "Integrator"
-	      Ports		      [1, 1]
-	      Position		      [290, 170, 320, 200]
-	      IgnoreLimit	      off
-	    }
-	    Block {
-	      BlockType		      Math
-	      Name		      "Math\nFunction"
-	      Ports		      [1, 1]
-	      Position		      [290, 30, 320, 60]
-	      Orientation	      "left"
-	      Operator		      "square"
-	    }
-	    Block {
-	      BlockType		      Outport
-	      Name		      "omega"
-	      Position		      [400, 180, 430, 194]
-	      IconDisplay	      "Port number"
-	    }
-	    Line {
-	      SrcBlock		      "Gain"
-	      SrcPort		      1
-	      Points		      [45, 0]
-	      DstBlock		      "Add"
-	      DstPort		      3
-	    }
-	    Line {
-	      SrcBlock		      "Add"
-	      SrcPort		      1
-	      Points		      [0, 0]
-	      DstBlock		      "Integrator"
-	      DstPort		      1
-	    }
-	    Line {
-	      SrcBlock		      "Integrator"
-	      SrcPort		      1
-	      Points		      [0, 0; 55, 0]
-	      Branch {
-		Points			[0, -70]
-		Branch {
-		  Points		  [0, -70]
-		  DstBlock		  "Math\nFunction"
-		  DstPort		  1
-		}
-		Branch {
-		  Points		  [-110, 0]
-		  DstBlock		  "Gain1"
-		  DstPort		  1
-		}
-	      }
-	      Branch {
-		DstBlock		"omega"
-		DstPort			1
-	      }
-	    }
-	    Line {
-	      SrcBlock		      "Math\nFunction"
-	      SrcPort		      1
-	      Points		      [-15, 0]
-	      DstBlock		      "Gain2"
-	      DstPort		      1
-	    }
-	    Line {
-	      SrcBlock		      "Gain2"
-	      SrcPort		      1
-	      Points		      [-45, 0; 0, 140]
-	      DstBlock		      "Add"
-	      DstPort		      2
-	    }
-	    Line {
-	      SrcBlock		      "Gain1"
-	      SrcPort		      1
-	      Points		      [-25, 0; 0, 60]
-	      DstBlock		      "Add"
-	      DstPort		      1
-	    }
-	    Line {
-	      SrcBlock		      "voltage"
-	      SrcPort		      1
-	      Points		      [0, 0]
-	      DstBlock		      "Gain"
-	      DstPort		      1
-	    }
-	  }
-	}
-	Block {
-	  BlockType		  SubSystem
-	  Name			  "motor S"
-	  Ports			  [1, 1]
-	  Position		  [275, 510, 345, 560]
-	  TreatAsAtomicUnit	  off
-	  MinAlgLoopOccurrences	  off
-	  RTWSystemCode		  "Auto"
-	  System {
-	    Name		    "motor S"
-	    Location		    [1527, 49, 1982, 295]
-	    Open		    off
-	    ModelBrowserVisibility  off
-	    ModelBrowserWidth	    200
-	    ScreenColor		    "white"
-	    PaperOrientation	    "landscape"
-	    PaperPositionMode	    "auto"
-	    PaperType		    "usletter"
-	    PaperUnits		    "inches"
-	    ZoomFactor		    "100"
-	    Block {
-	      BlockType		      Inport
-	      Name		      "voltage"
 	      Position		      [25, 188, 55, 202]
-	      Port		      "1"
 	      IconDisplay	      "Port number"
-	      LatchInput	      off
 	    }
 	    Block {
 	      BlockType		      Sum
@@ -1219,6 +1068,159 @@ Model {
 	      Name		      "omega"
 	      Position		      [400, 178, 430, 192]
 	      IconDisplay	      "Port number"
+	      BusOutputAsStruct	      off
+	    }
+	    Line {
+	      SrcBlock		      "Gain"
+	      SrcPort		      1
+	      DstBlock		      "Add"
+	      DstPort		      3
+	    }
+	    Line {
+	      SrcBlock		      "Add"
+	      SrcPort		      1
+	      Points		      [0, 0]
+	      DstBlock		      "Integrator"
+	      DstPort		      1
+	    }
+	    Line {
+	      SrcBlock		      "Integrator"
+	      SrcPort		      1
+	      Points		      [0, 0; 55, 0]
+	      Branch {
+		Points			[0, -70]
+		Branch {
+		  Points		  [0, -70]
+		  DstBlock		  "Math\nFunction"
+		  DstPort		  1
+		}
+		Branch {
+		  DstBlock		  "Gain1"
+		  DstPort		  1
+		}
+	      }
+	      Branch {
+		DstBlock		"omega"
+		DstPort			1
+	      }
+	    }
+	    Line {
+	      SrcBlock		      "Math\nFunction"
+	      SrcPort		      1
+	      DstBlock		      "Gain2"
+	      DstPort		      1
+	    }
+	    Line {
+	      SrcBlock		      "Gain2"
+	      SrcPort		      1
+	      Points		      [-45, 0; 0, 140]
+	      DstBlock		      "Add"
+	      DstPort		      2
+	    }
+	    Line {
+	      SrcBlock		      "Gain1"
+	      SrcPort		      1
+	      Points		      [-25, 0; 0, 60]
+	      DstBlock		      "Add"
+	      DstPort		      1
+	    }
+	    Line {
+	      SrcBlock		      "voltage"
+	      SrcPort		      1
+	      Points		      [0, 0]
+	      DstBlock		      "Gain"
+	      DstPort		      1
+	    }
+	  }
+	}
+	Block {
+	  BlockType		  SubSystem
+	  Name			  "motor S"
+	  Ports			  [1, 1]
+	  Position		  [275, 510, 345, 560]
+	  TreatAsAtomicUnit	  off
+	  MinAlgLoopOccurrences	  off
+	  RTWSystemCode		  "Auto"
+	  MaskHideContents	  off
+	  System {
+	    Name		    "motor S"
+	    Location		    [1527, 49, 1982, 295]
+	    Open		    off
+	    ModelBrowserVisibility  off
+	    ModelBrowserWidth	    200
+	    ScreenColor		    "white"
+	    PaperOrientation	    "landscape"
+	    PaperPositionMode	    "auto"
+	    PaperType		    "usletter"
+	    PaperUnits		    "inches"
+	    ZoomFactor		    "100"
+	    Block {
+	      BlockType		      Inport
+	      Name		      "voltage"
+	      Position		      [25, 188, 55, 202]
+	      IconDisplay	      "Port number"
+	    }
+	    Block {
+	      BlockType		      Sum
+	      Name		      "Add"
+	      Ports		      [3, 1]
+	      Position		      [200, 169, 230, 201]
+	      Inputs		      "--+"
+	      InputSameDT	      off
+	      OutDataTypeMode	      "Inherit via internal rule"
+	      OutScaling	      "2^-10"
+	      SaturateOnIntegerOverflow	off
+	    }
+	    Block {
+	      BlockType		      Gain
+	      Name		      "Gain"
+	      Position		      [80, 173, 135, 217]
+	      Gain		      "Kv/Tau"
+	      ParameterDataTypeMode   "Inherit via internal rule"
+	      OutDataTypeMode	      "Inherit via internal rule"
+	      SaturateOnIntegerOverflow	off
+	    }
+	    Block {
+	      BlockType		      Gain
+	      Name		      "Gain1"
+	      Position		      [195, 92, 255, 138]
+	      Orientation	      "left"
+	      Gain		      "1/Tau"
+	      ParameterDataTypeMode   "Inherit via internal rule"
+	      OutDataTypeMode	      "Inherit via internal rule"
+	      SaturateOnIntegerOverflow	off
+	    }
+	    Block {
+	      BlockType		      Gain
+	      Name		      "Gain2"
+	      Position		      [200, 23, 255, 67]
+	      Orientation	      "left"
+	      Gain		      "Kq"
+	      ParameterDataTypeMode   "Inherit via internal rule"
+	      OutDataTypeMode	      "Inherit via internal rule"
+	      SaturateOnIntegerOverflow	off
+	    }
+	    Block {
+	      BlockType		      Integrator
+	      Name		      "Integrator"
+	      Ports		      [1, 1]
+	      Position		      [290, 170, 320, 200]
+	      IgnoreLimit	      off
+	    }
+	    Block {
+	      BlockType		      Math
+	      Name		      "Math\nFunction"
+	      Ports		      [1, 1]
+	      Position		      [290, 30, 320, 60]
+	      Orientation	      "left"
+	      Operator		      "square"
+	    }
+	    Block {
+	      BlockType		      Outport
+	      Name		      "omega"
+	      Position		      [400, 178, 430, 192]
+	      IconDisplay	      "Port number"
+	      BusOutputAsStruct	      off
 	    }
 	    Line {
 	      SrcBlock		      "Gain"
@@ -1291,6 +1293,7 @@ Model {
 	  TreatAsAtomicUnit	  off
 	  MinAlgLoopOccurrences	  off
 	  RTWSystemCode		  "Auto"
+	  MaskHideContents	  off
 	  System {
 	    Name		    "motor W"
 	    Location		    [1527, 49, 1982, 295]
@@ -1307,9 +1310,7 @@ Model {
 	      BlockType		      Inport
 	      Name		      "voltage"
 	      Position		      [25, 188, 55, 202]
-	      Port		      "1"
 	      IconDisplay	      "Port number"
-	      LatchInput	      off
 	    }
 	    Block {
 	      BlockType		      Sum
@@ -1371,6 +1372,7 @@ Model {
 	      Name		      "omega"
 	      Position		      [400, 178, 430, 192]
 	      IconDisplay	      "Port number"
+	      BusOutputAsStruct	      off
 	    }
 	    Line {
 	      SrcBlock		      "Gain"
@@ -1464,63 +1466,54 @@ Model {
 	Line {
 	  SrcBlock		  "Mux"
 	  SrcPort		  1
-	  Points		  [35, 0]
 	  DstBlock		  "prop rotational speeds"
 	  DstPort		  1
 	}
 	Line {
 	  SrcBlock		  "Demux"
 	  SrcPort		  1
-	  Points		  [35, 0]
 	  DstBlock		  "motor N"
 	  DstPort		  1
 	}
 	Line {
 	  SrcBlock		  "Demux"
 	  SrcPort		  2
-	  Points		  [35, 0]
 	  DstBlock		  "motor E"
 	  DstPort		  1
 	}
 	Line {
 	  SrcBlock		  "Demux"
 	  SrcPort		  3
-	  Points		  [35, 0]
 	  DstBlock		  "motor S"
 	  DstPort		  1
 	}
 	Line {
 	  SrcBlock		  "Demux"
 	  SrcPort		  4
-	  Points		  [35, 0]
 	  DstBlock		  "motor W"
 	  DstPort		  1
 	}
 	Line {
 	  SrcBlock		  "motor N"
 	  SrcPort		  1
-	  Points		  [30, 0]
 	  DstBlock		  "Mux"
 	  DstPort		  1
 	}
 	Line {
 	  SrcBlock		  "motor E"
 	  SrcPort		  1
-	  Points		  [30, 0]
 	  DstBlock		  "Mux"
 	  DstPort		  2
 	}
 	Line {
 	  SrcBlock		  "motor S"
 	  SrcPort		  1
-	  Points		  [30, 0]
 	  DstBlock		  "Mux"
 	  DstPort		  3
 	}
 	Line {
 	  SrcBlock		  "motor W"
 	  SrcPort		  1
-	  Points		  [30, 0]
 	  DstBlock		  "Mux"
 	  DstPort		  4
 	}
@@ -1532,6 +1525,7 @@ Model {
       Ports		      [2]
       Position		      [1180, 261, 1215, 334]
       ForegroundColor	      "magenta"
+      Floating		      off
       Location		      [3, 77, 1279, 995]
       Open		      off
       NumInputPorts	      "2"
@@ -1545,6 +1539,7 @@ Model {
       YMax		      "6~100"
       DataFormat	      "StructureWithTime"
       LimitDataPoints	      off
+      SampleTime	      "0"
     }
     Block {
       BlockType		      Clock
@@ -1585,26 +1580,24 @@ Model {
       TreatAsAtomicUnit	      off
       MinAlgLoopOccurrences   off
       RTWSystemCode	      "Auto"
+      MaskHideContents	      off
       Port {
 	PortNumber		1
 	Name			"Velocity in Inertial Axes"
 	RTWStorageClass		"Auto"
 	DataLoggingNameMode	"SignalName"
-	ShowSigGenPortName	on
       }
       Port {
 	PortNumber		2
 	Name			"Position in Inertial Axes"
 	RTWStorageClass		"Auto"
 	DataLoggingNameMode	"SignalName"
-	ShowSigGenPortName	on
       }
       Port {
 	PortNumber		5
 	Name			"Velocity in Body Axes"
 	RTWStorageClass		"Auto"
 	DataLoggingNameMode	"SignalName"
-	ShowSigGenPortName	on
       }
       System {
 	Name			"Equations of Motion\n(Configurable Subsystem)"
@@ -1622,9 +1615,7 @@ Model {
 	  BlockType		  Inport
 	  Name			  "Forces\nX\nY\nZ"
 	  Position		  [20, 40, 40, 60]
-	  Port			  "1"
 	  IconDisplay		  "Port number"
-	  LatchInput		  off
 	}
 	Block {
 	  BlockType		  Inport
@@ -1632,7 +1623,6 @@ Model {
 	  Position		  [20, 80, 40, 100]
 	  Port			  "2"
 	  IconDisplay		  "Port number"
-	  LatchInput		  off
 	}
 	Block {
 	  BlockType		  Reference
@@ -1768,6 +1758,7 @@ Model {
       TreatAsAtomicUnit	      off
       MinAlgLoopOccurrences   off
       RTWSystemCode	      "Auto"
+      MaskHideContents	      off
       MaskPromptString	      "Rho|Prop_area|Prop_radius|Mass|arm len|Thrust a"
 "erodynamic coef|Moment aerodynamic coef|Body drag coef"
       MaskStyleString	      "edit,edit,edit,edit,edit,edit,edit,edit"
@@ -1787,11 +1778,11 @@ Model {
       MaskIconOpaque	      on
       MaskIconRotate	      "none"
       MaskIconUnits	      "autoscale"
-      MaskValueString	      "1.225|0.005|0.125|0.5|0.25|1.05|1.0|0.15"
+      MaskValueString	      "1.225|0.005|0.125|0.5|0.25|0.297|0.0276|0.15"
       MaskTabNameString	      ",,,,,,,"
       System {
 	Name			"FDM"
-	Location		[13, 122, 1278, 905]
+	Location		[881, 782, 2146, 1565]
 	Open			on
 	ModelBrowserVisibility	off
 	ModelBrowserWidth	200
@@ -1805,9 +1796,7 @@ Model {
 	  BlockType		  Inport
 	  Name			  "DCM"
 	  Position		  [50, 13, 80, 27]
-	  Port			  "1"
 	  IconDisplay		  "Port number"
-	  LatchInput		  off
 	}
 	Block {
 	  BlockType		  Inport
@@ -1815,14 +1804,12 @@ Model {
 	  Position		  [40, 228, 70, 242]
 	  Port			  "2"
 	  IconDisplay		  "Port number"
-	  LatchInput		  off
 	  Port {
 	    PortNumber		    1
 	    Name		    "airspeed"
 	    PropagatedSignals	    "Velocity in Body Axes"
 	    RTWStorageClass	    "Auto"
 	    DataLoggingNameMode	    "SignalName"
-	    ShowSigGenPortName	    on
 	  }
 	}
 	Block {
@@ -1832,7 +1819,6 @@ Model {
 	  NamePlacement		  "alternate"
 	  Port			  "3"
 	  IconDisplay		  "Port number"
-	  LatchInput		  off
 	}
 	Block {
 	  BlockType		  Abs
@@ -1864,7 +1850,6 @@ Model {
 	    Name		    "body drag"
 	    RTWStorageClass	    "Auto"
 	    DataLoggingNameMode	    "SignalName"
-	    ShowSigGenPortName	    on
 	  }
 	}
 	Block {
@@ -1898,7 +1883,6 @@ Model {
 	    Name		    "prop thrust"
 	    RTWStorageClass	    "Auto"
 	    DataLoggingNameMode	    "SignalName"
-	    ShowSigGenPortName	    on
 	  }
 	}
 	Block {
@@ -1934,7 +1918,6 @@ Model {
 	    Name		    "gravity body axes"
 	    RTWStorageClass	    "Auto"
 	    DataLoggingNameMode	    "SignalName"
-	    ShowSigGenPortName	    on
 	  }
 	}
 	Block {
@@ -1961,7 +1944,6 @@ Model {
 	    Name		    "gravity inertial axes"
 	    RTWStorageClass	    "Auto"
 	    DataLoggingNameMode	    "SignalName"
-	    ShowSigGenPortName	    on
 	  }
 	}
 	Block {
@@ -2107,6 +2089,7 @@ Model {
 	Annotation {
 	  Name			  "pn\npe\nps\npw"
 	  Position		  [56, 579]
+	  UseDisplayTextAsClickCallback	off
 	}
       }
     }
@@ -2116,7 +2099,8 @@ Model {
       Ports		      [3]
       Position		      [1180, 123, 1215, 227]
       ForegroundColor	      "magenta"
-      Location		      [1283, 51, 2553, 949]
+      Floating		      off
+      Location		      [1283, 77, 2553, 975]
       Open		      on
       NumInputPorts	      "3"
       TickLabels	      "on"
@@ -2133,6 +2117,7 @@ Model {
       SaveName		      "InertialData"
       DataFormat	      "StructureWithTime"
       LimitDataPoints	      off
+      SampleTime	      "0"
     }
     Block {
       BlockType		      Mux
@@ -2148,7 +2133,6 @@ Model {
 	PropagatedSignals	"Body Rotational Rates\n, "
 	RTWStorageClass		"Auto"
 	DataLoggingNameMode	"SignalName"
-	ShowSigGenPortName	on
       }
     }
     Block {
@@ -2165,7 +2149,6 @@ Model {
 	PropagatedSignals	"Euler Angles, "
 	RTWStorageClass		"Auto"
 	DataLoggingNameMode	"SignalName"
-	ShowSigGenPortName	on
       }
     }
     Block {
@@ -2188,6 +2171,7 @@ Model {
       TreatAsAtomicUnit	      off
       MinAlgLoopOccurrences   off
       RTWSystemCode	      "Auto"
+      MaskHideContents	      off
       System {
 	Name			"Sensors"
 	Location		[183, 77, 1278, 915]
@@ -2204,9 +2188,7 @@ Model {
 	  BlockType		  Inport
 	  Name			  "DCM"
 	  Position		  [80, 488, 110, 502]
-	  Port			  "1"
 	  IconDisplay		  "Port number"
-	  LatchInput		  off
 	}
 	Block {
 	  BlockType		  Inport
@@ -2214,7 +2196,6 @@ Model {
 	  Position		  [80, 158, 110, 172]
 	  Port			  "2"
 	  IconDisplay		  "Port number"
-	  LatchInput		  off
 	}
 	Block {
 	  BlockType		  Inport
@@ -2222,7 +2203,6 @@ Model {
 	  Position		  [80, 398, 110, 412]
 	  Port			  "3"
 	  IconDisplay		  "Port number"
-	  LatchInput		  off
 	}
 	Block {
 	  BlockType		  Inport
@@ -2230,7 +2210,6 @@ Model {
 	  Position		  [80, 278, 110, 292]
 	  Port			  "4"
 	  IconDisplay		  "Port number"
-	  LatchInput		  off
 	}
 	Block {
 	  BlockType		  Inport
@@ -2238,7 +2217,6 @@ Model {
 	  Position		  [80, 758, 110, 772]
 	  Port			  "5"
 	  IconDisplay		  "Port number"
-	  LatchInput		  off
 	}
 	Block {
 	  BlockType		  RandomNumber
@@ -2422,6 +2400,7 @@ Model {
 	  TreatAsAtomicUnit	  off
 	  MinAlgLoopOccurrences	  off
 	  RTWSystemCode		  "Auto"
+	  MaskHideContents	  off
 	  System {
 	    Name		    "bank factor"
 	    Location		    [1288, 433, 2192, 896]
@@ -2438,9 +2417,7 @@ Model {
 	      BlockType		      Inport
 	      Name		      "value in"
 	      Position		      [100, 28, 130, 42]
-	      Port		      "1"
 	      IconDisplay	      "Port number"
-	      LatchInput	      off
 	    }
 	    Block {
 	      BlockType		      Inport
@@ -2448,7 +2425,6 @@ Model {
 	      Position		      [100, 108, 130, 122]
 	      Port		      "2"
 	      IconDisplay	      "Port number"
-	      LatchInput	      off
 	    }
 	    Block {
 	      BlockType		      Inport
@@ -2456,7 +2432,6 @@ Model {
 	      Position		      [105, 178, 135, 192]
 	      Port		      "3"
 	      IconDisplay	      "Port number"
-	      LatchInput	      off
 	    }
 	    Block {
 	      BlockType		      Sum
@@ -2902,44 +2877,40 @@ Model {
       TreatAsAtomicUnit	      off
       MinAlgLoopOccurrences   off
       RTWSystemCode	      "Auto"
+      MaskHideContents	      off
       Port {
 	PortNumber		1
 	Name			"agl  est"
 	RTWStorageClass		"Auto"
 	DataLoggingNameMode	"SignalName"
-	ShowSigGenPortName	on
       }
       Port {
 	PortNumber		2
 	Name			"agl dot est"
 	RTWStorageClass		"Auto"
 	DataLoggingNameMode	"SignalName"
-	ShowSigGenPortName	on
       }
       Port {
 	PortNumber		3
 	Name			"Body rates est"
 	RTWStorageClass		"Auto"
 	DataLoggingNameMode	"SignalName"
-	ShowSigGenPortName	on
       }
       Port {
 	PortNumber		4
 	Name			"Euler angles est"
 	RTWStorageClass		"Auto"
 	DataLoggingNameMode	"SignalName"
-	ShowSigGenPortName	on
       }
       Port {
 	PortNumber		5
 	Name			"Biases est"
 	RTWStorageClass		"Auto"
 	DataLoggingNameMode	"SignalName"
-	ShowSigGenPortName	on
       }
       System {
 	Name			"State estimator"
-	Location		[32, 109, 1250, 985]
+	Location		[5, 101, 1223, 977]
 	Open			on
 	ModelBrowserVisibility	off
 	ModelBrowserWidth	200
@@ -2953,9 +2924,7 @@ Model {
 	  BlockType		  Inport
 	  Name			  "Magnetometers"
 	  Position		  [60, 173, 90, 187]
-	  Port			  "1"
 	  IconDisplay		  "Port number"
-	  LatchInput		  off
 	}
 	Block {
 	  BlockType		  Inport
@@ -2963,7 +2932,6 @@ Model {
 	  Position		  [50, 383, 80, 397]
 	  Port			  "2"
 	  IconDisplay		  "Port number"
-	  LatchInput		  off
 	}
 	Block {
 	  BlockType		  Inport
@@ -2971,7 +2939,6 @@ Model {
 	  Position		  [60, 118, 90, 132]
 	  Port			  "3"
 	  IconDisplay		  "Port number"
-	  LatchInput		  off
 	}
 	Block {
 	  BlockType		  Inport
@@ -2979,7 +2946,6 @@ Model {
 	  Position		  [50, 508, 80, 522]
 	  Port			  "4"
 	  IconDisplay		  "Port number"
-	  LatchInput		  off
 	}
 	Block {
 	  BlockType		  Inport
@@ -2987,7 +2953,6 @@ Model {
 	  Position		  [45, 733, 75, 747]
 	  Port			  "5"
 	  IconDisplay		  "Port number"
-	  LatchInput		  off
 	}
 	Block {
 	  BlockType		  "S-Function"
@@ -3131,6 +3096,7 @@ Model {
 	  TreatAsAtomicUnit	  off
 	  MinAlgLoopOccurrences	  off
 	  RTWSystemCode		  "Auto"
+	  MaskHideContents	  off
 	  System {
 	    Name		    "fix bank factor"
 	    Location		    [1288, 433, 2192, 896]
@@ -3147,9 +3113,7 @@ Model {
 	      BlockType		      Inport
 	      Name		      "value in"
 	      Position		      [100, 28, 130, 42]
-	      Port		      "1"
 	      IconDisplay	      "Port number"
-	      LatchInput	      off
 	    }
 	    Block {
 	      BlockType		      Inport
@@ -3157,7 +3121,6 @@ Model {
 	      Position		      [100, 108, 130, 122]
 	      Port		      "2"
 	      IconDisplay	      "Port number"
-	      LatchInput	      off
 	    }
 	    Block {
 	      BlockType		      Inport
@@ -3165,7 +3128,6 @@ Model {
 	      Position		      [105, 178, 135, 192]
 	      Port		      "3"
 	      IconDisplay	      "Port number"
-	      LatchInput	      off
 	    }
 	    Block {
 	      BlockType		      Sum
@@ -3584,7 +3546,8 @@ Model {
       Position		      [15, 55, 50, 130]
       Orientation	      "left"
       ForegroundColor	      "magenta"
-      Location		      [1283, 97, 2548, 766]
+      Floating		      off
+      Location		      [6, 77, 1271, 746]
       Open		      on
       NumInputPorts	      "2"
       List {
@@ -3593,11 +3556,12 @@ Model {
 	axes2			"%<SignalLabel>"
       }
       TimeRange		      "70"
-      YMin		      "0~0.3"
-      YMax		      "2000~1"
+      YMin		      "0~0"
+      YMax		      "1800~1"
       SaveName		      "ScopeData1"
       DataFormat	      "StructureWithTime"
       LimitDataPoints	      off
+      SampleTime	      "0"
     }
     Block {
       BlockType		      Constant
@@ -3621,6 +3585,7 @@ Model {
       TreatAsAtomicUnit	      off
       MinAlgLoopOccurrences   off
       RTWSystemCode	      "Auto"
+      MaskHideContents	      off
       MaskPromptString	      "Kp_z|Kd_z|Kp_phi|Kd_phi|Kp_psi|Kd_psi"
       MaskStyleString	      "edit,edit,edit,edit,edit,edit"
       MaskTunableValueString  "on,on,on,on,on,on"
@@ -3642,12 +3607,11 @@ Model {
 	Name			"mot cmd"
 	RTWStorageClass		"Auto"
 	DataLoggingNameMode	"SignalName"
-	ShowSigGenPortName	on
       }
       System {
 	Name			"controller"
 	Location		[45, 208, 1257, 996]
-	Open			on
+	Open			off
 	ModelBrowserVisibility	off
 	ModelBrowserWidth	200
 	ScreenColor		"white"
@@ -3661,9 +3625,7 @@ Model {
 	  Name			  "Hoverpoint_est"
 	  Position		  [35, 13, 65, 27]
 	  NamePlacement		  "alternate"
-	  Port			  "1"
 	  IconDisplay		  "Port number"
-	  LatchInput		  off
 	}
 	Block {
 	  BlockType		  Inport
@@ -3671,7 +3633,6 @@ Model {
 	  Position		  [35, 83, 65, 97]
 	  Port			  "2"
 	  IconDisplay		  "Port number"
-	  LatchInput		  off
 	}
 	Block {
 	  BlockType		  Inport
@@ -3679,7 +3640,6 @@ Model {
 	  Position		  [35, 188, 65, 202]
 	  Port			  "3"
 	  IconDisplay		  "Port number"
-	  LatchInput		  off
 	}
 	Block {
 	  BlockType		  Inport
@@ -3687,7 +3647,6 @@ Model {
 	  Position		  [35, 648, 65, 662]
 	  Port			  "4"
 	  IconDisplay		  "Port number"
-	  LatchInput		  off
 	}
 	Block {
 	  BlockType		  Inport
@@ -3695,7 +3654,6 @@ Model {
 	  Position		  [35, 488, 65, 502]
 	  Port			  "5"
 	  IconDisplay		  "Port number"
-	  LatchInput		  off
 	}
 	Block {
 	  BlockType		  Inport
@@ -3703,7 +3661,6 @@ Model {
 	  Position		  [340, 263, 370, 277]
 	  Port			  "6"
 	  IconDisplay		  "Port number"
-	  LatchInput		  off
 	}
 	Block {
 	  BlockType		  Inport
@@ -3711,7 +3668,6 @@ Model {
 	  Position		  [330, 413, 360, 427]
 	  Port			  "7"
 	  IconDisplay		  "Port number"
-	  LatchInput		  off
 	}
 	Block {
 	  BlockType		  Inport
@@ -3719,7 +3675,6 @@ Model {
 	  Position		  [340, 633, 370, 647]
 	  Port			  "8"
 	  IconDisplay		  "Port number"
-	  LatchInput		  off
 	}
 	Block {
 	  BlockType		  Inport
@@ -3727,7 +3682,6 @@ Model {
 	  Position		  [35, 138, 65, 152]
 	  Port			  "9"
 	  IconDisplay		  "Port number"
-	  LatchInput		  off
 	}
 	Block {
 	  BlockType		  Inport
@@ -3735,7 +3689,6 @@ Model {
 	  Position		  [35, 43, 65, 57]
 	  Port			  "10"
 	  IconDisplay		  "Port number"
-	  LatchInput		  off
 	}
 	Block {
 	  BlockType		  Sum
@@ -3998,6 +3951,7 @@ Model {
 	  TreatAsAtomicUnit	  off
 	  MinAlgLoopOccurrences	  off
 	  RTWSystemCode		  "Auto"
+	  MaskHideContents	  off
 	  System {
 	    Name		    "bank factor"
 	    Location		    [1288, 433, 2192, 896]
@@ -4014,9 +3968,7 @@ Model {
 	      BlockType		      Inport
 	      Name		      "value in"
 	      Position		      [100, 28, 130, 42]
-	      Port		      "1"
 	      IconDisplay	      "Port number"
-	      LatchInput	      off
 	    }
 	    Block {
 	      BlockType		      Inport
@@ -4024,7 +3976,6 @@ Model {
 	      Position		      [100, 108, 130, 122]
 	      Port		      "2"
 	      IconDisplay	      "Port number"
-	      LatchInput	      off
 	    }
 	    Block {
 	      BlockType		      Inport
@@ -4032,7 +3983,6 @@ Model {
 	      Position		      [105, 178, 135, 192]
 	      Port		      "3"
 	      IconDisplay	      "Port number"
-	      LatchInput	      off
 	    }
 	    Block {
 	      BlockType		      Sum
@@ -4373,14 +4323,12 @@ Model {
 	Line {
 	  SrcBlock		  "Subtract1"
 	  SrcPort		  1
-	  Points		  [10, 0]
 	  DstBlock		  "Gain2"
 	  DstPort		  1
 	}
 	Line {
 	  SrcBlock		  "Gain2"
 	  SrcPort		  1
-	  Points		  [10, 0]
 	  DstBlock		  "Add2"
 	  DstPort		  1
 	}
@@ -4401,14 +4349,12 @@ Model {
 	Line {
 	  SrcBlock		  "Subtract2"
 	  SrcPort		  1
-	  Points		  [10, 0]
 	  DstBlock		  "Gain4"
 	  DstPort		  1
 	}
 	Line {
 	  SrcBlock		  "Gain4"
 	  SrcPort		  1
-	  Points		  [10, 0]
 	  DstBlock		  "Add3"
 	  DstPort		  1
 	}
@@ -4538,7 +4484,6 @@ Model {
 	Name			"Euler Angles"
 	RTWStorageClass		"Auto"
 	DataLoggingNameMode	"SignalName"
-	ShowSigGenPortName	on
       }
     }
     Block {
@@ -4559,7 +4504,6 @@ Model {
 	Name			"gyro biases"
 	RTWStorageClass		"Auto"
 	DataLoggingNameMode	"SignalName"
-	ShowSigGenPortName	on
       }
     }
     Block {
@@ -4573,7 +4517,6 @@ Model {
 	Name			"Body Rotational Rates\n"
 	RTWStorageClass		"Auto"
 	DataLoggingNameMode	"SignalName"
-	ShowSigGenPortName	on
       }
     }
     Block {
@@ -4589,7 +4532,8 @@ Model {
       Ports		      [3]
       Position		      [1200, 697, 1265, 843]
       ForegroundColor	      "magenta"
-      Location		      [1283, 74, 2548, 986]
+      Floating		      off
+      Location		      [1283, 77, 2548, 989]
       Open		      on
       NumInputPorts	      "3"
       List {
@@ -4604,6 +4548,7 @@ Model {
       SaveName		      "ScopeData2"
       DataFormat	      "StructureWithTime"
       LimitDataPoints	      off
+      SampleTime	      "0"
     }
     Block {
       BlockType		      Constant
@@ -4629,6 +4574,7 @@ Model {
       TreatAsAtomicUnit	      off
       MinAlgLoopOccurrences   off
       RTWSystemCode	      "Auto"
+      MaskHideContents	      off
       MaskType		      "timed input"
       MaskPromptString	      "time values:|input values"
       MaskStyleString	      "edit,edit"
@@ -4701,7 +4647,6 @@ Model {
 	Name			"rpms"
 	RTWStorageClass		"Auto"
 	DataLoggingNameMode	"SignalName"
-	ShowSigGenPortName	on
       }
     }
     Block {
@@ -4718,7 +4663,8 @@ Model {
       Position		      [425, 393, 460, 467]
       Orientation	      "left"
       ForegroundColor	      "magenta"
-      Location		      [1283, 99, 2559, 1017]
+      Floating		      off
+      Location		      [1280, 651, 2556, 1569]
       Open		      on
       NumInputPorts	      "1"
       List {
@@ -4726,11 +4672,12 @@ Model {
 	axes1			"%<SignalLabel>"
       }
       TimeRange		      "70"
-      YMin		      "-8"
-      YMax		      "1.5"
+      YMin		      "0"
+      YMax		      "400"
       SaveName		      "ScopeData3"
       DataFormat	      "StructureWithTime"
       LimitDataPoints	      off
+      SampleTime	      "0"
     }
     Block {
       BlockType		      SignalViewerScope
