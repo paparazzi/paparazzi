@@ -171,7 +171,7 @@ sizeafter:
 # Program the device.  
 load upload program: $(OBJDIR)/$(TARGET).hex
 ifeq ($(FLASH_MODE),IAP)
-	$(LPC21IAP)  $(OBJDIR)/$(TARGET).elf
+	$(SUDO) $(LPC21IAP)  $(OBJDIR)/$(TARGET).elf
 else 
 	@echo
 	$(LPC21ISP) $(LPC21ISP_CONTROL) $(LPC21ISP_DEBUG) $(LPC21ISP_FLASHFILE) $(LPC21ISP_PORT) $(LPC21ISP_BAUD) $(LPC21ISP_XTAL)

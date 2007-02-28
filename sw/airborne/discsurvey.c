@@ -12,7 +12,8 @@ static struct point c;
 static struct point c1;
 static struct point c2;
 
-bool_t disc_survey_init( void ) {
+bool_t disc_survey_init( float grid ) {
+  survey_shift = grid;
   status = DOWNWIND;
   sign = 1;
   c1.x = estimator_x;
@@ -20,12 +21,14 @@ bool_t disc_survey_init( void ) {
   return FALSE;
 }
 
-bool_t disc_survey( uint8_t center, float radius, float grid ) {
+bool_t disc_survey( uint8_t center, float radius) {
   float wind_dir = atan2(wind_north, wind_east) + M_PI;
 
   /** Not null even if wind_east=wind_north=0 */
   float upwind_x = cos(wind_dir);
   float upwind_y = sin(wind_dir);
+
+  float grid = survey_shift / 2;
 
   switch (status) {
   case UTURN:

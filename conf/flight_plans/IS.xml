@@ -85,8 +85,8 @@
 
     <block name="Disc survey" strip_button="DS">
       <exception cond="chemo_sensor > 0" deroute="ChemotaxisHere"/>
-      <call fun="disc_survey_init()"/>
-      <call fun="disc_survey(WP_HOME, 350, 75)"/>
+      <call fun="disc_survey_init(150)"/>
+      <call fun="disc_survey(WP_HOME, 350)"/>
     </block>
 
     <block name="circle 1 auto pitch">
@@ -135,7 +135,7 @@
     </block>
 
     <block name="follow">
-      <follow ac_id="5" distance="25" height="10"/>
+      <follow ac_id="12" distance="25" height="10"/>
     </block>
 
     <block name="bomb">

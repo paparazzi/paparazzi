@@ -218,7 +218,7 @@ void nav_circle_XY(float x, float y, float radius) {
 /** Automatic survey of a sector (south-north sweep) */
 static struct point survey_from;
 static struct point survey_to;
-static float survey_shift;
+float survey_shift;
 static bool_t survey_uturn __attribute__ ((unused)) = FALSE;
 float survey_west, survey_east, survey_north, survey_south;
 

@@ -86,10 +86,9 @@
     </block>
 
 
-<!--
     <block name="follow">
-      <follow ac_id="5" distance="25" height="10"/>
+      <follow ac_id="7" distance="25" height="10"/>
     </block>
--->
+
   </blocks>
 </flight_plan>

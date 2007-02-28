@@ -25,7 +25,7 @@
   </rc_commands>
 
   <section name="MIXER">
-    <define name="AILEVON_AILERON_RATE" value="0.3"/>
+    <define name="AILEVON_AILERON_RATE" value="0.4"/>
     <define name="AILEVON_ELEVATOR_RATE" value="0.7"/>
   </section>
 
@@ -155,7 +155,7 @@
     
     <!--  roll rate loop -->
     <define name="ROLL_RATE_MODE_DEFAULT" value="1"/>
-    <define name="ROLL_RATE_SETPOINT_PGAIN" value="-5." unit="rad/s/rad"/>
+    <define name="ROLL_RATE_SETPOINT_PGAIN" value="-10." unit="rad/s/rad"/>
     <define name="ROLL_RATE_MAX_SETPOINT" value="10"/>
     <define name="LO_THROTTLE_ROLL_RATE_PGAIN" value="1000."/>
     <define name="HI_THROTTLE_ROLL_RATE_PGAIN" value="1000."/>

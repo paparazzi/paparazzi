@@ -69,6 +69,7 @@ extern float desired_x, desired_y, altitude_shift, nav_altitude, flight_altitude
 extern pprz_t nav_throttle_setpoint;
 extern float nav_pitch, rc_pitch;
 extern bool_t too_far_from_home;
+extern float survey_shift;
 
 /** in second */
 extern uint16_t stage_time, block_time;
