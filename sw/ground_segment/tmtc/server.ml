@@ -26,7 +26,7 @@
 
 let my_id = "ground"
 let gps_mode_3D = 3
-let max_nb_dl_setting_values = 42 (** FIXME *)
+let max_nb_dl_setting_values = 256 (** indexed iwth an uint8 (messages.xml)  *)
 
 open Printf
 open Latlong
