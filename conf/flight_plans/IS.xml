@@ -10,10 +10,10 @@
 </header>
   <waypoints>
     <waypoint name="HOME" x="0" y="0"/>
-    <waypoint name="AF" x="-200" y="100" alt="215"/>
+    <waypoint name="AF" x="200" y="-10" alt="215"/>
     <waypoint name="TOD" x="-150" y="0"/>
     <waypoint name="OVERRUN" x="50" y="0"/>
-    <waypoint name="TD" x="100" y="0" alt="185"/>
+    <waypoint name="TD" x="80" y="20" alt="185"/>
     <waypoint name="1" x="-75" y="75"/>
     <waypoint name="2" x="75" y="75"/>
     <waypoint name="MOB" x="200" y="200"/>
@@ -42,27 +42,27 @@
     </block>
 -->
 
-    <block name="wait">
-      <circle radius="75" wp="1"/>
+    <block name="wait" strip_button="0">
+      <circle radius="nav_radius" wp="1"/>
     </block>
 
     <block name="eight 1" strip_button="8">
-      <eight radius="75" center="1" turn_around="2"/>
+      <eight radius="nav_radius" center="1" turn_around="2"/>
     </block>
 
     <block name="Line" strip_button="Line">
          <call fun="nav_line_init()"/>
-         <call fun="nav_line(WP_1, WP_2, 75)"/>
+         <call fun="nav_line(WP_1, WP_2, nav_radius)"/>
     </block>
 
 
     <block name="oval">
-      <oval p1="1" p2="2" radius="80"/>
+      <oval p1="1" p2="2" radius="nav_radius"/>
     </block>
 
     <block name="MOB">
       <call fun="NavSetWaypointHere(WP_MOB)"/>
-      <circle wp="MOB" radius="100"/>
+      <circle wp="MOB" radius="nav_radius"/>
     </block>
 
     <block name="Anemotaxis" strip_button="Anem">
@@ -89,9 +89,11 @@
       <call fun="disc_survey(WP_HOME, 350)"/>
     </block>
 
+<!--
     <block name="circle 1 auto pitch">
       <circle radius="75" wp="1" pitch="auto" throttle="0.7"/>
     </block>
+-->
 
     <block name="circle left 1">
       <circle radius="-75" wp="1"/>
@@ -166,8 +168,12 @@
 
     <block name="final">
       <exception cond="ground_alt + 10 > estimator_z" deroute="flare"/>
+<!--
       <go alt="baseleg_alt" approaching_time="16" from="AF" hmode="route" wp="TD"/>
       <go approaching_time="2" from="AF" hmode="route" throttle="0.1" vmode="throttle" wp="TD"/>
+-->
+      <go from="AF" hmode="route" vmode="glide" wp="TD"/>
+
     </block>
 
     <block name="flare">

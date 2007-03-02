@@ -89,4 +89,9 @@ extern void v_ctl_climb_loop ( void );
 /** Computes throttle_slewed from throttle_setpoint */
 extern void v_ctl_throttle_slew( void );
 
+#define fw_v_ctl_SetCruiseThrottle(_v) { \
+  v_ctl_auto_throttle_cruise_throttle = (_v ? _v : v_ctl_auto_throttle_nominal_cruise_throttle); \
+  Bound(v_ctl_auto_throttle_cruise_throttle, V_CTL_AUTO_THROTTLE_MIN_CRUISE_THROTTLE, V_CTL_AUTO_THROTTLE_MAX_CRUISE_THROTTLE); \
+}
+
 #endif /* FW_V_CTL_H */

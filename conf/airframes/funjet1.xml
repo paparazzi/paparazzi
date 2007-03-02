@@ -13,6 +13,7 @@
     <axis name="THROTTLE" failsafe_value="0"/>
     <axis name="ROLL"     failsafe_value="0"/>
     <axis name="PITCH"    failsafe_value="0"/>
+    <axis name="HATCH"    failsafe_value="0"/>
   </commands>
 
   <rc_commands>
@@ -144,15 +145,15 @@
     <define name="PITCH_MIN_SETPOINT" value="-0.5" unit="radians"/>
 
 
-    <define name="ROLL_PGAIN" value="5000."/>
+    <define name="ROLL_PGAIN" value="13000."/>
     <define name="AILERON_OF_THROTTLE" value="0.0"/>
-    <define name="PITCH_PGAIN" value="-9000."/>
+    <define name="PITCH_PGAIN" value="-14000."/>
     <define name="PITCH_DGAIN" value="1.5"/>
     <define name="ELEVATOR_OF_ROLL" value="1250"/>
     
     <!--  roll rate loop -->
     <define name="ROLL_RATE_MODE_DEFAULT" value="1"/>
-    <define name="ROLL_RATE_SETPOINT_PGAIN" value="-5." unit="rad/s/rad"/>
+    <define name="ROLL_RATE_SETPOINT_PGAIN" value="-14." unit="rad/s/rad"/>
     <define name="ROLL_RATE_MAX_SETPOINT" value="10"/>
     <define name="LO_THROTTLE_ROLL_RATE_PGAIN" value="1000."/>
     <define name="HI_THROTTLE_ROLL_RATE_PGAIN" value="1000."/>
@@ -247,7 +248,7 @@ ap.srcs += nav.c fw_h_ctl.c fw_v_ctl.c
 
 ap.CFLAGS += -DGYRO -DADXRS150
 ap.srcs += gyro.c nav_line.c chemotaxis.c anemotaxis.c discsurvey.c
-ap.srcs += traffic_info.c
+ap.srcs += traffic_info.c bomb.c
 
 
 # Hack to use the same tuning file than slayer1

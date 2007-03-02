@@ -21,6 +21,7 @@
     <axis name="ROLL"     failsafe_value="0"/>
     <axis name="PITCH"    failsafe_value="0"/>
     <axis name="YAW"      failsafe_value="0"/>
+    <axis name="HATCH"      failsafe_value="0"/>
   </commands>
 
   <rc_commands>
@@ -121,7 +122,7 @@
     <define name="AUTO_THROTTLE_MIN_CRUISE_THROTTLE" value="0.30"/>
     <define name="AUTO_THROTTLE_MAX_CRUISE_THROTTLE" value="0.80"/>
     <define name="AUTO_THROTTLE_LOITER_TRIM" value="1500"/>
-    <define name="AUTO_THROTTLE_DASH_TRIM" value="-1000"/>
+    <define name="AUTO_THROTTLE_DASH_TRIM" value="-500"/>
     <define name="AUTO_THROTTLE_CLIMB_THROTTLE_INCREMENT" value="0.15" unit="%/(m/s)"/>
     <define name="AUTO_THROTTLE_PGAIN" value="-0.01"/>
     <define name="AUTO_THROTTLE_IGAIN" value="0.1"/>
@@ -244,8 +245,8 @@ ap.srcs += nav.c fw_h_ctl.c fw_v_ctl.c
 # ap.CFLAGS += -DGYRO -DADXRS150
 # ap.srcs += gyro.c
 
-# ap.srcs += bomb.c
 ap.srcs += traffic_info.c
+ap.srcs += bomb.c
 
 # Hack to use the same tuning file than slayer1
 ap.CFLAGS += -DUSE_GPIO
@@ -261,7 +262,7 @@ ap.srcs += $(SRC_ARCH)/gpio.c
 include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
 sim.CFLAGS += -DCONFIG=\"tiny.h\" -DAGR_CLIMB -DH_CTL_RATE_LOOP -DLOITER_TRIM -DALT_KALMAN -DIR_360
 sim.srcs += traffic_info.c
-# sim.srcs += bomb.c
+sim.srcs += bomb.c
 
   </makefile>
 </airframe>

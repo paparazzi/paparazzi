@@ -33,6 +33,6 @@ handler CDATA #IMPLIED
 
 <!ATTLIST strip_button
 name CDATA #REQUIRED
-value CDATA #REQUIRED
+value CDATA #IMPLIED
 >
 
