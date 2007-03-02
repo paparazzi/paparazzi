@@ -110,6 +110,8 @@ extern float ground_alt;
 
 extern float survey_west, survey_east, survey_north, survey_south;
 
+extern float nav_radius;
+
 
 void nav_update(void);
 void nav_home(void);

@@ -58,6 +58,7 @@ float carrot_x, carrot_y;
 /** Status on the current circle */
 static float nav_circle_radians; /* Cumulated */
 float nav_circle_trigo_qdr; /* Angle from center to mobile */
+float nav_radius;
 
 
 /** Status on the current leg (percentage, 0. < < 1.) in route mode */
