@@ -1,0 +1,10 @@
+<!DOCTYPE settings SYSTEM "settings.dtd">
+
+<!-- A conf to use for standard operation (no tuning) -->
+
+<settings>
+  <dl_settings>
+    <dl_setting MAX="1000" MIN="0" STEP="5" VAR="nav_radius"/>
+    <dl_setting MAX="1000" MIN="0" STEP="10" VAR="flight_altitude"/>
+  </dl_settings>
+</settings>

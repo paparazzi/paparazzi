@@ -65,6 +65,11 @@ link :  modem.cmo link.cmo
 	$(Q)$(OCAMLC) -custom $(INCLUDES) -o $@ unix.cma str.cma xml-light.cma lablgtk.cma glibivy-ocaml.cma lib-pprz.cma multimon.cma $^
 
 
+ihm :  ihm.cmo
+	@echo OL $@
+	$(Q)$(OCAMLC) -custom $(INCLUDES) -o $@ unix.cma str.cma xml-light.cma lablgtk.cma glibivy-ocaml.cma lib-pprz.cma $^
+
+
 %.cmo : %.ml $(LIBPPRZCMA)
 	@echo OC $<
 	$(Q)$(OCAMLC) $(INCLUDES) -c $<
