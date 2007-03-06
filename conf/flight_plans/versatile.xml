@@ -108,7 +108,6 @@
       <go approaching_time="2" from="AF" hmode="route" throttle="0.1" vmode="throttle" wp="TD"/>
 -->
       <go from="AF" hmode="route" vmode="glide" wp="TD"/>
-
     </block>
 
     <block name="flare">
@@ -116,9 +115,22 @@
       <attitude roll="0.0" throttle="0.0" until="FALSE" vmode="throttle"/>
     </block>
 
-
     <block name="follow">
       <follow ac_id="7" distance="25" height="10"/>
+    </block>
+
+    <block name="step_roll_10">
+      <while cond="TRUE">
+	<attitude roll="10.0" until=" stage_time > 4" vmode="alt" alt="250"/>
+	<attitude roll="-10.0" until="stage_time > 4" vmode="alt" alt="250"/>
+      </while>
+    </block>
+
+    <block name="step_roll_20">
+      <while cond="TRUE">
+	<attitude roll="20.0" until=" stage_time > 4" vmode="alt" alt="250"/>
+	<attitude roll="-20.0" until="stage_time > 4" vmode="alt" alt="250"/>
+      </while>
     </block>
 
   </blocks>
