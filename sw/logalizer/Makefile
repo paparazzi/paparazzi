@@ -47,6 +47,9 @@ ahrsview : ahrsview.c sliding_plot.c
 imuview : imuview.c sliding_plot.c
 	$(CC) $(CFLAGS) -g -o $@ $^ $(LDFLAGS)
 
+plot_roll_loop : plot_roll_loop.c sliding_plot.c
+	$(CC) $(CFLAGS) -g -o $@ $^ $(LDFLAGS)
+
 test_sliding_plot: test_sliding_plot.c sliding_plot.c
 	$(CC) $(CFLAGS) -g -o $@ $^ $(LDFLAGS)
 

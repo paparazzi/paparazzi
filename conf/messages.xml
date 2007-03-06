@@ -271,6 +271,12 @@
     <field name="z_dot" type="float" unit="m/s"/>
   </message>
 
+  <message name="TUNE_ROLL" ID="43">
+      <field name="p" type="float"/>
+      <field name="phi" type="float"/>
+      <field name="phi_sp" type="float"/>
+  </message>
+
   <message name="PPM" ID="100">
     <field name="values" type="uint16[]" unit="ticks"/>
   </message>
@@ -342,6 +348,13 @@
   </message>
 
   <message name="AHRS_OVERRUN" ID="207">
+  </message>
+
+  <message name="ENOSE_STATUS" ID="210">
+      <field name="val1" type="uint16"/>
+      <field name="val2" type="uint16"/>
+      <field name="val3" type="uint16"/>
+      <field name="heat" type="uint8[]"/>
   </message>
 
   <message name="ANTENNA_DEBUG" ID="220">

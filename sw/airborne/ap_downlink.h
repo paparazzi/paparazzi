@@ -168,4 +168,8 @@
 
 #endif
 
+
+#define PERIODIC_SEND_TUNE_ROLL() DOWNLINK_SEND_TUNE_ROLL(&estimator_p,&estimator_phi, &h_ctl_roll_setpoint);
+
+
 #endif /* AP_DOWNLINK_H */
