@@ -33,7 +33,7 @@
     </block>
 
     <block name="circle 1">
-      <circle radius="75" wp="1"/>
+      <circle radius="nav_radius" wp="1"/>
     </block>
 
     <block name="eight 1">
@@ -131,6 +131,10 @@
 	<attitude roll="20.0" until=" stage_time > 4" vmode="alt" alt="250"/>
 	<attitude roll="-20.0" until="stage_time > 4" vmode="alt" alt="250"/>
       </while>
+    </block>
+
+    <block name="heading">
+       <heading until="FALSE" course="30" alt="ground_alt+50"/>
     </block>
 
   </blocks>

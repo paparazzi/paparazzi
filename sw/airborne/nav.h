@@ -112,6 +112,8 @@ extern float survey_west, survey_east, survey_north, survey_south;
 
 extern float nav_radius;
 
+extern float nav_ground_speed_pgain, nav_ground_speed_setpoint;
+
 
 void nav_update(void);
 void nav_home(void);
@@ -188,6 +190,15 @@ bool_t nav_approaching_xy(float x, float y, float from_x, float from_y, float ap
   nav_throttle_setpoint = _throttle; \
 }
 
+#define NavHeading(_course) { \
+  lateral_mode = LATERAL_MODE_COURSE; \
+  h_ctl_course_setpoint = _course; \
+}
+
+#define NavAttitude(_roll) { \
+  lateral_mode = LATERAL_MODE_ROLL; \
+  h_ctl_roll_setpoint = _roll; \
+}
 
 
 #endif /* NAV_H */

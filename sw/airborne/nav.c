@@ -79,6 +79,8 @@ float flight_altitude;
 
 float nav_glide_pitch_trim;
 
+float nav_ground_speed_setpoint, nav_ground_speed_pgain;
+
 void nav_init_stage( void ) {
   last_x = estimator_x; last_y = estimator_y;
   stage_time = 0;
@@ -206,13 +208,9 @@ void nav_circle_XY(float x, float y, float radius) {
 #define NavBlockTime() (block_time)
 #define LessThan(_x, _y) ((_x) < (_y))
 
-#define NavFollow(_ac_id, _distance, _height) { \
-  struct ac_info_ * ac = get_ac_info(_ac_id); \
-  NavVerticalAutoThrottleMode(0.); \
-  NavVerticalAltitudeMode(Max(ac->alt + _height, ground_alt+SECURITY_HEIGHT), 0.); \
-  float alpha = M_PI/2 - ac->course; \
-  fly_to_xy(ac->east - _distance*cos(alpha), ac->north - _distance*sin(alpha)); \
-}
+#define NavFollow(_ac_id, _distance, _height) \
+  nav_follow(_ac_id, _distance, _height);
+
 
 #define NavSetGroundReferenceHere() ({ nav_reset_reference(); nav_update_waypoints_alt(); FALSE; })
 
@@ -317,12 +315,31 @@ static unit_t unit __attribute__ ((unused));
 static unit_t nav_reset_reference( void ) __attribute__ ((unused));
 
 static unit_t nav_update_waypoints_alt( void ) __attribute__ ((unused));
+static inline void nav_follow(uint8_t _ac_id, float _distance, float _height);
 
 #include "flight_plan.h"
 
 float ground_alt;
 
 static float previous_ground_alt;
+	     
+static inline void nav_follow(uint8_t _ac_id, float _distance, float _height) { 
+  struct ac_info_ * ac = get_ac_info(_ac_id);
+  NavVerticalAutoThrottleMode(0.);
+  NavVerticalAltitudeMode(Max(ac->alt + _height, ground_alt+SECURITY_HEIGHT), 0.);
+  float alpha = M_PI/2 - ac->course;
+  float ca = cos(alpha), sa = sin(alpha);
+  float x = ac->east - _distance*ca;
+  float y = ac->north - _distance*sa;
+  fly_to_xy(x, y);
+#ifdef NAV_FOLLOW_PGAIN
+  float s = (estimator_x-x)*ca+(estimator_y-y)*sa;
+  nav_ground_speed_setpoint = ac->gspeed + NAV_FOLLOW_PGAIN*s;
+  nav_ground_speed_loop();
+#endif
+}
+
+
 
 /** Reset the geographic reference to the current GPS fix */
 static unit_t nav_reset_reference( void ) {
@@ -385,16 +402,20 @@ bool_t nav_approaching_xy(float x, float y, float from_x, float from_y, float ap
 }
 
 
-/** static inline void fly_to_xy(float x, float y)
+/**
  *  \brief Computes \a desired_x, \a desired_y and \a desired_course.
  */
 static inline void fly_to_xy(float x, float y) { 
   desired_x = x;
   desired_y = y;
   h_ctl_course_setpoint = M_PI/2.-atan2(y - estimator_y, x - estimator_x);
+  lateral_mode = LATERAL_MODE_COURSE;
 }
 
 
+/**
+ *  \brief Computes the carrot position along the desired segment.
+ */
 void nav_route_xy(float last_wp_x, float last_wp_y, float wp_x, float wp_y) {
   float leg_x = wp_x - last_wp_x;
   float leg_y = wp_y - last_wp_y;
@@ -418,8 +439,8 @@ void nav_route_xy(float last_wp_x, float last_wp_y, float wp_x, float wp_y) {
 }
 
 
-/** \brief Compute square distance to waypoint Home and
- *  verify uav is not too far away from Home.
+/** \brief Computes square distance to the HOME waypoint potentially sets
+ * \a too_far_from_home
  */
 static inline void compute_dist2_to_home(void) {
   float ph_x = waypoints[WP_HOME].x - estimator_x;
@@ -436,8 +457,7 @@ static inline void compute_dist2_to_home(void) {
 #define FAILSAFE_HOME_RADIUS 50
 #endif
 
-/** \brief Occurs when it switchs in Home mode.
- */
+/** \brief Home mode navigation (circle around HOME) */
 void nav_home(void) {
   NavCircleWaypoint(WP_HOME, FAILSAFE_HOME_RADIUS);
   /** Nominal speed */ 
@@ -448,13 +468,17 @@ void nav_home(void) {
   dist2_to_wp = dist2_to_home;
 }
 
-/** void nav_update(void)
- *  \brief Update navigation
+/** 
+ *  \brief Navigation main: call to the code generated from the XML flight
+ * plan
  */
 void nav_update(void) {
   compute_dist2_to_home();
-  auto_nav();
+
+  auto_nav(); /* From flight_plan.h */
+
   h_ctl_course_pre_bank = nav_in_circle ? circle_bank : 0;
+
 #ifdef AGR_CLIMB
   if ( v_ctl_mode == V_CTL_MODE_AUTO_CLIMB)
     v_ctl_auto_throttle_submode =  V_CTL_AUTO_THROTTLE_STANDARD;
@@ -469,39 +493,54 @@ void nav_update(void) {
 }
 
 
-/** void nav_init(void)
- *  \brief Initialisation of navigation
+/**
+ *  \brief Navigation Initialisation
  */
 void nav_init(void) {
   nav_block = 0;
   nav_stage = 0;
   ground_alt = GROUND_ALT;
   nav_glide_pitch_trim = NAV_GLIDE_PITCH_TRIM;
+  nav_radius = DEFAULT_CIRCLE_RADIUS;
+
+#ifdef NAV_GROUND_SPEED_PGAIN
+  nav_ground_speed_pgain = NAV_GROUND_SPEED_PGAIN; 
+  nav_ground_speed_setpoint = NOMINAL_AIRSPEED;
+#endif
 }
 
-/** void nav_wihtout_gps(void)
- *  \brief 
- */
-/** Don't navigate anymore. It's impossible without GPS.
- *	Just set attitude and throttle to failsafe values
- *	to prevent the plane from crashing.
+/** 
+ *  \brief Failsafe navigation without position estimation
+ * 
+ * Just set attitude and throttle to FAILSAFE values
+ * to prevent the plane from crashing.
  */
 void nav_without_gps(void) {
-#ifdef SECTION_FAILSAFE
   lateral_mode = LATERAL_MODE_ROLL;
+  v_ctl_mode = V_CTL_MODE_AUTO_THROTTLE;
+
+#ifdef SECTION_FAILSAFE
   h_ctl_roll_setpoint = FAILSAFE_DEFAULT_ROLL;
   nav_pitch = FAILSAFE_DEFAULT_PITCH;
-  v_ctl_mode = V_CTL_MODE_AUTO_THROTTLE;
   nav_throttle_setpoint = TRIM_UPPRZ((FAILSAFE_DEFAULT_THROTTLE)*MAX_PPRZ);
 #else
-  lateral_mode = LATERAL_MODE_ROLL;
   h_ctl_roll_setpoint = 0;
   nav_pitch = 0;
-  v_ctl_mode = V_CTL_MODE_AUTO_THROTTLE;
   nav_throttle_setpoint = TRIM_UPPRZ((CRUISE_THROTTLE)*MAX_PPRZ);
 #endif
 }
 
+
+#ifdef NAV_GROUND_SPEED_PGAIN
+/** \brief Computes cruise throttle from ground speed setpoint
+ */
+int nav_ground_speed_loop( void ) {
+  float err = estimator_hspeed_mod - nav_ground_speed_setpoint;
+  v_ctl_auto_throttle_cruise_throttle += nav_ground_speed_pgain*err;
+  Bound(v_ctl_auto_throttle_cruise_throttle, V_CTL_AUTO_THROTTLE_MIN_CRUISE_THROTTLE, V_CTL_AUTO_THROTTLE_MAX_CRUISE_THROTTLE);
+  return FALSE;
+}
+#endif
 
 
 /**************** 8 Navigation **********************************************/
@@ -542,24 +581,28 @@ void nav_eight(uint8_t target, uint8_t c1, float radius) {
   }
 
   /* The other center */
-  struct point c2 = { waypoints[target].x - d*u_x,
-		      waypoints[target].y - d*u_y,
-		      alt };
+  struct point c2 = { 
+    waypoints[target].x - d*u_x,
+    waypoints[target].y - d*u_y,
+    alt };
 
-
-  struct point c1_in = { waypoints[c1].x + radius * -u_y,
-		       waypoints[c1].y + radius * u_x,
-		       alt  };
-  struct point c1_out = { waypoints[c1].x - radius * -u_y,
-		       waypoints[c1].y - radius * u_x,
-		       alt  };
+  struct point c1_in = {
+    waypoints[c1].x + radius * -u_y,
+    waypoints[c1].y + radius * u_x,
+    alt };
+  struct point c1_out = {
+    waypoints[c1].x - radius * -u_y,
+    waypoints[c1].y - radius * u_x,
+    alt };
   
-  struct point c2_in = { c2.x + radius * -u_y,
-		       c2.y + radius * u_x,
-			alt  };
-  struct point c2_out = { c2.x - radius * -u_y,
-		       c2.y - radius * u_x,
-		       alt  };
+  struct point c2_in = {
+    c2.x + radius * -u_y,
+    c2.y + radius * u_x,
+    alt };
+  struct point c2_out = {
+    c2.x - radius * -u_y,
+    c2.y - radius * u_x,
+    alt };
   
   float qdr_out = M_PI - atan2(u_y, u_x);
   
@@ -586,8 +629,8 @@ void nav_eight(uint8_t target, uint8_t c1, float radius) {
       eight_status = R21;
       InitStage();
     }
-   return;
-
+    return;
+    
   case R21:
     nav_route_xy(c2_out.x, c2_out.y, c1_in.x, c1_in.y);
     if (nav_approaching_xy(c1_in.x, c1_in.y, c2_out.x, c2_out.y, CARROT)) { 

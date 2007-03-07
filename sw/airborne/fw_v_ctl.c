@@ -216,6 +216,8 @@ inline static void v_ctl_climb_auto_pitch_loop(void) {
 #ifndef V_CTL_THROTTLE_SLEW
 #define V_CTL_THROTTLE_SLEW 1.
 #endif
+/** \brief Computes slewed throttle from throttle setpoint
+ */
 void v_ctl_throttle_slew( void ) {
   pprz_t diff_throttle = v_ctl_throttle_setpoint - v_ctl_throttle_slewed;
   BoundAbs(diff_throttle, TRIM_PPRZ(V_CTL_THROTTLE_SLEW*MAX_PPRZ));

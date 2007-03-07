@@ -319,8 +319,6 @@ static void navigation_task( void ) {
   }
 #endif /* GPS && FAILSAFE_DELAY_WITHOUT_GPS */
   
-  /** Default to keep compatibility with previous behaviour */
-  lateral_mode = LATERAL_MODE_COURSE;
   if (pprz_mode == PPRZ_MODE_HOME)
     nav_home();
   else if (pprz_mode == PPRZ_MODE_GPS_OUT_OF_ORDER)

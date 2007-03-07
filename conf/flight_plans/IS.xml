@@ -46,6 +46,11 @@
       <circle radius="nav_radius" wp="1"/>
     </block>
 
+    <block name="ground speed">
+<!--      <exception cond="nav_ground_speed_loop()" deroute="ground speed"/> -->
+      <circle radius="nav_radius" wp="1"/>
+    </block>
+
     <block name="eight 1" strip_button="8">
       <eight radius="nav_radius" center="1" turn_around="2"/>
     </block>

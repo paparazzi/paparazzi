@@ -145,15 +145,15 @@
     <define name="PITCH_MIN_SETPOINT" value="-0.5" unit="radians"/>
 
 
-    <define name="ROLL_PGAIN" value="13000."/>
+    <define name="ROLL_PGAIN" value="10000."/>
     <define name="AILERON_OF_THROTTLE" value="0.0"/>
     <define name="PITCH_PGAIN" value="-14000."/>
     <define name="PITCH_DGAIN" value="1.5"/>
-    <define name="ELEVATOR_OF_ROLL" value="1250"/>
+    <define name="ELEVATOR_OF_ROLL" value="2500"/>
     
     <!--  roll rate loop -->
     <define name="ROLL_RATE_MODE_DEFAULT" value="1"/>
-    <define name="ROLL_RATE_SETPOINT_PGAIN" value="-14." unit="rad/s/rad"/>
+    <define name="ROLL_RATE_SETPOINT_PGAIN" value="-10." unit="rad/s/rad"/>
     <define name="ROLL_RATE_MAX_SETPOINT" value="10"/>
     <define name="LO_THROTTLE_ROLL_RATE_PGAIN" value="1000."/>
     <define name="HI_THROTTLE_ROLL_RATE_PGAIN" value="1000."/>
@@ -174,7 +174,7 @@
     <define name="CLIMB_THROTTLE" value="0.8"/><!-- Gaz for Aggressive Climb -->
     <define name="CLIMB_PITCH" value="0.3"/><!-- Pitch for Aggressive Climb -->
     <define name="DESCENT_THROTTLE" value="0.1"/><!-- Gaz for Aggressive Decent -->
-    <define name="DESCENT_PITCH" value="-0.25"/><!-- Pitch for Aggressive Decent -->
+    <define name="DESCENT_PITCH" value="-0.15"/><!-- Pitch for Aggressive Decent -->
     <define name="CLIMB_NAV_RATIO" value="0.8"/><!-- Percent Navigation for Altitude Error Equal to Start Altitude -->
     <define name="DESCENT_NAV_RATIO" value="1.0"/>
     </section>

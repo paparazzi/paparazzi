@@ -113,7 +113,7 @@ let get_index_block = fun x ->
 let print_exception = fun x ->
   let i = get_index_block (ExtXml.attrib x "deroute") in
   let c = parsed_attrib x "cond" in
-  lprintf "if ((nav_block!=%s) && %s) { GotoBlock(%s) }\n" i c i
+  lprintf "if (%s && (nav_block != %s)) { GotoBlock(%s) }\n" c i i
 
 let goto l = Xml.Element ("goto", ["name",l], [])
 let exit_block = Xml.Element ("exit_block", [], [])
@@ -301,7 +301,7 @@ let rec print_stage = fun index_of_waypoints x ->
 	let until = parsed_attrib x "until" in
 	lprintf "if (%s) NextStage() else {\n" until;
 	right (); 
-	lprintf "h_ctl_course_setpoint = RadOfDeg(%s);\n" (parsed_attrib x "course");
+	lprintf "NavHeading(RadOfDeg(%s));\n" (parsed_attrib x "course");
 	ignore (output_vmode x "" "");
 	output_cam_mode x index_of_waypoints;
 	left (); lprintf "}\n";
@@ -324,8 +324,7 @@ let rec print_stage = fun index_of_waypoints x ->
 	    lprintf "{\n"
 	end;
 	right ();
-	lprintf "lateral_mode = LATERAL_MODE_ROLL;\n";
-	lprintf "h_ctl_roll_setpoint = RadOfDeg(%s);\n" (parsed_attrib x "roll");
+	lprintf "NavAttitude(RadOfDeg(%s));\n" (parsed_attrib x "roll");
 	ignore (output_vmode x "" "");
 	output_cam_mode x index_of_waypoints;
 	left (); lprintf "}\n";

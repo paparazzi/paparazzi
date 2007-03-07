@@ -49,7 +49,6 @@ struct ac_info_ the_acs[NB_ACS];
     the_acs[_id].course = _course; \
     the_acs[_id].alt = _alt; \
     the_acs[_id].gspeed = _gspeed; \
-    /*** printf("%d:x=%.0f y=%.0f c=%f a=%.0f\n",_id,the_acs[_id].east,the_acs[_id].north,the_acs[_id].course, the_acs[_id].alt); ***/  \
   } \
 }
 

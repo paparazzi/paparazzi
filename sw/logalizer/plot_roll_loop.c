@@ -35,7 +35,7 @@ GtkWidget* build_gui ( void ) {
 
 
 void on_DESIRED(IvyClientPtr app, void *user_data, int argc, char *argv[]){
-  float p =  atof(argv[0]);
+  //   float p =  atof(argv[0]);
   float phi =  atof(argv[1]);
   float phi_sp =  atof(argv[2]);
 

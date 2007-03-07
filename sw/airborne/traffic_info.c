@@ -31,6 +31,6 @@
 
 
 struct ac_info_ * get_ac_info(uint8_t id) {
-  id = (id < NB_ACS ? id : 0);
+  id = id < NB_ACS ? id : 0;
   return &the_acs[id];
 }
