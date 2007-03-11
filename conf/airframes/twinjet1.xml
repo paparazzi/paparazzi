@@ -180,6 +180,7 @@
   <section name="NAV">
     <define name="NAV_PITCH" value="0."/>
     <define name="NAV_GLIDE_PITCH_TRIM" value="0"/>
+    <define name="DEFAULT_CIRCLE_RADIUS" value="50."/>
   </section>
  
   <section name="BAT">
@@ -196,7 +197,6 @@
     <define name="KILL_MODE_DISTANCE" value="(MAX_DIST_FROM_HOME*1.5)" unit="s"/>
 <!--    <define name="XBEE_INIT" value="\"ATPL2\rATRN1\rATTT80\r\""/>  -->
     <define name="LIGHT_PIN_1" value="3"/>
-    <define name="MIN_CIRCLE_RADIUS" value="50."/>
   </section>
  
   <section name="SIMU">

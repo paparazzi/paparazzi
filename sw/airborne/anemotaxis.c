@@ -28,8 +28,8 @@ bool_t nav_anemotaxis_init( uint8_t c ) {
   status = UTURN;
   sign = 1;
   float wind_dir = atan2(wind_north, wind_east);
-  waypoints[c].x = estimator_x + MIN_CIRCLE_RADIUS*cos(wind_dir+M_PI);
-  waypoints[c].y = estimator_y + MIN_CIRCLE_RADIUS*sin(wind_dir+M_PI);
+  waypoints[c].x = estimator_x + DEFAULT_CIRCLE_RADIUS*cos(wind_dir+M_PI);
+  waypoints[c].y = estimator_y + DEFAULT_CIRCLE_RADIUS*sin(wind_dir+M_PI);
   last_plume_was_here();
   return FALSE;
 }
@@ -50,14 +50,14 @@ bool_t nav_anemotaxis( uint8_t c, uint8_t c1, uint8_t c2, uint8_t plume ) {
 
   switch (status) {
   case UTURN:
-    NavCircleWaypoint(c, MIN_CIRCLE_RADIUS*sign);
+    NavCircleWaypoint(c, DEFAULT_CIRCLE_RADIUS*sign);
     if (NavQdrCloseTo(DegOfRad(M_PI_2-wind_dir))) {
       float crosswind_x = - upwind_y;
       float crosswind_y = upwind_x;
-      waypoints[c1].x = waypoints[c].x + MIN_CIRCLE_RADIUS*upwind_x;
-      waypoints[c1].y = waypoints[c].y + MIN_CIRCLE_RADIUS*upwind_y;
+      waypoints[c1].x = waypoints[c].x + DEFAULT_CIRCLE_RADIUS*upwind_x;
+      waypoints[c1].y = waypoints[c].y + DEFAULT_CIRCLE_RADIUS*upwind_y;
 
-      float width = Max(2*ScalarProduct(upwind_x, upwind_y, estimator_x-last_plume.x, estimator_y-last_plume.y), MIN_CIRCLE_RADIUS);
+      float width = Max(2*ScalarProduct(upwind_x, upwind_y, estimator_x-last_plume.x, estimator_y-last_plume.y), DEFAULT_CIRCLE_RADIUS);
 
       waypoints[c2].x = waypoints[c1].x - width*crosswind_x*sign;
       waypoints[c2].y = waypoints[c1].y - width*crosswind_y*sign;
@@ -73,8 +73,8 @@ bool_t nav_anemotaxis( uint8_t c, uint8_t c1, uint8_t c2, uint8_t plume ) {
   case CROSSWIND:
     NavSegment(c1, c2);
     if (NavApproaching(c2, CARROT)) {
-      waypoints[c].x = waypoints[c2].x + MIN_CIRCLE_RADIUS*upwind_x;
-      waypoints[c].y = waypoints[c2].y + MIN_CIRCLE_RADIUS*upwind_y;
+      waypoints[c].x = waypoints[c2].x + DEFAULT_CIRCLE_RADIUS*upwind_x;
+      waypoints[c].y = waypoints[c2].y + DEFAULT_CIRCLE_RADIUS*upwind_y;
 
       // DownlinkSendWp(c);
      
@@ -84,8 +84,8 @@ bool_t nav_anemotaxis( uint8_t c, uint8_t c1, uint8_t c2, uint8_t plume ) {
     }
 
     if (chemo_sensor) {
-      waypoints[c].x = estimator_x + MIN_CIRCLE_RADIUS*upwind_x;
-      waypoints[c].y = estimator_y + MIN_CIRCLE_RADIUS*upwind_y;
+      waypoints[c].x = estimator_x + DEFAULT_CIRCLE_RADIUS*upwind_x;
+      waypoints[c].y = estimator_y + DEFAULT_CIRCLE_RADIUS*upwind_y;
 
       // DownlinkSendWp(c);
      

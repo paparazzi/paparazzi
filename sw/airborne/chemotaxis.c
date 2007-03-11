@@ -41,7 +41,7 @@ bool_t nav_chemotaxis( uint8_t c, uint8_t plume ) {
     float pvect = dir_x*y - dir_y*x;
     sign = (pvect > 0 ? -1 : 1);
     /* Reduce the radius */
-    radius = sign * (MIN_CIRCLE_RADIUS+(MAX_CHEMO-chemo_sensor)/(float)MAX_CHEMO*(MAX_RADIUS-MIN_CIRCLE_RADIUS));
+    radius = sign * (DEFAULT_CIRCLE_RADIUS+(MAX_CHEMO-chemo_sensor)/(float)MAX_CHEMO*(MAX_RADIUS-DEFAULT_CIRCLE_RADIUS));
 
 
     /* Store this plume */
