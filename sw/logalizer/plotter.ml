@@ -9,101 +9,269 @@ let parse_dnd =
     | _ -> failwith (Printf.sprintf "parse_dnd: %s" s)
 
 
-let colors = [|"red"; "blue"; "green"; "orange"; "purple"|]
+let colors = [|"red"; "blue"; "green"; "orange"; "purple"; "magenta"|]
 
-type plot = { da: GMisc.drawing_area ; mutable min: float; mutable max: float; size : int}
-let create_plot = fun da ->
-  { da = da;
-    min = max_float;
-    max = -. max_float;
-    size = 100
-  }
-type values = { array: float option array; mutable index: int; color : string }
-let create_values = fun size color_index ->
-  let color = colors.(!color_index) in
-  color_index := (!color_index + 1) mod Array.length colors;
+let labelled_entry = fun ?width_chars text value (h:GPack.box) ->
+  let label = GMisc.label ~text ~packing:h#pack () in
+  label, GEdit.entry ?width_chars ~text:value ~packing:h#pack ()
+
+type values = { mutable array: float option array; mutable index: int; color : string }
+
+let create_values = fun size color ->
   { array = Array.create size None; index = 0; color = color }
-let add_value = fun plot v a ->
-  a.array.(a.index) <- Some v;
-  plot.min <- min plot.min v;
-  plot.max <- max plot.max v
 
-let dt = 0.5
+class plot = fun ~size ~width ~height ~packing () ->
+  let da = GMisc.drawing_area ~width ~height ~show:true ~packing () in
+  let curves = Hashtbl.create 3 in
+  object (self)
+    val mutable min = max_float
+    val mutable max = min_float
+    val mutable size = size
+    val mutable dt = 0.5
+    val mutable color_index = 0
+    val mutable timer = None
+    val mutable csts = ([] : float list)
 
-let update_curves = fun plot curves () ->
-  try
-let {Gtk.width=width; height=height} = plot.da#misc#allocation in
-  let dr = GDraw.pixmap ~width ~height ~window:plot.da () in
-  dr#set_foreground (`NAME "white");
-  dr#rectangle ~x:0 ~y:0 ~width ~height ~filled:true ();
-  let margin = height / 10 in
+    method destroy = fun () ->
+      self#stop_timer ()
 
-  (* Time Graduations *)
-  let context = plot.da#misc#create_pango_context in
-  context#set_font_by_name ("sans " ^ string_of_int (margin/2));
-  let layout = context#create_layout in
+    method drawing_area = da
 
-  let f = fun x s ->
-    Pango.Layout.set_text layout s;
-    let (w, h) = Pango.Layout.get_pixel_size layout in
-    dr#put_layout ~x ~y:(height-h) ~fore:`BLACK layout in
+    method add_cst = fun v ->
+      csts <- v :: csts
 
-  let t = dt *. float plot.size in
-  f (width-width/plot.size) "0";
-  f (width/2) (Printf.sprintf "-%.1f" (t/.2.));
-  f 0 (Printf.sprintf "-%.1f" t);
+    method delete_cst = fun v ->
+      csts <- List.filter (fun x -> x <> v) csts
+
+    method reset () =
+      min <- max_float;
+      max <- min_float;
+      Hashtbl.iter (fun _ a ->
+	a.index <- 0;
+	for i = 0 to Array.length a.array - 1 do a.array.(i) <- None done)
+	curves
+
+    method set_size = fun new_size ->
+      if new_size <> size && new_size > 0 then begin
+	Hashtbl.iter (fun _ a ->
+	  let new_array = Array.create new_size None in
+	  for i = 0 to Pervasives.min size new_size - 1 do
+	    new_array.(new_size - 1 - i) <- a.array.((a.index-i+size) mod size)
+	  done;
+	  a.array <- new_array;
+	  a.index <- new_size - 1)
+	  curves;
+	size <- new_size
+      end
+
+    method create_curve = fun (name:string) ->
+      let color = colors.(color_index) in
+      let values = create_values size color in
+      color_index <- (color_index+1) mod Array.length colors;
+      Hashtbl.add curves name values;
+      values
 	
-  Hashtbl.iter
-    (fun _ a ->
-      (* Shift *)
-      a.index <- (a.index + 1) mod (Array.length a.array);
+    method delete_curve = fun name ->
+      Hashtbl.remove curves name
 
-      (* Draw *)
-      let curve = ref [] in
-      assert (plot.size = Array.length a.array);
-      let dy = float (height-2*margin) /. (plot.max -. plot.min) in
-      for i = 0 to plot.size - 1 do
-	let i' = (i+a.index) mod plot.size in
-	match a.array.(i') with
-	  None -> ()
-	| Some v ->
-	    curve := ((i * width) / plot.size, height - margin - truncate ((v-.plot.min)*.dy)) :: !curve;
-      done;
-      if !curve <> [] then begin
-	dr#set_foreground (`NAME a.color);
-	dr#lines !curve;
-      end;
-      (new GDraw.drawable plot.da#misc#window)#put_pixmap ~x:0 ~y:0 dr#pixmap)
-    curves;
-  true
-with exc -> prerr_endline (Printexc.to_string exc); true;;
+    method add_value = fun name v ->
+      let a = Hashtbl.find curves name in
+      a.array.(a.index) <- Some v;
+      min <- Pervasives.min min v;
+      max <- Pervasives.max max v
+	  
+    method update_curves = fun () ->
+      if Hashtbl.length curves > 0 then
+      try
+	let {Gtk.width=width; height=height} = da#misc#allocation in
+	let dr = GDraw.pixmap ~width ~height ~window:da () in
+	dr#set_foreground (`NAME "white");
+	dr#rectangle ~x:0 ~y:0 ~width ~height ~filled:true ();
+	let margin = Pervasives.min (height / 10) 20 in
 
-let plot_window = fun () ->
+	(* Time Graduations *)
+	let context = da#misc#create_pango_context in
+	context#set_font_by_name ("sans " ^ string_of_int (margin/2));
+	let layout = context#create_layout in
+
+	let f = fun x y s ->
+	  Pango.Layout.set_text layout s;
+	  let (w, h) = Pango.Layout.get_pixel_size layout in
+	  dr#put_layout ~x ~y:(y-h) ~fore:`BLACK layout in
+	
+	let t = dt *. float size in
+	f (width-width/size) height "0";
+	f (width/2) height (Printf.sprintf "-%.1f" (t/.2.));
+	f 0 height (Printf.sprintf "-%.1f" t);
+
+	(* Y graduations *)
+	let (min, max) = 
+	  if max > min then (min, max)
+	  else  let d = abs_float max /. 10. in (max -. d, max +. d) in
+	let delta = max -. min in
+	
+	let dy = float (height-2*margin) /. delta in
+	let y = fun v ->
+	  height - margin - truncate ((v-.min)*.dy) in
+
+	let scale = log delta /. log 10. in
+	let d = 10. ** floor scale in
+	let u = 
+	  if delta < 2.*.d then d/.5. 
+	  else if delta < 5.*.d then d/.2.
+	  else d in
+	let tick_min = min -. mod_float min u in
+	for i = 0 to truncate (delta/.u) + 1 do
+	  let tick = tick_min +. float i *. u in
+	  f 0 (y tick) (Printf.sprintf "%.*f" (Pervasives.max 0 (2-truncate scale)) tick)
+	done;
+
+	(* Constants *)
+	List.iter (fun v ->
+	  dr#set_foreground (`NAME "black");
+	  dr#lines [(0, y v); (width-width/size, y v)])
+	  csts;
+	
+	Hashtbl.iter
+	  (fun _ a ->
+	    (* Shift *)
+	    a.index <- (a.index + 1) mod (Array.length a.array);
+	    a.array.(a.index) <- None;
+	    
+	    (* Draw *)
+	    let curve = ref [] in
+	    assert (size = Array.length a.array);
+	    for i = 0 to size - 1 do
+	      let i' = (i+a.index) mod size in
+	      match a.array.(i') with
+		None -> ()
+	      | Some v ->
+		  curve := ((i * width) / size, y v) :: !curve;
+	    done;
+	    if !curve <> [] then begin
+	      dr#set_foreground (`NAME a.color);
+	      dr#lines !curve;
+	    end;
+	    (new GDraw.drawable da#misc#window)#put_pixmap ~x:0 ~y:0 dr#pixmap)
+	  curves
+      with
+	exc ->
+	  prerr_endline (Printexc.to_string exc)
+
+    method stop_timer = fun () ->
+      match timer with
+	None -> ()
+      | Some t -> GMain.Timeout.remove t
+	    
+    method set_update_time = fun delay ->
+      self#stop_timer ();
+      dt <- delay;
+      timer <- Some (GMain.Timeout.add (truncate (dt*.1000.)) (fun () ->self#update_curves (); true))
+  end
+
+let update_time = ref 0.5
+let size = ref 100
+
+let rec plot_window = fun () ->
   let plotter = GWindow.window ~title:"Plotter" () in
-  plotter#show ();
-  let width = 400 and height = 100 in
-  let da = GMisc.drawing_area ~width ~height ~show:true ~packing:plotter#add () in
-  let plot = create_plot da in
-  let values = Hashtbl.create 3 in
-  let color_index = ref 0 in
+  let vbox = GPack.vbox ~packing:plotter#add () in
+  let quit = fun () -> GMain.Main.quit (); exit 0 in
 
-  let data_received = fun context ~x ~y data ~info ~time ->
+  let tooltips = GData.tooltips () in
+
+  let menubar = GMenu.menu_bar ~packing:vbox#pack () in
+  let factory = new GMenu.factory menubar in
+  let accel_group = factory#accel_group in
+  let file_menu = factory#add_submenu "File" in
+  let file_menu_fact = new GMenu.factory file_menu ~accel_group in
+  
+  ignore (file_menu_fact#add_item "New" ~key:GdkKeysyms._N ~callback:plot_window);
+(*
+  let close = fun () -> plotter#destroy () in
+  ignore (file_menu_fact#add_item "Close" ~key:GdkKeysyms._W ~callback:close); *)
+  let reset_item = file_menu_fact#add_item "Reset" ~key:GdkKeysyms._C in
+  ignore (file_menu_fact#add_item "Quit" ~key:GdkKeysyms._Q ~callback:quit);
+  let curves_menu = factory#add_submenu "Curves" in
+  let curves_menu_fact = new GMenu.factory curves_menu in
+  tooltips#set_tip curves_menu#coerce ~text:"Delete a curve";
+
+  let h = GPack.hbox ~packing:vbox#pack () in
+
+  let width = 400 and height = 100 in
+  let plot = new plot ~size: !size ~width ~height ~packing:(vbox#pack ~expand:true) () in
+  tooltips#set_tip plot#drawing_area#coerce ~text:"Drop a messages field here to draw it";
+  ignore (plotter#connect#destroy ~callback:(fun () -> plot#destroy ()));
+
+  (* Update time slider *)
+  let adj = GData.adjustment ~lower:0.1 ~value: !update_time ~step_incr:0.1 ~upper:11.0 () in
+  let scale = GRange.scale `HORIZONTAL ~digits:2 ~adjustment:adj ~packing:h#add () in
+  ignore (adj#connect#value_changed ~callback:(fun () -> plot#set_update_time adj#value));
+  plot#set_update_time adj#value;
+  tooltips#set_tip scale#coerce ~text:"Update time (s)";
+
+  (* Size slider *)
+  let adj = GData.adjustment ~lower:10. ~value:(float !size) ~step_incr:10. ~upper:1010. () in
+  let scale = GRange.scale `HORIZONTAL ~adjustment:adj ~packing:h#add () in
+  ignore (adj#connect#value_changed ~callback:(fun () -> plot#set_size (truncate adj#value)));
+  tooltips#set_tip scale#coerce ~text:"Memory size";
+
+  (* Constants *)
+  let _, cst = labelled_entry ~width_chars:5 "Constant:" "" h in
+  let add_cst = fun s ->
+    let v = float_of_string s in
+    plot#add_cst v;
+    let eb = GBin.event_box ~width:10 ~height:10 () in
+    eb#coerce#misc#modify_bg [`NORMAL, `NAME "black"];
+    let item = curves_menu_fact#add_image_item ~image:eb#coerce ~label:s () in
+    
+    let delete = fun () ->
+      plot#delete_cst v;
+      curves_menu#remove (item :> GMenu.menu_item) in
+    ignore (item#connect#activate ~callback:delete);
+  in
+  ignore (cst#connect#activate ~callback:(fun () ->add_cst cst#text));
+  tooltips#set_tip cst#coerce ~text:"Enter value for a constant curve";
+
+  (* Factor *)
+  let factor_label, factor = labelled_entry ~width_chars:5 "Scale" "0.0174" h in
+  tooltips#set_tip factor#coerce ~text:"Enter a number and drop your curve on 'Scale' to use it as a multiply factor (e.g. 0.0174 to convert deg in rad)";
+
+  (* Reset callback *)
+  ignore (reset_item#connect#activate ~callback:plot#reset);
+
+  let data_received = fun ?(factor=1.) context ~x ~y data ~info ~time ->
     try
-      let (sender, class_name, msg_name, field_name) = parse_dnd  data#data in
-      let cb = fun a _sender values ->
-	let v = float_of_string (Pprz.string_assoc field_name values) in
-	add_value plot v a in
+      let name = data#data in
+      let (sender, class_name, msg_name, field_name) = parse_dnd name in
+      let cb = fun _sender values ->
+	let v = float_of_string (Pprz.string_assoc field_name values) *. factor in
+	plot#add_value name v in
       
       let module P = Pprz.Messages (struct let name = class_name end) in
-      let a = create_values plot.size color_index in
-      Hashtbl.add values (class_name, msg_name, field_name) a;
-      ignore (P.message_bind ~sender msg_name (cb a))
+      let binding = P.message_bind ~sender msg_name cb in
+
+      let curve = plot#create_curve name in
+      let eb = GBin.event_box ~width:10 ~height:10 () in
+      eb#coerce#misc#modify_bg [`NORMAL, `NAME curve.color];
+      let item = curves_menu_fact#add_image_item ~image:eb#coerce ~label:name () in
+      
+      let delete = fun () ->
+	plot#delete_curve name;
+	Ivy.unbind binding;
+	curves_menu#remove (item :> GMenu.menu_item) in
+      ignore (item#connect#activate ~callback:delete)
+
       with
 	exc -> prerr_endline (Printexc.to_string exc)
   in
-  da#drag#dest_set dnd_targets ~actions:[`COPY];
-  ignore (da#drag#connect#data_received ~callback:data_received);
-  ignore (GMain.Timeout.add (truncate (dt*.1000.)) (update_curves plot values))
+  plotter#drag#dest_set dnd_targets ~actions:[`COPY];
+  ignore (plotter#drag#connect#data_received ~callback:(data_received ~factor:1.));
+  factor_label#drag#dest_set dnd_targets ~actions:[`COPY];
+  ignore (factor_label#drag#connect#data_received ~callback:(fun context ~x ~y data ~info ~time -> try data_received ~factor:(float_of_string factor#text) context ~x ~y data ~info ~time with _ -> ()));
+  plotter#add_accel_group accel_group;
+  plotter#show ()
+
+
 
 
 let _ =

@@ -24,7 +24,7 @@ OCAMLC = ocamlc
 OCAMLOPT = ocamlopt
 INCLUDES= -I +xml-light
 
-all: play
+all: play plotter
 
 play : play.ml
 	$(OCAMLC) $(INCLUDES) -custom -o $@ unix.cma str.cma xml-light.cma glibivy-ocaml.cma -I +lablgtk2 -I ../lib/ocaml lablgtk.cma lib-pprz.cma gtkInit.cmo  $^
