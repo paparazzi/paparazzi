@@ -39,6 +39,7 @@ uint8_t gps_nb_ovrn, modem_nb_ovrn, link_fbw_fbw_nb_err, link_fbw_nb_err;
 float alt_roll_pgain;
 float roll_rate_pgain;
 bool_t gpio1_status;
+uint16_t datalink_time = 0;
 
 
 
@@ -150,5 +151,6 @@ value dl_setting(value index __attribute__ ((unused)),
 value set_wind(value east, value north) {
   wind_east = Double_val(east);
   wind_north = Double_val(north);
+  datalink_time = 0;
   return Val_unit;
 }
