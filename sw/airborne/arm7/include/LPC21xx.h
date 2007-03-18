@@ -157,6 +157,22 @@
 #define I2C0SCLL          I2C0->scll       /* SCL Duty Cycle Register (low half word) */
 #define I2C0CONCLR        I2C0->conclr     /* Control Clear Register */
 
+// I2CONSET bit definition
+
+#define AA   2
+#define SI   3
+#define STO  4
+#define STA  5
+#define I2EN 6
+
+// I2CONCLR bit definition
+
+#define AAC   2
+#define SIC   3
+#define STAC  5
+#define I2ENC 6
+
+
 ///////////////////////////////////////////////////////////////////////////////
 // Serial Peripheral Interface 0 (SPI0)
 #define SPI0            ((spiRegs_t *)0xE0020000)
