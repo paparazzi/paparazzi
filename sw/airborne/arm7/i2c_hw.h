@@ -7,7 +7,7 @@
 extern void i2c_hw_init(void);
 
 #define I2cSendAck()   { I2C0CONSET = _BV(AA); }
-#define I2cSendStop()  { I2C0CONSET = _BV(STO); *i2c_finished = TRUE; i2c_status = I2C_IDLE; }
+#define I2cSendStop()  { I2C0CONSET = _BV(STO); if (i2c_finished) *i2c_finished = TRUE; i2c_status = I2C_IDLE; }
 #define I2cSendStart() { I2C0CONSET = _BV(STA); }
 #define I2cSendByte(b) { I2C_DATA_REG = b; }
 

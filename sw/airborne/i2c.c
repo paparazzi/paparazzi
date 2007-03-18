@@ -1,3 +1,4 @@
+#include <stdio.h> /* For NULL */
 #include "i2c.h"
 
 #define I2C_RECEIVE     1
@@ -13,6 +14,7 @@ volatile bool_t* i2c_finished;
 void i2c_init(void) {
   i2c_status = I2C_IDLE;
   i2c_hw_init();
+  i2c_finished = NULL;
 }
 
 

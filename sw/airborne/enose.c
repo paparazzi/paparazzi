@@ -13,6 +13,8 @@ uint16_t enose_val[ENOSE_NB_SENSOR];
 #define ENOSE_PWM_ADDR   0x06
 #define ENOSE_DATA_ADDR  0x00
 
+#define ENOSE_HEAT_INIT 237
+
 uint8_t enose_conf_requested;
 
 volatile bool_t enose_i2c_done;
@@ -21,7 +23,7 @@ volatile bool_t enose_i2c_done;
 void enose_init( void ) {
   uint8_t i;
   for (i=0; i< ENOSE_NB_SENSOR; i++) {
-    enose_heat[i] = 237;
+    enose_heat[i] = ENOSE_HEAT_INIT;
     enose_val[i] = 0;
   }
   enose_status = ENOSE_IDLE;
@@ -52,13 +54,13 @@ void enose_periodic( void ) {
       enose_status = ENOSE_MEASURING_WR;
       const uint8_t msg[] = { ENOSE_DATA_ADDR };  
       memcpy(i2c_buf, msg, sizeof(msg));
-      enose_i2c_done = FALSE;
       i2c_transmit(ENOSE_SLAVE_ADDR, sizeof(msg), &enose_i2c_done);
+      enose_i2c_done = FALSE;
     }
     else if (enose_status == ENOSE_MEASURING_WR) {
       enose_status = ENOSE_MEASURING_RD;
-      enose_i2c_done = FALSE;
       i2c_receive(ENOSE_SLAVE_ADDR, 6, &enose_i2c_done);
+      enose_i2c_done = FALSE;
     }
     else if (enose_status == ENOSE_MEASURING_RD) {
       LED_ON(2);

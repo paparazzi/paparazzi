@@ -48,7 +48,7 @@ extern volatile bool_t* i2c_finished;
 	I2cReceive(i2c_index < i2c_len - 1);				\
       }									\
       else {								\
-	/* error , we should have goten NACK */				\
+	/* error , we should have got NACK */				\
 	I2cSendStop();							\
       }									\
       break;								\
