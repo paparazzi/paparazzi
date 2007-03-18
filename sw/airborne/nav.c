@@ -249,8 +249,13 @@ static inline void nav_survey_rectangle(uint8_t wp1, uint8_t wp2) {
       nav_in_segment = FALSE;
       float x0 = survey_from.x; /* Current longitude */
       if (x0+survey_shift < survey_west || x0+survey_shift > survey_east) {
+	x0 += survey_shift / 2;
         survey_shift = -survey_shift;
+	nav_circle_radians = M_PI_2;
+      } else {
+	nav_circle_radians = 0.;
       }
+
       x0 = x0 + survey_shift; /* Longitude of next leg */
       survey_from.x = survey_to.x = x0;
 
@@ -265,10 +270,12 @@ static inline void nav_survey_rectangle(uint8_t wp1, uint8_t wp2) {
 
       /* Computes the right direction for the circle */
       survey_radius = survey_shift / 2.;
-      if (SurveyGoingNorth())
+      if (SurveyGoingNorth()) {
         survey_radius = -survey_radius;
+	if (survey_radius > 0.) 
+	  nav_circle_radians = - nav_circle_radians;
+      }
 
-      nav_circle_radians = 0.;
       survey_uturn = TRUE;
     }
   } else { /* U-turn */
@@ -316,6 +323,17 @@ static unit_t nav_reset_reference( void ) __attribute__ ((unused));
 
 static unit_t nav_update_waypoints_alt( void ) __attribute__ ((unused));
 static inline void nav_follow(uint8_t _ac_id, float _distance, float _height);
+
+#ifdef NAV_GROUND_SPEED_PGAIN
+/** \brief Computes cruise throttle from ground speed setpoint
+ */
+static int nav_ground_speed_loop( void ) {
+  float err = estimator_hspeed_mod - nav_ground_speed_setpoint;
+  v_ctl_auto_throttle_cruise_throttle += nav_ground_speed_pgain*err;
+  Bound(v_ctl_auto_throttle_cruise_throttle, V_CTL_AUTO_THROTTLE_MIN_CRUISE_THROTTLE, V_CTL_AUTO_THROTTLE_MAX_CRUISE_THROTTLE);
+  return FALSE;
+}
+#endif
 
 #include "flight_plan.h"
 
@@ -531,18 +549,6 @@ void nav_without_gps(void) {
 }
 
 
-#ifdef NAV_GROUND_SPEED_PGAIN
-/** \brief Computes cruise throttle from ground speed setpoint
- */
-int nav_ground_speed_loop( void ) {
-  float err = estimator_hspeed_mod - nav_ground_speed_setpoint;
-  v_ctl_auto_throttle_cruise_throttle += nav_ground_speed_pgain*err;
-  Bound(v_ctl_auto_throttle_cruise_throttle, V_CTL_AUTO_THROTTLE_MIN_CRUISE_THROTTLE, V_CTL_AUTO_THROTTLE_MAX_CRUISE_THROTTLE);
-  return FALSE;
-}
-#endif
-
-
 /**************** 8 Navigation **********************************************/
 
 
@@ -723,4 +729,3 @@ void nav_oval(uint8_t p1, uint8_t p2, float radius) {
     return;
   }
 }
-
