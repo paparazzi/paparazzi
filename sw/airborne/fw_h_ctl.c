@@ -55,6 +55,7 @@ bool_t h_ctl_auto1_rate;
 float  h_ctl_roll_setpoint;
 float  h_ctl_roll_pgain;
 pprz_t h_ctl_aileron_setpoint;
+float  h_ctl_roll_slew;
 
 /* inner pitch loop parameters */
 float  h_ctl_pitch_setpoint;
@@ -116,6 +117,10 @@ void h_ctl_init( void ) {
   h_ctl_roll_rate_igain = H_CTL_ROLL_RATE_IGAIN;
   h_ctl_roll_rate_dgain = H_CTL_ROLL_RATE_DGAIN;
 #endif
+
+#ifdef H_CTL_ROLL_SLEW
+  h_ctl_roll_slew = H_CTL_ROLL_SLEW;
+#endif
 }
 
 /** 
@@ -134,7 +139,16 @@ void h_ctl_course_loop ( void ) {
     cmd *= ((altitude_error < 0) ? AGR_CLIMB_NAV_RATIO : AGR_DESCENT_NAV_RATIO);
   }
 #endif
-  h_ctl_roll_setpoint = cmd + h_ctl_course_pre_bank_correction * h_ctl_course_pre_bank;
+  float roll_setpoint = cmd + h_ctl_course_pre_bank_correction * h_ctl_course_pre_bank;
+
+#ifdef H_CTL_ROLL_SLEW
+  float diff_roll = roll_setpoint - h_ctl_roll_setpoint;
+  BoundAbs(diff_roll, h_ctl_roll_slew);
+  h_ctl_roll_setpoint += diff_roll;
+#else
+  h_ctl_roll_setpoint = roll_setpoint;
+#endif
+
   BoundAbs(h_ctl_roll_setpoint, h_ctl_roll_max_setpoint);
 }
 

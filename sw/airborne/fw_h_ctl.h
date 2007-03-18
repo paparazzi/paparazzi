@@ -52,6 +52,7 @@ extern bool_t h_ctl_auto1_rate;
 extern float  h_ctl_roll_setpoint;
 extern float  h_ctl_roll_pgain;
 extern pprz_t h_ctl_aileron_setpoint;
+extern float  h_ctl_roll_slew;
 
 /* inner pitch loop parameters */
 extern float  h_ctl_pitch_setpoint;
