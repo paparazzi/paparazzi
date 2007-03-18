@@ -155,8 +155,8 @@
     <define name="ALTITUDE_MAX_CLIMB" value="3."/>
 
     <!-- auto throttle inner loop -->
-    <define name="AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE" value="0.60"/>
-    <define name="AUTO_THROTTLE_MIN_CRUISE_THROTTLE" value=".45"/>
+    <define name="AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE" value="0.45"/>
+    <define name="AUTO_THROTTLE_MIN_CRUISE_THROTTLE" value=".3"/>
     <define name="AUTO_THROTTLE_MAX_CRUISE_THROTTLE" value="0.8"/>
     <define name="AUTO_THROTTLE_LOITER_TRIM" value="2000"/>
     <define name="AUTO_THROTTLE_DASH_TRIM" value="-1500"/>

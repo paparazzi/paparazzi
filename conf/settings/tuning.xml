@@ -20,8 +20,8 @@
         <strip_button name="KILL" value="1"/>
       </dl_setting>
     </dl_settings>
-    <dl_settings NAME="control">
 
+    <dl_settings NAME="control">
       <dl_settings NAME="ir">
         <dl_setting MAX="0.3" MIN="-0.3" STEP="0.01" VAR="ir_roll_neutral" shortname="roll_neutral"/>
         <dl_setting MAX="0.5" MIN="-0.3" STEP="0.01" VAR="ir_pitch_neutral" shortname="pitch_neutral"/>
@@ -51,8 +51,6 @@
       </dl_settings>
 
 
-
-
       <dl_settings NAME="attitude">
         <dl_setting MAX="25000" MIN="000" STEP="250" VAR="h_ctl_roll_pgain" shortname="roll_pgain"/>
         <dl_setting MAX="000" MIN="-25000" STEP="250" VAR="h_ctl_pitch_pgain" shortname="pitch_pgain"/>
@@ -78,6 +76,7 @@
         <dl_setting MAX="0" MIN="-4000" STEP="100" VAR="v_ctl_auto_throttle_dash_trim" shortname="dash trim"/>
         <dl_setting MIN="0" MAX="3000" STEP="100" VAR="v_ctl_auto_throttle_loiter_trim" shortname="loiter trim"/>
         <dl_setting MAX="1" MIN="0" STEP="0.01" VAR="v_ctl_auto_throttle_climb_throttle_increment" shortname="throttle_incr"/>
+        <dl_setting MAX="1" MIN="0" STEP="0.01" VAR="v_ctl_auto_throttle_pitch_of_vz_pgain" shortname="pitch_of_vz"/>
       </dl_settings>
 
       <dl_settings name="auto_pitch">
@@ -89,6 +88,7 @@
         <dl_setting MAX="-0.1" MIN="-2" STEP="0.05" VAR="h_ctl_course_pgain" shortname="course pgain"/>
         <dl_setting MAX="2" MIN="0.1" STEP="0.05" VAR="h_ctl_course_pre_bank_correction" shortname="pre bank cor"/>
         <dl_setting MAX="1" MIN="0.0" STEP="0.05" VAR="nav_glide_pitch_trim" shortname="glide pitch trim"/>
+        <dl_setting MAX="1" MIN="0.02" STEP="0.01" VAR="h_ctl_roll_slew" shortname="roll slew"/>
         <dl_setting MAX="500" MIN="50" STEP="5" VAR="nav_radius"/>
       </dl_settings>
     </dl_settings>

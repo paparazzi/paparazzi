@@ -120,11 +120,11 @@
     <define name="ALTITUDE_MAX_CLIMB" value="2."/>
 
     <!-- auto throttle inner loop -->
-    <define name="AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE" value="0.35"/>
-    <define name="AUTO_THROTTLE_MIN_CRUISE_THROTTLE" value="0.30"/>
-    <define name="AUTO_THROTTLE_MAX_CRUISE_THROTTLE" value="0.80"/>
+    <define name="AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE" value="0.3"/>
+    <define name="AUTO_THROTTLE_MIN_CRUISE_THROTTLE" value="0.25"/>
+    <define name="AUTO_THROTTLE_MAX_CRUISE_THROTTLE" value="0.65"/>
     <define name="AUTO_THROTTLE_LOITER_TRIM" value="1500"/>
-    <define name="AUTO_THROTTLE_DASH_TRIM" value="-1000"/>
+    <define name="AUTO_THROTTLE_DASH_TRIM" value="-4000"/>
     <define name="AUTO_THROTTLE_CLIMB_THROTTLE_INCREMENT" value="0.15" unit="%/(m/s)"/>
     <define name="AUTO_THROTTLE_PGAIN" value="-0.01"/>
     <define name="AUTO_THROTTLE_IGAIN" value="0.1"/>
@@ -163,6 +163,7 @@
     <define name="ROLL_RATE_DGAIN" value="0."/>
     <define name="ROLL_RATE_SUM_NB_SAMPLES" value="64"/>
 
+    <define name="ROLL_SLEW" value="0.05"/>
   </section>
 
   <section name="NAV">
@@ -175,7 +176,7 @@
   <section name="AGGRESSIVE" prefix="AGR_">
     <define name="BLEND_START" value="20"/><!-- Altitude Error to Initiate Aggressive Climb CANNOT BE ZERO!!-->
     <define name="BLEND_END" value="10"/><!-- Altitude Error to Blend Aggressive to Regular Climb Modes  CANNOT BE ZERO!!-->
-    <define name="CLIMB_THROTTLE" value="0.8"/><!-- Gaz for Aggressive Climb -->
+    <define name="CLIMB_THROTTLE" value="1.00"/><!-- Gaz for Aggressive Climb -->
     <define name="CLIMB_PITCH" value="0.3"/><!-- Pitch for Aggressive Climb -->
     <define name="DESCENT_THROTTLE" value="0.1"/><!-- Gaz for Aggressive Decent -->
     <define name="DESCENT_PITCH" value="-0.25"/><!-- Pitch for Aggressive Decent -->

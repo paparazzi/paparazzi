@@ -65,6 +65,10 @@
       <circle radius="50+(estimator_z-ground_alt)/2" wp="1" climb="1" pitch="0.1" vmode="climb" until="10 > PowerVoltage()"/>
     </block>
 
+    <block name="climb 0">
+      <circle radius="nav_radius" wp="1" climb="0" vmode="climb" until="10 > PowerVoltage()"/>
+    </block>
+
     <block name="descent 0" strip_button="Descent">
       <circle radius="50+(estimator_z-ground_alt)/2" wp="1" throttle="0.0" pitch="-0.3" vmode="throttle" until="ground_alt+50 > estimator_z"/>
       <deroute block="circle 1"/>
@@ -121,15 +125,22 @@
 
     <block name="step_roll_10">
       <while cond="TRUE">
-	<attitude roll="10.0" until=" stage_time > 4" vmode="alt" alt="250"/>
-	<attitude roll="-10.0" until="stage_time > 4" vmode="alt" alt="250"/>
+	<attitude roll="10.0" until=" stage_time > 3" vmode="alt" alt="250"/>
+	<attitude roll="-10.0" until="stage_time > 3" vmode="alt" alt="250"/>
       </while>
     </block>
 
     <block name="step_roll_20">
       <while cond="TRUE">
-	<attitude roll="20.0" until=" stage_time > 4" vmode="alt" alt="250"/>
-	<attitude roll="-20.0" until="stage_time > 4" vmode="alt" alt="250"/>
+	<attitude roll="20.0" until=" stage_time > 3" vmode="alt" alt="250"/>
+	<attitude roll="-20.0" until="stage_time > 3" vmode="alt" alt="250"/>
+      </while>
+    </block>
+
+    <block name="step_pitch_10">
+      <while cond="TRUE">
+	<attitude pitch="10" roll="0.0" until=" stage_time > 2" vmode="alt" alt="250"/>
+	<attitude pitch="-10" roll="0.0" until=" stage_time > 2" vmode="alt" alt="250"/>
       </while>
     </block>
 
