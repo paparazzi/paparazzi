@@ -65,6 +65,10 @@
 #include "srf08.h"
 #endif
 
+#ifdef ENOSE
+#include "i2c.h"
+#include "enose.h"
+#endif
 
 #define LOW_BATTERY_DECIVOLT (LOW_BATTERY*10)
 
@@ -418,6 +422,7 @@ void periodic_task_ap( void ) {
     stage_time_ds = (int16_t)(stage_time_ds+.5);
     stage_time++;
     block_time++;
+    datalink_time++;
 
     static uint8_t t = 0;
     if (vsupply < LOW_BATTERY_DECIVOLT) t++; else t = 0;
@@ -466,6 +471,11 @@ void periodic_task_ap( void ) {
   case 3:
     GpioUpdate1();
     break;
+#endif
+#ifdef ENOSE
+  case 4:
+    enose_periodic();
+    DOWNLINK_SEND_ENOSE_STATUS(&enose_val[0], &enose_val[1], &enose_val[2], 3, enose_heat);
 #endif
 
     /*  default: */
@@ -551,7 +561,10 @@ void init_ap( void ) {
   GpioInit();
 #endif
 
-
+#ifdef ENOSE
+  i2c_init();
+  enose_init();
+#endif
 
   /************* Links initialization ***************/
 #if defined MCU_SPI_LINK
