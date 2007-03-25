@@ -32,7 +32,8 @@ let parse_dnd =
   let sep = Str.regexp ":" in
   fun s ->
     match Str.split sep s with
-      [s; c; m; f] -> (s, c, m, f)
+      [s; c; m; f] -> (s, c, m, f, 1.)
+    | [s; c; m; f; factor] -> (s, c, m, f, float_of_string factor)
     | _ -> failwith (Printf.sprintf "parse_dnd: %s" s)
 
 
@@ -246,7 +247,11 @@ let rec plot_window = fun init ->
   ignore (file_menu_fact#add_item "Quit" ~key:GdkKeysyms._Q ~callback:quit);
   let curves_menu = factory#add_submenu "Curves" in
   let curves_menu_fact = new GMenu.factory curves_menu in
-  tooltips#set_tip curves_menu#coerce ~text:"Delete a curve";
+  tooltips#set_tip reset_item#coerce ~text:"Reset the current display and the current data";
+  tooltips#set_tip curves_menu#coerce ~text:"Delete the curve";
+  tooltips#set_tip suspend_item#coerce ~text:"Freeze the display while the data are still updated";
+  tooltips#set_tip stop_item#coerce ~text:"Freeze the data update while the display is active (e.g. resizable)";
+  tooltips#set_tip start_item#coerce ~text:"UnFreeze";
 
   let h = GPack.hbox ~packing:vbox#pack () in
 
@@ -264,7 +269,7 @@ let rec plot_window = fun init ->
 
   (* Size slider *)
   let adj = GData.adjustment ~lower:10. ~value:(float !size) ~step_incr:10. ~upper:1010. () in
-  let scale = GRange.scale `HORIZONTAL ~adjustment:adj ~packing:h#add () in
+  let scale = GRange.scale `HORIZONTAL ~digits:0 ~adjustment:adj ~packing:h#add () in
   ignore (adj#connect#value_changed ~callback:(fun () -> plot#set_size (truncate adj#value)));
   tooltips#set_tip scale#coerce ~text:"Memory size";
 
@@ -297,28 +302,29 @@ let rec plot_window = fun init ->
 
 
   let add_curve = fun ?(factor=1.) name ->
-    let (sender, class_name, msg_name, field_name) = parse_dnd name in
-      let cb = fun _sender values ->
-	let v = float_of_string (Pprz.string_assoc field_name values) *. factor in
-	plot#add_value name v in
+    let (sender, class_name, msg_name, field_name, factor') = parse_dnd name in
+    let factor = factor *. factor' in
+    let cb = fun _sender values ->
+      let v = float_of_string (Pprz.string_assoc field_name values) *. factor in
+      plot#add_value name v in
+    
+    let module P = Pprz.Messages (struct let name = class_name end) in
+    let binding = 
+      if sender = "*" then
+	P.message_bind msg_name cb
+      else
+	P.message_bind ~sender msg_name cb in
+    
+    let curve = plot#create_curve name in
+    let eb = GBin.event_box ~width:10 ~height:10 () in
+    eb#coerce#misc#modify_bg [`NORMAL, `NAME curve.color];
+    let item = curves_menu_fact#add_image_item ~image:eb#coerce ~label:name () in
       
-      let module P = Pprz.Messages (struct let name = class_name end) in
-      let binding = 
-	if sender = "*" then
-	  P.message_bind msg_name cb
-	else
-	  P.message_bind ~sender msg_name cb in
-
-      let curve = plot#create_curve name in
-      let eb = GBin.event_box ~width:10 ~height:10 () in
-      eb#coerce#misc#modify_bg [`NORMAL, `NAME curve.color];
-      let item = curves_menu_fact#add_image_item ~image:eb#coerce ~label:name () in
-      
-      let delete = fun () ->
+    let delete = fun () ->
 	plot#delete_curve name;
-	Ivy.unbind binding;
-	curves_menu#remove (item :> GMenu.menu_item) in
-      ignore (item#connect#activate ~callback:delete) in
+      Ivy.unbind binding;
+      curves_menu#remove (item :> GMenu.menu_item) in
+    ignore (item#connect#activate ~callback:delete) in
 
 
   (* Drag and drop handler *)
@@ -345,11 +351,19 @@ let rec plot_window = fun init ->
 
 let _ =
   let ivy_bus = ref "127.255.255.255:2010"
-  and init = ref [] in
+  and init = ref [[]] in
+
+  let add_init = fun s ->
+    match !init with
+      [] -> failwith "unreachable"
+    | x::xs -> init := (s::x) :: xs in
 
   Arg.parse
     [ "-b", Arg.String (fun x -> ivy_bus := x), "Bus\tDefault is 127.255.255.255:2010";
-      "-c", Arg.String (fun x -> init := x :: !init), "Add a curve (e.g. '*:telemetry:BAT:voltage')"]
+      "-c", Arg.String (fun x -> add_init x), "Add a curve (e.g. '*:telemetry:BAT:voltage'). The curve is inserted into the last open window (cf -n option)";
+      "-n", Arg.Unit (fun () -> init := [] :: !init), "Open another window";
+      "-m", Arg.Set_int size, (Printf.sprintf "Memory size (default %d)" !size);
+      "-u", Arg.Set_float update_time, (Printf.sprintf "Update time in s (default %.2f)" !update_time)]
     (fun x -> prerr_endline ("WARNING: don't do anything with "^x))
     "Usage: ";
 
@@ -357,7 +371,7 @@ let _ =
   Ivy.init "Paparazzi messages" "READY" (fun _ _ -> ());
   Ivy.start !ivy_bus;
 
-  plot_window !init;
+  List.iter plot_window !init;
 
   let loop = Glib.Main.create true in
   while Glib.Main.is_running loop do ignore (Glib.Main.iteration true) done
