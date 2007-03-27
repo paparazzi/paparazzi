@@ -65,6 +65,14 @@ class plot = fun ~size ~width ~height ~packing () ->
     val mutable timer = None
     val mutable csts = ([] : float list)
     val mutable status = Run
+    val mutable auto_scale = true
+
+    method auto_scale = auto_scale
+    method set_auto_scale = fun x -> auto_scale <- x
+    method min = min
+    method set_min = fun x -> min <- x
+    method max = max
+    method set_max = fun x -> max <- x
 
     method suspend = fun () ->
       status <- Suspend
@@ -87,8 +95,10 @@ class plot = fun ~size ~width ~height ~packing () ->
       csts <- List.filter (fun x -> x <> v) csts
 
     method reset () =
-      min <- max_float;
-      max <- min_float;
+      if auto_scale then begin
+	min <- max_float;
+	max <- min_float
+      end;
       Hashtbl.iter (fun _ a ->
 	a.index <- 0;
 	for i = 0 to Array.length a.array - 1 do a.array.(i) <- None done)
@@ -121,8 +131,10 @@ class plot = fun ~size ~width ~height ~packing () ->
       if status <> Stop then
 	let a = Hashtbl.find curves name in
 	a.array.(a.index) <- Some v;
-	min <- Pervasives.min min v;
-	max <- Pervasives.max max v
+	if auto_scale then begin
+	  min <- Pervasives.min min v;
+	  max <- Pervasives.max max v
+	end
 
     method shift = fun () ->
       Hashtbl.iter
@@ -255,10 +267,19 @@ let rec plot_window = fun init ->
 
   let h = GPack.hbox ~packing:vbox#pack () in
 
-  let width = 400 and height = 100 in
+  let width = 600 and height = 150 in
   let plot = new plot ~size: !size ~width ~height ~packing:(vbox#pack ~expand:true) () in
   tooltips#set_tip plot#drawing_area#coerce ~text:"Drop a messages field here to draw it";
   ignore (plotter#connect#destroy ~callback:(fun () -> plot#destroy ()));
+
+  (* Auto Scale *)
+  let auto_scale = GButton.check_button ~label:"Auto Scale" ~active:true ~packing:h#pack () in
+  ignore (auto_scale#connect#toggled (fun () -> plot#set_auto_scale auto_scale#active));
+  let _, min_entry= labelled_entry ~width_chars:5 "Min" "" h in
+  let _, max_entry= labelled_entry ~width_chars:5 "Max" "" h in
+  ignore (GMain.Timeout.add 1000 (fun () -> if plot#auto_scale then begin min_entry#set_text (string_of_float plot#min);  max_entry#set_text (string_of_float plot#max) end; true));
+  ignore (min_entry#connect#activate ~callback:(fun () -> if not plot#auto_scale then plot#set_min (float_of_string min_entry#text)));
+  ignore (max_entry#connect#activate ~callback:(fun () -> if not plot#auto_scale then plot#set_max (float_of_string max_entry#text)));
 
   (* Update time slider *)
   let adj = GData.adjustment ~lower:0.1 ~value: !update_time ~step_incr:0.1 ~upper:11.0 () in
