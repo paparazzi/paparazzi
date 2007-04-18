@@ -1,3 +1,4 @@
+open Printf
 open Latlong
 
 module GroundPprz = Pprz.Messages(struct let name = "ground" end)
@@ -12,10 +13,31 @@ type pattern =
   | Line of point * point
   | Nop
 
+let print_p = fun c p ->
+  fprintf c "(%d,%d,%d)" p.x p.y p.z
+
+let print_pattern = fun a ->
+  match a with
+    Circle (p, r) -> printf "Circle (%a %d) " print_p p r
+  | Eight (p1, p2, r) -> printf "Eight (%a %a %d) " print_p p1 print_p p2 r
+  | Line (p1, p2) -> printf "Line (%a %a) " print_p p1 print_p p2
+  | Nop -> printf "Nop "
+
+let print_patterns = fun t ->
+  let i = ref 0 in
+  List.iter (fun p -> printf "%d:" !i; incr i; print_pattern p) t;
+  print_newline ()
+
 
 (** Hashtbl of timelines indexed by the aircraft id *)
 let timelines = Hashtbl.create 3
 let timeline_max_length = 8
+
+let add_timeline ac_id =
+  let t = [Nop] in
+  Hashtbl.add timelines ac_id t;
+  t
+
 
 (* FIXME (from flight_plans/ihm.xml) *)
 let nop_block = 0
@@ -103,14 +125,15 @@ let send_pattern_up = fun ac_id ->
   try
     let tl = Hashtbl.find timelines ac_id in
     begin
-      match tl.(0) with
-	Circle (p, r) -> send_circle ac_id p r
-      | Eight (p1, p2, r) -> send_eight ac_id p1 p2 r
-      | Line (p1, p2) -> send_line ac_id p1 p2
-      | Nop ->
+      match tl with
+	Circle (p, r) :: _ -> send_circle ac_id p r
+      | Eight (p1, p2, r) :: _ -> send_eight ac_id p1 p2 r
+      | Line (p1, p2) :: _ -> send_line ac_id p1 p2
+      | Nop :: _ ->
 	  let vs = [ "ac_id", Pprz.String ac_id;
 		     "block_id", Pprz.Int nop_block ] in
 	  GroundPprz.message_send "ihm" "JUMP_TO_BLOCK" vs
+      | [] -> failwith (Printf.sprintf "send_pattern_up: %s - empty list" ac_id)
     end
   with
     Not_found -> failwith (Printf.sprintf "send_pattern_up: %s" ac_id)
@@ -121,10 +144,21 @@ let get_ac = fun vs ->
     Hashtbl.find timelines ac_id
   with
     Not_found ->
-      let t = Array.create timeline_max_length Nop in
-      Hashtbl.add timelines ac_id t;
-      t
+      add_timeline ac_id
 
+let insert_in_timeline values idx action =
+  let t = get_ac values in
+  let rec iter t i =
+    if i = 0 then action :: t else
+    match t with
+      [] -> failwith "insert_in_timeline"
+    | x :: xs -> x :: iter xs (i-1) in
+  let newt = iter t idx in
+
+  (***)print_patterns newt;
+  
+  let ac_id = Pprz.string_assoc "ac_id" values in
+  Hashtbl.replace timelines ac_id newt
 
 (** Bind to message while catching all the esceptions of the callback *)
 let safe_bind = fun msg cb bind ->
@@ -146,36 +180,33 @@ let point_assoc = fun x y z values ->
 
 
 let ihm_circle_cb = fun _sender values ->
-  let timeline = get_ac values in
   let idx = Pprz.int_assoc "idx_timeline" values
   and p = point_assoc "x" "y" "z" values
   and r = Pprz.int_assoc "r" values in
-  assert(idx < timeline_max_length);
-  timeline.(idx) <- Circle (p, r);
+  let action = Circle (p, r) in
+  insert_in_timeline values idx action;
   if idx = 0 then
     send_pattern_up (Pprz.string_assoc "ac_id" values)
 
 let ihm_line_cb = fun _sender values ->
-  let timeline = get_ac values in
   let idx = Pprz.int_assoc "idx_timeline" values
   and p1 = point_assoc "x1" "y1" "z1" values
   and p2 = point_assoc "x2" "y2" "z2" values in
-  assert(idx < timeline_max_length);
-  timeline.(idx) <- Line (p1, p2);
+  let action = Line (p1, p2) in
+  insert_in_timeline values idx action;
   if idx = 0 then
     send_pattern_up (Pprz.string_assoc "ac_id" values)
 
 let ihm_eight_cb = fun _sender values ->
-  let timeline = get_ac values in
   let idx = Pprz.int_assoc "idx_timeline" values
   and p1 = point_assoc "x1" "y1" "z" values
   and p2 = point_assoc "x2" "y2" "z" values
   and r = Pprz.int_assoc "r" values in
-  assert(idx < timeline_max_length);
-  timeline.(idx) <- Eight (p1, p2, r);
+  let action = Eight (p1, p2, r) in
+  insert_in_timeline values idx action;
   if idx = 0 then
     send_pattern_up (Pprz.string_assoc "ac_id" values)
-
+(*
 let delete = fun timeline idx values ->
   (* Shift left *)
   for i = max 0 idx to timeline_max_length - 2 do
@@ -183,24 +214,59 @@ let delete = fun timeline idx values ->
   done;
   if idx = 0 then
     send_pattern_up (Pprz.string_assoc "ac_id" values)
+*)
+
+let delete_in_timeline values idx =
+  let rec iter t idx =
+    if idx = 0 then
+      match t with
+	[] -> failwith "delete_in_timeline"
+      | x :: xs -> xs
+    else
+      match t with
+	[] -> failwith "delete_in_timeline"
+      | x :: xs -> x :: iter xs (idx-1) in
+  let t = get_ac values in
+  let newt = iter t idx in
+  let ac_id = Pprz.string_assoc "ac_id" values in
+  Hashtbl.replace timelines ac_id newt;
+
+  print_patterns newt;
+
+  if idx = 0 then
+    send_pattern_up (Pprz.string_assoc "ac_id" values)
 
 let ihm_delete_cb = fun _sender values ->
-  let timeline = get_ac values in
   let idx = Pprz.int_assoc "idx_timeline" values in
-  delete timeline idx values
+  delete_in_timeline values idx
 
 let nav_status_cb = fun _sender values ->
   let block = Pprz.int_assoc "cur_block" values in
   if block = end_glide_block then
-    let timeline = get_ac values in
-    delete timeline 0 values
+    delete_in_timeline values 0
+
+let fp_cb = fun _sender values ->
+  let lat = Pprz.float_assoc "lat" values
+  and lon = Pprz.float_assoc "long" values
+  and alt = Pprz.float_assoc "alt" values in
+  let wgs84 = { posn_lat=(Deg>>Rad)lat;  posn_long=(Deg>>Rad)lon } in
+  let utm = utm_of WGS84 wgs84 in
+  let (x, y) = utm_sub utm utm_ref in
+  let z = alt in
+  let vs = ["x", Pprz.Int (truncate x);
+            "y", Pprz.Int (truncate y);
+            "z", Pprz.Int (truncate z)] in
+  IhmDownPprz.message_send "ihm" "AC_POS" vs
+
+
 
 let listen = fun () ->
   safe_bind_up "IHM_CIRCLE" ihm_circle_cb;
   safe_bind_up "IHM_LINE" ihm_line_cb;
   safe_bind_up "IHM_EIGHT" ihm_eight_cb;
   safe_bind_up "IHM_DELETE" ihm_delete_cb;
-  safe_bind_ground "NAV_STATUS" nav_status_cb
+  safe_bind_ground "NAV_STATUS" nav_status_cb;
+  safe_bind_ground "FLIGHT_PARAM" fp_cb
 
 
 
@@ -216,7 +282,7 @@ let () =
     (fun x -> Printf.fprintf stderr "%s: Warning: Don't do anything with '%s' argument\n" Sys.argv.(0) x)
     "Usage: ";
 
-  Ivy.init "Paparazzi server" "READY" (fun _ _ -> ());
+  Ivy.init "Paparazzi gui_plug" "READY" (fun _ _ -> ());
   Ivy.start !ivy_bus;
 
   listen ();
