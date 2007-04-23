@@ -81,6 +81,10 @@ float nav_glide_pitch_trim;
 
 float nav_ground_speed_setpoint, nav_ground_speed_pgain;
 
+/* Used in nav_survey_rectangle. Defined here for downlink and uplink */
+float nav_survey_shift;
+float nav_survey_west, nav_survey_east, nav_survey_north, nav_survey_south;
+
 void nav_init_stage( void ) {
   last_x = estimator_x; last_y = estimator_y;
   stage_time = 0;

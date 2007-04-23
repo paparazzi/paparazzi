@@ -13,7 +13,7 @@ static struct point c1;
 static struct point c2;
 
 bool_t disc_survey_init( float grid ) {
-  survey_shift = grid;
+  nav_survey_shift = grid;
   status = DOWNWIND;
   sign = 1;
   c1.x = estimator_x;
@@ -28,7 +28,7 @@ bool_t disc_survey( uint8_t center, float radius) {
   float upwind_x = cos(wind_dir);
   float upwind_y = sin(wind_dir);
 
-  float grid = survey_shift / 2;
+  float grid = nav_survey_shift / 2;
 
   switch (status) {
   case UTURN:

@@ -114,6 +114,9 @@ extern float nav_radius;
 extern float nav_ground_speed_pgain, nav_ground_speed_setpoint;
 
 
+extern float nav_survey_shift;
+extern float nav_survey_west, nav_survey_east, nav_survey_north, nav_survey_south;
+
 void nav_update(void);
 void nav_home(void);
 void nav_init(void);
