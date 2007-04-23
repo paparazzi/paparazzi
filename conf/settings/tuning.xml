@@ -90,6 +90,7 @@
         <dl_setting MAX="1" MIN="0.0" STEP="0.05" VAR="nav_glide_pitch_trim" shortname="glide pitch trim"/>
         <dl_setting MAX="1" MIN="0.02" STEP="0.01" VAR="h_ctl_roll_slew" shortname="roll slew"/>
         <dl_setting MAX="500" MIN="50" STEP="5" VAR="nav_radius"/>
+        <dl_setting MAX="500" MIN="50" STEP="5" VAR="nav_survey_shift"/>
       </dl_settings>
     </dl_settings>
   </dl_settings>
