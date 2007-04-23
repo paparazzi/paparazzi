@@ -37,6 +37,7 @@ let save_fp = fun () ->
 	None -> ()
       | Some file -> 
 	  let f  = open_out file in
+	  fprintf f "<!DOCTYPE flight_plan SYSTEM \"flight_plan.dtd\">\n\n";
 	  fprintf f "%s\n" (ExtXml.to_string_fmt fp#xml);
 	  close_out f
 
