@@ -36,6 +36,7 @@
 #include "paparazzi.h"
 #include "airframe.h"
 #include "fw_v_ctl.h"
+#include "nav_survey_rectangle.h"
 
 #define G 9.806
 #define Square(_x) ((_x)*(_x))
@@ -69,7 +70,6 @@ extern float desired_x, desired_y, altitude_shift, nav_altitude, flight_altitude
 extern pprz_t nav_throttle_setpoint;
 extern float nav_pitch, rc_pitch;
 extern bool_t too_far_from_home;
-extern float survey_shift;
 
 /** in second */
 extern uint16_t stage_time, block_time;
@@ -79,6 +79,7 @@ extern float stage_time_ds;
 
 extern float carrot_x, carrot_y;
 
+extern float nav_circle_radians; /* Cumulated */
 extern bool_t nav_in_circle;
 extern bool_t nav_in_segment;
 extern int16_t nav_circle_x, nav_circle_y, nav_circle_radius;
@@ -107,8 +108,6 @@ extern void nav_oval(uint8_t, uint8_t, float);
 #define Oval(a, b, c) nav_oval((b), (a), (c))
 
 extern float ground_alt;
-
-extern float survey_west, survey_east, survey_north, survey_south;
 
 extern float nav_radius;
 

@@ -56,7 +56,7 @@ float stage_time_ds;
 float carrot_x, carrot_y;
 
 /** Status on the current circle */
-static float nav_circle_radians; /* Cumulated */
+float nav_circle_radians; /* Cumulated */
 float nav_circle_trigo_qdr; /* Angle from center to mobile */
 float nav_radius;
 
@@ -158,9 +158,6 @@ void nav_circle_XY(float x, float y, float radius) {
   fly_to_xy(waypoints[_wp].x, waypoints[_wp].y); \
 }
 
-#define NavSurveyRectangleInit(_wp1, _wp2, _grid) nav_survey_rectangle_init(_wp1, _wp2, _grid)
-#define NavSurveyRectangle(_wp1, _wp2) nav_survey_rectangle(_wp1, _wp2)
-
 #define NavGlide(_last_wp, _wp) { \
   float start_alt = waypoints[_last_wp].a; \
   float diff_alt = waypoints[_wp].a - start_alt; \
@@ -214,83 +211,6 @@ void nav_circle_XY(float x, float y, float radius) {
 
 #define NavSetGroundReferenceHere() ({ nav_reset_reference(); nav_update_waypoints_alt(); FALSE; })
 
-/** Automatic survey of a sector (south-north sweep) */
-static struct point survey_from;
-static struct point survey_to;
-float survey_shift;
-static bool_t survey_uturn __attribute__ ((unused)) = FALSE;
-float survey_west, survey_east, survey_north, survey_south;
-
-#define SurveyGoingNorth() (survey_to.y > survey_from.y)
-#define SurveyGoingSouth() (survey_to.y < survey_from.y)
-
-static inline void nav_survey_rectangle(uint8_t wp1, uint8_t wp2) {
-  static float survey_radius;
-
-  survey_west = Min(waypoints[wp1].x, waypoints[wp2].x);
-  survey_east = Max(waypoints[wp1].x, waypoints[wp2].x);
-  survey_south = Min(waypoints[wp1].y, waypoints[wp2].y);
-  survey_north = Max(waypoints[wp1].y, waypoints[wp2].y);
-  if (SurveyGoingNorth()) {
-    survey_to.y = survey_north;
-    survey_from.y = survey_south;
-  }
-  if (SurveyGoingSouth()) {
-    survey_to.y = survey_south;
-    survey_from.y = survey_north;
-  }
-  if (! survey_uturn) { /* S-N or N-S straight route */
-    if ((estimator_y < survey_north && SurveyGoingNorth()) ||
-        (estimator_y > survey_south && SurveyGoingSouth())) {
-      /* Continue ... */
-      nav_route_xy(survey_from.x, survey_from.y, survey_to.x, survey_to.y);
-    } else {
-      /* North or South limit reached, prepare U-turn and next leg */
-      nav_in_segment = FALSE;
-      float x0 = survey_from.x; /* Current longitude */
-      if (x0+survey_shift < survey_west || x0+survey_shift > survey_east) {
-	x0 += survey_shift / 2;
-        survey_shift = -survey_shift;
-	nav_circle_radians = M_PI_2;
-      } else {
-	nav_circle_radians = 0.;
-      }
-
-      x0 = x0 + survey_shift; /* Longitude of next leg */
-      survey_from.x = survey_to.x = x0;
-
-      /* Swap South and North extremities */
-      float tmp = survey_from.y;
-      survey_from.y = survey_to.y;
-      survey_to.y = tmp;
-
-      /** Do half a circle around WP 0 */
-      waypoints[0].x = x0 - survey_shift/2.;
-      waypoints[0].y = survey_from.y;
-
-      /* Computes the right direction for the circle */
-      survey_radius = survey_shift / 2.;
-      if (SurveyGoingNorth()) {
-        survey_radius = -survey_radius;
-	if (survey_radius > 0.) 
-	  nav_circle_radians = - nav_circle_radians;
-      }
-
-      survey_uturn = TRUE;
-    }
-  } else { /* U-turn */
-    if (NavCircleCount() < 0.45) {
-      NavCircleWaypoint(0, survey_radius);
-    } else {
-      /* U-turn finished, back on a segment */
-      survey_uturn = FALSE;
-      nav_in_circle = FALSE;
-    }
-  }
-  NavVerticalAutoThrottleMode(0.); /* No pitch */
-  NavVerticalAltitudeMode(WaypointAlt(wp1), 0.); /* No preclimb */
-}
-
 
 void nav_goto_block(uint8_t b) {
   if (b != nav_block) { /* To avoid a loop in a the current block */
@@ -300,22 +220,6 @@ void nav_goto_block(uint8_t b) {
   GotoBlock(b);
 }
 
-static inline void nav_survey_rectangle_init(uint8_t wp1, uint8_t wp2, float grid) {
-  survey_west = Min(waypoints[wp1].x, waypoints[wp2].x);
-  survey_east = Max(waypoints[wp1].x, waypoints[wp2].x);
-  survey_south = Min(waypoints[wp1].y, waypoints[wp2].y);
-  survey_north = Max(waypoints[wp1].y, waypoints[wp2].y);
-  survey_from.x = survey_to.x = Min(Max(estimator_x, survey_west+grid/2.), survey_east-grid/2.);
-  if (estimator_y > survey_north || (estimator_y > survey_south && estimator_hspeed_dir > M_PI/2. && estimator_hspeed_dir < 3*M_PI/2)) {
-    survey_to.y = survey_south;
-    survey_from.y = survey_north;
-  } else {
-    survey_from.y = survey_south;
-    survey_to.y = survey_north;
-  }
-  survey_shift = grid;
-  survey_uturn = FALSE;
-}
 
 static unit_t unit __attribute__ ((unused));
 
@@ -369,7 +273,7 @@ static unit_t nav_reset_reference( void ) {
   return 0;
 }
 
-/** Shift altitude of the waypoint accorgint to a new ground altitude */
+/** Shift altitude of the waypoint according to a new ground altitude */
 static unit_t nav_update_waypoints_alt( void ) {
   uint8_t i;
   for(i = 0; i <= NB_WAYPOINT; i++) {

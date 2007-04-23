@@ -163,6 +163,7 @@ radius CDATA #REQUIRED>
 
 <!ATTLIST survey_rectangle
 grid CDATA #REQUIRED
+orientation CDATA #IMPLIED
 wp1 CDATA #REQUIRED
 wp2 CDATA #REQUIRED>
 

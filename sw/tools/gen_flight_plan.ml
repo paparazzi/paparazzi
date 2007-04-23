@@ -435,9 +435,12 @@ let rec print_stage = fun index_of_waypoints x ->
     | "survey_rectangle" ->
 	let grid = parsed_attrib x "grid"
 	and wp1 = get_index_waypoint (ExtXml.attrib x "wp1") index_of_waypoints
-	and wp2 = get_index_waypoint (ExtXml.attrib x "wp2") index_of_waypoints in
+	and wp2 = get_index_waypoint (ExtXml.attrib x "wp2") index_of_waypoints
+	and orientation = ExtXml.attrib_or_default x "orientation" "NS" in
 	stage ();
-	lprintf "NavSurveyRectangleInit(%s, %s, %s);\n" wp1 wp2 grid;
+	if orientation <> "NS" && orientation <> "WE" then
+	  failwith (sprintf "Unknown survey orientation (NS or WE): %s" orientation);
+	lprintf "NavSurveyRectangleInit(%s, %s, %s, %s);\n" wp1 wp2 grid orientation;
 	lprintf "NextStage();\n";
 	left ();
 	stage ();
