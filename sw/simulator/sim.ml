@@ -91,17 +91,25 @@ module Make(AircraftItl : AIRCRAFT_ITL) = struct
 
   let lat0 = rad_of_deg (float_attrib flight_plan "lat0")
   let lon0 = rad_of_deg (float_attrib flight_plan "lon0")
-  let qfu = (float_attrib flight_plan "qfu")
-  let alt0 = ref (float_attrib flight_plan "ground_alt")
-
   let pos0 = ref {Latlong.posn_lat=lat0; posn_long=lon0}
+  let qfu = (float_attrib flight_plan "qfu")
+
+  (* Try to get the ground alt from the SRTM data, default to flight plan *)
+  
+  let alt0 =
+    let ground_alt =
+      Srtm.add_path (Env.paparazzi_home ^ "/data/srtm");
+      try 
+	float (Srtm.of_wgs84 !pos0)
+      with Srtm.Tile_not_found x ->
+	float_attrib flight_plan "ground_alt" in
+    ref ground_alt
 
   let main () =
     let window = GWindow.window ~title:("Aircraft "^ !ac_name) () in
     let quit = fun () -> GMain.Main.quit (); exit 0 in
     ignore (window#connect#destroy ~callback:quit);
     let vbox = GPack.vbox ~packing:window#add () in
-    Srtm.add_path (Env.paparazzi_home ^ "/data/srtm");
     
     Aircraft.init A.ac.Data.id vbox;
 
