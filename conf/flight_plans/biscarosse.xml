@@ -1,12 +1,15 @@
 <!DOCTYPE flight_plan SYSTEM "flight_plan.dtd">
 
-<flight_plan alt="250" ground_alt="200" lat0="44.4492" lon0="-1.2555" max_dist_from_home="1000" name="Biscarosse" qfu="270" security_height="25">
+<flight_plan alt="50" ground_alt="0" lat0="44.4492" lon0="-1.2555" max_dist_from_home="1000" name="Biscarosse" qfu="270" security_height="25">
   <waypoints>
     <waypoint name="HOME" x="0" y="0"/>
     <waypoint name="1" x="-2.15568649652" y="98.0451414566"/>
     <waypoint name="2" x="0" y="200"/>
     <waypoint name="S1" x="-613.048818661" y="-76.7757721655"/>
     <waypoint name="S2" x="-106.969918801" y="491.90205153"/>
+    <waypoint name="BASELEG" x="500" y="500"/>
+    <waypoint name="TD" x="0" y="50" alt="0"/>
+    <waypoint name="AF" x="200" y="50" alt="30"/>
   </waypoints>
   <blocks>
     <block name="wait GPS">
@@ -48,5 +51,25 @@
     <block name="survey NS" strip_button="Survey NS">
       <survey_rectangle grid="100" wp1="S1" wp2="S2"/>
     </block>
+
+   <block name="land">
+      <call fun="nav_compute_baseleg(WP_AF, WP_TD, WP_BASELEG)"/>
+      <circle radius="nav_radius" until="NavCircleCount() > 0.5" wp="BASELEG"/>
+      <set value="V_CTL_AUTO_THROTTLE_MIN_CRUISE_THROTTLE" var="v_ctl_auto_throttle_cruise_throttle"/>
+      <circle radius="nav_radius"
+              until="NavQdrCloseTo(DegOfRad(baseleg_out_qdr)-10) && 10 > fabs(estimator_z - WaypointAlt(WP_BASELEG))"
+              wp="BASELEG"/>
+    </block>
+
+    <block name="final">
+      <exception cond="ground_alt + 10 > estimator_z" deroute="flare"/>
+      <go from="AF" hmode="route" vmode="glide" wp="TD"/>
+    </block>
+
+    <block name="flare">
+      <go approaching_time="0" from="AF" hmode="route" throttle="0.0" vmode="throttle" wp="TD"/>
+      <attitude roll="0.0" throttle="0.0" until="FALSE" vmode="throttle"/>
+    </block>
+
   </blocks>
 </flight_plan>

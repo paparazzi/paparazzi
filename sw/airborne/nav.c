@@ -243,6 +243,27 @@ static int nav_ground_speed_loop( void ) {
 }
 #endif
 
+static float baseleg_out_qdr;
+bool_t nav_compute_baseleg(uint8_t wp_af, uint8_t wp_td, uint8_t wp_baseleg ) {
+  nav_radius = DEFAULT_CIRCLE_RADIUS;
+
+  float x_0 = waypoints[wp_td].x - waypoints[wp_af].x;
+  float y_0 = waypoints[wp_td].y - waypoints[wp_af].y;
+
+  /* Unit vector from AF to TD */
+  float d = sqrt(x_0*x_0+y_0*y_0);
+  float x_1 = x_0 / d;
+  float y_1 = y_0 / d;
+
+  waypoints[wp_baseleg].x = waypoints[wp_af].x + y_1 * nav_radius;
+  waypoints[wp_baseleg].y = waypoints[wp_af].y - x_1 * nav_radius;
+  waypoints[wp_baseleg].a = waypoints[wp_af].a;
+  baseleg_out_qdr = M_PI - atan2(-y_1, -x_1);
+
+  return FALSE;
+}
+
+
 #include "flight_plan.h"
 
 float ground_alt;
