@@ -80,9 +80,6 @@ void nav_survey_rectangle(uint8_t wp1, uint8_t wp2) {
 	if (x0+nav_survey_shift < nav_survey_west || x0+nav_survey_shift > nav_survey_east) {
 	  x0 += nav_survey_shift / 2;
 	  nav_survey_shift = -nav_survey_shift;
-	  nav_circle_radians = M_PI_2;
-	} else {
-	  nav_circle_radians = 0.;
 	}
 	
 	x0 = x0 + nav_survey_shift; /* Longitude of next leg */
@@ -101,8 +98,6 @@ void nav_survey_rectangle(uint8_t wp1, uint8_t wp2) {
 	survey_radius = nav_survey_shift / 2.;
 	if (SurveyGoingNorth()) {
 	  survey_radius = -survey_radius;
-	  if (survey_radius > 0.) 
-	    nav_circle_radians = - nav_circle_radians;
 	}
       } else { /* (survey_orientation == WE) */
 	/* East or West limit reached, prepare U-turn and next leg */
@@ -111,9 +106,6 @@ void nav_survey_rectangle(uint8_t wp1, uint8_t wp2) {
 	if (my_y0+nav_survey_shift < nav_survey_south || my_y0+nav_survey_shift > nav_survey_north) {
 	  my_y0 += nav_survey_shift / 2;
 	  nav_survey_shift = -nav_survey_shift;
-	  nav_circle_radians = M_PI_2;
-	} else {
-	  nav_circle_radians = 0.;
 	}
 	
 	my_y0 = my_y0 + nav_survey_shift; /* Longitude of next leg */
@@ -132,8 +124,6 @@ void nav_survey_rectangle(uint8_t wp1, uint8_t wp2) {
 	survey_radius = nav_survey_shift / 2.;
 	if (SurveyGoingWest()) {
 	  survey_radius = -survey_radius;
-	  if (survey_radius > 0.) 
-	    nav_circle_radians = - nav_circle_radians;
 	}
       }
 
@@ -141,12 +131,15 @@ void nav_survey_rectangle(uint8_t wp1, uint8_t wp2) {
       survey_uturn = TRUE;
     }
   } else { /* U-turn */
-    if (NavCircleCount() < 0.45) {
-      NavCircleWaypoint(0, survey_radius);
-    } else {
+    if ((SurveyGoingNorth() && NavCourseCloseTo(0)) ||
+	(SurveyGoingSouth() && NavCourseCloseTo(180)) ||
+	(SurveyGoingEast() && NavCourseCloseTo(90)) ||
+	(SurveyGoingWest() && NavCourseCloseTo(270))) {
       /* U-turn finished, back on a segment */
       survey_uturn = FALSE;
       nav_in_circle = FALSE;
+    } else {
+      NavCircleWaypoint(0, survey_radius);
     }
   }
   NavVerticalAutoThrottleMode(0.); /* No pitch */

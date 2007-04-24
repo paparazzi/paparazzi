@@ -144,6 +144,7 @@ extern void nav_circle_XY(float x, float y, float radius);
 #define NavCircleCount() (fabs(nav_circle_radians) / (2*M_PI))
 #define NavCircleQdr() ({ float qdr = DegOfRad(M_PI_2 - nav_circle_trigo_qdr); NormCourse(qdr); qdr; })
 #define NavQdrCloseTo(x) ({ float _course = x; NormCourse(_course); float circle_qdr = NavCircleQdr(); (Min(_course, 350) < circle_qdr && circle_qdr < _course+10); })
+#define NavCourseCloseTo(x) ({ float _course = x; NormCourse(_course); float deg = DegOfRad(estimator_hspeed_dir); (Min(_course, 350) < deg && deg < _course+10); })
 
 extern void nav_init_stage( void );
 #define InitStage() { nav_init_stage(); return; }
