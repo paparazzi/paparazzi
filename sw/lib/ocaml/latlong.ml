@@ -236,34 +236,57 @@ let coeff_proj_mercator_inverse =
     [|0.;0.;0.; 17./.30720.;283./.430080.|];
     [|0.;0.;0.;0.;4397./.41287680.|]|];;
 
-let utm_of geo ({posn_long = lambda; posn_lat = phi} as pos) =
-  if not (valid_geo pos) then
-    invalid_arg "Latlong.utm_of";
+let utm_of' = fun geo ->
   let ellipsoid =  ellipsoid_of geo in
   let k0 = 0.9996
   and xs = 500000. in
-  let lambda_deg = truncate (floor ((Rad>>Deg)lambda)) in
-  let zone = (lambda_deg + 180) / 6 + 1 in
-  let lambda_c = (Deg>>Rad) (float (lambda_deg - ((lambda_deg mod 6)+6)mod 6 + 3)) in
   let e = ellipsoid.e
   and n = k0 *. ellipsoid.a in
-  let ll = latitude_isometrique phi e
-  and dl = lambda -. lambda_c in
-  let phi' = asin (sin dl /. cosh ll) in
-  let ll' = latitude_isometrique phi' 0. in
-  let lambda' = atan (sinh ll /. cos dl) in
-  let z = C.make lambda' ll'
-  and c = serie5 coeff_proj_mercator e in
-  let z' = ref (C.scal c.(0) z) in
-  for k = 1 to Array.length c - 1 do
-    z' := C.add !z' (C.scal c.(k) (C.sin (C.scal (float (2*k)) z)))
-  done;
-  z' := C.scal n !z';
-  { utm_zone = zone; utm_x = xs +. C.im !z'; utm_y = C.re !z' };;
+  let c = serie5 coeff_proj_mercator e in
+  
+  fun ({posn_long = lambda; posn_lat = phi} as pos) ->
+    if not (valid_geo pos) then
+      invalid_arg "Latlong.utm_of";
+    let lambda_deg = truncate (floor ((Rad>>Deg)lambda)) in
+    let zone = (lambda_deg + 180) / 6 + 1 in
+    let lambda_c = (Deg>>Rad) (float (lambda_deg - ((lambda_deg mod 6)+6)mod 6 + 3)) in
+    let ll = latitude_isometrique phi e
+    and dl = lambda -. lambda_c in
+    let phi' = asin (sin dl /. cosh ll) in
+    let ll' = latitude_isometrique phi' 0. in
+    let lambda' = atan (sinh ll /. cos dl) in
+    let z = C.make lambda' ll' in
+    let z' = ref (C.scal c.(0) z) in
+    for k = 1 to Array.length c - 1 do
+      z' := C.add !z' (C.scal c.(k) (C.sin (C.scal (float (2*k)) z)))
+    done;
+    z' := C.scal n !z';
+    { utm_zone = zone; utm_x = xs +. C.im !z'; utm_y = C.re !z' };;
+(* Benchmarks with limited bound on the for loop:
+  utm_of WGS84 {posn_lat = 0.8; posn_long = 0.1 };;
+ 4: {utm_x = 711976.494998118491; utm_y = 5079519.01467700768; utm_zone = 31}
+ 3: {utm_x = 711976.494993993081; utm_y = 5079519.01467550546; utm_zone = 31}
+ 2: {utm_x = 711976.49488538783; utm_y = 5079519.02243153844; utm_zone = 31}
+ 1: {utm_x = 711977.141232272843; utm_y = 5079519.25322676543; utm_zone = 31}
+ 0: {utm_x = 711985.538644456305; utm_y = 5074176.83014749549; utm_zone = 31}
 
-let of_utm geo { utm_zone = f; utm_x = x; utm_y = y } =
-  if x < 0. || x > 1e6 || y < -10e6 || y > 10e6 || f < 0 || f > 60 then
-    invalid_arg "Latlong.of_utm";
+==> centimetric precision with 2 (i.e. using c(0), c(1) and c(2)
+*)
+
+
+(** Static evaluation for better performance (~50% for cputime) *)
+let utm_of =
+  let u_WGS84 = utm_of' WGS84
+  and u_NTF = utm_of' NTF
+  and u_ED50 = utm_of' ED50
+  and u_NAD27 = utm_of' NAD27 in
+  fun geo -> match geo with
+    WGS84 -> u_WGS84
+  | NTF -> u_NTF
+  | ED50 -> u_ED50
+  | NAD27 -> u_NAD27
+
+let of_utm' geo  =
   let ellipsoid =  ellipsoid_of geo in
   let k0 = 0.9996
   and xs = 500000.
@@ -271,19 +294,36 @@ let of_utm geo { utm_zone = f; utm_x = x; utm_y = y } =
   let e = ellipsoid.e 
   and n = k0 *. ellipsoid.a in
   let c = serie5 coeff_proj_mercator_inverse e in
-  
-  let lambda_c = (Deg>>Rad) (float (6 * f - 183)) in
-  let z' = C.scal (1./.n/.c.(0)) (C.make (y-.ys) (x-.xs)) in
-  let z = ref z' in
-  for k = 1 to Array.length c - 1 do
-    z := C.sub !z (C.scal c.(k) (C.sin (C.scal (float (2*k)) z')))
-  done;
-  let ll = C.re !z and lls = C.im !z in
-  let lambda = lambda_c +. atan (sinh lls /. cos ll)
-  and phi' = asin (sin ll /. cosh lls) in
-  let ll = latitude_isometrique phi' 0. in
-  let phi = inverse_latitude_isometrique ll e 1e-11 in
-  {posn_long = lambda; posn_lat = phi};;
+
+  fun { utm_zone = f; utm_x = x; utm_y = y } ->
+    if x < 0. || x > 1e6 || y < -10e6 || y > 10e6 || f < 0 || f > 60 then
+      invalid_arg "Latlong.of_utm";
+    
+    let lambda_c = (Deg>>Rad) (float (6 * f - 183)) in
+    let z' = C.scal (1./.n/.c.(0)) (C.make (y-.ys) (x-.xs)) in
+    let z = ref z' in
+    for k = 1 to Array.length c - 1 do
+      z := C.sub !z (C.scal c.(k) (C.sin (C.scal (float (2*k)) z')))
+    done;
+    let ll = C.re !z and lls = C.im !z in
+    let lambda = lambda_c +. atan (sinh lls /. cos ll)
+    and phi' = asin (sin ll /. cosh lls) in
+    let ll = latitude_isometrique phi' 0. in
+    let phi = inverse_latitude_isometrique ll e 1e-11 in
+    {posn_long = lambda; posn_lat = phi};;
+
+
+(** Static evaluation for better performance (~50% for cputime) *)
+let of_utm =
+  let u_WGS84 = of_utm' WGS84
+  and u_NTF = of_utm' NTF
+  and u_ED50 = of_utm' ED50
+  and u_NAD27 = of_utm' NAD27 in
+  fun geo -> match geo with
+    WGS84 -> u_WGS84
+  | NTF -> u_NTF
+  | ED50 -> u_ED50
+  | NAD27 -> u_NAD27
 
 
 let (<<) geo1 geo2 ({posn_long = lambda; posn_lat = phi} as pos) =

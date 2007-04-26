@@ -92,6 +92,7 @@ val of_lambert : lambert_zone -> lambert -> ntf
 val lambert_of : lambert_zone -> ntf -> lambert
 (** Conversions between geographic (in NTF) and lambert *)
 
+val utm_of' : geodesic -> geographic -> utm
 val utm_of : geodesic -> geographic -> utm
 val of_utm : geodesic -> utm -> geographic
 (** Conversions between geographic and UTM. May raise Invalid_argument. *)
