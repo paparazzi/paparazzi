@@ -54,7 +54,7 @@
   </section>
 
   <section name="INFRARED" prefix="IR_">
-    <define name="ROLL_NEUTRAL_DEFAULT" value="0" unit="deg"/>
+    <define name="ROLL_NEUTRAL_DEFAULT" value="6" unit="deg"/>
     <define name="PITCH_NEUTRAL_DEFAULT" value="-1" unit="deg"/>
     <define name="DEFAULT_CONTRAST" value="200"/>
     <define name="RAD_OF_IR_CONTRAST" value="0.5"/>
@@ -155,7 +155,7 @@
     <define name="ALTITUDE_MAX_CLIMB" value="3."/>
 
     <!-- auto throttle inner loop -->
-    <define name="AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE" value="0.45"/>
+    <define name="AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE" value="0.40"/>
     <define name="AUTO_THROTTLE_MIN_CRUISE_THROTTLE" value=".3"/>
     <define name="AUTO_THROTTLE_MAX_CRUISE_THROTTLE" value="0.8"/>
     <define name="AUTO_THROTTLE_LOITER_TRIM" value="2000"/>
@@ -292,7 +292,7 @@ ap.srcs += nav.c fw_h_ctl.c fw_v_ctl.c
 
 ap.srcs += nav_line.c chemotaxis.c anemotaxis.c discsurvey.c
 
-ap.srcs += bomb.c
+ap.srcs += bomb.c nav_survey_rectangle.c
 
 # Hack to use the same tuning file than slayer1
 ap.CFLAGS += -DUSE_GPIO
@@ -307,8 +307,10 @@ test.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c pprz_tran
 # Config for SITL simulation
 include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
 sim.CFLAGS += -DCONFIG=\"classix.h\" -DAGR_CLIMB -DLOITER_TRIM -DH_CTL_RATE_LOOP
-sim.srcs += traffic_info.c
-sim.srcs += nav_line.c chemotaxis.c anemotaxis.c discsurvey.c bomb.c
+#sim.srcs += traffic_info.c
+#sim.srcs += nav_line.c chemotaxis.c anemotaxis.c discsurvey.c bomb.c nav_survey_rectangle.c
+
+sim.srcs += nav_survey_rectangle.c
 
 
   </makefile>
