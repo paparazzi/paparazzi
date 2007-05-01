@@ -72,6 +72,14 @@ type lambert = { lbt_x : meter; lbt_y : meter; }
 type utm = { utm_x : fmeter; utm_y : fmeter; utm_zone : int; }
 (** Position units. Coordinates are in meters in the [cartesian] type. *)
 
+val norm_angle : float -> float
+(** [norm_angle rad] Returns an angle -pi<= < pi *)
+
+val valid_geo : geographic -> bool
+
+val make_geo : float -> float -> geographic
+(** [make_geo lat long] *)
+
 val string_degrees_of_geographic : geographic -> string
 (** Pretty printing *)
 

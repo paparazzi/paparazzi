@@ -205,13 +205,25 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
 	    let pos = p#pos in
 	    let lat = pos.LL.posn_lat
 	    and long = pos.LL.posn_long in
+	    (* Processing over positive longitudes *)
+	    let long = if long < 0. then long +. 2. *. pi else long in
 	    (min min_lat lat, max max_lat lat, 
 	     min min_long long, max max_long long))
 	  fitted_objects
-	  (max_float, -.max_float, max_float, -.max_float) in
-      let c = {LL.posn_lat = (min_lat+.max_lat)/.2.; posn_long=(min_long+.max_long)/.2.}
-      and nw_xw, nw_yw = self#world_of {LL.posn_lat = max_lat; posn_long=min_long}
-      and se_xw, se_yw = self#world_of {LL.posn_lat = min_lat; posn_long=max_long} in
+	  (max_float, -.max_float, max_float, -. max_float) in
+
+      (* Over 0° ? *)
+      let min_long, max_long = 
+	if max_long -. min_long > pi
+	then (max_long -. 2. *. pi, min_long)
+	else (min_long, max_long) in
+
+      Printf.printf "[%f, %f]\n%!" min_long max_long;
+
+      (* Longitude is renormalized here *)
+      let c = LL.make_geo ((min_lat+.max_lat)/.2.) ((min_long+.max_long)/.2.)
+      and nw_xw, nw_yw = self#world_of (LL.make_geo max_lat min_long)
+      and se_xw, se_yw = self#world_of (LL.make_geo min_lat max_long) in
       let width, height = Gdk.Drawable.get_size canvas#misc#window in
       let margin = 10 in
       let width = width - 2*margin and height = height - 2*margin in
@@ -270,6 +282,7 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
       
 	
     method world_of = fun wgs84 ->
+      assert (LL.valid_geo wgs84);
       match georef with
 	Some georef -> begin
 	  match projection with
@@ -281,7 +294,8 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
 	  | Mercator ->
 	      let mlref = LL.mercator_lat georef.LL.posn_lat
 	      and ml = LL.mercator_lat wgs84.LL.posn_lat in
-	      let xw = (wgs84.LL.posn_long -. georef.LL.posn_long) *. mercator_coeff
+	      let dl = LL.norm_angle (wgs84.LL.posn_long -. georef.LL.posn_long) in
+	      let xw = dl *. mercator_coeff
 	      and yw = -. (ml -. mlref) *. mercator_coeff in
 	      (xw, yw)
 	  | LambertIIe ->
@@ -311,7 +325,7 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
 	      let ml = mlref -. wy /. mercator_coeff in
 	      let lat = LL.inv_mercator_lat ml
 	      and long = wx /. mercator_coeff +. georef.LL.posn_long in
-	      { LL.posn_lat = lat; posn_long = long }
+	      LL.make_geo lat long
 	end
       | None -> failwith "#of_world : no georef"
 
@@ -353,6 +367,7 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
       let pix = GnoCanvas.pixbuf ~x:(-.x1) ~y:(-.y1)~pixbuf:image ~props:[`ANCHOR `NW] background in
       let xw1, yw1 = self#world_of geo1
       and xw2, yw2 = self#world_of geo2 in
+
       let scale = distance (xw1, yw1) (xw2, yw2) /. distance (x1,y1) (x2,y2) in
       let a = atan2 (yw2-.yw1) (xw2-.xw1) -. atan2 (y2-.y1) (x2-.x1) in
       let cos_a = cos a *. scale and sin_a = sin a *. scale in

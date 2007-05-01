@@ -46,8 +46,16 @@ type dms = int * int * float
 type semicircle = { lat : semi; long : semi }
 type geographic = { posn_lat : radian ; posn_long : radian }
 
+let norm_angle = fun long ->
+  if long >= pi then long -. 2.*.pi 
+  else if long < -. pi then long +. 2.*.pi
+  else long
+
+let make_geo = fun lat long ->
+  { posn_long = norm_angle long; posn_lat = lat }
+
 let valid_geo = fun {posn_long = lambda; posn_lat = phi} ->
-  phi > (-.pi/.2.) && phi < pi/.2. && lambda > -.pi && lambda < pi
+  phi >= (-.pi/.2.) && phi <= pi/.2. && lambda >= -.pi && lambda < pi
 
 type angle_unit = Semi | Rad | Deg | Grd
 
@@ -194,7 +202,7 @@ let of_lambert l { lbt_x = x; lbt_y = y } =
   let lambda = l.lambda0 +. gamma /. n
   and ll = -. 1. /. n *. log (abs_float (r/.c)) in
   let phi = inverse_latitude_isometrique ll l.ellipsoid.e 1e-11 in
-  {posn_long = lambda; posn_lat = phi};;
+  make_geo phi lambda
 
 
 let lambert_of l ({posn_long = lambda; posn_lat = phi} as pos) =
@@ -310,7 +318,7 @@ let of_utm' geo  =
     and phi' = asin (sin ll /. cosh lls) in
     let ll = latitude_isometrique phi' 0. in
     let phi = inverse_latitude_isometrique ll e 1e-11 in
-    {posn_long = lambda; posn_lat = phi};;
+    make_geo phi lambda
 
 
 (** Static evaluation for better performance (~50% for cputime) *)
@@ -351,7 +359,7 @@ let (<<) geo1 geo2 ({posn_long = lambda; posn_lat = phi} as pos) =
   let d29 = Ellipse.e_prime_square elps1.df in
   let d3 = atan2 (d25 +. d29 *. d28 *. (sin d27) ** 3.0) (d26 -. d17 *. elps1.a *. (cos d27) ** 3.0) in
   let d4 = atan2 d24 d23 in
-  {posn_long = d4; posn_lat = d3};;
+  make_geo d3 d4
 
 let cartesian_of ellips ({posn_long = lambda; posn_lat = phi} as pos) h =
   if not (valid_geo pos) || h < 0. then
@@ -378,7 +386,7 @@ let of_cartesian ellips {x=x;y=y;z=z} =
     if abs_float (phi -. phi') > epsilon then iter phi' else phi' in
   let phi = iter phi0 in
   let h = xy/.cos phi -. geo.a /. sqrt (1.-.e2*.sin phi ** 2.) in
-  ({posn_long = lambda; posn_lat = phi}, h)
+  (make_geo phi lambda, h)
 
 let utm_distance = fun utm1 utm2 ->
   if utm1.utm_zone <> utm2.utm_zone then invalid_arg "utm_distance";
@@ -410,9 +418,9 @@ let rodg = fun s -> (Deg>>Rad)(fos s)
 let of_string = fun s ->
   match Str.split space s with
     ["WGS84"; lat; long] ->
-      {posn_lat = rodg lat; posn_long = rodg long}
+      make_geo (rodg lat) (rodg long)
   | ["WGS84_bearing"; lat; long; dir; dist] ->
-      let utm_ref = utm_of WGS84 {posn_lat = rodg lat; posn_long = rodg long} in
+      let utm_ref = utm_of WGS84 (make_geo (rodg lat) (rodg long)) in
       let dir = rodg dir and dist = fos dist in
       let dx = dist *. sin dir
       and dy = dist *. cos dir in

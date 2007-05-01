@@ -79,7 +79,7 @@ let display_the_tile = fun (geomap:MapCanvas.widget) tile jpg_file ->
   and west_long = tile.Gm.sw_corner.LL.posn_long in
   let north_lat = south_lat +. tile.Gm.height
   and east_long = west_long +. tile.Gm.width in
-  let ne = { LL.posn_lat = north_lat; posn_long = east_long } in
+  let ne = LL.make_geo north_lat east_long in
   
   let (tx, ty) = Gm.tile_size in
   ignore (GMain.Idle.add (fun () -> 
@@ -115,17 +115,18 @@ let fill_window = fun (geomap:MapCanvas.widget) ->
   and north = LL.mercator_lat ne.LL.posn_lat /. LL.pi
   and south = LL.mercator_lat sw.LL.posn_lat /. LL.pi in
 
+  let east = if east < west then east +. 2. else east in
+
   (** Go through the quadtree and look for the holes *)
   let rec loop = fun twest tsouth tsize trees i zoom key ->
     (* Check for intersection *)
-    if not (twest > east || twest+.tsize < west || tsouth > north || tsouth+.tsize < south) then
+    if not (twest > east || (twest+.tsize < west && (east < 1. (* Standard case *) || twest+.2.>east (* Over 180° *))) || tsouth > north || tsouth+.tsize < south) then
       let tsize2 = tsize /. 2. in
       try
 	match trees.(i) with
 	  Tile -> ()
 	| Empty ->
-	    if zoom = 1
-	    then
+	    if zoom = 1 then
 	      let tile, image = Gm.get_image key in
 	      display_the_tile geomap tile image;
 	      raise (New_displayed (19-String.length tile.Gm.key))

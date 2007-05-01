@@ -88,10 +88,18 @@ type aircraft = {
   }
 
 let aircrafts = Hashtbl.create 3
+exception AC_not_found
+let find_ac = fun ac_id ->
+   try
+    Hashtbl.find aircrafts ac_id
+  with
+    Not_found -> raise AC_not_found
+	
 let active_ac = ref ""
 let get_ac = fun vs ->
   let ac_id = Pprz.string_assoc "ac_id" vs in
-  Hashtbl.find aircrafts ac_id
+  find_ac ac_id
+ 
 
 let select_ac = fun acs_notebook ac_id ->
   if !active_ac <> ac_id then
@@ -100,7 +108,7 @@ let select_ac = fun acs_notebook ac_id ->
     (* Show the buttons in the active strip and hide the previous active one *)
     ac.strip#show_buttons ();
     if !active_ac <> "" then begin
-      let ac' = Hashtbl.find aircrafts !active_ac in
+      let ac' = find_ac !active_ac in
       ac'.strip#hide_buttons ();
       ac'.notebook_label#set_width_chars (String.length ac'.notebook_label#text)  
     end;
@@ -126,7 +134,7 @@ let log =
 let log_and_say = fun a ac_id s -> log ~say:true a ac_id s
 
 let show_mission = fun ac on_off ->
-  let a = Hashtbl.find aircrafts ac in
+  let a = find_ac ac in
   if on_off then
     a.fp_group#show ()
   else
@@ -151,7 +159,7 @@ let send_move_waypoint_msg = fun ac i w ->
   Ground_Pprz.message_send "map2d" "MOVE_WAYPOINT" vs
 
 let commit_changes = fun ac ->
-  let a = Hashtbl.find aircrafts ac in
+  let a = find_ac ac in
   List.iter 
     (fun w ->
       let (i, w) = a.fp_group#index w in
@@ -515,7 +523,9 @@ let alert_color = "red"
 (** Bind to message while catching all the esceptions of the callback *)
 let safe_bind = fun msg cb ->
   let safe_cb = fun sender vs ->
-    try cb sender vs with x -> prerr_endline (Printexc.to_string x) in
+    try cb sender vs with 
+      AC_not_found -> () (* A/C not yet registed; silently ignore *)
+    | x -> prerr_endline (Printexc.to_string x) in
   ignore (Ground_Pprz.message_bind msg safe_cb)
 
 let alert_bind = fun msg cb ->
@@ -594,8 +604,7 @@ let aircrafts_msg = fun alert (geomap:G.widget) fp_notebook acs ->
 
 let listen_dl_value = fun () ->
   let get_dl_value = fun _sender vs ->
-    let ac_id = Pprz.string_assoc "ac_id" vs in
-    let ac = Hashtbl.find aircrafts ac_id in
+    let ac = get_ac vs in
     match ac.dl_settings_page with
       Some settings ->
 	let csv = Pprz.string_assoc "values" vs in
@@ -700,8 +709,7 @@ let listen_flight_params = fun geomap auto_center_new_ac alert ->
   safe_bind "NAV_STATUS" get_ns;
 
   let get_cam_status = fun _sender vs ->
-    let ac_id = Pprz.string_assoc "ac_id" vs in
-    let ac = Hashtbl.find aircrafts ac_id in
+    let ac = get_ac vs in
     let a = fun s -> Pprz.float_assoc s vs in
     let cam_wgs84 = { posn_lat = (Deg>>Rad)(a "cam_lat"); posn_long = (Deg>>Rad)(a "cam_long") }
     and target_wgs84 = { posn_lat = (Deg>>Rad)(a "cam_target_lat"); posn_long = (Deg>>Rad)(a "cam_target_long") } in
@@ -719,8 +727,7 @@ let listen_flight_params = fun geomap auto_center_new_ac alert ->
   safe_bind "CIRCLE_STATUS" get_circle_status;
 
   let get_segment_status = fun _sender vs ->
-    let ac_id = Pprz.string_assoc "ac_id" vs in
-    let ac = Hashtbl.find aircrafts ac_id in
+    let ac = get_ac vs in
     let a = fun s -> Pprz.float_assoc s vs in
     let geo1 = { posn_lat = (Deg>>Rad)(a "segment1_lat"); posn_long = (Deg>>Rad)(a "segment1_long") }
     and geo2 = { posn_lat = (Deg>>Rad)(a "segment2_lat"); posn_long = (Deg>>Rad)(a "segment2_long") } in
@@ -808,8 +815,7 @@ let listen_alert = fun a ->
     
 
 let get_infrared = fun _sender vs ->
-  let ac_id = Pprz.string_assoc "ac_id" vs in
-  let ac = Hashtbl.find aircrafts ac_id in
+  let ac = get_ac vs in
   let ir_page = ac.ir_page in
   let gps_hybrid_mode = Pprz.string_assoc "gps_hybrid_mode" vs in
   let gps_hybrid_factor = Pprz.float_assoc "gps_hybrid_factor" vs in
@@ -824,8 +830,7 @@ let get_infrared = fun _sender vs ->
 let listen_infrared = fun () -> safe_bind "INFRARED" get_infrared
 
 let get_svsinfo = fun _sender vs ->
-  let ac_id = Pprz.string_assoc "ac_id" vs in
-  let ac = Hashtbl.find aircrafts ac_id in
+  let ac = get_ac vs in
   let gps_page = ac.gps_page in
   let svid = Str.split list_separator (Pprz.string_assoc "svid" vs)
   and cn0 = Str.split list_separator (Pprz.string_assoc "cno" vs)

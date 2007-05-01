@@ -150,7 +150,7 @@ module Make(A:Data.MISSION) = struct
       and course = (Deg>>Rad)(f "course")
       and alt = f "alt"
       and gspeed = f "speed" in
-      let wgs84 = {posn_lat=(Deg>>Rad)lat;posn_long=(Deg>>Rad)long} in
+      let wgs84 = make_geo ((Deg>>Rad)lat) ((Deg>>Rad)long) in
       let utm = Latlong.utm_of WGS84 wgs84 in
       set_ac_info ac_id utm.utm_x utm.utm_y course alt gspeed
 
@@ -163,9 +163,7 @@ module Make(A:Data.MISSION) = struct
       and lat = f "lat"
       and long = f "long"
       and alt = f "alt" in
-      let wgs84 = {posn_lat=(Deg>>Rad)lat;posn_long=(Deg>>Rad)long} in
-      let utm = Latlong.utm_of WGS84 wgs84 in
-      move_waypoint wp_id utm.utm_x utm.utm_y alt
+      move_waypoint wp_id lat long alt
 
   external send_event : int -> unit = "send_event"
   let get_send_event = fun _sender vs ->
@@ -217,11 +215,11 @@ module Make(A:Data.MISSION) = struct
     (** ADC neutral is not taken into account in the soft sim (c.f. sim_ir.c)*)
     set_ir (truncate ir_left) (truncate ir_front) (truncate ir_top)
 
-  external use_gps_pos: int -> int -> int -> float -> float -> float -> float -> float -> bool -> unit = "sim_use_gps_pos_bytecode" "sim_use_gps_pos"
+  external use_gps_pos: int -> int -> int -> float -> float -> float -> float -> float -> bool -> float -> float -> unit = "sim_use_gps_pos_bytecode" "sim_use_gps_pos"
   let gps = fun gps ->
     let utm = utm_of WGS84 gps.Gps.wgs84 in
     let cm = fun f -> truncate (f *. 100.) in
-    use_gps_pos (cm utm.utm_x) (cm utm.utm_y) utm.utm_zone gps.Gps.course gps.Gps.alt gps.Gps.gspeed gps.Gps.climb gps.Gps.time gps.Gps.availability
+    use_gps_pos (cm utm.utm_x) (cm utm.utm_y) utm.utm_zone gps.Gps.course gps.Gps.alt gps.Gps.gspeed gps.Gps.climb gps.Gps.time gps.Gps.availability gps.Gps.wgs84.Latlong.posn_lat gps.Gps.wgs84.Latlong.posn_long
 
 end
 let options = []

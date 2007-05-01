@@ -73,7 +73,7 @@ diffusion : stdlib.cmo diffusion.cmo
 	@echo OOC $<
 	$(Q)$(OCAMLOPT) $(INCLUDES) -c $<
 
-%.cmi : %.mli
+%.cmi : %.mli ../lib/ocaml/lib-pprz.cma
 	@echo OC $<
 	$(Q)$(OCAMLC) $(INCLUDES) -c $<
 

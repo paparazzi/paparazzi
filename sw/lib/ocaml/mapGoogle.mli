@@ -31,3 +31,4 @@ val fill_window : MapCanvas.widget -> unit
 (** Filling the canvas window with Google Maps tiles *)
 
 val pixbuf : Latlong.geographic -> Latlong.geographic -> GdkPixbuf.pixbuf
+(** [pixbuf south_west north_east] Returns a map background of the given area *)

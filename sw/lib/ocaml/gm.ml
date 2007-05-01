@@ -57,7 +57,7 @@ let tile_coverage = fun lat zoom ->
 let gm_pos_and_scale = fun keyholeString tLat latHeight tLon lonWidth ->
   let bot_lat = inv_norm_lat tLat in
   let top_lat = inv_norm_lat (tLat +. latHeight) in
-  let bottom_left = {posn_lat = bot_lat ; posn_long = tLon *. pi} in
+  let bottom_left = make_geo bot_lat (tLon *. pi) in
   { key = keyholeString;
     sw_corner = bottom_left;
     width = lonWidth *. pi;
