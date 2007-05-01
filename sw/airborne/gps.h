@@ -51,6 +51,8 @@ extern int16_t  gps_climb;  /* m/s     */
 extern int16_t  gps_course; /* decideg     */
 extern int32_t gps_utm_east, gps_utm_north; /** cm */
 extern uint8_t gps_utm_zone;
+
+extern int32_t gps_lat, gps_lon; /* 1e-7 deg */
 extern uint16_t last_gps_msg_t; /** cputime of the last gps message */
 
 void gps_init( void );

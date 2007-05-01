@@ -20,10 +20,11 @@ int16_t   gps_climb;  /* cm/s     */
 int16_t   gps_course; /* decideg     */
 int32_t gps_utm_east, gps_utm_north;
 uint8_t gps_utm_zone;
+int32_t gps_lat, gps_lon;
 struct svinfo gps_svinfos[GPS_NB_CHANNELS];
 uint8_t gps_nb_channels = 0;
 
-value sim_use_gps_pos(value x, value y, value z, value c, value a, value s, value cl, value t, value m) {
+value sim_use_gps_pos(value x, value y, value z, value c, value a, value s, value cl, value t, value m, value lat, value lon) {
   gps_mode = (Bool_val(m) ? 3 : 0);
   gps_utm_east = Int_val(x);
   gps_utm_north = Int_val(y);
@@ -33,6 +34,8 @@ value sim_use_gps_pos(value x, value y, value z, value c, value a, value s, valu
   gps_gspeed = Double_val(s) * 100.;
   gps_climb = Double_val(cl) * 100.;
   gps_itow = Double_val(t) * 1000.;
+  gps_lat = DegOfRad(Double_val(lat))*1e7;
+  gps_lon = DegOfRad(Double_val(lon))*1e7;
 
   /** Space vehicle info simulation */
   gps_nb_channels=7;
@@ -54,6 +57,6 @@ value sim_use_gps_pos(value x, value y, value z, value c, value a, value s, valu
 
 /* Second binding required because number of args > 5 */
 value sim_use_gps_pos_bytecode(value *a, int argn) {
-  assert(argn == 9);
-  return sim_use_gps_pos(a[0],a[1],a[2],a[3],a[4],a[5],a[6],a[7], a[8]);
+  assert(argn == 11);
+  return sim_use_gps_pos(a[0],a[1],a[2],a[3],a[4],a[5],a[6],a[7], a[8],a[9], a[10]);
 }

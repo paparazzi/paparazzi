@@ -1,3 +1,4 @@
+#include "anemotaxis.h"
 #include "airframe.h"
 #include "estimator.h"
 #include "std.h"

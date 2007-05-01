@@ -87,7 +87,7 @@
 #define DownlinkSendWp(i) { \
   float x = nav_utm_east0 +  waypoints[i].x; \
   float y = nav_utm_north0 + waypoints[i].y; \
-  DOWNLINK_SEND_WP_MOVED(&i, &x, &y, &(waypoints[i].a)); \
+  DOWNLINK_SEND_WP_MOVED(&i, &x, &y, &(waypoints[i].a),&nav_utm_zone0); \
 }
 
 

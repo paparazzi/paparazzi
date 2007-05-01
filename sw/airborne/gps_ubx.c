@@ -71,12 +71,14 @@ uint8_t gps_mode;
 volatile bool_t gps_msg_received;
 bool_t gps_pos_available;
 uint8_t ubx_id, ubx_class;
+int32_t gps_lat, gps_lon;
+
+#define UTM_HEM_NORTH 0
+#define UTM_HEM_SOUTH 1
 
 #define UBX_MAX_PAYLOAD 255
 
 uint8_t ubx_msg_buf[UBX_MAX_PAYLOAD] __attribute__ ((aligned));
-
-#define RadianOfDeg(d) ((d)/180.*3.1415927)
 
 #define UNINIT        0
 #define GOT_SYNC1     1
@@ -127,8 +129,14 @@ void parse_gps_msg( void ) {
     if (ubx_id == UBX_NAV_POSUTM_ID) {
       gps_utm_east = UBX_NAV_POSUTM_EAST(ubx_msg_buf);
       gps_utm_north = UBX_NAV_POSUTM_NORTH(ubx_msg_buf);
+      uint8_t hem = UBX_NAV_POSUTM_HEM(ubx_msg_buf);
+      if (hem == UTM_HEM_SOUTH)
+	gps_utm_north -= 1000000000; /* Subtract false northing: -10000km */
       gps_alt = UBX_NAV_POSUTM_ALT(ubx_msg_buf);
       gps_utm_zone = UBX_NAV_POSUTM_ZONE(ubx_msg_buf);
+    } else if (ubx_id == UBX_NAV_POSLLH_ID) {
+      gps_lat = UBX_NAV_POSLLH_LAT(ubx_msg_buf);
+      gps_lon = UBX_NAV_POSLLH_LON(ubx_msg_buf);
     } else if (ubx_id == UBX_NAV_STATUS_ID) {
       gps_mode = UBX_NAV_STATUS_GPSfix(ubx_msg_buf);
     } else if (ubx_id == UBX_NAV_VELNED_ID) {

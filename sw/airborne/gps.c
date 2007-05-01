@@ -27,8 +27,8 @@
  *
  */
 
-//#include "autopilot.h"
 #include "gps.h"
+#include "latlong.h"
 #include "sys_time.h"
 #include "flight_plan.h"
 #include "estimator.h"
@@ -40,8 +40,18 @@
 uint16_t last_gps_msg_t;	/** cputime of the last gps message */
 
 void estimator_update_state_gps( void ) {
-  float gps_east = gps_utm_east / 100. - nav_utm_east0;
-  float gps_north = gps_utm_north / 100. - nav_utm_north0;
+  float gps_east, gps_north;
+  if (gps_utm_zone == nav_utm_zone0) {
+    gps_east = gps_utm_east / 100.;
+    gps_north = gps_utm_north / 100.;
+  } else {
+    /* Computes from (lat, long) in the referenced UTM zone */
+    latlong_utm_of(RadOfDeg(gps_lat/1e7), RadOfDeg(gps_lon/1e7), nav_utm_zone0);
+    gps_east = latlong_utm_x;
+    gps_north = latlong_utm_y;
+  }
+  gps_east -= nav_utm_east0;
+  gps_north -= nav_utm_north0;
   float falt = gps_alt / 100.;
   EstimatorSetPos(gps_east, gps_north, falt);
   float fspeed = gps_gspeed / 100.;

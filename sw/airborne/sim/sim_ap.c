@@ -23,6 +23,7 @@
 #include "main_ap.h"
 #include "ap_downlink.h"
 #include "sim_uart.h"
+#include "latlong.h"
 
 #include <caml/mlvalues.h>
 #include <caml/memory.h>
@@ -117,9 +118,10 @@ value set_ac_info(value * argv, int argn) {
 }
 
 
-
-value move_waypoint(value wp_id, value ux, value uy, value a) {
-  MoveWaypoint(Int_val(wp_id), Double_val(ux), Double_val(uy), Double_val(a));
+/** c.f. datalink.c: dl_parse_msg(); FIXME should be factorized */
+value move_waypoint(value wp_id, value lat_deg, value lon_deg, value a) {
+  latlong_utm_of(RadOfDeg(Double_val(lat_deg)), RadOfDeg(Double_val(lon_deg)), nav_utm_zone0);
+  MoveWaypoint(Int_val(wp_id), latlong_utm_x, latlong_utm_y, Double_val(a));
   return Val_unit;
 }
 
