@@ -213,6 +213,7 @@
     <field name="utm_east" type="float" unit="m"></field>
     <field name="utm_north" type="float" unit="m"></field>
     <field name="alt" type="float" unit="m"></field>
+    <field name="utm_zone" type="uint8"></field>
  </message>
 
  <message name="GYRO_RATES" id="36">
@@ -401,10 +402,12 @@
 
  <message name="MOVE_WP" ID="2">
   <field name="wp_id" type="uint8"/>
-  <field name="pad0" type="uint8"/>
+  <field name="utm_zone"  type="uint8"></field>
   <field name="utm_east"  type="int32" unit="cm"></field>
   <field name="utm_north"  type="int32" unit="cm"></field>
   <field name="alt"    type="int32" unit="cm"></field>
+  <field name="lat" type="float" unit="deg"></field>
+  <field name="lon" type="float" unit="deg"></field>
  </message>
 
  <message name="WIND_INFO" ID="3">
