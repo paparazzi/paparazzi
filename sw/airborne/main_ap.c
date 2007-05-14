@@ -70,6 +70,11 @@
 #include "enose.h"
 #endif
 
+#ifdef DPICCO
+#include "i2c.h"
+#include "dpicco.h"
+#endif
+
 #define LOW_BATTERY_DECIVOLT (LOW_BATTERY*10)
 
 
@@ -477,6 +482,11 @@ void periodic_task_ap( void ) {
     enose_periodic();
     DOWNLINK_SEND_ENOSE_STATUS(&enose_val[0], &enose_val[1], &enose_val[2], 3, enose_heat);
 #endif
+#ifdef DPICCO
+  case 5:
+    dpicco_periodic();
+    DOWNLINK_SEND_DPICCO_STATUS(&dpicco_val[0], &dpicco_val[1]);
+#endif
 
     /*  default: */
   }
@@ -561,9 +571,16 @@ void init_ap( void ) {
   GpioInit();
 #endif
 
+/** FIXME we need USE_I2C in the ac config files */
+
 #ifdef ENOSE
   i2c_init();
   enose_init();
+#endif
+
+#ifdef DPICCO
+  i2c_init();
+  dpicco_init();
 #endif
 
   /************* Links initialization ***************/
