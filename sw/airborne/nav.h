@@ -109,7 +109,8 @@ extern void nav_oval(uint8_t, uint8_t, float);
 
 extern float ground_alt;
 
-extern float nav_radius;
+extern float nav_radius; /* m */
+extern float nav_course; /* degrees, clockwise, 0.0 = N */
 
 extern float nav_ground_speed_pgain, nav_ground_speed_setpoint;
 

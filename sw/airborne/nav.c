@@ -58,7 +58,7 @@ float carrot_x, carrot_y;
 /** Status on the current circle */
 float nav_circle_radians; /* Cumulated */
 float nav_circle_trigo_qdr; /* Angle from center to mobile */
-float nav_radius;
+float nav_radius, nav_course;
 
 
 /** Status on the current leg (percentage, 0. < < 1.) in route mode */
@@ -244,7 +244,7 @@ static int nav_ground_speed_loop( void ) {
 #endif
 
 static float baseleg_out_qdr;
-bool_t nav_compute_baseleg(uint8_t wp_af, uint8_t wp_td, uint8_t wp_baseleg ) {
+static bool_t nav_compute_baseleg(uint8_t wp_af, uint8_t wp_td, uint8_t wp_baseleg ) {
   nav_radius = DEFAULT_CIRCLE_RADIUS;
 
   float x_0 = waypoints[wp_td].x - waypoints[wp_af].x;
