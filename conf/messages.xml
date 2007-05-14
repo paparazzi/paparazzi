@@ -358,6 +358,11 @@
       <field name="heat" type="uint8[]"/>
   </message>
 
+  <message name="DPICCO_STATUS" ID="211">
+      <field name="humid" type="uint16"/>
+      <field name="temp" type="uint16"/>
+  </message>
+
   <message name="ANTENNA_DEBUG" ID="220">
       <field name="mag_xraw" type="int32"/>
       <field name="mag_yraw" type="int32"/>
