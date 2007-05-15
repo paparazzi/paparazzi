@@ -54,7 +54,7 @@
   </section>
 
   <section name="INFRARED" prefix="IR_">
-    <define name="ROLL_NEUTRAL_DEFAULT" value="6" unit="deg"/>
+    <define name="ROLL_NEUTRAL_DEFAULT" value="10" unit="deg"/>
     <define name="PITCH_NEUTRAL_DEFAULT" value="-1" unit="deg"/>
     <define name="DEFAULT_CONTRAST" value="200"/>
     <define name="RAD_OF_IR_CONTRAST" value="0.5"/>
@@ -87,19 +87,6 @@
     <define name="ROLL_SCALE" value="0.44"/>   
   </section>
  
-<!-- cf section HORIZONTAL CONTROL
-  <section name="PID">
-    <define name="ROLL_PGAIN" value="5000."/>
-    <define name="PITCH_OF_ROLL" value="0.0"/>
-    <define name="PITCH_PGAIN" value="8000."/>
-    <define name="MAX_ROLL" value="0.35"/>
-    <define name="MAX_PITCH" value="0.35"/>
-    <define name="MIN_PITCH" value="-0.35"/>
-    <define name="AILERON_OF_GAZ" value="0.0"/>
-    <define name="CRUISE_THROTTLE" value="0.30"/>
-  </section>
--->
- 
   <section name="GYRO">
     <define name="GYRO_MAX_RATE" value="150."/>
     <define name="ROLLRATESUM_NB_SAMPLES" value="60"/>
@@ -109,23 +96,10 @@
     <define name="ROLL_RATE_DGAIN" value="0.0"/>
   </section>
 
-<!-- cf section VERTICAL CONTROL
-  <section name="ALT" prefix="CLIMB_">
-    <define name="PITCH_PGAIN" value="-0.1"/>
-    <define name="PITCH_IGAIN" value="0.025"/>
-    <define name="PGAIN" value="-0.01"/>
-    <define name="IGAIN" value="0.1"/>
-    <define name="MAX" value="1."/>
-    <define name="PITCH_OF_VZ_PGAIN" value="0.05"/>
-    <define name="GAZ_OF_CLIMB" value="0.2" unit="%/(m/s)"/>
-    <define name="MAX_DIFF_GAZ" value="0.05" unit="%"/>
-  </section>
--->
- 
   <section name="HORIZONTAL CONTROL" prefix="H_CTL_">
     <define name="COURSE_PGAIN" value="-0.9"/>
     <define name="COURSE_PRE_BANK_CORRECTION" value="1."/>
-    <define name="ROLL_MAX_SETPOINT" value="0.73" unit="radians"/>
+    <define name="ROLL_MAX_SETPOINT" value="0.53" unit="radians"/>
     <define name="PITCH_MAX_SETPOINT" value="0.5" unit="radians"/>
     <define name="PITCH_MIN_SETPOINT" value="-0.5" unit="radians"/>
 
@@ -180,7 +154,7 @@
   <section name="NAV">
     <define name="NAV_PITCH" value="0."/>
     <define name="NAV_GLIDE_PITCH_TRIM" value="0"/>
-    <define name="DEFAULT_CIRCLE_RADIUS" value="50."/>
+    <define name="DEFAULT_CIRCLE_RADIUS" value="75."/>
   </section>
  
   <section name="BAT">
@@ -290,9 +264,10 @@ ap.srcs += gyro.c
 ap.CFLAGS += -DNAV -DAGR_CLIMB -DLOITER_TRIM
 ap.srcs += nav.c fw_h_ctl.c fw_v_ctl.c
 
-ap.srcs += nav_line.c chemotaxis.c anemotaxis.c discsurvey.c
+ap.srcs += nav_line.c
+# chemotaxis.c anemotaxis.c discsurvey.c
 
-ap.srcs += bomb.c nav_survey_rectangle.c
+ap.srcs += nav_survey_rectangle.c bomb.c
 
 # Hack to use the same tuning file than slayer1
 ap.CFLAGS += -DUSE_GPIO
@@ -310,7 +285,7 @@ sim.CFLAGS += -DCONFIG=\"classix.h\" -DAGR_CLIMB -DLOITER_TRIM -DH_CTL_RATE_LOOP
 #sim.srcs += traffic_info.c
 #sim.srcs += nav_line.c chemotaxis.c anemotaxis.c discsurvey.c bomb.c nav_survey_rectangle.c
 
-sim.srcs += nav_survey_rectangle.c
+sim.srcs += nav_survey_rectangle.c nav_line.c
 
 
   </makefile>
