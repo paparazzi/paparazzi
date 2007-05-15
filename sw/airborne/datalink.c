@@ -70,19 +70,14 @@ void dl_parse_msg(void) {
   } else if (msg_id == DL_MOVE_WP) {
     uint8_t wp_id = DL_MOVE_WP_wp_id(dl_buffer);
     float a = MOfCm(DL_MOVE_WP_alt(dl_buffer));
-    uint8_t utm_zone = DL_MOVE_WP_utm_zone(dl_buffer);
-    float ux, uy;
-    if (utm_zone == nav_utm_zone0) {
-      /** Great, no conversion required */
-      ux = MOfCm(DL_MOVE_WP_utm_east(dl_buffer));
-      uy = MOfCm(DL_MOVE_WP_utm_north(dl_buffer));
-    } else {
-      latlong_utm_of(RadOfDeg(gps_lat), RadOfDeg(gps_lon), nav_utm_zone0);
-      ux = latlong_utm_x;
-      uy = latlong_utm_y;
-    }
-    MoveWaypoint(wp_id, ux, uy, a);
-    DOWNLINK_SEND_WP_MOVED(&wp_id, &ux, &uy, &a, &nav_utm_zone0);
+
+    /* Computes from (lat, long) in the referenced UTM zone */
+    float lat = MOfCm(DL_MOVE_WP_lat(dl_buffer));
+    float lon = MOfCm(DL_MOVE_WP_lon(dl_buffer));
+    latlong_utm_of(RadOfDeg(lat), RadOfDeg(lon), nav_utm_zone0);
+
+    MoveWaypoint(wp_id, latlong_utm_x, latlong_utm_y, a);
+    DOWNLINK_SEND_WP_MOVED(&wp_id, &latlong_utm_x, &latlong_utm_y, &a, &nav_utm_zone0);
   } else if (msg_id == DL_BLOCK) {
     nav_goto_block(DL_BLOCK_block_id(dl_buffer));
   } else if (msg_id == DL_WIND_INFO) {
