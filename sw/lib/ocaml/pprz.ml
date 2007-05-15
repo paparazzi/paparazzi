@@ -135,7 +135,7 @@ let size_of_field = fun f -> sizeof f._type
 let default_format = function
     Scalar x | ArrayType x ->
       try (List.assoc x types).format with
-	Not_found -> failwith (sprintf "Unknwon format '%s'" x)
+	Not_found -> failwith (sprintf "Unknown format '%s'" x)
 let default_value = fun x ->
   match x with
     Scalar t -> (List.assoc t types).value
