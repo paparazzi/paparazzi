@@ -99,28 +99,22 @@
     </block>
 
    <block name="land">
-      <set value="compute_baseleg()" var="unit"/>
-      <circle radius="BOMB_RADIUS" until="NavCircleCount() > 0.5" wp="BASELEG"/>
+      <call fun="nav_compute_baseleg(WP_AF, WP_TD, WP_BASELEG)"/>
+      <circle radius="nav_radius" until="NavCircleCount() > 0.5" wp="BASELEG"/>
       <set value="V_CTL_AUTO_THROTTLE_MIN_CRUISE_THROTTLE" var="v_ctl_auto_throttle_cruise_throttle"/>
-      <circle radius="BOMB_RADIUS" until="NavQdrCloseTo(DegOfRad(bomb_start_qdr)-10) && baseleg_alt_tolerance > fabs(estimator_z - baseleg_alt)" wp="BASELEG"/>
+      <circle radius="nav_radius"
+              until="NavQdrCloseTo(DegOfRad(baseleg_out_qdr)-10) && 10 > fabs(estimator_z - WaypointAlt(WP_BASELEG))"
+              wp="BASELEG"/>
     </block>
 
     <block name="final">
       <exception cond="ground_alt + 10 > estimator_z" deroute="flare"/>
-<!--
-      <go alt="baseleg_alt" approaching_time="16" from="AF" hmode="route" wp="TD"/>
-      <go approaching_time="2" from="AF" hmode="route" throttle="0.1" vmode="throttle" wp="TD"/>
--->
       <go from="AF" hmode="route" vmode="glide" wp="TD"/>
     </block>
 
     <block name="flare">
       <go approaching_time="0" from="AF" hmode="route" throttle="0.0" vmode="throttle" wp="TD"/>
       <attitude roll="0.0" throttle="0.0" until="FALSE" vmode="throttle"/>
-    </block>
-
-    <block name="follow">
-      <follow ac_id="7" distance="25" height="10"/>
     </block>
 
     <block name="step_roll_10">
