@@ -134,7 +134,7 @@ void h_ctl_course_loop ( void ) {
   Bound(speed_depend_nav, 0.66, 1.5);
   float cmd = h_ctl_course_pgain * err * speed_depend_nav;
 #if defined  AGR_CLIMB
-  if (v_ctl_auto_throttle_submode == V_CTL_AUTO_THROTTLE_AGRESSIVE) {
+  if (v_ctl_auto_throttle_submode == V_CTL_AUTO_THROTTLE_AGRESSIVE || V_CTL_AUTO_THROTTLE_BLENDED) {
     float altitude_error = estimator_z - v_ctl_altitude_setpoint;
     cmd *= ((altitude_error < 0) ? AGR_CLIMB_NAV_RATIO : AGR_DESCENT_NAV_RATIO);
   }
