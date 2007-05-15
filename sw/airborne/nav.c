@@ -131,18 +131,18 @@ void nav_circle_XY(float x, float y, float radius) {
   }
 
   float dist2_center = DistanceSquare(estimator_x, estimator_y, x, y);
-  float dist_carrot = CARROT*estimator_hspeed_mod;
+  float dist_carrot = CARROT*NOMINAL_AIRSPEED;
   float abs_radius = fabs(radius);
   float sign_radius = radius > 0 ? 1 : -1;
   
-  /** Computesa prebank. Go straight if inside or outside the circe */
+  /** Computes a prebank. Go straight if inside or outside the circle */
   circle_bank =
     (dist2_center > Square(abs_radius + dist_carrot)
       || dist2_center < Square(abs_radius - dist_carrot)) ?
     0 :
     atan(estimator_hspeed_mod*estimator_hspeed_mod / (G*radius));
 
-  float carrot_angle = CARROT / abs_radius * estimator_hspeed_mod;
+  float carrot_angle = dist_carrot / abs_radius;
   carrot_angle = Min(carrot_angle, M_PI/4);
   carrot_angle = Max(carrot_angle, M_PI/16);
   float alpha_carrot = nav_circle_trigo_qdr - sign_radius * carrot_angle;
@@ -166,7 +166,7 @@ void nav_circle_XY(float x, float y, float radius) {
   float start_alt = waypoints[_last_wp].a; \
   float diff_alt = waypoints[_wp].a - start_alt; \
   float alt = start_alt + nav_leg_progress * diff_alt; \
-  float pre_climb = NOMINAL_AIRSPEED * diff_alt / nav_leg_length; \
+  float pre_climb = estimator_hspeed_mod * diff_alt / nav_leg_length; \
   NavVerticalAltitudeMode(alt, pre_climb); \
 }
 
@@ -244,7 +244,7 @@ static int nav_ground_speed_loop( void ) {
 #endif
 
 static float baseleg_out_qdr;
-static bool_t nav_compute_baseleg(uint8_t wp_af, uint8_t wp_td, uint8_t wp_baseleg ) {
+static inline bool_t nav_compute_baseleg(uint8_t wp_af, uint8_t wp_td, uint8_t wp_baseleg ) {
   nav_radius = DEFAULT_CIRCLE_RADIUS;
 
   float x_0 = waypoints[wp_td].x - waypoints[wp_af].x;
@@ -372,7 +372,7 @@ void nav_route_xy(float last_wp_x, float last_wp_y, float wp_x, float wp_y) {
   nav_leg_length = sqrt(leg2);
 
   /** distance of carrot (in meter) */
-  float carrot = CARROT * estimator_hspeed_mod;
+  float carrot = CARROT * NOMINAL_AIRSPEED;
 
   nav_leg_progress += Max(carrot / nav_leg_length, 0.);
   nav_in_segment = TRUE;
