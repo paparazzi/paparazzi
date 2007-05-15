@@ -169,7 +169,7 @@
   <section name="NAV">
     <define name="NAV_PITCH" value="0."/>
     <define name="NAV_GLIDE_PITCH_TRIM" value="0"/>
-    <define name="NAV_GROUND_SPEED_PGAIN" value="-0.05"/>
+    <define name="NAV_GROUND_SPEED_PGAIN" value="-0.015"/>
     <define name="NAV_FOLLOW_PGAIN" value="-0.05"/>
   </section>
 
@@ -271,7 +271,7 @@ ap.srcs += $(SRC_ARCH)/gpio.c
 include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
 sim.CFLAGS += -DCONFIG=\"tiny.h\" -DAGR_CLIMB -DH_CTL_RATE_LOOP -DLOITER_TRIM -DALT_KALMAN -DIR_360
 sim.srcs += traffic_info.c
-sim.srcs += bomb.c nav_line.c chemotaxis.c anemotaxis.c discsurvey.c
+sim.srcs += bomb.c nav_line.c chemotaxis.c anemotaxis.c discsurvey.c nav_survey_rectangle.c
 
   </makefile>
 </airframe>
