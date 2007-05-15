@@ -150,8 +150,6 @@ extern void nav_circle_XY(float x, float y, float radius);
 extern void nav_init_stage( void );
 #define InitStage() { nav_init_stage(); return; }
 
-extern bool_t nav_compute_baseleg(uint8_t wp_af, uint8_t wp_td, uint8_t wp_baseleg);
-
 
 /*********** Navigation along a line *************************************/
 extern void nav_route_xy(float last_wp_x, float last_wp_y, float wp_x, float wp_y);
