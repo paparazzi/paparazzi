@@ -233,7 +233,7 @@ ap.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c
 #ap.srcs += downlink.c $(SRC_ARCH)/uart_hw.c datalink.c xbee.c
 
 ap.CFLAGS += -DDOWNLINK -DUSE_UART0 -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_FBW_DEVICE=Uart0 -DDOWNLINK_AP_DEVICE=Uart0 -DPPRZ_UART=Uart0 -DDATALINK=PPRZ -DUART0_BAUD=B57600
-ap.srcs += downlink.c $(SRC_ARCH)/uart_hw.c datalink.c pprz_transport.c
+ap.srcs += downlink.c $(SRC_ARCH)/uart_hw.c datalink.c pprz_transport.c latlong.c
 
 
 ap.CFLAGS += -DINTER_MCU
@@ -251,7 +251,7 @@ ap.CFLAGS += -DINFRARED
 ap.srcs += infrared.c estimator.c
 
 ap.CFLAGS += -DNAV
-ap.srcs += nav.c pid.c
+ap.srcs += nav.c fw_h_ctl.c fw_v_ctl.c 
 
 
 ap.CFLAGS += -DGYRO -DADXRS150 -DPID_RATE_LOOP
@@ -265,6 +265,7 @@ ap.srcs += gyro.c
 # Config for SITL simulation
 include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
 sim.CFLAGS += -DCONFIG=\"tiny.h\" -DLOITER_TRIM
+sim.srcs += nav_line.c
 
 
 
