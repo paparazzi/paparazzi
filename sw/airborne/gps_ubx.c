@@ -35,6 +35,8 @@
 #include "uart.h"
 #include "gps.h"
 #include "gps_ubx.h"
+#include "nav.h"
+#include "latlong.h"
 
 #define UbxInitCheksum() { send_ck_a = send_ck_b = 0; }
 #define UpdateChecksum(c) { send_ck_a += c; send_ck_b += send_ck_a; }
@@ -134,9 +136,17 @@ void parse_gps_msg( void ) {
 	gps_utm_north -= 1000000000; /* Subtract false northing: -10000km */
       gps_alt = UBX_NAV_POSUTM_ALT(ubx_msg_buf);
       gps_utm_zone = UBX_NAV_POSUTM_ZONE(ubx_msg_buf);
+#ifdef GPS_USE_LATLONG
+  /* Computes from (lat, long) in the referenced UTM zone */
     } else if (ubx_id == UBX_NAV_POSLLH_ID) {
-      gps_lat = UBX_NAV_POSLLH_LAT(ubx_msg_buf);
-      gps_lon = UBX_NAV_POSLLH_LON(ubx_msg_buf);
+      float lat = UBX_NAV_POSLLH_LAT(ubx_msg_buf);
+      float lon = UBX_NAV_POSLLH_LON(ubx_msg_buf);
+      latlong_utm_of(RadOfDeg(lat/1e7), RadOfDeg(lon/1e7), nav_utm_zone0);
+      
+      gps_utm_east = latlong_utm_x * 100;
+      gps_utm_north = latlong_utm_y * 100;
+      gps_alt = UBX_NAV_POSLLH_HMSL(ubx_msg_buf);
+#endif
     } else if (ubx_id == UBX_NAV_STATUS_ID) {
       gps_mode = UBX_NAV_STATUS_GPSfix(ubx_msg_buf);
     } else if (ubx_id == UBX_NAV_VELNED_ID) {
