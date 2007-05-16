@@ -58,8 +58,8 @@ extern float last_x, last_y;
 extern uint8_t nav_stage, nav_block;
 extern float dist2_to_wp, dist2_to_home;
 
-extern int32_t nav_utm_east0; 
-extern int32_t nav_utm_north0;
+extern int32_t nav_utm_east0;  /* m */
+extern int32_t nav_utm_north0; /* m */
 extern uint8_t nav_utm_zone0;
 
 extern const uint8_t nb_waypoint;
