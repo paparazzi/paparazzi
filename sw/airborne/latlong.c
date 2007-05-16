@@ -4,6 +4,7 @@
 #include <math.h>
 #include "std.h"
 #include "latlong.h"
+#include "led.h"
 
 float latlong_utm_x, latlong_utm_y;
 
@@ -28,20 +29,36 @@ struct complex { float re; float im; };
 #define CSub(z1, z2) { z2.re -= z1.re;  z2.im -= z1.im; }
 #define CI(z) { float tmp = z.re; z.re = - z.im; z.im = tmp; }
 #define CExp(z) { float e = exp(z.re); z.re = e*cos(z.im); z.im = e*sin(z.im); }
-#define CSin(z) { CI(z); struct complex _z = {-z.re, -z.im}; CExp(z); CExp(_z); CSub(_z, z); CScal(-0.5, z); CI(z); }
+/* Expanded #define CSin(z) { CI(z); struct complex _z = {-z.re, -z.im}; CExp(z); CExp(_z); CSub(_z, z); CScal(-0.5, z); CI(z); } */
+
+#define CSin(z) { CI(z); struct complex _z = {-z.re, -z.im}; float e = exp(z.re); float cos_z_im = cos(z.im); z.re = e*cos_z_im; float sin_z_im = sin(z.im); z.im = e*sin_z_im; _z.re = cos_z_im/e; _z.im = -sin_z_im/e; CSub(_z, z); CScal(-0.5, z); CI(z); }
+
 #define CPrint(z) printf("%.6f+%.6fi\n", z.re, z.im)
 
 
-static float isometric_latitude(float phi, float e) {
+static float inline isometric_latitude(float phi, float e) {
   return log (tan (M_PI_4 + phi / 2.0)) - e / 2.0 * log((1.0 + e * sin(phi)) / (1.0 - e * sin(phi)));
 }
 
+static float inline isometric_latitude0(float phi) {
+  return log (tan (M_PI_4 + phi / 2.0));
+}
+
+/** us on arm7@60MHz, i.e. % of cputime at 4Hz
+    specialize CSin: 951us i.e.
+    One CSin: 120us
+    init: 
+     iso_lat: 155, 172
+    for loop: 258
+
+
+ %*/
 void latlong_utm_of(float phi, float lambda, uint8_t utm_zone) {
   float lambda_c = RadOfDeg((utm_zone-1)*6-180+3);
-  float ll = isometric_latitude(phi, E);
+  float ll = isometric_latitude(phi , E);
   float dl = lambda - lambda_c;
   float phi_ = asin(sin(dl) / cosh(ll));
-  float ll_ = isometric_latitude(phi_, 0.);
+  float ll_ = isometric_latitude0(phi_);
   float lambda_ = atan(sinh(ll) / cos(dl));
   struct complex z_ = { lambda_,  ll_ };
   CScal(serie_coeff_proj_mercator[0], z_);

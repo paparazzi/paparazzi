@@ -3,6 +3,7 @@
 
 extern float latlong_utm_x, latlong_utm_y;
 
-void latlong_utm_of(float phi, float lambda, uint8_t utm_zone);
+/** Convert geographic coordinates in a given UTM zone */
+void latlong_utm_of(float lat_rad, float lon_rad, uint8_t utm_zone);
 
 #endif
