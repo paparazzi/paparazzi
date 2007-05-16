@@ -200,6 +200,7 @@ static inline void parse_xbee( uint8_t c ) {
 static inline void xbee_parse_payload(void) {
   switch (xbee_payload[0]) {
   case XBEE_RX16_ID:
+  case XBEE_TX16_ID: /* Useful if A/C is connected to the PC with a cable */
     xbee_rssi = xbee_payload[3];
     uint8_t i;
     for(i = XBEE_RFDATA_OFFSET; i < xbee_payload_len; i++) 
