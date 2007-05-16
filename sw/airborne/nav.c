@@ -39,6 +39,7 @@
 #include "inter_mcu.h"
 #include "cam.h"
 #include "traffic_info.h"
+#include "latlong.h"
 
 uint8_t nav_stage, nav_block;
 
@@ -290,9 +291,20 @@ static inline void nav_follow(uint8_t _ac_id, float _distance, float _height) {
 
 /** Reset the geographic reference to the current GPS fix */
 static unit_t nav_reset_reference( void ) {
+#ifdef GPS_USE_LATLONG
+  /* Set the real UTM zone */
+  nav_utm_zone0 = (gps_lon/10000000+180) / 6 + 1;
+
+  /* Recompute UTM coordinates in this zone */
+  latlong_utm_of(RadOfDeg(gps_lat/1e7), RadOfDeg(gps_lon/1e7), nav_utm_zone0);
+  nav_utm_east0 = latlong_utm_x;
+  nav_utm_north0 = latlong_utm_y;
+#else
+  nav_utm_zone0 = gps_utm_zone;
   nav_utm_east0 = gps_utm_east/100;
   nav_utm_north0 = gps_utm_north/100;
-  nav_utm_zone0 = gps_utm_zone;
+#endif
+
   previous_ground_alt = ground_alt;
   ground_alt = gps_alt/100;
   return 0;

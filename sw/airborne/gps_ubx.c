@@ -128,7 +128,22 @@ uint8_t gps_nb_channels;
 
 void parse_gps_msg( void ) {
   if (ubx_class == UBX_NAV_ID) {
-    if (ubx_id == UBX_NAV_POSUTM_ID) {
+    if (ubx_id == UBX_NAV_STATUS_ID) {
+      gps_mode = UBX_NAV_STATUS_GPSfix(ubx_msg_buf);
+#ifdef GPS_USE_LATLONG
+  /* Computes from (lat, long) in the referenced UTM zone */
+    } else if (ubx_id == UBX_NAV_POSLLH_ID) {
+      gps_lat = UBX_NAV_POSLLH_LAT(ubx_msg_buf);
+      gps_lon = UBX_NAV_POSLLH_LON(ubx_msg_buf);
+
+      latlong_utm_of(RadOfDeg(gps_lat/1e7), RadOfDeg(gps_lon/1e7), nav_utm_zone0);
+      
+      gps_utm_east = latlong_utm_x * 100;
+      gps_utm_north = latlong_utm_y * 100;
+      gps_alt = UBX_NAV_POSLLH_HMSL(ubx_msg_buf) / 10;
+      gps_utm_zone = nav_utm_zone0;
+#else
+    } else if (ubx_id == UBX_NAV_POSUTM_ID) {
       gps_utm_east = UBX_NAV_POSUTM_EAST(ubx_msg_buf);
       gps_utm_north = UBX_NAV_POSUTM_NORTH(ubx_msg_buf);
       uint8_t hem = UBX_NAV_POSUTM_HEM(ubx_msg_buf);
@@ -136,19 +151,7 @@ void parse_gps_msg( void ) {
 	gps_utm_north -= 1000000000; /* Subtract false northing: -10000km */
       gps_alt = UBX_NAV_POSUTM_ALT(ubx_msg_buf);
       gps_utm_zone = UBX_NAV_POSUTM_ZONE(ubx_msg_buf);
-#ifdef GPS_USE_LATLONG
-  /* Computes from (lat, long) in the referenced UTM zone */
-    } else if (ubx_id == UBX_NAV_POSLLH_ID) {
-      float lat = UBX_NAV_POSLLH_LAT(ubx_msg_buf);
-      float lon = UBX_NAV_POSLLH_LON(ubx_msg_buf);
-      latlong_utm_of(RadOfDeg(lat/1e7), RadOfDeg(lon/1e7), nav_utm_zone0);
-      
-      gps_utm_east = latlong_utm_x * 100;
-      gps_utm_north = latlong_utm_y * 100;
-      gps_alt = UBX_NAV_POSLLH_HMSL(ubx_msg_buf);
 #endif
-    } else if (ubx_id == UBX_NAV_STATUS_ID) {
-      gps_mode = UBX_NAV_STATUS_GPSfix(ubx_msg_buf);
     } else if (ubx_id == UBX_NAV_VELNED_ID) {
       gps_gspeed = UBX_NAV_VELNED_GSpeed(ubx_msg_buf);
       gps_climb = - UBX_NAV_VELNED_VEL_D(ubx_msg_buf);
