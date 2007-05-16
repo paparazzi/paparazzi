@@ -9,3 +9,6 @@ BUS=="usb", SYSFS{idVendor}=="0403", SYSFS{idProduct}=="6001", KERNEL=="ttyUSB*"
 # all LPCUSB devices (access through libusb)
 BUS=="usb", SYSFS{manufacturer}=="LPCUSB", GROUP="dialout"
 
+# FTDI 2232 parallel converter / Amontec JTAG-Tiny (access through libftdi)
+BUS=="usb",  SYSFS{idVendor}=="0403", SYSFS{idProduct}=="cff8", GROUP="dialout"
+
