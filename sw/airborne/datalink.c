@@ -72,9 +72,9 @@ void dl_parse_msg(void) {
     float a = MOfCm(DL_MOVE_WP_alt(dl_buffer));
 
     /* Computes from (lat, long) in the referenced UTM zone */
-    float lat = MOfCm(DL_MOVE_WP_lat(dl_buffer));
-    float lon = MOfCm(DL_MOVE_WP_lon(dl_buffer));
-    latlong_utm_of(RadOfDeg(lat), RadOfDeg(lon), nav_utm_zone0);
+    float lat = RadOfDeg(DL_MOVE_WP_lat(dl_buffer));
+    float lon = RadOfDeg(DL_MOVE_WP_lon(dl_buffer));
+    latlong_utm_of(lat, lon, nav_utm_zone0);
 
     MoveWaypoint(wp_id, latlong_utm_x, latlong_utm_y, a);
     DOWNLINK_SEND_WP_MOVED(&wp_id, &latlong_utm_x, &latlong_utm_y, &a, &nav_utm_zone0);
