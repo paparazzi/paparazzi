@@ -133,10 +133,10 @@ let airframes =
       with
 	Not_found -> r
       |	Xml.File_not_found f ->
-	  fprintf stderr "Error in '%s', file not found: %s\n" conf_file f;
+	  fprintf stderr "Error in '%s', file not found: %s\n%!" conf_file f;
 	  r
       |	_ ->
-	  fprintf stderr "Error in '%s', ignoring\n" airframe_file;
+	  fprintf stderr "Error in '%s', ignoring\n%!" airframe_file;
 	  r
     else
       r)
@@ -429,15 +429,13 @@ let move_wp = fun device _sender vs ->
     and long = f "long"
     and alt = f "alt"
     and wp_id = Pprz.int_assoc "wp_id" vs in
-    let wgs84 = {posn_lat=(Deg>>Rad)lat;posn_long=(Deg>>Rad)long} in
-    let utm = Latlong.utm_of WGS84 wgs84 in
     let vs = ["wp_id", Pprz.Int wp_id;
-	      "utm_east", cm_of_m utm.utm_x;
-	      "utm_north", cm_of_m utm.utm_y;
+	      "lat", Pprz.Float lat;
+	      "lon", Pprz.Float long;
 	      "alt", cm_of_m alt] in
     let msg_id, _ = Dl_Pprz.message_of_name "MOVE_WP" in
     let s = Dl_Pprz.payload_of_values msg_id my_id vs in
-    send ac_id device ac_device s High
+    send ac_id device ac_device s High;
   with
     NotSendingToThis -> ()
 
