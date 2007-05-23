@@ -40,4 +40,5 @@ test_adcs.CFLAGS += -DCONFIG=\"tiny_0_99.h\" -DLED -DTIME_LED=1 -DADC -DUSE_ADC_
 test_adcs.CFLAGS += -DDOWNLINK -DUSE_UART0 -DDOWNLINK_TRANSPORT=XBeeTransport -DDOWNLINK_FBW_DEVICE=Uart0 -DDOWNLINK_AP_DEVICE=Uart0 -DXBEE_UART=Uart0 -DDATALINK=XBEE -DUART0_BAUD=B9600
 test_adcs.srcs += downlink.c $(SRC_ARCH)/uart_hw.c xbee.c
 
-test_adcs.srcs += sys_time.c $(SRC_ARCH)/adc_hw.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c pprz_transport.c test_adcs.c
+test_adcs.srcs += sys_time.c $(SRC_ARCH)/adc_hw.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c test_adcs.c
+# pprz_transport.c
