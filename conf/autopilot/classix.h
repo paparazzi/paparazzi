@@ -80,4 +80,14 @@
 
 #endif /* AP */
 
+/* ADC */
+/* Definitions for test_adcs.c, to test ADCs on AP ANALOG1 */
+#define ADC_0 AdcBank1(5)
+#define ADC_1 AdcBank1(6)
+#define ADC_2 AdcBank1(7)
+#define ADC_3 AdcBank1(4)
+#define ADC_4 AdcBank1(3)
+#define ADC_5 AdcBank1(2)
+
+
 #endif /* CONFIG_CLASSIX_H */
