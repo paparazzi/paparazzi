@@ -31,8 +31,12 @@ int main (int argc, char** argv) {
   adc_buf_channel(ADC_3, &buf_adc[3], ADC_NB_SAMPLES);
   adc_buf_channel(ADC_4, &buf_adc[4], ADC_NB_SAMPLES);
   adc_buf_channel(ADC_5, &buf_adc[5], ADC_NB_SAMPLES);
+#ifdef ADC_6
   adc_buf_channel(ADC_6, &buf_adc[6], ADC_NB_SAMPLES);
+#endif
+#ifdef ADC_7
   adc_buf_channel(ADC_7, &buf_adc[7], ADC_NB_SAMPLES);
+#endif
 
 #if NB_ADC != 8
 #error "8 ADCs expected !"
