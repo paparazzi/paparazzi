@@ -1,9 +1,9 @@
 (*
  * $Id$
  *
- * Multi aircrafts receiver, logger and broadcaster
+ * Wind estimation by analysing aircrafts trajectories
  *  
- * Copyright (C) 2004 CENA/ENAC, Pascal Brisset, Antoine Drouin
+ * Copyright (C) 2004 ENAC, Nicolas Barnier, Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
  *
@@ -25,16 +25,31 @@
  *)
 
 (*
- * 
- * Estimate wind by analysing aircrafts trajectories 
- *
- * Author : Nicolas Barnier - barnier@recherche.enac.fr 
- *
- *)
+  Wind speed and direction are estimated from a dataset of ground speeds,
+with the hypothesis that the airspeed is constant. This estimation is computed
+by solving an optimization problem. The Nelder-Mead method is used
+(http://en.wikipedia.org/wiki/Nelder-Mead_method).
+
+ Let GS(i) a set of n recorded ground speed vectors and W the wind speed.
+The norm of the (hypothetically constant) mean airspeed is
+
+  as = 1/n sum(norm(GS(i)-W))
+
+Let
+
+  stderr = 1/n sum (norm(GS(i)-W)-as)^2
+
+The minimization of stderr, on the W decision variable, returns an estimation
+of W.
+
+Remarks:
+ - GS(i) actually is the sequence of the _last_ recorded ground speeds.
+ - In the "isotropic" implementation, each sample is weighted by its relative
+difference in direction to the other samples.
+*)
+
 
 type id = string
-
-open Printf
 
 let (//) = Filename.concat
 let conf_xml = Xml.parse_file (Env.paparazzi_home // "conf" // "conf.xml")
@@ -67,6 +82,8 @@ let triangle_sort t =
 
 let norme2 p = p.x2D *. p.x2D +. p.y2D *. p.y2D
 
+
+(** Nelder-Mead optimization *)
 let simplex p fmax step max_iter precision =
   let f x = -. (fmax x) in
 
@@ -101,24 +118,6 @@ let simplex p fmax step max_iter precision =
   let vs = triangle_sort vs in
   loop 0 vs
 
-
-let isotropic_mean wind speeds =
-  let n = Array.length speeds in
-  let air_speeds = Array.map (fun speed -> cart2polar (vect_sub speed wind)) speeds in
-  let weights =
-    Array.map
-      (fun air ->
-	let sum =
-	  Array.fold_left
-	    (fun acc airj ->
-	      acc +. norm_angle_rad (abs_float (air.theta2D -. airj.theta2D)) /. m_pi)
-	    0. air_speeds in
-	sum /. (float (n-1)))
-      air_speeds in
-  let mean = ref 0. in
-  for i = 0 to n-1 do
-    mean := !mean +. vect_norm (vect_sub speeds.(i) wind) *. weights.(i) done;
-  !mean /. float n
 
 let isotropic_wind wind_init speeds precision =
   let n = Array.length speeds in
@@ -162,7 +161,6 @@ let isotropic_wind wind_init speeds precision =
 (* val wind : Geometry_2d.pt_2D -> Geometry_2d.pt_2D array -> float
   -> (Geometry_2d.pt_2Dfloat * float * float) *)
 (** [wind wind_init speeds precision] returns the wind and air speed mean and std dev. *)
-
 let wind wind_init speeds precision =
   let mean wind =
     let sum =
@@ -186,11 +184,12 @@ let wind wind_init speeds precision =
 
   (wind.p, mean wind.p, wind.f)
 
-type wind_ac =
-    {mutable speeds : Geometry_2d.pt_2D array;
-     mutable index : int;
-     mutable length : int;
-     mutable wind_init : Geometry_2d.pt_2D}
+type wind_ac = {
+    mutable speeds : Geometry_2d.pt_2D array;
+    mutable index : int;
+    mutable length : int;
+    mutable wind_init : Geometry_2d.pt_2D
+  }
 
 let h = Hashtbl.create 17
 
