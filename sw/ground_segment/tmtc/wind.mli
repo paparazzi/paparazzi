@@ -1,3 +1,4 @@
+(** Aircraft id type *)
 type id = string 
 
 val new_ac : id -> int -> unit
