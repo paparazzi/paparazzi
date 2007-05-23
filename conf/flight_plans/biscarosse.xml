@@ -1,6 +1,9 @@
 <!DOCTYPE flight_plan SYSTEM "flight_plan.dtd">
 
-<flight_plan alt="50" ground_alt="0" lat0="44.4492" lon0="-1.2555" max_dist_from_home="1000" name="Biscarosse" qfu="270" security_height="25">
+<flight_plan alt="50" ground_alt="0" lat0="44.4459" lon0="-1.2562" max_dist_from_home="1000" name="Biscarosse" qfu="270" security_height="25">
+<header>
+#include "dc.h"
+</header>
   <waypoints>
     <waypoint name="HOME" x="0" y="0"/>
     <waypoint name="1" x="-2.15568649652" y="98.0451414566"/>
@@ -20,9 +23,18 @@
       <call fun="NavSetGroundReferenceHere()"/>
       <deroute block="circle 1"/>
     </block>
+
     <block name="circle 1">
       <circle radius="nav_radius" wp="1"/>
     </block>
+
+    <block name="circle cam">
+      <while cond="TRUE">
+        <circle radius="nav_radius" wp="1" until="stage_time>5"/>
+        <call fun="dc_shutter()"/>
+      </while>
+    </block>
+
     <block name="eight 1">
       <eight center="1" radius="75" turn_around="2"/>
     </block>
