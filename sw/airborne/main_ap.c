@@ -70,6 +70,10 @@
 #include "enose.h"
 #endif
 
+#ifdef DIGITAL_CAM
+#include "dc.h"
+#endif
+
 #ifdef DPICCO
 #include "i2c.h"
 #include "dpicco.h"
@@ -459,6 +463,11 @@ void periodic_task_ap( void ) {
       launch = TRUE; /* Not set in non auto launch */
       DOWNLINK_SEND_TAKEOFF(&cpu_time_sec);
     }
+
+#ifdef DIGITAL_CAM
+    dc_periodic();
+#endif
+
     break;
 
 #ifdef LIGHT_PIN_1
@@ -480,8 +489,9 @@ void periodic_task_ap( void ) {
 #ifdef ENOSE
   case 4:
     enose_periodic();
-    DOWNLINK_SEND_ENOSE_STATUS(&enose_val[0], &enose_val[1], &enose_val[2], 3, enose_heat);
+    DOWNLINK_SEND_ENOSE_STATUS(&enose_val[0], &enose_val[1], &enose_val[2], &enose_PID_val, 3, enose_heat);
 #endif
+
 #ifdef DPICCO
   case 5:
     dpicco_periodic();
@@ -576,6 +586,10 @@ void init_ap( void ) {
 #ifdef ENOSE
   i2c_init();
   enose_init();
+#endif
+
+#ifdef DIGITAL_CAM
+  dc_init();
 #endif
 
 #ifdef DPICCO
