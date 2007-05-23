@@ -54,7 +54,7 @@
 
   <section name="INFRARED" prefix="IR_">
     <define name="ROLL_NEUTRAL_DEFAULT" value="-6" unit="deg"/>
-    <define name="PITCH_NEUTRAL_DEFAULT" value="11" unit="deg"/>
+    <define name="PITCH_NEUTRAL_DEFAULT" value="12" unit="deg"/>
     <define name="DEFAULT_CONTRAST" value="200"/>
     <define name="RAD_OF_IR_CONTRAST" value="0.75"/>
     <linear name="RollOfIrs" arity="2" coeff1="0.7" coeff2="-0.7"/>
@@ -124,9 +124,9 @@
     <define name="AUTO_THROTTLE_LOITER_TRIM" value="1500"/>
     <define name="AUTO_THROTTLE_DASH_TRIM" value="-1000"/>
     <define name="AUTO_THROTTLE_CLIMB_THROTTLE_INCREMENT" value="0.1" unit="%/(m/s)"/>
-    <define name="AUTO_THROTTLE_PGAIN" value="-0.03"/>
+    <define name="AUTO_THROTTLE_PGAIN" value="-0.02"/>
     <define name="AUTO_THROTTLE_IGAIN" value="0.1"/>
-    <define name="AUTO_THROTTLE_PITCH_OF_VZ_PGAIN" value="0.2"/>
+    <define name="AUTO_THROTTLE_PITCH_OF_VZ_PGAIN" value="0.5"/>
 
     <!-- auto pitch inner loop -->
     <define name="AUTO_PITCH_PGAIN" value="-0.05"/>
@@ -234,6 +234,9 @@ ap.srcs += inter_mcu.c
 
 ap.CFLAGS += -DADC -DUSE_ADC_0 -DUSE_ADC_1 -DUSE_ADC_2 -DUSE_ADC_3
 ap.srcs += $(SRC_ARCH)/adc_hw.c
+
+# Chemo sensor
+ap.CFLAGS += -DUSE_ADC_4 -DADC_CHANNEL_PID=ADC_4 -DADC_CHANNEL_PID_NB_SAMPLES=16
 
 ap.CFLAGS += -DGPS -DUBX -DUSE_UART1 -DGPS_LINK=Uart1 -DUART1_BAUD=B38400
 # -DGPS_LED=2

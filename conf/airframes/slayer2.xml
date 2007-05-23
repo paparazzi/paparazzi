@@ -95,8 +95,8 @@
     <define name="CARROT" value="3." unit="s"/>
     <define name="KILL_MODE_DISTANCE" value="(1.5*MAX_DIST_FROM_HOME)"/>
     <define name="CONTROL_RATE" value="60" unit="Hz"/>
-<!--     <define name="XBEE_INIT" value="\"ATPL2\rATRN1\rATTT80\rATWR\r\""/> -->
-    <define name="NO_XBEE_API_INIT" value="TRUE"/>
+    <define name="XBEE_INIT" value="\"ATPL2\rATRN1\rATTT80\rATWR\r\""/>
+<!--    <define name="NO_XBEE_API_INIT" value="TRUE"/> -->
     <define name="ALT_KALMAN_ENABLED" value="TRUE"/>
     <define name="DEFAULT_CIRCLE_RADIUS" value="100"/>
 
@@ -176,7 +176,7 @@
 
   <section name="FAILSAFE" prefix="FAILSAFE_">
 	<define name="DELAY_WITHOUT_GPS" value="1" unit="s"/>
-    	<define name="DEFAULT_GAZ" value="0." unit="%"/>
+    	<define name="DEFAULT_THROTTLE" value="0." unit="%"/>
     	<define name="DEFAULT_ROLL" value="0.6" unit="rad"/>
     	<define name="DEFAULT_PITCH" value="0.5" unit="rad"/>
 	<define name="HOME_RADIUS" value="100" unit="m"/>
@@ -226,7 +226,7 @@ ap.CFLAGS += -DINFRARED -DALT_KALMAN -DIR_360
 ap.srcs += infrared.c estimator.c
 
 ap.CFLAGS += -DNAV -DH_CTL_RATE_LOOP -DAGR_CLIMB -DLOITER_TRIM
-ap.srcs += nav.c fw_h_ctl.c fw_v_ctl.c
+ap.srcs += nav.c fw_h_ctl.c fw_v_ctl.c nav_survey_rectangle.c traffic_info.c
 
 
 ap.CFLAGS += -DGYRO -DIDG300
