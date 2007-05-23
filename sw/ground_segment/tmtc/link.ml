@@ -135,8 +135,8 @@ let airframes =
       |	Xml.File_not_found f ->
 	  fprintf stderr "Error in '%s', file not found: %s\n%!" conf_file f;
 	  r
-      |	_ ->
-	  fprintf stderr "Error in '%s', ignoring\n%!" airframe_file;
+      | exc ->
+	  fprintf stderr "Error in '%s', ignoring: %s\n%!" airframe_file (Printexc.to_string exc);
 	  r
     else
       r)
@@ -614,11 +614,10 @@ let _ =
 	  Audio.use_data data_left;
 	  true
       else
-	fun _ -> buffered_input fd; true
+	fun _ -> begin try buffered_input fd with exc -> prerr_endline (Printexc.to_string exc) end; true
     in
-    ignore (Glib.Io.add_watch [`HUP] (fun _ -> exit 1)  (GMain.Io.channel_of_descr fd));
+    ignore (Glib.Io.add_watch [`HUP] (fun _ -> prerr_endline "Modem hangup. Exiting"; exit 1)  (GMain.Io.channel_of_descr fd));
     ignore (Glib.Io.add_watch [`IN] cb (GMain.Io.channel_of_descr fd));
-
 
     if !uplink then begin
       (** Listening on Ivy (FIXME: remove the ad hoc messages) *)
