@@ -7,6 +7,7 @@
 
 extern uint8_t enose_heat[ENOSE_NB_SENSOR];
 extern uint16_t enose_val[ENOSE_NB_SENSOR];
+extern uint16_t enose_PID_val;
 
 #define ENOSE_IDLE         0
 #define ENOSE_SETTINGS     1

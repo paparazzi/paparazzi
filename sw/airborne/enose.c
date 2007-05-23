@@ -1,8 +1,11 @@
+#include <string.h>
+
 #include "enose.h"
 
 #include "i2c.h"
+#include "adc.h"
+#include CONFIG
 
-#include <string.h>
 
 uint8_t enose_status;
 
@@ -20,6 +23,8 @@ uint8_t enose_conf_requested;
 volatile bool_t enose_i2c_done;
 
 
+static struct adc_buf buf_PID;
+
 void enose_init( void ) {
   uint8_t i;
   for (i=0; i< ENOSE_NB_SENSOR; i++) {
@@ -29,6 +34,8 @@ void enose_init( void ) {
   enose_status = ENOSE_IDLE;
   enose_conf_requested = TRUE;
   enose_i2c_done = TRUE;
+
+  adc_buf_channel(ADC_CHANNEL_PID, &buf_PID, ADC_CHANNEL_PID_NB_SAMPLES);
 }
 
 
@@ -39,8 +46,12 @@ void enose_set_heat(uint8_t no_sensor, uint8_t value) {
 
 #include "led.h"
 
+uint16_t enose_PID_val;
+
 
 void enose_periodic( void ) {
+  enose_PID_val = buf_PID.sum / buf_PID.av_nb_sample;
+
   if (enose_i2c_done) {
     if (enose_conf_requested) {
       const uint8_t msg[] = { ENOSE_PWM_ADDR, enose_heat[0], enose_heat[1], enose_heat[2] };
