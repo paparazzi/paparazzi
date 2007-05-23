@@ -355,6 +355,7 @@
       <field name="val1" type="uint16"/>
       <field name="val2" type="uint16"/>
       <field name="val3" type="uint16"/>
+      <field name="PID" type="uint16"/>
       <field name="heat" type="uint8[]"/>
   </message>
 
