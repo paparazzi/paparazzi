@@ -220,7 +220,7 @@ ap.srcs += $(SRC_ARCH)/adc_hw.c
 
 ap.CFLAGS += -DGPS -DUBX -DUSE_UART1 -DGPS_LINK=Uart1 -DUART1_BAUD=B19200
 
-ap.srcs += gps_ubx.c gps.c
+ap.srcs += gps_ubx.c gps.c latlong.c
 
 ap.CFLAGS += -DINFRARED -DALT_KALMAN -DIR_360
 ap.srcs += infrared.c estimator.c

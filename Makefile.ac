@@ -36,6 +36,8 @@ RADIO_H=$(ACINCLUDE)/radio.h
 FLIGHT_PLAN_H=$(ACINCLUDE)/flight_plan.h
 FLIGHT_PLAN_XML=$(ACINCLUDE)/flight_plan.xml
 SETTINGS_H=$(ACINCLUDE)/settings.h
+SETTINGS_XMLS=$(patsubst %,$(CONF)/%,$(SETTINGS))
+SETTINGS_XML=$(ACINCLUDE)/settings.xml
 MAKEFILE_AC=$(ACINCLUDE)/Makefile.ac
 SUPERVISION=sw/supervision/paparazzi.pl
 MAKE=make PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME)
@@ -90,9 +92,9 @@ $(FLIGHT_PLAN_XML) : $(CONF)/$(FLIGHT_PLAN) $(CONF_XML) $(TOOLS)/gen_flight_plan
 	$(Q)$(TOOLS)/gen_flight_plan.out -dump $< > $@
 	$(Q)chmod a+r $@
 
-$(SETTINGS_H) : $(CONF)/$(SETTINGS) $(CONF_XML) $(TOOLS)/gen_settings.out
+$(SETTINGS_H) : $(SETTINGS_XMLS) $(CONF_XML) $(TOOLS)/gen_settings.out
 	@echo BUILD $@
-	$(Q)$(TOOLS)/gen_settings.out $< > $@
+	$(Q)$(TOOLS)/gen_settings.out $(SETTINGS_XML) $(SETTINGS_XMLS) > $@
 	$(Q)chmod a+r $@
 
 $(MAKEFILE_AC) : $(CONF)/$(AIRFRAME_XML)

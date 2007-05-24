@@ -36,11 +36,11 @@ struct complex { float re; float im; };
 #define CPrint(z) printf("%.6f+%.6fi\n", z.re, z.im)
 
 
-static float inline isometric_latitude(float phi, float e) {
+static inline float isometric_latitude(float phi, float e) {
   return log (tan (M_PI_4 + phi / 2.0)) - e / 2.0 * log((1.0 + e * sin(phi)) / (1.0 - e * sin(phi)));
 }
 
-static float inline isometric_latitude0(float phi) {
+static inline float isometric_latitude0(float phi) {
   return log (tan (M_PI_4 + phi / 2.0));
 }
 

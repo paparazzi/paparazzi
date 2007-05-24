@@ -490,12 +490,14 @@ void periodic_task_ap( void ) {
   case 4:
     enose_periodic();
     DOWNLINK_SEND_ENOSE_STATUS(&enose_val[0], &enose_val[1], &enose_val[2], &enose_PID_val, 3, enose_heat);
+    break;
 #endif
 
 #ifdef DPICCO
   case 5:
     dpicco_periodic();
     DOWNLINK_SEND_DPICCO_STATUS(&dpicco_val[0], &dpicco_val[1]);
+    break;
 #endif
 
     /*  default: */

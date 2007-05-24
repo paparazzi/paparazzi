@@ -205,11 +205,11 @@ endif
 	$(Q)$(CC) $(THUMB) $(ALL_CFLAGS) $(AOBJARM) $(AOBJ) $(COBJARM) $(COBJ)  --output $@ $(LDFLAGS)
 
 # Compile: create object files from C source files. ARM-only
-$(OBJDIR)/%.o : %.c
+$(OBJDIR)/%.o : %.c $(OBJDIR)/../Makefile.ac
 	@echo CC $@
 	$(Q)$(CC) -c $(ALL_CFLAGS) $(CONLYFLAGS) $< -o $@ 
 
-$(OBJDIR)/%.o : $(SRC_ARCH)/%.c
+$(OBJDIR)/%.o : $(SRC_ARCH)/%.c $(OBJDIR)/../Makefile.ac
 	@echo CC $@
 	$(Q)$(CC) -c $(ALL_CFLAGS) $(CONLYFLAGS) $< -o $@ 
 

@@ -29,6 +29,7 @@
     <mode name="debug">
       <message name="CALIB_START"    period="0.5"/> 
       <message name="ATTITUDE"       period="0.5"/>
+      <message name="TUNE_ROLL"      period="0.2"/>
     </mode>
   </process>
   <process name="Fbw">

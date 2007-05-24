@@ -167,27 +167,54 @@ let parse_rc_modes = fun xml ->
   List.iter parse_rc_mode (Xml.children xml)
 
 
-let _ =
-  if Array.length Sys.argv < 2 then
-    failwith (Printf.sprintf "Usage: %s xml_file" Sys.argv.(0));
-  let xml_file = Sys.argv.(1) in
-  let h_name = "SETTINGS_H" in
-  try
-    let xml = start_and_begin xml_file h_name in
+let join_xml_files = fun xml_files ->
+  let dl_settings = ref []
+  and rc_settings = ref [] in
+  List.iter (fun xml_file ->
+    let xml = Xml.parse_file xml_file in
+    let these_rc_settings = 
+      try Xml.children (ExtXml.child xml "rc_settings") with
+	Not_found -> [] in
+    let these_dl_settings = 
+      try Xml.children (ExtXml.child xml "dl_settings") with 
+	Not_found -> [] in
+    rc_settings := these_rc_settings @ !rc_settings;
+    dl_settings := these_dl_settings @ !dl_settings)
+    xml_files;
+  Xml.Element("rc_settings",[],!rc_settings), Xml.Element("dl_settings",[],!dl_settings)
 
-    let rc_control = 
-      try ExtXml.child xml "rc_settings" with Not_found -> Xml.Element("",[],[]) in
+
+
+let _ =
+  if Array.length Sys.argv < 3 then
+    failwith (Printf.sprintf "Usage: %s output_xml_file input_xml_file(s)" Sys.argv.(0));
+  let h_name = "SETTINGS_H"
+  and xml_files = ref [] in
+  for i = 2 to Array.length Sys.argv - 1 do
+    xml_files := Sys.argv.(i) :: !xml_files;
+  done;
+  
+  try
+    printf "/* This file has been generated from %s */\n" (String.concat " " !xml_files);
+    printf "/* Please DO NOT EDIT */\n\n";
+    
+    printf "#ifndef %s\n" h_name;
+    define h_name "";
+    nl ();
+
+    let rc_settings, dl_settings = join_xml_files !xml_files in
+
+    let xml = Xml.Element ("settings", [], [rc_settings; dl_settings]) in
+    let f = open_out Sys.argv.(1) in
+    fprintf f "%s\n" (ExtXml.to_string_fmt xml);
+    close_out f;
+
     lprintf "#define RCSettings(mode_changed) { \\\n";
     right ();
-    parse_rc_modes rc_control;
+    parse_rc_modes rc_settings;
     left (); lprintf "}\n";
 
-
-    let dl_settings = try (ExtXml.child xml "dl_settings") with Not_found -> Xml.Element("dl_settings",[],[]) in
-
     print_dl_settings dl_settings;
-    
-
     finish h_name
   with
     Xml.Error e -> prerr_endline (Xml.error e)

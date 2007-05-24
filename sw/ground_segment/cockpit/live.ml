@@ -445,10 +445,13 @@ let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id
   let rc_settings_page =
     try
       let xml_settings = Xml.children (ExtXml.child settings_xml "rc_settings") in
-      let settings_tab = new Pages.rc_settings ~visible xml_settings in
-      let tab_label = (GMisc.label ~text:"RC Settings" ())#coerce in
-      ac_notebook#append_page ~tab_label settings_tab#widget;
-      Some settings_tab
+      if xml_settings = [] then
+	raise Exit
+      else
+	let settings_tab = new Pages.rc_settings ~visible xml_settings in
+	let tab_label = (GMisc.label ~text:"RC Settings" ())#coerce in
+	ac_notebook#append_page ~tab_label settings_tab#widget;
+	Some settings_tab
     with _ -> None in
 
     let ac = { track = track; color = color; 

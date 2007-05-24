@@ -49,7 +49,7 @@ let _ =
 	fprintf stderr "\nWARNING: No 'settings' attribute specified for A/C '%s', using 'settings/basic.xml'\n\n%!" aircraft;
 	"settings/basic.xml" in
   
-  let c = sprintf "make -f Makefile.ac AIRCRAFT=%s AC_ID=%s AIRFRAME_XML=%s RADIO=%s FLIGHT_PLAN=%s TELEMETRY=%s SETTINGS=%s all_ac_h" aircraft (value "ac_id") (value "airframe") (value "radio") (value "flight_plan") (value "telemetry") settings in
+  let c = sprintf "make -f Makefile.ac AIRCRAFT=%s AC_ID=%s AIRFRAME_XML=%s RADIO=%s FLIGHT_PLAN=%s TELEMETRY=%s SETTINGS=\"%s\" all_ac_h" aircraft (value "ac_id") (value "airframe") (value "radio") (value "flight_plan") (value "telemetry") settings in
   begin (** Quiet is speficied in the Makefile *)
     try if Sys.getenv "Q" <> "@" then raise Not_found with
       Not_found -> prerr_endline c

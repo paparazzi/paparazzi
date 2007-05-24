@@ -240,7 +240,7 @@ ap.CFLAGS += -DUSE_ADC_4 -DADC_CHANNEL_PID=ADC_4 -DADC_CHANNEL_PID_NB_SAMPLES=16
 
 ap.CFLAGS += -DGPS -DUBX -DUSE_UART1 -DGPS_LINK=Uart1 -DUART1_BAUD=B38400
 # -DGPS_LED=2
-ap.srcs += gps_ubx.c gps.c
+ap.srcs += gps_ubx.c gps.c latlong.c
 
 ap.CFLAGS += -DINFRARED -DALT_KALMAN -DIR_360
 ap.srcs += infrared.c estimator.c
@@ -272,7 +272,7 @@ ap.CFLAGS += -DENOSE
 include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
 sim.CFLAGS += -DCONFIG=\"tiny.h\" -DAGR_CLIMB -DH_CTL_RATE_LOOP -DLOITER_TRIM -DALT_KALMAN -DIR_360
 sim.srcs += traffic_info.c
-sim.srcs += bomb.c nav_line.c chemotaxis.c anemotaxis.c discsurvey.c
+sim.srcs += bomb.c nav_line.c chemotaxis.c anemotaxis.c discsurvey.c nav_survey_rectangle.c
 
 
 
