@@ -61,7 +61,6 @@ void enose_periodic( void ) {
       enose_conf_requested = FALSE;
     }
     else if (enose_status == ENOSE_IDLE) {
-      LED_OFF(2);
       enose_status = ENOSE_MEASURING_WR;
       const uint8_t msg[] = { ENOSE_DATA_ADDR };  
       memcpy(i2c_buf, msg, sizeof(msg));
@@ -74,7 +73,6 @@ void enose_periodic( void ) {
       enose_i2c_done = FALSE;
     }
     else if (enose_status == ENOSE_MEASURING_RD) {
-      LED_ON(2);
       enose_val[0] = (i2c_buf[0]<<8) | i2c_buf[1];
       enose_val[1] = (i2c_buf[2]<<8) | i2c_buf[3];
       enose_val[2] = (i2c_buf[4]<<8) | i2c_buf[5];

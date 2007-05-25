@@ -15,6 +15,37 @@
       <field name="Vacc" format="U4" unit="mm"/>
     </message>
 
+    <message name="DOP" ID="0x04" length="18">
+      <field name="ITOW" format="U4" unit="ms"/>
+      <field name="GDOP" format="U2"/>
+      <field name="PDOP" format="U2"/>
+      <field name="TDOP" format="U2"/>
+      <field name="VDOP" format="U2"/>
+      <field name="HDOP" format="U2"/>
+      <field name="NDOP" format="U2"/>
+      <field name="EDOP" format="U2"/>
+    </message>
+
+    <message name="SOL" ID="0x06" length="52">
+      <field name="ITOW" format="U4" unit="ms"/>
+      <field name="Frac" format="I4" unit="ns"/>
+      <field name="week" format="I2"/>
+      <field name="GPSfix" format="U1"/>
+      <field name="Flags" format="U1"/>
+      <field name="ECEF_X" format="I4" unit="cm"/>
+      <field name="ECEF_Y" format="I4" unit="cm"/>
+      <field name="ECEF_Z" format="I4" unit="cm"/>
+      <field name="Pacc" format="U4"/>
+      <field name="ECEFVX" format="I4" unit="cm/s"/>
+      <field name="ECEFVY" format="I4" unit="cm/s"/>
+      <field name="ECEFVZ" format="I4" unit="cm/s"/>
+      <field name="Sacc" format="U4"/>
+      <field name="PDOP" format="U2"/>
+      <field name="res1" format="U1"/>
+      <field name="numSV" format="U1"/>
+      <field name="res2" format="U4"/>
+    </message>
+
     <message name="POSUTM" ID="0x08" length="18">
       <field name="ITOW" format="U4" unit="ms"/>
       <field name="EAST" format="I4" unit="cm"/>

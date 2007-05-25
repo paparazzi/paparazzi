@@ -113,6 +113,13 @@
      <field name="desired_climb" type="float" format="%.1f"></field>
    </message>
 
+   <message name="GPS_SOL" ID="17">
+     <field name="Pacc" type="uint32"/>
+     <field name="Sacc" type="uint32"/>
+     <field name="PDOP" type="uint16"/>
+     <field name="numSV" type="uint8"/>
+   </message>
+
    <message name="CAM" ID="20">
      <field name="phi" type="int8" unit="deg"/>
      <field name="theta" type="int8" unit="deg"/>

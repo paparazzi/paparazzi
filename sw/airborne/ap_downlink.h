@@ -171,5 +171,9 @@
 
 #define PERIODIC_SEND_TUNE_ROLL() DOWNLINK_SEND_TUNE_ROLL(&estimator_p,&estimator_phi, &h_ctl_roll_setpoint);
 
+#ifdef GPS
+#define PERIODIC_SEND_GPS_SOL() DOWNLINK_SEND_GPS_SOL(&gps_Pacc, &gps_Sacc, &gps_PDOP, &gps_numSV)
+#endif
+
 
 #endif /* AP_DOWNLINK_H */

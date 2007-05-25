@@ -64,8 +64,8 @@
       </dl_setting>
        
 
-        <dl_setting MAX="-0.005" MIN="-0.1" STEP="0.005" VAR="v_ctl_auto_throttle_pgain" shortname="throttle_pgain"/>
-        <dl_setting MAX="1" MIN="0.05" STEP="0.05" VAR="v_ctl_auto_throttle_igain" shortname="throttle_igain"/>
+        <dl_setting MAX="0.00" MIN="-0.05" STEP="0.005" VAR="v_ctl_auto_throttle_pgain" shortname="throttle_pgain"/>
+        <dl_setting MAX="1" MIN="0.0" STEP="0.05" VAR="v_ctl_auto_throttle_igain" shortname="throttle_igain"/>
         <dl_setting MAX="0" MIN="-4000" STEP="100" VAR="v_ctl_auto_throttle_dash_trim" shortname="dash trim"/>
         <dl_setting MIN="0" MAX="3000" STEP="100" VAR="v_ctl_auto_throttle_loiter_trim" shortname="loiter trim"/>
         <dl_setting MAX="1" MIN="0" STEP="0.01" VAR="v_ctl_auto_throttle_climb_throttle_increment" shortname="throttle_incr"/>

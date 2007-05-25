@@ -37,11 +37,11 @@
     </block>
 
     <block name="eight 1">
-      <eight radius="75" center="1" turn_around="2"/>
+      <eight radius="nav_radius" center="1" turn_around="2"/>
     </block>
 
     <block name="oval" strip_button="Oval">
-      <oval p1="1" p2="2" radius="80"/>
+      <oval p1="1" p2="2" radius="nav_radius"/>
     </block>
 
     <block name="MOB" strip_button="MOB">
@@ -51,10 +51,6 @@
 
     <block name="circle 1 auto pitch">
       <circle radius="75" wp="1" pitch="auto" throttle="0.7"/>
-    </block>
-
-    <block name="circle left 1">
-      <circle radius="-75" wp="1"/>
     </block>
 
     <block name="climb 75">

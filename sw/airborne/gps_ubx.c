@@ -75,6 +75,10 @@ bool_t gps_pos_available;
 uint8_t ubx_id, ubx_class;
 int32_t gps_lat, gps_lon;
 
+uint16_t gps_PDOP;
+uint32_t gps_Pacc, gps_Sacc;
+uint8_t gps_numSV;
+
 #define UTM_HEM_NORTH 0
 #define UTM_HEM_SOUTH 1
 
@@ -159,6 +163,11 @@ void parse_gps_msg( void ) {
       gps_itow = UBX_NAV_VELNED_ITOW(ubx_msg_buf);
       
       gps_pos_available = TRUE; /* The 3 UBX messages are sent in one rafale */
+    } else if (ubx_id == UBX_NAV_SOL_ID) {
+      gps_PDOP = UBX_NAV_SOL_PDOP(ubx_msg_buf);
+      gps_Pacc = UBX_NAV_SOL_Pacc(ubx_msg_buf);
+      gps_Sacc = UBX_NAV_SOL_Sacc(ubx_msg_buf);
+      gps_numSV = UBX_NAV_SOL_numSV(ubx_msg_buf);
     } else if (ubx_id == UBX_NAV_SVINFO_ID) {
       gps_nb_channels = UBX_NAV_SVINFO_NCH(ubx_msg_buf);
       uint8_t i;
