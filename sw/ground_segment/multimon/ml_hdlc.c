@@ -44,13 +44,6 @@ int fd;
 int fmt = 0;
 
 
-/** Intermediate buffer */
-union {
-  short s[BUF_LEN];
-  unsigned char b[BUF_LEN];
-} b;
-
-
 value ml_init_gen_hdlc(value device) {
   /** From multimon, gen.c:output_sound() */
 
@@ -155,6 +148,12 @@ value ml_gen_hdlc(value val_data) {
   
   memset(&state, 0, sizeof(state));
   gen_init_hdlc(&params, &state);
+
+  /** Intermediate buffer */
+  union {
+    short s[BUF_LEN];
+    unsigned char b[BUF_LEN];
+  } b;
 
   int num2;
   do {
