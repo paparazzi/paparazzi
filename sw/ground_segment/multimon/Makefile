@@ -30,6 +30,7 @@ CPP		=$(CC) -E
 AR		=ar
 STRIP		=strip
 MKDIR		=mkdir
+OCAMLC	 	=ocamlc
 
 # all:		$(BINDIR) $(BINDIR)/multimon $(BINDIR)/gen
 all:		$(BINDIR)/multimon multimon.cma
@@ -72,12 +73,23 @@ $(BINDIR)/mkcostab:	$(BINDIR)/mkcostab.o
 costabi.c costabf.c:	$(BINDIR)/mkcostab
 			$(BINDIR)/mkcostab
 
-multimon.cma : pprzlib.o demodml.o demod.ml
+multimon.cma : pprzlib.o demodml.o costabi.o gen_hdlc.o ml_hdlc.o demod.cmo hdlc.cmo
 	@echo OLD $@
 	$(Q)ocamlmklib -o multimon $^
 
 libtest: pprzlib.o demodml.c demod.ml test.ml
 	ocamlc -custom -o $@ pprzlib.o demodml.c -I +lablgtk2 unix.cma lablgtk.cma demod.ml test.ml
+
+hdlc_test : multimon.cma test_gen_hdlc.ml
+	$(OCAMLC) -o $@ -custom -I +lablgtk2 -thread unix.cma threads.cma lablgtk.cma gtkThread.cmo -I . $^
+
+hdlc.cmo : hdlc.cmi
+
+%.cmo : %.ml
+	$(OCAMLC) -c $<
+
+%.cmi : %.mli
+	$(OCAMLC) $<
 
 clean:
 	rm -fr *.cm*
