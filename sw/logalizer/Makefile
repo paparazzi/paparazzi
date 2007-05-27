@@ -102,3 +102,7 @@ run_fg:
 
 ahrs2fg: ahrs2fg.c network.c flight_gear.c utils.c 
 	$(CC) $(CFLAGS) -g -o $@ $^ $(LDFLAGS)
+
+
+ivy_example: ivy_example.c
+	gcc -g -O2 -Wall `pkg-config glib-2.0 --cflags` -o $@ $^ `pkg-config glib-2.0 --libs`  `pcre-config --libs` -lglibivy
