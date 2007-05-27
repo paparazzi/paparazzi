@@ -118,9 +118,6 @@ static inline void fly_to_xy(float x, float y);
 
 #define MIN_DX ((int16_t)(MAX_PPRZ * 0.05))
 
-#define DegOfRad(x) ((x) / M_PI * 180.)
-#define RadOfDeg(x) ((x)/180. * M_PI)
-
 void nav_circle_XY(float x, float y, float radius) {
   float last_trigo_qdr = nav_circle_trigo_qdr;
   nav_circle_trigo_qdr = atan2(estimator_y - y, estimator_x - x);

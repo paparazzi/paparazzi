@@ -62,9 +62,9 @@ typedef uint8_t unit_t;
     while (x > M_PI) x -= 2 * M_PI; \
     while (x < -M_PI) x += 2 * M_PI; \
   }
-#define DegOfRad(x) ((x) / M_PI * 180.)
-#define DeciDegOfRad(x) ((x) / M_PI * 1800.)
-#define RadOfDeg(x) ((x)/180. * M_PI)
+#define DegOfRad(x) ((x) * (180. / M_PI))
+#define DeciDegOfRad(x) ((x) * (1800./ M_PI))
+#define RadOfDeg(x) ((x) * (M_PI/180.))
 
 #define Min(x,y) (x < y ? x : y)
 #define Max(x,y) (x > y ? x : y)
