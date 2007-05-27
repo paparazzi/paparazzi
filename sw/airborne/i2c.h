@@ -6,8 +6,8 @@
 #include "i2c_hw.h"
 
 extern void i2c_init(void);
-extern void i2c_receive(uint8_t slave_addr, uint8_t len, bool_t* finished);
-extern void i2c_transmit(uint8_t slave_addr, uint8_t len, bool_t* finished);
+extern void i2c_receive(uint8_t slave_addr, uint8_t len, volatile bool_t* finished);
+extern void i2c_transmit(uint8_t slave_addr, uint8_t len, volatile bool_t* finished);
 
 #define I2C_START        0x08
 #define I2C_RESTART      0x10
