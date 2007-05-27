@@ -212,12 +212,20 @@ module Gen_onboard = struct
       if !offset < 0 then
 	failwith "FIXME: No field allowed after an array field (print_gen_macro)x";
       let typed = fun o t ->
-	if !check_alignment && o mod (assoc_types t).Pprz.size <> 0 then
+	let size = (assoc_types t).Pprz.size in
+	if !check_alignment && o mod size <> 0 then
 	  failwith (sprintf "Wrong alignment of field '%s' in message '%s" field_name msg_name);
-	sprintf "(%s*)(_payload+%d)" (assoc_types t).Pprz.inttype o in
+	match size with
+	  1 -> sprintf "(%s)(*((uint8_t*)_payload+%d))" (assoc_types t).Pprz.inttype o
+	| 2 -> sprintf "(%s)(*((uint8_t*)_payload+%d)|*((uint8_t*)_payload+%d+1)<<8)" (assoc_types t).Pprz.inttype o o
+	| 4 when (assoc_types t).Pprz.inttype = "float" -> 
+	    sprintf "({ union { uint32_t u; float f; } _f; _f.u = (uint32_t)(*((uint8_t*)_payload+%d)|*((uint8_t*)_payload+%d+1)<<8|*((uint8_t*)_payload+%d+2)<<16|*((uint8_t*)_payload+%d+3)<<24); _f.f; })" o o o o
+	| 4 -> 
+	    sprintf "(%s)(*((uint8_t*)_payload+%d)|*((uint8_t*)_payload+%d+1)<<8|*((uint8_t*)_payload+%d+2)<<16|*((uint8_t*)_payload+%d+3)<<24)" (assoc_types t).Pprz.inttype o o o o
+	| _ -> failwith "unexpected size in Gen_messages.print_get_macros" in
       match _type with 
 	Basic t ->
-	  fprintf avr_h "#define DL_%s_%s(_payload) (*%s)\n" msg_name field_name (typed !offset t);
+	  fprintf avr_h "#define DL_%s_%s(_payload) (%s)\n" msg_name field_name (typed !offset t);
 	  offset := !offset + int_of_string (sizeof _type)
       | Array (t, varname) ->
 	  fprintf avr_h "#define DL_%s_%s_length(_payload) (*%s)\n" msg_name field_name (typed !offset "uint8");
