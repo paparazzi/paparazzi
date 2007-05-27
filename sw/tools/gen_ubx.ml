@@ -50,7 +50,11 @@ let get_at = fun offset format block_size ->
   let t = c_type format in
   let block_offset =
     if block_size = 0 then "" else sprintf "+%d*_ubx_block" block_size in
-  sprintf "(*((%s*)(_ubx_payload+%d%s)))" t offset block_offset
+  match format with
+     "U4" | "I4" -> sprintf "(%s)(*((uint8_t*)_ubx_payload+%d%s)|*((uint8_t*)_ubx_payload+1+%d%s)<<8|*((uint8_t*)_ubx_payload+2+%d%s)<<16|*((uint8_t*)_ubx_payload+3+%d%s)<<24)" t offset block_offset offset block_offset offset block_offset offset block_offset
+   | "U2" | "I2" -> sprintf "(%s)(*((uint8_t*)_ubx_payload+%d%s)|*((uint8_t*)_ubx_payload+1+%d%s)<<8)" t offset block_offset offset block_offset
+   | "U1" | "I1" -> sprintf "(%s)(*((uint8_t*)_ubx_payload+%d%s))" t offset block_offset
+   | _ -> failwith (sprintf "Gen_ubx.c_type: unknown format '%s'" format)
 
 let define = fun x y ->
   fprintf out "#define %s %s\n" x y
