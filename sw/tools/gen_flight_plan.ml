@@ -32,7 +32,7 @@ module G2D = Geometry_2d
 let sof = string_of_float
 let soi = string_of_int
 
-let check_expressions = ref true
+let check_expressions = ref false
 
 let parse_expression = Fp_proc.parse_expression
 
@@ -632,7 +632,7 @@ let _ =
   and gen_sectors = ref false in
   Arg.parse [("-dump", Arg.Set dump, "Dump compile result");
 	     ("-sectors", Arg.Set gen_sectors, "Generatess inside functions for sectors.xml");
-	     ("-nocheck", Arg.Clear check_expressions, "Disable expression checking")]
+	     ("-check", Arg.Set check_expressions, "Enable expression checking")]
     (fun f -> xml_file := f)
     "Usage:";
   if !xml_file = "" then
