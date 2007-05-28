@@ -147,7 +147,8 @@ let fvalue = fun x ->
 
 let ivalue = fun x ->
   match x with
-    Pprz.Int x -> x 
+    Pprz.Int x -> x
+  | Pprz.Int32 x -> Int32.to_int x 
   | _ -> failwith "Receive.log_and_parse: int expected"
 
 let update_waypoint = fun ac wp_id p alt ->
@@ -197,6 +198,8 @@ let log_and_parse = fun logging ac_name (a:Aircraft.aircraft) msg values ->
       a.gps_mode <- check_index (ivalue "mode") gps_modes "GPS_MODE";
       if a.gspeed > 3. && a.ap_mode = _AUTO2 then
 	Wind.update ac_name a.gspeed a.course
+  | "GPS_SOL" ->
+      a.gps_Pacc <- ivalue "Pacc"
   | "ESTIMATOR" ->
       a.alt     <- fvalue "z";
       a.climb   <- fvalue "z_dot"
@@ -414,6 +417,7 @@ let send_svsinfo = fun a ->
   done;
   let f = fun s r -> (s, Pprz.String !r) in
   let vs = ["ac_id", Pprz.String a.id; 
+	    "pacc", Pprz.Int a.gps_Pacc;
 	    f "svid" svid; f "flags" flags; f "qi" qi; 
 	    f "cno" cno; f "elev" elev; f "azim" azim] in
   Ground_Pprz.message_send my_id "SVSINFO" vs
@@ -575,7 +579,7 @@ let new_aircraft = fun id ->
 	gspeed=0.; course = 0.; alt=0.; climb=0.; cur_block=0; cur_stage=0;
       throttle = 0.; throttle_accu = 0.; rpm = 0.; temp = 0.; bat = 42.; amp = 0.; energy = 0; ap_mode= -1; agl = 0.;
       gaz_mode= -1; lateral_mode= -1;
-      gps_mode =0; periodic_callbacks = [];
+      gps_mode =0; gps_Pacc = 0; periodic_callbacks = [];
       desired_altitude = 0.;
       desired_climb = 0.;
       pos = { utm_x = 0.; utm_y = 0.; utm_zone = 0 };

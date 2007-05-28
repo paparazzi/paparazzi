@@ -95,6 +95,7 @@ type aircraft = {
     mutable periodic_callbacks : Glib.Timeout.id list;
     cam : ac_cam;
     mutable gps_mode : int;
+    mutable gps_Pacc : int;
     inflight_calib : inflight_calib;
     infrared : infrared;
     fbw : fbw;
