@@ -1,0 +1,9 @@
+<!DOCTYPE settings SYSTEM "settings.dtd">
+
+<!--  -->
+
+<settings>
+  <dl_settings>
+    <dl_setting MAX="1000" MIN="0" STEP="5" VAR="foo"/>
+  </dl_settings>
+</settings>

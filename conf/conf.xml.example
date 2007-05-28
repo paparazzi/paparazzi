@@ -67,4 +67,15 @@
     gui_color="#ba6293"
   />
 
+
+  <aircraft 
+    name="DEMO"
+    ac_id="144"
+    airframe="airframes/demo.xml" 
+    radio="radios/T9cap.xml" 
+    telemetry="telemetry/default.xml"
+    flight_plan="flight_plans/dummy.xml"
+    settings="settings/demo5_settings.xml"
+  />
+
 </conf>

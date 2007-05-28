@@ -25,7 +25,7 @@ OBJDIR = $(PAPARAZZI_HOME)/var/$(AIRCRAFT)/$(TARGET)
 VARINCLUDE=$(PAPARAZZI_HOME)/var/include
 ACINCLUDE = $(PAPARAZZI_HOME)/var/$(AIRCRAFT)
 
-INCLUDES = -I $(PAPARAZZI_SRC)/sw/include -I $(PAPARAZZI_SRC)/sw/airborne -I $(PAPARAZZI_SRC)/conf/autopilot -I $(PAPARAZZI_SRC)/sw/airborne/$(ARCHI) -I $(VARINCLUDE) -I $(ACINCLUDE)  
+INCLUDES = -I $(PAPARAZZI_SRC)/sw/include -I $(PAPARAZZI_SRC)/sw/airborne -I $(PAPARAZZI_SRC)/conf/autopilot -I $(PAPARAZZI_SRC)/sw/airborne/$($(TARGET).ARCHDIR) -I $(VARINCLUDE) -I $(ACINCLUDE)  
 
 SRC_ARCH = $(PAPARAZZI_SRC)/sw/airborne/$(ARCHDIR)
 
@@ -33,7 +33,7 @@ ifneq ($(MAKECMDGOALS),clean)
 include $(PAPARAZZI_HOME)/var/$(AIRCRAFT)/Makefile.ac
 $(TARGET).srcs += $($(TARGET).EXTRA_SRCS)
 include ../../conf/Makefile.local
-include ../../conf/Makefile.$(ARCHI)
+include ../../conf/Makefile.$($(TARGET).ARCHDIR)
 endif
 
 $(TARGET).install : warn_conf
