@@ -568,6 +568,7 @@
 
   <message name="SVSINFO" ID="16">
       <field name="ac_id" type="string"/>
+      <field name="pacc"  type="uint16" unit="cm"/>
       <field name="svid"  type="string" format="csv"/>
       <field name="flags" type="string" format="csv"/>
       <field name="qi"    type="string" format="csv" values="IDLE|SEARCH|SEARCH|UNUSABLE|CODELOCK|CARRIERLOCK|CARRIERLOCK|RECEIVING"/>
@@ -697,6 +698,24 @@
    <message name="AIR_PROX" ID="2">
       <field name="ac_id" type="string"/>
       <field name="level" type="string" values="CATASTROPHIC|CRITIC|WARNING"/>
+  </message>
+</class>
+
+
+
+<class name="DIA"> <!-- data in audio -->
+   <message name="NAV_INFO" ID="1">
+      <field name="unix_time" type="float"/>
+
+      <field name="lat"   type="float" unit="deg"/>
+      <field name="long"  type="float" unit="deg"/>
+      <field name="alt"   type="uint16" unit="m"/>
+
+      <field name="course" type="uint16" unit="deg"/>
+      <field name="speed" type="uint16" unit="cm/s"/>
+
+      <field name="cam_roll"  type="int16" unit="deg"/>
+      <field name="cam_pitch" type="int16" unit="deg"/>
   </message>
 </class>
 
