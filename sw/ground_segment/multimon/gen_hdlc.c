@@ -24,6 +24,8 @@
 #include "gen.h"
 #include <string.h>
 
+#define COS(x) costabi[(((x)>>6)&0x3ffu)]
+
 /* ---------------------------------------------------------------------- */
 /*
  * the CRC routines are stolen from WAMPES
@@ -182,6 +184,9 @@ void gen_init_hdlc(struct gen_params *p, struct gen_state *s)
   txb_addbyte(s, &hdlctx, 0x7e, 0);
 }
 
+
+int hdlc_sample_rate = DEFAULT_SAMPLE_RATE;
+
 int gen_hdlc(signed short *buf, int buflen, struct gen_params *p, struct gen_state *s)
 {
   int num = 0;
@@ -189,7 +194,7 @@ int gen_hdlc(signed short *buf, int buflen, struct gen_params *p, struct gen_sta
   if (!s || s->s.hdlc.ch_idx < 0 || s->s.hdlc.ch_idx >= s->s.hdlc.datalen)
     return 0;
   for (; buflen > 0; buflen--, buf++, num++) {
-    s->s.hdlc.bitph += 0x10000*1200 / SAMPLE_RATE;
+    s->s.hdlc.bitph += 0x10000*1200 / hdlc_sample_rate;
     if (s->s.hdlc.bitph >= 0x10000u) {
       s->s.hdlc.bitph &= 0xffffu;
       s->s.hdlc.bitmask <<= 1;
@@ -202,7 +207,7 @@ int gen_hdlc(signed short *buf, int buflen, struct gen_params *p, struct gen_sta
       if (!(s->s.hdlc.data[s->s.hdlc.ch_idx] & s->s.hdlc.bitmask))
 	s->s.hdlc.lastb = !s->s.hdlc.lastb;
       s->s.hdlc.phinc = (s->s.hdlc.lastb) ? 
-	0x10000*2200/SAMPLE_RATE : 0x10000*1200/SAMPLE_RATE;
+	0x10000*2200/hdlc_sample_rate : 0x10000*1200/hdlc_sample_rate;
     }
     *buf += (p->ampl * COS(s->s.hdlc.ph)) >> 15;
     s->s.hdlc.ph += s->s.hdlc.phinc;

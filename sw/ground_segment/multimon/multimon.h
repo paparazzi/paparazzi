@@ -67,6 +67,13 @@ struct demod_state {
       int dispnum;
       float data[512];
     } scope;
+
+    struct l1_state_afsk12 {
+      unsigned int dcd_shreg;
+      unsigned int sphase;
+      unsigned int lasts;
+      unsigned int subsamp;
+    } afsk12;
   } l1;
 };
 
@@ -78,9 +85,16 @@ struct demod_param {
   void (*demod)(struct demod_state *s, float *buffer, int length);
 };
 
+
+#define HDLC_DATA_LEN 256
+extern char hdlc_data_received[HDLC_DATA_LEN];
+extern int hdlc_data_received_idx;
+
+
 /* ---------------------------------------------------------------------- */
 
 extern const struct demod_param demod_afsk4800p;
+extern const struct demod_param demod_afsk1200;
 extern const struct demod_param demod_scope;
 
 #define ALL_DEMOD &demod_afsk4800p,&demod_scope
@@ -91,6 +105,8 @@ void verbprintf(int verb_level, const char *fmt, ...);
 
 void hdlc_init(struct demod_state *s);
 void hdlc_rxbit(struct demod_state *s, int bit);
+
+void afsk12_init(struct demod_state *s);
 
 void pprz_init(struct demod_state *s);
 void pprz_rxbit(struct demod_state *s, int bit);

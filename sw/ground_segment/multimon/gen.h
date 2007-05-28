@@ -21,12 +21,12 @@
 
 /* ---------------------------------------------------------------------- */
 
-#define SAMPLE_RATE 22050
+#define DEFAULT_SAMPLE_RATE 22050
+extern int hdlc_sample_rate;
+
 #define MS(x) ((float)(x)*SAMPLE_RATE/1000)
 
 extern const int costabi[0x400];
-
-#define COS(x) costabi[(((x)>>6)&0x3ffu)]
 
 enum gen_type { gentype_dtmf, gentype_sine, gentype_zvei, gentype_hdlc };
 

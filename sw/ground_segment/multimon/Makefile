@@ -73,7 +73,7 @@ $(BINDIR)/mkcostab:	$(BINDIR)/mkcostab.o
 costabi.c costabf.c:	$(BINDIR)/mkcostab
 			$(BINDIR)/mkcostab
 
-multimon.cma : pprzlib.o demodml.o costabi.o gen_hdlc.o ml_hdlc.o demod.cmo hdlc.cmo
+multimon.cma : pprzlib.o hdlc.o demod_afsk12.o demodml.o costabi.o gen_hdlc.o ml_hdlc.o demod.cmo hdlc.cmo
 	@echo OLD $@
 	$(Q)ocamlmklib -o multimon $^
 
@@ -81,7 +81,7 @@ libtest: pprzlib.o demodml.c demod.ml test.ml
 	ocamlc -custom -o $@ pprzlib.o demodml.c -I +lablgtk2 unix.cma lablgtk.cma demod.ml test.ml
 
 hdlc_test : multimon.cma test_gen_hdlc.ml
-	$(OCAMLC) -o $@ -custom -I +lablgtk2 -thread unix.cma threads.cma lablgtk.cma gtkThread.cmo -I . $^
+	$(OCAMLC) -o $@ -custom -I +lablgtk2 -thread unix.cma threads.cma lablgtk.cma gtkThread.cmo -I . $^ -cclib -ljack
 
 hdlc.cmo : hdlc.cmi
 
