@@ -27,7 +27,7 @@ include ../../../conf/Makefile.local
 CONF = ../../../conf
 VAR = ../../../var
 
-all: link server messages $(VAR)/boa.conf
+all: link server messages dia diadec $(VAR)/boa.conf
 
 clean:
 	rm -f link server messages *.bak *~ core *.o .depend *.opt *.out *.cm*
@@ -61,6 +61,16 @@ server.opt :  $(SERVERCMX)
 	$(Q)$(OCAMLOPT) $(INCLUDES) -o $@ str.cmxa unix.cmxa xml-light.cmxa lablgtk.cmxa glibivy-ocaml.cmxa lib-pprz.cmxa $^
 
 link :  modem.cmo link.cmo
+	@echo OL $@
+	$(Q)$(OCAMLC) -custom $(INCLUDES) -o $@ unix.cma str.cma xml-light.cma lablgtk.cma glibivy-ocaml.cma lib-pprz.cma multimon.cma $^
+
+
+dia : dia.cmo ../multimon/multimon.cma
+	@echo OL $@
+	$(Q)$(OCAMLC) -custom $(INCLUDES) -o $@ unix.cma str.cma xml-light.cma lablgtk.cma glibivy-ocaml.cma lib-pprz.cma multimon.cma $^
+
+
+diadec : diadec.cmo ../multimon/multimon.cma
 	@echo OL $@
 	$(Q)$(OCAMLC) -custom $(INCLUDES) -o $@ unix.cma str.cma xml-light.cma lablgtk.cma glibivy-ocaml.cma lib-pprz.cma multimon.cma $^
 
