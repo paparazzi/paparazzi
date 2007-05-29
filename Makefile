@@ -54,7 +54,7 @@ TOOLS=$(PAPARAZZI_SRC)/sw/tools
 
 all: static
 
-static : lib tools cockpit visu3d multimon tmtc logalizer lpc21iap sim_static static_h
+static : lib tools cockpit visu3d multimon tmtc logalizer lpc21iap sim_static static_h usb_lib
 
 conf: conf/conf.xml conf/control_panel.xml
 
@@ -86,8 +86,10 @@ multimon:
 visu3d: lib
 	cd $(VISU3D); $(MAKE)
 
-static_h : $(MESSAGES_H) $(UBX_PROTOCOL_H) $(DL_PROTOCOL_H)
+static_h: $(MESSAGES_H) $(UBX_PROTOCOL_H) $(DL_PROTOCOL_H)
 
+usb_lib:
+	cd sw/airborne/arm7/lpcusb; $(MAKE)
 
 $(MESSAGES_H) : $(MESSAGES_XML) $(CONF_XML) $(TOOLS)/gen_messages.out
 	$(Q)test -d $(STATICINCLUDE) || mkdir -p $(STATICINCLUDE)

@@ -96,6 +96,7 @@ LDFLAGS += -lc
 LDFLAGS += $(NEWLIBLPC) $(MATH_LIB)
 LDFLAGS += -lc -lgcc 
 LDFLAGS += $(CPLUSPLUS_LIB)
+# -lusbstack -Larm7/lpcusb
 
 ifeq ($(FLASH_MODE),ISP)
 LDSCRIPT = $(SRC_ARCH)/LPC2148-ROM.ld
@@ -202,7 +203,8 @@ endif
 .PRECIOUS : $(AOBJARM) $(AOBJ) $(COBJARM) $(COBJ) 
 %.elf:  $(AOBJARM) $(AOBJ) $(COBJARM) $(COBJ)
 	@echo LD $@
-	$(Q)$(CC) $(THUMB) $(ALL_CFLAGS) $(AOBJARM) $(AOBJ) $(COBJARM) $(COBJ)  --output $@ $(LDFLAGS)
+	$(Q)$(CC) $(THUMB) $(ALL_CFLAGS) $(AOBJARM) $(AOBJ) $(COBJARM) $(COBJ)  --output $@ $(LDFLAGS) $($(TARGET).LDFLAGS)
+
 
 # Compile: create object files from C source files. ARM-only
 $(OBJDIR)/%.o : %.c $(OBJDIR)/../Makefile.ac
