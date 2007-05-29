@@ -1,0 +1,115 @@
+	20070123, bertrik
+	* crt.s: increased IRQ stack size to prevent stack overflow (thanks to Paul Knight)
+
+v20061124
+	20061112, bertrik
+	* usbhw_lpc.c: Updated LED display to show effect of double buffering
+	* armvic.c/.h: Newly added (used by serial port example)
+	* main_serial.c: Bugfix suggested by Galen Seitz
+
+	20061105, bertrik
+	* main_serial.c: now uses FIFO with VCOM_getchar and VCOM_putchar functions to receive/send data
+	* serial_fifo.c/.h: Newly added (used by serial port example)
+
+	20061018, bertrik
+	* Updated license to modified BSD license
+
+	20060924, bertrik
+	* usbstdreq.c: Prevent EPs from being configured when UNconfiguring the device
+
+	20060915, bertrik
+	* msc_scsi.c: Implemented more SCSI commands to improve windows compatibility and compliance with specification
+
+	20060912, bertrik
+	* usbhw_lpc.c: Updated interrupt clearing order, according to new user manual
+
+	20060906, bertrik
+	* usbapi.h: Updated EP_STATUS_* defines
+
+v20060903
+	20060830, bertrik
+	* Makefiles: Initial try at dependencies
+	* lpc2000_spi.c: Fixed silly bug in setting PINSEL1
+	
+	20060825, bertrik
+	* main_*.c: Fixed bug in LE_WORD macro
+
+	20060822, bertrik
+	* Device configuration is now done according to USB descriptor.
+	* usbapi.h/usbhw_lpc.c: USBHwRegisterEPIntHandler no longer needs the max packet size argument.
+	* usbapi.h/usbhw_lpc.c: Added USBHwEPConfig function
+	* usbapi.h/usbstdreq.c: USBHandleDescriptor renamed to USBGetDescriptor.
+	* usbdescrip.c: code moved into usbstdreq.c, usbdescrip.c removed
+
+	20060820, bertrik
+	* msc_scsi.c: now uses #defines instead of numerics
+
+	20060811, bertrik
+	* Doxygenised most of the source code
+
+v20060729
+	20060729, bertrik
+	* Fixed bug with uninitialised variable (iType) in usbcontrol.c
+	* Minor cosmetic cleanup
+
+v20060603
+	20060530, bertrik
+	* startup.c: Updated order of setting MAMTIM and MAMCR.
+	  MAMTIM is now set to 3 as suggested in the user manual.
+
+	20060526, bertrik
+	* Eliminated copying data around in mass storage example
+	
+	20060512, bertrik
+	* Added mass storage application example (using the SD card interface from EFSL).
+	* usbhw_lpc.c: Added function USBHwNakIntEnable
+	
+	20060505, bertrik
+	* usbhw_lpc.c: Renamed function USBHwGetEPStall to USBHwEPIsStalled
+	* Removed installable descriptor handler (is now called directly)
+	* Added standard request handler hook (through USBRegisterCustomReqHandler)
+	* usbhw_lpc.c: Updated USBHwEPRead API: now takes an extra argument for maximum length
+	* usbhw_lpc.c: Updated USBHwEPRead/USBHeEPWrite API: now returns int (number of bytes) instead of BOOL
+
+	20060415, bertrik
+	* updated data storage for control transfers, each handler now provides its own.
+
+v20060405
+	20060328, bertrik
+	* main_serial.c: new file, USB serial port emulation
+	* usbser.inf: new file
+	
+	20060326, bertrik
+	* Renamed linker file from .cmd to .ld, added ram linker file.
+	* usbcontrol.c: fixed STALL, now stalls IN control endpoint, instead of OUT.
+	* usbhw_lpc.c: updated clearing of EP interrupt and retrieval of EP status
+	* Makefile: linker file cleanup
+	
+	20060321, fixes/additions by Martin Mueller
+	* usbstdreq.c: fixes for passing the USBCV compliance tests
+	* usbhw_lpc.c/.h: added function to get stall property of endpoint
+	* usbstruct.h: added more USB definitions
+	* main_hid.c: updated to pass HID compliance tests
+	* Makefile: rename (makefile->Makefile) to allow compilation under Linux
+
+	20060308, bertrik
+	* usbhw_lpc.c: turned off debug LEDs by default
+	
+v20060307
+	20060307, bertrik
+	* Added frame interrupt handler
+	* Updated HID example. It is now possible to actually read something from the device using HidProbe.
+	* Makefile: main_hid is now the default target
+
+	20060303, bertrik
+	* updated clearing of interrupt bits
+	* added debug LEDs to show interrupt activity
+	* serial output now uses FIFO
+	
+	20060226, bertrik
+	* removed limitation of fixed packet size of 64 bytes.
+	* reduced number of stored EP interrupt handler pointers from 32 to 16
+
+v20060224
+	Initial release
+	

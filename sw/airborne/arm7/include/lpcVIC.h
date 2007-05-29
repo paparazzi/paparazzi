@@ -89,6 +89,7 @@ typedef struct
 #define VIC_I2C1        19
 #define VIC_BOD         20
 #define VIC_AD1         21
+#define VIC_USB         22
 
 // Vector Control Register bit definitions
 #define VIC_ENABLE      (1 << 5)
