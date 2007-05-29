@@ -37,5 +37,6 @@ extern char* ivy_p;
   } \
 }
 
+#define IvyTransportPutUint8Array(_n, _x) IvyTransportPutArray(IvyTransportPutUintByAddr, _n, _x)
 #define IvyTransportPutInt16Array(_n, _x) IvyTransportPutArray(IvyTransportPutIntByAddr, _n, _x)
 #define IvyTransportPutUint16Array(_n, _x) IvyTransportPutArray(IvyTransportPutUintByAddr, _n, _x)
