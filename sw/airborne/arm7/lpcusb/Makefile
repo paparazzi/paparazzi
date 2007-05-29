@@ -14,7 +14,7 @@ OD		= arm-elf-objdump
 RM		= rm
 TAR		= tar
 
-CFLAGS  = -I./ -I../ -c -W -Wall -Os -g -DDEBUG -mcpu=arm7tdmi -mthumb-interwork
+CFLAGS  = -I./ -I../ -c -W -Wall -Os -g -mcpu=arm7tdmi -mthumb -mthumb-interwork
 ARFLAGS = -rcs
 
 LIBSRCS = usbhw_lpc.c usbcontrol.c usbstdreq.c usbinit.c
