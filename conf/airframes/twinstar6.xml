@@ -189,7 +189,7 @@ des 2 variateurs -->
     </section>
 
   <section name="DATALINK" prefix="DATALINK_">
-    <define name="DEVICE_TYPE" value="AEROCOM"/>
+    <define name="DEVICE_TYPE" value="PPRZ"/>
     <define name="DEVICE_ADDRESS" value="...."/>
   </section>
 
