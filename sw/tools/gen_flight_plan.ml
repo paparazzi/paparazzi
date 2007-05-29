@@ -143,7 +143,7 @@ let output_cam_mode = fun x index_of_waypoints ->
 	  let wp = Xml.attrib x "target" in
 	  let i = get_index_waypoint wp index_of_waypoints in
 	  lprintf "cam_waypoint_target(%s);\n" i
-	with _ ->
+	with Xml.No_attribute "target" ->
 	  lprintf "cam_manual_target();\n"
       end
   | "follow" ->
