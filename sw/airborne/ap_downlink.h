@@ -173,6 +173,8 @@
 
 #ifdef GPS
 #define PERIODIC_SEND_GPS_SOL() DOWNLINK_SEND_GPS_SOL(&gps_Pacc, &gps_Sacc, &gps_PDOP, &gps_numSV)
+#elif SITL
+#define PERIODIC_SEND_GPS_SOL() {}
 #endif
 
 
