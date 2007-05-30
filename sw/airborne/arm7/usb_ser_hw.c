@@ -7,41 +7,40 @@
 
 #include "lpcusb/usbapi.h"
 
-#define BAUD_RATE	115200
 
-#define INT_IN_EP		0x81
-#define BULK_OUT_EP		0x05
-#define BULK_IN_EP		0x82
+#define INT_IN_EP               0x81
+#define BULK_OUT_EP             0x05
+#define BULK_IN_EP              0x82
 
-#define MAX_PACKET_SIZE	64
+#define MAX_PACKET_SIZE         64
 
-#define LE_WORD(x)		((x)&0xFF),((x)>>8)
+#define LE_WORD(x)              ((x)&0xFF),((x)>>8)
 
 // CDC definitions
-#define CS_INTERFACE			0x24
-#define CS_ENDPOINT				0x25
+#define CS_INTERFACE            0x24
+#define CS_ENDPOINT             0x25
 
-#define	SET_LINE_CODING			0x20
-#define	GET_LINE_CODING			0x21
-#define	SET_CONTROL_LINE_STATE	0x22
+#define	SET_LINE_CODING         0x20
+#define	GET_LINE_CODING         0x21
+#define	SET_CONTROL_LINE_STATE  0x22
 
-#define VCOM_FIFO_SIZE	128
+#define VCOM_FIFO_SIZE          128
 
+#define EOF                     (-1)
 #define ASSERT(x) 
-#define EOF (-1)
 
 typedef struct {
-	int		head;
-	int 	tail;
-	U8		*buf;
+    int         head;
+    int         tail;
+    uint8_t     *buf;
 } fifo_t;
 
 // data structure for GET_LINE_CODING / SET_LINE_CODING class requests
 typedef struct {
-	uint32_t	dwDTERate;
-	uint8_t		bCharFormat;
-	uint8_t		bParityType;
-	uint8_t		bDataBits;
+    uint32_t    dwDTERate;
+    uint8_t     bCharFormat;
+    uint8_t     bParityType;
+    uint8_t     bDataBits;
 } TLineCoding;
 
 static TLineCoding LineCoding = {115200, 0, 0, 8};
@@ -62,9 +61,11 @@ BOOL fifo_put(fifo_t *fifo, U8 c);
 BOOL fifo_get(fifo_t *fifo, U8 *pc);
 int  fifo_avail(fifo_t *fifo);
 int	 fifo_free(fifo_t *fifo);
+
 void VCOM_init(void);
-int VCOM_putchar(int c);
-int VCOM_getchar(void);
+int  VCOM_putchar(int c);
+int  VCOM_getchar(void);
+bool_t VCOM_check_free_space(uint8_t len);
 
 
 static const uint8_t abDescriptors[] = {
@@ -189,7 +190,6 @@ void fifo_init(fifo_t *fifo, U8 *buf)
 	fifo->buf = buf;
 }
 
-
 BOOL fifo_put(fifo_t *fifo, U8 c)
 {
 	int next;
@@ -206,7 +206,6 @@ BOOL fifo_put(fifo_t *fifo, U8 c)
 	
 	return TRUE;
 }
-
 
 BOOL fifo_get(fifo_t *fifo, U8 *pc)
 {
@@ -225,16 +224,58 @@ BOOL fifo_get(fifo_t *fifo, U8 *pc)
 	return TRUE;
 }
 
-
 int fifo_avail(fifo_t *fifo)
 {
 	return (VCOM_FIFO_SIZE + fifo->head - fifo->tail) % VCOM_FIFO_SIZE;
 }
 
-
 int fifo_free(fifo_t *fifo)
 {
 	return (VCOM_FIFO_SIZE - 1 - fifo_avail(fifo));
+}
+
+
+/**
+	Initialises the VCOM port.
+	Call this function before using VCOM_putchar or VCOM_getchar
+ */
+void VCOM_init(void)
+{
+	fifo_init(&txfifo, txdata);
+	fifo_init(&rxfifo, rxdata);
+}
+
+/**
+	Writes one character to VCOM port
+	
+	@param [in] c character to write
+	@returns character written, or EOF if character could not be written
+ */
+int VCOM_putchar(int c)
+{
+	return fifo_put(&txfifo, c) ? c : EOF;
+}
+
+/**
+	Reads one character from VCOM port
+	
+	@returns character read, or EOF if character could not be read
+ */
+int VCOM_getchar(void)
+{
+	U8 c;
+	
+	return fifo_get(&rxfifo, &c) ? c : EOF;
+}
+
+/**
+	Checks if buffer free in VCOM buffer
+	
+	@returns character read, or EOF if character could not be read
+ */
+bool_t VCOM_check_free_space(uint8_t len)
+{
+	return (fifo_avail(&txfifo) >= len ? TRUE : FALSE);
 }
 
 
@@ -333,42 +374,6 @@ static BOOL HandleClassRequest(TSetupPacket *pSetup, int *piLen, U8 **ppbData)
 
 
 /**
-	Initialises the VCOM port.
-	Call this function before using VCOM_putchar or VCOM_getchar
- */
-void VCOM_init(void)
-{
-	fifo_init(&txfifo, txdata);
-	fifo_init(&rxfifo, rxdata);
-}
-
-
-/**
-	Writes one character to VCOM port
-	
-	@param [in] c character to write
-	@returns character written, or EOF if character could not be written
- */
-int VCOM_putchar(int c)
-{
-	return fifo_put(&txfifo, c) ? c : EOF;
-}
-
-
-/**
-	Reads one character from VCOM port
-	
-	@returns character read, or EOF if character could not be read
- */
-int VCOM_getchar(void)
-{
-	U8 c;
-	
-	return fifo_get(&rxfifo, &c) ? c : EOF;
-}
-
-
-/**
 	Interrupt handler
 	
 	Simply calls the USB ISR, then signals end of interrupt to VIC
@@ -414,17 +419,22 @@ void usb_serial_init(void) {
 	VCOM_init();
 
 	// set up USB interrupt
-	VICIntSelect &= ~(1<<22);               // select IRQ for USB
-	VICIntEnable |= (1<<22);
+	VICIntSelect &= ~VIC_BIT(VIC_USB);               // select IRQ for USB
+	VICIntEnable = VIC_BIT(VIC_USB);
 
 	VICVectCntl10 = VIC_ENABLE | VIC_USB;
-	VICVectAddr10  = (int)USBIntHandler;
+	VICVectAddr10 = (uint32_t)USBIntHandler;
 	
 	// connect to bus
 	USBHwConnect(TRUE);
 }
 
-void   usb_serial_transmit( unsigned char data ){};
-bool_t usb_serial_check_free_space( uint8_t len){ return TRUE; };
+void   usb_serial_transmit( unsigned char data ) {
+    VCOM_putchar(data);
+};
+
+bool_t usb_serial_check_free_space( uint8_t len ) {
+    return VCOM_check_free_space(len);
+};
 
 #endif /* USE_USB_SERIAL */
