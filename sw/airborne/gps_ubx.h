@@ -49,4 +49,18 @@ extern void parse_ubx( uint8_t c );
 
 #define GpsFixValid() (gps_mode == 3)
 
+#define CFG_RST_BBR_Hotstart  0x0000
+#define CFG_RST_BBR_Warmstart 0x0001
+#define CFG_RST_BBR_Coldstart 0xffff
+
+#define CFG_RST_Reset_Hardware 0x00
+#define CFG_RST_Reset_Controlled 0x01
+#define CFG_RST_Reset_Controlled_GPS_only 0x02
+#define CFG_RST_Reset_Controlled_GPS_stop 0x08
+#define CFG_RST_Reset_Controlled_GPS_start 0x09
+
+void ubxsend_cfg_rst(uint16_t, uint8_t);
+
+#define gps_ubx_Reset(_val) { if (_val > CFG_RST_BBR_Warmstart) _val = CFG_RST_BBR_Coldstart; ubxsend_cfg_rst(_val, CFG_RST_Reset_Controlled); }
+
 #endif /* UBX_H */

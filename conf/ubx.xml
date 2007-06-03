@@ -122,6 +122,12 @@
       </block>
     </message>
 
+    <message name="RST" ID="0x04" length="4">
+      <field name="nav_bbr" format="U2"/>
+      <field name="Reset" format="U1"/>
+      <field name="Res" format="U1"/>
+    </message>
+
     <message name="RATE" ID="0x08" length="6">
       <field name="Meas" format="U2"/>
       <field name="Nav" format="U2"/>

@@ -127,6 +127,11 @@ void gps_configure ( void ) {
 }
 
 
+void ubxsend_cfg_rst(uint16_t bbr , uint8_t val) {
+  UbxSend_CFG_RST(bbr, val, 0x00);
+}
+
+
 struct svinfo gps_svinfos[GPS_NB_CHANNELS];
 uint8_t gps_nb_channels;
 
