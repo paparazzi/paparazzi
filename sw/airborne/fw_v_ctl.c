@@ -213,10 +213,15 @@ inline static void v_ctl_climb_auto_pitch_loop(void) {
   Bound(nav_pitch, V_CTL_AUTO_PITCH_MIN_PITCH, V_CTL_AUTO_PITCH_MAX_PITCH);
 }
 
+#ifdef V_CTL_THROTTLE_SLEW_LIMITER
+#define V_CTL_THROTTLE_SLEW (1/20./(V_CTL_THROTTLE_SLEW_LIMITER))
+#endif
+
 #ifndef V_CTL_THROTTLE_SLEW
 #define V_CTL_THROTTLE_SLEW 1.
 #endif
 /** \brief Computes slewed throttle from throttle setpoint
+    called at 20Hz
  */
 void v_ctl_throttle_slew( void ) {
   pprz_t diff_throttle = v_ctl_throttle_setpoint - v_ctl_throttle_slewed;
