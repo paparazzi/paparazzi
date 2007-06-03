@@ -303,6 +303,10 @@ let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id
   let stages = ExtXml.child fp_xml_dump "stages" in
   let blocks = blocks_of_stages stages in
 
+  (** Get the airframe file *)
+  let af_url = Pprz.string_assoc "airframe" config in
+  let _af_file =  Http.file_of_url af_url in
+
   let label_box = GBin.event_box () in
   let label = GPack.hbox ~packing:label_box#add ~spacing:3 () in
   let eb = GBin.event_box ~width:10 ~height:10 ~packing:label#pack () in
@@ -832,7 +836,7 @@ let get_infrared = fun _sender vs ->
     
 let listen_infrared = fun () -> safe_bind "INFRARED" get_infrared
 
-let get_svsinfo = fun _sender vs ->
+let get_svsinfo = fun a _sender vs ->
   let ac = get_ac vs in
   let gps_page = ac.gps_page in
   let svid = Str.split list_separator (Pprz.string_assoc "svid" vs)
@@ -842,9 +846,13 @@ let get_svsinfo = fun _sender vs ->
   list_iter3
     (fun id cno flags ->
       if id <> "0" then gps_page#svsinfo id cno (int_of_string flags))
-    svid cn0 flags
+    svid cn0 flags;
+
+  let pacc = Pprz.int_assoc "pacc" vs in
+  if pacc > 1500 && pacc < 9999 then
+    log_and_say a "gcs" (sprintf "GPS acc: %d m" (pacc / 100))
     
-let listen_svsinfo = fun () -> safe_bind "SVSINFO" get_svsinfo
+let listen_svsinfo = fun a -> safe_bind "SVSINFO" (get_svsinfo a)
 
 let message_request = Ground_Pprz.message_req
 
@@ -882,7 +890,7 @@ let listen_acs_and_msgs = fun geomap ac_notebook my_alert auto_center_new_ac ->
   listen_if_calib_msg ();
   listen_waypoint_moved ();
   listen_infrared ();
-  listen_svsinfo ();
+  listen_svsinfo my_alert;
   listen_telemetry_status ();
   listen_alert my_alert;
   listen_error my_alert;
