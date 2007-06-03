@@ -66,8 +66,12 @@
 #endif
 
 #ifdef ENOSE
-#include "i2c.h"
+#include "chemo_detect.h"
 #include "enose.h"
+#endif
+
+#ifdef USE_I2C
+#include "i2c.h"
 #endif
 
 #ifdef DIGITAL_CAM
@@ -489,6 +493,7 @@ void periodic_task_ap( void ) {
 #ifdef ENOSE
   case 4:
     enose_periodic();
+    chemo_periodic();
     DOWNLINK_SEND_ENOSE_STATUS(&enose_val[0], &enose_val[1], &enose_val[2], &enose_PID_val, 3, enose_heat);
     break;
 #endif
@@ -583,11 +588,13 @@ void init_ap( void ) {
   GpioInit();
 #endif
 
-/** FIXME we need USE_I2C in the ac config files */
+#ifdef USE_I2C
+  i2c_init();
+#endif
 
 #ifdef ENOSE
-  i2c_init();
   enose_init();
+  chemo_init();
 #endif
 
 #ifdef DIGITAL_CAM
