@@ -233,7 +233,7 @@ class plot = fun ~size ~width ~height ~packing () ->
   end
 
 let update_time = ref 0.5
-let size = ref 100
+let size = ref 500
 
 let rec plot_window = fun init ->
   let plotter = GWindow.window ~title:"Plotter" () in
@@ -267,7 +267,7 @@ let rec plot_window = fun init ->
 
   let h = GPack.hbox ~packing:vbox#pack () in
 
-  let width = 600 and height = 150 in
+  let width = 900 and height = 200 in
   let plot = new plot ~size: !size ~width ~height ~packing:(vbox#pack ~expand:true) () in
   tooltips#set_tip plot#drawing_area#coerce ~text:"Drop a messages field here to draw it";
   ignore (plotter#connect#destroy ~callback:(fun () -> plot#destroy ()));
