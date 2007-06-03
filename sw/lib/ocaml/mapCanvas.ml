@@ -218,8 +218,6 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
 	then (max_long -. 2. *. pi, min_long)
 	else (min_long, max_long) in
 
-      Printf.printf "[%f, %f]\n%!" min_long max_long;
-
       (* Longitude is renormalized here *)
       let c = LL.make_geo ((min_lat+.max_lat)/.2.) ((min_long+.max_long)/.2.)
       and nw_xw, nw_yw = self#world_of (LL.make_geo max_lat min_long)
