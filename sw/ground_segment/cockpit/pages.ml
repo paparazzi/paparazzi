@@ -111,39 +111,65 @@ end
 (*****************************************************************************)
 class gps ?(visible = fun _ -> true) (widget: GBin.frame) =
   let sw = GBin.scrolled_window ~hpolicy:`AUTOMATIC ~vpolicy:`AUTOMATIC ~packing:widget#add () in
-  let table = GPack.table
-      ~rows: 1
-      ~columns: 3
-      ~row_spacings: 5
-      ~col_spacings: 40
-      ~packing:sw#add_with_viewport
-      () in
-  let update_color = fun flags_eb flags ->
-    let color = if flags land 0x01 = 1 then "green" else "red" in
-    flags_eb#coerce#misc#modify_bg [`NORMAL, `NAME color] in
+
+  let da = GMisc.drawing_area ~show:true ~packing:sw#add () in
 
 object
   val mutable active_cno = []
   val mutable active_flags = []
 
-  method svsinfo svid cno flags =
-    if not (List.mem_assoc svid active_cno) then
-      let rows = table#rows in
-      let _svid_label = GMisc.label 
-	  ~text: ("sat "^ svid) ~packing: (table#attach ~top: rows ~left: 0) () in
-      let cno_label = GMisc.label 
-	  ~text:(cno^" dB Hz") ~packing: (table#attach ~top: rows ~left: 1) () in
-      let flags_eb = GBin.event_box ~width: 20 ~packing:(table#attach ~top: rows ~left: 2) ()
-      in
-      update_color flags_eb flags;
-      active_cno <- (svid, cno_label)::active_cno;
-      active_flags <- (svid, flags_eb)::active_flags;
-      table#set_rows (table#rows +1)
-    else if visible widget then
-      let cno_label = List.assoc svid active_cno in
-      let flags_eb = List.assoc svid active_flags in
-      cno_label#set_label (cno^" dB Hz");
-      update_color flags_eb flags
+  method svsinfo pacc a =
+    if visible widget then
+      let {Gtk.width=width; height=height} = da#misc#allocation in
+      
+      (* Background *)
+      let dr = GDraw.pixmap ~width ~height ~window:da () in
+      dr#set_foreground (`NAME "white");
+      dr#rectangle ~x:0 ~y:0 ~width ~height ~filled:true ();
+      
+      let context = da#misc#create_pango_context in
+      context#set_font_by_name ("sans " ^ string_of_int 10);
+      let layout = context#create_layout in
+      
+      let n = Array.length a in
+      let sep_size = 3 in
+      let indic_size = min 25 ((width-(n+1)*sep_size)/n) in
+      let max_cn0 = 50 in
+
+      Pango.Layout.set_text layout "Dummy";
+      let (_, h) = Pango.Layout.get_pixel_size layout in
+
+      let size = fun cn0 -> (max 20 cn0 - 20) * 2 in
+
+      let y = sep_size + h + (size max_cn0) in
+      for i = 0 to n - 1 do
+	let (id, cn0, flags, age) = a.(i) in
+	let x = sep_size + i * (sep_size+indic_size) in
+
+	(* level *)
+	Pango.Layout.set_text layout (sprintf "% 2d" cn0);
+	dr#put_layout ~x ~y:0 ~fore:`BLACK layout;
+
+	(* bar *)
+	let color = if age > 5 then "grey" else if flags land 0x01 = 1 then "green" else "red" in
+	dr#set_foreground (`NAME color);
+	let height = size cn0 in
+	dr#rectangle ~filled:true ~x ~y:(y-height) ~width:indic_size ~height ();
+	(* SV id *)
+	Pango.Layout.set_text layout (sprintf "% 2d" id);
+	dr#put_layout ~x ~y ~fore:`BLACK layout
+      done;
+
+      (* Pacc *)
+      let max_pacc = 2000 in
+      dr#set_foreground (`NAME "red");
+      let w = min width ((pacc*width)/max_pacc) in
+      dr#rectangle ~filled:true ~x:0 ~y:(y+h) ~width:w ~height:h ();
+      Pango.Layout.set_text layout (sprintf "Pos accuracy: %.1fm" (float pacc/.100.));
+      let (_, h) = Pango.Layout.get_pixel_size layout in
+      dr#put_layout ~x:((width-w)/2) ~y:(y+h) ~fore:`BLACK layout;
+      
+      (new GDraw.drawable da#misc#window)#put_pixmap ~x:0 ~y:0 dr#pixmap
 end
 
 (*****************************************************************************)

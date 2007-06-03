@@ -575,6 +575,7 @@
       <field name="cno"   type="string" format="csv" unit="dbHz"/>
       <field name="elev"  type="string" format="csv" unit="deg"/>
       <field name="azim"  type="string" format="csv" unit="deg"/>
+      <field name="msg_age"  type="string" format="csv" unit="s"/>
   </message>
 
   <message name="FLY_BY_WIRE" id="17">

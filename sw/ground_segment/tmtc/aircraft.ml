@@ -56,17 +56,20 @@ type svinfo = {
     qi : int;
     cno : int;
     elev : int;
-    azim : int
+    azim : int;
+    mutable age : int
   }
 
-let svinfo_init = {  
-    svid = 0 ;
-    flags = 0;
-    qi = 0;
-    cno = 0;
-    elev = 0;
-    azim = 0;
-  }
+let svinfo_init = fun () ->
+  {  
+     svid = 0 ;
+     flags = 0;
+     qi = 0;
+     cno = 0;
+     elev = 0;
+     azim = 0;
+     age = 0
+   }
 
 type horiz_mode = 
     Circle of Latlong.utm * int

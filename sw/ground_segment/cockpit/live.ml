@@ -836,21 +836,30 @@ let get_infrared = fun _sender vs ->
     
 let listen_infrared = fun () -> safe_bind "INFRARED" get_infrared
 
-let get_svsinfo = fun a _sender vs ->
+let get_svsinfo = fun alarm _sender vs ->
   let ac = get_ac vs in
   let gps_page = ac.gps_page in
-  let svid = Str.split list_separator (Pprz.string_assoc "svid" vs)
-  and cn0 = Str.split list_separator (Pprz.string_assoc "cno" vs)
-  and flags = Str.split list_separator (Pprz.string_assoc "flags" vs) in 
-  
-  list_iter3
-    (fun id cno flags ->
-      if id <> "0" then gps_page#svsinfo id cno (int_of_string flags))
-    svid cn0 flags;
+  let svids = Str.split list_separator (Pprz.string_assoc "svid" vs)
+  and cn0s = Str.split list_separator (Pprz.string_assoc "cno" vs)
+  and flagss = Str.split list_separator (Pprz.string_assoc "flags" vs)
+  and ages = Str.split list_separator (Pprz.string_assoc "msg_age" vs) in 
+
+  let a = Array.create (List.length svids) (0,0,0,0) in
+  let rec loop = fun i s c f ages ->
+    match (s, c, f, ages) with
+      [], [], [], [] -> ()
+    | s::ss, c::cs, f::fs, age::ages ->
+	a.(i) <- (int_of_string s, int_of_string c, int_of_string f, int_of_string age);
+	loop (i+1) ss cs fs ages
+    | _ -> assert false in
+  loop 0 svids cn0s flagss ages;
 
   let pacc = Pprz.int_assoc "pacc" vs in
+  
+  gps_page#svsinfo pacc a;
+
   if pacc > 1500 && pacc < 9999 then
-    log_and_say a "gcs" (sprintf "GPS acc: %d m" (pacc / 100))
+    log_and_say alarm "gcs" (sprintf "GPS acc: %d m" (pacc / 100))
     
 let listen_svsinfo = fun a -> safe_bind "SVSINFO" (get_svsinfo a)
 

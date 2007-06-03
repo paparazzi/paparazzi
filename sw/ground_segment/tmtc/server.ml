@@ -276,6 +276,7 @@ let log_and_parse = fun logging ac_name (a:Aircraft.aircraft) msg values ->
 	cno = ivalue "CNO";
 	elev = ivalue "Elev";
 	azim = ivalue "Azim";
+	age = 0
       }
   | "CIRCLE" ->
       begin
@@ -404,7 +405,8 @@ let send_svsinfo = fun a ->
   and qi = ref ""
   and cno = ref ""
   and elev = ref ""
-  and azim = ref "" in
+  and azim = ref ""
+  and age = ref "" in
   let concat = fun ref v ->
     ref := !ref ^ string_of_int v ^ "," in
   for i = 0 to gps_nb_channels - 1 do
@@ -413,12 +415,13 @@ let send_svsinfo = fun a ->
     concat qi a.svinfo.(i).qi;
     concat cno a.svinfo.(i).cno;
     concat elev a.svinfo.(i).elev;
-    concat azim a.svinfo.(i).azim
+    concat azim a.svinfo.(i).azim;
+    concat age a.svinfo.(i).age
   done;
   let f = fun s r -> (s, Pprz.String !r) in
   let vs = ["ac_id", Pprz.String a.id; 
 	    "pacc", Pprz.Int a.gps_Pacc;
-	    f "svid" svid; f "flags" flags; f "qi" qi; 
+	    f "svid" svid; f "flags" flags; f "qi" qi;  f "msg_age" age; 
 	    f "cno" cno; f "elev" elev; f "azim" azim] in
   Ground_Pprz.message_send my_id "SVSINFO" vs
 
@@ -574,28 +577,35 @@ let send_aircraft_msg = fun ac ->
 let new_aircraft = fun id ->
   let infrared_init = { gps_hybrid_mode = 0; gps_hybrid_factor = 0. ;
 			contrast_status = "DEFAULT"; contrast_value = 0} in
-    { id = id ; roll = 0.; pitch = 0.; desired_east = 0.; desired_north = 0.; 
-      desired_course = 0.;
-	gspeed=0.; course = 0.; alt=0.; climb=0.; cur_block=0; cur_stage=0;
-      throttle = 0.; throttle_accu = 0.; rpm = 0.; temp = 0.; bat = 42.; amp = 0.; energy = 0; ap_mode= -1; agl = 0.;
-      gaz_mode= -1; lateral_mode= -1;
-      gps_mode =0; gps_Pacc = 0; periodic_callbacks = [];
-      desired_altitude = 0.;
-      desired_climb = 0.;
-      pos = { utm_x = 0.; utm_y = 0.; utm_zone = 0 };
-      nav_ref = None;
-      cam = { phi = 0.; theta = 0. ; target=(0.,0.)};
-      inflight_calib = { if_mode = 1 ; if_val1 = 0.; if_val2 = 0.};
-      infrared = infrared_init; kill_mode = false;
-      fbw = { rc_status = "???"; rc_mode = "???" };
-      svinfo = Array.create gps_nb_channels svinfo_init;
-      dl_setting_values = Array.create max_nb_dl_setting_values 42.;
+  let svsinfo_init = Array.init gps_nb_channels (fun _ -> svinfo_init ()) in
+  let update = fun () ->
+    for i = 0 to Array.length svsinfo_init - 1 do
+      svsinfo_init.(i).age <-  svsinfo_init.(i).age + 1;
+    done in
+
+  ignore (Glib.Timeout.add 1000 (fun _ -> update (); true));
+  { id = id ; roll = 0.; pitch = 0.; desired_east = 0.; desired_north = 0.; 
+    desired_course = 0.;
+    gspeed=0.; course = 0.; alt=0.; climb=0.; cur_block=0; cur_stage=0;
+    throttle = 0.; throttle_accu = 0.; rpm = 0.; temp = 0.; bat = 42.; amp = 0.; energy = 0; ap_mode= -1; agl = 0.;
+    gaz_mode= -1; lateral_mode= -1;
+    gps_mode =0; gps_Pacc = 0; periodic_callbacks = [];
+    desired_altitude = 0.;
+    desired_climb = 0.;
+    pos = { utm_x = 0.; utm_y = 0.; utm_zone = 0 };
+    nav_ref = None;
+    cam = { phi = 0.; theta = 0. ; target=(0.,0.)};
+    inflight_calib = { if_mode = 1 ; if_val1 = 0.; if_val2 = 0.};
+    infrared = infrared_init; kill_mode = false;
+    fbw = { rc_status = "???"; rc_mode = "???" };
+    svinfo = svsinfo_init;
+    dl_setting_values = Array.create max_nb_dl_setting_values 42.;
       nb_dl_setting_values = 0;
-      flight_time = 0; stage_time = 0; block_time = 0;
-      horiz_mode = UnknownHorizMode;
-      horizontal_mode = 0;
-      waypoints = Hashtbl.create 3; survey = None; last_bat_msg_date = 0.
-    }
+    flight_time = 0; stage_time = 0; block_time = 0;
+    horiz_mode = UnknownHorizMode;
+    horizontal_mode = 0;
+    waypoints = Hashtbl.create 3; survey = None; last_bat_msg_date = 0.
+  }
 
 let check_alerts = fun a ->
   let send = fun level ->

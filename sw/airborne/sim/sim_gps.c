@@ -23,6 +23,10 @@ uint8_t gps_utm_zone;
 int32_t gps_lat, gps_lon;
 struct svinfo gps_svinfos[GPS_NB_CHANNELS];
 uint8_t gps_nb_channels = 0;
+uint16_t gps_PDOP;
+uint32_t gps_Pacc, gps_Sacc;
+uint8_t gps_numSV;
+
 
 value sim_use_gps_pos(value x, value y, value z, value c, value a, value s, value cl, value t, value m, value lat, value lon) {
   gps_mode = (Bool_val(m) ? 3 : 0);
@@ -46,10 +50,12 @@ value sim_use_gps_pos(value x, value y, value z, value c, value a, value s, valu
     gps_svinfos[i].svid = 7 + i;
     gps_svinfos[i].elev = (cos(((100*i)+time)/100.) + 1) * 45;
     gps_svinfos[i].azim = (time/gps_nb_channels + 50 * i) % 360;
-    gps_svinfos[i].cno = 40 + sin(time/100.) * 10.;
-    gps_svinfos[i].flags = 0x01;
+    gps_svinfos[i].cno = 40 + sin((time+i*10)/100.) * 10.;
+    gps_svinfos[i].flags = ((time/10) % (i+1) == 0 ? 0x00 : 0x01);
     gps_svinfos[i].qi = (int)((time / 1000.) + i) % 8;
   }
+  gps_PDOP = gps_Sacc = gps_Pacc = 500+200*sin(time/100.);
+  gps_numSV = 7;
       
   use_gps_pos(); /* From main.c */
   return Val_unit;

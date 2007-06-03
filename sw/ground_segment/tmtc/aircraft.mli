@@ -47,14 +47,15 @@ type rc_mode = string
 type fbw = { mutable rc_status : rc_status; mutable rc_mode : rc_mode; }
 val gps_nb_channels : int
 type svinfo = {
-  svid : int;
-  flags : int;
-  qi : int;
-  cno : int;
-  elev : int;
-  azim : int;
-}
-val svinfo_init : svinfo
+    svid : int;
+    flags : int;
+    qi : int;
+    cno : int;
+    elev : int;
+    azim : int;
+    mutable age : int
+  }
+val svinfo_init : unit -> svinfo
 type horiz_mode =
     Circle of Latlong.utm * int
   | Segment of Latlong.utm * Latlong.utm

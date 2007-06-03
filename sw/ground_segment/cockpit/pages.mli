@@ -13,7 +13,7 @@ class infrared : GBin.frame ->
 
 class gps : ?visible:(GBin.frame -> bool) -> GBin.frame ->
   object
-    method svsinfo : string -> string -> int -> unit
+    method svsinfo : int -> (int*int*int*int) array -> unit
   end
 
 class pfd : ?visible:(GBin.frame -> bool) -> GBin.frame ->

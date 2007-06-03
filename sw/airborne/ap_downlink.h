@@ -171,10 +171,8 @@
 
 #define PERIODIC_SEND_TUNE_ROLL() DOWNLINK_SEND_TUNE_ROLL(&estimator_p,&estimator_phi, &h_ctl_roll_setpoint);
 
-#ifdef GPS
+#if defined GPS || defined SITL
 #define PERIODIC_SEND_GPS_SOL() DOWNLINK_SEND_GPS_SOL(&gps_Pacc, &gps_Sacc, &gps_PDOP, &gps_numSV)
-#elif SITL
-#define PERIODIC_SEND_GPS_SOL() {}
 #endif
 
 
