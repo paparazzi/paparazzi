@@ -1,6 +1,6 @@
 <!DOCTYPE flight_plan SYSTEM "flight_plan.dtd">
 
-<flight_plan ground_alt="185" alt="250" lat0="43.4624" lon0="1.2727" max_dist_from_home="1000" name="Intelligent Surveillance" qfu="270" security_height="25">
+<flight_plan ground_alt="0" alt="75" lat0="43.2375" lon0="1.3277" max_dist_from_home="3500" name="Intelligent Surveillance" qfu="270" security_height="35">
 <header>
 #include "chemo_detect.h"
 #include "anemotaxis.h"
@@ -14,7 +14,6 @@
     <waypoint name="HOME" x="0" y="0"/>
     <waypoint name="AF" x="200" y="-10" alt="215"/>
     <waypoint name="TOD" x="-150" y="0"/>
-    <waypoint name="OVERRUN" x="50" y="0"/>
     <waypoint name="TD" x="80" y="20" alt="185"/>
     <waypoint name="1" x="-75" y="75"/>
     <waypoint name="2" x="75" y="75"/>
@@ -26,10 +25,6 @@
     <waypoint name="C2" x="350" y="400"/>
     <waypoint name="PLUME" x="400" y="300"/>
     <waypoint name="BASELEG" x="400" y="300"/>
-    <waypoint name="RELEASE" x="400" y="300"/>
-    <waypoint name="CLIMB" x="400" y="300"/>
-    <waypoint name="TARGET" x="0" y="30" alt="185"/>
-    <waypoint name="START" x="200" y="30"/>
   </waypoints>
   <blocks>
     <block name="wait GPS">
@@ -144,7 +139,7 @@
     </block>
 
     <block name="survey">
-      <survey_rectangle grid="150" wp1="S1" wp2="S2"/>
+      <survey_rectangle grid="nav_survey_shift" wp1="S1" wp2="S2"/>
     </block>
 
    <block name="land">
