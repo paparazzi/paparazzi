@@ -458,6 +458,7 @@ void nav_init(void) {
   ground_alt = GROUND_ALT;
   nav_glide_pitch_trim = NAV_GLIDE_PITCH_TRIM;
   nav_radius = DEFAULT_CIRCLE_RADIUS;
+  nav_survey_shift = 2*DEFAULT_CIRCLE_RADIUS;
 
 #ifdef NAV_GROUND_SPEED_PGAIN
   nav_ground_speed_pgain = NAV_GROUND_SPEED_PGAIN; 
