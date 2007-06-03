@@ -5,8 +5,7 @@
 #include "nav.h"
 #include "flight_plan.h"
 #include "ap_downlink.h"
-
-uint8_t chemo_sensor;
+#include "chemo_detect.h"
 
 enum status { UTURN, CROSSWIND };
 static enum status status;

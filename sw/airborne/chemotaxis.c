@@ -5,14 +5,12 @@
 #include "nav.h"
 #include "flight_plan.h"
 #include "ap_downlink.h"
-
-uint8_t chemo_sensor;
+#include "chemo_detect.h"
 
 #define MAX_RADIUS 250
 #define ALPHA 0.5
 
 static uint8_t last_plume_value;
-#define MAX_CHEMO 255
 
 static float radius;
 static int8_t sign;
@@ -23,7 +21,6 @@ bool_t nav_chemotaxis_init( uint8_t c, uint8_t plume ) {
   sign = 1;
   waypoints[plume].x = waypoints[c].x;
   waypoints[plume].y = waypoints[c].y;
-  chemo_sensor = 0;
   return FALSE;
 }
 

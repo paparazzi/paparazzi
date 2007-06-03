@@ -3,8 +3,8 @@
 
 #include "std.h"
 
-extern uint8_t chemo_sensor;
-#define MAX_CHEMO 255
+extern uint16_t chemo_sensor;
+#define MAX_CHEMO 400
 
 void chemo_init( void );
 void chemo_periodic( void );

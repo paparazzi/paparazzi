@@ -4,7 +4,7 @@
 #define DETECT_PERIOD 8 /* *4Hz */
 #define THRESHOLD 150
 
-uint8_t chemo_sensor;
+uint16_t chemo_sensor;
 
 void chemo_init( void ) {
   chemo_sensor = 0;
@@ -16,8 +16,10 @@ void chemo_periodic( void ) {
 
   /* Detection on the first sensor */
   int dval = enose_val[0] - vals[0][idx];
-  if (dval < -THRESHOLD)
-    chemo_sensor = Min(-dval, 0xff);
+  if (dval < -THRESHOLD) {
+    chemo_sensor = -dval;
+  } else
+    chemo_sensor = 0;
 
   int i;
   for(i = 0; i < ENOSE_NB_SENSOR; i++)
