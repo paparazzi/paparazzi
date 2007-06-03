@@ -4,11 +4,12 @@ module Ground_Pprz = Pprz.Messages(struct let name = "ground" end)
 module LL = Latlong
 open LL
 
-type plume = { mutable utm_x : float; mutable utm_y : float; mutable value : int }
+type plume = { mutable utm_x : float; mutable utm_y : float; mutable value : int; utm_zone : int }
 
 (* NW of Muret ref *)
 let muret = utm_of WGS84 {LL.posn_lat=(Deg>>Rad)43.4624; posn_long=(Deg>>Rad)1.2727}
-let source = fun () -> { utm_x = muret.LL.utm_x +. 225.; utm_y = muret.LL.utm_y +. 225.; value = 255}
+let royan = utm_of WGS84 {LL.posn_lat=(Deg>>Rad)45.726; posn_long=(Deg>>Rad)(-1.2121)}
+let source = fun () -> { utm_x = royan.LL.utm_x -. 300.; utm_y = royan.LL.utm_y +. 300.; value = 255; utm_zone = royan.LL.utm_zone}
 
 let available_ids = ref []
 let gen_id =
@@ -61,7 +62,7 @@ let send_on_ivy = fun () ->
   and vs = ref [] in
   Hashtbl.iter (fun id plume ->
     ids := string_of_int id :: !ids;
-    let wgs84 = LL.of_utm WGS84 {LL.utm_zone = 31; utm_x = plume.utm_x; utm_y = plume.utm_y } in
+    let wgs84 = LL.of_utm WGS84 {LL.utm_zone = plume.utm_zone ; utm_x = plume.utm_x; utm_y = plume.utm_y } in
     xs := sprintf "%.6f" ((Rad>>Deg)wgs84.posn_lat) :: !xs;
     ys := sprintf "%.6f" ((Rad>>Deg)wgs84.posn_long) :: !ys;
     vs := sprintf "%d" plume.value :: !vs)
@@ -87,18 +88,19 @@ let debug = let i = ref 0 in fun () ->
 let detect_distance = 20.
 
 
-
 let flight_param_msg = fun _sender vs ->
   let lat = Pprz.float_assoc "lat" vs
   and long = Pprz.float_assoc "long" vs in
   let utm_ac = utm_of WGS84 {LL.posn_lat=(Deg>>Rad)lat; posn_long=(Deg>>Rad)long} in
   Hashtbl.iter (fun id plume ->
-    let utm_plume = {LL.utm_zone = 31; utm_x = plume.utm_x; utm_y = plume.utm_y } in
+    let utm_plume = {LL.utm_zone = plume.utm_zone; utm_x = plume.utm_x; utm_y = plume.utm_y } in
     let d = utm_distance utm_ac utm_plume in
     if d < detect_distance then begin
       let ac_id = Pprz.string_assoc "ac_id" vs in
-      Ground_Pprz.message_send my_id "DL_SETTING"
-	["ac_id", Pprz.String ac_id; "index", Pprz.Int 0(***FIXME***); "value", Pprz.Float (float plume.value)]
+      for i = 0 to 2 do
+	Ground_Pprz.message_send my_id "DL_SETTING"
+	  ["ac_id", Pprz.String ac_id; "index", Pprz.Int i(***FIXME***); "value", Pprz.Float (float plume.value)]
+      done
     end)
     plumes
 
