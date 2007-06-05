@@ -144,20 +144,21 @@ object
       let y = sep_size + h + (size max_cn0) in
       for i = 0 to n - 1 do
 	let (id, cn0, flags, age) = a.(i) in
-	let x = sep_size + i * (sep_size+indic_size) in
-
-	(* level *)
-	Pango.Layout.set_text layout (sprintf "% 2d" cn0);
-	dr#put_layout ~x ~y:0 ~fore:`BLACK layout;
-
-	(* bar *)
-	let color = if age > 5 then "grey" else if flags land 0x01 = 1 then "green" else "red" in
-	dr#set_foreground (`NAME color);
-	let height = size cn0 in
-	dr#rectangle ~filled:true ~x ~y:(y-height) ~width:indic_size ~height ();
-	(* SV id *)
-	Pango.Layout.set_text layout (sprintf "% 2d" id);
-	dr#put_layout ~x ~y ~fore:`BLACK layout
+	if age < 60 then
+	  let x = sep_size + i * (sep_size+indic_size) in
+	  
+	  (* level *)
+	  Pango.Layout.set_text layout (sprintf "% 2d" cn0);
+	  dr#put_layout ~x ~y:0 ~fore:`BLACK layout;
+	  
+	  (* bar *)
+	  let color = if age > 5 then "grey" else if flags land 0x01 = 1 then "green" else "red" in
+	  dr#set_foreground (`NAME color);
+	  let height = size cn0 in
+	  dr#rectangle ~filled:true ~x ~y:(y-height) ~width:indic_size ~height ();
+	  (* SV id *)
+	  Pango.Layout.set_text layout (sprintf "% 2d" id);
+	  dr#put_layout ~x ~y ~fore:`BLACK layout
       done;
 
       (* Pacc *)
@@ -165,7 +166,7 @@ object
       dr#set_foreground (`NAME "red");
       let w = min width ((pacc*width)/max_pacc) in
       dr#rectangle ~filled:true ~x:0 ~y:(y+h) ~width:w ~height:h ();
-      Pango.Layout.set_text layout (sprintf "Pos accuracy: %.1fm" (float pacc/.100.));
+      Pango.Layout.set_text layout (if pacc = 0 then "Pos accuracy: N/A" else sprintf "Pos accuracy: %.1fm" (float pacc/.100.));
       let (_, h) = Pango.Layout.get_pixel_size layout in
       dr#put_layout ~x:((width-w)/2) ~y:(y+h) ~fore:`BLACK layout;
       
@@ -223,13 +224,16 @@ let one_setting = fun i do_change packing s (tooltips:GData.tooltips) (strip:Str
   let f = fun a -> float_of_string (ExtXml.attrib s a) in
   let lower = f "min"
   and upper = f "max"
-  and step_incr = f "step" in
+  and step_incr = f "step"
+  and show_auto = try ExtXml.attrib s "auto" = "true" with _ -> false in
   
   let hbox = GPack.hbox ~packing () in
   let varname = ExtXml.attrib s "var" in
   let text = try ExtXml.attrib s "shortname" with _ -> varname in
   let _l = GMisc.label ~width:100 ~text ~packing:hbox#pack () in
   let _v = GMisc.label ~width:50 ~text:"N/A" ~packing:hbox#pack () in
+
+  let auto_but = GButton.check_button ~label:"Auto" ~active:false () in
 
   (** For a small number of values, radio buttons, else a slider *)
   let _n = truncate ((upper -. lower) /. step_incr) in
@@ -252,10 +256,19 @@ let one_setting = fun i do_change packing s (tooltips:GData.tooltips) (strip:Str
     else (* slider *)
       let value = (lower +. upper) /. 2. in
       let adj = GData.adjustment ~value ~lower ~upper:(upper+.10.) ~step_incr () in
-      let _scale = GRange.scale `HORIZONTAL ~digits:3 ~adjustment:adj ~packing:hbox#add () in
-      
-      (fun _ -> do_change i adj#value)
+      let _scale = GRange.scale `HORIZONTAL ~digits:3 ~update_policy:`DELAYED ~adjustment:adj ~packing:hbox#add () in
+      let f = fun _ -> do_change i adj#value in
+      let callback = fun () -> if auto_but#active then f () in
+      ignore (adj#connect#value_changed ~callback);
+      ignore (auto_but#connect#toggled ~callback);
+      f
   in
+  
+  (* Auto check button *)
+  if show_auto then begin
+    hbox#pack auto_but#coerce
+  end;
+  (* Apply button *)
   let prev_value = ref None in
   let commit_but = GButton.button ~packing:hbox#pack () in
   commit_but#set_border_width 2;
@@ -266,6 +279,8 @@ let one_setting = fun i do_change packing s (tooltips:GData.tooltips) (strip:Str
   in
   ignore (commit_but#connect#clicked ~callback);
   tooltips#set_tip commit_but#coerce ~text:"Commit";
+
+  (* Undo button *)
   let undo_but = GButton.button ~packing:hbox#pack () in
   let _icon = GMisc.image ~stock:`UNDO ~packing:undo_but#add () in
   let callback = fun _ ->
@@ -274,6 +289,12 @@ let one_setting = fun i do_change packing s (tooltips:GData.tooltips) (strip:Str
     | Some v -> do_change i v in
   ignore (undo_but#connect#clicked ~callback);
   tooltips#set_tip undo_but#coerce ~text:"Undo";
+
+  ignore (auto_but#connect#toggled
+    (fun () ->
+      commit_but#misc#set_sensitive (not auto_but#active);
+      undo_but#misc#set_sensitive (not auto_but#active)));
+
   List.iter (fun x ->
     assert(ExtXml.tag_is x "strip_button");
     let label = ExtXml.attrib x "name"
