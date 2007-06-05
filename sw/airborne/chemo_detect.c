@@ -11,6 +11,7 @@ void chemo_init( void ) {
 }
 
 void chemo_periodic( void ) {
+#ifdef ENOSE
   static uint16_t vals[ENOSE_NB_SENSOR][DETECT_PERIOD];
   static int idx;
 
@@ -28,4 +29,5 @@ void chemo_periodic( void ) {
   idx++;
   if (idx > DETECT_PERIOD)
     idx = 0;
+#endif /* ENOSE */
 }
