@@ -14,6 +14,8 @@
     <axis name="THROTTLE" failsafe_value="0"/>
     <axis name="ROLL"     failsafe_value="0"/>
     <axis name="PITCH"    failsafe_value="0"/>
+    <axis name="CAM_ROLL"    failsafe_value="0"/>
+    <axis name="CAM_PITCH"    failsafe_value="0"/>
   </commands>
 
   <rc_commands>
@@ -264,8 +266,8 @@ ap.srcs += gyro.c
 
 # Config for SITL simulation
 include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
-sim.CFLAGS += -DCONFIG=\"tiny.h\" -DLOITER_TRIM
-sim.srcs += nav_line.c
+sim.CFLAGS += -DCONFIG=\"tiny.h\" -DLOITER_TRIM -DMOBILE_CAM -DCAM
+sim.srcs += nav_line.c traffic_info.c cam.c
 
 
 

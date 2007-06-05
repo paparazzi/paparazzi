@@ -191,4 +191,10 @@ void cam_carrot( void ) {
   cam_target();
 }
 
+void cam_init( void ) {
+}
+
+void cam_periodic( void ) {
+}
+
 #endif // MOBILE_CAM
