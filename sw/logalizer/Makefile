@@ -32,6 +32,9 @@ play : play.ml
 plotter : plotter.ml
 	$(OCAMLC) $(INCLUDES) -custom -o $@ unix.cma str.cma xml-light.cma glibivy-ocaml.cma -I +lablgtk2 -I ../lib/ocaml lablgtk.cma lib-pprz.cma gtkInit.cmo  $^
 
+plot : plot.ml
+	$(OCAMLC) $(INCLUDES) -custom -o $@ unix.cma str.cma xml-light.cma glibivy-ocaml.cma -I +lablgtk2 -I ../lib/ocaml lablgtk.cma lib-pprz.cma gtkInit.cmo  $^
+
 
 
 pt : ahrsview imuview ahrs2fg
