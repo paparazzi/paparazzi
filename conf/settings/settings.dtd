@@ -29,6 +29,7 @@ step CDATA #IMPLIED
 shortname CDATA #IMPLIED
 module CDATA #IMPLIED
 handler CDATA #IMPLIED
+auto CDATA #IMPLIED
 >
 
 <!ATTLIST strip_button

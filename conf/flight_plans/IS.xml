@@ -24,7 +24,8 @@
     <waypoint name="C1" x="-250" y="-200"/>
     <waypoint name="C2" x="350" y="400"/>
     <waypoint name="PLUME" x="400" y="300"/>
-    <waypoint name="BASELEG" x="400" y="300"/>
+    <waypoint name="BASELEG" x="400" y="350"/>
+    <waypoint name="CAM_TARGET" x="100" y="-200" alt="0"/>
   </waypoints>
   <blocks>
     <block name="wait GPS">
@@ -50,7 +51,7 @@
       <eight radius="nav_radius" center="1" turn_around="2"/>
     </block>
 
-    <block name="Line" strip_button="Line">
+    <block name="Line">
          <call fun="nav_line_init()"/>
          <call fun="nav_line(WP_1, WP_2, nav_radius)"/>
     </block>
@@ -60,7 +61,7 @@
       <oval p1="1" p2="2" radius="nav_radius"/>
     </block>
 
-    <block name="MOB">
+    <block name="MOB" strip_button="MOB">
       <call fun="NavSetWaypointHere(WP_MOB)"/>
       <circle wp="MOB" radius="nav_radius"/>
     </block>

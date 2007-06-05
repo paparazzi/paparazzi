@@ -1,6 +1,6 @@
 <!DOCTYPE flight_plan SYSTEM "flight_plan.dtd">
 
-<flight_plan ground_alt="200" alt="250" lat0="43.46223" lon0="1.27289" max_dist_from_home="1000" name="Versatile" qfu="270" security_height="25">
+<flight_plan ground_alt="0" alt="75" lat0="45.726" lon0="1.2121" max_dist_from_home="1000" name="Versatile" qfu="270" security_height="25">
 <header>
 #include "bomb.h"
 </header>
