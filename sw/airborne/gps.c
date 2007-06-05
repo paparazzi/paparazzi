@@ -27,6 +27,8 @@
  *
  */
 
+#include <stdlib.h>
+
 #include "gps.h"
 #include "latlong.h"
 #include "sys_time.h"
@@ -36,6 +38,7 @@
 #include "infrared.h"
 #include "nav.h"
 #include "led.h"
+#include "autopilot.h"
 
 uint16_t last_gps_msg_t;	/** cputime of the last gps message */
 
@@ -85,5 +88,15 @@ void use_gps_pos( void ) {
   if (i == gps_nb_channels) i = 0;
   if (i < gps_nb_channels && gps_svinfos[i].cno > 0) 
     DOWNLINK_SEND_SVINFO(&i, &gps_svinfos[i].svid, &gps_svinfos[i].flags, &gps_svinfos[i].qi, &gps_svinfos[i].cno, &gps_svinfos[i].elev, &gps_svinfos[i].azim);
+
+  static uint8_t last_cnos[GPS_NB_CHANNELS];
+  if (!launch) {
+    uint8_t j;
+    for(j = 0; j < gps_nb_channels; j++) {
+    uint8_t cno = gps_svinfos[j].cno;
+    if (cno > 0 && j != i && abs(cno-last_cnos[j]) >= 3)
+      DOWNLINK_SEND_SVINFO(&j, &gps_svinfos[j].svid, &gps_svinfos[j].flags, &gps_svinfos[j].qi, &cno, &gps_svinfos[j].elev, &gps_svinfos[j].azim);
+    }
+  }
   i++;
 }
