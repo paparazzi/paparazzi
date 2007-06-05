@@ -236,7 +236,7 @@ let update_time = ref 0.5
 let size = ref 500
 
 let rec plot_window = fun init ->
-  let plotter = GWindow.window ~title:"Plotter" () in
+  let plotter = GWindow.window ~allow_shrink:true ~title:"Plotter" () in
   let vbox = GPack.vbox ~packing:plotter#add () in
   let quit = fun () -> GMain.Main.quit (); exit 0 in
 
