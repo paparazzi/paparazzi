@@ -123,7 +123,7 @@ bool_t gps_lost = FALSE;
 #define LIGHT_MODE_ON 1
 #define LIGHT_MODE_FLASH 2
 
-uint8_t light_mode = 1;
+uint8_t light_mode = LIGHT_MODE_ON;
 
 
 #define Min(x, y) (x < y ? x : y)
@@ -224,7 +224,7 @@ uint8_t ac_ident = AC_ID;
 
 /** \brief Send a serie of initialisation messages followed by a stream of periodic ones
  *
- * Called at 10Hz.
+ * Called at 60Hz.
  */
 static inline void reporting_task( void ) {
   static uint8_t boot = TRUE;
@@ -539,6 +539,10 @@ void periodic_task_ap( void ) {
       /**Directly set the flag indicating to FBW that shared buffer is available*/
       inter_mcu_received_ap = TRUE;
 #endif
+
+#ifdef MOBILE_CAM
+    cam_periodic();
+#endif
     }
 }
 
@@ -599,6 +603,10 @@ void init_ap( void ) {
 
 #ifdef DIGITAL_CAM
   dc_init();
+#endif
+
+#ifdef MOBILE_CAM
+  cam_init();
 #endif
 
 #ifdef DPICCO
