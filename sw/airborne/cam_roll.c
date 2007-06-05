@@ -56,7 +56,7 @@ bool_t cam_roll_switch;
 
 void cam_init( void ) {
   cam_roll_switch = 0;
-#ifdef VIDEO_SWITCH_PIN
+#if defined VIDEO_SWITCH_PIN && !(defined SITL)
   IO0DIR |= _BV(VIDEO_SWITCH_PIN);
   IO0CLR = _BV(VIDEO_SWITCH_PIN);
 #endif
