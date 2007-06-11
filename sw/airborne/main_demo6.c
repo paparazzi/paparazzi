@@ -30,5 +30,8 @@ static inline void main_init( void ) {
 
 static inline void main_periodic_task( void ) {
   LED_TOGGLE(1);
-  DOWNLINK_SEND_TAKEOFF(&cpu_time_sec);
+  //  DOWNLINK_SEND_TAKEOFF(&cpu_time_sec);
+  usb_serial_transmit( 'A' );
+  usb_serial_transmit( '\n' );
+
 }
