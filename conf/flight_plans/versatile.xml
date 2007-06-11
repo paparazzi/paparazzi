@@ -1,6 +1,6 @@
 <!DOCTYPE flight_plan SYSTEM "flight_plan.dtd">
 
-<flight_plan ground_alt="0" alt="75" lat0="45.726" lon0="1.2121" max_dist_from_home="1000" name="Versatile" qfu="270" security_height="25">
+<flight_plan ground_alt="0" alt="75" lat0="43.4622" lon0="1.2729" max_dist_from_home="1000" name="Versatile" qfu="270" security_height="25">
 <header>
 #include "bomb.h"
 </header>
@@ -29,7 +29,11 @@
     <block name="init">
       <while cond="LessThan(NavBlockTime(), 10)"/>
       <call fun="NavSetGroundReferenceHere()"/>
-      <deroute block="circle 1"/>
+      <deroute block="climb"/>
+    </block>
+
+    <block name="climb">
+      <circle radius="nav_radius" wp="1" vmode="throttle" throttle="1" pitch="0.25" until="estimator_z > ground_alt+50"/>
     </block>
 
     <block name="circle 1">
@@ -54,7 +58,7 @@
     </block>
 
     <block name="climb 75">
-      <circle radius="50+(estimator_z-ground_alt)/2" wp="1" throttle="0.75" pitch="0.3" vmode="throttle" until="10 > PowerVoltage()"/>
+      <circle radius="50+(estimator_z-ground_alt)/2" wp="1" throttle="0.75" pitch="0.3" vmode="throttle" until="(10 > PowerVoltage()) && (estimator_z > ground_alt+ 1350)"/>
     </block>
 
     <block name="climb 1">
