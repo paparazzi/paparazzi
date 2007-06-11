@@ -38,7 +38,7 @@ XCMX = $(XSRC:.ml=.cmx)
 
 $(XCMO) $(XCMX) : INCLUDES=$(XINCLUDES)
 
-all : lib-pprz.cma xlib-pprz.cma xml_get.out
+all : lib-pprz.cma xlib-pprz.cma xml_get.out opt
 opt : all lib-pprz.cmxa xlib-pprz.cmxa
 
 

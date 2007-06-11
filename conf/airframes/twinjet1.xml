@@ -4,8 +4,8 @@
 
   <servos>
     <servo name="GAZ"           no="0" min="1000" neutral="1000" max="2000"/>
-    <servo name="AILEVON_RIGHT" no="1" min="1230" neutral="1652" max="2100"/>
-    <servo name="AILEVON_LEFT" no="2" min="2120" neutral="1750" max="1300"/>
+    <servo name="AILEVON_RIGHT" no="1" min="1230" neutral="1710" max="2100"/>
+    <servo name="AILEVON_LEFT" no="2" min="2120" neutral="1785" max="1300"/>
     <servo name="HATCH" no="3" min="1100" neutral="1100" max="1700"/>
   </servos>
 

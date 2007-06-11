@@ -45,4 +45,7 @@ void cam_manual_target(void);
 void cam_waypoint_target(uint8_t wp);
 void cam_carrot(void);
 void cam_ac_target( uint8_t ac_id );
+
+void cam_periodic( void );
+void cam_init( void );
 #endif

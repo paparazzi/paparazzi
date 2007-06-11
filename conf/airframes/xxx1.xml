@@ -245,9 +245,6 @@ ap.srcs += inter_mcu.c
 ap.CFLAGS += -DADC -DUSE_ADC_0 -DUSE_ADC_1 -DUSE_ADC_4 -DUSE_ADC_5
 ap.srcs += $(SRC_ARCH)/adc_hw.c
 
-# Chemo sensor
-# ap.CFLAGS += -DUSE_ADC_6 -DADC_CHANNEL_PID=ADC_6 -DADC_CHANNEL_PID_NB_SAMPLES=16
-
 ap.CFLAGS += -DGPS -DUBX -DUSE_UART1 -DGPS_LINK=Uart1 -DUART1_BAUD=B38400 -DGPS_LED=2
 ap.srcs += gps_ubx.c gps.c latlong.c
 
@@ -259,7 +256,7 @@ ap.srcs += nav.c fw_h_ctl.c fw_v_ctl.c
 
 
 ap.CFLAGS += -DGYRO -DADXRS150
-ap.srcs += gyro.c nav_line.c chemotaxis.c anemotaxis.c discsurvey.c
+ap.srcs += gyro.c nav_line.c
 ap.srcs += nav_survey_rectangle.c
 
 
@@ -273,10 +270,6 @@ ap.srcs += $(SRC_ARCH)/gpio.c
 
 ap.srcs += jeremy_tuning.c
 
-ap.srcs += chemo_detect.c
-ap.srcs += i2c.c arm7/i2c_hw.c enose.c
-ap.CFLAGS += -DUSE_I2C -DENOSE
-
 ap.srcs += cam_roll.c
 ap.CFLAGS += -DMOBILE_CAM
 
@@ -287,8 +280,8 @@ ap.CFLAGS += -DMOBILE_CAM
 
 # Config for SITL simulation
 include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
-sim.CFLAGS += -DCONFIG=\"tiny.h\" -DAGR_CLIMB -DH_CTL_RATE_LOOP -DLOITER_TRIM -DALT_KALMAN -DIR_360 -DENOSE -DMOBILE_CAM
-sim.srcs += nav_line.c chemotaxis.c anemotaxis.c discsurvey.c jeremy_tuning.c nav_survey_rectangle.c $(SRC_ARCH)/sim_enose.c chemo_detect.c cam_roll.c
+sim.CFLAGS += -DCONFIG=\"tiny.h\" -DAGR_CLIMB -DH_CTL_RATE_LOOP -DLOITER_TRIM -DALT_KALMAN -DIR_360 -DMOBILE_CAM
+sim.srcs += nav_line.c jeremy_tuning.c nav_survey_rectangle.c cam_roll.c
 
 
 
