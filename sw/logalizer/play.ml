@@ -30,6 +30,7 @@ module Ground_Pprz = Pprz.Messages(struct let name = "ground" end)
 
 let (//) = Filename.concat
 let replay_dir = Env.paparazzi_home // "var" // "replay"
+let logs_dir = Env.paparazzi_home // "var" // "logs"
 let dump_fp = Env.paparazzi_src // "sw" // "tools" // "gen_flight_plan.out -dump"
 
 
@@ -120,15 +121,17 @@ let stop = fun () ->
 
 
 let file_dialog ~title ~callback () =
-  let sel = GWindow.file_selection ~title ~filename:"*.log" ~modal:true () in
-  ignore (sel#cancel_button#connect#clicked ~callback:sel#destroy);
-  ignore
-    (sel#ok_button#connect#clicked
-       ~callback:(fun () ->
-	 let name = sel#filename in
-	 sel#destroy ();
-	 callback name));
-  sel#show ()
+  let dialog = GWindow.file_chooser_dialog ~action:`OPEN ~title () in
+  ignore (dialog#set_current_folder logs_dir);
+  dialog#add_filter (GFile.filter ~name:"log" ~patterns:["*.log"] ());
+  dialog#add_button_stock `CANCEL `CANCEL ;
+  dialog#add_button_stock `OPEN `OPEN ;
+  begin match dialog#run (), dialog#filename with
+    `OPEN, Some name ->
+      dialog#destroy ();
+      callback name
+  | _ -> dialog#destroy ()
+  end
 
 let open_log = fun window adj () ->
   stop ();

@@ -20,6 +20,9 @@
 # Boston, MA 02111-1307, USA.  
 # 
 
+# Quiet compilation
+Q=@
+
 OCAMLC = ocamlc
 OCAMLOPT = ocamlopt
 INCLUDES= -I +xml-light
@@ -27,13 +30,16 @@ INCLUDES= -I +xml-light
 all: play plotter plot
 
 play : play.ml
-	$(OCAMLC) $(INCLUDES) -custom -o $@ unix.cma str.cma xml-light.cma glibivy-ocaml.cma -I +lablgtk2 -I ../lib/ocaml lablgtk.cma lib-pprz.cma gtkInit.cmo  $^
+	@echo OL $@
+	$(Q)$(OCAMLC) $(INCLUDES) -custom -o $@ unix.cma str.cma xml-light.cma glibivy-ocaml.cma -I +lablgtk2 -I ../lib/ocaml lablgtk.cma lib-pprz.cma gtkInit.cmo  $^
 
 plotter : plotter.ml
-	$(OCAMLC) $(INCLUDES) -custom -o $@ unix.cma str.cma xml-light.cma glibivy-ocaml.cma -I +lablgtk2 -I ../lib/ocaml lablgtk.cma lib-pprz.cma gtkInit.cmo  $^
+	@echo OL $@
+	$(Q)$(OCAMLC) $(INCLUDES) -custom -o $@ unix.cma str.cma xml-light.cma glibivy-ocaml.cma -I +lablgtk2 -I ../lib/ocaml lablgtk.cma lib-pprz.cma gtkInit.cmo  $^
 
 plot : plot.ml
-	$(OCAMLOPT) $(INCLUDES) -o $@ unix.cmxa str.cmxa xml-light.cmxa glibivy-ocaml.cmxa -I +lablgtk2 -I ../lib/ocaml lablgtk.cmxa lib-pprz.cmxa gtkInit.cmx  $^
+	@echo OL $@
+	$(Q)$(OCAMLOPT) $(INCLUDES) -o $@ unix.cmxa str.cmxa xml-light.cmxa glibivy-ocaml.cmxa -I +lablgtk2 -I ../lib/ocaml lablgtk.cmxa lib-pprz.cmxa gtkInit.cmx  $^
 
 
 
@@ -72,7 +78,7 @@ test3: test3.c sliding_plot.c
 	$(CC) $(CFLAGS) -g -o $@ $^ $(LDFLAGS)
 
 clean:
-	rm -f *.opt *.out *~ core *.o *.bak .depend *.cm* play ahrsview imuview ahrs2fg
+	rm -f *.opt *.out *~ core *.o *.bak .depend *.cm* play ahrsview imuview ahrs2fg plot plotter
 
 #FGFS_PREFIX=/home/poine/local
 FGFS_PREFIX=/home/poine/flightgear

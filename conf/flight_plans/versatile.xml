@@ -1,9 +1,6 @@
 <!DOCTYPE flight_plan SYSTEM "flight_plan.dtd">
 
 <flight_plan ground_alt="0" alt="75" lat0="43.4622" lon0="1.2729" max_dist_from_home="1000" name="Versatile" qfu="270" security_height="25">
-<header>
-#include "bomb.h"
-</header>
   <waypoints>
     <waypoint name="HOME" x="0" y="0"/>
     <waypoint name="1" x="200" y="0"/>
@@ -13,13 +10,8 @@
     <waypoint name="S2" x="300" y="400"/>
     <waypoint name="AF" x="200" y="-10" alt="215"/>
     <waypoint name="TOD" x="-150" y="0"/>
-    <waypoint name="OVERRUN" x="50" y="0"/>
     <waypoint name="TD" x="80" y="20" alt="185"/>
     <waypoint name="BASELEG" x="400" y="300"/>
-    <waypoint name="RELEASE" x="400" y="300"/>
-    <waypoint name="TARGET" x="300" y="300"/>
-    <waypoint name="START" x="300" y="300"/>
-    <waypoint name="CLIMB" x="300" y="300"/>
   </waypoints>
   <blocks>
     <block name="wait GPS">

@@ -59,8 +59,8 @@
 
   <section name="sessions">
 
-    <session name="1 Simple Sim">
-      <program name="server"><arg flag="-n"/></program>
+    <session name="1 Simple Simulation">
+      <program name="server"></program>
       <program name="sim"><arg flag="-a" constant="MJ5"/></program>
       <program name="gcs">
         <arg flag="-ref" constant="WGS84 43.4623 1.2730"/>
@@ -71,16 +71,16 @@
       <program name="gaia"/>
     </session>
 
-    <session name="2 Versatile Sim">
-      <program name="server"/>     
+    <session name="2 Versatile Simulation">
+      <program name="server"></program>
       <program name="gcs">
 <!--    <arg flag="-mplayer" constant="rtsp://localhost:7070/webcam"/> -->
       </program>
       <program name="sim"><arg flag="-a" constant="TJ1"/></program>
-      <program name="messages"><arg flag="-c" constant="telemetry:*"/><arg flag="-c" constant="ground:ground"/></program>
+      <program name="messages"><arg flag="-c" constant="ground:ground"/></program>
     </session>
 
-    <session name="3 Multi-A/C Sim">
+    <session name="3 Multi-A/C Simulation">
       <program name="sim"><arg flag="-a" constant="MJ5"/></program>
       <program name="sim"><arg flag="-a" constant="TJ1"/></program>
       <program name="server"/>
@@ -89,7 +89,7 @@
       </program>
     </session>
 
-   <session name="4 Versatile Flight">
+   <session name="4 Flight with XBee/Xtend modem">
       <program name="link">
         <arg flag="-d" constant="/dev/paparazzi/xbee"/>
         <arg flag="-transport" constant="xbee"/>
@@ -97,6 +97,12 @@
       </program>
       <program name="server"/>
       <program name="gcs"/>
+    </session>
+
+    <session name="5 Log Replay">
+      <program name="server"><arg flag="-n"/></program>
+      <program name="gcs"/>
+      <program name="play"/>
     </session>
 
   </section>

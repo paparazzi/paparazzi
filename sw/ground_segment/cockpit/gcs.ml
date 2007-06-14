@@ -492,7 +492,7 @@ let _main =
   and height = ExtXml.int_attrib layout "height" in
   
   (** The whole window map2d **)
-  let window = GWindow.window ~title:"Paparazzi GCS" ~border_width:1 ~width ~height () in
+  let window = GWindow.window ~title:"Paparazzi GCS" ~border_width:1 ~width ~height ~allow_shrink:true () in
   if !maximize then
     window#maximize ();
   if !fullscreen then

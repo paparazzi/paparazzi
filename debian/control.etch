@@ -10,7 +10,7 @@ Package: paparazzi-dev
 Architecture: any
 Suggests: paparazzi-avr, paparazzi-arm7
 Recommends: eagle, gs-common, tetex-extra, dia-gnome
-Depends: ivy-c-dev, ivy-c, ivy-perl, ivy-ocaml, xml-light-ocaml, liblablgtk2-ocaml-dev, make, gcc, boa, gnuplot, libgnomecanvas2-dev, libxml-dom-perl, libsubject-perl, libfile-ncopy-perl, libpcre3-dev, bzip2, libexpect-perl, cvs, liblablgl-ocaml-dev, liblablgtk2-gl-ocaml-dev, liblablgtk2-gnome-ocaml-dev, libcamlimages-ocaml-dev, libusb-dev
+Depends: ivy-c-dev, ivy-c, ivy-perl, ivy-ocaml, xml-light-ocaml, liblablgtk2-ocaml-dev, make, gcc, boa, gnuplot, libgnomecanvas2-dev, libxml-dom-perl, libsubject-perl, libfile-ncopy-perl, libpcre3-dev, bzip2, libexpect-perl, cvs, liblablgl-ocaml-dev, liblablgtk2-gl-ocaml-dev, liblablgtk2-gnome-ocaml-dev, libcamlimages-ocaml-dev, libusb-dev, speech-dispatcher
 Description: Paparazzi Meta Package : common support
 
 
@@ -28,6 +28,6 @@ Description: Paparazzi Meta Package. Philips ARM7 support
 
 Package: paparazzi-bin
 Architecture: i386
-Depends: ivy-c-dev, ivy-c, ivy-perl, ivy-ocaml, xml-light-ocaml, liblablgtk2-ocaml-dev, make, gcc, boa, gnuplot, libxml-dom-perl, libsubject-perl, libfile-ncopy-perl, libpcre3-dev, bzip2, libexpect-perl
+Depends: ivy-c-dev, ivy-c, ivy-perl, ivy-ocaml, xml-light-ocaml, liblablgtk2-ocaml-dev, make, gcc, boa, gnuplot, libxml-dom-perl, libsubject-perl, libfile-ncopy-perl, libpcre3-dev, bzip2, libexpect-perl, liblablgtk2-gnome-ocaml-dev, speech-dispatcher
 Description: Paparazzi main package
 

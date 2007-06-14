@@ -1,5 +1,7 @@
 # Hey Emacs, this is a -*- makefile -*-
 
+# Installation of the files in the system tree
+
 PREFIX=/
 DESTDIR=$(PREFIX)/usr/share/paparazzi
 INSTALL=install -o root
@@ -84,6 +86,7 @@ install_bin:
 	$(INSTALLDATA) sw/ground_segment/multimon/libmultimon.a $(DESTDIR)/sw/ground_segment/multimon
 	$(INSTALL) -d  $(DESTDIR)/sw/logalizer
 	$(INSTALLDATA) sw/logalizer/*.cm[ox] $(DESTDIR)/sw/logalizer
+	$(INSTALLDATA) sw/logalizer/*.o $(DESTDIR)/sw/logalizer
 	$(INSTALL) sw/logalizer/plot.pl $(DESTDIR)/sw/logalizer
 	ln -sf ../share/paparazzi/sw/ground_segment/cockpit/gcs $(PREFIX)/usr/bin/paparazzi-gcs
 	ln -sf ../share/paparazzi/sw/supervision/paparazzi.pl $(PREFIX)/usr/bin/paparazzi
