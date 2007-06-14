@@ -83,7 +83,7 @@ install_bin:
 	$(INSTALLDATA) sw/ground_segment/multimon/multimon.cma $(DESTDIR)/sw/ground_segment/multimon
 	$(INSTALLDATA) sw/ground_segment/multimon/libmultimon.a $(DESTDIR)/sw/ground_segment/multimon
 	$(INSTALL) -d  $(DESTDIR)/sw/logalizer
-	$(INSTALLDATA) sw/logalizer/*.cmo $(DESTDIR)/sw/logalizer
+	$(INSTALLDATA) sw/logalizer/*.cm[ox] $(DESTDIR)/sw/logalizer
 	$(INSTALL) sw/logalizer/plot.pl $(DESTDIR)/sw/logalizer
 	ln -sf ../share/paparazzi/sw/ground_segment/cockpit/gcs $(PREFIX)/usr/bin/paparazzi-gcs
 	ln -sf ../share/paparazzi/sw/supervision/paparazzi.pl $(PREFIX)/usr/bin/paparazzi
@@ -94,6 +94,7 @@ install_libs:
 	$(INSTALLDATA) sw/supervision/Paparazzi/*.pm $(PREFIX)/usr/lib/perl5/Paparazzi	
 	$(INSTALL) -d $(DESTDIR)/sw/lib/ocaml
 	$(INSTALLDATA) sw/lib/ocaml/*.cma $(DESTDIR)/sw/lib/ocaml
+	$(INSTALLDATA) sw/lib/ocaml/*.cmxa $(DESTDIR)/sw/lib/ocaml
 	$(INSTALLDATA) sw/lib/ocaml/*.so $(DESTDIR)/sw/lib/ocaml
 	$(INSTALLDATA) sw/lib/ocaml/*.a $(DESTDIR)/sw/lib/ocaml
 	$(INSTALLDATA) sw/lib/ocaml/*.cmi $(DESTDIR)/sw/lib/ocaml

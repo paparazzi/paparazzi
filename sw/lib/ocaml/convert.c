@@ -42,7 +42,8 @@ c_float_of_indexed_bytes(value s, value index)
 value
 c_sprint_float(value s, value index, value f) {
   float *p = (float*) (String_val(s) + Int_val(index));
-  *p = (float)Double_val(f);
+  double ff = Double_val(f);
+  *p = (float)ff;
   return Val_unit;
 }
 

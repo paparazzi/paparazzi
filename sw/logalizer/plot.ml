@@ -1,11 +1,11 @@
 (*
  * $Id$
  *
- * Real time plotter
+ * Basic log plotter
  *  
  * Copyright (C) 2007- ENAC, Pascal Brisset, Antoine Drouin
  *
- * This file is part of paparazzi.
+  * This file is part of paparazzi.
  *
  * paparazzi is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,6 +36,34 @@ let double__ =
   let underscore = Str.regexp "_" in
   fun s -> Str.global_replace underscore "__" s
 
+let remove_same_t = fun l ->
+  let rec loop prev = function
+      (t1,y1)::(((t2,y2)::l) as l')->
+	if t1 = t2 then
+	  let y = if (y2-y1)*(y1-prev) > 0 then y2 else y1 in
+	  loop y ((t1,y)::l)
+      else
+	  (t1,y1)::loop y1 l'
+    | l -> l in
+  loop 0 l
+
+let rec remove_older t0 = function
+    (t,_)::l when t < t0 -> remove_older t0 l
+  | l -> l
+
+let compute_ticks = fun min_y max_y ->
+  let delta = max_y -. min_y in
+  
+  let scale = log delta /. log 10. in
+  let d = 10. ** floor scale in
+  let u = 
+    if delta < 2.*.d then d/.5. 
+    else if delta < 5.*.d then d/.2.
+    else d in
+  let tick_min = min_y -. mod_float min_y u in
+  (delta, scale, u, tick_min)
+	
+
 
 let (//) = Filename.concat
 
@@ -54,14 +82,42 @@ class plot = fun ~width ~height ~packing () ->
     val mutable min_x = max_float
     val mutable max_x = min_float
     val mutable min_y = max_float
-    val mutable max_y = min_float
+    val mutable max_y = -.max_float
     val mutable scale_events = []
     val mutable color_index = 0
     val mutable csts = ([] : float list)
     val mutable auto_scale = true
 
+
+    method private update_scale = fun values ->
+      let n = Array.length values in
+      min_x <- min min_x (fst values.(0));
+      max_x <- max max_x (fst values.(n-1));
+      for i = 0 to n - 1 do
+	let _, y = values.(i) in
+	min_y <- min min_y y;
+	max_y <- max max_y y
+      done
+
+    method reset_scale = fun () ->
+      if auto_scale then begin
+	(* Recomputes the min and max *)
+	min_x <- max_float;
+	min_y <- max_float;
+	max_x <- min_float;
+	max_y <- -.max_float;
+	Hashtbl.iter (fun _ curve ->
+	  self#update_scale curve.values)
+	  curves;
+	self#wake ()
+      end
+
     method auto_scale = auto_scale
-    method set_auto_scale = fun x -> auto_scale <- x
+    method set_auto_scale = fun x ->
+      auto_scale <- x;
+      self#reset_scale ();
+      self#redraw ()
+
     method min_x () = min_x
     method min_y () = min_y
     method set_min_x = fun x -> if not self#auto_scale then begin min_x <- x; self#redraw () end
@@ -91,21 +147,16 @@ class plot = fun ~width ~height ~packing () ->
       Hashtbl.add curves name curve;
       color_index <- (color_index + 1) mod Array.length colors;
       if auto_scale then begin
-	let n = Array.length values in
-	min_x <- min min_x (fst values.(0));
-	max_x <- max max_x (fst values.(n-1));
-	for i = 0 to n - 1 do
-	  let _, y = values.(i) in
-	  min_y <- min min_y y;
-	  max_y <- max max_y y
-	done;
+	self#update_scale values;
 	self#wake ()
       end;
+      self#wake ();
       self#redraw ();
       curve
 	
     method delete_curve = fun (name:string) ->
       Hashtbl.remove curves name;
+      self#reset_scale ();
       self#redraw ()
 
     method redraw = fun () ->
@@ -114,31 +165,70 @@ class plot = fun ~width ~height ~packing () ->
       dr#set_foreground (`NAME "white");
       dr#rectangle ~x:0 ~y:0 ~width ~height ~filled:true ();
 
-      (* Time Graduations *)
-      let context = da#misc#create_pango_context in
-      context#set_font_by_name "sans 10 ";
-      let layout = context#create_layout in
+      let left_margin = 40
+      and bottom_margin = 20
+      and tick_len = 5 in
       
-      let _f = fun x y s ->
-	Pango.Layout.set_text layout s;
-	let (w, h) = Pango.Layout.get_pixel_size layout in
-	dr#put_layout ~x ~y:(y-h) ~fore:`BLACK layout in
-      
-      let scale_x = fun x -> truncate ((x-.min_x)*. float width /. (max_x -. min_x))
-      and scale_y = fun y -> height - truncate ((y-.min_y)*. float height /. (max_y -. min_y)) in
+      let scale_x = fun x -> left_margin + truncate ((x-.min_x)*. float (width+left_margin) /. (max_x -. min_x))
+      and scale_y = fun y -> height-bottom_margin - truncate ((y-.min_y)*. float (height-bottom_margin) /. (max_y -. min_y)) in
 
       (* Constants *)
       List.iter (fun v ->
 	dr#set_foreground (`NAME "black");
-	dr#lines [(0, scale_y v); (width, scale_y v)])
+	dr#lines [(left_margin, scale_y v); (width, scale_y v)])
 	csts;
 
       (* Curves *)
       Hashtbl.iter (fun _ curve ->
 	let points = Array.to_list (Array.map (fun (t, v) -> (scale_x t, scale_y v)) curve.values) in
+	let points = remove_same_t points in
+	let points = remove_older (scale_x min_x) points in
 	dr#set_foreground (`NAME curve.color);
 	dr#lines points)
 	curves;
+
+      (* Graduations *)
+      if Hashtbl.length curves > 0 then begin
+	let context = da#misc#create_pango_context in
+	context#set_font_by_name "sans 8 ";
+	let layout = context#create_layout in
+	dr#set_foreground `BLACK;
+
+	(* Y *)
+	let (min_y, max_y) = 
+	  if max_y > min_y then (min_y, max_y)
+	  else  let d = abs_float max_y /. 10. in (max_y -. d, max_y +. d) in
+
+	let delta, scale, u, tick_min = compute_ticks min_y max_y in
+
+	for i = 0 to truncate (delta/.u) + 1 do
+	  let tick = tick_min +. float i *. u in
+	  let y = scale_y tick in
+	  let s = Printf.sprintf "%.*f" (Pervasives.max 0 (2-truncate scale)) tick in
+	  Pango.Layout.set_text layout s;
+	  let (w, h) = Pango.Layout.get_pixel_size layout in
+	  dr#put_layout ~x:(left_margin-3-w) ~y:(y-h/2) layout;
+	  
+	  dr#lines [(left_margin,y);(left_margin+tick_len,y)]
+	done;
+	
+	(* Time *)
+	let delta, scale, u, tick_min = compute_ticks min_x max_x in
+	let y = height-bottom_margin in
+	for i = 0 to truncate (delta/.u) + 1 do
+	  let tick = tick_min +. float i *. u in
+	  let x = scale_x tick in
+	  let s = Printf.sprintf "%.*f" (Pervasives.max 0 (2-truncate scale)) tick in
+	  Pango.Layout.set_text layout s;
+	  let (w, h) = Pango.Layout.get_pixel_size layout in
+	  dr#put_layout ~x:(x-w/2) ~y:(y+3) layout;
+	  
+	  dr#lines [(x,y);(x,y-tick_len)]
+	done
+      end;
+	
+      
+      (* Actually draw *)
       (new GDraw.drawable da#misc#window)#put_pixmap ~x:0 ~y:0 dr#pixmap
 
     initializer(ignore (da#event#connect#expose ~callback:(fun _ -> self#redraw (); false)))
@@ -153,41 +243,28 @@ let pprz_float = function
   | Pprz.Float f -> f 
   | Pprz.Int32 i -> Int32.to_float i
   | Pprz.String s -> float_of_string s
-  | Pprz.Array _ -> failwith "pprz_float"
+  | Pprz.Array _ -> 0.
 
 
 let logs_menus = ref []
 
 
-(* FIXME: awfull: rebuild the menu from scratch for every new window *)
-let add_ac_submenu = fun ?(factor=object method text="1" end) plot menubar (curves_menu_fact: GMenu.menu GMenu.factory) ac menu_name msgs ->
+let add_ac_submenu = fun ?(factor=object method text="1" end) plot menubar (curves_menu_fact: GMenu.menu GMenu.factory) ac menu_name l ->
   let menu = GMenu.menu () in
   let menuitem = GMenu.menu_item ~label:menu_name () in
   menuitem#set_submenu menu;
   menubar#menu#append menuitem;
   
   let menu_fact = new GMenu.factory menu in
-  let l = ref [] in 
-  Hashtbl.iter (fun msg fields -> l := (P.message_of_id msg, fields):: !l) msgs;
-  let l = List.sort (fun (a,_) (b,_) -> compare a b) !l in
   
   (* Build the msg menus *)
   List.iter
-    (fun (msg, fields) ->
+    (fun (msg, l) ->
       let menu = menu_fact#add_submenu (double__ msg.Pprz.name) in
       let menu_fact = new GMenu.factory menu in
-      let l = ref [] in 
-      Hashtbl.iter
-	(fun f v -> if not (List.mem f !l) then l := f :: !l)
-	fields;
-      let l = List.sort compare !l in
       (* Build the field menus *)
       List.iter
-	(fun f ->
-	  let values = Hashtbl.find_all fields f in
-	  let values = List.map (fun (t, v) -> (t, pprz_float v)) values in
-	  let values = Array.of_list values in
-	  Array.sort compare values;
+	(fun (f, values) ->
 	  let name = sprintf "%s:%s:%s:%s" menu_name ac msg.Pprz.name f in
 	  let callback = fun _ ->
 	    let factor = float_of_string factor#text in
@@ -244,9 +321,32 @@ let load_log = fun ?factor (plot:plot) (menubar:GMenu.menu_shell GMenu.factory) 
       Hashtbl.iter
 	(fun ac msgs ->
 	  let menu_name = sprintf "%s:%s" (String.sub data_file 0 18) ac in
-	  (* Store it for other windows *)
-	  logs_menus := (ac, menu_name, msgs) :: !logs_menus;
 
+	  (* Compile data *)
+	  (* First sort by message id *)
+	  let l = ref [] in 
+	  Hashtbl.iter (fun msg fields -> l := (P.message_of_id msg, fields):: !l) msgs;
+	  let msgs = List.sort (fun (a,_) (b,_) -> compare a b) !l in
+
+	  let msgs =
+	    List.map (fun (msg, fields) ->
+	      let l = ref [] in 
+	      Hashtbl.iter
+		(fun f v -> if not (List.mem f !l) then l := f :: !l)
+		fields;
+	      let l = List.map (fun f ->
+		let values = Hashtbl.find_all fields f in
+		let values = List.map (fun (t, v) -> (t, pprz_float v)) values in
+		let values = Array.of_list values in
+		Array.sort compare values;
+		(f, values))
+		  (List.sort compare !l) in
+	      (msg, l))
+	      msgs in
+	  
+	  (* Store data for other windows *)
+	  logs_menus := (ac, menu_name, msgs) :: !logs_menus;
+	  
 	  add_ac_submenu ?factor plot menubar curves_fact ac menu_name msgs;
 	)
 	acs
@@ -288,6 +388,7 @@ let rec plot_window = fun init ->
   let file_menu_fact = new GMenu.factory file_menu ~accel_group in
 
   let width = 900 and height = 200 in
+  let h = GPack.hbox ~packing:vbox#pack () in
   let plot = new plot ~width ~height ~packing:(vbox#pack ~expand:true) () in
 
   let open_log_item = file_menu_fact#add_item "Open Log" ~key:GdkKeysyms._O in
@@ -306,8 +407,6 @@ let rec plot_window = fun init ->
       add_ac_submenu plot factory curves_menu_fact ac menu_name msgs) 
     !logs_menus;
 
-  let h = GPack.hbox ~packing:vbox#pack () in
-
   tooltips#set_tip plot#drawing_area#coerce ~text:"Drop a messages field here to draw it";
   ignore (plotter#connect#destroy ~callback:(fun () -> plot#destroy ()));
 
@@ -322,7 +421,7 @@ let rec plot_window = fun init ->
 
   let entries = 
     List.map (fun (label, value, action) ->
-      let _, entry= labelled_entry ~width_chars:5 label "" h in
+      let _, entry= labelled_entry ~width_chars:8 label "" h in
       plot#scale_event (fun () -> entry#set_text (string_of_float (value ())));
       ignore (entry#connect#activate ~callback:(fun () -> action (float_of_string entry#text)));
       entry)
@@ -353,7 +452,7 @@ let rec plot_window = fun init ->
   tooltips#set_tip cst#coerce ~text:"Enter value for a constant curve";
 
  (* Factor *)
-  let factor_label, factor = labelled_entry ~width_chars:5 "Scale" "1." h in
+  let factor_label, factor = labelled_entry ~width_chars:5 "Scale next by" "1." h in
   tooltips#set_tip factor#coerce ~text:"Scale next curve (e.g. 0.0174 to convert deg in rad)";
 
   ignore(open_log_item#connect#activate ~callback:(let factor = (factor:>text_value) in open_log ~factor plot factory curves_menu_fact));

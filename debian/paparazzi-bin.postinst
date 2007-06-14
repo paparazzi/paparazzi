@@ -17,6 +17,8 @@ ${OCAMLC} -thread -custom -I +lablgtk2 -I ${DESTDIR}/sw/lib/ocaml unix.cma str.c
 
 cd ${DESTDIR}/sw/logalizer
 ${OCAMLC} -custom -I +lablgtk2 -I ${DESTDIR}/sw/lib/ocaml unix.cma str.cma xml-light.cma lablgtk.cma glibivy-ocaml.cma lib-pprz.cma gtkInit.cmo play.cmo -o play
+$(OCAMLC) -custom -I +lablgtk2 -I ${DESTDIR}/sw/lib/ocaml -o plotter unix.cma str.cma xml-light.cma glibivy-ocaml.cma -I +lablgtk2 -I ../lib/ocaml lablgtk.cma lib-pprz.cma gtkInit.cmo plotter.cmo
+$(OCAMLOPT) -I +lablgtk2 -I ${DESTDIR}/sw/lib/ocaml -o plot unix.cmxa str.cmxa xml-light.cmxa glibivy-ocaml.cmxa -I +lablgtk2 -I ../lib/ocaml lablgtk.cmxa lib-pprz.cmxa gtkInit.cmx plot.cmx
 
 cd ${DESTDIR}/sw/simulator
 ${OCAMLC} -custom -I +lablgtk2 -I ${DESTDIR}/sw/lib/ocaml unix.cma str.cma xml-light.cma lablgtk.cma glibivy-ocaml.cma lib-pprz.cma gtkInit.cmo gaia.cmo -o gaia

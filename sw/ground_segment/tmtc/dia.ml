@@ -55,8 +55,9 @@ let state = {
 
 let msg_id, _ = Sub_Pprz.message_of_name "NAV_INFO"
 let send_msg = fun () ->
+  let t = (Unix.gettimeofday ()) -. 1e9 in
   let vs = [
-    "unix_time", Pprz.Float (Unix.gettimeofday ());
+    "unix_time", Pprz.Float t;
     
     "lat", Pprz.Float state.lat;
     "long", Pprz.Float state.long;

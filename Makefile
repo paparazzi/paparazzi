@@ -142,7 +142,7 @@ install :
 uninstall :
 	make -f Makefile.install PREFIX=$(PREFIX) uninstall
 
-DISTRO=sarge
+DISTRO=etch
 deb :
 	chmod u+x debian/rules
 	cp debian/control.$(DISTRO) debian/control

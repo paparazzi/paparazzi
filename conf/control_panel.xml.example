@@ -30,6 +30,10 @@
 
     <program name="plot" command ="sw/logalizer/plot.pl"/>
 
+    <program name="Log plotter" command ="sw/logalizer/plot"/>
+
+    <program name="Real time plotter" command ="sw/logalizer/plotter"/>
+
     <program name="play" command="sw/logalizer/play">
       <arg flag="-b" variable="ivy_bus"/>
     </program>

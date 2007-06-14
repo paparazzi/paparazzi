@@ -289,6 +289,26 @@ module Wc = struct
 end (** Wc module *)
 
 
+module Aerocomm = struct
+  let set_command_mode = fun fd ->
+    Serial.set_dtr fd true
+
+  let set_data_mode = fun fd ->
+    Serial.set_dtr fd false
+
+  let write_destination_address = fun fd address ->
+    assert (0 <= address && address <= 0xffffff);
+    let o = Unix.out_channel_of_descr fd in
+    let s = String.create 5 in
+    s.[0] <- Char.chr 0xcc;
+    s.[1] <- Char.chr 0x10;
+    s.[2] <- Char.chr (address lsr 16);
+    s.[3] <- Char.chr ((address lsr 8) land 0xff);
+    s.[4] <- Char.chr (address land 0xff);
+    fprintf o "%s%!" s
+
+end
+
 
 module XB = struct (** XBee module *)
   let nb_retries = ref 10
@@ -551,8 +571,8 @@ let _ =
   let transport = ref "pprz" in
   let uplink = ref false in
   let audio = ref false in
-  let rssi_id = ref (-1) in
-  let dtr = ref false in
+  let rssi_id = ref (-1)
+  and aerocomm = ref false in
   
   let options =
     [ "-b", Arg.Set_string ivy_bus, (sprintf "<ivy bus> Default is %s" !ivy_bus);
@@ -562,7 +582,8 @@ let _ =
       "-xbee_retries", Arg.Set_int XB.my_addr, (sprintf "<nb retries> (%d)" !XB.nb_retries);
       "-transport", Arg.Set_string transport, (sprintf "<transport> Available protocols are modem,pprz,wavecard and xbee. Default is %s" !transport);
       "-uplink", Arg.Set uplink, (sprintf "Uses the link as uplink also.");
-      "-dtr", Arg.Set dtr, "Set serial DTR to false (aerocomm)";
+      "-dtr", Arg.Set aerocomm, "Set serial DTR to false (deprecated)";
+      "-aerocomm", Arg.Set aerocomm, "Set serial Aerocomm data mode";
       "-audio", Arg.Unit (fun () -> audio := true; port := "/dev/dsp"), (sprintf "Listen a modulated audio signal on <port>. Sets <port> to /dev/dsp (the -d option must used after this one if needed)");
       "-s", Arg.Set_string baurate, (sprintf "<baudrate>  Default is %s" !baurate)] in
   Arg.parse
@@ -596,8 +617,8 @@ let _ =
 	  Unix.openfile !port [Unix.O_RDWR] 0o640
     in
 
-    if !dtr then
-      Serial.set_dtr fd false;
+    if !aerocomm then
+      Aerocomm.set_data_mode fd;
 
     
     let device = { fd=fd; transport=transport; baud_rate=int_of_string !baurate } in
