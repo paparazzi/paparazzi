@@ -161,15 +161,18 @@ class plot = fun ~size ~width ~height ~packing () ->
 	    context#set_font_by_name ("sans " ^ string_of_int (margin/2));
 	    let layout = context#create_layout in
 
+	    Pango.Layout.set_text layout "X";
+	    let (_, h) = Pango.Layout.get_pixel_size layout in
+
 	    let f = fun x y s ->
 	      Pango.Layout.set_text layout s;
 	      let (w, h) = Pango.Layout.get_pixel_size layout in
-	      dr#put_layout ~x ~y:(y-h) ~fore:`BLACK layout in
+	      dr#put_layout ~x ~y:(y-h/2) ~fore:`BLACK layout in
 	    
 	    let t = dt *. float size in
-	    f (width-width/size) height "0";
-	    f (width/2) height (Printf.sprintf "-%.1f" (t/.2.));
-	    f 0 height (Printf.sprintf "-%.1f" t);
+	    f (width-width/size) (height-h/2) "0";
+	    f (width/2) (height-h/2) (Printf.sprintf "-%.1fs" (t/.2.));
+	    f 0 (height-h/2) (Printf.sprintf "-%.1fs" t);
 
 	    (* Y graduations *)
 	    let (min, max) = 
@@ -245,7 +248,7 @@ let rec plot_window = fun init ->
   let menubar = GMenu.menu_bar ~packing:vbox#pack () in
   let factory = new GMenu.factory menubar in
   let accel_group = factory#accel_group in
-  let file_menu = factory#add_submenu "File" in
+  let file_menu = factory#add_submenu "Plot" in
   let file_menu_fact = new GMenu.factory file_menu ~accel_group in
   
   ignore (file_menu_fact#add_item "New" ~key:GdkKeysyms._N ~callback:(fun () -> plot_window []));
@@ -274,9 +277,11 @@ let rec plot_window = fun init ->
 
   (* Auto Scale *)
   let auto_scale = GButton.check_button ~label:"Auto Scale" ~active:true ~packing:h#pack () in
-  ignore (auto_scale#connect#toggled (fun () -> plot#set_auto_scale auto_scale#active));
   let _, min_entry= labelled_entry ~width_chars:5 "Min" "" h in
   let _, max_entry= labelled_entry ~width_chars:5 "Max" "" h in
+  min_entry#misc#set_sensitive false;
+  max_entry#misc#set_sensitive false;
+  ignore (auto_scale#connect#toggled (fun () -> let b = auto_scale#active in plot#set_auto_scale b; min_entry#misc#set_sensitive (not b); max_entry#misc#set_sensitive (not b)));
   ignore (GMain.Timeout.add 1000 (fun () -> if plot#auto_scale then begin min_entry#set_text (string_of_float plot#min);  max_entry#set_text (string_of_float plot#max) end; true));
   ignore (min_entry#connect#activate ~callback:(fun () -> if not plot#auto_scale then plot#set_min (float_of_string min_entry#text)));
   ignore (max_entry#connect#activate ~callback:(fun () -> if not plot#auto_scale then plot#set_max (float_of_string max_entry#text)));
