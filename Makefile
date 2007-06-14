@@ -50,7 +50,7 @@ DL_PROTOCOL_H=$(STATICINCLUDE)/dl_protocol.h
 MESSAGES_XML = $(CONF)/messages.xml
 UBX_XML = $(CONF)/ubx.xml
 TOOLS=$(PAPARAZZI_SRC)/sw/tools
-ARMGCC=arm-elf-gcc
+ARMGCC=/usr/bin/arm-elf-gcc
 
 
 all: static
