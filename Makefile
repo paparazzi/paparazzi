@@ -50,6 +50,7 @@ DL_PROTOCOL_H=$(STATICINCLUDE)/dl_protocol.h
 MESSAGES_XML = $(CONF)/messages.xml
 UBX_XML = $(CONF)/ubx.xml
 TOOLS=$(PAPARAZZI_SRC)/sw/tools
+ARMGCC=arm-elf-gcc
 
 
 all: static
@@ -89,7 +90,7 @@ visu3d: lib
 static_h: $(MESSAGES_H) $(UBX_PROTOCOL_H) $(DL_PROTOCOL_H)
 
 usb_lib:
-	cd sw/airborne/arm7/lpcusb; $(MAKE)
+	@(test -x $(ARMGCC) && (cd sw/airborne/arm7/lpcusb; $(MAKE))) || echo "Not building usb_lib: ARMGCC=$(ARMGCC) not found"
 
 $(MESSAGES_H) : $(MESSAGES_XML) $(CONF_XML) $(TOOLS)/gen_messages.out
 	$(Q)test -d $(STATICINCLUDE) || mkdir -p $(STATICINCLUDE)
