@@ -112,7 +112,7 @@ end
 class gps ?(visible = fun _ -> true) (widget: GBin.frame) =
   let sw = GBin.scrolled_window ~hpolicy:`AUTOMATIC ~vpolicy:`AUTOMATIC ~packing:widget#add () in
 
-  let da = GMisc.drawing_area ~show:true ~packing:sw#add () in
+  let da = GMisc.drawing_area ~show:true ~packing:sw#add_with_viewport () in
 
 object
   val mutable active_cno = []
