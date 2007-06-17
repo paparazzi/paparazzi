@@ -154,7 +154,7 @@ module Make(AircraftItl : AIRCRAFT_ITL) = struct
 
     let fm_task = fun () ->
       FM.do_commands !state commands;
-      FM.state_update !state (!wind_x, !wind_y) fm_period
+      FM.state_update !state FM.nominal_airspeed (!wind_x, !wind_y) fm_period
        
     and ir_task = fun () ->
       let phi, theta, _ = FlightModel.get_attitude !state in

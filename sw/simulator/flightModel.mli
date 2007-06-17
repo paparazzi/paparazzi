@@ -45,7 +45,7 @@ module Make :
       val nominal_airspeed : float (* m/s *)
       val roll_neutral_default : float (* rad *)
       val pitch_neutral_default : float (* rad *)
-      val state_update : state -> float * float -> float -> unit
-      (** [state_update state (wind_x, wind_y) dt] With m/s for wind and s for
+      val state_update : state -> float -> float * float -> float -> unit
+      (** [state_update nom_airspeed state (wind_x, wind_y) dt] With m/s for wind and s for
 	 dt *)
     end
