@@ -111,8 +111,8 @@
 
     <block name="step_roll_10">
       <while cond="TRUE">
-	<attitude roll="10.0" until=" stage_time > 3" vmode="alt" alt="250"/>
-	<attitude roll="-10.0" until="stage_time > 3" vmode="alt" alt="250"/>
+	<attitude roll="10.0" until=" stage_time > 6" vmode="alt" alt="250"/>
+	<attitude roll="-10.0" until="stage_time > 6" vmode="alt" alt="250"/>
       </while>
     </block>
 
