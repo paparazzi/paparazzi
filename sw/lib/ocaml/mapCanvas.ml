@@ -622,7 +622,7 @@ class widget =  fun ?(height=800) ?width ?projection ?georef () ->
       my_check_menu_item "UTM Grid" ~active:false ~callback:self#switch_utm_grid ~packing:self#file_menu#append ();
       my_check_menu_item "Background" ~active:true ~callback:self#switch_background ~packing:self#file_menu#append ();
       my_menu_item "Goto" ~callback:self#goto ~packing:self#file_menu#append ();
-      my_menu_item "Fit to window" ~callback:self#fit_to_window ~packing:self#file_menu#append ();
+      my_menu_item "Fit to window (f)" ~callback:self#fit_to_window ~packing:self#file_menu#append ();
 
       let callback = fun () -> selected_georef <- None in
       my_menu_item "WGS84" ~packing:georef_menu#append ~callback ();
