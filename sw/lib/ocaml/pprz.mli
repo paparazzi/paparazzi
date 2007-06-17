@@ -74,8 +74,16 @@ module Transport : Serial.PROTOCOL
 
 val offset_fields : int
 
-module type CLASS = sig val name : string end
-module Messages : functor (Class : CLASS) -> sig
+module type CLASS = sig
+  val name : string
+end
+
+module type CLASS_Xml = sig
+  val xml : Xml.xml
+  val name : string
+end
+
+module type MESSAGES = sig
   val message_of_id : message_id -> message
   val message_of_name : string ->  message_id * message
   val values_of_payload : Serial.payload -> message_id * ac_id * values
@@ -103,3 +111,6 @@ module Messages : functor (Class : CLASS) -> sig
   val message_req : string -> string -> values -> (string -> values -> unit) -> unit
   (** [message_answerer sender msg_name values receiver] Sends a request on the Ivy bus for the specified message. On reception, [receiver] will be applied on [sender_name] and expected values. *)
 end
+
+module Messages : functor (Class : CLASS) -> MESSAGES
+module MessagesOfXml : functor (Class : CLASS_Xml) -> MESSAGES

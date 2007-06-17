@@ -32,9 +32,6 @@ let logs_dir = Env.paparazzi_home // "var" // "logs"
 class type text_value = object method text : string end
 
 
-module P = Pprz.Messages (struct let name = "telemetry" end)
-
-
 let double__ = 
   let underscore = Str.regexp "_" in
   fun s -> Str.global_replace underscore "__" s
@@ -292,6 +289,19 @@ let add_ac_submenu = fun ?(factor=object method text="1" end) plot menubar (curv
 let load_log = fun ?factor (plot:plot) (menubar:GMenu.menu_shell GMenu.factory) curves_fact xml_file ->
   let xml = Xml.parse_file xml_file in
   let data_file =  ExtXml.attrib xml "data_file" in
+
+  let protocol = ExtXml.child xml "protocol" in
+
+  (* In the old days, telemetry class was named telemetry_ap ... *)
+  let class_name =
+    try
+      let name = "telemetry_ap" in
+      let _ = ExtXml.child protocol ~select:(fun x -> Xml.attrib x "name" = name) "class" in
+      name
+    with _ -> "telemetry" in
+
+  let module M = struct let name = class_name let xml = protocol end in
+  let module P = Pprz.MessagesOfXml(M) in
 
   let f = Ocaml_tools.find_file [Filename.dirname xml_file] data_file in
   let f = Ocaml_tools.open_compress f in

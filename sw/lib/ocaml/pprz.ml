@@ -64,8 +64,10 @@ let separator = ","
 let regexp_separator = Str.regexp ","
 let split_array = fun s -> Str.split regexp_separator s
 
+
 let (//) = Filename.concat
-let lazy_messages_xml = lazy (Xml.parse_file (Env.paparazzi_src // "conf" // "messages.xml"))
+let messages_file = Env.paparazzi_src // "conf" // "messages.xml"
+let lazy_messages_xml = lazy (Xml.parse_file messages_file)
 let messages_xml = fun () -> Lazy.force lazy_messages_xml
 
 external float_of_bytes : string -> int -> float = "c_float_of_indexed_bytes"
@@ -179,34 +181,24 @@ let string_assoc = fun (a:string) (vs:values) -> string_of_value (assoc a vs)
 
 
 
-(** Table of msg classes indexed by name. Each class is a table of messages
-   indexed by ids *)
-let lazy_classes =
-  lazy
-    (let h = Hashtbl.create 13 in
-    List.iter
-      (fun xml_class ->
-	let by_id = Hashtbl.create 13
-	and by_name = Hashtbl.create 13 in
-	List.iter
-	  (fun xml_msg ->
-	    let name = ExtXml.attrib xml_msg "name" in
-	    let msg = {
-	      name = name;
-	      fields = List.map field_of_xml (Xml.children xml_msg)
-	    } in
-	    let id = int_of_string (ExtXml.attrib xml_msg "id") in
-	    if Hashtbl.mem by_id id then
-	      failwith (sprintf "Duplicated id in messages.xml: %d" id);
-	    Hashtbl.add by_id id msg;
-	    Hashtbl.add by_name name (id, msg))
-	  (Xml.children xml_class);
-	Hashtbl.add h (ExtXml.attrib xml_class "name") (by_id, by_name)
-      )
-      (Xml.children (messages_xml ()));
-    h)
+let parse_class = fun xml_class ->
+  let by_id = Hashtbl.create 13
+  and by_name = Hashtbl.create 13 in
+  List.iter
+    (fun xml_msg ->
+      let name = ExtXml.attrib xml_msg "name" in
+      let msg = {
+	name = name;
+	fields = List.map field_of_xml (Xml.children xml_msg)
+      } in
+      let id = int_of_string (ExtXml.attrib xml_msg "id") in
+      if Hashtbl.mem by_id id then
+	failwith (sprintf "Duplicated id in messages.xml: %d" id);
+      Hashtbl.add by_id id msg;
+      Hashtbl.add by_name name (id, msg))
+    (Xml.children xml_class);
+  (by_id, by_name)
 
-let classes = fun () -> Lazy.force lazy_classes
     
 (** Returns a value and its length *)
 let rec value_of_bin = fun buffer index _type ->
@@ -268,8 +260,6 @@ let rec sprint_value = fun buf i _type v ->
   
   
 
-module type CLASS = sig val name : string end
-
 exception Unknown_msg_name of string * string
 
 module Transport = struct
@@ -329,11 +319,52 @@ let offset_ac_id = 0
 let offset_msg_id = 1
 let offset_fields = 2
 
-module Messages(Class:CLASS) = struct
+module type CLASS_Xml = sig
+  val xml : Xml.xml
+  val name : string
+end
+
+module type CLASS = sig
+  val name : string
+end
+
+module type MESSAGES = sig
+  val message_of_id : message_id -> message
+  val message_of_name : string ->  message_id * message
+  val values_of_payload : Serial.payload -> message_id * ac_id * values
+  (** [values_of_bin payload] Parses a raw payload, returns the
+   message id, the A/C id and the list of (field_name, value) *)
+
+  val payload_of_values : message_id -> ac_id -> values -> Serial.payload
+  (** [payload_of_values id ac_id vs] Returns a payload *)
+
+  val values_of_string : string -> message_id * values
+  (** May raise [(Unknown_msg_name msg_name)] *)
+
+  val string_of_message : ?sep:string -> message -> values -> string
+  (** [string_of_message ?sep msg values] Default [sep] is space *)
+
+  val message_send : string -> string -> values -> unit
+  (** [message_send sender msg_name values] *)
+
+  val message_bind : ?sender:string ->string -> (string -> values -> unit) -> Ivy.binding
+  (** [message_bind ?sender msg_name callback] *)
+
+  val message_answerer : string -> string -> (string -> values -> values) -> Ivy.binding
+  (** [message_answerer sender msg_name callback] *)
+
+  val message_req : string -> string -> values -> (string -> values -> unit) -> unit
+  (** [message_answerer sender msg_name values receiver] Sends a request on the Ivy bus for the specified message. On reception, [receiver] will be applied on [sender_name] and expected values. *)
+end
+
+
+
+module MessagesOfXml(Class:CLASS_Xml) = struct
   let max_length = 256
   let messages_by_id, messages_by_name = 
     try
-      Hashtbl.find (classes ()) Class.name
+      let select = fun x -> Xml.attrib x "name" = Class.name in
+      parse_class (ExtXml.child Class.xml ~select "class")
     with
       Not_found -> failwith (sprintf "Unknown message class: %s" Class.name)
   let message_of_id = fun id -> Hashtbl.find messages_by_id id
@@ -454,4 +485,11 @@ module Messages(Class:CLASS) = struct
     let msg_name_req = msg_name ^ "_REQ" in
     let m = sprintf "%s %s %s" sender id (string_of_message (snd (message_of_name msg_name_req)) values) in
     Ivy.send m
+end
+
+module Messages(Class:CLASS) = struct
+  include MessagesOfXml(struct
+    let xml = messages_xml ()
+    let name = Class.name
+  end)
 end
