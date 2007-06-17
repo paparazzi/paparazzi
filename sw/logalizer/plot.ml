@@ -167,7 +167,8 @@ class plot = fun ~width ~height ~packing () ->
 
       let left_margin = 40
       and bottom_margin = 20
-      and tick_len = 5 in
+      and tick_len = 5
+      and margin = 3 in
       
       let scale_x = fun x -> left_margin + truncate ((x-.min_x)*. float (width+left_margin) /. (max_x -. min_x))
       and scale_y = fun y -> height-bottom_margin - truncate ((y-.min_y)*. float (height-bottom_margin) /. (max_y -. min_y)) in
@@ -178,20 +179,32 @@ class plot = fun ~width ~height ~packing () ->
 	dr#lines [(left_margin, scale_y v); (width, scale_y v)])
 	csts;
 
+      let context = da#misc#create_pango_context in
+      context#set_font_by_name "sans 8 ";
+      
+      let layout = context#create_layout in
+
       (* Curves *)
-      Hashtbl.iter (fun _ curve ->
+      let title_y = ref margin in
+      Hashtbl.iter (fun title curve ->
 	let points = Array.to_list (Array.map (fun (t, v) -> (scale_x t, scale_y v)) curve.values) in
 	let points = remove_same_t points in
 	let points = remove_older (scale_x min_x) points in
 	dr#set_foreground (`NAME curve.color);
-	dr#lines points)
+	dr#lines points;
+
+	(* Title *)
+	Pango.Layout.set_text layout title;
+	let (w, h) = Pango.Layout.get_pixel_size layout in
+	dr#rectangle ~x:(width-h-margin) ~y:!title_y ~width:h ~height:h ~filled:true ();
+
+	dr#set_foreground `BLACK;
+	dr#put_layout ~x:(width-2*margin-w-h) ~y:(!title_y) layout;
+	title_y := !title_y + h + margin)
 	curves;
 
       (* Graduations *)
       if Hashtbl.length curves > 0 then begin
-	let context = da#misc#create_pango_context in
-	context#set_font_by_name "sans 8 ";
-	let layout = context#create_layout in
 	dr#set_foreground `BLACK;
 
 	(* Y *)
@@ -207,7 +220,7 @@ class plot = fun ~width ~height ~packing () ->
 	  let s = Printf.sprintf "%.*f" (Pervasives.max 0 (2-truncate scale)) tick in
 	  Pango.Layout.set_text layout s;
 	  let (w, h) = Pango.Layout.get_pixel_size layout in
-	  dr#put_layout ~x:(left_margin-3-w) ~y:(y-h/2) layout;
+	  dr#put_layout ~x:(left_margin-margin-w) ~y:(y-h/2) layout;
 	  
 	  dr#lines [(left_margin,y);(left_margin+tick_len,y)]
 	done;
@@ -221,7 +234,7 @@ class plot = fun ~width ~height ~packing () ->
 	  let s = Printf.sprintf "%.*f" (Pervasives.max 0 (2-truncate scale)) tick in
 	  Pango.Layout.set_text layout s;
 	  let (w, h) = Pango.Layout.get_pixel_size layout in
-	  dr#put_layout ~x:(x-w/2) ~y:(y+3) layout;
+	  dr#put_layout ~x:(x-w/2) ~y:(y+margin) layout;
 	  
 	  dr#lines [(x,y);(x,y-tick_len)]
 	done
@@ -234,9 +247,6 @@ class plot = fun ~width ~height ~packing () ->
     initializer(ignore (da#event#connect#expose ~callback:(fun _ -> self#redraw (); false)))
   end
 
-
-(* Indexed by log *)
-let logs = Hashtbl.create 3
 
 let pprz_float = function
     Pprz.Int i -> float i
@@ -265,9 +275,9 @@ let add_ac_submenu = fun ?(factor=object method text="1" end) plot menubar (curv
       (* Build the field menus *)
       List.iter
 	(fun (f, values) ->
-	  let name = sprintf "%s:%s:%s:%s" menu_name ac msg.Pprz.name f in
+	  let name = sprintf "%s:%s:%s" menu_name msg.Pprz.name f in
 	  let callback = fun _ ->
-	    let factor = float_of_string factor#text in
+	    let factor = try float_of_string factor#text with _ -> 1. in
 	    let values = Array.map (fun (t,v) -> (t, v*.factor)) values in
 	    let curve = plot#add_curve name values in
 	    let eb = GBin.event_box ~width:10 ~height:10 () in
@@ -306,7 +316,6 @@ let load_log = fun ?factor (plot:plot) (menubar:GMenu.menu_shell GMenu.factory) 
   let f = Ocaml_tools.find_file [Filename.dirname xml_file] data_file in
   let f = Ocaml_tools.open_compress f in
   let acs = Hashtbl.create 3 in (* indexed by A/C *)
-  Hashtbl.add logs data_file acs;
   try
     while true do
       let l = input_line f in
@@ -371,7 +380,7 @@ let file_dialog ~title ~callback () =
   ignore (dialog#set_current_folder logs_dir);
   dialog#add_filter (GFile.filter ~name:"log" ~patterns:["*.log"] ());
   dialog#add_button_stock `CANCEL `CANCEL ;
-  dialog#add_button_stock `OPEN `OPEN ;
+  dialog#add_select_button_stock `OPEN `OPEN ;
   begin match dialog#run (), dialog#filename with
     `OPEN, Some name ->
       dialog#destroy ();
@@ -386,6 +395,33 @@ let open_log = fun ?factor plot menubar curves_fact () ->
 let remove_fst_and_snd = function
     _::_::l -> l
   | l -> l
+
+let screenshot_hint_name = 
+  let n = ref 0 in
+  fun () ->
+    match !logs_menus with
+      (_, menu_name, _)::_ -> sprintf "%s.png" menu_name
+    | _ -> incr n; sprintf "pprz_log-%d.png" !n
+	  
+let screenshot = fun frame () ->
+  let width, height = Gdk.Drawable.get_size frame#misc#window in
+  let dest = GdkPixbuf.create width height () in
+  GdkPixbuf.get_from_drawable ~dest ~width ~height frame#misc#window;
+
+  let title = "Save snapshot" in
+  let dialog = GWindow.file_chooser_dialog ~action:`SAVE ~title () in
+  ignore (dialog#set_current_folder logs_dir);
+  dialog#add_filter (GFile.filter ~name:"png" ~patterns:["*.png"] ());
+  dialog#add_button_stock `CANCEL `CANCEL ;
+  dialog#add_select_button_stock `SAVE `SAVE ;
+  let name = screenshot_hint_name () in
+  let _ = dialog#set_current_name name in
+  begin match dialog#run (), dialog#filename with
+    `SAVE, Some name ->
+      dialog#destroy ();
+      GdkPixbuf.save name "png" dest;
+  | _ -> dialog#destroy ()
+  end
 
 
 let rec plot_window = fun init ->
@@ -412,6 +448,7 @@ let rec plot_window = fun init ->
   let close = fun () -> plotter#destroy () in
   ignore (file_menu_fact#add_item "Close" ~key:GdkKeysyms._W ~callback:close); *)
 
+  ignore (file_menu_fact#add_item "Save screenshot" ~key:GdkKeysyms._S ~callback:(screenshot plotter));
   ignore (file_menu_fact#add_item "Quit" ~key:GdkKeysyms._Q ~callback:quit);
   let curves_menu = factory#add_submenu "Curves" in
   let curves_menu_fact = new GMenu.factory curves_menu in
