@@ -49,10 +49,10 @@ $(MAIN).opt : $(CMX)
 	$(Q)$(OCAMLOPT) $(OCAMLCFLAGS) $(INCLUDES) str.cmxa unix.cmxa xml-light.cmxa $(LIBS:.cma=.cmxa) threads.cmxa gtkThread.cmx gtkInit.cmx $(CMX) -o $@
 
 
-%.cmo: %.ml  ../../lib/ocaml/lib-pprz.cma ../../lib/ocaml/xlib-pprz.cma
+%.cmo: %.ml
 	@echo OC $<
 	$(Q)$(OCAMLC) $(OCAMLCFLAGS) $(INCLUDES) -c $<
-%.cmi: %.mli  ../../lib/ocaml/lib-pprz.cma ../../lib/ocaml/xlib-pprz.cma
+%.cmi: %.mli
 	@echo OCI $<
 	$(Q)$(OCAMLC) $(OCAMLCFLAGS) $(INCLUDES) -c $<
 %.cmx: %.ml
@@ -86,7 +86,7 @@ actuators : actuators.c
 #
 
 .depend:
-	ocamldep *.ml* > .depend
+	ocamldep -I ../../lib/ocaml *.ml* > .depend
 
 ifneq ($(MAKECMDGOALS),clean) 
 -include .depend
