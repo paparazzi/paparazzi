@@ -125,7 +125,7 @@ let file_dialog ~title ~callback () =
   ignore (dialog#set_current_folder logs_dir);
   dialog#add_filter (GFile.filter ~name:"log" ~patterns:["*.log"] ());
   dialog#add_button_stock `CANCEL `CANCEL ;
-  dialog#add_button_stock `OPEN `OPEN ;
+  dialog#add_select_button_stock `OPEN `OPEN ;
   begin match dialog#run (), dialog#filename with
     `OPEN, Some name ->
       dialog#destroy ();
@@ -185,14 +185,14 @@ let _ =
   let accel_group = factory#accel_group in
   let file_menu = factory#add_submenu "File" in
   let file_menu_fact = new GMenu.factory file_menu ~accel_group in
+
+  let timescale = GRange.scale `HORIZONTAL ~adjustment:adj ~packing:window#vbox#pack () in
   
   ignore (file_menu_fact#add_item "Open Log" ~key:GdkKeysyms._O ~callback:(open_log window adj));  
-  ignore (file_menu_fact#add_item "Play" ~key:GdkKeysyms._X ~callback:(fun () -> play adj speed));  
-  ignore (file_menu_fact#add_item "Stop" ~key:GdkKeysyms._S ~callback:(fun () -> stop ()));  
+  ignore (file_menu_fact#add_item "Play" ~key:GdkKeysyms._X ~callback:(fun () -> timescale#misc#set_sensitive false; play adj speed));  
+  ignore (file_menu_fact#add_item "Stop" ~key:GdkKeysyms._S ~callback:(fun () -> timescale#misc#set_sensitive true; stop ()));  
   ignore (file_menu_fact#add_item "Quit" ~key:GdkKeysyms._Q ~callback:quit);  
 
-
-  let _timescale = GRange.scale `HORIZONTAL ~adjustment:adj ~packing:window#vbox#pack () in
 
   window#add_accel_group accel_group;
   window#show ();
