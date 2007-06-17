@@ -34,7 +34,7 @@
 
     <program name="Real time plotter" command ="sw/logalizer/plotter"/>
 
-    <program name="play" command="sw/logalizer/play">
+    <program name="replay" command="sw/logalizer/play">
       <arg flag="-b" variable="ivy_bus"/>
     </program>
 
@@ -102,7 +102,7 @@
     <session name="5 Log Replay">
       <program name="server"><arg flag="-n"/></program>
       <program name="gcs"/>
-      <program name="play"/>
+      <program name="replay"/>
     </session>
 
   </section>
