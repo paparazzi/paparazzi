@@ -235,19 +235,23 @@ let motion_notify = fun (geomap:G.widget) ev ->
 
 (******* Mouse wheel handling ***********************************************)
 let any_event = fun (geomap:G.widget) ev ->
-  match GdkEvent.get_type ev with
-    `SCROLL ->
-      let state = GdkEvent.Scroll.state (GdkEvent.Scroll.cast ev) in
-      if Gdk.Convert.test_modifier `CONTROL state && Gdk.Convert.test_modifier `SHIFT state then 
-	let scroll_event = GdkEvent.Scroll.cast ev in
+  try
+    match GdkEvent.get_type ev with
+      `SCROLL ->
+	let state = GdkEvent.Scroll.state (GdkEvent.Scroll.cast ev) in
+	if Gdk.Convert.test_modifier `CONTROL state && Gdk.Convert.test_modifier `SHIFT state then 
+	  let scroll_event = GdkEvent.Scroll.cast ev in
 	EditFP.path_change_radius (GdkEvent.Scroll.direction scroll_event);
-	let xc = GdkEvent.Scroll.x scroll_event 
-	and yc = GdkEvent.Scroll.y scroll_event in
-	let xwyw = geomap#window_to_world xc yc in
-	EditFP.path_notify geomap xwyw
-      else
+	  let xc = GdkEvent.Scroll.x scroll_event 
+	  and yc = GdkEvent.Scroll.y scroll_event in
+	  let xwyw = geomap#window_to_world xc yc in
+	  EditFP.path_notify geomap xwyw
+	else
+	  false
+    | _ ->
 	false
-  | _ ->
+  with
+    Invalid_argument "ml_lookup_from_c" -> (* Raised GdkEvent.get_type *)
       false
 
 
@@ -263,7 +267,7 @@ let button_press = fun (geomap:G.widget) ev ->
     let xc = GdkEvent.Button.x ev 
     and yc = GdkEvent.Button.y ev in
     let (xw,yw) = geomap#window_to_world xc yc in
-
+    
     let thread = fun f x -> ignore (Thread.create f x) in
     let wgs84 = geomap#of_world (xw,yw) in
     let display_ign = fun () ->	
@@ -273,17 +277,16 @@ let button_press = fun (geomap:G.widget) ev ->
 	try ignore (MapGoogle.display_tile geomap wgs84) with
 	  Gm.Not_available -> ())
 	() in
-
+    
     let m = if !ign then [`I ("Load IGN tile", display_ign)] else [] in
     let m =
       if !get_bdortho <> "" then
 	(`I ("Load BDORTHO", display_bdortho geomap wgs84))::m
       else 
 	m in
-
     GToolbox.popup_menu ~entries:([`I ("Load Google tile", display_gm)]@m)
-      ~button:3 ~time:(Int32.of_int 00);
-    true;
+      ~button:3 ~time:(Int32.of_int 0);
+    true
   end else if GdkEvent.Button.button ev = 1 && Gdk.Convert.test_modifier `CONTROL state then
     if Gdk.Convert.test_modifier `SHIFT state then begin
       let xc = GdkEvent.Button.x ev in
@@ -566,7 +569,6 @@ let _main =
     in
 
     let callback = fun ev ->
-      Printf.printf "%d\n%!" (GdkEvent.Button.button ev);
       match GdkEvent.Button.button ev with
 	1 -> swap (); true
       | 3 -> restart (); true
@@ -576,7 +578,8 @@ let _main =
   end;
 
   (** Wait for A/Cs and subsequent messages *)
-  Live.listen_acs_and_msgs geomap ac_notebook my_alert !auto_center_new_ac;
+  if not !edit then
+    Live.listen_acs_and_msgs geomap ac_notebook my_alert !auto_center_new_ac;
 
   (** Display the window *)
   let accel_group = menu_fact#accel_group in

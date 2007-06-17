@@ -237,7 +237,7 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
 
 (** callback bindings *)
 
-(***      canvas#coerce#misc#modify_bg [`NORMAL, `NAME "black"];***)
+      canvas#coerce#misc#modify_bg [`NORMAL, `BLACK];
       ignore (background#connect#event self#background_event);
 
       ignore (canvas#event#connect#motion_notify self#mouse_motion);
@@ -248,7 +248,7 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
 
       canvas#set_center_scroll_region false ;
       canvas#set_scroll_region (-25000000.) (-25000000.) 25000000. 25000000.;
-      ignore (GnoCanvas.rect ~props:[`X1 (-25000000.); `Y1 (-25000000.); `X2 25000000.; `Y2 25000000.; `FILL_COLOR "black"] background);
+(*       ignore (GnoCanvas.rect ~props:[`X1 (-25000000.); `Y1 (-25000000.); `X2 25000000.; `Y2 25000000.; `FILL_COLOR "black"] background); *)
 
      )
  
@@ -500,16 +500,20 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
 	  last_view := view;
 	  Hashtbl.iter (fun cb _ -> cb ()) view_cbs
 	end;
-	
-	match GdkEvent.get_type ev with
-	| `SCROLL when not (Gdk.Convert.test_modifier `SHIFT (GdkEvent.Scroll.state (GdkEvent.Scroll.cast ev))) -> begin
-	    let scroll_event = GdkEvent.Scroll.cast ev in
-	    match GdkEvent.Scroll.direction scroll_event with
-	      `UP   -> self#zoom_up (); true
-	    | `DOWN -> self#zoom_down (); true
+	try
+	  match GdkEvent.get_type ev with
+	  | `SCROLL when not (Gdk.Convert.test_modifier `SHIFT (GdkEvent.Scroll.state (GdkEvent.Scroll.cast ev))) -> begin
+	      let scroll_event = GdkEvent.Scroll.cast ev in
+	      match GdkEvent.Scroll.direction scroll_event with
+		`UP   -> self#zoom_up (); true
+	      | `DOWN -> self#zoom_down (); true
 	    | _     -> false
-	end
-	| _ -> false
+	  end
+	  | _ -> 	false
+	with
+	  Invalid_argument "ml_lookup_from_c" -> (* Raised GdkEvent.get_type *)
+	    false
+
 	    
 	    
     method segment = fun ?(group = canvas#root) ?(width=1) ?fill_color geo1 geo2 ->
@@ -540,7 +544,6 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
       let geo_east = LL.of_utm LL.WGS84 (LL.utm_add utm (radius, 0.)) in
       let (xe, _) = self#world_of geo_east in
       let rad = xe -. x in      
-
       let l = GnoCanvas.ellipse ?fill_color ~props:[`WIDTH_PIXELS width; `OUTLINE_COLOR color] ~x1:(x-.rad) ~y1:(y -.rad) ~x2:(x +.rad) ~y2:(y+.rad) group in
       l#show ();
       l
