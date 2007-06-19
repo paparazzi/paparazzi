@@ -38,7 +38,7 @@ type state = {
   }
 
 
-let climb_noise = fun c -> c +. Random.float 1.
+let climb_noise = fun c -> c +. Random.float 1. -. 0.5
 
   
 let state = fun pos0 alt0 ->
