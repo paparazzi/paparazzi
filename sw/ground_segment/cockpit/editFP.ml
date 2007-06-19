@@ -55,7 +55,7 @@ let close_fp = fun () ->
 	  
 let load_xml_fp = fun geomap editor_frame accel_group ?(xml_file=Env.flight_plans_path) xml ->
   Map2d.set_georef_if_none geomap (MapFP.georef_of_xml xml);
-  let fp = new MapFP.flight_plan ~show_moved:false geomap "red" Env.flight_plan_dtd xml in
+  let fp = new MapFP.flight_plan ~editable:true ~show_moved:false geomap "red" Env.flight_plan_dtd xml in
   editor_frame#add fp#window;
   current_fp := Some (fp,xml_file);
 
