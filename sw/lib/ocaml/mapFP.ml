@@ -27,6 +27,7 @@
 open Latlong
 
 let sof = string_of_float
+let sof1 = fun x -> Printf.sprintf "%.1f" x
 let float_attr = fun xml a -> float_of_string (ExtXml.attrib xml a)
 let rec assoc_nocase at = function
     [] -> raise Not_found
@@ -91,9 +92,9 @@ let update_xml = fun xml_tree utm0 wp id ->
     let utm = utm_of WGS84 wp#pos in
     try
       let (dx, dy) = utm_sub utm utm0 in
-      let attribs = ["name",wp#name; "x",sof dx; "y",sof dy] in
+      let attribs = ["name",wp#name; "x",sof1 dx; "y",sof1 dy] in
       let attribs = attribs @
-	if abs_float (wp#alt -. default_alt) < 1. then [] else ["alt", sof wp#alt] in
+	if abs_float (wp#alt -. default_alt) < 1. then [] else ["alt", sof1 wp#alt] in
       XmlEdit.set_attribs node attribs
     with
       _ ->
