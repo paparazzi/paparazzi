@@ -317,8 +317,8 @@ let rec plot_window = fun init ->
   tooltips#set_tip cst#coerce ~text:"Enter value for a constant curve";
 
   (* Factor *)
-  let factor_label, factor = labelled_entry ~width_chars:5 "Scale" "0.0174" h in
-  tooltips#set_tip factor#coerce ~text:"Enter a number and drop your curve on 'Scale' to use it as a multiply factor (e.g. 0.0174 to convert deg in rad)";
+  let factor_label, factor = labelled_entry ~width_chars:5 "Scale next by" "1." h in
+  tooltips#set_tip factor#coerce ~text:"Scale next curve (e.g. 0.0174 to convert deg in rad, 57.3 to convert rad in deg)";
 
   (* Callbacks *)
   ignore (reset_item#connect#activate ~callback:plot#reset);
@@ -330,6 +330,7 @@ let rec plot_window = fun init ->
   let add_curve = fun ?(factor=1.) name ->
     let (sender, class_name, msg_name, field_name, factor') = parse_dnd name in
     let factor = factor *. factor' in
+    let name = Printf.sprintf "%s:%f" name factor in
     let cb = fun _sender values ->
       let v = float_of_string (Pprz.string_assoc field_name values) *. factor in
       plot#add_value name v in
@@ -352,19 +353,17 @@ let rec plot_window = fun init ->
       curves_menu#remove (item :> GMenu.menu_item) in
     ignore (item#connect#activate ~callback:delete) in
 
-
   (* Drag and drop handler *)
-  let data_received = fun ?factor context ~x ~y data ~info ~time ->
+  let data_received = fun context ~x ~y data ~info ~time ->
+    let factor =  float_of_string factor#text in
     try
       let name = data#data in
-      add_curve ?factor name
+      add_curve ~factor name
     with
       exc -> prerr_endline (Printexc.to_string exc)
   in
   plotter#drag#dest_set dnd_targets ~actions:[`COPY];
-  ignore (plotter#drag#connect#data_received ~callback:(data_received ~factor:1.));
-  factor_label#drag#dest_set dnd_targets ~actions:[`COPY];
-  ignore (factor_label#drag#connect#data_received ~callback:(fun context ~x ~y data ~info ~time -> try data_received ~factor:(float_of_string factor#text) context ~x ~y data ~info ~time with _ -> ()));
+  ignore (plotter#drag#connect#data_received ~callback:(data_received));
 
   (* Init curves *)
   List.iter add_curve init;

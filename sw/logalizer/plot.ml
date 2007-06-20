@@ -504,7 +504,7 @@ let rec plot_window = fun init ->
 
  (* Factor *)
   let factor_label, factor = labelled_entry ~width_chars:5 "Scale next by" "1." h in
-  tooltips#set_tip factor#coerce ~text:"Scale next curve (e.g. 0.0174 to convert deg in rad)";
+  tooltips#set_tip factor#coerce ~text:"Scale next curve (e.g. 0.0174 to convert deg in rad, 57.3 to convert rad in deg)";
 
   ignore(open_log_item#connect#activate ~callback:(let factor = (factor:>text_value) in open_log ~factor plot factory curves_menu_fact));
 
