@@ -4,7 +4,7 @@
 
 <!-- commands section -->
   <servos>
-    <servo name="GAZ"           no="3" min="1090" neutral="1090" max="1650"/>
+    <servo name="MOTOR"           no="3" min="1000" neutral="1000" max="2000"/>
     <servo name="AILEVON_LEFT"  no="5" min="1130" neutral="1500" max="1880"/>
     <servo name="AILEVON_RIGHT" no="4" min="1980" neutral="1515" max="1170"/>
   </servos>
@@ -30,7 +30,7 @@
   <command_laws>
     <let var="aileron"  value="@ROLL  * AILEVON_AILERON_RATE"/>
     <let var="elevator" value="@PITCH * AILEVON_ELEVATOR_RATE"/>  
-    <set servo="GAZ"           value="@THROTTLE"/>
+    <set servo="MOTOR"           value="@THROTTLE"/>
     <set servo="AILEVON_LEFT"  value="$elevator + $aileron"/>
     <set servo="AILEVON_RIGHT" value="$elevator - $aileron"/>
   </command_laws>
