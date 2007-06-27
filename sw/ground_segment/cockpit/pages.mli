@@ -16,15 +16,8 @@ class gps : ?visible:(GBin.frame -> bool) -> GBin.frame ->
     method svsinfo : int -> (int*int*int*int) array -> unit
   end
 
-class pfd : ?visible:(GBin.frame -> bool) -> GBin.frame ->
-  object
-    method set_speed : float -> unit
-    method set_alt : float -> unit
-    method set_climb : float -> unit
-    method set_attitude : float -> float -> unit
-  end
-
-class settings : ?visible:(GObj.widget -> bool) -> Xml.xml list -> (int -> float -> unit) -> Strip.t ->
+(** [new Pages.settings ?visible dl_settings callback short_button_receiver] *)
+class settings : ?visible:(GObj.widget -> bool) -> Xml.xml list -> (int -> float -> unit) -> (GObj.widget -> unit) ->
   object
     method length : int
     method set : int -> float -> unit

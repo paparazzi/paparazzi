@@ -27,7 +27,7 @@ include ../../../conf/Makefile.local
 CONF = ../../../conf
 VAR = ../../../var
 
-all: link server messages dia diadec $(VAR)/boa.conf
+all: link server messages settings dia diadec $(VAR)/boa.conf
 
 clean:
 	rm -f link server messages *.bak *~ core *.o .depend *.opt *.out *.cm*
@@ -50,6 +50,11 @@ $(VAR)/boa.conf :$(CONF)/boa.conf
 messages : messages.cmo
 	@echo OL $@
 	$(Q)$(OCAMLC) -custom $(INCLUDES) -o $@ unix.cma str.cma xml-light.cma lablgtk.cma glibivy-ocaml.cma lib-pprz.cma gtkInit.cmo $^
+
+
+settings : settings.ml
+	@echo OL $@
+	$(Q)$(OCAMLC) -custom $(INCLUDES) -I ../cockpit -o $@ unix.cma str.cma xml-light.cma lablgtk.cma glibivy-ocaml.cma lib-pprz.cma gtkInit.cmo pages.cmo $^
 
 
 server : $(SERVERCMO)

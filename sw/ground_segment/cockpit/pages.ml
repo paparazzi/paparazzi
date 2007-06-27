@@ -174,22 +174,6 @@ object
 end
 
 (*****************************************************************************)
-(* pfd page                                                                  *)
-(*****************************************************************************)
-class pfd ?(visible = fun _ -> true) (widget: GBin.frame) =
-  let horizon = new Horizon.h ~packing: widget#add 150 in
-  let _lazy = fun f x -> if visible widget then f x in
-    
-object
-  method set_attitude roll pitch =
-    _lazy (horizon#set_attitude ((Deg>>Rad)roll)) ((Deg>>Rad)pitch)
-  method set_alt (a:float) = _lazy horizon#set_alt a
-  method set_climb (_c:float) = ()
-  method set_speed (c:float) = _lazy horizon#set_speed c
-end
-
-
-(*****************************************************************************)
 (* Misc page                                                                 *)
 (*****************************************************************************)
 class misc ~packing (widget: GBin.frame) =
@@ -220,7 +204,7 @@ class misc ~packing (widget: GBin.frame) =
 (*****************************************************************************)
 (* Dataling settings paged                                                   *)
 (*****************************************************************************)
-let one_setting = fun i do_change packing s (tooltips:GData.tooltips) (strip:Strip.t) ->
+let one_setting = fun i do_change packing s (tooltips:GData.tooltips) strip ->
   let f = fun a -> float_of_string (ExtXml.attrib s a) in
   let lower = f "min"
   and upper = f "max"
@@ -300,7 +284,7 @@ let one_setting = fun i do_change packing s (tooltips:GData.tooltips) (strip:Str
     let label = ExtXml.attrib x "name"
     and sp_value = ExtXml.float_attrib x "value" in
     let b = GButton.button ~label () in
-    strip#add_widget b#coerce;
+    (strip b#coerce : unit);
     ignore (b#connect#clicked (fun _ -> do_change i sp_value)))
     (Xml.children s);
   (i, varname, _v)

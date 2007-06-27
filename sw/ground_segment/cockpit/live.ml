@@ -68,7 +68,7 @@ type aircraft = {
     mutable last_stage : int * int;
     ir_page : Pages.infrared;
     gps_page : Pages.gps;
-    pfd_page : Pages.pfd;
+    pfd_page : Horizon.pfd;
     misc_page : Pages.misc;
     dl_settings_page : Pages.settings option;
     rc_settings_page : Pages.rc_settings option;
@@ -414,7 +414,7 @@ let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id
   let pfd_label = GMisc.label ~text: "PFD" () in
   let pfd_frame = GBin.frame ~shadow_type: `NONE
       ~packing: (ac_notebook#append_page ~tab_label: pfd_label#coerce) () in
-  let pfd_page = new Pages.pfd pfd_frame
+  let pfd_page = new Horizon.pfd pfd_frame
   and _pfd_page_num = ac_notebook#page_num pfd_frame#coerce in
 
   let misc_label = GMisc.label ~text: "Misc" () in
@@ -437,7 +437,7 @@ let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id
   let dl_settings_page =
     try
       let xml_settings = Xml.children (ExtXml.child settings_xml "dl_settings") in
-      let settings_tab = new Pages.settings ~visible xml_settings dl_setting_callback strip in
+      let settings_tab = new Pages.settings ~visible xml_settings dl_setting_callback (fun x -> strip#add_widget x) in
 
       let tab_label = (GMisc.label ~text:"Settings" ())#coerce in
       ac_notebook#append_page ~tab_label settings_tab#widget;

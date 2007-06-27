@@ -215,3 +215,20 @@ class h = fun ?packing size  ->
       alt#affine_absolute (affine_pos 0. (alt_scale*.s))
 	
   end
+
+(*****************************************************************************)
+(* pfd page                                                                  *)
+(*****************************************************************************)
+class pfd ?(visible = fun _ -> true) (widget: GBin.frame) =
+  let horizon = new h ~packing: widget#add 150 in
+  let _lazy = fun f x -> if visible widget then f x in
+    
+object
+  method set_attitude roll pitch =
+    _lazy (horizon#set_attitude ((Deg>>Rad)roll)) ((Deg>>Rad)pitch)
+  method set_alt (a:float) = _lazy horizon#set_alt a
+  method set_climb (_c:float) = ()
+  method set_speed (c:float) = _lazy horizon#set_speed c
+end
+
+

@@ -38,7 +38,7 @@ type aircraft = {
     mutable last_stage : int * int;
     ir_page : Pages.infrared;
     gps_page : Pages.gps;
-    pfd_page : Pages.pfd;
+    pfd_page : Horizon.pfd;
     misc_page : Pages.misc;
     dl_settings_page : Pages.settings option;
     rc_settings_page : Pages.rc_settings option;
