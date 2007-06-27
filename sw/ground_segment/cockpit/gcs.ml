@@ -478,12 +478,15 @@ and pack_list = fun resize orientation xmls widgets packing ->
     
 
 let _main =
+  let file_to_edit = ref "" in
   Arg.parse options
-    (fun x -> Printf.fprintf stderr "Warning: Don't do anything with '%s'\n" x)
+    (fun x -> if !edit then file_to_edit := x else Printf.fprintf stderr "Warning: Don't do anything with '%s'\n%!" x)
     "Usage: ";
   (*                                 *)
-  Ivy.init "Paparazzi map 2D" "READY" (fun _ _ -> ());
-  Ivy.start !ivy_bus;
+  if not !edit then begin
+    Ivy.init "Paparazzi map 2D" "READY" (fun _ _ -> ());
+    Ivy.start !ivy_bus
+  end;
 
   Srtm.add_path default_path_srtm;
   Gm.cache_path := var_maps_path;
@@ -501,7 +504,7 @@ let _main =
   if !fullscreen then
     window#fullscreen ();
   
-  ignore (window#connect#destroy ~callback:quit);
+  ignore (window#connect#destroy ~callback:(fun _ -> exit 0));
 
   (* Editor frame *)
   let editor_frame = GBin.frame () in
@@ -604,6 +607,12 @@ let _main =
 
   if !display_particules then
     Particules.listen geomap ;
+
+  if !file_to_edit <> "" then
+    if Sys.file_exists !file_to_edit then
+      EditFP.load_xml_file geomap editor_frame accel_group !file_to_edit
+    else
+      GToolbox.message_box "Error" (sprintf "Error: '%s' file does not exist\n%!" !file_to_edit);
 
   (** Threaded main loop (map tiles loaded concurently) *)
   GtkThread.main ()

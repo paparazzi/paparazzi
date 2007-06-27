@@ -114,21 +114,24 @@ let new_fp = fun geomap editor_frame accel_group () ->
 	     end);
     dialog#show ())
 
+
+let load_xml_file = fun geomap editor_frame accel_group xml_file ->
+  try
+    let xml = Xml.parse_file xml_file in
+    ignore (load_xml_fp geomap editor_frame accel_group ~xml_file xml);
+    geomap#fit_to_window ()
+  with
+    Dtd.Check_error(e) -> 
+      let m = sprintf "Error while loading %s:\n%s" xml_file (Dtd.check_error e) in
+      GToolbox.message_box "Error" m
+
       
 (** Loading a flight plan for edition *)
 let load_fp = fun geomap editor_frame accel_group () ->
   if_none (fun () ->
     match GToolbox.select_file ~title:"Open flight plan" ~filename:(Env.flight_plans_path // "*.xml") () with
       None -> ()
-    | Some xml_file ->
-	try
-	  let xml = Xml.parse_file xml_file in
-	  ignore (load_xml_fp geomap editor_frame accel_group ~xml_file xml);
-	  geomap#fit_to_window ()
-	with
-	  Dtd.Check_error(e) -> 
-	    let m = sprintf "Error while loading %s:\n%s" xml_file (Dtd.check_error e) in
-	    GToolbox.message_box "Error" m)
+    | Some xml_file -> load_xml_file geomap editor_frame accel_group xml_file)
 
 let create_wp = fun geomap geo ->
   match !current_fp with
