@@ -223,17 +223,18 @@ let dtd_children = fun tag dtd ->
 
 (** Make a submenu with labels from [labels]. Attach the generic [callback]
 which argument is the selected label *)
-let submenu = fun menuitem ss connect ->
+let submenu = fun ?(filter = fun _ -> true) menuitem ss connect ->
   let submenu = GMenu.menu () in
   List.iter 
     (fun tag ->
-      let menuitem = GMenu.menu_item ~label:tag ~packing:submenu#append () in
-      let _c = menuitem#connect#activate ~callback:(fun () -> connect tag) in
-      ())
+      if filter tag then
+	let menuitem = GMenu.menu_item ~label:tag ~packing:submenu#append () in
+	let _c = menuitem#connect#activate ~callback:(fun () -> connect tag) in
+	())
     ss;
   menuitem#set_submenu submenu
 
-(** Returns the compulsory attibutes of a given tag *)
+(** Returns the compulsory attributes of a given tag *)
 let required_attributes = fun tag dtd ->
   let rec filter = function
       Dtd.DTDAttribute (t, a, _, (Dtd.DTDDefault s|Dtd.DTDFixed s))::dis when t = tag -> (a,s)::filter dis
@@ -249,8 +250,8 @@ let allowed_attributes = fun tag dtd ->
     | [] -> [] in
   filter dtd
       
-let attr_submenu = fun menuitem tag dtd connect ->
-   submenu menuitem (allowed_attributes tag dtd) connect
+let attr_submenu = fun ?filter menuitem tag dtd connect ->
+   submenu ?filter menuitem (allowed_attributes tag dtd) connect
 	
 
 let selection = fun (tree_store, tree_view) ->
@@ -261,8 +262,6 @@ let selection = fun (tree_store, tree_view) ->
 	
 let attribs_menu_popup = fun dtd (tree_view:GTree.view) (model:GTree.tree_store) (attrib_row:Gtk.tree_iter) ->
   let menu = GMenu.menu () in
-  let menuitem = GMenu.menu_item ~label:"Delete" ~packing:menu#append () in
-  ignore (menuitem#connect#activate ~callback:(fun () -> ignore (model#remove attrib_row)));
   begin
     match tree_view#selection#get_selected_rows with
       path::_ ->
@@ -270,11 +269,22 @@ let attribs_menu_popup = fun dtd (tree_view:GTree.view) (model:GTree.tree_store)
 	let row = tree_model#get_iter path in
 	let current_tag = tree_model#get ~row ~column:tag_col in
 	let menuitem = GMenu.menu_item ~label:"Add after" ~packing:menu#append () in
+	let current_attrib = model#get ~row:attrib_row ~column:attribute in
+	if not (List.mem_assoc current_attrib (required_attributes current_tag dtd)) then begin
+	  let menuitem = GMenu.menu_item ~label:"Delete" ~packing:menu#append () in
+	  ignore (menuitem#connect#activate ~callback:(fun () -> ignore (model#remove attrib_row)))
+	end;
+
+	let l = ref [] in
+	model#foreach (fun _path row ->
+	  l := model#get ~row ~column:attribute :: !l; false);
+	let filter = fun x -> not (List.mem x !l) in
+
 	let connect = fun a ->
 	  let row = model#insert_after attrib_row in
 	  let av = (a, "???") in
 	  set_attr_value model row av in
-	attr_submenu menuitem current_tag dtd connect
+	attr_submenu ~filter menuitem current_tag dtd connect
     | _ -> ()
   end;
   menu#popup ~button:1 ~time:(GtkMain.Main.get_current_event_time ())
@@ -288,9 +298,9 @@ let add_one_menu = fun dtd (tree_view:GTree.view) (model:GTree.tree_store) ->
 	let menu = GMenu.menu () in
 	let menuitem = GMenu.menu_item ~label:"Add one" ~packing:menu#append () in
 	let connect = fun a ->
-	      let row = model#append () in
-	      let av = (a, "???") in
-	      set_attr_value model row av in
+	  let row = model#append () in
+	  let av = (a, "???") in
+	  set_attr_value model row av in
 	attr_submenu menuitem current_tag dtd connect;
 	menu#popup ~button:1 ~time:(GtkMain.Main.get_current_event_time ())
    | _ -> ()
@@ -301,18 +311,17 @@ let add_one_menu = fun dtd (tree_view:GTree.view) (model:GTree.tree_store) ->
 let add_context_menu = fun model view ?noselection_menu menu ->
   view#event#connect#button_press ~callback:
     (fun ev ->
-      if GdkEvent.Button.button ev = 3 then
-	match view#selection#get_selected_rows, noselection_menu with
-	  path::_, _ ->
-	    let row = model#get_iter path in
-	    menu model row;
-	    true
-	| [], Some menu ->
-	    menu model;
-	    true
-	| _ -> false
-      else
-	false)
+      GdkEvent.Button.button ev = 3
+	&&
+      match view#selection#get_selected_rows, noselection_menu with
+	path::_, _ ->
+	  let row = model#get_iter path in
+	  menu model row;
+	  true
+      | [], Some menu ->
+	  menu model;
+	  true
+      | _ -> false)
 
 let add_delete_key = fun (model:GTree.tree_store) (view:GTree.view) ->
   view#event#connect#key_press (fun ev ->
