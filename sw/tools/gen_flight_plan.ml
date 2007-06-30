@@ -76,7 +76,12 @@ let lprintf = fun f ->
   printf "%s" (String.make !margin ' ');
   printf f
 
-let float_attrib = fun xml a -> float_of_string (Xml.attrib xml a)
+let float_attrib = fun xml a -> 
+  try
+    float_of_string (Xml.attrib xml a)
+  with
+    Failure "float_of_string" ->
+      failwith (sprintf "Float expected in attribute '%s' from %s" a (Xml.to_string_fmt xml))
 let name_of = fun wp -> ExtXml.attrib wp "name"
 
 

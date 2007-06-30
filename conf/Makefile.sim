@@ -30,7 +30,7 @@
 SRC_ARCH = $(PAPARAZZI_SRC)/sw/airborne/sim
 
 CC = gcc
-OCAMLC = ocamlc -g
+OCAMLC = ocamlc
 SIMDIR = $(PAPARAZZI_SRC)/sw/simulator
 CAMLINCLUDES = -I +lablgtk2 -I $(PAPARAZZI_SRC)/sw/lib/ocaml -I $(SIMDIR)
 SIMSITLML = $(OBJDIR)/simsitl.ml

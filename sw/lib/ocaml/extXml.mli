@@ -48,8 +48,8 @@ val tag_is : Xml.xml -> string -> bool
 val attrib_or_default : Xml.xml -> string -> string -> string
 (** [get xml attribute_name default_value] *)
 
-val to_string_fmt : Xml.xml -> string
-(** [to_string_fmt xml] Returns a formatted string where tag and attribute
+val to_string_fmt : ?tab_attribs:bool -> Xml.xml -> string
+(** [to_string_fmt tab_attribs xml] Returns a formatted string where tag and attribute
 names are lowercase *)
 
 val subst_attrib : string -> string -> Xml.xml -> Xml.xml
