@@ -1,0 +1,11 @@
+This directory contains examples of kalman filters applied to a couple of attitude determinatation problems.
+
+tilt is a simple one axis angle problem - It fuses the data of a gyroscope and a two axis accelerometer to estimate an angle and the bias of the gyro.
+
+ahrs_euler estimates 3 eulers angles and 3 gyro biases - it exhibits the problems of singularities associated with euler angles, but the additive noise hypothesys of our kalman filter can be verified.
+
+ahrs_quat estimates a quaternion and 3 gyro biases - It doesn't have the problem of singularity of euler angles, but the additiv noise hypothesis is violated as it would make the quaternion non unitary.
+
+The _optim versions are "highly optimized" versions of the filters designed with a performance goal in mind when running on a microcontroller.
+
+Big thanx to the gurus : Trammel Hudson, Aaron Khan, Stephane Puechmorel and 
