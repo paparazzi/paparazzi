@@ -77,3 +77,42 @@ function [accel, mag, gyro] = imu_sim(time, rates, eulers)
     mag = [mag ma];
   end
 endfunction
+
+
+//
+//
+//
+// Angles Measurements
+//
+//
+//
+function [phi] = phi_of_accel(accel)
+  phi = atan(accel(2), accel(3));
+endfunction
+
+function [theta] = theta_of_accel(accel)
+  theta = -asin(accel(1) / norm(accel));   
+endfunction
+
+function [psi] = psi_of_mag(phi, theta, mag)
+  cphi   = cos( phi );
+  sphi   = sin( phi );
+  ctheta = cos( theta );
+  stheta = sin( theta );
+  mn = ctheta*      mag(1)+ sphi*stheta* mag(2)+ cphi*stheta* mag(3);
+  me = cphi*  mag(2) -sphi* mag(3);
+  psi = -atan( me, mn );
+endfunction
+
+function [m_eulers] = ahrs_compute_euler_measurements(accel, mag)
+  m_eulers = [];
+  [m n] = size(accel);
+  for i=1:n
+    phi = phi_of_accel(accel(:,i));
+    theta = theta_of_accel(accel(:,i));
+    psi = psi_of_mag(phi, theta, mag(:,i));
+    m_eulers = [m_eulers [phi;theta;psi]];
+  end
+
+endfunction
+
