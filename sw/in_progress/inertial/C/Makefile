@@ -5,16 +5,6 @@ LDFLAGS = `pkg-config glib-2.0 --libs` -lm
 %.o: %.c
 	gcc -c -Wall $(CFLAGS) -o $@ $<
 
-OBJS =  main.o    \
-	linalg.o  \
-	random.o  \
-	ukf.o     \
-	imu.o
-
-test_ukf: $(OBJS)
-	gcc  -o $@ $^ $(LDFLAGS)
-
-
 CFLAGS += `pkg-config gtk+-2.0 --cflags`
 LDFLAGS += `pkg-config gtk+-2.0 --libs` -lgtkdatabox 
 
@@ -43,63 +33,72 @@ OBJS_TILT_EKF =	tilt_data.o 	\
 		ekf.o		\
 		matrix.o        \
 
-CFLAGS += -DEKF_UPDATE_DISCRETE
-#CFLAGS += -DEKF_UPDATE_CONTINUOUS
+#CFLAGS += -DEKF_UPDATE_DISCRETE
+CFLAGS += -DEKF_UPDATE_CONTINUOUS
 tilt_ekf: $(OBJS_TILT_EKF)
 	gcc  -o $@ $^ $(LDFLAGS) 
 
 
-OBJS_TILT_EKF_OPTIM =	tilt_data.o 	 \
+OBJS_TILT_FAST_EKF =	tilt_data.o 	 \
 			tilt_display.o	 \
 			tilt_utils.o     \
 		        random.o       	 \
-			tilt_ekf_optim.o \
+			tilt_fast_ekf.o
 
-tilt_ekf_optim: $(OBJS_TILT_EKF_OPTIM)
-	gcc  -o $@ $^ $(LDFLAGS)
-
-#
-#
-# AHRS
-#
-#
-
-OBJS_AHRS_UKF = ahrs_ukf.o 	\
-		ahrs_utils.o    \
-		ahrs_data.o     \
-		ahrs_display.o	\
-		ukf.o           \
-		linalg.o
-
-ahrs_ukf: $(OBJS_AHRS_UKF)
-	gcc  -o $@ $^ $(LDFLAGS)
-
-OBJS_AHRS_EKF = ahrs_ekf.o 	\
-		ahrs_utils.o    \
-		ahrs_data.o     \
-		ahrs_display.o	\
-		ekf.o           \
-		matrix.o
-
-#CFLAGS += -DAHRS
-ahrs_ekf: $(OBJS_AHRS_EKF)
-	gcc  -o $@ $^ $(LDFLAGS)
-
-
-OBJS_AHRS_FAST_EKF = ahrs_fast_ekf_run.o	\
-		     ahrs_fast_ekf.o    	\
-		     ahrs_data.o		\
-		     ahrs_display.o		\
-		     ahrs_utils.o		\
-
-
-ahrs_fast_ekf: $(OBJS_AHRS_FAST_EKF)
+tilt_fast_ekf: $(OBJS_TILT_FAST_EKF)
 	gcc  -o $@ $^ $(LDFLAGS)
 
 
 #
 #
-# Tests
+# AHRS EULER
+#
+#
+
+
+
+
+#
+#
+# AHRS QUAT
+#
+#
+
+OBJS_AHRS_QUAT_UKF = ahrs_quat_ukf.o \
+		     ahrs_utils.o    \
+		     ahrs_data.o     \
+		     ahrs_display.o  \
+		     ukf.o           \
+		     linalg.o
+
+ahrs_quat_ukf: $(OBJS_AHRS_QUAT_UKF)
+	gcc  -o $@ $^ $(LDFLAGS)
+
+OBJS_AHRS_QUAT_EKF = ahrs_quat_ekf.o \
+		     ahrs_utils.o    \
+		     ahrs_data.o     \
+		     ahrs_display.o  \
+		     ekf.o           \
+		     matrix.o
+
+ahrs_quat_ekf: $(OBJS_AHRS_QUAT_EKF)
+	gcc  -o $@ $^ $(LDFLAGS)
+
+
+OBJS_AHRS_QUAT_FAST_EKF = ahrs_quat_fast_ekf_main.o	\
+		          ahrs_quat_fast_ekf.o    	\
+		     	   ahrs_data.o		        \
+		           ahrs_display.o		\
+		           ahrs_utils.o		        \
+
+
+ahrs_quat_fast_ekf: $(OBJS_AHRS_QUAT_FAST_EKF)
+	gcc  -o $@ $^ $(LDFLAGS)
+
+
+#
+#
+# Test
 #
 #
 
@@ -109,5 +108,14 @@ OBJS_TEST_MATRIX = 	test_matrix.o 	\
 test_matrix: $(OBJS_TEST_MATRIX)
 	gcc  -o $@ $^ $(LDFLAGS) 
 
+OBJS_TEST_UKF =  main.o    \
+		linalg.o  \
+		random.o  \
+		ukf.o     \
+
+test_ukf: $(OBJS_TEST_UKF)
+	gcc  -o $@ $^ $(LDFLAGS)
+
+
 clean:
-	rm -f *~ *.o test_ukf tilt_ukf tilt_ekf tilt_ekf_optim ahrs_ukf ahrs_ekf ahrs_fast_ekf test_matrix
+	rm -f *~ *.o tilt_ukf tilt_ekf tilt_fast_ekf ahrs_quat_ukf ahrs_quat_ekf ahrs_quat_fast_ekf test_matrix test_ukf

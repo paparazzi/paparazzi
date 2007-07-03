@@ -69,10 +69,10 @@ main(int argc, char *argv[]) {
   gtk_init(&argc, &argv);
 
   //td = tilt_data_gen();
-  //td = tilt_data_read_log("data/log_ahrs_still");
-  td = tilt_data_read_log("data/log_ahrs_roll");
-  //td = tilt_data_read_log("data/log_ahrs_bug");
-  //td = tilt_data_read_log("data/log_ahrs_yaw_pitched");
+  //td = tilt_data_read_log("../data/log_ahrs_still");
+  td = tilt_data_read_log("../data/log_ahrs_roll");
+  //td = tilt_data_read_log("../data/log_ahrs_bug");
+  //td = tilt_data_read_log("../data/log_ahrs_yaw_pitched");
   run_ukf(td);
   tilt_display(td);
 
