@@ -82,7 +82,7 @@ eulers_dot = rted * (rates_out + rates_in)/2;
 eulers_out = eulers_in + eulers_dot * dt;
 
 
-d_phidot_d_state = [ cos(phi)*tan(theta)*q - sin(phi)*tan(theta)*q 
+d_phidot_d_state = [ cos(phi)*tan(theta)*q - sin(phi)*tan(theta)*r 
                      1/(1+theta^2) * (sin(phi)*q+cos(phi)*r)
 		     0
 		    -1
