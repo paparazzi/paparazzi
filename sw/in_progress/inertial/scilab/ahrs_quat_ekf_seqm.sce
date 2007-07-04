@@ -1,7 +1,7 @@
 clear();
 getf('rotations.sci');
 getf('imu.sci');
-getf('ahrs_utils.sci');
+getf('ahrs_quat_utils.sci');
 getf('ekf.sci');
 
 use_sim = 1;

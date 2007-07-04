@@ -1,4 +1,4 @@
-tilt :
+0/ tilt
 
 
 1/ ahrs_euler
@@ -8,4 +8,7 @@ ahrs_euler_ekf_compm:
 	
 ahrs_euler_ekf_seqm:
 	euler angles + bias estimation using ekf filter and sequential measurements ( one of each euler angle every update)
+
+
+2/ ahrs_quat
 
