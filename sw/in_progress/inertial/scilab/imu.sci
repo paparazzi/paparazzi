@@ -104,6 +104,17 @@ function [psi] = psi_of_mag(phi, theta, mag)
   psi = -atan( me, mn );
 endfunction
 
+function [euler] = euler_of_accel_mag(accel, mag)
+
+  phi = phi_of_accel(accel);
+  theta = theta_of_accel(accel);
+  psi = psi_of_mag(phi, theta, mag);
+
+  euler = [ phi; theta; psi];
+
+endfunction
+
+
 function [m_eulers] = ahrs_compute_euler_measurements(accel, mag)
   m_eulers = [];
   [m n] = size(accel);

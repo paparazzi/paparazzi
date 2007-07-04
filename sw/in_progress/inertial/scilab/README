@@ -1,0 +1,11 @@
+tilt :
+
+
+1/ ahrs_euler
+
+ahrs_euler_ekf_compm:
+	euler angles + bias estimation using ekf filter and complete measurements ( all 3 euler angles for every update)
+	
+ahrs_euler_ekf_seqm:
+	euler angles + bias estimation using ekf filter and sequential measurements ( one of each euler angle every update)
+
