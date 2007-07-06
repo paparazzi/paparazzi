@@ -113,4 +113,4 @@ for i=2:length(time)
   
 end
 
-ahrsh_euler_display(time, X, P, M)
+ahrs_euler_display(time, X, P, M)

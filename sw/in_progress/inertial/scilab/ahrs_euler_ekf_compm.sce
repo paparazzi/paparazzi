@@ -45,16 +45,16 @@ Q = [ Qe   0   0   0   0   0
        0   0   0   0  Qb   0
        0   0   0   0   0  Qb ];
 
-// measure covariance noise
+// measurement covariance noise
 R = [
       1.3^2  0.     0.  
       0.     1.3^2  0.
       0.     0.     2.5^2
     ];
 
-X=[X0];
-P=[P0];
-M=[X0(1:3)];
+X=[X0];       // state
+P=[P0];       // state covariance
+M=[X0(1:3)];  // measurements
 
 for i=2:length(time)
   // command
@@ -89,4 +89,4 @@ for i=2:length(time)
   
 end
 
-ahrsh_euler_display(time, X, P, M)
+ahrs_euler_display(time, X, P, M)

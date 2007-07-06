@@ -39,7 +39,7 @@ endfunction
 //
 //
 //
-function [] = ahrsh_euler_display(time, X, P, M)
+function [] = ahrs_euler_display(time, X, P, M)
   xbasc();
   subplot(3,1,1)
   xtitle('Angle');

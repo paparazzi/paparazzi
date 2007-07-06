@@ -12,3 +12,6 @@ ahrs_euler_ekf_seqm:
 
 2/ ahrs_quat
 
+ahrs_quat_ekf_compm:
+	quaternion + bias estimation using ekf filter and complete measurements ( all 3 euler angles for every update)
+

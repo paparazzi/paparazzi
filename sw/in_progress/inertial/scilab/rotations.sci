@@ -22,7 +22,7 @@ q1 = -cosphi2 * sintheta2 * sinpsi2 + sinphi2 * costheta2 * cospsi2;
 q2 =  cosphi2 * sintheta2 * cospsi2 + sinphi2 * costheta2 * sinpsi2;
 q3 =  cosphi2 * costheta2 * sinpsi2 - sinphi2 * sintheta2 * cospsi2;
 
-quat = [q0 q1 q2 q3];
+quat = [q0 q1 q2 q3]';
 
 endfunction
 
@@ -38,13 +38,13 @@ function [euler] = euler_of_quat(quat)
   theta = -asin( dcm02 );
   psi = atan( dcm01, dcm00 );
 
-  euler = [phi theta psi];
+  euler = [phi; theta; psi];
 endfunction
 
 function [X1] = normalise_quat(X0)
  quat = X0(1:4);
  quat = quat / norm(quat);
- X1 = [quat; X0(5:7)];
+ X1 = [quat];
 endfunction
 
 
