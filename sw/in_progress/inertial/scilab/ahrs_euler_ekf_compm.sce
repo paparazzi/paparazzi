@@ -7,6 +7,7 @@ getf('ekf.sci');
 use_sim = 1;
 
 if (use_sim),
+  rand('seed', 0);
   getf('quadrotor.sci');
   true_euler0 = [ 0.01; 0.2; 0.4]; 
   dt =  0.015625;
@@ -56,6 +57,8 @@ X=[X0];       // state
 P=[P0];       // state covariance
 M=[X0(1:3)];  // measurements
 
+predict_only = 0;
+
 for i=2:length(time)
   // command
   rate_i_ = gyro(:,i-1) - X(4:6,i-1);
@@ -69,23 +72,24 @@ for i=2:length(time)
   Fi_ = ahrs_euler_get_F(Xi_, rate_i_);
    
   [Xpred, Ppred] = ekf_predict_continuous(Xi_, Xdoti_, dt, Pi_, Fi_, Q);
-  
-//  X = [X Xpred];
-//  P = [P Ppred];
-  
+ 
   measure_i1 = euler_of_accel_mag(accel(:, i), mag(:, i));
 
   M = [M measure_i1];
+    
+  if  predict_only, 
+    X = [X Xpred];
+    P = [P Ppred];
+  else
+    err = measure_i1 - Xpred(1:3);
   
-  err = measure_i1 - Xpred(1:3);
+    H = ahrs_euler_compm_get_deuler_dX(Xpred);
   
-  H = ahrs_euler_compm_get_deuler_dX(Xpred);
+    [Xup, Pup] = ekf_update(Xpred, Ppred, H, R, err);
   
-  [Xup, Pup] = ekf_update(Xpred, Ppred, H, R, err);
-  
-  X = [X Xup];
-  P = [P Pup]; 
-  
+    X = [X Xup];
+    P = [P Pup]; 
+  end
   
 end
 
