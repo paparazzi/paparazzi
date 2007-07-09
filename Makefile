@@ -55,7 +55,7 @@ ARMGCC=/usr/bin/arm-elf-gcc
 
 all: static
 
-static : lib tools cockpit visu3d multimon tmtc logalizer lpc21iap sim_static static_h usb_lib
+static : lib center tools cockpit visu3d multimon tmtc logalizer lpc21iap sim_static static_h usb_lib
 
 conf: conf/conf.xml conf/control_panel.xml
 
@@ -65,6 +65,9 @@ conf/%.xml :conf/%.xml.example
 
 lib:
 	cd $(LIB)/ocaml; $(MAKE)
+
+center: lib
+	cd sw/supervision; make
 
 tools: lib
 	cd $(TOOLS); make

@@ -31,11 +31,6 @@ let list_sort = fun f l -> List.sort (fun x y -> compare (f x) (f y)) l
 let display_delay = 500 (* Time in second between two updates *)
 let led_delay = 500 (* Time in milliseconds while the green led is displayed *)
 
-
-let (//) = Filename.concat
-
-let xml_file = Env.paparazzi_src // "conf" // "messages.xml"
-
 let dnd_targets = [ { Gtk.target = "STRING"; flags = []; info = 0} ]
 
 (** Display one page for a message *)
@@ -184,7 +179,7 @@ let _ =
 
   (** Get the XML description of the required classes *)
   let xml_classes =
-    let xml = Xml.parse_file xml_file in
+    let xml = Pprz.messages_xml () in
     let class_of = fun n ->
       try
 	List.find (fun x -> ExtXml.attrib x "name" = n) (Xml.children xml)

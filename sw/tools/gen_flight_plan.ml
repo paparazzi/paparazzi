@@ -564,7 +564,7 @@ let check_geo_ref = fun xml ->
   let utm0 = utm_of WGS84 { posn_lat=(Deg>>Rad)lat0_deg;
 			    posn_long=(Deg>>Rad)lon0_deg } in
 
-  let max_d = get_float "max_dist_from_home" in
+  let max_d = min 1000. (get_float "max_dist_from_home") in
   let check_zone = fun u ->
     if (utm_of WGS84 (of_utm WGS84 u)).utm_zone <> utm0.utm_zone then
       failwith "Fatal error: You are too close (less than twice the max distance) to an UTM zone border !" in

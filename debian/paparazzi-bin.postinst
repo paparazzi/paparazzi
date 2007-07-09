@@ -24,5 +24,8 @@ ${OCAMLOPT} -I +lablgtk2 -I ${DESTDIR}/sw/lib/ocaml -o plot unix.cmxa str.cmxa x
 cd ${DESTDIR}/sw/simulator
 ${OCAMLC} -custom -I +lablgtk2 -I ${DESTDIR}/sw/lib/ocaml unix.cma str.cma xml-light.cma lablgtk.cma glibivy-ocaml.cma lib-pprz.cma gtkInit.cmo gaia.cmo -o gaia
 
+cd ${DESTDIR}/sw/supervision
+${OCAMLC} -custom -I +lablgtk2 -I ${DESTDIR}/sw/lib/ocaml unix.cma str.cma xml-light.cma lablgtk.cma glibivy-ocaml.cma lib-pprz.cma lablglade.cma lablgnomeui.cma gtkInit.cmo gtk_pc.cmo gtk_process.cmo pc_common.cmo pc_aircraft.cmo pc_control_panel.cmo paparazzicenter.cmo -o paparazzicenter
+
 cd ${DESTDIR}/sw/tools
 ${OCAMLC} -custom -I +lablgtk2 -I ${DESTDIR}/sw/lib/ocaml unix.cma str.cma xml-light.cma ivy-ocaml.cma lib-pprz.cma fp_syntax.cmo fp_parser.cmo fp_lexer.cmo fp_proc.cmo gen_flight_plan.cmo -o gen_flight_plan.out

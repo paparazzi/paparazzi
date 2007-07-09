@@ -175,7 +175,7 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
     method top_still = 3.5*.s
 	
     val adj = GData.adjustment 
-	~value:1. ~lower:0.05 ~upper:10. 
+	~value:1. ~lower:0.005 ~upper:10. 
 	~step_incr:0.25 ~page_incr:1.0 ~page_size:1.0 ()
   
     method info = info

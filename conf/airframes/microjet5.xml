@@ -253,7 +253,7 @@ ap.CFLAGS += -DINFRARED
 ap.srcs += infrared.c estimator.c
 
 ap.CFLAGS += -DNAV
-ap.srcs += nav.c fw_h_ctl.c fw_v_ctl.c 
+ap.srcs += nav.c fw_h_ctl.c fw_v_ctl.c nav_survey_rectangle.c
 
 
 ap.CFLAGS += -DGYRO -DADXRS150 -DPID_RATE_LOOP
@@ -267,7 +267,7 @@ ap.srcs += gyro.c
 # Config for SITL simulation
 include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
 sim.CFLAGS += -DCONFIG=\"tiny.h\" -DLOITER_TRIM -DMOBILE_CAM -DCAM
-sim.srcs += nav_line.c traffic_info.c cam.c
+sim.srcs += nav_survey_rectangle.c traffic_info.c cam.c
 
 
 

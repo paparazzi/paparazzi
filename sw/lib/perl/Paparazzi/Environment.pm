@@ -26,7 +26,7 @@ if (defined $ENV{PAPARAZZI_HOME}) {
 #else {
 #  print "system mode\n  inst_prefix     INST_PREFIX";
 #}
-print "  paparazzi_home $paparazzi_home\n\n";
+#print "  paparazzi_home $paparazzi_home\n\n";
 
 
 sub set_env {

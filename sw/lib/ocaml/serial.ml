@@ -86,7 +86,7 @@ let opendev device speed =
     init_serial device speed
   with
     Failure x ->
-      failwith (Printf.sprintf "%s (%s)" x device)
+      failwith (Printf.sprintf "Error %s (%s)" x device)
 
 let close = Unix.close
 

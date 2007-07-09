@@ -23,26 +23,6 @@
     flight_plan="flight_plans/dummy.xml"
   />
 
-  <aircraft 
-    name="GRZE3"
-    ac_id="3"
-    airframe="airframes/gorrazoptere_esc_3DMG.xml" 
-    radio="radios/cockpitMM.xml" 
-    telemetry="telemetry/default.xml"
-    flight_plan="flight_plans/dummy.xml"
-  />
-
-  <aircraft 
-    name="G91"
-    ac_id="4"
-    airframe="airframes/gorrazoptere_091.xml" 
-    radio="radios/cockpitMM.xml" 
-    telemetry="telemetry/grz.xml"
-    flight_plan="flight_plans/grz.xml"
-    settings="settings/grz.xml"
-  />
-
-
 <!-- arm7 aircrafts -->
 
  <!-- tiny -->

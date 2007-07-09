@@ -33,6 +33,8 @@ let fos = float_of_string
 
 let raw_datalink_msg_separator = Str.regexp ";"
 
+let norc = ref false
+
 module Make(A:Data.MISSION) = struct
 
   let servos_period = 1./.40. (* s *)
@@ -125,7 +127,8 @@ module Make(A:Data.MISSION) = struct
 
   let my_id = ref (-1)
   let init = fun id vbox ->
-    rc ();
+    if not !norc then
+      rc ();
     my_id := id;
     sim_init ();
 
@@ -222,4 +225,4 @@ module Make(A:Data.MISSION) = struct
     use_gps_pos (cm utm.utm_x) (cm utm.utm_y) utm.utm_zone gps.Gps.course gps.Gps.alt gps.Gps.gspeed gps.Gps.climb gps.Gps.time gps.Gps.availability gps.Gps.wgs84.Latlong.posn_lat gps.Gps.wgs84.Latlong.posn_long
 
 end
-let options = []
+let options = ["-norc", Arg.Set norc, "Hide the simulated RC"]

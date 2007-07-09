@@ -55,7 +55,7 @@ let airborne_device = fun device addr ->
   match device with
     "WAVECARD" -> WavecardDevice (W.addr_of_string addr)
   | "XBEE" -> XBeeDevice
-  | "PPRZ" -> Uart
+  | "PPRZ" | "AEROCOMM" -> Uart
   | _ -> failwith (sprintf "Link: unknown datalink: %s" device)
 
 let get_define = fun xml name ->

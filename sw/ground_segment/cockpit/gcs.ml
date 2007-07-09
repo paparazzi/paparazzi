@@ -340,6 +340,7 @@ and plugin_window = ref ""
 and layout_file = ref "horizontal.xml"
 and edit = ref false
 and display_particules = ref false
+and wid = ref None
 
 let options =
   [ "-b", Arg.String (fun x -> ivy_bus := x), "Bus\tDefault is 127.255.255.25:2010";
@@ -364,6 +365,7 @@ let options =
     "-google_fill", Arg.Set GM.auto, "Google maps auto fill";
     "-speech", Arg.Set Speech.active, "Active vocal messages";
     "-particules", Arg.Set display_particules, "Display particules";
+    "-wid", Arg.String (fun s -> wid := Some (Int32.of_string s)), "<window id> Id of an existing window to be attached to";
     "-m", Arg.String (fun x -> map_files := x :: !map_files), "Map description file"]
 
 
@@ -374,7 +376,7 @@ let quit = fun () ->
       exit 0
   | _ -> ()
 
-let create_geomap = fun window editor_frame ->
+let create_geomap = fun window switch_fullscreen editor_frame ->
   let geomap = new G.widget ~height:500 ~projection:!projection () in
 
   let menu_fact = new GMenu.factory geomap#file_menu in
@@ -385,11 +387,6 @@ let create_geomap = fun window editor_frame ->
   ignore (geomap#canvas#event#connect#any (any_event geomap));
 
   ignore (menu_fact#add_item "Redraw" ~key:GdkKeysyms._L ~callback:(fun _ -> geomap#canvas#misc#draw None));
-  let switch_fullscreen = fun x ->
-    if x then
-      window#fullscreen ()
-    else
-      window#unfullscreen () in
   ignore (menu_fact#add_check_item "Fullscreen" ~key:GdkKeysyms._F ~active: !fullscreen ~callback:switch_fullscreen);
   ignore (menu_fact#add_item "Quit" ~key:GdkKeysyms._Q ~callback:quit);
 
@@ -498,18 +495,29 @@ let _main =
   and height = ExtXml.int_attrib layout "height" in
   
   (** The whole window map2d **)
-  let window = GWindow.window ~title:"Paparazzi GCS" ~border_width:1 ~width ~height ~allow_shrink:true () in
-  if !maximize then
-    window#maximize ();
-  if !fullscreen then
-    window#fullscreen ();
-  
-  ignore (window#connect#destroy ~callback:(fun _ -> exit 0));
+  let window, switch_fullscreen =
+    match !wid with
+      None ->
+	let window = GWindow.window ~title:"Paparazzi GCS" ~border_width:1 ~width ~height ~allow_shrink:true () in
+	if !maximize then
+	  window#maximize ();
+	if !fullscreen then
+	  window#fullscreen ();
+	ignore (window#connect#destroy ~callback:(fun _ -> exit 0));
+	let switch_fullscreen = fun x ->
+	  if x then
+	    window#fullscreen ()
+	  else
+	    window#unfullscreen () in
+	(window:>GWindow.window_skel),switch_fullscreen
 
+    | Some window ->
+	(GWindow.plug ~window ~width ~height ():>GWindow.window_skel), fun _ -> () in
+	
   (* Editor frame *)
   let editor_frame = GBin.frame () in
 
-  let geomap, menu_fact = create_geomap window editor_frame in
+  let geomap, menu_fact = create_geomap window switch_fullscreen editor_frame in
 
   let map_frame = GPack.vbox () in
   (** Put the canvas in a frame *)

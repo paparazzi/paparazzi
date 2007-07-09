@@ -20,6 +20,8 @@ install_data:
 	$(INSTALL) -d $(DESTDIR)/data/pictures
 	$(INSTALLDATA) var/maps/trtqtttqtsrrt*.jpg $(DESTDIR)/data/maps
 	$(INSTALLDATA) data/pictures/*.gif data/pictures/*.svg data/pictures/*.jpg data/pictures/*.png $(DESTDIR)/data/pictures
+	$(INSTALL) -d $(PREFIX)/usr/share/pixmaps
+	$(INSTALLDATA) data/pictures/penguin_icon.png $(PREFIX)/usr/share/pixmaps/paparazzi.png
 	$(INSTALL) -d $(DESTDIR)/data/srtm
 	$(INSTALLDATA) data/srtm/N43E001.hgt.bz2 $(DESTDIR)/data/srtm
 
@@ -73,6 +75,8 @@ install_bin:
 	$(INSTALL) -d $(PREFIX)/usr/bin/
 	$(INSTALL) -d $(DESTDIR)/sw/supervision
 	$(INSTALL) sw/supervision/paparazzi.pl $(DESTDIR)/sw/supervision
+	$(INSTALL) sw/supervision/paparazzicenter.glade $(DESTDIR)/sw/supervision
+	$(INSTALL) sw/supervision/*.cmo $(DESTDIR)/sw/supervision
 	$(INSTALL) paparazzi-make $(PREFIX)/usr/bin/
 	$(INSTALLDATA) -d $(DESTDIR)/sw/simulator
 	$(INSTALL) sw/simulator/*.cmo $(DESTDIR)/sw/simulator
@@ -90,6 +94,7 @@ install_bin:
 	$(INSTALL) sw/logalizer/plot.pl $(DESTDIR)/sw/logalizer
 	ln -sf ../share/paparazzi/sw/ground_segment/cockpit/gcs $(PREFIX)/usr/bin/paparazzi-gcs
 	ln -sf ../share/paparazzi/sw/supervision/paparazzi.pl $(PREFIX)/usr/bin/paparazzi
+	ln -sf ../share/paparazzi/sw/supervision/paparazzicenter $(PREFIX)/usr/bin/paparazzicenter
 
 install_libs:
 	$(INSTALL) -d $(PREFIX)/usr/lib/perl5/Paparazzi

@@ -40,7 +40,7 @@ AIRBORNE = ../airborne
 VARINCLUDE=$(PAPARAZZI_HOME)/var/include
 ACINCLUDE = $(PAPARAZZI_HOME)/var/$(AIRCRAFT)
 
-all : gaia sitl.cma simhitl
+all : gaia sitl.cma simhitl launchsitl
 
 simhitl : fg.o $(SIMHCMO) simhitl.cmo
 	@echo OL $@

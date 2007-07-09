@@ -1,6 +1,9 @@
 <!DOCTYPE flight_plan SYSTEM "flight_plan.dtd">
 
-<flight_plan ground_alt="0" alt="75" lat0="43.4622" lon0="1.2729" max_dist_from_home="1000" name="Versatile" qfu="270" security_height="25">
+<flight_plan ground_alt="0" alt="75" lat0="43.4622" lon0="1.2729" max_dist_from_home="1500" name="Versatile" qfu="270" security_height="25">
+<header>
+#include "datalink.h"
+</header>
   <waypoints>
     <waypoint name="HOME" x="0" y="0"/>
     <waypoint name="1" x="200" y="0"/>
@@ -132,6 +135,12 @@
 
     <block name="heading">
        <heading until="FALSE" course="30" alt="ground_alt+50"/>
+    </block>
+
+    <block name="far away">
+      <exception cond="datalink_time > 22" deroute="circle 1"/>
+      <go approaching_time="0" from="1" hmode="route" wp="2"/>
+      <go approaching_time="0" from="2" hmode="route" wp="1"/>
     </block>
 
   </blocks>

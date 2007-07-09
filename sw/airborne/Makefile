@@ -25,7 +25,7 @@ OBJDIR = $(PAPARAZZI_HOME)/var/$(AIRCRAFT)/$(TARGET)
 VARINCLUDE=$(PAPARAZZI_HOME)/var/include
 ACINCLUDE = $(PAPARAZZI_HOME)/var/$(AIRCRAFT)
 
-INCLUDES = -I $(PAPARAZZI_SRC)/sw/include -I $(PAPARAZZI_SRC)/sw/airborne -I $(PAPARAZZI_SRC)/conf/autopilot -I $(PAPARAZZI_SRC)/sw/airborne/$($(TARGET).ARCHDIR) -I $(VARINCLUDE) -I $(ACINCLUDE)  
+INCLUDES = -I $(PAPARAZZI_SRC)/sw/include -I $(PAPARAZZI_SRC)/var/include -I $(PAPARAZZI_SRC)/sw/airborne -I $(PAPARAZZI_SRC)/conf/autopilot -I $(PAPARAZZI_SRC)/sw/airborne/$($(TARGET).ARCHDIR) -I $(VARINCLUDE) -I $(ACINCLUDE)  
 
 SRC_ARCH = $(PAPARAZZI_SRC)/sw/airborne/$(ARCHDIR)
 
