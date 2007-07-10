@@ -84,7 +84,8 @@ module Make(A:Data.MISSION) = struct
 
   let rc = fun () ->
     let name = Xml.attrib A.ac.Data.radio "name" ^ " " ^ A.ac.Data.name in
-    let window = GWindow.window ~title:name ~border_width:0 ~width:200 ~height:400 () in
+    let icon = GdkPixbuf.from_file Env.icon_file in
+    let window = GWindow.window ~icon ~title:name ~border_width:0 ~width:200 ~height:400 () in
     let quit = fun () -> GMain.Main.quit (); exit 0 in
     ignore (window#connect#destroy ~callback:quit);
     let vbox = GPack.vbox ~height:10 ~spacing: 1 ~border_width: 1 ~packing:window#add () in

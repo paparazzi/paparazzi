@@ -52,7 +52,7 @@ messages : messages.cmo
 	$(Q)$(OCAMLC) -custom $(INCLUDES) -o $@ unix.cma str.cma xml-light.cma lablgtk.cma glibivy-ocaml.cma lib-pprz.cma gtkInit.cmo $^
 
 
-settings : settings.ml
+settings : settings.cmo
 	@echo OL $@
 	$(Q)$(OCAMLC) -custom $(INCLUDES) -I ../cockpit -o $@ unix.cma str.cma xml-light.cma lablgtk.cma glibivy-ocaml.cma lib-pprz.cma gtkInit.cmo pages.cmo $^
 
@@ -84,6 +84,8 @@ ihm :  ihm.cmo
 	@echo OL $@
 	$(Q)$(OCAMLC) -custom $(INCLUDES) -o $@ unix.cma str.cma xml-light.cma lablgtk.cma glibivy-ocaml.cma lib-pprz.cma $^
 
+
+settings.cmo : INCLUDES += -I ../cockpit
 
 %.cmo : %.ml $(LIBPPRZCMA)
 	@echo OC $<

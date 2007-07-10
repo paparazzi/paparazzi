@@ -498,7 +498,8 @@ let _main =
   let window, switch_fullscreen =
     match !wid with
       None ->
-	let window = GWindow.window ~title:"Paparazzi GCS" ~border_width:1 ~width ~height ~allow_shrink:true () in
+	let icon = GdkPixbuf.from_file Env.icon_file in
+  	let window = GWindow.window ~icon ~title:"GCS" ~border_width:1 ~width ~height ~allow_shrink:true () in
 	if !maximize then
 	  window#maximize ();
 	if !fullscreen then

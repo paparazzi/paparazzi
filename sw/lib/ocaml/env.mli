@@ -32,3 +32,5 @@ val paparazzi_src : string
 
 val flight_plans_path : string
 val flight_plan_dtd : string
+
+val icon_file : string

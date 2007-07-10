@@ -42,3 +42,5 @@ let paparazzi_home =
 let flight_plans_path = paparazzi_home // "conf" // "flight_plans"
 
 let flight_plan_dtd = flight_plans_path // "flight_plan.dtd"
+
+let icon_file = paparazzi_home // "data/pictures/penguin_icon.png"

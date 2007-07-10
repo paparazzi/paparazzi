@@ -161,7 +161,8 @@ let play adj speed =
   
 
 let _ =
-  let window = GWindow.dialog ~title:"Paparazzi Replay" ~width:300 () in
+  let icon = GdkPixbuf.from_file Env.icon_file in
+  let window = GWindow.dialog ~icon ~title:"Replay" ~width:300 () in
   let quit = fun () -> GMain.Main.quit (); exit 0 in
   ignore (window#connect#destroy ~callback:quit);
 

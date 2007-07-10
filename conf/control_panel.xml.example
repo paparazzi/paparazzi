@@ -20,6 +20,10 @@
       <arg flag="-b" variable="ivy_bus"/>
     </program>
 
+    <program name="settings" command="sw/ground_segment/tmtc/settings">
+      <arg flag="-b" variable="ivy_bus"/>
+    </program>
+
     <program name="gcs" command="sw/ground_segment/cockpit/gcs">
       <arg flag="-b" variable="ivy_bus"/>
     </program>

@@ -43,7 +43,8 @@ let parse_args = fun () ->
 
 let _ =
   parse_args ();
-  let window = GWindow.window ~title:"Gaia" () in
+  let icon = GdkPixbuf.from_file Env.icon_file in
+  let window = GWindow.window ~icon ~title:"Gaia" () in
   let quit = fun () -> GMain.Main.quit (); exit 0 in
   ignore (window#connect#destroy ~callback:quit);
 

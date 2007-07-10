@@ -78,7 +78,8 @@ let _ =
   Ivy.start !ivy_bus;
 
   (** Open the window container with its notebook*)
-  let window = GWindow.window ~width:400 ~height:300 ~allow_shrink:true ~title:"Paparazzi settings" () in
+  let icon = GdkPixbuf.from_file Env.icon_file in
+  let window = GWindow.window ~icon ~width:400 ~height:300 ~allow_shrink:true ~title:"PaSettings" () in
 
   let notebook = GPack.notebook ~packing:window#add ~tab_pos:`TOP () in
 

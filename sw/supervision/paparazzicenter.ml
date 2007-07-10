@@ -36,6 +36,8 @@ let () =
   ignore (gui#window#connect#destroy ~callback:(fun _ -> CP.close_programs gui; exit 0));
   gui#toplevel#show ();
 
+  gui#window#set_icon (Some (GdkPixbuf.from_file Env.icon_file));
+
   let ac_combo = AC.parse_conf_xml gui#vbox_ac
   and target_combo = combo ["sim";"fbw";"ap"] gui#vbox_target in
 

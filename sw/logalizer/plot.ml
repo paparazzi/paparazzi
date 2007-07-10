@@ -426,6 +426,7 @@ let screenshot = fun frame () ->
 
 let rec plot_window = fun init ->
   let plotter = GWindow.window ~allow_shrink:true ~title:"Log Plotter" () in
+  plotter#set_icon (Some (GdkPixbuf.from_file Env.icon_file));  
   let vbox = GPack.vbox ~packing:plotter#add () in
   let quit = fun () -> GMain.Main.quit (); exit 0 in
 
@@ -459,7 +460,7 @@ let rec plot_window = fun init ->
     !logs_menus;
 
   tooltips#set_tip plot#drawing_area#coerce ~text:"Drop a messages field here to draw it";
-  ignore (plotter#connect#destroy ~callback:(fun () -> plot#destroy ()));
+  ignore (plotter#connect#destroy ~callback:(fun () -> plot#destroy (); quit ()));
 
   (* Auto Scale *)
   let auto_scale = GButton.check_button ~label:"Auto Scale" ~active:true ~packing:h#pack () in
