@@ -5,6 +5,9 @@ getf('ahrs_euler_utils.sci');
 getf('ekf.sci');
 
 use_sim = 1;
+predict_only = 0;
+predict_discrete = 0;
+use_state_for_psi = 0;
 
 if (use_sim),
   rand('seed', 0);
@@ -15,9 +18,9 @@ if (use_sim),
   [accel, mag, gyro] = imu_sim(time, true_rates, true_eulers);
 else
   //filename = "../data/log_ahrs_test";
-  filename = "../data/log_ahrs_bug";
+  //filename = "../data/log_ahrs_bug";
   //filename = "../data/log_ahrs_roll";
-  //filename = "../data/log_ahrs_yaw_pitched";
+  filename = "../data/log_ahrs_yaw_pitched";
   [time, accel, mag, gyro] = imu_read_log(filename);
 end
 
@@ -36,7 +39,7 @@ P0 = [ P0e   0   0   0   0   0
          0   0   0   0   0  P0b ];
 
 // process covariance noise 
-Qe = 0.;
+Qe = 0.0;
 Qb = 0.008;
 
 Q = [ Qe   0   0   0   0   0
@@ -57,7 +60,6 @@ X=[X0];       // state
 P=[P0];       // state covariance
 M=[X0(1:3)];  // measurements
 
-predict_only = 0;
 
 for i=2:length(time)
   // command
@@ -71,9 +73,20 @@ for i=2:length(time)
   // Jacobian of state time derivative wrt state
   Fi_ = ahrs_euler_get_F(Xi_, rate_i_);
    
-  [Xpred, Ppred] = ekf_predict_continuous(Xi_, Xdoti_, dt, Pi_, Fi_, Q);
- 
-  measure_i1 = euler_of_accel_mag(accel(:, i), mag(:, i));
+  if predict_discrete
+    [Xpred, Ppred] = ekf_predict_discrete(Xi_, Xdoti_, dt, Pi_, Fi_, Q);  
+  else
+    [Xpred, Ppred] = ekf_predict_continuous(Xi_, Xdoti_, dt, Pi_, Fi_, Q);
+  end
+  
+  if use_state_for_psi
+    m_phi = phi_of_accel(accel(:, i));
+    m_theta = theta_of_accel(accel(:, i));
+    m_psi = psi_of_mag(Xpred(1), Xpred(2), mag(:, i));
+    measure_i1 = [ m_phi; m_theta; m_psi];
+  else
+    measure_i1 = euler_of_accel_mag(accel(:, i), mag(:, i));
+  end
 
   M = [M measure_i1];
     

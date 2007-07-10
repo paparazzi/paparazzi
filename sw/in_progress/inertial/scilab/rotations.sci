@@ -1,7 +1,22 @@
 //
 //
 //
-// Angles convertion
+// Angle units
+//
+//
+//
+function [rad] = rad_of_deg(deg)
+  rad = deg * %pi / 180; 
+endfunction
+
+function [deg] = deg_of_rad(rad)
+  deg = rad * 180 / %pi;
+endfunction
+
+//
+//
+//
+// Rotation convertion
 //
 //
 //
@@ -39,12 +54,6 @@ function [euler] = euler_of_quat(quat)
   psi = atan( dcm01, dcm00 );
 
   euler = [phi; theta; psi];
-endfunction
-
-function [X1] = normalise_quat(X0)
- quat = X0(1:4);
- quat = quat / norm(quat);
- X1 = [quat];
 endfunction
 
 
@@ -88,3 +97,11 @@ DCM = [ dcm00 dcm01 dcm02
         dcm20 dcm21 dcm22 ];
 
 endfunction
+
+
+function [X1] = normalise_quat(X0)
+ quat = X0(1:4);
+ quat = quat / norm(quat);
+ X1 = [quat];
+endfunction
+

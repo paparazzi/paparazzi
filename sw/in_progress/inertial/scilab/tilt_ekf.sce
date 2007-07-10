@@ -1,11 +1,12 @@
 clear();
-
 getf('rotations.sci');
 getf('imu.sci');
 getf('ekf.sci');
 getf('tilt_utils.sci');
 
 use_sim = 1;
+predict_only = 0;
+predict_discrete = 0;
 
 if (use_sim),
   getf('quadrotor.sci');
@@ -42,23 +43,29 @@ for i=1:length(time)-1
         0  8e-3 ];
   X0 = X(:, i);
   P0 = tilt_get_P(P, i);
-  [Xpred, Ppred] = ekf_predict_continuous(X0, X0dot, dt, P0, F, Q);
-//  [Xpred, Ppred] = ekf_predict_discrete(X0, X0dot, dt, P0, F, Q);
-  
-//  X = [X Xpred];
-//  P = [P Ppred];
+  if ( predict_discrete )
+    [Xpred, Ppred] = ekf_predict_discrete(X0, X0dot, dt, P0, F, Q);
+  else
+    [Xpred, Ppred] = ekf_predict_continuous(X0, X0dot, dt, P0, F, Q);
+  end
   
   measure = phi_of_accel(accel(:,i+1));
   M = [M measure];
-  err = measure - Xpred(1);
-  // Jacobian of measurement wrt X
-  H = [ 1 0 ];
-  // Measurement covariance noise
-  R = 0.3;
-  [Xup, Pup] = ekf_update(Xpred, Ppred, H, R, err);
+
+  if ( predict_only )
+    X = [X Xpred];
+    P = [P Ppred];
+  else
+    err = measure - Xpred(1);
+    // Jacobian of measurement wrt X
+    H = [ 1 0 ];
+    // Measurement covariance noise
+    R = 0.3;
+    [Xup, Pup] = ekf_update(Xpred, Ppred, H, R, err);
   
-  X = [X Xup];
-  P = [P Pup];
+    X = [X Xup];
+    P = [P Pup];
+  end
   
 end
 

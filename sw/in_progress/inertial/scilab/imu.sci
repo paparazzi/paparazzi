@@ -79,6 +79,35 @@ function [accel, mag, gyro] = imu_sim(time, rates, eulers)
 endfunction
 
 
+function [accel, mag, gyro] = imu_sim_misaligned(time, rates, eulers)
+  gyro_supply = 5.;
+  gyro_neutral = [512; 512; 512];
+  gyro_gains = rad_of_deg([ 300/512; 300/512; 300/512]);
+  gyro_sigma_noise = [ 3; 3; 3]; 
+
+  gyro_offset_deg = [0   0   0
+                     0   0   0   
+		     0   0   0 ];
+
+  gyro_orientation = [] ;
+		 
+  gyro_align = [ 1   0 0
+                 0.1 1 0
+	         0   0 1 ];
+
+  accel = [];
+  mag = [];
+  gyro = [];
+  for i=1:length(time),
+    gyro_noise = rand(3, 1, "normal") .* gyro_sigma_noise;
+//    gyro_noise = [ 0; 0; 0];
+    g = gyro_neutral + (gyro_align * rates(:, i)) ./ gyro_gains + gyro_noise;
+    g = round(g);
+    gyro = [gyro g];
+  end
+endfunction
+
+
 //
 //
 //
