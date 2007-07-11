@@ -111,11 +111,11 @@ let gcs_or_edit = fun file ->
   | _ -> failwith "Internal error: gcs_or_edit"
     
 let ac_files = fun gui ->
-  ["airframe", gui#label_airframe, gui#button_browse_airframe, gui#button_edit_airframe, edit;
-   "flight_plan", gui#label_flight_plan, gui#button_browse_flight_plan, gui#button_edit_flight_plan, gcs_or_edit;
-(*    "settings", gui#label_settings, gui#button_browse_settings, gui#button_edit_settings, edit; *)
-   "radio", gui#label_radio, gui#button_browse_radio, gui#button_edit_radio, edit;
-   "telemetry", gui#label_telemetry, gui#button_browse_telemetry, gui#button_edit_telemetry, edit]
+  ["airframe", gui#label_airframe, gui#button_browse_airframe, gui#button_edit_airframe, edit, false;
+   "flight_plan", gui#label_flight_plan, gui#button_browse_flight_plan, gui#button_edit_flight_plan, gcs_or_edit, false;
+   "settings", gui#label_settings, gui#button_browse_settings, gui#button_edit_settings, edit, true;
+   "radio", gui#label_radio, gui#button_browse_radio, gui#button_edit_radio, edit, false;
+   "telemetry", gui#label_telemetry, gui#button_browse_telemetry, gui#button_edit_telemetry, edit, false]
 
 
 (* Awful but easier *)
@@ -132,10 +132,8 @@ let ac_combo_handler = fun gui (ac_combo:combo) target_combo ->
 	let value = fun a ->
 	  try (ExtXml.attrib aircraft a) with _ -> Xml.attrib sample a in
 	List.iter
-	  (fun (a, label, _, _, _) -> label#set_text (value a))
+	  (fun (a, label, _, _, _, _) -> label#set_text (value a))
 	  (ac_files gui);
-	gui#entry_settings#set_text
-	  (value "settings");
 	let ac_id = ExtXml.attrib aircraft "ac_id"
 	and gui_color = ExtXml.attrib_or_default aircraft "gui_color" "white" in
 	gui#button_clean#misc#set_sensitive true;
@@ -215,7 +213,7 @@ let ac_combo_handler = fun gui (ac_combo:combo) target_combo ->
 			  "radio", gui#label_radio#text;
 			  "telemetry", gui#label_telemetry#text;
 			  "flight_plan", gui#label_flight_plan#text;
-			  "settings", gui#entry_settings#text;
+			  "settings", gui#label_settings#text;
 			  "gui_color", color],
 			 []) in
 	  begin try Hashtbl.remove aircrafts ac_name with _ -> () end;
@@ -265,17 +263,22 @@ let build_handler = fun gui ac_combo (target_combo:combo) (log:string->unit) ->
     command log ac_name (sprintf "%s.upload" target) in
   ignore (gui#button_upload#connect#clicked ~callback)
 
-let choose_xml_file = fun title subdir cb ->
+let choose_xml_file = fun ?(multiple = false) title subdir cb ->
   let dir = conf_dir // subdir in
   let dialog = GWindow.file_chooser_dialog ~action:`OPEN ~title () in
   ignore (dialog#set_current_folder dir);
-  dialog#add_filter (GFile.filter ~name:"log" ~patterns:["*.xml"] ());
+  dialog#add_filter (GFile.filter ~name:"xml" ~patterns:["*.xml"] ());
   dialog#add_button_stock `CANCEL `CANCEL ;
   dialog#add_select_button_stock `OPEN `OPEN ;
+  dialog#set_select_multiple multiple;
   begin match dialog#run (), dialog#filename with
-    `OPEN, Some name ->
+  | `OPEN, _ when multiple ->
+      let names = dialog#get_filenames in
       dialog#destroy ();
-      cb (Filename.basename name)
+      cb (List.map Filename.basename names)
+  | `OPEN, Some name ->
+      dialog#destroy ();
+      cb [Filename.basename name]
   | _ -> dialog#destroy ()
   end
 
@@ -287,17 +290,16 @@ let first_word = fun s ->
     Not_found -> s
 
 let conf_handler = fun gui ->
-  List.iter (fun (name, label, button_browse, button_edit, editor) ->
+  List.iter (fun (name, label, button_browse, button_edit, editor, multiple) ->
     let callback = fun _ ->
       editor (conf_dir // label#text) in
     ignore (button_edit#connect#clicked ~callback);
     let callback = fun _ ->
-      let subdir = Filename.dirname label#text in
-      let cb = fun name -> label#set_text (subdir // name) in
-      choose_xml_file name subdir cb in
+      let subdir = Filename.dirname (first_word label#text) in
+      let cb = fun selected ->
+	let names = List.map (fun name -> subdir//name) selected in
+	let names = String.concat " " names in
+	label#set_text names in
+      choose_xml_file ~multiple name subdir cb in
     ignore (button_browse#connect#clicked ~callback))
-    (ac_files gui);
-  (* Special case for settings (not a single file) *)
-  let callback = fun _ ->
-    edit (conf_dir // (first_word gui#entry_settings#text)) in
-  ignore (gui#button_edit_settings#connect#clicked ~callback)
+    (ac_files gui)
