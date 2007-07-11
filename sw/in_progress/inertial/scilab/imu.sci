@@ -80,30 +80,51 @@ endfunction
 
 
 function [accel, mag, gyro] = imu_sim_misaligned(time, rates, eulers)
-  gyro_supply = 5.;
-  gyro_neutral = [512; 512; 512];
-  gyro_gains = rad_of_deg([ 300/512; 300/512; 300/512]);
-  gyro_sigma_noise = [ 3; 3; 3]; 
+  gyro_supply =         [5.00   ;  5.00   ; 5.00    ]; // volt
+  gyro_neutral_offset = [0.01   ; -0.01   ; 0.05    ]; // volt
+  gyro_gains =          [0.0049 ;  0.0051 ; 0.004876]; // volt/deg/s 
+  gyro_sigma_noise =    [0.003  ;  0.003  ; 0.003   ]; // volt^2
 
-  gyro_offset_deg = [0   0   0
-                     0   0   0   
-		     0   0   0 ];
+  gyro_adc_resolution = 2^10 * [1; 1; 1]; 
+  
+  gyro_rot_deg = [0   0   0
+                  0   0  88   
+		 -3  93   0 ];
 
-  gyro_orientation = [] ;
-		 
-  gyro_align = [ 1   0 0
-                 0.1 1 0
-	         0   0 1 ];
+  accel_supply =         [3.30   ;  3.30   ; 3.30    ]; // volt
+  accel_neutral_offset = [0.01   ; -0.01   ; 0.05    ]; // volt
+  accel_gains =          [0.3    ;  0.301  ; 0.299   ]; // volt/g 
+  accel_sigma_noise =    [0.008  ;  0.008  ; 0.008   ]; // volt^2
 
+  accel_adc_resolution = 2^10 * [1; 1; 1]; 
+  
+  
+  
+  DCM_GX = dcm_of_euler(rad_of_deg(gyro_rot_deg(:,1)));
+  DCM_GY = dcm_of_euler(rad_of_deg(gyro_rot_deg(:,2)));
+  DCM_GZ = dcm_of_euler(rad_of_deg(gyro_rot_deg(:,3)));
+
+  gyro_align = [ DCM_GX(1,:)
+                 DCM_GY(1,:)
+	         DCM_GZ(1,:) ];
+	     
   accel = [];
   mag = [];
   gyro = [];
   for i=1:length(time),
-    gyro_noise = rand(3, 1, "normal") .* gyro_sigma_noise;
-//    gyro_noise = [ 0; 0; 0];
-    g = gyro_neutral + (gyro_align * rates(:, i)) ./ gyro_gains + gyro_noise;
-    g = round(g);
-    gyro = [gyro g];
+    g_volt = 0.5 * gyro_supply + gyro_neutral_offset + ...
+	     (gyro_align * deg_of_rad(rates(:, i))) .* gyro_gains + ...
+	     rand(3, 1, "normal") .* gyro_sigma_noise ;
+    g_adc = round(g_volt ./ gyro_supply .* gyro_adc_resolution); 
+    gyro = [gyro g_adc];
+    
+    DCM = dcm_of_euler(eulers(:,i));
+    
+    a_volt = 0.5 * accel_supply + accel_neutral_offset + ...
+	         (DCM * [0; 0; 1]) .* accel_gains  + ...
+	     rand(3, 1, "normal") .* accel_sigma_noise ;
+    a_adc = round(a_volt ./ accel_supply .* accel_adc_resolution); 
+    accel = [accel a_adc];	    
   end
 endfunction
 

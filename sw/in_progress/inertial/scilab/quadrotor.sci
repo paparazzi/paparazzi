@@ -47,3 +47,22 @@ function [time, rates, eulers] = quadrotor_gen_roll_step(euler0, dt)
   end
 
 endfunction
+
+function [time, rates, eulers] = quadrotor_gen_cste_rot(euler0, dt)
+  len_gen = 20.;
+  nb_samples = len_gen / dt;
+  omega_1 = rad_of_deg(150);
+  omega_2 = rad_of_deg(120);
+    
+  eulers=[euler0];
+  for i=2:nb_samples
+    t = (i-1)*dt;
+    time = [time t];
+    euler = [ t * omega_1
+	      0
+	      0 ] + euler0;
+    
+    
+  end
+endfunction
+
