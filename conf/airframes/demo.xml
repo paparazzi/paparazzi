@@ -128,7 +128,8 @@ demo6.CFLAGS += -DLED
 demo6.srcs += $(SRC_ARCH)/armVIC.c
 
 demo6.CFLAGS += -DUSE_USB_SERIAL
-demo6.LDFLAGS += -L$(SRC_ARCH)/lpcusb -lusbstack
+#demo6.LDFLAGS += -L$(SRC_ARCH)/lpcusb -lusbstack
+demo6.srcs += $(SRC_ARCH)/lpcusb/usbhw_lpc.c $(SRC_ARCH)/lpcusb/usbcontrol.c $(SRC_ARCH)/lpcusb/usbstdreq.c $(SRC_ARCH)/lpcusb/usbinit.c
 demo6.srcs += $(SRC_ARCH)/usb_ser_hw.c
 
 demo6.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=UsbS 
