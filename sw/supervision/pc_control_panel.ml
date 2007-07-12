@@ -192,7 +192,7 @@ let supervision = fun ?file gui log ->
   and run_link = fun args ->
     run_and_monitor ?file gui log "link" args
   and run_sitl = fun ac_name ->
-    let args = sprintf "-a %s -boot -norc" ac_name in
+    let args = sprintf "%s -boot -norc" ac_name in
     run_and_monitor ?file gui log "sim" args
   in
 
