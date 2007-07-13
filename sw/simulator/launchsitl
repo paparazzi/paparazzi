@@ -12,6 +12,10 @@ let () =
   try
     let ac = Sys.argv.(1) in
     let com = paparazzi_home // "var" // ac // "sim/simsitl" in
+    if not (Sys.file_exists com) then begin
+      Printf.fprintf stderr "Error: '%s' is missing. Build target sim for A/C %s ?\n" com ac;
+      exit 1
+    end;
     let args = Array.sub Sys.argv 1 (n-1) in
     args.(0) <- com;
     Unix.execv com  args

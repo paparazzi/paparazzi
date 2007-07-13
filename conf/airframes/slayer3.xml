@@ -178,7 +178,7 @@
 
   <section name="FAILSAFE" prefix="FAILSAFE_">
 	<define name="DELAY_WITHOUT_GPS" value="1" unit="s"/>
-    	<define name="DEFAULT_GAZ" value="0." unit="%"/>
+    	<define name="DEFAULT_THROTTLE" value="0." unit="%"/>
     	<define name="DEFAULT_ROLL" value="0.6" unit="rad"/>
     	<define name="DEFAULT_PITCH" value="0.5" unit="rad"/>
 	<define name="HOME_RADIUS" value="100" unit="m"/>
@@ -232,7 +232,7 @@ ap.srcs += nav.c fw_h_ctl.c fw_v_ctl.c
 
 
 ap.CFLAGS += -DGYRO -DADXRS150
-ap.srcs += gyro.c bomb.c
+ap.srcs += gyro.c
 
 # Hack to use the same tuning file than slayer1
 ap.CFLAGS += -DUSE_GPIO
@@ -247,7 +247,7 @@ ap.srcs += $(SRC_ARCH)/gpio.c
 # Config for SITL simulation
 include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
 sim.CFLAGS += -DCONFIG=\"tiny.h\" -DAGR_CLIMB -DH_CTL_RATE_LOOP -DLOITER_TRIM -DALT_KALMAN -DIR_360
-sim.srcs += bomb.c
+sim.srcs += nav_survey_rectangle.c
 
   </makefile>
 </airframe>
