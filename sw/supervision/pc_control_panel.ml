@@ -187,8 +187,8 @@ let supervision = fun ?file gui log ->
 
   let run_gcs = fun () ->
     run_and_monitor ?file ~plugged:true gui log "gcs" ""
-  and run_server = fun () ->
-    run_and_monitor ?file gui log "server" ""
+  and run_server = fun args ->
+    run_and_monitor ?file gui log "server" args
   and run_link = fun args ->
     run_and_monitor ?file gui log "link" args
   and run_sitl = fun ac_name ->
@@ -200,7 +200,7 @@ let supervision = fun ?file gui log ->
   let callback = fun () ->
     gui#entry_session_name#set_text "Replay";
     run_and_monitor ?file gui log "play" "";
-    run_server ();
+    run_server "-n";
     run_gcs ()
   in
   ignore (gui#replay_menu_item#connect#activate ~callback);
@@ -236,7 +236,7 @@ let supervision = fun ?file gui log ->
 	  let cb = fun () ->
 	    gui#entry_session_name#set_text (sprintf "Sim %s" ac_name);
 	    run_gcs ();
-	  run_server ();
+	    run_server "-n";
 	    run_sitl ac_name
 	  in
 	  entries := `I (ac_name, cb) :: !entries)
@@ -304,7 +304,7 @@ let supervision = fun ?file gui log ->
   let cb = fun name args () ->
     gui#entry_session_name#set_text (sprintf "Fly with %s" name);
     run_gcs ();
-    run_server ();
+    run_server "";
     run_link args
   in
   let entries = 
