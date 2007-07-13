@@ -39,7 +39,7 @@ INCLUDES= -I +lablgtk2 -I ../lib/ocaml -I +xml-light
 AIRBORNE = ../airborne
 VARINCLUDE=$(PAPARAZZI_HOME)/var/include
 ACINCLUDE = $(PAPARAZZI_HOME)/var/$(AIRCRAFT)
-LAUNCHSITL = launchsitl.ml
+LAUNCHSITL = launchsitl
 
 all : gaia sitl.cma simhitl $(LAUNCHSITL)
 	@chmod a+x $(LAUNCHSITL)
