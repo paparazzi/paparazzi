@@ -134,7 +134,6 @@ module Make(AircraftItl : AIRCRAFT_ITL) = struct
 
     let last_gps_state = ref None in
     let _run = ref false in
-    let ir_srtm = ref false in
 
     let wind_x = ref 0.
     and wind_y = ref 0. in
@@ -243,9 +242,6 @@ module Make(AircraftItl : AIRCRAFT_ITL) = struct
       ignore (t#connect#clicked ~callback:take_off)
     end else
       take_off ();
-
-    let ir_srtm_button = GButton.toggle_button ~label:"IR/srtm" ~packing:hbox#pack () in
-    ignore (ir_srtm_button#connect#toggled (fun () -> ir_srtm := not !ir_srtm));
 
     let s = GButton.button ~label:"Set Pos" ~packing:hbox#pack () in
     ignore (s#connect#clicked ~callback:set_pos);
