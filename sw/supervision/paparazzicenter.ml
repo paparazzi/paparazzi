@@ -38,6 +38,9 @@ let () =
 
   gui#window#set_icon (Some (GdkPixbuf.from_file Env.icon_file));
 
+  let s = gui#statusbar#new_context "env" in
+  ignore (s#push (sprintf "HOME=%s SRC=%s" Env.paparazzi_home Env.paparazzi_src));
+
   let ac_combo = AC.parse_conf_xml gui#vbox_ac
   and target_combo = combo ["sim";"fbw";"ap"] gui#vbox_target in
 
@@ -55,18 +58,34 @@ let () =
       let tag = GText.tag ~name:color () in
       tag#set_property (`BACKGROUND color);
       (color, tag))
-      ["red"; "green"] in
+      ["red"; "green";"orange"] in
   let tag_table = GText.tag_table () in
   List.iter (fun (color, tag) -> tag_table#add tag#as_tag) background_tags;
   let buffer = GText.buffer ~tag_table () in
   gui#console#set_buffer buffer;
 
-  let error_regexp = Str.regexp_case_fold ".*\\(error\\)\\|\\(no such file\\)" in
+  let errors = "red", ["error"; "no such file"; "undefined reference"]
+  and warnings = "orange", ["warning"] in
+
+  let color_regexps = 
+    List.map (fun (color, strings) ->
+      let s = List.map (fun s -> "\\("^s^"\\)") strings in
+      let s = String.concat "\\|" s in
+      let s = ".*\\("^s^"\\)" in
+      color, Str.regexp_case_fold s)
+      [errors; warnings] in
   let compute_tags = fun s ->
-    if Str.string_match error_regexp s 0 then
-      [List.assoc "red" background_tags]
-    else
-      [] in
+    let rec loop = function 
+	(color, regexp)::rs ->
+	  if Str.string_match regexp s 0 then
+	    [List.assoc color background_tags]
+	  else
+	    loop rs
+      | [] -> [] in
+    loop color_regexps in
+  
+  (* Attach the second console to the buffer of the first one *)
+  gui#console_cp#set_buffer gui#console#buffer;
 
   let log = fun s ->
     let iter = gui#console#buffer#end_iter in
@@ -91,5 +110,5 @@ let () =
     ignore(socket_GCS#connect#plug_removed 
 	     (fun () -> gui#vbox_GCS#remove socket_GCS#coerce; socket ())) in
   socket ();
-  
+ 
   GMain.Main.main ();;

@@ -213,11 +213,15 @@ let supervision = fun ?file gui log ->
   (* Programs *)
   let entries = ref [] in
   Hashtbl.iter
-    (fun name prog -> 
+    (fun name prog ->
       let cb = fun () ->
 	run_and_monitor ?file gui log name "" in
       entries := `I (name, cb) :: !entries)
     programs;
+  let compare = fun x y ->
+    match x, y with
+      `I (x, _), `I (y, _) -> compare x y
+    | _ -> compare x y in
   let menu = GMenu.menu ()
   and sorted_entries = List.sort compare !entries in
   GToolbox.build_menu menu sorted_entries;
