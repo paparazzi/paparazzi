@@ -93,7 +93,7 @@
 
 #define PERIODIC_SEND_WP_MOVED() { \
   static uint8_t i; \
-  i++; if (i > nb_waypoint) i = 0; \
+  i++; if (i >= nb_waypoint) i = 0; \
   DownlinkSendWp(i); \
 }
 

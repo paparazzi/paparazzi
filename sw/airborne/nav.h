@@ -63,7 +63,8 @@ extern int32_t nav_utm_north0; /* m */
 extern uint8_t nav_utm_zone0;
 
 extern const uint8_t nb_waypoint;
-extern struct point waypoints[]; /** size == nb_waypoint + 1 */
+extern struct point waypoints[]; 
+/** size == nb_waypoint, waypoint 0 is a dummy waypoint */
 
 extern float desired_x, desired_y, altitude_shift, nav_altitude, flight_altitude, nav_glide_pitch_trim;
 

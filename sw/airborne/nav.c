@@ -310,7 +310,7 @@ static unit_t nav_reset_reference( void ) {
 /** Shift altitude of the waypoint according to a new ground altitude */
 static unit_t nav_update_waypoints_alt( void ) {
   uint8_t i;
-  for(i = 0; i <= NB_WAYPOINT; i++) {
+  for(i = 0; i < NB_WAYPOINT; i++) {
     waypoints[i].a += ground_alt - previous_ground_alt;
   }
   return 0;
@@ -332,7 +332,7 @@ float dist2_to_wp, dist2_to_home;
 bool_t too_far_from_home;
 const uint8_t nb_waypoint = NB_WAYPOINT;
 
-struct point waypoints[NB_WAYPOINT+1] = WAYPOINTS;
+struct point waypoints[NB_WAYPOINT] = WAYPOINTS;
 
 
 /** \brief Decide if uav is approaching of current waypoint.
