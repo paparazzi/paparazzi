@@ -20,10 +20,6 @@
       <arg flag="-b" variable="ivy_bus"/>
     </program>
 
-    <program name="settings" command="sw/ground_segment/tmtc/settings">
-      <arg flag="-b" variable="ivy_bus"/>
-    </program>
-
     <program name="gcs" command="sw/ground_segment/cockpit/gcs">
       <arg flag="-b" variable="ivy_bus"/>
     </program>
@@ -32,7 +28,9 @@
       <arg flag="-b" variable="ivy_bus"/>
     </program>
 
-    <program name="plot" command ="sw/logalizer/plot.pl"/>
+    <program name="settings" command="sw/ground_segment/tmtc/settings">
+      <arg flag="-b" variable="ivy_bus"/>
+    </program>
 
     <program name="Log plotter" command ="sw/logalizer/plot"/>
 
@@ -42,7 +40,7 @@
       <arg flag="-b" variable="ivy_bus"/>
     </program>
 
-    <program name="sim" command="sw/simulator/simsitl.pl">
+    <program name="sim" command="sw/simulator/launchsitl">
       <arg flag="-b" variable="ivy_bus"/>
     </program>
 

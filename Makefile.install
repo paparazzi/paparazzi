@@ -74,13 +74,12 @@ install_conf:
 install_bin:
 	$(INSTALL) -d $(PREFIX)/usr/bin/
 	$(INSTALL) -d $(DESTDIR)/sw/supervision
-	$(INSTALL) sw/supervision/paparazzi.pl $(DESTDIR)/sw/supervision
 	$(INSTALL) sw/supervision/paparazzicenter.glade $(DESTDIR)/sw/supervision
 	$(INSTALL) sw/supervision/*.cmo $(DESTDIR)/sw/supervision
 	$(INSTALL) paparazzi-make $(PREFIX)/usr/bin/
 	$(INSTALLDATA) -d $(DESTDIR)/sw/simulator
 	$(INSTALL) sw/simulator/*.cmo $(DESTDIR)/sw/simulator
-	$(INSTALL) sw/simulator/simsitl.pl $(DESTDIR)/sw/simulator
+	$(INSTALL) sw/simulator/launchsitl $(DESTDIR)/sw/simulator
 	$(INSTALL) -d  $(DESTDIR)/sw/ground_segment/cockpit
 	$(INSTALL) -d  $(DESTDIR)/sw/ground_segment/tmtc
 	$(INSTALL) -d  $(DESTDIR)/sw/ground_segment/multimon
@@ -91,15 +90,10 @@ install_bin:
 	$(INSTALL) -d  $(DESTDIR)/sw/logalizer
 	$(INSTALLDATA) sw/logalizer/*.cm[ox] $(DESTDIR)/sw/logalizer
 	$(INSTALLDATA) sw/logalizer/*.o $(DESTDIR)/sw/logalizer
-	$(INSTALL) sw/logalizer/plot.pl $(DESTDIR)/sw/logalizer
 	ln -sf ../share/paparazzi/sw/ground_segment/cockpit/gcs $(PREFIX)/usr/bin/paparazzi-gcs
-	ln -sf ../share/paparazzi/sw/supervision/paparazzi.pl $(PREFIX)/usr/bin/paparazzi
-	ln -sf ../share/paparazzi/sw/supervision/paparazzicenter $(PREFIX)/usr/bin/paparazzicenter
+	ln -sf ../share/paparazzi/sw/supervision/paparazzicenter $(PREFIX)/usr/bin/paparazzi
 
 install_libs:
-	$(INSTALL) -d $(PREFIX)/usr/lib/perl5/Paparazzi
-	$(INSTALLDATA) sw/lib/perl/Paparazzi/*.pm $(PREFIX)/usr/lib/perl5/Paparazzi
-	$(INSTALLDATA) sw/supervision/Paparazzi/*.pm $(PREFIX)/usr/lib/perl5/Paparazzi	
 	$(INSTALL) -d $(DESTDIR)/sw/lib/ocaml
 	$(INSTALLDATA) sw/lib/ocaml/*.cma $(DESTDIR)/sw/lib/ocaml
 	$(INSTALLDATA) sw/lib/ocaml/*.cmxa $(DESTDIR)/sw/lib/ocaml
