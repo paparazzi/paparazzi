@@ -77,7 +77,7 @@ let run_and_monitor = fun ?file ?(plugged=false) gui log com_name args ->
     let c = if plugged then sprintf "%s -wid 0x%lx" c !socket_GCS_id else c in
     if plugged then
       gui#notebook#goto_page 2; (* FIXME *)
-    log (sprintf "Run '%s'" c);
+    log (sprintf "Run '%s'\n" c);
     let (pi, out) = run_and_log log ("exec "^c) in
     pid := pi;
     ignore (Glib.Io.add_watch [`HUP] (fun _ -> callback true; false) out) in

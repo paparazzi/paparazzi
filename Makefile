@@ -53,7 +53,7 @@ TOOLS=$(PAPARAZZI_SRC)/sw/tools
 ARMGCC=/usr/bin/arm-elf-gcc
 
 
-all: static
+all: static conf
 
 static : lib center tools cockpit visu3d multimon tmtc logalizer lpc21iap sim_static static_h usb_lib
 

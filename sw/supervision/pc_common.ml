@@ -37,12 +37,29 @@ let my_open_process_in = fun cmd ->
   Unix.close in_write;
   pid, inchan
 
+let buf_size = 128
 
 let run_and_log = fun log com ->
   let com = com ^ " 2>&1" in
   let pid, com_stdout = my_open_process_in com in
   let channel_out = GMain.Io.channel_of_descr (Unix.descr_of_in_channel com_stdout) in
-  let cb = fun ev -> if List.mem `IN ev then begin log (input_line com_stdout); true end else begin log (sprintf "\nDONE (%s)\n" com); false end in
+  let cb = fun ev ->
+    if List.mem `IN ev then begin
+      let buf = String.create buf_size in
+      let rec loop = fun () ->
+	let n = input com_stdout buf 0 buf_size in
+	if n < buf_size then
+	  log (String.sub buf 0 n)
+	else begin
+	  log buf;
+	  loop ()
+	end in
+      loop ();
+      true
+    end else begin 
+      log (sprintf "\nDONE (%s)\n\n" com);
+      false
+    end in
   let _io_watch_out = Glib.Io.add_watch [`IN; `HUP] cb channel_out in
   pid, channel_out
 

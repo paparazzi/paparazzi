@@ -91,8 +91,6 @@ let () =
     let iter = gui#console#buffer#end_iter in
     let tags = compute_tags s in
     gui#console#buffer#insert ~iter ~tags s;
-    let iter = gui#console#buffer#end_iter in
-    gui#console#buffer#insert ~iter "\n";
     (* Scroll to the bottom line *)
     let end_iter = gui#console#buffer#end_iter in
     let end_mark = gui#console#buffer#create_mark end_iter in
