@@ -96,7 +96,8 @@ let () =
     (* Scroll to the bottom line *)
     let end_iter = gui#console#buffer#end_iter in
     let end_mark = gui#console#buffer#create_mark end_iter in
-    gui#console#scroll_mark_onscreen (`MARK end_mark) in
+    gui#console#scroll_mark_onscreen (`MARK end_mark);
+    gui#console_cp#scroll_mark_onscreen (`MARK end_mark) in
 
   AC.build_handler gui ac_combo target_combo log;
 
