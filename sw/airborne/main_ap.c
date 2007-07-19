@@ -61,6 +61,10 @@
 #include "led.h"
 #endif
 
+#ifdef USE_ADC_GENERIC
+#include "adc_generic.h"
+#endif
+
 #ifdef TELEMETER
 #include "srf08.h"
 #endif
@@ -498,10 +502,18 @@ void periodic_task_ap( void ) {
     break;
 #endif
 
+
 #ifdef DPICCO
   case 5:
     dpicco_periodic();
     DOWNLINK_SEND_DPICCO_STATUS(&dpicco_val[0], &dpicco_val[1]);
+    break;
+#endif
+
+#ifdef USE_ADC_GENERIC
+  case 6:
+    adc_generic_periodic();
+    DOWNLINK_SEND_ADC_GENERIC(&adc_generic_val);
     break;
 #endif
 
@@ -594,6 +606,10 @@ void init_ap( void ) {
 
 #ifdef USE_I2C
   i2c_init();
+#endif
+
+#ifdef USE_ADC_GENERIC
+  adc_generic_init();
 #endif
 
 #ifdef ENOSE

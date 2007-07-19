@@ -120,6 +120,10 @@
      <field name="numSV" type="uint8"/>
    </message>
 
+   <message name="ADC_GENERIC" ID="18">
+     <field name="val" type="uint16"/>
+   </message>
+
    <message name="CAM" ID="20">
      <field name="phi" type="int8" unit="deg"/>
      <field name="theta" type="int8" unit="deg"/>
