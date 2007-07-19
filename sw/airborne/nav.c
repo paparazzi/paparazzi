@@ -507,20 +507,22 @@ void nav_eight_init( void ) {
     to be not far than [2*radius].
 */
 void nav_eight(uint8_t target, uint8_t c1, float radius) {
+  float aradius = fabs(radius);
   float alt = waypoints[target].a;
   waypoints[c1].a = alt;
 
   float target_c1_x = waypoints[c1].x - waypoints[target].x;
   float target_c1_y = waypoints[c1].y - waypoints[target].y;
   float d = sqrt(target_c1_x*target_c1_x+target_c1_y*target_c1_y);
+  d = Max(d, 1.); /* To prevent a division by zero */
 
   /* Unit vector from target to c1 */
   float u_x = target_c1_x / d;
   float u_y = target_c1_y / d;
 
   /* Move [c1] closer if needed */
-  if (d > 2 * radius) {
-    d = 2*radius;
+  if (d > 2 * aradius) {
+    d = 2*aradius;
     waypoints[c1].x = waypoints[target].x + d*u_x;
     waypoints[c1].y = waypoints[target].y + d*u_y;
   }
@@ -550,6 +552,8 @@ void nav_eight(uint8_t target, uint8_t c1, float radius) {
     alt };
   
   float qdr_out = M_PI - atan2(u_y, u_x);
+  if (radius < 0)
+    qdr_out += M_PI;
   
   switch (eight_status) {
   case C1 :
