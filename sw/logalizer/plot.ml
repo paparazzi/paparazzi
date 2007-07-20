@@ -24,10 +24,14 @@
  *
  *)
 
+module LL = Latlong
+open LL
+
 open Printf
 
 let (//) = Filename.concat
 let logs_dir = Env.paparazzi_home // "var" // "logs"
+let sample_kml = Env.paparazzi_home // "data/maps/sample_path.kml"
 
 class type text_value = object method text : string end
 
@@ -258,6 +262,64 @@ let pprz_float = function
 
 let logs_menus = ref []
 
+let write_kml = fun plot log_name values ->
+  let xs = (List.assoc "utm_east" values)
+  and ys = (List.assoc "utm_north" values) 
+  and zs = (List.assoc "utm_zone" values) 
+  and alts = (List.assoc "alt" values) in
+  let l = ref [] in
+  let t_min = plot#min_x ()
+  and t_max = plot#max_x () in
+  let t_min = if t_min = max_float then min_float else t_min in
+  let t_max = if t_max = min_float then max_float else t_max in
+  for i = 0 to Array.length xs - 1 do
+    let t = fst xs.(i) in
+    if t_min <= t && t < t_max then
+      let x = snd xs.(i) /. 100.
+      and y = snd ys.(i) /. 100.
+      and z = truncate (snd zs.(i))
+      and a = snd alts.(i) /. 100. in
+      let utm = { LL.utm_x = x; LL.utm_y = y; LL.utm_zone = z } in
+      if z <> 0 then
+	l := (LL.of_utm LL.WGS84 utm, a) :: !l
+  done;
+  let l = List.rev !l in
+  let xml = Xml.parse_file sample_kml in
+  let doc = ExtXml.child xml "Document" in
+  let place = ExtXml.child doc "Placemark" in
+  let line = ExtXml.child place "LineString" in
+
+  let coords =
+    String.concat " " (List.map (fun (p, a) -> sprintf "%.6f,%.6f,%f" ((Rad>>Deg)p.posn_long) ((Rad>>Deg)p.posn_lat) a) l) in
+  let coordinates = Xml.Element ("coordinates", [], [Xml.PCData coords]) in
+
+  let line = ExtXml.subst_child "coordinates" coordinates line in
+  let place = ExtXml.subst_child "LineString" line place in
+  let name = Xml.Element ("name", [], [Xml.PCData log_name]) in
+  let place = ExtXml.subst_child "name" name place in
+  let doc = ExtXml.subst_child "Placemark" place doc in
+  let doc = ExtXml.subst_child "name" (Xml.Element ("name", [], [Xml.PCData log_name])) doc in
+  let xml = ExtXml.subst_child "Document" doc xml in
+
+  let title = "Save KML" in
+  let dialog = GWindow.file_chooser_dialog ~action:`SAVE ~title () in
+  ignore (dialog#set_current_folder logs_dir);
+  dialog#add_filter (GFile.filter ~name:"kml" ~patterns:["*.kml"] ());
+  dialog#add_button_stock `CANCEL `CANCEL ;
+  dialog#add_select_button_stock `SAVE `SAVE ;
+  let _ = dialog#set_current_name (log_name^".kml") in
+  begin match dialog#run (), dialog#filename with
+    `SAVE, Some name ->
+      dialog#destroy ();
+      let f = open_out name in
+      fprintf f "%s\n" (Xml.to_string_fmt xml);
+      close_out f
+  | _ -> dialog#destroy ()
+  end
+
+
+
+
 
 let add_ac_submenu = fun ?(factor=object method text="1" end) plot menubar (curves_menu_fact: GMenu.menu GMenu.factory) ac menu_name l ->
   let menu = GMenu.menu () in
@@ -269,13 +331,13 @@ let add_ac_submenu = fun ?(factor=object method text="1" end) plot menubar (curv
   
   (* Build the msg menus *)
   List.iter
-    (fun (msg, l) ->
-      let menu = menu_fact#add_submenu (double__ msg.Pprz.name) in
+    (fun (msg_name, l) ->
+      let menu = menu_fact#add_submenu (double__ msg_name) in
       let menu_fact = new GMenu.factory menu in
       (* Build the field menus *)
       List.iter
 	(fun (f, values) ->
-	  let name = sprintf "%s:%s:%s" menu_name msg.Pprz.name f in
+	  let name = sprintf "%s:%s:%s" menu_name msg_name f in
 	  let callback = fun _ ->
 	    let factor = try float_of_string factor#text with _ -> 1. in
 	    let values = Array.map (fun (t,v) -> (t, v*.factor)) values in
@@ -292,7 +354,12 @@ let add_ac_submenu = fun ?(factor=object method text="1" end) plot menubar (curv
 	  ignore (menu_fact#add_item ~callback (double__ f)))
 	l
     )
-    l
+    l;
+  ignore (menu_fact#add_separator ());
+  let callback = fun () ->
+    let gps_values = List.assoc "GPS" l in
+    write_kml plot menu_name gps_values in
+  ignore (menu_fact#add_item ~callback "Export KML path")
     
     
 
@@ -326,11 +393,13 @@ let load_log = fun ?factor (plot:plot) (menubar:GMenu.menu_shell GMenu.factory) 
 	      Hashtbl.add acs ac (Hashtbl.create 97);
 	    let msgs = Hashtbl.find acs ac in
 
+	    (*Elements of [acs] are assoc lists of [fields] indexed by msg id*)
 	    let msg_id, vs = P.values_of_string m in
 	    if not (Hashtbl.mem msgs msg_id) then
 	      Hashtbl.add msgs msg_id (Hashtbl.create 97);
 	    let fields = Hashtbl.find msgs msg_id in
 
+	    (* Elements of [fields] are values indexed by field name *)
 	    List.iter (fun (f, v) -> Hashtbl.add fields f (t, v)) vs
 	  )
       with
@@ -339,12 +408,11 @@ let load_log = fun ?factor (plot:plot) (menubar:GMenu.menu_shell GMenu.factory) 
   with
     End_of_file ->
       close_in f;
-      (* Build the A/C menus *)
-      Hashtbl.iter
+      (* Compile the data to ease the menu building *)
+      Hashtbl.iter (* For all A/Cs *)
 	(fun ac msgs ->
 	  let menu_name = sprintf "%s:%s" (String.sub data_file 0 18) ac in
 
-	  (* Compile data *)
 	  (* First sort by message id *)
 	  let l = ref [] in 
 	  Hashtbl.iter (fun msg fields -> l := (P.message_of_id msg, fields):: !l) msgs;
@@ -363,7 +431,7 @@ let load_log = fun ?factor (plot:plot) (menubar:GMenu.menu_shell GMenu.factory) 
 		Array.sort compare values;
 		(f, values))
 		  (List.sort compare !l) in
-	      (msg, l))
+	      (msg.Pprz.name, l))
 	      msgs in
 	  
 	  (* Store data for other windows *)
@@ -523,7 +591,7 @@ let _ =
   Arg.parse
     []
     (fun x -> logs := x :: !logs)
-    "Usage: ";
+    "Usage: plot <log files>";
 
   plot_window !logs;
 
