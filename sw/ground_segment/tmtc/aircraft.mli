@@ -42,6 +42,7 @@ type infrared = {
   mutable contrast_status : contrast_status;
   mutable contrast_value : int;
 }
+
 type rc_status = string
 type rc_mode = string
 type fbw = { mutable rc_status : rc_status; mutable rc_mode : rc_mode; }
@@ -65,6 +66,7 @@ type waypoint = { altitude : float; wp_utm : Latlong.utm }
 
 type aircraft = {
     id : string;
+    name : string;
     mutable pos : Latlong.utm;
     mutable roll : float;
     mutable pitch : float;
@@ -98,7 +100,7 @@ type aircraft = {
     mutable gps_mode : int;
     mutable gps_Pacc : int;
     inflight_calib : inflight_calib;
-    infrared : infrared;
+    infrared : infrared ;
     fbw : fbw;
     svinfo : svinfo array;
     waypoints : (int, waypoint) Hashtbl.t;
@@ -109,5 +111,9 @@ type aircraft = {
     dl_setting_values : float array;
     mutable nb_dl_setting_values : int;
     mutable survey : (Latlong.geographic * Latlong.geographic) option;
-    mutable last_bat_msg_date : float
+    mutable last_bat_msg_date : float;
+    mutable time_since_last_survey_msg : float
 }
+
+val new_aircraft : string -> string -> aircraft
+val max_nb_dl_setting_values : int

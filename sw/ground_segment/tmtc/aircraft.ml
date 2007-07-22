@@ -41,6 +41,9 @@ type infrared = {
     mutable contrast_status : contrast_status;
     mutable contrast_value : int
   }
+let new_infrared =  fun () ->
+  { gps_hybrid_mode = 0; gps_hybrid_factor = 0. ;
+    contrast_status = "DEFAULT"; contrast_value = 0}
 
 type rc_status = string (** OK, LOST, REALLY_LOST *)
 type rc_mode = string (** MANUAL, AUTO, FAILSAFE *)
@@ -80,6 +83,7 @@ type waypoint = { altitude : float; wp_utm : Latlong.utm }
 
 type aircraft = { 
     id : string;
+    name : string;
     mutable pos : Latlong.utm;
     mutable roll    : float;
     mutable pitch   : float;
@@ -124,5 +128,34 @@ type aircraft = {
     dl_setting_values : float array;
     mutable nb_dl_setting_values : int;
     mutable survey : (Latlong.geographic * Latlong.geographic) option;
-    mutable last_bat_msg_date : float
+    mutable last_bat_msg_date : float;
+    mutable time_since_last_survey_msg : float
+  }
+
+let max_nb_dl_setting_values = 256 (** indexed iwth an uint8 (messages.xml)  *)
+
+let new_aircraft = fun id name ->
+  let svsinfo_init = Array.init gps_nb_channels (fun _ -> svinfo_init ()) in
+  { id = id ; name = name; roll = 0.; pitch = 0.; desired_east = 0.; desired_north = 0.; 
+    desired_course = 0.;
+    gspeed=0.; course = 0.; alt=0.; climb=0.; cur_block=0; cur_stage=0;
+    throttle = 0.; throttle_accu = 0.; rpm = 0.; temp = 0.; bat = 42.; amp = 0.; energy = 0; ap_mode= -1; agl = 0.;
+    gaz_mode= -1; lateral_mode= -1;
+    gps_mode =0; gps_Pacc = 0; periodic_callbacks = [];
+    desired_altitude = 0.;
+    desired_climb = 0.;
+    pos = { Latlong.utm_x = 0.; utm_y = 0.; utm_zone = 0 };
+    nav_ref = None;
+    cam = { phi = 0.; theta = 0. ; target=(0.,0.)};
+    inflight_calib = { if_mode = 1 ; if_val1 = 0.; if_val2 = 0.};
+    infrared = new_infrared (); kill_mode = false;
+    fbw = { rc_status = "???"; rc_mode = "???" };
+    svinfo = svsinfo_init;
+    dl_setting_values = Array.create max_nb_dl_setting_values 42.;
+    nb_dl_setting_values = 0;
+    flight_time = 0; stage_time = 0; block_time = 0;
+    horiz_mode = UnknownHorizMode;
+    horizontal_mode = 0;
+    waypoints = Hashtbl.create 3; survey = None; last_bat_msg_date = 0.;
+    time_since_last_survey_msg = 1729.
   }

@@ -26,7 +26,6 @@
 
 let my_id = "ground"
 let gps_mode_3D = 3
-let max_nb_dl_setting_values = 256 (** indexed iwth an uint8 (messages.xml)  *)
 
 open Printf
 open Latlong
@@ -44,6 +43,9 @@ let (//) = Filename.concat
 let logs_path = Env.paparazzi_home // "var" // "logs"
 let conf_xml = Xml.parse_file (Env.paparazzi_home // "conf" // "conf.xml")
 let srtm_path = Env.paparazzi_home // "data" // "srtm"
+
+let kml = ref false
+let hostname = ref "localhost"
 
 let rec norm_course =
   let _2pi = 2. *. Latlong.pi in
@@ -151,8 +153,44 @@ let ivalue = fun x ->
   | Pprz.Int32 x -> Int32.to_int x 
   | _ -> failwith "Receive.log_and_parse: int expected"
 
+let print_xml = fun ac_name file xml ->
+  let f = open_out (sprintf "%s/var/%s/%s" Env.paparazzi_home ac_name file) in
+  fprintf f "%s\n" (Xml.to_string_fmt xml);
+  close_out f
+
+
 let update_waypoint = fun ac wp_id p alt ->
-  Hashtbl.replace ac.waypoints wp_id {altitude = alt; wp_utm = p }
+  let new_wp = { altitude = alt; wp_utm = p } in
+  try
+    let prev_wp = Hashtbl.find ac.waypoints wp_id in
+    if new_wp <> prev_wp then begin
+      Hashtbl.replace ac.waypoints wp_id new_wp;
+      let url_flight_plan = sprintf "http://%s:8889/var/%s/flight_plan.kml" !hostname ac.name in
+      let kml_changes = Kml.update_waypoint ac.name url_flight_plan wp_id (of_utm WGS84 p) alt in
+      print_xml ac.name "wp_changes.kml" kml_changes
+    end
+  with
+    Not_found ->
+      Hashtbl.add ac.waypoints wp_id new_wp
+
+let kml_update_horiz_mode =
+  let last_horiz_mode = ref UnknownHorizMode in
+  fun ac ->
+    if ac.horiz_mode <> !last_horiz_mode then begin
+      last_horiz_mode := ac.horiz_mode;
+      let url_flight_plan = sprintf "http://%s:8889/var/%s/flight_plan.kml" !hostname ac.name in
+      let alt = ac.desired_altitude in
+      match ac.horiz_mode with
+	Segment (p1, p2) -> 
+	  let coordinates = String.concat " " (List.map (fun p -> Kml.coordinates (of_utm WGS84 p) alt) [p1; p2]) in
+	  let kml_changes = Kml.update_linear_ring url_flight_plan "horiz_mode" coordinates in
+	  print_xml ac.name "wp_changes.kml" kml_changes
+      | Circle (p, r) ->
+	  let coordinates = Kml.circle p (float r) alt in
+	  let kml_changes = Kml.update_linear_ring url_flight_plan "horiz_mode" coordinates in
+	  print_xml ac.name "wp_changes.kml" kml_changes
+      | _ -> ()
+    end
 
 
 let format_string_field = fun s ->
@@ -282,7 +320,8 @@ let log_and_parse = fun logging ac_name (a:Aircraft.aircraft) msg values ->
       begin
 	match a.nav_ref, a.horizontal_mode with
 	  Some nav_ref, 2 -> (** FIXME *)
-	    a.horiz_mode <- Circle (Latlong.utm_add nav_ref (fvalue "center_east", fvalue "center_north"), ivalue "radius")
+	    a.horiz_mode <- Circle (Latlong.utm_add nav_ref (fvalue "center_east", fvalue "center_north"), ivalue "radius");
+	    if !kml then kml_update_horiz_mode a
 	| _ -> ()
       end
   | "SEGMENT" ->
@@ -291,11 +330,13 @@ let log_and_parse = fun logging ac_name (a:Aircraft.aircraft) msg values ->
 	  Some nav_ref, 1 -> (** FIXME *)
 	    let p1 = Latlong.utm_add nav_ref (fvalue "segment_east_1", fvalue "segment_north_1")
 	    and p2 = Latlong.utm_add nav_ref (fvalue "segment_east_2",  fvalue "segment_north_2") in
-	    a.horiz_mode <- Segment (p1, p2)
+	    a.horiz_mode <- Segment (p1, p2);
+	    if !kml then kml_update_horiz_mode a
 	| _ -> ()
       end
   | "SURVEY" ->
       begin
+	a.time_since_last_survey_msg <- 0.;
 	match a.nav_ref with
 	  Some nav_ref ->
 	    let p1 = Latlong.utm_add nav_ref (fvalue "west", fvalue "south")
@@ -447,7 +488,8 @@ let send_horiz_status = fun a ->
 
 let send_survey_status = fun a ->
   match a.survey with
-    None -> ()
+    None -> 
+      Ground_Pprz.message_send my_id "SURVEY_STATUS" ["ac_id", Pprz.String a.id]
   | Some (geo1, geo2) ->
       let vs = [ "ac_id", Pprz.String a.id; 
 		 "south_lat", Pprz.Float ((Rad>>Deg)geo1.posn_lat);
@@ -494,6 +536,14 @@ let send_moved_waypoints = fun a ->
 	 "alt", Pprz.Float wp.altitude] in
       Ground_Pprz.message_send my_id "WAYPOINT_MOVED" vs)
     a.waypoints
+
+
+
+let update_kml_ac = fun ac_name wgs84 alt heading ->
+  let url_flight_plan = sprintf "http://%s:8889/var/%s/flight_plan.kml" !hostname ac_name in
+  
+  let kml_changes = Kml.update_placemark ~heading url_flight_plan ac_name wgs84 alt in
+  print_xml ac_name "ac_changes.kml" kml_changes
 	 
 
 let send_aircraft_msg = fun ac ->
@@ -512,6 +562,10 @@ let send_aircraft_msg = fun ac ->
 		  "agl", f a.agl;
 		  "climb", f a.climb] in
     Ground_Pprz.message_send my_id "FLIGHT_PARAM" values;
+
+    if !kml then begin
+      update_kml_ac a.name wgs84 a.alt a.course
+    end;
 
     begin
       match a.nav_ref with
@@ -566,6 +620,11 @@ let send_aircraft_msg = fun ac ->
     send_infrared a;
     send_svsinfo a;
     send_horiz_status a;
+    
+    a.time_since_last_survey_msg <- a.time_since_last_survey_msg +. float aircraft_msg_period /. 1000.;
+    if a.time_since_last_survey_msg > 5. then (* FIXME Two missed messages *)
+      a.survey <- None;
+
     send_survey_status a;
     send_dl_values a;
     send_moved_waypoints a;
@@ -575,37 +634,17 @@ let send_aircraft_msg = fun ac ->
   | x -> prerr_endline (Printexc.to_string x)
       
 let new_aircraft = fun id ->
-  let infrared_init = { gps_hybrid_mode = 0; gps_hybrid_factor = 0. ;
-			contrast_status = "DEFAULT"; contrast_value = 0} in
-  let svsinfo_init = Array.init gps_nb_channels (fun _ -> svinfo_init ()) in
+  let conf = ExtXml.child conf_xml "aircraft" ~select:(fun x -> ExtXml.attrib x "ac_id" = id) in
+  let ac_name = ExtXml.attrib conf "name" in
+
+  let ac = Aircraft.new_aircraft id ac_name in
   let update = fun () ->
-    for i = 0 to Array.length svsinfo_init - 1 do
-      svsinfo_init.(i).age <-  svsinfo_init.(i).age + 1;
+    for i = 0 to Array.length ac.svinfo - 1 do
+      ac.svinfo.(i).age <-  ac.svinfo.(i).age + 1;
     done in
 
   ignore (Glib.Timeout.add 1000 (fun _ -> update (); true));
-  { id = id ; roll = 0.; pitch = 0.; desired_east = 0.; desired_north = 0.; 
-    desired_course = 0.;
-    gspeed=0.; course = 0.; alt=0.; climb=0.; cur_block=0; cur_stage=0;
-    throttle = 0.; throttle_accu = 0.; rpm = 0.; temp = 0.; bat = 42.; amp = 0.; energy = 0; ap_mode= -1; agl = 0.;
-    gaz_mode= -1; lateral_mode= -1;
-    gps_mode =0; gps_Pacc = 0; periodic_callbacks = [];
-    desired_altitude = 0.;
-    desired_climb = 0.;
-    pos = { utm_x = 0.; utm_y = 0.; utm_zone = 0 };
-    nav_ref = None;
-    cam = { phi = 0.; theta = 0. ; target=(0.,0.)};
-    inflight_calib = { if_mode = 1 ; if_val1 = 0.; if_val2 = 0.};
-    infrared = infrared_init; kill_mode = false;
-    fbw = { rc_status = "???"; rc_mode = "???" };
-    svinfo = svsinfo_init;
-    dl_setting_values = Array.create max_nb_dl_setting_values 42.;
-      nb_dl_setting_values = 0;
-    flight_time = 0; stage_time = 0; block_time = 0;
-    horiz_mode = UnknownHorizMode;
-    horizontal_mode = 0;
-    waypoints = Hashtbl.create 3; survey = None; last_bat_msg_date = 0.
-  }
+  ac
 
 let check_alerts = fun a ->
   let send = fun level ->
@@ -625,7 +664,7 @@ let periodic = fun period cb ->
 
 
 let register_periodic = fun ac x ->
-      ac.periodic_callbacks <- x :: ac.periodic_callbacks
+  ac.periodic_callbacks <- x :: ac.periodic_callbacks
 
 (** add the periodic airprox check for the aircraft (name) on all aircraft     *)
 (**    already known                                                           *)
@@ -656,6 +695,7 @@ let periodic_airprox_check = fun name ->
       register_periodic thisac (periodic aircraft_alerts_period (fun () -> check_airprox ac))
     ) list_ac
 
+
 let register_aircraft = fun name a ->
   Hashtbl.add aircrafts name a;
   register_periodic a (periodic aircraft_msg_period (fun () -> send_aircraft_msg name));
@@ -663,7 +703,21 @@ let register_aircraft = fun name a ->
   periodic_airprox_check name;
   register_periodic a (periodic wind_msg_period (fun () -> send_wind a));
   Wind.new_ac name 1000;
-  ignore(Ground_Pprz.message_bind "WIND_CLEAR" wind_clear)
+  ignore(Ground_Pprz.message_bind "WIND_CLEAR" wind_clear);
+
+  if !kml then
+    (* Build KML files *)
+    let conf = ExtXml.child conf_xml "aircraft" ~select:(fun x -> ExtXml.attrib x "ac_id" = name) in
+    let fp_file = Env.paparazzi_home // "conf" // ExtXml.attrib conf "flight_plan" in
+    let xml_fp = Xml.parse_file fp_file in
+    let kml_fp = Kml.flight_plan a.name xml_fp in
+    print_xml a.name "flight_plan.kml" kml_fp;
+    
+    let url_flight_plan = sprintf "http://%s:8889/var/%s/flight_plan.kml" !hostname a.name in
+    let url_ac_changes = sprintf "http://%s:8889/var/%s/ac_changes.kml" !hostname a.name in
+    let url_wp_changes = sprintf "http://%s:8889/var/%s/wp_changes.kml" !hostname a.name in
+    let kml_ac = Kml.aircraft a.name url_flight_plan [url_ac_changes; url_wp_changes] in
+    print_xml a.name "FollowMe.kml" kml_ac;;
 
 
 (** Identifying message from an A/C *)
@@ -743,6 +797,7 @@ let _ =
   let options =
     [ "-b", Arg.String (fun x -> ivy_bus := x), (sprintf "Bus\tDefault is %s" !ivy_bus);
       "-n", Arg.Clear logging, "Disable log";
+      "-kml", Arg.Set kml, "Enable KML file updating";
       "-http", Arg.Set http, "Send http: URLs (default is file:)"] in
   Arg.parse (options)
     (fun x -> Printf.fprintf stderr "%s: Warning: Don't do anything with '%s' argument\n" Sys.argv.(0) x)

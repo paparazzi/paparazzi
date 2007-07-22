@@ -38,7 +38,7 @@ OCAMLLIB = ../../lib/ocaml
 INCLUDES= -I $(OCAMLLIB) -I ../multimon -I +lablgtk2 -I +xml-light
 LIBPPRZCMA=$(OCAMLLIB)/lib-pprz.cma
 
-SERVERCMO = aircraft.cmo wind.cmo airprox.cmo server.cmo
+SERVERCMO = aircraft.cmo wind.cmo airprox.cmo kml.cmo server.cmo
 SERVERCMX = $(SERVERCMO:.cmo=.cmx)
 
 $(VAR)/boa.conf :$(CONF)/boa.conf
