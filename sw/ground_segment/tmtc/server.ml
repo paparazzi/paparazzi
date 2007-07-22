@@ -163,15 +163,27 @@ let update_waypoint = fun ac wp_id p alt ->
   let new_wp = { altitude = alt; wp_utm = p } in
   try
     let prev_wp = Hashtbl.find ac.waypoints wp_id in
-    if new_wp <> prev_wp then begin
-      Hashtbl.replace ac.waypoints wp_id new_wp;
-      let url_flight_plan = sprintf "http://%s:8889/var/%s/flight_plan.kml" !hostname ac.name in
-      let kml_changes = Kml.update_waypoint ac.name url_flight_plan wp_id (of_utm WGS84 p) alt in
-      print_xml ac.name "wp_changes.kml" kml_changes
-    end
+    if new_wp <> prev_wp then
+      Hashtbl.replace ac.waypoints wp_id new_wp
   with
     Not_found ->
       Hashtbl.add ac.waypoints wp_id new_wp
+
+
+
+let kml_update_waypoints =
+  let last_state = ref [] in
+  fun ac ->
+    let l = ref [] in
+    Hashtbl.iter (fun wp_id wp -> if wp_id > 0 then l := (wp_id, wp) :: !l) ac.waypoints;
+    if !l <> !last_state then begin
+      last_state := !l;
+      let url_flight_plan = sprintf "http://%s:8889/var/%s/flight_plan.kml" !hostname ac.name in
+      let changes = List.map (fun (wp_id, wp) -> Kml.change_waypoint ac.name wp_id(of_utm WGS84 wp.wp_utm) wp.altitude) !l in
+      let kml_update = Kml.link_update url_flight_plan changes in
+      print_xml ac.name "wp_changes.kml" kml_update
+    end
+  
 
 let kml_update_horiz_mode =
   let last_horiz_mode = ref UnknownHorizMode in
@@ -184,11 +196,11 @@ let kml_update_horiz_mode =
 	Segment (p1, p2) -> 
 	  let coordinates = String.concat " " (List.map (fun p -> Kml.coordinates (of_utm WGS84 p) alt) [p1; p2]) in
 	  let kml_changes = Kml.update_linear_ring url_flight_plan "horiz_mode" coordinates in
-	  print_xml ac.name "wp_changes.kml" kml_changes
+	  print_xml ac.name "route_changes.kml" kml_changes
       | Circle (p, r) ->
 	  let coordinates = Kml.circle p (float r) alt in
 	  let kml_changes = Kml.update_linear_ring url_flight_plan "horiz_mode" coordinates in
-	  print_xml ac.name "wp_changes.kml" kml_changes
+	  print_xml ac.name "route_changes.kml" kml_changes
       | _ -> ()
     end
 
@@ -539,11 +551,19 @@ let send_moved_waypoints = fun a ->
 
 
 
-let update_kml_ac = fun ac_name wgs84 alt heading ->
-  let url_flight_plan = sprintf "http://%s:8889/var/%s/flight_plan.kml" !hostname ac_name in
-  
-  let kml_changes = Kml.update_placemark ~heading url_flight_plan ac_name wgs84 alt in
-  print_xml ac_name "ac_changes.kml" kml_changes
+let update_kml_ac = fun ac ->
+  try
+    let url_flight_plan = sprintf "http://%s:8889/var/%s/flight_plan.kml" !hostname ac.name in
+    let blocks = ExtXml.child ac.flight_plan "blocks" in
+    let block = ExtXml.child blocks (string_of_int ac.cur_block) in
+    let block_name = ExtXml.attrib block "name" in
+    let description = sprintf "<b><font color=\"green\">%s</font></b>: %s\nBat: <b><font color=\"red\">%.1fV</font></b>\nAGL: %.0fm\nSpeed: %.1fm/s" ap_modes.(ac.ap_mode) block_name ac.bat ac.agl ac.gspeed in
+    let wgs84 = of_utm WGS84 ac.pos in
+    let change = Kml.change_placemark ~description ac.name wgs84 ac.alt in
+    let kml_changes = Kml.link_update url_flight_plan [change] in
+    print_xml ac.name "ac_changes.kml" kml_changes
+  with
+    _ -> ()
 	 
 
 let send_aircraft_msg = fun ac ->
@@ -563,9 +583,8 @@ let send_aircraft_msg = fun ac ->
 		  "climb", f a.climb] in
     Ground_Pprz.message_send my_id "FLIGHT_PARAM" values;
 
-    if !kml then begin
-      update_kml_ac a.name wgs84 a.alt a.course
-    end;
+    if !kml then
+      update_kml_ac a;
 
     begin
       match a.nav_ref with
@@ -628,6 +647,8 @@ let send_aircraft_msg = fun ac ->
     send_survey_status a;
     send_dl_values a;
     send_moved_waypoints a;
+    if !kml then
+      kml_update_waypoints a;
     send_telemetry_status a
   with
     Not_found -> prerr_endline ac
@@ -636,8 +657,10 @@ let send_aircraft_msg = fun ac ->
 let new_aircraft = fun id ->
   let conf = ExtXml.child conf_xml "aircraft" ~select:(fun x -> ExtXml.attrib x "ac_id" = id) in
   let ac_name = ExtXml.attrib conf "name" in
-
-  let ac = Aircraft.new_aircraft id ac_name in
+  let fp_file = Env.paparazzi_home // "conf" // ExtXml.attrib conf "flight_plan" in
+  let xml_fp = Xml.parse_file fp_file in
+   
+  let ac = Aircraft.new_aircraft id ac_name xml_fp in
   let update = fun () ->
     for i = 0 to Array.length ac.svinfo - 1 do
       ac.svinfo.(i).age <-  ac.svinfo.(i).age + 1;
@@ -707,16 +730,15 @@ let register_aircraft = fun name a ->
 
   if !kml then
     (* Build KML files *)
-    let conf = ExtXml.child conf_xml "aircraft" ~select:(fun x -> ExtXml.attrib x "ac_id" = name) in
-    let fp_file = Env.paparazzi_home // "conf" // ExtXml.attrib conf "flight_plan" in
-    let xml_fp = Xml.parse_file fp_file in
+    let xml_fp = a.flight_plan in
     let kml_fp = Kml.flight_plan a.name xml_fp in
     print_xml a.name "flight_plan.kml" kml_fp;
     
     let url_flight_plan = sprintf "http://%s:8889/var/%s/flight_plan.kml" !hostname a.name in
     let url_ac_changes = sprintf "http://%s:8889/var/%s/ac_changes.kml" !hostname a.name in
     let url_wp_changes = sprintf "http://%s:8889/var/%s/wp_changes.kml" !hostname a.name in
-    let kml_ac = Kml.aircraft a.name url_flight_plan [url_ac_changes; url_wp_changes] in
+    let url_route_changes = sprintf "http://%s:8889/var/%s/route_changes.kml" !hostname a.name in
+    let kml_ac = Kml.aircraft a.name url_flight_plan [url_ac_changes; url_wp_changes; url_route_changes] in
     print_xml a.name "FollowMe.kml" kml_ac;;
 
 
@@ -798,6 +820,7 @@ let _ =
     [ "-b", Arg.String (fun x -> ivy_bus := x), (sprintf "Bus\tDefault is %s" !ivy_bus);
       "-n", Arg.Clear logging, "Disable log";
       "-kml", Arg.Set kml, "Enable KML file updating";
+      "-hostname", Arg.Set_string hostname, "<hostname> Set the address for the http server";
       "-http", Arg.Set http, "Send http: URLs (default is file:)"] in
   Arg.parse (options)
     (fun x -> Printf.fprintf stderr "%s: Warning: Don't do anything with '%s' argument\n" Sys.argv.(0) x)

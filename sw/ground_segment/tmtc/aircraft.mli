@@ -67,6 +67,7 @@ type waypoint = { altitude : float; wp_utm : Latlong.utm }
 type aircraft = {
     id : string;
     name : string;
+    flight_plan : Xml.xml;
     mutable pos : Latlong.utm;
     mutable roll : float;
     mutable pitch : float;
@@ -115,5 +116,5 @@ type aircraft = {
     mutable time_since_last_survey_msg : float
 }
 
-val new_aircraft : string -> string -> aircraft
+val new_aircraft : string -> string -> Xml.xml -> aircraft
 val max_nb_dl_setting_values : int

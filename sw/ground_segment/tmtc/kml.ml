@@ -24,10 +24,11 @@ let waypoint = fun utm0 alt0 wp ->
        [data "extrude" "1";
 	data "coordinates" (coordinates wgs84 a)]]
 
-let icon_style = fun ?(heading=0) id icon ->
+let icon_style = fun ?(heading=0) ?(color="ffffffff") id icon ->
   el "Style" ["id", id]
     [el "IconStyle" []
        [data "heading" (string_of_int heading);
+	data "color" color;
 	el "Icon" []
 	  [data "href" (sprintf "http://maps.google.com/mapfiles/kml/%s" icon)]]]
 
@@ -50,7 +51,7 @@ let stylemap = fun id normal_icon highlight_icon ->
 
 let style =
   [ icon_style "ac_style" "pal2/icon56.png";
-    icon_style "wp_style" "paddle/blu-blank.png";
+    icon_style ~color:"a00000ff" "wp_style" "shapes/triangle.png";
     stylemap "msn_ac_icon" "ac_style" "ac_style";
     stylemap "msn_wp_icon" "wp_style" "wp_style"]
 
@@ -73,7 +74,7 @@ let ring_around_home = fun utm0 fp ->
      line_style "red" "800000ff";
      el "LinearRing" []
        [ data "extrude" "1";
-	 data "altitudeMode" "absolute";
+	 data "altitudeMode" "relativeToGround";
 	 data "coordinates" coords]]
 
 
@@ -104,8 +105,14 @@ let flight_plan = fun ac_name fp ->
       [data "name" ac_name;
        icon_style ~heading:45 "ac_style" "pal2/icon56.png";
        home_point] in
+  let wgs84 = of_utm WGS84 utm0 in
+  let lookat =
+    el "LookAt" []
+      [data "longigude" (sprintf "%f" ((Rad>>Deg)wgs84.posn_long));
+       data "latitude" (sprintf "%f" ((Rad>>Deg)wgs84.posn_lat));
+       data "range" (ExtXml.attrib fp "max_dist_from_home")] in
   kml
-    [el "Document" [] (style@(horiz_mode::ring_around_home utm0 fp::ac::waypoints))]
+    [el "Document" [] (data "open" "1"::lookat::style@(horiz_mode::ring_around_home utm0 fp::ac::waypoints))]
 
 let aircraft = fun ac url_flight_plan url_changes ->
   let dyn_links =
@@ -117,31 +124,34 @@ let aircraft = fun ac url_flight_plan url_changes ->
 	      data "refreshInterval" "0.5";
 	      data "href" url]])
       url_changes in
+  let description = data "description" "Beta version. Open and double-click on flight plan. You may need to refresh following Update objects on errors" in
   kml
     [el "Document" []
-       ((el "NetworkLink" []
-	  [data "name" ac;
+       (description::(el "NetworkLink" []
+	  [data "name" (ac^" flight plan");
 	   el "Link" []
 	     [data "href" url_flight_plan]]):: dyn_links)]
+
+
+let change_placemark = fun ?(description="") id wgs84 alt ->
+  el "Change" []
+    [el "Placemark" ["targetId", id]
+       [data "description" description;
+	el "Point" []
+	  [data "altitudeMode" "absolute";
+	   data "coordinates" (coordinates wgs84 alt)]]]
     
 
-let update_placemark = fun ?(heading = 0.) target_href id wgs84 alt ->
-  let heading = truncate ((Rad>>Deg)heading) in
-  let _heading = if heading > 180 then heading -360 else heading in
+let link_update = fun target_href changes ->
   kml
     [el "NetworkLinkControl" []
-       [el "Update" []
-	  [data "targetHref" target_href;
-	   el "Change" []
-	     [el "Placemark" ["targetId", id]
-		[el "Point" []
-		   [data "altitudeMode" "absolute";
-		    data "coordinates" (coordinates wgs84 alt)]]]]]]
+       [el "Update" [] (data "targetHref" target_href :: changes)]]
+
        
 
-let update_waypoint = fun ac_name target_href wp_id wgs84 alt ->
+let change_waypoint = fun ac_name wp_id wgs84 alt ->
   let wp_name = Hashtbl.find waypoints (ac_name, wp_id) in
-  update_placemark target_href wp_name wgs84 alt
+  change_placemark wp_name wgs84 alt
 
 let update_linear_ring = fun target_href id coordinates ->
   kml
