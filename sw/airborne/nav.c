@@ -85,6 +85,8 @@ float nav_ground_speed_setpoint, nav_ground_speed_pgain;
 /* Used in nav_survey_rectangle. Defined here for downlink and uplink */
 float nav_survey_shift;
 float nav_survey_west, nav_survey_east, nav_survey_north, nav_survey_south;
+bool_t nav_survey_active;
+
 
 void nav_init_stage( void ) {
   last_x = estimator_x; last_y = estimator_y;
@@ -410,7 +412,7 @@ static inline void compute_dist2_to_home(void) {
 
 
 #ifndef FAILSAFE_HOME_RADIUS
-#define FAILSAFE_HOME_RADIUS 50
+#define FAILSAFE_HOME_RADIUS 100
 #endif
 
 /** \brief Home mode navigation (circle around HOME) */
@@ -429,6 +431,8 @@ void nav_home(void) {
  * plan
  */
 void nav_update(void) {
+  nav_survey_active = FALSE;
+
   compute_dist2_to_home();
 
   auto_nav(); /* From flight_plan.h */

@@ -46,6 +46,8 @@ void nav_survey_rectangle_init(uint8_t wp1, uint8_t wp2, float grid, survey_orie
 void nav_survey_rectangle(uint8_t wp1, uint8_t wp2) {
   static float survey_radius;
 
+  nav_survey_active = TRUE;
+
   nav_survey_west = Min(waypoints[wp1].x, waypoints[wp2].x);
   nav_survey_east = Max(waypoints[wp1].x, waypoints[wp2].x);
   nav_survey_south = Min(waypoints[wp1].y, waypoints[wp2].y);

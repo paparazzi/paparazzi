@@ -154,7 +154,10 @@
 
 #define PERIODIC_SEND_DL_VALUE() PeriodicSendDlValue() /** generated from the xml settings config in conf/settings */
 
-#define PERIODIC_SEND_SURVEY() DOWNLINK_SEND_SURVEY(&nav_survey_east, &nav_survey_north, &nav_survey_west, &nav_survey_south)
+#define PERIODIC_SEND_SURVEY() { \
+  if (nav_survey_active) \
+    DOWNLINK_SEND_SURVEY(&nav_survey_east, &nav_survey_north, &nav_survey_west, &nav_survey_south); \
+  }
 
 #define PERIODIC_SEND_RANGEFINDER() DOWNLINK_SEND_RANGEFINDER(&rangemeter, &ctl_grz_z_dot, &ctl_grz_z_dot_sum_err, &ctl_grz_z_dot_setpoint, &ctl_grz_z_sum_err, &ctl_grz_z_setpoint, &flying)
 
