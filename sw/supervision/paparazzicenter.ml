@@ -30,10 +30,20 @@ module CP = Pc_control_panel
 module AC = Pc_aircraft
 
 
+let quit_page = 3 (* FIXME *)
+
+let fullscreen = ref false
+
 let () =
+  Arg.parse
+    ["-fullscreen", Arg.Set fullscreen, "Fullscreen window"]
+    (fun x -> fprintf stderr "Warning: Don't do anything with '%s'\n%!" x)
+    "Usage: ";
   let file = Env.paparazzi_src // "sw" // "supervision" // "paparazzicenter.glade" in
   let gui = new Gtk_pc.window ~file () in
   ignore (gui#window#connect#destroy ~callback:(fun _ -> CP.close_programs gui; exit 0));
+  if !fullscreen then
+    gui#window#fullscreen ();
   gui#toplevel#show ();
 
   gui#window#set_icon (Some (GdkPixbuf.from_file Env.icon_file));
@@ -109,5 +119,14 @@ let () =
     ignore(socket_GCS#connect#plug_removed 
 	     (fun () -> gui#vbox_GCS#remove socket_GCS#coerce; socket ())) in
   socket ();
+
+  (* Quit button *)
+  let callback = fun num_page ->
+    if num_page = quit_page then
+      match GToolbox.question_box ~title:"Quit" ~buttons:["Cancel"; "Quit"] ~default:2 "Quit ?" with
+	2 -> exit 0
+      | _ ->ignore (GMain.Idle.add (fun () -> gui#notebook#goto_page 0; false))
+  in
+  ignore (gui#notebook#connect#switch_page ~callback);
  
   GMain.Main.main ();;
