@@ -9,7 +9,7 @@ OCAMLOPT=ocamlopt
 DESTDIR=/usr/share/paparazzi
 
 cd ${DESTDIR}/sw/ground_segment/tmtc
-${OCAMLC} -custom -I +lablgtk2 -I ${DESTDIR}/sw/lib/ocaml unix.cma str.cma xml-light.cma lablgtk.cma glibivy-ocaml.cma lib-pprz.cma aircraft.cmo wind.cmo airprox.cmo aircraft.cmo wind.cmo airprox.cmo server.cmo -o server
+${OCAMLC} -custom -I +lablgtk2 -I ${DESTDIR}/sw/lib/ocaml unix.cma str.cma xml-light.cma lablgtk.cma glibivy-ocaml.cma lib-pprz.cma aircraft.cmo wind.cmo airprox.cmo aircraft.cmo wind.cmo airprox.cmo kml.cmo server.cmo -o server
 ${OCAMLC} -custom -I +lablgtk2 -I ${DESTDIR}/sw/lib/ocaml -I ../multimon unix.cma str.cma xml-light.cma lablgtk.cma glibivy-ocaml.cma lib-pprz.cma multimon.cma modem.cmo link.cmo -o link
 ${OCAMLC} -custom -I +lablgtk2 -I ${DESTDIR}/sw/lib/ocaml unix.cma str.cma xml-light.cma lablgtk.cma glibivy-ocaml.cma lib-pprz.cma gtkInit.cmo messages.cmo -o messages
 ${OCAMLC} -custom -I +lablgtk2 -I ${DESTDIR}/sw/lib/ocaml -I ../cockpit unix.cma str.cma xml-light.cma lablgtk.cma glibivy-ocaml.cma lib-pprz.cma gtkInit.cmo pages.cmo settings.cmo -o settings

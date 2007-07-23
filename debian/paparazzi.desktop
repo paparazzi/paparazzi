@@ -1,0 +1,10 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=Paparazzi
+GenericName=Paparazzi Center
+Comment=Configure and run the Paparazzi system
+Exec=paparazzi
+Icon=paparazzi.png
+Terminal=false
+Type=Application
+Categories=Application

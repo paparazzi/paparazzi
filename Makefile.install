@@ -39,8 +39,6 @@ install_conf:
 	$(INSTALLDATA) conf/airframes/twinstar1.xml $(DESTDIR)/conf/airframes
 	$(INSTALLDATA) conf/airframes/twinjet1.xml $(DESTDIR)/conf/airframes
 	$(INSTALLDATA) conf/airframes/plaster1.xml $(DESTDIR)/conf/airframes
-	$(INSTALLDATA) conf/airframes/gorrazoptere_esc_3DMG.xml $(DESTDIR)/conf/airframes
-	$(INSTALLDATA) conf/airframes/gorrazoptere_091.xml $(DESTDIR)/conf/airframes
 	$(INSTALL) -d $(DESTDIR)/conf/autopilot
 	$(INSTALLDATA) conf/autopilot/*.makefile $(DESTDIR)/conf/autopilot
 	$(INSTALLDATA) conf/autopilot/*.h $(DESTDIR)/conf/autopilot
@@ -69,6 +67,8 @@ install_conf:
 	$(INSTALLDATA) conf/system/udev/rules/*.rules $(PREFIX)/etc/udev
 	$(INSTALL) -d $(PREFIX)/etc/modprobe.d
 	$(INSTALLDATA) conf/system/modprobe.d/paparazzi $(PREFIX)/etc/modprobe.d
+	$(INSTALL) -d $(PREFIX)/usr/share/applications
+	$(INSTALLDATA) debian/paparazzi.desktop $(PREFIX)/usr/share/applications
 
 
 install_bin:
