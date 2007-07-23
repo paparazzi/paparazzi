@@ -359,7 +359,7 @@ let options =
     "-ign", Arg.String (fun s -> ign:=true; IGN.data_path := s), "IGN tiles path";
     "-ortho", Arg.Set_string get_bdortho, "IGN tiles path";
     "-edit", Arg.Unit (fun () -> edit := true; layout_file := "editor.xml"), "Flight plan editor";
-    "-layout", Arg.Set_string layout_file, "XML layout specification";
+    "-layout", Arg.Set_string layout_file, (sprintf "<XML layout specification> GUI layout. Default: %s" !layout_file);
     "-no_alarm", Arg.Set no_alarm, "Disables alarm page";
     "-auto_ortho", Arg.Set auto_ortho, "IGN tiles path";
     "-google_fill", Arg.Set GM.auto, "Google maps auto fill";
