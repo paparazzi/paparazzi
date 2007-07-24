@@ -115,3 +115,6 @@ ahrs2fg: ahrs2fg.c network.c flight_gear.c utils.c
 
 ivy_example: ivy_example.c
 	gcc -g -O2 -Wall `pkg-config glib-2.0 --cflags` -o $@ $^ `pkg-config glib-2.0 --libs`  `pcre-config --libs` -lglibivy
+
+tmclient: tmclient.c
+	gcc -g -O1 -Wall `pkg-config glib-2.0 --cflags` -o $@ $^ `pkg-config glib-2.0 --libs`  `pcre-config --libs` -lglibivy
