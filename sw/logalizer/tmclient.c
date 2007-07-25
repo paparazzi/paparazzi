@@ -68,7 +68,7 @@ void on_FLIGHT_PARAM_STATUS(IvyClientPtr app, void *user_data, int argc, char *a
   cvalue[2] = 'P';
   cvalue[3] = 'Z';
 
-  for (count=0; count < PACKET_SIZE; count++) {
+  for (count=1; count < PACKET_SIZE; count++) {
     ftemp = atof(argv[count]);
     uvalue[count] = *(unsigned int*) &ftemp;
     uvalue[count] = htonl(uvalue[count]);
