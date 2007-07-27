@@ -32,9 +32,7 @@ open Latlong
 open Aircraft
 module U = Unix
 
-module Tele_Class = struct let name = "telemetry" end
 module Ground = struct let name = "ground" end
-module Tele_Pprz = Pprz.Messages(Tele_Class)
 module Ground_Pprz = Pprz.Messages(Ground)
 module Alerts_Pprz = Pprz.Messages(struct let name = "alert" end)
 
@@ -378,14 +376,16 @@ let log_and_parse = fun logging ac_name (a:Aircraft.aircraft) msg values ->
   | _ -> ()
 
 (** Callback for a message from a registered A/C *)
-let ac_msg = fun log ac_name ac m ->
-  try
-    let (msg_id, values) = Tele_Pprz.values_of_string m in
-    let msg = Tele_Pprz.message_of_id msg_id in
-    log_and_parse log ac_name ac msg values
-  with
-    Pprz.Unknown_msg_name (x, c) ->
-      fprintf stderr "Unknown message %s in class %s from %s: %s\n" x c ac_name m
+let ac_msg = fun messages_xml log ac_name ac ->
+  let module Tele_Pprz = Pprz.MessagesOfXml(struct let xml = messages_xml let name="telemetry" end) in
+  fun m ->
+    try
+      let (msg_id, values) = Tele_Pprz.values_of_string m in
+      let msg = Tele_Pprz.message_of_id msg_id in
+      log_and_parse log ac_name ac msg values
+    with
+      Pprz.Unknown_msg_name (x, c) ->
+	fprintf stderr "Unknown message %s in class %s from %s: %s\n" x c ac_name m
   | x -> prerr_endline (Printexc.to_string x)
 
 
@@ -653,11 +653,21 @@ let send_aircraft_msg = fun ac ->
   with
     Not_found -> prerr_endline ac
   | x -> prerr_endline (Printexc.to_string x)
+
+(** c.f. sw/logalizer/play.ml *)
+let replayed = fun ac_id ->
+  let n = String.length ac_id in
+  if n > 6 && String.sub ac_id 0 6 = "replay" then
+    (String.sub ac_id 6 (n - 6), "/var/replay/",  Xml.parse_file (Env.paparazzi_home // "var/replay/conf/conf.xml"))
+  else
+    (ac_id, "", conf_xml)
+
       
 let new_aircraft = fun id ->
-  let conf = ExtXml.child conf_xml "aircraft" ~select:(fun x -> ExtXml.attrib x "ac_id" = id) in
+  let id, root_dir, conf_xml = replayed id in
+  let conf = try ExtXml.child conf_xml "aircraft" ~select:(fun x -> ExtXml.attrib x "ac_id" = id) with Not_found -> failwith (sprintf "Error: A/C '%s' not found" id) in
   let ac_name = ExtXml.attrib conf "name" in
-  let fp_file = Env.paparazzi_home // "conf" // ExtXml.attrib conf "flight_plan" in
+  let fp_file = Env.paparazzi_home // root_dir // "var" // ac_name // "flight_plan.xml" in
   let xml_fp = Xml.parse_file fp_file in
    
   let ac = Aircraft.new_aircraft id ac_name xml_fp in
@@ -667,7 +677,9 @@ let new_aircraft = fun id ->
     done in
 
   ignore (Glib.Timeout.add 1000 (fun _ -> update (); true));
-  ac
+
+  let messages_xml = Xml.parse_file (Env.paparazzi_home // root_dir // "conf" // "messages.xml") in
+  ac, messages_xml
 
 let check_alerts = fun a ->
   let send = fun level ->
@@ -745,8 +757,9 @@ let register_aircraft = fun name a ->
 (** Identifying message from an A/C *)
 let ident_msg = fun log name ->
   if not (Hashtbl.mem aircrafts name) then begin
-    let ac = new_aircraft name in
-    let _b = Ivy.bind (fun _ args -> ac_msg log name ac args.(0)) (sprintf "^%s +(.*)" name) in
+    let ac, messages_xml = new_aircraft name in
+    let ac_msg_closure = ac_msg messages_xml log name ac in
+    let _b = Ivy.bind (fun _ args -> ac_msg_closure args.(0)) (sprintf "^%s +(.*)" name) in
     register_aircraft name ac;
     Ground_Pprz.message_send my_id "NEW_AIRCRAFT" ["ac_id", Pprz.String name]
   end
@@ -759,22 +772,11 @@ let listen_acs = fun log ->
   (** Wait for any message (they all are identified with the A/C) *)
   ignore (Ivy.bind (fun _ args -> ident_msg log args.(0)) "^(.*) PPRZ_MODE")
 
-(** c.f. sw/logalizer/play.ml *)
-let replayed = fun s ->
-  let n = String.length s in
-  if n > 6 && String.sub s 0 6 = "replay" then
-    Some (String.sub s 6 (n - 6))
-  else
-    None
 
 let send_config = fun http _asker args ->
   let ac_id' = Pprz.string_assoc "ac_id" args in
   try
-    let ac_id, root_dir, conf_xml =
-      match replayed ac_id' with
-	Some ac_id -> 
-	  ac_id, "var/replay/", Xml.parse_file (Env.paparazzi_home // "var/replay/conf/conf.xml")
-      | None -> ac_id', "", conf_xml in
+    let ac_id, root_dir, conf_xml = replayed ac_id' in
 
     let conf = ExtXml.child conf_xml "aircraft" ~select:(fun x -> ExtXml.attrib x "ac_id" = ac_id) in
     let ac_name = ExtXml.attrib conf "name" in
