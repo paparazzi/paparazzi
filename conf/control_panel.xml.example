@@ -12,48 +12,48 @@
   </section>
 
   <section name="programs">
-    <program name="server" command="sw/ground_segment/tmtc/server">
+    <program name="Server" command="sw/ground_segment/tmtc/server">
       <arg flag="-b" variable="ivy_bus"/>
     </program>
 
-    <program name="link" command="sw/ground_segment/tmtc/link">
+    <program name="Data Link" command="sw/ground_segment/tmtc/link">
       <arg flag="-b" variable="ivy_bus"/>
     </program>
 
-    <program name="gcs" command="sw/ground_segment/cockpit/gcs">
+    <program name="GCS" command="sw/ground_segment/cockpit/gcs">
       <arg flag="-b" variable="ivy_bus"/>
     </program>
 
-    <program name="messages" command="sw/ground_segment/tmtc/messages">
+    <program name="Messages" command="sw/ground_segment/tmtc/messages">
       <arg flag="-b" variable="ivy_bus"/>
     </program>
 
-    <program name="settings" command="sw/ground_segment/tmtc/settings">
+    <program name="Settings" command="sw/ground_segment/tmtc/settings">
       <arg flag="-b" variable="ivy_bus"/>
     </program>
 
-    <program name="Log plotter" command ="sw/logalizer/plot"/>
+    <program name="Log Plotter" command ="sw/logalizer/plot"/>
 
-    <program name="Real time plotter" command ="sw/logalizer/plotter"/>
+    <program name="Real-time Plotter" command ="sw/logalizer/plotter"/>
 
-    <program name="replay" command="sw/logalizer/play">
+    <program name="Log File Player" command="sw/logalizer/play">
       <arg flag="-b" variable="ivy_bus"/>
     </program>
 
-    <program name="sim" command="sw/simulator/launchsitl">
+    <program name="Simulator" command="sw/simulator/launchsitl">
       <arg flag="-b" variable="ivy_bus"/>
     </program>
 
-    <program name="hitl" command="sw/simulator/simhitl">
+    <program name="Hardware in the Loop" command="sw/simulator/simhitl">
       <arg flag="-fbw" variable="fbw_serial_port"/>
       <arg flag="-ap" variable="ap_serial_port"/>
     </program>
 
-    <program name="gaia" command="sw/simulator/gaia">
+    <program name="Environment Simulator" command="sw/simulator/gaia">
       <arg flag="-b" variable="ivy_bus"/>
     </program>
 
-    <program name="http server" command="sw/ground_segment/tmtc/boa"/>
+    <program name="Http Server" command="sw/ground_segment/tmtc/boa"/>
  </section>
   
 
@@ -62,9 +62,9 @@
   <section name="sessions">
 
     <session name="1 Simple Simulation">
-      <program name="server"></program>
-      <program name="sim"><arg flag="-a" constant="MJ5"/></program>
-      <program name="gcs">
+      <program name="Server"></program>
+      <program name="Simulator"><arg flag="-a" constant="MJ5"/></program>
+      <program name="GCS">
         <arg flag="-ref" constant="WGS84 43.4623 1.2730"/>
         <arg flag="-center" constant="WGS84 43.4623 1.2730"/>
         <arg flag="-zoom" constant="0.75"/>
@@ -74,37 +74,37 @@
     </session>
 
     <session name="2 Versatile Simulation">
-      <program name="server"></program>
-      <program name="gcs">
+      <program name="Server"></program>
+      <program name="GCS">
 <!--    <arg flag="-mplayer" constant="rtsp://localhost:7070/webcam"/> -->
       </program>
-      <program name="sim"><arg flag="-a" constant="TJ1"/></program>
-      <program name="messages"><arg flag="-c" constant="ground:ground"/></program>
+      <program name="Simulator"><arg flag="-a" constant="TJ1"/></program>
+      <program name="Messages"><arg flag="-c" constant="ground:ground"/></program>
     </session>
 
     <session name="3 Multi-A/C Simulation">
-      <program name="sim"><arg flag="-a" constant="MJ5"/></program>
-      <program name="sim"><arg flag="-a" constant="TJ1"/></program>
-      <program name="server"/>
-      <program name="gcs">
+      <program name="Simulator"><arg flag="-a" constant="MJ5"/></program>
+      <program name="Simulator"><arg flag="-a" constant="TJ1"/></program>
+      <program name="Server"/>
+      <program name="GCS">
         <arg flag="-track_size" constant="10"/>
       </program>
     </session>
 
    <session name="4 Flight with XBee/Xtend modem">
-      <program name="link">
+      <program name="Data Link">
         <arg flag="-d" constant="/dev/paparazzi/xbee"/>
         <arg flag="-transport" constant="xbee"/>
         <arg flag="-uplink" constant=""/>
       </program>
-      <program name="server"/>
-      <program name="gcs"/>
+      <program name="Server"/>
+      <program name="GCS"/>
     </session>
 
     <session name="5 Log Replay">
-      <program name="server"><arg flag="-n"/></program>
-      <program name="gcs"/>
-      <program name="replay"/>
+      <program name="Server"><arg flag="-n"/></program>
+      <program name="GCS"/>
+      <program name="Log File Player"/>
     </session>
 
   </section>

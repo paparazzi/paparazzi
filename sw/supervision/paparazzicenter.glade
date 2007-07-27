@@ -1628,7 +1628,7 @@
 			      <child>
 				<widget class="GtkMenuItem" id="sim_menu_item">
 				  <property name="visible">True</property>
-				  <property name="label" translatable="yes">Sim</property>
+				  <property name="label" translatable="yes">_Simulation</property>
 				  <property name="use_underline">True</property>
 				  <signal name="activate" handler="on_sim1_activate" last_modification_time="Sat, 30 Jun 2007 09:15:04 GMT"/>
 				</widget>
@@ -1637,7 +1637,7 @@
 			      <child>
 				<widget class="GtkMenuItem" id="fly_menu_item">
 				  <property name="visible">True</property>
-				  <property name="label" translatable="yes">Fly with ...</property>
+				  <property name="label" translatable="yes">_Flight</property>
 				  <property name="use_underline">True</property>
 				  <signal name="activate" handler="on_fly1_activate" last_modification_time="Sat, 30 Jun 2007 09:15:04 GMT"/>
 				</widget>
@@ -1646,7 +1646,7 @@
 			      <child>
 				<widget class="GtkMenuItem" id="replay_menu_item">
 				  <property name="visible">True</property>
-				  <property name="label" translatable="yes">Replay</property>
+				  <property name="label" translatable="yes">Log File _Replay</property>
 				  <property name="use_underline">True</property>
 				  <signal name="activate" handler="on_replay1_activate" last_modification_time="Sat, 30 Jun 2007 09:15:04 GMT"/>
 				</widget>
@@ -1661,7 +1661,7 @@
 			      <child>
 				<widget class="GtkMenuItem" id="session_menu_item">
 				  <property name="visible">True</property>
-				  <property name="label" translatable="yes">User</property>
+				  <property name="label" translatable="yes">Custom</property>
 				  <property name="use_underline">True</property>
 				  <signal name="activate" handler="on_session_menu_item_activate" last_modification_time="Sat, 07 Jul 2007 16:48:24 GMT"/>
 				</widget>
@@ -1674,7 +1674,7 @@
 		      <child>
 			<widget class="GtkMenuItem" id="programs_menu_item">
 			  <property name="visible">True</property>
-			  <property name="label" translatable="yes">Single Program</property>
+			  <property name="label" translatable="yes">_Tools</property>
 			  <property name="use_underline">True</property>
 			</widget>
 		      </child>
@@ -1717,7 +1717,7 @@
 		      <child>
 			<widget class="GtkLabel" id="label82">
 			  <property name="visible">True</property>
-			  <property name="label" translatable="yes">Current:</property>
+			  <property name="label" translatable="yes">Current Operation:</property>
 			  <property name="use_underline">False</property>
 			  <property name="use_markup">False</property>
 			  <property name="justify">GTK_JUSTIFY_LEFT</property>
@@ -1804,7 +1804,7 @@
 				  <child>
 				    <widget class="GtkLabel" id="label83">
 				      <property name="visible">True</property>
-				      <property name="label" translatable="yes">Remove All Processes</property>
+				      <property name="label" translatable="yes">Stop/Remove All Processes</property>
 				      <property name="use_underline">True</property>
 				      <property name="use_markup">False</property>
 				      <property name="justify">GTK_JUSTIFY_LEFT</property>
@@ -2019,7 +2019,8 @@
 	    </widget>
 	    <packing>
 	      <property name="tab_expand">False</property>
-	      <property name="tab_fill">True</property>
+	      <property name="tab_fill">False</property>
+	      <property name="tab_pack">GTK_PACK_END</property>
 	    </packing>
 	  </child>
 

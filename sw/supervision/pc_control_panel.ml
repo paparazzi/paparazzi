@@ -39,8 +39,11 @@ let programs =
     (Xml.children s);
   h
 let program_command = fun x ->
-  let xml = Hashtbl.find programs x in
-  Env.paparazzi_src // ExtXml.attrib xml "command"
+  try
+    let xml = Hashtbl.find programs x in
+    Env.paparazzi_src // ExtXml.attrib xml "command"
+  with Not_found ->
+    failwith (sprintf "Fatal Error: Program '%s' not found in control_panel.xml" x)
 
 let sessions =
   let h = Hashtbl.create 7 in
@@ -186,20 +189,20 @@ let supervision = fun ?file gui log ->
   let supervision_page = 1 in (* FIXME *)
 
   let run_gcs = fun () ->
-    run_and_monitor ?file ~plugged:true gui log "gcs" ""
+    run_and_monitor ?file ~plugged:true gui log "GCS" ""
   and run_server = fun args ->
-    run_and_monitor ?file gui log "server" args
+    run_and_monitor ?file gui log "Server" args
   and run_link = fun args ->
-    run_and_monitor ?file gui log "link" args
+    run_and_monitor ?file gui log "Data Link" args
   and run_sitl = fun ac_name ->
     let args = sprintf "-a %s -boot -norc" ac_name in
-    run_and_monitor ?file gui log "sim" args
+    run_and_monitor ?file gui log "Simulator" args
   in
 
   (* Replay menu *)
   let callback = fun () ->
     gui#entry_session_name#set_text "Replay";
-    run_and_monitor ?file gui log "play" "";
+    run_and_monitor ?file gui log "Log File Player" "";
     run_server "-n";
     run_gcs ()
   in
@@ -210,7 +213,7 @@ let supervision = fun ?file gui log ->
     close_programs gui in
   ignore (gui#button_remove_all_processes#connect#clicked ~callback);
 
-  (* Programs *)
+  (* Tools *)
   let entries = ref [] in
   Hashtbl.iter
     (fun name prog ->
@@ -234,7 +237,7 @@ let supervision = fun ?file gui log ->
       Hashtbl.iter
 	(fun ac_name ac -> 
 	  let cb = fun () ->
-	    gui#entry_session_name#set_text (sprintf "Sim %s" ac_name);
+	    gui#entry_session_name#set_text (sprintf "Simualator %s" ac_name);
 	    run_gcs ();
 	    run_server "-n";
 	    run_sitl ac_name
@@ -302,13 +305,13 @@ let supervision = fun ?file gui log ->
 
   (* Flights *)
   let cb = fun name args () ->
-    gui#entry_session_name#set_text (sprintf "Fly with %s" name);
+    gui#entry_session_name#set_text (sprintf "Flight: %s" name);
     run_gcs ();
     run_server "";
     run_link args
   in
   let entries = 
-    [`I ("XBee", cb "XBee" "-transport xbee -uplink");
+    [`I ("Maxstream", cb "Maxstream" "-transport xbee -uplink");
      `I ("Aerocomm", cb "Aerocomm" "-s 57600 -aerocomm -uplink"); 
      `I ("Serial", cb "Serial" "-uplink")] in
   let menu = GMenu.menu ()
