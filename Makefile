@@ -93,7 +93,7 @@ visu3d: lib
 static_h: $(MESSAGES_H) $(UBX_PROTOCOL_H) $(DL_PROTOCOL_H)
 
 usb_lib:
-	@(test -x $(ARMGCC) && (cd sw/airborne/arm7/lpcusb; $(MAKE))) || echo "Not building usb_lib: ARMGCC=$(ARMGCC) not found"
+	@[ -d sw/airborne/arm7/lpcusb ] && ((test -x $(ARMGCC) && (cd sw/airborne/arm7/lpcusb; $(MAKE))) || echo "Not building usb_lib: ARMGCC=$(ARMGCC) not found") || echo "Not building usb_lib: sw/airborne/arm7/lpcusb directory missing"
 
 $(MESSAGES_H) : $(MESSAGES_XML) $(CONF_XML) $(TOOLS)/gen_messages.out
 	$(Q)test -d $(STATICINCLUDE) || mkdir -p $(STATICINCLUDE)
