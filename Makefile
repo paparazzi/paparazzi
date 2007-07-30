@@ -37,7 +37,6 @@ AIRBORNE=sw/airborne
 COCKPIT=sw/ground_segment/cockpit
 TMTC=sw/ground_segment/tmtc
 MULTIMON=sw/ground_segment/multimon
-VISU3D=sw/ground_segment/visu3d
 LOGALIZER=sw/logalizer
 SIMULATOR=sw/simulator
 MAKE=make PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME)
@@ -55,7 +54,7 @@ ARMGCC=/usr/bin/arm-elf-gcc
 
 all: static conf
 
-static : lib center tools cockpit visu3d multimon tmtc logalizer lpc21iap sim_static static_h usb_lib
+static : lib center tools cockpit multimon tmtc logalizer lpc21iap sim_static static_h usb_lib
 
 conf: conf/conf.xml conf/control_panel.xml
 
@@ -86,9 +85,6 @@ tmtc: lib
 
 multimon:
 	cd $(MULTIMON); $(MAKE)
-
-visu3d: lib
-	cd $(VISU3D); $(MAKE)
 
 static_h: $(MESSAGES_H) $(UBX_PROTOCOL_H) $(DL_PROTOCOL_H)
 
