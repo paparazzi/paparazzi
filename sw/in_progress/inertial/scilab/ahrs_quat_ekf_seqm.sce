@@ -1,6 +1,7 @@
 clear();
 getf('rotations.sci');
 getf('imu.sci');
+getf('ahrs_euler_utils.sci');
 getf('ahrs_quat_utils.sci');
 getf('ekf.sci');
 
@@ -105,17 +106,17 @@ for i=1:length(time)-1
   case AHRS_STEP_PHI,
     measure = phi_of_accel(accel(:,i));
     estimate = est_euler(1);
-    H = ahrs_quat_get_dphi_dq(X1);
+    H = ahrs_quat_get_dphi_dX(X1);
     R = [1.3^2];
   case AHRS_STEP_THETA,
     measure = theta_of_accel(accel(:,i));
     estimate = est_euler(2);
-    H = ahrs_quat_get_dtheta_dq(X1);
+    H = ahrs_quat_get_dtheta_dX(X1);
     R = [1.3^2];
   case AHRS_STEP_PSI,
     measure = psi_of_mag(m_eulers(1,i), m_eulers(2,i), mag(:,i));
     estimate = est_euler(3);
-    H = ahrs_quat_get_dpsi_dq(X1);
+    H = ahrs_quat_get_dpsi_dX(X1);
     R = [2.5^2];
   end
 
