@@ -186,8 +186,8 @@ int
 main(int argc, char *argv[]) {
   gtk_init(&argc, &argv);
 
-  //ad = ahrs_data_read_log("../data/log_ahrs_bug");
-  ad = ahrs_data_read_log("../data/log_ahrs_roll");
+  ad = ahrs_data_read_log("../data/log_ahrs_bug");
+  //ad = ahrs_data_read_log("../data/log_ahrs_roll");
   //ad = ahrs_data_read_log("../data/log_ahrs_yaw_pitched");
   run_ekf();
   ahrs_display(ad);

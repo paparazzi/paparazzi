@@ -127,4 +127,4 @@ test_ukf: $(OBJS_TEST_UKF)
 
 
 clean:
-	rm -f *~ *.o tilt_ukf tilt_ekf tilt_fast_ekf ahrs_quat_ukf ahrs_quat_ekf ahrs_quat_fast_ekf test_matrix test_ukf
+	rm -f *~ *.o tilt_ukf tilt_ekf tilt_fast_ekf ahrs_euler_ekf ahrs_quat_ukf ahrs_quat_ekf ahrs_quat_fast_ekf test_matrix test_ukf
