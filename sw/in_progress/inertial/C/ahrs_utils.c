@@ -70,15 +70,15 @@ void norm_quat(double* quat) {
   quat[3] /= mag;
 }
 
-void ahrs_init(struct ahrs_data* ad, int len, double* X) {
+void ahrs_euler_init(struct ahrs_data* ad, int len, double* X) {
   double init_phi = 0.;
   double init_theta = 0.;
   double init_mx = 0.;
   double init_my = 0.;
   double init_mz = 0.;
+  X[3] = 0.;
   X[4] = 0.;
   X[5] = 0.;
-  X[6] = 0.;
   int iter;
   for (iter = 0; iter < len; iter++) {
     /* average attitude */
@@ -88,9 +88,9 @@ void ahrs_init(struct ahrs_data* ad, int len, double* X) {
     init_my += ad->mag_y[iter];
     init_mz += ad->mag_z[iter];
     /* sum gyros */
-    X[4] += ad->gyro_p[iter];
-    X[5] += ad->gyro_q[iter];
-    X[6] += ad->gyro_r[iter];
+    X[3] += ad->gyro_p[iter];
+    X[4] += ad->gyro_q[iter];
+    X[5] += ad->gyro_r[iter];
   }
   init_phi /= (double)len;
   init_theta /= (double)len;
@@ -98,10 +98,21 @@ void ahrs_init(struct ahrs_data* ad, int len, double* X) {
   init_my /= (double)len;
   init_mz /= (double)len;
   double init_psi = psi_of_mag(init_phi, init_theta, init_mx, init_my, init_mz);
-  quat_of_eulers(X, init_phi, init_theta, init_psi);
+  X[0] = init_phi;
+  X[1] = init_theta;
+  X[2] = init_psi;
+  X[3] /= (double)len;
   X[4] /= (double)len;
   X[5] /= (double)len;
-  X[6] /= (double)len;
-  printf("ahrs init : eulers [%f %f %f] biases [%f %f %f]\n", init_phi, init_theta, init_psi, X[4], X[5], X[6]);
+  printf("ahrs init : eulers [%f %f %f] biases [%f %f %f]\n", init_phi, init_theta, init_psi, X[3], X[4], X[5]);
+}
+
+void ahrs_quat_init(struct ahrs_data* ad, int len, double* X) {
+  ahrs_euler_init(ad, len, X);
+
+  X[6] = X[5];
+  X[5] = X[4];
+  X[4] = X[3];
+  quat_of_eulers(X, X[0], X[1], X[2]);
 
 }

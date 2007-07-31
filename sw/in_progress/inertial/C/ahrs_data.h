@@ -53,7 +53,8 @@ struct ahrs_data {
 
 extern struct ahrs_data* ahrs_data_new(int len, double dt);
 extern struct ahrs_data* ahrs_data_read_log(const char* filename);
-extern void ahrs_data_save_state(struct ahrs_data* ad, int idx, double* X, double* P);
+extern void ahrs_data_save_state_euler(struct ahrs_data* ad, int idx, double* X, double* P);
+extern void ahrs_data_save_state_quat(struct ahrs_data* ad, int idx, double* X, double* P);
 extern void ahrs_data_save_measure(struct ahrs_data* ad, int idx);
 extern void ahrs_data_save_state(struct ahrs_data* ad, int idx, double* X, double* P);
 

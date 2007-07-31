@@ -10,7 +10,8 @@ extern void quat_of_eulers(double* quat, double phi, double theta, double psi );
 extern void eulers_of_quat(double* euler, double* quat);
 extern void norm_quat(double* quat);
 
-extern void ahrs_init(struct ahrs_data* ad, int len, double* X);
+extern void ahrs_quat_init(struct ahrs_data* ad, int len, double* X);
+extern void ahrs_euler_init(struct ahrs_data* ad, int len, double* X);
 
 #define WARP(x, y) {	 \
     while ( x < -y )     \

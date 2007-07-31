@@ -55,6 +55,15 @@ tilt_fast_ekf: $(OBJS_TILT_FAST_EKF)
 #
 #
 
+OBJS_AHRS_EULER_EKF = ahrs_euler_ekf.o \
+		      ahrs_utils.o     \
+		      ahrs_data.o      \
+		      ahrs_display.o   \
+		      ekf.o            \
+		      matrix.o
+
+ahrs_euler_ekf: $(OBJS_AHRS_EULER_EKF)
+	gcc  -o $@ $^ $(LDFLAGS)
 
 
 

@@ -141,7 +141,25 @@ struct ahrs_data* ahrs_data_read_log(const char* filename) {
   return ad;
 }
 
-void ahrs_data_save_state(struct ahrs_data* ad, int idx, double* X, double* P) {
+void ahrs_data_save_state_euler(struct ahrs_data* ad, int idx, double* X, double* P) {
+  ad->est_phi[idx] = X[0];
+  ad->est_theta[idx] = X[1];
+  ad->est_psi[idx] = X[2];
+
+  ad->est_bias_p[idx] = X[3];
+  ad->est_bias_q[idx] = X[4];
+  ad->est_bias_r[idx] = X[5];
+
+  ad->P11[idx] = P[0];
+  ad->P22[idx] = P[1*7 + 1];
+  ad->P33[idx] = P[2*7 + 2];
+  ad->P44[idx] = P[3*7 + 3];
+  ad->P55[idx] = P[4*7 + 4];
+  ad->P66[idx] = P[5*7 + 5];
+
+}
+
+void ahrs_data_save_state_quat(struct ahrs_data* ad, int idx, double* X, double* P) {
   double eulers[3];
   eulers_of_quat(eulers, X);
   ad->est_phi[idx] = eulers[0];

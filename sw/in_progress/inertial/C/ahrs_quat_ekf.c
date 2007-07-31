@@ -108,6 +108,9 @@ void linear_measure(double *y, double* err, double*X, double *H) {
     break;
   }
   }
+  H[4] = 0.;
+  H[5] = 0.;
+  H[6] = 0.;
 }
 
 #define P0Q 1.0
@@ -144,7 +147,7 @@ void run_ekf (void) {
   
   struct ekf_filter* ekf;
   ekf = ekf_filter_new(7, 1, Q, R, linear_filter, linear_measure);
-  ahrs_init(ad, 150, X);
+  ahrs_quat_init(ad, 150, X);
   ekf_filter_reset(ekf, X, P);
 
   /* filter run */
@@ -174,7 +177,7 @@ void run_ekf (void) {
     norm_quat(X);
     //    printf("P66 %f\n", P[6*7 + 6]);
     ekf_filter_get_state(ekf, X, P);
-    ahrs_data_save_state(ad, iter, X, P);
+    ahrs_data_save_state_quat(ad, iter, X, P);
     ahrs_data_save_measure(ad, iter);
   }
 }
