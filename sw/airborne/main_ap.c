@@ -199,10 +199,12 @@ static inline uint8_t mcu1_status_update( void ) {
 
 
 static inline void events_update( void ) {
+#ifdef RADIO_GAIN1
   static uint16_t event1_cpt = 0;
   EventPos(event1_cpt, RADIO_GAIN1, rc_event_1);
   static uint16_t event2_cpt = 0;
   EventNeg(event2_cpt, RADIO_GAIN1, rc_event_2);
+#endif
 }  
 
 
