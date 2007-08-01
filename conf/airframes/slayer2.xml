@@ -78,11 +78,10 @@
 
  <section name="GYRO" prefix="GYRO_">
     <define name="ADC_ROLL_NEUTRAL" value="453"/>
-    <define name="ADC_PITCH_NEUTRAL" value="471"/>
+    <define name="ADC_TEMP_NEUTRAL" value="476"/>   
+    <define name="ADC_TEMP_SLOPE" value="0"/>  
     <define name="ROLL_SCALE" value="1.3846"/>
     <define name="ROLL_DIRECTION" value="1."/> 
-    <define name="PITCH_SCALE" value="1.3846"/>
-    <define name="PITCH_DIRECTION" value="1."/> 
   </section>
 
  <section name="BAT">
@@ -96,7 +95,7 @@
     <define name="KILL_MODE_DISTANCE" value="(1.5*MAX_DIST_FROM_HOME)"/>
     <define name="CONTROL_RATE" value="60" unit="Hz"/>
 <!--    <define name="XBEE_INIT" value="\"ATPL2\rATRN1\rATTT80\rATWR\r\""/> -->
-   <define name="NO_XBEE_API_INIT" value="TRUE"/>
+<!--   <define name="NO_XBEE_API_INIT" value="TRUE"/> -->
     <define name="ALT_KALMAN_ENABLED" value="TRUE"/>
     <define name="DEFAULT_CIRCLE_RADIUS" value="100"/>
 
@@ -184,7 +183,7 @@
 
  
  <section name="DATALINK" prefix="DATALINK_">
-    <define name="DEVICE_TYPE" value="XBEE"/>
+    <define name="DEVICE_TYPE" value="AEROCOMM"/>
     <define name="DEVICE_ADDRESS" value="...."/>
   </section>
 
@@ -205,11 +204,11 @@ ap.srcs += $(SRC_ARCH)/servos_4015_MAT_hw.c actuators.c
 ap.CFLAGS += -DRADIO_CONTROL -DRADIO_CONTROL_TYPE=RC_FUTABA
 ap.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c  
 
-ap.CFLAGS += -DDOWNLINK -DUSE_UART0 -DDOWNLINK_TRANSPORT=XBeeTransport -DDOWNLINK_FBW_DEVICE=Uart0 -DDOWNLINK_AP_DEVICE=Uart0 -DXBEE_UART=Uart0 -DDATALINK=XBEE -DUART0_BAUD=B9600
-ap.srcs += downlink.c $(SRC_ARCH)/uart_hw.c datalink.c xbee.c
+#ap.CFLAGS += -DDOWNLINK -DUSE_UART0 -DDOWNLINK_TRANSPORT=XBeeTransport -DDOWNLINK_FBW_DEVICE=Uart0 -DDOWNLINK_AP_DEVICE=Uart0 -DXBEE_UART=Uart0 -DDATALINK=XBEE -DUART0_BAUD=B9600
+#ap.srcs += downlink.c $(SRC_ARCH)/uart_hw.c datalink.c xbee.c
 
-#transp ap.CFLAGS += -DDOWNLINK -DUSE_UART0 -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_FBW_DEVICE=Uart0 -DDOWNLINK_AP_DEVICE=Uart0 -DPPRZ_UART=Uart0 -DDATALINK=PPRZ -DUART0_BAUD=B9600
-#transp ap.srcs += downlink.c $(SRC_ARCH)/uart_hw.c datalink.c pprz_transport.c
+ap.CFLAGS += -DDOWNLINK -DUSE_UART0 -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_FBW_DEVICE=Uart0 -DDOWNLINK_AP_DEVICE=Uart0 -DPPRZ_UART=Uart0 -DDATALINK=PPRZ -DUART0_BAUD=B57600
+ap.srcs += downlink.c $(SRC_ARCH)/uart_hw.c datalink.c pprz_transport.c
 
 
 ap.CFLAGS += -DINTER_MCU
@@ -232,7 +231,7 @@ ap.srcs += nav.c fw_h_ctl.c fw_v_ctl.c nav_survey_rectangle.c traffic_info.c
 ap.CFLAGS += -DGYRO -DADXRS150
 # -DIDG300
 ap.srcs += gyro.c
-ap.srcs += bomb.c
+# ap.srcs += bomb.c
 
 # Hack to use the same tuning file than slayer1
 ap.CFLAGS += -DUSE_GPIO
@@ -243,10 +242,13 @@ ap.srcs += $(SRC_ARCH)/gpio.c
 #ap.CFLAGS += -DHITL
 
 
+ap.CFLAGS += -DTELEMETRY_MODE_FBW=1
+
+
 # Config for SITL simulation
 include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
 sim.CFLAGS += -DCONFIG=\"tiny.h\" -DAGR_CLIMB -DH_CTL_RATE_LOOP -DLOITER_TRIM -DALT_KALMAN -DIR_360
-sim.srcs += bomb.c
+sim.srcs += nav_survey_rectangle.c
 
   </makefile>
 </airframe>
