@@ -48,23 +48,3 @@ endfunction
 
 
 
-//
-// Pade approximation of matrix exponential
-//
-function [expA] = mat_exp(A, epsilon)
-
-  normA = norm(A, 'inf');
-  //Ns = max(0, int(normA)) ???
-  Ns = normA;
-  ki = 2^(-Ns) * A;
-
-  i=1;
-//  foo = 2^(3-2*i)*
-
-
-expA = A;
-
-
-endfunction
-
-

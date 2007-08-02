@@ -23,7 +23,28 @@ endfunction
 
 
 
-function [baro_alt] = compute_altitude_full(baro_pressure)
+
+function [time_pres, pres] = baro_read_pprz_log(filename)
+
+time_pres= [];
+pres     = [];
+
+u=mopen(filename, 'r');
+while meof(u) == 0,
+  line = mgetl(u, 1);
+  if (line == "") continue end
+  [nb_scan, tip, ac, pr, te] = msscanf(1, line, '%f %d BARO_MS5534A %d %d');  
+  if (nb_scan == 4)
+    time_pres = [time_pres tip];
+    pres = [pres pr];
+  end
+
+end
+mclose(u);
+endfunction
+
+
+function [baro_alt] = compute_altitude_exp(baro_pressure)
 P0 = 1013.25;
 T0 = 288.15;
 Tg =6.5/1000;
@@ -73,7 +94,7 @@ endfunction
 //
 // intersema application note 501 page 8
 //
-function [alt, a, b] = filter_init(avg_len, pressure, gps_alt)
+function [pres, alt, a, b] = filter_init(avg_len, pressure, gps_alt)
 
   avg_pressure = sum(pressure(1:avg_len), 'c') / avg_len;
   avg_gps = sum(gps_alt(1:avg_len), 'c') / avg_len;
@@ -94,16 +115,17 @@ function [alt, a, b] = filter_init(avg_len, pressure, gps_alt)
     a = -23590. / 2^11;
   end;
 
-  b = avg_gps - a * avg_pressure;
+  pres = avg_pressure;
   alt = avg_gps;
-  
+  b = avg_gps - a * avg_pressure;
+
 endfunction
 
 
 
 function [Pi] = baro_get_P(P, i)
   
-  Pi = P(:, 1+3*(i-1):3*i);
+  Pi = P(:, 2*i-1:2*i);
 
 endfunction
 

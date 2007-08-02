@@ -7,10 +7,8 @@ getf('baro_utils.sci');
 filename = "data/07_07_26__16_37_09.baro.txt";
 [time, gps_alt, pressure, gps_climb, temp] = baro_read_log(filename);
 
-//a = -17000/2^11;
-//b = 1000. * 17000. / 2^11;
 
-[a, b] = filter_init(10, pressure, gps_alt)
+[p0, z0, a, b] = filter_init(10, pressure, gps_alt)
 
 if 0
   deff('e=G(p,z)','a=p(1),b=p(2), gps=z(1), pressure=z(2), e=gps-(a/pressure+b)')
@@ -23,7 +21,7 @@ if 0
 end
 
 baro_alt_lin = a * pressure + b;
-baro_alt_full = compute_altitude_full(pressure);
+baro_alt_full = compute_altitude_exp(pressure);
 //baro_alt = compute_altitude_lin(pressure);
 
 xbasc();
