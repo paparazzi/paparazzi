@@ -8,73 +8,70 @@ clear();
 getf('baro_utils.sci');
 getf('ekf.sci');
 
-filename = "data/07_07_26__16_37_09.baro.txt";
-[time, gps_alt, pressure, gps_climb, temp] = baro_read_log(filename);
+filename = "data/07_08_02__14_57_30.data";
+[time_pressure, pressure, time_altitude, altitude] = baro_read_pprz_log(filename);
 
-predict_only = 1;
-dt = (time(length(time)) - time(1)) / length(time)
+//[time, gps_alt, pressure, gps_climb, temp] = baro_read_log(filename);
+
 
 //
 // Initialisation
 //
-[alt, a, b] = filter_init(10, pressure, gps_alt)
+time_start = 110.;
+time_end = 250.;
+[pressure0,end_pressure, altitude0, end_altitude,  a0, b0] = filter_init_timed(time_start, time_end, time_pressure, pressure, time_altitude, altitude)
 
-X0 = [ alt; a; b ];
+X0 = [ altitude0; a0];
 
-P0 = [ 1. 0. 0.
-       0. 1. 0.
-       0. 0. 1. ];
-
+P0 = [ 1.  0.
+       0.  2. ];
+   
 X = [X0];
 P = [P0];
-   
+time_state = [time_pressure(end_pressure)];
 //
 // Iterations
 //
-for i=2:length(gps_alt)
-  // initial state
-  X0 = X(:, i-1);
-  // initial covariance
-  P0 = baro_get_P(P, i-1);
-  // command
-  pdot = (pressure(i) - pressure(i-1))/dt;
-  climb = pdot * X0(2);
-  // time derivative of state
-  X0dot = [ climb; 0; 0];
-  // Jacobian of Xdot wrt X
-  F = [ 0 pdot  0
-        0    0  0
-	0    0  0 ];
-  // process covariance noise
-  Q = [10.   0.    0.
-        0.   .1    0.
-	0.   0.    0.1 ];
+idx_a = end_altitude;
+idx_s = 2;
+for idx_p=(end_pressure+1):length(time_pressure)
 
-  [Xpred, Ppred] = ekf_predict_continuous(X0, X0dot, dt, P0, F, Q);
-    
-  if ( predict_only )
-    X = [X Xpred];
-    P = [P Ppred];
-  else
-    // measurement GPS
-    measure = gps_alt(i);
-    err = measure - Xpred(1);
-    // Jacobian of measurement wrt X
-    H = [ 1 pressure(i) 1];
-    // Measurement covariance noise
-    R = 10.;
-    [Xup, Pup] = ekf_update(Xpred, Ppred, H, R, err);
+  // prediction
+  // initial state
+  X0 = X(:, idx_s-1);
+  // initial covariance
+  P0 = baro_get_P(P, idx_s-1);
+  // command
+  delta_p = pressure(idx_p) - pressure(idx_p-1);
+  delta_z = X0(2) * delta_p;
+  X1 = X0 + [delta_z; 0];
+  // jacobian
+  F = [ 1.  delta_p
+        0   1.       ];
+  // process covariance noise
+  Q = [ 1e-5   0.
+        0.   1e-7 ];
+  P1 = F*P0*F' + Q;
   
-    // measurement pressure
-    measure = pressure(i);
-    err
-    
-    X = [X Xup];
-    P = [P Pup];
-    
-  end 
+  // update
+  err = altitude(idx_a) - X1(1);
+  H = [1 0];
+  R = 10;
+  E = H * P1 * H' + R;
+  K = P1 * H' * inv(E);
+  P2 = P1 - K * H * P1;
+  X2 = X1 + K * err;
+  
+  X = [X X2];
+  P = [P P2];
+  time_state = [time_state time_pressure(idx_p)];
+  idx_p = idx_p + 1;
+  idx_s = idx_s + 1;
+  while ((idx_p < length(time_pressure)) & ...
+         (time_altitude(idx_a) < time_pressure(idx_p)) & ...
+         (idx_a < length(time_altitude))), idx_a = idx_a + 1; end
+  
 end
-   
    
    
 //
@@ -83,22 +80,21 @@ end
 xbasc();
 subplot(4,1,1)
 xtitle('altitude');
-plot2d([time; time]', [gps_alt; X(1,:)]', style=[5, 3],  leg="gps@estimate");
+plot2d([time_altitude]', [altitude]', style=[5], leg="gps");
+plot2d([time_state]', [X(1,:)]', style=[3],  leg="est_alt");
 subplot(4,1,2)
-xtitle('a');
-plot2d([time]', [X(2,:)]', style=[5], leg="a");
+xtitle('pressure');
+plot2d([time_pressure]', [pressure]', style=[5], leg="pressure");
 subplot(4,1,3)
-xtitle('b');
-plot2d([time]', [X(3,:)]', style=[5], leg="b");
+xtitle('a');
+plot2d([time_state]', [X(2,:)]', style=[5], leg="a");
 subplot(4,1,4)
 xtitle('covariance');
 P11 = [];
 P22 = [];
-P33 = [];
-for i=1:length(time)
+for i=1:length(time_state)
   Pi = baro_get_P(P, i);
   P11 = [P11 Pi(1,1)];
   P22 = [P22 Pi(2,2)];
-  P33 = [P33 Pi(3,3)];
 end
-plot2d([time; time; time]', [P11; P22; P33]', style=[5 3 2], leg="alt@a@b");
+plot2d([time_state; time_state]', [P11; P22]', style=[5 3], leg="Palt@Pa");

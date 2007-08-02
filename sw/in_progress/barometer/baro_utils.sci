@@ -24,10 +24,12 @@ endfunction
 
 
 
-function [time_pres, pres] = baro_read_pprz_log(filename)
+function [time_pressure, pressure, time_gps, altitude] = baro_read_pprz_log(filename)
 
-time_pres= [];
-pres     = [];
+time_pressure= [];
+pressure     = [];
+time_gps     = [];
+altitude     = []; 
 
 u=mopen(filename, 'r');
 while meof(u) == 0,
@@ -35,10 +37,16 @@ while meof(u) == 0,
   if (line == "") continue end
   [nb_scan, tip, ac, pr, te] = msscanf(1, line, '%f %d BARO_MS5534A %d %d');  
   if (nb_scan == 4)
-    time_pres = [time_pres tip];
-    pres = [pres pr];
+    time_pressure = [time_pressure tip];
+    pressure = [pressure pr];
+  else
+    [nb_scan, tig, ac, gmod, gue, gun, gcour, galt, gspeed, gclimb, gitow, guzone, gnerr] = ...
+	msscanf(1, line, '%f %d GPS %d %d %d %d %d %d %d %d %d %d');  
+    if (nb_scan == 12)
+      time_gps = [time_gps tig];
+      altitude = [altitude galt];
+    end
   end
-
 end
 mclose(u);
 endfunction
@@ -120,6 +128,49 @@ function [pres, alt, a, b] = filter_init(avg_len, pressure, gps_alt)
   b = avg_gps - a * avg_pressure;
 
 endfunction
+
+
+function [pressure0,end_pressure, altitude0, end_altitude,  a0, b0] = filter_init_timed(time_start, time_end, time_pressure, pressure, time_altitude, altitude)
+  [avg_pressure, start_pressure, end_pressure] =  average_period(time_start, time_end, time_pressure, pressure);
+  [avg_altitude, start_altitude, end_altitude] =  average_period(time_start, time_end, time_altitude, altitude);
+
+  if (avg_pressure > 1030.0) 
+    a0 = -16380. / 2^11;
+  elseif (avg_pressure > 970.0)
+    a0 = -17200. / 2^11;
+  elseif (avg_pressure > 920.0)
+    a0 = -18020. / 2^11;
+  elseif (avg_pressure > 850.0)
+    a0 = -19050. / 2^11;
+  elseif (avg_pressure > 780.0)
+    a0 = -20330. / 2^11;
+  elseif (avg_pressure > 710.0)
+    a0 = -21880. / 2^11;
+  elseif (avg_pressure > 650.0)
+    a0 = -23590. / 2^11;
+  end;
+
+  pressure0 = avg_pressure;
+  altitude0 = avg_altitude;
+  b0 = avg_altitude - a0 * avg_pressure;
+
+endfunction
+
+
+
+
+function [average, idx_start, idx_end] = average_period(time_start, time_end, time_samples, samples)
+  idx_start = 1;
+  while ((time_samples(idx_start) < time_start) & (idx_start <= length(time_samples))),
+    idx_start = idx_start+1;
+  end
+  idx_end = idx_start;
+  while ((time_samples(idx_end) < time_end) & (idx_end <= length(time_samples))),
+    idx_end = idx_end+1;
+  end
+  average = sum(samples(idx_start:idx_end), 'c') / (idx_end - idx_start);
+endfunction
+
 
 
 
