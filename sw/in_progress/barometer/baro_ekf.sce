@@ -49,14 +49,14 @@ for idx_p=(end_pressure+1):length(time_pressure)
   F = [ 1.  delta_p
         0   1.       ];
   // process covariance noise
-  Q = [ 1e-5   0.
-        0.   1e-7 ];
+  Q = [ 1e-4   0.
+        0.   1e-6 ];
   P1 = F*P0*F' + Q;
   
   // update
   err = altitude(idx_a) - X1(1);
   H = [1 0];
-  R = 10;
+  R = 25;
   E = H * P1 * H' + R;
   K = P1 * H' * inv(E);
   P2 = P1 - K * H * P1;
@@ -74,20 +74,25 @@ for idx_p=(end_pressure+1):length(time_pressure)
 end
    
    
+
+dumb_alt = a0 * pressure + b0;
+
+
 //
 // Display
 //
 xbasc();
 subplot(4,1,1)
 xtitle('altitude');
-plot2d([time_altitude]', [altitude]', style=[5], leg="gps");
-plot2d([time_state]', [X(1,:)]', style=[3],  leg="est_alt");
+plot2d([time_altitude]', [altitude]', style=[5]);
+plot2d([time_state]', [X(1,:)]', style=[3, 5],  leg="est_alt@gps");
+plot2d([time_pressure]', [dumb_alt]', style=[1]);
 subplot(4,1,2)
 xtitle('pressure');
 plot2d([time_pressure]', [pressure]', style=[5], leg="pressure");
 subplot(4,1,3)
 xtitle('a');
-plot2d([time_state]', [X(2,:)]', style=[5], leg="a");
+plot2d([time_state]', [X(2,:)]', style=[3], leg="a");
 subplot(4,1,4)
 xtitle('covariance');
 P11 = [];
