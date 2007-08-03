@@ -75,13 +75,13 @@ type status = {
 
 let statuss = Hashtbl.create 3
 let dead_aircraft_time_ms = 5000
-let update_status = fun ac_id buf ->
+let update_status = fun ac_id buf_size ->
   let status = 
     try Hashtbl.find statuss ac_id with Not_found ->
       let s = { last_rx_byte = 0; last_rx_msg = 0; rx_byte = 0; rx_msg = 0; rx_err = 0; ms_since_last_msg = dead_aircraft_time_ms } in
       Hashtbl.add statuss ac_id s;
       s in
-  status.rx_byte <- status.rx_byte + String.length buf;
+  status.rx_byte <- status.rx_byte + buf_size;
   status.rx_msg <- status.rx_msg + 1;
   status.rx_err <- !PprzTransport.nb_err;
   status.ms_since_last_msg <- 0
@@ -155,14 +155,15 @@ let airborne_device = fun ac_id airframes device ->
   | _ -> raise NotSendingToThis
 
 
-let use_tele_message = fun payload ->
+let use_tele_message = fun ?raw_data_size payload ->
+  let raw_data_size = match raw_data_size with None -> String.length (Serial.string_of_payload payload) | Some d -> d in
   let buf = Serial.string_of_payload payload in
   Debug.call 'l' (fun f ->  fprintf f "pprz receiving: %s\n" (Debug.xprint buf));
   try
     let (msg_id, ac_id, values) = Tm_Pprz.values_of_payload payload in
     let msg = Tm_Pprz.message_of_id msg_id in
     Tm_Pprz.message_send (string_of_int ac_id) msg.Pprz.name values;
-    update_status ac_id buf
+    update_status ac_id raw_data_size
   with
     _ ->
       Debug.call 'W' (fun f ->  fprintf f "Warning, cannot use: %s\n" (Debug.xprint buf));
@@ -345,6 +346,8 @@ module XB = struct (** XBee module *)
 	x := 1;
       !x
 
+  let size_packet = 4 (* Start + msb_len + lsb_len + cksum *)
+
   let use_message = fun device frame_data ->
     let frame_data = Serial.string_of_payload frame_data in
     Debug.trace 'x' (Debug.xprint frame_data);
@@ -370,10 +373,10 @@ module XB = struct (** XBee module *)
 	  
     | Xbee.RX_Packet_64 (addr64, rssi, options, data) ->
 	Debug.trace 'x' (sprintf "getting XBee RX64: %Lx %d %d %s" addr64 rssi options (Debug.xprint data));
-	use_tele_message (Serial.payload_of_string data)
+	use_tele_message ~raw_data_size:(String.length frame_data + size_packet) (Serial.payload_of_string data)
     | Xbee.RX_Packet_16 (addr16, rssi, options, data) ->
 	Debug.trace 'x' (sprintf "getting XBee RX16: from=%x %d %d %s" addr16 rssi options (Debug.xprint data));
-	use_tele_message (Serial.payload_of_string data)
+	use_tele_message ~raw_data_size:(String.length frame_data + size_packet) (Serial.payload_of_string data)
 
 
   let send = fun ac_id device rf_data ->
@@ -552,8 +555,11 @@ end
 
 
 let parse_of_transport device = function
-    Pprz -> 
-      PprzTransport.parse use_tele_message
+    Pprz ->
+      let use = fun s ->
+	let raw_data_size = String.length (Serial.string_of_payload s) + 4(*stx,len,ck_a, ck_b*) in
+	use_tele_message ~raw_data_size s in
+      PprzTransport.parse use
   | Modem -> 
       let module ModemTransport = Serial.Transport(Modem.Protocol) in
       ModemTransport.parse PprzModem.use_message
