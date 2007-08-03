@@ -79,7 +79,7 @@ static inline void sys_time_init( void ) {
 #define SIGNED_SYS_TICS_OF_USEC(us) SIGNED_SYS_TICS_OF_SEC((us) * 1e-6)
 
 #define FIFTY_MS          SYS_TICS_OF_SEC( 50e-3 )
-#define AVR_PERIOD_MS     SYS_TICS_OF_SEC( 15.625e-3 )
+#define AVR_PERIOD_MS     SYS_TICS_OF_SEC( 16.666e-3 )
 #ifndef PERIODIC_TASK_PERIOD
 #define PERIODIC_TASK_PERIOD AVR_PERIOD_MS
 #endif
