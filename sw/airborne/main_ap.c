@@ -87,6 +87,18 @@
 #include "dpicco.h"
 #endif
 
+#ifdef USE_SPI
+#include "spi.h"
+#endif
+
+#ifdef TELEMETER
+#include "srf08.h"
+#endif
+
+#ifdef USE_BARO_MS5534A
+#include "baro_MS5534A.h"
+#endif
+
 #define LOW_BATTERY_DECIVOLT (LOW_BATTERY*10)
 
 
@@ -477,7 +489,6 @@ void periodic_task_ap( void ) {
 #ifdef DIGITAL_CAM
     dc_periodic();
 #endif
-
     break;
 
 #ifdef LIGHT_PIN_1
@@ -496,6 +507,7 @@ void periodic_task_ap( void ) {
     GpioUpdate1();
     break;
 #endif
+
 #ifdef ENOSE
   case 4:
     enose_periodic();
@@ -530,6 +542,13 @@ void periodic_task_ap( void ) {
 #error "Only 20 and 60 allowed for CONTROL_RATE"
 #endif
 
+#ifdef USE_BARO_MS5534A
+  if (!_20Hz) {
+    baro_MS5534A_send();
+  }
+#endif
+
+
 #if CONTROL_RATE == 20
   if (!_20Hz)
 #endif
@@ -560,16 +579,6 @@ void periodic_task_ap( void ) {
     }
 }
 
-
-
-
-#ifdef MCU_SPI_LINK /** ap alone, using SPI to communicate with fbw */
-#include "spi.h"
-#endif
-
-#ifdef TELEMETER
-#include "srf08.h"
-#endif
 
 void init_ap( void ) {
 #ifndef SINGLE_MCU /** Dual mcus : init done in main_fbw */
@@ -633,8 +642,10 @@ void init_ap( void ) {
 #endif
 
   /************* Links initialization ***************/
-#if defined MCU_SPI_LINK
+#if defined USE_SPI
   spi_init();
+#endif
+#if defined MCU_SPI_LINK
   link_mcu_init();
 #endif
 #ifdef MODEM
@@ -686,6 +697,10 @@ void init_ap( void ) {
 #if defined AEROCOMM_DATA_PIN
   IO0DIR |= _BV(AEROCOMM_DATA_PIN);
   IO0SET = _BV(AEROCOMM_DATA_PIN);
+#endif
+
+#ifdef USE_BARO_MS5534A
+  baro_MS5534A_init();
 #endif
 }
 
@@ -763,6 +778,18 @@ void event_task_ap( void ) {
     /* Got a message on SPI. */
     spi_message_received = FALSE;
     link_mcu_event_task();
+  }
+#endif
+
+#ifdef USE_BARO_MS5534A
+  if (spi_message_received) {
+    /* Got a message on SPI. */
+    spi_message_received = FALSE;
+    baro_MS5534A_event_task();
+    if (baro_MS5534A_available) {
+      baro_MS5534A_available = FALSE;
+      DOWNLINK_SEND_BARO_MS5534A(&baro_MS5534A_pressure, &baro_MS5534A_temp);
+    }
   }
 #endif
 
