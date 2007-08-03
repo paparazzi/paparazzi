@@ -30,6 +30,7 @@
 
 #include "std.h"
 #include "LPC21xx.h"
+#include CONFIG
 
 extern volatile uint8_t spi_tx_idx;
 extern volatile uint8_t spi_rx_idx;
@@ -117,7 +118,16 @@ extern volatile uint8_t spi_rx_idx;
 
 #endif /* SPI_SLAVE */
 
+
+
 #ifdef SPI_MASTER
+
+
+/* !!!!!!!!!!!!! Code for one single slave at a time !!!!!!!!!!!!!!!!! */
+#if defined SPI_SELECT_SLAVE1_PIN && defined SPI_SELECT_SLAVE0_PIN
+#error "SPI: one single slave, please"
+#endif
+
 
 #define SpiStart() {                                                    \
    SpiEnable();                                                         \
@@ -131,26 +141,52 @@ extern volatile uint8_t spi_rx_idx;
  *
  */
 
+#define SPI_SELECT_SLAVE_IO__(port, reg) IO ## port ## reg
+#define SPI_SELECT_SLAVE_IO_(port, reg) SPI_SELECT_SLAVE_IO__(port, reg)
+
+#define SPI_SELECT_SLAVE0_IODIR SPI_SELECT_SLAVE_IO_(SPI_SELECT_SLAVE0_PORT, DIR)
+#define SPI_SELECT_SLAVE0_IOCLR SPI_SELECT_SLAVE_IO_(SPI_SELECT_SLAVE0_PORT, CLR)
+#define SPI_SELECT_SLAVE0_IOSET SPI_SELECT_SLAVE_IO_(SPI_SELECT_SLAVE0_PORT, SET)
+
+#define SPI_SELECT_SLAVE1_IODIR SPI_SELECT_SLAVE_IO_(SPI_SELECT_SLAVE1_PORT, DIR)
+#define SPI_SELECT_SLAVE1_IOCLR SPI_SELECT_SLAVE_IO_(SPI_SELECT_SLAVE1_PORT, CLR)
+#define SPI_SELECT_SLAVE1_IOSET SPI_SELECT_SLAVE_IO_(SPI_SELECT_SLAVE1_PORT, SET)
+
+
 #define SpiSelectSlave0() {	\
     spi_cur_slave = SPI_SLAVE0;	\
-    SetBit(IO0CLR, 20);	\
+    SetBit(SPI_SELECT_SLAVE0_IOCLR, SPI_SELECT_SLAVE0_PIN);	\
   }
 
 #define SpiUnselectSlave0() { \
     spi_cur_slave = SPI_NONE;	\
-    SetBit(IO0SET, 20);	\
+    SetBit(SPI_SELECT_SLAVE0_IOSET, SPI_SELECT_SLAVE0_PIN);	\
   }
+
 
 #define SpiSelectSlave1() {	\
     spi_cur_slave = SPI_SLAVE1;	\
-    SetBit(IO1CLR, 20);	\
+    SetBit(SPI_SELECT_SLAVE1_IOCLR, SPI_SELECT_SLAVE1_PIN);	\
   }
 
 #define SpiUnselectSlave1() { \
     spi_cur_slave = SPI_NONE;	\
-    SetBit(IO1SET, 20);	\
+    SetBit(SPI_SELECT_SLAVE1_IOSET, SPI_SELECT_SLAVE1_PIN);	\
   }
 
+#ifdef SPI_SELECT_SLAVE0_PIN
+#define SpiUnselectCurrentSlave() SpiUnselectSlave0()
+#endif
+
+#ifdef SPI_SELECT_SLAVE1_PIN
+#define SpiUnselectCurrentSlave() SpiUnselectSlave1()
+#endif
+
 #endif /* SPI_MASTER */
+
+
+#define SpiSetCPHA() (SSPCR0 |= _BV(7))
+#define SpiClrCPHA() (SSPCR0 &= ~(_BV(7)))
+
 
 #endif /* SPI_HW_H */

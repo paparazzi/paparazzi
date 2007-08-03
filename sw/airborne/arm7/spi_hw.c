@@ -34,11 +34,22 @@
 volatile uint8_t spi_tx_idx;
 volatile uint8_t spi_rx_idx;
 
+/* SSP (SPI1) pins (UM10120_1.pdf page 76)
+   P0.17 SCK    PINSEL1 2 << 2
+   P0.18 MISO   PINSEL1 2 << 4
+   P0.19 MOSI   PINSEL1 2 << 6
+   P0.20 SS     PINSEL1 2 << 8 
+*/
+#define PINSEL1_SCK  (2 << 2)
+#define PINSEL1_MISO (2 << 4)
+#define PINSEL1_MOSI (2 << 6)
+#define PINSEL1_SSEL (2 << 8)
+
 #ifdef SPI_SLAVE
 void SPI1_ISR(void) __attribute__((naked));
 
 /* SSPCR0 settings */
-#define SSP_DDS  0x07 << 0  /* data size            : 8 bits   */
+#define SSP_DSS  0x07 << 0  /* data size            : 8 bits   */
 #define SSP_FRF  0x00 << 4  /* frame format         : SPI      */
 #define SSP_CPOL 0x00 << 6  /* clock polarity       : idle low */  
 #define SSP_CPHA 0x01 << 7  /* clock phase          : 1        */
@@ -50,22 +61,14 @@ void SPI1_ISR(void) __attribute__((naked));
 #define SSP_MS   0x01 << 2  /* master slave mode    : slave    */
 #define SSP_SOD  0x00 << 3  /* slave output disable : disabled */
 
-/* SSP (SPI1) pins
-   P0.17 SCK    PINSEL1 2 << 2
-   P0.18 MISO   PINSEL1 2 << 4
-   P0.19 MOSI   PINSEL1 2 << 6
-   P0.20 SS     PINSEL1 2 << 8 
-*/
-
 void spi_init( void ) {
-
   /* setup pins for SSP (SCK, MISO, MOSI, SS) */
-  PINSEL1 |= 2 << 2 | 2 << 4 | 2 << 6 | 2 << 8;
+  PINSEL1 |= PINSEL1_SCK | PINSEL1_MISO | PINSEL1_MOSI | PINSEL1_SSEL;
 
   /* setup SSP  */
-  SSPCR0 = SSP_DDS | SSP_FRF | SSP_CPOL | SSP_CPHA | SSP_SCR;
+  SSPCR0 = SSP_DSS | SSP_FRF | SSP_CPOL | SSP_CPHA | SSP_SCR;
   SSPCR1 = SSP_LBM | SSP_MS | SSP_SOD;
-  SSPCPSR = 0x20;
+  SSPCPSR = 0x20; /* Prescaler, UM10120_1.pdf page 167 */
 
   /* initialize interrupt vector */
   VICIntSelect &= ~VIC_BIT(VIC_SPI1);   // SPI1 selected as IRQ
@@ -80,8 +83,6 @@ void spi_init( void ) {
 void SPI1_ISR(void) {
  ISR_ENTRY();
  
- // LED_ON(2);
-
  if (bit_is_set(SSPMIS, TXMIS)) {  /*  Tx half empty */
    SpiTransmit();
    SpiReceive();
@@ -96,8 +97,6 @@ void SPI1_ISR(void) {
    spi_message_received = TRUE;
  }
  
- // LED_OFF(2);
- 
  VICVectAddr = 0x00000000; /* clear this interrupt from the VIC */
  ISR_EXIT();
 }
@@ -107,7 +106,7 @@ void SPI1_ISR(void) {
 
 /*
  *
- * AP MCU code
+ * SPI Master code
  *
  *
  */
@@ -120,11 +119,11 @@ void SPI1_ISR(void) {
 void SPI1_ISR(void) __attribute__((naked));
 
 /* SSPCR0 settings */
-#define SSP_DDS  0x07 << 0  /* data size         : 8 bits        */
+#define SSP_DSS  0x07 << 0  /* data size         : 8 bits        */
 #define SSP_FRF  0x00 << 4  /* frame format      : SPI           */
 #define SSP_CPOL 0x00 << 6  /* clock polarity    : SCK idles low */  
 #define SSP_CPHA 0x01 << 7  /* clock phase       : data captured on second clock transition */
-#define SSP_SCR  0x0F << 8  /* serial clock rate : divide by 16  */
+#define SSP_SCR  0x0F << 8  /* serial clock rate   */
 
 /* SSPCR1 settings */
 #define SSP_LBM  0x00 << 0  /* loopback mode     : disabled                  */
@@ -133,55 +132,54 @@ void SPI1_ISR(void) __attribute__((naked));
 #define SSP_SOD  0x00 << 3  /* slave output disable : don't care when master */
 
 void spi_init( void ) {
-
   /* setup pins for SSP (SCK, MISO, MOSI) */
-  PINSEL1 |= 2 << 2 | 2 << 4 | 2 << 6;
+  PINSEL1 |= PINSEL1_SCK | PINSEL1_MISO | PINSEL1_MOSI;
 
+#if defined USE_SPI_SLAVE0
   /* setup slave0_select pin */
-  IO0DIR |= 1 << 20;  /* slave0_select is output */
-  IO0SET |= 1 << 20;  /* slave0 is unselected    */
+  SPI_SELECT_SLAVE0_IODIR |= 1 << SPI_SELECT_SLAVE0_PIN;  /* slave0_select is output */
+  SpiUnselectSlave0();  /* slave0 is unselected    */
+#endif
 
+#if defined USE_SPI_SLAVE1
   /* setup slave1_select pin */
   PINSEL2 &= ~(_BV(3)); /* P1.25-16 are used as GPIO */
-  IO1DIR |= 1 << 20;    /* slave1_select is output   */
-  IO1SET |= 1 << 20;    /* slave1 is unselected      */
+  SPI_SELECT_SLAVE1_IODIR |= 1 << SPI_SELECT_SLAVE1_PIN;    /* slave1_select is output   */
+  SpiUnselectSlave1();    /* slave1 is unselected      */
+#endif
 
   /* setup SSP */
-  SSPCR0 = SSP_DDS | SSP_FRF | SSP_CPOL | SSP_CPHA | SSP_SCR;
+  SSPCR0 = SSP_DSS | SSP_FRF | SSP_CPOL | SSP_CPHA | SSP_SCR;
   SSPCR1 = SSP_LBM | SSP_MS | SSP_SOD;
-  SSPCPSR = 0x20;
+  SSPCPSR = 0x20; /* Prescaler */
 
   /* initialize interrupt vector */
-  VICIntSelect &= ~VIC_BIT(VIC_SPI1);   // SPI1 selected as IRQ
-  VICIntEnable = VIC_BIT(VIC_SPI1);     // SPI1 interrupt enabled
+  VICIntSelect &= ~VIC_BIT(VIC_SPI1);   /* SPI1 selected as IRQ */
+  VICIntEnable = VIC_BIT(VIC_SPI1);     /* SPI1 interrupt enabled */
   VICVectCntl7 = VIC_ENABLE | VIC_SPI1;
-  VICVectAddr7 = (uint32_t)SPI1_ISR;    // address of the ISR 
-
+  VICVectAddr7 = (uint32_t)SPI1_ISR;    /* address of the ISR */
 }
 
 void SPI1_ISR(void) {
- ISR_ENTRY();
- // LED_TOGGLE(2);
+  ISR_ENTRY();
+  
+  if (bit_is_set(SSPMIS, TXMIS)) {  /*  Tx fifo is half empty */
+    SpiTransmit();
+    SpiReceive();
+    SpiEnableRti();
+  }
+  
+  if (bit_is_set(SSPMIS, RTMIS)) { /* Rx fifo is not empty and no receive took place in the last 32 bits period */ 
+    SpiUnselectCurrentSlave();
+    SpiReceive();
+    SpiDisableRti();
+    SpiClearRti();                /* clear interrupt */
+    SpiDisable();
+    spi_message_received = TRUE;
+  }
 
- // SPI_SELECT_SLAVE1(); /* debug */
- if (bit_is_set(SSPMIS, TXMIS)) {  /*  Tx fifo is half empty */
-   SpiTransmit();
-   SpiReceive();
-   SpiEnableRti();
- }
-
- if (bit_is_set(SSPMIS, RTMIS)) { /* Rx fifo is not empty and no receive took place in the last 32 bits period */ 
-   SpiUnselectSlave0();
-   SpiReceive();
-   SpiDisableRti();
-   SpiClearRti();                /* clear interrupt */
-   SpiDisable();
-   spi_message_received = TRUE;
-}
-
- // SPI_UNSELECT_SLAVE1(); /* debug */
- VICVectAddr = 0x00000000; /* clear this interrupt from the VIC */
- ISR_EXIT();
+  VICVectAddr = 0x00000000; /* clear this interrupt from the VIC */
+  ISR_EXIT();
 }
 
 #endif /** SPI_MASTER */
