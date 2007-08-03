@@ -29,7 +29,7 @@ static float bomb_x, bomb_y, bomb_z;
 static float bomb_vx, bomb_vy, bomb_vz;
 
 
-static void integrate( void ) {
+static void integrate( uint8_t wp_target ) {
   /* Inspired from Arnold Schroeter's code */
   int i = 0;
   while (bomb_z > 0. && i < MAX_STEPS) {
@@ -61,15 +61,15 @@ static void integrate( void ) {
     bomb_y += bomb_vy * t;
   }
 
-  waypoints[WP_RELEASE].x = waypoints[WP_TARGET].x - bomb_x;
-  waypoints[WP_RELEASE].y = waypoints[WP_TARGET].y - bomb_y;
+  waypoints[WP_RELEASE].x = waypoints[wp_target].x - bomb_x;
+  waypoints[WP_RELEASE].y = waypoints[wp_target].y - bomb_y;
 }
 
 
 /** Update the RELEASE location with the actual ground speed and altitude */
-unit_t bomb_update_release( void ) {
+unit_t bomb_update_release( uint8_t wp_target ) {
 
-  bomb_z = estimator_z - waypoints[WP_TARGET].a;
+  bomb_z = estimator_z - waypoints[wp_target].a;
   bomb_x = 0.;
   bomb_y = 0.;
 
@@ -77,7 +77,7 @@ unit_t bomb_update_release( void ) {
   bomb_vy = estimator_hspeed_mod * cos(estimator_hspeed_dir);
   bomb_vz = 0.;
 
-  integrate();
+  integrate(wp_target);
 
   return 0;
 }
@@ -85,25 +85,25 @@ unit_t bomb_update_release( void ) {
 
 /** Compute a first approximation for the RELEASE waypoint from wind and
     expected airspeed and altitude */
-unit_t bomb_compute_approach( void ) {
-  waypoints[WP_RELEASE].a = waypoints[WP_START].a;
-  bomb_z = waypoints[WP_RELEASE].a - waypoints[WP_TARGET].a;
+unit_t bomb_compute_approach( uint8_t wp_target, uint8_t wp_start ) {
+  waypoints[WP_RELEASE].a = waypoints[wp_start].a;
+  bomb_z = waypoints[WP_RELEASE].a - waypoints[wp_target].a;
   bomb_x = 0.;
   bomb_y = 0.;
 
   /* We approximate vx and vy, taking into account that RELEASE is next to
      TARGET */
-  float x_0 = waypoints[WP_TARGET].x - waypoints[WP_START].x;
-  float y_0 = waypoints[WP_TARGET].y - waypoints[WP_START].y;
+  float x_0 = waypoints[wp_target].x - waypoints[wp_start].x;
+  float y_0 = waypoints[wp_target].y - waypoints[wp_start].y;
 
   /* Unit vector from START to TARGET */
   float d = sqrt(x_0*x_0+y_0*y_0);
   float x1 = x_0 / d;
   float y_1 = y_0 / d;
 
-  waypoints[WP_BASELEG].x = waypoints[WP_START].x + y_1 * BOMB_RADIUS;
-  waypoints[WP_BASELEG].y = waypoints[WP_START].y - x1 * BOMB_RADIUS;
-  waypoints[WP_BASELEG].a = waypoints[WP_START].a;
+  waypoints[WP_BASELEG].x = waypoints[wp_start].x + y_1 * BOMB_RADIUS;
+  waypoints[WP_BASELEG].y = waypoints[wp_start].y - x1 * BOMB_RADIUS;
+  waypoints[WP_BASELEG].a = waypoints[wp_start].a;
   bomb_start_qdr = M_PI - atan2(-y_1, -x1);
 
   bomb_vx = x1 * airspeed + wind_east;
@@ -113,7 +113,7 @@ unit_t bomb_compute_approach( void ) {
   float vx0 = bomb_vx;
   float vy0 = bomb_vy;
 
-  integrate();
+  integrate(wp_target);
 
   waypoints[WP_CLIMB].x = waypoints[WP_RELEASE].x + CLIMB_TIME * vx0;
   waypoints[WP_CLIMB].y = waypoints[WP_RELEASE].y + CLIMB_TIME * vy0;
@@ -130,62 +130,3 @@ unit_t bomb_shoot( void ) {
 }
 
 #endif /* WP_RELEASE */
-
-
-#if defined WP_TD
-
-float baseleg_alt, downwind_altitude;
-const float baseleg_alt_tolerance = 15.;
-
-
-/** Computes BASELEG from AF and TD */
-unit_t compute_baseleg( void ) {
-  float x_0 = waypoints[WP_TD].x - waypoints[WP_AF].x;
-  float y_0 = waypoints[WP_TD].y - waypoints[WP_AF].y;
-
-  /* Unit vector from AF to TD */
-  float d = sqrt(x_0*x_0+y_0*y_0);
-  float x_1 = x_0 / d;
-  float y_1 = y_0 / d;
-
-  waypoints[WP_BASELEG].x = waypoints[WP_AF].x + y_1 * BOMB_RADIUS;
-  waypoints[WP_BASELEG].y = waypoints[WP_AF].y - x_1 * BOMB_RADIUS;
-  waypoints[WP_BASELEG].a = waypoints[WP_AF].a;
-  bomb_start_qdr = M_PI - atan2(-y_1, -x_1);
-
-  baseleg_alt = waypoints[WP_BASELEG].a;
-  downwind_altitude =  estimator_z;
-
-  return 0;
-}
-
-
-static float overrun = 100.;
-
-/** Computes TOD from AF and TD */
-bool_t compute_tod( void ) {
-  float z_dot = -2.;
-
-  float x_0 = waypoints[WP_TD].x - waypoints[WP_AF].x;
-  float y_0 = waypoints[WP_TD].y - waypoints[WP_AF].y;
-
-  /* Unit vector from AF to TD */
-  float d = sqrt(x_0*x_0+y_0*y_0);
-  float x_1 = x_0 / d;
-  float y_1 = y_0 / d;
-
-  waypoints[WP_TOD].a = waypoints[WP_AF].a;
-  float d1 = estimator_hspeed_mod * (waypoints[WP_TD].a - waypoints[WP_AF].a) / z_dot;
-
-  waypoints[WP_TOD].x = waypoints[WP_TD].x - d1 * x_1;
-  waypoints[WP_TOD].y = waypoints[WP_TD].y - d1 * y_1;
-
-  waypoints[WP_OVERRUN].a = waypoints[WP_TD].a;
-  waypoints[WP_OVERRUN].x = waypoints[WP_TD].x + overrun * x_1;
-  waypoints[WP_OVERRUN].y = waypoints[WP_TD].y + overrun * y_1;
-
-  float distance_to_TD_2 = DistanceSquare(estimator_x, estimator_y, waypoints[WP_TD].x, waypoints[WP_TD].y);
-  return (distance_to_TD_2 < d1*d1);
-}
-
-#endif /* WP_TD */
