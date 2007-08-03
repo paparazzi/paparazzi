@@ -91,7 +91,7 @@
 #endif
 
 #define ADC_5 AdcBank1(3)
-#ifdef USE_ADC_4
+#ifdef USE_ADC_5
 #ifndef USE_AD1
 #define USE_AD1
 #endif
@@ -99,7 +99,7 @@
 #endif
 
 #define ADC_6 AdcBank1(4)
-#ifdef USE_ADC_4
+#ifdef USE_ADC_6
 #ifndef USE_AD1
 #define USE_AD1
 #endif
@@ -107,7 +107,7 @@
 #endif
 
 #define ADC_7 AdcBank1(5)
-#ifdef USE_ADC_4
+#ifdef USE_ADC_7
 #ifndef USE_AD1
 #define USE_AD1
 #endif
