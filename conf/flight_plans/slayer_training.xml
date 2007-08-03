@@ -1,0 +1,48 @@
+<!DOCTYPE flight_plan SYSTEM "flight_plan.dtd">
+
+<flight_plan alt="75" ground_alt="0" lat0="43.4622" lon0="1.2729" max_dist_from_home="800" name="Versatile" qfu="270" security_height="25">
+  <header>
+#include "datalink.h"
+</header>
+  <waypoints>
+    <waypoint name="HOME" x="0" y="0"/>
+    <waypoint name="E1" x="65.8" y="123.3"/>
+    <waypoint name="E2" x="190.1" y="105.6"/>
+    <waypoint name="S1" x="-182.7" y="126.0"/>
+    <waypoint name="S2" x="307.6" y="257.0"/>
+    <waypoint alt="215" name="AF" x="200" y="-10"/>
+    <waypoint name="TOD" x="-150" y="0"/>
+    <waypoint alt="185" name="TD" x="80" y="20"/>
+    <waypoint name="BASELEG" x="309.9" y="138.1"/>
+  </waypoints>
+  <blocks>
+    <block name="wait GPS">
+      <while cond="!GpsFixValid()"/>
+    </block>
+    <block name="init">
+      <while cond="LessThan(NavBlockTime(), 10)"/>
+      <call fun="NavSetGroundReferenceHere()"/>
+      <deroute block="climb"/>
+    </block>
+    <block name="eight 1">
+      <eight center="E1" radius="nav_radius" turn_around="E2"/>
+    </block>
+    <block name="survey">
+      <survey_rectangle grid="150" wp1="S1" wp2="S2"/>
+    </block>
+    <block name="land">
+      <call fun="nav_compute_baseleg(WP_AF, WP_TD, WP_BASELEG)"/>
+      <circle radius="nav_radius" until="NavCircleCount() > 0.5" wp="BASELEG"/>
+      <set value="V_CTL_AUTO_THROTTLE_MIN_CRUISE_THROTTLE" var="v_ctl_auto_throttle_cruise_throttle"/>
+      <circle radius="nav_radius" until="NavQdrCloseTo(DegOfRad(baseleg_out_qdr)-10) && 10 > fabs(estimator_z - WaypointAlt(WP_BASELEG))" wp="BASELEG"/>
+    </block>
+    <block name="final">
+      <exception cond="ground_alt + 10 > estimator_z" deroute="flare"/>
+      <go from="AF" hmode="route" vmode="glide" wp="TD"/>
+    </block>
+    <block name="flare">
+      <go approaching_time="0" from="AF" hmode="route" throttle="0.0" vmode="throttle" wp="TD"/>
+      <attitude roll="0.0" throttle="0.0" until="FALSE" vmode="throttle"/>
+    </block>
+  </blocks>
+</flight_plan>
