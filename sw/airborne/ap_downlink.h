@@ -63,12 +63,12 @@
 #endif
 
 
-#ifdef MODEM
-#include "modem.h"
-#define PERIODIC_SEND_DEBUG_MODEM() DOWNLINK_SEND_DEBUG_MODEM(&modem_nb_ovrn)
-#else
-#define PERIODIC_SEND_DEBUG_MODEM()
-#endif
+#define PERIODIC_SEND_DOWNLINK() { \
+  static uint16_t last; \
+  uint16_t rate = downlink_nb_bytes - last; \
+  last = downlink_nb_bytes; \
+  DOWNLINK_SEND_DOWNLINK(&downlink_nb_ovrn, &rate, &downlink_nb_msgs); \
+}
 
 
 #define PERIODIC_SEND_ATTITUDE() Downlink({ \
