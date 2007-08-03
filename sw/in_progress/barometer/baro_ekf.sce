@@ -1,5 +1,6 @@
 //
-//
+// State X = [z; a]
+// X(k+1) = X(k) + [ a * delta_p; 0]
 //
 //
 
@@ -11,9 +12,6 @@ getf('ekf.sci');
 filename = "data/07_08_02__14_57_30.data";
 //filename = "data/07_08_02__15_19_47.data";
 [time_pressure, pressure, time_altitude, altitude] = baro_read_pprz_log(filename);
-
-//[time, gps_alt, pressure, gps_climb, temp] = baro_read_log(filename);
-
 
 //
 // Initialisation
