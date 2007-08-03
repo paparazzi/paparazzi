@@ -63,6 +63,9 @@
 
 #ifdef AP
 
+#define SPI_SELECT_SLAVE0_PORT 0
+#define SPI_SELECT_SLAVE0_PIN 20
+
 #ifndef SITL
 /* sitl handles this board as a mono-processor one: unfortunately these
    definitions are already in FBW */
