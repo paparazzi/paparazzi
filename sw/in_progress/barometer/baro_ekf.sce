@@ -9,6 +9,7 @@ getf('baro_utils.sci');
 getf('ekf.sci');
 
 filename = "data/07_08_02__14_57_30.data";
+//filename = "data/07_08_02__15_19_47.data";
 [time_pressure, pressure, time_altitude, altitude] = baro_read_pprz_log(filename);
 
 //[time, gps_alt, pressure, gps_climb, temp] = baro_read_log(filename);
@@ -19,6 +20,9 @@ filename = "data/07_08_02__14_57_30.data";
 //
 time_start = 110.;
 time_end = 250.;
+//time_start = 100.;
+//time_end = 150.;
+
 [pressure0,end_pressure, altitude0, end_altitude,  a0, b0] = filter_init_timed(time_start, time_end, time_pressure, pressure, time_altitude, altitude)
 
 X0 = [ altitude0; a0];
