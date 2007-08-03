@@ -45,3 +45,5 @@ uint8_t telemetry_mode_Ap =TELEMETRY_MODE_AP;
 #endif /** AP */
 
 uint8_t downlink_nb_ovrn;
+uint16_t downlink_nb_bytes;
+uint16_t downlink_nb_msgs;
