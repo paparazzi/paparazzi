@@ -57,7 +57,10 @@ void xbee_init( void );
 #define XBeePrintHex16(x) XBeeLink(PrintHex16(x))
 #define XBeeTransportPut1Byte(x) XBeeLink(Transmit(x))
 #define XBeeTransportCheckFreeSpace(x) XBeeLink(CheckFreeSpace(x))
-#define XBeeTransportSizeOf(_x) (_x+5)
+/* 5 = Start + len_msb + len_lsb + API_id + checksum */
+#define XBeeAPISizeOf(_x) (_x+5)
+/* 4 = frame_id + addr_msb + addr_lsb + options */
+#define XBeeTransportSizeOf(_x) XBeeAPISizeOf(_x+4)
 #define XBeeTransportSendMessage() XBeeLink(SendMessage())
 
 #define XBeeTransportPutUint8(_x) { \
@@ -129,7 +132,7 @@ void xbee_init( void );
 
 #define XBeeTransportHeader(_len) { \
   XBeeTransportPut1Byte(XBEE_START); \
-  uint8_t payload_len = XBeeTransportSizeOf(_len + 2); \
+  uint8_t payload_len = XBeeAPISizeOf(_len); \
   XBeeTransportPut2Bytes(payload_len); \
   xbee_cs = 0; \
   XBeeTransportPutTX16Header(); \

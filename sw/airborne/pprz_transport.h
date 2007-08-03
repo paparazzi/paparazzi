@@ -33,8 +33,8 @@ extern uint8_t ck_a, ck_b;
 
 #define STX  0x99
 
-/** 6 = STX + len + ac_id + msg_id + ck_a + ck_b */
-#define PprzTransportSizeOf(_payload) (_payload+6)
+/** 4 = STX + len + ck_a + ck_b */
+#define PprzTransportSizeOf(_payload) (_payload+4)
 
 #define __Link(dev, _x) dev##_x
 #define _Link(dev, _x)  __Link(dev, _x)

@@ -61,6 +61,9 @@ extern uint8_t telemetry_mode_Fbw;
 
 /** Counter of messages not sent because of unavailibity of the output buffer*/
 extern uint8_t downlink_nb_ovrn;
+extern uint16_t downlink_nb_bytes;
+extern uint16_t downlink_nb_msgs;
+
 
 #define __Transport(dev, _x) dev##_x
 #define _Transport(dev, _x) __Transport(dev, _x)
@@ -68,7 +71,9 @@ extern uint8_t downlink_nb_ovrn;
 
 
 /** Set of macros for generated code (messages.h) from messages.xml */
-#define DownlinkSizeOf(_x) Transport(SizeOf(_x))
+/** 2 = ac_id + msg_id */
+#define DownlinkIDsSize(_x) (_x+2)
+#define DownlinkSizeOf(_x) Transport(SizeOf(DownlinkIDsSize(_x)))
 
 #define DownlinkCheckFreeSpace(_x) Transport(CheckFreeSpace((uint8_t)(_x)))
 
@@ -87,10 +92,12 @@ extern uint8_t downlink_nb_ovrn;
 #define DownlinkPutUint16Array(_n, _x) Transport(PutUint16Array(_n, _x))
 #define DownlinkPutUint8Array(_n, _x) Transport(PutUint8Array(_n, _x))
 
-#define DonwlinkOverrun() downlink_nb_ovrn++;
+#define DownlinkOverrun() downlink_nb_ovrn++;
+#define DownlinkCountBytes(_n) downlink_nb_bytes += _n;
 
 #define DownlinkStartMessage(_name, msg_id, payload_len) { \
-  Transport(Header(payload_len)); \
+  downlink_nb_msgs++; \
+  Transport(Header(DownlinkIDsSize(payload_len))); \
   Transport(PutUint8(AC_ID)); \
   Transport(PutNamedUint8(_name, msg_id)); \
 }
