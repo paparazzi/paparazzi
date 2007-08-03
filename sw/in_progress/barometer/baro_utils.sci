@@ -180,3 +180,9 @@ function [Pi] = baro_get_P(P, i)
 
 endfunction
 
+function [Pi] = baro_get_P3(P, i)
+  
+  Pi = P(:, 3*i-2:3*i);
+
+endfunction
+

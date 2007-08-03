@@ -7,7 +7,6 @@
 
 clear();
 getf('baro_utils.sci');
-getf('ekf.sci');
 
 filename = "data/07_08_02__14_57_30.data";
 //filename = "data/07_08_02__15_19_47.data";
@@ -52,7 +51,7 @@ for idx_p=(end_pressure+1):length(time_pressure)
         0   1.       ];
   // process covariance noise
   Q = [ 1e-4   0.
-        0.   1e-6 ];
+        0.   1e-7 ];
   P1 = F*P0*F' + Q;
   
   // update
