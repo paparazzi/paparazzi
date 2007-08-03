@@ -9,7 +9,7 @@
       <message name="ADC"            period="0.5"/>
       <message name="NAVIGATION_REF" period="9"/>
       <message name="PPRZ_MODE"      period="5"/>
-      <message name="BAT"            period="2"/>
+      <message name="BAT"            period="1"/>
       <message name="DEBUG_MCU_LINK" period="5"/>
       <message name="CALIBRATION"    period="2"/>
       <message name="SETTINGS"       period="0.5"/>
@@ -17,7 +17,7 @@
       <message name="CIRCLE"         period="1"/>
       <message name="SEGMENT"        period="1"/>
       <message name="IMU"            period="0.5"/>
-      <message name="DEBUG_MODEM"    period="5"/>
+      <message name="DOWNLINK"       period="1"/>
       <message name="DL_VALUE"       period="1"/>
       <message name="WP_MOVED"       period="0.5"/>
       <message name="RAD_OF_IR"      period="1"/>

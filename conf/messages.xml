@@ -193,8 +193,10 @@
     <field name="flying" type="uint8" unit="bool"/>
   </message>
 
-  <message name="DEBUG_MODEM" id="30">
-    <field name="modem_nb_err" type="uint8"></field>
+  <message name="DOWNLINK" id="30">
+    <field name="nb_ovrn" type="uint8"></field>
+    <field name="rate" type="uint16" unit="bytes/s"></field>
+    <field name="nb_msgs" type="uint16"></field>
   </message>
 
 <!-- Current value of one variable from the dl_settings (airframe.xml) -->
@@ -208,15 +210,6 @@
    <field name="ac_id" type="uint8"/>
    <field name="lat" type="float" unit="deg"/>
    <field name="long" type="float" unit="deg"/>
- </message>
-
- <message name="DEBUG1" id="33">
-    <field name="xxx" type="uint8"/>
-    <field name="foo" type="uint8[]"/>
- </message>
-
- <message name="DEBUG2" id="34">
-    <field name="foo" type="uint8[]"/>
  </message>
 
  <message name="WP_MOVED" id="35">
@@ -289,6 +282,11 @@
       <field name="phi_sp" type="float"/>
   </message>
 
+  <message name="BARO_MS5534A" ID="44">
+      <field name="pressure" type="uint32"/>
+      <field name="temp" type="uint16"/>
+  </message>
+
   <message name="PPM" ID="100">
     <field name="values" type="uint16[]" unit="ticks"/>
   </message>
@@ -314,11 +312,6 @@
 
   <message name="ACTUATORS" ID="105">
     <field name="values" type="uint16[]" unit="none"/>
-  </message>
-
-
-    <message name="DEBUG16" ID="106">
-    <field name="xxx" type="uint16" unit="none"/>
   </message>
 
 
