@@ -39,10 +39,10 @@
 /* serial speed that for the ublox gps receiver at startup (usb: don't care) */
 #define DEFAULT_BAUDRATE    9600
 /* this is the name of the input configuration text from ublox */
-#define IN_FILE_NAME        "sam_ls_cfg_05_02.txt"
+#define IN_FILE_NAME        "Tiny_LEA-4P-v6.txt"
 /* this is where your gps receiver lives on the PC (ttyS0, ttyACM0, ttyUSB0) */
-#define OUT_FILE_NAME       "/dev/ttyS0"
-/* should the config be written to flash or battery backed ram? (1=yes) */
+#define OUT_FILE_NAME       "/dev/ttyUSB0"
+/* should the config be written to flash/battery backed ram? (1=yes) */
 #define SAVE_PERMANENT      1
 
 /* **************** no user servicable part below this line **************** */
@@ -387,6 +387,7 @@ int main (void)
         
                 if (data[6] == UBLOX_PORT)
                 {
+                    sleep(1);
                     printf("port in use, ");
 
                     if ((br = int_to_baud(baud)) < 0 )
