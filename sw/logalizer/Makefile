@@ -29,7 +29,7 @@ INCLUDES= -I +xml-light
 
 all: play plotter plot
 
-play : play.ml
+play : log_file.ml play.ml
 	@echo OL $@
 	$(Q)$(OCAMLC) $(INCLUDES) -custom -o $@ unix.cma str.cma xml-light.cma glibivy-ocaml.cma -I +lablgtk2 -I ../lib/ocaml lablgtk.cma lib-pprz.cma gtkInit.cmo  $^
 
@@ -37,7 +37,7 @@ plotter : plotter.ml
 	@echo OL $@
 	$(Q)$(OCAMLC) $(INCLUDES) -custom -o $@ unix.cma str.cma xml-light.cma glibivy-ocaml.cma -I +lablgtk2 -I ../lib/ocaml lablgtk.cma lib-pprz.cma gtkInit.cmo  $^
 
-plot : plot.ml
+plot : log_file.ml plot.ml
 	@echo OL $@
 	$(Q)$(OCAMLOPT) $(INCLUDES) -o $@ unix.cmxa str.cmxa xml-light.cmxa glibivy-ocaml.cmxa -I +lablgtk2 -I ../lib/ocaml lablgtk.cmxa lib-pprz.cmxa gtkInit.cmx  $^
 

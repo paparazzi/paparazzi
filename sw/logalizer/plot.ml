@@ -443,21 +443,8 @@ let load_log = fun ?factor (plot:plot) (menubar:GMenu.menu_shell GMenu.factory) 
 
 
 
-let file_dialog ~title ~callback () =
-  let dialog = GWindow.file_chooser_dialog ~action:`OPEN ~title () in
-  ignore (dialog#set_current_folder logs_dir);
-  dialog#add_filter (GFile.filter ~name:"log" ~patterns:["*.log"] ());
-  dialog#add_button_stock `CANCEL `CANCEL ;
-  dialog#add_select_button_stock `OPEN `OPEN ;
-  begin match dialog#run (), dialog#filename with
-    `OPEN, Some name ->
-      dialog#destroy ();
-      callback name
-  | _ -> dialog#destroy ()
-  end
-
 let open_log = fun ?factor plot menubar curves_fact () ->
-  ignore (file_dialog ~title:"Open Log" ~callback:(fun name -> load_log ?factor plot menubar curves_fact name) ())
+  ignore (Log_file.chooser ~callback:(fun name -> load_log ?factor plot menubar curves_fact name) ())
 
 
 let remove_fst_and_snd = function
