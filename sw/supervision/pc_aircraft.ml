@@ -120,6 +120,26 @@ let ac_files = fun gui ->
 
 (* Awful but easier *)
 let current_color = ref "white"
+
+let save_callback = fun gui ac_combo () ->
+  let ac_name = combo_value ac_combo in
+  if ac_name <> "" then begin
+    let color = !current_color in
+    let aircraft =
+      Xml.Element ("aircraft",
+		   ["name", ac_name;
+		    "ac_id", gui#entry_ac_id#text;
+		    "airframe", gui#label_airframe#text;
+		    "radio", gui#label_radio#text;
+		    "telemetry", gui#label_telemetry#text;
+		    "flight_plan", gui#label_flight_plan#text;
+		    "settings", gui#label_settings#text;
+		    "gui_color", color],
+		   []) in
+    begin try Hashtbl.remove aircrafts ac_name with _ -> () end;
+    Hashtbl.add aircrafts ac_name aircraft
+  end;
+  write_conf_xml ()
   
 
 (* Link A/C to airframe & flight_plan labels *)
@@ -170,7 +190,7 @@ let ac_combo_handler = fun gui (ac_combo:combo) target_combo ->
   let callback = fun _ ->
     let ac_name = combo_value ac_combo in
     if ac_name <> "" then
-      match GToolbox.question_box ~title:"Delete A/C" ~buttons:["Cancel"; "Delete"] ~default:2 (sprintf "Delete %s ? (NO undo)" ac_name) with
+      match GToolbox.question_box ~title:"Delete A/C" ~buttons:["Cancel"; "Delete"] ~default:2 (sprintf "Delete %s ? (no undo after Save)" ac_name) with
 	2 -> begin
 	  begin try Hashtbl.remove aircrafts ac_name with _ -> () end;
 	  aircrafts_table_has_changed := true;
@@ -199,29 +219,7 @@ let ac_combo_handler = fun gui (ac_combo:combo) target_combo ->
   ignore(gui#button_gui_color#connect#clicked ~callback);
 
   (* Save button *)
-  let callback = fun _ ->
-    match GToolbox.question_box ~title:"Save conf.xml" ~buttons:["Cancel"; "Save"] ~default:2 "Save in conf.xml ? (backup in conf.xml~)" with
-      2 ->
-	let ac_name = combo_value ac_combo in
-	if ac_name <> "" then begin
-	  let color = !current_color in
-	  let aircraft =
-	    Xml.Element ("aircraft",
-			 ["name", ac_name;
-			  "ac_id", gui#entry_ac_id#text;
-			  "airframe", gui#label_airframe#text;
-			  "radio", gui#label_radio#text;
-			  "telemetry", gui#label_telemetry#text;
-			  "flight_plan", gui#label_flight_plan#text;
-			  "settings", gui#label_settings#text;
-			  "gui_color", color],
-			 []) in
-	  begin try Hashtbl.remove aircrafts ac_name with _ -> () end;
-	  Hashtbl.add aircrafts ac_name aircraft
-	end;
-	write_conf_xml ()
-    | _ -> () in
-  ignore(gui#button_save_ac#connect#clicked ~callback)
+  ignore(gui#button_save_ac#connect#clicked ~callback:(save_callback gui ac_combo))
 
 
 let build_handler = fun gui ac_combo (target_combo:combo) (log:string->unit) ->
@@ -242,14 +240,19 @@ let build_handler = fun gui ac_combo (target_combo:combo) (log:string->unit) ->
   in
   ignore (gui#button_new_target#connect#clicked ~callback);
 
+  let autosave = fun () ->
+    if gui#button_autosave#active then
+      save_callback gui ac_combo () in
 
   (* Clean button *)
   let callback = fun () ->
+    autosave ();
     command log (combo_value ac_combo) "clean_ac" in
   ignore (gui#button_clean#connect#clicked ~callback);
   
   (* Build button *)
   let callback = fun () ->
+    autosave ();
     let ac_name = combo_value ac_combo
     and target = combo_value target_combo in
     let target = if target="sim" then target else sprintf "%s.compile" target in
@@ -258,6 +261,7 @@ let build_handler = fun gui ac_combo (target_combo:combo) (log:string->unit) ->
   
   (* Upload button *)
   let callback = fun () ->
+    autosave ();
     let ac_name = combo_value ac_combo
     and target = combo_value target_combo in
     command log ac_name (sprintf "%s.upload" target) in
