@@ -663,14 +663,14 @@ let replayed = fun ac_id ->
     (ac_id, "", conf_xml)
 
       
-let new_aircraft = fun id ->
-  let id, root_dir, conf_xml = replayed id in
+let new_aircraft = fun real_id ->
+  let id, root_dir, conf_xml = replayed real_id in
   let conf = try ExtXml.child conf_xml "aircraft" ~select:(fun x -> ExtXml.attrib x "ac_id" = id) with Not_found -> failwith (sprintf "Error: A/C '%s' not found" id) in
   let ac_name = ExtXml.attrib conf "name" in
   let fp_file = Env.paparazzi_home // root_dir // "var" // ac_name // "flight_plan.xml" in
   let xml_fp = ExtXml.child (Xml.parse_file fp_file) "flight_plan" in
    
-  let ac = Aircraft.new_aircraft id ac_name xml_fp in
+  let ac = Aircraft.new_aircraft real_id ac_name xml_fp in
   let update = fun () ->
     for i = 0 to Array.length ac.svinfo - 1 do
       ac.svinfo.(i).age <-  ac.svinfo.(i).age + 1;
