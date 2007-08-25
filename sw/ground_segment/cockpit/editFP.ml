@@ -15,7 +15,8 @@ let dummy_fp = fun latlong ->
 	       "lon0", string_of_float ((Rad>>Deg)latlong.posn_long);
 	       "alt", "42.";
 	       "MAX_DIST_FROM_HOME", "1000."],
-	      [Xml.Element("waypoints", [],[])])
+	      [Xml.Element("waypoints", [],[]);
+	       Xml.Element("blocks", [],[])])
 
 
 
