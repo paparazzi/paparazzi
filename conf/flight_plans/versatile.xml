@@ -1,7 +1,7 @@
 <!DOCTYPE flight_plan SYSTEM "flight_plan.dtd">
 
-<flight_plan ground_alt="0" alt="75" lat0="43.4622" lon0="1.2729" max_dist_from_home="1500" name="Versatile" qfu="270" security_height="25">
-<header>
+<flight_plan alt="75" ground_alt="0" lat0="43.4622" lon0="1.2729" max_dist_from_home="1500" name="Versatile" qfu="270" security_height="25">
+  <header>
 #include "datalink.h"
 </header>
   <waypoints>
@@ -11,137 +11,124 @@
     <waypoint name="MOB" x="200" y="200"/>
     <waypoint name="S1" x="-200" y="-200"/>
     <waypoint name="S2" x="300" y="400"/>
-    <waypoint name="AF" x="200" y="-10" alt="215"/>
+    <waypoint alt="215" name="AF" x="200" y="-10"/>
     <waypoint name="TOD" x="-150" y="0"/>
-    <waypoint name="TD" x="80" y="20" alt="185"/>
+    <waypoint alt="185" name="TD" x="80" y="20"/>
     <waypoint name="BASELEG" x="400" y="300"/>
   </waypoints>
   <blocks>
     <block name="wait GPS">
       <while cond="!GpsFixValid()"/>
     </block>
-
     <block name="init">
       <while cond="LessThan(NavBlockTime(), 10)"/>
       <call fun="NavSetGroundReferenceHere()"/>
       <deroute block="climb"/>
     </block>
-
     <block name="climb">
-      <circle radius="nav_radius" wp="1" vmode="throttle" throttle="1" pitch="0.25" until="estimator_z > ground_alt+50"/>
+      <circle pitch="10" radius="nav_radius" throttle="1" until="estimator_z > ground_alt+50" vmode="throttle" wp="1"/>
     </block>
-
     <block name="circle 1">
       <circle radius="nav_radius" wp="1"/>
     </block>
-
-    <block name="eight 1">
-      <eight radius="nav_radius" center="1" turn_around="2"/>
+    <block name="circles">
+      <for from="1" to="5" var="i">
+        <set value="$i*50" var="waypoints[WP_2].x"/>
+        <set value="$i*50+nav_radius" var="waypoints[WP_2].y"/>
+        <go wp="2"/>
+        <set value="$i*50" var="waypoints[WP_2].y"/>
+        <circle radius="nav_radius" until="NavCircleCount()>1" wp="2"/>
+      </for>
     </block>
-
+    <block name="eight 1">
+      <eight center="1" radius="nav_radius" turn_around="2"/>
+    </block>
     <block name="oval" strip_button="Oval">
       <oval p1="1" p2="2" radius="nav_radius"/>
     </block>
-
     <block name="MOB" strip_button="MOB">
       <call fun="NavSetWaypointHere(WP_MOB)"/>
-      <circle wp="MOB" radius="100"/>
+      <circle radius="100" wp="MOB"/>
     </block>
-
     <block name="circle 1 auto pitch">
-      <circle radius="75" wp="1" pitch="auto" throttle="0.7"/>
+      <circle pitch="auto" radius="75" throttle="0.7" wp="1"/>
     </block>
-
     <block name="climb 75">
-      <circle radius="50+(estimator_z-ground_alt)/2" wp="1" throttle="0.75" pitch="0.3" vmode="throttle" until="(10 > PowerVoltage()) && (estimator_z > ground_alt+ 1350)"/>
+      <circle pitch="10" radius="50+(estimator_z-ground_alt)/2" throttle="0.75" until="(10 > PowerVoltage()) && (estimator_z > ground_alt+ 1350)" vmode="throttle" wp="1"/>
     </block>
-
     <block name="climb 1">
-      <circle radius="50+(estimator_z-ground_alt)/2" wp="1" climb="1" pitch="0.1" vmode="climb" until="10 > PowerVoltage()"/>
+      <circle climb="1" pitch="5" radius="50+(estimator_z-ground_alt)/2" until="10 > PowerVoltage()" vmode="climb" wp="1"/>
     </block>
-
     <block name="climb 0">
-      <circle radius="nav_radius" wp="1" climb="0" vmode="climb" until="10 > PowerVoltage()"/>
+      <circle climb="0" radius="nav_radius" until="10 > PowerVoltage()" vmode="climb" wp="1"/>
     </block>
-
     <block name="descent 0" strip_button="Descent">
-      <circle radius="50+(estimator_z-ground_alt)/2" wp="1" throttle="0.0" pitch="-0.3" vmode="throttle" until="ground_alt+50 > estimator_z"/>
+      <circle pitch="-5" radius="50+(estimator_z-ground_alt)/2" throttle="0.0" until="ground_alt+50 > estimator_z" vmode="throttle" wp="1"/>
       <deroute block="circle 1"/>
     </block>
-
     <block name="route12">
       <go approaching_time="0" from="1" hmode="route" wp="2"/>
     </block>
-
     <block name="glide12">
       <go from="1" hmode="route" vmode="glide" wp="2"/>
     </block>
-
     <block name="stack 2">
       <circle radius="75" wp="2"/>
     </block>
-
     <block name="route21">
       <go approaching_time="0" from="2" hmode="route" wp="1"/>
     </block>
-
     <block name="stack 1">
       <circle radius="75" wp="1"/>
     </block>
-
     <block name="survey">
       <survey_rectangle grid="150" wp1="S1" wp2="S2"/>
     </block>
-
-   <block name="land">
+    <block name="land">
       <call fun="nav_compute_baseleg(WP_AF, WP_TD, WP_BASELEG)"/>
       <circle radius="nav_radius" until="NavCircleCount() > 0.5" wp="BASELEG"/>
       <set value="V_CTL_AUTO_THROTTLE_MIN_CRUISE_THROTTLE" var="v_ctl_auto_throttle_cruise_throttle"/>
-      <circle radius="nav_radius"
-              until="NavQdrCloseTo(DegOfRad(baseleg_out_qdr)-10) && 10 > fabs(estimator_z - WaypointAlt(WP_BASELEG))"
-              wp="BASELEG"/>
+      <circle radius="nav_radius" until="NavQdrCloseTo(DegOfRad(baseleg_out_qdr)-10) && 10 > fabs(estimator_z - WaypointAlt(WP_BASELEG))" wp="BASELEG"/>
     </block>
-
     <block name="final">
       <exception cond="ground_alt + 10 > estimator_z" deroute="flare"/>
       <go from="AF" hmode="route" vmode="glide" wp="TD"/>
     </block>
-
     <block name="flare">
       <go approaching_time="0" from="AF" hmode="route" throttle="0.0" vmode="throttle" wp="TD"/>
       <attitude roll="0.0" throttle="0.0" until="FALSE" vmode="throttle"/>
     </block>
-
     <block name="step_roll_10">
       <while cond="TRUE">
-	<attitude roll="10.0" until=" stage_time > 6" vmode="alt" alt="250"/>
-	<attitude roll="-10.0" until="stage_time > 6" vmode="alt" alt="250"/>
+        <attitude alt="250" roll="10.0" until=" stage_time > 6" vmode="alt"/>
+        <attitude alt="250" roll="-10.0" until="stage_time > 6" vmode="alt"/>
       </while>
     </block>
-
     <block name="step_roll_20">
       <while cond="TRUE">
-	<attitude roll="20.0" until=" stage_time > 3" vmode="alt" alt="250"/>
-	<attitude roll="-20.0" until="stage_time > 3" vmode="alt" alt="250"/>
+        <attitude alt="250" roll="20.0" until=" stage_time > 3" vmode="alt"/>
+        <attitude alt="250" roll="-20.0" until="stage_time > 3" vmode="alt"/>
       </while>
     </block>
-
     <block name="step_pitch_10">
       <while cond="TRUE">
-	<attitude pitch="10" roll="0.0" until=" stage_time > 2" vmode="alt" alt="250"/>
-	<attitude pitch="-10" roll="0.0" until=" stage_time > 2" vmode="alt" alt="250"/>
+        <attitude alt="250" pitch="10" roll="0.0" until=" stage_time > 2" vmode="alt"/>
+        <attitude alt="250" pitch="-10" roll="0.0" until=" stage_time > 2" vmode="alt"/>
       </while>
     </block>
-
     <block name="heading">
-       <heading until="FALSE" course="30" alt="ground_alt+50"/>
+      <heading alt="ground_alt+50" course="30" until="FALSE"/>
     </block>
-
+    <block name="for">
+      <for from="0" to="3" var="i">
+        <circle alt="ground_alt+50+50*$i" radius="75" until="stage_time>10" wp="HOME"/>
+      </for>
+      <circle radius="50" wp="HOME"/>
+    </block>
     <block name="far away">
       <exception cond="datalink_time > 22" deroute="circle 1"/>
       <go approaching_time="0" from="1" hmode="route" wp="2"/>
       <go approaching_time="0" from="2" hmode="route" wp="1"/>
     </block>
-
   </blocks>
 </flight_plan>
