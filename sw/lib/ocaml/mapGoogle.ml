@@ -82,11 +82,20 @@ let display_the_tile = fun (geomap:MapCanvas.widget) tile jpg_file ->
   let ne = LL.make_geo north_lat east_long in
   
   let (tx, ty) = Gm.tile_size in
-  ignore (GMain.Idle.add (fun () -> 
-    let map = geomap#display_pixbuf ((0,tx), tile.Gm.sw_corner) ((ty,0),ne) (GdkPixbuf.from_file jpg_file) in
-    map#raise 1;
-    false));
-  add_tile tile.Gm.key
+  try
+    let pixbuf = GdkPixbuf.from_file jpg_file in
+    ignore (GMain.Idle.add (fun () -> 
+      let map = geomap#display_pixbuf ((0,tx), tile.Gm.sw_corner) ((ty,0),ne) pixbuf in
+      map#raise 1;
+      false));
+    add_tile tile.Gm.key
+  with
+    GdkPixbuf.GdkPixbufError(_, msg) ->
+      match GToolbox.question_box ~title:"Corrupted file" ~buttons:["Erase"; "Cancel"] (sprintf "%s. Erase ?" msg) with
+	1 ->
+	  Sys.remove jpg_file
+      | _ -> ()
+
     
 
 (** Displaying the tile around the given point *)
