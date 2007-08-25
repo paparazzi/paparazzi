@@ -218,7 +218,7 @@ let update = fun id r course ->
 let compute = fun compute_wind id ->
   try
     let wind_ac = Hashtbl.find h id in
-    let speeds = List.map (function (Some f) -> f) (List.filter (fun x -> x <> None) (Array.to_list wind_ac.speeds)) in
+    let speeds = List.fold_right (fun s r -> match s with Some s -> s::r | None -> r) (Array.to_list wind_ac.speeds) [] in
     let speeds = Array.of_list speeds in
 (*     Printf.printf "l=%d\n%!" (Array.length speeds); *)
     if Array.length speeds >= 3 then begin
