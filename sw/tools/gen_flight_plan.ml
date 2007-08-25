@@ -37,8 +37,8 @@ let check_expressions = ref false
 let parse_expression = Fp_proc.parse_expression
 
 let parse = fun s ->
-  if !check_expressions then
-    let e = parse_expression s in
+  let e = parse_expression s in
+  if !check_expressions then begin
     let unexpected = fun kind x ->
       fprintf stderr "Parsing error in '%s': unexpected %s: '%s' \n" s kind x;
       exit 1 in
@@ -49,10 +49,9 @@ let parse = fun s ->
 	Fp_syntax.Unknown_operator x -> unexpected "operator" x
       | Fp_syntax.Unknown_ident x -> unexpected "ident" x
       | Fp_syntax.Unknown_function x -> unexpected "function" x
-    end;
-    Fp_syntax.sprint_expression e
-  else
-    s
+    end
+  end;
+  Fp_syntax.sprint_expression e
 
 let parsed_attrib = fun xml a ->
   parse (ExtXml.attrib xml a)
@@ -168,7 +167,7 @@ let output_vmode x wp last_wp =
   then begin
     lprintf "NavVerticalAutoPitchMode(%.0f);\n" (pprz_throttle (parsed_attrib x "throttle"))
   end else begin
-    lprintf "NavVerticalAutoThrottleMode(%s);\n" (parse pitch);
+    lprintf "NavVerticalAutoThrottleMode(RadOfDeg(%s));\n" (parse pitch);
   end;
   let vmode = try ExtXml.attrib x "vmode" with _ -> "alt" in
   begin
@@ -427,7 +426,7 @@ let rec print_stage = fun index_of_waypoints x ->
     | "set" ->
 	stage ();
 	let var = ExtXml.attrib  x "var"
-	and value = ExtXml.attrib  x "value" in
+	and value = parsed_attrib  x "value" in
 	lprintf "%s = %s;\n" var value;
 	lprintf "NextStage();\n";
 	lprintf "return;\n"
