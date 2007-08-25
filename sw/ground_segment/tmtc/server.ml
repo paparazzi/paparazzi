@@ -668,7 +668,7 @@ let new_aircraft = fun id ->
   let conf = try ExtXml.child conf_xml "aircraft" ~select:(fun x -> ExtXml.attrib x "ac_id" = id) with Not_found -> failwith (sprintf "Error: A/C '%s' not found" id) in
   let ac_name = ExtXml.attrib conf "name" in
   let fp_file = Env.paparazzi_home // root_dir // "var" // ac_name // "flight_plan.xml" in
-  let xml_fp = Xml.parse_file fp_file in
+  let xml_fp = ExtXml.child (Xml.parse_file fp_file) "flight_plan" in
    
   let ac = Aircraft.new_aircraft id ac_name xml_fp in
   let update = fun () ->
@@ -737,7 +737,7 @@ let register_aircraft = fun name a ->
   register_periodic a (periodic aircraft_alerts_period (fun () -> check_alerts a));
   periodic_airprox_check name;
   register_periodic a (periodic wind_msg_period (fun () -> send_wind a));
-  Wind.new_ac name 1000;
+  Wind.new_ac name 36;
   ignore(Ground_Pprz.message_bind "WIND_CLEAR" wind_clear);
 
   if !kml then

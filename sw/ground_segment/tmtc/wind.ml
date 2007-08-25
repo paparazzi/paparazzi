@@ -185,7 +185,7 @@ let wind wind_init speeds precision =
   (wind.p, mean wind.p, wind.f)
 
 type wind_ac = {
-    mutable speeds : Geometry_2d.pt_2D array;
+    speeds : Geometry_2d.pt_2D option array;
     mutable index : int;
     mutable length : int;
     mutable wind_init : Geometry_2d.pt_2D
@@ -194,7 +194,7 @@ type wind_ac = {
 let h = Hashtbl.create 17
 
 let create_wind_ac max_nb_sample =
-  {speeds = Array.create max_nb_sample {x2D=0.; y2D=0.} ; wind_init = null_vector; index = 0; length = 0}
+  {speeds = Array.create max_nb_sample None ; wind_init = null_vector; index = 0; length = 0}
 
 let new_ac = fun id max_nb_sample ->
   Hashtbl.add h id (create_wind_ac max_nb_sample)
@@ -211,17 +211,16 @@ let update = fun id r course ->
   let theta = heading_of_to_angle_rad course in
   let speed = polar2cart {r2D = r; theta2D = theta} in
   let wind_ac = Hashtbl.find h id in
-  let i = wind_ac.index in
-  wind_ac.speeds.(i) <- speed;
-  let i' = i + 1 in
-  wind_ac.length <- max wind_ac.length i';
-  wind_ac.index <- i' mod (Array.length wind_ac.speeds)
-
+  let i = truncate (float (Array.length wind_ac.speeds) *. course /. 2. /. Latlong.pi) in
+(*  Printf.printf "i=%d\n%!" i; *)
+  wind_ac.speeds.(i) <- Some speed
 
 let compute = fun compute_wind id ->
   try
     let wind_ac = Hashtbl.find h id in
-    let speeds = Array.sub wind_ac.speeds 0 wind_ac.length in
+    let speeds = List.map (function (Some f) -> f) (List.filter (fun x -> x <> None) (Array.to_list wind_ac.speeds)) in
+    let speeds = Array.of_list speeds in
+(*     Printf.printf "l=%d\n%!" (Array.length speeds); *)
     if Array.length speeds >= 3 then begin
       let wind_init = wind_ac.wind_init in
       let (wind, mean, stddev) = compute_wind wind_init speeds precision in
