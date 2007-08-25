@@ -103,6 +103,7 @@ let load_log = fun window (adj:GData.adjustment) xml_file ->
       let start = time_of !log.(0) in
       let end_ = time_of !log.(Array.length !log - 1) in
       adj#set_bounds ~lower:start ~upper:end_ ();
+      adj#set_value start;
       window#set_title (Filename.basename xml_file);
 
       store_conf (ExtXml.child xml "conf") !acs;
@@ -124,8 +125,7 @@ let open_log = fun window adj () ->
   stop ();
   ignore (Log_file.chooser ~callback:(fun name -> load_log window adj name) ())
 
-let index_of_time log t =
-  let t = t in
+let index_of_time = fun log t ->
   let rec loop = fun a b ->
     if a >= b then a else
     let c = (a+b)/ 2 in
