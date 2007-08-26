@@ -508,14 +508,15 @@ let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id
   begin
     match dl_settings_page with
       Some settings_tab ->
-	let flight_altitude_id, _flight_altitude_label = 
+	begin
 	  try
-	    settings_tab#assoc "flight_altitude"
+	    let flight_altitude_id, _flight_altitude_label = 
+	      settings_tab#assoc "flight_altitude" in
+	    strip#connect_shift_alt
+	      (fun x ->dl_setting_callback flight_altitude_id (ac.target_alt+.x))
 	  with Not_found ->
-	    failwith "flight_altitude not setable" in
-	strip#connect_shift_alt
-	  (fun x -> 
-	    dl_setting_callback flight_altitude_id (ac.target_alt +. x));
+	    prerr_endline "Warning: Flight_altitude not setable from GCS strip (i.e. not listed in the xml settings file)"
+	end
     | None -> ()
   end
       

@@ -227,9 +227,9 @@ let add config color center_ac mark =
   let b = GButton.button ~label:"Mark" ~packing:hbox#add () in
   ignore (b#connect#clicked  ~callback:mark);
 
-  let minus5 = GButton.button ~label:"-5m" ~packing:hbox#add ()
-  and plus5 = GButton.button ~label:"+5m" ~packing:hbox#add ()
-  and plus30 = GButton.button ~label:"+30m" ~packing:hbox#add () in
+  let minus5 = GButton.button ~label:"-5m" ~packing:hbox#add ~show:false ()
+  and plus5 = GButton.button ~label:"+5m" ~packing:hbox#add ~show:false ()
+  and plus30 = GButton.button ~label:"+30m" ~packing:hbox#add ~show:false () in
   ignore (b#connect#clicked  ~callback:mark);
 
   (* User buttons *)
@@ -244,7 +244,10 @@ let add config color center_ac mark =
     method connect_shift_alt callback = 
       ignore (plus5#connect#clicked (fun () -> callback 5.));
       ignore (plus30#connect#clicked (fun () -> callback 30.));
-      ignore (minus5#connect#clicked (fun () -> callback (-5.)))
+      ignore (minus5#connect#clicked (fun () -> callback (-5.)));
+      minus5#misc#show ();
+      plus5#misc#show ();
+      plus30#misc#show ();
     method hide_buttons () = hbox#misc#hide (); user_hbox#misc#hide ()
     method show_buttons () = hbox#misc#show (); user_hbox#misc#show ()
     method connect = fun (select: unit -> unit) ->
