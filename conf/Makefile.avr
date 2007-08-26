@@ -71,7 +71,7 @@ CFLAGS		=							\
 	-Wstrict-prototypes						\
 	$($(TARGET).CFLAGS)					\
 	$(LOCAL_CFLAGS)					\
-	-O2								\
+	-O3								\
 
 LDFLAGS		=	-lm						\
 
