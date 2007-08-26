@@ -192,6 +192,7 @@ ap.CFLAGS += -DDATALINK -DPPRZ_INPUT -DPPRZ_UART=Uart0
 
 # Config for SITL simulation
 include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
+sim.srcs += nav_survey_rectangle.c
 
  </makefile>
 </airframe>
