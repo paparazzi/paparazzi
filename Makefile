@@ -98,12 +98,12 @@ $(MESSAGES_H) : $(MESSAGES_XML) $(CONF_XML) $(TOOLS)/gen_messages.out
 	$(Q)mv /tmp/msg.h $@
 	$(Q)chmod a+r $@
 
-$(UBX_PROTOCOL_H) : $(UBX_XML)
+$(UBX_PROTOCOL_H) : $(UBX_XML) $(TOOLS)/gen_ubx.out
 	@echo BUILD $@
 	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) $(TOOLS)/gen_ubx.out $< > /tmp/ubx.h
 	$(Q)mv /tmp/ubx.h $@
 
-$(DL_PROTOCOL_H) : $(MESSAGES_XML)
+$(DL_PROTOCOL_H) : $(MESSAGES_XML) $(TOOLS)/gen_messages.out
 	@echo BUILD $@
 	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) $(TOOLS)/gen_messages.out $< datalink > /tmp/dl.h
 	$(Q)mv /tmp/dl.h $@
