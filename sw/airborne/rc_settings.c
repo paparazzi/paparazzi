@@ -31,6 +31,8 @@
 #include "infrared.h"
 #include "nav.h"
 #include "estimator.h"
+#include "inter_mcu.h"
+#include "fw_h_ctl.h"
 
 
 #define ParamValInt16(param_init_val, param_travel, cur_pulse, init_pulse) \
@@ -41,7 +43,7 @@
 
 #define RcChannel(x) (fbw_state->channels[x])
 
-/** Includes generated code from airframe.xml */
+/** Includes generated code from tuning_rc.xml */
 #include "settings.h"
 
 
