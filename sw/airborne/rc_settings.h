@@ -48,9 +48,9 @@
 
 #define RcSettingsOff() (rc_settings_mode==RC_SETTINGS_MODE_NONE)
 
-#define RC_SETTINGS_MODE_OF_PULSE(pprz) (pprz < TRESHOLD1 ? RC_SETTINGS_MODE_UP : \
+#define RC_SETTINGS_MODE_OF_PULSE(pprz) (pprz < TRESHOLD1 ? RC_SETTINGS_MODE_DOWN : \
 				      (pprz < TRESHOLD2 ? RC_SETTINGS_MODE_NONE :  \
-				                           RC_SETTINGS_MODE_DOWN))
+				                           RC_SETTINGS_MODE_UP))
 
 #define RcSettingsModeUpdate(_rc_channels) \
   ModeUpdate(rc_settings_mode, RC_SETTINGS_MODE_OF_PULSE(_rc_channels[RADIO_CALIB]))
