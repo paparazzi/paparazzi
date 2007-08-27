@@ -356,11 +356,11 @@ let rc_setting_index = function
 
 let rc_mode_index = function
     "AUTO1" -> 0 | "AUTO2" -> 1
-  | x -> failwith (sprintf "Unknown rc_setting mode: %s" x)
+  | x -> -1
 
 let rc_setting_mode_index = function
     "UP" -> 0 | "DOWN" -> 1
-  | x -> failwith (sprintf "Unknown rc_setting submode: %s" x)
+  | x -> -1
 
 let one_rc_mode = fun (table:GPack.table) rc_mode ->
   let i = rc_mode_index (ExtXml.attrib rc_mode "name") in
@@ -407,14 +407,13 @@ class rc_settings = fun ?(visible = fun _ -> true) xmls ->
     method widget = sw#coerce
     method set = fun v1 v2 ->
       if visible self#widget then
-	let i = rc_mode_index rc_mode 
-	and j = rc_setting_mode_index rc_setting_mode in
-	(* May raise an exception for non valid modes *)
-
-	let s1 = string_of_float v1 in
-	let s2 = string_of_float v2 in
-	
-	values.(i).(j).(0)#set_text s1;
-	values.(i).(j).(1)#set_text s2
+	  let i = rc_mode_index rc_mode 
+	  and j = rc_setting_mode_index rc_setting_mode in
+	  if i >= 0 && j >= 0 then
+	    let s1 = string_of_float v1 in
+	    let s2 = string_of_float v2 in
+	    
+	    values.(i).(j).(0)#set_text s1;
+	    values.(i).(j).(1)#set_text s2
   end
 
