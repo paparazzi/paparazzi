@@ -63,4 +63,7 @@ bool_t uart1_check_free_space( uint8_t len);
 #define Uart0SendMessage() {}
 #define Uart1SendMessage() {}
 
+#define Uart1TxRunning uart1_tx_running
+#define Uart1InitParam uart1_init_param
+
 #endif /* UART_H */

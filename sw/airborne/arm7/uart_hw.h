@@ -53,6 +53,7 @@ extern uint8_t uart0_rx_buffer[UART0_RX_BUFFER_SIZE];
 
 extern uint16_t uart1_rx_insert_idx, uart1_rx_extract_idx;
 extern uint8_t uart1_rx_buffer[UART1_RX_BUFFER_SIZE];
+extern void uart1_init_param( uint16_t baud, uint8_t mode, uint8_t fmode);
 
 #define Uart1ChAvailable() (uart1_rx_insert_idx != uart1_rx_extract_idx)
 
@@ -62,6 +63,6 @@ extern uint8_t uart1_rx_buffer[UART1_RX_BUFFER_SIZE];
    ret;                                                 \
 })
 
-
+extern uint8_t uart1_tx_running;
 
 #endif /* UART_HW_H */

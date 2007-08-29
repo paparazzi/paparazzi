@@ -55,15 +55,21 @@ extern int32_t gps_lat, gps_lon; /* 1e7 deg */
 extern uint16_t gps_PDOP;
 extern uint32_t gps_Pacc, gps_Sacc;
 extern uint8_t gps_numSV;
+extern uint8_t gps_status_config;
 
 
 extern uint16_t last_gps_msg_t; /** cputime of the last gps message */
+
+#define GPS_CONFIG_INIT 0
+#define GPS_CONFIG_DONE 7
 
 void gps_init( void );
 void gps_configure( void );
 void parse_gps_msg( void );
 void estimator_update_state_gps( void );
 void use_gps_pos( void );
+void gps_configure_uart( void );
+
 
 extern volatile uint8_t gps_msg_received;
 extern bool_t gps_pos_available;
@@ -94,6 +100,10 @@ extern struct svinfo gps_svinfos[GPS_NB_CHANNELS];
 #define GpsBuffer() GpsLink(ChAvailable())
 #define ReadGpsBuffer() { while (GpsLink(ChAvailable())&&!gps_msg_received) parse_ubx(GpsLink(Getch())); }
 #define GpsUartSend1(c) GpsLink(Transmit(c))
+#define GpsUartInitParam(_a,_b,_c) GpsLink(InitParam(_a,_b,_c))
+#define GpsUartRunning GpsLink(TxRunning)
+
+
 #endif /** !SITL */
 
 

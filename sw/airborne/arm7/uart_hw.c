@@ -185,8 +185,6 @@ void uart1_ISR(void) __attribute__((naked));
 uint8_t  uart1_rx_buffer[UART1_RX_BUFFER_SIZE];
 uint16_t uart1_rx_insert_idx, uart1_rx_extract_idx;
 
-static void uart1_init_param( uint16_t baud, uint8_t mode, uint8_t fmode);
-
 uint8_t  uart1_tx_buffer[UART1_TX_BUFFER_SIZE];
 uint16_t uart1_tx_insert_idx, uart1_tx_extract_idx;
 uint8_t  uart1_tx_running;
@@ -206,7 +204,7 @@ bool_t uart1_check_free_space( uint8_t len) {
 
 void uart1_init_rx( void ) {}
 
-static void uart1_init_param( uint16_t baud, uint8_t mode, uint8_t fmode) {
+void uart1_init_param( uint16_t baud, uint8_t mode, uint8_t fmode) {
   // set port pins for UART1
   PINSEL0 = (PINSEL0 & ~U1_PINMASK) | U1_PINSEL;
 

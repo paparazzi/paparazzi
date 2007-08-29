@@ -102,8 +102,13 @@ static uint8_t  ubx_msg_idx;
 static uint8_t ck_a, ck_b;
 uint8_t send_ck_a, send_ck_b;
 
+uint8_t gps_status_config;
+
 void gps_init( void ) {
   ubx_status = UNINIT;
+#ifdef GPS_CONFIGURE
+  gps_status_config = GPS_CONFIG_INIT;
+#endif
 }
 
 
@@ -115,17 +120,53 @@ void gps_init( void ) {
 #define NAV_DYN_AIRBORNE_2G 6
 #define NAV_DYN_AIRBORNE_4G 7
 
-void gps_configure ( void ) {
-  UbxSend_CFG_PRT(0x01, 0x00, 0x0000, 0x000080C0, 19200, UBX_PROTO_MASK, UBX_PROTO_MASK, 0x0000, 0x0000);
-  UbxSend_CFG_NAV(NAV_DYN_AIRBORNE_2G, 3, 16, 24, 20, 5, 0, 0x3C, 0x3C, 0x14, 0x03E8 ,0x0000, 0x0, 0x17, 0x00FA, 0x00FA, 0x0064, 0x012C, 0x000F, 0x00, 0x00);
-  UbxSend_CFG_MSG(UBX_NAV_ID, UBX_NAV_POSUTM_ID, 0, 1, 0, 0);
-  UbxSend_CFG_MSG(UBX_NAV_ID, UBX_NAV_VELNED_ID, 0, 1, 0, 0);
-  UbxSend_CFG_MSG(UBX_NAV_ID, UBX_NAV_STATUS_ID, 0, 1, 0, 0);
-  UbxSend_CFG_MSG(UBX_NAV_ID, UBX_NAV_SVINFO_ID, 0, 4, 0, 0);
-  UbxSend_CFG_SBAS(0x00, 0x00, 0x00, 0x00, 0x00);
-  UbxSend_CFG_RATE(0x00FA, 0x0001, 0x0000);
+#ifdef GPS_CONFIGURE
+/* GPS dynamic configuration */
+
+#include "uart.h"
+
+/* Configure the GPS baud rate using the current uart baud rate. Busy
+   wait for the end of the transmit. Then, BEFORE waiting for the ACK,
+   change the uart rate. */
+void gps_configure_uart ( void ) {
+  UbxSend_CFG_PRT(0x01, 0x0, 0x0, 0x000008D0, GPS_BAUD, UBX_PROTO_MASK, UBX_PROTO_MASK, 0x0, 0x0);  
+  while (GpsUartRunning) ; /* FIXME */
+  GpsUartInitParam( UART_BAUD(GPS_BAUD),  UART_8N1, UART_FIFO_8);
 }
 
+/* GPS configuration. Must be called on ack message reception while 
+   gps_status_config < GPS_CONFIG_DONE */
+void gps_configure ( void ) {
+  if (ubx_class == UBX_ACK_ID) {
+    if (ubx_id == UBX_ACK_ACK_ID) {
+      gps_status_config++;
+    }
+  }
+  switch (gps_status_config) {
+  case 0:
+    UbxSend_CFG_NAV(NAV_DYN_AIRBORNE_2G, 3, 16, 24, 20, 5, 0, 0x3C, 0x3C, 0x14, 0x03E8 ,0x0000, 0x0, 0x17, 0x00FA, 0x00FA, 0x0064, 0x012C, 0x000F, 0x00, 0x00);
+    break;
+  case 1:
+    UbxSend_CFG_MSG(UBX_NAV_ID, UBX_NAV_POSUTM_ID, 0, 1, 0, 0);
+    break;
+  case 2:
+    UbxSend_CFG_MSG(UBX_NAV_ID, UBX_NAV_VELNED_ID, 0, 1, 0, 0);
+    break;
+  case 3:
+    UbxSend_CFG_MSG(UBX_NAV_ID, UBX_NAV_STATUS_ID, 0, 1, 0, 0);
+    break;
+  case 4:
+    UbxSend_CFG_MSG(UBX_NAV_ID, UBX_NAV_SVINFO_ID, 0, 4, 0, 0);
+    break;
+  case 5:
+    UbxSend_CFG_SBAS(0x00, 0x00, 0x00, 0x00, 0x00);
+    break;
+  case 6:
+    UbxSend_CFG_RATE(0x00FA, 0x0001, 0x0000);   
+    break;
+  }
+}
+#endif /* GPS_CONFIGURE */
 
 void ubxsend_cfg_rst(uint16_t bbr , uint8_t val) {
   UbxSend_CFG_RST(bbr, val, 0x00);

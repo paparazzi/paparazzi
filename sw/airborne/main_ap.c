@@ -655,9 +655,6 @@ void init_ap( void ) {
   /** Reset the wavecard during the init pause */
   wc_reset();
 #endif
-#if defined GPS && defined GPS_CONFIGURE
-  gps_configure();
-#endif
 
   /************ Internal status ***************/
   h_ctl_init();
@@ -678,6 +675,10 @@ void init_ap( void ) {
     if (sys_time_periodic())
       init_cpt--;
   }
+
+#if defined GPS_CONFIGURE
+  gps_configure_uart();
+#endif
 
 #if defined DATALINK
 
@@ -715,7 +716,12 @@ void event_task_ap( void ) {
 #endif
   if (gps_msg_received) {
     /* parse and use GPS messages */
-    parse_gps_msg();
+#ifdef GPS_CONFIGURE
+    if (gps_status_config < GPS_CONFIG_DONE)		
+      gps_configure();
+    else
+#endif
+      parse_gps_msg();
     gps_msg_received = FALSE;
     if (gps_pos_available) {
       use_gps_pos();
