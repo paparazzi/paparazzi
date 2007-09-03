@@ -483,10 +483,11 @@ let build_interface = fun map_file mission_file ->
   let use_fp = fun _sender vs ->
     let ac_id = Pprz.string_assoc "ac_id" vs in
     let a = fun s -> Pprz.float_assoc s vs in
-    let x = a "east"
-    and y = a "north"
+    let lat = a "lat"
+    and long = a "long"
     and z = a "alt" in
-    add_point view3d ((0., x, y, z), ac_id) in
+    let utm = utm_of WGS84 { posn_lat=(Deg>>Rad)lat;  posn_long=(Deg>>Rad)long} in
+    add_point view3d ((0., utm.utm_x, utm.utm_y, z), ac_id) in
 
   ignore (Ground_Pprz.message_bind "FLIGHT_PARAM" use_fp);
 
