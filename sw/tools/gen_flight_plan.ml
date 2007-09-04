@@ -156,16 +156,22 @@ let output_cam_mode = fun x index_of_waypoints ->
   | _ -> failwith (sprintf "Error: unknown '%s' cam mode" m)
 
 let pprz_throttle = fun s ->
-  let g = float_of_string s in
-  if g < 0. || g > 1. then
-    failwith "throttle must be > 0 and < 1";
-  g*. 9600.
+  begin
+    try
+      let g = float_of_string s in
+      if g < 0. || g > 1. then
+	failwith "throttle must be > 0 and < 1"
+    with
+      Failure "float_of_string" -> () (* No possible check on expression *)
+  end;
+  sprintf "9600*(%s)" s
+
 
 let output_vmode x wp last_wp =
   let pitch = try Xml.attrib x "pitch" with _ -> "0.0" in
   if pitch = "auto"
   then begin
-    lprintf "NavVerticalAutoPitchMode(%.0f);\n" (pprz_throttle (parsed_attrib x "throttle"))
+    lprintf "NavVerticalAutoPitchMode(%s);\n" (pprz_throttle (parsed_attrib x "throttle"))
   end else begin
     lprintf "NavVerticalAutoThrottleMode(RadOfDeg(%s));\n" (parse pitch);
   end;
@@ -197,7 +203,7 @@ let output_vmode x wp last_wp =
     | "throttle" ->
 	if (pitch = "auto") then
 	  failwith "auto pich mode not compatible with vmode=throttle";
-	lprintf "NavVerticalThrottleMode(%.0f);\n" (pprz_throttle (parsed_attrib x "throttle"))
+	lprintf "NavVerticalThrottleMode(%s);\n" (pprz_throttle (parsed_attrib x "throttle"))
     | x -> failwith (sprintf "Unknown vmode '%s'" x)
   end;
   vmode
