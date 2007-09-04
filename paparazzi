@@ -5,6 +5,7 @@ let dirname = Filename.dirname Sys.argv.(0)
 let env =
   Array.map (fun var ->
    let value = try Sys.getenv var with _ -> dirname in
+   let value = if value = "." then Sys.getcwd () else value in
    Printf.sprintf "%s=%s" var value)
    [|"PAPARAZZI_SRC"; "PAPARAZZI_HOME"|]
 let com = dirname // "sw/supervision/paparazzicenter";;
