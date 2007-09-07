@@ -269,7 +269,7 @@ ap.srcs += gyro.c
 ap.CFLAGS += -DNAV -DAGR_CLIMB -DLOITER_TRIM
 ap.srcs += nav.c fw_h_ctl.c fw_v_ctl.c
 
-ap.srcs += nav_line.c
+ap.srcs += nav_line.c bomb.c
 # chemotaxis.c anemotaxis.c discsurvey.c
 
 ap.srcs += nav_survey_rectangle.c
@@ -290,7 +290,7 @@ sim.CFLAGS += -DCONFIG=\"classix.h\" -DAGR_CLIMB -DLOITER_TRIM -DH_CTL_RATE_LOOP
 #sim.srcs += traffic_info.c
 #sim.srcs += nav_line.c chemotaxis.c anemotaxis.c discsurvey.c bomb.c nav_survey_rectangle.c
 
-sim.srcs += nav_survey_rectangle.c nav_line.c
+sim.srcs += nav_survey_rectangle.c nav_line.c bomb.c
 
 
   </makefile>
