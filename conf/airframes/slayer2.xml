@@ -6,6 +6,7 @@
     <servo name="AILEVON_RIGHT" no="1" min="1000" neutral="1500" max="2000"/>
     <servo name="AILEVON_LEFT"  no="0" min="2000" neutral="1500" max="900"/>
     <servo name="THROTTLE"      no="4" min="1250" neutral="1250" max="1850"/>
+    <servo name="HATCH"         no="3" min="2000" neutral="2000" max="1000"/>
   </servos>
 
   <commands>
@@ -32,6 +33,7 @@
     <set servo="THROTTLE" value="@THROTTLE"/>
     <set servo="AILEVON_LEFT"  value="$elevator + $aileron"/>
     <set servo="AILEVON_RIGHT" value="$elevator - $aileron"/>
+     <set servo="HATCH"           value="@HATCH"/>
   </command_laws>
 
   <section name="AUTO1" prefix="AUTO1_">
