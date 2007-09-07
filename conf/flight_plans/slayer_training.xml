@@ -6,19 +6,25 @@
 </header>
   <waypoints>
     <waypoint name="HOME" x="0" y="0"/>
-    <waypoint name="E1" x="65.8" y="123.3"/>
-    <waypoint name="E2" x="190.1" y="105.6"/>
-    <waypoint name="S1" x="-182.7" y="126.0"/>
-    <waypoint name="S2" x="307.6" y="257.0"/>
+    <waypoint name="T1" x="-172.3" y="223.2"/>
+    <waypoint name="T2" x="126.7" y="314.0"/>
+    <waypoint name="T1__" x="-275.8" y="234.9"/>
+    <waypoint name="T2__" x="213.1" y="307.2"/>
+    <waypoint name="T3_SW" x="266.7" y="80.3"/>
+    <waypoint name="T3_NE" x="439.1" y="240.0"/>
     <waypoint alt="215" name="AF" x="200" y="-10"/>
     <waypoint name="TOD" x="-150" y="0"/>
-    <waypoint alt="185" name="TD" x="80" y="20"/>
+    <waypoint alt="185.0" name="TD" x="58.3" y="45.2"/>
     <waypoint name="BASELEG" x="309.9" y="138.1"/>
-    <waypoint name="WAIT" x="-82.4" y="33.8"/>
+    <waypoint name="STDBY" x="-82.4" y="33.8"/>
     <waypoint name="RELEASE" x="126.9" y="181.6"/>
-    <waypoint name="START" x="264.1" y="187.9"/>
+    <waypoint name="START" x="168.8" y="-2.6"/>
     <waypoint name="CLIMB" x="19.2" y="212.5"/>
-    <waypoint alt="0.0" name="TARGET" x="81.1" y="177.4"/>
+    <waypoint alt="0.0" name="TARGET" x="25.4" y="73.2"/>
+    <waypoint name="A1" x="58.8" y="23.3"/>
+    <waypoint name="A2" x="-30.7" y="66.8"/>
+    <waypoint name="A1__" x="139.1" y="-5.0"/>
+    <waypoint name="A2__" x="-119.6" y="111.7"/>
   </waypoints>
   <blocks>
     <block name="wait GPS">
@@ -32,14 +38,38 @@
     <block name="climb">
       <attitude pitch="0.2" roll="0" throttle="0.9" until="estimator_z > ground_alt+30" vmode="throttle"/>
     </block>
-    <block name="wait">
-      <circle radius="nav_radius" wp="WAIT"/>
+    <block name="standby">
+      <circle radius="nav_radius" wp="STDBY"/>
     </block>
-    <block name="eight 1">
-      <eight center="E1" radius="nav_radius" turn_around="E2"/>
+    <block name="identify T1">
+      <eight center="T1" radius="nav_radius" turn_around="T1__"/>
     </block>
-    <block name="survey">
-      <survey_rectangle grid="150" wp1="S1" wp2="S2"/>
+    <block name="identify T2">
+      <eight center="T2" radius="nav_radius" turn_around="T2__"/>
+    </block>
+    <block name="locate T3">
+      <survey_rectangle grid="150" wp1="T3_SW" wp2="T3_NE"/>
+    </block>
+    <block name="bomb" strip_button="Bomb">
+      <set value="BombComputeApproach(WP_TARGET, WP_START)" var="unit"/>
+      <circle radius="BOMB_RADIUS" until="NavQdrCloseTo(DegOfRad(bomb_start_qdr)-10)" wp="BASELEG"/>
+    </block>
+    <block name="align">
+      <exception cond="BombUpdateRelease(WP_TARGET)" deroute="standby"/>
+      <go approaching_time="bomb_trigger_delay" from="START" hmode="route" wp="RELEASE"/>
+    </block>
+    <block name="shoot">
+      <set value="BombShoot()" var="unit"/>
+      <go approaching_time="0" from="RELEASE" hmode="route" wp="CLIMB"/>
+      <set value="BombCloseHatch()" var="unit"/>
+      <deroute block="standby"/>
+    </block>
+    <block name="close">
+      <set value="BombCloseHatch()" var="unit"/>
+      <deroute block="standby"/>
+    </block>
+    <block name="arch">
+      <go from="A1__" hmode="route" wp="A2__"/>
     </block>
     <block name="land">
       <call fun="nav_compute_baseleg(WP_AF, WP_TD, WP_BASELEG)"/>
@@ -54,24 +84,6 @@
     <block name="flare">
       <go approaching_time="0" from="AF" hmode="route" throttle="0.0" vmode="throttle" wp="TD"/>
       <attitude roll="0.0" throttle="0.0" until="FALSE" vmode="throttle"/>
-    </block>
-    <block name="bomb" strip_button="Bomb">
-      <set value="BombComputeApproach(WP_TARGET, WP_START)" var="unit"/>
-      <circle radius="BOMB_RADIUS" until="NavQdrCloseTo(DegOfRad(bomb_start_qdr)-10)" wp="BASELEG"/>
-    </block>
-    <block name="align">
-      <exception cond="BombUpdateRelease(WP_TARGET)" deroute="wait"/>
-      <go approaching_time="bomb_trigger_delay" from="START" hmode="route" wp="RELEASE"/>
-    </block>
-    <block name="shoot">
-      <set value="BombShoot()" var="unit"/>
-      <go approaching_time="0" from="RELEASE" hmode="route" wp="CLIMB"/>
-      <set value="BombCloseHatch()" var="unit"/>
-      <deroute block="wait"/>
-    </block>
-    <block name="close">
-      <set value="BombCloseHatch()" var="unit"/>
-      <deroute block="wait"/>
     </block>
   </blocks>
 </flight_plan>
