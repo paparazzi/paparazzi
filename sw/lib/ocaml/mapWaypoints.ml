@@ -52,7 +52,7 @@ let rotation_45 =
   let s = sin (Latlong.pi/.4.) in
   [|s;s;-.s;s;0.;0.|]
 
-class waypoint = fun (wpts_group:group) (name :string) ?(alt=0.) wgs84 ->
+class waypoint = fun ?(show = true) (wpts_group:group) (name :string) ?(alt=0.) wgs84 ->
   let geomap=wpts_group#geomap
   and color = wpts_group#color
   and editable = wpts_group#editable in
@@ -82,6 +82,8 @@ class waypoint = fun (wpts_group:group) (name :string) ?(alt=0.) wgs84 ->
     val mutable moved = None
     val mutable deleted = false
     val mutable commit_cb = None
+    initializer
+      if not show then wpt_group#hide ()
     initializer
       item#affine_absolute rotation_45;
       self#move xw yw
@@ -282,6 +284,6 @@ class waypoint = fun (wpts_group:group) (name :string) ?(alt=0.) wgs84 ->
 
 let gensym = let n = ref 0 in fun prefix -> incr n; prefix ^ string_of_int !n
 
-let waypoint = fun group ?(name = gensym "wp") ?alt en ->
-  new waypoint group name ?alt en
+let waypoint = fun ?show group ?(name = gensym "wp") ?alt en ->
+  new waypoint ?show group name ?alt en
 

@@ -38,6 +38,7 @@ class group :
    end
 
 class waypoint :
+  ?show:bool ->
   group ->
   string ->
   ?alt:float ->
@@ -64,4 +65,4 @@ class waypoint :
   end
 
 
-val waypoint : group -> ?name:string -> ?alt:float -> Latlong.geographic -> waypoint
+val waypoint : ?show:bool -> group -> ?name:string -> ?alt:float -> Latlong.geographic -> waypoint
