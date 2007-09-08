@@ -6,8 +6,8 @@ BUS=="usb", SYSFS{product}=="MaxStream PKG-U", KERNEL=="ttyUSB*", SYMLINK+="papa
 # bare FTDI chip without EEPROM
 BUS=="usb", SYSFS{idVendor}=="0403", SYSFS{idProduct}=="6001", KERNEL=="ttyUSB*", SYMLINK+="paparazzi/serial", GROUP="dialout"
 
-# all LPCUSB devices (access through libusb)
-BUS=="usb", SYSFS{manufacturer}=="LPCUSB", GROUP="dialout"
+# all (fake VID 0x7070) LPCUSB devices (access through libusb)
+BUS=="usb", SYSFS{idVendor}=="7070", GROUP="dialout"
 
 # FTDI 2232 parallel converter / Amontec JTAG-Tiny (access through libftdi)
 BUS=="usb",  SYSFS{idVendor}=="0403", SYSFS{idProduct}=="cff8", GROUP="dialout"
