@@ -249,11 +249,11 @@ let rec sprint_value = fun buf i _type v ->
   | ArrayType t, Array values ->
       (** Put the size first, then the values *)
       let n = Array.length values in
-      sprint_value buf i (Scalar "uint8") (Int n);
+      ignore (sprint_value buf i (Scalar "uint8") (Int n));
       let type_of_elt = Scalar t in
       let s = sizeof type_of_elt in
       for j = 0 to n - 1 do
-	sprint_value buf (i+1+j*s) type_of_elt values.(j)
+	ignore (sprint_value buf (i+1+j*s) type_of_elt values.(j))
       done;
       1 + n * s
   | (Scalar x|ArrayType x), _ -> failwith (sprintf "Pprz.sprint_value (%s)" x)
