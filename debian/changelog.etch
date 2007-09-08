@@ -1,8 +1,8 @@
-paparazzi (3.2-2) unstable; urgency=low
+paparazzi (3.2-1) unstable; urgency=low
 
-  * Release of the year.
+  * Dependencies over Perl libraries removed.
 
- -- Pascal Brisset <pascal.brisset@enac.fr>  Sat, 26 Aug 2006 22:28:35 +0200
+ -- Pascal Brisset <pascal.brisset@enac.fr>  Sat, 08 Sep 2007 22:28:35 +0200
 
 paparazzi (3.1-2) unstable; urgency=low
 
