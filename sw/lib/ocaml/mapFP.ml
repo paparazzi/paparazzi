@@ -106,7 +106,8 @@ let new_wp = fun ?(editable = false) (geomap:MapCanvas.widget) xml_tree waypoint
   let wgs84 = Latlong.of_utm WGS84 (utm_add utm_ref (x, y)) in
   let alt = try float_attrib "alt" with _ -> alt in
   let name = XmlEdit.attrib node "name" in
-  let wp = MapWaypoints.waypoint waypoints ~name ~alt wgs84 in
+  let show = editable || name.[0] <> '_' in
+  let wp = MapWaypoints.waypoint ~show waypoints ~name ~alt wgs84 in
   geomap#register_to_fit (wp:>MapCanvas.geographic);
   XmlEdit.connect node (update_wp utm_ref wp);
   XmlEdit.connect node (update_wp_refs (ref name) xml_tree); 
@@ -170,6 +171,29 @@ class flight_plan = fun ?format_attribs ?editable ~show_moved geomap color fp_dt
 	  XmlEdit.connect xml_root update
 	end)
       (XmlEdit.children xml_wpts) in
+
+  (* The sectors *)
+  let _ =
+    if editable = None then
+    let waypoints = ExtXml.child xml "waypoints" in
+    try
+      List.iter (fun x ->
+	if String.lowercase (Xml.tag x) = "sector" then
+	  let wgs84 = fun wp_name ->
+	    let wp_name = Xml.attrib wp_name "name" in
+	    let select = fun wp -> Xml.attrib wp "name" = wp_name in
+	    let wp = ExtXml.child waypoints ~select "waypoint" in
+	    let x = float_attr wp "x"
+	    and y = float_attr wp "y" in
+	    of_utm WGS84 (utm_add utm0 (x, y)) in
+	  let points = List.map wgs84 (Xml.children x) in
+	  let points = Array.of_list points in
+	  let n = Array.length points in
+	  for i = 0 to n - 1 do
+	    ignore (geomap#segment ~width:3 ~fill_color:color points.(i) points.((i+1)mod n))
+	  done)
+	(Xml.children (ExtXml.child xml "sectors"))
+    with Not_found -> () in
 
   (** Expands the blocks *)
   let _ =

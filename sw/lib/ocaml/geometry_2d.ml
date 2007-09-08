@@ -902,13 +902,13 @@ let slice_polygon = fun poly ->
   and last_y = ref (poly.(!bottom).y2D) in
   while !i < n do
     while poly.(!d).y2D = !last_y do
-      let d' = next !d in
+      let d' = prev !d in
       alpha_d := slope !d d';
       d := d';
       incr i
     done;
     while poly.(!g).y2D = !last_y do
-      let g' = prev !g in
+      let g' = next !g in
       alpha_g := slope !g g';
       g := g';
       incr i

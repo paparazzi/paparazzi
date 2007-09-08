@@ -635,6 +635,16 @@ let parse_sector = fun rel_utm_of_wgs84 x ->
       (ExtXml.attrib x "name", pts)
   | s -> failwith (sprintf "sector: %s not yet" s)
 
+let parse_wpt_sector = fun waypoints xml ->
+  let p2D_of = fun x ->
+    let name = name_of x in
+    let wp = List.find (fun wp -> name_of wp = name) waypoints in
+    let x = float_attrib wp "x"
+    and y = float_attrib wp "y" in
+    {G2D.x2D = x; G2D.y2D = y } in
+  (ExtXml.attrib xml "name", List.map p2D_of (Xml.children xml))
+  
+
 
 let _ =
   let xml_file = ref "fligh_plan.xml"
@@ -736,6 +746,12 @@ let _ =
 	List.iter print_inside_sector sectors
       end;
 
+      let sectors_element = try ExtXml.child xml "sectors" with Not_found -> Xml.Element ("", [], []) in
+      let sectors = List.filter (fun x -> String.lowercase (Xml.tag x) = "sector") (Xml.children sectors_element) in
+      let sectors =  List.map (parse_wpt_sector waypoints) sectors in
+      List.iter print_inside_sector sectors;
+      
+      
       lprintf "#ifdef NAV_C\n";
       lprintf "\nstatic inline void auto_nav(void) {\n";
       right ();

@@ -15,7 +15,22 @@
     <waypoint name="TOD" x="-150" y="0"/>
     <waypoint alt="185" name="TD" x="80" y="20"/>
     <waypoint name="BASELEG" x="400" y="300"/>
+    <waypoint name="_1" x="-119.7" y="401.3"/>
+    <waypoint name="_2" x="348.7" y="351.5"/>
+    <waypoint name="_3" x="299.7" y="-144.6"/>
+    <waypoint name="_4" x="-453.7" y="27.8"/>
   </waypoints>
+  <sectors>
+    <sector name="Muret">
+      <corner name="_1"/>
+      <corner name="_2"/>
+      <corner name="_3"/>
+      <corner name="_4"/>
+    </sector>
+  </sectors>
+  <exceptions>
+    <exception cond="! InsideMuret(estimator_x, estimator_y)" deroute="circle 1"/>
+  </exceptions>
   <blocks>
     <block name="wait GPS">
       <while cond="!GpsFixValid()"/>

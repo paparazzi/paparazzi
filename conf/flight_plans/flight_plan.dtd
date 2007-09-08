@@ -1,6 +1,6 @@
 <!-- Paparazzi flight plan DTD -->
 
-<!ELEMENT flight_plan (header?, waypoints,include*,exceptions?,blocks)>
+<!ELEMENT flight_plan (header?,waypoints,sectors?,include*,exceptions?,blocks)>
 
 <!ELEMENT procedure (param*,waypoints,exceptions?,blocks)>
 
@@ -8,6 +8,11 @@
 
 <!ELEMENT waypoints (waypoint+)>
 <!ELEMENT waypoint EMPTY>
+
+<!ELEMENT sectors (sector|kml)*>
+<!ELEMENT sector (corner+)>
+<!ELEMENT corner EMPTY>
+<!ELEMENT kml EMPTY>
 
 <!ELEMENT exceptions (exception*)>
 
@@ -62,6 +67,17 @@ y CDATA #REQUIRED
 lat CDATA #IMPLIED
 lon CDATA #IMPLIED
 alt CDATA #IMPLIED>
+
+<!ATTLIST sectors>
+
+<!ATTLIST sector
+name CDATA #REQUIRED>
+
+<!ATTLIST corner
+name CDATA #REQUIRED>
+
+<!ATTLIST kml
+file CDATA #REQUIRED>
 
 <!ATTLIST block 
 name CDATA #REQUIRED
