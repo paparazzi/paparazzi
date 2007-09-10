@@ -6,6 +6,7 @@
 </header>
   <waypoints>
     <waypoint name="HOME" x="0" y="0"/>
+    <waypoint name="STDBY" x="20" y="80"/>
     <waypoint name="1" x="200" y="0"/>
     <waypoint name="2" x="0" y="200"/>
     <waypoint name="MOB" x="200" y="200"/>
@@ -15,22 +16,19 @@
     <waypoint name="TOD" x="-150" y="0"/>
     <waypoint alt="185" name="TD" x="80" y="20"/>
     <waypoint name="BASELEG" x="400" y="300"/>
-    <waypoint name="_1" x="-119.7" y="401.3"/>
-    <waypoint name="_2" x="348.7" y="351.5"/>
-    <waypoint name="_3" x="299.7" y="-144.6"/>
-    <waypoint name="_4" x="-453.7" y="27.8"/>
+    <waypoint name="_1" x="-500" y="500"/>
+    <waypoint name="_2" x="500" y="500"/>
+    <waypoint name="_3" x="500" y="-500"/>
+    <waypoint name="_4" x="-500" y="-500"/>
   </waypoints>
   <sectors>
-    <sector name="Muret">
+    <sector name="Square">
       <corner name="_1"/>
       <corner name="_2"/>
       <corner name="_3"/>
       <corner name="_4"/>
     </sector>
   </sectors>
-  <exceptions>
-    <exception cond="! InsideMuret(estimator_x, estimator_y)" deroute="circle 1"/>
-  </exceptions>
   <blocks>
     <block name="wait GPS">
       <while cond="!GpsFixValid()"/>
@@ -43,8 +41,8 @@
     <block name="climb">
       <circle pitch="10" radius="nav_radius" throttle="1" until="estimator_z > ground_alt+50" vmode="throttle" wp="1"/>
     </block>
-    <block name="circle 1">
-      <circle radius="nav_radius" wp="1"/>
+    <block name="Standby" strip_button="Standby">
+      <circle radius="nav_radius" wp="STDBY"/>
     </block>
     <block name="circles">
       <for from="1" to="5" var="i">
@@ -58,7 +56,7 @@
     <block name="eight 1">
       <eight center="1" radius="nav_radius" turn_around="2"/>
     </block>
-    <block name="oval" strip_button="Oval">
+    <block name="oval">
       <oval p1="1" p2="2" radius="nav_radius"/>
     </block>
     <block name="MOB" strip_button="MOB">
@@ -79,7 +77,7 @@
     </block>
     <block name="descent 0" strip_button="Descent">
       <circle pitch="-5" radius="50+(estimator_z-ground_alt)/2" throttle="0.0" until="ground_alt+50 > estimator_z" vmode="throttle" wp="1"/>
-      <deroute block="circle 1"/>
+      <deroute block="Standby"/>
     </block>
     <block name="route12">
       <go approaching_time="0" from="1" hmode="route" wp="2"/>
@@ -141,9 +139,13 @@
       <circle radius="50" wp="HOME"/>
     </block>
     <block name="far away">
-      <exception cond="datalink_time > 22" deroute="circle 1"/>
+      <exception cond="datalink_time > 22" deroute="Standby"/>
       <go approaching_time="0" from="1" hmode="route" wp="2"/>
       <go approaching_time="0" from="2" hmode="route" wp="1"/>
+    </block>
+    <block name="circle 2 in square">
+      <exception cond="! InsideSquare(estimator_x, estimator_y)" deroute="Standby"/>
+      <circle radius="nav_radius" wp="2"/>
     </block>
   </blocks>
 </flight_plan>

@@ -174,7 +174,6 @@ class flight_plan = fun ?format_attribs ?editable ~show_moved geomap color fp_dt
 
   (* The sectors *)
   let _ =
-    if editable = None then
     let waypoints = ExtXml.child xml "waypoints" in
     try
       List.iter (fun x ->
