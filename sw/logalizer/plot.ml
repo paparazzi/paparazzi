@@ -46,7 +46,7 @@ let remove_same_t = fun l ->
 	if t1 = t2 then
 	  let y = if (y2-y1)*(y1-prev) > 0 then y2 else y1 in
 	  loop y ((t1,y)::l)
-      else
+	else
 	  (t1,y1)::loop y1 l'
     | l -> l in
   loop 0 l
@@ -54,6 +54,10 @@ let remove_same_t = fun l ->
 let rec remove_older t0 = function
     (t,_)::l when t < t0 -> remove_older t0 l
   | l -> l
+
+let rec remove_newer t0 = function
+    (t,v)::l when t <= t0 -> (t,v)::remove_newer t0 l
+  | l -> []
 
 let compute_ticks = fun min_y max_y ->
   let delta = max_y -. min_y in
@@ -169,12 +173,12 @@ class plot = fun ~width ~height ~packing () ->
       dr#set_foreground (`NAME "white");
       dr#rectangle ~x:0 ~y:0 ~width ~height ~filled:true ();
 
-      let left_margin = 40
+      let left_margin = 50
       and bottom_margin = 20
       and tick_len = 5
       and margin = 3 in
       
-      let scale_x = fun x -> left_margin + truncate ((x-.min_x)*. float (width+left_margin) /. (max_x -. min_x))
+      let scale_x = fun x -> left_margin + truncate ((x-.min_x)*. float (width-left_margin) /. (max_x -. min_x))
       and scale_y = fun y -> height-bottom_margin - truncate ((y-.min_y)*. float (height-bottom_margin) /. (max_y -. min_y)) in
 
       (* Constants *)
@@ -192,8 +196,9 @@ class plot = fun ~width ~height ~packing () ->
       let title_y = ref margin in
       Hashtbl.iter (fun title curve ->
 	let points = Array.to_list (Array.map (fun (t, v) -> (scale_x t, scale_y v)) curve.values) in
-	let points = remove_same_t points in
+	(* let points = remove_same_t points in *)
 	let points = remove_older (scale_x min_x) points in
+	let points = remove_newer (scale_x max_x) points in
 	dr#set_foreground (`NAME curve.color);
 	dr#lines points;
 
