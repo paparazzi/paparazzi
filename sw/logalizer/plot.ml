@@ -514,11 +514,6 @@ let rec plot_window = fun init ->
   let curves_menu = factory#add_submenu "Curves" in
   let curves_menu_fact = new GMenu.factory curves_menu in
 
-  List.iter
-    (fun (ac, menu_name, msgs) ->
-      add_ac_submenu plot factory curves_menu_fact ac menu_name msgs) 
-    !logs_menus;
-
   tooltips#set_tip plot#drawing_area#coerce ~text:"Drop a messages field here to draw it";
   ignore (plotter#connect#destroy ~callback:(fun () -> plot#destroy (); quit ()));
 
@@ -567,7 +562,12 @@ let rec plot_window = fun init ->
   let factor_label, factor = labelled_entry ~width_chars:5 "Scale next by" "1." h in
   tooltips#set_tip factor#coerce ~text:"Scale next curve (e.g. 0.0174 to convert deg in rad, 57.3 to convert rad in deg)";
 
-  ignore(open_log_item#connect#activate ~callback:(let factor = (factor:>text_value) in open_log ~factor plot factory curves_menu_fact));
+  List.iter
+    (fun (ac, menu_name, msgs) ->
+      add_ac_submenu ~factor:(factor:>text_value) plot factory curves_menu_fact ac menu_name msgs) 
+    !logs_menus;
+
+  ignore(open_log_item#connect#activate ~callback:(fun () -> let factor = (factor:>text_value) in open_log ~factor plot factory curves_menu_fact ()));
 
 
   List.iter (fun f -> load_log ~factor:(factor:>text_value) plot factory curves_menu_fact f) init;
