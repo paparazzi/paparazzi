@@ -83,6 +83,11 @@
         <dl_setting MAX="1" MIN="0.02" STEP="0.01" VAR="h_ctl_roll_slew" shortname="roll slew"/>
         <dl_setting MAX="500" MIN="-500" STEP="5" VAR="nav_radius"/>
         <dl_setting MAX="359" MIN="0" STEP="5" VAR="nav_course"/>
+        <dl_setting MAX="50" MIN="-50" STEP="5" VAR="nav_shift" module="nav" handler="IncreaseShift" shortname="inc. shift">
+          <strip_button name="<" value="-5"/>
+          <strip_button name="|" value="0"/>
+          <strip_button name=">" value="5"/>
+	</dl_setting>
 	<dl_setting MAX="20" MIN="10" STEP="0.5" VAR="nav_ground_speed_setpoint" shortname="ground speed"/>
 	<dl_setting MAX="0." MIN="-0.05" STEP="0.01" VAR="nav_ground_speed_pgain" shortname="ground speed pgain"/>
         <dl_setting MAX="500" MIN="50" STEP="5" VAR="nav_survey_shift"/>

@@ -112,6 +112,7 @@ extern float ground_alt;
 
 extern float nav_radius; /* m */
 extern float nav_course; /* degrees, clockwise, 0.0 = N */
+extern float nav_shift; /* Lateral shift along a route. In meters */
 
 extern float nav_ground_speed_pgain, nav_ground_speed_setpoint;
 
@@ -205,6 +206,8 @@ bool_t nav_approaching_xy(float x, float y, float from_x, float from_y, float ap
   lateral_mode = LATERAL_MODE_ROLL; \
   h_ctl_roll_setpoint = _roll; \
 }
+
+#define nav_IncreaseShift(x) { if (x==0) nav_shift = 0; else nav_shift += x; }
 
 
 #endif /* NAV_H */

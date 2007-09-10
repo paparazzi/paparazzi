@@ -59,7 +59,7 @@ float carrot_x, carrot_y;
 /** Status on the current circle */
 float nav_circle_radians; /* Cumulated */
 float nav_circle_trigo_qdr; /* Angle from center to mobile */
-float nav_radius, nav_course;
+float nav_radius, nav_course, nav_shift;
 
 
 /** Status on the current leg (percentage, 0. < < 1.) in route mode */
@@ -95,6 +95,7 @@ void nav_init_stage( void ) {
   nav_circle_radians = 0;
   nav_in_circle = FALSE;
   nav_in_segment = FALSE;
+  nav_shift = 0;
 }
 
 #define PowerVoltage() (vsupply/10.)
@@ -379,7 +380,6 @@ void nav_route_xy(float last_wp_x, float last_wp_y, float wp_x, float wp_y) {
   float leg_y = wp_y - last_wp_y;
   float leg2 = Max(leg_x * leg_x + leg_y * leg_y, 1.);
   nav_leg_progress = ((estimator_x - last_wp_x) * leg_x + (estimator_y - last_wp_y) * leg_y) / leg2;
-  // nav_leg_progress = Max(nav_leg_progress, 0.);
   nav_leg_length = sqrt(leg2);
 
   /** distance of carrot (in meter) */
@@ -393,7 +393,7 @@ void nav_route_xy(float last_wp_x, float last_wp_y, float wp_x, float wp_y) {
   nav_segment_y_2 = wp_y;
   horizontal_mode = HORIZONTAL_MODE_ROUTE;
 
-  fly_to_xy(last_wp_x + nav_leg_progress*leg_x, last_wp_y + nav_leg_progress*leg_y);
+  fly_to_xy(last_wp_x + nav_leg_progress*leg_x +nav_shift*leg_y/nav_leg_length, last_wp_y + nav_leg_progress*leg_y-nav_shift*leg_x/nav_leg_length);
 }
 
 
