@@ -64,7 +64,7 @@ install_conf:
 	$(INSTALLDATA) conf/gcs/layout.dtd $(DESTDIR)/conf/gcs
 	$(INSTALLDATA) conf/gcs/*.xml $(DESTDIR)/conf/gcs
 	$(INSTALL) -d $(PREFIX)/etc/udev
-	$(INSTALLDATA) conf/system/udev/rules/*.rules $(PREFIX)/etc/udev
+	$(INSTALLDATA) conf/system/udev/rules/*.rules $(PREFIX)/etc/udev/rules.d
 	$(INSTALL) -d $(PREFIX)/etc/modprobe.d
 	$(INSTALLDATA) conf/system/modprobe.d/paparazzi $(PREFIX)/etc/modprobe.d
 	$(INSTALL) -d $(PREFIX)/usr/share/applications
