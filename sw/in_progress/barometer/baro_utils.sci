@@ -24,19 +24,24 @@ endfunction
 
 
 
-function [time_pressure, pressure, time_gps, altitude] = baro_read_pprz_log(filename)
+function [time_pressure, pressure, time_gps, altitude, time_accel, ax_accel, az_accel] = baro_read_pprz_log(filename)
 
 time_pressure= [];
 pressure     = [];
 time_gps     = [];
 altitude     = []; 
+time_accel   = [];
+ax_accel     = [];
+az_accel     = [];
 
+no_line = 0;
 u=mopen(filename, 'r');
-while meof(u) == 0,
+while meof(u) == 0 & no_line < 30000,
   line = mgetl(u, 1);
   if (line == "") continue end
-  [nb_scan, tip, ac, pr, te] = msscanf(1, line, '%f %d BARO_MS5534A %d %d');  
-  if (nb_scan == 4)
+//  printf('%s\n', line);
+  [nb_scan, tip, ac, pr, te, direct_alt] = msscanf(1, line, '%f %d BARO_MS5534A %d %d %f');
+  if (nb_scan == 5)
     time_pressure = [time_pressure tip];
     pressure = [pressure pr];
   else
@@ -45,8 +50,17 @@ while meof(u) == 0,
     if (nb_scan == 12)
       time_gps = [time_gps tig];
       altitude = [altitude galt];
+    else
+      [nb_scan, tiacc, ac, ax, az] = ...
+	  msscanf(1, line, '%f %d ADC_GENERIC %d %d');  
+      if (nb_scan == 4)
+	time_accel = [time_accel tiacc];
+	ax_accel = [ax_accel ax];
+	az_accel = [az_accel az];
+      end
     end
   end
+  no_line = no_line + 1;
 end
 mclose(u);
 endfunction
