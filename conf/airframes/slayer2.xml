@@ -3,8 +3,8 @@
 
 <!-- commands section -->
   <servos>
-    <servo name="AILEVON_RIGHT" no="1" min="1000" neutral="1500" max="2000"/>
-    <servo name="AILEVON_LEFT"  no="0" min="2000" neutral="1500" max="900"/>
+    <servo name="AILEVON_RIGHT" no="1" min="1000" neutral="1460" max="2000"/>
+    <servo name="AILEVON_LEFT"  no="0" min="2000" neutral="1470" max="900"/>
     <servo name="THROTTLE"      no="4" min="1250" neutral="1250" max="1850"/>
     <servo name="HATCH"         no="3" min="2000" neutral="2000" max="1000"/>
   </servos>
@@ -79,11 +79,11 @@
   </section>
 
  <section name="GYRO" prefix="GYRO_">
-    <define name="ADC_ROLL_NEUTRAL" value="453"/>
+    <define name="ADC_ROLL_NEUTRAL" value="443"/>
     <define name="ADC_TEMP_NEUTRAL" value="476"/>   
     <define name="ADC_TEMP_SLOPE" value="0"/>  
     <define name="ROLL_SCALE" value="1.3846"/>
-    <define name="ROLL_DIRECTION" value="1."/> 
+    <define name="ROLL_DIRECTION" value="-1."/> 
   </section>
 
  <section name="BAT">
@@ -139,7 +139,7 @@
     <define name="PITCH_MAX_SETPOINT" value="0.5" unit="radians"/>
     <define name="PITCH_MIN_SETPOINT" value="-0.5" unit="radians"/>
 
-    <define name="ROLL_PGAIN" value="10000."/>
+    <define name="ROLL_PGAIN" value="8000."/>
     <define name="AILERON_OF_THROTTLE" value="0.0"/>
     <define name="PITCH_PGAIN" value="-9000."/>
     <define name="PITCH_DGAIN" value="0."/>
@@ -152,7 +152,7 @@
     <define name="LO_THROTTLE_ROLL_RATE_PGAIN" value="1500."/>
     <define name="HI_THROTTLE_ROLL_RATE_PGAIN" value="900."/>
     <define name="ROLL_RATE_IGAIN" value="0."/>
-    <define name="ROLL_RATE_DGAIN" value="0."/>
+    <define name="ROLL_RATE_DGAIN" value="0.5"/>
     <define name="ROLL_RATE_SUM_NB_SAMPLES" value="64"/>
 
   </section>
@@ -244,13 +244,19 @@ ap.srcs += $(SRC_ARCH)/gpio.c
 #ap.CFLAGS += -DHITL
 
 
-ap.CFLAGS += -DTELEMETRY_MODE_FBW=1
+# ap.CFLAGS += -DTELEMETRY_MODE_FBW=1
+
+ap.CFLAGS += -DUSE_SPI -DSPI_MASTER -DUSE_SPI_SLAVE0 -DUSE_BARO_MS5534A
+ap.srcs += spi.c $(SRC_ARCH)/spi_hw.c $(SRC_ARCH)/baro_MS5534A.c
+ap.CFLAGS += -D BARO_MS5534A_W1=0xAC20 -D BARO_MS5534A_W2=0x87D9 -D BARO_MS5534A_W3=0X8D9C -D BARO_MS5534A_W4=0xB080
+# C1 = 22032 UT1=24568
+
 
 
 # Config for SITL simulation
 include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
-sim.CFLAGS += -DCONFIG=\"tiny.h\" -DAGR_CLIMB -DH_CTL_RATE_LOOP -DLOITER_TRIM -DALT_KALMAN -DIR_360
-sim.srcs += nav_survey_rectangle.c bomb.c
+sim.CFLAGS += -DCONFIG=\"tiny.h\" -DAGR_CLIMB -DH_CTL_RATE_LOOP -DLOITER_TRIM -DALT_KALMAN -DIR_360 -DUSE_BARO_MS5534A
+sim.srcs += nav_survey_rectangle.c bomb.c $(SRC_ARCH)/sim_baro.c
 
   </makefile>
 </airframe>
