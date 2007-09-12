@@ -533,7 +533,7 @@ let safe_bind = fun msg cb ->
   let safe_cb = fun sender vs ->
     try cb sender vs with 
       AC_not_found -> () (* A/C not yet registed; silently ignore *)
-    | x -> prerr_endline (Printexc.to_string x) in
+    | x -> fprintf stderr "safe_bind (%s): %s\n%!" msg (Printexc.to_string x) in
   ignore (Ground_Pprz.message_bind msg safe_cb)
 
 let alert_bind = fun msg cb ->
@@ -700,7 +700,7 @@ let listen_flight_params = fun geomap auto_center_new_ac alert ->
     let target_alt = Pprz.float_assoc "target_alt" vs in
     ac.strip#set_label "diff_target_alt" (sprintf "%+.0f" (ac.alt -. target_alt));
     ac.target_alt <- target_alt;
-    let b = List.assoc cur_block ac.blocks in
+    let b = try List.assoc cur_block ac.blocks with Not_found -> failwith (sprintf "Error: unknown block %d for A/C %s" cur_block ac.ac_name) in
     if b <> ac.last_block_name then begin
       log_and_say alert ac.ac_name (sprintf "%s, %s" ac.ac_name b);
       ac.last_block_name <- b;
