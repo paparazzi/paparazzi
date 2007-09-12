@@ -12,13 +12,12 @@
     <waypoint name="T2__" x="213.1" y="307.2"/>
     <waypoint name="T3_SW" x="266.7" y="80.3"/>
     <waypoint name="T3_NE" x="439.1" y="240.0"/>
-    <waypoint alt="215" name="AF" x="200" y="-10"/>
-    <waypoint name="TOD" x="-150" y="0"/>
-    <waypoint alt="185.0" name="TD" x="58.3" y="45.2"/>
+    <waypoint alt="30" name="AF" x="200" y="-10"/>
+    <waypoint alt="0" name="TD" x="58.3" y="45.2"/>
     <waypoint name="BASELEG" x="309.9" y="138.1"/>
     <waypoint name="STDBY" x="-82.4" y="33.8"/>
     <waypoint name="RELEASE" x="126.9" y="181.6"/>
-    <waypoint name="START" x="168.8" y="-2.6"/>
+    <waypoint name="START" x="168.8" y="-2.6" alt="30"/>
     <waypoint name="CLIMB" x="19.2" y="212.5"/>
     <waypoint alt="0.0" name="TARGET" x="25.4" y="73.2"/>
     <waypoint name="A1" x="58.8" y="23.3"/>
