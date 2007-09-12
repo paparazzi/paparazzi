@@ -36,9 +36,9 @@
       <deroute block="climb"/>
     </block>
     <block name="climb">
-      <attitude pitch="0.2" roll="0" throttle="0.9" until="estimator_z > ground_alt+30" vmode="throttle"/>
+      <attitude pitch="10" roll="0" throttle="0.9" until="estimator_z > ground_alt+30" vmode="throttle"/>
     </block>
-    <block name="standby">
+    <block name="standby" strip_button="STDBY">
       <circle radius="nav_radius" wp="STDBY"/>
     </block>
     <block name="identify T1">
@@ -70,6 +70,7 @@
     </block>
     <block name="arch">
       <go from="A1__" hmode="route" wp="A2__"/>
+      <deroute block="standby"/>
     </block>
     <block name="land">
       <call fun="nav_compute_baseleg(WP_AF, WP_TD, WP_BASELEG)"/>
