@@ -527,7 +527,7 @@ void periodic_task_ap( void ) {
 #ifdef USE_ADC_GENERIC
   case 6:
     adc_generic_periodic();
-    DOWNLINK_SEND_ADC_GENERIC(&adc_generic_val);
+    DOWNLINK_SEND_ADC_GENERIC(&adc_generic_val1, &adc_generic_val2);
     break;
 #endif
 
@@ -581,7 +581,7 @@ void periodic_task_ap( void ) {
 
 
 void init_ap( void ) {
-#ifndef SINGLE_MCU /** Dual mcus : init done in main_fbw */
+#ifndef SINGLE_MCU /** init done in main_fbw in single MCU */
   hw_init();
   sys_time_init(); 
 #ifdef LED
@@ -794,7 +794,10 @@ void event_task_ap( void ) {
     baro_MS5534A_event_task();
     if (baro_MS5534A_available) {
       baro_MS5534A_available = FALSE;
-      DOWNLINK_SEND_BARO_MS5534A(&baro_MS5534A_pressure, &baro_MS5534A_temp);
+      baro_MS5534A_z = ground_alt +((float)baro_MS5534A_ground_pressure - baro_MS5534A_pressure)*0.084;
+      if (alt_baro_enabled) {
+	EstimatorSetAlt(baro_MS5534A_z);
+      }
     }
   }
 #endif
