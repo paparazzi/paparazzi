@@ -51,7 +51,8 @@ void estimator_update_state_gps( void ) {
   gps_north -= nav_utm_north0;
 
   float falt = gps_alt / 100.;
-  EstimatorSetPos(gps_east, gps_north, falt);
+  EstimatorSetPosXY(gps_east, gps_north);
+  EstimatorSetAlt(falt);
   float fspeed = gps_gspeed / 100.;
   float fclimb = gps_climb / 100.;
   float fcourse = RadOfDeg(gps_course / 10.);
