@@ -35,6 +35,7 @@
 #include "nav.h"
 #include "airframe.h"
 #include "fw_v_ctl.h"
+#include "autopilot.h"
 
 
 /* outer loop parameters */
@@ -77,6 +78,11 @@ float h_ctl_lo_throttle_roll_rate_pgain;
 float h_ctl_roll_rate_igain;
 float h_ctl_roll_rate_dgain;
 #endif
+
+#ifdef H_CTL_COURSE_SLEW_INCREMENT
+float h_ctl_course_slew_increment;
+#endif
+
 
 inline static void h_ctl_roll_loop( void );
 inline static void h_ctl_pitch_loop( void );
@@ -121,6 +127,10 @@ void h_ctl_init( void ) {
 #ifdef H_CTL_ROLL_SLEW
   h_ctl_roll_slew = H_CTL_ROLL_SLEW;
 #endif
+
+#ifdef H_CTL_COURSE_SLEW_INCREMENT
+  h_ctl_course_slew_increment = H_CTL_COURSE_SLEW_INCREMENT;
+#endif
 }
 
 /** 
@@ -130,6 +140,29 @@ void h_ctl_init( void ) {
 void h_ctl_course_loop ( void ) {
   float err = estimator_hspeed_dir - h_ctl_course_setpoint;
   NormRadAngle(err);
+
+#ifdef H_CTL_COURSE_SLEW_INCREMENT
+  /* slew severe course changes (i.e. waypoint moves, block changes or perpendicular routes) */
+  static float h_ctl_course_slew_rate = 0.;
+  float nav_angle_saturation = -(h_ctl_roll_max_setpoint/h_ctl_course_pgain);  /* heading error corresponding to max_roll */
+  float half_nav_angle_saturation = nav_angle_saturation / 2.;
+  if (launch) {  /* prevent accumulator run-up on the ground */
+    if (err > half_nav_angle_saturation) {
+      h_ctl_course_slew_rate = Max(h_ctl_course_slew_rate, 0.);
+      err = Min(err,(half_nav_angle_saturation + h_ctl_course_slew_rate));
+      h_ctl_course_slew_rate +=h_ctl_course_slew_increment;
+    }
+    else if ( err < -half_nav_angle_saturation) {
+      h_ctl_course_slew_rate = Min(h_ctl_course_slew_rate, 0.);
+      err = Max(err,(-half_nav_angle_saturation + h_ctl_course_slew_rate));
+      h_ctl_course_slew_rate -=h_ctl_course_slew_increment;
+    }
+    else {
+      h_ctl_course_slew_rate = 0.;
+    }
+  }
+#endif
+
   float speed_depend_nav = estimator_hspeed_mod/NOMINAL_AIRSPEED; 
   Bound(speed_depend_nav, 0.66, 1.5);
   float cmd = h_ctl_course_pgain * err * speed_depend_nav;
