@@ -67,7 +67,10 @@
       <circle pitch="auto" radius="75" throttle="0.7" wp="1"/>
     </block>
     <block name="climb 75">
-      <circle pitch="10" radius="50+(estimator_z-ground_alt)/2" throttle="0.75" until="(10 > PowerVoltage()) && (estimator_z > ground_alt+ 1350)" vmode="throttle" wp="1"/>
+      <circle pitch="10" radius="50+(estimator_z-ground_alt)/2" throttle="0.75" until="(10 > PowerVoltage()) || (estimator_z > ground_alt+ 1350)" vmode="throttle" wp="1"/>
+    </block>
+    <block name="climb var">
+      <circle radius="nav_radius" until="(10 > PowerVoltage()) || (estimator_z > ground_alt+ 1350)" vmode="climb" wp="1" climb="nav_climb"/>
     </block>
     <block name="climb 1">
       <circle climb="1" pitch="5" radius="50+(estimator_z-ground_alt)/2" until="10 > PowerVoltage()" vmode="climb" wp="1"/>
