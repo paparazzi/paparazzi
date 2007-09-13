@@ -178,5 +178,12 @@
 #define PERIODIC_SEND_GPS_SOL() DOWNLINK_SEND_GPS_SOL(&gps_Pacc, &gps_Sacc, &gps_PDOP, &gps_numSV)
 #endif
 
+#ifdef USE_BARO_MS5534A
+#include "baro_MS5534A.h"
+#define PERIODIC_SEND_BARO_MS5534A() DOWNLINK_SEND_BARO_MS5534A(&baro_MS5534A_pressure, &baro_MS5534A_temp, &baro_MS5534A_z)
+#else
+#define PERIODIC_SEND_BARO_MS5534A() {}
+#endif
+
 
 #endif /* AP_DOWNLINK_H */
