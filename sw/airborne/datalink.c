@@ -75,8 +75,12 @@ void dl_parse_msg(void) {
     float lat = RadOfDeg(DL_MOVE_WP_lat(dl_buffer));
     float lon = RadOfDeg(DL_MOVE_WP_lon(dl_buffer));
     latlong_utm_of(lat, lon, nav_utm_zone0);
-
     MoveWaypoint(wp_id, latlong_utm_x, latlong_utm_y, a);
+
+    /* Waypoint range is limited. Computes the UTM pos back from the relative
+       coordinates */
+    latlong_utm_x = waypoints[wp_id].x + nav_utm_east0;
+    latlong_utm_y = waypoints[wp_id].y + nav_utm_north0;
     DOWNLINK_SEND_WP_MOVED(&wp_id, &latlong_utm_x, &latlong_utm_y, &a, &nav_utm_zone0);
   } else if (msg_id == DL_BLOCK) {
     nav_goto_block(DL_BLOCK_block_id(dl_buffer));
