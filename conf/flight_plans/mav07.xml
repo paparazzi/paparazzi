@@ -1,0 +1,113 @@
+<!DOCTYPE flight_plan SYSTEM "flight_plan.dtd">
+
+<flight_plan alt="75" ground_alt="0" lat0="43.53900" lon0="1.24500" max_dist_from_home="1650" name="MAV07" qfu="270" security_height="25">
+  <header>
+#include "bomb.h"
+</header>
+  <waypoints>
+    <waypoint name="HOME" x="0.0" y="-0.0"/>
+    <waypoint name="T1" x="423.5" y="64.9"/>
+    <waypoint name="T2" x="834.6" y="-222.6"/>
+    <waypoint name="T1__" x="430.5" y="269.2"/>
+    <waypoint name="T2__" x="911.1" y="-339.6"/>
+    <waypoint name="T3" x="895.4" y="-24.2"/>
+    <waypoint name="T3__" x="921.3" y="114.7"/>
+    <waypoint alt="30.0" name="AF" x="282.5" y="-93.1"/>
+    <waypoint alt="0" name="TD" x="58.3" y="45.2"/>
+    <waypoint name="BASELEG" x="411.1" y="-10.7"/>
+    <waypoint name="STDBY" x="221.4" y="120.1"/>
+    <waypoint name="RELEASE" x="126.9" y="181.6"/>
+    <waypoint alt="30.0" name="START" x="551.5" y="-137.5"/>
+    <waypoint name="CLIMB" x="406.8" y="221.4"/>
+    <waypoint alt="0.0" name="TARGET" x="25.4" y="73.2"/>
+    <waypoint name="A1" x="148.1" y="25.2"/>
+    <waypoint name="A2" x="241.3" y="87.6"/>
+    <waypoint name="A1__" x="85.4" y="-28.5"/>
+    <waypoint name="A2__" x="312.1" y="136.7"/>
+    <waypoint name="_1" x="-137.6" y="-8.2"/>
+    <waypoint name="_2" x="161.7" y="385.5"/>
+    <waypoint name="_5" x="1269.1" y="-382.2"/>
+    <waypoint name="_6" x="1044.0" y="-710.8"/>
+    <waypoint name="_3" x="506.2" y="622.7"/>
+    <waypoint name="_4" x="1516.0" y="601.5"/>
+    <waypoint name="_T3_1" x="998.2" y="-121.6"/>
+    <waypoint name="_T3_2" x="753.2" y="-90.0"/>
+    <waypoint name="_T3_3" x="779.6" y="83.6"/>
+    <waypoint name="_T3_4" x="1016.3" y="79.9"/>
+  </waypoints>
+  <sectors>
+    <sector name="fonsorbes">
+      <corner name="_1"/>
+      <corner name="_2"/>
+      <corner name="_3"/>
+      <corner name="_4"/>
+      <corner name="_5"/>
+      <corner name="_6"/>
+    </sector>
+    <sector name="T3">
+      <corner name="_T3_1"/>
+      <corner name="_T3_2"/>
+      <corner name="_T3_3"/>
+      <corner name="_T3_4"/>
+    </sector>
+  </sectors>
+  <blocks>
+    <block name="wait GPS">
+      <while cond="!GpsFixValid()"/>
+    </block>
+    <block name="init">
+      <while cond="LessThan(NavBlockTime(), 10)"/>
+      <call fun="NavSetGroundReferenceHere()"/>
+      <deroute block="climb"/>
+    </block>
+    <block name="climb">
+      <attitude pitch="10" roll="0" throttle="0.9" until="estimator_z > ground_alt+30" vmode="throttle"/>
+    </block>
+    <block name="standby" strip_button="STDBY">
+      <circle radius="nav_radius" wp="STDBY"/>
+    </block>
+    <block name="identify T1">
+      <eight center="T1" radius="nav_radius" turn_around="T1__"/>
+    </block>
+    <block name="identify T2">
+      <eight center="T2" radius="nav_radius" turn_around="T2__"/>
+    </block>
+    <block name="locate T3"/>
+    <block name="bomb" strip_button="Bomb">
+      <set value="BombComputeApproach(WP_TARGET, WP_START)" var="unit"/>
+      <circle radius="BOMB_RADIUS" until="NavQdrCloseTo(DegOfRad(bomb_start_qdr)-10)" wp="BASELEG"/>
+    </block>
+    <block name="align">
+      <exception cond="BombUpdateRelease(WP_TARGET)" deroute="standby"/>
+      <go approaching_time="bomb_trigger_delay" from="START" hmode="route" wp="RELEASE"/>
+    </block>
+    <block name="shoot">
+      <set value="BombShoot()" var="unit"/>
+      <go approaching_time="0" from="RELEASE" hmode="route" wp="CLIMB"/>
+      <set value="BombCloseHatch()" var="unit"/>
+      <deroute block="standby"/>
+    </block>
+    <block name="close">
+      <set value="BombCloseHatch()" var="unit"/>
+      <deroute block="standby"/>
+    </block>
+    <block name="arch">
+      <go from="A1__" hmode="route" wp="A1__"/>
+      <deroute block="standby"/>
+    </block>
+    <block name="land">
+      <call fun="nav_compute_baseleg(WP_AF, WP_TD, WP_BASELEG)"/>
+      <circle radius="nav_radius" until="NavCircleCount() > 0.5" wp="BASELEG"/>
+      <set value="V_CTL_AUTO_THROTTLE_MIN_CRUISE_THROTTLE" var="v_ctl_auto_throttle_cruise_throttle"/>
+      <circle radius="nav_radius" until="NavQdrCloseTo(DegOfRad(baseleg_out_qdr)-10) && 10 > fabs(estimator_z - WaypointAlt(WP_BASELEG))" wp="BASELEG"/>
+    </block>
+    <block name="final">
+      <exception cond="ground_alt + 10 > estimator_z" deroute="flare"/>
+      <go from="AF" hmode="route" vmode="glide" wp="TD"/>
+    </block>
+    <block name="flare">
+      <go approaching_time="0" from="AF" hmode="route" throttle="0.0" vmode="throttle" wp="TD"/>
+      <attitude roll="0.0" throttle="0.0" until="FALSE" vmode="throttle"/>
+    </block>
+  </blocks>
+</flight_plan>
