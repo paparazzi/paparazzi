@@ -2,15 +2,31 @@
 #include "adc.h"
 #include CONFIG
 
-uint16_t adc_generic_val;
+#ifdef ADC_CHANNEL_GENERIC1
+uint16_t adc_generic_val1;
+static struct adc_buf buf_generic1;
+#endif
 
-static struct adc_buf buf_generic;
+#ifdef ADC_CHANNEL_GENERIC2
+uint16_t adc_generic_val2;
+static struct adc_buf buf_generic2;
+#endif
 
 
 void adc_generic_init( void ) {
-  adc_buf_channel(ADC_CHANNEL_GENERIC, &buf_generic, ADC_CHANNEL_GENERIC_NB_SAMPLES);
+#ifdef ADC_CHANNEL_GENERIC1
+  adc_buf_channel(ADC_CHANNEL_GENERIC1, &buf_generic1, ADC_CHANNEL_GENERIC_NB_SAMPLES);
+#endif
+#ifdef ADC_CHANNEL_GENERIC2
+  adc_buf_channel(ADC_CHANNEL_GENERIC2, &buf_generic2, ADC_CHANNEL_GENERIC_NB_SAMPLES);
+#endif
 }
 
 void adc_generic_periodic( void ) {
-  adc_generic_val = buf_generic.sum / buf_generic.av_nb_sample;
+#ifdef ADC_CHANNEL_GENERIC1
+  adc_generic_val1 = buf_generic1.sum / buf_generic1.av_nb_sample;
+#endif
+#ifdef ADC_CHANNEL_GENERIC2
+  adc_generic_val2 = buf_generic2.sum / buf_generic2.av_nb_sample;
+#endif
 }
