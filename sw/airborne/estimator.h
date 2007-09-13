@@ -32,6 +32,7 @@
 #include <inttypes.h>
 
 #include "std.h"
+#include "baro_MS5534A.h"
 
 extern float ir_roll_neutral;
 extern float ir_pitch_neutral;
@@ -82,20 +83,29 @@ extern void alt_kalman( float );
 #endif
 
 #ifdef ALT_KALMAN
-#define EstimatorSetPos(x, y, z) { estimator_x = x; estimator_y = y; \
-  if (!alt_kalman_enabled) \
+#define EstimatorSetPosXY(x, y) { estimator_x = x; estimator_y = y; }
+
+#ifdef USE_BARO_MS5534A
+/* Kalman filter cannot be disabled in this mode (no z_dot) */
+#define EstimatorSetAlt(z) alt_kalman(z)
+#else /* USE_BARO_MS5534A */
+#define EstimatorSetAlt(z) { \
+  if (!alt_kalman_enabled) { \
     estimator_z = z; \
-  else { \
+  } else { \
     alt_kalman(z); \
   } \
 }
+#endif /* ! USE_BARO_MS5534A */
+  
 #define EstimatorSetSpeedPol(vhmod, vhdir, vz) { \
   estimator_hspeed_mod = vhmod; \
   estimator_hspeed_dir = vhdir; \
   if (!alt_kalman_enabled) estimator_z_dot = vz; \
 }
 #else /* ALT_KALMAN */
-#define EstimatorSetPos(x, y, z) { estimator_x = x; estimator_y = y; estimator_z = z; }
+#define EstimatorSetPosXY(x, y) { estimator_x = x; estimator_y = y; }
+#define EstimatorSetAlt(z) { estimator_z = z; }
 #define EstimatorSetSpeedPol(vhmod, vhdir, vz) { \
   estimator_hspeed_mod = vhmod; \
   estimator_hspeed_dir = vhdir; \
