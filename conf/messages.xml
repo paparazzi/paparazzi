@@ -121,7 +121,8 @@
    </message>
 
    <message name="ADC_GENERIC" ID="18">
-     <field name="val" type="uint16"/>
+     <field name="val1" type="uint16"/>
+     <field name="val2" type="uint16"/>
    </message>
 
    <message name="CAM" ID="20">
@@ -285,6 +286,14 @@
   <message name="BARO_MS5534A" ID="44">
       <field name="pressure" type="uint32"/>
       <field name="temp" type="uint16"/>
+      <field name="alt" type="float"/>
+  </message>
+
+  <message name="BARO_WORDS" ID="46">
+      <field name="w1"  type="uint16"/>
+      <field name="w2"  type="uint16"/>
+      <field name="w3"  type="uint16"/>
+      <field name="w4"  type="uint16"/>
   </message>
 
   <message name="PPM" ID="100">
