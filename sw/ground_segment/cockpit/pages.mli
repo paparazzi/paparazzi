@@ -14,6 +14,7 @@ class infrared : GBin.frame ->
 class gps : ?visible:(GBin.frame -> bool) -> GBin.frame ->
   object
     method svsinfo : int -> (int*int*int*int) array -> unit
+    method connect_reset : (int -> unit) -> unit
   end
 
 (** [new Pages.settings ?visible dl_settings callback short_button_receiver] *)

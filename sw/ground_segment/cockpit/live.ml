@@ -518,8 +518,23 @@ let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id
 	    prerr_endline "Warning: Flight_altitude not setable from GCS strip (i.e. not listed in the xml settings file)"
 	end
     | None -> ()
+  end;
+
+
+  (** Connect the GPS reset button *)
+  begin
+    match dl_settings_page with
+      Some settings_tab ->
+	begin
+	  try
+	    let gps_reset_id, _ = settings_tab#assoc "gps_reset" in
+	    gps_page#connect_reset
+	      (fun x -> dl_setting_callback gps_reset_id (float x))
+	  with Not_found ->
+	    prerr_endline "Warning: GPS reset not setable from GCS (i.e. 'gps_reset' not listed in the xml settings file)"
+	end
+    | None -> ()
   end
-      
 
 
 

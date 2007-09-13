@@ -110,13 +110,27 @@ end
 (* gps page                                                                  *)
 (*****************************************************************************)
 class gps ?(visible = fun _ -> true) (widget: GBin.frame) =
-  let sw = GBin.scrolled_window ~hpolicy:`AUTOMATIC ~vpolicy:`AUTOMATIC ~packing:widget#add () in
+  let vbox = GPack.vbox ~packing:widget#add () in
 
+  let sw = GBin.scrolled_window ~hpolicy:`AUTOMATIC ~vpolicy:`AUTOMATIC ~packing:vbox#add () in
   let da = GMisc.drawing_area ~show:true ~packing:sw#add_with_viewport () in
+
+  (* Reset buttons *)
+  let hbox = GPack.hbox ~packing:vbox#pack ~show:false () in
+  let _ = GMisc.label ~text:"Reset: " ~packing:hbox#add () in
+  let hot = GButton.button ~label:"Hostart" ~packing:hbox#add () in
+  let warm = GButton.button ~label:"Warmstart" ~packing:hbox#add () in
+  let cold = GButton.button ~label:"Coldstart" ~packing:hbox#add () in
 
 object
   val mutable active_cno = []
   val mutable active_flags = []
+
+  method connect_reset = fun (callback:int -> unit) ->
+    hbox#misc#show ();
+    ignore (hot#connect#clicked (fun () -> callback 0));
+    ignore (warm#connect#clicked (fun () -> callback 1));
+    ignore (cold#connect#clicked (fun () -> callback 2))
 
   method svsinfo pacc a =
     if visible widget then
