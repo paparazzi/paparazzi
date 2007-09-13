@@ -56,6 +56,7 @@ extern uint16_t gps_PDOP;
 extern uint32_t gps_Pacc, gps_Sacc;
 extern uint8_t gps_numSV;
 extern uint8_t gps_status_config;
+extern uint16_t gps_reset;
 
 
 extern uint16_t last_gps_msg_t; /** cputime of the last gps message */

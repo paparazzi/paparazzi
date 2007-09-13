@@ -74,6 +74,7 @@ volatile bool_t gps_msg_received;
 bool_t gps_pos_available;
 uint8_t ubx_id, ubx_class;
 int32_t gps_lat, gps_lon;
+uint16_t gps_reset;
 
 uint16_t gps_PDOP;
 uint32_t gps_Pacc, gps_Sacc;
@@ -168,8 +169,8 @@ void gps_configure ( void ) {
 }
 #endif /* GPS_CONFIGURE */
 
-void ubxsend_cfg_rst(uint16_t bbr , uint8_t val) {
-  UbxSend_CFG_RST(bbr, val, 0x00);
+void ubxsend_cfg_rst(uint16_t bbr , uint8_t reset_mode) {
+  UbxSend_CFG_RST(bbr, reset_mode, 0x00);
 }
 
 
