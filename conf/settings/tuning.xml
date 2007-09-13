@@ -6,7 +6,7 @@
   <dl_settings>
     <dl_settings NAME="flight params">
       <dl_setting MAX="1000" MIN="0" STEP="10" VAR="flight_altitude" shortname="altitude"/>
-      <dl_setting MAX="1" MIN="0" STEP="1" VAR="light_mode"/>
+      <dl_setting MAX="2" MIN="0" STEP="1" VAR="light_mode"/>
       <dl_setting MAX="10" MIN="-10" STEP="0.5" VAR="wind_east"/>
       <dl_setting MAX="10" MIN="-10" STEP="0.5" VAR="wind_north"/>
     </dl_settings>
@@ -20,6 +20,7 @@
         <strip_button name="KILL" value="1"/>
       </dl_setting>
       <dl_setting MAX="1" MIN="0" STEP="1" VAR="telemetry_mode_Ap" shortname="tele_AP"/>
+      <dl_setting MAX="2" MIN="0" STEP="1" VAR="gps_reset" module="gps_ubx" handler="Reset" shortname="GPS reset"/>
     </dl_settings>
 
     <dl_settings NAME="control">
@@ -27,12 +28,10 @@
         <dl_setting MAX="0.3" MIN="-0.3" STEP="0.01" VAR="ir_roll_neutral" shortname="roll_neutral"/>
         <dl_setting MAX="0.5" MIN="-0.3" STEP="0.01" VAR="ir_pitch_neutral" shortname="pitch_neutral"/>
 
-<!--
         <dl_setting MAX="1.5" MIN="0.5" STEP="0.1" VAR="ir_correction_left" shortname="corr_left"/>
         <dl_setting MAX="1.5" MIN="0.5" STEP="0.1" VAR="ir_correction_right" shortname="corr_right"/>
         <dl_setting MAX="1.5" MIN="0.5" STEP="0.1" VAR="ir_correction_up" shortname="corr_up"/>
         <dl_setting MAX="1.5" MIN="0.5" STEP="0.1" VAR="ir_correction_down" shortname="corr_down"/>
--->
 
         <dl_setting MAX="1.5" MIN="0.4" STEP="0.05" VAR="ir_estimated_phi_pi_4" shortname="est. right"/>
         <dl_setting MAX="1.5" MIN="0.4" STEP="0.05" VAR="ir_estimated_phi_minus_pi_4" shortname="est. left"/>
@@ -83,6 +82,7 @@
         <dl_setting MAX="1" MIN="0.02" STEP="0.01" VAR="h_ctl_roll_slew" shortname="roll slew"/>
         <dl_setting MAX="500" MIN="-500" STEP="5" VAR="nav_radius"/>
         <dl_setting MAX="359" MIN="0" STEP="5" VAR="nav_course"/>
+        <dl_setting MAX="5" MIN="-5" STEP="0.5" VAR="nav_climb"/>
         <dl_setting MAX="50" MIN="-50" STEP="5" VAR="nav_shift" module="nav" handler="IncreaseShift" shortname="inc. shift">
           <strip_button name="<" value="-5"/>
           <strip_button name="|" value="0"/>
