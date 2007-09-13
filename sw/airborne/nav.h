@@ -96,6 +96,8 @@ extern uint8_t horizontal_mode;
   if (_id < nb_waypoint) { \
     waypoints[_id].x = _ux - nav_utm_east0; \
     waypoints[_id].y = _uy - nav_utm_north0; \
+    Bound(waypoints[_id].x, -MAX_DIST_FROM_HOME, MAX_DIST_FROM_HOME); \
+    Bound(waypoints[_id].y, -MAX_DIST_FROM_HOME, MAX_DIST_FROM_HOME); \
     waypoints[_id].a = _a; \
   } \
 }
@@ -112,6 +114,7 @@ extern float ground_alt;
 
 extern float nav_radius; /* m */
 extern float nav_course; /* degrees, clockwise, 0.0 = N */
+extern float nav_climb; /* m/s */
 extern float nav_shift; /* Lateral shift along a route. In meters */
 
 extern float nav_ground_speed_pgain, nav_ground_speed_setpoint;
