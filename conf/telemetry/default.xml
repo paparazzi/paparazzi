@@ -26,6 +26,7 @@
       <message name="SURVEY"         period="2"/>
       <message name="ESTIMATOR"      period="0.5"/>
       <message name="GPS_SOL"        period="2"/>
+      <message name="BARO_MS5534A"   period=".5"/>
     </mode>
     <mode name="debug">
       <message name="CALIB_START"    period="0.5"/> 
