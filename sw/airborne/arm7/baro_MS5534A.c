@@ -29,10 +29,20 @@
 
 #include "baro_MS5534A.h"
 #include "spi.h"
+#include "uart.h"
+#include "ap_downlink.h"
+#include "nav.h"
 
+bool_t baro_MS5534A_do_reset;
 uint32_t baro_MS5534A_pressure;
 uint16_t baro_MS5534A_temp;
 bool_t baro_MS5534A_available;
+bool_t alt_baro_enabled;
+uint32_t baro_MS5534A_ground_pressure;
+float baro_MS5534A_r;
+float baro_MS5534A_sigma2;
+float baro_MS5534A_z;
+
 
 #define STATUS_INIT1               0
 #define STATUS_INIT2               1
@@ -44,6 +54,7 @@ bool_t baro_MS5534A_available;
 
 static uint8_t status;
 static bool_t status_read_data;
+static uint16_t words[4];
 
 #define InitStatus() (status <= STATUS_INIT4)
 
@@ -79,6 +90,8 @@ static uint8_t buf_output[3];
 #define PWM_DUTY (PWM_PERIOD / 2)
 
 
+static void calibration( void );
+
 void baro_MS5534A_init( void ) {
   /* 32768Hz on PWM2 */
   /* Configure P0.7 pin as PWM */
@@ -96,13 +109,35 @@ void baro_MS5534A_init( void ) {
   PWMTCR = PWMTCR_COUNTER_ENABLE | PWMTCR_PWM_ENABLE;
   PWMPCR = PWMPCR_ENA2;
 
+#ifdef BARO_MS5534A_W1
+  words[0] = BARO_MS5534A_W1;
+  words[1] = BARO_MS5534A_W2;
+  words[2] = BARO_MS5534A_W3;
+  words[3] = BARO_MS5534A_W4;
+
+  status = STATUS_MEASURE_PRESSURE;
+  status_read_data = FALSE;
+
+  calibration();
+#else
   status = STATUS_INIT1;
   status_read_data = FALSE;
+#endif
+
+
+
   baro_MS5534A_available = FALSE;
+  alt_baro_enabled = FALSE;
+
+  baro_MS5534A_ground_pressure = 100000;
+  baro_MS5534A_r = 20.;
+  baro_MS5534A_sigma2 = 1;
+  baro_MS5534A_do_reset = FALSE;
 }
 
 void baro_MS5534A_reset( void ) {
-  status = STATUS_RESET;
+  status = STATUS_INIT1;
+  status_read_data = FALSE;
 }
 
 /* To be called not faster than 30Hz */
@@ -138,7 +173,22 @@ void baro_MS5534A_send(void) {
 
 static uint16_t d1, d2;
 static uint16_t c1, c2, c3, c4, ut1, c6;
-static uint16_t words[4];
+
+
+static void calibration( void ) {
+  /* End of init, configuration (page 11) */
+  c1 = words[0] >> 1;
+  c2 = ((words[2] & 0x3f) << 6) | (words[3] & 0x3f);
+  c3 = words[3] >> 6;
+  c4 = words[2] >> 6;
+  uint16_t c5 = ((words[0] & 0x1) << 10) | (words[1] >> 6);
+  c6 = words[1] & 0x3f;
+  
+  ut1 = (c5 << 3) + 20224;
+  
+  DOWNLINK_SEND_BARO_WORDS(&words[0], &words[1], &words[2], &words[3]);
+}
+
 
 
 /* Handle the SPI message, i.e. store the received values in variables */
@@ -159,21 +209,14 @@ void baro_MS5534A_event_task( void ) {
       // baro_MS5534A = ((x*10)>>5) + 250*10;
       baro_MS5534A_pressure = ((x*100)>>5) + 250*100;
       baro_MS5534A_available = TRUE;
+
       break;
      case STATUS_RESET:
        break;
     default: /* Init status */
       words[status] = Uint16(buf_input);
       if (status == STATUS_INIT4) {
-	/* End of init, configuration (page 11) */
-	c1 = words[0] >> 1;
-	c2 = ((words[2] & 0x3f) << 6) | (words[3] & 0x3f);
-	c3 = words[3] >> 6;
-	c4 = words[2] >> 6;
-	uint16_t c5 = ((words[0] & 0x1) << 10) | (words[1] >> 6);
-	c6 = words[1] & 0x3f;
-
-	ut1 = (c5 << 3) + 20224;
+	calibration();
       }
     }
   } /* else nothing to read */

@@ -42,9 +42,15 @@
 #define SPI_MASTER
 #endif
 
+extern bool_t baro_MS5534A_do_reset;
 extern bool_t baro_MS5534A_available;
 extern uint32_t baro_MS5534A_pressure;
 extern uint16_t baro_MS5534A_temp;
+extern bool_t alt_baro_enabled;
+extern uint32_t baro_MS5534A_ground_pressure;
+extern float baro_MS5534A_r;
+extern float baro_MS5534A_sigma2;
+extern float baro_MS5534A_z;
 
 void baro_MS5534A_init(void);
 void baro_MS5534A_reset(void);

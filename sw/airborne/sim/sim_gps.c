@@ -14,7 +14,7 @@
 
 uint8_t gps_mode;
 uint32_t  gps_itow;    /* ms */
-int32_t   gps_alt;    /* m       */
+int32_t   gps_alt;    /* cm       */
 uint16_t  gps_gspeed;  /* cm/s     */
 int16_t   gps_climb;  /* cm/s     */
 int16_t   gps_course; /* decideg     */
@@ -26,6 +26,7 @@ uint8_t gps_nb_channels = 0;
 uint16_t gps_PDOP;
 uint32_t gps_Pacc, gps_Sacc;
 uint8_t gps_numSV;
+uint16_t gps_reset;
 
 
 value sim_use_gps_pos(value x, value y, value z, value c, value a, value s, value cl, value t, value m, value lat, value lon) {
