@@ -1,6 +1,6 @@
 <!DOCTYPE flight_plan SYSTEM "flight_plan.dtd">
 
-<flight_plan alt="75" ground_alt="0" lat0="43.4622" lon0="1.2729" max_dist_from_home="800" name="Versatile" qfu="270" security_height="25">
+<flight_plan alt="235" ground_alt="185" lat0="43.4622" lon0="1.2729" max_dist_from_home="800" name="Versatile" qfu="270" security_height="25">
   <header>
 #include "bomb.h"
 </header>
@@ -27,12 +27,9 @@
     <waypoint alt="15.0" name="A0" x="214.6" y="103.7"/>
   </waypoints>
   <blocks>
-    <block name="wait GPS">
-      <while cond="!GpsFixValid()"/>
-    </block>
     <block name="init">
       <while cond="LessThan(NavBlockTime(), 10)"/>
-      <call fun="NavSetGroundReferenceHere()"/>
+      <set value="baro_MS5534A_pressure" var="baro_MS5534A_ground_pressure"/>
       <deroute block="climb"/>
     </block>
     <block name="climb">
@@ -69,7 +66,7 @@
       <deroute block="standby"/>
     </block>
     <block name="arch">
-      <oval p1="A1__" p2="A2__" radius="nav_radius"/>
+      <oval p2="A1__" p1="A2__" radius="nav_radius"/>
     </block>
     <block name="land">
       <call fun="nav_compute_baseleg(WP_AF, WP_TD, WP_BASELEG)"/>
