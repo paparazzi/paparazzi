@@ -250,7 +250,7 @@ ap.srcs += nav.c fw_h_ctl.c fw_v_ctl.c nav_survey_rectangle.c
 # ap.srcs += $(SRC_ARCH)/gpio.c
 
 # Chemo sensor
-ap.CFLAGS += -DUSE_ADC_5 -DUSE_ADC_GENERIC -DADC_CHANNEL_GENERIC=ADC_5 -DADC_CHANNEL_GENERIC_NB_SAMPLES=16
+ap.CFLAGS += -DUSE_ADC_5 -DUSE_ADC_GENERIC1 -DADC_CHANNEL_GENERIC1=ADC_5 -DADC_CHANNEL_GENERIC_NB_SAMPLES=16
 ap.srcs += adc_generic.c
 
 

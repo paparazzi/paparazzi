@@ -6,8 +6,8 @@
   <servos>
     <servo name="GAZ"           no="0" min="1000" neutral="1000" max="2000"/>
     <servo name="HATCH" no="2" max="2000" neutral="1000" min="1000"/>
-    <servo name="AILEVON_LEFT"  no="6" min="1075" neutral="1530" max="2025"/>
-    <servo name="AILEVON_RIGHT" no="3" min="1975" neutral="1565" max="975"/>
+    <servo name="AILEVON_LEFT"  no="6" min="1075" neutral="1518" max="2025"/>
+    <servo name="AILEVON_RIGHT" no="3" min="1975" neutral="1595" max="975"/>
   </servos>
 
   <commands>
@@ -55,23 +55,23 @@
   </section>
 
   <section name="INFRARED" prefix="IR_">
-    <define name="ROLL_NEUTRAL_DEFAULT" value="0" unit="deg"/>
-    <define name="PITCH_NEUTRAL_DEFAULT" value="10" unit="deg"/>
+    <define name="ROLL_NEUTRAL_DEFAULT" value="3.6" unit="deg"/>
+    <define name="PITCH_NEUTRAL_DEFAULT" value="2" unit="deg"/>
     <define name="DEFAULT_CONTRAST" value="200"/>
     <define name="RAD_OF_IR_CONTRAST" value="0.75"/>
-    <linear name="RollOfIrs" arity="2" coeff1="-0.7" coeff2="0.7"/>
-    <linear name="PitchOfIrs" arity="2" coeff1="-0.7" coeff2="-0.7"/>
+    <linear name="RollOfIrs" arity="2" coeff1="1.07" coeff2="-1.07"/>
+    <linear name="PitchOfIrs" arity="2" coeff1="1.07" coeff2="1.07"/>
     <linear name="TopOfIr" arity="1" coeff1="-1"/>
     <define name="RAD_OF_IR_MAX_VALUE" value="0.0045"/>
     <define name="RAD_OF_IR_MIN_VALUE" value="0.00075"/>
     <define name="ADC_ROLL_NEUTRAL" value="0"/>
-    <define name="ADC_PITCH_NEUTRAL" value="-716"/>
+    <define name="ADC_PITCH_NEUTRAL" value="1102"/>
     <define name="ADC_TOP_NEUTRAL" value="512"/>
 
-    <define name="CORRECTION_UP" value="1."/>
-    <define name="CORRECTION_DOWN" value="1."/>
-    <define name="CORRECTION_LEFT" value="1."/>
-    <define name="CORRECTION_RIGHT" value="1."/>
+    <define name="CORRECTION_UP" value="1.0"/>
+    <define name="CORRECTION_DOWN" value="1.0"/>
+    <define name="CORRECTION_LEFT" value="1.0"/>
+    <define name="CORRECTION_RIGHT" value="1.0"/>
 
     <define name="ESTIMATED_PHI_PI_4" value="0.9"/>
 
@@ -120,7 +120,7 @@
     <define name="ALTITUDE_MAX_CLIMB" value="2."/>
 
     <!-- auto throttle inner loop -->
-    <define name="AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE" value="0.3"/>
+    <define name="AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE" value="0.32"/>
     <define name="AUTO_THROTTLE_MIN_CRUISE_THROTTLE" value="0.25"/>
     <define name="AUTO_THROTTLE_MAX_CRUISE_THROTTLE" value="0.65"/>
     <define name="AUTO_THROTTLE_LOITER_TRIM" value="1500"/>
@@ -141,7 +141,7 @@
   </section>
 
   <section name="HORIZONTAL CONTROL" prefix="H_CTL_">
-    <define name="COURSE_PGAIN" value="-0.8"/>
+    <define name="COURSE_PGAIN" value="-0.55"/>
     <define name="ROLL_MAX_SETPOINT" value="0.6" unit="radians"/>
     <define name="PITCH_MAX_SETPOINT" value="0.5" unit="radians"/>
     <define name="PITCH_MIN_SETPOINT" value="-0.5" unit="radians"/>
@@ -149,7 +149,7 @@
 
     <define name="ROLL_PGAIN" value="5000."/>
     <define name="AILERON_OF_THROTTLE" value="0.0"/>
-    <define name="PITCH_PGAIN" value="-9000."/>
+    <define name="PITCH_PGAIN" value="-12500."/>
     <define name="PITCH_DGAIN" value="1.5"/>
     <define name="ELEVATOR_OF_ROLL" value="1250"/>
     
@@ -157,8 +157,8 @@
     <define name="ROLL_RATE_MODE_DEFAULT" value="1"/>
     <define name="ROLL_RATE_SETPOINT_PGAIN" value="-10." unit="rad/s/rad"/>
     <define name="ROLL_RATE_MAX_SETPOINT" value="10"/>
-    <define name="LO_THROTTLE_ROLL_RATE_PGAIN" value="1000."/>
-    <define name="HI_THROTTLE_ROLL_RATE_PGAIN" value="1000."/>
+    <define name="LO_THROTTLE_ROLL_RATE_PGAIN" value="3000."/>
+    <define name="HI_THROTTLE_ROLL_RATE_PGAIN" value="3000."/>
     <define name="ROLL_RATE_IGAIN" value="0."/>
     <define name="ROLL_RATE_DGAIN" value="0."/>
     <define name="ROLL_RATE_SUM_NB_SAMPLES" value="64"/>
@@ -239,6 +239,11 @@ ap.srcs += inter_mcu.c
 
 ap.CFLAGS += -DADC -DUSE_ADC_0 -DUSE_ADC_1 -DUSE_ADC_4 -DUSE_ADC_5 -DUSE_ADC_6
 ap.srcs += $(SRC_ARCH)/adc_hw.c
+ap.CFLAGS += -DUSE_ADC_GENERIC -DADC_CHANNEL_GENERIC_NB_SAMPLES=16
+ap.CFLAGS += -DUSE_ADC_2 -DADC_CHANNEL_GENERIC1=ADC_2
+ap.CFLAGS += -DUSE_ADC_3 -DADC_CHANNEL_GENERIC2=ADC_3
+ap.srcs += adc_generic.c
+
 
 ap.CFLAGS += -DGPS -DUBX -DUSE_UART1 -DGPS_LINK=Uart1 -DUART1_BAUD=B19200
 
@@ -254,8 +259,10 @@ ap.srcs += nav.c fw_h_ctl.c fw_v_ctl.c nav_survey_rectangle.c
 ap.CFLAGS += -DGYRO -DADXRS150
 ap.srcs += gyro.c
 
-ap.CFLAGS += -DUSE_SPI -DSPI_MASTER -DUSE_SPI_SLAVE0 -D USE_BARO_MS5534A
+ap.CFLAGS += -DUSE_SPI -DSPI_MASTER -DUSE_SPI_SLAVE0 -DUSE_BARO_MS5534A
 ap.srcs += spi.c $(SRC_ARCH)/spi_hw.c $(SRC_ARCH)/baro_MS5534A.c
+
+ap.srcs += bomb.c
 
 
 # Harware In The Loop
@@ -265,8 +272,8 @@ ap.srcs += spi.c $(SRC_ARCH)/spi_hw.c $(SRC_ARCH)/baro_MS5534A.c
 
 # Config for SITL simulation
 include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
-sim.CFLAGS += -DCONFIG=\"tiny.h\" -DAGR_CLIMB -DH_CTL_RATE_LOOP -DLOITER_TRIM -DALT_KALMAN -DIR_360
-sim.srcs += nav_survey_rectangle.c
+sim.CFLAGS += -DCONFIG=\"tiny.h\" -DAGR_CLIMB -DH_CTL_RATE_LOOP -DLOITER_TRIM -DALT_KALMAN -DIR_360 -DUSE_BARO_MS5534A
+sim.srcs += nav_survey_rectangle.c $(SRC_ARCH)/sim_baro.c bomb.c
 
   </makefile>
 </airframe>

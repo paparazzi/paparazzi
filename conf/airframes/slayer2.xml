@@ -112,11 +112,11 @@
     <define name="ALTITUDE_MAX_CLIMB" value="3."/>
 
     <!-- auto throttle inner loop -->
-    <define name="AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE" value="0.65"/>
+    <define name="AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE" value="0.5"/>
     <define name="AUTO_THROTTLE_MIN_CRUISE_THROTTLE" value=".47"/>
     <define name="AUTO_THROTTLE_MAX_CRUISE_THROTTLE" value="1"/>
     <define name="AUTO_THROTTLE_LOITER_TRIM" value="1250"/>
-    <define name="AUTO_THROTTLE_DASH_TRIM" value="-2500"/>
+    <define name="AUTO_THROTTLE_DASH_TRIM" value="-2000"/>
     <define name="AUTO_THROTTLE_CLIMB_THROTTLE_INCREMENT" value="0.15" unit="%/(m/s)"/>
     <define name="AUTO_THROTTLE_PGAIN" value="-0.01"/>
     <define name="AUTO_THROTTLE_IGAIN" value="0.25"/>
@@ -155,6 +155,7 @@
     <define name="ROLL_RATE_DGAIN" value="0.5"/>
     <define name="ROLL_RATE_SUM_NB_SAMPLES" value="64"/>
 
+    <define name="COURSE_SLEW_INCREMENT" value="RadOfDeg(2)"/>
   </section>
 
   <section name="NAV">
