@@ -86,7 +86,8 @@ inline void estimator_update_lls( void );
 
 void estimator_init( void ) {
 
-  EstimatorSetPos (0., 0., 0.);
+  EstimatorSetPosXY(0., 0.);
+  EstimatorSetAlt(0.);
 
   EstimatorSetAtt (0., 0., 0);
 
@@ -129,9 +130,12 @@ bool_t alt_kalman_enabled;
 #define ALT_KALMAN_ENABLED FALSE
 #endif
 
-#define DT 0.25
-#define SIGMA2 1.
-#define R 2.
+#define GPS_SIGMA2 1.
+
+#define GPS_DT 0.25
+#define GPS_R 2.
+
+#define BARO_DT 0.1
 
 static float p[2][2];
 
@@ -148,8 +152,28 @@ void alt_kalman_init( void ) {
 }
 
 void alt_kalman(float gps_z) {
-  static const float q[2][2] = {{DT*DT*DT*DT/4., DT*DT*DT/2.},
-				{DT*DT*DT/2., DT*DT}};
+  float DT;
+  float R;
+  float SIGMA2;
+
+#ifdef USE_BARO_MS5534A
+  if (alt_baro_enabled) {
+    DT = BARO_DT;
+    R = baro_MS5534A_r;
+    SIGMA2 = baro_MS5534A_sigma2;
+  } else
+#endif
+  {
+    DT = GPS_DT;
+    R = GPS_R;
+    SIGMA2 = GPS_SIGMA2;
+  }
+
+  float q[2][2];
+  q[0][0] = DT*DT*DT*DT/4.;
+  q[0][1] = DT*DT*DT/2.;
+  q[1][0] = DT*DT*DT/2.;
+  q[1][1] = DT*DT;
 
 
   /* predict */
