@@ -1,0 +1,8 @@
+<!DOCTYPE settings SYSTEM "settings.dtd">
+
+<!-- A conf to use for standard operation (no tuning) -->
+
+<settings>
+  <dl_settings>
+  </dl_settings>
+</settings>
