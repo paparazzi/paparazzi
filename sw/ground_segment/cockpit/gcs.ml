@@ -353,8 +353,9 @@ let options =
     "-track_size", Arg.Set_int Live.track_size, (sprintf "Default track length (%d)" !Live.track_size);
     "-plugin", Arg.Set_string  plugin_window, "External X application (launched with the id of the plugin window as argument)";
     "-mplayer", Arg.Set_string mplayer, "Launch mplayer with the given argument as X plugin";
-    "-utm", Arg.Unit (fun () -> projection:=G.Mercator),"Switch to UTM local projection";
+    "-utm", Arg.Unit (fun () -> projection:=G.UTM),"Switch to UTM local projection";
     "-mercator", Arg.Unit (fun () -> projection:=G.Mercator),"Switch to (Google Maps) Mercator projection, default";
+    "-no_google_http", Arg.Set Gm.no_http, "Switch off Google Maps downloading";
     "-lambertIIe", Arg.Unit (fun () -> projection:=G.LambertIIe),"Switch to LambertIIe projection";
     "-ign", Arg.String (fun s -> ign:=true; IGN.data_path := s), "IGN tiles path";
     "-ortho", Arg.Set_string get_bdortho, "IGN tiles path";
