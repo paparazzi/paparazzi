@@ -112,6 +112,11 @@ static struct adc_buf buf_ir_top;
 #warning "Z_CONTRAST_START deprecated !! z_contrast mode now defaults to Z_CONTRAST_DEFAULT or 1"
 #endif
 
+float ir_360_lateral_correction;
+float ir_360_longitudinal_correction;
+float ir_360_vertical_correction;
+
+
 
 
 /** \brief Initialisation of \a ir */
@@ -152,6 +157,11 @@ void ir_init(void) {
 
   ir_contrast = IR_DEFAULT_CONTRAST;
   ir_rad_of_ir = IR_RAD_OF_IR_CONTRAST / IR_DEFAULT_CONTRAST;
+
+  ir_360_lateral_correction = IR_360_LATERAL_CORRECTION;
+  ir_360_longitudinal_correction = IR_360_LONGITUDINAL_CORRECTION;
+  ir_360_vertical_correction = IR_360_VERTICAL_CORRECTION;
+
 }
 
 /** \brief Update \a ir_roll and ir_pitch from ADCs or from simulator
@@ -289,40 +299,7 @@ static inline float correct_angle(float m_angle, float est_pi_4, float est_minus
 }
 
 
-
-
-
-void estimator_update_state_infrared( void ) {
-  float rad_of_ir = (ir_estim_mode == IR_ESTIM_MODE_ON ? 
-		     estimator_rad_of_ir :
-		     ir_rad_of_ir);
-
-#ifdef IR_360
-  if (ir_360) { /* 360° estimation */
-    /* 250 us for the whole block */
-    float tmp_ir_roll = ir_roll * IR_360_LATERAL_CORRECTION;
-    float tmp_ir_pitch = ir_pitch * IR_360_LONGITUDINAL_CORRECTION;
-    float tmp_ir_top = ir_top * IR_360_VERTICAL_CORRECTION;
-
-    estimator_phi  = atan2(tmp_ir_roll, tmp_ir_top) - ir_roll_neutral;
-    estimator_phi = correct_angle(estimator_phi, ir_estimated_phi_pi_4, ir_estimated_phi_minus_pi_4);
-
-    estimator_theta  = atan2(tmp_ir_pitch, tmp_ir_top) - ir_pitch_neutral;
-    estimator_theta = correct_angle(estimator_theta, ir_estimated_theta_pi_4, ir_estimated_theta_minus_pi_4);
-    if (estimator_theta < -M_PI_2)
-      estimator_theta += M_PI;
-    else if (estimator_theta > M_PI_2)
-      estimator_theta -= M_PI;
-  } else
-#endif /* IR_360 */
-  {
-    ir_top = Max(ir_top, 1);
-    float c = rad_of_ir*(1-z_contrast_mode)+z_contrast_mode*((float)IR_RAD_OF_IR_CONTRAST/fabs(ir_top));
-    estimator_phi  = c * ir_roll - ir_roll_neutral;
-    estimator_theta = c * ir_pitch - ir_pitch_neutral;
-    
-    
-    
+static inline void ir_correction( void ) {
     /* infrared compensation */
 #if defined IR_CORRECTION_LEFT && defined IR_CORRECTION_RIGHT
     if (estimator_phi >= 0) 
@@ -338,6 +315,40 @@ void estimator_update_state_infrared( void ) {
     else
       estimator_theta *= ir_correction_down;
 #endif
+}
+
+void estimator_update_state_infrared( void ) {
+  float rad_of_ir = (ir_estim_mode == IR_ESTIM_MODE_ON ? 
+		     estimator_rad_of_ir :
+		     ir_rad_of_ir);
+
+#ifdef IR_360
+  if (ir_360) { /* 360° estimation */
+    /* 250 us for the whole block */
+    float tmp_ir_roll = ir_roll * ir_360_lateral_correction;
+    float tmp_ir_pitch = ir_pitch * ir_360_longitudinal_correction;
+    float tmp_ir_top = ir_top * ir_360_vertical_correction;
+
+    estimator_phi  = atan2(tmp_ir_roll, tmp_ir_top) - ir_roll_neutral;
+    estimator_phi = correct_angle(estimator_phi, ir_estimated_phi_pi_4, ir_estimated_phi_minus_pi_4);
+
+    estimator_theta  = atan2(tmp_ir_pitch, tmp_ir_top) - ir_pitch_neutral;
+    estimator_theta = correct_angle(estimator_theta, ir_estimated_theta_pi_4, ir_estimated_theta_minus_pi_4);
+    if (estimator_theta < -M_PI_2)
+      estimator_theta += M_PI;
+    else if (estimator_theta > M_PI_2)
+      estimator_theta -= M_PI;
+
+    ir_correction();
+  } else
+#endif /* IR_360 */
+  {
+    ir_top = Max(ir_top, 1);
+    float c = rad_of_ir*(1-z_contrast_mode)+z_contrast_mode*((float)IR_RAD_OF_IR_CONTRAST/fabs(ir_top));
+    estimator_phi  = c * ir_roll - ir_roll_neutral;
+    estimator_theta = c * ir_pitch - ir_pitch_neutral;
+    
+    ir_correction();    
     
     Bound(estimator_phi, -M_PI_2, M_PI_2);
     Bound(estimator_theta, -M_PI_2, M_PI_2);
