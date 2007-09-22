@@ -66,8 +66,10 @@ extern float v_ctl_auto_throttle_cruise_throttle;
 extern float v_ctl_auto_throttle_climb_throttle_increment;
 extern float v_ctl_auto_throttle_pgain;
 extern float v_ctl_auto_throttle_igain;
+extern float v_ctl_auto_throttle_dgain;
 extern float v_ctl_auto_throttle_sum_err;
 extern float v_ctl_auto_throttle_pitch_of_vz_pgain;
+extern float v_ctl_auto_throttle_pitch_of_vz_dgain;
 
 #ifdef LOITER_TRIM
 extern float v_ctl_auto_throttle_loiter_trim;

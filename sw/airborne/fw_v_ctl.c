@@ -53,9 +53,15 @@ float v_ctl_auto_throttle_nominal_cruise_throttle;
 float v_ctl_auto_throttle_climb_throttle_increment;
 float v_ctl_auto_throttle_pgain;
 float v_ctl_auto_throttle_igain;
+float v_ctl_auto_throttle_dgain;
 float v_ctl_auto_throttle_sum_err;
 #define V_CTL_AUTO_THROTTLE_MAX_SUM_ERR 150
 float v_ctl_auto_throttle_pitch_of_vz_pgain;
+float v_ctl_auto_throttle_pitch_of_vz_dgain;
+
+#ifndef V_CTL_AUTO_THROTTLE_PITCH_OF_VZ_DGAIN
+#define V_CTL_AUTO_THROTTLE_PITCH_OF_VZ_DGAIN 0.
+#endif
 
 /* "auto pitch" inner loop parameters */
 float v_ctl_auto_pitch_pgain;
@@ -93,8 +99,10 @@ void v_ctl_init( void ) {
     V_CTL_AUTO_THROTTLE_CLIMB_THROTTLE_INCREMENT;
   v_ctl_auto_throttle_pgain = V_CTL_AUTO_THROTTLE_PGAIN;
   v_ctl_auto_throttle_igain = V_CTL_AUTO_THROTTLE_IGAIN;
+  v_ctl_auto_throttle_dgain = 0.;
   v_ctl_auto_throttle_sum_err = 0.;
   v_ctl_auto_throttle_pitch_of_vz_pgain = V_CTL_AUTO_THROTTLE_PITCH_OF_VZ_PGAIN; 
+  v_ctl_auto_throttle_pitch_of_vz_dgain = V_CTL_AUTO_THROTTLE_PITCH_OF_VZ_DGAIN; 
 
   /* "auto pitch" inner loop parameters */
   v_ctl_auto_pitch_pgain = V_CTL_AUTO_PITCH_PGAIN;
@@ -146,15 +154,20 @@ void v_ctl_climb_loop ( void ) {
  * \brief 
  */
 inline static void v_ctl_climb_auto_throttle_loop(void) {
+  static float last_err;
+
   float f_throttle = 0;
   float err  = estimator_z_dot - v_ctl_climb_setpoint;
+  float d_err = err - last_err;
+  last_err = err;
   float controlled_throttle = v_ctl_auto_throttle_cruise_throttle 
     + v_ctl_auto_throttle_climb_throttle_increment * v_ctl_climb_setpoint 
     + v_ctl_auto_throttle_pgain * 
-    (err + v_ctl_auto_throttle_igain * v_ctl_auto_throttle_sum_err);
+    (err + v_ctl_auto_throttle_igain * v_ctl_auto_throttle_sum_err
+     + v_ctl_auto_throttle_dgain * d_err);
   
   /* pitch pre-command */
-  float v_ctl_pitch_of_vz = v_ctl_climb_setpoint * v_ctl_auto_throttle_pitch_of_vz_pgain;
+  float v_ctl_pitch_of_vz = (v_ctl_climb_setpoint + d_err * v_ctl_auto_throttle_pitch_of_vz_dgain) * v_ctl_auto_throttle_pitch_of_vz_pgain;
 
 #if defined AGR_CLIMB
   switch (v_ctl_auto_throttle_submode) {
