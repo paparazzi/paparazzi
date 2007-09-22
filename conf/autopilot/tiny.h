@@ -57,12 +57,73 @@
 /* ADC */
 
 #define ADC_0 AdcBank0(3)
+#ifdef USE_ADC_0
+#ifndef USE_AD0
+#define USE_AD0
+#endif
+#define USE_AD0_3
+#endif
+
 #define ADC_1 AdcBank0(2)
+#ifdef USE_ADC_1
+#ifndef USE_AD0
+#define USE_AD0
+#endif
+#define USE_AD0_2
+#endif
+
+
 #define ADC_2 AdcBank0(1)
-#define ADC_3 AdcBank1(7)
+#ifdef USE_ADC_2
+#ifndef USE_AD0
+#define USE_AD0
+#endif
+#define USE_AD0_1
+#endif
+
+/* #define ADC_3 AdcBank1(7) Used for VSUPPLY */
+
 #define ADC_4 AdcBank1(3)
+#ifdef USE_ADC_4
+#ifndef USE_AD1
+#define USE_AD1
+#endif
+#define USE_AD1_3
+#endif
+
 #define ADC_5 AdcBank1(4)
+#ifdef USE_ADC_5
+#ifndef USE_AD1
+#define USE_AD1
+#endif
+#define USE_AD1_4
+#endif
+
 #define ADC_6 AdcBank1(5)
+#ifdef USE_ADC_6
+#ifndef USE_AD1
+#define USE_AD1
+#endif
+#define USE_AD1_5
+#endif
+
 #define ADC_7 AdcBank1(2)
+#ifdef USE_ADC_7
+#ifndef USE_AD1
+#define USE_AD1
+#endif
+#define USE_AD1_2
+#endif
+
+#define ADC_CHANNEL_VSUPPLY AdcBank1(7)
+#ifndef USE_AD1
+#define USE_AD1
+#endif
+#define USE_AD1_7
+
+
+#ifndef VoltageOfAdc
+#define VoltageOfAdc(adc) (0.01787109375*adc)
+#endif
 
 #endif /* CONFIG_TINY_H */
