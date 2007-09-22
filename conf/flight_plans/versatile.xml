@@ -16,10 +16,10 @@
     <waypoint name="TOD" x="-150" y="0"/>
     <waypoint alt="185" name="TD" x="80" y="20"/>
     <waypoint name="BASELEG" x="400" y="300"/>
-    <waypoint name="_1" x="-500" y="500"/>
-    <waypoint name="_2" x="500" y="500"/>
-    <waypoint name="_3" x="500" y="-500"/>
-    <waypoint name="_4" x="-500" y="-500"/>
+    <waypoint name="_1" x="-100" y="0"/>
+    <waypoint name="_2" x="-100" y="200"/>
+    <waypoint name="_3" x="100" y="200"/>
+    <waypoint name="_4" x="100" y="0"/>
   </waypoints>
   <sectors>
     <sector name="Square">
@@ -29,8 +29,10 @@
       <corner name="_4"/>
     </sector>
   </sectors>
+  <exceptions/>
   <blocks>
     <block name="wait GPS">
+      <set value="1" var="kill_throttle"/>
       <while cond="!GpsFixValid()"/>
     </block>
     <block name="init">
@@ -38,7 +40,12 @@
       <call fun="NavSetGroundReferenceHere()"/>
       <deroute block="climb"/>
     </block>
+    <block name="kill">
+      <set value="1" var="kill_throttle"/>
+      <attitude roll="0" throttle="0" vmode="throttle"/>
+    </block>
     <block name="climb">
+      <set value="0" var="kill_throttle"/>
       <circle pitch="10" radius="nav_radius" throttle="1" until="estimator_z > ground_alt+50" vmode="throttle" wp="1"/>
     </block>
     <block name="Standby" strip_button="Standby">
@@ -70,7 +77,7 @@
       <circle pitch="10" radius="50+(estimator_z-ground_alt)/2" throttle="0.75" until="(10 > PowerVoltage()) || (estimator_z > ground_alt+ 1350)" vmode="throttle" wp="1"/>
     </block>
     <block name="climb var">
-      <circle radius="nav_radius" until="(10 > PowerVoltage()) || (estimator_z > ground_alt+ 1350)" vmode="climb" wp="1" climb="nav_climb"/>
+      <circle climb="nav_climb" radius="nav_radius" until="(10 > PowerVoltage()) || (estimator_z > ground_alt+ 1350)" vmode="climb" wp="1"/>
     </block>
     <block name="climb 1">
       <circle climb="1" pitch="5" radius="50+(estimator_z-ground_alt)/2" until="10 > PowerVoltage()" vmode="climb" wp="1"/>
@@ -100,8 +107,16 @@
     <block name="survey">
       <survey_rectangle grid="150" wp1="S1" wp2="S2"/>
     </block>
+    <block name="Land Right">
+      <set value="DEFAULT_CIRCLE_RADIUS" var="nav_radius"/>
+      <deroute block="land"/>
+    </block>
+    <block name="Land Left">
+      <set value="-DEFAULT_CIRCLE_RADIUS" var="nav_radius"/>
+      <deroute block="land"/>
+    </block>
     <block name="land">
-      <call fun="nav_compute_baseleg(WP_AF, WP_TD, WP_BASELEG)"/>
+      <call fun="nav_compute_baseleg(WP_AF, WP_TD, WP_BASELEG, nav_radius)"/>
       <circle radius="nav_radius" until="NavCircleCount() > 0.5" wp="BASELEG"/>
       <set value="V_CTL_AUTO_THROTTLE_MIN_CRUISE_THROTTLE" var="v_ctl_auto_throttle_cruise_throttle"/>
       <circle radius="nav_radius" until="NavQdrCloseTo(DegOfRad(baseleg_out_qdr)-10) && 10 > fabs(estimator_z - WaypointAlt(WP_BASELEG))" wp="BASELEG"/>
@@ -146,9 +161,14 @@
       <go approaching_time="0" from="1" hmode="route" wp="2"/>
       <go approaching_time="0" from="2" hmode="route" wp="1"/>
     </block>
-    <block name="circle 2 in square">
-      <exception cond="! InsideSquare(estimator_x, estimator_y)" deroute="Standby"/>
-      <circle radius="nav_radius" wp="2"/>
+
+    <block name="Fly in Square">
+      <exception cond="! InsideSquare(estimator_x, estimator_y)" deroute="Come back"/>
+      <attitude alt="ground_alt+75" roll="0" vmode="alt"/>
+    </block>
+    <block name="Come back">
+      <exception cond="InsideSquare(estimator_x, estimator_y)" deroute="Fly in Square"/>
+      <go wp="STDBY"/>
     </block>
   </blocks>
 </flight_plan>
