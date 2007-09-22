@@ -473,6 +473,13 @@ void periodic_task_ap( void ) {
 
   }
 
+#ifdef LIGHT_PIN_1
+  if (_1Hz < light_mode) {
+    LED_ON(LIGHT_PIN_1)
+  } else
+    LED_OFF(LIGHT_PIN_1)
+#endif /* LIGHT_PIN_1 */
+
   switch(_4Hz) {
   case 0:
     estimator_propagate_state();
@@ -490,17 +497,6 @@ void periodic_task_ap( void ) {
     dc_periodic();
 #endif
     break;
-
-#ifdef LIGHT_PIN_1
-  case 2:
-    if (light_mode == LIGHT_MODE_OFF)
-      LED_ON(LIGHT_PIN_1)
-    else if (light_mode == LIGHT_MODE_ON)
-      LED_OFF(LIGHT_PIN_1)
-    else
-      LED_TOGGLE(LIGHT_PIN_1)
-    break;
-#endif /* LIGHT_PIN_1 */
 
 #ifdef USE_GPIO
   case 3:
