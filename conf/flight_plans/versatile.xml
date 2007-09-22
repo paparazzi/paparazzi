@@ -7,19 +7,20 @@
   <waypoints>
     <waypoint name="HOME" x="0" y="0"/>
     <waypoint name="STDBY" x="20" y="80"/>
-    <waypoint name="1" x="200" y="0"/>
-    <waypoint name="2" x="0" y="200"/>
-    <waypoint name="MOB" x="200" y="200"/>
-    <waypoint name="S1" x="-200" y="-200"/>
-    <waypoint name="S2" x="300" y="400"/>
-    <waypoint alt="215" name="AF" x="200" y="-10"/>
-    <waypoint name="TOD" x="-150" y="0"/>
-    <waypoint alt="185" name="TD" x="80" y="20"/>
-    <waypoint name="BASELEG" x="400" y="300"/>
+    <waypoint name="1" x="44.8" y="102.2"/>
+    <waypoint name="2" x="-63.5" y="122.9"/>
+    <waypoint name="MOB" x="-11.5" y="-21.2"/>
+    <waypoint name="S1" x="-151.6" y="80.4"/>
+    <waypoint name="S2" x="180.1" y="214.9"/>
+    <waypoint alt="30" name="AF" x="200" y="-10"/>
+    <waypoint name="TOD" x="8.0" y="-22.7"/>
+    <waypoint alt="0" name="TD" x="80.0" y="20.0"/>
+    <waypoint name="BASELEG" x="26.9" y="-23.0"/>
     <waypoint name="_1" x="-100" y="0"/>
     <waypoint name="_2" x="-100" y="200"/>
     <waypoint name="_3" x="100" y="200"/>
     <waypoint name="_4" x="100" y="0"/>
+    <waypoint name="CLIMB" x="-122.5" y="35.4"/>
   </waypoints>
   <sectors>
     <sector name="Square">
@@ -31,87 +32,79 @@
   </sectors>
   <exceptions/>
   <blocks>
-    <block name="wait GPS">
+    <block name="Wait GPS">
       <set value="1" var="kill_throttle"/>
       <while cond="!GpsFixValid()"/>
     </block>
-    <block name="init">
+    <block name="Geo init">
       <while cond="LessThan(NavBlockTime(), 10)"/>
       <call fun="NavSetGroundReferenceHere()"/>
-      <deroute block="climb"/>
     </block>
-    <block name="kill">
+    <block name="Kill">
       <set value="1" var="kill_throttle"/>
       <attitude roll="0" throttle="0" vmode="throttle"/>
     </block>
-    <block name="climb">
+    <block name="Takeoff">
+      <exception cond="estimator_z > ground_alt+25" deroute="Standby"/>
       <set value="0" var="kill_throttle"/>
-      <circle pitch="10" radius="nav_radius" throttle="1" until="estimator_z > ground_alt+50" vmode="throttle" wp="1"/>
+      <go wp="CLIMB"/>
     </block>
     <block name="Standby" strip_button="Standby">
-      <circle radius="nav_radius" wp="STDBY"/>
+      <circle radius="nav_radius" wp="1"/>
     </block>
-    <block name="circles">
-      <for from="1" to="5" var="i">
-        <set value="$i*50" var="waypoints[WP_2].x"/>
-        <set value="$i*50+nav_radius" var="waypoints[WP_2].y"/>
-        <go wp="2"/>
-        <set value="$i*50" var="waypoints[WP_2].y"/>
-        <circle radius="nav_radius" until="NavCircleCount()>1" wp="2"/>
-      </for>
-    </block>
-    <block name="eight 1">
+    <block name="Figure 8 around wp 1">
       <eight center="1" radius="nav_radius" turn_around="2"/>
     </block>
-    <block name="oval">
+    <block name="Oval 1-2">
       <oval p1="1" p2="2" radius="nav_radius"/>
     </block>
     <block name="MOB" strip_button="MOB">
       <call fun="NavSetWaypointHere(WP_MOB)"/>
       <circle radius="100" wp="MOB"/>
     </block>
-    <block name="circle 1 auto pitch">
+    <block name="Auto pitch (circle wp 1)">
       <circle pitch="auto" radius="75" throttle="0.7" wp="1"/>
     </block>
-    <block name="climb 75">
+    <block name="Climb 75% throttle">
       <circle pitch="10" radius="50+(estimator_z-ground_alt)/2" throttle="0.75" until="(10 > PowerVoltage()) || (estimator_z > ground_alt+ 1350)" vmode="throttle" wp="1"/>
     </block>
-    <block name="climb var">
-      <circle climb="nav_climb" radius="nav_radius" until="(10 > PowerVoltage()) || (estimator_z > ground_alt+ 1350)" vmode="climb" wp="1"/>
-    </block>
-    <block name="climb 1">
-      <circle climb="1" pitch="5" radius="50+(estimator_z-ground_alt)/2" until="10 > PowerVoltage()" vmode="climb" wp="1"/>
-    </block>
-    <block name="climb 0">
+    <block name="Climb 0m/s">
       <circle climb="0" radius="nav_radius" until="10 > PowerVoltage()" vmode="climb" wp="1"/>
     </block>
-    <block name="descent 0" strip_button="Descent">
+    <block name="Climb 1m/s">
+      <circle climb="1" pitch="5" radius="50+(estimator_z-ground_alt)/2" until="10 > PowerVoltage()" vmode="climb" wp="1"/>
+    </block>
+    <block name="Climb nav_climb m/s">
+      <circle climb="nav_climb" radius="nav_radius" until="(10 > PowerVoltage()) || (estimator_z > ground_alt+ 1350)" vmode="climb" wp="1"/>
+    </block>
+    <block name="Descent 0% throttle" strip_button="Descent">
       <circle pitch="-5" radius="50+(estimator_z-ground_alt)/2" throttle="0.0" until="ground_alt+50 > estimator_z" vmode="throttle" wp="1"/>
       <deroute block="Standby"/>
     </block>
-    <block name="route12">
+    <block name="Route 1-2">
       <go approaching_time="0" from="1" hmode="route" wp="2"/>
     </block>
-    <block name="glide12">
-      <go from="1" hmode="route" vmode="glide" wp="2"/>
-    </block>
-    <block name="stack 2">
+    <block name="Stack wp 2">
       <circle radius="75" wp="2"/>
     </block>
-    <block name="route21">
+    <block name="Route 2-1">
       <go approaching_time="0" from="2" hmode="route" wp="1"/>
     </block>
-    <block name="stack 1">
+    <block name="Stack wp 1">
       <circle radius="75" wp="1"/>
     </block>
-    <block name="survey">
+    <block name="Glide 1-2">
+      <go from="1" hmode="route" vmode="glide" wp="2"/>
+      <deroute block="Standby"/>
+    </block>
+    <block name="Survey S1-S2">
       <survey_rectangle grid="150" wp1="S1" wp2="S2"/>
     </block>
-    <block name="Land Right">
+    <block name="Land Right AF-TD">
       <set value="DEFAULT_CIRCLE_RADIUS" var="nav_radius"/>
       <deroute block="land"/>
     </block>
-    <block name="Land Left">
+    <block name="Land Left AF-TD">
       <set value="-DEFAULT_CIRCLE_RADIUS" var="nav_radius"/>
       <deroute block="land"/>
     </block>
@@ -123,52 +116,52 @@
     </block>
     <block name="final">
       <exception cond="ground_alt + 10 > estimator_z" deroute="flare"/>
-      <go from="AF" hmode="route" vmode="glide" wp="TD"/>
+      <go from="TOD" hmode="route" vmode="glide" wp="TD"/>
     </block>
     <block name="flare">
-      <go approaching_time="0" from="AF" hmode="route" throttle="0.0" vmode="throttle" wp="TD"/>
+      <go approaching_time="0" from="TOD" hmode="route" throttle="0.0" vmode="throttle" wp="TD"/>
       <attitude roll="0.0" throttle="0.0" until="FALSE" vmode="throttle"/>
     </block>
-    <block name="step_roll_10">
+    <block name="Steps roll -10, +10">
       <while cond="TRUE">
         <attitude alt="250" roll="10.0" until=" stage_time > 6" vmode="alt"/>
         <attitude alt="250" roll="-10.0" until="stage_time > 6" vmode="alt"/>
       </while>
     </block>
-    <block name="step_roll_20">
+    <block name="Steps roll -20, +20">
       <while cond="TRUE">
         <attitude alt="250" roll="20.0" until=" stage_time > 3" vmode="alt"/>
         <attitude alt="250" roll="-20.0" until="stage_time > 3" vmode="alt"/>
       </while>
     </block>
-    <block name="step_pitch_10">
+    <block name="Steps pitch -10, +10">
       <while cond="TRUE">
         <attitude alt="250" pitch="10" roll="0.0" until=" stage_time > 2" vmode="alt"/>
         <attitude alt="250" pitch="-10" roll="0.0" until=" stage_time > 2" vmode="alt"/>
       </while>
     </block>
-    <block name="heading">
+    <block name="Heading 30°">
       <heading alt="ground_alt+50" course="30" until="FALSE"/>
     </block>
-    <block name="for">
+    <block name="For loop (circles wp 1)">
       <for from="0" to="3" var="i">
-        <circle alt="ground_alt+50+50*$i" radius="75" until="stage_time>10" wp="HOME"/>
+        <circle radius="DEFAULT_CIRCLE_RADIUS+ $i*10" wp="1" until="NavCircleCount() > 1"/>
       </for>
-      <circle radius="50" wp="HOME"/>
+      <deroute block="Standby"/>
     </block>
-    <block name="far away">
+    <block name="Test datalink (go to wp 2)">
       <exception cond="datalink_time > 22" deroute="Standby"/>
-      <go approaching_time="0" from="1" hmode="route" wp="2"/>
-      <go approaching_time="0" from="2" hmode="route" wp="1"/>
+      <go from="STDBY" hmode="route" wp="2"/>
+      <go from="2" hmode="route" wp="STDBY"/>
     </block>
-
     <block name="Fly in Square">
-      <exception cond="! InsideSquare(estimator_x, estimator_y)" deroute="Come back"/>
+      <exception cond="! InsideSquare(estimator_x, estimator_y)" deroute="Come back wp 1"/>
       <attitude alt="ground_alt+75" roll="0" vmode="alt"/>
     </block>
-    <block name="Come back">
+    <block name="Come back wp 1">
       <exception cond="InsideSquare(estimator_x, estimator_y)" deroute="Fly in Square"/>
-      <go wp="STDBY"/>
+      <go wp="1"/>
+      <deroute block="Fly in Square"/>
     </block>
   </blocks>
 </flight_plan>
