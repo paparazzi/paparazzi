@@ -74,4 +74,10 @@ extern float estimator_rad_of_ir, estimator_ir, estimator_rad;
 void estimator_update_ir_estim( void );
 void estimator_update_state_infrared( void );
 
+
+extern float ir_360_lateral_correction;
+extern float ir_360_longitudinal_correction;
+extern float ir_360_vertical_correction;
+
+
 #endif /* INFRARED_H */
