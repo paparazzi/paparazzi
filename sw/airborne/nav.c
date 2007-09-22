@@ -41,6 +41,8 @@
 #include "traffic_info.h"
 #include "latlong.h"
 
+#define RCLost() bit_is_set(fbw_state->status, RADIO_REALLY_LOST)
+
 uint8_t nav_stage, nav_block;
 
 /** To save the current block/stage to enable return */
@@ -121,6 +123,8 @@ static inline void fly_to_xy(float x, float y);
 
 #define MIN_DX ((int16_t)(MAX_PPRZ * 0.05))
 
+
+/** Navigates around (x, y). Clockwise iff radius > 0 */
 void nav_circle_XY(float x, float y, float radius) {
   float last_trigo_qdr = nav_circle_trigo_qdr;
   nav_circle_trigo_qdr = atan2(estimator_y - y, estimator_x - x);
@@ -245,8 +249,8 @@ static int nav_ground_speed_loop( void ) {
 #endif
 
 static float baseleg_out_qdr;
-static inline bool_t nav_compute_baseleg(uint8_t wp_af, uint8_t wp_td, uint8_t wp_baseleg ) {
-  nav_radius = DEFAULT_CIRCLE_RADIUS;
+static inline bool_t nav_compute_baseleg(uint8_t wp_af, uint8_t wp_td, uint8_t wp_baseleg, float radius ) {
+  nav_radius = radius;
 
   float x_0 = waypoints[wp_td].x - waypoints[wp_af].x;
   float y_0 = waypoints[wp_td].y - waypoints[wp_af].y;
@@ -260,7 +264,24 @@ static inline bool_t nav_compute_baseleg(uint8_t wp_af, uint8_t wp_td, uint8_t w
   waypoints[wp_baseleg].y = waypoints[wp_af].y - x_1 * nav_radius;
   waypoints[wp_baseleg].a = waypoints[wp_af].a;
   baseleg_out_qdr = M_PI - atan2(-y_1, -x_1);
+  if (nav_radius < 0) 
+    baseleg_out_qdr += M_PI;
 
+  return FALSE;
+}
+
+
+/* For a landing UPWIND.
+   Computes Top Of Descent waypoint from Touch Down and Approach Fix
+   waypoints, using glide airspeed, glide vertical speed and wind */
+static inline bool_t compute_TOD(uint8_t _af, uint8_t _td, uint8_t _tod, float glide_airspeed, float glide_vspeed) {
+  float td_af_x = WaypointX(_af) - WaypointX(_td);
+  float td_af_y = WaypointY(_af) - WaypointY(_td);
+  float td_af = sqrt( td_af_x*td_af_x + td_af_y*td_af_y);
+  float td_tod = (WaypointAlt(_af) - WaypointAlt(_td)) / glide_vspeed * (glide_airspeed - sqrt(wind_east*wind_east + wind_north*wind_north));
+  WaypointX(_tod) = WaypointX(_td) + td_af_x / td_af * td_tod;
+  WaypointY(_tod) = WaypointY(_td) + td_af_y / td_af * td_tod;
+  WaypointAlt(_tod) = WaypointAlt(_af);
   return FALSE;
 }
 
@@ -613,6 +634,8 @@ void nav_oval_init( void ) {
 }
 
 void nav_oval(uint8_t p1, uint8_t p2, float radius) {
+  radius = - radius; /* Historical error ? */
+
   float alt = waypoints[p1].a;
   waypoints[p2].a = alt;
 
@@ -641,11 +664,16 @@ void nav_oval(uint8_t p1, uint8_t p2, float radius) {
  
   float qdr_out_2 = M_PI - atan2(u_y, u_x);
   float qdr_out_1 = qdr_out_2 + M_PI;
+  if (radius < 0) {
+    qdr_out_2 += M_PI;
+    qdr_out_1 += M_PI;
+  }
+  float qdr_anticipation = (radius > 0 ? -15 : 15);
   
   switch (oval_status) {
   case OC1 :
     nav_circle_XY(p1_center.x,p1_center.y, -radius);
-    if (NavQdrCloseTo(DegOfRad(qdr_out_1)-10)) {
+    if (NavQdrCloseTo(DegOfRad(qdr_out_1)-qdr_anticipation)) {
       oval_status = OR12;
       InitStage();
     }
@@ -661,7 +689,7 @@ void nav_oval(uint8_t p1, uint8_t p2, float radius) {
 
   case OC2 :
     nav_circle_XY(p2_center.x, p2_center.y, -radius);
-    if (NavQdrCloseTo(DegOfRad(qdr_out_2)-10)) {
+    if (NavQdrCloseTo(DegOfRad(qdr_out_2)-qdr_anticipation)) {
       oval_status = OR21;
       InitStage();
     }
