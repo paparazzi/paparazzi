@@ -43,6 +43,7 @@ float h_ctl_course_setpoint;
 float h_ctl_course_pre_bank;
 float h_ctl_course_pre_bank_correction;
 float h_ctl_course_pgain;
+float h_ctl_course_dgain;
 float h_ctl_roll_max_setpoint;
 
 /* roll and pitch disabling */
@@ -94,12 +95,17 @@ static inline void h_ctl_roll_rate_loop( void );
 #define H_CTL_COURSE_PRE_BANK_CORRECTION 1.
 #endif
 
+#ifndef H_CTL_COURSE_DGAIN
+#define H_CTL_COURSE_DGAIN 0.
+#endif
+
 void h_ctl_init( void ) {
 
   h_ctl_course_setpoint = 0.;
   h_ctl_course_pre_bank = 0.;
   h_ctl_course_pre_bank_correction = H_CTL_COURSE_PRE_BANK_CORRECTION;
   h_ctl_course_pgain = H_CTL_COURSE_PGAIN;
+  h_ctl_course_dgain = H_CTL_COURSE_DGAIN;
   h_ctl_roll_max_setpoint = H_CTL_ROLL_MAX_SETPOINT;
 
   h_ctl_disabled = FALSE;
@@ -138,8 +144,13 @@ void h_ctl_init( void ) {
  *
  */
 void h_ctl_course_loop ( void ) {
+  static float last_err;
+
   float err = estimator_hspeed_dir - h_ctl_course_setpoint;
   NormRadAngle(err);
+  float d_err = err - last_err;
+  last_err = err;
+  NormRadAngle(d_err);
 
 #ifdef H_CTL_COURSE_SLEW_INCREMENT
   /* slew severe course changes (i.e. waypoint moves, block changes or perpendicular routes) */
@@ -165,13 +176,18 @@ void h_ctl_course_loop ( void ) {
 
   float speed_depend_nav = estimator_hspeed_mod/NOMINAL_AIRSPEED; 
   Bound(speed_depend_nav, 0.66, 1.5);
-  float cmd = h_ctl_course_pgain * err * speed_depend_nav;
+
+  float cmd = h_ctl_course_pgain * speed_depend_nav * (err + d_err * h_ctl_course_dgain);
+
+
+
 #if defined  AGR_CLIMB
   if (v_ctl_auto_throttle_submode == V_CTL_AUTO_THROTTLE_AGRESSIVE || V_CTL_AUTO_THROTTLE_BLENDED) {
     float altitude_error = estimator_z - v_ctl_altitude_setpoint;
     cmd *= ((altitude_error < 0) ? AGR_CLIMB_NAV_RATIO : AGR_DESCENT_NAV_RATIO);
   }
 #endif
+
   float roll_setpoint = cmd + h_ctl_course_pre_bank_correction * h_ctl_course_pre_bank;
 
 #ifdef H_CTL_ROLL_SLEW
