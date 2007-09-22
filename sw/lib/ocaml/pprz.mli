@@ -71,6 +71,13 @@ exception Unknown_msg_name of string * string
 found in class [class_name]. *)
 
 module Transport : Serial.PROTOCOL
+(** Pprz frame (sw/airborne/pprz_transport.h):
+    |STX|length|... payload=(length-4) bytes ...|Checksum A|Checksum B|
+    Where checksum is computed over length and payload:
+    ck_A = ck_B = 0;
+    for all byte b in payload
+      ck_A += b; ck_b += ck_A
+ *)
 
 val offset_fields : int
 

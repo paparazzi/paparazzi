@@ -161,7 +161,7 @@ val close_compress : string -> in_channel -> unit
 
 (** [find_file path file] Search for [file] or a compressed extension of it in
 [path]. Returns the first occurence found. Checked extensions are .gz, .Z, .bz2, .zip
-and , ZIP *)
+and , ZIP. Raises [Not_found] if none is found *)
 val find_file : string list -> string -> string
 
 (** [open_gzip fichier] ouvre un fichier non compressé ou compressé avec gzip

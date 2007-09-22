@@ -263,7 +263,7 @@ let rec sprint_value = fun buf i _type v ->
 exception Unknown_msg_name of string * string
 
 module Transport = struct
-  let stx = Char.chr 0x99 (** sw/airborne/downlink.h *)
+  let stx = Char.chr 0x99 (** sw/airborne/pprz_transport.h *)
   let offset_length = 1
   let offset_payload = 2
 

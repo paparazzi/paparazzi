@@ -138,20 +138,35 @@ module Transport(Protocol:PROTOCOL) = struct
     let start = ref 0
     and n = String.length buf in
     try
+      (* Looks for the beginning of the frame. May raise Not_found exception *)
       start := Protocol.index_start buf;
+
+      (* Discards skipped characters *)
       discarded_bytes := !discarded_bytes + !start;
+
+      (* Get length of the frame (may raise Not_enough exception) *)
       let length = Protocol.length buf !start in
       let end_ = !start + length in
+
+      (* Checks if the complete frame is available in the buffer. *)
       if n < end_ then
 	raise Not_enough;
+
+      (* Extracts the complete frame *)
       let msg = String.sub buf !start length in
+      
+      (* Checks sum *)
       if Protocol.checksum msg then begin
+	(* Calls the handler with the message *)
 	use (Protocol.payload msg)
       end else begin
+	(* Reports the error *)
 	incr nb_err;
 	discarded_bytes := !discarded_bytes + length;
 	Debug.call 'T' (fun f -> fprintf f "Transport.chk: %s\n" (Debug.xprint msg))
       end;
+
+      (* Continues with the rest of the message *)
       end_ + parse use (String.sub buf end_ (String.length buf - end_))
     with
       Not_found -> String.length buf

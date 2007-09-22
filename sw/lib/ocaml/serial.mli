@@ -83,6 +83,7 @@ module type PROTOCOL =
     val packet : payload -> string
   end
 
+(** Builds a parser module from a [PROTOCOL] description *)
 module Transport :
   functor (Protocol : PROTOCOL) ->
     sig 
