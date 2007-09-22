@@ -90,10 +90,6 @@
 
   <section name="BAT">
     <define name="MILLIAMP_PER_PERCENT" value="0.86"/>
-
-    <define name="ADC_CHANNEL_VSUPPLY"  value="AdcBank1(6)"/>
-    <define name="VoltageOfAdc(adc)" value="(0.01787109375*adc)"/>
-
     <define name="LOW_BATTERY" value="9.3" unit="V"/>
   </section>
  
@@ -106,9 +102,11 @@
 <!--    <define name="NO_XBEE_API_INIT" value="TRUE"/> -->
     <define name="ALT_KALMAN_ENABLED" value="TRUE"/>
 
-    <define name="TRIGGER_DELAY" value="1."/>
     <define name="DEFAULT_CIRCLE_RADIUS" value="80."/>
-    <define name="MIN_CIRCLE_RADIUS" value="50."/>
+
+    <define name="GLIDE_AIRSPEED" value="10"/>
+    <define name="GLIDE_VSPEED" value="3."/>
+    <define name="GLIDE_PITCH" value="45" unit="deg"/>
   </section>
  
   <section name="VERTICAL CONTROL" prefix="V_CTL_">
@@ -136,7 +134,7 @@
     <define name="AUTO_PITCH_MAX_PITCH" value="0.35"/>
     <define name="AUTO_PITCH_MIN_PITCH" value="-0.35"/>
 
-   <define name="THROTTLE_SLEW" value="0.05"/>
+   <define name="THROTTLE_SLEW_LIMITER" value="10"/>
 
   </section>
 

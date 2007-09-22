@@ -27,7 +27,7 @@
 
   <section name="MIXER">
     <define name="AILEVON_AILERON_RATE" value="1.0"/>
-    <define name="AILEVON_ELEVATOR_RATE" value="ailevon_elevator_rate"/>
+    <define name="AILEVON_ELEVATOR_RATE" value="1.0"/>
   </section>
 
   <command_laws>
@@ -93,9 +93,6 @@
 
   <section name="BAT">
     <define name="MILLIAMP_PER_PERCENT" value="0.86"/>
-
-    <define name="ADC_CHANNEL_VSUPPLY"  value="AdcBank1(6)"/>
-    <define name="VoltageOfAdc(adc)" value="(0.01787109375*adc)"/>
 
     <define name="LOW_BATTERY" value="9.3" unit="V"/>
   </section>
