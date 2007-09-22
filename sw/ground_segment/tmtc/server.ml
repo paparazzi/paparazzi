@@ -252,10 +252,11 @@ let log_and_parse = fun logging ac_name (a:Aircraft.aircraft) msg values ->
       a.alt     <- fvalue "z";
       a.climb   <- fvalue "z_dot"
   | "DESIRED" ->
-      a.desired_east <- fvalue "desired_x";
-      a.desired_north <- fvalue "desired_y";
-      a.desired_altitude <- fvalue "desired_altitude";
-      a.desired_climb <- fvalue "desired_climb"
+      a.desired_east <- fvalue "x";
+      a.desired_north <- fvalue "y";
+      a.desired_altitude <- fvalue "altitude";
+      a.desired_climb <- fvalue "climb";
+      a.desired_course <- norm_course (fvalue "course")
   | "NAVIGATION_REF" ->
       a.nav_ref <- Some { utm_x = fvalue "utm_east"; utm_y = fvalue "utm_north"; utm_zone = ivalue "utm_zone" }
   | "ATTITUDE" ->
@@ -264,7 +265,6 @@ let log_and_parse = fun logging ac_name (a:Aircraft.aircraft) msg values ->
   | "NAVIGATION" -> 
       a.cur_block <- ivalue "cur_block";
       a.cur_stage <- ivalue "cur_stage";
-      a.desired_course <- norm_course ((Deg>>Rad)(fvalue "desired_course" /. 10.));
   | "BAT" ->
       a.last_bat_msg_date <- U.gettimeofday ();
       a.throttle <- fvalue "throttle" /. 9600. *. 100.;

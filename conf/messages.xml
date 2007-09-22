@@ -105,18 +105,19 @@
    </message>
 
    <message name="DESIRED" ID="16">
-     <field name="roll" type="float" format="%.2f"/>
-     <field name="pitch" type="float" format="%.2f"/>
-     <field name="desired_x" type="float" format="%.0f"/>
-     <field name="desired_y" type="float" format="%.0f"/>
-     <field name="desired_altitude" type="float" format="%.0f"/>
-     <field name="desired_climb" type="float" format="%.1f"></field>
+     <field name="roll" type="float" format="%.2f" unit="rad"/>
+     <field name="pitch" type="float" format="%.2f" unit="rad"/>
+     <field name="course" type="float" format="%.1f" unit="rad"></field>
+     <field name="x" type="float" format="%.0f"  unit="m"/>
+     <field name="y" type="float" format="%.0f" unit="m"/>
+     <field name="altitude" type="float" format="%.0f"  unit="m"/>
+     <field name="climb" type="float" format="%.1f"  unit="m/s"></field>
    </message>
 
    <message name="GPS_SOL" ID="17">
-     <field name="Pacc" type="uint32"/>
-     <field name="Sacc" type="uint32"/>
-     <field name="PDOP" type="uint16"/>
+     <field name="Pacc" type="uint32" unit="cm"/>
+     <field name="Sacc" type="uint32" unit="cm"/>
+     <field name="PDOP" type="uint16" unit="cm"/>
      <field name="numSV" type="uint8"/>
    </message>
 
@@ -284,9 +285,9 @@
   </message>
 
   <message name="BARO_MS5534A" ID="44">
-      <field name="pressure" type="uint32"/>
-      <field name="temp" type="uint16"/>
-      <field name="alt" type="float"/>
+      <field name="pressure" type="uint32" unit="P"/>
+      <field name="temp" type="uint16" unit="dC°"/>
+      <field name="alt" type="float" unit="m"/>
   </message>
 
   <message name="BARO_WORDS" ID="46">
