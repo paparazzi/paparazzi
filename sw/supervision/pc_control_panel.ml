@@ -158,7 +158,7 @@ let save_session = fun gui ->
   (* Ask for a session name *)
   let text = gui#entry_session_name#text in
   let text = if text = "" then "My session" else text in
-  match GToolbox.input_string ~ok:"Save" ~text ~title:"Session name" "Save user session ?" with
+  match GToolbox.input_string ~ok:"Save" ~text ~title:"Session name" "Save custom session ?" with
     None -> false
   | Some name ->
       let current_processes =
@@ -237,7 +237,7 @@ let supervision = fun ?file gui log ->
       Hashtbl.iter
 	(fun ac_name ac -> 
 	  let cb = fun () ->
-	    gui#entry_session_name#set_text (sprintf "Simualator %s" ac_name);
+	    gui#entry_session_name#set_text (sprintf "Simulator %s" ac_name);
 	    run_gcs ();
 	    run_server "-n";
 	    run_sitl ac_name
@@ -290,7 +290,7 @@ let supervision = fun ?file gui log ->
   (* Remove current session *)
   let callback = fun () ->
     let session_name = gui#entry_session_name#text in
-    match GToolbox.question_box ~title:"Delete user session" ~buttons:["Cancel"; "Delete"] ~default:2 (sprintf "Delete '%s' user session ? (NO undo)" session_name) with
+    match GToolbox.question_box ~title:"Delete custom session" ~buttons:["Cancel"; "Delete"] ~default:2 (sprintf "Delete '%s' custom session ? (NO undo)" session_name) with
       2 ->
 	if Hashtbl.mem sessions session_name then begin
 	  Hashtbl.remove sessions session_name;
