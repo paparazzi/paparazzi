@@ -122,11 +122,13 @@ value set_ac_info(value * argv, int argn) {
 value move_waypoint(value wp_id, value lat_deg, value lon_deg, value a) {
   latlong_utm_of(RadOfDeg(Double_val(lat_deg)), RadOfDeg(Double_val(lon_deg)), nav_utm_zone0);
   MoveWaypoint(Int_val(wp_id), latlong_utm_x, latlong_utm_y, Double_val(a));
+  datalink_time = 0;
   return Val_unit;
 }
 
 value goto_block(value block_id) {
   nav_goto_block(Int_val(block_id));
+  datalink_time = 0;
   return Val_unit;
 }
 
@@ -147,6 +149,7 @@ value dl_setting(value index __attribute__ ((unused)),
   float var = Double_val(val);
   DlSetting(i, var);
   DOWNLINK_SEND_DL_VALUE(&i, &var);
+  datalink_time = 0;
   return Val_unit;
 }
 
