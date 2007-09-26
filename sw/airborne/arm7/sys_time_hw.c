@@ -14,12 +14,12 @@ uint32_t cpu_time_ticks;
 #include "icp_scale.h"
 #endif /* ICP_SCALE */
 
-#ifdef TACHO_MB
-#include "tacho_mb.h"
+#ifdef MB_TACHO
+#include "mb_tacho.h"
 #define TIMER0_IT_MASK (TIR_CR2I | TIR_MR1I | TIR_CR0I)
 #else
 #define TIMER0_IT_MASK (TIR_CR2I | TIR_MR1I)
-#endif /* TACHO_MB */
+#endif /* MB_TACHO */
 
 
 void TIMER0_ISR ( void ) {
@@ -54,13 +54,13 @@ void TIMER0_ISR ( void ) {
       T0IR = TIR_CR2I;
     }
 #endif
-#ifdef TACHO_MB
+#ifdef MB_TACHO
     if (T0IR&TIR_CR0I) {
-      TACHO_MB_ISR();
+      MB_TACHO_ISR();
       /* clear interrupt */
       T0IR = TIR_CR0I;
     }
-#endif /* TACHO_MB */
+#endif /* MB_TACHO */
   }
   VICVectAddr = 0x00000000;
 

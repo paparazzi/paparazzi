@@ -397,12 +397,16 @@
       <field name="mode" type="uint8"/>
   </message>
 
-  <message name="MOTOR_BENCH_STATUS" ID="230">
+ <message name="MOTOR_BENCH_STATUS" ID="230">
       <field name="time_ticks" type="uint32"/>
+      <field name="throttle" type="float"/>
+      <field name="rpm" type="float"/>
+      <field name="current" type="float"/>
       <field name="time_s" type="uint16"/>
-      <field name="throttle" type="uint16"/>
       <field name="mode" type="uint8"/>
+      
   </message>
+
 
 </class>
 

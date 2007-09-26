@@ -58,4 +58,13 @@
     settings="settings/demo5_settings.xml"
   />
 
+  <aircraft 
+    name="MB"
+    ac_id="145"
+    airframe="airframes/motor_bench.xml" 
+    radio="radios/T9cap.xml" 
+    telemetry="telemetry/default.xml"
+    flight_plan="flight_plans/dummy.xml"
+  />
+
 </conf>
