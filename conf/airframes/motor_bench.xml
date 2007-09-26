@@ -29,11 +29,12 @@ main.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=U
 main.srcs += downlink.c pprz_transport.c
 
 main.srcs += $(SRC_ARCH)/mb_servo.c
-main.CFLAGS += -DTACHO_MB
+main.CFLAGS += -DMB_TACHO
 main.srcs += $(SRC_ARCH)/mb_tacho.c
 
 main.CFLAGS += -DADC -DUSE_ADC_0
 main.srcs += $(SRC_ARCH)/adc_hw.c
+main.srcs += $(SRC_ARCH)/mb_current.c
 
 main.srcs += $(SRC_ARCH)/mb_modes.c
 

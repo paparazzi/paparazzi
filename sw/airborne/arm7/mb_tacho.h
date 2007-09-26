@@ -21,7 +21,6 @@ extern volatile uint8_t  mb_tacho_nb_pulse;
     mb_tacho_nb_pulse++;						\
     tmb_last = t_now;							\
     got_one_pulse = TRUE;                                               \
-    LED_TOGGLE(2);						        \
   }
 
 #endif /* MB_TACHO_H */

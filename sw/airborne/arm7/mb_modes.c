@@ -14,7 +14,7 @@ void mb_mode_event(void) {}
 
 
 void mb_mode_periodic(void) {
-  mb_modes_throttle += 0.01;
+  mb_modes_throttle += 0.0001;
   if (mb_modes_throttle > 1.)
     mb_modes_throttle = 0.;
 }

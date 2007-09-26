@@ -151,8 +151,6 @@ static const uint32_t ADC_AD1CR_SEL_HW_SCAN = 0
 void adc_init( void ) {
 
   /* connect pins for selected ADCs */
-  /* if I configure both PINSEL0 and 1 it crashes
-     even with PINSEL0 |= 0 !!!!!!! */
   PINSEL0 |= ADC_PINSEL0_ONES; 
   PINSEL1 |= ADC_PINSEL1_ONES;
 
@@ -183,6 +181,10 @@ void adc_init( void ) {
 }
 
 #include "led.h"
+#include "uart.h"
+#include "messages.h"
+#include "downlink.h"
+
 
 void adcISR0 ( void ) {
   ISR_ENTRY();
@@ -190,7 +192,8 @@ void adcISR0 ( void ) {
   uint8_t  channel = (uint8_t)(tmp >> 24) & 0x07;
   uint16_t value = (uint16_t)(tmp >> 6) & 0x03FF;
   adc0_val[channel] = value;
-  
+  DOWNLINK_SEND_BOOT(&value);
+
   struct adc_buf* buf = buffers[channel];
   if (buf) {
     uint8_t new_head = buf->head + 1;

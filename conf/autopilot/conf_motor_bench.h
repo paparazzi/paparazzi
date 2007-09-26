@@ -19,4 +19,15 @@
 #define LED_2_BANK 0
 #define LED_2_PIN 13
 
+/* ADC */
+#define ADC_0 AdcBank0(4)
+//#define ADC_0 AdcBank0(0)
+#ifdef USE_ADC_0
+#ifndef USE_AD0
+#define USE_AD0
+#endif
+#define USE_AD0_4
+//#define USE_AD0_0
+#endif
+
 #endif /* CONFIG_MOTOR_BENCH_H */
