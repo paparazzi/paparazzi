@@ -35,6 +35,8 @@ main.srcs += $(SRC_ARCH)/mb_tacho.c
 main.CFLAGS += -DADC -DUSE_ADC_0
 main.srcs += $(SRC_ARCH)/adc_hw.c
 
+main.srcs += $(SRC_ARCH)/mb_modes.c
+
 
 
   </makefile>

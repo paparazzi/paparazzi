@@ -14,6 +14,8 @@
 
 #include "adc.h"
 
+#include "mb_modes.h"
+
 static inline void main_init( void );
 static inline void main_periodic_task( void );
 
@@ -42,6 +44,8 @@ static inline void main_init( void ) {
   mb_servo_arm();
   mb_servo_set(0.5);
 
+  mb_mode_init();
+
   adc_buf_channel(0, &cur_sensor_buf, 16);
 
 }
@@ -49,14 +53,14 @@ static inline void main_init( void ) {
 extern uint16_t adc0_val[];
 
 static inline void main_periodic_task( void ) {
-  //  uint32_t foo = mb_tacho_get_duration();
-  float rpm         = mb_tacho_get_averaged();
-  //  LED_TOGGLE(1);
-  float throttle = 0.3;
-  uint8_t mode = 0;
 
+  mb_mode_periodic();
+  mb_servo_set(mb_modes_throttle);
+  float rpm = mb_tacho_get_averaged();
+  //  LED_TOGGLE(1);
   //  uint16_t cur_int = cur_sensor_buf.sum / cur_sensor_buf.av_nb_sample;
   uint16_t cur_int = adc0_val[0];
   float foo2 = cur_int * 1.;
-  DOWNLINK_SEND_MOTOR_BENCH_STATUS(&cpu_time_ticks, &throttle, &rpm, &foo2 , &cpu_time_sec, &mode);
+
+  DOWNLINK_SEND_MOTOR_BENCH_STATUS(&cpu_time_ticks, &mb_modes_throttle, &rpm, &foo2 , &cpu_time_sec, &mb_modes_mode);
 }
