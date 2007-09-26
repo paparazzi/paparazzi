@@ -47,27 +47,29 @@ $(VAR)/boa.conf :$(CONF)/boa.conf
 	chmod a+x boa
 
 
-messages : messages.cmo
+messages : messages.cmo ../../lib/ocaml/xlib-pprz.cma ../../lib/ocaml/lib-pprz.cma
 	@echo OL $@
-	$(Q)$(OCAMLC) -custom $(INCLUDES) -o $@ unix.cma str.cma xml-light.cma lablgtk.cma glibivy-ocaml.cma lib-pprz.cma gtkInit.cmo $^
+	$(Q)$(OCAMLC) -custom $(INCLUDES) -o $@ unix.cma str.cma xml-light.cma lablgtk.cma glibivy-ocaml.cma lib-pprz.cma gtkInit.cmo $<
 
 
-settings : settings.cmo
+settings : settings.cmo ../../lib/ocaml/xlib-pprz.cma ../../lib/ocaml/lib-pprz.cma
 	@echo OL $@
-	$(Q)$(OCAMLC) -custom $(INCLUDES) -I ../cockpit -o $@ unix.cma str.cma xml-light.cma lablgtk.cma glibivy-ocaml.cma lib-pprz.cma gtkInit.cmo pages.cmo $^
+	$(Q)$(OCAMLC) -custom $(INCLUDES) -I ../cockpit -o $@ unix.cma str.cma xml-light.cma lablgtk.cma glibivy-ocaml.cma lib-pprz.cma gtkInit.cmo pages.cmo $<
 
 
-server : $(SERVERCMO)
+server : $(SERVERCMO) ../../lib/ocaml/lib-pprz.cma
 	@echo OL $@
-	$(Q)$(OCAMLC) -custom $(INCLUDES) -o $@ unix.cma str.cma xml-light.cma lablgtk.cma glibivy-ocaml.cma lib-pprz.cma $^
+	$(Q)$(OCAMLC) -custom $(INCLUDES) -o $@ unix.cma str.cma xml-light.cma lablgtk.cma glibivy-ocaml.cma lib-pprz.cma $(SERVERCMO)
 
-server.opt :  $(SERVERCMX)
+server.opt :  $(SERVERCMX) ../../lib/ocaml/lib-pprz.cmxa
 	@echo OOL $@
-	$(Q)$(OCAMLOPT) $(INCLUDES) -o $@ str.cmxa unix.cmxa xml-light.cmxa lablgtk.cmxa glibivy-ocaml.cmxa lib-pprz.cmxa $^
+	$(Q)$(OCAMLOPT) $(INCLUDES) -o $@ str.cmxa unix.cmxa xml-light.cmxa lablgtk.cmxa glibivy-ocaml.cmxa lib-pprz.cmxa $(SERVERCMX)
 
-link :  modem.cmo link.cmo
+LINKCMO=modem.cmo link.cmo
+
+link : $(LINKCMO)  ../../lib/ocaml/lib-pprz.cma
 	@echo OL $@
-	$(Q)$(OCAMLC) -custom $(INCLUDES) -o $@ unix.cma str.cma xml-light.cma lablgtk.cma glibivy-ocaml.cma lib-pprz.cma multimon.cma $^
+	$(Q)$(OCAMLC) -custom $(INCLUDES) -o $@ unix.cma str.cma xml-light.cma lablgtk.cma glibivy-ocaml.cma lib-pprz.cma multimon.cma $(LINKCMO)
 
 
 dia : dia.cmo ../multimon/multimon.cma
@@ -87,7 +89,7 @@ ihm :  ihm.cmo
 
 settings.cmo : INCLUDES += -I ../cockpit
 
-%.cmo : %.ml $(LIBPPRZCMA)
+%.cmo : %.ml
 	@echo OC $<
 	$(Q)$(OCAMLC) $(INCLUDES) -c $<
 
@@ -95,7 +97,7 @@ settings.cmo : INCLUDES += -I ../cockpit
 	@echo OOC $<
 	$(Q)$(OCAMLOPT) $(INCLUDES) -c $<
 
-%.cmi : %.mli $(LIBPPRZCMA)
+%.cmi : %.mli
 	@echo OC $<
 	$(Q)$(OCAMLC) $(INCLUDES) $<
 
@@ -105,7 +107,7 @@ settings.cmo : INCLUDES += -I ../cockpit
 #
 
 .depend:
-	ocamldep *.ml* > .depend
+	ocamldep -I ../../lib/ocaml *.ml* > .depend
 
 ifneq ($(MAKECMDGOALS),clean) 
 -include .depend
