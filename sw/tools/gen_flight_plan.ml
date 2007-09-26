@@ -593,14 +593,17 @@ let dummy_waypoint =
 
 let print_inside_polygon = fun pts ->
   let layers = Geometry_2d.slice_polygon (Array.of_list pts) in
+  Array.iter (fun s -> fprintf stderr "t=%f\n" s.G2D.top) layers;
   let rec f = fun i j ->
     if i = j then
       let {G2D.top=yl; left_side=(xg, ag); right_side=(xd, ad)} = layers.(i) in
       if xg > xd then begin
 	lprintf "return FALSE;\n"
       end else begin
-      lprintf "float dy = _y - %.1f;\n" yl;
-      lprintf "return (%.1f+dy*%.1f <= _x && _x <= %.1f+dy*%f);\n" xg ag xd ad
+	if ad <> 0. || ag <> 0. then
+	  lprintf "float dy = _y - %.1f;\n" yl;
+	let dy_times = fun f -> if f = 0. then "" else sprintf "+dy*%f" f in
+	lprintf "return (%.1f%s<= _x && _x <= %.1f%s);\n" xg (dy_times ag) xd (dy_times ad)
       end
     else
       let ij2 = (i+j) / 2 in
@@ -636,13 +639,18 @@ let parse_sector = fun rel_utm_of_wgs84 x ->
   | s -> failwith (sprintf "sector: %s not yet" s)
 
 let parse_wpt_sector = fun waypoints xml ->
+  let sector_name = ExtXml.attrib xml "name" in
   let p2D_of = fun x ->
     let name = name_of x in
-    let wp = List.find (fun wp -> name_of wp = name) waypoints in
-    let x = float_attrib wp "x"
-    and y = float_attrib wp "y" in
-    {G2D.x2D = x; G2D.y2D = y } in
-  (ExtXml.attrib xml "name", List.map p2D_of (Xml.children xml))
+    try
+      let wp = List.find (fun wp -> name_of wp = name) waypoints in
+      let x = float_attrib wp "x"
+      and y = float_attrib wp "y" in
+      {G2D.x2D = x; G2D.y2D = y }
+    with
+      Not_found -> failwith (sprintf "Error: corner '%s' of sector '%s' not found" name sector_name)
+  in
+  (sector_name, List.map p2D_of (Xml.children xml))
   
 
 
@@ -775,8 +783,8 @@ let _ =
     end
   with
     Xml.Error e -> fprintf stderr "%s: XML error:%s\n" !xml_file (Xml.error e); exit 1
-  | Dtd.Prove_error e -> fprintf stderr "%s: DTD error:%s\n%!" !xml_file (Dtd.prove_error e); exit 1
-  | Dtd.Check_error e -> fprintf stderr "%s: DTD error:%s\n%!" !xml_file (Dtd.check_error e); exit 1
-  | Dtd.Parse_error e -> fprintf stderr "%s: DTD error:%s\n%!" !xml_file (Dtd.parse_error e); exit 1
+  | Dtd.Prove_error e -> fprintf stderr "%s: DTD prove error:%s\n%!" !xml_file (Dtd.prove_error e); exit 1
+  | Dtd.Check_error e -> fprintf stderr "%s: DTD check error:%s\n%!" !xml_file (Dtd.check_error e); exit 1
+  | Dtd.Parse_error e -> fprintf stderr "%s: DTD parse error:%s\n%!" !xml_file (Dtd.parse_error e); exit 1
   | Failure x -> fprintf stderr "%s: %s\n" !xml_file x; exit 1
 

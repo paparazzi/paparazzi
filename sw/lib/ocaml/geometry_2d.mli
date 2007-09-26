@@ -313,4 +313,6 @@ else *)
 val arc : ?nb_points:int -> pt_2D -> float -> float -> float -> pt_2D array
 
 type slice = { top : float; left_side : float * float; right_side : float * float }
+
 val slice_polygon : pt_2D array -> slice array
+(** Slices a y-monotone polygon clockwise described *)

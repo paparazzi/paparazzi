@@ -881,6 +881,7 @@ type slice = { top : float; left_side : float * float; right_side : float * floa
 
 let slice_polygon = fun poly ->
   let n = Array.length poly in
+  assert (n >= 3);
   let next i = (i+1) mod n
   and prev i = (i-1+n) mod n in
 
@@ -894,33 +895,38 @@ let slice_polygon = fun poly ->
   let slope = fun i j ->
     (poly.(j).x2D -. poly.(i).x2D) /. (poly.(j).y2D -. poly.(i).y2D) in
 
-  let i = ref 0 in
+  let i = ref 1 in
   let g = ref !bottom
   and d = ref !bottom in
   let alpha_g = ref 0.
   and alpha_d = ref 0.
   and last_y = ref (poly.(!bottom).y2D) in
-  while !i < n do
-    while poly.(!d).y2D = !last_y do
-      let d' = prev !d in
-      alpha_d := slope !d d';
-      d := d';
-      incr i
-    done;
-    while poly.(!g).y2D = !last_y do
-      let g' = next !g in
-      alpha_g := slope !g g';
-      g := g';
-      incr i
-    done;
-    let yd = poly.(!d).y2D
-    and yg = poly.(!g).y2D in
-    let ym = min yd yg in
-    let xd = poly.(!d).x2D -. !alpha_d *. (yd -. ym) in
-    let xg = poly.(!g).x2D -. !alpha_g *. (yg -. ym) in
-    l :=  {top = ym; left_side=(xg, !alpha_g); right_side=(xd, !alpha_d)} :: !l;
-    last_y := ym
-  done;
+  begin
+    try
+      while !i <= n do
+	while poly.(!d).y2D = !last_y && !i <= n do
+	  let d' = prev !d in
+	  if d' = !g then raise Exit;
+	  alpha_d := slope !d d';
+	  d := d';
+	  incr i
+	done;
+	while poly.(!g).y2D = !last_y && !i <= n do
+	  let g' = next !g in
+	  alpha_g := slope !g g';
+	  g := g';
+	  incr i
+	done;
+	let yd = poly.(!d).y2D
+	and yg = poly.(!g).y2D in
+	let ym = min yd yg in
+	let xd = poly.(!d).x2D -. !alpha_d *. (yd -. ym) in
+	let xg = poly.(!g).x2D -. !alpha_g *. (yg -. ym) in
+	l :=  {top = ym; left_side=(xg, !alpha_g); right_side=(xd, !alpha_d)} :: !l;
+	last_y := ym
+      done
+    with Exit -> () (* Flat polygon *)
+  end;
   let under = {top=poly.(!bottom).y2D; left_side= (max_float, 0.); right_side=(min_float, 0.)}
   and over = {top=max_float; left_side=(max_float, 0.); right_side= (min_float, 0.)} in
   Array.of_list (under :: List.rev (over :: !l));;
