@@ -10,7 +10,7 @@
 <!ELEMENT waypoint EMPTY>
 
 <!ELEMENT sectors (sector|kml)*>
-<!ELEMENT sector (corner+)>
+<!ELEMENT sector (corner,corner,corner+)>
 <!ELEMENT corner EMPTY>
 <!ELEMENT kml EMPTY>
 
