@@ -25,6 +25,7 @@ struct motor_bench_state {
   double amps;
   double thrust;
   double torque;
+  GIOChannel* log_channel;
 };
 
 struct motor_bench_gui {
@@ -34,6 +35,7 @@ struct motor_bench_gui {
   GtkWidget* lab_amps;
   GtkWidget* lab_thrust;
   GtkWidget* lab_torque;
+  GtkWidget* entry_log;
 };
 
 static void on_mode_changed (GtkRadioButton  *radiobutton, gpointer user_data);
@@ -77,6 +79,14 @@ static void on_MOTOR_BENCH_STATUS(IvyClientPtr app, void *user_data, int argc, c
   mb_state.amps = amp;
   mb_state.thrust = 0.;
   mb_state.torque = 0.;
+  if (mb_state.log_channel) {
+    GString* str = g_string_sized_new(256);
+    g_string_printf(str, "%.4f %.3f %.0f %.1f %.1f %.1f", mb_state.time, mb_state.throttle, mb_state.rpms, mb_state.amps, mb_state.thrust, mb_state.torque);
+    gsize b_writen;
+    GError* my_err = NULL;
+    GIOStatus stat = g_io_channel_write_chars(mb_state.log_channel,str->str, str->len, &b_writen, &my_err); 
+    g_string_free(str, TRUE);
+  }
   //  g_message("foo %f %f %f %f %d", mb_state.time, throttle, rpm, amp, mode);
 }
 
@@ -99,12 +109,19 @@ static gboolean timeout_callback(gpointer data) {
 }
 
 static void on_log_button_toggled (GtkWidget *widget, gpointer data) {
-   if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget))) 
-    {
-    }
-
-
-
+   if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget))) {
+     gtk_editable_set_editable( GTK_EDITABLE(mb_gui.entry_log), FALSE );
+     const gchar *log_file_name = gtk_entry_get_text (GTK_ENTRY (mb_gui.entry_log));
+     GError* my_err = NULL;
+     mb_state.log_channel = g_io_channel_new_file (log_file_name, "w", &my_err);
+   }
+   else {
+     gtk_editable_set_editable( GTK_EDITABLE(mb_gui.entry_log), TRUE );
+     if (mb_state.log_channel) {
+       g_io_channel_close(mb_state.log_channel);
+       mb_state.log_channel = NULL;
+     }
+   }
 }
 
 int main (int argc, char** argv) {
@@ -120,6 +137,8 @@ int main (int argc, char** argv) {
 
   g_timeout_add(40, timeout_callback, NULL);
   
+  mb_state.log_channel = NULL;
+
   gtk_main();
   return 0;
 }
@@ -140,6 +159,9 @@ static GtkWidget* build_gui ( void ) {
   GtkWidget* hbox1 = gtk_hbox_new (FALSE, 0);
   gtk_box_pack_start (GTK_BOX (vbox1), hbox1, TRUE, TRUE, 0);
 
+  //
+  // Modes
+  //
   GtkWidget *mode_frame = gtk_frame_new ("Mode");
   gtk_container_set_border_width (GTK_CONTAINER (mode_frame), 10);
   gtk_box_pack_start (GTK_BOX (hbox1), mode_frame, TRUE, TRUE, 0);
@@ -176,6 +198,9 @@ static GtkWidget* build_gui ( void ) {
   g_signal_connect ((gpointer) rb_prbs, "toggled", G_CALLBACK (on_mode_changed), (gpointer)MB_MODES_PRBS);
 
 
+  //
+  // Measures
+  //
   GtkWidget *measure_frame = gtk_frame_new ("Measures");
   gtk_container_set_border_width (GTK_CONTAINER (measure_frame), 10);
   gtk_box_pack_start (GTK_BOX (hbox1), measure_frame, TRUE, TRUE, 0);
@@ -251,6 +276,9 @@ static GtkWidget* build_gui ( void ) {
   gtk_misc_set_alignment (GTK_MISC (mb_gui.lab_torque), 0, 0.5);
 
 
+  //
+  // Log
+  //
   GtkWidget *log_frame = gtk_frame_new ("Log");
   gtk_container_set_border_width (GTK_CONTAINER (log_frame), 10);
   gtk_box_pack_start (GTK_BOX (vbox1), log_frame, TRUE, TRUE, 0);
@@ -263,7 +291,8 @@ static GtkWidget* build_gui ( void ) {
   gtk_container_add (GTK_CONTAINER (bbox), log_button);
   g_signal_connect (G_OBJECT (log_button), "toggled", G_CALLBACK (on_log_button_toggled), NULL);
 
-  //  GtkWidget *gtk_entry_new( void );
-
+  mb_gui.entry_log = gtk_entry_new( );
+  gtk_container_add (GTK_CONTAINER (bbox), mb_gui.entry_log);
+  gtk_entry_set_text( GTK_ENTRY(mb_gui.entry_log), "mb_log.txt" );
   return window1;
 }
