@@ -32,7 +32,7 @@ main.srcs += $(SRC_ARCH)/mb_servo.c
 main.CFLAGS += -DMB_TACHO
 main.srcs += $(SRC_ARCH)/mb_tacho.c
 
-main.CFLAGS += -DADC -DUSE_ADC_0
+main.CFLAGS += -DADC -DUSE_ADC_0 -DUSE_ADC_1
 main.srcs += $(SRC_ARCH)/adc_hw.c
 main.srcs += $(SRC_ARCH)/mb_current.c
 

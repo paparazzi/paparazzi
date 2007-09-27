@@ -53,6 +53,7 @@ static inline void main_periodic_task( void ) {
   float throttle = mb_modes_throttle;
   mb_servo_set(throttle);
   float rpm = mb_tacho_get_averaged();
+  mb_current_periodic();
   float amps = mb_current_amp;
   static uint8_t my_cnt = 0;
   my_cnt++;

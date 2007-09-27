@@ -30,4 +30,15 @@
 //#define USE_AD0_0
 #endif
 
+#define ADC_1 AdcBank0(1)
+#ifdef USE_ADC_1
+#ifndef USE_AD0
+#define USE_AD0
+#endif
+#define USE_AD0_1
+#endif
+
+
+
+
 #endif /* CONFIG_MOTOR_BENCH_H */

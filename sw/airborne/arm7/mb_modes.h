@@ -4,10 +4,11 @@
 #include "std.h"
 
 
-#define MB_MODES_IDLE 0
-#define MB_MODES_RAMP 1
-#define MB_MODES_STEP 2
-#define MB_MODES_PRBS 3
+#define MB_MODES_IDLE   0
+#define MB_MODES_MANUAL 1
+#define MB_MODES_RAMP   2
+#define MB_MODES_STEP   3
+#define MB_MODES_PRBS   4
 
 extern uint8_t mb_modes_mode;
 extern float mb_modes_throttle;

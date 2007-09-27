@@ -181,6 +181,7 @@ void adc_init( void ) {
 }
 
 #include "led.h"
+
 #include "uart.h"
 #include "messages.h"
 #include "downlink.h"
@@ -192,7 +193,6 @@ void adcISR0 ( void ) {
   uint8_t  channel = (uint8_t)(tmp >> 24) & 0x07;
   uint16_t value = (uint16_t)(tmp >> 6) & 0x03FF;
   adc0_val[channel] = value;
-  DOWNLINK_SEND_BOOT(&value);
 
   struct adc_buf* buf = buffers[channel];
   if (buf) {
