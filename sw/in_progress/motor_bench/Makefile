@@ -7,3 +7,6 @@ motor_bench : main.c
 	$(CC) $(CFLAGS) -g -o $@ $^ $(LDFLAGS)
 
 # -lgtkdatabox
+
+clean:
+	rm *~ motor_bench

@@ -28,6 +28,8 @@ main.srcs += $(SRC_ARCH)/uart_hw.c
 main.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart0 
 main.srcs += downlink.c pprz_transport.c
 
+main.CFLAGS += -DDATALINK=PPRZ -DPPRZ_UART=Uart0
+
 main.srcs += $(SRC_ARCH)/mb_servo.c
 main.CFLAGS += -DMB_TACHO
 main.srcs += $(SRC_ARCH)/mb_tacho.c

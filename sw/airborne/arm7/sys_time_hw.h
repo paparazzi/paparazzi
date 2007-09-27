@@ -79,6 +79,10 @@ static inline void sys_time_init( void ) {
 #define SIGNED_SYS_TICS_OF_SEC(s) (int32_t)(s * PCLK / T0_PCLK_DIV + 0.5)
 #define SIGNED_SYS_TICS_OF_USEC(us) SIGNED_SYS_TICS_OF_SEC((us) * 1e-6)
 
+#define SEC_OF_SYS_TICS(st) (st / PCLK * T0_PCLK_DIV)
+
+#define GET_CUR_TIME_FLOAT() ((float)cpu_time_sec + SEC_OF_SYS_TICS((float)cpu_time_ticks))
+
 #define FIFTY_MS          SYS_TICS_OF_SEC( 50e-3 )
 #define AVR_PERIOD_MS     SYS_TICS_OF_SEC( 16.666e-3 )
 #ifndef PERIODIC_TASK_PERIOD

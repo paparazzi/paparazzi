@@ -3,7 +3,7 @@
 <settings>
   <dl_settings>
     <dl_settings name="trim">
-      <dl_setting var="mb_modes_mode" min="0" step="1" max="4" module="mb_modes" handler="SetMode"/>
+<dl_setting var="mb_modes_mode" min="0" step="1" max="4" module="mb_modes" handler="SetMode"/>
     </dl_settings>
   </dl_settings>
 </settings>
