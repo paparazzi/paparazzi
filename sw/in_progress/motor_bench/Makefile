@@ -8,5 +8,9 @@ motor_bench : main.c
 
 # -lgtkdatabox
 
+plot_test:
+	scilab -f test.sce
+
+
 clean:
 	rm *~ motor_bench
