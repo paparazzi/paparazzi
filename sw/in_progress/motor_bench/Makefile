@@ -8,8 +8,10 @@ motor_bench : main.c
 
 # -lgtkdatabox
 
+LOG=mb_log.txt
+
 plot_test:
-	scilab -f test.sce
+	scilab -f test.sce -args $(LOG)
 
 
 clean:
