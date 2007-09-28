@@ -38,6 +38,9 @@ main.CFLAGS += -DADC -DUSE_ADC_0 -DUSE_ADC_1
 main.srcs += $(SRC_ARCH)/adc_hw.c
 main.srcs += $(SRC_ARCH)/mb_current.c
 
+main.CFLAGS += -DMB_SCALE
+main.srcs += $(SRC_ARCH)/mb_scale.c
+
 main.srcs += $(SRC_ARCH)/mb_modes.c
 
 

@@ -10,13 +10,14 @@ uint32_t cpu_time_ticks;
 
 #include "ppm.h"
 
-#ifdef ICP_SCALE
-#include "icp_scale.h"
-#endif /* ICP_SCALE */
+#ifdef MB_SCALE
+#include "mb_scale.h"
+#endif /* MB_SCALE */
 
 #ifdef MB_TACHO
 #include "mb_tacho.h"
-#define TIMER0_IT_MASK (TIR_CR2I | TIR_MR1I | TIR_CR0I)
+// FIXME : declared the scale interrupt here :(
+#define TIMER0_IT_MASK (TIR_CR2I | TIR_MR1I | TIR_CR0I | TIR_CR3I)
 #else
 #define TIMER0_IT_MASK (TIR_CR2I | TIR_MR1I)
 #endif /* MB_TACHO */
@@ -47,11 +48,11 @@ void TIMER0_ISR ( void ) {
       T0IR = TIR_MR1I; 
     }
 #endif
-#ifdef ICP_SCALE
-    if (T0IR&TIR_CR2I) {
-      ICP_ISR();
+#ifdef MB_SCALE
+    if (T0IR&TIR_CR3I) {
+       MB_SCALE_ICP_ISR();
       /* clear interrupt */
-      T0IR = TIR_CR2I;
+      T0IR = TIR_CR3I;
     }
 #endif
 #ifdef MB_TACHO

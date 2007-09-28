@@ -70,15 +70,17 @@ static void on_MOTOR_BENCH_STATUS(IvyClientPtr app, void *user_data, int argc, c
   double throttle =  atof(argv[1]);
   double rpm =  atof(argv[2]);
   double amp =  atof(argv[3]);
-  guint time_sec = atoi(argv[4]);
-  guint mode = atoi(argv[5]);
+  double thrust =  atof(argv[4]);
+  double torque =  atof(argv[5]);
+  guint time_sec = atoi(argv[6]);
+  guint mode = atoi(argv[7]);
   mb_state.mode = mode;
   mb_state.time = (double)time_sec + (double)time_ticks/15000000.;
   mb_state.throttle = throttle;
   mb_state.rpms = rpm;
   mb_state.amps = amp;
-  mb_state.thrust = 0.;
-  mb_state.torque = 0.;
+  mb_state.thrust = thrust;
+  mb_state.torque = torque;
   if (mb_state.log_channel) {
     GString* str = g_string_sized_new(256);
     g_string_printf(str, "%.4f %.3f %.0f %.1f %.1f %.1f\n", mb_state.time, mb_state.throttle, mb_state.rpms, mb_state.amps, mb_state.thrust, mb_state.torque);
@@ -100,9 +102,9 @@ static gboolean timeout_callback(gpointer data) {
   gtk_label_set_text(GTK_LABEL(mb_gui.lab_rpms), str->str);
   g_string_printf(str, "%.1f a", mb_state.amps);
   gtk_label_set_text(GTK_LABEL(mb_gui.lab_amps), str->str);
-  g_string_printf(str, "%.1f N", mb_state.thrust);
+  g_string_printf(str, "%.1f g", mb_state.thrust);
   gtk_label_set_text(GTK_LABEL(mb_gui.lab_thrust), str->str);
-  g_string_printf(str, "%.1f N", mb_state.torque);
+  g_string_printf(str, "%.1f g", mb_state.torque);
   gtk_label_set_text(GTK_LABEL(mb_gui.lab_torque), str->str);
   g_string_free(str, TRUE);
   return TRUE;
@@ -132,7 +134,7 @@ int main (int argc, char** argv) {
   gtk_widget_show_all(window);
 
   IvyInit ("MotorBench", "MotorBench READY", NULL, NULL, NULL, NULL);
-  IvyBindMsg(on_MOTOR_BENCH_STATUS, NULL, "^\\S* MOTOR_BENCH_STATUS (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*)");
+  IvyBindMsg(on_MOTOR_BENCH_STATUS, NULL, "^\\S* MOTOR_BENCH_STATUS (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*)");
   IvyStart("127.255.255.255");
 
   g_timeout_add(40, timeout_callback, NULL);

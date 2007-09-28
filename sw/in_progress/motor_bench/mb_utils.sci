@@ -30,3 +30,20 @@ end
 mclose(u);
 
 endfunction
+
+
+
+function [filtered] = low_pass_filter(f_sample, f_cut, raw_data)
+  
+  delta_t = 1/f_sample;
+  rc = 1 / ( 2 * %pi * f_cut);
+  alpha = delta_t / ( delta_t + rc );
+  
+  filtered=[raw_data(1)];
+  for i=2:length(raw_data)
+    fv = alpha * raw_data(i) + (1 - alpha) * filtered(i-1);
+    filtered = [filtered fv];
+  end
+  
+endfunction
+

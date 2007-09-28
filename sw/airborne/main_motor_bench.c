@@ -7,6 +7,7 @@
 #include "mb_tacho.h"
 #include "mb_servo.h"
 #include "mb_current.h"
+#include "mb_scale.h"
 
 
 #include "uart.h"
@@ -42,11 +43,12 @@ static inline void main_init( void ) {
   sys_time_init();
   mb_tacho_init();
   mb_servo_init();
+  mb_servo_set_range( 1275000, 1825000 );
   adc_init();
   mb_current_init();
+  mb_scale_init();
 
   uart0_init_tx();
-  mb_servo_arm();
   mb_mode_init();
 
   int_enable();
@@ -59,12 +61,15 @@ static inline void main_periodic_task( void ) {
   float rpm = mb_tacho_get_averaged();
   mb_current_periodic();
   float amps = mb_current_amp;
+  mb_scale_periodic();
+  float thrust = mb_scale_thrust;
+  float torque = 0.;
   static uint8_t my_cnt = 0;
   my_cnt++;
   if (!(my_cnt%10)) {
     LED_TOGGLE(1);
   }
-    DOWNLINK_SEND_MOTOR_BENCH_STATUS(&cpu_time_ticks, &throttle, &rpm, &amps , &cpu_time_sec, &mb_modes_mode);
+  DOWNLINK_SEND_MOTOR_BENCH_STATUS(&cpu_time_ticks, &throttle, &rpm, &amps , &thrust, &torque, &cpu_time_sec, &mb_modes_mode);
 }
 
 static inline  void main_event_task( void ) {

@@ -28,7 +28,7 @@ void mb_mode_init(void) {
   mb_modes_mode = MB_MODES_IDLE;
   mb_modes_throttle = 0.;
 
-  mb_modes_ramp_duration = 20;
+  mb_modes_ramp_duration = 40;
 
   mb_modes_step_low_throttle = 0.6;
   mb_modes_step_high_throttle = 0.7;

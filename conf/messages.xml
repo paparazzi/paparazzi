@@ -402,6 +402,8 @@
       <field name="throttle" type="float" format="%.3f"/>
       <field name="rpm" type="float"/>
       <field name="current" type="float"/>
+      <field name="thrust" type="float"/>
+      <field name="torque" type="float"/>
       <field name="time_s" type="uint16"/>
       <field name="mode" type="uint8"/>
       
