@@ -63,8 +63,8 @@ static inline void main_periodic_task( void ) {
   my_cnt++;
   if (!(my_cnt%10)) {
     LED_TOGGLE(1);
-    DOWNLINK_SEND_MOTOR_BENCH_STATUS(&cpu_time_ticks, &throttle, &rpm, &amps , &cpu_time_sec, &mb_modes_mode);
   }
+    DOWNLINK_SEND_MOTOR_BENCH_STATUS(&cpu_time_ticks, &throttle, &rpm, &amps , &cpu_time_sec, &mb_modes_mode);
 }
 
 static inline  void main_event_task( void ) {

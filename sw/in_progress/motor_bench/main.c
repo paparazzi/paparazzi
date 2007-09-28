@@ -81,7 +81,7 @@ static void on_MOTOR_BENCH_STATUS(IvyClientPtr app, void *user_data, int argc, c
   mb_state.torque = 0.;
   if (mb_state.log_channel) {
     GString* str = g_string_sized_new(256);
-    g_string_printf(str, "%.4f %.3f %.0f %.1f %.1f %.1f", mb_state.time, mb_state.throttle, mb_state.rpms, mb_state.amps, mb_state.thrust, mb_state.torque);
+    g_string_printf(str, "%.4f %.3f %.0f %.1f %.1f %.1f\n", mb_state.time, mb_state.throttle, mb_state.rpms, mb_state.amps, mb_state.thrust, mb_state.torque);
     gsize b_writen;
     GError* my_err = NULL;
     GIOStatus stat = g_io_channel_write_chars(mb_state.log_channel,str->str, str->len, &b_writen, &my_err); 
