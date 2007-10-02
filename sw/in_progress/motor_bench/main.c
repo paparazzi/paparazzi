@@ -96,7 +96,7 @@ static gboolean timeout_callback(gpointer data) {
   GString* str = g_string_sized_new(64);
   g_string_printf(str, "%.2f s", mb_state.time);
   gtk_label_set_text(GTK_LABEL(mb_gui.lab_time), str->str);
-  g_string_printf(str, "%.2f %%", mb_state.throttle);
+  g_string_printf(str, "%.2f %%", mb_state.throttle*100.);
   gtk_label_set_text(GTK_LABEL(mb_gui.lab_throttle), str->str);
   g_string_printf(str, "%.0f rpms", mb_state.rpms);
   gtk_label_set_text(GTK_LABEL(mb_gui.lab_rpms), str->str);

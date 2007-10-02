@@ -6,6 +6,8 @@
 #include "interrupt_hw.h"
 #include "mb_tacho.h"
 #include "mb_servo.h"
+#include "i2c.h"
+#include "mb_twi_controller.h"
 #include "mb_current.h"
 #include "mb_scale.h"
 
@@ -44,6 +46,10 @@ static inline void main_init( void ) {
   mb_tacho_init();
   mb_servo_init();
   mb_servo_set_range( 1275000, 1825000 );
+
+  i2c_init();
+  mb_twi_controller_init();
+
   adc_init();
   mb_current_init();
   mb_scale_init();
@@ -58,12 +64,16 @@ static inline void main_periodic_task( void ) {
   mb_mode_periodic();
   float throttle = mb_modes_throttle;
   mb_servo_set(throttle);
+
+  mb_twi_controller_set(throttle);
+
   float rpm = mb_tacho_get_averaged();
   mb_current_periodic();
   float amps = mb_current_amp;
   mb_scale_periodic();
   float thrust = mb_scale_thrust;
   float torque = 0.;
+
   static uint8_t my_cnt = 0;
   my_cnt++;
   if (!(my_cnt%10)) {

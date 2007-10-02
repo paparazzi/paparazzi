@@ -409,6 +409,11 @@
       
   </message>
 
+  <message name="DC_MC_STATUS" ID="231">
+      <field name="time_sec" type="uint16"/>
+      <field name="time_ticks" type="uint16"/>
+      <field name="command" type="uint16"/>
+  </message>
 
 </class>
 
