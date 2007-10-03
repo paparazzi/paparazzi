@@ -1,0 +1,68 @@
+<airframe name="BOOZ">
+
+  <makefile>
+
+ARCHI=arm7
+
+FLASH_MODE = IAP
+
+ctl.ARCHDIR = $(ARCHI)
+ctl.ARCH = arm7tdmi
+ctl.TARGET = ctl
+ctl.TARGETDIR = ctl
+
+ctl.CFLAGS += -DCONTROLLER -DCONFIG=\"conf_booz.h\"
+ctl.srcs = main_booz.c
+
+ctl.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(5e-3)'
+ctl.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
+
+ctl.CFLAGS += -DLED
+
+ctl.srcs += $(SRC_ARCH)/armVIC.c
+
+ctl.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B38400
+ctl.srcs += $(SRC_ARCH)/uart_hw.c
+
+ctl.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart1 
+ctl.srcs += downlink.c pprz_transport.c
+
+ctl.CFLAGS += -DDATALINK=PPRZ -DPPRZ_UART=Uart1
+
+ctl.srcs += link_imu.c
+
+
+ctl.CFLAGS += -DRADIO_CONTROL -DRADIO_CONTROL_TYPE=RC_FUTABA
+ctl.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c
+
+imu.ARCHDIR = $(ARCHI)
+imu.ARCH = arm7tdmi
+imu.TARGET = imu
+imu.TARGETDIR = imu
+
+imu.CFLAGS += -DIMU -DCONFIG=\"pprz_imu.h\"
+imu.srcs = main_imu.c sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
+
+imu.CFLAGS += -DLED
+
+imu.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B38400
+imu.srcs += $(SRC_ARCH)/uart_hw.c
+
+imu.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart1 
+imu.srcs += downlink.c pprz_transport.c
+
+imu.CFLAGS += -DADC -DUSE_AD0 -DUSE_AD0_1 -DUSE_AD0_2 -DUSE_AD0_3 -DUSE_AD0_4
+imu.srcs += $(SRC_ARCH)/adc_hw.c
+
+imu.srcs += $(SRC_ARCH)/max1167.c
+imu.srcs += $(SRC_ARCH)/micromag.c
+
+imu.srcs += imu_v3.c
+
+imu.srcs += ahrs_new.c
+
+imu.srcs += link_imu.c
+
+  </makefile>
+
+</airframe>

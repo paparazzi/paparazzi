@@ -67,4 +67,31 @@
     flight_plan="flight_plans/dummy.xml"
   />
 
+ <aircraft
+    name="DCMC"
+    ac_id="146"
+    airframe="airframes/dc_mc.xml"
+    radio="radios/T9cap.xml"
+    telemetry="telemetry/default.xml"
+    flight_plan="flight_plans/dummy.xml"
+  />
+
+ <aircraft
+    name="BLMC"
+    ac_id="147"
+    airframe="airframes/bl_mc.xml"
+    radio="radios/T9cap.xml"
+    telemetry="telemetry/default.xml"
+    flight_plan="flight_plans/dummy.xml"
+  />
+
+ <aircraft
+    name="BOOZ"
+    ac_id="148"
+    airframe="airframes/booz.xml"
+    radio="radios/cockpitSX.xml"
+    telemetry="telemetry/booz.xml"
+    flight_plan="flight_plans/dummy.xml"
+  />
+
 </conf>

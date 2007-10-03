@@ -33,12 +33,12 @@ extern void link_imu_send( void );
 
 #endif /* IMU */
 
-#ifdef FBW
+#ifdef CONTROLLER
 
 
-void link_imu_event_task( void );
+extern void link_imu_event_task( void );
 
 
-#endif /* FBW */
+#endif /* CONTROLLER */
 
 #endif /* LINK_IMU_H */

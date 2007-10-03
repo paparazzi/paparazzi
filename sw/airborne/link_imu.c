@@ -135,42 +135,61 @@ void SPI0_ISR(void) {
 
 
 
-#ifdef FBW  /* mega128 control board code */
+#ifdef CONTROLLER  /* lpc controller board */
 
-#include <avr/io.h>
-#if (__GNUC__ == 3)
-#include <avr/signal.h>
-#endif
-#include <avr/interrupt.h>
+#include "LPC21xx.h"
+#include "interrupt_hw.h" 
 
-#include CONFIG
-#include "spi.h"
-#include "fbw_downlink.h"
+
+//#include CONFIG
+//#include "spi.h"
+//#include "fbw_downlink.h"
+
+/* DRDY connected pin to P0.16 EINT0 */ 
+#define IMU_DRDY_PINSEL PINSEL1
+#define IMU_DRDY_PINSEL_VAL 0x01
+#define IMU_DRDY_PINSEL_BIT 0
+#define IMU_DRDY_EINT 0
+
+static void EXTINT0_ISR(void) __attribute__((naked));
 
 void link_imu_init ( void ) {
-  spi_buffer_input = (uint8_t*)&link_imu_state;
-  spi_buffer_output = (uint8_t*)&link_imu_state_foo;
-  spi_buffer_length = sizeof(link_imu_state);
+  
+  /* configure DRDY pin */
+  IMU_DRDY_PINSEL |= IMU_DRDY_PINSEL_VAL << IMU_DRDY_PINSEL_BIT;
+  SetBit(EXTMODE, IMU_DRDY_EINT); /* EINT is edge trigered */
+  ClearBit(EXTPOLAR,IMU_DRDY_EINT); /* EINT is trigered on falling edge */
+  SetBit(EXTINT,IMU_DRDY_EINT);   /* clear pending EINT */
+  
+  /* initialize interrupt vector */
+  VICIntSelect &= ~VIC_BIT( VIC_EINT0 );  /* select EINT0 as IRQ source */
+  VICIntEnable = VIC_BIT( VIC_EINT0 );    /* enable it */
+  VICVectCntl9 = VIC_ENABLE | VIC_EINT0;
+  VICVectAddr9 = (uint32_t)EXTINT0_ISR;   // address of the ISR 
+
+  //  spi_buffer_input = (uint8_t*)&link_imu_state;
+  //  spi_buffer_output = (uint8_t*)&link_imu_state_foo;
+  //  spi_buffer_length = sizeof(link_imu_state);
 
   /** Falling edge */
-  SetBit(EICRB, ISC61); 
+  //  SetBit(EICRB, ISC61); 
 
   /** Clr pending interrupt */
-  SetBit(EIFR, INTF6); 
+  //  SetBit(EIFR, INTF6); 
 
   /** Enable DTRDY interrupt */
-  SetBit(EIMSK, INT6); 
+  //  SetBit(EIMSK, INT6); 
 
 }
 
 static inline void link_imu_read( void ) {
-  SpiSelectSlave0();
-  SpiStart();
+  //  SpiSelectSlave0();
+  //  SpiStart();
 }
 
-SIGNAL( SIG_INTERRUPT6 ) {
-  link_imu_read();
-}
+//SIGNAL( SIG_INTERRUPT6 ) {
+  //  link_imu_read();
+//}
 
 void link_imu_event_task( void ) {
 /*   static uint8_t foo; */
@@ -181,4 +200,20 @@ void link_imu_event_task( void ) {
 /*   } */
 }
 
-#endif /* FBW */
+void EXTINT0_ISR(void) {
+  ISR_ENTRY();
+  /* read dummy control byte reply */
+  //  uint8_t foo __attribute__ ((unused)) = SSPDR;
+  /* trigger 2 bytes read */
+  //  SSPDR = 0;
+  //  SSPDR = 0;
+  /* enable timeout interrupt */
+  //  SpiEnableRti();
+  /* clear EINT2 */
+  SetBit(EXTINT,IMU_DRDY_EINT); /* clear EINT0 */
+  
+  VICVectAddr = 0x00000000;    /* clear this interrupt from the VIC */
+  ISR_EXIT();
+}
+
+#endif /* CONTROLLER */
