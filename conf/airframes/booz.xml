@@ -6,6 +6,11 @@ ARCHI=arm7
 
 FLASH_MODE = IAP
 
+
+#
+# controller CPU
+#
+
 ctl.ARCHDIR = $(ARCHI)
 ctl.ARCH = arm7tdmi
 ctl.TARGET = ctl
@@ -35,6 +40,10 @@ ctl.srcs += link_imu.c
 ctl.CFLAGS += -DRADIO_CONTROL -DRADIO_CONTROL_TYPE=RC_FUTABA
 ctl.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c
 
+#
+# AHRS CPU
+#
+
 imu.ARCHDIR = $(ARCHI)
 imu.ARCH = arm7tdmi
 imu.TARGET = imu
@@ -59,7 +68,8 @@ imu.srcs += $(SRC_ARCH)/micromag.c
 
 imu.srcs += imu_v3.c
 
-imu.srcs += ahrs_new.c
+//imu.srcs += ahrs_new.c
+imu.srcs += multitilt.c
 
 imu.srcs += link_imu.c
 

@@ -9,7 +9,7 @@ struct imu_state link_imu_state_foo;
 #ifdef IMU  /* IMU LPC code */
 
 #include "imu_v3.h"
-#include "ahrs_new.h"
+//#include "ahrs_new.h"
 
 #include "LPC21xx.h"
 #include "armVIC.h"
@@ -90,6 +90,7 @@ void link_imu_init ( void ) {
 }
 
 void link_imu_send ( void ) {
+  /*
   if (!isnan(ahrs_phi)   &&
       !isnan(ahrs_theta) &&
       !isnan(ahrs_psi)) {
@@ -114,6 +115,7 @@ void link_imu_send ( void ) {
     link_imu_state.sin_theta = 0.;
     link_imu_state.status = IMU_CRASHED;
   }
+  */
   Spi0InitBuf();
 }
 

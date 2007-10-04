@@ -11,7 +11,8 @@
 #include "max1167.h"
 #include "micromag.h"
 #include "imu_v3.h"
-#include "ahrs_new.h"
+//#include "ahrs_new.h"
+#include "multitilt.h"
 #include "link_imu.h"
 
 #include "messages.h"
@@ -96,7 +97,7 @@ static inline void main_event_task( void ) {
 #ifdef SEND_ACCEL
     DOWNLINK_SEND_IMU_ACCEL(&imu_accel[AXIS_X], &imu_accel[AXIS_Y], &imu_accel[AXIS_Z]);
 #endif
-    ahrs_task();
+    //    ahrs_task();
 
     t1=T0TC;
     //    uint32_t dt = t1 - t0;
@@ -119,7 +120,7 @@ static inline void main_periodic_task( void ) {
 
 }
 
-
+#if 0
 static inline void ahrs_task( void ) {
   /* discard first 100 measures */
   if (ahrs_step == AHRS_STEP_UNINIT) {
@@ -153,7 +154,7 @@ static inline void ahrs_task( void ) {
     if (ahrs_step == AHRS_STEP_NB) ahrs_step = AHRS_STEP_ROLL;
   }
 }
-
+#endif
 
 /* SSPCR0 settings */
 #define SSP_DDS  0x07 << 0  /* data size         : 8 bits        */
