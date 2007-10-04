@@ -356,6 +356,11 @@
   <message name="AHRS_COV" ID="204">
     <field name="p00" type="float"/>
     <field name="p11" type="float"/>
+    <field name="p22" type="float"/>
+    <field name="p33" type="float"/>
+    <field name="p44" type="float"/>
+    <field name="p55" type="float"/>
+    <field name="p66" type="float"/>
   </message>
 
    <message name="TIME" ID="206">

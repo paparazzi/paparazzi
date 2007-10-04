@@ -3,7 +3,7 @@
 
 #include <inttypes.h>
 
-#include "frames.h"
+#include "6dof.h"
 
 /* angles are transmitted as int16 : PI -> 16384 */
 /* rates are transmitted as int16 : 1 PI s-1 -> 16384 */

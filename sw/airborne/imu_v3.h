@@ -3,7 +3,7 @@
 
 #include <inttypes.h>
 
-#include "frames.h"
+#include "6dof.h"
 
 /* accelerometers in arbitrary unit */
 extern float imu_accel[AXIS_NB];

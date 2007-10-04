@@ -6,7 +6,7 @@
 
 
 /* Time step */
-#define afe_dt 0.015625
+#define afe_dt 0.0166667
 
 /* We have seven variables in our state -- the quaternion attitude
  * estimate and three gyro bias values 

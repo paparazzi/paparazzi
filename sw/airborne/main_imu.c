@@ -12,7 +12,8 @@
 #include "micromag.h"
 #include "imu_v3.h"
 //#include "ahrs_new.h"
-#include "multitilt.h"
+//#include "multitilt.h"
+#include "ahrs_quat_fast_ekf.h"
 #include "link_imu.h"
 
 #include "messages.h"
@@ -22,7 +23,7 @@
 #define SEND_MAG   1
 #define SEND_GYRO  1
 #define SEND_AHRS_STATE 1
-//#define SEND_AHRS_COV   1
+#define SEND_AHRS_COV   1
 
 static inline void main_init( void );
 static inline void main_periodic_task( void );
@@ -87,6 +88,7 @@ static inline void main_event_task( void ) {
   }
 
   if (max1167_data_available) {
+
     max1167_data_available = FALSE;
     spi_cur_slave = SPI_SLAVE_NONE;
     ImuUpdateGyros();
@@ -97,12 +99,8 @@ static inline void main_event_task( void ) {
 #ifdef SEND_ACCEL
     DOWNLINK_SEND_IMU_ACCEL(&imu_accel[AXIS_X], &imu_accel[AXIS_Y], &imu_accel[AXIS_Z]);
 #endif
-    //    ahrs_task();
-
-    t1=T0TC;
-    //    uint32_t dt = t1 - t0;
-    //    DOWNLINK_SEND_TIME(&dt);
-
+    ahrs_task();
+    
     link_imu_send();
   }
 }
@@ -110,8 +108,13 @@ static inline void main_event_task( void ) {
 static inline void main_periodic_task( void ) {
   if (spi_cur_slave != SPI_SLAVE_NONE)
     DOWNLINK_SEND_AHRS_OVERRUN();
+#if 0  
   t0 = T0TC;
-
+  afe_predict( imu_gyro );
+  t1 = T0TC;
+  uint32_t dif = t1 - t0;
+  DOWNLINK_SEND_TIME(&dif);
+#endif
   // spi_cur_slave = SPI_SLAVE_MAX;
   //  max1167_read();
 
@@ -120,7 +123,6 @@ static inline void main_periodic_task( void ) {
 
 }
 
-#if 0
 static inline void ahrs_task( void ) {
   /* discard first 100 measures */
   if (ahrs_step == AHRS_STEP_UNINIT) {
@@ -128,33 +130,32 @@ static inline void ahrs_task( void ) {
     init_count++;
     if (init_count > 100) {
       ahrs_step = AHRS_STEP_ROLL;
-      ahrs_init(imu_mag, imu_accel, imu_gyro);
+      afe_init(imu_mag, imu_accel, imu_gyro);
     }
   }
   else {
-    ahrs_predict(imu_gyro);
+    afe_predict(imu_gyro);
     switch (ahrs_step) {
     case AHRS_STEP_ROLL: 
-      ahrs_roll_update(imu_accel); 
+      afe_update_phi(imu_accel); 
       break;
     case AHRS_STEP_PITCH:
-      ahrs_pitch_update(imu_accel); 
+      afe_update_theta(imu_accel); 
       break;
     case AHRS_STEP_YAW:  
-      ahrs_yaw_update(imu_mag);
+      afe_update_psi(imu_mag);
       break;
     }
 #ifdef SEND_AHRS_STATE
-    DOWNLINK_SEND_AHRS_STATE(&q0, &q1, &q2, &q3, &bias_p, &bias_q, &bias_r);
+    DOWNLINK_SEND_AHRS_STATE(&afe_q0, &afe_q1, &afe_q2, &afe_q3, &afe_bias_p, &afe_bias_q, &afe_bias_r);
 #endif
 #ifdef SEND_AHRS_COV
-    DOWNLINK_SEND_AHRS_COV(&P[0][0], &P[1][1]);
+    DOWNLINK_SEND_AHRS_COV(&afe_P[0][0], &afe_P[1][1], &afe_P[2][2], &afe_P[3][3], &afe_P[4][4], &afe_P[5][5], &afe_P[6][6]);
 #endif
     ahrs_step++;
     if (ahrs_step == AHRS_STEP_NB) ahrs_step = AHRS_STEP_ROLL;
   }
 }
-#endif
 
 /* SSPCR0 settings */
 #define SSP_DDS  0x07 << 0  /* data size         : 8 bits        */

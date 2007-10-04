@@ -4,8 +4,8 @@
 #include <inttypes.h>
 #include "6dof.h"
 
-#define FLOAT_T double
-//#define FLOAT_T float
+//#define FLOAT_T double
+#define FLOAT_T float
 
 /* ekf state : quaternion and gyro biases */
 extern FLOAT_T afe_q0, afe_q1, afe_q2, afe_q3;
