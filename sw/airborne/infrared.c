@@ -95,8 +95,11 @@ float ir_rad_of_ir;
 
 float estimator_rad_of_ir, estimator_ir, estimator_rad;
 
+#ifndef SITL
 static struct adc_buf buf_ir1;
 static struct adc_buf buf_ir2;
+#endif
+
 #ifdef ADC_CHANNEL_IR_TOP
 static struct adc_buf buf_ir_top;
 #endif
@@ -137,8 +140,10 @@ float ir_360_vertical_correction;
  */
 void ir_init(void) {
   RadOfIrFromContrast(IR_DEFAULT_CONTRAST);
+#ifndef SITL
   adc_buf_channel(ADC_CHANNEL_IR1, &buf_ir1, ADC_CHANNEL_IR_NB_SAMPLES);
   adc_buf_channel(ADC_CHANNEL_IR2, &buf_ir2, ADC_CHANNEL_IR_NB_SAMPLES);
+#endif
 #ifdef ADC_CHANNEL_IR_TOP
   adc_buf_channel(ADC_CHANNEL_IR_TOP, &buf_ir_top, ADC_CHANNEL_IR_NB_SAMPLES);
   z_contrast_mode = Z_CONTRAST_DEFAULT;
