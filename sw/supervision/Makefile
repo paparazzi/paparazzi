@@ -30,3 +30,14 @@ pc_control_panel.cmo pc_aircraft.cmo : pc_common.cmo
 
 clean:
 	\rm *.cm* gtk_pc.ml gtk_process.ml
+
+#
+# Dependencies
+#
+
+.depend:
+	ocamldep -I ../lib/ocaml *.ml* > .depend
+
+ifneq ($(MAKECMDGOALS),clean) 
+-include .depend
+endif
