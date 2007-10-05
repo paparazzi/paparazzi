@@ -47,7 +47,6 @@
     <define name="IR2" value="ADC_1"/>
     <define name="IR_TOP" value="ADC_6"/>
     <define name="IR_NB_SAMPLES" value="16"/>
-    <define name="VSUPPLY"  value="ADC_3"/>
     <define name="GYRO_ROLL" value="ADC_4"/>
     <define name="GYRO_TEMP" value="ADC_5"/>
     <define name="GYRO_NB_SAMPLES" value="16"/> 
@@ -80,9 +79,6 @@
 
   <section name="BAT">
     <define name="MILLIAMP_PER_PERCENT" value="0.86"/>
-    <define name="VOLTAGE_ADC_A" value="0.0177531"/>
-    <define name="VOLTAGE_ADC_B" value="0.173626"/>
-    <define name="VoltageOfAdc(adc)" value="(VOLTAGE_ADC_A * adc + VOLTAGE_ADC_B)"/>
     <define name="LOW_BATTERY" value="9.3" unit="V"/>
   </section>
  
