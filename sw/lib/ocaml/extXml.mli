@@ -49,14 +49,20 @@ val attrib_or_default : Xml.xml -> string -> string -> string
 (** [get xml attribute_name default_value] *)
 
 val to_string_fmt : ?tab_attribs:bool -> Xml.xml -> string
-(** [to_string_fmt tab_attribs xml] Returns a formatted string where tag and attribute
-names are lowercase *)
+(** [to_string_fmt ?tab_attribs xml] Returns a formatted string where tag
+    and attribute names are lowercase. [tab_attribs] requires attributes to
+    be tabulated one by line *)
 
 val subst_attrib : string -> string -> Xml.xml -> Xml.xml
 (** [subst_attrib attrib_name new_value xml] *)
 
-val subst_child : string -> Xml.xml -> Xml.xml -> Xml.xml
-(** [subst_child child_tag new_child xml] *)
+val subst_child :
+    ?select:(Xml.xml -> bool) -> string -> Xml.xml -> Xml.xml -> Xml.xml
+(** [subst_child ?select child_tag new_child xml] *)
+
+val remove_child :
+    ?select:(Xml.xml -> bool) -> string -> Xml.xml -> Xml.xml
+(** [delete_child ?select child_tag xml] *)
 
 val parse_file : ?noprovedtd:bool -> string -> Xml.xml
 (** Identical to Xml.parse_file with Failure exceptions. [nodtdprove] default is false. *)

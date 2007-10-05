@@ -173,13 +173,21 @@ let subst_attrib = fun attrib value xml ->
   | Xml.PCData _ -> xml
 
 
-let subst_child = fun t x xml ->
-  let u = String.uppercase in
+let subst_child = fun ?(select= fun _ -> true) t x xml ->
   match xml with
     Xml.Element (tag, attrs, children) ->
       Xml.Element (tag,
 		   attrs,
-		   List.map (fun xml -> if u (Xml.tag xml) = u t then x else xml) children)
+		   List.map (fun xml -> if tag_is xml t && select xml then x else xml) children)
+  | Xml.PCData _ -> xml
+
+
+let remove_child = fun ?(select= fun _ -> true) t xml ->
+  match xml with
+    Xml.Element (tag, attrs, children) ->
+      Xml.Element (tag,
+		   attrs,
+		   List.fold_right (fun xml rest -> if tag_is xml t && select xml then rest else xml::rest) children [])
   | Xml.PCData _ -> xml
 
 
