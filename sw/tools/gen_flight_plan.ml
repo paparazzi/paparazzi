@@ -593,7 +593,6 @@ let dummy_waypoint =
 
 let print_inside_polygon = fun pts ->
   let layers = Geometry_2d.slice_polygon (Array.of_list pts) in
-  Array.iter (fun s -> fprintf stderr "t=%f\n" s.G2D.top) layers;
   let rec f = fun i j ->
     if i = j then
       let {G2D.top=yl; left_side=(xg, ag); right_side=(xd, ad)} = layers.(i) in
