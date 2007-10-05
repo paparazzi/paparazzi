@@ -1,7 +1,7 @@
 (*
  * $Id$
  *
- * Paparazzi center process handling
+ * Paparazzi center processes handling
  *  
  * Copyright (C) 2007 ENAC, Pascal Brisset, Antoine Drouin
  *
@@ -25,11 +25,11 @@
  *)
 
 open Printf
-open Pc_common
+module Utils = Pc_common
 
-let socket_GCS_id = ref (Int32.of_int 0)
+let (//) = Filename.concat
 
-let control_panel_xml_file = conf_dir // "control_panel.xml"
+let control_panel_xml_file = Utils.conf_dir // "control_panel.xml"
 let control_panel_xml = Xml.parse_file control_panel_xml_file
 let programs =
   let h = Hashtbl.create 7 in
@@ -67,50 +67,9 @@ let write_control_panel_xml = fun () ->
   output_string f (ExtXml.to_string_fmt ~tab_attribs:false c);
   close_out f
 
-let run_and_monitor = fun ?file ?(plugged=false) gui log com_name args ->
-  let com = program_command com_name in
-  let c = sprintf "%s %s" com args in
-  let p = new Gtk_process.hbox_program ?file () in
-  (gui#vbox_programs:GPack.box)#pack p#toplevel#coerce;
-  p#label_com_name#set_text com_name;
-  p#entry_program#set_text c;
-  let pid = ref (-1) in
-  let run = fun callback ->
-    let c = p#entry_program#text in
-    let c = if plugged then sprintf "%s -wid 0x%lx" c !socket_GCS_id else c in
-    if plugged then
-      gui#notebook#goto_page 2; (* FIXME *)
-    log (sprintf "Run '%s'\n" c);
-    let (pi, out) = run_and_log log ("exec "^c) in
-    pid := pi;
-    ignore (Glib.Io.add_watch [`HUP] (fun _ -> callback true; false) out) in
-  let rec callback = fun stop ->
-    match p#button_stop#label, stop with
-      "gtk-stop", _ ->
-	ignore (Unix.kill !pid Sys.sigkill);
-	p#button_stop#set_label "gtk-redo";
-	p#button_remove#misc#set_sensitive true;
-	if stop && p#checkbutton_autolaunch#active then
-	  callback false
-    | "gtk-redo", false ->
-	p#button_stop#set_label "gtk-stop";
-	run callback;
-	p#button_remove#misc#set_sensitive false
-    | _ -> ()
-  in
-  ignore (p#button_stop#connect#clicked ~callback:(fun () -> callback false));
-  run callback;
-  
-  (* Stop the program if the box is removed *)
-  let callback = fun w ->
-    callback true in
-  ignore(p#toplevel#connect#destroy ~callback);
 
-  (* Remove button *)
-  let callback = fun () ->
-    gui#vbox_programs#remove p#toplevel#coerce in
-  ignore (p#button_remove#connect#clicked ~callback)
-
+let run_and_monitor = fun ?file gui log com_name args ->
+  Utils.run_and_monitor ?file gui log com_name (program_command com_name) args
 
 let close_programs = fun gui ->
   List.iter (fun w -> 
@@ -154,12 +113,12 @@ let parse_process_args = fun (name, args) ->
 	Xml.Element("arg", ["flag",option],[])::xml_args l in
   Xml.Element("program", ["name", name], xml_args args)
 
-let save_session = fun gui ->
+let save_session = fun gui session_combo ->
   (* Ask for a session name *)
-  let text = gui#entry_session_name#text in
+  let text = Utils.combo_value session_combo in
   let text = if text = "" then "My session" else text in
   match GToolbox.input_string ~ok:"Save" ~text ~title:"Session name" "Save custom session ?" with
-    None -> false
+    None -> ""
   | Some name ->
       let current_processes =
 	List.map (fun hbox ->
@@ -176,7 +135,7 @@ let save_session = fun gui ->
       begin try Hashtbl.remove sessions name with _ -> () end;
       Hashtbl.add sessions name session;
       write_control_panel_xml ();
-      true
+      name
 
 let double_quote = fun s ->
   if String.contains s ' ' then
@@ -184,30 +143,72 @@ let double_quote = fun s ->
   else
     s
 
-
-let supervision = fun ?file gui log ->
-  let supervision_page = 1 in (* FIXME *)
-
+let supervision = fun ?file gui log (ac_combo : Utils.combo) ->
   let run_gcs = fun () ->
-    run_and_monitor ?file ~plugged:true gui log "GCS" ""
+    run_and_monitor ?file gui log "GCS" ""
   and run_server = fun args ->
     run_and_monitor ?file gui log "Server" args
-  and run_link = fun args ->
-    run_and_monitor ?file gui log "Data Link" args
   and run_sitl = fun ac_name ->
     let args = sprintf "-a %s -boot -norc" ac_name in
     run_and_monitor ?file gui log "Simulator" args
   in
 
-  (* Replay menu *)
-  let callback = fun () ->
-    gui#entry_session_name#set_text "Replay";
+  (* Sessions *)
+  let session_combo = Utils.combo [] gui#vbox_session in
+
+  let remove_custom_sessions = fun () ->
+    let (store, _column) = Utils.combo_model session_combo in
+    store#clear ()
+  in
+
+  let register_custom_sessions = fun () ->
+    remove_custom_sessions ();
+    Utils.add_to_combo session_combo "Simulation";
+    Utils.add_to_combo session_combo "Replay";
+    Utils.add_to_combo session_combo Utils.combo_separator;
+    Hashtbl.iter
+      (fun name _session ->
+	Utils.add_to_combo session_combo name)
+      sessions in
+
+  register_custom_sessions ();
+
+  let execute_custom = fun session_name ->
+    let session = Hashtbl.find sessions session_name in
+    List.iter
+      (fun program ->
+	let name = ExtXml.attrib program "name" in
+	let p = ref "" in
+	List.iter
+	  (fun arg ->
+	    let constant = 
+	      try double_quote (Xml.attrib arg "constant") with _ -> "" in
+	    p := sprintf "%s %s %s" !p (ExtXml.attrib arg "flag") constant)
+	  (Xml.children program);
+	run_and_monitor ?file gui log name !p)
+      (Xml.children session)
+  in
+
+  (* Replay session *)
+  let replay = fun () ->
     run_and_monitor ?file gui log "Log File Player" "";
     run_server "-n";
-    run_gcs ()
-  in
-  ignore (gui#replay_menu_item#connect#activate ~callback);
+    run_gcs () in
+   
+  (* Simulations *)
+  let simulation = fun () ->
+    run_gcs ();
+    run_server "-n";
+    run_sitl (Utils.combo_value ac_combo) in
 
+  (* Run session *)
+  let callback = fun () ->
+    match Utils.combo_value session_combo with
+      "Simulation" -> simulation ()
+    | "Replay" -> replay ()
+    | custom -> execute_custom custom in	
+  ignore (gui#button_execute#connect#clicked ~callback);
+  
   (* Close session *)
   let callback = fun () ->
     close_programs gui in
@@ -216,7 +217,7 @@ let supervision = fun ?file gui log ->
   (* Tools *)
   let entries = ref [] in
   Hashtbl.iter
-    (fun name prog ->
+    (fun name _prog ->
       let cb = fun () ->
 	run_and_monitor ?file gui log name "" in
       entries := `I (name, cb) :: !entries)
@@ -230,92 +231,37 @@ let supervision = fun ?file gui log ->
   GToolbox.build_menu menu sorted_entries;
   gui#programs_menu_item#set_submenu menu;
 
-  (* Simulations *)
-  let insert_sims_in_menu = fun num_page ->
-    if num_page = supervision_page && !aircrafts_table_has_changed then
-      let entries = ref [] in
-      Hashtbl.iter
-	(fun ac_name ac -> 
-	  let cb = fun () ->
-	    gui#entry_session_name#set_text (sprintf "Simulator %s" ac_name);
-	    run_gcs ();
-	    run_server "-n";
-	    run_sitl ac_name
-	  in
-	  entries := `I (ac_name, cb) :: !entries)
-	aircrafts;
-      let menu = GMenu.menu ()
-      and sorted_entries = List.sort compare !entries in
-      GToolbox.build_menu menu sorted_entries;
-      gui#sim_menu_item#set_submenu menu;
-      aircrafts_table_has_changed := false in
-
-  ignore (gui#notebook#connect#switch_page ~callback:insert_sims_in_menu);
-
-  (* Sessions *)
-  let insert_sessions_in_menu = fun () ->
-    let entries = ref [] in
-    let cb = fun name session () ->
-      gui#entry_session_name#set_text name;
-      List.iter
-	(fun program ->
-	  let name = ExtXml.attrib program "name" in
-	  let p = ref "" in
-	  List.iter
-	    (fun arg ->
-	      let constant = 
-		try double_quote (Xml.attrib arg "constant") with _ -> "" in
-	      p := sprintf "%s %s %s" !p (ExtXml.attrib arg "flag") constant)
-	    (Xml.children program);
-	  run_and_monitor ~plugged:(name="gcs") ?file gui log name !p)
-	(Xml.children session)
-    in
-    Hashtbl.iter
-      (fun name session -> 
-	entries := `I (name, cb name session) :: !entries)
-      sessions;
-    let menu = GMenu.menu ()
-    and sorted_entries = List.sort compare !entries in
-    GToolbox.build_menu menu sorted_entries;
-    gui#session_menu_item#set_submenu menu in
-
-  insert_sessions_in_menu ();
-
-  (* Add new session *)
+  (* New session *)
   let callback = fun () ->
-    if save_session gui then
-      insert_sessions_in_menu () in
-  ignore (gui#button_save_session#connect#clicked ~callback);
+    match GToolbox.input_string ~title:"New session" ~text:"My session" "New session name ?" with
+      None -> ()
+    | Some s ->
+	Utils.add_to_combo session_combo s in
+  ignore (gui#menu_item_new_session#connect#activate ~callback);
+
+  (* Save new session *)
+  let callback = fun () ->
+    match save_session gui session_combo with
+      "" -> ()
+    | session_name ->
+	register_custom_sessions ();
+	Utils.select_in_combo session_combo session_name
+  in
+  ignore (gui#menu_item_save_session#connect#activate ~callback);
 
   (* Remove current session *)
   let callback = fun () ->
-    let session_name = gui#entry_session_name#text in
+    let session_name = Utils.combo_value session_combo in
     match GToolbox.question_box ~title:"Delete custom session" ~buttons:["Cancel"; "Delete"] ~default:2 (sprintf "Delete '%s' custom session ? (NO undo)" session_name) with
       2 ->
 	if Hashtbl.mem sessions session_name then begin
 	  Hashtbl.remove sessions session_name;
 	  write_control_panel_xml ();
-	  insert_sessions_in_menu ()
+	  register_custom_sessions ()
 	end;
-	close_programs gui;
-	gui#entry_session_name#set_text ""
+	close_programs gui
     | _ -> ()
   in
-  ignore (gui#button_delete_session#connect#clicked ~callback);
-
-  (* Flights *)
-  let cb = fun name args () ->
-    gui#entry_session_name#set_text (sprintf "Flight: %s" name);
-    run_gcs ();
-    run_server "";
-    run_link args
-  in
-  let entries = 
-    [`I ("Maxstream", cb "Maxstream" "-transport xbee -uplink");
-     `I ("Aerocomm", cb "Aerocomm" "-s 57600 -aerocomm -uplink"); 
-     `I ("Serial", cb "Serial" "-uplink")] in
-  let menu = GMenu.menu ()
-  and sorted_entries = List.sort compare entries in
-  GToolbox.build_menu menu sorted_entries;
-  gui#fly_menu_item#set_submenu menu
+  ignore (gui#menu_item_delete_session#connect#activate ~callback);
+  session_combo
 

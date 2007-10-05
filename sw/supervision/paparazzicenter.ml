@@ -25,14 +25,111 @@
  *)
 
 open Printf
-open Pc_common
+module Utils = Pc_common
 module CP = Pc_control_panel
 module AC = Pc_aircraft
 
-
-let quit_page = 3 (* FIXME *)
+let (//) = Filename.concat
 
 let fullscreen = ref false
+
+
+(*********************** Preferences handling **************************)
+
+let get_entry_value = fun xml name ->
+  let e = ExtXml.child ~select:(fun x -> Xml.attrib x "name" = name) xml "entry" in
+  Xml.attrib e "value"
+
+let read_preferences = fun file (ac_combo:Utils.combo) (session_combo:Utils.combo) (target_combo:Utils.combo) ->
+  let xml = Xml.parse_file file in
+
+  (*********** Last A/C *)
+  begin
+    try 
+      let ac_name = get_entry_value xml "last A/C" in
+      Utils.select_in_combo ac_combo ac_name
+    with Not_found -> ()
+  end;
+
+  (*********** Last session *)
+  begin
+    try 
+      let session_name = get_entry_value xml "last session" in
+      Utils.select_in_combo session_combo session_name
+    with Not_found -> ()
+  end;
+
+  (*********** Last target *)
+  begin
+    try 
+      let name = get_entry_value xml "last target" in
+      Utils.select_in_combo target_combo name
+    with Not_found -> ()
+  end
+
+
+let gconf_entry = fun name value ->
+  Xml.Element ("entry", ["name", name;
+			 "value", value;
+			 "application", "paparazzi center"],
+	       [])
+
+let add_entry = fun xml name value ->
+  let entry = gconf_entry name value in
+  let select = fun x -> Xml.attrib x "name" = name in
+  let xml = ExtXml.remove_child ~select "entry" xml in
+  Xml.Element (Xml.tag xml, Xml.attribs xml, entry::Xml.children xml)
+
+
+let write_preferences = fun file (ac_combo:Utils.combo) (session_combo:Utils.combo) (target_combo:Utils.combo) ->
+  let xml = if Sys.file_exists file then Xml.parse_file file else Xml.Element ("gconf", [], []) in
+
+  (* Save A/C name *)
+  let xml = 
+    try
+      let ac_name = Utils.combo_value ac_combo in
+      add_entry xml "last A/C" ac_name 
+    with Not_found -> xml in
+
+  (* Save session *)
+  let xml = 
+    let session_name = Utils.combo_value session_combo in
+    add_entry xml "last session" session_name in
+
+  (* Save target *)
+  let xml = 
+    let name = Utils.combo_value target_combo in
+    add_entry xml "last target" name in
+
+  let f = open_out file in
+  Printf.fprintf f "%s\n" (ExtXml.to_string_fmt xml);
+  close_out f
+
+let quit_callback = fun gui ac_combo session_combo target_combo () ->
+  CP.close_programs gui;
+  write_preferences Env.gconf_file ac_combo session_combo target_combo;
+  exit 0
+
+let quit_button_callback = fun gui ac_combo session_combo target_combo () ->
+  if Sys.file_exists Utils.backup_xml_file then begin
+    let rec question_box = fun () ->
+      match GToolbox.question_box ~title:"Quit" ~buttons:["Save changes"; "Discard changes"; "View changes"; "Cancel"] ~default:1 "Configuration changes have not been saved" with
+      | 2 -> 
+	  Sys.rename Utils.backup_xml_file Utils.conf_xml_file;
+	  quit_callback gui ac_combo session_combo target_combo ()
+      | 3 -> 
+	  ignore (Sys.command (sprintf "tkdiff %s %s" Utils.backup_xml_file Utils.conf_xml_file));
+	  question_box ()
+      | 1 -> 
+	  Sys.remove Utils.backup_xml_file;
+	  quit_callback gui ac_combo session_combo target_combo ()
+      | _ -> () in
+    question_box ()
+  end else
+    match GToolbox.question_box ~title:"Quit" ~buttons:["Cancel"; "Quit"] ~default:2 "Quit ?" with
+    2 -> quit_callback gui ac_combo session_combo target_combo ()
+  | _ -> ()
+
 
 let () =
   Arg.parse
@@ -41,7 +138,7 @@ let () =
     "Usage: ";
   let file = Env.paparazzi_src // "sw" // "supervision" // "paparazzicenter.glade" in
   let gui = new Gtk_pc.window ~file () in
-  ignore (gui#window#connect#destroy ~callback:(fun _ -> CP.close_programs gui; exit 0));
+
   if !fullscreen then
     gui#window#fullscreen ();
   gui#toplevel#show ();
@@ -51,16 +148,25 @@ let () =
   let s = gui#statusbar#new_context "env" in
   ignore (s#push (sprintf "HOME=%s SRC=%s" Env.paparazzi_home Env.paparazzi_src));
 
-  let ac_combo = AC.parse_conf_xml gui#vbox_ac
-  and target_combo = combo ["sim";"fbw";"ap"] gui#vbox_target in
+  if Sys.file_exists Utils.backup_xml_file then begin
+    let rec question_box = fun () ->
+      match GToolbox.question_box ~title:"Backup" ~buttons:["Keep changes"; "Discard changes"; "View changes"] ~default:2 "Configuration changes made during the last session were not saved. ?" with
+      | 2 -> Sys.rename Utils.backup_xml_file Utils.conf_xml_file
+      | 3 -> ignore (Sys.command (sprintf "tkdiff %s %s" Utils.backup_xml_file Utils.conf_xml_file)); question_box ()
+      | _ -> Sys.remove Utils.backup_xml_file in
+    question_box ()
+  end;
 
-  (combo_widget target_combo)#misc#set_sensitive false;
+  Utils.build_aircrafts ();
+
+  let ac_combo = AC.parse_conf_xml gui#vbox_ac
+  and target_combo = Utils.combo ["sim";"fbw";"ap"] gui#vbox_target in
+
+  (Utils.combo_widget target_combo)#misc#set_sensitive false;
   gui#button_clean#misc#set_sensitive false;
   gui#button_build#misc#set_sensitive false;
 
   AC.ac_combo_handler gui ac_combo target_combo;
-
-  AC.conf_handler gui;
 
   (* Change the buffer of the text view to attach a tag_table *)
   let background_tags = 
@@ -70,7 +176,7 @@ let () =
       (color, tag))
       ["red"; "green";"orange"] in
   let tag_table = GText.tag_table () in
-  List.iter (fun (color, tag) -> tag_table#add tag#as_tag) background_tags;
+  List.iter (fun (_color, tag) -> tag_table#add tag#as_tag) background_tags;
   let buffer = GText.buffer ~tag_table () in
   gui#console#set_buffer buffer;
 
@@ -94,9 +200,6 @@ let () =
       | [] -> [] in
     loop color_regexps in
   
-  (* Attach the second console to the buffer of the first one *)
-  gui#console_cp#set_buffer gui#console#buffer;
-
   let log = fun s ->
     let iter = gui#console#buffer#end_iter in
     let tags = compute_tags s in
@@ -104,29 +207,28 @@ let () =
     (* Scroll to the bottom line *)
     let end_iter = gui#console#buffer#end_iter in
     let end_mark = gui#console#buffer#create_mark end_iter in
-    gui#console#scroll_mark_onscreen (`MARK end_mark);
-    gui#console_cp#scroll_mark_onscreen (`MARK end_mark) in
+    gui#console#scroll_mark_onscreen (`MARK end_mark) in
 
-  AC.build_handler gui ac_combo target_combo log;
+  AC.build_handler ~file gui ac_combo target_combo log;
 
-  CP.supervision ~file gui log;
-
-  (* GCS plugin
-     Cannot reattach a new window: hack by kill and remake the socket *)
-  let rec socket = fun () ->
-    let socket_GCS = GWindow.socket ~packing:gui#vbox_GCS#add () in
-    CP.socket_GCS_id := socket_GCS#xwindow;
-    ignore(socket_GCS#connect#plug_removed 
-	     (fun () -> gui#vbox_GCS#remove socket_GCS#coerce; socket ())) in
-  socket ();
+  let session_combo = CP.supervision ~file gui log ac_combo in
 
   (* Quit button *)
-  let callback = fun num_page ->
-    if num_page = quit_page then
-      match GToolbox.question_box ~title:"Quit" ~buttons:["Cancel"; "Quit"] ~default:2 "Quit ?" with
-	2 -> exit 0
-      | _ ->ignore (GMain.Idle.add (fun () -> gui#notebook#goto_page 0; false))
-  in
-  ignore (gui#notebook#connect#switch_page ~callback);
- 
+  ignore (gui#menu_item_quit#connect#activate ~callback:(quit_button_callback gui ac_combo session_combo target_combo));
+
+  ignore (gui#window#connect#destroy ~callback:(quit_callback gui ac_combo session_combo target_combo));
+
+  let callback = fun () ->
+    fullscreen := not !fullscreen;
+    if !fullscreen then
+      gui#window#fullscreen ()
+    else
+      gui#window#unfullscreen () in
+  ignore (gui#menu_item_fullscreen#connect#activate ~callback);
+
+  (* Read preferences *)
+  if Sys.file_exists Env.gconf_file then begin
+    read_preferences Env.gconf_file ac_combo session_combo target_combo
+  end;
+
   GMain.Main.main ();;

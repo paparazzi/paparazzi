@@ -15,21 +15,25 @@ paparazzicenter : $(PAPARAZZICENTERCMO) $(OCAMLLIB)/lib-pprz.cma
 	$(Q)$(OCAMLC) -custom $(INCLUDES) -o $@ unix.cma str.cma xml-light.cma lablgtk.cma lablglade.cma gtkInit.cmo lib-pprz.cma lablgnomeui.cma $^
 
 gtk_pc.ml : paparazzicenter.glade
-	lablgladecc2 -root window $< > $@
+	lablgladecc2 -hide-default -root window $< > $@
 
 gtk_process.ml : paparazzicenter.glade
-	lablgladecc2 -root hbox_program $< | grep -B 1000000 "  end" > $@
+	lablgladecc2 -hide-default -root hbox_program $< | grep -B 1000000 "  end" > $@
 
 %.cmo : %.ml
 	@echo OC $<
 	$(Q)$(OCAMLC) $(INCLUDES) -c $<
+
+%.cmi : %.mli
+	@echo OC $<
+	$(Q)$(OCAMLC) $(INCLUDES) $<
 
 paparazzicenter.cmo : gtk_pc.cmo gtk_process.cmo pc_common.cmo pc_control_panel.cmo pc_aircraft.cmo
 
 pc_control_panel.cmo pc_aircraft.cmo : pc_common.cmo
 
 clean:
-	\rm *.cm* gtk_pc.ml gtk_process.ml
+	\rm *.cm* gtk_pc.ml gtk_process.ml .depend
 
 #
 # Dependencies

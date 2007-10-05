@@ -24,8 +24,10 @@
  *
  *)
 
-open Pc_common
+module Utils = Pc_common
 open Printf
+
+let (//) = Filename.concat
 
 let gcs = Env.paparazzi_src // "sw/ground_segment/cockpit/gcs"
 
@@ -45,30 +47,34 @@ let aircraft_sample = fun name ac_id ->
 	       [])
 
 				   
-
-let airframes_dir = conf_dir // "airframes"
-let flight_plans_dir = conf_dir // "flight_plans"
-
-let write_conf_xml = fun () ->
-  Sys.rename conf_xml_file (conf_xml_file^"~");
-  let l = Hashtbl.fold (fun _ a r -> a::r) aircrafts [] in
+let write_conf_xml = fun ?(user_save = false) () ->
+  let l = Hashtbl.fold (fun _ a r -> a::r) Utils.aircrafts [] in
+  let l = List.sort (fun ac1 ac2 -> compare (Xml.attrib ac1 "name") (Xml.attrib ac2 "name")) l in
   let c = Xml.Element ("conf", [], l) in
-  let f = open_out conf_xml_file in
-  output_string f (ExtXml.to_string_fmt ~tab_attribs:true c);
-  close_out f
+  if c <> Xml.parse_file Utils.conf_xml_file then begin
+    if not (Sys.file_exists Utils.backup_xml_file) then
+      ignore (Sys.command (sprintf "cp %s %s" Utils.conf_xml_file Utils.backup_xml_file));
+    let f = open_out Utils.conf_xml_file in
+    fprintf f "%s\n" (ExtXml.to_string_fmt ~tab_attribs:true c);
+    close_out f
+  end;
+  if user_save && Sys.file_exists Utils.backup_xml_file then begin
+    let today = Unix.localtime (Unix.gettimeofday ()) in
+    Sys.rename Utils.backup_xml_file (sprintf "%s.%04d-%02d-%02d_%02d:%02d" Utils.conf_xml_file (1900+today.Unix.tm_year) (today.Unix.tm_mon+1) today.Unix.tm_mday today.Unix.tm_hour today.Unix.tm_min)
+  end
 
 let new_ac_id = fun () ->
   let m = ref 0 in
   Hashtbl.iter
     (fun _  x ->
       m := max !m (int_of_string (ExtXml.attrib x "ac_id")))
-    aircrafts ;
+    Utils.aircrafts ;
   !m + 1
 
 let parse_conf_xml = fun vbox ->
   let strings = ref [] in
-  Hashtbl.iter (fun name _ac -> strings := name :: !strings) aircrafts;
-  combo ~others:[""] !strings vbox
+  Hashtbl.iter (fun name _ac -> strings := name :: !strings) Utils.aircrafts;
+  Utils.combo ("" :: !strings) vbox
 
 
 let combo_connect = fun ((combo: #GEdit.combo_box), (_,column)) cb ->
@@ -80,23 +86,6 @@ let combo_connect = fun ((combo: #GEdit.combo_box), (_,column)) cb ->
 		  let data = combo#model#get ~row ~column in
 		  cb data))
 	    
-let combo_value = fun ((combo: #GEdit.combo_box), (_,column)) ->
-  match combo#active_iter with
-  | None -> raise Not_found
-  | Some row -> combo#model#get ~row ~column
-      
-let is_xml_file = fun s ->
-  let n = String.length s in
-  n >= 4 && String.sub s (n-4) 4 = ".xml"
-
-let combo_dir = fun ?others directory vbox ->
-  let files = Array.to_list (Sys.readdir directory) in
-  let xml_files = List.filter is_xml_file files in
-  combo ?others xml_files vbox
-
-
-
-
 let editor =
   try Sys.getenv "EDITOR" with _ -> "gedit"
 
@@ -121,8 +110,8 @@ let ac_files = fun gui ->
 (* Awful but easier *)
 let current_color = ref "white"
 
-let save_callback = fun gui ac_combo () ->
-  let ac_name = combo_value ac_combo in
+let save_callback = fun ?user_save gui ac_combo () ->
+  let ac_name = Utils.combo_value ac_combo in
   if ac_name <> "" then begin
     let color = !current_color in
     let aircraft =
@@ -136,19 +125,30 @@ let save_callback = fun gui ac_combo () ->
 		    "settings", gui#label_settings#text;
 		    "gui_color", color],
 		   []) in
-    begin try Hashtbl.remove aircrafts ac_name with _ -> () end;
-    Hashtbl.add aircrafts ac_name aircraft
+    if gui#entry_ac_id#text <> "" then begin
+      begin try Hashtbl.remove Utils.aircrafts ac_name with _ -> () end;
+      Hashtbl.add Utils.aircrafts ac_name aircraft
+    end
   end;
-  write_conf_xml ()
-  
+  write_conf_xml ?user_save ()
+
+
+let first_word = fun s ->
+  try
+    let n = String.index s ' ' in
+    String.sub s 0 n
+  with
+    Not_found -> s
+
+
 
 (* Link A/C to airframe & flight_plan labels *)
-let ac_combo_handler = fun gui (ac_combo:combo) target_combo ->
+let ac_combo_handler = fun gui (ac_combo:Utils.combo) target_combo ->
   combo_connect ac_combo
     (fun ac_name ->
       try
+	let aircraft = Hashtbl.find Utils.aircrafts ac_name in
 	let sample = aircraft_sample ac_name "42" in
-	let aircraft = Hashtbl.find aircrafts ac_name in
 	let value = fun a ->
 	  try (ExtXml.attrib aircraft a) with _ -> Xml.attrib sample a in
 	List.iter
@@ -161,14 +161,14 @@ let ac_combo_handler = fun gui (ac_combo:combo) target_combo ->
 	gui#eventbox_gui_color#misc#modify_bg [`NORMAL, `NAME gui_color];
 	current_color := gui_color;
 	gui#entry_ac_id#set_text ac_id;
-	(combo_widget target_combo)#misc#set_sensitive true;
+	(Utils.combo_widget target_combo)#misc#set_sensitive true;
       with
 	Not_found ->
 	  gui#label_airframe#set_text "";
 	  gui#label_flight_plan#set_text "";
 	  gui#button_clean#misc#set_sensitive false;
 	  gui#button_build#misc#set_sensitive false;
-	  (combo_widget target_combo)#misc#set_sensitive false
+	  (Utils.combo_widget target_combo)#misc#set_sensitive false
     );
 
   (* New A/C button *)
@@ -176,35 +176,32 @@ let ac_combo_handler = fun gui (ac_combo:combo) target_combo ->
     match GToolbox.input_string ~title:"New A/C" ~text:"MYAC" "New A/C name ?" with
       None -> ()
     | Some s ->
-	let (store, column) = combo_model ac_combo in
-	let row = store#append () in
-	store#set ~row ~column s;
+	Utils.add_to_combo ac_combo s;
 	let a = aircraft_sample s (string_of_int (new_ac_id ())) in
-	Hashtbl.add aircrafts s a;
-	aircrafts_table_has_changed := true;
-	(combo_widget ac_combo)#set_active_iter (Some row)
+	Hashtbl.add Utils.aircrafts s a;
+	Utils.aircrafts_table_has_changed := true
   in
-  ignore (gui#button_new_ac#connect#clicked ~callback);
+  ignore (gui#menu_item_new_ac#connect#activate ~callback);
 
   (* Delete A/C *)
   let callback = fun _ ->
-    let ac_name = combo_value ac_combo in
+    let ac_name = Utils.combo_value ac_combo in
     if ac_name <> "" then
       match GToolbox.question_box ~title:"Delete A/C" ~buttons:["Cancel"; "Delete"] ~default:2 (sprintf "Delete %s ? (no undo after Save)" ac_name) with
 	2 -> begin
-	  begin try Hashtbl.remove aircrafts ac_name with _ -> () end;
-	  aircrafts_table_has_changed := true;
-	  let combo_box = combo_widget ac_combo in
+	  begin try Hashtbl.remove Utils.aircrafts ac_name with _ -> () end;
+	  Utils.aircrafts_table_has_changed := true;
+	  let combo_box = Utils.combo_widget ac_combo in
 	  match combo_box#active_iter with
 	  | None -> ()
 	  | Some row ->
-	      let (store, column) = combo_model ac_combo in
+	      let (store, _column) = Utils.combo_model ac_combo in
 	      ignore (store#remove row);
 	      combo_box#set_active 1
 	end
       | _ -> ()
   in
-  ignore (gui#button_delete_ac#connect#clicked ~callback);
+  ignore (gui#delete_ac_menu_item#connect#activate ~callback);
 
   (* GUI color *)
   let callback = fun _ ->
@@ -213,16 +210,38 @@ let ac_combo_handler = fun gui (ac_combo:combo) target_combo ->
       let colorname = string_of_gdkcolor csd#colorsel#color in
       gui#eventbox_gui_color#misc#modify_bg [`NORMAL, `NAME colorname];
       current_color := colorname;
+      save_callback gui ac_combo ();
       csd#destroy () in
     ignore (csd#ok_button#connect#clicked ~callback);
     ignore (csd#cancel_button#connect#clicked ~callback:csd#destroy) in
   ignore(gui#button_gui_color#connect#clicked ~callback);
 
+  (* A/C id *)
+  ignore(gui#entry_ac_id#connect#changed ~callback:(fun () -> save_callback gui ac_combo ()));
+  
+  (* Conf *)
+  List.iter (fun (name, label, button_browse, button_edit, editor, multiple) ->
+    let callback = fun _ ->
+      editor (Utils.conf_dir // label#text) in
+    ignore (button_edit#connect#clicked ~callback);
+    let callback = fun _ ->
+      let subdir = Filename.dirname (first_word label#text) in
+      let cb = fun selected ->
+	let names = List.map (fun name -> subdir//name) selected in
+	let names = String.concat " " names in
+	label#set_text names;
+	save_callback gui ac_combo ()
+      in
+      Utils.choose_xml_file ~multiple name subdir cb in
+    ignore (button_browse#connect#clicked ~callback))
+    (ac_files gui);
+
+
   (* Save button *)
-  ignore(gui#button_save_ac#connect#clicked ~callback:(save_callback gui ac_combo))
+  ignore(gui#menu_item_save_ac#connect#activate ~callback:(save_callback ~user_save:true gui ac_combo))
 
 
-let build_handler = fun gui ac_combo (target_combo:combo) (log:string->unit) ->
+let build_handler = fun ~file gui ac_combo (target_combo:Utils.combo) (log:string->unit) ->
   (* Link target to upload button *)
   combo_connect target_combo
     (fun target ->
@@ -233,77 +252,30 @@ let build_handler = fun gui ac_combo (target_combo:combo) (log:string->unit) ->
     match GToolbox.input_string ~title:"New Target" ~text:"tunnel" "New build target ?" with
       None -> ()
     | Some s ->
-	let (store, column) = combo_model target_combo in
+	let (store, column) = Utils.combo_model target_combo in
 	let row = store#append () in
 	store#set ~row ~column s;
-	(combo_widget target_combo)#set_active_iter (Some row)
+	(Utils.combo_widget target_combo)#set_active_iter (Some row)
   in
   ignore (gui#button_new_target#connect#clicked ~callback);
 
-  let autosave = fun () ->
-    if gui#button_autosave#active then
-      save_callback gui ac_combo () in
-
   (* Clean button *)
   let callback = fun () ->
-    autosave ();
-    command log (combo_value ac_combo) "clean_ac" in
+    Utils.command ~file gui log (Utils.combo_value ac_combo) "clean_ac" in
   ignore (gui#button_clean#connect#clicked ~callback);
   
   (* Build button *)
   let callback = fun () ->
-    autosave ();
-    let ac_name = combo_value ac_combo
-    and target = combo_value target_combo in
+    let ac_name = Utils.combo_value ac_combo
+    and target = Utils.combo_value target_combo in
     let target = if target="sim" then target else sprintf "%s.compile" target in
-    command log ac_name target in
+    Utils.command ~file gui log ac_name target in
   ignore (gui#button_build#connect#clicked ~callback);
   
   (* Upload button *)
   let callback = fun () ->
-    autosave ();
-    let ac_name = combo_value ac_combo
-    and target = combo_value target_combo in
-    command log ac_name (sprintf "%s.upload" target) in
+    let ac_name = Utils.combo_value ac_combo
+    and target = Utils.combo_value target_combo in
+    Utils.command ~file gui log ac_name (sprintf "%s.upload" target) in
   ignore (gui#button_upload#connect#clicked ~callback)
 
-let choose_xml_file = fun ?(multiple = false) title subdir cb ->
-  let dir = conf_dir // subdir in
-  let dialog = GWindow.file_chooser_dialog ~action:`OPEN ~title () in
-  ignore (dialog#set_current_folder dir);
-  dialog#add_filter (GFile.filter ~name:"xml" ~patterns:["*.xml"] ());
-  dialog#add_button_stock `CANCEL `CANCEL ;
-  dialog#add_select_button_stock `OPEN `OPEN ;
-  dialog#set_select_multiple multiple;
-  begin match dialog#run (), dialog#filename with
-  | `OPEN, _ when multiple ->
-      let names = dialog#get_filenames in
-      dialog#destroy ();
-      cb (List.map Filename.basename names)
-  | `OPEN, Some name ->
-      dialog#destroy ();
-      cb [Filename.basename name]
-  | _ -> dialog#destroy ()
-  end
-
-let first_word = fun s ->
-  try
-    let n = String.index s ' ' in
-    String.sub s 0 n
-  with
-    Not_found -> s
-
-let conf_handler = fun gui ->
-  List.iter (fun (name, label, button_browse, button_edit, editor, multiple) ->
-    let callback = fun _ ->
-      editor (conf_dir // label#text) in
-    ignore (button_edit#connect#clicked ~callback);
-    let callback = fun _ ->
-      let subdir = Filename.dirname (first_word label#text) in
-      let cb = fun selected ->
-	let names = List.map (fun name -> subdir//name) selected in
-	let names = String.concat " " names in
-	label#set_text names in
-      choose_xml_file ~multiple name subdir cb in
-    ignore (button_browse#connect#clicked ~callback))
-    (ac_files gui)

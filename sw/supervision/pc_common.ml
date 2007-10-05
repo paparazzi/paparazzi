@@ -60,25 +60,128 @@ let run_and_log = fun log com ->
       log (sprintf "\nDONE (%s)\n\n" com);
       false
     end in
-  let _io_watch_out = Glib.Io.add_watch [`IN; `HUP] cb channel_out in
-  pid, channel_out
-
-let command = fun (log:string->unit) ac_name target ->
-  let com = sprintf "export PATH=/usr/bin:$PATH; make -C %s -f Makefile.ac AIRCRAFT=%s %s" Env.paparazzi_src ac_name target in
-  log com;
-  ignore (run_and_log log com)
+  let io_watch_out = Glib.Io.add_watch [`IN; `HUP] cb channel_out in
+  pid, channel_out, com_stdout, io_watch_out
 
 type combo = GEdit.combo_box * (GTree.list_store * string GTree.column)
 let combo_widget = fst
 let combo_model = snd
 
+let combo_value = fun ((combo: #GEdit.combo_box), (_,column)) ->
+  match combo#active_iter with
+  | None -> raise Not_found
+  | Some row -> combo#model#get ~row ~column
 
-let combo = fun ?(others = []) strings vbox ->
-  let strings = others @ strings in
+let combo_separator = "--"
+      
+let combo = fun strings vbox ->
   let (combo, (tree, column)) =
     GEdit.combo_box_text ~packing:vbox#add ~strings () in
   combo#set_active 0;
+  combo#set_row_separator_func
+    (Some (fun m row -> m#get ~row ~column = combo_separator)) ;
   (combo, (tree, column))
+
+let add_to_combo = fun (combo : combo) string ->
+  let (store, column) = combo_model combo in
+  let row = store#append () in
+  store#set ~row ~column string;
+  (combo_widget combo)#set_active_iter (Some row)
+
+
+let select_in_combo = fun  (combo : combo) string ->
+  let (store, column) = combo_model combo in
+  store#foreach 
+    (fun _path row ->
+      if store#get ~row ~column = string then begin
+	(combo_widget combo)#set_active_iter (Some row);
+	true
+      end else
+	false)
+
+let choose_xml_file = fun ?(multiple = false) title subdir cb ->
+  let dir = conf_dir // subdir in
+  let dialog = GWindow.file_chooser_dialog ~action:`OPEN ~title () in
+  ignore (dialog#set_current_folder dir);
+  dialog#add_filter (GFile.filter ~name:"xml" ~patterns:["*.xml"] ());
+  dialog#add_button_stock `CANCEL `CANCEL ;
+  dialog#add_select_button_stock `OPEN `OPEN ;
+  dialog#set_select_multiple multiple;
+  begin match dialog#run (), dialog#filename with
+  | `OPEN, _ when multiple ->
+      let names = dialog#get_filenames in
+      dialog#destroy ();
+      cb (List.map Filename.basename names)
+  | `OPEN, Some name ->
+      dialog#destroy ();
+      cb [Filename.basename name]
+  | _ -> dialog#destroy ()
+  end
+
+
+
+
+let run_and_monitor = fun ?(once = false) ?file gui log com_name com args ->
+  let c = sprintf "%s %s" com args in
+  let p = new Gtk_process.hbox_program ?file () in
+  (gui#vbox_programs:GPack.box)#pack p#toplevel#coerce;
+  p#label_com_name#set_text com_name;
+  p#entry_program#set_text c;
+  let pid = ref (-1)
+  and outchan = ref stdin
+  and watches = ref [] in
+  let run = fun callback ->
+    let c = p#entry_program#text in
+    log (sprintf "Run '%s'\n" c);
+    let (pi, out, unixfd, io_watch) = run_and_log log ("exec "^c) in
+    pid := pi;
+    outchan := unixfd;
+    let io_watch' = Glib.Io.add_watch [`HUP] (fun _ -> callback true;false) out in
+    watches := [ io_watch; io_watch'] in
+
+  let remove_callback = fun () ->
+    gui#vbox_programs#remove p#toplevel#coerce in
+
+  let rec callback = fun stop ->
+    match p#button_stop#label, stop with
+      "gtk-stop", _ ->
+	List.iter Glib.Io.remove !watches;
+	close_in !outchan;
+	ignore (Unix.kill !pid Sys.sigkill);
+	ignore (Unix.waitpid [] !pid);
+	p#button_stop#set_label "gtk-redo";
+	p#button_remove#misc#set_sensitive true;
+	if once then
+	  remove_callback ()
+	else if stop && p#checkbutton_autolaunch#active then
+	  callback false
+    | "gtk-redo", false ->
+	p#button_stop#set_label "gtk-stop";
+	run callback;
+	p#button_remove#misc#set_sensitive false
+    | _ -> ()
+  in
+  ignore (p#button_stop#connect#clicked ~callback:(fun () -> callback false));
+  run callback;
+  
+  (* Stop the program if the box is closed *)
+  let callback = fun () ->
+    callback true in
+  ignore(p#toplevel#connect#destroy ~callback);
+
+  (* Remove button *)
+  ignore (p#button_remove#connect#clicked ~callback:remove_callback)
+
+
+let basic_command = fun (log:string->unit) ac_name target ->
+  let com = sprintf "export PATH=/usr/bin:$PATH; make -C %s -f Makefile.ac AIRCRAFT=%s %s" Env.paparazzi_src ac_name target in
+  log com;
+  ignore (run_and_log log com)
+
+
+let command = fun ?file gui (log:string->unit) ac_name target ->
+  let com = sprintf "make -C %s -f Makefile.ac AIRCRAFT=%s %s" Env.paparazzi_src ac_name target in
+  run_and_monitor ~once:true ?file gui log "make" com ""
 
 
 let conf_is_set = fun home ->
@@ -99,7 +202,7 @@ let druid = fun home ->
     d#append_page fp;
     ignore (fp#connect#next
 	      (fun _ ->	
-		command prerr_endline "" "init";
+		basic_command prerr_endline "" "init";
 		false
 	      ))
     
@@ -125,11 +228,15 @@ let _ =
     druid home
 
 let conf_xml_file = conf_dir // "conf.xml"
-let conf_xml = Xml.parse_file conf_xml_file
+let backup_xml_file = conf_xml_file ^ "~"
 let aircrafts = Hashtbl.create 7
 let aircrafts_table_has_changed = ref false
-let _ =
+let build_aircrafts = fun () ->
+  let conf_xml = Xml.parse_file conf_xml_file in
   List.iter (fun aircraft ->
     Hashtbl.add aircrafts (ExtXml.attrib aircraft "name") aircraft)
     (Xml.children conf_xml);
   aircrafts_table_has_changed := true
+
+
+
