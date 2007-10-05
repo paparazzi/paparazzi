@@ -44,6 +44,7 @@
 int main( void ) {
   Fbw(init);
   Ap(init);
+  InitSysTimePeriodic()
   while (1) {
     if (sys_time_periodic()) {
       Fbw(periodic_task);
