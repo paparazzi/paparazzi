@@ -117,6 +117,18 @@ float ir_360_longitudinal_correction;
 float ir_360_vertical_correction;
 
 
+#ifndef IR_360_LATERAL_CORRECTION
+#define IR_360_LATERAL_CORRECTION 1.
+#endif
+
+#ifndef IR_360_LONGITUDINAL_CORRECTION
+#define IR_360_LONGITUDINAL_CORRECTION 1.
+#endif
+
+#ifndef IR_360_VERTICAL_CORRECTION
+#define IR_360_VERTICAL_CORRECTION 1.
+#endif
+
 
 
 /** \brief Initialisation of \a ir */
