@@ -201,7 +201,9 @@ void alt_kalman(float gps_z) {
     p[1][1] = -p[0][1]*k_1+p[1][1];
   }
 
+#ifdef DEBUG_ALT_KALMAN
   DOWNLINK_SEND_ALT_KALMAN(&(p[0][0]),&(p[0][1]),&(p[1][0]), &(p[1][1]));
+#endif
 }
 
 #endif
