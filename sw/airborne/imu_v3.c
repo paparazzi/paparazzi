@@ -22,7 +22,7 @@ struct adc_buf buf_az;
 struct adc_buf buf_bat;
 
 
-#define IMU_DETECT_STILL_LEN 256
+#define IMU_DETECT_STILL_LEN 128
 bool_t imu_vehicle_still;
 
 uint16_t imu_vs_accel_raw[AXIS_NB][IMU_DETECT_STILL_LEN];
