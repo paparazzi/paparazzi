@@ -1,8 +1,8 @@
 #include "armVIC.h"
 #include "sys_time.h"
 
-
 uint32_t cpu_time_ticks;
+uint32_t last_periodic_event;
 
 #if defined ACTUATORS
 #include ACTUATORS

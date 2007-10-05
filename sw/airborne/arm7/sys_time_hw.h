@@ -36,7 +36,7 @@
 #include "led.h"
 
 extern uint32_t cpu_time_ticks;
-static uint32_t last_periodic_event;
+extern uint32_t last_periodic_event;
 
 void TIMER0_ISR ( void ) __attribute__((naked));
 
@@ -91,6 +91,8 @@ static inline void sys_time_init( void ) {
 
 #define TIME_TICKS_PER_SEC SYS_TICS_OF_SEC(1)
 
+#define InitSysTimePeriodic() last_periodic_event = T0TC;
+
 static inline bool_t sys_time_periodic( void ) {
   uint32_t now = T0TC;
   uint32_t dif = now - last_periodic_event;
@@ -103,10 +105,17 @@ static inline bool_t sys_time_periodic( void ) {
 #ifdef TIME_LED
       LED_TOGGLE(TIME_LED)
 #endif
-      }
+    }
     return TRUE;
   }
   return FALSE;
+}
+
+/** Busy wait, in microseconds */
+static inline void sys_time_usleep(uint32_t us) {
+  uint32_t start = T0TC;
+  uint32_t ticks = SYS_TICS_OF_USEC(us);
+  while ((uint32_t)(T0TC-start) < ticks);
 }
 
 #endif /* SYS_TIME_HW_H */
