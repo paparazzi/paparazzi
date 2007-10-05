@@ -44,8 +44,8 @@
   </section>
 
   <section name="adc" prefix="ADC_CHANNEL_">
-    <define name="IR1" value="ADC_0"/>
-    <define name="IR2" value="ADC_1"/>
+    <define name="IR1" value="ADC_2"/>
+    <define name="IR2" value="ADC_3"/>
     <define name="IR_TOP" value="ADC_6"/>
     <define name="IR_NB_SAMPLES" value="16"/>
     <define name="GYRO_ROLL" value="ADC_4"/>
@@ -59,13 +59,13 @@
     <define name="PITCH_NEUTRAL_DEFAULT" value="2" unit="deg"/>
     <define name="DEFAULT_CONTRAST" value="200"/>
     <define name="RAD_OF_IR_CONTRAST" value="0.75"/>
-    <linear name="RollOfIrs" arity="2" coeff1="1.07" coeff2="-1.07"/>
-    <linear name="PitchOfIrs" arity="2" coeff1="1.07" coeff2="1.07"/>
+    <linear name="RollOfIrs" arity="2" coeff1="-0.66" coeff2="0.66"/>
+    <linear name="PitchOfIrs" arity="2" coeff1="-0.66" coeff2="-0.66"/>
     <linear name="TopOfIr" arity="1" coeff1="-1"/>
     <define name="RAD_OF_IR_MAX_VALUE" value="0.0045"/>
     <define name="RAD_OF_IR_MIN_VALUE" value="0.00075"/>
     <define name="ADC_ROLL_NEUTRAL" value="0"/>
-    <define name="ADC_PITCH_NEUTRAL" value="1102"/>
+    <define name="ADC_PITCH_NEUTRAL" value="-675"/>
     <define name="ADC_TOP_NEUTRAL" value="512"/>
 
     <define name="CORRECTION_UP" value="1.0"/>
@@ -98,7 +98,7 @@
     <define name="CARROT" value="5." unit="s"/>
     <define name="KILL_MODE_DISTANCE" value="(1.5*MAX_DIST_FROM_HOME)"/>
     <define name="CONTROL_RATE" value="60" unit="Hz"/>
-    <define name="XBEE_INIT" value="\"ATPL2\rATRN1\rATTT80\r\""/> 
+    <define name="XBEE_INIT" value="\"ATPL2\rATRN1\rATTT80\r\""/>
 <!--    <define name="NO_XBEE_API_INIT" value="TRUE"/> -->
     <define name="ALT_KALMAN_ENABLED" value="TRUE"/>
 
@@ -225,21 +225,22 @@ ap.srcs += $(SRC_ARCH)/servos_4015_MAT_hw.c actuators.c
 ap.CFLAGS += -DRADIO_CONTROL -DRADIO_CONTROL_TYPE=RC_FUTABA
 ap.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c  
 
-ap.CFLAGS += -DDOWNLINK -DUSE_UART0 -DDOWNLINK_TRANSPORT=XBeeTransport -DDOWNLINK_FBW_DEVICE=Uart0 -DDOWNLINK_AP_DEVICE=Uart0 -DXBEE_UART=Uart0 -DDATALINK=XBEE -DUART0_BAUD=B57600
+ap.CFLAGS += -DDOWNLINK -DUSE_UART0 -DDOWNLINK_TRANSPORT=XBeeTransport -DDOWNLINK_FBW_DEVICE=Uart0 -DDOWNLINK_AP_DEVICE=Uart0 -DXBEE_UART=Uart0 -DDATALINK=XBEE -DUART0_BAUD=B9600
 ap.srcs += downlink.c $(SRC_ARCH)/uart_hw.c datalink.c xbee.c
 
-#TRANSPARENT   ap.CFLAGS += -DDOWNLINK -DUSE_UART0 -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_FBW_DEVICE=Uart0 -DDOWNLINK_AP_DEVICE=Uart0 -DPPRZ_UART=Uart0 -DDATALINK=PPRZ -DUART0_BAUD=B9600
-#TRANSPARENT ap.srcs += downlink.c $(SRC_ARCH)/uart_hw.c datalink.c pprz_transport.c
+# transparent 
+#ap.CFLAGS += -DDOWNLINK -DUSE_UART0 -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_FBW_DEVICE=Uart0 -DDOWNLINK_AP_DEVICE=Uart0 -DPPRZ_UART=Uart0 -DDATALINK=PPRZ -DUART0_BAUD=B9600
+#ap.srcs += downlink.c $(SRC_ARCH)/uart_hw.c datalink.c pprz_transport.c
 
 
 ap.CFLAGS += -DINTER_MCU
 ap.srcs += inter_mcu.c 
 
-ap.CFLAGS += -DADC -DUSE_ADC_0 -DUSE_ADC_1 -DUSE_ADC_4 -DUSE_ADC_5 -DUSE_ADC_6
+ap.CFLAGS += -DADC -DUSE_ADC_2 -DUSE_ADC_3 -DUSE_ADC_4 -DUSE_ADC_5 -DUSE_ADC_6
 ap.srcs += $(SRC_ARCH)/adc_hw.c
 ap.CFLAGS += -DUSE_ADC_GENERIC -DADC_CHANNEL_GENERIC_NB_SAMPLES=16
-ap.CFLAGS += -DUSE_ADC_2 -DADC_CHANNEL_GENERIC1=ADC_2
-ap.CFLAGS += -DUSE_ADC_3 -DADC_CHANNEL_GENERIC2=ADC_3
+ap.CFLAGS += -DUSE_ADC_0 -DADC_CHANNEL_GENERIC1=ADC_0
+ap.CFLAGS += -DUSE_ADC_1 -DADC_CHANNEL_GENERIC2=ADC_1
 ap.srcs += adc_generic.c
 
 
