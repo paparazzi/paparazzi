@@ -580,9 +580,11 @@ void init_ap( void ) {
 #ifndef SINGLE_MCU /** init done in main_fbw in single MCU */
   hw_init();
   sys_time_init(); 
+
 #ifdef LED
   led_init();
 #endif
+
 #ifdef ADC
   adc_init();
 #endif
@@ -607,6 +609,7 @@ void init_ap( void ) {
 #ifdef USE_UART1
   Uart1Init();
 #endif
+
 #ifdef USE_GPIO
   GpioInit();
 #endif
@@ -661,16 +664,11 @@ void init_ap( void ) {
 #endif
   nav_init();
 
-
   /** - start interrupt task */
   int_enable();
 
-  /** - wait 0.5s (for modem init ?) */
-  uint8_t init_cpt = 30;
-  while (init_cpt) {
-    if (sys_time_periodic())
-      init_cpt--;
-  }
+  /** wait 0.5s (historical :-) */
+  sys_time_usleep(500000);
 
 #if defined GPS_CONFIGURE
   gps_configure_uart();
@@ -682,11 +680,7 @@ void init_ap( void ) {
   xbee_init();
 #elif DATALINK == WAVECARD
   wc_end_reset();
-  init_cpt = 60;
-  while (init_cpt) {
-    if (sys_time_periodic())
-      init_cpt--;
-  }
+  sys_time_usleep(1000000);
   wc_configure();
 #endif
 #endif /* DATALINK */
