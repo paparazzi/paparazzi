@@ -47,16 +47,14 @@ uint8_t xbee_ovrn, xbee_error;
 
 void xbee_init( void ) {
 #ifndef NO_XBEE_API_INIT
+  /** - busy wait 1.25s */
+  sys_time_usleep(1250000);
+
   /** Switching to AT mode (FIXME: busy waiting) */
   XBeePrintString(AT_COMMAND_SEQUENCE);
 
-  /** - busy wait 2s FIXME */
-  uint8_t init_cpt = 120;
-  while (init_cpt) {
-    if (sys_time_periodic())
-      init_cpt--;
-  }
-
+  /** - busy wait 1.25s */
+  sys_time_usleep(1250000);
 
   /** Setting my address */
   XBeePrintString(AT_SET_MY);
