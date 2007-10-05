@@ -332,18 +332,63 @@
   </message>
 
   <message name="IMU_MAG" ID="201">
-    <field name="ax" type="int16" />
-    <field name="ay" type="int16" />
-    <field name="az" type="int16" />
+    <field name="mx" type="int16" />
+    <field name="my" type="int16" />
+    <field name="mz" type="int16" />
   </message>
 
   <message name="IMU_ACCEL" ID="202">
-    <field name="ax" type="float" unit="rad/s"/>
-    <field name="ay" type="float" unit="rad/s"/>
-    <field name="az" type="float" unit="rad/s"/>
+    <field name="ax" type="float" unit="m/s-2"/>
+    <field name="ay" type="float" unit="m/s-2"/>
+    <field name="az" type="float" unit="m/s-2"/>
   </message>
 
-  <message name="AHRS_STATE" ID="203">
+  <message name="IMU_GYRO_RAW" ID="203">
+    <field name="gx" type="uint16" unit="adc"/>
+    <field name="gy" type="uint16" unit="adc"/>
+    <field name="gz" type="uint16" unit="adc"/>
+  </message>
+
+  <message name="IMU_ACCEL_RAW" ID="204">
+    <field name="ax" type="uint16" unit="adc"/>
+    <field name="ay" type="uint16" unit="adc"/>
+    <field name="az" type="uint16" unit="adc"/>
+  </message>
+
+  <message name="IMU_MAG_RAW" ID="205">
+    <field name="mx" type="int16" unit="adc"/>
+    <field name="my" type="int16" unit="adc"/>
+    <field name="mz" type="int16" unit="adc"/>
+  </message>
+
+  <message name="IMU_GYRO_RAW_AVG" ID="206">
+    <field name="gx" type="uint16" unit="adc"/>
+    <field name="gy" type="uint16" unit="adc"/>
+    <field name="gz" type="uint16" unit="adc"/>
+    <field name="vgx" type="float" unit="adc" format="%.0f"/>
+    <field name="vgy" type="float" unit="adc" format="%.0f"/>
+    <field name="vgz" type="float" unit="adc" format="%.0f"/>
+  </message>
+
+  <message name="IMU_ACCEL_RAW_AVG" ID="207">
+    <field name="ax" type="uint16" unit="adc"/>
+    <field name="ay" type="uint16" unit="adc"/>
+    <field name="az" type="uint16" unit="adc"/>
+    <field name="vax" type="float" unit="adc"/>
+    <field name="vay" type="float" unit="adc"/>
+    <field name="vaz" type="float" unit="adc"/>
+  </message>
+
+  <message name="IMU_MAG_RAW_AVG" ID="208">
+    <field name="mx" type="int16" unit="adc"/>
+    <field name="my" type="int16" unit="adc"/>
+    <field name="mz" type="int16" unit="adc"/>
+    <field name="vmx" type="float" unit="adc"/>
+    <field name="vmy" type="float" unit="adc"/>
+    <field name="vmz" type="float" unit="adc"/>
+  </message>
+
+  <message name="AHRS_STATE" ID="210">
       <field name="q0" type="float"/>
       <field name="q1" type="float"/>
       <field name="q2" type="float"/>
@@ -353,7 +398,7 @@
       <field name="bz" type="float"/>
   </message>
 
-  <message name="AHRS_COV" ID="204">
+  <message name="AHRS_COV" ID="211">
     <field name="p00" type="float"/>
     <field name="p11" type="float"/>
     <field name="p22" type="float"/>
@@ -363,14 +408,14 @@
     <field name="p66" type="float"/>
   </message>
 
-   <message name="TIME" ID="206">
+   <message name="TIME" ID="212">
     <field name="t" type="uint32"/>
   </message>
 
-  <message name="AHRS_OVERRUN" ID="207">
+  <message name="AHRS_OVERRUN" ID="213">
   </message>
 
-  <message name="ENOSE_STATUS" ID="210">
+  <message name="ENOSE_STATUS" ID="218">
       <field name="val1" type="uint16"/>
       <field name="val2" type="uint16"/>
       <field name="val3" type="uint16"/>
@@ -378,7 +423,7 @@
       <field name="heat" type="uint8[]"/>
   </message>
 
-  <message name="DPICCO_STATUS" ID="211">
+  <message name="DPICCO_STATUS" ID="219">
       <field name="humid" type="uint16"/>
       <field name="temp" type="uint16"/>
   </message>

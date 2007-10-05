@@ -28,7 +28,7 @@ extern void i2c_transmit(uint8_t slave_addr, uint8_t len, volatile bool_t* finis
 extern volatile uint8_t i2c_status;
 
 #ifndef I2C_BUF_LEN
-#define I2C_BUF_LEN 8
+#define I2C_BUF_LEN 16
 #endif
 
 extern volatile uint8_t i2c_buf[I2C_BUF_LEN];
