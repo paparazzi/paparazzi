@@ -4,20 +4,28 @@
 #include "std.h"
 
 #define MT_STATUS_UNINIT       0
-#define MT_STATUS_INITIALISING 1
 #define MT_STATUS_RUNNING      2
 #define MT_STATUS_CRASHED      3
 
-extern uint8_t mt_status;
+extern uint8_t mtt_status;
 
-extern float mt_phi; 
-extern float mt_p;
-extern float mt_bp;
-extern float mt_P_phi[][];
+extern float mtt_phi; 
+extern float mtt_p;
+extern float mtt_bp;
+extern float mtt_P_phi[2][2];
 
-extern void multitilt_reset(void);
-extern void multitilt_run(void);
+extern float mtt_theta; 
+extern float mtt_q;
+extern float mtt_bq;
+extern float mtt_P_theta[2][2];
 
+extern float mtt_r;
+extern float mtt_br;
+
+extern void multitilt_init(void);
+extern void multitilt_start( const float* accel, const float* gyro);
+extern void multitilt_predict( const float* gyro );
+extern void multitilt_update( const float* accel );
 
 
 #endif /* MULTITILT_H */

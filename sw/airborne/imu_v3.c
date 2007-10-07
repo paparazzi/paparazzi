@@ -12,6 +12,9 @@ int16_t imu_mag[AXIS_NB];
 /* battery in volts                 */
 float imu_bat;
 
+float imu_gyro_prev[AXIS_NB];
+
+
 uint16_t imu_accel_raw[AXIS_NB];
 uint16_t imu_gyro_raw[AXIS_NB];
 int16_t  imu_mag_raw[AXIS_NB];
@@ -43,7 +46,7 @@ float    imu_vs_mag_raw_var[AXIS_NB];
 static uint8_t imu_vs_buf_head;
 static bool_t imu_vs_buf_filled;
 
-#define IMU_VS_ACCEL_VAR_MAX 1100.
+#define IMU_VS_ACCEL_RAW_VAR_MAX 7000.
 
 
 void imu_init(void) {
@@ -117,9 +120,11 @@ void imu_detect_vehicle_still(void) {
       imu_vs_accel_raw_var[i] /= (float)IMU_DETECT_STILL_LEN;
       imu_vs_mag_raw_var[i] /= (float)IMU_DETECT_STILL_LEN;
     }
-    if (imu_vs_accel_raw_var[0] < IMU_VS_ACCEL_VAR_MAX &&
-	imu_vs_accel_raw_var[1] < IMU_VS_ACCEL_VAR_MAX &&
-	imu_vs_accel_raw_var[2] < IMU_VS_ACCEL_VAR_MAX )
+    //    return;
+    /* check vehicle still */
+    if (imu_vs_accel_raw_var[0] < IMU_VS_ACCEL_RAW_VAR_MAX &&
+	imu_vs_accel_raw_var[1] < IMU_VS_ACCEL_RAW_VAR_MAX &&
+	imu_vs_accel_raw_var[2] < IMU_VS_ACCEL_RAW_VAR_MAX )
       imu_vehicle_still = TRUE;
   }
 
