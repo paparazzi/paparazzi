@@ -217,6 +217,6 @@ let _ =
     print_dl_settings dl_settings;
     finish h_name
   with
-    Xml.Error e -> prerr_endline (Xml.error e)
+    Xml.Error e -> prerr_endline (Xml.error e); exit 1
   | Dtd.Prove_error e ->  prerr_endline (Dtd.prove_error e); exit 1
   | Dtd.Parse_error e ->  prerr_endline (Dtd.parse_error e); exit 1
