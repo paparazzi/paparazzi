@@ -315,6 +315,7 @@ let keys_help = fun () ->
     "Zoom: Mouse Wheel, PgUp, PgDown\n\
     Pan: Map & keyboard arrows\n\
     Fit to window: f\n\
+    Fullscreen: F11\n\
     Load Map Tile: Right\n\
     Select Region: Left + Drag\n\
     Create Waypoint: Ctrl-Left\n\
@@ -388,7 +389,8 @@ let create_geomap = fun window switch_fullscreen editor_frame ->
   ignore (geomap#canvas#event#connect#any (any_event geomap));
 
   ignore (menu_fact#add_item "Redraw" ~key:GdkKeysyms._L ~callback:(fun _ -> geomap#canvas#misc#draw None));
-  ignore (menu_fact#add_check_item "Fullscreen" ~key:GdkKeysyms._F ~active: !fullscreen ~callback:switch_fullscreen);
+  let fullscreen = menu_fact#add_image_item ~stock:(`STOCK "gtk-fullscreen") ~callback:switch_fullscreen () in
+  fullscreen#add_accelerator accel_group GdkKeysyms._F11;
   ignore (menu_fact#add_item "Quit" ~key:GdkKeysyms._Q ~callback:quit);
 
   (* Maps handling *)
@@ -506,8 +508,9 @@ let _main =
 	if !fullscreen then
 	  window#fullscreen ();
 	ignore (window#connect#destroy ~callback:(fun _ -> exit 0));
-	let switch_fullscreen = fun x ->
-	  if x then
+	let switch_fullscreen = fun () ->
+	  fullscreen := not !fullscreen;
+	  if !fullscreen then
 	    window#fullscreen ()
 	  else
 	    window#unfullscreen () in
