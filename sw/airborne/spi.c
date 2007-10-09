@@ -30,9 +30,9 @@ uint8_t* spi_buffer_output;
 uint8_t spi_buffer_length;
 volatile bool_t spi_message_received;
 
-#ifdef AP
+#ifdef SPI_MASTER
 
 volatile uint8_t spi_cur_slave;
 uint8_t spi_nb_ovrn;
 
-#endif /* AP */
+#endif /* SPI_MASTER */
