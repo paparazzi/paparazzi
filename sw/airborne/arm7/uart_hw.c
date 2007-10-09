@@ -224,8 +224,8 @@ void uart1_init_param( uint16_t baud, uint8_t mode, uint8_t fmode) {
   U1FCR = fmode;
 
   // initialize the interrupt vector
-  VICIntSelect &= ~VIC_BIT(VIC_UART1);  // UART0 selected as IRQ
-  VICIntEnable = VIC_BIT(VIC_UART1);    // UART0 interrupt enabled
+  VICIntSelect &= ~VIC_BIT(VIC_UART1);  // UART1 selected as IRQ
+  VICIntEnable = VIC_BIT(VIC_UART1);    // UART1 interrupt enabled
   VICVectCntl6 = VIC_ENABLE | VIC_UART1;
   VICVectAddr6 = (uint32_t)uart1_ISR;    // address of the ISR
 
