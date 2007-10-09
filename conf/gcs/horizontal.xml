@@ -6,10 +6,9 @@
   <columns>
    <rows size="390">
     <widget size="200" name="strips"/>
-    <widget name="alarms"/>
    </rows>
    <widget size="400" name="aircraft"/>
-   <widget size="00" name="plugin"/>
+   <widget name="alarms"/>
   </columns>
  </rows>
 </layout>

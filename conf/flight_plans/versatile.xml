@@ -13,7 +13,6 @@
     <waypoint name="S1" x="-151.6" y="80.4"/>
     <waypoint name="S2" x="180.1" y="214.9"/>
     <waypoint alt="30" name="AF" x="200" y="-10"/>
-    <waypoint name="TOD" x="8.0" y="-22.7"/>
     <waypoint alt="0" name="TD" x="80.0" y="20.0"/>
     <waypoint name="BASELEG" x="26.9" y="-23.0"/>
     <waypoint name="_1" x="-100" y="0"/>
@@ -50,7 +49,7 @@
       <go wp="CLIMB"/>
     </block>
     <block name="Standby" strip_button="Standby">
-      <circle radius="nav_radius" wp="1"/>
+      <circle radius="nav_radius" wp="STDBY"/>
     </block>
     <block name="Figure 8 around wp 1">
       <eight center="1" radius="nav_radius" turn_around="2"/>
@@ -116,10 +115,10 @@
     </block>
     <block name="final">
       <exception cond="ground_alt + 10 > estimator_z" deroute="flare"/>
-      <go from="TOD" hmode="route" vmode="glide" wp="TD"/>
+      <go from="AF" hmode="route" vmode="glide" wp="TD"/>
     </block>
     <block name="flare">
-      <go approaching_time="0" from="TOD" hmode="route" throttle="0.0" vmode="throttle" wp="TD"/>
+      <go approaching_time="0" from="AF" hmode="route" throttle="0.0" vmode="throttle" wp="TD"/>
       <attitude roll="0.0" throttle="0.0" until="FALSE" vmode="throttle"/>
     </block>
     <block name="Steps roll -10, +10">

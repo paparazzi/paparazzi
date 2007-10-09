@@ -272,10 +272,10 @@ let mark = fun (geomap:G.widget) ac_id track plugin_frame ->
 
 (** Light display of attributes in the flight plan. *)
 let attributes_pretty_printer = fun attribs ->
-  (* Remove the "no" an "strip_button" attributes *)
+  (* Remove the "no", "strip_icon" and "strip_button" attributes *)
   let valid = fun a ->
     let a = String.lowercase a in
-    a <> "no" && a <> "strip_button" in
+    a <> "no" && a <> "strip_icon" && a <> "strip_button" in
 
   let attribs = List.filter (fun (a, _) -> valid a) attribs in
 
@@ -386,11 +386,23 @@ let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id
     fp#waypoints;
   
   (** Add the short cut buttons in the strip *)
-  List.iter (fun b ->
-    try
-      let label = ExtXml.attrib b "strip_button"
-      and id = ExtXml.int_attrib b "no" in
-      let  b = GButton.button ~label () in
+  let tooltips = GData.tooltips () in
+  List.iter (fun block ->
+    try (* Is it a strip button ? *)
+      let label = ExtXml.attrib block "strip_button"
+      and id = ExtXml.int_attrib block "no" in
+      let b =
+	try (* Is it an icon ? *)
+	  let icon = Xml.attrib block "strip_icon" in
+	  let b = GButton.button () in
+	  ignore (GMisc.image ~stock:(`STOCK icon) ~packing:b#add ());
+
+	  (* Associates the label as a tooltip *)
+	  tooltips#set_tip b#coerce ~text:label;
+	  b
+	with
+	  Xml.No_attribute _ -> (* It's not an icon *)
+            GButton.button ~label () in
       strip#add_widget b#coerce;
       ignore (b#connect#clicked (fun _ -> jump_to_block ac_id id))
     with
@@ -402,7 +414,7 @@ let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id
   (ac_notebook:GPack.notebook)#append_page ~tab_label:fp_label#coerce fp#window#coerce;
   
   let infrared_label = GMisc.label ~text: "Infrared" () in
-  let infrared_frame = GBin.frame ~shadow_type: `NONE
+  let infrared_frame = GBin.frame ~show:false ~shadow_type: `NONE
       ~packing: (ac_notebook#append_page ~tab_label: infrared_label#coerce) () in
   let ir_page = new Pages.infrared infrared_frame in
   

@@ -297,7 +297,18 @@ let one_setting = fun i do_change packing s (tooltips:GData.tooltips) strip ->
     assert(ExtXml.tag_is x "strip_button");
     let label = ExtXml.attrib x "name"
     and sp_value = ExtXml.float_attrib x "value" in
-    let b = GButton.button ~label () in
+    let b =
+      try (* Is it an icon ? *)
+	let icon = Xml.attrib x "icon" in
+	let b = GButton.button () in
+	ignore (GMisc.image ~stock:(`STOCK icon) ~packing:b#add ());
+
+	(* Associates the label as a tooltip *)
+	tooltips#set_tip b#coerce ~text:label;
+	b
+      with
+	Xml.No_attribute _ -> 
+	  GButton.button ~label () in
     (strip b#coerce : unit);
     ignore (b#connect#clicked (fun _ -> do_change i sp_value)))
     (Xml.children s);

@@ -12,9 +12,12 @@
         <strip_button name="AUTO2" value="2"/>
       </dl_setting>
       <dl_setting MAX="1" MIN="0" STEP="1" VAR="launch">
-        <strip_button name="Launch" value="1"/>
+        <strip_button icon="gtk-execute" name="Launch" value="1"/>
       </dl_setting>
-      <dl_setting MAX="1" MIN="0" STEP="1" VAR="kill_throttle"/>
+      <dl_setting MAX="1" MIN="0" STEP="1" VAR="kill_throttle">
+        <strip_button icon="gtk-stop" name="KILL" value="1"/>
+        <strip_button icon="gtk-redo" name="Resurrect" value="1"/>
+      </dl_setting>
     </dl_settings>
   </dl_settings>
 </settings>

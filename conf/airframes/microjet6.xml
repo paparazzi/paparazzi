@@ -161,7 +161,7 @@
     <define name="ROLL_RATE_DGAIN" value="0."/>
     <define name="ROLL_RATE_SUM_NB_SAMPLES" value="64"/>
 
-    <define name="ROLL_SLEW" value="0.05"/>
+    <define name="ROLL_SLEW" value="0.1"/>
   </section>
 
   <section name="NAV">
@@ -261,7 +261,7 @@ ap.srcs += gyro.c
 ap.CFLAGS += -DUSE_SPI -DSPI_MASTER -DUSE_SPI_SLAVE0 -DUSE_BARO_MS5534A
 ap.srcs += spi.c $(SRC_ARCH)/spi_hw.c $(SRC_ARCH)/baro_MS5534A.c
 
-ap.srcs += bomb.c
+ap.srcs += nav_line.c
 
 
 # Harware In The Loop
@@ -272,7 +272,7 @@ ap.srcs += bomb.c
 # Config for SITL simulation
 include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
 sim.CFLAGS += -DCONFIG=\"tiny.h\" -DAGR_CLIMB -DH_CTL_RATE_LOOP -DLOITER_TRIM -DALT_KALMAN -DIR_360 -DUSE_BARO_MS5534A
-sim.srcs += nav_survey_rectangle.c $(SRC_ARCH)/sim_baro.c bomb.c
+sim.srcs += nav_survey_rectangle.c $(SRC_ARCH)/sim_baro.c bomb.c nav_line.c
 
   </makefile>
 </airframe>

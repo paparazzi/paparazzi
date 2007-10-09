@@ -82,6 +82,7 @@ file CDATA #REQUIRED>
 <!ATTLIST block 
 name CDATA #REQUIRED
 strip_button CDATA #IMPLIED
+strip_icon CDATA #IMPLIED
 description CDATA #IMPLIED>
 
 <!ATTLIST exception

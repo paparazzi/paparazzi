@@ -34,6 +34,7 @@ auto CDATA #IMPLIED
 
 <!ATTLIST strip_button
 name CDATA #REQUIRED
+icon CDATA #IMPLIED
 value CDATA #IMPLIED
 >
 
