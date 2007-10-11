@@ -130,7 +130,7 @@
 
 <widget class="GtkWindow" id="window">
   <property name="visible">True</property>
-  <property name="title" translatable="yes">Paparazzi Center</property>
+  <property name="title" translatable="yes">window1</property>
   <property name="type">GTK_WINDOW_TOPLEVEL</property>
   <property name="window_position">GTK_WIN_POS_NONE</property>
   <property name="modal">False</property>
@@ -145,7 +145,7 @@
   <property name="urgency_hint">False</property>
 
   <child>
-    <widget class="GtkVBox" id="vbox10">
+    <widget class="GtkVBox" id="vbox22">
       <property name="visible">True</property>
       <property name="homogeneous">False</property>
       <property name="spacing">0</property>
@@ -376,10 +376,9 @@
       </child>
 
       <child>
-	<widget class="GtkHBox" id="hbox70">
+	<widget class="GtkHPaned" id="hpaned1">
 	  <property name="visible">True</property>
-	  <property name="homogeneous">False</property>
-	  <property name="spacing">0</property>
+	  <property name="can_focus">True</property>
 
 	  <child>
 	    <widget class="GtkVBox" id="vbox20">
@@ -1243,20 +1242,8 @@
 	      </child>
 	    </widget>
 	    <packing>
-	      <property name="padding">0</property>
-	      <property name="expand">False</property>
-	      <property name="fill">True</property>
-	    </packing>
-	  </child>
-
-	  <child>
-	    <widget class="GtkVSeparator" id="vseparator3">
-	      <property name="visible">True</property>
-	    </widget>
-	    <packing>
-	      <property name="padding">0</property>
-	      <property name="expand">False</property>
-	      <property name="fill">True</property>
+	      <property name="shrink">True</property>
+	      <property name="resize">False</property>
 	    </packing>
 	  </child>
 
@@ -1974,9 +1961,8 @@
 	      </child>
 	    </widget>
 	    <packing>
-	      <property name="padding">0</property>
-	      <property name="expand">True</property>
-	      <property name="fill">True</property>
+	      <property name="shrink">True</property>
+	      <property name="resize">True</property>
 	    </packing>
 	  </child>
 	</widget>
