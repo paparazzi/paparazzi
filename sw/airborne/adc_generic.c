@@ -2,16 +2,18 @@
 #include "adc.h"
 #include CONFIG
 
-#ifdef ADC_CHANNEL_GENERIC1
+#ifdef USE_ADC_GENERIC
 uint16_t adc_generic_val1;
+uint16_t adc_generic_val2;
+#endif
+
+#ifdef ADC_CHANNEL_GENERIC1
 static struct adc_buf buf_generic1;
 #endif
 
 #ifdef ADC_CHANNEL_GENERIC2
-uint16_t adc_generic_val2;
 static struct adc_buf buf_generic2;
 #endif
-
 
 void adc_generic_init( void ) {
 #ifdef ADC_CHANNEL_GENERIC1
