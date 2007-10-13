@@ -144,16 +144,15 @@ let first_word = fun s ->
 
 (* Link A/C to airframe & flight_plan labels *)
 let ac_combo_handler = fun gui (ac_combo:Utils.combo) target_combo ->
-  combo_connect ac_combo
-    (fun ac_name ->
-      try
-	let aircraft = Hashtbl.find Utils.aircrafts ac_name in
-	let sample = aircraft_sample ac_name "42" in
-	let value = fun a ->
-	  try (ExtXml.attrib aircraft a) with _ -> Xml.attrib sample a in
-	List.iter
-	  (fun (a, label, _, _, _, _) -> label#set_text (value a))
-	  (ac_files gui);
+  let update_params = fun ac_name ->
+    try
+      let aircraft = Hashtbl.find Utils.aircrafts ac_name in
+      let sample = aircraft_sample ac_name "42" in
+      let value = fun a ->
+	try (ExtXml.attrib aircraft a) with _ -> Xml.attrib sample a in
+      List.iter
+	(fun (a, label, _, _, _, _) -> label#set_text (value a))
+	(ac_files gui);
 	let ac_id = ExtXml.attrib aircraft "ac_id"
 	and gui_color = ExtXml.attrib_or_default aircraft "gui_color" "white" in
 	gui#button_clean#misc#set_sensitive true;
@@ -162,14 +161,15 @@ let ac_combo_handler = fun gui (ac_combo:Utils.combo) target_combo ->
 	current_color := gui_color;
 	gui#entry_ac_id#set_text ac_id;
 	(Utils.combo_widget target_combo)#misc#set_sensitive true;
-      with
-	Not_found ->
-	  gui#label_airframe#set_text "";
-	  gui#label_flight_plan#set_text "";
-	  gui#button_clean#misc#set_sensitive false;
-	  gui#button_build#misc#set_sensitive false;
-	  (Utils.combo_widget target_combo)#misc#set_sensitive false
-    );
+    with
+      Not_found ->
+	gui#label_airframe#set_text "";
+	gui#label_flight_plan#set_text "";
+	gui#button_clean#misc#set_sensitive false;
+	gui#button_build#misc#set_sensitive false;
+	(Utils.combo_widget target_combo)#misc#set_sensitive false
+  in
+  combo_connect ac_combo update_params;
 
   (* New A/C button *)
   let callback = fun _ ->
@@ -179,7 +179,7 @@ let ac_combo_handler = fun gui (ac_combo:Utils.combo) target_combo ->
 	Utils.add_to_combo ac_combo s;
 	let a = aircraft_sample s (string_of_int (new_ac_id ())) in
 	Hashtbl.add Utils.aircrafts s a;
-	Utils.aircrafts_table_has_changed := true
+	update_params s
   in
   ignore (gui#menu_item_new_ac#connect#activate ~callback);
 
@@ -190,7 +190,6 @@ let ac_combo_handler = fun gui (ac_combo:Utils.combo) target_combo ->
       match GToolbox.question_box ~title:"Delete A/C" ~buttons:["Cancel"; "Delete"] ~default:2 (sprintf "Delete %s ? (no undo after Save)" ac_name) with
 	2 -> begin
 	  begin try Hashtbl.remove Utils.aircrafts ac_name with _ -> () end;
-	  Utils.aircrafts_table_has_changed := true;
 	  let combo_box = Utils.combo_widget ac_combo in
 	  match combo_box#active_iter with
 	  | None -> ()
