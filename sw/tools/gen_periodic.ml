@@ -126,9 +126,17 @@ let _ =
       let modes = Xml.children process in
       
       let i = ref 0 in
+      (** For each mode of this process *)
       List.iter (fun mode ->
 	let name = ExtXml.attrib mode "name" in
 	Xml2h.define (sprintf "TELEMETRY_MODE_%s_%s" process_name name) (string_of_int !i);
+	(* Output the periods of the messages *)
+	List.iter
+	  (fun x -> 
+	    let p = ExtXml.attrib x "period"
+	    and n = ExtXml.attrib x "name" in
+	    Xml2h.define (sprintf "PERIOD_%s_%d" n !i) (sprintf "(%s)" p))
+	  (Xml.children mode);
 	incr i)
 	modes;
 
