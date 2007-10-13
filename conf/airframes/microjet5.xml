@@ -237,7 +237,7 @@ ap.srcs += downlink.c $(SRC_ARCH)/uart_hw.c datalink.c pprz_transport.c latlong.
 ap.CFLAGS += -DINTER_MCU
 ap.srcs += inter_mcu.c 
 
-ap.CFLAGS += -DADC -DUSE_AD0 -DUSE_AD0_2 -DUSE_AD0_3 -DUSE_AD1 -DUSE_AD1_5 -DUSE_AD1_7 -DUSE_AD1_3 -DUSE_AD1_5
+ap.CFLAGS += -DADC -DUSE_AD0 -DUSE_AD0_2 -DUSE_AD0_3 -DUSE_AD1 -DUSE_AD1_5 -DUSE_AD1_3 -DUSE_AD1_5
 #ap.CFLAGS += -DADC -DUSE_AD0 -DUSE_AD0_1 -DUSE_AD0_2 -DUSE_AD0_3 -DUSE_AD1 -DUSE_AD1_5 -DUSE_AD1_7 -DUSE_AD1_3 -DUSE_AD1_5
 ap.srcs += $(SRC_ARCH)/adc_hw.c
 
