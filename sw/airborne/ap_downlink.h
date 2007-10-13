@@ -65,7 +65,7 @@
 
 #define PERIODIC_SEND_DOWNLINK() { \
   static uint16_t last; \
-  uint16_t rate = downlink_nb_bytes - last; \
+  uint16_t rate = (downlink_nb_bytes - last) / PERIOD_DOWNLINK_0; \
   last = downlink_nb_bytes; \
   DOWNLINK_SEND_DOWNLINK(&downlink_nb_ovrn, &rate, &downlink_nb_msgs); \
 }
