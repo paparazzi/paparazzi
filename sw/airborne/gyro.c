@@ -35,23 +35,26 @@
 #include "estimator.h"
 
 int16_t roll_rate_adc;
+float temp_comp; /* Needed for the downlinked message */
 static struct adc_buf buf_roll;
 
 #define RadiansOfADC(_adc, scale) RadOfDeg((_adc * scale))
 
-#if defined ADXRS150
+#if defined ADC_CHANNEL_GYRO_TEMP
 static struct adc_buf buf_temp;
-float temp_comp;
-#elif defined IDG300
+#endif
+
+#if defined ADC_CHANNEL_GYRO_PITCH
 int16_t pitch_rate_adc;
 static struct adc_buf buf_pitch;
 #endif
 
 void gyro_init( void) {
   adc_buf_channel(ADC_CHANNEL_GYRO_ROLL, &buf_roll, ADC_CHANNEL_GYRO_NB_SAMPLES);
-#if defined ADXRS150
+#if defined ADC_CHANNEL_GYRO_TEMP
   adc_buf_channel(ADC_CHANNEL_GYRO_TEMP, &buf_temp, ADC_CHANNEL_GYRO_NB_SAMPLES);
-#elif defined IDG300
+#endif
+#if defined ADC_CHANNEL_GYRO_PITCH
   adc_buf_channel(ADC_CHANNEL_GYRO_PITCH, &buf_pitch, ADC_CHANNEL_GYRO_NB_SAMPLES);
 #endif
 }
@@ -61,10 +64,11 @@ void gyro_init( void) {
 void gyro_update( void ) {
   float pitch_rate = 0.;
   roll_rate_adc = (buf_roll.sum/buf_roll.av_nb_sample) - GYRO_ADC_ROLL_NEUTRAL; 
-#ifdef ADXRS150
+#if defined ADC_CHANNEL_GYRO_TEMP
   temp_comp = buf_temp.sum/buf_temp.av_nb_sample - GYRO_ADC_TEMP_NEUTRAL;
-  roll_rate_adc += GYRO_ADC_TEMP_SLOPE * temp_comp; 
-#elif defined IDG300
+  roll_rate_adc += GYRO_ADC_TEMP_SLOPE * temp_comp;
+#endif
+#if defined IDG300
   pitch_rate_adc = buf_pitch.sum/buf_pitch.av_nb_sample - GYRO_ADC_PITCH_NEUTRAL;
   pitch_rate = GYRO_PITCH_DIRECTION * RadiansOfADC(pitch_rate_adc, GYRO_PITCH_SCALE);
 #endif
