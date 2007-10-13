@@ -54,11 +54,7 @@
     <define name="ROLL_NEUTRAL_DEFAULT" value="0" unit="deg"/>
     <define name="PITCH_NEUTRAL_DEFAULT" value="0" unit="deg"/>
 
-    <!-- A supprimer -->
-       <define name="DEFAULT_CONTRAST" value="200"/>
-       <define name="RAD_OF_IR_CONTRAST" value="0.75"/>
-       <define name="RAD_OF_IR_MAX_VALUE" value="0.0045"/>
-       <define name="RAD_OF_IR_MIN_VALUE" value="0.00075"/>
+    <define name="RAD_OF_IR_CONTRAST" value="0.75"/>
 
     <linear name="RollOfIrs" arity="2" coeff1="1" coeff2="-1"/>
     <linear name="PitchOfIrs" arity="2" coeff1="-0.7" coeff2="-0.7"/>

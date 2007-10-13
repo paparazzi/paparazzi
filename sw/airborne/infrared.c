@@ -139,16 +139,17 @@ float ir_360_vertical_correction;
  *  Initialize \a adc_buf_channel
  */
 void ir_init(void) {
-  RadOfIrFromContrast(IR_DEFAULT_CONTRAST);
 #ifndef SITL
   adc_buf_channel(ADC_CHANNEL_IR1, &buf_ir1, ADC_CHANNEL_IR_NB_SAMPLES);
   adc_buf_channel(ADC_CHANNEL_IR2, &buf_ir2, ADC_CHANNEL_IR_NB_SAMPLES);
 #endif
+
 #ifdef ADC_CHANNEL_IR_TOP
   adc_buf_channel(ADC_CHANNEL_IR_TOP, &buf_ir_top, ADC_CHANNEL_IR_NB_SAMPLES);
   z_contrast_mode = Z_CONTRAST_DEFAULT;
 #else
   z_contrast_mode = 0;
+  RadOfIrFromContrast(IR_DEFAULT_CONTRAST);
 #endif
  
   ir_roll_neutral  = RadOfDeg(IR_ROLL_NEUTRAL_DEFAULT);
@@ -172,13 +173,14 @@ void ir_init(void) {
   ir_estimated_theta_pi_4 = IR_ESTIMATED_THETA_PI_4;
   ir_estimated_theta_minus_pi_4 = IR_ESTIMATED_THETA_MINUS_PI_4;
 
-  ir_contrast = IR_DEFAULT_CONTRAST;
-  ir_rad_of_ir = IR_RAD_OF_IR_CONTRAST / IR_DEFAULT_CONTRAST;
-
   ir_360_lateral_correction = IR_360_LATERAL_CORRECTION;
   ir_360_longitudinal_correction = IR_360_LONGITUDINAL_CORRECTION;
   ir_360_vertical_correction = IR_360_VERTICAL_CORRECTION;
 
+#ifndef ADC_CHANNEL_IR_TOP
+  ir_contrast = IR_DEFAULT_CONTRAST;
+  ir_rad_of_ir = IR_RAD_OF_IR_CONTRAST / IR_DEFAULT_CONTRAST;
+#endif
 }
 
 /** \brief Update \a ir_roll and ir_pitch from ADCs or from simulator
@@ -201,6 +203,10 @@ void ir_update(void) {
 /** #else ir_roll set by simulator in sim_ir.c */
 }
 
+
+uint8_t calib_status = NO_CALIB;
+
+#ifndef ADC_CHANNEL_IR_TOP
 /** \brief Contrast measurement
  *  \note <b>Plane must be nose down !</b>
  */
@@ -213,8 +219,6 @@ static void ir_gain_calib(void) {
 /** Maximal delay waits before calibration.
 		After, no more calibration is possible */
 #define MAX_DELAY_FOR_CALIBRATION 10
-
-uint8_t calib_status = NO_CALIB;
 
 /** \brief Calibrate contrast if paparazzi mode is
  * set to auto1 before MAX_DELAY_FOR_CALIBRATION secondes */
@@ -242,6 +246,7 @@ void ground_calibrate( bool_t triggered ) {
     break;
   }
 }
+#endif /* !ADC_CHANNEL_IR_TOP */
 
 #define INIT_WEIGHT 100. /* The number of times the initial value has to be taken */
 #define RHO 0.995 /* The higher, the slower the estimation is changing */

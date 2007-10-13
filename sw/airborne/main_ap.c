@@ -295,17 +295,19 @@ inline void telecommand_task( void ) {
   if ( mode_changed )
     PERIODIC_SEND_PPRZ_MODE();
   
-  /** If Auto1 mode, compute \a desired_roll and \a desired_pitch from 
+  /** In AUTO1 mode, compute roll setpoint and pitch setpoint from 
    * \a RADIO_ROLL and \a RADIO_PITCH \n
-   * Else asynchronously set by \a course_pid_run
    */
   if (pprz_mode == PPRZ_MODE_AUTO1) {
-    /** In Auto1 mode, roll is bounded between [-AUTO1_MAX_ROLL;AUTO1_MAX_ROLL] */
+    /** Roll is bounded between [-AUTO1_MAX_ROLL;AUTO1_MAX_ROLL] */
     h_ctl_roll_setpoint = FLOAT_OF_PPRZ(fbw_state->channels[RADIO_ROLL], 0., -AUTO1_MAX_ROLL);
     
-    /** In Auto1 mode, pitch is bounded between [-AUTO1_MAX_PITCH;AUTO1_MAX_PITCH] */
+    /** Pitch is bounded between [-AUTO1_MAX_PITCH;AUTO1_MAX_PITCH] */
     h_ctl_pitch_setpoint = FLOAT_OF_PPRZ(fbw_state->channels[RADIO_PITCH], 0., AUTO1_MAX_PITCH);
-  }
+  } /** Else asynchronously set by \a h_ctl_course_loop() */
+
+  /** In AUTO1, throttle comes from RADIO_THROTTLE
+      In MANUAL, the value is copied to get it in the telemetry */
   if (pprz_mode == PPRZ_MODE_MANUAL || pprz_mode == PPRZ_MODE_AUTO1) {
     v_ctl_throttle_setpoint = fbw_state->channels[RADIO_THROTTLE];
   }
@@ -317,7 +319,7 @@ inline void telecommand_task( void ) {
   events_update();
   
   if (!estimator_flight_time) {
-#ifdef INFRARED
+#if defined INFRARED && !ADC_CHANNEL_IR_TOP
     ground_calibrate(STICK_PUSHED(fbw_state->channels[RADIO_ROLL]));
 #endif
     if (pprz_mode == PPRZ_MODE_AUTO2 && fbw_state->channels[RADIO_THROTTLE] > THROTTLE_THRESHOLD_TAKEOFF) {
