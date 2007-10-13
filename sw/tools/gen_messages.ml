@@ -194,13 +194,7 @@ module Gen_onboard = struct
   let print_avr_macros = fun filename avr_h class_ messages ->
     print_enum avr_h class_ messages;
     print_lengths_array avr_h class_ messages;
-    List.iter (print_avr_macro avr_h) messages;
-    let md5sum = Digest.file filename in
-    fprintf avr_h "#define MESSAGES_MD5SUM \"";
-    for i = 0 to String.length md5sum - 1 do
-      fprintf avr_h "\\%03o" (Char.code md5sum.[i])
-    done;
-    fprintf avr_h "\"\n"
+    List.iter (print_avr_macro avr_h) messages
       
   let print_null_avr_macros = fun avr_h messages ->
     List.iter (print_null_avr_macro avr_h) messages
