@@ -16,7 +16,7 @@
       </dl_setting>
       <dl_setting MAX="1" MIN="0" STEP="1" VAR="kill_throttle">
         <strip_button icon="gtk-stop" name="KILL" value="1"/>
-        <strip_button icon="gtk-redo" name="Resurrect" value="1"/>
+        <strip_button icon="gtk-redo" name="Resurrect" value="0"/>
       </dl_setting>
     </dl_settings>
   </dl_settings>
