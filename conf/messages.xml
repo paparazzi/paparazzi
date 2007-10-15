@@ -388,6 +388,11 @@
     <field name="vmz" type="float" unit="adc"/>
   </message>
 
+  <message name="IMU_CAL" ID="209">
+    <field name="omega" type="float" unit="rad/s"/>
+  </message>
+
+
   <message name="AHRS_STATE" ID="210">
       <field name="q0" type="float"/>
       <field name="q1" type="float"/>
@@ -413,6 +418,20 @@
   </message>
 
   <message name="AHRS_OVERRUN" ID="213">
+  </message>
+
+  <message name="BOOZ_FD" ID="214">
+    <field name="p" type="int16"/>
+    <field name="q" type="int16"/>
+    <field name="r" type="int16"/>
+    <field name="phi" type="int16"/>
+    <field name="theta" type="int16"/>
+    <field name="psi" type="int16"/>
+  </message>
+
+  <message name="BOOZ_STATUS" ID="215">
+    <field name="link_imu_nb_err" type="uint32"/>
+    <field name="imu_status" type="uint8"/>
   </message>
 
   <message name="ENOSE_STATUS" ID="218">
