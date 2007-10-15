@@ -11,6 +11,8 @@
 #include "messages.h"
 #include "downlink.h"
 #include "booz_downlink.h"
+
+#include "spi.h"
 #include "link_imu.h"
 
 static inline void main_init( void );
@@ -29,13 +31,12 @@ int main( void ) {
   return 0;
 }
 
-
-
 static inline void main_init( void ) {
   hw_init();
   led_init();
   sys_time_init();
   radio_control_init();
+  spi_init();
   link_imu_init();
   uart1_init_tx();
   int_enable();
@@ -50,9 +51,7 @@ static inline void main_periodic_task( void ) {
   my_cnt++;
   if (!(my_cnt%10)) {
     LED_TOGGLE(1);
-    uint16_t foo;
-    DOWNLINK_SEND_BOOT(&foo);
-
+    DOWNLINK_SEND_BOOZ_STATUS(&link_imu_nb_err, &(link_imu_state.status));
   }
 
 }
@@ -70,6 +69,13 @@ static inline  void main_event_task( void ) {
     dl_msg_available = FALSE;
     LED_TOGGLE(2);
   }
+
+  if (spi_message_received) {
+    spi_message_received = FALSE;
+    link_imu_event_task();
+    DOWNLINK_SEND_BOOZ_FD(&link_imu_state.rates[AXIS_P], &link_imu_state.rates[AXIS_Q], &link_imu_state.rates[AXIS_R], &link_imu_state.eulers[AXIS_X], &link_imu_state.eulers[AXIS_Y], &link_imu_state.eulers[AXIS_Z]); 
+  }
+
 }
 
 bool_t dl_msg_available;
