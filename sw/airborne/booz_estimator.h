@@ -1,12 +1,12 @@
 #ifndef BOOZ_ESTIMATOR_H
 #define BOOZ_ESTIMATOR_H
 
-extern float b_e_p;
-extern float b_e_q;
-extern float b_e_r;
+extern float booz_estimator_p;
+extern float booz_estimator_q;
+extern float booz_estimator_r;
 
-extern float b_e_phi;
-extern float b_e_theta;
-extern float b_e_psi;
+extern float booz_estimator_phi;
+extern float booz_estimator_theta;
+extern float booz_estimator_psi;
 
 #endif /* BOOZ_ESTIMATOR_H */

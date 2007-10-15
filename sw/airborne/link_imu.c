@@ -163,6 +163,8 @@ void SPI0_ISR(void) {
 #include "interrupt_hw.h" 
 #include "spi.h"
 
+#include "booz_estimator.h"
+
 uint32_t link_imu_nb_err;
 
 /* DRDY connected pin to P0.16 EINT0 */ 
@@ -199,12 +201,12 @@ void link_imu_init ( void ) {
 void link_imu_event_task( void ) {
   LinkImuComputeCRC();
   if (link_imu_crc == link_imu_state.crc) {
-    b_e_p = link_imu_state.rates[AXIS_P] * M_PI/RATE_PI_S;
-    b_e_q = link_imu_state.rates[AXIS_Q] * M_PI/RATE_PI_S;
-    b_e_r = link_imu_state.rates[AXIS_R] * M_PI/RATE_PI_S;
-    b_e_phi   = link_imu_state.eulers[AXIS_X] * M_PI/ANGLE_PI;
-    b_e_theta = link_imu_state.eulers[AXIS_Y] * M_PI/ANGLE_PI;
-    b_e_psi   = link_imu_state.eulers[AXIS_Z] * M_PI/ANGLE_PI;
+    booz_estimator_p = link_imu_state.rates[AXIS_P] * M_PI/RATE_PI_S;
+    booz_estimator_q = link_imu_state.rates[AXIS_Q] * M_PI/RATE_PI_S;
+    booz_estimator_r = link_imu_state.rates[AXIS_R] * M_PI/RATE_PI_S;
+    booz_estimator_phi   = link_imu_state.eulers[AXIS_X] * M_PI/ANGLE_PI;
+    booz_estimator_theta = link_imu_state.eulers[AXIS_Y] * M_PI/ANGLE_PI;
+    booz_estimator_psi   = link_imu_state.eulers[AXIS_Z] * M_PI/ANGLE_PI;
   }
   else {
     link_imu_nb_err++;

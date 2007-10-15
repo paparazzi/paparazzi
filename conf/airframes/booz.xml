@@ -1,5 +1,38 @@
 <airframe name="BOOZ">
 
+  <servos min="0" neutral="0" max="0x3ff">
+    <servo name="MOTOR_FRONT" no="1" min="0" neutral="0" max="0x3ff"/>
+    <servo name="MOTOR_BACK"  no="0" min="0" neutral="0" max="0x3ff"/>
+    <servo name="MOTOR_LEFT"  no="3" min="0" neutral="0" max="0x3ff"/>
+    <servo name="MOTOR_RIGHT" no="2" min="0" neutral="0" max="0x3ff"/>
+  </servos>
+
+  <commands>
+    <axis name="THROTTLE" failsafe_value="0"/>
+    <axis name="P"        failsafe_value="0"/>
+    <axis name="Q"        failsafe_value="0"/>
+    <axis name="R"        failsafe_value="0"/>
+  </commands>
+
+  <command_laws>
+    <let var="throttle" value="@THROTTLE"/>
+    <let var="p" value="trim_p + @P"/>
+    <let var="q" value="trim_q + @Q"/>
+    <let var="r" value="trim_r + @R"/>
+    <set servo="MOTOR_FRONT" value="$throttle + $q - $r"/>
+    <set servo="MOTOR_BACK"  value="$throttle - $q - $r"/>
+    <set servo="MOTOR_RIGHT" value="$throttle + $p + $r"/>
+    <set servo="MOTOR_LEFT"  value="$throttle - $p + $r"/>
+  </command_laws>
+
+  <rc_commands>
+    <set command="THROTTLE" value="@THROTTLE"/>
+    <set command="ROLL" value="@ROLL"/>
+    <set command="PITCH" value="@PITCH"/>
+    <set command="YAW" value="@YAW"/>
+  </rc_commands>
+
+
   <makefile>
 
 ARCHI=arm7
@@ -36,6 +69,8 @@ ctl.CFLAGS += -DDATALINK=PPRZ -DPPRZ_UART=Uart1
 
 ctl.CFLAGS += -DCONTROLLER -DUSE_SPI -DSPI_MASTER -DUSE_SPI_SLAVE0 -DSPI_SELECT_SLAVE0_PIN=20 -DSPI_SELECT_SLAVE0_PORT=0 -DSSPCPSR_VAL=0x10
 ctl.srcs += spi.c $(SRC_ARCH)/spi_hw.c link_imu.c
+
+ctl.srcs += booz_estimator.c booz_control.c
 
 
 ctl.CFLAGS += -DRADIO_CONTROL -DRADIO_CONTROL_TYPE=RC_FUTABA
