@@ -131,6 +131,10 @@ void SPI1_ISR(void) __attribute__((naked));
 #define SSP_MS   0x00 << 2  /* master slave mode : master                    */
 #define SSP_SOD  0x00 << 3  /* slave output disable : don't care when master */
 
+#ifndef SSPCPSR_VAL
+#define SSPCPSR_VAL 0x20
+#endif
+
 void spi_init( void ) {
   /* setup pins for SSP (SCK, MISO, MOSI) */
   PINSEL1 |= PINSEL1_SCK | PINSEL1_MISO | PINSEL1_MOSI;
@@ -151,7 +155,7 @@ void spi_init( void ) {
   /* setup SSP */
   SSPCR0 = SSP_DSS | SSP_FRF | SSP_CPOL | SSP_CPHA | SSP_SCR;
   SSPCR1 = SSP_LBM | SSP_MS | SSP_SOD;
-  SSPCPSR = 0x20; /* Prescaler */
+  SSPCPSR = SSPCPSR_VAL; /* Prescaler */
 
   /* initialize interrupt vector */
   VICIntSelect &= ~VIC_BIT(VIC_SPI1);   /* SPI1 selected as IRQ */
