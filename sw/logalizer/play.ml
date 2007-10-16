@@ -132,18 +132,20 @@ let index_of_time = fun log t ->
     if t <= time_of log.(c) then loop a c else loop (c+1) b in
   loop 0 (Array.length log - 1)
 
-let rec run log adj i speed =
+let rec run = fun timescale log adj i speed ->
   let (t, ac, m) = log.(i) in
   Ivy.send (Printf.sprintf "replay%s %s" ac m);
   adj#set_value t;
   if i + 1 < Array.length log then
     let dt = time_of log.(i+1) -. t in
-    timer := Some (GMain.Timeout.add (truncate (1000. *. dt /. speed#value)) (fun () -> run log adj (i+1) speed; false))
+    timer := Some (GMain.Timeout.add (truncate (1000. *. dt /. speed#value)) (fun () -> run timescale log adj (i+1) speed; false))
+  else
+    timescale#misc#set_sensitive true
       
-let play adj speed =
+let play = fun timescale adj speed ->
   stop ();
   if Array.length !log > 1 then
-    run !log adj (index_of_time !log adj#value) speed
+    run timescale !log adj (index_of_time !log adj#value) speed
   
   
 
@@ -177,7 +179,7 @@ let _ =
   let timescale = GRange.scale `HORIZONTAL ~adjustment:adj ~packing:window#vbox#pack () in
   
   ignore (file_menu_fact#add_item "Open Log" ~key:GdkKeysyms._O ~callback:(open_log window adj));  
-  ignore (file_menu_fact#add_item "Play" ~key:GdkKeysyms._X ~callback:(fun () -> timescale#misc#set_sensitive false; play adj speed));  
+  ignore (file_menu_fact#add_item "Play" ~key:GdkKeysyms._X ~callback:(fun () -> timescale#misc#set_sensitive false; play timescale adj speed));  
   ignore (file_menu_fact#add_item "Stop" ~key:GdkKeysyms._S ~callback:(fun () -> timescale#misc#set_sensitive true; stop ()));  
   ignore (file_menu_fact#add_item "Quit" ~key:GdkKeysyms._Q ~callback:quit);  
 
