@@ -72,6 +72,8 @@ ctl.srcs += spi.c $(SRC_ARCH)/spi_hw.c link_imu.c
 
 ctl.srcs += booz_estimator.c booz_control.c
 
+ctl.CFLAGS += -DACTUATORS=\"servos_4017_hw.h\" -DSERVOS_4017 -DSERVOS_4017_CLOCK_FALLING
+ctl.srcs += $(SRC_ARCH)/servos_4017_hw.c actuators.c
 
 ctl.CFLAGS += -DRADIO_CONTROL -DRADIO_CONTROL_TYPE=RC_FUTABA
 ctl.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c

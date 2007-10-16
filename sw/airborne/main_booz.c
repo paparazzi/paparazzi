@@ -1,10 +1,12 @@
 
 #include "std.h"
 #include "init_hw.h"
+#include "interrupt_hw.h"
 #include "sys_time.h"
 #include "led.h"
-#include "interrupt_hw.h"
 
+#include "commands.h"
+#include "actuators.h"
 #include "radio_control.h"
 
 #include "uart.h"
@@ -36,8 +38,8 @@ static inline void main_init( void ) {
   led_init();
   sys_time_init();
 
-  //  actuators_init();
-  //  SetCommands(commands_failsafe);
+  actuators_init();
+  SetCommands(commands_failsafe);
 
   ppm_init();
   radio_control_init();
