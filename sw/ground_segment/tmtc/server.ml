@@ -252,11 +252,12 @@ let log_and_parse = fun logging ac_name (a:Aircraft.aircraft) msg values ->
       a.alt     <- fvalue "z";
       a.climb   <- fvalue "z_dot"
   | "DESIRED" ->
-      a.desired_east <- fvalue "x";
-      a.desired_north <- fvalue "y";
-      a.desired_altitude <- fvalue "altitude";
-      a.desired_climb <- fvalue "climb";
-      a.desired_course <- norm_course (fvalue "course")
+      (* Trying to be compatible with old logs ... *)
+      a.desired_east <- (try fvalue "x" with _ -> fvalue "desired_x");
+      a.desired_north <- (try fvalue "y" with _ -> fvalue "desired_y");
+      a.desired_altitude <- (try fvalue "altitude" with _ -> fvalue "desired_altitude");
+      a.desired_climb <- (try fvalue "climb" with _ -> fvalue "desired_climb");
+      begin try	a.desired_course <- norm_course (fvalue "course") with _ -> () end
   | "NAVIGATION_REF" ->
       a.nav_ref <- Some { utm_x = fvalue "utm_east"; utm_y = fvalue "utm_north"; utm_zone = ivalue "utm_zone" }
   | "ATTITUDE" ->
