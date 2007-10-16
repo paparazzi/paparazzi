@@ -455,10 +455,17 @@ module MessagesOfXml(Class:CLASS_Xml) = struct
   let message_bind = fun ?sender msg_name cb ->
     match sender with
       None ->
-	Ivy.bind (fun _ args -> cb args.(0) (snd (values_of_string args.(1)))) (sprintf "^([^ ]*) +(%s .*)" msg_name)
+	Ivy.bind 
+	  (fun _ args -> 
+	    let values = try snd (values_of_string args.(1)) with _ -> [] in
+	    cb args.(0) values) 
+	  (sprintf "^([^ ]*) +(%s .*)" msg_name)
     | Some s ->
-	Ivy.bind (fun _ args -> cb s (snd (values_of_string args.(0)))) (sprintf "^%s +(%s .*)" s msg_name)
-	  
+	Ivy.bind
+	  (fun _ args -> 
+	    let values = try snd (values_of_string args.(0)) with  _ -> [] in
+	    cb s values)
+	  (sprintf "^%s +(%s .*)" s msg_name)
 
   let message_answerer = fun sender msg_name cb ->
     let ivy_cb = fun _ args ->
