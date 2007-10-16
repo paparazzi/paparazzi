@@ -27,6 +27,7 @@ struct adc_buf buf_bat;
 
 #define IMU_DETECT_STILL_LEN 128
 bool_t imu_vehicle_still;
+float imu_vs_gyro_initial_bias[AXIS_NB];
 
 uint16_t imu_vs_accel_raw[AXIS_NB][IMU_DETECT_STILL_LEN];
 uint32_t imu_vs_accel_raw_sum[AXIS_NB];
@@ -64,6 +65,7 @@ void imu_init(void) {
     imu_vs_accel_raw_sum[i] = 0;
     imu_vs_gyro_raw_sum[i] = 0;
     imu_vs_mag_raw_sum[i] = 0;
+    imu_vs_gyro_initial_bias[i] = 0.;
     for (j=0; j<IMU_DETECT_STILL_LEN; j++) {
       imu_vs_accel_raw[i][j] = 0;
       imu_vs_gyro_raw[i][j] = 0;

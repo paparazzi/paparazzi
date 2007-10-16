@@ -432,6 +432,9 @@
   <message name="BOOZ_STATUS" ID="215">
     <field name="link_imu_nb_err" type="uint32"/>
     <field name="imu_status" type="uint8"/>
+    <field name="rc_status" type="uint8" values="OK|LOST|REALLY_LOST"/>
+<!--    <field name="mode" type="uint8" values="MANUAL|AUTO1|AUTO2|FAILSAFE"/> -->
+<!--    <field name="vsupply" type="uint8" unit="decivolt"/> -->
   </message>
 
   <message name="ENOSE_STATUS" ID="218">

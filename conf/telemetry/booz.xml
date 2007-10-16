@@ -1,16 +1,14 @@
 <?xml version="1.0"?>
 <!DOCTYPE telemetry SYSTEM "telemetry.dtd">
 <telemetry>
-  <process name="Ap">
+
+  <process name="Main">
     <mode name="default">
+      <message name="BOOZ_STATUS"       period="1."/>
     </mode>
     <mode name="debug">
     </mode>
   </process>
-  <process name="Fbw">
-    <mode name="default">
-    </mode>
-    <mode name="debug">
-    </mode>
-  </process>
+
+
 </telemetry>

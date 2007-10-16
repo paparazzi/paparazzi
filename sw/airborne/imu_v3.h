@@ -20,6 +20,7 @@ extern int16_t  imu_mag_raw[AXIS_NB];
 extern void imu_init(void);
 extern void imu_detect_vehicle_still(void);
 extern bool_t imu_vehicle_still;
+extern float imu_vs_gyro_initial_bias[AXIS_NB];
 
 /* sliding average for still vehicle detection */
 extern uint32_t imu_vs_accel_raw_avg[AXIS_NB];
@@ -51,13 +52,13 @@ extern struct adc_buf buf_bat;
     imu_accel[AXIS_Z]= IMU_ACCEL_Y_GAIN * (buf_az.sum - IMU_ACCEL_Z_NEUTRAL); \
 }
 
-#define IMU_GYRO_X_NEUTRAL 40885
-#define IMU_GYRO_Y_NEUTRAL 40910
-#define IMU_GYRO_Z_NEUTRAL 39552
+#define IMU_GYRO_P_NEUTRAL 40885
+#define IMU_GYRO_Q_NEUTRAL 40910
+#define IMU_GYRO_R_NEUTRAL 39552
 
-#define IMU_GYRO_X_GAIN -0.0002202
-#define IMU_GYRO_Y_GAIN -0.0002160
-#define IMU_GYRO_Z_GAIN  0.0002104
+#define IMU_GYRO_P_GAIN -0.0002202
+#define IMU_GYRO_Q_GAIN -0.0002150
+#define IMU_GYRO_R_GAIN  0.0002104
 
 #define ImuUpdateGyros() {						\
     imu_gyro_prev[AXIS_X] = imu_gyro[AXIS_X];				\
@@ -66,12 +67,12 @@ extern struct adc_buf buf_bat;
     imu_gyro_raw[AXIS_X] = max1167_values[0];				        \
     imu_gyro_raw[AXIS_Y] = max1167_values[1];				        \
     imu_gyro_raw[AXIS_Z] = max1167_values[2];				        \
-    imu_gyro[AXIS_X] = (float)((int32_t)max1167_values[0] - IMU_GYRO_X_NEUTRAL) \
-                        * IMU_GYRO_X_GAIN;				        \
-    imu_gyro[AXIS_Y] = (float)((int32_t)max1167_values[1] - IMU_GYRO_Y_NEUTRAL) \
-                        * IMU_GYRO_Y_GAIN;				        \
-    imu_gyro[AXIS_Z] = (float)((int32_t)max1167_values[2] - IMU_GYRO_Z_NEUTRAL) \
-                        * IMU_GYRO_Z_GAIN;				        \
+    imu_gyro[AXIS_X] = (float)((int32_t)max1167_values[0] - IMU_GYRO_P_NEUTRAL) \
+                        * IMU_GYRO_P_GAIN;				        \
+    imu_gyro[AXIS_Y] = (float)((int32_t)max1167_values[1] - IMU_GYRO_Q_NEUTRAL) \
+                        * IMU_GYRO_Q_GAIN;				        \
+    imu_gyro[AXIS_Z] = (float)((int32_t)max1167_values[2] - IMU_GYRO_R_NEUTRAL) \
+                        * IMU_GYRO_R_GAIN;				        \
   }
 
 #define ImuUpdateMag() {						\
@@ -98,15 +99,18 @@ extern struct adc_buf buf_bat;
     imu_accel[AXIS_X] =	IMU_ACCEL_X_GAIN *((int32_t)imu_vs_accel_raw_avg[AXIS_X] - IMU_ACCEL_X_NEUTRAL); \
     imu_accel[AXIS_Y] =	IMU_ACCEL_Y_GAIN *((int32_t)imu_vs_accel_raw_avg[AXIS_Y] - IMU_ACCEL_Y_NEUTRAL); \
     imu_accel[AXIS_Z] =	IMU_ACCEL_Z_GAIN *((int32_t)imu_vs_accel_raw_avg[AXIS_Z] - IMU_ACCEL_Z_NEUTRAL); \
-    imu_gyro[AXIS_X] = (float)((int32_t)imu_vs_gyro_raw_avg[AXIS_X] - IMU_GYRO_X_NEUTRAL)       \
-                        * IMU_GYRO_X_GAIN;						        \
-    imu_gyro[AXIS_Y] = (float)((int32_t)imu_vs_gyro_raw_avg[AXIS_Y] - IMU_GYRO_Y_NEUTRAL)       \
-                        * IMU_GYRO_Y_GAIN;				                        \
-    imu_gyro[AXIS_Z] = (float)((int32_t)imu_vs_gyro_raw_avg[AXIS_Z] - IMU_GYRO_Z_NEUTRAL)       \
-                        * IMU_GYRO_Z_GAIN;				                        \
-    imu_gyro_prev[AXIS_X] = imu_gyro[AXIS_X];				\
-    imu_gyro_prev[AXIS_Y] = imu_gyro[AXIS_Y];				\
-    imu_gyro_prev[AXIS_Z] = imu_gyro[AXIS_Z];				\
+    imu_gyro[AXIS_X] = (float)((int32_t)imu_vs_gyro_raw_avg[AXIS_P] - IMU_GYRO_P_NEUTRAL)       \
+                        * IMU_GYRO_P_GAIN;						        \
+    imu_gyro[AXIS_Y] = (float)((int32_t)imu_vs_gyro_raw_avg[AXIS_Q] - IMU_GYRO_Q_NEUTRAL)       \
+                        * IMU_GYRO_Q_GAIN;				                        \
+    imu_gyro[AXIS_Z] = (float)((int32_t)imu_vs_gyro_raw_avg[AXIS_R] - IMU_GYRO_R_NEUTRAL)       \
+                        * IMU_GYRO_R_GAIN;				                        \
+    imu_gyro_prev[AXIS_P] = imu_gyro[AXIS_P];				\
+    imu_gyro_prev[AXIS_Q] = imu_gyro[AXIS_Q];				\
+    imu_gyro_prev[AXIS_R] = imu_gyro[AXIS_R];				\
+    imu_vs_gyro_initial_bias[AXIS_P] = imu_gyro[AXIS_P];		\
+    imu_vs_gyro_initial_bias[AXIS_Q] = imu_gyro[AXIS_Q];		\
+    imu_vs_gyro_initial_bias[AXIS_R] = imu_gyro[AXIS_R];		\
 }
 
 

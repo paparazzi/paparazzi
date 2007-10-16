@@ -15,6 +15,8 @@
 #include "messages.h"
 #include "downlink.h"
 
+#include "link_imu.h"
+
 //#define SEND_ACCEL 1
 //#define SEND_GYRO  1
 //#define SEND_ACCEL_RAW 1
@@ -58,6 +60,7 @@ static inline void main_init( void ) {
   main_init_spi1();
   max1167_init();
   multitilt_init();
+  link_imu_init();
   int_enable();
 }
 
@@ -83,7 +86,8 @@ static inline void main_event_task( void ) {
     DOWNLINK_SEND_IMU_ACCEL_RAW(&imu_accel_raw[AXIS_X], &imu_accel_raw[AXIS_Y], &imu_accel_raw[AXIS_Z]);
 #endif
 
-    ahrs_task();
+    ahrs_task(); 
+    link_imu_send();
   }
 }
 
@@ -118,15 +122,15 @@ static inline void ahrs_task( void ) {
     break;
 
   case MT_STATUS_RUNNING : {
-    t0 = T0TC;
+    //    t0 = T0TC;
     multitilt_predict(imu_gyro_prev);
     multitilt_update(imu_accel);
-    t1 = T0TC;
-    uint32_t dif = t1 - t0;
+    //    t1 = T0TC;
+    //    uint32_t dif = t1 - t0;
     static uint32_t foo_cnt = 0;
     foo_cnt++;
     if (!(foo_cnt % 10)) {
-      DOWNLINK_SEND_TIME(&dif);
+      //      DOWNLINK_SEND_TIME(&dif);
 #ifdef SEND_AHRS_STATE
     const float foo = 0.;
     DOWNLINK_SEND_AHRS_STATE(&mtt_phi, &mtt_theta, &foo, &foo, &mtt_bp, &mtt_bq, &mtt_br);

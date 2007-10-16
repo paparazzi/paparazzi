@@ -34,6 +34,17 @@ static const float R_accel = 0.3;
 
 void multitilt_init(void) {
   mtt_status = MT_STATUS_UNINIT;
+  mtt_phi = 0.;
+  mtt_theta = 0.;
+  mtt_psi = 0.;
+
+  mtt_p = 0.;
+  mtt_q = 0.;
+  mtt_r = 0.;
+
+  mtt_bp = 0.;
+  mtt_bq = 0.;
+  mtt_br = 0.;
 }
 
 void multitilt_start(const float* accel, const float* gyro) {

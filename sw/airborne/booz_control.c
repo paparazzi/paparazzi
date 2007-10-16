@@ -2,6 +2,7 @@
 
 #include "booz_estimator.h"
 #include "commands.h"
+#include "radio_control.h"
 
 float booz_control_p_sp;
 float booz_control_q_sp;

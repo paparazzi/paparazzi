@@ -21,15 +21,15 @@
 
 //#define SEND_ACCEL 1
 //#define SEND_MAG   1
-//#define SEND_GYRO  1
-#define SEND_ACCEL_RAW 1
-#define SEND_MAG_RAW   1
+#define SEND_GYRO  1
+//#define SEND_ACCEL_RAW 1
+//#define SEND_MAG_RAW   1
 #define SEND_GYRO_RAW  1
-#define SEND_ACCEL_RAW_AVG 1
-#define SEND_MAG_RAW_AVG   1
-#define SEND_GYRO_RAW_AVG  1
-#define SEND_AHRS_STATE 1
-#define SEND_AHRS_COV   1
+//#define SEND_ACCEL_RAW_AVG 1
+//#define SEND_MAG_RAW_AVG   1
+//#define SEND_GYRO_RAW_AVG  1
+//#define SEND_AHRS_STATE 1
+//#define SEND_AHRS_COV   1
 
 static inline void main_init( void );
 static inline void main_periodic_task( void );
@@ -155,10 +155,10 @@ static inline void ahrs_task( void ) {
     DOWNLINK_SEND_IMU_MAG_RAW_AVG(&imu_vs_mag_raw_avg[AXIS_X], &imu_vs_mag_raw_avg[AXIS_Y], &imu_vs_mag_raw_avg[AXIS_Z], \
 				  &imu_vs_mag_raw_var[AXIS_X], &imu_vs_mag_raw_var[AXIS_Y], &imu_vs_mag_raw_var[AXIS_Z]);
 #endif
-    if (imu_vehicle_still) {
-      ahrs_step = AHRS_STEP_ROLL;
-      afe_init(imu_mag, imu_accel, imu_gyro);
-    }
+    //    if (imu_vehicle_still) {
+    //      ahrs_step = AHRS_STEP_ROLL;
+    //      afe_init(imu_mag, imu_accel, imu_gyro);
+    //}
   }
   else {
     afe_predict(imu_gyro);

@@ -63,7 +63,7 @@ ctl.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600
 ctl.srcs += $(SRC_ARCH)/uart_hw.c
 
 ctl.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart1 
-ctl.srcs += downlink.c pprz_transport.c
+ctl.srcs += downlink.c pprz_transport.c 
 
 ctl.CFLAGS += -DDATALINK=PPRZ -DPPRZ_UART=Uart1
 
@@ -75,6 +75,10 @@ ctl.srcs += booz_estimator.c booz_control.c
 
 ctl.CFLAGS += -DRADIO_CONTROL -DRADIO_CONTROL_TYPE=RC_FUTABA
 ctl.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c
+
+ctl.srcs += commands.c
+
+ctl.srcs += booz_telemetry.c
 
 #
 # AHRS CPU
