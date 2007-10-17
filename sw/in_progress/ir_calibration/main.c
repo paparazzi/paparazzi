@@ -6,6 +6,10 @@
 #include <Ivy/ivy.h>
 #include <Ivy/ivyglibloop.h>
 
+gboolean timeout_callback(gpointer data) {
+
+  return TRUE;
+}
 
 void on_Attitude(IvyClientPtr app, void *user_data, int argc, char *argv[]){
   guint ac_id = atoi(argv[0]);
@@ -18,7 +22,7 @@ void on_GPS(IvyClientPtr app, void *user_data, int argc, char *argv[]){
   guint ac_id = atoi(argv[0]);
   float course = atof(argv[4]);
   
-  g_message("GPS %d %f", ac_id, course);
+  g_message("gps %d %f", ac_id, course);
 }
 
 void on_Wind(IvyClientPtr app, void *user_data, int argc, char *argv[]){
@@ -27,15 +31,15 @@ void on_Wind(IvyClientPtr app, void *user_data, int argc, char *argv[]){
   float w_speed = atof(argv[3]);
   float ac_aspeed = atof(argv[4]);
 
-  g_message("WIND %d %f %f %f", ac_id, w_dir, w_speed, ac_aspeed);
-
+  g_message("wind %d %f %f %f", ac_id, w_dir, w_speed, ac_aspeed);
 }
 
 
 int main ( int argc, char** argv) {
   
   GMainLoop *ml =  g_main_loop_new(NULL, FALSE);
-
+  
+  g_timeout_add(500, timeout_callback, NULL);
 
   IvyInit ("IrCalib", "IrCalib READY", NULL, NULL, NULL, NULL);
   IvyBindMsg(on_Attitude, NULL, "^(\\S*) ATTITUDE (\\S*) (\\S*) (\\S*)");
@@ -44,9 +48,6 @@ int main ( int argc, char** argv) {
   IvyStart("127.255.255.255");
 
   g_main_loop_run(ml);
-
-
-
 
   return 0;
 }
