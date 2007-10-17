@@ -21,7 +21,7 @@
 
 #define g 9.81
 
-
+float gnd_ir_phi;
 float estimator_phi;
 float gps_phi;
 
@@ -49,6 +49,9 @@ void on_GPS(IvyClientPtr app, void *user_data, int argc, char *argv[]){
   float angle_gspeed_rad = RAD_OF_DEG(angle_gspeed_deg);
   static float old_psi = 0.;
   float delta_psi = angle_gspeed_rad - old_psi;
+  if (delta_psi < -M_PI ) delta_psi = 2 * M_PI - delta_psi; 
+  if (delta_psi > M_PI )  delta_psi = delta_psi - 2 * M_PI; 
+
   old_psi = angle_gspeed_rad;
 
   /* tan(phi) = v^2 / (R*g) */
@@ -56,13 +59,14 @@ void on_GPS(IvyClientPtr app, void *user_data, int argc, char *argv[]){
   
   if (fabs(delta_psi) < 1e-6)
     delta_psi = copysign(1e-6, delta_psi);
-  float R = AIRSPEED * DT / delta_psi;
 
-  gps_phi = - atan(AIRSPEED * AIRSPEED / R / g);
+  float R = -AIRSPEED * DT / delta_psi;
+
+  gps_phi = atan(AIRSPEED * AIRSPEED / R / g);
 
 
 
-  g_message("gps %d % 3.1f\t % 3.0f \t%.1f \t%.1f", ac_id, angle_gspeed_deg, R, DEG_OF_RAD(gps_phi), DEG_OF_RAD(estimator_phi));
+  g_message("gps %d % 3.1f \t% 3.0f \t%.1f \t%.1f \t%.1f", ac_id, angle_gspeed_deg, R, DEG_OF_RAD(gps_phi), DEG_OF_RAD(estimator_phi), DEG_OF_RAD(gnd_ir_phi));
 }
 
 void on_Wind(IvyClientPtr app, void *user_data, int argc, char *argv[]){
@@ -82,12 +86,12 @@ void on_IrSensors(IvyClientPtr app, void *user_data, int argc, char *argv[]){
   float ir_roll = lateral * IR_360_LATERAL_CORRECTION;
   float ir_top = vertical * IR_360_LATERAL_CORRECTION;
 
-  float phi = atan2(ir_roll, ir_top) - IR_ROLL_NEUTRAL;
+  gnd_ir_phi = atan2(ir_roll, ir_top) - IR_ROLL_NEUTRAL;
 
-  if (phi >= 0) 
-    phi *= IR_CORRECTION_RIGHT;
+  if (gnd_ir_phi >= 0) 
+    gnd_ir_phi *= IR_CORRECTION_RIGHT;
   else
-    phi *= IR_CORRECTION_LEFT;
+    gnd_ir_phi *= IR_CORRECTION_LEFT;
 
   //  g_message("ir_sensors %d %.0f %.0f (%.1f)", ac_id, lateral, vertical, DEG_OF_RAD(phi));
 }
