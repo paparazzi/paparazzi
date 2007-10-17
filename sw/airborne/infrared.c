@@ -25,6 +25,9 @@
  *  \brief Regroup all functions link to \a ir
  */
 
+
+
+
 #include <stdlib.h>
 
 #include "adc.h"
@@ -36,6 +39,11 @@
 #include "sys_time.h"
 #include "airframe.h"
 
+#if defined IR_ESTIMATED_PHI_PI_4 || defined IR_ESTIMATED_PHI_MINUS_PI_4 || defined IR_ESTIMATED_THETA_PI_4
+#error "IR_ESTIMATED_PHI_PI_4 correction has been deprecated. Please remove the definition from your airframe config file"
+#endif
+
+
 int16_t ir_roll;
 int16_t ir_pitch;
 int16_t ir_top;
@@ -46,25 +54,6 @@ float ir_roll_neutral;
 float ir_pitch_neutral;
 
 bool_t ir_360;
-float ir_estimated_phi_pi_4, ir_estimated_phi_minus_pi_4;
-float ir_estimated_theta_pi_4, ir_estimated_theta_minus_pi_4;
-
-#ifndef IR_ESTIMATED_PHI_PI_4
-#define IR_ESTIMATED_PHI_PI_4 M_PI_4
-#endif
-
-#ifndef IR_ESTIMATED_PHI_MINUS_PI_4
-#define IR_ESTIMATED_PHI_MINUS_PI_4 IR_ESTIMATED_PHI_PI_4
-#endif
-
-#ifndef IR_ESTIMATED_THETA_PI_4
-#define IR_ESTIMATED_THETA_PI_4 IR_ESTIMATED_PHI_PI_4
-#endif
-
-#ifndef IR_ESTIMATED_THETA_MINUS_PI_4
-#define IR_ESTIMATED_THETA_MINUS_PI_4 IR_ESTIMATED_THETA_PI_4
-#endif
-
 
 #if defined IR_CORRECTION_LEFT && defined IR_CORRECTION_RIGHT
 float ir_correction_left;
@@ -168,11 +157,6 @@ void ir_init(void) {
 #endif
 
   ir_360 = TRUE;
-  ir_estimated_phi_pi_4 = IR_ESTIMATED_PHI_PI_4;
-  ir_estimated_phi_minus_pi_4 = IR_ESTIMATED_PHI_MINUS_PI_4;
-  ir_estimated_theta_pi_4 = IR_ESTIMATED_THETA_PI_4;
-  ir_estimated_theta_minus_pi_4 = IR_ESTIMATED_THETA_MINUS_PI_4;
-
   ir_360_lateral_correction = IR_360_LATERAL_CORRECTION;
   ir_360_longitudinal_correction = IR_360_LONGITUDINAL_CORRECTION;
   ir_360_vertical_correction = IR_360_VERTICAL_CORRECTION;
@@ -297,30 +281,6 @@ void estimator_update_ir_estim( void ) {
 }
 
 
-/* Correction of the infrared estimation roll angle: returns pi/4 for
-   est_pi_4 */
-static inline float correct_angle(float m_angle, float est_pi_4, float est_minus_pi_4) {
-  if (m_angle >= 0 && m_angle < est_pi_4) 
-    /* 0 .. est_pi_4 */
-    return (m_angle * M_PI_4 / est_pi_4);
-  else if (m_angle > M_PI - est_pi_4)
-    /* pi-est_pi_4 .. pi */
-    return (m_angle - (M_PI - est_pi_4))* M_PI_4 / est_pi_4 + 3*M_PI_4;
-  else if (m_angle >= est_pi_4)
-    /* est_pi_4 .. pi-est_pi_4 */
-    return (m_angle - est_pi_4) * M_PI_4 / (M_PI_2 - est_pi_4) + M_PI_4;
-  else if (m_angle <= 0 && m_angle > -est_minus_pi_4) 
-    /* -est_pi_4 .. 0 */
-    return (m_angle * M_PI_4 / est_minus_pi_4);
-  else if (m_angle < - (M_PI - est_minus_pi_4))
-    /* -pi .. -(pi-est_pi_4) */
-    return (m_angle + M_PI)* M_PI_4 / est_minus_pi_4 + -M_PI;
-  else
-    /* -(pi-est_pi_4) .. -est_pi_4 */
-    return (m_angle - (-M_PI+est_minus_pi_4)) * M_PI_4 / (M_PI_2 - est_minus_pi_4) - 3 * M_PI_4;
-}
-
-
 static inline void ir_correction( void ) {
     /* infrared compensation */
 #if defined IR_CORRECTION_LEFT && defined IR_CORRECTION_RIGHT
@@ -352,10 +312,9 @@ void estimator_update_state_infrared( void ) {
     float tmp_ir_top = ir_top * ir_360_vertical_correction;
 
     estimator_phi  = atan2(tmp_ir_roll, tmp_ir_top) - ir_roll_neutral;
-    estimator_phi = correct_angle(estimator_phi, ir_estimated_phi_pi_4, ir_estimated_phi_minus_pi_4);
 
     estimator_theta  = atan2(tmp_ir_pitch, tmp_ir_top) - ir_pitch_neutral;
-    estimator_theta = correct_angle(estimator_theta, ir_estimated_theta_pi_4, ir_estimated_theta_minus_pi_4);
+
     if (estimator_theta < -M_PI_2)
       estimator_theta += M_PI;
     else if (estimator_theta > M_PI_2)
