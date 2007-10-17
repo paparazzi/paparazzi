@@ -34,6 +34,13 @@ void on_Wind(IvyClientPtr app, void *user_data, int argc, char *argv[]){
   g_message("wind %d %f %f %f", ac_id, w_dir, w_speed, ac_aspeed);
 }
 
+void on_IrSensors(IvyClientPtr app, void *user_data, int argc, char *argv[]){
+  guint ac_id = atoi(argv[0]);
+  float lateral = atof(argv[2]);
+  float vertical = atof(argv[3]);
+  
+  g_message("ir_sensors %d %f %d", ac_id, lateral, vertical);
+}
 
 int main ( int argc, char** argv) {
   
@@ -45,6 +52,7 @@ int main ( int argc, char** argv) {
   IvyBindMsg(on_Attitude, NULL, "^(\\S*) ATTITUDE (\\S*) (\\S*) (\\S*)");
   IvyBindMsg(on_GPS, NULL, "^(\\S*) GPS (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*)");
   IvyBindMsg(on_Wind, NULL, "^(\\S*) WIND (\\S*) (\\S*) (\\S*) (\\S*) (\\S*)");
+  IvyBindMsg(on_IrSensors, NULL, "^(\\S*) IR_SENSORS (\\S*) (\\S*) (\\S*)");
   IvyStart("127.255.255.255");
 
   g_main_loop_run(ml);
