@@ -70,9 +70,6 @@
     <define name="CORRECTION_LEFT" value="1."/>
     <define name="CORRECTION_RIGHT" value="1."/>
 
-    <define name="ESTIMATED_PHI_PI_4" value="0.78"/>
-    <define name="ESTIMATED_PHI_MINUS_PI_4" value="0.78"/>
-
     <define name="360_LATERAL_CORRECTION" value="1."/>
     <define name="360_LONGITUDINAL_CORRECTION" value="1."/>
     <define name="360_VERTICAL_CORRECTION" value="1."/>
