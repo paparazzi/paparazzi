@@ -421,12 +421,12 @@
   </message>
 
   <message name="BOOZ_FD" ID="214">
-    <field name="p" type="int16"/>
-    <field name="q" type="int16"/>
-    <field name="r" type="int16"/>
-    <field name="phi" type="int16"/>
-    <field name="theta" type="int16"/>
-    <field name="psi" type="int16"/>
+    <field name="p" type="float"/>
+    <field name="q" type="float"/>
+    <field name="r" type="float"/>
+    <field name="phi" type="float"/>
+    <field name="theta" type="float"/>
+    <field name="psi" type="float"/>
   </message>
 
   <message name="BOOZ_STATUS" ID="215">

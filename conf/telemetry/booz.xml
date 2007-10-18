@@ -5,6 +5,7 @@
   <process name="Main">
     <mode name="default">
       <message name="BOOZ_STATUS"       period="1."/>
+      <message name="BOOZ_FD"           period="0.05"/>
     </mode>
     <mode name="debug">
     </mode>

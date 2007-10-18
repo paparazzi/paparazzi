@@ -13,10 +13,12 @@
 #define IMU_UNINIT  0
 #define IMU_RUNNING 1
 #define IMU_CRASHED 2
+#define IMU_NO_LINK 3
 
 struct imu_state {
-  int16_t rates[AXIS_NB];
-  int16_t eulers[AXIS_NB];
+  //  int16_t r_rates[AXIS_NB];
+  int16_t f_rates[AXIS_NB];
+  int16_t f_eulers[AXIS_NB];
   uint8_t status;
   uint8_t pad;
   uint16_t crc;
@@ -36,7 +38,9 @@ extern void link_imu_send( void );
 #ifdef CONTROLLER
 
 extern uint32_t link_imu_nb_err;
+extern uint8_t  link_imu_status;
 extern void link_imu_event_task( void );
+extern void link_imu_periodic_task( void );
 
 #endif /* CONTROLLER */
 

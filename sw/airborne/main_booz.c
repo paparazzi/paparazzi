@@ -16,6 +16,7 @@
 
 #include "spi.h"
 #include "link_imu.h"
+#include "booz_estimator.h"
 
 static inline void main_init( void );
 static inline void main_periodic_task( void );
@@ -51,22 +52,24 @@ static inline void main_init( void ) {
 }
 
 static inline void main_periodic_task( void ) {
-  radio_control_periodic_task();
-  booz_telemetry_periodic_task();
+  link_imu_periodic_task();
 
-
-  static uint8_t my_cnt = 0;
-  my_cnt++;
-  if (!(my_cnt%10)) {
+  static uint8_t _50hz = 0;
+  _50hz++;
+  if (_50hz > 5) _50hz = 0;
+  switch (_50hz) {
+  case 0:
     LED_TOGGLE(1);
-    //    DOWNLINK_SEND_BOOZ_STATUS(&link_imu_nb_err, &(link_imu_state.status));
-
+    break;
+  case 1:
     radio_control_periodic_task();
-    //    if (fbw_mode == FBW_MODE_MANUAL && rc_status == RC_REALLY_LOST) {
-    //      fbw_mode = FBW_MODE_AUTO;
-    //    }
-    
+    break;
+  case 2:
+    booz_telemetry_periodic_task();
+    break;
   }
+
+
 }
 
 static inline  void main_event_task( void ) {
@@ -86,7 +89,6 @@ static inline  void main_event_task( void ) {
   if (spi_message_received) {
     spi_message_received = FALSE;
     link_imu_event_task();
-    DOWNLINK_SEND_BOOZ_FD(&link_imu_state.rates[AXIS_P], &link_imu_state.rates[AXIS_Q], &link_imu_state.rates[AXIS_R], &link_imu_state.eulers[AXIS_X], &link_imu_state.eulers[AXIS_Y], &link_imu_state.eulers[AXIS_Z]); 
   }
 
   if (ppm_valid) {

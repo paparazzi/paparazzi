@@ -33,7 +33,8 @@ main.CFLAGS += -DDATALINK=PPRZ -DPPRZ_UART=Uart0
 
 main.srcs += $(SRC_ARCH)/mb_servo.c
 
-main.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c $(SRC_ARCH)/mb_twi_controller.c
+#main.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c $(SRC_ARCH)/mb_twi_controller.c
+main.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c $(SRC_ARCH)/mb_buss_twi_controller.c
 
 main.CFLAGS += -DMB_TACHO
 main.srcs += $(SRC_ARCH)/mb_tacho.c

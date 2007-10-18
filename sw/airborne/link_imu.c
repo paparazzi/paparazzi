@@ -25,7 +25,7 @@ uint16_t link_imu_crc;
 
 #ifdef IMU  /* IMU LPC code */
 
-//#include "imu_v3.h"
+#include "imu_v3.h"
 #include "multitilt.h"
 
 #include "LPC21xx.h"
@@ -92,8 +92,8 @@ void link_imu_init ( void ) {
   /* initialize interrupt vector */
   VICIntSelect &= ~VIC_BIT(VIC_SPI0);   // SPI0 selected as IRQ
   VICIntEnable = VIC_BIT(VIC_SPI0);     // SPI0 interrupt enabled
-  VICVectCntl10 = VIC_ENABLE | VIC_SPI0;
-  VICVectAddr10 = (uint32_t)SPI0_ISR;    // address of the ISR
+  VICVectCntl1 = VIC_ENABLE | VIC_SPI0;
+  VICVectAddr1 = (uint32_t)SPI0_ISR;    // address of the ISR
 
   /* clear pending interrupt */
   SetBit(S0SPINT, SPI0IF);
@@ -105,32 +105,17 @@ void link_imu_init ( void ) {
 void link_imu_send ( void ) {
   LinkImuSetUnavailable();
   
-  /*
-  if (!isnan(ahrs_phi)   &&
-      !isnan(ahrs_theta) &&
-      !isnan(ahrs_psi)) {
-  */
-    link_imu_state.rates[AXIS_P] = mtt_p * RATE_PI_S/M_PI;
-    link_imu_state.rates[AXIS_Q] = mtt_q * RATE_PI_S/M_PI;
-    link_imu_state.rates[AXIS_R] = mtt_r * RATE_PI_S/M_PI;
-    link_imu_state.eulers[AXIS_X] = mtt_phi * ANGLE_PI/M_PI;
-    link_imu_state.eulers[AXIS_Y] = mtt_theta* ANGLE_PI/M_PI;
-    link_imu_state.eulers[AXIS_Z] = mtt_psi  * ANGLE_PI/M_PI;
-    link_imu_state.status = IMU_RUNNING;
-  /*
-  }
-  else {
-    link_imu_state.rates[AXIS_X] = imu_gyro[AXIS_X]*RATE_PI_S/M_PI;
-    link_imu_state.rates[AXIS_Y] = imu_gyro[AXIS_Y]*RATE_PI_S/M_PI;
-    link_imu_state.rates[AXIS_Z] = imu_gyro[AXIS_Z]*RATE_PI_S/M_PI;
-    link_imu_state.eulers[AXIS_X] = 0;
-    link_imu_state.eulers[AXIS_Y] = 0;
-    link_imu_state.eulers[AXIS_Z] = 0;
-    link_imu_state.cos_theta = 1.;
-    link_imu_state.sin_theta = 0.;
-    link_imu_state.status = IMU_CRASHED;
-  }
-  */
+  //  link_imu_state.r_rates[AXIS_P] = imu_vs_gyro_unbiased[AXIS_P] * RATE_PI_S/M_PI;
+  //  link_imu_state.r_rates[AXIS_Q] = imu_vs_gyro_unbiased[AXIS_Q] * RATE_PI_S/M_PI;
+  //  link_imu_state.r_rates[AXIS_R] = imu_vs_gyro_unbiased[AXIS_R] * RATE_PI_S/M_PI;
+  link_imu_state.f_rates[AXIS_P] = mtt_p * RATE_PI_S/M_PI;
+  link_imu_state.f_rates[AXIS_Q] = mtt_q * RATE_PI_S/M_PI;
+  link_imu_state.f_rates[AXIS_R] = mtt_r * RATE_PI_S/M_PI;
+  link_imu_state.f_eulers[AXIS_X] = mtt_phi * ANGLE_PI/M_PI;
+  link_imu_state.f_eulers[AXIS_Y] = mtt_theta* ANGLE_PI/M_PI;
+  link_imu_state.f_eulers[AXIS_Z] = mtt_psi  * ANGLE_PI/M_PI;
+  link_imu_state.status = IMU_RUNNING;
+
   LinkImuComputeCRC();
   link_imu_state.crc = link_imu_crc;
 
@@ -166,6 +151,9 @@ void SPI0_ISR(void) {
 #include "booz_estimator.h"
 
 uint32_t link_imu_nb_err;
+uint8_t  link_imu_status;
+uint32_t link_imu_timeout;
+#define LINK_IMU_TIMEOUT 100
 
 /* DRDY connected pin to P0.16 EINT0 */ 
 #define LINK_IMU_DRDY_PINSEL PINSEL1
@@ -195,23 +183,35 @@ void link_imu_init ( void ) {
   spi_buffer_length = sizeof(link_imu_state);
 
   link_imu_nb_err = 0;
+  link_imu_status = IMU_NO_LINK;
+  link_imu_timeout = LINK_IMU_TIMEOUT;
 
 }
 
 void link_imu_event_task( void ) {
   LinkImuComputeCRC();
   if (link_imu_crc == link_imu_state.crc) {
-    booz_estimator_p = link_imu_state.rates[AXIS_P] * M_PI/RATE_PI_S;
-    booz_estimator_q = link_imu_state.rates[AXIS_Q] * M_PI/RATE_PI_S;
-    booz_estimator_r = link_imu_state.rates[AXIS_R] * M_PI/RATE_PI_S;
-    booz_estimator_phi   = link_imu_state.eulers[AXIS_X] * M_PI/ANGLE_PI;
-    booz_estimator_theta = link_imu_state.eulers[AXIS_Y] * M_PI/ANGLE_PI;
-    booz_estimator_psi   = link_imu_state.eulers[AXIS_Z] * M_PI/ANGLE_PI;
+    link_imu_timeout = 0;
+    link_imu_status = link_imu_state.status;
+    booz_estimator_p = link_imu_state.f_rates[AXIS_P] * M_PI/RATE_PI_S;
+    booz_estimator_q = link_imu_state.f_rates[AXIS_Q] * M_PI/RATE_PI_S;
+    booz_estimator_r = link_imu_state.f_rates[AXIS_R] * M_PI/RATE_PI_S;
+    booz_estimator_phi   = link_imu_state.f_eulers[AXIS_X] * M_PI/ANGLE_PI;
+    booz_estimator_theta = link_imu_state.f_eulers[AXIS_Y] * M_PI/ANGLE_PI;
+    booz_estimator_psi   = link_imu_state.f_eulers[AXIS_Z] * M_PI/ANGLE_PI;
   }
   else {
     link_imu_nb_err++;
   }
 }
+
+extern void link_imu_periodic_task( void ) {
+  if (link_imu_timeout < LINK_IMU_TIMEOUT)
+    link_imu_timeout++;
+  else
+    link_imu_status = IMU_NO_LINK;
+}
+
 
 void EXTINT0_ISR(void) {
   ISR_ENTRY();
@@ -220,7 +220,7 @@ void EXTINT0_ISR(void) {
   SpiStart();
 
   /* clear EINT2 */
-  SetBit(EXTINT,LINK_IMU_DRDY_EINT); /* clear EINT2 */
+  SetBit(EXTINT,LINK_IMU_DRDY_EINT); /* clear EINT0 */
   
   VICVectAddr = 0x00000000;    /* clear this interrupt from the VIC */
   ISR_EXIT();

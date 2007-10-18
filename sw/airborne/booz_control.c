@@ -48,7 +48,6 @@ void booz_control_rate_compute_setpoints(void) {
   booz_control_p_sp = -rc_values[RADIO_ROLL]  * DegOfRad(BOOZ_CONTROL_RATE_PQ_MAX_SP)/MAX_PPRZ;
   booz_control_q_sp =  rc_values[RADIO_PITCH] * DegOfRad(BOOZ_CONTROL_RATE_PQ_MAX_SP)/MAX_PPRZ;
   booz_control_r_sp = -rc_values[RADIO_YAW]   * DegOfRad(BOOZ_CONTROL_RATE_R_MAX_SP)/MAX_PPRZ;
-
 }
 
 
@@ -72,7 +71,6 @@ void booz_control_rate_run(void) {
   commands[COMMAND_P] = TRIM_PPRZ((int16_t)cmd_p);
   commands[COMMAND_Q] = TRIM_PPRZ((int16_t)cmd_q);
   commands[COMMAND_R] = TRIM_PPRZ((int16_t)cmd_r);
-
 
 }
 

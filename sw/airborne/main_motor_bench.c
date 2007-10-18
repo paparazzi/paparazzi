@@ -8,6 +8,7 @@
 #include "mb_servo.h"
 #include "i2c.h"
 #include "mb_twi_controller.h"
+#include "mb_buss_twi_controller.h"
 #include "mb_current.h"
 #include "mb_scale.h"
 
@@ -19,6 +20,9 @@
 #include "adc.h"
 
 #include "mb_modes.h"
+
+#define CONTROLLER_TYPE BUSS
+
 
 static inline void main_init( void );
 static inline void main_periodic_task( void );
@@ -36,19 +40,22 @@ int main( void ) {
   return 0;
 }
 
-
-
 static inline void main_init( void ) {
   //initialisation 
   hw_init();
   led_init();
   sys_time_init();
   mb_tacho_init();
-  mb_servo_init();
-  mb_servo_set_range( 1275000, 1825000 );
 
+#if defined CONTROLLER_TYPE && CONTROLLER_TYPE == PPRZ
   i2c_init();
   mb_twi_controller_init();
+#elif defined CONTROLLER_TYPE && CONTROLLER_TYPE == BUSS
+  i2c_init();
+  mb_buss_twi_controller_init();
+#endif
+  mb_servo_init();
+  mb_servo_set_range( 1275000, 1825000 );
 
   adc_init();
   mb_current_init();
@@ -63,9 +70,13 @@ static inline void main_init( void ) {
 static inline void main_periodic_task( void ) {
   mb_mode_periodic();
   float throttle = mb_modes_throttle;
-  mb_servo_set(throttle);
 
+#if defined CONTROLLER_TYPE && CONTROLLER_TYPE == PPRZ
   mb_twi_controller_set(throttle);
+#elif defined CONTROLLER_TYPE && CONTROLLER_TYPE == BUSS
+  mb_buss_twi_controller_set(throttle);
+#endif
+  mb_servo_set(throttle);
 
   float rpm = mb_tacho_get_averaged();
   mb_current_periodic();
