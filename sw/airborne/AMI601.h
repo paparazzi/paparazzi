@@ -13,13 +13,13 @@ extern uint8_t ami601_foo1;
 extern uint8_t ami601_foo2;
 extern uint8_t ami601_foo3;
 
-float ami601_ax;
-float ami601_ay;
-float ami601_az;
+extern float ami601_ax;
+extern float ami601_ay;
+extern float ami601_az;
 
-float ami601_mx;
-float ami601_my;
-float ami601_mz;
+extern float ami601_mx;
+extern float ami601_my;
+extern float ami601_mz;
 
 
 #endif /* AMI601_H */

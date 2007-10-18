@@ -35,15 +35,15 @@ static inline void main_init( void ) {
   sys_time_init();
   led_init();
   Uart0Init();
-  Uart1Init();
-  gps_init();
+  //  Uart1Init();
+  //  gps_init();
   pt_ant_motors_init();
   pt_ant_sensors_init_spi();
   pt_ant_sensors_init();
 
   int_enable();
 
-  gps_configure_uart();
+  //  gps_configure_uart();
 
 }
 

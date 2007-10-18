@@ -7,7 +7,14 @@
 
 #include "interrupt_hw.h"
 
+/* default clock speed 37.5KHz with our 15MHz PCLK */
+#ifndef I2C_SCLL
+#define I2C_SCLL 200
+#endif
 
+#ifndef I2C_SCLH
+#define I2C_SCLH 200
+#endif
 
 void i2c0_ISR(void) __attribute__((naked));
 
@@ -23,8 +30,8 @@ void i2c_hw_init ( void ) {
   /* enable I2C */
   I2C0CONSET = _BV(I2EN);
   /* set bitrate */
-  I2C0SCLL = 200;  
-  I2C0SCLH = 200;  
+  I2C0SCLL = I2C_SCLL;  
+  I2C0SCLH = I2C_SCLH;  
   
   // initialize the interrupt vector
   VICIntSelect &= ~VIC_BIT(VIC_I2C0);  // I2C0 selected as IRQ

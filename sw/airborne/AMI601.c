@@ -78,7 +78,7 @@ void ami601_periodic( void ) {
   //  SetBit(AMI601_TRG_IOSET , AMI601_TRG_PIN);
 
   if (ami601_i2c_done) {
-    LED_ON(2);
+    //    LED_ON(2);
     const uint8_t read_cmd[] = { 0x55, 0xAA, 0X14};
     memcpy((void*)i2c_buf, read_cmd, sizeof(read_cmd));
     i2c_transmit(AMI601_SLAVE_ADDR, sizeof(read_cmd), &ami601_i2c_done);
@@ -90,7 +90,7 @@ void ami601_periodic( void ) {
 
     i2c_receive(AMI601_SLAVE_ADDR, 15, &ami601_i2c_done);
     while (!ami601_i2c_done);
-    LED_OFF(2);
+    //    LED_OFF(2);
     
     ami601_foo1 = i2c_buf[0];
     ami601_foo1 = i2c_buf[1];
