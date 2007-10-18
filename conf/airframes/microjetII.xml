@@ -1,12 +1,12 @@
 <!DOCTYPE airframe SYSTEM "airframe.dtd">
 
-<airframe name="Microjet I Tiny 1.1">
+<airframe name="Microjet II Tiny 1.1">
 
 <!-- commands section -->
   <servos>
-    <servo name="THROTTLE"      no="0" min="1290" neutral="1290" max="1810"/>
-    <servo name="AILEVON_LEFT"  no="1" min="2000" neutral="1490" max="1000"/>
-    <servo name="AILEVON_RIGHT" no="3" min="1000" neutral="1540" max="2000"/>
+    <servo name="THROTTLE"      no="0" min="1280" neutral="1280" max="1810"/>
+    <servo name="AILEVON_LEFT"  no="1" min="2000" neutral="1500" max="1000"/>
+    <servo name="AILEVON_RIGHT" no="3" min="1000" neutral="1500" max="2000"/>
   </servos>
 
   <commands>
@@ -51,14 +51,14 @@
   </section>
 
   <section name="INFRARED" prefix="IR_">
-    <define name="ROLL_NEUTRAL_DEFAULT" value="5" unit="deg"/>
-    <define name="PITCH_NEUTRAL_DEFAULT" value="5" unit="deg"/>
+    <define name="ROLL_NEUTRAL_DEFAULT" value="0" unit="deg"/>
+    <define name="PITCH_NEUTRAL_DEFAULT" value="0" unit="deg"/>
 
     <define name="RAD_OF_IR_CONTRAST" value="0.75"/>
 
     <linear name="RollOfIrs" arity="2" coeff1="0.7" coeff2="-0.7"/>
     <linear name="PitchOfIrs" arity="2" coeff1="-0.7" coeff2="-0.7"/>
-    <linear name="TopOfIr" arity="1" coeff1="1"/>
+    <linear name="TopOfIr" arity="1" coeff1="-1"/>
 
     <define name="ADC_ROLL_NEUTRAL" value="0"/>
     <define name="ADC_PITCH_NEUTRAL" value="-716"/>
@@ -116,7 +116,8 @@
     <define name="LIGHT_PIN_1" value="4"/>
     <define name="LIGHT_PIN_2" value="5"/>
   </section>
- 
+
+
   <section name="VERTICAL CONTROL" prefix="V_CTL_">
 
     <define name="POWER_CTL_BAT_NOMINAL" value="11.1" unit="volt"/>
@@ -140,15 +141,13 @@
   </section>
 
   <section name="HORIZONTAL CONTROL" prefix="H_CTL_">
-    <define name="COURSE_PGAIN" value="-1.4"/>
-
+    <define name="COURSE_PGAIN" value="-0.55"/>
     <define name="ROLL_MAX_SETPOINT" value="0.6" unit="radians"/>
     <define name="PITCH_MAX_SETPOINT" value="0.5" unit="radians"/>
     <define name="PITCH_MIN_SETPOINT" value="-0.5" unit="radians"/>
 
     <define name="PITCH_PGAIN" value="-12500."/>
     <define name="PITCH_DGAIN" value="1.5"/>
-
     <define name="ELEVATOR_OF_ROLL" value="1250"/>
     
     <define name="ROLL_SLEW" value="0.1"/>
@@ -222,7 +221,6 @@ ap.CFLAGS += -DADC -DUSE_ADC_0 -DUSE_ADC_1 -DUSE_ADC_2 -DUSE_ADC_3
 ap.srcs += $(SRC_ARCH)/adc_hw.c
 
 ap.CFLAGS += -DGPS -DUBX -DUSE_UART1 -DGPS_LINK=Uart1 -DUART1_BAUD=B38400
-#ap.CFLAGS += -DGPS_CONFIGURE -DGPS_BAUD=38400
 
 ap.srcs += gps_ubx.c gps.c latlong.c
 
@@ -236,12 +234,6 @@ ap.CFLAGS += -DGYRO -DADXRS150
 ap.srcs += gyro.c
 
 ap.srcs += nav_line.c nav_survey_rectangle.c
-
-# PID sensor
-ap.CFLAGS += -DUSE_ADC_6 -DUSE_ADC_GENERIC -DADC_CHANNEL_GENERIC1=ADC_6 -DADC_CHANNEL_GENERIC_NB_SAMPLES=16
-ap.srcs += adc_generic.c
-
-ap.CFLAGS += -DSIMPLE_ROLL_CONTROL
 
 # Config for SITL simulation
 include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile

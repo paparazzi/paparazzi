@@ -1,6 +1,6 @@
 <!DOCTYPE airframe SYSTEM "airframe.dtd">
 
-<airframe name="Microjet I Tiny 1.1">
+<airframe name="Microjet III Tiny 1.1">
 
 <!-- commands section -->
   <servos>
@@ -104,19 +104,6 @@
     <define name="GLIDE_PITCH" value="45" unit="deg"/>
   </section>
 
-  <section name="external leds">
-    <!-- ADC 4 -->
-    <define name="LED_4_BANK" value="0"/>
-    <define name="LED_4_PIN" value="22"/>
-
-    <!-- ADC 5 -->
-    <define name="LED_5_BANK" value="0"/>
-    <define name="LED_5_PIN" value="12"/>
-
-    <define name="LIGHT_PIN_1" value="4"/>
-    <define name="LIGHT_PIN_2" value="5"/>
-  </section>
- 
   <section name="VERTICAL CONTROL" prefix="V_CTL_">
 
     <define name="POWER_CTL_BAT_NOMINAL" value="11.1" unit="volt"/>

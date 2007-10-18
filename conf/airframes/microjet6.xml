@@ -54,9 +54,8 @@
   </section>
 
   <section name="INFRARED" prefix="IR_">
-    <define name="ROLL_NEUTRAL_DEFAULT" value="3.6" unit="deg"/>
+    <define name="ROLL_NEUTRAL_DEFAULT" value="4." unit="deg"/>
     <define name="PITCH_NEUTRAL_DEFAULT" value="2" unit="deg"/>
-    <define name="DEFAULT_CONTRAST" value="200"/>
     <define name="RAD_OF_IR_CONTRAST" value="0.75"/>
     <linear name="RollOfIrs" arity="2" coeff1="0.66" coeff2="-0.66"/>
     <linear name="PitchOfIrs" arity="2" coeff1="-0.66" coeff2="-0.66"/>
@@ -69,8 +68,8 @@
 
     <define name="CORRECTION_UP" value="1.0"/>
     <define name="CORRECTION_DOWN" value="1.0"/>
-    <define name="CORRECTION_LEFT" value="1.0"/>
-    <define name="CORRECTION_RIGHT" value="1.0"/>
+    <define name="CORRECTION_LEFT" value="1.4"/>
+    <define name="CORRECTION_RIGHT" value="1.4"/>
 
     <define name="360_LATERAL_CORRECTION" value="1."/>
     <define name="360_LONGITUDINAL_CORRECTION" value="1."/>
@@ -95,7 +94,7 @@
     <define name="CARROT" value="5." unit="s"/>
     <define name="KILL_MODE_DISTANCE" value="(1.5*MAX_DIST_FROM_HOME)"/>
     <define name="CONTROL_RATE" value="60" unit="Hz"/>
-    <define name="XBEE_INIT" value="\"ATPL2\rATRN1\rATTT80\r\""/>
+<!--    <define name="XBEE_INIT" value="\"ATPL2\rATRN1\rATTT80\r\""/> -->
 <!--    <define name="NO_XBEE_API_INIT" value="TRUE"/> -->
     <define name="ALT_KALMAN_ENABLED" value="TRUE"/>
 
@@ -159,6 +158,9 @@
     <define name="ROLL_RATE_SUM_NB_SAMPLES" value="64"/>
 
     <define name="ROLL_SLEW" value="0.1"/>
+
+    <define name="SIMPLE_ROLL_PGAIN" value="-15000"/>
+    <define name="SIMPLE_ROLL_DGAIN" value="-3000"/>
   </section>
 
   <section name="NAV">
@@ -179,16 +181,6 @@
     <define name="DESCENT_NAV_RATIO" value="1.0"/>
     </section>
 
-
-  <section name="GYRO_GAINS">
-    <define name="GYRO_MAX_RATE" value="200."/>
-    <define name="ROLLRATESUM_NB_SAMPLES" value="64"/>
-    <define name="ALT_ROLL__PGAIN" value="1.0"/>
-    <define name="ROLL_RATE_PGAIN" value="1000.0"/>
-    <define name="ROLL_RATE_IGAIN" value="0.0"/>
-    <define name="ROLL_RATE_DGAIN" value="0.0"/>
-  </section>
-
   <section name="FAILSAFE" prefix="FAILSAFE_">
 	<define name="DELAY_WITHOUT_GPS" value="1" unit="s"/>
     	<define name="DEFAULT_THROTTLE" value="0.3" unit="%"/>
@@ -197,10 +189,12 @@
 	<define name="HOME_RADIUS" value="100" unit="m"/>
 </section>
  
+<!--
  <section name="DATALINK" prefix="DATALINK_">
     <define name="DEVICE_TYPE" value="XBEE"/>
     <define name="DEVICE_ADDRESS" value="...."/>
   </section>
+-->
 
  <section name="SIMU">
     <define name="YAW_RESPONSE_FACTOR" value="0.5"/>
@@ -222,12 +216,13 @@ ap.srcs += $(SRC_ARCH)/servos_4015_MAT_hw.c actuators.c
 ap.CFLAGS += -DRADIO_CONTROL -DRADIO_CONTROL_TYPE=RC_FUTABA
 ap.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c  
 
-ap.CFLAGS += -DDOWNLINK -DUSE_UART0 -DDOWNLINK_TRANSPORT=XBeeTransport -DDOWNLINK_FBW_DEVICE=Uart0 -DDOWNLINK_AP_DEVICE=Uart0 -DXBEE_UART=Uart0 -DDATALINK=XBEE -DUART0_BAUD=B9600
-ap.srcs += downlink.c $(SRC_ARCH)/uart_hw.c datalink.c xbee.c
+# API mode
+# ap.CFLAGS += -DDOWNLINK -DUSE_UART0 -DDOWNLINK_TRANSPORT=XBeeTransport -DDOWNLINK_FBW_DEVICE=Uart0 -DDOWNLINK_AP_DEVICE=Uart0 -DXBEE_UART=Uart0 -DDATALINK=XBEE -DUART0_BAUD=B57600
+# ap.srcs += downlink.c $(SRC_ARCH)/uart_hw.c datalink.c xbee.c
 
 # transparent 
-#ap.CFLAGS += -DDOWNLINK -DUSE_UART0 -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_FBW_DEVICE=Uart0 -DDOWNLINK_AP_DEVICE=Uart0 -DPPRZ_UART=Uart0 -DDATALINK=PPRZ -DUART0_BAUD=B9600
-#ap.srcs += downlink.c $(SRC_ARCH)/uart_hw.c datalink.c pprz_transport.c
+ap.CFLAGS += -DDOWNLINK -DUSE_UART0 -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_FBW_DEVICE=Uart0 -DDOWNLINK_AP_DEVICE=Uart0 -DPPRZ_UART=Uart0 -DDATALINK=PPRZ -DUART0_BAUD=B9600
+ap.srcs += downlink.c $(SRC_ARCH)/uart_hw.c datalink.c pprz_transport.c
 
 
 ap.CFLAGS += -DINTER_MCU
@@ -256,6 +251,8 @@ ap.srcs += spi.c $(SRC_ARCH)/spi_hw.c $(SRC_ARCH)/baro_MS5534A.c
 
 ap.srcs += nav_line.c
 
+ap.CFLAGS += -DSIMPLE_ROLL_CONTROL
+
 
 # Harware In The Loop
 
@@ -264,7 +261,8 @@ ap.srcs += nav_line.c
 
 # Config for SITL simulation
 include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
-sim.CFLAGS += -DCONFIG=\"tiny.h\" -DAGR_CLIMB -DH_CTL_RATE_LOOP -DLOITER_TRIM -DALT_KALMAN -DIR_360 -DUSE_BARO_MS5534A
+sim.CFLAGS += -DCONFIG=\"tiny.h\" -DAGR_CLIMB -DLOITER_TRIM -DALT_KALMAN -DIR_360 -DUSE_BARO_MS5534A -DSIMPLE_ROLL_CONTROL
+# -DH_CTL_RATE_LOOP
 sim.srcs += nav_survey_rectangle.c $(SRC_ARCH)/sim_baro.c bomb.c nav_line.c
 
   </makefile>
