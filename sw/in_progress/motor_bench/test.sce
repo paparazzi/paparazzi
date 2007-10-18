@@ -26,5 +26,5 @@ plot2d(time, rpm);
 
 subplot(3,1,3)
 xtitle('Filtered Rpm');
-//plot2d(time, f_rpm);
-plot2d(rpm, throttle);
+plot2d(time, f_rpm);
+//plot2d(rpm, throttle);
