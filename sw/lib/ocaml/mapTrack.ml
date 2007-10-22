@@ -223,6 +223,18 @@ class track = fun ?(name="Noname") ?(size = 500) ?(color="red") (geomap:MapCanva
       | NoDesired ->
 	  create ()
 
+    method delete_desired_track = fun () ->
+      begin
+	match desired_track with
+	  DesiredCircle (c, r, circle) ->
+	    circle#destroy ()
+	| DesiredSegment (p1,p2,s) ->
+	    s#destroy ();
+	| NoDesired ->
+	    ()
+      end;
+      desired_track <- NoDesired
+
     method draw_zone = fun geo1 geo2 ->
       let (x1, y1) = geomap#world_of geo1
       and (x2, y2) = geomap#world_of geo2 in
