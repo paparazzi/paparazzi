@@ -368,8 +368,7 @@ module XB = struct (** XBee module *)
 		fprintf o "%s%!" packet;
 		Debug.call 'y' (fun f -> fprintf f "Resending (%d) %s\n" (nb_prev_retries+1) (Debug.xprint packet));
 		false));
-	  end else
-	    fprintf stderr "FIXME: nb_retries exceeded\n"
+	  end
 	  
     | Xbee.RX_Packet_64 (addr64, rssi, options, data) ->
 	Debug.trace 'x' (sprintf "getting XBee RX64: %Lx %d %d %s" addr64 rssi options (Debug.xprint data));
