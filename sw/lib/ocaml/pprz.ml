@@ -459,13 +459,13 @@ module MessagesOfXml(Class:CLASS_Xml) = struct
 	  (fun _ args -> 
 	    let values = try snd (values_of_string args.(1)) with _ -> [] in
 	    cb args.(0) values) 
-	  (sprintf "^([^ ]*) +(%s .*)" msg_name)
+	  (sprintf "^([^ ]*) +(%s( .*|$))" msg_name)
     | Some s ->
 	Ivy.bind
 	  (fun _ args -> 
 	    let values = try snd (values_of_string args.(0)) with  _ -> [] in
 	    cb s values)
-	  (sprintf "^%s +(%s .*)" s msg_name)
+	  (sprintf "^%s +(%s( .*|$))" s msg_name)
 
   let message_answerer = fun sender msg_name cb ->
     let ivy_cb = fun _ args ->

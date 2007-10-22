@@ -9,4 +9,6 @@ extern float booz_estimator_phi;
 extern float booz_estimator_theta;
 extern float booz_estimator_psi;
 
+extern void booz_estimator_init( void );
+
 #endif /* BOOZ_ESTIMATOR_H */

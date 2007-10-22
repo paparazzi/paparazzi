@@ -80,7 +80,7 @@ diffusion : stdlib.cmo diffusion.cmo
 	$(Q)$(OCAMLC) $(INCLUDES) -c $<
 
 clean :
-	rm -f *.cm* *~ *.out .depend *.o *.a *.so gaia simhitl
+	rm -f *.cm* *~ *.out .depend *.o *.a *.so gaia simhitl booz_sim
 
 #
 # Dependencies
@@ -92,3 +92,10 @@ clean :
 ifneq ($(MAKECMDGOALS),clean) 
 -include .depend
 endif
+
+CC = gcc
+CFLAGS=-g -O2 -Wall `pkg-config glib-2.0 --cflags` -I /usr/include/meschach -I../airborne -I../../var/BOOZ
+LDFLAGS=`pkg-config glib-2.0 --libs` -lm -lmeschach
+
+booz_sim: main_booz_sim.c booz_flight_model.c
+	$(CC) $(CFLAGS) -g -o $@ $^ $(LDFLAGS)

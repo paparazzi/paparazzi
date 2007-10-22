@@ -8,3 +8,14 @@ float booz_estimator_phi;
 float booz_estimator_theta;
 float booz_estimator_psi;
 
+void booz_estimator_init( void ) {
+
+  booz_estimator_p = 0.;
+  booz_estimator_q = 0.;
+  booz_estimator_r = 0.;
+
+  booz_estimator_phi = 0.;
+  booz_estimator_theta = 0.;
+  booz_estimator_psi = 0.;
+
+}

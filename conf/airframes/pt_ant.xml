@@ -28,7 +28,7 @@ main.TARGETDIR = main
 main.CFLAGS += -DCONFIG=\"conf_demo.h\"
 main.srcs = main_pan_tilt_antenna.c
 
-main.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(10e-2)'
+main.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(1e-1)'
 main.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
 
 main.CFLAGS += -DLED
@@ -46,11 +46,12 @@ main.srcs += pt_ant_datalink.c
 
 main.srcs += pt_ant_motors.c
 
+main.CFLAGS += -I2C_BUF_LEN=32
 main.srcs += pt_ant_sensors.c AMI601.c i2c.c $(SRC_ARCH)/i2c_hw.c
 
 main.srcs += pt_ant_estimator.c
 
-#main.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B9600
+main.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B9600
 #main.CFLAGS += -DGPS -DUBX -DGPS_LINK=Uart1
 #main.CFLAGS += -DGPS_USER_CALLBACK=pt_ant_estimator_update_self_gps -DGPS_USER_CALLBACK_HEADER=\"pt_ant_estimator.h\" 
 #main.CFLAGS += -DGPS_CONFIGURE -DGPS_BAUD=38400

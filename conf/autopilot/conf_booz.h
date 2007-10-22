@@ -25,16 +25,22 @@
 #define SERVO_CLOCK_PINSEL PINSEL0
 #define SERVO_CLOCK_PINSEL_VAL 0x02
 #define SERVO_CLOCK_PINSEL_BIT 10
-/* reset on P1.25 */
-#define SERVO_RESET_PIN 25
+/* reset on P1.23 */
+#define SERVO_RESET_PIN 23
 #define SERVO_RESET_PINSEL PINSEL2
 
 
-#define LED_1_BANK 0
-#define LED_1_PIN 12
+#define LED_1_BANK 1
+#define LED_1_PIN 19
 
-#define LED_2_BANK 0
-#define LED_2_PIN 13
+#define LED_2_BANK 1
+#define LED_2_PIN 18
+
+#define LED_3_BANK 1
+#define LED_3_PIN 17
+
+#define LED_4_BANK 1
+#define LED_4_PIN 16
 
 /* ADC */
 #define ADC_0 AdcBank0(4)

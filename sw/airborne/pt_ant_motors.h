@@ -11,7 +11,8 @@ extern float pt_ant_motors_y_power;
 extern float pt_ant_motors_z_power;
 
 #define pt_ant_motors_SetYPower(p) {			\
-    uint32_t len = p * MOT_CHOP_PERIOD;			\
+    pt_ant_motors_y_power = p;				\
+    int32_t len = p * MOT_CHOP_PERIOD;			\
     if (p>=0)						\
       SetBit(MOT_Y_DIR_CLR_REG,  MOT_Y_DIR_PIN);	\
     else {						\
@@ -24,12 +25,13 @@ extern float pt_ant_motors_z_power;
 
 
 #define pt_ant_motors_SetZPower(p) { \
-    uint32_t len = p * MOT_CHOP_PERIOD;			\
+    pt_ant_motors_z_power = p;				\
+    int32_t len = p * MOT_CHOP_PERIOD;			\
     if (p>=0)						\
       SetBit(MOT_Z_DIR_CLR_REG,  MOT_Z_DIR_PIN);	\
     else {						\
       SetBit(MOT_Z_DIR_SET_REG,  MOT_Z_DIR_PIN);	\
-      len = -len;						\
+      len = -len;					\
     }							\
     MOT_Z_PWM_REG = len;				\
     PWMLER = MOT_Z_PWM_LATCH;				\
@@ -58,7 +60,7 @@ extern float pt_ant_motors_z_power;
 #define MOT_Y_DIR_SET_REG IO0SET
 #define MOT_Y_DIR_PIN 19
 
-/* 1KHz */
+/* 5KHz */
 #define MOT_CHOP_PERIOD SYS_TICS_OF_USEC(1000)
 
 #endif /* PT_ANT_MOTORS_H */

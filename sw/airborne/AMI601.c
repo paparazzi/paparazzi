@@ -64,9 +64,9 @@ void ami601_init( void ) {
   ami601_i2c_done = TRUE;
 
 
-  FOO_DELAY();
+  //  FOO_DELAY();
   /* assert reset */
-  SetBit(AMI601_RST_IOSET , AMI601_RST_PIN);  
+  //  SetBit(AMI601_RST_IOSET , AMI601_RST_PIN);  
 
 
 }
@@ -93,8 +93,8 @@ void ami601_periodic( void ) {
     //    LED_OFF(2);
     
     ami601_foo1 = i2c_buf[0];
-    ami601_foo1 = i2c_buf[1];
-    ami601_foo1 = i2c_buf[2];
+    ami601_foo2 = i2c_buf[1];
+    ami601_foo3 = i2c_buf[2];
 
     uint8_t i;
     for (i=0; i< AMI601_NB_CHAN; i++) {

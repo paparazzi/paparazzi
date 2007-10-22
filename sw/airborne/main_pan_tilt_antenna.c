@@ -13,8 +13,11 @@
 #include "pt_ant_estimator.h"
 #include "gps.h"
 
-#include "pt_ant_datalink.h"
+#include "datalink.h"
 //#include "traffic_info.h"
+
+#include "i2c.h"
+#include "AMI601.h"
 
 static inline void main_init( void );
 static inline void main_periodic_task( void );
@@ -35,11 +38,14 @@ static inline void main_init( void ) {
   sys_time_init();
   led_init();
   Uart0Init();
-  //  Uart1Init();
+  Uart1Init();
   //  gps_init();
   pt_ant_motors_init();
-  pt_ant_sensors_init_spi();
-  pt_ant_sensors_init();
+  //  pt_ant_sensors_init_spi();
+  //  pt_ant_sensors_init();
+
+  i2c_init();
+  ami601_init();
 
   int_enable();
 
@@ -54,17 +60,24 @@ static inline void main_periodic_task( void ) {
   GpsPeriodic();
 #endif
 
+
+  DOWNLINK_SEND_ESTIMATOR(&pt_ant_motors_y_power, &pt_ant_motors_z_power);
   //  LED_TOGGLE(1);
-  //  if (cpu_time_sec > 10)
-  //    pt_ant_motors_SetZPower(0.2);
+
+  ami601_periodic();
+  DOWNLINK_SEND_IMU_ACCEL_RAW(&ami601_val[3], &ami601_val[5], &ami601_val[1]); // accel ??
+  DOWNLINK_SEND_IMU_GYRO_RAW(&ami601_val[0], &ami601_val[4], &ami601_val[2]);  // mag ??
+  //  ami601_scale_measures();
+  //  DOWNLINK_SEND_IMU_ACCEL(&ami601_ax, &ami601_ay, &ami601_az);
+  //  DOWNLINK_SEND_IMU_GYRO(&ami601_mx, &ami601_my, &ami601_mz);
 
 }
 
 static inline void main_event_task( void ) {
 
-  //  PtAntSensorsEventCheckAndHandle();
+  //PtAntSensorsEventCheckAndHandle();
   
-  //  DlEventCheckAndHandle();
+  DlEventCheckAndHandle();
 
 #ifdef USE_GPS
   if (GpsEventCheckAndHandle())

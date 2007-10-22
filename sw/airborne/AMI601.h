@@ -6,6 +6,7 @@
 extern void ami601_init( void );
 
 extern void ami601_periodic( void );
+extern void ami601_scale_measures(void);
 
 #define AMI601_NB_CHAN 6
 extern uint16_t ami601_val[AMI601_NB_CHAN];

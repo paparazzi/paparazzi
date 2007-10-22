@@ -326,9 +326,9 @@
 
 
   <message name="IMU_GYRO" ID="200">
-    <field name="gx" type="float" unit="rad/s"/>
-    <field name="gy" type="float" unit="rad/s"/>
-    <field name="gz" type="float" unit="rad/s"/>
+    <field name="gp" type="float" unit="rad/s"/>
+    <field name="gq" type="float" unit="rad/s"/>
+    <field name="gr" type="float" unit="rad/s"/>
   </message>
 
   <message name="IMU_MAG" ID="201">
@@ -344,9 +344,9 @@
   </message>
 
   <message name="IMU_GYRO_RAW" ID="203">
-    <field name="gx" type="uint16" unit="adc"/>
-    <field name="gy" type="uint16" unit="adc"/>
-    <field name="gz" type="uint16" unit="adc"/>
+    <field name="gp" type="uint16" unit="adc"/>
+    <field name="gq" type="uint16" unit="adc"/>
+    <field name="gr" type="uint16" unit="adc"/>
   </message>
 
   <message name="IMU_ACCEL_RAW" ID="204">
@@ -362,12 +362,12 @@
   </message>
 
   <message name="IMU_GYRO_RAW_AVG" ID="206">
-    <field name="gx" type="uint16" unit="adc"/>
-    <field name="gy" type="uint16" unit="adc"/>
-    <field name="gz" type="uint16" unit="adc"/>
-    <field name="vgx" type="float" unit="adc" format="%.0f"/>
-    <field name="vgy" type="float" unit="adc" format="%.0f"/>
-    <field name="vgz" type="float" unit="adc" format="%.0f"/>
+    <field name="gp" type="uint16" unit="adc"/>
+    <field name="gq" type="uint16" unit="adc"/>
+    <field name="gr" type="uint16" unit="adc"/>
+    <field name="vgp" type="float" unit="adc" format="%.0f"/>
+    <field name="vgq" type="float" unit="adc" format="%.0f"/>
+    <field name="vgr" type="float" unit="adc" format="%.0f"/>
   </message>
 
   <message name="IMU_ACCEL_RAW_AVG" ID="207">
@@ -431,9 +431,9 @@
 
   <message name="BOOZ_STATUS" ID="215">
     <field name="link_imu_nb_err" type="uint32"/>
-    <field name="imu_status" type="uint8"/>
+    <field name="imu_status" type="uint8" values="NO_LINK|UNINIT|RUNNING|CRASHED"/>
     <field name="rc_status" type="uint8" values="OK|LOST|REALLY_LOST"/>
-<!--    <field name="mode" type="uint8" values="MANUAL|AUTO1|AUTO2|FAILSAFE"/> -->
+    <field name="ap_mode" type="uint8" values="FAILSAFE|RATE|ATTITUDE|NAV"/>
 <!--    <field name="vsupply" type="uint8" unit="decivolt"/> -->
   </message>
 

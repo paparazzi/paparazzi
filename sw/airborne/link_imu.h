@@ -42,6 +42,13 @@ extern uint8_t  link_imu_status;
 extern void link_imu_event_task( void );
 extern void link_imu_periodic_task( void );
 
+#define LinkImuEventCheckAndHandle() { \
+    if (spi_message_received) {	       \
+      spi_message_received = FALSE;    \
+      link_imu_event_task();	       \
+    }				       \
+  }				       \
+
 #endif /* CONTROLLER */
 
 

@@ -1,4 +1,3 @@
-
 #include "std.h"
 #include "init_hw.h"
 #include "interrupt_hw.h"
@@ -9,20 +8,22 @@
 #include "actuators.h"
 #include "radio_control.h"
 
+#include "spi.h"
+#include "link_imu.h"
+#include "booz_estimator.h"
+#include "booz_control.h"
+#include "booz_autopilot.h"
+
 #include "uart.h"
 #include "messages.h"
 #include "downlink.h"
 #include "booz_telemetry.h"
+#include "datalink.h"
 
-#include "spi.h"
-#include "link_imu.h"
-#include "booz_estimator.h"
 
 static inline void main_init( void );
 static inline void main_periodic_task( void );
 static inline void main_event_task( void );
-
-static inline void main_dl_parse_msg( void );
 
 int main( void ) {
   main_init();
@@ -47,12 +48,21 @@ static inline void main_init( void ) {
 
   spi_init();
   link_imu_init();
+  
+  booz_estimator_init();
+  booz_control_init();
+  booz_autopilot_init();
+
   uart1_init_tx();
+
   int_enable();
 }
 
 static inline void main_periodic_task( void ) {
+  
   link_imu_periodic_task();
+  
+  booz_autopilot_periodic_task();
 
   static uint8_t _50hz = 0;
   _50hz++;
@@ -63,9 +73,15 @@ static inline void main_periodic_task( void ) {
     break;
   case 1:
     radio_control_periodic_task();
+    if (rc_status != RC_OK)
+      booz_autopilot_mode = BOOZ_AP_MODE_FAILSAFE;
     break;
   case 2:
     booz_telemetry_periodic_task();
+    break;
+  case 3:
+    break;
+  case 4:
     break;
   }
 
@@ -73,23 +89,10 @@ static inline void main_periodic_task( void ) {
 }
 
 static inline  void main_event_task( void ) {
-  if (PprzBuffer()) {
-    ReadPprzBuffer();
-    if (pprz_msg_received) {
-      pprz_parse_payload();
-      pprz_msg_received = FALSE;
-    }
-  }
-  if (dl_msg_available) {
-    main_dl_parse_msg();
-    dl_msg_available = FALSE;
-    LED_TOGGLE(2);
-  }
+  
+  DlEventCheckAndHandle();
 
-  if (spi_message_received) {
-    spi_message_received = FALSE;
-    link_imu_event_task();
-  }
+  LinkImuEventCheckAndHandle();
 
   if (ppm_valid) {
     ppm_valid = FALSE;
@@ -97,27 +100,9 @@ static inline  void main_event_task( void ) {
     //    if (rc_values_contains_avg_channels) {
     //      fbw_mode = FBW_MODE_OF_PPRZ(rc_values[RADIO_MODE]);
     //    }
+    booz_autopilot_mode = BOOZ_AP_MODE_RATE;
     /* setpoints */
-
+    booz_control_rate_compute_setpoints();
   }
 
-}
-
-bool_t dl_msg_available;
-
-#define MSG_SIZE 128
-uint8_t dl_buffer[MSG_SIZE]  __attribute__ ((aligned));
-
-#include "settings.h"
-
-#define IdOfMsg(x) (x[1])
-
-static inline void main_dl_parse_msg(void) {
-  uint8_t msg_id = IdOfMsg(dl_buffer);
-  if (msg_id == DL_SETTING) {
-    uint8_t i = DL_SETTING_index(dl_buffer);
-    float var = DL_SETTING_value(dl_buffer);
-    DlSetting(i, var);
-    DOWNLINK_SEND_DL_VALUE(&i, &var);
-  }  
 }

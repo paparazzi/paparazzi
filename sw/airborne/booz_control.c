@@ -1,12 +1,12 @@
 #include "booz_control.h"
 
 #include "booz_estimator.h"
-#include "commands.h"
 #include "radio_control.h"
 
 float booz_control_p_sp;
 float booz_control_q_sp;
 float booz_control_r_sp;
+float booz_control_power_sp;
 
 float booz_control_rate_pq_pgain;
 float booz_control_rate_pq_dgain;
@@ -15,6 +15,8 @@ float booz_control_rate_r_dgain;
 float booz_control_rate_last_err_p;
 float booz_control_rate_last_err_q;
 float booz_control_rate_last_err_r;
+
+pprz_t booz_control_commands[COMMANDS_NB];
 
 #define BOOZ_CONTROL_RATE_PQ_PGAIN -1000.
 #define BOOZ_CONTROL_RATE_PQ_DGAIN 0.
@@ -31,6 +33,8 @@ void booz_control_init(void) {
   booz_control_p_sp = 0.;
   booz_control_q_sp = 0.;
   booz_control_r_sp = 0.;
+  booz_control_power_sp = 0.;
+
   booz_control_rate_last_err_p = 0.;
   booz_control_rate_last_err_q = 0.;
   booz_control_rate_last_err_r = 0.;
@@ -45,9 +49,11 @@ void booz_control_init(void) {
 
 void booz_control_rate_compute_setpoints(void) {
 
-  booz_control_p_sp = -rc_values[RADIO_ROLL]  * DegOfRad(BOOZ_CONTROL_RATE_PQ_MAX_SP)/MAX_PPRZ;
-  booz_control_q_sp =  rc_values[RADIO_PITCH] * DegOfRad(BOOZ_CONTROL_RATE_PQ_MAX_SP)/MAX_PPRZ;
-  booz_control_r_sp = -rc_values[RADIO_YAW]   * DegOfRad(BOOZ_CONTROL_RATE_R_MAX_SP)/MAX_PPRZ;
+  booz_control_p_sp = -rc_values[RADIO_ROLL]  * RadOfDeg(BOOZ_CONTROL_RATE_PQ_MAX_SP)/MAX_PPRZ;
+  booz_control_q_sp =  rc_values[RADIO_PITCH] * RadOfDeg(BOOZ_CONTROL_RATE_PQ_MAX_SP)/MAX_PPRZ;
+  booz_control_r_sp = -rc_values[RADIO_YAW]   * RadOfDeg(BOOZ_CONTROL_RATE_R_MAX_SP)/MAX_PPRZ;
+  booz_control_power_sp = rc_values[RADIO_THROTTLE] / MAX_PPRZ;
+
 }
 
 
@@ -68,12 +74,17 @@ void booz_control_rate_run(void) {
   booz_control_rate_last_err_r = rate_err_r;
   const float cmd_r = booz_control_rate_r_pgain * ( rate_err_r + booz_control_rate_r_dgain * rate_d_err_r );
 
-  commands[COMMAND_P] = TRIM_PPRZ((int16_t)cmd_p);
-  commands[COMMAND_Q] = TRIM_PPRZ((int16_t)cmd_q);
-  commands[COMMAND_R] = TRIM_PPRZ((int16_t)cmd_r);
+  booz_control_commands[COMMAND_P] = TRIM_PPRZ((int16_t)cmd_p);
+  booz_control_commands[COMMAND_Q] = TRIM_PPRZ((int16_t)cmd_q);
+  booz_control_commands[COMMAND_R] = TRIM_PPRZ((int16_t)cmd_r);
+  booz_control_commands[COMMAND_THROTTLE] = TRIM_PPRZ((int16_t) (booz_control_power_sp * MAX_PPRZ));
 
 }
 
-void booz_control_attitude_run(void) {
+void booz_control_attitude_compute_setpoints(void) {
+  booz_control_rate_compute_setpoints();
+}
 
+void booz_control_attitude_run(void) {
+  booz_control_rate_run();
 }
