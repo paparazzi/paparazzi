@@ -1030,11 +1030,9 @@
 
 					  <child>
 					    <widget class="GtkImage" id="image7">
-					      <property name="width_request">16</property>
-					      <property name="height_request">16</property>
 					      <property name="visible">True</property>
 					      <property name="stock">gtk-stop</property>
-					      <property name="icon_size">1</property>
+					      <property name="icon_size">4</property>
 					      <property name="xalign">0.5</property>
 					      <property name="yalign">0.5</property>
 					      <property name="xpad">0</property>
@@ -1065,7 +1063,7 @@
 					    <widget class="GtkImage" id="image8">
 					      <property name="visible">True</property>
 					      <property name="stock">gtk-redo</property>
-					      <property name="icon_size">2</property>
+					      <property name="icon_size">4</property>
 					      <property name="xalign">0.5</property>
 					      <property name="yalign">0.5</property>
 					      <property name="xpad">0</property>
@@ -1096,7 +1094,7 @@
 					    <widget class="GtkImage" id="image4">
 					      <property name="visible">True</property>
 					      <property name="stock">gtk-goto-bottom</property>
-					      <property name="icon_size">2</property>
+					      <property name="icon_size">4</property>
 					      <property name="xalign">0.5</property>
 					      <property name="yalign">0.5</property>
 					      <property name="xpad">0</property>
@@ -1158,7 +1156,7 @@
 					    <widget class="GtkImage" id="image2">
 					      <property name="visible">True</property>
 					      <property name="stock">gtk-goto-first</property>
-					      <property name="icon_size">1</property>
+					      <property name="icon_size">4</property>
 					      <property name="xalign">0.5</property>
 					      <property name="yalign">0.5</property>
 					      <property name="xpad">0</property>
@@ -1189,7 +1187,7 @@
 					    <widget class="GtkImage" id="image6">
 					      <property name="visible">True</property>
 					      <property name="stock">gtk-media-pause</property>
-					      <property name="icon_size">2</property>
+					      <property name="icon_size">4</property>
 					      <property name="xalign">0.5</property>
 					      <property name="yalign">0.5</property>
 					      <property name="xpad">0</property>
@@ -1220,7 +1218,7 @@
 					    <widget class="GtkImage" id="image3">
 					      <property name="visible">True</property>
 					      <property name="stock">gtk-goto-last</property>
-					      <property name="icon_size">2</property>
+					      <property name="icon_size">4</property>
 					      <property name="xalign">0.5</property>
 					      <property name="yalign">0.5</property>
 					      <property name="xpad">0</property>
@@ -1251,7 +1249,7 @@
 					    <widget class="GtkImage" id="image5">
 					      <property name="visible">True</property>
 					      <property name="stock">gtk-go-up</property>
-					      <property name="icon_size">2</property>
+					      <property name="icon_size">4</property>
 					      <property name="xalign">0.5</property>
 					      <property name="yalign">0.5</property>
 					      <property name="xpad">0</property>
@@ -1280,9 +1278,11 @@
 
 					  <child>
 					    <widget class="GtkImage" id="image10">
+					      <property name="width_request">22</property>
+					      <property name="height_request">22</property>
 					      <property name="visible">True</property>
 					      <property name="stock">gtk-apply</property>
-					      <property name="icon_size">1</property>
+					      <property name="icon_size">4</property>
 					      <property name="xalign">0.5</property>
 					      <property name="yalign">0.5</property>
 					      <property name="xpad">0</property>

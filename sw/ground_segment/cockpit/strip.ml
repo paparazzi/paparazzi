@@ -257,14 +257,22 @@ let add = fun config color center_ac mark ->
  	  strip#button_plus_five, 5.;
 	  strip#button_plus_thirty, 30.]
 	
-    method connect_shift_lateral callback = 
+    method connect_shift_lateral = fun callback ->
       connect_buttons callback
 	[ strip#button_left, -5.;
 	  strip#button_right, 5.;
 	  strip#button_center, 0.]
 	
-    method connect_kill callback = 
-       connect_buttons callback
+    method connect_kill = fun callback ->
+      let callback = fun x ->
+	if x = 1. then
+	  match GToolbox.question_box ~title:"Kill throttle" ~buttons:["Kill"; "Cancel"] (Printf.sprintf "Kill throttle of A/C %s ?" ac_name) with
+	    1 -> callback 1.
+	  | _ -> ()
+	else (* No confirmation for resurrect *)
+	  callback x
+      in
+      connect_buttons callback
 	[ strip#button_kill, 1.;
 	  strip#button_resurrect, 0.]
 	
@@ -273,16 +281,18 @@ let add = fun config color center_ac mark ->
 	[ strip#button_launch, 1. ]
 
     method connect_mode = fun callback ->
-      let callback = fun _ ->
-	callback 2.; (* Back in AUTO2 *)
-	true in
+      let callback = fun _ -> (* Back in AUTO2 *)
+	match GToolbox.question_box ~title:"Back to auto" ~buttons:["AUTO"; "Cancel"] (Printf.sprintf "Restore AUTO mode for A/C %s ?" ac_name) with
+	  1 -> callback 2.; true
+	| _ -> true in
       ignore(strip#eventbox_mode#event#connect#button_press ~callback)
-	 
+	
     (* Reset the flight time *)
     method connect_flight_time = fun callback ->
-      let callback = fun _ ->
-	callback 0.;
-	true in
+      let callback = fun _ -> (* Reset flight time *)
+	match GToolbox.question_box ~title:"Reset flight time" ~buttons:["Reset"; "Cancel"] (Printf.sprintf "Reset flight time for A/C %s ?" ac_name) with
+	  1 -> callback 0.; true
+	| _ -> true in
       ignore(strip#eventbox_flight_time#event#connect#button_press ~callback)
 	 
     method hide_buttons () = strip#hbox_user#misc#hide (); strip#frame_nav#misc#set_sensitive false

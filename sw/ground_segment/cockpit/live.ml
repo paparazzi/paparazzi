@@ -701,13 +701,8 @@ let listen_flight_params = fun geomap auto_center_new_ac alert ->
       ac.first_pos <- false
     end;
 
-    let set_label lbl_name value =
-      let s = 
-	if value < 0. 
-	then sprintf "- %.0f" (abs_float value)
-	else sprintf "%.0f" value
-      in
-      ac.strip#set_label lbl_name s
+    let set_label = fun lbl_name value ->
+      ac.strip#set_label lbl_name (sprintf "%.0fm" value)
     in
     set_label "altitude" alt;
     ac.strip#set_speed speed;
@@ -733,10 +728,10 @@ let listen_flight_params = fun geomap auto_center_new_ac alert ->
     and cur_stage = Pprz.int_assoc "cur_stage" vs in
     highlight_fp ac cur_block cur_stage;
     let set_label = fun l f ->
-      ac.strip#set_label l (sprintf "%.0f" (Pprz.float_assoc f vs)) in
+      ac.strip#set_label l (sprintf "%.0fm" (Pprz.float_assoc f vs)) in
     set_label "target_altitude" "target_alt";
     let target_alt = Pprz.float_assoc "target_alt" vs in
-    ac.strip#set_label "diff_target_alt" (sprintf "%+.0f" (ac.alt -. target_alt));
+    ac.strip#set_label "diff_target_alt" (sprintf "%+.0fm" (ac.alt -. target_alt));
     ac.target_alt <- target_alt;
     let b = try List.assoc cur_block ac.blocks with Not_found -> failwith (sprintf "Error: unknown block %d for A/C %s" cur_block ac.ac_name) in
     if b <> ac.last_block_name then begin
