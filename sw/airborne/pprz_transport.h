@@ -22,6 +22,19 @@
  *
  */
 
+/** \file pprz_transport.h
+ *  \brief Building and parsing Paparazzi frames
+ *
+ *  Pprz frame:
+ *
+ *   |STX|length|... payload=(length-4) bytes ...|Checksum A|Checksum B|
+ *
+ *   where checksum is computed over length and payload:
+ *     ck_A = ck_B = length
+ *     for each byte b in payload
+ *       ck_A += b; ck_b += ck_A
+ */
+
 #ifndef PPRZ_TRANSPORT_H
 #define PPRZ_TRANSPORT_H
 
