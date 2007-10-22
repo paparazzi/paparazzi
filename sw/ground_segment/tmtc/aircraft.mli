@@ -113,7 +113,8 @@ type aircraft = {
     mutable nb_dl_setting_values : int;
     mutable survey : (Latlong.geographic * Latlong.geographic) option;
     mutable last_bat_msg_date : float;
-    mutable time_since_last_survey_msg : float
+    mutable time_since_last_survey_msg : float;
+    mutable dist_to_wp : float
 }
 
 val new_aircraft : string -> string -> Xml.xml -> aircraft

@@ -266,6 +266,7 @@ let log_and_parse = fun logging ac_name (a:Aircraft.aircraft) msg values ->
   | "NAVIGATION" -> 
       a.cur_block <- ivalue "cur_block";
       a.cur_stage <- ivalue "cur_stage";
+      a.dist_to_wp <- sqrt (fvalue "dist2_wp")
   | "BAT" ->
       a.last_bat_msg_date <- U.gettimeofday ();
       a.throttle <- fvalue "throttle" /. 9600. *. 100.;
@@ -601,7 +602,8 @@ let send_aircraft_msg = fun ac ->
 			"target_long", f ((Rad>>Deg)target_wgs84.posn_long);
 			"target_alt", Pprz.Float a.desired_altitude;
 			"target_climb", Pprz.Float a.desired_climb;
-			"target_course", Pprz.Float ((Rad>>Deg)a.desired_course)
+			"target_course", Pprz.Float ((Rad>>Deg)a.desired_course);
+			"dist_to_wp", Pprz.Float a.dist_to_wp
 		      ] in
 	  Ground_Pprz.message_send my_id "NAV_STATUS" values
       | None -> () (* No nav_ref yet *)

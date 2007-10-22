@@ -130,14 +130,15 @@ type aircraft = {
     mutable nb_dl_setting_values : int;
     mutable survey : (Latlong.geographic * Latlong.geographic) option;
     mutable last_bat_msg_date : float;
-    mutable time_since_last_survey_msg : float
+    mutable time_since_last_survey_msg : float;
+    mutable dist_to_wp : float
   }
 
 let max_nb_dl_setting_values = 256 (** indexed iwth an uint8 (messages.xml)  *)
 
 let new_aircraft = fun id name fp ->
   let svsinfo_init = Array.init gps_nb_channels (fun _ -> svinfo_init ()) in
-  { id = id ; name = name; roll = 0.; pitch = 0.; desired_east = 0.; desired_north = 0.; flight_plan = fp;
+  { id = id ; name = name; roll = 0.; pitch = 0.; desired_east = 0.; desired_north = 0.; flight_plan = fp; dist_to_wp = 0.;
     desired_course = 0.;
     gspeed=0.; course = 0.; alt=0.; climb=0.; cur_block=0; cur_stage=0;
     throttle = 0.; throttle_accu = 0.; rpm = 0.; temp = 0.; bat = 42.; amp = 0.; energy = 0; ap_mode= -1; agl = 0.;
