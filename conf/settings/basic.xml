@@ -6,6 +6,7 @@
   <dl_settings>
     <dl_settings NAME="flight params">
       <dl_setting MAX="1000" MIN="0" STEP="10" VAR="flight_altitude" shortname="altitude"/>
+      <dl_setting MAX="10" MIN="-10" STEP="5" VAR="nav_shift" shortname="lat. shift"/>
     </dl_settings>
     <dl_settings NAME="mode">
       <dl_setting MAX="2" MIN="0" STEP="1" VAR="pprz_mode">

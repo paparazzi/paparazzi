@@ -24,16 +24,26 @@
  *
  *)
 
+let (//) = Filename.concat
+
 type t =
     < add_widget : GObj.widget -> unit;
       connect_shift_alt : (float -> unit) -> unit;
-	set_agl : float -> unit;
-	set_bat : float -> unit;
-	  set_color : string -> string -> unit;
-	    set_label : string -> string -> unit;
-	      connect : (unit -> unit) -> unit; 
-		hide_buttons : unit -> unit; 
-		show_buttons : unit -> unit >
+      connect_shift_lateral : (float -> unit) -> unit;
+      connect_launch : (float -> unit) -> unit;
+      connect_kill : (float -> unit) -> unit;
+      connect_mode : (float -> unit) -> unit;
+      connect_flight_time : (float -> unit) -> unit;
+      set_agl : float -> unit;
+      set_bat : float -> unit;
+      set_throttle : float -> unit;
+      set_speed : float -> unit;
+      set_climb : float -> unit;
+      set_color : string -> string -> unit;
+      set_label : string -> string -> unit;
+      connect : (unit -> unit) -> unit; 
+      hide_buttons : unit -> unit; 
+      show_buttons : unit -> unit >
 
 let bat_max = 12.5
 let bat_min = 9.
@@ -50,6 +60,7 @@ let strips_table = GPack.vbox ~spacing:5 ~packing:scrolled#add_with_viewport ()
 let set_label labels name value = 
   try
     let _eb, l = List.assoc (name^"_value") labels in
+    let value = Printf.sprintf "<b>%s</b>" value in
     if l#text <> value then
       l#set_label value
   with
@@ -66,7 +77,7 @@ class gauge = fun ?(color="green") ?(history_len=50) gauge v_min v_max ->
   object
     val history = Array.create history_len 0
     val mutable history_index = -1
-    method set = fun value string ->
+    method set = fun ?arrow value strings ->
       let {Gtk.width=width; height=height} = gauge#misc#allocation in
       if height > 1 then (* Else the drawing area is not allocated already *)
 	let dr = GDraw.pixmap ~width ~height ~window:gauge () in
@@ -99,9 +110,57 @@ class gauge = fun ?(color="green") ?(history_len=50) gauge v_min v_max ->
 	done;
 	polygon := (width,height-h):: !polygon;
 	dr#polygon ~filled:true !polygon;
+
+	(* Arrow for the variation *)
+	begin
+	  match arrow with
+	    None -> ()
+	  | Some angle_rad ->
+	      let w = width and h = height in
+	      let fh = 0.8 *. float w in
+	      let x = truncate (cos angle_rad *. fh)
+	      and y = - truncate (sin angle_rad *. fh) in
+	      let l = [w/10, h/2; w/10+x,h/2+y] in
+	      dr#set_foreground `BLACK;
+	      dr#lines l	      
+	end;
+	
+	let context = gauge#misc#create_pango_context in
+	List.iter (fun (vpos, string) ->
+	  let layout = context#create_layout in
+	  let fd = Pango.Context.get_font_description (Pango.Layout.get_context layout) in
+	  Pango.Font.modify fd ~weight:`BOLD ();
+	  context#set_font_description fd;
+	  Pango.Layout.set_text layout string;
+	  let (w,h) = Pango.Layout.get_pixel_size layout in
+	  let y = truncate (vpos *. float height) - h / 2 in
+	  dr#put_layout ~x:((width-w)/2) ~y ~fore:`BLACK layout)
+	  strings;
+	
+	(new GDraw.drawable gauge#misc#window)#put_pixmap ~x:0 ~y:0 dr#pixmap
+  end
+
+class hgauge = fun ?(color="green") gauge v_min v_max ->
+  object
+    method set = fun value string ->
+      let {Gtk.width=width; height=height} = gauge#misc#allocation in
+      if height > 1 then (* Else the drawing area is not allocated already *)
+	let dr = GDraw.pixmap ~width ~height ~window:gauge () in
+	dr#set_foreground (`NAME "orange");
+	dr#rectangle ~x:0 ~y:0 ~width ~height ~filled:true ();
+	
+	let f = (value -. v_min) /. (v_max -. v_min) in
+	let f = max 0. (min 1. f) in
+	let w = truncate (float width *. f) in
+
+	dr#set_foreground (`NAME color);
+	dr#rectangle ~x:0 ~y:0 ~width:w ~height ~filled:true ();
 	
 	let context = gauge#misc#create_pango_context in
 	let layout = context#create_layout in
+	let fd = Pango.Context.get_font_description (Pango.Layout.get_context layout) in
+	Pango.Font.modify fd ~weight:`BOLD ();
+	context#set_font_description fd;
 	Pango.Layout.set_text layout string;
 	let (w,h) = Pango.Layout.get_pixel_size layout in
 	dr#put_layout ~x:((width-w)/2) ~y:((height-h)/2) ~fore:`BLACK layout;
@@ -109,148 +168,126 @@ class gauge = fun ?(color="green") ?(history_len=50) gauge v_min v_max ->
 	(new GDraw.drawable gauge#misc#window)#put_pixmap ~x:0 ~y:0 dr#pixmap
   end
 
-
-
-(** set the battery *)
-let set_bat bat value =
-  bat#set value (string_of_float value)
-
-
-(** set the AGL *)
-let set_agl agl value =
-  agl#set value (Printf.sprintf "%3.0f" value)
-
-
-let add_widget = fun buttons_box widget ->
-  buttons_box#add widget
-
-let labels_name =  [| 
-  [| "AP" ; "alt" ; "->" |]; [| "RC"; "climb"; "/" |]; [| "GPS"; "speed"; "throttle" |]
-|]
-
-let labels_print = [| 
-  [| "AP" ; "alt" ; "->" |]; [| "RC"; "climb"; "->" |]; [| "GPS"; "speed"; "throtl" |]
-|]
-let gen_int = let i = ref (-1) in fun () -> incr i; !i
-
-(** Number of rows: colored line + labels + buttons + user buttons *)
-let rows = 1 + Array.length labels_name + 2
-
-(** Numnber of columns: battey gauge + labels & values + AGL gauge *)
-let columns = 1 + 2 * Array.length labels_name.(0) + 1
-
-
 (** add a strip to the panel *)
-let add config color center_ac mark =
+let add = fun config color center_ac mark ->
   let strip_labels = ref  [] in
   let add_label = fun name value -> 
     strip_labels := (name, value) :: !strip_labels in
 
   let ac_name = Pprz.string_assoc "ac_name" config in
 
-  let tooltips = GData.tooltips () in
+  let file = Env.paparazzi_src // "sw" // "ground_segment" // "cockpit" // "gcs.glade" in
+  let strip = new Gtk_gcs.eventbox_strip ~file () in
 
-  (* frame of the strip *)
-  let strip_ebox = GBin.event_box ~packing:strips_table#pack () in 
-  let frame = GBin.frame ~shadow_type: `IN ~packing:strip_ebox#add () in
-  let framevb = GPack.vbox ~packing:frame#add () in
+  let eventbox_dummy = GBin.event_box () in
 
-  (** Table (everything except the user buttons) *)
-  let strip = GPack.table ~rows ~columns ~col_spacings:3 ~row_spacings:2 ~packing:framevb#pack () in
+  strips_table#pack strip#toplevel#coerce;
 
   (* Name in top left *)
-  let name = (GMisc.label ~text: (ac_name) ~packing: (strip#attach ~top: 0 ~left: 0) ()) in
-  name#set_width_chars 5;
-  
-  
-  let plane_color = GBin.event_box ~packing:(strip#attach ~top:0 ~left:1 ~right:columns) () in
+  strip#label_ac_name#set_label (Printf.sprintf "<b>%s</b>" ac_name);
+
+  (* Color *)
+  let plane_color = strip#eventbox_strip in
   plane_color#coerce#misc#modify_bg [`NORMAL, `NAME color];
-  let h = GPack.hbox ~packing:plane_color#add () in
-  let ft = GMisc.label ~text: "00:00:00" ~packing:h#add () in
-  ft#set_width_chars 8;
-  add_label "flight_time_value" (plane_color, ft);
 
-  let block_time = GMisc.label ~text: "00:00" ~packing:h#add () in
-  add_label "block_time_value" (plane_color, block_time);
-
-  let stage_time = GMisc.label ~text: "00:00" ~packing:h#add () in
-  add_label "stage_time_value" (plane_color, stage_time);
-
-  let block_name = GMisc.label ~text: "______" ~packing:h#add () in
-  add_label "block_name_value" (plane_color, block_name);
-
-  tooltips#set_tip plane_color#coerce ~text:"Flight time - Block time - Stage  time - Block name";
+  add_label "flight_time_value" (eventbox_dummy, strip#label_flight_time);
+  add_label "block_time_value" (eventbox_dummy, strip#label_block_time);
+  add_label "stage_time_value" (eventbox_dummy, strip#label_stage_time);
+  add_label "block_name_value" (eventbox_dummy, strip#label_block_name);
 
   (* battery gauge *)
-  let bat_da = GMisc.drawing_area ~show:true ~packing:(strip#attach ~top:1 ~bottom:3 ~left:0) () in
+  let bat_da = strip#drawingarea_battery in
   bat_da#misc#realize ();
   let bat = new gauge bat_da bat_min bat_max in
 
   (* AGL gauge *)
-  let agl_box = GBin.event_box ~packing:(strip#attach ~top:1 ~bottom:3 ~left:(columns-1)) () in
-  let agl_da = GMisc.drawing_area ~width:40 ~show:true ~packing:agl_box#add () in
+  let agl_da = strip#drawingarea_agl in
   agl_da#misc#realize ();
-  tooltips#set_tip agl_box#coerce ~text:"AGL (m)";
   let agl = new gauge agl_da 0. agl_max in
-  
+
+  (* Speed gauge *)
+  strip#drawingarea_speed#misc#realize ();
+  let speed = new hgauge strip#drawingarea_speed 0. 10. in (* FIXME *)
+
+  (* Throttle gauge *)
+  strip#drawingarea_throttle#misc#realize ();
+  let throttle = new hgauge strip#drawingarea_throttle 0. 100. in
 
   (* Diff to target altitude *)
-  let dta_box = GBin.event_box ~packing:(strip#attach ~top:3 ~left:(columns-1)) () in
-  let diff_target_alt = GMisc.label ~text: "+0" ~packing:dta_box#add () in
-  add_label "diff_target_alt_value" (plane_color, diff_target_alt);
-  tooltips#set_tip dta_box#coerce ~text:"Height to target (m)";
+  let diff_target_alt = strip#label_diff_target_alt in
+  add_label "diff_target_alt_value" (eventbox_dummy, diff_target_alt);
 
   (* Telemetry *)
-  let eb = GBin.event_box ~packing:(strip#attach ~top:3 ~left:0) () in
-  let ts = GMisc.label ~text:"N/A" ~packing:eb#add () in
+  let eb = strip#eventbox_telemetry in
+  let ts = strip#label_telemetry in
   add_label "telemetry_status_value" (eb, ts);
   ts#set_width_chars 3;
-  tooltips#set_tip eb#coerce ~text:"Telemetry status\nGreen if time since last bat message < 5s";
 
   (* Labels *)
-  Array.iteri 
-    (fun i a ->
-      Array.iteri
-	(fun j s ->
-	  ignore (GMisc.label ~text: labels_print.(i).(j) ~justify:`RIGHT ~packing: (strip#attach ~top:(1+i) ~left: (1+2*j)) ());
-	  let eb = GBin.event_box  ~packing: (strip#attach ~top:(i+1)  ~left: (1+2*j+1)) () in
-	  let lvalue = (GMisc.label ~text: "" ~justify: `RIGHT ~packing:eb#add ()) in
-	  lvalue#set_width_chars 6;
-	  add_label (s^"_value") (eb, lvalue);
-	) a
-    ) labels_name;
+  add_label "RC_value" (strip#eventbox_rc, strip#label_rc);
+  add_label "AP_value" (strip#eventbox_mode, strip#label_mode);
+  add_label "GPS_value" (strip#eventbox_gps, strip#label_gps);
+
+  add_label "altitude_value" (eventbox_dummy, strip#label_altitude);
+  add_label "target_altitude_value" (eventbox_dummy, strip#label_target_altitude);
+
+  add_label "eta_time_value" (eventbox_dummy, strip#label_eta_time);
+
+  let connect_buttons = fun callback ->
+    List.iter (fun ((button:GButton.button), value) ->
+      ignore (button#connect#clicked (fun () -> callback value));
+      button#misc#set_sensitive true) in
 
   (* Buttons *)
-  let hbox = GPack.hbox ~width:300  ~spacing:2 ~packing:(strip#attach ~top:4 ~left:0 ~right:columns) () in
-  let b = GButton.button ~label:"Center A/C" ~packing:hbox#add () in
-  ignore(b#connect#clicked ~callback:center_ac);
-  let b = GButton.button ~label:"Mark" ~packing:hbox#add () in
-  ignore (b#connect#clicked  ~callback:mark);
-
-  let minus5 = GButton.button ~label:"-5m" ~packing:hbox#add ~show:false ()
-  and plus5 = GButton.button ~label:"+5m" ~packing:hbox#add ~show:false ()
-  and plus30 = GButton.button ~label:"+30m" ~packing:hbox#add ~show:false () in
-  ignore (b#connect#clicked  ~callback:mark);
-
-  (* User buttons *)
-  let user_hbox = GPack.hbox ~spacing:2 ~packing:(strip#attach ~top:5 ~left:0 ~right:columns) () in
-
-  object
-    method set_agl value = set_agl agl value
-    method set_bat value = set_bat bat value
+   object
+    val mutable climb = 0.
+    method set_climb = fun v -> climb <- v
+    method set_agl value = 
+      let arrow = max (min 0.5 (climb /. 5.)) (-0.5) in
+      agl#set ~arrow value [0.2, (Printf.sprintf "%3.0f" value); 0.8, Printf.sprintf "%+.1f" climb]
+    method set_bat value = bat#set value [0.5, (string_of_float value)]
+    method set_throttle value = throttle#set value (Printf.sprintf "%.0f%%" value)
+    method set_speed value = speed#set value (Printf.sprintf "%.1fm/s" value)
     method set_label name value = set_label !strip_labels name value
     method set_color name value = set_color !strip_labels name value
-    method add_widget w = add_widget user_hbox w
+    method add_widget w = strip#hbox_user#pack ~fill:false w
     method connect_shift_alt callback = 
-      ignore (plus5#connect#clicked (fun () -> callback 5.));
-      ignore (plus30#connect#clicked (fun () -> callback 30.));
-      ignore (minus5#connect#clicked (fun () -> callback (-5.)));
-      minus5#misc#show ();
-      plus5#misc#show ();
-      plus30#misc#show ();
-    method hide_buttons () = hbox#misc#hide (); user_hbox#misc#hide ()
-    method show_buttons () = hbox#misc#show (); user_hbox#misc#show ()
+      connect_buttons callback
+	[ strip#button_minus_five, -5.;
+ 	  strip#button_plus_five, 5.;
+	  strip#button_plus_thirty, 30.]
+	
+    method connect_shift_lateral callback = 
+      connect_buttons callback
+	[ strip#button_left, -5.;
+	  strip#button_right, 5.;
+	  strip#button_center, 0.]
+	
+    method connect_kill callback = 
+       connect_buttons callback
+	[ strip#button_kill, 1.;
+	  strip#button_resurrect, 0.]
+	
+    method connect_launch = fun callback ->
+      connect_buttons callback
+	[ strip#button_launch, 1. ]
+
+    method connect_mode = fun callback ->
+      let callback = fun _ ->
+	callback 2.; (* Back in AUTO2 *)
+	true in
+      ignore(strip#eventbox_mode#event#connect#button_press ~callback)
+	 
+    (* Reset the flight time *)
+    method connect_flight_time = fun callback ->
+      let callback = fun _ ->
+	callback 0.;
+	true in
+      ignore(strip#eventbox_flight_time#event#connect#button_press ~callback)
+	 
+    method hide_buttons () = strip#hbox_user#misc#hide (); strip#frame_nav#misc#set_sensitive false
+    method show_buttons () = strip#hbox_user#misc#show (); strip#frame_nav#misc#set_sensitive true
     method connect = fun (select: unit -> unit) ->
       let callback = fun _ -> select (); true in
-      ignore (strip_ebox#event#connect#button_press ~callback)
+      ignore (strip#eventbox_strip#event#connect#button_press ~callback)
   end

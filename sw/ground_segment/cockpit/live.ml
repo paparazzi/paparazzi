@@ -85,6 +85,8 @@ type aircraft = {
     mutable wind_speed : float;
     mutable wind_dir : float; (* Rad *)
     mutable ground_prox : bool;
+    mutable got_track_status_timer : int;
+    mutable last_dist_to_wp : float
   }
 
 let aircrafts = Hashtbl.create 3
@@ -291,7 +293,6 @@ let load_mission = fun ?editable color geomap xml ->
   new MapFP.flight_plan ~format_attribs:attributes_pretty_printer ?editable ~show_moved:true geomap color Env.flight_plan_dtd xml
 
 
-
 let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id:string) config ->
   let color = Pprz.string_assoc "default_gui_color" config
   and name = Pprz.string_assoc "ac_name" config in
@@ -470,7 +471,7 @@ let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id
 	Some settings_tab
     with _ -> None in
 
-    let ac = { track = track; color = color; 
+    let ac = { track = track; color = color; last_dist_to_wp = 0.;
 	       fp_group = fp ; config = config ; 
 	       fp = fp_xml; ac_name = name;
 	       blocks = blocks; last_ap_mode= "";
@@ -487,7 +488,8 @@ let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id
 	       wind_dir = 42.; ground_prox = true;
 	       wind_speed = 0.;
 	       pages = ac_frame#coerce;
-	       notebook_label = _label
+	       notebook_label = _label;
+	       got_track_status_timer = 1000;
 	     } in
     Hashtbl.add aircrafts ac_id ac;
     select_ac acs_notebook ac_id;
@@ -516,19 +518,23 @@ let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id
 
   ignore (Glib.Timeout.add 10000 send_wind);
 
-  (** Connect the shift altitude buttons *)
+  (** Connect the strip buttons *)
   begin
     match dl_settings_page with
       Some settings_tab ->
-	begin
+	let connect = fun setting_name strip_connect ->
 	  try
-	    let flight_altitude_id, _flight_altitude_label = 
-	      settings_tab#assoc "flight_altitude" in
-	    strip#connect_shift_alt
-	      (fun x ->dl_setting_callback flight_altitude_id (ac.target_alt+.x))
+	    let id, _label = settings_tab#assoc setting_name in
+	    strip_connect (fun x -> dl_setting_callback id x)
 	  with Not_found ->
-	    prerr_endline "Warning: Flight_altitude not setable from GCS strip (i.e. not listed in the xml settings file)"
-	end
+	    fprintf stderr "Warning: %s not setable from GCS strip (i.e. not listed in the xml settings file)" setting_name in
+
+	connect "flight_altitude" (fun f -> ac.strip#connect_shift_alt (fun x -> f (ac.target_alt+.x)));
+	connect "launch" ac.strip#connect_launch;
+	connect "kill_throttle" ac.strip#connect_kill;
+	connect "nav_shift" ac.strip#connect_shift_lateral;
+	connect "pprz_mode" ac.strip#connect_mode;
+	connect "estimator_flight_time" ac.strip#connect_flight_time;
     | None -> ()
   end;
 
@@ -546,8 +552,15 @@ let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id
 	    prerr_endline "Warning: GPS reset not setable from GCS (i.e. 'gps_reset' not listed in the xml settings file)"
 	end
     | None -> ()
-  end
+  end;
 
+  (* Monitor track status *)
+  let monitor_track_status = fun () ->
+    ac.got_track_status_timer <- ac.got_track_status_timer + 1;
+    if ac.got_track_status_timer > 5 then
+      ac.track#delete_desired_track ();
+    true in
+  ignore (Glib.Timeout.add 1000 monitor_track_status);;
 
 
 
@@ -605,8 +618,7 @@ let get_fbw_msg = fun _sender vs ->
 
 let get_engine_status_msg = fun _sender vs ->
   let ac = get_ac vs in
-  ac.strip#set_label "throttle" 
-    (string_of_float (Pprz.float_assoc "throttle" vs));
+  ac.strip#set_throttle (Pprz.float_assoc "throttle" vs);
   ac.strip#set_bat (Pprz.float_assoc "bat" vs)
     
 let get_if_calib_msg = fun _sender vs ->
@@ -692,14 +704,14 @@ let listen_flight_params = fun geomap auto_center_new_ac alert ->
     let set_label lbl_name value =
       let s = 
 	if value < 0. 
-	then sprintf "- %.1f" (abs_float value)
-	else sprintf "%.1f" value
+	then sprintf "- %.0f" (abs_float value)
+	else sprintf "%.0f" value
       in
       ac.strip#set_label lbl_name s
     in
-    set_label "alt" alt;
-    set_label "speed" speed;
-    set_label "climb" climb;
+    set_label "altitude" alt;
+    ac.strip#set_speed speed;
+    ac.strip#set_climb climb;
     let agl = (a "agl") in
     ac.alt <- alt;
     ac.strip#set_agl agl;
@@ -721,9 +733,8 @@ let listen_flight_params = fun geomap auto_center_new_ac alert ->
     and cur_stage = Pprz.int_assoc "cur_stage" vs in
     highlight_fp ac cur_block cur_stage;
     let set_label = fun l f ->
-      ac.strip#set_label l (sprintf "%.1f" (Pprz.float_assoc f vs)) in
-    set_label "->" "target_alt";
-    set_label "/" "target_climb";
+      ac.strip#set_label l (sprintf "%.0f" (Pprz.float_assoc f vs)) in
+    set_label "target_altitude" "target_alt";
     let target_alt = Pprz.float_assoc "target_alt" vs in
     ac.strip#set_label "diff_target_alt" (sprintf "%+.0f" (ac.alt -. target_alt));
     ac.target_alt <- target_alt;
@@ -731,7 +742,6 @@ let listen_flight_params = fun geomap auto_center_new_ac alert ->
     if b <> ac.last_block_name then begin
       log_and_say alert ac.ac_name (sprintf "%s, %s" ac.ac_name b);
       ac.last_block_name <- b;
-      let b = String.sub b 0 (min 10 (String.length b)) in
       ac.strip#set_label "block_name" b
     end;
     let block_time = Int32.to_int (Pprz.int32_assoc "block_time" vs)
@@ -739,7 +749,15 @@ let listen_flight_params = fun geomap auto_center_new_ac alert ->
     let bt = sprintf "%02d:%02d" (block_time / 60) (block_time mod 60) in
     ac.strip#set_label "block_time" bt;
     let st = sprintf "%02d:%02d" (stage_time / 60) (block_time mod 60) in
-    ac.strip#set_label "stage_time" st
+    ac.strip#set_label "stage_time" st;
+    let d = Pprz.float_assoc "dist_to_wp" vs in
+    let label = 
+      if d = ac.last_dist_to_wp || ac.speed = 0. then
+	"N/A"
+      else
+	sprintf "%.0fs" (d /. ac.speed) in
+    ac.strip#set_label "eta_time" label;
+    ac.last_dist_to_wp <- d
   in
   safe_bind "NAV_STATUS" get_ns;
 
@@ -755,6 +773,7 @@ let listen_flight_params = fun geomap auto_center_new_ac alert ->
 
   let get_circle_status = fun _sender vs ->
     let ac = get_ac vs in
+    ac.got_track_status_timer <- 0;
     let a = fun s -> Pprz.float_assoc s vs in
     let wgs84 = { posn_lat = (Deg>>Rad)(a "circle_lat"); posn_long = (Deg>>Rad)(a "circle_long") } in
     ac.track#draw_circle wgs84 (float_of_string (Pprz.string_assoc "radius" vs)) 
@@ -763,6 +782,7 @@ let listen_flight_params = fun geomap auto_center_new_ac alert ->
 
   let get_segment_status = fun _sender vs ->
     let ac = get_ac vs in
+    ac.got_track_status_timer <- 0;
     let a = fun s -> Pprz.float_assoc s vs in
     let geo1 = { posn_lat = (Deg>>Rad)(a "segment1_lat"); posn_long = (Deg>>Rad)(a "segment1_long") }
     and geo2 = { posn_lat = (Deg>>Rad)(a "segment2_lat"); posn_long = (Deg>>Rad)(a "segment2_long") } in
@@ -794,7 +814,13 @@ let listen_flight_params = fun geomap auto_center_new_ac alert ->
       log_and_say alert ac.ac_name (sprintf "%s, %s" ac.ac_name ap_mode);
       ac.last_ap_mode <- ap_mode;
       ac.strip#set_label "AP" (Pprz.string_assoc "ap_mode" vs);
-      ac.strip#set_color "AP" (if List.mem ap_mode ok_modes then ok_color else alert_color);
+      let color = 
+	match ap_mode with
+	  "AUTO2" -> ok_color
+	| "AUTO1" -> "#10F0E0"
+	| "MANUAL" -> warning_color
+	| _ -> alert_color in
+      ac.strip#set_color "AP" color;
     end;
     let gps_mode = Pprz.string_assoc "gps_mode" vs in
     ac.strip#set_label "GPS" gps_mode;
@@ -816,7 +842,7 @@ let listen_flight_params = fun geomap auto_center_new_ac alert ->
   in
   safe_bind "AP_STATUS" get_ap_status;
 
-  listen_dl_value ()
+  listen_dl_value ();;
 
 let listen_waypoint_moved = fun () ->
   let get_values = fun _sender vs ->
