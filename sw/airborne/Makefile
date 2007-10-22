@@ -48,4 +48,4 @@ warn_conf :
 	@echo
 
 clean :
-	rm -f *~
+	rm -f *~ a.out *.elf
