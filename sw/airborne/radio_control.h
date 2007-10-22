@@ -65,9 +65,6 @@ static inline void radio_control_periodic_task ( void ) {
     _1Hz = 0;
     last_ppm_cpt = ppm_cpt;
     ppm_cpt = 0;
-    //#if defined TIME_LED
-    //    LED_TOGGLE(TIME_LED);
-    //#endif
   }
 
   if (time_since_last_ppm >= RC_REALLY_LOST_TIME) {
@@ -76,7 +73,17 @@ static inline void radio_control_periodic_task ( void ) {
     if (time_since_last_ppm >= RC_LOST_TIME)
       rc_status = RC_LOST;
     time_since_last_ppm++;
-  } 
+  }
+
+#if defined RC_LED
+  if (rc_status == RC_OK) {
+    LED_OFF(RC_LED);
+  }
+  else {
+    LED_ON(RC_LED);
+  }
+#endif
+ 
 }
 
 /********** EVENT ************************************************************/
