@@ -29,14 +29,12 @@ void booz_flight_model_run( double dt, double* commands ) {
     bs.mot_voltage->ve[i] = bs.bat_voltage * commands[i];
   
   motor_model_run(dt);
-
 }
 
 
 static void motor_model_run( double dt ) {
-  
+  rk4(motor_model_derivative, bs.mot_omega, bs.mot_voltage, dt); 
 }
-
 
 static void motor_model_derivative(VEC* x, VEC* u, VEC* xdot) {
   static VEC *temp1 = VNULL;
@@ -49,4 +47,5 @@ static void motor_model_derivative(VEC* x, VEC* u, VEC* xdot) {
   temp2 = v_star(x, x, temp2);               /* temp2 = x^2               */
   xdot = v_mltadd(temp1, temp2, -Kq, xdot);  /* xdot = temp1 - Kq*temp2   */ 
   xdot = v_mltadd(xdot, u, Kv/THAU, xdot);   /* xdot = xdot + Kv/THAU * u */ 
+
 }

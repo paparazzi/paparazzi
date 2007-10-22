@@ -33,15 +33,13 @@
 
   from http://cherokee.stanford.edu/~starmac/docs/DynamicsSummary
 
-  omega_dot = -1/thau * omega - Kq * omega^2 + Kv/thau * Va
-
-  with Q = Kq * omega * omega
+  omega_dot = -1/thau * omega - Kq * omega^2 + Kv/thau * V
 
 */
 #define BAT_VOLTAGE 11.
 
-#define THAU 100. 
-#define Kq   .01
+#define THAU   100. 
+#define Kq       0.01
 #define Kv   10000.
 
 
