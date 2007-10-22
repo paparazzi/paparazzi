@@ -27,14 +27,16 @@ void booz_flight_model_run( double dt, double* commands ) {
   int i;
   for (i=0; i<SERVOS_NB; i++)
     bs.mot_voltage->ve[i] = bs.bat_voltage * commands[i];
-      motor_model_run(dt);
+  
+  motor_model_run(dt);
 
 }
 
 
 static void motor_model_run( double dt ) {
-  rk4(motor_model_derivative, bs.mot_omega, bs.mot_voltage, dt); 
+  
 }
+
 
 static void motor_model_derivative(VEC* x, VEC* u, VEC* xdot) {
   static VEC *temp1 = VNULL;
@@ -47,23 +49,4 @@ static void motor_model_derivative(VEC* x, VEC* u, VEC* xdot) {
   temp2 = v_star(x, x, temp2);               /* temp2 = x^2               */
   xdot = v_mltadd(temp1, temp2, -Kq, xdot);  /* xdot = temp1 - Kq*temp2   */ 
   xdot = v_mltadd(xdot, u, Kv/THAU, xdot);   /* xdot = xdot + Kv/THAU * u */ 
-
 }
-
-
-
-
-#if 0
-  VEC* foo1 = v_get(3);
-  foo1->ve[0] = 1;
-  foo1->ve[1] = 2;
-  foo1->ve[2] = 3;
-  VEC* foo2 = v_get(3);
-  foo2->ve[0] = 1;
-  foo2->ve[1] = 2;
-  foo2->ve[2] = 3;
-  VEC* foo3 = v_get(3);
-  v_star(foo1, foo2, foo3);
-  
-  printf("%f %f %f\n", foo3->ve[0], foo3->ve[1], foo3->ve[2] );
-#endif
