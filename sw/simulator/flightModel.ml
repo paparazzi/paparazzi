@@ -170,12 +170,8 @@ module Make(A:Data.MISSION) = struct
       let psi_dot = -. g /. state.air_speed *. tan (yaw_response_factor *. state.phi) in
       state.psi <- norm_angle (state.psi +. psi_dot *. dt);
 
-      (* Vertical gradient of wind *)
-      let s = wx*.wx+.wy*.wy in
-      let gradient = 1. +. if s > 0. then state.z /. 100. /. sqrt s else 0. in
-
-      let dx = state.air_speed *. cos state.psi *. dt +. gradient *. wx *. dt 
-      and dy = state.air_speed *. sin state.psi *. dt +. gradient *. wy *. dt in
+      let dx = state.air_speed *. cos state.psi *. dt +. wx *. dt 
+      and dy = state.air_speed *. sin state.psi *. dt +. wy *. dt in
       state.x <- state.x +.dx ;
       state.y <- state.y +. dy;
       let gamma = (state.thrust -. drag) /. weight +. state.theta in
