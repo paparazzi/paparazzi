@@ -119,11 +119,10 @@ let one_page = fun sender class_name (notebook:GPack.notebook) bind m ->
       ignore (GMain.Timeout.add led_delay (fun () -> eb#coerce#misc#set_state `NORMAL; false))
     with
       Invalid_argument "List.iter2" ->
-	Printf.fprintf stderr "%s: expected %d, got %d\n" id n (List.length values); flush stderr
+	Printf.fprintf stderr "%s: expected %d args, got %d\n" id n (List.length values); flush stderr
+    | exc -> prerr_endline (Printexc.to_string exc)
   in
   bind id display
-
-
 
 let rec one_class = fun (notebook:GPack.notebook) (ident, xml_class, sender) ->
   let class_name = (Xml.attrib xml_class "name") in
@@ -147,13 +146,12 @@ let rec one_class = fun (notebook:GPack.notebook) (ident, xml_class, sender) ->
       let label = GMisc.label ~text:(ident^l) () in
       notebook#append_page ~tab_label:label#coerce class_notebook#coerce;
       let bind, sender_name = match sender with
-	None -> (fun m cb -> P.message_bind m cb), "*"
-      | Some sender -> (fun m cb -> P.message_bind ~sender m cb), sender in
-      let _bindings = 
-	(** Forall messages in the class *)
-	let messages = list_sort (fun x -> Xml.attrib x "name") messages in
-	List.map (fun m -> one_page sender_name class_name class_notebook bind m) messages in
-      () (** Forget the Ivy bindings *)
+	None -> (fun m cb -> (P.message_bind m cb)), "*"
+      | Some sender -> (fun m cb -> (P.message_bind ~sender m cb)), sender in
+
+      (** Forall messages in the class *)
+      let messages = list_sort (fun x -> Xml.attrib x "name") messages in
+      List.iter (fun m -> ignore (one_page sender_name class_name class_notebook bind m)) messages
 
 
 (*********************** Main ************************************************)
