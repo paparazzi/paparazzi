@@ -635,6 +635,7 @@
     <field name="target_climb"   type="float" unit="m/s"/>
     <field name="target_alt"     type="float" unit="m"/>
     <field name="target_course" type="float" unit="deg"/>
+    <field name="dist_to_wp" type="float" unit="m"/>
   </message>
 
   <message name="CAM_STATUS" ID="14">
