@@ -137,8 +137,11 @@ void nav_circle_XY(float x, float y, float radius) {
 
   float dist2_center = DistanceSquare(estimator_x, estimator_y, x, y);
   float dist_carrot = CARROT*NOMINAL_AIRSPEED;
-  float abs_radius = fabs(radius);
   float sign_radius = radius > 0 ? 1 : -1;
+
+  radius += -sign_radius * nav_shift;
+
+  float abs_radius = fabs(radius);
   
   /** Computes a prebank. Go straight if inside or outside the circle */
   circle_bank =
@@ -359,7 +362,7 @@ const uint8_t nb_waypoint = NB_WAYPOINT;
 struct point waypoints[NB_WAYPOINT] = WAYPOINTS;
 
 
-/** \brief Decide if uav is approaching of current waypoint.
+/** \brief Decide if the UAV is approaching the current waypoint.
  *  Computes \a dist2_to_wp and compare it to square \a carrot.
  *  Return true if it is smaller. Else computes by scalar products if 
  *  uav has not gone past waypoint.
@@ -516,7 +519,7 @@ void nav_without_gps(void) {
 /**************** 8 Navigation **********************************************/
 
 
-enum eight_status { R12, C2, R21, C1 };
+enum eight_status { R1T, RT2, C2, R2T, RT1, C1 };
 
 static enum eight_status eight_status;
 void nav_eight_init( void ) {
@@ -526,8 +529,8 @@ void nav_eight_init( void ) {
 /** Navigation along a figure 8. The cross center is defined by the waypoint
     [target], the center of one of the circles is defined by [c1]. Altitude is
     given by [target].
-    The navigation goes through 4 states: C1 (circle around [c1]), R12 (route
-    from circle 1 to circle 2 over [target], C2 and R21.
+    The navigation goes through 6 states: C1 (circle around [c1]), R1T, RT2
+    (route from circle 1 to circle 2 over [target]), C2 and R2T, RT1.
     If necessary, the [c1] waypoint is moved in the direction of [target]
     to be not far than [2*radius].
 */
@@ -584,12 +587,20 @@ void nav_eight(uint8_t target, uint8_t c1, float radius) {
   case C1 :
     NavCircleWaypoint(c1, radius);
     if (NavQdrCloseTo(DegOfRad(qdr_out)-10)) {
-      eight_status = R12;
+      eight_status = R1T;
       InitStage();
     }
     return;
 
-  case R12:
+  case R1T:
+    nav_route_xy(c1_out.x, c1_out.y, c2_in.x, c2_in.y);
+    if (nav_approaching_xy(waypoints[target].x, waypoints[target].y, c1_out.x, c1_out.y, 0)) { 
+      eight_status = RT2;
+      InitStage();
+    }
+    return;
+
+  case RT2:
     nav_route_xy(c1_out.x, c1_out.y, c2_in.x, c2_in.y);
     if (nav_approaching_xy(c2_in.x, c2_in.y, c1_out.x, c1_out.y, CARROT)) { 
       eight_status = C2;
@@ -600,19 +611,27 @@ void nav_eight(uint8_t target, uint8_t c1, float radius) {
   case C2 :
     nav_circle_XY(c2.x, c2.y, -radius);
     if (NavQdrCloseTo(DegOfRad(qdr_out)+10)) {
-      eight_status = R21;
+      eight_status = R2T;
       InitStage();
     }
     return;
     
-  case R21:
+  case R2T:
+    nav_route_xy(c2_out.x, c2_out.y, c1_in.x, c1_in.y);
+    if (nav_approaching_xy(waypoints[target].x, waypoints[target].y, c2_out.x, c2_out.y, 0)) { 
+      eight_status = RT1;
+      InitStage();
+    }
+    return;
+
+  case RT1:
     nav_route_xy(c2_out.x, c2_out.y, c1_in.x, c1_in.y);
     if (nav_approaching_xy(c1_in.x, c1_in.y, c2_out.x, c2_out.y, CARROT)) { 
       eight_status = C1;
       InitStage();
     }
     return;
-  }
+  } /* switch */
 }
 
 /************** Oval Navigation **********************************************/
