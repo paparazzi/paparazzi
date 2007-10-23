@@ -6,18 +6,19 @@
   <dl_settings>
     <dl_settings NAME="flight params">
       <dl_setting MAX="1000" MIN="0" STEP="10" VAR="flight_altitude" shortname="altitude"/>
-      <dl_setting MAX="10" MIN="-10" STEP="5" VAR="nav_shift" shortname="lat. shift"/>
+      <dl_setting MAX="10" MIN="-10" STEP="5" VAR="nav_shift" module="nav" handler="IncreaseShift" shortname="inc. shift"/>
+      <dl_setting MAX="0" MIN="0" STEP="1" VAR="estimator_flight_time" shortname="flight time"/>
+      <dl_setting MAX="200" MIN="-200" STEP="10" VAR="nav_radius" module="nav" handler="SetNavRadius">
+        <strip_button icon="gtk-redo" name="Circle right" value="1"/>        
+        <strip_button icon="gtk-undo" name="Circle left" value="-1"/>        
+      </dl_setting>
     </dl_settings>
     <dl_settings NAME="mode">
       <dl_setting MAX="2" MIN="0" STEP="1" VAR="pprz_mode">
-        <strip_button name="AUTO2" value="2"/>
       </dl_setting>
       <dl_setting MAX="1" MIN="0" STEP="1" VAR="launch">
-        <strip_button icon="gtk-execute" name="Launch" value="1"/>
       </dl_setting>
       <dl_setting MAX="1" MIN="0" STEP="1" VAR="kill_throttle">
-        <strip_button icon="gtk-stop" name="KILL" value="1"/>
-        <strip_button icon="gtk-redo" name="Resurrect" value="0"/>
       </dl_setting>
     </dl_settings>
   </dl_settings>
