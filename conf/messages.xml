@@ -437,6 +437,13 @@
 <!--    <field name="vsupply" type="uint8" unit="decivolt"/> -->
   </message>
 
+  <message name="BOOZ_DEBUG" ID="216">
+    <field name="sp_p" type="float"/>
+    <field name="sp_q"  type="float"/>
+    <field name="sp_r"  type="float"/>
+    <field name="sp_t"  type="float"/>
+  </message>
+
   <message name="ENOSE_STATUS" ID="218">
       <field name="val1" type="uint16"/>
       <field name="val2" type="uint16"/>

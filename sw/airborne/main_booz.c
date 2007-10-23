@@ -25,6 +25,10 @@ static inline void main_init( void );
 static inline void main_periodic_task( void );
 static inline void main_event_task( void );
 
+int16_t trim_p = 0;
+int16_t trim_q = 0;
+int16_t trim_r = 0;
+
 int main( void ) {
   main_init();
   while(1) {
@@ -63,6 +67,8 @@ static inline void main_periodic_task( void ) {
   link_imu_periodic_task();
   
   booz_autopilot_periodic_task();
+
+  SetActuatorsFromCommands(commands);
 
   static uint8_t _50hz = 0;
   _50hz++;

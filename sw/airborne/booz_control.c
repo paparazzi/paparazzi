@@ -52,7 +52,7 @@ void booz_control_rate_compute_setpoints(void) {
   booz_control_p_sp = -rc_values[RADIO_ROLL]  * RadOfDeg(BOOZ_CONTROL_RATE_PQ_MAX_SP)/MAX_PPRZ;
   booz_control_q_sp =  rc_values[RADIO_PITCH] * RadOfDeg(BOOZ_CONTROL_RATE_PQ_MAX_SP)/MAX_PPRZ;
   booz_control_r_sp = -rc_values[RADIO_YAW]   * RadOfDeg(BOOZ_CONTROL_RATE_R_MAX_SP)/MAX_PPRZ;
-  booz_control_power_sp = rc_values[RADIO_THROTTLE] / MAX_PPRZ;
+  booz_control_power_sp = rc_values[RADIO_THROTTLE] / (float)MAX_PPRZ;
 
 }
 

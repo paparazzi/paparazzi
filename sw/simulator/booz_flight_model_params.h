@@ -4,9 +4,9 @@
 /* drag coefficient of the body                    */
 #define C_d_body .2
 /* thrust aerodynamic coefficient                  */
-#define C_t 1.
+#define C_t 0.132
 /* moment aerodynamic coefficient                  */
-#define C_q 0.1
+#define C_q 0.01
 /* propeller radius in m                           */
 #define PROP_RADIUS 0.125
 /* propeller area in m2                            */
@@ -38,9 +38,9 @@
 */
 #define BAT_VOLTAGE 11.
 
-#define THAU   100. 
-#define Kq       0.01
-#define Kv   10000.
+#define THAU    25. 
+#define Kq       0.02
+#define Kv    1500.
 
 
 

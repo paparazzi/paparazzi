@@ -1,10 +1,10 @@
 <airframe name="BOOZ">
 
   <servos min="0" neutral="0" max="0x3ff">
-    <servo name="MOTOR_FRONT" no="1" min="1000" neutral="1000" max="2000"/>
-    <servo name="MOTOR_BACK"  no="0" min="1000" neutral="1000" max="2000"/>
-    <servo name="MOTOR_LEFT"  no="3" min="1000" neutral="1000" max="2000"/>
-    <servo name="MOTOR_RIGHT" no="2" min="1000" neutral="1000" max="2000"/>
+    <servo name="MOTOR_FRONT" no="1" min="1200" neutral="1200" max="1850"/>
+    <servo name="MOTOR_BACK"  no="0" min="1200" neutral="1200" max="1850"/>
+    <servo name="MOTOR_LEFT"  no="3" min="1200" neutral="1200" max="1850"/>
+    <servo name="MOTOR_RIGHT" no="2" min="1200" neutral="1200" max="1850"/>
   </servos>
 
   <commands>
@@ -21,8 +21,8 @@
     <let var="r" value="trim_r + @R"/>
     <set servo="MOTOR_FRONT" value="$throttle + $q - $r"/>
     <set servo="MOTOR_BACK"  value="$throttle - $q - $r"/>
-    <set servo="MOTOR_RIGHT" value="$throttle + $p + $r"/>
-    <set servo="MOTOR_LEFT"  value="$throttle - $p + $r"/>
+    <set servo="MOTOR_RIGHT" value="$throttle - $p + $r"/>
+    <set servo="MOTOR_LEFT"  value="$throttle + $p + $r"/>
   </command_laws>
 
   <rc_commands>
