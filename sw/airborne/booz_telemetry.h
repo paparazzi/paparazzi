@@ -22,6 +22,10 @@
 
 #define PERIODIC_SEND_ACTUATORS() DOWNLINK_SEND_ACTUATORS(SERVOS_NB, actuators);
 
+#define PERIODIC_SEND_BOOZ_ATT_LOOP() DOWNLINK_SEND_BOOZ_ATT_LOOP(&booz_estimator_phi, &booz_control_phi_sp, &booz_estimator_theta, &booz_control_theta_sp); 
+
+
+
 extern uint8_t telemetry_mode_Main;
 
 static inline void booz_telemetry_periodic_task(void) {

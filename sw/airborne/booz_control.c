@@ -34,8 +34,8 @@ float booz_control_theta_sp;
 float booz_control_attitude_phi_theta_pgain;
 float booz_control_attitude_phi_theta_dgain;
 
-#define BOOZ_CONTROL_ATTITUDE_PHI_THETA_PGAIN -21.
-#define BOOZ_CONTROL_ATTITUDE_PHI_THETA_DGAIN -10.
+#define BOOZ_CONTROL_ATTITUDE_PHI_THETA_PGAIN -15000.
+#define BOOZ_CONTROL_ATTITUDE_PHI_THETA_DGAIN -15000.
 
 /* setpoints for max stick throw in degres */
 #define BOOZ_CONTROL_ATTITUDE_PHI_THETA_MAX_SP 30.

@@ -26,6 +26,13 @@ extern pprz_t booz_control_command_p;
 extern pprz_t booz_control_command_q;
 extern pprz_t booz_control_command_r;
 
+extern float booz_control_phi_sp;
+extern float booz_control_theta_sp;
+extern float booz_control_attitude_phi_theta_pgain;
+extern float booz_control_attitude_phi_theta_dgain;
+
+
+
 #include "airframe.h"
 extern pprz_t booz_control_commands[COMMANDS_NB];
 

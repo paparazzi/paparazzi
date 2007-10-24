@@ -444,6 +444,15 @@
     <field name="sp_t"  type="float"/>
   </message>
 
+  <message name="BOOZ_ATT_LOOP" ID="217">
+    <field name="m_phi"    type="float"/>
+    <field name="sp_phi"   type="float"/>
+    <field name="m_theta"  type="float"/>
+    <field name="sp_theta" type="float"/>
+  </message>
+
+
+
   <message name="ENOSE_STATUS" ID="218">
       <field name="val1" type="uint16"/>
       <field name="val2" type="uint16"/>

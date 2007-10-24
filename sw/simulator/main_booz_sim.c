@@ -110,10 +110,9 @@ uint16_t ppm_pulses[PPM_NB_PULSES];
 
 static void airborne_init(void) {
 
-  ppm_pulses[RADIO_THROTTLE] = 1223 + 0.61 * (2050-1223);
+  ppm_pulses[RADIO_THROTTLE] = 1223 + 0.615 * (2050-1223);
   ppm_pulses[RADIO_ROLL] = 1500;
-  //  ppm_pulses[RADIO_PITCH] = 1498;
-  ppm_pulses[RADIO_PITCH] = 1400;
+  ppm_pulses[RADIO_PITCH] = 1498;
   ppm_pulses[RADIO_YAW] = 1493;
 
   booz_estimator_init();
@@ -124,6 +123,12 @@ static void airborne_init(void) {
 
 
 static void airborne_periodic_task(void) {
+
+  int foo = sim_time / 10;
+  if (!(foo%2))
+    ppm_pulses[RADIO_PITCH] = 1600;
+  else
+    ppm_pulses[RADIO_PITCH] = 1400;
 
   booz_autopilot_periodic_task();
 

@@ -37,8 +37,8 @@ void booz_flight_model_init( void ) {
   m_zero(bfm.props_moment_matrix);
   bfm.props_moment_matrix->me[AXIS_X][SERVO_MOTOR_LEFT]  =  L * bfm.thrust_factor;
   bfm.props_moment_matrix->me[AXIS_X][SERVO_MOTOR_RIGHT] = -L * bfm.thrust_factor;
-  bfm.props_moment_matrix->me[AXIS_Y][SERVO_MOTOR_BACK]  =  L * bfm.thrust_factor;
-  bfm.props_moment_matrix->me[AXIS_Y][SERVO_MOTOR_FRONT] = -L * bfm.thrust_factor;
+  bfm.props_moment_matrix->me[AXIS_Y][SERVO_MOTOR_BACK]  = -L * bfm.thrust_factor;
+  bfm.props_moment_matrix->me[AXIS_Y][SERVO_MOTOR_FRONT] =  L * bfm.thrust_factor;
   bfm.props_moment_matrix->me[AXIS_Z][SERVO_MOTOR_LEFT]  = -bfm.torque_factor;
   bfm.props_moment_matrix->me[AXIS_Z][SERVO_MOTOR_RIGHT] = -bfm.torque_factor;
   bfm.props_moment_matrix->me[AXIS_Z][SERVO_MOTOR_BACK]  =  bfm.torque_factor;
