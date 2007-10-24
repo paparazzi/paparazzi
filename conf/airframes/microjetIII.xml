@@ -5,8 +5,8 @@
 <!-- commands section -->
   <servos>
     <servo name="THROTTLE"      no="0" min="1290" neutral="1290" max="1810"/>
-    <servo name="AILEVON_LEFT"  no="1" min="2000" neutral="1490" max="1000"/>
-    <servo name="AILEVON_RIGHT" no="3" min="1000" neutral="1540" max="2000"/>
+    <servo name="AILEVON_LEFT"  no="1" min="2000" neutral="1500" max="1000"/>
+    <servo name="AILEVON_RIGHT" no="3" min="1000" neutral="1500" max="2000"/>
   </servos>
 
   <commands>
@@ -58,7 +58,7 @@
 
     <linear name="RollOfIrs" arity="2" coeff1="0.7" coeff2="-0.7"/>
     <linear name="PitchOfIrs" arity="2" coeff1="-0.7" coeff2="-0.7"/>
-    <linear name="TopOfIr" arity="1" coeff1="1"/>
+    <linear name="TopOfIr" arity="1" coeff1="-1"/>
 
     <define name="ADC_ROLL_NEUTRAL" value="0"/>
     <define name="ADC_PITCH_NEUTRAL" value="-716"/>
@@ -75,7 +75,7 @@
   </section>
 
  <section name="GYRO" prefix="GYRO_">
-    <define name="ADC_ROLL_NEUTRAL" value="488"/>
+    <define name="ADC_ROLL_NEUTRAL" value="500"/>
     <define name="DYNAMIC_RANGE" value="300" unit="deg/s"/>
     <define name="ADXRS300_RESISTOR_BRIDGE" value="(3.3/(3.3+1.8))"/>
     <define name="ADXRS300_SENSITIVITY" value="5" unit="mV/(deg/s)"/>
@@ -93,7 +93,7 @@
     <define name="CARROT" value="5." unit="s"/>
     <define name="KILL_MODE_DISTANCE" value="(1.5*MAX_DIST_FROM_HOME)"/>
     <define name="CONTROL_RATE" value="60" unit="Hz"/>
-    <define name="XBEE_INIT" value="\"ATPL2\rATRN1\rATTT80\r\""/>
+<!--     <define name="XBEE_INIT" value="\"ATPL2\rATRN1\rATTT80\r\""/> -->
 <!--    <define name="NO_XBEE_API_INIT" value="TRUE"/> -->
     <define name="ALT_KALMAN_ENABLED" value="TRUE"/>
 
@@ -103,6 +103,13 @@
     <define name="GLIDE_VSPEED" value="3."/>
     <define name="GLIDE_PITCH" value="45" unit="deg"/>
   </section>
+
+  <section name="external leds">
+    <!-- ADC 4 -->
+    <define name="LED_4_BANK" value="0"/>
+    <define name="LED_4_PIN" value="22"/>
+  </section>
+
 
   <section name="VERTICAL CONTROL" prefix="V_CTL_">
 
@@ -191,6 +198,7 @@ ap.srcs += commands.c
 ap.CFLAGS += -DACTUATORS=\"servos_4015_MAT_hw.h\" -DSERVOS_4015_MAT
 ap.srcs += $(SRC_ARCH)/servos_4015_MAT_hw.c actuators.c
 
+# 41.200MHz
 ap.CFLAGS += -DRADIO_CONTROL -DRADIO_CONTROL_TYPE=RC_FUTABA
 ap.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c  
 
@@ -234,7 +242,7 @@ ap.CFLAGS += -DSIMPLE_ROLL_CONTROL
 include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
 sim.CFLAGS += -DCONFIG=\"tiny.h\" -DAGR_CLIMB -DLOITER_TRIM -DALT_KALMAN -DIR_360
 sim.CFLAGS += -DSIMPLE_ROLL_CONTROL
-sim.srcs += nav_survey_rectangle.c $(SRC_ARCH)/sim_baro.c bomb.c nav_line.c
+sim.srcs += nav_survey_rectangle.c $(SRC_ARCH)/sim_baro.c bomb.c nav_line.c traffic_info.c
 
   </makefile>
 </airframe>
