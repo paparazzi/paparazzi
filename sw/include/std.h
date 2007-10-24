@@ -31,8 +31,12 @@
 #include <inttypes.h>
 #include <math.h>
 
+#ifndef FALSE
 #define FALSE 0
+#endif
+#ifndef TRUE
 #define TRUE (!FALSE)
+#endif
 
 /* Boolean values */
 typedef uint8_t bool_t;

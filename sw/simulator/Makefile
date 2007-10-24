@@ -94,8 +94,25 @@ ifneq ($(MAKECMDGOALS),clean)
 endif
 
 CC = gcc
-CFLAGS=-g -O2 -Wall `pkg-config glib-2.0 --cflags` -I /usr/include/meschach -I../airborne -I../../var/BOOZ
+CFLAGS=-g -O2 -Wall `pkg-config glib-2.0 --cflags` -I /usr/include/meschach -I../airborne -I../include -I../../var/BOOZ -I../../var/include -I../../conf/autopilot -I../airborne/sim
 LDFLAGS=`pkg-config glib-2.0 --libs` -lm -lmeschach
 
-booz_sim: main_booz_sim.c booz_flight_model.c booz_flight_model_utils.c booz_flightgear.c
+BOOZ_SIM_SRCS = main_booz_sim.c booz_flight_model.c booz_flight_model_utils.c booz_flightgear.c
+CFLAGS += -DSITL
+CFLAGS += -DCONTROLLER
+CFLAGS += -DCONFIG=\"conf_booz.h\"
+CFLAGS += -DRADIO_CONTROL 
+BOOZ_AB_SRCS += ../airborne/radio_control.c
+CFLAGS += -DACTUATORS=\"servos_nil.h\" 
+BOOZ_AB_SRCS += ../airborne/actuators.c
+CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=IvyTransport
+LDFLAGS += -lglibivy
+BOOZ_AB_SRCS += ../airborne/booz_telemetry.c ../airborne/downlink.c ../airborne/sim/ivy_transport.c
+#../airborne/link_imu.c 
+BOOZ_AB_SRCS += ../airborne/booz_estimator.c
+BOOZ_AB_SRCS += ../airborne/booz_control.c
+BOOZ_AB_SRCS += ../airborne/booz_autopilot.c
+BOOZ_AB_SRCS += ../airborne/commands.c
+
+booz_sim: $(BOOZ_SIM_SRCS) $(BOOZ_AB_SRCS)
 	$(CC) $(CFLAGS) -g -o $@ $^ $(LDFLAGS)

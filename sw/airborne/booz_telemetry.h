@@ -7,6 +7,7 @@
 #include "uart.h"
 
 #include "radio_control.h"
+#include "actuators.h"
 #include "link_imu.h"
 #include "booz_estimator.h"
 #include "booz_autopilot.h"
@@ -19,6 +20,7 @@
 							  &booz_estimator_phi, &booz_estimator_theta, &booz_estimator_psi); 
 #define PERIODIC_SEND_BOOZ_DEBUG() DOWNLINK_SEND_BOOZ_DEBUG(&booz_control_p_sp, &booz_control_q_sp, &booz_control_r_sp, &booz_control_power_sp); 
 
+#define PERIODIC_SEND_ACTUATORS() DOWNLINK_SEND_ACTUATORS(SERVOS_NB, actuators);
 
 extern uint8_t telemetry_mode_Main;
 

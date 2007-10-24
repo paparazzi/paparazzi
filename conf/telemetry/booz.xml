@@ -7,6 +7,7 @@
       <message name="BOOZ_STATUS"       period="1."/>
       <message name="BOOZ_FD"           period="0.05"/>
       <message name="BOOZ_DEBUG"        period="0.25"/>
+      <message name="ACTUATORS"         period="0.5"/>
     </mode>
     <mode name="debug">
     </mode>

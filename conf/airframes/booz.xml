@@ -76,6 +76,8 @@ ctl.srcs += booz_estimator.c booz_control.c booz_autopilot.c
 ctl.CFLAGS += -DACTUATORS=\"servos_4017_hw.h\" -DSERVOS_4017 -DSERVOS_4017_CLOCK_FALLING
 ctl.srcs += $(SRC_ARCH)/servos_4017_hw.c actuators.c
 
+#ctl.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c $(SRC_ARCH)/mb_twi_controller.c
+
 ctl.CFLAGS += -DRADIO_CONTROL -DRADIO_CONTROL_TYPE=RC_FUTABA -DRC_LED=4
 ctl.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c
 

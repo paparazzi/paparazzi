@@ -17,6 +17,8 @@ void net_gui_init (struct FGNetGUI* gui);
 
 void booz_flightgear_init(const char* host,  unsigned int port) {
 
+  printf("connecting to %s on port %d\n", host, port);
+
   int so_reuseaddr = 1;
   struct protoent * pte = getprotobyname("UDP");
   fg_socket = socket( PF_INET, SOCK_DGRAM, pte->p_proto);
