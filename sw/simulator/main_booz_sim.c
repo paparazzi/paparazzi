@@ -21,7 +21,7 @@ double sim_time;
 double disp_time;
 
 
-double foo_commands[] = {0.651, 0.649, 0.65, 0.65};
+double foo_commands[] = {0., 0., 0., 0.};
 
 
 static gboolean timeout_callback(gpointer data);
@@ -112,7 +112,8 @@ static void airborne_init(void) {
 
   ppm_pulses[RADIO_THROTTLE] = 1223 + 0.61 * (2050-1223);
   ppm_pulses[RADIO_ROLL] = 1500;
-  ppm_pulses[RADIO_PITCH] = 1498;
+  //  ppm_pulses[RADIO_PITCH] = 1498;
+  ppm_pulses[RADIO_PITCH] = 1400;
   ppm_pulses[RADIO_YAW] = 1493;
 
   booz_estimator_init();
@@ -157,8 +158,11 @@ static void airborne_event_task(void) {
   //   if (ppm_valid) {
   //    ppm_valid = FALSE;
   radio_control_event_task();
-  booz_autopilot_mode = BOOZ_AP_MODE_RATE;
-  booz_control_rate_compute_setpoints();
+  booz_autopilot_mode = BOOZ_AP_MODE_ATTITUDE;
+  if (booz_autopilot_mode == BOOZ_AP_MODE_RATE)
+    booz_control_rate_compute_setpoints();
+  else if (booz_autopilot_mode == BOOZ_AP_MODE_ATTITUDE)
+    booz_control_attitude_compute_setpoints();
   //}
 }
 
