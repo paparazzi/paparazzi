@@ -1,0 +1,10 @@
+<!DOCTYPE settings SYSTEM "settings.dtd">
+
+<settings>
+    <dl_settings NAME="lights control">
+       <dl_settings NAME="lights">
+          <dl_setting module="light" var="light_duration_1" min="0" max="61" step="1"/>
+          <dl_setting module="light" var="light_duration_2" min="0" max="61" step="1"/>
+       </dl_settings>
+    </dl_settings>
+</settings>
