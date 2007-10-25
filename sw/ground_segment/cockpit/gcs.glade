@@ -392,7 +392,6 @@
 
 			      <child>
 				<widget class="GtkFrame" id="frame4">
-				  <property name="height_request">27</property>
 				  <property name="visible">True</property>
 				  <property name="label_xalign">0</property>
 				  <property name="label_yalign">0.5</property>
@@ -475,7 +474,6 @@
 
 			      <child>
 				<widget class="GtkFrame" id="frame5">
-				  <property name="height_request">27</property>
 				  <property name="visible">True</property>
 				  <property name="label_xalign">0</property>
 				  <property name="label_yalign">0.5</property>
@@ -550,7 +548,6 @@
 
 			      <child>
 				<widget class="GtkFrame" id="frame6">
-				  <property name="height_request">27</property>
 				  <property name="visible">True</property>
 				  <property name="label_xalign">0</property>
 				  <property name="label_yalign">0.5</property>
