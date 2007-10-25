@@ -23,8 +23,17 @@ double disp_time;
 
 double foo_commands[] = {0., 0., 0., 0.};
 
-
 static gboolean timeout_callback(gpointer data);
+static gboolean on_js_data_received(GIOChannel *source, GIOCondition condition, gpointer data);
+
+static void joystick_init(void);
+#ifdef SIM_UART
+static void sim_uart_init(void);
+#endif
+#if defined DOWNLINK_TRANSPORT && DOWNLINK_TRANSPORT == IvyTransport
+static void ivy_transport_init(void);
+static void on_DL_SETTING(IvyClientPtr app, void *user_data, int argc, char *argv[]);
+#endif
 
 static void airborne_init(void);
 static void airborne_periodic_task(void);
@@ -33,9 +42,6 @@ static void airborne_event_task(void);
 #include "booz_estimator.h"
 
 static gboolean timeout_callback(gpointer data) {
-
-  
-
 
   booz_flight_model_run(DT, foo_commands);
   sim_time += DT;
@@ -62,6 +68,18 @@ static gboolean timeout_callback(gpointer data) {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
 int main ( int argc, char** argv) {
 
   sim_time = 0.;
@@ -71,6 +89,15 @@ int main ( int argc, char** argv) {
 
   booz_flightgear_init(fg_host, fg_port);
 
+#ifdef SIM_UART
+  sim_uart_init();
+#endif 
+
+#if defined DOWNLINK_TRANSPORT && DOWNLINK_TRANSPORT == IvyTransport
+  ivy_transport_init();
+#endif
+
+  joystick_init();
 
   airborne_init();
 
@@ -79,8 +106,6 @@ int main ( int argc, char** argv) {
   
   g_timeout_add(TIMEOUT_PERIOD, timeout_callback, NULL);
   
-  IvyInit ("BoozSim", "BoozSim READY", NULL, NULL, NULL, NULL);
-  IvyStart("127.255.255.255");
 
   g_main_loop_run(ml);
  
@@ -88,11 +113,108 @@ int main ( int argc, char** argv) {
 }
 
 
+/////////////////////
+// Helpers
+////////////////////
+
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <errno.h>
+#include <sys/ioctl.h>
+#include <linux/joystick.h>
+
+static void joystick_init(void) {
+  const char* device = "/dev/input/js1";
+  int fd = open(device, O_RDONLY | O_NONBLOCK);
+  if (fd == -1) {
+     printf("opening joystick serial device %s : %s\n", device, strerror(errno));
+     return;
+  }
+  //  if( ioctl( fd, JSIOCSCORR, corr ) != 0 )
+  //    perror( "Unable to turn off deadband correction" );
+
+  GIOChannel* channel = g_io_channel_unix_new(fd);
+  g_io_channel_set_encoding(channel, NULL, NULL);
+  g_io_add_watch (channel, G_IO_IN , on_js_data_received, NULL);
+
+}
+
+
+
+
+
+
+
+
+
+
+#if defined DOWNLINK_TRANSPORT && DOWNLINK_TRANSPORT == IvyTransport
+
+static void ivy_transport_init(void) {
+  IvyInit ("BoozSim", "BoozSim READY", NULL, NULL, NULL, NULL);
+  IvyBindMsg(on_DL_SETTING, NULL, "^(\\S*) DL_SETTING (\\S*) (\\S*) (\\S*)");
+  IvyStart("127.255.255.255");
+}
+
+#include "std.h"
+#include "settings.h"
+#include "booz_telemetry.h"
+static void on_DL_SETTING(IvyClientPtr app, void *user_data, int argc, char *argv[]){
+  uint8_t index = atoi(argv[2]);
+  float value = atof(argv[3]);
+  DlSetting(index, value);
+  DOWNLINK_SEND_DL_VALUE(&index, &value);
+  printf("setting %d %f\n", index, value);
+}
+
+#endif
+
+
+
+#ifdef SIM_UART
+#define AC_ID 148
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+
+#include "sim_uart.h"
+
+static void sim_uart_init(void) {
+  char link_pipe_name[128];
+  sprintf(link_pipe_name, "/tmp/pprz_link_%d", AC_ID);
+  struct stat st;
+  if (stat(link_pipe_name, &st)) {
+    if (mkfifo(link_pipe_name, 0644) == -1) {
+      perror("make pipe");
+      exit (10);
+    }
+  }     
+  if ( !(pipe_stream = fopen(link_pipe_name, "w")) ) {
+    perror("open pipe");
+    exit (10);
+  }
+}
+#endif /* SIM_UART */
+
+
+
+
+
+
+
+//////////////////
+// AIRBORNE CODE
+//////////////////
+
+
+#include "ppm.h"
 #include "radio_control.h"
 #include "actuators.h"
 #include "commands.h"
 
 #include "booz_telemetry.h"
+//#include "datalink.h"
 
 #include "booz_estimator.h"
 #include "booz_control.h"
@@ -110,10 +232,8 @@ uint16_t ppm_pulses[PPM_NB_PULSES];
 
 static void airborne_init(void) {
 
-  ppm_pulses[RADIO_THROTTLE] = 1223 + 0.615 * (2050-1223);
-  ppm_pulses[RADIO_ROLL] = 1500;
-  ppm_pulses[RADIO_PITCH] = 1498;
-  ppm_pulses[RADIO_YAW] = 1493;
+  ppm_init();
+  radio_control_init();
 
   booz_estimator_init();
   booz_control_init();
@@ -123,12 +243,6 @@ static void airborne_init(void) {
 
 
 static void airborne_periodic_task(void) {
-
-  int foo = sim_time / 10;
-  if (!(foo%2))
-    ppm_pulses[RADIO_PITCH] = 1600;
-  else
-    ppm_pulses[RADIO_PITCH] = 1400;
 
   booz_autopilot_periodic_task();
 
@@ -160,6 +274,9 @@ static void airborne_periodic_task(void) {
 
 
 static void airborne_event_task(void) {
+
+  //  DlEventCheckAndHandle();
+
   //   if (ppm_valid) {
   //    ppm_valid = FALSE;
   radio_control_event_task();
@@ -170,4 +287,45 @@ static void airborne_event_task(void) {
     booz_control_attitude_compute_setpoints();
   //}
 }
+
+
+
+
+
+
+
+
+#define JS_THROTTLE 6
+#define JS_ROLL     0
+#define JS_PITCH    1
+#define JS_YAW      5
+
+static gboolean on_js_data_received(GIOChannel *source, GIOCondition condition, gpointer data) {
+
+  struct js_event js;
+  gsize len;
+  GError *err = NULL;
+  g_io_channel_read_chars(source, (void*)(&js), sizeof(struct js_event), &len, &err);
+  
+  if (js.type == JS_EVENT_AXIS) {
+    //printf("%d %d\n", js.number, js.value);
+    switch (js.number) {
+    case JS_THROTTLE:
+      ppm_pulses[RADIO_THROTTLE] = 1223 + (js.value - 30) * (float)(2050-1223) / (float)(223 - 30);
+      break;
+    case JS_PITCH:
+      ppm_pulses[RADIO_PITCH] = 1498 + (js.value - 113) * (float)(2050-950) / (float)(224 - 1);
+      break;
+    case JS_ROLL:
+      ppm_pulses[RADIO_ROLL] = 1500 + (js.value - 112) * (float)(2050-950) / (float)(1 - 224);
+      break;
+    case JS_YAW:
+      ppm_pulses[RADIO_YAW] = 1500 + (js.value - 112) * (float)(2050-950) / (float)(224 - 1);
+      break;
+    }
+  }
+
+  return TRUE;
+}
+
 

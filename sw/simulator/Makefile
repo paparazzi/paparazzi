@@ -105,10 +105,21 @@ CFLAGS += -DRADIO_CONTROL
 BOOZ_AB_SRCS += ../airborne/radio_control.c
 CFLAGS += -DACTUATORS=\"servos_nil.h\" 
 BOOZ_AB_SRCS += ../airborne/actuators.c
-CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=IvyTransport
+
+CFLAGS += -DDOWNLINK 
+BOOZ_AB_SRCS += ../airborne/booz_telemetry.c ../airborne/downlink.c
+
+#CFLAGS += -DDOWNLINK_TRANSPORT=PprzTransport -DPPRZ_UART=SimUart -DDOWNLINK_DEVICE=SimUart -DSIM_UART
+#BOOZ_AB_SRCS += ../airborne/pprz_transport.c  ../airborne/sim/sim_uart.c 
+
+CFLAGS += -DDOWNLINK_TRANSPORT=IvyTransport
+BOOZ_AB_SRCS += ../airborne/sim/ivy_transport.c
 LDFLAGS += -lglibivy
-BOOZ_AB_SRCS += ../airborne/booz_telemetry.c ../airborne/downlink.c ../airborne/sim/ivy_transport.c
+
 #../airborne/link_imu.c 
+#CFLAGS += -DDATALINK=PPRZ
+#BOOZ_AB_SRCS += ../airborne/datalink.c
+
 BOOZ_AB_SRCS += ../airborne/booz_estimator.c
 BOOZ_AB_SRCS += ../airborne/booz_control.c
 BOOZ_AB_SRCS += ../airborne/booz_autopilot.c
