@@ -3,13 +3,15 @@
 #include <Ivy/ivy.h>
 #include <Ivy/ivyglibloop.h>
 
+#include <math.h>
+
 #include "booz_flight_model.h"
 #include "booz_flightgear.h"
 
 
 
-char* fg_host = "127.0.0.1";
-//char* fg_host = "10.31.4.107";
+//char* fg_host = "127.0.0.1";
+char* fg_host = "10.31.4.107";
 unsigned int fg_port = 5501;
 
 /* 250Hz <-> 4ms */
@@ -19,7 +21,6 @@ double sim_time;
 
 #define DT_DISPLAY 0.04
 double disp_time;
-
 
 double foo_commands[] = {0., 0., 0., 0.};
 
@@ -40,6 +41,9 @@ static void airborne_periodic_task(void);
 static void airborne_event_task(void);
 
 #include "booz_estimator.h"
+#include "radio_control.h"
+volatile bool_t ppm_valid;
+#define RPM_OF_RAD_S(a) ((a)*60./M_PI)
 
 static gboolean timeout_callback(gpointer data) {
 
@@ -49,6 +53,11 @@ static gboolean timeout_callback(gpointer data) {
   if (sim_time >= disp_time) {
     disp_time+= DT_DISPLAY;
     booz_flightgear_send();
+    IvySendMsg("148 BOOZ_RPMS %f %f %f %f",  
+	       RPM_OF_RAD_S(bfm.state->ve[BFMS_OM_F]), 
+	       RPM_OF_RAD_S(bfm.state->ve[BFMS_OM_B]), 
+	       RPM_OF_RAD_S(bfm.state->ve[BFMS_OM_L]),
+	       RPM_OF_RAD_S(bfm.state->ve[BFMS_OM_R]) );
   }
 
   booz_estimator_p = bfm.state->ve[BFMS_P];
@@ -59,7 +68,10 @@ static gboolean timeout_callback(gpointer data) {
   booz_estimator_theta = bfm.state->ve[BFMS_THETA];
   booz_estimator_psi = bfm.state->ve[BFMS_PSI];
 
+  /* post a radio control event */
+  ppm_valid = TRUE;
   airborne_event_task();
+
   airborne_periodic_task();
 
 
@@ -125,7 +137,7 @@ int main ( int argc, char** argv) {
 #include <linux/joystick.h>
 
 static void joystick_init(void) {
-  const char* device = "/dev/input/js1";
+  const char* device = "/dev/input/js0";
   int fd = open(device, O_RDONLY | O_NONBLOCK);
   if (fd == -1) {
      printf("opening joystick serial device %s : %s\n", device, strerror(errno));
@@ -231,6 +243,11 @@ uint16_t ppm_pulses[PPM_NB_PULSES];
 
 
 static void airborne_init(void) {
+  ppm_pulses[RADIO_THROTTLE] = 1223 + 0.62 * (2050-1223);
+  ppm_pulses[RADIO_PITCH]    = 1498 + 0.   * (2050-950);
+  ppm_pulses[RADIO_ROLL]     = 1500 + 0.   * (2050-950);
+  ppm_pulses[RADIO_YAW]      = 1500 + 0.   * (2050-950);
+  ppm_pulses[RADIO_MODE]     = 1500 + 0.25 * (2050-950);
 
   ppm_init();
   radio_control_init();
@@ -243,6 +260,18 @@ static void airborne_init(void) {
 
 
 static void airborne_periodic_task(void) {
+
+#if 0
+  int foo = sim_time/10; 
+  if (!(foo%2)) {
+    ppm_pulses[RADIO_YAW]    = 1500 + 0.1  * (2050-950);
+    ppm_pulses[RADIO_PITCH]  = 1498 + 0.  * (2050-950);
+  }
+  else {
+    ppm_pulses[RADIO_YAW]    = 1500 - 0.  * (2050-950);
+    ppm_pulses[RADIO_PITCH]  = 1498 + 0.1 * (2050-950);
+  }    
+#endif
 
   booz_autopilot_periodic_task();
 
@@ -277,15 +306,16 @@ static void airborne_event_task(void) {
 
   //  DlEventCheckAndHandle();
 
-  //   if (ppm_valid) {
-  //    ppm_valid = FALSE;
-  radio_control_event_task();
-  booz_autopilot_mode = BOOZ_AP_MODE_ATTITUDE;
-  if (booz_autopilot_mode == BOOZ_AP_MODE_RATE)
-    booz_control_rate_compute_setpoints();
-  else if (booz_autopilot_mode == BOOZ_AP_MODE_ATTITUDE)
-    booz_control_attitude_compute_setpoints();
-  //}
+  if (ppm_valid) {
+    ppm_valid = FALSE;
+    radio_control_event_task();
+    booz_autopilot_mode = BOOZ_AP_MODE_ATTITUDE;
+    if (rc_values_contains_avg_channels) {
+      booz_autopilot_mode = BOOZ_AP_MODE_OF_PPRZ(rc_values[RADIO_MODE]);
+    }
+    booz_autopilot_event_task();
+  }
+  
 }
 
 
@@ -299,6 +329,7 @@ static void airborne_event_task(void) {
 #define JS_ROLL     0
 #define JS_PITCH    1
 #define JS_YAW      5
+#define JS_MODE     2
 
 static gboolean on_js_data_received(GIOChannel *source, GIOCondition condition, gpointer data) {
 
@@ -321,6 +352,10 @@ static gboolean on_js_data_received(GIOChannel *source, GIOCondition condition, 
       break;
     case JS_YAW:
       ppm_pulses[RADIO_YAW] = 1500 + (js.value - 112) * (float)(2050-950) / (float)(224 - 1);
+      break;
+    case JS_MODE:
+      ppm_pulses[RADIO_MODE] = 1500 + (js.value - 112) * (float)(2050-950) / (float)(224 - 1);
+      rc_values_contains_avg_channels = TRUE;
       break;
     }
   }

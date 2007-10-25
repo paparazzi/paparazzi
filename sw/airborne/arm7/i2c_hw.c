@@ -16,6 +16,18 @@
 #define I2C_SCLH 200
 #endif
 
+#ifndef I2C_VIC_SLOT
+#define I2C_VIC_CNTL VICVectCntl9
+#define I2C_VIC_ADDR VICVectAddr9
+#else
+#define __I2C_VIC_CNTL(idx)  VICVectCntl##idx
+#define __I2C_VIC_ADDR(idx)  VICVectAddr##idx
+#define _I2C_VIC_CNTL(idx)  __I2C_VIC_CNTL(idx)
+#define _I2C_VIC_ADDR(idx)  __I2C_VIC_ADDR(idx)
+#define I2C_VIC_CNTL _I2C_VIC_CNTL(I2C_VIC_SLOT)
+#define I2C_VIC_ADDR _I2C_VIC_ADDR(I2C_VIC_SLOT)
+#endif
+
 void i2c0_ISR(void) __attribute__((naked));
 
 
@@ -36,8 +48,8 @@ void i2c_hw_init ( void ) {
   // initialize the interrupt vector
   VICIntSelect &= ~VIC_BIT(VIC_I2C0);  // I2C0 selected as IRQ
   VICIntEnable = VIC_BIT(VIC_I2C0);    // I2C0 interrupt enabled
-  VICVectCntl9 = VIC_ENABLE | VIC_I2C0;
-  VICVectAddr9 = (uint32_t)i2c0_ISR;    // address of the ISR
+  I2C_VIC_CNTL = VIC_ENABLE | VIC_I2C0;
+  I2C_VIC_ADDR = (uint32_t)i2c0_ISR;    // address of the ISR
 }
 
 #define I2C_DATA_REG I2C0DAT

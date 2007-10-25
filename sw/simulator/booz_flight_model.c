@@ -11,7 +11,6 @@
 
 struct BoozFlightModel bfm;
 
-//static void motor_model_run( double dt );
 //static void motor_model_derivative(VEC* x, VEC* u, VEC* xdot);
 
 static VEC* booz_get_forces_body_frame(  VEC* X, VEC* M, MAT* dcm, VEC* omega_square);
@@ -19,6 +18,7 @@ static VEC* booz_get_moments_body_frame( VEC* X, VEC* M, VEC* omega_square );
 static void booz_flight_model_get_derivatives(VEC* X, VEC* u, VEC* Xdot);
 
 void booz_flight_model_init( void ) {
+  bfm.time = 0.;
   bfm.bat_voltage = BAT_VOLTAGE;
   bfm.mot_voltage = v_get(SERVOS_NB);
 
@@ -39,10 +39,10 @@ void booz_flight_model_init( void ) {
   bfm.props_moment_matrix->me[AXIS_X][SERVO_MOTOR_RIGHT] = -L * bfm.thrust_factor;
   bfm.props_moment_matrix->me[AXIS_Y][SERVO_MOTOR_BACK]  = -L * bfm.thrust_factor;
   bfm.props_moment_matrix->me[AXIS_Y][SERVO_MOTOR_FRONT] =  L * bfm.thrust_factor;
-  bfm.props_moment_matrix->me[AXIS_Z][SERVO_MOTOR_LEFT]  = -bfm.torque_factor;
-  bfm.props_moment_matrix->me[AXIS_Z][SERVO_MOTOR_RIGHT] = -bfm.torque_factor;
-  bfm.props_moment_matrix->me[AXIS_Z][SERVO_MOTOR_BACK]  =  bfm.torque_factor;
-  bfm.props_moment_matrix->me[AXIS_Z][SERVO_MOTOR_FRONT] =  bfm.torque_factor;
+  bfm.props_moment_matrix->me[AXIS_Z][SERVO_MOTOR_LEFT]  =  bfm.torque_factor;
+  bfm.props_moment_matrix->me[AXIS_Z][SERVO_MOTOR_RIGHT] =  bfm.torque_factor;
+  bfm.props_moment_matrix->me[AXIS_Z][SERVO_MOTOR_BACK]  =  -bfm.torque_factor;
+  bfm.props_moment_matrix->me[AXIS_Z][SERVO_MOTOR_FRONT] =  -bfm.torque_factor;
 
   bfm.Inert = m_get(AXIS_NB, AXIS_NB);
   m_zero(bfm.Inert);
@@ -64,8 +64,9 @@ void booz_flight_model_run( double dt, double* commands ) {
   int i;
   for (i=0; i<SERVOS_NB; i++)
     bfm.mot_voltage->ve[i] = bfm.bat_voltage * commands[i];
-  // motor_model_run(dt);
-  rk4(booz_flight_model_get_derivatives, bfm.state, bfm.mot_voltage, dt); 
+  //  rk4(motor_model_derivative, bfm.mot_omega, bfm.mot_voltage, dt); 
+  rk4(booz_flight_model_get_derivatives, bfm.state, bfm.mot_voltage, dt);
+  bfm.time += dt;
 }
 
 
@@ -223,10 +224,6 @@ static void booz_flight_model_get_derivatives(VEC* X, VEC* u, VEC* Xdot) {
 
 
 #if 0
-static void motor_model_run( double dt ) {
-  rk4(motor_model_derivative, bfm.mot_omega, bfm.mot_voltage, dt); 
-}
-
 static void motor_model_derivative(VEC* x, VEC* u, VEC* xdot) {
   static VEC *temp1 = VNULL;
   static VEC *temp2 = VNULL;

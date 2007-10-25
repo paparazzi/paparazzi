@@ -10,6 +10,7 @@ void booz_autopilot_init(void) {
 }
 
 void booz_autopilot_periodic_task(void) {
+
   switch (booz_autopilot_mode) {
   case BOOZ_AP_MODE_FAILSAFE:
     SetCommands(commands_failsafe);
@@ -27,3 +28,15 @@ void booz_autopilot_periodic_task(void) {
 }
 
 
+void booz_autopilot_event_task(void) {
+
+  switch (booz_autopilot_mode) {
+  case BOOZ_AP_MODE_RATE:
+    booz_control_rate_compute_setpoints();
+    break;
+  case BOOZ_AP_MODE_ATTITUDE:
+    booz_control_attitude_compute_setpoints();
+    break;
+  }
+
+}

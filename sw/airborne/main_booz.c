@@ -5,6 +5,7 @@
 #include "led.h"
 
 #include "commands.h"
+#include "i2c.h"
 #include "actuators.h"
 #include "radio_control.h"
 
@@ -28,6 +29,7 @@ static inline void main_event_task( void );
 int16_t trim_p = 0;
 int16_t trim_q = 0;
 int16_t trim_r = 0;
+uint8_t vbat = 0;
 
 int main( void ) {
   main_init();
@@ -44,6 +46,7 @@ static inline void main_init( void ) {
   led_init();
   sys_time_init();
 
+  i2c_init();
   actuators_init();
   SetCommands(commands_failsafe);
 
@@ -60,6 +63,8 @@ static inline void main_init( void ) {
   uart1_init_tx();
 
   int_enable();
+
+  DOWNLINK_SEND_BOOT(&cpu_time_sec);
 }
 
 static inline void main_periodic_task( void ) {
@@ -103,12 +108,10 @@ static inline  void main_event_task( void ) {
   if (ppm_valid) {
     ppm_valid = FALSE;
     radio_control_event_task();
-    //    if (rc_values_contains_avg_channels) {
-    //      fbw_mode = FBW_MODE_OF_PPRZ(rc_values[RADIO_MODE]);
-    //    }
-    booz_autopilot_mode = BOOZ_AP_MODE_RATE;
-    /* setpoints */
-    booz_control_rate_compute_setpoints();
+    if (rc_values_contains_avg_channels) {
+      booz_autopilot_mode = BOOZ_AP_MODE_OF_PPRZ(rc_values[RADIO_MODE]);
+    }
+    booz_autopilot_event_task();
   }
 
 }

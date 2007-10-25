@@ -61,7 +61,7 @@ extern uint8_t ck_a, ck_b;
 #define PprzTransportHeader(payload_len) { \
   PprzTransportPut1Byte(STX);				\
   uint8_t msg_len = PprzTransportSizeOf(payload_len);	\
-  PprzTransportPut1Byte(msg_len);				\
+  PprzTransportPut1Byte(msg_len);			\
   ck_a = msg_len; ck_b = msg_len;			\
 }
 

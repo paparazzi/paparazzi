@@ -23,6 +23,7 @@
 
 
 struct BoozFlightModel {
+  double time;
   /* battery voltage in V */
   double bat_voltage;
   /* motors supply voltage in V */

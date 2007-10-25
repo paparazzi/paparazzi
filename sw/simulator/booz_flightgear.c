@@ -44,11 +44,13 @@ void booz_flightgear_send() {
 
   gui.latitude = lat;
   gui.longitude = lon;
-  gui.altitude = 10 - bfm.state->ve[BFMS_Z];  
+  gui.altitude = 30 - bfm.state->ve[BFMS_Z];  
 
   gui.phi = bfm.state->ve[BFMS_PHI];
   gui.theta = bfm.state->ve[BFMS_THETA];
   gui.psi = bfm.state->ve[BFMS_PSI];
+
+  gui.cur_time += (unsigned long)bfm.time;
 
   if (sendto(fg_socket, (char*)(&gui), sizeof(gui), 0,
              (struct sockaddr*)&fg_addr, sizeof(fg_addr)) == -1)
