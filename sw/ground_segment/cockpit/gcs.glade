@@ -72,40 +72,6 @@
 			      <property name="column_spacing">0</property>
 
 			      <child>
-				<widget class="GtkDrawingArea" id="drawingarea_throttle">
-				  <property name="width_request">50</property>
-				  <property name="visible">True</property>
-				  <property name="tooltip" translatable="yes">Throttle</property>
-				</widget>
-				<packing>
-				  <property name="left_attach">2</property>
-				  <property name="right_attach">3</property>
-				  <property name="top_attach">0</property>
-				  <property name="bottom_attach">1</property>
-				  <property name="x_padding">1</property>
-				  <property name="x_options">fill</property>
-				  <property name="y_options">fill</property>
-				</packing>
-			      </child>
-
-			      <child>
-				<widget class="GtkDrawingArea" id="drawingarea_speed">
-				  <property name="width_request">50</property>
-				  <property name="visible">True</property>
-				  <property name="tooltip" translatable="yes">Ground speed</property>
-				</widget>
-				<packing>
-				  <property name="left_attach">1</property>
-				  <property name="right_attach">2</property>
-				  <property name="top_attach">0</property>
-				  <property name="bottom_attach">1</property>
-				  <property name="x_padding">2</property>
-				  <property name="x_options">fill</property>
-				  <property name="y_options">fill</property>
-				</packing>
-			      </child>
-
-			      <child>
 				<widget class="GtkFrame" id="frame1">
 				  <property name="width_request">50</property>
 				  <property name="visible">True</property>
@@ -126,11 +92,18 @@
 				      <property name="right_padding">0</property>
 
 				      <child>
-					<widget class="GtkDrawingArea" id="drawingarea_battery">
-					  <property name="height_request">50</property>
+					<widget class="GtkEventBox" id="eventbox15">
 					  <property name="visible">True</property>
-					  <property name="tooltip" translatable="yes">Battery</property>
-					  <property name="events">GDK_POINTER_MOTION_MASK</property>
+					  <property name="tooltip" translatable="yes">Battery level (V)</property>
+					  <property name="visible_window">True</property>
+					  <property name="above_child">False</property>
+
+					  <child>
+					    <widget class="GtkDrawingArea" id="drawingarea_battery">
+					      <property name="height_request">50</property>
+					      <property name="visible">True</property>
+					    </widget>
+					  </child>
 					</widget>
 				      </child>
 				    </widget>
@@ -197,6 +170,7 @@
 					  <child>
 					    <widget class="GtkEventBox" id="eventbox_mode">
 					      <property name="visible">True</property>
+					      <property name="tooltip" translatable="yes">Navigation mode. Click to get out of HOME mode</property>
 					      <property name="visible_window">True</property>
 					      <property name="above_child">False</property>
 
@@ -230,6 +204,7 @@
 					  <child>
 					    <widget class="GtkEventBox" id="eventbox_rc">
 					      <property name="visible">True</property>
+					      <property name="tooltip" translatable="yes">Radio Command status</property>
 					      <property name="visible_window">True</property>
 					      <property name="above_child">False</property>
 
@@ -263,6 +238,7 @@
 					  <child>
 					    <widget class="GtkEventBox" id="eventbox_gps">
 					      <property name="visible">True</property>
+					      <property name="tooltip" translatable="yes">GPS status</property>
 					      <property name="visible_window">True</property>
 					      <property name="above_child">False</property>
 
@@ -350,8 +326,17 @@
 				      <property name="right_padding">0</property>
 
 				      <child>
-					<widget class="GtkDrawingArea" id="drawingarea_agl">
+					<widget class="GtkEventBox" id="eventbox14">
 					  <property name="visible">True</property>
+					  <property name="tooltip" translatable="yes">Above Ground Level (m), climb indicator, vertical speed (m/s)</property>
+					  <property name="visible_window">True</property>
+					  <property name="above_child">False</property>
+
+					  <child>
+					    <widget class="GtkDrawingArea" id="drawingarea_agl">
+					      <property name="visible">True</property>
+					    </widget>
+					  </child>
 					</widget>
 				      </child>
 				    </widget>
@@ -412,6 +397,7 @@
 				      <child>
 					<widget class="GtkEventBox" id="eventbox_telemetry">
 					  <property name="visible">True</property>
+					  <property name="tooltip" translatable="yes">Telemetry status: seconds since the last battery level message</property>
 					  <property name="visible_window">True</property>
 					  <property name="above_child">False</property>
 
@@ -492,22 +478,31 @@
 				      <property name="right_padding">0</property>
 
 				      <child>
-					<widget class="GtkLabel" id="label_diff_target_alt">
+					<widget class="GtkEventBox" id="eventbox9">
 					  <property name="visible">True</property>
-					  <property name="label" translatable="yes">&lt;b&gt;-30m&lt;/b&gt;</property>
-					  <property name="use_underline">False</property>
-					  <property name="use_markup">True</property>
-					  <property name="justify">GTK_JUSTIFY_LEFT</property>
-					  <property name="wrap">False</property>
-					  <property name="selectable">False</property>
-					  <property name="xalign">0.5</property>
-					  <property name="yalign">0.5</property>
-					  <property name="xpad">0</property>
-					  <property name="ypad">0</property>
-					  <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-					  <property name="width_chars">-1</property>
-					  <property name="single_line_mode">False</property>
-					  <property name="angle">0</property>
+					  <property name="tooltip" translatable="yes">Current altitude minus target altitude</property>
+					  <property name="visible_window">True</property>
+					  <property name="above_child">False</property>
+
+					  <child>
+					    <widget class="GtkLabel" id="label_diff_target_alt">
+					      <property name="visible">True</property>
+					      <property name="label" translatable="yes">&lt;b&gt;-30m&lt;/b&gt;</property>
+					      <property name="use_underline">False</property>
+					      <property name="use_markup">True</property>
+					      <property name="justify">GTK_JUSTIFY_LEFT</property>
+					      <property name="wrap">False</property>
+					      <property name="selectable">False</property>
+					      <property name="xalign">0.5</property>
+					      <property name="yalign">0.5</property>
+					      <property name="xpad">0</property>
+					      <property name="ypad">0</property>
+					      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+					      <property name="width_chars">-1</property>
+					      <property name="single_line_mode">False</property>
+					      <property name="angle">0</property>
+					    </widget>
+					  </child>
 					</widget>
 				      </child>
 				    </widget>
@@ -572,22 +567,31 @@
 					  <property name="spacing">0</property>
 
 					  <child>
-					    <widget class="GtkLabel" id="label_altitude">
+					    <widget class="GtkEventBox" id="eventbox7">
 					      <property name="visible">True</property>
-					      <property name="label" translatable="yes">&lt;b&gt;185m&lt;/b&gt;</property>
-					      <property name="use_underline">False</property>
-					      <property name="use_markup">True</property>
-					      <property name="justify">GTK_JUSTIFY_LEFT</property>
-					      <property name="wrap">False</property>
-					      <property name="selectable">False</property>
-					      <property name="xalign">0.5</property>
-					      <property name="yalign">0.5</property>
-					      <property name="xpad">0</property>
-					      <property name="ypad">0</property>
-					      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-					      <property name="width_chars">-1</property>
-					      <property name="single_line_mode">False</property>
-					      <property name="angle">0</property>
+					      <property name="tooltip" translatable="yes">Current altitude</property>
+					      <property name="visible_window">True</property>
+					      <property name="above_child">False</property>
+
+					      <child>
+						<widget class="GtkLabel" id="label_altitude">
+						  <property name="visible">True</property>
+						  <property name="label" translatable="yes">&lt;b&gt;185m&lt;/b&gt;</property>
+						  <property name="use_underline">False</property>
+						  <property name="use_markup">True</property>
+						  <property name="justify">GTK_JUSTIFY_LEFT</property>
+						  <property name="wrap">False</property>
+						  <property name="selectable">False</property>
+						  <property name="xalign">0.5</property>
+						  <property name="yalign">0.5</property>
+						  <property name="xpad">0</property>
+						  <property name="ypad">0</property>
+						  <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+						  <property name="width_chars">-1</property>
+						  <property name="single_line_mode">False</property>
+						  <property name="angle">0</property>
+						</widget>
+					      </child>
 					    </widget>
 					    <packing>
 					      <property name="padding">0</property>
@@ -622,22 +626,31 @@
 					  </child>
 
 					  <child>
-					    <widget class="GtkLabel" id="label_target_altitude">
+					    <widget class="GtkEventBox" id="eventbox8">
 					      <property name="visible">True</property>
-					      <property name="label" translatable="yes">&lt;b&gt;215m&lt;/b&gt;</property>
-					      <property name="use_underline">False</property>
-					      <property name="use_markup">True</property>
-					      <property name="justify">GTK_JUSTIFY_LEFT</property>
-					      <property name="wrap">False</property>
-					      <property name="selectable">False</property>
-					      <property name="xalign">0.5</property>
-					      <property name="yalign">0.5</property>
-					      <property name="xpad">0</property>
-					      <property name="ypad">0</property>
-					      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-					      <property name="width_chars">-1</property>
-					      <property name="single_line_mode">False</property>
-					      <property name="angle">0</property>
+					      <property name="tooltip" translatable="yes">Target altitude</property>
+					      <property name="visible_window">True</property>
+					      <property name="above_child">False</property>
+
+					      <child>
+						<widget class="GtkLabel" id="label_target_altitude">
+						  <property name="visible">True</property>
+						  <property name="label" translatable="yes">&lt;b&gt;215m&lt;/b&gt;</property>
+						  <property name="use_underline">False</property>
+						  <property name="use_markup">True</property>
+						  <property name="justify">GTK_JUSTIFY_LEFT</property>
+						  <property name="wrap">False</property>
+						  <property name="selectable">False</property>
+						  <property name="xalign">0.5</property>
+						  <property name="yalign">0.5</property>
+						  <property name="xpad">0</property>
+						  <property name="ypad">0</property>
+						  <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+						  <property name="width_chars">-1</property>
+						  <property name="single_line_mode">False</property>
+						  <property name="angle">0</property>
+						</widget>
+					      </child>
 					    </widget>
 					    <packing>
 					      <property name="padding">0</property>
@@ -712,62 +725,6 @@
 					  <property name="column_spacing">0</property>
 
 					  <child>
-					    <widget class="GtkLabel" id="label16">
-					      <property name="visible">True</property>
-					      <property name="label" translatable="yes">&lt;i&gt;ETA&lt;/i&gt;</property>
-					      <property name="use_underline">False</property>
-					      <property name="use_markup">True</property>
-					      <property name="justify">GTK_JUSTIFY_RIGHT</property>
-					      <property name="wrap">False</property>
-					      <property name="selectable">False</property>
-					      <property name="xalign">0</property>
-					      <property name="yalign">0.5</property>
-					      <property name="xpad">0</property>
-					      <property name="ypad">0</property>
-					      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-					      <property name="width_chars">-1</property>
-					      <property name="single_line_mode">False</property>
-					      <property name="angle">0</property>
-					    </widget>
-					    <packing>
-					      <property name="left_attach">0</property>
-					      <property name="right_attach">1</property>
-					      <property name="top_attach">2</property>
-					      <property name="bottom_attach">3</property>
-					      <property name="x_options">fill</property>
-					      <property name="y_options"></property>
-					    </packing>
-					  </child>
-
-					  <child>
-					    <widget class="GtkLabel" id="label_eta_time">
-					      <property name="visible">True</property>
-					      <property name="label" translatable="yes">&lt;i&gt;N/A&lt;/i&gt;</property>
-					      <property name="use_underline">False</property>
-					      <property name="use_markup">True</property>
-					      <property name="justify">GTK_JUSTIFY_LEFT</property>
-					      <property name="wrap">False</property>
-					      <property name="selectable">False</property>
-					      <property name="xalign">0</property>
-					      <property name="yalign">0.5</property>
-					      <property name="xpad">0</property>
-					      <property name="ypad">0</property>
-					      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-					      <property name="width_chars">-1</property>
-					      <property name="single_line_mode">False</property>
-					      <property name="angle">0</property>
-					    </widget>
-					    <packing>
-					      <property name="left_attach">1</property>
-					      <property name="right_attach">2</property>
-					      <property name="top_attach">2</property>
-					      <property name="bottom_attach">3</property>
-					      <property name="x_options">fill</property>
-					      <property name="y_options"></property>
-					    </packing>
-					  </child>
-
-					  <child>
 					    <widget class="GtkLabel" id="label_stage_name">
 					      <property name="visible">True</property>
 					      <property name="label" translatable="yes">&lt;i&gt;Stage &lt;/i&gt;</property>
@@ -788,34 +745,6 @@
 					    <packing>
 					      <property name="left_attach">0</property>
 					      <property name="right_attach">1</property>
-					      <property name="top_attach">1</property>
-					      <property name="bottom_attach">2</property>
-					      <property name="x_options">fill</property>
-					      <property name="y_options"></property>
-					    </packing>
-					  </child>
-
-					  <child>
-					    <widget class="GtkLabel" id="label_stage_time">
-					      <property name="visible">True</property>
-					      <property name="label" translatable="yes">&lt;b&gt;1:10&lt;/b&gt;</property>
-					      <property name="use_underline">False</property>
-					      <property name="use_markup">True</property>
-					      <property name="justify">GTK_JUSTIFY_LEFT</property>
-					      <property name="wrap">False</property>
-					      <property name="selectable">False</property>
-					      <property name="xalign">0</property>
-					      <property name="yalign">0.5</property>
-					      <property name="xpad">0</property>
-					      <property name="ypad">0</property>
-					      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-					      <property name="width_chars">-1</property>
-					      <property name="single_line_mode">False</property>
-					      <property name="angle">0</property>
-					    </widget>
-					    <packing>
-					      <property name="left_attach">1</property>
-					      <property name="right_attach">2</property>
 					      <property name="top_attach">1</property>
 					      <property name="bottom_attach">2</property>
 					      <property name="x_options">fill</property>
@@ -852,28 +781,148 @@
 					  </child>
 
 					  <child>
-					    <widget class="GtkLabel" id="label_block_time">
+					    <widget class="GtkEventBox" id="eventbox6">
 					      <property name="visible">True</property>
-					      <property name="label" translatable="yes">&lt;b&gt;2:20&lt;/b&gt;</property>
-					      <property name="use_underline">False</property>
-					      <property name="use_markup">True</property>
-					      <property name="justify">GTK_JUSTIFY_CENTER</property>
-					      <property name="wrap">False</property>
-					      <property name="selectable">False</property>
-					      <property name="xalign">0</property>
-					      <property name="yalign">0.5</property>
-					      <property name="xpad">0</property>
-					      <property name="ypad">0</property>
-					      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-					      <property name="width_chars">-1</property>
-					      <property name="single_line_mode">False</property>
-					      <property name="angle">0</property>
+					      <property name="tooltip" translatable="yes">Estimated Time of Arrival: seconds to the next waypoint</property>
+					      <property name="visible_window">True</property>
+					      <property name="above_child">False</property>
+
+					      <child>
+						<widget class="GtkLabel" id="label16">
+						  <property name="visible">True</property>
+						  <property name="label" translatable="yes">&lt;i&gt;ETA&lt;/i&gt;</property>
+						  <property name="use_underline">False</property>
+						  <property name="use_markup">True</property>
+						  <property name="justify">GTK_JUSTIFY_RIGHT</property>
+						  <property name="wrap">False</property>
+						  <property name="selectable">False</property>
+						  <property name="xalign">0</property>
+						  <property name="yalign">0.5</property>
+						  <property name="xpad">0</property>
+						  <property name="ypad">0</property>
+						  <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+						  <property name="width_chars">-1</property>
+						  <property name="single_line_mode">False</property>
+						  <property name="angle">0</property>
+						</widget>
+					      </child>
+					    </widget>
+					    <packing>
+					      <property name="left_attach">0</property>
+					      <property name="right_attach">1</property>
+					      <property name="top_attach">2</property>
+					      <property name="bottom_attach">3</property>
+					      <property name="x_options">fill</property>
+					      <property name="y_options"></property>
+					    </packing>
+					  </child>
+
+					  <child>
+					    <widget class="GtkEventBox" id="eventbox10">
+					      <property name="visible">True</property>
+					      <property name="tooltip" translatable="yes">Block time</property>
+					      <property name="visible_window">True</property>
+					      <property name="above_child">False</property>
+
+					      <child>
+						<widget class="GtkLabel" id="label_block_time">
+						  <property name="visible">True</property>
+						  <property name="label" translatable="yes">&lt;b&gt;2:20&lt;/b&gt;</property>
+						  <property name="use_underline">False</property>
+						  <property name="use_markup">True</property>
+						  <property name="justify">GTK_JUSTIFY_CENTER</property>
+						  <property name="wrap">False</property>
+						  <property name="selectable">False</property>
+						  <property name="xalign">0</property>
+						  <property name="yalign">0.5</property>
+						  <property name="xpad">0</property>
+						  <property name="ypad">0</property>
+						  <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+						  <property name="width_chars">-1</property>
+						  <property name="single_line_mode">False</property>
+						  <property name="angle">0</property>
+						</widget>
+					      </child>
 					    </widget>
 					    <packing>
 					      <property name="left_attach">1</property>
 					      <property name="right_attach">2</property>
 					      <property name="top_attach">0</property>
 					      <property name="bottom_attach">1</property>
+					      <property name="x_options">fill</property>
+					      <property name="y_options"></property>
+					    </packing>
+					  </child>
+
+					  <child>
+					    <widget class="GtkEventBox" id="eventbox11">
+					      <property name="visible">True</property>
+					      <property name="tooltip" translatable="yes">Stage time</property>
+					      <property name="visible_window">True</property>
+					      <property name="above_child">False</property>
+
+					      <child>
+						<widget class="GtkLabel" id="label_stage_time">
+						  <property name="visible">True</property>
+						  <property name="label" translatable="yes">&lt;b&gt;1:10&lt;/b&gt;</property>
+						  <property name="use_underline">False</property>
+						  <property name="use_markup">True</property>
+						  <property name="justify">GTK_JUSTIFY_LEFT</property>
+						  <property name="wrap">False</property>
+						  <property name="selectable">False</property>
+						  <property name="xalign">0</property>
+						  <property name="yalign">0.5</property>
+						  <property name="xpad">0</property>
+						  <property name="ypad">0</property>
+						  <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+						  <property name="width_chars">-1</property>
+						  <property name="single_line_mode">False</property>
+						  <property name="angle">0</property>
+						</widget>
+					      </child>
+					    </widget>
+					    <packing>
+					      <property name="left_attach">1</property>
+					      <property name="right_attach">2</property>
+					      <property name="top_attach">1</property>
+					      <property name="bottom_attach">2</property>
+					      <property name="x_options">fill</property>
+					      <property name="y_options"></property>
+					    </packing>
+					  </child>
+
+					  <child>
+					    <widget class="GtkEventBox" id="eventbox12">
+					      <property name="visible">True</property>
+					      <property name="tooltip" translatable="yes">Estimated Time of Arrival: seconds to the next waypoint</property>
+					      <property name="visible_window">True</property>
+					      <property name="above_child">False</property>
+
+					      <child>
+						<widget class="GtkLabel" id="label_eta_time">
+						  <property name="visible">True</property>
+						  <property name="label" translatable="yes">&lt;i&gt;N/A&lt;/i&gt;</property>
+						  <property name="use_underline">False</property>
+						  <property name="use_markup">True</property>
+						  <property name="justify">GTK_JUSTIFY_RIGHT</property>
+						  <property name="wrap">False</property>
+						  <property name="selectable">False</property>
+						  <property name="xalign">0</property>
+						  <property name="yalign">0.5</property>
+						  <property name="xpad">0</property>
+						  <property name="ypad">0</property>
+						  <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+						  <property name="width_chars">-1</property>
+						  <property name="single_line_mode">False</property>
+						  <property name="angle">0</property>
+						</widget>
+					      </child>
+					    </widget>
+					    <packing>
+					      <property name="left_attach">1</property>
+					      <property name="right_attach">2</property>
+					      <property name="top_attach">2</property>
+					      <property name="bottom_attach">3</property>
 					      <property name="x_options">fill</property>
 					      <property name="y_options"></property>
 					    </packing>
@@ -917,37 +966,9 @@
 			      </child>
 
 			      <child>
-				<widget class="GtkLabel" id="label_block_name">
-				  <property name="width_request">85</property>
-				  <property name="visible">True</property>
-				  <property name="label" translatable="yes">&lt;i&gt;N/A&lt;/i&gt;</property>
-				  <property name="use_underline">False</property>
-				  <property name="use_markup">True</property>
-				  <property name="justify">GTK_JUSTIFY_LEFT</property>
-				  <property name="wrap">False</property>
-				  <property name="selectable">False</property>
-				  <property name="xalign">0</property>
-				  <property name="yalign">0.5</property>
-				  <property name="xpad">0</property>
-				  <property name="ypad">0</property>
-				  <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-				  <property name="width_chars">-1</property>
-				  <property name="single_line_mode">False</property>
-				  <property name="angle">0</property>
-				</widget>
-				<packing>
-				  <property name="left_attach">3</property>
-				  <property name="right_attach">4</property>
-				  <property name="top_attach">0</property>
-				  <property name="bottom_attach">1</property>
-				  <property name="x_options">fill</property>
-				  <property name="y_options"></property>
-				</packing>
-			      </child>
-
-			      <child>
 				<widget class="GtkEventBox" id="eventbox_flight_time">
 				  <property name="visible">True</property>
+				  <property name="tooltip" translatable="yes">Flight time. Click to reset</property>
 				  <property name="visible_window">True</property>
 				  <property name="above_child">False</property>
 
@@ -974,6 +995,92 @@
 				<packing>
 				  <property name="left_attach">0</property>
 				  <property name="right_attach">1</property>
+				  <property name="top_attach">0</property>
+				  <property name="bottom_attach">1</property>
+				  <property name="x_options">fill</property>
+				  <property name="y_options"></property>
+				</packing>
+			      </child>
+
+			      <child>
+				<widget class="GtkEventBox" id="eventbox5">
+				  <property name="visible">True</property>
+				  <property name="tooltip" translatable="yes">Throttle</property>
+				  <property name="visible_window">True</property>
+				  <property name="above_child">False</property>
+
+				  <child>
+				    <widget class="GtkDrawingArea" id="drawingarea_throttle">
+				      <property name="visible">True</property>
+				    </widget>
+				  </child>
+				</widget>
+				<packing>
+				  <property name="left_attach">2</property>
+				  <property name="right_attach">3</property>
+				  <property name="top_attach">0</property>
+				  <property name="bottom_attach">1</property>
+				  <property name="x_padding">2</property>
+				  <property name="x_options">fill</property>
+				  <property name="y_options">fill</property>
+				</packing>
+			      </child>
+
+			      <child>
+				<widget class="GtkEventBox" id="eventbox_speed">
+				  <property name="visible">True</property>
+				  <property name="tooltip" translatable="yes">Ground speed</property>
+				  <property name="visible_window">True</property>
+				  <property name="above_child">False</property>
+
+				  <child>
+				    <widget class="GtkDrawingArea" id="drawingarea_speed">
+				      <property name="visible">True</property>
+				    </widget>
+				  </child>
+				</widget>
+				<packing>
+				  <property name="left_attach">1</property>
+				  <property name="right_attach">2</property>
+				  <property name="top_attach">0</property>
+				  <property name="bottom_attach">1</property>
+				  <property name="x_padding">2</property>
+				  <property name="x_options">fill</property>
+				  <property name="y_options">fill</property>
+				</packing>
+			      </child>
+
+			      <child>
+				<widget class="GtkEventBox" id="eventbox13">
+				  <property name="visible">True</property>
+				  <property name="tooltip" translatable="yes">Current navigation block</property>
+				  <property name="visible_window">True</property>
+				  <property name="above_child">False</property>
+
+				  <child>
+				    <widget class="GtkLabel" id="label_block_name">
+				      <property name="width_request">85</property>
+				      <property name="visible">True</property>
+				      <property name="label" translatable="yes">&lt;i&gt;N/A&lt;/i&gt;</property>
+				      <property name="use_underline">False</property>
+				      <property name="use_markup">True</property>
+				      <property name="justify">GTK_JUSTIFY_LEFT</property>
+				      <property name="wrap">False</property>
+				      <property name="selectable">False</property>
+				      <property name="xalign">0</property>
+				      <property name="yalign">0.5</property>
+				      <property name="xpad">0</property>
+				      <property name="ypad">0</property>
+				      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+				      <property name="width_chars">-1</property>
+				      <property name="single_line_mode">False</property>
+				      <property name="angle">0</property>
+				    </widget>
+				  </child>
+				</widget>
+				<packing>
+				  <property name="left_attach">3</property>
+				  <property name="right_attach">4</property>
 				  <property name="top_attach">0</property>
 				  <property name="bottom_attach">1</property>
 				  <property name="x_options">fill</property>

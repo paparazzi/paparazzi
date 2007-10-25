@@ -10,6 +10,7 @@ type t = <
     set_bat : float -> unit;
     set_throttle : float -> unit;
     set_speed : float -> unit;
+    set_airspeed : float -> unit;
     set_climb : float -> unit;
     set_color : string -> string -> unit;
     set_label : string -> string -> unit;

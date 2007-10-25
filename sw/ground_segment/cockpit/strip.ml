@@ -24,6 +24,8 @@
  *
  *)
 
+open Printf
+
 let (//) = Filename.concat
 
 type t =
@@ -38,6 +40,7 @@ type t =
       set_bat : float -> unit;
       set_throttle : float -> unit;
       set_speed : float -> unit;
+      set_airspeed : float -> unit;
       set_climb : float -> unit;
       set_color : string -> string -> unit;
       set_label : string -> string -> unit;
@@ -60,12 +63,12 @@ let strips_table = GPack.vbox ~spacing:5 ~packing:scrolled#add_with_viewport ()
 let set_label labels name value = 
   try
     let _eb, l = List.assoc (name^"_value") labels in
-    let value = Printf.sprintf "<b>%s</b>" value in
+    let value = sprintf "<b>%s</b>" value in
     if l#text <> value then
       l#set_label value
   with
     Not_found ->
-      Printf.fprintf stderr "Strip.set_label: '%s' unknown\n%!" name
+      fprintf stderr "Strip.set_label: '%s' unknown\n%!" name
 
 (** set a color *)
 let set_color labels name color = 
@@ -184,7 +187,7 @@ let add = fun config color center_ac mark ->
   strips_table#pack strip#toplevel#coerce;
 
   (* Name in top left *)
-  strip#label_ac_name#set_label (Printf.sprintf "<b>%s</b>" ac_name);
+  strip#label_ac_name#set_label (sprintf "<b>%s</b>" ac_name);
 
   (* Color *)
   let plane_color = strip#eventbox_strip in
@@ -244,10 +247,16 @@ let add = fun config color center_ac mark ->
     method set_climb = fun v -> climb <- v
     method set_agl value = 
       let arrow = max (min 0.5 (climb /. 5.)) (-0.5) in
-      agl#set ~arrow value [0.2, (Printf.sprintf "%3.0f" value); 0.8, Printf.sprintf "%+.1f" climb]
+      agl#set ~arrow value [0.2, (sprintf "%3.0f" value); 0.8, sprintf "%+.1f" climb]
     method set_bat value = bat#set value [0.5, (string_of_float value)]
-    method set_throttle value = throttle#set value (Printf.sprintf "%.0f%%" value)
-    method set_speed value = speed#set value (Printf.sprintf "%.1fm/s" value)
+    method set_throttle value = throttle#set value (sprintf "%.0f%%" value)
+    method set_speed value = speed#set value (sprintf "%.1fm/s" value)
+
+    method set_airspeed value =
+      let text = sprintf "Ground speed (est. airspeed: %.1fm/s)" value in
+      let tooltips = GData.tooltips () in
+      tooltips#set_tip strip#eventbox_speed#coerce ~text
+
     method set_label name value = set_label !strip_labels name value
     method set_color name value = set_color !strip_labels name value
     method add_widget w = strip#hbox_user#pack ~fill:false w
@@ -266,7 +275,7 @@ let add = fun config color center_ac mark ->
     method connect_kill = fun callback ->
       let callback = fun x ->
 	if x = 1. then
-	  match GToolbox.question_box ~title:"Kill throttle" ~buttons:["Kill"; "Cancel"] (Printf.sprintf "Kill throttle of A/C %s ?" ac_name) with
+	  match GToolbox.question_box ~title:"Kill throttle" ~buttons:["Kill"; "Cancel"] (sprintf "Kill throttle of A/C %s ?" ac_name) with
 	    1 -> callback 1.
 	  | _ -> ()
 	else (* No confirmation for resurrect *)
@@ -282,7 +291,7 @@ let add = fun config color center_ac mark ->
 
     method connect_mode = fun callback ->
       let callback = fun _ -> (* Back in AUTO2 *)
-	match GToolbox.question_box ~title:"Back to auto" ~buttons:["AUTO"; "Cancel"] (Printf.sprintf "Restore AUTO mode for A/C %s ?" ac_name) with
+	match GToolbox.question_box ~title:"Back to auto" ~buttons:["AUTO"; "Cancel"] (sprintf "Restore AUTO mode for A/C %s ?" ac_name) with
 	  1 -> callback 2.; true
 	| _ -> true in
       ignore(strip#eventbox_mode#event#connect#button_press ~callback)
@@ -290,7 +299,7 @@ let add = fun config color center_ac mark ->
     (* Reset the flight time *)
     method connect_flight_time = fun callback ->
       let callback = fun _ -> (* Reset flight time *)
-	match GToolbox.question_box ~title:"Reset flight time" ~buttons:["Reset"; "Cancel"] (Printf.sprintf "Reset flight time for A/C %s ?" ac_name) with
+	match GToolbox.question_box ~title:"Reset flight time" ~buttons:["Reset"; "Cancel"] (sprintf "Reset flight time for A/C %s ?" ac_name) with
 	  1 -> callback 0.; true
 	| _ -> true in
       ignore(strip#eventbox_flight_time#event#connect#button_press ~callback)

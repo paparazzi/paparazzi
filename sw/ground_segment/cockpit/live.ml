@@ -598,7 +598,9 @@ let one_new_ac = fun alert (geomap:G.widget) fp_notebook ac ->
 let get_wind_msg = fun (geomap:G.widget) _sender vs ->
   let ac = get_ac vs in
   let value = fun field_name -> Pprz.float_assoc field_name vs in
-  ac.misc_page#set_mean_aspeed (sprintf "%.1f" (value "mean_aspeed"));
+  let airspeed = value "mean_aspeed" in
+  ac.strip#set_airspeed airspeed;
+  ac.misc_page#set_mean_aspeed (sprintf "%.1f" airspeed);
   ac.wind_speed <- value "wspeed";
   let deg_dir = value "dir" in
   ac.wind_dir <- (Deg>>Rad)deg_dir;
