@@ -5,7 +5,7 @@
 #include "std.h"
 #include "i2c.h"
 
-#define ChopServo(x,a,b) Chop(x, a, b)
+#define ChopServo(x,a,b) ((x)>(b)?(b):(x))
 #define Actuator(i) buss_twi_blmc_motor_power[i]
 #define ActuatorsCommit() {			                \
     if ( buss_twi_blmc_status == BUSS_TWI_BLMC_STATUS_IDLE) {	\

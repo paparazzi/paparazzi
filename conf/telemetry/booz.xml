@@ -24,14 +24,14 @@
 
   <process name="Filter">
     <mode name="default">
-      <message name="IMU_GYRO"              period=".004"/>
-      <message name="IMU_GYRO_LP"           period=".004"/>
+      <message name="IMU_GYRO"              period=".017"/>
+      <message name="IMU_GYRO_LP"           period=".017"/>
     </mode>
     <mode name="raw_sensors">
-      <message name="IMU_GYRO_RAW"          period=".01"/>
+      <message name="IMU_GYRO_RAW"          period=".017"/>
     </mode>
     <mode name="scaled_sensors">
-      <message name="IMU_GYRO"              period=".004"/>
+      <message name="IMU_GYRO"              period=".017"/>
     </mode>
   </process>
 

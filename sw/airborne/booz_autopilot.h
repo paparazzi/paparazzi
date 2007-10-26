@@ -12,7 +12,7 @@ extern uint8_t booz_autopilot_mode;
 
 extern void booz_autopilot_init(void);
 extern void booz_autopilot_periodic_task(void);
-extern void booz_autopilot_event_task(void);
+extern void booz_autopilot_on_rc_event(void);
 
 #define TRESHOLD_RATE_PPRZ (MIN_PPRZ / 2)
 #define TRESHOLD_ATTITUDE_PPRZ  (MAX_PPRZ/2)

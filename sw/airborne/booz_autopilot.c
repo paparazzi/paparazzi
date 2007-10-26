@@ -1,5 +1,6 @@
 #include "booz_autopilot.h"
 
+#include "radio_control.h"
 #include "commands.h"
 #include "booz_control.h"
 
@@ -32,8 +33,10 @@ void booz_autopilot_periodic_task(void) {
 }
 
 
-void booz_autopilot_event_task(void) {
-
+void booz_autopilot_on_rc_event(void) {
+  if (rc_values_contains_avg_channels) {
+    booz_autopilot_mode = BOOZ_AP_MODE_OF_PPRZ(rc_values[RADIO_MODE]);
+  }
   switch (booz_autopilot_mode) {
   case BOOZ_AP_MODE_RATE:
     booz_control_rate_compute_setpoints();

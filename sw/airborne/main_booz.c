@@ -123,13 +123,6 @@ STATIC_INLINE void booz_main_event_task( void ) {
   LinkImuEventCheckAndHandle();
 #endif
 
-  if (ppm_valid) {
-    ppm_valid = FALSE;
-    radio_control_event_task();
-    if (rc_values_contains_avg_channels) {
-      booz_autopilot_mode = BOOZ_AP_MODE_OF_PPRZ(rc_values[RADIO_MODE]);
-    }
-    booz_autopilot_event_task();
-  }
-
+  RadioControlEventCheckAndHandle(booz_autopilot_on_rc_event);
+ 
 }

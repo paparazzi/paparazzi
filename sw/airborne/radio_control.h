@@ -27,6 +27,16 @@
 
 #if defined RADIO_CONTROL
 
+#define RadioControlEventCheckAndHandle(_user_callback) { \
+    if (ppm_valid) {					  \
+      ppm_valid = FALSE;				  \
+      radio_control_event_task();			  \
+      _user_callback();					  \
+    }							  \
+  }
+
+
+
 #include "led.h"
 #include "sys_time.h"
 #include "ppm.h"
