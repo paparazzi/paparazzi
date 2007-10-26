@@ -162,14 +162,17 @@ dist_clean : clean
 
 
 test_all_example_airframes:
-	$(MAKE) AIRCRAFT=TJ1     clean_ac fbw ap sim
-	$(MAKE) AIRCRAFT=MJ4     clean_ac ap
-	$(MAKE) AIRCRAFT=MJ5     clean_ac ap sim
-	$(MAKE) AIRCRAFT=Slayer  clean_ac ap
-	$(MAKE) AIRCRAFT=Plaster clean_ac sim ac	
-	$(MAKE) AIRCRAFT=Twin4   clean_ac ac
-	$(MAKE) AIRCRAFT=Tux     clean_ac ac
-	$(MAKE) AIRCRAFT=Twin1   clean_ac sim ac
-	$(MAKE) AIRCRAFT=Twin2   clean_ac sim
-	$(MAKE) AIRCRAFT=MJ1     clean_ac ac
-	$(MAKE) AIRCRAFT=G91     clean_ac ap
+	$(MAKE) AIRCRAFT=MI1 clean_ac ap sim
+	$(MAKE) AIRCRAFT=MI2 clean_ac ap sim
+	$(MAKE) AIRCRAFT=MI3 clean_ac ap sim
+	$(MAKE) AIRCRAFT=FS  clean_ac ap sim
+	$(MAKE) AIRCRAFT=FJ1 clean_ac ap sim
+	$(MAKE) AIRCRAFT=MJ6 clean_ac ap sim
+	$(MAKE) AIRCRAFT=MM1 clean_ac ap sim
+	$(MAKE) AIRCRAFT=S2  clean_ac ap sim
+	$(MAKE) AIRCRAFT=TINY2 clean_ac ap
+	$(MAKE) AIRCRAFT=TJ1 clean_ac fbw ap sim
+	$(MAKE) AIRCRAFT=TS6 clean_ac fbw ap sim
+
+
+
