@@ -6,7 +6,6 @@
   <dl_settings>
     <dl_settings NAME="flight params">
       <dl_setting MAX="1000" MIN="0" STEP="10" VAR="flight_altitude" shortname="altitude"/>
-      <dl_setting MAX="61" MIN="0" STEP="1" VAR="light_mode"/>
       <dl_setting MAX="10" MIN="-10" STEP="0.5" VAR="wind_east"/>
       <dl_setting MAX="10" MIN="-10" STEP="0.5" VAR="wind_north"/>
     </dl_settings>
@@ -48,6 +47,11 @@
         <dl_setting MAX="2" MIN="0." STEP="0.1" VAR="h_ctl_pitch_dgain" shortname="pitch_dgain"/>
         <dl_setting MAX="5000" MIN="0" STEP="100" VAR="h_ctl_elevator_of_roll" shortname="elevator_of_roll"/>
         <dl_setting MAX="5000" MIN="0" STEP="100" VAR="h_ctl_aileron_of_throttle" shortname="aileron_of_throttle"/>
+
+
+        <dl_setting MAX="0" MIN="-15000" STEP="250" VAR="h_ctl_roll_attitude_gain" shortname="roll attitude pgain"/>
+        <dl_setting MAX="0" MIN="-15000" STEP="250" VAR="h_ctl_roll_rate_gain" shortname="roll rate gain"/>
+
       </dl_settings>
 
       <dl_settings name="alt">
@@ -91,6 +95,13 @@
 	<dl_setting MAX="20" MIN="10" STEP="0.5" VAR="nav_ground_speed_setpoint" shortname="ground speed"/>
 	<dl_setting MAX="0." MIN="-0.05" STEP="0.01" VAR="nav_ground_speed_pgain" shortname="ground speed pgain"/>
         <dl_setting MAX="500" MIN="50" STEP="5" VAR="nav_survey_shift"/>
+
+
+      <dl_setting MAX="1" MIN="0" STEP="1" VAR="power_switch" module="autopilot" handler="SetPowerSwitch">
+        <strip_button name="Video On" value="1"/>
+        <strip_button name="Video Off" value="0"/>
+      </dl_setting>
+
       </dl_settings>
     </dl_settings>
   </dl_settings>
