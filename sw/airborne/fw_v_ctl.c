@@ -73,7 +73,9 @@ pprz_t v_ctl_throttle_setpoint;
 pprz_t v_ctl_throttle_slewed;
 
 inline static void v_ctl_climb_auto_throttle_loop( void );
+#ifdef V_CTL_AUTO_PITCH_PGAIN
 inline static void v_ctl_climb_auto_pitch_loop( void );
+#endif
 
 void v_ctl_init( void ) {
   /* mode */
@@ -104,10 +106,12 @@ void v_ctl_init( void ) {
   v_ctl_auto_throttle_pitch_of_vz_pgain = V_CTL_AUTO_THROTTLE_PITCH_OF_VZ_PGAIN; 
   v_ctl_auto_throttle_pitch_of_vz_dgain = V_CTL_AUTO_THROTTLE_PITCH_OF_VZ_DGAIN; 
 
+#ifdef V_CTL_AUTO_PITCH_PGAIN
   /* "auto pitch" inner loop parameters */
   v_ctl_auto_pitch_pgain = V_CTL_AUTO_PITCH_PGAIN;
   v_ctl_auto_pitch_igain = V_CTL_AUTO_PITCH_IGAIN;
   v_ctl_auto_pitch_sum_err = 0.;
+#endif
 
   v_ctl_throttle_setpoint = 0;
 }
@@ -143,9 +147,11 @@ void v_ctl_climb_loop ( void ) {
   case V_CTL_CLIMB_MODE_AUTO_THROTTLE:
     v_ctl_climb_auto_throttle_loop();
     break;
+#ifdef V_CTL_AUTO_PITCH_PGAIN
   case V_CTL_CLIMB_MODE_AUTO_PITCH:
     v_ctl_climb_auto_pitch_loop();
     break;
+#endif
   }
 }
 
@@ -216,6 +222,7 @@ inline static void v_ctl_climb_auto_throttle_loop(void) {
  * auto pitch inner loop
  * \brief computes a nav_pitch from a climb_setpoint given a fixed throttle
  */
+#ifdef V_CTL_AUTO_PITCH_PGAIN
 inline static void v_ctl_climb_auto_pitch_loop(void) {
   float err  = estimator_z_dot - v_ctl_climb_setpoint;
   v_ctl_throttle_setpoint = nav_throttle_setpoint;
@@ -225,6 +232,7 @@ inline static void v_ctl_climb_auto_pitch_loop(void) {
     (err + v_ctl_auto_pitch_igain * v_ctl_auto_pitch_sum_err);
   Bound(nav_pitch, V_CTL_AUTO_PITCH_MIN_PITCH, V_CTL_AUTO_PITCH_MAX_PITCH);
 }
+#endif
 
 #ifdef V_CTL_THROTTLE_SLEW_LIMITER
 #define V_CTL_THROTTLE_SLEW (1/20./(V_CTL_THROTTLE_SLEW_LIMITER))
