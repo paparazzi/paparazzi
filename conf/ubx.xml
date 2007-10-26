@@ -166,6 +166,12 @@
       <field name="scanmode" format="U4"/>
     </message>
 
+    <message name="CFG" ID="0x09" length="12">
+      <field name="Clear_mask" format="U4"/>
+      <field name="Save_mask" format="U4"/>
+      <field name="Load_mask" format="U4"/>
+    </message>
+
 
  </class>
 
