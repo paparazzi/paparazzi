@@ -193,6 +193,9 @@ void link_imu_event_task( void ) {
   if (link_imu_crc == link_imu_state.crc) {
     link_imu_timeout = 0;
     link_imu_status = link_imu_state.status;
+    booz_estimator_uf_p = link_imu_state.r_rates[AXIS_P] * M_PI/RATE_PI_S;
+    booz_estimator_uf_q = link_imu_state.r_rates[AXIS_Q] * M_PI/RATE_PI_S;
+    booz_estimator_uf_r = link_imu_state.r_rates[AXIS_R] * M_PI/RATE_PI_S;
     booz_estimator_p = link_imu_state.f_rates[AXIS_P] * M_PI/RATE_PI_S;
     booz_estimator_q = link_imu_state.f_rates[AXIS_Q] * M_PI/RATE_PI_S;
     booz_estimator_r = link_imu_state.f_rates[AXIS_R] * M_PI/RATE_PI_S;
