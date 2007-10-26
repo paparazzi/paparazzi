@@ -33,6 +33,7 @@ type world = float * float
 
 let zoom_factor = 1.5 (* Mouse wheel zoom action *)
 let pan_step = 50 (* Pan keys speed *)
+let pan_arrow_size = 40.
 
 let grid_color = "#29d3f8"
 let size_utm_grid = 10 (* half the horiz/vert size in km *)
@@ -152,7 +153,8 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
   let region_rectangle = GnoCanvas.rect canvas#root ~props:[`WIDTH_PIXELS 2; `OUTLINE_COLOR "red"] in
   let region_polygon = GnoCanvas.polygon canvas#root ~props:[`WIDTH_PIXELS 2; `OUTLINE_COLOR "red"] in
 
-  let s = 40. in
+  (* Pan arrows *)
+  let s = pan_arrow_size in
   let s2 = s/.2. and s4=s/.4. in
   let points = [|0.;0.; s2;s2; s4;s2; s4;s; -.s4;s; -.s4;s2; -.s2;s2|] in
   let props = [`FILL_COLOR "#a0a0ff"; `FILL_STIPPLE (Gdk.Bitmap.create_from_data ~width:2 ~height:2 "\002\001")] in
@@ -165,6 +167,10 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
   and west_arrow = arrow 0. (1.5*.s) (-.LL.pi/.2.)
   and east_arrow = arrow (3.*.s) (1.5*.s) (LL.pi/.2.) in
 
+  (* Biroute *)
+  let wind_sock = new Wind_sock.item 4. still in
+  let _ = wind_sock#item#affine_relative (affine_pos_and_angle 60. 60. 0.) in
+
   object (self)
    
 (** GUI attributes *)
@@ -173,6 +179,12 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
     method background = background
     method still = still
     method top_still = 3.5*.s
+
+    method wind_sock = wind_sock
+    method set_wind_sock = fun angle_deg string  ->
+      let angle_rad = (Deg>>Rad) (90. +. angle_deg) in
+      wind_sock#item#affine_absolute (affine_pos_and_angle 60. 60. angle_rad);
+      wind_sock#label#set [`TEXT string]
 	
     val adj = GData.adjustment 
 	~value:1. ~lower:0.005 ~upper:10. 
