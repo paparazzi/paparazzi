@@ -93,37 +93,62 @@ ifneq ($(MAKECMDGOALS),clean)
 -include .depend
 endif
 
+AB=../airborne
+AB_ARCH=$(AB)/sim
+
 CC = gcc
-CFLAGS=-g -O2 -Wall `pkg-config glib-2.0 --cflags` -I /usr/include/meschach -I../airborne -I../include -I../../var/BOOZ -I../../var/include -I../../conf/autopilot -I../airborne/sim
+CFLAGS= -g -Wall `pkg-config glib-2.0 --cflags` -I /usr/include/meschach -I$(AB) -I../include -I../../var/BOOZ -I../../var/include -I../../conf/autopilot -I$(AB_ARCH)
 LDFLAGS=`pkg-config glib-2.0 --libs` -lm -lmeschach
 
-BOOZ_SIM_SRCS = main_booz_sim.c booz_flight_model.c booz_flight_model_utils.c booz_flightgear.c
+
+BOOZ_SIM_SRCS = main_booz_sim.c           \
+	        booz_flight_model.c       \
+                booz_flight_model_utils.c \
+                booz_sensors_model.c      \
+                booz_flightgear.c         \
+                booz_joystick.c           \
+#		booz_fake_main_imu.c      \
+
 CFLAGS += -DSITL
 CFLAGS += -DCONTROLLER
 CFLAGS += -DCONFIG=\"conf_booz.h\"
+
+BOOZ_AB_SRCS += $(AB)/main_booz.c
+
+BOOZ_AB_SRCS += $(AB)/sys_time.c
+
 CFLAGS += -DRADIO_CONTROL 
-BOOZ_AB_SRCS += ../airborne/radio_control.c
-CFLAGS += -DACTUATORS=\"servos_nil.h\" 
-BOOZ_AB_SRCS += ../airborne/actuators.c
+BOOZ_AB_SRCS += $(AB)/radio_control.c \
+		$(AB_ARCH)/ppm_hw.c
+
+CFLAGS += -DACTUATORS=\"actuators_buss_twi_blmc_hw.h\" 
+BOOZ_AB_SRCS += $(AB)/actuators.c \
+                $(AB_ARCH)/actuators_buss_twi_blmc_hw.c \
+                $(AB)/i2c.c $(AB_ARCH)/i2c_hw.c
 
 CFLAGS += -DDOWNLINK 
-BOOZ_AB_SRCS += ../airborne/booz_telemetry.c ../airborne/downlink.c
+BOOZ_AB_SRCS += $(AB)/booz_telemetry.c \
+                $(AB)/downlink.c
 
 #CFLAGS += -DDOWNLINK_TRANSPORT=PprzTransport -DPPRZ_UART=SimUart -DDOWNLINK_DEVICE=SimUart -DSIM_UART
 #BOOZ_AB_SRCS += ../airborne/pprz_transport.c  ../airborne/sim/sim_uart.c 
 
 CFLAGS += -DDOWNLINK_TRANSPORT=IvyTransport
-BOOZ_AB_SRCS += ../airborne/sim/ivy_transport.c
+BOOZ_AB_SRCS += $(AB_ARCH)/ivy_transport.c
 LDFLAGS += -lglibivy
 
 #../airborne/link_imu.c 
 #CFLAGS += -DDATALINK=PPRZ
 #BOOZ_AB_SRCS += ../airborne/datalink.c
 
-BOOZ_AB_SRCS += ../airborne/booz_estimator.c
-BOOZ_AB_SRCS += ../airborne/booz_control.c
-BOOZ_AB_SRCS += ../airborne/booz_autopilot.c
-BOOZ_AB_SRCS += ../airborne/commands.c
+BOOZ_AB_SRCS += $(AB)/booz_estimator.c
+BOOZ_AB_SRCS += $(AB)/booz_control.c
+BOOZ_AB_SRCS += $(AB)/booz_autopilot.c
+BOOZ_AB_SRCS += $(AB)/commands.c
+
+CFLAGS += -DADC_CHANNEL_AX=1 -DADC_CHANNEL_AY=2 -DADC_CHANNEL_AZ=3 -DADC_CHANNEL_BAT=4
+BOOZ_AB_SRCS  += $(AB)/imu_v3.c $(AB_ARCH)/imu_v3_hw.c
+
 
 booz_sim: $(BOOZ_SIM_SRCS) $(BOOZ_AB_SRCS)
 	$(CC) $(CFLAGS) -g -o $@ $^ $(LDFLAGS)
