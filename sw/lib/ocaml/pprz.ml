@@ -367,7 +367,7 @@ module MessagesOfXml(Class:CLASS_Xml) = struct
       parse_class (ExtXml.child Class.xml ~select "class")
     with
       Not_found -> failwith (sprintf "Unknown message class: %s" Class.name)
-  let message_of_id = fun id -> Hashtbl.find messages_by_id id
+  let message_of_id = fun id -> try Hashtbl.find messages_by_id id with Not_found -> fprintf stderr "message_of_id :%d\n%!" id; raise Not_found
   let message_of_name = fun name ->
     try
       Hashtbl.find messages_by_name name
