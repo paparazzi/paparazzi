@@ -15,4 +15,4 @@ plot_test:
 
 
 clean:
-	rm *~ motor_bench
+	rm -f *~ motor_bench

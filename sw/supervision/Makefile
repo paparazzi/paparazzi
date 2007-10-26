@@ -33,7 +33,7 @@ paparazzicenter.cmo : gtk_pc.cmo gtk_process.cmo pc_common.cmo pc_control_panel.
 pc_control_panel.cmo pc_aircraft.cmo : pc_common.cmo
 
 clean:
-	\rm *.cm* gtk_pc.ml gtk_process.ml .depend paparazzicenter
+	\rm -f *.cm* gtk_pc.ml gtk_process.ml .depend paparazzicenter
 
 #
 # Dependencies
