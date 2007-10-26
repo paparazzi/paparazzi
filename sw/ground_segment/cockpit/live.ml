@@ -33,6 +33,9 @@ module Tele_Pprz = Pprz.Messages(struct let name = "telemetry" end)
 module Ground_Pprz = Pprz.Messages(struct let name = "ground" end)
 module Alert_Pprz = Pprz.Messages(struct let name = "alert" end)
 
+
+let (//) = Filename.concat
+
 let approaching_alert_time = 3.
 let track_size = ref 500
 
@@ -396,7 +399,8 @@ let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id
 	try (* Is it an icon ? *)
 	  let icon = Xml.attrib block "strip_icon" in
 	  let b = GButton.button () in
-	  ignore (GMisc.image ~stock:(`STOCK icon) ~packing:b#add ());
+	  let pixbuf = GdkPixbuf.from_file (Env.gcs_icons_path // icon) in
+	ignore (GMisc.image ~pixbuf ~packing:b#add ());
 
 	  (* Associates the label as a tooltip *)
 	  tooltips#set_tip b#coerce ~text:label;
@@ -605,7 +609,15 @@ let get_wind_msg = fun (geomap:G.widget) _sender vs ->
   let deg_dir = value "dir" in
   ac.wind_dir <- (Deg>>Rad)deg_dir;
   ac.misc_page#set_wind_speed (sprintf "%.1f" ac.wind_speed);
-  ac.misc_page#set_wind_dir (sprintf "%.1f" deg_dir)
+  ac.misc_page#set_wind_dir (sprintf "%.1f" deg_dir);
+
+  let ac_id = Pprz.string_assoc "ac_id" vs in
+  if !active_ac = ac_id && ac.wind_speed > 1. then begin
+    geomap#wind_sock#set_color ac.color;
+    geomap#wind_sock#item#show ();
+    geomap#set_wind_sock deg_dir (sprintf "%.1f" ac.wind_speed)
+  end
+
 
 let get_fbw_msg = fun _sender vs ->
   let ac = get_ac vs in
