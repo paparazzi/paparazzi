@@ -101,7 +101,7 @@ clean :
 # Dependencies
 #
 
-.depend:
+.depend: Makefile
 	ocamldep *.ml* > .depend
 
 ifneq ($(MAKECMDGOALS),clean) 
