@@ -310,7 +310,9 @@ let one_setting = fun i do_change packing s (tooltips:GData.tooltips) strip ->
 	tooltips#set_tip b#coerce ~text:label;
 	b
       with
-	Xml.No_attribute _ -> 
+	Xml.No_attribute "icon" -> GButton.button ~label ()
+      | exc -> 
+	  prerr_endline (Printexc.to_string exc);
 	  GButton.button ~label () in
     (strip b#coerce : unit);
     ignore (b#connect#clicked (fun _ -> do_change i sp_value)))
