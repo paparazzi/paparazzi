@@ -251,9 +251,6 @@ ap.srcs += spi.c $(SRC_ARCH)/spi_hw.c $(SRC_ARCH)/baro_MS5534A.c
 
 ap.srcs += nav_line.c
 
-ap.CFLAGS += -DSIMPLE_ROLL_CONTROL
-
-
 # Harware In The Loop
 
 #ap.CFLAGS += -DHITL
@@ -261,8 +258,7 @@ ap.CFLAGS += -DSIMPLE_ROLL_CONTROL
 
 # Config for SITL simulation
 include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
-sim.CFLAGS += -DCONFIG=\"tiny.h\" -DAGR_CLIMB -DLOITER_TRIM -DALT_KALMAN -DIR_360 -DUSE_BARO_MS5534A -DSIMPLE_ROLL_CONTROL
-# -DH_CTL_RATE_LOOP
+sim.CFLAGS += -DCONFIG=\"tiny.h\" -DAGR_CLIMB -DLOITER_TRIM -DALT_KALMAN -DIR_360 -DUSE_BARO_MS5534A
 sim.srcs += nav_survey_rectangle.c $(SRC_ARCH)/sim_baro.c bomb.c nav_line.c
 
   </makefile>

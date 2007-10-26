@@ -93,7 +93,7 @@
     <define name="CARROT" value="5." unit="s"/>
     <define name="KILL_MODE_DISTANCE" value="(1.5*MAX_DIST_FROM_HOME)"/>
     <define name="CONTROL_RATE" value="60" unit="Hz"/>
-    <define name="XBEE_INIT" value="\"ATPL2\rATRN1\rATTT80\r\""/>
+<!--    <define name="XBEE_INIT" value="\"ATPL2\rATRN1\rATTT80\r\""/> -->
 <!--    <define name="NO_XBEE_API_INIT" value="TRUE"/> -->
     <define name="ALT_KALMAN_ENABLED" value="TRUE"/>
 
@@ -113,8 +113,8 @@
     <define name="LED_5_BANK" value="0"/>
     <define name="LED_5_PIN" value="12"/>
 
-    <define name="LIGHT_PIN_1" value="4"/>
-    <define name="LIGHT_PIN_2" value="5"/>
+    <define name="LIGHT_LED_1" value="4"/>
+    <define name="LIGHT_LED_2" value="5"/>
   </section>
  
   <section name="VERTICAL CONTROL" prefix="V_CTL_">
@@ -153,8 +153,8 @@
     
     <define name="ROLL_SLEW" value="0.1"/>
 
-    <define name="SIMPLE_ROLL_PGAIN" value="-7500"/>
-    <define name="SIMPLE_ROLL_DGAIN" value="-1500"/>
+    <define name="ROLL_ATTITUDE_GAIN" value="-7500"/>
+    <define name="ROLL_RATE_GAIN" value="-1500"/>
   </section>
 
   <section name="NAV">
@@ -208,12 +208,12 @@ ap.srcs += $(SRC_ARCH)/servos_4015_MAT_hw.c actuators.c
 ap.CFLAGS += -DRADIO_CONTROL -DRADIO_CONTROL_TYPE=RC_FUTABA
 ap.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c  
 
-ap.CFLAGS += -DDOWNLINK -DUSE_UART0 -DDOWNLINK_TRANSPORT=XBeeTransport -DDOWNLINK_FBW_DEVICE=Uart0 -DDOWNLINK_AP_DEVICE=Uart0 -DXBEE_UART=Uart0 -DDATALINK=XBEE -DUART0_BAUD=B9600
+ap.CFLAGS += -DDOWNLINK -DUSE_UART0 -DDOWNLINK_TRANSPORT=XBeeTransport -DDOWNLINK_FBW_DEVICE=Uart0 -DDOWNLINK_AP_DEVICE=Uart0 -DXBEE_UART=Uart0 -DDATALINK=XBEE -DUART0_BAUD=B19200
 ap.srcs += downlink.c $(SRC_ARCH)/uart_hw.c datalink.c xbee.c
 
 # transparent 
-#ap.CFLAGS += -DDOWNLINK -DUSE_UART0 -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_FBW_DEVICE=Uart0 -DDOWNLINK_AP_DEVICE=Uart0 -DPPRZ_UART=Uart0 -DDATALINK=PPRZ -DUART0_BAUD=B9600
-#ap.srcs += downlink.c $(SRC_ARCH)/uart_hw.c datalink.c pprz_transport.c
+# ap.CFLAGS += -DDOWNLINK -DUSE_UART0 -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_FBW_DEVICE=Uart0 -DDOWNLINK_AP_DEVICE=Uart0 -DPPRZ_UART=Uart0 -DDATALINK=PPRZ -DUART0_BAUD=B19200
+# ap.srcs += downlink.c $(SRC_ARCH)/uart_hw.c datalink.c pprz_transport.c
 
 
 ap.CFLAGS += -DINTER_MCU
@@ -238,17 +238,20 @@ ap.srcs += gyro.c
 
 ap.srcs += nav_line.c nav_survey_rectangle.c
 
+ap.srcs += light.c
+ap.CFLAGS += -DUSE_LIGHT
+
 # PID sensor
 ap.CFLAGS += -DUSE_ADC_6 -DUSE_ADC_GENERIC -DADC_CHANNEL_GENERIC1=ADC_6 -DADC_CHANNEL_GENERIC_NB_SAMPLES=16
 ap.srcs += adc_generic.c
 
-ap.CFLAGS += -DSIMPLE_ROLL_CONTROL
-
 # Config for SITL simulation
 include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
 sim.CFLAGS += -DCONFIG=\"tiny.h\" -DAGR_CLIMB -DLOITER_TRIM -DALT_KALMAN -DIR_360
-sim.CFLAGS += -DSIMPLE_ROLL_CONTROL
-sim.srcs += nav_survey_rectangle.c $(SRC_ARCH)/sim_baro.c bomb.c nav_line.c
+sim.srcs += nav_survey_rectangle.c nav_line.c
+
+sim.srcs += light.c
+sim.CFLAGS += -DUSE_LIGHT
 
   </makefile>
 </airframe>

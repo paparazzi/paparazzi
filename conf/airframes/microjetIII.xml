@@ -5,8 +5,8 @@
 <!-- commands section -->
   <servos>
     <servo name="THROTTLE"      no="0" min="1290" neutral="1290" max="1810"/>
-    <servo name="AILEVON_LEFT"  no="1" min="2000" neutral="1500" max="1000"/>
-    <servo name="AILEVON_RIGHT" no="3" min="1000" neutral="1500" max="2000"/>
+    <servo name="AILEVON_LEFT"  no="1" min="2000" neutral="1505" max="1000"/>
+    <servo name="AILEVON_RIGHT" no="3" min="1000" neutral="1530" max="2000"/>
   </servos>
 
   <commands>
@@ -51,8 +51,8 @@
   </section>
 
   <section name="INFRARED" prefix="IR_">
-    <define name="ROLL_NEUTRAL_DEFAULT" value="5" unit="deg"/>
-    <define name="PITCH_NEUTRAL_DEFAULT" value="5" unit="deg"/>
+    <define name="ROLL_NEUTRAL_DEFAULT" value="-3.6" unit="deg"/>
+    <define name="PITCH_NEUTRAL_DEFAULT" value="3" unit="deg"/>
 
     <define name="RAD_OF_IR_CONTRAST" value="0.75"/>
 
@@ -140,16 +140,16 @@
     <define name="PITCH_MAX_SETPOINT" value="0.5" unit="radians"/>
     <define name="PITCH_MIN_SETPOINT" value="-0.5" unit="radians"/>
 
-    <define name="PITCH_PGAIN" value="-12500."/>
+    <define name="PITCH_PGAIN" value="-10000."/>
     <define name="PITCH_DGAIN" value="1.5"/>
 
     <define name="ELEVATOR_OF_ROLL" value="1250"/>
     
     <define name="ROLL_SLEW" value="0.1"/>
 
-    <define name="SIMPLE_ROLL_PGAIN" value="-7500"/>
-    <define name="SIMPLE_ROLL_DGAIN" value="-1500"/>
-  </section>
+    <define name="ROLL_ATTITUDE_GAIN" value="-7500"/>
+    <define name="ROLL_RATE_GAIN" value="-1500"/>
+   </section>
 
   <section name="NAV">
     <define name="NAV_PITCH" value="0."/>
@@ -202,7 +202,7 @@ ap.srcs += $(SRC_ARCH)/servos_4015_MAT_hw.c actuators.c
 ap.CFLAGS += -DRADIO_CONTROL -DRADIO_CONTROL_TYPE=RC_FUTABA
 ap.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c  
 
-ap.CFLAGS += -DDOWNLINK -DUSE_UART0 -DDOWNLINK_TRANSPORT=XBeeTransport -DDOWNLINK_FBW_DEVICE=Uart0 -DDOWNLINK_AP_DEVICE=Uart0 -DXBEE_UART=Uart0 -DDATALINK=XBEE -DUART0_BAUD=B9600
+ap.CFLAGS += -DDOWNLINK -DUSE_UART0 -DDOWNLINK_TRANSPORT=XBeeTransport -DDOWNLINK_FBW_DEVICE=Uart0 -DDOWNLINK_AP_DEVICE=Uart0 -DXBEE_UART=Uart0 -DDATALINK=XBEE -DUART0_BAUD=B19200
 ap.srcs += downlink.c $(SRC_ARCH)/uart_hw.c datalink.c xbee.c
 
 # transparent 
@@ -236,13 +236,10 @@ ap.srcs += nav_line.c nav_survey_rectangle.c
 ap.CFLAGS += -DUSE_ADC_6 -DUSE_ADC_GENERIC -DADC_CHANNEL_GENERIC1=ADC_6 -DADC_CHANNEL_GENERIC_NB_SAMPLES=16
 ap.srcs += adc_generic.c
 
-ap.CFLAGS += -DSIMPLE_ROLL_CONTROL
-
 # Config for SITL simulation
 include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
 sim.CFLAGS += -DCONFIG=\"tiny.h\" -DAGR_CLIMB -DLOITER_TRIM -DALT_KALMAN -DIR_360
-sim.CFLAGS += -DSIMPLE_ROLL_CONTROL
-sim.srcs += nav_survey_rectangle.c $(SRC_ARCH)/sim_baro.c bomb.c nav_line.c traffic_info.c
+sim.srcs += nav_survey_rectangle.c nav_line.c traffic_info.c
 
   </makefile>
 </airframe>
