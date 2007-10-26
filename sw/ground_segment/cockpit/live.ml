@@ -822,7 +822,8 @@ let listen_flight_params = fun geomap auto_center_new_ac alert ->
     if ap_mode <> ac.last_ap_mode then begin
       log_and_say alert ac.ac_name (sprintf "%s, %s" ac.ac_name ap_mode);
       ac.last_ap_mode <- ap_mode;
-      ac.strip#set_label "AP" (Pprz.string_assoc "ap_mode" vs);
+      let label = Pprz.string_assoc "ap_mode" vs in
+      ac.strip#set_label "AP" (if label="MANUAL" then "MANU" else label);
       let color = 
 	match ap_mode with
 	  "AUTO2" -> ok_color

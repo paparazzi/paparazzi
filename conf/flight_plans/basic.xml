@@ -3,6 +3,7 @@
 <flight_plan alt="75" ground_alt="0" lat0="43.4622" lon0="1.2729" max_dist_from_home="1500" name="Basic" qfu="270" security_height="25">
   <header>
 #include "nav_line.h"
+#include "datalink.h"
 </header>
   <waypoints>
     <waypoint name="HOME" x="0" y="0"/>
@@ -18,6 +19,9 @@
     <waypoint name="BASELEG" x="26.9" y="-23.0"/>
     <waypoint name="CLIMB" x="-122.5" y="35.4"/>
   </waypoints>
+  <exceptions>
+    <exception cond="datalink_time > 22" deroute="Standby"/>
+  </exceptions>
   <blocks>
     <block name="Wait GPS">
       <set value="1" var="kill_throttle"/>
@@ -27,11 +31,11 @@
       <while cond="LessThan(NavBlockTime(), 10)"/>
       <call fun="NavSetGroundReferenceHere()"/>
     </block>
-    <block name="Kill">
+    <block name="Holding point">
       <set value="1" var="kill_throttle"/>
       <attitude roll="0" throttle="0" vmode="throttle"/>
     </block>
-    <block name="Takeoff" strip_icon="takeoff.png" strip_button="Takeoff">
+    <block name="Takeoff" strip_icon="takeoff.png" strip_button="Takeoff (wp CLIMB)">
       <exception cond="estimator_z > ground_alt+25" deroute="Standby"/>
       <set value="0" var="kill_throttle"/>
       <set value="0" var="estimator_flight_time"/>
@@ -40,10 +44,10 @@
     <block name="Standby" strip_button="Standby" strip_icon="home.png">
       <circle radius="nav_radius" wp="STDBY"/>
     </block>
-    <block name="Figure 8 around wp 1" strip_button="Figure 8" strip_icon="eight.png">
+    <block name="Figure 8 around wp 1" strip_button="Figure 8 (wp 1-2)" strip_icon="eight.png">
       <eight center="1" radius="nav_radius" turn_around="2"/>
     </block>
-    <block name="Oval 1-2" strip_button="Oval" strip_icon="oval.png">
+    <block name="Oval 1-2" strip_button="Oval (wp 1-2)" strip_icon="oval.png">
       <oval p1="1" p2="2" radius="nav_radius"/>
     </block>
     <block name="MOB" strip_button="Turn around here" strip_icon="mob.png">
@@ -51,18 +55,18 @@
       <set value="DEFAULT_CIRCLE_RADIUS" var="nav_radius"/>
       <circle radius="nav_radius" wp="MOB"/>
     </block>
-    <block name="Line 1-2" strip_button="Line 1-2" strip_icon="line.png">
+    <block name="Line 1-2" strip_button="Line (wp 1-2)" strip_icon="line.png">
       <call fun="nav_line_init()"/>
       <call fun="nav_line(WP_1, WP_2, nav_radius)"/>
     </block>
-    <block name="Survey S1-S2" strip_button="Survey" strip_icon="survey.png">
+    <block name="Survey S1-S2" strip_button="Survey (wp S1-S2)" strip_icon="survey.png">
       <survey_rectangle grid="150" wp1="S1" wp2="S2"/>
     </block>
-    <block name="Land Right AF-TD" strip_button="Land right" strip_icon="land-right.png">
+    <block name="Land Right AF-TD" strip_button="Land right (wp AF-TD)" strip_icon="land-right.png">
       <set value="DEFAULT_CIRCLE_RADIUS" var="nav_radius"/>
       <deroute block="land"/>
     </block>
-    <block name="Land Left AF-TD" strip_button="Land left" strip_icon="land-left.png">
+    <block name="Land Left AF-TD" strip_button="Land left (wp AF-TD)" strip_icon="land-left.png">
       <set value="-DEFAULT_CIRCLE_RADIUS" var="nav_radius"/>
       <deroute block="land"/>
     </block>

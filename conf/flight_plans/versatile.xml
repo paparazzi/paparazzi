@@ -39,25 +39,25 @@
       <while cond="LessThan(NavBlockTime(), 10)"/>
       <call fun="NavSetGroundReferenceHere()"/>
     </block>
-    <block name="Kill">
+    <block name="Holding point">
       <set value="1" var="kill_throttle"/>
       <attitude roll="0" throttle="0" vmode="throttle"/>
     </block>
-    <block name="Takeoff">
+    <block name="Takeoff" strip_icon="takeoff.png" strip_button="Takeoff (wp CLIMB)">
       <exception cond="estimator_z > ground_alt+25" deroute="Standby"/>
       <set value="0" var="kill_throttle"/>
       <go wp="CLIMB"/>
     </block>
-    <block name="Standby" strip_button="Standby">
+    <block name="Standby" strip_button="Standby" strip_icon="home.png">
       <circle radius="nav_radius" wp="STDBY"/>
     </block>
-    <block name="Figure 8 around wp 1">
+    <block name="Figure 8 around wp 1" strip_button="Figure 8 (wp 1-2)" strip_icon="eight.png">
       <eight center="1" radius="nav_radius" turn_around="2"/>
     </block>
-    <block name="Oval 1-2">
+    <block name="Oval 1-2" strip_button="Oval (wp 1-2)" strip_icon="oval.png">
       <oval p1="1" p2="2" radius="nav_radius"/>
     </block>
-    <block name="MOB" strip_button="MOB">
+    <block name="MOB" strip_button="Turn around here" strip_icon="mob.png">
       <call fun="NavSetWaypointHere(WP_MOB)"/>
       <circle radius="100" wp="MOB"/>
     </block>
@@ -76,7 +76,7 @@
     <block name="Climb nav_climb m/s">
       <circle climb="nav_climb" radius="nav_radius" until="(10 > PowerVoltage()) || (estimator_z > ground_alt+ 1350)" vmode="climb" wp="1"/>
     </block>
-    <block name="Descent 0% throttle" strip_button="Descent">
+    <block name="Descent 0% throttle">
       <circle pitch="-5" radius="50+(estimator_z-ground_alt)/2" throttle="0.0" until="ground_alt+50 > estimator_z" vmode="throttle" wp="1"/>
       <deroute block="Standby"/>
     </block>
@@ -96,14 +96,14 @@
       <go from="1" hmode="route" vmode="glide" wp="2"/>
       <deroute block="Standby"/>
     </block>
-    <block name="Survey S1-S2">
+    <block name="Survey S1-S2" strip_button="Survey (wp S1-S2)" strip_icon="survey.png">
       <survey_rectangle grid="150" wp1="S1" wp2="S2"/>
     </block>
-    <block name="Land Right AF-TD">
+    <block name="Land Right AF-TD" strip_button="Land right (wp AF-TD)" strip_icon="land-right.png">
       <set value="DEFAULT_CIRCLE_RADIUS" var="nav_radius"/>
       <deroute block="land"/>
     </block>
-    <block name="Land Left AF-TD">
+    <block name="Land Left AF-TD" strip_button="Land left (wp AF-TD)" strip_icon="land-left.png">
       <set value="-DEFAULT_CIRCLE_RADIUS" var="nav_radius"/>
       <deroute block="land"/>
     </block>
@@ -139,7 +139,7 @@
         <attitude alt="250" pitch="-10" roll="0.0" until=" stage_time > 2" vmode="alt"/>
       </while>
     </block>
-    <block name="Heading 30Â°">
+    <block name="Heading 30°">
       <heading alt="ground_alt+50" course="30" until="FALSE"/>
     </block>
     <block name="For loop (circles wp 1)">

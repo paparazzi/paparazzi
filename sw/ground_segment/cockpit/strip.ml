@@ -25,6 +25,7 @@
  *)
 
 open Printf
+module LL=Latlong
 
 let (//) = Filename.concat
 
@@ -123,7 +124,14 @@ class gauge = fun ?(color="green") ?(history_len=50) gauge v_min v_max ->
 	      let fh = 0.8 *. float w in
 	      let x = truncate (cos angle_rad *. fh)
 	      and y = - truncate (sin angle_rad *. fh) in
-	      let l = [w/10, h/2; w/10+x,h/2+y] in
+	      let a = -.angle_rad +. 5. *. LL.pi /. 6.
+	      and a' = -.angle_rad -. 5. *. LL.pi /. 6.
+	      and al = 0.2 *. fh in
+	      let ax = truncate (cos a *. al)
+	      and ay = truncate (sin a *. al) in
+	      let ax' = truncate (cos a' *. al)
+	      and ay' = truncate (sin a' *. al) in
+	      let l = [w/10, h/2; w/10+x,h/2+y; w/10+x+ax,h/2+y+ay; w/10+x,h/2+y; w/10+x+ax',h/2+y+ay'] in
 	      dr#set_foreground `BLACK;
 	      dr#lines l	      
 	end;
