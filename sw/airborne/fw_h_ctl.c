@@ -99,6 +99,9 @@ static inline void h_ctl_roll_rate_loop( void );
 #define H_CTL_COURSE_DGAIN 0.
 #endif
 
+float h_ctl_roll_attitude_gain;
+float h_ctl_roll_rate_gain;
+
 void h_ctl_init( void ) {
 
   h_ctl_course_setpoint = 0.;
@@ -111,9 +114,13 @@ void h_ctl_init( void ) {
   h_ctl_disabled = FALSE;
 
   h_ctl_roll_setpoint = 0.;
+#ifdef H_CTL_ROLL_PGAIN
   h_ctl_roll_pgain = H_CTL_ROLL_PGAIN;
+#endif
   h_ctl_aileron_setpoint = 0;
+#ifdef H_CTL_AILERON_OF_THROTTLE
   h_ctl_aileron_of_throttle = H_CTL_AILERON_OF_THROTTLE;
+#endif
 
   h_ctl_pitch_setpoint = 0.;
   h_ctl_pitch_pgain = H_CTL_PITCH_PGAIN;
@@ -136,6 +143,11 @@ void h_ctl_init( void ) {
 
 #ifdef H_CTL_COURSE_SLEW_INCREMENT
   h_ctl_course_slew_increment = H_CTL_COURSE_SLEW_INCREMENT;
+#endif
+
+#ifdef H_CTL_ROLL_ATTITUDE_GAIN
+  h_ctl_roll_attitude_gain = H_CTL_ROLL_ATTITUDE_GAIN;
+  h_ctl_roll_rate_gain = H_CTL_ROLL_RATE_GAIN;
 #endif
 }
 
@@ -208,6 +220,19 @@ void h_ctl_attitude_loop ( void ) {
   }
 }
 
+
+#ifdef H_CTL_ROLL_ATTITUDE_GAIN
+inline static void h_ctl_roll_loop( void ) {
+  float err = estimator_phi - h_ctl_roll_setpoint;
+  float cmd = - h_ctl_roll_attitude_gain * err
+    - h_ctl_roll_rate_gain * estimator_p
+    + v_ctl_throttle_setpoint * h_ctl_aileron_of_throttle;
+
+  h_ctl_aileron_setpoint = TRIM_PPRZ(cmd); 
+}
+
+#else // H_CTL_ROLL_ATTITUDE_GAIN
+
 /** Computes h_ctl_aileron_setpoint from h_ctl_roll_setpoint */
 inline static void h_ctl_roll_loop( void ) {
   float err = estimator_phi - h_ctl_roll_setpoint;
@@ -232,6 +257,7 @@ inline static void h_ctl_roll_loop( void ) {
 }
 
 #ifdef H_CTL_RATE_LOOP
+
 static inline void h_ctl_roll_rate_loop() {
   float err = estimator_p - h_ctl_roll_rate_setpoint;
   
@@ -258,6 +284,10 @@ static inline void h_ctl_roll_rate_loop() {
   h_ctl_aileron_setpoint = TRIM_PPRZ(cmd);
 }
 #endif /* H_CTL_RATE_LOOP */
+
+#endif /* !H_CTL_ROLL_ATTITUDE_GAIN */
+
+
 
 
 
