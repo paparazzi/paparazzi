@@ -45,7 +45,7 @@ extern int16_t pitch_rate_adc;
 
 void gyro_init( void );
 
-/** Sets roll_rate, roll_rate_adc and pitch_rate (or temp_comp) */
+/** Sets roll_rate_adc and pitch_rate_adc (or temp_comp), and estimator_p */
 void gyro_update( void );
 
 #endif /* GYRO_H */
