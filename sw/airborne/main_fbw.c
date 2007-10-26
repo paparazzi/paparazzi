@@ -32,6 +32,7 @@
  */
 
 #include "main_fbw.h"
+#include "airframe.h"
 
 #include "init_hw.h"
 #include "interrupt_hw.h"
@@ -54,7 +55,6 @@
 #endif
 
 #include "link_imu.h"
-#include "control_grz.h"
 
 #ifdef ADC
 struct adc_buf vsupply_adc_buf;
@@ -89,22 +89,23 @@ void init_fbw( void ) {
   SetCommands(commands_failsafe);
 #endif
 #ifdef RADIO_CONTROL
- ppm_init();
+  ppm_init();
+  //  radio_control_init();
 #endif
 #ifdef INTER_MCU
- inter_mcu_init();
+  inter_mcu_init();
 #endif
 #ifdef MCU_SPI_LINK
- spi_init();
- link_mcu_restart();
+  spi_init();
+  link_mcu_restart();
 #endif
 #ifdef LINK_IMU
- spi_init();
- link_imu_init();
+  spi_init();
+  link_imu_init();
 #endif
-#ifdef CTL_GRZ
- ctl_grz_init();
-#endif
+
+  fbw_mode = FBW_MODE_FAILSAFE;
+
 #ifndef SINGLE_MCU
   int_enable();
 #endif
@@ -129,13 +130,6 @@ void event_task_fbw( void) {
     }
     if (fbw_mode == FBW_MODE_MANUAL)
       SetCommandsFromRC(commands);
-#ifdef CTL_GRZ
-    if (fbw_mode == FBW_MODE_MANUAL)
-      ctl_grz_set_setpoints_rate();
-/*     else if (fbw_mode == FBW_MODE_AUTO) { */
-/*       SetCommandsFromRC(commands); */
-/*     } */
-#endif /* CTL_GRZ */
   }
 #endif
 
@@ -155,6 +149,9 @@ void event_task_fbw( void) {
   if (inter_mcu_received_ap) {
     inter_mcu_received_ap = FALSE;
     inter_mcu_event_task();
+    if (ap_ok && fbw_mode == FBW_MODE_FAILSAFE) {
+      fbw_mode = FBW_MODE_AUTO;
+    }
     if (fbw_mode == FBW_MODE_AUTO) {
       SetCommands(ap_state->commands);
     }
@@ -178,9 +175,6 @@ void event_task_fbw( void) {
     spi_message_received = FALSE;
     link_imu_event_task();
     EstimatorSetAtt(link_imu_state.eulers[AXIS_X], link_imu_state.eulers[AXIS_Z],  link_imu_state.eulers[AXIS_Y]);
-#ifdef CTL_GRZ
-    ctl_grz_set_measures(); 
-#endif /* CTL_GRZ */
   }
 #endif /* LINK_IMU */
 }
@@ -215,13 +209,6 @@ void periodic_task_fbw( void ) {
 #endif
 
 #ifdef ACTUATORS
-#ifdef CTL_GRZ
-  if (rc_status == RC_REALLY_LOST) {
-    set_failsafe_mode();
-  } else {
-    ctl_grz_rate_run();
-  }
-#endif /* CTL_GRZ */
   SetActuatorsFromCommands(commands);
 #endif
 
