@@ -228,35 +228,6 @@
     <field name="pitch" type="float" unit="rad/s"></field>
  </message>
 
-
-  <message name="GRZ_MEASURE" id="37">
-      <field name="roll_dot" type="float" unit="rad/s"></field>
-      <field name="pitch_dot" type="float" unit="rad/s"></field>
-      <field name="yaw_dot" type="float" unit="rad/s"></field>
-
-      <field name="roll" type="float" unit="rad"></field>
-      <field name="pitch" type="float" unit="rad"></field>
-      <field name="yaw" type="float" unit="rad"></field>
-  </message>
-
-  <message name="GRZ_RATE_LOOP" id="38">
-      <field name="roll_dot_meas" type="float" unit="rad"></field>
-      <field name="roll_dot_sp"   type="float" unit="rad"></field>
-      <field name="pitch_dot_meas" type="float" unit="rad"></field>
-      <field name="pitch_dot_sp" type="float" unit="rad"></field>
-      <field name="yaw_dot_meas" type="float" unit="rad"></field>
-      <field name="yaw_dot_sp" type="float" unit="rad"></field>
-  </message>
-
-  <message name="GRZ_ATTITUDE_LOOP" id="39">
-      <field name="roll_meas" type="float" unit="rad"></field>
-      <field name="roll_sp"   type="float" unit="rad"></field>
-      <field name="pitch_meas" type="float" unit="rad"></field>
-      <field name="pitch_sp" type="float" unit="rad"></field>
-      <field name="yaw_meas" type="float" unit="rad"></field>
-      <field name="yaw_sp" type="float" unit="rad"></field>
-  </message>
-
   <message name="SPEED_LOOP" id="40">
     <field name="ve_set_point" type="float" unit="m/s"/>
     <field name="ve" type="float" unit="m/s"/>
