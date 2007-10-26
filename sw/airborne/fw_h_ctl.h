@@ -82,4 +82,7 @@ extern void h_ctl_init( void );
 extern void h_ctl_course_loop ( void );
 extern void h_ctl_attitude_loop ( void );
 
+extern float h_ctl_roll_attitude_gain;
+extern float h_ctl_roll_rate_gain;
+
 #endif /* FW_H_CTL_H */
