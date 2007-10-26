@@ -84,6 +84,8 @@ extern bool_t ap_ok;
 static inline void inter_mcu_init(void) {
   fbw_state->status = 0;
   fbw_state->nb_err = 0;
+
+  ap_ok = FALSE;
 }
 
 
