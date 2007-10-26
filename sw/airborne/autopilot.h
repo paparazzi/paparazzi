@@ -30,7 +30,6 @@
 #ifndef AUTOPILOT_H
 #define AUTOPILOT_H
 
-//#include "inter_mcu.h"
 #include <inttypes.h>
 #include "std.h"
 #include "sys_time.h"
@@ -112,5 +111,16 @@ static inline void autopilot_process_radio_control ( void ) {
   pprz_mode = PPRZ_MODE_OF_PULSE(rc_values[RADIO_MODE], 0);
 }
 #endif
+
+extern bool_t power_switch;
+
+#ifdef POWER_SWITCH_LED
+#define autopilot_SetPowerSwitch(_x) { \
+  power_switch = _x; \
+  if (_x) LED_ON(POWER_SWITCH_LED) else LED_OFF(POWER_SWITCH_LED); \
+}
+#else // POWER_SWITCH_LED
+#define autopilot_SetPowerSwitch(_x) { power_switch = _x; }
+#endif // POWER_SWITCH_LED
 
 #endif /* AUTOPILOT_H */
