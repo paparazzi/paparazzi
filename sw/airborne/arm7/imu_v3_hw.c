@@ -1,14 +1,10 @@
 #include "imu_v3.h"
 
-#include "max1167.h"
 
 
 static void SPI1_ISR(void) __attribute__((naked));
 
-#define SPI_SLAVE_NONE 0
-#define SPI_SLAVE_MAX  1
-
-uint8_t spi_cur_slave = SPI_SLAVE_NONE;
+uint8_t spi_cur_slave;
 
 
 /* SSPCR0 settings */
@@ -25,8 +21,8 @@ uint8_t spi_cur_slave = SPI_SLAVE_NONE;
 #define SSP_SOD  0x00 << 3  /* slave output disable : don't care when master */
 
 void imu_v3_hw_init(void) {
+  spi_cur_slave = SPI_SLAVE_NONE;  
 
-  
   max1167_init();
 
   /* setup pins for SSP (SCK, MISO, MOSI) */

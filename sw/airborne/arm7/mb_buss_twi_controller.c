@@ -28,10 +28,8 @@ void mb_buss_twi_controller_init(void) {
 void mb_buss_twi_controller_set( float throttle ) {
   if (mb_buss_twi_i2c_done) {
     mb_buss_twi_command = throttle * MB_BUSS_TWI_CONTROLLER_MAX_CMD;
-    
-    const uint8_t msg[] = { MB_BUSS_TWI_CONTROLLER_ADDR, mb_buss_twi_command};
-    memcpy((void*)i2c_buf, msg, sizeof(msg));
-    i2c_transmit(MB_BUSS_TWI_CONTROLLER_ADDR, sizeof(msg), &mb_buss_twi_i2c_done);
+    i2c_buf[0] = mb_buss_twi_command;
+    i2c_transmit(MB_BUSS_TWI_CONTROLLER_ADDR, 1, &mb_buss_twi_i2c_done);
   }
   else
     mb_buss_twi_nb_overun++;

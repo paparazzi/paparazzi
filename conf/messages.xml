@@ -420,6 +420,9 @@
   <message name="AHRS_OVERRUN" ID="213">
   </message>
 
+
+
+
   <message name="BOOZ_FD" ID="214">
     <field name="p" type="float"/>
     <field name="q" type="float"/>
@@ -468,6 +471,15 @@
     <field name="left"     type="float"/>
     <field name="right"    type="float"/>
   </message>
+
+  <message name="BOOZ_CMDS" ID="220">
+    <field name="front"    type="uint8"/>
+    <field name="back"     type="uint8"/>
+    <field name="left"     type="uint8"/>
+    <field name="right"    type="uint8"/>
+  </message>
+
+
 
 
   <message name="ENOSE_STATUS" ID="230">

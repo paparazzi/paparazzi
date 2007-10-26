@@ -10,6 +10,7 @@
       <message name="ACTUATORS"         period="0.5"/>
       <message name="BOOZ_RATE_LOOP"    period="0.05"/>
       <message name="BOOZ_ATT_LOOP"     period="0.05"/>
+      <message name="BOOZ_CMDS"         period="0.05"/>
       <message name="DL_VALUE"          period="1."/>
     </mode>
     <mode name="debug">

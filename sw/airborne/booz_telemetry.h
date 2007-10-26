@@ -30,6 +30,11 @@
 
 #define PERIODIC_SEND_BOOZ_ATT_LOOP() DOWNLINK_SEND_BOOZ_ATT_LOOP(&booz_estimator_phi, &booz_control_phi_sp, &booz_estimator_theta, &booz_control_theta_sp); 
 
+#define PERIODIC_SEND_BOOZ_CMDS() DOWNLINK_SEND_BOOZ_CMDS(&buss_twi_blmc_motor_power[SERVO_MOTOR_FRONT],\
+							  &buss_twi_blmc_motor_power[SERVO_MOTOR_BACK],	\
+							  &buss_twi_blmc_motor_power[SERVO_MOTOR_LEFT],	\
+							  &buss_twi_blmc_motor_power[SERVO_MOTOR_RIGHT]); 
+
 #define PERIODIC_SEND_DL_VALUE() PeriodicSendDlValue()
 
 extern uint8_t telemetry_mode_Main;
