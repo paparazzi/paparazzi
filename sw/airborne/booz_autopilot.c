@@ -23,6 +23,10 @@ void booz_autopilot_periodic_task(void) {
     booz_control_attitude_run();
     SetCommands(booz_control_commands);
     break;
+  case BOOZ_AP_MODE_NAV:
+    booz_control_nav_run();
+    SetCommands(booz_control_commands);
+    break;
   }
 
 }

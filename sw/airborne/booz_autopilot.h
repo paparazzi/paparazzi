@@ -19,6 +19,6 @@ extern void booz_autopilot_event_task(void);
 #define BOOZ_AP_MODE_OF_PPRZ(mode)				\
   ((mode) < TRESHOLD_RATE_PPRZ ? BOOZ_AP_MODE_RATE :		\
    (mode) < TRESHOLD_ATTITUDE_PPRZ ? BOOZ_AP_MODE_ATTITUDE :	\
-   BOOZ_AP_MODE_ATTITUDE )
+   BOOZ_AP_MODE_NAV )
 
 #endif /* BOOZ_AUTOPILOT_H */

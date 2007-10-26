@@ -132,3 +132,12 @@ void booz_control_attitude_run(void) {
 
 
 }
+
+
+
+void booz_control_nav_run(void) {
+  booz_control_commands[COMMAND_P] = 0;
+  booz_control_commands[COMMAND_Q] = 0;
+  booz_control_commands[COMMAND_R] = 0;
+  booz_control_commands[COMMAND_THROTTLE] = 0;
+}
