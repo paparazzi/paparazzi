@@ -165,7 +165,8 @@ let use_tele_message = fun ?raw_data_size payload ->
     Tm_Pprz.message_send (string_of_int ac_id) msg.Pprz.name values;
     update_status ac_id raw_data_size
   with
-    _ ->
+    exc ->
+      prerr_endline (Printexc.to_string exc);
       Debug.call 'W' (fun f ->  fprintf f "Warning, cannot use: %s\n" (Debug.xprint buf));
 
 
@@ -323,7 +324,7 @@ module XB = struct (** XBee module *)
     let o = Unix.out_channel_of_descr device.fd in
     Debug.trace 'x' "config xbee";
     fprintf o "%s%!" (Xbee.at_set_my !my_addr);
-    fprintf o "%s%!" (Xbee.at_set_baud_rate device.baud_rate);
+(***    fprintf o "%s%!" (Xbee.at_set_baud_rate device.baud_rate); ***)
     fprintf o "%s%!" Xbee.at_api_enable;
     fprintf o "%s%!" Xbee.at_exit;
     Debug.trace 'x' "end init xbee"
@@ -331,8 +332,10 @@ module XB = struct (** XBee module *)
   let init = fun device ->
     Debug.trace 'x' "init xbee";
     let o = Unix.out_channel_of_descr device.fd in
-    fprintf o "%s%!" Xbee.at_command_sequence;
-    ignore (Glib.Timeout.add at_init_period (fun () -> switch_to_api device; false))
+    ignore (Glib.Timeout.add at_init_period (fun () -> 
+      fprintf o "%s%!" Xbee.at_command_sequence;
+      ignore (Glib.Timeout.add at_init_period (fun () -> switch_to_api device; false));
+      false))
 
   (* Array of sent packets for retry: (packet, nb of retries) *)
   let packets = Array.create 256 ("", -1)
