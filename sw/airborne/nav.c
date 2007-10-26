@@ -139,7 +139,7 @@ void nav_circle_XY(float x, float y, float radius) {
   float dist_carrot = CARROT*NOMINAL_AIRSPEED;
   float sign_radius = radius > 0 ? 1 : -1;
 
-  radius += -sign_radius * nav_shift;
+  radius += -nav_shift;
 
   float abs_radius = fabs(radius);
   
@@ -243,7 +243,7 @@ static inline void nav_follow(uint8_t _ac_id, float _distance, float _height);
 #ifdef NAV_GROUND_SPEED_PGAIN
 /** \brief Computes cruise throttle from ground speed setpoint
  */
-static int nav_ground_speed_loop( void ) {
+static bool_t nav_ground_speed_loop( void ) {
   float err = estimator_hspeed_mod - nav_ground_speed_setpoint;
   v_ctl_auto_throttle_cruise_throttle += nav_ground_speed_pgain*err;
   Bound(v_ctl_auto_throttle_cruise_throttle, V_CTL_AUTO_THROTTLE_MIN_CRUISE_THROTTLE, V_CTL_AUTO_THROTTLE_MAX_CRUISE_THROTTLE);
@@ -436,7 +436,7 @@ static inline void compute_dist2_to_home(void) {
 
 
 #ifndef FAILSAFE_HOME_RADIUS
-#define FAILSAFE_HOME_RADIUS 100
+#define FAILSAFE_HOME_RADIUS DEFAULT_CIRCLE_RADIUS
 #endif
 
 /** \brief Home mode navigation (circle around HOME) */
