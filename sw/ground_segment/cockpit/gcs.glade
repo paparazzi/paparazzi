@@ -1059,7 +1059,6 @@
 
 				  <child>
 				    <widget class="GtkLabel" id="label_block_name">
-				      <property name="width_request">85</property>
 				      <property name="visible">True</property>
 				      <property name="label" translatable="yes">&lt;i&gt;N/A&lt;/i&gt;</property>
 				      <property name="use_underline">False</property>
@@ -1133,7 +1132,7 @@
 					  <property name="focus_on_click">True</property>
 
 					  <child>
-					    <widget class="GtkImage" id="image7">
+					    <widget class="GtkImage" id="image12">
 					      <property name="visible">True</property>
 					      <property name="stock">gtk-stop</property>
 					      <property name="icon_size">4</property>

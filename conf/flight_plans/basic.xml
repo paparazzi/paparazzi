@@ -31,38 +31,38 @@
       <set value="1" var="kill_throttle"/>
       <attitude roll="0" throttle="0" vmode="throttle"/>
     </block>
-    <block name="Takeoff" strip_icon="gtk-media-play" strip_button="Takeoff">
+    <block name="Takeoff" strip_icon="takeoff.png" strip_button="Takeoff">
       <exception cond="estimator_z > ground_alt+25" deroute="Standby"/>
       <set value="0" var="kill_throttle"/>
       <set value="0" var="estimator_flight_time"/>
       <go wp="CLIMB"/>
     </block>
-    <block name="Standby" strip_button="Standby" strip_icon="gtk-home">
+    <block name="Standby" strip_button="Standby" strip_icon="home.png">
       <circle radius="nav_radius" wp="STDBY"/>
     </block>
-    <block name="Figure 8 around wp 1" strip_button="8">
+    <block name="Figure 8 around wp 1" strip_button="Figure 8" strip_icon="eight.png">
       <eight center="1" radius="nav_radius" turn_around="2"/>
     </block>
-    <block name="Oval 1-2" strip_button="0">
+    <block name="Oval 1-2" strip_button="Oval" strip_icon="oval.png">
       <oval p1="1" p2="2" radius="nav_radius"/>
     </block>
-    <block name="MOB" strip_button="Turn around here" strip_icon="gtk-refresh">
+    <block name="MOB" strip_button="Turn around here" strip_icon="mob.png">
       <call fun="NavSetWaypointHere(WP_MOB)"/>
       <set value="DEFAULT_CIRCLE_RADIUS" var="nav_radius"/>
       <circle radius="nav_radius" wp="MOB"/>
     </block>
-    <block name="Line 1-2" strip_button="Line 1-2" strip_icon="gtk-remove">
+    <block name="Line 1-2" strip_button="Line 1-2" strip_icon="line.png">
       <call fun="nav_line_init()"/>
       <call fun="nav_line(WP_1, WP_2, nav_radius)"/>
     </block>
-    <block name="Survey S1-S2">
+    <block name="Survey S1-S2" strip_button="Survey" strip_icon="survey.png">
       <survey_rectangle grid="150" wp1="S1" wp2="S2"/>
     </block>
-    <block name="Land Right AF-TD" strip_button="LandR">
+    <block name="Land Right AF-TD" strip_button="Land right" strip_icon="land-right.png">
       <set value="DEFAULT_CIRCLE_RADIUS" var="nav_radius"/>
       <deroute block="land"/>
     </block>
-    <block name="Land Left AF-TD" strip_button="LandL">
+    <block name="Land Left AF-TD" strip_button="Land left" strip_icon="land-left.png">
       <set value="-DEFAULT_CIRCLE_RADIUS" var="nav_radius"/>
       <deroute block="land"/>
     </block>

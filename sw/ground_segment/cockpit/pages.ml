@@ -26,6 +26,8 @@
 (* Information pages such as alert, infrared, gps, artificial horizon        *)
 (*****************************************************************************)
 
+let (//) = Filename.concat
+
 open Latlong
 open Printf
 
@@ -301,7 +303,8 @@ let one_setting = fun i do_change packing s (tooltips:GData.tooltips) strip ->
       try (* Is it an icon ? *)
 	let icon = Xml.attrib x "icon" in
 	let b = GButton.button () in
-	ignore (GMisc.image ~stock:(`STOCK icon) ~packing:b#add ());
+	let pixbuf = GdkPixbuf.from_file (Env.gcs_icons_path // icon) in
+	ignore (GMisc.image ~pixbuf ~packing:b#add ());
 
 	(* Associates the label as a tooltip *)
 	tooltips#set_tip b#coerce ~text:label;

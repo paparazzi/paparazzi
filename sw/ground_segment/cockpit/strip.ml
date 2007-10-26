@@ -241,7 +241,22 @@ let add = fun config color center_ac mark ->
       ignore (button#connect#clicked (fun () -> callback value));
       button#misc#set_sensitive true) in
 
-  (* Buttons *)
+  (* Buttons : setting the icons (the path of the icon is not saved by glade) *)
+  List.iter (fun (b, icon) ->
+    b#remove b#child;
+    let pixbuf = GdkPixbuf.from_file (Env.gcs_icons_path // icon) in
+    ignore (GMisc.image ~pixbuf ~packing:b#add ()))
+    [ strip#button_launch, "launch.png";
+      strip#button_kill, "kill.png";
+      strip#button_resurrect, "resurrect.png";
+      strip#button_minus_five, "down.png";
+      strip#button_plus_five, "up.png";
+      strip#button_plus_thirty, "upup.png";
+      strip#button_left, "left.png";
+      strip#button_center, "recenter.png";
+      strip#button_right, "right.png";
+    ];
+
    object
     val mutable climb = 0.
     method set_climb = fun v -> climb <- v
