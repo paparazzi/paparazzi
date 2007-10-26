@@ -1,5 +1,7 @@
 #include "imu_v3.h"
 
+#include "imu_v3_hw.h"
+
 #include CONFIG
 #include "adc.h"
 
@@ -51,7 +53,10 @@ static bool_t imu_vs_buf_filled;
 #define IMU_VS_ACCEL_RAW_VAR_MAX 7000.
 
 
-void imu_init(void) {
+void imu_v3_init(void) {
+
+  imu_v3_hw_init();
+
   adc_buf_channel(ADC_CHANNEL_AX, &buf_ax, DEFAULT_AV_NB_SAMPLE);
   adc_buf_channel(ADC_CHANNEL_AY, &buf_ay, DEFAULT_AV_NB_SAMPLE);
   adc_buf_channel(ADC_CHANNEL_AZ, &buf_az, DEFAULT_AV_NB_SAMPLE);
@@ -76,7 +81,7 @@ void imu_init(void) {
 }
 
 
-void imu_detect_vehicle_still(void) {
+void imu_v3_detect_vehicle_still(void) {
 
   /* update the sliding average of sensors readings */
   imu_vs_buf_head++;

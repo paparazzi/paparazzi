@@ -1,3 +1,5 @@
+#include "main_booz.h"
+
 #include "std.h"
 #include "init_hw.h"
 #include "interrupt_hw.h"
@@ -22,26 +24,32 @@
 #include "datalink.h"
 
 
-static inline void main_init( void );
-static inline void main_periodic_task( void );
-static inline void main_event_task( void );
 
 int16_t trim_p = 0;
 int16_t trim_q = 0;
 int16_t trim_r = 0;
 uint8_t vbat = 0;
 
+//FIXME
+#ifdef SITL
+uint32_t link_imu_nb_err;
+uint8_t  link_imu_status;
+#endif
+
+#ifndef SITL
 int main( void ) {
-  main_init();
+  booz_main_init();
   while(1) {
     if (sys_time_periodic())
-      main_periodic_task();
-    main_event_task();
+      booz_main_periodic_task();
+    booz_main_event_task();
   }
   return 0;
 }
+#endif
 
-static inline void main_init( void ) {
+STATIC_INLINE void booz_main_init( void ) {
+
   hw_init();
   led_init();
   sys_time_init();
@@ -53,23 +61,31 @@ static inline void main_init( void ) {
   ppm_init();
   radio_control_init();
 
+#ifndef SITL
   spi_init();
   link_imu_init();
+#endif
   
   booz_estimator_init();
   booz_control_init();
   booz_autopilot_init();
 
+  //FIXME
+#ifndef SITL
   uart1_init_tx();
+#endif
 
   int_enable();
 
   DOWNLINK_SEND_BOOT(&cpu_time_sec);
 }
 
-static inline void main_periodic_task( void ) {
+STATIC_INLINE void booz_main_periodic_task( void ) {
   
+  // FIXME
+#ifndef SITL
   link_imu_periodic_task();
+#endif
   
   booz_autopilot_periodic_task();
 
@@ -80,7 +96,6 @@ static inline void main_periodic_task( void ) {
   if (_50hz > 5) _50hz = 0;
   switch (_50hz) {
   case 0:
-    LED_TOGGLE(1);
     break;
   case 1:
     radio_control_periodic_task();
@@ -99,11 +114,14 @@ static inline void main_periodic_task( void ) {
 
 }
 
-static inline  void main_event_task( void ) {
+STATIC_INLINE void booz_main_event_task( void ) {
   
+  // FIXME
+#ifndef SITL
   DlEventCheckAndHandle();
 
   LinkImuEventCheckAndHandle();
+#endif
 
   if (ppm_valid) {
     ppm_valid = FALSE;

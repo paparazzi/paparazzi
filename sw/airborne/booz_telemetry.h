@@ -19,7 +19,7 @@
 
 #include "downlink.h"
 
-#define PERIODIC_SEND_BOOZ_STATUS() DOWNLINK_SEND_BOOZ_STATUS(&link_imu_nb_err, &link_imu_status, &rc_status, &booz_autopilot_mode, &buss_twi_blmc_idx, &cpu_time_sec, &buss_twi_blmc_nb_err)
+#define PERIODIC_SEND_BOOZ_STATUS() DOWNLINK_SEND_BOOZ_STATUS(&link_imu_nb_err, &link_imu_status, &rc_status, &booz_autopilot_mode, &booz_autopilot_mode, &cpu_time_sec, &buss_twi_blmc_nb_err)
 #define PERIODIC_SEND_BOOZ_FD()     DOWNLINK_SEND_BOOZ_FD(&booz_estimator_p, &booz_estimator_q, &booz_estimator_r,\
 							  &booz_estimator_phi, &booz_estimator_theta, &booz_estimator_psi); 
 #define PERIODIC_SEND_BOOZ_DEBUG() DOWNLINK_SEND_BOOZ_DEBUG(&booz_control_p_sp, &booz_control_q_sp, &booz_control_r_sp, &booz_control_power_sp); 

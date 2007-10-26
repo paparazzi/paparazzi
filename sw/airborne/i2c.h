@@ -3,9 +3,9 @@
 
 #include "std.h"
 
-#ifndef SITL
+//#ifndef SITL
 #include "i2c_hw.h"
-#endif
+//#endif
 
 extern void i2c_init(void);
 extern void i2c_receive(uint8_t slave_addr, uint8_t len, volatile bool_t* finished);

@@ -4,6 +4,8 @@
 #include "std.h"
 #include "6dof.h"
 
+#include "imu_v3_hw.h"
+
 /* calibrated sensor readings */
 extern float   imu_accel[AXIS_NB]; /* accelerometers in arbitrary unit */
 extern float   imu_gyro[AXIS_NB];  /* gyros in rad/s                   */
@@ -17,8 +19,8 @@ extern uint16_t imu_accel_raw[AXIS_NB];
 extern uint16_t imu_gyro_raw[AXIS_NB];
 extern int16_t  imu_mag_raw[AXIS_NB];
 
-extern void imu_init(void);
-extern void imu_detect_vehicle_still(void);
+extern void imu_v3_init(void);
+extern void imu_v3_detect_vehicle_still(void);
 extern bool_t imu_vehicle_still;
 extern float imu_vs_gyro_initial_bias[AXIS_NB];
 extern float imu_vs_gyro_unbiased[AXIS_NB]; /* unbiased gyros in rad/s */

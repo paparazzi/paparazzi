@@ -26,7 +26,8 @@ double disp_time;
 
 double foo_commands[] = {0., 0., 0., 0.};
 
-static gboolean timeout_callback(gpointer data);
+static gboolean booz_sim_periodic(gpointer data);
+static inline void booz_sim_display(void);
 
 #ifdef SIM_UART
 static void sim_uart_init(void);
@@ -43,21 +44,13 @@ static void on_DL_SETTING(IvyClientPtr app, void *user_data, int argc, char *arg
 volatile bool_t ppm_valid;
 #define RPM_OF_RAD_S(a) ((a)*60./M_PI)
 
-static gboolean timeout_callback(gpointer data) {
+static gboolean booz_sim_periodic(gpointer data) {
 
   booz_flight_model_run(DT, foo_commands);
   booz_sensors_model_run();
   sim_time += DT;
 
-  if (sim_time >= disp_time) {
-    disp_time+= DT_DISPLAY;
-    booz_flightgear_send();
-    IvySendMsg("148 BOOZ_RPMS %f %f %f %f",  
-	       RPM_OF_RAD_S(bfm.state->ve[BFMS_OM_F]), 
-	       RPM_OF_RAD_S(bfm.state->ve[BFMS_OM_B]), 
-	       RPM_OF_RAD_S(bfm.state->ve[BFMS_OM_L]),
-	       RPM_OF_RAD_S(bfm.state->ve[BFMS_OM_R]) );
-  }
+  booz_sim_display();
 
   booz_estimator_p = bfm.state->ve[BFMS_P];
   booz_estimator_q = bfm.state->ve[BFMS_Q];
@@ -118,7 +111,7 @@ int main ( int argc, char** argv) {
 
   GMainLoop *ml =  g_main_loop_new(NULL, FALSE);
   
-  g_timeout_add(TIMEOUT_PERIOD, timeout_callback, NULL);
+  g_timeout_add(TIMEOUT_PERIOD, booz_sim_periodic, NULL);
 
   g_main_loop_run(ml);
  
@@ -129,6 +122,24 @@ int main ( int argc, char** argv) {
 /////////////////////
 // Helpers
 ////////////////////
+
+
+static inline void booz_sim_display(void) {
+  if (sim_time >= disp_time) {
+    disp_time+= DT_DISPLAY;
+    booz_flightgear_send();
+    IvySendMsg("148 BOOZ_RPMS %f %f %f %f",  
+	       RPM_OF_RAD_S(bfm.state->ve[BFMS_OM_F]), 
+	       RPM_OF_RAD_S(bfm.state->ve[BFMS_OM_B]), 
+	       RPM_OF_RAD_S(bfm.state->ve[BFMS_OM_L]),
+	       RPM_OF_RAD_S(bfm.state->ve[BFMS_OM_R]) );
+  }
+}
+
+
+
+
+
 
 #if defined DOWNLINK_TRANSPORT && DOWNLINK_TRANSPORT == IvyTransport
 

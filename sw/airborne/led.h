@@ -78,6 +78,7 @@ static inline void led_init ( void ) {
 }
 
 #else /* LED */
+static inline void led_init ( void ) {}
 #define LED_ON(i) {}
 #define LED_OFF(i) {}
 #define LED_TOGGLE(i) {}

@@ -147,7 +147,7 @@ BOOZ_AB_SRCS += $(AB)/booz_autopilot.c
 BOOZ_AB_SRCS += $(AB)/commands.c
 
 CFLAGS += -DADC_CHANNEL_AX=1 -DADC_CHANNEL_AY=2 -DADC_CHANNEL_AZ=3 -DADC_CHANNEL_BAT=4
-BOOZ_AB_SRCS  += $(AB)/imu_v3.c $(AB_ARCH)/imu_v3_hw.c
+BOOZ_AB_SRCS  += $(AB)/imu_v3.c $(AB_ARCH)/imu_v3_hw.c $(AB_ARCH)/adc_hw.c
 
 
 booz_sim: $(BOOZ_SIM_SRCS) $(BOOZ_AB_SRCS)
