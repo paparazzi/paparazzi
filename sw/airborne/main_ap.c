@@ -56,6 +56,7 @@
 #include "wavecard.h"
 #include "xbee.h"
 #include "gpio.h"
+#include "light.h"
 
 #ifdef LED
 #include "led.h"
@@ -109,7 +110,7 @@ uint8_t rc_settings_mode = RC_SETTINGS_MODE_NONE;
 /** Define minimal speed for takeoff in m/s */
 #define MIN_SPEED_FOR_TAKEOFF 5.
 
-
+bool_t power_switch;
 uint8_t fatal_error_nb = 0;
 static const uint16_t version = 1;
 
@@ -134,17 +135,8 @@ float energy; /** Fuel consumption */
 
 bool_t gps_lost = FALSE;
 
-
-#define LIGHT_MODE_OFF 0
-#define LIGHT_MODE_ON 1
-#define LIGHT_MODE_FLASH 2
-
-uint8_t light_mode = LIGHT_MODE_ON;
-
-
 #define Min(x, y) (x < y ? x : y)
 #define Max(x, y) (x > y ? x : y)
-
 
 /** \brief Update paparazzi mode
  */
@@ -433,8 +425,6 @@ void periodic_task_ap( void ) {
   static uint8_t _4Hz   = 0;
   static uint8_t _1Hz   = 0;
 
-  //  estimator_t += PERIOD;
-
   _20Hz++;
   if (_20Hz>=3) _20Hz=0;
   _10Hz++;
@@ -475,12 +465,9 @@ void periodic_task_ap( void ) {
 
   }
 
-#ifdef LIGHT_PIN_1
-  if (_1Hz < light_mode) {
-    LED_ON(LIGHT_PIN_1)
-  } else
-    LED_OFF(LIGHT_PIN_1)
-#endif /* LIGHT_PIN_1 */
+#ifdef USE_LIGHT
+  LightPeriodicTask(_1Hz);
+#endif
 
   switch(_4Hz) {
   case 0:
@@ -695,6 +682,13 @@ void init_ap( void ) {
 #ifdef USE_BARO_MS5534A
   baro_MS5534A_init();
 #endif
+
+  power_switch = FALSE;
+
+#ifdef USE_LIGHT
+  LightInit();
+#endif
+
 }
 
 
