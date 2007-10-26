@@ -11,7 +11,7 @@
 #include "uart.h"
 #include "messages.h"
 #include "downlink.h"
-#include "booz_imu_telemetry.h"
+#include "booz_filter_telemetry.h"
 
 #include "link_imu.h"
 
@@ -54,6 +54,15 @@ static inline void main_event_task( void ) {
 
 static inline void main_periodic_task( void ) {
   ImuPeriodic();
+  static uint8_t _50hz = 0;
+  _50hz++;
+  if (_50hz > 5) _50hz = 0;
+  switch (_50hz) {
+  case 0:
+    booz_filter_telemetry_periodic_task();
+    break;
+  }
+
 }
 
 static inline void on_imu_event( void ) {

@@ -16,11 +16,12 @@
 #define IMU_NO_LINK 3
 
 struct imu_state {
-  //  int16_t r_rates[AXIS_NB];
+  int16_t r_rates[AXIS_NB];
   int16_t f_rates[AXIS_NB];
   int16_t f_eulers[AXIS_NB];
+  int16_t pad0;
   uint8_t status;
-  uint8_t pad;
+  uint8_t pad1;
   uint16_t crc;
 };
 

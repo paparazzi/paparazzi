@@ -103,7 +103,7 @@ STATIC_INLINE void booz_main_periodic_task( void ) {
       booz_autopilot_mode = BOOZ_AP_MODE_FAILSAFE;
     break;
   case 2:
-    booz_telemetry_periodic_task();
+    booz_controller_telemetry_periodic_task();
     break;
   case 3:
     break;

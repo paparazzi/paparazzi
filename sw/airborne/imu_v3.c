@@ -15,7 +15,7 @@ int16_t imu_mag[AXIS_NB];
 float imu_bat;
 
 float imu_gyro_prev[AXIS_NB];
-
+float imu_gyro_lp[AXIS_NB];   
 
 uint16_t imu_accel_raw[AXIS_NB];
 uint16_t imu_gyro_raw[AXIS_NB];
@@ -68,6 +68,11 @@ void imu_v3_init(void) {
 
   uint8_t i, j;
   for (i=0; i<AXIS_NB; i++) {
+ 
+    imu_gyro[i] = 0.;
+    imu_gyro_prev[i] = 0.;
+    imu_gyro_lp[i] = 0.;
+
     imu_vs_accel_raw_sum[i] = 0;
     imu_vs_gyro_raw_sum[i] = 0;
     imu_vs_mag_raw_sum[i] = 0;

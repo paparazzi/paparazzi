@@ -107,7 +107,7 @@ mtt.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600
 mtt.srcs += $(SRC_ARCH)/uart_hw.c
 
 mtt.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart1 
-mtt.srcs += downlink.c pprz_transport.c
+mtt.srcs += downlink.c pprz_transport.c booz_filter_telemetry.c
 
 mtt.CFLAGS += -DADC -DUSE_AD0 -DUSE_AD0_1 -DUSE_AD0_2 -DUSE_AD0_3 -DUSE_AD0_4
 mtt.srcs += $(SRC_ARCH)/adc_hw.c

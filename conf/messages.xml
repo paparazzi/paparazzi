@@ -359,12 +359,22 @@
     <field name="vmz" type="float" unit="adc"/>
   </message>
 
-  <message name="IMU_CAL" ID="209">
+
+  <message name="IMU_GYRO_LP" ID="209">
+    <field name="gp" type="float" unit="rad/s"/>
+    <field name="gq" type="float" unit="rad/s"/>
+    <field name="gr" type="float" unit="rad/s"/>
+  </message>
+
+
+
+
+  <message name="IMU_CAL" ID="220">
     <field name="omega" type="float" unit="rad/s"/>
   </message>
 
 
-  <message name="AHRS_STATE" ID="210">
+  <message name="AHRS_STATE" ID="221">
       <field name="q0" type="float"/>
       <field name="q1" type="float"/>
       <field name="q2" type="float"/>
@@ -374,7 +384,7 @@
       <field name="bz" type="float"/>
   </message>
 
-  <message name="AHRS_COV" ID="211">
+  <message name="AHRS_COV" ID="222">
     <field name="p00" type="float"/>
     <field name="p11" type="float"/>
     <field name="p22" type="float"/>
@@ -384,17 +394,17 @@
     <field name="p66" type="float"/>
   </message>
 
-   <message name="TIME" ID="212">
+   <message name="TIME" ID="223">
     <field name="t" type="uint32"/>
   </message>
 
-  <message name="AHRS_OVERRUN" ID="213">
+  <message name="AHRS_OVERRUN" ID="224">
   </message>
 
 
 
 
-  <message name="BOOZ_FD" ID="214">
+  <message name="BOOZ_FD" ID="230">
     <field name="p" type="float"/>
     <field name="q" type="float"/>
     <field name="r" type="float"/>
@@ -403,7 +413,7 @@
     <field name="psi" type="float"/>
   </message>
 
-  <message name="BOOZ_STATUS" ID="215">
+  <message name="BOOZ_STATUS" ID="231">
       <field name="link_imu_nb_err" type="uint32"/>
       <field name="imu_status" type="uint8" values="NO_LINK|UNINIT|RUNNING|CRASHED"/>
       <field name="rc_status" type="uint8" values="OK|LOST|REALLY_LOST"/>
@@ -413,14 +423,14 @@
       <field name="blmc_nb_err" type="uint8"/>
   </message>
 
-  <message name="BOOZ_DEBUG" ID="216">
+  <message name="BOOZ_DEBUG" ID="232">
     <field name="sp_p" type="float"/>
     <field name="sp_q"  type="float"/>
     <field name="sp_r"  type="float"/>
     <field name="sp_t"  type="float"/>
   </message>
 
-  <message name="BOOZ_RATE_LOOP" ID="217">
+  <message name="BOOZ_RATE_LOOP" ID="233">
     <field name="m_p"    type="float"/>
     <field name="sp_p"   type="float"/>
     <field name="m_q"  type="float"/>
@@ -429,21 +439,21 @@
     <field name="sp_r" type="float"/>
   </message>
 
-  <message name="BOOZ_ATT_LOOP" ID="218">
+  <message name="BOOZ_ATT_LOOP" ID="234">
     <field name="m_phi"    type="float"/>
     <field name="sp_phi"   type="float"/>
     <field name="m_theta"  type="float"/>
     <field name="sp_theta" type="float"/>
   </message>
 
-  <message name="BOOZ_RPMS" ID="219">
+  <message name="BOOZ_RPMS" ID="235">
     <field name="front"    type="float"/>
     <field name="back"     type="float"/>
     <field name="left"     type="float"/>
     <field name="right"    type="float"/>
   </message>
 
-  <message name="BOOZ_CMDS" ID="220">
+  <message name="BOOZ_CMDS" ID="236">
     <field name="front"    type="uint8"/>
     <field name="back"     type="uint8"/>
     <field name="left"     type="uint8"/>
@@ -451,9 +461,15 @@
   </message>
 
 
+  <message name="BOOZ_UF_RATES" ID="237">
+    <field name="p" type="float"/>
+    <field name="q" type="float"/>
+    <field name="r" type="float"/>
+  </message>
 
 
-  <message name="ENOSE_STATUS" ID="230">
+
+  <message name="ENOSE_STATUS" ID="250">
       <field name="val1" type="uint16"/>
       <field name="val2" type="uint16"/>
       <field name="val3" type="uint16"/>
@@ -461,12 +477,12 @@
       <field name="heat" type="uint8[]"/>
   </message>
 
-  <message name="DPICCO_STATUS" ID="231">
+  <message name="DPICCO_STATUS" ID="251">
       <field name="humid" type="uint16"/>
       <field name="temp" type="uint16"/>
   </message>
 
-  <message name="ANTENNA_DEBUG" ID="240">
+  <message name="ANTENNA_DEBUG" ID="252">
       <field name="mag_xraw" type="int32"/>
       <field name="mag_yraw" type="int32"/>
       <field name="mag_xcal" type="float"/>
@@ -478,14 +494,14 @@
       <field name="mag_cal_status" type="uint8"/>
   </message>
 
-  <message name="ANTENNA_STATUS" ID="241">
+  <message name="ANTENNA_STATUS" ID="253">
       <field name="azim_sp" type="float"/>
       <field name="elev_sp" type="float"/>
       <field name="id_sp" type="uint8"/>
       <field name="mode" type="uint8"/>
   </message>
 
- <message name="MOTOR_BENCH_STATUS" ID="250">
+ <message name="MOTOR_BENCH_STATUS" ID="254">
       <field name="time_ticks" type="uint32"/>
       <field name="throttle" type="float" format="%.3f"/>
       <field name="rpm" type="float"/>
@@ -497,7 +513,7 @@
       
   </message>
 
-  <message name="DC_MC_STATUS" ID="251">
+  <message name="DC_MC_STATUS" ID="255">
       <field name="time_sec" type="uint16"/>
       <field name="time_ticks" type="uint16"/>
       <field name="command" type="uint16"/>

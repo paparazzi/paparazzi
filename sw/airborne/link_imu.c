@@ -105,9 +105,9 @@ void link_imu_init ( void ) {
 void link_imu_send ( void ) {
   LinkImuSetUnavailable();
   
-  //  link_imu_state.r_rates[AXIS_P] = imu_vs_gyro_unbiased[AXIS_P] * RATE_PI_S/M_PI;
-  //  link_imu_state.r_rates[AXIS_Q] = imu_vs_gyro_unbiased[AXIS_Q] * RATE_PI_S/M_PI;
-  //  link_imu_state.r_rates[AXIS_R] = imu_vs_gyro_unbiased[AXIS_R] * RATE_PI_S/M_PI;
+  link_imu_state.r_rates[AXIS_P] = imu_vs_gyro_unbiased[AXIS_P] * RATE_PI_S/M_PI;
+  link_imu_state.r_rates[AXIS_Q] = imu_vs_gyro_unbiased[AXIS_Q] * RATE_PI_S/M_PI;
+  link_imu_state.r_rates[AXIS_R] = imu_vs_gyro_unbiased[AXIS_R] * RATE_PI_S/M_PI;
   link_imu_state.f_rates[AXIS_P] = mtt_p * RATE_PI_S/M_PI;
   link_imu_state.f_rates[AXIS_Q] = mtt_q * RATE_PI_S/M_PI;
   link_imu_state.f_rates[AXIS_R] = mtt_r * RATE_PI_S/M_PI;

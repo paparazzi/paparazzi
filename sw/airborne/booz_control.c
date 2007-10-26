@@ -79,17 +79,17 @@ void booz_control_rate_compute_setpoints(void) {
 
 void booz_control_rate_run(void) {
 
-  const float rate_err_p = booz_estimator_p - booz_control_p_sp;
+  const float rate_err_p = booz_estimator_uf_p - booz_control_p_sp;
   const float rate_d_err_p = rate_err_p - booz_control_rate_last_err_p;
   booz_control_rate_last_err_p = rate_err_p;
   const float cmd_p = booz_control_rate_pq_pgain * ( rate_err_p + booz_control_rate_pq_dgain * rate_d_err_p );
 
-  const float rate_err_q = booz_estimator_q - booz_control_q_sp;
+  const float rate_err_q = booz_estimator_uf_q - booz_control_q_sp;
   const float rate_d_err_q = rate_err_q - booz_control_rate_last_err_q;
   booz_control_rate_last_err_q = rate_err_q;
   const float cmd_q = booz_control_rate_pq_pgain * ( rate_err_q + booz_control_rate_pq_dgain * rate_d_err_q );
 
-  const float rate_err_r = booz_estimator_r - booz_control_r_sp;
+  const float rate_err_r = booz_estimator_uf_r - booz_control_r_sp;
   const float rate_d_err_r = rate_err_r - booz_control_rate_last_err_r;
   booz_control_rate_last_err_r = rate_err_r;
   const float cmd_r = booz_control_rate_r_pgain * ( rate_err_r + booz_control_rate_r_dgain * rate_d_err_r );

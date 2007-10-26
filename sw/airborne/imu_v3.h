@@ -13,6 +13,8 @@ extern int16_t imu_mag[AXIS_NB];   /* magnetometer in arbitrary unit   */
 extern float   imu_bat;            /* battery in volts                 */
 
 extern float imu_gyro_prev[AXIS_NB];  /* previous gyros in rad/s       */
+#define IMU_GYRO_LP_ALPHA 0.6
+extern float imu_gyro_lp[AXIS_NB];    /* low passed calibrated gyros in rad/s */
 
 /* raw sensors readings */
 extern uint16_t imu_accel_raw[AXIS_NB];
@@ -79,6 +81,13 @@ extern struct adc_buf buf_bat;
     imu_vs_gyro_unbiased[AXIS_P] = imu_gyro[AXIS_P] - imu_vs_gyro_initial_bias[AXIS_P]; \
     imu_vs_gyro_unbiased[AXIS_Q] = imu_gyro[AXIS_Q] - imu_vs_gyro_initial_bias[AXIS_Q]; \
     imu_vs_gyro_unbiased[AXIS_R] = imu_gyro[AXIS_R] - imu_vs_gyro_initial_bias[AXIS_R]; \
+									                \
+    imu_gyro_lp[AXIS_P] = IMU_GYRO_LP_ALPHA * imu_vs_gyro_unbiased[AXIS_P] +            \
+                          ( 1. - IMU_GYRO_LP_ALPHA) * imu_gyro_lp[AXIS_P];              \
+    imu_gyro_lp[AXIS_Q] = IMU_GYRO_LP_ALPHA * imu_vs_gyro_unbiased[AXIS_Q] +            \
+                          ( 1. - IMU_GYRO_LP_ALPHA) * imu_gyro_lp[AXIS_Q];              \
+    imu_gyro_lp[AXIS_R] = IMU_GYRO_LP_ALPHA * imu_vs_gyro_unbiased[AXIS_R] +	        \
+                          ( 1. - IMU_GYRO_LP_ALPHA) * imu_gyro_lp[AXIS_R];              \
   }
 
 #define ImuUpdateMag() {						\
