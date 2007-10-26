@@ -38,7 +38,7 @@ let norc = ref false
 module Make(A:Data.MISSION) = struct
 
   let servos_period = 1./.40. (* s *)
-  let periodic_period = 1./.61. (* s *)
+  let periodic_period = 1./.60. (* s *)
   let rc_period = 1./.40. (* s *)
       
   let msg = fun name ->
@@ -154,7 +154,7 @@ module Make(A:Data.MISSION) = struct
       and course = (Deg>>Rad)(f "course")
       and alt = f "alt"
       and gspeed = f "speed" in
-      let wgs84 = make_geo ((Deg>>Rad)lat) ((Deg>>Rad)long) in
+      let wgs84 = Latlong.make_geo ((Deg>>Rad)lat) ((Deg>>Rad)long) in
       let utm = Latlong.utm_of WGS84 wgs84 in
       set_ac_info ac_id utm.utm_x utm.utm_y course alt gspeed
 
