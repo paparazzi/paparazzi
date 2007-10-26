@@ -34,6 +34,8 @@
 #define LED_3_BANK 0
 #define LED_3_PIN 11
 
+#define POWER_SWITCH_LED 3
+
 /* P0.5 aka MAT0.1  */
 #define SERVO_CLOCK_PIN  5
 #define SERVO_CLOCK_PINSEL PINSEL0
