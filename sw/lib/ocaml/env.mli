@@ -38,3 +38,5 @@ val icon_file : string
 
 val gconf_file : string
 (** XML preferences file à la gconf *)
+
+val gcs_icons_path : string
