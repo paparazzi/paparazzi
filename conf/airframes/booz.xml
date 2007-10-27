@@ -50,7 +50,7 @@ ctl.TARGET = ctl
 ctl.TARGETDIR = ctl
 
 ctl.CFLAGS += -DCONTROLLER -DCONFIG=\"conf_booz.h\"
-ctl.srcs = main_booz.c
+ctl.srcs = booz_controller_main.c
 
 ctl.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(4e-3)' -DTIME_LED=1
 ctl.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
@@ -90,73 +90,37 @@ ctl.srcs += booz_telemetry.c
 
 
 #
-# multitilt
+# FILTER CPU
 #
 
-mtt.ARCHDIR = $(ARCHI)
-mtt.ARCH = arm7tdmi
-mtt.TARGET = mtt
-mtt.TARGETDIR = mtt
+flt.ARCHDIR = $(ARCHI)
+flt.ARCH = arm7tdmi
+flt.TARGET = flt
+flt.TARGETDIR = flt
 
-mtt.CFLAGS += -DIMU -DCONFIG=\"pprz_imu.h\"  -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(4e-3)'
-mtt.srcs = main_mtt.c sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
+flt.CFLAGS += -DIMU -DCONFIG=\"pprz_imu.h\"  -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(4e-3)'
+flt.srcs = booz_filter_main.c sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
 
-mtt.CFLAGS += -DLED
+flt.CFLAGS += -DLED
 
-mtt.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600
-mtt.srcs += $(SRC_ARCH)/uart_hw.c
+flt.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600
+flt.srcs += $(SRC_ARCH)/uart_hw.c
 
-mtt.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart1 
-mtt.srcs += downlink.c pprz_transport.c booz_filter_telemetry.c
+flt.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart1 
+flt.srcs += downlink.c pprz_transport.c booz_filter_telemetry.c
 
-mtt.CFLAGS += -DADC -DUSE_AD0 -DUSE_AD0_1 -DUSE_AD0_2 -DUSE_AD0_3 -DUSE_AD0_4
-mtt.srcs += $(SRC_ARCH)/adc_hw.c
+flt.CFLAGS += -DADC -DUSE_AD0 -DUSE_AD0_1 -DUSE_AD0_2 -DUSE_AD0_3 -DUSE_AD0_4
+flt.srcs += $(SRC_ARCH)/adc_hw.c
 
-mtt.srcs += $(SRC_ARCH)/max1167.c
+flt.srcs += $(SRC_ARCH)/max1167.c
 
-mtt.srcs += imu_v3.c $(SRC_ARCH)/imu_v3_hw.c
+flt.srcs += imu_v3.c $(SRC_ARCH)/imu_v3_hw.c
 
-mtt.srcs += multitilt.c
+flt.srcs += multitilt.c
 
-mtt.CFLAGS += -DIMU
-mtt.srcs += link_imu.c
+flt.CFLAGS += -DIMU
+flt.srcs += link_imu.c
 
-#
-# AHRS CPU
-#
-
-imu.ARCHDIR = $(ARCHI)
-imu.ARCH = arm7tdmi
-imu.TARGET = imu
-imu.TARGETDIR = imu
-
-imu.CFLAGS += -DIMU -DCONFIG=\"pprz_imu.h\"
-imu.srcs = main_imu.c sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
-
-imu.CFLAGS += -DLED
-
-imu.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B9600
-imu.srcs += $(SRC_ARCH)/uart_hw.c
-
-imu.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart1 
-imu.srcs += downlink.c pprz_transport.c
-
-imu.CFLAGS += -DADC -DUSE_AD0 -DUSE_AD0_1 -DUSE_AD0_2 -DUSE_AD0_3 -DUSE_AD0_4
-imu.srcs += $(SRC_ARCH)/adc_hw.c
-
-imu.srcs += $(SRC_ARCH)/max1167.c
-imu.srcs += $(SRC_ARCH)/micromag.c
-
-imu.srcs += imu_v3.c
-
-//imu.srcs += ahrs_new.c
-
-imu.srcs += ahrs_quat_fast_ekf.c
-imu.CFLAGS += -DEKF_UPDATE_CONTINUOUS
-
-//imu.srcs += multitilt.c
-
-imu.srcs += link_imu.c
 
   </makefile>
 

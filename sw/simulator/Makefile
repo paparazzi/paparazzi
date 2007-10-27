@@ -107,13 +107,12 @@ BOOZ_SIM_SRCS = main_booz_sim.c           \
                 booz_sensors_model.c      \
                 booz_flightgear.c         \
                 booz_joystick.c           \
-#		booz_fake_main_imu.c      \
 
 CFLAGS += -DSITL
 CFLAGS += -DCONTROLLER
 CFLAGS += -DCONFIG=\"conf_booz.h\"
 
-BOOZ_AB_SRCS += $(AB)/main_booz.c
+BOOZ_AB_SRCS += $(AB)/booz_controller_main.c
 
 BOOZ_AB_SRCS += $(AB)/sys_time.c
 
@@ -146,8 +145,14 @@ BOOZ_AB_SRCS += $(AB)/booz_control.c
 BOOZ_AB_SRCS += $(AB)/booz_autopilot.c
 BOOZ_AB_SRCS += $(AB)/commands.c
 
+BOOZ_AB_SRCS += $(AB)/booz_filter_main.c
+
 CFLAGS += -DADC_CHANNEL_AX=1 -DADC_CHANNEL_AY=2 -DADC_CHANNEL_AZ=3 -DADC_CHANNEL_BAT=4
 BOOZ_AB_SRCS  += $(AB)/imu_v3.c $(AB_ARCH)/imu_v3_hw.c $(AB_ARCH)/adc_hw.c
+
+BOOZ_AB_SRCS += $(AB)/booz_filter_telemetry.c
+
+BOOZ_AB_SRCS += $(AB)/multitilt.c
 
 
 booz_sim: $(BOOZ_SIM_SRCS) $(BOOZ_AB_SRCS)

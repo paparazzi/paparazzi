@@ -10,10 +10,6 @@
 #define ActuatorsCommit() {			                \
     if ( buss_twi_blmc_status == BUSS_TWI_BLMC_STATUS_IDLE) {	\
       buss_twi_blmc_idx = 0;					\
-      /* buss_twi_blmc_motor_power[0] = 0; */				\
-      /* buss_twi_blmc_motor_power[1] = 0; */				\
-      /* buss_twi_blmc_motor_power[2] = 0; */				\
-      /*buss_twi_blmc_motor_power[3] = 0;  */				\
       buss_twi_blmc_status = BUSS_TWI_BLMC_STATUS_BUSY;		\
       ActuatorsBussTwiBlmcSend();				\
     }								\

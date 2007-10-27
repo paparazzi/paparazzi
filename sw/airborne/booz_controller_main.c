@@ -1,4 +1,4 @@
-#include "main_booz.h"
+#include "booz_controller_main.h"
 
 #include "std.h"
 #include "init_hw.h"
@@ -38,17 +38,17 @@ uint8_t  link_imu_status;
 
 #ifndef SITL
 int main( void ) {
-  booz_main_init();
+  booz_controller_main_init();
   while(1) {
     if (sys_time_periodic())
-      booz_main_periodic_task();
-    booz_main_event_task();
+      booz_controller_main_periodic_task();
+    booz_controller_main_event_task();
   }
   return 0;
 }
 #endif
 
-STATIC_INLINE void booz_main_init( void ) {
+STATIC_INLINE void booz_controller_main_init( void ) {
 
   hw_init();
   led_init();
@@ -80,7 +80,7 @@ STATIC_INLINE void booz_main_init( void ) {
   DOWNLINK_SEND_BOOT(&cpu_time_sec);
 }
 
-STATIC_INLINE void booz_main_periodic_task( void ) {
+STATIC_INLINE void booz_controller_main_periodic_task( void ) {
   
   // FIXME
 #ifndef SITL
@@ -114,7 +114,7 @@ STATIC_INLINE void booz_main_periodic_task( void ) {
 
 }
 
-STATIC_INLINE void booz_main_event_task( void ) {
+STATIC_INLINE void booz_controller_main_event_task( void ) {
   
   // FIXME
 #ifndef SITL

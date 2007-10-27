@@ -8,11 +8,14 @@
 
 #include "booz_flightgear.h"
 #include "booz_joystick.h"
-#include "main_booz.h"
+
+#include "booz_controller_main.h"
+#include "booz_filter_main.h"
 
 
 //char* fg_host = "127.0.0.1";
-char* fg_host = "10.31.4.107";
+//char* fg_host = "10.31.4.107";
+char* fg_host = "192.168.1.191";
 unsigned int fg_port = 5501;
 char* joystick_dev = "/dev/input/js0";
 
@@ -67,9 +70,10 @@ static gboolean booz_sim_periodic(gpointer data) {
   ppm_pulses[RADIO_YAW]      = 1500 + booz_joystick_value[JS_YAW]      * (2050-950);
   ppm_pulses[RADIO_MODE]     = 1500 + booz_joystick_value[JS_MODE]     * (2050-950);
   ppm_valid = TRUE;
-  booz_main_event_task();
+  booz_controller_main_event_task();
   /* run periodic tak */
-  booz_main_periodic_task();
+  booz_controller_main_periodic_task();
+  booz_filter_main_periodic_task();
   /* get actuators values */
 #if 0
   foo_commands[SERVO_MOTOR_BACK] = (actuators[SERVO_MOTOR_BACK] - 1200)/(double)(1850-1200);
@@ -106,7 +110,9 @@ int main ( int argc, char** argv) {
 
   booz_joystick_init(joystick_dev);
 
-  booz_main_init();
+  booz_controller_main_init();
+
+  booz_filter_main_init();
   
 
   GMainLoop *ml =  g_main_loop_new(NULL, FALSE);
