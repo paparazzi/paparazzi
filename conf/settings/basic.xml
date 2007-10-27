@@ -12,11 +12,6 @@
         <strip_button icon="circle-right.png" name="Circle right" value="1"/>        
         <strip_button icon="circle-left.png" name="Circle left" value="-1"/>        
       </dl_setting>
-
-      <dl_setting MAX="1" MIN="0" STEP="1" VAR="power_switch" module="autopilot" handler="SetPowerSwitch">
-        <strip_button name="Video On" value="1"/>
-        <strip_button name="Video Off" value="0"/>
-      </dl_setting>
     </dl_settings>
 
     <dl_settings NAME="mode">
