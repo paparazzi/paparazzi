@@ -4,8 +4,8 @@
 #include "std.h"
 
 #define MT_STATUS_UNINIT       0
-#define MT_STATUS_RUNNING      2
-#define MT_STATUS_CRASHED      3
+#define MT_STATUS_RUNNING      1
+#define MT_STATUS_CRASHED      2
 
 extern uint8_t mtt_status;
 

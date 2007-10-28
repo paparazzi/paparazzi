@@ -28,16 +28,16 @@
 #ifndef LINK_MCU_HW_H
 #define LINK_MCU_HW_H
 
+#ifdef BOOZ_FILTER_MCU
 
-#define CRC_INIT 0x0
-#define CrcLow(x) ((x)&0xff)
-#define CrcHigh(x) ((x)>>8)
+#include "LPC21xx.h"
+#define BoozLinkMcuSetUnavailable() { IO1SET = _BV(SPI0_DRDY); }
+#define BoozLinkMcuSetAvailable()   { IO1CLR = _BV(SPI0_DRDY); }
 
-static inline uint16_t CrcUpdate(uint16_t crc, uint8_t data) {
-  uint8_t a = ((uint8_t)CrcHigh(crc)) + data; 
-  uint8_t b = ((uint8_t)CrcLow(crc)) + a;
-  crc = b | a << 8; 
-  return crc;
-}
+#endif /* BOOZ_FILTER_MCU */
+
+
+
+
 
 #endif /* LINK_MCU_HW_H */

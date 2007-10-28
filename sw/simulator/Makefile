@@ -109,7 +109,7 @@ BOOZ_SIM_SRCS = main_booz_sim.c           \
                 booz_joystick.c           \
 
 CFLAGS += -DSITL
-CFLAGS += -DCONTROLLER
+CFLAGS += -DBOOZ_CONTROLLER_MCU
 CFLAGS += -DCONFIG=\"conf_booz.h\"
 
 BOOZ_AB_SRCS += $(AB)/booz_controller_main.c
@@ -136,10 +136,16 @@ CFLAGS += -DDOWNLINK_TRANSPORT=IvyTransport
 BOOZ_AB_SRCS += $(AB_ARCH)/ivy_transport.c
 LDFLAGS += -lglibivy
 
+BOOZ_AB_SRCS += $(AB)/booz_inter_mcu.c
+CFLAGS += -DUSE_SPI
+BOOZ_AB_SRCS += $(AB)/booz_link_mcu.c $(AB_ARCH)/booz_link_mcu_hw.c
+BOOZ_AB_SRCS += $(AB)/spi.c $(AB_ARCH)/spi_hw.c
+
 #../airborne/link_imu.c 
 #CFLAGS += -DDATALINK=PPRZ
 #BOOZ_AB_SRCS += ../airborne/datalink.c
 
+CFLAGS += -DBOOZ_FILTER_MCU
 BOOZ_AB_SRCS += $(AB)/booz_estimator.c
 BOOZ_AB_SRCS += $(AB)/booz_control.c
 BOOZ_AB_SRCS += $(AB)/booz_autopilot.c
@@ -148,9 +154,15 @@ BOOZ_AB_SRCS += $(AB)/commands.c
 BOOZ_AB_SRCS += $(AB)/booz_filter_main.c
 
 CFLAGS += -DADC_CHANNEL_AX=1 -DADC_CHANNEL_AY=2 -DADC_CHANNEL_AZ=3 -DADC_CHANNEL_BAT=4
-BOOZ_AB_SRCS  += $(AB)/imu_v3.c $(AB_ARCH)/imu_v3_hw.c $(AB_ARCH)/adc_hw.c
+BOOZ_AB_SRCS  += $(AB_ARCH)/adc_hw.c
+
 
 BOOZ_AB_SRCS += $(AB)/booz_filter_telemetry.c
+
+BOOZ_AB_SRCS  += $(AB)/max1167.c $(AB_ARCH)/max1167_hw.c
+
+BOOZ_AB_SRCS  += $(AB)/imu_v3.c $(AB_ARCH)/imu_v3_hw.c
+
 
 BOOZ_AB_SRCS += $(AB)/multitilt.c
 

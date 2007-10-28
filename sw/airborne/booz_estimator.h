@@ -14,5 +14,6 @@ extern float booz_estimator_theta;
 extern float booz_estimator_psi;
 
 extern void booz_estimator_init( void );
+extern void booz_estimator_read_inter_mcu_state( void );
 
 #endif /* BOOZ_ESTIMATOR_H */

@@ -4,9 +4,6 @@
 
 static void SPI1_ISR(void) __attribute__((naked));
 
-uint8_t spi_cur_slave;
-
-
 /* SSPCR0 settings */
 #define SSP_DDS  0x07 << 0  /* data size         : 8 bits        */
 #define SSP_FRF  0x00 << 4  /* frame format      : SPI           */
@@ -21,7 +18,6 @@ uint8_t spi_cur_slave;
 #define SSP_SOD  0x00 << 3  /* slave output disable : don't care when master */
 
 void imu_v3_hw_init(void) {
-  spi_cur_slave = SPI_SLAVE_NONE;  
 
   max1167_init();
 

@@ -4,6 +4,7 @@
 #include "std.h"
 #include "6dof.h"
 
+#include "max1167.h"
 #include "imu_v3_hw.h"
 
 /* calibrated sensor readings */
@@ -22,6 +23,7 @@ extern uint16_t imu_gyro_raw[AXIS_NB];
 extern int16_t  imu_mag_raw[AXIS_NB];
 
 extern void imu_v3_init(void);
+extern void imu_v3_hw_init(void);
 extern void imu_v3_detect_vehicle_still(void);
 extern bool_t imu_vehicle_still;
 extern float imu_vs_gyro_initial_bias[AXIS_NB];
@@ -132,6 +134,23 @@ extern struct adc_buf buf_bat;
 }
 
 
+#define ImuEventCheckAndHandle(user_handler) {	\
+    if (max1167_status == STA_MAX1167_DATA_AVAILABLE) {	\
+      max1167_status = STA_MAX1167_IDLE;		\
+      ImuUpdateGyros();					\
+      ImuUpdateAccels();				\
+      user_handler();					\
+    }							\
+  }
+
+#define ImuPeriodic() {				\
+    if (max1167_status != STA_MAX1167_IDLE) {	\
+      DOWNLINK_SEND_AHRS_OVERRUN();		\
+    }						\
+    else {					\
+      max1167_read();				\
+    }						\
+  }
 
 
 #endif /* IMU_V3_H */

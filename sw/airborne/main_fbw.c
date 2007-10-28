@@ -54,8 +54,6 @@
 #include "link_mcu.h"
 #endif
 
-#include "link_imu.h"
-
 #ifdef ADC
 struct adc_buf vsupply_adc_buf;
 #endif
@@ -98,10 +96,6 @@ void init_fbw( void ) {
 #ifdef MCU_SPI_LINK
   spi_init();
   link_mcu_restart();
-#endif
-#ifdef LINK_IMU
-  spi_init();
-  link_imu_init();
 #endif
 
   fbw_mode = FBW_MODE_FAILSAFE;
@@ -169,14 +163,6 @@ void event_task_fbw( void) {
 #endif /* MCU_SPI_LINK */
 #endif /* INTER_MCU */
 
-#ifdef LINK_IMU
-  if (spi_message_received) {
-    /* Got a message on SPI. */
-    spi_message_received = FALSE;
-    link_imu_event_task();
-    EstimatorSetAtt(link_imu_state.eulers[AXIS_X], link_imu_state.eulers[AXIS_Z],  link_imu_state.eulers[AXIS_Y]);
-  }
-#endif /* LINK_IMU */
 }
 
 

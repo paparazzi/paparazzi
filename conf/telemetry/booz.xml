@@ -26,6 +26,7 @@
     <mode name="default">
       <message name="IMU_GYRO"              period=".017"/>
       <message name="IMU_GYRO_LP"           period=".017"/>
+      <message name="IMU_GYRO_RAW"          period=".25"/>
     </mode>
     <mode name="raw_sensors">
       <message name="IMU_GYRO_RAW"          period=".017"/>

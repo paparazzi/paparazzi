@@ -14,7 +14,7 @@
 #include "downlink.h"
 #include "booz_filter_telemetry.h"
 
-#include "link_imu.h"
+#include "booz_link_mcu.h"
 
 static inline void on_imu_event( void );
 
@@ -43,22 +43,22 @@ STATIC_INLINE void booz_filter_main_init( void ) {
   imu_v3_init();
 
   multitilt_init();
-  //FIXME
-#ifndef SITL
-  link_imu_init();
-#endif
+
+  booz_link_mcu_init();
+
   int_enable();
 }
 
 // static uint32_t t0, t1, diff;
 
 STATIC_INLINE void booz_filter_main_event_task( void ) {
-  
+  /* check if measurements are available */
   ImuEventCheckAndHandle(on_imu_event);
 
 }
 
 STATIC_INLINE void booz_filter_main_periodic_task( void ) {
+  /* triger measurements */
   ImuPeriodic();
   static uint8_t _50hz = 0;
   _50hz++;
@@ -92,7 +92,5 @@ static inline void on_imu_event( void ) {
     break;
   }
   
-#ifndef SITL
-  link_imu_send();
-#endif
+  booz_link_mcu_send();
 }

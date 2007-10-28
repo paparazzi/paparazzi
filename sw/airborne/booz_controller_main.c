@@ -12,7 +12,8 @@
 #include "radio_control.h"
 
 #include "spi.h"
-#include "link_imu.h"
+#include "booz_link_mcu.h"
+
 #include "booz_estimator.h"
 #include "booz_control.h"
 #include "booz_autopilot.h"
@@ -29,12 +30,6 @@ int16_t trim_p = 0;
 int16_t trim_q = 0;
 int16_t trim_r = 0;
 uint8_t vbat = 0;
-
-//FIXME
-#ifdef SITL
-uint32_t link_imu_nb_err;
-uint8_t  link_imu_status;
-#endif
 
 #ifndef SITL
 int main( void ) {
@@ -61,10 +56,8 @@ STATIC_INLINE void booz_controller_main_init( void ) {
   ppm_init();
   radio_control_init();
 
-#ifndef SITL
   spi_init();
-  link_imu_init();
-#endif
+  booz_link_mcu_init();
   
   booz_estimator_init();
   booz_control_init();
@@ -82,11 +75,9 @@ STATIC_INLINE void booz_controller_main_init( void ) {
 
 STATIC_INLINE void booz_controller_main_periodic_task( void ) {
   
-  // FIXME
-#ifndef SITL
-  link_imu_periodic_task();
-#endif
-  
+  /* check for timeout */
+  booz_link_mcu_periodic_task();
+  /* run control loops */
   booz_autopilot_periodic_task();
 
   SetActuatorsFromCommands(commands);
@@ -119,9 +110,9 @@ STATIC_INLINE void booz_controller_main_event_task( void ) {
   // FIXME
 #ifndef SITL
   DlEventCheckAndHandle();
-
-  LinkImuEventCheckAndHandle();
 #endif
+
+  BoozLinkMcuEventCheckAndHandle();
 
   RadioControlEventCheckAndHandle(booz_autopilot_on_rc_event);
  
