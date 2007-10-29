@@ -92,8 +92,8 @@ static void booz_nav_hovering_loop_run(void) {
   
 
 
-  booz_nav_phi_command = 0.;
-  booz_nav_theta_command = 0.;
+  booz_nav_phi_command = booz_nav_horizontal_pgain * x_err_body;
+  booz_nav_theta_command = booz_nav_horizontal_pgain * y_err_body;
 
 }
 #endif
