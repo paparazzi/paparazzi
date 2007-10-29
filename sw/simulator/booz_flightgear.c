@@ -44,7 +44,7 @@ void booz_flightgear_send() {
 
   gui.latitude = lat;
   gui.longitude = lon;
-  gui.altitude = 30 - bfm.state->ve[BFMS_Z];  
+  gui.altitude = 1.1 - bfm.state->ve[BFMS_Z];  
 
   gui.phi = bfm.state->ve[BFMS_PHI];
   gui.theta = bfm.state->ve[BFMS_THETA];

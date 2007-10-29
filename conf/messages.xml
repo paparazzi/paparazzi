@@ -429,22 +429,40 @@
   </message>
 
   <message name="BOOZ_RATE_LOOP" ID="233">
-    <field name="m_p"    type="float"/>
-    <field name="sp_p"   type="float"/>
-    <field name="m_q"  type="float"/>
-    <field name="sp_q" type="float"/>
-    <field name="m_r"  type="float"/>
-    <field name="sp_r" type="float"/>
+    <field name="est_p" type="float"/>
+    <field name="sp_p"  type="float"/>
+    <field name="est_q" type="float"/>
+    <field name="sp_q"  type="float"/>
+    <field name="est_r" type="float"/>
+    <field name="sp_r"  type="float"/>
   </message>
 
   <message name="BOOZ_ATT_LOOP" ID="234">
-    <field name="m_phi"    type="float"/>
+    <field name="est_phi"    type="float"/>
     <field name="sp_phi"   type="float"/>
-    <field name="m_theta"  type="float"/>
+    <field name="est_theta"  type="float"/>
     <field name="sp_theta" type="float"/>
   </message>
 
-  <message name="BOOZ_CMDS" ID="236">
+  <message name="BOOZ_VERT_LOOP" ID="235">
+    <field name="sp_z"          type="float"/>
+    <field name="est_vz"        type="float"/>
+    <field name="est_z"         type="float"/>
+    <field name="power_command" type="float"/>
+  </message>
+
+  <message name="BOOZ_HOV_LOOP" ID="236">
+    <field name="sp_x"          type="float"/>
+    <field name="sp_y"          type="float"/>
+    <field name="est_vx"        type="float"/>
+    <field name="est_x"         type="float"/>
+    <field name="est_vy"        type="float"/>
+    <field name="est_y"         type="float"/>
+    <field name="phi_command"   type="float"/>
+    <field name="theta_command" type="float"/>
+  </message>
+
+  <message name="BOOZ_CMDS" ID="237">
     <field name="front"    type="uint8"/>
     <field name="back"     type="uint8"/>
     <field name="left"     type="uint8"/>
@@ -452,35 +470,32 @@
   </message>
 
 
-  <message name="BOOZ_UF_RATES" ID="237">
+  <message name="BOOZ_UF_RATES" ID="238">
     <field name="p" type="float"/>
     <field name="q" type="float"/>
     <field name="r" type="float"/>
   </message>
 
-  <message name="BOOZ_SIM_RPMS" ID="235">
+  <message name="BOOZ_SIM_RPMS" ID="239">
     <field name="front"    type="float" unit="RPM"/>
     <field name="back"     type="float" unit="RPM"/>
     <field name="left"     type="float" unit="RPM"/>
     <field name="right"    type="float" unit="RPM"/>
   </message>
 
-  <message name="BOOZ_SIM_POS_SPEED" ID="238">
-    <field name="x"    type="float"/>
-    <field name="y"     type="float"/>
-    <field name="z"     type="float"/>
+  <message name="BOOZ_SIM_SPEED_POS" ID="240">
     <field name="u"    type="float"/>
     <field name="v"     type="float"/>
     <field name="w"     type="float"/>
+    <field name="x"    type="float"/>
+    <field name="y"     type="float"/>
+    <field name="z"     type="float"/>
   </message>
 
-  <message name="BOOZ_SIM_ATTITUDE" ID="239">
+  <message name="BOOZ_SIM_ATTITUDE_RATE" ID="241">
     <field name="phi"   type="float" unit="degres"/>
     <field name="theta" type="float" unit="degres"/>
     <field name="psi"   type="float" unit="degres"/>
-  </message>
-
-  <message name="BOOZ_SIM_BODY_RATE" ID="240">
     <field name="p" type="float" unit="degres"/>
     <field name="q" type="float" unit="degres"/>
     <field name="r" type="float" unit="degres"/>

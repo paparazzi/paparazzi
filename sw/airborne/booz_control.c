@@ -29,8 +29,8 @@ pprz_t booz_control_commands[COMMANDS_NB];
 #define BOOZ_CONTROL_RATE_R_MAX_SP  100.
 
 
-float booz_control_phi_sp;
-float booz_control_theta_sp;
+float booz_control_attitude_phi_sp;
+float booz_control_attitude_theta_sp;
 float booz_control_attitude_phi_theta_pgain;
 float booz_control_attitude_phi_theta_dgain;
 
@@ -59,15 +59,15 @@ void booz_control_init(void) {
   booz_control_rate_r_dgain = BOOZ_CONTROL_RATE_R_DGAIN;
 
 
-  booz_control_phi_sp = 0.;
-  booz_control_theta_sp =0.;
+  booz_control_attitude_phi_sp = 0.;
+  booz_control_attitude_theta_sp =0.;
   booz_control_attitude_phi_theta_pgain = BOOZ_CONTROL_ATTITUDE_PHI_THETA_PGAIN;
   booz_control_attitude_phi_theta_dgain = BOOZ_CONTROL_ATTITUDE_PHI_THETA_DGAIN;
 
 }
 
 
-void booz_control_rate_compute_setpoints(void) {
+void booz_control_rate_read_setpoints_from_rc(void) {
 
   booz_control_p_sp = -rc_values[RADIO_ROLL]  * RadOfDeg(BOOZ_CONTROL_RATE_PQ_MAX_SP)/MAX_PPRZ;
   booz_control_q_sp =  rc_values[RADIO_PITCH] * RadOfDeg(BOOZ_CONTROL_RATE_PQ_MAX_SP)/MAX_PPRZ;
@@ -101,10 +101,12 @@ void booz_control_rate_run(void) {
 
 }
 
-void booz_control_attitude_compute_setpoints(void) {
+void booz_control_attitude_read_setpoints_from_rc(void) {
 
-  booz_control_phi_sp = -rc_values[RADIO_ROLL]  * RadOfDeg(BOOZ_CONTROL_ATTITUDE_PHI_THETA_MAX_SP)/MAX_PPRZ;
-  booz_control_theta_sp =  rc_values[RADIO_PITCH] * RadOfDeg(BOOZ_CONTROL_ATTITUDE_PHI_THETA_MAX_SP)/MAX_PPRZ;
+  booz_control_attitude_phi_sp = -rc_values[RADIO_ROLL]  * 
+                                  RadOfDeg(BOOZ_CONTROL_ATTITUDE_PHI_THETA_MAX_SP)/MAX_PPRZ;
+  booz_control_attitude_theta_sp =  rc_values[RADIO_PITCH] * 
+                                  RadOfDeg(BOOZ_CONTROL_ATTITUDE_PHI_THETA_MAX_SP)/MAX_PPRZ;
   booz_control_r_sp = -rc_values[RADIO_YAW]   * RadOfDeg(BOOZ_CONTROL_RATE_R_MAX_SP)/MAX_PPRZ;
   booz_control_power_sp = rc_values[RADIO_THROTTLE] / (float)MAX_PPRZ;
 
@@ -112,11 +114,11 @@ void booz_control_attitude_compute_setpoints(void) {
 
 void booz_control_attitude_run(void) {
 
-  const float att_err_phi = booz_estimator_phi - booz_control_phi_sp;
+  const float att_err_phi = booz_estimator_phi - booz_control_attitude_phi_sp;
   const float cmd_p = booz_control_attitude_phi_theta_pgain *  att_err_phi + 
                       booz_control_attitude_phi_theta_dgain * booz_estimator_p ;
 
-  const float att_err_theta = booz_estimator_theta - booz_control_theta_sp;
+  const float att_err_theta = booz_estimator_theta - booz_control_attitude_theta_sp;
   const float cmd_q = booz_control_attitude_phi_theta_pgain * att_err_theta + 
                       booz_control_attitude_phi_theta_dgain * booz_estimator_q;
 
@@ -131,21 +133,4 @@ void booz_control_attitude_run(void) {
   booz_control_commands[COMMAND_THROTTLE] = TRIM_PPRZ((int16_t) (booz_control_power_sp * MAX_PPRZ));
 
 
-}
-
-void booz_control_nav_compute_setpoints(void) {
-
-
-}
-
-
-void booz_control_nav_run(void) {
-#if 0
-  booz_control_commands[COMMAND_P] = 0;
-  booz_control_commands[COMMAND_Q] = 0;
-  booz_control_commands[COMMAND_R] = 0;
-  booz_control_commands[COMMAND_THROTTLE] = 0;
-#else
-  booz_control_rate_run();
-#endif
 }

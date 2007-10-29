@@ -21,6 +21,10 @@ struct BoozSensorsModel {
   VEC* gyro_noise_std_dev;
   VEC* gyro_bias;
 
+  /* imaginary sensors - gps maybe */
+  VEC* speed_sensor;
+  VEC* pos_sensor;
+
 };
 
 extern struct BoozSensorsModel bsm;

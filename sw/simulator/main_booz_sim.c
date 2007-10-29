@@ -56,7 +56,10 @@ static gboolean booz_sim_periodic(gpointer data) {
   /* read actuators positions */
   booz_sim_read_actuators();
 
+  /* run our models */
   if (sim_time > 3.)
+    /* no fdm at start to allow for filter initialisation */
+    /* it sucks, I know */
     booz_flight_model_run(DT, booz_sim_actuators_values);
   booz_sensors_model_run();
   sim_time += DT;
@@ -70,16 +73,26 @@ static gboolean booz_sim_periodic(gpointer data) {
   /* it will run the filter and the inter-process communication which   */
   /* will post a BoozLinkMcuEvent in the Controller process             */
   booz_filter_main_event_task();
+
   /* process the BoozLinkMcuEvent                                       */
   /* this will update the controller estimator                          */
   booz_controller_main_event_task();
+  /* in simulation feed speed and pos estimations ( with a pos sensor :( ) */
+  booz_estimator_set_speed_and_pos(bsm.speed_sensor->ve[AXIS_X], 
+				   bsm.speed_sensor->ve[AXIS_Y], 
+				   bsm.speed_sensor->ve[AXIS_Z],
+				   bsm.pos_sensor->ve[AXIS_X], 
+				   bsm.pos_sensor->ve[AXIS_Y], 
+				   bsm.pos_sensor->ve[AXIS_Z] );
+  /* in simulation compute dcm as a helper for for nav */
+  booz_estimator_compute_dcm();
+
+
   /* post a radio control event */
   booz_sim_set_ppm_from_joystick();
   ppm_valid = TRUE;
   /* and let the controller process it */
   booz_controller_main_event_task();
-  //  printf("ppm_pulses %d\n", ppm_pulses[RADIO_THROTTLE]);
-  //  printf("rc_value %d\n", rc_values[RADIO_THROTTLE]);
 
   /* call the controller periodic task to run control loops            */
   booz_controller_main_periodic_task();
@@ -140,38 +153,47 @@ static inline void booz_sim_display(void) {
 	       RPM_OF_RAD_S(bfm.state->ve[BFMS_OM_B]), 
 	       RPM_OF_RAD_S(bfm.state->ve[BFMS_OM_L]),
 	       RPM_OF_RAD_S(bfm.state->ve[BFMS_OM_R]) );
-    IvySendMsg("148 BOOZ_SIM_BODY_RATE %f %f %f",  
+    IvySendMsg("148 BOOZ_SIM_BODY_RATE_ATTITUDE %f %f %f %f %f %f",  
 	       DegOfRad(bfm.state->ve[BFMS_P]), 
 	       DegOfRad(bfm.state->ve[BFMS_Q]), 
-	       DegOfRad(bfm.state->ve[BFMS_R]));
-    IvySendMsg("148 BOOZ_SIM_ATTITUDE %f %f %f",  
+	       DegOfRad(bfm.state->ve[BFMS_R]),
 	       DegOfRad(bfm.state->ve[BFMS_PHI]), 
 	       DegOfRad(bfm.state->ve[BFMS_THETA]), 
 	       DegOfRad(bfm.state->ve[BFMS_PSI]));
+    IvySendMsg("148 BOOZ_SIM_SPEED_POS %f %f %f %f %f %f",  
+	       DegOfRad(bfm.state->ve[BFMS_X]), 
+	       DegOfRad(bfm.state->ve[BFMS_Y]), 
+	       DegOfRad(bfm.state->ve[BFMS_Z]),
+	       DegOfRad(bfm.state->ve[BFMS_U]), 
+	       DegOfRad(bfm.state->ve[BFMS_V]), 
+	       DegOfRad(bfm.state->ve[BFMS_W]));
   }
 }
 
 
-
+#define FAKE_JOYSTICK
 static void booz_sim_set_ppm_from_joystick( void ) {
+#ifndef FAKE_JOYSTICK
   //  printf("joystick_value %f\n",  booz_joystick_value[JS_THROTTLE]);
   ppm_pulses[RADIO_THROTTLE] = 1223 + booz_joystick_value[JS_THROTTLE] * (2050-1223);
   ppm_pulses[RADIO_PITCH]    = 1498 + booz_joystick_value[JS_PITCH]    * (2050-950);
   ppm_pulses[RADIO_ROLL]     = 1500 + booz_joystick_value[JS_ROLL]     * (2050-950);
   ppm_pulses[RADIO_YAW]      = 1493 + booz_joystick_value[JS_YAW]      * (2050-950);
   ppm_pulses[RADIO_MODE]     = 1500 + booz_joystick_value[JS_MODE]     * (2050-950);
-
+#else
   int foo = sim_time/5;
-  ppm_pulses[RADIO_THROTTLE] = 1223 + 0.7 * (2050-1223);
-  ppm_pulses[RADIO_MODE]     = 1500 + 0.     * (2050-950);
+  ppm_pulses[RADIO_MODE]     = 1500 - 0.5 * (2050-950);
   if (foo%2) {
+    ppm_pulses[RADIO_THROTTLE] = 1223 + 0.5 * (2050-1223);
     ppm_pulses[RADIO_ROLL]     = 1500 + 0.2 * (2050-950);
-    ppm_pulses[RADIO_PITCH]    = 1500 + 0.2 * (2050-950);
-  }
-  else {
-    ppm_pulses[RADIO_ROLL]     = 1500 - 0.2 * (2050-950);
     ppm_pulses[RADIO_PITCH]    = 1500 - 0.2 * (2050-950);
   }
+  else {
+    ppm_pulses[RADIO_THROTTLE] = 1223 + 0.9 * (2050-1223);
+    ppm_pulses[RADIO_ROLL]     = 1500 - 0.2 * (2050-950);
+    ppm_pulses[RADIO_PITCH]    = 1500 + 0.2 * (2050-950);
+  }
+#endif
 }
 
 

@@ -12,6 +12,7 @@
 #include "booz_estimator.h"
 #include "booz_autopilot.h"
 #include "booz_control.h"
+#include "booz_nav.h"
 
 #include "actuators_buss_twi_blmc_hw.h"
 
@@ -45,13 +46,36 @@
 			       &booz_estimator_uf_r, &booz_control_r_sp ); 
 
 #define PERIODIC_SEND_BOOZ_ATT_LOOP()					\
-  DOWNLINK_SEND_BOOZ_ATT_LOOP(&booz_estimator_phi, &booz_control_phi_sp, \
-			      &booz_estimator_theta, &booz_control_theta_sp); 
+  DOWNLINK_SEND_BOOZ_ATT_LOOP(&booz_estimator_phi, &booz_control_attitude_phi_sp, \
+			      &booz_estimator_theta, &booz_control_attitude_theta_sp); 
 
 #define PERIODIC_SEND_BOOZ_UF_RATES() \
   DOWNLINK_SEND_BOOZ_UF_RATES(&booz_estimator_uf_p, \
 			      &booz_estimator_uf_q, \
 			      &booz_estimator_uf_r); 
+
+#ifndef DISABLE_NAV
+#define PERIODIC_SEND_BOOZ_VERT_LOOP() {				\
+    DOWNLINK_SEND_BOOZ_VERT_LOOP(&booz_nav_vertical_z_sp,		\
+				 &booz_estimator_vz,			\
+				 &booz_estimator_z,			\
+				 &booz_nav_power_command);		\
+  }
+#define PERIODIC_SEND_BOOZ_HOV_LOOP() {				\
+    DOWNLINK_SEND_BOOZ_HOV_LOOP(&booz_nav_horizontal_x_sp,		\
+				&booz_nav_horizontal_y_sp,		\
+				&booz_estimator_vx,			\
+				&booz_estimator_x,			\
+				&booz_estimator_vy,			\
+				&booz_estimator_y,			\
+				&booz_nav_phi_command,			\
+				&booz_nav_theta_command);		\
+  }
+#else
+#define PERIODIC_SEND_BOOZ_VERT_LOOP() {}
+#define PERIODIC_SEND_BOOZ_HOV_LOOP() {}
+#endif
+
 
 #define PERIODIC_SEND_BOOZ_CMDS() DOWNLINK_SEND_BOOZ_CMDS(&buss_twi_blmc_motor_power[SERVO_MOTOR_FRONT],\
 							  &buss_twi_blmc_motor_power[SERVO_MOTOR_BACK],	\

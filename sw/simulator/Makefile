@@ -141,13 +141,13 @@ CFLAGS += -DUSE_SPI
 BOOZ_AB_SRCS += $(AB)/booz_link_mcu.c $(AB_ARCH)/booz_link_mcu_hw.c
 BOOZ_AB_SRCS += $(AB)/spi.c $(AB_ARCH)/spi_hw.c
 
-#../airborne/link_imu.c 
 #CFLAGS += -DDATALINK=PPRZ
 #BOOZ_AB_SRCS += ../airborne/datalink.c
 
 CFLAGS += -DBOOZ_FILTER_MCU
 BOOZ_AB_SRCS += $(AB)/booz_estimator.c
 BOOZ_AB_SRCS += $(AB)/booz_control.c
+BOOZ_AB_SRCS += $(AB)/booz_nav.c
 BOOZ_AB_SRCS += $(AB)/booz_autopilot.c
 BOOZ_AB_SRCS += $(AB)/commands.c
 
@@ -162,7 +162,6 @@ BOOZ_AB_SRCS += $(AB)/booz_filter_telemetry.c
 BOOZ_AB_SRCS  += $(AB)/max1167.c $(AB_ARCH)/max1167_hw.c
 
 BOOZ_AB_SRCS  += $(AB)/imu_v3.c $(AB_ARCH)/imu_v3_hw.c
-
 
 BOOZ_AB_SRCS += $(AB)/multitilt.c
 

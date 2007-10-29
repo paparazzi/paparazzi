@@ -16,6 +16,7 @@
 
 #include "booz_estimator.h"
 #include "booz_control.h"
+#include "booz_nav.h"
 #include "booz_autopilot.h"
 
 #include "uart.h"
@@ -61,6 +62,7 @@ STATIC_INLINE void booz_controller_main_init( void ) {
   
   booz_estimator_init();
   booz_control_init();
+  booz_nav_init();
   booz_autopilot_init();
 
   //FIXME

@@ -9,8 +9,10 @@
 <!--      <message name="BOOZ_FD"           period="0.05"/> -->
 <!--      <message name="BOOZ_DEBUG"        period="0.25"/> -->
       <message name="ACTUATORS"         period="0.5"/>
-      <message name="BOOZ_RATE_LOOP"    period="0.05"/>
+      <message name="BOOZ_HOV_LOOP"     period="0.05"/>
+      <message name="BOOZ_VERT_LOOP"    period="0.05"/>
       <message name="BOOZ_ATT_LOOP"     period="0.05"/>
+      <message name="BOOZ_RATE_LOOP"    period="0.05"/>
       <message name="BOOZ_CMDS"         period="0.05"/>
       <message name="BOOZ_UF_RATES"     period="0.05"/>
       <message name="DL_VALUE"          period="1."/>
