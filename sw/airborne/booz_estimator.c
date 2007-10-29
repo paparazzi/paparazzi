@@ -65,6 +65,7 @@ void booz_estimator_read_inter_mcu_state( void ) {
 
 }
 
+#ifndef DISABLE_NAV
 void booz_estimator_compute_dcm( void ) {
 
   float sinPHI   = sin( booz_estimator_phi );
@@ -86,7 +87,6 @@ void booz_estimator_compute_dcm( void ) {
 
 }
 
-#ifndef DISABLE_NAV
 void booz_estimator_set_speed_and_pos(float _vx, float _vy, float _vz, float _x, float _y, float _z) {
 
   booz_estimator_vx = _vx;
