@@ -63,6 +63,16 @@
 			 &mtt_P_theta[0][0], &mtt_P_theta[0][1],	\
 			 &mtt_P_theta[1][1]);
 
+#define PERIODIC_SEND_BOOZ_DEBUG() {					\
+    float m_phi = atan2(imu_accel[AXIS_Y], imu_accel[AXIS_Z]);		\
+    const float g2 =							\
+      imu_accel[AXIS_X]*imu_accel[AXIS_X] +				\
+      imu_accel[AXIS_Y]*imu_accel[AXIS_Y] +				\
+      imu_accel[AXIS_Z]*imu_accel[AXIS_Z];				\
+    float m_theta = -asin( imu_accel[AXIS_X] / sqrt( g2 ) );		\
+    DOWNLINK_SEND_BOOZ_DEBUG(&m_phi, &m_theta);		\
+}
+
 #define PERIODIC_SEND_DL_VALUE() PeriodicSendDlValue()
 
 extern uint8_t telemetry_mode_Filter;

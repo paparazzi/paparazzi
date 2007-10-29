@@ -37,6 +37,7 @@ extern float    imu_vs_gyro_raw_var[AXIS_NB];
 extern int32_t  imu_vs_mag_raw_avg[AXIS_NB];
 extern float    imu_vs_mag_raw_var[AXIS_NB];
 
+
 extern struct adc_buf buf_ax;
 extern struct adc_buf buf_ay;
 extern struct adc_buf buf_az;
@@ -46,17 +47,15 @@ extern struct adc_buf buf_bat;
 #define IMU_ACCEL_Y_NEUTRAL (506 * 32)
 #define IMU_ACCEL_Z_NEUTRAL (506 * 32)
 
-#define IMU_ACCEL_X_GAIN -1.
-#define IMU_ACCEL_Y_GAIN  1.
-#define IMU_ACCEL_Z_GAIN  1.
+#define IMU_ACCEL_X_GAIN (-(6. * 9.81) / (1024*32))
+#define IMU_ACCEL_Y_GAIN ( (6. * 9.81) / (1024*32))
+#define IMU_ACCEL_Z_GAIN ( (6. * 9.81) / (1024*32))
 
-#define ImuUpdateAccels() {						      \
-    imu_accel_raw[AXIS_X]= buf_ax.sum;					      \
-    imu_accel_raw[AXIS_Y]= buf_ay.sum;					      \
-    imu_accel_raw[AXIS_Z]= buf_az.sum;					      \
-    imu_accel[AXIS_X]= IMU_ACCEL_X_GAIN * (buf_ax.sum - IMU_ACCEL_X_NEUTRAL); \
-    imu_accel[AXIS_Y]= IMU_ACCEL_Y_GAIN * (buf_ay.sum - IMU_ACCEL_Y_NEUTRAL); \
-    imu_accel[AXIS_Z]= IMU_ACCEL_Y_GAIN * (buf_az.sum - IMU_ACCEL_Z_NEUTRAL); \
+#define ImuUpdateAccels() {						\
+    ImuReadAdcs();							\
+    imu_accel[AXIS_X]= IMU_ACCEL_X_GAIN * (imu_accel_raw[AXIS_X] - IMU_ACCEL_X_NEUTRAL); \
+    imu_accel[AXIS_Y]= IMU_ACCEL_Y_GAIN * (imu_accel_raw[AXIS_Y] - IMU_ACCEL_Y_NEUTRAL); \
+    imu_accel[AXIS_Z]= IMU_ACCEL_Y_GAIN * (imu_accel_raw[AXIS_Z] - IMU_ACCEL_Z_NEUTRAL); \
 }
 
 #define IMU_GYRO_P_NEUTRAL 40885
@@ -126,8 +125,8 @@ extern struct adc_buf buf_bat;
     imu_gyro_prev[AXIS_Q] = imu_gyro[AXIS_Q];				\
     imu_gyro_prev[AXIS_R] = imu_gyro[AXIS_R];				\
     imu_vs_gyro_initial_bias[AXIS_P] = imu_gyro[AXIS_P];		\
-    imu_vs_gyro_initial_bias[AXIS_Q] = imu_gyro[AXIS_Q];		\
-    imu_vs_gyro_initial_bias[AXIS_R] = imu_gyro[AXIS_R];		\
+    imu_vs_gyro_initial_bias[AXIS_Q] = imu_gyro[AXIS_Q]; 		\
+    imu_vs_gyro_initial_bias[AXIS_R] = imu_gyro[AXIS_R]; 		\
     imu_vs_gyro_unbiased[AXIS_P] = 0.;		                        \
     imu_vs_gyro_unbiased[AXIS_Q] = 0.;					\
     imu_vs_gyro_unbiased[AXIS_R] = 0.;					\

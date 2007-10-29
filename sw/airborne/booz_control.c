@@ -133,11 +133,19 @@ void booz_control_attitude_run(void) {
 
 }
 
+void booz_control_nav_compute_setpoints(void) {
+
+
+}
 
 
 void booz_control_nav_run(void) {
+#if 0
   booz_control_commands[COMMAND_P] = 0;
   booz_control_commands[COMMAND_Q] = 0;
   booz_control_commands[COMMAND_R] = 0;
   booz_control_commands[COMMAND_THROTTLE] = 0;
+#else
+  booz_control_rate_run();
+#endif
 }

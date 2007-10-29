@@ -8,10 +8,19 @@ extern void booz_sensors_model_init(void);
 extern void booz_sensors_model_run(void);
 
 struct BoozSensorsModel {
+
   VEC* accel;
+  MAT* accel_sensitivity;
+  VEC* accel_neutral;
+  VEC* accel_noise_std_dev;
+  VEC* accel_bias;
+
   VEC* gyro;
   MAT* gyro_sensitivity;
   VEC* gyro_neutral;
+  VEC* gyro_noise_std_dev;
+  VEC* gyro_bias;
+
 };
 
 extern struct BoozSensorsModel bsm;

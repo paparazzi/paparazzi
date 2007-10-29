@@ -13,7 +13,7 @@ struct BoozFlightModel bfm;
 
 //static void motor_model_derivative(VEC* x, VEC* u, VEC* xdot);
 
-static VEC* booz_get_forces_body_frame(  VEC* X, VEC* M, MAT* dcm, VEC* omega_square);
+static VEC* booz_get_forces_body_frame(  VEC* X, VEC* M, MAT* dcm, VEC* omega_square, VEC* rate_body, VEC* speed_body);
 static VEC* booz_get_moments_body_frame( VEC* X, VEC* M, VEC* omega_square );
 static void booz_flight_model_get_derivatives(VEC* X, VEC* u, VEC* Xdot);
 
@@ -44,6 +44,8 @@ void booz_flight_model_init( void ) {
   bfm.props_moment_matrix->me[AXIS_Z][SERVO_MOTOR_BACK]  =  -bfm.torque_factor;
   bfm.props_moment_matrix->me[AXIS_Z][SERVO_MOTOR_FRONT] =  -bfm.torque_factor;
 
+  bfm.mass = MASS;
+
   bfm.Inert = m_get(AXIS_NB, AXIS_NB);
   m_zero(bfm.Inert);
   bfm.Inert->me[AXIS_X][AXIS_X] = Ix;
@@ -58,6 +60,9 @@ void booz_flight_model_init( void ) {
 
 }
 
+
+#define WRAP(x,a) { while (x > a) x -= 2 * a; while (x <= -a) x += 2 * a;}
+
 void booz_flight_model_run( double dt, double* commands ) {
   
 
@@ -66,16 +71,56 @@ void booz_flight_model_run( double dt, double* commands ) {
     bfm.mot_voltage->ve[i] = bfm.bat_voltage * commands[i];
   //  rk4(motor_model_derivative, bfm.mot_omega, bfm.mot_voltage, dt); 
   rk4(booz_flight_model_get_derivatives, bfm.state, bfm.mot_voltage, dt);
+  /* wrap euler angles */
+  WRAP( bfm.state->ve[BFMS_PHI], M_PI);
+  WRAP( bfm.state->ve[BFMS_THETA], M_PI_2);
+  WRAP( bfm.state->ve[BFMS_PSI], M_PI);
+
   bfm.time += dt;
 }
 
+VEC* booz_flight_model_get_forces_body_frame(VEC* forces) {
 
+  /* square of prop rotational speeds */
+  static VEC *omega_square = VNULL;
+  omega_square = v_resize(omega_square,SERVOS_NB);
+  omega_square->ve[SERVO_MOTOR_BACK]  = bfm.state->ve[BFMS_OM_B];
+  omega_square->ve[SERVO_MOTOR_FRONT] = bfm.state->ve[BFMS_OM_F];
+  omega_square->ve[SERVO_MOTOR_RIGHT] = bfm.state->ve[BFMS_OM_R];
+  omega_square->ve[SERVO_MOTOR_LEFT]  = bfm.state->ve[BFMS_OM_L];
+  omega_square = v_star(omega_square, omega_square, omega_square);
+  /* extract eulers angles from state */
+  static VEC *eulers = VNULL;
+  eulers = v_resize(eulers, AXIS_NB);
+  eulers->ve[EULER_PHI]   =  bfm.state->ve[BFMS_PHI];
+  eulers->ve[EULER_THETA] =  bfm.state->ve[BFMS_THETA];
+  eulers->ve[EULER_PSI]   =  bfm.state->ve[BFMS_PSI];
+  /* direct cosine matrix ( inertial to body )*/
+  static MAT *dcm = MNULL;
+  dcm = m_resize(dcm,AXIS_NB, AXIS_NB);
+  dcm = dcm_of_eulers(eulers, dcm);
+  /* extract body speed from state */
+  static VEC *speed_body = VNULL;
+  speed_body = v_resize(speed_body, AXIS_NB);
+  speed_body->ve[AXIS_X] = bfm.state->ve[BFMS_U];
+  speed_body->ve[AXIS_Y] = bfm.state->ve[BFMS_V];
+  speed_body->ve[AXIS_Z] = bfm.state->ve[BFMS_W];
+  /* extracts body rates from state */
+  static VEC *rate_body = VNULL;
+  rate_body = v_resize(rate_body, AXIS_NB);
+  rate_body->ve[AXIS_P] = bfm.state->ve[BFMS_P];
+  rate_body->ve[AXIS_Q] = bfm.state->ve[BFMS_Q];
+  rate_body->ve[AXIS_R] = bfm.state->ve[BFMS_R];
+  /* compute forces */
+  forces = booz_get_forces_body_frame( bfm.state, forces , dcm, omega_square, rate_body, speed_body);
+  return forces;
+}
 
 /* 
    compute the sum of external forces. 
    assumes that dcm and omega_square are already precomputed from X 
 */
-static VEC* booz_get_forces_body_frame( VEC* X, VEC* F , MAT* dcm, VEC* omega_square) {
+static VEC* booz_get_forces_body_frame( VEC* X, VEC* F , MAT* dcm, VEC* omega_square, VEC* rate_body, VEC* speed_body) {
   // propeller thrust
   F->ve[AXIS_X] = 0;
   F->ve[AXIS_Y] = 0;
@@ -93,6 +138,12 @@ static VEC* booz_get_forces_body_frame( VEC* X, VEC* F , MAT* dcm, VEC* omega_sq
   v_body->ve[AXIS_Z] = X->ve[BFMS_W];
   double norm_speed = v_norm2(v_body);
   F = v_mltadd(F, v_body, - norm_speed * C_d_body, F);
+  // non inertial forces
+  static VEC *fict_f = VNULL;
+  fict_f = v_resize(fict_f, AXIS_NB);
+  fict_f = out_prod(speed_body, rate_body, fict_f);
+  fict_f = sv_mlt(bfm.mass, fict_f, fict_f);
+  F = v_add(F, fict_f, F);
   return F;
 }
 
@@ -129,11 +180,23 @@ static void booz_flight_model_get_derivatives(VEC* X, VEC* u, VEC* Xdot) {
   static MAT *dcm_t = MNULL;
   dcm_t = m_resize(dcm_t,AXIS_NB, AXIS_NB);
   dcm_t = m_transp(dcm, dcm_t);
+  /* extract body_speeds_from state */
+  static VEC *speed_body = VNULL;
+  speed_body = v_resize(speed_body, AXIS_NB);
+  speed_body->ve[AXIS_X] = X->ve[BFMS_U];
+  speed_body->ve[AXIS_Y] = X->ve[BFMS_V];
+  speed_body->ve[AXIS_Z] = X->ve[BFMS_W];
+  /* extracts body rates from state */
+  static VEC *rate_body = VNULL;
+  rate_body = v_resize(rate_body, AXIS_NB);
+  rate_body->ve[AXIS_P] = X->ve[BFMS_P];
+  rate_body->ve[AXIS_Q] = X->ve[BFMS_Q];
+  rate_body->ve[AXIS_R] = X->ve[BFMS_R];
 
   /* compute external forces */
   static VEC *f_body = VNULL;
   f_body = v_resize(f_body, AXIS_NB);
-  f_body = booz_get_forces_body_frame( X, f_body , dcm, omega_square);
+  f_body = booz_get_forces_body_frame( X, f_body , dcm, omega_square, rate_body, speed_body);
 
   /* compute external moments */
   static VEC *m_body = VNULL;
@@ -141,11 +204,6 @@ static void booz_flight_model_get_derivatives(VEC* X, VEC* u, VEC* Xdot) {
   m_body = booz_get_moments_body_frame( X, m_body, omega_square);
 
   /* derivatives of position */
-  static VEC *speed_body = VNULL;
-  speed_body = v_resize(speed_body, AXIS_NB);
-  speed_body->ve[AXIS_X] = X->ve[BFMS_U];
-  speed_body->ve[AXIS_Y] = X->ve[BFMS_V];
-  speed_body->ve[AXIS_Z] = X->ve[BFMS_W];
   static VEC *speed_earth = VNULL;
   speed_earth = v_resize(speed_earth, AXIS_NB);
   speed_earth = mv_mlt(dcm_t, speed_body,speed_earth);
@@ -154,19 +212,9 @@ static void booz_flight_model_get_derivatives(VEC* X, VEC* u, VEC* Xdot) {
   Xdot->ve[BFMS_Z] = speed_earth->ve[AXIS_Z];
 
   /* derivatives of speed           */
-  /* extracts body rates from state */
-  static VEC *rate_body = VNULL;
-  rate_body = v_resize(rate_body, AXIS_NB);
-  rate_body->ve[AXIS_P] = X->ve[BFMS_P];
-  rate_body->ve[AXIS_Q] = X->ve[BFMS_Q];
-  rate_body->ve[AXIS_R] = X->ve[BFMS_R];
-  /* Newton in body frame    */
-  static VEC *fict_f = VNULL;
-  fict_f = v_resize(fict_f, AXIS_NB);
-  fict_f = out_prod(speed_body, rate_body, fict_f);
-  Xdot->ve[BFMS_U] = 1./MASS * f_body->ve[AXIS_X] + fict_f->ve[AXIS_X];
-  Xdot->ve[BFMS_V] = 1./MASS * f_body->ve[AXIS_Y] + fict_f->ve[AXIS_Y];
-  Xdot->ve[BFMS_W] = 1./MASS * f_body->ve[AXIS_Z] + fict_f->ve[AXIS_Z];
+  Xdot->ve[BFMS_U] = 1./MASS * f_body->ve[AXIS_X];
+  Xdot->ve[BFMS_V] = 1./MASS * f_body->ve[AXIS_Y];
+  Xdot->ve[BFMS_W] = 1./MASS * f_body->ve[AXIS_Z];
 
   /* derivatives of eulers   */
   double sinPHI   = sin(X->ve[BFMS_PHI]);

@@ -41,6 +41,8 @@ struct BoozFlightModel {
   double torque_factor;
   /* Matrix used to compute the moments produced by props */
   MAT* props_moment_matrix;
+  /* */
+  double mass;
   /* inertia matrix             */
   MAT* Inert;
   /* invert of inertia matrix             */
@@ -51,7 +53,7 @@ extern struct BoozFlightModel bfm;
 
 extern void booz_flight_model_init( void );
 extern void booz_flight_model_run( double t, double* commands );
-
+extern VEC* booz_flight_model_get_forces_body_frame(VEC* forces);
 
 
 #endif /* BOOZ_FLIGHT_MODEL_H */

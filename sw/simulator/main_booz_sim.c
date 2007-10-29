@@ -56,7 +56,8 @@ static gboolean booz_sim_periodic(gpointer data) {
   /* read actuators positions */
   booz_sim_read_actuators();
 
-  booz_flight_model_run(DT, booz_sim_actuators_values);
+  if (sim_time > 3.)
+    booz_flight_model_run(DT, booz_sim_actuators_values);
   booz_sensors_model_run();
   sim_time += DT;
 
@@ -64,19 +65,21 @@ static gboolean booz_sim_periodic(gpointer data) {
   /* the sim implementation of max1167_read ( called by ImuPeriodic() ) */
   /* will post a ImuEvent                                               */
   booz_filter_main_periodic_task();
+  
   /* process the ImuEvent */
   /* it will run the filter and the inter-process communication which   */
   /* will post a BoozLinkMcuEvent in the Controller process             */
   booz_filter_main_event_task();
   /* process the BoozLinkMcuEvent                                       */
-  /* this will update the controller stimator                           */
+  /* this will update the controller estimator                          */
   booz_controller_main_event_task();
-
   /* post a radio control event */
   booz_sim_set_ppm_from_joystick();
   ppm_valid = TRUE;
   /* and let the controller process it */
   booz_controller_main_event_task();
+  //  printf("ppm_pulses %d\n", ppm_pulses[RADIO_THROTTLE]);
+  //  printf("rc_value %d\n", rc_values[RADIO_THROTTLE]);
 
   /* call the controller periodic task to run control loops            */
   booz_controller_main_periodic_task();
@@ -132,22 +135,43 @@ static inline void booz_sim_display(void) {
   if (sim_time >= disp_time) {
     disp_time+= DT_DISPLAY;
     booz_flightgear_send();
-    IvySendMsg("148 BOOZ_RPMS %f %f %f %f",  
+    IvySendMsg("148 BOOZ_SIM_RPMS %f %f %f %f",  
 	       RPM_OF_RAD_S(bfm.state->ve[BFMS_OM_F]), 
 	       RPM_OF_RAD_S(bfm.state->ve[BFMS_OM_B]), 
 	       RPM_OF_RAD_S(bfm.state->ve[BFMS_OM_L]),
 	       RPM_OF_RAD_S(bfm.state->ve[BFMS_OM_R]) );
+    IvySendMsg("148 BOOZ_SIM_BODY_RATE %f %f %f",  
+	       DegOfRad(bfm.state->ve[BFMS_P]), 
+	       DegOfRad(bfm.state->ve[BFMS_Q]), 
+	       DegOfRad(bfm.state->ve[BFMS_R]));
+    IvySendMsg("148 BOOZ_SIM_ATTITUDE %f %f %f",  
+	       DegOfRad(bfm.state->ve[BFMS_PHI]), 
+	       DegOfRad(bfm.state->ve[BFMS_THETA]), 
+	       DegOfRad(bfm.state->ve[BFMS_PSI]));
   }
 }
 
 
 
 static void booz_sim_set_ppm_from_joystick( void ) {
+  //  printf("joystick_value %f\n",  booz_joystick_value[JS_THROTTLE]);
   ppm_pulses[RADIO_THROTTLE] = 1223 + booz_joystick_value[JS_THROTTLE] * (2050-1223);
   ppm_pulses[RADIO_PITCH]    = 1498 + booz_joystick_value[JS_PITCH]    * (2050-950);
   ppm_pulses[RADIO_ROLL]     = 1500 + booz_joystick_value[JS_ROLL]     * (2050-950);
-  ppm_pulses[RADIO_YAW]      = 1500 + booz_joystick_value[JS_YAW]      * (2050-950);
+  ppm_pulses[RADIO_YAW]      = 1493 + booz_joystick_value[JS_YAW]      * (2050-950);
   ppm_pulses[RADIO_MODE]     = 1500 + booz_joystick_value[JS_MODE]     * (2050-950);
+
+  int foo = sim_time/5;
+  ppm_pulses[RADIO_THROTTLE] = 1223 + 0.7 * (2050-1223);
+  ppm_pulses[RADIO_MODE]     = 1500 + 0.     * (2050-950);
+  if (foo%2) {
+    ppm_pulses[RADIO_ROLL]     = 1500 + 0.2 * (2050-950);
+    ppm_pulses[RADIO_PITCH]    = 1500 + 0.2 * (2050-950);
+  }
+  else {
+    ppm_pulses[RADIO_ROLL]     = 1500 - 0.2 * (2050-950);
+    ppm_pulses[RADIO_PITCH]    = 1500 - 0.2 * (2050-950);
+  }
 }
 
 
@@ -157,12 +181,12 @@ static void booz_sim_read_actuators( void ) {
   booz_sim_actuators_values[SERVO_MOTOR_FRONT] = (actuators[SERVO_MOTOR_FRONT] - 1200)/(double)(1850-1200);
   booz_sim_actuators_values[SERVO_MOTOR_RIGHT] = (actuators[SERVO_MOTOR_RIGHT] - 1200)/(double)(1850-1200);
   booz_sim_actuators_values[SERVO_MOTOR_LEFT] = (actuators[SERVO_MOTOR_LEFT] - 1200)/(double)(1850-1200);
-#endif
-
+#else
   booz_sim_actuators_values[SERVO_MOTOR_BACK] = (actuators[SERVO_MOTOR_BACK]   - 0)/(double)(255);
   booz_sim_actuators_values[SERVO_MOTOR_FRONT] = (actuators[SERVO_MOTOR_FRONT] - 0)/(double)(255);
   booz_sim_actuators_values[SERVO_MOTOR_RIGHT] = (actuators[SERVO_MOTOR_RIGHT] - 0)/(double)(255);
   booz_sim_actuators_values[SERVO_MOTOR_LEFT] = (actuators[SERVO_MOTOR_LEFT]   - 0)/(double)(255);
+#endif
 
 }
 
