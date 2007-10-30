@@ -2,21 +2,23 @@
 
 #include <math.h>
 
+#include "std.h"
 #include "booz_flight_model.h"
 #include "booz_flight_model_utils.h"
 
 struct BoozSensorsModel bsm;
 
 static void booz_sensors_model_accel_init(void);
-static void booz_sensors_model_accel_run(void);
+static void booz_sensors_model_accel_run(MAT* dcm);
 
 static void booz_sensors_model_gyro_init(void);
-static void booz_sensors_model_gyro_run(void);
+static void booz_sensors_model_gyro_run(double dt);
 
 static void booz_sensors_model_gps_init(void);
-static void booz_sensors_model_gps_run(void);
+static void booz_sensors_model_gps_run(double dt, MAT* dcm_t);
 
 static VEC* v_add_gaussian_noise(VEC* in, VEC* std_dev, VEC* out);
+static VEC* v_update_random_walk(VEC* in, VEC* std_dev, double dt, VEC* out);
 
 void booz_sensors_model_init(void) {
   booz_sensors_model_accel_init();
@@ -24,10 +26,26 @@ void booz_sensors_model_init(void) {
   booz_sensors_model_gps_init();
 } 
 
-void booz_sensors_model_run(void) {
-  booz_sensors_model_accel_run();
-  booz_sensors_model_gyro_run();
-  booz_sensors_model_gps_run();
+void booz_sensors_model_run(double dt) {
+
+  /* extract eulers angles from state */
+  static VEC *eulers = VNULL;
+  eulers = v_resize(eulers, AXIS_NB);
+  eulers->ve[EULER_PHI]   =  bfm.state->ve[BFMS_PHI];
+  eulers->ve[EULER_THETA] =  bfm.state->ve[BFMS_THETA];
+  eulers->ve[EULER_PSI]   =  bfm.state->ve[BFMS_PSI];
+  /* direct cosine matrix ( inertial to body )*/
+  static MAT *dcm = MNULL;
+  dcm = m_resize(dcm,AXIS_NB, AXIS_NB);
+  dcm = dcm_of_eulers(eulers, dcm);
+  /* transpose of dcm ( body to inertial ) */
+  static MAT *dcm_t = MNULL;
+  dcm_t = m_resize(dcm_t,AXIS_NB, AXIS_NB);
+  dcm_t = m_transp(dcm, dcm_t);
+
+  booz_sensors_model_accel_run(dcm);
+  booz_sensors_model_gyro_run(dt);
+  booz_sensors_model_gps_run(dt, dcm_t);
 } 
 
 static void booz_sensors_model_accel_init(void) {
@@ -69,24 +87,34 @@ static void booz_sensors_model_gyro_init(void) {
 
   bsm.gyro_sensitivity = m_get(AXIS_NB, AXIS_NB);
   m_zero(bsm.gyro_sensitivity);
-  bsm.gyro_sensitivity->me[AXIS_P][AXIS_P] = 1./-0.0002202;
-  bsm.gyro_sensitivity->me[AXIS_Q][AXIS_Q] = 1./-0.0002150;
-  bsm.gyro_sensitivity->me[AXIS_R][AXIS_R] = 1./ 0.0002104;
+  bsm.gyro_sensitivity->me[AXIS_P][AXIS_P] = 32768. / RadOfDeg(-413.41848); /* degres/s - nominal 300 */
+  bsm.gyro_sensitivity->me[AXIS_Q][AXIS_Q] = 32768. / RadOfDeg(-403.65564); /* degres/s - nominal 300 */
+  bsm.gyro_sensitivity->me[AXIS_R][AXIS_R] = 32768. / RadOfDeg( 395.01929); /* degres/s - nominal 300 */
 
   bsm.gyro_neutral = v_get(AXIS_NB);
-  bsm.gyro_neutral->ve[AXIS_P] = 40885;
-  bsm.gyro_neutral->ve[AXIS_Q] = 40910;
-  bsm.gyro_neutral->ve[AXIS_R] = 39552;
+  bsm.gyro_neutral->ve[AXIS_P] = 65536. * 0.6238556; /* ratio of full scale - nominal 0.5 */
+  bsm.gyro_neutral->ve[AXIS_Q] = 65536. * 0.6242371; /* ratio of full scale - nominal 0.5 */
+  bsm.gyro_neutral->ve[AXIS_R] = 65536. * 0.6035156; /* ratio of full scale - nominal 0.5 */
 
   bsm.gyro_noise_std_dev = v_get(AXIS_NB);
-  bsm.gyro_noise_std_dev->ve[AXIS_P] = 5e-2 * bsm.gyro_sensitivity->me[AXIS_P][AXIS_P];
-  bsm.gyro_noise_std_dev->ve[AXIS_Q] = 5e-2 * bsm.gyro_sensitivity->me[AXIS_Q][AXIS_Q];
-  bsm.gyro_noise_std_dev->ve[AXIS_R] = 5e-2 * bsm.gyro_sensitivity->me[AXIS_R][AXIS_R];
+  bsm.gyro_noise_std_dev->ve[AXIS_P] = RadOfDeg(1.) * bsm.gyro_sensitivity->me[AXIS_P][AXIS_P];
+  bsm.gyro_noise_std_dev->ve[AXIS_Q] = RadOfDeg(1.) * bsm.gyro_sensitivity->me[AXIS_Q][AXIS_Q];
+  bsm.gyro_noise_std_dev->ve[AXIS_R] = RadOfDeg(1.) * bsm.gyro_sensitivity->me[AXIS_R][AXIS_R];
 
-  bsm.gyro_bias = v_get(AXIS_NB);
-  bsm.gyro_bias->ve[AXIS_P] =  2e-2 * bsm.gyro_sensitivity->me[AXIS_P][AXIS_P];
-  bsm.gyro_bias->ve[AXIS_Q] = -2e-2 * bsm.gyro_sensitivity->me[AXIS_Q][AXIS_Q];
-  bsm.gyro_bias->ve[AXIS_R] = -1e-2 * bsm.gyro_sensitivity->me[AXIS_R][AXIS_R];
+  bsm.gyro_bias_initial = v_get(AXIS_NB);
+  bsm.gyro_bias_initial->ve[AXIS_P] = RadOfDeg( 1.0) * bsm.gyro_sensitivity->me[AXIS_P][AXIS_P];
+  bsm.gyro_bias_initial->ve[AXIS_Q] = RadOfDeg(-1.0) * bsm.gyro_sensitivity->me[AXIS_Q][AXIS_Q];
+  bsm.gyro_bias_initial->ve[AXIS_R] = RadOfDeg( 0.7) * bsm.gyro_sensitivity->me[AXIS_R][AXIS_R];
+
+  bsm.gyro_bias_random_walk_std_dev = v_get(AXIS_NB);
+  bsm.gyro_bias_random_walk_std_dev->ve[AXIS_P] =  RadOfDeg(5.e-1) * bsm.gyro_sensitivity->me[AXIS_P][AXIS_P];
+  bsm.gyro_bias_random_walk_std_dev->ve[AXIS_Q] =  RadOfDeg(5.e-1) * bsm.gyro_sensitivity->me[AXIS_Q][AXIS_Q];
+  bsm.gyro_bias_random_walk_std_dev->ve[AXIS_R] =  RadOfDeg(5.e-1) * bsm.gyro_sensitivity->me[AXIS_R][AXIS_R];
+
+  bsm.gyro_bias_random_walk_value = v_get(AXIS_NB);
+  bsm.gyro_bias_random_walk_value->ve[AXIS_P] = bsm.gyro_bias_initial->ve[AXIS_P];
+  bsm.gyro_bias_random_walk_value->ve[AXIS_Q] = bsm.gyro_bias_initial->ve[AXIS_Q];
+  bsm.gyro_bias_random_walk_value->ve[AXIS_R] = bsm.gyro_bias_initial->ve[AXIS_R];
 }
 
 static void booz_sensors_model_gps_init(void) {
@@ -94,10 +122,29 @@ static void booz_sensors_model_gps_init(void) {
   v_zero(bsm.speed_sensor);
   bsm.pos_sensor = v_get(AXIS_NB);
   v_zero(bsm.pos_sensor);
+
+  bsm.pos_noise_std_dev = v_get(AXIS_NB);
+  bsm.pos_noise_std_dev->ve[AXIS_X] = 1e-1;
+  bsm.pos_noise_std_dev->ve[AXIS_Y] = 1e-1;
+  bsm.pos_noise_std_dev->ve[AXIS_Z] = 1e-1;
+
+  bsm.pos_bias_initial = v_get(AXIS_NB);
+  bsm.pos_bias_initial->ve[AXIS_X] = 1e-1;
+  bsm.pos_bias_initial->ve[AXIS_Y] = 1e-1;
+  bsm.pos_bias_initial->ve[AXIS_Z] = 1e-1;
+
+  bsm.pos_bias_random_walk_std_dev = v_get(AXIS_NB);
+  bsm.pos_bias_random_walk_std_dev->ve[AXIS_X] = 1e-1;
+  bsm.pos_bias_random_walk_std_dev->ve[AXIS_Y] = 1e-1;
+  bsm.pos_bias_random_walk_std_dev->ve[AXIS_Z] = 1e-1;
+
+  bsm.pos_bias_random_walk_value = v_get(AXIS_NB);
+  bsm.pos_bias_random_walk_value->ve[AXIS_X] = bsm.pos_bias_initial->ve[AXIS_X];
+  bsm.pos_bias_random_walk_value->ve[AXIS_Y] = bsm.pos_bias_initial->ve[AXIS_Y];
+  bsm.pos_bias_random_walk_value->ve[AXIS_Z] = bsm.pos_bias_initial->ve[AXIS_Z];
 }
 
-
-static void booz_sensors_model_accel_run(void) {
+static void booz_sensors_model_accel_run( MAT* dcm ) {
 
   /*  */
   static VEC* accel_body = VNULL;
@@ -105,21 +152,11 @@ static void booz_sensors_model_accel_run(void) {
   accel_body = v_zero(accel_body);
 #if 1
   /* get g in body frame */
-  /* extract eulers angles from state */
-  static VEC *eulers = VNULL;
-  eulers = v_resize(eulers, AXIS_NB);
-  eulers->ve[EULER_PHI]   =  bfm.state->ve[BFMS_PHI];
-  eulers->ve[EULER_THETA] =  bfm.state->ve[BFMS_THETA];
-  eulers->ve[EULER_PSI]   =  bfm.state->ve[BFMS_PSI];
-  /* direct cosine matrix ( inertial to body )*/
-  static MAT *dcm = MNULL;
-  dcm = m_resize(dcm,AXIS_NB, AXIS_NB);
-  dcm = dcm_of_eulers(eulers, dcm);
   static VEC *g_body = VNULL;
   g_body = v_resize(g_body, AXIS_NB);
   g_body = mv_mlt(dcm, bfm.g_earth, g_body);
 
-  /* non inertial forces */
+  /* add non inertial forces */
   /* extract body speed from state */
   static VEC *speed_body = VNULL;
   speed_body = v_resize(speed_body, AXIS_NB);
@@ -147,7 +184,6 @@ static void booz_sensors_model_accel_run(void) {
   printf(" accel_body ~ %f %f %f\n", accel_body->ve[AXIS_X], accel_body->ve[AXIS_Y], accel_body->ve[AXIS_Z]);
 #endif
 
-  //  printf("sim accel %f %f %f\n",accel_body->ve[AXIS_X] ,accel_body->ve[AXIS_Y] ,accel_body->ve[AXIS_Z]); 
   /* compute accel reading */
   bsm.accel = mv_mlt(bsm.accel_sensitivity, accel_body, bsm.accel); 
   bsm.accel = v_add(bsm.accel, bsm.accel_neutral, bsm.accel);
@@ -162,15 +198,15 @@ static void booz_sensors_model_accel_run(void) {
   /* add per accel error reading */
   bsm.accel =  v_add(bsm.accel, accel_error, bsm.accel); 
   /* round signal to account for adc discretisation */
-  bsm.accel->ve[AXIS_X] = round( bsm.accel->ve[AXIS_X]);
-  bsm.accel->ve[AXIS_Y] = round( bsm.accel->ve[AXIS_Y]);
-  bsm.accel->ve[AXIS_Z] = round( bsm.accel->ve[AXIS_Z]);
+  bsm.accel->ve[AXIS_X] = rint( bsm.accel->ve[AXIS_X]);
+  bsm.accel->ve[AXIS_Y] = rint( bsm.accel->ve[AXIS_Y]);
+  bsm.accel->ve[AXIS_Z] = rint( bsm.accel->ve[AXIS_Z]);
 
   //  printf("sim adc %f %f %f\n",bsm.accel->ve[AXIS_X] ,bsm.accel->ve[AXIS_Y] ,bsm.accel->ve[AXIS_Z]); 
 }
 
 
-static void booz_sensors_model_gyro_run(void) {
+static void booz_sensors_model_gyro_run( double dt) {
   /* extract rotational speed from flight model state */
   static VEC *rate_body = VNULL;
   rate_body = v_resize(rate_body, AXIS_NB);
@@ -188,31 +224,62 @@ static void booz_sensors_model_gyro_run(void) {
   gyro_error = v_zero(gyro_error);
   /* add a gaussian noise */
   gyro_error = v_add_gaussian_noise(gyro_error, bsm.gyro_noise_std_dev, gyro_error);
-  /* add a constant bias  */
-  gyro_error = v_add(bsm.gyro_bias, gyro_error, gyro_error); 
-  /* add a random walk    */
-
+  /* update random walk bias */
+  bsm.gyro_bias_random_walk_value = 
+    v_update_random_walk(bsm.gyro_bias_random_walk_value, 
+  			 bsm.gyro_bias_random_walk_std_dev, dt, 
+  			 bsm.gyro_bias_random_walk_value);
+  gyro_error = v_add(gyro_error, bsm.gyro_bias_random_walk_value, gyro_error); 
+  
   /* add per gyro error reading */
   bsm.gyro =  v_add(bsm.gyro, gyro_error, bsm.gyro); 
   /* round signal to account for adc discretisation */
-  bsm.gyro->ve[AXIS_P] = round( bsm.gyro->ve[AXIS_P]);
-  bsm.gyro->ve[AXIS_Q] = round( bsm.gyro->ve[AXIS_Q]);
-  bsm.gyro->ve[AXIS_R] = round( bsm.gyro->ve[AXIS_R]);
+  bsm.gyro->ve[AXIS_P] = rint( bsm.gyro->ve[AXIS_P]);
+  bsm.gyro->ve[AXIS_Q] = rint( bsm.gyro->ve[AXIS_Q]);
+  bsm.gyro->ve[AXIS_R] = rint( bsm.gyro->ve[AXIS_R]);
 
 }
 
-static void booz_sensors_model_gps_run(void) {
-  /* very wrong change me */
-  bsm.speed_sensor->ve[AXIS_X] = bfm.state->ve[BFMS_U];
-  bsm.speed_sensor->ve[AXIS_Y] = bfm.state->ve[BFMS_V];
-  bsm.speed_sensor->ve[AXIS_Z] = bfm.state->ve[BFMS_W];
-  
+static void booz_sensors_model_gps_run( double dt, MAT* dcm_t ) {
+  /* extract body speed from state */
+  static VEC *speed_body = VNULL;
+  speed_body = v_resize(speed_body, AXIS_NB);
+  speed_body->ve[AXIS_U] = bfm.state->ve[BFMS_U];
+  speed_body->ve[AXIS_V] = bfm.state->ve[BFMS_V];
+  speed_body->ve[AXIS_W] = bfm.state->ve[BFMS_W];
+  /* convert to earth frame */
+  bsm.speed_sensor = mv_mlt(dcm_t, speed_body, bsm.speed_sensor);
+
+  /* simulate position sensor */
   bsm.pos_sensor->ve[AXIS_X] = bfm.state->ve[BFMS_X];
   bsm.pos_sensor->ve[AXIS_Y] = bfm.state->ve[BFMS_Y];
   bsm.pos_sensor->ve[AXIS_Z] = bfm.state->ve[BFMS_Z];
 
+  /* compute gyro error reading */
+  static VEC *pos_error = VNULL;
+  pos_error = v_resize(pos_error, AXIS_NB);
+  pos_error = v_zero(pos_error);
+  /* add a gaussian noise */
+  pos_error = v_add_gaussian_noise(pos_error, bsm.pos_noise_std_dev, pos_error);
+  /* update random walk bias */
+  bsm.pos_bias_random_walk_value = 
+    v_update_random_walk(bsm.pos_bias_random_walk_value, 
+  			 bsm.pos_bias_random_walk_std_dev, dt, 
+  			 bsm.pos_bias_random_walk_value);
+  pos_error = v_add(pos_error, bsm.pos_bias_random_walk_value, pos_error); 
+  /* add error reading */
+  bsm.pos_sensor =  v_add(bsm.pos_sensor, pos_error, bsm.pos_sensor); 
+  
 }
 
+
+static VEC* v_update_random_walk(VEC* in, VEC* std_dev, double dt, VEC* out) {
+  static VEC *tmp = VNULL;
+  tmp = v_resize(tmp, AXIS_NB);
+  tmp = sv_mlt(dt, std_dev, tmp);
+  out =  v_add_gaussian_noise(in, tmp, out);
+  return out;
+}
 
 static VEC* v_add_gaussian_noise(VEC* in, VEC* std_dev, VEC* out) {
   static VEC *tmp = VNULL;

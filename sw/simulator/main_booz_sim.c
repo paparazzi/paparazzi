@@ -14,10 +14,10 @@
 
 
 //char* fg_host = "127.0.0.1";
-//char* fg_host = "10.31.4.107";
-char* fg_host = "192.168.1.191";
+char* fg_host = "10.31.4.107";
+//char* fg_host = "192.168.1.191";
 unsigned int fg_port = 5501;
-char* joystick_dev = "/dev/input/js1";
+char* joystick_dev = "/dev/input/js0";
 
 /* 250Hz <-> 4ms */
 #define TIMEOUT_PERIOD 4
@@ -62,7 +62,7 @@ static gboolean booz_sim_periodic(gpointer data) {
     /* it sucks, I know */
     booz_flight_model_run(DT, booz_sim_actuators_values);
 
-  booz_sensors_model_run();
+  booz_sensors_model_run(DT);
   sim_time += DT;
 
   /* call the filter periodic task to read sensors                      */
@@ -78,6 +78,10 @@ static gboolean booz_sim_periodic(gpointer data) {
   /* process the BoozLinkMcuEvent                                       */
   /* this will update the controller estimator                          */
   booz_controller_main_event_task();
+  /* cheat in simulation : psi not available from filter yet */
+  booz_estimator_set_psi(bfm.state->ve[BFMS_PSI]);
+  /* in simulation compute dcm as a helper for for nav */
+  booz_estimator_compute_dcm();
   /* in simulation feed speed and pos estimations ( with a pos sensor :( ) */
   booz_estimator_set_speed_and_pos(bsm.speed_sensor->ve[AXIS_X], 
 				   bsm.speed_sensor->ve[AXIS_Y], 
@@ -85,10 +89,6 @@ static gboolean booz_sim_periodic(gpointer data) {
 				   bsm.pos_sensor->ve[AXIS_X], 
 				   bsm.pos_sensor->ve[AXIS_Y], 
 				   bsm.pos_sensor->ve[AXIS_Z] );
-  /* cheat in simulation : psi not available from filter yet */
-  booz_estimator_set_psi(bfm.state->ve[BFMS_PSI]);
-  /* in simulation compute dcm as a helper for for nav */
-  booz_estimator_compute_dcm();
 
 
   /* post a radio control event */

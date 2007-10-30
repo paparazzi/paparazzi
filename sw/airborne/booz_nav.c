@@ -123,7 +123,7 @@ static void booz_nav_vertical_loop_run(void) {
   booz_nav_power_command = adjusted_hover_power +
                            /* BOOZ_NAV_VERT_HOVER_COMMAND +  */
                            booz_nav_vertical_pgain * vertical_err +
-                           booz_nav_vertical_dgain * booz_estimator_w;
+                           booz_nav_vertical_dgain * booz_estimator_vz;
 
   Bound(booz_nav_power_command, 0., 1.);
 }

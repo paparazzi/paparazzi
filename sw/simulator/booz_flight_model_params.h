@@ -1,11 +1,11 @@
 #ifndef BOOZ_FLIGHT_MODEL_PARAMS_H
 #define BOOZ_FLIGHT_MODEL_PARAMS_H
 
-/* drag coefficient of the body                    */
+/* body drag coefficient                           */
 #define C_d_body .005
-/* thrust aerodynamic coefficient                  */
+/* propeller thrust aerodynamic coefficient        */
 #define C_t 0.297
-/* moment aerodynamic coefficient                  */
+/* propeller moment aerodynamic coefficient        */
 #define C_q 0.0276
 /* propeller radius in m                           */
 #define PROP_RADIUS 0.125
@@ -25,9 +25,6 @@
 #define Iz .0073
 /* lenght between centers of vehicle and prop in m */
 #define L  0.25
-/* height between cg and prop plane in m           */
-#define H 0.04
-
 
 /* motors parameters 
 

@@ -5,7 +5,7 @@
 #include <matrix.h>
 
 extern void booz_sensors_model_init(void);
-extern void booz_sensors_model_run(void);
+extern void booz_sensors_model_run( double dt);
 
 struct BoozSensorsModel {
 
@@ -19,11 +19,17 @@ struct BoozSensorsModel {
   MAT* gyro_sensitivity;
   VEC* gyro_neutral;
   VEC* gyro_noise_std_dev;
-  VEC* gyro_bias;
+  VEC* gyro_bias_initial;
+  VEC* gyro_bias_random_walk_std_dev;
+  VEC* gyro_bias_random_walk_value;
 
   /* imaginary sensors - gps maybe */
   VEC* speed_sensor;
   VEC* pos_sensor;
+  VEC* pos_noise_std_dev;
+  VEC* pos_bias_initial;
+  VEC* pos_bias_random_walk_std_dev;
+  VEC* pos_bias_random_walk_value;
 
 };
 

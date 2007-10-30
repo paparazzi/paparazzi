@@ -22,6 +22,10 @@ float booz_estimator_x;
 float booz_estimator_y;
 float booz_estimator_z;
 
+float booz_estimator_vx;
+float booz_estimator_vy;
+float booz_estimator_vz;
+
 float booz_estimator_u;
 float booz_estimator_v;
 float booz_estimator_w;
@@ -40,10 +44,15 @@ void booz_estimator_init( void ) {
   booz_estimator_phi = 0.;
   booz_estimator_theta = 0.;
   booz_estimator_psi = 0.;
+
 #ifndef DISABLE_NAV
   booz_estimator_x = 0.;
   booz_estimator_y = 0.;
   booz_estimator_z = 0.;
+
+  booz_estimator_vx = 0.;
+  booz_estimator_vy = 0.;
+  booz_estimator_vz = 0.;
 
   booz_estimator_u = 0.;
   booz_estimator_v = 0.;
@@ -91,15 +100,28 @@ void booz_estimator_compute_dcm( void ) {
 
 }
 
-void booz_estimator_set_speed_and_pos(float _u, float _v, float _w, float _x, float _y, float _z) {
+/* assume dcm is already computed */
+void booz_estimator_set_speed_and_pos(float _vx, float _vy, float _vz, float _x, float _y, float _z) {
 
-  booz_estimator_u = _u;
-  booz_estimator_v = _v;
-  booz_estimator_w = _w;
+  booz_estimator_vx = _vx;
+  booz_estimator_vy = _vy;
+  booz_estimator_vz = _vz;
 
   booz_estimator_x = _x;
   booz_estimator_y = _y;
   booz_estimator_z = _z;
 
+  booz_estimator_u = booz_estimator_dcm[AXIS_U][AXIS_X] * booz_estimator_vx +
+                     booz_estimator_dcm[AXIS_U][AXIS_Y] * booz_estimator_vy +
+                     booz_estimator_dcm[AXIS_U][AXIS_Z] * booz_estimator_vz ;
+
+  booz_estimator_v = booz_estimator_dcm[AXIS_V][AXIS_X] * booz_estimator_vx +
+                     booz_estimator_dcm[AXIS_V][AXIS_Y] * booz_estimator_vy +
+                     booz_estimator_dcm[AXIS_V][AXIS_Z] * booz_estimator_vz ;
+
+  booz_estimator_w = booz_estimator_dcm[AXIS_W][AXIS_X] * booz_estimator_vx +
+                     booz_estimator_dcm[AXIS_W][AXIS_Y] * booz_estimator_vy +
+                     booz_estimator_dcm[AXIS_W][AXIS_Z] * booz_estimator_vz ;
+  
 }
 #endif /* DISABLE_NAV */

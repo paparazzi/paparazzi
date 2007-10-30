@@ -10,6 +10,10 @@
 #define AXIS_Q 1
 #define AXIS_R 2
 
+#define AXIS_U 0
+#define AXIS_V 1
+#define AXIS_W 2
+
 #define EULER_PHI   0
 #define EULER_THETA 1
 #define EULER_PSI   2
