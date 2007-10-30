@@ -492,13 +492,13 @@
     <field name="z"     type="float"/>
   </message>
 
-  <message name="BOOZ_SIM_ATTITUDE_RATE" ID="241">
-    <field name="phi"   type="float" unit="degres"/>
-    <field name="theta" type="float" unit="degres"/>
-    <field name="psi"   type="float" unit="degres"/>
+  <message name="BOOZ_SIM_RATE_ATTITUDE" ID="241">
     <field name="p" type="float" unit="degres"/>
     <field name="q" type="float" unit="degres"/>
     <field name="r" type="float" unit="degres"/>
+    <field name="phi"   type="float" unit="degres"/>
+    <field name="theta" type="float" unit="degres"/>
+    <field name="psi"   type="float" unit="degres"/>
   </message>
 
   <message name="ENOSE_STATUS" ID="250">

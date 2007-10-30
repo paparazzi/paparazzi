@@ -25,10 +25,10 @@ extern float booz_estimator_x;
 extern float booz_estimator_y;
 extern float booz_estimator_z;
 
-/* speed in earth frame : not yet available - sim only */
-extern float booz_estimator_vx;
-extern float booz_estimator_vy;
-extern float booz_estimator_vz;
+/* speed in body frame : not yet available - sim only */
+extern float booz_estimator_u;
+extern float booz_estimator_v;
+extern float booz_estimator_w;
 #endif /* DISABLE_NAV */
 
 
@@ -38,7 +38,8 @@ extern void booz_estimator_read_inter_mcu_state( void );
 
 #ifndef DISABLE_NAV
 extern void booz_estimator_compute_dcm( void );
-extern void booz_estimator_set_speed_and_pos(float _vx, float _vy, float _vz, float _x, float _y, float _z);
+extern void booz_estimator_set_speed_and_pos(float _u, float _v, float _w, float _x, float _y, float _z);
+extern void booz_estimator_set_psi( float _psi);
 #endif
 
 #endif /* BOOZ_ESTIMATOR_H */

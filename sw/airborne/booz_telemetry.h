@@ -57,16 +57,16 @@
 #ifndef DISABLE_NAV
 #define PERIODIC_SEND_BOOZ_VERT_LOOP() {				\
     DOWNLINK_SEND_BOOZ_VERT_LOOP(&booz_nav_vertical_z_sp,		\
-				 &booz_estimator_vz,			\
+				 &booz_estimator_w,			\
 				 &booz_estimator_z,			\
 				 &booz_nav_power_command);		\
   }
 #define PERIODIC_SEND_BOOZ_HOV_LOOP() {				\
     DOWNLINK_SEND_BOOZ_HOV_LOOP(&booz_nav_horizontal_x_sp,		\
 				&booz_nav_horizontal_y_sp,		\
-				&booz_estimator_vx,			\
+				&booz_estimator_u,			\
 				&booz_estimator_x,			\
-				&booz_estimator_vy,			\
+				&booz_estimator_v,			\
 				&booz_estimator_y,			\
 				&booz_nav_phi_command,			\
 				&booz_nav_theta_command);		\

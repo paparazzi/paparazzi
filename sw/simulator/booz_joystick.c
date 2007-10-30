@@ -11,9 +11,15 @@
 #include <linux/joystick.h>
 
 double booz_joystick_value[JS_NB_AXIS];
-const double booz_joystick_neutral[JS_NB_AXIS] = { 112., 113., 112., 112., 112., 112.,  30.};
-const double booz_joystick_max[JS_NB_AXIS] =     {   1., 224., 224., 224., 224., 224., 223.};
-const double booz_joystick_min[JS_NB_AXIS] =     { 224.,   1.,   1.,   1.,   1.,   1.,  30.};
+//const double booz_joystick_neutral[JS_NB_AXIS] = { 112., 113., 112., 112., 112., 112.,  30.};
+//const double booz_joystick_max[JS_NB_AXIS] =     {   1., 224., 224., 224., 224., 224., 223.};
+//const double booz_joystick_min[JS_NB_AXIS] =     { 224.,   1.,   1.,   1.,   1.,   1.,  30.};
+
+const double booz_joystick_neutral[JS_NB_AXIS] = { 113., 113., 112., 112., 112., 112.,  30.};
+const double booz_joystick_max[JS_NB_AXIS] =     {  46., 178., 224., 224., 224., 179., 223.};
+const double booz_joystick_min[JS_NB_AXIS] =     { 179.,  46.,   1.,   1.,   1.,  46.,  30.};
+
+
 
 static gboolean on_data_received(GIOChannel *source, GIOCondition condition, gpointer data);
 
@@ -21,6 +27,7 @@ void booz_joystick_init(const char* device) {
   int i;
   for (i=0; i<JS_NB_AXIS; i++)
     booz_joystick_value[i] = 0.;
+  booz_joystick_value[JS_MODE] = -0.7; 
 
   int fd = open(device, O_RDONLY | O_NONBLOCK);
   if (fd == -1) {
@@ -42,9 +49,11 @@ static gboolean on_data_received(GIOChannel *source, GIOCondition condition, gpo
   g_io_channel_read_chars(source, (void*)(&js), sizeof(struct js_event), &len, &err);
   
   if (js.type == JS_EVENT_AXIS) {
-    if (js.number < JS_NB_AXIS)
-      booz_joystick_value[js.number] = (js.value - booz_joystick_neutral[js.number]) / 
+    if (js.number < JS_NB_AXIS) {
+      //      if (js.number == JS_THROTTLE) printf("joystick value %d\n",js.value); 
+      booz_joystick_value[js.number] = (double)(js.value - booz_joystick_neutral[js.number]) / 
 	(booz_joystick_max[js.number] - booz_joystick_min[js.number]);
+    }
   }
 
   return TRUE;

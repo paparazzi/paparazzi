@@ -99,15 +99,11 @@ static void booz_sensors_model_gps_init(void) {
 
 static void booz_sensors_model_accel_run(void) {
 
-  /* compute forces */
-  static VEC *accel_body = VNULL;
+  /*  */
+  static VEC* accel_body = VNULL;
   accel_body = v_resize(accel_body, AXIS_NB);
-  accel_body =  booz_flight_model_get_forces_body_frame(accel_body);
-  /* divide by mass */
-  accel_body = sv_mlt(1./bfm.mass, accel_body, accel_body);
-  //  printf(" accel_body %f %f %f\n", accel_body->ve[AXIS_X], accel_body->ve[AXIS_Y], accel_body->ve[AXIS_Z]);
-
-#if 0
+  accel_body = v_zero(accel_body);
+#if 1
   /* get g in body frame */
   /* extract eulers angles from state */
   static VEC *eulers = VNULL;
@@ -122,11 +118,33 @@ static void booz_sensors_model_accel_run(void) {
   static VEC *g_body = VNULL;
   g_body = v_resize(g_body, AXIS_NB);
   g_body = mv_mlt(dcm, bfm.g_earth, g_body);
-  accel_body = v_sub(g_body, accel_body, accel_body);
+
+  /* non inertial forces */
+  /* extract body speed from state */
+  static VEC *speed_body = VNULL;
+  speed_body = v_resize(speed_body, AXIS_NB);
+  speed_body->ve[AXIS_X] = bfm.state->ve[BFMS_U];
+  speed_body->ve[AXIS_Y] = bfm.state->ve[BFMS_V];
+  speed_body->ve[AXIS_Z] = bfm.state->ve[BFMS_W];
+  /* extracts body rates from state */
+  static VEC *rate_body = VNULL;
+  rate_body = v_resize(rate_body, AXIS_NB);
+  rate_body->ve[AXIS_P] = bfm.state->ve[BFMS_P];
+  rate_body->ve[AXIS_Q] = bfm.state->ve[BFMS_Q];
+  rate_body->ve[AXIS_R] = bfm.state->ve[BFMS_R];
+  static VEC *fict_f = VNULL;
+  fict_f = v_resize(fict_f, AXIS_NB);
+  fict_f = out_prod(speed_body, rate_body, fict_f);
+  //  fict_f = sv_mlt(bfm.mass, fict_f, fict_f);
+  /* divide by mass */
+  //  accel_body = sv_mlt(1./bfm.mass, accel_body, accel_body);
+  accel_body = v_add(g_body, fict_f, accel_body);
 #else
+  printf(" accel_body # %f %f %f\n", accel_body->ve[AXIS_X], accel_body->ve[AXIS_Y], accel_body->ve[AXIS_Z]);
   accel_body->ve[AXIS_X] = -9.81 * sin(bfm.state->ve[BFMS_THETA]);
   accel_body->ve[AXIS_Y] = 9.81 * sin(bfm.state->ve[BFMS_PHI]) * cos(bfm.state->ve[BFMS_THETA]);
   accel_body->ve[AXIS_Z] = 9.81 * cos(bfm.state->ve[BFMS_PHI]) * cos(bfm.state->ve[BFMS_THETA]);
+  printf(" accel_body ~ %f %f %f\n", accel_body->ve[AXIS_X], accel_body->ve[AXIS_Y], accel_body->ve[AXIS_Z]);
 #endif
 
   //  printf("sim accel %f %f %f\n",accel_body->ve[AXIS_X] ,accel_body->ve[AXIS_Y] ,accel_body->ve[AXIS_Z]); 

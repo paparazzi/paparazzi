@@ -36,8 +36,8 @@ void booz_flightgear_send() {
 
   const double earth_radius = 6372795.;
 
-  double lat =  0.656480 + asin(bfm.state->ve[BFMS_X]/earth_radius);
-  double lon = -2.135537 + asin(bfm.state->ve[BFMS_Y]/earth_radius);
+  double lat =  0.656480 + asin((bfm.state->ve[BFMS_X] - 90)/earth_radius);
+  double lon = -2.135537 + asin((bfm.state->ve[BFMS_Y] - 45)/earth_radius);
 
   struct FGNetGUI gui;
   net_gui_init(&gui);

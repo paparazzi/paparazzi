@@ -22,9 +22,9 @@ float booz_estimator_x;
 float booz_estimator_y;
 float booz_estimator_z;
 
-float booz_estimator_vx;
-float booz_estimator_vy;
-float booz_estimator_vz;
+float booz_estimator_u;
+float booz_estimator_v;
+float booz_estimator_w;
 #endif /* DISABLE_NAV */
 
 void booz_estimator_init( void ) {
@@ -45,9 +45,9 @@ void booz_estimator_init( void ) {
   booz_estimator_y = 0.;
   booz_estimator_z = 0.;
 
-  booz_estimator_vx = 0.;
-  booz_estimator_vy = 0.;
-  booz_estimator_vz = 0.;
+  booz_estimator_u = 0.;
+  booz_estimator_v = 0.;
+  booz_estimator_w = 0.;
 #endif /* DISABLE_NAV */
 }
 
@@ -66,6 +66,10 @@ void booz_estimator_read_inter_mcu_state( void ) {
 }
 
 #ifndef DISABLE_NAV
+void booz_estimator_set_psi( float _psi) {
+  booz_estimator_psi = _psi;
+}
+
 void booz_estimator_compute_dcm( void ) {
 
   float sinPHI   = sin( booz_estimator_phi );
@@ -87,11 +91,11 @@ void booz_estimator_compute_dcm( void ) {
 
 }
 
-void booz_estimator_set_speed_and_pos(float _vx, float _vy, float _vz, float _x, float _y, float _z) {
+void booz_estimator_set_speed_and_pos(float _u, float _v, float _w, float _x, float _y, float _z) {
 
-  booz_estimator_vx = _vx;
-  booz_estimator_vy = _vy;
-  booz_estimator_vz = _vz;
+  booz_estimator_u = _u;
+  booz_estimator_v = _v;
+  booz_estimator_w = _w;
 
   booz_estimator_x = _x;
   booz_estimator_y = _y;

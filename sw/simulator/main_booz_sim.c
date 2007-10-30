@@ -17,7 +17,7 @@
 //char* fg_host = "10.31.4.107";
 char* fg_host = "192.168.1.191";
 unsigned int fg_port = 5501;
-char* joystick_dev = "/dev/input/js0";
+char* joystick_dev = "/dev/input/js1";
 
 /* 250Hz <-> 4ms */
 #define TIMEOUT_PERIOD 4
@@ -61,6 +61,7 @@ static gboolean booz_sim_periodic(gpointer data) {
     /* no fdm at start to allow for filter initialisation */
     /* it sucks, I know */
     booz_flight_model_run(DT, booz_sim_actuators_values);
+
   booz_sensors_model_run();
   sim_time += DT;
 
@@ -84,6 +85,8 @@ static gboolean booz_sim_periodic(gpointer data) {
 				   bsm.pos_sensor->ve[AXIS_X], 
 				   bsm.pos_sensor->ve[AXIS_Y], 
 				   bsm.pos_sensor->ve[AXIS_Z] );
+  /* cheat in simulation : psi not available from filter yet */
+  booz_estimator_set_psi(bfm.state->ve[BFMS_PSI]);
   /* in simulation compute dcm as a helper for for nav */
   booz_estimator_compute_dcm();
 
@@ -153,7 +156,7 @@ static inline void booz_sim_display(void) {
 	       RPM_OF_RAD_S(bfm.state->ve[BFMS_OM_B]), 
 	       RPM_OF_RAD_S(bfm.state->ve[BFMS_OM_L]),
 	       RPM_OF_RAD_S(bfm.state->ve[BFMS_OM_R]) );
-    IvySendMsg("148 BOOZ_SIM_BODY_RATE_ATTITUDE %f %f %f %f %f %f",  
+    IvySendMsg("148 BOOZ_SIM_RATE_ATTITUDE %f %f %f %f %f %f",  
 	       DegOfRad(bfm.state->ve[BFMS_P]), 
 	       DegOfRad(bfm.state->ve[BFMS_Q]), 
 	       DegOfRad(bfm.state->ve[BFMS_R]),
@@ -161,37 +164,54 @@ static inline void booz_sim_display(void) {
 	       DegOfRad(bfm.state->ve[BFMS_THETA]), 
 	       DegOfRad(bfm.state->ve[BFMS_PSI]));
     IvySendMsg("148 BOOZ_SIM_SPEED_POS %f %f %f %f %f %f",  
-	       DegOfRad(bfm.state->ve[BFMS_X]), 
-	       DegOfRad(bfm.state->ve[BFMS_Y]), 
-	       DegOfRad(bfm.state->ve[BFMS_Z]),
-	       DegOfRad(bfm.state->ve[BFMS_U]), 
-	       DegOfRad(bfm.state->ve[BFMS_V]), 
-	       DegOfRad(bfm.state->ve[BFMS_W]));
+	       (bfm.state->ve[BFMS_U]), 
+	       (bfm.state->ve[BFMS_V]), 
+	       (bfm.state->ve[BFMS_W]),
+	       (bfm.state->ve[BFMS_X]), 
+	       (bfm.state->ve[BFMS_Y]), 
+	       (bfm.state->ve[BFMS_Z]));
   }
 }
 
 
-#define FAKE_JOYSTICK
+//#define FAKE_JOYSTICK
 static void booz_sim_set_ppm_from_joystick( void ) {
 #ifndef FAKE_JOYSTICK
-  //  printf("joystick_value %f\n",  booz_joystick_value[JS_THROTTLE]);
   ppm_pulses[RADIO_THROTTLE] = 1223 + booz_joystick_value[JS_THROTTLE] * (2050-1223);
   ppm_pulses[RADIO_PITCH]    = 1498 + booz_joystick_value[JS_PITCH]    * (2050-950);
   ppm_pulses[RADIO_ROLL]     = 1500 + booz_joystick_value[JS_ROLL]     * (2050-950);
   ppm_pulses[RADIO_YAW]      = 1493 + booz_joystick_value[JS_YAW]      * (2050-950);
   ppm_pulses[RADIO_MODE]     = 1500 + booz_joystick_value[JS_MODE]     * (2050-950);
+  //  printf("joystick mode     %f %d\n", booz_joystick_value[JS_MODE], ppm_pulses[RADIO_MODE]);
+  //  printf("joystick throttle %f %d\n", booz_joystick_value[JS_THROTTLE], ppm_pulses[RADIO_THROTTLE]);
+  //  printf("joystick yaw %f %d\n", booz_joystick_value[JS_YAW], ppm_pulses[RADIO_YAW]);
+  //  printf("joystick pitch %f %d\n", booz_joystick_value[JS_PITCH], ppm_pulses[RADIO_PITCH]);
+  //  printf("joystick roll %f %d\n", booz_joystick_value[JS_ROLL], ppm_pulses[RADIO_ROLL]);
 #else
-  int foo = sim_time/5;
-  ppm_pulses[RADIO_MODE]     = 1500 - 0.5 * (2050-950);
-  if (foo%2) {
-    ppm_pulses[RADIO_THROTTLE] = 1223 + 0.5 * (2050-1223);
-    ppm_pulses[RADIO_ROLL]     = 1500 + 0.2 * (2050-950);
-    ppm_pulses[RADIO_PITCH]    = 1500 - 0.2 * (2050-950);
-  }
-  else {
-    ppm_pulses[RADIO_THROTTLE] = 1223 + 0.9 * (2050-1223);
-    ppm_pulses[RADIO_ROLL]     = 1500 - 0.2 * (2050-950);
+  int foo = sim_time/10;
+  //  ppm_pulses[RADIO_YAW]      = 1493 + 0.4 * (2050-950);
+  //  ppm_pulses[RADIO_MODE]     = 1500 - 0.5 * (2050-950);
+  switch(foo%4) {
+  case 0:
+    //    ppm_pulses[RADIO_THROTTLE] = 1223 + 0.25 * (2050-1223);
+    //    ppm_pulses[RADIO_ROLL]     = 1500 + 0.2 * (2050-950);
     ppm_pulses[RADIO_PITCH]    = 1500 + 0.2 * (2050-950);
+    break;
+  case 1:
+    //    ppm_pulses[RADIO_THROTTLE] = 1223 + 0.25 * (2050-1223);
+    //    ppm_pulses[RADIO_ROLL]     = 1500 - 0.2 * (2050-950);
+    ppm_pulses[RADIO_PITCH]    = 1500 + 0.0 * (2050-950);
+    break;
+  case 2:
+    //    ppm_pulses[RADIO_THROTTLE] = 1223 + 0.9 * (2050-1223);
+    //    ppm_pulses[RADIO_ROLL]     = 1500 - 0.2 * (2050-950);
+    ppm_pulses[RADIO_PITCH]    = 1500 - 0.2 * (2050-950);
+    break;
+  case 3:
+    //    ppm_pulses[RADIO_THROTTLE] = 1223 + 0.9 * (2050-1223);
+    //    ppm_pulses[RADIO_ROLL]     = 1500 + 0.2 * (2050-950);
+    ppm_pulses[RADIO_PITCH]    = 1500 - 0.0 * (2050-950);
+    break;
   }
 #endif
 }
