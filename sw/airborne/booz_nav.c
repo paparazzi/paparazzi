@@ -61,8 +61,13 @@ void booz_nav_init(void) {
 
 void booz_nav_run(void) {
 #ifndef DISABLE_NAV
-  booz_nav_vertical_loop_run();
-  booz_nav_hovering_loop_run();
+  static uint8_t prescaler = 0;
+  prescaler++;
+  if (prescaler > 50) {
+    prescaler = 0;
+    booz_nav_vertical_loop_run();
+    booz_nav_hovering_loop_run();
+  }
   BoozControlAttitudeSetSetPoints(booz_nav_phi_command, booz_nav_theta_command, 
 				  booz_nav_horizontal_psi_sp, booz_nav_power_command);
   booz_control_attitude_run();

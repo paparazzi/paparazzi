@@ -80,6 +80,7 @@ static void booz_sensors_model_accel_init(void) {
 
 
 static void booz_sensors_model_gyro_init(void) {
+
   bsm.gyro = v_get(AXIS_NB);
   bsm.gyro->ve[AXIS_P] = 0.;
   bsm.gyro->ve[AXIS_Q] = 0.;
@@ -115,11 +116,19 @@ static void booz_sensors_model_gyro_init(void) {
   bsm.gyro_bias_random_walk_value->ve[AXIS_P] = bsm.gyro_bias_initial->ve[AXIS_P];
   bsm.gyro_bias_random_walk_value->ve[AXIS_Q] = bsm.gyro_bias_initial->ve[AXIS_Q];
   bsm.gyro_bias_random_walk_value->ve[AXIS_R] = bsm.gyro_bias_initial->ve[AXIS_R];
+
 }
 
 static void booz_sensors_model_gps_init(void) {
+
   bsm.speed_sensor = v_get(AXIS_NB);
   v_zero(bsm.speed_sensor);
+
+  bsm.speed_noise_std_dev = v_get(AXIS_NB);
+  bsm.speed_noise_std_dev->ve[AXIS_X] = 1e-1;
+  bsm.speed_noise_std_dev->ve[AXIS_Y] = 1e-1;
+  bsm.speed_noise_std_dev->ve[AXIS_Z] = 1e-1;
+
   bsm.pos_sensor = v_get(AXIS_NB);
   v_zero(bsm.pos_sensor);
 
@@ -241,6 +250,8 @@ static void booz_sensors_model_gyro_run( double dt) {
 }
 
 static void booz_sensors_model_gps_run( double dt, MAT* dcm_t ) {
+
+  /* simulate speed sensor */
   /* extract body speed from state */
   static VEC *speed_body = VNULL;
   speed_body = v_resize(speed_body, AXIS_NB);
@@ -249,6 +260,9 @@ static void booz_sensors_model_gps_run( double dt, MAT* dcm_t ) {
   speed_body->ve[AXIS_W] = bfm.state->ve[BFMS_W];
   /* convert to earth frame */
   bsm.speed_sensor = mv_mlt(dcm_t, speed_body, bsm.speed_sensor);
+  /* add a gaussian noise */
+  bsm.speed_sensor = v_add_gaussian_noise(bsm.speed_sensor, bsm.speed_noise_std_dev, bsm.speed_sensor);
+  
 
   /* simulate position sensor */
   bsm.pos_sensor->ve[AXIS_X] = bfm.state->ve[BFMS_X];
