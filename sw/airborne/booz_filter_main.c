@@ -8,6 +8,9 @@
 #include "adc.h"
 #include "imu_v3.h"
 
+#include "i2c.h"
+#include "AMI601.h"
+
 //#include "multitilt.h"
 #include "booz_ahrs.h"
 
@@ -41,6 +44,9 @@ STATIC_INLINE void booz_filter_main_init( void ) {
 #ifndef SITL
   uart1_init_tx();
   adc_init();
+
+  i2c_init();
+  ami601_init();
 #endif
   imu_v3_init();
 
@@ -61,6 +67,8 @@ STATIC_INLINE void booz_filter_main_event_task( void ) {
 
 STATIC_INLINE void booz_filter_main_periodic_task( void ) {
   /* triger measurements */
+  //  ami601_periodic();  
+  DOWNLINK_SEND_IMU_MAG_RAW(&ami601_val[0], &ami601_val[4], &ami601_val[2]);
   ImuPeriodic();
   static uint8_t _50hz = 0;
   _50hz++;

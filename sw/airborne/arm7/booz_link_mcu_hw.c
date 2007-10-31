@@ -56,8 +56,8 @@ void booz_link_mcu_hw_init ( void ) {
   /* initialize interrupt vector */
   VICIntSelect &= ~VIC_BIT(VIC_SPI0);   // SPI0 selected as IRQ
   VICIntEnable = VIC_BIT(VIC_SPI0);     // SPI0 interrupt enabled
-  VICVectCntl1 = VIC_ENABLE | VIC_SPI0;
-  VICVectAddr1 = (uint32_t)SPI0_ISR;    // address of the ISR
+  VICVectCntl3 = VIC_ENABLE | VIC_SPI0;
+  VICVectAddr3 = (uint32_t)SPI0_ISR;    // address of the ISR
 
   /* clear pending interrupt */
   SetBit(S0SPINT, SPI0IF);

@@ -82,6 +82,8 @@ flt.srcs += max1167.c $(SRC_ARCH)/max1167_hw.c
 
 flt.CFLAGS += -DDISABLE_MAGNETOMETER
 flt.srcs += micromag.c $(SRC_ARCH)/micromag_hw.c
+flt.CFLAGS += -I2C_BUF_LEN=32 -DI2C_SCLL=150 -DI2C_SCLH=150 -DI2C_VIC_SLOT=10
+flt.srcs += AMI601.c i2c.c $(SRC_ARCH)/i2c_hw.c
 flt.srcs += imu_v3.c $(SRC_ARCH)/imu_v3_hw.c
 
 flt.CFLAGS += -DBOOZ_AHRS_TYPE=BOOZ_AHRS_MULTITILT

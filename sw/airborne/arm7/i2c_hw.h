@@ -23,7 +23,10 @@ extern void i2c_hw_init(void);
 #define I2cSendStart() { I2C0CONSET = _BV(STA); }
 #define I2cSendByte(b) { I2C_DATA_REG = b; }
 
-#define I2cReceive(_ack) { if (_ack) I2C0CONSET = _BV(AA); else I2C0CONCLR = _BV(AAC); }
+#define I2cReceive(_ack) {	    \
+    if (_ack) I2C0CONSET = _BV(AA); \
+    else I2C0CONCLR = _BV(AAC);	    \
+  }
 
 #define I2cClearStart() { I2C0CONCLR = _BV(STAC); }
 #define I2cClearIT() { I2C0CONCLR = _BV(SIC); }
