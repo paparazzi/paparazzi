@@ -18,10 +18,10 @@ float booz_control_rate_last_err_r;
 
 pprz_t booz_control_commands[COMMANDS_NB];
 
-#define BOOZ_CONTROL_RATE_PQ_PGAIN -350.
-#define BOOZ_CONTROL_RATE_PQ_DGAIN    5.
+#define BOOZ_CONTROL_RATE_PQ_PGAIN -500.
+#define BOOZ_CONTROL_RATE_PQ_DGAIN   10.
 
-#define BOOZ_CONTROL_RATE_R_PGAIN -170.
+#define BOOZ_CONTROL_RATE_R_PGAIN -500.
 #define BOOZ_CONTROL_RATE_R_DGAIN    5.
 
 /* setpoints for max stick throw in degres per second */
@@ -34,8 +34,8 @@ float booz_control_attitude_theta_sp;
 float booz_control_attitude_phi_theta_pgain;
 float booz_control_attitude_phi_theta_dgain;
 
-#define BOOZ_CONTROL_ATTITUDE_PHI_THETA_PGAIN  -1400.
-#define BOOZ_CONTROL_ATTITUDE_PHI_THETA_DGAIN  -1200.
+#define BOOZ_CONTROL_ATTITUDE_PHI_THETA_PGAIN  -1500.
+#define BOOZ_CONTROL_ATTITUDE_PHI_THETA_DGAIN  -1000.
 
 /* setpoints for max stick throw in degres */
 #define BOOZ_CONTROL_ATTITUDE_PHI_THETA_MAX_SP 30.

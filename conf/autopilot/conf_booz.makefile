@@ -44,7 +44,7 @@ ctl.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c
 
 ctl.srcs += booz_inter_mcu.c
 ctl.CFLAGS += -DUSE_SPI -DSPI_MASTER -DUSE_SPI_SLAVE0
-ctl.CFLAGS += -DSPI_SELECT_SLAVE0_PIN=20 -DSPI_SELECT_SLAVE0_PORT=0 -DSSPCPSR_VAL=0x0C
+ctl.CFLAGS += -DSPI_SELECT_SLAVE0_PIN=20 -DSPI_SELECT_SLAVE0_PORT=0 -DSSPCPSR_VAL=0x10
 ctl.srcs += booz_link_mcu.c $(SRC_ARCH)/booz_link_mcu_hw.c
 ctl.srcs += spi.c $(SRC_ARCH)/spi_hw.c
 

@@ -15,7 +15,7 @@ extern int16_t imu_mag[AXIS_NB];   /* magnetometer in arbitrary unit   */
 extern float   imu_bat;            /* battery in volts                 */
 
 extern float imu_gyro_prev[AXIS_NB];  /* previous gyros in rad/s       */
-#define IMU_GYRO_LP_ALPHA 0.1
+#define IMU_GYRO_LP_ALPHA 0.75
 extern float imu_gyro_lp[AXIS_NB];    /* low passed calibrated gyros in rad/s */
 
 /* raw sensors readings */
