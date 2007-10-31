@@ -163,7 +163,7 @@ BOOZ_AB_SRCS  += $(AB)/max1167.c $(AB_ARCH)/max1167_hw.c
 BOOZ_AB_SRCS  += $(AB)/micromag.c $(AB_ARCH)/micromag_hw.c
 BOOZ_AB_SRCS  += $(AB)/imu_v3.c $(AB_ARCH)/imu_v3_hw.c
 
-CFLAGS += -DBOOZ_ATT_FILTER_TYPE=multitilt
+CFLAGS += -DBOOZ_AHRS_TYPE=multitilt
 BOOZ_AB_SRCS += $(AB)/multitilt.c
 
 

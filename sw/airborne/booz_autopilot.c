@@ -40,6 +40,7 @@ void booz_autopilot_on_rc_event(void) {
   /* the ap gets a mode everytime - the rc filters it */
   if (rc_values_contains_avg_channels) {
     booz_autopilot_mode = BOOZ_AP_MODE_OF_PPRZ(rc_values[RADIO_MODE]);
+    rc_values_contains_avg_channels = FALSE;
   }
   switch (booz_autopilot_mode) {
   case BOOZ_AP_MODE_RATE:

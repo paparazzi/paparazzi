@@ -6,6 +6,7 @@
   <process name="Controller">
     <mode name="default">
       <message name="BOOZ_STATUS"       period="1."/>
+      <message name="RC"                period="0.5"/>
 <!--      <message name="BOOZ_FD"           period="0.05"/> -->
 <!--      <message name="BOOZ_DEBUG"        period="0.25"/> -->
       <message name="ACTUATORS"         period="0.5"/>
@@ -26,6 +27,17 @@
 
   <process name="Filter">
     <mode name="default">
+      <message name="IMU_GYRO"              period=".017"/>
+      <message name="IMU_GYRO_LP"           period=".017"/>
+      <message name="IMU_GYRO_RAW"          period=".25"/>
+    </mode>
+    <mode name="raw_sensors">
+      <message name="IMU_GYRO_RAW"          period=".017"/>
+    </mode>
+    <mode name="scaled_sensors">
+      <message name="IMU_GYRO"              period=".017"/>
+    </mode>
+    <mode name="simulation">
       <message name="BOOZ_DEBUG"            period=".1"/>
       <message name="AHRS_STATE"            period=".1"/>
       <message name="AHRS_COV"              period=".1"/>
@@ -37,12 +49,7 @@
       <message name="IMU_MAG"               period="1."/>
       <message name="IMU_MAG_RAW"           period="1."/>
     </mode>
-    <mode name="raw_sensors">
-      <message name="IMU_GYRO_RAW"          period=".017"/>
-    </mode>
-    <mode name="scaled_sensors">
-      <message name="IMU_GYRO"              period=".017"/>
-    </mode>
+
   </process>
 
 

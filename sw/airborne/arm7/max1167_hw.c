@@ -1,10 +1,16 @@
 #include "max1167.h"
 
+#include "led.h"
+
+uint8_t max1167_error;
 
 static void EXTINT0_ISR(void) __attribute__((naked));
 
 extern void max1167_hw_init( void ) {
-  /* CS pin is output */
+  
+  max1167_error = MAX1167_ERR_NONE;
+
+  /* SS pin is output */
   SetBit(MAX1167_SS_IODIR, MAX1167_SS_PIN);
   /* unselected max1167 */
   Max1167Unselect();
@@ -23,10 +29,11 @@ extern void max1167_hw_init( void ) {
   VICIntEnable = VIC_BIT( VIC_EINT0 );    // EXTINT0 interrupt enabled
   VICVectCntl8 = VIC_ENABLE | VIC_EINT0;
   VICVectAddr8 = (uint32_t)EXTINT0_ISR;    // address of the ISR 
-
- 
-
 }
+
+#include "uart.h"
+#include "messages.h"
+#include "downlink.h"
 
 void max1167_read( void ) {
   if (max1167_status == STA_MAX1167_IDLE) {
@@ -38,19 +45,22 @@ void max1167_read( void ) {
     const uint8_t control_byte = 1 << 0 | 1 << 3 | 2 << 5;
     SpiSend(control_byte);
     /* enable timeout interrupt */
-    SpiEnableRti();
+    //    SpiClearRti();	
+    //    SpiEnableRti();
     max1167_status = STA_MAX1167_SENDING_REQ;
   }
   else {
     /* report overrun error */
+    max1167_error = MAX1167_ERR_READ_OVERUN;
+    DOWNLINK_SEND_DEBUG_MCU_LINK(&max1167_status,&max1167_error, &max1167_status);  
   }
 }
 
 void EXTINT0_ISR(void) {
   ISR_ENTRY();
-  
-  if (max1167_status == STA_MAX1167_WAIT_EOC) {
-    /* Max1167Select(); maybe... */
+
+  //  if (max1167_status == STA_MAX1167_WAIT_EOC) {
+  if (max1167_status == STA_MAX1167_SENDING_REQ) {
     SpiEnable();
     /* trigger 6 bytes read */
     SpiSend(0);
@@ -67,6 +77,12 @@ void EXTINT0_ISR(void) {
   }
   else {
     /* report error */
+    max1167_error = MAX1167_ERR_SPURIOUS_EOC;
+    DOWNLINK_SEND_DEBUG_MCU_LINK(&max1167_status,&max1167_error, &max1167_status);  
+    /* reset */
+    max1167_status = STA_MAX1167_IDLE;
+    SpiDisable();		
+    Max1167Unselect();
   }
   
   SetBit(EXTINT, MAX1167_EOC_EINT);   /* clear extint0 */

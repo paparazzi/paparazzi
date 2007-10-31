@@ -15,7 +15,7 @@ extern int16_t imu_mag[AXIS_NB];   /* magnetometer in arbitrary unit   */
 extern float   imu_bat;            /* battery in volts                 */
 
 extern float imu_gyro_prev[AXIS_NB];  /* previous gyros in rad/s       */
-#define IMU_GYRO_LP_ALPHA 0.6
+#define IMU_GYRO_LP_ALPHA 0.1
 extern float imu_gyro_lp[AXIS_NB];    /* low passed calibrated gyros in rad/s */
 
 /* raw sensors readings */
@@ -145,13 +145,13 @@ extern struct adc_buf buf_bat;
   }
 
 #define ImuPeriodic() {				\
-    if (max1167_status != STA_MAX1167_IDLE) {	\
+    /*  if (max1167_status != STA_MAX1167_IDLE) {	\
       DOWNLINK_SEND_AHRS_OVERRUN();		\
     }						\
-    else {					\
+    else { */					\
       max1167_read();				\
       micromag_read();				\
-    }						\
+      /*    }	*/				\
   }
 
 

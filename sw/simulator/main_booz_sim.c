@@ -272,10 +272,10 @@ static void booz_sim_set_ppm_from_joystick( void ) {
   //  printf("joystick roll %f %d\n", booz_joystick_value[JS_ROLL], ppm_pulses[RADIO_ROLL]);
 #else
   ppm_pulses[RADIO_THROTTLE] = 1223 + 0.6 * (2050-1223);
-  BREAK_MTT();
-  WALK_OVAL();
+  //BREAK_MTT();
+  //WALK_OVAL();
   // CIRCLE();
-  // STATIONARY();
+  STATIONARY();
   // TOUPIE();
 #endif
 }

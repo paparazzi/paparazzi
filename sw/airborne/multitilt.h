@@ -22,7 +22,7 @@ extern float mtt_P_theta[2][2];
 extern float mtt_psi;
 extern float mtt_r;
 extern float mtt_br;
-
+extern float mtt_P_psi[2][2];
 
 extern void multitilt_init(void);
 extern void multitilt_start( const float* accel, const float* gyro, const int16_t* mag);

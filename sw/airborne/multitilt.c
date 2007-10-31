@@ -66,7 +66,6 @@ static inline float psi_of_mag( const int16_t* mag) {
     return -atan2( me, mn );			
 }
 
-
 void multitilt_init(void) {
   mtt_status = MT_STATUS_UNINIT;
   mtt_phi = 0.;
@@ -157,8 +156,6 @@ void multitilt_predict( const float* gyro ) {
 
 }
 
-
-
 static void inline MttUpdateAxis(float _err, float _P[2][2], float* angle, float* bias) {
   const float Pct_0 = _P[0][0];
   const float Pct_1 = _P[1][0];
@@ -181,8 +178,6 @@ static void inline MttUpdateAxis(float _err, float _P[2][2], float* angle, float
   (*bias)  += K_1 * _err;
 
 }
-
-
 
 void multitilt_update( const float* accel, const int16_t* mag ) {
 

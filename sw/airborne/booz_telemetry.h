@@ -29,6 +29,9 @@
 			    &cpu_time_sec, \
 			    &buss_twi_blmc_nb_err)
 
+
+#define PERIODIC_SEND_RC() DOWNLINK_SEND_RC(PPM_NB_PULSES, rc_values)
+
 #define PERIODIC_SEND_BOOZ_FD()						\
   DOWNLINK_SEND_BOOZ_FD(&booz_estimator_p,				\
 			&booz_estimator_q,				\

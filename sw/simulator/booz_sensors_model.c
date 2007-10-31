@@ -105,14 +105,14 @@ static void booz_sensors_model_gyro_init(void) {
   bsm.gyro_neutral->ve[AXIS_R] = (double)bsm.gyro_resolution * 0.6035156; /* ratio of full scale - nominal 0.5 */
 
   bsm.gyro_noise_std_dev = v_get(AXIS_NB);
-  bsm.gyro_noise_std_dev->ve[AXIS_P] = RadOfDeg(1.);
-  bsm.gyro_noise_std_dev->ve[AXIS_Q] = RadOfDeg(1.);
-  bsm.gyro_noise_std_dev->ve[AXIS_R] = RadOfDeg(1.);
+  bsm.gyro_noise_std_dev->ve[AXIS_P] = RadOfDeg(.5);
+  bsm.gyro_noise_std_dev->ve[AXIS_Q] = RadOfDeg(.5);
+  bsm.gyro_noise_std_dev->ve[AXIS_R] = RadOfDeg(.5);
 
   bsm.gyro_bias_initial = v_get(AXIS_NB);
-  bsm.gyro_bias_initial->ve[AXIS_P] = RadOfDeg( 1.0);
-  bsm.gyro_bias_initial->ve[AXIS_Q] = RadOfDeg(-0.25);
-  bsm.gyro_bias_initial->ve[AXIS_R] = RadOfDeg( 0.5);
+  bsm.gyro_bias_initial->ve[AXIS_P] = RadOfDeg( -0.2);
+  bsm.gyro_bias_initial->ve[AXIS_Q] = RadOfDeg( -0.5);
+  bsm.gyro_bias_initial->ve[AXIS_R] = RadOfDeg(  0.5);
 
   bsm.gyro_bias_random_walk_std_dev = v_get(AXIS_NB);
   bsm.gyro_bias_random_walk_std_dev->ve[AXIS_P] =  RadOfDeg(5.e-1);

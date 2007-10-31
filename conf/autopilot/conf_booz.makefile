@@ -84,6 +84,7 @@ flt.CFLAGS += -DDISABLE_MAGNETOMETER
 flt.srcs += micromag.c $(SRC_ARCH)/micromag_hw.c
 flt.srcs += imu_v3.c $(SRC_ARCH)/imu_v3_hw.c
 
+flt.CFLAGS += -DBOOZ_AHRS_TYPE=BOOZ_AHRS_MULTITILT
 flt.srcs += multitilt.c
 
 flt.srcs += booz_inter_mcu.c
