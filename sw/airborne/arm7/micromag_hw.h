@@ -1,18 +1,12 @@
-#ifndef MICROMAG_H
-#define MICROMAG_H
+#ifndef MICROMAG_HW_H
+#define MICROMAG_HW_H
 
 #include "std.h"
 #include "LPC21xx.h"
 #include "interrupt_hw.h" 
 #include "spi_hw.h"
 
-#define MM_NB_AXIS 3
 
-extern void micromag_init( void );
-extern void micromag_read( void );
-
-extern volatile uint8_t micromag_data_available;
-extern volatile int16_t micromag_values[MM_NB_AXIS];
 extern volatile uint8_t micromag_cur_axe;
 
 #define MM_SS_PIN 20
@@ -64,4 +58,4 @@ extern volatile uint8_t micromag_cur_axe;
 }
 
 
-#endif /* MICROMAG_H */
+#endif /* MICROMAG_HW_H */

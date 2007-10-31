@@ -33,6 +33,8 @@ struct BoozFlightModel {
   VEC* state;
 
   /* constants used in derivative computation */
+  /* magnetic field in earth frame            */
+  VEC* h_earth;
   /* gravitation in earth frame */
   VEC* g_earth;
   /* propeller thrust factor    */

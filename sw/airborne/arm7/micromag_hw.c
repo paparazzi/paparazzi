@@ -5,13 +5,15 @@
 */
 #include "micromag.h"
 
-volatile uint8_t micromag_data_available;
-volatile int16_t micromag_values[MM_NB_AXIS];
+
 volatile uint8_t micromag_cur_axe;
 
+#ifndef DISABLE_MAGNETOMETER
 static void EXTINT2_ISR(void) __attribute__((naked));
+#endif /* DISABLE_MAGNETOMETER */
 
-void micromag_init( void ) {
+void micromag_hw_init( void ) {
+#ifndef DISABLE_MAGNETOMETER
   /* configure SS pin */
   SetBit(MM_SS_IODIR, MM_SS_PIN); /* pin is output  */
   MmUnselect();                   /* pin idles high */
@@ -32,16 +34,19 @@ void micromag_init( void ) {
   VICIntEnable = VIC_BIT( VIC_EINT2 );    /* enable it */
   VICVectCntl9 = VIC_ENABLE | VIC_EINT2;
   VICVectAddr9 = (uint32_t)EXTINT2_ISR;    // address of the ISR 
-
+#endif /* DISABLE_MAGNETOMETER */
 }
 
 void micromag_read( void ) {
+#ifndef DISABLE_MAGNETOMETER
   MmSelect();
   SpiEnable();
   //  micromag_cur_axe = 0;
   MmTriggerRead();
+#endif /* DISABLE_MAGNETOMETER */
 }
 
+#ifndef DISABLE_MAGNETOMETER
 void EXTINT2_ISR(void) {
   ISR_ENTRY();
   /* read dummy control byte reply */
@@ -57,3 +62,4 @@ void EXTINT2_ISR(void) {
   VICVectAddr = 0x00000000;    /* clear this interrupt from the VIC */
   ISR_EXIT();
 }
+#endif /* DISABLE_MAGNETOMETER */

@@ -14,8 +14,8 @@
 
 
 //char* fg_host = "127.0.0.1";
-char* fg_host = "10.31.4.107";
-//char* fg_host = "192.168.1.191";
+//char* fg_host = "10.31.4.107";
+char* fg_host = "192.168.1.191";
 unsigned int fg_port = 5501;
 char* joystick_dev = "/dev/input/js0";
 
@@ -63,6 +63,7 @@ static gboolean booz_sim_periodic(gpointer data) {
     booz_flight_model_run(DT, booz_sim_actuators_values);
 
   booz_sensors_model_run(DT);
+  
   sim_time += DT;
 
   /* call the filter periodic task to read sensors                      */
@@ -170,11 +171,93 @@ static inline void booz_sim_display(void) {
 	       (bfm.state->ve[BFMS_X]), 
 	       (bfm.state->ve[BFMS_Y]), 
 	       (bfm.state->ve[BFMS_Z]));
+    /* one good reason to store the bias in real unit !! */
+    IvySendMsg("148 BOOZ_SIM_GYRO_BIAS %f %f %f",  
+	       DegOfRad(bsm.gyro_bias_random_walk_value->ve[AXIS_P]),
+	       DegOfRad(bsm.gyro_bias_random_walk_value->ve[AXIS_Q]), 
+	       DegOfRad(bsm.gyro_bias_random_walk_value->ve[AXIS_R]));
   }
 }
 
 
-//#define FAKE_JOYSTICK
+#define BREAK_MTT() {				\
+    int foo = sim_time/10;			\
+    switch(foo%4) {							\
+    case 0:								\
+      ppm_pulses[RADIO_PITCH]    = 1500 + 0.2 * (2050-950);		\
+      ppm_pulses[RADIO_YAW]      = 1493 + 0. * (2050-950);		\
+      break;								\
+    case 1:								\
+      ppm_pulses[RADIO_PITCH]    = 1500 + 0.0 * (2050-950);		\
+      ppm_pulses[RADIO_YAW]      = 1493 + 0.4 * (2050-950);		\
+      break;								\
+    case 2:								\
+      ppm_pulses[RADIO_PITCH]    = 1500 + 0.2 * (2050-950);		\
+      ppm_pulses[RADIO_YAW]      = 1493 + 0. * (2050-950);		\
+      break;								\
+    case 3:								\
+      ppm_pulses[RADIO_PITCH]    = 1500 - 0.0 * (2050-950);		\
+      ppm_pulses[RADIO_YAW]      = 1493 + 0.4 * (2050-950);		\
+      break;								\
+    }									\
+}
+
+#define WALK_OVAL() {							\
+    ppm_pulses[RADIO_ROLL]       = 1500 + 0. * (2050-950);		\
+    int foo = sim_time/10;						\
+    switch(foo%4) {							\
+    case 0:								\
+      ppm_pulses[RADIO_PITCH]    = 1500 + 0. * (2050-950);		\
+      ppm_pulses[RADIO_YAW]      = 1493 + 0. * (2050-950);		\
+      break;								\
+    case 1:								\
+      ppm_pulses[RADIO_PITCH]    = 1500 + 0.2 * (2050-950);		\
+      break;								\
+    case 2:								\
+      ppm_pulses[RADIO_PITCH]    = 1500 + 0. * (2050-950);		\
+      break;								\
+    case 3:								\
+      ppm_pulses[RADIO_YAW]      = 1493 + 0.2 * (2050-950);		\
+      break;								\
+    }									\
+}
+
+#define STATIONARY() { \
+    ppm_pulses[RADIO_ROLL]     = 1500 + 0. * (2050-950);		\
+    ppm_pulses[RADIO_PITCH]    = 1498 + 0. * (2050-950);		\
+    ppm_pulses[RADIO_YAW]      = 1493 + 0. * (2050-950);		\
+  }
+
+
+#define TOUPIE() {							\
+    ppm_pulses[RADIO_ROLL]     = 1500 + 0. * (2050-950);		\
+    ppm_pulses[RADIO_PITCH]    = 1498 + 0. * (2050-950);		\
+    int foo = sim_time/20;						\
+    switch(foo%4) {							\
+    case 0:								\
+      ppm_pulses[RADIO_YAW]      = 1493 + 0. * (2050-950);		\
+      break;								\
+    case 1:								\
+      ppm_pulses[RADIO_YAW]      = 1493 + 0.2 * (2050-950);		\
+      break;								\
+    case 2:								\
+      ppm_pulses[RADIO_YAW]      = 1493 + 0. * (2050-950);		\
+      break;								\
+    case 3:								\
+      ppm_pulses[RADIO_YAW]      = 1493 + -0.2 * (2050-950);		\
+      break;								\
+    }									\
+  }
+
+
+#define CIRCLE() {				                        \
+    ppm_pulses[RADIO_YAW]      = 1493 + 0. * (2050-950);		\
+    double alpha = 0.01 * sim_time;					\
+    ppm_pulses[RADIO_PITCH]    = 1498 + cos(alpha) * 250.;		\
+    ppm_pulses[RADIO_ROLL]     = 1500 + sin(alpha) * 250.;		\
+  }
+
+#define FAKE_JOYSTICK
 static void booz_sim_set_ppm_from_joystick( void ) {
 #ifndef FAKE_JOYSTICK
   ppm_pulses[RADIO_THROTTLE] = 1223 + booz_joystick_value[JS_THROTTLE] * (2050-1223);
@@ -188,31 +271,12 @@ static void booz_sim_set_ppm_from_joystick( void ) {
   //  printf("joystick pitch %f %d\n", booz_joystick_value[JS_PITCH], ppm_pulses[RADIO_PITCH]);
   //  printf("joystick roll %f %d\n", booz_joystick_value[JS_ROLL], ppm_pulses[RADIO_ROLL]);
 #else
-  int foo = sim_time/10;
-  //  ppm_pulses[RADIO_YAW]      = 1493 + 0.4 * (2050-950);
-  //  ppm_pulses[RADIO_MODE]     = 1500 - 0.5 * (2050-950);
-  switch(foo%4) {
-  case 0:
-    //    ppm_pulses[RADIO_THROTTLE] = 1223 + 0.25 * (2050-1223);
-    //    ppm_pulses[RADIO_ROLL]     = 1500 + 0.2 * (2050-950);
-    ppm_pulses[RADIO_PITCH]    = 1500 + 0.2 * (2050-950);
-    break;
-  case 1:
-    //    ppm_pulses[RADIO_THROTTLE] = 1223 + 0.25 * (2050-1223);
-    //    ppm_pulses[RADIO_ROLL]     = 1500 - 0.2 * (2050-950);
-    ppm_pulses[RADIO_PITCH]    = 1500 + 0.0 * (2050-950);
-    break;
-  case 2:
-    //    ppm_pulses[RADIO_THROTTLE] = 1223 + 0.9 * (2050-1223);
-    //    ppm_pulses[RADIO_ROLL]     = 1500 - 0.2 * (2050-950);
-    ppm_pulses[RADIO_PITCH]    = 1500 - 0.2 * (2050-950);
-    break;
-  case 3:
-    //    ppm_pulses[RADIO_THROTTLE] = 1223 + 0.9 * (2050-1223);
-    //    ppm_pulses[RADIO_ROLL]     = 1500 + 0.2 * (2050-950);
-    ppm_pulses[RADIO_PITCH]    = 1500 - 0.0 * (2050-950);
-    break;
-  }
+  ppm_pulses[RADIO_THROTTLE] = 1223 + 0.6 * (2050-1223);
+  BREAK_MTT();
+  WALK_OVAL();
+  // CIRCLE();
+  // STATIONARY();
+  // TOUPIE();
 #endif
 }
 

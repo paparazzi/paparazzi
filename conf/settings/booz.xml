@@ -8,10 +8,12 @@
     <dl_setting var="booz_control_rate_r_dgain" min="0" step="0.5" max="30" module="booz_control" shortname="r_d"/>
     <dl_setting var="booz_control_attitude_phi_theta_pgain" min="-2000" step="50" max="-50" module="booz_control" shortname="att_p"/>
     <dl_setting var="booz_control_attitude_phi_theta_dgain" min="-2000" step="50" max="-50" module="booz_control" shortname="att_d"/>
+<!--
     <dl_setting var="booz_nav_vertical_pgain" min="0.01" step="0.01" max="10" module="booz_nav" shortname="vert_p"/>
     <dl_setting var="booz_nav_vertical_dgain" min="0.01" step="0.01" max="10" module="booz_nav" shortname="vert_d"/>
     <dl_setting var="booz_nav_horizontal_pgain" min="0.01" step="0.01" max="0.5" module="booz_nav" shortname="horiz_p"/>
     <dl_setting var="booz_nav_horizontal_dgain" min="0.01" step="0.01" max="0.5" module="booz_nav" shortname="hoziz_d"/>
     <dl_setting var="booz_nav_horizontal_max_pos_err" min="0" step="0.5" max="20" module="booz_nav" shortname="vert_max_pos_err"/>
+-->
  </dl_settings>
 </settings>

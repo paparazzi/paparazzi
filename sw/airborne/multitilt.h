@@ -25,9 +25,9 @@ extern float mtt_br;
 
 
 extern void multitilt_init(void);
-extern void multitilt_start( const float* accel, const float* gyro);
+extern void multitilt_start( const float* accel, const float* gyro, const int16_t* mag);
 extern void multitilt_predict( const float* gyro );
-extern void multitilt_update( const float* accel );
+extern void multitilt_update( const float* accel, const int16_t* mag );
 
 
 #endif /* MULTITILT_H */

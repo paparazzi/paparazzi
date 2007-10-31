@@ -78,14 +78,14 @@ static inline void on_imu_event( void ) {
     imu_v3_detect_vehicle_still();
     if (imu_vehicle_still) {
       ImuUpdateFromAvg();
-      multitilt_start(imu_accel, imu_gyro);
+      multitilt_start(imu_accel, imu_gyro, imu_mag);
     }
     break;
 
   case MT_STATUS_RUNNING :
     // t0 = T0TC;
     multitilt_predict(imu_gyro_prev);
-    multitilt_update(imu_accel);
+    multitilt_update(imu_accel, imu_mag);
     // t1 = T0TC;
     // diff = t1 - t0;
     // DOWNLINK_SEND_TIME(&diff);

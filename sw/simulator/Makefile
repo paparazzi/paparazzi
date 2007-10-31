@@ -143,14 +143,14 @@ BOOZ_AB_SRCS += $(AB)/spi.c $(AB_ARCH)/spi_hw.c
 
 #CFLAGS += -DDATALINK=PPRZ
 #BOOZ_AB_SRCS += ../airborne/datalink.c
-
-CFLAGS += -DBOOZ_FILTER_MCU
 BOOZ_AB_SRCS += $(AB)/booz_estimator.c
 BOOZ_AB_SRCS += $(AB)/booz_control.c
 BOOZ_AB_SRCS += $(AB)/booz_nav.c
 BOOZ_AB_SRCS += $(AB)/booz_autopilot.c
 BOOZ_AB_SRCS += $(AB)/commands.c
 
+
+CFLAGS += -DBOOZ_FILTER_MCU
 BOOZ_AB_SRCS += $(AB)/booz_filter_main.c
 
 CFLAGS += -DADC_CHANNEL_AX=1 -DADC_CHANNEL_AY=2 -DADC_CHANNEL_AZ=3 -DADC_CHANNEL_BAT=4
@@ -160,9 +160,10 @@ BOOZ_AB_SRCS  += $(AB_ARCH)/adc_hw.c
 BOOZ_AB_SRCS += $(AB)/booz_filter_telemetry.c
 
 BOOZ_AB_SRCS  += $(AB)/max1167.c $(AB_ARCH)/max1167_hw.c
-
+BOOZ_AB_SRCS  += $(AB)/micromag.c $(AB_ARCH)/micromag_hw.c
 BOOZ_AB_SRCS  += $(AB)/imu_v3.c $(AB_ARCH)/imu_v3_hw.c
 
+CFLAGS += -DBOOZ_ATT_FILTER_TYPE=multitilt
 BOOZ_AB_SRCS += $(AB)/multitilt.c
 
 

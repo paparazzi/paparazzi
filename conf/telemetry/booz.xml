@@ -34,6 +34,8 @@
       <message name="IMU_GYRO_RAW"          period=".25"/>
       <message name="IMU_ACCEL"             period=".25"/>
       <message name="IMU_ACCEL_RAW"         period=".25"/>
+      <message name="IMU_MAG"               period="1."/>
+      <message name="IMU_MAG_RAW"           period="1."/>
     </mode>
     <mode name="raw_sensors">
       <message name="IMU_GYRO_RAW"          period=".017"/>

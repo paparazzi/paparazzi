@@ -5,6 +5,7 @@
 #include "6dof.h"
 
 #include "max1167.h"
+#include "micromag.h"
 #include "imu_v3_hw.h"
 
 /* calibrated sensor readings */
@@ -138,6 +139,7 @@ extern struct adc_buf buf_bat;
       max1167_status = STA_MAX1167_IDLE;		\
       ImuUpdateGyros();					\
       ImuUpdateAccels();				\
+      ImuUpdateMag();					\
       user_handler();					\
     }							\
   }
@@ -148,6 +150,7 @@ extern struct adc_buf buf_bat;
     }						\
     else {					\
       max1167_read();				\
+      micromag_read();				\
     }						\
   }
 

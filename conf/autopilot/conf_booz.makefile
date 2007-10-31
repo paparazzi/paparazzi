@@ -80,6 +80,8 @@ flt.srcs += $(SRC_ARCH)/adc_hw.c
 
 flt.srcs += max1167.c $(SRC_ARCH)/max1167_hw.c
 
+flt.CFLAGS += -DDISABLE_MAGNETOMETER
+flt.srcs += micromag.c $(SRC_ARCH)/micromag_hw.c
 flt.srcs += imu_v3.c $(SRC_ARCH)/imu_v3_hw.c
 
 flt.srcs += multitilt.c

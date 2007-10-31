@@ -37,6 +37,7 @@
 			      &imu_accel_raw[AXIS_Y],	\
 			      &imu_accel_raw[AXIS_Z]);
 
+
 #define PERIODIC_SEND_IMU_GYRO_RAW_AVG()			\
   DOWNLINK_SEND_IMU_GYRO_RAW_AVG(&imu_vs_gyro_raw_avg[AXIS_X],	\
 				 &imu_vs_gyro_raw_avg[AXIS_Y],	\
@@ -53,8 +54,19 @@
 				  &imu_vs_accel_raw_var[AXIS_Y],	\
 				  &imu_vs_accel_raw_var[AXIS_Z]);
 
-#define PERIODIC_SEND_AHRS_STATE()					 \
-  DOWNLINK_SEND_AHRS_STATE(&mtt_phi, &mtt_theta, &mtt_theta, &mtt_theta, \
+#define PERIODIC_SEND_IMU_MAG()			\
+  DOWNLINK_SEND_IMU_MAG(&imu_mag[AXIS_X],	\
+			&imu_mag[AXIS_Y],	\
+			&imu_mag[AXIS_Z]);
+
+#define PERIODIC_SEND_IMU_MAG_RAW()			\
+  DOWNLINK_SEND_IMU_MAG_RAW(&imu_mag_raw[AXIS_X],	\
+			    &imu_mag_raw[AXIS_Y],	\
+			    &imu_mag_raw[AXIS_Z]);
+
+
+#define PERIODIC_SEND_AHRS_STATE()					\
+  DOWNLINK_SEND_AHRS_STATE(&mtt_phi, &mtt_theta, &mtt_psi, &mtt_psi,	\
 			   &mtt_bp, &mtt_bq, &mtt_br);
 
 #define PERIODIC_SEND_AHRS_COV()					\

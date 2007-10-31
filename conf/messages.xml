@@ -500,6 +500,13 @@
     <field name="psi"   type="float" unit="degres"/>
   </message>
 
+  <message name="BOOZ_SIM_GYRO_BIAS" ID="242">
+    <field name="bp"     type="float" unit="degres/s"/>
+    <field name="bq"     type="float" unit="degres/s"/>
+    <field name="br"     type="float" unit="degres/s"/>
+  </message>
+
+
   <message name="ENOSE_STATUS" ID="250">
       <field name="val1" type="uint16"/>
       <field name="val2" type="uint16"/>

@@ -30,6 +30,12 @@ void booz_flight_model_init( void ) {
   bfm.g_earth->ve[AXIS_Y] = 0.;
   bfm.g_earth->ve[AXIS_Z] = G;
 
+  /* FIXME */
+  bfm.h_earth = v_get(AXIS_NB);
+  bfm.h_earth->ve[AXIS_X] = 1.;
+  bfm.h_earth->ve[AXIS_Y] = 0.;
+  bfm.h_earth->ve[AXIS_Z] = 1.;
+
   bfm.thrust_factor = 0.5 * RHO * PROP_AREA * C_t * PROP_RADIUS * PROP_RADIUS;
   bfm.torque_factor = 0.5 * RHO * PROP_AREA * C_q * PROP_RADIUS * PROP_RADIUS;
 
