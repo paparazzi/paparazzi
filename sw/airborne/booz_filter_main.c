@@ -50,7 +50,7 @@ STATIC_INLINE void booz_filter_main_init( void ) {
 #endif
   imu_v3_init();
 
-  multitilt_init();
+  booz_ahrs_init();
 
   booz_link_mcu_init();
 
@@ -68,12 +68,12 @@ STATIC_INLINE void booz_filter_main_event_task( void ) {
 STATIC_INLINE void booz_filter_main_periodic_task( void ) {
   /* triger measurements */
   //  ami601_periodic();  
-  DOWNLINK_SEND_IMU_MAG_RAW(&ami601_val[0], &ami601_val[4], &ami601_val[2]);
+  //  DOWNLINK_SEND_IMU_MAG_RAW(&ami601_val[0], &ami601_val[4], &ami601_val[2]);
   ImuPeriodic();
-  static uint8_t _50hz = 0;
-  _50hz++;
-  if (_50hz > 5) _50hz = 0;
-  switch (_50hz) {
+  static uint8_t _62hz = 0;
+  _62hz++;
+  if (_62hz > 4) _62hz = 0;
+  switch (_62hz) {
   case 0:
     booz_filter_telemetry_periodic_task();
     break;
@@ -82,20 +82,19 @@ STATIC_INLINE void booz_filter_main_periodic_task( void ) {
 }
 
 static inline void on_imu_event( void ) {
-  switch (mtt_status) {
+  switch (booz_ahrs_status) {
 
-  case MT_STATUS_UNINIT :
+  case BOOZ_AHRS_STATUS_UNINIT :
     imu_v3_detect_vehicle_still();
     if (imu_vehicle_still) {
       ImuUpdateFromAvg();
-      multitilt_start(imu_accel, imu_gyro, imu_mag);
+      booz_ahrs_start(imu_accel, imu_gyro, imu_mag);
     }
     break;
 
-  case MT_STATUS_RUNNING :
+  case BOOZ_AHRS_STATUS_RUNNING :
     // t0 = T0TC;
-    multitilt_predict(imu_gyro_prev);
-    multitilt_update(imu_accel, imu_mag);
+    booz_ahrs_run(imu_accel, imu_gyro_prev, imu_mag);
     // t1 = T0TC;
     // diff = t1 - t0;
     // DOWNLINK_SEND_TIME(&diff);

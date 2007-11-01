@@ -6,7 +6,7 @@
 #include "uart.h"
 
 #include "imu_v3.h"
-#include "multitilt.h"
+#include "booz_ahrs.h"
 
 #include "settings.h"
 
@@ -66,14 +66,18 @@
 
 
 #define PERIODIC_SEND_AHRS_STATE()					\
-  DOWNLINK_SEND_AHRS_STATE(&mtt_phi, &mtt_theta, &mtt_psi, &mtt_psi,	\
-			   &mtt_bp, &mtt_bq, &mtt_br);
+  DOWNLINK_SEND_AHRS_STATE(&booz_ahrs_phi, &booz_ahrs_theta, &booz_ahrs_psi, &booz_ahrs_psi,	\
+			   &booz_ahrs_bp, &booz_ahrs_bq, &booz_ahrs_br);
 
+#if defined BOOZ_AHRS_TYPE && BOOZ_AHRS_TYPE == BOOZ_AHRS_MULTITILT
 #define PERIODIC_SEND_AHRS_COV()					\
   DOWNLINK_SEND_AHRS_COV(&mtt_P_phi[0][0], &mtt_P_phi[0][1],		\
 			 &mtt_P_phi[1][0], &mtt_P_phi[1][1],		\
 			 &mtt_P_theta[0][0], &mtt_P_theta[0][1],	\
 			 &mtt_P_theta[1][1]);
+#elif defined BOOZ_AHRS_TYPE && BOOZ_AHRS_TYPE == BOOZ_AHRS_QUATERNION
+#define PERIODIC_SEND_AHRS_COV() {}
+#endif /* BOOZ_AHRS_TYPE */
 
 #define PERIODIC_SEND_BOOZ_DEBUG() {					\
     float m_phi = atan2(imu_accel[AXIS_Y], imu_accel[AXIS_Z]);		\

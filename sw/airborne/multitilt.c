@@ -1,26 +1,12 @@
-#include "multitilt.h"
+#include "booz_ahrs.h"
 
 #include <string.h>
 #include <math.h>
 
 #include "6dof.h"
 
-uint8_t mtt_status;
-
 #define DT 4e-3
 
-/* attitude */
-float mtt_phi;
-float mtt_theta;
-float mtt_psi;
-/* unbiased rates */
-float mtt_p;
-float mtt_q;
-float mtt_r;
-/* gyro biases */
-float mtt_bp;
-float mtt_bq;
-float mtt_br;
 /* covariance matrix */
 float mtt_P_phi[2][2];
 float mtt_P_theta[2][2];
@@ -33,6 +19,12 @@ static const float Q_bias  = 0.0015;
 /* Measurement covariance */
 //static const float R_accel = 0.3;
 static const float R_accel = 0.4;
+
+static inline void multitilt_update( const float* accel, const int16_t* mag );
+static inline void mtt_update_axis(float _err, float _P[2][2], float* angle, float* bias);
+static inline void multitilt_predict( const float* gyro );
+static inline void mtt_predict_axis(float* angle, float angle_dot, float P[2][2]);
+
 
 #define WRAP(x,a) { while (x > a) x -= 2 * a; while (x <= -a) x += 2 * a;}
 
@@ -49,39 +41,39 @@ static inline float theta_of_accel( const float* accel) {
 }
 
 static inline float psi_of_mag( const int16_t* mag) {			
-    /* untilt magnetometer */			
-    const float ctheta  = cos(  mtt_theta );	
-    const float stheta  = sin( mtt_theta );	
-    const float cphi  = cos( mtt_phi );		
-    const float sphi  = sin( mtt_phi );		
+  /* untilt magnetometer */			
+  const float ctheta  = cos(  booz_ahrs_theta );	
+  const float stheta  = sin( booz_ahrs_theta );	
+  const float cphi  = cos( booz_ahrs_phi );		
+  const float sphi  = sin( booz_ahrs_phi );		
 						
-    const float mn =				
-      ctheta*      mag[0]+			
-      sphi*stheta* mag[1]+			
-      cphi*stheta* mag[2];			
-    const float me =				
-      /*    0*     mag[0]+ */			
-      cphi*  mag[1]+				
-      -sphi* mag[2];				
-    return -atan2( me, mn );			
+  const float mn =				
+    ctheta*      mag[0]+			
+    sphi*stheta* mag[1]+			
+    cphi*stheta* mag[2];			
+  const float me =				
+    /*    0*     mag[0]+ */			
+    cphi*  mag[1]+				
+    -sphi* mag[2];				
+  return -atan2( me, mn );			
 }
 
-void multitilt_init(void) {
-  mtt_status = MT_STATUS_UNINIT;
-  mtt_phi = 0.;
-  mtt_theta = 0.;
-  mtt_psi = 0.;
+void booz_ahrs_init(void) {
+  booz_ahrs_status = BOOZ_AHRS_STATUS_UNINIT;
+  booz_ahrs_phi = 0.;
+  booz_ahrs_theta = 0.;
+  booz_ahrs_psi = 0.;
 
-  mtt_p = 0.;
-  mtt_q = 0.;
-  mtt_r = 0.;
+  booz_ahrs_p = 0.;
+  booz_ahrs_q = 0.;
+  booz_ahrs_r = 0.;
 
-  mtt_bp = 0.;
-  mtt_bq = 0.;
-  mtt_br = 0.;
+  booz_ahrs_bp = 0.;
+  booz_ahrs_bq = 0.;
+  booz_ahrs_br = 0.;
 }
 
-void multitilt_start(const float* accel, const float* gyro, const int16_t* mag) {
+void booz_ahrs_start(const float* accel, const float* gyro, const int16_t* mag) {
   /* reset covariance matrices */
   const float cov_init[2][2] = {{1., 0.},
 				{0., 1.}};
@@ -90,28 +82,32 @@ void multitilt_start(const float* accel, const float* gyro, const int16_t* mag) 
   memcpy(mtt_P_psi, cov_init, sizeof(cov_init));
 
   /* initialise state */
-  mtt_p = 0.;
-  mtt_q = 0.;
-  mtt_r = 0.;
+  booz_ahrs_p = 0.;
+  booz_ahrs_q = 0.;
+  booz_ahrs_r = 0.;
   
-  mtt_bp = gyro[AXIS_P];
-  mtt_bq = gyro[AXIS_Q];
-  mtt_br = gyro[AXIS_R];
+  booz_ahrs_bp = gyro[AXIS_P];
+  booz_ahrs_bq = gyro[AXIS_Q];
+  booz_ahrs_br = gyro[AXIS_R];
 
   const float init_phi = phi_of_accel(accel);
   const float init_theta = theta_of_accel(accel);
 #ifndef DISABLE_MAGNETOMETER
   const float init_psi = psi_of_mag(mag);
 #endif
-  mtt_phi = init_phi;
-  mtt_theta = init_theta;
+  booz_ahrs_phi = init_phi;
+  booz_ahrs_theta = init_theta;
 #ifndef DISABLE_MAGNETOMETER
-  mtt_psi = init_psi;
+  booz_ahrs_psi = init_psi;
 #endif
 
-  mtt_status = MT_STATUS_RUNNING;
+  booz_ahrs_status = BOOZ_AHRS_STATUS_RUNNING;
 }
 
+void booz_ahrs_run(const float* accel, const float* gyro, const int16_t* mag) {
+  multitilt_predict(gyro);
+  multitilt_update(accel, mag);
+}
 
 static inline void mtt_predict_axis(float* angle, float angle_dot, float P[2][2]) {
 
@@ -131,32 +127,32 @@ static inline void mtt_predict_axis(float* angle, float angle_dot, float P[2][2]
 }
 
 
-void multitilt_predict( const float* gyro ) {
+static inline void multitilt_predict( const float* gyro ) {
   /* unbias gyro */
-  mtt_p = gyro[AXIS_P] - mtt_bp;
-  mtt_q = gyro[AXIS_Q] - mtt_bq;
-  mtt_r = gyro[AXIS_R] - mtt_br; 
+  booz_ahrs_p = gyro[AXIS_P] - booz_ahrs_bp;
+  booz_ahrs_q = gyro[AXIS_Q] - booz_ahrs_bq;
+  booz_ahrs_r = gyro[AXIS_R] - booz_ahrs_br; 
 
   /* update angles */
-  float s_phi = sin(mtt_phi);
-  float c_phi = cos(mtt_phi);
-  float t_theta = tan(mtt_theta);
+  float s_phi = sin(booz_ahrs_phi);
+  float c_phi = cos(booz_ahrs_phi);
+  float t_theta = tan(booz_ahrs_theta);
 
-  float phi_dot = mtt_p + s_phi*t_theta*mtt_q + c_phi*t_theta*mtt_r;
-  float theta_dot = c_phi*mtt_q - s_phi*mtt_r;
-  mtt_predict_axis(&mtt_phi, phi_dot, mtt_P_phi);
-  mtt_predict_axis(&mtt_theta, theta_dot, mtt_P_theta);
+  float phi_dot = booz_ahrs_p + s_phi*t_theta*booz_ahrs_q + c_phi*t_theta*booz_ahrs_r;
+  float theta_dot = c_phi*booz_ahrs_q - s_phi*booz_ahrs_r;
+  mtt_predict_axis(&booz_ahrs_phi, phi_dot, mtt_P_phi);
+  mtt_predict_axis(&booz_ahrs_theta, theta_dot, mtt_P_theta);
 
 #ifndef DISABLE_MAGNETOMETER
-  float c_theta = cos(mtt_theta);
-  float psi_dot = s_phi/c_theta*mtt_q + c_phi/c_theta*mtt_r;
-  mtt_predict_axis(&mtt_psi, psi_dot, mtt_P_psi);
+  float c_theta = cos(booz_ahrs_theta);
+  float psi_dot = s_phi/c_theta*booz_ahrs_q + c_phi/c_theta*booz_ahrs_r;
+  mtt_predict_axis(&booz_ahrs_psi, psi_dot, mtt_P_psi);
 #endif
 
 
 }
 
-static void inline MttUpdateAxis(float _err, float _P[2][2], float* angle, float* bias) {
+static void inline mtt_update_axis(float _err, float _P[2][2], float* angle, float* bias) {
   const float Pct_0 = _P[0][0];
   const float Pct_1 = _P[1][0];
   /* E = C P C' + R */
@@ -179,27 +175,28 @@ static void inline MttUpdateAxis(float _err, float _P[2][2], float* angle, float
 
 }
 
-void multitilt_update( const float* accel, const int16_t* mag ) {
+static inline void multitilt_update( const float* accel, const int16_t* mag ) {
 
   const float measure_phi = phi_of_accel(accel);
-  float err_phi = measure_phi - mtt_phi;
+  float err_phi = measure_phi - booz_ahrs_phi;
   WRAP(err_phi, M_PI);
-  MttUpdateAxis(err_phi, mtt_P_phi, &mtt_phi, &mtt_bp);
-  WRAP(mtt_phi, M_PI);
+  mtt_update_axis(err_phi, mtt_P_phi, &booz_ahrs_phi, &booz_ahrs_bp);
+  WRAP(booz_ahrs_phi, M_PI);
 
   const float measure_theta = theta_of_accel(accel);
-  float err_theta = measure_theta - mtt_theta;
+  float err_theta = measure_theta - booz_ahrs_theta;
   WRAP(err_theta, M_PI_2);
-  MttUpdateAxis(err_theta, mtt_P_theta, &mtt_theta, &mtt_bq);
-  WRAP(mtt_theta, M_PI_2);
+  mtt_update_axis(err_theta, mtt_P_theta, &booz_ahrs_theta, &booz_ahrs_bq);
+  WRAP(booz_ahrs_theta, M_PI_2);
 
 #ifndef DISABLE_MAGNETOMETER
   float measure_psi = psi_of_mag(mag);
-  float err_psi = measure_psi - mtt_psi;
+  float err_psi = measure_psi - booz_ahrs_psi;
   WRAP(err_psi, M_PI);
-  MttUpdateAxis(err_psi, mtt_P_psi, &mtt_psi, &mtt_br);
-  WRAP(mtt_psi, M_PI);
+  mtt_update_axis(err_psi, mtt_P_psi, &booz_ahrs_psi, &booz_ahrs_br);
+  WRAP(booz_ahrs_psi, M_PI);
 #endif
+
 }
 
 

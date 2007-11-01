@@ -163,8 +163,12 @@ BOOZ_AB_SRCS  += $(AB)/max1167.c $(AB_ARCH)/max1167_hw.c
 BOOZ_AB_SRCS  += $(AB)/micromag.c $(AB_ARCH)/micromag_hw.c
 BOOZ_AB_SRCS  += $(AB)/imu_v3.c $(AB_ARCH)/imu_v3_hw.c
 
-CFLAGS += -DBOOZ_AHRS_TYPE=multitilt
-BOOZ_AB_SRCS += $(AB)/multitilt.c
+
+BOOZ_AB_SRCS += $(AB)/booz_ahrs.c
+#CFLAGS += -DBOOZ_AHRS_TYPE=BOOZ_AHRS_MULTITILT
+#BOOZ_AB_SRCS += $(AB)/multitilt.c
+CFLAGS += -DBOOZ_AHRS_TYPE=BOOZ_AHRS_QUATERNION -DEKF_UPDATE_DISCRETE
+BOOZ_AB_SRCS += $(AB)/ahrs_quat_fast_ekf.c 
 
 
 booz_sim: $(BOOZ_SIM_SRCS) $(BOOZ_AB_SRCS)
