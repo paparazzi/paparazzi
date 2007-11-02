@@ -46,7 +46,6 @@
 #include "uart.h"
 #include "gpio.h"
 
-#include "control_grz.h"
 #include "settings.h"
 #include "latlong.h"
 
