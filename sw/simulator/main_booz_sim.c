@@ -171,7 +171,6 @@ static inline void booz_sim_display(void) {
 	       (bfm.state->ve[BFMS_X]), 
 	       (bfm.state->ve[BFMS_Y]), 
 	       (bfm.state->ve[BFMS_Z]));
-    /* one good reason to store the bias in real unit !! */
     IvySendMsg("148 BOOZ_SIM_GYRO_BIAS %f %f %f",  
 	       DegOfRad(bsm.gyro_bias_random_walk_value->ve[AXIS_P]),
 	       DegOfRad(bsm.gyro_bias_random_walk_value->ve[AXIS_Q]), 
@@ -222,7 +221,9 @@ static inline void booz_sim_display(void) {
     }									\
 }
 
-#define STATIONARY() { \
+#define HOVER() { \
+    ppm_pulses[RADIO_THROTTLE] = 1223 + 0.6 * (2050-1223);		\
+    ppm_pulses[RADIO_MODE]     = 1500 - 0.5 * (2050-950);		\
     ppm_pulses[RADIO_ROLL]     = 1500 + 0. * (2050-950);		\
     ppm_pulses[RADIO_PITCH]    = 1498 + 0. * (2050-950);		\
     ppm_pulses[RADIO_YAW]      = 1493 + 0. * (2050-950);		\
@@ -257,6 +258,54 @@ static inline void booz_sim_display(void) {
     ppm_pulses[RADIO_ROLL]     = 1500 + sin(alpha) * 250.;		\
   }
 
+#define ATTITUDE_ROLL_STEPS() {						\
+    ppm_pulses[RADIO_THROTTLE] = 1223 + 0.66 * (2050-1223);		\
+    ppm_pulses[RADIO_MODE]     = 1500 + 0. * (2050-950);		\
+    ppm_pulses[RADIO_PITCH]    = 1498 + 0. * (2050-950);		\
+    ppm_pulses[RADIO_YAW]      = 1493 + 0. * (2050-950);		\
+    int foo = sim_time/10;						\
+    switch(foo%2) {							\
+    case 0:								\
+      ppm_pulses[RADIO_ROLL]      = 1500 + 0.2 * (2050-950);		\
+      break;								\
+    case 1:								\
+      ppm_pulses[RADIO_ROLL]      = 1500 - 0.2 * (2050-950);		\
+      break;								\
+    }									\
+  }
+
+#define ATTITUDE_PITCH_STEPS() {						\
+    ppm_pulses[RADIO_THROTTLE] = 1223 + 0.66 * (2050-1223);		\
+    ppm_pulses[RADIO_MODE]     = 1500 + 0. * (2050-950);		\
+    ppm_pulses[RADIO_ROLL]     = 1500 + 0. * (2050-950);		\
+    ppm_pulses[RADIO_YAW]      = 1493 + 0. * (2050-950);		\
+    int foo = sim_time/10;						\
+    switch(foo%2) {							\
+    case 0:								\
+      ppm_pulses[RADIO_PITCH]      = 1498 + 0.2 * (2050-950);		\
+      break;								\
+    case 1:								\
+      ppm_pulses[RADIO_PITCH]      = 1498 - 0.2 * (2050-950);		\
+      break;								\
+    }									\
+  }
+
+#define ATTITUDE_YAW_STEPS() {						\
+    ppm_pulses[RADIO_THROTTLE] = 1223 + 0.66 * (2050-1223);		\
+    ppm_pulses[RADIO_MODE]     = 1500 + 0. * (2050-950);		\
+    ppm_pulses[RADIO_ROLL]     = 1500 + 0. * (2050-950);		\
+    ppm_pulses[RADIO_PITCH]    = 1500 + 0. * (2050-950);		\
+    int foo = sim_time/10;						\
+    switch(foo%2) {							\
+    case 0:								\
+      ppm_pulses[RADIO_YAW]    = 1493 + 0.2 * (2050-950);		\
+      break;								\
+    case 1:								\
+      ppm_pulses[RADIO_YAW]  = 1493 - 0.2 * (2050-950);			\
+      break;								\
+    }									\
+  }
+
 #define FAKE_JOYSTICK
 static void booz_sim_set_ppm_from_joystick( void ) {
 #ifndef FAKE_JOYSTICK
@@ -275,8 +324,11 @@ static void booz_sim_set_ppm_from_joystick( void ) {
   //BREAK_MTT();
   //WALK_OVAL();
   // CIRCLE();
-  STATIONARY();
+  // HOVER();
   // TOUPIE();
+  //  ATTITUDE_ROLL_STEPS();
+  //  ATTITUDE_PITCH_STEPS();
+  ATTITUDE_YAW_STEPS();
 #endif
 }
 
@@ -307,7 +359,7 @@ static void ivy_transport_init(void) {
 
 #include "std.h"
 #include "settings.h"
-#include "booz_telemetry.h"
+#include "booz_controller_telemetry.h"
 static void on_DL_SETTING(IvyClientPtr app, void *user_data, int argc, char *argv[]){
   uint8_t index = atoi(argv[2]);
   float value = atof(argv[3]);

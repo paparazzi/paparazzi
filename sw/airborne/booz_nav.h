@@ -2,21 +2,9 @@
 #define BOOZ_NAV_H
 
 
+#include "booz_nav_hover.h"
 #ifndef DISABLE_NAV
-extern float booz_nav_horizontal_x_sp;
-extern float booz_nav_horizontal_y_sp;
-extern float booz_nav_horizontal_u_sp;
-extern float booz_nav_horizontal_v_sp;
-extern float booz_nav_horizontal_max_pos_err;
-extern float booz_nav_horizontal_pgain;
-extern float booz_nav_horizontal_dgain;
-extern float booz_nav_phi_command;
-extern float booz_nav_theta_command;
 
-extern float booz_nav_vertical_z_sp;
-extern float booz_nav_vertical_pgain;
-extern float booz_nav_vertical_dgain;
-extern float booz_nav_power_command;
 #endif
 
 extern void booz_nav_init(void);

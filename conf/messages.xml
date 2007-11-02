@@ -369,37 +369,65 @@
 
 
 
-  <message name="IMU_CAL" ID="220">
+  <message name="IMU_TURNTABLE" ID="220">
     <field name="omega" type="float" unit="rad/s"/>
   </message>
 
 
-  <message name="AHRS_STATE" ID="221">
+  <message name="AHRS_QUAT_STATE" ID="221">
       <field name="q0" type="float"/>
       <field name="q1" type="float"/>
       <field name="q2" type="float"/>
       <field name="q3" type="float"/>
-      <field name="bx" type="float"/>
-      <field name="by" type="float"/>
-      <field name="bz" type="float"/>
+      <field name="bp" type="float" unit="rad/s"/>
+      <field name="bq" type="float" unit="rad/s"/>
+      <field name="br" type="float" unit="rad/s"/>
   </message>
 
-  <message name="AHRS_COV" ID="222">
-    <field name="p00" type="float"/>
-    <field name="p11" type="float"/>
-    <field name="p22" type="float"/>
-    <field name="p33" type="float"/>
-    <field name="p44" type="float"/>
-    <field name="p55" type="float"/>
-    <field name="p66" type="float"/>
+  <message name="AHRS_QUAT_COV" ID="222">
+    <field name="p_q0" type="float"/>
+    <field name="p_q1" type="float"/>
+    <field name="p_q2" type="float"/>
+    <field name="p_q3" type="float"/>
+    <field name="p_bp" type="float" unit="interesting_question"/>
+    <field name="p_bq" type="float" unit="interesting_question"/>
+    <field name="p_br" type="float" unit="interesting_question"/>
   </message>
 
-   <message name="TIME" ID="223">
+  <message name="AHRS_EULER_STATE" ID="223">
+      <field name="phi"   type="float" unit="rad"/>
+      <field name="theta" type="float" unit="rad"/>
+      <field name="psi"   type="float" unit="rad"/>
+      <field name="bp" type="float" unit="rad/s"/>
+      <field name="bq" type="float" unit="rad/s"/>
+      <field name="br" type="float" unit="rad/s"/>
+  </message>
+
+  <message name="AHRS_EULER_COV" ID="224">
+    <field name="p_phi_phi" type="float"/>
+    <field name="p_phi_bp" type="float"/>
+    <field name="p_bp_bp" type="float"/>
+    <field name="p_theta_theta" type="float"/>
+    <field name="p_theta_bq" type="float"/>
+    <field name="p_bq_bq" type="float"/>
+    <field name="p_psi_psi" type="float"/>
+    <field name="p_psi_br" type="float"/>
+    <field name="p_br_br" type="float"/>
+  </message>
+
+  <message name="AHRS_MEASURE" ID="225">
+    <field name="measure_phi"   type="float" unit="rad"/>
+    <field name="measure_theta" type="float" unit="rad"/>
+    <field name="measure_psi"   type="float" unit="rad"/>
+  </message>
+
+  <message name="AHRS_OVERRUN" ID="226">
+  </message>
+
+  <message name="TIME" ID="227">
     <field name="t" type="uint32"/>
   </message>
 
-  <message name="AHRS_OVERRUN" ID="224">
-  </message>
 
 
 
@@ -442,6 +470,8 @@
     <field name="sp_phi"    type="float" unit="rad"/>
     <field name="est_theta" type="float" unit="rad"/>
     <field name="sp_theta"  type="float" unit="rad"/>
+    <field name="est_psi"   type="float" unit="rad"/>
+    <field name="sp_psi"    type="float" unit="rad"/>
   </message>
 
   <message name="BOOZ_VERT_LOOP" ID="235">

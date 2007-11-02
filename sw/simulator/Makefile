@@ -126,7 +126,7 @@ BOOZ_AB_SRCS += $(AB)/actuators.c \
                 $(AB)/i2c.c $(AB_ARCH)/i2c_hw.c
 
 CFLAGS += -DDOWNLINK 
-BOOZ_AB_SRCS += $(AB)/booz_telemetry.c \
+BOOZ_AB_SRCS += $(AB)/booz_controller_telemetry.c \
                 $(AB)/downlink.c
 
 #CFLAGS += -DDOWNLINK_TRANSPORT=PprzTransport -DPPRZ_UART=SimUart -DDOWNLINK_DEVICE=SimUart -DSIM_UART
@@ -146,6 +146,8 @@ BOOZ_AB_SRCS += $(AB)/spi.c $(AB_ARCH)/spi_hw.c
 BOOZ_AB_SRCS += $(AB)/booz_estimator.c
 BOOZ_AB_SRCS += $(AB)/booz_control.c
 BOOZ_AB_SRCS += $(AB)/booz_nav.c
+BOOZ_AB_SRCS += $(AB)/booz_nav_hover.c
+
 BOOZ_AB_SRCS += $(AB)/booz_autopilot.c
 BOOZ_AB_SRCS += $(AB)/commands.c
 
@@ -165,10 +167,10 @@ BOOZ_AB_SRCS  += $(AB)/imu_v3.c $(AB_ARCH)/imu_v3_hw.c
 
 
 BOOZ_AB_SRCS += $(AB)/booz_ahrs.c
-#CFLAGS += -DBOOZ_AHRS_TYPE=BOOZ_AHRS_MULTITILT
-#BOOZ_AB_SRCS += $(AB)/multitilt.c
-CFLAGS += -DBOOZ_AHRS_TYPE=BOOZ_AHRS_QUATERNION -DEKF_UPDATE_DISCRETE
-BOOZ_AB_SRCS += $(AB)/ahrs_quat_fast_ekf.c 
+CFLAGS += -DBOOZ_AHRS_TYPE=BOOZ_AHRS_MULTITILT
+BOOZ_AB_SRCS += $(AB)/multitilt.c
+#CFLAGS += -DBOOZ_AHRS_TYPE=BOOZ_AHRS_QUATERNION -DEKF_UPDATE_DISCRETE
+#BOOZ_AB_SRCS += $(AB)/ahrs_quat_fast_ekf.c 
 
 
 booz_sim: $(BOOZ_SIM_SRCS) $(BOOZ_AB_SRCS)

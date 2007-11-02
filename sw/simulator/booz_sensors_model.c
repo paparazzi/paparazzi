@@ -147,9 +147,9 @@ static void booz_sensors_model_mag_init(void) {
   bsm.mag_neutral->ve[AXIS_Z] = 0.;
 
   bsm.mag_noise_std_dev = v_get(AXIS_NB);
-  bsm.mag_noise_std_dev->ve[AXIS_X] = 2e-1;
-  bsm.mag_noise_std_dev->ve[AXIS_Y] = 2e-1;
-  bsm.mag_noise_std_dev->ve[AXIS_Z] = 2e-1;
+  bsm.mag_noise_std_dev->ve[AXIS_X] = 2e-2;
+  bsm.mag_noise_std_dev->ve[AXIS_Y] = 2e-2;
+  bsm.mag_noise_std_dev->ve[AXIS_Z] = 2e-2;
 
 }
 
@@ -315,6 +315,20 @@ static void booz_sensors_model_mag_run( MAT* dcm ) {
   
   bsm.mag = mv_mlt(bsm.mag_sensitivity, h_body, bsm.mag); 
   bsm.mag = v_add(bsm.mag, bsm.mag_neutral, bsm.mag); 
+
+  /* compute mag error readings */  
+  static VEC *mag_error = VNULL;
+  mag_error = v_resize(mag_error, AXIS_NB);
+  mag_error = v_zero(mag_error);
+  /* add a gaussian noise */
+  mag_error = v_add_gaussian_noise(mag_error, bsm.mag_noise_std_dev, mag_error);
+  
+  mag_error->ve[AXIS_X] = mag_error->ve[AXIS_X] * bsm.mag_sensitivity->me[AXIS_X][AXIS_X];
+  mag_error->ve[AXIS_Y] = mag_error->ve[AXIS_Y] * bsm.mag_sensitivity->me[AXIS_Y][AXIS_Y];
+  mag_error->ve[AXIS_Z] = mag_error->ve[AXIS_Z] * bsm.mag_sensitivity->me[AXIS_Z][AXIS_Z];
+
+  /* add error */
+  bsm.mag =  v_add(bsm.mag, mag_error, bsm.mag); 
 
   //  printf("h body %f %f %f\n", h_body->ve[AXIS_X], h_body->ve[AXIS_Y], h_body->ve[AXIS_Z]);
   //  printf("mag %f %f %f\n", bsm.mag->ve[AXIS_X], bsm.mag->ve[AXIS_Y], bsm.mag->ve[AXIS_Z]);

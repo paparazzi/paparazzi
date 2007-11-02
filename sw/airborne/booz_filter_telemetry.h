@@ -12,6 +12,13 @@
 
 #include "downlink.h"
 
+
+
+/*
+ *
+ * IMU
+ *
+ */
 #define PERIODIC_SEND_IMU_GYRO()		\
   DOWNLINK_SEND_IMU_GYRO(&imu_gyro[AXIS_X],	\
 			 &imu_gyro[AXIS_Y],	\
@@ -65,19 +72,48 @@
 			    &imu_mag_raw[AXIS_Z]);
 
 
-#define PERIODIC_SEND_AHRS_STATE()					\
-  DOWNLINK_SEND_AHRS_STATE(&booz_ahrs_phi, &booz_ahrs_theta, &booz_ahrs_psi, &booz_ahrs_psi,	\
-			   &booz_ahrs_bp, &booz_ahrs_bq, &booz_ahrs_br);
-
+/*
+ *
+ * AHRS
+ *
+ */
 #if defined BOOZ_AHRS_TYPE && BOOZ_AHRS_TYPE == BOOZ_AHRS_MULTITILT
+
 #define PERIODIC_SEND_AHRS_COV()					\
-  DOWNLINK_SEND_AHRS_COV(&mtt_P_phi[0][0], &mtt_P_phi[0][1],		\
-			 &mtt_P_phi[1][0], &mtt_P_phi[1][1],		\
-			 &mtt_P_theta[0][0], &mtt_P_theta[0][1],	\
-			 &mtt_P_theta[1][1]);
+  DOWNLINK_SEND_AHRS_EULER_COV(&mtt_P_phi[0][0],   &mtt_P_phi[0][1],	\
+			                           &mtt_P_phi[1][1],	\
+			       &mtt_P_theta[0][0], &mtt_P_theta[0][1],	\
+			                           &mtt_P_theta[1][1],  \
+			       &mtt_P_psi[0][0],   &mtt_P_psi[0][1],	\
+			                           &mtt_P_psi[1][1]);	\
+
+#define PERIODIC_SEND_AHRS_STATE()					\
+  DOWNLINK_SEND_AHRS_EULER_STATE(&booz_ahrs_phi, &booz_ahrs_theta, &booz_ahrs_psi, \
+				 &booz_ahrs_bp, &booz_ahrs_bq, &booz_ahrs_br);
+
+
 #elif defined BOOZ_AHRS_TYPE && BOOZ_AHRS_TYPE == BOOZ_AHRS_QUATERNION
-#define PERIODIC_SEND_AHRS_COV() {}
+
+#define PERIODIC_SEND_AHRS_COV() {					\
+    DOWNLINK_SEND_AHRS_QUAT_COV(&afe_P[0][0], &afe_P[1][1],		\
+				&afe_P[2][2], &afe_P[3][3],		\
+				&afe_P[4][4], &afe_P[5][5],		\
+				&afe_P[6][6],);				\
+  }
+
+#define PERIODIC_SEND_AHRS_STATE()					\
+  DOWNLINK_SEND_AHRS_QUAT_STATE(&afe_q0, &afe_q1, &afe_q2, &afe_q3,	\
+				&booz_ahrs_bp, &booz_ahrs_bq, &booz_ahrs_br);
+
 #endif /* BOOZ_AHRS_TYPE */
+
+#define PERIODIC_SEND_AHRS_MEASURE()					\
+  DOWNLINK_SEND_AHRS_MEASURE(&booz_ahrs_measure_phi,			\
+			     &booz_ahrs_measure_theta,			\
+			     &booz_ahrs_measure_psi);
+
+
+
 
 #define PERIODIC_SEND_BOOZ_DEBUG() {					\
     float m_phi = atan2(imu_accel[AXIS_Y], imu_accel[AXIS_Z]);		\

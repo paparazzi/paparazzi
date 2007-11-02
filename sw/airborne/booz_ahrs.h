@@ -21,6 +21,10 @@ extern float booz_ahrs_bp;
 extern float booz_ahrs_bq;
 extern float booz_ahrs_br;
 
+extern float booz_ahrs_measure_phi;
+extern float booz_ahrs_measure_theta;
+extern float booz_ahrs_measure_psi;
+
 extern void booz_ahrs_init(void);
 extern void booz_ahrs_start( const float* accel, const float* gyro, const int16_t* mag);
 extern void booz_ahrs_run(const float* accel, const float* gyro, const int16_t* mag);
@@ -36,13 +40,15 @@ extern void booz_ahrs_run(const float* accel, const float* gyro, const int16_t* 
 //#include \"AHRS_IMPL_HEADER(BOOZ_AHRS_TYPE)\"
 
 #define BOOZ_AHRS_MULTITILT  0
-#define BOOZ_AHRS_EULER      1
-#define BOOZ_AHRS_QUATERNION 2
+#define BOOZ_AHRS_QUATERNION 1
+#define BOOZ_AHRS_EULER      2
 
-#if defined BOOZ_AHRS_TYPE && BOOZ_AHRS_TYPE == BOOZ_AHRS_MULTITILT
+#if defined  BOOZ_AHRS_TYPE && BOOZ_AHRS_TYPE == BOOZ_AHRS_MULTITILT
 #include "multitilt.h"
 #elif defined BOOZ_AHRS_TYPE && BOOZ_AHRS_TYPE == BOOZ_AHRS_QUATERNION
 #include "ahrs_quat_fast_ekf.h"
+#elif defined BOOZ_AHRS_TYPE && BOOZ_AHRS_TYPE == BOOZ_AHRS_EULER
+#include "ahrs_euler_fast_ekf.h"
 #endif
 
 

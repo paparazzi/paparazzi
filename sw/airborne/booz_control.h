@@ -24,15 +24,19 @@ extern float booz_control_rate_r_dgain;
 
 extern float booz_control_attitude_phi_sp;
 extern float booz_control_attitude_theta_sp;
+extern float booz_control_attitude_psi_sp;
 
 extern float booz_control_attitude_phi_theta_pgain;
 extern float booz_control_attitude_phi_theta_dgain;
+extern float booz_control_attitude_psi_pgain;
+extern float booz_control_attitude_psi_dgain;
 
-#define BoozControlAttitudeSetSetPoints(_phi_sp, _theta_sp, _r_sp, _power_sp) { \
-    booz_control_attitude_phi_sp = _phi_sp;				\
-    booz_control_attitude_theta_sp = _theta_sp;				\
-    booz_control_r_sp = _r_sp;						\
-    booz_control_power_sp = _power_sp;					\
+
+#define BoozControlAttitudeSetSetPoints(_phi_sp, _theta_sp, _psi_sp, _power_sp) { \
+    booz_control_attitude_phi_sp = _phi_sp;				          \
+    booz_control_attitude_theta_sp = _theta_sp;				          \
+    booz_control_attitude_psi_sp = _psi_sp;						  \
+    booz_control_power_sp = _power_sp;					          \
   }
 
 #include "airframe.h"

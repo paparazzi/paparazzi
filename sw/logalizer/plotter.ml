@@ -387,6 +387,11 @@ let _ =
   Arg.parse
     [ "-b", Arg.String (fun x -> ivy_bus := x), "Bus\tDefault is 127.255.255.255:2010";
       "-c", Arg.String (fun x -> add_init x), "Add a curve (e.g. '*:telemetry:BAT:voltage'). The curve is inserted into the last open window (cf -n option)";
+
+      (* no code yet *)
+      "-t", Arg.String (fun x -> ignore(x)), "Set the last opened window title (cf -n option)";
+      "-g", Arg.String (fun x -> ignore(x)), "Set the last opened window geometry ( '0+0:900x450' )";
+
       "-n", Arg.Unit (fun () -> init := [] :: !init), "Open another window";
       "-m", Arg.Set_int size, (Printf.sprintf "Memory size (default %d)" !size);
       "-u", Arg.Set_float update_time, (Printf.sprintf "Update time in s (default %.2f)" !update_time)]

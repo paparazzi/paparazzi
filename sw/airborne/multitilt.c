@@ -177,21 +177,21 @@ static void inline mtt_update_axis(float _err, float _P[2][2], float* angle, flo
 
 static inline void multitilt_update( const float* accel, const int16_t* mag ) {
 
-  const float measure_phi = phi_of_accel(accel);
-  float err_phi = measure_phi - booz_ahrs_phi;
+  booz_ahrs_measure_phi = phi_of_accel(accel);
+  float err_phi = booz_ahrs_measure_phi - booz_ahrs_phi;
   WRAP(err_phi, M_PI);
   mtt_update_axis(err_phi, mtt_P_phi, &booz_ahrs_phi, &booz_ahrs_bp);
   WRAP(booz_ahrs_phi, M_PI);
 
-  const float measure_theta = theta_of_accel(accel);
-  float err_theta = measure_theta - booz_ahrs_theta;
+  booz_ahrs_measure_theta = theta_of_accel(accel);
+  float err_theta = booz_ahrs_measure_theta - booz_ahrs_theta;
   WRAP(err_theta, M_PI_2);
   mtt_update_axis(err_theta, mtt_P_theta, &booz_ahrs_theta, &booz_ahrs_bq);
   WRAP(booz_ahrs_theta, M_PI_2);
 
 #ifndef DISABLE_MAGNETOMETER
-  float measure_psi = psi_of_mag(mag);
-  float err_psi = measure_psi - booz_ahrs_psi;
+  booz_ahrs_measure_psi = psi_of_mag(mag);
+  float err_psi = booz_ahrs_measure_psi - booz_ahrs_psi;
   WRAP(err_psi, M_PI);
   mtt_update_axis(err_psi, mtt_P_psi, &booz_ahrs_psi, &booz_ahrs_br);
   WRAP(booz_ahrs_psi, M_PI);

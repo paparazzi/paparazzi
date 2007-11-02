@@ -1,5 +1,5 @@
-#ifndef BOOZ_TELEMETRY_H
-#define BOOZ_TELEMETRY_H
+#ifndef BOOZ_CONTROLLER_TELEMETRY_H
+#define BOOZ_CONTROLLER_TELEMETRY_H
 
 #include "std.h"
 #include "messages.h"
@@ -43,36 +43,37 @@
 #define PERIODIC_SEND_ACTUATORS()			\
   DOWNLINK_SEND_ACTUATORS(SERVOS_NB, actuators);
 
-#define PERIODIC_SEND_BOOZ_RATE_LOOP()					\
+#define PERIODIC_SEND_BOOZ_RATE_LOOP()					        \
   DOWNLINK_SEND_BOOZ_RATE_LOOP(&booz_estimator_uf_p, &booz_control_p_sp,	\
 			       &booz_estimator_uf_q, &booz_control_q_sp,	\
 			       &booz_estimator_uf_r, &booz_control_r_sp ); 
 
-#define PERIODIC_SEND_BOOZ_ATT_LOOP()					\
-  DOWNLINK_SEND_BOOZ_ATT_LOOP(&booz_estimator_phi, &booz_control_attitude_phi_sp, \
-			      &booz_estimator_theta, &booz_control_attitude_theta_sp); 
+#define PERIODIC_SEND_BOOZ_ATT_LOOP()					              \
+  DOWNLINK_SEND_BOOZ_ATT_LOOP(&booz_estimator_phi, &booz_control_attitude_phi_sp,     \
+			      &booz_estimator_theta, &booz_control_attitude_theta_sp, \
+			      &booz_estimator_psi, &booz_control_attitude_psi_sp);
 
-#define PERIODIC_SEND_BOOZ_UF_RATES() \
+#define PERIODIC_SEND_BOOZ_UF_RATES()               \
   DOWNLINK_SEND_BOOZ_UF_RATES(&booz_estimator_uf_p, \
 			      &booz_estimator_uf_q, \
 			      &booz_estimator_uf_r); 
 
 #ifndef DISABLE_NAV
 #define PERIODIC_SEND_BOOZ_VERT_LOOP() {				\
-    DOWNLINK_SEND_BOOZ_VERT_LOOP(&booz_nav_vertical_z_sp,		\
+    DOWNLINK_SEND_BOOZ_VERT_LOOP(&booz_nav_hover_z_sp,			\
 				 &booz_estimator_w,			\
 				 &booz_estimator_z,			\
-				 &booz_nav_power_command);		\
+				 &booz_nav_hover_power_command);	\
   }
-#define PERIODIC_SEND_BOOZ_HOV_LOOP() {				\
-    DOWNLINK_SEND_BOOZ_HOV_LOOP(&booz_nav_horizontal_x_sp,		\
-				&booz_nav_horizontal_y_sp,		\
+#define PERIODIC_SEND_BOOZ_HOV_LOOP() {					\
+    DOWNLINK_SEND_BOOZ_HOV_LOOP(&booz_nav_hover_x_sp,			\
+				&booz_nav_hover_y_sp,			\
 				&booz_estimator_u,			\
 				&booz_estimator_x,			\
 				&booz_estimator_v,			\
 				&booz_estimator_y,			\
-				&booz_nav_phi_command,			\
-				&booz_nav_theta_command);		\
+				&booz_nav_hover_phi_command,		\
+				&booz_nav_hover_theta_command);		\
   }
 #else
 #define PERIODIC_SEND_BOOZ_VERT_LOOP() {}
@@ -94,4 +95,4 @@ static inline void booz_controller_telemetry_periodic_task(void) {
 }
 
 
-#endif /* BOOZ_TELEMETRY_H */
+#endif /* BOOZ_CONTROLLER_TELEMETRY_H */

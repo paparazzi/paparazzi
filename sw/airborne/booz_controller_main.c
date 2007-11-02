@@ -22,7 +22,7 @@
 #include "uart.h"
 #include "messages.h"
 #include "downlink.h"
-#include "booz_telemetry.h"
+#include "booz_controller_telemetry.h"
 #include "datalink.h"
 
 
@@ -75,6 +75,30 @@ STATIC_INLINE void booz_controller_main_init( void ) {
   DOWNLINK_SEND_BOOT(&cpu_time_sec);
 }
 
+
+#define PeriodicPrescaleBy5( _code_0, _code_1, _code_2, _code_3, _code_4) { \
+    static uint8_t _50hz = 0;						\
+    _50hz++;								\
+    if (_50hz > 5) _50hz = 0;						\
+    switch (_50hz) {							\
+    case 0:								\
+      _code_0;								\
+      break;								\
+    case 1:								\
+      _code_1;								\
+      break;								\
+    case 2:								\
+      _code_2;								\
+      break;								\
+    case 3:								\
+      _code_3;								\
+      break;								\
+    case 4:								\
+      _code_4;								\
+      break;								\
+    }									\
+  }
+
 STATIC_INLINE void booz_controller_main_periodic_task( void ) {
   
   /* check for timeout */
@@ -84,27 +108,19 @@ STATIC_INLINE void booz_controller_main_periodic_task( void ) {
 
   SetActuatorsFromCommands(commands);
 
-  static uint8_t _50hz = 0;
-  _50hz++;
-  if (_50hz > 5) _50hz = 0;
-  switch (_50hz) {
-  case 0:
-    break;
-  case 1:
-    radio_control_periodic_task();
-    if (rc_status != RC_OK)
-      booz_autopilot_mode = BOOZ_AP_MODE_FAILSAFE;
-    break;
-  case 2:
-    booz_controller_telemetry_periodic_task();
-    break;
-  case 3:
-    break;
-  case 4:
-    break;
-  }
-
-
+  PeriodicPrescaleBy5(							\
+    {							                \
+      radio_control_periodic_task();					\
+      if (rc_status != RC_OK)						\
+	booz_autopilot_mode = BOOZ_AP_MODE_FAILSAFE;			\
+    },									\
+    {									\
+      booz_controller_telemetry_periodic_task();			\
+    }									\
+    {},									\
+    {},									\
+    {},									\
+    );									\
 }
 
 STATIC_INLINE void booz_controller_main_event_task( void ) {

@@ -26,7 +26,7 @@ ctl.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600
 ctl.srcs += $(SRC_ARCH)/uart_hw.c
 
 ctl.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart1 
-ctl.srcs += booz_telemetry.c downlink.c pprz_transport.c 
+ctl.srcs += booz_controller_telemetry.c downlink.c pprz_transport.c 
 
 ctl.CFLAGS += -DDATALINK=PPRZ -DPPRZ_UART=Uart1
 ctl.srcs += booz_datalink.c
@@ -53,6 +53,7 @@ ctl.CFLAGS += -DDISABLE_NAV
 ctl.srcs += booz_estimator.c      \
             booz_control.c        \
             booz_nav.c  	  \
+            booz_nav_hover.c  	  \
             booz_autopilot.c
 
 #
@@ -88,6 +89,7 @@ flt.srcs += imu_v3.c $(SRC_ARCH)/imu_v3_hw.c
 
 flt.CFLAGS += -DBOOZ_AHRS_TYPE=BOOZ_AHRS_MULTITILT
 flt.srcs += multitilt.c
+flt.srcs += booz_ahrs.c
 
 flt.srcs += booz_inter_mcu.c
 flt.srcs += booz_link_mcu.c $(SRC_ARCH)/booz_link_mcu_hw.c
