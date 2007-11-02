@@ -324,11 +324,11 @@ static void booz_sim_set_ppm_from_joystick( void ) {
   //BREAK_MTT();
   //WALK_OVAL();
   // CIRCLE();
-  // HOVER();
+  HOVER();
   // TOUPIE();
   //  ATTITUDE_ROLL_STEPS();
-  //  ATTITUDE_PITCH_STEPS();
-  ATTITUDE_YAW_STEPS();
+  // ATTITUDE_PITCH_STEPS();
+  //  ATTITUDE_YAW_STEPS();
 #endif
 }
 
