@@ -98,7 +98,7 @@ AB_ARCH=$(AB)/sim
 
 CC = gcc
 CFLAGS= -g -Wall `pkg-config glib-2.0 --cflags` -I /usr/include/meschach -I$(AB) -I../include -I../../var/BOOZ -I../../var/include -I../../conf/autopilot -I$(AB_ARCH)
-LDFLAGS=`pkg-config glib-2.0 --libs` -lm -lmeschach
+LDFLAGS=`pkg-config glib-2.0 --libs` -lm -lmeschach -lpcre
 
 
 BOOZ_SIM_SRCS = main_booz_sim.c           \
@@ -172,6 +172,8 @@ BOOZ_AB_SRCS += $(AB)/multitilt.c
 #CFLAGS += -DBOOZ_AHRS_TYPE=BOOZ_AHRS_QUATERNION -DEKF_UPDATE_DISCRETE
 #BOOZ_AB_SRCS += $(AB)/ahrs_quat_fast_ekf.c 
 
+#$(OBJDIR)/%.c: %.o
+#	$(CC) $(CFLAGS) -c -o $@ $<
 
 booz_sim: $(BOOZ_SIM_SRCS) $(BOOZ_AB_SRCS)
 	$(CC) $(CFLAGS) -g -o $@ $^ $(LDFLAGS)
