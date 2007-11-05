@@ -126,6 +126,14 @@ upload_bl bl.upload: bl
 lpc21iap:
 	cd sw/ground_segment/lpc21iap; make
 
+####
+# temporary hack for BOOZ simulator
+#
+booz_sim:
+	make AIRCRAFT=BOOZ flt.compile
+	make AIRCRAFT=BOOZ ctl.compile
+	cd sw/simulator; make booz_sim
+
 #####
 #####
 
