@@ -92,7 +92,7 @@ module Make(AircraftItl : AIRCRAFT_ITL) = struct
   let lat0 = rad_of_deg (float_attrib flight_plan "lat0")
   let lon0 = rad_of_deg (float_attrib flight_plan "lon0")
   let pos0 = ref (Latlong.make_geo lat0 lon0)
-  let qfu = (float_attrib flight_plan "qfu")
+  let qfu = try float_attrib flight_plan "qfu" with _ -> 0.
 
   (* Try to get the ground alt from the SRTM data, default to flight plan *)
   
