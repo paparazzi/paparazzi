@@ -392,6 +392,6 @@ static VEC* v_add_gaussian_noise(VEC* in, VEC* std_dev, VEC* out) {
   one = v_ones(one);
   tmp = v_mltadd(one, tmp, -2., tmp); 
   tmp = v_star(tmp, std_dev, tmp);
-  out = v_add(out, tmp, out);
+  out = v_add(in, tmp, out);
   return out;
 }

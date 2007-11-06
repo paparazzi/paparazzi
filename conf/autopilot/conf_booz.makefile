@@ -4,7 +4,7 @@ FLASH_MODE = IAP
 
 
 #
-# FILTER CPU
+# filter CPU
 #
 
 flt.ARCHDIR = $(ARCHI)
@@ -96,7 +96,7 @@ ctl.srcs += booz_estimator.c      \
             booz_autopilot.c
 
 #
-# Simulator
+# SITL Simulator
 #
 
 SIM_TYPE = BOOZ
@@ -106,12 +106,12 @@ sim.ARCH = sitl
 sim.TARGET = main
 sim.TARGETDIR = main
 
-#sim.srcs = $(SIMDIR)/main_booz_sim.c           \
-#	   $(SIMDIR)/booz_flight_model.c       \
-#           $(SIMDIR)/booz_flight_model_utils.c \
-#           $(SIMDIR)/booz_sensors_model.c      \
-#           $(SIMDIR)/booz_flightgear.c         \
-#           $(SIMDIR)/booz_joystick.c           \
+sim.srcs = $(SIMDIR)/main_booz_sim.c           \
+	   $(SIMDIR)/booz_flight_model.c       \
+           $(SIMDIR)/booz_flight_model_utils.c \
+           $(SIMDIR)/booz_sensors_model.c      \
+           $(SIMDIR)/booz_flightgear.c         \
+           $(SIMDIR)/booz_joystick.c           \
 
 sim.CFLAGS += -DSITL
 sim.CFLAGS += -DBOOZ_CONTROLLER_MCU

@@ -22,9 +22,14 @@
 # 
 
 
+ifeq ($(SIM_TYPE),BOOZ)
+sim.CFLAGS +=  `pkg-config glib-2.0 --cflags` -I /usr/include/meschach
+sim.LDFLAGS += `pkg-config glib-2.0 --libs` -lm -lmeschach -lpcre -lglibivy
+endif
+
+
 #
-# This is the common Makefile for the avr-target.
-# Edit the configuration part to suit your local install
+# This is the common Makefile for the sim target.
 #
 
 SRC_ARCH = $(PAPARAZZI_SRC)/sw/airborne/sim
@@ -48,13 +53,21 @@ INCLUDES += -I `ocamlc -where`
 CFLAGS		=						\
 	-W -Wall 						\
 	$(INCLUDES)					  	\
-	-Wstrict-prototypes					\
 	$($(TARGET).CFLAGS)					\
 	$(LOCAL_CFLAGS)						\
 	-O2							\
 
+# meschach prototypes trigger numerous warnings
+ifneq ($(SIM_TYPE),BOOZ)
+CFLAGS	+= -Wstrict-prototypes
+endif
+
+
 LDFLAGS		=	-lm					\
 
+ifeq ($(SIM_TYPE),BOOZ)
+LDFLAGS		+= $($(TARGET).LDFLAGS)
+endif
 #
 # General rules
 #
@@ -66,9 +79,17 @@ $(TARGET).objs	= $($(TARGET).objso:%.S=$(OBJDIR)/%.o)
 all compile: $(OBJDIR)/simsitl
 
 
+
+ifeq ($(SIM_TYPE),BOOZ)
+$(OBJDIR)/simsitl : $($(TARGET).objs)
+	@echo LD $@
+	$(Q)$(CC) -o $@ $($(TARGET).objs) $(LDFLAGS)
+else
 $(OBJDIR)/simsitl : $($(TARGET).objs) $(SITLCMA) $(SIMSITLML)
 	@echo LD $@
 	$(Q)$(OCAMLC) -custom $(CAMLINCLUDES) -o $@ unix.cma str.cma xml-light.cma glibivy-ocaml.cma lib-pprz.cma lablgtk.cma $($(TARGET).objs) gtkInit.cmo $(SITLCMA) $(SIMSITLML)
+endif
+
 
 
 # The id of the A/C is hardcoded in the code (to be improved with dynlink ?)
@@ -93,6 +114,11 @@ $(OBJDIR)/%.o: $(SRC_ARCH)/%.c
 $(OBJDIR)/%.o: $(SRC_ARCH)/%.S
 	$(CC) $(CFLAGS) -c -o $@ $<
 
+ifeq ($(SIM_TYPE),BOOZ)
+$(OBJDIR)/%.o: $(SIMDIR)/%.c
+	@echo CC $@
+	$(Q)$(CC) $(CFLAGS) -c -o $@ $<
+endif
 
 avr_clean:
 	rm -rf $(OBJDIR)

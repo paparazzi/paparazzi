@@ -157,7 +157,7 @@ static VEC* booz_get_forces_body_frame( VEC* X, VEC* F , MAT* dcm, VEC* omega_sq
    compute the sum of external moments. 
    assumes that omega_square is already precomputed from X 
 */
-static VEC* booz_get_moments_body_frame( VEC* X, VEC* M, VEC* omega_square ) {
+static VEC* booz_get_moments_body_frame( VEC* X __attribute__ ((unused)), VEC* M, VEC* omega_square ) {
   M =  mv_mlt(bfm.props_moment_matrix, omega_square, M);
   return M;
 }

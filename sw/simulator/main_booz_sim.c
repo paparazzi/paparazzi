@@ -52,7 +52,7 @@ static void on_DL_SETTING(IvyClientPtr app, void *user_data, int argc, char *arg
 
 volatile bool_t ppm_valid;
 
-static gboolean booz_sim_periodic(gpointer data) {
+static gboolean booz_sim_periodic(gpointer data __attribute__ ((unused))) {
   /* read actuators positions */
   booz_sim_read_actuators();
 
@@ -80,7 +80,7 @@ static gboolean booz_sim_periodic(gpointer data) {
   /* this will update the controller estimator                          */
   booz_controller_main_event_task();
   /* cheat in simulation : psi not available from filter yet */
-  booz_estimator_set_psi(bfm.state->ve[BFMS_PSI]);
+  //  booz_estimator_set_psi(bfm.state->ve[BFMS_PSI]);
   /* in simulation compute dcm as a helper for for nav */
   booz_estimator_compute_dcm();
   /* in simulation feed speed and pos estimations ( with a pos sensor :( ) */
@@ -360,7 +360,9 @@ static void ivy_transport_init(void) {
 #include "std.h"
 #include "settings.h"
 #include "booz_controller_telemetry.h"
-static void on_DL_SETTING(IvyClientPtr app, void *user_data, int argc, char *argv[]){
+static void on_DL_SETTING(IvyClientPtr app __attribute__ ((unused)), 
+			  void *user_data __attribute__ ((unused)), 
+			  int argc __attribute__ ((unused)), char *argv[]){
   uint8_t index = atoi(argv[2]);
   float value = atof(argv[3]);
   DlSetting(index, value);
@@ -396,6 +398,11 @@ static void sim_uart_init(void) {
   }
 }
 #endif /* SIM_UART */
+
+
+
+
+
 
 
 

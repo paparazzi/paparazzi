@@ -152,7 +152,7 @@ static inline void multitilt_predict( const float* gyro ) {
 
 }
 
-static void inline mtt_update_axis(float _err, float _P[2][2], float* angle, float* bias) {
+static inline void mtt_update_axis(float _err, float _P[2][2], float* angle, float* bias) {
   const float Pct_0 = _P[0][0];
   const float Pct_1 = _P[1][0];
   /* E = C P C' + R */

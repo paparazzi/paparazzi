@@ -41,7 +41,9 @@ void booz_joystick_init(const char* device) {
 }
 
 
-static gboolean on_data_received(GIOChannel *source, GIOCondition condition, gpointer data) {
+static gboolean on_data_received(GIOChannel *source, 
+				 GIOCondition condition __attribute__ ((unused)), 
+				 gpointer data __attribute__ ((unused))) {
 
   struct js_event js;
   gsize len;
