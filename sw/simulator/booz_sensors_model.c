@@ -1,4 +1,5 @@
 #include "booz_sensors_model.h"
+#include "booz_sensors_model_params.h"
 
 #include <math.h>
 
@@ -61,28 +62,28 @@ static void booz_sensors_model_accel_init(void) {
   bsm.accel->ve[AXIS_X] = 0.;
   bsm.accel->ve[AXIS_Y] = 0.;
   bsm.accel->ve[AXIS_Z] = 0.;
-  bsm.accel_resolution = 1024 * 32;
+  bsm.accel_resolution = BSM_ACCEL_RESOLUTION;
 
   bsm.accel_sensitivity = m_get(AXIS_NB, AXIS_NB);
   m_zero(bsm.accel_sensitivity);
-  bsm.accel_sensitivity->me[AXIS_X][AXIS_X] = -(double)(bsm.accel_resolution) / (6. * 9.81);
-  bsm.accel_sensitivity->me[AXIS_Y][AXIS_Y] =  (double)(bsm.accel_resolution) / (6. * 9.81);
-  bsm.accel_sensitivity->me[AXIS_Z][AXIS_Z] =  (double)(bsm.accel_resolution) / (6. * 9.81);
+  bsm.accel_sensitivity->me[AXIS_X][AXIS_X] = BSM_ACCEL_SENSITIVITY_XX;
+  bsm.accel_sensitivity->me[AXIS_Y][AXIS_Y] = BSM_ACCEL_SENSITIVITY_YY;
+  bsm.accel_sensitivity->me[AXIS_Z][AXIS_Z] = BSM_ACCEL_SENSITIVITY_ZZ;
 
   bsm.accel_neutral = v_get(AXIS_NB);
-  bsm.accel_neutral->ve[AXIS_X] = 538 * 32;
-  bsm.accel_neutral->ve[AXIS_Y] = 506 * 32;
-  bsm.accel_neutral->ve[AXIS_Z] = 506 * 32;
+  bsm.accel_neutral->ve[AXIS_X] = BSM_ACCEL_NEUTRAL_X;
+  bsm.accel_neutral->ve[AXIS_Y] = BSM_ACCEL_NEUTRAL_Y;
+  bsm.accel_neutral->ve[AXIS_Z] = BSM_ACCEL_NEUTRAL_Z;
 
   bsm.accel_noise_std_dev = v_get(AXIS_NB);
-  bsm.accel_noise_std_dev->ve[AXIS_X] = 2e-1; /* m2s-4 */
-  bsm.accel_noise_std_dev->ve[AXIS_Y] = 2e-1; /* m2s-4 */
-  bsm.accel_noise_std_dev->ve[AXIS_Z] = 2e-1; /* m2s-4 */
+  bsm.accel_noise_std_dev->ve[AXIS_X] = BSM_ACCEL_NOISE_STD_DEV_X;
+  bsm.accel_noise_std_dev->ve[AXIS_Y] = BSM_ACCEL_NOISE_STD_DEV_Y;
+  bsm.accel_noise_std_dev->ve[AXIS_Z] = BSM_ACCEL_NOISE_STD_DEV_Z;
 
   bsm.accel_bias = v_get(AXIS_NB);
-  bsm.accel_bias->ve[AXIS_P] = 1e-3; /* ms-2 */
-  bsm.accel_bias->ve[AXIS_Q] = 1e-3; /* ms-2 */
-  bsm.accel_bias->ve[AXIS_R] = 1e-3; /* ms-2 */
+  bsm.accel_bias->ve[AXIS_P] = BSM_ACCEL_BIAS_X;
+  bsm.accel_bias->ve[AXIS_Q] = BSM_ACCEL_BIAS_Y;
+  bsm.accel_bias->ve[AXIS_R] = BSM_ACCEL_BIAS_Z;
 
 }
 
@@ -93,39 +94,33 @@ static void booz_sensors_model_gyro_init(void) {
   bsm.gyro->ve[AXIS_P] = 0.;
   bsm.gyro->ve[AXIS_Q] = 0.;
   bsm.gyro->ve[AXIS_R] = 0.;
-  bsm.gyro_resolution = 65536;
+  bsm.gyro_resolution = BSM_GYRO_RESOLUTION;
 
   bsm.gyro_sensitivity = m_get(AXIS_NB, AXIS_NB);
   m_zero(bsm.gyro_sensitivity);
-  bsm.gyro_sensitivity->me[AXIS_P][AXIS_P] = 
-    (double)bsm.gyro_resolution / (2.*RadOfDeg(-413.41848)); /* degres/s - nominal 300 */
-  bsm.gyro_sensitivity->me[AXIS_Q][AXIS_Q] = 
-    (double)bsm.gyro_resolution / (2.*RadOfDeg(-403.65564)); /* degres/s - nominal 300 */
-  bsm.gyro_sensitivity->me[AXIS_R][AXIS_R] = 
-    (double)bsm.gyro_resolution / (2.*RadOfDeg( 395.01929)); /* degres/s - nominal 300 */
+  bsm.gyro_sensitivity->me[AXIS_P][AXIS_P] = BSM_GYRO_SENSITIVITY_PP;
+  bsm.gyro_sensitivity->me[AXIS_Q][AXIS_Q] = BSM_GYRO_SENSITIVITY_QQ;
+  bsm.gyro_sensitivity->me[AXIS_R][AXIS_R] = BSM_GYRO_SENSITIVITY_RR;
 
   bsm.gyro_neutral = v_get(AXIS_NB);
-  bsm.gyro_neutral->ve[AXIS_P] = 
-    (double)bsm.gyro_resolution * 0.6238556; /* ratio of full scale - nominal 0.5 */
-  bsm.gyro_neutral->ve[AXIS_Q] = 
-    (double)bsm.gyro_resolution * 0.6242371; /* ratio of full scale - nominal 0.5 */
-  bsm.gyro_neutral->ve[AXIS_R] = 
-    (double)bsm.gyro_resolution * 0.6035156; /* ratio of full scale - nominal 0.5 */
+  bsm.gyro_neutral->ve[AXIS_P] = BSM_GYRO_NEUTRAL_P;
+  bsm.gyro_neutral->ve[AXIS_Q] = BSM_GYRO_NEUTRAL_Q;
+  bsm.gyro_neutral->ve[AXIS_R] = BSM_GYRO_NEUTRAL_R;
 
   bsm.gyro_noise_std_dev = v_get(AXIS_NB);
-  bsm.gyro_noise_std_dev->ve[AXIS_P] = RadOfDeg(.5);
-  bsm.gyro_noise_std_dev->ve[AXIS_Q] = RadOfDeg(.5);
-  bsm.gyro_noise_std_dev->ve[AXIS_R] = RadOfDeg(.5);
+  bsm.gyro_noise_std_dev->ve[AXIS_P] = BSM_GYRO_NOISE_STD_DEV_P;
+  bsm.gyro_noise_std_dev->ve[AXIS_Q] = BSM_GYRO_NOISE_STD_DEV_Q;
+  bsm.gyro_noise_std_dev->ve[AXIS_R] = BSM_GYRO_NOISE_STD_DEV_R;
 
   bsm.gyro_bias_initial = v_get(AXIS_NB);
-  bsm.gyro_bias_initial->ve[AXIS_P] = RadOfDeg( -0.2);
-  bsm.gyro_bias_initial->ve[AXIS_Q] = RadOfDeg( -0.5);
-  bsm.gyro_bias_initial->ve[AXIS_R] = RadOfDeg(  0.5);
+  bsm.gyro_bias_initial->ve[AXIS_P] = BSM_GYRO_BIAS_INITIAL_P;
+  bsm.gyro_bias_initial->ve[AXIS_Q] = BSM_GYRO_BIAS_INITIAL_Q;
+  bsm.gyro_bias_initial->ve[AXIS_R] = BSM_GYRO_BIAS_INITIAL_R;
 
   bsm.gyro_bias_random_walk_std_dev = v_get(AXIS_NB);
-  bsm.gyro_bias_random_walk_std_dev->ve[AXIS_P] =  RadOfDeg(5.e-1);
-  bsm.gyro_bias_random_walk_std_dev->ve[AXIS_Q] =  RadOfDeg(5.e-1);
-  bsm.gyro_bias_random_walk_std_dev->ve[AXIS_R] =  RadOfDeg(5.e-1);
+  bsm.gyro_bias_random_walk_std_dev->ve[AXIS_P] = BSM_GYRO_BIAS_RANDOM_WALK_STD_DEV_P;
+  bsm.gyro_bias_random_walk_std_dev->ve[AXIS_Q] = BSM_GYRO_BIAS_RANDOM_WALK_STD_DEV_Q;
+  bsm.gyro_bias_random_walk_std_dev->ve[AXIS_R] = BSM_GYRO_BIAS_RANDOM_WALK_STD_DEV_R;
 
   bsm.gyro_bias_random_walk_value = v_get(AXIS_NB);
   bsm.gyro_bias_random_walk_value->ve[AXIS_P] = bsm.gyro_bias_initial->ve[AXIS_P];

@@ -137,7 +137,8 @@ void booz_control_attitude_run(void) {
 
 
 #ifndef DISABLE_MAGNETOMETER
-  const float att_err_psi = booz_estimator_psi - booz_control_attitude_psi_sp;
+  float att_err_psi = booz_estimator_psi - booz_control_attitude_psi_sp;
+  NormRadAngle(att_err_psi);
   const float cmd_r = booz_control_attitude_psi_pgain * att_err_psi + 
                       booz_control_attitude_psi_dgain * booz_estimator_r;
 #else

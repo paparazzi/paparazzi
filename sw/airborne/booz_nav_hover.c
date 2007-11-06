@@ -79,17 +79,12 @@ void booz_nav_hover_run(void) {
 void booz_nav_hover_read_setpoints_from_rc(void) {
 #ifndef DISABLE_NAV
   booz_nav_hover_z_sp   = -1. - 10. / MAX_PPRZ * (float)rc_values[RADIO_THROTTLE];
-  booz_nav_hover_psi_sp = -RadOfDeg(30.) / MAX_PPRZ * (float)rc_values[RADIO_YAW];
 #if defined STICK_MODE && STICK_MODE == STICK_ABSOLUTE_POS
   booz_nav_horizontal_x_sp = -20. / MAX_PPRZ * (float)rc_values[RADIO_PITCH]; /* +/- 20m */
   booz_nav_horizontal_y_sp = -20. / MAX_PPRZ * (float)rc_values[RADIO_ROLL];  /* warning RC roll negativ to the right !! +/- 20m */
-  booz_nav_horizontal_u_sp = 0.;
-  booz_nav_horizontal_v_sp = 0.;
 #elif defined STICK_MODE && STICK_MODE == STICK_ABSOLUTE_SPEED
   booz_nav_horizontal_x_sp += -5. * DT_READ_SETPOINTS / MAX_PPRZ * (float)rc_values[RADIO_PITCH]; /* +/-5 m/s */
   booz_nav_horizontal_y_sp +=  5. * DT_READ_SETPOINTS / MAX_PPRZ * (float)rc_values[RADIO_ROLL];  /* +/-5 m/s */
-  booz_nav_horizontal_u_sp = 0.;
-  booz_nav_horizontal_v_sp = 0.;
 #elif defined STICK_MODE && STICK_MODE == STICK_RELATIVE_SPEED
   float booz_nav_hover_dx_bod = -5. / MAX_PPRZ * (float)rc_values[RADIO_PITCH];
   float booz_nav_hover_dy_bod = -5. / MAX_PPRZ * (float)rc_values[RADIO_ROLL]; /* warning RC roll negativ to the right !! +/- 5m/s */
@@ -100,6 +95,8 @@ void booz_nav_hover_read_setpoints_from_rc(void) {
                                  booz_nav_hover_dx_bod * booz_estimator_dcm[AXIS_Y][AXIS_Y];
   booz_nav_hover_x_sp += (booz_nav_hover_dx_earth * DT_READ_SETPOINTS);
   booz_nav_hover_y_sp += (booz_nav_hover_dy_earth * DT_READ_SETPOINTS);
+  booz_nav_hover_psi_sp += (-RadOfDeg(60.) * DT_READ_SETPOINTS / MAX_PPRZ * (float)rc_values[RADIO_YAW]);
+  NormRadAngle(booz_nav_hover_psi_sp);
 #endif /* STICK_MODE  */
 #endif /* DISABLE_NAV */
 }

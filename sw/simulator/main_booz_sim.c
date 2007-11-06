@@ -201,9 +201,9 @@ static void booz_sim_set_ppm_from_joystick( void ) {
 #else
   ppm_pulses[RADIO_THROTTLE] = 1223 + 0.6 * (2050-1223);
   //BREAK_MTT();
-  //WALK_OVAL();
+  WALK_OVAL();
   // CIRCLE();
-  HOVER();
+  //HOVER();
   // TOUPIE();
   //  ATTITUDE_ROLL_STEPS();
   //ATTITUDE_PITCH_STEPS();
