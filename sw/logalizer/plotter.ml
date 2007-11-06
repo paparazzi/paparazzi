@@ -238,8 +238,13 @@ class plot = fun ~size ~width ~height ~packing () ->
 let update_time = ref 0.5
 let size = ref 500
 
-let rec plot_window = fun (title, init) ->
-  let plotter = GWindow.window ~allow_shrink:true ~title () in
+type window = { title : string; geometry : string; curves : string list }
+
+let default_window = {title="Plotter"; geometry=""; curves=[]}
+
+let rec plot_window = fun window ->
+  let plotter = GWindow.window ~allow_shrink:true ~title:window.title () in
+  ignore (plotter#parse_geometry window.geometry);
   plotter#set_icon (Some (GdkPixbuf.from_file Env.icon_file));
   let vbox = GPack.vbox ~packing:plotter#add () in
   let quit = fun () -> GMain.Main.quit (); exit 0 in
@@ -252,7 +257,7 @@ let rec plot_window = fun (title, init) ->
   let file_menu = factory#add_submenu "Plot" in
   let file_menu_fact = new GMenu.factory file_menu ~accel_group in
   
-  ignore (file_menu_fact#add_item "New" ~key:GdkKeysyms._N ~callback:(fun () -> plot_window ("Plotter", [])));
+  ignore (file_menu_fact#add_item "New" ~key:GdkKeysyms._N ~callback:(fun () -> plot_window {window with curves=[]}));
 (*
   let close = fun () -> plotter#destroy () in
   ignore (file_menu_fact#add_item "Close" ~key:GdkKeysyms._W ~callback:close); *)
@@ -367,7 +372,7 @@ let rec plot_window = fun (title, init) ->
   ignore (plotter#drag#connect#data_received ~callback:(data_received));
 
   (* Init curves *)
-  List.iter add_curve init;
+  List.iter add_curve window.curves;
 
   plotter#add_accel_group accel_group;
   plotter#show ()
@@ -377,29 +382,34 @@ let rec plot_window = fun (title, init) ->
 
 let _ =
   let ivy_bus = ref "127.255.255.255:2010"
-  and init = ref [("Plotter", [])] in
+  and init = ref [default_window] in
 
   let add_init = fun s ->
     match !init with
       [] -> failwith "unreachable"
-    | (title, x)::xs -> init := (title, (s::x)) :: xs in
+    | x::xs -> init := {x with curves = s::x.curves} :: xs in
 
   let set_title = fun s ->
     match !init with
       [] -> failwith "unreachable"
-    | (_prev_title, x)::xs -> init := (s, x) :: xs in
+    | x::xs -> init := {x with title = s} :: xs in
+
+  let set_geometry = fun s ->
+    match !init with
+      [] -> failwith "unreachable"
+    | x::xs -> init := {x with geometry = s} :: xs in
 
   Arg.parse
-    [ "-b", Arg.String (fun x -> ivy_bus := x), "Bus\tDefault is 127.255.255.255:2010";
-      "-c", Arg.String (fun x -> add_init x), "Add a curve (e.g. '*:telemetry:BAT:voltage'). The curve is inserted into the last open window (cf -n option)";
+    [ "-b", Arg.String (fun x -> ivy_bus := x), "<bus>  Bus\tDefault is 127.255.255.255:2010";
+      "-c", Arg.String (fun x -> add_init x), "<curve>  Add a curve (e.g. '*:telemetry:BAT:voltage'). The curve is inserted into the last open window (cf -n option)";
 
       (* no code yet *)
-      "-t", Arg.String set_title, "Set the last opened window title (cf -n option)";
-      "-g", Arg.String (fun x -> ignore(x)), "Set the last opened window geometry ( '0+0:900x450' )";
+      "-t", Arg.String set_title, "<title>  Set the last opened window title (cf -n option)";
+      "-g", Arg.String set_geometry, "<geometry>  Set the last opened window geometry ( '500x500+100+100' )";
 
-      "-n", Arg.Unit (fun () -> init := ("Plotter", []) :: !init), "Open another window";
-      "-m", Arg.Set_int size, (Printf.sprintf "Memory size (default %d)" !size);
-      "-u", Arg.Set_float update_time, (Printf.sprintf "Update time in s (default %.2f)" !update_time)]
+      "-n", Arg.Unit (fun () -> init := default_window :: !init), "Open another window for the next curves";
+      "-m", Arg.Set_int size, (Printf.sprintf "<size>  Memory size (default %d)" !size);
+      "-u", Arg.Set_float update_time, (Printf.sprintf "<time>  Update time in s (default %.2f)" !update_time)]
     (fun x -> prerr_endline ("WARNING: don't do anything with "^x))
     "Usage: ";
 
