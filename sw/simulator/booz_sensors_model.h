@@ -38,6 +38,8 @@ struct BoozSensorsModel {
   /* imaginary sensors - gps maybe */
   VEC* speed_sensor;
   VEC* speed_noise_std_dev;
+  double speed_latency;
+  GSList* speed_history;
   VEC* pos_sensor;
   VEC* pos_noise_std_dev;
   VEC* pos_bias_initial;

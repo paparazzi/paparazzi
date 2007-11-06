@@ -1,4 +1,5 @@
 #include <glib.h>
+#include <getopt.h>
 
 #include <Ivy/ivy.h>
 #include <Ivy/ivyglibloop.h>
@@ -29,6 +30,7 @@ double disp_time;
 
 double booz_sim_actuators_values[] = {0., 0., 0., 0.};
 
+static void booz_sim_parse_options(int argc, char** argv);
 static gboolean booz_sim_periodic(gpointer data);
 static inline void booz_sim_display(void);
 
@@ -109,6 +111,8 @@ static gboolean booz_sim_periodic(gpointer data __attribute__ ((unused))) {
 
 int main ( int argc, char** argv) {
 
+  booz_sim_parse_options(argc, argv);
+
   sim_time = 0.;
   disp_time = 0.;
   
@@ -179,134 +183,9 @@ static inline void booz_sim_display(void) {
 }
 
 
-#define BREAK_MTT() {				\
-    int foo = sim_time/10;			\
-    switch(foo%4) {							\
-    case 0:								\
-      ppm_pulses[RADIO_PITCH]    = 1500 + 0.2 * (2050-950);		\
-      ppm_pulses[RADIO_YAW]      = 1493 + 0. * (2050-950);		\
-      break;								\
-    case 1:								\
-      ppm_pulses[RADIO_PITCH]    = 1500 + 0.0 * (2050-950);		\
-      ppm_pulses[RADIO_YAW]      = 1493 + 0.4 * (2050-950);		\
-      break;								\
-    case 2:								\
-      ppm_pulses[RADIO_PITCH]    = 1500 + 0.2 * (2050-950);		\
-      ppm_pulses[RADIO_YAW]      = 1493 + 0. * (2050-950);		\
-      break;								\
-    case 3:								\
-      ppm_pulses[RADIO_PITCH]    = 1500 - 0.0 * (2050-950);		\
-      ppm_pulses[RADIO_YAW]      = 1493 + 0.4 * (2050-950);		\
-      break;								\
-    }									\
-}
 
-#define WALK_OVAL() {							\
-    ppm_pulses[RADIO_ROLL]       = 1500 + 0. * (2050-950);		\
-    int foo = sim_time/10;						\
-    switch(foo%4) {							\
-    case 0:								\
-      ppm_pulses[RADIO_PITCH]    = 1500 + 0. * (2050-950);		\
-      ppm_pulses[RADIO_YAW]      = 1493 + 0. * (2050-950);		\
-      break;								\
-    case 1:								\
-      ppm_pulses[RADIO_PITCH]    = 1500 + 0.2 * (2050-950);		\
-      break;								\
-    case 2:								\
-      ppm_pulses[RADIO_PITCH]    = 1500 + 0. * (2050-950);		\
-      break;								\
-    case 3:								\
-      ppm_pulses[RADIO_YAW]      = 1493 + 0.2 * (2050-950);		\
-      break;								\
-    }									\
-}
-
-#define HOVER() { \
-    ppm_pulses[RADIO_THROTTLE] = 1223 + 0.6 * (2050-1223);		\
-    ppm_pulses[RADIO_MODE]     = 1500 - 0.5 * (2050-950);		\
-    ppm_pulses[RADIO_ROLL]     = 1500 + 0. * (2050-950);		\
-    ppm_pulses[RADIO_PITCH]    = 1498 + 0. * (2050-950);		\
-    ppm_pulses[RADIO_YAW]      = 1493 + 0. * (2050-950);		\
-  }
-
-
-#define TOUPIE() {							\
-    ppm_pulses[RADIO_ROLL]     = 1500 + 0. * (2050-950);		\
-    ppm_pulses[RADIO_PITCH]    = 1498 + 0. * (2050-950);		\
-    int foo = sim_time/20;						\
-    switch(foo%4) {							\
-    case 0:								\
-      ppm_pulses[RADIO_YAW]      = 1493 + 0. * (2050-950);		\
-      break;								\
-    case 1:								\
-      ppm_pulses[RADIO_YAW]      = 1493 + 0.2 * (2050-950);		\
-      break;								\
-    case 2:								\
-      ppm_pulses[RADIO_YAW]      = 1493 + 0. * (2050-950);		\
-      break;								\
-    case 3:								\
-      ppm_pulses[RADIO_YAW]      = 1493 + -0.2 * (2050-950);		\
-      break;								\
-    }									\
-  }
-
-
-#define CIRCLE() {				                        \
-    ppm_pulses[RADIO_YAW]      = 1493 + 0. * (2050-950);		\
-    double alpha = 0.01 * sim_time;					\
-    ppm_pulses[RADIO_PITCH]    = 1498 + cos(alpha) * 250.;		\
-    ppm_pulses[RADIO_ROLL]     = 1500 + sin(alpha) * 250.;		\
-  }
-
-#define ATTITUDE_ROLL_STEPS() {						\
-    ppm_pulses[RADIO_THROTTLE] = 1223 + 0.66 * (2050-1223);		\
-    ppm_pulses[RADIO_MODE]     = 1500 + 0. * (2050-950);		\
-    ppm_pulses[RADIO_PITCH]    = 1498 + 0. * (2050-950);		\
-    ppm_pulses[RADIO_YAW]      = 1493 + 0. * (2050-950);		\
-    int foo = sim_time/10;						\
-    switch(foo%2) {							\
-    case 0:								\
-      ppm_pulses[RADIO_ROLL]      = 1500 + 0.2 * (2050-950);		\
-      break;								\
-    case 1:								\
-      ppm_pulses[RADIO_ROLL]      = 1500 - 0.2 * (2050-950);		\
-      break;								\
-    }									\
-  }
-
-#define ATTITUDE_PITCH_STEPS() {						\
-    ppm_pulses[RADIO_THROTTLE] = 1223 + 0.66 * (2050-1223);		\
-    ppm_pulses[RADIO_MODE]     = 1500 + 0. * (2050-950);		\
-    ppm_pulses[RADIO_ROLL]     = 1500 + 0. * (2050-950);		\
-    ppm_pulses[RADIO_YAW]      = 1493 + 0. * (2050-950);		\
-    int foo = sim_time/10;						\
-    switch(foo%2) {							\
-    case 0:								\
-      ppm_pulses[RADIO_PITCH]      = 1498 + 0.2 * (2050-950);		\
-      break;								\
-    case 1:								\
-      ppm_pulses[RADIO_PITCH]      = 1498 - 0.2 * (2050-950);		\
-      break;								\
-    }									\
-  }
-
-#define ATTITUDE_YAW_STEPS() {						\
-    ppm_pulses[RADIO_THROTTLE] = 1223 + 0.66 * (2050-1223);		\
-    ppm_pulses[RADIO_MODE]     = 1500 + 0. * (2050-950);		\
-    ppm_pulses[RADIO_ROLL]     = 1500 + 0. * (2050-950);		\
-    ppm_pulses[RADIO_PITCH]    = 1500 + 0. * (2050-950);		\
-    int foo = sim_time/10;						\
-    switch(foo%2) {							\
-    case 0:								\
-      ppm_pulses[RADIO_YAW]    = 1493 + 0.2 * (2050-950);		\
-      break;								\
-    case 1:								\
-      ppm_pulses[RADIO_YAW]  = 1493 - 0.2 * (2050-950);			\
-      break;								\
-    }									\
-  }
-
-//#define FAKE_JOYSTICK
+#define FAKE_JOYSTICK
+#include "booz_joystick_fake.h"
 static void booz_sim_set_ppm_from_joystick( void ) {
 #ifndef FAKE_JOYSTICK
   ppm_pulses[RADIO_THROTTLE] = 1223 + booz_joystick_value[JS_THROTTLE] * (2050-1223);
@@ -346,6 +225,54 @@ static void booz_sim_read_actuators( void ) {
   booz_sim_actuators_values[SERVO_MOTOR_LEFT] = (actuators[SERVO_MOTOR_LEFT]   - 0)/(double)(255);
 #endif
 
+}
+
+static void booz_sim_parse_options(int argc, char** argv) {
+
+  static const char* usage =
+"Usage: %s [options]\n"
+" Options :\n"
+"   -j --js_dev joystick device\n"
+"   --fg_host flight gear host\n"
+"   --fg_port flight gear port\n";
+
+
+  while (1) {
+
+    static struct option long_options[] = {
+      {"fg_host", 1, NULL, 0},
+      {"fg_port", 1, NULL, 0},
+      {"js_dev", 1, NULL, 0},
+      {0, 0, 0, 0}
+    };
+    int option_index = 0;
+    int c = getopt_long(argc, argv, "j:",
+			long_options, &option_index);
+    if (c == -1)
+      break;
+    
+    switch (c) {
+    case 0:
+      switch (option_index) {
+      case 0:
+	fg_host = strdup(optarg); break;
+      case 1:
+	fg_port = atoi(optarg); break;
+      case 2:
+	joystick_dev = strdup(optarg); break;
+      }
+      break;
+
+    case 'j':
+      joystick_dev = strdup(optarg);
+      break;
+    
+    default: /* ’?’ */
+      printf("?? getopt returned character code 0%o ??\n", c);
+      fprintf(stderr, usage, argv[0]);
+      exit(EXIT_FAILURE);
+    }
+  }
 }
 
 

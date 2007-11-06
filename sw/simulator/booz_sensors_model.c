@@ -22,6 +22,8 @@ static void booz_sensors_model_gps_run(double dt, MAT* dcm_t);
 
 static VEC* v_add_gaussian_noise(VEC* in, VEC* std_dev, VEC* out);
 static VEC* v_update_random_walk(VEC* in, VEC* std_dev, double dt, VEC* out);
+static void UpdateSensorLatency(VEC* cur_reading, GSList* history, 
+				double latency, VEC* sensor_reading);
 
 void booz_sensors_model_init(void) {
   booz_sensors_model_accel_init();
@@ -95,14 +97,20 @@ static void booz_sensors_model_gyro_init(void) {
 
   bsm.gyro_sensitivity = m_get(AXIS_NB, AXIS_NB);
   m_zero(bsm.gyro_sensitivity);
-  bsm.gyro_sensitivity->me[AXIS_P][AXIS_P] = (double)bsm.gyro_resolution / (2.*RadOfDeg(-413.41848)); /* degres/s - nominal 300 */
-  bsm.gyro_sensitivity->me[AXIS_Q][AXIS_Q] = (double)bsm.gyro_resolution / (2.*RadOfDeg(-403.65564)); /* degres/s - nominal 300 */
-  bsm.gyro_sensitivity->me[AXIS_R][AXIS_R] = (double)bsm.gyro_resolution / (2.*RadOfDeg( 395.01929)); /* degres/s - nominal 300 */
+  bsm.gyro_sensitivity->me[AXIS_P][AXIS_P] = 
+    (double)bsm.gyro_resolution / (2.*RadOfDeg(-413.41848)); /* degres/s - nominal 300 */
+  bsm.gyro_sensitivity->me[AXIS_Q][AXIS_Q] = 
+    (double)bsm.gyro_resolution / (2.*RadOfDeg(-403.65564)); /* degres/s - nominal 300 */
+  bsm.gyro_sensitivity->me[AXIS_R][AXIS_R] = 
+    (double)bsm.gyro_resolution / (2.*RadOfDeg( 395.01929)); /* degres/s - nominal 300 */
 
   bsm.gyro_neutral = v_get(AXIS_NB);
-  bsm.gyro_neutral->ve[AXIS_P] = (double)bsm.gyro_resolution * 0.6238556; /* ratio of full scale - nominal 0.5 */
-  bsm.gyro_neutral->ve[AXIS_Q] = (double)bsm.gyro_resolution * 0.6242371; /* ratio of full scale - nominal 0.5 */
-  bsm.gyro_neutral->ve[AXIS_R] = (double)bsm.gyro_resolution * 0.6035156; /* ratio of full scale - nominal 0.5 */
+  bsm.gyro_neutral->ve[AXIS_P] = 
+    (double)bsm.gyro_resolution * 0.6238556; /* ratio of full scale - nominal 0.5 */
+  bsm.gyro_neutral->ve[AXIS_Q] = 
+    (double)bsm.gyro_resolution * 0.6242371; /* ratio of full scale - nominal 0.5 */
+  bsm.gyro_neutral->ve[AXIS_R] = 
+    (double)bsm.gyro_resolution * 0.6035156; /* ratio of full scale - nominal 0.5 */
 
   bsm.gyro_noise_std_dev = v_get(AXIS_NB);
   bsm.gyro_noise_std_dev->ve[AXIS_P] = RadOfDeg(.5);
@@ -163,13 +171,16 @@ static void booz_sensors_model_gps_init(void) {
   bsm.speed_noise_std_dev->ve[AXIS_Y] = 1e-1;
   bsm.speed_noise_std_dev->ve[AXIS_Z] = 1e-1;
 
+  bsm.speed_latency = .25;
+  bsm.speed_history = NULL;
+
   bsm.pos_sensor = v_get(AXIS_NB);
   v_zero(bsm.pos_sensor);
 
   bsm.pos_noise_std_dev = v_get(AXIS_NB);
-  bsm.pos_noise_std_dev->ve[AXIS_X] = 1e-1;
-  bsm.pos_noise_std_dev->ve[AXIS_Y] = 1e-1;
-  bsm.pos_noise_std_dev->ve[AXIS_Z] = 1e-1;
+  bsm.pos_noise_std_dev->ve[AXIS_X] = 3e-1;
+  bsm.pos_noise_std_dev->ve[AXIS_Y] = 3e-1;
+  bsm.pos_noise_std_dev->ve[AXIS_Z] = 3e-1;
 
   bsm.pos_bias_initial = v_get(AXIS_NB);
   bsm.pos_bias_initial->ve[AXIS_X] = 1e-1;
@@ -186,7 +197,7 @@ static void booz_sensors_model_gps_init(void) {
   bsm.pos_bias_random_walk_value->ve[AXIS_Y] = bsm.pos_bias_initial->ve[AXIS_Y];
   bsm.pos_bias_random_walk_value->ve[AXIS_Z] = bsm.pos_bias_initial->ve[AXIS_Z];
 
-  bsm.pos_latency = 0.25;
+  bsm.pos_latency = .25;
   bsm.pos_history = NULL;
 
 }
@@ -354,11 +365,14 @@ static void booz_sensors_model_gps_run( double dt, MAT* dcm_t ) {
   static VEC *speed_body = VNULL;
   speed_body = v_resize(speed_body, AXIS_NB);
   BoozFlighModelGetSpeed(speed_body);
+  static VEC *cur_speed_reading = VNULL;
+  cur_speed_reading = v_resize(cur_speed_reading, AXIS_NB);
   /* convert to earth frame */
-  bsm.speed_sensor = mv_mlt(dcm_t, speed_body, bsm.speed_sensor);
+  cur_speed_reading = mv_mlt(dcm_t, speed_body, cur_speed_reading);
   /* add a gaussian noise */
-  bsm.speed_sensor = v_add_gaussian_noise(bsm.speed_sensor, bsm.speed_noise_std_dev, bsm.speed_sensor);
-  
+  cur_speed_reading = v_add_gaussian_noise(cur_speed_reading, bsm.speed_noise_std_dev, 
+					   cur_speed_reading);
+  UpdateSensorLatency(cur_speed_reading, bsm.speed_history, bsm.speed_latency, bsm.speed_sensor);
 
   /* simulate position sensor */
   static VEC *cur_pos_reading = VNULL;
@@ -381,23 +395,33 @@ static void booz_sensors_model_gps_run( double dt, MAT* dcm_t ) {
   /* add error reading */
   cur_pos_reading = v_add(cur_pos_reading, pos_error, cur_pos_reading); 
 
-#if 0
-  /* add new reading */
-  bsm.pos_history = g_slist_prepend(bsm.pos_history, cur_pos_reading);
+  UpdateSensorLatency(cur_pos_reading, bsm.pos_history, bsm.pos_latency, bsm.pos_sensor);
 
-  /* remove old readings */
-  do {
-    struct BoozDatedSensor* last =  g_slist_last(bsm.pos_history);
-    if (last && last->time < bfm.time - pos_latency) {
-      
-    }
-  }
-  /*                  */
-  
-#else
-  CopyVect(bsm.pos_sensor, cur_pos_reading);
-#endif
 }
+
+
+static void UpdateSensorLatency(VEC* cur_reading, GSList* history, 
+				double latency, VEC* sensor_reading) {
+  /* add new reading */
+  struct BoozDatedSensor* cur_read = g_new(struct BoozDatedSensor, 1);
+  cur_read->time = bfm.time;
+  cur_read->value = v_get(AXIS_NB);
+  CopyVect(cur_read->value, cur_reading);
+  history = g_slist_prepend(history, cur_read);
+  /* remove old readings */
+  GSList* last =  g_slist_last(history);
+  while (last && 
+	 ((struct BoozDatedSensor*)last->data)->time < bfm.time - latency) {
+    history = g_slist_remove_link(history, last);
+    v_free(((struct BoozDatedSensor*)last->data)->value);
+    g_free((struct BoozDatedSensor*)last->data);
+    g_slist_free(last);
+    last =  g_slist_last(history);
+  }
+  /* update sensor        */
+  CopyVect(sensor_reading, ((struct BoozDatedSensor*)last->data)->value);
+}
+
 
 static VEC* v_update_random_walk(VEC* in, VEC* std_dev, double dt, VEC* out) {
   static VEC *tmp = VNULL;
