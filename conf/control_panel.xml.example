@@ -81,7 +81,7 @@
       <program name="GCS"/>
     </session>
 
-    <session name="6 Booz simulation">
+    <session name="6 Booz simulation : AHRS">
 
      <program name="Messages">
         <arg flag="-c" constant="telemetry"/>
@@ -89,11 +89,11 @@
 
     <program name="Real-time Plotter">
         <arg flag="-t" constant="rate : p"/>
+        <arg flag="-g" constant="0+450:830x450"/>
         <arg flag="-u" constant="0.1"/>
         <arg flag="-c" constant="'*:telemetry:BOOZ_SIM_RATE_ATTITUDE:p'"/>
         <arg flag="-c" constant="'*:telemetry:IMU_GYRO:gp:57.3'"/>
         <arg flag="-c" constant="'*:telemetry:BOOZ_RATE_LOOP:est_p:57.3'"/>
-        <arg flag="-c" constant="'*:telemetry:BOOZ_RATE_LOOP:sp_p:57.3'"/>
     </program>
 
     <program name="Real-time Plotter">

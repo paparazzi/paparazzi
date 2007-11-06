@@ -57,5 +57,29 @@ extern void booz_flight_model_init( void );
 extern void booz_flight_model_run( double t, double* commands );
 extern VEC* booz_flight_model_get_forces_body_frame(VEC* forces);
 
+#define BoozFlighModelGetPos(_dest) {		\
+    _dest->ve[AXIS_X] = bfm.state->ve[BFMS_X];	\
+    _dest->ve[AXIS_Y] = bfm.state->ve[BFMS_Y];	\
+    _dest->ve[AXIS_Z] = bfm.state->ve[BFMS_Z];	\
+  }
+
+#define BoozFlighModelGetSpeed(_dest) {		\
+    _dest->ve[AXIS_X] = bfm.state->ve[BFMS_U];	\
+    _dest->ve[AXIS_Y] = bfm.state->ve[BFMS_V];	\
+    _dest->ve[AXIS_Z] = bfm.state->ve[BFMS_W];	\
+  }
+
+#define BoozFlighModelGetAngles(_dest) {		\
+    _dest->ve[EULER_PHI]   = bfm.state->ve[BFMS_PHI];	\
+    _dest->ve[EULER_THETA] = bfm.state->ve[BFMS_THETA];	\
+    _dest->ve[EULER_PSI]   = bfm.state->ve[BFMS_PSI];	\
+  }
+
+#define BoozFlighModelGetRate(_dest) {		\
+    _dest->ve[AXIS_P] = bfm.state->ve[BFMS_P];	\
+    _dest->ve[AXIS_Q] = bfm.state->ve[BFMS_Q];	\
+    _dest->ve[AXIS_R] = bfm.state->ve[BFMS_R];	\
+  }
+
 
 #endif /* BOOZ_FLIGHT_MODEL_H */

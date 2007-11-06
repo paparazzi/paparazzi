@@ -185,6 +185,10 @@ static void booz_sensors_model_gps_init(void) {
   bsm.pos_bias_random_walk_value->ve[AXIS_X] = bsm.pos_bias_initial->ve[AXIS_X];
   bsm.pos_bias_random_walk_value->ve[AXIS_Y] = bsm.pos_bias_initial->ve[AXIS_Y];
   bsm.pos_bias_random_walk_value->ve[AXIS_Z] = bsm.pos_bias_initial->ve[AXIS_Z];
+
+  bsm.pos_latency = 0.25;
+  bsm.pos_history = NULL;
+
 }
 
 
@@ -202,6 +206,12 @@ static void booz_sensors_model_gps_init(void) {
   if ( _sensor->ve[AXIS_Z] < _min) _sensor->ve[AXIS_Z] = _min; \
   if ( _sensor->ve[AXIS_Z] > _max) _sensor->ve[AXIS_Z] = _max; \
   }
+
+#define CopyVect(_dest, _src) {			\
+    _dest->ve[AXIS_X] = _src->ve[AXIS_X];	\
+    _dest->ve[AXIS_Y] = _src->ve[AXIS_Y];	\
+    _dest->ve[AXIS_Z] = _src->ve[AXIS_Z];	\
+}
 
 static void booz_sensors_model_accel_run( MAT* dcm ) {
 
@@ -343,9 +353,7 @@ static void booz_sensors_model_gps_run( double dt, MAT* dcm_t ) {
   /* extract body speed from state */
   static VEC *speed_body = VNULL;
   speed_body = v_resize(speed_body, AXIS_NB);
-  speed_body->ve[AXIS_U] = bfm.state->ve[BFMS_U];
-  speed_body->ve[AXIS_V] = bfm.state->ve[BFMS_V];
-  speed_body->ve[AXIS_W] = bfm.state->ve[BFMS_W];
+  BoozFlighModelGetSpeed(speed_body);
   /* convert to earth frame */
   bsm.speed_sensor = mv_mlt(dcm_t, speed_body, bsm.speed_sensor);
   /* add a gaussian noise */
@@ -353,11 +361,12 @@ static void booz_sensors_model_gps_run( double dt, MAT* dcm_t ) {
   
 
   /* simulate position sensor */
-  bsm.pos_sensor->ve[AXIS_X] = bfm.state->ve[BFMS_X];
-  bsm.pos_sensor->ve[AXIS_Y] = bfm.state->ve[BFMS_Y];
-  bsm.pos_sensor->ve[AXIS_Z] = bfm.state->ve[BFMS_Z];
+  static VEC *cur_pos_reading = VNULL;
+  cur_pos_reading = v_resize(cur_pos_reading, AXIS_NB);
+  /* extract pos from state */
+  BoozFlighModelGetPos(cur_pos_reading);
 
-  /* compute gyro error reading */
+  /* compute position error reading */
   static VEC *pos_error = VNULL;
   pos_error = v_resize(pos_error, AXIS_NB);
   pos_error = v_zero(pos_error);
@@ -370,10 +379,25 @@ static void booz_sensors_model_gps_run( double dt, MAT* dcm_t ) {
   			 bsm.pos_bias_random_walk_value);
   pos_error = v_add(pos_error, bsm.pos_bias_random_walk_value, pos_error); 
   /* add error reading */
-  bsm.pos_sensor =  v_add(bsm.pos_sensor, pos_error, bsm.pos_sensor); 
-  
-}
+  cur_pos_reading = v_add(cur_pos_reading, pos_error, cur_pos_reading); 
 
+#if 0
+  /* add new reading */
+  bsm.pos_history = g_slist_prepend(bsm.pos_history, cur_pos_reading);
+
+  /* remove old readings */
+  do {
+    struct BoozDatedSensor* last =  g_slist_last(bsm.pos_history);
+    if (last && last->time < bfm.time - pos_latency) {
+      
+    }
+  }
+  /*                  */
+  
+#else
+  CopyVect(bsm.pos_sensor, cur_pos_reading);
+#endif
+}
 
 static VEC* v_update_random_walk(VEC* in, VEC* std_dev, double dt, VEC* out) {
   static VEC *tmp = VNULL;

@@ -14,8 +14,8 @@
 
 
 //char* fg_host = "127.0.0.1";
-//char* fg_host = "10.31.4.107";
-char* fg_host = "192.168.1.191";
+char* fg_host = "10.31.4.107";
+//char* fg_host = "192.168.1.191";
 unsigned int fg_port = 5501;
 char* joystick_dev = "/dev/input/js0";
 
@@ -306,7 +306,7 @@ static inline void booz_sim_display(void) {
     }									\
   }
 
-#define FAKE_JOYSTICK
+//#define FAKE_JOYSTICK
 static void booz_sim_set_ppm_from_joystick( void ) {
 #ifndef FAKE_JOYSTICK
   ppm_pulses[RADIO_THROTTLE] = 1223 + booz_joystick_value[JS_THROTTLE] * (2050-1223);
@@ -327,7 +327,7 @@ static void booz_sim_set_ppm_from_joystick( void ) {
   HOVER();
   // TOUPIE();
   //  ATTITUDE_ROLL_STEPS();
-  // ATTITUDE_PITCH_STEPS();
+  //ATTITUDE_PITCH_STEPS();
   //  ATTITUDE_YAW_STEPS();
 #endif
 }

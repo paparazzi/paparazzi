@@ -416,9 +416,9 @@
   </message>
 
   <message name="AHRS_MEASURE" ID="225">
-    <field name="measure_phi"   type="float" unit="rad"/>
-    <field name="measure_theta" type="float" unit="rad"/>
-    <field name="measure_psi"   type="float" unit="rad"/>
+    <field name="phi"   type="float" unit="rad"/>
+    <field name="theta" type="float" unit="rad"/>
+    <field name="psi"   type="float" unit="rad"/>
   </message>
 
   <message name="AHRS_OVERRUN" ID="226">

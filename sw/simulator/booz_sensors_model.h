@@ -3,6 +3,7 @@
 
 #include "6dof.h"
 #include <matrix.h>
+#include <glib.h>
 
 extern void booz_sensors_model_init(void);
 extern void booz_sensors_model_run( double dt);
@@ -16,6 +17,7 @@ struct BoozSensorsModel {
   VEC* accel_noise_std_dev;
   VEC* accel_bias;
 
+
   VEC* gyro;
   unsigned int gyro_resolution;
   MAT* gyro_sensitivity;
@@ -24,6 +26,7 @@ struct BoozSensorsModel {
   VEC* gyro_bias_initial;
   VEC* gyro_bias_random_walk_std_dev;
   VEC* gyro_bias_random_walk_value;
+
 
   VEC* mag;
   unsigned int mag_resolution;
@@ -40,9 +43,16 @@ struct BoozSensorsModel {
   VEC* pos_bias_initial;
   VEC* pos_bias_random_walk_std_dev;
   VEC* pos_bias_random_walk_value;
+  double pos_latency;
+  GSList* pos_history;
 
 };
 
 extern struct BoozSensorsModel bsm;
+
+struct BoozDatedSensor {
+  VEC* value;
+  double time;
+};
 
 #endif /* BOOZ_SENSORS_MODEL_H */
