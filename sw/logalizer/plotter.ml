@@ -238,8 +238,8 @@ class plot = fun ~size ~width ~height ~packing () ->
 let update_time = ref 0.5
 let size = ref 500
 
-let rec plot_window = fun init ->
-  let plotter = GWindow.window ~allow_shrink:true ~title:"Plotter" () in
+let rec plot_window = fun (title, init) ->
+  let plotter = GWindow.window ~allow_shrink:true ~title () in
   plotter#set_icon (Some (GdkPixbuf.from_file Env.icon_file));
   let vbox = GPack.vbox ~packing:plotter#add () in
   let quit = fun () -> GMain.Main.quit (); exit 0 in
@@ -252,7 +252,7 @@ let rec plot_window = fun init ->
   let file_menu = factory#add_submenu "Plot" in
   let file_menu_fact = new GMenu.factory file_menu ~accel_group in
   
-  ignore (file_menu_fact#add_item "New" ~key:GdkKeysyms._N ~callback:(fun () -> plot_window []));
+  ignore (file_menu_fact#add_item "New" ~key:GdkKeysyms._N ~callback:(fun () -> plot_window ("Plotter", [])));
 (*
   let close = fun () -> plotter#destroy () in
   ignore (file_menu_fact#add_item "Close" ~key:GdkKeysyms._W ~callback:close); *)
@@ -377,22 +377,27 @@ let rec plot_window = fun init ->
 
 let _ =
   let ivy_bus = ref "127.255.255.255:2010"
-  and init = ref [[]] in
+  and init = ref [("Plotter", [])] in
 
   let add_init = fun s ->
     match !init with
       [] -> failwith "unreachable"
-    | x::xs -> init := (s::x) :: xs in
+    | (title, x)::xs -> init := (title, (s::x)) :: xs in
+
+  let set_title = fun s ->
+    match !init with
+      [] -> failwith "unreachable"
+    | (_prev_title, x)::xs -> init := (s, x) :: xs in
 
   Arg.parse
     [ "-b", Arg.String (fun x -> ivy_bus := x), "Bus\tDefault is 127.255.255.255:2010";
       "-c", Arg.String (fun x -> add_init x), "Add a curve (e.g. '*:telemetry:BAT:voltage'). The curve is inserted into the last open window (cf -n option)";
 
       (* no code yet *)
-      "-t", Arg.String (fun x -> ignore(x)), "Set the last opened window title (cf -n option)";
+      "-t", Arg.String set_title, "Set the last opened window title (cf -n option)";
       "-g", Arg.String (fun x -> ignore(x)), "Set the last opened window geometry ( '0+0:900x450' )";
 
-      "-n", Arg.Unit (fun () -> init := [] :: !init), "Open another window";
+      "-n", Arg.Unit (fun () -> init := ("Plotter", []) :: !init), "Open another window";
       "-m", Arg.Set_int size, (Printf.sprintf "Memory size (default %d)" !size);
       "-u", Arg.Set_float update_time, (Printf.sprintf "Update time in s (default %.2f)" !update_time)]
     (fun x -> prerr_endline ("WARNING: don't do anything with "^x))
