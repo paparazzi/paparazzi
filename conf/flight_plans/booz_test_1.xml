@@ -1,0 +1,14 @@
+<flight_plan NAME="booz test 1" LON0="1.27289" MAX_DIST_FROM_HOME="400" GROUND_ALT="185" SECURITY_HEIGHT="1" QFU="270" ALT="250" LAT0="43.46223">
+
+
+  <waypoints>
+    <waypoint name="HOME" x="0.0"  y="0.0" alt="187."/>
+    <waypoint name="p1"   x="10"   y="0"   alt="187."/>
+    <waypoint name="p2"   x="20"   y="0"   alt="187."/>
+  </waypoints>
+  <blocks>
+    <block name="block1">
+      <stay wp="p1"/>
+    </block>
+  </blocks>
+</flight_plan>

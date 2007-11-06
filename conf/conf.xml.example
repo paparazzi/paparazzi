@@ -31,8 +31,8 @@
     airframe="airframes/booz.xml"
     radio="radios/cockpitSX.xml"
     telemetry="telemetry/booz.xml"
-    flight_plan="flight_plans/dummy.xml"
     settings="settings/booz.xml"
+    flight_plan="flight_plans/booz_test_1.xml"
   />
 
 </conf>
