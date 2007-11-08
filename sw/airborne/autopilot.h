@@ -123,4 +123,8 @@ extern bool_t power_switch;
 #define autopilot_SetPowerSwitch(_x) { power_switch = _x; }
 #endif // POWER_SWITCH_LED
 
+#define autopilot_ResetFlightTimeAndLaunch(_) { \
+  estimator_flight_time = 0; launch = FALSE; \
+}
+
 #endif /* AUTOPILOT_H */
