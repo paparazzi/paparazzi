@@ -2,18 +2,18 @@
 
 uint8_t booz_ahrs_status;
 
-float booz_ahrs_phi; 
-float booz_ahrs_theta; 
-float booz_ahrs_psi;
+FLOAT_T booz_ahrs_phi; 
+FLOAT_T booz_ahrs_theta; 
+FLOAT_T booz_ahrs_psi;
 
-float booz_ahrs_p;
-float booz_ahrs_q;
-float booz_ahrs_r;
+FLOAT_T booz_ahrs_p;
+FLOAT_T booz_ahrs_q;
+FLOAT_T booz_ahrs_r;
 
-float booz_ahrs_bp;
-float booz_ahrs_bq;
-float booz_ahrs_br;
+FLOAT_T booz_ahrs_bp;
+FLOAT_T booz_ahrs_bq;
+FLOAT_T booz_ahrs_br;
 
-float booz_ahrs_measure_phi;
-float booz_ahrs_measure_theta;
-float booz_ahrs_measure_psi;
+FLOAT_T booz_ahrs_measure_phi;
+FLOAT_T booz_ahrs_measure_theta;
+FLOAT_T booz_ahrs_measure_psi;

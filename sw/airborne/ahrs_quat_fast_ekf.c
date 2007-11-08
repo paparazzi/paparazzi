@@ -321,7 +321,6 @@ static void run_kalman( const FLOAT_T R_axis, const FLOAT_T error ) {
 
 /*
  * Do the Kalman filter on the acceleration and compass readings.
- * This is normally a very simple:
  *
  *      E = H * P * H' + R
  *      K = P * H' * inv(E)
@@ -342,32 +341,38 @@ static void run_kalman( const FLOAT_T R_axis, const FLOAT_T error ) {
 
 void afe_update_phi( const FLOAT_T* accel ) {
   AFE_COMPUTE_H_PHI();
-  FLOAT_T accel_phi = afe_phi_of_accel(accel);
-  FLOAT_T err_phi = accel_phi - booz_ahrs_phi;
+  booz_ahrs_measure_phi = afe_phi_of_accel(accel);
+#ifndef EKF_PREDICT_ONLY
+  FLOAT_T err_phi = booz_ahrs_measure_phi - booz_ahrs_phi;
   AFE_WARP( err_phi, M_PI);
   run_kalman( AFE_R_PHI, err_phi );
   AFE_DCM_OF_QUAT();
   AFE_EULER_OF_DCM();
+#endif
 }
 
 void afe_update_theta( const FLOAT_T* accel ) {
   AFE_COMPUTE_H_THETA();
-  FLOAT_T accel_theta = afe_theta_of_accel(accel);
-  FLOAT_T err_theta = accel_theta - booz_ahrs_theta;
+  booz_ahrs_measure_theta = afe_theta_of_accel(accel);
+#ifndef EKF_PREDICT_ONLY
+  FLOAT_T err_theta = booz_ahrs_measure_theta - booz_ahrs_theta;
   AFE_WARP( err_theta, M_PI_2);
   run_kalman( AFE_R_THETA, err_theta );
   AFE_DCM_OF_QUAT();
   AFE_EULER_OF_DCM();
+#endif
 }
 
 void afe_update_psi( const int16_t* mag ) {
   AFE_COMPUTE_H_PSI();
-  FLOAT_T mag_psi = afe_psi_of_mag(mag);
-  FLOAT_T err_psi = mag_psi - booz_ahrs_psi;
+  booz_ahrs_measure_psi = afe_psi_of_mag(mag);
+#ifndef EKF_PREDICT_ONLY
+  FLOAT_T err_psi = booz_ahrs_measure_psi - booz_ahrs_psi;
   AFE_WARP( err_psi, M_PI);
   run_kalman( AFE_R_PSI, err_psi );
   AFE_DCM_OF_QUAT();
   AFE_EULER_OF_DCM();
+#endif
 }
 
 
@@ -402,9 +407,9 @@ void booz_ahrs_start( const FLOAT_T* accel, const FLOAT_T* gyro, const int16_t *
     afe_P[i][i] = .5;
 
   /* assume vehicle is still, so initial bias are gyro readings */
-  booz_ahrs_bp = gyro[0];
-  booz_ahrs_bq = gyro[1];
-  booz_ahrs_br = gyro[2];
+  booz_ahrs_bp = gyro[AXIS_P];
+  booz_ahrs_bq = gyro[AXIS_Q];
+  booz_ahrs_br = gyro[AXIS_R];
 
   booz_ahrs_phi = afe_phi_of_accel(accel);
   booz_ahrs_theta = afe_theta_of_accel(accel);

@@ -385,13 +385,13 @@
   </message>
 
   <message name="AHRS_QUAT_COV" ID="222">
-    <field name="p_q0" type="float"/>
-    <field name="p_q1" type="float"/>
-    <field name="p_q2" type="float"/>
-    <field name="p_q3" type="float"/>
-    <field name="p_bp" type="float" unit="interesting_question"/>
-    <field name="p_bq" type="float" unit="interesting_question"/>
-    <field name="p_br" type="float" unit="interesting_question"/>
+    <field name="p_q0_q0" type="float"/>
+    <field name="p_q1_q1" type="float"/>
+    <field name="p_q2_q2" type="float"/>
+    <field name="p_q3_q3" type="float"/>
+    <field name="p_bp_bp" type="float" unit="interesting_question"/>
+    <field name="p_bq_bq" type="float" unit="interesting_question"/>
+    <field name="p_br_br" type="float" unit="interesting_question"/>
   </message>
 
   <message name="AHRS_EULER_STATE" ID="223">

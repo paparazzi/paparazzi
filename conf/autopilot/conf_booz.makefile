@@ -164,8 +164,11 @@ sim.srcs  += micromag.c $(SRC_ARCH)/micromag_hw.c
 sim.srcs  += imu_v3.c $(SRC_ARCH)/imu_v3_hw.c
 
 
+sim.CFLAGS += -DFLOAT_T=float
 sim.srcs += booz_ahrs.c
 sim.CFLAGS += -DBOOZ_AHRS_TYPE=BOOZ_AHRS_MULTITILT
 sim.srcs += multitilt.c
-#CFLAGS += -DBOOZ_AHRS_TYPE=BOOZ_AHRS_QUATERNION -DEKF_UPDATE_DISCRETE
+#sim.CFLAGS += -DBOOZ_AHRS_TYPE=BOOZ_AHRS_QUATERNION 
+#sim.CFLAGS += -DEKF_UPDATE_DISCRETE
+#sim.CFLAGS += -DEKF_PREDICT_ONLY
 #sim.srcs += ahrs_quat_fast_ekf.c 

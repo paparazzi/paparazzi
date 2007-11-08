@@ -98,7 +98,7 @@
     DOWNLINK_SEND_AHRS_QUAT_COV(&afe_P[0][0], &afe_P[1][1],		\
 				&afe_P[2][2], &afe_P[3][3],		\
 				&afe_P[4][4], &afe_P[5][5],		\
-				&afe_P[6][6],);				\
+				&afe_P[6][6]);				\
   }
 
 #define PERIODIC_SEND_AHRS_STATE()					\
