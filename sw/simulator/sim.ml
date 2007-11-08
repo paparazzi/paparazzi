@@ -231,20 +231,39 @@ module Make(AircraftItl : AIRCRAFT_ITL) = struct
     let take_off = fun () -> FlightModel.set_air_speed !state FM.nominal_airspeed in 
 
     let hbox = GPack.hbox ~spacing:4 ~packing:vbox#pack () in
+    let s = GButton.button ~label:"Set Pos" ~packing:hbox#pack () in
+    ignore (s#connect#clicked ~callback:set_pos);
+
+    let set_pos_and_boot = fun () ->
+      s#misc#set_sensitive false;
+      boot () in
+
     if not !autoboot then begin
       let s = GButton.button ~label:"Boot" ~packing:(hbox#pack) () in
-      ignore (s#connect#clicked ~callback:boot)
+      let callback = fun () ->
+	set_pos_and_boot ();
+	s#misc#set_sensitive false in
+      ignore (s#connect#clicked ~callback)
     end else
-      boot ();
+      set_pos_and_boot ();
     
     if not !autolaunch then begin
       let t = GButton.button ~label:"Launch" ~packing:hbox#pack () in
-      ignore (t#connect#clicked ~callback:take_off)
+      let callback = fun () ->
+	take_off ();
+	t#misc#set_sensitive false in
+      ignore (t#connect#clicked ~callback);
+
+      (* Monitor an AUTO2 lauch to disable the button *)
+      let monitor = fun () ->
+	if FlightModel.get_air_speed !state > 0. then begin
+	  t#misc#set_sensitive false;
+	  false
+	end else
+	  true in
+      ignore (GMain.Timeout.add 1000 monitor)
     end else
       take_off ();
-
-    let s = GButton.button ~label:"Set Pos" ~packing:hbox#pack () in
-    ignore (s#connect#clicked ~callback:set_pos);
 
     let hbox = GPack.hbox ~packing:vbox#pack () in
     let l = fun s -> ignore(GMisc.label ~text:s ~packing:hbox#pack ()) in

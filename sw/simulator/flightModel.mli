@@ -35,6 +35,7 @@ val get_time : state -> float
 val get_attitude : state -> radian * radian * radian
 
 val set_air_speed : state -> meter_s -> unit
+val get_air_speed : state -> meter_s
 
 module Make :
   functor (A : Data.MISSION) ->

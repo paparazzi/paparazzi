@@ -56,6 +56,7 @@ let get_time state = state.t
 let get_attitude state = (state.phi, state.theta, state.psi)
 
 let set_air_speed state x = state.nominal_air_speed <- x
+let get_air_speed state = state.nominal_air_speed
 
 let drag = 0.45
 let g = 9.81
