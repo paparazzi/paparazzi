@@ -113,16 +113,6 @@ include Makefile.ac
 sim : sim_static
 ac_h ac1 ac2 ac3 ac fbw ap: static conf
 
-###
-#
-# temporary hack for quadrotor simulator
-#
-booz_sim:
-	make AIRCRAFT=BOOZ flt.compile
-	make AIRCRAFT=BOOZ ctl.compile
-	cd sw/simulator; make clean booz_sim
-
-
 ##### preliminary hard wired arm7 bootloader rules
 #
 #
