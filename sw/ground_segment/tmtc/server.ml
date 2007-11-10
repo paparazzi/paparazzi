@@ -369,9 +369,10 @@ let log_and_parse = fun logging ac_name (a:Aircraft.aircraft) msg values ->
       begin
 	match a.nav_ref with
 	  Some nav_ref ->
+	    let utm_zone = try ivalue "utm_zone" with _ -> nav_ref.utm_zone in
 	    let p = { Latlong.utm_x = fvalue "utm_east";
 		      utm_y = fvalue "utm_north";
-		      utm_zone = ivalue "utm_zone" } in
+		      utm_zone = utm_zone } in
 	    update_waypoint a (ivalue "wp_id") p (fvalue "alt")
 	| None -> () (** Can't use this message  *)
       end
