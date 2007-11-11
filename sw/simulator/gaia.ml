@@ -49,9 +49,8 @@ let _ =
   ignore (window#connect#destroy ~callback:quit);
 
   let time_scale = GData.adjustment ~value:1. ~lower:(1.) ~upper:10. ~step_incr:1. () in
-  let wind_dir_adj = GData.adjustment ~value:0. ~lower:(0.) ~upper:370. ~step_incr:1.0 () in
+  let wind_dir_adj = GData.adjustment ~value:0. ~lower:(0.) ~upper:369. ~step_incr:1.0 () in
   let wind_speed_adj = GData.adjustment ~value:0. ~lower:(0.) ~upper:20. ~step_incr:0.1 () in
-  let gust_norm_max_adj = GData.adjustment ~value:0. ~lower:(0.) ~upper:20. ~step_incr:0.1 () in
   let infrared_contrast_adj = GData.adjustment ~value:266. ~lower:(0.) ~upper:1010. ~step_incr:10. () in
   let gps_sa = GButton.toggle_button ~label:"GPS OFF" () in
 
@@ -70,8 +69,7 @@ let _ =
 
   List.iter 
     (fun (a:GData.adjustment) -> ignore (a#connect#value_changed world_send))
-    [time_scale; wind_dir_adj; wind_speed_adj; gust_norm_max_adj; 
-     infrared_contrast_adj];
+    [time_scale; wind_dir_adj; wind_speed_adj; infrared_contrast_adj];
   ignore (gps_sa#connect#toggled world_send);
 
   ignore (Glib.Timeout.add sending_period (fun () -> world_send (); true));
@@ -80,26 +78,17 @@ let _ =
   let vbox = GPack.vbox ~packing:window#add () in
 
   let hbox = GPack.hbox ~packing:vbox#pack () in
-  let _ =  GMisc.label ~text:"time scale:" ~packing:hbox#pack () in
+  let _ =  GMisc.label ~text:"Time scale:" ~packing:hbox#pack () in
   let _ts = GEdit.spin_button ~adjustment:time_scale ~packing:hbox#add () in
         
   let hbox = GPack.hbox ~packing:vbox#pack () in
-  ignore (GMisc.label ~text:"wind dir:" ~packing:hbox#pack ());
-  ignore (GRange.scale `HORIZONTAL ~adjustment:wind_dir_adj ~packing:hbox#add ());
+  ignore (GMisc.label ~text:"Wind dir:" ~packing:hbox#pack ());
+  ignore (GRange.scale ~digits:0 `HORIZONTAL ~adjustment:wind_dir_adj ~packing:hbox#add ());
 
   let hbox = GPack.hbox ~packing:vbox#pack () in
-  ignore (GMisc.label ~text:"wind speed:" ~packing:hbox#pack ());
+  ignore (GMisc.label ~text:"Wind speed:" ~packing:hbox#pack ());
   ignore (GRange.scale `HORIZONTAL ~adjustment:wind_speed_adj ~packing:hbox#add ());
   
-  let hbox = GPack.hbox ~packing:vbox#pack () in
-  ignore (GMisc.label ~text:"gust max speed:" ~packing:hbox#pack ());
-  ignore (GRange.scale `HORIZONTAL ~adjustment:gust_norm_max_adj ~packing:hbox#add ());
-
-
-  let hbox = GPack.hbox ~packing:vbox#pack () in
-  ignore (GMisc.label ~text:"infrared:" ~packing:hbox#pack ());
-  ignore (GRange.scale `HORIZONTAL ~adjustment:infrared_contrast_adj ~packing:hbox#add ());
-
   vbox#pack gps_sa#coerce;
 
   Ivy.init "Paparazzi gaia" "READY" (fun _ _ -> ());
