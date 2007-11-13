@@ -92,7 +92,7 @@ actuators : actuators.c
 # Dependencies
 #
 
-.depend:
+.depend: Makefile
 	ocamldep -I ../../lib/ocaml *.ml* > .depend
 
 ifneq ($(MAKECMDGOALS),clean) 

@@ -39,7 +39,7 @@ type t =
       connect_flight_time : (float -> unit) -> unit;
       set_agl : float -> unit;
       set_bat : float -> unit;
-      set_throttle : float -> unit;
+      set_throttle : ?kill:bool -> float -> unit;
       set_speed : float -> unit;
       set_airspeed : float -> unit;
       set_climb : float -> unit;
@@ -81,11 +81,11 @@ class gauge = fun ?(color="green") ?(history_len=50) gauge v_min v_max ->
   object
     val history = Array.create history_len 0
     val mutable history_index = -1
-    method set = fun ?arrow value strings ->
+    method set = fun ?arrow ?(background="orange") value strings ->
       let {Gtk.width=width; height=height} = gauge#misc#allocation in
       if height > 1 then (* Else the drawing area is not allocated already *)
 	let dr = GDraw.pixmap ~width ~height ~window:gauge () in
-	dr#set_foreground (`NAME "orange");
+	dr#set_foreground (`NAME background);
 	dr#rectangle ~x:0 ~y:0 ~width ~height ~filled:true ();
 	
 	let f = (value -. v_min) /. (v_max -. v_min) in
@@ -153,11 +153,11 @@ class gauge = fun ?(color="green") ?(history_len=50) gauge v_min v_max ->
 
 class hgauge = fun ?(color="green") gauge v_min v_max ->
   object
-    method set = fun value string ->
+    method set = fun ?(background="orange") value string ->
       let {Gtk.width=width; height=height} = gauge#misc#allocation in
       if height > 1 then (* Else the drawing area is not allocated already *)
 	let dr = GDraw.pixmap ~width ~height ~window:gauge () in
-	dr#set_foreground (`NAME "orange");
+	dr#set_foreground (`NAME background);
 	dr#rectangle ~x:0 ~y:0 ~width ~height ~filled:true ();
 	
 	let f = (value -. v_min) /. (v_max -. v_min) in
@@ -272,7 +272,9 @@ let add = fun config color center_ac mark ->
       let arrow = max (min 0.5 (climb /. 5.)) (-0.5) in
       agl#set ~arrow value [0.2, (sprintf "%3.0f" value); 0.8, sprintf "%+.1f" climb]
     method set_bat value = bat#set value [0.5, (string_of_float value)]
-    method set_throttle value = throttle#set value (sprintf "%.0f%%" value)
+    method set_throttle ?(kill=false) value = 
+      let background = if kill then "red" else "orange" in
+      throttle#set ~background value (sprintf "%.0f%%" value)
     method set_speed value = speed#set value (sprintf "%.1fm/s" value)
 
     method set_airspeed value =

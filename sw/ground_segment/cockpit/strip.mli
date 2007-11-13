@@ -8,7 +8,7 @@ type t = <
     connect_flight_time : (float -> unit) -> unit;
     set_agl : float -> unit;
     set_bat : float -> unit;
-    set_throttle : float -> unit;
+    set_throttle : ?kill:bool -> float -> unit;
     set_speed : float -> unit;
     set_airspeed : float -> unit;
     set_climb : float -> unit;

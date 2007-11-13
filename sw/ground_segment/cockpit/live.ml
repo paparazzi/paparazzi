@@ -632,7 +632,7 @@ let get_fbw_msg = fun _sender vs ->
 
 let get_engine_status_msg = fun _sender vs ->
   let ac = get_ac vs in
-  ac.strip#set_throttle (Pprz.float_assoc "throttle" vs);
+  ac.strip#set_throttle ~kill:ac.in_kill_mode (Pprz.float_assoc "throttle" vs);
   ac.strip#set_bat (Pprz.float_assoc "bat" vs)
     
 let get_if_calib_msg = fun _sender vs ->
@@ -839,12 +839,12 @@ let listen_flight_params = fun geomap auto_center_new_ac alert ->
       sprintf "%02d:%02d:%02d" (flight_time / 3600) ((flight_time / 60) mod 60) (flight_time mod 60) in
     ac.strip#set_label "flight_time" ft;
     let kill_mode = Pprz.string_assoc "kill_mode" vs in
-    if not ac.in_kill_mode then
-      if kill_mode <> "OFF" then begin
+    if kill_mode <> "OFF" then  begin
+      if not ac.in_kill_mode then
 	log_and_say alert ac.ac_name (sprintf "%s, mayday, kill mode" ac.ac_name);
-	ac.in_kill_mode <- true
-      end else
-	ac.in_kill_mode <- false;
+      ac.in_kill_mode <- true
+    end else
+      ac.in_kill_mode <- false;
     match ac.rc_settings_page with
       None -> ()
     | Some p -> 
