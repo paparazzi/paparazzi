@@ -51,15 +51,10 @@ extern float z_contrast_mode;
 extern bool_t ir_360;
 
 
-#if defined IR_CORRECTION_LEFT && defined IR_CORRECTION_RIGHT
 extern float ir_correction_left;
 extern float ir_correction_right;
-#endif
-
-#if defined IR_CORRECTION_UP && defined IR_CORRECTION_DOWN
 extern float ir_correction_up;
 extern float ir_correction_down;
-#endif
 
 /** Status of the calibration. Can be one of the \a calibration \a states */
 extern uint8_t calib_status;

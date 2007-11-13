@@ -55,15 +55,30 @@ float ir_pitch_neutral;
 
 bool_t ir_360;
 
-#if defined IR_CORRECTION_LEFT && defined IR_CORRECTION_RIGHT
 float ir_correction_left;
 float ir_correction_right;
+float ir_correction_down;
+float ir_correction_up;
+
+#if !defined IR_CORRECTION_LEFT
+#define IR_CORRECTION_LEFT 1.
 #endif
 
-#if defined IR_CORRECTION_UP && defined IR_CORRECTION_DOWN
-float ir_correction_up;
-float ir_correction_down;
+#if !defined IR_CORRECTION_RIGHT
+#define IR_CORRECTION_RIGHT 1.
 #endif
+
+#if !defined IR_CORRECTION_UP
+#define IR_CORRECTION_UP 1.
+#endif
+
+#if !defined IR_CORRECTION_DOWN
+#define IR_CORRECTION_DOWN 1.
+#endif
+
+
+
+
 
 /** Initialized to \a IR_DEFAULT_CONTRAST. Changed with calibration */
 int16_t ir_contrast;
