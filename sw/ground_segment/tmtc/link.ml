@@ -574,7 +574,7 @@ let parse_of_transport device = function
 
 let _ =
   let ivy_bus = ref "127.255.255.255:2010" in
-  let port = ref "/dev/ttyS0" in
+  let port = ref "/dev/ttyUSB0" in
   let baurate = ref "9600" in
   let transport = ref "pprz" in
   let uplink = ref false in
