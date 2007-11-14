@@ -15,12 +15,12 @@ ${OCAMLC} -custom -I +lablgtk2 -I ${DESTDIR}/sw/lib/ocaml unix.cma str.cma xml-l
 ${OCAMLC} -custom -I +lablgtk2 -I ${DESTDIR}/sw/lib/ocaml -I ../cockpit unix.cma str.cma xml-light.cma lablgtk.cma glibivy-ocaml.cma lib-pprz.cma gtkInit.cmo pages.cmo settings.cmo -o settings
 
 cd ${DESTDIR}/sw/ground_segment/cockpit
-${OCAMLC} -thread -custom -I +lablgtk2 -I ${DESTDIR}/sw/lib/ocaml unix.cma str.cma xml-light.cma lablgtk.cma glibivy-ocaml.cma lib-pprz.cma lablgnomecanvas.cma xlib-pprz.cma threads.cma gtkThread.cmo gtkInit.cmo horizon.cmo strip.cmo pages.cmo speech.cmo plugin.cmo sectors.cmo map2d.cmo editFP.cmo live.cmo particules.cmo gcs.cmo -o gcs
+${OCAMLC} -thread -custom -I +lablgtk2 -I ${DESTDIR}/sw/lib/ocaml unix.cma str.cma xml-light.cma lablgtk.cma glibivy-ocaml.cma lablglade.cma lib-pprz.cma lablgnomecanvas.cma xlib-pprz.cma threads.cma gtkThread.cmo gtkInit.cmo gtk_gcs.cmo horizon.cmo strip.cmo pages.cmo speech.cmo plugin.cmo sectors.cmo map2d.cmo editFP.cmo live.cmo particules.cmo gcs.cmo -o gcs
 
 cd ${DESTDIR}/sw/logalizer
-${OCAMLC} -custom -I +lablgtk2 -I ${DESTDIR}/sw/lib/ocaml unix.cma str.cma xml-light.cma lablgtk.cma glibivy-ocaml.cma lib-pprz.cma gtkInit.cmo play.cmo -o play
+${OCAMLC} -custom -I +lablgtk2 -I ${DESTDIR}/sw/lib/ocaml unix.cma str.cma xml-light.cma lablgtk.cma glibivy-ocaml.cma lib-pprz.cma gtkInit.cmo log_file.cmo play.cmo -o play
 ${OCAMLC} -custom -I +lablgtk2 -I ${DESTDIR}/sw/lib/ocaml -o plotter unix.cma str.cma xml-light.cma glibivy-ocaml.cma -I +lablgtk2 -I ../lib/ocaml lablgtk.cma lib-pprz.cma gtkInit.cmo plotter.cmo
-${OCAMLOPT} -I +lablgtk2 -I ${DESTDIR}/sw/lib/ocaml -o plot unix.cmxa str.cmxa xml-light.cmxa glibivy-ocaml.cmxa -I +lablgtk2 -I ../lib/ocaml lablgtk.cmxa lib-pprz.cmxa gtkInit.cmx plot.cmx
+${OCAMLOPT} -I +lablgtk2 -I ${DESTDIR}/sw/lib/ocaml -o plot unix.cmxa str.cmxa xml-light.cmxa glibivy-ocaml.cmxa -I +lablgtk2 -I ../lib/ocaml lablgtk.cmxa lib-pprz.cmxa gtkInit.cmx log_file.cmx plot.cmx
 
 cd ${DESTDIR}/sw/simulator
 ${OCAMLC} -custom -I +lablgtk2 -I ${DESTDIR}/sw/lib/ocaml unix.cma str.cma xml-light.cma lablgtk.cma glibivy-ocaml.cma lib-pprz.cma gtkInit.cmo gaia.cmo -o gaia

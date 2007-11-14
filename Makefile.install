@@ -17,9 +17,10 @@ post_install :
 install_data:
 	$(INSTALL) -d $(DESTDIR)/data/maps
 	$(INSTALLDATA) data/maps/*.xml data/maps/*.gif $(DESTDIR)/data/maps
-	$(INSTALL) -d $(DESTDIR)/data/pictures
+	$(INSTALL) -d $(DESTDIR)/data/pictures/gcs_icons
 	$(INSTALLDATA) var/maps/trtqtttqtsrrt*.jpg $(DESTDIR)/data/maps
 	$(INSTALLDATA) data/pictures/*.gif data/pictures/*.svg data/pictures/*.jpg data/pictures/*.png $(DESTDIR)/data/pictures
+	$(INSTALLDATA) data/pictures/gcs_icons/*.png $(DESTDIR)/data/pictures/gcs_icons
 	$(INSTALL) -d $(PREFIX)/usr/share/pixmaps
 	$(INSTALLDATA) data/pictures/penguin_icon.png $(PREFIX)/usr/share/pixmaps/paparazzi.png
 	$(INSTALL) -d $(DESTDIR)/data/srtm
@@ -38,7 +39,7 @@ install_conf:
 	$(INSTALLDATA) conf/airframes/microjet5.xml $(DESTDIR)/conf/airframes
 	$(INSTALLDATA) conf/airframes/twinstar1.xml $(DESTDIR)/conf/airframes
 	$(INSTALLDATA) conf/airframes/twinjet1.xml $(DESTDIR)/conf/airframes
-	$(INSTALLDATA) conf/airframes/plaster1.xml $(DESTDIR)/conf/airframes
+	$(INSTALLDATA) conf/airframes/booz.xml $(DESTDIR)/conf/airframes
 	$(INSTALL) -d $(DESTDIR)/conf/autopilot
 	$(INSTALLDATA) conf/autopilot/*.makefile $(DESTDIR)/conf/autopilot
 	$(INSTALLDATA) conf/autopilot/*.h $(DESTDIR)/conf/autopilot
@@ -63,7 +64,7 @@ install_conf:
 	$(INSTALL) -d $(DESTDIR)/conf/gcs
 	$(INSTALLDATA) conf/gcs/layout.dtd $(DESTDIR)/conf/gcs
 	$(INSTALLDATA) conf/gcs/*.xml $(DESTDIR)/conf/gcs
-	$(INSTALL) -d $(PREFIX)/etc/udev
+	$(INSTALL) -d $(PREFIX)/etc/udev/rules.d
 	$(INSTALLDATA) conf/system/udev/rules/*.rules $(PREFIX)/etc/udev/rules.d
 	$(INSTALL) -d $(PREFIX)/etc/modprobe.d
 	$(INSTALLDATA) conf/system/modprobe.d/paparazzi $(PREFIX)/etc/modprobe.d
@@ -83,7 +84,8 @@ install_bin:
 	$(INSTALL) -d  $(DESTDIR)/sw/ground_segment/cockpit
 	$(INSTALL) -d  $(DESTDIR)/sw/ground_segment/tmtc
 	$(INSTALL) -d  $(DESTDIR)/sw/ground_segment/multimon
-	$(INSTALL) sw/ground_segment/cockpit/*.cmo $(DESTDIR)/sw/ground_segment/cockpit
+	$(INSTALLDATA) sw/ground_segment/cockpit/*.cmo $(DESTDIR)/sw/ground_segment/cockpit
+	$(INSTALLDATA) sw/ground_segment/cockpit/gcs.glade $(DESTDIR)/sw/ground_segment/cockpit
 	$(INSTALLDATA) sw/ground_segment/tmtc/*.cmo $(DESTDIR)/sw/ground_segment/tmtc
 	$(INSTALLDATA) sw/ground_segment/multimon/multimon.cma $(DESTDIR)/sw/ground_segment/multimon
 	$(INSTALLDATA) sw/ground_segment/multimon/libmultimon.a $(DESTDIR)/sw/ground_segment/multimon
