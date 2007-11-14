@@ -400,14 +400,18 @@ let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id
 	  let icon = Xml.attrib block "strip_icon" in
 	  let b = GButton.button () in
 	  let pixbuf = GdkPixbuf.from_file (Env.gcs_icons_path // icon) in
-	ignore (GMisc.image ~pixbuf ~packing:b#add ());
-
+	  ignore (GMisc.image ~pixbuf ~packing:b#add ());
+	  
 	  (* Associates the label as a tooltip *)
 	  tooltips#set_tip b#coerce ~text:label;
 	  b
 	with
 	  Xml.No_attribute _ -> (* It's not an icon *)
-            GButton.button ~label () in
+            GButton.button ~label ()
+	| exc ->
+	    fprintf stderr "Error: '%s' Using a standard button" (Printexc.to_string exc);
+	    GButton.button ~label ()
+      in
       strip#add_widget b#coerce;
       ignore (b#connect#clicked (fun _ -> jump_to_block ac_id id))
     with

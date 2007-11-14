@@ -252,8 +252,13 @@ let add = fun config color center_ac mark ->
   (* Buttons : setting the icons (the path of the icon is not saved by glade) *)
   List.iter (fun (b, icon) ->
     b#remove b#child;
-    let pixbuf = GdkPixbuf.from_file (Env.gcs_icons_path // icon) in
-    ignore (GMisc.image ~pixbuf ~packing:b#add ()))
+    try
+      let pixbuf = GdkPixbuf.from_file (Env.gcs_icons_path // icon) in
+      ignore (GMisc.image ~pixbuf ~packing:b#add ())
+    with
+      exc ->
+	fprintf stderr "Error: %s\n" (Printexc.to_string exc);
+	ignore (GMisc.label ~text:"?" ~packing:b#add ()))
     [ strip#button_launch, "launch.png";
       strip#button_kill, "kill.png";
       strip#button_resurrect, "resurrect.png";
