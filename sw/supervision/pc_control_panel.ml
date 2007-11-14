@@ -172,6 +172,7 @@ let supervision = fun ?file gui log (ac_combo : Utils.combo) ->
       sessions in
 
   register_custom_sessions ();
+  Utils.select_in_combo session_combo "Simulation";
 
   let execute_custom = fun session_name ->
     let session = Hashtbl.find sessions session_name in
