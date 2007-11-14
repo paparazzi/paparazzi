@@ -238,6 +238,8 @@ module Make(AircraftItl : AIRCRAFT_ITL) = struct
       s#misc#set_sensitive false;
       boot () in
 
+    autoboot := !autoboot || !autolaunch;
+
     if not !autoboot then begin
       let s = GButton.button ~label:"Boot" ~packing:(hbox#pack) () in
       let callback = fun () ->
