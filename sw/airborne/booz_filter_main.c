@@ -44,8 +44,8 @@ STATIC_INLINE void booz_filter_main_init( void ) {
   uart1_init_tx();
   adc_init();
 
-  i2c_init();
-  ami601_init();
+  //  i2c_init();
+  //  ami601_init();
 #endif
   imu_v3_init();
 
