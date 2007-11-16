@@ -24,6 +24,9 @@
       <arg flag="-b" variable="ivy_bus"/>
     </program>
 
+    <program name="Flight Plan Editor" command="sw/ground_segment/cockpit/gcs -edit">
+    </program>
+
     <program name="Messages" command="sw/ground_segment/tmtc/messages">
       <arg flag="-b" variable="ivy_bus"/>
     </program>
