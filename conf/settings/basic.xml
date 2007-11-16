@@ -23,5 +23,10 @@
       </dl_setting>
       <dl_setting MAX="2" MIN="0" STEP="1" VAR="gps_reset" module="gps_ubx" handler="Reset" shortname="GPS reset"/>
     </dl_settings>
+
+    <dl_settings NAME="Infrared">
+        <dl_setting MAX="0.3" MIN="-0.3" STEP="0.01" VAR="ir_roll_neutral" shortname="roll neutral"/>
+        <dl_setting MAX="0.5" MIN="-0.3" STEP="0.01" VAR="ir_pitch_neutral" shortname="pitch neutral"/>
+    </dl_settings>
   </dl_settings>
 </settings>
