@@ -125,7 +125,11 @@ let load_xml_file = fun geomap editor_frame accel_group xml_file ->
   try
     let xml = Xml.parse_file xml_file in
     ignore (load_xml_fp geomap editor_frame accel_group ~xml_file xml);
-    geomap#fit_to_window ()
+    geomap#fit_to_window ();
+    match GWindow.toplevel geomap#canvas with
+      Some w ->
+	w#set_title (sprintf "%s (%s)" w#title (Filename.basename xml_file))
+    | None -> ()
   with
     Dtd.Prove_error(e) -> loading_error xml_file (Dtd.prove_error e)
   | Dtd.Check_error(e) -> loading_error xml_file (Dtd.check_error e)

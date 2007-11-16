@@ -502,7 +502,8 @@ let _main =
     match !wid with
       None ->
 	let icon = GdkPixbuf.from_file Env.icon_file in
-  	let window = GWindow.window ~icon ~title:"GCS" ~border_width:1 ~width ~height ~allow_shrink:true () in
+	let title = if !edit then "Flight Plan Editor" else "GCS" in
+  	let window = GWindow.window ~icon ~title ~border_width:1 ~width ~height ~allow_shrink:true () in
 	if !maximize then
 	  window#maximize ();
 	if !fullscreen then
