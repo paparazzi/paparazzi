@@ -61,7 +61,7 @@ let one_ac = fun (notebook:GPack.notebook) ac_name ->
 
     (* Show the page *)
     let label = GMisc.label ~text:ac_name () in
-    notebook#append_page ~tab_label:label#coerce settings#widget
+    ignore (notebook#append_page ~tab_label:label#coerce settings#widget)
 
 
 let _ =
