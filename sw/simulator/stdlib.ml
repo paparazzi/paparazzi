@@ -61,7 +61,7 @@ let timer ?scale p f =
       GMain.Timeout.add 
 	dt
 	(fun () -> 
-	  loop next;
+	  ignore (loop next);
 	  f (); 
 	  false) in
   ignore (loop (Unix.gettimeofday()))
