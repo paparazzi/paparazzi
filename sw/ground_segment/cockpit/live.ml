@@ -356,7 +356,8 @@ let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id
   eb#coerce#misc#modify_bg [`NORMAL, `NAME color;`ACTIVE, `NAME color];
 
   (** Put a notebook for this A/C *)
-  let ac_frame = GBin.frame ~packing:(acs_notebook#append_page ~tab_label:eb#coerce) () in
+  let ac_frame = GBin.frame () in
+  ignore (acs_notebook#append_page ~tab_label:eb#coerce ac_frame#coerce);
   let ac_notebook = GPack.notebook ~packing: ac_frame#add () in
   let visible = fun w ->
     ac_notebook#page_num w#coerce = ac_notebook#current_page in      
@@ -420,27 +421,27 @@ let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id
 
   (** Insert the flight plan tab *)
   let fp_label = GMisc.label ~text: "Flight Plan" () in
-  (ac_notebook:GPack.notebook)#append_page ~tab_label:fp_label#coerce fp#window#coerce;
+  ignore ((ac_notebook:GPack.notebook)#append_page ~tab_label:fp_label#coerce fp#window#coerce);
   
   let infrared_label = GMisc.label ~text: "Infrared" () in
-  let infrared_frame = GBin.frame ~show:false ~shadow_type: `NONE
-      ~packing: (ac_notebook#append_page ~tab_label: infrared_label#coerce) () in
+  let infrared_frame = GBin.frame ~show:false ~shadow_type:`NONE () in
+  ignore (ac_notebook#append_page ~tab_label: infrared_label#coerce infrared_frame#coerce);
   let ir_page = new Pages.infrared infrared_frame in
   
   let gps_label = GMisc.label ~text: "GPS" () in
-  let gps_frame = GBin.frame ~shadow_type: `NONE
-      ~packing: (ac_notebook#append_page ~tab_label: gps_label#coerce) () in
+  let gps_frame = GBin.frame ~shadow_type: `NONE () in
+  ignore (ac_notebook#append_page ~tab_label: gps_label#coerce gps_frame#coerce);
   let gps_page = new Pages.gps ~visible gps_frame in
 
   let pfd_label = GMisc.label ~text: "PFD" () in
-  let pfd_frame = GBin.frame ~shadow_type: `NONE
-      ~packing: (ac_notebook#append_page ~tab_label: pfd_label#coerce) () in
+  let pfd_frame = GBin.frame ~shadow_type: `NONE () in
+  ignore (ac_notebook#append_page ~tab_label: pfd_label#coerce pfd_frame#coerce);
   let pfd_page = new Horizon.pfd pfd_frame
   and _pfd_page_num = ac_notebook#page_num pfd_frame#coerce in
 
   let misc_label = GMisc.label ~text: "Misc" () in
-  let misc_frame = GBin.frame ~shadow_type: `NONE
-      ~packing: (ac_notebook#append_page ~tab_label:misc_label#coerce) () in
+  let misc_frame = GBin.frame ~shadow_type: `NONE () in
+  ignore (ac_notebook#append_page ~tab_label:misc_label#coerce misc_frame#coerce);
   let misc_page = new Pages.misc ~packing:misc_frame#add misc_frame in
 
   let settings_url = Pprz.string_assoc "settings" config in
@@ -461,7 +462,7 @@ let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id
       let settings_tab = new Pages.settings ~visible xml_settings dl_setting_callback (fun x -> strip#add_widget x) in
 
       let tab_label = (GMisc.label ~text:"Settings" ())#coerce in
-      ac_notebook#append_page ~tab_label settings_tab#widget;
+      ignore (ac_notebook#append_page ~tab_label settings_tab#widget);
       Some settings_tab
     with exc ->
       log alert ac_id (Printexc.to_string exc);
@@ -475,7 +476,7 @@ let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id
       else
 	let settings_tab = new Pages.rc_settings ~visible xml_settings in
 	let tab_label = (GMisc.label ~text:"RC Settings" ())#coerce in
-	ac_notebook#append_page ~tab_label settings_tab#widget;
+	ignore (ac_notebook#append_page ~tab_label settings_tab#widget);
 	Some settings_tab
     with _ -> None in
 

@@ -106,10 +106,9 @@ let one_page = fun sender class_name (notebook:GPack.notebook) bind m ->
       in
       try
 	let pos = loop 0 in
-	notebook#insert_page ~pos ~tab_label:h#coerce v#coerce
+	ignore (notebook#insert_page ~pos ~tab_label:h#coerce v#coerce)
       with _ ->
-	notebook#append_page ~tab_label:h#coerce v#coerce;
-	
+	ignore (notebook#append_page ~tab_label:h#coerce v#coerce)
     end;
     time_since_last := 0;
     try
@@ -144,7 +143,7 @@ let rec one_class = fun (notebook:GPack.notebook) (ident, xml_class, sender) ->
       let class_notebook = GPack.notebook ~tab_border:0 ~tab_pos:`LEFT () in
       let l = match sender with None -> "" | Some s -> ":"^s in
       let label = GMisc.label ~text:(ident^l) () in
-      notebook#append_page ~tab_label:label#coerce class_notebook#coerce;
+      ignore (notebook#append_page ~tab_label:label#coerce class_notebook#coerce);
       let bind, sender_name = match sender with
 	None -> (fun m cb -> (P.message_bind m cb)), "*"
       | Some sender -> (fun m cb -> (P.message_bind ~sender m cb)), sender in
