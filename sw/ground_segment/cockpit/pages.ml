@@ -342,7 +342,7 @@ let rec build_settings = fun do_change i flat_list xml_settings packing tooltips
 	  let vbox = GPack.vbox  () in
 	  
 	  let tab_label = (GMisc.label ~text ())#coerce in
-	  n#append_page ~tab_label vbox#coerce;
+	  ignore (n#append_page ~tab_label vbox#coerce);
 
 	  build_settings do_change i flat_list (Xml.children p) vbox#pack tooltips strip)
 	  xml_settings
