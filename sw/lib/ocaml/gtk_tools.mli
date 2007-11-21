@@ -262,13 +262,6 @@ val change_scrolled_box :
    différentes pages *)
 val create_notebook : (GObj.widget -> unit) -> GPack.notebook
 
-(** [gtk_tools_notebook_add_page notebook page_label] ajoute une page nommée
-   [page_label] au notebook indiqué. En retour un couple contenant une frame
-   et une boite verticale dans cette frame est retourné *)
-val notebook_add_page :
-  GPack.notebook -> string -> GBin.frame * GPack.box
-
-
 (** {0 Paned windows} *)
 
 

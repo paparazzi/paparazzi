@@ -460,17 +460,6 @@ let change_scrolled_box scrolled_window old_box =
 let create_notebook pack_method =
   GPack.notebook ~scrollable:true ~packing:pack_method ()
 
-(* ============================================================================= *)
-(* = Ajout d'une page a un notebook                                            = *)
-(* =                                                                           = *)
-(* = notebook   = le notebook ou ajouter la page                               = *)
-(* = page_label = nom de la page                                               = *)
-(* ============================================================================= *)
-let notebook_add_page notebook page_label =
-  let lbl = GMisc.label ~text:page_label () in
-  let f = GBin.frame ~packing:((notebook:GPack.notebook)#append_page
-								 ~tab_label:lbl#coerce) () in
-  (f, create_vbox f#add)
 
 (* ============================================================================= *)
 (* = Creation d'un paned (division mobile entre deux zones d'une fenetre)      = *)
