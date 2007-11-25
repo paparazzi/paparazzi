@@ -30,7 +30,7 @@ VAR = ../../../var
 all: link server messages settings dia diadec $(VAR)/boa.conf
 
 clean:
-	rm -f link server messages *.bak *~ core *.o .depend *.opt *.out *.cm*
+	rm -f link server messages settings dia diadec *.bak *~ core *.o .depend *.opt *.out *.cm*
 
 OCAMLC = ocamlc
 OCAMLOPT = ocamlopt

@@ -92,7 +92,7 @@ hdlc.cmo : hdlc.cmi
 	$(OCAMLC) $<
 
 clean:
-	rm -fr *.cm*
+	rm -fr *.cm* mkcostab
 	$(RM) -f core `find . -name '*.[oas]' -print`
 	$(RM) -f core `find . -name 'core' -print`
 	$(RM) -f core costabi.c costabf.c *~
