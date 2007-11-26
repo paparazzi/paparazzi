@@ -1,0 +1,232 @@
+My RootFS v0.1+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+U-Boot 1.1.1 (Dec 21 2006 - 10:07:00)
+
+U-Boot code: 81EC0000 -> 81EE7F5C  BSS: -> 81EE97B4
+SDRAM : 32M detected 
+RAM Configuration:
+Bank #0: 80000000 31 MB
+Bank #1: 00000000  0 kB
+Flash:  0 kB
+NAND:NAND device: Manufacturer ID: 0x20, Chip ID: 0x35 (ST Micro NAND 32MiB 1,8V 8-bit)
+Scanning device for bad blocks
+Bad eraseblock 218 at 0x00368000
+Bad eraseblock 882 at 0x00dc8000
+Using default environment
+
+In:    serial
+Out:   serial
+Err:   serial
+Hit any key to stop autoboot:  0 
+Boot reached stage 1
+## Booting image at 80600000 ...
+Boot reached stage 2
+Boot reached stage 3
+   Image Name:   Linux-2.6.10
+   Image Type:   ARM Linux Kernel Image (uncompressed)
+   Data Size:    887972 Bytes = 867.2 kB
+   Load Address: 80008000
+   Entry Point:  80008000
+Boot reached stage 4
+Boot reached stage 5
+Boot reached stage 6
+OK
+Boot reached stage 7
+Boot reached stage 8
+Boot reached stage 14
+Boot reached stage 15
+
+Starting kernel ...
+
+Uncompressing Linux........................................................... done, booting the kernel.
+Linux version 2.6.10 (root@localhost.localdomain) (gcc version 3.4.0 20040409 (CodeSourcery ARM Q1 2004)) #1 Thu Dec 21 10:23:48 CST 2006
+CPU: ARM926EJ-Sid(wt)RR [41069264] revision 4 (ARMv5TEJ)
+CPU: D VIVT write-back cache
+CPU: I cache: 32768 bytes, associativity 4, 32 byte lines, 256 sets
+CPU: D cache: 32768 bytes, associativity 4, 32 byte lines, 256 sets
+Machine: LPC3180
+serial : early init
+Memory policy: ECC disabled, Data cache writethrough
+Built 1 zonelists
+Kernel command line: console=ttyS0,115200n8 root=/dev/ram initrd=0x80800000,12M
+Interrupt masks are setup
+PID hash table entries: 128 (order: 7, 2048 bytes)
+Console: colour dummy device 80x30
+Dentry cache hash table entries: 4096 (order: 2, 16384 bytes)
+Inode-cache hash table entries: 2048 (order: 1, 8192 bytes)
+Memory: 31MB = 31MB total
+Memory: 17280KB available (1450K code, 299K data, 88K init)
+Mount-cache hash table entries: 512 (order: 0, 4096 bytes)
+CPU: Testing write buffer coherency: ok
+checking if image is initramfs...it isn't (no cpio magic); looks like an initrd
+Freeing initrd memory: 12288K
+NET: Registered protocol family 16
+late serial init
+serial : late init
+SD/MMC card sense IRQ=91
+start_module_gpio:601: LPC3180 GPIO driver
+start_module_gpio:602: Debug Level 0
+start_module_gpio:589: GPIO Userspace driver
+start_module_gpio:590: Debug Level 0
+SCSI subsystem initialized
+usbcore: registered new driver usbfs
+usbcore: registered new driver hub
+LPC3180 I2C-0: Master at 0xc0199780, irq 51.
+USB I2C-0: Master at 0xc0199980, irq 63.
+NetWinder Floating Point Emulator V0.97 (double precision)
+Serial: 8250/16550 driver $Revision$ 4 ports, IRQ sharing disabled
+ttyS0 at MMIO 0x0 (irq = 9) is a 16550A
+ttyS1 at MMIO 0x0 (irq = 7) is a IP3106
+ttyS2 at MMIO 0x0 (irq = 8) is a IP3106
+ttyS3 at MMIO 0x0 (irq = 10) is a IP3106
+io scheduler noop registered
+io scheduler anticipatory registered
+io scheduler deadline registered
+io scheduler cfq registered
+RAMDISK driver initialized: 16 RAM disks of 12288K size 1024 blocksize
+loop: loaded (max 8 devices)
+elevator: using anticipatory as default io scheduler
+nbd: registered device at major 43
+mice: PS/2 mouse device common for all mice
+i2c /dev entries driver
+Obelix: Driver for nxpp platform only
+
+NET: Registered protocol family 2
+IP: routing cache hash table of 512 buckets, 4Kbytes
+TCP: Hash tables configured (established 2048 bind 4096)
+NET: Registered protocol family 1
+NET: Registered protocol family 17
+VFP support v0.3: implementor 41 architecture 1 part 10 variant 9 rev 1
+RAMDISK: Compressed image found at block 0
+VFS: Mounted root (ext2 filesystem).
+Freeing init memory: 88K
+INIT: version 2.85 booting
+dma-core : dma core init
+ARM PLL080 DMA Controller: Address = 31000000, irq = 28
+DMA Controller setup: 16 requestors,
+                      32-bit wide bus,
+                      2 master interfaces,
+                      8 channels
+lpc3180_kbd: Requesting IO Region: 40050000 - 0080
+
+lpc3180_kbd: Memory mapped to c2006000
+
+lpc3180_kbd: creating proc entry
+
+keyboard-lpc3180: driver running on platform=lpc3180
+lpc3180_kbd: Setting up registers
+
+lpc3180_kbd: initialising driver
+
+lpc3180_kbd: registering device
+
+lpc3180_kbd: lpc3180 keyboard open called
+
+sysfs entry reg
+lpc3180_kbd: LPC3180 keyboard driver initialized
+
+LPC3180 Event Router driver
+Debug Level 1
+Requesting IO Region: 4000C000 - 0018
+Memory mapped to c2008000
+Requesting IO Region: 40010000 - 0018
+Memory mapped to c200a000
+Requesting IO Region: 40008000 - 0018
+MIC Memory mapped to c200c000
+gpio_leds : driver compiled Dec 21 2006 at 10:21:21
+Initializing USB Mass Storage driver...
+usbcore: registered new driver usb-storage
+USB Mass Storage support registered.
+usbcore: registered new driver usbhid
+drivers/usb/input/hid-core.c: v2.0:USB HID core driver
+About to register ohci_hcd_lpc3180_driver
+About to register ip3506_ohci
+ohci ohci1: at 0xf1020000, irq 59
+init_otg_dualrole_fsm
+usbcore: registered new driver catc
+drivers/usb/net/catc.c: v2.8 CATC EL1210A NetMate USB Ethernet driver
+usbcore: registered new driver kaweth
+drivers/usb/net/rtl8150.c: rtl8150 based usb-ethernet driver v0.6.2 (2004/08/27)
+usbcore: registered new driver rtl8150
+usbcore: registered new driver usbnet
+drivers/usb/net/pegasus.c: v0.5.12 (2003/06/06):Pegasus/Pegasus II USB Ethernet driver
+usbcore: registered new driver pegasus
+spi-lpc3180: SPI Test Dec 21 2006 CS driver running on platform=premo
+Found clock frequency for spi-1 is 104000000
+initialising CS table
+Found clock frequency for spi-2 is 104000000
+initialising CS table
+isp1301_generic 1-002d: chiprev 2.10, driver 26 May 2006
+pshs_uart probe: Using 7 dma req for TX and 8 dma req for RX
+ttyPSHS0 at MMIO 0x40018000 (irq = 25) is a PSHS
+pshs_uart probe: Using 9 dma req for TX and 10 dma req for RX
+ttyPSHS1 at MMIO 0x4001c000 (irq = 25) is a PSHS
+pshs_uart probe: Using 5 dma req for TX and 6 dma req for RX
+ttyPSHS2 at MMIO 0x40014000 (irq = 25) is a PSHS
+usbcore: registered new driver usbserial
+drivers/usb/serial/usb-serial.c: USB Serial Driver core v2.0
+drivers/usb/serial/usb-serial.c: USB Serial support registered for FTDI SIO
+drivers/usb/serial/usb-serial.c: USB Serial support registered for FTDI 8U232AM Compatible
+drivers/usb/serial/usb-serial.c: USB Serial support registered for FTDI FT232BM Compatible
+drivers/usb/serial/usb-serial.c: USB Serial support registered for FTDI FT2232C Compatible
+drivers/usb/serial/usb-serial.c: USB Serial support registered for USB-UIRT Infrared Tranceiver
+drivers/usb/serial/usb-serial.c: USB Serial support registered for Home-Electronics TIRA-1 IR Transceiver
+usbcore: registered new driver ftdi_sio
+drivers/usb/serial/ftdi_sio.c: v1.4.1:USB FTDI Serial Converters Driver
+drivers/usb/serial/usb-serial.c: USB Serial support registered for PL-2303
+usbcore: registered new driver pl2303
+drivers/usb/serial/pl2303.c: Prolific PL2303 USB to serial adaptor driver v0.12
+usb_register_udc returned 0
+USB probe done
+gs_module_init: Gadget Serial v2.0 loaded
+ip3506: start_otg_ip3506
+
+ip3506: ip3506_otg_probe
+
+data->container = c0229244
+host = 1
+a_bus_req = 1
+gadget = 1
+id = 1
+ip3503_udc_notification: reason 0
+spi_init
+SPI : setting spi-1 control to 804E93
+Adapter c1b36078 Adapter spi-1  process c057faa0
+spi-lpc : Adapter spi-1 registered at 20088000 using irq 55
+SPI : setting spi-2 control to 804E93
+Adapter c168cce0 Adapter spi-2  process c057f820
+spi-lpc : Adapter spi-2 registered at 20090000 using irq 44
+spi-lpc : Driver version 1.5 registered
+setting divider code to 18 (ratio=38) using base clock = 104000000 freq out 2736842
+spi_readtest_init
+done spi_readtest_init
+NAND device: Manufacturer ID: 0x20, Chip ID: 0x35 (ST Micro NAND 32MiB 1,8V 8-bit)
+Scanning device for bad blocks
+Bad eraseblock 218 at 0x00368000
+Bad eraseblock 882 at 0x00dc8000
+Creating 1 MTD partitions on "NAND 32MiB 1,8V 8-bit":
+0x01000000-0x01f00000 : "LPC3180 NAND PART 0"
+CSLIP: code copyright 1989 Regents of the University of California
+PPP generic driver version 2.4.2
+PPP Deflate Compression module registered
+PPP BSD Compression module registered
+mmc-lpc3180: mmc/sd driver running on platform=lpc3180
+: MMCI rev 0 cfg 00 at 0x20098000 irq 15,13
+: host does not support reading read-only switch. assuming write-enable.
+mmcblk0: :e624 SD01G 992000KiB 
+ mmcblk0: p1
+JFFS2 version 2.2. (NAND) (C) 2001-2003 Red Hat, Inc.
+Installing knfsd (copyright (C) 1996 okir@monad.swb.de).
+running on [console=ttyS0,115200n8 root=/dev/ram initrd=0x80800000,12M]
+Mounting SD/USB storage
+VFS: Can't find an ext2 filesystem on dev mmcblk0p1.
+/dev/mmcblk0p1 on /mnt/mmc type vfat (rw)
+SD card mounted successfully
+No USB storage or unknown filesystem
+INIT: Entering runlevel: 2
+Creating the the /var/dev/ttySA* links
+Starting internet superserver: inetd.
+
+Copacabana - ARM Embedded Linux version 1.1-vfp
+Monday 20 December 2004 @ 20:40
+(none) login: 
