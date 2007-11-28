@@ -176,7 +176,8 @@ let center = fun geomap track () ->
   match track#last with
     None -> ()
   | Some geo ->
-      geomap#center geo
+      geomap#center geo;
+      geomap#canvas#misc#draw None
 
 
 let blocks_of_stages = fun stages ->
