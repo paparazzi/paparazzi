@@ -1,26 +1,25 @@
 <!DOCTYPE flight_plan SYSTEM "flight_plan.dtd">
 
-<flight_plan alt="75" ground_alt="0" lat0="43.4622" lon0="1.2729" max_dist_from_home="1500" name="Basic" security_height="25">
+<flight_plan alt="75" ground_alt="0" lat0="34.64569" lon0="-86.70074" max_dist_from_home="1500" name="Basic" security_height="25">
   <header>
 #include "nav_line.h"
 #include "datalink.h"
 </header>
   <waypoints>
     <waypoint name="HOME" x="0" y="0"/>
-    <waypoint name="STDBY" x="20" y="80"/>
-    <waypoint name="1" x="44.8" y="102.2"/>
-    <waypoint name="2" x="-63.5" y="122.9"/>
-    <waypoint name="MOB" x="-11.5" y="-21.2"/>
-    <waypoint name="S1" x="-151.6" y="80.4"/>
-    <waypoint name="S2" x="180.1" y="214.9"/>
-    <waypoint alt="30" name="AF" x="200" y="-10"/>
-    <waypoint name="TOD" x="8.0" y="-22.7"/>
-    <waypoint alt="0" name="TD" x="80.0" y="20.0"/>
-    <waypoint name="BASELEG" x="26.9" y="-23.0"/>
-    <waypoint name="CLIMB" x="-122.5" y="35.4"/>
+    <waypoint name="STDBY" x="9.4" y="162.3"/>
+    <waypoint name="1" x="82.2" y="205.2"/>
+    <waypoint name="2" x="219.2" y="217.2"/>
+    <waypoint name="MOB" x="146.6" y="-37.0"/>
+    <waypoint name="S1" x="-135.8" y="1.0"/>
+    <waypoint name="S2" x="295.2" y="359.6"/>
+    <waypoint alt="30.0" name="AF" x="177.4" y="45.1"/>
+    <waypoint name="TOD" x="168.7" y="-65.4"/>
+    <waypoint alt="0.0" name="TD" x="-28.0" y="86.8"/>
+    <waypoint name="BASELEG" x="137.6" y="-51.0"/>
+    <waypoint name="CLIMB" x="-114.5" y="162.3"/>
   </waypoints>
-  <exceptions>
-  </exceptions>
+  <exceptions/>
   <blocks>
     <block name="Wait GPS">
       <set value="1" var="kill_throttle"/>
@@ -34,11 +33,11 @@
       <set value="1" var="kill_throttle"/>
       <attitude roll="0" throttle="0" vmode="throttle"/>
     </block>
-    <block name="Takeoff" strip_icon="takeoff.png" strip_button="Takeoff (wp CLIMB)">
+    <block name="Takeoff" strip_button="Takeoff (wp CLIMB)" strip_icon="takeoff.png">
       <exception cond="estimator_z > ground_alt+25" deroute="Standby"/>
       <set value="0" var="kill_throttle"/>
       <set value="0" var="estimator_flight_time"/>
-      <go wp="CLIMB"/>
+      <go wp="CLIMB" from="HOME"/>
     </block>
     <block name="Standby" strip_button="Standby" strip_icon="home.png">
       <circle radius="nav_radius" wp="STDBY"/>
@@ -55,7 +54,7 @@
       <circle radius="nav_radius" wp="MOB"/>
     </block>
     <block name="Line 1-2" strip_button="Line (wp 1-2)" strip_icon="line.png">
-    <exception cond="datalink_time > 22" deroute="Standby"/>
+      <exception cond="datalink_time > 22" deroute="Standby"/>
       <call fun="nav_line_init()"/>
       <call fun="nav_line(WP_1, WP_2, nav_radius)"/>
     </block>
@@ -73,11 +72,11 @@
     <block name="land">
       <call fun="nav_compute_baseleg(WP_AF, WP_TD, WP_BASELEG, nav_radius)"/>
       <circle radius="nav_radius" until="NavCircleCount() > 0.5" wp="BASELEG"/>
-      <set value="V_CTL_AUTO_THROTTLE_MIN_CRUISE_THROTTLE" var="v_ctl_auto_throttle_cruise_throttle"/>
       <circle radius="nav_radius" until="NavQdrCloseTo(DegOfRad(baseleg_out_qdr)-10) && 10 > fabs(estimator_z - WaypointAlt(WP_BASELEG))" wp="BASELEG"/>
     </block>
     <block name="final">
       <exception cond="ground_alt + 10 > estimator_z" deroute="flare"/>
+<!--      <set value="V_CTL_AUTO_THROTTLE_MIN_CRUISE_THROTTLE" var="v_ctl_auto_throttle_cruise_throttle"/> -->
       <go from="AF" hmode="route" vmode="glide" wp="TD"/>
     </block>
     <block name="flare">

@@ -36,7 +36,7 @@
   </command_laws>
 
   <section name="AUTO1" prefix="AUTO1_">
-    <define name="MAX_ROLL" value="0.9"/>
+    <define name="MAX_ROLL" value="0.7"/>
     <define name="MAX_PITCH" value="0.6"/>
   </section>
 

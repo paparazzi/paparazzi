@@ -5,8 +5,8 @@
 <!-- commands section -->
   <servos>
     <servo name="THROTTLE"      no="0" min="1290" neutral="1290" max="1810"/>
-    <servo name="AILEVON_LEFT"  no="1" min="2000" neutral="1490" max="1000"/>
-    <servo name="AILEVON_RIGHT" no="3" min="1000" neutral="1540" max="2000"/>
+    <servo name="AILEVON_LEFT"  no="1" min="2000" neutral="1385" max="1000"/>
+    <servo name="AILEVON_RIGHT" no="3" min="1000" neutral="1530" max="2000"/>
   </servos>
 
   <commands>
@@ -36,7 +36,7 @@
   </command_laws>
 
   <section name="AUTO1" prefix="AUTO1_">
-    <define name="MAX_ROLL" value="0.9"/>
+    <define name="MAX_ROLL" value="0.7"/>
     <define name="MAX_PITCH" value="0.6"/>
   </section>
 
@@ -126,7 +126,7 @@
     <define name="ALTITUDE_MAX_CLIMB" value="2."/>
 
     <!-- auto throttle inner loop -->
-    <define name="AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE" value="0.32"/>
+    <define name="AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE" value="0.4"/>
     <define name="AUTO_THROTTLE_MIN_CRUISE_THROTTLE" value="0.25"/>
     <define name="AUTO_THROTTLE_MAX_CRUISE_THROTTLE" value="0.65"/>
     <define name="AUTO_THROTTLE_LOITER_TRIM" value="1500"/>
@@ -210,7 +210,7 @@ ap.CFLAGS += -DDOWNLINK -DUSE_UART0 -DDOWNLINK_TRANSPORT=XBeeTransport -DDOWNLIN
 ap.srcs += downlink.c $(SRC_ARCH)/uart_hw.c datalink.c xbee.c
 
 # transparent 
-# ap.CFLAGS += -DDOWNLINK -DUSE_UART0 -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_FBW_DEVICE=Uart0 -DDOWNLINK_AP_DEVICE=Uart0 -DPPRZ_UART=Uart0 -DDATALINK=PPRZ -DUART0_BAUD=B19200
+# ap.CFLAGS += -DDOWNLINK -DUSE_UART0 -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_FBW_DEVICE=Uart0 -DDOWNLINK_AP_DEVICE=Uart0 -DPPRZ_UART=Uart0 -DDATALINK=PPRZ -DUART0_BAUD=B9600
 # ap.srcs += downlink.c $(SRC_ARCH)/uart_hw.c datalink.c pprz_transport.c
 
 

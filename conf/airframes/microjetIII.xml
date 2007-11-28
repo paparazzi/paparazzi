@@ -5,8 +5,8 @@
 <!-- commands section -->
   <servos>
     <servo name="THROTTLE"      no="0" min="1290" neutral="1290" max="1810"/>
-    <servo name="AILEVON_LEFT"  no="1" min="2000" neutral="1505" max="1000"/>
-    <servo name="AILEVON_RIGHT" no="3" min="1000" neutral="1530" max="2000"/>
+    <servo name="AILEVON_LEFT"  no="1" min="2000" neutral="1520" max="1000"/>
+    <servo name="AILEVON_RIGHT" no="3" min="1000" neutral="1545" max="2000"/>
   </servos>
 
   <commands>
@@ -36,7 +36,7 @@
   </command_laws>
 
   <section name="AUTO1" prefix="AUTO1_">
-    <define name="MAX_ROLL" value="0.9"/>
+    <define name="MAX_ROLL" value="0.7"/>
     <define name="MAX_PITCH" value="0.6"/>
   </section>
 
@@ -51,8 +51,8 @@
   </section>
 
   <section name="INFRARED" prefix="IR_">
-    <define name="ROLL_NEUTRAL_DEFAULT" value="-3.6" unit="deg"/>
-    <define name="PITCH_NEUTRAL_DEFAULT" value="3" unit="deg"/>
+    <define name="ROLL_NEUTRAL_DEFAULT" value="0" unit="deg"/>
+    <define name="PITCH_NEUTRAL_DEFAULT" value="0.5" unit="deg"/>
 
     <define name="RAD_OF_IR_CONTRAST" value="0.75"/>
 
@@ -200,7 +200,7 @@ ap.srcs += $(SRC_ARCH)/servos_4015_MAT_hw.c actuators.c
 ap.CFLAGS += -DRADIO_CONTROL -DRADIO_CONTROL_TYPE=RC_FUTABA
 ap.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c  
 
-ap.CFLAGS += -DDOWNLINK -DUSE_UART0 -DDOWNLINK_TRANSPORT=XBeeTransport -DDOWNLINK_FBW_DEVICE=Uart0 -DDOWNLINK_AP_DEVICE=Uart0 -DXBEE_UART=Uart0 -DDATALINK=XBEE -DUART0_BAUD=B19200
+ap.CFLAGS += -DDOWNLINK -DUSE_UART0 -DDOWNLINK_TRANSPORT=XBeeTransport -DDOWNLINK_FBW_DEVICE=Uart0 -DDOWNLINK_AP_DEVICE=Uart0 -DXBEE_UART=Uart0 -DDATALINK=XBEE -DUART0_BAUD=B9600
 ap.srcs += downlink.c $(SRC_ARCH)/uart_hw.c datalink.c xbee.c
 
 # transparent 
