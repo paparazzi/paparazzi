@@ -76,6 +76,10 @@ bool_t nav_line(uint8_t l1, uint8_t l2, float radius) {
  
   float qdr_out_2_2 = -M_PI/3. - atan2(u_y, u_x);
   float qdr_out_2_3 = M_PI - atan2(u_y, u_x);
+
+  /* Vertical target */
+  NavVerticalAutoThrottleMode(0); /* No pitch */
+  NavVerticalAltitudeMode(WaypointAlt(l1), 0.);
  
   switch (line_status) {
   case LR12: /* From wp l2 to wp l1 */
