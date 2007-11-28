@@ -154,8 +154,6 @@
   <section name="NAV">
     <define name="NAV_PITCH" value="0."/>
     <define name="NAV_GLIDE_PITCH_TRIM" value="0"/>
-    <define name="NAV_GROUND_SPEED_PGAIN" value="-0.015"/>
-    <define name="NAV_FOLLOW_PGAIN" value="-0.05"/>
   </section>
 
   <section name="AGGRESSIVE" prefix="AGR_">
