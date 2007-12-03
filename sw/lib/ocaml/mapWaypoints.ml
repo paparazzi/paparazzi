@@ -64,7 +64,7 @@ class waypoint = fun ?(show = true) (wpts_group:group) (name :string) ?(alt=0.) 
   let wpt_group = GnoCanvas.group wpts_group#group in
 
   let item = 
-    GnoCanvas.rect wpt_group ~x1:(-.s) ~y1:(-.s) ~x2:s ~y2:s ~props:[`FILL_COLOR color] in
+    GnoCanvas.rect wpt_group ~x1:(-.s) ~y1:(-.s) ~x2:s ~y2:s ~props:[`FILL_COLOR color; `OUTLINE_COLOR "black"] in
 
   let anim = function
       None ->
