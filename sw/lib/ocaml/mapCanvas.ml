@@ -28,6 +28,7 @@ module LL = Latlong
 open LL
 module G2D = Geometry_2d
 open Printf
+let (//) = Filename.concat
 
 type world = float * float
 
@@ -66,7 +67,8 @@ let mercator_coeff = 5e6
 
 let my_check_menu_item = fun label ~active ~callback ~packing () ->
   let mi = GMenu.check_menu_item ~label ~active ~packing () in
-  ignore (mi#connect#toggled ~callback:(fun () -> callback mi#active))
+  ignore (mi#connect#toggled ~callback:(fun () -> callback mi#active));
+  mi
 
 let my_menu_item = fun label ~callback ~packing () ->
   let mi = GMenu.menu_item ~label ~packing () in
@@ -142,6 +144,8 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
   let _ = file_menu_item#set_submenu file_menu in
   let factory = new GMenu.factory menubar in
 
+  let toolbar = GPack.hbox ~packing:top_bar#pack () in
+
   let info = GPack.hbox ~packing:top_bar#pack () in
 
   let spin_button = GEdit.spin_button  ~rate:0. ~digits:2 ~width:50 (*** ~height:20 ***) ~packing:top_bar#pack () in
@@ -176,6 +180,8 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
 (** GUI attributes *)
 
     val background = background
+    val toolbar = toolbar
+    method toolbar = toolbar
     method background = background
     method still = still
     method top_still = 3.5*.s
@@ -246,6 +252,8 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
     initializer (
 
       spin_button#set_adjustment adj;
+
+      ignore (GMisc.separator ~packing:(toolbar#pack ~from:`END) `VERTICAL ());
 
 (** callback bindings *)
 
@@ -467,6 +475,9 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
 	last_mouse_y <- truncate yc - y
       end;
       false
+
+    method switch_background = fun x -> if x then background#show () else background#hide ()
+     
 	  
    method key_press = fun ev ->
       let (x, y) = canvas#get_scroll_offsets in
@@ -627,14 +638,29 @@ class widget =  fun ?(height=800) ?width ?projection ?georef () ->
       self#info#pack lbl_geo#coerce;
       self#info#pack lbl_alt#coerce;
       self#info#pack lbl_group#coerce;
-      
+
     initializer (
       self#pack_labels;
       self#file_menu#append (srtm :> GMenu.menu_item);
-      my_check_menu_item "UTM Grid" ~active:false ~callback:self#switch_utm_grid ~packing:self#file_menu#append ();
-      my_check_menu_item "Background" ~active:true ~callback:self#switch_background ~packing:self#file_menu#append ();
+      ignore (my_check_menu_item "UTM Grid" ~active:false ~callback:self#switch_utm_grid ~packing:self#file_menu#append ());
+      let bg_menu = my_check_menu_item "Background" ~active:true ~callback:self#switch_background ~packing:self#file_menu#append () in
+
+      let tooltips = GData.tooltips () in
+      
+      let b = GButton.button ~packing:toolbar#add () in
+      ignore (b#connect#clicked (fun _ -> bg_menu#activate ()));
+      let pixbuf = GdkPixbuf.from_file (Env.gcs_icons_path // "switch_background.png") in
+      ignore (GMisc.image ~pixbuf ~packing:b#add ());
+      tooltips#set_tip b#coerce ~text:"Toggle background";
+
       my_menu_item "Goto" ~callback:self#goto ~packing:self#file_menu#append ();
-      my_menu_item "Fit to window (f)" ~callback:self#fit_to_window ~packing:self#file_menu#append ();
+
+      let callback = self#fit_to_window in
+      my_menu_item "Fit to window (f)" ~callback ~packing:self#file_menu#append ();
+      let b = GButton.button ~packing:toolbar#add () in
+      ignore (b#connect#clicked callback);
+      ignore (GMisc.image ~stock:(`STOCK "gtk-zoom-fit") ~packing:b#add ());
+      tooltips#set_tip b#coerce ~text:"Fit to window";
 
       let callback = fun () -> selected_georef <- None in
       my_menu_item "WGS84" ~packing:georef_menu#append ~callback ();
@@ -709,9 +735,6 @@ class widget =  fun ?(height=800) ?width ?projection ?georef () ->
 	
     method display_group = fun s ->  lbl_group#set_text s
 	
-
-    method switch_background = fun x -> if x then background#show () else background#hide ()
-
     method goto = fun () ->
       match GToolbox.input_string ~title:"Geo ref" ~text:"WGS84 " "Geo ref" with
 	Some s ->

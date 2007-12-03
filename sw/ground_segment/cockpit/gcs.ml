@@ -399,7 +399,17 @@ let create_geomap = fun window switch_fullscreen editor_frame ->
   ignore (map_menu_fact#add_item "Load" ~key:GdkKeysyms._M ~callback:(load_map geomap));
   if !edit then
     ignore (map_menu_fact#add_item "Calibrate" ~key:GdkKeysyms._C ~callback:(EditFP.calibrate_map geomap editor_frame accel_group));
-  ignore (map_menu_fact#add_item "GoogleMaps Fill" ~key:GdkKeysyms._G ~callback:(fun _ -> GM.fill_tiles geomap));
+
+  (* Google fill menu entry and toolbar button *)
+  let callback = fun _ -> GM.fill_tiles geomap in
+  ignore (map_menu_fact#add_item "GoogleMaps Fill" ~key:GdkKeysyms._G ~callback);
+  let b = GButton.button ~packing:geomap#toolbar#add () in
+  ignore (b#connect#clicked callback);
+  let pixbuf = GdkPixbuf.from_file (Env.gcs_icons_path // "googleearth.png") in
+  ignore (GMisc.image ~pixbuf ~packing:b#add ());
+  let tooltips = GData.tooltips () in    
+  tooltips#set_tip b#coerce ~text:"Google maps fill";
+
   ignore (map_menu_fact#add_check_item "GoogleMaps Http" ~key:GdkKeysyms._H ~active:true ~callback:GM.active_http);
   ignore (map_menu_fact#add_check_item "GoogleMaps Auto" ~active:!GM.auto ~callback:(GM.active_auto geomap));
   ignore (map_menu_fact#add_item "Map of Region" ~key:GdkKeysyms._R ~callback:(map_from_region geomap));
