@@ -69,11 +69,13 @@ let fg_client = ref ""
 
 let autoboot = ref false
 let autolaunch = ref false
+let noground = ref false
 
 let common_options = [
   "-b", Arg.Set_string ivy_bus, "Bus\tDefault is 127.255.255.25:2010";
   "-boot", Arg.Set autoboot, "Boot the A/C on start";
   "-launch", Arg.Set autolaunch, "Launch the A/C on start";
+  "-noground", Arg.Set noground, "Disable ground detection";
   "-fg", Arg.Set_string fg_client, "Flight gear client address"
 ]
 
@@ -154,7 +156,17 @@ module Make(AircraftItl : AIRCRAFT_ITL) = struct
 
     let fm_task = fun () ->
       FM.do_commands !state commands;
-      FM.state_update !state FM.nominal_airspeed (!wind_x, !wind_y) fm_period
+      let agl =
+	if !noground then max_float
+	else
+	  match !last_gps_state with
+	    Some s ->
+	      begin
+		try s.Gps.alt -. float (Srtm.of_wgs84 s.Gps.wgs84) with
+		  _ -> s.Gps.alt
+	      end
+	  | None -> 0. in
+      FM.state_update !state FM.nominal_airspeed (!wind_x, !wind_y) agl fm_period
        
     and ir_task = fun () ->
       let phi, theta, _ = FlightModel.get_attitude !state in

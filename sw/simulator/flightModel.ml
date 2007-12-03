@@ -157,12 +157,12 @@ module Make(A:Data.MISSION) = struct
    http://controls.ae.gatech.edu/papers/johnson_dasc_01.pdf
    http://controls.ae.gatech.edu/papers/johnson_mst_01.pdf
  *)
-  let state_update = fun state nominal_airspeed (wx, wy) dt ->
+  let state_update = fun state nominal_airspeed (wx, wy) agl dt ->
     let now = state.t +. dt in
     if state.air_speed = 0. && state.thrust > 0. then
       state.nominal_air_speed <- nominal_airspeed;
     state.air_speed <- state.nominal_air_speed*.(1.-.sin state.theta);
-    if state.air_speed > 0. then begin
+    if agl >= -1. && state.air_speed > 0. then begin
       let phi_dot_dot = roll_response_factor *. state.delta_a -. state.phi_dot in
       state.phi_dot <- state.phi_dot +. phi_dot_dot *. dt;
       state.phi <- norm_angle (state.phi +. state.phi_dot *. dt);
