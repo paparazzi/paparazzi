@@ -537,6 +537,16 @@
   </message>
 
 
+  <message name="BOOZ_SIM_RANGE_METER" ID="243">
+    <field name="dist"   type="float" unit="adc"/>
+  </message>
+
+  <message name="BOOZ_SIM_WIND" ID="244">
+    <field name="vx"   type="float" unit="m/s"/>
+    <field name="vy"   type="float" unit="m/s"/>
+    <field name="vz"   type="float" unit="m/s"/>
+  </message>
+
   <message name="ENOSE_STATUS" ID="250">
       <field name="val1" type="uint16"/>
       <field name="val2" type="uint16"/>

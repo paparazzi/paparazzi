@@ -18,6 +18,9 @@ static void booz_sensors_model_gyro_run(double dt);
 static void booz_sensors_model_mag_init(void);
 static void booz_sensors_model_mag_run(MAT* dcm);
 
+static void booz_sensors_model_range_meter_init(void);
+static void booz_sensors_model_range_meter_run();
+
 static void booz_sensors_model_gps_init(void);
 static void booz_sensors_model_gps_run(double dt, MAT* dcm_t);
 
@@ -30,6 +33,7 @@ void booz_sensors_model_init(void) {
   booz_sensors_model_accel_init();
   booz_sensors_model_gyro_init();
   booz_sensors_model_mag_init();
+  booz_sensors_model_range_meter_init();
   booz_sensors_model_gps_init();
 } 
 
@@ -53,6 +57,7 @@ void booz_sensors_model_run(double dt) {
   booz_sensors_model_accel_run(dcm);
   booz_sensors_model_gyro_run(dt);
   booz_sensors_model_mag_run(dcm);
+  booz_sensors_model_range_meter_run();
   booz_sensors_model_gps_run(dt, dcm_t);
 } 
 
@@ -153,6 +158,13 @@ static void booz_sensors_model_mag_init(void) {
   bsm.mag_noise_std_dev->ve[AXIS_X] = 2e-2;
   bsm.mag_noise_std_dev->ve[AXIS_Y] = 2e-2;
   bsm.mag_noise_std_dev->ve[AXIS_Z] = 2e-2;
+
+}
+
+static void booz_sensors_model_range_meter_init(void) {
+  bsm.range_meter = 0.;
+  bsm.range_meter_resolution = BSM_RANGE_METER_RESOLUTION;
+  bsm.range_meter_sensivity = BSM_RANGE_METER_SENSITIVITY;
 
 }
 
@@ -350,6 +362,22 @@ static void booz_sensors_model_mag_run( MAT* dcm ) {
   //  printf("mag %f %f %f\n", bsm.mag->ve[AXIS_X], bsm.mag->ve[AXIS_Y], bsm.mag->ve[AXIS_Z]);
   /* round signal to account for adc discretisation */  
   RoundSensor(bsm.mag);
+}
+
+
+static void booz_sensors_model_range_meter_run() {
+  double dz = bfm.state->ve[BFMS_Z];
+  if (dz > 0.) dz = 0.;
+  double dx = dz * tan(bfm.state->ve[BFMS_THETA]);
+  double dy = dz * tan(bfm.state->ve[BFMS_PHI]);
+  double dist = sqrt( dx*dx + dy*dy + dz*dz);
+  dist *= bsm.range_meter_sensivity;
+  /* add gaussian noise */
+
+  if (dist > BSM_RANGE_METER_MAX_RANGE)
+    dist = BSM_RANGE_METER_MAX_RANGE;
+  dist = rint(dist);
+  bsm.range_meter = dist;
 }
 
 

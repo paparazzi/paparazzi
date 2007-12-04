@@ -3,7 +3,7 @@
 
 /* 
  * Accelerometer 
-*/
+ */
 #define BSM_ACCEL_RESOLUTION      (1024 * 32)
 /* ms-2 */
 #define BSM_ACCEL_SENSITIVITY_XX -(1024. * 32.)/(2 * 6. * 9.81)
@@ -49,7 +49,28 @@
 #define BSM_GYRO_BIAS_RANDOM_WALK_STD_DEV_R RadOfDeg(5.e-1)
 
 
+/*
+ *  Magnetometer
+ */
 
+
+
+
+/*
+ *  Range meter
+ */
+#define BSM_RANGE_METER_RESOLUTION  (1024)
+#define BSM_RANGE_METER_SENSITIVITY (1024. / 12.)
+#define BSM_RANGE_METER_MAX_RANGE   (6. * BSM_RANGE_METER_SENSITIVITY)
+
+/*
+ *  Barometer
+ */
+
+
+/*
+ *  GPS
+ */
 
 
 

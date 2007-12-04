@@ -6,6 +6,7 @@
 
 #include "booz_flight_model.h"
 #include "booz_sensors_model.h"
+#include "booz_wind_model.h"
 
 #include "booz_flightgear.h"
 #include "booz_joystick.h"
@@ -66,6 +67,8 @@ static gboolean booz_sim_periodic(gpointer data __attribute__ ((unused))) {
 
   booz_sensors_model_run(DT);
   
+  booz_wind_model_run(DT);
+
   sim_time += DT;
 
   /* call the filter periodic task to read sensors                      */
@@ -119,6 +122,8 @@ int main ( int argc, char** argv) {
   booz_flight_model_init();
 
   booz_sensors_model_init();
+
+  booz_wind_model_init();
 
   booz_flightgear_init(fg_host, fg_port);
 
@@ -179,6 +184,12 @@ static inline void booz_sim_display(void) {
 	       DegOfRad(bsm.gyro_bias_random_walk_value->ve[AXIS_P]),
 	       DegOfRad(bsm.gyro_bias_random_walk_value->ve[AXIS_Q]), 
 	       DegOfRad(bsm.gyro_bias_random_walk_value->ve[AXIS_R]));
+    IvySendMsg("148 BOOZ_SIM_RANGE_METER %f",  
+	       bsm.range_meter);
+    IvySendMsg("148 BOOZ_SIM_WIND %f %f %f",  
+	       bwm.velocity->ve[AXIS_X], 
+	       bwm.velocity->ve[AXIS_Y], 
+	       bwm.velocity->ve[AXIS_Z]);
   }
 }
 
@@ -199,7 +210,7 @@ static void booz_sim_set_ppm_from_joystick( void ) {
   //  printf("joystick pitch %f %d\n", booz_joystick_value[JS_PITCH], ppm_pulses[RADIO_PITCH]);
   //  printf("joystick roll %f %d\n", booz_joystick_value[JS_ROLL], ppm_pulses[RADIO_ROLL]);
 #else
-  ppm_pulses[RADIO_THROTTLE] = 1223 + 0.6 * (2050-1223);
+  ppm_pulses[RADIO_THROTTLE] = 1223 + 0.4 * (2050-1223);
   //BREAK_MTT();
   WALK_OVAL();
   // CIRCLE();

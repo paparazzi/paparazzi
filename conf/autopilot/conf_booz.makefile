@@ -110,6 +110,7 @@ sim.srcs = $(SIMDIR)/main_booz_sim.c           \
 	   $(SIMDIR)/booz_flight_model.c       \
            $(SIMDIR)/booz_flight_model_utils.c \
            $(SIMDIR)/booz_sensors_model.c      \
+           $(SIMDIR)/booz_wind_model.c         \
            $(SIMDIR)/booz_flightgear.c         \
            $(SIMDIR)/booz_joystick.c           \
 

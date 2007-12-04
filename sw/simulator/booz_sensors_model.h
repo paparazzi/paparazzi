@@ -34,6 +34,9 @@ struct BoozSensorsModel {
   VEC* mag_neutral;
   VEC* mag_noise_std_dev;
 
+  double range_meter;
+  unsigned int range_meter_resolution;
+  double range_meter_sensivity;
 
   /* imaginary sensors - gps maybe */
   VEC* speed_sensor;
