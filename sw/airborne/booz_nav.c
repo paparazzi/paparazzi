@@ -43,13 +43,15 @@ uint16_t stage_time, block_time;
       _code;						\
     }							\
   }
-#endif
+#endif /* DISABLE_NAV */
 
 
 void booz_nav_init(void) {
+#ifndef DISABLE_NAV
   nav_block = 0;
   nav_stage = 0;
   booz_nav_hover_init();
+#endif /* DISABLE_NAV */
 }
 
 
