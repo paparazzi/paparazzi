@@ -9,21 +9,21 @@
 
 extern uint8_t booz_ahrs_status;
 
-extern float booz_ahrs_phi; 
-extern float booz_ahrs_theta; 
-extern float booz_ahrs_psi;
+extern FLOAT_T booz_ahrs_phi; 
+extern FLOAT_T booz_ahrs_theta; 
+extern FLOAT_T booz_ahrs_psi;
 
-extern float booz_ahrs_p;
-extern float booz_ahrs_q;
-extern float booz_ahrs_r;
+extern FLOAT_T booz_ahrs_p;
+extern FLOAT_T booz_ahrs_q;
+extern FLOAT_T booz_ahrs_r;
 
-extern float booz_ahrs_bp;
-extern float booz_ahrs_bq;
-extern float booz_ahrs_br;
+extern FLOAT_T booz_ahrs_bp;
+extern FLOAT_T booz_ahrs_bq;
+extern FLOAT_T booz_ahrs_br;
 
-extern float booz_ahrs_measure_phi;
-extern float booz_ahrs_measure_theta;
-extern float booz_ahrs_measure_psi;
+extern FLOAT_T booz_ahrs_measure_phi;
+extern FLOAT_T booz_ahrs_measure_theta;
+extern FLOAT_T booz_ahrs_measure_psi;
 
 extern void booz_ahrs_init(void);
 extern void booz_ahrs_start( const float* accel, const float* gyro, const int16_t* mag);
