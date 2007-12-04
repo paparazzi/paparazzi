@@ -1,0 +1,54 @@
+\documentclass{beamer}
+\usepackage{graphicx}
+\usepackage{calc}
+
+\graphicspath{{../images/},{tmp/}}
+%\usetheme{shadow}
+\usetheme{Singapore}
+\useoutertheme{infolines}
+\usecolortheme{seahorse}
+\useinnertheme[shadow]{rounded}
+\setbeamercolor{block title}{bg=black!10!white}
+
+\usepackage{xmpmulti}
+\DeclareGraphicsRule{*}{mps}{*}{}
+
+\usepackage{multimedia}
+\title{\movie[externalviewer]{The Paparazzi System}{../videos/intro.avi}}
+\author{P. Brisset, A. Drouin, M. Gorraz}
+\date{November 2007}
+\institute{
+%\inst{1}%
+ENAC
+}
+%\titlegraphic{\includegraphics[height=2cm]{Aircrafts/Multiple/avions_enac}}
+\pgfdeclareimage[height=1cm]{penguin}{../images/logos/penguin}
+\pgfdeclareimage[height=1cm]{enac}{../images/logos/logo_enac}
+
+\setbeamertemplate{frametitle}
+{
+\begin{beamercolorbox}{frametitle}
+\begin{centering}
+\pgfuseimage{enac} \hfill \raisebox{0.3cm}{\textbf{\insertframetitle}}\hfill \pgfuseimage{penguin}
+\par
+\end{centering}
+\end{beamercolorbox}
+}
+
+% \newcommand{\workpackage}[2]{\frametitle{WP#1 #2}}
+\newcommand{\task}[3]{{\bf T#1.#2} #3}
+
+% \includeonly{proposal}
+
+% \setbeamertemplate{itemize item}{$\Rightarrow$}
+
+\begin{document}
+\maketitle
+
+\frame{
+\frametitle{Table of Content}
+}
+
+
+\frame{} % to enforce entries in the table of contents
+\end{document}
