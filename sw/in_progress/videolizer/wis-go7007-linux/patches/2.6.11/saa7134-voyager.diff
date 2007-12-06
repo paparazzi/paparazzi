@@ -1,0 +1,119 @@
+diff -ur linux-2.6.11.10.orig/drivers/media/video/saa7134/saa7134-cards.c linux-2.6.11.10/drivers/media/video/saa7134/saa7134-cards.c
+--- linux-2.6.11.10.orig/drivers/media/video/saa7134/saa7134-cards.c	2005-05-23 16:12:35.000000000 -0400
++++ linux-2.6.11.10/drivers/media/video/saa7134/saa7134-cards.c	2005-05-23 17:25:17.000000000 -0400
+@@ -1546,6 +1546,22 @@
+ //			.gpio = 0x4000,
+ 		}},
+ 	},
++	[SAA7134_BOARD_WIS_VOYAGER] = {
++		.name           = "WIS Voyager or compatible",
++		.audio_clock    = 0x00200000,
++		.tuner_type     = TUNER_PHILIPS_TDA8290,
++		.inputs         = {{
++			.name = name_tv,
++			.vmux = 3,
++			.amux = TV,
++			.tv   = 1,
++		},{
++			.name = name_svideo,
++			.vmux = 6,
++			.amux = LINE2,
++		}},
++		.mpeg           = SAA7134_MPEG_GO7007,
++	},
+ };
+ const unsigned int saa7134_bcount = ARRAY_SIZE(saa7134_boards);
+ 
+@@ -1821,6 +1837,12 @@
+ 		.driver_data  = SAA7134_BOARD_AVERMEDIA_307,
+ 	},{
+ 		.vendor       = PCI_VENDOR_ID_PHILIPS,
++		.device       = PCI_DEVICE_ID_PHILIPS_SAA7133,
++		.subvendor    = 0x1905,
++		.subdevice    = 0x7007,
++		.driver_data  = SAA7134_BOARD_WIS_VOYAGER,
++        },{
++		.vendor       = PCI_VENDOR_ID_PHILIPS,
+ 		.device       = PCI_DEVICE_ID_PHILIPS_SAA7134,
+ 		.subvendor    = 0x185b,
+ 		.subdevice    = 0xc200,
+diff -ur linux-2.6.11.10.orig/drivers/media/video/saa7134/saa7134-core.c linux-2.6.11.10/drivers/media/video/saa7134/saa7134-core.c
+--- linux-2.6.11.10.orig/drivers/media/video/saa7134/saa7134-core.c	2005-05-23 16:12:35.000000000 -0400
++++ linux-2.6.11.10/drivers/media/video/saa7134/saa7134-core.c	2005-05-23 17:25:17.000000000 -0400
+@@ -231,6 +231,7 @@
+ 
+ static int need_empress;
+ static int need_dvb;
++static int need_go7007;
+ 
+ static int pending_call(struct notifier_block *self, unsigned long state,
+ 			void *module)
+@@ -242,6 +243,8 @@
+                 request_module("saa7134-empress");
+         if (need_dvb)
+                 request_module("saa7134-dvb");
++        if (need_go7007)
++                request_module("saa7134-go7007");
+ 	return NOTIFY_DONE;
+ }
+ 
+@@ -633,8 +636,12 @@
+ 			saa7134_irq_vbi_done(dev,status);
+ 
+ 		if ((report & SAA7134_IRQ_REPORT_DONE_RA2) &&
+-		    card_has_mpeg(dev))
+-			saa7134_irq_ts_done(dev,status);
++		    card_has_mpeg(dev)) {
++			if (dev->mops->irq_ts_done != NULL)
++				dev->mops->irq_ts_done(dev,status);
++			else
++				saa7134_irq_ts_done(dev,status);
++		}
+ 
+ 		if ((report & SAA7134_IRQ_REPORT_DONE_RA3))
+ 			saa7134_irq_oss_done(dev,status);
+@@ -992,6 +999,8 @@
+ 	}
+   	if (card_is_dvb(dev))
+ 		request_module_depend("saa7134-dvb",&need_dvb);
++  	if (card_is_go7007(dev))
++		request_module_depend("saa7134-go7007",&need_go7007);
+ 
+ 	v4l2_prio_init(&dev->prio);
+ 
+diff -ur linux-2.6.11.10.orig/drivers/media/video/saa7134/saa7134.h linux-2.6.11.10/drivers/media/video/saa7134/saa7134.h
+--- linux-2.6.11.10.orig/drivers/media/video/saa7134/saa7134.h	2005-05-23 16:12:35.000000000 -0400
++++ linux-2.6.11.10/drivers/media/video/saa7134/saa7134.h	2005-05-23 17:25:17.000000000 -0400
+@@ -178,6 +178,7 @@
+ #define SAA7135_BOARD_ASUSTeK_TVFM7135 53
+ #define SAA7134_BOARD_FLYTVPLATINUM_FM 54
+ #define SAA7134_BOARD_FLYDVBTDUO 55
++#define SAA7134_BOARD_WIS_VOYAGER	56
+ 
+ #define SAA7134_MAXBOARDS 8
+ #define SAA7134_INPUT_MAX 8
+@@ -194,6 +195,7 @@
+ 	SAA7134_MPEG_UNUSED,
+ 	SAA7134_MPEG_EMPRESS,
+ 	SAA7134_MPEG_DVB,
++	SAA7134_MPEG_GO7007,
+ };
+ 
+ struct saa7134_board {
+@@ -218,6 +220,7 @@
+ #define card_has_radio(dev)   (NULL != saa7134_boards[dev->board].radio.name)
+ #define card_is_empress(dev)  (SAA7134_MPEG_EMPRESS == saa7134_boards[dev->board].mpeg)
+ #define card_is_dvb(dev)      (SAA7134_MPEG_DVB     == saa7134_boards[dev->board].mpeg)
++#define card_is_go7007(dev)   (SAA7134_MPEG_GO7007  == saa7134_boards[dev->board].mpeg)
+ #define card_has_mpeg(dev)    (SAA7134_MPEG_UNUSED  != saa7134_boards[dev->board].mpeg)
+ #define card(dev)             (saa7134_boards[dev->board])
+ #define card_in(dev,n)        (saa7134_boards[dev->board].inputs[n])
+@@ -364,6 +367,8 @@
+ 	struct list_head           next;
+ 	int                        (*init)(struct saa7134_dev *dev);
+ 	int                        (*fini)(struct saa7134_dev *dev);
++	void                       (*irq_ts_done)(struct saa7134_dev *dev,
++							unsigned long status);
+ 	void                       (*signal_change)(struct saa7134_dev *dev);
+ };
+ 

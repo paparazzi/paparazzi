@@ -1,0 +1,92 @@
+--- linux-2.6.11.10.orig/drivers/media/video/tda8290.c	2005-05-23 16:12:28.000000000 -0400
++++ linux-2.6.11.10/drivers/media/video/tda8290.c	2005-05-23 17:25:11.000000000 -0400
+@@ -83,6 +83,10 @@
+ static unsigned char i2c_cb1_56[2] =		{ 0x30, 0x56 };
+ static unsigned char i2c_cb1_52[2] =		{ 0x30, 0x52 };
+ static unsigned char i2c_cb1_50[2] =		{ 0x30, 0x50 };
++static unsigned char i2c_cb1_F2[2] =		{ 0x30, 0xF2 };
++static unsigned char i2c_cb1_76[2] =		{ 0x30, 0x76 };
++static unsigned char i2c_cb1_72[2] =		{ 0x30, 0x72 };
++static unsigned char i2c_cb1_70[2] =		{ 0x30, 0x70 };
+ static unsigned char i2c_agc2_7F[2] =		{ 0x60, 0x7F };
+ static unsigned char i2c_agc3_08[2] =		{ 0x80, 0x08 };
+ 
+@@ -109,6 +113,15 @@
+ 	{ I2C_ADDR_TDA8275, 0, ARRAY_SIZE(i2c_cb1_52), i2c_cb1_52 },
+ };
+ 
++static struct i2c_msg i2c_msg_config_ntsc_m[] = {
++//	{ I2C_ADDR_TDA8275, 0, ARRAY_SIZE(i2c_set_freq), i2c_set_freq },
++	{ I2C_ADDR_TDA8275, 0, ARRAY_SIZE(i2c_agc3_00), i2c_agc3_00 },
++	{ I2C_ADDR_TDA8275, 0, ARRAY_SIZE(i2c_agc2_BF), i2c_agc2_BF },
++	{ I2C_ADDR_TDA8275, 0, ARRAY_SIZE(i2c_cb1_F2), i2c_cb1_F2 },
++	{ I2C_ADDR_TDA8275, 0, ARRAY_SIZE(i2c_cb1_76), i2c_cb1_76 },
++	{ I2C_ADDR_TDA8275, 0, ARRAY_SIZE(i2c_cb1_72), i2c_cb1_72 },
++};
++
+ static struct i2c_msg i2c_msg_epilog[] = {
+ 	{ I2C_ADDR_TDA8275, 0, ARRAY_SIZE(i2c_cb1_50), i2c_cb1_50 },
+ 	{ I2C_ADDR_TDA8275, 0, ARRAY_SIZE(i2c_agc2_7F), i2c_agc2_7F },
+@@ -117,6 +130,14 @@
+ 	{ I2C_ADDR_TDA8290, 0, ARRAY_SIZE(i2c_gainset_on), i2c_gainset_on },
+ };
+ 
++static struct i2c_msg i2c_msg_epilog_ntsc_m[] = {
++	{ I2C_ADDR_TDA8275, 0, ARRAY_SIZE(i2c_cb1_70), i2c_cb1_70 },
++	{ I2C_ADDR_TDA8275, 0, ARRAY_SIZE(i2c_agc2_7F), i2c_agc2_7F },
++	{ I2C_ADDR_TDA8275, 0, ARRAY_SIZE(i2c_agc3_08), i2c_agc3_08 },
++	{ I2C_ADDR_TDA8290, 0, ARRAY_SIZE(i2c_disable_bridge), i2c_disable_bridge },
++	{ I2C_ADDR_TDA8290, 0, ARRAY_SIZE(i2c_gainset_on), i2c_gainset_on },
++};
++
+ static int tda8290_tune(struct i2c_client *c)
+ {
+ 	struct tuner *t = i2c_get_clientdata(c);
+@@ -129,10 +150,20 @@
+ 	i2c_transfer(c->adapter, i2c_msg_prolog, ARRAY_SIZE(i2c_msg_prolog));
+ 
+ 	i2c_transfer(c->adapter, &set_freq,       1);
+-	i2c_transfer(c->adapter, i2c_msg_config, ARRAY_SIZE(i2c_msg_config));
++	if (t->std & V4L2_STD_NTSC_M) {
++		i2c_transfer(c->adapter, i2c_msg_config_ntsc_m,
++				ARRAY_SIZE(i2c_msg_config_ntsc_m));
++		msleep(550);
++		i2c_transfer(c->adapter, i2c_msg_epilog_ntsc_m,
++				ARRAY_SIZE(i2c_msg_epilog_ntsc_m));
++	} else {
++		i2c_transfer(c->adapter, i2c_msg_config,
++				ARRAY_SIZE(i2c_msg_config));
++		msleep(550);
++		i2c_transfer(c->adapter, i2c_msg_epilog,
++				ARRAY_SIZE(i2c_msg_epilog));
++	}
+ 
+-	msleep(550);
+-	i2c_transfer(c->adapter, i2c_msg_epilog, ARRAY_SIZE(i2c_msg_epilog));
+ 	return 0;
+ }
+ 
+@@ -145,7 +176,10 @@
+ 	t->i2c_set_freq[1] = (unsigned char)(N>>8);
+ 	t->i2c_set_freq[2] = (unsigned char) N;
+ 	t->i2c_set_freq[3] = 0x40;
+-	t->i2c_set_freq[4] = 0x52;
++	if (t->std & V4L2_STD_NTSC_M)
++		t->i2c_set_freq[4] = 0x72;
++	else
++		t->i2c_set_freq[4] = 0x52;
+ 	t->i2c_set_freq[5] = get_freq_entry(band_table, t->freq);
+ 	t->i2c_set_freq[6] = get_freq_entry(agc_table,  t->freq);
+ 	t->i2c_set_freq[7] = 0x8f;
+@@ -179,7 +213,10 @@
+ 	struct tuner *t = i2c_get_clientdata(c);
+ 
+ 	set_audio(t);
+-	set_frequency(t, 864);
++	if (t->std & V4L2_STD_NTSC)
++		set_frequency(t, 736);
++	else
++		set_frequency(t, 864);
+ 	tda8290_tune(c);
+ }
+ 
