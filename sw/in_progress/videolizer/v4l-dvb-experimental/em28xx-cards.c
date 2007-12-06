@@ -1897,6 +1897,32 @@ struct em28xx_board em28xx_boards[] = {
 				.id = V4L2_STD_NTSC,
 		}},
 	},
+	[EM2861_BOARD_POLLIN_USB_R1] = {
+		.name          = "Pollin USB-R1",
+		.vchannels     = 2,
+		.norm          = V4L2_STD_PAL_BG,
+		.decoder       = EM28XX_SAA7113,
+		.has_tuner     = 0,
+		.dev_modes      = EM28XX_VIDEO,
+		.input           = {{
+			.type     = EM28XX_VMUX_TELEVISION,
+			.vmux     = SAA7115_COMPOSITE0,
+			.amux     = 1,
+		},{
+			.type     = EM28XX_VMUX_COMPOSITE1,
+			.vmux     = SAA7115_COMPOSITE0,
+			.amux     = 1,
+		}},
+		.tvnorms	= {
+			{
+				.name = "PAL-BG",
+				.id = V4L2_STD_PAL_BG,
+			},{
+				.name = "NTSC",
+				.id = V4L2_STD_NTSC,
+		}},
+	},
+	
 };
 
 const unsigned int em28xx_bcount = ARRAY_SIZE(em28xx_boards);
