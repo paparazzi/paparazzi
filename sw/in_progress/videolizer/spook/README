@@ -1,0 +1,238 @@
+                        Spook Live Video Streamer
+                        =========================
+
+ * About Spook
+
+Spook is a daemon for capturing, processing, encoding, and distributing
+live video and audio streams.  It can be used for webcams, video
+surveillance, live television/video programming distribution, webcasts, and
+even make-shift video conferencing.
+
+Video input can be fed from Video4Linux(1/2) devices and Firewire IIDC
+cameras, and audio input can be fed from OSS devices or ALSA devices via
+the OSS compatibility layer.  Supported video encoders are MPEG4, via XviD,
+and JPEG, via JPEGlib.  The only compressed audio format supported
+currently is MP2 (MPEG1 layer 2) via a built-in encoder.  MPEG4 and MP2 RTP
+streams are available via RTSP and JPEG stills are available via HTTP.
+
+ * License and warranty
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+ * Prerequisites
+
+You may need several libraries to compile Spook, depending on the modules
+you want to use:
+
+    * XviD 1.0.X    <http://www.xvid.org/>
+        This should be a recent enough version of XviD that it uses the
+        dev-api-4 interface.  The old 0.9.x tree won't cut it.  I use
+        1.0.0_rc2 but any later version should work as well.  If you're
+        running on a PowerPC architecture, you need at least 1.0.0_rc4.
+    * libdc1394     <http://sourceforge.net/projects/libdc1394/>
+        This is used to control Firewire IIDC cameras under Linux.  I've
+        used versions 0.9.1 and 0.9.3.  If you're using a kernel older
+        than 2.4.23, use version 0.9.2.  Otherwise, use the latest version.
+    * jpeg-6b       <http://www.ijg.org/>
+        You really should already have this, but apparently some
+        distributions don't install this by default if you don't install X.
+        See if your distribution has a package called "jpeg" or "jpeg6b" or
+        "jpeglib" before installing from source.
+
+You will need to have your kernel sources installed and available if you
+want to use:
+
+    * The Video4Linux2 input module.
+    * Special support for the V4L1 PWC driver (for "Phillips USB Webcam",
+      which includes a number of Logitech webcams).
+
+Note: Spook doesn't need X.  There's no GUI, so there's no need for X
+libraries.  However, libdc1394 chokes when it tries to compile the example
+applications, so you might have to edit the Makefile to get it to finish
+the build.
+
+Now that you have the necessary libraries installed, it would be a good
+idea to make sure your video source works:
+
+If you have a Firewire cam on Linux, I recommend testing with Coriander
+from <http://www.tele.ucl.ac.be/PEOPLE/DOUXCHAMPS/ieee1394/coriander/>.
+If Coriander can't talk to the camera, neither can Spook.  (Note: Recent
+versions of Coriander require the latest libdc1394.  If you have a
+libdc1394 older than 0.9.3, try Coriander 0.33.)
+
+If you plan to use a frame grabber, XAWTV will probably work fine.
+
+If you have a USB webcam, I don't know what program you might use, but try
+to test it with something before trying Spook.
+
+ * Compiling Spook
+
+Spook uses Autoconf and Automake to generate the Makefiles.  Run the
+`configure` script in the source tree to determine which libraries you have
+available.  When configure finishes, it will list the modules that will be
+compiled.
+
+If a module that you need is disabled, make sure you have the necessary
+libraries installed.  You can force the issue by using a --enable flag to
+configure; for example: `configure --enable-input-dc1394`  Then when
+configure encounters any dependencies missing for that module, it will
+abort and print a message that will hopefully tell you what is missing.
+
+If your Linux kernel sources are installed somewhere other than
+/usr/src/linux, pass the "--with-kernel-source=/usr/local/somewhere" option
+to the configure script.  The kernel source tree is necessary for V4L2 and
+the PWC-specific V4L functions, but if you don't need either of these,
+Spook will build fine without the kernel tree.
+
+After everything is configured to your satisfaction, run `make` to do the
+build.  (You can do a `make install`, but it's not recommended.)
+
+ * Configuring Spook
+
+The configuration file for Spook is named spook.conf, and at the moment it
+is read from the current directory.  Eventually spook.conf will move to a
+standard system directory, but since Spook doesn't yet daemonize itself, I
+recommend running Spook out of the source directory.
+
+spook.conf is divided into global options and block declarations.  The
+global options set parameters such as the TCP port number for incoming
+connections.  The block declarations define inputs, filters, encoders, and
+outputs.
+
+In brief, each block defines a specific function that should be performed
+on a video stream, and the stream input(s) and output(s) for that function.
+The "Input" for each block must match the "Output" from a previous block.
+Frame grabbers and audio capture devices will have no "Input" because they
+get media from the hardware, and RTSP and HTTP outputs will have no
+"Output" because they send media over the network to clients.
+
+The spook.conf.dist file contains well-commented examples of all supported
+modules.  Outputs are shown for a single RTSP video(+audio) network stream
+and a JPEG snapshot stream served via HTTP.
+
+There are several possible ways to configure Video4Linux frame grabbers.
+
+    * If you are running kernel 2.6 and your frame grabber supports
+      compressed video formats (MJPEG/MPEG), use the V4L2 module.
+    * If you are running kernel 2.6 and your frame grabber driver is
+      written for V4L2 (including BTTV), use the V4L2 module.
+    * Otherwise, use the V4L module.
+
+There are two example V4L configurations in the spook.conf file.  One is
+for frame grabber cards with analog video inputs which should be simple to
+configure.  The other is for USB webcams which are more of a challenge.
+Spook needs to know the frame rate of the input to configure the MPEG4
+encoder, but there is no standard method for configuring the frame rate of
+USB webcams.  Currently, the V4L module will attempt to detect and
+configure Philips webcams that use the pwc driver (including many Logitech
+cams), but if all else fails try using the "FrameRate auto;" directive and
+Spook will attempt to guess the framerate of the device.  This will take a
+few seconds and isn't very accurate, but it should work well enough to get
+you going.
+
+For OSS audio, Spook expects the mixer device to be set up in advance.
+This means aumix or similar should be used to select the correct input port
+and set the levels.
+
+ * Running Spook
+
+Spook accepts three optional flags:
+
+    -c <filename>    specifies the path to the config file
+    -f               starts Spook with verbose logging
+    -D               starts Spook with full debug logging turned on
+
+The default config file location is "./spook.conf", so if you run Spook
+from the build directory this option is unnecessary.  The -D and -f flags
+will cause additional log information to be printed; -f is good for
+tracking down configuration and client problems, and -D is really only
+useful for developers.
+
+If (when) you report bugs, please send the last few dozen lines of output
+from running Spook with the -D flag.
+
+ * Viewing video from Spook
+
+After all that work, it's time to verify that everything works correctly.
+For this section, I'll assume that you're using the example spook.conf
+and you're running Spook on a host with the IP address 192.168.123.45.  
+
+HTTP is easy.  Point a web browser at <http://192.168.123.45:7070/webcam>.
+You should see a still image captured from the camera within the last five
+seconds.  If this doesn't work, something serious is wrong and you should
+fix it before proceeding with the MPEG4 testing.  Check the output to your
+terminal to see if the DC1394 or V4L(2) module was able to connect to the
+camera and start the video transfer.
+
+RTP is a bit harder to get working right.  First of all, you should start
+by trying to view the stream from a system on the local network with no
+firewalls or NATs in the way.  If you can, try to view the stream from the
+system running Spook, as this will rule out any network connectivity
+issues.
+
+You basically have three options for client software, depending on your
+platform: VLC, MPlayer or Apple QuickTime Player.
+
+On both Linux and Win32, VLC is the player most compatible with all the
+features of Spook.  You may have to compile it from source against the
+Live.com libraries, however, as the VLC binary releases for some platforms
+don't have RTSP support.  VLC lives at: <http://www.videolan.org/>.
+
+On Linux, MPlayer can be compiled against the Live.com streaming libraries
+as described here: <http://www.live.com/mplayer/>.  However, MPlayer can
+ONLY play streams with no audio!  If you have a video-only stream, you
+should be able to execute `mplayer rtsp://192.168.123.45:7070/` to play the
+stream.  Older versions of MPlayer might need the "-fps 30" option to
+specify the framerate.  If there are firewalls or NATs between the player
+and the server, use the "-rtsp-stream-over-tcp" to force the media over the
+TCP session.
+
+On Win32 or Mac, use Apple Quicktime <http://www.apple.com/quicktime/> to
+play the stream.  If there are firewalls or NATs between the player and the
+server, you might have to change the "Transport Settings" to force the use
+of "HTTP" for streaming.  Select "Open URL" from the menubar and type
+"rtsp://192.168.123.45:7070/".  QuickTime should initiate the RTSP session
+and begin buffering the stream.  Note that QuickTime always uses a
+three-second buffer, which is annoying with a live stream, and I can't find
+a way to disable it.
+
+ * Future work
+
+Obviously, there's a lot to be done to improve Spook.  Other than fixing
+the obvious deficiencies and limitations discussed earlier, here are the
+features I'm working on, roughly by priority:
+
+    * Revamped configuration and better error handling
+    * Better authentication and access control
+    * Relay agent for RTP streams
+    * Simple image filters like cropping, rotation and mirroring
+    * Multicast RTP
+    * Other "novelty" output types, like VNC and aalib
+
+If you want to receive information about Spook updates, please visit the
+Freshmeat page for Spook at <http://freshmeat.net/projects/spook/> and use
+the "Subscribe to new releases" feature.
+
+ * Contact
+
+Spook is written and maintained by Nathan Lutchansky.  Send suggestions,
+bug reports and patches to <lutchann@litech.org>.
+
+The Spook webpage at <http://www.litech.org/spook/> where updated releases
+and documentation may be found.
+
+
+Nathan Lutchansky
+2005-02-07

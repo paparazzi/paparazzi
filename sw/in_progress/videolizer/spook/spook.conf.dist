@@ -1,0 +1,369 @@
+#
+# Example configuration file for Spook <http://www.litech.org/spook/>
+#
+# This file contains two sections.  The first section defines global
+# configuration parameters, such as the TCP port to listen for incoming
+# RTSP and HTTP requests.  The second section defines the inputs, filters,
+# encoders, and outputs that handle the video stream.
+#
+
+#
+# Number of frames on the frame heap, and optionally the frame size.  Spook
+# allocates a fixed number of buffers for frames that it uses as it captures
+# video frames and encodes them.  Here you can define the number of frames
+# Spook will allocate, and optionally, how much memory should be allocated for
+# each frame.  The recommended default is 20 frames for each video stream and
+# 10 frames for each audio stream.  If you omit the frame size, the default of
+# 304128 will be used, which is large enough for frames of resolution 352x288.
+# You will need to specify a larger number if you use larger frames.
+#
+
+FrameHeap 30; # Appropriate for one video stream and one audio stream
+# FrameHeap 20 921600; # Appropriate for capturing 640x480 frames
+
+#
+# TCP port number to listen for RTSP and HTTP connections.  Currently
+# Spook has limited access control and is not able to bind to a specific IP
+# address, so if you don't want to make your webcam public, you might want
+# to choose an obscure port and/or use iptables to firewall it.
+#
+
+Port 7070;
+
+#
+# UDP port range from which Spook will select RTP ports.  The default is
+# to use the range 50000-60000.  Spook will select ports randomly across
+# the range for security.  You need to specify a range of 16 ports at a bare
+# minimum; preferably at least 100.
+#
+
+# RtpRange 50000 60000;
+
+######################## END OF GLOBAL CONFIGURATION ########################
+
+#
+# The next section contains multiple blocks specifying video stream sources,
+# filters and encoders to process those streams, and finally outputs to
+# describe how those streams should be made available to the rest of the
+# world.
+#
+# Currently, Spook is rather limited as far as processing modules, so the
+# configuration shown here pretty much exercises the full functionality
+# of the application.
+#
+
+###### VIDEO INPUT MODULES ######
+
+#
+# This block defines an input from a Firewire webcam under Linux.  Currently
+# the only option is "Output", which specifies the name of the video stream
+# produced by this device.
+#
+# Multiple simultaneous Firewire camera inputs may be specified by duplicating
+# the "Output" directive once for each camera, all in the same block.
+#
+# The camera configuration is currently hard-coded to produce 30 frames per
+# second at 320x240 resolution.  This should be fine as the native resolution
+# on CCDs in consumer-level webcams really isn't much better than that.
+#
+# If you aren't running Spook on Linux with a Firewire camera, leave this
+# section commented out.
+#
+
+#Input DC1394 {
+#	Output "raw";
+#}
+
+#
+# This block defines an input from a frame grabber card through Video4Linux.
+#
+# If you have a USB webcam, you can skip to the USB webcam example block
+# further down.
+#
+# If you are running kernel 2.6 or higher and the driver for your frame
+# grabber card supports the Video4Linux2 API, using the V4L2 input module
+# below instead of this one is strongly recommended.
+#
+# The required parameters are "Output", "Device", "InputType" and "InputPort".
+# The "Output" specifies the name of the video stream produced by this device.
+# The "Device" specifies the device node to use (e.g. /dev/video0).  The
+# "InputType" should be NTSC or PAL, depending on your equipment's video
+# standard.  The "InputPort" should be set to the input port number
+# corresponding to where you plugged in the video source.  If you don't know
+# the index numbers of your ports, omit the parameter and the error message
+# will give a list of input ports.
+#
+# If you aren't running Spook on Linux with a frame grabber device, leave this
+# section commented out.
+#
+
+#Input V4L {
+#	Device /dev/video0;
+#	InputType NTSC;
+#	InputPort 1;
+#	# FrameSize 160 120;     # Optional
+#	Output "raw";
+#}
+
+#
+# This block is identical to the previous block, but uses the new Video4Linux2
+# API available in newer Linux kernels.  If you have a BTTV video grabber card
+# and kernel 2.6, you'll need to use V4L2 instead of the broken V4L1
+# compatibility layer.
+#
+
+#Input V4L2 {
+#	Device /dev/video0;
+#	InputType NTSC;
+#	InputPort 1;
+#	# FrameSize 160 120;     # Optional
+#	Output "raw";
+#}
+
+#
+# This block defines an input from a video grabber device with hardware-based
+# video compression, such as a Plextor ConvertX PX-M402U.
+#
+# The required parameters are "Output", "Device", "InputType", "InputPort" and
+# "Format".  The "Output" specifies the name of the video stream produced by
+# this device.  The "Device" specifies the device node to use (e.g.
+# /dev/video0).  The "InputType" should be NTSC or PAL, depending on your
+# equipment's video standard.  The "InputPort" should be set to the input port
+# number corresponding to where you plugged in the video source.  If you don't
+# know the index numbers of your ports, omit the parameter and the error
+# message will give a list of input ports.  The "Format" specifies the
+# compression format that the hardware should use, either "mpeg4" or "mjpeg".
+#
+# If you use this section, be sure to comment out the Encoder MPEG4 block
+# below since the video is already encoded.
+#
+# If you aren't running Spook on Linux with a V4L2 frame grabber device with
+# hardware compression, leave this section commented out.
+#
+
+#Input V4L2 {
+#	Device /dev/video0;
+#	InputType NTSC;
+#	InputPort 0;
+#	Format "mpeg4"; # or mjpeg
+#	Bitrate 1500; # 1.5 Mbps (ConvertX performs poorly at low bitrates)
+#	FrameSize 640 480;     # Optional
+#	Output "compressed";
+#}
+
+#
+# This block defines an input from a USB webcam via Video4Linux.
+#
+# The required parameters are "Output", "Device", "InputType" and
+# "FrameRate".  The "Output" specifies the name of the video stream produced
+# by this device.  The "Device" specifies the device node that should be used
+# to control the device and read the frames (e.g. /dev/video0).  The
+# "InputType" should be "Webcam".  The "FrameRate" specifies the frames per
+# second that we should request from the webcam.  If Spook does not know how
+# to configure the frame rate on your particular hardware, use the setting
+# "FrameRate auto" and Spook will try to guess what the cam's frame rate is.
+#
+# If you aren't running Spook on Linux with a USB webcam, leave this section
+# commented out.
+#
+
+#Input V4L {
+#	Device /dev/video0;
+#	InputType webcam;
+#	FrameRate 30;
+#	#
+#	# The frame size setting is optional, and will default to 352x288
+#	# for webcams, but Spook will try to automatically resize down to the
+#	# largest size that the webcam supports natively.
+#	#
+#	#FrameSize 160 120;
+#
+#	#
+#	# Settings specific to Philips webcams
+#	#
+#	# Controls for the auto white balance; choose either an auto preset
+#	# 	presets: auto, outdoor, indoor, fl (florescent lighting)
+#	#
+#	#PWC-WhiteBalance outdoor;
+#	#PWC-WhiteBalance auto;
+#	#
+#	# or manual settings for red and blue, from 0-65535 inclusive
+#	#
+#	PWC-WhiteBalance 20000 20000;
+#	Output "raw";
+#}
+
+#
+# This block defines an input from a QuickTime digitizer under Mac OS X.
+# Note that OS X support is experimental at this time, and Spook may not be
+# stable or function correctly in this environment.
+#
+# In order to enable this input, you'll need to explicitly specify the
+# option "--enable-input-vdig" to the configure script before compiling.
+#
+# Currently the only option is "Output", which specifies the name of the
+# video stream produced by this device.
+#
+# The camera configuration is currently hard-coded to produce 30 frames
+# per second at 320x240 resolution.  If you plan to use a digitizer that does
+# not support this mode with UYVY output, this driver will not work.
+#
+# If you aren't running Spook on Mac OS X, leave this section commented out.
+#
+
+#Input VDIG {
+#	Output "raw";
+#}
+
+###### AUDIO INPUT MODULES ######
+
+#
+# This block defines an input from a sound card with either an OSS driver or
+# an ALSA driver using the OSS compatibility layer.
+#
+# Note that you need to set up the mixer yourself, including selecting the
+# correct input port!
+#
+# The required parameters are "Output", "Device" and "SampleRate".
+# The "Output" specifies the name of the audio stream produced by this device.
+# The "Device" specifies the device node to use (e.g. /dev/dsp).  The
+# "SampleRate" should typically be 44100 or 48000, especially if you are
+# using the MP2 encoder.
+#
+# If you don't need audio, leave this section commented out.
+#
+
+#Input OSS {
+#	Device /dev/dsp;
+#	SampleRate 48000;
+#	Output "pcm";
+#}
+
+######################### END OF INPUT CONFIGURATION #########################
+
+#
+# This block defines an MPEG4 video encoder that will compress the raw video
+# input into an MPEG4 Video Elementary Stream.  The input name should match
+# the output name from a video input block.  The only other option is
+# "Bitrate", which specifies how many kbits/sec are produced by the encoder.
+# If you're on a bandwidth-limited network such as a cable modem or DSL line,
+# you want to set this low, since the bandwidth used by Spook will equal the
+# bitrate times the number of concurrent viewers!
+#
+# If you are using a frame grabber with hardware compression, comment this
+# section out.
+#
+
+Encoder MPEG4 {
+	Input "raw"; # matches the output name from the DC1394 input above
+	Output "compressed";
+	Bitrate 200; # 200 kbps
+}
+
+#
+# This block defines an MPEG1 layer 2 audio encoder that will compress PCM
+# audio data into an MP2 stream.  The input name should match the output name
+# from an audio input block.  The only other option is "Bitrate", which is
+# described above.  (Note that MPEG1 layer 2 can only use a fixed set of
+# bitrates; see below.)
+#
+# If you don't need audio, leave this section commented out.
+#
+
+#Encoder MP2 {
+#	Input "pcm";
+#	Output "mp2";
+#	Bitrate 384; # other valid values include 56, 64, 96, 128, 192, 256
+#}
+
+#
+# This block creates an RTP output that can be accessed with RTSP.  Viewers
+# can use VLC (with the live.com library) or QuickTime to view this stream
+# with the URI rtsp://<hostname>:<port>/<path>.  For example, if Spook were
+# running with this configuration on a machine with IP address
+# 192.168.123.45, the RTP stream below could be accessed with the
+# URI rtsp://192.168.123.45:7070/webcam
+#
+# Digest authentication is supported with RTSP, but it only seems to work
+# properly with QuickTime.  Only a single username and password is
+# supported currently.
+#
+
+RTSP-Handler Live {
+	#
+	# No authentication
+	#
+	Path /webcam;
+
+	#
+	# Authentication with the realm "Spook" (can be anything), where
+	# the user must authenticate as "testuser" with password "testpass"
+	#
+	#Path /webcam "Spook" "testuser" "testpass";
+
+	#
+	# List of tracks in the session; will almost always be a video
+	# stream first, followed by an optional audio stream
+	#
+	Track "compressed";
+#	Track "mp2"; # un-comment this if you are using audio
+}
+
+#
+# The next three blocks create a stream of JPEG images for consumption by
+# viewers with nothing but a web browser.  The Framedrop filter copies only
+# every 150th frame from the input to the output, giving approximately one
+# frame every five seconds for a 30fps input.  This allows us to compress
+# a JPEG only every once in a while which is much easier on the CPU.
+#
+
+Filter Framedrop {
+	Input "raw"; # matches the output name from the DC1394 input above
+	Output "dropped";
+	Scale 150;
+}
+
+#
+# Now we pass the framedropped output into the JPEG encoder.
+#
+# If you are capturing using a frame grabber with hardware video compression,
+# you should comment this section out since the JPEG encoder can only work
+# with uncompressed input.
+#
+
+Encoder JPEG {
+	Input "dropped"; # matches the output name from the frame dropper
+	Output "jpeg";
+}
+
+#
+# This block creates an simple output that can be accessed with HTTP.
+# Viewers can use their web browser to retrieve the most recently received
+# frame, which in this configuration will be a JPEG updated every five
+# seconds.  The URL will be http://<hostname>:<port>/<path>.  For example,
+# if Spook were running on a machine with IP address 192.168.123.45, the
+# JPEG image could be accessed with the URI
+# http://192.168.123.45:7070/webcam
+#
+# Authentication is not yet supported for HTTP.
+#
+# If you are capturing using a frame grabber with hardware video compression,
+# you should comment this section out since the JPEG encoder can only work
+# with uncompressed input.
+#
+
+Output HTTP {
+	Path /webcam;
+	Input "jpeg"; # matches the output from the JPEG encoder above
+	#Mode stream; # multipart JPEG streaming (does not work with IE)
+}
+
+#
+# This block specifies the log file where client requests will be logged in
+# Apache-style common log format.  If this block is omitted, no logging will
+# be done.  The example below logs to "spook.log" in the current directory.
+#
+
+Log File {
+	File "spook.log";
+}

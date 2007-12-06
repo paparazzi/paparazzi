@@ -1,0 +1,88 @@
+#!/bin/sh
+
+#
+# Firmware loader for Plextor ConvertX using fxload for Cypress EZ-USB FX2
+#
+# Based on the example fxload hotplug script
+#
+
+# Assumes 2002_04_11 release of fxload (or later)
+
+FIRMWARE_DIR=@FIRMWARE_DIR@/ezusb
+LOADER=@FXLOAD@
+FIRMWARE=
+FLAGS=
+
+if [ ! -x $LOADER ]; then
+    if [ -x /usr/bin/logger ]; then
+	/usr/bin/logger -t $0 "fxload is missing; please install it"
+    fi
+    exit 1
+fi
+
+# pre-renumeration device IDs
+case $PRODUCT in
+
+# (USB 2.0) PX-M402U
+93b/a002/* | 093b/a002/*)
+    FIRMWARE=$FIRMWARE_DIR/hpi_PX-M402U.hex
+    FLAGS="-t fx2"
+    ;;
+
+# (USB 2.0) PX-TV402U
+93b/a004/* | 093b/a004/*)
+    FIRMWARE=$FIRMWARE_DIR/hpi_PX-TV402U.hex
+    FLAGS="-t fx2"
+    ;;
+
+# (USB 2.0) LifeView LR192 (TV Walker Ultra)
+# Formerly used by WIS Matrix II
+eb1/6666/* | 0eb1/6666/*)
+    FIRMWARE=$FIRMWARE_DIR/hpi_LR192.hex
+    FLAGS="-t fx2"
+    ;;
+
+# (USB 2.0) WIS StarTrek
+eb1/6668/* | 0eb1/6668/*)
+    FIRMWARE=$FIRMWARE_DIR/hpi_StarTrek.hex
+    FLAGS="-t fx2"
+    ;;
+
+esac
+
+
+# quit unless we were called to download some firmware 
+if [ "$FIRMWARE" = "" ]; then
+    # OR:  restructure to do other things for
+    # specific post-renumeration devices
+    exit 0
+fi
+
+# missing firmware?
+if [ ! -r $FIRMWARE ]; then
+    if [ -x /usr/bin/logger ]; then
+	/usr/bin/logger -t $0 "missing $FIRMWARE for $PRODUCT ??"
+    fi
+    exit 1
+fi
+
+# usbfs not mounted?
+if [ ! -f /proc/bus/usb/devices ]; then
+    if [ -x /usr/bin/logger ]; then
+	/usr/bin/logger -t $0 "usbfs is not mounted on /proc/bus/usb; cannot upload firmware"
+    fi
+    exit 1
+fi
+
+if [ -x /usr/bin/logger ]; then
+    /usr/bin/logger -t $0 "load $FIRMWARE for $PRODUCT to $DEVICE"
+fi
+
+$LOADER $FLAGS -I $FIRMWARE
+
+if [ $? -gt 0 ]; then
+    if [ -x /usr/bin/logger ]; then
+        /usr/bin/logger -t $0 "error $? returned by $LOADER $FLAGS -I $FIRMWARE"
+    fi
+    exit 1
+fi

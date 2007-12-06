@@ -1,0 +1,49 @@
+---------------------------------------------------------------------------
+                   Installing the WIS PCI Voyager Driver
+---------------------------------------------------------------------------
+
+The WIS PCI Voyager driver requires several patches to the Linux 2.6.11.x
+kernel source tree before compiling the driver.  These patches update the
+in-kernel SAA7134 driver to the newest development version and patch bugs
+in the TDA8290/TDA8275 tuner driver.
+
+The following patches must be downloaded from Gerd Knorr's website and
+applied in the order listed:
+
+	http://dl.bytesex.org/patches/2.6.11-2/i2c-tuner
+	http://dl.bytesex.org/patches/2.6.11-2/i2c-tuner2
+	http://dl.bytesex.org/patches/2.6.11-2/v4l2-api-mpeg
+	http://dl.bytesex.org/patches/2.6.11-2/saa7134-update
+
+The following patches are included with this SDK and can be applied in any
+order:
+
+	patches/2.6.11/saa7134-voyager.diff
+	patches/2.6.11/tda8275-newaddr.diff
+	patches/2.6.11/tda8290-ntsc.diff
+
+Check to make sure the CONFIG_VIDEO_SAA7134 option is enabled in the kernel
+configuration, and build and install the kernel.
+
+After rebooting into the new kernel, the GO7007 driver can be compiled and
+installed:
+
+	$ make SAA7134_BUILD=y
+	$ make install
+	$ modprobe saa7134-go7007
+
+There will be two V4L video devices associated with the PCI Voyager.  The
+first device (most likely /dev/video0) provides access to the raw video
+capture mode of the SAA7133 device and is used to configure the source
+video parameters and tune the TV tuner.  This device can be used with xawtv
+or other V4L(2) video software as a standard uncompressed device.
+
+The second device (most likely /dev/video1) provides access to the
+compression functions of the GO7007.  It can be tested using the gorecord
+application in the apps/ directory of this SDK:
+
+	$ apps/gorecord -vdevice /dev/video1 -noaudio test.avi
+
+Currently the frame resolution is fixed at 720x480 (NTSC) or 720x576 (PAL),
+and the video standard must be specified to both the raw and the compressed
+video devices (xawtv and gorecord, for example).

@@ -1,0 +1,47 @@
+#!/bin/sh
+
+if [ -e /etc/hotplug/firmware.agent ]; then
+	FIRMWARE_AGENT=/etc/hotplug/firmware.agent
+elif [ -e /etc/hotplug.d/firmware/50-firmware.hotplug ]; then
+	FIRMWARE_AGENT=/etc/hotplug.d/firmware/50-firmware.hotplug
+else
+	#
+	# This distribution doesn't use the stock hotplug scripts, so check
+	# a couple standard locations and use them if they exist
+	#
+	if [ -d /lib/firmware ]; then
+		echo /lib/firmware
+		exit 0
+	fi
+	if [ -d /usr/lib/hotplug/firmware ]; then
+		echo /usr/lib/hotplug/firmware
+		exit 0
+	fi
+	echo "Unable to find the firmware agent; is hotplug installed?" >&2
+	exit 1
+fi
+
+if grep -q ^FIRMWARE_DIRS= $FIRMWARE_AGENT; then
+	eval $(grep ^FIRMWARE_DIRS= $FIRMWARE_AGENT)
+	# If /usr/lib/hotplug/firmware is in the list, use it
+	for dir in $FIRMWARE_DIRS; do
+		if [ "$dir" = "/usr/lib/hotplug/firmware" ]; then
+			echo $dir
+			exit 0
+		fi
+	done
+	# Otherwise, use the first entry
+	for dir in $FIRMWARE_DIRS; do
+		echo $dir
+		exit 0
+	done
+elif grep -q ^FIRMWARE_DIR= $FIRMWARE_AGENT; then
+	eval $(grep ^FIRMWARE_DIR= $FIRMWARE_AGENT)
+	echo $FIRMWARE_DIR
+	exit 0
+else
+	echo "No FIRMWARE_DIR or FIRMWARE_DIRS setting found in" >&2
+	echo "$FIRMWARE_AGENT.  Your hotplug may be outdated" >&2
+	echo "or installed improperly." >&2
+	exit 1
+fi

@@ -1,0 +1,90 @@
+/* config.h.in.  Generated from configure.ac by autoheader.  */
+
+/* Define to 1 if dc1394_dma_setup_capture needs the extra_buffering argument.
+   */
+#undef DC1394_EXTRA_BUFFERING_FLAG
+
+/* Define to 1 if you have the <asm/types.h> header file. */
+#undef HAVE_ASM_TYPES_H
+
+/* Define to 1 if you have the <go7007.h> header file. */
+#undef HAVE_GO7007_H
+
+/* Define to 1 if you have the <inttypes.h> header file. */
+#undef HAVE_INTTYPES_H
+
+/* Define to 1 if you have the <linux/compiler.h> header file. */
+#undef HAVE_LINUX_COMPILER_H
+
+/* Define to 1 if you have the <memory.h> header file. */
+#undef HAVE_MEMORY_H
+
+/* Define to 1 if you have the <pwc-ioctl.h> header file. */
+#undef HAVE_PWC_IOCTL_H
+
+/* Define to 1 if you have the <stdint.h> header file. */
+#undef HAVE_STDINT_H
+
+/* Define to 1 if you have the <stdlib.h> header file. */
+#undef HAVE_STDLIB_H
+
+/* Define to 1 if you have the <strings.h> header file. */
+#undef HAVE_STRINGS_H
+
+/* Define to 1 if you have the <string.h> header file. */
+#undef HAVE_STRING_H
+
+/* Define to 1 if you have the <sys/stat.h> header file. */
+#undef HAVE_SYS_STAT_H
+
+/* Define to 1 if you have the <sys/types.h> header file. */
+#undef HAVE_SYS_TYPES_H
+
+/* Define to 1 if you have the <unistd.h> header file. */
+#undef HAVE_UNISTD_H
+
+/* Name of package */
+#undef PACKAGE
+
+/* Define to the address where bug reports for this package should be sent. */
+#undef PACKAGE_BUGREPORT
+
+/* Define to the full name of this package. */
+#undef PACKAGE_NAME
+
+/* Define to the full name and version of this package. */
+#undef PACKAGE_STRING
+
+/* Define to the one symbol short name of this package. */
+#undef PACKAGE_TARNAME
+
+/* Define to the version of this package. */
+#undef PACKAGE_VERSION
+
+/* Define to include the encoder-jpeg module. */
+#undef SPOOK_ENCODER_JPEG
+
+/* Define to include the encoder-mpeg4 module. */
+#undef SPOOK_ENCODER_MPEG4
+
+/* Define to include the input-dc1394 module. */
+#undef SPOOK_INPUT_DC1394
+
+/* Define to include the input-v4l module. */
+#undef SPOOK_INPUT_V4L
+
+/* Define to include the input-v4l2 module. */
+#undef SPOOK_INPUT_V4L2
+
+/* Define to include the input-vdig module. */
+#undef SPOOK_INPUT_VDIG
+
+/* Define to 1 if you have the ANSI C header files. */
+#undef STDC_HEADERS
+
+/* Version number of package */
+#undef VERSION
+
+/* Define to 1 if `lex' declares `yytext' as a `char *' by default, not a
+   `char[]'. */
+#undef YYTEXT_POINTER

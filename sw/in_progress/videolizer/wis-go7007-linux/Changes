@@ -1,0 +1,66 @@
+CHANGE LOG for WIS GO7007SB public Linux driver kit
+
+0.9.8 (1 April 2006)
+  * Support the GO7007 devices on the Adlink PCI-MPG24
+  * Updates for kernel 2.6.16
+
+0.9.7 (5 November 2005)
+  * Support hardware-based motion detection (undocumented currently)
+  * New `modet` motion detection example application
+  * Support loading EZ-USB firmware with udev instead of hotplug
+  * Updates for kernel 2.6.14
+  * Support Matrix Revolution reference board and fix Matrix II support
+
+0.9.6 (7 August 2005)
+  * Fix a deadlock when firmware fails to load
+  * Various installation path tweaks
+
+0.9.5 (4 August 2005)
+  * Support frame rate scaling in driver and gorecord (-fpsdrop flag)
+  * Support for SAA7133-based PCI cards (only WIS PCI Voyager at this point)
+  * Support the NorthQ NQ6600
+  * Fix support for the GA-VD207
+  * Support WIS reference boards Matrix Reloaded, StarTrek, XMen I/II/III
+  * New semaphores to protect HPI bus access on SMP systems
+  * Handle SuSE hotplug and fxload install locations
+  * Scaling tweaks to crop source width at 704 instead of 720 with SAA7115
+  * Minor changes to work with kernel 2.6.12 and 2.6.13-rc5
+  * Update GO7007 firmware
+  * Accept USB IDs with leading zeros in wis-ezusb script
+
+0.9.4 (20 March 2005)
+  * Support the PAL/SECAM and NTSC-J TV tuners on the TV402U
+  * Support the Georgia Technologies GA-VD207 (somewhat broken)
+  * gorecord: New -duration flag to specify file length in seconds
+  * gorecord: Recordings are finalized correctly after Ctrl-C or SIGTERM
+  * New video input controls: brightness, contrast, saturation, hue
+  * Replace board-specific firmware files with go7007tv.bin
+  * Fix broken ALSA /proc file parsing
+
+0.9.3 (1 March 2005)
+  * Support MPEG1 and MPEG2 formats
+  * Support EZ-USB boards on big-endian host systems
+  * New ioctls to set compression and bitrate parameters (see README)
+  * DEPRECATED: V4L2_PIX_FMT_MPEG4 pixelformat in favor of new ioctls
+  * Additional sanity checks in wis-ezusb fxload script
+  * Parser updates to remove debug/status data from the video stream
+  * Fix MJPEG frame rate control
+  * Re-enable video norm selection
+
+0.9.2 (17 February 2005)
+  * New checkfwdir script to check for FIRMWARE_DIRS as well as
+    FIRMWARE_DIR in /etc/hotplug/firmware.agent (fixes Debian bug)
+  * Fix typo that broke boards with EZ-USB but using on-board I2C
+
+0.9.1 (12 February 2005)
+
+  * Support tuner-related ioctls in V4L2
+  * Support I2C_FUNC_SMBUS_WRITE_I2C_BLOCK on EZ-USB I2C for tuners
+  * Support the tuner on the TV402U-NA
+  * Support on-board USB 1.1 interface
+  * New board description for Pelco MCE
+  * Move audio package generation from pacgen to kernel
+  * Only submit read interrupt URB when a read interrupt is expected
+  * Print input port list in gorecord probe
+  * Disable OSD package in pacgen
+  * Fix bug preventing compilation on SMP systems

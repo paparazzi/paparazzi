@@ -1,0 +1,25 @@
+---------------------------------------------------------------------------
+RELEASE NOTES FOR WIS GO7007SB LINUX DRIVER
+---------------------------------------------------------------------------
+
+Last updated: 5 November 2005
+
+ - Release 0.9.7 includes new support for using udev to run fxload.  The
+   install script should automatically detect whether the old hotplug
+   scripts or the new udev rules should be used.  To force the use of
+   hotplug, run "make install USE_UDEV=n".  To force the use of udev, run
+   "make install USE_UDEV=y".
+
+ - Motion detection is supported but undocumented.  Try the `modet` app
+   for a demonstration of how to use the facility.
+
+ - Using USB2.0 devices such as the TV402U with USB1.1 HCDs or hubs can
+   cause buffer overruns and frame drops, even at low framerates, due to
+   inconsistency in the bitrate control mechanism.
+
+ - On devices with an SAA7115, including the Plextor ConvertX, video height
+   values of 96, 128, 160, 192, 256, 320, and 384 do not work in NTSC mode.
+   All valid heights up to 512 work correctly in PAL mode.
+
+ - The WIS Star Trek and PCI Voyager boards have no support yet for audio
+   or the TV tuner.
