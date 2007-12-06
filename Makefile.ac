@@ -39,31 +39,18 @@ SETTINGS_H=$(ACINCLUDE)/settings.h
 SETTINGS_XMLS=$(patsubst %,$(CONF)/%,$(SETTINGS))
 SETTINGS_XML=$(ACINCLUDE)/settings.xml
 MAKEFILE_AC=$(ACINCLUDE)/Makefile.ac
-SUPERVISION=sw/supervision/paparazzi.pl
+SUPERVISION=./paparazzi
 MAKE=make PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME)
 
 
 # "make Q=''" to get full echo
 Q=@
 
-help:
-	@echo "'paparazzi-make init' to init your configuration"
-	@echo "'paparazzi-make demo' to compile demo aircraft and simulate them"
-	@echo "'paparazzi-make AIRCRAFT=<ac_name> [sim|ap.<action>|fbw.<action>|clean_ac]' where <action> is 'compile' or 'upload'"
-
 init:
 	@[ -d $(PAPARAZZI_HOME) ] || (echo "Copying config example in your $(PAPARAZZI_HOME) directory"; mkdir -p $(PAPARAZZI_HOME); cp -a conf $(PAPARAZZI_HOME); cp -a data $(PAPARAZZI_HOME); mkdir -p $(PAPARAZZI_HOME)/var/maps; mv $(PAPARAZZI_HOME)/data/maps/trtqtttqtsrrt*.jpg $(PAPARAZZI_HOME)/var/maps)
 
-demo: ac1 ac2 ac3
-	PAPARAZZI_HOME=$(PAPARAZZI_HOME) PAPARAZZI_SRC=$(PAPARAZZI_SRC) $(SUPERVISION)
-
-ac1 :
-	$(MAKE) -f Makefile.ac AIRCRAFT=Twin1 sim
-ac2 :
-	$(MAKE) -f Makefile.ac AIRCRAFT=TJ1 sim
-ac3 :
-	$(MAKE) -f Makefile.ac AIRCRAFT=MJ5 sim
-
+demo:
+	$(SUPERVISION)
 
 all_ac_h: $(AIRFRAME_H) $(RADIO_H) $(FLIGHT_PLAN_H) $(FLIGHT_PLAN_XML) $(SETTINGS_H) $(MAKEFILE_AC) $(PERIODIC_H)
 

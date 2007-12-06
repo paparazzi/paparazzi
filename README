@@ -25,22 +25,19 @@ Paparazzi is an attempt to develop a cheap fixed wing UAV (Unmanned Air
 Vehicle).  As of today we have successfully flown autonomously several small
 electro powered fixed wing aircraft (Twinstar, Microjet, ...).
 
-Up to date informations are available from the websites
+Up to date informations are available from the wiki website
 
-	www.nongnu.org/paparazzi
-	www.recherche.enac.fr/paparazzi
+	paparazzi.enac.fr
 
-and from the mailing list and the IRC channem. Documentation is edited in
-the wiki
+and from the mailing list (http://savannah.nongnu.org/mail/?group=paparazzi)
+and the IRC channel (freenode, #paparazzi).
 
-	www.recherche.enac.fr/paparazzi/doc
-
-Directories description:
------------------------
+Directories quick and dirty description:
+---------------------------------------
 
 conf: the configuration directory (airframe, radio, ... descriptions).
 
-data: where to put read-only data (e.g. maps and terrain elevation files)
+data: where to put read-only data (e.g. maps, terrain elevation files, icons)
 
 hw: hardware (electronic schemas, PCBs, ...)
 
@@ -55,53 +52,45 @@ Required Software
 -----------------
  - OCaml (ocaml.org), xml-light library (http://tech.motion-twin.com/xmllight)
  - gcc, GTK2, Glib2, libgnomecanvas, libxml2
- - AVR or ARM7 micro-controller development environnment (gcc, loader, libc, binutils)
+ - ARM7 micro-controller development environnment (gcc, loader, libc, binutils)
  - ...
 
 For Debian users: Required packages are available at
 
 	http://www.recherche.enac.fr/paparazzi/debian
 
-Installation of the meta-package "paparazzi-dev" will install everything
-needed to compile this project (if something is missing, please ask)
+Installation of the meta-package "paparazzi-dev" will install
+everything needed to compile this project (if something is missing,
+please ask) for simulation. "paparazzi-arm7" is required to compile
+the code for the ARM based boards.
 
-Compilation
------------
+Compilation and demo simulation
+-------------------------------
 
-  1) "make" in the top directory
+  1) "make" in the top directory to compile all the tools.
 
-  2) "make demo" to run a demo (c.f. www.recherche.enac.fr/paparazzi/doc/moin.cgi/GettingStarted/Simulation)
+  2) "./paparazzi" to run the Paparazzi Center
 
-  3) "make AIRCRAFT=<name> <target>.compile" compiles the airborne code for the specified target and aircraft
+  3) Select the "MJ5" or the "TJ1" aircraft in the upper-left A/C
+combo box. Select "sim" from upper-middle "target" combo box. Click
+"Build". When the compilation is finished, select "Simulation" from
+the upper-right session combo box and click "Execute".
 
-  4) "make AIRCRAFT=<name> sim" compiles the simulator for the specified aircraft.
-
-  5) "make AIRCRAFT=<name> clean_ac" cleans files for the specified aircraft.
+  4) In the GCS, wait about 10s for the aircraft to be in the "Holding
+point" navigation block. Switch to the "Takeoff" block (lower-left
+blue airway button in the strip). Takeoff with the green launch button.
 
 Uploading of the embedded software
 ----------------------------------
 
-  1) Power the flight controller board. Plug the pc-link to the board.
+  1) Power the flight controller board while it is connected to the PC with
+the USB cable.
 
-  2) Upload with
-
-	make AIRCRAFT=<name> fbw.upload		# Fly by wire
-	make AIRCRAFT=<name> ap.upload		# Autopilot
-
-  Important notes for bi-microcontroller avr boards:
-     - The pclink must be switched accordingly with the target
-     - The "fly by wire" controller cannot be uploaded when the
-     "autopilot" controller is running. They cannot independently be
-     modified; then an upload of the fly by wire usually requires
-
-	make AIRCRAFT=<name> ap.erase
-	make AIRCRAFT=<name> fbw.upload
- 	make AIRCRAFT=<name> ap.upload
+  2) From the Paparazzi center, select the "ap" target, and click "Upload".
 
 
-Running the ground segment monitoring
+Flight
 -------------------------------------
 
-  1) "sw/supervision/paparazzi.pl" runs the ground control station supervision
-
-  2) Choose the appropriate session
+  1) From the Paparazzi Center, select the flight session and ... do
+the same than in simulation !
