@@ -10,7 +10,8 @@
     airframe="airframes/microjet5.xml" 
     radio="radios/cockpitMM.xml" 
     telemetry="telemetry/default.xml"
-    flight_plan="flight_plans/muret_demo_1.xml"
+    flight_plan="flight_plans/basic.xml"
+    settings="settings/basic.xml"
     gui_color="#6293ba"
   />
  <!-- classix -->

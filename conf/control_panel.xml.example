@@ -64,7 +64,7 @@
 
   <section name="sessions">
 
-   <session name="Flight with USB-serial modem">
+   <session name="Flight USB-serial@9600">
       <program name="Data Link">
         <arg flag="-d" constant="/dev/ttyUSB0"/>
       </program>
@@ -72,7 +72,7 @@
       <program name="GCS"/>
     </session>
 
-   <session name="Flight with Maxstream@57600">
+   <session name="Flight USB-Maxstream@57600">
       <program name="Data Link">
         <arg flag="-d" constant="/dev/paparazzi/xbee"/>
         <arg flag="-transport" constant="xbee"/>
@@ -82,7 +82,7 @@
       <program name="GCS"/>
     </session>
 
-    <session name="6 Booz simulation : AHRS">
+    <session name="Booz simulation : AHRS">
 
      <program name="Messages">
         <arg flag="-c" constant="telemetry"/>
