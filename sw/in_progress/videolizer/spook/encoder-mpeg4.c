@@ -153,6 +153,10 @@ static void *mpeg4_loop( void *d )
 			xvid_enc_frame.input.csp = XVID_CSP_UYVY;
 			xvid_enc_frame.input.stride[0] = en->width * 2;
 			break;
+		case FORMAT_RAW_YUY2:
+			xvid_enc_frame.input.csp = XVID_CSP_YUY2;
+			xvid_enc_frame.input.stride[0] = en->width * 2;
+			break;
 		}
 		xvid_enc_frame.vol_flags = 0;
 		xvid_enc_frame.vop_flags = 0;
@@ -252,10 +256,10 @@ static int end_block( void *d )
 static int set_input( int num_tokens, struct token *tokens, void *d )
 {
 	struct mpeg4_encoder *en = (struct mpeg4_encoder *)d;
-	int formats[2] = { FORMAT_RAW_UYVY, FORMAT_RAW_BGR24 };
+	int formats[3] = { FORMAT_RAW_UYVY, FORMAT_RAW_YUY2, FORMAT_RAW_BGR24 };
 
 	if( ! ( en->input = connect_to_stream( tokens[1].v.str, mpeg4_encode,
-						en, formats, 2 ) ) )
+						en, formats, 3 ) ) )
 	{
 		spook_log( SL_ERR, "mpeg4: unable to connect to stream \"%s\"",
 				tokens[1].v.str );

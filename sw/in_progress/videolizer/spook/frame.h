@@ -20,6 +20,7 @@
 #define FORMAT_RAW_RGB24	1
 #define FORMAT_RAW_UYVY		2
 #define FORMAT_RAW_BGR24	3
+#define FORMAT_RAW_YUY2		4
 #define FORMAT_PCM		64
 #define FORMAT_MPEG4		100
 #define FORMAT_JPEG		101

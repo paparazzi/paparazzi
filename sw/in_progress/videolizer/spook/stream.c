@@ -52,6 +52,22 @@ static void convert_uyvy_to_rgb24( struct frame *uyvy, void *d )
 	deliver_frame_to_stream( rgb, s );
 }
 
+static void convert_yuy2_to_rgb24( struct frame *yuy2, void *d )
+{
+	struct stream *s = (struct stream *)d;
+	struct frame *rgb;
+
+	rgb = new_frame();
+	rgb->format = FORMAT_RAW_RGB24;
+	rgb->width = yuy2->width;
+	rgb->height = yuy2->height;
+	rgb->length = yuy2->height * yuy2->width * 3;
+	rgb->key = yuy2->key;
+	yuy22rgb( yuy2->d, rgb->d, yuy2->length / 2 );
+	unref_frame( yuy2 );
+	deliver_frame_to_stream( rgb, s );
+}
+
 static void get_framerate( struct stream *s, int *fincr, int *fbase )
 {
 	struct stream_destination *dest =
@@ -154,6 +170,16 @@ struct stream_destination *connect_to_stream( char *name,
 					s = new_convert_stream( s,
 							FORMAT_RAW_RGB24,
 							convert_uyvy_to_rgb24 );
+					return new_dest( s, process_frame, d );
+				}
+				break;
+			case FORMAT_RAW_YUY2:
+				if( format_match( FORMAT_RAW_RGB24,
+						formats, format_count ) )
+				{
+					s = new_convert_stream( s,
+							FORMAT_RAW_RGB24,
+							convert_yuy2_to_rgb24 );
 					return new_dest( s, process_frame, d );
 				}
 				break;

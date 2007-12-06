@@ -49,6 +49,7 @@
 #define	INPUTTYPE_WEBCAM	1
 #define INPUTTYPE_NTSC		2
 #define INPUTTYPE_PAL		3
+#define INPUTTYPE_PAL_BG	4
 
 struct v4l2_spook_input {
 	struct stream *output;
@@ -276,6 +277,9 @@ static int v4l2_setup( struct v4l2_spook_input *conf )
 	case INPUTTYPE_PAL:
 		std = V4L2_STD_PAL;
 		break;
+	case INPUTTYPE_PAL_BG:
+		std = V4L2_STD_PAL_BG;
+		break;
 	}
 
 	if( ioctl( conf->fd, VIDIOC_S_STD, &std ) < 0 )
@@ -299,6 +303,9 @@ static int v4l2_setup( struct v4l2_spook_input *conf )
 	fmt.fmt.pix.height = conf->height;
 	switch( conf->format )
 	{
+	case FORMAT_RAW_YUY2:
+		fmt.fmt.pix.pixelformat = V4L2_PIX_FMT_YUYV;
+		break;
 	case FORMAT_RAW_UYVY:
 		fmt.fmt.pix.pixelformat = V4L2_PIX_FMT_UYVY;
 		break;
@@ -442,6 +449,7 @@ static int end_block( void *d )
 		}
 		break;
 	case INPUTTYPE_PAL:
+	case INPUTTYPE_PAL_BG:
 		conf->fincr = 1;
 		conf->fbase = 25;
 		if( conf->width == 0 )
@@ -513,6 +521,8 @@ static int set_format( int num_tokens, struct token *tokens, void *d )
 	}
 	if( ! strcasecmp( tokens[1].v.str, "raw" ) )
 		conf->format = FORMAT_RAW_UYVY;
+	else if( ! strcasecmp( tokens[1].v.str, "raw2" ) )
+		conf->format = FORMAT_RAW_YUY2;
 	else if( ! strcasecmp( tokens[1].v.str, "mpeg4" ) )
 		conf->format = FORMAT_MPEG4;
 	else if( ! strcasecmp( tokens[1].v.str, "mjpeg" ) )
@@ -570,6 +580,8 @@ static int set_inputtype( int num_tokens, struct token *tokens, void *d )
 		conf->inputtype = INPUTTYPE_NTSC;
 	else if( ! strcasecmp( tokens[1].v.str, "pal" ) )
 		conf->inputtype = INPUTTYPE_PAL;
+	else if( ! strcasecmp( tokens[1].v.str, "pal_bg" ) )
+		conf->inputtype = INPUTTYPE_PAL_BG;
 	else
 	{
 		spook_log( SL_ERR,
