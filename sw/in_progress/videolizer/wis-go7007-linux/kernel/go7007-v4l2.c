@@ -939,7 +939,7 @@ static int go7007_do_ioctl(struct inode *inode, struct file *file,
 		if (go->i2c_adapter_online) {
 			i2c_clients_command(&go->i2c_adapter, DECODER_SET_INPUT,
 				&go->board_info->inputs[*input].video_input);
-			i2c_clients_command(&go->i2c_adapter, AUDC_SET_INPUT,
+			i2c_clients_command(&go->i2c_adapter, VIDIOC_S_AUDIO,
 				&go->board_info->inputs[*input].audio_input);
 		}
 		return 0;

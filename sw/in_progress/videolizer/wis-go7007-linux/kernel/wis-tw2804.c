@@ -20,6 +20,8 @@
 #include <linux/version.h>
 #include <linux/i2c.h>
 #include <linux/videodev.h>
+#include <linux/types.h>
+#include <linux/ioctl.h>
 #include <linux/video_decoder.h>
 
 #include "wis-i2c.h"

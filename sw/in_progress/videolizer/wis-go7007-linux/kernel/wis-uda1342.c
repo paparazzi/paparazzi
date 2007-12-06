@@ -20,7 +20,7 @@
 #include <linux/version.h>
 #include <linux/i2c.h>
 #include <linux/videodev.h>
-#include <media/audiochip.h>
+#include <media/tvaudio.h>
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,16)
 #include <media/v4l2-common.h>
 #endif
@@ -38,15 +38,15 @@ static int wis_uda1342_command(struct i2c_client *client,
 				unsigned int cmd, void *arg)
 {
 	switch (cmd) {
-	case AUDC_SET_INPUT:
+	case VIDIOC_S_AUDIO:
 	{
 		int *inp = arg;
 
 		switch (*inp) {
-		case AUDIO_TUNER:
+		case TVAUDIO_INPUT_TUNER:
 			write_reg(client, 0x00, 0x1441); /* select input 2 */
 			break;
-		case AUDIO_EXTERN:
+		case TVAUDIO_INPUT_EXTERN:
 			write_reg(client, 0x00, 0x1241); /* select input 1 */
 			break;
 		default:

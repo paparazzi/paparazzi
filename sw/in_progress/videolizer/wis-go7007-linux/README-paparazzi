@@ -1,0 +1,6 @@
+This is the 0.9.8 driver for the Plextor M402U USB video converter. It contains
+patches for the Debian 4.0 linux-2.6.18-5-686 Get the original at
+http://oss.wischip.com/
+
+Attention: If used with the v4l-dvb-experimental this driver needs to be
+recompiled with the correct modsym-versions! 

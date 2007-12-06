@@ -27,7 +27,7 @@
 #include <linux/usb.h>
 #include <linux/i2c.h>
 #include <asm/byteorder.h>
-#include <media/audiochip.h>
+#include <media/tvaudio.h>
 
 #include "go7007-priv.h"
 #include "wis-i2c.h"
@@ -225,17 +225,17 @@ static struct go7007_usb_board board_px_tv402u = {
 		.inputs 	 = {
 			{
 				.video_input	= 1,
-				.audio_input	= AUDIO_EXTERN,
+                .audio_input	= TVAUDIO_INPUT_EXTERN,
 				.name		= "Composite",
 			},
 			{
 				.video_input	= 8,
-				.audio_input	= AUDIO_EXTERN,
+				.audio_input	= TVAUDIO_INPUT_EXTERN,
 				.name		= "S-Video",
 			},
 			{
 				.video_input	= 3,
-				.audio_input	= AUDIO_TUNER,
+				.audio_input	= TVAUDIO_INPUT_TUNER,
 				.name		= "Tuner",
 			},
 		},
