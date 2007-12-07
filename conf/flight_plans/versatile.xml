@@ -139,7 +139,7 @@
         <attitude alt="250" pitch="-10" roll="0.0" until=" stage_time > 2" vmode="alt"/>
       </while>
     </block>
-    <block name="Heading 30°">
+    <block name="Heading 30">
       <heading alt="ground_alt+50" course="30" until="FALSE"/>
     </block>
     <block name="For loop (circles wp 1)">
