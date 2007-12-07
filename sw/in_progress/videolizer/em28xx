@@ -1,0 +1,2 @@
+#use this for Pollin USB-R1
+options em28xx card=62
