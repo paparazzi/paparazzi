@@ -1,0 +1,35 @@
+
+you need some version control system as well as the kernel headers
+
+ apt-get install mercurial linux-headers-$(uname -r) mplayer
+
+get the source (use v4l-dvb-kernel-experimental for kernel > 2.6.20)
+
+ hg clone http://mcentral.de/hg/~mrec/v4l-dvb-kernel
+
+copy over the em28xx* files from the cvs and build v4l-dvb
+
+ cd v4l-dvb-kernel
+ make
+ sudo make install 
+
+copy em28xx to /etc/modprobe.d as the Pollin USB-R1 does not have an EEPROM
+for auto detect (Typhoon DVD Maker works without). watch video in the gcs
+with (maybe adjust the NORM)
+
+ mplayer tv:// -tv driver=v4l2:width=320:height=240:norm=NTSC:input=0:device=/dev/video0:noaudio -ao noalsa -nolirc -nomouseinput -really-quiet
+
+or build spook and use it to distribute through rtsp
+
+ cd spook
+ make
+
+as the v4l-dvb-kernel updates some parts of the video4linux interface, just
+building wis does not work. if you want to use the Plextor M402U you have to
+use a patched (this is evil) Module.symvers. Either use the one provided or
+copy the symbol hashes over from the *.mod.c files. generate the headers
+
+ cd v4l-dvb-kernel
+ sudo make kernel-headers
+
+then build wis-go7007 
