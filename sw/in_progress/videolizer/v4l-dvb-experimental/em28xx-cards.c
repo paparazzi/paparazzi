@@ -1899,16 +1899,12 @@ struct em28xx_board em28xx_boards[] = {
 	},
 	[EM2861_BOARD_POLLIN_USB_R1] = {
 		.name          = "Pollin USB-R1",
-		.vchannels     = 2,
+		.vchannels     = 1,
 		.norm          = V4L2_STD_PAL_BG,
 		.decoder       = EM28XX_SAA7113,
 		.has_tuner     = 0,
 		.dev_modes      = EM28XX_VIDEO,
 		.input           = {{
-			.type     = EM28XX_VMUX_TELEVISION,
-			.vmux     = SAA7115_COMPOSITE0,
-			.amux     = 1,
-		},{
 			.type     = EM28XX_VMUX_COMPOSITE1,
 			.vmux     = SAA7115_COMPOSITE0,
 			.amux     = 1,
