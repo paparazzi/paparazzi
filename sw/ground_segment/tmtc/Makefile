@@ -112,3 +112,4 @@ settings.cmo : INCLUDES += -I ../cockpit
 ifneq ($(MAKECMDGOALS),clean) 
 -include .depend
 endif
+

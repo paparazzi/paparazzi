@@ -1,7 +1,7 @@
 (*
  * $Id$
  *
- * Copyright (C) 2004 CENA/ENAC, Pascal Brisset, Antoine Drouin
+ * Copyright (C) 2004-2007 ENAC, Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
  *
@@ -24,7 +24,6 @@
 
 open Latlong
 open Printf
-module W = Wavecard
 module Tm_Pprz = Pprz.Messages(struct let name = "telemetry" end)
 module Ground_Pprz = Pprz.Messages(struct let name = "ground" end)
 module Dl_Pprz = Pprz.Messages(struct let name = "datalink" end)
@@ -33,7 +32,6 @@ module PprzTransport = Serial.Transport(Pprz.Transport)
 type transport =
     Modem
   | Pprz
-  | Wavecard
   | XBee
 
 type ground_device = {
@@ -41,8 +39,7 @@ type ground_device = {
   }
 
 type airborne_device = 
-    WavecardDevice of W.addr
-  | XBeeDevice
+    XBeeDevice
   | Uart (** For HITL for example *)
 
 let my_id = 0
@@ -53,8 +50,7 @@ let conf = Env.paparazzi_home // "conf"
 
 let airborne_device = fun device addr ->
   match device with
-    "WAVECARD" -> WavecardDevice (W.addr_of_string addr)
-  | "XBEE" -> XBeeDevice
+    "XBEE" -> XBeeDevice
   | "PPRZ" | "AEROCOMM" -> Uart
   | _ -> failwith (sprintf "Link: unknown datalink: %s" device)
 
@@ -149,8 +145,7 @@ let airborne_device = fun ac_id airframes device ->
   let ac_device = try Some (List.assoc ac_id airframes) with Not_found -> None in
   match ac_device, device with
     (None, Pprz) | (Some Uart, Pprz) -> Uart
-  | (Some (WavecardDevice _ as ac_device), Wavecard) |
-    (Some (XBeeDevice as ac_device), XBee) ->
+  | (Some (XBeeDevice as ac_device), XBee) ->
       ac_device
   | _ -> raise NotSendingToThis
 
@@ -171,125 +166,6 @@ let use_tele_message = fun ?raw_data_size payload ->
 
 
 type priority = Null | Low | Normal | High
-
-(******** Wavecard ******************************************************)
-module Wc = struct
-  type status = Ready | Busy
-    
-  let buffer_size = 5
-  let null_buffer_entry = (Null, Unix.stdout, (W.ACK, ""))
-  let priority_of = fun (p, _, _) -> p
-  let buffer = (ref Ready, Array.create buffer_size null_buffer_entry)
-  let timer = ref None
-  let remove_timer = fun () ->
-    match !timer with
-      None -> ()
-    | Some t -> GMain.Timeout.remove t
-
-  let shift_buffer = fun b ->
-    for i = 0 to buffer_size - 2 do (** A circular buf would be better *)
-      b.(i) <- b.(i+1)
-    done;
-    b.(buffer_size-1) <- null_buffer_entry
-
-  let rec repeat_send = fun fd cmd n ->
-    W.send fd cmd;
-    timer := Some (GMain.Timeout.add 300 (fun _ -> Debug.trace 'b' (sprintf "Retry %d" n); repeat_send fd cmd (n+1); false))
-
-  let rec flush = fun () ->
-    let status, b = buffer in
-    if !status = Ready then
-      let (priority, fd, cmd) = b.(0) in
-      if priority <> Null then begin
-	shift_buffer b;
-	status := Busy;
-	repeat_send fd cmd 0
-      end
-
-  let buffer_ready = fun () ->
-    remove_timer ();
-    let (status, b) = buffer in
-    shift_buffer b;
-    status := Ready;
-    flush ()
-	
-	  	  
-  let send_buffered = fun fd cmd priority ->
-    let _status, b = buffer in
-    (** Set the message in the right place in the buffer *)
-    let rec loop = fun i ->
-      if i < buffer_size then
-	if priority_of b.(i) >= priority
-	then loop (i+1)
-	  else begin
-	    for j = i + 1 to buffer_size - 1 do (** Shift *)
-	      b.(j) <- b.(j-1)
-	    done;
-	    Debug.trace 'b' (sprintf "Set in %d" i);
-	    b.(i) <- (priority, fd, cmd)
-	  end 
-      else
-	Debug.trace 'b' "Buffer full" in
-    loop 0;
-    flush ()
-
-  let send = fun fd addr payload priority ->
-    let data = W.addressed addr (Serial.string_of_payload payload) in
-    send_buffered fd (W.REQ_SEND_MESSAGE, data) priority
-
-  let ack_delay = 10 (* ms *)
-  let send_ack = fun fd () ->
-    Debug.trace 'w' (sprintf "%.2f send ACK" (Unix.gettimeofday ()));
-    ignore (GMain.Timeout.add ack_delay (fun _ -> W.send fd (W.ACK, ""); false))
-  let use_message = fun (com, data) ->
-    match com with
-      W.RECEIVED_FRAME ->
-	use_tele_message (Serial.payload_of_string data)
-    | W.RES_SEND_FRAME ->
-	Debug.trace 'b' "RES_SEND_FRAME";
-	ignore (GMain.Timeout.add 100 (fun _ -> buffer_ready (); false))
-	
-    | W.RES_READ_REMOTE_RSSI ->
-	Tm_Pprz.message_send "link" "WC_RSSI" ["raw_level", Pprz.Int (Char.code data.[0])];
-	Debug.call 'w' (fun f -> fprintf f "%.2f wv remote RSSI %d\n" (Unix.gettimeofday ()) (Char.code data.[0]));
-	ignore (GMain.Timeout.add 100 (fun _ -> buffer_ready (); false))
-    | W.RES_READ_RADIO_PARAM ->
-	Ivy.send (sprintf "WC_ADDR %s" data);
-	Debug.call 'w' (fun f -> fprintf f "wv local addr : %s\n" (Debug.xprint data));
-    | W.ACK -> 
-	Debug.trace 'w' (sprintf "%.2f wv ACK" (Unix.gettimeofday ()))
-    | _ -> 
-	Debug.call 'w' (fun f -> fprintf f "wv receiving: %02x %s\n" (W.code_of_cmd com) (Debug.xprint data));
-	()
-
-  let rssi_period = 5000 (** ms *)
-  let req_rssi = fun device addr ->
-    let data = W.addressed addr "" in
-    send_buffered device.fd (W.REQ_READ_REMOTE_RSSI, data) Low
-
-  let init = fun device rssi_id ->
-    (** Set the wavecard in short wakeup mode *)
-    let data = String.create 2 in
-    data.[0] <- Char.chr (W.code_of_config_param W.WAKEUP_TYPE);
-    data.[1] <- Char.chr (W.code_of_wakeup_type W.SHORT_WAKEUP);
-(***          data.[0] <- Char.chr (W.code_of_config_param W.AWAKENING_PERIOD);
-   data.[1] <- Char.chr 10; ***)
-    W.send device.fd (W.REQ_WRITE_RADIO_PARAM,data);
-    
-    (* request own address *)
-    let s = String.make 1 (char_of_int 5) in
-    ignore (GMain.Timeout.add 1500 (fun _ -> W.send device.fd (W.REQ_READ_RADIO_PARAM, s); false));
-    
-    (** Ask for rssi if required *)
-    if rssi_id >= 0 then begin
-      match airborne_device rssi_id airframes device.transport with
-	WavecardDevice addr ->
-	  ignore (GMain.Timeout.add rssi_period (fun _ -> req_rssi device addr; true))
-      | _ -> failwith (sprintf "Rssi not supported by A/C '%d'" rssi_id)
-    end
-	
-end (** Wc module *)
-
 
 module Aerocomm = struct
   let set_command_mode = fun fd ->
@@ -405,9 +281,6 @@ let send = fun ac_id device ac_device payload priority ->
       let buf = Pprz.Transport.packet payload in
       Printf.fprintf o "%s" buf; flush o;
       Debug.call 'l' (fun f -> fprintf f "mm sending: %s\n" (Debug.xprint buf));
-  | WavecardDevice addr ->
-      Wc.send device.fd addr payload priority
-
   | XBeeDevice ->
       XB.send ac_id device payload
 
@@ -565,8 +438,6 @@ let parse_of_transport device = function
   | Modem -> 
       let module ModemTransport = Serial.Transport(Modem.Protocol) in
       ModemTransport.parse PprzModem.use_message
-  | Wavecard ->
-      fun buf -> Wavecard.parse buf ~ack:(Wc.send_ack device.fd) (Wc.use_message)
   | XBee ->
       let module XbeeTransport = Serial.Transport (Xbee.Protocol) in
       XbeeTransport.parse (XB.use_message device)
@@ -585,10 +456,10 @@ let _ =
   let options =
     [ "-b", Arg.Set_string ivy_bus, (sprintf "<ivy bus> Default is %s" !ivy_bus);
       "-d", Arg.Set_string port, (sprintf "<port> Default is %s" !port);
-      "-rssi", Arg.Set_int rssi_id, (sprintf "<ac_id> Periodically requests rssi level from the distant wavecard");
+      "-rssi", Arg.Set_int rssi_id, (sprintf "<ac_id> Periodically requests rssi level from the distant modem");
       "-xbee_addr", Arg.Set_int XB.my_addr, (sprintf "<my_addr> (%d)" !XB.my_addr);
       "-xbee_retries", Arg.Set_int XB.my_addr, (sprintf "<nb retries> (%d)" !XB.nb_retries);
-      "-transport", Arg.Set_string transport, (sprintf "<transport> Available protocols are modem,pprz,wavecard and xbee. Default is %s" !transport);
+      "-transport", Arg.Set_string transport, (sprintf "<transport> Available protocols are modem,pprz and xbee. Default is %s" !transport);
       "-uplink", Arg.Set uplink, (sprintf "Deprecated (now default)");
       "-nouplink", Arg.Clear uplink, (sprintf "Disables the uplink (from the ground to the aircraft).");
       "-dtr", Arg.Set aerocomm, "Set serial DTR to false (deprecated)";
@@ -608,7 +479,6 @@ let _ =
       match !transport with
 	"modem" -> Modem
       | "pprz" -> Pprz
-      | "wavecard" -> Wavecard
       | "xbee" -> XBee
       | x -> invalid_arg (sprintf "transport_of_string: %s" x)
     in
@@ -666,8 +536,6 @@ let _ =
 	Modem ->
 	  (** Sending periodically modem and downlink status messages *)
 	  ignore (Glib.Timeout.add PprzModem.msg_period (fun () -> PprzModem.send_msg (); true))
-      | Wavecard ->
-	  Wc.init device !rssi_id
       | XBee ->
 	  XB.init device
       | _ -> ()
