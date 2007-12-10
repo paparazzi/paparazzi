@@ -103,6 +103,20 @@
     <define name="DEFAULT_CIRCLE_RADIUS" value="50."/>
   </section>
  
+  <section name="Digital camera telecommand">
+    <!-- ADC 4 and ADC 5 pins are used. They are seen as LEDs -->
+    <!-- ADC 4 -->
+    <define name="LED_4_BANK" value="0"/>
+    <define name="LED_4_PIN" value="22"/>
+
+    <!-- ADC 5 -->
+    <define name="LED_5_BANK" value="0"/>
+    <define name="LED_5_PIN" value="12"/>
+
+    <define name="DC_SHUTTER_LED" value="4"/>
+    <define name="DC_ZOOM_LED" value="5"/>
+  </section>
+ 
   <section name="VERTICAL CONTROL" prefix="V_CTL_">
 
     <define name="POWER_CTL_BAT_NOMINAL" value="11.1" unit="volt"/>
@@ -205,10 +219,14 @@ ap.srcs += infrared.c estimator.c
 ap.CFLAGS += -DNAV -DAGR_CLIMB -DLOITER_TRIM -DALT_KALMAN
 ap.srcs += nav.c fw_h_ctl.c fw_v_ctl.c nav_survey_rectangle.c nav_line.c
 
+ap.CFLAGS += -DDIGITAL_CAM
+ap.srcs += dc.c
+
 # Config for SITL simulation
 include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
 sim.CFLAGS += -DCONFIG=\"tiny.h\" -DAGR_CLIMB -DLOITER_TRIM -DALT_KALMAN -DIR_360
 sim.srcs += nav_survey_rectangle.c nav_line.c
+sim.srcs += dc.c
 
   </makefile>
 </airframe>
