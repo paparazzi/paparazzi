@@ -35,6 +35,8 @@ module U = Unix
 module Ground = struct let name = "ground" end
 module Ground_Pprz = Pprz.Messages(Ground)
 module Alerts_Pprz = Pprz.Messages(struct let name = "alert" end)
+module Dl_Pprz = Pprz.Messages (struct let name = "datalink" end)
+
 
 
 let (//) = Filename.concat
@@ -212,24 +214,27 @@ let format_string_field = fun s ->
   done;
   s
 
+let string_of_values = fun values ->
+  String.concat " " (List.map (fun (_, v) -> Pprz.string_of_value v) values)
+
+let log = fun logging ac_name msg_name values ->
+  match logging with
+    Some log ->
+      let s = string_of_values values in
+      let t = U.gettimeofday () -. start_time in
+      fprintf log "%.3f %s %s %s\n" t ac_name msg_name s; flush log
+  | None -> ()
 
 
 let log_and_parse = fun logging ac_name (a:Aircraft.aircraft) msg values ->
-  let s = String.concat " " (List.map (fun (_, v) -> Pprz.string_of_value v) values) in
-  begin
-    match logging with
-      Some log ->
-	let t = U.gettimeofday () -. start_time in
-	fprintf log "%.3f %s %s %s\n" t ac_name msg.Pprz.name s; flush log
-    | None -> ()
-  end;
+  log logging ac_name msg.Pprz.name values;
   let value = fun x -> try Pprz.assoc x values with Not_found -> failwith (sprintf "Error: field '%s' not found\n" x) in
 
   let fvalue = fun x -> 
     let f = fvalue (value x) in
       match classify_float f with
 	FP_infinite | FP_nan ->
-	  let msg = sprintf "Non normal number: %f in '%s %s %s'" f ac_name msg.Pprz.name s in
+	  let msg = sprintf "Non normal number: %f in '%s %s %s'" f ac_name msg.Pprz.name (string_of_values values) in
 	  Ground_Pprz.message_send my_id "TELEMETRY_ERROR" ["ac_id", Pprz.String ac_name;"message", Pprz.String (format_string_field msg)];
 	  failwith msg
       | _ -> f
@@ -658,7 +663,7 @@ let send_aircraft_msg = fun ac ->
     Not_found -> prerr_endline ac
   | x -> prerr_endline (Printexc.to_string x)
 
-(** c.f. sw/logalizer/play.ml *)
+(** Check if it is a replayed A/C (c.f. sw/logalizer/play.ml) *)
 let replayed = fun ac_id ->
   let n = String.length ac_id in
   if n > 6 && String.sub ac_id 0 6 = "replay" then
@@ -798,14 +803,13 @@ let send_config = fun http _asker args ->
     and settings = prefix  ("var" // ac_name // "settings.xml") in
     let col = try Xml.attrib conf "gui_color" with _ -> new_color () in
     let ac_name = try Xml.attrib conf "name" with _ -> "" in
-    ["ac_id", Pprz.String ac_id;
-     "flight_plan", Pprz.String fp;
-     "airframe", Pprz.String af;
-     "radio", Pprz.String rc;
-     "settings", Pprz.String settings;
-     "default_gui_color", Pprz.String col;
-     "ac_name", Pprz.String ac_name
-   ]
+    [ "ac_id", Pprz.String ac_id;
+      "flight_plan", Pprz.String fp;
+      "airframe", Pprz.String af;
+      "radio", Pprz.String rc;
+      "settings", Pprz.String settings;
+      "default_gui_color", Pprz.String col;
+      "ac_name", Pprz.String ac_name ]
   with
     Not_found ->
       failwith (sprintf "ground UNKNOWN %s" ac_id')     
@@ -814,6 +818,58 @@ let ivy_server = fun http ->
   ignore (Ground_Pprz.message_answerer my_id "AIRCRAFTS" send_aircrafts_msg);
   ignore (Ground_Pprz.message_answerer my_id "CONFIG" (send_config http))
 
+
+let cm_of_m = fun f -> Pprz.Int (truncate (100. *. f))
+
+(** Got a ground.MOVE_WAYPOINT and send a datalink.MOVE_WP *)
+let move_wp = fun logging _sender vs ->
+  let f = fun a -> List.assoc a vs
+  and ac_id = Pprz.string_assoc "ac_id" vs in
+  let vs = [ "ac_id", Pprz.String ac_id;
+	     "wp_id", f "wp_id";
+	     "lat", f "lat";
+	     "lon", f "long";
+	     "alt", cm_of_m (Pprz.float_assoc "alt" vs) ] in
+  Dl_Pprz.message_send my_id "MOVE_WP" vs;
+  log logging ac_id "MOVE_WP" vs
+
+(** Got a DL_SETTING, and send an SETTING *)
+let setting = fun logging _sender vs ->
+  let ac_id = Pprz.string_assoc "ac_id" vs in
+  let vs = ["ac_id", Pprz.String ac_id;
+	    "index", List.assoc "index" vs; 
+	    "value", List.assoc "value" vs] in
+  Dl_Pprz.message_send my_id "SETTING" vs;
+  log logging ac_id "SETTING" vs
+
+
+(** Got a JUMP_TO_BLOCK, and send an BLOCK *)
+let jump_block = fun logging _sender vs ->
+  let ac_id = Pprz.string_assoc "ac_id" vs in
+  let vs = ["ac_id", Pprz.String ac_id; "block_id", List.assoc "block_id" vs] in
+  Dl_Pprz.message_send my_id "BLOCK" vs;
+  log logging ac_id "BLOCK" vs
+
+(** Got a RAW_DATALINK,send its contents *)
+let raw_datalink = fun logging _sender vs ->
+  let ac_id = Pprz.string_assoc "ac_id" vs
+  and m = Pprz.string_assoc "message" vs in
+  for i = 0 to String.length m - 1 do
+    if m.[i] = ';' then m.[i] <- ' '
+  done;
+  let msg_id, vs = Dl_Pprz.values_of_string m in
+  let msg = Dl_Pprz.message_of_id msg_id in
+  Dl_Pprz.message_send my_id msg.Pprz.name vs;
+  log logging ac_id msg.Pprz.name vs
+
+(** Get the 'ground' uplink messages, log them and send 'datalink' messages *)
+let ground_to_uplink = fun logging ->
+  let bind_log_and_send = fun name handler ->
+    ignore (Ground_Pprz.message_bind name (handler logging)) in
+  bind_log_and_send "MOVE_WAYPOINT" move_wp;
+  bind_log_and_send "DL_SETTING" setting;
+  bind_log_and_send "JUMP_TO_BLOCK" jump_block;
+  bind_log_and_send "RAW_DATALINK" raw_datalink
 
 
 (* main loop *)
@@ -837,13 +893,18 @@ let _ =
   Ivy.init "Paparazzi server" "READY" (fun _ _ -> ());
   Ivy.start !ivy_bus;
 
-  if !logging then
-    (* Opens the log file *)
-    let log = logger () in
-    (* Waits for new simulated aircrafts *)
-    listen_acs (Some log)
-  else
-    listen_acs None;
+  let logging = 
+    if !logging then
+      (* Opens the log file *)
+      let log = logger () in
+      (* Waits for new simulated aircrafts *)
+      (Some log)
+    else
+      None in
+  listen_acs logging;
+
+  ground_to_uplink logging;
+
   (* Waits for client requests on the Ivy bus *)
   ivy_server !http;
   
