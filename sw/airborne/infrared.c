@@ -200,18 +200,25 @@ void ir_update(void) {
 #if ! (defined SITL || defined HITL)
   ir_ir1 = buf_ir1.sum/buf_ir1.av_nb_sample - IR_ADC_IR1_NEUTRAL;
   ir_ir2 = buf_ir2.sum/buf_ir2.av_nb_sample - IR_ADC_IR2_NEUTRAL;
-  ir_roll = IR_RollOfIrs(ir_ir1, ir_ir2);
-  ir_pitch = IR_PitchOfIrs(ir_ir1, ir_ir2);
+  ir_roll = ir_lateral_correction * IR_RollOfIrs(ir_ir1, ir_ir2);
+  ir_pitch = ir_longitudinal_correction * IR_PitchOfIrs(ir_ir1, ir_ir2);
 #ifdef ADC_CHANNEL_IR_TOP
-  ir_top =  IR_TopOfIr(buf_ir_top.sum/buf_ir_top.av_nb_sample - IR_ADC_TOP_NEUTRAL);
+  ir_top =  ir_vertical_correction * IR_TopOfIr(buf_ir_top.sum/buf_ir_top.av_nb_sample - IR_ADC_TOP_NEUTRAL);
 #endif // IR_TOP
 #endif /* !SITL && !HITL */
 /** #else ir_roll set by simulator in sim_ir.c */
 }
 
+void estimator_update_state_infrared( void ) {
+  estimator_phi  = atan2(ir_roll, ir_top) - ir_roll_neutral;
+  
+  estimator_theta  = atan2(ir_pitch, ir_top) - ir_pitch_neutral;
 
-static inline void ir_correction( void ) {
-    /* infrared compensation */
+  if (estimator_theta < -M_PI_2)
+    estimator_theta += M_PI;
+  else if (estimator_theta > M_PI_2)
+    estimator_theta -= M_PI;
+
 #if defined IR_CORRECTION_LEFT && defined IR_CORRECTION_RIGHT
     if (estimator_phi >= 0) 
       estimator_phi *= ir_correction_right;
@@ -225,21 +232,4 @@ static inline void ir_correction( void ) {
     else
       estimator_theta *= ir_correction_down;
 #endif
-}
-
-void estimator_update_state_infrared( void ) {
-  float tmp_ir_roll = ir_roll * ir_lateral_correction;
-  float tmp_ir_pitch = ir_pitch * ir_longitudinal_correction;
-  float tmp_ir_top = ir_top * ir_vertical_correction;
-
-  estimator_phi  = atan2(tmp_ir_roll, tmp_ir_top) - ir_roll_neutral;
-  
-  estimator_theta  = atan2(tmp_ir_pitch, tmp_ir_top) - ir_pitch_neutral;
-
-  if (estimator_theta < -M_PI_2)
-    estimator_theta += M_PI;
-  else if (estimator_theta > M_PI_2)
-    estimator_theta -= M_PI;
-
-  ir_correction();
 }
