@@ -494,7 +494,7 @@ let _main =
     "Usage: ";
   (*                                 *)
   if not !edit then begin
-    Ivy.init "Paparazzi map 2D" "READY" (fun _ _ -> ());
+    Ivy.init "Paparazzi GCS" "READY" (fun _ _ -> ());
     Ivy.start !ivy_bus
   end;
 
