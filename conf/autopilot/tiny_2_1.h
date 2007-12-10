@@ -37,6 +37,11 @@
 
 #define POWER_SWITCH_LED 4
 
+#define LED_5_BANK 1
+#define LED_5_PIN 22
+
+#define CAM_SWITCH_LED 5
+
 /* P0.5 aka MAT0.1  */
 #define SERVO_CLOCK_PIN  5
 #define SERVO_CLOCK_PINSEL PINSEL0
