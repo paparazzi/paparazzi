@@ -13,15 +13,13 @@ uint8_t  uart0_tx_buffer[UART0_TX_BUFFER_SIZE];
 uint16_t uart0_tx_insert_idx, uart0_tx_extract_idx;
 uint8_t  uart0_tx_running;
 
-static void uart0_init_param( uint16_t baud, uint8_t mode, uint8_t fmode);
-
 void uart0_init_tx( void ) {
   uart0_init_param(UART0_BAUD, UART_8N1, UART_FIFO_8);
 }
 
 void uart0_init_rx( void ) {}
 
-static void uart0_init_param( uint16_t baud, uint8_t mode, uint8_t fmode) {
+void uart0_init_param( uint16_t baud, uint8_t mode, uint8_t fmode) {
   // set port pins for UART0
   PINSEL0 = (PINSEL0 & ~U0_PINMASK) | U0_PINSEL;
 
