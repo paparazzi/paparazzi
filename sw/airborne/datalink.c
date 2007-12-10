@@ -86,13 +86,8 @@ void dl_parse_msg(void) {
   } else if (msg_id == DL_WIND_INFO) {
     wind_east = DL_WIND_INFO_east(dl_buffer);
     wind_north = DL_WIND_INFO_north(dl_buffer);
-  } else
+  }
 #endif /** NAV */
-#ifdef AP
-    if (msg_id == DL_TELEMETRY_MODE) {
-    telemetry_mode_Ap = DL_TELEMETRY_MODE_mode(dl_buffer);
-#endif /** AP */
-  } 
 #ifdef HITL
   /** Infrared and GPS sensors are replaced by messages on the datalink */
   else if (msg_id == DL_HITL_INFRARED) {
