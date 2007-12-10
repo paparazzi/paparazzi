@@ -65,7 +65,7 @@ server.opt :  $(SERVERCMX) ../../lib/ocaml/lib-pprz.cmxa
 	@echo OOL $@
 	$(Q)$(OCAMLOPT) $(INCLUDES) -o $@ str.cmxa unix.cmxa xml-light.cmxa lablgtk.cmxa glibivy-ocaml.cmxa lib-pprz.cmxa $(SERVERCMX)
 
-LINKCMO=modem.cmo link.cmo
+LINKCMO=link.cmo
 
 link : $(LINKCMO)  ../../lib/ocaml/lib-pprz.cma
 	@echo OL $@
