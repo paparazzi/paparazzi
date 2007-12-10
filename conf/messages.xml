@@ -8,21 +8,8 @@
      <field name="version" type="uint16"></field>
    </message>
 
-   <message name="CALIB_START" ID="2">
-   </message>
-
-   <message name="CALIB_CONTRAST" ID="3">
-     <field name="adc" type="int16"></field>
-   </message>
-
    <message name="TAKEOFF" ID="4">
      <field name="cpu_time" type="uint16" unit="s"></field>
-   </message>
-
-   <message name="RAD_OF_IR" ID="5">
-     <field name="ir" type="int16"></field>
-     <field name="rad" type="int16" unit="decideg"></field>
-     <field name="rad_of_ir" type="float" format="%.5f"></field>
    </message>
 
    <message name="ATTITUDE" ID="6">
@@ -32,6 +19,8 @@
    </message>
 
    <message name="IR_SENSORS" ID="7">
+     <field name="ir1" type="int16"></field>
+     <field name="ir2" type="int16"></field>
      <field name="longitudinal" type="int16"></field>
      <field name="lateral" type="int16"></field>
      <field name="vertical" type="int16"></field>
@@ -72,8 +61,7 @@
      <field name="ap_lateral" type="uint8" values="MANUAL|ROLL_RATE|ROLL|COURSE"/>
      <field name="ap_horizontal" type="uint8" values="WAYPOINT|ROUTE|CIRCLE"/>
      <field name="if_calib_mode" type="uint8" values="NONE|DOWN|UP"/>
-     <field name="mcu1_status" type="uint8" values="LOST|OK|REALLY_LOST"/>	
-     <field name="lls_calib" type="uint8" values="LLS_CALIB_MODE_OFF|LLS_CALIB_MODE_ON"/>
+     <field name="mcu1_status" type="uint8" values="LOST|OK|REALLY_LOST"/>
    </message>
 
    <message name="BAT" ID="12">
@@ -783,14 +771,6 @@
     <field name="ac_id" type="string"/>
     <field name="rc_status" type="string" values="OK|LOST|REALLY_LOST"/>
     <field name="rc_mode" type="string" values="MANUAL|AUTO|FAILSAFE"/>
-  </message>
-
-  <message name="INFRARED" id="18">
-    <field name="ac_id" type="string"/>
-    <field name="gps_hybrid_mode" type="string" values="OFF|ON"/>
-    <field name="gps_hybrid_factor" type="float"/>
-    <field name="contrast_status" type="string" values="DEFAULT|WAITING|SET|SKIPPED"/>
-    <field name="contrast_value" type="int16"/>
   </message>
 
   <message name="INFLIGH_CALIB" id="19">

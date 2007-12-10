@@ -82,8 +82,6 @@ float wind_east, wind_north;
 //FIXME is this true ?? estimator_vx = estimator_hspeed_mod * cos(estimator_hspeed_dir);
 //FIXME is this true ?? estimator_vy = estimator_hspeed_mod * sin(estimator_hspeed_dir);
 
-inline void estimator_update_lls( void );
-
 void estimator_init( void ) {
 
   EstimatorSetPosXY(0., 0.);

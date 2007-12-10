@@ -56,15 +56,13 @@
   <section name="INFRARED" prefix="IR_">
     <define name="ROLL_NEUTRAL_DEFAULT" value="6" unit="deg"/>
     <define name="PITCH_NEUTRAL_DEFAULT" value="9" unit="deg"/>
-    <define name="DEFAULT_CONTRAST" value="200"/>
-    <define name="RAD_OF_IR_CONTRAST" value="0.75"/>
     <linear name="RollOfIrs" arity="2" coeff1="-0.7" coeff2="0.7"/>
     <linear name="PitchOfIrs" arity="2" coeff1="-0.7" coeff2="-0.7"/>
     <linear name="TopOfIr" arity="1" coeff1="1"/>
     <define name="RAD_OF_IR_MAX_VALUE" value="0.0045"/>
     <define name="RAD_OF_IR_MIN_VALUE" value="0.00075"/>
-    <define name="ADC_ROLL_NEUTRAL" value="0"/>
-    <define name="ADC_PITCH_NEUTRAL" value="-716"/>
+    <define name="ADC_IR1_NEUTRAL" value="512"/>
+    <define name="ADC_IR2_NEUTRAL" value="512"/>
     <define name="ADC_TOP_NEUTRAL" value="512"/>
   </section>
 
@@ -258,12 +256,7 @@ ap.srcs += gyro.c
 
 # Config for SITL simulation
 include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
-sim.CFLAGS += -DCONFIG=\"tiny.h\" -DAGR_CLIMB -DLOITER_TRIM -DALT_KALMAN -DIR_360 -DMOBILE_CAM -DCAM
+sim.CFLAGS += -DCONFIG=\"tiny.h\" -DAGR_CLIMB -DLOITER_TRIM -DALT_KALMAN -DMOBILE_CAM -DCAM
 sim.srcs += nav_survey_rectangle.c traffic_info.c cam.c nav_line.c
-
-
-
-
-
   </makefile>
 </airframe>

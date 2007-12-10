@@ -121,7 +121,6 @@ module Make(A:Data.MISSION) = struct
 
   let nominal_airspeed = float_of_string (defined_value misc_section "NOMINAL_AIRSPEED")
 
-  let adc_roll_neutral = ios (defined_value infrared_section "ADC_ROLL_NEUTRAL")
   let roll_neutral_default = rad_of_deg (float_value infrared_section "ROLL_NEUTRAL_DEFAULT")
   let pitch_neutral_default = rad_of_deg (float_value infrared_section "PITCH_NEUTRAL_DEFAULT")
 

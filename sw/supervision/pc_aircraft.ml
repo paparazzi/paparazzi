@@ -39,9 +39,9 @@ let aircraft_sample = fun name ac_id ->
 	       ["name", name;
 		"ac_id", ac_id;
 		"airframe", "airframes/microjet5.xml";
-		"radio", "radios/cockpitMM.xml";
+		"radio", "radios/cockpitSX.xml";
 		"telemetry", "telemetry/default.xml";
-		"flight_plan", "flight_plans/versatile.xml";
+		"flight_plan", "flight_plans/basic.xml";
 		"settings", "settings/basic.xml";
 		"gui_color", "blue"],
 	       [])

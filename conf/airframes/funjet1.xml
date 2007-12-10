@@ -53,27 +53,25 @@
   </section>
 
   <section name="INFRARED" prefix="IR_">
+    <define name="ADC_IR1_NEUTRAL" value="512"/>
+    <define name="ADC_IR2_NEUTRAL" value="512"/>
+    <define name="ADC_TOP_NEUTRAL" value="512"/>
+
+    <define name="LATERAL_CORRECTION" value="1."/>
+    <define name="LONGITUDINAL_CORRECTION" value="1."/>
+    <define name="VERTICAL_CORRECTION" value="1."/>
+
+    <define name="HORIZ_SENSOR_TILTED" value="1"/>
+    <define name="IR2_SIGN" value="-1"/>
+    <define name="TOP_SIGN" value="-1"/>
+
     <define name="ROLL_NEUTRAL_DEFAULT" value="-6" unit="deg"/>
     <define name="PITCH_NEUTRAL_DEFAULT" value="6" unit="deg"/>
-    <define name="DEFAULT_CONTRAST" value="200"/>
-    <define name="RAD_OF_IR_CONTRAST" value="0.75"/>
-    <linear name="RollOfIrs" arity="2" coeff1="0.7" coeff2="-0.7"/>
-    <linear name="PitchOfIrs" arity="2" coeff1="-0.7" coeff2="-0.7"/>
-    <linear name="TopOfIr" arity="1" coeff1="-1"/>
-    <define name="RAD_OF_IR_MAX_VALUE" value="0.0045"/>
-    <define name="RAD_OF_IR_MIN_VALUE" value="0.00075"/>
-    <define name="ADC_ROLL_NEUTRAL" value="0"/>
-    <define name="ADC_PITCH_NEUTRAL" value="-716"/>
-    <define name="ADC_TOP_NEUTRAL" value="512"/>
 
     <define name="CORRECTION_UP" value="1."/>
     <define name="CORRECTION_DOWN" value="1."/>
     <define name="CORRECTION_LEFT" value="1."/>
     <define name="CORRECTION_RIGHT" value="1."/>
-
-    <define name="360_LATERAL_CORRECTION" value="1."/>
-    <define name="360_LONGITUDINAL_CORRECTION" value="1."/>
-    <define name="360_VERTICAL_CORRECTION" value="1."/>
   </section>
 
  <section name="GYRO" prefix="GYRO_">
@@ -237,7 +235,7 @@ ap.CFLAGS += -DGPS -DUBX -DUSE_UART1 -DGPS_LINK=Uart1 -DUART1_BAUD=B38400
 # -DGPS_LED=2
 ap.srcs += gps_ubx.c gps.c latlong.c
 
-ap.CFLAGS += -DINFRARED -DALT_KALMAN -DIR_360
+ap.CFLAGS += -DINFRARED -DALT_KALMAN
 ap.srcs += infrared.c estimator.c
 
 ap.CFLAGS += -DNAV -DH_CTL_RATE_LOOP -DAGR_CLIMB -DLOITER_TRIM
@@ -265,7 +263,7 @@ ap.CFLAGS += -DUSE_I2C -DENOSE
 
 # Config for SITL simulation
 include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
-sim.CFLAGS += -DCONFIG=\"tiny.h\" -DAGR_CLIMB -DH_CTL_RATE_LOOP -DLOITER_TRIM -DALT_KALMAN -DIR_360 -DENOSE
+sim.CFLAGS += -DCONFIG=\"tiny.h\" -DAGR_CLIMB -DH_CTL_RATE_LOOP -DLOITER_TRIM -DALT_KALMAN -DENOSE
 sim.srcs += nav_line.c chemotaxis.c anemotaxis.c discsurvey.c nav_survey_rectangle.c $(SRC_ARCH)/sim_enose.c chemo_detect.c
 
 

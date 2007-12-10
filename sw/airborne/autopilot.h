@@ -61,14 +61,6 @@ extern bool_t kill_throttle;
 #define LATERAL_MODE_COURSE    3
 #define LATERAL_MODE_NB        4
 
-#define IR_ESTIM_MODE_OFF        0
-#define IR_ESTIM_MODE_ON         1
-
-#define IR_ESTIM_MODE_OF_PULSE(pprz) (pprz < TRESHOLD2 ? IR_ESTIM_MODE_OFF:  \
-                                                          IR_ESTIM_MODE_ON)
-
-extern uint8_t ir_estim_mode;
-
 #define STICK_PUSHED(pprz) (pprz < TRESHOLD1 || pprz > TRESHOLD2)
 
 

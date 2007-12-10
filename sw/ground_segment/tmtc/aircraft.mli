@@ -36,12 +36,6 @@ type inflight_calib = {
   mutable if_val2 : float;
 }
 type contrast_status = string
-type infrared = {
-  mutable gps_hybrid_mode : int;
-  mutable gps_hybrid_factor : float;
-  mutable contrast_status : contrast_status;
-  mutable contrast_value : int;
-}
 
 type rc_status = string
 type rc_mode = string
@@ -101,7 +95,6 @@ type aircraft = {
     mutable gps_mode : int;
     mutable gps_Pacc : int;
     inflight_calib : inflight_calib;
-    infrared : infrared ;
     fbw : fbw;
     svinfo : svinfo array;
     waypoints : (int, waypoint) Hashtbl.t;

@@ -891,21 +891,6 @@ let listen_alert = fun a ->
   alert_bind "BAT_LOW" (get_alert_bat_low a)
     
 
-let get_infrared = fun _sender vs ->
-  let ac = get_ac vs in
-  let ir_page = ac.ir_page in
-  let gps_hybrid_mode = Pprz.string_assoc "gps_hybrid_mode" vs in
-  let gps_hybrid_factor = Pprz.float_assoc "gps_hybrid_factor" vs in
-  let contrast_status = Pprz.string_assoc "contrast_status" vs in
-  let contrast_value = Pprz.int_assoc "contrast_value" vs in
-
-  ir_page#set_gps_hybrid_mode gps_hybrid_mode;
-  ir_page#set_gps_hybrid_factor gps_hybrid_factor;
-  ir_page#set_contrast_status contrast_status;
-  ir_page#set_contrast_value contrast_value
-    
-let listen_infrared = fun () -> safe_bind "INFRARED" get_infrared
-
 let get_svsinfo = fun alarm _sender vs ->
   let ac = get_ac vs in
   let gps_page = ac.gps_page in
@@ -968,7 +953,6 @@ let listen_acs_and_msgs = fun geomap ac_notebook my_alert auto_center_new_ac ->
   listen_engine_status_msg ();
   listen_if_calib_msg ();
   listen_waypoint_moved ();
-  listen_infrared ();
   listen_svsinfo my_alert;
   listen_telemetry_status ();
   listen_alert my_alert;

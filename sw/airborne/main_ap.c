@@ -45,15 +45,14 @@
 #include "nav.h"
 #include "autopilot.h"
 #include "estimator.h"
-#include "rc_settings.h"
 #include "settings.h"
+#include "rc_settings.h"
 #include "cam.h"
 #include "traffic_info.h"
 #include "link_mcu.h"
 #include "sys_time.h"
 #include "flight_plan.h"
 #include "datalink.h"
-#include "wavecard.h"
 #include "xbee.h"
 #include "gpio.h"
 #include "light.h"
@@ -102,10 +101,8 @@
 
 #define LOW_BATTERY_DECIVOLT (LOW_BATTERY*10)
 
-
 /** FIXME: should be in rc_settings but required by telemetry (ap_downlink.h)*/
 uint8_t rc_settings_mode = RC_SETTINGS_MODE_NONE;
-
 
 /** Define minimal speed for takeoff in m/s */
 #define MIN_SPEED_FOR_TAKEOFF 5.
@@ -116,10 +113,6 @@ static const uint16_t version = 1;
 
 uint8_t pprz_mode = PPRZ_MODE_AUTO2;
 uint8_t lateral_mode = LATERAL_MODE_MANUAL;
-
-uint8_t ir_estim_mode = IR_ESTIM_MODE_ON;
-
-bool_t rc_event_1, rc_event_2;
 
 uint8_t vsupply;
 
@@ -143,28 +136,14 @@ bool_t gps_lost = FALSE;
 static inline uint8_t pprz_mode_update( void ) {
   if ((pprz_mode != PPRZ_MODE_HOME &&
        pprz_mode != PPRZ_MODE_GPS_OUT_OF_ORDER)
-      ||
 #ifdef UNLOCKED_HOME_MODE
-      TRUE
-#else
-      /** We remain in home mode until explicit reset from the RC */
-      CheckEvent(rc_event_1)
+      || TRUE
 #endif
       ) {
     return ModeUpdate(pprz_mode, PPRZ_MODE_OF_PULSE(fbw_state->channels[RADIO_MODE], fbw_state->status));
   } else
     return FALSE;
 }
-
-#ifdef RADIO_LLS
-/** \fn inline uint8_t ir_estim_mode_update( void )
- *  \brief update ir estimation if RADIO_LLS is true \n
- */
-static inline uint8_t ir_estim_mode_update( void ) {
-  return ModeUpdate(ir_estim_mode, IR_ESTIM_MODE_OF_PULSE(fbw_state->channels[RADIO_LLS]));
-}
-#endif
-
 
 static inline uint8_t mcu1_status_update( void ) {
   uint8_t new_status = fbw_state->status;
@@ -175,41 +154,6 @@ static inline uint8_t mcu1_status_update( void ) {
   }
   return FALSE;
 }
-
-/** Minimum delay before an event is enabled */
-#define EVENT_DELAY 20
-
-#define EventUpdate(_cpt, _cond, _event) \
-  if (_cond) { \
-    if (_cpt < EVENT_DELAY) { \
-      _cpt++; \
-      if (_cpt == EVENT_DELAY) \
-        _event = TRUE; \
-    } \
-  } else { \
-    _cpt = 0; \
-  }
-
-
-#define Event(_cpt, _channel, _event, _cond) \
- EventUpdate(_cpt, (RcSettingsOff() && fbw_state->channels[_channel] _cond), _event)
-
-#define EventPos(_cpt, _channel, _event) \
-  Event(_cpt, _channel, _event, >(int)(0.75*MAX_PPRZ))
-
-#define EventNeg(_cpt, _channel, _event) \
- Event(_cpt, _channel, _event, <(int)(-0.75*MAX_PPRZ))
-
-
-
-static inline void events_update( void ) {
-#ifdef RADIO_GAIN1
-  static uint16_t event1_cpt = 0;
-  EventPos(event1_cpt, RADIO_GAIN1, rc_event_1);
-  static uint16_t event2_cpt = 0;
-  EventNeg(event2_cpt, RADIO_GAIN1, rc_event_2);
-#endif
-}  
 
 
 /** \brief Send back uncontrolled channels (actually only rudder)
@@ -274,9 +218,6 @@ inline void telecommand_task( void ) {
   if (bit_is_set(fbw_state->status, AVERAGED_CHANNELS_SENT)) {
     bool_t pprz_mode_changed = pprz_mode_update();
     mode_changed |= pprz_mode_changed;
-#ifdef RADIO_LLS
-    mode_changed |= ir_estim_mode_update();
-#endif
 #if defined RADIO_CALIB && defined RADIO_CONTROL_SETTINGS
     bool_t calib_mode_changed = RcSettingsModeUpdate(fbw_state->channels);
     rc_settings(calib_mode_changed || pprz_mode_changed);
@@ -308,12 +249,7 @@ inline void telecommand_task( void ) {
   mcu1_ppm_cpt = fbw_state->ppm_cpt;
   vsupply = fbw_state->vsupply;
   
-  events_update();
-  
   if (!estimator_flight_time) {
-#if defined INFRARED && !ADC_CHANNEL_IR_TOP
-    ground_calibrate(STICK_PUSHED(fbw_state->channels[RADIO_ROLL]));
-#endif
     if (pprz_mode == PPRZ_MODE_AUTO2 && fbw_state->channels[RADIO_THROTTLE] > THROTTLE_THRESHOLD_TAKEOFF) {
       launch = TRUE;
     }
@@ -639,10 +575,6 @@ void init_ap( void ) {
 #ifdef MODEM
   modem_init();
 #endif
-#if defined DATALINK && DATALINK == WAVECARD
-  /** Reset the wavecard during the init pause */
-  wc_reset();
-#endif
 
   /************ Internal status ***************/
   h_ctl_init();
@@ -667,10 +599,6 @@ void init_ap( void ) {
 
 #if DATALINK == XBEE
   xbee_init();
-#elif DATALINK == WAVECARD
-  wc_end_reset();
-  sys_time_usleep(1000000);
-  wc_configure();
 #endif
 #endif /* DATALINK */
 
@@ -732,14 +660,6 @@ void event_task_ap( void ) {
     if (xbee_msg_received) {
       xbee_parse_payload();
       xbee_msg_received = FALSE;
-    }
-  }
-#elif DATALINK == WAVECARD
-  if (WavecardBuffer()) {
-    ReadWavecardBuffer();
-    if (wc_msg_received) {
-      wc_parse_payload();
-      wc_msg_received = FALSE;
     }
   }
 #elif

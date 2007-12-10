@@ -51,27 +51,24 @@
   </section>
 
   <section name="INFRARED" prefix="IR_">
+    <define name="ADC_IR1_NEUTRAL" value="507"/>
+    <define name="ADC_IR2_NEUTRAL" value="507"/>
+    <define name="ADC_TOP_NEUTRAL" value="505"/>
+
+    <define name="HORIZ_SENSOR_TILTED" value="1"/>
+    <define name="IR2_SIGN" value="-1"/>
+
+    <define name="LATERAL_CORRECTION" value="1."/>
+    <define name="LONGITUDINAL_CORRECTION" value="1."/>
+    <define name="VERTICAL_CORRECTION" value="1."/>
+
     <define name="ROLL_NEUTRAL_DEFAULT" value="5" unit="deg"/>
     <define name="PITCH_NEUTRAL_DEFAULT" value="5" unit="deg"/>
-
-    <define name="RAD_OF_IR_CONTRAST" value="0.75"/>
-
-    <linear name="RollOfIrs" arity="2" coeff1="0.7" coeff2="-0.7"/>
-    <linear name="PitchOfIrs" arity="2" coeff1="-0.7" coeff2="-0.7"/>
-    <linear name="TopOfIr" arity="1" coeff1="1"/>
-
-    <define name="ADC_ROLL_NEUTRAL" value="0"/>
-    <define name="ADC_PITCH_NEUTRAL" value="-716"/>
-    <define name="ADC_TOP_NEUTRAL" value="512"/>
 
     <define name="CORRECTION_UP" value="1.0"/>
     <define name="CORRECTION_DOWN" value="1.0"/>
     <define name="CORRECTION_LEFT" value="1.0"/>
     <define name="CORRECTION_RIGHT" value="1.0"/>
-
-    <define name="360_LATERAL_CORRECTION" value="1."/>
-    <define name="360_LONGITUDINAL_CORRECTION" value="1."/>
-    <define name="360_VERTICAL_CORRECTION" value="1."/>
   </section>
 
  <section name="GYRO" prefix="GYRO_">
@@ -225,7 +222,7 @@ ap.CFLAGS += -DGPS -DUBX -DUSE_UART1 -DGPS_LINK=Uart1 -DUART1_BAUD=B38400
 
 ap.srcs += gps_ubx.c gps.c latlong.c
 
-ap.CFLAGS += -DINFRARED -DIR_360
+ap.CFLAGS += -DINFRARED
 ap.srcs += infrared.c estimator.c
 
 ap.CFLAGS += -DNAV -DAGR_CLIMB -DLOITER_TRIM -DALT_KALMAN
@@ -245,7 +242,7 @@ ap.srcs += adc_generic.c
 
 # Config for SITL simulation
 include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
-sim.CFLAGS += -DCONFIG=\"tiny.h\" -DAGR_CLIMB -DLOITER_TRIM -DALT_KALMAN -DIR_360
+sim.CFLAGS += -DCONFIG=\"tiny.h\" -DAGR_CLIMB -DLOITER_TRIM -DALT_KALMAN
 sim.srcs += nav_survey_rectangle.c nav_line.c
 
 sim.srcs += light.c

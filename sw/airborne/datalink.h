@@ -40,8 +40,7 @@
 
 /** Datalink kinds */
 #define PPRZ 1
-#define WAVECARD 2
-#define XBEE 3
+#define XBEE 2
 
 EXTERN bool_t dl_msg_available;
 /** Flag provided to control calls to ::dl_parse_msg. NOT used in this module*/

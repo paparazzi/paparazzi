@@ -16,14 +16,12 @@
       <message name="PPRZ_MODE"      period="5."/>
       <message name="DOWNLINK"       period="5.1"/>
       <message name="DL_VALUE"       period="1.5"/>
-      <message name="RAD_OF_IR"      period="1.3"/>
       <message name="IR_SENSORS"     period="1.2"/>
       <message name="GYRO_RATES"     period="1.1"/>
       <message name="SURVEY"         period="2.1"/>
       <message name="GPS_SOL"        period="2.0"/>
     </mode>
     <mode name="debug">
-      <message name="CALIB_START"    period="0.5"/> 
       <message name="ATTITUDE"       period="0.5"/>
       <message name="TUNE_ROLL"      period="0.2"/>
       <message name="DEBUG_MCU_LINK" period="5."/>

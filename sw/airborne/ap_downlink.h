@@ -78,7 +78,7 @@
   DOWNLINK_SEND_ATTITUDE(&phi, &psi, &theta); \
 })
 
-#define PERIODIC_SEND_PPRZ_MODE() DOWNLINK_SEND_PPRZ_MODE(&pprz_mode, &v_ctl_mode, &lateral_mode, &horizontal_mode, &rc_settings_mode, &mcu1_status, &ir_estim_mode);
+#define PERIODIC_SEND_PPRZ_MODE() DOWNLINK_SEND_PPRZ_MODE(&pprz_mode, &v_ctl_mode, &lateral_mode, &horizontal_mode, &rc_settings_mode, &mcu1_status);
 #define PERIODIC_SEND_DESIRED() DOWNLINK_SEND_DESIRED(&h_ctl_roll_setpoint, &h_ctl_pitch_setpoint, &h_ctl_course_setpoint, &desired_x, &desired_y, &v_ctl_altitude_setpoint, &v_ctl_climb_setpoint);
 
 #define PERIODIC_SEND_NAVIGATION_REF()  DOWNLINK_SEND_NAVIGATION_REF(&nav_utm_east0, &nav_utm_north0, &nav_utm_zone0);
@@ -104,15 +104,7 @@
 #endif
 
 #ifdef INFRARED
-#define PERIODIC_SEND_IR_SENSORS() DOWNLINK_SEND_IR_SENSORS(&ir_pitch, &ir_roll, &ir_top);
-
-#define PERIODIC_SEND_RAD_OF_IR() Downlink({ int16_t rad = DeciDegOfRad(estimator_rad); DOWNLINK_SEND_RAD_OF_IR(&ir_roll, &rad, &estimator_rad_of_ir);})
-#define PERIODIC_SEND_CALIB_START() if (!estimator_flight_time && calib_status == WAITING_CALIB_CONTRAST) { DOWNLINK_SEND_CALIB_START(); }
-#define PERIODIC_SEND_CALIB_CONTRAST() if (!estimator_flight_time && calib_status == CALIB_DONE) { DOWNLINK_SEND_CALIB_CONTRAST(&ir_contrast); }
-#else
-#define SEND_RAD_OF_IR() {}
-#define PERIODIC_SEND_CALIB_START() {}
-#define PERIODIC_SEND_CALIB_CONTRAST() {}
+#define PERIODIC_SEND_IR_SENSORS() DOWNLINK_SEND_IR_SENSORS(&ir_ir1, &ir_ir2, &ir_pitch, &ir_roll, &ir_top);
 #endif
 
 #define PERIODIC_SEND_ADC() {}

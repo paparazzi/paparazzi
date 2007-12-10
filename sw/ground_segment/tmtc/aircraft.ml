@@ -35,15 +35,6 @@ type inflight_calib = {
   }
 
 type contrast_status = string (** DEFAULT|WAITING|SET *)
-type infrared = {
-    mutable gps_hybrid_mode : int;
-    mutable gps_hybrid_factor : float;
-    mutable contrast_status : contrast_status;
-    mutable contrast_value : int
-  }
-let new_infrared =  fun () ->
-  { gps_hybrid_mode = 0; gps_hybrid_factor = 0. ;
-    contrast_status = "DEFAULT"; contrast_value = 0}
 
 type rc_status = string (** OK, LOST, REALLY_LOST *)
 type rc_mode = string (** MANUAL, AUTO, FAILSAFE *)
@@ -118,7 +109,6 @@ type aircraft = {
     mutable gps_mode : int;
     mutable gps_Pacc : int;
     inflight_calib : inflight_calib;
-    infrared : infrared;
     fbw : fbw;
     svinfo : svinfo array;
     waypoints : (int, waypoint) Hashtbl.t;
@@ -150,7 +140,7 @@ let new_aircraft = fun id name fp ->
     nav_ref = None;
     cam = { phi = 0.; theta = 0. ; target=(0.,0.)};
     inflight_calib = { if_mode = 1 ; if_val1 = 0.; if_val2 = 0.};
-    infrared = new_infrared (); kill_mode = false;
+    kill_mode = false;
     fbw = { rc_status = "???"; rc_mode = "???" };
     svinfo = svsinfo_init;
     dl_setting_values = Array.create max_nb_dl_setting_values 42.;

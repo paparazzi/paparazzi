@@ -61,7 +61,6 @@ let gaz_modes = [|"MANUAL";"GAZ";"CLIMB";"ALT"|]
 let lat_modes = [|"MANUAL";"ROLL_RATE";"ROLL";"COURSE"|]
 let gps_modes = [|"NOFIX";"DRO";"2D";"3D";"GPSDRO"|]
 let gps_hybrid_modes = [|"OFF";"ON"|]
-let if_modes = [|"OFF";"DOWN";"UP"|]
 let horiz_modes = [|"WAYPOINT";"ROUTE";"CIRCLE"|]
 
 let check_index = fun i t where ->
@@ -281,9 +280,7 @@ let log_and_parse = fun logging ac_name (a:Aircraft.aircraft) msg values ->
       a.bat <- fvalue "voltage" /. 10.;
       a.stage_time <- ivalue "stage_time";
       a.block_time <- ivalue "block_time";
-      a.energy <- ivalue "energy";
-      if a.flight_time > 0 && a.infrared.contrast_status = "WAITING" then
-	a.infrared.contrast_status <- "SKIPPED"
+      a.energy <- ivalue "energy"
   | "FBW_STATUS" ->
       a.bat <- fvalue "vsupply" /. 10.		
   | "PPRZ_MODE" ->
@@ -291,7 +288,6 @@ let log_and_parse = fun logging ac_name (a:Aircraft.aircraft) msg values ->
       a.gaz_mode <- check_index (ivalue "ap_gaz") gaz_modes "AP_GAZ";
       a.lateral_mode <- check_index (ivalue "ap_lateral") lat_modes "AP_LAT";
       a.horizontal_mode <- check_index (ivalue "ap_horizontal") horiz_modes "AP_HORIZ";
-      a.inflight_calib.if_mode <- check_index (ivalue "if_calib_mode") if_modes "IF_MODE";
       let mcu1_status = ivalue "mcu1_status" in
       (** c.f. link_autopilot.h *)
       a.fbw.rc_status <- 
@@ -306,21 +302,10 @@ let log_and_parse = fun logging ac_name (a:Aircraft.aircraft) msg values ->
 	else if mcu1_status land 0b100 > 0
 	then "AUTO"
 	else "MANUAL";
-      a.infrared.gps_hybrid_mode <- check_index (ivalue "lls_calib") gps_hybrid_modes "HYBRID MODE"
   | "CAM" ->
       a.cam.phi <- (Deg>>Rad) (fvalue  "phi");
       a.cam.theta <- (Deg>>Rad) (fvalue  "theta");
       a.cam.target <- (fvalue  "target_x", fvalue  "target_y")
-  | "RAD_OF_IR" ->
-      a.infrared.gps_hybrid_factor <- fvalue "rad_of_ir"
-  | "CALIB_START" ->
-      a.infrared.contrast_status <- "WAITING"
-  | "CALIB_CONTRAST" ->
-      a.infrared.contrast_value <- ivalue "adc";
-      a.infrared.contrast_status <- "SET"
-  | "SETTINGS" ->
-      a.inflight_calib.if_val1 <- fvalue "slider_1_val";
-      a.inflight_calib.if_val2 <- fvalue "slider_2_val";
   | "SVINFO" ->
       let i = ivalue "chn" in
       assert(i < Array.length a.svinfo);
@@ -427,29 +412,11 @@ let send_cam_status = fun a ->
 			"cam_target_long", Pprz.Float ((Rad>>Deg)twgs84.posn_long)] in
 	  Ground_Pprz.message_send my_id "CAM_STATUS" values
 
-let send_if_calib = fun a ->
-  let if_mode = get_indexed_value if_modes a.inflight_calib.if_mode in
-  let values = ["ac_id", Pprz.String a.id;
-		"if_mode", Pprz.String if_mode;
-		"if_value1", Pprz.Float a.inflight_calib.if_val1;
-		"if_value2", Pprz.Float a.inflight_calib.if_val2] in
-  Ground_Pprz.message_send my_id "INFLIGH_CALIB" values
-
 let send_fbw = fun a ->
   let values = [ "ac_id", Pprz.String a.id;
 		 "rc_mode", Pprz.String a.fbw.rc_mode;
 		 "rc_status", Pprz.String a.fbw.rc_status ] in
   Ground_Pprz.message_send my_id "FLY_BY_WIRE"  values
-
-let send_infrared = fun a ->
-  let gps_hybrid_mode = get_indexed_value gps_hybrid_modes a.infrared.gps_hybrid_mode in
-  let values = [ "ac_id", Pprz.String a.id;
-		 "gps_hybrid_mode", Pprz.String gps_hybrid_mode;
-		 "gps_hybrid_factor", Pprz.Float a.infrared.gps_hybrid_factor;
-		 "contrast_status", Pprz.String a.infrared.contrast_status;
-		 "contrast_value", Pprz.Int a.infrared.contrast_value
-	       ] in
-  Ground_Pprz.message_send my_id "INFRARED"  values
 
 let send_dl_values = fun a ->
   if a.nb_dl_setting_values > 0 then
@@ -643,9 +610,7 @@ let send_aircraft_msg = fun ac ->
     Ground_Pprz.message_send my_id "AP_STATUS" values;
 
     send_cam_status a;
-    send_if_calib a;
     send_fbw a;
-    send_infrared a;
     send_svsinfo a;
     send_horiz_status a;
     

@@ -57,11 +57,6 @@ void estimator_update_state_gps( void ) {
   float fclimb = gps_climb / 100.;
   float fcourse = RadOfDeg(gps_course / 10.);
   EstimatorSetSpeedPol(fspeed, fcourse, fclimb);
-  
-#ifdef INFRARED
-  if (estimator_flight_time)
-    estimator_update_ir_estim();
-#endif
 }
 
 /**Send by downlink the GPS and rad_of_ir messages with \a DOWNLINK_SEND_GPS
