@@ -24,5 +24,7 @@
 
 let set_georef_if_none = fun geomap wgs84 ->
   match geomap#georef with
-    None -> geomap#set_georef wgs84
+    None -> 
+      geomap#set_georef wgs84;
+      geomap#center wgs84
   | Some _ -> ()
