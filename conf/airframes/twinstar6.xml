@@ -108,10 +108,22 @@ des 2 variateurs -->
     <define name="ROLL_RATE_IGAIN" value="0."/>
     <define name="ROLL_RATE_DGAIN" value="0."/>
     <define name="ROLL_RATE_SUM_NB_SAMPLES" value="64"/>
-
   </section>
 
+  <section name="Digital camera telecommand">
+    <!-- IOs are seen as LEDs -->
 
+    <define name="LED_4_BANK" value="0"/>
+    <define name="LED_4_PIN" value="16"/>
+
+    <!-- ADC 5 -->
+    <define name="LED_5_BANK" value="1"/>
+    <define name="LED_5_PIN" value="20"/>
+
+    <define name="DC_SHUTTER_LED" value="4"/>
+    <define name="DC_ZOOM_LED" value="5"/>
+  </section>
+ 
  <section name="VERTICAL CONTROL" prefix="V_CTL_">
     <!-- outer loop proportional gain -->
     <define name="ALTITUDE_PGAIN" value="-0.05"/>
@@ -253,8 +265,6 @@ ap.srcs += $(SRC_ARCH)/gpio.c
 # Zoom: SPI0_IT
 ap.CFLAGS += -DDIGITAL_CAM
 ap.srcs += dc.c
-
-
 
 
 test.CFLAGS += -DFBW -DCONFIG=\"classix.h\" -DLED -DTIME_LED=1 -DACTUATORS=\"servos_4017_hw.h\" -DSERVOS_4017 -DSERVOS_4017_CLOCK_FALLING  -DUSE_UART0 -DDATALINK -DPPRZ_INPUT -DPPRZ_UART=Uart0 -DUART0_BAUD=B9600
