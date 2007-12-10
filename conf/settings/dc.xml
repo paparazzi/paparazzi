@@ -4,9 +4,11 @@
   <dl_settings>
     <dl_settings NAME="DC">
       <dl_setting MAX="1" MIN="1" STEP="1" VAR="dc_timer" module="dc" handler="Shutter" shortname="Shutter">
-       <strip_button name="Photo" value="1"/>
+       <strip_button name="Photo" icon="digital-camera.png" value="1"/>
       </dl_setting>
-      <dl_setting MAX="1" MIN="1" STEP="1" VAR="dc_timer" module="dc" handler="Zoom" shortname="Zoom"/>
+      <dl_setting MAX="1" MIN="1" STEP="1" VAR="dc_timer" module="dc" handler="Zoom" shortname="Zoom">
+       <strip_button name="Zoom" icon="zoom.png" value="1"/>
+      </dl_setting>
     </dl_settings>
   </dl_settings>
 </settings>
