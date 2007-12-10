@@ -119,8 +119,16 @@ value set_ac_info(value * argv, int argn) {
 /** c.f. datalink.c: dl_parse_msg(); FIXME should be factorized */
 value move_waypoint(value wp_id, value lat_deg, value lon_deg, value a) {
   latlong_utm_of(RadOfDeg(Double_val(lat_deg)), RadOfDeg(Double_val(lon_deg)), nav_utm_zone0);
-  MoveWaypoint(Int_val(wp_id), latlong_utm_x, latlong_utm_y, Double_val(a));
+  int wp_id_int = Int_val(wp_id);
+  float a_float = Double_val(a);
+  MoveWaypoint(wp_id_int, latlong_utm_x, latlong_utm_y, a_float);
   datalink_time = 0;
+
+  /* Waypoint range is limited. Computes the UTM pos back from the relative
+     coordinates */
+  latlong_utm_x = waypoints[wp_id_int].x + nav_utm_east0;
+  latlong_utm_y = waypoints[wp_id_int].y + nav_utm_north0;
+  DOWNLINK_SEND_WP_MOVED(&wp_id_int, &latlong_utm_x, &latlong_utm_y, &a_float, &nav_utm_zone0);
   return Val_unit;
 }
 
