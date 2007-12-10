@@ -176,8 +176,8 @@ and IR_ADC_IR2_NEUTRAL"
 /* Sensor installation */
 #if defined IR_HORIZ_SENSOR_ALIGNED
 /* IR1 on the lateral axis, IR2 on the longitudal axis */
-#define IR_RollOfIrs(_ir1, _ir2) ((int8_t)IR_IR1_SIGN*_ir1)
-#define IR_PitchOfIrs(_ir1, _ir2) ((int8_t)IR_IR2_SIGN*_ir2)
+#define IR_RollOfIrs(_ir1, _ir2) ((int8_t)(IR_IR1_SIGN)*(_ir1))
+#define IR_PitchOfIrs(_ir1, _ir2) ((int8_t)(IR_IR2_SIGN)*(_ir2))
 #elif IR_HORIZ_SENSOR_TILTED
 /* IR1 rear-left -- front-right, IR2 rear-right -- front-left
    IR1_SIGN and IR2_SIGN give positive values when it's warm on the right side
