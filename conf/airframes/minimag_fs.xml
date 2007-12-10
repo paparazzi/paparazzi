@@ -63,14 +63,14 @@
     <define name="PITCH_NEUTRAL_DEFAULT" value="-7" unit="deg"/>
     <define name="DEFAULT_CONTRAST" value="200"/>
     <define name="RAD_OF_IR_CONTRAST" value="0.75"/>
-    <linear name="RollOfIrs" arity="2" coeff1="0.7" coeff2="0.7"/>
-    <linear name="PitchOfIrs" arity="2" coeff1=".7" coeff2="-0.7"/>
+    <linear name="RollOfIrs" arity="2" coeff1="-0.7" coeff2="0.7"/>
+    <linear name="PitchOfIrs" arity="2" coeff1="-0.7" coeff2="-0.7"/>
 
     <linear name="TopOfIr" arity="1" coeff1="1"/>
     <define name="RAD_OF_IR_MAX_VALUE" value="0.0045"/>
     <define name="RAD_OF_IR_MIN_VALUE" value="0.00075"/>
-    <define name="ADC_ROLL_NEUTRAL" value="716"/>
-    <define name="ADC_PITCH_NEUTRAL" value="0"/>
+    <define name="ADC_ROLL_NEUTRAL" value="0"/>
+    <define name="ADC_PITCH_NEUTRAL" value="-716"/>
 
     <define name="ADC_TOP_NEUTRAL" value="512"/>
 
@@ -203,12 +203,12 @@ ap.CFLAGS += -DINFRARED -DIR_360
 ap.srcs += infrared.c estimator.c
 
 ap.CFLAGS += -DNAV -DAGR_CLIMB -DLOITER_TRIM -DALT_KALMAN
-ap.srcs += nav.c fw_h_ctl.c fw_v_ctl.c nav_survey_rectangle.c
+ap.srcs += nav.c fw_h_ctl.c fw_v_ctl.c nav_survey_rectangle.c nav_line.c
 
 # Config for SITL simulation
 include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
 sim.CFLAGS += -DCONFIG=\"tiny.h\" -DAGR_CLIMB -DLOITER_TRIM -DALT_KALMAN -DIR_360
-sim.srcs += nav_survey_rectangle.c
+sim.srcs += nav_survey_rectangle.c nav_line.c
 
   </makefile>
 </airframe>
