@@ -31,5 +31,5 @@ static inline void main_periodic_task( void ) {
   LED_TOGGLE(1);
   Uart0PrintString("demo3 running since ");
   Uart0PrintHex16(cpu_time_sec);
-  uart0_transmit(' seconds\n');
+  uart0PrintString(" seconds\n");
 }
