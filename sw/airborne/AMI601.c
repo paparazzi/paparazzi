@@ -92,9 +92,9 @@ void ami601_periodic( void ) {
     while (!ami601_i2c_done);
     //    LED_OFF(2);
     
-    ami601_foo1 = i2c_buf[0];
-    ami601_foo2 = i2c_buf[1];
-    ami601_foo3 = i2c_buf[2];
+    ami601_foo1 = i2c_buf[0]; // AA ?
+    ami601_foo2 = i2c_buf[1]; // 55 ?
+    ami601_foo3 = i2c_buf[2]; // ERR ?
 
     uint8_t i;
     for (i=0; i< AMI601_NB_CHAN; i++) {

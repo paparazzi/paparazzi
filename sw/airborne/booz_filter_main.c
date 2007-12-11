@@ -44,8 +44,8 @@ STATIC_INLINE void booz_filter_main_init( void ) {
   uart1_init_tx();
   adc_init();
 
-  //  i2c_init();
-  //  ami601_init();
+  i2c_init();
+  ami601_init();
 #endif
   imu_v3_init();
 
@@ -65,9 +65,7 @@ STATIC_INLINE void booz_filter_main_event_task( void ) {
 }
 
 STATIC_INLINE void booz_filter_main_periodic_task( void ) {
-  /* triger measurements */
-  //  ami601_periodic();  
-  //  DOWNLINK_SEND_IMU_MAG_RAW(&ami601_val[0], &ami601_val[4], &ami601_val[2]);
+
   ImuPeriodic();
   static uint8_t _62hz = 0;
   _62hz++;
@@ -76,6 +74,11 @@ STATIC_INLINE void booz_filter_main_periodic_task( void ) {
   case 0:
     booz_filter_telemetry_periodic_task();
     break;
+  case 1:
+      /* triger measurements */
+    ami601_periodic();  
+    //                                    Z               Y               X
+    DOWNLINK_SEND_IMU_MAG_RAW(&ami601_val[0], &ami601_val[4], &ami601_val[2]);
   }
 
 }
