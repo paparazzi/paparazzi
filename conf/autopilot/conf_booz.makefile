@@ -31,7 +31,7 @@ flt.srcs += max1167.c $(SRC_ARCH)/max1167_hw.c
 flt.CFLAGS += -DDISABLE_MAGNETOMETER
 flt.srcs += micromag.c $(SRC_ARCH)/micromag_hw.c
 flt.CFLAGS += -I2C_BUF_LEN=32 -DI2C_SCLL=150 -DI2C_SCLH=150 -DI2C_VIC_SLOT=10
-#flt.srcs += AMI601.c i2c.c $(SRC_ARCH)/i2c_hw.c
+flt.srcs += AMI601.c i2c.c $(SRC_ARCH)/i2c_hw.c
 flt.srcs += imu_v3.c $(SRC_ARCH)/imu_v3_hw.c
 
 flt.CFLAGS += -DFLOAT_T=float
@@ -83,6 +83,7 @@ ctl.CFLAGS += -DRADIO_CONTROL -DRADIO_CONTROL_TYPE=RC_FUTABA -DRC_LED=4
 ctl.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c
 
 ctl.srcs += booz_inter_mcu.c
+ctl.CFLAGS += -DFLOAT_T=float
 ctl.CFLAGS += -DUSE_SPI -DSPI_MASTER -DUSE_SPI_SLAVE0
 ctl.CFLAGS += -DSPI_SELECT_SLAVE0_PIN=20 -DSPI_SELECT_SLAVE0_PORT=0 -DSSPCPSR_VAL=0x10
 ctl.srcs += booz_link_mcu.c $(SRC_ARCH)/booz_link_mcu_hw.c
