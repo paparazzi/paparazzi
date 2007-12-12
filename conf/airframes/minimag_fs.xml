@@ -7,12 +7,12 @@
     <servo name="THROTTLE"   no="0" min="1400" neutral="1400" max="2000"/>
 <!-- Servo aileron gauche = couleur blanche -->
 <!-- Aileron gauche oppose de l'aileron droit -->
-    <servo name="AILERON_LEFT"  no="1" min="1825" neutral="1435" max="1000"/>
+    <servo name="AILERON_LEFT"  no="1" min="1825" neutral="1422" max="1000"/>
 <!-- max = valeur aileron vers le bas-->
-    <servo name="AILERON_RIGHT" no="3" min="1925" neutral="1450" max="1175"/>
+    <servo name="AILERON_RIGHT" no="3" min="1925" neutral="1445" max="1175"/>
     <!-- Rudder = Couleur rouge droite gauche -->
-    <servo name="RUDDER" no="4" min="1975" neutral="1450" max="1000"/>
-    <servo name="ELEVATOR" no="5" min="1950" neutral="1560" max="1050"/>
+    <servo name="RUDDER" no="4" min="1975" neutral="1520" max="1000"/>
+    <servo name="ELEVATOR" no="5" min="1950" neutral="1605" max="1050"/>
 
   </servos>
 
@@ -68,10 +68,10 @@
 
     <define name="LATERAL_CORRECTION" value="1."/>
     <define name="LONGITUDINAL_CORRECTION" value="1."/>
-    <define name="VERTICAL_CORRECTION" value="1."/>
+    <define name="VERTICAL_CORRECTION" value="1.5"/>
 
-    <define name="ROLL_NEUTRAL_DEFAULT" value="-14" unit="deg"/>
-    <define name="PITCH_NEUTRAL_DEFAULT" value="-7" unit="deg"/>
+    <define name="ROLL_NEUTRAL_DEFAULT" value="-12" unit="deg"/>
+    <define name="PITCH_NEUTRAL_DEFAULT" value="9" unit="deg"/>
 
     <define name="CORRECTION_UP" value="1."/>
     <define name="CORRECTION_DOWN" value="1."/>
@@ -142,16 +142,16 @@
   </section>
 
   <section name="HORIZONTAL CONTROL" prefix="H_CTL_">
-    <define name="COURSE_PGAIN" value="-1.2"/>
+    <define name="COURSE_PGAIN" value="-1.4"/>
     <define name="ROLL_MAX_SETPOINT" value="0.6" unit="radians"/>
     <define name="PITCH_MAX_SETPOINT" value="0.5" unit="radians"/>
     <define name="PITCH_MIN_SETPOINT" value="-0.5" unit="radians"/>
 
 
-    <define name="ROLL_PGAIN" value="12000."/>
+    <define name="ROLL_PGAIN" value="6000."/>
     <define name="PITCH_PGAIN" value="-9000."/>
     <define name="PITCH_DGAIN" value="1.5"/>
-    <define name="ELEVATOR_OF_ROLL" value="1250"/>    
+    <define name="ELEVATOR_OF_ROLL" value="2000"/>    
   </section>
 
   <section name="NAV">
