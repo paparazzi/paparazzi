@@ -161,7 +161,7 @@ let send_move_waypoint_msg = fun ac i w ->
 	    "long", Pprz.Float ((Rad>>Deg)wgs84.posn_long);
 	    "alt", Pprz.Float w#alt
 	  ] in
-  Ground_Pprz.message_send "map2d" "MOVE_WAYPOINT" vs
+  Ground_Pprz.message_send "gcs" "MOVE_WAYPOINT" vs
 
 let commit_changes = fun ac ->
   let a = find_ac ac in
@@ -191,7 +191,7 @@ let blocks_of_stages = fun stages ->
   List.sort compare !blocks
 
 let jump_to_block = fun ac_id id ->
-  Ground_Pprz.message_send "map2d" "JUMP_TO_BLOCK" 
+  Ground_Pprz.message_send "gcs" "JUMP_TO_BLOCK" 
     ["ac_id", Pprz.String ac_id; "block_id", Pprz.Int id]
 
 let menu_entry_of_block = fun ac_id (id, name) ->
@@ -596,7 +596,7 @@ let ask_config = fun alert geomap fp_notebook ac ->
     if not (Hashtbl.mem aircrafts ac) then
       create_ac alert geomap fp_notebook ac values
   in
-  Ground_Pprz.message_req "map2d" "CONFIG" ["ac_id", Pprz.String ac] get_config
+  Ground_Pprz.message_req "gcs" "CONFIG" ["ac_id", Pprz.String ac] get_config
 
     
 
@@ -940,7 +940,7 @@ let listen_error = fun a ->
 let listen_acs_and_msgs = fun geomap ac_notebook my_alert auto_center_new_ac ->
   (** Probe live A/Cs *)
   let probe = fun () ->
-    message_request "map2d" "AIRCRAFTS" [] (fun _sender vs -> aircrafts_msg my_alert geomap ac_notebook vs) in
+    message_request "gcs" "AIRCRAFTS" [] (fun _sender vs -> aircrafts_msg my_alert geomap ac_notebook vs) in
   let _ = GMain.Idle.add (fun () -> probe (); false) in
 
   (** New aircraft message *)
