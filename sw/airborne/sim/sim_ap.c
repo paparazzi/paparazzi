@@ -138,16 +138,6 @@ value goto_block(value block_id) {
   return Val_unit;
 }
 
-value send_event(value event_id) {
-  uint8_t event = Int_val(event_id);
-  switch (event) {
-    case 1 : rc_event_1 = TRUE; break; // FIXME !
-    case 2 : rc_event_2 = TRUE; break;
-    default: ;
-  }
-  return Val_unit;
-}
-
 value dl_setting(value index __attribute__ ((unused)), 
 		 value val __attribute__ ((unused))) {
   /** DlSetting macro may be empty: unused attr to get rid of the warnings */
