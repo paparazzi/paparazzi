@@ -72,6 +72,16 @@ link : $(LINKCMO)  ../../lib/ocaml/lib-pprz.cma
 	$(Q)$(OCAMLC) -custom $(INCLUDES) -o $@ unix.cma str.cma xml-light.cma lablgtk.cma glibivy-ocaml.cma lib-pprz.cma multimon.cma $(LINKCMO)
 
 
+tcp_ivy : tcp_ivy.cmo  ../../lib/ocaml/lib-pprz.cma
+	@echo OL $@
+	$(Q)$(OCAMLC) -custom $(INCLUDES) -o $@ unix.cma str.cma xml-light.cma lablgtk.cma glibivy-ocaml.cma lib-pprz.cma multimon.cma tcp_ivy.cmo
+
+
+ivy_tcp : ivy_tcp.cmo  ../../lib/ocaml/lib-pprz.cma
+	@echo OL $@
+	$(Q)$(OCAMLC) -custom $(INCLUDES) -o $@ unix.cma str.cma xml-light.cma lablgtk.cma glibivy-ocaml.cma lib-pprz.cma multimon.cma ivy_tcp.cmo
+
+
 dia : dia.cmo ../multimon/multimon.cma
 	@echo OL $@
 	$(Q)$(OCAMLC) -custom $(INCLUDES) -o $@ unix.cma str.cma xml-light.cma lablgtk.cma glibivy-ocaml.cma lib-pprz.cma multimon.cma $^
