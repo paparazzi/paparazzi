@@ -785,6 +785,7 @@ let ivy_server = fun http ->
 
 
 let cm_of_m = fun f -> Pprz.Int (truncate (100. *. f))
+let dl_id = "ground_dl" (* Hack, should be [my_id] *)
 
 (** Got a ground.MOVE_WAYPOINT and send a datalink.MOVE_WP *)
 let move_wp = fun logging _sender vs ->
@@ -795,7 +796,7 @@ let move_wp = fun logging _sender vs ->
 	     "lat", f "lat";
 	     "lon", f "long";
 	     "alt", cm_of_m (Pprz.float_assoc "alt" vs) ] in
-  Dl_Pprz.message_send my_id "MOVE_WP" vs;
+  Dl_Pprz.message_send dl_id "MOVE_WP" vs;
   log logging ac_id "MOVE_WP" vs
 
 (** Got a DL_SETTING, and send an SETTING *)
@@ -804,7 +805,7 @@ let setting = fun logging _sender vs ->
   let vs = ["ac_id", Pprz.String ac_id;
 	    "index", List.assoc "index" vs; 
 	    "value", List.assoc "value" vs] in
-  Dl_Pprz.message_send my_id "SETTING" vs;
+  Dl_Pprz.message_send dl_id "SETTING" vs;
   log logging ac_id "SETTING" vs
 
 
@@ -812,7 +813,7 @@ let setting = fun logging _sender vs ->
 let jump_block = fun logging _sender vs ->
   let ac_id = Pprz.string_assoc "ac_id" vs in
   let vs = ["ac_id", Pprz.String ac_id; "block_id", List.assoc "block_id" vs] in
-  Dl_Pprz.message_send my_id "BLOCK" vs;
+  Dl_Pprz.message_send dl_id "BLOCK" vs;
   log logging ac_id "BLOCK" vs
 
 (** Got a RAW_DATALINK,send its contents *)
@@ -824,7 +825,7 @@ let raw_datalink = fun logging _sender vs ->
   done;
   let msg_id, vs = Dl_Pprz.values_of_string m in
   let msg = Dl_Pprz.message_of_id msg_id in
-  Dl_Pprz.message_send my_id msg.Pprz.name vs;
+  Dl_Pprz.message_send dl_id msg.Pprz.name vs;
   log logging ac_id msg.Pprz.name vs
 
 (** Get the 'ground' uplink messages, log them and send 'datalink' messages *)
