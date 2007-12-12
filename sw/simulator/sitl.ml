@@ -27,6 +27,7 @@
 open Printf
 
 module Ground_Pprz = Pprz.Messages(struct let name = "ground" end)
+module Dl_Pprz = Pprz.Messages(struct let name = "datalink" end)
 
 let ios = int_of_string
 let fos = float_of_string
@@ -159,32 +160,25 @@ module Make(A:Data.MISSION) = struct
       set_ac_info ac_id utm.utm_x utm.utm_y course alt gspeed
 
   external move_waypoint : int -> float -> float -> float -> unit = "move_waypoint"
-  let get_move_waypoint = fun _sender vs ->
+  let get_move_wp = fun _sender vs ->
     let ac_id = int_of_string (Pprz.string_assoc "ac_id" vs) in
     if ac_id = !my_id then
       let f = fun a -> Pprz.float_assoc a vs in
       let wp_id = Pprz.int_assoc "wp_id" vs
       and lat = f "lat"
-      and long = f "long"
-      and alt = f "alt" in
+      and long = f "lon"
+      and alt = Int32.to_float (Pprz.int32_assoc "alt" vs) /. 100. in
       move_waypoint wp_id lat long alt
 
-  external send_event : int -> unit = "send_event"
-  let get_send_event = fun _sender vs ->
-    let ac_id = int_of_string (Pprz.string_assoc "ac_id" vs) in
-    if ac_id = !my_id then
-      send_event (Pprz.int_assoc "event_id" vs)
-
-
   external goto_block : int -> unit = "goto_block"
-  let get_jump_to_block = fun _sender vs ->
+  let get_block = fun _sender vs ->
     let ac_id = int_of_string (Pprz.string_assoc "ac_id" vs) in
     if ac_id = !my_id then
       goto_block (Pprz.int_assoc "block_id" vs)
 
 
   external dl_setting : int -> float -> unit = "dl_setting"
-  let get_dl_setting = fun _sender vs ->
+  let get_setting = fun _sender vs ->
     let ac_id = int_of_string (Pprz.string_assoc "ac_id" vs) in
     if ac_id = !my_id then
       dl_setting (Pprz.int_assoc "index" vs) (Pprz.float_assoc "value" vs)
@@ -205,10 +199,9 @@ module Make(A:Data.MISSION) = struct
     Stdlib.timer ~scale:time_scale servos_period (update_servos bat_button);
     Stdlib.timer ~scale:time_scale periodic_period periodic_task;
     ignore (Ground_Pprz.message_bind "FLIGHT_PARAM" get_flight_param);
-    ignore (Ground_Pprz.message_bind "MOVE_WAYPOINT" get_move_waypoint);
-    ignore (Ground_Pprz.message_bind "SEND_EVENT" get_send_event);
-    ignore (Ground_Pprz.message_bind "JUMP_TO_BLOCK" get_jump_to_block);
-    ignore (Ground_Pprz.message_bind "DL_SETTING" get_dl_setting);
+    ignore (Dl_Pprz.message_bind "MOVE_WP" get_move_wp);
+    ignore (Dl_Pprz.message_bind "BLOCK" get_block);
+    ignore (Dl_Pprz.message_bind "SETTING" get_setting);
     ignore (Ground_Pprz.message_bind "RAW_DATALINK" get_raw_datalink)
 
 (* Functions called by the simulator *)
