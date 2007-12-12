@@ -56,8 +56,8 @@ c_sprint_int16(value s, value index, value f) {
 
 value
 c_sprint_int32(value s, value index, value x) {
-  char *p = String_val(s) + Int_val(index);
-  *p = Int32_val(x);
+  int32_t *p = (int32_t*) (String_val(s) + Int_val(index));
+  *p = (int32_t)Int32_val(x);
   return Val_unit;
 }
 
