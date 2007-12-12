@@ -217,6 +217,9 @@ let rec value_of_bin = fun buffer index _type ->
       let size = 1 + n * s in
       (Array (Array.init n 
 	       (fun i -> fst (value_of_bin buffer (index+1+i*s) type_of_elt))), size)
+  | Scalar "string" ->
+      let n = Char.code buffer.[index] in
+      (String (String.sub buffer (index+1) n), (1+n))
   | _ -> failwith "value_of_bin"
 
 let value_field = fun buf index field ->
@@ -232,7 +235,7 @@ let rec sprint_value = fun buf i _type v ->
 	failwith (sprintf "Value too large to fit in a (u)int8: %d" x);
       buf.[i] <- Char.chr x; sizeof _type
   | Scalar "float", Float f -> sprint_float buf i f; sizeof _type
-  | Scalar "int32", Int32 x -> sprint_int32 buf i x; sizeof _type
+  | Scalar ("int32"|"uint32"), Int32 x -> sprint_int32 buf i x; sizeof _type
   | Scalar "int16", Int x -> sprint_int16 buf i x; sizeof _type
   | Scalar ("int32" | "uint32"), Int value ->
       assert (_type <> Scalar "uint32" || value >= 0);
@@ -256,6 +259,15 @@ let rec sprint_value = fun buf i _type v ->
 	ignore (sprint_value buf (i+1+j*s) type_of_elt values.(j))
       done;
       1 + n * s
+  | Scalar "string", String s ->
+      let n = String.length s in
+      assert (n < 256);
+      (** Put the length first, then the bytes *)
+      buf.[i] <- Char.chr n;
+      if (i + n >= String.length buf) then
+	failwith "Error in sprint_value: message too long";
+      String.blit s 0 buf (i+1) n;
+      1 + n
   | (Scalar x|ArrayType x), _ -> failwith (sprintf "Pprz.sprint_value (%s)" x)
   
   
@@ -305,6 +317,8 @@ module Transport = struct
     let payload = Serial.string_of_payload payload in
     let n = String.length payload in
     let msg_length = n + 4 in (** + stx, len, ck_a and ck_b *)
+    if msg_length >= 256 then
+      invalid_arg "Pprz.Transport.packet";
     let m = String.create msg_length in
     String.blit payload 0 m offset_payload n;
     m.[0] <- stx;

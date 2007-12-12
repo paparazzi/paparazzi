@@ -77,6 +77,9 @@ module Transport : Serial.PROTOCOL
     ck_A = ck_B = 0;
     for all byte b in payload
       ck_A += b; ck_b += ck_A
+
+    STX = 0x99
+    [packet] raises Invalid_Argument if length >= 256
  *)
 
 val offset_fields : int
