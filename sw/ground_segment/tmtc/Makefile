@@ -72,14 +72,19 @@ link : $(LINKCMO)  ../../lib/ocaml/lib-pprz.cma
 	$(Q)$(OCAMLC) -custom $(INCLUDES) -o $@ unix.cma str.cma xml-light.cma lablgtk.cma glibivy-ocaml.cma lib-pprz.cma multimon.cma $(LINKCMO)
 
 
-tcp_ivy : tcp_ivy.cmo  ../../lib/ocaml/lib-pprz.cma
+ivy_tcp_aircraft : ivy_tcp_aircraft.cmo  ../../lib/ocaml/lib-pprz.cma
 	@echo OL $@
-	$(Q)$(OCAMLC) -custom $(INCLUDES) -o $@ unix.cma str.cma xml-light.cma lablgtk.cma glibivy-ocaml.cma lib-pprz.cma multimon.cma tcp_ivy.cmo
+	$(Q)$(OCAMLC) -custom $(INCLUDES) -o $@ unix.cma str.cma xml-light.cma lablgtk.cma glibivy-ocaml.cma lib-pprz.cma multimon.cma ivy_tcp_aircraft.cmo
 
 
-ivy_tcp : ivy_tcp.cmo  ../../lib/ocaml/lib-pprz.cma
+ivy_tcp_controller : ivy_tcp_controller.cmo  ../../lib/ocaml/lib-pprz.cma
 	@echo OL $@
-	$(Q)$(OCAMLC) -custom $(INCLUDES) -o $@ unix.cma str.cma xml-light.cma lablgtk.cma glibivy-ocaml.cma lib-pprz.cma multimon.cma ivy_tcp.cmo
+	$(Q)$(OCAMLC) -custom $(INCLUDES) -o $@ unix.cma str.cma xml-light.cma lablgtk.cma glibivy-ocaml.cma lib-pprz.cma multimon.cma ivy_tcp_controller.cmo
+
+
+broadcaster : base64.cmo broadcaster.cmo  ../../lib/ocaml/lib-pprz.cma
+	@echo OL $@
+	$(Q)$(OCAMLC) -custom $(INCLUDES) -o $@ unix.cma str.cma xml-light.cma lablgtk.cma glibivy-ocaml.cma lib-pprz.cma multimon.cma base64.cmo broadcaster.cmo
 
 
 dia : dia.cmo ../multimon/multimon.cma
