@@ -28,7 +28,7 @@ OCAMLC=ocamlc
 OCAMLOPT=ocamlopt
 
 
-SRC = debug.ml env.ml serial.ml ocaml_tools.ml extXml.ml xml2h.ml latlong.ml srtm.ml http.ml gm.ml iGN.ml geometry_2d.ml geometry_3d.ml cserial.o convert.o ubx.ml pprz.ml xbee.ml
+SRC = debug.ml base64.ml env.ml serial.ml ocaml_tools.ml extXml.ml xml2h.ml latlong.ml srtm.ml http.ml gm.ml iGN.ml geometry_2d.ml geometry_3d.ml cserial.o convert.o ubx.ml pprz.ml xbee.ml
 CMO = $(SRC:.ml=.cmo)
 CMX = $(SRC:.ml=.cmx)
 
