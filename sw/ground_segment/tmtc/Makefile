@@ -82,7 +82,7 @@ ivy_tcp_controller : ivy_tcp_controller.cmo  ../../lib/ocaml/lib-pprz.cma
 	$(Q)$(OCAMLC) -custom $(INCLUDES) -o $@ unix.cma str.cma xml-light.cma lablgtk.cma glibivy-ocaml.cma lib-pprz.cma multimon.cma ivy_tcp_controller.cmo
 
 
-broadcaster : base64.cmo broadcaster.cmo  ../../lib/ocaml/lib-pprz.cma
+broadcaster : broadcaster.cmo  ../../lib/ocaml/lib-pprz.cma
 	@echo OL $@
 	$(Q)$(OCAMLC) -custom $(INCLUDES) -o $@ unix.cma str.cma xml-light.cma lablgtk.cma glibivy-ocaml.cma lib-pprz.cma multimon.cma broadcaster.cmo
 
