@@ -38,6 +38,15 @@
 #include "point.h"
 #endif // POINT_CAM
 
+#ifdef CAM_PITCH_NEUTRAL
+#if (CAM_PITCH_MAX == CAM_PITCH_NEUTRAL)
+#error CAM_PITCH_MAX has to be different from CAM_PITCH_NEUTRAL
+#endif
+#if (CAM_PITCH_NEUTRAL == CAM_PITCH_MIN)
+#error CAM_PITCH_MIN has to be different from CAM_PITCH_NEUTRAL
+#endif
+#endif
+
 #define MIN_PPRZ_CAM ((int16_t)(MAX_PPRZ * 0.05))
 #define DELTA_ALPHA 0.2
 
@@ -57,6 +66,9 @@ float theta_c;
 #endif
 
 float target_x, target_y, target_alt;
+
+int use_hatch_cam = 0;
+int cam_mode_auto = 1;
 
 #ifdef MOBILE_CAM
 
@@ -84,33 +96,49 @@ void cam_nadir( void ) {
 }
 
 void cam_target( void ) {
+
 #ifdef POINT_CAM
-  float fRoll;
-  float fTilt;
+  /* phi   fRoll */
+  /* theta fTilt */
 
-  float cam_roll;
+  float cam_pitch;
 
-  cam_roll = ((estimator_phi + (M_PI/4.0)) * MAX_PPRZ) / (M_PI/4.0);
-  cam_roll = TRIM_PPRZ(cam_roll);
-  ap_state->commands[COMMAND_CAM_ROLL_CMD] = MAX_PPRZ;
+  if (cam_mode_auto != 0)
+  {
+    vPoint(estimator_x, estimator_y, estimator_z,
+           estimator_hspeed_dir, estimator_theta, estimator_phi,
+           target_x, target_y, target_alt,
+           &phi_c, &theta_c);
+  }
 
-#if 0
-  vPoint(estimator_x, estimator_y, estimator_z,
-         estimator_hspeed_dir, estimator_theta, estimator_phi,
-         target_x, target_y, target_alt,
-         &fRoll, &fTilt);
+  if (theta_c < RadOfDeg(CAM_PITCH_MIN - 30)) theta_c = RadOfDeg(CAM_PITCH_MAX);
+  
+  if (theta_c > RadOfDeg(CAM_PITCH_NEUTRAL))
+  {
+//    cam_pitch = (theta_c - CAM_PITCH_NEUTRAL) * (MAX_PPRZ / (CAM_PITCH_MAX - CAM_PITCH_NEUTRAL));
+    cam_pitch = MAX_PPRZ * (theta_c / (RadOfDeg(CAM_PITCH_MAX - CAM_PITCH_NEUTRAL)) - 1.); 
+  }
+  else
+  {
+//    cam_pitch = (theta_c - CAM_PITCH_NEUTRAL) * MIN_PPRZ / (CAM_PITCH_MAX - CAM_PITCH_NEUTRAL);
+    cam_pitch = MIN_PPRZ * (1. - (theta_c / (RadOfDeg(CAM_PITCH_NEUTRAL - CAM_PITCH_MIN)))); 
+  }
 
-  ap_state->commands[COMMAND_CAM_ROLL] = cam_roll;
-      cam_roll = TRIM_PPRZ(cam_roll);
+  cam_pitch = TRIM_PPRZ(cam_pitch);
+
+#ifdef COMMAND_HATCH
+//  if (0 != use_hatch_cam) 
+ap_state->commands[COMMAND_HATCH] = cam_pitch;
 #endif
 
 #if 0
-printf("pitch %f, roll %f, croll %f, ctilt %f\n", 
-       estimator_theta, estimator_phi, fRoll, fTilt);
+printf("pitch %f, roll %f, cam_tilt %f\n", 
+       (estimator_theta/M_PI)*180., (estimator_phi/M_PI)*180., (theta_c/M_PI)*180.);
 
 printf("alt = %f\n", estimator_z - target_alt);
 printf("y = %f\n", target_y-estimator_y);
 printf("x = %f\n", target_x-estimator_x);
+printf("servo = %f\n", cam_pitch);
 #endif
 
 #if 0
@@ -150,6 +178,7 @@ printf("x = %f\n", target_x-estimator_x);
   theta_c = atan(d_h * sin (psi_alpha)) - estimator_theta;
 #endif // POINT_CAM
 }
+
 
 #define MAX_DIST_TARGET 500.
 

@@ -1,7 +1,7 @@
 /*
  * $Id$
  *  
- * Copyright (C) 2005  Arnold Schroeter
+ * Copyright (C) 2005-2007  Arnold Schroeter
  *
  * This file is part of paparazzi.
  *
@@ -68,45 +68,7 @@
  *      I         I              I
  *      I         I              I
  *
- *
- * The Paparazzi software makes planes circle clockwise so the default
- * view is to the right side of the plane. The pan servo neutral makes
- * the camera look to the right with 0° given, 90° is to the back and
- * -90° is to the front. The tilt servo neutral makes the camera look
- * down with 0° given, 90° is to the right and -90° is to the left (all
- * values are used in radian in the software). If the camera looks to
- * the right side of the plane, the picture is upright. It is upside
- * down when looking to the left. That is corrected with the MPEG
- * decoding software on the laptop by mirroring. The pan servo is fixed
- * in the plane and the tilt servo is moved by the pan servo and moves
- * the camera.
- *
- *
- * pan servo, tilt set to 90°, looking from top:
- *     
- *   plane front
- *     
- *       ^
- *       I
- *       I  45°
- *       I /
- *       I/
- *       I------- 0°
- *       I\
- *       I \
- *       I  -45°
- *       I
- *     
- *   plane back
- *     
- *     
- * tilt servo, pan set to 0°, looking from back:
- *     
- *     plane left --------------- plane right
- *                     / I \
- *                    /  I  \
- *                 -45°  I   45°
- *                       0°
+ * 
  */
   
 #include <math.h>
@@ -234,41 +196,101 @@ void vPoint(float fPlaneEast, float fPlaneNorth, float fPlaneAltitude,
 
   vMultiplyMatrixByVector(&svObjectPositionForPlane2, smRotation, svObjectPositionForPlane);
 
+#ifdef POINT_CAM_PITCH
+
+  /*                                                                       
+   * This is for one axis pitch camera mechanisms. The pitch servo neutral 
+   * makes the camera look down, 90° is to the front and -90° is to the    
+   * back. The pitch value is given through the tilt parameter.            
+   *                                                                       
+   *                                                                       
+   * pitch servo, looking from right:                                      
+   *                                                                       
+   *     plane back ---------------> plane front                            
+   *                     / I \                                             
+   *                    /  I  \                                            
+   *                 -45°  I   45°                                         
+   *                       0°                                              
+   *
+   * (should be hyperbolic, we use lines to make it better, the plane rolls
+   *  away from the object while flying towards it!)
+   *                                                                       
+   */                                                                      
+
+  /* fTurn is deactivated 
+  */
+  *fTurn = 0;
+
+  /* fTilt =   0 -> camera looks down
+              90 -> camera looks forward
+             -90 -> camera looks backward
+  */
+  *fTilt = (float)(atan2( svObjectPositionForPlane2.fx, -svObjectPositionForPlane2.fz ));
+#if 0
+  *fTilt = (float)(atan2( svObjectPositionForPlane2.fx,
+                          sqrt(   svObjectPositionForPlane2.fy * svObjectPositionForPlane2.fy
+                                + svObjectPositionForPlane2.fz * svObjectPositionForPlane2.fz )
+                        ));
+#endif
+#else
+
+/*
+ * This is for two axes pan/tilt camera mechanisms. The default is to
+ * circle clockwise so view is right. The pan servo neutral makes
+ * the camera look to the right with 0° given, 90° is to the back and
+ * -90° is to the front. The tilt servo neutral makes the camera look
+ * down with 0° given, 90° is to the right and -90° is to the left (all
+ * values are used in radian in the software). If the camera looks to
+ * the right side of the plane, the picture is upright. It is upside
+ * down when looking to the left. That is corrected with the MPEG
+ * decoding software on the laptop by mirroring. The pan servo is fixed
+ * in the plane and the tilt servo is moved by the pan servo and moves
+ * the camera.
+ *
+ *
+ * pan servo, tilt set to 90°, looking from top:
+ *     
+ *   plane front
+ *     
+ *       ^
+ *       I
+ *       I  45°
+ *       I /
+ *       I/
+ *       I------- 0°
+ *       I\
+ *       I \
+ *       I  -45°
+ *       I
+ *     
+ *   plane back
+ *     
+ *     
+ * tilt servo, pan set to 0°, looking from back:
+ *     
+ *     plane left --------------- plane right
+ *                     / I \
+ *                    /  I  \
+ *                 -45°  I   45°
+ *                       0°
+ *
+ */
+
   /* fTurn =   0  -> camera looks along the wing
              -90  -> camera looks in flight direction
               90  -> camera looks backwards
   */
-  if (svObjectPositionForPlane2.fz == 0)
-  {
-    if (svObjectPositionForPlane2.fy >= 0)
-    {
-      *fTurn = -M_PI/2.;
-    }
-    else
-    {
-      *fTurn = M_PI/2.;
-    }
-  }
-  else
-  {
-    *fTurn = -(float)(atan(svObjectPositionForPlane2.fy / svObjectPositionForPlane2.fz));
-  }
-
+  *fTurn = -(float)(atan2(svObjectPositionForPlane2.fy, svObjectPositionForPlane2.fz));
+ 
   /* fTilt =   0  -> camera looks down
               90  -> camera looks into right hemisphere
              -90  -> camera looks into left hemispere
      actually the camera always looks more or less downwards, but never upwards
   */
-  if ((svObjectPositionForPlane2.fy == 0) && (svObjectPositionForPlane2.fz == 0))
-  {
-    *fTilt = M_PI/2.;
+  *fTilt = (float)(atan2( svObjectPositionForPlane2.fx,
+                          sqrt(   svObjectPositionForPlane2.fy * svObjectPositionForPlane2.fy
+                                + svObjectPositionForPlane2.fz * svObjectPositionForPlane2.fz )
+                        ));
   }
-  else
-  {
-    *fTilt = (float)(atan( svObjectPositionForPlane2.fx /
-                           sqrt(   svObjectPositionForPlane2.fy * svObjectPositionForPlane2.fy
-                                 + svObjectPositionForPlane2.fz * svObjectPositionForPlane2.fz )
-                         ));
-  }
-
+#endif
 }
