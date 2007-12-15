@@ -39,7 +39,7 @@
 #include <Ivy/ivyglibloop.h>
 
 #define PORT 7123
-#define HOSTADDR "uav-flight.de"
+#define HOSTADDR "localhost"
 
 #define PACKET_SIZE 9
 
@@ -62,7 +62,7 @@ void on_FLIGHT_PARAM_STATUS(IvyClientPtr app, void *user_data, int argc, char *a
 
   if (argc != 10) return;
 
-  uvalue[0] = atoi(argv[0]);
+  uvalue[0] = 42;//atoi(argv[0]);
   cvalue[0] = uvalue[0] & 0xFF;
   cvalue[1] = 0;
   cvalue[2] = 'P';
