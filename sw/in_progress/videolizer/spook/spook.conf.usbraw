@@ -18,8 +18,9 @@
 # You will need to specify a larger number if you use larger frames.
 #
 
-FrameHeap 30; # Appropriate for one video stream and one audio stream
+#FrameHeap 30; # Appropriate for one video stream and one audio stream
 # FrameHeap 20 921600; # Appropriate for capturing 640x480 frames
+FrameHeap 20 800000; # Appropriate for capturing 384x576 frames
 
 #
 # TCP port number to listen for RTSP and HTTP connections.  Currently
@@ -118,6 +119,7 @@ Input V4L2 {
 	InputPort 0;
 	Format "raw2"; # For YUY2
 #	FrameSize 160 120;     # Optional
+	FrameSize 384 576;     # will be split to 284x288
 	Output "raw";
 }
 
