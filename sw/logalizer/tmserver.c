@@ -219,12 +219,14 @@ int main(int argc, char *argv[])
       {
         pbuf = buf;
         ac = getnumac(ac_dat);
+        pbuf += sprintf(pbuf,"Cache-Control: no-cache\n");
+        pbuf += sprintf(pbuf,"Pragma: no-cache\n");	
         pbuf += sprintf(pbuf,"Content-type: text/xml\n\n");
         pbuf += sprintf(pbuf,"<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n");
-        pbuf += sprintf(pbuf,"<kml xmlns=\"http://earth.google.com/kml/2.0\">\n");
+        pbuf += sprintf(pbuf,"<kml xmlns=\"http://earth.google.com/kml/2.1\">\n");
         pbuf += sprintf(pbuf,"<NetworkLinkControl>\n");
         pbuf += sprintf(pbuf," <Update>\n");
-        pbuf += sprintf(pbuf,"  <targetHref>http://uav-flight.de/maps/fg_server_xml.cgi?ppac</targetHref>\n");
+        pbuf += sprintf(pbuf,"  <targetHref>http://localhost/maps/fg_server_xml.cgi?ppac</targetHref>\n");
            
         for (count = 0; count < ac; count++)
         {
@@ -232,6 +234,7 @@ int main(int argc, char *argv[])
           {
             pbuf += sprintf(pbuf, "  <Change>\n");
             pbuf += sprintf(pbuf, "   <Placemark targetId=\"%i\">\n", count);
+#if 0
             pbuf += sprintf(pbuf, "    <LookAt>\n");
             pbuf += sprintf(pbuf, "     <longitude>%f</longitude>\n", ac_dat[count].fval[4]);
             pbuf += sprintf(pbuf, "     <latitude>%f</latitude>\n", ac_dat[count].fval[3]);
@@ -241,6 +244,7 @@ int main(int argc, char *argv[])
             pbuf += sprintf(pbuf, "     <heading>%f</heading>\n", ac_dat[count].fval[6]);
             pbuf += sprintf(pbuf, "     <altitudeMode>absolute</altitudeMode>\n");
             pbuf += sprintf(pbuf, "    </LookAt>\n");
+#endif
             pbuf += sprintf(pbuf, "    <Model>\n");
             pbuf += sprintf(pbuf, "     <Location>\n");
             pbuf += sprintf(pbuf, "      <latitude>%f</latitude>\n", ac_dat[count].fval[3]);
@@ -265,9 +269,11 @@ int main(int argc, char *argv[])
       {
         pbuf = buf;
         ac = getnumac(ac_dat);
+        pbuf += sprintf(pbuf,"Cache-Control: no-cache\n");
+        pbuf += sprintf(pbuf,"Pragma: no-cache\n");	
         pbuf += sprintf(pbuf,"Content-type: text/xml\n\n");
         pbuf += sprintf(pbuf,"<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n");
-        pbuf += sprintf(pbuf,"<kml xmlns=\"http://earth.google.com/kml/2.0\">\n");
+        pbuf += sprintf(pbuf,"<kml xmlns=\"http://earth.google.com/kml/2.1\">\n");
         pbuf += sprintf(pbuf," <Document id=\"mpmap\">\n");
         pbuf += sprintf(pbuf," <name>Paparazzi live aircrafts</name>\n");
         pbuf += sprintf(pbuf," <visibility>1</visibility>\n");
@@ -278,6 +284,7 @@ int main(int argc, char *argv[])
           {
             pbuf += sprintf(pbuf, " <Placemark id=\"%i\">\n", count);
             pbuf += sprintf(pbuf, "  <name>%i</name>\n", ac_dat[count].ac_id);
+#if 0
             pbuf += sprintf(pbuf, "  <LookAt>\n");
             pbuf += sprintf(pbuf, "   <longitude>%f</longitude>\n", ac_dat[count].fval[4]);
             pbuf += sprintf(pbuf, "   <latitude>%f</latitude>\n", ac_dat[count].fval[3]);
@@ -287,6 +294,7 @@ int main(int argc, char *argv[])
             pbuf += sprintf(pbuf, "   <heading>%f</heading>\n", ac_dat[count].fval[7]);
             pbuf += sprintf(pbuf, "   <altitudeMode>absolute</altitudeMode>\n");
             pbuf += sprintf(pbuf, "  </LookAt>\n");            
+#endif
             pbuf += sprintf(pbuf, "  <description>Paparazzi</description>\n");
             pbuf += sprintf(pbuf, "  <Model>\n");
             pbuf += sprintf(pbuf, "   <altitudeMode>absolute</altitudeMode>\n");
@@ -306,7 +314,7 @@ int main(int argc, char *argv[])
             pbuf += sprintf(pbuf, "    <z>150.0</z>\n");
             pbuf += sprintf(pbuf, "   </Scale>\n");
             pbuf += sprintf(pbuf, "   <Link>\n");
-            pbuf += sprintf(pbuf, "    <href>http://pigeond.net/flightgear/fgmap/ge/daes/c172p/c172p.dae</href>\n");
+            pbuf += sprintf(pbuf, "    <href>http://localhost/maps/c172p.dae</href>\n");
             pbuf += sprintf(pbuf, "    <refreshMode>onChange</refreshMode>\n");
             pbuf += sprintf(pbuf, "   </Link>\n");
             pbuf += sprintf(pbuf, "  </Model>\n");
@@ -316,7 +324,7 @@ int main(int argc, char *argv[])
         pbuf += sprintf(pbuf, " <NetworkLink id=\"fgmap_update\">\n");
         pbuf += sprintf(pbuf, "  <name>Update</name>\n");
         pbuf += sprintf(pbuf, "  <Link>\n");
-        pbuf += sprintf(pbuf, "   <href>http://uav-flight.de/maps/fg_server_xml.cgi?ppua</href>\n");
+        pbuf += sprintf(pbuf, "   <href>http://localhost/maps/fg_server_xml.cgi?ppua</href>\n");
         pbuf += sprintf(pbuf, "   <refreshMode>onInterval</refreshMode>\n");
         pbuf += sprintf(pbuf, "   <refreshInterval>1</refreshInterval>\n");
         pbuf += sprintf(pbuf, "  </Link>\n");
@@ -328,6 +336,8 @@ int main(int argc, char *argv[])
         pbuf=buf;
         ac = getnumac(ac_dat);
   
+        pbuf += sprintf(pbuf,"Cache-Control: no-cache\n");
+        pbuf += sprintf(pbuf,"Pragma: no-cache\n");	
         pbuf += sprintf(pbuf, "Content-type: text/xml\n\n<fg_server pilot_cnt=\"%d\">\n", ac);
    
         for (count = 0; count < ac; count++)
