@@ -1,3 +1,4 @@
+#define SPOOK_DEINTERLACE 1
 /*
  * Copyright (C) 2004 Nathan Lutchansky <lutchann@litech.org>
  *
@@ -67,7 +68,11 @@ static void mpeg4_start( struct mpeg4_encoder *en, struct frame *f )
 
 	en->reset_pending = 0;
 	en->width = f->width;
+#ifdef SPOOK_DEINTERLACE
+	en->height = f->height/2;
+#else	
 	en->height = f->height;
+#endif
 
 	memset( &xvid_enc_create, 0, sizeof( xvid_enc_create ) );
 	xvid_enc_create.version = XVID_VERSION;
@@ -128,6 +133,24 @@ static void *mpeg4_loop( void *d )
 		if( en->reset_pending && en->xvid_handle ) mpeg4_stop( en );
 		if( ! en->xvid_handle ) mpeg4_start( en, input );
 
+#ifdef SPOOK_DEINTERLACE
+		if( input->width != en->width || input->height != en->height*2 )
+		{
+			spook_log( SL_WARN,
+				"mpeg4: image size changed midstream!" );
+			unref_frame( input );
+			continue;
+		}
+		
+		{
+			int lines;
+			char *YUY2 = input->d;
+			for (lines = 0; lines < en->height; lines++)
+		    {
+				memcpy(YUY2 + (lines * en->width * 2), YUY2 + (lines * en->width * 2 * 2), en->width*2);
+			}
+		}
+#else		
 		if( input->width != en->width || input->height != en->height )
 		{
 			spook_log( SL_WARN,
@@ -135,6 +158,7 @@ static void *mpeg4_loop( void *d )
 			unref_frame( input );
 			continue;
 		}
+#endif		
 
 		mpeg = new_frame();
 

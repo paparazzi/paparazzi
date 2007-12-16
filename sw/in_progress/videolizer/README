@@ -19,17 +19,25 @@ with (maybe adjust the NORM)
 
  mplayer tv:// -tv driver=v4l2:width=320:height=240:norm=NTSC:input=0:device=/dev/video0:noaudio -ao noalsa -nolirc -nomouseinput -really-quiet
 
-or build spook and use it to distribute through rtsp
+or build spook and use it to distribute through rtsp, get Debian package 
+libxvidcore4-dev before configuring it
 
+ apt-get install libxvidcore4-dev
  cd spook
+ ./configure
  make
 
-as the v4l-dvb-kernel updates some parts of the video4linux interface, just
-building wis does not work. if you want to use the Plextor M402U you have to
-use a patched (this is evil) Module.symvers. Either use the one provided or
-copy the symbol hashes over from the *.mod.c files. generate the headers
+start spook and watch video through vlc (mplayer) from it
+
+ vlc rtsp://localhost:7070/webcam
+
+for the Plextor, it can NOT be used at the same time as the Pollin,
+v4l changes the kernel symbols and wis can not work with that
+re-install the kernel if you want to use it
+
+changing the kernel symvers somehow does not work
 
  cd v4l-dvb-kernel
  sudo make kernel-headers
 
-then build wis-go7007 
+build wis-go7007 
