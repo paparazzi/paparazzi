@@ -157,8 +157,7 @@ void ir_init(void) {
 }
 
 #if defined IR_ADC_ROLL_NEUTRAL || defined IR_ADC_PITCH_NEUTRAL
-#error "Neutrals on ROLL and PITCH deprecated. Please define IR_ADC_IR1_NEUTRAL
-and IR_ADC_IR2_NEUTRAL"
+#error "Neutrals on ROLL and PITCH deprecated. Please define IR_ADC_IR1_NEUTRAL and IR_ADC_IR2_NEUTRAL"
 #endif
 
 #ifndef IR_IR1_SIGN
