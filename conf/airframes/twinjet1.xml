@@ -166,7 +166,7 @@
 <!--
    <define name="XBEE_INIT" value="\"ATPL2\rATRN1\rATTT80\r\""/> 
 -->
-    <define name="LIGHT_PIN_1" value="3"/>
+    <define name="LIGHT_LED_1" value="3"/>
   </section>
  
   <section name="SIMU">
@@ -268,9 +268,8 @@ ap.srcs += nav_line.c bomb.c
 
 ap.srcs += nav_survey_rectangle.c
 
-# Hack to use the same tuning file than slayer1
-ap.CFLAGS += -DUSE_GPIO
-ap.srcs += $(SRC_ARCH)/gpio.c
+ap.srcs += light.c
+ap.CFLAGS += -DUSE_LIGHT
 
 
 
