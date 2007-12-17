@@ -1,0 +1,10 @@
+<!DOCTYPE settings SYSTEM "settings.dtd">
+
+<settings>
+    <dl_settings NAME="control">
+          <dl_settings name="cam">
+	      <dl_setting MAX="1.5" MIN="0" STEP=".15" module="cam" VAR="theta_c"/>
+	      <dl_setting MAX="1" MIN="0" STEP="1" module="cam" VAR="cam_mode_auto"/>
+      </dl_settings>
+  </dl_settings>
+</settings>
