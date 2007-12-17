@@ -66,7 +66,7 @@ void dl_parse_msg(void) {
     float c = RadOfDeg(((float)DL_ACINFO_course(dl_buffer))/ 10.);
     float s = MOfCm(DL_ACINFO_speed(dl_buffer));
     SetAcInfo(id, ux, uy, c, a, s);
-  } else if (msg_id == DL_MOVE_WP) {
+  } else if (msg_id == DL_MOVE_WP && DL_MOVE_WP_ac_id(dl_buffer) == AC_ID) {
     uint8_t wp_id = DL_MOVE_WP_wp_id(dl_buffer);
     float a = MOfCm(DL_MOVE_WP_alt(dl_buffer));
 
@@ -81,9 +81,9 @@ void dl_parse_msg(void) {
     latlong_utm_x = waypoints[wp_id].x + nav_utm_east0;
     latlong_utm_y = waypoints[wp_id].y + nav_utm_north0;
     DOWNLINK_SEND_WP_MOVED(&wp_id, &latlong_utm_x, &latlong_utm_y, &a, &nav_utm_zone0);
-  } else if (msg_id == DL_BLOCK) {
+  } else if (msg_id == DL_BLOCK && DL_BLOCK_ac_id(dl_buffer) == AC_ID) {
     nav_goto_block(DL_BLOCK_block_id(dl_buffer));
-  } else if (msg_id == DL_WIND_INFO) {
+  } else if (msg_id == DL_WIND_INFO && DL_WIND_INFO_ac_id(dl_buffer) == AC_ID) {
     wind_east = DL_WIND_INFO_east(dl_buffer);
     wind_north = DL_WIND_INFO_north(dl_buffer);
   }
@@ -112,7 +112,7 @@ void dl_parse_msg(void) {
   }
 #endif
 #ifdef DlSetting
-  else if (msg_id == DL_SETTING) {
+  else if (msg_id == DL_SETTING && DL_SETTING_ac_id(dl_buffer) == AC_ID) {
     uint8_t i = DL_SETTING_index(dl_buffer);
     float val = DL_SETTING_value(dl_buffer);
     DlSetting(i, val);
