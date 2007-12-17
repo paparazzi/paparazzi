@@ -966,4 +966,16 @@ let listen_acs_and_msgs = fun geomap ac_notebook my_alert auto_center_new_ac ->
 	if ac.pages#get_oid = ac_page#get_oid
 	then select_ac ac_notebook ac_id) 
       aircrafts in
-  ignore (ac_notebook#connect#switch_page ~callback)
+  ignore (ac_notebook#connect#switch_page ~callback);
+
+  (** Center the active aircraft *)
+  let center_active = fun () ->
+    if !active_ac <> "" then
+      let ac = find_ac !active_ac in
+      center geomap ac.track () in
+  let key_press = fun ev ->
+    match GdkEvent.Key.keyval ev with
+    | k when k = GdkKeysyms._c -> center_active () ; true
+    | _ -> false in
+  ignore (geomap#canvas#event#connect#after#key_press key_press)
+
