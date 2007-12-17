@@ -22,7 +22,8 @@ with (maybe adjust the NORM)
 or build spook and use it to distribute through rtsp, get Debian package 
 libxvidcore4-dev before configuring it
 
- apt-get install libxvidcore4-dev
+ apt-get install libxvidcore4
+ apt-get install libxvidcore-dev
  cd spook
  ./configure
  make
