@@ -1,0 +1,101 @@
+<?xml version="1.0"?>
+
+<control_panel name="paparazzi control panel">
+
+  <section name="variables">
+    <variable name="downlink_serial_port" value="/dev/ttyUSB0"/>
+    <variable name="fbw_serial_port"      value="/dev/ttyS1"/>
+    <variable name="ap_serial_port"       value="/dev/ttyS0"/>
+    <variable name="ivy_bus"              value="127:2010"/>
+    <variable name="map"                  value="muret_UTM.xml"/>
+    <variable name="flight_plan"          value="flight_plans/muret1.xml"/>
+  </section>
+
+  <section name="programs">
+    <program name="Server" command="sw/ground_segment/tmtc/server">
+      <arg flag="-b" variable="ivy_bus"/>
+    </program>
+
+    <program name="Data Link" command="sw/ground_segment/tmtc/link">
+      <arg flag="-b" variable="ivy_bus"/>
+    </program>
+
+    <program name="GCS" command="sw/ground_segment/cockpit/gcs">
+      <arg flag="-b" variable="ivy_bus"/>
+    </program>
+
+    <program name="Flight Plan Editor" command="sw/ground_segment/cockpit/gcs -edit">
+    </program>
+
+    <program name="Messages" command="sw/ground_segment/tmtc/messages">
+      <arg flag="-b" variable="ivy_bus"/>
+    </program>
+
+    <program name="Settings" command="sw/ground_segment/tmtc/settings">
+      <arg flag="-b" variable="ivy_bus"/>
+    </program>
+
+    <program name="Log Plotter" command ="sw/logalizer/plot"/>
+
+    <program name="Real-time Plotter" command ="sw/logalizer/plotter"/>
+
+    <program name="Log File Player" command="sw/logalizer/play">
+      <arg flag="-b" variable="ivy_bus"/>
+    </program>
+
+    <program name="Simulator" command="sw/simulator/launchsitl">
+      <arg flag="-b" variable="ivy_bus"/>
+    </program>
+
+    <program name="Hardware in the Loop" command="sw/simulator/simhitl">
+      <arg flag="-fbw" variable="fbw_serial_port"/>
+      <arg flag="-ap" variable="ap_serial_port"/>
+    </program>
+
+    <program name="Environment Simulator" command="sw/simulator/gaia">
+      <arg flag="-b" variable="ivy_bus"/>
+    </program>
+
+    <program name="Http Server" command="sw/ground_segment/tmtc/boa"/>
+
+    <program name="TCP controller" command="sw/ground_segment/tmtc/ivy_tcp_controller"/>
+ </section>
+  
+
+
+
+  <section name="sessions">
+
+   <session name="Berlin">
+      <program name="Server"/>
+      <program name="GCS">
+        <arg flag="-plugin" constant="85.214.48.162"/>
+      </program>
+      <program name="TCP controller">
+        <arg flag="-h" constant="85.214.48.162"/>
+      </program>
+    </session>
+
+   <session name="Toulouse">
+      <program name="Data Link">
+        <arg flag="-d" constant="/dev/ttyUSB0"/>
+        <arg flag="-s" constant="57600"/>
+        <arg flag="-aerocom" constant=""/>
+      </program>
+      <program name="Server"/>
+      <program name="GCS"/>
+    </session>
+
+    <session name="Hildesein">
+      <program name="Data Link">
+        <arg flag="-d" constant="/dev/ttyUSB0"/>
+      </program>
+      <program name="Server"/>
+      <program name="GCS"/>
+    </session>
+
+
+
+  </section>
+
+</control_panel>
