@@ -72,6 +72,7 @@
       <program name="Server"/>
       <program name="GCS">
         <arg flag="-mplayer" constant="rtsp://ricou.homelinux.org:7070/webcam"/>
+        <arg flag="-layout"  constant="layout_berlin.xml"/>
       </program>
       <program name="TCP controller">
         <arg flag="-h" constant="85.214.48.162"/>
