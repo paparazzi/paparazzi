@@ -285,14 +285,15 @@ end (** XBee module *)
 
 
 let send = fun ac_id device ac_device payload priority ->
-  match ac_device with
-    Uart ->
-      let o = Unix.out_channel_of_descr device.fd in
-      let buf = Pprz.Transport.packet payload in
-      Printf.fprintf o "%s" buf; flush o;
-      Debug.call 'l' (fun f -> fprintf f "mm sending: %s\n" (Debug.xprint buf));
-  | XBeeDevice ->
-      XB.send ac_id device payload
+  if  live_aircraft ac_id then
+    match ac_device with
+      Uart ->
+	let o = Unix.out_channel_of_descr device.fd in
+	let buf = Pprz.Transport.packet payload in
+	Printf.fprintf o "%s" buf; flush o;
+	Debug.call 'l' (fun f -> fprintf f "mm sending: %s\n" (Debug.xprint buf));
+    | XBeeDevice ->
+	XB.send ac_id device payload
 
 
 let cm_of_m = fun f -> Pprz.Int (truncate (100. *. f))
@@ -302,7 +303,7 @@ let get_fp = fun device _sender vs ->
   let ac_id = int_of_string (Pprz.string_assoc "ac_id" vs) in
   List.iter 
     (fun (dest_id, _) ->
-      if dest_id <> ac_id && live_aircraft dest_id then (** Do not send to itself *)
+      if dest_id <> ac_id then (** Do not send to itself *)
 	try
 	  Debug.trace 'b' (sprintf "ACINFO %d for %d" ac_id dest_id);
 	  let ac_device = airborne_device dest_id airframes device.transport in
