@@ -561,7 +561,7 @@ let _main =
   pack_widgets `HORIZONTAL (ExtXml.child layout "0") widgets window#add;
 
   if !mplayer <> "" then
-    plugin_window := sprintf "mplayer -nomouseinput '%s' -wid " !mplayer;
+    plugin_window := sprintf "mplayer -nomouseinput %s -wid " !mplayer;
   if !plugin_window <> "" then begin  
     let frame = GBin.event_box ~packing:plugin_frame#add ~width:plugin_width ~height:plugin_height () in
     let s = GWindow.socket ~packing:frame#add () in
