@@ -161,7 +161,7 @@ module Make(A:Data.MISSION) = struct
     if state.air_speed = 0. && state.thrust > 0. then
       state.nominal_air_speed <- nominal_airspeed;
     state.air_speed <- state.nominal_air_speed*.(1.-.sin state.theta);
-    if agl >= -1. && state.air_speed > 0. then begin
+    if agl >= -3. && state.air_speed > 0. then begin
       let phi_dot_dot = roll_response_factor *. state.delta_a -. state.phi_dot in
       state.phi_dot <- state.phi_dot +. phi_dot_dot *. dt;
       state.phi <- norm_angle (state.phi +. state.phi_dot *. dt);
