@@ -176,6 +176,10 @@
     <define name="DEFAULT_ROLL" value="0.3" unit="rad"/>
     <define name="DEFAULT_PITCH" value="0.5" unit="rad"/>
 </section>
+
+ <section name="SIMU">
+    <define name="YAW_RESPONSE_FACTOR" value="0.5"/>
+ </section>
  
  <makefile>
 include $(PAPARAZZI_SRC)/conf/autopilot/tiny.makefile
