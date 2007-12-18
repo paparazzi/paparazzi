@@ -231,7 +231,7 @@ let conf_xml_file = conf_dir // "conf.xml"
 let backup_xml_file = conf_xml_file ^ "~"
 let aircrafts = Hashtbl.create 7
 let build_aircrafts = fun () ->
-  let conf_xml = Xml.parse_file conf_xml_file in
+  let conf_xml = ExtXml.parse_file conf_xml_file in
   List.iter (fun aircraft ->
     Hashtbl.add aircrafts (ExtXml.attrib aircraft "name") aircraft)
     (Xml.children conf_xml)

@@ -30,7 +30,7 @@ module Utils = Pc_common
 let (//) = Filename.concat
 
 let control_panel_xml_file = Utils.conf_dir // "control_panel.xml"
-let control_panel_xml = Xml.parse_file control_panel_xml_file
+let control_panel_xml = ExtXml.parse_file control_panel_xml_file
 let programs =
   let h = Hashtbl.create 7 in
   let s = ExtXml.child ~select:(fun x -> Xml.attrib x "name" = "programs") control_panel_xml "section" in
