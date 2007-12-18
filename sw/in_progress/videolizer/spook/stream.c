@@ -1,3 +1,4 @@
+#define SPOOK_DEINTERLACE 1
 /*
  * Copyright (C) 2004 Nathan Lutchansky <lutchann@litech.org>
  *
@@ -60,10 +61,14 @@ static void convert_yuy2_to_rgb24( struct frame *yuy2, void *d )
 	rgb = new_frame();
 	rgb->format = FORMAT_RAW_RGB24;
 	rgb->width = yuy2->width;
+#ifdef SPOOK_DEINTERLACE
+	rgb->height = yuy2->height / 2;
+#else	
 	rgb->height = yuy2->height;
+#endif	
 	rgb->length = yuy2->height * yuy2->width * 3;
 	rgb->key = yuy2->key;
-	yuy22rgb( yuy2->d, rgb->d, yuy2->length / 2 );
+	yuy22rgb( yuy2->d, rgb->d, yuy2->length / 2, yuy2->width );
 	unref_frame( yuy2 );
 	deliver_frame_to_stream( rgb, s );
 }

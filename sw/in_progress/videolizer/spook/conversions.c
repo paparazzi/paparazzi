@@ -1,3 +1,4 @@
+#define SPOOK_DEINTERLACE 1
 /*
  * Copyright (C) 2000-2001 Dan Dennedy  <dan@dennedy.org>
  *
@@ -223,11 +224,32 @@ uyvy2rgb (char *YUV, char *RGB, int NumPixels) {
 
 
 inline void
-yuy22rgb (char *YUV, char *RGB, int NumPixels) {
+yuy22rgb (char *YUV, char *RGB, int NumPixels, int width) {
   int i, j;
   register int y0, y1, u, v;
   register int r, g, b;
 
+#ifdef SPOOK_DEINTERLACE
+  for (i = 0, j = 0; i < (NumPixels << 2); i += 4, j += 6)
+    {
+      if ((j % (width*3)) == 0)
+      {
+        i += width*2;
+      }
+      y0 = (unsigned char) YUV[i + 0];
+      u = (unsigned char) YUV[i + 1] - 128;
+      y1 = (unsigned char) YUV[i + 2];
+      v = (unsigned char) YUV[i + 3] - 128;
+      YUV2RGB (y0, u, v, r, g, b);
+      RGB[j + 0] = r;
+      RGB[j + 1] = g;
+      RGB[j + 2] = b;
+      YUV2RGB (y1, u, v, r, g, b);
+      RGB[j + 3] = r;
+      RGB[j + 4] = g;
+      RGB[j + 5] = b;
+    }
+#else
   for (i = 0, j = 0; i < (NumPixels << 1); i += 4, j += 6)
     {
       y0 = (unsigned char) YUV[i + 0];
@@ -243,6 +265,7 @@ yuy22rgb (char *YUV, char *RGB, int NumPixels) {
       RGB[j + 4] = g;
       RGB[j + 5] = b;
     }
+#endif    
 }
 
 inline void

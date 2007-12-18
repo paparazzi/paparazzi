@@ -161,7 +161,7 @@ static void send_frame_with_jfif( struct http_location *loc, struct conn *c )
 		send_data( c, add_jfif, 20 );
 		send_data( c, loc->frame->d + 2, loc->frame->length - 2 );
 	} else
-		send_data( c, loc->frame->d, loc->frame->length );
+		send_data( c, loc->frame->d, loc->frame->length + 20);
 }
 
 static void send_multipart_frame( struct http_location *loc, struct conn *c )

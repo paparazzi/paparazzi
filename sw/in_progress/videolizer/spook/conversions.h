@@ -49,7 +49,7 @@ inline void
 uyvy2rgb (char *YUV, char *RGB, int NumPixels);
 
 inline void
-yuy22rgb (char *YUV, char *RGB, int NumPixels);
+yuy22rgb (char *YUV, char *RGB, int NumPixels, int width);
 
 inline void
 iyu12rgb (char *YUV, char *RGB, int NumPixels);
