@@ -1,3 +1,43 @@
+%
+% OK, here is the rough plan I though about
+%
+%
+% 10/15 minutes introduction explaining what is a UAV/UAS, autonomous fligh, 
+% what we are going to do during the flight
+%
+% 15/30 minutes flight
+%
+% rest should be scalable between 15 and 45 minutes depending on how the flight goes
+%
+% -paparazzi project
+%
+% -hardware
+%   -airframe
+%   -avionics 
+%     -CPU
+%     -sensors
+%     -communications
+%     -payloads
+%
+%
+% -software
+%   -flight plan language
+%   -networked architecture
+%   -payload (pan tilt camera, balldrop, chemo sensor...)
+%   -
+%
+%
+% -applications/results
+%   -reglementation
+%   -teaching/research
+%   -rt benchmark
+%   -mav competitions
+%   -iceland
+%   -forest fire
+%
+% -conclusion
+%
+%
 \documentclass{beamer}
 \usepackage{graphicx}
 \usepackage{calc}
@@ -16,7 +56,7 @@
 \usepackage{multimedia}
 \title{\movie[externalviewer]{Build your own UAV}{../videos/intro.avi}}
 \author{M. Mueller, A. Drouin}
-\date{November 2007}
+\date{December 2007}
 \institute{
 %\inst{1}%
 Bosh/ENAC
@@ -48,31 +88,46 @@ Bosh/ENAC
 %
 % Overview
 %
-\section{Overview}
-\input{overview}
+\section{Introduction}
+\input{01_overview}
 
 %
 %
 % Flight demo
 %
 %
+\section{Flight Presentation}
+
 %
+% Project
+%
+\section{Paparazzi Project}
+\input{02_project}
+
 
 %
 % Hardware
 %
 \section{Hardware}
+\input{03_hardware}
 
 %
 % Software
 %
 \section{Software}
+\input{04_software}
 
 %
 % Applications
 %
 \section{Applications}
-\input{applications}
+\input{05_applications}
+
+%
+% Conclusions
+%
+\section{Conclusions}
+\input{06_conclusion}
 
 
 
