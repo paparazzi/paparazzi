@@ -263,6 +263,12 @@ Filter Framedrop {
 	Scale 16;
 }
 
+Filter Framedrop {
+	Input "raw"; # matches the output name from the DC1394 input above
+	Output "rawdd";
+	Scale 40;
+}
+
 
 Encoder MPEG4 {
 	Input "rawd"; # matches the output name from the DC1394 input above
@@ -343,7 +349,7 @@ RTSP-Handler Live {
 #
 
 Encoder JPEG {
-	Input "rawd"; # matches the output name from the frame dropper
+	Input "rawdd"; # matches the output name from the frame dropper
 	Output "jpeg";
 }
 
