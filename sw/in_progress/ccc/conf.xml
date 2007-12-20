@@ -1,27 +1,22 @@
-<?xml version="1.0"?>
-
 <conf>
-<!-- arm7 aircrafts -->
-
-  <aircraft 
-    name="R1"
-    ac_id="26"
-    airframe="airframes/red_one.xml" 
-    radio="radios/mc24.xml" 
-    telemetry="telemetry/default.xml"
-    flight_plan="flight_plans/versatile.xml"
-    settings="settings/cam.xml settings/tuning.xml settings/switch.xml"
-    gui_color="#6293ba"
+  <aircraft
+   name="R1"
+   ac_id="26"
+   airframe="airframes/red_one.xml"
+   radio="radios/mc24.xml"
+   telemetry="telemetry/default.xml"
+   flight_plan="flight_plans/versatile.xml"
+   settings="settings/cam.xml settings/tuning.xml settings/switch.xml"
+   gui_color="#6293ba"
   />
-
-  <aircraft 
-    name="TJ1"
-    ac_id="6"
-    airframe="airframes/twinjet1.xml" 
-    radio="radios/cockpitSX.xml" 
-    telemetry="telemetry/default.xml"
-    flight_plan="flight_plans/basic.xml"
-    settings="settings/basic.xml settings/light.xml"
-    gui_color="#ba6293"
+  <aircraft
+   name="TJ1"
+   ac_id="6"
+   airframe="airframes/twinjet1.xml"
+   radio="radios/cockpitSX.xml"
+   telemetry="telemetry/default.xml"
+   flight_plan="flight_plans/basic.xml"
+   settings="settings/light.xml settings/tuning.xml"
+   gui_color="#ba6293"
   />
 </conf>
