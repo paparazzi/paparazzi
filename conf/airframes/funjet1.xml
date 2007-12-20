@@ -57,13 +57,13 @@
 
     <define name="LATERAL_CORRECTION" value="1."/>
     <define name="LONGITUDINAL_CORRECTION" value="1."/>
-    <define name="VERTICAL_CORRECTION" value="1."/>
+    <define name="VERTICAL_CORRECTION" value="1.5"/>
 
     <define name="HORIZ_SENSOR_TILTED" value="1"/>
     <define name="IR2_SIGN" value="-1"/>
     <define name="TOP_SIGN" value="-1"/>
 
-    <define name="ROLL_NEUTRAL_DEFAULT" value="-6" unit="deg"/>
+    <define name="ROLL_NEUTRAL_DEFAULT" value="-2.5" unit="deg"/>
     <define name="PITCH_NEUTRAL_DEFAULT" value="6" unit="deg"/>
 
     <define name="CORRECTION_UP" value="1."/>
@@ -139,7 +139,7 @@
     <define name="PITCH_MAX_SETPOINT" value="0.5" unit="radians"/>
     <define name="PITCH_MIN_SETPOINT" value="-0.5" unit="radians"/>
 
-    <define name="PITCH_PGAIN" value="-20000."/>
+    <define name="PITCH_PGAIN" value="-10000."/>
     <define name="PITCH_DGAIN" value="1.5"/>
 
     <define name="ELEVATOR_OF_ROLL" value="2500"/>
