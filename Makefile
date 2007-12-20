@@ -120,8 +120,9 @@ ac_h ac1 ac2 ac3 ac fbw ap: static conf
 bl:
 	cd $(AIRBORNE)/arm7/test/bootloader; make clean; make 
 
+BOOTLOADER_DEV=/dev/ttyUSB0
 upload_bl bl.upload: bl
-	lpc21isp -control $(AIRBORNE)/arm7/test/bootloader/bl.hex /dev/ttyUSB0 38400 12000
+	lpc21isp -control $(AIRBORNE)/arm7/test/bootloader/bl.hex $(BOOTLOADER_DEV) 38400 12000
 
 lpc21iap:
 	cd sw/ground_segment/lpc21iap; make
