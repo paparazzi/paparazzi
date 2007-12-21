@@ -13,6 +13,9 @@ copy over the em28xx* files from the cvs and build v4l-dvb
  make
  sudo make install 
 
+you will have to re-build and re-install each time there was a Debian kernel
+update
+
 copy em28xx to /etc/modprobe.d as the Pollin USB-R1 does not have an EEPROM
 for auto detect (Typhoon DVD Maker works without). watch video in the gcs
 with (maybe adjust the NORM)
