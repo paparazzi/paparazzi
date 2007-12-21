@@ -5,9 +5,9 @@
    airframe="airframes/red_one.xml"
    radio="radios/mc24.xml"
    telemetry="telemetry/default.xml"
-   flight_plan="flight_plans/versatile.xml"
+   flight_plan="flight_plans/ccc_gl.xml"
    settings="settings/cam.xml settings/tuning.xml settings/switch.xml"
-   gui_color="#6293ba"
+   gui_color="yellow"
   />
   <aircraft
    name="TJ1"

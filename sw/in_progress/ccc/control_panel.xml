@@ -95,14 +95,21 @@
       </program>
     </session>
 
-    <session name="Hildesein">
+    <session name="Hildesheim">
       <program name="Data Link">
         <arg flag="-d" constant="/dev/ttyUSB0"/>
       </program>
       <program name="Server"/>
-      <program name="GCS"/>
+      <program name="GCS">
+        <arg flag="-layout"  constant="layout_berlin.xml"/>
+        <arg flag="-mplayer" constant="rtsp://localhost:7070/webcam"/>
+      </program>
       <program name="TCP aircraft">
         <arg flag="-h" constant="85.214.48.162"/>
+        <arg flag="-id" constant="26"/>
+      </program>
+      <program name="Spook">
+        <arg flag="-c" constant="/home/mum2hi/uav/paparazzi3/sw/in_progress/videolizer/spook/spook.conf"/>
       </program>
     </session>
 
