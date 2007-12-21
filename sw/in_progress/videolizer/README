@@ -35,6 +35,14 @@ start spook and watch video through vlc (mplayer) from it
 
  vlc rtsp://localhost:7070/webcam
 
+or mplayer. the Debian etch mplayer does not work, try a newer one from
+
+deb http://www.debian-multimedia.org etch main
+
+and install with
+
+ aptitude install -t stable mplayer
+
 for the Plextor, it can NOT be used at the same time as the Pollin,
 v4l changes the kernel symbols and wis can not work with that
 re-install the kernel if you want to use it
