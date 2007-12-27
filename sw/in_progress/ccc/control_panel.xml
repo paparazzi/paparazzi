@@ -114,6 +114,20 @@
     </session>
 
 
+    <session name="simulation">
+      <program name="Server"/>
+      <program name="GCS">      </program>
+      <program name="Simulator">
+        <arg flag="-a" constant="TJ1"/>
+        <arg flag="-norc" constant=""/>
+      </program>
+      <program name="Simulator">
+        <arg flag="-a" constant="R1"/>
+        <arg flag="-norc" constant=""/>
+      </program>
+    </session>
+
+
 
   </section>
 
