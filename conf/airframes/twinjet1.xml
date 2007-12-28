@@ -230,7 +230,7 @@ ap.srcs += nav.c fw_h_ctl.c fw_v_ctl.c
 ap.srcs += nav_line.c
 # chemotaxis.c anemotaxis.c discsurvey.c
 
-ap.srcs += nav_survey_rectangle.c
+ap.srcs += nav_survey_rectangle.c snav.c
 
 ap.srcs += light.c
 ap.CFLAGS += -DUSE_LIGHT
@@ -247,7 +247,7 @@ sim.CFLAGS += -DCONFIG=\"classix.h\" -DAGR_CLIMB -DLOITER_TRIM
 #sim.srcs += traffic_info.c
 #sim.srcs += nav_line.c chemotaxis.c anemotaxis.c discsurvey.c bomb.c nav_survey_rectangle.c
 
-sim.srcs += nav_survey_rectangle.c nav_line.c light.c
+sim.srcs += nav_survey_rectangle.c nav_line.c light.c snav.c
 sim.CFLAGS += -DUSE_LIGHT
 
 
