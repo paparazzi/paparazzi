@@ -106,10 +106,11 @@ void nav_init_stage( void ) {
 #define RcEvent1() CheckEvent(rc_event_1)
 #define RcEvent2() CheckEvent(rc_event_2)
 #define Block(x) case x: nav_block=x;
-#define InitBlock() { nav_stage = 0; block_time = 0; InitStage(); }
-#define NextBlock() { nav_block++; InitBlock(); }
-#define GotoBlock(b) { nav_block=b; InitBlock(); }
-#define Return() { nav_block=last_block; nav_stage=last_stage; block_time=0; return;}
+
+void init_block(void);
+#define NextBlock() { nav_block++; init_block(); return; }
+#define GotoBlock(b) { nav_block=b; init_block(); return; }
+#define Return() ({ nav_block=last_block; nav_stage=last_stage; block_time=0; return; FALSE;})
 
 #define Stage(s) case s: nav_stage=s;
 #define NextStage() { nav_stage++; InitStage() }
@@ -290,6 +291,14 @@ static inline bool_t compute_TOD(uint8_t _af, uint8_t _td, uint8_t _tod, float g
 
 
 #include "flight_plan.h"
+
+void init_block(void) { 
+  if (nav_block >= NB_BLOCK)
+    nav_block=NB_BLOCK-1;
+  nav_stage = 0;
+  block_time = 0;
+  InitStage();
+}
 
 float ground_alt;
 

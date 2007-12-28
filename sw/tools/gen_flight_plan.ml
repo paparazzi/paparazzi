@@ -119,8 +119,10 @@ let print_exception = fun x ->
   let c = parsed_attrib x "cond" in
   lprintf "if (%s && (nav_block != %s)) { GotoBlock(%s) }\n" c i i
 
-let goto l = Xml.Element ("goto", ["name",l], [])
-let exit_block = Xml.Element ("exit_block", [], [])
+let element = fun a b c -> Xml.Element (a, b, c)
+let goto l = element "goto" ["name",l] []
+let exit_block = element "exit_block" [] []
+let home_block = Xml.parse_string "<block name=\"circle HOME\"><circle wp=\"HOME\" radius=\"DEFAULT_CIRCLE_RADIUS\"/></block>"
   
 let stage = ref 0
 
@@ -673,7 +675,11 @@ let _ =
     let xml = Fp_proc.process_includes dir xml in
     let xml = Fp_proc.process_paths xml in
     let xml = Fp_proc.process_relative_waypoints xml in
-    let xml = ExtXml.subst_child "blocks" (index_blocks (ExtXml.child xml "blocks")) xml in
+
+    (* Add a safety last HOME block *)
+    let blocks = Xml.children (ExtXml.child xml "blocks") @ [home_block] in
+
+    let xml = ExtXml.subst_child "blocks" (index_blocks (element "blocks" [] blocks)) xml in
     let waypoints = ExtXml.child xml "waypoints"
     and blocks = Xml.children (ExtXml.child xml "blocks")
     and global_exceptions = try Xml.children (ExtXml.child xml "exceptions") with _ -> [] in
@@ -736,6 +742,8 @@ let _ =
       List.iter (print_waypoint rel_utm_of_wgs84 alt) waypoints;
       lprintf "};\n";
       Xml2h.define "NB_WAYPOINT" (string_of_int (List.length waypoints));
+
+      Xml2h.define "NB_BLOCK" (string_of_int (List.length blocks));
 
       Xml2h.define "GROUND_ALT" (sof !ground_alt);
       Xml2h.define "SECURITY_HEIGHT" (sof !security_height);
