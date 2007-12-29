@@ -174,6 +174,8 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
   (* Biroute *)
   let wind_sock = new Wind_sock.item 4. still in
   let _ = wind_sock#item#affine_relative (affine_pos_and_angle 60. 60. 0.) in
+  (* Time *)
+  let utc_time = GnoCanvas.text ~x:0. ~y:0. ~props:[`TEXT "00:00:00"; `FILL_COLOR "green"; `ANCHOR `NW] still in
 
   object (self)
    
@@ -185,6 +187,10 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
     method background = background
     method still = still
     method top_still = 3.5*.s
+
+    method set_utc_time = fun h m s ->
+      let string = sprintf "%02d:%02d:%02d" h m s in
+      utc_time#set [`TEXT string]
 
     method wind_sock = wind_sock
     method set_wind_sock = fun angle_deg string  ->
