@@ -146,3 +146,12 @@ val inv_mercator_lat : float -> float
 val bearing : geographic -> geographic -> float * float
 (** [bearing from to] returns (degrees CW/north, m) *)
 
+val gps_tow_of_utc : ?wday:int -> int -> int -> int -> int
+(** [gps_tow_of_utc ?wday hour min sec] Returns the GPS time of week
+    in seconds, taking into acount the leap seconds. Default [wday] (week
+    day) is the current day (Sunday is 0). *)
+
+val get_gps_tow : unit -> int
+(** Returns the current GPS time of week in seconds *)
+
+val unix_time_of_tow : int -> float

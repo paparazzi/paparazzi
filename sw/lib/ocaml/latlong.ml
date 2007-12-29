@@ -443,3 +443,22 @@ let bearing = fun geo1 geo2 ->
   and utm2 = utm_of WGS84 geo2 in
   let (dx, dy) = utm_sub utm2 utm1 in
   ((Rad>>Deg)(atan2 dx dy), sqrt(dx*.dx+.dy*.dy))
+
+
+let leap_seconds = 14 (* http://www.leapsecond.com/java/gpsclock.htm *)
+
+  
+let gps_tow_of_utc = fun ?wday hour min sec ->
+  let wday =
+    match wday with
+      Some w -> w
+    | None -> (Unix.gmtime (Unix.gettimeofday ())).Unix.tm_wday in
+  ((wday*24 + hour)*60+min)*60+sec + leap_seconds
+
+let get_gps_tow = fun () ->
+  let utc = Unix.gmtime (Unix.gettimeofday ()) in
+  gps_tow_of_utc ~wday:utc.Unix.tm_wday utc.Unix.tm_hour utc.Unix.tm_min utc.Unix.tm_sec
+
+let unix_time_of_tow = fun tow ->
+  let host_tow = get_gps_tow () in
+  Unix.gettimeofday () +. float (tow - host_tow)
