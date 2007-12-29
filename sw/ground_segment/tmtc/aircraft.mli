@@ -63,6 +63,7 @@ type aircraft = {
     name : string;
     flight_plan : Xml.xml;
     mutable pos : Latlong.utm;
+    mutable unix_time : float;
     mutable roll : float;
     mutable pitch : float;
     mutable nav_ref : Latlong.utm option;

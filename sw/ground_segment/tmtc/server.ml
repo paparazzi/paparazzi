@@ -243,6 +243,7 @@ let log_and_parse = fun logging ac_name (a:Aircraft.aircraft) msg values ->
       a.pos <- { utm_x = fvalue "utm_east" /. 100.;
 		 utm_y = fvalue "utm_north" /. 100.;
 		 utm_zone = ivalue "utm_zone" };
+      a.unix_time <- Latlong.unix_time_of_tow (truncate (fvalue "itow" /. 1000.));
       a.gspeed  <- fvalue "speed" /. 100.;
       a.course  <- norm_course ((Deg>>Rad)(fvalue "course" /. 10.));
 
@@ -551,6 +552,7 @@ let send_aircraft_msg = fun ac ->
 		  "pitch", f (Geometry_2d.rad2deg a.pitch);
 		  "lat", f ((Rad>>Deg)wgs84.posn_lat);
 		  "long", f ((Rad>>Deg) wgs84.posn_long);
+		  "unix_time", f a.unix_time;
 		  "speed", f a.gspeed;
 		  "course", f (Geometry_2d.rad2deg a.course);
 		  "alt", f a.alt;
