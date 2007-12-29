@@ -37,6 +37,7 @@ type t =
       connect_kill : (float -> unit) -> unit;
       connect_mode : (float -> unit) -> unit;
       connect_flight_time : (float -> unit) -> unit;
+      connect_apt : (float -> unit) -> unit;
       set_agl : float -> unit;
       set_bat : float -> unit;
       set_throttle : ?kill:bool -> float -> unit;
@@ -188,7 +189,7 @@ let add = fun config color center_ac mark ->
   let ac_name = Pprz.string_assoc "ac_name" config in
 
   let file = Env.paparazzi_src // "sw" // "ground_segment" // "cockpit" // "gcs.glade" in
-  let strip = new Gtk_gcs.eventbox_strip ~file () in
+  let strip = new Gtk_strip.eventbox_strip ~file () in
 
   let eventbox_dummy = GBin.event_box () in
 
@@ -205,6 +206,7 @@ let add = fun config color center_ac mark ->
   add_label "block_time_value" (eventbox_dummy, strip#label_block_time);
   add_label "stage_time_value" (eventbox_dummy, strip#label_stage_time);
   add_label "block_name_value" (eventbox_dummy, strip#label_block_name);
+  add_label "apt_value" (eventbox_dummy, strip#label_apt_value);
 
   (* battery gauge *)
   let bat_da = strip#drawingarea_battery in
@@ -333,6 +335,27 @@ let add = fun config color center_ac mark ->
 	  1 -> callback 0.; true
 	| _ -> true in
       ignore(strip#eventbox_flight_time#event#connect#button_press ~callback)
+     method connect_apt = fun send_value ->
+       strip#label_apt#misc#show ();
+       strip#label_apt_value#misc#show ();
+       let callback = fun _ ->
+	 let w = new Gtk_setting_time.setting_time ~file () in
+	 let utc = Unix.gmtime (Unix.gettimeofday () +. 60.) in
+	 w#spinbutton_hour#set_value (float utc.Unix.tm_hour);
+	 w#spinbutton_min#set_value (float utc.Unix.tm_min);
+	 ignore (w#button_cancel#connect#clicked (fun () -> w#setting_time#destroy ()));
+	 let callback = fun () ->
+	   let hour = truncate w#spinbutton_hour#value
+	   and min = truncate w#spinbutton_min#value
+	   and sec = truncate w#spinbutton_sec#value in
+	   w#setting_time#destroy ();
+	   let tow = Latlong.gps_tow_of_utc hour min sec in
+	   send_value (float tow) in
+	 ignore (w#button_ok#connect#clicked callback);
+	 true
+       in
+       ignore(strip#eventbox_RDV#event#connect#button_press ~callback)
+       
 	 
     method hide_buttons () = strip#hbox_user#misc#hide (); strip#frame_nav#misc#set_sensitive false
     method show_buttons () = strip#hbox_user#misc#show (); strip#frame_nav#misc#set_sensitive true

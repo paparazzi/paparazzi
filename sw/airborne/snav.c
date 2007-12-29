@@ -5,15 +5,21 @@
 #include "snav.h"
 #include "estimator.h"
 #include "nav.h"
+#include "gps.h"
 
 #define Sign(_x) ((_x) > 0 ? -1 : 1)
 
 static struct point wp_cd, wp_td, wp_ca, wp_ta;
-float d_radius, a_radius;
-float qdr_td, qdr_a;
+static float d_radius, a_radius;
+static float qdr_td, qdr_a;
+static uint8_t wp_a;
+float snav_desired_tow; /* time of week, s */
 
 /* D is the current position */
-bool_t snav_init(uint8_t wp_a, float desired_course_rad) {
+bool_t snav_init(uint8_t a, float desired_course_rad, float tow) {
+  wp_a = a;
+  snav_desired_tow = tow;
+
   float da_x = WaypointX(wp_a) - estimator_x;
   float da_y = WaypointY(wp_a) - estimator_y;
 
@@ -89,5 +95,35 @@ bool_t snav_circle2(void) {
   NavVerticalAutoThrottleMode(0); /* No pitch */
   NavVerticalAltitudeMode(wp_cd.a, 0.);
   nav_circle_XY(wp_ca.x, wp_ca.y, a_radius);
+
   return(! NavQdrCloseTo(DegOfRad(qdr_a)));
 }
+
+bool_t snav_on_time(void) {
+  static float radius_factor = 1.;
+
+  /* circle tangent to A */
+  struct point current_center;
+  current_center.x = WaypointX(wp_a) + (wp_ca.x - WaypointX(wp_a)) * radius_factor;
+  current_center.y = WaypointY(wp_a) + (wp_ca.y - WaypointY(wp_a)) * radius_factor;
+  float current_qdr = M_PI_2 - atan2(estimator_y-current_center.y, estimator_x-current_center.x);
+  float remaining_angle = qdr_a - current_qdr;
+  if (remaining_angle < 0.)
+    remaining_angle += 2 * M_PI;
+  float remaining_time = snav_desired_tow - gps_itow / 1000.;
+  
+  radius_factor = (remaining_time * NOMINAL_AIRSPEED) / (remaining_angle * DEFAULT_CIRCLE_RADIUS);
+
+  /* printf("ra=%.0f rt=%.0f\n", DegOfRad(remaining_angle), remaining_time); */
+
+  if (radius_factor > 2.)
+    radius_factor = 1.;
+  
+  NavVerticalAutoThrottleMode(0); /* No pitch */
+  NavVerticalAltitudeMode(wp_cd.a, 0.);
+  nav_circle_XY(current_center.x, current_center.y, a_radius * radius_factor);
+
+  /* Stay in this mode until the end of time */
+  return(remaining_time > 0);
+}
+

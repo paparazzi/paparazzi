@@ -56,7 +56,9 @@ type aircraft = {
     mutable wind_dir : float; (* Rad *)
     mutable ground_prox : bool;
     mutable got_track_status_timer : int;
-    mutable last_dist_to_wp : float
+    mutable last_dist_to_wp : float;
+    mutable dl_values : float array;
+    mutable last_unix_time : float
   }
 
 val aircrafts : (string, aircraft) Hashtbl.t

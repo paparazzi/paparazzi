@@ -31,7 +31,7 @@ INCLUDES=-I +lablgtk2 -I ../../lib/ocaml -I +xml-light
 LIBS=glibivy-ocaml.cma lablgtk.cma lablglade.cma lib-pprz.cma lablgnomecanvas.cma xlib-pprz.cma
 CMXA=$(LIBS:.cma=.cmxa)
 
-ML= gtk_gcs.ml horizon.ml strip.ml pages.ml speech.ml plugin.ml sectors.ml map2d.ml editFP.ml live.ml particules.ml gcs.ml
+ML= gtk_setting_time.ml gtk_strip.ml horizon.ml strip.ml pages.ml speech.ml plugin.ml sectors.ml map2d.ml editFP.ml live.ml particules.ml gcs.ml
 MAIN=gcs
 CMO=$(ML:.ml=.cmo)
 CMX=$(ML:.ml=.cmx)
@@ -59,16 +59,20 @@ $(MAIN).opt : $(CMX)
 	@echo OOC $<
 	$(Q)$(OCAMLOPT) $(OCAMLCFLAGS) $(INCLUDES) -c $<
 
-gtk_gcs.ml : gcs.glade
+gtk_strip.ml : gcs.glade
 	lablgladecc2 -root eventbox_strip -hide-default $< | grep -B 1000000 "  end" > $@
 
+gtk_setting_time.ml : gcs.glade
+	lablgladecc2 -root setting_time -hide-default $< | grep -B 1000000 "  end" > $@
 
-strip : gtk_gcs.ml test_strip.ml
+strip.cmo : gtk_strip.cmo gtk_setting_time.cmo
+
+strip : gtk_strip.ml test_strip.ml
 	$(OCAMLC) $(OCAMLCFLAGS) $(INCLUDES) lablgtk.cma lablglade.cma gtkInit.cmo $^ -o $@
 
 
 clean:
-	rm -f *~* *.cm* *.o *.out *.opt map2d gcs .depend gtk_gcs.ml
+	rm -f *~* *.cm* *.o *.out *.opt map2d gcs .depend gtk_strip.ml gtk_setting_time.ml
 
 
 

@@ -1,0 +1,9 @@
+<!DOCTYPE settings SYSTEM "settings.dtd">
+
+<settings>
+    <dl_settings NAME="snav">
+       <dl_settings NAME="tow">
+          <dl_setting module="snav" var="snav_desired_tow" min="0" max="604800" step="1"/>
+       </dl_settings>
+    </dl_settings>
+</settings>

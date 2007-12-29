@@ -39,6 +39,9 @@ let (//) = Filename.concat
 let approaching_alert_time = 3.
 let track_size = ref 500
 
+let is_int = fun x ->
+  try let _ = int_of_string x in true with _ -> false
+
 let ok_modes = ["MANUAL"; "AUTO1"; "AUTO2"]
 
 let rotate = fun a (x, y) ->
@@ -89,7 +92,9 @@ type aircraft = {
     mutable wind_dir : float; (* Rad *)
     mutable ground_prox : bool;
     mutable got_track_status_timer : int;
-    mutable last_dist_to_wp : float
+    mutable last_dist_to_wp : float;
+    mutable dl_values : float array;
+    mutable last_unix_time : float
   }
 
 let aircrafts = Hashtbl.create 3
@@ -500,6 +505,7 @@ let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id
 	       pages = ac_frame#coerce;
 	       notebook_label = _label;
 	       got_track_status_timer = 1000;
+	       dl_values = [||]; last_unix_time = 0.;
 	     } in
     Hashtbl.add aircrafts ac_id ac;
     select_ac acs_notebook ac_id;
@@ -525,13 +531,14 @@ let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id
     end;
     true
   in
-
-  ignore (Glib.Timeout.add 10000 send_wind);
-
-  (** Connect the strip buttons *)
+  
+  if is_int ac_id then
+    ignore (Glib.Timeout.add 10000 send_wind);
+ 
   begin
     match dl_settings_page with
       Some settings_tab ->
+        (** Connect the strip buttons *)
 	let connect = fun setting_name strip_connect ->
 	  try
 	    let id, _label = settings_tab#assoc setting_name in
@@ -545,14 +552,23 @@ let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id
 	connect "nav_shift" ac.strip#connect_shift_lateral;
 	connect "pprz_mode" ac.strip#connect_mode;
 	connect "estimator_flight_time" ac.strip#connect_flight_time;
-    | None -> ()
-  end;
+	connect "snav_desired_tow" ac.strip#connect_apt;
+	begin (* Periodically update the appointment *)
+	  try
+	    let id, _label = settings_tab#assoc "snav_desired_tow" in
+	    let set_appointment = fun _ ->
+	      begin try
+		let v = ac.dl_values.(id) in
+		let t = Unix.gmtime (Latlong.unix_time_of_tow (truncate v)) in
+		ac.strip#set_label "apt" (sprintf "%d:%02d:%02d" t.Unix.tm_hour t.Unix.tm_min t.Unix.tm_sec)
+	      with _ -> () end;
+	      true
+	    in
+	    ignore (Glib.Timeout.add 1000 set_appointment)
+	  with Not_found -> ()
+	end;
 
-
-  (** Connect the GPS reset button *)
-  begin
-    match dl_settings_page with
-      Some settings_tab ->
+	(** Connect the GPS reset button *)
 	begin
 	  try
 	    let gps_reset_id, _ = settings_tab#assoc "gps_reset" in
@@ -675,9 +691,10 @@ let listen_dl_value = fun () ->
     match ac.dl_settings_page with
       Some settings ->
 	let csv = Pprz.string_assoc "values" vs in
-	let values = Array.of_list (Str.split list_separator csv) in
+	let values = Array.map float_of_string (Array.of_list (Str.split list_separator csv)) in
+	ac.dl_values <- values;
 	for i = 0 to min (Array.length values) settings#length - 1 do
-	  settings#set i (float_of_string values.(i))
+	  settings#set i values.(i)
 	done
     | None -> () in
   safe_bind "DL_VALUES" get_dl_value
@@ -715,6 +732,13 @@ let listen_flight_params = fun geomap auto_center_new_ac alert ->
     let wgs84 = { posn_lat=(Deg>>Rad)(a "lat"); posn_long = (Deg>>Rad)(a "long") } in
     ac.track#move_icon wgs84 (a "course") alt speed climb;
     ac.speed <- speed;
+
+    let unix_time = a "unix_time" in
+    if unix_time > ac.last_unix_time then begin
+      let utc = Unix.gmtime unix_time in
+      geomap#set_utc_time utc.Unix.tm_hour utc.Unix.tm_min utc.Unix.tm_sec;
+      ac.last_unix_time <- unix_time
+    end;
 
     if auto_center_new_ac && ac.first_pos then begin
       center geomap ac.track ();
@@ -763,7 +787,7 @@ let listen_flight_params = fun geomap auto_center_new_ac alert ->
     and stage_time = Int32.to_int (Pprz.int32_assoc "stage_time" vs) in
     let bt = sprintf "%02d:%02d" (block_time / 60) (block_time mod 60) in
     ac.strip#set_label "block_time" bt;
-    let st = sprintf "%02d:%02d" (stage_time / 60) (block_time mod 60) in
+    let st = sprintf "%02d:%02d" (stage_time / 60) (stage_time mod 60) in
     ac.strip#set_label "stage_time" st;
     let d = Pprz.float_assoc "dist_to_wp" vs in
     let label = 

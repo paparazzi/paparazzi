@@ -44,10 +44,12 @@
     </block>
 
     <block name="Smooth nav">
-      <call fun="snav_init(WP_1, M_PI)"/>
+      <call fun="snav_init(WP_1, M_PI_2-atan2(WaypointY(WP_2)-WaypointY(WP_1),WaypointX(WP_2)-WaypointX(WP_1)), gps_itow / 1000. + 200.)"/>
       <call fun="snav_circle1()"/>
       <call fun="snav_route()"/>
       <call fun="snav_circle2()"/>
+      <call fun="snav_on_time()"/>
+      <go wp="2" from="1" hmode="route"/>
       <deroute block="Standby"/>
     </block>
 
