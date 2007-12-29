@@ -40,14 +40,10 @@ type state = {
 
 let climb_noise = fun c -> c +. Random.float 1. -. 0.5
 
-let leap_seconds = 14 (* http://www.leapsecond.com/java/gpsclock.htm *)
-
-  
 let state = fun pos0 alt0 ->
   let last_x = ref 0. and last_y = ref 0. 
   and last_t = ref 0. and last_z = ref 0. in
-  let utc = Unix.gmtime (Unix.gettimeofday ()) in
-  let tow = float (((utc.Unix.tm_wday*24 + utc.Unix.tm_hour)*60+utc.Unix.tm_min)*60+utc.Unix.tm_sec + leap_seconds) in
+  let tow = float (Latlong.get_gps_tow ()) in
 
   fun (x, y, z) t ->
    let dx = x -. !last_x
