@@ -699,16 +699,17 @@
   </message>
 
   <message name="FLIGHT_PARAM" ID="11">
-    <field name="ac_id" type="string"/>
-    <field name="roll"    type="float" unit="deg"/>
-    <field name="pitch"   type="float" unit="deg"/>
+    <field name="ac_id"  type="string"/>
+    <field name="roll"   type="float" unit="deg"/>
+    <field name="pitch"  type="float" unit="deg"/>
     <field name="lat"    type="float" unit="deg"/>
     <field name="long"   type="float" unit="deg"/>
-    <field name="speed"   type="float" unit="m/s"/>
+    <field name="speed"  type="float" unit="m/s"/>
     <field name="course" type="float" unit="deg" format="%.1f"/>
-    <field name="alt"     type="float" unit="m"/>
-    <field name="climb"   type="float" unit="m/s"/>
-    <field name="agl"     type="float" unit="m"/>
+    <field name="alt"    type="float" unit="m"/>
+    <field name="climb"  type="float" unit="m/s"/>
+    <field name="agl"    type="float" unit="m"/>
+    <field name="unix_time"    type="float" unit="s (Unix time)"/>
   </message>
 
   <message name="AP_STATUS" ID="12">
