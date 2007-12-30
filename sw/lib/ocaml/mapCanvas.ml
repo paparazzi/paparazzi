@@ -187,7 +187,7 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
     method background = background
     method still = still
     method top_still = 3.5*.s
-
+    method utc_time = utc_time
     method set_utc_time = fun h m s ->
       let string = sprintf "%02d:%02d:%02d" h m s in
       utc_time#set [`TEXT string]
@@ -258,6 +258,8 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
     initializer (
 
       spin_button#set_adjustment adj;
+
+      utc_time#hide ();
 
       ignore (GMisc.separator ~packing:(toolbar#pack ~from:`END) `VERTICAL ());
 
@@ -649,6 +651,7 @@ class widget =  fun ?(height=800) ?width ?projection ?georef () ->
       self#pack_labels;
       self#file_menu#append (srtm :> GMenu.menu_item);
       ignore (my_check_menu_item "UTM Grid" ~active:false ~callback:self#switch_utm_grid ~packing:self#file_menu#append ());
+      ignore (my_check_menu_item "UTC Time" ~active:false ~callback:self#switch_utc_time ~packing:self#file_menu#append ());
       let bg_menu = my_check_menu_item "Background" ~active:true ~callback:self#switch_background ~packing:self#file_menu#append () in
 
       let tooltips = GData.tooltips () in
@@ -672,6 +675,9 @@ class widget =  fun ?(height=800) ?width ?projection ?georef () ->
       my_menu_item "WGS84" ~packing:georef_menu#append ~callback ();
       optmenu#set_menu georef_menu
      )
+
+    method switch_utc_time = fun flag ->
+      if flag then self#utc_time#show () else self#utc_time#hide ()
 
     method switch_utm_grid = fun flag ->
       match georef with
