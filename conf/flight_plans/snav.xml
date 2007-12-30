@@ -9,8 +9,8 @@
   <waypoints>
     <waypoint name="HOME" x="0" y="0"/>
     <waypoint name="STDBY" x="49.5" y="100.1"/>
-    <waypoint name="1" x="10.1" y="189.9"/>
-    <waypoint name="2" x="132.3" y="139.1"/>
+    <waypoint name="1" x="226.7" y="92.4"/>
+    <waypoint name="2" x="236.0" y="214.7"/>
     <waypoint name="MOB" x="137.0" y="-11.6"/>
     <waypoint name="S1" x="-119.2" y="69.6"/>
     <waypoint name="S2" x="274.4" y="209.5"/>
@@ -42,17 +42,15 @@
     <block name="Standby" strip_button="Standby" strip_icon="home.png">
       <circle radius="nav_radius" wp="STDBY"/>
     </block>
-
     <block name="Smooth nav">
       <call fun="snav_init(WP_1, M_PI_2-atan2(WaypointY(WP_2)-WaypointY(WP_1),WaypointX(WP_2)-WaypointX(WP_1)), gps_itow / 1000. + 200.)"/>
       <call fun="snav_circle1()"/>
       <call fun="snav_route()"/>
       <call fun="snav_circle2()"/>
       <call fun="snav_on_time()"/>
-      <go wp="2" from="1" hmode="route"/>
+      <go from="1" hmode="route" wp="2"/>
       <deroute block="Standby"/>
     </block>
-
     <block name="land">
       <call fun="nav_compute_baseleg(WP_AF, WP_TD, WP__BASELEG, nav_radius)"/>
       <circle radius="nav_radius" until="NavCircleCount() > 0.5" wp="_BASELEG"/>
