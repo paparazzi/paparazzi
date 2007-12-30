@@ -552,7 +552,8 @@ let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id
 	connect "nav_shift" ac.strip#connect_shift_lateral;
 	connect "pprz_mode" ac.strip#connect_mode;
 	connect "estimator_flight_time" ac.strip#connect_flight_time;
-	connect "snav_desired_tow" ac.strip#connect_apt;
+	let get_ac_unix_time = fun () -> ac.last_unix_time in
+	connect "snav_desired_tow" (ac.strip#connect_apt get_ac_unix_time);
 	begin (* Periodically update the appointment *)
 	  try
 	    let id, _label = settings_tab#assoc "snav_desired_tow" in

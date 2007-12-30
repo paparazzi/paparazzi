@@ -37,7 +37,7 @@ type t =
       connect_kill : (float -> unit) -> unit;
       connect_mode : (float -> unit) -> unit;
       connect_flight_time : (float -> unit) -> unit;
-      connect_apt : (float -> unit) -> unit;
+      connect_apt : (unit -> float) -> (float -> unit) -> unit;
       set_agl : float -> unit;
       set_bat : float -> unit;
       set_throttle : ?kill:bool -> float -> unit;
@@ -335,12 +335,12 @@ let add = fun config color center_ac mark ->
 	  1 -> callback 0.; true
 	| _ -> true in
       ignore(strip#eventbox_flight_time#event#connect#button_press ~callback)
-     method connect_apt = fun send_value ->
+     method connect_apt = fun get_ac_unix_time send_value ->
        strip#label_apt#misc#show ();
        strip#label_apt_value#misc#show ();
        let callback = fun _ ->
 	 let w = new Gtk_setting_time.setting_time ~file () in
-	 let utc = Unix.gmtime (Unix.gettimeofday () +. 60.) in
+	 let utc = Unix.gmtime (get_ac_unix_time () +. 60.) in
 	 w#spinbutton_hour#set_value (float utc.Unix.tm_hour);
 	 w#spinbutton_min#set_value (float utc.Unix.tm_min);
 	 ignore (w#button_cancel#connect#clicked (fun () -> w#setting_time#destroy ()));

@@ -6,7 +6,7 @@ type t = <
     connect_kill : (float -> unit) -> unit;
     connect_mode : (float -> unit) -> unit;
     connect_flight_time : (float -> unit) -> unit;
-    connect_apt : (float -> unit) -> unit;
+    connect_apt : (unit -> float) -> (float -> unit) -> unit;
     set_agl : float -> unit;
     set_bat : float -> unit;
     set_throttle : ?kill:bool -> float -> unit;
