@@ -162,7 +162,7 @@ fast_deb:
 	make deb OCAMLC=ocamlc.opt DEBFLAGS=-b
 
 clean:
-	rm -fr dox build-stamp configure-stamp conf/%gconf.xml debian/changelog debian/control debian/files debian/paparazzi-arm7 debian/paparazzi-avrdebian/paparazzi-base debian/paparazzi-bin* debian/paparazzi-dev
+	rm -fr dox build-stamp configure-stamp conf/%gconf.xml debian/files debian/paparazzi-arm7 debian/paparazzi-avr debian/paparazzi-base debian/paparazzi-bin debian/paparazzi-dev
 	rm -f  $(MESSAGES_H) $(UBX_PROTOCOL_H) $(DL_PROTOCOL_H)
 	find . -mindepth 2 -name Makefile -exec sh -c '$(MAKE) -C `dirname {}` $@' \; 
 	find . -name '*~' -exec rm -f {} \;
