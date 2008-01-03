@@ -9,24 +9,24 @@ OCAMLOPT=ocamlopt
 DESTDIR=/usr/share/paparazzi
 
 cd ${DESTDIR}/sw/ground_segment/tmtc
-${OCAMLC} -custom -I +lablgtk2 -I ${DESTDIR}/sw/lib/ocaml unix.cma str.cma xml-light.cma lablgtk.cma glibivy-ocaml.cma lib-pprz.cma aircraft.cmo wind.cmo airprox.cmo aircraft.cmo wind.cmo airprox.cmo kml.cmo server.cmo -o server
-${OCAMLC} -custom -I +lablgtk2 -I ${DESTDIR}/sw/lib/ocaml -I ../multimon unix.cma str.cma xml-light.cma lablgtk.cma glibivy-ocaml.cma lib-pprz.cma multimon.cma modem.cmo link.cmo -o link
-${OCAMLC} -custom -I +lablgtk2 -I ${DESTDIR}/sw/lib/ocaml unix.cma str.cma xml-light.cma lablgtk.cma glibivy-ocaml.cma lib-pprz.cma gtkInit.cmo messages.cmo -o messages
-${OCAMLC} -custom -I +lablgtk2 -I ${DESTDIR}/sw/lib/ocaml -I ../cockpit unix.cma str.cma xml-light.cma lablgtk.cma glibivy-ocaml.cma lib-pprz.cma gtkInit.cmo pages.cmo settings.cmo -o settings
+${OCAMLC} -custom -I +xml-light -I +lablgtk2 -I ${DESTDIR}/sw/lib/ocaml unix.cma str.cma xml-light.cma lablgtk.cma glibivy-ocaml.cma lib-pprz.cma aircraft.cmo wind.cmo airprox.cmo aircraft.cmo wind.cmo airprox.cmo kml.cmo server.cmo -o server
+${OCAMLC} -custom -I +xml-light -I +lablgtk2 -I ${DESTDIR}/sw/lib/ocaml -I ../multimon unix.cma str.cma xml-light.cma lablgtk.cma glibivy-ocaml.cma lib-pprz.cma multimon.cma link.cmo -o link
+${OCAMLC} -custom -I +xml-light -I +lablgtk2 -I ${DESTDIR}/sw/lib/ocaml unix.cma str.cma xml-light.cma lablgtk.cma glibivy-ocaml.cma lib-pprz.cma gtkInit.cmo messages.cmo -o messages
+${OCAMLC} -custom -I +xml-light -I +lablgtk2 -I ${DESTDIR}/sw/lib/ocaml -I ../cockpit unix.cma str.cma xml-light.cma lablgtk.cma glibivy-ocaml.cma lib-pprz.cma gtkInit.cmo pages.cmo settings.cmo -o settings
 
 cd ${DESTDIR}/sw/ground_segment/cockpit
-${OCAMLC} -thread -custom -I +lablgtk2 -I ${DESTDIR}/sw/lib/ocaml unix.cma str.cma xml-light.cma lablgtk.cma glibivy-ocaml.cma lablglade.cma lib-pprz.cma lablgnomecanvas.cma xlib-pprz.cma threads.cma gtkThread.cmo gtkInit.cmo gtk_gcs.cmo horizon.cmo strip.cmo pages.cmo speech.cmo plugin.cmo sectors.cmo map2d.cmo editFP.cmo live.cmo particules.cmo gcs.cmo -o gcs
+${OCAMLC} -thread -custom -I +xml-light -I +lablgtk2 -I ${DESTDIR}/sw/lib/ocaml unix.cma str.cma xml-light.cma lablgtk.cma glibivy-ocaml.cma lablglade.cma lib-pprz.cma lablgnomecanvas.cma xlib-pprz.cma threads.cma gtkThread.cmo gtkInit.cmo gtk_setting_time.cmo gtk_strip.cmo horizon.cmo strip.cmo pages.cmo speech.cmo plugin.cmo sectors.cmo map2d.cmo editFP.cmo live.cmo particules.cmo gcs.cmo -o gcs
 
 cd ${DESTDIR}/sw/logalizer
-${OCAMLC} -custom -I +lablgtk2 -I ${DESTDIR}/sw/lib/ocaml unix.cma str.cma xml-light.cma lablgtk.cma glibivy-ocaml.cma lib-pprz.cma gtkInit.cmo log_file.cmo play.cmo -o play
-${OCAMLC} -custom -I +lablgtk2 -I ${DESTDIR}/sw/lib/ocaml -o plotter unix.cma str.cma xml-light.cma glibivy-ocaml.cma -I +lablgtk2 -I ../lib/ocaml lablgtk.cma lib-pprz.cma gtkInit.cmo plotter.cmo
-${OCAMLOPT} -I +lablgtk2 -I ${DESTDIR}/sw/lib/ocaml -o plot unix.cmxa str.cmxa xml-light.cmxa glibivy-ocaml.cmxa -I +lablgtk2 -I ../lib/ocaml lablgtk.cmxa lib-pprz.cmxa gtkInit.cmx log_file.cmx plot.cmx
+${OCAMLC} -custom -I +xml-light -I +lablgtk2 -I ${DESTDIR}/sw/lib/ocaml unix.cma str.cma xml-light.cma lablgtk.cma glibivy-ocaml.cma lib-pprz.cma gtkInit.cmo log_file.cmo play.cmo -o play
+${OCAMLC} -custom -I +xml-light -I +lablgtk2 -I ${DESTDIR}/sw/lib/ocaml -o plotter unix.cma str.cma xml-light.cma glibivy-ocaml.cma -I +lablgtk2 -I ../lib/ocaml lablgtk.cma lib-pprz.cma gtkInit.cmo plotter.cmo
+${OCAMLOPT} -I +xml-light -I +lablgtk2 -I ${DESTDIR}/sw/lib/ocaml -o plot unix.cmxa str.cmxa xml-light.cmxa glibivy-ocaml.cmxa -I +lablgtk2 -I ../lib/ocaml lablgtk.cmxa lib-pprz.cmxa gtkInit.cmx log_file.cmx plot.cmx
 
 cd ${DESTDIR}/sw/simulator
-${OCAMLC} -custom -I +lablgtk2 -I ${DESTDIR}/sw/lib/ocaml unix.cma str.cma xml-light.cma lablgtk.cma glibivy-ocaml.cma lib-pprz.cma gtkInit.cmo gaia.cmo -o gaia
+${OCAMLC} -custom -I +xml-light -I +lablgtk2 -I ${DESTDIR}/sw/lib/ocaml unix.cma str.cma xml-light.cma lablgtk.cma glibivy-ocaml.cma lib-pprz.cma gtkInit.cmo gaia.cmo -o gaia
 
 cd ${DESTDIR}/sw/supervision
-${OCAMLC} -custom -I +lablgtk2 -I ${DESTDIR}/sw/lib/ocaml unix.cma str.cma xml-light.cma lablgtk.cma glibivy-ocaml.cma lib-pprz.cma lablglade.cma lablgnomeui.cma gtkInit.cmo gtk_pc.cmo gtk_process.cmo pc_common.cmo pc_aircraft.cmo pc_control_panel.cmo paparazzicenter.cmo -o paparazzicenter
+${OCAMLC} -custom -I +xml-light -I +lablgtk2 -I ${DESTDIR}/sw/lib/ocaml unix.cma str.cma xml-light.cma lablgtk.cma glibivy-ocaml.cma lib-pprz.cma lablglade.cma lablgnomeui.cma gtkInit.cmo gtk_pc.cmo gtk_process.cmo pc_common.cmo pc_aircraft.cmo pc_control_panel.cmo paparazzicenter.cmo -o paparazzicenter
 
 cd ${DESTDIR}/sw/tools
-${OCAMLC} -custom -I +lablgtk2 -I ${DESTDIR}/sw/lib/ocaml unix.cma str.cma xml-light.cma ivy-ocaml.cma lib-pprz.cma fp_syntax.cmo fp_parser.cmo fp_lexer.cmo fp_proc.cmo gen_flight_plan.cmo -o gen_flight_plan.out
+${OCAMLC} -custom -I +xml-light -I +lablgtk2 -I ${DESTDIR}/sw/lib/ocaml unix.cma str.cma xml-light.cma ivy-ocaml.cma lib-pprz.cma fp_syntax.cmo fp_parser.cmo fp_lexer.cmo fp_proc.cmo gen_flight_plan.cmo -o gen_flight_plan.out
