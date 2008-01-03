@@ -99,6 +99,10 @@ static inline void h_ctl_roll_rate_loop( void );
 #define H_CTL_COURSE_DGAIN 0.
 #endif
 
+#ifndef H_CTL_ROLL_RATE_GAIN
+#define H_CTL_ROLL_RATE_GAIN 0.
+#endif
+
 float h_ctl_roll_attitude_gain;
 float h_ctl_roll_rate_gain;
 
