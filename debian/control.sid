@@ -10,7 +10,7 @@ Package: paparazzi-dev
 Architecture: any
 Suggests: paparazzi-avr, paparazzi-arm7
 Recommends: eagle, gs-common, tetex-extra, dia-gnome
-Depends: ivy-c-dev, ivy-c, ivy-ocaml, libxml-light-ocaml-dev, liblablgtk2-ocaml-dev, make, gcc, boa, gnuplot, libgnomecanvas2-dev, bzip2, cvs, liblablgtk2-gnome-ocaml-dev, libcamlimages-ocaml-dev, libusb-dev, speech-dispatcher, glade, gedit, imagemagick
+Depends: ivy-c-dev, ivy-c, ivy-ocaml, libxml-light-ocaml-dev, liblablgtk2-ocaml-dev, make, gcc, boa, gnuplot, libgnomecanvas2-dev, bzip2, cvs, liblablgtk2-gnome-ocaml-dev, libcamlimages-ocaml-dev, libusb-dev, speech-dispatcher, glade, gedit, imagemagick, libpcre3-dev
 Description: Paparazzi Meta Package : common support
 
 
@@ -28,6 +28,6 @@ Description: Paparazzi Meta Package. Philips ARM7 support
 
 Package: paparazzi-bin
 Architecture: i386
-Depends: ivy-c-dev, ivy-c, ivy-ocaml, libxml-light-ocaml-dev, liblablgtk2-ocaml-dev, make, gcc, boa, gnuplot, bzip2, liblablgtk2-gnome-ocaml-dev, speech-dispatcher, gedit, imagemagick
+Depends: ivy-c-dev, ivy-c, ivy-ocaml, libxml-light-ocaml-dev, liblablgtk2-ocaml-dev, make, gcc, boa, gnuplot, bzip2, liblablgtk2-gnome-ocaml-dev, speech-dispatcher, gedit, imagemagick, libpcre3-dev
 Description: Paparazzi main package
 
