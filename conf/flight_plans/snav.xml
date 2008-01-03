@@ -43,11 +43,12 @@
       <circle radius="nav_radius" wp="STDBY"/>
     </block>
     <block name="Smooth nav">
-      <call fun="snav_init(WP_1, M_PI_2-atan2(WaypointY(WP_2)-WaypointY(WP_1),WaypointX(WP_2)-WaypointX(WP_1)), gps_itow / 1000. + 200.)"/>
+      <set var="snav_desired_tow" value="gps_itow / 1000. + 200."/>
+      <call fun="snav_init(WP_1, M_PI_2-atan2(WaypointY(WP_2)-WaypointY(WP_1),WaypointX(WP_2)-WaypointX(WP_1)), DEFAULT_CIRCLE_RADIUS/2.)"/>
       <call fun="snav_circle1()"/>
       <call fun="snav_route()"/>
       <call fun="snav_circle2()"/>
-      <call fun="snav_on_time()"/>
+      <call fun="snav_on_time(DEFAULT_CIRCLE_RADIUS)"/>
       <go from="1" hmode="route" wp="2"/>
       <deroute block="Standby"/>
     </block>

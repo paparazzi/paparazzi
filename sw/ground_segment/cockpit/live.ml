@@ -94,7 +94,8 @@ type aircraft = {
     mutable got_track_status_timer : int;
     mutable last_dist_to_wp : float;
     mutable dl_values : float array;
-    mutable last_unix_time : float
+    mutable last_unix_time : float;
+    mutable airspeed : float
   }
 
 let aircrafts = Hashtbl.create 3
@@ -506,6 +507,7 @@ let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id
 	       notebook_label = _label;
 	       got_track_status_timer = 1000;
 	       dl_values = [||]; last_unix_time = 0.;
+	       airspeed = 0.
 	     } in
     Hashtbl.add aircrafts ac_id ac;
     select_ac acs_notebook ac_id;
@@ -519,10 +521,11 @@ let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id
 	let a = (pi/.2. -. ac.wind_dir)
 	and w =  ac.wind_speed in
 
-	let wind_east = (sprintf "%.1f" (-. cos a *. w))
-	and wind_north = (sprintf "%.1f" (-. sin a *. w)) in
+	let wind_east = sprintf "%.1f" (-. cos a *. w)
+	and wind_north = sprintf "%.1f" (-. sin a *. w)
+	and airspeed = sprintf "%.1f" ac.airspeed in
 	
-	let msg_items = ["WIND_INFO"; ac_id; "42"; wind_east; wind_north] in
+	let msg_items = ["WIND_INFO"; ac_id; "42"; wind_east; wind_north;airspeed] in
 	let value = String.concat ";" msg_items in
 	let vs = ["ac_id", Pprz.String ac_id; "message", Pprz.String value] in
 	Ground_Pprz.message_send "dl" "RAW_DATALINK" vs;
@@ -626,6 +629,7 @@ let get_wind_msg = fun (geomap:G.widget) _sender vs ->
   let ac = get_ac vs in
   let value = fun field_name -> Pprz.float_assoc field_name vs in
   let airspeed = value "mean_aspeed" in
+  ac.airspeed <- airspeed;
   ac.strip#set_airspeed airspeed;
   ac.misc_page#set_mean_aspeed (sprintf "%.1f" airspeed);
   ac.wind_speed <- value "wspeed";
