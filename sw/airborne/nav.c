@@ -81,6 +81,11 @@ float circle_bank = 0;
 float flight_altitude;
 
 float nav_glide_pitch_trim;
+#ifndef NAV_GLIDE_PITCH_TRIM
+#define NAV_GLIDE_PITCH_TRIM 0.
+#endif
+
+
 
 float nav_ground_speed_setpoint, nav_ground_speed_pgain;
 
@@ -98,6 +103,7 @@ void nav_init_stage( void ) {
   nav_in_circle = FALSE;
   nav_in_segment = FALSE;
   nav_shift = 0;
+  nav_pitch = 0.;
 }
 
 #define PowerVoltage() (vsupply/10.)
@@ -362,7 +368,7 @@ float nav_altitude = GROUND_ALT + MIN_HEIGHT_CARROT;
 float altitude_shift = 0;
 float desired_x, desired_y;
 pprz_t nav_throttle_setpoint;
-float nav_pitch = NAV_PITCH;
+float nav_pitch;
 
 float dist2_to_wp, dist2_to_home;
 bool_t too_far_from_home;
@@ -520,7 +526,7 @@ void nav_without_gps(void) {
 #else
   h_ctl_roll_setpoint = 0;
   nav_pitch = 0;
-  nav_throttle_setpoint = TRIM_UPPRZ((CRUISE_THROTTLE)*MAX_PPRZ);
+  nav_throttle_setpoint = TRIM_UPPRZ((V_CTL_AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE)*MAX_PPRZ);
 #endif
 }
 
