@@ -22,7 +22,7 @@ Description: Paparazzi Meta Package. Atmel AVR support
 
 Package: paparazzi-arm7
 Architecture: any
-Depends: lpc21isp, gcc-arm, binutils-arm, libusb-dev
+Depends: lpc21isp, gcc-arm, binutils-arm, libusb-dev, newlib-arm
 Description: Paparazzi Meta Package. Philips ARM7 support
 
 
@@ -30,4 +30,3 @@ Package: paparazzi-bin
 Architecture: i386
 Depends: ivy-c-dev, ivy-c, ivy-ocaml, libxml-light-ocaml-dev, liblablgtk2-ocaml-dev, make, gcc, boa, gnuplot, bzip2, liblablgtk2-gnome-ocaml-dev, speech-dispatcher, gedit, imagemagick, libpcre3-dev
 Description: Paparazzi main package
-
