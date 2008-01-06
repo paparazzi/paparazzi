@@ -247,7 +247,7 @@ ap.CFLAGS += -DUSE_I2C -DENOSE
 
 # Config for SITL simulation
 include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
-sim.CFLAGS += -DCONFIG=\"tiny.h\" -DAGR_CLIMB -DH_CTL_RATE_LOOP -DLOITER_TRIM -DALT_KALMAN -DENOSE
+sim.CFLAGS += -DCONFIG=\"tiny.h\" -DAGR_CLIMB -DLOITER_TRIM -DALT_KALMAN -DENOSE
 sim.srcs += nav_line.c chemotaxis.c anemotaxis.c discsurvey.c nav_survey_rectangle.c $(SRC_ARCH)/sim_enose.c chemo_detect.c
 
 
