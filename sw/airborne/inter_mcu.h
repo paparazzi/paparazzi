@@ -59,7 +59,7 @@ struct ap_state {
 
 // Status bits from FBW to AUTOPILOT
 #define STATUS_RADIO_OK 0
-#define RADIO_REALLY_LOST 1
+#define STATUS_RADIO_REALLY_LOST 1
 #define STATUS_MODE_AUTO 2
 #define STATUS_MODE_FAILSAFE 3
 #define AVERAGED_CHANNELS_SENT 4
@@ -91,23 +91,30 @@ static inline void inter_mcu_init(void) {
 
 /* Prepare data to be sent to mcu0 */
 static inline void inter_mcu_fill_fbw_state (void) {
+  uint8_t status = 0;
+
+#ifdef RADIO_CONTROL
   uint8_t i;
   for(i = 0; i < RADIO_CTL_NB; i++)
     fbw_state->channels[i] = rc_values[i];
 
   fbw_state->ppm_cpt = last_ppm_cpt;
 
-  uint8_t status;
   status = (rc_status == RC_OK ? _BV(STATUS_RADIO_OK) : 0);
-  status |= (rc_status == RC_REALLY_LOST ? _BV(RADIO_REALLY_LOST) : 0);
+  status |= (rc_status == RC_REALLY_LOST ? _BV(STATUS_RADIO_REALLY_LOST) : 0);
+#endif // RADIO_CONTROL
+
   status |= (fbw_mode == FBW_MODE_AUTO ? _BV(STATUS_MODE_AUTO) : 0);
   status |= (fbw_mode == FBW_MODE_FAILSAFE ? _BV(STATUS_MODE_FAILSAFE) : 0);
   fbw_state->status  = status;
 
+#ifdef RADIO_CONTROL
   if (rc_values_contains_avg_channels) {
     fbw_state->status |= _BV(AVERAGED_CHANNELS_SENT);
     rc_values_contains_avg_channels = FALSE;
   }
+#endif // RADIO_CONTROL
+
   fbw_state->vsupply = fbw_vsupply_decivolt;
 }
 

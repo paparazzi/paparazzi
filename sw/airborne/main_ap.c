@@ -100,6 +100,10 @@
 #endif
 
 #define LOW_BATTERY_DECIVOLT (LOW_BATTERY*10)
+#ifndef MILLIAMP_PER_PERCENT
+#define MILLIAMP_PER_PERCENT 0
+#endif
+
 
 /** FIXME: should be in rc_settings but required by telemetry (ap_downlink.h)*/
 uint8_t rc_settings_mode = RC_SETTINGS_MODE_NONE;
@@ -198,13 +202,12 @@ static inline void reporting_task( void ) {
 #define RC_LOST_MODE PPRZ_MODE_HOME
 #endif
 
-/** \brief Function to be called when a command is available (usually comming from the radio command)
- */
+/** \brief Function to be called when a message from FBW is available */
 inline void telecommand_task( void ) {
   uint8_t mode_changed = FALSE;
   copy_from_to_fbw();
   
-  uint8_t really_lost = bit_is_set(fbw_state->status, RADIO_REALLY_LOST) && (pprz_mode == PPRZ_MODE_AUTO1 || pprz_mode == PPRZ_MODE_MANUAL);
+  uint8_t really_lost = bit_is_set(fbw_state->status, STATUS_RADIO_REALLY_LOST) && (pprz_mode == PPRZ_MODE_AUTO1 || pprz_mode == PPRZ_MODE_MANUAL);
   if (pprz_mode != PPRZ_MODE_HOME && pprz_mode != PPRZ_MODE_GPS_OUT_OF_ORDER && launch) {
     if  (too_far_from_home) {
       pprz_mode = PPRZ_MODE_HOME;
@@ -227,7 +230,8 @@ inline void telecommand_task( void ) {
   mode_changed |= mcu1_status_update();
   if ( mode_changed )
     PERIODIC_SEND_PPRZ_MODE();
-  
+
+#ifdef RADIO_CONTROL  
   /** In AUTO1 mode, compute roll setpoint and pitch setpoint from 
    * \a RADIO_ROLL and \a RADIO_PITCH \n
    */
@@ -247,6 +251,9 @@ inline void telecommand_task( void ) {
   /** else asynchronously set by v_ctl_climb_loop(); */
   
   mcu1_ppm_cpt = fbw_state->ppm_cpt;
+#endif // RADIO_CONTROL
+
+
   vsupply = fbw_state->vsupply;
   
   if (!estimator_flight_time) {
@@ -381,7 +388,9 @@ void periodic_task_ap( void ) {
     stage_time_ds = (int16_t)(stage_time_ds+.5);
     stage_time++;
     block_time++;
+#if defined DATALINK || defined SITL
     datalink_time++;
+#endif
 
     static uint8_t t = 0;
     if (vsupply < LOW_BATTERY_DECIVOLT) t++; else t = 0;
