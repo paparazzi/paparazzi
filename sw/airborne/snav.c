@@ -168,7 +168,7 @@ bool_t snav_on_time(float nominal_radius) {
   float nominal_time = 0.;
 
   float a;
-  float ground_speed;
+  float ground_speed = NOMINAL_AIRSPEED; /* Init to avoid a warning */
   /* Going one step too far */
   for(a = 0; a < remaining_angle + ANGLE_STEP; a += ANGLE_STEP) {
     float qdr = current_qdr + Sign(a_radius)*a;
