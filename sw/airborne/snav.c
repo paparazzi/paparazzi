@@ -8,13 +8,16 @@
 #include "gps.h"
 
 #define Sign(_x) ((_x) > 0 ? 1 : (-1))
+#define Norm2Pi(x) ({ float _x = x; while (_x < 0.) _x += 2*M_PI; while (_x > 2*M_PI) _x -= 2*M_PI;  _x; })
 
 static struct point wp_cd, wp_td, wp_ca, wp_ta;
 static float d_radius, a_radius;
-static float qdr_td, qdr_a;
+static float qdr_td;
+static float qdr_a;
 static uint8_t wp_a;
 float snav_desired_tow; /* time of week, s */
 static float u_a_ca_x, u_a_ca_y;
+static uint8_t ground_speed_timer;
 
 /* D is the current position */
 bool_t snav_init(uint8_t a, float desired_course_rad, float radius) {
@@ -82,6 +85,7 @@ bool_t snav_init(uint8_t a, float desired_course_rad, float radius) {
   qdr_a = M_PI_2 - atan2(WaypointY(wp_a)-wp_ca.y, WaypointX(wp_a)-wp_ca.x);
   wp_td.a = wp_cd.a;
   wp_ta.a = wp_ca.a;
+  ground_speed_timer = 0;
   
   return FALSE;
 }
@@ -113,24 +117,69 @@ bool_t snav_circle2(void) {
   return(! NavQdrCloseTo(DegOfRad(qdr_a)));
 }
 
+#define NB_ANGLES 24
+#define ANGLE_STEP (2.*M_PI/NB_ANGLES)
+static float ground_speeds[NB_ANGLES]; /* Indexed by trigo angles */
+
+static inline float ground_speed_of_course(float x) {
+  uint8_t i = Norm2Pi(M_PI_2-x)/ANGLE_STEP;
+  return ground_speeds[i];
+}
+
+/* Compute the ground speed for courses 0, 360/NB_ANGLES, ...
+   (NB_ANGLES-1)360/NB_ANGLES */
+static void compute_ground_speed(float airspeed,
+				 float wind_x,
+				 float wind_y) {
+  uint8_t i;
+  float alpha = 0;
+  float c = wind_x*wind_x+wind_y*wind_y-airspeed*airspeed;
+  for( i=0; i < NB_ANGLES; i++, alpha+=ANGLE_STEP) {
+    /* g^2 -2 scal g + c = 0 */
+    float scal = wind_x*cos(alpha) + wind_y*sin(alpha);
+    float delta = 4 * (scal*scal - c);
+    ground_speeds[i] = scal + sqrt(delta)/2.;
+    Bound(ground_speeds[i], NOMINAL_AIRSPEED/4, 2*NOMINAL_AIRSPEED);
+  }
+}
+
 /* Adjusting a circle around CA, tangent in A, to end at snav_desired_tow */
 bool_t snav_on_time(float nominal_radius) {
   nominal_radius = fabs(nominal_radius);
 
   float current_qdr = M_PI_2 - atan2(estimator_y-wp_ca.y, estimator_x-wp_ca.x);
-  float remaining_angle = Sign(a_radius)*(qdr_a - current_qdr);
-  if (remaining_angle <= 0.)
-    remaining_angle += 2 * M_PI;
+  float remaining_angle = Norm2Pi(Sign(a_radius)*(qdr_a - current_qdr));
   float remaining_time = snav_desired_tow - gps_itow / 1000.;
 
-  /* Use the nominal airspeed if the estimated on is not realistic */
+  /* Use the nominal airspeed if the estimated one is not realistic */
   float airspeed = estimator_airspeed;
-  if (estimator_airspeed < NOMINAL_AIRSPEED / 2. ||
-      estimator_airspeed > 2.* NOMINAL_AIRSPEED)
-    estimator_airspeed = NOMINAL_AIRSPEED;
+  if (airspeed < NOMINAL_AIRSPEED / 2. ||
+      airspeed > 2.* NOMINAL_AIRSPEED)
+    airspeed = NOMINAL_AIRSPEED;
+
+  /* Recompute ground speeds every 10 s */
+  if (ground_speed_timer == 0) {
+    ground_speed_timer = 40; /* every 10s, called at 40Hz */
+    compute_ground_speed(airspeed, wind_east, wind_north);
+  }
+  ground_speed_timer--;
+
+  /* Time to complete the circle at nominal_radius */
+  float nominal_time = 0.;
+
+  float a;
+  float ground_speed;
+  /* Going one step too far */
+  for(a = 0; a < remaining_angle + ANGLE_STEP; a += ANGLE_STEP) {
+    float qdr = current_qdr + Sign(a_radius)*a;
+    ground_speed = ground_speed_of_course(qdr+Sign(a_radius)*M_PI_2);
+    nominal_time += ANGLE_STEP*nominal_radius/ground_speed;
+  }
+  /* Removing what exceeds remaining_angle */
+  nominal_time -= (a-remaining_angle)*nominal_radius/ground_speed;
 
   /* Radius size to finish in one single circle */
-  float radius = (remaining_time * airspeed) / remaining_angle;
+  float radius = remaining_time / nominal_time * nominal_radius;
   if (radius > 2. * nominal_radius)
     radius = nominal_radius;
   

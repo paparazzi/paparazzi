@@ -188,7 +188,7 @@ module Make(A:Data.MISSION) = struct
     let ac_id = int_of_string (Pprz.string_assoc "ac_id" vs) in
     if ac_id = !my_id then
       match Str.split raw_datalink_msg_separator (Pprz.string_assoc "message" vs) with
-	"WIND_INFO"::_::wind_east::wind_north::_ ->
+	"WIND_INFO"::_::_::wind_east::wind_north::_ -> (* FIXME *)
 	  set_wind (fos wind_east) (fos wind_north)
       | x::_ -> fprintf stderr "Sim: Warning, ingoring RAW_DATALINK '%s' message" x
       | [] -> ()
