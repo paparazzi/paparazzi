@@ -23,6 +23,8 @@
 #define NavVerticalAutoThrottleMode(_foo) {}
 #define NavVerticalAltitudeMode(_foo, _bar) {}
 
+#define NavCircleWaypoint(_foo, _bar) {}
+
 #define NAV_C
 #include "flight_plan.h"
 

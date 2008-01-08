@@ -74,11 +74,13 @@ STATIC_INLINE void booz_filter_main_periodic_task( void ) {
   case 0:
     booz_filter_telemetry_periodic_task();
     break;
+#ifndef SITL
   case 1:
       /* triger measurements */
     ami601_periodic();  
     //                                    Z               Y               X
     DOWNLINK_SEND_IMU_MAG_RAW(&ami601_val[0], &ami601_val[4], &ami601_val[2]);
+#endif
   }
 
 }
