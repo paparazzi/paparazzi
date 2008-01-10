@@ -2,6 +2,7 @@
 #load "unix.cma";;
 let (//) = Filename.concat
 let dirname = Filename.dirname Sys.argv.(0)
+let dirname = if Filename.is_relative dirname && dirname <> Filename.current_dir_name then Sys.getcwd () // dirname else dirname
 let env =
   Array.map (fun var ->
    let value = try Sys.getenv var with _ -> dirname in
