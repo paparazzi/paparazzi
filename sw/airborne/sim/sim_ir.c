@@ -14,10 +14,14 @@
 void ir_gain_calib(void) {
 }
 
-value set_ir(value roll, value front, value top) {
+value set_ir(value roll __attribute__ ((unused)),
+	     value front __attribute__ ((unused)),
+             value top __attribute__ ((unused))) {
+#ifdef INFRARED
   ir_roll = Int_val(roll);
   ir_pitch = Int_val(front);
   ir_top = Int_val(top);
+#endif
   return Val_unit;
 }
 
