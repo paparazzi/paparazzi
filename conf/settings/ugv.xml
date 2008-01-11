@@ -1,0 +1,23 @@
+<!DOCTYPE settings SYSTEM "settings.dtd">
+
+<!-- A conf to use for standard operation (no tuning) -->
+
+<settings>
+  <dl_settings>
+    <dl_settings NAME="flight params">
+      <dl_setting MAX="360" MIN="0" STEP="1" VAR="nav_course"/>
+      <dl_setting MAX="10" MIN="-10" STEP="5" VAR="nav_shift" module="nav" handler="IncreaseShift" shortname="inc. shift"/>
+      <dl_setting MAX="0" MIN="0" STEP="1" VAR="estimator_flight_time" shortname="flight time" module="autopilot" handler="ResetFlightTimeAndLaunch"/>
+    </dl_settings>
+
+    <dl_settings NAME="mode">
+      <dl_setting MAX="2" MIN="0" STEP="1" VAR="pprz_mode">
+      </dl_setting>
+      <dl_setting MAX="1" MIN="0" STEP="1" VAR="launch">
+      </dl_setting>
+      <dl_setting MAX="1" MIN="0" STEP="1" VAR="kill_throttle">
+      </dl_setting>
+      <dl_setting MAX="2" MIN="0" STEP="1" VAR="gps_reset" module="gps_ubx" handler="Reset" shortname="GPS reset"/>
+    </dl_settings>
+  </dl_settings>
+</settings>
