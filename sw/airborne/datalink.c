@@ -87,11 +87,11 @@ void dl_parse_msg(void) {
     wind_east = DL_WIND_INFO_east(dl_buffer);
     wind_north = DL_WIND_INFO_north(dl_buffer);
     estimator_airspeed = DL_WIND_INFO_airspeed(dl_buffer);
-  }
+  } else
 #endif /** NAV */
 #ifdef HITL
   /** Infrared and GPS sensors are replaced by messages on the datalink */
-  else if (msg_id == DL_HITL_INFRARED) {
+  if (msg_id == DL_HITL_INFRARED) {
     /** This code simulates infrared.c:ir_update() */
     ir_roll = DL_HITL_INFRARED_roll(dl_buffer);
     ir_pitch = DL_HITL_INFRARED_pitch(dl_buffer);
@@ -110,14 +110,15 @@ void dl_parse_msg(void) {
       }
       gps_msg_received = TRUE;
     }
-  }
+  } else
 #endif
 #ifdef DlSetting
-  else if (msg_id == DL_SETTING && DL_SETTING_ac_id(dl_buffer) == AC_ID) {
+  if (msg_id == DL_SETTING && DL_SETTING_ac_id(dl_buffer) == AC_ID) {
     uint8_t i = DL_SETTING_index(dl_buffer);
     float val = DL_SETTING_value(dl_buffer);
     DlSetting(i, val);
     DOWNLINK_SEND_DL_VALUE(&i, &val);
-  }
+  } else
 #endif /** Else there is no dl_settings section in the flight plan */
+    { /* Last else */ }
 }
