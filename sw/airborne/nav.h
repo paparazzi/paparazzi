@@ -66,7 +66,7 @@ extern const uint8_t nb_waypoint;
 extern struct point waypoints[]; 
 /** size == nb_waypoint, waypoint 0 is a dummy waypoint */
 
-extern float desired_x, desired_y, altitude_shift, nav_altitude, flight_altitude, nav_glide_pitch_trim;
+extern float desired_x, desired_y, nav_altitude, flight_altitude, nav_glide_pitch_trim;
 
 extern pprz_t nav_throttle_setpoint;
 extern float nav_pitch, rc_pitch;

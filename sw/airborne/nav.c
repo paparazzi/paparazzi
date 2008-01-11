@@ -365,7 +365,6 @@ int32_t nav_utm_north0 = NAV_UTM_NORTH0;
 uint8_t nav_utm_zone0 = NAV_UTM_ZONE0;
 
 float nav_altitude = GROUND_ALT + MIN_HEIGHT_CARROT;
-float altitude_shift = 0;
 float desired_x, desired_y;
 pprz_t nav_throttle_setpoint;
 float nav_pitch;
@@ -488,7 +487,7 @@ void nav_update(void) {
     flight_altitude = nav_altitude;
     last_nav_altitude = nav_altitude;
   }
-  v_ctl_altitude_setpoint = flight_altitude + altitude_shift;
+  v_ctl_altitude_setpoint = flight_altitude;
 }
 
 
