@@ -245,8 +245,8 @@ ap.srcs += nav.c fw_h_ctl.c fw_v_ctl.c nav_survey_rectangle.c
 ap.CFLAGS += -DGYRO -DADXRS150
 ap.srcs += gyro.c
 
-ap.CFLAGS += -DUSE_SPI -DSPI_MASTER -DUSE_SPI_SLAVE0 -DUSE_BARO_MS5534A
-ap.srcs += spi.c $(SRC_ARCH)/spi_hw.c $(SRC_ARCH)/baro_MS5534A.c
+# ap.CFLAGS += -DUSE_SPI -DSPI_MASTER -DUSE_SPI_SLAVE0 -DUSE_BARO_MS5534A
+# ap.srcs += spi.c $(SRC_ARCH)/spi_hw.c $(SRC_ARCH)/baro_MS5534A.c
 
 ap.srcs += nav_line.c
 
