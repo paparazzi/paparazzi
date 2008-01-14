@@ -31,7 +31,7 @@ let draw = fun da desired_course course distance ->
   let dr = GDraw.pixmap ~width ~height ~window:da () in
   dr#set_foreground background;
   dr#rectangle ~x:0 ~y:0 ~width ~height ~filled:true ();
-  let s = width / 8 in
+  let s = (min width height) / 8 in
 
   (* Arrow *)
   let rotation = rot (desired_course -. course) in
@@ -44,23 +44,30 @@ let draw = fun da desired_course course distance ->
   
   (* Text *)
   let context = da#misc#create_pango_context in
+  context#set_font_by_name (sprintf "sans %d" (s/3));
   let print_string = fun x y string ->
     let layout = context#create_layout in
     let fd = Pango.Context.get_font_description (Pango.Layout.get_context layout) in
     Pango.Font.modify fd ~weight:`BOLD ();
     context#set_font_description fd;
-    Pango.Layout.set_text layout string;
+    let from_codeset = "ISO-8859-15"
+    and to_codeset = "UTF-8" in
+    Pango.Layout.set_text layout (Glib.Convert.convert ~from_codeset ~to_codeset string);
     let (w,h) = Pango.Layout.get_pixel_size layout in
     dr#put_layout ~x:(x-w/2) ~y:(y-h/2) ~fore layout in
-  print_string (7*s) s (sprintf "%.0fm" distance);
-  print_string s s (sprintf "%.0fdeg" desired_course);
-  print_string s (7*s) (sprintf "%.0fdeg" course);
+  print_string (7*s) s (sprintf "%.0f m" distance);
+  print_string (7*s) (s/2) "Dist.";
+  print_string s s (sprintf "%.0f°" desired_course);
+  print_string s (s/2) "Brg";
+  print_string s (7*s) (sprintf "%.0f°" course);
+  print_string s (7*s+s/2) "Track";
 
   (* Cardinal points *)
   let rotation = rot (-. course) in
-  let cards = [(0, 1, "N"); (0, -1, "S"); (1, 0, "E"); (-1, 0, "W")] in
+  let cards = [(0, 10, "N"); (0, -10, "S"); (10, 0, "E"); (-10, 0, "W");
+	       (7, 7, "NE"); (7, -7, "SE");(-7,-7,"SW");(-7,7,"NW")] in
   List.iter (fun (x,y,string)->
-    let (x,y) = translate (rotation (x*5*s/2, y*5*s/2)) in
+    let (x,y) = translate (rotation ((x*5*s)/20, (y*5*s)/20)) in
     print_string x y string)
     cards;  
   
