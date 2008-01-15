@@ -75,17 +75,18 @@ STATIC_INLINE void booz_filter_main_periodic_task( void ) {
     booz_filter_telemetry_periodic_task();
     break;
 #ifndef SITL
-  case 1:
+    //  case 1:
       /* triger measurements */
-    ami601_periodic();  
+    //    ami601_periodic();  
     //                                    Z               Y               X
-    DOWNLINK_SEND_IMU_MAG_RAW(&ami601_val[0], &ami601_val[4], &ami601_val[2]);
+    //    DOWNLINK_SEND_IMU_MAG_RAW(&ami601_val[0], &ami601_val[4], &ami601_val[2]);
 #endif
   }
 
 }
 
 static inline void on_imu_event( void ) {
+
   switch (booz_ahrs_status) {
 
   case BOOZ_AHRS_STATUS_UNINIT :
@@ -95,7 +96,7 @@ static inline void on_imu_event( void ) {
       booz_ahrs_start(imu_accel, imu_gyro, imu_mag);
     }
     break;
-
+    
   case BOOZ_AHRS_STATUS_RUNNING :
     // t0 = T0TC;
     booz_ahrs_run(imu_accel, imu_gyro_prev, imu_mag);

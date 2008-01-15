@@ -238,37 +238,34 @@ static void booz_sensors_model_accel_run( MAT* dcm ) {
   accel_body = v_resize(accel_body, AXIS_NB);
   accel_body = v_zero(accel_body);
 #if 1
-  /* get g in body frame */
-  static VEC *g_body = VNULL;
-  g_body = v_resize(g_body, AXIS_NB);
-  g_body = mv_mlt(dcm, bfm.g_earth, g_body);
+  /* compute sum of forces in body frame except gravity */
 
-  /* add non inertial forces */
+  /* square of prop rotational speeds */
+  static VEC *omega_square = VNULL;
+  omega_square = v_resize(omega_square,SERVOS_NB);
+  BoozFlighModelGetRPMS(omega_square);
+  omega_square = v_star(omega_square, omega_square, omega_square);
   /* extract body speed from state */
   static VEC *speed_body = VNULL;
   speed_body = v_resize(speed_body, AXIS_NB);
-  speed_body->ve[AXIS_X] = bfm.state->ve[BFMS_U];
-  speed_body->ve[AXIS_Y] = bfm.state->ve[BFMS_V];
-  speed_body->ve[AXIS_Z] = bfm.state->ve[BFMS_W];
-  /* extracts body rates from state */
-  static VEC *rate_body = VNULL;
-  rate_body = v_resize(rate_body, AXIS_NB);
-  rate_body->ve[AXIS_P] = bfm.state->ve[BFMS_P];
-  rate_body->ve[AXIS_Q] = bfm.state->ve[BFMS_Q];
-  rate_body->ve[AXIS_R] = bfm.state->ve[BFMS_R];
-  static VEC *fict_f = VNULL;
-  fict_f = v_resize(fict_f, AXIS_NB);
-  fict_f = out_prod(speed_body, rate_body, fict_f);
-  //  fict_f = sv_mlt(bfm.mass, fict_f, fict_f);
+  BoozFlighModelGetSpeed(speed_body);
+
+  accel_body = booz_get_forces_body_frame(accel_body , dcm, omega_square, speed_body, TRUE);
+
+
   /* divide by mass */
-  //  accel_body = sv_mlt(1./bfm.mass, accel_body, accel_body);
-  accel_body = v_add(g_body, fict_f, accel_body);
-#else
-  printf(" accel_body # %f %f %f\n", accel_body->ve[AXIS_X], accel_body->ve[AXIS_Y], accel_body->ve[AXIS_Z]);
-  accel_body->ve[AXIS_X] = -9.81 * sin(bfm.state->ve[BFMS_THETA]);
-  accel_body->ve[AXIS_Y] = 9.81 * sin(bfm.state->ve[BFMS_PHI]) * cos(bfm.state->ve[BFMS_THETA]);
-  accel_body->ve[AXIS_Z] = 9.81 * cos(bfm.state->ve[BFMS_PHI]) * cos(bfm.state->ve[BFMS_THETA]);
-  printf(" accel_body ~ %f %f %f\n", accel_body->ve[AXIS_X], accel_body->ve[AXIS_Y], accel_body->ve[AXIS_Z]);
+  accel_body = sv_mlt(1./bfm.mass, accel_body, accel_body);
+
+  //#else
+  //printf(" accel_body # %f %f %f\n", accel_body->ve[AXIS_X], accel_body->ve[AXIS_Y], accel_body->ve[AXIS_Z]);
+  static VEC* accel_inert = VNULL;
+  accel_inert = v_resize(accel_inert, AXIS_NB);
+  accel_inert->ve[AXIS_X] = 0;
+  accel_inert->ve[AXIS_Y] = 0;
+  accel_inert->ve[AXIS_Z] = -9.81;
+  accel_body = mv_mlt(dcm, accel_inert, accel_body);
+
+  //printf(" accel_body ~ %f %f %f\n", accel_body->ve[AXIS_X], accel_body->ve[AXIS_Y], accel_body->ve[AXIS_Z]);
 #endif
 
   /* compute accel reading */

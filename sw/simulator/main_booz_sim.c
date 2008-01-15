@@ -61,9 +61,10 @@ static gboolean booz_sim_periodic(gpointer data __attribute__ ((unused))) {
 
   /* run our models */
   if (sim_time > 3.)
+    bfm.on_ground = FALSE;
     /* no fdm at start to allow for filter initialisation */
     /* it sucks, I know */
-    booz_flight_model_run(DT, booz_sim_actuators_values);
+  booz_flight_model_run(DT, booz_sim_actuators_values);
 
   booz_sensors_model_run(DT);
   

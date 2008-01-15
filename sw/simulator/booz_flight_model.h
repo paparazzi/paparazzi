@@ -2,6 +2,8 @@
 #define BOOZ_FLIGHT_MODEL_H
 
 #include <matrix.h>
+#include "airframe.h"
+
 
 #define BFMS_X     0
 #define BFMS_Y     1
@@ -23,6 +25,9 @@
 
 
 struct BoozFlightModel {
+  /* are we flying ? */
+  int on_ground;
+ 
   double time;
   /* battery voltage in V */
   double bat_voltage;
@@ -55,6 +60,8 @@ extern struct BoozFlightModel bfm;
 
 extern void booz_flight_model_init( void );
 extern void booz_flight_model_run( double t, double* commands );
+
+extern VEC* booz_get_forces_body_frame(VEC* M, MAT* dcm, VEC* omega_square, VEC* speed_body, int exclude_weight);
 
 #define BoozFlighModelGetPos(_dest) {		\
     _dest->ve[AXIS_X] = bfm.state->ve[BFMS_X];	\

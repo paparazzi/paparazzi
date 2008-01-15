@@ -4,7 +4,6 @@
 
 #include "booz_flight_model_params.h"
 #include "booz_flight_model_utils.h"
-#include "airframe.h"
 
 #include "6dof.h"
 
@@ -13,11 +12,13 @@ struct BoozFlightModel bfm;
 
 //static void motor_model_derivative(VEC* x, VEC* u, VEC* xdot);
 
-static VEC* booz_get_forces_body_frame(VEC* M, MAT* dcm, VEC* omega_square, VEC* speed_body);
+//static VEC* booz_get_forces_body_frame(VEC* M, MAT* dcm, VEC* omega_square, VEC* speed_body);
 static VEC* booz_get_moments_body_frame(VEC* M, VEC* omega_square );
 static void booz_flight_model_get_derivatives(VEC* X, VEC* u, VEC* Xdot);
 
 void booz_flight_model_init( void ) {
+  bfm.on_ground = TRUE;
+  
   bfm.time = 0.;
   bfm.bat_voltage = BAT_VOLTAGE;
   bfm.mot_voltage = v_get(SERVOS_NB);
@@ -90,20 +91,33 @@ void booz_flight_model_run( double dt, double* commands ) {
    compute the sum of external forces. 
    assumes that dcm and omega_square are already precomputed from X 
 */
-static VEC* booz_get_forces_body_frame(VEC* F , MAT* dcm, VEC* omega_square, VEC* speed_body) {
-  // propeller thrust
-  F->ve[AXIS_X] = 0;
-  F->ve[AXIS_Y] = 0;
-  F->ve[AXIS_Z] = -v_sum(omega_square) * bfm.thrust_factor;
-  // gravity
-  static VEC *g_body = VNULL;
-  g_body = v_resize(g_body, AXIS_NB);
-  g_body = mv_mlt(dcm, bfm.g_earth, g_body); 
-  F = v_mltadd(F, g_body, MASS, F); 
-  // body drag
-  double norm_speed = v_norm2(speed_body);
-  F = v_mltadd(F, speed_body, - norm_speed * C_d_body, F);
+VEC* booz_get_forces_body_frame(VEC* F , MAT* dcm, VEC* omega_square, VEC* speed_body, int exclude_weight) {
 
+  // FIXME : nimporte koi !
+  if (bfm.on_ground) {
+    F->ve[AXIS_X] = 0;
+    F->ve[AXIS_Y] = 0;
+    if (!exclude_weight)
+      F->ve[AXIS_Z] = 0;
+    else
+      F->ve[AXIS_Z] = -9.81*MASS;
+  }
+  else {
+    // propeller thrust
+    F->ve[AXIS_X] = 0;
+    F->ve[AXIS_Y] = 0;
+    F->ve[AXIS_Z] = -v_sum(omega_square) * bfm.thrust_factor;
+    if (!exclude_weight) {
+      // gravity
+      static VEC *g_body = VNULL;
+      g_body = v_resize(g_body, AXIS_NB);
+      g_body = mv_mlt(dcm, bfm.g_earth, g_body); 
+      F = v_mltadd(F, g_body, MASS, F); 
+    }
+    // body drag
+    double norm_speed = v_norm2(speed_body);
+    F = v_mltadd(F, speed_body, - norm_speed * C_d_body, F);
+  }
   return F;
 }
 
@@ -112,7 +126,12 @@ static VEC* booz_get_forces_body_frame(VEC* F , MAT* dcm, VEC* omega_square, VEC
    assumes that omega_square is already precomputed from X 
 */
 static VEC* booz_get_moments_body_frame(VEC* M, VEC* omega_square ) {
-  M =  mv_mlt(bfm.props_moment_matrix, omega_square, M);
+  if (bfm.on_ground) {
+    M = v_zero(M);
+  }
+  else {
+    M =  mv_mlt(bfm.props_moment_matrix, omega_square, M);
+  }
   return M;
 }
 
@@ -157,7 +176,7 @@ static void booz_flight_model_get_derivatives(VEC* X, VEC* u, VEC* Xdot) {
   /* compute external forces        */
   static VEC *f_body = VNULL;
   f_body = v_resize(f_body, AXIS_NB);
-  f_body = booz_get_forces_body_frame(f_body , dcm, omega_square, speed_body);
+  f_body = booz_get_forces_body_frame(f_body , dcm, omega_square, speed_body, FALSE);
 
   /* add non inertial forces        */
   static VEC *fict_f = VNULL;

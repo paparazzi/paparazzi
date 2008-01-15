@@ -6,16 +6,16 @@
  */
 #define BSM_ACCEL_RESOLUTION      (1024 * 32)
 /* ms-2 */
-#define BSM_ACCEL_SENSITIVITY_XX -(1024. * 32.)/(2 * 6. * 9.81)
-#define BSM_ACCEL_SENSITIVITY_YY  (1024. * 32.)/(2 * 6. * 9.81)
-#define BSM_ACCEL_SENSITIVITY_ZZ  (1024. * 32.)/(2 * 6. * 9.81)
+#define BSM_ACCEL_SENSITIVITY_XX  (1024. * 32.)/(0.5 * 6. * 9.81)
+#define BSM_ACCEL_SENSITIVITY_YY -(1024. * 32.)/(0.5 * 6. * 9.81)
+#define BSM_ACCEL_SENSITIVITY_ZZ -(1024. * 32.)/(0.5 * 6. * 9.81)
 #define BSM_ACCEL_NEUTRAL_X       (538. * 32.)
 #define BSM_ACCEL_NEUTRAL_Y       (506. * 32.)
 #define BSM_ACCEL_NEUTRAL_Z       (506. * 32.)
 /* m2s-4 */
-#define BSM_ACCEL_NOISE_STD_DEV_X 2e-1
-#define BSM_ACCEL_NOISE_STD_DEV_Y 2e-1
-#define BSM_ACCEL_NOISE_STD_DEV_Z 2e-1
+#define BSM_ACCEL_NOISE_STD_DEV_X 1e-1
+#define BSM_ACCEL_NOISE_STD_DEV_Y 1e-1
+#define BSM_ACCEL_NOISE_STD_DEV_Z 1e-1
 /* ms-2 */
 #define BSM_ACCEL_BIAS_X          1e-3
 #define BSM_ACCEL_BIAS_Y          1e-3

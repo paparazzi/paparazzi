@@ -47,10 +47,10 @@ extern struct adc_buf buf_bat;
 #define IMU_ACCEL_X_NEUTRAL (538 * 32)
 #define IMU_ACCEL_Y_NEUTRAL (506 * 32)
 #define IMU_ACCEL_Z_NEUTRAL (506 * 32)
-
-#define IMU_ACCEL_X_GAIN (-(6. * 9.81) / (1024*32))
-#define IMU_ACCEL_Y_GAIN ( (6. * 9.81) / (1024*32))
-#define IMU_ACCEL_Z_GAIN ( (6. * 9.81) / (1024*32))
+// FIXME ??? why 0.5
+#define IMU_ACCEL_X_GAIN ( (0.5 * 6. * 9.81) / (1024*32))
+#define IMU_ACCEL_Y_GAIN (-(0.5 * 6. * 9.81) / (1024*32))
+#define IMU_ACCEL_Z_GAIN (-(0.5 * 6. * 9.81) / (1024*32))
 
 #define ImuUpdateAccels() {						\
     ImuReadAdcs();							\

@@ -15,10 +15,10 @@ float mtt_P_psi[2][2];
 /* process covariance noise */
 //static const float Q_angle = 0.0005;
 static const float Q_angle = 0.00025;
-static const float Q_bias  = 0.0015;
+static const float Q_bias  = 0.0005;
 /* Measurement covariance */
 //static const float R_accel = 0.3;
-static const float R_accel = 0.4;
+static const float R_accel = 0.5;
 
 static inline void multitilt_update( const float* accel, const int16_t* mag );
 static inline void mtt_update_axis(float _err, float _P[2][2], float* angle, float* bias);
@@ -29,7 +29,7 @@ static inline void mtt_predict_axis(float* angle, float angle_dot, float P[2][2]
 #define WRAP(x,a) { while (x > a) x -= 2 * a; while (x <= -a) x += 2 * a;}
 
 static inline float phi_of_accel( const float* accel) {
-  return atan2(accel[AXIS_Y], accel[AXIS_Z]);
+  return atan2(-accel[AXIS_Y], -accel[AXIS_Z]);
 }
 
 static inline float theta_of_accel( const float* accel) {
@@ -37,7 +37,7 @@ static inline float theta_of_accel( const float* accel) {
     accel[AXIS_X]*accel[AXIS_X] +	
     accel[AXIS_Y]*accel[AXIS_Y] +	
     accel[AXIS_Z]*accel[AXIS_Z];
-  return -asin( accel[AXIS_X] / sqrt( g2 ) );
+  return asin( accel[AXIS_X] / sqrt( g2 ) );
 }
 
 static inline float psi_of_mag( const int16_t* mag) {			
