@@ -178,4 +178,4 @@ sim.srcs += multitilt.c
 #sim.CFLAGS += -DEKF_PREDICT_ONLY
 #sim.srcs += ahrs_quat_fast_ekf.c
 
-sim.srcs += comp_flt.c
+#sim.srcs += comp_flt.c
