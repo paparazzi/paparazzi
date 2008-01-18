@@ -5,7 +5,7 @@ getf('mb_utils.sci');
 args = sciargs();
 [nb_args, foo] = size(args)
 filename = args(nb_args);
-
+filename = "data/steps2_stout_aero_geared.txt"
 
 [time, throttle, rpm, amp, thrust, torque] = read_mb_log(filename);
 

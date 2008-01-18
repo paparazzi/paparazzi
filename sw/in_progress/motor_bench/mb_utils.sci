@@ -111,3 +111,34 @@ function [] = param_fit(av_rpm, av_throttle)
   plot2d(X,FF(X,p),12) //the solution
   param_fitted=FF(X,p);
 endfunction
+
+
+function r = mot_lin(t, p)
+   r = p(1) * t + p(2);
+ endfunction
+ 
+function e = err_mot_lin(p, z)
+   r=z(1), t=z(2); 
+   e = r - mot_lin(t, p);
+ endfunction
+ 
+ 
+function rpm = mot_ric_stat(throttle,param)
+ // maybe 1 +
+ tau_kq = param(1);
+ kv = param(2);
+ dv = 0.0;
+ rpm = (-1 + sqrt(1 + 4 * tau_kq * kv * (throttle + dv))) / (2 * tau_kq);
+endfunction
+
+function e = err_mot_ric(p, z)
+  r_meas = z(1);
+  throttle = z(2);
+  e = r_meas - mot_ric_stat(throttle, p);
+endfunction
+
+
+
+function rpm_dot = mot_ode(tau, kq, kv, V, rpm)
+  rpm_dot = -1/tau*rpm - kq * rpm^2 + kv/tau*(V);
+endfunction
