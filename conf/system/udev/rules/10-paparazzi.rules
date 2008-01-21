@@ -1,14 +1,14 @@
 #BUS=="usb", SYSFS{serial}=="*_fbw", NAME="test_fbw", SYMLINK="paparazzi/%s{serial}", MODE="0666"
 
 # MaxStream xbee pro box
-BUS=="usb", SYSFS{product}=="MaxStream PKG-U", KERNEL=="ttyUSB*", SYMLINK+="paparazzi/xbee", GROUP="dialout"
+BUS=="usb", SYSFS{product}=="MaxStream PKG-U", KERNEL=="ttyUSB*", SYMLINK+="paparazzi/xbee", GROUP="plugdev"
 
 # bare FTDI chip without EEPROM
-BUS=="usb", SYSFS{idVendor}=="0403", SYSFS{idProduct}=="6001", KERNEL=="ttyUSB*", SYMLINK+="paparazzi/serial", GROUP="dialout"
+BUS=="usb", SYSFS{idVendor}=="0403", SYSFS{idProduct}=="6001", KERNEL=="ttyUSB*", SYMLINK+="paparazzi/serial", GROUP="plugdev"
 
 # all (fake VID 0x7070) LPCUSB devices (access through libusb)
-BUS=="usb", SYSFS{idVendor}=="7070", GROUP="dialout"
+BUS=="usb", SYSFS{idVendor}=="7070", GROUP="plugdev"
 
 # FTDI 2232 parallel converter / Amontec JTAG-Tiny (access through libftdi)
-BUS=="usb",  SYSFS{idVendor}=="0403", SYSFS{idProduct}=="cff8", GROUP="dialout"
+BUS=="usb",  SYSFS{idVendor}=="0403", SYSFS{idProduct}=="cff8", GROUP="plugdev"
 
