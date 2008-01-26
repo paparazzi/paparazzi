@@ -26,8 +26,8 @@ extern FLOAT_T booz_ahrs_measure_theta;
 extern FLOAT_T booz_ahrs_measure_psi;
 
 extern void booz_ahrs_init(void);
-extern void booz_ahrs_start( const float* accel, const float* gyro, const int16_t* mag);
-extern void booz_ahrs_run(const float* accel, const float* gyro, const int16_t* mag);
+extern void booz_ahrs_start( const float* accel, const float* gyro, const float* mag);
+extern void booz_ahrs_run(const float* accel, const float* gyro, const float* mag);
 /*
   extern void booz_ahrs_predict( const float* gyro );
   extern void booz_ahrs_update( const float* accel, const int16_t* mag );

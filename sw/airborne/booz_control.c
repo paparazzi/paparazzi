@@ -116,12 +116,12 @@ void booz_control_attitude_read_setpoints_from_rc(void) {
                                   RadOfDeg(BOOZ_CONTROL_ATTITUDE_PHI_THETA_MAX_SP)/MAX_PPRZ;
   booz_control_attitude_theta_sp =  rc_values[RADIO_PITCH] * 
                                   RadOfDeg(BOOZ_CONTROL_ATTITUDE_PHI_THETA_MAX_SP)/MAX_PPRZ;
-#ifndef DISABLE_MAGNETOMETER
+#ifndef DISABLE_PSI_CONTROL
   booz_control_attitude_psi_sp =  rc_values[RADIO_YAW] * 
     RadOfDeg(BOOZ_CONTROL_ATTITUDE_PSI_MAX_SP)/MAX_PPRZ;
 #else
   booz_control_r_sp = -rc_values[RADIO_YAW]   * RadOfDeg(BOOZ_CONTROL_RATE_R_MAX_SP)/MAX_PPRZ;
-#endif /* DISABLE_MAGNETOMETER */
+#endif /* DISABLE_PSI_CONTROL */
   booz_control_power_sp = rc_values[RADIO_THROTTLE] / (float)MAX_PPRZ;
 }
 
@@ -136,7 +136,7 @@ void booz_control_attitude_run(void) {
                       booz_control_attitude_phi_theta_dgain * booz_estimator_q;
 
 
-#ifndef DISABLE_MAGNETOMETER
+#ifndef DISABLE_PSI_CONTROL
   float att_err_psi = booz_estimator_psi - booz_control_attitude_psi_sp;
   NormRadAngle(att_err_psi);
   const float cmd_r = booz_control_attitude_psi_pgain * att_err_psi + 
@@ -146,7 +146,7 @@ void booz_control_attitude_run(void) {
   const float rate_d_err_r = rate_err_r - booz_control_rate_last_err_r;
   booz_control_rate_last_err_r = rate_err_r;
   const float cmd_r = booz_control_rate_r_pgain * ( rate_err_r + booz_control_rate_r_dgain * rate_d_err_r );
-#endif /* DISABLE_MAGNETOMETER */
+#endif /* DISABLE_PSI_CONTROL */
 
   booz_control_commands[COMMAND_P] = TRIM_PPRZ((int16_t)cmd_p);
   booz_control_commands[COMMAND_Q] = TRIM_PPRZ((int16_t)cmd_q);

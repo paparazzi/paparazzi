@@ -11,7 +11,7 @@
 /* calibrated sensor readings */
 extern float   imu_accel[AXIS_NB]; /* accelerometers in arbitrary unit */
 extern float   imu_gyro[AXIS_NB];  /* gyros in rad/s                   */
-extern int16_t imu_mag[AXIS_NB];   /* magnetometer in arbitrary unit   */
+extern float   imu_mag[AXIS_NB];   /* magnetometer in arbitrary unit   */
 extern float   imu_bat;            /* battery in volts                 */
 
 extern float imu_gyro_prev[AXIS_NB];  /* previous gyros in rad/s       */
@@ -92,6 +92,7 @@ extern struct adc_buf buf_bat;
                           ( 1. - IMU_GYRO_LP_ALPHA) * imu_gyro_lp[AXIS_R];              \
   }
 
+#ifdef USE_MICROMAG
 #define ImuUpdateMag() {						\
     imu_mag_raw[AXIS_X] = micromag_values[0];				\
     imu_mag_raw[AXIS_Y] = micromag_values[1];				\
@@ -100,7 +101,31 @@ extern struct adc_buf buf_bat;
     imu_mag[AXIS_Y] = -micromag_values[1];				\
     imu_mag[AXIS_Z] = micromag_values[2];				\
   }
+#endif /* USE_MICROMAG */
 
+#ifdef USE_AMI601
+
+#define AMI_MCX 2
+#define AMI_MCY 4
+#define AMI_MCZ 0
+#define AMI_MNX 1977.5055
+#define AMI_MNY 2145.2051
+#define AMI_MNZ 1931.1511
+#define AMI_MGX  447.26642  
+#define AMI_MGY  450.52012  
+#define AMI_MGZ  467.83817  
+
+
+#define ImuUpdateMag() {						\
+    imu_mag_raw[AXIS_X] = ami601_val[AMI_MCX];				\
+    imu_mag_raw[AXIS_Y] = ami601_val[AMI_MCY];				\
+    imu_mag_raw[AXIS_Z] = ami601_val[AMI_MCZ];				\
+    imu_mag[AXIS_X] = AMI_MGX * ((float)imu_mag_raw[AXIS_X] - AMI_MNX);	\
+    imu_mag[AXIS_Y] = AMI_MGY * ((float)imu_mag_raw[AXIS_Y] - AMI_MNY);	\
+    imu_mag[AXIS_Z] = AMI_MGZ * ((float)imu_mag_raw[AXIS_Z] - AMI_MNZ);	\
+  }
+
+#endif /* USE_AMI601 */
 
 #define IMU_BAT_NEUTRAL 2
 #define IMU_BAT_GAIN .010101
@@ -134,24 +159,28 @@ extern struct adc_buf buf_bat;
 }
 
 
-#define ImuEventCheckAndHandle(user_handler) {	\
-    if (max1167_status == STA_MAX1167_DATA_AVAILABLE) {	\
-      max1167_status = STA_MAX1167_IDLE;		\
-      ImuUpdateGyros();					\
-      ImuUpdateAccels();				\
-      ImuUpdateMag();					\
-      user_handler();					\
-    }							\
+#define ImuEventCheckAndHandle(user_handler) {				\
+    if (max1167_status == STA_MAX1167_DATA_AVAILABLE) {			\
+      max1167_status = STA_MAX1167_IDLE;				\
+      ImuUpdateGyros();							\
+      ImuUpdateAccels();						\
+      user_handler();							\
+    }									\
+    AMI601EventCheckAndHandle();					\
+    if (ami601_status == AMI601_DATA_AVAILABLE) {			\
+      ImuUpdateMag();							\
+      ami601_status = AMI601_IDLE;					\
+    }									\
   }
 
-#define ImuPeriodic() {				\
-    /*  if (max1167_status != STA_MAX1167_IDLE) {	\
-      DOWNLINK_SEND_AHRS_OVERRUN();		\
-    }						\
-    else { */					\
-      max1167_read();				\
-      micromag_read();				\
-      /*    }	*/				\
+#define ImuPeriodic() {					\
+    max1167_read();					\
+    static uint8_t imu_pre;				\
+    imu_pre++;						\
+    if (imu_pre > 4) {					\
+      imu_pre=0;					\
+      ami601_read();					\
+    }							\
   }
 
 

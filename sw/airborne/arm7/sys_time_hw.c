@@ -22,6 +22,10 @@ uint32_t last_periodic_event;
 #define TIMER0_IT_MASK (TIR_CR2I | TIR_MR1I)
 #endif /* MB_TACHO */
 
+#ifdef USE_AMI601
+#include "AMI601.h"
+#endif
+
 
 void TIMER0_ISR ( void ) {
   ISR_ENTRY();
@@ -62,6 +66,12 @@ void TIMER0_ISR ( void ) {
       T0IR = TIR_CR0I;
     }
 #endif /* MB_TACHO */
+#ifdef USE_AMI601
+    if (T0IR&TIR_MR1I) {
+      AMI601ReadMeasure();
+      T0IR = TIR_MR1I; 
+    }
+#endif /* USE_AMI601 */
   }
   VICVectAddr = 0x00000000;
 

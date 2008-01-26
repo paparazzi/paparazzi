@@ -291,9 +291,9 @@
   </message>
 
   <message name="IMU_MAG" ID="201">
-    <field name="mx" type="int16" />
-    <field name="my" type="int16" />
-    <field name="mz" type="int16" />
+    <field name="mx" type="float" />
+    <field name="my" type="float" />
+    <field name="mz" type="float" />
   </message>
 
   <message name="IMU_ACCEL" ID="202">
@@ -533,6 +533,10 @@
     <field name="vx"   type="float" unit="m/s"/>
     <field name="vy"   type="float" unit="m/s"/>
     <field name="vz"   type="float" unit="m/s"/>
+  </message>
+
+  <message name="BOOZ_DEBUG_FOO" ID="245">
+    <field name="ami_stat"   type="uint8"/>
   </message>
 
   <message name="ENOSE_STATUS" ID="250">

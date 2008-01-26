@@ -20,7 +20,7 @@ static const float Q_bias  = 0.0005;
 //static const float R_accel = 0.3;
 static const float R_accel = 0.5;
 
-static inline void multitilt_update( const float* accel, const int16_t* mag );
+static inline void multitilt_update( const float* accel, const float* mag );
 static inline void mtt_update_axis(float _err, float _P[2][2], float* angle, float* bias);
 static inline void multitilt_predict( const float* gyro );
 static inline void mtt_predict_axis(float* angle, float angle_dot, float P[2][2]);
@@ -40,7 +40,7 @@ static inline float theta_of_accel( const float* accel) {
   return asin( accel[AXIS_X] / sqrt( g2 ) );
 }
 
-static inline float psi_of_mag( const int16_t* mag) {			
+static inline float psi_of_mag( const float* mag) {			
   /* untilt magnetometer */			
   const float ctheta  = cos(  booz_ahrs_theta );	
   const float stheta  = sin( booz_ahrs_theta );	
@@ -73,7 +73,7 @@ void booz_ahrs_init(void) {
   booz_ahrs_br = 0.;
 }
 
-void booz_ahrs_start(const float* accel, const float* gyro, const int16_t* mag) {
+void booz_ahrs_start(const float* accel, const float* gyro, const float* mag) {
   /* reset covariance matrices */
   const float cov_init[2][2] = {{1., 0.},
 				{0., 1.}};
@@ -104,7 +104,7 @@ void booz_ahrs_start(const float* accel, const float* gyro, const int16_t* mag) 
   booz_ahrs_status = BOOZ_AHRS_STATUS_RUNNING;
 }
 
-void booz_ahrs_run(const float* accel, const float* gyro, const int16_t* mag) {
+void booz_ahrs_run(const float* accel, const float* gyro, const float* mag) {
   multitilt_predict(gyro);
   multitilt_update(accel, mag);
 }
@@ -175,7 +175,7 @@ static inline void mtt_update_axis(float _err, float _P[2][2], float* angle, flo
 
 }
 
-static inline void multitilt_update( const float* accel, const int16_t* mag ) {
+static inline void multitilt_update( const float* accel, const float* mag ) {
 
   booz_ahrs_measure_phi = phi_of_accel(accel);
   float err_phi = booz_ahrs_measure_phi - booz_ahrs_phi;

@@ -28,9 +28,8 @@ flt.srcs += $(SRC_ARCH)/adc_hw.c
 
 flt.srcs += max1167.c $(SRC_ARCH)/max1167_hw.c
 
-flt.CFLAGS += -DDISABLE_MAGNETOMETER
-flt.srcs += micromag.c $(SRC_ARCH)/micromag_hw.c
-flt.CFLAGS += -I2C_BUF_LEN=32 -DI2C_SCLL=150 -DI2C_SCLH=150 -DI2C_VIC_SLOT=10
+#flt.CFLAGS += -DDISABLE_MAGNETOMETER
+flt.CFLAGS += -DUSE_AMI601 -I2C_BUF_LEN=32 -DI2C_SCLL=150 -DI2C_SCLH=150 -DI2C_VIC_SLOT=10
 flt.srcs += AMI601.c i2c.c $(SRC_ARCH)/i2c_hw.c
 flt.srcs += imu_v3.c $(SRC_ARCH)/imu_v3_hw.c
 
@@ -90,7 +89,7 @@ ctl.srcs += booz_link_mcu.c $(SRC_ARCH)/booz_link_mcu_hw.c
 ctl.srcs += spi.c $(SRC_ARCH)/spi_hw.c
 
 ctl.srcs += commands.c
-ctl.CFLAGS += -DDISABLE_NAV 
+ctl.CFLAGS += -DDISABLE_NAV -DDISABLE_PSI_CONTROL
 ctl.srcs += booz_estimator.c      \
             booz_control.c        \
             booz_nav.c  	  \

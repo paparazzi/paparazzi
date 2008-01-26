@@ -3,7 +3,7 @@ clf();
 
 //##########
 //##########
-function [rm_z, rm_y, rm_x, ra_x, ra_y, ra_z] = read_log(filename)
+function [rm_x, rm_y, rm_z, ra_x, ra_y, ra_z] = read_log(filename)
   
   rm_x=[];
   rm_y=[];
@@ -20,9 +20,9 @@ function [rm_z, rm_y, rm_x, ra_x, ra_y, ra_z] = read_log(filename)
     if strindex(line, '#') ~= 1 & length(line) ~= 0,
       [nb_scan, _mz, _my, _mx] = msscanf(1, line, '148 IMU_MAG_RAW %f %f %f');
       if nb_scan == 3,
-        rm_z = [rm_z _mz];
-        rm_y = [rm_y _my];
         rm_x = [rm_x _mx];
+        rm_y = [rm_y _my];
+	rm_z = [rm_z _mz];
       else
 	[nb_scan, _ax, _ay, _az] = msscanf(1, line, '148 IMU_ACCEL_RAW %f %f %f');	
 	if nb_scan == 3,
@@ -57,7 +57,7 @@ function [nx, ny, nz, gx, gy, gz] = min_max_calib(dx, dy, dz)
   gz = (max_z - min_z) / 2.;
 endfunction
 
-[rm_z, rm_y, rm_x, ra_x, ra_y, ra_z] = read_log('log_magnetometer');
+[rm_x, rm_y, rm_z, ra_x, ra_y, ra_z] = read_log('log_magnetometer');
 
 [m_mm_nx, m_mm_ny, m_mm_nz, m_mm_gx, m_mm_gy, m_mm_gz] = ...
     min_max_calib(rm_x, rm_y, rm_z);
@@ -77,21 +77,24 @@ m_mm_norm = sqrt(m_mm_x^2 + m_mm_y^2 + m_mm_z^2);
 idx_m = 1:length(rm_z); 
 
 
-a_mm_x = (ra_x - a_mm_nx) / a_mm_gx;
-a_mm_y = (ra_y - a_mm_ny) / a_mm_gy;
-a_mm_z = (ra_z - a_mm_nz) / a_mm_gz;
+//a_mm_x = (ra_x - a_mm_nx) / a_mm_gx;
+//a_mm_y = (ra_y - a_mm_ny) / a_mm_gy;
+//a_mm_z = (ra_z - a_mm_nz) / a_mm_gz;
 
-a_mm_norm = sqrt(a_mm_x^2 + a_mm_y^2 + a_mm_z^2);
-idx_a = 1:length(ra_z); 
+//a_mm_norm = sqrt(a_mm_x^2 + a_mm_y^2 + a_mm_z^2);
+//idx_a = 1:length(ra_z); 
 
 subplot(3,2,1);
 param3d(rm_x, rm_y, rm_z);
 subplot(3,2,2);
-param3d(ra_x, ra_y, ra_z);
+plot(idx_m, rm_x);
+
+//subplot(3,2,2);
+//param3d(ra_x, ra_y, ra_z);
 subplot(3,2,3);
 plot(idx_m, m_mm_norm, idx_m, ones(1, length(rm_z)));
-subplot(3,2,4);
-plot(idx_a, a_mm_norm, idx_a, ones(1, length(ra_z)));
+//subplot(3,2,4);
+//plot(idx_a, a_mm_norm, idx_a, ones(1, length(ra_z)));
 
 subplot(3,2,5);
 alpha = 0:0.1:2*%pi;
@@ -99,10 +102,10 @@ c_x = m_mm_nx+ m_mm_gx * cos(alpha);
 c_y = m_mm_ny+ m_mm_gy * sin(alpha);
 plot(rm_x, rm_y, c_x, c_y)
 
-subplot(3,2,6);
-c_x = a_mm_nx+ a_mm_gx * cos(alpha);
-c_y = a_mm_ny+ a_mm_gy * sin(alpha);
-plot(ra_x, ra_y, c_x, c_y)
+//subplot(3,2,6);
+//c_x = a_mm_nx+ a_mm_gx * cos(alpha);
+//c_y = a_mm_ny+ a_mm_gy * sin(alpha);
+//plot(ra_x, ra_y, c_x, c_y)
 
 
 //

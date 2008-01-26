@@ -5,13 +5,9 @@
 #include CONFIG
 #include "adc.h"
 
-/* accelerometers in arbitrary unit */
 float imu_accel[AXIS_NB];
-/* gyros in rad/s                   */
-float   imu_gyro[AXIS_NB];
-/* magnetometer in arbitrary unit   */
-int16_t imu_mag[AXIS_NB];
-/* battery in volts                 */
+float imu_gyro[AXIS_NB];
+float imu_mag[AXIS_NB];
 float imu_bat;
 
 float imu_gyro_prev[AXIS_NB];
