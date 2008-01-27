@@ -746,7 +746,7 @@ let new_color = fun () ->
 (* Waits for new aircrafts *)
 let listen_acs = fun log ->
   (** Wait for any message (they all are identified with the A/C) *)
-  ignore (Ivy.bind (fun _ args -> ident_msg log args.(0)) "^(.*) PPRZ_MODE")
+  ignore (Ivy.bind (fun _ args -> ident_msg log args.(0)) "^(.*) DOWNLINK_STATUS")
 
 
 let send_config = fun http _asker args ->
