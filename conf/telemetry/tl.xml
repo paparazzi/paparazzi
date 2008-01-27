@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<!DOCTYPE telemetry SYSTEM "telemetry.dtd">
+<telemetry>
+
+
+  <process name="Ap">
+    <mode name="default">
+      <message name="PPM"            period="1"/>
+      <message name="RC"             period="1"/>
+      <message name="COMMANDS"       period="1"/>
+      <message name="ACTUATORS"      period="1"/> <!-- For trimming -->
+    </mode>
+  </process>
+
+</telemetry>

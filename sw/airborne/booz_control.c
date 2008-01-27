@@ -25,7 +25,7 @@ pprz_t booz_control_commands[COMMANDS_NB];
 #define BOOZ_CONTROL_RATE_R_DGAIN    5.
 
 /* setpoints for max stick throw in degres per second */
-#define BOOZ_CONTROL_RATE_PQ_MAX_SP 200.
+#define BOOZ_CONTROL_RATE_PQ_MAX_SP 120.
 #define BOOZ_CONTROL_RATE_R_MAX_SP  100.
 
 
