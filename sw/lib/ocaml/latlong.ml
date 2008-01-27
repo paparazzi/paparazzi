@@ -304,7 +304,7 @@ let of_utm' geo  =
   let c = serie5 coeff_proj_mercator_inverse e in
 
   fun { utm_zone = f; utm_x = x; utm_y = y } ->
-    if x < 0. || x > 1e6 || y < -10e6 || y > 10e6 || f < 0 || f > 60 then
+    if x < 0. || x > 1e7 || y < -1e7 || y > 1e7 || f < 0 || f > 60 then
       invalid_arg "Latlong.of_utm";
     
     let lambda_c = (Deg>>Rad) (float (6 * f - 183)) in
