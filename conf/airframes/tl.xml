@@ -65,7 +65,7 @@ ap.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c
 
 # transparent 
 ap.CFLAGS += -DDOWNLINK -DUSE_UART0 -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_AP_DEVICE=Uart0 -DPPRZ_UART=Uart0 -DDATALINK=PPRZ -DUART0_BAUD=B9600
-ap.srcs += downlink.c $(SRC_ARCH)/uart_hw.c pprz_transport.c tl_telemetry.c
+ap.srcs += downlink.c $(SRC_ARCH)/uart_hw.c pprz_transport.c tl_telemetry.c tl_datalink.c
 
 ap.srcs += tl_autopilot.c tl_control.c tl_estimator.c
 

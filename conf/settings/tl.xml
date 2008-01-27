@@ -2,6 +2,8 @@
 
 <settings>
   <dl_settings>
-
+    <dl_settings NAME="flight params">
+      <dl_setting MAX="1" MIN="0" STEP="1" VAR="estimator_in_flight" shortname="in_flight" module="tl_estimator"/>
+   </dl_settings>
  </dl_settings>
 </settings>

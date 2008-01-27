@@ -34,7 +34,6 @@ int main( void ) {
 
 
 static inline void tl_main_init( void ) {
-
   hw_init();
   led_init();
   sys_time_init();
@@ -98,4 +97,8 @@ static inline void tl_main_event_task( void ) {
     }
   }
 #endif /** GPS */
+
+#if defined DATALINK 
+  DlEventCheckAndHandle();
+#endif // DATALINK
 }
