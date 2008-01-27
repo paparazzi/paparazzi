@@ -32,52 +32,20 @@
 #include "gps.h"
 #include "latlong.h"
 #include "sys_time.h"
-#include "flight_plan.h"
-#include "estimator.h"
-#include "ap_downlink.h"
-#include "infrared.h"
-#include "nav.h"
-#include "led.h"
-#include "autopilot.h"
+
+/** For backward compatibility */
+#ifndef DOWNLINK_GPS_DEVICE
+#define DOWNLINK_GPS_DEVICE DOWNLINK_AP_DEVICE
+#endif
+
+#define DOWNLINK_DEVICE DOWNLINK_GPS_DEVICE
+#include "messages.h"
+#include "downlink.h"
 
 uint16_t last_gps_msg_t;	/** cputime of the last gps message */
+bool_t gps_verbose_downlink;
 
-void estimator_update_state_gps( void ) {
-  float gps_east = gps_utm_east / 100.;
-  float gps_north = gps_utm_north / 100.;
-
-  /* Relative position to reference */
-  gps_east -= nav_utm_east0;
-  gps_north -= nav_utm_north0;
-
-  float falt = gps_alt / 100.;
-  EstimatorSetPosXY(gps_east, gps_north);
-  EstimatorSetAlt(falt);
-  float fspeed = gps_gspeed / 100.;
-  float fclimb = gps_climb / 100.;
-  float fcourse = RadOfDeg(gps_course / 10.);
-  EstimatorSetSpeedPol(fspeed, fcourse, fclimb);
-}
-
-/**Send by downlink the GPS and rad_of_ir messages with \a DOWNLINK_SEND_GPS
- * and \a DOWNLINK_SEND_RAD_OF_IR \n
- * If \a estimator_flight_time is null and \a estimator_hspeed_mod is greater
- * than \a MIN_SPEED_FOR_TAKEOFF, set the \a estimator_flight_time to 1 and \a
- * launch to true (which is not set in non auto launch. Then call
- * \a DOWNLINK_SEND_TAKEOFF
- */
-void use_gps_pos( void ) {
-  if (GpsFixValid()) {
-    last_gps_msg_t = cpu_time_sec;
-    estimator_update_state_gps();
-#ifdef GPS_LED
-    LED_TOGGLE(GPS_LED);
-  }
-  else {
-    LED_ON(GPS_LED);
-#endif
-  }
-
+void gps_downlink( void ) {
   DOWNLINK_SEND_GPS(&gps_mode, &gps_utm_east, &gps_utm_north, &gps_course, &gps_alt, &gps_gspeed,&gps_climb, &gps_itow, &gps_utm_zone, &gps_nb_ovrn);
   
   static uint8_t i;
@@ -86,7 +54,7 @@ void use_gps_pos( void ) {
     DOWNLINK_SEND_SVINFO(&i, &gps_svinfos[i].svid, &gps_svinfos[i].flags, &gps_svinfos[i].qi, &gps_svinfos[i].cno, &gps_svinfos[i].elev, &gps_svinfos[i].azim);
 
   static uint8_t last_cnos[GPS_NB_CHANNELS];
-  if (!launch) {
+  if (gps_verbose_downlink) {
     uint8_t j;
     for(j = 0; j < gps_nb_channels; j++) {
     uint8_t cno = gps_svinfos[j].cno;

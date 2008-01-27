@@ -32,6 +32,8 @@
 #include "estimator.h"
 #include "uart.h"
 #include "ap_downlink.h"
+#include "gps.h"
+#include "nav.h"
 
 
 /* position in meters */
@@ -204,4 +206,22 @@ void alt_kalman(float gps_z) {
 #endif
 }
 
-#endif
+#endif // ALT_KALMAN
+
+void estimator_update_state_gps( void ) {
+  float gps_east = gps_utm_east / 100.;
+  float gps_north = gps_utm_north / 100.;
+
+  /* Relative position to reference */
+  gps_east -= nav_utm_east0;
+  gps_north -= nav_utm_north0;
+
+  float falt = gps_alt / 100.;
+  EstimatorSetPosXY(gps_east, gps_north);
+  EstimatorSetAlt(falt);
+  float fspeed = gps_gspeed / 100.;
+  float fclimb = gps_climb / 100.;
+  float fcourse = RadOfDeg(gps_course / 10.);
+  EstimatorSetSpeedPol(fspeed, fcourse, fclimb);
+}
+

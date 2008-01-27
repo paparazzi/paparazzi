@@ -76,6 +76,8 @@ void estimator_update_state_ANALOG( void );
 #endif
 void estimator_propagate_state( void );
 
+void estimator_update_state_gps( void );
+
 extern bool_t alt_kalman_enabled;
 #ifdef ALT_KALMAN
 extern void alt_kalman_reset( void );

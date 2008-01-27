@@ -647,7 +647,8 @@ void event_task_ap( void ) {
       parse_gps_msg();
     gps_msg_received = FALSE;
     if (gps_pos_available) {
-      use_gps_pos();
+      gps_verbose_downlink = !launch;
+      UseGpsPos(estimator_update_state_gps);
       gps_pos_available = FALSE;
     }
   }

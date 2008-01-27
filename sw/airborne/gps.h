@@ -58,8 +58,8 @@ extern uint8_t gps_numSV;
 extern uint8_t gps_status_config;
 extern uint16_t gps_reset;
 
-
 extern uint16_t last_gps_msg_t; /** cputime of the last gps message */
+extern bool_t gps_verbose_downlink;
 
 #define GPS_CONFIG_INIT 0
 #define GPS_CONFIG_DONE 7
@@ -67,8 +67,7 @@ extern uint16_t last_gps_msg_t; /** cputime of the last gps message */
 void gps_init( void );
 void gps_configure( void );
 void parse_gps_msg( void );
-void estimator_update_state_gps( void );
-void use_gps_pos( void );
+void gps_downlink( void );
 void gps_configure_uart( void );
 
 
@@ -106,6 +105,22 @@ extern struct svinfo gps_svinfos[GPS_NB_CHANNELS];
 
 
 #endif /** !SITL */
+
+#ifdef GPS_LED
+#define GpsToggleLed() LED_TOGGLE(GPS_LED)
+#else
+#define GpsToggleLed() {}
+#endif
+
+#define UseGpsPos(_callback) { \
+  if (GpsFixValid()) { \
+    last_gps_msg_t = cpu_time_sec; \
+    _callback(); \
+    GpsToggleLed(); \
+  } \
+  gps_downlink(); \
+}
+
 
 
 #endif /* GPS_H */

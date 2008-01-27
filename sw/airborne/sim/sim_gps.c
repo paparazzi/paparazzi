@@ -9,6 +9,7 @@
 #include "flight_plan.h"
 #include "autopilot.h"
 #include "gps.h"
+#include "estimator.h"
 
 #include <caml/mlvalues.h>
 
@@ -58,7 +59,9 @@ value sim_use_gps_pos(value x, value y, value z, value c, value a, value s, valu
   gps_PDOP = gps_Sacc = gps_Pacc = 500+200*sin(time/100.);
   gps_numSV = 7;
       
-  use_gps_pos(); /* From main.c */
+  gps_verbose_downlink = !launch;
+  UseGpsPos(estimator_update_state_gps);
+
   return Val_unit;
 }
 
