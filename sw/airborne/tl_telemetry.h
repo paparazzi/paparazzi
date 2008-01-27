@@ -9,6 +9,8 @@
 #include "commands.h"
 #include "actuators.h"
 
+#define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
+
 #define PERIODIC_SEND_RC() DOWNLINK_SEND_RC(PPM_NB_PULSES, rc_values)
 #define PERIODIC_SEND_PPM() DOWNLINK_SEND_PPM(PPM_NB_PULSES, ppm_pulses)
 #define PERIODIC_SEND_COMMANDS() DOWNLINK_SEND_COMMANDS(COMMANDS_NB, commands)

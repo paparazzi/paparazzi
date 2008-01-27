@@ -14,6 +14,8 @@
 #include "tl_telemetry.h"
 #include "datalink.h"
 #include "tl_autopilot.h"
+#include "tl_estimator.h"
+#include "gps.h"
 
 static inline void tl_main_init( void );
 static inline void tl_main_periodic_task( void );
@@ -43,8 +45,10 @@ static inline void tl_main_init( void ) {
   ppm_init();
   radio_control_init();
 
+  tl_estimator_init();
+
   uart0_init_tx();
-  //   uart1_init_tx();
+  uart1_init_tx();
 
   int_enable();
 
@@ -73,4 +77,25 @@ static inline void tl_main_event_task( void ) {
   //DlEventCheckAndHandle();
 
   RadioControlEventCheckAndHandle(tl_autopilot_on_rc_event);
+
+#ifdef GPS
+  if (GpsBuffer()) {
+    ReadGpsBuffer();
+  }
+  if (gps_msg_received) {
+    /* parse and use GPS messages */
+#ifdef GPS_CONFIGURE
+    if (gps_status_config < GPS_CONFIG_DONE)		
+      gps_configure();
+    else
+#endif
+      parse_gps_msg();
+    gps_msg_received = FALSE;
+    if (gps_pos_available) {
+      gps_verbose_downlink = !estimator_in_flight;
+      UseGpsPos(tl_estimator_use_gps);
+      gps_pos_available = FALSE;
+    }
+  }
+#endif /** GPS */
 }
