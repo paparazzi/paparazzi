@@ -3,10 +3,11 @@
 #include "flight_plan.h"
 
 bool_t estimator_in_flight;
+uint16_t estimator_flight_time;
 
 float estimator_east; /* m */
 float estimator_north; /* m */
-float estimator_z; /* m */
+float estimator_z; /* altitude in m */
 
 float estimator_speed; /* m/s */
 float estimator_climb; /* m/s */

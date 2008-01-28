@@ -15,6 +15,8 @@
 #include "datalink.h"
 #include "tl_autopilot.h"
 #include "tl_estimator.h"
+#include "adc.h"
+#include "tl_bat.h"
 #include "gps.h"
 
 static inline void tl_main_init( void );
@@ -36,6 +38,8 @@ int main( void ) {
 static inline void tl_main_init( void ) {
   hw_init();
   led_init();
+  adc_init();
+  tl_bat_init();
   sys_time_init();
 
   actuators_init();
@@ -55,50 +59,25 @@ static inline void tl_main_init( void ) {
 }
 
 
-static inline void tl_main_periodic_task( void ) {
-  
-  /* run control loops */
-  tl_autopilot_periodic_task();
-
-  SetActuatorsFromCommands(commands);
+static inline void tl_main_periodic_task( void ) {  
+  tl_bat_periodic_task();
 
   radio_control_periodic_task();
   if (rc_status != RC_OK)
      tl_autopilot_mode = TL_AP_MODE_FAILSAFE;
   
+  /* run control loops */
+  tl_autopilot_periodic_task();
+
   tl_telemetry_periodic_task();
+
+  SetActuatorsFromCommands(commands);
 }
 
 
-
 static inline void tl_main_event_task( void ) {
-  
-  //DlEventCheckAndHandle();
-
   RadioControlEventCheckAndHandle(tl_autopilot_on_rc_event);
 
-#ifdef GPS
-  if (GpsBuffer()) {
-    ReadGpsBuffer();
-  }
-  if (gps_msg_received) {
-    /* parse and use GPS messages */
-#ifdef GPS_CONFIGURE
-    if (gps_status_config < GPS_CONFIG_DONE)		
-      gps_configure();
-    else
-#endif
-      parse_gps_msg();
-    gps_msg_received = FALSE;
-    if (gps_pos_available) {
-      gps_verbose_downlink = !estimator_in_flight;
-      UseGpsPos(tl_estimator_use_gps);
-      gps_pos_available = FALSE;
-    }
-  }
-#endif /** GPS */
-
-#if defined DATALINK 
+  GpsEventCheckAndHandle(tl_estimator_use_gps, !estimator_in_flight);
   DlEventCheckAndHandle();
-#endif // DATALINK
 }
