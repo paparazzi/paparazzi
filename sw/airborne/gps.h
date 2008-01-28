@@ -55,14 +55,11 @@ extern int32_t gps_lat, gps_lon; /* 1e7 deg */
 extern uint16_t gps_PDOP;
 extern uint32_t gps_Pacc, gps_Sacc;
 extern uint8_t gps_numSV;
-extern uint8_t gps_status_config;
+extern uint8_t gps_configuring;
 extern uint16_t gps_reset;
 
 extern uint16_t last_gps_msg_t; /** cputime of the last gps message */
 extern bool_t gps_verbose_downlink;
-
-#define GPS_CONFIG_INIT 0
-#define GPS_CONFIG_DONE 7
 
 void gps_init( void );
 void gps_configure( void );
@@ -121,6 +118,33 @@ extern struct svinfo gps_svinfos[GPS_NB_CHANNELS];
   gps_downlink(); \
 }
 
+
+#ifdef GPS_CONFIGURE
+#define GpsParseOrConfigure() { \
+  if (gps_configuring) \
+    gps_configure(); \
+  else \
+    parse_gps_msg(); \
+}
+#else
+#define GpsParseOrConfigure() parse_gps_msg()
+#endif
+    
+
+#define GpsEventCheckAndHandle(_callback, _verbose) { \
+  if (GpsBuffer()) { \
+    ReadGpsBuffer(); \
+  } \
+  if (gps_msg_received) { \
+    GpsParseOrConfigure(); \
+    gps_msg_received = FALSE; \
+    if (gps_pos_available) { \
+      gps_verbose_downlink = _verbose; \
+      UseGpsPos(_callback); \
+      gps_pos_available = FALSE; \
+    } \
+  } \
+}
 
 
 #endif /* GPS_H */

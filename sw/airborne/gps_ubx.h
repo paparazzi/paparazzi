@@ -59,6 +59,14 @@ extern void parse_ubx( uint8_t c );
 #define CFG_RST_Reset_Controlled_GPS_stop 0x08
 #define CFG_RST_Reset_Controlled_GPS_start 0x09
 
+#define NAV_DYN_STATIONARY  1
+#define NAV_DYN_PEDESTRIAN  2
+#define NAV_DYN_AUTOMOTIVE  3
+#define NAV_DYN_SEA         4
+#define NAV_DYN_AIRBORNE_1G 5
+#define NAV_DYN_AIRBORNE_2G 6
+#define NAV_DYN_AIRBORNE_4G 7
+
 void ubxsend_cfg_rst(uint16_t, uint8_t);
 
 #define gps_ubx_Reset(_val) { gps_reset = _val; if (gps_reset > CFG_RST_BBR_Warmstart) gps_reset = CFG_RST_BBR_Coldstart; ubxsend_cfg_rst(gps_reset, CFG_RST_Reset_Controlled); }

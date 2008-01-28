@@ -640,7 +640,7 @@ void event_task_ap( void ) {
   if (gps_msg_received) {
     /* parse and use GPS messages */
 #ifdef GPS_CONFIGURE
-    if (gps_status_config < GPS_CONFIG_DONE)		
+    if (gps_configuring)
       gps_configure();
     else
 #endif
