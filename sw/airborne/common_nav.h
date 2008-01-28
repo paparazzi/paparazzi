@@ -4,6 +4,7 @@
 #include "std.h"
 
 extern float dist2_to_home;
+extern float dist2_to_wp;
 extern bool_t too_far_from_home;
 
 struct point {
@@ -24,6 +25,8 @@ extern struct point waypoints[];
 extern uint16_t stage_time, block_time;
 
 extern uint8_t nav_stage, nav_block;
+extern uint8_t last_block, last_stage;
+
 
 extern float ground_alt; /* m */
 
@@ -34,9 +37,11 @@ extern uint8_t nav_utm_zone0;
 
 void nav_init_stage( void );
 void nav_init_block(void);
+void nav_goto_block(uint8_t block_id);
 void compute_dist2_to_home(void);
 unit_t nav_reset_reference( void ) __attribute__ ((unused));
 unit_t nav_update_waypoints_alt( void ) __attribute__ ((unused));
+void common_nav_periodic_task_4Hz(void);
 
 
 #define InitStage() { nav_init_stage(); return; }
@@ -53,6 +58,7 @@ unit_t nav_update_waypoints_alt( void ) __attribute__ ((unused));
 
 #define Label(x) label_ ## x:
 #define Goto(x) { goto label_ ## x; }
+#define Return() ({ nav_block=last_block; nav_stage=last_stage; block_time=0; return; FALSE;})
 
 #define And(x, y) ((x) && (y))
 #define Or(x, y) ((x) || (y))

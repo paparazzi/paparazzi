@@ -291,12 +291,13 @@ static void navigation_task( void ) {
   }
 #endif /* GPS && FAILSAFE_DELAY_WITHOUT_GPS */
   
+  common_nav_periodic_task_4Hz();
   if (pprz_mode == PPRZ_MODE_HOME)
     nav_home();
   else if (pprz_mode == PPRZ_MODE_GPS_OUT_OF_ORDER)
     nav_without_gps();
   else
-    nav_update();
+    nav_periodic_task();
   
   SEND_NAVIGATION();
 
@@ -344,7 +345,7 @@ static void navigation_task( void ) {
 #define LOW_BATTERY_DELAY 5
 
 /** \fn inline void periodic_task( void )
- *  \brief Do periodic tasks at 61 Hz
+ *  \brief Do periodic tasks at 60 Hz
  */
 /**There are four @@@@@ boucles @@@@@:
  * - 20 Hz:
@@ -355,7 +356,6 @@ static void navigation_task( void ) {
  *   - sends to \a fbw \a desired_throttle, \a desired_aileron and
  *     \a desired_elevator \note \a desired_throttle is set upon GPS
  *     message reception
- * - 10 Hz: to get a \a stage_time_ds
  * - 4 Hz:
  *   - calls \a estimator_propagate_state
  *   - do navigation with \a navigation_task
@@ -375,19 +375,12 @@ void periodic_task_ap( void ) {
   _4Hz++;
   if (_4Hz>=15) _4Hz=0;
   _1Hz++;
-  if (_1Hz>=61) _1Hz=0;
+  if (_1Hz>=60) _1Hz=0;
 
   reporting_task();
   
-  if (!_10Hz) {
-    stage_time_ds = stage_time_ds + .1;
-  }
-
   if (!_1Hz) {
     if (estimator_flight_time) estimator_flight_time++;
-    stage_time_ds = (int16_t)(stage_time_ds+.5);
-    stage_time++;
-    block_time++;
 #if defined DATALINK || defined SITL
     datalink_time++;
 #endif

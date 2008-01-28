@@ -46,16 +46,11 @@
 extern float cur_pos_x;
 extern float cur_pos_y;
 extern float last_x, last_y;
-extern float dist2_to_wp;
-
 
 extern float desired_x, desired_y, nav_altitude, flight_altitude, nav_glide_pitch_trim;
 
 extern pprz_t nav_throttle_setpoint;
 extern float nav_pitch, rc_pitch;
-
-/** in second */
-extern float stage_time_ds;
 
 extern float carrot_x, carrot_y;
 
@@ -101,12 +96,10 @@ extern float nav_survey_shift;
 extern float nav_survey_west, nav_survey_east, nav_survey_north, nav_survey_south;
 extern bool_t nav_survey_active;
 
-void nav_update(void);
+void nav_periodic_task(void);
 void nav_home(void);
 void nav_init(void);
 void nav_without_gps(void);
-
-extern void nav_goto_block(uint8_t block_id);
 
 #define NavSetWaypointHere(_wp) ({ \
   waypoints[_wp].x = estimator_x; \

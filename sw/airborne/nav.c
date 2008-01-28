@@ -43,16 +43,12 @@
 
 #define RCLost() bit_is_set(fbw_state->status, RADIO_REALLY_LOST)
 
-/** To save the current block/stage to enable return */
-static uint8_t last_block, last_stage;
-
 float last_x, last_y;
 
 /** Index of last waypoint. Used only in "go" stage in "route" horiz mode */
 static uint8_t last_wp __attribute__ ((unused));
 
 float rc_pitch;
-float stage_time_ds;
 float carrot_x, carrot_y;
 
 /** Status on the current circle */
@@ -95,7 +91,6 @@ bool_t nav_survey_active;
 void nav_init_stage( void ) {
   last_x = estimator_x; last_y = estimator_y;
   stage_time = 0;
-  stage_time_ds = 0;
   nav_circle_radians = 0;
   nav_in_circle = FALSE;
   nav_in_segment = FALSE;
@@ -108,9 +103,6 @@ void nav_init_stage( void ) {
 
 #define RcEvent1() CheckEvent(rc_event_1)
 #define RcEvent2() CheckEvent(rc_event_2)
-
-
-#define Return() ({ nav_block=last_block; nav_stage=last_stage; block_time=0; return; FALSE;})
 
 
 static inline void fly_to_xy(float x, float y);
@@ -209,15 +201,6 @@ void nav_circle_XY(float x, float y, float radius) {
   nav_follow(_ac_id, _distance, _height);
 
 
-void nav_goto_block(uint8_t b) {
-  if (b != nav_block) { /* To avoid a loop in a the current block */
-    last_block = nav_block;
-    last_stage = nav_stage;
-  }
-  GotoBlock(b);
-}
-
-
 static unit_t unit __attribute__ ((unused));
 
 static inline void nav_follow(uint8_t _ac_id, float _distance, float _height);
@@ -294,7 +277,6 @@ float desired_x, desired_y;
 pprz_t nav_throttle_setpoint;
 float nav_pitch;
 
-float dist2_to_wp;
 
 /** \brief Decide if the UAV is approaching the current waypoint.
  *  Computes \a dist2_to_wp and compare it to square \a carrot.
@@ -375,7 +357,7 @@ void nav_home(void) {
  *  \brief Navigation main: call to the code generated from the XML flight
  * plan
  */
-void nav_update(void) {
+void nav_periodic_task(void) {
   nav_survey_active = FALSE;
 
   compute_dist2_to_home();

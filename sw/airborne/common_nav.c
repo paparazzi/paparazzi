@@ -4,6 +4,8 @@
 #include "gps.h"
 
 float dist2_to_home;
+float dist2_to_wp;
+
 bool_t too_far_from_home;
 
 const uint8_t nb_waypoint;
@@ -11,6 +13,9 @@ struct point waypoints[NB_WAYPOINT] = WAYPOINTS;
 
 uint8_t nav_stage, nav_block;
 uint16_t stage_time, block_time;
+
+/** To save the current block/stage to enable return */
+uint8_t last_block, last_stage;
 
 float ground_alt;
 
@@ -70,4 +75,16 @@ void nav_init_block(void) {
   nav_stage = 0;
   block_time = 0;
   InitStage();
+}
+
+void nav_goto_block(uint8_t b) {
+  if (b != nav_block) { /* To avoid a loop in a the current block */
+    last_block = nav_block;
+    last_stage = nav_stage;
+  }
+  GotoBlock(b);
+}
+
+void common_nav_periodic_task_4Hz() {
+  RunOnceEvery(4, { stage_time++;  block_time++; });
 }
