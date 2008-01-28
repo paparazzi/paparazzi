@@ -29,23 +29,17 @@
 
 #include <inttypes.h>
 #include <string.h>
+
 #include "traffic_info.h"
 #include "nav.h"
 #include "datalink.h"
 #include "flight_plan.h"
-#include "autopilot.h"
 #include "ap_downlink.h"
 #include "messages.h"
-
-#include "estimator.h"
-#include "fw_v_ctl.h"
-#include "fw_h_ctl.h"
-#include "cam.h"
 #include "infrared.h"
 #include "gps.h"
 #include "uart.h"
 #include "gpio.h"
-
 #include "settings.h"
 #include "latlong.h"
 
@@ -83,12 +77,15 @@ void dl_parse_msg(void) {
     DOWNLINK_SEND_WP_MOVED(&wp_id, &latlong_utm_x, &latlong_utm_y, &a, &nav_utm_zone0);
   } else if (msg_id == DL_BLOCK && DL_BLOCK_ac_id(dl_buffer) == AC_ID) {
     nav_goto_block(DL_BLOCK_block_id(dl_buffer));
-  } else if (msg_id == DL_WIND_INFO && DL_WIND_INFO_ac_id(dl_buffer) == AC_ID) {
+  } else
+#endif /** NAV */
+#ifdef WIND_INFO
+    if (msg_id == DL_WIND_INFO && DL_WIND_INFO_ac_id(dl_buffer) == AC_ID) {
     wind_east = DL_WIND_INFO_east(dl_buffer);
     wind_north = DL_WIND_INFO_north(dl_buffer);
     estimator_airspeed = DL_WIND_INFO_airspeed(dl_buffer);
   } else
-#endif /** NAV */
+#endif /** WIND_INFO */
 #ifdef HITL
   /** Infrared and GPS sensors are replaced by messages on the datalink */
   if (msg_id == DL_HITL_INFRARED) {
