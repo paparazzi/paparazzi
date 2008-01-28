@@ -3,6 +3,7 @@
 <telemetry>
   <process name="Ap">
     <mode name="default">
+      <message name="ALIVE"          period="5"/>
       <message name="ATTITUDE"       period="0.5"/>
       <message name="ESTIMATOR"      period="0.5"/>
       <message name="WP_MOVED"       period="0.5"/>

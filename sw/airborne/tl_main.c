@@ -67,7 +67,8 @@ static inline void tl_main_periodic_task( void ) {
   if (rc_status != RC_OK)
      tl_autopilot_mode = TL_AP_MODE_FAILSAFE;
 
-  RunOnceEvery(15, tl_nav_periodic_task());
+  /* 4Hz */
+  RunOnceEvery(15, { common_nav_periodic_task_4Hz(); tl_nav_periodic_task(); });
   
   /* run control loops */
   tl_autopilot_periodic_task();
