@@ -8,6 +8,9 @@
      <field name="version" type="uint16"></field>
    </message>
 
+   <message name="ALIVE" id="2">
+   </message>
+
    <message name="TAKEOFF" ID="4">
      <field name="cpu_time" type="uint16" unit="s"></field>
    </message>
@@ -50,7 +53,6 @@
      <field name="cur_stage" type="uint8"></field>
      <field name="pos_x" type="int16" unit="m"></field>
      <field name="pos_y" type="int16" unit="m"></field>
-     <field name="desired_course" type="int16" unit="decideg"></field>
      <field name="dist2_wp" type="float" format="%.1f" unit="m^2"></field>
      <field name="dist2_home" type="float" format="%.1f" unit="m^2"></field>
    </message>
