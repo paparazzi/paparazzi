@@ -90,4 +90,17 @@ typedef uint8_t unit_t;
 
 #define ScalarProduct(x1,y1,x2,y2) ((x1)*(x2)+(y1)*(y2))
 
+
+#define RunOnceEvery(_prescaler, _code) {		\
+    static uint8_t prescaler = 0;			\
+    prescaler++;					\
+    if (prescaler > _prescaler) {			\
+      prescaler = 0;					\
+      _code;						\
+    }							\
+  }
+
+
+
+
 #endif /* STD_H */
