@@ -32,6 +32,7 @@
 #include "gps.h"
 #include "latlong.h"
 #include "sys_time.h"
+#include "airframe.h"
 
 /** For backward compatibility */
 #ifndef DOWNLINK_GPS_DEVICE

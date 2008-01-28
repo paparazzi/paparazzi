@@ -3,6 +3,9 @@
 #include "tl_estimator.h"
 #include "radio_control.h"
 
+
+bool_t kill_throttle; /* keep this old name to get it in the GCS */
+
 // output
 float tl_control_p_sp;
 float tl_control_q_sp;
@@ -90,7 +93,7 @@ void tl_control_rate_run(void) {
   tl_control_commands[COMMAND_ROLL]     = TRIM_PPRZ((int16_t)cmd_p);
   tl_control_commands[COMMAND_PITCH]    = TRIM_PPRZ((int16_t)cmd_q);
   tl_control_commands[COMMAND_YAW]      = TRIM_PPRZ((int16_t)cmd_r);
-  tl_control_commands[COMMAND_THROTTLE] = TRIM_PPRZ((int16_t) (tl_control_power_sp));
+  tl_control_commands[COMMAND_THROTTLE] = kill_throttle ? 0 : TRIM_PPRZ((int16_t) (tl_control_power_sp));
 
 }
 

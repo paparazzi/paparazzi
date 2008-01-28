@@ -104,7 +104,9 @@ static uint8_t ck_a, ck_b;
 uint8_t send_ck_a, send_ck_b;
 
 bool_t gps_configuring;
+#ifdef GPS_CONFIGURE
 static uint8_t gps_status_config;
+#endif
 
 void gps_init( void ) {
   ubx_status = UNINIT;

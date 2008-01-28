@@ -75,7 +75,7 @@ ap.srcs += tl_autopilot.c tl_control.c tl_estimator.c
 ap.CFLAGS += -DGPS -DUBX -DUSE_UART1 -DGPS_LINK=Uart1 -DUART1_BAUD=B38400 -DDOWNLINK_GPS_DEVICE=DOWNLINK_AP_DEVICE -DGPS_CONFIGURE -DUSER_GPS_CONFIGURE=\"tl_gps_configure.h\" -DGPS_BAUD=38400
 ap.srcs += gps_ubx.c gps.c latlong.c
 
-
+ap.srcs += common_nav.c tl_nav.c
 
   </makefile>
 

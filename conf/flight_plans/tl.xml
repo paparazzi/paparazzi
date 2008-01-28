@@ -1,0 +1,27 @@
+<flight_plan name="booz test 1" lon0="1.27289" lat0="43.46223" ground_alt="0"  alt="3" max_dist_from_home="400" security_height="1">
+
+
+  <waypoints>
+    <waypoint name="HOME"     x="0.0"  y="0.0"/>
+    <waypoint name="TARGET"   x="10"   y="0"/>
+  </waypoints>
+
+  <blocks>
+    <block name="Wait GPS">
+      <set value="1" var="kill_throttle"/>
+      <while cond="!GpsFixValid()"/>
+    </block>
+    <block name="Geo init">
+      <while cond="LessThan(NavBlockTime(), 10)"/>
+      <call fun="NavSetGroundReferenceHere()"/>
+    </block>
+    <block name="Holding point">
+      <set value="1" var="kill_throttle"/>
+      <stay wp="HOME"/>
+    </block>
+    <block name="target">
+      <stay wp="TARGET"/>
+    </block>
+  </blocks>
+
+</flight_plan>

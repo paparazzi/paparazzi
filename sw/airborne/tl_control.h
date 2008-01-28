@@ -12,6 +12,8 @@ extern void tl_control_rate_run(void);
 extern void tl_control_attitude_read_setpoints_from_rc(void);
 extern void tl_control_attitude_run(void);
 
+extern bool_t kill_throttle;
+
 extern float tl_control_p_sp;
 extern float tl_control_q_sp;
 extern float tl_control_r_sp;

@@ -6,8 +6,8 @@
 extern bool_t estimator_in_flight;
 extern uint16_t estimator_flight_time;
 
-extern float estimator_east; /* m */
-extern float estimator_north; /* m */
+extern float estimator_x; /* m */
+extern float estimator_y; /* m */
 extern float estimator_z; /* altitude in m */
 
 extern float estimator_speed; /* m/s */

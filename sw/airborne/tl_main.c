@@ -18,6 +18,7 @@
 #include "adc.h"
 #include "tl_bat.h"
 #include "gps.h"
+#include "tl_nav.h"
 
 static inline void tl_main_init( void );
 static inline void tl_main_periodic_task( void );
@@ -65,6 +66,8 @@ static inline void tl_main_periodic_task( void ) {
   radio_control_periodic_task();
   if (rc_status != RC_OK)
      tl_autopilot_mode = TL_AP_MODE_FAILSAFE;
+
+  RunOnceEvery(15, tl_nav_periodic_task());
   
   /* run control loops */
   tl_autopilot_periodic_task();

@@ -122,7 +122,7 @@ let print_exception = fun x ->
 let element = fun a b c -> Xml.Element (a, b, c)
 let goto l = element "goto" ["name",l] []
 let exit_block = element "exit_block" [] []
-let home_block = Xml.parse_string "<block name=\"circle HOME\"><circle wp=\"HOME\" radius=\"DEFAULT_CIRCLE_RADIUS\"/></block>"
+let home_block = Xml.parse_string "<block name=\"HOME\"><home/></block>"
   
 let stage = ref 0
 
@@ -245,7 +245,7 @@ let rec index_stage = fun x ->
        let l = List.map index_stage (Xml.children x) in
        incr stage; (* To count the loop stage *)
        Xml.Element (Xml.tag x, Xml.attribs x@["no", soi n], l)
-    | "return" | "goto"  | "deroute" | "exit_block" | "follow" | "call"
+    | "return" | "goto"  | "deroute" | "exit_block" | "follow" | "call" | "home"
     | "heading" | "attitude" | "go" | "stay" | "xyz" | "set" | "circle" ->
 	incr stage;
 	Xml.Element (Xml.tag x, Xml.attribs x@["no", soi !stage], Xml.children x)
@@ -389,6 +389,10 @@ let rec print_stage = fun index_of_waypoints x ->
 	let x = ExtXml.subst_attrib "vmode" "xyz" x in
 	ignore (output_vmode x "" ""); (** To handle "pitch" *)
 	output_cam_mode x index_of_waypoints;
+	lprintf "return;\n"
+    | "home" ->
+	stage ();
+	lprintf "nav_home();\n";
 	lprintf "return;\n"
     | "circle" ->
 	stage ();

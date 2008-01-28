@@ -43,8 +43,6 @@
 
 #define RCLost() bit_is_set(fbw_state->status, RADIO_REALLY_LOST)
 
-uint8_t nav_stage, nav_block;
-
 /** To save the current block/stage to enable return */
 static uint8_t last_block, last_stage;
 
@@ -54,7 +52,6 @@ float last_x, last_y;
 static uint8_t last_wp __attribute__ ((unused));
 
 float rc_pitch;
-uint16_t stage_time, block_time;
 float stage_time_ds;
 float carrot_x, carrot_y;
 
@@ -111,20 +108,10 @@ void nav_init_stage( void ) {
 
 #define RcEvent1() CheckEvent(rc_event_1)
 #define RcEvent2() CheckEvent(rc_event_2)
-#define Block(x) case x: nav_block=x;
 
-void init_block(void);
-#define NextBlock() { nav_block++; init_block(); return; }
-#define GotoBlock(b) { nav_block=b; init_block(); return; }
+
 #define Return() ({ nav_block=last_block; nav_stage=last_stage; block_time=0; return; FALSE;})
 
-#define Stage(s) case s: nav_stage=s;
-#define NextStage() { nav_stage++; InitStage() }
-#define NextStageFrom(wp) { last_wp = wp; NextStage() }
-#define GotoStage(s) { nav_stage = s; InitStage() }
-
-#define Label(x) label_ ## x:
-#define Goto(x) { goto label_ ## x; }
 
 static inline void fly_to_xy(float x, float y);
 
@@ -217,18 +204,9 @@ void nav_circle_XY(float x, float y, float radius) {
   nav_circle_XY(carrot_x, carrot_y, radius); \
 }
 
-#define And(x, y) ((x) && (y))
-#define Or(x, y) ((x) || (y))
-#define Min(x,y) (x < y ? x : y)
-#define Max(x,y) (x > y ? x : y)
-#define NavBlockTime() (block_time)
-#define LessThan(_x, _y) ((_x) < (_y))
 
 #define NavFollow(_ac_id, _distance, _height) \
   nav_follow(_ac_id, _distance, _height);
-
-
-#define NavSetGroundReferenceHere() ({ nav_reset_reference(); nav_update_waypoints_alt(); FALSE; })
 
 
 void nav_goto_block(uint8_t b) {
@@ -242,9 +220,6 @@ void nav_goto_block(uint8_t b) {
 
 static unit_t unit __attribute__ ((unused));
 
-static unit_t nav_reset_reference( void ) __attribute__ ((unused));
-
-static unit_t nav_update_waypoints_alt( void ) __attribute__ ((unused));
 static inline void nav_follow(uint8_t _ac_id, float _distance, float _height);
 
 #ifdef NAV_GROUND_SPEED_PGAIN
@@ -298,18 +273,6 @@ static inline bool_t compute_TOD(uint8_t _af, uint8_t _td, uint8_t _tod, float g
 
 #include "flight_plan.h"
 
-void init_block(void) { 
-  if (nav_block >= NB_BLOCK)
-    nav_block=NB_BLOCK-1;
-  nav_stage = 0;
-  block_time = 0;
-  InitStage();
-}
-
-float ground_alt;
-
-static float previous_ground_alt;
-	     
 static inline void nav_follow(uint8_t _ac_id, float _distance, float _height) { 
   struct ac_info_ * ac = get_ac_info(_ac_id);
   NavVerticalAutoThrottleMode(0.);
@@ -326,55 +289,12 @@ static inline void nav_follow(uint8_t _ac_id, float _distance, float _height) {
 #endif
 }
 
-
-
-/** Reset the geographic reference to the current GPS fix */
-static unit_t nav_reset_reference( void ) {
-#ifdef GPS_USE_LATLONG
-  /* Set the real UTM zone */
-  nav_utm_zone0 = (gps_lon/10000000+180) / 6 + 1;
-
-  /* Recompute UTM coordinates in this zone */
-  latlong_utm_of(RadOfDeg(gps_lat/1e7), RadOfDeg(gps_lon/1e7), nav_utm_zone0);
-  nav_utm_east0 = latlong_utm_x;
-  nav_utm_north0 = latlong_utm_y;
-#else
-  nav_utm_zone0 = gps_utm_zone;
-  nav_utm_east0 = gps_utm_east/100;
-  nav_utm_north0 = gps_utm_north/100;
-#endif
-
-  previous_ground_alt = ground_alt;
-  ground_alt = gps_alt/100;
-  return 0;
-}
-
-/** Shift altitude of the waypoint according to a new ground altitude */
-static unit_t nav_update_waypoints_alt( void ) {
-  uint8_t i;
-  for(i = 0; i < NB_WAYPOINT; i++) {
-    waypoints[i].a += ground_alt - previous_ground_alt;
-  }
-  return 0;
-}
-
-
-
-int32_t nav_utm_east0 = NAV_UTM_EAST0;
-int32_t nav_utm_north0 = NAV_UTM_NORTH0;
-uint8_t nav_utm_zone0 = NAV_UTM_ZONE0;
-
 float nav_altitude = GROUND_ALT + MIN_HEIGHT_CARROT;
 float desired_x, desired_y;
 pprz_t nav_throttle_setpoint;
 float nav_pitch;
 
-float dist2_to_wp, dist2_to_home;
-bool_t too_far_from_home;
-const uint8_t nb_waypoint = NB_WAYPOINT;
-
-struct point waypoints[NB_WAYPOINT] = WAYPOINTS;
-
+float dist2_to_wp;
 
 /** \brief Decide if the UAV is approaching the current waypoint.
  *  Computes \a dist2_to_wp and compare it to square \a carrot.
@@ -434,20 +354,7 @@ void nav_route_xy(float last_wp_x, float last_wp_y, float wp_x, float wp_y) {
   fly_to_xy(last_wp_x + nav_leg_progress*leg_x +nav_shift*leg_y/nav_leg_length, last_wp_y + nav_leg_progress*leg_y-nav_shift*leg_x/nav_leg_length);
 }
 
-
-/** \brief Computes square distance to the HOME waypoint potentially sets
- * \a too_far_from_home
- */
-static inline void compute_dist2_to_home(void) {
-  float ph_x = waypoints[WP_HOME].x - estimator_x;
-  float ph_y = waypoints[WP_HOME].y - estimator_y;
-  dist2_to_home = ph_x*ph_x + ph_y *ph_y;
-  too_far_from_home = dist2_to_home > (MAX_DIST_FROM_HOME*MAX_DIST_FROM_HOME);
-#if defined InAirspace
-  too_far_from_home = too_far_from_home || !(InAirspace(estimator_x, estimator_y));
-#endif
-}
-
+#include "common_nav.c"
 
 #ifndef FAILSAFE_HOME_RADIUS
 #define FAILSAFE_HOME_RADIUS DEFAULT_CIRCLE_RADIUS

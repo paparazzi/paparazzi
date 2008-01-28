@@ -37,43 +37,22 @@
 #include "airframe.h"
 #include "fw_v_ctl.h"
 #include "nav_survey_rectangle.h"
+#include "common_nav.h"
 
 #define G 9.806
 #define Square(_x) ((_x)*(_x))
 #define DistanceSquare(p1_x, p1_y, p2_x, p2_y) (Square(p1_x-p2_x)+Square(p1_y-p2_y))
 
-struct point {
-  float x;
-  float y;
-  float a;
-};
-
-#define WaypointX(_wp) (waypoints[_wp].x)
-#define WaypointY(_wp) (waypoints[_wp].y)
-#define WaypointAlt(_wp) (waypoints[_wp].a)
-
 extern float cur_pos_x;
 extern float cur_pos_y;
 extern float last_x, last_y;
-extern uint8_t nav_stage, nav_block;
-extern float dist2_to_wp, dist2_to_home;
+extern float dist2_to_wp;
 
-extern int32_t nav_utm_east0;  /* m */
-extern int32_t nav_utm_north0; /* m */
-extern uint8_t nav_utm_zone0;
-
-extern const uint8_t nb_waypoint;
-extern struct point waypoints[]; 
-/** size == nb_waypoint, waypoint 0 is a dummy waypoint */
 
 extern float desired_x, desired_y, nav_altitude, flight_altitude, nav_glide_pitch_trim;
 
 extern pprz_t nav_throttle_setpoint;
 extern float nav_pitch, rc_pitch;
-extern bool_t too_far_from_home;
-
-/** in second */
-extern uint16_t stage_time, block_time;
 
 /** in second */
 extern float stage_time_ds;
@@ -109,8 +88,6 @@ extern void nav_eight(uint8_t, uint8_t, float);
 extern void nav_oval_init( void );
 extern void nav_oval(uint8_t, uint8_t, float);
 #define Oval(a, b, c) nav_oval((b), (a), (c))
-
-extern float ground_alt;
 
 extern float nav_radius; /* m */
 extern float nav_course; /* degrees, clockwise, 0.0 = N */
@@ -152,10 +129,6 @@ extern void nav_circle_XY(float x, float y, float radius);
 #define NavCircleQdr() ({ float qdr = DegOfRad(M_PI_2 - nav_circle_trigo_qdr); NormCourse(qdr); qdr; })
 #define NavQdrCloseTo(x) ({ float _course = x; NormCourse(_course); float circle_qdr = NavCircleQdr(); (Min(_course, 350) < circle_qdr && circle_qdr < _course+10); })
 #define NavCourseCloseTo(x) ({ float _course = x; NormCourse(_course); float deg = DegOfRad(estimator_hspeed_dir); (Min(_course, 350) < deg && deg < _course+10); })
-
-extern void nav_init_stage( void );
-#define InitStage() { nav_init_stage(); return; }
-
 
 /*********** Navigation along a line *************************************/
 extern void nav_route_xy(float last_wp_x, float last_wp_y, float wp_x, float wp_y);

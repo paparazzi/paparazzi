@@ -17,7 +17,7 @@
 <!ELEMENT exceptions (exception*)>
 
 <!ELEMENT blocks (block+)>
-<!ELEMENT block (exception|while|heading|attitude|go|xyz|set|call|circle|deroute|stay|follow|survey_rectangle|for|return|eight|oval)*>
+<!ELEMENT block (exception|while|heading|attitude|go|xyz|set|call|circle|deroute|stay|follow|survey_rectangle|for|return|eight|oval|home)*>
 
 <!ELEMENT include (arg|with)*>
 <!ELEMENT arg EMPTY>
@@ -33,6 +33,7 @@
 <!ELEMENT set EMPTY>
 <!ELEMENT call EMPTY>
 <!ELEMENT circle EMPTY>
+<!ELEMENT home EMPTY>
 <!ELEMENT eight EMPTY>
 <!ELEMENT oval EMPTY>
 <!ELEMENT survey_rectangle EMPTY>
@@ -149,6 +150,8 @@ cam_mode (null|fix|manual|nadir|target|follow) #IMPLIED
 cam_ac_target CDATA #IMPLIED
 target CDATA #IMPLIED
 radius CDATA #IMPLIED>
+
+<!ATTLIST home>
 
 <!ATTLIST circle
 wp CDATA #REQUIRED

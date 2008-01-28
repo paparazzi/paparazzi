@@ -5,10 +5,12 @@
 
   <process name="Ap">
     <mode name="default">
-      <message name="PPM"            period="1"/>
-      <message name="RC"             period="1"/>
-      <message name="COMMANDS"       period="1"/>
+      <message name="PPM"            period="5"/>
+      <message name="RC"             period="5"/>
+      <message name="COMMANDS"       period="5"/>
       <message name="ACTUATORS"      period="1"/> <!-- For trimming -->
+      <message name="BAT"            period="3"/>
+      <message name="ESTIMATOR"      period="1"/>
     </mode>
   </process>
 
