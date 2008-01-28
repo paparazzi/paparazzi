@@ -20,6 +20,8 @@
       <stay wp="HOME"/>
     </block>
     <block name="target">
+      <call fun="NavSetWaypointHere(WP_TARGET)"/>
+      <set value="0" var="kill_throttle"/>
       <stay wp="TARGET"/>
     </block>
   </blocks>

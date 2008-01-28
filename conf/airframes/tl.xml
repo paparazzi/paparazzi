@@ -39,6 +39,11 @@
     <set command="CAM"    value="@GAIN1"/>
    </rc_commands>
 
+  <section name="horizontal_control">
+    <define name="NAV_GOTO_H_PGAIN" value="RadOfDeg(10)" unit="rad/m"/>
+    <define name="NAV_GOTO_H_DGAIN" value="0"/>
+  </section>
+
 
   <makefile>
 ARCHI=arm7

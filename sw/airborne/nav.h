@@ -101,12 +101,6 @@ void nav_home(void);
 void nav_init(void);
 void nav_without_gps(void);
 
-#define NavSetWaypointHere(_wp) ({ \
-  waypoints[_wp].x = estimator_x; \
-  waypoints[_wp].y = estimator_y; \
-  FALSE; \
-})
-
 extern float nav_circle_trigo_qdr; /** Angle from center to mobile */
 extern void nav_circle_XY(float x, float y, float radius);
 

@@ -25,9 +25,9 @@ pprz_t tl_control_commands[COMMANDS_NB];
 #define TL_CONTROL_RATE_R_MAX_SP  100.
 
 
-/* float tl_control_attitude_phi_sp; */
-/* float tl_control_attitude_theta_sp; */
-/* float tl_control_attitude_psi_sp; */
+float tl_control_attitude_phi_sp;
+float tl_control_attitude_theta_sp;
+float tl_control_attitude_psi_sp;
 /* float tl_control_attitude_phi_theta_pgain; */
 /* float tl_control_attitude_phi_theta_dgain; */
 /* float tl_control_attitude_psi_pgain; */
