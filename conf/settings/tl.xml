@@ -5,6 +5,8 @@
     <dl_settings NAME="flight params">
       <dl_setting MAX="1" MIN="0" STEP="1" VAR="estimator_in_flight" shortname="in_flight" module="tl_estimator"/>
       <dl_setting MAX="1" MIN="0" STEP="1" VAR="kill_throttle" shortname="kill" module="tl_control"/>
+      <dl_setting MAX="0" MIN="-1000" STEP="10" VAR="tl_control_rate_r_pgain" shortname="rate_pgain" module="tl_control"/>
+      <dl_setting MAX="20" MIN="0" STEP="0.1" VAR="tl_control_rate_r_dgain" shortname="rate_dgain" module="tl_control"/>
    </dl_settings>
  </dl_settings>
 </settings>
