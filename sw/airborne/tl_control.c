@@ -28,6 +28,7 @@ pprz_t tl_control_commands[COMMANDS_NB];
 float tl_control_attitude_phi_sp;
 float tl_control_attitude_theta_sp;
 float tl_control_attitude_psi_sp;
+
 /* float tl_control_attitude_phi_theta_pgain; */
 /* float tl_control_attitude_phi_theta_dgain; */
 /* float tl_control_attitude_psi_pgain; */
@@ -41,7 +42,7 @@ float tl_control_attitude_psi_sp;
 
 /* setpoints for max stick throw in degres */
 /* #define TL_CONTROL_ATTITUDE_PHI_THETA_MAX_SP 30. */
-/* #define TL_CONTROL_ATTITUDE_PSI_MAX_SP 45. */
+ #define TL_CONTROL_ATTITUDE_PSI_MAX_SP 45.
 
 
 void tl_control_init(void) {
@@ -72,8 +73,8 @@ void tl_control_rate_read_setpoints_from_rc(void) {
 
   tl_control_p_sp = -rc_values[RADIO_ROLL];
   tl_control_q_sp =  rc_values[RADIO_PITCH];
-  //  tl_control_r_sp = -rc_values[RADIO_YAW] * RadOfDeg(TL_CONTROL_RATE_R_MAX_SP)/MAX_PPRZ;
-  tl_control_r_sp = -rc_values[RADIO_YAW];
+  tl_control_r_sp = -rc_values[RADIO_YAW] * RadOfDeg(TL_CONTROL_RATE_R_MAX_SP)/MAX_PPRZ;
+  //tl_control_r_sp = -rc_values[RADIO_YAW];
   tl_control_power_sp = rc_values[RADIO_THROTTLE];
 
 }
@@ -84,21 +85,28 @@ void tl_control_rate_run(void) {
   const float cmd_p = tl_control_p_sp;
   const float cmd_q = tl_control_q_sp;
 
-  //  const float rate_err_r = tl_estimator_uf_r - tl_control_r_sp;
-  //  const float rate_d_err_r = rate_err_r - tl_control_rate_last_err_r;
-  //  tl_control_rate_last_err_r = rate_err_r;
-  //  const float cmd_r = tl_control_rate_r_pgain * ( rate_err_r + tl_control_rate_r_dgain * rate_d_err_r );
-  const float cmd_r = tl_control_r_sp;
+  const float rate_err_r = estimator_r - tl_control_r_sp;
+  const float rate_d_err_r = rate_err_r - tl_control_rate_last_err_r;
+  tl_control_rate_last_err_r = rate_err_r;
+  const float cmd_r = - tl_control_rate_r_pgain * ( rate_err_r + tl_control_rate_r_dgain * rate_d_err_r );
 
   tl_control_commands[COMMAND_ROLL]     = TRIM_PPRZ((int16_t)cmd_p);
   tl_control_commands[COMMAND_PITCH]    = TRIM_PPRZ((int16_t)cmd_q);
   tl_control_commands[COMMAND_YAW]      = TRIM_PPRZ((int16_t)cmd_r);
-  tl_control_commands[COMMAND_THROTTLE] = kill_throttle ? 0 : TRIM_PPRZ((int16_t) (tl_control_power_sp));
+  //  tl_control_commands[COMMAND_THROTTLE] = kill_throttle ? 0 : TRIM_PPRZ((int16_t) (tl_control_power_sp));
+  tl_control_commands[COMMAND_THROTTLE] = TRIM_PPRZ((int16_t) (tl_control_power_sp));
 
 }
 
 void tl_control_attitude_read_setpoints_from_rc(void) {
- 
+#if 0
+  if (!estimator_in_flight)
+    tl_control_attitude_psi_sp = estimator_psi;
+  else {
+    tl_control_attitude_psi_sp += rc_values[RADIO_YAW] * RadOfDeg(TL_CONTROL_ATTITUDE_PSI_MAX_SP)/MAX_PPRZ;
+    NormRadAngle(tl_control_attitude_psi_sp);
+  }
+#endif
 }
 
 void tl_control_attitude_run(void) {

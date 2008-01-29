@@ -18,10 +18,10 @@
    </commands>
 
   <command_laws>
-          <let var="roll"     value="1.0  * @ROLL"/>
-          <let var="pitch"    value="1.0  * @PITCH"/>
-          <let var="yaw"      value="0.1 * @YAW"/>
-          <let var="throttle" value="1.0   * @THROTTLE"/>
+          <let var="roll"     value="1.0 * @ROLL"/>
+          <let var="pitch"    value="1.0 * @PITCH"/>
+          <let var="yaw"      value="1.0 * @YAW"/>
+          <let var="throttle" value="1.0 * @THROTTLE"/>
           <let var="right" value="$throttle + $yaw"/><!-- add trim term for Right -->
           <let var="left" value="$throttle - $yaw"/><!-- .06*thrsubtract trim term for Right -->  
           <set servo="AILERON" value="$roll"/>
@@ -38,6 +38,27 @@
     <set command="YAW" value="@YAW"/>
     <set command="CAM"    value="@GAIN1"/>
    </rc_commands>
+
+
+  <section name="MICROMAG">
+
+    <define name="MM_SS_PIN" value="20"/>
+    <define name="MM_SS_IODIR" value="IO0DIR"/>
+    <define name="MM_SS_IOSET" value="IO0SET"/>
+    <define name="MM_SS_IOCLR" value="IO0CLR"/>
+
+    <define name="MM_RESET_PIN" value="29"/>
+    <define name="MM_RESET_IODIR" value="IO0DIR"/>
+    <define name="MM_RESET_IOSET" value="IO0SET"/>
+    <define name="MM_RESET_IOCLR" value="IO0CLR"/>
+
+    <define name="MM_DRDY_PINSEL" value="PINSEL1"/>
+    <define name="MM_DRDY_PINSEL_BIT" value="28"/>
+    <define name="MM_DRDY_PINSEL_VAL" value="2"/>
+    <define name="MM_DRDY_EINT" value="3"/>
+
+  </section>
+
 
   <section name="horizontal_control">
     <define name="NAV_GOTO_H_PGAIN" value="RadOfDeg(10)" unit="rad/m"/>
@@ -80,10 +101,19 @@ ap.srcs += tl_autopilot.c tl_control.c tl_estimator.c
 ap.CFLAGS += -DGPS -DUBX -DUSE_UART1 -DGPS_LINK=Uart1 -DUART1_BAUD=B38400 -DDOWNLINK_GPS_DEVICE=DOWNLINK_AP_DEVICE -DGPS_CONFIGURE -DUSER_GPS_CONFIGURE=\"tl_gps_configure.h\" -DGPS_BAUD=38400
 ap.srcs += gps_ubx.c gps.c latlong.c
 
+ap.srcs += tl_imu.c 
+
+ap.CFLAGS += -DADC -DUSE_ADC_5 -DADC_CHANNEL_GR=ADC_5
+
+ap.srcs += $(SRC_ARCH)/tl_baro.c
+
+ap.CFLAGS += -DUSE_MICROMAG
+ap.srcs += micromag.c $(SRC_ARCH)/micromag_hw.c
+
 ap.CFLAGS += -DNAV
 ap.srcs += common_nav.c tl_nav.c
 
-ap.CFLAGS += -D BARO_MS5534A_W1=0xABDC -D BARO_MS5534A_W2=0x849A -D BARO_MS5534A_W3=0X939E -D BARO_MS5534A_W4=0xB259
+ap.CFLAGS += -D TL_BARO_W1=0xABDC -D TL_BARO_W2=0x849A -D TL_BARO_W3=0X939E -D TL_BARO_W4=0xB259
 
 
   </makefile>

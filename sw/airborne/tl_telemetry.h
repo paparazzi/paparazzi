@@ -10,10 +10,9 @@
 #include "actuators.h"
 #include "tl_bat.h"
 #include "tl_estimator.h"
+#include "tl_imu.h"
 #include "tl_nav.h"
 #include "tl_control.h"
-
-
 
 #define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
 
@@ -41,7 +40,20 @@
 #define PERIODIC_SEND_NAVIGATION() SEND_NAVIGATION()
 
 
+#define PERIODIC_SEND_IMU_GYRO() DOWNLINK_SEND_IMU_GYRO(&tl_imu_r, &tl_imu_r, &tl_imu_r)
+#define PERIODIC_SEND_IMU_MAG() DOWNLINK_SEND_IMU_MAG(&tl_imu_hx, &tl_imu_hy, &tl_imu_hz)
 
+#define PERIODIC_SEND_TL_ESTIMATOR() DOWNLINK_SEND_TL_ESTIMATOR(&estimator_r, &estimator_psi, &estimator_z_baro)
+
+#define PERIODIC_SEND_RATE_LOOP() DOWNLINK_SEND_BOOZ_RATE_LOOP(&estimator_r, &tl_control_r_sp, &estimator_r, &tl_control_r_sp, &estimator_r, &tl_control_r_sp)
+
+#if 0
+#define PERIODIC_SEND_TL_ESTIMATOR() {				\
+    float d1 = tl_baro_d[0];						\
+    float d2 = tl_baro_d[1];						\
+    DOWNLINK_SEND_TL_ESTIMATOR(&estimator_z_baro, &d1, &d2);		\
+  }
+#endif
 
 extern uint8_t telemetry_mode_Ap;
 

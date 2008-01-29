@@ -541,6 +541,12 @@
     <field name="ami_stat"   type="uint8"/>
   </message>
 
+  <message name="TL_ESTIMATOR" ID="246">
+      <field name="r"   type="float" unit="rad/s"/>
+      <field name="psi" type="float" unit="rad"/>
+      <field name="z_baro" type="float" unit="cm"/>
+  </message>
+
   <message name="ENOSE_STATUS" ID="250">
       <field name="val1" type="uint16"/>
       <field name="val2" type="uint16"/>

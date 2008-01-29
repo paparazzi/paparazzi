@@ -99,24 +99,6 @@ void estimator_init( void ) {
 }
 
 
-#ifdef IMU_3DMG
-#include "inter_mcu.h"
-void estimator_update_state_3DMG( void ) {
-  estimator_phi = from_fbw.from_fbw.euler[0];
-  estimator_psi = from_fbw.from_fbw.euler[1];
-  estimator_theta = from_fbw.from_fbw.euler[2];
-}
-#elif defined IMU_ANALOG && defined AHRS
-#include "ahrs.h"
-void estimator_update_state_ANALOG( void ) {
-//ahrs.h is in NED but estimator in NWU if i remember
-//perhaps this transform is not enough, i'm tired ;-) 
-  estimator_phi = ahrs_euler[0];
-  estimator_theta = -ahrs_euler[1];
-  estimator_psi = -ahrs_euler[2];
-}
-#else //NO_IMU
-#endif
 
 void estimator_propagate_state( void ) {
   

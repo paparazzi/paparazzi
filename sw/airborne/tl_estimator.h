@@ -17,11 +17,17 @@ extern float estimator_speed; /* m/s */
 extern float estimator_climb; /* m/s */
 extern float estimator_course; /* rad, CCW */
 
-extern float estimator_psi; /* rad, CCW */ 
-
+extern float estimator_r;
+extern float estimator_psi;  /* rad, CCW */ 
+extern float estimator_z_baro;
 
 void tl_estimator_init(void);
 void tl_estimator_use_gps(void);
+void tl_estimator_use_gyro(void);
+void tl_estimator_use_mag(void);
+
+
+#define EstimatorSetAlt(_z) {estimator_z_baro = _z;}
 
 void tl_estimator_to_body_frame(float east, float north, float *front, float *right);
 

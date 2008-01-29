@@ -1,6 +1,6 @@
 #include "micromag.h"
 
-volatile uint8_t micromag_data_available;
+volatile uint8_t micromag_status;
 volatile int16_t micromag_values[MM_NB_AXIS];
 
 void micromag_init( void ) {
@@ -10,5 +10,5 @@ void micromag_init( void ) {
   uint8_t i;
   for (i=0; i<MM_NB_AXIS; i++)
     micromag_values[i] = 0;
-  micromag_data_available = FALSE;
+  micromag_status = MM_IDLE;
 }

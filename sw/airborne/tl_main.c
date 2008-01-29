@@ -14,6 +14,7 @@
 #include "tl_telemetry.h"
 #include "datalink.h"
 #include "tl_autopilot.h"
+#include "tl_imu.h"
 #include "tl_estimator.h"
 #include "adc.h"
 #include "tl_bat.h"
@@ -49,7 +50,11 @@ static inline void tl_main_init( void ) {
   ppm_init();
   radio_control_init();
 
+  tl_imu_init();
+
   tl_estimator_init();
+
+  tl_control_init();
 
   uart0_init_tx();
   uart1_init_tx();
@@ -60,19 +65,23 @@ static inline void tl_main_init( void ) {
 }
 
 
-static inline void tl_main_periodic_task( void ) {  
+static inline void tl_main_periodic_task( void ) {
+
   tl_bat_periodic_task();
 
+  TlImuPeriodic();
+  tl_estimator_use_gyro();
+  
+  tl_autopilot_periodic_task();
+
   radio_control_periodic_task();
+
   if (rc_status != RC_OK)
      tl_autopilot_mode = TL_AP_MODE_FAILSAFE;
 
   /* 4Hz */
   RunOnceEvery(15, { common_nav_periodic_task_4Hz(); tl_nav_periodic_task(); });
   
-  /* run control loops */
-  tl_autopilot_periodic_task();
-
   tl_telemetry_periodic_task();
 
   SetActuatorsFromCommands(commands);
@@ -83,5 +92,8 @@ static inline void tl_main_event_task( void ) {
   RadioControlEventCheckAndHandle(tl_autopilot_on_rc_event);
 
   GpsEventCheckAndHandle(tl_estimator_use_gps, !estimator_in_flight);
+
   DlEventCheckAndHandle();
+
+  TlImuEventCheckAndHandle(tl_estimator_use_mag);
 }

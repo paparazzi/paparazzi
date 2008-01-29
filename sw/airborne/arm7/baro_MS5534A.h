@@ -34,14 +34,6 @@
 
 #ifdef USE_BARO_MS5534A
 
-#if ! defined USE_SPI
-#define USE_SPI
-#endif
-
-#if ! defined SPI_MASTER
-#define SPI_MASTER
-#endif
-
 extern bool_t baro_MS5534A_do_reset;
 extern bool_t baro_MS5534A_available;
 extern uint32_t baro_MS5534A_pressure;

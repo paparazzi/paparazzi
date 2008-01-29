@@ -1,19 +1,26 @@
-/* PNI micromag3 connected on SPI1
+/* PNI micromag3 connected on SPI1 */
+/* 
+   Twisted Logic
+   SS    on P0.20
+   RESET on P0.29 
+   DRDY  on P0.30 ( EINT3 )
+*/
+
+/* 
+   IMU
    SS on P0.20
    RESET on P1.21
    DRDY on P0.15 ( EINT2 )
 */
+
 #include "micromag.h"
 
 
 volatile uint8_t micromag_cur_axe;
 
-#ifndef DISABLE_MAGNETOMETER
 static void EXTINT2_ISR(void) __attribute__((naked));
-#endif /* DISABLE_MAGNETOMETER */
 
 void micromag_hw_init( void ) {
-#ifndef DISABLE_MAGNETOMETER
   /* configure SS pin */
   SetBit(MM_SS_IODIR, MM_SS_PIN); /* pin is output  */
   MmUnselect();                   /* pin idles high */
@@ -30,23 +37,23 @@ void micromag_hw_init( void ) {
   SetBit(EXTINT,MM_DRDY_EINT);   /* clear pending EINT */
   
   /* initialize interrupt vector */
-  VICIntSelect &= ~VIC_BIT( VIC_EINT2 );  /* select EINT2 as IRQ source */
-  VICIntEnable = VIC_BIT( VIC_EINT2 );    /* enable it */
-  VICVectCntl9 = VIC_ENABLE | VIC_EINT2;
+  VICIntSelect &= ~VIC_BIT( VIC_EINT3 );  /* select EINT2 as IRQ source */
+  VICIntEnable = VIC_BIT( VIC_EINT3 );    /* enable it */
+  VICVectCntl9 = VIC_ENABLE | VIC_EINT3;
   VICVectAddr9 = (uint32_t)EXTINT2_ISR;    // address of the ISR 
-#endif /* DISABLE_MAGNETOMETER */
 }
 
 void micromag_read( void ) {
-#ifndef DISABLE_MAGNETOMETER
-  MmSelect();
-  SpiEnable();
-  //  micromag_cur_axe = 0;
-  MmTriggerRead();
-#endif /* DISABLE_MAGNETOMETER */
+  if (micromag_status == MM_IDLE ) {
+    MmSelect();
+    SpiEnable();
+    SpiDisableRti();
+    micromag_cur_axe = 0;
+    micromag_status = MM_BUSY;
+    MmTriggerRead();
+  }
 }
 
-#ifndef DISABLE_MAGNETOMETER
 void EXTINT2_ISR(void) {
   ISR_ENTRY();
   /* read dummy control byte reply */
@@ -62,4 +69,4 @@ void EXTINT2_ISR(void) {
   VICVectAddr = 0x00000000;    /* clear this interrupt from the VIC */
   ISR_EXIT();
 }
-#endif /* DISABLE_MAGNETOMETER */
+
