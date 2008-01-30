@@ -56,6 +56,8 @@ static inline void tl_main_init( void ) {
 
   tl_control_init();
 
+  tl_nav_init();
+
   uart0_init_tx();
   uart1_init_tx();
 
@@ -69,7 +71,12 @@ static inline void tl_main_periodic_task( void ) {
 
   tl_bat_periodic_task();
 
-  TlImuPeriodic();
+  tl_estimator_periodic_task();
+
+  tl_imu_periodic();
+  if (telemetry_mode_Ap == TELEMETRY_MODE_Ap_test)
+    DOWNLINK_SEND_TL_GYRO_RAW(&(buf_gr.sum));
+
   tl_estimator_use_gyro();
   
   tl_autopilot_periodic_task();
@@ -79,9 +86,7 @@ static inline void tl_main_periodic_task( void ) {
   if (rc_status != RC_OK)
      tl_autopilot_mode = TL_AP_MODE_FAILSAFE;
 
-  /* 4Hz */
-  RunOnceEvery(15, { common_nav_periodic_task_4Hz(); tl_nav_periodic_task(); });
-  
+ 
   tl_telemetry_periodic_task();
 
   SetActuatorsFromCommands(commands);
@@ -95,5 +100,5 @@ static inline void tl_main_event_task( void ) {
 
   DlEventCheckAndHandle();
 
-  TlImuEventCheckAndHandle(tl_estimator_use_mag);
+  TlImuEventCheckAndHandle(tl_estimator_use_imu);
 }

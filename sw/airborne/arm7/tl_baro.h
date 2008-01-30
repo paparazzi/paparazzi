@@ -26,9 +26,21 @@ extern uint16_t tl_baro_temp;
 #define TlBaroUnselect()   SetBit(TL_BARO_SS_IOCLR,TL_BARO_SS_PIN)
 #define TlBaroSelect() SetBit(TL_BARO_SS_IOSET,TL_BARO_SS_PIN)
 
-#define TlBaroOnSpiIntReading() { tl_baro_d[tl_baro_cur_data] = SSPDR<<8; tl_baro_d[tl_baro_cur_data] |= SSPDR; TlBaroUnselect(); }
+#define TlBaroOnSpiIntReading() {	    \
+    tl_baro_d[tl_baro_cur_data] = SSPDR<<8; \
+    tl_baro_d[tl_baro_cur_data] |= SSPDR;   \
+    TlBaroUnselect();			    \
+    SpiDisable();			    \
+    SpiDisableRti();			    \
+  }
 
-#define TlBaroOnSpiIntSending() { uint8_t foo = SSPDR; foo = SSPDR; TlBaroUnselect(); SpiDisable(); SpiDisableRti(); }
+#define TlBaroOnSpiIntSending() {  \
+    uint8_t foo  __attribute__ ((unused)) = SSPDR;			\
+    uint8_t foo1 __attribute__ ((unused)) = SSPDR;			\
+    TlBaroUnselect();							\
+    SpiDisable();							\
+    SpiDisableRti();							\
+  }
 
 
 extern void tl_baro_init(void);

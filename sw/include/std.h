@@ -94,7 +94,7 @@ typedef uint8_t unit_t;
 #define RunOnceEvery(_prescaler, _code) {		\
     static uint8_t prescaler = 0;			\
     prescaler++;					\
-    if (prescaler > _prescaler) {			\
+    if (prescaler >= _prescaler) {			\
       prescaler = 0;					\
       _code;						\
     }							\

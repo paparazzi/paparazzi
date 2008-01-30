@@ -21,7 +21,7 @@ extern volatile uint8_t micromag_cur_axe;
     MmSet();							\
     MmReset();							\
     uint8_t control_byte = (micromag_cur_axe+1) << 0 | 4 << 4;	\
-    SpiSend(control_byte);					\
+    SSPDR = control_byte; /* SpiSend(control_byte);	*/	\
   }
 
 #if 0

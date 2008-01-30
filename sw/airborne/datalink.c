@@ -34,6 +34,10 @@
 #include "nav.h"
 #include "datalink.h"
 #include "flight_plan.h"
+<<<<<<< datalink.c
+#include "messages.h"
+=======
+>>>>>>> 1.34
 #include "gps.h"
 #include "uart.h"
 #include "gpio.h"

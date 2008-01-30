@@ -1,24 +1,28 @@
 #ifndef TL_IMU_H
 #define TL_IMU_H
 
+#define TL_IMU_USE_MICROMAG
+#define TL_IMU_USE_BARO
+
+
 #include "std.h"
 #include "adc.h"
 #include "spi.h"
 #include "micromag.h"
 #include "tl_baro.h"
 
-#define GR_GAIN    2.105e-4
-#define GR_NEUTRAL 24880
+#define GR_GAIN    3.57e-4
+#define GR_NEUTRAL 24894
 
-#define HX_GAIN    1.
-#define HX_NEUTRAL 0
-#define HX_CHAN    0
-#define HY_GAIN    1.
-#define HY_NEUTRAL 0
-#define HY_CHAN    1
-#define HZ_GAIN    1.
-#define HZ_NEUTRAL 0
-#define HZ_CHAN    2
+#define HX_GAIN    -1.
+#define HX_NEUTRAL  0.
+#define HX_CHAN     1
+#define HY_GAIN    -1.
+#define HY_NEUTRAL  0
+#define HY_CHAN     0
+#define HZ_GAIN    -1.
+#define HZ_NEUTRAL  0
+#define HZ_CHAN     2
 
 
 #define TL_IMU_IDLE             0
@@ -29,21 +33,17 @@
 
 
 extern void tl_imu_init(void);
+extern void tl_imu_periodic(void);
 
-extern uint8_t tl_imu_status;
+extern volatile uint8_t tl_imu_status;
 extern float   tl_imu_r;
 extern float   tl_imu_hx;
 extern float   tl_imu_hy;
 extern float   tl_imu_hz;
-extern float   tl_imu_z_baro;
+extern float   tl_imu_pressure;
 
 extern struct adc_buf buf_gr; 
 
-#define TlImuPeriodic() {						\
-    /* read gyro */							\
-    tl_imu_r = GR_GAIN * ( buf_gr.sum - GR_NEUTRAL);			\
-    RunOnceEvery(3, {tl_baro_read(); tl_imu_status = TL_IMU_READING_BARO;}); \
-  }
 
 #define TlImuEventCheckAndHandle(user_callback) {			\
     if (tl_imu_status == TL_IMU_DATA_AVAILABLE) {			\
@@ -51,7 +51,7 @@ extern struct adc_buf buf_gr;
       tl_imu_hy = HY_GAIN * (float)( micromag_values[HY_CHAN] - HY_NEUTRAL); \
       tl_imu_hz = HZ_GAIN * (float)( micromag_values[HZ_CHAN] - HZ_NEUTRAL); \
       tl_baro_compute(); /* faire un truc avec les données baro */	\
-      tl_imu_z_baro = tl_baro_pressure;					\
+      tl_imu_pressure = tl_baro_pressure;				\
       user_callback();							\
       micromag_status = MM_IDLE;					\
       tl_imu_status = TL_IMU_IDLE;					\

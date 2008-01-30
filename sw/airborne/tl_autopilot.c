@@ -3,7 +3,7 @@
 #include "radio_control.h"
 #include "commands.h"
 #include "tl_control.h"
-// #include "tl_nav.h"
+#include "tl_nav.h"
 
 uint8_t tl_autopilot_mode;
 
@@ -22,16 +22,18 @@ void tl_autopilot_periodic_task(void) {
     tl_control_rate_run();
     SetCommands(tl_control_commands);
     break;
-/*   case TL_AP_MODE_ATTITUDE: */
-/*     tl_control_attitude_run(); */
-/*     SetCommands(tl_control_commands); */
-/*     break; */
-/*   case TL_AP_MODE_NAV: */
-/*     tl_nav_run(); */
-/*     SetCommands(tl_control_commands); */
-/*     break; */
-  }
+  case TL_AP_MODE_ATTITUDE:
+    tl_control_attitude_run();
+    SetCommands(tl_control_commands);
+    break;
+  case TL_AP_MODE_NAV:
+    /* 4Hz */
+    RunOnceEvery(15, { common_nav_periodic_task_4Hz(); tl_nav_periodic_task(); });
 
+    tl_control_attitude_run();
+    SetCommands(tl_control_commands);
+    break;
+  }
 }
 
 
@@ -46,11 +48,11 @@ void tl_autopilot_on_rc_event(void) {
   case TL_AP_MODE_RATE:
     tl_control_rate_read_setpoints_from_rc();
     break;
-/*   case TL_AP_MODE_ATTITUDE: */
-/*     tl_control_attitude_read_setpoints_from_rc(); */
-/*     break; */
-/*   case TL_AP_MODE_NAV: */
-/*     tl_nav_read_setpoints_from_rc(); */
-/*     break; */
+  case TL_AP_MODE_ATTITUDE:
+    tl_control_attitude_read_setpoints_from_rc();
+    break;
+  case TL_AP_MODE_NAV:
+    tl_control_nav_read_setpoints_from_rc();
+    break;
   }
 }

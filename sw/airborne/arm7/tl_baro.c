@@ -42,7 +42,7 @@ void tl_baro_init(void) {
   /* setup slave select */
   /* configure SS pin */
   SetBit(TL_BARO_SS_IODIR, TL_BARO_SS_PIN); /* pin is output  */
-  TlBaroUnselect();                         /* pin idles high */
+  TlBaroUnselect();                         /* pin low        */
 
   tl_baro_cur_data = TL_BARO_PRESSURE; 
 
@@ -64,22 +64,20 @@ void tl_baro_send_req(void) {
   tl_baro_cur_data++; 
   if (tl_baro_cur_data == TL_BARO_NB_DATA) tl_baro_cur_data = TL_BARO_PRESSURE;
   TlBaroSelect();
-  //  SpiEnable(); 
-  //  SpiEnableRti();
   SpiClrCPHA();
+  SpiEnable(); 
+  SpiEnableRti();
   SSPDR = CMD_MEASUREMENT;
   SSPDR = tl_baro_cmd[tl_baro_cur_data];
-
 }
 
 void tl_baro_read(void) {
   TlBaroSelect();
+  SpiSetCPHA();
   SpiEnable();
   SpiEnableRti();
-  SpiSetCPHA();
   SSPDR = 0;
   SSPDR = 0;
-
 }
 
 void tl_baro_compute(void) {

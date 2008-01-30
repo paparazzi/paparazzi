@@ -17,6 +17,9 @@ extern float estimator_speed; /* m/s */
 extern float estimator_climb; /* m/s */
 extern float estimator_course; /* rad, CCW */
 
+extern float estimator_speed_east;
+extern float estimator_speed_north;
+
 extern float estimator_r;
 extern float estimator_psi;  /* rad, CCW */ 
 extern float estimator_z_baro;
@@ -24,7 +27,17 @@ extern float estimator_z_baro;
 void tl_estimator_init(void);
 void tl_estimator_use_gps(void);
 void tl_estimator_use_gyro(void);
-void tl_estimator_use_mag(void);
+void tl_estimator_use_imu(void);
+void tl_estimator_periodic_task(void);
+
+extern float   tl_psi_kalm_psi;
+extern float   tl_psi_kalm_bias;
+extern float   tl_psi_kalm_P[2][2];
+
+extern void tl_psi_kalm_init(void);
+extern void tl_psi_kalm_start( float gyro, float angle);
+extern void tl_psi_kalm_propagate( float gyro);
+extern void tl_psi_kalm_update( float angle);
 
 
 #define EstimatorSetAlt(_z) {estimator_z_baro = _z;}

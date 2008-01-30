@@ -1,4 +1,4 @@
-<flight_plan name="booz test 1" lon0="1.27289" lat0="43.46223" ground_alt="0"  alt="3" max_dist_from_home="400" security_height="1">
+<flight_plan name="booz test 1" lon0="-118.860691" lat0="34.233845" ground_alt="328"  alt="330" max_dist_from_home="100" security_height="1">
 
 
   <waypoints>
@@ -19,7 +19,13 @@
       <set value="1" var="kill_throttle"/>
       <stay wp="HOME"/>
     </block>
-    <block name="target">
+    <block name="on ground">
+      <exception cond="estimator_in_flight" deroute="flying"/>
+<!--      <set value="1" var="kill_throttle"/> -->
+      <stay wp="TARGET"/>
+    </block>
+    <block name="flying">
+<!--      <exception cond="!estimator_in_flight" deroute="on ground"/> -->
       <call fun="NavSetWaypointHere(WP_TARGET)"/>
       <set value="0" var="kill_throttle"/>
       <stay wp="TARGET"/>

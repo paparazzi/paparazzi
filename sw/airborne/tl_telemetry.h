@@ -1,4 +1,5 @@
 #ifndef TL_TELEMETRY_H
+#define TL_TELEMETRY_H
 
 #include "std.h"
 #include "messages.h"
@@ -13,6 +14,7 @@
 #include "tl_imu.h"
 #include "tl_nav.h"
 #include "tl_control.h"
+#include "tl_autopilot.h"
 
 #define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
 
@@ -43,17 +45,32 @@
 #define PERIODIC_SEND_IMU_GYRO() DOWNLINK_SEND_IMU_GYRO(&tl_imu_r, &tl_imu_r, &tl_imu_r)
 #define PERIODIC_SEND_IMU_MAG() DOWNLINK_SEND_IMU_MAG(&tl_imu_hx, &tl_imu_hy, &tl_imu_hz)
 
-#define PERIODIC_SEND_TL_ESTIMATOR() DOWNLINK_SEND_TL_ESTIMATOR(&estimator_r, &estimator_psi, &estimator_z_baro)
+#define PERIODIC_SEND_TL_ESTIMATOR() { DOWNLINK_SEND_TL_ESTIMATOR(&estimator_r, &estimator_psi, &estimator_z_baro)}
 
-#define PERIODIC_SEND_RATE_LOOP() DOWNLINK_SEND_BOOZ_RATE_LOOP(&estimator_r, &tl_control_r_sp, &estimator_r, &tl_control_r_sp, &estimator_r, &tl_control_r_sp)
-
-#if 0
-#define PERIODIC_SEND_TL_ESTIMATOR() {				\
-    float d1 = tl_baro_d[0];						\
-    float d2 = tl_baro_d[1];						\
-    DOWNLINK_SEND_TL_ESTIMATOR(&estimator_z_baro, &d1, &d2);		\
+#define PERIODIC_SEND_LOOP() {						\
+    switch (tl_autopilot_mode) {					\
+    case TL_AP_MODE_RATE :						\
+      DOWNLINK_SEND_TL_RATE_LOOP_R(&estimator_r, &tl_control_r_sp, &tl_control_rate_sum_err_r); \
+      break;								\
+    case TL_AP_MODE_ATTITUDE : 						\
+      DOWNLINK_SEND_TL_ATTITUDE_LOOP_R(&estimator_psi, &tl_control_attitude_psi_sp, &tl_control_attitude_psi_sum_err, &estimator_r); \
+      break;								\
+    case TL_AP_MODE_NAV : 						\
+      DOWNLINK_SEND_BOOZ_HOV_LOOP(&tl_nav_goto_x_sp, &tl_nav_goto_y_sp, &tl_estimator_u, &estimator_x, &tl_estimator_v, &estimator_y, & tl_control_attitude_phi_sp, & tl_control_attitude_theta_sp); \
+      break;								\
+    }									\
   }
-#endif
+
+#define PERIODIC_SEND_TL_DEBUG() DOWNLINK_SEND_TL_DEBUG(&x_unit_err_body, &y_unit_err_body)
+
+
+#define PERIODIC_SEND_TL_KALM_PSI_STATE() {				\
+    DOWNLINK_SEND_TL_KALM_PSI_STATE(&tl_psi_kalm_psi, &tl_psi_kalm_bias); \
+  }
+
+#define PERIODIC_SEND_TL_KALM_PSI_COV() {				\
+    DOWNLINK_SEND_TL_KALM_PSI_COV(&tl_psi_kalm_P[0][0], &tl_psi_kalm_P[0][1], &tl_psi_kalm_P[1][1]); \
+  }
 
 extern uint8_t telemetry_mode_Ap;
 
@@ -61,5 +78,4 @@ static inline void tl_telemetry_periodic_task(void) {
   PeriodicSendAp()
 }
 
-#define TL_TELEMETRY_H
 #endif //TL_TELEMETRY_H

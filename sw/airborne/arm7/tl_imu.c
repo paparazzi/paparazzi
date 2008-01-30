@@ -2,8 +2,12 @@
 
 #include "LPC21xx.h"
 #include "interrupt_hw.h" 
+#include "adc.h"
 
-uint8_t tl_imu_status;
+#include "downlink.h"
+#include "messages.h"
+
+volatile uint8_t tl_imu_status;
 
 struct adc_buf buf_gr;
 
@@ -11,7 +15,7 @@ float tl_imu_r;
 float tl_imu_hx;
 float tl_imu_hy;
 float tl_imu_hz;
-float tl_imu_z_baro;
+float tl_imu_pressure;
 
 static void SPI1_ISR(void) __attribute__((naked));
 
@@ -34,6 +38,7 @@ void tl_imu_init(void) {
   micromag_init();
   tl_baro_init();
 
+#if defined TL_IMU_USE_BARO | defined TL_IMU_USE_MICROMAG
   /* setup pins for SSP (SCK, MISO, MOSI) */
   PINSEL1 |= 2 << 2 | 2 << 4 | 2 << 6;
   
@@ -47,7 +52,7 @@ void tl_imu_init(void) {
   VICIntEnable = VIC_BIT(VIC_SPI1);     // SPI1 interrupt enabled
   VICVectCntl7 = VIC_ENABLE | VIC_SPI1;
   VICVectAddr7 = (uint32_t)SPI1_ISR;    // address of the ISR 
-
+#endif
 
   tl_imu_r =  0.;
   tl_imu_hx = 1.;
@@ -58,6 +63,15 @@ void tl_imu_init(void) {
   
 }
 
+void tl_imu_periodic(void) {
+  /* read gyro */
+  tl_imu_r = GR_GAIN * ( buf_gr.sum - GR_NEUTRAL);
+#ifdef TL_IMU_USE_BARO
+    RunOnceEvery(3, {tl_baro_read(); tl_imu_status = TL_IMU_READING_BARO;});
+#elif defined TL_IMU_USE_MICROMAG
+    RunOnceEvery(3, {    MmUnselect();micromag_read(); tl_imu_status = TL_IMU_READING_MICROMAG;});
+#endif
+  }
 
 
 void SPI1_ISR(void) {
@@ -71,10 +85,12 @@ void SPI1_ISR(void) {
     break;
   case TL_IMU_SENDING_BARO_REQ: {
     TlBaroOnSpiIntSending();
-    //micromag_read();
-    //tl_imu_status = TL_IMU_READING_MICROMAG;
+#ifdef TL_IMU_USE_MICROMAG
+    micromag_read();
+    tl_imu_status = TL_IMU_READING_MICROMAG;
+#else
     tl_imu_status = TL_IMU_DATA_AVAILABLE;
-
+#endif
   }
     break;
   case TL_IMU_READING_MICROMAG: {

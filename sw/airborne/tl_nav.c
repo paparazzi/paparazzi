@@ -7,9 +7,12 @@
 
 float tl_nav_goto_h_pgain;
 float tl_nav_goto_h_dgain;
+float tl_nav_goto_x_sp;
+float tl_nav_goto_y_sp;
+float y_unit_err_body, x_unit_err_body;
 
-#define TL_NAV_GOTO_MAX_PHI_COMMAND   RadOfDeg(30.)
-#define TL_NAV_GOTO_MAX_THETA_COMMAND RadOfDeg(30.)
+#define TL_NAV_GOTO_MAX_PHI_COMMAND   MAX_PPRZ
+#define TL_NAV_GOTO_MAX_THETA_COMMAND MAX_PPRZ
 
 static void nav_goto_waypoint(uint8_t wp);
 
@@ -41,28 +44,34 @@ void nav_init_stage( void ) {
 }
 
 static void fly_to_xy(float x_sp, float y_sp) {
+
+  tl_nav_goto_x_sp = x_sp;
+  tl_nav_goto_y_sp = y_sp;
+
   /* get a position error vector              */
-  float x_error = estimator_x - x_sp;
-  float y_error = estimator_y - y_sp;
+  float x_error = estimator_x - tl_nav_goto_x_sp;
+  float y_error = estimator_y - tl_nav_goto_y_sp;
 
   /* Normalize the error */
   float norm_error = sqrt(x_error*x_error+ y_error*y_error);
+  if (norm_error < 1e-3) norm_error = 1e-3;
   x_error /= norm_error;
   y_error /= norm_error;
 
   /* convert to body frame */
-  float y_unit_err_body, x_unit_err_body;
   tl_estimator_to_body_frame(x_error, y_error, &x_unit_err_body, &y_unit_err_body);
 
   /* Compute command */
-  float tl_nav_goto_phi_command = - tl_nav_goto_h_pgain * y_unit_err_body * norm_error +                            - tl_nav_goto_h_dgain *  tl_estimator_v;
-  float tl_nav_goto_theta_command =    tl_nav_goto_h_pgain * x_unit_err_body * norm_error + tl_nav_goto_h_dgain *  tl_estimator_u;
+  float tl_nav_goto_phi_command = - (tl_nav_goto_h_pgain * y_unit_err_body * norm_error +    
+				     tl_nav_goto_h_dgain * tl_estimator_v);
+  float tl_nav_goto_theta_command = (tl_nav_goto_h_pgain * x_unit_err_body * norm_error + 
+				     tl_nav_goto_h_dgain * tl_estimator_u);
   
   Bound(tl_nav_goto_phi_command, -TL_NAV_GOTO_MAX_PHI_COMMAND, TL_NAV_GOTO_MAX_PHI_COMMAND);
   Bound(tl_nav_goto_theta_command, -TL_NAV_GOTO_MAX_THETA_COMMAND, TL_NAV_GOTO_MAX_THETA_COMMAND);
 
   tl_control_attitude_phi_sp = tl_nav_goto_phi_command;
-  tl_control_attitude_theta_sp = tl_nav_goto_theta_command;
+  tl_control_attitude_theta_sp = - tl_nav_goto_theta_command;
 }
 
 static void nav_goto_waypoint(uint8_t wp) {

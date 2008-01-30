@@ -9,17 +9,21 @@
       <message name="PPM"            period="5"/>
       <message name="RC"             period="5"/>
       <message name="COMMANDS"       period="5"/>
-      <message name="ACTUATORS"      period="1"/> <!-- For trimming -->
-      <message name="IMU_GYRO"       period="0.5"/>
-      <message name="IMU_MAG"        period="0.5"/>
+      <message name="ACTUATORS"      period="1"/> 
       <message name="BAT"            period="3"/>
       <message name="ESTIMATOR"      period="1"/>
-      <message name="TL_ESTIMATOR"   period="0.1"/>
+      <message name="TL_ESTIMATOR"   period="0.5"/>
       <message name="NAVIGATION_REF" period="9"/>
       <message name="NAVIGATION"     period="1"/>
       <message name="WP_MOVED"       period="0.5"/>
-      <message name="RATE_LOOP"      period="0.5"/>
-<!--      <message name="DL_VALUE"       period="1.5"/> -->
+      <message name="LOOP"           period="0.5"/>
+      <message name="TL_DEBUG"       period="0.5"/>
+    </mode>
+    <mode name="test">
+      <message name="IMU_GYRO"       period="0.5"/>
+      <message name="IMU_MAG"        period="0.5"/>
+      <message name="TL_KALM_PSI_STATE" period="0.5"/>
+      <message name="TL_KALM_PSI_COV"   period="0.5"/>
     </mode>
   </process>
 

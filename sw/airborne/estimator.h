@@ -68,12 +68,6 @@ extern float estimator_airspeed; /* m/s */
 
 
 void estimator_init( void );
-#ifdef IMU_3DMG
-void estimator_update_state_3DMG( void );
-#elif defined IMU_ANALOG && defined AHRS
-void estimator_update_state_ANALOG( void );
-#else //NO_IMU
-#endif
 void estimator_propagate_state( void );
 
 void estimator_update_state_gps( void );

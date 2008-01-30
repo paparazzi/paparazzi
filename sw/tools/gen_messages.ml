@@ -245,6 +245,8 @@ let _ =
 
   let avr_h = stdout in
 
+(*  Printf.fprintf avr_h "#ifndef _MESSAGES_H\n";
+  Printf.fprintf avr_h "#define _MESSAGES_H\n"; *)
   Printf.fprintf avr_h "/* Automatically generated from %s */\n" filename;
   Printf.fprintf avr_h "/* Please DO NOT EDIT */\n";
 
@@ -263,5 +265,7 @@ let _ =
   end;
 
   (** Macros for airborne datalink (receiving) *)
-  List.iter (Gen_onboard.print_get_macros avr_h) messages
+  List.iter (Gen_onboard.print_get_macros avr_h) messages;
+
+(*  Printf.fprintf avr_h "#endif /* _MESSAGES_H*/\n" *)
 

@@ -541,11 +541,46 @@
     <field name="ami_stat"   type="uint8"/>
   </message>
 
-  <message name="TL_ESTIMATOR" ID="246">
+  <message name="TL_ESTIMATOR" ID="60">
       <field name="r"   type="float" unit="rad/s"/>
       <field name="psi" type="float" unit="rad"/>
       <field name="z_baro" type="float" unit="cm"/>
   </message>
+
+  <message name="TL_RATE_LOOP_R" ID="61">
+      <field name="r_est"     type="float" unit="rad/s"/>
+      <field name="r_sp"      type="float" unit="rad/s"/>
+      <field name="r_sum_err" type="float" unit="rad"/>
+  </message>
+
+  <message name="TL_ATTITUDE_LOOP_R" ID="62">
+      <field name="psi_est"     type="float" unit="rad"/>
+      <field name="psi_sp"      type="float" unit="rad"/>
+      <field name="psi_sum_err" type="float" unit="rad*s"/>
+      <field name="r_est"       type="float" unit="rad/s"/>
+  </message>
+
+  <message name="TL_KALM_PSI_STATE" ID="63">
+      <field name="psi"   type="float" unit="rad"/>
+      <field name="bias"  type="float" unit="rad/s"/>
+  </message>
+
+  <message name="TL_KALM_PSI_COV" ID="64">
+      <field name="P00"  type="float" unit=""/>
+      <field name="P01"  type="float" unit=""/>
+      <field name="P11"  type="float" unit=""/>
+  </message>
+
+  <message name="TL_GYRO_RAW" ID="65">
+      <field name="val"  type="uint16" unit=""/>
+  </message>
+
+  <message name="TL_DEBUG" ID="66">
+      <field name="body_err_x"  type="float" unit=""/>
+      <field name="body_err_y"  type="float" unit=""/>
+  </message>
+
+
 
   <message name="ENOSE_STATUS" ID="250">
       <field name="val1" type="uint16"/>
@@ -591,12 +626,13 @@
       
   </message>
 
+<!--
   <message name="DC_MC_STATUS" ID="255">
       <field name="time_sec" type="uint16"/>
       <field name="time_ticks" type="uint16"/>
       <field name="command" type="uint16"/>
   </message>
-
+-->
 </class>
 
 
