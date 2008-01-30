@@ -32,6 +32,8 @@
 
 #include <inttypes.h>
 
+#include "messages.h"
+
 #if defined SITL
 
 #ifdef SIM_UART

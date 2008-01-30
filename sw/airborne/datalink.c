@@ -34,14 +34,16 @@
 #include "nav.h"
 #include "datalink.h"
 #include "flight_plan.h"
-#include "ap_downlink.h"
-#include "messages.h"
-#include "infrared.h"
 #include "gps.h"
 #include "uart.h"
 #include "gpio.h"
 #include "settings.h"
 #include "latlong.h"
+
+#ifndef DOWNLINK_DEVICE
+#define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
+#include "downlink.h"
+#endif
 
 #define MOfCm(_x) (((float)_x)/100.)
 
