@@ -26,6 +26,8 @@ extern float estimator_r;
 extern float estimator_psi;  /* rad, CCW */ 
 extern float estimator_z_baro;
 
+extern float tl_estimator_cruise_power;
+
 void tl_estimator_init(void);
 void tl_estimator_use_gps(void);
 void tl_estimator_use_gyro(void);

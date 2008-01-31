@@ -47,12 +47,22 @@ float tl_control_attitude_psi_sum_err;
 #define TL_CONTROL_ATTITUDE_PSI_IGAIN    -0.20
 #define TL_CONTROL_ATTITUDE_PSI_TRIM    350
 
+#define TL_CONTROL_AGL_PGAIN (-MAX_PPRZ/10) /* PPRZ / m */
+#define TL_CONTROL_AGL_IGAIN 0.1 /* PPRZ / m */
+#define TL_MAX_AGL_ERROR 1
+
 
 /* setpoints for max stick throw in degres */
 #define TL_CONTROL_ATTITUDE_PSI_MAX_SP (90. / 40.) /* called with RC messags */
 
 #define TL_CONTROL_TRIM_R 300
 int16_t tl_control_trim_r;
+
+uint8_t tl_z_mode;
+float tl_control_agl_pgain[TL_NB_Z_MODES];
+float tl_control_agl_igain[TL_NB_Z_MODES];
+float tl_control_agl_sum_err[TL_NB_Z_MODES];
+
 
 
 void tl_control_init(void) {
@@ -78,7 +88,11 @@ void tl_control_init(void) {
 
   tl_control_trim_r = TL_CONTROL_TRIM_R;
 
+  tl_control_agl_pgain[TL_Z_MODE_RM] = TL_CONTROL_AGL_PGAIN;
+  tl_control_agl_igain[TL_Z_MODE_RM] = TL_CONTROL_AGL_IGAIN;
+  tl_control_agl_sum_err[TL_Z_MODE_RM] = 0;
 
+  tl_z_mode = TL_Z_MODE_RC;
 }
 
 
@@ -89,7 +103,6 @@ void tl_control_rate_read_setpoints_from_rc(void) {
   tl_control_r_sp = -rc_values[RADIO_YAW] * RadOfDeg(TL_CONTROL_RATE_R_MAX_SP)/MAX_PPRZ;
   //tl_control_r_sp = -rc_values[RADIO_YAW];
   tl_control_power_sp = rc_values[RADIO_THROTTLE];
-
 }
 
 
@@ -128,7 +141,16 @@ void tl_control_rate_run(void) {
 void tl_control_attitude_read_setpoints_from_rc(void) {
   tl_control_attitude_phi_sp = -rc_values[RADIO_ROLL];
   tl_control_attitude_theta_sp =  rc_values[RADIO_PITCH];
-  tl_control_power_sp = rc_values[RADIO_THROTTLE];
+
+  switch (tl_z_mode) {
+  case TL_Z_MODE_RC:
+    tl_control_power_sp = rc_values[RADIO_THROTTLE];
+    break;
+  case TL_Z_MODE_RM:
+    tl_control_agl_sp = 2. * rc_values[RADIO_THROTTLE]/MAX_PPRZ;
+    break;
+  }
+
 
 #ifndef DO_STEPS
   if (!estimator_in_flight)
@@ -194,6 +216,18 @@ void tl_control_nav_read_setpoints_from_rc(void) {
 }
 
 void tl_control_agl_run(void) {
-  float agl_err = tl_control_agl_sp - tl_estimator_agl;
+  switch(tl_z_mode) {
+  case TL_Z_MODE_RC:
+    /* Do nothing */
+    break;
+  case TL_Z_MODE_RM: {
+    float agl_err = tl_control_agl_sp - tl_estimator_agl;
+    Bound(agl_err, -TL_MAX_AGL_ERROR, TL_MAX_AGL_ERROR);
+    
+    if (estimator_in_flight)
+      tl_control_agl_sum_err[tl_z_mode] += agl_err;
+    tl_control_power_sp = tl_estimator_cruise_power +
+      tl_control_agl_pgain[tl_z_mode] * (agl_err + tl_control_agl_igain[tl_z_mode] * tl_control_agl_sum_err[tl_z_mode]);
+  }
+  }
 }
-

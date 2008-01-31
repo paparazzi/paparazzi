@@ -28,6 +28,8 @@ float estimator_z_baro;
 static float estimator_cos_psi;
 static float estimator_sin_psi;
 
+#define TL_ESTIMATOR_CRUISE_POWER (0.7*MAX_PPRZ)
+float tl_estimator_cruise_power;
 
 #define DT_UPDATE (1./60.)
 static const float Q_angle = 0.00025;
@@ -65,6 +67,7 @@ void tl_estimator_init(void) {
   compute_dcm();
   tl_estimator_u = 0.;
   tl_estimator_v = 0.;
+  tl_estimator_cruise_power = TL_ESTIMATOR_CRUISE_POWER;
 }
 
 void tl_estimator_use_gps(void) {

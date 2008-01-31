@@ -40,6 +40,15 @@ extern float tl_control_attitude_psi_dgain;
 extern float tl_control_attitude_psi_igain;
 extern float tl_control_attitude_psi_sum_err;
 
+#define TL_NB_Z_MODES 2
+#define TL_Z_MODE_RC 0
+#define TL_Z_MODE_RM 1
+
+extern uint8_t tl_z_mode;
+extern float tl_control_agl_pgain[TL_NB_Z_MODES];
+extern float tl_control_agl_igain[TL_NB_Z_MODES];
+extern float tl_control_agl_sum_err[TL_NB_Z_MODES];
+
 extern int16_t tl_control_trim_r;
 
 #define TlControlAttitudeSetSetPoints(_phi_sp, _theta_sp, _psi_sp, _power_sp) { \
