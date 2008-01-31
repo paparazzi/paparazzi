@@ -112,7 +112,7 @@ ap.srcs += gps_ubx.c gps.c latlong.c
 
 ap.srcs += $(SRC_ARCH)/tl_imu.c 
 
-ap.CFLAGS += -DADC -DUSE_ADC_5 -DADC_CHANNEL_GR=ADC_5
+ap.CFLAGS += -DADC -DUSE_ADC_5 -DADC_CHANNEL_GR=ADC_5 -DUSE_ADC_6 -DADC_CHANNEL_RM=ADC_6 -DUSE_ADC_7 -DADC_CHANNEL_ACCEL=ADC_7
 
 ap.srcs += $(SRC_ARCH)/tl_baro.c
 

@@ -11,7 +11,7 @@ extern void tl_control_rate_run(void);
 
 extern void tl_control_attitude_read_setpoints_from_rc(void);
 extern void tl_control_attitude_run(void);
-
+extern void tl_control_agl_run(void);
 extern void tl_control_nav_read_setpoints_from_rc(void);
 
 extern bool_t kill_throttle;

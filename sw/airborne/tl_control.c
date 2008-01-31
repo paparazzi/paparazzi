@@ -18,6 +18,8 @@ float tl_control_rate_r_igain;
 float tl_control_rate_last_err_r;
 float tl_control_rate_sum_err_r;
 
+float tl_control_agl_sp;
+
 
 
 pprz_t tl_control_commands[COMMANDS_NB];
@@ -181,7 +183,6 @@ void tl_control_attitude_run(void) {
   tl_control_commands[COMMAND_THROTTLE] = TRIM_PPRZ((int16_t) (tl_control_power_sp));
 }
 
-
 void tl_control_nav_read_setpoints_from_rc(void) {
   tl_control_power_sp = rc_values[RADIO_THROTTLE];
   if (!estimator_in_flight)
@@ -191,3 +192,8 @@ void tl_control_nav_read_setpoints_from_rc(void) {
     NormRadAngle(tl_control_attitude_psi_sp);
   }
 }
+
+void tl_control_agl_run(void) {
+  float agl_err = tl_control_agl_sp - tl_estimator_agl;
+}
+

@@ -10,8 +10,12 @@
 volatile uint8_t tl_imu_status;
 
 struct adc_buf buf_gr;
+struct adc_buf buf_rm;
+struct adc_buf buf_accel;
 
 float tl_imu_r;
+float tl_imu_rm;
+float tl_imu_accel; /* m/s^2 */
 float tl_imu_hx;
 float tl_imu_hy;
 float tl_imu_hz;
@@ -35,6 +39,8 @@ static void SPI1_ISR(void) __attribute__((naked));
 
 void tl_imu_init(void) {
   adc_buf_channel(ADC_CHANNEL_GR, &buf_gr, DEFAULT_AV_NB_SAMPLE);
+  adc_buf_channel(ADC_CHANNEL_RM, &buf_rm, DEFAULT_AV_NB_SAMPLE);
+  adc_buf_channel(ADC_CHANNEL_ACCEL, &buf_accel, DEFAULT_AV_NB_SAMPLE);
   micromag_init();
   tl_baro_init();
 
@@ -55,6 +61,7 @@ void tl_imu_init(void) {
 #endif
 
   tl_imu_r =  0.;
+  tl_imu_rm =  0.;
   tl_imu_hx = 1.;
   tl_imu_hy = 0.;
   tl_imu_hz = 1.;
@@ -65,13 +72,18 @@ void tl_imu_init(void) {
 
 void tl_imu_periodic(void) {
   /* read gyro */
-  tl_imu_r = GR_GAIN * ( buf_gr.sum - GR_NEUTRAL);
+  tl_imu_r = GR_GAIN * (buf_gr.sum - GR_NEUTRAL);
+
+  tl_imu_rm = RM_GAIN * (buf_rm.sum - RM_ZERO);
+
+  tl_imu_accel = ACCEL_GAIN * (buf_accel.sum - ACCEL_NEUTRAL);
+
 #ifdef TL_IMU_USE_BARO
     RunOnceEvery(3, {tl_baro_read(); tl_imu_status = TL_IMU_READING_BARO;});
 #elif defined TL_IMU_USE_MICROMAG
     RunOnceEvery(3, {    MmUnselect();micromag_read(); tl_imu_status = TL_IMU_READING_MICROMAG;});
 #endif
-  }
+}
 
 
 void SPI1_ISR(void) {

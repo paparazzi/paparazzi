@@ -11,8 +11,19 @@
 #include "micromag.h"
 #include "tl_baro.h"
 
+/* Gyro */
 #define GR_GAIN    3.57e-4
 #define GR_NEUTRAL 24894
+
+/* Range Meter (http://www.maxbotix.com) VCC/512 per inch */
+#define INCH 0.00254
+#define RM_GAIN (512/1024 * INCH / DEFAULT_AV_NB_SAMPLE)
+#define RM_ZERO 0
+
+/* Z Accelerometer 4G, 300mV/g */
+#define G 9.81
+#define ACCEL_GAIN (G * 3300/1024/300 / DEFAULT_AV_NB_SAMPLE)
+#define ACCEL_NEUTRAL (DEFAULT_AV_NB_SAMPLE*512)
 
 #define HX_GAIN    -1.
 #define HX_NEUTRAL  0.
@@ -37,6 +48,8 @@ extern void tl_imu_periodic(void);
 
 extern volatile uint8_t tl_imu_status;
 extern float   tl_imu_r;
+extern float   tl_imu_rm; /* m */
+extern float   tl_imu_accel; /* m/s^2 */
 extern float   tl_imu_hx;
 extern float   tl_imu_hy;
 extern float   tl_imu_hz;

@@ -13,6 +13,7 @@ float tl_estimator_v;
 float estimator_x; /* m */
 float estimator_y; /* m */
 float estimator_z; /* altitude in m */
+float tl_estimator_agl; /* AGL in m */
 
 float estimator_speed; /* m/s */
 float estimator_climb; /* m/s */
@@ -107,6 +108,8 @@ void tl_estimator_use_imu(void) {
   } else {
     tl_psi_kalm_update(estimator_psi_measure);
   }
+
+  tl_estimator_agl = tl_imu_rm;
 }
 
 
