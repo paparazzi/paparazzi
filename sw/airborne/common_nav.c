@@ -8,7 +8,7 @@ float dist2_to_wp;
 
 bool_t too_far_from_home;
 
-const uint8_t nb_waypoint;
+const uint8_t nb_waypoint = NB_WAYPOINT;
 struct point waypoints[NB_WAYPOINT] = WAYPOINTS; 
 
 uint8_t nav_stage, nav_block;
