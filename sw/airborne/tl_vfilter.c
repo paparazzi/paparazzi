@@ -22,6 +22,8 @@ FLOAT_T tl_vf_bias;
 
 FLOAT_T tl_vf_P[STATE_SIZE][STATE_SIZE];
 
+FLOAT_T tl_vf_z_meas;
+
 void tl_vf_init(FLOAT_T init_z, FLOAT_T init_zdot, FLOAT_T init_bias) {
   tl_vf_z = init_z;
   tl_vf_zdot = init_zdot;
@@ -95,6 +97,8 @@ void tl_vf_predict(FLOAT_T accel) {
   Pp = Pm - K*H*Pm;
 */
 void tl_vf_update(FLOAT_T z_meas) {
+  tl_vf_z_meas = z_meas;
+
   const FLOAT_T y = z_meas - tl_vf_z;
   const FLOAT_T S = tl_vf_P[0][0] + R;
   const FLOAT_T K1 = tl_vf_P[0][0] * 1/S; 

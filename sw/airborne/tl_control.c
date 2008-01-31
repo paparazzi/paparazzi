@@ -121,7 +121,7 @@ void tl_control_rate_run(void) {
 
 }
 
-// #define DO_STEPS 
+#define DO_STEPS 
 
 void tl_control_attitude_read_setpoints_from_rc(void) {
   tl_control_attitude_phi_sp = -rc_values[RADIO_ROLL];
@@ -136,10 +136,22 @@ void tl_control_attitude_read_setpoints_from_rc(void) {
     NormRadAngle(tl_control_attitude_psi_sp);
   }
 #else
+  switch (cpu_time_sec % 4) {
+  case 0:
+    tl_control_attitude_psi_sp = RadOfDeg(-45.); break;
+  case 1:
+    tl_control_attitude_psi_sp = RadOfDeg(0.); break;
+  case 2:
+    tl_control_attitude_psi_sp = RadOfDeg(45.); break;
+  case 3:
+    tl_control_attitude_psi_sp = RadOfDeg(0.); break;
+  }
+#if 0
   if (cpu_time_sec % 8 < 4)
     tl_control_attitude_psi_sp = RadOfDeg(-45.);
   else
     tl_control_attitude_psi_sp = RadOfDeg(45.);
+#endif
 #endif
 
 }

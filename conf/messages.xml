@@ -571,11 +571,24 @@
       <field name="P11"  type="float" unit=""/>
   </message>
 
-  <message name="TL_GYRO_RAW" ID="65">
+  <message name="TL_KALM_V_STATE" ID="65">
+      <field name="z"      type="float" unit="m"/>
+      <field name="z_dot"  type="float" unit="m/s"/>
+      <field name="bias"   type="float" unit="m/s/s"/>
+      <field name="z_meas" type="float" unit="m"/>
+  </message>
+
+  <message name="TL_KALM_V_COV" ID="66">
+      <field name="Pzz"   type="float"/>
+      <field name="Pzdzd" type="float"/>
+      <field name="Pbb"   type="float"/>
+  </message>
+
+  <message name="TL_GYRO_RAW" ID="67">
       <field name="val"  type="uint16" unit=""/>
   </message>
 
-  <message name="TL_DEBUG" ID="66">
+  <message name="TL_DEBUG" ID="68">
       <field name="body_err_x"  type="float" unit=""/>
       <field name="body_err_y"  type="float" unit=""/>
   </message>
