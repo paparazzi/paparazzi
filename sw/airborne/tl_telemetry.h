@@ -11,6 +11,7 @@
 #include "actuators.h"
 #include "tl_bat.h"
 #include "tl_estimator.h"
+#include "tl_vfilter.h"
 #include "tl_imu.h"
 #include "tl_nav.h"
 #include "tl_control.h"
@@ -42,8 +43,12 @@
 #define PERIODIC_SEND_NAVIGATION() SEND_NAVIGATION()
 
 
-#define PERIODIC_SEND_IMU_GYRO() DOWNLINK_SEND_IMU_GYRO(&tl_imu_r, &tl_imu_r, &tl_imu_r)
-#define PERIODIC_SEND_IMU_MAG() DOWNLINK_SEND_IMU_MAG(&tl_imu_hx, &tl_imu_hy, &tl_imu_hz)
+#define PERIODIC_SEND_IMU_ACCEL()      DOWNLINK_SEND_TL_IMU_ACCEL(&tl_imu_accel)
+#define PERIODIC_SEND_IMU_GYRO()       DOWNLINK_SEND_TL_IMU_GYRO(&tl_imu_r)
+#define PERIODIC_SEND_IMU_MAG()        DOWNLINK_SEND_TL_IMU_MAG(&tl_imu_hx, &tl_imu_hy, &tl_imu_hz)
+#define PERIODIC_SEND_IMU_PRESSURE()   DOWNLINK_SEND_TL_IMU_PRESSURE(&tl_imu_pressure)
+#define PERIODIC_SEND_IMU_RANGEMETER() DOWNLINK_SEND_TL_IMU_RANGEMETER(&tl_imu_rm)
+
 
 #define PERIODIC_SEND_TL_ESTIMATOR() { DOWNLINK_SEND_TL_ESTIMATOR(&estimator_r, &estimator_psi, &estimator_z_baro)}
 
@@ -71,6 +76,19 @@
 #define PERIODIC_SEND_TL_KALM_PSI_COV() {				\
     DOWNLINK_SEND_TL_KALM_PSI_COV(&tl_psi_kalm_P[0][0], &tl_psi_kalm_P[0][1], &tl_psi_kalm_P[1][1]); \
   }
+
+
+#define PERIODIC_SEND_TL_KALM_V_STATE() {				\
+    DOWNLINK_SEND_TL_KALM_V_STATE(&tl_vf_z, &tl_vf_zdot, &tl_vf_bias, &tl_vf_z_meas); \
+  }
+
+#define PERIODIC_SEND_TL_KALM_V_COV() {				\
+    DOWNLINK_SEND_TL_KALM_PSI_COV(&tl_vf_P[0][0], &tl_vf_P[1][1], &tl_vf_P[2][2]); \
+  }
+
+
+
+
 
 extern uint8_t telemetry_mode_Ap;
 

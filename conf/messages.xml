@@ -584,11 +584,29 @@
       <field name="Pbb"   type="float"/>
   </message>
 
-  <message name="TL_GYRO_RAW" ID="67">
-      <field name="val"  type="uint16" unit=""/>
+  <message name="TL_IMU_ACCEL" ID="67">
+      <field name="val"  type="float" unit="m/s/s"/>
   </message>
 
-  <message name="TL_DEBUG" ID="68">
+  <message name="TL_IMU_GYRO" ID="68">
+      <field name="val"  type="float" unit="rad/s"/>
+  </message>
+
+  <message name="TL_IMU_MAG" ID="69">
+      <field name="hx"  type="float" unit=""/>
+      <field name="hy"  type="float" unit=""/>
+      <field name="hz"  type="float" unit=""/>
+  </message>
+
+  <message name="TL_IMU_PRESSURE" ID="70">
+      <field name="val"  type="float" unit="pascal"/>
+  </message>
+
+  <message name="TL_IMU_RANGEMETER" ID="71">
+      <field name="val"  type="float" unit="m"/>
+  </message>
+
+  <message name="TL_DEBUG" ID="72">
       <field name="body_err_x"  type="float" unit=""/>
       <field name="body_err_y"  type="float" unit=""/>
   </message>

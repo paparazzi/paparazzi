@@ -3,6 +3,9 @@
 #include "tl_imu.h"
 #include "flight_plan.h"
 #include "tl_control.h"
+#include "tl_vfilter.h"
+
+#include "tl_telemetry.h"
 
 bool_t estimator_in_flight;
 uint16_t estimator_flight_time;
@@ -113,6 +116,13 @@ void tl_estimator_use_imu(void) {
   }
 
   tl_estimator_agl = tl_imu_rm;
+  uint32_t t0, t1, diff;
+  t0 = T0TC;
+  tl_vf_predict(tl_imu_accel);
+  t1 = T0TC;
+  diff = t1 - t0;
+  DOWNLINK_SEND_TIME(&diff);
+
 }
 
 

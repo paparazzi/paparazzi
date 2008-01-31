@@ -12,7 +12,7 @@
 #include "tl_baro.h"
 
 /* Gyro */
-#define GR_GAIN    3.57e-4
+#define GR_GAIN    -3.57e-4
 #define GR_NEUTRAL 24894
 
 /* Range Meter (http://www.maxbotix.com) VCC/512 per inch */
@@ -22,7 +22,7 @@
 
 /* Z Accelerometer 4G, 300mV/g */
 #define G 9.81
-#define ACCEL_GAIN (G * 3300/1024/300 / DEFAULT_AV_NB_SAMPLE)
+#define ACCEL_GAIN -(G * 3300/1024/300 / DEFAULT_AV_NB_SAMPLE)
 #define ACCEL_NEUTRAL (DEFAULT_AV_NB_SAMPLE*512)
 
 #define HX_GAIN    -1.

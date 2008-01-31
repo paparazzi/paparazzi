@@ -19,12 +19,37 @@
       <message name="LOOP"           period="0.5"/>
       <message name="TL_DEBUG"       period="0.5"/>
     </mode>
-    <mode name="test">
+
+    <mode name="test_imu">
+      <message name="IMU_ACCEL"       period="0.25"/>
+      <message name="IMU_GYRO"        period="0.25"/>
+      <message name="IMU_MAG"         period="0.25"/>
+      <message name="IMU_PRESSURE"    period="0.25"/>
+      <message name="IMU_RANGEMETER"  period="0.25"/>
+    </mode>
+
+
+    <mode name="test_psi_filter">
       <message name="IMU_GYRO"       period="0.5"/>
       <message name="IMU_MAG"        period="0.5"/>
       <message name="TL_KALM_PSI_STATE" period="0.5"/>
       <message name="TL_KALM_PSI_COV"   period="0.5"/>
     </mode>
+
+    <mode name="test_vfilter">
+      <message name="COMMANDS"        period="1"/>
+      <message name="BAT"             period="1"/>
+      <message name="IMU_ACCEL"       period="0.1"/>
+      <message name="TL_KALM_V_STATE" period="0.1"/>
+      <message name="TL_KALM_V_COV"   period="0.5"/>
+    </mode>
+
+    <mode name="test_accel">
+      <message name="IMU_ACCEL"       period="0.016"/>
+    </mode>
+
+
+
   </process>
 
 </telemetry>

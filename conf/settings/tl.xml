@@ -17,7 +17,7 @@
       <dl_setting MAX="0" MIN="-9600" STEP="1" VAR="tl_nav_goto_h_dgain" shortname="nav_h_dgain" module="tl_nav"/>
 
 
-      <dl_setting MAX="0" MIN="1" STEP="1" VAR="telemetry_mode_Ap" shortname="telemetry_mode" module="tl_telemetry"/>
+      <dl_setting MAX="4" MIN="0" STEP="1" VAR="telemetry_mode_Ap" shortname="telemetry_mode" module="tl_telemetry"/>
    </dl_settings>
  </dl_settings>
 </settings>

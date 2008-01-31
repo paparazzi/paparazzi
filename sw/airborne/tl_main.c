@@ -74,8 +74,11 @@ static inline void tl_main_periodic_task( void ) {
   tl_estimator_periodic_task();
 
   tl_imu_periodic();
+
+#if 0
   if (telemetry_mode_Ap == TELEMETRY_MODE_Ap_test)
     DOWNLINK_SEND_TL_GYRO_RAW(&(buf_gr.sum));
+#endif
 
   tl_estimator_use_gyro();
   
