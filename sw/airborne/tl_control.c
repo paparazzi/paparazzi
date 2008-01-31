@@ -138,11 +138,11 @@ void tl_control_attitude_read_setpoints_from_rc(void) {
 #else
   switch (cpu_time_sec % 4) {
   case 0:
-    tl_control_attitude_psi_sp = RadOfDeg(-45.); break;
+    tl_control_attitude_psi_sp = RadOfDeg(-22.5); break;
   case 1:
     tl_control_attitude_psi_sp = RadOfDeg(0.); break;
   case 2:
-    tl_control_attitude_psi_sp = RadOfDeg(45.); break;
+    tl_control_attitude_psi_sp = RadOfDeg(22.5); break;
   case 3:
     tl_control_attitude_psi_sp = RadOfDeg(0.); break;
   }
