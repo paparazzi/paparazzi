@@ -24,6 +24,7 @@ void tl_autopilot_periodic_task(void) {
     break;
   case TL_AP_MODE_ATTITUDE:
     tl_control_attitude_run();
+    tl_control_agl_run();
     SetCommands(tl_control_commands);
     break;
   case TL_AP_MODE_NAV:

@@ -611,6 +611,12 @@
       <field name="body_err_y"  type="float" unit=""/>
   </message>
 
+  <message name="TL_VERTICAL_LOOP" ID="73">
+      <field name="agl_est"     type="float" unit="m"/>
+      <field name="agl_sp"      type="float" unit="m"/>
+      <field name="agl_sum_err" type="float" unit="sm"/>
+      <field name="agl_dot"     type="float" unit="m/s"/>
+  </message>
 
 
   <message name="ENOSE_STATUS" ID="250">

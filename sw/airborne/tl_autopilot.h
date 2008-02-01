@@ -23,16 +23,17 @@ extern void tl_autopilot_on_rc_event(void);
   ((mode) < TRESHOLD_RATE_PPRZ ? TL_AP_MODE_RATE :		\
    (mode) < TRESHOLD_ATTITUDE_PPRZ ? TL_AP_MODE_ATTITUDE :	\
    TL_AP_MODE_NAV )
+#endif // 0
 
 #define TL_AP_MODE_OF_PPRZ(mode)				\
   ((mode) < TRESHOLD_RATE_PPRZ ? TL_AP_MODE_RATE :		\
    TL_AP_MODE_ATTITUDE )
 
-#endif // 0
-
+#if 0
 #define TL_AP_MODE_OF_PPRZ(mode)				\
   ((mode) < TRESHOLD_RATE_PPRZ ? TL_AP_MODE_ATTITUDE :		\
    TL_AP_MODE_NAV )
+#endif
 
 
 

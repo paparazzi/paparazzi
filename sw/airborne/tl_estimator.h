@@ -13,6 +13,7 @@ extern float estimator_x; /* m */
 extern float estimator_y; /* m */
 extern float estimator_z; /* altitude in m */
 extern float tl_estimator_agl; /* AGL in m */
+extern float tl_estimator_agl_dot; /* AGL in m/s */
 
 
 extern float estimator_speed; /* m/s */

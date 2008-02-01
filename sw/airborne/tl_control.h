@@ -45,9 +45,12 @@ extern float tl_control_attitude_psi_sum_err;
 #define TL_Z_MODE_RM 1
 
 extern uint8_t tl_z_mode;
-extern float tl_control_agl_pgain[TL_NB_Z_MODES];
-extern float tl_control_agl_igain[TL_NB_Z_MODES];
-extern float tl_control_agl_sum_err[TL_NB_Z_MODES];
+extern float tl_control_agl_pgain;
+extern float tl_control_agl_dgain;
+extern float tl_control_agl_igain;
+extern float tl_control_agl_sum_err;
+extern float tl_control_agl_sp;
+
 
 extern int16_t tl_control_trim_r;
 

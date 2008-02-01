@@ -37,6 +37,7 @@
     </mode>
 
     <mode name="test_vfilter">
+      <message name="IMU_PRESSURE"    period="0.25"/>
       <message name="COMMANDS"        period="1"/>
       <message name="BAT"             period="1"/>
       <message name="IMU_ACCEL"       period="0.1"/>
@@ -49,7 +50,9 @@
     </mode>
 
 
-
+    <mode name="test_vloop">
+      <message name="TL_VERTICAL_LOOP"       period="0.016"/>
+    </mode>
   </process>
 
 </telemetry>

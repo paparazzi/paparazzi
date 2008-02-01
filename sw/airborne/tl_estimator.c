@@ -17,6 +17,7 @@ float estimator_x; /* m */
 float estimator_y; /* m */
 float estimator_z; /* altitude in m */
 float tl_estimator_agl; /* AGL in m */
+float tl_estimator_agl_dot; /* AGL in m/s */
 
 float estimator_speed; /* m/s */
 float estimator_climb; /* m/s */
@@ -31,7 +32,7 @@ float estimator_z_baro;
 static float estimator_cos_psi;
 static float estimator_sin_psi;
 
-#define TL_ESTIMATOR_CRUISE_POWER (0.7*MAX_PPRZ)
+#define TL_ESTIMATOR_CRUISE_POWER (0.67*MAX_PPRZ)
 float tl_estimator_cruise_power;
 
 #define DT_UPDATE (1./60.)
@@ -100,12 +101,16 @@ void tl_estimator_use_gyro(void) {
     estimator_r = tl_psi_kalm_r;
     compute_dcm();
   }
+  tl_vf_predict(tl_imu_accel);
+
+  tl_estimator_agl = tl_vf_z;
+  tl_estimator_agl_dot = tl_vf_zdot;
 }
 
 void tl_estimator_use_imu(void) {
   float estimator_psi_measure = -atan2(tl_imu_hy, tl_imu_hx);
   const float ground_pressure = 98000;
-  estimator_z_baro = (ground_pressure - (float)tl_imu_pressure)*0.084;
+  estimator_z_baro = -(ground_pressure - (float)tl_imu_pressure)*0.084;
 
   if (tl_psi_kalm_status == TL_PSI_KALM_UNINIT) {
     tl_psi_kalm_start(estimator_r, estimator_psi);
@@ -115,13 +120,14 @@ void tl_estimator_use_imu(void) {
     tl_psi_kalm_update(estimator_psi_measure);
   }
 
-  tl_estimator_agl = tl_imu_rm;
-  uint32_t t0, t1, diff;
-  t0 = T0TC;
-  tl_vf_predict(tl_imu_accel);
-  t1 = T0TC;
-  diff = t1 - t0;
-  DOWNLINK_SEND_TIME(&diff);
+  //  tl_estimator_agl = tl_imu_rm;
+
+  //  uint32_t t0, t1, diff;
+  //  t0 = T0TC;
+  tl_vf_update(tl_imu_rm);
+  //  t1 = T0TC;
+  //  diff = t1 - t0;
+  //  DOWNLINK_SEND_TIME(&diff);
 
 }
 

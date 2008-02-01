@@ -47,8 +47,9 @@ float tl_control_attitude_psi_sum_err;
 #define TL_CONTROL_ATTITUDE_PSI_IGAIN    -0.20
 #define TL_CONTROL_ATTITUDE_PSI_TRIM    350
 
-#define TL_CONTROL_AGL_PGAIN (-MAX_PPRZ/10) /* PPRZ / m */
-#define TL_CONTROL_AGL_IGAIN 0.1 /* PPRZ / m */
+#define TL_CONTROL_AGL_PGAIN -2000 /* PPRZ / m */
+#define TL_CONTROL_AGL_DGAIN -1000 /* PPRZ / m */
+#define TL_CONTROL_AGL_IGAIN -1.5 /* PPRZ / m */
 #define TL_MAX_AGL_ERROR 1
 
 
@@ -59,9 +60,10 @@ float tl_control_attitude_psi_sum_err;
 int16_t tl_control_trim_r;
 
 uint8_t tl_z_mode;
-float tl_control_agl_pgain[TL_NB_Z_MODES];
-float tl_control_agl_igain[TL_NB_Z_MODES];
-float tl_control_agl_sum_err[TL_NB_Z_MODES];
+float tl_control_agl_pgain;
+float tl_control_agl_dgain;
+float tl_control_agl_igain;
+float tl_control_agl_sum_err;
 
 
 
@@ -88,11 +90,12 @@ void tl_control_init(void) {
 
   tl_control_trim_r = TL_CONTROL_TRIM_R;
 
-  tl_control_agl_pgain[TL_Z_MODE_RM] = TL_CONTROL_AGL_PGAIN;
-  tl_control_agl_igain[TL_Z_MODE_RM] = TL_CONTROL_AGL_IGAIN;
-  tl_control_agl_sum_err[TL_Z_MODE_RM] = 0;
+  tl_control_agl_pgain = TL_CONTROL_AGL_PGAIN;
+  tl_control_agl_dgain = TL_CONTROL_AGL_DGAIN;
+  tl_control_agl_igain = TL_CONTROL_AGL_IGAIN;
+  tl_control_agl_sum_err = 0;
 
-  tl_z_mode = TL_Z_MODE_RC;
+  tl_z_mode = TL_Z_MODE_RM;
 }
 
 
@@ -136,7 +139,8 @@ void tl_control_rate_run(void) {
 
 }
 
-#define DO_STEPS 
+// #define DO_STEPS 
+#define DO_VERTICAL_STEPS
 
 void tl_control_attitude_read_setpoints_from_rc(void) {
   tl_control_attitude_phi_sp = -rc_values[RADIO_ROLL];
@@ -147,7 +151,15 @@ void tl_control_attitude_read_setpoints_from_rc(void) {
     tl_control_power_sp = rc_values[RADIO_THROTTLE];
     break;
   case TL_Z_MODE_RM:
+    //tl_control_agl_sp = Max (0, 2. * (rc_values[RADIO_THROTTLE]/MAX_PPRZ - MAX_PPRZ/10)); /* 2m max */
+#ifdef DO_VERTICAL_STEPS
+    if (cpu_time_sec % 10 < 5)
+    tl_control_agl_sp = 0.5;
+  else
+    tl_control_agl_sp = 0.75;
+#else
     tl_control_agl_sp = 2. * rc_values[RADIO_THROTTLE]/MAX_PPRZ;
+#endif
     break;
   }
 
@@ -225,9 +237,15 @@ void tl_control_agl_run(void) {
     Bound(agl_err, -TL_MAX_AGL_ERROR, TL_MAX_AGL_ERROR);
     
     if (estimator_in_flight)
-      tl_control_agl_sum_err[tl_z_mode] += agl_err;
-    tl_control_power_sp = tl_estimator_cruise_power +
-      tl_control_agl_pgain[tl_z_mode] * (agl_err + tl_control_agl_igain[tl_z_mode] * tl_control_agl_sum_err[tl_z_mode]);
+      tl_control_agl_sum_err += agl_err;
+    else
+      tl_control_agl_sum_err = 0;
+    tl_control_power_sp = tl_estimator_cruise_power - /* minus because Z pointing downward */
+      ( tl_control_agl_pgain * agl_err + 
+	tl_control_agl_dgain * tl_estimator_agl_dot + 
+	tl_control_agl_igain * tl_control_agl_sum_err);
+    if (rc_values[RADIO_THROTTLE] < MAX_PPRZ/10) /* FIXME */
+      tl_control_power_sp = 0;
   }
   }
 }

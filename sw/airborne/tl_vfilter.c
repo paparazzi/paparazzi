@@ -4,6 +4,9 @@
 
 X = [ z zdot bias ]
 
+temps : 
+  predict 86us
+  update  46us      
 
 */
 /* initial covariance diagonal */
