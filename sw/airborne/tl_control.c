@@ -47,9 +47,9 @@ float tl_control_attitude_psi_sum_err;
 #define TL_CONTROL_ATTITUDE_PSI_IGAIN    -0.20
 #define TL_CONTROL_ATTITUDE_PSI_TRIM    350
 
-#define TL_CONTROL_AGL_PGAIN -2000 /* PPRZ / m */
-#define TL_CONTROL_AGL_DGAIN -1000 /* PPRZ / m */
-#define TL_CONTROL_AGL_IGAIN -1.5 /* PPRZ / m */
+#define TL_CONTROL_AGL_PGAIN -1050 /* PPRZ / m */
+#define TL_CONTROL_AGL_DGAIN -1150 /* PPRZ / m */
+#define TL_CONTROL_AGL_IGAIN -2 /* PPRZ / m */
 #define TL_MAX_AGL_ERROR 1
 
 
@@ -153,12 +153,12 @@ void tl_control_attitude_read_setpoints_from_rc(void) {
   case TL_Z_MODE_RM:
     //tl_control_agl_sp = Max (0, 2. * (rc_values[RADIO_THROTTLE]/MAX_PPRZ - MAX_PPRZ/10)); /* 2m max */
 #ifdef DO_VERTICAL_STEPS
-    if (cpu_time_sec % 10 < 5)
-    tl_control_agl_sp = 0.5;
+    if (cpu_time_sec % 30 < 15)
+    tl_control_agl_sp = -0.5;
   else
-    tl_control_agl_sp = 0.75;
+    tl_control_agl_sp = -1.0;
 #else
-    tl_control_agl_sp = 2. * rc_values[RADIO_THROTTLE]/MAX_PPRZ;
+    tl_control_agl_sp = -2. * rc_values[RADIO_THROTTLE]/MAX_PPRZ;
 #endif
     break;
   }
@@ -233,7 +233,7 @@ void tl_control_agl_run(void) {
     /* Do nothing */
     break;
   case TL_Z_MODE_RM: {
-    float agl_err = tl_control_agl_sp - tl_estimator_agl;
+    float agl_err = tl_estimator_agl - tl_control_agl_sp;
     Bound(agl_err, -TL_MAX_AGL_ERROR, TL_MAX_AGL_ERROR);
     
     if (estimator_in_flight)

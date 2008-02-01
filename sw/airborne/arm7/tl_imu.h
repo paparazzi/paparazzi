@@ -17,11 +17,12 @@
 
 /* Range Meter (http://www.maxbotix.com) VCC/512 per inch */
 #define INCH 0.0254
-#define RM_GAIN (3.3/5.5*512/1024 * INCH / DEFAULT_AV_NB_SAMPLE)
+#define RM_GAIN (3.3/5.5*512/1024 * INCH / DEFAULT_AV_NB_SAMPLE*(1.8/1.6))
 #define RM_ZERO 0
 
 /* Z Accelerometer 4G, 300mV/g */
 #define G 9.81
+//#define ACCEL_GAIN -(G * 3300/1024/300 / DEFAULT_AV_NB_SAMPLE)
 #define ACCEL_GAIN -(G * 3300/1024/300 / DEFAULT_AV_NB_SAMPLE)
 #define ACCEL_NEUTRAL (DEFAULT_AV_NB_SAMPLE*512)
 

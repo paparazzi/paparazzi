@@ -85,7 +85,7 @@
   }
 
 #define PERIODIC_SEND_TL_KALM_V_COV() {				\
-    DOWNLINK_SEND_TL_KALM_PSI_COV(&tl_vf_P[0][0], &tl_vf_P[1][1], &tl_vf_P[2][2]); \
+    DOWNLINK_SEND_TL_KALM_V_COV(&tl_vf_P[0][0], &tl_vf_P[1][1], &tl_vf_P[2][2]); \
   }
 
 

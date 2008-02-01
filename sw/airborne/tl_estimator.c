@@ -32,7 +32,7 @@ float estimator_z_baro;
 static float estimator_cos_psi;
 static float estimator_sin_psi;
 
-#define TL_ESTIMATOR_CRUISE_POWER (0.67*MAX_PPRZ)
+#define TL_ESTIMATOR_CRUISE_POWER (0.73*MAX_PPRZ)
 float tl_estimator_cruise_power;
 
 #define DT_UPDATE (1./60.)
@@ -124,7 +124,7 @@ void tl_estimator_use_imu(void) {
 
   //  uint32_t t0, t1, diff;
   //  t0 = T0TC;
-  tl_vf_update(tl_imu_rm);
+  tl_vf_update(-tl_imu_rm);
   //  t1 = T0TC;
   //  diff = t1 - t0;
   //  DOWNLINK_SEND_TIME(&diff);
