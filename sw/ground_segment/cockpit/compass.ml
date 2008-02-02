@@ -96,17 +96,17 @@ let _ =
   da#misc#realize ();
 
   (* Listening messages *)
-  let course = ref 0. in
-  let desired_course = ref 0. in
+  let course = ref 0. in (* deg *)
+  let desired_course = ref 0. in (* deg *)
   let get_navigation = fun _ values ->
     let distance = sqrt (Pprz.float_assoc "dist2_wp" values) in
     draw da !desired_course !course distance in
   ignore (Tm_Pprz.message_bind "NAVIGATION" get_navigation);
   let get_gps = fun _ values ->
-    course := float (Pprz.int_assoc "course" values) /. 10. in
+    course := (float (Pprz.int_assoc "course" values) /. 10.) in
   ignore (Tm_Pprz.message_bind "GPS" get_gps);
   let get_desired = fun _ values ->
-    desired_course := Pprz.float_assoc "course" values in
+    desired_course := (Rad>>Deg) (Pprz.float_assoc "course" values) in
   ignore (Tm_Pprz.message_bind "DESIRED" get_desired);
 
   (** Start the main loop *)

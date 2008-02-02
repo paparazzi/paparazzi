@@ -83,13 +83,15 @@ ap.CFLAGS += -DINTER_MCU
 ap.srcs += inter_mcu.c 
 
 ap.CFLAGS += -DGPS -DUBX -DUSE_UART1 -DGPS_LINK=Uart1 -DUART1_BAUD=B9600
-ap.CFLAGS += -DGPS_CONFIGURE -DUSER_GPS_CONFIGURE=\"tl_gps_configure.h\" -DGPS_BAUD=38400
+ap.CFLAGS += -DGPS_CONFIGURE -DGPS_BAUD=38400
+#  -DUSER_GPS_CONFIGURE=\"tl_gps_configure.h\"
 
 ap.srcs += gps_ubx.c gps.c latlong.c
 
 ap.srcs += estimator.c
 
 ap.srcs += nav.c fw_h_ctl.c fw_v_ctl.c
+ap.CFLAGS += -DNAV
 
 # Config for SITL simulation
 sim.ARCHDIR = $(ARCHI)

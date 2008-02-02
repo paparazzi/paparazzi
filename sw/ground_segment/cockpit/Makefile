@@ -68,7 +68,7 @@ gtk_setting_time.ml : gcs.glade
 strip.cmo : gtk_strip.cmo gtk_setting_time.cmo
 
 compass : compass.ml
-	$(OCAMLC) -custom $(OCAMLCFLAGS) $(INCLUDES) unix.cma str.cma xml-light.cma ivy-ocaml.cma $(LIBS) gtkInit.cmo $^ -o $@
+	$(OCAMLC) -custom $(OCAMLCFLAGS) $(INCLUDES) unix.cma str.cma xml-light.cma $(LIBS) gtkInit.cmo $^ -o $@
 
 
 clean:
