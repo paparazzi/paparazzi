@@ -97,14 +97,17 @@ let _ =
 
   (* Listening messages *)
   let course = ref 0. in
+  let desired_course = ref 0. in
   let get_navigation = fun _ values ->
-    let desired_course = float (Pprz.int_assoc "desired_course" values) /. 10.
-    and distance = sqrt (Pprz.float_assoc "dist2_wp" values) in
-    draw da desired_course !course distance in
+    let distance = sqrt (Pprz.float_assoc "dist2_wp" values) in
+    draw da !desired_course !course distance in
   ignore (Tm_Pprz.message_bind "NAVIGATION" get_navigation);
   let get_gps = fun _ values ->
     course := float (Pprz.int_assoc "course" values) /. 10. in
   ignore (Tm_Pprz.message_bind "GPS" get_gps);
+  let get_desired = fun _ values ->
+    desired_course := Pprz.float_assoc "course" values in
+  ignore (Tm_Pprz.message_bind "DESIRED" get_desired);
 
   (** Start the main loop *)
   window#show ();
