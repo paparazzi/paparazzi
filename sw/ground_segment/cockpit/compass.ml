@@ -33,15 +33,6 @@ let draw = fun da desired_course course distance ->
   dr#rectangle ~x:0 ~y:0 ~width ~height ~filled:true ();
   let s = (min width height) / 8 in
 
-  (* Arrow *)
-  let rotation = rot (desired_course -. course) in
-  let translate = fun (x, y) -> (4*s+x, 4*s-y) in
-  let points = List.map (fun (x, y) -> translate (rotation (x*s/2,y*s/2))) arrow in
-  dr#set_foreground fore;
-  dr#polygon ~filled:true points;
-  circle dr (4*s,4*s) (2*s);
-  circle dr (4*s,4*s) (3*s);
-  
   (* Text *)
   let context = da#misc#create_pango_context in
   context#set_font_by_name (sprintf "sans %d" (s/3));
@@ -55,6 +46,20 @@ let draw = fun da desired_course course distance ->
     Pango.Layout.set_text layout (Glib.Convert.convert ~from_codeset ~to_codeset string);
     let (w,h) = Pango.Layout.get_pixel_size layout in
     dr#put_layout ~x:(x-w/2) ~y:(y-h/2) ~fore layout in
+
+  let rotation = rot (desired_course -. course) in
+  let translate = fun (x, y) -> (4*s+x, 4*s-y) in
+
+  (* Arrow *)
+  if distance < 5. then
+    let points = List.map (fun (x, y) -> translate (rotation (x*s/2,y*s/2))) arrow in
+    dr#set_foreground fore;
+    dr#polygon ~filled:true points;
+    circle dr (4*s,4*s) (2*s);
+    circle dr (4*s,4*s) (3*s)
+  else
+    print_string (4*s) (4*s) "STOP";
+  
   print_string (7*s) s (sprintf "%.0f m" distance);
   print_string (7*s) (s/2) "Dist.";
   print_string s s (sprintf "%.0f°" desired_course);
