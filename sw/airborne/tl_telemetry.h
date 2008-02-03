@@ -66,7 +66,7 @@
     }									\
   }
 
-#define PERIODIC_SEND_TL_VERTICAL_LOOP() DOWNLINK_SEND_TL_VERTICAL_LOOP(&tl_estimator_agl, &tl_control_agl_sp, &tl_control_agl_sum_err, &tl_estimator_agl_dot)
+#define PERIODIC_SEND_TL_VERTICAL_LOOP() DOWNLINK_SEND_TL_VERTICAL_LOOP(&tl_estimator_agl, &tl_control_agl_sp, &tl_control_agl_sum_err, &tl_estimator_agl_dot, &tl_estimator_cruise_power)
 
 #define PERIODIC_SEND_TL_DEBUG() DOWNLINK_SEND_TL_DEBUG(&x_unit_err_body, &y_unit_err_body)
 

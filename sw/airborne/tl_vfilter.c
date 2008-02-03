@@ -12,10 +12,18 @@ temps :
 /* initial covariance diagonal */
 #define INIT_PXX 10.
 /* process noise */
+#if 0
 #define Qzz       0.01
 #define Qzdotzdot 0.01
 #define Qbiasbias 0.001
 #define R 0.1
+#else  // baro
+#define Qzz       0.01
+#define Qzdotzdot 0.01
+#define Qbiasbias 0.001
+#define R 2.
+#endif
+
 
 #define DT (1./60.)
 

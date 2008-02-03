@@ -29,6 +29,8 @@ float estimator_speed_north;
 float estimator_r;
 float estimator_psi; /* rad, CCW */ 
 float estimator_z_baro;
+float estimator_ground_pressure;
+
 static float estimator_cos_psi;
 static float estimator_sin_psi;
 
@@ -109,8 +111,10 @@ void tl_estimator_use_gyro(void) {
 
 void tl_estimator_use_imu(void) {
   float estimator_psi_measure = -atan2(tl_imu_hy, tl_imu_hx);
-  const float ground_pressure = 98000;
-  estimator_z_baro = -(ground_pressure - (float)tl_imu_pressure)*0.084;
+  
+  if (!estimator_in_flight)
+    estimator_ground_pressure = tl_imu_pressure;
+  estimator_z_baro = (estimator_ground_pressure - (float)tl_imu_pressure)*0.084;
 
   if (tl_psi_kalm_status == TL_PSI_KALM_UNINIT) {
     tl_psi_kalm_start(estimator_r, estimator_psi);
@@ -119,16 +123,11 @@ void tl_estimator_use_imu(void) {
   } else {
     tl_psi_kalm_update(estimator_psi_measure);
   }
-
-  //  tl_estimator_agl = tl_imu_rm;
-
-  //  uint32_t t0, t1, diff;
-  //  t0 = T0TC;
+#if 0
   tl_vf_update(-tl_imu_rm);
-  //  t1 = T0TC;
-  //  diff = t1 - t0;
-  //  DOWNLINK_SEND_TIME(&diff);
-
+#else
+  tl_vf_update(-estimator_z_baro);
+#endif
 }
 
 

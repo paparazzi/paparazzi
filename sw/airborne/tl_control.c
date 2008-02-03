@@ -140,7 +140,7 @@ void tl_control_rate_run(void) {
 }
 
 // #define DO_STEPS 
-#define DO_VERTICAL_STEPS
+// #define DO_VERTICAL_STEPS
 
 void tl_control_attitude_read_setpoints_from_rc(void) {
   tl_control_attitude_phi_sp = -rc_values[RADIO_ROLL];
@@ -151,14 +151,14 @@ void tl_control_attitude_read_setpoints_from_rc(void) {
     tl_control_power_sp = rc_values[RADIO_THROTTLE];
     break;
   case TL_Z_MODE_RM:
-    //tl_control_agl_sp = Max (0, 2. * (rc_values[RADIO_THROTTLE]/MAX_PPRZ - MAX_PPRZ/10)); /* 2m max */
+    //tl_control_agl_sp = Max (0, 3. * (rc_values[RADIO_THROTTLE]/MAX_PPRZ - MAX_PPRZ/10)); /* 2m max */
 #ifdef DO_VERTICAL_STEPS
     if (cpu_time_sec % 30 < 15)
-    tl_control_agl_sp = -0.5;
+    tl_control_agl_sp = -1.5;
   else
-    tl_control_agl_sp = -1.0;
+    tl_control_agl_sp = -2.0;
 #else
-    tl_control_agl_sp = -2. * rc_values[RADIO_THROTTLE]/MAX_PPRZ;
+    tl_control_agl_sp = -3. * rc_values[RADIO_THROTTLE]/MAX_PPRZ;
 #endif
     break;
   }
