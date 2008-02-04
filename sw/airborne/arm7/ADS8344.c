@@ -4,8 +4,6 @@
 #include CONFIG
 
 #include "spi_hw.h"
-#include "led.h"
-
 
 #define ADS8344_SS_IODIR IO0DIR
 #define ADS8344_SS_IOSET IO0SET
@@ -85,13 +83,8 @@ void ADS8344_start( void ) {
   send_request();
 }
 
-
-
-
 void SPI1_ISR(void) {
  ISR_ENTRY();
-
- LED_TOGGLE(2);
 
  read_values();
  channel++;
