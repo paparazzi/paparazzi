@@ -3,29 +3,17 @@
 #include "armVIC.h"
 #include CONFIG
 
-#define SPI_SELECT_SLAVE_IO__(port, reg) IO ## port ## reg
-#define SPI_SELECT_SLAVE_IO_(port, reg) SPI_SELECT_SLAVE_IO__(port, reg)
+#include "spi_hw.h"
+#include "led.h"
 
-#define SPI_SELECT_SLAVE0_IODIR SPI_SELECT_SLAVE_IO_(SPI_SELECT_SLAVE0_PORT, DIR)
-#define SPI_SELECT_SLAVE0_IOCLR SPI_SELECT_SLAVE_IO_(SPI_SELECT_SLAVE0_PORT, CLR)
-#define SPI_SELECT_SLAVE0_IOSET SPI_SELECT_SLAVE_IO_(SPI_SELECT_SLAVE0_PORT, SET)
 
-#define SpiSelectSlave0() {	\
-    SetBit(SPI_SELECT_SLAVE0_IOCLR, SPI_SELECT_SLAVE0_PIN);	\
-  }
+#define ADS8344_SS_IODIR IO0DIR
+#define ADS8344_SS_IOSET IO0SET
+#define ADS8344_SS_IOCLR IO0CLR
+#define ADS8344_SS_PIN   20 
 
-#define SpiUnselectSlave0() {	\
-    SetBit(SPI_SELECT_SLAVE0_IOSET, SPI_SELECT_SLAVE0_PIN);	\
-  }
-
-#define SpiEnable() {		\
-    SetBit(SSPCR1, SSE);	\
-  }
-
-#define SpiEnableRti() {	\
-    SetBit(SSPIMSC, RTIM);	\
-  }
-
+#define ADS8344Select()   SetBit(ADS8344_SS_IOCLR,ADS8344_SS_PIN)
+#define ADS8344Unselect() SetBit(ADS8344_SS_IOSET,ADS8344_SS_PIN)
 
 bool_t ADS8344_available;
 uint16_t ADS8344_values[NB_CHANNELS];
@@ -43,7 +31,7 @@ uint16_t ADS8344_values[NB_CHANNELS];
 /* SSPCR1 settings */
 #define SSP_LBM  0x00 << 0  /* loopback mode        : disabled */
 #define SSP_SSE  0x00 << 1  /* SSP enable           : disabled */
-#define SSP_MS   0x01 << 2  /* master slave mode    : slave    */
+#define SSP_MS   0x00 << 2  /* master slave mode    : master   */
 #define SSP_SOD  0x00 << 3  /* slave output disable : disabled */
 
 
@@ -70,8 +58,8 @@ void ADS8344_init( void ) {
 
   /* setup slave select */
   /* configure SS pin */
-  SetBit(SPI_SELECT_SLAVE0_IODIR, SPI_SELECT_SLAVE0_PIN); /* pin is output  */
-  SpiUnselectSlave0();                         /* pin low        */
+  SetBit( ADS8344_SS_IODIR,  ADS8344_SS_PIN);  /* pin is output  */
+  ADS8344Unselect();                           /* pin low        */
 }
 
 static inline void read_values( void ) {
@@ -90,10 +78,11 @@ static inline void send_request( void ) {
 }
 
 void ADS8344_start( void ) {
-  SpiSelectSlave0();
-  send_request();
-  SpiEnable();
+  ADS8344Select();
+  SpiClearRti();
   SpiEnableRti();
+  SpiEnable();
+  send_request();
 }
 
 
@@ -102,6 +91,8 @@ void ADS8344_start( void ) {
 void SPI1_ISR(void) {
  ISR_ENTRY();
 
+ LED_TOGGLE(2);
+
  read_values();
  channel++;
  if (channel > 7) {
@@ -109,6 +100,7 @@ void SPI1_ISR(void) {
    ADS8344_available = TRUE;
  }
  send_request();
+ SpiClearRti();
 
  VICVectAddr = 0x00000000; /* clear this interrupt from the VIC */
  ISR_EXIT();
