@@ -1,8 +1,32 @@
+/*
+ * $Id$
+ *  
+ * Copyright (C) 2008- ENAC
+ *
+ * This file is part of paparazzi.
+ *
+ * paparazzi is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * paparazzi is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with paparazzi; see the file COPYING.  If not, write to
+ * the Free Software Foundation, 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA. 
+ *
+ */
+
 #include "ADS8344.h"
 #include "LPC21xx.h"
 #include "armVIC.h"
 #include CONFIG
-
+#include "led.h"
 #include "spi_hw.h"
 
 #define ADS8344_SS_IODIR IO0DIR
@@ -23,7 +47,7 @@ uint16_t ADS8344_values[NB_CHANNELS];
 #define SSP_DSS  0x07 << 0  /* data size            : 8 bits   */
 #define SSP_FRF  0x00 << 4  /* frame format         : SPI      */
 #define SSP_CPOL 0x00 << 6  /* clock polarity       : idle low */  
-#define SSP_CPHA 0x01 << 7  /* clock phase          : 1        */
+#define SSP_CPHA 0x00 << 7  /* clock phase          : 1        */
 #define SSP_SCR  0x0E << 8  /* serial clock rate    : 1MHz     */
 
 /* SSPCR1 settings */
@@ -64,13 +88,15 @@ static inline void read_values( void ) {
   uint8_t foo __attribute__ ((unused)) = SSPDR;
   uint8_t msb = SSPDR;
   uint8_t lsb = SSPDR;
-  ADS8344_values[channel] = msb << 8 | lsb;
+  uint8_t llsb = SSPDR;
+  ADS8344_values[channel] = (msb << 8 | lsb) << 1 | llsb >> 7;
 }
 
 static inline void send_request( void ) {
   uint8_t control = 1 << 7 | channel << 4 | SGL_DIF << 2 | POWER_MODE;
 
   SSPDR = control;
+  SSPDR = 0;
   SSPDR = 0;
   SSPDR = 0;
 }
@@ -85,7 +111,7 @@ void ADS8344_start( void ) {
 
 void SPI1_ISR(void) {
  ISR_ENTRY();
-
+ LED_TOGGLE(2);
  read_values();
  channel++;
  if (channel > 7) {
