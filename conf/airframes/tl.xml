@@ -105,6 +105,7 @@ ap.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c
 ap.CFLAGS += -DDOWNLINK -DUSE_UART0 -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_AP_DEVICE=Uart0 -DPPRZ_UART=Uart0 -DDATALINK=PPRZ -DUART0_BAUD=B9600
 ap.srcs += downlink.c $(SRC_ARCH)/uart_hw.c pprz_transport.c tl_telemetry.c datalink.c
 
+ap.CFLAGS += -DTL_AP_MODE_AUTO=TL_AP_MODE_SPEED
 ap.srcs += tl_autopilot.c tl_control.c tl_estimator.c tl_vfilter.c
 
 ap.CFLAGS += -DGPS -DUBX -DUSE_UART1 -DGPS_LINK=Uart1 -DUART1_BAUD=B38400 -DDOWNLINK_GPS_DEVICE=DOWNLINK_AP_DEVICE -DGPS_CONFIGURE -DUSER_GPS_CONFIGURE=\"tl_gps_configure.h\" -DGPS_BAUD=38400
@@ -120,6 +121,7 @@ ap.srcs += micromag.c $(SRC_ARCH)/micromag_hw.c
 
 ap.CFLAGS += -DNAV
 ap.srcs += common_nav.c tl_nav.c
+
 
 #ap.CFLAGS += -D TL_BARO_W1=0xABDC -D TL_BARO_W2=0x849A -D TL_BARO_W3=0X939E -D TL_BARO_W4=0xB259
 
