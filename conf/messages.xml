@@ -607,8 +607,7 @@
   </message>
 
   <message name="TL_DEBUG" ID="72">
-      <field name="body_err_x"  type="float" unit=""/>
-      <field name="body_err_y"  type="float" unit=""/>
+      <field name="ap_mode"  type="uint8" unit=""/>
   </message>
 
   <message name="TL_VERTICAL_LOOP" ID="73">
@@ -618,6 +617,14 @@
       <field name="agl_dot"     type="float" unit="m/s"/>
   </message>
 
+  <message name="TL_SPEED_LOOP" ID="74">
+      <field name="u_est" type="float" unit="m/s"/>
+      <field name="u_sp"  type="float" unit="m/s"/>
+      <field name="u_sum_err" type="float" unit="m"/>
+      <field name="v_est" type="float" unit="m/s"/>
+      <field name="v_sp"  type="float" unit="m/s"/>
+      <field name="v_sum_err" type="float" unit="m"/>
+  </message>
 
   <message name="ENOSE_STATUS" ID="250">
       <field name="val1" type="uint16"/>
