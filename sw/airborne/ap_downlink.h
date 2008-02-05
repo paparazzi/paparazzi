@@ -138,6 +138,8 @@
 
 #define SEND_NAVIGATION() Downlink({ int16_t pos_x = estimator_x; int16_t pos_y = estimator_y; DOWNLINK_SEND_NAVIGATION(&nav_block, &nav_stage, &pos_x, &pos_y, &dist2_to_wp, &dist2_to_home);})
 
+#define PERIODIC_SEND_NAVIGATION() SEND_NAVIGATION()
+
 #if defined CAM || defined MOBILE_CAM
 #define SEND_CAM() Downlink({ int16_t x = target_x; int16_t y = target_y; int8_t phi = DegOfRad(phi_c); int8_t theta = DegOfRad(theta_c); DOWNLINK_SEND_CAM(&phi, &theta, &x, &y);})
 #else
