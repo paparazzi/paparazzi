@@ -29,12 +29,19 @@
 #define HX_GAIN    -1.
 #define HX_NEUTRAL  0.
 #define HX_CHAN     1
-#define HY_GAIN    -1.
-#define HY_NEUTRAL  0
+#define HY_GAIN    -1.06
+#define HY_NEUTRAL  -75
 #define HY_CHAN     0
 #define HZ_GAIN    -1.
 #define HZ_NEUTRAL  0
 #define HZ_CHAN     2
+
+/* http://www.ngdc.noaa.gov/seg/geomag/declination.shtml
+  LA
+*/
+#define MAGNETIC_DECLINATION RadOfDeg(13)
+
+
 
 
 #define TL_IMU_IDLE             0

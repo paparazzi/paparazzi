@@ -89,7 +89,6 @@ static inline void tl_main_periodic_task( void ) {
   if (rc_status != RC_OK)
      tl_autopilot_mode = TL_AP_MODE_FAILSAFE;
 
- 
   tl_telemetry_periodic_task();
 
   SetActuatorsFromCommands(commands);

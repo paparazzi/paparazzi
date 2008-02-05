@@ -66,9 +66,11 @@
     }									\
   }
 
-#define PERIODIC_SEND_TL_VERTICAL_LOOP() DOWNLINK_SEND_TL_VERTICAL_LOOP(&tl_estimator_agl, &tl_control_agl_sp, &tl_control_agl_sum_err, &tl_estimator_agl_dot, &tl_estimator_cruise_power)
+#define PERIODIC_SEND_TL_VERTICAL_LOOP() DOWNLINK_SEND_TL_VERTICAL_LOOP(&tl_estimator_agl, &tl_control_agl_sp, &tl_control_agl_sum_err, &tl_estimator_agl_dot)
 
-#define PERIODIC_SEND_TL_DEBUG() DOWNLINK_SEND_TL_DEBUG(&x_unit_err_body, &y_unit_err_body)
+#define PERIODIC_SEND_TL_SPEED_LOOP() DOWNLINK_SEND_TL_SPEED_LOOP(&tl_estimator_u, &tl_control_u_sp, &tl_control_speed_u_sum_err, &tl_estimator_v, &tl_control_v_sp, &tl_control_speed_v_sum_err)
+
+#define PERIODIC_SEND_TL_DEBUG() DOWNLINK_SEND_TL_DEBUG(&tl_autopilot_mode)
 
 
 #define PERIODIC_SEND_TL_KALM_PSI_STATE() {				\

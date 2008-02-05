@@ -12,6 +12,8 @@ uint16_t estimator_flight_time;
 
 float tl_estimator_u;
 float tl_estimator_v;
+float tl_estimator_u_dot;
+float tl_estimator_v_dot;
 
 float estimator_x; /* m */
 float estimator_y; /* m */
@@ -73,6 +75,8 @@ void tl_estimator_init(void) {
   compute_dcm();
   tl_estimator_u = 0.;
   tl_estimator_v = 0.;
+  tl_estimator_u_dot = 0.;
+  tl_estimator_v_dot = 0.;
   tl_estimator_cruise_power = TL_ESTIMATOR_CRUISE_POWER;
 }
 
@@ -110,7 +114,7 @@ void tl_estimator_use_gyro(void) {
 }
 
 void tl_estimator_use_imu(void) {
-  float estimator_psi_measure = -atan2(tl_imu_hy, tl_imu_hx);
+  float estimator_psi_measure = -atan2(tl_imu_hx, -tl_imu_hy) + MAGNETIC_DECLINATION;
   
   if (!estimator_in_flight)
     estimator_ground_pressure = tl_imu_pressure;

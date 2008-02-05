@@ -8,6 +8,7 @@
 #define TL_AP_MODE_RATE     2
 #define TL_AP_MODE_ATTITUDE 3
 #define TL_AP_MODE_NAV      4
+#define TL_AP_MODE_SPEED    5
 
 extern uint8_t tl_autopilot_mode;
 
@@ -27,15 +28,6 @@ extern void tl_autopilot_on_rc_event(void);
 
 #define TL_AP_MODE_OF_PPRZ(mode)				\
   ((mode) < TRESHOLD_RATE_PPRZ ? TL_AP_MODE_RATE :		\
-   TL_AP_MODE_ATTITUDE )
-
-#if 0
-#define TL_AP_MODE_OF_PPRZ(mode)				\
-  ((mode) < TRESHOLD_RATE_PPRZ ? TL_AP_MODE_ATTITUDE :		\
-   TL_AP_MODE_NAV )
-#endif
-
-
-
+   TL_AP_MODE_AUTO )
 
 #endif /* TL_AUTOPILOT_H */

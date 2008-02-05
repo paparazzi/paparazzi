@@ -47,6 +47,10 @@ float tl_control_attitude_psi_sum_err;
 #define TL_CONTROL_ATTITUDE_PSI_IGAIN    -0.20
 #define TL_CONTROL_ATTITUDE_PSI_TRIM    350
 
+#define TL_CONTROL_SPEED_PGAIN  -1000.
+#define TL_CONTROL_SPEED_DGAIN  0.
+#define TL_CONTROL_SPEED_IGAIN   -0.20
+
 #define TL_CONTROL_AGL_PGAIN -1050 /* PPRZ / m */
 #define TL_CONTROL_AGL_DGAIN -1150 /* PPRZ / m */
 #define TL_CONTROL_AGL_IGAIN -2 /* PPRZ / m */
@@ -66,6 +70,14 @@ float tl_control_agl_igain;
 float tl_control_agl_sum_err;
 
 
+#define TL_MAX_SPEED_ERROR 2
+float tl_control_u_sp;
+float tl_control_v_sp;
+float tl_control_speed_pgain;
+float tl_control_speed_dgain;
+float tl_control_speed_igain;
+float tl_control_speed_u_sum_err;
+float tl_control_speed_v_sum_err;
 
 void tl_control_init(void) {
 
@@ -95,12 +107,17 @@ void tl_control_init(void) {
   tl_control_agl_igain = TL_CONTROL_AGL_IGAIN;
   tl_control_agl_sum_err = 0;
 
+  tl_control_speed_pgain = TL_CONTROL_SPEED_PGAIN;
+  tl_control_speed_dgain = TL_CONTROL_SPEED_DGAIN;
+  tl_control_speed_igain = TL_CONTROL_SPEED_IGAIN;
+  tl_control_speed_u_sum_err = 0;
+  tl_control_speed_v_sum_err = 0;
+
   tl_z_mode = TL_Z_MODE_RM;
 }
 
 
 void tl_control_rate_read_setpoints_from_rc(void) {
-
   tl_control_p_sp = -rc_values[RADIO_ROLL];
   tl_control_q_sp =  rc_values[RADIO_PITCH];
   tl_control_r_sp = -rc_values[RADIO_YAW] * RadOfDeg(TL_CONTROL_RATE_R_MAX_SP)/MAX_PPRZ;
@@ -248,4 +265,41 @@ void tl_control_agl_run(void) {
       tl_control_power_sp = 0;
   }
   }
+}
+
+
+void tl_control_speed_read_setpoints_from_rc(void) {
+  tl_control_v_sp = (2. * rc_values[RADIO_ROLL])/MAX_PPRZ;
+  tl_control_u_sp = (2. * -rc_values[RADIO_PITCH])/MAX_PPRZ;
+
+  if (!estimator_in_flight)
+    tl_control_attitude_psi_sp = estimator_psi;
+  else {
+    tl_control_attitude_psi_sp += -rc_values[RADIO_YAW] * RadOfDeg(TL_CONTROL_ATTITUDE_PSI_MAX_SP)/MAX_PPRZ;
+    NormRadAngle(tl_control_attitude_psi_sp);
+  }
+  tl_control_power_sp = rc_values[RADIO_THROTTLE];
+}
+
+void tl_control_speed_run(void) {
+  float err_u = tl_estimator_u - tl_control_u_sp;
+  Bound(err_u, -TL_MAX_SPEED_ERROR, TL_MAX_SPEED_ERROR);
+  float err_v = tl_estimator_v - tl_control_v_sp;
+  Bound(err_v, -TL_MAX_SPEED_ERROR, TL_MAX_SPEED_ERROR);
+
+  if(estimator_in_flight) {
+    tl_control_speed_u_sum_err += err_u;
+    tl_control_speed_v_sum_err += err_v;
+  } else {
+    tl_control_speed_u_sum_err = 0;
+    tl_control_speed_v_sum_err = 0;
+  }
+  
+  tl_control_attitude_theta_sp = - (tl_control_speed_pgain *  err_u + 
+			   tl_control_speed_dgain * tl_estimator_u_dot +
+			   tl_control_speed_igain * tl_control_speed_u_sum_err );
+
+  tl_control_attitude_phi_sp = - (tl_control_speed_pgain * err_v + 
+			   tl_control_speed_dgain * tl_estimator_v_dot +
+			   tl_control_speed_igain * tl_control_speed_v_sum_err );
 }

@@ -8,6 +8,8 @@ extern uint16_t estimator_flight_time;
 
 extern float tl_estimator_u;
 extern float tl_estimator_v;
+extern float tl_estimator_u_dot;
+extern float tl_estimator_v_dot;
 
 extern float estimator_x; /* m */
 extern float estimator_y; /* m */

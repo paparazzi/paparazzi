@@ -12,7 +12,9 @@ extern void tl_control_rate_run(void);
 extern void tl_control_attitude_read_setpoints_from_rc(void);
 extern void tl_control_attitude_run(void);
 extern void tl_control_agl_run(void);
+extern void tl_control_speed_run(void);
 extern void tl_control_nav_read_setpoints_from_rc(void);
+extern void tl_control_speed_read_setpoints_from_rc(void);
 
 extern bool_t kill_throttle;
 
@@ -51,6 +53,13 @@ extern float tl_control_agl_igain;
 extern float tl_control_agl_sum_err;
 extern float tl_control_agl_sp;
 
+extern float tl_control_u_sp;
+extern float tl_control_v_sp;
+extern float tl_control_speed_pgain;
+extern float tl_control_speed_dgain;
+extern float tl_control_speed_igain;
+extern float tl_control_speed_u_sum_err;
+extern float tl_control_speed_v_sum_err;
 
 extern int16_t tl_control_trim_r;
 
