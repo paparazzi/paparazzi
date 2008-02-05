@@ -9,18 +9,27 @@
       <dl_setting MAX="20" MIN="0" STEP="0.1" VAR="tl_control_rate_r_dgain" shortname="rate_dgain" module="tl_control"/>
       <dl_setting MAX="10" MIN="0" STEP="1" VAR="tl_control_rate_r_igain" shortname="rate_igain" module="tl_control"/>
       <dl_setting MAX="3000" MIN="-3000" STEP="1" VAR="tl_control_trim_r" shortname="trim_r" module="tl_control"/>
-      <dl_setting MAX="5" MIN="0" STEP="1" VAR="telemetry_mode_Ap" shortname="telemetry_mode" module="tl_telemetry"/>
+      <dl_setting MAX="6" MIN="0" STEP="1" VAR="telemetry_mode_Ap" shortname="telemetry_mode" module="tl_telemetry"/>
    </dl_settings>
+
    <dl_settings name="yaw">
       <dl_setting MAX="0" MIN="-3000" STEP="1" VAR="tl_control_attitude_psi_pgain" shortname="att_gain" module="tl_control"/>
       <dl_setting MAX="0" MIN="-3000" STEP="1" VAR="tl_control_attitude_psi_dgain" shortname="att_dgain" module="tl_control"/>
       <dl_setting MAX="0" MIN="-10" STEP="1" VAR="tl_control_attitude_psi_igain" shortname="att_igain" module="tl_control"/>
    </dl_settings>
+
    <dl_settings name="vertical">
       <dl_setting MAX="0" MIN="-3000" STEP="1" VAR="tl_control_agl_pgain" shortname="agl_pgain" module="tl_control"/>
       <dl_setting MAX="0" MIN="-3000" STEP="1" VAR="tl_control_agl_dgain" shortname="agl_dgain" module="tl_control"/>
       <dl_setting MAX="0" MIN="-10" STEP="1" VAR="tl_control_agl_igain" shortname="agl_igain" module="tl_control"/>
    </dl_settings>
+
+   <dl_settings name="speed">
+      <dl_setting MAX="0" MIN="-5000" STEP="1" VAR="tl_control_speed_pgain" shortname="speed_pgain" module="tl_control"/>
+      <dl_setting MAX="0" MIN="-3000" STEP="1" VAR="tl_control_speed_dgain" shortname="speed_dgain" module="tl_control"/>
+      <dl_setting MAX="0" MIN="-10" STEP="1" VAR="tl_control_speed_igain" shortname="speed_igain" module="tl_control"/>
+   </dl_settings>
+
     <dl_settings name="nav">
       <dl_setting MAX="0" MIN="-9600" STEP="1" VAR="tl_nav_goto_h_pgain" shortname="nav_h_pgain" module="tl_nav"/>
       <dl_setting MAX="0" MIN="-9600" STEP="1" VAR="tl_nav_goto_h_dgain" shortname="nav_h_dgain" module="tl_nav"/>      
