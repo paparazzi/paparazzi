@@ -49,9 +49,13 @@
       <message name="IMU_ACCEL"       period="0.016"/>
     </mode>
 
-
     <mode name="test_vloop">
       <message name="TL_VERTICAL_LOOP"       period="0.016"/>
+    </mode>
+
+    <mode name="test_speed_loop">
+      <message name="TL_SPEED_LOOP"  period="0.25"/>
+      <message name="TL_ESTIMATOR"   period="0.25"/>
     </mode>
   </process>
 
