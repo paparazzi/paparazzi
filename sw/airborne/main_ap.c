@@ -120,7 +120,11 @@ uint8_t lateral_mode = LATERAL_MODE_MANUAL;
 
 uint8_t vsupply;
 
-static uint8_t  mcu1_status, mcu1_ppm_cpt;
+static uint8_t  mcu1_status;
+
+#if defined RADIO_CONTROL || defined RADIO_CONTROL_AUTO1
+static uint8_t  mcu1_ppm_cpt;
+#endif
 
 bool_t kill_throttle = FALSE;
 
@@ -231,7 +235,7 @@ inline void telecommand_task( void ) {
   if ( mode_changed )
     PERIODIC_SEND_PPRZ_MODE();
 
-#ifdef RADIO_CONTROL  
+#if defined RADIO_CONTROL || RADIO_CONTROL_AUTO1
   /** In AUTO1 mode, compute roll setpoint and pitch setpoint from 
    * \a RADIO_ROLL and \a RADIO_PITCH \n
    */
@@ -299,7 +303,9 @@ static void navigation_task( void ) {
   else
     nav_periodic_task();
   
+#ifndef PERIOD_NAVIGATION
   SEND_NAVIGATION();
+#endif
 
   SEND_CAM();
   
