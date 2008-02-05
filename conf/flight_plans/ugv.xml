@@ -13,6 +13,7 @@
     <block name="Geo init">
       <while cond="LessThan(NavBlockTime(), 10)"/>
       <call fun="NavSetGroundReferenceHere()"/>
+      <set var="launch" value="1"/>
     </block>
     <block name="Goto UGV">
       <go wp="UGV" approaching_time="0"/>
