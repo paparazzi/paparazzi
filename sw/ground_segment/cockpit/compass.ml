@@ -51,7 +51,7 @@ let draw = fun da desired_course course distance ->
   let translate = fun (x, y) -> (4*s+x, 4*s-y) in
 
   (* Arrow *)
-  if distance < 5. then
+  if distance > 5. then
     let points = List.map (fun (x, y) -> translate (rotation (x*s/2,y*s/2))) arrow in
     dr#set_foreground fore;
     dr#polygon ~filled:true points;
