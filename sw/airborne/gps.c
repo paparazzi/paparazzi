@@ -47,7 +47,14 @@ uint16_t last_gps_msg_t;	/** cputime of the last gps message */
 bool_t gps_verbose_downlink;
 
 void gps_downlink( void ) {
-  DOWNLINK_SEND_GPS(&gps_mode, &gps_utm_east, &gps_utm_north, &gps_course, &gps_alt, &gps_gspeed,&gps_climb, &gps_itow, &gps_utm_zone, &gps_nb_ovrn);
+  static uint8_t _4Hz;
+  _4Hz++; if (_4Hz > 3) _4Hz = 0;
+
+  
+#if defined DOWNLINK_GPS_1Hz
+  if (_4Hz == 0)
+#endif
+    DOWNLINK_SEND_GPS(&gps_mode, &gps_utm_east, &gps_utm_north, &gps_course, &gps_alt, &gps_gspeed,&gps_climb, &gps_itow, &gps_utm_zone, &gps_nb_ovrn);
   
   static uint8_t i;
   if (i == gps_nb_channels) i = 0;
@@ -58,9 +65,9 @@ void gps_downlink( void ) {
   if (gps_verbose_downlink) {
     uint8_t j;
     for(j = 0; j < gps_nb_channels; j++) {
-    uint8_t cno = gps_svinfos[j].cno;
-    if (cno > 0 && j != i && abs(cno-last_cnos[j]) >= 3)
-      DOWNLINK_SEND_SVINFO(&j, &gps_svinfos[j].svid, &gps_svinfos[j].flags, &gps_svinfos[j].qi, &cno, &gps_svinfos[j].elev, &gps_svinfos[j].azim);
+      uint8_t cno = gps_svinfos[j].cno;
+      if (cno > 0 && j != i && abs(cno-last_cnos[j]) >= 3)
+	DOWNLINK_SEND_SVINFO(&j, &gps_svinfos[j].svid, &gps_svinfos[j].flags, &gps_svinfos[j].qi, &cno, &gps_svinfos[j].elev, &gps_svinfos[j].azim);
     }
   }
   i++;
