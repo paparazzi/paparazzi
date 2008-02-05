@@ -33,6 +33,8 @@
 
 #define GPS_NB_CHANNELS 16
 
+extern uint16_t gps_reset;
+
 extern uint8_t ubx_id, ubx_class;
 #define UBX_MAX_PAYLOAD 255
 extern uint8_t ubx_msg_buf[UBX_MAX_PAYLOAD];
