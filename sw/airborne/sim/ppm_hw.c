@@ -17,7 +17,7 @@ value send_ppm(value unit) {
   return unit;
 }
 #else // RADIO_CONTROL
-value update_rc_channel(value c, value v) {
+value update_rc_channel(value c __attribute__ ((unused)), value v __attribute__ ((unused))) {
   return Val_unit;
 }
 
