@@ -291,6 +291,5 @@ void vPoint(float fPlaneEast, float fPlaneNorth, float fPlaneAltitude,
                           sqrt(   svObjectPositionForPlane2.fy * svObjectPositionForPlane2.fy
                                 + svObjectPositionForPlane2.fz * svObjectPositionForPlane2.fz )
                         ));
-  }
 #endif
 }
