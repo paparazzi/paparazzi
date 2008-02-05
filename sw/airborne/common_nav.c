@@ -22,6 +22,7 @@ float ground_alt;
 int32_t nav_utm_east0 = NAV_UTM_EAST0;
 int32_t nav_utm_north0 = NAV_UTM_NORTH0;
 uint8_t nav_utm_zone0 = NAV_UTM_ZONE0;
+float max_dist_from_home = MAX_DIST_FROM_HOME;
 
 /** \brief Computes square distance to the HOME waypoint potentially sets
  * \a too_far_from_home
