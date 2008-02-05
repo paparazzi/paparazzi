@@ -44,8 +44,8 @@ struct ac_info_ the_acs[NB_ACS];
 
 #define SetAcInfo(_id, _utm_x /*m*/, _utm_y /*m*/, _course/*rad(CW)*/, _alt/*m*/,_gspeed/*m/s*/) { \
   if (_id < NB_ACS) { \
-    the_acs[_id].east = _utm_x -  NAV_UTM_EAST0; \
-    the_acs[_id].north = _utm_y - NAV_UTM_NORTH0; \
+    the_acs[_id].east = _utm_x -  nav_utm_east0; \
+    the_acs[_id].north = _utm_y - nav_utm_north0; \
     the_acs[_id].course = _course; \
     the_acs[_id].alt = _alt; \
     the_acs[_id].gspeed = _gspeed; \
