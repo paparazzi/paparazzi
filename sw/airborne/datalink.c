@@ -29,23 +29,20 @@
 
 #include <inttypes.h>
 #include <string.h>
+#include "datalink.h"
 
 #include "traffic_info.h"
-#include "nav.h"
-#include "datalink.h"
-#include "flight_plan.h"
-#include "gps.h"
-#include "uart.h"
-#include "gpio.h"
+#include "common_nav.h"
 #include "settings.h"
 #include "latlong.h"
 
 #ifndef DOWNLINK_DEVICE
 #define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
-#include "downlink.h"
 #endif
+#include "uart.h"
+#include "downlink.h"
 
-#define MOfCm(_x) (((float)_x)/100.)
+#define MOfCm(_x) (((float)(_x))/100.)
 
 #define SenderIdOfMsg(x) (x[0])
 #define IdOfMsg(x) (x[1])
