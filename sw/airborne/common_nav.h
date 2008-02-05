@@ -3,6 +3,7 @@
 
 #include "std.h"
 
+extern float max_dist_from_home;
 extern float dist2_to_home;
 extern float dist2_to_wp;
 extern bool_t too_far_from_home;
@@ -16,6 +17,16 @@ struct point {
 #define WaypointX(_wp) (waypoints[_wp].x)
 #define WaypointY(_wp) (waypoints[_wp].y)
 #define WaypointAlt(_wp) (waypoints[_wp].a)
+
+#define MoveWaypoint(_id, _ux, _uy, _a) { \
+  if (_id < nb_waypoint) { \
+    waypoints[_id].x = _ux - nav_utm_east0; \
+    waypoints[_id].y = _uy - nav_utm_north0; \
+    BoundAbs(waypoints[_id].x, max_dist_from_home); \
+    BoundAbs(waypoints[_id].y, max_dist_from_home); \
+    waypoints[_id].a = _a; \
+  } \
+}
 
 extern const uint8_t nb_waypoint;
 extern struct point waypoints[];

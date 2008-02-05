@@ -66,16 +66,6 @@ extern uint8_t horizontal_mode;
 #define HORIZONTAL_MODE_ROUTE 1
 #define HORIZONTAL_MODE_CIRCLE 2
 
-#define MoveWaypoint(_id, _ux, _uy, _a) { \
-  if (_id < nb_waypoint) { \
-    waypoints[_id].x = _ux - nav_utm_east0; \
-    waypoints[_id].y = _uy - nav_utm_north0; \
-    Bound(waypoints[_id].x, -MAX_DIST_FROM_HOME, MAX_DIST_FROM_HOME); \
-    Bound(waypoints[_id].y, -MAX_DIST_FROM_HOME, MAX_DIST_FROM_HOME); \
-    waypoints[_id].a = _a; \
-  } \
-}
-
 extern void nav_eight_init( void );
 extern void nav_eight(uint8_t, uint8_t, float);
 #define Eight(a, b, c) nav_eight((a), (b), (c))
