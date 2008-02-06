@@ -64,12 +64,17 @@ let write_conf_xml = fun ?(user_save = false) () ->
   end
 
 let new_ac_id = fun () ->
-  let m = ref 0 in
+  let used = Array.make 256 false in
   Hashtbl.iter
     (fun _  x ->
-      m := max !m (int_of_string (ExtXml.attrib x "ac_id")))
+      used.(int_of_string (ExtXml.attrib x "ac_id")) <- true)
     Utils.aircrafts ;
-  !m + 1
+  let rec first_unused = fun i ->
+    if i < 256 then
+      if not used.(i) then i else first_unused (i+1)
+    else
+      failwith "Already 256 A/C in your conf.xml file !" in
+  first_unused 1
 
 let parse_conf_xml = fun vbox ->
   let strings = ref [] in
