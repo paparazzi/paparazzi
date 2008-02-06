@@ -175,7 +175,7 @@ let supervision = fun ?file gui log (ac_combo : Utils.combo) ->
   Utils.select_in_combo session_combo "Simulation";
 
   let execute_custom = fun session_name ->
-    let session = Hashtbl.find sessions session_name in
+    let session = try Hashtbl.find sessions session_name with Not_found -> failwith (sprintf "Unknown session: %s" session_name) in
     List.iter
       (fun program ->
 	let name = ExtXml.attrib program "name" in
@@ -264,5 +264,5 @@ let supervision = fun ?file gui log (ac_combo : Utils.combo) ->
     | _ -> ()
   in
   ignore (gui#menu_item_delete_session#connect#activate ~callback);
-  session_combo
+  session_combo, execute_custom
 

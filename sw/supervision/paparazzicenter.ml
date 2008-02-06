@@ -132,8 +132,10 @@ let quit_button_callback = fun gui ac_combo session_combo target_combo () ->
 
 
 let () =
+  let session = ref "" in
   Arg.parse
-    ["-fullscreen", Arg.Set fullscreen, "Fullscreen window"]
+    ["-fullscreen", Arg.Set fullscreen, "Fullscreen window";
+     "-session", Arg.Set_string session, "<session name> Run a custom session"]
     (fun x -> fprintf stderr "Warning: Don't do anything with '%s'\n%!" x)
     "Usage: ";
   let file = Env.paparazzi_src // "sw" // "supervision" // "paparazzicenter.glade" in
@@ -211,7 +213,7 @@ let () =
 
   AC.build_handler ~file gui ac_combo target_combo log;
 
-  let session_combo = CP.supervision ~file gui log ac_combo in
+  let session_combo, execute_session = CP.supervision ~file gui log ac_combo in
 
   (* Quit button *)
   ignore (gui#menu_item_quit#connect#activate ~callback:(quit_button_callback gui ac_combo session_combo target_combo));
@@ -229,6 +231,12 @@ let () =
   (* Read preferences *)
   if Sys.file_exists Env.gconf_file then begin
     read_preferences Env.gconf_file ac_combo session_combo target_combo
+  end;
+
+  (* Run the command line session *)
+  if !session <> "" then begin
+    Utils.select_in_combo session_combo !session;
+    execute_session !session
   end;
 
   GMain.Main.main ();;
