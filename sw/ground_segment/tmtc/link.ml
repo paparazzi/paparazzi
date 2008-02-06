@@ -78,24 +78,29 @@ type status = {
     mutable rx_byte : int;
     mutable rx_msg : int;
     mutable rx_err : int;
-    mutable ms_since_last_msg : int
+    mutable ms_since_last_msg : int;
+    mutable last_ping : float; (* s *)
+    mutable last_pong : float; (* s *)
   }
 
 let statuss = Hashtbl.create 3
 let dead_aircraft_time_ms = 5000
-let update_status = fun ac_id buf_size ->
+let update_status = fun ac_id buf_size is_pong ->
   let status = 
     try Hashtbl.find statuss ac_id with Not_found ->
-      let s = { last_rx_byte = 0; last_rx_msg = 0; rx_byte = 0; rx_msg = 0; rx_err = 0; ms_since_last_msg = dead_aircraft_time_ms } in
+      let s = { last_rx_byte = 0; last_rx_msg = 0; rx_byte = 0; rx_msg = 0; rx_err = 0; ms_since_last_msg = dead_aircraft_time_ms; last_ping = 0.; last_pong = 0. } in
       Hashtbl.add statuss ac_id s;
       s in
   status.rx_byte <- status.rx_byte + buf_size;
   status.rx_msg <- status.rx_msg + 1;
   status.rx_err <- !PprzTransport.nb_err;
-  status.ms_since_last_msg <- 0
-
+  status.ms_since_last_msg <- 0;
+  if is_pong then
+    status.last_pong <- Unix.gettimeofday ();;
+  
 let status_msg_period = 1000 (** ms *)
-
+let ping_msg_period = 5000 (** ms  *)
+let status_ping_diff = 500 (* ms *)
 
 let live_aircraft = fun ac_id ->
   try
@@ -120,7 +125,8 @@ let send_status_msg =
 		"rx_msgs_rate", Pprz.Float msg_rate;
 		"rx_err", Pprz.Int status.rx_err;
 		"rx_bytes", Pprz.Int status.rx_byte;
-		"rx_msgs", Pprz.Int status.rx_msg
+		"rx_msgs", Pprz.Int status.rx_msg;
+		"ping_time", Pprz.Float (1000. *. (status.last_pong -. status.last_ping))
 	      ] in
       Tm_Pprz.message_send (string_of_int ac_id) "DOWNLINK_STATUS" vs)
       statuss 
@@ -170,7 +176,7 @@ let use_tele_message = fun ?raw_data_size payload ->
     let (msg_id, ac_id, values) = Tm_Pprz.values_of_payload payload in
     let msg = Tm_Pprz.message_of_id msg_id in
     Tm_Pprz.message_send (string_of_int ac_id) msg.Pprz.name values;
-    update_status ac_id raw_data_size
+    update_status ac_id raw_data_size (msg.Pprz.name = "PONG")
   with
     exc ->
       prerr_endline (Printexc.to_string exc);
@@ -375,6 +381,17 @@ let forward_uplink = fun device ->
   set_forwarder "SETTING";
   set_forwarder "BLOCK";
   set_forwarder "WIND_INFO"
+
+let send_ping_msg = fun device ->
+  Hashtbl.iter
+    (fun ac_id status ->
+      let ac_device = airborne_device ac_id airframes device.transport in
+      let msg_id, _ = Dl_Pprz.message_of_name "PING" in
+      let s = Dl_Pprz.payload_of_values msg_id my_id [] in
+      send ac_id device ac_device s High;
+      status.last_ping <- Unix.gettimeofday ()
+    )
+    statuss
   
 
 (** Main *********************************************************************)
@@ -458,6 +475,10 @@ let () =
     (** Init and Periodic tasks *)
     begin
       ignore (Glib.Timeout.add status_msg_period (fun () -> send_status_msg (); true));
+      let start_ping = fun () ->
+	ignore (Glib.Timeout.add ping_msg_period (fun () -> send_ping_msg device; true));
+	false in
+      ignore (Glib.Timeout.add status_ping_diff start_ping);
       if !aerocomm then
 	Aerocomm.set_data_mode fd;
       match transport with

@@ -11,6 +11,9 @@
    <message name="ALIVE" id="2">
    </message>
 
+   <message name="PONG" id="3">
+   </message>
+
    <message name="TAKEOFF" ID="4">
      <field name="cpu_time" type="uint16" unit="s"></field>
    </message>
@@ -143,6 +146,7 @@
     <field name="rx_err" type="uint32"></field>
     <field name="rx_bytes_rate" type="float" format="%.1f"></field>
     <field name="rx_msgs_rate" type="float" format="%.1f"></field>
+    <field name="ping_time" type="float" format="%.2f" unit="ms"></field>
   </message>
 
   <message name="MODEM_STATUS" ID="24">
@@ -730,6 +734,9 @@
  <message name="HITL_INFRARED" id="7">
    <field name="roll" type="int16"/>
    <field name="pitch" type="int16"/>
+ </message>
+
+ <message name="PING" id="8">
  </message>
 
  <message name="SET_ACTUATOR" id="100">

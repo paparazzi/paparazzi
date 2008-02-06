@@ -50,6 +50,10 @@
 void dl_parse_msg(void) {
   datalink_time = 0;
   uint8_t msg_id = IdOfMsg(dl_buffer);
+
+  if (msg_id == DL_PING) {
+    DOWNLINK_SEND_PONG();
+  } else
 #ifdef NAV
   if (msg_id == DL_ACINFO) {
     uint8_t id = DL_ACINFO_ac_id(dl_buffer);
