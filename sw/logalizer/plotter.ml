@@ -201,9 +201,11 @@ class plot = fun ~size ~width ~height ~packing () ->
 	      dr#set_foreground (`NAME "black");
 	      dr#lines [(0, y v); (width-width/size, y v)])
 	      csts;
-	    
+
+	    let margin = 3 in
+	    let title_y = ref margin in
 	    Hashtbl.iter
-	      (fun _ a ->
+	      (fun title a ->
 		(* Draw *)
 		let curve = ref [] in
 		assert (size = Array.length a.array);
@@ -218,8 +220,17 @@ class plot = fun ~size ~width ~height ~packing () ->
 		  dr#set_foreground (`NAME a.color);
 		  dr#lines !curve;
 		end;
-		(new GDraw.drawable da#misc#window)#put_pixmap ~x:0 ~y:0 dr#pixmap)
-	      curves
+
+		(* Title *)
+		Pango.Layout.set_text layout title;
+		let (w, h) = Pango.Layout.get_pixel_size layout in
+		dr#rectangle ~x:(width-h-margin) ~y:!title_y ~width:h ~height:h ~filled:true ();
+		
+		dr#set_foreground `BLACK;
+		dr#put_layout ~x:(width-2*margin-w-h) ~y:(!title_y) layout;
+		title_y := !title_y + h + margin)
+	      curves;
+	    (new GDraw.drawable da#misc#window)#put_pixmap ~x:0 ~y:0 dr#pixmap
 	with
 	  exc ->
 	    prerr_endline (Printexc.to_string exc)
