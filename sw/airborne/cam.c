@@ -38,32 +38,41 @@
 #include "point.h"
 #endif // POINT_CAM
 
-#ifdef CAM_PITCH_NEUTRAL
-#if (CAM_PITCH_MAX == CAM_PITCH_NEUTRAL)
-#error CAM_PITCH_MAX has to be different from CAM_PITCH_NEUTRAL
+#ifdef CAM_PAN_NEUTRAL
+#if (CAM_PAN_MAX == CAM_PAN_NEUTRAL)
+#error CAM_PAN_MAX has to be different from CAM_PAN_NEUTRAL
 #endif
-#if (CAM_PITCH_NEUTRAL == CAM_PITCH_MIN)
-#error CAM_PITCH_MIN has to be different from CAM_PITCH_NEUTRAL
+#if (CAM_PAN_NEUTRAL == CAM_PAN_MIN)
+#error CAM_PAN_MIN has to be different from CAM_PAN_NEUTRAL
+#endif
+#endif
+
+#ifdef CAM_TILT_NEUTRAL
+#if (CAM_TILT_MAX == CAM_TILT_NEUTRAL)
+#error CAM_TILT_MAX has to be different from CAM_TILT_NEUTRAL
+#endif
+#if (CAM_TILT_NEUTRAL == CAM_TILT_MIN)
+#error CAM_TILT_MIN has to be different from CAM_TILT_NEUTRAL
 #endif
 #endif
 
 #define MIN_PPRZ_CAM ((int16_t)(MAX_PPRZ * 0.05))
 #define DELTA_ALPHA 0.2
 
-#define MAX_CAM_ROLL M_PI/2
-#define MAX_CAM_PITCH M_PI/3
-
-#ifdef CAM_PHI0
-float phi_c = RadOfDeg(CAM_PHI0);
+#ifdef CAM_PAN0
+float pan_c = RadOfDeg(CAM_PAN0);
 #else
+float pan_c;
+#endif
+
+#ifdef CAM_TILT0
+float tilt_c = RadOfDeg(CAM_TILT0);
+#else
+float tilt_c;
+#endif
+
 float phi_c;
-#endif
-
-#ifdef CAM_THETA0
-float theta_c = RadOfDeg(CAM_THETA0);
-#else
 float theta_c;
-#endif
 
 float target_x, target_y, target_alt;
 
@@ -74,111 +83,97 @@ int cam_mode_auto = 1;
 
 void cam_manual( void ) {
   if (pprz_mode == PPRZ_MODE_AUTO2) {
-    static pprz_t cam_roll, cam_pitch;
+    static pprz_t cam_pan, cam_tilt;
     int16_t yaw = fbw_state->channels[RADIO_YAW];
     if (yaw > MIN_PPRZ_CAM || yaw < -MIN_PPRZ_CAM) { 
-      cam_roll += FLOAT_OF_PPRZ(yaw, 0, 300.);
-      cam_roll = TRIM_PPRZ(cam_roll);
+      cam_pan += FLOAT_OF_PPRZ(yaw, 0, 300.);
+      cam_pan = TRIM_PPRZ(cam_pan);
     }
     int16_t pitch = fbw_state->channels[RADIO_PITCH];
     if (pitch > MIN_PPRZ_CAM || pitch < -MIN_PPRZ_CAM) {
-      cam_pitch += FLOAT_OF_PPRZ(pitch, 0, 300.);
-      cam_pitch = TRIM_PPRZ(cam_pitch);
+      cam_tilt += FLOAT_OF_PPRZ(pitch, 0, 300.);
+      cam_tilt = TRIM_PPRZ(cam_tilt);
     }
-    ap_state->commands[COMMAND_CAM_ROLL] = cam_roll;
-    ap_state->commands[COMMAND_CAM_PITCH] = cam_pitch;
+#ifdef COMMAND_CAM_PAN
+    ap_state->commands[COMMAND_CAM_PAN] = cam_pan;
+#endif
+#ifdef COMMAND_CAM_TILT    
+    ap_state->commands[COMMAND_CAM_TILT] = cam_tilt;
+#endif    
   }
 }
 
 void cam_nadir( void ) {
-  phi_c = -estimator_phi;
-  theta_c = -estimator_theta;
+  pan_c = -estimator_phi;
+  tilt_c = -estimator_theta;
 }
+
+#if 0
+void cam_target_trigo( void ) {
+  /** Relative height of the target */
+  float h = estimator_z - target_alt;
+
+  /** Relative heading of the target (trigo) */
+  float dy = target_y-estimator_y;
+  float dx = target_x-estimator_x;
+  float alpha = atan2(dy, dx);
+
+  /** Projection in a horizontal plane of the distance ac-target */
+  float d = sqrt (dy*dy + dx*dx);
+
+  float d_h = d / h;
+  float pseudo_psi = M_PI/2 - estimator_hspeed_dir; /** Trigo */
+  float psi_alpha = - (pseudo_psi - M_PI/2 - alpha);
+  phi_c = atan(d_h * cos (psi_alpha)) + estimator_phi;
+  theta_c = atan(d_h * sin (psi_alpha)) - estimator_theta;
+}
+#endif
 
 void cam_target( void ) {
 
-#ifdef POINT_CAM
-  /* phi   fRoll */
-  /* theta fTilt */
-
-  float cam_pitch;
+  float cam_pan = 0;
+  float cam_tilt = 0;
 
   if (cam_mode_auto != 0)
   {
     vPoint(estimator_x, estimator_y, estimator_z,
-           estimator_hspeed_dir, estimator_theta, estimator_phi,
+           estimator_phi, estimator_theta, estimator_hspeed_dir,
            target_x, target_y, target_alt,
-           &phi_c, &theta_c);
+           &pan_c, &tilt_c);
   }
 
-  if (theta_c < RadOfDeg(CAM_PITCH_MIN - 30)) theta_c = RadOfDeg(CAM_PITCH_MAX);
-  
-  if (theta_c > RadOfDeg(CAM_PITCH_NEUTRAL))
-  {
-//    cam_pitch = (theta_c - CAM_PITCH_NEUTRAL) * (MAX_PPRZ / (CAM_PITCH_MAX - CAM_PITCH_NEUTRAL));
-    cam_pitch = MAX_PPRZ * (theta_c / (RadOfDeg(CAM_PITCH_MAX - CAM_PITCH_NEUTRAL)) - 1.); 
-  }
+#ifdef CAM_PAN_NEUTRAL  
+  if (theta_c > RadOfDeg(CAM_PAN_NEUTRAL))
+    cam_pan = MAX_PPRZ * (theta_c / (RadOfDeg(CAM_PAN_MAX - CAM_PAN_NEUTRAL)) - 1.); 
   else
-  {
-//    cam_pitch = (theta_c - CAM_PITCH_NEUTRAL) * MIN_PPRZ / (CAM_PITCH_MAX - CAM_PITCH_NEUTRAL);
-    cam_pitch = MIN_PPRZ * (1. - (theta_c / (RadOfDeg(CAM_PITCH_NEUTRAL - CAM_PITCH_MIN)))); 
-  }
+    cam_pan = MIN_PPRZ * (1. - (theta_c / (RadOfDeg(CAM_PAN_NEUTRAL - CAM_PAN_MIN)))); 
+#endif
+  
+#ifdef CAM_TILT_NEUTRAL  
+  if (theta_c > RadOfDeg(CAM_TILT_NEUTRAL))
+    cam_tilt = MAX_PPRZ * (theta_c / (RadOfDeg(CAM_TILT_MAX - CAM_TILT_NEUTRAL)) - 1.); 
+  else
+    cam_tilt = MIN_PPRZ * (1. - (theta_c / (RadOfDeg(CAM_TILT_NEUTRAL - CAM_TILT_MIN)))); 
+#endif
 
-  cam_pitch = TRIM_PPRZ(cam_pitch);
+  cam_pan = TRIM_PPRZ(cam_pan);
+  cam_tilt = TRIM_PPRZ(cam_tilt);
 
 #ifdef COMMAND_HATCH
 //  if (0 != use_hatch_cam) 
-ap_state->commands[COMMAND_HATCH] = cam_pitch;
+  ap_state->commands[COMMAND_HATCH] = cam_tilt;
+#endif
+#ifdef COMMAND_CAM_PAN
+    ap_state->commands[COMMAND_CAM_PAN] = cam_pan;
+#endif
+#ifdef COMMAND_CAM_TILT
+    ap_state->commands[COMMAND_CAM_TILT] = cam_tilt;
 #endif
 
-#if 0
-printf("pitch %f, roll %f, cam_tilt %f\n", 
-       (estimator_theta/M_PI)*180., (estimator_phi/M_PI)*180., (theta_c/M_PI)*180.);
-
-printf("alt = %f\n", estimator_z - target_alt);
-printf("y = %f\n", target_y-estimator_y);
-printf("x = %f\n", target_x-estimator_x);
-printf("servo = %f\n", cam_pitch);
-#endif
-
-#if 0
-  /** Relative height of the target */
-  float h = estimator_z - target_alt;
-
-  /** Relative heading of the target (trigo) */
-  float dy = target_y-estimator_y;
-  float dx = target_x-estimator_x;
-  float alpha = atan2(dy, dx);
-
-  /** Projection in a horizontal plane of the distance ac-target */
-  float d = sqrt (dy*dy + dx*dx);
-
-  float d_h = d / h;
-  float pseudo_psi = M_PI/2 - estimator_hspeed_dir; /** Trigo */
-  float psi_alpha = - (pseudo_psi - M_PI/2 - alpha);
-  phi_c = atan(d_h * cos (psi_alpha)) + estimator_phi;
-  theta_c = atan(d_h * sin (psi_alpha)) - estimator_theta;
-#endif
-#else
-  /** Relative height of the target */
-  float h = estimator_z - target_alt;
-
-  /** Relative heading of the target (trigo) */
-  float dy = target_y-estimator_y;
-  float dx = target_x-estimator_x;
-  float alpha = atan2(dy, dx);
-
-  /** Projection in a horizontal plane of the distance ac-target */
-  float d = sqrt (dy*dy + dx*dx);
-
-  float d_h = d / h;
-  float pseudo_psi = M_PI/2 - estimator_hspeed_dir; /** Trigo */
-  float psi_alpha = - (pseudo_psi - M_PI/2 - alpha);
-  phi_c = atan(d_h * cos (psi_alpha)) + estimator_phi;
-  theta_c = atan(d_h * sin (psi_alpha)) - estimator_theta;
-#endif // POINT_CAM
+  /* not true in all camera mount cases */
+  phi_c = pan_c;
+  theta_c = tilt_c;
 }
-
 
 #define MAX_DIST_TARGET 500.
 

@@ -33,12 +33,13 @@
 
 
 extern float phi_c, theta_c;
+extern float pan_c, tilt_c;
 extern float target_x, target_y;
 
 extern int use_hatch_cam;
 extern int cam_mode_auto;
 
-#define CamNull() { phi_c = 0; theta_c = 0; }
+#define CamNull() { phi_c = 0; theta_c = 0;  pan_c = 0; tilt_c = 0; }
 #define CamFix() {}
 
 void cam_nadir(void);

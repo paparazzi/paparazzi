@@ -1,7 +1,7 @@
 /*
  * $Id$
  *  
- * Copyright (C) 2005-2007  Arnold Schroeter
+ * Copyright (C) 2005-2008  Arnold Schroeter
  *
  * This file is part of paparazzi.
  *
@@ -23,10 +23,10 @@
  */
  
 /** \file point.c 
- *  \brief Determines camera turn and tilt angles.
+ *  \brief Determines camera pan and tilt angles.
  *
- * project:        Depronazzi MAV
- * description:    Determines camera turn and tilt angles from 
+ * project:        Paparazzi
+ * description:    Determines camera pan and tilt angles from 
  *                 plane's and object's positions and plane's
  *                 pitch and roll angles. Software might be optimized
  *                 by removing multiplications with 0, it is left this
@@ -121,23 +121,29 @@ void vMultiplyMatrixByVector(VECTOR* svA, MATRIX smB, VECTOR svC)
 ;                           in m (actually the units do not matter as 
 ;                           long as they are the same as for the object's
 ;                           position)
-;                  fTurnAngle  north=0; right= positive values in radians
-;                  fPitchAngle level=0; nose up = positive values
 ;                  fRollAngle  level=0; right wing down = positive values
+;                  fPitchAngle level=0; nose up = positive values
 ;                           plane's pitch and roll angles
 ;                           with respect to ground in radians
+;                  fYawAngle   north=0; right= positive values in radians
+;                           plane's yaw angle with respect to north
 ;                  fObjectNorth, fObjectEast, fAltitude object's 
 ;                           position with respect to ground
 ;                           in m (actually the units do not matter as 
 ;                           long as they are the same for the plane's
 ;                           position)
-;                  turn, tilt turn and tilt angles for camera servos
-;                           in radians
+;                  fPan, fTilt angles for camera servos in radians,
+;                           pan is turn/left-right and tilt is down-up
+;                           in reference to the camera picture
+; camera mount:    The way the camera is mounted is given through a
+;                  define POINT_CAM_a_[_b] where a gives the mount
+;                  angle within the aircraft and b the angle when
+;                  viewing the direction of the first servo.
 ;*******************************************************************/
 void vPoint(float fPlaneEast, float fPlaneNorth, float fPlaneAltitude,
-            float fTurnAngle, float fPitchAngle, float fRollAngle,
+            float fRollAngle, float fPitchAngle, float fYawAngle, 
             float fObjectEast, float fObjectNorth, float fAltitude,
-            float *fTurn, float *fTilt)
+            float *fPan, float *fTilt)
 {
   static VECTOR svPlanePosition, 
                 svObjectPosition, 
@@ -157,9 +163,9 @@ void vPoint(float fPlaneEast, float fPlaneNorth, float fPlaneAltitude,
   /* distance between plane and object */
   vSubtractVectors(&svObjectPositionForPlane, svObjectPosition, svPlanePosition);
 
-  /* turn */
-  smRotation.fx1 = (float)(cos(fTurnAngle));
-  smRotation.fx2 = (float)(sin(fTurnAngle));
+  /* yaw */
+  smRotation.fx1 = (float)(cos(fYawAngle));
+  smRotation.fx2 = (float)(sin(fYawAngle));
   smRotation.fx3 = 0.;
   smRotation.fy1 = -smRotation.fx2;
   smRotation.fy2 = smRotation.fx1;
@@ -204,35 +210,36 @@ void vPoint(float fPlaneEast, float fPlaneNorth, float fPlaneAltitude,
    * back. The pitch value is given through the tilt parameter.            
    *                                                                       
    *                                                                       
-   * pitch servo, looking from right:                                      
+   * tilt servo, looking from left:                                      
    *                                                                       
-   *     plane back ---------------> plane front                            
-   *                     / I \                                             
-   *                    /  I  \                                            
-   *                 -45°  I   45°                                         
-   *                       0°                                              
+   *     plane front <-------------- plane back
+   *                      / I \                                             
+   *                     /  I  \                                            
+   *                   45°  I  -45°                                         
+   *                        0°                                              
    *
    * (should be hyperbolic, we use lines to make it better, the plane rolls
    *  away from the object while flying towards it!)
    *                                                                       
    */                                                                      
 
-  /* fTurn is deactivated 
-  */
-  *fTurn = 0;
-
   /* fTilt =   0 -> camera looks down
               90 -> camera looks forward
              -90 -> camera looks backward
   */
   *fTilt = (float)(atan2( svObjectPositionForPlane2.fx, -svObjectPositionForPlane2.fz ));
-#if 0
+#if 0  //we roll away anyways
   *fTilt = (float)(atan2( svObjectPositionForPlane2.fx,
                           sqrt(   svObjectPositionForPlane2.fy * svObjectPositionForPlane2.fy
                                 + svObjectPositionForPlane2.fz * svObjectPositionForPlane2.fz )
                         ));
 #endif
+
+  /* fPan is deactivated 
+  */
+  *fPan = 0;
 #else
+#ifdef POINT_CAM_YAW_PITCH
 
 /*
  * This is for two axes pan/tilt camera mechanisms. The default is to
@@ -276,11 +283,11 @@ void vPoint(float fPlaneEast, float fPlaneNorth, float fPlaneAltitude,
  *
  */
 
-  /* fTurn =   0  -> camera looks along the wing
+  /* fPan =   0  -> camera looks along the wing
              -90  -> camera looks in flight direction
               90  -> camera looks backwards
   */
-  *fTurn = -(float)(atan2(svObjectPositionForPlane2.fy, svObjectPositionForPlane2.fz));
+  *fPan = -(float)(atan2(svObjectPositionForPlane2.fy, svObjectPositionForPlane2.fz));
  
   /* fTilt =   0  -> camera looks down
               90  -> camera looks into right hemisphere
@@ -291,5 +298,42 @@ void vPoint(float fPlaneEast, float fPlaneNorth, float fPlaneAltitude,
                           sqrt(   svObjectPositionForPlane2.fy * svObjectPositionForPlane2.fy
                                 + svObjectPositionForPlane2.fz * svObjectPositionForPlane2.fz )
                         ));
+#else
+#ifdef POINT_CAM_PITCH_ROLL
+
+/*
+ * This is for another two axes camera mechanisms. The tilt servo is fixed to
+ * the fuselage and moves the pan servo.
+ *
+ * tilt servo, looking from left:
+ *
+ *    plane front <--------------- plane back
+ *                      / I \
+ *                     /  I  \
+ *                   45°  I  -45°
+ *                        0°
+ *
+ *
+ * pan servo, looking from back:
+ *
+ *     plane left --------------- plane right
+ *                     / I \
+ *                    /  I  \
+ *                  45°  I  -45°
+ *                       0°
+ *
+ */
+
+  *fTilt = (float)(atan2( svObjectPositionForPlane2.fx, svObjectPositionForPlane2.fz));
+
+  *fPan  = (float)(atan2(-svObjectPositionForPlane2.fy,
+                          sqrt(  svObjectPositionForPlane2.fx * svObjectPositionForPlane2.fx
+                               + svObjectPositionForPlane2.fz * svObjectPositionForPlane2.fz )
+					    ));
+					    
+#else
+#error at least one CAM_POINT_* camera mount has to be defined!                        
+#endif
+#endif
 #endif
 }

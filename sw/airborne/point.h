@@ -1,7 +1,7 @@
 /*
  * $Id$
  *  
- * Copyright (C) 2005  Arnold Schroeter
+ * Copyright (C) 2005-2008  Arnold Schroeter
  *
  * This file is part of paparazzi.
  *
@@ -27,9 +27,9 @@
 #define POINT_H
 
 void vPoint(float fPlaneEast, float fPlaneNorth, float fPlaneAltitude,
-            float fTurnAngle, float fPitchAngle, float fRollAngle,
+            float fRollAngle, float fPitchAngle, float fYawAngle, 
             float fObjectEast, float fObjectNorth, float fAltitude,
-            float *fTurn, float *fTilt);
+            float *fPan, float *fTilt);
 
 #endif /* POINT_H */
 
