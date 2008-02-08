@@ -32,7 +32,7 @@
  *                 by removing multiplications with 0, it is left this
  *                 way for better understandabilty and changeability.
  *
- * author:         Arnold Schroeter
+ * author:         Arnold Schroeter, Martin Mueller
  *
  * hardware:
  *
@@ -208,7 +208,7 @@ void vPoint(float fPlaneEast, float fPlaneNorth, float fPlaneAltitude,
    * This is for one axis pitch camera mechanisms. The pitch servo neutral 
    * makes the camera look down, 90° is to the front and -90° is to the    
    * back. The pitch value is given through the tilt parameter.            
-   *                                                                       
+   * The camera picture is upright when looking in flight direction.
    *                                                                       
    * tilt servo, looking from left:                                      
    *                                                                       
@@ -227,12 +227,44 @@ void vPoint(float fPlaneEast, float fPlaneNorth, float fPlaneAltitude,
               90 -> camera looks forward
              -90 -> camera looks backward
   */
-  *fTilt = (float)(atan2( svObjectPositionForPlane2.fx, -svObjectPositionForPlane2.fz ));
-#if 0  //we roll away anyways
+#if 0 //we roll away anyways  
   *fTilt = (float)(atan2( svObjectPositionForPlane2.fx,
                           sqrt(   svObjectPositionForPlane2.fy * svObjectPositionForPlane2.fy
                                 + svObjectPositionForPlane2.fz * svObjectPositionForPlane2.fz )
                         ));
+#else                        
+  *fTilt = (float)(atan2( svObjectPositionForPlane2.fx, -svObjectPositionForPlane2.fz ));
+#endif
+
+  /* fPan is deactivated 
+  */
+  *fPan = 0;
+#else
+#ifdef POINT_CAM_ROLL
+
+  /*                                                                       
+   * This is for single axis roll camera mechanisms. The tilt servo neutral 
+   * makes the camera look down, -90° is to the right and 90° is to the    
+   * left.
+   * The camera picture is upright when looking to the right.
+   *            
+   *                                                                       
+   * tilt servo, looking from behind:                                      
+   *                                                                       
+   *     plane left --------------- plane right
+   *                     / I \
+   *                    /  I  \
+   *                  45°  I  -45°
+   *                       0°
+   *
+   */
+#if 1  // have to check if it helps
+  *fTilt = (float)(atan2( svObjectPositionForPlane2.fy,
+                          sqrt(  svObjectPositionForPlane2.fx * svObjectPositionForPlane2.fx
+                               + svObjectPositionForPlane2.fz * svObjectPositionForPlane2.fz )
+					    ));
+#else					    
+  *fTilt = (float)(atan2( svObjectPositionForPlane2.fy, -svObjectPositionForPlane2.fz));
 #endif
 
   /* fPan is deactivated 
@@ -333,6 +365,7 @@ void vPoint(float fPlaneEast, float fPlaneNorth, float fPlaneAltitude,
 					    
 #else
 #error at least one CAM_POINT_* camera mount has to be defined!                        
+#endif
 #endif
 #endif
 #endif
