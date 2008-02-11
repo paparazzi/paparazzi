@@ -24,8 +24,18 @@
  *
  *)
 
+open Printf
 
 let (//) = Filename.concat
+
+(* Fixme: find something more basic than adjustment *)
+let set_float_value = fun (a:GData.adjustment) v ->
+  let lower = Pervasives.min a#lower v
+  and upper = Pervasives.max a#upper v in
+  a#set_bounds ~lower ~upper ();
+  a#set_value v
+
+
 
 let dnd_targets = [ { Gtk.target = "STRING"; flags = []; info = 0} ]
 let parse_dnd =
@@ -43,10 +53,18 @@ let labelled_entry = fun ?width_chars text value (h:GPack.box) ->
   let label = GMisc.label ~text ~packing:h#pack () in
   label, GEdit.entry ?width_chars ~text:value ~packing:h#pack ()
 
-type values = { mutable array: float option array; mutable index: int; color : string }
+type values = { 
+    mutable array: float option array;
+    mutable index: int; 
+    color : string;
+    average : GData.adjustment;
+    stdev : GData.adjustment
+  }
 
 let create_values = fun size color ->
-  { array = Array.create size None; index = 0; color = color }
+  { array = Array.create size None; index = 0; color = color;
+    average = GData.adjustment ~value:0. ();
+    stdev = GData.adjustment ~value:0. ()}
 
 type status = 
     Run 
@@ -206,20 +224,30 @@ class plot = fun ~size ~width ~height ~packing () ->
 	    let title_y = ref margin in
 	    Hashtbl.iter
 	      (fun title a ->
-		(* Draw *)
-		let curve = ref [] in
+		(* Draw and compute average and stdev*)
+		let curve = ref []
+		and sum = ref 0. and sum_squares = ref 0.
+		and n = ref 0 in
 		assert (size = Array.length a.array);
 		for i = 0 to size - 1 do
 		  let i' = (i+a.index) mod size in
 		  match a.array.(i') with
 		    None -> ()
 		  | Some v ->
+		      incr n;
+		      sum := !sum +. v;
+		      sum_squares := !sum_squares +. v *. v;
 		      curve := ((i * width) / size, y v) :: !curve;
 		done;
 		if !curve <> [] then begin
 		  dr#set_foreground (`NAME a.color);
 		  dr#lines !curve;
 		end;
+		let fn = float !n in
+		let avg = !sum /. fn in
+		let stdev = sqrt ((!sum_squares -. fn *. avg *. avg) /. fn) in
+		set_float_value a.average avg;
+		set_float_value a.stdev stdev;
 
 		(* Title *)
 		Pango.Layout.set_text layout title;
@@ -343,6 +371,37 @@ let rec plot_window = fun window ->
   ignore (stop_item#connect#activate ~callback:plot#stop);
   ignore (start_item#connect#activate ~callback:plot#restart);
 
+  (* Curve menu item *)
+  let insert_in_menu = fun curve name binding ->
+    let eb = GBin.event_box ~width:10 ~height:10 () in
+    eb#coerce#misc#modify_bg [`NORMAL, `NAME curve.color];
+
+    let curve_item = curves_menu_fact#add_image_item ~image:eb#coerce ~label:name () in
+    let submenu = GMenu.menu () in
+    curve_item#set_submenu submenu;
+    let submenu_fact = new GMenu.factory submenu in
+
+    (* Delete *)
+    let delete_item = submenu_fact#add_item "Delete" in
+    let delete = fun () ->
+	plot#delete_curve name;
+      Ivy.unbind binding;
+      curves_menu#remove (curve_item :> GMenu.menu_item) in
+    ignore (delete_item#connect#activate ~callback:delete);
+
+    (* Average *)
+    let average_value = GMisc.label ~height:10 ~text:"N/A" () in
+    let _avg_item = submenu_fact#add_image_item ~image:average_value#coerce ~label:"Average" () in
+    let update_avg_item = fun () ->
+      average_value#set_text (sprintf "%.6f" curve.average#value) in
+    ignore (curve.average#connect#value_changed update_avg_item);
+
+    (* Standard deviation *)
+    let stdev_value = GMisc.label~height:10  ~text:"N/A" () in
+    let _item = submenu_fact#add_image_item ~image:stdev_value#coerce ~label:"Stdev" () in
+    let update_stdev_value = fun () ->
+      stdev_value#set_text (sprintf "%.6f" curve.stdev#value) in
+    ignore (curve.stdev#connect#value_changed update_stdev_value) in
 
   let add_curve = fun ?(factor=1.) name ->
     let (sender, class_name, msg_name, field_name, factor') = parse_dnd name in
@@ -360,33 +419,25 @@ let rec plot_window = fun window ->
 	P.message_bind ~sender msg_name cb in
     
     let curve = plot#create_curve name in
-    let eb = GBin.event_box ~width:10 ~height:10 () in
-    eb#coerce#misc#modify_bg [`NORMAL, `NAME curve.color];
-    let item = curves_menu_fact#add_image_item ~image:eb#coerce ~label:name () in
-      
-    let delete = fun () ->
-	plot#delete_curve name;
-      Ivy.unbind binding;
-      curves_menu#remove (item :> GMenu.menu_item) in
-    ignore (item#connect#activate ~callback:delete) in
+    insert_in_menu curve name binding in
 
-  (* Drag and drop handler *)
-  let data_received = fun context ~x ~y data ~info ~time ->
-    let factor =  float_of_string factor#text in
-    try
-      let name = data#data in
-      add_curve ~factor name
-    with
-      exc -> prerr_endline (Printexc.to_string exc)
-  in
-  plotter#drag#dest_set dnd_targets ~actions:[`COPY];
-  ignore (plotter#drag#connect#data_received ~callback:(data_received));
-
-  (* Init curves *)
-  List.iter add_curve window.curves;
-
-  plotter#add_accel_group accel_group;
-  plotter#show ()
+    (* Drag and drop handler *)
+    let data_received = fun context ~x ~y data ~info ~time ->
+      let factor =  float_of_string factor#text in
+      try
+	let name = data#data in
+	add_curve ~factor name
+      with
+	exc -> prerr_endline (Printexc.to_string exc)
+    in
+    plotter#drag#dest_set dnd_targets ~actions:[`COPY];
+    ignore (plotter#drag#connect#data_received ~callback:(data_received));
+    
+    (* Init curves *)
+    List.iter add_curve window.curves;
+    
+    plotter#add_accel_group accel_group;
+    plotter#show ()
 
 
 
