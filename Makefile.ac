@@ -39,6 +39,9 @@ SETTINGS_H=$(ACINCLUDE)/settings.h
 SETTINGS_XMLS=$(patsubst %,$(CONF)/%,$(SETTINGS))
 SETTINGS_XML=$(ACINCLUDE)/settings.xml
 MAKEFILE_AC=$(ACINCLUDE)/Makefile.ac
+SETTINGS_FILE=$(SETTINGS:settings%=%)
+TUNING_H=$(ACINCLUDE)/tuning.h
+TUNING_INC_H=$(PAPARAZZI_HOME)/var/include/$(SETTINGS:settings/%.xml=%.h)
 SUPERVISION=./paparazzi
 MAKE=make PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME)
 
@@ -52,7 +55,7 @@ init:
 demo:
 	$(SUPERVISION)
 
-all_ac_h: $(AIRFRAME_H) $(RADIO_H) $(FLIGHT_PLAN_H) $(FLIGHT_PLAN_XML) $(SETTINGS_H) $(MAKEFILE_AC) $(PERIODIC_H)
+all_ac_h: $(AIRFRAME_H) $(RADIO_H) $(FLIGHT_PLAN_H) $(FLIGHT_PLAN_XML) $(SETTINGS_H) $(TUNING_H) $(MAKEFILE_AC) $(PERIODIC_H)
 
 $(AIRFRAME_H) : $(CONF)/$(AIRFRAME_XML) $(CONF_XML)
 	@echo BUILD $@
@@ -83,6 +86,12 @@ $(SETTINGS_H) : $(SETTINGS_XMLS) $(CONF_XML) $(TOOLS)/gen_settings.out
 	@echo BUILD $@
 	$(Q)$(TOOLS)/gen_settings.out $(SETTINGS_XML) $(SETTINGS_XMLS) > $@
 	$(Q)chmod a+r $@
+
+$(TUNING_H) : $(SETTINGS_XMLS) $(CONF_XML) $(TOOLS)/gen_tuning.out
+	@echo BUILD $@
+	$(Q)$(TOOLS)/gen_tuning.out $(SETTINGS_XMLS) > $@
+	$(Q)cp $@ $(TUNING_INC_H)
+	$(Q)chmod a+r $@ $(TUNING_INC_H)
 
 $(MAKEFILE_AC) : $(CONF)/$(AIRFRAME_XML)
 	@echo BUILD $@
