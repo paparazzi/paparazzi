@@ -17,6 +17,9 @@ uint8_t dpicco_status;
 
 uint16_t dpicco_val[DPICCO_NB_SENSOR];
 
+float dpicco_humid;
+float dpicco_temp;
+
 #define DPICCO_SLAVE_ADDR 0xF0
 
 
@@ -39,7 +42,7 @@ void dpicco_periodic( void ) {
       dpicco_i2c_done = FALSE;
       i2c_receive(DPICCO_SLAVE_ADDR, 4, &dpicco_i2c_done);
       
-      LED_ON(2);
+//      LED_ON(2);
     }
     else if (dpicco_status == DPICCO_MEASURING_RD) {
       /* get data */
@@ -50,7 +53,7 @@ void dpicco_periodic( void ) {
       dpicco_i2c_done = FALSE;
       i2c_receive(DPICCO_SLAVE_ADDR, 4, &dpicco_i2c_done);
       
-      LED_TOGGLE(2);
+//      LED_TOGGLE(2);
     }
   }
 }
