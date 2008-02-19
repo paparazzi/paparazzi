@@ -42,8 +42,8 @@
   </section>
 
   <section name="adc" prefix="ADC_CHANNEL_">
-    <define name="IR1" value="ADC_0"/>
-    <define name="IR2" value="ADC_1"/>
+    <define name="IR1" value="ADC_1"/>
+    <define name="IR2" value="ADC_0"/>
     <define name="IR_TOP" value="ADC_4"/>
     <define name="IR_NB_SAMPLES" value="16"/>
     <define name="GYRO_ROLL" value="ADC_6"/>
@@ -57,7 +57,7 @@
     <define name="ADC_TOP_NEUTRAL" value="510"/>
 
     <define name="HORIZ_SENSOR_TILTED" value="1"/>
-    <define name="IR1_SIGN" value="-1"/>
+    <define name="IR2_SIGN" value="1"/>
     <define name="TOP_SIGN" value="-1"/>
 
     <define name="LATERAL_CORRECTION" value="1."/>
@@ -140,21 +140,14 @@
     <define name="PITCH_MAX_SETPOINT" value="0.5" unit="radians"/>
     <define name="PITCH_MIN_SETPOINT" value="-0.5" unit="radians"/>
 
-    <define name="ROLL_PGAIN" value="8000."/>
-    <define name="AILERON_OF_THROTTLE" value="0.0"/>
     <define name="PITCH_PGAIN" value="-9000."/>
     <define name="PITCH_DGAIN" value="0."/>
+
     <define name="ELEVATOR_OF_ROLL" value="1000"/>
     
     <!--  roll rate loop -->
-    <define name="ROLL_RATE_MODE_DEFAULT" value="1"/>
-    <define name="ROLL_RATE_SETPOINT_PGAIN" value="-5.5"/>
-    <define name="ROLL_RATE_MAX_SETPOINT" value="10"/>
-    <define name="LO_THROTTLE_ROLL_RATE_PGAIN" value="1500."/>
-    <define name="HI_THROTTLE_ROLL_RATE_PGAIN" value="900."/>
-    <define name="ROLL_RATE_IGAIN" value="0."/>
-    <define name="ROLL_RATE_DGAIN" value="0.5"/>
-    <define name="ROLL_RATE_SUM_NB_SAMPLES" value="64"/>
+    <define name="ROLL_ATTITUDE_GAIN" value="-7500"/>
+    <define name="ROLL_RATE_GAIN" value="-1500"/>
 
     <define name="COURSE_SLEW_INCREMENT" value="RadOfDeg(3)"/>
   </section>
@@ -234,7 +227,7 @@ ap.srcs += gps_ubx.c gps.c latlong.c
 ap.CFLAGS += -DINFRARED -DALT_KALMAN
 ap.srcs += infrared.c estimator.c
 
-ap.CFLAGS += -DNAV -DH_CTL_RATE_LOOP -DAGR_CLIMB -DLOITER_TRIM
+ap.CFLAGS += -DNAV -DAGR_CLIMB -DLOITER_TRIM
 ap.srcs += nav.c fw_h_ctl.c fw_v_ctl.c nav_survey_rectangle.c traffic_info.c nav_line.c
 
 
@@ -263,7 +256,7 @@ ap.CFLAGS += -D BARO_MS5534A_W1=0xAC20 -D BARO_MS5534A_W2=0x87D9 -D BARO_MS5534A
 
 # Config for SITL simulation
 include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
-sim.CFLAGS += -DCONFIG=\"tiny.h\" -DAGR_CLIMB -DH_CTL_RATE_LOOP -DLOITER_TRIM -DALT_KALMAN -DUSE_BARO_MS5534A
+sim.CFLAGS += -DCONFIG=\"tiny.h\" -DAGR_CLIMB -DLOITER_TRIM -DALT_KALMAN -DUSE_BARO_MS5534A
 sim.srcs += nav_survey_rectangle.c bomb.c $(SRC_ARCH)/sim_baro.c nav_line.c
 
   </makefile>
