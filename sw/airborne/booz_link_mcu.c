@@ -24,8 +24,6 @@ uint16_t booz_link_mcu_crc;
 
 #ifdef BOOZ_FILTER_MCU  /* FILTER LPC code */
 
-#include "multitilt.h"
-
 /* FIXME!!!! two function with same name in single MCU configuration */
 /* by chance  booz_link_mcu_hw_init does nothing in sim              */
 #ifndef SITL
