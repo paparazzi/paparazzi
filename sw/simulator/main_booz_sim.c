@@ -1,3 +1,27 @@
+/*
+ * $Id$
+ *  
+ * Copyright (C) 2008  Antoine Drouin
+ *
+ * This file is part of paparazzi.
+ *
+ * paparazzi is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * paparazzi is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with paparazzi; see the file COPYING.  If not, write to
+ * the Free Software Foundation, 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA. 
+ *
+ */
+
 #include <glib.h>
 #include <getopt.h>
 
@@ -47,10 +71,10 @@ static void on_DL_SETTING(IvyClientPtr app, void *user_data, int argc, char *arg
 #endif
 
 
+#include "booz_imu.h"
 #include "booz_estimator.h"
 #include "radio_control.h"
 #include "actuators.h"
-#include "imu_v3.h"
 #include "booz_inter_mcu.h"
 
 volatile bool_t ppm_valid;
@@ -72,14 +96,17 @@ static gboolean booz_sim_periodic(gpointer data __attribute__ ((unused))) {
 
   sim_time += DT;
 
-  /* call the filter periodic task to read sensors                      */
-  /* the sim implementation of max1167_read ( called by ImuPeriodic() ) */
-  /* will post a ImuEvent                                               */
+  /* call the filter periodic task to run telemetry function            */
   booz_filter_main_periodic_task();
   
-  /* process the ImuEvent */
+  /* feed sensors */
+  max1167_hw_feed_value(sim_time, bsm.gyro, bsm.accel);
+  micromag_hw_feed_value(sim_time, bsm.mag);
+
+  /* process sensors events */
   /* it will run the filter and the inter-process communication which   */
   /* will post a BoozLinkMcuEvent in the Controller process             */
+  booz_filter_main_event_task();
   booz_filter_main_event_task();
 
   /* process the BoozLinkMcuEvent                                       */
@@ -187,10 +214,10 @@ static inline void booz_sim_display(void) {
 	       DegOfRad(bsm.gyro_bias_random_walk_value->ve[AXIS_R]));
     IvySendMsg("148 BOOZ_SIM_RANGE_METER %f",  
 	       bsm.range_meter);
-    IvySendMsg("148 BOOZ_SIM_WIND %f %f %f",  
-	       bwm.velocity->ve[AXIS_X], 
-	       bwm.velocity->ve[AXIS_Y], 
-	       bwm.velocity->ve[AXIS_Z]);
+    //    IvySendMsg("148 BOOZ_SIM_WIND %f %f %f",  
+    //	       bwm.velocity->ve[AXIS_X], 
+    //	       bwm.velocity->ve[AXIS_Y], 
+    //	       bwm.velocity->ve[AXIS_Z]);
   }
 }
 
@@ -213,11 +240,12 @@ static void booz_sim_set_ppm_from_joystick( void ) {
 #else
   ppm_pulses[RADIO_THROTTLE] = 1223 + 0.4 * (2050-1223);
   //BREAK_MTT();
-  WALK_OVAL();
+  //  WALK_OVAL();
+  TWO_POINTS();
   // CIRCLE();
   //HOVER();
   // TOUPIE();
-  //  ATTITUDE_ROLL_STEPS();
+  //ATTITUDE_ROLL_STEPS();
   //ATTITUDE_PITCH_STEPS();
   //  ATTITUDE_YAW_STEPS();
 #endif

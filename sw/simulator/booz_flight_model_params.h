@@ -35,8 +35,8 @@
 */
 #define BAT_VOLTAGE 11.
 
-#define THAU    10. 
-#define Kq       0.0079
+#define THAU     1. 
+#define Kq       0.079
 #define Kv    1000.
 
 

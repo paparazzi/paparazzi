@@ -8,13 +8,8 @@
 #include "downlink.h"
 
 #include "LPC21xx.h"
-#include "6dof.h"
-#include "max1167.h"
-#include "micromag.h"
-#include "scp1000.h"
-
 #include "spi_hw.h"
-
+#include "scp1000.h"
 
 static inline void main_init(void);
 static inline void main_periodic(void);
@@ -23,9 +18,11 @@ static inline void main_event(void);
 static void SPI1_ISR(void) __attribute__((naked));
 static void my_spi_init(void);
 
-uint16_t gyro_raw[AXIS_NB];
-
 uint32_t t0, t1, diff;
+
+float pressure;
+float ground_pressure;
+float altitude;
 
 int main( void ) {
   main_init();
@@ -44,37 +41,37 @@ static inline void main_init(void) {
   uart1_init_tx();
 
   my_spi_init();
-  max1167_init();
-  micromag_init(); 
   scp1000_init();
-
-  
 
   int_enable();
 }
 
 
 static inline void main_periodic(void) {
-  //  DOWNLINK_SEND_BOOT(&cpu_time_sec );
-  t0 = T0TC;
-  max1167_read();
+  if (scp1000_status == SCP1000_STA_STOPPED)
+    Scp1000SendConfig();
 }
 
 
 static inline void main_event(void) {
-   if (max1167_status == STA_MAX1167_DATA_AVAILABLE) {
-     max1167_status = STA_MAX1167_IDLE;
-     gyro_raw[AXIS_P] = max1167_values[0];
-     gyro_raw[AXIS_Q] = max1167_values[1];
-     gyro_raw[AXIS_R] = max1167_values[2];
-     DOWNLINK_SEND_IMU_GYRO_RAW(&gyro_raw[AXIS_P], &gyro_raw[AXIS_Q], &gyro_raw[AXIS_R]);
-     t1 = T0TC;
-     diff = t1 - t0;
 
-     if (gyro_raw[AXIS_P] < 30000) DOWNLINK_SEND_BOOT(&cpu_time_sec );
+  if (scp1000_status == SCP1000_STA_GOT_EOC) {
+    Scp1000Read();
+  }
 
-     //     DOWNLINK_SEND_TIME(&diff);
-   }
+  if (scp1000_status == SCP1000_STA_DATA_AVAILABLE) {
+    scp1000_status = SCP1000_STA_WAIT_EOC;
+    pressure = (float)scp1000_pressure*0.25;
+    if (ground_pressure == 0) ground_pressure = pressure;
+    altitude = 0.084 * (pressure - ground_pressure);
+    t1 = T0TC;
+    diff = t1 - t0;
+    DOWNLINK_SEND_TIME(&diff);
+    DOWNLINK_SEND_TL_IMU_PRESSURE(&pressure);
+    DOWNLINK_SEND_TL_IMU_RANGEMETER(&altitude);
+    t0 = t1;
+  }
+
 }
 
 
@@ -112,7 +109,9 @@ static void my_spi_init(void) {
 
 static void SPI1_ISR(void) {
  ISR_ENTRY();
- Max1167OnSpiInt();
+
+ Scp1000OnSpiIt();
+
  VICVectAddr = 0x00000000; /* clear this interrupt from the VIC */
  ISR_EXIT();
 }

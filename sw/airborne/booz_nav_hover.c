@@ -90,12 +90,13 @@ void booz_nav_hover_read_setpoints_from_rc(void) {
   float booz_nav_hover_dy_bod = -5. / MAX_PPRZ * (float)rc_values[RADIO_ROLL]; /* warning RC roll negativ to the right !! +/- 5m/s */
   /* convert vector to earth frame ( use transpose of DCM )  */
   float booz_nav_hover_dx_earth = booz_nav_hover_dx_bod * booz_estimator_dcm[AXIS_X][AXIS_X] +
-                                 booz_nav_hover_dy_bod * booz_estimator_dcm[AXIS_Y][AXIS_X];
-  float booz_nav_hover_dy_earth = booz_nav_hover_dx_bod  * booz_estimator_dcm[AXIS_X][AXIS_Y] +
-                                 booz_nav_hover_dx_bod * booz_estimator_dcm[AXIS_Y][AXIS_Y];
+                                  booz_nav_hover_dy_bod * booz_estimator_dcm[AXIS_Y][AXIS_X];
+  float booz_nav_hover_dy_earth = booz_nav_hover_dx_bod * booz_estimator_dcm[AXIS_X][AXIS_Y] +
+                                  booz_nav_hover_dy_bod * booz_estimator_dcm[AXIS_Y][AXIS_Y];
   booz_nav_hover_x_sp += (booz_nav_hover_dx_earth * DT_READ_SETPOINTS);
   booz_nav_hover_y_sp += (booz_nav_hover_dy_earth * DT_READ_SETPOINTS);
   booz_nav_hover_psi_sp += (-RadOfDeg(60.) * DT_READ_SETPOINTS / MAX_PPRZ * (float)rc_values[RADIO_YAW]);
+  booz_nav_hover_psi_sp = RadOfDeg(0.);
   NormRadAngle(booz_nav_hover_psi_sp);
 #endif /* STICK_MODE  */
 #endif /* DISABLE_NAV */
@@ -109,7 +110,7 @@ void booz_nav_hover_read_setpoints_from_rc(void) {
 static void booz_nav_hover_vertical_loop_run(void) {
   float vertical_err = booz_estimator_z - booz_nav_hover_z_sp;
   Bound(vertical_err, -booz_nav_hover_v_max_err, booz_nav_hover_v_max_err);
-  float bank_coef = 1. / fabs(cos(booz_estimator_phi)*cos(booz_estimator_theta));
+  float bank_coef = 1. / cos(booz_estimator_phi)*cos(booz_estimator_theta);
   float adjusted_hover_power  = BOOZ_NAV_HOVER_V_HOVER_POWER * bank_coef;
   //  printf("hover power command %f %f\n", bank_coef, adjusted_hover_power);
   booz_nav_hover_power_command = adjusted_hover_power +

@@ -128,6 +128,26 @@
     }									\
   }
 
+#define TWO_POINTS() {							\
+    ppm_pulses[RADIO_YAW]      = 1493 + 0. * (2050-950);		\
+    ppm_pulses[RADIO_ROLL]     = 1500 + 0. * (2050-950);		\
+    int foo = sim_time/10;						\
+    switch(foo%4) {							\
+    case 0:								\
+      ppm_pulses[RADIO_PITCH]      = 1498 + 0.  * (2050-950);		\
+      break;								\
+    case 1:								\
+      ppm_pulses[RADIO_PITCH]      = 1498 + 0.3 * (2050-950);		\
+      break;								\
+    case 2:								\
+      ppm_pulses[RADIO_PITCH]      = 1498 + 0.  * (2050-950);		\
+      break;								\
+    case 3:								\
+      ppm_pulses[RADIO_PITCH]      = 1498 - 0.3 * (2050-950);		\
+      break;								\
+    }									\
+  }
+
 
 
 #endif /* BOOZ_JOYSTICK_FAKE_H */

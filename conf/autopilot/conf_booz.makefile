@@ -1,3 +1,27 @@
+#
+# $Id$
+#  
+# Copyright (C) 2008 Antoine Drouin
+#
+# This file is part of paparazzi.
+#
+# paparazzi is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# paparazzi is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with paparazzi; see the file COPYING.  If not, write to
+# the Free Software Foundation, 59 Temple Place - Suite 330,
+# Boston, MA 02111-1307, USA. 
+#
+#
+
 ARCHI=arm7
 
 FLASH_MODE = IAP
@@ -12,7 +36,7 @@ flt.ARCH = arm7tdmi
 flt.TARGET = flt
 flt.TARGETDIR = flt
 
-flt.CFLAGS += -DBOOZ_FILTER_MCU -DCONFIG=\"pprz_imu.h\"  -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(4e-3)'
+flt.CFLAGS += -DBOOZ_FILTER_MCU -DCONFIG=\"pprz_imu.h\"  -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./250.))'
 flt.srcs = booz_filter_main.c sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
 
 flt.CFLAGS += -DLED
@@ -26,17 +50,25 @@ flt.srcs += downlink.c pprz_transport.c booz_filter_telemetry.c
 flt.CFLAGS += -DADC -DUSE_AD0 -DUSE_AD0_1 -DUSE_AD0_2 -DUSE_AD0_3 -DUSE_AD0_4
 flt.srcs += $(SRC_ARCH)/adc_hw.c
 
-flt.srcs += max1167.c $(SRC_ARCH)/max1167_hw.c
+flt.srcs += booz_imu.c $(SRC_ARCH)/booz_imu_hw.c
+flt.srcs += max1167.c  $(SRC_ARCH)/max1167_hw.c 
+flt.srcs += micromag.c $(SRC_ARCH)/micromag_hw.c
+flt.srcs += scp1000.c  $(SRC_ARCH)/scp1000_hw.c
 
-#flt.CFLAGS += -DDISABLE_MAGNETOMETER
-flt.CFLAGS += -DUSE_AMI601 -I2C_BUF_LEN=32 -DI2C_SCLL=150 -DI2C_SCLH=150 -DI2C_VIC_SLOT=10
-flt.srcs += AMI601.c i2c.c $(SRC_ARCH)/i2c_hw.c
-flt.srcs += imu_v3.c $(SRC_ARCH)/imu_v3_hw.c
+flt.srcs += booz_still_detection.c
 
 flt.CFLAGS += -DFLOAT_T=float
-flt.CFLAGS += -DBOOZ_AHRS_TYPE=BOOZ_AHRS_MULTITILT
-flt.srcs += multitilt.c
-flt.srcs += booz_ahrs.c
+#flt.CFLAGS += -DBOOZ_AHRS_TYPE=BOOZ_AHRS_MULTITILT
+#flt.srcs += ahrs_multitilt.c booz_ahrs.c
+
+#flt.CFLAGS += -DBOOZ_AHRS_TYPE=BOOZ_AHRS_QUATERNION
+#flt.srcs += ahrs_quat_fast_ekf.c booz_ahrs.c
+
+#flt.CFLAGS += -DBOOZ_AHRS_TYPE=BOOZ_AHRS_EULER
+#flt.srcs += ahrs_euler_fast_ekf.c booz_ahrs.c
+
+flt.CFLAGS += -DBOOZ_AHRS_TYPE=BOOZ_AHRS_COMP_FILTER
+flt.srcs += ahrs_comp_filter.c booz_ahrs.c
 
 flt.srcs += booz_inter_mcu.c
 flt.srcs += booz_link_mcu.c $(SRC_ARCH)/booz_link_mcu_hw.c
@@ -69,9 +101,6 @@ ctl.srcs += booz_controller_telemetry.c downlink.c pprz_transport.c
 
 ctl.CFLAGS += -DDATALINK=PPRZ -DPPRZ_UART=Uart1
 ctl.srcs += booz_datalink.c
-
-#ctl.CFLAGS += -DACTUATORS=\"servos_4017_hw.h\" -DSERVOS_4017 -DSERVOS_4017_CLOCK_FALLING
-#ctl.srcs += $(SRC_ARCH)/servos_4017_hw.c actuators.c
 
 ctl.CFLAGS += -DACTUATORS=\"actuators_buss_twi_blmc_hw.h\" -DUSE_BUSS_TWI_BLMC
 ctl.srcs += $(SRC_ARCH)/actuators_buss_twi_blmc_hw.c actuators.c
@@ -161,20 +190,221 @@ sim.srcs  += $(SRC_ARCH)/adc_hw.c
 
 sim.srcs += booz_filter_telemetry.c
 
-sim.srcs  += max1167.c $(SRC_ARCH)/max1167_hw.c
-sim.srcs  += micromag.c $(SRC_ARCH)/micromag_hw.c
-sim.srcs  += imu_v3.c $(SRC_ARCH)/imu_v3_hw.c
+sim.srcs += booz_imu.c $(SRC_ARCH)/booz_imu_hw.c
+sim.srcs += max1167.c  $(SRC_ARCH)/max1167_hw.c 
+sim.srcs += micromag.c $(SRC_ARCH)/micromag_hw.c
+sim.srcs += scp1000.c  $(SRC_ARCH)/scp1000_hw.c
 
+sim.srcs += booz_still_detection.c
 
 sim.CFLAGS += -DFLOAT_T=float
-sim.srcs += booz_ahrs.c
-
-sim.CFLAGS += -DBOOZ_AHRS_TYPE=BOOZ_AHRS_MULTITILT
-sim.srcs += multitilt.c
+#sim.CFLAGS += -DBOOZ_AHRS_TYPE=BOOZ_AHRS_MULTITILT
+#sim.srcs += ahrs_multitilt.c booz_ahrs.c
 
 #sim.CFLAGS += -DBOOZ_AHRS_TYPE=BOOZ_AHRS_QUATERNION 
 #sim.CFLAGS += -DEKF_UPDATE_DISCRETE
 #sim.CFLAGS += -DEKF_PREDICT_ONLY
 #sim.srcs += ahrs_quat_fast_ekf.c
 
-#sim.srcs += comp_flt.c
+sim.CFLAGS += -DBOOZ_AHRS_TYPE=BOOZ_AHRS_COMP_FILTER
+sim.srcs += ahrs_comp_filter.c booz_ahrs.c
+
+
+
+##
+##
+##
+## test_gyros
+##
+##
+##
+test_gyros.ARCHDIR = $(ARCHI)
+test_gyros.ARCH = arm7tdmi
+test_gyros.TARGET = test_gyros
+test_gyros.TARGETDIR = test_gyros
+
+test_gyros.CFLAGS += -DCONFIG=\"pprz_imu.h\"  -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./250.))'
+test_gyros.srcs = $(SRC_ARCH)/booz_test_gyros.c sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
+
+test_gyros.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600
+test_gyros.srcs += $(SRC_ARCH)/uart_hw.c
+
+test_gyros.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart1 
+test_gyros.srcs += downlink.c pprz_transport.c
+
+test_gyros.srcs += max1167.c  $(SRC_ARCH)/max1167_hw.c
+test_gyros.srcs += micromag.c $(SRC_ARCH)/micromag_hw.c
+test_gyros.srcs += scp1000.c  $(SRC_ARCH)/scp1000_hw.c
+
+##
+##
+##
+## test_mm
+##
+##
+##
+test_mm.ARCHDIR = $(ARCHI)
+test_mm.ARCH = arm7tdmi
+test_mm.TARGET = test_mm
+test_mm.TARGETDIR = test_mm
+
+test_mm.CFLAGS += -DCONFIG=\"pprz_imu.h\"  -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./20.))'
+test_mm.srcs = $(SRC_ARCH)/booz_test_micromag.c sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
+
+test_mm.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600
+test_mm.srcs += $(SRC_ARCH)/uart_hw.c
+
+test_mm.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart1 
+test_mm.srcs += downlink.c pprz_transport.c
+
+test_mm.srcs += micromag.c $(SRC_ARCH)/micromag_hw.c
+
+##
+##
+##
+## test_scp
+##
+##
+##
+test_scp.ARCHDIR = $(ARCHI)
+test_scp.ARCH = arm7tdmi
+test_scp.TARGET = test_scp
+test_scp.TARGETDIR = test_scp
+
+test_scp.CFLAGS += -DCONFIG=\"pprz_imu.h\"  -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./20.))'
+test_scp.srcs = $(SRC_ARCH)/booz_test_scp.c sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
+
+test_scp.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600
+test_scp.srcs += $(SRC_ARCH)/uart_hw.c
+
+test_scp.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart1 
+test_scp.srcs += downlink.c pprz_transport.c
+
+test_scp.srcs += scp1000.c $(SRC_ARCH)/scp1000_hw.c
+
+
+##
+##
+##
+## test_imu
+##
+##
+##
+test_imu.ARCHDIR = $(ARCHI)
+test_imu.ARCH = arm7tdmi
+test_imu.TARGET = test_imu
+test_imu.TARGETDIR = test_imu
+
+test_imu.CFLAGS += -DBOOZ_DEBUG
+test_imu.srcs += booz_debug.c
+test_imu.CFLAGS += -DCONFIG=\"pprz_imu.h\"  -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./250.))'
+test_imu.srcs += booz_test_imu.c sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
+
+test_imu.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600
+test_imu.srcs += $(SRC_ARCH)/uart_hw.c
+
+test_imu.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart1 
+test_imu.srcs += downlink.c pprz_transport.c
+
+test_imu.srcs += booz_imu.c $(SRC_ARCH)/booz_imu_hw.c
+test_imu.srcs += max1167.c  $(SRC_ARCH)/max1167_hw.c 
+test_imu.srcs += micromag.c $(SRC_ARCH)/micromag_hw.c
+test_imu.srcs += scp1000.c  $(SRC_ARCH)/scp1000_hw.c
+test_imu.CFLAGS += -DADC -DUSE_AD0 -DUSE_AD0_1 -DUSE_AD0_2 -DUSE_AD0_3 -DUSE_AD0_4
+test_imu.srcs += $(SRC_ARCH)/adc_hw.c
+
+
+##
+##
+##
+## test_still_detection
+##
+##
+##
+test_sd.ARCHDIR = $(ARCHI)
+test_sd.ARCH = arm7tdmi
+test_sd.TARGET = test_sd
+test_sd.TARGETDIR = test_sd
+
+test_sd.CFLAGS += -DBOOZ_DEBUG
+test_sd.srcs += booz_debug.c
+test_sd.CFLAGS += -DCONFIG=\"pprz_imu.h\"  -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./250.))'
+test_sd.srcs += booz_test_still_detection.c 
+test_sd.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
+
+test_sd.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600
+test_sd.srcs += $(SRC_ARCH)/uart_hw.c
+
+test_sd.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart1 
+test_sd.srcs += downlink.c pprz_transport.c
+
+test_sd.srcs += booz_imu.c $(SRC_ARCH)/booz_imu_hw.c
+test_sd.srcs += max1167.c  $(SRC_ARCH)/max1167_hw.c 
+test_sd.srcs += micromag.c $(SRC_ARCH)/micromag_hw.c
+test_sd.srcs += scp1000.c  $(SRC_ARCH)/scp1000_hw.c
+test_sd.CFLAGS += -DADC -DUSE_AD0 -DUSE_AD0_1 -DUSE_AD0_2 -DUSE_AD0_3 -DUSE_AD0_4
+test_sd.srcs += $(SRC_ARCH)/adc_hw.c
+
+test_sd.srcs += booz_still_detection.c
+
+
+##
+##
+##
+## test_vfilter
+##
+##
+##
+test_vf.ARCHDIR = $(ARCHI)
+test_vf.ARCH = arm7tdmi
+test_vf.TARGET = test_vf
+test_vf.TARGETDIR = test_vf
+
+test_vf.CFLAGS += -DCONFIG=\"pprz_imu.h\"  -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./250.))'
+test_vf.srcs = booz_test_vfilter.c sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
+
+test_vf.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600
+test_vf.srcs += $(SRC_ARCH)/uart_hw.c
+
+test_vf.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart1 
+test_vf.srcs += downlink.c pprz_transport.c
+
+test_vf.srcs += booz_imu.c $(SRC_ARCH)/booz_imu_hw.c
+test_vf.srcs += max1167.c  $(SRC_ARCH)/max1167_hw.c 
+test_vf.srcs += micromag.c $(SRC_ARCH)/micromag_hw.c
+test_vf.srcs += scp1000.c  $(SRC_ARCH)/scp1000_hw.c
+test_vf.CFLAGS += -DADC -DUSE_AD0 -DUSE_AD0_1 -DUSE_AD0_2 -DUSE_AD0_3 -DUSE_AD0_4
+test_vf.srcs += $(SRC_ARCH)/adc_hw.c
+
+test_vf.CFLAGS += -DDT_VFILTER="(1./250.)"
+test_vf.srcs += tl_vfilter.c
+
+
+##
+##
+## test GPS filter
+##
+##
+tf.ARCHDIR = $(ARCHI)
+tf.ARCH = arm7tdmi
+tf.TARGET = tf
+tf.TARGETDIR = tf
+
+tf.CFLAGS += -DCONFIG=\"pprz_imu.h\"  -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./60.))'
+tf.srcs = booz_tf_main.c sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
+
+tf.CFLAGS += -DLED
+
+tf.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600
+tf.srcs += $(SRC_ARCH)/uart_hw.c
+
+tf.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart1 
+tf.srcs += downlink.c pprz_transport.c
+
+tf.CFLAGS += -DADC -DUSE_AD0 -DUSE_AD0_1 -DUSE_AD0_2 -DUSE_AD0_3 -DUSE_AD0_4
+tf.srcs += $(SRC_ARCH)/adc_hw.c
+
+tf.srcs += micromag.c $(SRC_ARCH)/micromag_hw.c
+
+tf.CFLAGS += -DGPS -DUBX -DUSE_UART0 -DGPS_LINK=Uart0 -DUART0_BAUD=B38400 -DDOWNLINK_GPS_DEVICE=Uart1 -DGPS_BAUD=38400
+tf.srcs += gps_ubx.c gps.c latlong.c

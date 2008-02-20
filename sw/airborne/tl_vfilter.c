@@ -12,20 +12,16 @@ temps :
 /* initial covariance diagonal */
 #define INIT_PXX 10.
 /* process noise */
-#if 0
-#define Qzz       0.01
-#define Qzdotzdot 0.01
-#define Qbiasbias 0.001
-#define R 0.1
-#else  // baro
-#define Qzz       0.01
-#define Qzdotzdot 0.01
-#define Qbiasbias 0.001
+#define Qzz       0.001
+#define Qzdotzdot 0.001
+#define Qbiasbias 0.00001
 #define R 2.
-#endif
 
 
-#define DT (1./60.)
+
+//#ifndef DT_VFILTER
+//#define DT_VFILTER (1./60.)
+//#endif
 
 FLOAT_T tl_vf_z;
 FLOAT_T tl_vf_zdot;
@@ -69,17 +65,17 @@ void tl_vf_init(FLOAT_T init_z, FLOAT_T init_zdot, FLOAT_T init_bias) {
 void tl_vf_predict(FLOAT_T accel) {
   /* update state */
   FLOAT_T u = accel + 9.81;
-  tl_vf_z = tl_vf_z + DT * tl_vf_zdot;
-  tl_vf_zdot = tl_vf_zdot + DT * ( u - tl_vf_bias); 
+  tl_vf_z = tl_vf_z + DT_VFILTER * tl_vf_zdot;
+  tl_vf_zdot = tl_vf_zdot + DT_VFILTER * ( u - tl_vf_bias); 
   /* update covariance */
-  const FLOAT_T FPF00 = tl_vf_P[0][0] + DT * ( tl_vf_P[1][0] + tl_vf_P[0][1] + DT * tl_vf_P[1][1] );  
-  const FLOAT_T FPF01 = tl_vf_P[0][1] + DT * ( tl_vf_P[1][1] - tl_vf_P[0][2] - DT * tl_vf_P[1][2] );
-  const FLOAT_T FPF02 = tl_vf_P[0][2] + DT * ( tl_vf_P[1][2] );
-  const FLOAT_T FPF10 = tl_vf_P[1][0] + DT * (-tl_vf_P[2][0] + tl_vf_P[1][1] - DT * tl_vf_P[2][1] );  
-  const FLOAT_T FPF11 = tl_vf_P[1][1] + DT * (-tl_vf_P[2][1] - tl_vf_P[1][2] + DT * tl_vf_P[2][2] ); 
-  const FLOAT_T FPF12 = tl_vf_P[1][2] + DT * (-tl_vf_P[2][2] );
-  const FLOAT_T FPF20 = tl_vf_P[2][0] + DT * ( tl_vf_P[2][1] );
-  const FLOAT_T FPF21 = tl_vf_P[2][1] + DT * (-tl_vf_P[2][2] );
+  const FLOAT_T FPF00 = tl_vf_P[0][0] + DT_VFILTER * ( tl_vf_P[1][0] + tl_vf_P[0][1] + DT_VFILTER * tl_vf_P[1][1] );  
+  const FLOAT_T FPF01 = tl_vf_P[0][1] + DT_VFILTER * ( tl_vf_P[1][1] - tl_vf_P[0][2] - DT_VFILTER * tl_vf_P[1][2] );
+  const FLOAT_T FPF02 = tl_vf_P[0][2] + DT_VFILTER * ( tl_vf_P[1][2] );
+  const FLOAT_T FPF10 = tl_vf_P[1][0] + DT_VFILTER * (-tl_vf_P[2][0] + tl_vf_P[1][1] - DT_VFILTER * tl_vf_P[2][1] );  
+  const FLOAT_T FPF11 = tl_vf_P[1][1] + DT_VFILTER * (-tl_vf_P[2][1] - tl_vf_P[1][2] + DT_VFILTER * tl_vf_P[2][2] ); 
+  const FLOAT_T FPF12 = tl_vf_P[1][2] + DT_VFILTER * (-tl_vf_P[2][2] );
+  const FLOAT_T FPF20 = tl_vf_P[2][0] + DT_VFILTER * ( tl_vf_P[2][1] );
+  const FLOAT_T FPF21 = tl_vf_P[2][1] + DT_VFILTER * (-tl_vf_P[2][2] );
   const FLOAT_T FPF22 = tl_vf_P[2][2];
  
   tl_vf_P[0][0] = FPF00 + Qzz;

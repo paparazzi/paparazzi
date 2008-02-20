@@ -1,3 +1,27 @@
+/*
+ * $Id$
+ *  
+ * Copyright (C) 2008 Antoine Drouin
+ *
+ * This file is part of paparazzi.
+ *
+ * paparazzi is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * paparazzi is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with paparazzi; see the file COPYING.  If not, write to
+ * the Free Software Foundation, 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA. 
+ *
+ */
+
 #ifndef BOOZ_SENSORS_MODEL_PARAMS_H
 #define BOOZ_SENSORS_MODEL_PARAMS_H
 
@@ -6,12 +30,12 @@
  */
 #define BSM_ACCEL_RESOLUTION      (1024 * 32)
 /* ms-2 */
-#define BSM_ACCEL_SENSITIVITY_XX  (1024. * 32.)/(0.5 * 6. * 9.81)
-#define BSM_ACCEL_SENSITIVITY_YY -(1024. * 32.)/(0.5 * 6. * 9.81)
-#define BSM_ACCEL_SENSITIVITY_ZZ -(1024. * 32.)/(0.5 * 6. * 9.81)
-#define BSM_ACCEL_NEUTRAL_X       (538. * 32.)
-#define BSM_ACCEL_NEUTRAL_Y       (506. * 32.)
-#define BSM_ACCEL_NEUTRAL_Z       (506. * 32.)
+#define BSM_ACCEL_SENSITIVITY_XX  827.294562
+#define BSM_ACCEL_SENSITIVITY_YY -823.507909
+#define BSM_ACCEL_SENSITIVITY_ZZ -824.835155
+#define BSM_ACCEL_NEUTRAL_X       17595
+#define BSM_ACCEL_NEUTRAL_Y       16427
+#define BSM_ACCEL_NEUTRAL_Z       16458
 /* m2s-4 */
 #define BSM_ACCEL_NOISE_STD_DEV_X 1e-1
 #define BSM_ACCEL_NOISE_STD_DEV_Y 1e-1
@@ -28,24 +52,34 @@
  */
 #define BSM_GYRO_RESOLUTION       65536
 /* degres/s - nominal 300 */
-#define BSM_GYRO_SENSITIVITY_PP   65536. / (2.*RadOfDeg(-413.41848));
-#define BSM_GYRO_SENSITIVITY_QQ   65536. / (2.*RadOfDeg(-403.65564));
-#define BSM_GYRO_SENSITIVITY_RR   65536. / (2.*RadOfDeg( 395.01929));
+//#define BSM_GYRO_SENSITIVITY_PP   65536. / (2.*RadOfDeg(-413.41848));
+//#define BSM_GYRO_SENSITIVITY_QQ   65536. / (2.*RadOfDeg(-403.65564));
+//#define BSM_GYRO_SENSITIVITY_RR   65536. / (2.*RadOfDeg( 395.01929));
 
-#define BSM_GYRO_NEUTRAL_P        65536. * 0.6238556;
-#define BSM_GYRO_NEUTRAL_Q        65536. * 0.6242371;
-#define BSM_GYRO_NEUTRAL_R        65536. * 0.6035156;
+#define BSM_GYRO_SENSITIVITY_PP   (-4541.3261)
+#define BSM_GYRO_SENSITIVITY_QQ   (-4651.1628)
+#define BSM_GYRO_SENSITIVITY_RR   ( 4752.8517)
+
+//#define BSM_GYRO_NEUTRAL_P        65536. * 0.6238556;
+//#define BSM_GYRO_NEUTRAL_Q        65536. * 0.6242371;
+//#define BSM_GYRO_NEUTRAL_R        65536. * 0.6035156;
+
+#define BSM_GYRO_NEUTRAL_P        40852
+#define BSM_GYRO_NEUTRAL_Q        40916
+#define BSM_GYRO_NEUTRAL_R        39619
 
 #define BSM_GYRO_NOISE_STD_DEV_P  RadOfDeg(.5)
 #define BSM_GYRO_NOISE_STD_DEV_Q  RadOfDeg(.5)
 #define BSM_GYRO_NOISE_STD_DEV_R  RadOfDeg(.5)
 
 #define BSM_GYRO_BIAS_INITIAL_P  RadOfDeg(  .5)
-#define BSM_GYRO_BIAS_INITIAL_Q  RadOfDeg(-0.5)
+//#define BSM_GYRO_BIAS_INITIAL_Q  RadOfDeg(-0.5)
+#define BSM_GYRO_BIAS_INITIAL_Q  RadOfDeg(0.)
 #define BSM_GYRO_BIAS_INITIAL_R  RadOfDeg(  .25)
 
 #define BSM_GYRO_BIAS_RANDOM_WALK_STD_DEV_P RadOfDeg(5.e-1)
-#define BSM_GYRO_BIAS_RANDOM_WALK_STD_DEV_Q RadOfDeg(5.e-1)
+//#define BSM_GYRO_BIAS_RANDOM_WALK_STD_DEV_Q RadOfDeg(5.e-1)
+#define BSM_GYRO_BIAS_RANDOM_WALK_STD_DEV_Q RadOfDeg(0)
 #define BSM_GYRO_BIAS_RANDOM_WALK_STD_DEV_R RadOfDeg(5.e-1)
 
 

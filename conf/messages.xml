@@ -360,6 +360,9 @@
     <field name="gr" type="float" unit="rad/s"/>
   </message>
 
+  <message name="IMU_PRESSURE" ID="210">
+    <field name="p" type="float" unit="pascal"/>
+  </message>
 
 
 
@@ -445,7 +448,7 @@
       <field name="blmc_nb_err" type="uint8"/>
   </message>
 
-  <message name="BOOZ_DEBUG" ID="232">
+  <message name="BOOZ_DEBUG_BAR" ID="232">
     <field name="m_phi"   type="float" unit="rad"/>
     <field name="m_theta" type="float" unit="rad"/>
   </message>
@@ -545,6 +548,16 @@
     <field name="ami_stat"   type="uint8"/>
   </message>
 
+  <message name="BOOZ_MAX1167_ERR" ID="246">
+    <field name="erno"   type="uint8"/>
+  </message>
+
+  <message name="BOOZ_ERROR" ID="247">
+    <field name="module"   type="uint8"/>
+    <field name="errno"   type="uint8"/>
+  </message>
+    
+
   <message name="TL_ESTIMATOR" ID="60">
       <field name="r"   type="float" unit="rad/s"/>
       <field name="psi" type="float" unit="rad"/>
@@ -619,9 +632,18 @@
       <field name="agl_sp"      type="float" unit="m"/>
       <field name="agl_sum_err" type="float" unit="sm"/>
       <field name="agl_dot"     type="float" unit="m/s"/>
+      <field name="power_sp"    type="float" unit="pprz"/>
   </message>
 
-  <message name="TL_SPEED_LOOP" ID="74">
+  <message name="TL_TEST" ID="74">
+      <field name="psi" type="float" unit="rad"/>
+      <field name="xdot" type="float" unit="m/s"/>
+      <field name="ydot" type="float" unit="m/s"/>
+      <field name="u" type="float" unit="m/s"/>
+      <field name="v" type="float" unit="m/s"/>
+  </message>
+
+  <message name="TL_SPEED_LOOP" ID="75">
       <field name="u_est" type="float" unit="m/s"/>
       <field name="u_sp"  type="float" unit="m/s"/>
       <field name="u_sum_err" type="float" unit="m"/>
@@ -629,6 +651,7 @@
       <field name="v_sp"  type="float" unit="m/s"/>
       <field name="v_sum_err" type="float" unit="m"/>
   </message>
+
 
   <message name="ENOSE_STATUS" ID="250">
       <field name="val1" type="uint16"/>

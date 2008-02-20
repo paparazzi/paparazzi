@@ -100,7 +100,7 @@ VEC* booz_get_forces_body_frame(VEC* F , MAT* dcm, VEC* omega_square, VEC* speed
     if (!exclude_weight)
       F->ve[AXIS_Z] = 0;
     else
-      F->ve[AXIS_Z] = -9.81*MASS;
+      F->ve[AXIS_Z] = -9.81*bfm.mass;
   }
   else {
     // propeller thrust
@@ -112,7 +112,7 @@ VEC* booz_get_forces_body_frame(VEC* F , MAT* dcm, VEC* omega_square, VEC* speed
       static VEC *g_body = VNULL;
       g_body = v_resize(g_body, AXIS_NB);
       g_body = mv_mlt(dcm, bfm.g_earth, g_body); 
-      F = v_mltadd(F, g_body, MASS, F); 
+      F = v_mltadd(F, g_body, bfm.mass, F); 
     }
     // body drag
     double norm_speed = v_norm2(speed_body);
@@ -185,9 +185,9 @@ static void booz_flight_model_get_derivatives(VEC* X, VEC* u, VEC* Xdot) {
   fict_f = sv_mlt(bfm.mass, fict_f, fict_f);
   f_body = v_add(f_body, fict_f, f_body);
 
-  Xdot->ve[BFMS_U] = 1./MASS * f_body->ve[AXIS_X];
-  Xdot->ve[BFMS_V] = 1./MASS * f_body->ve[AXIS_Y];
-  Xdot->ve[BFMS_W] = 1./MASS * f_body->ve[AXIS_Z];
+  Xdot->ve[BFMS_U] = 1./bfm.mass * f_body->ve[AXIS_X];
+  Xdot->ve[BFMS_V] = 1./bfm.mass * f_body->ve[AXIS_Y];
+  Xdot->ve[BFMS_W] = 1./bfm.mass * f_body->ve[AXIS_Z];
 
   /* derivatives of eulers   */
   double sinPHI   = sin(eulers->ve[EULER_PHI]);

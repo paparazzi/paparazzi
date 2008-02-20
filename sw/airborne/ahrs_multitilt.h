@@ -22,24 +22,17 @@
  *
  */
 
-#include "max1167.h"
+#ifndef AHRS_MULTITILT_H
+#define AHRS_MULTITILT_H
 
-#include "booz_imu.h"
+#include "std.h"
 
-void max1167_hw_init( void ) {}
 
-void max1167_read( void ) {}
+extern float mtt_P_phi[2][2];
 
-void max1167_hw_feed_value(double time __attribute__ ((unused)), VEC* gyro, VEC* accel) {
+extern float mtt_P_theta[2][2];
 
-  max1167_values[0] = gyro->ve[AXIS_P];
-  max1167_values[1] = gyro->ve[AXIS_Q];
-  max1167_values[2] = gyro->ve[AXIS_R];
+extern float mtt_P_psi[2][2];
 
-  buf_ax.sum =  accel->ve[AXIS_X];
-  buf_ay.sum =  accel->ve[AXIS_Y];
-  buf_az.sum =  accel->ve[AXIS_Z];
 
-  max1167_status = STA_MAX1167_DATA_AVAILABLE;
-
-}
+#endif /* AHRS_MULTITILT_H */

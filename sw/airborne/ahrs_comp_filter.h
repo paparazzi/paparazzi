@@ -1,7 +1,7 @@
 /*
  * $Id$
  *  
- * Copyright (C) 2008  Antoine Drouin
+ * Copyright (C) 2008 Antoine Drouin
  *
  * This file is part of paparazzi.
  *
@@ -22,24 +22,11 @@
  *
  */
 
-#include "max1167.h"
+#ifndef AHRS_COMP_FLT_H
+#define AHRS_COMP_FLT_H
 
-#include "booz_imu.h"
+extern FLOAT_T comp_filter_int_phi;
+extern FLOAT_T comp_filter_int_theta;
+extern FLOAT_T comp_filter_int_psi;
 
-void max1167_hw_init( void ) {}
-
-void max1167_read( void ) {}
-
-void max1167_hw_feed_value(double time __attribute__ ((unused)), VEC* gyro, VEC* accel) {
-
-  max1167_values[0] = gyro->ve[AXIS_P];
-  max1167_values[1] = gyro->ve[AXIS_Q];
-  max1167_values[2] = gyro->ve[AXIS_R];
-
-  buf_ax.sum =  accel->ve[AXIS_X];
-  buf_ay.sum =  accel->ve[AXIS_Y];
-  buf_az.sum =  accel->ve[AXIS_Z];
-
-  max1167_status = STA_MAX1167_DATA_AVAILABLE;
-
-}
+#endif /* AHRS_COMP_FLT_H */

@@ -10,16 +10,11 @@ extern void micromag_read( void );
 
 #define MM_IDLE            0
 #define MM_BUSY            1
-#define MM_SENDING_REQ_X   1
-#define MM_SENDING_WAIT_X  2
-#define MM_READING_X       3
-#define MM_SENDING_REQ_Y   4
-#define MM_SENDING_WAIT_Y  5
-#define MM_READING_Y       6
-#define MM_SENDING_REQ_Z   7
-#define MM_SENDING_WAIT_Z  8
-#define MM_READING_Z       9
-#define MM_DATA_AVAILABLE 10
+#define MM_SENDING_REQ     2
+#define MM_WAITING_EOC     3
+#define MM_GOT_EOC         4
+#define MM_READING_RES     5
+#define MM_DATA_AVAILABLE  6
 
 extern volatile uint8_t micromag_status;
 extern volatile int16_t micromag_values[MM_NB_AXIS];

@@ -1,3 +1,27 @@
+/*
+ * $Id$
+ *  
+ * Copyright (C) 2008 Antoine Drouin
+ *
+ * This file is part of paparazzi.
+ *
+ * paparazzi is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * paparazzi is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with paparazzi; see the file COPYING.  If not, write to
+ * the Free Software Foundation, 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA. 
+ *
+ */
+
 #ifndef BOOZ_FILTER_TELEMETRY_H
 #define BOOZ_FILTER_TELEMETRY_H
 #include "std.h"
@@ -5,7 +29,8 @@
 #include "periodic.h"
 #include "uart.h"
 
-#include "imu_v3.h"
+//#include "imu_v3.h"
+#include "booz_imu.h"
 #include "booz_ahrs.h"
 
 #include "settings.h"
@@ -29,10 +54,12 @@
 			     &imu_gyro_raw[AXIS_Y],	\
 			     &imu_gyro_raw[AXIS_Z]);
 
+#if 0
 #define PERIODIC_SEND_IMU_GYRO_LP()			\
   DOWNLINK_SEND_IMU_GYRO_LP(&imu_gyro_lp[AXIS_X],	\
 			    &imu_gyro_lp[AXIS_Y],	\
 			    &imu_gyro_lp[AXIS_Z]);
+#endif
 
 #define PERIODIC_SEND_IMU_ACCEL()		\
   DOWNLINK_SEND_IMU_ACCEL(&imu_accel[AXIS_X],	\
@@ -105,6 +132,16 @@
   DOWNLINK_SEND_AHRS_QUAT_STATE(&afe_q0, &afe_q1, &afe_q2, &afe_q3,	\
 				&booz_ahrs_bp, &booz_ahrs_bq, &booz_ahrs_br);
 
+#elif defined BOOZ_AHRS_TYPE && BOOZ_AHRS_TYPE == BOOZ_AHRS_COMP_FILTER
+
+#define PERIODIC_SEND_AHRS_STATE()					\
+  DOWNLINK_SEND_AHRS_EULER_STATE(&booz_ahrs_phi, &booz_ahrs_theta, &booz_ahrs_psi, \
+				 &booz_ahrs_bp, &booz_ahrs_bq, &booz_ahrs_br);
+
+#define PERIODIC_SEND_AHRS_COV() {}
+
+
+
 #endif /* BOOZ_AHRS_TYPE */
 
 #define PERIODIC_SEND_AHRS_MEASURE()					\
@@ -114,7 +151,7 @@
 
 
 
-
+#if 0
 #define PERIODIC_SEND_BOOZ_DEBUG() {					\
     float m_phi = atan2(imu_accel[AXIS_Y], imu_accel[AXIS_Z]);		\
     const float g2 =							\
@@ -124,6 +161,7 @@
     float m_theta = -asin( imu_accel[AXIS_X] / sqrt( g2 ) );		\
     DOWNLINK_SEND_BOOZ_DEBUG(&m_phi, &m_theta);		\
 }
+#endif
 
 #define PERIODIC_SEND_DL_VALUE() PeriodicSendDlValue()
 

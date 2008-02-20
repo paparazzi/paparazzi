@@ -9,10 +9,7 @@
 
 #include "LPC21xx.h"
 #include "6dof.h"
-#include "max1167.h"
 #include "micromag.h"
-#include "scp1000.h"
-
 #include "spi_hw.h"
 
 
@@ -23,7 +20,7 @@ static inline void main_event(void);
 static void SPI1_ISR(void) __attribute__((naked));
 static void my_spi_init(void);
 
-uint16_t gyro_raw[AXIS_NB];
+int16_t mag_raw[AXIS_NB];
 
 uint32_t t0, t1, diff;
 
@@ -44,11 +41,7 @@ static inline void main_init(void) {
   uart1_init_tx();
 
   my_spi_init();
-  max1167_init();
-  micromag_init(); 
-  scp1000_init();
-
-  
+  micromag_init();
 
   int_enable();
 }
@@ -56,25 +49,29 @@ static inline void main_init(void) {
 
 static inline void main_periodic(void) {
   //  DOWNLINK_SEND_BOOT(&cpu_time_sec );
-  t0 = T0TC;
-  max1167_read();
+  switch (micromag_status) {
+  case MM_IDLE :
+    t0 = T0TC;
+    MmSendReq();
+    break;
+  case MM_GOT_EOC:
+    MmReadRes();
+    break;
+  }
 }
 
 
 static inline void main_event(void) {
-   if (max1167_status == STA_MAX1167_DATA_AVAILABLE) {
-     max1167_status = STA_MAX1167_IDLE;
-     gyro_raw[AXIS_P] = max1167_values[0];
-     gyro_raw[AXIS_Q] = max1167_values[1];
-     gyro_raw[AXIS_R] = max1167_values[2];
-     DOWNLINK_SEND_IMU_GYRO_RAW(&gyro_raw[AXIS_P], &gyro_raw[AXIS_Q], &gyro_raw[AXIS_R]);
-     t1 = T0TC;
-     diff = t1 - t0;
-
-     if (gyro_raw[AXIS_P] < 30000) DOWNLINK_SEND_BOOT(&cpu_time_sec );
-
-     //     DOWNLINK_SEND_TIME(&diff);
-   }
+  if (micromag_status == MM_DATA_AVAILABLE) {
+      micromag_status = MM_IDLE;
+      mag_raw[AXIS_X] = micromag_values[0];
+      mag_raw[AXIS_Y] = micromag_values[1];
+      mag_raw[AXIS_Z] = micromag_values[2];
+      DOWNLINK_SEND_IMU_MAG_RAW(&mag_raw[AXIS_X], &mag_raw[AXIS_Y], &mag_raw[AXIS_Z]);
+      t1 = T0TC;
+      diff = t1 - t0;
+      DOWNLINK_SEND_TIME(&diff);
+  }
 }
 
 
@@ -100,6 +97,7 @@ static void my_spi_init(void) {
   /* setup SSP */
   SSPCR0 = SSP_DDS | SSP_FRF | SSP_CPOL | SSP_CPHA | SSP_SCR;
   SSPCR1 = SSP_LBM | SSP_MS | SSP_SOD;
+  //  SSPCPSR = 0x20;
   SSPCPSR = 0x2;
   
   /* initialize interrupt vector */
@@ -112,7 +110,9 @@ static void my_spi_init(void) {
 
 static void SPI1_ISR(void) {
  ISR_ENTRY();
- Max1167OnSpiInt();
+
+ MmOnSpiIt();
+
  VICVectAddr = 0x00000000; /* clear this interrupt from the VIC */
  ISR_EXIT();
 }

@@ -250,22 +250,34 @@ static void booz_sensors_model_accel_run( MAT* dcm ) {
   speed_body = v_resize(speed_body, AXIS_NB);
   BoozFlighModelGetSpeed(speed_body);
 
-  accel_body = booz_get_forces_body_frame(accel_body , dcm, omega_square, speed_body, TRUE);
-
-
+  accel_body = booz_get_forces_body_frame(accel_body , dcm, omega_square, speed_body, FALSE);
   /* divide by mass */
   accel_body = sv_mlt(1./bfm.mass, accel_body, accel_body);
+  
+  static VEC* g_inert = VNULL;
+  g_inert = v_resize(g_inert, AXIS_NB);
+  g_inert->ve[AXIS_X] = 0;
+  g_inert->ve[AXIS_Y] = 0;
+  g_inert->ve[AXIS_Z] = 9.81;
+  static VEC* g_body = VNULL;
+  g_body = v_resize(g_body, AXIS_NB);
+  g_body = mv_mlt(dcm, g_inert, g_body);
 
+  accel_body = v_sub(accel_body, g_body, accel_body);
   //#else
-  //printf(" accel_body # %f %f %f\n", accel_body->ve[AXIS_X], accel_body->ve[AXIS_Y], accel_body->ve[AXIS_Z]);
-  static VEC* accel_inert = VNULL;
-  accel_inert = v_resize(accel_inert, AXIS_NB);
-  accel_inert->ve[AXIS_X] = 0;
-  accel_inert->ve[AXIS_Y] = 0;
-  accel_inert->ve[AXIS_Z] = -9.81;
-  accel_body = mv_mlt(dcm, accel_inert, accel_body);
+  //  printf(" accel_body # %f %f %f\n", accel_body->ve[AXIS_X], accel_body->ve[AXIS_Y], accel_body->ve[AXIS_Z]);
 
-  //printf(" accel_body ~ %f %f %f\n", accel_body->ve[AXIS_X], accel_body->ve[AXIS_Y], accel_body->ve[AXIS_Z]);
+  IvySendMsg("148 BOOZ_SIM_WIND %f %f %f",  
+	     accel_body->ve[AXIS_X], 
+	     accel_body->ve[AXIS_Y], 
+	     accel_body->ve[AXIS_Z]);
+
+
+ 
+  accel_body = mv_mlt(dcm, g_inert, accel_body);
+  accel_body = sv_mlt(-1., accel_body, accel_body);
+
+  //  printf(" accel_body ~ %f %f %f\n", accel_body->ve[AXIS_X], accel_body->ve[AXIS_Y], accel_body->ve[AXIS_Z]);
 #endif
 
   /* compute accel reading */

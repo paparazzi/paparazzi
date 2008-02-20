@@ -24,7 +24,6 @@ uint16_t booz_link_mcu_crc;
 
 #ifdef BOOZ_FILTER_MCU  /* FILTER LPC code */
 
-#include "imu_v3.h"
 #include "multitilt.h"
 
 /* FIXME!!!! two function with same name in single MCU configuration */

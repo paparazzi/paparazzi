@@ -44,29 +44,18 @@ void micromag_hw_init( void ) {
 
 }
 
-void micromag_read( void ) {
-  if (micromag_status == MM_IDLE ) {
-    MmSelect();
-    SpiDisableRti();
-    SpiEnable();
-    micromag_cur_axe = 0;
-    micromag_status = MM_BUSY;
-    MmTriggerRead();
-  }
-}
+#include "uart.h"
+#include "messages.h"
+#include "downlink.h"
 
 void EXTINT_ISR(void) {
   ISR_ENTRY();
-  /* read dummy control byte reply */
-  uint8_t foo __attribute__ ((unused)) = SSPDR;
-  /* trigger 2 bytes read */
-  SSPDR = 0;
-  SSPDR = 0;
-  /* enable timeout interrupt */
-  SpiClearRti();
-  SpiEnableRti();
+
+  //  DOWNLINK_SEND_BOOZ_DEBUG_FOO(&micromag_status);
+
+  micromag_status = MM_GOT_EOC;
   /* clear EINT */
-  SetBit(EXTINT,MM_DRDY_EINT); /* clear EINT2 */
+  SetBit(EXTINT,MM_DRDY_EINT);
 
   VICVectAddr = 0x00000000;    /* clear this interrupt from the VIC */
   ISR_EXIT();
