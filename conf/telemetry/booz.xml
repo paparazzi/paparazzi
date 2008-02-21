@@ -12,10 +12,9 @@
       <message name="ACTUATORS"         period="0.5"/>
       <message name="BOOZ_HOV_LOOP"     period="0.05"/>
       <message name="BOOZ_VERT_LOOP"    period="0.05"/>
-      <message name="BOOZ_ATT_LOOP"     period="0.05"/>
-      <message name="BOOZ_RATE_LOOP"    period="0.05"/>
-      <message name="BOOZ_CMDS"         period="0.05"/>
-      <message name="BOOZ_UF_RATES"     period="0.05"/>
+      <message name="BOOZ_CONTROL"      period="0.025"/>
+      <message name="BOOZ_CMDS"         period="0.025"/>
+<!--      <message name="BOOZ_UF_RATES"     period="0.05"/> -->
       <message name="DL_VALUE"          period="1."/>
     </mode>
     <mode name="debug">
@@ -27,16 +26,17 @@
 
   <process name="Filter">
     <mode name="default">
-      <message name="IMU_GYRO"              period=".05"/>
-      <message name="IMU_GYRO_RAW"          period=".05"/>
 <!--      <message name="IMU_GYRO_LP"           period=".017"/> -->
       <message name="AHRS_STATE"            period=".05"/>
       <message name="AHRS_COV"              period=".2"/> 
       <message name="AHRS_MEASURE"          period=".05"/>
-      <message name="IMU_ACCEL"             period=".5"/>
 <!--      <message name="IMU_ACCEL_RAW"         period=".2"/> -->
-      <message name="IMU_MAG_RAW"           period=".5"/>
+      <message name="IMU_ACCEL"             period=".5"/>
+<!--      <message name="IMU_GYRO_RAW"          period=".05"/> -->
+      <message name="IMU_GYRO"              period=".05"/>
+<!--      <message name="IMU_MAG_RAW"           period=".5"/> -->
       <message name="IMU_MAG"               period=".5"/>
+      <message name="IMU_PRESSURE"          period=".5"/>
     </mode>
     <mode name="raw_sensors">
       <message name="IMU_GYRO_RAW"          period=".017"/>

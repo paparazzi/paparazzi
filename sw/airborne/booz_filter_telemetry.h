@@ -98,6 +98,8 @@
 			    &imu_mag_raw[AXIS_Y],	\
 			    &imu_mag_raw[AXIS_Z]);
 
+#define PERIODIC_SEND_IMU_PRESSURE()		\
+  DOWNLINK_SEND_IMU_PRESSURE(&imu_pressure);
 
 /*
  *

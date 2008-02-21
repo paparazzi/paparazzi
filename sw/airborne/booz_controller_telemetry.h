@@ -43,15 +43,23 @@
 #define PERIODIC_SEND_ACTUATORS()			\
   DOWNLINK_SEND_ACTUATORS(SERVOS_NB, actuators);
 
-#define PERIODIC_SEND_BOOZ_RATE_LOOP()					        \
-  DOWNLINK_SEND_BOOZ_RATE_LOOP(&booz_estimator_uf_p, &booz_control_p_sp,	\
-			       &booz_estimator_uf_q, &booz_control_q_sp,	\
-			       &booz_estimator_uf_r, &booz_control_r_sp ); 
-
-#define PERIODIC_SEND_BOOZ_ATT_LOOP()					              \
-  DOWNLINK_SEND_BOOZ_ATT_LOOP(&booz_estimator_phi, &booz_control_attitude_phi_sp,     \
-			      &booz_estimator_theta, &booz_control_attitude_theta_sp, \
-			      &booz_estimator_psi, &booz_control_attitude_psi_sp);
+#define PERIODIC_SEND_BOOZ_CONTROL() {					\
+    switch (booz_autopilot_mode) {					\
+    case BOOZ_AP_MODE_RATE:						\
+      DOWNLINK_SEND_BOOZ_RATE_LOOP(&booz_estimator_uf_p, &booz_control_p_sp, \
+				   &booz_estimator_uf_q, &booz_control_q_sp, \
+				   &booz_estimator_uf_r, &booz_control_r_sp, \
+				   &booz_control_power_sp);		\
+      break;								\
+    case BOOZ_AP_MODE_ATTITUDE:						\
+    case BOOZ_AP_MODE_HEADING_HOLD:					\
+      DOWNLINK_SEND_BOOZ_ATT_LOOP(&booz_estimator_phi, &booz_control_attitude_phi_sp, \
+				  &booz_estimator_theta, &booz_control_attitude_theta_sp, \
+				  &booz_estimator_psi, &booz_control_attitude_psi_sp, \
+				  &booz_control_power_sp);		\
+      break;								\
+    }									\
+  }
 
 #define PERIODIC_SEND_BOOZ_UF_RATES()               \
   DOWNLINK_SEND_BOOZ_UF_RATES(&booz_estimator_uf_p, \

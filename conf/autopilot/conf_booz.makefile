@@ -58,8 +58,9 @@ flt.srcs += scp1000.c  $(SRC_ARCH)/scp1000_hw.c
 flt.srcs += booz_still_detection.c
 
 flt.CFLAGS += -DFLOAT_T=float
-#flt.CFLAGS += -DBOOZ_AHRS_TYPE=BOOZ_AHRS_MULTITILT
-#flt.srcs += ahrs_multitilt.c booz_ahrs.c
+
+flt.CFLAGS += -DBOOZ_AHRS_TYPE=BOOZ_AHRS_MULTITILT
+flt.srcs += ahrs_multitilt.c booz_ahrs.c
 
 #flt.CFLAGS += -DBOOZ_AHRS_TYPE=BOOZ_AHRS_QUATERNION
 #flt.srcs += ahrs_quat_fast_ekf.c booz_ahrs.c
@@ -67,8 +68,8 @@ flt.CFLAGS += -DFLOAT_T=float
 #flt.CFLAGS += -DBOOZ_AHRS_TYPE=BOOZ_AHRS_EULER
 #flt.srcs += ahrs_euler_fast_ekf.c booz_ahrs.c
 
-flt.CFLAGS += -DBOOZ_AHRS_TYPE=BOOZ_AHRS_COMP_FILTER
-flt.srcs += ahrs_comp_filter.c booz_ahrs.c
+#flt.CFLAGS += -DBOOZ_AHRS_TYPE=BOOZ_AHRS_COMP_FILTER
+#flt.srcs += ahrs_comp_filter.c booz_ahrs.c
 
 flt.srcs += booz_inter_mcu.c
 flt.srcs += booz_link_mcu.c $(SRC_ARCH)/booz_link_mcu_hw.c

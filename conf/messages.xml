@@ -454,21 +454,23 @@
   </message>
 
   <message name="BOOZ_RATE_LOOP" ID="233">
-    <field name="est_p" type="float" unit="rad/s"/>
-    <field name="sp_p"  type="float" unit="rad/s"/>
-    <field name="est_q" type="float" unit="rad/s"/>
-    <field name="sp_q"  type="float" unit="rad/s"/>
-    <field name="est_r" type="float" unit="rad/s"/>
-    <field name="sp_r"  type="float" unit="rad/s"/>
+    <field name="p_est"    type="float" unit="rad/s"/>
+    <field name="p_sp"     type="float" unit="rad/s"/>
+    <field name="q_est"    type="float" unit="rad/s"/>
+    <field name="q_sp"     type="float" unit="rad/s"/>
+    <field name="r_est"    type="float" unit="rad/s"/>
+    <field name="r_sp"     type="float" unit="rad/s"/>
+    <field name="power_sp" type="float" unit="0-1"/>
   </message>
 
   <message name="BOOZ_ATT_LOOP" ID="234">
-    <field name="est_phi"   type="float" unit="rad"/>
-    <field name="sp_phi"    type="float" unit="rad"/>
-    <field name="est_theta" type="float" unit="rad"/>
-    <field name="sp_theta"  type="float" unit="rad"/>
-    <field name="est_psi"   type="float" unit="rad"/>
-    <field name="sp_psi"    type="float" unit="rad"/>
+    <field name="phi_est"   type="float" unit="rad"/>
+    <field name="phi_sp"    type="float" unit="rad"/>
+    <field name="theta_est" type="float" unit="rad"/>
+    <field name="theta_sp"  type="float" unit="rad"/>
+    <field name="psi_est"   type="float" unit="rad"/>
+    <field name="psi_sp"    type="float" unit="rad"/>
+    <field name="power_sp"  type="float" unit="0-1"/>
   </message>
 
   <message name="BOOZ_VERT_LOOP" ID="235">

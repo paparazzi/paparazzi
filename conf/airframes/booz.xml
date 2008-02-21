@@ -19,10 +19,10 @@
     <let var="p" value="trim_p + @P"/>
     <let var="q" value="trim_q + @Q"/>
     <let var="r" value="trim_r + @R"/>
-    <set servo="MOTOR_FRONT" value="$throttle + $q - $r"/>
-    <set servo="MOTOR_BACK"  value="$throttle - $q - $r"/>
-    <set servo="MOTOR_RIGHT" value="$throttle - $p + $r"/>
-    <set servo="MOTOR_LEFT"  value="$throttle + $p + $r"/>
+    <set servo="MOTOR_FRONT" value="$throttle + $q + $r"/>
+    <set servo="MOTOR_BACK"  value="$throttle - $q + $r"/>
+    <set servo="MOTOR_RIGHT" value="$throttle - $p - $r"/>
+    <set servo="MOTOR_LEFT"  value="$throttle + $p - $r"/>
   </command_laws>
 
   <rc_commands>

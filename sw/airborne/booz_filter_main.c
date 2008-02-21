@@ -131,5 +131,5 @@ static inline void on_imu_mag( void ) {
 }
 
 static inline void on_imu_baro( void ) {
-  DOWNLINK_SEND_IMU_PRESSURE(&imu_pressure);
+  //  DOWNLINK_SEND_IMU_PRESSURE(&imu_pressure);
 }

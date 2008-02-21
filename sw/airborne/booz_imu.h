@@ -98,6 +98,7 @@ extern void booz_imu_periodic(void);
     else if (scp1000_status == SCP1000_STA_DATA_AVAILABLE) {		\
       scp1000_status = SCP1000_STA_WAIT_EOC;				\
       imu_pressure_raw = scp1000_pressure;				\
+      imu_pressure = imu_pressure_raw * 0.25;				\
       baro_handler();							\
     }									\
   }

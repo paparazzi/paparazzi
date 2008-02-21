@@ -30,7 +30,7 @@
 
 #define DT_PREDICT (1./250.)
 
-#define K1_accel 0.05
+#define K1_accel 0.075
 #define K2_accel 0.00025
 #define K1_mag 0.1
 #define K2_mag 0.00025
