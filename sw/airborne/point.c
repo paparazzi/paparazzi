@@ -316,20 +316,27 @@ void vPoint(float fPlaneEast, float fPlaneNorth, float fPlaneAltitude,
  */
 
   /* fPan =   0  -> camera looks along the wing
-             -90  -> camera looks in flight direction
-              90  -> camera looks backwards
+             90  -> camera looks in flight direction
+            -90  -> camera looks backwards
   */
-  *fPan = -(float)(atan2(svObjectPositionForPlane2.fy, svObjectPositionForPlane2.fz));
- 
+  /* fixed to the plane*/
+  *fPan = (float)(atan2(svObjectPositionForPlane2.fx, fabs(svObjectPositionForPlane2.fy)));
+
   /* fTilt =   0  -> camera looks down
               90  -> camera looks into right hemisphere
              -90  -> camera looks into left hemispere
      actually the camera always looks more or less downwards, but never upwards
   */
-  *fTilt = (float)(atan2( svObjectPositionForPlane2.fx,
-                          sqrt(   svObjectPositionForPlane2.fy * svObjectPositionForPlane2.fy
-                                + svObjectPositionForPlane2.fz * svObjectPositionForPlane2.fz )
+  *fTilt = (float)(atan2( sqrt(   svObjectPositionForPlane2.fx * svObjectPositionForPlane2.fx
+                                + svObjectPositionForPlane2.fy * svObjectPositionForPlane2.fy ),
+						  -svObjectPositionForPlane2.fz
                         ));
+  if (svObjectPositionForPlane2.fy < 0)
+  {
+		*fPan = -*fPan;
+		*fTilt = -*fTilt;
+  }
+
 #else
 #ifdef POINT_CAM_PITCH_ROLL
 
@@ -356,7 +363,7 @@ void vPoint(float fPlaneEast, float fPlaneNorth, float fPlaneAltitude,
  *
  */
 
-  *fTilt = (float)(atan2( svObjectPositionForPlane2.fx, svObjectPositionForPlane2.fz));
+  *fTilt = (float)(atan2( svObjectPositionForPlane2.fx, -svObjectPositionForPlane2.fz));
 
   *fPan  = (float)(atan2(-svObjectPositionForPlane2.fy,
                           sqrt(  svObjectPositionForPlane2.fx * svObjectPositionForPlane2.fx
