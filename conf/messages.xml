@@ -654,6 +654,14 @@
       <field name="v_sum_err" type="float" unit="m"/>
   </message>
 
+ <message name="VF_UPDATE" id="76">
+   <field name="baro" type="float" unit="m"/>
+   <field name="range_meter" type="float" unit="m"/>
+ </message>
+
+ <message name="VF_PREDICT" id="77">
+   <field name="accel" type="float" unit="m/s/s"/>
+ </message>
 
   <message name="ENOSE_STATUS" ID="250">
       <field name="val1" type="uint16"/>
