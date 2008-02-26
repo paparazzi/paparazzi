@@ -24,8 +24,8 @@ float tl_control_agl_sp;
 
 pprz_t tl_control_commands[COMMANDS_NB];
 
-#define TL_CONTROL_RATE_R_PGAIN -120.
-#define TL_CONTROL_RATE_R_DGAIN    5.
+#define TL_CONTROL_RATE_R_PGAIN -100.
+#define TL_CONTROL_RATE_R_DGAIN    4.
 #define TL_CONTROL_RATE_R_IGAIN    0.2
 
 /* setpoints for max stick throw in degres per second */
@@ -51,9 +51,9 @@ float tl_control_attitude_psi_sum_err;
 #define TL_CONTROL_SPEED_DGAIN  0.
 #define TL_CONTROL_SPEED_IGAIN   -0.20
 
-#define TL_CONTROL_AGL_PGAIN -1050 /* PPRZ / m */
-#define TL_CONTROL_AGL_DGAIN -1150 /* PPRZ / m */
-#define TL_CONTROL_AGL_IGAIN -2 /* PPRZ / m */
+#define TL_CONTROL_AGL_PGAIN -400 /* PPRZ / m */
+#define TL_CONTROL_AGL_DGAIN -550 /* PPRZ / m */
+#define TL_CONTROL_AGL_IGAIN -1 /* PPRZ / m */
 #define TL_MAX_AGL_ERROR 1
 
 
@@ -63,7 +63,6 @@ float tl_control_attitude_psi_sum_err;
 #define TL_CONTROL_TRIM_R 300
 int16_t tl_control_trim_r;
 
-uint8_t tl_z_mode;
 float tl_control_agl_pgain;
 float tl_control_agl_dgain;
 float tl_control_agl_igain;
@@ -112,8 +111,6 @@ void tl_control_init(void) {
   tl_control_speed_igain = TL_CONTROL_SPEED_IGAIN;
   tl_control_speed_u_sum_err = 0;
   tl_control_speed_v_sum_err = 0;
-
-  tl_z_mode = TL_Z_MODE_RM;
 }
 
 
@@ -157,29 +154,20 @@ void tl_control_rate_run(void) {
 }
 
 // #define DO_STEPS 
-// #define DO_VERTICAL_STEPS
+#define DO_VERTICAL_STEPS
 
 void tl_control_attitude_read_setpoints_from_rc(void) {
   tl_control_attitude_phi_sp = -rc_values[RADIO_ROLL];
   tl_control_attitude_theta_sp =  rc_values[RADIO_PITCH];
 
-  switch (tl_z_mode) {
-  case TL_Z_MODE_RC:
-    tl_control_power_sp = rc_values[RADIO_THROTTLE];
-    break;
-  case TL_Z_MODE_RM:
-    //tl_control_agl_sp = Max (0, 3. * (rc_values[RADIO_THROTTLE]/MAX_PPRZ - MAX_PPRZ/10)); /* 2m max */
 #ifdef DO_VERTICAL_STEPS
-    if (cpu_time_sec % 30 < 15)
-    tl_control_agl_sp = -1.5;
+  if (cpu_time_sec % 30 < 15)
+    tl_control_agl_sp = -3;
   else
-    tl_control_agl_sp = -2.0;
+    tl_control_agl_sp = -3.0;
 #else
     tl_control_agl_sp = -3. * rc_values[RADIO_THROTTLE]/MAX_PPRZ;
 #endif
-    break;
-  }
-
 
 #ifndef DO_STEPS
   if (!estimator_in_flight)
@@ -245,26 +233,19 @@ void tl_control_nav_read_setpoints_from_rc(void) {
 }
 
 void tl_control_agl_run(void) {
-  switch(tl_z_mode) {
-  case TL_Z_MODE_RC:
-    /* Do nothing */
-    break;
-  case TL_Z_MODE_RM: {
-    float agl_err = tl_estimator_agl - tl_control_agl_sp;
-    Bound(agl_err, -TL_MAX_AGL_ERROR, TL_MAX_AGL_ERROR);
-    
-    if (estimator_in_flight)
-      tl_control_agl_sum_err += agl_err;
-    else
-      tl_control_agl_sum_err = 0;
-    tl_control_power_sp = tl_estimator_cruise_power - /* minus because Z pointing downward */
-      ( tl_control_agl_pgain * agl_err + 
-	tl_control_agl_dgain * tl_estimator_agl_dot + 
-	tl_control_agl_igain * tl_control_agl_sum_err);
-    if (rc_values[RADIO_THROTTLE] < MAX_PPRZ/10) /* FIXME */
-      tl_control_power_sp = 0;
-  }
-  }
+  float agl_err = tl_estimator_agl - tl_control_agl_sp;
+  Bound(agl_err, -TL_MAX_AGL_ERROR, TL_MAX_AGL_ERROR);
+  
+  if (estimator_in_flight)
+    tl_control_agl_sum_err += agl_err;
+  else
+    tl_control_agl_sum_err = 0;
+  tl_control_power_sp = tl_estimator_cruise_power - /* minus because Z pointing downward */
+    ( tl_control_agl_pgain * agl_err + 
+      tl_control_agl_dgain * tl_estimator_agl_dot + 
+      tl_control_agl_igain * tl_control_agl_sum_err);
+  if (rc_values[RADIO_THROTTLE] < MAX_PPRZ/10 || kill_throttle) /* FIXME */
+    tl_control_power_sp = 0;
 }
 
 

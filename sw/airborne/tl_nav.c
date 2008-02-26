@@ -4,6 +4,7 @@
 #include "tl_estimator.h"
 #include "tl_control.h"
 #include "gps.h"
+#include "radio_control.h"
 
 float tl_nav_goto_h_pgain;
 float tl_nav_goto_h_dgain;

@@ -34,8 +34,9 @@ void tl_autopilot_periodic_task(void) {
     break;
   case TL_AP_MODE_NAV:
     /* 4Hz */
-    //    RunOnceEvery(15, { common_nav_periodic_task_4Hz(); tl_nav_periodic_task(); });
+    RunOnceEvery(15, { common_nav_periodic_task_4Hz(); tl_nav_periodic_task(); });
     tl_control_attitude_run();
+    tl_control_agl_run();
     SetCommands(tl_control_commands);
     break;
   }

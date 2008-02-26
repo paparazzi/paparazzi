@@ -61,7 +61,12 @@ static inline void tl_main_init( void ) {
   uart0_init_tx();
   uart1_init_tx();
 
+  // gps_init();
+
   int_enable();
+
+  // sys_time_usleep(500000);
+  //  gps_configure_uart();
 
   DOWNLINK_SEND_BOOT(&cpu_time_sec);
 }

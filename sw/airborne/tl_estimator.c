@@ -6,8 +6,10 @@
 #include "tl_vfilter.h"
 
 #include "tl_telemetry.h"
+#include "led.h"
 
 bool_t estimator_in_flight;
+bool_t tl_estimator_set_ground_pressure;
 uint16_t estimator_flight_time;
 
 float tl_estimator_u;
@@ -47,6 +49,10 @@ static const float R_accel = 0.5;
 #define TL_PSI_KALM_UNINIT  0
 #define TL_PSI_KALM_RUNNING 1
 
+#define BARO_ALPHA 1
+
+float tl_baro_alpha;
+
 uint8_t tl_psi_kalm_status;
 float   tl_psi_kalm_psi;
 float   tl_psi_kalm_r;
@@ -78,6 +84,8 @@ void tl_estimator_init(void) {
   tl_estimator_u_dot = 0.;
   tl_estimator_v_dot = 0.;
   tl_estimator_cruise_power = TL_ESTIMATOR_CRUISE_POWER;
+  tl_estimator_set_ground_pressure = TRUE;
+  tl_baro_alpha = BARO_ALPHA;
 }
 
 void tl_estimator_use_gps(void) {
@@ -109,6 +117,8 @@ void tl_estimator_use_gyro(void) {
   }
   tl_vf_predict(tl_imu_accel);
 
+  DOWNLINK_SEND_VF_PREDICT(&tl_imu_accel);
+
   tl_estimator_agl = tl_vf_z;
   tl_estimator_agl_dot = tl_vf_zdot;
 }
@@ -116,8 +126,11 @@ void tl_estimator_use_gyro(void) {
 void tl_estimator_use_imu(void) {
   float estimator_psi_measure = -atan2(tl_imu_hx, -tl_imu_hy) + MAGNETIC_DECLINATION;
   
-  if (!estimator_in_flight)
+  if (tl_estimator_set_ground_pressure) {
     estimator_ground_pressure = tl_imu_pressure;
+    estimator_z_baro = 0;
+  }
+
   estimator_z_baro = (estimator_ground_pressure - (float)tl_imu_pressure)*0.084;
 
   if (tl_psi_kalm_status == TL_PSI_KALM_UNINIT) {
@@ -131,6 +144,7 @@ void tl_estimator_use_imu(void) {
   tl_vf_update(-tl_imu_rm);
 #else
   tl_vf_update(-estimator_z_baro);
+  DOWNLINK_SEND_VF_UPDATE(&estimator_z_baro, &tl_imu_rm);
 #endif
 }
 

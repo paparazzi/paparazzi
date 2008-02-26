@@ -4,6 +4,7 @@
 #include "std.h"
 
 extern bool_t estimator_in_flight;
+extern bool_t tl_estimator_set_ground_pressure;
 extern uint16_t estimator_flight_time;
 
 extern float tl_estimator_u;
@@ -37,6 +38,7 @@ void tl_estimator_use_gyro(void);
 void tl_estimator_use_imu(void);
 void tl_estimator_periodic_task(void);
 
+extern float tl_baro_alpha;
 extern float   tl_psi_kalm_psi;
 extern float   tl_psi_kalm_bias;
 extern float   tl_psi_kalm_P[2][2];
