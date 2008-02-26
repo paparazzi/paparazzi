@@ -39,21 +39,38 @@ let rec flatten = fun xml r ->
 	List.iter (fun y -> assert(ExtXml.tag_is y (Xml.tag x))) xs;
 	List.fold_right flatten (x::xs) r
 
+let join_xml_files = fun xml_files ->
+  let dl_settings = ref [] in
+  List.iter (fun xml_file ->
+    let xml = Xml.parse_file xml_file in
+    let these_dl_settings = 
+      try Xml.children (ExtXml.child xml "dl_settings") with 
+	Not_found -> [] in
+    dl_settings := these_dl_settings @ !dl_settings)
+    xml_files;
+  Xml.Element("dl_settings",[],!dl_settings)
+
 
 let _ =
-  if Array.length Sys.argv <> 2 then
+  if Array.length Sys.argv < 2 then
     failwith (Printf.sprintf "Usage: %s input_xml_file(s)" Sys.argv.(0));
-  let h_name = "TUNING_H" in
-  let xml_file = Sys.argv.(1) in
+  let h_name = "TUNING_H"
+  and xml_files = ref [] in
+  for i = 1 to Array.length Sys.argv - 1 do
+    xml_files := Sys.argv.(i) :: !xml_files;
+  done;
+  (*let xml_file = Sys.argv.(1) in*)
   
   try
-    printf "/* This file has been generated from %s */\n" xml_file;
+    printf "/* This file has been generated from %s */\n" (String.concat " " !xml_files);
     printf "/* Please DO NOT EDIT */\n\n";
     
     printf "#ifndef %s\n" h_name;
     printf "#define %s\n\n" h_name;
 
-    let xml = Xml.parse_file xml_file in
+    let dl_settings = join_xml_files !xml_files in
+    let xml = Xml.Element ("settings", [], [dl_settings]) in
+    (*let xml = Xml.parse_file xml_file in*)
     let settings = flatten xml [] in
   
     (** Macro to define variables id *)
