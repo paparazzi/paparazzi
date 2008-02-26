@@ -60,9 +60,9 @@
     <define name="IR2_SIGN" value="1"/>
     <define name="TOP_SIGN" value="-1"/>
 
-    <define name="LATERAL_CORRECTION" value="1."/>
-    <define name="LONGITUDINAL_CORRECTION" value="1."/>
-    <define name="VERTICAL_CORRECTION" value="1."/>
+    <define name="LATERAL_CORRECTION" value=".5"/>
+    <define name="LONGITUDINAL_CORRECTION" value=".5"/>
+    <define name="VERTICAL_CORRECTION" value="1.5"/>
 
     <define name="ROLL_NEUTRAL_DEFAULT" value="-9" unit="deg"/>
     <define name="PITCH_NEUTRAL_DEFAULT" value="3" unit="deg"/>
