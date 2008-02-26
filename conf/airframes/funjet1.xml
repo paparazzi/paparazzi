@@ -45,7 +45,7 @@
     <define name="IR_TOP" value="ADC_0"/>
     <define name="IR_NB_SAMPLES" value="16"/>
 
-    <define name="GYRO_ROLL" value="ADC_6"/>
+    <define name="GYRO_ROLL" value="ADC_3"/>
     <define name="GYRO_NB_SAMPLES" value="16"/> 
 
   </section>
@@ -73,7 +73,7 @@
   </section>
 
  <section name="GYRO" prefix="GYRO_">
-    <define name="ADC_ROLL_NEUTRAL" value="538"/>
+    <define name="ADC_ROLL_NEUTRAL" value="520"/>
     <define name="ADC_TEMP_NEUTRAL" value="476"/>   
     <define name="ADC_TEMP_SLOPE" value="0"/>  
     <define name="DYNAMIC_RANGE" value="300" unit="deg/s"/>
@@ -219,7 +219,7 @@ ap.srcs += downlink.c $(SRC_ARCH)/uart_hw.c datalink.c xbee.c
 ap.CFLAGS += -DINTER_MCU
 ap.srcs += inter_mcu.c 
 
-ap.CFLAGS += -DADC -DUSE_ADC_0 -DUSE_ADC_1 -DUSE_ADC_2 -DUSE_ADC_6
+ap.CFLAGS += -DADC -DUSE_ADC_0 -DUSE_ADC_1 -DUSE_ADC_2 -DUSE_ADC_3
 ap.srcs += $(SRC_ARCH)/adc_hw.c
 
 ap.CFLAGS += -DGPS -DUBX -DUSE_UART0 -DGPS_LINK=Uart0 -DUART0_BAUD=B38400
