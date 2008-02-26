@@ -102,10 +102,10 @@ ap.CFLAGS += -DRADIO_CONTROL -DRADIO_CONTROL_TYPE=RC_FUTABA
 ap.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c  
 
 # transparent 
-ap.CFLAGS += -DDOWNLINK -DUSE_UART0 -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_AP_DEVICE=Uart0 -DPPRZ_UART=Uart0 -DDATALINK=PPRZ -DUART0_BAUD=B9600
+ap.CFLAGS += -DDOWNLINK -DUSE_UART0 -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_AP_DEVICE=Uart0 -DPPRZ_UART=Uart0 -DDATALINK=PPRZ -DUART0_BAUD=B57600
 ap.srcs += downlink.c $(SRC_ARCH)/uart_hw.c pprz_transport.c tl_telemetry.c datalink.c
 
-ap.CFLAGS += -DTL_AP_MODE_AUTO=TL_AP_MODE_SPEED
+ap.CFLAGS += -DTL_AP_MODE_AUTO=TL_AP_MODE_NAV
 ap.srcs += tl_autopilot.c tl_control.c tl_estimator.c tl_vfilter.c
 
 ap.CFLAGS += -DGPS -DUBX -DUSE_UART1 -DGPS_LINK=Uart1 -DUART1_BAUD=B38400 -DDOWNLINK_GPS_DEVICE=DOWNLINK_AP_DEVICE -DGPS_CONFIGURE -DUSER_GPS_CONFIGURE=\"tl_gps_configure.h\" -DGPS_BAUD=38400
@@ -136,10 +136,10 @@ tmm.TARGET = tmm
 tmm.TARGETDIR = tmm
 
 tmm.CFLAGS += -DCONFIG=\"tiny_1_1.h\" -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(16.666e-3)' 
-tmm.srcs = tl_test_mm_main.c sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
+tmm.srcs = $(SRC_ARCH)/tl_test_mm_main.c sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
 
 tmm.CFLAGS += -DLED  -DLED -DTIME_LED=1
-tmm.CFLAGS += -DDOWNLINK -DUSE_UART0 -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart0 -DPPRZ_UART=Uart0 -DUART0_BAUD=B9600
+tmm.CFLAGS += -DDOWNLINK -DUSE_UART0 -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart0 -DPPRZ_UART=Uart0 -DUART0_BAUD=B57600
 tmm.srcs += downlink.c $(SRC_ARCH)/uart_hw.c pprz_transport.c
 
 tmm.srcs += micromag.c $(SRC_ARCH)/micromag_hw.c
@@ -154,16 +154,16 @@ timu.TARGET = timu
 timu.TARGETDIR = timu
 
 timu.CFLAGS += -DCONFIG=\"tiny_1_1.h\" -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(16.666e-3)' 
-timu.srcs = tl_test_imu_main.c sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
+timu.srcs = $(SRC_ARCH)/tl_test_imu_main.c sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
 
 timu.CFLAGS += -DLED  -DLED -DTIME_LED=1
-timu.CFLAGS += -DDOWNLINK -DUSE_UART0 -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart0 -DPPRZ_UART=Uart0 -DUART0_BAUD=B9600
+timu.CFLAGS += -DDOWNLINK -DUSE_UART0 -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart0 -DPPRZ_UART=Uart0 -DUART0_BAUD=B57600
 timu.srcs += downlink.c $(SRC_ARCH)/uart_hw.c pprz_transport.c
 
-timu.srcs += $(SRC_ARCH)/tl_imu.c 
-timu.CFLAGS += -DADC -DUSE_ADC_5 -DADC_CHANNEL_GR=ADC_5
+timu.srcs += tl_imu.c 
+timu.CFLAGS += -DADC -DUSE_ADC_5 -DADC_CHANNEL_GR=ADC_5 -DUSE_ADC_6 -DADC_CHANNEL_RM=ADC_6 -DUSE_ADC_7 -DADC_CHANNEL_ACCEL=ADC_7
 timu.srcs += $(SRC_ARCH)/adc_hw.c
-timu.srcs += $(SRC_ARCH)/tl_baro.c
+timu.srcs += tl_baro.c
 timu.srcs += micromag.c $(SRC_ARCH)/micromag_hw.c
 
 

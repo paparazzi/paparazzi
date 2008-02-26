@@ -4,6 +4,7 @@
   <dl_settings>
     <dl_settings NAME="flight params">
       <dl_setting MAX="1" MIN="0" STEP="1" VAR="estimator_in_flight" shortname="in_flight" module="tl_estimator"/>
+      <dl_setting MAX="1" MIN="0" STEP="1" VAR="tl_estimator_set_ground_pressure" shortname="set_pressure" module="tl_estimator"/>
       <dl_setting MAX="1" MIN="0" STEP="1" VAR="kill_throttle" shortname="kill" module="tl_control"/>
       <dl_setting MAX="0" MIN="-1000" STEP="10" VAR="tl_control_rate_r_pgain" shortname="rate_pgain" module="tl_control"/>
       <dl_setting MAX="20" MIN="0" STEP="0.1" VAR="tl_control_rate_r_dgain" shortname="rate_dgain" module="tl_control"/>
@@ -22,6 +23,7 @@
       <dl_setting MAX="0" MIN="-3000" STEP="1" VAR="tl_control_agl_pgain" shortname="agl_pgain" module="tl_control"/>
       <dl_setting MAX="0" MIN="-3000" STEP="1" VAR="tl_control_agl_dgain" shortname="agl_dgain" module="tl_control"/>
       <dl_setting MAX="0" MIN="-10" STEP="1" VAR="tl_control_agl_igain" shortname="agl_igain" module="tl_control"/>
+      <dl_setting MAX="0.1" MIN="0.01" STEP="0.01" VAR="tl_baro_alpha" module="tl_vfilter"/>
    </dl_settings>
 
    <dl_settings name="speed">

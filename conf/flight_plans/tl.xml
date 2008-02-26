@@ -19,6 +19,19 @@
       <set value="1" var="kill_throttle"/>
       <stay wp="HOME"/>
     </block>
+    <block name="vertical steps" strip_button="Vert. Steps">
+      <while cond="TRUE">
+        <set var="tl_control_agl_sp" value="-3"/>
+	<while cond="15 > stage_time"/>
+        <set var="tl_control_agl_sp" value="-5"/>
+	<while cond="15 > stage_time"/>
+      </while>
+    </block>
+    <block name="vertical RC" strip_button="Vert. RC">
+      <while cond="TRUE">
+        <set var="tl_control_agl_sp" value=" -5. * rc_values[RADIO_THROTTLE]/MAX_PPRZ"/>
+      </while>
+    </block>
     <block name="on ground">
       <exception cond="estimator_in_flight" deroute="flying"/>
 <!--      <set value="1" var="kill_throttle"/> -->
