@@ -121,9 +121,6 @@ from_qdr CDATA #IMPLIED
 from_dist CDATA #IMPLIED
 hmode CDATA #IMPLIED
 vmode CDATA #IMPLIED
-cam_mode (null|fix|manual|nadir|target|follow) #IMPLIED
-cam_ac_target CDATA #IMPLIED
-target CDATA #IMPLIED
 pitch CDATA #IMPLIED
 alt CDATA #IMPLIED
 approaching_time CDATA #IMPLIED
@@ -140,15 +137,9 @@ fun CDATA #REQUIRED>
 <!ATTLIST follow
 ac_id CDATA #REQUIRED
 distance CDATA #REQUIRED
-height CDATA #REQUIRED
-cam_mode (null|fix|manual|nadir|target|follow) #IMPLIED
-target CDATA #IMPLIED
-cam_ac_target CDATA #IMPLIED>
+height CDATA #REQUIRED>
 
 <!ATTLIST xyz
-cam_mode (null|fix|manual|nadir|target|follow) #IMPLIED
-cam_ac_target CDATA #IMPLIED
-target CDATA #IMPLIED
 radius CDATA #IMPLIED>
 
 <!ATTLIST home>
@@ -160,9 +151,6 @@ wp_dist CDATA #IMPLIED
 radius CDATA #REQUIRED
 alt CDATA #IMPLIED
 vmode CDATA #IMPLIED
-cam_mode (null|fix|manual|nadir|target|follow) #IMPLIED
-target CDATA #IMPLIED
-cam_ac_target CDATA #IMPLIED
 climb CDATA #IMPLIED
 pitch CDATA #IMPLIED
 throttle CDATA #IMPLIED
