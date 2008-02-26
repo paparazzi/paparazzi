@@ -87,6 +87,7 @@ float nav_survey_shift;
 float nav_survey_west, nav_survey_east, nav_survey_north, nav_survey_south;
 bool_t nav_survey_active;
 
+int nav_mode = 1;
 
 void nav_init_stage( void ) {
   last_x = estimator_x; last_y = estimator_y;
@@ -105,7 +106,7 @@ void nav_init_stage( void ) {
 #define RcEvent2() CheckEvent(rc_event_2)
 
 
-static inline void fly_to_xy(float x, float y);
+//static inline void fly_to_xy(float x, float y);
 
 #define MIN_DX ((int16_t)(MAX_PPRZ * 0.05))
 
@@ -141,7 +142,8 @@ void nav_circle_XY(float x, float y, float radius) {
   carrot_angle = Max(carrot_angle, M_PI/16);
   float alpha_carrot = nav_circle_trigo_qdr - sign_radius * carrot_angle;
   horizontal_mode = HORIZONTAL_MODE_CIRCLE;
-  float radius_carrot = abs_radius + (abs_radius / cos(carrot_angle) - abs_radius);
+  float radius_carrot = abs_radius;
+  if (nav_mode == 2) radius_carrot += (abs_radius / cos(carrot_angle) - abs_radius);
   fly_to_xy(x+cos(alpha_carrot)*radius_carrot,
 	    y+sin(alpha_carrot)*radius_carrot);
   nav_in_circle = TRUE;
@@ -304,13 +306,24 @@ bool_t nav_approaching_xy(float x, float y, float from_x, float from_y, float ap
 /**
  *  \brief Computes \a desired_x, \a desired_y and \a desired_course.
  */
-static inline void fly_to_xy(float x, float y) { 
+//static inline void fly_to_xy(float x, float y) { 
+void fly_to_xy(float x, float y) { 
   desired_x = x;
   desired_y = y;
-  h_ctl_course_setpoint = M_PI/2.-atan2(y - estimator_y, x - estimator_x);
-  lateral_mode = LATERAL_MODE_COURSE;
+  if (nav_mode == 2) {
+    h_ctl_course_setpoint = M_PI/2.-atan2(y - estimator_y, x - estimator_x);
+    lateral_mode = LATERAL_MODE_COURSE;
+  }
+  else {
+    float diff = atan2(x - estimator_x, y - estimator_y) - estimator_hspeed_dir;
+    NormRadAngle(diff);
+    BoundAbs(diff,M_PI/2.);
+    float s = sin(diff);
+    h_ctl_roll_setpoint = atan(2 * estimator_hspeed_mod*estimator_hspeed_mod * s * (-h_ctl_course_pgain) / (CARROT * NOMINAL_AIRSPEED * 9.81) );
+    BoundAbs(h_ctl_roll_setpoint, h_ctl_roll_max_setpoint);
+    lateral_mode = LATERAL_MODE_ROLL;
+  }
 }
-
 
 /**
  *  \brief Computes the carrot position along the desired segment.

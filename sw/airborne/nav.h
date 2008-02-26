@@ -60,11 +60,15 @@ extern bool_t nav_in_segment;
 extern int16_t nav_circle_x, nav_circle_y, nav_circle_radius;
 extern int16_t nav_segment_x_1, nav_segment_y_1, nav_segment_x_2, nav_segment_y_2;
 
+extern int nav_mode;
+
 extern uint8_t horizontal_mode;
 
 #define HORIZONTAL_MODE_WAYPOINT 0
 #define HORIZONTAL_MODE_ROUTE 1
 #define HORIZONTAL_MODE_CIRCLE 2
+
+extern void fly_to_xy(float x, float y);
 
 extern void nav_eight_init( void );
 extern void nav_eight(uint8_t, uint8_t, float);
