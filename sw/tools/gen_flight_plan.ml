@@ -134,29 +134,6 @@ let get_index_waypoint = fun x l ->
   with
     Not_found -> failwith (sprintf "Unknown waypoint: %s" x)
 
-let output_cam_mode = fun x index_of_waypoints ->
-  let m =  try Xml.attrib x "cam_mode" with _ -> "fix" in
-  match m with
-    "null" -> lprintf "CamNull();\n";
-  | "fix" -> lprintf "CamFix();\n";
-  | "manual" -> lprintf "cam_manual();\n"
-  | "nadir" -> lprintf "cam_nadir();\n"
-  | "target" ->
-      if Xml.tag x = "xyz" then
-	lprintf "cam_carrot();\n"
-      else begin
-	try 
-	  let wp = Xml.attrib x "target" in
-	  let i = get_index_waypoint wp index_of_waypoints in
-	  lprintf "cam_waypoint_target(%s);\n" i
-	with Xml.No_attribute "target" ->
-	  lprintf "cam_manual_target();\n"
-      end
-  | "follow" ->
-      let i = ExtXml.attrib x "cam_ac_target" in
-      lprintf "cam_ac_target(%s);\n" i
-  | _ -> failwith (sprintf "Error: unknown '%s' cam mode" m)
-
 let pprz_throttle = fun s ->
   begin
     try
@@ -315,7 +292,6 @@ let rec print_stage = fun index_of_waypoints x ->
 	right (); 
 	lprintf "NavHeading(RadOfDeg(%s));\n" (parsed_attrib x "course");
 	ignore (output_vmode x "" "");
-	output_cam_mode x index_of_waypoints;
 	left (); lprintf "}\n";
 	lprintf "return;\n"
     | "follow" ->
@@ -324,7 +300,6 @@ let rec print_stage = fun index_of_waypoints x ->
 	and d = ExtXml.attrib x "distance"
 	and h = ExtXml.attrib x "height" in
 	lprintf "NavFollow(%s, %s, %s);\n" id d h;
-	output_cam_mode x index_of_waypoints;
 	lprintf "return;\n"
     | "attitude" ->
 	stage ();
@@ -338,7 +313,6 @@ let rec print_stage = fun index_of_waypoints x ->
 	right ();
 	lprintf "NavAttitude(RadOfDeg(%s));\n" (parsed_attrib x "roll");
 	ignore (output_vmode x "" "");
-	output_cam_mode x index_of_waypoints;
 	left (); lprintf "}\n";
 	lprintf "return;\n"
     | "go" ->
@@ -366,7 +340,6 @@ let rec print_stage = fun index_of_waypoints x ->
 	let vmode = output_vmode x wp last_wp in
 	if vmode = "glide" && hmode <> "route" then
 	  failwith "glide vmode requires route hmode";
-	output_cam_mode x index_of_waypoints;
 	left (); lprintf "}\n";
 	lprintf "return;\n"
     | "stay" ->
@@ -388,7 +361,6 @@ let rec print_stage = fun index_of_waypoints x ->
 	lprintf "Goto3D(%s)\n" r;
 	let x = ExtXml.subst_attrib "vmode" "xyz" x in
 	ignore (output_vmode x "" ""); (** To handle "pitch" *)
-	output_cam_mode x index_of_waypoints;
 	lprintf "return;\n"
     | "home" ->
 	stage ();
@@ -407,7 +379,6 @@ let rec print_stage = fun index_of_waypoints x ->
 	  with
 	    ExtXml.Error _ -> ()
 	end;
-	output_cam_mode x index_of_waypoints;
 	lprintf "return;\n"
     | "eight" ->
 	stage ();
@@ -420,7 +391,6 @@ let rec print_stage = fun index_of_waypoints x ->
 	let r = parsed_attrib  x "radius" in
 	let _vmode = output_vmode x center "" in
 	lprintf "Eight(%s, %s, %s);\n" center turn_about r;
-	output_cam_mode x index_of_waypoints;
 	lprintf "return;\n"
     | "oval" ->
 	stage ();
@@ -433,7 +403,6 @@ let rec print_stage = fun index_of_waypoints x ->
 	let r = parsed_attrib  x "radius" in
 	let _vmode = output_vmode x p1 "" in
 	lprintf "Oval(%s, %s, %s);\n" p1 p2 r;
-	output_cam_mode x index_of_waypoints;
 	lprintf "return;\n"
     | "set" ->
 	stage ();
