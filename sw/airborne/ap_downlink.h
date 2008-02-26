@@ -141,7 +141,7 @@
 #define PERIODIC_SEND_NAVIGATION() SEND_NAVIGATION()
 
 #if defined CAM || defined MOBILE_CAM
-#define SEND_CAM() Downlink({ int16_t x = target_x; int16_t y = target_y; int8_t phi = DegOfRad(phi_c); int8_t theta = DegOfRad(theta_c); DOWNLINK_SEND_CAM(&phi, &theta, &x, &y);})
+#define SEND_CAM() Downlink({ int16_t x = cam_target_x; int16_t y = cam_target_y; int8_t phi = DegOfRad(cam_phi_c); int8_t theta = DegOfRad(cam_theta_c); DOWNLINK_SEND_CAM(&phi, &theta, &x, &y);})
 #else
 #define SEND_CAM() {}
 #endif
