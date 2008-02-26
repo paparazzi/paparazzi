@@ -40,8 +40,9 @@ SETTINGS_XMLS=$(patsubst %,$(CONF)/%,$(SETTINGS))
 SETTINGS_XML=$(ACINCLUDE)/settings.xml
 MAKEFILE_AC=$(ACINCLUDE)/Makefile.ac
 SETTINGS_FILE=$(SETTINGS:settings%=%)
+#TUNING_FILE=$(subst   ,_,$(SETTINGS:settings/%.xml=%)).h
 TUNING_H=$(ACINCLUDE)/tuning.h
-TUNING_INC_H=$(PAPARAZZI_HOME)/var/include/$(SETTINGS:settings/%.xml=%.h)
+TUNING_INC_H=$(PAPARAZZI_HOME)/var/include/"$(SETTINGS:settings/%.xml=%).h"
 SUPERVISION=./paparazzi
 MAKE=make PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME)
 
