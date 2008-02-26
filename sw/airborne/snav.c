@@ -8,7 +8,7 @@
 #include "gps.h"
 
 #define Sign(_x) ((_x) > 0 ? 1 : (-1))
-#define Norm2Pi(x) ({ float _x = x; while (_x < 0.) _x += 2*M_PI; while (_x > 2*M_PI) _x -= 2*M_PI;  _x; })
+#define Norm2Pi(x) ({ uint8_t _i=1; float _x = x; while (_i && _x < 0.) { _i++;_x += 2*M_PI; } while (_i && _x > 2*M_PI) { _i++; _x -= 2*M_PI; } _x; })
 
 static struct point wp_cd, wp_td, wp_ca, wp_ta;
 static float d_radius, a_radius;
