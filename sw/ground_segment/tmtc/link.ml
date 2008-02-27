@@ -401,6 +401,7 @@ let () =
   let baudrate = ref "9600" in
   let transport = ref "pprz" in
   let uplink = ref true in
+  let ac_info = ref true in
   let audio = ref false in
   let rssi_id = ref (-1)
   and aerocomm = ref false in
@@ -415,6 +416,7 @@ let () =
       "-transport", Arg.Set_string transport, (sprintf "<transport> Available protocols are modem,pprz and xbee. Default is %s" !transport);
       "-uplink", Arg.Set uplink, (sprintf "Deprecated (now default)");
       "-nouplink", Arg.Clear uplink, (sprintf "Disables the uplink (from the ground to the aircraft).");
+      "-noac_info", Arg.Clear ac_info, (sprintf "Disables AC traffic info (uplink).");
       "-dtr", Arg.Set aerocomm, "Set serial DTR to false (deprecated)";
       "-aerocomm", Arg.Set aerocomm, "Set serial Aerocomm data mode";
       "-audio", Arg.Unit (fun () -> audio := true; port := "/dev/dsp"), (sprintf "Listen a modulated audio signal on <port>. Sets <port> to /dev/dsp (the -d option must used after this one if needed)");
@@ -468,7 +470,8 @@ let () =
     ignore (Glib.Io.add_watch [`IN] read_fd (GMain.Io.channel_of_descr fd));
 
     if !uplink then begin
-      ignore (Ground_Pprz.message_bind "FLIGHT_PARAM" (get_fp device));
+      if !ac_info then
+	ignore (Ground_Pprz.message_bind "FLIGHT_PARAM" (get_fp device));
       forward_uplink device
     end;
 
