@@ -13,15 +13,6 @@
       <dl_setting MAX="0.5" MIN="-0.5" STEP="0.1" module="cam" VAR="cam_pan_c"/>
     </dl_settings>
 
-    <dl_settings name="pos">
-<dl_setting min="-1000" max="1000" step="1" module="test_cam" var="test_cam_estimator_x" shortname="x"/>
-<dl_setting min="-1000" max="1000" step="1" module="test_cam" var="test_cam_estimator_y" shortname="y"/>
-<dl_setting min="-1000" max="1000" step="1" module="test_cam" var="test_cam_estimator_z" shortname="z"/>
-<dl_setting min="-0.5" max="0.5" step="0.1" module="test_cam" var="test_cam_estimator_phi" shortname="phi"/>
-<dl_setting min="-0.5" max="0.5" step="0.1" module="test_cam" var="test_cam_estimator_theta" shortname="theta"/>
-<dl_setting min="0" max="6.28" step="0.1" module="test_cam" var="test_cam_estimator_hspeed_dir" shortname="hspeed_dir"/>
-    </dl_settings>
-
     <dl_settings name="target">
 <dl_setting min="-1000" max="1000" step="1" module="cam" var="cam_target_x" shortname="x"/>
 <dl_setting min="-1000" max="1000" step="1" module="cam" var="cam_target_y" shortname="y"/>

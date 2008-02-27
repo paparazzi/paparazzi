@@ -39,8 +39,7 @@ struct ac_info_ {
   float gspeed; /* m/s */
 };
 
-
-struct ac_info_ the_acs[NB_ACS];
+extern struct ac_info_ the_acs[NB_ACS];
 
 #define SetAcInfo(_id, _utm_x /*m*/, _utm_y /*m*/, _course/*rad(CW)*/, _alt/*m*/,_gspeed/*m/s*/) { \
   if (_id < NB_ACS) { \

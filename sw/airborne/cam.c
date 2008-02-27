@@ -38,7 +38,12 @@
 #endif // POINT_CAM
 
 #ifdef TEST_CAM
-#include "test_cam.h"
+float test_cam_estimator_x;
+float test_cam_estimator_y;
+float test_cam_estimator_z;
+float test_cam_estimator_phi;
+float test_cam_estimator_theta;
+float test_cam_estimator_hspeed_dir;
 #endif // TEST_CAM
 
 #ifdef CAM_PAN_NEUTRAL
@@ -79,6 +84,7 @@ float cam_theta_c;
 
 float cam_target_x, cam_target_y, cam_target_alt;
 uint8_t cam_target_wp;
+uint8_t cam_target_ac;
 
 uint8_t cam_mode;
 
@@ -89,7 +95,7 @@ void cam_nadir(void);
 void cam_angles(void);
 void cam_target(void);
 void cam_waypoint_target(void);
-void cam_ac_target( uint8_t ac_id );
+void cam_ac_target(void);
 
 void cam_init( void ) {
   cam_mode = CAM_MODE_OFF;
@@ -110,6 +116,9 @@ void cam_periodic( void ) {
     break;
   case CAM_MODE_WP_TARGET:
     cam_waypoint_target();
+    break;
+  case CAM_MODE_AC_TARGET:
+    cam_ac_target();
     break;
   }
 }
@@ -185,10 +194,12 @@ void cam_waypoint_target( void ) {
   cam_target();
 }
 
-void cam_ac_target( uint8_t ac_id ) {
-  struct ac_info_ * ac = get_ac_info(ac_id);
+void cam_ac_target( void ) {
+#ifdef TRAFFIC_INFO
+  struct ac_info_ * ac = get_ac_info(cam_target_ac);
   cam_target_x = ac->east;
   cam_target_y = ac->north;
   cam_target_alt = ac->alt;
   cam_target();
+#endif // TRAFFIC_INFO
 }

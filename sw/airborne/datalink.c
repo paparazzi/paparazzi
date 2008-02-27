@@ -31,7 +31,10 @@
 #include <string.h>
 #include "datalink.h"
 
+#ifdef TRAFFIC_INFO
 #include "traffic_info.h"
+#endif // TRAFFIC_INFO
+
 #include "common_nav.h"
 #include "settings.h"
 #include "latlong.h"
@@ -54,7 +57,7 @@ void dl_parse_msg(void) {
   if (msg_id == DL_PING) {
     DOWNLINK_SEND_PONG();
   } else
-#ifdef NAV
+#ifdef TRAFFIC_INFO
   if (msg_id == DL_ACINFO) {
     uint8_t id = DL_ACINFO_ac_id(dl_buffer);
     float ux = MOfCm(DL_ACINFO_utm_east(dl_buffer));
@@ -63,7 +66,10 @@ void dl_parse_msg(void) {
     float c = RadOfDeg(((float)DL_ACINFO_course(dl_buffer))/ 10.);
     float s = MOfCm(DL_ACINFO_speed(dl_buffer));
     SetAcInfo(id, ux, uy, c, a, s);
-  } else if (msg_id == DL_MOVE_WP && DL_MOVE_WP_ac_id(dl_buffer) == AC_ID) {
+  } else
+#endif
+#ifdef NAV
+  if (msg_id == DL_MOVE_WP && DL_MOVE_WP_ac_id(dl_buffer) == AC_ID) {
     uint8_t wp_id = DL_MOVE_WP_wp_id(dl_buffer);
     float a = MOfCm(DL_MOVE_WP_alt(dl_buffer));
 

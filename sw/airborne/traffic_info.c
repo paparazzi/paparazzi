@@ -29,6 +29,7 @@
 #include <inttypes.h>
 #include "traffic_info.h"
 
+struct ac_info_ the_acs[NB_ACS];
 
 struct ac_info_ * get_ac_info(uint8_t id) {
   id = id < NB_ACS ? id : 0;

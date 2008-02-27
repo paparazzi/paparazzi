@@ -32,11 +32,12 @@
 #include <inttypes.h>
 #include "inter_mcu.h"
 
-#define CAM_MODE_OFF 0
-#define CAM_MODE_ANGLES 1
-#define CAM_MODE_NADIR 2
-#define CAM_MODE_XY_TARGET 3
-#define CAM_MODE_WP_TARGET 4
+#define CAM_MODE_OFF 0         /* Do nothing */
+#define CAM_MODE_ANGLES 1      /* Input: servo angles */
+#define CAM_MODE_NADIR 2       /* Input: () */
+#define CAM_MODE_XY_TARGET 3   /* Input: target_x, target_y */
+#define CAM_MODE_WP_TARGET 4   /* Input: waypoint no */
+#define CAM_MODE_AC_TARGET 5   /* Input: ac id */
 
 extern uint8_t cam_mode;
 
@@ -52,6 +53,9 @@ extern float cam_target_x, cam_target_y;
 extern uint8_t cam_target_wp;
 /** For CAM_MODE_WP_TARGET mode */
 
+extern uint8_t cam_target_ac;
+/** For CAM_MODE_AC_TARGET mode */
+
 void cam_periodic( void );
 void cam_init( void );
 
@@ -59,4 +63,13 @@ extern int16_t cam_pan_command;
 #define cam_SetPanCommand(x) { ap_state->commands[COMMAND_CAM_PAN] = cam_pan_command = x;}
 extern int16_t cam_tilt_command;
 #define cam_SetTiltCommand(x) { ap_state->commands[COMMAND_CAM_TILT] = cam_tilt_command = x;}
-#endif
+
+#ifdef TEST_CAM
+extern float test_cam_estimator_x;
+extern float test_cam_estimator_y;
+extern float test_cam_estimator_z;
+extern float test_cam_estimator_phi;
+extern float test_cam_estimator_theta;
+extern float test_cam_estimator_hspeed_dir;
+#endif // TEST_CAM
+#endif // CAM_H
