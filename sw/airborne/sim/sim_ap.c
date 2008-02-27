@@ -104,9 +104,11 @@ value get_commands(value val_commands) {
   return Val_int(commands[COMMAND_THROTTLE]);
 }
 
-value set_ac_info_native(value ac_id, value ux, value uy, value course, value alt, value gspeed) {
+value set_ac_info_native(value ac_id __attribute__ ((unused)), value ux __attribute__ ((unused)), value uy __attribute__ ((unused)), value course __attribute__ ((unused)), value alt __attribute__ ((unused)), value gspeed __attribute__ ((unused))) {
+#ifdef TRAFFIC_INFO
   SetAcInfo(Int_val(ac_id), Double_val(ux), Double_val(uy), 
 	    Double_val(course), Double_val(alt), Double_val(gspeed));
+#endif
   return Val_unit;
 }
 
