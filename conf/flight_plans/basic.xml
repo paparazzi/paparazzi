@@ -36,7 +36,7 @@
       <exception cond="estimator_z > ground_alt+25" deroute="Standby"/>
       <set value="0" var="kill_throttle"/>
       <set value="0" var="estimator_flight_time"/>
-      <go from="HOME" throttle="1.0" vmode="throttle" wp="CLIMB"/>
+      <go from="HOME" throttle="1.0" vmode="throttle" wp="CLIMB" pitch="15"/>
     </block>
     <block name="Standby" strip_button="Standby" strip_icon="home.png">
       <circle radius="nav_radius" wp="STDBY"/>

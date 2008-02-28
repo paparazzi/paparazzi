@@ -107,15 +107,15 @@
     </block>
 
     <block name="climb 75">
-      <circle radius="50+(estimator_z-ground_alt)/2" wp="1" throttle="0.75" pitch="0.3" vmode="throttle" until="10 > PowerVoltage()"/>
+      <circle radius="50+(estimator_z-ground_alt)/2" wp="1" throttle="0.75" pitch="15" vmode="throttle" until="10 > PowerVoltage()"/>
     </block>
 
     <block name="climb 1">
-      <circle radius="50+(estimator_z-ground_alt)/2" wp="1" climb="1" pitch="0.1" vmode="climb" until="10 > PowerVoltage()"/>
+      <circle radius="50+(estimator_z-ground_alt)/2" wp="1" climb="1" pitch="5" vmode="climb" until="10 > PowerVoltage()"/>
     </block>
 
     <block name="descent 0">
-      <circle radius="50+(estimator_z-ground_alt)/2" wp="1" throttle="0.0" pitch="-0.3" vmode="throttle" until="ground_alt+50 > estimator_z"/>
+      <circle radius="50+(estimator_z-ground_alt)/2" wp="1" throttle="0.0" pitch="-15" vmode="throttle" until="ground_alt+50 > estimator_z"/>
       <deroute block="wait"/>
     </block>
 

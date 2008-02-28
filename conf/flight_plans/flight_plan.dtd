@@ -79,6 +79,8 @@ file CDATA #REQUIRED>
 
 <!ATTLIST block 
 name CDATA #REQUIRED
+pre_call CDATA #IMPLIED
+post_call CDATA #IMPLIED
 strip_button CDATA #IMPLIED
 strip_icon CDATA #IMPLIED
 description CDATA #IMPLIED>

@@ -51,7 +51,7 @@
 
     <block name="climb">
       <exception cond=" estimator_z > ground_alt +30" deroute="wait"/>
-      <attitude pitch="0.3" roll="0" throttle="0.8" until="10> stage_time" vmode="throttle"/>
+      <attitude pitch="15" roll="0" throttle="0.8" until="10> stage_time" vmode="throttle"/>
     </block>-->
     <block name="wait" strip_button="Wait">
       <set value="v_ctl_auto_throttle_nominal_cruise_throttle" var="v_ctl_auto_throttle_cruise_throttle"/>
