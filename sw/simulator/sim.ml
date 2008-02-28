@@ -55,7 +55,8 @@ module type AIRCRAFT =
   end
 
 
-module type AIRCRAFT_ITL = functor (A : Data.MISSION) -> AIRCRAFT
+module type AIRCRAFT_ITL = 
+    functor (A : Data.MISSION) -> functor (FM: FlightModel.SIG) -> AIRCRAFT
 
 external fg_sizeof : unit -> int = "fg_sizeof"
 external fg_msg : string -> float -> float -> float -> float -> float -> float -> unit = "fg_msg_bytecode" "fg_msg_native"
@@ -85,9 +86,9 @@ module Make(AircraftItl : AIRCRAFT_ITL) = struct
     let ac = Data.aircraft !ac_name
   end
 
-  module Aircraft = AircraftItl(A)
-
   module FM = FlightModel.Make(A)
+
+  module Aircraft = AircraftItl(A)(FM)
 
   let flight_plan = A.ac.Data.flight_plan
 

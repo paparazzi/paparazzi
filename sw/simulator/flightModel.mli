@@ -37,16 +37,18 @@ val get_attitude : state -> radian * radian * radian
 val set_air_speed : state -> meter_s -> unit
 val get_air_speed : state -> meter_s
 
-module Make :
-  functor (A : Data.MISSION) ->
-    sig
-      val init : radian -> state
-      val do_commands : state -> Stdlib.pprz_t array -> unit
-      val nb_commands : int
-      val nominal_airspeed : float (* m/s *)
-      val roll_neutral_default : float (* rad *)
-      val pitch_neutral_default : float (* rad *)
-      val state_update : state -> float -> float * float -> float -> float -> unit
-      (** [state_update nom_airspeed state (wind_x, wind_y) on_ground dt] With m/s for wind and s for
-	 dt *)
-    end
+module type SIG =
+  sig
+    val init : radian -> state
+    val do_commands : state -> Stdlib.pprz_t array -> unit
+    val nb_commands : int
+    val nominal_airspeed : float (* m/s *)
+    val max_bat_level : float (* V *)
+    val roll_neutral_default : float (* rad *)
+    val pitch_neutral_default : float (* rad *)
+    val state_update : state -> float -> float * float -> float -> float -> unit
+	(** [state_update nom_airspeed state (wind_x, wind_y) on_ground dt] With m/s for wind and s for
+	    dt *)
+  end
+
+module Make : functor (A : Data.MISSION) -> SIG

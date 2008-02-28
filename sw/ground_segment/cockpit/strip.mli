@@ -23,7 +23,8 @@ type t = <
 
 val scrolled : GBin.scrolled_window
 
-val add : Pprz.values -> string -> (unit -> unit) -> (unit -> unit) -> t
+val add : Pprz.values -> string -> (unit -> unit) -> (unit -> unit) -> float -> float -> t
+(** [add config color center_ac mark min_bat max_bat] *)
 
 
 

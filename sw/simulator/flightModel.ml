@@ -51,6 +51,20 @@ type state = {
     mutable nominal_air_speed : meter_s
   }
 
+module type SIG =
+  sig
+    val init : radian -> state
+    val do_commands : state -> Stdlib.pprz_t array -> unit
+    val nb_commands : int
+    val nominal_airspeed : float (* m/s *)
+    val max_bat_level : float (* V *)
+    val roll_neutral_default : float (* rad *)
+    val pitch_neutral_default : float (* rad *)
+    val state_update : state -> float -> float * float -> float -> float -> unit
+	(** [state_update nom_airspeed state (wind_x, wind_y) on_ground dt] With m/s for wind and s for
+	    dt *)
+  end
+
 let get_xyz state = (state.x, state.y, state.z)
 let get_time state = state.t
 let get_attitude state = (state.phi, state.theta, state.psi)
@@ -94,6 +108,9 @@ module Make(A:Data.MISSION) = struct
 
   let weight = 
     try float_value simu_section "WEIGHT" with _ -> 1.
+
+  let max_bat_level =
+    try float_value (section "BAT") "MAX_BAT_LEVEL" with _ -> 12.5
 
   let max_phi = 0.7 (* rad *)
   let bound = fun x mi ma -> if x > ma then ma else if x < mi then mi else x

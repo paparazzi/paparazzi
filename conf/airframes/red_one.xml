@@ -100,7 +100,11 @@
     <define name="ADC_CHANNEL_VSUPPLY"  value="AdcBank1(6)"/>
     <define name="VoltageOfAdc(adc)" value="(0.01787109375*adc)"/>
     <define name="CurrentOfAdc(adc)" value="((adc-177.)*(3.27/0.058))"/>
-    <define name="LOW_BATTERY" value="6.0" unit="V"/>
+
+    <define name="CATASTROPHIC_BAT_LEVEL" value="6.0" unit="V"/>
+    <define name="CRITIC_BAT_LEVEL" value="6.5" unit="V"/>
+    <define name="LOW_BAT_LEVEL" value="7.0" unit="V"/>
+    <define name="MAX_BAT_LEVEL" value="8.4" unit="V"/>
   </section>
  
   <section name="MISC">

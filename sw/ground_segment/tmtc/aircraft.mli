@@ -62,6 +62,7 @@ type aircraft = {
     id : string;
     name : string;
     flight_plan : Xml.xml;
+    airframe : Xml.xml;
     mutable pos : Latlong.utm;
     mutable unix_time : float;
     mutable roll : float;
@@ -111,5 +112,5 @@ type aircraft = {
     mutable dist_to_wp : float
 }
 
-val new_aircraft : string -> string -> Xml.xml -> aircraft
+val new_aircraft : string -> string -> Xml.xml -> Xml.xml -> aircraft
 val max_nb_dl_setting_values : int

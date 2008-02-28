@@ -129,7 +129,9 @@
     <define name="VOLTAGE_ADC_A" value="0.0156"/>
     <define name="VOLTAGE_ADC_B" value="-0.029"/>
     <define name="VoltageOfAdc(adc)" value="(VOLTAGE_ADC_A * adc + VOLTAGE_ADC_B)"/>
-    <define name="LOW_BATTERY" value="9.3" unit="V"/>
+    <define name="CATASTROPHIC_BAT_LEVEL" value="9.3" unit="V"/>
+    <define name="CRITIC_BAT_LEVEL" value="10" unit="V"/>
+    <define name="LOW_BAT_LEVEL" value="10.5" unit="V"/>
   </section>
  
   <section name="MISC">

@@ -32,7 +32,7 @@ module TelePprz = Pprz.Messages(struct let name = "telemetry" end)
 module DatalinkPprz = Pprz.Messages(struct let name = "datalink" end)
 module GroundPprz = Pprz.Messages(struct let name = "ground" end)
 
-module Make(A:Data.MISSION) = struct
+module Make (A:Data.MISSION) (FM: FlightModel.SIG) = struct
   let my_id = ref (-1)
 
   let init = fun id (_:GPack.box) ->

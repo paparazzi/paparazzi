@@ -50,8 +50,6 @@ type t =
       hide_buttons : unit -> unit; 
       show_buttons : unit -> unit >
 
-let bat_max = 12.5
-let bat_min = 9.
 let agl_max = 150.
 
 (** window for the strip panel *)
@@ -181,7 +179,7 @@ class hgauge = fun ?(color="green") gauge v_min v_max ->
   end
 
 (** add a strip to the panel *)
-let add = fun config color center_ac mark ->
+let add = fun config color center_ac mark min_bat max_bat ->
   let strip_labels = ref  [] in
   let add_label = fun name value -> 
     strip_labels := (name, value) :: !strip_labels in
@@ -211,7 +209,7 @@ let add = fun config color center_ac mark ->
   (* battery gauge *)
   let bat_da = strip#drawingarea_battery in
   bat_da#misc#realize ();
-  let bat = new gauge bat_da bat_min bat_max in
+  let bat = new gauge bat_da min_bat max_bat in
 
   (* AGL gauge *)
   let agl_da = strip#drawingarea_agl in

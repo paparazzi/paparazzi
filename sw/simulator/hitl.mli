@@ -27,4 +27,4 @@
 (** Listen commands ("COMMANDS" telemetry message) on Ivy. Sends GPS and
    infrared as ground messages (raw HITL datalink messages) *)
 
-module Make : functor (A : Data.MISSION) -> Sim.AIRCRAFT 
+module Make : Sim.AIRCRAFT_ITL

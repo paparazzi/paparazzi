@@ -302,6 +302,11 @@ let load_mission = fun ?editable color geomap xml ->
   Map2d.set_georef_if_none geomap (MapFP.georef_of_xml xml);
   new MapFP.flight_plan ~format_attribs:attributes_pretty_printer ?editable ~show_moved:true geomap color Env.flight_plan_dtd xml
 
+let get_bat_levels = fun af_xml ->
+  let bat_section = ExtXml.child af_xml ~select:(fun x -> Xml.attrib x "name" = "BAT") "section" in
+  let fvalue = fun name default ->
+    try ExtXml.float_attrib (ExtXml.child bat_section ~select:(fun x -> ExtXml.attrib x "name" = name) "define") "value" with _ -> default in
+  fvalue "CATASTROPHIC_BAT_LEVEL" 9., fvalue "MAX_BAT_LEVEL" 12.5
 
 let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id:string) config ->
   let color = Pprz.string_assoc "default_gui_color" config
@@ -316,7 +321,8 @@ let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id
 
   (** Get the airframe file *)
   let af_url = Pprz.string_assoc "airframe" config in
-  let _af_file =  Http.file_of_url af_url in
+  let af_file =  Http.file_of_url af_url in
+  let af_xml = ExtXml.parse_file af_file in
 
   let label_box = GBin.event_box () in
   let label = GPack.hbox ~packing:label_box#add ~spacing:3 () in
@@ -370,7 +376,8 @@ let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id
     ac_notebook#page_num w#coerce = ac_notebook#current_page in      
 
   (** Add a strip *)
-  let strip = Strip.add config color center_ac (mark geomap ac_id track !Plugin.frame) in
+  let min_bat, max_bat = get_bat_levels af_xml in
+  let strip = Strip.add config color center_ac (mark geomap ac_id track !Plugin.frame) min_bat max_bat in
   strip#connect (fun () -> select_ac acs_notebook ac_id);
 
   (** Build the XML flight plan, connect then "jump_to_block" *)

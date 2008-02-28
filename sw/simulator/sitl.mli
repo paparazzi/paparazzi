@@ -1,6 +1,6 @@
 (* Software In The Loop *)
 
-module Make : functor (A : Data.MISSION) -> Sim.AIRCRAFT 
+module Make : Sim.AIRCRAFT_ITL
 val options : (string * Arg.spec * string) list
 (** Arg options specific to Sitl *)
 

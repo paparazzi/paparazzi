@@ -36,7 +36,7 @@ let raw_datalink_msg_separator = Str.regexp ";"
 
 let norc = ref false
 
-module Make(A:Data.MISSION) = struct
+module Make (A:Data.MISSION) (FM: FlightModel.SIG) = struct
 
   let servos_period = 1./.40. (* s *)
   let periodic_period = 1./.60. (* s *)
@@ -53,7 +53,7 @@ module Make(A:Data.MISSION) = struct
     List.assoc x (Array.to_list (Array.mapi (fun i c -> Xml.attrib c "function", i) rc_channels))
 
   let rcommands = ref [||]
-  let adj_bat = GData.adjustment ~value:12.5 ~lower:0. ~upper:23. ~step_incr:0.1 ()
+  let adj_bat = GData.adjustment ~value:FM.max_bat_level ~lower:0. ~upper:23. ~step_incr:0.1 ()
 
   external get_commands : Stdlib.pprz_t array -> int = "get_commands"
 (** Returns gaz servo value (us) *)

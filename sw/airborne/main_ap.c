@@ -99,7 +99,12 @@
 #include "baro_MS5534A.h"
 #endif
 
-#define LOW_BATTERY_DECIVOLT (LOW_BATTERY*10)
+#if ! defined CATASTROPHIC_BAT_LEVEL && defined LOW_BATTERY
+#warning "LOW_BATTERY deprecated. Renammed into CATASTROPHIC_BAT_LEVEL (in aiframe file)"
+#define CATASTROPHIC_BAT_LEVEL LOW_BATTERY
+#endif
+
+#define LOW_BATTERY_DECIVOLT (CATASTROPHIC_BAT_LEVEL*10)
 #ifndef MILLIAMP_PER_PERCENT
 #define MILLIAMP_PER_PERCENT 0
 #endif

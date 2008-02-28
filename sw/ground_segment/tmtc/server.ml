@@ -656,8 +656,11 @@ let new_aircraft = fun real_id ->
   let ac_name = ExtXml.attrib conf "name" in
   let fp_file = Env.paparazzi_home // root_dir // "var" // ac_name // "flight_plan.xml" in
   let xml_fp = ExtXml.child (Xml.parse_file fp_file) "flight_plan" in
+
+  let airframe_file = Env.paparazzi_home // root_dir // "conf" // ExtXml.attrib conf "airframe" in
+  let airframe_xml = Xml.parse_file airframe_file in
   
-  let ac = Aircraft.new_aircraft real_id ac_name xml_fp in
+  let ac = Aircraft.new_aircraft real_id ac_name xml_fp airframe_xml in
   let update = fun () ->
     for i = 0 to Array.length ac.svinfo - 1 do
       ac.svinfo.(i).age <-  ac.svinfo.(i).age + 1;
@@ -669,14 +672,22 @@ let new_aircraft = fun real_id ->
   ac, messages_xml
       
 let check_alerts = fun a ->
+  let bat_section = ExtXml.child a.airframe ~select:(fun x -> Xml.attrib x "name" = "BAT") "section" in
+  let fvalue = fun name default ->
+    try ExtXml.float_attrib (ExtXml.child bat_section ~select:(fun x -> ExtXml.attrib x "name" = name) "define") "value" with _ -> default in
+
+  let catastrophic_level = fvalue "CATASTROPHIC_BAT_LEVEL" 9.
+  and critic_level = fvalue "CRITIC_BAT_LEVEL" 10.
+  and warning_level = fvalue "LOW_BAT_LEVEL" 10.5 in
+
   let send = fun level ->
     let vs = [ "ac_id", Pprz.String a.id; 
 	       "level", Pprz.String level; 
 	       "value", Pprz.Float a.bat] in
     Alerts_Pprz.message_send my_id "BAT_LOW" vs in
-  if a.bat < 9. then send "CATASTROPHIC"
-  else if a.bat < 10. then send "CRITIC"
-  else if a.bat < 10.5 then send "WARNING"
+  if a.bat < catastrophic_level then send "CATASTROPHIC"
+  else if a.bat < critic_level then send "CRITIC"
+  else if a.bat < warning_level then send "WARNING"
 
 let wind_clear = fun _sender vs ->
   Wind.clear (Pprz.string_assoc "ac_id" vs)
