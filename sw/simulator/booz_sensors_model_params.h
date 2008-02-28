@@ -44,6 +44,8 @@
 #define BSM_ACCEL_BIAS_X          1e-3
 #define BSM_ACCEL_BIAS_Y          1e-3
 #define BSM_ACCEL_BIAS_Z          1e-3
+/* s */
+#define BSM_ACCEL_DT              (1./250.)
 
 
 
@@ -73,39 +75,55 @@
 #define BSM_GYRO_NOISE_STD_DEV_R  RadOfDeg(.5)
 
 #define BSM_GYRO_BIAS_INITIAL_P  RadOfDeg(  .5)
-//#define BSM_GYRO_BIAS_INITIAL_Q  RadOfDeg(-0.5)
-#define BSM_GYRO_BIAS_INITIAL_Q  RadOfDeg(0.)
+#define BSM_GYRO_BIAS_INITIAL_Q  RadOfDeg(-0.5)
 #define BSM_GYRO_BIAS_INITIAL_R  RadOfDeg(  .25)
 
 #define BSM_GYRO_BIAS_RANDOM_WALK_STD_DEV_P RadOfDeg(5.e-1)
-//#define BSM_GYRO_BIAS_RANDOM_WALK_STD_DEV_Q RadOfDeg(5.e-1)
-#define BSM_GYRO_BIAS_RANDOM_WALK_STD_DEV_Q RadOfDeg(0)
+#define BSM_GYRO_BIAS_RANDOM_WALK_STD_DEV_Q RadOfDeg(5.e-1)
 #define BSM_GYRO_BIAS_RANDOM_WALK_STD_DEV_R RadOfDeg(5.e-1)
+
+#define BSM_GYRO_DT (1./250.)
+
 
 
 /*
  *  Magnetometer
  */
 
-
+#define BSM_MAG_DT (1./20.)
 
 
 /*
  *  Range meter
  */
-#define BSM_RANGE_METER_RESOLUTION  (1024)
-#define BSM_RANGE_METER_SENSITIVITY (1024. / 12.)
-#define BSM_RANGE_METER_MAX_RANGE   (6. * BSM_RANGE_METER_SENSITIVITY)
+#define BSM_RANGEMETER_RESOLUTION  (1024)
+#define BSM_RANGEMETER_SENSITIVITY (1024. / 12.)
+#define BSM_RANGEMETER_MAX_RANGE   (6. * BSM_RANGEMETER_SENSITIVITY)
+#define BSM_RANGEMETER_DT          (1./20.)
+
 
 /*
  *  Barometer
  */
+#define BSM_BARO_QNH          101300
+#define BSM_BARO_SENSITIVITY       4.
+#define BSM_BARO_DT          (1./10.)
 
 
 /*
  *  GPS
  */
+#define BSM_GPS_SPEED_NOISE_STD_DEV  1e-1
+#define BSM_GPS_SPEED_LATENCY        0.25
 
-
+#define BSM_GPS_POS_NOISE_STD_DEV              3e-1
+#define BSM_GPS_POS_BIAS_INITIAL_X             1e-1
+#define BSM_GPS_POS_BIAS_INITIAL_Y            -1e-1
+#define BSM_GPS_POS_BIAS_INITIAL_Z            -5e-1
+#define BSM_GPS_POS_BIAS_RANDOM_WALK_STD_DEV_X 1e-1 
+#define BSM_GPS_POS_BIAS_RANDOM_WALK_STD_DEV_Y 1e-1 
+#define BSM_GPS_POS_BIAS_RANDOM_WALK_STD_DEV_Z 1e-1 
+#define BSM_GPS_POS_LATENCY                    0.25
+#define BSM_GPS_DT                           (1./4.)
 
 #endif /* BOOZ_SENSORS_MODEL_PARAMS_H */

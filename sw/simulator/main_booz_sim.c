@@ -100,18 +100,34 @@ static gboolean booz_sim_periodic(gpointer data __attribute__ ((unused))) {
   booz_filter_main_periodic_task();
   
   /* feed sensors */
-  max1167_hw_feed_value(sim_time, bsm.gyro, bsm.accel);
-  micromag_hw_feed_value(sim_time, bsm.mag);
+  if (booz_sensor_model_gyro_available()) {
+    max1167_hw_feed_value(sim_time, bsm.gyro, bsm.accel);
+    booz_filter_main_event_task();
+  }
+
+  if (booz_sensor_model_mag_available()) {
+    micromag_hw_feed_value(sim_time, bsm.mag);
+    booz_filter_main_event_task();
+  }
+
+  if (booz_sensor_model_baro_available()) {
+    scp1000_hw_feed_value(sim_time, bsm.baro);
+    booz_filter_main_event_task();
+  }
+
+  if (booz_sensor_model_gps_available()) {
+    //    scp1000_hw_feed_value(sim_time, bsm.baro);
+    booz_filter_main_event_task();
+  }
 
   /* process sensors events */
   /* it will run the filter and the inter-process communication which   */
   /* will post a BoozLinkMcuEvent in the Controller process             */
-  booz_filter_main_event_task();
-  booz_filter_main_event_task();
 
   /* process the BoozLinkMcuEvent                                       */
   /* this will update the controller estimator                          */
   booz_controller_main_event_task();
+#if 0
   /* cheat in simulation : psi not available from filter yet */
   //  booz_estimator_set_psi(bfm.state->ve[BFMS_PSI]);
   /* in simulation compute dcm as a helper for for nav */
@@ -123,7 +139,7 @@ static gboolean booz_sim_periodic(gpointer data __attribute__ ((unused))) {
 				   bsm.pos_sensor->ve[AXIS_X], 
 				   bsm.pos_sensor->ve[AXIS_Y], 
 				   bsm.pos_sensor->ve[AXIS_Z] );
-
+#endif
 
   /* post a radio control event */
   booz_sim_set_ppm_from_joystick();
