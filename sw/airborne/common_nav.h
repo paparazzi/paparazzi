@@ -55,21 +55,19 @@ unit_t nav_update_waypoints_alt( void ) __attribute__ ((unused));
 void common_nav_periodic_task_4Hz(void);
 
 
-#define InitStage() { nav_init_stage(); return; }
+#define InitStage() nav_init_stage();
 
 #define Block(x) case x: nav_block=x;
-#define InitBlock() { nav_stage = 0; block_time = 0; InitStage(); }
-#define NextBlock() { nav_block++; nav_init_block(); return; }
-#define GotoBlock(b) { nav_block=b; nav_init_block(); return; }
+#define NextBlock() { nav_block++; nav_init_block(); }
+#define GotoBlock(b) { nav_block=b; nav_init_block(); }
 
 #define Stage(s) case s: nav_stage=s;
-#define NextStage() { nav_stage++; InitStage() }
-#define NextStageFrom(wp) { last_wp = wp; NextStage() }
-#define GotoStage(s) { nav_stage = s; InitStage() }
+#define NextStageAndBreak() { nav_stage++; InitStage(); break; }
+#define NextStageAndBreakFrom(wp) { last_wp = wp; NextStageAndBreak(); }
 
 #define Label(x) label_ ## x:
 #define Goto(x) { goto label_ ## x; }
-#define Return() ({ nav_block=last_block; nav_stage=last_stage; block_time=0; return; FALSE;})
+#define Return() ({ nav_block=last_block; nav_stage=last_stage; block_time=0; FALSE;})
 
 #define And(x, y) ((x) && (y))
 #define Or(x, y) ((x) || (y))
