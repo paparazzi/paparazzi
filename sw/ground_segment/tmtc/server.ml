@@ -638,25 +638,36 @@ let replayed = fun ac_id ->
   else
     (ac_id, "", conf_xml)
 
+(* Store of unknown received A/C ids. To be able to report an error only once *)
+let unknown_aircrafts = Hashtbl.create 5
+
+let get_conf = fun real_id id conf_xml ->
+  try 
+    ExtXml.child conf_xml "aircraft" ~select:(fun x -> ExtXml.attrib x "ac_id" = id)
+  with
+    Not_found ->
+      Hashtbl.add unknown_aircrafts real_id ();
+      failwith (sprintf "Error: A/C '%s' not found" id)
+
       
 let new_aircraft = fun real_id ->
   let id, root_dir, conf_xml = replayed real_id in
-  let conf = try ExtXml.child conf_xml "aircraft" ~select:(fun x -> ExtXml.attrib x "ac_id" = id) with Not_found -> failwith (sprintf "Error: A/C '%s' not found" id) in
+  let conf = get_conf real_id id conf_xml in
   let ac_name = ExtXml.attrib conf "name" in
   let fp_file = Env.paparazzi_home // root_dir // "var" // ac_name // "flight_plan.xml" in
   let xml_fp = ExtXml.child (Xml.parse_file fp_file) "flight_plan" in
-   
+  
   let ac = Aircraft.new_aircraft real_id ac_name xml_fp in
   let update = fun () ->
     for i = 0 to Array.length ac.svinfo - 1 do
       ac.svinfo.(i).age <-  ac.svinfo.(i).age + 1;
     done in
-
+  
   ignore (Glib.Timeout.add 1000 (fun _ -> update (); true));
-
+  
   let messages_xml = Xml.parse_file (Env.paparazzi_home // root_dir // "conf" // "messages.xml") in
   ac, messages_xml
-
+      
 let check_alerts = fun a ->
   let send = fun level ->
     let vs = [ "ac_id", Pprz.String a.id; 
@@ -732,14 +743,17 @@ let register_aircraft = fun name a ->
 
 (** Identifying message from an A/C *)
 let ident_msg = fun log name ->
-  if not (Hashtbl.mem aircrafts name) then begin
-    let ac, messages_xml = new_aircraft name in
-    let ac_msg_closure = ac_msg messages_xml log name ac in
-    let _b = Ivy.bind (fun _ args -> ac_msg_closure args.(0)) (sprintf "^%s +(.*)" name) in
-    register_aircraft name ac;
-    Ground_Pprz.message_send my_id "NEW_AIRCRAFT" ["ac_id", Pprz.String name]
-  end
-
+  try
+    if not (Hashtbl.mem aircrafts name) && 
+      not (Hashtbl.mem unknown_aircrafts name) then
+      let ac, messages_xml = new_aircraft name in
+      let ac_msg_closure = ac_msg messages_xml log name ac in
+      let _b = Ivy.bind (fun _ args -> ac_msg_closure args.(0)) (sprintf "^%s +(.*)" name) in
+      register_aircraft name ac;
+      Ground_Pprz.message_send my_id "NEW_AIRCRAFT" ["ac_id", Pprz.String name]
+  with
+    exc -> prerr_endline (Printexc.to_string exc)
+	
 let new_color = fun () ->
   sprintf "#%02x%02x%02x" (Random.int 256) (Random.int 256) (Random.int 256)
 
