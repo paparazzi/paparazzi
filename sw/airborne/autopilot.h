@@ -73,8 +73,6 @@ extern uint8_t fatal_error_nb;
 extern uint8_t lateral_mode;
 extern uint8_t vsupply;
 
-extern bool_t rc_event_1, rc_event_2;
-
 extern float slider_1_val, slider_2_val;
 
 extern bool_t launch;
@@ -90,9 +88,6 @@ extern bool_t sum_err_reset;
   uint8_t new_mode = _value; \
   (_mode != new_mode ? _mode = new_mode, TRUE : FALSE); \
 })
-
-#define CheckEvent(_event) (_event ? _event = FALSE, TRUE : FALSE)
-
 
 void periodic_task( void );
 void telecommand_task(void);

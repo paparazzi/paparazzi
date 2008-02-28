@@ -102,12 +102,6 @@ void nav_init_stage( void ) {
 #define PowerVoltage() (vsupply/10.)
 #define RcRoll(travel) (fbw_state->channels[RADIO_ROLL]* (float)travel /(float)MAX_PPRZ)
 
-#define RcEvent1() CheckEvent(rc_event_1)
-#define RcEvent2() CheckEvent(rc_event_2)
-
-
-//static inline void fly_to_xy(float x, float y);
-
 #define MIN_DX ((int16_t)(MAX_PPRZ * 0.05))
 
 
