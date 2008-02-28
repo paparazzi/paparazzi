@@ -486,7 +486,7 @@ let print_block = fun index_of_waypoints (b:Xml.xml) block_num ->
   let n = name_of b in
   (* Block entry *)
   lprintf "Block(%d) // %s\n" block_num n;
-  lprintf "%s // pre_call\n" (ExtXml.attrib_or_default b "pre_call" "");
+  lprintf "%s; // pre_call\n" (ExtXml.attrib_or_default b "pre_call" "");
 
   let excpts, stages =
     List.partition (fun x -> Xml.tag x = "exception") (Xml.children b) in
@@ -504,7 +504,7 @@ let print_block = fun index_of_waypoints (b:Xml.xml) block_num ->
   lprintf "}\n";
 
   (* Block exit *)
-  lprintf "%s // post_call\n" (ExtXml.attrib_or_default b "post_call" "");
+  lprintf "%s; // post_call\n" (ExtXml.attrib_or_default b "post_call" "");
   lprintf "break;\n\n"
 
 
