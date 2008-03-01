@@ -8,11 +8,16 @@ DESTDIR=/usr/share/paparazzi
 rm -f ${DESTDIR}/sw/ground_segment/tmtc/server
 rm -f ${DESTDIR}/sw/ground_segment/tmtc/messages
 rm -f ${DESTDIR}/sw/ground_segment/tmtc/link
+rm -f ${DESTDIR}/sw/ground_segment/tmtc/settings
 
 rm -f ${DESTDIR}/sw/ground_segment/cockpit/gcs
 
 rm -f ${DESTDIR}/sw/logalizer/play
+rm -f ${DESTDIR}/sw/logalizer/plot
+rm -f ${DESTDIR}/sw/logalizer/plotter
 
 rm -f ${DESTDIR}/sw/simulator/gaia
 
 rm -f ${DESTDIR}/sw/tools/gen_flight_plan.out
+
+rm -f ${DESTDIR}/sw/supervision/paparazzicenter
