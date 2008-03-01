@@ -315,12 +315,10 @@ let keys_help = fun () ->
     "Zoom: Mouse Wheel, PgUp, PgDown\n\
     Pan: Map & keyboard arrows\n\
     Fit to window: f\n\
+    Center active A/C: f\n\
     Fullscreen: F11\n\
     Load Map Tile: Right\n\
-    Select Region: Left + Drag\n\
     Create Waypoint: Ctrl-Left\n\
-    Create Path Point: Ctrl-Shift-Left\n\
-    Change Path Radius: Wheel\n\
     Move Waypoint: Left drag\n\
     Edit Waypoint: Left click\n"
 
