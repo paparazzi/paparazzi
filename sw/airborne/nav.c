@@ -87,7 +87,7 @@ float nav_survey_shift;
 float nav_survey_west, nav_survey_east, nav_survey_north, nav_survey_south;
 bool_t nav_survey_active;
 
-int nav_mode = 1;
+int nav_mode;
 
 void nav_init_stage( void ) {
   last_x = estimator_x; last_y = estimator_y;
@@ -137,7 +137,8 @@ void nav_circle_XY(float x, float y, float radius) {
   float alpha_carrot = nav_circle_trigo_qdr - sign_radius * carrot_angle;
   horizontal_mode = HORIZONTAL_MODE_CIRCLE;
   float radius_carrot = abs_radius;
-  if (nav_mode == 2) radius_carrot += (abs_radius / cos(carrot_angle) - abs_radius);
+  if (nav_mode == NAV_MODE_COURSE)
+    radius_carrot += (abs_radius / cos(carrot_angle) - abs_radius);
   fly_to_xy(x+cos(alpha_carrot)*radius_carrot,
 	    y+sin(alpha_carrot)*radius_carrot);
   nav_in_circle = TRUE;
@@ -304,7 +305,7 @@ bool_t nav_approaching_xy(float x, float y, float from_x, float from_y, float ap
 void fly_to_xy(float x, float y) { 
   desired_x = x;
   desired_y = y;
-  if (nav_mode == 2) {
+  if (nav_mode == NAV_MODE_COURSE) {
     h_ctl_course_setpoint = M_PI/2.-atan2(y - estimator_y, x - estimator_x);
     lateral_mode = LATERAL_MODE_COURSE;
   }
@@ -397,6 +398,7 @@ void nav_init(void) {
   nav_glide_pitch_trim = NAV_GLIDE_PITCH_TRIM;
   nav_radius = DEFAULT_CIRCLE_RADIUS;
   nav_survey_shift = 2*DEFAULT_CIRCLE_RADIUS;
+  nav_mode = NAV_MODE_COURSE;
 
 #ifdef NAV_GROUND_SPEED_PGAIN
   nav_ground_speed_pgain = NAV_GROUND_SPEED_PGAIN; 

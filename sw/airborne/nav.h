@@ -61,6 +61,8 @@ extern int16_t nav_circle_x, nav_circle_y, nav_circle_radius;
 extern int16_t nav_segment_x_1, nav_segment_y_1, nav_segment_x_2, nav_segment_y_2;
 
 extern int nav_mode;
+#define NAV_MODE_ROLL 1
+#define NAV_MODE_COURSE 2
 
 extern uint8_t horizontal_mode;
 
