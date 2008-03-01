@@ -74,7 +74,7 @@
       <field name="GSpeed" format="U4" unit="cm/s"/>
       <field name="Heading" format="I4" scaling="1e-5" unit="deg"/>
       <field name="SAcc" format="U4" unit="cm/s"/>
-      <field name="CAcc" format="U4" unit="deg"/>
+      <field name="CAcc" format="U4" scaling="1e-5" unit="deg"/>
     </message>
 
     <message name="SVINFO" ID="0x30">
