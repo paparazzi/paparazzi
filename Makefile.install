@@ -16,9 +16,9 @@ post_install :
 
 install_data:
 	$(INSTALL) -d $(DESTDIR)/data/maps
-	$(INSTALLDATA) data/maps/*.xml data/maps/*.gif $(DESTDIR)/data/maps
+	$(INSTALLDATA) data/maps/muret_UTM.xml data/maps/muret_UTM.gif $(DESTDIR)/data/maps
 	$(INSTALL) -d $(DESTDIR)/data/pictures/gcs_icons
-	$(INSTALLDATA) var/maps/trtqtttqtsrrt*.jpg $(DESTDIR)/data/maps
+	$(INSTALLDATA) var/maps/trtqtttqtsrrtstq*.jpg var/maps/trtqtttqtsrrttsr*.jpg $(DESTDIR)/data/maps
 	$(INSTALLDATA) data/pictures/*.gif data/pictures/*.svg data/pictures/*.jpg data/pictures/*.png $(DESTDIR)/data/pictures
 	$(INSTALLDATA) data/pictures/gcs_icons/*.png $(DESTDIR)/data/pictures/gcs_icons
 	$(INSTALL) -d $(PREFIX)/usr/share/pixmaps
@@ -87,12 +87,13 @@ install_bin:
 	$(INSTALLDATA) sw/ground_segment/cockpit/*.cmo $(DESTDIR)/sw/ground_segment/cockpit
 	$(INSTALLDATA) sw/ground_segment/cockpit/gcs.glade $(DESTDIR)/sw/ground_segment/cockpit
 	$(INSTALLDATA) sw/ground_segment/tmtc/*.cmo $(DESTDIR)/sw/ground_segment/tmtc
+	$(INSTALLDATA) sw/ground_segment/tmtc/boa $(DESTDIR)/sw/ground_segment/tmtc
 	$(INSTALLDATA) sw/ground_segment/multimon/multimon.cma $(DESTDIR)/sw/ground_segment/multimon
 	$(INSTALLDATA) sw/ground_segment/multimon/libmultimon.a $(DESTDIR)/sw/ground_segment/multimon
+	$(INSTALLDATA) sw/ground_segment/multimon/dllmultimon.so $(DESTDIR)/sw/ground_segment/multimon
 	$(INSTALL) -d  $(DESTDIR)/sw/logalizer
 	$(INSTALLDATA) sw/logalizer/*.cm[ox] $(DESTDIR)/sw/logalizer
 	$(INSTALLDATA) sw/logalizer/*.o $(DESTDIR)/sw/logalizer
-	ln -sf ../share/paparazzi/sw/ground_segment/cockpit/gcs $(PREFIX)/usr/bin/paparazzi-gcs
 	ln -sf ../share/paparazzi/sw/supervision/paparazzicenter $(PREFIX)/usr/bin/paparazzi
 
 install_libs:
