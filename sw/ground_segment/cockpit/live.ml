@@ -549,12 +549,13 @@ let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id
     match dl_settings_page with
       Some settings_tab ->
         (** Connect the strip buttons *)
-	let connect = fun setting_name strip_connect ->
+	let connect = fun ?(warning=true) setting_name strip_connect ->
 	  try
 	    let id, _label = settings_tab#assoc setting_name in
 	    strip_connect (fun x -> dl_setting_callback id x)
 	  with Not_found ->
-	    fprintf stderr "Warning: %s not setable from GCS strip (i.e. not listed in the xml settings file)" setting_name in
+	    if warning then
+	      fprintf stderr "Warning: %s not setable from GCS strip (i.e. not listed in the xml settings file)" setting_name in
 
 	connect "flight_altitude" (fun f -> ac.strip#connect_shift_alt (fun x -> f (ac.target_alt+.x)));
 	connect "launch" ac.strip#connect_launch;
@@ -563,7 +564,7 @@ let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id
 	connect "pprz_mode" ac.strip#connect_mode;
 	connect "estimator_flight_time" ac.strip#connect_flight_time;
 	let get_ac_unix_time = fun () -> ac.last_unix_time in
-	connect "snav_desired_tow" (ac.strip#connect_apt get_ac_unix_time);
+	connect ~warning:false "snav_desired_tow" (ac.strip#connect_apt get_ac_unix_time);
 	begin (* Periodically update the appointment *)
 	  try
 	    let id, _label = settings_tab#assoc "snav_desired_tow" in
