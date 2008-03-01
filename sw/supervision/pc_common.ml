@@ -46,15 +46,12 @@ let run_and_log = fun log com ->
   let cb = fun ev ->
     if List.mem `IN ev then begin
       let buf = String.create buf_size in
-      let rec loop = fun () ->
-	let n = input com_stdout buf 0 buf_size in
-	if n < buf_size then
-	  log (String.sub buf 0 n)
-	else begin
-	  log buf;
-	  loop ()
-	end in
-      loop ();
+      let n = input com_stdout buf 0 buf_size in
+      if n < buf_size then
+	log (String.sub buf 0 n)
+      else begin
+	log buf;
+      end;
       true
     end else begin 
       log (sprintf "\nDONE (%s)\n\n" com);
