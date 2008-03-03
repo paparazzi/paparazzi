@@ -1,6 +1,6 @@
 <!-- DOCTYPE flight_plan SYSTEM "flight_plan.dtd" -->
 
-<flight_plan NAME="Ugv" LON0="1.27289" MAX_DIST_FROM_HOME="1000" GROUND_ALT="0" SECURITY_HEIGHT="0" ALT="0" LAT0="43.46223">
+<flight_plan NAME="Ugv" LON0="1.27289" MAX_DIST_FROM_HOME="2000" GROUND_ALT="0" SECURITY_HEIGHT="0" ALT="0" LAT0="43.46223">
   <waypoints>
     <waypoint name="HOME" x="0.0" y="0"/>
     <waypoint name="UGV" x="0.0" y="100.0"/>

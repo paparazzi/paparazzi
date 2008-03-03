@@ -235,7 +235,7 @@ ap.srcs += nav.c fw_h_ctl.c fw_v_ctl.c
 
 ap.CFLAGS += -DGYRO -DADXRS150
 ap.srcs += gyro.c nav_line.c chemotaxis.c anemotaxis.c discsurvey.c
-ap.srcs += traffic_info.c nav_survey_rectangle.c
+ap.srcs += nav_survey_rectangle.c
 
 ########## Barometer (SPI)
 ap.CFLAGS += -DUSE_SPI -DSPI_MASTER -DUSE_SPI_SLAVE0 -DUSE_BARO_MS5534A
