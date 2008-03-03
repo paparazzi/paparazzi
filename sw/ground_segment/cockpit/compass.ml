@@ -26,7 +26,7 @@ let circle = fun (dr:GDraw.pixmap) (x,y) r ->
 	(x + truncate (r*.cos a), x + truncate (r*.sin a))) in
   dr#polygon (Array.to_list points)
       
-let draw = fun da desired_course course distance ->
+let draw = fun da desired_course course_opt distance ->
   let {Gtk.width=width; height=height} = da#misc#allocation in
   let dr = GDraw.pixmap ~width ~height ~window:da () in
   dr#set_foreground background;
@@ -47,24 +47,30 @@ let draw = fun da desired_course course distance ->
     let (w,h) = Pango.Layout.get_pixel_size layout in
     dr#put_layout ~x:(x-w/2) ~y:(y-h/2) ~fore layout in
 
+  let course = match course_opt with None -> 0. | Some c -> c in
   let rotation = rot (desired_course -. course) in
   let translate = fun (x, y) -> (4*s+x, 4*s-y) in
 
   (* Arrow *)
   if distance > 5. then
-    let points = List.map (fun (x, y) -> translate (rotation (x*s/2,y*s/2))) arrow in
-    dr#set_foreground fore;
-    dr#polygon ~filled:true points;
-    circle dr (4*s,4*s) (2*s);
-    circle dr (4*s,4*s) (3*s)
+    match course_opt with
+      None ->
+	print_string (4*s) (4*s) "?"
+    | Some _ ->
+	let points = List.map (fun (x, y) -> translate (rotation (x*s/2,y*s/2))) arrow in
+	dr#set_foreground fore;
+	dr#polygon ~filled:true points;
+	circle dr (4*s,4*s) (2*s);
+	circle dr (4*s,4*s) (3*s)
   else
     print_string (4*s) (4*s) "STOP";
   
+  (* Distance and bearing to target, current track *)
   print_string (7*s) s (sprintf "%.0f m" distance);
   print_string (7*s) (s/2) "Dist.";
   print_string s s (sprintf "%.0f°" desired_course);
   print_string s (s/2) "Brg";
-  print_string s (7*s) (sprintf "%.0f°" course);
+  print_string s (7*s) (match course_opt with None -> "---" | _ -> sprintf "%.0f°" course);
   print_string s (7*s+s/2) "Track";
 
   (* Cardinal points *)
@@ -101,14 +107,19 @@ let _ =
   da#misc#realize ();
 
   (* Listening messages *)
-  let course = ref 0. in (* deg *)
+  let course = ref None in (* deg *)
   let desired_course = ref 0. in (* deg *)
   let get_navigation = fun _ values ->
     let distance = sqrt (Pprz.float_assoc "dist2_wp" values) in
     draw da !desired_course !course distance in
   ignore (Tm_Pprz.message_bind "NAVIGATION" get_navigation);
   let get_gps = fun _ values ->
-    course := (float (Pprz.int_assoc "course" values) /. 10.) in
+    (* if speed < 1m/s, the course information is not relevant *)
+    course :=
+      if Pprz.int_assoc "speed" values > 100 then
+	Some (float (Pprz.int_assoc "course" values) /. 10.)
+      else
+	None in
   ignore (Tm_Pprz.message_bind "GPS" get_gps);
   let get_desired = fun _ values ->
     desired_course := (Rad>>Deg) (Pprz.float_assoc "course" values) in
