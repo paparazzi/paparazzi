@@ -83,7 +83,7 @@ ap.CFLAGS += -DINTER_MCU
 ap.srcs += inter_mcu.c 
 
 ap.CFLAGS += -DGPS -DUBX -DUSE_UART1 -DGPS_LINK=Uart1 -DUART1_BAUD=B38400 -DDOWNLINK_GPS_1Hz
-% ap.CFLAGS += -DGPS_CONFIGURE -DGPS_BAUD=38400 -DUSER_GPS_CONFIGURE=\"tl_gps_configure.h\"
+ap.CFLAGS += -DGPS_CONFIGURE -DGPS_BAUD=38400 -DUSER_GPS_CONFIGURE=\"ugv_gps_configure.h\"
 
 ap.srcs += gps_ubx.c gps.c latlong.c
 

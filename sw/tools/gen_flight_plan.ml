@@ -117,7 +117,7 @@ let get_index_block = fun x ->
 let print_exception = fun x ->
   let i = get_index_block (ExtXml.attrib x "deroute") in
   let c = parsed_attrib x "cond" in
-  lprintf "if (%s && (nav_block != %s)) { GotoBlock(%s); break; }\n" c i i
+  lprintf "if (%s && (nav_block != %s)) { GotoBlock(%s); return; }\n" c i i
 
 let element = fun a b c -> Xml.Element (a, b, c)
 let goto l = element "goto" ["name",l] []
