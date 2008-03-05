@@ -225,6 +225,8 @@ let one_setting = fun i do_change packing s (tooltips:GData.tooltips) strip ->
   let lower = f "min"
   and upper = f "max"
   and step_incr = f "step"
+  and page_incr = f "step"
+  and page_size = f "step"
   and show_auto = try ExtXml.attrib s "auto" = "true" with _ -> false in
   
   let hbox = GPack.hbox ~packing () in
@@ -255,7 +257,7 @@ let one_setting = fun i do_change packing s (tooltips:GData.tooltips) strip ->
       (fun _ -> do_change i !value)
     else (* slider *)
       let value = (lower +. upper) /. 2. in
-      let adj = GData.adjustment ~value ~lower ~upper:(upper+.10.) ~step_incr () in
+      let adj = GData.adjustment ~value ~lower ~upper:(upper+.step_incr) ~step_incr ~page_incr ~page_size () in
       let _scale = GRange.scale `HORIZONTAL ~digits:3 ~update_policy:`DELAYED ~adjustment:adj ~packing:hbox#add () in
       let f = fun _ -> do_change i adj#value in
       let callback = fun () -> if auto_but#active then f () in
