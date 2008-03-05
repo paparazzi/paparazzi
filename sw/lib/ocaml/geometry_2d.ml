@@ -906,7 +906,7 @@ let slice_polygon = fun poly ->
       while !i <= n do
 	while poly.(!d).y2D = !last_y && !i <= n do
 	  let d' = prev !d in
-	  if d' = !g then raise Exit;
+	  if (d' = !g && poly.(!d).y2D = poly.(!g).y2D) then raise Exit;
 	  alpha_d := slope !d d';
 	  d := d';
 	  incr i
