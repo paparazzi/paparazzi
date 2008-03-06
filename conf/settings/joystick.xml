@@ -1,0 +1,6 @@
+<settings>
+  <dl_settings NAME="joystick">
+      <dl_setting MAX="1" MIN="-1" STEP="0.01" module="joystick" VAR="joystick_x" />
+      <dl_setting MAX="1" MIN="-1" STEP="0.01" module="joystick" VAR="joystick_y" />
+  </dl_settings>
+</settings>
