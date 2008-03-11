@@ -87,11 +87,11 @@ ml_gtkgl_hack.o   : ml_gtkgl_hack.c
 
 %.cmi : %.mli
 	@echo OC $<
-	$(Q)$(OCAMLC) $(INCLUDES) $<
+	$(Q)$(OCAMLC) $(XINCLUDES) $<
 
 %.cmi : %.ml
 	@echo OC $<
-	$(Q)$(OCAMLC) $(INCLUDES) $<
+	$(Q)$(OCAMLC) $(XINCLUDES) $<
 
 clean :
 	rm -f *~ *.cm* *.out *.opt .depend *.a *.o *.so
