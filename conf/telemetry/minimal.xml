@@ -14,6 +14,7 @@
       <message name="SEGMENT"        period="1.2"/>
       <message name="CALIBRATION"    period="3.1"/>
       <message name="NAVIGATION_REF" period="9."/>
+      <message name="NAVIGATION"     period="1."/>
       <message name="PPRZ_MODE"      period="5."/>
       <message name="DOWNLINK"       period="5.1"/>
       <message name="DL_VALUE"       period="1.5"/>
