@@ -4,8 +4,8 @@
 
 <!-- commands section -->
   <servos>
-    <servo name="AILEVON_RIGHT" no="0" min="2000" neutral="1500" max="1000"/>
-    <servo name="AILEVON_LEFT"  no="1" min="1000" neutral="1500" max="2000"/>
+    <servo name="AILEVON_RIGHT" no="0" min="2000" neutral="1273" max="1000"/>
+    <servo name="AILEVON_LEFT"  no="1" min="1000" neutral="1514" max="2000"/>
     <servo name="THROTTLE"      no="2" min="1270" neutral="1270" max="1810"/>
   </servos>
 
@@ -64,7 +64,7 @@
     <define name="LONGITUDINAL_CORRECTION" value="1."/>
     <define name="VERTICAL_CORRECTION" value="1.0"/>
 
-    <define name="ROLL_NEUTRAL_DEFAULT" value="0" unit="deg"/>
+    <define name="ROLL_NEUTRAL_DEFAULT" value="-7" unit="deg"/>
     <define name="PITCH_NEUTRAL_DEFAULT" value="0" unit="deg"/>
 
     <define name="CORRECTION_UP" value="1.0"/>
@@ -88,7 +88,7 @@
   </section>
  
   <section name="MISC">
-    <define name="NOMINAL_AIRSPEED" value="11." unit="m/s"/>
+    <define name="NOMINAL_AIRSPEED" value="13." unit="m/s"/>
     <define name="CARROT" value="5." unit="s"/>
     <define name="KILL_MODE_DISTANCE" value="(1.5*MAX_DIST_FROM_HOME)"/>
     <define name="CONTROL_RATE" value="60" unit="Hz"/>
@@ -97,7 +97,7 @@
     <define name="UNLOCKED_HOME_MODE" value="TRUE"/>
     <define name="RC_LOST_MODE" value="PPRZ_MODE_AUTO2"/>
 
-    <define name="DEFAULT_CIRCLE_RADIUS" value="70."/>
+    <define name="DEFAULT_CIRCLE_RADIUS" value="45."/>
   </section>
 
   <section name="VERTICAL CONTROL" prefix="V_CTL_">
@@ -157,7 +157,7 @@
   </section>
  
  <section name="SIMU">
-    <define name="YAW_RESPONSE_FACTOR" value="1"/>
+    <define name="YAW_RESPONSE_FACTOR" value="0.5"/>
  </section>
 
  <makefile>
@@ -191,7 +191,7 @@ ap.srcs += $(SRC_ARCH)/adc_hw.c
 ap.CFLAGS += -DGYRO -DADXRS150
 ap.srcs += gyro.c
 
-ap.CFLAGS += -DGPS -DUBX -DUSE_UART1 -DGPS_LINK=Uart1 -DUART1_BAUD=B9600 -DGPS_LED=2
+ap.CFLAGS += -DGPS -DUBX -DUSE_UART1 -DGPS_LINK=Uart1 -DUART1_BAUD=B9600 -DGPS_LED=2 -DDOWNLINK_GPS_1Hz
 ap.CFLAGS += -DGPS_CONFIGURE -DGPS_BAUD=38400
 
 ap.srcs += gps_ubx.c gps.c latlong.c

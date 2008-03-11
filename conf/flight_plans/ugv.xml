@@ -1,24 +1,14 @@
-<!-- DOCTYPE flight_plan SYSTEM "flight_plan.dtd" -->
+<!DOCTYPE flight_plan SYSTEM "flight_plan.dtd">
 
-<flight_plan NAME="Ugv" LON0="1.27289" MAX_DIST_FROM_HOME="2000" GROUND_ALT="0" SECURITY_HEIGHT="0" ALT="0" LAT0="43.46223">
+<flight_plan alt="240" ground_alt="170" lat0="27.0929" lon0="77.9169" max_dist_from_home="5000" name="UGV" security_height="25">
   <waypoints>
     <waypoint name="HOME" x="0.0" y="0"/>
-    <waypoint name="UGV" x="0.0" y="100.0"/>
+    <waypoint name="UGVWP" x="0.0" y="100.0"/>
   </waypoints>
-
   <blocks>
-    <block name="Wait GPS">
-      <while cond="!GpsFixValid()"/>
-    </block>
-    <block name="Geo init">
-      <while cond="LessThan(NavBlockTime(), 10)"/>
-      <call fun="NavSetGroundReferenceHere()"/>
-      <set var="launch" value="1"/>
-    </block>
-    <block name="Goto UGV">
-      <go wp="UGV" approaching_time="0"/>
-      <deroute block="Goto UGV"/>
+    <block name="Goto UGVWP">
+      <go approaching_time="0" wp="UGVWP"/>
+      <deroute block="Goto UGVWP"/>
     </block>
   </blocks>
 </flight_plan>
-
