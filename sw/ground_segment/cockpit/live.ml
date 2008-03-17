@@ -68,6 +68,7 @@ type aircraft = {
     track : MapTrack.track;
     color: color;
     fp_group : MapFP.flight_plan;
+    wp_HOME : MapWaypoints.waypoint option;
     fp : Xml.xml;
     blocks : (int * string) list;
     mutable last_ap_mode : string;
@@ -89,7 +90,7 @@ type aircraft = {
     mutable target_alt : float;
     mutable flight_time : int;
     mutable wind_speed : float;
-    mutable wind_dir : float; (* Rad *)
+    mutable wind_dir : float; (* Rad, clockwise from North *)
     mutable ground_prox : bool;
     mutable got_track_status_timer : int;
     mutable last_dist_to_wp : float;
@@ -377,8 +378,9 @@ let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id
 
   (** Add a strip *)
   let min_bat, max_bat = get_bat_levels af_xml in
-  let strip = Strip.add config color center_ac (mark geomap ac_id track !Plugin.frame) min_bat max_bat in
+  let strip = Strip.add config color center_ac min_bat max_bat in
   strip#connect (fun () -> select_ac acs_notebook ac_id);
+  strip#connect_mark (mark geomap ac_id track !Plugin.frame);
 
   (** Build the XML flight plan, connect then "jump_to_block" *)
   let fp_xml = ExtXml.child fp_xml_dump "flight_plan" in
@@ -494,36 +496,44 @@ let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id
 	Some settings_tab
     with _ -> None in
 
-    let ac = { track = track; color = color; last_dist_to_wp = 0.;
-	       fp_group = fp ; config = config ; 
-	       fp = fp_xml; ac_name = name;
-	       blocks = blocks; last_ap_mode= "";
-	       last_stage = (-1,-1);
-	       ir_page = ir_page; flight_time = 0;
-	       gps_page = gps_page;
+  let wp_HOME =
+    let rec loop = function
+	[] -> None 
+      | w::ws ->
+	  let (_i, w) = fp#index w in
+	  if w#name = "HOME" then Some w else loop ws in
+    loop fp#waypoints in
+
+  let ac = { track = track; color = color; last_dist_to_wp = 0.;
+	     fp_group = fp ; config = config ; wp_HOME = wp_HOME;
+	     fp = fp_xml; ac_name = name;
+	     blocks = blocks; last_ap_mode= "";
+	     last_stage = (-1,-1);
+	     ir_page = ir_page; flight_time = 0;
+	     gps_page = gps_page;
 	       pfd_page = pfd_page;
-	       misc_page = misc_page;
-	       dl_settings_page = dl_settings_page;
+	     misc_page = misc_page;
+	     dl_settings_page = dl_settings_page;
 	       rc_settings_page = rc_settings_page;
-	       strip = strip; first_pos = true;
-	       last_block_name = ""; alt = 0.; target_alt = 0.;
-	       in_kill_mode = false; speed = 0.;
-	       wind_dir = 42.; ground_prox = true;
-	       wind_speed = 0.;
-	       pages = ac_frame#coerce;
-	       notebook_label = _label;
+	     strip = strip; first_pos = true;
+	     last_block_name = ""; alt = 0.; target_alt = 0.;
+	     in_kill_mode = false; speed = 0.;
+	     wind_dir = 42.; ground_prox = true;
+	     wind_speed = 0.;
+	     pages = ac_frame#coerce;
+	     notebook_label = _label;
 	       got_track_status_timer = 1000;
-	       dl_values = [||]; last_unix_time = 0.;
-	       airspeed = 0.
-	     } in
-    Hashtbl.add aircrafts ac_id ac;
-    select_ac acs_notebook ac_id;
+	     dl_values = [||]; last_unix_time = 0.;
+	     airspeed = 0.
+	   } in
+  Hashtbl.add aircrafts ac_id ac;
+  select_ac acs_notebook ac_id;
 
   (** Periodically send the wind estimation through
       a WIND_INFO message packed into a RAW_DATALINK *)
   let send_wind = fun () ->
     if misc_page#periodic_send then begin
-      (* FIXME: Disabling the timeout would be preferable *)
+      (* FIXME: Disabling the timer would be preferable *)
       try
 	let a = (pi/.2. -. ac.wind_dir)
 	and w =  ac.wind_speed in
@@ -639,12 +649,12 @@ let get_wind_msg = fun (geomap:G.widget) _sender vs ->
   let airspeed = value "mean_aspeed" in
   ac.airspeed <- airspeed;
   ac.strip#set_airspeed airspeed;
-  ac.misc_page#set_mean_aspeed (sprintf "%.1f" airspeed);
+  ac.misc_page#set_value "Mean airspeed" (sprintf "%.1f" airspeed);
   ac.wind_speed <- value "wspeed";
   let deg_dir = value "dir" in
   ac.wind_dir <- (Deg>>Rad)deg_dir;
-  ac.misc_page#set_wind_speed (sprintf "%.1f" ac.wind_speed);
-  ac.misc_page#set_wind_dir (sprintf "%.1f" deg_dir);
+  ac.misc_page#set_value "Wind speed" (sprintf "%.1f" ac.wind_speed);
+  ac.misc_page#set_value "Wind direction" (sprintf "%.1f" deg_dir);
 
   let ac_id = Pprz.string_assoc "ac_id" vs in
   if !active_ac = ac_id && ac.wind_speed > 1. then begin
@@ -802,6 +812,8 @@ let listen_flight_params = fun geomap auto_center_new_ac alert ->
     ac.strip#set_label "block_time" bt;
     let st = sprintf "%02d:%02d" (stage_time / 60) (stage_time mod 60) in
     ac.strip#set_label "stage_time" st;
+
+    (* Estimated Time Arrival to next waypoint *)
     let d = Pprz.float_assoc "dist_to_wp" vs in
     let label = 
       if d = ac.last_dist_to_wp || ac.speed = 0. then
@@ -809,7 +821,23 @@ let listen_flight_params = fun geomap auto_center_new_ac alert ->
       else
 	sprintf "%.0fs" (d /. ac.speed) in
     ac.strip#set_label "eta_time" label;
-    ac.last_dist_to_wp <- d
+    ac.last_dist_to_wp <- d;
+
+    (* Estimated Time to HOME *)
+    match ac.wp_HOME with
+      Some wp_HOME ->
+	let (bearing_to_HOME_deg, d) = Latlong.bearing ac.track#pos wp_HOME#pos in
+	let bearing_to_HOME = (Deg>>Rad)bearing_to_HOME_deg in
+	let wind_north = -. ac.wind_speed *. cos ac.wind_dir
+	and wind_east = -. ac.wind_speed *. sin ac.wind_dir in
+	let c = ac.wind_speed *. ac.wind_speed -. ac.airspeed *. ac.airspeed
+	and scal = wind_east *. sin bearing_to_HOME +. wind_north *. cos bearing_to_HOME in
+	let delta = 4. *. (scal*.scal -. c) in
+	let ground_speed_to_HOME = scal +. sqrt delta /. 2. in
+	let time_to_HOME = d /. ground_speed_to_HOME in
+	ac.misc_page#set_value "Time to HOME" (sprintf "%.0fs" time_to_HOME)
+    | None -> ()
+
   in
   safe_bind "NAV_STATUS" get_ns;
 
