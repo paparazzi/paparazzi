@@ -49,7 +49,7 @@ let store_conf = fun conf acs ->
       if ExtXml.tag_is x "aircraft" then
 	if List.mem (ExtXml.attrib x "ac_id") acs then
 	  let w = fun s ->
-	    let f = replay_dir // ExtXml.attrib x s in
+	    let f = replay_dir // "conf" // ExtXml.attrib x s in
 	    write_xml f (ExtXml.child x s);
 	    f in
 	  ignore (w "airframe");
