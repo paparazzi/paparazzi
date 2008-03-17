@@ -36,6 +36,7 @@ type t =
       connect_launch : (float -> unit) -> unit;
       connect_kill : (float -> unit) -> unit;
       connect_mode : (float -> unit) -> unit;
+      connect_mark : (unit -> unit) -> unit;
       connect_flight_time : (float -> unit) -> unit;
       connect_apt : (unit -> float) -> (float -> unit) -> unit;
       set_agl : float -> unit;
@@ -179,7 +180,7 @@ class hgauge = fun ?(color="green") gauge v_min v_max ->
   end
 
 (** add a strip to the panel *)
-let add = fun config color center_ac mark min_bat max_bat ->
+let add = fun config color center_ac min_bat max_bat ->
   let strip_labels = ref  [] in
   let add_label = fun name value -> 
     strip_labels := (name, value) :: !strip_labels in
@@ -287,10 +288,14 @@ let add = fun config color center_ac mark min_bat max_bat ->
       let tooltips = GData.tooltips () in
       tooltips#set_tip strip#eventbox_speed#coerce ~text
 
+     method connect_mark callback =
+       ignore (strip#button_mark#connect#clicked callback)
+
     method set_label name value = set_label !strip_labels name value
     method set_color name value = set_color !strip_labels name value
     method add_widget w = strip#hbox_user#pack ~fill:false w
-    method connect_shift_alt callback = 
+
+     method connect_shift_alt callback = 
       connect_buttons callback
 	[ strip#button_minus_five, -5.;
  	  strip#button_plus_five, 5.;
@@ -333,6 +338,8 @@ let add = fun config color center_ac mark min_bat max_bat ->
 	  1 -> callback 0.; true
 	| _ -> true in
       ignore(strip#eventbox_flight_time#event#connect#button_press ~callback)
+
+     (** Appointment date *)
      method connect_apt = fun get_ac_unix_time send_value ->
        strip#label_apt#misc#show ();
        strip#label_apt_value#misc#show ();

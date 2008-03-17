@@ -7,6 +7,7 @@ type t = <
     connect_mode : (float -> unit) -> unit;
     connect_flight_time : (float -> unit) -> unit;
     connect_apt : (unit -> float) -> (float -> unit) -> unit;
+    connect_mark : (unit -> unit) -> unit;
     set_agl : float -> unit;
     set_bat : float -> unit;
     set_throttle : ?kill:bool -> float -> unit;
@@ -23,7 +24,7 @@ type t = <
 
 val scrolled : GBin.scrolled_window
 
-val add : Pprz.values -> string -> (unit -> unit) -> (unit -> unit) -> float -> float -> t
+val add : Pprz.values -> string -> (unit -> unit) -> float -> float -> t
 (** [add config color center_ac mark min_bat max_bat] *)
 
 
