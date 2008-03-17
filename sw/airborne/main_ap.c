@@ -308,7 +308,7 @@ static void navigation_task( void ) {
   else
     nav_periodic_task();
   
-#ifndef PERIOD_NAVIGATION
+#ifndef PERIOD_NAVIGATION_0 // If not sent periodically (in default 0 mode)
   SEND_NAVIGATION();
 #endif
 
