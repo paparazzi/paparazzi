@@ -32,6 +32,7 @@ type aircraft = {
     track : MapTrack.track;
     color: color;
     fp_group : MapFP.flight_plan;
+    wp_HOME : MapWaypoints.waypoint option;
     fp : Xml.xml;
     blocks : (int * string) list;
     mutable last_ap_mode : string;
