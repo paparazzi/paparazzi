@@ -103,6 +103,7 @@ ihm :  ihm.cmo
 
 
 settings.cmo : INCLUDES += -I ../cockpit
+settings.cmo : ../cockpit/pages.cmi
 
 %.cmo : %.ml
 	@echo OC $<
