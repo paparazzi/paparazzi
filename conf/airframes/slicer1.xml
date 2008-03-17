@@ -1,8 +1,12 @@
 <!DOCTYPE airframe SYSTEM "airframe.dtd">
 
-<airframe name="Slayer Wanna Be 1 Tiny 1.1">
+<!-- Slicer
+     Tiny 1.1, tilted infrared sensor, roll gyro, unconfigured GPS at 9600
+     3 cells lipo
+     Gimballed camera on pitch and roll (in this order) axis -->
 
-<!-- commands section -->
+<airframe name="Slicer 1">
+
   <servos>
     <servo name="AILEVON_RIGHT" no="0" min="1000" neutral="1620" max="2000"/>
     <servo name="AILEVON_LEFT"  no="1" min="2000" neutral="1400" max="1000"/>

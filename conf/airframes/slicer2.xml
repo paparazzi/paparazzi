@@ -1,6 +1,11 @@
 <!DOCTYPE airframe SYSTEM "airframe.dtd">
 
-<airframe name="Slayer Wanna Be 2 Tiny 1.1">
+<!-- Slicer
+     Tiny 1.1, tilted infrared sensor, roll gyro, unconfigured GPS at 9600
+     3 cells lipo
+     Fixed camera pointing down -->
+
+<airframe name="Slicer 2">
 
 <!-- commands section -->
   <servos>

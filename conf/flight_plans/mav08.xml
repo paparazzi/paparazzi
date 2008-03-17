@@ -59,7 +59,7 @@
       <go from="C" hmode="route" wp="D"/>
       <go from="D" hmode="route" wp="E"/>
       <go from="E" hmode="route" wp="F1"/>
-      <circle radius="45" wp="N"/>
+      <circle radius="nav_radius" wp="N"/>
     </block>
     <block name="Go to South" strip_button="S">
       <go from="F2" hmode="route" wp="E"/>
@@ -67,7 +67,7 @@
       <go from="D" hmode="route" wp="C"/>
       <go from="C" hmode="route" wp="B"/>
       <go from="B" hmode="route" wp="A"/>
-      <circle radius="45" wp="A"/>
+      <circle radius="nav_radius" wp="A"/>
     </block>
     <block name="Figure 8 around wp 1" strip_button="Figure 8 (wp 1-2)" strip_icon="eight.png">
       <eight center="1" radius="nav_radius" turn_around="2"/>

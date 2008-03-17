@@ -146,6 +146,9 @@ void cam_angles( void ) {
   
   cam_pan = TRIM_PPRZ(cam_pan);
   cam_tilt = TRIM_PPRZ(cam_tilt);
+
+  cam_phi_c = cam_pan_c;
+  cam_theta_c = cam_tilt_c;
   
 #ifdef COMMAND_CAM_PAN
   ap_state->commands[COMMAND_CAM_PAN] = cam_pan;
@@ -180,7 +183,7 @@ void cam_nadir( void ) {
   cam_target_x = estimator_x;
   cam_target_y = estimator_y;
 #endif
-  cam_target_alt = ground_alt;
+  cam_target_alt = 0;
   cam_target();
 }
 
