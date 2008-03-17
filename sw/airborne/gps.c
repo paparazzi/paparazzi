@@ -57,17 +57,21 @@ void gps_downlink( void ) {
     DOWNLINK_SEND_GPS(&gps_mode, &gps_utm_east, &gps_utm_north, &gps_course, &gps_alt, &gps_gspeed,&gps_climb, &gps_itow, &gps_utm_zone, &gps_nb_ovrn);
   
   static uint8_t i;
-  if (i == gps_nb_channels) i = 0;
-  if (i < gps_nb_channels && gps_svinfos[i].cno > 0) 
-    DOWNLINK_SEND_SVINFO(&i, &gps_svinfos[i].svid, &gps_svinfos[i].flags, &gps_svinfos[i].qi, &gps_svinfos[i].cno, &gps_svinfos[i].elev, &gps_svinfos[i].azim);
-
   static uint8_t last_cnos[GPS_NB_CHANNELS];
+  if (i == gps_nb_channels) i = 0;
+  if (i < gps_nb_channels && gps_svinfos[i].cno > 0 && gps_svinfos[i].cno != last_cnos[i]) {
+    DOWNLINK_SEND_SVINFO(&i, &gps_svinfos[i].svid, &gps_svinfos[i].flags, &gps_svinfos[i].qi, &gps_svinfos[i].cno, &gps_svinfos[i].elev, &gps_svinfos[i].azim);
+    last_cnos[i] = gps_svinfos[i].cno;
+  }
+
   if (gps_verbose_downlink) {
     uint8_t j;
     for(j = 0; j < gps_nb_channels; j++) {
       uint8_t cno = gps_svinfos[j].cno;
-      if (cno > 0 && j != i && abs(cno-last_cnos[j]) >= 3)
+      if (cno > 0 && j != i && abs(cno-last_cnos[j]) >= 2) {
 	DOWNLINK_SEND_SVINFO(&j, &gps_svinfos[j].svid, &gps_svinfos[j].flags, &gps_svinfos[j].qi, &cno, &gps_svinfos[j].elev, &gps_svinfos[j].azim);
+	last_cnos[j] = gps_svinfos[j].cno;
+      }
     }
   }
   i++;
