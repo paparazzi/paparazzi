@@ -155,9 +155,12 @@ static bool_t user_gps_configure(bool_t cpt) {
     UbxSend_CFG_MSG(UBX_NAV_ID, UBX_NAV_SVINFO_ID, 0, 4, 0, 0);
     break;
   case 5:
-    UbxSend_CFG_SBAS(0x00, 0x00, 0x00, 0x00, 0x00);
+    UbxSend_CFG_MSG(UBX_NAV_ID, UBX_NAV_SOL_ID, 0, 8, 0, 0);
     break;
   case 6:
+    UbxSend_CFG_SBAS(0x00, 0x00, 0x00, 0x00, 0x00);
+    break;
+  case 7:
     UbxSend_CFG_RATE(0x00FA, 0x0001, 0x0000);   
     return FALSE;
   }
