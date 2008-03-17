@@ -20,13 +20,17 @@ struct point {
 
 #define MoveWaypoint(_id, _ux, _uy, _a) { \
   if (_id < nb_waypoint) { \
-    waypoints[_id].x = _ux - nav_utm_east0; \
-    waypoints[_id].y = _uy - nav_utm_north0; \
-    BoundAbs(waypoints[_id].x, max_dist_from_home); \
-    BoundAbs(waypoints[_id].y, max_dist_from_home); \
+    float dx, dy; \
+    dx = _ux - nav_utm_east0 - waypoints[WP_HOME].x; \
+    dy = _uy - nav_utm_north0 - waypoints[WP_HOME].y; \
+    BoundAbs(dx, max_dist_from_home); \
+    BoundAbs(dy, max_dist_from_home); \
+    waypoints[_id].x = waypoints[WP_HOME].x + dx; \
+    waypoints[_id].y = waypoints[WP_HOME].y + dy; \
     waypoints[_id].a = _a; \
   } \
 }
+
 
 extern const uint8_t nb_waypoint;
 extern struct point waypoints[];
