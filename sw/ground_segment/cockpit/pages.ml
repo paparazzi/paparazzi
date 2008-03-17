@@ -192,28 +192,31 @@ end
 (*****************************************************************************)
 (* Misc page                                                                 *)
 (*****************************************************************************)
+let misc_fields = [|"Wind speed"; "Wind direction"; "Mean airspeed"; "Time to HOME"; "Send periodically"|]
+let index_of = fun label ->
+  let rec search = fun i ->
+    if i < Array.length misc_fields then
+      if misc_fields.(i) = label then i else search (i+1)
+    else
+      failwith (sprintf "Unknown label in Misc.index_of: %s" label)
+  in
+  search 0
+  
 class misc ~packing (widget: GBin.frame) =
-  let table = GPack.table
-      ~rows: 4
-      ~columns: 2
-      ~row_spacings: 5
-      ~col_spacings: 40
-      ~packing
-      () in
+  let rows = Array.length misc_fields in
+  let table = GPack.table ~rows ~columns:2 ~row_spacings:5 ~col_spacings:40 ~packing () in
   let label = fun text i j -> GMisc.label ~text ~packing:(table#attach ~top:i ~left:j) () in
-  let _init =
-    ignore (label "Wind speed" 0 0);
-    ignore (label "Wind direction" 1 0);
-    ignore (label "Mean airspeed" 2 0);
-    ignore (label "Send periodically" 3 0) in
-  let wind_speed = label "" 0 1
-  and wind_dir = label "" 1 1
-  and mean_aspeed = label "" 2 1
-  and periodic_send = GButton.check_button ~active:true ~packing:(table#attach ~top:3 ~left:1) () in
+  let values =
+    Array.init rows (fun i ->
+      ignore (label misc_fields.(i) i 0);
+      label "N/A" i 1) in
+  (* Overwrite the "Send periodically" value with a check box *)
+  let periodic_send =
+    let top = index_of "Send periodically" in
+    values.(top)#destroy ();
+    GButton.check_button ~active:true ~packing:(table#attach ~top ~left:1) () in
   object
-    method set_wind_speed s = wind_speed#set_text s
-    method set_wind_dir s = wind_dir#set_text s
-    method set_mean_aspeed s = mean_aspeed#set_text s
+    method set_value label s = values.(index_of label)#set_text s
     method periodic_send = periodic_send#active
   end
 

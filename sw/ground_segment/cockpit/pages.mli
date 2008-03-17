@@ -30,9 +30,7 @@ class misc :
   packing:(GObj.widget -> unit) ->
   GBin.frame ->
   object
-    method set_wind_dir : string -> unit
-    method set_wind_speed : string -> unit
-    method set_mean_aspeed : string -> unit
+    method set_value : string -> string -> unit
     method periodic_send : bool  
   end
 
