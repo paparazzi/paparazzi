@@ -100,7 +100,8 @@ class waypoint = fun ?(show = true) (wpts_group:group) (name :string) ?(alt=0.) 
     method label = label
     method xy = let a = wpt_group#i2w_affine in (a.(4), a.(5))
     method move dx dy = 
-      wpt_group#move dx dy
+      wpt_group#move dx dy;
+      wpt_group#raise_to_top ()
     method edit =
       let dialog = GWindow.window ~position:`MOUSE ~border_width:10 ~title:"Waypoint Edit" () in
       let dvbx = GPack.box `VERTICAL ~packing:dialog#add () in
@@ -278,6 +279,7 @@ class waypoint = fun ?(show = true) (wpts_group:group) (name :string) ?(alt=0.) 
       let a = wpt_group#i2w_affine in
       a.(0) <- 1./.z; a.(3) <- 1./.z; 
       wpt_group#affine_absolute a
+    initializer wpt_group#raise_to_top ()
     initializer self#zoom geomap#zoom_adj#value
     initializer ignore(geomap#zoom_adj#connect#value_changed (fun () -> self#zoom geomap#zoom_adj#value))
   end

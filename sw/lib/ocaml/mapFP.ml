@@ -131,10 +131,10 @@ let georef_of_xml = fun xml ->
   {posn_lat = (Deg>>Rad)lat0; posn_long = (Deg>>Rad)lon0 }
 
 
-let display_lines = fun color (geomap:MapCanvas.widget) points ->
+let display_lines = fun ?group color (geomap:MapCanvas.widget) points ->
   let n = Array.length points in
   for i = 0 to n - 1 do
-    ignore (geomap#segment ~width:3 ~fill_color:color points.(i) points.((i+1)mod n))
+    ignore (geomap#segment ?group ~width:3 ~fill_color:color points.(i) points.((i+1)mod n))
   done
 
 let space_regexp = Str.regexp " "
@@ -149,7 +149,7 @@ let wgs84_of_kml_point = fun s ->
   
 
 (** It should be somewhere else ! *)
-let display_kml = fun color geomap xml ->
+let display_kml = fun ?group color geomap xml ->
   try
     let document = ExtXml.child xml "Document" in
     let rec loop = fun child ->
@@ -162,7 +162,7 @@ let display_kml = fun color geomap xml ->
 	      [Xml.PCData text] ->
 		let points = Str.split space_regexp text in
 		let points = List.map wgs84_of_kml_point points in
-		display_lines color geomap (Array.of_list points)
+		display_lines ?group color geomap (Array.of_list points)
 	    | _ -> failwith "coordinates expected"
 	  end
 	    
@@ -198,6 +198,31 @@ class flight_plan = fun ?format_attribs ?editable ~show_moved geomap color fp_dt
       incr i;
       w in
 
+  (* The sectors *)
+  let _ =
+    let waypoints = ExtXml.child xml "waypoints" in
+    try
+      List.iter (fun x ->
+	match String.lowercase (Xml.tag x) with
+	  "kml" ->
+	    let file = ExtXml.attrib x "file" in
+	    display_kml ~group:wpts_group#group color geomap (ExtXml.parse_file (Env.flight_plans_path // file))
+	| "sector" ->
+	  let wgs84 = fun wp_name ->
+	    let wp_name = Xml.attrib wp_name "name" in
+	    let select = fun wp -> Xml.attrib wp "name" = wp_name in
+	    let wp = ExtXml.child waypoints ~select "waypoint" in
+	    let x = float_attr wp "x"
+	    and y = float_attr wp "y" in
+	    of_utm WGS84 (utm_add utm0 (x, y)) in
+	  let points = List.map wgs84 (Xml.children x) in
+	  let points = Array.of_list points in
+	  display_lines ~group:wpts_group#group color geomap points
+	| _ -> failwith "Unknown sectors child")
+	(Xml.children (ExtXml.child xml "sectors"))
+    with Not_found -> () in
+
+  (* The waypoints *)
   let _ = List.iter
       (fun wp ->
 	let w = create_wp wp in
@@ -216,30 +241,6 @@ class flight_plan = fun ?format_attribs ?editable ~show_moved geomap color fp_dt
 	  XmlEdit.connect xml_root update
 	end)
       (XmlEdit.children xml_wpts) in
-
-  (* The sectors *)
-  let _ =
-    let waypoints = ExtXml.child xml "waypoints" in
-    try
-      List.iter (fun x ->
-	match String.lowercase (Xml.tag x) with
-	  "kml" ->
-	    let file = ExtXml.attrib x "file" in
-	    display_kml color geomap (ExtXml.parse_file (Env.flight_plans_path // file))
-	| "sector" ->
-	  let wgs84 = fun wp_name ->
-	    let wp_name = Xml.attrib wp_name "name" in
-	    let select = fun wp -> Xml.attrib wp "name" = wp_name in
-	    let wp = ExtXml.child waypoints ~select "waypoint" in
-	    let x = float_attr wp "x"
-	    and y = float_attr wp "y" in
-	    of_utm WGS84 (utm_add utm0 (x, y)) in
-	  let points = List.map wgs84 (Xml.children x) in
-	  let points = Array.of_list points in
-	  display_lines color geomap points
-	| _ -> failwith "Unknown sectors child")
-	(Xml.children (ExtXml.child xml "sectors"))
-    with Not_found -> () in
 
   (** Expands the blocks *)
   let _ =
