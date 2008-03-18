@@ -350,6 +350,15 @@ void nav_route_xy(float last_wp_x, float last_wp_y, float wp_x, float wp_y) {
 #define FAILSAFE_HOME_RADIUS DEFAULT_CIRCLE_RADIUS
 #endif
 
+static void nav_set_altitude(void) {
+  static float last_nav_altitude;
+  if (fabs(nav_altitude - last_nav_altitude) > 1.) {
+    flight_altitude = nav_altitude;
+    last_nav_altitude = nav_altitude;
+  }
+  v_ctl_altitude_setpoint = flight_altitude;
+}
+
 /** \brief Home mode navigation (circle around HOME) */
 void nav_home(void) {
   NavCircleWaypoint(WP_HOME, FAILSAFE_HOME_RADIUS);
@@ -359,6 +368,7 @@ void nav_home(void) {
   nav_altitude = ground_alt+SECURITY_HEIGHT;
   compute_dist2_to_home();
   dist2_to_wp = dist2_to_home;
+  nav_set_altitude();
 }
 
 /** 
@@ -379,12 +389,7 @@ void nav_periodic_task(void) {
     v_ctl_auto_throttle_submode =  V_CTL_AUTO_THROTTLE_STANDARD;
 #endif
 
-  static float last_nav_altitude;
-  if (fabs(nav_altitude - last_nav_altitude) > 1.) {
-    flight_altitude = nav_altitude;
-    last_nav_altitude = nav_altitude;
-  }
-  v_ctl_altitude_setpoint = flight_altitude;
+  nav_set_altitude();
 }
 
 
