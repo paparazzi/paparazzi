@@ -123,7 +123,7 @@ value move_waypoint(value wp_id, value lat_deg, value lon_deg, value a) {
   latlong_utm_of(RadOfDeg(Double_val(lat_deg)), RadOfDeg(Double_val(lon_deg)), nav_utm_zone0);
   int wp_id_int = Int_val(wp_id);
   float a_float = Double_val(a);
-  MoveWaypoint(wp_id_int, latlong_utm_x, latlong_utm_y, a_float);
+  nav_move_waypoint(wp_id_int, latlong_utm_x, latlong_utm_y, a_float);
   datalink_time = 0;
 
   /* Waypoint range is limited. Computes the UTM pos back from the relative

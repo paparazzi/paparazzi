@@ -89,3 +89,16 @@ void nav_goto_block(uint8_t b) {
 void common_nav_periodic_task_4Hz() {
   RunOnceEvery(4, { stage_time++;  block_time++; });
 }
+
+void nav_move_waypoint(uint8_t wp_id, float ux, float uy, float alt) {
+  if (wp_id < nb_waypoint) {
+    float dx, dy;
+    dx = ux - nav_utm_east0 - waypoints[WP_HOME].x;
+    dy = uy - nav_utm_north0 - waypoints[WP_HOME].y;
+    BoundAbs(dx, max_dist_from_home);
+    BoundAbs(dy, max_dist_from_home);
+    waypoints[wp_id].x = waypoints[WP_HOME].x + dx;
+    waypoints[wp_id].y = waypoints[WP_HOME].y + dy;
+    waypoints[wp_id].a = alt;
+  }
+}

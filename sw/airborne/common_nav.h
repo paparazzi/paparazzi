@@ -18,19 +18,7 @@ struct point {
 #define WaypointY(_wp) (waypoints[_wp].y)
 #define WaypointAlt(_wp) (waypoints[_wp].a)
 
-#define MoveWaypoint(_id, _ux, _uy, _a) { \
-  if (_id < nb_waypoint) { \
-    float dx, dy; \
-    dx = _ux - nav_utm_east0 - waypoints[WP_HOME].x; \
-    dy = _uy - nav_utm_north0 - waypoints[WP_HOME].y; \
-    BoundAbs(dx, max_dist_from_home); \
-    BoundAbs(dy, max_dist_from_home); \
-    waypoints[_id].x = waypoints[WP_HOME].x + dx; \
-    waypoints[_id].y = waypoints[WP_HOME].y + dy; \
-    waypoints[_id].a = _a; \
-  } \
-}
-
+extern void nav_move_waypoint(uint8_t wp_id, float ux, float uy, float alt);
 
 extern const uint8_t nb_waypoint;
 extern struct point waypoints[];

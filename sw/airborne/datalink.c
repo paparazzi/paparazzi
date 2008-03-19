@@ -77,7 +77,7 @@ void dl_parse_msg(void) {
     float lat = RadOfDeg(DL_MOVE_WP_lat(dl_buffer));
     float lon = RadOfDeg(DL_MOVE_WP_lon(dl_buffer));
     latlong_utm_of(lat, lon, nav_utm_zone0);
-    MoveWaypoint(wp_id, latlong_utm_x, latlong_utm_y, a);
+    nav_move_waypoint(wp_id, latlong_utm_x, latlong_utm_y, a);
 
     /* Waypoint range is limited. Computes the UTM pos back from the relative
        coordinates */
