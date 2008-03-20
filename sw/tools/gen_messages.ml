@@ -178,7 +178,12 @@ module Gen_onboard = struct
     fprintf avr_h ") {}\n"
 
   let print_enum = fun avr_h class_ messages ->
-    List.iter (fun m -> fprintf avr_h "#define DL_%s %d\n" m.name m.id) messages;
+    List.iter (fun m ->
+      if m.id < 0 || m.id > 255 then begin 
+        fprintf stderr "Error: message %s has id %d but should be between 0 and 255\n" m.name m.id; exit 1;
+      end
+      else fprintf avr_h "#define DL_%s %d\n" m.name m.id
+      ) messages;
     fprintf avr_h "#define DL_MSG_%s_NB %d\n\n" class_ (List.length messages)
 
   let print_lengths_array = fun avr_h class_ messages ->
