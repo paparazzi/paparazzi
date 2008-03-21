@@ -68,30 +68,42 @@
     <define name="GYRO_X_GAIN" value="(-1/4541.3261)"/>
     <define name="GYRO_Y_GAIN" value="(-1/4651.1628)"/>
     <define name="GYRO_Z_GAIN" value="( 1/4752.8517)"/>
+
   
     <define name="ACCEL_X_CHAN" value="2"/>
     <define name="ACCEL_Y_CHAN" value="1"/>
     <define name="ACCEL_Z_CHAN" value="3"/>    
 
-    <define name="ACCEL_X_NEUTRAL" value="17595"/>
-    <define name="ACCEL_Y_NEUTRAL" value="16427"/>
-    <define name="ACCEL_Z_NEUTRAL" value="16458"/>
+    <define name="ACCEL_X_NEUTRAL" value="17732.494"/>
+    <define name="ACCEL_Y_NEUTRAL" value="16555.486"/>
+    <define name="ACCEL_Z_NEUTRAL" value="16645.17"/>
 
-    <define name="ACCEL_X_GAIN" value=" (1./827.294562)"/>
-    <define name="ACCEL_Y_GAIN" value="(-1./823.507909)"/>
-    <define name="ACCEL_Z_GAIN" value="(-1./824.835155)"/>
+    <define name="ACCEL_X_GAIN" value=" (1./829.62787)"/>
+    <define name="ACCEL_Y_GAIN" value="(-1./829.60535)"/>
+    <define name="ACCEL_Z_GAIN" value="(-1./826.85295)"/>
+
 
     <define name="MAG_X_CHAN" value="0"/>
     <define name="MAG_Y_CHAN" value="1"/>
     <define name="MAG_Z_CHAN" value="2"/>
 
+<!--    
     <define name="MAG_X_NEUTRAL" value="0"/>
-    <define name="MAG_Y_NEUTRAL" value="0"/>
+    <define name="MAG_Y_NEUTRAL" value="0"/> 
+-->
+    <define name="MAG_X_NEUTRAL" value="60"/>
+    <define name="MAG_Y_NEUTRAL" value="60"/>
     <define name="MAG_Z_NEUTRAL" value="0"/>
 
     <define name="MAG_X_GAIN" value="-1."/>
     <define name="MAG_Y_GAIN" value="-1."/>
     <define name="MAG_Z_GAIN" value=" 1."/>
+
+
+    <define name="PRESSURE_NEUTRAL" value="0"/>
+
+    <define name="PRESSURE_GAIN" value="0.25"/>
+
 
   </section>
 
