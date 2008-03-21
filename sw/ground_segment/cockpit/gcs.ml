@@ -544,6 +544,9 @@ let _main =
   let alert_page = GBin.frame () in
   let my_alert = new Pages.alert alert_page in
 
+  (** Altitude graph frame *)
+  let alt_graph = GMisc.drawing_area () in
+
   (** plugin frame *)
   let plugin_width = 400 and plugin_height = 300 in
   let plugin_frame = GPack.vbox ~width:plugin_width () in
@@ -553,7 +556,8 @@ let _main =
 		 "aircraft", ac_notebook#coerce;
 		 "editor", editor_frame#coerce;
 		 "alarms", alert_page#coerce;
-	         "plugin", plugin_frame#coerce] in
+		 "altgraph", alt_graph#coerce (*alt_frame#coerce*);
+	   "plugin", plugin_frame#coerce] in
 
 
   pack_widgets `HORIZONTAL (ExtXml.child layout "0") widgets window#add;
@@ -604,7 +608,7 @@ let _main =
 
   (** Wait for A/Cs and subsequent messages *)
   if not !edit then
-    Live.listen_acs_and_msgs geomap ac_notebook my_alert !auto_center_new_ac;
+    Live.listen_acs_and_msgs geomap ac_notebook my_alert !auto_center_new_ac alt_graph;
 
   (** Display the window *)
   let accel_group = menu_fact#accel_group in

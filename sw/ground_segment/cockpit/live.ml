@@ -39,6 +39,8 @@ let (//) = Filename.concat
 let approaching_alert_time = 3.
 let track_size = ref 500
 
+let min_height = 200
+
 let is_int = fun x ->
   try let _ = int_of_string x in true with _ -> false
 
@@ -739,7 +741,102 @@ let check_approaching = fun ac geo alert ->
 	log_and_say alert ac.ac_name (sprintf "%s, approaching" ac.ac_name)
 
 
-let listen_flight_params = fun geomap auto_center_new_ac alert ->
+let ac_alt_graph = [14,0;-5,0;-7,-6]
+let translate = fun l dx dy -> List.map (fun (x, y) -> (x + dx, y + dy)) l
+let rotate_and_translate = fun l angle dx dy ->
+  translate (List.map (fun (x, y) -> (
+    truncate ((cos angle) *. (float x) -. (sin angle) *. (float y)),
+    truncate ((sin angle) *. (float x) +. (cos angle) *. (float y)))
+  ) l) dx dy
+let flip = fun l -> List.map (fun (x, y) -> (-x, y)) l
+
+let draw_altgraph = fun (da:GMisc.drawing_area) (geomap:MapCanvas.widget) aircrafts ->
+  (** First estimate the coverage of the window *)
+  let width_c, height_c = Gdk.Drawable.get_size geomap#canvas#misc#window in
+  let (xc0, yc0) = geomap#canvas#get_scroll_offsets in
+  let (east, y0) = geomap#window_to_world (float xc0) (float (yc0+height_c))
+  and (west, y1) = geomap#window_to_world (float (xc0+width_c)) (float yc0) in
+
+  let width, height = Gdk.Drawable.get_size da#misc#window in
+  let dr = GDraw.pixmap ~width ~height ~window:da () in
+  dr#set_background `BLACK;
+  dr#set_foreground `BLACK;
+
+  (* Background *)
+  dr#rectangle ~x:0 ~y:0 ~width ~height ~filled:true ();
+
+  (* Text *)
+  let context = da#misc#create_pango_context in
+  let print_string = fun x y string color align_right ->
+    let layout = context#create_layout in
+    let from_codeset = "ISO-8859-15"
+    and to_codeset = "UTF-8" in
+    Pango.Layout.set_text layout (Glib.Convert.convert ~from_codeset ~to_codeset string);
+    let (w,h) = Pango.Layout.get_pixel_size layout in
+    if align_right then
+      dr#put_layout ~x:(x-w) ~y:(y-h) ~fore:(`NAME color) layout
+    else
+      dr#put_layout ~x ~y:(y-h) ~fore:(`NAME color) layout in
+
+  (* find min and max alt *)
+  let max_alt = ref 0 
+  and min_alt = ref 35786000 in
+  Hashtbl.iter (fun ac_id ac -> 
+    let track = ac.track in
+    let alt = (truncate track#last_altitude) in
+    let ground_alt = alt - (truncate (track#height ())) in
+    if ground_alt < !min_alt then min_alt := ground_alt;
+    if alt > !max_alt then max_alt := alt
+  ) aircrafts;
+  min_alt := min !min_alt !max_alt;
+  let height_alt = max (!max_alt - !min_alt) min_height in
+
+  (* lines *)
+  dr#set_foreground (`NAME "grey");
+  let n = ref 1 in
+  let d = ref height in
+  while !d > 20 do incr n; d := height / !n done ;
+  for i = 0 to !n do
+    let y = height - i * !d in
+    dr#line ~x:0 ~y ~x:width ~y;
+    print_string 6 y (sprintf "%d" (!min_alt + i * height_alt / !n)) "red" false;
+    print_string (width-6) y (sprintf "%d" (i * height_alt / !n)) "blue" true
+  done;
+
+  (* aircrafts *)
+  Hashtbl.iter (fun ac_id ac -> 
+    dr#set_foreground (`NAME ac.color);
+    let track = ac.track in
+    match track#last with
+    Some pos ->
+      let (xac, yac) = geomap#world_of pos in
+      let w = float width in
+      let eac = (truncate (w *. (xac -. east) /. (west -. east))) in
+      let alt = (truncate track#last_altitude) in
+      let aac = height - height * (alt - !min_alt) / height_alt in
+      let h = track#last_heading in
+      let climb_angle = ref 0. in
+      if track#last_speed > 0. then
+        climb_angle := (atan2 track#last_climb track#last_speed);
+
+      dr#set_line_attributes ~width:2 ~cap:`ROUND ();
+      if h > 0. && h <= 180. then
+        dr#lines (rotate_and_translate ac_alt_graph (-. !climb_angle) eac aac)
+      else
+        dr#lines (rotate_and_translate (flip ac_alt_graph) !climb_angle eac aac);
+
+      (* altitude from ground if available *)
+      let alt_from_ground = truncate (track#height ()) in
+      let gac = aac + height * alt_from_ground / height_alt in
+      dr#set_line_attributes ~width:1 ~cap:`NOT_LAST ();
+      dr#line ~x:eac ~y:aac ~x:eac ~y:gac
+    | None -> ()
+  ) aircrafts;
+
+  (new GDraw.drawable da#misc#window)#put_pixmap ~x:0 ~y:0 dr#pixmap
+
+
+let listen_flight_params = fun geomap auto_center_new_ac alert alt_graph ->
   let get_fp = fun _sender vs ->
     let ac = get_ac vs in
     let pfd_page = ac.pfd_page in
@@ -781,7 +878,10 @@ let listen_flight_params = fun geomap auto_center_new_ac alert ->
       log_and_say alert ac.ac_name (sprintf "%s, %s" ac.ac_name "Ground Proximity Warning");
       ac.ground_prox <- true
     end else if agl > 25. then
-      ac.ground_prox <- false
+      ac.ground_prox <- false;
+    try
+      draw_altgraph alt_graph geomap aircrafts;
+    with _ -> ()
 
   in
   safe_bind "FLIGHT_PARAM" get_fp;
@@ -1002,7 +1102,7 @@ let listen_error = fun a ->
   safe_bind "TELEMETRY_ERROR" get_error
 
 
-let listen_acs_and_msgs = fun geomap ac_notebook my_alert auto_center_new_ac ->
+let listen_acs_and_msgs = fun geomap ac_notebook my_alert auto_center_new_ac alt_graph ->
   (** Probe live A/Cs *)
   let probe = fun () ->
     message_request "gcs" "AIRCRAFTS" [] (fun _sender vs -> aircrafts_msg my_alert geomap ac_notebook vs) in
@@ -1012,7 +1112,7 @@ let listen_acs_and_msgs = fun geomap ac_notebook my_alert auto_center_new_ac ->
   safe_bind "NEW_AIRCRAFT" (fun _sender vs -> one_new_ac my_alert geomap ac_notebook (Pprz.string_assoc "ac_id" vs));
 
   (** Listen for all messages on ivy *)
-  listen_flight_params geomap auto_center_new_ac my_alert;
+  listen_flight_params geomap auto_center_new_ac my_alert alt_graph;
   listen_wind_msg geomap;
   listen_fbw_msg ();
   listen_engine_status_msg ();

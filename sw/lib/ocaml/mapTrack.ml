@@ -149,6 +149,8 @@ class track = fun ?(name="Noname") ?(size = 500) ?(color="red") (geomap:MapCanva
     method pos = match last with Some pos -> pos | None -> failwith "No pos"
     method last_heading = last_heading
     method last_altitude = last_altitude
+    method last_speed = last_speed
+    method last_climb = last_climb
 
     method height = fun () ->
       match last with

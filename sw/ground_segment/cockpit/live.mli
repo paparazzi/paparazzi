@@ -65,11 +65,10 @@ type aircraft = {
 
 val aircrafts : (string, aircraft) Hashtbl.t
 
-
 val safe_bind : string -> (string -> Pprz.values -> unit) -> unit
 
 val track_size : int ref
 (** Default length for A/C tracks on the 2D view *)
 
-val listen_acs_and_msgs : MapCanvas.widget -> GPack.notebook -> Pages.alert -> bool -> unit
+val listen_acs_and_msgs : MapCanvas.widget -> GPack.notebook -> Pages.alert -> bool -> GMisc.drawing_area -> unit
 (** [listen_acs_and_msgs geomap aircraft_notebook alert_page auto_center_new_ac] *)
