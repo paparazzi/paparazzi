@@ -1,6 +1,14 @@
 <!DOCTYPE airframe SYSTEM "airframe.dtd">
 
-<airframe name="BlackOne Tiny 0.9">
+<!-- The Black One (http://www.recherche.enac.fr/wiki/index.php/Image:MAC-BlackOne-MAV06.jpg)
+     Two ailevons
+     Tiny proto, tilted infrared sensor
+     2 cells lipo
+     Hatch to drop a paint ball
+     Gimballed camera -->
+
+
+<airframe name="BlackOne Tiny proto">
 
 <!-- commands section -->
   <servos>

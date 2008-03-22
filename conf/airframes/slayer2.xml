@@ -1,5 +1,11 @@
 <airframe name="Miraterre Slayer 2">
- <!-- tiny 0.99 no 7, 13mm -->
+ <!-- Slayer (http://www.recherche.enac.fr/wiki/index.php/Image:DragonSlayer_0948sm.jpg)
+      Two ailevons
+      Hatch to drop a paint ball
+      Tilted infrared sensor, gyro
+      Still camera
+      Tiny 0.99
+-->
 
 <!-- commands section -->
   <servos>
@@ -83,7 +89,7 @@
 
  <section name="BAT">
     <define name="MILLIAMP_PER_PERCENT" value="0.86"/>
-    <define name="LOW_BATTERY" value="9.3" unit="V"/>
+    <define name="CATASTROPHIC_BAT_LEVEL" value="9.3" unit="V"/>
   </section>
  
  <section name="MISC">

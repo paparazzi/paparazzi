@@ -1,6 +1,7 @@
 <!DOCTYPE airframe SYSTEM "airframe.dtd">
 
-<!-- Slicer
+<!-- Slicer (http://www.recherche.enac.fr/wiki/index.php/Image:Slicer.jpg)
+     Two ailevons
      Tiny 1.1, tilted infrared sensor, roll gyro, unconfigured GPS at 9600
      3 cells lipo
      Gimballed camera on pitch and roll (in this order) axis -->
