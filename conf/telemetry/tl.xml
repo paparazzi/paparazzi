@@ -50,12 +50,12 @@
 
     <mode name="test_accel">
       <message name="ALIVE"          period="5"/>
-      <message name="IMU_ACCEL"       period="0.016"/>
+      <message name="IMU_ACCEL"       period="0.017"/>
     </mode>
 
     <mode name="test_vloop">
       <message name="ALIVE"          period="5"/>
-      <message name="TL_VERTICAL_LOOP"       period="0.016"/>
+      <message name="TL_VERTICAL_LOOP"       period="0.017"/>
       <message name="BAT"             period="1"/>
     </mode>
 

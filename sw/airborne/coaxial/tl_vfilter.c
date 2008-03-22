@@ -17,12 +17,6 @@ temps :
 #define Qbiasbias 0.00001
 #define R 2.
 
-
-
-//#ifndef DT_VFILTER
-//#define DT_VFILTER (1./60.)
-//#endif
-
 FLOAT_T tl_vf_z;
 FLOAT_T tl_vf_zdot;
 FLOAT_T tl_vf_bias;

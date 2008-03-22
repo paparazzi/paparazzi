@@ -106,7 +106,7 @@ void SPI1_ISR(void) {
   }
     break;
   case TL_IMU_READING_MICROMAG: {
-    MicromagOnSpiInt();
+#warning "Commented line: MicromagOnSpiInt();"
     if (micromag_status == MM_DATA_AVAILABLE) {
       tl_imu_status = TL_IMU_DATA_AVAILABLE;
     }

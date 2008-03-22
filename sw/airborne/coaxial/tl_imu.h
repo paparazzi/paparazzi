@@ -1,7 +1,7 @@
 #ifndef TL_IMU_H
 #define TL_IMU_H
 
-#define TL_IMU_USE_MICROMAG
+#warning "Commented line: #define TL_IMU_USE_MICROMAG"
 #define TL_IMU_USE_BARO
 
 

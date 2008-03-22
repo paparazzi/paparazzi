@@ -634,7 +634,6 @@
       <field name="agl_sp"      type="float" unit="m"/>
       <field name="agl_sum_err" type="float" unit="sm"/>
       <field name="agl_dot"     type="float" unit="m/s"/>
-      <field name="power_sp"    type="float" unit="pprz"/>
   </message>
 
   <message name="TL_TEST" ID="74">

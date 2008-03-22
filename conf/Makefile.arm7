@@ -26,7 +26,7 @@
 # This is the common Makefile for the arm7-target.
 #
 
-SRC_ARCH = $(PAPARAZZI_SRC)/sw/airborne/arm7
+SRC_ARCH = arm7
 
 # Define programs and commands.
 CC		= arm-elf-gcc
@@ -54,7 +54,7 @@ FORMAT = ihex
 #FLASH_MODE=ISP
 
 $(TARGET).srcsnd = $(notdir $($(TARGET).srcs))
-SRCARM = $($(TARGET).srcsnd)
+SRCARM = $($(TARGET).srcs)
 
 ASRCARM = crt0.S 
 
@@ -209,10 +209,7 @@ endif
 # Compile: create object files from C source files. ARM-only
 $(OBJDIR)/%.o : %.c $(OBJDIR)/../Makefile.ac
 	@echo CC $@
-	$(Q)$(CC) -c $(ALL_CFLAGS) $(CONLYFLAGS) $< -o $@ 
-
-$(OBJDIR)/%.o : $(SRC_ARCH)/%.c $(OBJDIR)/../Makefile.ac
-	@echo CC $@
+	$(Q)test -d $(dir $@) || mkdir -p $(dir $@)
 	$(Q)$(CC) -c $(ALL_CFLAGS) $(CONLYFLAGS) $< -o $@ 
 
 $(OBJDIR)/%.o : $(SRC_ARCH)/lpcusb/%.c $(OBJDIR)/../Makefile.ac
@@ -221,9 +218,9 @@ $(OBJDIR)/%.o : $(SRC_ARCH)/lpcusb/%.c $(OBJDIR)/../Makefile.ac
 
 
 # grab files in var/$(AIRCRAFT)/$(TARGET) aka $(OBJDIR)
-$(OBJDIR)/%.o : $(OBJDIR)/%.c
-	@echo CC $@
-	$(Q)$(CC) -c $(ALL_CFLAGS) $(CONLYFLAGS) $< -o $@ 
+#$(OBJDIR)/%.o : $(OBJDIR)/%.c
+#	@echo CC $@
+#	$(Q)$(CC) -c $(ALL_CFLAGS) $(CONLYFLAGS) $< -o $@ 
 
 # Assemble: create object files from assembler source files. ARM/Thumb
 $(AOBJ) : $(OBJDIR)/%.o : %.S
