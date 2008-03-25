@@ -40,6 +40,7 @@ let approaching_alert_time = 3.
 let track_size = ref 500
 
 let min_height = 200
+let lines_height = 30
 
 let is_int = fun x ->
   try let _ = int_of_string x in true with _ -> false
@@ -767,16 +768,13 @@ let draw_altgraph = fun (da:GMisc.drawing_area) (geomap:MapCanvas.widget) aircra
 
   (* Text *)
   let context = da#misc#create_pango_context in
-  let print_string = fun x y string color align_right ->
+  let print_string = fun x y string color ->
     let layout = context#create_layout in
     let from_codeset = "ISO-8859-15"
     and to_codeset = "UTF-8" in
     Pango.Layout.set_text layout (Glib.Convert.convert ~from_codeset ~to_codeset string);
     let (w,h) = Pango.Layout.get_pixel_size layout in
-    if align_right then
-      dr#put_layout ~x:(x-w) ~y:(y-h) ~fore:(`NAME color) layout
-    else
-      dr#put_layout ~x ~y:(y-h) ~fore:(`NAME color) layout in
+    dr#put_layout ~x ~y:(y-h) ~fore:(`NAME color) layout in
 
   (* find min and max alt *)
   let max_alt = ref 0 
@@ -789,18 +787,20 @@ let draw_altgraph = fun (da:GMisc.drawing_area) (geomap:MapCanvas.widget) aircra
     if alt > !max_alt then max_alt := alt
   ) aircrafts;
   min_alt := min !min_alt !max_alt;
+  if (!min_alt mod lines_height) < (min 10 (lines_height / 2)) then
+    min_alt := (!min_alt / lines_height - 1) * lines_height
+  else
+    min_alt := (!min_alt / lines_height) * lines_height;
+  min_alt := max !min_alt 0;
   let height_alt = max (!max_alt - !min_alt) min_height in
 
   (* lines *)
   dr#set_foreground (`NAME "grey");
-  let n = ref 1 in
-  let d = ref height in
-  while !d > 20 do incr n; d := height / !n done ;
-  for i = 0 to !n do
-    let y = height - i * !d in
+  let n = height_alt / lines_height in
+  for i = 0 to n do
+    let y = height - i * height / n in
     dr#line ~x:0 ~y ~x:width ~y;
-    print_string 6 y (sprintf "%d" (!min_alt + i * height_alt / !n)) "red" false;
-    print_string (width-6) y (sprintf "%d" (i * height_alt / !n)) "blue" true
+    print_string 6 y (sprintf "%d" (!min_alt + i * lines_height)) "red";
   done;
 
   (* aircrafts *)
@@ -829,8 +829,17 @@ let draw_altgraph = fun (da:GMisc.drawing_area) (geomap:MapCanvas.widget) aircra
       let alt_from_ground = truncate (track#height ()) in
       let gac = aac + height * alt_from_ground / height_alt in
       dr#set_line_attributes ~width:1 ~cap:`NOT_LAST ();
-      dr#line ~x:eac ~y:aac ~x:eac ~y:gac
-    | None -> ()
+      dr#line ~x:eac ~y:aac ~x:eac ~y:gac;
+
+      (* history *)
+      let v_path = track#v_path in
+      for i = 0 to Array.length v_path - 1 do
+        let (x, y) = geomap#world_of (fst v_path.(i)) in
+        let e = (truncate (w *. (x -. east) /. (west -. east))) in
+        let a = height - height * ((truncate (snd v_path.(i))) - !min_alt) / height_alt in
+        dr#point ~x:e ~y:a;
+      done
+  | None -> ()
   ) aircrafts;
 
   (new GDraw.drawable da#misc#window)#put_pixmap ~x:0 ~y:0 dr#pixmap

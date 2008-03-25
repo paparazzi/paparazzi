@@ -56,6 +56,7 @@ type desired =
 class track = fun ?(name="Noname") ?(size = 500) ?(color="red") (geomap:MapCanvas.widget) ->
   let group = GnoCanvas.group geomap#canvas#root in
   let empty = ({LL.posn_lat=0.; LL.posn_long=0.},  GnoCanvas.line group) in
+  let v_empty = ({LL.posn_lat=0.; LL.posn_long=0.},  0.0) in
 
   let aircraft = GnoCanvas.group group
   and track = GnoCanvas.group group in
@@ -96,6 +97,8 @@ class track = fun ?(name="Noname") ?(size = 500) ?(color="red") (geomap:MapCanva
     val mutable color = color
     val mutable segments = Array.create size empty
     val mutable v_segments = Array.create size empty
+    val mutable v_top = 0
+    val mutable v_path = Array.create 10 v_empty
     val mutable last = None
     val mutable last_heading = 0.0
     val mutable last_altitude = 0.0
@@ -112,6 +115,7 @@ class track = fun ?(name="Noname") ?(size = 500) ?(color="red") (geomap:MapCanva
     method color = color
     method set_color c = color <- c
     method track = track
+    method v_path = v_path
     method aircraft = aircraft
     method set_label = fun s -> ac_label#set [`TEXT s]
     method clear_one = fun i ->
@@ -122,6 +126,9 @@ class track = fun ?(name="Noname") ?(size = 500) ?(color="red") (geomap:MapCanva
     method incr = fun seg ->
       let s = Array.length seg in
       top <- (top + 1) mod s
+    method v_incr = fun path ->
+      let s = Array.length path in
+      v_top <- (v_top + 1) mod s
     method clear = fun () ->
       for i = 0 to Array.length segments - 1 do
 	self#clear_one i
@@ -160,8 +167,8 @@ class track = fun ?(name="Noname") ?(size = 500) ?(color="red") (geomap:MapCanva
 	  last_altitude -. h
 
     (** add track points on map2D, according to the
-       track parameter *)
-    method add_point = fun geo ->
+       track parameter and store altitude for the vertical path *)
+    method add_point = fun geo alt ->
       self#clear_one top;
       let last_geo =
 	match last with
@@ -169,7 +176,9 @@ class track = fun ?(name="Noname") ?(size = 500) ?(color="red") (geomap:MapCanva
 	| Some last_geo -> last_geo in
       segments.(top) <- (geo, geomap#segment ~group ~fill_color:color last_geo geo);
       self#incr segments;
-      self#set_last (Some geo)
+      self#set_last (Some geo);
+      v_path.(v_top) <- (geo, alt);
+      self#v_incr v_path
 
     method clear_map2D = self#clear ()
 
@@ -187,7 +196,7 @@ class track = fun ?(name="Noname") ?(size = 500) ?(color="red") (geomap:MapCanva
       end;
       
       ac_label#affine_absolute (affine_pos_and_angle geomap#zoom_adj#value xw yw 0.);
-      self#add_point wgs84;
+      self#add_point wgs84 altitude;
 
     method move_carrot = fun wgs84 ->
       let (xw,yw) = geomap#world_of wgs84 in
