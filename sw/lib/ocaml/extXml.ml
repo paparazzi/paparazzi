@@ -224,3 +224,8 @@ let parse_file = fun ?(noprovedtd = false) file ->
   | Dtd.Prove_error e -> failwith (Printf.sprintf "%s: %s" file (Dtd.prove_error e))
   | Dtd.Check_error e -> failwith (Printf.sprintf "%s: %s" file (Dtd.check_error e))
   | Dtd.Parse_error e -> failwith (Printf.sprintf "%s: %s" file (Dtd.parse_error e))
+
+
+
+let digest = fun xml -> 
+  Digest.string (Xml.to_string xml)

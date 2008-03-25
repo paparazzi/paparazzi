@@ -172,17 +172,31 @@ let parse_section = fun s ->
 
 let h_name = "AIRFRAME_H"
 
+let hex_to_bin = fun s ->
+  let n = String.length s in
+  assert(n mod 2 = 0);
+  let b = String.make (2*n) 'x' in
+  for i = 0 to n/2 - 1 do
+    b.[4*i] <- '\\';
+    Scanf.sscanf (String.sub s (2*i) 2) "%2x"
+      (fun x ->
+	String.blit (sprintf "%03o" x) 0 b (4*i+1) 3)
+  done;
+  b
+
 let _ =
-  if Array.length Sys.argv <> 4 then
-    failwith (Printf.sprintf "Usage: %s A/C_ident A/C_name xml_file" Sys.argv.(0));
-  let xml_file = Sys.argv.(3)
+  if Array.length Sys.argv <> 5 then
+    failwith (Printf.sprintf "Usage: %s A/C_ident A/C_name MD5SUM xml_file" Sys.argv.(0));
+  let xml_file = Sys.argv.(4)
   and ac_id = Sys.argv.(1)
-  and ac_name = Sys.argv.(2) in
+  and ac_name = Sys.argv.(2)
+  and md5sum = Sys.argv.(3) in
   try
     let xml = start_and_begin xml_file h_name in
     Xml2h.warning ("AIRFRAME MODEL: "^ ac_name);
     define_string "AIRFRAME_NAME" ac_name;
     define "AC_ID" ac_id;
+    define "MD5SUM" (sprintf "((uint8_t*)\"%s\")" (hex_to_bin md5sum));
     nl ();
     List.iter parse_section (Xml.children xml);
     finish h_name

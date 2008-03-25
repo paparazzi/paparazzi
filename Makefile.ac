@@ -30,6 +30,7 @@ CONF_XML=$(CONF)/conf.xml
 AIRBORNE=sw/airborne
 MESSAGES_XML = $(CONF)/messages.xml
 ACINCLUDE = $(PAPARAZZI_HOME)/var/$(AIRCRAFT)
+AIRCRAFT_CONF_DIR = $(ACINCLUDE)/conf
 AIRFRAME_H=$(ACINCLUDE)/airframe.h
 PERIODIC_H=$(ACINCLUDE)/periodic.h
 RADIO_H=$(ACINCLUDE)/radio.h
@@ -60,23 +61,29 @@ all_ac_h: $(AIRFRAME_H) $(RADIO_H) $(FLIGHT_PLAN_H) $(FLIGHT_PLAN_XML) $(SETTING
 
 $(AIRFRAME_H) : $(CONF)/$(AIRFRAME_XML) $(CONF_XML)
 	@echo BUILD $@
-	$(Q)$(TOOLS)/gen_airframe.out $(AC_ID) $(AIRCRAFT) $< > /tmp/airframe.h
+	$(Q)$(TOOLS)/gen_airframe.out $(AC_ID) $(AIRCRAFT) $(MD5SUM) $< > /tmp/airframe.h
 	$(Q)mv /tmp/airframe.h $@
+	$(Q)cp $< $(AIRCRAFT_CONF_DIR)/airframes
+	$(Q)cp $(CONF)/airframes/airframe.dtd $(AIRCRAFT_CONF_DIR)/airframes
 
 $(RADIO_H) : $(CONF)/$(RADIO) $(CONF_XML) $(TOOLS)/gen_radio.out
 	@echo BUILD $@
 	$(Q)$(TOOLS)/gen_radio.out $< > /tmp/radio.h
 	$(Q)mv /tmp/radio.h $@
+	$(Q)cp $< $(AIRCRAFT_CONF_DIR)/radios
 
 $(PERIODIC_H) : $(MESSAGES_XML) $(CONF_XML) $(CONF)/$(TELEMETRY)
 	@echo BUILD $@
 	$(Q)$(TOOLS)/gen_periodic.out $(MESSAGES_XML) $(CONF)/$(TELEMETRY) > $@
 	$(Q)chmod a+r $@
+	$(Q)cp $< $(AIRCRAFT_CONF_DIR)
+	$(Q)cp $(CONF)/$(TELEMETRY) $(AIRCRAFT_CONF_DIR)/telemetry
 
 $(FLIGHT_PLAN_H) : $(CONF)/$(FLIGHT_PLAN) $(CONF_XML) $(TOOLS)/gen_flight_plan.out
 	@echo BUILD $@
 	$(Q)$(TOOLS)/gen_flight_plan.out $< > $@
 	$(Q)chmod a+r $@
+	$(Q)cp $< $(AIRCRAFT_CONF_DIR)/flight_plans
 
 $(FLIGHT_PLAN_XML) : $(CONF)/$(FLIGHT_PLAN) $(CONF_XML) $(TOOLS)/gen_flight_plan.out
 	@echo BUILD $@
@@ -87,6 +94,7 @@ $(SETTINGS_H) : $(SETTINGS_XMLS) $(CONF_XML) $(TOOLS)/gen_settings.out
 	@echo BUILD $@
 	$(Q)$(TOOLS)/gen_settings.out $(SETTINGS_XML) $(SETTINGS_XMLS) > $@
 	$(Q)chmod a+r $@
+	$(Q)cp $(SETTINGS_XMLS) $(AIRCRAFT_CONF_DIR)/settings
 
 $(TUNING_H) : $(SETTINGS_XMLS) $(CONF_XML) $(TOOLS)/gen_tuning.out
 	@echo BUILD $@

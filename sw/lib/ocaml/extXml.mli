@@ -66,3 +66,6 @@ val remove_child :
 
 val parse_file : ?noprovedtd:bool -> string -> Xml.xml
 (** Identical to Xml.parse_file with Failure exceptions. [nodtdprove] default is false. *)
+
+val digest : Xml.xml -> Digest.t
+(** Returns the MD5 digest of an XML tree (c.f. Digest module of std library) *)

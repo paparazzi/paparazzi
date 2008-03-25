@@ -9,6 +9,7 @@
    </message>
 
    <message name="ALIVE" id="2">
+     <field name="md5sum" type="uint8[]"/>
    </message>
 
    <message name="PONG" id="3">

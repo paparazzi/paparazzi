@@ -24,7 +24,10 @@
  *
  *)
 
+open Printf
+
 let (//) = Filename.concat
+let make_element = fun t a c -> Xml.Element (t,a,c)
 
 let paparazzi_src =
   try
@@ -47,5 +50,26 @@ let icon_file = paparazzi_home // "data/pictures/penguin_icon.png"
 
 let gconf_file = paparazzi_home // "conf" // "%gconf.xml"
 
-
 let gcs_icons_path = paparazzi_home // "data" // "pictures" // "gcs_icons"
+
+let expand_ac_xml = fun ac_conf ->
+  let prefix = fun s -> sprintf "%s/conf/%s" paparazzi_home s in
+  let parse = fun a ->
+    let file = prefix (ExtXml.attrib ac_conf a) in
+    try
+      Xml.parse_file file
+    with
+      Xml.File_not_found _ ->
+	prerr_endline (sprintf "File not found: %s" file);
+	make_element "file_not_found" ["file",a] []
+    | Xml.Error e ->
+	let s = Xml.error e in
+	prerr_endline (sprintf "Parse error in %s: %s" file s);
+	make_element "cannot_parse" ["file",file;"error", s] [] in
+  let fp = parse "flight_plan"
+  and af = parse "airframe"
+  and rc = parse "radio"
+  and st = parse "settings"
+  and tm = parse "telemetry" in
+  let children = Xml.children ac_conf@[fp; af; rc; st; tm] in
+  make_element (Xml.tag ac_conf) (Xml.attribs ac_conf) children

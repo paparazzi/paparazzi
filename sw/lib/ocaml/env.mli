@@ -40,3 +40,7 @@ val gconf_file : string
 (** XML preferences file à la gconf *)
 
 val gcs_icons_path : string
+
+val expand_ac_xml : Xml.xml -> Xml.xml
+(** Expands a conf.xml aircraft entry, adding the XML configuration files
+(listed as attributes) as children *)

@@ -52,7 +52,7 @@
 #endif
 
 
-#define PERIODIC_SEND_ALIVE()  DOWNLINK_SEND_ALIVE();
+#define PERIODIC_SEND_ALIVE()  DOWNLINK_SEND_ALIVE(16, MD5SUM);
 
 #define PERIODIC_SEND_BAT() Downlink({ int16_t e = energy; DOWNLINK_SEND_BAT(&v_ctl_throttle_slewed, &vsupply, &estimator_flight_time, &kill_throttle, &block_time, &stage_time, &e); })
 
