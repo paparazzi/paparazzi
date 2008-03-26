@@ -237,6 +237,7 @@ ap.srcs += nav_survey_rectangle.c snav.c
 ap.srcs += light.c
 ap.CFLAGS += -DUSE_LIGHT
 
+ap.srcs += formation.c
 
 
 

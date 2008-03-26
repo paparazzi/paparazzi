@@ -98,7 +98,7 @@
  
   <section name="MISC">
     <define name="NOMINAL_AIRSPEED" value="15." unit="m/s"/>
-    <define name="CARROT" value="5." unit="s"/>
+    <define name="CARROT" value="3." unit="s"/>
     <define name="KILL_MODE_DISTANCE" value="(1.5*MAX_DIST_FROM_HOME)"/>
     <define name="CONTROL_RATE" value="60" unit="Hz"/>
     <define name="XBEE_INIT" value="\"ATPL2\rATRN1\rATTT80\r\""/>
@@ -140,7 +140,7 @@
   </section>
 
   <section name="HORIZONTAL CONTROL" prefix="H_CTL_">
-    <define name="COURSE_PGAIN" value="-0.8"/>
+    <define name="COURSE_PGAIN" value="-1."/>
 
     <define name="ROLL_MAX_SETPOINT" value="0.6" unit="radians"/>
     <define name="PITCH_MAX_SETPOINT" value="0.5" unit="radians"/>
@@ -158,6 +158,8 @@
   <section name="NAV">
     <define name="NAV_PITCH" value="0."/>
     <define name="NAV_GLIDE_PITCH_TRIM" value="0"/>
+    <define name="NAV_CROSS_TRACK_ERROR_IGAIN" value="0.05"/>
+    <define name="NAV_CROSS_TRACK_ERROR_MAX" value="10." unit="deg"/>
   </section>
 
   <section name="AGGRESSIVE" prefix="AGR_">
@@ -195,7 +197,7 @@
   </section>
 
  <section name="SIMU">
-    <define name="YAW_RESPONSE_FACTOR" value="0.5"/>
+    <define name="YAW_RESPONSE_FACTOR" value="1."/>
  </section>
 
  <makefile>
