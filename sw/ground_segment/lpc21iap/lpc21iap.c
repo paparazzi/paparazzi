@@ -428,7 +428,7 @@ int main(int argc, char *argv[])
 
                         dat[5] = (unsigned long) -crc;
 
-                        printf("changing vector table");
+                        printf("changing vector table\n");
                     }
 
                     printf("#");
@@ -559,6 +559,7 @@ int main(int argc, char *argv[])
     {
         printf( "Starting software at 0x%08X\n", entryElf );
         if (!goSw(udev, entryElf)) exit(1);
+        Sleep(250);
     }
 
     return(0);
