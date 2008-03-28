@@ -1,0 +1,38 @@
+<airframe name="VOR">
+
+  <makefile>
+
+ARCHI=arm7
+
+VOR=vor
+
+FLASH_MODE = IAP
+main.ARCHDIR = $(ARCHI)
+main.ARCH = arm7tdmi
+main.TARGET = main
+main.TARGETDIR = main
+
+main.CFLAGS += -DCONFIG=\"conf_demo.h\"
+main.srcs = $(VOR)/vor_main.c
+
+main.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(1e-1)'
+main.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
+
+main.CFLAGS += -DLED
+
+main.srcs += $(SRC_ARCH)/armVIC.c
+
+main.CFLAGS += -DUSE_UART0 -DUART0_BAUD=B38400
+main.srcs += $(SRC_ARCH)/uart_hw.c
+
+main.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart0 
+main.srcs += downlink.c pprz_transport.c
+
+main.CFLAGS += -DFLOAT_T=float
+main.srcs += $(VOR)/vor_lf_filter.c $(VOR)/vor_lf_filter_params.c
+
+
+
+  </makefile>
+
+</airframe>
