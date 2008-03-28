@@ -3,32 +3,10 @@
 #include <stdio.h>
 #include <math.h>
 
-
-#ifdef GEN_SINE
-#define NB_SAMPLES 1000
-FLOAT_T samples[NB_SAMPLES];
-
-void read_data(void) {
-  
-  int i;
-  FLOAT_T te = 1/29880.;
-  FLOAT_T f0 = 300.;
-  for (i=0; i<NB_SAMPLES; i++) {
-    FLOAT_T t = i * te;
-    samples[i] = sin(2*M_PI*f0*t);
-  }
-}
-#else
 #include "sample_sound.h"
-#endif
 
+#include "vor_lf_filter_params.h"
 #include "vor_lf_filter.h"
-
-#include "filtreVAR.h"
-#include "filtreREF.h"
-#include "filtrePBVAR.h"
-#include "filtrePBREF.h"
-#include "filtrePBFM.h"
 
 /* base frequency of local oscillators */
 #define VOR_LF_F0  9960
@@ -39,11 +17,12 @@ void read_data(void) {
 #define VOR_LF_DECIM (83*3)
 
 static float vor_lf_time;
-static struct Filter vor_lf_filter_var;
-static struct Filter vor_lf_filter_ref;
-static struct Filter vor_lf_filter_pbref;
-static struct Filter vor_lf_filter_pbvar;
-static struct Filter vor_lf_filter_pbfm;
+static struct Filter vor_lf_filter_bpvar;
+static struct Filter vor_lf_filter_bpref;
+static struct Filter vor_lf_filter_lpdecim;
+static struct Filter vor_lf_filter_lpref;
+static struct Filter vor_lf_filter_lpvar;
+static struct Filter vor_lf_filter_lpfm;
 
 static float vor_lf_phi_ref;   /* phase of local oscilator            */
 static float vor_lf_err_ref;   /* phase error                         */
@@ -74,34 +53,44 @@ void vor_lf_init( void ) {
   vor_lf_err_fm = 0.;
   vor_lf_alpha_fm = -1.;
 
-  vor_lf_filter_init(&vor_lf_filter_var, NL_VAR, DL_VAR, numVAR, denVAR);
-  vor_lf_filter_init(&vor_lf_filter_ref, NL_REF, DL_REF, numREF, denREF);
-  vor_lf_filter_init(&vor_lf_filter_pbref, NL_PBREF, DL_PBREF, numPBREF, denPBREF);
-  vor_lf_filter_init(&vor_lf_filter_pbvar, NL_PBVAR, DL_PBVAR, numPBVAR, denPBVAR);
-  vor_lf_filter_init(&vor_lf_filter_pbfm, NL_PBFM, DL_PBFM, numPBFM, denPBFM);
+  vor_lf_filter_init(&vor_lf_filter_bpvar, 
+		     BP_VAR_NUM_LEN, BP_VAR_DEN_LEN, BP_VAR_NUM, BP_VAR_DEN);
+  vor_lf_filter_init(&vor_lf_filter_bpref, 
+		     BP_REF_NUM_LEN, BP_REF_DEN_LEN, BP_REF_NUM, BP_REF_DEN);
+  vor_lf_filter_init(&vor_lf_filter_lpdecim, 
+		     LP_DECIM_NUM_LEN, LP_DECIM_DEN_LEN, LP_DECIM_NUM, LP_DECIM_DEN);
+  vor_lf_filter_init(&vor_lf_filter_lpvar, 
+		     LP_VAR_NUM_LEN, LP_VAR_DEN_LEN, LP_VAR_NUM, LP_VAR_DEN);
+  vor_lf_filter_init(&vor_lf_filter_lpref, 
+		     LP_REF_NUM_LEN, LP_REF_DEN_LEN, LP_REF_NUM, LP_REF_DEN);
+  vor_lf_filter_init(&vor_lf_filter_lpfm, 
+		     LP_FM_NUM_LEN, LP_FM_DEN_LEN, LP_FM_NUM, LP_FM_DEN);
   
 
 }
 
-float vor_lf_pll( float xi ) {
+float vor_lf_fast_task( float xi ) {
 
+  /* bandpass our input signal */
+  const float yi = vor_lf_filter_run(&vor_lf_filter_bpvar, xi);
   /* local ocsillator phase */
   vor_lf_phi_ref -= vor_lf_alpha_ref * vor_lf_err_ref;
   const float phase_ref = 2. * M_PI * VOR_LF_F_REF * vor_lf_time + vor_lf_phi_ref;
   /* local carrier */
   const float lo_ref = sin(phase_ref);
   /* multiply received signal by local carrier */
-  const float y_ref = xi * lo_ref;
+  const float y_ref = yi * lo_ref;
   /* low pass our multiplication result to get phase error */
-  vor_lf_err_ref = vor_lf_filter_run(&vor_lf_filter_pbref, y_ref);
+  vor_lf_err_ref = vor_lf_filter_run(&vor_lf_filter_lpref, y_ref);
   /* filter err_ref before decimate */
-  const float err_ref_decim = vor_lf_filter_run(&vor_lf_filter_var, vor_lf_err_ref);
+  const float err_ref_decim = vor_lf_filter_run(&vor_lf_filter_lpdecim, vor_lf_err_ref);
 
   return err_ref_decim;
 
 }
 
-void low_freq_processing ( float err_ref_decim ) {
+#if 0
+void vor_lf_slow_task ( float err_ref_decim ) {
   /* local ocsillator phase */
   vor_lf_phi_var -= vor_lf_alpha_var * vor_lf_err_var;
   const float phase_var = 2. * M_PI * VOR_LF_F_VAR * vor_lf_time + vor_lf_phi_var;
@@ -117,36 +106,24 @@ void low_freq_processing ( float err_ref_decim ) {
   const float y_fm = err_ref_decim * lo_fm;
 
 }
-
+#endif
 
 int main(int argc, char** argv) {
-
-  //  read_data();
 
   vor_lf_init();
 
   int i, j;
-  
   while (i<NB_SAMPLES) {
-    const float sig_var = vor_lf_filter_run(&vor_lf_filter_var, samples[i]);
-    const float sig_ref = vor_lf_filter_run(&vor_lf_filter_ref, samples[i]);
-
-    float err_ref_decim = vor_lf_pll(samples[i]);
+    float err_ref_decim =  vor_lf_fast_task(samples[i]);
     j++;
     if (j >= VOR_LF_DECIM) {
       j=0;
       
     }
+    i++;
   }
 
 
-  for (i=0; i<NB_SAMPLES; i++) {
-    FLOAT_T te = 1/29880.;
-    FLOAT_T t = i * te;
-    FLOAT_T yi = vor_lf_filter_run(&vor_lf_filter_var, samples[i]);
-    
-    printf("%f %f %f\n", t, samples[i], yi);
-  }
 
 
   return 0;

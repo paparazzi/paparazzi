@@ -4,8 +4,8 @@
 struct Filter {
   unsigned nb_num;
   unsigned nb_den;
-  FLOAT_T* num;
-  FLOAT_T* den;
+  const FLOAT_T* num;
+  const FLOAT_T* den;
   FLOAT_T* x;
   FLOAT_T* y;
 };

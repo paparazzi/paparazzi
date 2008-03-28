@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <sndfile.h>
 
-#define PATH "../signal_VOR_BF_50_200dB.wav"
+#define PATH "signal_VOR_BF_50_200dB.wav"
 
 #define LINE_LEN 5
 
@@ -36,7 +36,8 @@ int main(int argc, char** argv) {
   while (i<nb_samples) {
     if (!(i%LINE_LEN))
       printf("\n");
-    printf("%f", buf[i]/512. - 1.);
+    printf("%f", ((float)buf[i] / (float)(1<<15)));
+    // printf("%i ", buf[i]);
     if (i<nb_samples-1)
       printf(", ");
     i++;
@@ -48,6 +49,3 @@ int main(int argc, char** argv) {
 
   return 0;
 }
-
-
-

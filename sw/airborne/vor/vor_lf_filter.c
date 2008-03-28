@@ -7,18 +7,16 @@ void vor_lf_filter_init(struct Filter* f, unsigned nb_num, unsigned nb_den,
   int i;
 
   f->nb_num = nb_num;
-  f->num = malloc(f->nb_num * sizeof(FLOAT_T));
+  f->num = num;
   f->x = malloc(f->nb_num * sizeof(FLOAT_T));
   for (i=0; i<f->nb_num; i++) {
-    f->num[i] = num[i];
     f->x[i] = 0.;
   }
 
   f->nb_den = nb_den;
-  f->den = malloc(f->nb_den * sizeof(FLOAT_T));
+  f->den = den;
   f->y = malloc(f->nb_den * sizeof(FLOAT_T));
   for (i=0; i<f->nb_den; i++) {
-    f->den[i] = den[i];
     f->y[i] = 0.;
   }
 
