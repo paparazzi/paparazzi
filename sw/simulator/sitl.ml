@@ -145,19 +145,21 @@ module Make (A:Data.MISSION) (FM: FlightModel.SIG) = struct
     update ()
 
   open Latlong
-  external set_ac_info : int -> float -> float -> float -> float -> float -> unit = "set_ac_info"
+  external set_ac_info : int -> float -> float -> float -> float -> float -> int32 -> unit = "set_ac_info"
   let get_flight_param = fun _sender vs ->
     let ac_id = int_of_string (Pprz.string_assoc "ac_id" vs) in
     if ac_id <> !my_id then
       let f = fun a -> Pprz.float_assoc a vs in
+      let i32 = fun a -> Pprz.int32_assoc a vs in
       let lat = f "lat"
       and long = f "long"
       and course = (Deg>>Rad)(f "course")
       and alt = f "alt"
-      and gspeed = f "speed" in
+      and gspeed = f "speed"
+      and itow = i32 "itow" in
       let wgs84 = Latlong.make_geo ((Deg>>Rad)lat) ((Deg>>Rad)long) in
       let utm = Latlong.utm_of WGS84 wgs84 in
-      set_ac_info ac_id utm.utm_x utm.utm_y course alt gspeed
+      set_ac_info ac_id utm.utm_x utm.utm_y course alt gspeed itow
 
   external move_waypoint : int -> float -> float -> float -> unit = "move_waypoint"
   let get_move_wp = fun _sender vs ->
