@@ -314,18 +314,21 @@ let get_fp = fun device _sender vs ->
 	  Debug.trace 'b' (sprintf "ACINFO %d for %d" ac_id dest_id);
 	  let ac_device = airborne_device dest_id airframes device.transport in
 	  let f = fun a -> Pprz.float_assoc a vs in
+	  let i32 = fun a -> Pprz.int32_assoc a vs in
 	  let lat = (Deg>>Rad) (f "lat")
 	  and long = (Deg>>Rad) (f "long")
 	  and course = f "course"
 	  and alt = f "alt"
-	  and gspeed = f "speed" in
+	  and gspeed = f "speed"
+    and itow = i32 "itow" in
 	  let utm = Latlong.utm_of WGS84 {posn_lat=lat; posn_long=long} in
 	  let vs = ["ac_id", Pprz.Int ac_id;
 		    "utm_east", cm_of_m utm.utm_x;
 		    "utm_north", cm_of_m utm.utm_y;
 		    "course", Pprz.Int (truncate (10. *. course));
 		    "alt", cm_of_m alt;
-		    "speed", cm_of_m gspeed] in
+        "speed", cm_of_m gspeed;
+        "itow", Pprz.Int32 itow] in
 	  let msg_id, _ = Dl_Pprz.message_of_name "ACINFO" in
 	  let s = Dl_Pprz.payload_of_values msg_id my_id vs in
 	  send dest_id device ac_device s Low

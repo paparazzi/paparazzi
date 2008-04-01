@@ -104,17 +104,17 @@ value get_commands(value val_commands) {
   return Val_int(commands[COMMAND_THROTTLE]);
 }
 
-value set_ac_info_native(value ac_id __attribute__ ((unused)), value ux __attribute__ ((unused)), value uy __attribute__ ((unused)), value course __attribute__ ((unused)), value alt __attribute__ ((unused)), value gspeed __attribute__ ((unused))) {
+value set_ac_info_native(value ac_id __attribute__ ((unused)), value ux __attribute__ ((unused)), value uy __attribute__ ((unused)), value course __attribute__ ((unused)), value alt __attribute__ ((unused)), value gspeed __attribute__ ((unused)), value itow __attribute__ ((unused))) {
 #ifdef TRAFFIC_INFO
   SetAcInfo(Int_val(ac_id), Double_val(ux), Double_val(uy), 
-	    Double_val(course), Double_val(alt), Double_val(gspeed));
+	    Double_val(course), Double_val(alt), Double_val(gspeed), Int32_val(itow));
 #endif
   return Val_unit;
 }
 
 value set_ac_info(value * argv, int argn) {
-  assert (argn == 6);
-  return set_ac_info_native(argv[0], argv[1], argv[2], argv[3],argv[4], argv[5]);
+  assert (argn == 7);
+  return set_ac_info_native(argv[0], argv[1], argv[2], argv[3],argv[4], argv[5], argv[6]);
 }
 
 

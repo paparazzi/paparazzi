@@ -37,20 +37,21 @@ struct ac_info_ {
   float course; /* rad (CW) */
   float alt; /* m */
   float gspeed; /* m/s */
+  uint32_t itow; /* ms */
 };
 
 extern struct ac_info_ the_acs[NB_ACS];
 
-#define SetAcInfo(_id, _utm_x /*m*/, _utm_y /*m*/, _course/*rad(CW)*/, _alt/*m*/,_gspeed/*m/s*/) { \
+#define SetAcInfo(_id, _utm_x /*m*/, _utm_y /*m*/, _course/*rad(CW)*/, _alt/*m*/,_gspeed/*m/s*/, _itow) { \
   if (_id < NB_ACS) { \
     the_acs[_id].east = _utm_x -  nav_utm_east0; \
     the_acs[_id].north = _utm_y - nav_utm_north0; \
     the_acs[_id].course = _course; \
     the_acs[_id].alt = _alt; \
     the_acs[_id].gspeed = _gspeed; \
+    the_acs[_id].itow = (uint32_t)_itow; \
   } \
 }
-
 
 struct ac_info_ *
 get_ac_info(uint8_t id);

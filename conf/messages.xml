@@ -663,6 +663,19 @@
    <field name="accel" type="float" unit="m/s/s"/>
  </message>
 
+  <message name="CROSS_TRACK_ERROR" ID="80">
+    <field name="cross_track_error" type="float" unit="m"/>
+    <field name="cte_int" type="float"/>
+  </message>
+
+  <message name="ESTIMATOR_COMP_FILTER" ID="81">
+    <field name="gyro_hp_last_out" type="float"/>
+    <field name="gyro_int" type="float"/>
+    <field name="gps_lp_last_out" type="float"/>
+    <field name="ir_lp_last_out" type="float"/>
+  </message>
+
+
   <message name="ENOSE_STATUS" ID="250">
       <field name="val1" type="uint16"/>
       <field name="val2" type="uint16"/>
@@ -843,6 +856,7 @@
     <field name="climb"  type="float" unit="m/s"/>
     <field name="agl"    type="float" unit="m"/>
     <field name="unix_time"    type="float" unit="s (Unix time)"/>
+    <field name="itow"   type="uint32" unit="ms"/>
   </message>
 
   <message name="AP_STATUS" ID="12">

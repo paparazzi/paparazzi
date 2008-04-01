@@ -79,6 +79,7 @@ type aircraft = {
     airframe : Xml.xml;
     mutable pos : Latlong.utm;
     mutable unix_time : float;
+    mutable itow : int32; (* ms *)
     mutable roll    : float;
     mutable pitch   : float;
     mutable nav_ref    : Latlong.utm option;
@@ -139,7 +140,7 @@ let new_aircraft = fun id name fp airframe ->
     desired_altitude = 0.;
     desired_climb = 0.;
     pos = { Latlong.utm_x = 0.; utm_y = 0.; utm_zone = 0 };
-    unix_time = 0.;
+    unix_time = 0.; itow = Int32.of_int 0;
     nav_ref = None;
     cam = { phi = 0.; theta = 0. ; target=(0.,0.)};
     inflight_calib = { if_mode = 1 ; if_val1 = 0.; if_val2 = 0.};

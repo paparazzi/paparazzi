@@ -65,7 +65,8 @@ void dl_parse_msg(void) {
     float a = MOfCm(DL_ACINFO_alt(dl_buffer));
     float c = RadOfDeg(((float)DL_ACINFO_course(dl_buffer))/ 10.);
     float s = MOfCm(DL_ACINFO_speed(dl_buffer));
-    SetAcInfo(id, ux, uy, c, a, s);
+    uint32_t t = DL_ACINFO_itow(dl_buffer);
+    SetAcInfo(id, ux, uy, c, a, s, t);
   } else
 #endif
 #ifdef NAV

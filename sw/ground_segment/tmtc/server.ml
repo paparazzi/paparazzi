@@ -244,9 +244,10 @@ let log_and_parse = fun logging ac_name (a:Aircraft.aircraft) msg values ->
 		 utm_y = fvalue "utm_north" /. 100.;
 		 utm_zone = ivalue "utm_zone" };
       a.unix_time <- Latlong.unix_time_of_tow (truncate (fvalue "itow" /. 1000.));
+      a.itow <- Int32.of_float (fvalue "itow");
+      (*Printf.fprintf stderr "itow %lu %ld\n" a.itow a.itow;*)
       a.gspeed  <- fvalue "speed" /. 100.;
       a.course  <- norm_course ((Deg>>Rad)(fvalue "course" /. 10.));
-
       a.agl     <- a.alt -. float (try Srtm.of_utm a.pos with _ -> 0);
       a.gps_mode <- check_index (ivalue "mode") gps_modes "GPS_MODE";
       if a.gspeed > 3. && a.ap_mode = _AUTO2 then
@@ -553,6 +554,7 @@ let send_aircraft_msg = fun ac ->
 		  "lat", f ((Rad>>Deg)wgs84.posn_lat);
 		  "long", f ((Rad>>Deg) wgs84.posn_long);
 		  "unix_time", f a.unix_time;
+      "itow", Pprz.Int32 a.itow;
 		  "speed", f a.gspeed;
 		  "course", f (Geometry_2d.rad2deg a.course);
 		  "alt", f a.alt;
