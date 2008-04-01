@@ -1,0 +1,24 @@
+<!DOCTYPE settings SYSTEM "settings.dtd">
+
+<!-- A conf to use an external control -->
+
+<settings>
+  <dl_settings>
+    <dl_settings NAME="flight params">
+      <dl_setting MAX="1000" MIN="0" STEP="10" VAR="nav_alt" module="external"/>
+    </dl_settings>
+
+    <dl_settings NAME="attitude">
+      <dl_setting MAX="35" MIN="-35" STEP="1" VAR="nav_roll" shortname="roll_setpoint" module="external"/>
+    </dl_settings>
+
+    <dl_settings name="auto_throttle">
+      <dl_setting MAX="1.0" MIN="0.0" STEP="0.05" VAR="nav_cruise" shortname="cruise setpoint" module="external"/>
+    </dl_settings>
+
+    <dl_settings name="auto_pitch">
+      <dl_setting MAX="1.0" MIN="0.0" STEP="0.05" VAR="nav_throttle" shortname="throttle setpoint" module="external" handler="SetNavThrottle"/>
+    </dl_settings>
+
+  </dl_settings>
+</settings>

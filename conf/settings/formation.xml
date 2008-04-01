@@ -1,0 +1,16 @@
+<!DOCTYPE settings SYSTEM "settings.dtd">
+
+<!-- A conf for formation flight tuning -->
+
+<settings>
+  <dl_settings>
+    <dl_settings name="nav">
+      <dl_setting MAX="24" MIN="0" STEP="1" VAR="leader_id" module="formation"/>
+      <dl_setting MAX="1" MIN="0" STEP="0.01" VAR="coef_form_pos" module="formation"/>
+      <dl_setting MAX="1" MIN="0" STEP="0.01" VAR="coef_form_speed" module="formation"/>
+      <dl_setting MAX="1" MIN="0" STEP="0.01" VAR="coef_form_course" module="formation"/>
+      <dl_setting MAX="1" MIN="0" STEP="0.01" VAR="coef_form_alt" module="formation"/>
+      <dl_setting MAX="1" MIN="0" STEP="1" VAR="form_mode" module="formation"/>
+    </dl_settings>
+  </dl_settings>
+</settings>
