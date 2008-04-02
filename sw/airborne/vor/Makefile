@@ -1,4 +1,4 @@
-all: sample_sound.h vor_lf
+all: vor_test_samples.h vor_filter_params.c
 
 CFLAGS = -Wall -I.. -DFLOAT_T=float
 LDFLAGS = -lm
@@ -11,14 +11,22 @@ VOR_LF_SRCS = main.c \
 vor_lf: $(VOR_LF_SRCS) 
 	gcc $(CFLAGS) $^ -o $@ $(LDFLAGS)
 
-gen_header: gen_header.c
-	gcc $(CFLAGS) $^ -o $@ $(LDFLAGS)  -lsndfile
+gen_test_samples: gen_test_samples.c
+	gcc $(CFLAGS) $^ -o $@ $(LDFLAGS) -lsndfile
 
-sample_sound.h: gen_header
-	./gen_header  > sample_sound.h
+vor_test_samples.h: gen_test_samples
+	./$^  > $@
 
-test_filter: test_filter.c vor_lf_filter.c vor_lf_filter_params.c
+vor_filter_params.c:
+	scilab -nw -nogui -nwni -f gen_filter_params.sce
+
+test_filter: test_filter.c vor_filter.c vor_filter_params.c
 	gcc $(CFLAGS) $^ -o $@ $(LDFLAGS)
 
 clean:
-	rm -f vor_lf gen_header sample_sound.h test_filter *~
+	rm -f vor_lf              \
+              gen_test_samples    \
+              vor_test_samples.h  \
+              vor_filter_params.c \
+              vor_filter_params.h \
+              test_filter *~

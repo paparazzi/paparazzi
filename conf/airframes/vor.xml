@@ -29,8 +29,9 @@ main.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=U
 main.srcs += downlink.c pprz_transport.c
 
 main.CFLAGS += -DFLOAT_T=float
-main.srcs += $(VOR)/vor_lf_filter.c $(VOR)/vor_lf_filter_params.c
+main.srcs += $(VOR)/vor_filter.c $(VOR)/vor_filter_params.c
 
+main.srcs += $(VOR)/vor_demod.c
 
 
   </makefile>

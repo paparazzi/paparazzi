@@ -8,6 +8,8 @@
 #include "messages.h"
 #include "downlink.h"
 
+#include "vor_demod.h"
+
 static inline void main_init( void );
 static inline void main_periodic_task( void );
 
@@ -27,6 +29,7 @@ static inline void main_init( void ) {
   sys_time_init();
   led_init();
   uart0_init_tx();
+  vor_demod_init();
   int_enable();
 }
 
@@ -34,7 +37,7 @@ static inline void main_periodic_task( void ) {
   LED_TOGGLE(1);
   //  DOWNLINK_SEND_TAKEOFF(&cpu_time_sec);
   t0 = T0TC;
-
+  vor_demod_periodic();
   t1 = T0TC;
   uint32_t dif = t1 - t0;
   DOWNLINK_SEND_TIME(&dif);

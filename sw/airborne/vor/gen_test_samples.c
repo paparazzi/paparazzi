@@ -22,14 +22,12 @@ int main(int argc, char** argv) {
   //  int readcount = 
   sf_read_short (sndfile, buf, nb_samples);
 
+  nb_samples = 5000;
 
+  printf("#ifndef VOR_TEST_SAMPLES_H\n");
+  printf("#define VOR_TEST_SAMPLES_H\n\n");
 
-
-
-  printf("#ifndef SAMPLE_SOUND_H\n");
-  printf("#define SAMPLE_SOUND_H\n\n");
   printf("#define NB_SAMPLES %d\n", nb_samples);
-
   printf("float samples[NB_SAMPLES] = {");
 
   int i = 0;
@@ -37,15 +35,12 @@ int main(int argc, char** argv) {
     if (!(i%LINE_LEN))
       printf("\n");
     printf("%f", ((float)buf[i] / (float)(1<<15)));
-    // printf("%i ", buf[i]);
-    if (i<nb_samples-1)
-      printf(", ");
+    if (i<nb_samples-1) printf(", ");
     i++;
   }
   
   printf("};\n");
-
-  printf("\n#endif /* SAMPLE_SOUND_H */\n");
+  printf("\n#endif /* VOR_TEST_SAMPLES_H */\n");
 
   return 0;
 }

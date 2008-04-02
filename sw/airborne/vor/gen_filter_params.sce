@@ -1,3 +1,9 @@
+//
+//
+// Generates C file and corresponding headers for filters used in
+// C implementation
+//
+
 clear();
 
 exec('vor_utils.sci');
@@ -30,7 +36,7 @@ endfunction
 // header
 //
 
-filename = 'vor_lf_filter_params'; 
+filename = 'vor_filter_params'; 
 fid = mopen(filename+'.h', 'w');
 
 fprintf(fid,'#ifndef VOR_LF_FILTER_PARAMS_H\n');
