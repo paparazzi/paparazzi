@@ -173,10 +173,11 @@ int formation_flight(void) {
 
   // altitude loop
   float alt = 0.;
-  if (AC_ID == leader_id) alt = flight_altitude;
+  if (AC_ID == leader_id) alt = nav_altitude;
   else alt = leader->alt - form[leader_id].alt;
   alt += formation[AC_ID].alt + coef_form_alt * form_a;
-  NavVerticalAltitudeMode(Max(alt, ground_alt+SECURITY_HEIGHT), 0.);
+  //NavVerticalAltitudeMode(Max(alt, ground_alt+SECURITY_HEIGHT), 0.);
+  flight_altitude = Max(alt, ground_alt+SECURITY_HEIGHT);
 
   // carrot
   if (AC_ID != leader_id) {
