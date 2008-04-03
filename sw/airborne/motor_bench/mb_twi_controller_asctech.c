@@ -1,14 +1,11 @@
 #include "mb_twi_controller.h"
+#include "mb_twi_controller_asctech.h"
 
 #include "i2c.h"
 
 #include "led.h"
 
 bool_t  mb_twi_controller_asctech_command;
-#define MB_TWI_CONTROLLER_COMMAND_NONE     0
-#define MB_TWI_CONTROLLER_COMMAND_SET_ADDR 1
-#define MB_TWI_CONTROLLER_COMMAND_TEST     2
-#define MB_TWI_CONTROLLER_COMMAND_REVERSE  3
 uint8_t mb_twi_controller_asctech_command_type;
 
 #define MB_TWI_CONTROLLER_ASCTECH_ADDR_FRONT 0
@@ -16,6 +13,7 @@ uint8_t mb_twi_controller_asctech_command_type;
 #define MB_TWI_CONTROLLER_ASCTECH_ADDR_LEFT  2
 #define MB_TWI_CONTROLLER_ASCTECH_ADDR_RIGHT 3
 uint8_t mb_twi_controller_asctech_addr;
+uint8_t mb_twi_controller_asctech_new_addr;
 
 uint8_t mb_twi_nb_overun;
 uint8_t mb_twi_i2c_done;
@@ -37,6 +35,15 @@ void mb_twi_controller_set( float throttle ) {
     if (mb_twi_controller_asctech_command) {
       mb_twi_controller_asctech_command = FALSE;
       switch (mb_twi_controller_asctech_command_type) {
+
+      case MB_TWI_CONTROLLER_COMMAND_TEST :
+	i2c_buf[0] = 251;
+	i2c_buf[1] = mb_twi_controller_asctech_addr;
+	i2c_buf[2] = 0;
+	i2c_buf[3] = 231 + mb_twi_controller_asctech_addr;
+	i2c_transmit(MB_TWI_CONTROLLER_ADDR, 4, &mb_twi_i2c_done);
+      break;
+      
       case MB_TWI_CONTROLLER_COMMAND_REVERSE :
 	i2c_buf[0] = 254;
 	i2c_buf[1] = mb_twi_controller_asctech_addr;
@@ -44,6 +51,17 @@ void mb_twi_controller_set( float throttle ) {
 	i2c_buf[3] = 234 + mb_twi_controller_asctech_addr;
 	i2c_transmit(MB_TWI_CONTROLLER_ADDR, 4, &mb_twi_i2c_done);
 	break;
+   
+    case MB_TWI_CONTROLLER_COMMAND_SET_ADDR :
+	i2c_buf[0] = 250;
+	i2c_buf[1] = mb_twi_controller_asctech_addr;
+	i2c_buf[2] = mb_twi_controller_asctech_new_addr;
+	i2c_buf[3] = 230 + mb_twi_controller_asctech_addr + 
+	             mb_twi_controller_asctech_new_addr;
+	mb_twi_controller_asctech_addr = mb_twi_controller_asctech_new_addr;
+	i2c_transmit(MB_TWI_CONTROLLER_ADDR, 4, &mb_twi_i2c_done);
+	break;
+
       }
     }
     else {

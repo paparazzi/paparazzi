@@ -6,23 +6,24 @@ ARCHI=arm7
 
 FLASH_MODE = IAP
 
+MB=motor_bench
 
 main.ARCHDIR = $(ARCHI)
 main.ARCH = arm7tdmi
-main.TARGET = mb1
-main.TARGETDIR = mb1
+main.TARGET = mb
+main.TARGETDIR = mb
 
-main.CFLAGS += -DCONFIG=\"conf_motor_bench.h\"
-main.srcs = main_motor_bench.c
+main.CFLAGS += -DCONFIG=\"conf_motor_bench.h\" -I$(MB)
+main.srcs = $(MB)/main_motor_bench.c
 
-main.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(4e-3)'
+main.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(1./250.)'
 main.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
 
 main.CFLAGS += -DLED
 
 main.srcs += $(SRC_ARCH)/armVIC.c
 
-main.CFLAGS += -DUSE_UART0 -DUART0_BAUD=B38400
+main.CFLAGS += -DUSE_UART0 -DUART0_BAUD=B115200
 main.srcs += $(SRC_ARCH)/uart_hw.c
 
 main.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart0 
@@ -32,9 +33,10 @@ main.CFLAGS += -DDATALINK=PPRZ -DPPRZ_UART=Uart0
 
 main.srcs += $(SRC_ARCH)/mb_servo.c
 
+main.CFLAGS += -DUSE_TWI_CONTROLLER
 main.CFLAGS += -DI2C_SCLL=100 -DI2C_SCLH=100
 #main.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c $(SRC_ARCH)/mb_twi_controller.c
-main.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c $(SRC_ARCH)/mb_buss_twi_controller.c
+main.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c $(MB)/mb_twi_controller_asctech.c
 
 main.CFLAGS += -DMB_TACHO
 main.srcs += $(SRC_ARCH)/mb_tacho.c
