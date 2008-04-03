@@ -7,6 +7,8 @@
 #include <Ivy/ivy.h>
 #include <Ivy/ivyglibloop.h>
 
+#include "tuning.h"
+
 //#include "sliding_plot.h"
 
 #define MB_MODES_IDLE   0
@@ -14,6 +16,18 @@
 #define MB_MODES_RAMP   2
 #define MB_MODES_STEP   3
 #define MB_MODES_PRBS   4
+
+#define AS_MOT_FRONT 0
+#define AS_MOT_BACK  1
+#define AS_MOT_LEFT  2
+#define AS_MOT_RIGHT 3
+
+#define AS_CMD_TEST_ADDR 1
+#define AS_CMD_REVERSE   2
+#define AS_CMD_SET_ADDR  3
+
+
+
 
 const guint mb_id = 145;
 
@@ -42,6 +56,12 @@ static void on_mode_changed (GtkRadioButton  *radiobutton, gpointer user_data);
 static void on_MOTOR_BENCH_STATUS(IvyClientPtr app, void *user_data, int argc, char *argv[]);
 static gboolean timeout_callback(gpointer data);
 static void on_log_button_toggled (GtkWidget *widget, gpointer data);
+
+static void on_as_test_button_clicked (GtkWidget *widget, gpointer data);
+static void on_as_reverse_button_clicked (GtkWidget *widget, gpointer data);
+static void on_as_addr_changed (GtkRadioButton  *radiobutton, gpointer user_data);
+
+
 static GtkWidget* build_gui ( void );
 
 static struct motor_bench_state mb_state;
@@ -51,8 +71,7 @@ static void on_mode_changed (GtkRadioButton  *radiobutton, gpointer user_data) {
   if (!gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(radiobutton)))
     return;
   guint mode = (guint)user_data;
-  IvySendMsg("1ME RAW_DATALINK %d SETTING;0;0;%d", mb_id, mode);
-  //  g_message("on mode changed %d" , mode);
+  IvySendMsg("dl DL_SETTING %d %d %d", mb_id, PPRZ_MB_MODES_MODE, mode);
 }
 
 #if 0
@@ -125,6 +144,27 @@ static void on_log_button_toggled (GtkWidget *widget, gpointer data) {
      }
    }
 }
+
+
+static void on_as_test_button_clicked (GtkWidget *widget, gpointer data) {
+  IvySendMsg("dl DL_SETTING %d %d %d", mb_id, PPRZ_MB_TWI_CONTROLLER_ASCTECH_COMMAND_TYPE, AS_CMD_TEST_ADDR);
+}
+
+static void on_as_reverse_button_clicked (GtkWidget *widget, gpointer data) {
+  IvySendMsg("dl DL_SETTING %d %d %d", mb_id, PPRZ_MB_TWI_CONTROLLER_ASCTECH_COMMAND_TYPE, AS_CMD_REVERSE);
+}
+
+
+static void on_as_addr_changed (GtkRadioButton  *radiobutton, gpointer user_data) {
+  if (!gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(radiobutton)))
+    return;
+  guint new_addr = (guint)user_data;
+  IvySendMsg("dl DL_SETTING %d %d %d", mb_id, PPRZ_MB_TWI_CONTROLLER_ASCTECH_ADDR, new_addr);
+}
+
+
+
+
 
 int main (int argc, char** argv) {
 
@@ -296,5 +336,58 @@ static GtkWidget* build_gui ( void ) {
   mb_gui.entry_log = gtk_entry_new( );
   gtk_container_add (GTK_CONTAINER (bbox), mb_gui.entry_log);
   gtk_entry_set_text( GTK_ENTRY(mb_gui.entry_log), "mb_log.txt" );
+
+
+
+  //
+  // Asctech
+  //
+  
+  GtkWidget *asctech_frame = gtk_frame_new ("Asctech");
+  gtk_container_set_border_width (GTK_CONTAINER (asctech_frame), 10);
+  gtk_box_pack_start (GTK_BOX (vbox1), asctech_frame, TRUE, TRUE, 0);
+
+
+  GtkWidget* as_vbox2 = gtk_vbox_new (FALSE, 0);
+  gtk_container_add (GTK_CONTAINER (asctech_frame), as_vbox2);
+
+  GSList *rb_addr_group = NULL;
+  GtkWidget* rb_front = gtk_radio_button_new_with_mnemonic (NULL, "front");
+  gtk_box_pack_start (GTK_BOX (as_vbox2), rb_front, TRUE, TRUE, 0);
+  gtk_radio_button_set_group (GTK_RADIO_BUTTON (rb_front), rb_addr_group);
+  rb_addr_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (rb_front));
+  GtkWidget* rb_back = gtk_radio_button_new_with_mnemonic (NULL, "back");
+  gtk_box_pack_start (GTK_BOX (as_vbox2), rb_back, TRUE, TRUE, 0);
+  gtk_radio_button_set_group (GTK_RADIO_BUTTON (rb_back), rb_addr_group);
+  rb_addr_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (rb_back));
+  GtkWidget* rb_left = gtk_radio_button_new_with_mnemonic (NULL, "left");
+  gtk_box_pack_start (GTK_BOX (as_vbox2), rb_left, TRUE, TRUE, 0);
+  gtk_radio_button_set_group (GTK_RADIO_BUTTON (rb_left), rb_addr_group);
+  rb_addr_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (rb_left));
+  GtkWidget* rb_right = gtk_radio_button_new_with_mnemonic (NULL, "right");
+  gtk_box_pack_start (GTK_BOX (as_vbox2), rb_right, TRUE, TRUE, 0);
+  gtk_radio_button_set_group (GTK_RADIO_BUTTON (rb_right), rb_addr_group);
+  rb_addr_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (rb_right));
+
+  g_signal_connect ((gpointer) rb_front, "toggled", G_CALLBACK (on_as_addr_changed), (gpointer)AS_MOT_FRONT);
+  g_signal_connect ((gpointer) rb_back,  "toggled", G_CALLBACK (on_as_addr_changed), (gpointer)AS_MOT_BACK);
+  g_signal_connect ((gpointer) rb_left,  "toggled", G_CALLBACK (on_as_addr_changed), (gpointer)AS_MOT_LEFT);
+  g_signal_connect ((gpointer) rb_right, "toggled", G_CALLBACK (on_as_addr_changed), (gpointer)AS_MOT_RIGHT);
+
+
+
+  GtkWidget* as_bbox = gtk_hbutton_box_new (); 
+  gtk_box_pack_start (GTK_BOX (as_vbox2), as_bbox, TRUE, TRUE, 0);
+  //gtk_container_add (GTK_CONTAINER (asctech_frame), as_bbox);
+
+  GtkWidget* test_button = gtk_toggle_button_new_with_label( "Test" );
+  gtk_container_add (GTK_CONTAINER (as_bbox), test_button);
+  g_signal_connect (G_OBJECT (test_button), "clicked", G_CALLBACK (on_as_test_button_clicked), NULL);
+
+  GtkWidget* reverse_button = gtk_toggle_button_new_with_label( "Reverse" );
+  gtk_container_add (GTK_CONTAINER (as_bbox), reverse_button);
+  g_signal_connect (G_OBJECT (reverse_button), "clicked", G_CALLBACK (on_as_reverse_button_clicked), NULL);
+
+
   return window1;
 }
