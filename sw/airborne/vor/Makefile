@@ -23,6 +23,12 @@ vor_filter_params.c:
 test_filter: test_filter.c vor_filter.c vor_filter_params.c
 	gcc $(CFLAGS) $^ -o $@ $(LDFLAGS)
 
+play_vor: play_vor.c
+	gcc $(CFLAGS) $^ -o $@ $(LDFLAGS)  -lsndfile -lasound
+
+play_audio: sndfile-play.c
+	gcc $(CFLAGS) $^ -o $@ $(LDFLAGS)  -lsndfile -lasound
+
 clean:
 	rm -f vor_lf              \
               gen_test_samples    \
