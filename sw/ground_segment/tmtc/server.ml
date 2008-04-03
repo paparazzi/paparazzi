@@ -368,6 +368,10 @@ let log_and_parse = fun logging ac_name (a:Aircraft.aircraft) msg values ->
 	    update_waypoint a (ivalue "wp_id") p (fvalue "alt")
 	| None -> () (** Can't use this message  *)
       end
+  | "FORMATION_SLOT_TM" ->
+      Dl_Pprz.message_send "ground_dl" "FORMATION_SLOT" values
+  | "FORMATION_STATUS_TM" ->
+      Dl_Pprz.message_send "ground_dl" "FORMATION_STATUS" values
   | _ -> ()
 
 (** Callback for a message from a registered A/C *)

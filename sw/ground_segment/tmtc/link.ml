@@ -320,16 +320,16 @@ let get_fp = fun device _sender vs ->
 	  and course = f "course"
 	  and alt = f "alt"
 	  and gspeed = f "speed"
-    and itow = i32 "itow" in
+          and itow = i32 "itow" in
 	  let utm = Latlong.utm_of WGS84 {posn_lat=lat; posn_long=long} in
 	  let vs = ["ac_id", Pprz.Int ac_id;
 		    "utm_east", cm_of_m utm.utm_x;
 		    "utm_north", cm_of_m utm.utm_y;
 		    "course", Pprz.Int (truncate (10. *. course));
 		    "alt", cm_of_m alt;
-        "speed", cm_of_m gspeed;
-        "itow", Pprz.Int32 itow] in
-	  let msg_id, _ = Dl_Pprz.message_of_name "ACINFO" in
+                    "speed", cm_of_m gspeed;
+                    "itow", Pprz.Int32 itow] in
+          let msg_id, _ = Dl_Pprz.message_of_name "ACINFO" in
 	  let s = Dl_Pprz.payload_of_values msg_id my_id vs in
 	  send dest_id device ac_device s Low
 	with
@@ -384,6 +384,30 @@ let forward_uplink = fun device ->
   set_forwarder "SETTING";
   set_forwarder "BLOCK";
   set_forwarder "WIND_INFO"
+
+let broadcast_uplink = fun device ->
+  let broadcast = fun name sender vs ->
+    Debug.call 'f' (fun f -> fprintf f "broadcast %s\n" name);
+    let ac_id = Pprz.int_assoc "ac_id" vs in
+    List.iter 
+    (fun (dest_id, _) ->
+      if dest_id <> ac_id then (** Do not send to itself *)
+        try
+          Debug.trace 'b' (sprintf "Broadcast %d for %d" ac_id dest_id);
+          let ac_device = airborne_device dest_id airframes device.transport in
+          let msg_id, _ = Dl_Pprz.message_of_name name in
+          let s = Dl_Pprz.payload_of_values msg_id my_id vs in
+          send dest_id device ac_device s Low
+        with
+        _NotSendingToThis -> ())
+    airframes in
+
+  let set_broadcast = fun name ->
+    ignore (Dl_Pprz.message_bind name (broadcast name)) in
+
+  set_broadcast "FORMATION_SLOT";
+  set_broadcast "FORMATION_STATUS"
+
 
 let send_ping_msg = fun device ->
   Hashtbl.iter

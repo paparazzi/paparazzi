@@ -24,6 +24,7 @@
 #include "ap_downlink.h"
 #include "sim_uart.h"
 #include "latlong.h"
+#include "formation.h"
 
 #include <caml/mlvalues.h>
 #include <caml/memory.h>
@@ -157,3 +158,19 @@ value set_wind(value east, value north) {
   datalink_time = 0;
   return Val_unit;
 }
+
+value set_formation_slot(value ac_id, value mode, value se, value sn, value sa) {
+  uint8_t id = Int_val(ac_id);
+  UpdateSlot(id, Double_val(se), Double_val(sn), Double_val(sa));
+  if (id == Int_val(leader_id)) form_mode = Int_val(mode);
+  datalink_time = 0;
+  return Val_unit;
+}
+
+value set_formation_status(value ac_id, value leader, value status) {
+  if (Int_val(leader) == leader_id) formation[Int_val(ac_id)].status = Int_val(status);
+  else formation[Int_val(ac_id)].status = UNSET;
+  datalink_time = 0;
+  return Val_unit;
+}
+

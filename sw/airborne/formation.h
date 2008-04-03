@@ -10,6 +10,9 @@
 #include "nav.h"
 #include "traffic_info.h"
 
+#define FORM_MODE_GLOBAL 1
+#define FORM_MODE_COURSE 2
+
 extern float coef_form_alt,coef_form_pos,coef_form_speed,coef_form_course;
 extern float form_prox;
 extern int form_mode;
@@ -29,6 +32,12 @@ struct slot_ formation[NB_ACS];
 int formation_init(void);
 
 int add_slot(uint8_t _id, float slot_e, float slot_n, float slot_a);
+
+#define UpdateSlot(_id, _se, _sn, _sa) { \
+  formation[_id].east = _se; \
+  formation[_id].north = _sn; \
+  formation[_id].alt = _sa; \
+}
 
 int start_formation(void);
 

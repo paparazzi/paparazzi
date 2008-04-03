@@ -195,6 +195,24 @@ module Make (A:Data.MISSION) (FM: FlightModel.SIG) = struct
       | x::_ -> fprintf stderr "Sim: Warning, ingoring RAW_DATALINK '%s' message" x
       | [] -> ()
 
+  external set_formation_slot : int -> int -> float -> float -> float -> unit = "set_formation_slot"
+  let get_formation_slot = fun _sender vs ->
+    let ac_id = int_of_string (Pprz.string_assoc "ac_id" vs) in
+    if ac_id <> !my_id then
+      let f = fun a -> Pprz.float_assoc a vs in
+      let mode = Pprz.int_assoc "mode" vs
+      and se = f "slot_east"
+      and sn = f "slot_north"
+      and sa = f "slot_alt" in
+      set_formation_slot ac_id mode se sn sa
+
+  external set_formation_status : int -> int -> int -> unit = "set_formation_status"
+  let get_formation_status = fun _sender vs ->
+    let ac_id = int_of_string (Pprz.string_assoc "ac_id" vs) in
+    if ac_id <> !my_id then
+      let leader = Pprz.int_assoc "leader_id" vs
+      and status = Pprz.int_assoc "status" vs in
+      set_formation_status ac_id leader status
 
 
   let boot = fun time_scale ->
@@ -204,7 +222,9 @@ module Make (A:Data.MISSION) (FM: FlightModel.SIG) = struct
     ignore (Dl_Pprz.message_bind "MOVE_WP" get_move_wp);
     ignore (Dl_Pprz.message_bind "BLOCK" get_block);
     ignore (Dl_Pprz.message_bind "SETTING" get_setting);
-    ignore (Ground_Pprz.message_bind "RAW_DATALINK" get_raw_datalink)
+    ignore (Ground_Pprz.message_bind "RAW_DATALINK" get_raw_datalink);
+    ignore (Dl_Pprz.message_bind "FORMATION_SLOT" get_formation_slot);
+    ignore (Dl_Pprz.message_bind "FORMATION_STATUS" get_formation_status)
 
 (* Functions called by the simulator *)
   let commands = fun s -> rcommands := s

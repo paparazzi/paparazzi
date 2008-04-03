@@ -6,6 +6,12 @@
 
 #include <math.h>
 
+#ifndef DOWNLINK_DEVICE
+#define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
+#endif
+//#include "uart.h"
+#include "downlink.h"
+
 #include "formation.h"
 #include "estimator.h"
 #include "fw_h_ctl.h"
@@ -14,6 +20,7 @@
 #include "gps.h"
 #include "flight_plan.h"
 #include "airframe.h"
+#include "dl_protocol.h"
 
 #include <stdio.h>
 
@@ -28,6 +35,7 @@ float coef_form_course;
 float coef_form_alt;
 int form_mode;
 uint8_t leader_id;
+float old_cruise, old_alt;
 
 #ifndef FORM_CARROT
 #define FORM_CARROT 2.
@@ -69,10 +77,13 @@ int formation_init(void) {
   coef_form_alt = FORM_ALTITUDE_PGAIN;
   form_prox = FORM_PROX;
   form_mode = FORM_MODE;
+  old_cruise = V_CTL_AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE;
+  old_alt = GROUND_ALT + SECURITY_HEIGHT;
   return FALSE;
 }
 
 int add_slot(uint8_t _id, float slot_e, float slot_n, float slot_a) {
+  DOWNLINK_SEND_FORMATION_SLOT_TM(&_id, &form_mode, &slot_e, &slot_n, &slot_a);
   formation[_id].status = IDLE;
   formation[_id].east = slot_e;
   formation[_id].north = slot_n;
@@ -82,23 +93,36 @@ int add_slot(uint8_t _id, float slot_e, float slot_n, float slot_a) {
 
 int start_formation(void) {
   int i;
+  uint8_t ac_id = AC_ID;
   for (i = 0; i < NB_ACS; ++i) {
     if (formation[i].status == IDLE) formation[i].status = ACTIVE;
   }
+  DOWNLINK_SEND_FORMATION_STATUS_TM(&ac_id,&leader_id,&formation[AC_ID].status);
+  // store current cruise and alt
+  old_cruise = v_ctl_auto_throttle_cruise_throttle;
+  old_alt = nav_altitude;
   return FALSE;
 }
 
 int stop_formation(void) {
   int i;
+  uint8_t ac_id = AC_ID;
   for (i = 0; i < NB_ACS; ++i) {
     if (formation[i].status == ACTIVE) formation[i].status = IDLE;
   }
+  DOWNLINK_SEND_FORMATION_STATUS_TM(&ac_id,&leader_id,&formation[AC_ID].status);
+  // restore cruise and alt
+  v_ctl_auto_throttle_cruise_throttle = old_cruise;
+  old_cruise = V_CTL_AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE;
+  nav_altitude = old_alt;
+  old_alt = GROUND_ALT + SECURITY_HEIGHT;
   return FALSE;
 }
 
 
 int formation_flight(void) {
 
+  static uint8_t _1Hz   = 0;
   int nb = 0, i;
   float ch = cos(estimator_hspeed_dir);
   float sh = sin(estimator_hspeed_dir);
@@ -109,17 +133,29 @@ int formation_flight(void) {
   form_speed_n = estimator_hspeed_mod * ch;
   form_speed_e = estimator_hspeed_mod * sh;
 
+  // broadcast info
+  uint8_t ac_id = AC_ID;
+  DOWNLINK_SEND_FORMATION_STATUS_TM(&ac_id,&leader_id,&formation[AC_ID].status);
+  if (++_1Hz>=4) {
+    _1Hz=0;
+    DOWNLINK_SEND_FORMATION_SLOT_TM(&ac_id, &form_mode,
+        &formation[AC_ID].east,
+        &formation[AC_ID].north,
+        &formation[AC_ID].alt);
+  }
+
   // set info for this AC
   SetAcInfo(AC_ID, estimator_x, estimator_y, estimator_hspeed_dir, estimator_z, estimator_hspeed_mod, gps_itow);
-  if (formation[AC_ID].status != ACTIVE) return TRUE; // AC not ready
+  if (formation[AC_ID].status != ACTIVE) return FALSE; // AC not ready
 
   // get leader info
   struct ac_info_ * leader = get_ac_info(leader_id);
-  if (formation[leader_id].status == UNSET) return TRUE; // leader not ready
-  else if (formation[leader_id].status == IDLE) {
-      if(Max(((int)gps_itow - (int)leader->itow) / 1000., 0.) > FORM_CARROT) return TRUE; // still not ready
-      else formation[leader_id].status = ACTIVE;
-  }
+  if (formation[leader_id].status != ACTIVE) return FALSE; // leader not ready
+  //if (formation[leader_id].status == UNSET) return FALSE; // leader not ready
+  //else if (formation[leader_id].status == IDLE) {
+  //    if(Max(((int)gps_itow - (int)leader->itow) / 1000., 0.) > FORM_CARROT) return TRUE; // still not ready
+  //    else formation[leader_id].status = ACTIVE;
+  //}
 
   // compute slots in the right reference frame
   struct slot_ form[NB_ACS];
@@ -189,6 +225,9 @@ int formation_flight(void) {
     h_ctl_course_pgain = -coef_form_course;
     // fly to desired
     fly_to_xy(desired_x, desired_y);
+    desired_x = leader->east  + dx;
+    desired_y = leader->north + dy;
+    //fly_to_xy(desired_x, desired_y);
     // lateral correction
     //float diff_heading = asin((dx*ch - dy*sh) / sqrt(dx*dx + dy*dy));
     //float diff_course = leader->course - estimator_hspeed_dir;
