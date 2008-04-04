@@ -21,7 +21,7 @@ vor_filter_params.c:
 	scilab -nw -nogui -nwni -f gen_filter_params.sce
 
 test_filter: test_filter.c vor_filter.c vor_filter_params.c
-	gcc $(CFLAGS) $^ -o $@ $(LDFLAGS)
+	gcc $(CFLAGS) $^ -o $@ $(LDFLAGS) -lsndfile
 
 play_vor: play_vor.c
 	gcc $(CFLAGS) $^ -o $@ $(LDFLAGS)  -lsndfile -lasound

@@ -1,37 +1,63 @@
-#include "vor_lf_filter_params.h"
-#include "vor_lf_filter.h"
-
 #include <math.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <sndfile.h>
+#include <inttypes.h>
 
 
-#include "sample_sound.h"
+#include "vor_filter_params.h"
+#include "vor_filter.h"
+#include "vor_integer_filters.h"
 
-//#define NB_SAMPLES 1000
+
+
+static short*    wav_buf;
+static float*    float_buf;
+static uint16_t* adc_buf; 
+unsigned nb_samples;
+
+static void read_wave(const char* filename) {
+
+  SNDFILE *sndfile ;
+  SF_INFO sfinfo ;
+  sndfile = sf_open (filename, SFM_READ, &sfinfo);
+  nb_samples = sfinfo.frames;
+  wav_buf = malloc(sizeof(short)*nb_samples);
+  sf_read_short (sndfile, wav_buf, nb_samples);
+
+  float_buf = malloc(sizeof(float)*nb_samples);
+  adc_buf = malloc(sizeof(uint16_t)*nb_samples);
+
+  int i;
+  for (i=0; i<nb_samples; i++) {
+    float_buf[i] = (float)wav_buf[i] / (float)(1<<15);
+    adc_buf[i] = float_buf[i] * 1024 * (1<<5);
+  }
+
+}
+
+
+
 
 int main(int argc, char** argv) {
 
-  //  FLOAT_T samples[NB_SAMPLES];
+  read_wave("signal_VOR_BF_50_200dB.wav");
+
+  struct VorFilter vor_filter_bp_var;
+  vor_filter_init(&vor_filter_bp_var, 
+		  BP_VAR_NUM_LEN, BP_VAR_DEN_LEN, 
+		  BP_VAR_NUM, BP_VAR_DEN);
 
   int i;
-  FLOAT_T te = 1/29880.;
-  FLOAT_T f0 = 300.;
+  float te = 1/29880.;
 
-  //  
-  //  for (i=0; i<NB_SAMPLES; i++) {
-  //    FLOAT_T t = i * te;
-  //    samples[i] = sin(2*M_PI*f0*t);
-  //  } 
+  for (i=0; i<nb_samples; i++) {
+    float t = i * te;
+    float yi_f = vor_filter_run(&vor_filter_bp_var, float_buf[i]);
+    int32_t yi_i = filter_bp_var(adc_buf[i]);
+    //    yi_i = yi_i>>21;
 
-  struct Filter vor_lf_filter_bp_var;
-  vor_lf_filter_init(&vor_lf_filter_bp_var, 
-		     BP_VAR_NUM_LEN, BP_VAR_DEN_LEN, 
-		     BP_VAR_NUM, BP_VAR_DEN);
-
-  for (i=0; i<NB_SAMPLES; i++) {
-    FLOAT_T t = i * te;
-    FLOAT_T yi = vor_lf_filter_run(&vor_lf_filter_bp_var, samples[i]);
-    printf("%f %f %f\n", t, samples[i], yi);
+    printf("%f %f %f %d %d\n", t, float_buf[i], yi_f, adc_buf[i], yi_i);
   }
 
   return 0;

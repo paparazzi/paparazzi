@@ -30,7 +30,7 @@ int main( void ) {
       int32_t y0_ref =  filter_bp_ref(vor_adc_sample);
       y0_ref = y0_ref >> 16;
       int32_t y0_decim =  filter_bp_ref(vor_adc_sample);
-      y0_decim = y0_decim << 16;
+      y0_decim = y0_decim >> 16;
 
       VorDacSet(vor_adc_sample);
       LED_ON(1);
