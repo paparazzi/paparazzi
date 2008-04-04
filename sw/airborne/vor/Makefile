@@ -8,6 +8,9 @@ VOR_LF_SRCS = main.c \
 	      vor_lf_filter.c \
 
 
+test_123: test_123.c vor_filter.c vor_filter_params.c
+	gcc $(CFLAGS) $^ -o $@ $(LDFLAGS)
+
 vor_lf: $(VOR_LF_SRCS) 
 	gcc $(CFLAGS) $^ -o $@ $(LDFLAGS)
 

@@ -5,10 +5,8 @@
 #include <inttypes.h>
 
 
-#include "vor_filter_params.h"
-#include "vor_filter.h"
 #include "vor_integer_filters.h"
-
+#include "vor_float_filters.h"
 
 
 static short*    wav_buf;
@@ -31,7 +29,7 @@ static void read_wave(const char* filename) {
   int i;
   for (i=0; i<nb_samples; i++) {
     float_buf[i] = (float)wav_buf[i] / (float)(1<<15);
-    adc_buf[i] = float_buf[i] * 1024 * (1<<5);
+    adc_buf[i] = float_buf[i] * VIF_SFACT * (1<<5);
   }
 
 }
@@ -43,21 +41,20 @@ int main(int argc, char** argv) {
 
   read_wave("signal_VOR_BF_50_200dB.wav");
 
-  struct VorFilter vor_filter_bp_var;
-  vor_filter_init(&vor_filter_bp_var, 
-		  BP_VAR_NUM_LEN, BP_VAR_DEN_LEN, 
-		  BP_VAR_NUM, BP_VAR_DEN);
-
   int i;
   float te = 1/29880.;
 
   for (i=0; i<nb_samples; i++) {
     float t = i * te;
-    float yi_f = vor_filter_run(&vor_filter_bp_var, float_buf[i]);
-    int32_t yi_i = filter_bp_var(adc_buf[i]);
-    //    yi_i = yi_i>>21;
+    //    float   yi_f = vor_float_filter_bp_var(float_buf[i]);
+    //    int32_t yi_i = vor_int_filter_bp_var(adc_buf[i]);
 
-    printf("%f %f %f %d %d\n", t, float_buf[i], yi_f, adc_buf[i], yi_i);
+    float   yi_f = vor_float_filter_bp_ref(float_buf[i]);
+    int32_t yi_i = vor_int_filter_bp_ref(adc_buf[i]);
+
+
+    printf("%f\t%f\t%f\t%d\t%d\t%f\n", 
+	   t, float_buf[i], yi_f, adc_buf[i], yi_i, (float)yi_i / (float)VIF_SFACT / (1<<5));
   }
 
   return 0;
