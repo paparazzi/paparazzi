@@ -302,7 +302,7 @@
 
 // A/D0 Converter Registers
 #define AD0CR            ADC0->cr       /* Control Register          */
-#define AD0DR            ADC0->gdr      /* Global Data Register      */
+#define AD0GDR           ADC0->gdr      /* Global Data Register      */
 #define ADGSR            ADC0->gsr      /* ADC global start resister */
 #define AD0INTEN         ADC0->inten    /* Interrupt Enable Register */
 #define AD0DR0           ADC0->dr0      /* Channel 0 Data Register   */
@@ -319,7 +319,7 @@
 
 // A/D1 Converter Registers
 #define AD1CR            ADC1->cr       /* Control Register */
-#define AD1DR            ADC1->dr       /* Data Register */
+#define AD1GDR           ADC1->gdr      /* Data Register */
 
 
 ///////////////////////////////////////////////////////////////////////////////

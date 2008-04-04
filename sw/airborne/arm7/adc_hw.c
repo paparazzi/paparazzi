@@ -189,7 +189,7 @@ void adc_init( void ) {
 
 void adcISR0 ( void ) {
   ISR_ENTRY();
-  uint32_t tmp = AD0DR;
+  uint32_t tmp = AD0GDR;
   uint8_t  channel = (uint8_t)(tmp >> 24) & 0x07;
   uint16_t value = (uint16_t)(tmp >> 6) & 0x03FF;
   adc0_val[channel] = value;
@@ -210,7 +210,7 @@ void adcISR0 ( void ) {
 
 void adcISR1 ( void ) {
   ISR_ENTRY();
-  uint32_t tmp = AD1DR;
+  uint32_t tmp = AD1GDR;
   uint8_t channel = (uint8_t)(tmp >> 24) & 0x07;
   uint16_t value = (uint16_t)(tmp >> 6) & 0x03FF;
   adc1_val[channel] = value;
