@@ -301,9 +301,19 @@
 #define ADC0            ((adcRegs_t *)0xE0034000)
 
 // A/D0 Converter Registers
-#define AD0CR            ADC0->cr       /* Control Register */
-#define AD0DR            ADC0->dr       /* Data Register */
+#define AD0CR            ADC0->cr       /* Control Register          */
+#define AD0DR            ADC0->gdr      /* Global Data Register      */
 #define ADGSR            ADC0->gsr      /* ADC global start resister */
+#define AD0INTEN         ADC0->inten    /* Interrupt Enable Register */
+#define AD0DR0           ADC0->dr0      /* Channel 0 Data Register   */
+#define AD0DR1           ADC0->dr1      /* Channel 1 Data Register   */
+#define AD0DR2           ADC0->dr2      /* Channel 2 Data Register   */
+#define AD0DR3           ADC0->dr3      /* Channel 3 Data Register   */
+#define AD0DR4           ADC0->dr4      /* Channel 4 Data Register   */
+#define AD0DR5           ADC0->dr5      /* Channel 5 Data Register   */
+#define AD0DR6           ADC0->dr6      /* Channel 6 Data Register   */
+#define AD0DR7           ADC0->dr7      /* Channel 7 Data Register   */
+#define AD0STAT          ADC0->stat     /* Status Register           */
 
 #define ADC1            ((adcRegs_t *)0xE0060000)
 
