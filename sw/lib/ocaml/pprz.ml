@@ -42,9 +42,11 @@ type field = {
     fformat : format;
   }
 
+type link_mode = Forwarded | Broadcasted
 type message = {
     name : string; (** Lowercase *)
-    fields : (string * field) list
+    fields : (string * field) list;
+    link : link_mode option
   }
 
 type type_descr = {
@@ -179,17 +181,27 @@ let int32_assoc = fun (a:string) vs ->
 
 let string_assoc = fun (a:string) (vs:values) -> string_of_value (assoc a vs)
 
-
+let link_mode_of_string = function
+    "forwarded" -> Forwarded
+  | "broadcasted" -> Broadcasted
+  | x -> invalid_arg (sprintf "link_mode_of_string: %s" x)
 
 let parse_class = fun xml_class ->
   let by_id = Hashtbl.create 13
   and by_name = Hashtbl.create 13 in
   List.iter
     (fun xml_msg ->
-      let name = ExtXml.attrib xml_msg "name" in
+      let name = ExtXml.attrib xml_msg "name"
+      and link = 
+	try 
+	  Some (link_mode_of_string (Xml.attrib xml_msg "link"))
+	with
+	  Xml.No_attribute("link") -> None
+      in
       let msg = {
 	name = name;
-	fields = List.map field_of_xml (Xml.children xml_msg)
+	fields = List.map field_of_xml (Xml.children xml_msg);
+	link = link
       } in
       let id = int_of_string (ExtXml.attrib xml_msg "id") in
       if Hashtbl.mem by_id id then
@@ -343,6 +355,7 @@ module type CLASS = sig
 end
 
 module type MESSAGES = sig
+  val messages : (message_id, message) Hashtbl.t
   val message_of_id : message_id -> message
   val message_of_name : string ->  message_id * message
   val values_of_payload : Serial.payload -> message_id * ac_id * values
@@ -381,6 +394,7 @@ module MessagesOfXml(Class:CLASS_Xml) = struct
       parse_class (ExtXml.child Class.xml ~select "class")
     with
       Not_found -> failwith (sprintf "Unknown message class: %s" Class.name)
+  let messages = messages_by_id
   let message_of_id = fun id -> try Hashtbl.find messages_by_id id with Not_found -> fprintf stderr "message_of_id :%d\n%!" id; raise Not_found
   let message_of_name = fun name ->
     try

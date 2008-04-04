@@ -366,7 +366,7 @@ let hangup = fun _ ->
   exit 1
 
 
-let forward_uplink = fun device ->
+let message_uplink = fun device ->
   let forwarder = fun name sender vs ->
     Debug.call 'f' (fun f -> fprintf f "forward %s\n" name);
     let ac_id = Pprz.int_assoc "ac_id" vs in
@@ -380,12 +380,6 @@ let forward_uplink = fun device ->
   let set_forwarder = fun name ->
     ignore (Dl_Pprz.message_bind name (forwarder name)) in
 
-  set_forwarder "MOVE_WP";
-  set_forwarder "SETTING";
-  set_forwarder "BLOCK";
-  set_forwarder "WIND_INFO"
-
-let broadcast_uplink = fun device ->
   let broadcast = fun name sender vs ->
     Debug.call 'f' (fun f -> fprintf f "broadcast %s\n" name);
     let ac_id = Pprz.int_assoc "ac_id" vs in
@@ -405,9 +399,13 @@ let broadcast_uplink = fun device ->
   let set_broadcast = fun name ->
     ignore (Dl_Pprz.message_bind name (broadcast name)) in
 
-  set_broadcast "FORMATION_SLOT";
-  set_broadcast "FORMATION_STATUS"
-
+  Hashtbl.iter
+    (fun _m_id msg ->
+      match msg.Pprz.link with
+	Some Pprz.Forwarded -> set_forwarder msg.Pprz.name
+      | Some Pprz.Broadcasted -> set_broadcast msg.Pprz.name
+      | _ -> ())
+    Dl_Pprz.messages
 
 let send_ping_msg = fun device ->
   Hashtbl.iter
@@ -499,7 +497,7 @@ let () =
     if !uplink then begin
       if !ac_info then
 	ignore (Ground_Pprz.message_bind "FLIGHT_PARAM" (get_fp device));
-      forward_uplink device
+      message_uplink device
     end;
 
     (** Init and Periodic tasks *)

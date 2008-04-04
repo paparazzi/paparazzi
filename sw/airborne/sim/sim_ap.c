@@ -6,6 +6,7 @@
 #include <sys/time.h>
 #include <sys/stat.h>
 #include <time.h>
+#include <string.h>
 #include "std.h"
 #include "inter_mcu.h"
 #include "autopilot.h"
@@ -24,7 +25,7 @@
 #include "ap_downlink.h"
 #include "sim_uart.h"
 #include "latlong.h"
-#include "formation.h"
+#include "datalink.h"
 
 #include <caml/mlvalues.h>
 #include <caml/memory.h>
@@ -118,59 +119,15 @@ value set_ac_info(value * argv, int argn) {
   return set_ac_info_native(argv[0], argv[1], argv[2], argv[3],argv[4], argv[5], argv[6]);
 }
 
+value set_datalink_message(value s) {
+  int n = string_length(s);
+  char *ss = String_val(s);
+  assert(n <= MSG_SIZE);
 
-/** c.f. datalink.c: dl_parse_msg(); FIXME should be factorized */
-value move_waypoint(value wp_id, value lat_deg, value lon_deg, value a) {
-  latlong_utm_of(RadOfDeg(Double_val(lat_deg)), RadOfDeg(Double_val(lon_deg)), nav_utm_zone0);
-  int wp_id_int = Int_val(wp_id);
-  float a_float = Double_val(a);
-  nav_move_waypoint(wp_id_int, latlong_utm_x, latlong_utm_y, a_float);
-  datalink_time = 0;
+  int i;
+  for(i = 0; i < n; i++) 
+    dl_buffer[i] = ss[i];
 
-  /* Waypoint range is limited. Computes the UTM pos back from the relative
-     coordinates */
-  latlong_utm_x = waypoints[wp_id_int].x + nav_utm_east0;
-  latlong_utm_y = waypoints[wp_id_int].y + nav_utm_north0;
-  DOWNLINK_SEND_WP_MOVED(&wp_id_int, &latlong_utm_x, &latlong_utm_y, &a_float, &nav_utm_zone0);
+  dl_parse_msg();
   return Val_unit;
 }
-
-value goto_block(value block_id) {
-  nav_goto_block(Int_val(block_id));
-  datalink_time = 0;
-  return Val_unit;
-}
-
-value dl_setting(value index __attribute__ ((unused)), 
-		 value val __attribute__ ((unused))) {
-  /** DlSetting macro may be empty: unused attr to get rid of the warnings */
-  uint8_t i = Int_val(index);
-  float var = Double_val(val);
-  DlSetting(i, var);
-  DOWNLINK_SEND_DL_VALUE(&i, &var);
-  datalink_time = 0;
-  return Val_unit;
-}
-
-value set_wind(value east, value north) {
-  wind_east = Double_val(east);
-  wind_north = Double_val(north);
-  datalink_time = 0;
-  return Val_unit;
-}
-
-value set_formation_slot(value ac_id, value mode, value se, value sn, value sa) {
-  uint8_t id = Int_val(ac_id);
-  UpdateSlot(id, Double_val(se), Double_val(sn), Double_val(sa));
-  if (id == Int_val(leader_id)) form_mode = Int_val(mode);
-  datalink_time = 0;
-  return Val_unit;
-}
-
-value set_formation_status(value ac_id, value leader, value status) {
-  if (Int_val(leader) == leader_id) formation[Int_val(ac_id)].status = Int_val(status);
-  else formation[Int_val(ac_id)].status = UNSET;
-  datalink_time = 0;
-  return Val_unit;
-}
-

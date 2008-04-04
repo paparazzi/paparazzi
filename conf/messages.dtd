@@ -9,7 +9,8 @@
 <!ELEMENT message (field*)>
 <!ATTLIST message
   name CDATA #REQUIRED
-  id CDATA #REQUIRED
+  id   CDATA #REQUIRED
+  link CDATA #IMPLIED
 >
 
 <!ELEMENT field EMPTY>

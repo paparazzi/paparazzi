@@ -37,7 +37,12 @@ type value =
     Int of int | Float of float | String of string | Int32 of int32
   | Array of value array
 type field = { _type : _type; fformat : format; }
-type message = { name : string; fields : (string * field) list; }
+type link_mode = Forwarded | Broadcasted
+type message = { 
+    name : string; 
+    fields : (string * field) list;
+    link : link_mode option
+  }
 (** Message specification *)
 
 val separator : string
@@ -94,6 +99,7 @@ module type CLASS_Xml = sig
 end
 
 module type MESSAGES = sig
+  val messages : (message_id, message) Hashtbl.t
   val message_of_id : message_id -> message
   val message_of_name : string ->  message_id * message
   val values_of_payload : Serial.payload -> message_id * ac_id * values

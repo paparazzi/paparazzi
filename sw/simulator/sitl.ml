@@ -29,6 +29,8 @@ open Printf
 module Ground_Pprz = Pprz.Messages(struct let name = "ground" end)
 module Dl_Pprz = Pprz.Messages(struct let name = "datalink" end)
 
+let ground_id = 0 (* cf tmtc/link.ml *)
+
 let ios = int_of_string
 let fos = float_of_string
 
@@ -161,74 +163,37 @@ module Make (A:Data.MISSION) (FM: FlightModel.SIG) = struct
       let utm = Latlong.utm_of WGS84 wgs84 in
       set_ac_info ac_id utm.utm_x utm.utm_y course alt gspeed itow
 
-  external move_waypoint : int -> float -> float -> float -> unit = "move_waypoint"
-  let get_move_wp = fun _sender vs ->
-    let ac_id = int_of_string (Pprz.string_assoc "ac_id" vs) in
-    if ac_id = !my_id then
-      let f = fun a -> Pprz.float_assoc a vs in
-      let wp_id = Pprz.int_assoc "wp_id" vs
-      and lat = f "lat"
-      and long = f "lon"
-      and alt = Int32.to_float (Pprz.int32_assoc "alt" vs) /. 100. in
-      move_waypoint wp_id lat long alt
+  external set_message : string -> unit = "set_datalink_message"
+  let get_message = fun name link_mode _sender vs ->
+    let set = fun () ->
+      let msg_id, _ = Dl_Pprz.message_of_name name in
+      let s = Dl_Pprz.payload_of_values msg_id ground_id vs in
+      set_message (Serial.string_of_payload s) in
+    let ac_id = Pprz.int_assoc "ac_id" vs in
+    match link_mode with
+      Pprz.Forwarded when ac_id = !my_id -> set ()
+    | Pprz.Broadcasted when ac_id <> !my_id -> set ()
+    | _ -> ()
 
-  external goto_block : int -> unit = "goto_block"
-  let get_block = fun _sender vs ->
-    let ac_id = int_of_string (Pprz.string_assoc "ac_id" vs) in
-    if ac_id = !my_id then
-      goto_block (Pprz.int_assoc "block_id" vs)
-
-
-  external dl_setting : int -> float -> unit = "dl_setting"
-  let get_setting = fun _sender vs ->
-    let ac_id = int_of_string (Pprz.string_assoc "ac_id" vs) in
-    if ac_id = !my_id then
-      dl_setting (Pprz.int_assoc "index" vs) (Pprz.float_assoc "value" vs)
-
-  external set_wind : float -> float -> unit = "set_wind"
-  let get_raw_datalink = fun _sender vs ->
-    let ac_id = int_of_string (Pprz.string_assoc "ac_id" vs) in
-    if ac_id = !my_id then
-      match Str.split raw_datalink_msg_separator (Pprz.string_assoc "message" vs) with
-	"WIND_INFO"::_::_::wind_east::wind_north::_ -> (* FIXME *)
-	  set_wind (fos wind_east) (fos wind_north)
-      | x::_ -> fprintf stderr "Sim: Warning, ingoring RAW_DATALINK '%s' message" x
-      | [] -> ()
-
-  external set_formation_slot : int -> int -> float -> float -> float -> unit = "set_formation_slot"
-  let get_formation_slot = fun _sender vs ->
-    let ac_id = int_of_string (Pprz.string_assoc "ac_id" vs) in
-    if ac_id <> !my_id then
-      let f = fun a -> Pprz.float_assoc a vs in
-      let mode = Pprz.int_assoc "mode" vs
-      and se = f "slot_east"
-      and sn = f "slot_north"
-      and sa = f "slot_alt" in
-      set_formation_slot ac_id mode se sn sa
-
-  external set_formation_status : int -> int -> int -> unit = "set_formation_status"
-  let get_formation_status = fun _sender vs ->
-    let ac_id = int_of_string (Pprz.string_assoc "ac_id" vs) in
-    if ac_id <> !my_id then
-      let leader = Pprz.int_assoc "leader_id" vs
-      and status = Pprz.int_assoc "status" vs in
-      set_formation_status ac_id leader status
-
+  let message_bind = fun name link_mode ->
+    ignore (Dl_Pprz.message_bind name (get_message name link_mode))
 
   let boot = fun time_scale ->
     Stdlib.timer ~scale:time_scale servos_period (update_servos bat_button);
     Stdlib.timer ~scale:time_scale periodic_period periodic_task;
     ignore (Ground_Pprz.message_bind "FLIGHT_PARAM" get_flight_param);
-    ignore (Dl_Pprz.message_bind "MOVE_WP" get_move_wp);
-    ignore (Dl_Pprz.message_bind "BLOCK" get_block);
-    ignore (Dl_Pprz.message_bind "SETTING" get_setting);
-    ignore (Ground_Pprz.message_bind "RAW_DATALINK" get_raw_datalink);
-    ignore (Dl_Pprz.message_bind "FORMATION_SLOT" get_formation_slot);
-    ignore (Dl_Pprz.message_bind "FORMATION_STATUS" get_formation_status)
 
+    (* Forward or broacast messages according to "link" mode *)
+    Hashtbl.iter
+      (fun _m_id msg ->
+	match msg.Pprz.link with
+	  Some x -> message_bind msg.Pprz.name x
+	| _ -> ())
+      Dl_Pprz.messages;;
+      
 (* Functions called by the simulator *)
   let commands = fun s -> rcommands := s
-
+      
   external set_ir : int -> int -> int -> unit = "set_ir"
   let infrared = fun ir_left ir_front ir_top ->
     (** ADC neutral is not taken into account in the soft sim (c.f. sim_ir.c)*)
