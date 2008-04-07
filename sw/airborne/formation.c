@@ -9,7 +9,6 @@
 #ifndef DOWNLINK_DEVICE
 #define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
 #endif
-//#include "uart.h"
 #include "downlink.h"
 
 #include "formation.h"
@@ -160,7 +159,7 @@ int formation_flight(void) {
   // compute slots in the right reference frame
   struct slot_ form[NB_ACS];
   float cr = 0., sr = 1.;
-  if (form_mode == 1.) {
+  if (form_mode == FORM_MODE_COURSE) {
     cr = cos(leader->course);
     sr = sin(leader->course);
   }
@@ -236,10 +235,16 @@ int formation_flight(void) {
     //h_ctl_roll_setpoint += coef_form_course * diff_heading;
   }
   else {
-    desired_x += form[leader_id].east;
-    desired_y += form[leader_id].north;
+    // virtual leader at the center of the formation
+    estimator_x -= form[leader_id].east;
+    estimator_y -= form[leader_id].north;
     // fly to desired
     fly_to_xy(desired_x, desired_y);
+    // restore real position
+    estimator_x += form[leader_id].east;
+    estimator_y += form[leader_id].north;
+    //desired_x += form[leader_id].east;
+    //desired_y += form[leader_id].north;
   }
   //BoundAbs(h_ctl_roll_setpoint, h_ctl_roll_max_setpoint);
 

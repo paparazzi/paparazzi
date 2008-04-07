@@ -10,8 +10,8 @@
 #include "nav.h"
 #include "traffic_info.h"
 
-#define FORM_MODE_GLOBAL 1
-#define FORM_MODE_COURSE 2
+#define FORM_MODE_GLOBAL 0
+#define FORM_MODE_COURSE 1
 
 extern float coef_form_alt,coef_form_pos,coef_form_speed,coef_form_course;
 extern float form_prox;
