@@ -61,7 +61,7 @@ mclose(fid);
 fid = mopen(filename+'.c', 'w');
   fprintf(fid,'#include ""%s.h""\n\n', filename);
 for i=1:VOR_FILTER_NB
-  f = filters(i,1);
+  f = filters(i);
   fn = filter_name(i);
   print_poly(fid, fn+"_NUM", f.num, 0);
   print_poly(fid, fn+"_DEN", f.den, 0);
