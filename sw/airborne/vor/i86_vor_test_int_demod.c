@@ -15,8 +15,10 @@ int main(int argc, char** argv) {
     
     vor_int_demod_run (adc_buf[i]);
 
-    //    printf("%d %d\n", i, adc_buf[i]);
-
+    const float te = 512./15000000.;
+    const float ti = i * te;
+    //    printf("%f %d %f %d %d\n", ti, adc_buf[i], 0., vid_ref_err, vid_ref_phi);
+    printf("%f %d\n", ti, vid_ref_angle);
   }
 
   return 0;

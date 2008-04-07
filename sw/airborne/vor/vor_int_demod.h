@@ -31,6 +31,7 @@ extern void vor_int_demod_init( void);
 extern void vor_int_demod_run ( uint16_t sample);
 
 extern const int32_t vid_ref_freq;
+extern       int32_t vid_ref_angle;
 extern       int32_t vid_ref_phi;
 extern       int32_t vid_ref_err;
 extern const int32_t vid_ref_alpha;
