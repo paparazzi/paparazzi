@@ -219,11 +219,11 @@ ap.CFLAGS += -DINFRARED -DALT_KALMAN
 ap.srcs += infrared.c estimator.c
 
 ap.CFLAGS += -DNAV -DAGR_CLIMB -DLOITER_TRIM
-ap.srcs += nav.c fw_h_ctl.c fw_v_ctl.c nav_survey_rectangle.c
+ap.srcs += nav.c fw_h_ctl.c fw_v_ctl.c nav_survey_rectangle.c nav_line.c
 
 #formation
 ap.CFLAGS += -DFORMATION -DTRAFFIC_INFO
-ap.srcs += traffic_info.c formation.c
+ap.srcs += traffic_info.c formation.c snav.c
 
 # external module
 ap.srcs += external.c
@@ -237,7 +237,7 @@ ap.srcs += external.c
 # Config for SITL simulation
 include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
 sim.CFLAGS += -DCONFIG=\"tiny.h\" -DAGR_CLIMB -DLOITER_TRIM -DALT_KALMAN -DFORMATION -DTRAFFIC_INFO
-sim.srcs += nav_survey_rectangle.c external.c traffic_info.c formation.c
+sim.srcs += nav_survey_rectangle.c nav_line.c external.c traffic_info.c formation.c snav.c
 
   </makefile>
 </airframe>
