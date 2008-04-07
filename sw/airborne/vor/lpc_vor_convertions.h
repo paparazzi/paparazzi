@@ -1,5 +1,5 @@
-#ifndef VOR_CONVERTIONS_H
-#define VOR_CONVERTIONS_H
+#ifndef LPC_VOR_CONVERTIONS_H
+#define LPC_VOR_CONVERTIONS_H
 
 #include "LPC21xx.h"
 
@@ -24,5 +24,5 @@ extern volatile bool_t vor_adc_sample_available;
 
 extern void vor_adc_init( void );
 
-#endif /* VOR_CONVERTIONS_H */
+#endif /* LPC_VOR_CONVERTIONS_H */
 

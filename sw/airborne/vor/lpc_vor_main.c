@@ -10,11 +10,10 @@
 
 //#include "vor_demod.h"
 
-#include "vor_convertions.h"
-#include "vor_integer_filters.h"
+#include "lpc_vor_convertions.h"
+#include "vor_int_filters.h"
 
 static inline void main_init( void );
-static inline void main_periodic_task( void );
 
 static uint32_t t0, t1;
 
@@ -25,12 +24,18 @@ int main( void ) {
       LED_OFF(1);
 
       vor_adc_sample_available = FALSE;
-      int32_t y0_var = filter_bp_var(vor_adc_sample);
-      y0_var = y0_var >> 16;
-      int32_t y0_ref =  filter_bp_ref(vor_adc_sample);
+
+      int32_t y0_ref =  vor_int_filter_bp_ref(vor_adc_sample);
       y0_ref = y0_ref >> 16;
-      int32_t y0_decim =  filter_bp_ref(vor_adc_sample);
+
+      int32_t y0_err_ref =  vor_int_filter_lp_ref(vor_adc_sample);
+      y0_err_ref = y0_err_ref >> 16;
+
+      int32_t y0_decim =  vor_int_filter_lp_decim(vor_adc_sample);
       y0_decim = y0_decim >> 16;
+
+      int32_t y0_var = vor_int_filter_bp_var(vor_adc_sample);
+      y0_var = y0_var >> 16;
 
       VorDacSet(vor_adc_sample);
       LED_ON(1);

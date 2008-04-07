@@ -1,4 +1,4 @@
-#include "vor_convertions.h"
+#include "lpc_vor_convertions.h"
 
 #include "LPC21xx.h"
 #include "armVIC.h"
@@ -38,7 +38,7 @@ void vor_adc_init( void ) {
 
 void adcISR0 ( void ) {
   ISR_ENTRY();
-  uint32_t tmp = AD0DR;
+  uint32_t tmp = AD0GDR;
   //  uint32_t tmp = AD0DR3;
   //  uint8_t  channel = (uint8_t)(tmp >> 24) & 0x07;
   vor_adc_sample = (uint16_t)(tmp >> 6) & 0x03FF;
