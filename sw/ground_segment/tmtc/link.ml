@@ -276,7 +276,8 @@ module XB = struct (** XBee module *)
 	use_tele_message ~raw_data_size:(String.length frame_data + oversize_packet) (Serial.payload_of_string data)
 
 
-  let send = fun ac_id device rf_data ->
+  let send = fun ?ac_id device rf_data ->
+    let ac_id = match ac_id with None -> 0xffff | Some a -> a in
     let rf_data = Serial.string_of_payload rf_data in
     let frame_id = gen_frame_id () in
     let frame_data = Xbee.api_tx16 ~frame_id ac_id rf_data in
@@ -291,9 +292,8 @@ module XB = struct (** XBee module *)
 end (** XBee module *)
 
 
-
 let send = fun ac_id device ac_device payload priority ->
-  if  live_aircraft ac_id then
+  if live_aircraft ac_id then
     match ac_device with
       Uart ->
 	let o = Unix.out_channel_of_descr device.fd in
@@ -301,7 +301,18 @@ let send = fun ac_id device ac_device payload priority ->
 	Printf.fprintf o "%s" buf; flush o;
 	Debug.call 'l' (fun f -> fprintf f "mm sending: %s\n" (Debug.xprint buf));
     | XBeeDevice ->
-	XB.send ac_id device payload
+	XB.send ~ac_id device payload
+
+
+let broadcast = fun device payload priority ->
+    match device.transport with
+      Pprz ->
+        let o = Unix.out_channel_of_descr device.fd in
+        let buf = Pprz.Transport.packet payload in
+        Printf.fprintf o "%s" buf; flush o;
+        Debug.call 'l' (fun f -> fprintf f "mm sending: %s\n" (Debug.xprint buf));
+    | XBee ->
+        XB.send device payload
 
 
 (*************** Audio *******************************************************)
@@ -348,30 +359,20 @@ let message_uplink = fun device ->
   let set_forwarder = fun name ->
     ignore (Dl_Pprz.message_bind name (forwarder name)) in
 
-  let broadcast = fun name sender vs ->
+  let broadcaster = fun name sender vs ->
     Debug.call 'f' (fun f -> fprintf f "broadcast %s\n" name);
-    let ac_id = Pprz.int_assoc "ac_id" vs in
-    List.iter 
-    (fun (dest_id, _) ->
-      if dest_id <> ac_id then (** Do not send to itself *)
-        try
-          Debug.trace 'b' (sprintf "Broadcast %d for %d" ac_id dest_id);
-          let ac_device = airborne_device dest_id airframes device.transport in
-          let msg_id, _ = Dl_Pprz.message_of_name name in
-          let s = Dl_Pprz.payload_of_values msg_id my_id vs in
-          send dest_id device ac_device s Low
-        with
-        _NotSendingToThis -> ())
-    airframes in
+    let msg_id, _ = Dl_Pprz.message_of_name name in
+    let payload = Dl_Pprz.payload_of_values msg_id my_id vs in
+    broadcast device payload Low in
 
-  let set_broadcast = fun name ->
-    ignore (Dl_Pprz.message_bind name (broadcast name)) in
+  let set_broadcaster = fun name ->
+    ignore (Dl_Pprz.message_bind name (broadcaster name)) in
 
   Hashtbl.iter
     (fun _m_id msg ->
       match msg.Pprz.link with
 	Some Pprz.Forwarded -> set_forwarder msg.Pprz.name
-      | Some Pprz.Broadcasted -> if !ac_info then set_broadcast msg.Pprz.name
+      | Some Pprz.Broadcasted -> if !ac_info then set_broadcaster msg.Pprz.name
       | _ -> ())
     Dl_Pprz.messages
 
@@ -462,8 +463,6 @@ let () =
     ignore (Glib.Io.add_watch [`IN] read_fd (GMain.Io.channel_of_descr fd));
 
     if !uplink then begin
-      (*if !ac_info then
-	ignore (Ground_Pprz.message_bind "FLIGHT_PARAM" (get_fp device));*)
       message_uplink device
     end;
 
