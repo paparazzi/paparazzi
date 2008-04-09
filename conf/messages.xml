@@ -746,7 +746,7 @@
 
 
 <class name="datalink">
- <message name="ACINFO" ID="1">
+ <message name="ACINFO" ID="1" link="broadcasted">
   <field name="course" type="int16" unit="decideg"></field>
   <field name="utm_east"  type="int32" unit="cm"></field>
   <field name="utm_north"  type="int32" unit="cm"></field>

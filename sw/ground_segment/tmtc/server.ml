@@ -565,6 +565,17 @@ let send_aircraft_msg = fun ac ->
 		  "agl", f a.agl;
 		  "climb", f a.climb] in
     Ground_Pprz.message_send my_id "FLIGHT_PARAM" values;
+    (** build ACINFO messages *)
+    let cm_of_m = fun f -> Pprz.Int (truncate (100. *. f)) in
+    let ac_info = ["ac_id", Pprz.String ac;
+      "utm_east", cm_of_m a.pos.utm_x;
+      "utm_north", cm_of_m a.pos.utm_y;
+      "course", Pprz.Int (truncate (10. *. (Geometry_2d.rad2deg a.course)));
+      "alt", cm_of_m a.alt;
+      "speed", cm_of_m a.gspeed;
+      "climb", cm_of_m a.climb;
+      "itow", Pprz.Int32 a.itow] in
+    Dl_Pprz.message_send my_id "ACINFO" ac_info;
 
     if !kml then
       update_kml_ac a;

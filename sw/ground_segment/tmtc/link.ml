@@ -56,6 +56,9 @@ type airborne_device =
 (* We assume here a single modem is used *)
 let my_id = 0
 
+(* enable broadcast messages by default *)
+let ac_info = ref true
+
 let ios = int_of_string
 let (//) = Filename.concat
 let conf_dir = Env.paparazzi_home // "conf"
@@ -289,7 +292,6 @@ end (** XBee module *)
 
 
 
-
 let send = fun ac_id device ac_device payload priority ->
   if  live_aircraft ac_id then
     match ac_device with
@@ -300,41 +302,6 @@ let send = fun ac_id device ac_device payload priority ->
 	Debug.call 'l' (fun f -> fprintf f "mm sending: %s\n" (Debug.xprint buf));
     | XBeeDevice ->
 	XB.send ac_id device payload
-
-
-let cm_of_m = fun f -> Pprz.Int (truncate (100. *. f))
-
-(** Got a FLIGHT_PARAM message and dispatch a ACINFO *)
-let get_fp = fun device _sender vs ->
-  let ac_id = int_of_string (Pprz.string_assoc "ac_id" vs) in
-  List.iter 
-    (fun (dest_id, _) ->
-      if dest_id <> ac_id then (** Do not send to itself *)
-	try
-	  Debug.trace 'b' (sprintf "ACINFO %d for %d" ac_id dest_id);
-	  let ac_device = airborne_device dest_id airframes device.transport in
-	  let f = fun a -> Pprz.float_assoc a vs in
-	  let i32 = fun a -> Pprz.int32_assoc a vs in
-	  let lat = (Deg>>Rad) (f "lat")
-	  and long = (Deg>>Rad) (f "long")
-	  and course = f "course"
-	  and alt = f "alt"
-	  and gspeed = f "speed"
-          and itow = i32 "itow" in
-	  let utm = Latlong.utm_of WGS84 {posn_lat=lat; posn_long=long} in
-	  let vs = ["ac_id", Pprz.Int ac_id;
-		    "utm_east", cm_of_m utm.utm_x;
-		    "utm_north", cm_of_m utm.utm_y;
-		    "course", Pprz.Int (truncate (10. *. course));
-		    "alt", cm_of_m alt;
-                    "speed", cm_of_m gspeed;
-                    "itow", Pprz.Int32 itow] in
-          let msg_id, _ = Dl_Pprz.message_of_name "ACINFO" in
-	  let s = Dl_Pprz.payload_of_values msg_id my_id vs in
-	  send dest_id device ac_device s Low
-	with
-	  _NotSendingToThis -> ())
-    airframes
 
 
 (*************** Audio *******************************************************)
@@ -365,6 +332,7 @@ let hangup = fun _ ->
   prerr_endline "Modem hangup. Exiting";
   exit 1
 
+(*************** Messages *******************************************************)
 
 let message_uplink = fun device ->
   let forwarder = fun name sender vs ->
@@ -403,7 +371,7 @@ let message_uplink = fun device ->
     (fun _m_id msg ->
       match msg.Pprz.link with
 	Some Pprz.Forwarded -> set_forwarder msg.Pprz.name
-      | Some Pprz.Broadcasted -> set_broadcast msg.Pprz.name
+      | Some Pprz.Broadcasted -> if !ac_info then set_broadcast msg.Pprz.name
       | _ -> ())
     Dl_Pprz.messages
 
@@ -426,7 +394,6 @@ let () =
   let baudrate = ref "9600" in
   let transport = ref "pprz" in
   let uplink = ref true in
-  let ac_info = ref true in
   let audio = ref false in
   let rssi_id = ref (-1)
   and aerocomm = ref false in
@@ -495,8 +462,8 @@ let () =
     ignore (Glib.Io.add_watch [`IN] read_fd (GMain.Io.channel_of_descr fd));
 
     if !uplink then begin
-      if !ac_info then
-	ignore (Ground_Pprz.message_bind "FLIGHT_PARAM" (get_fp device));
+      (*if !ac_info then
+	ignore (Ground_Pprz.message_bind "FLIGHT_PARAM" (get_fp device));*)
       message_uplink device
     end;
 

@@ -147,21 +147,6 @@ module Make (A:Data.MISSION) (FM: FlightModel.SIG) = struct
     update ()
 
   open Latlong
-  external set_ac_info : int -> float -> float -> float -> float -> float -> int32 -> unit = "set_ac_info"
-  let get_flight_param = fun _sender vs ->
-    let ac_id = int_of_string (Pprz.string_assoc "ac_id" vs) in
-    if ac_id <> !my_id then
-      let f = fun a -> Pprz.float_assoc a vs in
-      let i32 = fun a -> Pprz.int32_assoc a vs in
-      let lat = f "lat"
-      and long = f "long"
-      and course = (Deg>>Rad)(f "course")
-      and alt = f "alt"
-      and gspeed = f "speed"
-      and itow = i32 "itow" in
-      let wgs84 = Latlong.make_geo ((Deg>>Rad)lat) ((Deg>>Rad)long) in
-      let utm = Latlong.utm_of WGS84 wgs84 in
-      set_ac_info ac_id utm.utm_x utm.utm_y course alt gspeed itow
 
   external set_message : string -> unit = "set_datalink_message"
   let get_message = fun name link_mode _sender vs ->
@@ -181,7 +166,6 @@ module Make (A:Data.MISSION) (FM: FlightModel.SIG) = struct
   let boot = fun time_scale ->
     Stdlib.timer ~scale:time_scale servos_period (update_servos bat_button);
     Stdlib.timer ~scale:time_scale periodic_period periodic_task;
-    ignore (Ground_Pprz.message_bind "FLIGHT_PARAM" get_flight_param);
 
     (* Forward or broacast messages according to "link" mode *)
     Hashtbl.iter
