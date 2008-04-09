@@ -30,12 +30,23 @@
 extern void vor_int_demod_init( void);
 extern void vor_int_demod_run ( uint16_t sample);
 
-extern const int32_t vid_ref_freq;
 extern       int32_t vid_ref_angle;
 extern       int32_t vid_ref_phi;
 extern       int32_t vid_ref_err;
 extern const int32_t vid_ref_alpha;
 
+
+extern       int32_t vid_var_phi;
+
+extern       int32_t vid_fm_phi;
+
+extern       int32_t vid_qdr;
+
+#define VID_ANGLE_RES  16
+#define VID_ANGLE_FACT (1 << VID_ANGLE_RES)
+#define VID_ANGLE_INT_OF_PFLOAT(a)  ((a) * (float)VID_ANGLE_FACT + 0.5)
+#define VID_ANGLE_INT_OF_NFLOAT(a)  ((a) * (float)VID_ANGLE_FACT - 0.5)
+#define VID_ANGLE_FLOAT_OF_INT(a) ((float)(a) / (float)VID_ANGLE_FACT)
 
 
 #endif /* VOR_INT_DEMOD_H */

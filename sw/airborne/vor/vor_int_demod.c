@@ -29,25 +29,27 @@
 #include  "vor_int_filters.h"
 
 
-#define VID_ANGLE_RES  16
-#define VID_ANGLE_FACT (1 << VID_ANGLE_RES)
-#define VID_PANGLE(a)  ((a) * (float)VID_ANGLE_FACT + 0.5)
-#define VID_NANGLE(a)  ((a) * (float)VID_ANGLE_FACT - 0.5)
 
-#define VID_DANGLE VID_PANGLE(2. * M_PI * 9960. * 502 / 15000000.)
-#define VID_TWO_PI VID_PANGLE(2. * M_PI)
+#define VID_DANGLE VID_ANGLE_INT_OF_PFLOAT(2. * M_PI * 9960. * 502. / 15000000.)
+#define VID_TWO_PI VID_ANGLE_INT_OF_PFLOAT(2. * M_PI)
 
-const int32_t vid_ref_freq;
       int32_t vid_ref_angle;
       int32_t vid_ref_phi;
       int32_t vid_ref_err;
-const int32_t vid_ref_alpha = VID_NANGLE(-1.2);
+const int32_t vid_ref_alpha = VID_ANGLE_INT_OF_NFLOAT(-1.2);
+
+      int32_t vid_var_phi;
+
+      int32_t vid_fm_phi;
+
+      int32_t vid_qdr;
+
 
 
 void vor_int_demod_init( void) {
 
   vid_ref_angle = 0;
-  vid_ref_phi = VID_PANGLE(M_PI); 
+  vid_ref_phi = VID_ANGLE_INT_OF_PFLOAT(M_PI); 
   vid_ref_err = 0;
 
 }
@@ -63,16 +65,17 @@ void vor_int_demod_run ( uint16_t sample) {
   if (vid_ref_angle > VID_TWO_PI) vid_ref_angle -= VID_TWO_PI;
   const int32_t vid_ref_phase = vid_ref_angle + vid_ref_phi;
   // local oscillator signal
-  const float vid_ref_phase_float = (float)vid_ref_phase / (float)VID_ANGLE_FACT;
+  const float vid_ref_phase_float = VID_ANGLE_FLOAT_OF_INT(vid_ref_phase);
   const float vid_ref_local_sig_float = sin(vid_ref_phase_float);
   // test sign ?
-  const int32_t vid_ref_local_sig = VID_PANGLE(vid_ref_local_sig_float);
+  const int32_t vid_ref_local_sig = VID_ANGLE_INT_OF_PFLOAT(vid_ref_local_sig_float);
   // get REF signal by bandpassing input signal 
   const int32_t vid_ref_sig = vor_int_filter_bp_ref(sample);
   // multiply input signal by local oscillator signal
   int32_t vid_ref_y = vid_ref_sig * vid_ref_local_sig; 
   vid_ref_y = vid_ref_y >> VID_ANGLE_RES;
-  
+  // get phase error by low passing the result of the multiplication.
+  vid_ref_err = vor_int_filter_lp_ref(vid_ref_y);
 
 
 }

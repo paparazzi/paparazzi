@@ -26,7 +26,8 @@ static void vor_audio_read_wav(const char* filename) {
   int i;
   for (i=0; i<nb_samples; i++) {
     float_buf[i] = (float)wav_buf[i] / (float)(1 <<  9);
-    adc_buf[i]   = (float)wav_buf[i] / (float)(1 << 30);
+    //    adc_buf[i]   = (float)wav_buf[i] / (float)(1 << 30);
+    adc_buf[i]   = (float)wav_buf[i];
   }
 
 }
