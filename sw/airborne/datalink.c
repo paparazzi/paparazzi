@@ -62,7 +62,7 @@ void dl_parse_msg(void) {
     DOWNLINK_SEND_PONG();
   } else
 #ifdef TRAFFIC_INFO
-  if (msg_id == DL_ACINFO) {
+  if (msg_id == DL_ACINFO && DL_ACINFO_ac_id(dl_buffer) == AC_ID) {
     uint8_t id = DL_ACINFO_ac_id(dl_buffer);
     float ux = MOfCm(DL_ACINFO_utm_east(dl_buffer));
     float uy = MOfCm(DL_ACINFO_utm_north(dl_buffer));
@@ -144,7 +144,8 @@ void dl_parse_msg(void) {
     uint8_t ac_id = DL_FORMATION_STATUS_ac_id(dl_buffer);
     uint8_t leader = DL_FORMATION_STATUS_leader_id(dl_buffer);
     uint8_t status = DL_FORMATION_STATUS_status(dl_buffer);
-    if (leader == leader_id) formation[ac_id].status = status;
+    if (ac_id == AC_ID) leader_id = leader;
+    else if (leader == leader_id) formation[ac_id].status = status;
     else formation[ac_id].status = UNSET;
   } else
 #endif
