@@ -36,6 +36,7 @@
 extern float booz_still_detection_accel[AXIS_NB];
 extern float booz_still_detection_gyro[AXIS_NB];
 extern float booz_still_detection_mag[AXIS_NB];
+extern float booz_still_detection_pressure;
 
 extern uint32_t bsd_accel_raw_avg[AXIS_NB];
 extern float    bsd_accel_raw_var[AXIS_NB];

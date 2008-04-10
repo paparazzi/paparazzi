@@ -62,13 +62,18 @@ extern void booz_imu_init(void);
 extern void booz_imu_periodic(void);
 
 
-#define BoozImuScaleSensor(_s_cal, _s_name, _s_raw) {			\
+#define BoozImuScaleSensor3(_s_cal, _s_name, _s_raw) {			\
     _s_cal[AXIS_X] = _s_name##_X_GAIN *					\
       (float)((int32_t)_s_raw[AXIS_X] - _s_name##_X_NEUTRAL);		\
     _s_cal[AXIS_Y] = _s_name##_Y_GAIN *					\
       (float)((int32_t)_s_raw[AXIS_Y] - _s_name##_Y_NEUTRAL);		\
     _s_cal[AXIS_Z] = _s_name##_Z_GAIN *					\
       (float)((int32_t)_s_raw[AXIS_Z] - _s_name##_Z_NEUTRAL);		\
+  }
+
+#define BoozImuScaleSensor1(_s_cal, _s_name, _s_raw) {			\
+    _s_cal = _s_name##_GAIN *						\
+      (float)((int32_t)_s_raw - _s_name##_NEUTRAL);			\
   }
 
 
@@ -78,12 +83,12 @@ extern void booz_imu_periodic(void);
       imu_gyro_raw[AXIS_P] = max1167_values[IMU_GYRO_X_CHAN];		\
       imu_gyro_raw[AXIS_Q] = max1167_values[IMU_GYRO_Y_CHAN];		\
       imu_gyro_raw[AXIS_R] = max1167_values[IMU_GYRO_Z_CHAN];		\
-      BoozImuScaleSensor(imu_gyro, IMU_GYRO, imu_gyro_raw);		\
+      BoozImuScaleSensor3(imu_gyro, IMU_GYRO, imu_gyro_raw);		\
       									\
       imu_accel_raw[AXIS_X] = buf_ax.sum;				\
       imu_accel_raw[AXIS_Y] = buf_ay.sum;				\
       imu_accel_raw[AXIS_Z] = buf_az.sum;				\
-      BoozImuScaleSensor(imu_accel, IMU_ACCEL, imu_accel_raw);		\
+      BoozImuScaleSensor3(imu_accel, IMU_ACCEL, imu_accel_raw);		\
       gyro_handler();							\
       accel_handler();							\
     }									\
@@ -92,13 +97,13 @@ extern void booz_imu_periodic(void);
       imu_mag_raw[AXIS_X] = micromag_values[IMU_MAG_X_CHAN];		\
       imu_mag_raw[AXIS_Y] = micromag_values[IMU_MAG_Y_CHAN];		\
       imu_mag_raw[AXIS_Z] = micromag_values[IMU_MAG_Z_CHAN];		\
-      BoozImuScaleSensor(imu_mag, IMU_MAG, imu_mag_raw);		\
+      BoozImuScaleSensor3(imu_mag, IMU_MAG, imu_mag_raw);		\
       mag_handler();							\
     }									\
     else if (scp1000_status == SCP1000_STA_DATA_AVAILABLE) {		\
       scp1000_status = SCP1000_STA_WAIT_EOC;				\
       imu_pressure_raw = scp1000_pressure;				\
-      imu_pressure = imu_pressure_raw * 0.25;				\
+      BoozImuScaleSensor1(imu_pressure, IMU_PRESSURE, imu_pressure_raw); \
       baro_handler();							\
     }									\
   }

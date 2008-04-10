@@ -32,6 +32,7 @@
 #define GPS_H
 
 #include "std.h"
+#include "gps_hw.h"
 
 #ifdef UBX
 #include "gps_ubx.h"
@@ -108,42 +109,42 @@ extern struct svinfo gps_svinfos[GPS_NB_CHANNELS];
 #define GpsToggleLed() {}
 #endif
 
-#define UseGpsPos(_callback) { \
-  if (GpsFixValid()) { \
-    last_gps_msg_t = cpu_time_sec; \
-    _callback(); \
-    GpsToggleLed(); \
-  } \
-  gps_downlink(); \
-}
+#define UseGpsPos(_callback) {			\
+    if (GpsFixValid()) {			\
+      last_gps_msg_t = cpu_time_sec;		\
+      _callback();				\
+      GpsToggleLed();				\
+    }						\
+    gps_downlink();				\
+  }
 
 
 #ifdef GPS_CONFIGURE
-#define GpsParseOrConfigure() { \
-  if (gps_configuring) \
-    gps_configure(); \
-  else \
-    parse_gps_msg(); \
-}
+#define GpsParseOrConfigure() {			\
+    if (gps_configuring)			\
+      gps_configure();				\
+    else					\
+      parse_gps_msg();				\
+  }
 #else
 #define GpsParseOrConfigure() parse_gps_msg()
 #endif
     
 
 #define GpsEventCheckAndHandle(_callback, _verbose) { \
-  if (GpsBuffer()) { \
-    ReadGpsBuffer(); \
-  } \
-  if (gps_msg_received) { \
-    GpsParseOrConfigure(); \
-    gps_msg_received = FALSE; \
-    if (gps_pos_available) { \
-      gps_verbose_downlink = _verbose; \
-      UseGpsPos(_callback); \
-      gps_pos_available = FALSE; \
-    } \
-  } \
-}
+    if (GpsBuffer()) {				      \
+      ReadGpsBuffer();				      \
+    }						      \
+    if (gps_msg_received) {			      \
+      GpsParseOrConfigure();			      \
+      gps_msg_received = FALSE;			      \
+      if (gps_pos_available) {			      \
+	gps_verbose_downlink = _verbose;	      \
+	UseGpsPos(_callback);			      \
+	gps_pos_available = FALSE;		      \
+      }						      \
+    }						      \
+  }
 
 
 #endif /* GPS_H */

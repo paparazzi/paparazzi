@@ -10,9 +10,10 @@
 extern uint8_t booz_debug_mod;
 extern uint8_t booz_debug_err;
 
-#define DEBUG_IMU      0
-#define DEBUG_MAX_1117 1
-#define DEBUG_SCP1000  2
+#define DEBUG_IMU          0
+#define DEBUG_MAX_1117     1
+#define DEBUG_SCP1000      2
+#define DEBUG_LINK_MCU_IMU 3
 
 
 #define ASSERT(cond, mod, err) {					\

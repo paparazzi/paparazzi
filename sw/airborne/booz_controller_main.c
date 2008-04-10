@@ -1,7 +1,7 @@
 /*
  * $Id$
  *  
- * Copyright (C) 2008  Antoine Drouin
+ * Copyright (C) 2008 Antoine Drouin
  *
  * This file is part of paparazzi.
  *
@@ -30,12 +30,14 @@
 #include "sys_time.h"
 #include "led.h"
 
+#include "booz_energy.h"
+
 #include "commands.h"
 #include "i2c.h"
 #include "actuators.h"
 #include "radio_control.h"
 
-#include "spi.h"
+#include "adc.h"
 #include "booz_link_mcu.h"
 
 #include "booz_estimator.h"
@@ -74,6 +76,9 @@ STATIC_INLINE void booz_controller_main_init( void ) {
   led_init();
   sys_time_init();
 
+  adc_init();
+  booz_energy_init();
+
   i2c_init();
   actuators_init();
   SetCommands(commands_failsafe);
@@ -81,7 +86,6 @@ STATIC_INLINE void booz_controller_main_init( void ) {
   ppm_init();
   radio_control_init();
 
-  spi_init();
   booz_link_mcu_init();
   
   booz_estimator_init();
@@ -103,7 +107,7 @@ STATIC_INLINE void booz_controller_main_init( void ) {
 #define PeriodicPrescaleBy5( _code_0, _code_1, _code_2, _code_3, _code_4) { \
     static uint8_t _50hz = 0;						\
     _50hz++;								\
-    if (_50hz > 5) _50hz = 0;						\
+    if (_50hz >= 5) _50hz = 0;						\
     switch (_50hz) {							\
     case 0:								\
       _code_0;								\
@@ -126,9 +130,14 @@ STATIC_INLINE void booz_controller_main_init( void ) {
 STATIC_INLINE void booz_controller_main_periodic_task( void ) {
   
   /* check for timeout */
-  booz_link_mcu_periodic_task();
+  booz_link_mcu_periodic();
   /* run control loops */
   booz_autopilot_periodic_task();
+
+  //  commands[COMMAND_P] = 0;
+  //  commands[COMMAND_Q] = 0;
+  //  commands[COMMAND_R] = 0;
+  //  commands[COMMAND_THROTTLE] = MAX_PPRZ/3;
 
   SetActuatorsFromCommands(commands);
 
@@ -140,10 +149,12 @@ STATIC_INLINE void booz_controller_main_periodic_task( void ) {
     },									\
     {									\
       booz_controller_telemetry_periodic_task();			\
-    }									\
+    },									\
+    {									\
+      booz_energy_periodic();						\
+    },									\
     {},									\
-    {},									\
-    {},									\
+    {}									\
     );									\
 }
 
@@ -154,7 +165,7 @@ STATIC_INLINE void booz_controller_main_event_task( void ) {
   DlEventCheckAndHandle();
 #endif
 
-  BoozLinkMcuEventCheckAndHandle();
+  BoozLinkMcuEventCheckAndHandle(booz_estimator_read_inter_mcu_state);
 
   RadioControlEventCheckAndHandle(booz_autopilot_on_rc_event);
  

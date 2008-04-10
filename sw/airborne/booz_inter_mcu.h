@@ -33,16 +33,13 @@
 #define ANGLE_PI 0X3FFF
 #define RATE_PI_S 0X3FFF
 
-#define IMU_UNINIT  MT_STATUS_UNINIT
-#define IMU_RUNNING MT_STATUS_RUNNING
-#define IMU_CRASHED MT_STATUS_CRASHED
-#define IMU_NO_LINK 3
-
 struct booz_inter_mcu_state {
   int16_t r_rates [AXIS_NB];
   int16_t f_rates [AXIS_NB];
   int16_t f_eulers[AXIS_NB];
   int16_t pad0;
+  float   pos[AXIS_NB];
+  float   speed[AXIS_NB];
   uint8_t status;
   uint8_t pad1;
   uint16_t crc;

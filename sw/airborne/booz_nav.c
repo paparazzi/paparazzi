@@ -6,8 +6,6 @@
 #include "booz_control.h"
 #include "radio_control.h"
 
-#ifndef DISABLE_NAV
-
 
 #define Block(x) case x: nav_block=x;
 #define InitBlock() { nav_stage = 0; block_time = 0; InitStage(); }
@@ -25,6 +23,7 @@
 
 #define NavCircleWaypoint(_foo, _bar) {}
 
+extern void nav_home(void);
 #define NAV_C
 #include "flight_plan.h"
 
@@ -37,50 +36,21 @@ uint16_t stage_time, block_time;
 
 #include "booz_nav_hover.h"
 
-#define BoozNavRunOnceEvery(_prescaler, _code) {	\
-    static uint8_t prescaler = 0;			\
-    prescaler++;					\
-    if (prescaler > _prescaler) {			\
-      prescaler = 0;					\
-      _code;						\
-    }							\
-  }
-#endif /* DISABLE_NAV */
-
-
 void booz_nav_init(void) {
-#ifndef DISABLE_NAV
   nav_block = 0;
   nav_stage = 0;
   booz_nav_hover_init();
-#endif /* DISABLE_NAV */
 }
 
 
 void booz_nav_run(void) {
-#ifndef DISABLE_NAV
-  BoozNavRunOnceEvery( 62,						                        \
-    {						                                                \
-      booz_nav_hover_run();						                        \
-      BoozControlAttitudeSetSetPoints(booz_nav_hover_phi_command, booz_nav_hover_theta_command, \
-				      booz_nav_hover_psi_sp, booz_nav_hover_power_command);     \
-   });
- 
-  booz_control_attitude_run();
-#else
-  /* on real ac, let nav kill all motors */
-  booz_control_commands[COMMAND_P] = 0;
-  booz_control_commands[COMMAND_Q] = 0;
-  booz_control_commands[COMMAND_R] = 0;
-  booz_control_commands[COMMAND_THROTTLE] = 0;
-#endif
-
+  booz_nav_hover_run();
+  BoozControlAttitudeSetSetPoints(booz_nav_hover_phi_command, booz_nav_hover_theta_command,
+				  booz_nav_hover_psi_sp, booz_nav_hover_power_command);
 }
 
 void booz_nav_read_setpoints_from_rc(void) {
-#ifndef DISABLE_NAV
   booz_nav_hover_read_setpoints_from_rc();
-#endif /* DISABLE_NAV */
 }
 
 

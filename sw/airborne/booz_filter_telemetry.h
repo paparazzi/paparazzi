@@ -29,9 +29,9 @@
 #include "periodic.h"
 #include "uart.h"
 
-//#include "imu_v3.h"
 #include "booz_imu.h"
 #include "booz_ahrs.h"
+#include "booz_ins.h"
 
 #include "settings.h"
 
@@ -151,6 +151,10 @@
 			     &booz_ahrs_measure_theta,			\
 			     &booz_ahrs_measure_psi);
 
+
+
+#define PERIODIC_SEND_INS_STATE()		\
+  DOWNLINK_SEND_BOOZ_INS_STATE(&booz_ins_z, &booz_ins_z_meas, &booz_ins_zdot, & booz_ins_baz); 
 
 
 #if 0

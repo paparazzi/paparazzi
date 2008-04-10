@@ -6,6 +6,7 @@
 #include "periodic.h"
 #include "uart.h"
 
+#include "booz_energy.h"
 #include "radio_control.h"
 #include "actuators.h"
 #include "booz_link_mcu.h"
@@ -20,13 +21,15 @@
 
 #include "downlink.h"
 
+#define PERIODIC_SEND_ALIVE() DOWNLINK_SEND_ALIVE()
+
 #define PERIODIC_SEND_BOOZ_STATUS()					\
   DOWNLINK_SEND_BOOZ_STATUS(&booz_link_mcu_nb_err,			\
 			    &booz_link_mcu_status,			\
-			    &rc_status, \
-			    &booz_autopilot_mode, \
-			    &booz_autopilot_mode, \
-			    &cpu_time_sec, \
+			    &rc_status,					\
+			    &booz_autopilot_mode,			\
+			    &booz_energy_bat,				\
+			    &cpu_time_sec,				\
 			    &buss_twi_blmc_nb_err)
 
 
@@ -53,6 +56,7 @@
       break;								\
     case BOOZ_AP_MODE_ATTITUDE:						\
     case BOOZ_AP_MODE_HEADING_HOLD:					\
+    case BOOZ_AP_MODE_NAV:						\
       DOWNLINK_SEND_BOOZ_ATT_LOOP(&booz_estimator_phi, &booz_control_attitude_phi_sp, \
 				  &booz_estimator_theta, &booz_control_attitude_theta_sp, \
 				  &booz_estimator_psi, &booz_control_attitude_psi_sp, \
@@ -66,7 +70,6 @@
 			      &booz_estimator_uf_q, \
 			      &booz_estimator_uf_r); 
 
-#ifndef DISABLE_NAV
 #define PERIODIC_SEND_BOOZ_VERT_LOOP() {				\
     DOWNLINK_SEND_BOOZ_VERT_LOOP(&booz_nav_hover_z_sp,			\
 				 &booz_estimator_w,			\
@@ -83,16 +86,13 @@
 				&booz_nav_hover_phi_command,		\
 				&booz_nav_hover_theta_command);		\
   }
-#else
-#define PERIODIC_SEND_BOOZ_VERT_LOOP() {}
-#define PERIODIC_SEND_BOOZ_HOV_LOOP() {}
-#endif
-
 
 #define PERIODIC_SEND_BOOZ_CMDS() DOWNLINK_SEND_BOOZ_CMDS(&buss_twi_blmc_motor_power[SERVO_MOTOR_FRONT],\
 							  &buss_twi_blmc_motor_power[SERVO_MOTOR_BACK],	\
 							  &buss_twi_blmc_motor_power[SERVO_MOTOR_LEFT],	\
 							  &buss_twi_blmc_motor_power[SERVO_MOTOR_RIGHT]); 
+
+
 
 #define PERIODIC_SEND_DL_VALUE() PeriodicSendDlValue()
 

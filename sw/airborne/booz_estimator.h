@@ -16,8 +16,6 @@ extern float booz_estimator_phi;
 extern float booz_estimator_theta;
 extern float booz_estimator_psi;
 
-#ifndef DISABLE_NAV
-
 extern float booz_estimator_dcm[AXIS_NB][AXIS_NB];
 
 /* position in earth frame : not yet available - sim only */
@@ -34,17 +32,10 @@ extern float booz_estimator_vz;
 extern float booz_estimator_u;
 extern float booz_estimator_v;
 extern float booz_estimator_w;
-#endif /* DISABLE_NAV */
 
 
 extern void booz_estimator_init( void );
 extern void booz_estimator_read_inter_mcu_state( void );
 
-
-#ifndef DISABLE_NAV
-extern void booz_estimator_compute_dcm( void );
-extern void booz_estimator_set_speed_and_pos(float _vx, float _vy, float _vz, float _x, float _y, float _z);
-extern void booz_estimator_set_psi( float _psi);
-#endif /* DISABLE_NAV */
 
 #endif /* BOOZ_ESTIMATOR_H */

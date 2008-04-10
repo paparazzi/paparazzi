@@ -33,6 +33,9 @@
 #include "booz_still_detection.h"
 #include "booz_ahrs.h"
 
+#include "gps.h"
+#include "booz_ins.h"
+
 #include "uart.h"
 #include "messages.h"
 #include "downlink.h"
@@ -44,11 +47,14 @@ static inline void on_imu_accel( void );
 static inline void on_imu_gyro( void );
 static inline void on_imu_mag( void );
 static inline void on_imu_baro( void );
-
+static inline void on_gps( void );
 
 #ifndef SITL
 int main( void ) {
+  { uint32_t foo = 0; while (foo < 1e5) foo++;}
+
   booz_filter_main_init();
+
   while (1) {
     if (sys_time_periodic())
       booz_filter_main_periodic_task();
@@ -65,6 +71,7 @@ STATIC_INLINE void booz_filter_main_init( void ) {
   sys_time_init();
   //FIXME
 #ifndef SITL
+  uart0_init_tx();
   uart1_init_tx();
 #endif
   booz_imu_init();
@@ -73,9 +80,12 @@ STATIC_INLINE void booz_filter_main_init( void ) {
 
   booz_ahrs_init();
 
+  booz_ins_init();
+
   booz_link_mcu_init();
 
   int_enable();
+
 }
 
 // static uint32_t t0, t1, diff;
@@ -83,7 +93,8 @@ STATIC_INLINE void booz_filter_main_init( void ) {
 STATIC_INLINE void booz_filter_main_event_task( void ) {
   /* check if measurements are available */
   BoozImuEvent(on_imu_accel, on_imu_gyro, on_imu_mag, on_imu_baro);
-
+  
+  GpsEventCheckAndHandle(on_gps, FALSE);
 }
 
 STATIC_INLINE void booz_filter_main_periodic_task( void ) {
@@ -97,6 +108,9 @@ static inline void on_imu_accel( void ) {
   if (booz_ahrs_status == BOOZ_AHRS_STATUS_RUNNING) {
     RunOnceEvery(4, {booz_ahrs_update_accel(imu_accel);}); 
   }
+  if (booz_ins_status == BOOZ_INS_STATUS_RUNNING) {
+    booz_ins_predict(imu_accel); 
+  }
 }
 
 static inline void on_imu_gyro( void ) {
@@ -106,7 +120,11 @@ static inline void on_imu_gyro( void ) {
   case BOOZ_AHRS_STATUS_UNINIT :
     booz_still_detection_run();
     if (booz_still_detection_status == BSD_STATUS_LOCKED) {
-      booz_ahrs_start(booz_still_detection_accel, booz_still_detection_gyro, booz_still_detection_mag);
+      booz_ahrs_start(booz_still_detection_accel, 
+		      booz_still_detection_gyro, 
+		      booz_still_detection_mag);
+      booz_ins_start(booz_still_detection_accel, 
+		     booz_still_detection_pressure);
     }
     break;
 
@@ -132,4 +150,10 @@ static inline void on_imu_mag( void ) {
 
 static inline void on_imu_baro( void ) {
   //  DOWNLINK_SEND_IMU_PRESSURE(&imu_pressure);
+  booz_ins_update_pressure(imu_pressure);
+}
+
+static inline void on_gps( void ) {
+
+
 }
