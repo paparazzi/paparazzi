@@ -27,6 +27,6 @@
 
 #include <matrix.h>
 
-extern void scp1000_sim_feed_value(double time, double value);
+extern void scp1000_hw_feed_value(double value);
 
 #endif /* SCP1000_HW_H */

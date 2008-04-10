@@ -28,11 +28,9 @@
 
 #include "scp1000.h"
 
-void scp1000_hw_init(void) {
+void scp1000_hw_init(void) {}
 
-}
-
-void scp1000_sim_feed_value(double time, double value) {
-
-
+void scp1000_hw_feed_value(double value) {
+  scp1000_pressure = value;
+  scp1000_status = SCP1000_STA_DATA_AVAILABLE;
 }

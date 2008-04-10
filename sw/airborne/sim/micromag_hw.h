@@ -31,7 +31,7 @@
 
 #include <matrix.h>
 
-extern void micromag_hw_feed_value(double time, VEC* mag);
+extern void micromag_hw_feed_value(VEC* mag);
 
 
 #endif /* MICROMAG_HW_H */
