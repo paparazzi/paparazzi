@@ -89,9 +89,9 @@ void SPI1_ISR(void) {
    SpiEnableRti();
  }
  
- if ( bit_is_set(SSPMIS, RTMIS)) { /* Rx timeout     */ 
+ if ( bit_is_set(SSPMIS, RTMIS)) { /* Rx timeout      */ 
    SpiReceive();
-   SpiClearRti();                /* clear interrupt */
+   SpiClearRti();                  /* clear interrupt */
    SpiDisableRti();
    SpiDisable();
    spi_message_received = TRUE;
