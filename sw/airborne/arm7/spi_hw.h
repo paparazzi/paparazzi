@@ -110,11 +110,11 @@ extern volatile uint8_t spi_rx_idx;
   }
 
 #ifdef SPI_SLAVE
-#define SpiStart() {                                                    \
- SpiEnable(); \
- SpiInitBuf();         \
- SpiEnableTxi();     /* enable tx fifo half empty interrupt */        \
-}
+#define SpiStart() {						      \
+    SpiEnable();						      \
+    SpiInitBuf();						      \
+    SpiEnableTxi();     /* enable tx fifo half empty interrupt */     \
+  }
 
 #endif /* SPI_SLAVE */
 
