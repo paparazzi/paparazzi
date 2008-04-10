@@ -76,18 +76,13 @@ static inline void main_periodic_task( void ) {
   float rpm = mb_tacho_get_averaged();
   mb_current_periodic();
   float amps = mb_current_amp;
-  mb_scale_periodic();
   float thrust = mb_scale_thrust;
   float torque = 0.;
 
-  static uint8_t my_cnt = 0;
-  my_cnt++;
-  if ( my_cnt >= 125 ) {
-    //    LED_TOGGLE(1);
-    my_cnt = 0;
-    DOWNLINK_SEND_ALIVE(16, MD5SUM);
-    PeriodicSendDlValue();
-  }
+  RunOnceEvery(125, {
+      DOWNLINK_SEND_ALIVE(16, MD5SUM);
+      PeriodicSendDlValue();
+    });
   DOWNLINK_SEND_MOTOR_BENCH_STATUS(&cpu_time_ticks, &throttle, &rpm, &amps , &thrust, &torque, &cpu_time_sec, &mb_modes_mode);
 }
 
