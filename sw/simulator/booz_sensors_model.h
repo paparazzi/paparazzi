@@ -1,3 +1,27 @@
+/*
+ * $Id$
+ *  
+ * Copyright (C) 2008 Antoine Drouin
+ *
+ * This file is part of paparazzi.
+ *
+ * paparazzi is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * paparazzi is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with paparazzi; see the file COPYING.  If not, write to
+ * the Free Software Foundation, 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA. 
+ *
+ */
+
 #ifndef BOOZ_SENSORS_MODEL_H
 #define BOOZ_SENSORS_MODEL_H
 
@@ -57,17 +81,25 @@ struct BoozSensorsModel {
   double rangemeter_next_update;
   int    rangemeter_available;
   
+
   /* Barometer */
   double baro;
   unsigned int baro_resolution;
   double baro_next_update;
   int    baro_available;
 
+
   /* GPS */
   VEC*    gps_speed;
+  double  gps_speed_course;
+  double  gps_speed_gspeed;
+  double  gps_speed_climb;
   VEC*    gps_speed_noise_std_dev;
   GSList* gps_speed_history;
   VEC*    gps_pos;
+  double  gps_pos_utm_north;
+  double  gps_pos_utm_east;
+  double  gps_pos_utm_alt;
   VEC*    gps_pos_noise_std_dev;
   VEC*    gps_pos_bias_initial;
   VEC*    gps_pos_bias_random_walk_std_dev;

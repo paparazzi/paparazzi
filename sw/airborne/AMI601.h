@@ -41,7 +41,7 @@ extern volatile uint32_t ami601_nb_err;
     case AMI601_SENDING_REQ :						\
       if ( ami601_i2c_done ) {						\
 	/* trigger delay for measurement */				\
-	T0MR1 = T0TC + SYS_TICS_OF_USEC(4096);				\
+	T0MR1 = T0TC + SYS_TICS_OF_USEC(12288);				\
 	/* clear match 1 interrupt */					\
 	T0IR = TIR_MR1I;						\
 	/* enable match 1 interrupt */					\
@@ -57,7 +57,7 @@ extern volatile uint32_t ami601_nb_err;
 	uint8_t i;							\
 	for (i=0; i< AMI601_NB_CHAN; i++) {				\
 	  ami601_val[i] = i2c_buf[3 + 2 * i];				\
-	  ami601_val[i] += i2c_buf[3 + 2 * i + 1]  * 256;		\
+	  ami601_val[i] += i2c_buf[3 + 2 * i + 1] * 256;		\
 	}								\
 	ami601_status = AMI601_DATA_AVAILABLE;				\
       }									\

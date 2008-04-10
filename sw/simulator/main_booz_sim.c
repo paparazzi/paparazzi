@@ -1,7 +1,7 @@
 /*
  * $Id$
  *  
- * Copyright (C) 2008  Antoine Drouin
+ * Copyright (C) 2008 Antoine Drouin
  *
  * This file is part of paparazzi.
  *
@@ -72,6 +72,7 @@ static void on_DL_SETTING(IvyClientPtr app, void *user_data, int argc, char *arg
 
 
 #include "booz_imu.h"
+#include "gps.h"
 #include "booz_estimator.h"
 #include "radio_control.h"
 #include "actuators.h"
@@ -84,13 +85,13 @@ static gboolean booz_sim_periodic(gpointer data __attribute__ ((unused))) {
   booz_sim_read_actuators();
 
   /* run our models */
-  if (sim_time > 3.)
-    bfm.on_ground = FALSE;
+  //  if (sim_time > 3.)
+  //    bfm.on_ground = FALSE;
     /* no fdm at start to allow for filter initialisation */
     /* it sucks, I know */
   booz_flight_model_run(DT, booz_sim_actuators_values);
 
-  booz_sensors_model_run(DT);
+  booz_sensors_model_run(sim_time);
   
   booz_wind_model_run(DT);
 
@@ -100,23 +101,24 @@ static gboolean booz_sim_periodic(gpointer data __attribute__ ((unused))) {
   booz_filter_main_periodic_task();
   
   /* feed sensors */
-  if (booz_sensor_model_gyro_available()) {
-    max1167_hw_feed_value(sim_time, bsm.gyro, bsm.accel);
+  if (booz_sensors_model_gyro_available()) {
+    max1167_hw_feed_value(bsm.gyro, bsm.accel);
     booz_filter_main_event_task();
   }
 
-  if (booz_sensor_model_mag_available()) {
-    micromag_hw_feed_value(sim_time, bsm.mag);
+  if (booz_sensors_model_mag_available()) {
+    micromag_hw_feed_value(bsm.mag);
     booz_filter_main_event_task();
   }
 
-  if (booz_sensor_model_baro_available()) {
-    scp1000_hw_feed_value(sim_time, bsm.baro);
+  if (booz_sensors_model_baro_available()) {
+    scp1000_hw_feed_value(bsm.baro);
     booz_filter_main_event_task();
   }
 
-  if (booz_sensor_model_gps_available()) {
-    //    scp1000_hw_feed_value(sim_time, bsm.baro);
+  if (booz_sensors_model_gps_available()) {
+    gps_feed_values(bsm.gps_pos_utm_north, bsm.gps_pos_utm_east, bsm.gps_pos_utm_alt, 
+		    bsm.gps_speed_gspeed, bsm.gps_speed_course, bsm.gps_speed_climb);
     booz_filter_main_event_task();
   }
 
@@ -127,19 +129,6 @@ static gboolean booz_sim_periodic(gpointer data __attribute__ ((unused))) {
   /* process the BoozLinkMcuEvent                                       */
   /* this will update the controller estimator                          */
   booz_controller_main_event_task();
-#if 0
-  /* cheat in simulation : psi not available from filter yet */
-  //  booz_estimator_set_psi(bfm.state->ve[BFMS_PSI]);
-  /* in simulation compute dcm as a helper for for nav */
-  booz_estimator_compute_dcm();
-  /* in simulation feed speed and pos estimations ( with a pos sensor :( ) */
-  booz_estimator_set_speed_and_pos(bsm.speed_sensor->ve[AXIS_X], 
-				   bsm.speed_sensor->ve[AXIS_Y], 
-				   bsm.speed_sensor->ve[AXIS_Z],
-				   bsm.pos_sensor->ve[AXIS_X], 
-				   bsm.pos_sensor->ve[AXIS_Y], 
-				   bsm.pos_sensor->ve[AXIS_Z] );
-#endif
 
   /* post a radio control event */
   booz_sim_set_ppm_from_joystick();
@@ -165,7 +154,7 @@ int main ( int argc, char** argv) {
   
   booz_flight_model_init();
 
-  booz_sensors_model_init();
+  booz_sensors_model_init(sim_time);
 
   booz_wind_model_init();
 
@@ -229,7 +218,7 @@ static inline void booz_sim_display(void) {
 	       DegOfRad(bsm.gyro_bias_random_walk_value->ve[AXIS_Q]), 
 	       DegOfRad(bsm.gyro_bias_random_walk_value->ve[AXIS_R]));
     IvySendMsg("148 BOOZ_SIM_RANGE_METER %f",  
-	       bsm.range_meter);
+	       bsm.rangemeter);
     //    IvySendMsg("148 BOOZ_SIM_WIND %f %f %f",  
     //	       bwm.velocity->ve[AXIS_X], 
     //	       bwm.velocity->ve[AXIS_Y], 

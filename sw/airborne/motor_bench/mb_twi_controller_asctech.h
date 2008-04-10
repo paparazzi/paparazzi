@@ -1,6 +1,10 @@
 #ifndef MB_TWI_CONTROLLER_ASCTECH_H
 #define MB_TWI_CONTROLLER_ASCTECH_H
 
+#include "std.h"
+
+extern void mb_twi_controller_init(void);
+extern void mb_twi_controller_set( float throttle );
 
 #define MB_TWI_CONTROLLER_COMMAND_NONE     0
 #define MB_TWI_CONTROLLER_COMMAND_TEST     1

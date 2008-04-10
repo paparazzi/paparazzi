@@ -57,7 +57,7 @@ void booz_sensors_model_gps_init( double time ) {
 
 }
 
-
+/* We store our positions like the fdm and convert to UTM and funcky course, gspeed, climb */
 void booz_sensors_model_gps_run( double time, MAT* dcm_t ) {
   if (time < bsm.gps_next_update)
     return;
@@ -77,6 +77,15 @@ void booz_sensors_model_gps_run( double time, MAT* dcm_t ) {
   cur_speed_reading = v_add_gaussian_noise(cur_speed_reading, bsm.gps_speed_noise_std_dev, 
 					   cur_speed_reading);
   UpdateSensorLatency(time, cur_speed_reading, bsm.gps_speed_history, BSM_GPS_SPEED_LATENCY, bsm.gps_speed);
+
+  /* course, gspeed, climb convertion */
+  bsm.gps_speed_course = DegOfRad(atan2(bsm.gps_speed->ve[AXIS_Y], bsm.gps_speed->ve[AXIS_X]))*10.;
+  bsm.gps_speed_course = rint(bsm.gps_speed_course);
+  bsm.gps_speed_gspeed = sqrt(bsm.gps_speed->ve[AXIS_X] * bsm.gps_speed->ve[AXIS_X] +
+			      bsm.gps_speed->ve[AXIS_Y] * bsm.gps_speed->ve[AXIS_Y]) * 100.;
+  bsm.gps_speed_gspeed = rint(bsm.gps_speed_gspeed);
+  bsm.gps_speed_climb = rint(-bsm.gps_speed->ve[AXIS_Z] * 100);
+  
 
   /* 
    * simulate position sensor 
@@ -102,6 +111,15 @@ void booz_sensors_model_gps_run( double time, MAT* dcm_t ) {
   cur_pos_reading = v_add(cur_pos_reading, pos_error, cur_pos_reading); 
 
   UpdateSensorLatency(time, cur_pos_reading, bsm.gps_pos_history, BSM_GPS_POS_LATENCY, bsm.gps_pos);
+
+  /* UTM conversion */
+  bsm.gps_pos_utm_north = bsm.gps_pos->ve[AXIS_X] * 100. + BSM_GPS_POS_INITIAL_UTM_EAST;
+  bsm.gps_pos_utm_north = rint(bsm.gps_pos_utm_north);
+  bsm.gps_pos_utm_east = bsm.gps_pos->ve[AXIS_Y] * 100. + BSM_GPS_POS_INITIAL_UTM_NORTH;
+  bsm.gps_pos_utm_east = rint(bsm.gps_pos_utm_east);
+  bsm.gps_pos_utm_alt = bsm.gps_pos->ve[AXIS_Z] * 100. + BSM_GPS_POS_INITIAL_UTM_ALT;
+  bsm.gps_pos_utm_alt = rint(bsm.gps_pos_utm_alt);
+
 
   bsm.gps_next_update += BSM_GPS_DT;
   bsm.gps_available = TRUE;

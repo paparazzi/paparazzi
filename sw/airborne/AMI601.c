@@ -36,12 +36,12 @@ volatile uint32_t ami601_nb_err;
 
 void ami601_init( void ) {
   /* configure TRG pin as output and assert it*/
-  SetBit(AMI601_TRG_IODIR , AMI601_TRG_PIN);
-  SetBit(AMI601_TRG_IOSET , AMI601_TRG_PIN);
+  //  SetBit(AMI601_TRG_IODIR , AMI601_TRG_PIN);
+  //  SetBit(AMI601_TRG_IOSET , AMI601_TRG_PIN);
 
   /* configure RST pin as output and set it low*/
-  SetBit(AMI601_RST_IODIR , AMI601_RST_PIN);
-  SetBit(AMI601_RST_IOCLR , AMI601_RST_PIN);
+  //  SetBit(AMI601_RST_IODIR , AMI601_RST_PIN);
+  //  SetBit(AMI601_RST_IOCLR , AMI601_RST_PIN);
 
 
   uint8_t i;

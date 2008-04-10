@@ -124,6 +124,10 @@
 #define BSM_GPS_POS_BIAS_RANDOM_WALK_STD_DEV_Y 1e-1 
 #define BSM_GPS_POS_BIAS_RANDOM_WALK_STD_DEV_Z 1e-1 
 #define BSM_GPS_POS_LATENCY                    0.25
+#define BSM_GPS_POS_INITIAL_UTM_EAST            37728000
+#define BSM_GPS_POS_INITIAL_UTM_NORTH          482464300
+#define BSM_GPS_POS_INITIAL_UTM_ALT                15200
+
 #define BSM_GPS_DT                           (1./4.)
 
 #endif /* BOOZ_SENSORS_MODEL_PARAMS_H */

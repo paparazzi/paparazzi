@@ -16,7 +16,7 @@
 /* gravity in m/s2                                 */
 #define G 9.81
 /* mass in kg                                      */
-#define MASS 0.5                 
+#define MASS 0.724                 
 /* inertia on x axis in kg * m2                    */
 #define Ix .007
 /* inertia on y axis in kg * m2                    */
@@ -35,9 +35,9 @@
 */
 #define BAT_VOLTAGE 11.
 
-#define THAU     1. 
-#define Kq       0.079
-#define Kv    1000.
+#define THAU     0.05 
+#define Kq       0.12
+#define Kv     304.
 
 
 
