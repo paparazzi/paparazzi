@@ -62,7 +62,7 @@ void dl_parse_msg(void) {
     DOWNLINK_SEND_PONG();
   } else
 #ifdef TRAFFIC_INFO
-  if (msg_id == DL_ACINFO && DL_ACINFO_ac_id(dl_buffer) == AC_ID) {
+  if (msg_id == DL_ACINFO && DL_ACINFO_ac_id(dl_buffer) != AC_ID) {
     uint8_t id = DL_ACINFO_ac_id(dl_buffer);
     float ux = MOfCm(DL_ACINFO_utm_east(dl_buffer));
     float uy = MOfCm(DL_ACINFO_utm_north(dl_buffer));
