@@ -31,24 +31,24 @@ main.srcs += downlink.c pprz_transport.c
 
 main.CFLAGS += -DDATALINK=PPRZ -DPPRZ_UART=Uart0
 
-main.srcs += $(SRC_ARCH)/mb_servo.c
+main.srcs += $(MB)/mb_servo.c
 
 main.CFLAGS += -DUSE_TWI_CONTROLLER
 main.CFLAGS += -DI2C_SCLL=100 -DI2C_SCLH=100
-#main.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c $(SRC_ARCH)/mb_twi_controller.c
+#main.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c $(MB)/mb_twi_controller.c
 main.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c $(MB)/mb_twi_controller_asctech.c
 
 main.CFLAGS += -DMB_TACHO
-main.srcs += $(SRC_ARCH)/mb_tacho.c
+main.srcs += $(MB)/mb_tacho.c
 
 main.CFLAGS += -DADC -DUSE_ADC_0 -DUSE_ADC_1
 main.srcs += $(SRC_ARCH)/adc_hw.c
-main.srcs += $(SRC_ARCH)/mb_current.c
+main.srcs += $(MB)/mb_current.c
 
 main.CFLAGS += -DMB_SCALE
-main.srcs += $(SRC_ARCH)/mb_scale.c
+main.srcs += $(MB)/mb_scale.c
 
-main.srcs += $(SRC_ARCH)/mb_modes.c
+main.srcs += $(MB)/mb_modes.c
 
 
 
