@@ -1,0 +1,227 @@
+<!-- $Id$ -->
+<!-- Xsens MTi-G Binary Protocol description -->
+
+<!DOCTYPE xsens SYSTEM "xsens.dtd">
+
+<xsens>
+  <message name="WakeUp" ID="0x3E" to="host"/>
+  <message name="WakeUpAck" ID="0x3F" to="MT"/>
+
+  <message name="GoToConfig" ID="0x30" to="MT"/>
+  <message name="GoToConfigAck" ID="0x31" to="host"/>
+
+  <message name="GoToMeasurment" ID="0x10" to="MT"/>
+  <message name="GoToMeasurmentAck" ID="0x11" to="host"/>
+
+  <message name="Reset" ID="0x40" to="MT"/>
+  <message name="ResetAck" ID="0x41" to="host"/>
+
+  <message name="ReqDID" ID="0x00" to="MT"/>
+  <message name="DeviceID" ID="0x01" to="host">
+    <field name="id" format="U4"/>
+  </message>
+
+  <message name="ReqDataLength" ID="0x0A" to="MT"/>
+  <message name="DataLength" ID="0x0B" to="host">
+    <field name="length" format="U2"/>
+  </message>
+
+  <message name="Error" ID="0x42" to="host">
+    <field name="errorcode" format="U1"/>
+  </message>
+
+  <message name="ReqBaudrate" ID="0x18" to="MT"/>
+  <message name="ReqBaudrateAck" ID="0x19" to="host">
+    <field name="baudrate" format="U1"/>
+  </message>
+
+  <message name="SetBaudrate" ID="0x18" to="MT" length="1">
+    <field name="baudrate" format="U1"/>
+  </message>
+  <message name="SetBaudrateAck" ID="0x19" to="host"/>
+
+  <message name="RestoreFactoryDef" ID="0x0E" to="MT"/>
+  <message name="RestoreFactoryDefAck" ID="0x0F" to="host"/>
+
+  <message name="ReqConfiguration" ID="0x0C" to="MT"/>
+  <message name="Configuration" ID="0x0D" to="host">
+    <field name="master_id" format="U4"/>
+    <field name="sampling" format="U2"/>
+    <field name="skip" format="U2"/>
+    <field name="syn_mode" format="U2"/>
+    <field name="syn_skip" format="U2"/>
+    <field name="syn_offset" format="U4"/>
+    <field name="date" format="U8"/>
+    <field name="time" format="U8"/>
+    <field name="reserved_host" format="U32"/>
+    <field name="reserved_client" format="U32"/>
+    <field name="number" format="U2"/>
+    <field name="id" format="U4"/>
+    <field name="data_length" format="U2"/>
+    <field name="out_mode" format="U2"/>
+    <field name="out_settings" format="U4"/>
+    <field name="reserved" format="U8"/>
+  </message>
+
+  <message name="ReqPeriod" ID="0x04" to="MT"/>
+  <message name="ReqPeriodAck" ID="0x05" to="host">
+    <field name="period" format="U2"/>
+  </message>
+
+  <message name="SetPeriod" ID="0x04" to="MT" length="2">
+    <field name="period" format="U2"/>
+  </message>
+  <message name="SetPeriodAck" ID="0x05" to="host"/>
+
+  <message name="ReqOutputMode" ID="0xD0" to="MT"/>
+  <message name="ReqOutputModeAck" ID="0xD1" to="host">
+    <field name="mode" format="U2"/>
+  </message>
+
+  <message name="SetOutputMode" ID="0xD0" to="MT" length="2">
+    <field name="mode" format="U2"/>
+  </message>
+  <message name="SetOutputModeAck" ID="0xD1" to="host"/>
+
+  <message name="ReqOutputSettings" ID="0xD2" to="MT"/>
+  <message name="ReqOutputSettingsAck" ID="OxD3" to="host">
+    <field name="settings" format="U4"/>
+  </message>
+
+  <message name="SetOutputSettings" ID="0xD2" to="MT" length="4">
+    <field name="settings" format="U4"/>
+  </message>
+  <message name="SetOutputSettingsAck" ID="0xD3" to="host"/>
+
+  <message name="ReqData" ID="0x34" to="MT"/>
+  <message name="MTData" ID="0x32" to="host">
+    <field name="data"/>
+  </message>
+
+  <message name="ReqHeading" ID="Ox82" to="MT"/>
+  <message name="ReqHeadingAck" ID="0x83" to="host">
+    <field name="heading" format="F4" unit="rad"/>
+  </message>
+
+  <message name="SetHeading" ID="0x82" to="MT" length="1">
+    <field name="heading" format="F4" unit="rad"/>
+  </message>
+  <message name="SetHeading" ID="0x83" to="host"/>
+
+  <message name="ReqMagneticDeclination" ID="0x6A" to="MT"/>
+  <message name="ReqMagneticDeclinationAck" ID="0x6B" to="host">
+    <field name="declination" format="F4" unit="rad"/>
+  </message>
+
+  <message name="SetMagneticDeclination" ID="0x6A" to="MT" length="4">
+    <field name="declination" format="F4" unit="rad"/>
+  </message>
+  <message name="SetMagneticDeclinationAck" ID="0x6B" to="host"/>
+
+  <message name="ReqGPSStatus" ID="0xA6" to="MT"/>
+  <message name="GPSStatus" ID="0xA7" to="host">
+    <field name="status"/>
+  </message>
+
+  <message name="ReqUTCTime" ID="0x60" to="MT"/>
+  <message name="UTCTime" ID="0x61" to="host">
+    <field name="time" format="U4" unit="ms"/>
+  </message>
+
+  <data name="RAWInertial" length="20">
+    <field name="accX" format="U2"/>
+    <field name="accY" format="U2"/>
+    <field name="accZ" format="U2"/>
+    <field name="gyrX" format="U2"/>
+    <field name="gyrY" format="U2"/>
+    <field name="gyrZ" format="U2"/>
+    <field name="magX" format="U2"/>
+    <field name="magY" format="U2"/>
+    <field name="magZ" format="U2"/>
+    <field name="temp" format="U2"/>
+  </data>
+
+  <data name="RAWGPS" length="44">
+    <field name="press" format="U2" scaling="2" unit="Pa"/>
+    <field name="bPrs" format="U1"/>
+    <field name="itow" format="U4" unit="ms"/>
+    <field name="lat" format="I4" scaling="1e-7" unit="deg"/>
+    <field name="lon" format="I4" scaling="1e-7" unit="deg"/>
+    <field name="alt" format="I4" unit="mm"/>
+    <field name="vel_n" format="I4" unit="cm/s"/>
+    <field name="vel_e" format="I4" unit="cm/s"/>
+    <field name="vel_d" format="I4" unit="cm/s"/>
+    <field name="hacc" format="U4" unit="mm"/>
+    <field name="vacc" format="U4" unit="mm"/>
+    <field name="sacc" format="U4" unit="mm"/>
+    <field name="bGPS" format="U1"/>
+  </data>
+
+  <data name="Temp" length="4">
+    <field name="temp" format="F4"/>
+  </data>
+
+  <data name="Calibrated" length="36">
+    <field name="accX" format="F4" unit="m/s/s"/>
+    <field name="accY" format="F4" unit="m/s/s"/>
+    <field name="accZ" format="F4" unit="m/s/s"/>
+    <field name="gyrX" format="F4" unit="rad/s"/>
+    <field name="gyrY" format="F4" unit="rad/s"/>
+    <field name="gyrZ" format="F4" unit="rad/s"/>
+    <field name="magX" format="F4"/>
+    <field name="magY" format="F4"/>
+    <field name="magZ" format="F4"/>
+  </data>
+
+  <data name="Quaternion" length="16">
+    <field name="q0" format="F4"/>
+    <field name="q1" format="F4"/>
+    <field name="q2" format="F4"/>
+    <field name="q3" format="F4"/>
+  </data>
+
+  <data name="Euler" length="12">
+    <field name="roll" format="F4" unit="deg"/>
+    <field name="pitch" format="F4" unit="deg"/>
+    <field name="yaw" format="F4" unit="deg"/>
+  </data>
+
+  <data name="Matrix" length="36">
+    <field name="a" format="F4"/>
+    <field name="b" format="F4"/>
+    <field name="c" format="F4"/>
+    <field name="d" format="F4"/>
+    <field name="e" format="F4"/>
+    <field name="f" format="F4"/>
+    <field name="g" format="F4"/>
+    <field name="h" format="F4"/>
+    <field name="i" format="F4"/>
+  </data>
+
+  <data name="Auxiliary" length="4">
+    <field name="ain_1" format="U2"/>
+    <field name="ain_2" format="U2"/>
+  </data>
+
+  <data name="Position" length="12">
+    <field name="lat" format="F4" unit="deg"/>
+    <field name="lon" format="F4" unit="deg"/>
+    <field name="alt" format="F4" unit="m"/>
+  </data>
+
+  <data name="Velocity" length="12">
+    <field name="vx" format="F4" unit="m/s"/>
+    <field name="vy" format="F4" unit="m/s"/>
+    <field name="vz" format="F4" unit="m/s"/>
+  </data>
+
+  <data name="Status" length="1">
+    <field name="status" format="U1"/>
+  </data>
+
+  <data name="TimeStamp" length="2">
+    <field name="ts" format="U2"/>
+  </data>
+
+</xsens>
+
