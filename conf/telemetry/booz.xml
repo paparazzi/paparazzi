@@ -5,7 +5,8 @@
 
   <process name="Controller">
     <mode name="default">
-      <message name="BOOZ_STATUS"       period="1."/>
+      <message name="ALIVE"             period="5."/>
+      <message name="BOOZ_STATUS"       period=".5"/>
       <message name="RC"                period="0.5"/>
 <!--      <message name="BOOZ_FD"           period="0.05"/> -->
 <!--      <message name="BOOZ_DEBUG"        period="0.25"/> -->
@@ -25,25 +26,30 @@
 
 
   <process name="Filter">
+
     <mode name="default">
 <!--      <message name="IMU_GYRO_LP"           period=".017"/> -->
-      <message name="AHRS_STATE"            period=".05"/>
+      <message name="AHRS_STATE"            period=".1"/>
       <message name="AHRS_COV"              period=".2"/> 
-      <message name="AHRS_MEASURE"          period=".05"/>
-<!--      <message name="IMU_ACCEL_RAW"         period=".2"/> -->
-      <message name="IMU_ACCEL"             period=".5"/>
+      <message name="AHRS_MEASURE"          period=".1"/>
+<!--      <message name="IMU_ACCEL_RAW"         period=".02"/> -->
+      <message name="IMU_ACCEL"             period=".1"/>
 <!--      <message name="IMU_GYRO_RAW"          period=".05"/> -->
-      <message name="IMU_GYRO"              period=".05"/>
-<!--      <message name="IMU_MAG_RAW"           period=".5"/> -->
+      <message name="IMU_GYRO"              period=".1"/>
+<!--      <message name="IMU_MAG_RAW"           period=".05"/>
       <message name="IMU_MAG"               period=".5"/>
       <message name="IMU_PRESSURE"          period=".5"/>
+      <message name="INS_STATE"             period=".1"/> -->
     </mode>
+
     <mode name="raw_sensors">
       <message name="IMU_GYRO_RAW"          period=".017"/>
     </mode>
+
     <mode name="scaled_sensors">
       <message name="IMU_GYRO"              period=".017"/>
     </mode>
+
     <mode name="simulation">
 <!--      <message name="BOOZ_DEBUG"            period=".1"/>-->
       <message name="AHRS_STATE"            period=".1"/>

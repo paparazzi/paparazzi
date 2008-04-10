@@ -484,9 +484,9 @@
   <message name="BOOZ_HOV_LOOP" ID="236">
     <field name="sp_x"          type="float" unit="m"/>
     <field name="sp_y"          type="float" unit="m"/>
-    <field name="est_vx"        type="float" unit="m/s"/>
+    <field name="est_u"         type="float" unit="m/s"/>
     <field name="est_x"         type="float" unit="m"/>
-    <field name="est_vy"        type="float" unit="m/s"/>
+    <field name="est_v"         type="float" unit="m/s"/>
     <field name="est_y"         type="float" unit="m"/>
     <field name="phi_command"   type="float" unit="rad"/>
     <field name="theta_command" type="float" unit="rad"/>
@@ -559,7 +559,13 @@
     <field name="module"   type="uint8"/>
     <field name="errno"   type="uint8"/>
   </message>
-    
+
+  <message name="BOOZ_INS_STATE" ID="248">
+    <field name="z_est"  type="float" unit="m/s"/>
+    <field name="z_meas" type="float" unit="m/s"/>
+    <field name="zd_est" type="float" unit="m/s"/>
+    <field name="az_b"   type="float" unit="m/s"/>
+  </message>
 
   <message name="TL_ESTIMATOR" ID="60">
       <field name="r"   type="float" unit="rad/s"/>

@@ -59,6 +59,16 @@
 #define USE_AD0_1
 #endif
 
+/* battery on AD1.7 */
+#define ADC_BAT AdcBank1(7)
+#ifdef USE_ADC_BAT
+#ifndef USE_AD1
+#define USE_AD1
+#endif
+#define USE_AD1_7
+#endif
+
+
 
 
 

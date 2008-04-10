@@ -3,18 +3,28 @@
 <settings>
   <dl_settings>
 
+  <dl_settings NAME="Rate loop">
     <dl_setting var="booz_control_rate_pq_pgain" min="-1000" step="10" max="-50" module="booz_control" shortname="rate_pq_p"/>
     <dl_setting var="booz_control_rate_pq_dgain" min="0" step="0.5" max="30" module="booz_control"  shortname="rate_pq_d"/>
     <dl_setting var="booz_control_rate_r_pgain" min="-500" step="10" max="-10" module="booz_control" shortname="rate_r_p"/>
     <dl_setting var="booz_control_rate_r_dgain" min="0" step="0.5" max="30" module="booz_control" shortname="rate_r_d"/>
+  </dl_settings>
 
+
+  <dl_settings NAME="Attitude loop">
     <dl_setting var="booz_control_attitude_phi_theta_pgain" min="-2000" step="50" max="-50" module="booz_control" shortname="att_rp_p"/>
     <dl_setting var="booz_control_attitude_phi_theta_dgain" min="-2000" step="50" max="-50" module="booz_control" shortname="att_rp_d"/>
     <dl_setting var="booz_control_attitude_psi_pgain" min="-2000" step="50" max="-50" module="booz_control" shortname="att_y_p"/>
     <dl_setting var="booz_control_attitude_psi_dgain" min="-2000" step="50" max="-50" module="booz_control" shortname="att_y_d"/>
+  </dl_settings>
+
+
+  <dl_settings NAME="Vertical loop">
+    <dl_setting var="booz_nav_hover_v_pgain" min="0.005" step="0.005" max="0.2" module="booz_nav_hover" shortname="vert_p"/>
+    <dl_setting var="booz_nav_hover_v_dgain" min="0.005" step="0.005" max="0.2" module="booz_nav_hover" shortname="vert_d"/>
+  </dl_settings>
+
 <!--
-    <dl_setting var="booz_nav_vertical_pgain" min="0.01" step="0.01" max="10" module="booz_nav" shortname="vert_p"/>
-    <dl_setting var="booz_nav_vertical_dgain" min="0.01" step="0.01" max="10" module="booz_nav" shortname="vert_d"/>
     <dl_setting var="booz_nav_horizontal_pgain" min="0.01" step="0.01" max="0.5" module="booz_nav" shortname="horiz_p"/>
     <dl_setting var="booz_nav_horizontal_dgain" min="0.01" step="0.01" max="0.5" module="booz_nav" shortname="hoziz_d"/>
     <dl_setting var="booz_nav_horizontal_max_pos_err" min="0" step="0.5" max="20" module="booz_nav" shortname="vert_max_pos_err"/>
