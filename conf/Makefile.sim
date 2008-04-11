@@ -73,7 +73,7 @@ endif
 #
 
 $(TARGET).srcsnd = $(notdir $($(TARGET).srcs))
-$(TARGET).objso	= $($(TARGET).srcsnd:%.c=$(OBJDIR)/%.o)
+$(TARGET).objso	= $($(TARGET).srcs:%.c=$(OBJDIR)/%.o)
 $(TARGET).objs	= $($(TARGET).objso:%.S=$(OBJDIR)/%.o)
 
 all compile: $(OBJDIR)/simsitl
@@ -101,24 +101,14 @@ $(SIMSITLML) : $(SIMDIR)/simsitl.ml
 	$(CC) $(CFLAGS) -S -o $@ $<
 
 $(OBJDIR)/%.s: %.c
+	@echo CC $@
+	$(Q)test -d $(dir $@) || mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) -S -o $@ $<
 
 $(OBJDIR)/%.o: %.c
 	@echo CC $@
+	$(Q)test -d $(dir $@) || mkdir -p $(dir $@)
 	$(Q)$(CC) $(CFLAGS) -c -o $@ $<
-
-$(OBJDIR)/%.o: $(SRC_ARCH)/%.c
-	@echo CC $@
-	$(Q)$(CC) $(CFLAGS) -c -o $@ $<
-
-$(OBJDIR)/%.o: $(SRC_ARCH)/%.S
-	$(CC) $(CFLAGS) -c -o $@ $<
-
-ifeq ($(SIM_TYPE),BOOZ)
-$(OBJDIR)/%.o: $(SIMDIR)/%.c
-	@echo CC $@
-	$(Q)$(CC) $(CFLAGS) -c -o $@ $<
-endif
 
 avr_clean:
 	rm -rf $(OBJDIR)
