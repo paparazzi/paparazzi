@@ -21,13 +21,6 @@
 # Boston, MA 02111-1307, USA.  
 # 
 
-
-ifeq ($(SIM_TYPE),BOOZ)
-sim.CFLAGS +=  `pkg-config glib-2.0 --cflags` -I /usr/include/meschach
-sim.LDFLAGS += `pkg-config glib-2.0 --libs` -lm -lmeschach -lpcre -lglibivy
-endif
-
-
 #
 # This is the common Makefile for the sim target.
 #

@@ -155,6 +155,10 @@ sim.ARCH = sitl
 sim.TARGET = sim
 sim.TARGETDIR = sim
 
+
+sim.CFLAGS +=  `pkg-config glib-2.0 --cflags` -I /usr/include/meschach
+sim.LDFLAGS += `pkg-config glib-2.0 --libs` -lm -lmeschach -lpcre -lglibivy
+
 sim.CFLAGS += -I$(BOOZ) -I$(TL)
 
 sim.srcs = $(SIMDIR)/main_booz_sim.c                 \
