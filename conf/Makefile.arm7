@@ -53,7 +53,6 @@ FORMAT = ihex
 
 #FLASH_MODE=ISP
 
-$(TARGET).srcsnd = $(notdir $($(TARGET).srcs))
 SRCARM = $($(TARGET).srcs)
 
 ASRCARM = crt0.S 
