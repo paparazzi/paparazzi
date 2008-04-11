@@ -74,7 +74,7 @@ let _ =
     "Usage: ";
 
   (** Connect to the Ivy bus *)
-  Ivy.init "Paparazzi messages" "READY" (fun _ _ -> ());
+  Ivy.init "Paparazzi settings" "READY" (fun _ _ -> ());
   Ivy.start !ivy_bus;
 
   (** Open the window container with its notebook*)

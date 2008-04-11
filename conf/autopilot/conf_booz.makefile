@@ -26,6 +26,9 @@ ARCHI=arm7
 
 FLASH_MODE = IAP
 
+TL=coaxial
+BOOZ=booz
+BOOZ_ARCH=booz/arm7
 
 #
 # filter CPU
@@ -36,8 +39,13 @@ flt.ARCH = arm7tdmi
 flt.TARGET = flt
 flt.TARGETDIR = flt
 
-flt.CFLAGS += -DBOOZ_FILTER_MCU -DCONFIG=\"pprz_imu.h\"  -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./250.))'
-flt.srcs = booz_filter_main.c sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
+flt.CFLAGS += -I$(TL) -I$(BOOZ) -I$(BOOZ_ARCH)
+
+flt.CFLAGS += -DBOOZ_FILTER_MCU -DCONFIG=\"pprz_imu.h\"
+flt.srcs = $(BOOZ)/booz_filter_main.c
+
+flt.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./250.))'
+flt.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
 
 flt.CFLAGS += -DLED
 
@@ -45,42 +53,42 @@ flt.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600
 flt.srcs += $(SRC_ARCH)/uart_hw.c
 
 flt.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart1 
-flt.srcs += downlink.c pprz_transport.c booz_filter_telemetry.c
+flt.srcs += downlink.c pprz_transport.c $(BOOZ)/booz_filter_telemetry.c
 
 flt.CFLAGS += -DADC -DUSE_AD0 -DUSE_AD0_1 -DUSE_AD0_2 -DUSE_AD0_3 -DUSE_AD0_4
 flt.srcs += $(SRC_ARCH)/adc_hw.c
 
-flt.srcs += booz_imu.c $(SRC_ARCH)/booz_imu_hw.c
+flt.srcs += $(BOOZ)/booz_imu.c $(BOOZ_ARCH)/booz_imu_hw.c
 flt.srcs += max1167.c  $(SRC_ARCH)/max1167_hw.c 
 flt.srcs += micromag.c $(SRC_ARCH)/micromag_hw.c
 flt.srcs += scp1000.c  $(SRC_ARCH)/scp1000_hw.c
 
-flt.srcs += booz_still_detection.c
+flt.srcs += $(BOOZ)/booz_still_detection.c
 
 flt.CFLAGS += -DFLOAT_T=float
 
 flt.CFLAGS += -DBOOZ_AHRS_TYPE=BOOZ_AHRS_MULTITILT
-flt.srcs += ahrs_multitilt.c booz_ahrs.c
+flt.srcs += $(BOOZ)/ahrs_multitilt.c $(BOOZ)/booz_ahrs.c
 
 #flt.CFLAGS += -DBOOZ_AHRS_TYPE=BOOZ_AHRS_QUATERNION
-#flt.srcs += ahrs_quat_fast_ekf.c booz_ahrs.c
+#flt.srcs +=  $(BOOZ)/ahrs_quat_fast_ekf.c booz_ahrs.c
 
 #flt.CFLAGS += -DBOOZ_AHRS_TYPE=BOOZ_AHRS_EULER
-#flt.srcs += ahrs_euler_fast_ekf.c booz_ahrs.c
+#flt.srcs +=  $(BOOZ)/ahrs_euler_fast_ekf.c booz_ahrs.c
 
 #flt.CFLAGS += -DBOOZ_AHRS_TYPE=BOOZ_AHRS_COMP_FILTER
-#flt.srcs += ahrs_comp_filter.c booz_ahrs.c
+#flt.srcs +=  $(BOOZ)/ahrs_comp_filter.c booz_ahrs.c
 
-flt.srcs += booz_ins.c
+flt.srcs += $(BOOZ)/booz_ins.c
 flt.CFLAGS += -DDT_VFILTER="(1./250.)"
-flt.srcs += tl_vfilter.c
+flt.srcs += $(TL)/tl_vfilter.c
 
 flt.CFLAGS += -DUSE_UART0 -DUART0_BAUD=B38400
 flt.CFLAGS += -DGPS -DUBX -DGPS_LINK=Uart0 -DDOWNLINK_GPS_DEVICE=Uart1 -DGPS_BAUD=38400
 flt.srcs += gps_ubx.c gps.c latlong.c
 
-flt.srcs += booz_inter_mcu.c
-flt.srcs += booz_link_mcu.c $(SRC_ARCH)/booz_link_mcu_hw.c
+flt.srcs += $(BOOZ)/booz_inter_mcu.c
+flt.srcs += $(BOOZ)/booz_link_mcu.c $(BOOZ_ARCH)/booz_link_mcu_hw.c
 
 
 #
@@ -92,47 +100,49 @@ ctl.ARCH = arm7tdmi
 ctl.TARGET = ctl
 ctl.TARGETDIR = ctl
 
+ctl.CFLAGS += -I$(BOOZ) -I$(BOOZ_ARCH)
+
 ctl.CFLAGS += -DBOOZ_CONTROLLER_MCU -DCONFIG=\"conf_booz.h\"
-ctl.srcs = booz_controller_main.c
+ctl.srcs = $(BOOZ)/booz_controller_main.c
 
 ctl.CFLAGS += -DLED
 
-ctl.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(4e-3)' -DTIME_LED=1
+ctl.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./250.))' -DTIME_LED=1
 ctl.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
 
 ctl.srcs += $(SRC_ARCH)/armVIC.c
 
 ctl.CFLAGS += -DUSE_ADC_BAT
-ctl.srcs += booz_energy.c $(SRC_ARCH)/adc_hw.c
+ctl.srcs += $(BOOZ)/booz_energy.c $(SRC_ARCH)/adc_hw.c
 
 ctl.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600
 ctl.srcs += $(SRC_ARCH)/uart_hw.c
 
 ctl.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart1 
-ctl.srcs += booz_controller_telemetry.c downlink.c pprz_transport.c 
+ctl.srcs += $(BOOZ)/booz_controller_telemetry.c downlink.c pprz_transport.c 
 
 ctl.CFLAGS += -DDATALINK=PPRZ -DPPRZ_UART=Uart1
-ctl.srcs += booz_datalink.c
+ctl.srcs += $(BOOZ)/booz_datalink.c
 
 ctl.CFLAGS += -DACTUATORS=\"actuators_buss_twi_blmc_hw.h\" -DUSE_BUSS_TWI_BLMC
-ctl.srcs += $(SRC_ARCH)/actuators_buss_twi_blmc_hw.c actuators.c
+ctl.srcs += $(BOOZ_ARCH)/actuators_buss_twi_blmc_hw.c actuators.c
 ctl.CFLAGS += -DI2C_SCLL=150 -DI2C_SCLH=150 -DI2C_VIC_SLOT=10
 ctl.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
 
 ctl.CFLAGS += -DRADIO_CONTROL -DRADIO_CONTROL_TYPE=RC_FUTABA -DRC_LED=4
 ctl.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c
 
-ctl.srcs += booz_inter_mcu.c
+ctl.srcs += $(BOOZ)/booz_inter_mcu.c
 ctl.CFLAGS += -DFLOAT_T=float
-ctl.srcs += booz_link_mcu.c $(SRC_ARCH)/booz_link_mcu_hw.c
+ctl.srcs += $(BOOZ)/booz_link_mcu.c $(BOOZ_ARCH)/booz_link_mcu_hw.c
 
 ctl.srcs += commands.c
 ctl.CFLAGS += -DNAV_VERTICAL
-ctl.srcs += booz_estimator.c      \
-            booz_control.c        \
-            booz_nav.c  	  \
-            booz_nav_hover.c  	  \
-            booz_autopilot.c
+ctl.srcs += $(BOOZ)/booz_estimator.c      \
+            $(BOOZ)/booz_control.c        \
+            $(BOOZ)/booz_nav.c  	  \
+            $(BOOZ)/booz_nav_hover.c  	  \
+            $(BOOZ)/booz_autopilot.c
 
 #
 # SITL Simulator
@@ -142,8 +152,10 @@ SIM_TYPE = BOOZ
 
 sim.ARCHDIR = $(ARCHI)
 sim.ARCH = sitl
-sim.TARGET = main
-sim.TARGETDIR = main
+sim.TARGET = sim
+sim.TARGETDIR = sim
+
+sim.CFLAGS += -I$(BOOZ) -I$(TL)
 
 sim.srcs = $(SIMDIR)/main_booz_sim.c                 \
 	   $(SIMDIR)/booz_flight_model.c             \
@@ -164,12 +176,12 @@ sim.CFLAGS += -DSITL
 sim.CFLAGS += -DBOOZ_CONTROLLER_MCU
 sim.CFLAGS += -DCONFIG=\"conf_booz.h\"
 
-sim.srcs += booz_controller_main.c
+sim.srcs += $(BOOZ)/booz_controller_main.c
 
 sim.srcs += sys_time.c
 
 sim.CFLAGS += -DUSE_ADC_BAT
-sim.srcs += booz_energy.c
+sim.srcs += $(BOOZ)/booz_energy.c
 
 sim.CFLAGS += -DRADIO_CONTROL 
 sim.srcs += radio_control.c \
@@ -181,57 +193,57 @@ sim.srcs += actuators.c \
             i2c.c $(SRC_ARCH)/i2c_hw.c
 
 sim.CFLAGS += -DDOWNLINK 
-sim.srcs += booz_controller_telemetry.c \
+sim.srcs += $(BOOZ)/booz_controller_telemetry.c \
             downlink.c
 sim.CFLAGS += -DDOWNLINK_TRANSPORT=IvyTransport
 sim.srcs += $(SRC_ARCH)/ivy_transport.c
 
-sim.srcs += booz_inter_mcu.c
-sim.srcs += booz_link_mcu.c $(SRC_ARCH)/booz_link_mcu_hw.c
+sim.srcs += $(BOOZ)/booz_inter_mcu.c
+sim.srcs += $(BOOZ)/booz_link_mcu.c $(SRC_ARCH)/booz_link_mcu_hw.c
 
-sim.srcs += booz_estimator.c
-sim.srcs += booz_control.c
+sim.srcs += $(BOOZ)/booz_estimator.c
+sim.srcs += $(BOOZ)/booz_control.c
 sim.CFLAGS += -DNAV_VERTICAL
-sim.srcs += booz_nav.c
-sim.srcs += booz_nav_hover.c
+sim.srcs += $(BOOZ)/booz_nav.c
+sim.srcs += $(BOOZ)/booz_nav_hover.c
 
-sim.srcs += booz_autopilot.c
+sim.srcs += $(BOOZ)/booz_autopilot.c
 sim.srcs += commands.c
 
 
 sim.CFLAGS += -DBOOZ_FILTER_MCU
-sim.srcs += booz_filter_main.c
+sim.srcs += $(BOOZ)/booz_filter_main.c
 
 sim.CFLAGS += -DADC_CHANNEL_AX=1 -DADC_CHANNEL_AY=2 -DADC_CHANNEL_AZ=3 -DADC_CHANNEL_BAT=4
 sim.srcs  += $(SRC_ARCH)/adc_hw.c
 
 
-sim.srcs += booz_filter_telemetry.c
+sim.srcs += $(BOOZ)/booz_filter_telemetry.c
 
-sim.srcs += booz_imu.c $(SRC_ARCH)/booz_imu_hw.c
+sim.srcs += $(BOOZ)/booz_imu.c $(SRC_ARCH)/booz_imu_hw.c
 sim.srcs += max1167.c  $(SRC_ARCH)/max1167_hw.c 
 sim.srcs += micromag.c $(SRC_ARCH)/micromag_hw.c
 sim.srcs += scp1000.c  $(SRC_ARCH)/scp1000_hw.c
 
-sim.srcs += booz_still_detection.c
+sim.srcs += $(BOOZ)/booz_still_detection.c
 
 sim.CFLAGS += -DFLOAT_T=float
 #sim.CFLAGS += -DBOOZ_AHRS_TYPE=BOOZ_AHRS_MULTITILT
-#sim.srcs += ahrs_multitilt.c booz_ahrs.c
+#sim.srcs += $(BOOZ)/ahrs_multitilt.c $(BOOZ)/booz_ahrs.c
 
 #sim.CFLAGS += -DBOOZ_AHRS_TYPE=BOOZ_AHRS_QUATERNION 
 #sim.CFLAGS += -DEKF_UPDATE_DISCRETE
 #sim.CFLAGS += -DEKF_PREDICT_ONLY
-#sim.srcs += ahrs_quat_fast_ekf.c
+#sim.srcs += $(BOOZ)/ahrs_quat_fast_ekf.c
 
 sim.CFLAGS += -DBOOZ_AHRS_TYPE=BOOZ_AHRS_COMP_FILTER
-sim.srcs += ahrs_comp_filter.c booz_ahrs.c
+sim.srcs += $(BOOZ)/ahrs_comp_filter.c $(BOOZ)/booz_ahrs.c
 
 sim.srcs += gps.c latlong.c $(SRC_ARCH)/gps_hw.c
 
-sim.srcs += booz_ins.c
+sim.srcs += $(BOOZ)/booz_ins.c
 sim.CFLAGS += -DDT_VFILTER="(1./250.)"
-sim.srcs += tl_vfilter.c
+sim.srcs += $(TL)/tl_vfilter.c
 
 
 
