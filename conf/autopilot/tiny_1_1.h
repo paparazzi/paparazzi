@@ -1,12 +1,6 @@
 #ifndef CONFIG_TINY_H
 #define CONFIG_TINY_H
 
-#ifdef SITL
-/* Dummy definitions: adc are unused anyway */
-#define AdcBank0(x) (x)
-#define AdcBank1(x) (x)
-#endif /* SITL */
-
 /* Master oscillator freq.       */
 #define FOSC (12000000) 
 

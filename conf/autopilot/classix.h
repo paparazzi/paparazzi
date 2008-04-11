@@ -1,12 +1,6 @@
 #ifndef CONFIG_CLASSIX_H
 #define CONFIG_CLASSIX_H
 
-#ifdef SITL
-/* Dummy definitions: adc are unused anyway */
-#define AdcBank0(x) (x)
-#define AdcBank1(x) (x)
-#endif
-
 /* Master oscillator freq.       */
 #define FOSC (12000000) 
 /* PLL multiplier                */
