@@ -4,8 +4,8 @@ volatile uint32_t mb_scale_pulse_len;
 float mb_scale_thrust;
 float mb_scale_torque;
 
-uint32_t mb_scale_neutral = 2906400;
-float    mb_scale_gain = 0.0021563;
+uint32_t mb_scale_neutral = 2892000; //2944640;
+float    mb_scale_gain = 1.69e-3; //2.72e-3;
 
 void mb_scale_init ( void ) {
   /* select pin for capture */

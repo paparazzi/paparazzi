@@ -22,9 +22,9 @@ void mb_scale_init ( void );
 #define MB_SCALE_ICP_ISR() {					\
     static uint32_t last;					\
     uint32_t now = T0CR3;					\
-    mb_scale_pulse_len = now - last;				\
-    mb_scale_thrust = mb_scale_gain *				\
-      ( mb_scale_pulse_len - mb_scale_neutral);			\
+    mb_scale_pulse_len = now - last;					\
+    int32_t diff = (int32_t)mb_scale_pulse_len - (int32_t)mb_scale_neutral; \
+    mb_scale_thrust = mb_scale_gain * diff;				\
     last = now;							\
   }
 
