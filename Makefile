@@ -45,9 +45,11 @@ STATICINCLUDE =$(PAPARAZZI_HOME)/var/include
 MESSAGES_H=$(STATICINCLUDE)/messages.h
 MESSAGES_FBW_H=$(STATICINCLUDE)/messages_fbw.h
 UBX_PROTOCOL_H=$(STATICINCLUDE)/ubx_protocol.h
+XSENS_PROTOCOL_H=$(STATICINCLUDE)/xsens_protocol.h
 DL_PROTOCOL_H=$(STATICINCLUDE)/dl_protocol.h
 MESSAGES_XML = $(CONF)/messages.xml
 UBX_XML = $(CONF)/ubx.xml
+XSENS_XML = $(CONF)/xsens_MTi-G.xml
 TOOLS=$(PAPARAZZI_SRC)/sw/tools
 ARMGCC=/usr/bin/arm-elf-gcc
 
@@ -86,7 +88,7 @@ tmtc: lib
 multimon:
 	cd $(MULTIMON); $(MAKE)
 
-static_h: $(MESSAGES_H) $(UBX_PROTOCOL_H) $(DL_PROTOCOL_H)
+static_h: $(MESSAGES_H) $(UBX_PROTOCOL_H) $(XSENS_PROTOCOL_H) $(DL_PROTOCOL_H)
 
 usb_lib:
 	@[ -d sw/airborne/arm7/lpcusb ] && ((test -x $(ARMGCC) && (cd sw/airborne/arm7/lpcusb; $(MAKE))) || echo "Not building usb_lib: ARMGCC=$(ARMGCC) not found") || echo "Not building usb_lib: sw/airborne/arm7/lpcusb directory missing"
@@ -102,6 +104,11 @@ $(UBX_PROTOCOL_H) : $(UBX_XML) $(TOOLS)/gen_ubx.out
 	@echo BUILD $@
 	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) $(TOOLS)/gen_ubx.out $< > /tmp/ubx.h
 	$(Q)mv /tmp/ubx.h $@
+
+$(XSENS_PROTOCOL_H) : $(XSENS_XML) $(TOOLS)/gen_xsens.out
+	@echo BUILD $@
+	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) $(TOOLS)/gen_xsens.out $< > /tmp/xsens.h
+	$(Q)mv /tmp/xsens.h $@
 
 $(DL_PROTOCOL_H) : $(MESSAGES_XML) $(TOOLS)/gen_messages.out
 	@echo BUILD $@

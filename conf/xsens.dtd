@@ -1,21 +1,28 @@
 <!-- XSENS MTi protocol DTD -->
 
 <!ELEMENT xsens (message|data)+>
-<!ELEMENT message (field*)>
+<!ELEMENT message (field|block)*>
+<!ELEMENT block (field*)>
 <!ELEMENT field EMPTY>
+<!ELEMENT data (field)+>
 
 <!ATTLIST message
   name CDATA #REQUIRED
   ID CDATA #REQUIRED
-  to (MT,host) #REQUIRED
+  to (MT|host) #REQUIRED
   length CDATA #IMPLIED>
+
+<!ATTLIST block
+  times CDATA #IMPLIED
+  length CDATA #REQUIRED>
+
+<!ATTLIST field
+  name CDATA #REQUIRED
+  format CDATA #REQUIRED
+  scaling CDATA #IMPLIED
+  unit CDATA #IMPLIED>
 
 <!ATTLIST data
   name CDATA #REQUIRED
   length CDATA #REQUIRED>
 
-<!ATTLIST field
-  name CDATA #REQUIRED
-  format CDATA #IMPLIED
-  scaling CDATA #IMPLIED
-  unit CDATA #IMPLIED>

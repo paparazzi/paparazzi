@@ -95,32 +95,39 @@
 
   <message name="ReqData" ID="0x34" to="MT"/>
   <message name="MTData" ID="0x32" to="host">
-    <field name="data"/>
+    <field name="data" format="V"/>
   </message>
 
   <message name="ReqHeading" ID="Ox82" to="MT"/>
   <message name="ReqHeadingAck" ID="0x83" to="host">
-    <field name="heading" format="F4" unit="rad"/>
+    <field name="heading" format="R4" unit="rad"/>
   </message>
 
-  <message name="SetHeading" ID="0x82" to="MT" length="1">
-    <field name="heading" format="F4" unit="rad"/>
+  <message name="SetHeading" ID="0x82" to="MT" length="4">
+    <field name="heading" format="R4" unit="rad"/>
   </message>
-  <message name="SetHeading" ID="0x83" to="host"/>
+  <message name="SetHeadingAck" ID="0x83" to="host"/>
 
   <message name="ReqMagneticDeclination" ID="0x6A" to="MT"/>
   <message name="ReqMagneticDeclinationAck" ID="0x6B" to="host">
-    <field name="declination" format="F4" unit="rad"/>
+    <field name="declination" format="R4" unit="rad"/>
   </message>
 
   <message name="SetMagneticDeclination" ID="0x6A" to="MT" length="4">
-    <field name="declination" format="F4" unit="rad"/>
+    <field name="declination" format="R4" unit="rad"/>
   </message>
   <message name="SetMagneticDeclinationAck" ID="0x6B" to="host"/>
 
   <message name="ReqGPSStatus" ID="0xA6" to="MT"/>
   <message name="GPSStatus" ID="0xA7" to="host">
-    <field name="status"/>
+    <field name="nch" format="U1"/>
+    <block times="nch" length="5">
+      <field name="chn" format="U1"/>
+      <field name="svid" format="U1"/>
+      <field name="bitmask" format="U1"/>
+      <field name="qi" format="I1"/>
+      <field name="cnr" format="I1"/>
+    </block>
   </message>
 
   <message name="ReqUTCTime" ID="0x60" to="MT"/>
@@ -158,44 +165,44 @@
   </data>
 
   <data name="Temp" length="4">
-    <field name="temp" format="F4"/>
+    <field name="temp" format="R4"/>
   </data>
 
   <data name="Calibrated" length="36">
-    <field name="accX" format="F4" unit="m/s/s"/>
-    <field name="accY" format="F4" unit="m/s/s"/>
-    <field name="accZ" format="F4" unit="m/s/s"/>
-    <field name="gyrX" format="F4" unit="rad/s"/>
-    <field name="gyrY" format="F4" unit="rad/s"/>
-    <field name="gyrZ" format="F4" unit="rad/s"/>
-    <field name="magX" format="F4"/>
-    <field name="magY" format="F4"/>
-    <field name="magZ" format="F4"/>
+    <field name="accX" format="R4" unit="m/s/s"/>
+    <field name="accY" format="R4" unit="m/s/s"/>
+    <field name="accZ" format="R4" unit="m/s/s"/>
+    <field name="gyrX" format="R4" unit="rad/s"/>
+    <field name="gyrY" format="R4" unit="rad/s"/>
+    <field name="gyrZ" format="R4" unit="rad/s"/>
+    <field name="magX" format="R4"/>
+    <field name="magY" format="R4"/>
+    <field name="magZ" format="R4"/>
   </data>
 
   <data name="Quaternion" length="16">
-    <field name="q0" format="F4"/>
-    <field name="q1" format="F4"/>
-    <field name="q2" format="F4"/>
-    <field name="q3" format="F4"/>
+    <field name="q0" format="R4"/>
+    <field name="q1" format="R4"/>
+    <field name="q2" format="R4"/>
+    <field name="q3" format="R4"/>
   </data>
 
   <data name="Euler" length="12">
-    <field name="roll" format="F4" unit="deg"/>
-    <field name="pitch" format="F4" unit="deg"/>
-    <field name="yaw" format="F4" unit="deg"/>
+    <field name="roll" format="R4" unit="deg"/>
+    <field name="pitch" format="R4" unit="deg"/>
+    <field name="yaw" format="R4" unit="deg"/>
   </data>
 
   <data name="Matrix" length="36">
-    <field name="a" format="F4"/>
-    <field name="b" format="F4"/>
-    <field name="c" format="F4"/>
-    <field name="d" format="F4"/>
-    <field name="e" format="F4"/>
-    <field name="f" format="F4"/>
-    <field name="g" format="F4"/>
-    <field name="h" format="F4"/>
-    <field name="i" format="F4"/>
+    <field name="a" format="R4"/>
+    <field name="b" format="R4"/>
+    <field name="c" format="R4"/>
+    <field name="d" format="R4"/>
+    <field name="e" format="R4"/>
+    <field name="f" format="R4"/>
+    <field name="g" format="R4"/>
+    <field name="h" format="R4"/>
+    <field name="i" format="R4"/>
   </data>
 
   <data name="Auxiliary" length="4">
@@ -204,15 +211,15 @@
   </data>
 
   <data name="Position" length="12">
-    <field name="lat" format="F4" unit="deg"/>
-    <field name="lon" format="F4" unit="deg"/>
-    <field name="alt" format="F4" unit="m"/>
+    <field name="lat" format="R4" unit="deg"/>
+    <field name="lon" format="R4" unit="deg"/>
+    <field name="alt" format="R4" unit="m"/>
   </data>
 
   <data name="Velocity" length="12">
-    <field name="vx" format="F4" unit="m/s"/>
-    <field name="vy" format="F4" unit="m/s"/>
-    <field name="vz" format="F4" unit="m/s"/>
+    <field name="vx" format="R4" unit="m/s"/>
+    <field name="vy" format="R4" unit="m/s"/>
+    <field name="vz" format="R4" unit="m/s"/>
   </data>
 
   <data name="Status" length="1">
