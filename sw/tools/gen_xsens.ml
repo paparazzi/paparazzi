@@ -62,7 +62,8 @@ let get_at = fun offset format block_size ->
   let block_offset =
     if block_size = 0 then "" else sprintf "+%d*_xsens_block" block_size in
   match format with
-     "U4" | "I4" | "R4" -> sprintf "(%s)(*((uint8_t*)_xsens_payload+3+%d%s)|*((uint8_t*)_xsens_payload+2+%d%s)<<8|((%s)*((uint8_t*)_xsens_payload+1+%d%s))<<16|((%s)*((uint8_t*)_xsens_payload+%d%s))<<24)" t offset block_offset offset block_offset t offset block_offset t offset block_offset
+     "R4" -> sprintf "(%s)(*((uint8_t*)_xsens_payload+3+%d%s)|*((uint8_t*)_xsens_payload+2+%d%s)<<8|((uint32_t)*((uint8_t*)_xsens_payload+1+%d%s))<<16|((uint32_t)*((uint8_t*)_xsens_payload+%d%s))<<24)" t offset block_offset offset block_offset offset block_offset offset block_offset
+   | "U4" | "I4" -> sprintf "(%s)(*((uint8_t*)_xsens_payload+3+%d%s)|*((uint8_t*)_xsens_payload+2+%d%s)<<8|((%s)*((uint8_t*)_xsens_payload+1+%d%s))<<16|((%s)*((uint8_t*)_xsens_payload+%d%s))<<24)" t offset block_offset offset block_offset t offset block_offset t offset block_offset
    | "U2" | "I2" -> sprintf "(%s)(*((uint8_t*)_xsens_payload+1+%d%s)|*((uint8_t*)_xsens_payload+%d%s)<<8)" t offset block_offset offset block_offset
    | "U1" | "I1" -> sprintf "(%s)(*((uint8_t*)_xsens_payload+%d%s))" t offset block_offset
    | _ -> failwith (sprintf "Gen_xsens.c_type: unknown format '%s'" format)
@@ -201,11 +202,20 @@ let parse_data = fun d ->
       Xml.No_attribute("length") -> () (** Undefined length authorized *)
   end
 
+let parse_mask = fun m ->
+  let mask_name = Xml.attrib m "name" in
+  let mask = Xml.attrib m "bitmask" in
+  let shift = ExtXml.attrib_or_default m "shift" "" in
 
-let parse_message_and_data = fun m ->
+  fprintf out "\n";
+  define (sprintf "XSENS_MASK_%s(_conf)" mask_name) (sprintf "((_conf & %s)%s)" mask shift)
+
+
+let parse_all = fun m ->
   match Xml.tag m with
     "message" -> parse_message m
   | "data" -> parse_data m
+  | "mask" -> parse_mask m
   | x -> failwith (sprintf "Unexpected tag: %s" x)
 
 
@@ -224,7 +234,7 @@ let _ =
     define "XSENS_BID" "0xFF";
     fprintf out "\n";
     
-    List.iter (parse_message_and_data) (Xml.children xml)
+    List.iter parse_all (Xml.children xml)
   with
     Xml.Error (em, ep) ->
       let l = Xml.line ep
