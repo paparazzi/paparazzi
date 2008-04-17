@@ -60,16 +60,15 @@
 #endif
 
 /* battery on AD1.7 */
-#define ADC_BAT AdcBank1(7)
-#ifdef USE_ADC_BAT
+#define ADC_CHANNEL_VSUPPLY AdcBank1(7)
 #ifndef USE_AD1
 #define USE_AD1
 #endif
 #define USE_AD1_7
+
+#ifndef VoltageOfAdc
+#define VoltageOfAdc(adc) (0.004295*adc)
 #endif
-
-
-
 
 
 #endif /* CONFIG_BOOZ_H */
