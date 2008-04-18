@@ -112,7 +112,7 @@ let parse_message = fun m ->
   in
 
   (** Generating send function *)
-  let gen_send_macro = fun f ->
+  let gen_send_macro = fun _ ->
     let param_name = fun f -> String.lowercase (field_name f) in
     let rec param_names = fun f r ->
       if Xml.tag f = "field" then
@@ -124,34 +124,34 @@ let parse_message = fun m ->
       try
         Xml.attrib f "length"
       with Xml.No_attribute("length") -> "0" in
-    fprintf out "\n#define XSENS_%s(" msg_name;
+    fprintf out "#define XSENS_%s(" msg_name;
     fprintf out "%s" (String.concat "," (param_names m []));
     fprintf out ") { \\\n";
-    fprintf out "  XsensHeader(UBX_%s_ID, %s);\\\n" msg_id (get_msg_length f);
+    fprintf out "  XsensHeader(%s, %s);\\\n" msg_id (get_msg_length m);
     let rec send_one_field = fun f ->
       match Xml.tag f with
         "field" -> 
   	let s = sizeof (format f) in
   	let p = param_name f in
   	let t = param_type f in
+        offset += sizeof (format f);
   	fprintf out "  %s _%s = %s; XsensSend%dByAddr((uint8_t*)&_%s);\\\n" t p p s p
       | "block" ->
   	List.iter send_one_field (Xml.children f)
       | _ -> assert (false) in
     List.iter send_one_field (Xml.children m);
     fprintf out "  XsensTrailer();\\\n";
-    fprintf out "}\n";
-    offset += sizeof (format f)
+    fprintf out "}"
   in
 
-  let gen_access_macro = fun m f ->
+  let gen_access_macro =
     match Xml.attrib m "to" with
-      "MT" -> gen_send_macro f
-    | "host" -> gen_read_macro 0 f
-    | x -> failwith (sprintf "Unexpected direction: %s" x)
+      "MT" -> gen_send_macro ();
+    | "host" -> List.iter (gen_read_macro 0) (Xml.children m);
+    | _ -> failwith "Unexpected direction";
   in
+  gen_access_macro;
 
-  List.iter (gen_access_macro m) (Xml.children m);
   begin
     try
       let l = int_of_string (Xml.attrib m "length") in
