@@ -27,28 +27,26 @@ struct slot_ {
     float alt;
 };
 
-struct slot_ formation[NB_ACS];
+extern struct slot_ formation[NB_ACS];
 
-int formation_init(void);
+extern int formation_init(void);
 
-int add_slot(uint8_t _id, float slot_e, float slot_n, float slot_a);
+extern int add_slot(uint8_t _id, float slot_e, float slot_n, float slot_a);
 
 #define UpdateSlot(_id, _se, _sn, _sa) { \
-  formation[_id].east = _se; \
-  formation[_id].north = _sn; \
-  formation[_id].alt = _sa; \
+  formation[the_acs_id[_id]].east = _se; \
+  formation[the_acs_id[_id]].north = _sn; \
+  formation[the_acs_id[_id]].alt = _sa; \
 }
 
-int start_formation(void);
+#define UpdateFormationStatus(_id,_status) { formation[the_acs_id[_id]].status = _status; }
 
-int stop_formation(void);
+extern int start_formation(void);
 
-int formation_flight(void);
+extern int stop_formation(void);
 
-#ifdef FORMATION 
-#define FormationFlight() formation_flight()
-#else
-#define FormationFlight() {}
-#endif
+extern int formation_flight(void);
+
+extern void formation_pre_call(void);
 
 #endif /* FORMATION_H */

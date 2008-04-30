@@ -103,6 +103,10 @@
 #include "formation.h"
 #endif
 
+#ifdef TCAS
+#include "tcas.h"
+#endif
+
 #if ! defined CATASTROPHIC_BAT_LEVEL && defined LOW_BATTERY
 #warning "LOW_BATTERY deprecated. Renammed into CATASTROPHIC_BAT_LEVEL (in aiframe file)"
 #define CATASTROPHIC_BAT_LEVEL LOW_BATTERY
@@ -313,6 +317,10 @@ static void navigation_task( void ) {
   else
     nav_periodic_task();
   
+#ifdef TCAS
+  CallTCAS();
+#endif
+
 #ifndef PERIOD_NAVIGATION_0 // If not sent periodically (in default 0 mode)
   SEND_NAVIGATION();
 #endif
@@ -417,6 +425,13 @@ void periodic_task_ap( void ) {
     break;
 #endif
 
+#ifdef TCAS
+  case 6:
+    /** conflicts monitoring at 1Hz */
+    tcas_periodic_task_1Hz();
+    break;
+#endif
+
   }
 
 #ifdef USE_LIGHT
@@ -467,6 +482,13 @@ void periodic_task_ap( void ) {
   case 6:
     adc_generic_periodic();
     DOWNLINK_SEND_ADC_GENERIC(&adc_generic_val1, &adc_generic_val2);
+    break;
+#endif
+
+#ifdef TCAS
+  case 14:
+    /** tcas altitude control loop at 4Hz just before navigation task */
+    tcas_periodic_task_4Hz();
     break;
 #endif
 
@@ -635,8 +657,16 @@ void init_ap( void ) {
   LightInit();
 #endif
 
+  /************ Multi-uavs status ***************/
+
+  traffic_info_init();
+
 #ifdef FORMATION
   formation_init();
+#endif
+
+#ifdef TCAS
+  tcas_init();
 #endif
 
 }

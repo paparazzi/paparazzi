@@ -69,8 +69,9 @@ void dl_parse_msg(void) {
     float a = MOfCm(DL_ACINFO_alt(dl_buffer));
     float c = RadOfDeg(((float)DL_ACINFO_course(dl_buffer))/ 10.);
     float s = MOfCm(DL_ACINFO_speed(dl_buffer));
+    float cl = MOfCm(DL_ACINFO_climb(dl_buffer));
     uint32_t t = DL_ACINFO_itow(dl_buffer);
-    SetAcInfo(id, ux, uy, c, a, s, t);
+    SetAcInfo(id, ux, uy, c, a, s, cl, t);
   } else
 #endif
 #ifdef NAV
@@ -145,8 +146,8 @@ void dl_parse_msg(void) {
     uint8_t leader = DL_FORMATION_STATUS_leader_id(dl_buffer);
     uint8_t status = DL_FORMATION_STATUS_status(dl_buffer);
     if (ac_id == AC_ID) leader_id = leader;
-    else if (leader == leader_id) formation[ac_id].status = status;
-    else formation[ac_id].status = UNSET;
+    else if (leader == leader_id) { UpdateFormationStatus(ac_id,status); }
+    else { UpdateFormationStatus(ac_id,UNSET); }
   } else
 #endif
   { /* Last else */ }

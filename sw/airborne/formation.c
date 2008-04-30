@@ -36,6 +36,8 @@ int form_mode;
 uint8_t leader_id;
 float old_cruise, old_alt;
 
+struct slot_ formation[NB_ACS];
+
 #ifndef FORM_CARROT
 #define FORM_CARROT 2.
 #endif
@@ -82,11 +84,12 @@ int formation_init(void) {
 }
 
 int add_slot(uint8_t _id, float slot_e, float slot_n, float slot_a) {
+  if (_id != AC_ID && the_acs_id[_id] == 0) return FALSE; // no info for this AC
   DOWNLINK_SEND_FORMATION_SLOT_TM(&_id, &form_mode, &slot_e, &slot_n, &slot_a);
-  formation[_id].status = IDLE;
-  formation[_id].east = slot_e;
-  formation[_id].north = slot_n;
-  formation[_id].alt = slot_a;
+  formation[the_acs_id[_id]].status = IDLE;
+  formation[the_acs_id[_id]].east = slot_e;
+  formation[the_acs_id[_id]].north = slot_n;
+  formation[the_acs_id[_id]].alt = slot_a;
   return FALSE;
 }
 
@@ -96,7 +99,8 @@ int start_formation(void) {
   for (i = 0; i < NB_ACS; ++i) {
     if (formation[i].status == IDLE) formation[i].status = ACTIVE;
   }
-  DOWNLINK_SEND_FORMATION_STATUS_TM(&ac_id,&leader_id,&formation[AC_ID].status);
+  enum slot_status active = ACTIVE;
+  DOWNLINK_SEND_FORMATION_STATUS_TM(&ac_id,&leader_id,&active);
   // store current cruise and alt
   old_cruise = v_ctl_auto_throttle_cruise_throttle;
   old_alt = nav_altitude;
@@ -109,7 +113,8 @@ int stop_formation(void) {
   for (i = 0; i < NB_ACS; ++i) {
     if (formation[i].status == ACTIVE) formation[i].status = IDLE;
   }
-  DOWNLINK_SEND_FORMATION_STATUS_TM(&ac_id,&leader_id,&formation[AC_ID].status);
+  enum slot_status idle = IDLE;
+  DOWNLINK_SEND_FORMATION_STATUS_TM(&ac_id,&leader_id,&idle);
   // restore cruise and alt
   v_ctl_auto_throttle_cruise_throttle = old_cruise;
   old_cruise = V_CTL_AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE;
@@ -132,29 +137,29 @@ int formation_flight(void) {
   form_speed_n = estimator_hspeed_mod * ch;
   form_speed_e = estimator_hspeed_mod * sh;
 
+  if (AC_ID == leader_id) {
+    estimator_x += formation[the_acs_id[AC_ID]].east;
+    estimator_y += formation[the_acs_id[AC_ID]].north;
+  }
+  // set info for this AC
+  SetAcInfo(AC_ID, estimator_x, estimator_y, estimator_hspeed_dir, estimator_z, estimator_hspeed_mod, estimator_z_dot, gps_itow);
+
   // broadcast info
   uint8_t ac_id = AC_ID;
-  DOWNLINK_SEND_FORMATION_STATUS_TM(&ac_id,&leader_id,&formation[AC_ID].status);
+  enum slot_status status = formation[the_acs_id[AC_ID]].status;
+  DOWNLINK_SEND_FORMATION_STATUS_TM(&ac_id,&leader_id,&status);
   if (++_1Hz>=4) {
     _1Hz=0;
     DOWNLINK_SEND_FORMATION_SLOT_TM(&ac_id, &form_mode,
-        &formation[AC_ID].east,
-        &formation[AC_ID].north,
-        &formation[AC_ID].alt);
+        &formation[the_acs_id[AC_ID]].east,
+        &formation[the_acs_id[AC_ID]].north,
+        &formation[the_acs_id[AC_ID]].alt);
   }
-
-  // set info for this AC
-  SetAcInfo(AC_ID, estimator_x, estimator_y, estimator_hspeed_dir, estimator_z, estimator_hspeed_mod, gps_itow);
-  if (formation[AC_ID].status != ACTIVE) return FALSE; // AC not ready
+  if (formation[the_acs_id[AC_ID]].status != ACTIVE) return FALSE; // AC not ready
 
   // get leader info
   struct ac_info_ * leader = get_ac_info(leader_id);
-  if (formation[leader_id].status != ACTIVE) return FALSE; // leader not ready
-  //if (formation[leader_id].status == UNSET) return FALSE; // leader not ready
-  //else if (formation[leader_id].status == IDLE) {
-  //    if(Max(((int)gps_itow - (int)leader->itow) / 1000., 0.) > FORM_CARROT) return TRUE; // still not ready
-  //    else formation[leader_id].status = ACTIVE;
-  //}
+  if (formation[the_acs_id[leader_id]].status != ACTIVE) return FALSE; // leader not ready
 
   // compute slots in the right reference frame
   struct slot_ form[NB_ACS];
@@ -172,11 +177,10 @@ int formation_flight(void) {
 
   // compute control forces
   for (i = 0; i < NB_ACS; ++i) {
-    if (formation[i].status == UNSET || i == AC_ID) continue;
-    struct ac_info_ * ac = get_ac_info(i);
+    if (formation[i].status != ACTIVE || the_acs[i].ac_id == AC_ID) continue;
+    struct ac_info_ * ac = get_ac_info(the_acs[i].ac_id);
     if (fabs(estimator_z - ac->alt) < form_prox && ac->alt > 0) {
-      float delta_t = Max(((int)gps_itow - (int)ac->itow) / 1000., 0.);
-      //printf("dt %d %d %u %u %f \n",AC_ID,i,gps_itow,ac->itow,delta_t);
+      float delta_t = Max((int)(gps_itow - ac->itow) / 1000., 0.);
       if (delta_t > FORM_CARROT) {
         // if AC not responding for too long
         formation[i].status = IDLE;
@@ -184,10 +188,10 @@ int formation_flight(void) {
       }
       else formation[i].status = ACTIVE;
       form_e += (ac->east  + ac->gspeed*sin(ac->course)*delta_t - estimator_x)
-        - (form[i].east - form[AC_ID].east);
+        - (form[i].east - form[the_acs_id[AC_ID]].east);
       form_n += (ac->north + ac->gspeed*cos(ac->course)*delta_t - estimator_y)
-        - (form[i].north - form[AC_ID].north);
-      form_a += (ac->alt - estimator_z) - (formation[i].alt - formation[AC_ID].alt);
+        - (form[i].north - form[the_acs_id[AC_ID]].north);
+      form_a += (ac->alt - estimator_z) - (formation[i].alt - formation[the_acs_id[AC_ID]].alt);
       form_speed += ac->gspeed;
       //form_speed_e += ac->gspeed * sin(ac->course);
       //form_speed_n += ac->gspeed * cos(ac->course);
@@ -209,24 +213,20 @@ int formation_flight(void) {
   // altitude loop
   float alt = 0.;
   if (AC_ID == leader_id) alt = nav_altitude;
-  else alt = leader->alt - form[leader_id].alt;
-  alt += formation[AC_ID].alt + coef_form_alt * form_a;
-  //NavVerticalAltitudeMode(Max(alt, ground_alt+SECURITY_HEIGHT), 0.);
+  else alt = leader->alt - form[the_acs_id[leader_id]].alt;
+  alt += formation[the_acs_id[AC_ID]].alt + coef_form_alt * form_a;
   flight_altitude = Max(alt, ground_alt+SECURITY_HEIGHT);
 
   // carrot
   if (AC_ID != leader_id) {
-    float dx = form[AC_ID].east - form[leader_id].east;
-    float dy = form[AC_ID].north - form[leader_id].north;
+    float dx = form[the_acs_id[AC_ID]].east - form[the_acs_id[leader_id]].east;
+    float dy = form[the_acs_id[AC_ID]].north - form[the_acs_id[leader_id]].north;
     desired_x = leader->east  + NOMINAL_AIRSPEED * form_carrot * sin(leader->course) + dx;
     desired_y = leader->north + NOMINAL_AIRSPEED * form_carrot * cos(leader->course) + dy;
-    // scale course_pgain only for followers
-    h_ctl_course_pgain = -coef_form_course;
     // fly to desired
     fly_to_xy(desired_x, desired_y);
     desired_x = leader->east  + dx;
     desired_y = leader->north + dy;
-    //fly_to_xy(desired_x, desired_y);
     // lateral correction
     //float diff_heading = asin((dx*ch - dy*sh) / sqrt(dx*dx + dy*dy));
     //float diff_course = leader->course - estimator_hspeed_dir;
@@ -234,27 +234,22 @@ int formation_flight(void) {
     //h_ctl_roll_setpoint += coef_form_course * diff_course;
     //h_ctl_roll_setpoint += coef_form_course * diff_heading;
   }
-  else {
-    // virtual leader at the center of the formation
-    estimator_x -= form[leader_id].east;
-    estimator_y -= form[leader_id].north;
-    // fly to desired
-    fly_to_xy(desired_x, desired_y);
-    // restore real position
-    estimator_x += form[leader_id].east;
-    estimator_y += form[leader_id].north;
-    //desired_x += form[leader_id].east;
-    //desired_y += form[leader_id].north;
-  }
   //BoundAbs(h_ctl_roll_setpoint, h_ctl_roll_max_setpoint);
 
   // speed loop
-  float cruise = V_CTL_AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE;
-  cruise += coef_form_pos * (form_n * ch + form_e * sh) + coef_form_speed * form_speed;
-  Bound(cruise, V_CTL_AUTO_THROTTLE_MIN_CRUISE_THROTTLE, V_CTL_AUTO_THROTTLE_MAX_CRUISE_THROTTLE);
-  v_ctl_auto_throttle_cruise_throttle = cruise;
-
+  if (nb > 0) {
+    float cruise = V_CTL_AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE;
+    cruise += coef_form_pos * (form_n * ch + form_e * sh) + coef_form_speed * form_speed;
+    Bound(cruise, V_CTL_AUTO_THROTTLE_MIN_CRUISE_THROTTLE, V_CTL_AUTO_THROTTLE_MAX_CRUISE_THROTTLE);
+    v_ctl_auto_throttle_cruise_throttle = cruise;
+  }
   return TRUE;
 }
 
+void formation_pre_call(void) {
+  if (leader_id == AC_ID) {
+    estimator_x -= formation[the_acs_id[AC_ID]].east;
+    estimator_y -= formation[the_acs_id[AC_ID]].north;
+  }
+}
 
