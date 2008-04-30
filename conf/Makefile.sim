@@ -32,6 +32,7 @@ OCAMLC = ocamlc
 SIMDIR = $(PAPARAZZI_SRC)/sw/simulator
 CAMLINCLUDES = -I +lablgtk2 -I $(PAPARAZZI_SRC)/sw/lib/ocaml -I $(SIMDIR) -I +xml-light
 SIMSITLML = $(OBJDIR)/simsitl.ml
+MYGTKINITML = $(SIMDIR)/myGtkInit.ml
 SITLCMA = $(SIMDIR)/sitl.cma
 
 # Launch with "make Q=''" to get full command display
@@ -80,7 +81,7 @@ $(OBJDIR)/simsitl : $($(TARGET).objs)
 else
 $(OBJDIR)/simsitl : $($(TARGET).objs) $(SITLCMA) $(SIMSITLML)
 	@echo LD $@
-	$(Q)$(OCAMLC) -custom $(CAMLINCLUDES) -o $@ unix.cma str.cma xml-light.cma glibivy-ocaml.cma lib-pprz.cma lablgtk.cma $($(TARGET).objs) gtkInit.cmo $(SITLCMA) $(SIMSITLML)
+	$(Q)$(OCAMLC) -g -custom $(CAMLINCLUDES) -o $@ unix.cma str.cma xml-light.cma glibivy-ocaml.cma lib-pprz.cma lablgtk.cma $($(TARGET).objs) $(MYGTKINITML) $(SITLCMA) $(SIMSITLML)
 endif
 
 
