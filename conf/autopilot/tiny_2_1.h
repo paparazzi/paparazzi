@@ -42,6 +42,13 @@
 
 #define CAM_SWITCH_LED 5
 
+#define LED_GPS_RESET_BANK 1
+#define LED_GPS_RESET_PIN 21
+
+#define Configure_GPS_RESET_Pin() LED_INIT(GPS_RESET)
+#define Set_GPS_RESET_Pin_LOW() LED_ON(GPS_RESET)
+#define Open_GPS_RESET_Pin() ClearBit(LED_DIR(GPS_RESET), LED_PIN(GPS_RESET))
+
 /* P0.5 aka MAT0.1  */
 #define SERVO_CLOCK_PIN  5
 #define SERVO_CLOCK_PINSEL PINSEL0
