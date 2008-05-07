@@ -30,10 +30,14 @@
 
 #include <inttypes.h>
 
+#include "led.h"
 #include "booz_estimator.h"
 #include "quad_gps.h"
 #include "booz_inter_mcu.h"
 #include "booz_autopilot.h"
+
+#include "downlink.h"
+#include "messages.h"
 
 #include "latlong.h"
 
@@ -53,11 +57,11 @@ volatile uint8_t ins_msg_received;
 #define XsensHeader(msg_id, len) { \
   InsUartSend1(XSENS_START); \
   XsensInitCheksum(); \
-  InsUartSend1(XSENS_BID); \
+  XsensSend1(XSENS_BID); \
   XsensSend1(msg_id); \
   XsensSend1(len); \
 }
-#define XsensTrailer() { InsUartSend1(send_ck); }
+#define XsensTrailer() { uint8_t i8=0x100-send_ck; InsUartSend1(i8); }
 
 /** Includes macros generated from xsens_MTi-G.xml */ 
 #include "xsens_protocol.h"
@@ -67,9 +71,10 @@ volatile uint8_t ins_msg_received;
 uint8_t xsens_msg_buf[XSENS_MAX_PAYLOAD];
 
 /* output mode : calibrated, orientation, position, velocity, status */
-#define XSENS_DEFAULT_OUTPUT_MODE 0x0806
-/* output settings : timestamp, euler, rate only, float, no aux, lla, m/s, NED */
-#define XSENS_DEFAULT_OUTPUT_SETTINGS 0x80000C55
+//#define XSENS_DEFAULT_OUTPUT_MODE 0x0836
+#define XSENS_DEFAULT_OUTPUT_MODE 0x0036
+/* output settings : timestamp, euler, acc, rate, mag, float, no aux, lla, m/s, NED */
+#define XSENS_DEFAULT_OUTPUT_SETTINGS 0x80000C05
 
 #define UNINIT        0
 #define GOT_START     1
@@ -80,26 +85,37 @@ uint8_t xsens_msg_buf[XSENS_MAX_PAYLOAD];
 #define GOT_CHECKSUM  6
 
 uint8_t xsens_errorcode;
+uint8_t xsens_msg_status;
+uint16_t xsens_time_stamp;
 uint16_t xsens_output_mode;
 uint32_t xsens_output_settings;
 
-static uint8_t  xsens_id;
-static uint8_t  xsens_status;
-static uint16_t xsens_len;
-static uint8_t  xsens_msg_idx;
+static uint8_t xsens_id;
+static uint8_t xsens_status;
+static uint8_t xsens_len;
+static uint8_t xsens_msg_idx;
 static uint8_t ck;
 uint8_t send_ck;
 
 void quad_ins_init( void ) {
+
+#ifdef NO_INTERNAL_GPS
+  // disconnect the internal GPS
+  Configure_GPS_RESET_Pin();
+  Set_GPS_RESET_Pin_LOW();
+#endif
+
   xsens_status = UNINIT;
 
+  xsens_msg_status = 0;
+  xsens_time_stamp = 0;
   xsens_output_mode = XSENS_DEFAULT_OUTPUT_MODE;
   xsens_output_settings = XSENS_DEFAULT_OUTPUT_SETTINGS;
   /* send mode and settings to MT */
-  XSENS_GoToConfig();
-  XSENS_SetOutputMode(xsens_output_mode);
-  XSENS_SetOutputSettings(xsens_output_settings);
-  XSENS_GoToMeasurment();
+  //XSENS_GoToConfig();
+  //XSENS_SetOutputMode(xsens_output_mode);
+  //XSENS_SetOutputSettings(xsens_output_settings);
+  //XSENS_GoToMeasurment();
 }
 
 void quad_ins_periodic_task( void ) {}
@@ -127,7 +143,7 @@ void parse_ins_msg( void ) {
     }
   }
   else if (xsens_id == XSENS_MTData_ID) {
-    int offset = 0;
+    uint8_t offset = 0;
     /* test RAW modes else calibrated modes */
     //if ((XSENS_MASK_RAWInertial(xsens_output_mode)) || (XSENS_MASK_RAWGPS(xsens_output_mode))) {
       if (XSENS_MASK_RAWInertial(xsens_output_mode)) {
@@ -167,9 +183,9 @@ void parse_ins_msg( void ) {
         offset += XSENS_DATA_Temp_LENGTH;
       }
       if (XSENS_MASK_Calibrated(xsens_output_mode)) {
-        uint8_t l = XSENS_DATA_Calibrated_LENGTH / 3;
+        uint8_t l = 0;
         if (!XSENS_MASK_AccOut(xsens_output_settings)) {
-          offset += l;
+          l++;
         }
         if (!XSENS_MASK_GyrOut(xsens_output_settings)) {
           inter_mcu_state.r_rates[AXIS_P] = XSENS_DATA_Calibrated_gyrX(xsens_msg_buf,offset) * RATE_PI_S/M_PI;
@@ -178,20 +194,21 @@ void parse_ins_msg( void ) {
           inter_mcu_state.f_rates[AXIS_P] = inter_mcu_state.r_rates[AXIS_P];
           inter_mcu_state.f_rates[AXIS_Q] = inter_mcu_state.r_rates[AXIS_Q];
           inter_mcu_state.f_rates[AXIS_R] = inter_mcu_state.r_rates[AXIS_R];
-          offset += l;
+          l++;
         }
         if (!XSENS_MASK_MagOut(xsens_output_settings)) {
-          offset += l;
+          l++;
         }
+        offset += l * XSENS_DATA_Calibrated_LENGTH / 3;
       }
       if (XSENS_MASK_Orientation(xsens_output_mode)) {
         if (XSENS_MASK_OrientationMode(xsens_output_settings) == 0x00) {
           offset += XSENS_DATA_Quaternion_LENGTH;
         }
         if (XSENS_MASK_OrientationMode(xsens_output_settings) == 0x01) {
-          inter_mcu_state.f_eulers[AXIS_X] = XSENS_DATA_Euler_roll(xsens_msg_buf,offset)  * ANGLE_PI/M_PI;
-          inter_mcu_state.f_eulers[AXIS_Y] = XSENS_DATA_Euler_pitch(xsens_msg_buf,offset) * ANGLE_PI/M_PI;
-          inter_mcu_state.f_eulers[AXIS_Z] = XSENS_DATA_Euler_yaw(xsens_msg_buf,offset)   * ANGLE_PI/M_PI;
+          inter_mcu_state.f_eulers[AXIS_X] = XSENS_DATA_Euler_roll(xsens_msg_buf,offset)  * ANGLE_PI/180;
+          inter_mcu_state.f_eulers[AXIS_Y] = XSENS_DATA_Euler_pitch(xsens_msg_buf,offset) * ANGLE_PI/180;
+          inter_mcu_state.f_eulers[AXIS_Z] = XSENS_DATA_Euler_yaw(xsens_msg_buf,offset)   * ANGLE_PI/180;
           offset += XSENS_DATA_Euler_LENGTH;
         }
         if (XSENS_MASK_OrientationMode(xsens_output_settings) == 0x10) {
@@ -199,13 +216,14 @@ void parse_ins_msg( void ) {
         }
       }
       if (XSENS_MASK_Auxiliary(xsens_output_mode)) {
-        uint8_t l = XSENS_DATA_Auxiliary_LENGTH / 2;
+        uint8_t l = 0;
         if (!XSENS_MASK_Aux1Out(xsens_output_settings)) {
-          offset += l;
+          l++;
         }
         if (!XSENS_MASK_Aux2Out(xsens_output_settings)) {
-          offset += l;
+          l++;
         }
+        offset += l * XSENS_DATA_Auxiliary_LENGTH / 2;
       }
       if (XSENS_MASK_Position(xsens_output_mode)) {
         float lat = XSENS_DATA_Position_lat(xsens_msg_buf,offset);
@@ -224,29 +242,31 @@ void parse_ins_msg( void ) {
         offset += XSENS_DATA_Velocity_LENGTH;
       }
       if (XSENS_MASK_Status(xsens_output_mode)) {
+        xsens_msg_status = XSENS_DATA_Status_status(xsens_msg_buf,offset);
         offset += XSENS_DATA_Status_LENGTH;
       }
       if (XSENS_MASK_TimeStamp(xsens_output_settings)) {
+        xsens_time_stamp = XSENS_DATA_TimeStamp_ts(xsens_msg_buf,offset);
         offset += XSENS_DATA_TimeStamp_LENGTH;
       }
     //}
   }
+  //DOWNLINK_SEND_QUAD_INS(&xsens_id,&xsens_len,&xsens_msg_status,&xsens_time_stamp);
 }
 
 
 void parse_ins_buffer( uint8_t c ) {
-  //if (xsens_status < GOT_DATA)
-    ck += c;
+  ck += c;
   switch (xsens_status) {
   case UNINIT:
     if (c != XSENS_START)
       goto error;
     xsens_status++;
+    ck = 0;
     break;
   case GOT_START:
     if (c != XSENS_BID)
       goto error;
-    ck = 0;
     xsens_status++;
     break;
   case GOT_BID:
@@ -267,7 +287,7 @@ void parse_ins_buffer( uint8_t c ) {
       xsens_status++;
     break;
   case GOT_DATA:
-    if (c != ck)
+    if (ck != 0)
       goto error;
     ins_msg_received = TRUE;
     goto restart;

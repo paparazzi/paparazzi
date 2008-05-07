@@ -62,7 +62,7 @@ let get_at = fun offset format block_size ->
   let block_offset =
     if block_size = 0 then "" else sprintf "+%d*_xsens_block" block_size in
   match format with
-     "R4" -> sprintf "(%s)(*((uint8_t*)_xsens_payload+3+%d%s)|*((uint8_t*)_xsens_payload+2+%d%s)<<8|((uint32_t)*((uint8_t*)_xsens_payload+1+%d%s))<<16|((uint32_t)*((uint8_t*)_xsens_payload+%d%s))<<24)" t offset block_offset offset block_offset offset block_offset offset block_offset
+  "R4" -> sprintf "({ union { uint32_t u; float f; } _f; _f.u = (uint32_t)(*((uint8_t*)_xsens_payload+3+%d%s)|*((uint8_t*)_xsens_payload+2+%d%s)<<8|((uint32_t)*((uint8_t*)_xsens_payload+1+%d%s))<<16|((uint32_t)*((uint8_t*)_xsens_payload+%d%s))<<24); _f.f; })"  offset block_offset offset block_offset offset block_offset offset block_offset
    | "U4" | "I4" -> sprintf "(%s)(*((uint8_t*)_xsens_payload+3+%d%s)|*((uint8_t*)_xsens_payload+2+%d%s)<<8|((%s)*((uint8_t*)_xsens_payload+1+%d%s))<<16|((%s)*((uint8_t*)_xsens_payload+%d%s))<<24)" t offset block_offset offset block_offset t offset block_offset t offset block_offset
    | "U2" | "I2" -> sprintf "(%s)(*((uint8_t*)_xsens_payload+1+%d%s)|*((uint8_t*)_xsens_payload+%d%s)<<8)" t offset block_offset offset block_offset
    | "U1" | "I1" -> sprintf "(%s)(*((uint8_t*)_xsens_payload+%d%s))" t offset block_offset

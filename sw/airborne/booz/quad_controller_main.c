@@ -79,6 +79,10 @@ STATIC_INLINE void booz_controller_main_init( void ) {
   adc_init();
   booz_energy_init();
 
+#ifdef USE_UART0
+  Uart0Init();
+#endif
+
   i2c_init();
   actuators_init();
   SetCommands(commands_failsafe);

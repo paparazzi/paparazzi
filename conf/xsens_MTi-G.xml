@@ -230,5 +230,27 @@
     <field name="ts" format="U2"/>
   </data>
 
+  <mask name="Temp"         bitmask="0x0001"/>
+  <mask name="Calibrated"   bitmask="0x0002"/>
+  <mask name="Orientation"  bitmask="0x0004"/>
+  <mask name="Auxiliary"    bitmask="0x0008"/>
+  <mask name="Position"     bitmask="0x0010"/>
+  <mask name="Velocity"     bitmask="0x0020"/>
+  <mask name="Status"       bitmask="0x0800"/>
+  <mask name="RAWGPS"       bitmask="0x1000"/>
+  <mask name="RAWInertial"  bitmask="0x4000"/>
+
+  <mask name="TimeStamp"        bitmask="0x00000003"/>
+  <mask name="OrientationMode"  bitmask="0x00000006" shift=">>2"/>
+  <mask name="AccOut"           bitmask="0x00000010"/>
+  <mask name="GyrOut"           bitmask="0x00000020"/>
+  <mask name="MagOut"           bitmask="0x00000040"/>
+  <mask name="Format"           bitmask="0x00000300" shift=">>8"/>
+  <mask name="Aux1Out"          bitmask="0x00000400"/>
+  <mask name="Aux2Out"          bitmask="0x00000800"/>
+  <mask name="LLA"              bitmask="0x0001C000"/>
+  <mask name="Vel"              bitmask="0x00060000"/>
+  <mask name="Convention"       bitmask="0x80000000"/>
+
 </xsens>
 

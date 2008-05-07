@@ -48,7 +48,7 @@ void parse_ins_buffer( uint8_t );
 #define InsLink(_x) _InsLink(INS_LINK, _x)
 
 #define InsBuffer() InsLink(ChAvailable())
-#define ReadInsBuffer() { while (InsBuffer()&&!ins_msg_received) parse_ins_buffer(InsLink(Getch())); }
+#define ReadInsBuffer() { while (InsLink(ChAvailable())&&!ins_msg_received) parse_ins_buffer(InsLink(Getch())); }
 #define InsUartSend1(c) InsLink(Transmit(c))
 #define InsUartInitParam(_a,_b,_c) InsLink(InitParam(_a,_b,_c))
 #define InsUartRunning InsLink(TxRunning)
@@ -60,6 +60,7 @@ void parse_ins_buffer( uint8_t );
     ReadInsBuffer();				  \
   }						                \
   if (ins_msg_received) {			\
+    LED_TOGGLE(2); \
     parse_ins_msg();          \
     handler();                \
     ins_msg_received = FALSE; \
