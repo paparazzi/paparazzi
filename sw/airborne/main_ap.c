@@ -48,7 +48,6 @@
 #include "settings.h"
 #include "rc_settings.h"
 #include "cam.h"
-#include "traffic_info.h"
 #include "link_mcu.h"
 #include "sys_time.h"
 #include "flight_plan.h"
@@ -97,6 +96,10 @@
 
 #ifdef USE_BARO_MS5534A
 #include "baro_MS5534A.h"
+#endif
+
+#ifdef TRAFFIC_INFO
+#include "traffic_info.h"
 #endif
 
 #ifdef FORMATION
@@ -659,7 +662,9 @@ void init_ap( void ) {
 
   /************ Multi-uavs status ***************/
 
+#ifdef TRAFFIC_INFO
   traffic_info_init();
+#endif
 
 #ifdef FORMATION
   formation_init();
