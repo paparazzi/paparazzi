@@ -34,9 +34,6 @@
 #include "std.h"
 #include "baro_MS5534A.h"
 
-extern float ir_roll_neutral;
-extern float ir_pitch_neutral;
-
 /* position in meters */
 extern float estimator_x;
 extern float estimator_y;

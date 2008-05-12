@@ -28,6 +28,9 @@
 #include "std.h"
 #include "airframe.h"
 
+extern float ir_roll_neutral;
+extern float ir_pitch_neutral;
+
 extern int16_t ir_ir1; /* First horizontal channel */
 extern int16_t ir_ir2; /* Second horizontal channel */
 extern int16_t ir_roll;  /* averaged roll adc */
