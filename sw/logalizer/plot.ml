@@ -463,7 +463,7 @@ let screenshot_hint_name =
       (_, menu_name, _)::_ -> sprintf "%s.png" menu_name
     | _ -> incr n; sprintf "pprz_log-%d.png" !n
 	  
-let screenshot = fun frame () ->
+let screenshot = fun frame ->
   let width, height = Gdk.Drawable.get_size frame#misc#window in
   let dest = GdkPixbuf.create width height () in
   GdkPixbuf.get_from_drawable ~dest ~width ~height frame#misc#window;
@@ -509,7 +509,9 @@ let rec plot_window = fun init ->
   let close = fun () -> plotter#destroy () in
   ignore (file_menu_fact#add_item "Close" ~key:GdkKeysyms._W ~callback:close); *)
 
-  ignore (file_menu_fact#add_item "Save screenshot" ~key:GdkKeysyms._S ~callback:(screenshot plotter));
+  let delayed_screenshot = fun () ->
+    ignore (GMain.Idle.add (fun () -> screenshot plotter; false)) in
+  ignore (file_menu_fact#add_item "Save screenshot" ~key:GdkKeysyms._S ~callback:delayed_screenshot);
   ignore (file_menu_fact#add_item "Quit" ~key:GdkKeysyms._Q ~callback:quit);
   let curves_menu = factory#add_submenu "Curves" in
   let curves_menu_fact = new GMenu.factory curves_menu in
