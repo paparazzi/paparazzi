@@ -632,6 +632,13 @@ let alert_bind = fun msg cb ->
     try cb sender vs with _ -> () in
   ignore (Alert_Pprz.message_bind msg safe_cb)
 
+let tele_bind = fun msg cb ->
+  let safe_cb = fun sender vs ->
+    try cb sender vs with 
+      AC_not_found -> () (* A/C not yet registed; silently ignore *)
+    | x -> fprintf stderr "tele_bind (%s): %s\n%!" msg (Printexc.to_string x) in
+  ignore (Tele_Pprz.message_bind msg safe_cb)
+
 let ask_config = fun alert geomap fp_notebook ac ->
   let get_config = fun _sender values ->
     if not (Hashtbl.mem aircrafts ac) then
@@ -1063,7 +1070,6 @@ let get_alert_bat_low = fun a _sender vs ->
 
 let listen_alert = fun a -> 
   alert_bind "BAT_LOW" (get_alert_bat_low a)
-    
 
 let get_svsinfo = fun alarm _sender vs ->
   let ac = get_ac vs in
@@ -1110,6 +1116,14 @@ let listen_error = fun a ->
     log_and_say a "gcs" msg in
   safe_bind "TELEMETRY_ERROR" get_error
 
+let listen_tcas = fun a ->
+  let get_alarm_tcas = fun a txt _sender vs ->
+    let ac = find_ac _sender in
+    let other_ac = get_ac vs in
+    log_and_say a ac.ac_name (sprintf "%s : %s -> %s" txt ac.ac_name other_ac.ac_name)
+  in
+  tele_bind "TCAS_TA" (get_alarm_tcas a "tcas TA");
+  tele_bind "TCAS_RA" (get_alarm_tcas a "TCAS RA")
 
 let listen_acs_and_msgs = fun geomap ac_notebook my_alert auto_center_new_ac alt_graph ->
   (** Probe live A/Cs *)
@@ -1131,6 +1145,7 @@ let listen_acs_and_msgs = fun geomap ac_notebook my_alert auto_center_new_ac alt
   listen_telemetry_status ();
   listen_alert my_alert;
   listen_error my_alert;
+  listen_tcas my_alert;
 
   (** Select the active aircraft on notebook page selection *)
   let callback = fun i ->

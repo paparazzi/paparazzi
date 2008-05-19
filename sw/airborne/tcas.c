@@ -34,6 +34,9 @@
 #include "gps.h"
 #include "flight_plan.h"
 
+#include "messages.h"
+#include "downlink.h"
+
 float tcas_alt_setpoint;
 float tcas_tau_ta, tcas_tau_ra, tcas_dmod, tcas_alim;
 
@@ -109,7 +112,8 @@ void tcas_periodic_task_1Hz( void ) {
       case TCAS_TA:
         if (tau < TCAS_TAU_RA) {
           tcas_acs_status[i] = TCAS_RA; // TA -> RA
-          //TODO Downlink alert
+          // Downlink alert
+          DOWNLINK_SEND_TCAS_RA(&(the_acs[i].ac_id));
           break;
         }
         if (tau > TCAS_TAU_TA) tcas_acs_status[i] = TCAS_NO_ALARM; // conflict is now resolved
@@ -117,11 +121,13 @@ void tcas_periodic_task_1Hz( void ) {
       case TCAS_NO_ALARM:
         if (tau < TCAS_TAU_TA) {
           tcas_acs_status[i] = TCAS_TA; // NO_ALARM -> TA
-          //TODO Downlink warning
+          // Downlink warning
+          DOWNLINK_SEND_TCAS_TA(&(the_acs[i].ac_id));
         }
         if (tau < TCAS_TAU_RA) {
           tcas_acs_status[i] = TCAS_RA; // NO_ALARM -> RA = big problem ?
-          //TODO Downlink alert
+          // Downlink alert
+          DOWNLINK_SEND_TCAS_RA(&(the_acs[i].ac_id));
         }
         break;
     }
@@ -137,6 +143,9 @@ void tcas_periodic_task_1Hz( void ) {
     if (tcas_status == TCAS_RA) tcas_ac_RA = ac_id_close;
     else tcas_ac_RA = AC_ID; // no conflicts
   }
+#ifdef TCAS_DEBUG
+  if (tcas_status == TCAS_RA) DOWNLINK_SEND_TCAS_DEBUG(&ac_id_close,&tau_min);
+#endif
 }
 
 
@@ -146,10 +155,10 @@ void tcas_periodic_task_4Hz( void ) {
   if (estimator_z > GROUND_ALT + SECURITY_HEIGHT) {
     struct ac_info_ * ac = get_ac_info(tcas_ac_RA);
     float dz = ac->alt - estimator_z;
-    if (dz > tcas_alim) // go up
-      tcas_alt_setpoint = Max(nav_altitude, ac->alt + tcas_alim);
-    if (dz < -tcas_alim) // go down
+    if (dz > tcas_alim) // go down
       tcas_alt_setpoint = Min(nav_altitude, ac->alt - tcas_alim);
+    if (dz < -tcas_alim) // go up
+      tcas_alt_setpoint = Max(nav_altitude, ac->alt + tcas_alim);
     else // AC with the smallest ID goes down
     {
       if (AC_ID < tcas_ac_RA) tcas_alt_setpoint = Min(nav_altitude, ac->alt - tcas_alim);

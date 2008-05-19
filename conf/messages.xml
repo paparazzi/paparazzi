@@ -290,6 +290,18 @@
     <field name="values" type="uint16[]" unit="none"/>
   </message>
 
+  <message name="TCAS_TA" ID="120">
+    <field name="ac_id" type="uint8"/>
+  </message>
+
+  <message name="TCAS_RA" ID="121">
+    <field name="ac_id" type="uint8"/>
+  </message>
+
+  <message name="TCAS_DEBUG" ID="122">
+    <field name="ac_id" type="uint8"/>
+    <field name="tau" type="float"/>
+  </message>
 
   <message name="IMU_GYRO" ID="200">
     <field name="gp" type="float" unit="rad/s"/>
