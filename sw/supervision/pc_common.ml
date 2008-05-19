@@ -33,7 +33,7 @@ let conf_dir = Env.paparazzi_home // "conf"
 let my_open_process_in = fun cmd ->
   let (in_read, in_write) = Unix.pipe () in
   let inchan = Unix.in_channel_of_descr in_read in
-  let pid = Unix.create_process "/bin/sh" [|"/bin/sh"; "-c"; cmd|] Unix.stdin in_write Unix.stderr in
+  let pid = Unix.create_process_env "/bin/sh" [|"/bin/sh"; "-c"; cmd|] (Array.append (Unix.environment ()) [|"GTK_SETLOCALE=0"|]) Unix.stdin in_write Unix.stderr in
   Unix.close in_write;
   pid, inchan
 
