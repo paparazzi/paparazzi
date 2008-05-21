@@ -591,6 +591,16 @@
     <field name="az_b"   type="float" unit="m/s"/>
   </message>
 
+
+  <message name="BOOZ_B_IMU" ID="249">
+    <field name="gp"  type="int16"/>
+    <field name="gq"  type="int16"/>
+    <field name="gr"  type="int16"/>
+    <field name="ax"  type="int16"/>
+    <field name="ay"  type="int16"/>
+    <field name="az"  type="int16"/>
+  </message>
+
   <message name="TL_ESTIMATOR" ID="60">
       <field name="r"   type="float" unit="rad/s"/>
       <field name="psi" type="float" unit="rad"/>
