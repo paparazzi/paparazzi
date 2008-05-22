@@ -592,7 +592,7 @@
   </message>
 
 
-  <message name="BOOZ_B_IMU" ID="249">
+  <message name="MKK_IMU" ID="249">
     <field name="gp"  type="int16"/>
     <field name="gq"  type="int16"/>
     <field name="gr"  type="int16"/>
@@ -600,6 +600,37 @@
     <field name="ay"  type="int16"/>
     <field name="az"  type="int16"/>
   </message>
+
+  <message name="MKK_ATTITUDE" ID="250">
+    <field name="IntegralPitch"  type="int32"/>
+    <field name="IntegralRoll"  type="int32"/>
+    <field name="CompassHeading"  type="int32"/>
+  </message>
+
+
+  <message name="MKK_RC_RAW" ID="251">
+    <field name="C1"  type="int16"/>
+    <field name="C2"  type="int16"/>
+    <field name="C3"  type="int16"/>
+    <field name="C4"  type="int16"/>
+    <field name="C5"  type="int16"/>
+    <field name="C6"  type="int16"/>
+    <field name="C7"  type="int16"/>
+    <field name="C8"  type="int16"/>
+    <field name="quality"  type="int16"/>
+  </message>
+
+  <message name="MKK_RC" ID="252">
+    <field name="Pi"  type="int16"/>
+    <field name="Ro"  type="int16"/>
+    <field name="Gs"  type="int16"/>
+    <field name="Yaw"  type="int16"/>
+    <field name="P1"  type="int16"/>
+    <field name="P2"  type="int16"/>
+    <field name="P3"  type="int16"/>
+    <field name="P4"  type="int16"/>
+  </message>
+
 
   <message name="TL_ESTIMATOR" ID="60">
       <field name="r"   type="float" unit="rad/s"/>
@@ -730,7 +761,7 @@
  </message>
 
 
-  <message name="ENOSE_STATUS" ID="250">
+  <message name="ENOSE_STATUS" ID="90">
       <field name="val1" type="uint16"/>
       <field name="val2" type="uint16"/>
       <field name="val3" type="uint16"/>
@@ -738,12 +769,12 @@
       <field name="heat" type="uint8[]"/>
   </message>
 
-  <message name="DPICCO_STATUS" ID="251">
+  <message name="DPICCO_STATUS" ID="91">
       <field name="humid" type="uint16"/>
       <field name="temp" type="uint16"/>
   </message>
 
-  <message name="ANTENNA_DEBUG" ID="252">
+  <message name="ANTENNA_DEBUG" ID="92">
       <field name="mag_xraw" type="int32"/>
       <field name="mag_yraw" type="int32"/>
       <field name="mag_xcal" type="float"/>
@@ -755,14 +786,14 @@
       <field name="mag_cal_status" type="uint8"/>
   </message>
 
-  <message name="ANTENNA_STATUS" ID="253">
+  <message name="ANTENNA_STATUS" ID="93">
       <field name="azim_sp" type="float"/>
       <field name="elev_sp" type="float"/>
       <field name="id_sp" type="uint8"/>
       <field name="mode" type="uint8"/>
   </message>
 
- <message name="MOTOR_BENCH_STATUS" ID="254">
+ <message name="MOTOR_BENCH_STATUS" ID="94">
       <field name="time_ticks" type="uint32"/>
       <field name="throttle" type="float" format="%.3f"/>
       <field name="rpm" type="float"/>
