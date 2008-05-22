@@ -1,6 +1,6 @@
 #include "booz_sensors_model.h"
 
-#include "booz_sensors_model_params.h"
+#include BSM_PARAMS
 #include "booz_sensors_model_utils.h"
 #include "booz_flight_model.h"
 
