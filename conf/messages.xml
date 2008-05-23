@@ -632,6 +632,15 @@
   </message>
 
 
+  <message name="MKK_MOTORS" ID="253">
+    <field name="Front" type="uint8"/>
+    <field name="Right" type="uint8"/>
+    <field name="Back"  type="uint8"/>
+    <field name="Left"  type="uint8"/>
+  </message>
+
+
+
   <message name="TL_ESTIMATOR" ID="60">
       <field name="r"   type="float" unit="rad/s"/>
       <field name="psi" type="float" unit="rad"/>
