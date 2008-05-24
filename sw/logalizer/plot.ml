@@ -174,12 +174,14 @@ class plot = fun ~width ~height ~packing () ->
       dr#rectangle ~x:0 ~y:0 ~width ~height ~filled:true ();
 
       let left_margin = 50
-      and bottom_margin = 20
+      and bottom_margin = 25
+      and top_margin = 20
       and tick_len = 5
       and margin = 3 in
+      let graph_height = height - bottom_margin - top_margin in
       
       let scale_x = fun x -> left_margin + truncate ((x-.min_x)*. float (width-left_margin) /. (max_x -. min_x))
-      and scale_y = fun y -> height-bottom_margin - truncate ((y-.min_y)*. float (height-bottom_margin) /. (max_y -. min_y)) in
+      and scale_y = fun y -> top_margin+graph_height - truncate ((y-.min_y)*. float graph_height /. (max_y -. min_y)) in
 
       (* Constants *)
       List.iter (fun v ->
@@ -236,14 +238,15 @@ class plot = fun ~width ~height ~packing () ->
 	
 	(* Time *)
 	let delta, scale, u, tick_min = compute_ticks min_x max_x in
-	let y = height-bottom_margin in
+	let y = height in
 	for i = 0 to truncate (delta/.u) + 1 do
 	  let tick = tick_min +. float i *. u in
 	  let x = scale_x tick in
 	  let s = Printf.sprintf "%.*f" (Pervasives.max 0 (2-truncate scale)) tick in
 	  Pango.Layout.set_text layout s;
 	  let (w, h) = Pango.Layout.get_pixel_size layout in
-	  dr#put_layout ~x:(x-w/2) ~y:(y+margin) layout;
+	  let y = y-margin-h in
+	  dr#put_layout ~x:(x-w/2) ~y layout;
 	  
 	  dr#lines [(x,y);(x,y-tick_len)]
 	done
@@ -510,7 +513,7 @@ let rec plot_window = fun init ->
   ignore (file_menu_fact#add_item "Close" ~key:GdkKeysyms._W ~callback:close); *)
 
   let delayed_screenshot = fun () ->
-    ignore (GMain.Idle.add (fun () -> screenshot plotter; false)) in
+    ignore (GMain.Idle.add (fun () -> screenshot plot#drawing_area; false)) in
   ignore (file_menu_fact#add_item "Save screenshot" ~key:GdkKeysyms._S ~callback:delayed_screenshot);
   ignore (file_menu_fact#add_item "Quit" ~key:GdkKeysyms._Q ~callback:quit);
   let curves_menu = factory#add_submenu "Curves" in
