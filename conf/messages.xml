@@ -602,9 +602,21 @@
   </message>
 
   <message name="MKK_ATTITUDE" ID="250">
-    <field name="IntegralPitch"  type="int32"/>
-    <field name="IntegralRoll"  type="int32"/>
-    <field name="CompassHeading"  type="int32"/>
+    <field name="Reading_GyroPitch"  type="int16"/>
+    <field name="Reading_GyroRoll"   type="int16"/>
+    <field name="Reading_GyroYaw"    type="int16"/>
+    <field name="AdNeutralPitch"     type="int16"/>
+    <field name="AdNeutralRoll"      type="int16"/>
+    <field name="AdNeutralYaw"       type="int16"/>
+    <field name="IntegralPitch"      type="int32"/>
+    <field name="IntegralRoll"       type="int32"/>
+    <field name="CompassHeading"     type="int32"/>
+    <field name="Mean_AccPitch"      type="int16"/>
+    <field name="Mean_AccRoll"       type="int16"/>
+    <field name="Mean_AccTop"        type="int16"/>
+    <field name="NeutralAccX"        type="int16"/>
+    <field name="NeutralAccY"        type="int16"/>
+    <field name="NeutralAccZ"        type="float"/>
   </message>
 
 
