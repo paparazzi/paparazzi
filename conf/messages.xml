@@ -593,12 +593,12 @@
 
 
   <message name="MKK_IMU" ID="249">
-    <field name="gp"  type="int16"/>
-    <field name="gq"  type="int16"/>
-    <field name="gr"  type="int16"/>
-    <field name="ax"  type="int16"/>
-    <field name="ay"  type="int16"/>
-    <field name="az"  type="int16"/>
+    <field name="AdValueGyrRoll"  type="int16"/>
+    <field name="AdValueGyrPitch"  type="int16"/>
+    <field name="AdValueGyrYaw"  type="int16"/>
+    <field name="AdValueAccRoll"  type="int16"/>
+    <field name="AdValueAccPitch"  type="int16"/>
+    <field name="AdValueAccTop"  type="int16"/>
   </message>
 
   <message name="MKK_ATTITUDE" ID="250">
