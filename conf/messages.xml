@@ -651,6 +651,13 @@
     <field name="Left"  type="uint8"/>
   </message>
 
+  <message name="MKK_VLOOP" ID="254">
+    <field name="ReadingHeight" type="int16"/>
+    <field name="SetPointHeight" type="int16"/>
+    <field name="HeightD" type="int16"/>
+    <field name="HeightControlThrust" type="int16"/>
+    <field name="ThrustMixFraction" type="int16"/>
+  </message>
 
 
   <message name="TL_ESTIMATOR" ID="60">
