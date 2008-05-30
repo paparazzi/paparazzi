@@ -17,6 +17,15 @@
       <stay wp="p2"/>
     </block>
 
+<!--
+   <block name="Steps roll -5, +5">
+      <while cond="TRUE">
+        <attitude alt="187" roll="5.0" until=" stage_time > 2" vmode="alt"/>
+        <attitude alt="187" roll="-5.0" until="stage_time > 2" vmode="alt"/>
+      </while>
+    </block>
+-->
+
   </blocks>
 
 </flight_plan>

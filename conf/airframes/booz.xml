@@ -108,39 +108,29 @@
   </section>
 
 
+  <section name="BOOZ_CONTROL" prefix="BOOZ_CONTROL_">
 
+    <define name="RATE_PQ_PGAIN" value="-700."/>
+    <define name="RATE_PQ_DGAIN" value="15."/>
 
-#define BOOZ_CONTROL_RATE_PQ_PGAIN -700.
-#define BOOZ_CONTROL_RATE_PQ_DGAIN   15.
+    <define name="RATE_R_PGAIN" value="-600."/>
+    <define name="RATE_R_DGAIN" value="0."/>
 
-#define BOOZ_CONTROL_RATE_R_PGAIN -600.
-#define BOOZ_CONTROL_RATE_R_DGAIN    0.
+    <!-- setpoints for max stick throw in degres per second -->
+    <define name="RATE_PQ_MAX_SP" value="120."/>
+    <define name="RATE_R_MAX_SP"  value="100."/>
 
-/* setpoints for max stick throw in degres per second */
-#define BOOZ_CONTROL_RATE_PQ_MAX_SP 120.
-#define BOOZ_CONTROL_RATE_R_MAX_SP  100.
+    <define name="ATTITUDE_PHI_THETA_PGAIN" value="-1250."/>
+    <define name="ATTITUDE_PHI_THETA_DGAIN" value="-700."/>
 
+    <define name="ATTITUDE_PSI_PGAIN"  value="-1050."/>
+    <define name="ATTITUDE_PSI_DGAIN"   value="-850."/>
 
-float booz_control_attitude_phi_sp;
-float booz_control_attitude_theta_sp;
-float booz_control_attitude_psi_sp;
-float booz_control_attitude_phi_theta_pgain;
-float booz_control_attitude_phi_theta_dgain;
-float booz_control_attitude_psi_pgain;
-float booz_control_attitude_psi_dgain;
+    <!-- setpoints for max stick throw in degres -->
+    <define name="ATTITUDE_PHI_THETA_MAX_SP" value="30."/>
+    <define name="ATTITUDE_PSI_MAX_SP" value="45."/>
 
-#define BOOZ_CONTROL_ATTITUDE_PHI_THETA_PGAIN  -1250.
-#define BOOZ_CONTROL_ATTITUDE_PHI_THETA_DGAIN   -700.
-
-#define BOOZ_CONTROL_ATTITUDE_PSI_PGAIN  -1050.
-#define BOOZ_CONTROL_ATTITUDE_PSI_DGAIN   -850.
-
-/* setpoints for max stick throw in degres */
-#define BOOZ_CONTROL_ATTITUDE_PHI_THETA_MAX_SP 30.
-#define BOOZ_CONTROL_ATTITUDE_PSI_MAX_SP 45.
-
-#define BOOZ_CONTROL_ATTITUDE_DT_UPDATE_SP (1./50.)
-
+ </section>
 
 
   <makefile>
