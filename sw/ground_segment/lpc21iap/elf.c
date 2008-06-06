@@ -35,7 +35,8 @@ char ELFCheckHeader(unsigned char * binElf)
         (eHdr->e_ident[EI_CLASS]   == ELFCLASS32) &&
         (eHdr->e_ident[EI_DATA]    == ELFDATA2LSB) &&
         (eHdr->e_ident[EI_VERSION] == EV_CURRENT) &&
-        (eHdr->e_ident[EI_OSABI]   == ELFOSABI_ARM) &&
+        ((eHdr->e_ident[EI_OSABI]   == ELFOSABI_ARM) ||
+         (eHdr->e_ident[EI_OSABI]   == ELFOSABI_NONE)) &&
         (eHdr->e_type              == ET_EXEC) &&
         (eHdr->e_machine           == EM_ARM) &&
         (eHdr->e_version           == EV_CURRENT))
