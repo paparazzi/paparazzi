@@ -1,3 +1,9 @@
+paparazzi (3.2-3) unstable; urgency=low
+
+  * Recommends -> Suggests dependencies
+
+ -- Pascal Brisset <pascal.brisset@enac.fr>  Sun, 08 Jun 2008 23:33:40 +0200
+
 paparazzi (3.2-2) unstable; urgency=low
 
   * New strip and other details.
