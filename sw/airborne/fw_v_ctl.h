@@ -43,6 +43,7 @@
 extern uint8_t v_ctl_mode;
 
 /* outer loop */
+extern float v_ctl_altitude_error;
 extern float v_ctl_altitude_setpoint;
 extern float v_ctl_altitude_pre_climb;
 extern float v_ctl_altitude_pgain;
