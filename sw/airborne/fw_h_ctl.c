@@ -106,6 +106,10 @@ static inline void h_ctl_roll_rate_loop( void );
 float h_ctl_roll_attitude_gain;
 float h_ctl_roll_rate_gain;
 
+#ifdef AGR_CLIMB
+float nav_ratio;
+#endif
+
 void h_ctl_init( void ) {
 
   h_ctl_course_setpoint = 0.;
@@ -152,6 +156,10 @@ void h_ctl_init( void ) {
 #ifdef H_CTL_ROLL_ATTITUDE_GAIN
   h_ctl_roll_attitude_gain = H_CTL_ROLL_ATTITUDE_GAIN;
   h_ctl_roll_rate_gain = H_CTL_ROLL_RATE_GAIN;
+#endif
+
+#ifdef AGR_CLIMB
+nav_ratio=0;
 #endif
 }
 
@@ -201,14 +209,14 @@ void h_ctl_course_loop ( void ) {
 /** limit navigation during extreme altitude changes */
 if (AGR_BLEND_START > AGR_BLEND_END && AGR_BLEND_END > 0) { /* prevent divide by zero, reversed or negative values */
 if (v_ctl_auto_throttle_submode == V_CTL_AUTO_THROTTLE_AGRESSIVE || V_CTL_AUTO_THROTTLE_BLENDED) {
-altitude_error = estimator_z - v_ctl_altitude_setpoint;
+v_ctl_altitude_error = estimator_z - v_ctl_altitude_setpoint;
 BoundAbs(cmd, h_ctl_roll_max_setpoint); /* bound cmd before NAV_RATIO and again after */
-if (altitude_error < 0) {
-nav_ratio = AGR_CLIMB_NAV_RATIO + (1 - AGR_CLIMB_NAV_RATIO) * (1 - (fabs(altitude_error) - AGR_BLEND_END) / (AGR_BLEND_START - AGR_BLEND_END));
+if (v_ctl_altitude_error < 0) {
+nav_ratio = AGR_CLIMB_NAV_RATIO + (1 - AGR_CLIMB_NAV_RATIO) * (1 - (fabs(v_ctl_altitude_error) - AGR_BLEND_END) / (AGR_BLEND_START - AGR_BLEND_END));
 Bound (nav_ratio, AGR_CLIMB_NAV_RATIO, 1);
 }
-else if (altitude_error > 0) {
-nav_ratio = AGR_DESCENT_NAV_RATIO + (1 - AGR_DESCENT_NAV_RATIO) * (1 - (fabs(altitude_error) - AGR_BLEND_END) / (AGR_BLEND_START - AGR_BLEND_END));
+else if (v_ctl_altitude_error > 0) {
+nav_ratio = AGR_DESCENT_NAV_RATIO + (1 - AGR_DESCENT_NAV_RATIO) * (1 - (fabs(v_ctl_altitude_error) - AGR_BLEND_END) / (AGR_BLEND_START - AGR_BLEND_END));
 Bound (nav_ratio, AGR_DESCENT_NAV_RATIO, 1);
 }
 cmd *= nav_ratio;
