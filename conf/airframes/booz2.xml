@@ -1,0 +1,143 @@
+<airframe name="BOOZ2">
+
+  <servos min="0" neutral="0" max="0xff">
+    <servo name="MOTOR_FRONT" no="0" min="0" neutral="0" max="255"/>
+    <servo name="MOTOR_BACK"  no="1" min="0" neutral="0" max="255"/>
+    <servo name="MOTOR_RIGHT" no="3" min="0" neutral="0" max="255"/>
+    <servo name="MOTOR_LEFT"  no="2" min="0" neutral="0" max="255"/>
+  </servos>
+
+  <commands>
+    <axis name="THROTTLE" failsafe_value="0"/>
+    <axis name="P"        failsafe_value="0"/>
+    <axis name="Q"        failsafe_value="0"/>
+    <axis name="R"        failsafe_value="0"/>
+  </commands>
+
+  <command_laws>
+    <let var="throttle" value="@THROTTLE"/>
+    <let var="p" value="trim_p + @P"/>
+    <let var="q" value="trim_q + @Q"/>
+    <let var="r" value="trim_r + @R"/>
+    <set servo="MOTOR_FRONT" value="$throttle + $q + $r"/>
+    <set servo="MOTOR_BACK"  value="$throttle - $q + $r"/>
+    <set servo="MOTOR_RIGHT" value="$throttle - $p - $r"/>
+    <set servo="MOTOR_LEFT"  value="$throttle + $p - $r"/>
+  </command_laws>
+
+  <rc_commands>
+    <set command="THROTTLE" value="@THROTTLE"/>
+    <set command="ROLL" value="@ROLL"/>
+    <set command="PITCH" value="@PITCH"/>
+    <set command="YAW" value="@YAW"/>
+  </rc_commands>
+
+
+ <section name="MICROMAG">
+
+    <define name="MM_SS_PIN" value="20"/>
+    <define name="MM_SS_IODIR" value="IO0DIR"/>
+    <define name="MM_SS_IOSET" value="IO0SET"/>
+    <define name="MM_SS_IOCLR" value="IO0CLR"/>
+
+    <define name="MM_RESET_PIN" value="21"/>
+    <define name="MM_RESET_IODIR" value="IO1DIR"/>
+    <define name="MM_RESET_IOSET" value="IO1SET"/>
+    <define name="MM_RESET_IOCLR" value="IO1CLR"/>
+
+    <define name="MM_DRDY_PIN" value="15"/>
+    <define name="MM_DRDY_PINSEL" value="PINSEL0"/>
+    <define name="MM_DRDY_PINSEL_BIT" value="30"/>
+    <define name="MM_DRDY_PINSEL_VAL" value="2"/>
+    <define name="MM_DRDY_EINT" value="2"/>
+    <define name="MM_DRDY_VIC_IT" value="VIC_EINT2"/>
+
+  </section>
+
+
+  <section name="IMU" prefix="IMU_">
+
+    <define name="GYRO_X_CHAN" value="0"/>
+    <define name="GYRO_Y_CHAN" value="1"/>
+    <define name="GYRO_Z_CHAN" value="2"/>
+
+    <define name="GYRO_X_NEUTRAL" value="40852"/>
+    <define name="GYRO_Y_NEUTRAL" value="40916"/>
+    <define name="GYRO_Z_NEUTRAL" value="39619"/>
+
+    <define name="GYRO_X_GAIN" value="(-1/4541.3261)"/>
+    <define name="GYRO_Y_GAIN" value="(-1/4651.1628)"/>
+    <define name="GYRO_Z_GAIN" value="( 1/4752.8517)"/>
+
+  
+    <define name="ACCEL_X_CHAN" value="2"/>
+    <define name="ACCEL_Y_CHAN" value="1"/>
+    <define name="ACCEL_Z_CHAN" value="3"/>    
+
+    <define name="ACCEL_X_NEUTRAL" value="17732.494"/>
+    <define name="ACCEL_Y_NEUTRAL" value="16555.486"/>
+    <define name="ACCEL_Z_NEUTRAL" value="16645.17"/>
+
+    <define name="ACCEL_X_GAIN" value=" (1./829.62787)"/>
+    <define name="ACCEL_Y_GAIN" value="(-1./829.60535)"/>
+    <define name="ACCEL_Z_GAIN" value="(-1./826.85295)"/>
+
+
+    <define name="MAG_X_CHAN" value="0"/>
+    <define name="MAG_Y_CHAN" value="1"/>
+    <define name="MAG_Z_CHAN" value="2"/>
+
+<!--    
+    <define name="MAG_X_NEUTRAL" value="0"/>
+    <define name="MAG_Y_NEUTRAL" value="0"/> 
+-->
+    <define name="MAG_X_NEUTRAL" value="60"/>
+    <define name="MAG_Y_NEUTRAL" value="60"/>
+    <define name="MAG_Z_NEUTRAL" value="0"/>
+
+    <define name="MAG_X_GAIN" value="-1."/>
+    <define name="MAG_Y_GAIN" value="-1."/>
+    <define name="MAG_Z_GAIN" value=" 1."/>
+
+
+    <define name="PRESSURE_NEUTRAL" value="0"/>
+
+    <define name="PRESSURE_GAIN" value="0.25"/>
+
+
+  </section>
+
+
+  <section name="BOOZ_CONTROL" prefix="BOOZ_CONTROL_">
+
+    <define name="RATE_PQ_PGAIN" value="-700."/>
+    <define name="RATE_PQ_DGAIN" value="15."/>
+
+    <define name="RATE_R_PGAIN" value="-600."/>
+    <define name="RATE_R_DGAIN" value="0."/>
+
+    <!-- setpoints for max stick throw in degres per second -->
+    <define name="RATE_PQ_MAX_SP" value="120."/>
+    <define name="RATE_R_MAX_SP"  value="100."/>
+
+    <define name="ATTITUDE_PHI_THETA_PGAIN" value="-1250."/>
+    <define name="ATTITUDE_PHI_THETA_DGAIN" value="-700."/>
+
+    <define name="ATTITUDE_PSI_PGAIN"  value="-1050."/>
+    <define name="ATTITUDE_PSI_DGAIN"   value="-850."/>
+
+    <!-- setpoints for max stick throw in degres -->
+    <define name="ATTITUDE_PHI_THETA_MAX_SP" value="30."/>
+    <define name="ATTITUDE_PSI_MAX_SP" value="45."/>
+
+ </section>
+
+
+  <makefile>
+
+include $(PAPARAZZI_SRC)/conf/autopilot/conf_booz2.makefile
+
+
+  </makefile>
+
+</airframe>
