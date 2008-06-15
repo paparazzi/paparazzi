@@ -107,7 +107,7 @@ float h_ctl_roll_attitude_gain;
 float h_ctl_roll_rate_gain;
 
 #ifdef AGR_CLIMB
-float nav_ratio;
+static float nav_ratio;
 #endif
 
 void h_ctl_init( void ) {
@@ -209,7 +209,6 @@ void h_ctl_course_loop ( void ) {
 /** limit navigation during extreme altitude changes */
 if (AGR_BLEND_START > AGR_BLEND_END && AGR_BLEND_END > 0) { /* prevent divide by zero, reversed or negative values */
 if (v_ctl_auto_throttle_submode == V_CTL_AUTO_THROTTLE_AGRESSIVE || V_CTL_AUTO_THROTTLE_BLENDED) {
-v_ctl_altitude_error = estimator_z - v_ctl_altitude_setpoint;
 BoundAbs(cmd, h_ctl_roll_max_setpoint); /* bound cmd before NAV_RATIO and again after */
 if (v_ctl_altitude_error < 0) {
 nav_ratio = AGR_CLIMB_NAV_RATIO + (1 - AGR_CLIMB_NAV_RATIO) * (1 - (fabs(v_ctl_altitude_error) - AGR_BLEND_END) / (AGR_BLEND_START - AGR_BLEND_END));
