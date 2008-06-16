@@ -77,7 +77,7 @@ void gps_downlink( void ) {
 
   static uint8_t i;
   static uint8_t last_cnos[GPS_NB_CHANNELS];
-  if (i == gps_nb_channels) i = 0;
+  if (i >= gps_nb_channels) i = 0;
   if (i < gps_nb_channels && gps_svinfos[i].cno > 0 && gps_svinfos[i].cno != last_cnos[i]) {
     DOWNLINK_SEND_SVINFO(&i, &gps_svinfos[i].svid, &gps_svinfos[i].flags, &gps_svinfos[i].qi, &gps_svinfos[i].cno, &gps_svinfos[i].elev, &gps_svinfos[i].azim);
     last_cnos[i] = gps_svinfos[i].cno;

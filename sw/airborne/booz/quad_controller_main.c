@@ -33,7 +33,6 @@
 #include "booz_energy.h"
 
 #include "commands.h"
-#include "i2c.h"
 #include "actuators.h"
 #include "radio_control.h"
 
@@ -57,6 +56,8 @@ int16_t trim_p = 0;
 int16_t trim_q = 0;
 int16_t trim_r = 0;
 uint8_t vbat = 0;
+
+uint32_t t0,diff;
 
 #ifndef SITL
 int main( void ) {
@@ -82,8 +83,10 @@ STATIC_INLINE void booz_controller_main_init( void ) {
 #ifdef USE_UART0
   Uart0Init();
 #endif
+#ifdef USE_UART1
+  Uart1Init();
+#endif
 
-  i2c_init();
   actuators_init();
   SetCommands(commands_failsafe);
 
@@ -97,21 +100,18 @@ STATIC_INLINE void booz_controller_main_init( void ) {
   booz_nav_init();
   booz_autopilot_init();
 
-  //FIXME
-#ifndef SITL
-  uart1_init_tx();
-#endif
-
   int_enable();
 
   DOWNLINK_SEND_BOOT(&cpu_time_sec);
+
+  t0 = T0TC;
 }
 
 
-#define PeriodicPrescaleBy5( _code_0, _code_1, _code_2, _code_3, _code_4) { \
+#define PeriodicPrescaleBy2( _code_0, _code_1) { \
     static uint8_t _50hz = 0;						\
     _50hz++;								\
-    if (_50hz >= 5) _50hz = 0;						\
+    if (_50hz >= 2) _50hz = 0;						\
     switch (_50hz) {							\
     case 0:								\
       _code_0;								\
@@ -119,20 +119,13 @@ STATIC_INLINE void booz_controller_main_init( void ) {
     case 1:								\
       _code_1;								\
       break;								\
-    case 2:								\
-      _code_2;								\
-      break;								\
-    case 3:								\
-      _code_3;								\
-      break;								\
-    case 4:								\
-      _code_4;								\
-      break;								\
     }									\
   }
 
 STATIC_INLINE void booz_controller_main_periodic_task( void ) {
   
+  t0 = T0TC;
+
   quad_ins_periodic_task();
   /* run control loops */
   booz_autopilot_periodic_task();
@@ -144,28 +137,51 @@ STATIC_INLINE void booz_controller_main_periodic_task( void ) {
 
   SetActuatorsFromCommands(commands);
 
-  PeriodicPrescaleBy5(							\
+  PeriodicPrescaleBy2(							\
       {							                \
       radio_control_periodic_task();					\
       if (rc_status != RC_OK)						\
       booz_autopilot_mode = BOOZ_AP_MODE_FAILSAFE;			\
       },									\
       {									\
-      booz_controller_telemetry_periodic_task();			\
-      },									\
-      {									\
       booz_energy_periodic();					\
-      },									\
-      {},									\
-      {}									\
+      booz_controller_telemetry_periodic_task();			\
+      }									\
       );									\
+    
+  diff = (T0TC - t0)/SYS_TICS_OF_USEC(1);
+  DOWNLINK_SEND_TIME(&diff);
 }
 
 STATIC_INLINE void booz_controller_main_event_task( void ) {
   
   // FIXME
 #ifndef SITL
-  DlEventCheckAndHandle();
+#if DATALINK == PPRZ
+  if (PprzBuffer()) {
+    ReadPprzBuffer();
+    if (pprz_msg_received) {
+      pprz_parse_payload();
+      pprz_msg_received = FALSE;
+    }
+  }
+#elif DATALINK == XBEE
+  if (XBeeBuffer()) {
+    ReadXBeeBuffer();
+    if (xbee_msg_received) {
+      xbee_parse_payload();
+      xbee_msg_received = FALSE;
+    }
+  }
+#elif
+#error "Unknown DATALINK"
+#endif
+
+  if (dl_msg_available) {
+    dl_parse_msg();
+    dl_msg_available = FALSE;
+  }
+  //DlEventCheckAndHandle();
 #endif
 
   QuadInsEventCheckAndHandle(booz_estimator_read_inter_mcu_state);
