@@ -66,4 +66,6 @@ sim.CFLAGS += -DBOOZ_CONTROLLER_MCU
 sim.CFLAGS += -DCONFIG=\"conf_booz.h\"
 
 sim.srcs += $(BOOZ_PRIV)/booz_estimator_int.c
+sim.srcs += $(BOOZ_PRIV)/booz_guidance_int.c
 sim.srcs += $(BOOZ_PRIV)/booz_stabilization_int.c
+sim.srcs += $(BOOZ_PRIV)/booz_supervision_int.c

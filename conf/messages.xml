@@ -833,6 +833,28 @@
       
   </message>
 
+ <message name="MOTOR_BENCH_STATIC" ID="95">
+      <field name="av_rpm"     type="float"/>
+      <field name="av_thrust"  type="float"/>
+      <field name="av_current" type="float"/>
+      <field name="throttle"   type="uint16"/>
+ </message>
+
+ <message name="BOOZ2_STABILIZATION" ID="130">
+   <field name="p_m"      type="float"/>
+   <field name="p_sp"     type="float"/>
+   <field name="q_m"      type="float"/>
+   <field name="q_sp"     type="float"/>
+   <field name="r_m"      type="float"/>
+   <field name="r_sp"     type="float"/>
+   <field name="phi_m"    type="float"/>
+   <field name="phi_sp"   type="float"/>
+   <field name="theta_m"  type="float"/>
+   <field name="theta_sp" type="float"/>
+   <field name="psi_m"    type="float"/>
+   <field name="psi_sp"   type="float"/>
+ </message>
+
 <!--
   <message name="DC_MC_STATUS" ID="255">
       <field name="time_sec" type="uint16"/>
