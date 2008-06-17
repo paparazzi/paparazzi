@@ -47,5 +47,9 @@ extern const float vfd_fm_alpha;
 
 extern       float vfd_qdr;
 
+
+extern       float vfd_var_sig;
+extern       float vfd_fm_local_sig;
+
 #endif /* VOR_FLOAT_DEMOD_H */
 

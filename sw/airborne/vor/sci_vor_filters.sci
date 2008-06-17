@@ -51,7 +51,7 @@ function [filters] = vor_get_filters()
   vor_filter_format = ['vor_filter';'tf'; 'ss'; 'state'; 'Dphi'];
 
   
-  _tf = iir(3,'lp','butt',[300/vor_Fe 0],[0 0]);
+  _tf = iir(3,'lp','butt',[800/vor_Fe 0],[0 0]);
   _ss = tf2ss(_tf);
   [foo, state0] = flts(0, _ss);
   [_dB, _Dphi] = dbphi(repfreq(_tf, vor_Fvor/vor_Fe));
@@ -68,7 +68,7 @@ function [filters] = vor_get_filters()
   tl_BP_REF = tlist(vor_filter_format, _tf, _ss, state0, _Dphi);
   
   
-  _tf = iir(3,'lp','butt',[300/vor_Fe 0],[0 0]);
+  _tf = iir(3,'lp','butt',[800/vor_Fe 0],[0 0]);
   _ss = tf2ss(_tf);
   [foo, state0] = flts(0, _ss);
   _Dphi = 0.;

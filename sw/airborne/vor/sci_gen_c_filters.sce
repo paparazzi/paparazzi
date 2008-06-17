@@ -6,7 +6,7 @@
 
 clear();
 
-exec('vor_utils.sci');
+exec('sci_vor_filters.sci');
 [filters] = vor_get_filters();
 
 filter_name = [ "BP_VAR"
@@ -42,12 +42,12 @@ fid = mopen(filename+'.h', 'w');
 fprintf(fid,'#ifndef VOR_LF_FILTER_PARAMS_H\n');
 fprintf(fid,'#define VOR_LF_FILTER_PARAMS_H\n\n');
 	    
-for i=1:VOR_FILTER_NB
-  f = filters(i,1);
+for i=1:FILTER_NB
+  f = filters(i);
   fn = filter_name(i);
   fprintf(fid,'/* %s filter */\n', fn);
-  print_poly(fid, fn+"_NUM", f.num, 1);
-  print_poly(fid, fn+"_DEN", f.den, 1);
+  print_poly(fid, fn+"_NUM", f.tf.num, 1);
+  print_poly(fid, fn+"_DEN", f.tf.den, 1);
   fprintf(fid,'\n');
 end
 
@@ -60,11 +60,11 @@ mclose(fid);
   
 fid = mopen(filename+'.c', 'w');
   fprintf(fid,'#include ""%s.h""\n\n', filename);
-for i=1:VOR_FILTER_NB
+for i=1:FILTER_NB
   f = filters(i);
   fn = filter_name(i);
-  print_poly(fid, fn+"_NUM", f.num, 0);
-  print_poly(fid, fn+"_DEN", f.den, 0);
+  print_poly(fid, fn+"_NUM", f.tf.num, 0);
+  print_poly(fid, fn+"_DEN", f.tf.den, 0);
   fprintf(fid,'\n');
 end
 

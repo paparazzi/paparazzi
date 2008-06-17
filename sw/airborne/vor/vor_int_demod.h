@@ -28,7 +28,7 @@
 #include <inttypes.h>
 
 extern void vor_int_demod_init( void);
-extern void vor_int_demod_run ( uint16_t sample);
+extern void vor_int_demod_run ( int16_t sample);
 
 extern       int32_t vid_ref_angle;
 extern       int32_t vid_ref_phi;
@@ -36,9 +36,13 @@ extern       int32_t vid_ref_err;
 extern const int32_t vid_ref_alpha;
 
 
+extern       int32_t vid_ref_err_decim;
+
 extern       int32_t vid_var_phi;
+extern       float   vid_var_local_sig_float;
 
 extern       int32_t vid_fm_phi;
+extern       float   vid_fm_local_sig_float;
 
 extern       int32_t vid_qdr;
 
@@ -48,5 +52,11 @@ extern       int32_t vid_qdr;
 #define VID_ANGLE_INT_OF_NFLOAT(a)  ((a) * (float)VID_ANGLE_FACT - 0.5)
 #define VID_ANGLE_FLOAT_OF_INT(a) ((float)(a) / (float)VID_ANGLE_FACT)
 
+extern float vid_ref_local_sig_float;
+extern int32_t vid_ref_sig;
+extern int32_t vid_ref_local_sig;
+extern int32_t vid_var_sig;
+extern int32_t vid_fm_local_sig;
+extern int32_t vid_ref_y;
 
 #endif /* VOR_INT_DEMOD_H */

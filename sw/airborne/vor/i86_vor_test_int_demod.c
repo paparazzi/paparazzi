@@ -6,7 +6,12 @@
 
 int main(int argc, char** argv) {
 
-  vor_audio_read_wav("signal_VOR_BF_50_200dB.wav");
+  //  vor_audio_read_wav("signal_VOR_BF_50_20dB.wav");
+  // vor_audio_read_wav("signal_VOR_BF_50_200dB.wav");
+  vor_audio_read_wav("signal_VOR_BF_100_200dB.wav");
+  //  vor_audio_read_wav("signal_VOR_BF_0_200dB.wav");
+  //vor_audio_read_wav("signal_VOR_BF_FM_pure.wav");
+
 
   vor_int_demod_init();
  
@@ -17,12 +22,14 @@ int main(int argc, char** argv) {
 
     const float te = 512./15000000.;
     const float ti = i * te;
-    //    printf("%f %d %f\n", ti, adc_buf[i], float_buf[i]);
-    //    printf("%f %d %f %d %d\n", ti, adc_buf[i], 0., vid_ref_err, vid_ref_phi);
-    //    printf("%f %d\n", ti, vid_ref_angle);
-    printf("%f %d %d %d %d %d %d %d\n", 
-    	   ti, adc_buf[i], 
-    	   0, vid_ref_err, vid_ref_phi, vid_var_phi, vid_fm_phi, vid_qdr );
+
+#if 1
+    printf("%f %d %d %d %d %d %d %d %f %d %d %d %d %f\n",
+	   ti, adc_buf[i], 
+	   vid_var_sig, vid_ref_err, vid_ref_phi, vid_var_phi, vid_fm_phi, vid_qdr, 
+	   vid_fm_local_sig_float, vid_ref_y, vid_ref_angle, vid_ref_sig, vid_ref_err_decim, vid_var_local_sig_float );
+#endif
+
  }
 
   return 0;

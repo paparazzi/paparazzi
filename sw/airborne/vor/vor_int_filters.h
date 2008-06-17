@@ -1,7 +1,6 @@
 #ifndef VOR_INT_FILTERS_H
 #define VOR_INT_FILTERS_H
 
-//typedef int32_t (*vor_int_filter_fun)( uint16_t xn);
 
 #define VIF_CRES  16
 #define VIF_CFACT (1<<VIF_CRES)
@@ -13,53 +12,53 @@
 
 #define VIF_SSCALE 5
 
-inline int32_t vor_int_filter_bp_var( uint16_t xn) {
+inline int32_t vor_int_filter_bp_var( int16_t xn) {
 
-  const int32_t a0 = VIF_PCOEF( 0.0000294918571461433008684162315748977790);
-  const int32_t a1 = VIF_PCOEF( 0.0000884755714384299093815122727590960494);
-  const int32_t a2 = VIF_PCOEF( 0.0000884755714384299093815122727590960494);
-  const int32_t a3 = VIF_PCOEF( 0.0000294918571461433008684162315748977790);
+  const int32_t a0 = VIF_PCOEF( 0.0005064187715341341225472326925682864385);
+  const int32_t a1 = VIF_PCOEF( 0.0015192563146024023676416980777048593154);
+  const int32_t a2 = VIF_PCOEF( 0.0015192563146024023676416980777048593154);
+  const int32_t a3 = VIF_PCOEF( 0.0005064187715341341225472326925682864385);
 
-  const int32_t b1 = VIF_NCOEF(-2.8738524677701420273479016032069921493530);
-  const int32_t b2 = VIF_PCOEF( 2.7555363566291544152875303552718833088875);
-  const int32_t b3 = VIF_NCOEF(-0.8814479540018430592240861187747213989496);
+  const int32_t b1 = VIF_NCOEF(-2.6639389158386133082956348516745492815971);
+  const int32_t b2 = VIF_PCOEF( 2.3820072066637907326480672054458409547806);
+  const int32_t b3 = VIF_NCOEF(-0.7140169406529043305553727805090602487326);
 
   //  printf("%d %d %d %d\n", a0, a1, a2, a3);
   //  printf("%d %d %d\n", b1, b2, b3);
 
-  static uint16_t x1 = 0;
-  static uint16_t x2 = 0;
-  static uint16_t x3 = 0;
+  static int16_t x1 = 0;
+  static int16_t x2 = 0;
+  static int16_t x3 = 0;
 
-  static int32_t y1 = 0;
+  static int32_t _y1 = 0;
   static int32_t y2 = 0;
   static int32_t y3 = 0;
 
   /* scale input */
   xn = (xn << VIF_SSCALE);
 
-  int32_t yn =  a0 * xn
+  int32_t _yn =  a0 * xn
               + a1 * x1
               + a2 * x2
               + a3 * x3
-              - b1 * y1
+              - b1 * _y1
               - b2 * y2
               - b3 * y3;
-  //  printf("%d\n", yn);
-  yn = (yn >> VIF_CRES);
+  //  printf("%d\n", _yn);
+  _yn = (_yn >> VIF_CRES);
   
   x3 = x2;
   x2 = x1;
   x1 = xn;
 
   y3 = y2;
-  y2 = y1;
-  y1 = yn;
+  y2 = _y1;
+  _y1 = _yn;
 
-  return (yn >> VIF_SSCALE);
+  return (_yn >> VIF_SSCALE);
 }
 
-inline int32_t vor_int_filter_bp_ref( uint16_t xn) {
+inline int32_t vor_int_filter_bp_ref( int16_t xn) {
 
   const int32_t a0 = VIF_PCOEF( 0.0175489156490784836694984960558940656483);
   //  const int32_t a1 = VIF_PCOEF( 0.0000000000000000000000000000000000000000);
@@ -79,14 +78,14 @@ inline int32_t vor_int_filter_bp_ref( uint16_t xn) {
   //  printf("%d %d %d %d %d %d %d\n", a0, a1, a2, a3, a4, a5, a6);
   //  printf("%d %d %d %d %d %d\n", b1, b2, b3, b4, b5, b6);
 
-  static uint16_t x1 = 0;
-  static uint16_t x2 = 0;
-  static uint16_t x3 = 0;
-  static uint16_t x4 = 0;
-  static uint16_t x5 = 0;
-  static uint16_t x6 = 0;
+  static int16_t x1 = 0;
+  static int16_t x2 = 0;
+  static int16_t x3 = 0;
+  static int16_t x4 = 0;
+  static int16_t x5 = 0;
+  static int16_t x6 = 0;
 
-  static int32_t y1 = 0;
+  static int32_t _y1 = 0;
   static int32_t y2 = 0;
   static int32_t y3 = 0;
   static int32_t y4 = 0;
@@ -96,21 +95,21 @@ inline int32_t vor_int_filter_bp_ref( uint16_t xn) {
   /* scale input */
   xn = (xn << VIF_SSCALE);
 
-  int32_t yn =  a0 * xn
+  int32_t _yn =  a0 * xn
   //          + a1 * x1
               + a2 * x2
   //          + a3 * x3
               + a4 * x4
   //          + a5 * x5
               + a6 * x6
-              - b1 * y1
+              - b1 * _y1
               - b2 * y2
               - b3 * y3
               - b4 * y4
               - b5 * y5
               - b6 * y6;
-  //  printf("%d\n", yn);
-  yn = (yn >> VIF_CRES);
+  //  printf("%d\n", _yn);
+  _yn = (_yn >> VIF_CRES);
   
   x6 = x5;
   x5 = x4;
@@ -123,62 +122,74 @@ inline int32_t vor_int_filter_bp_ref( uint16_t xn) {
   y5 = y4;
   y4 = y3;
   y3 = y2;
-  y2 = y1;
-  y1 = yn;
+  y2 = _y1;
+  _y1 = _yn;
 
-  return (yn >> VIF_SSCALE);
+  return (_yn >> VIF_SSCALE);
 }
 
 
 
-inline int32_t vor_int_filter_lp_decim( uint16_t xn) {
+#define VIF_CRES_t  16
+#define VIF_CFACT_t (1<<VIF_CRES_t)
+#define VIF_PCOEF_t(a) (a * VIF_CFACT_t + 0.5)
+#define VIF_NCOEF_t(a) (a * VIF_CFACT_t - 0.5)
 
-  const int32_t a0 = VIF_PCOEF( 0.0000294918571461433008684162315748977790);
-  const int32_t a1 = VIF_PCOEF( 0.0000884755714384299093815122727590960494);
-  const int32_t a2 = VIF_PCOEF( 0.0000884755714384299093815122727590960494);
-  const int32_t a3 = VIF_PCOEF( 0.0000294918571461433008684162315748977790);
+//#define VIF_SRES_t  10
+//#define VIF_SFACT_t (1<<VIF_SRES)
 
-  const int32_t b1 = VIF_NCOEF(-2.8738524677701420273479016032069921493530);
-  const int32_t b2 = VIF_PCOEF( 2.7555363566291544152875303552718833088875);
-  const int32_t b3 = VIF_NCOEF(-0.8814479540018430592240861187747213989496);
+//#define VIF_SSCALE_t 5
 
-  //  printf("%d %d %d %d\n", a0, a1, a2, a3);
-  //  printf("%d %d %d\n", b1, b2, b3);
 
-  static uint16_t x1 = 0;
-  static uint16_t x2 = 0;
-  static uint16_t x3 = 0;
 
-  static int32_t y1 = 0;
-  static int32_t y2 = 0;
-  static int32_t y3 = 0;
+inline int32_t vor_int_filter_lp_decim( int16_t xn) {
+
+  const int32_t a0 = VIF_PCOEF( 0.0005064187715341341225472326925682864385);
+  const int32_t a1 = VIF_PCOEF( 0.0015192563146024023676416980777048593154);
+  const int32_t a2 = VIF_PCOEF( 0.0015192563146024023676416980777048593154);
+  const int32_t a3 = VIF_PCOEF( 0.0005064187715341341225472326925682864385);
+
+  const int32_t b1 = VIF_NCOEF(-2.6639389158386133082956348516745492815971);
+  const int32_t b2 = VIF_PCOEF( 2.3820072066637907326480672054458409547806);
+  const int32_t b3 = VIF_NCOEF(-0.7140169406529043305553727805090602487326);
+
+  // printf("%d %d %d %d\n", a0, a1, a2, a3);
+  // printf("%d %d %d\n", b1, b2, b3);
+
+  static int16_t x1 = 0;
+  static int16_t x2 = 0;
+  static int16_t x3 = 0;
+
+  static int16_t _y1 = 0;
+  static int16_t y2 = 0;
+  static int16_t y3 = 0;
 
   /* scale input */
   xn = (xn << VIF_SSCALE);
 
-  int32_t yn =  a0 * xn
+  int32_t _yn =  a0 * xn
               + a1 * x1
               + a2 * x2
               + a3 * x3
-              - b1 * y1
+              - b1 * _y1
               - b2 * y2
               - b3 * y3;
-  //  printf("%d\n", yn);
-  yn = (yn >> VIF_CRES);
+  //  printf("%d\n", _yn);
+  _yn = (_yn >> VIF_CRES);
   
   x3 = x2;
   x2 = x1;
   x1 = xn;
 
   y3 = y2;
-  y2 = y1;
-  y1 = yn;
+  y2 = _y1;
+  _y1 = _yn;
 
-  return (yn >> VIF_SSCALE);
+  return (_yn >> VIF_SSCALE);
 }
 
 
-inline int32_t vor_int_filter_lp_var( uint16_t xn) {
+inline int32_t vor_int_filter_lp_var( int32_t xn) {
 
   const int32_t a0 = VIF_PCOEF( 0.0001325928962621713658003030911203268261);
   const int32_t a1 = VIF_PCOEF( 0.0007955573775730281948018185467219609563);
@@ -198,14 +209,14 @@ inline int32_t vor_int_filter_lp_var( uint16_t xn) {
   //  printf("%d %d %d %d %d %d %d\n", a0, a1, a2, a3, a4, a5, a6);
   //  printf("%d %d %d %d %d %d\n", b1, b2, b3, b4, b5, b6);
 
-  static uint16_t x1 = 0;
-  static uint16_t x2 = 0;
-  static uint16_t x3 = 0;
-  static uint16_t x4 = 0;
-  static uint16_t x5 = 0;
-  static uint16_t x6 = 0;
+  static int16_t x1 = 0;
+  static int16_t x2 = 0;
+  static int16_t x3 = 0;
+  static int16_t x4 = 0;
+  static int16_t x5 = 0;
+  static int16_t x6 = 0;
 
-  static int32_t y1 = 0;
+  static int32_t _y1 = 0;
   static int32_t y2 = 0;
   static int32_t y3 = 0;
   static int32_t y4 = 0;
@@ -215,21 +226,21 @@ inline int32_t vor_int_filter_lp_var( uint16_t xn) {
   /* scale input */
   xn = (xn << VIF_SSCALE);
 
-  int32_t yn =  a0 * xn
+  int32_t _yn =  a0 * xn
               + a1 * x1
               + a2 * x2
               + a3 * x3
               + a4 * x4
               + a5 * x5
               + a6 * x6
-              - b1 * y1
+              - b1 * _y1
               - b2 * y2
               - b3 * y3
               - b4 * y4
               - b5 * y5
               - b6 * y6;
-  //  printf("%d\n", yn);
-  yn = (yn >> VIF_CRES);
+  //  printf("%d\n", _yn);
+  _yn = (_yn >> VIF_CRES);
   
   x6 = x5;
   x5 = x4;
@@ -242,14 +253,13 @@ inline int32_t vor_int_filter_lp_var( uint16_t xn) {
   y5 = y4;
   y4 = y3;
   y3 = y2;
-  y2 = y1;
-  y1 = yn;
+  y2 = _y1;
+  _y1 = _yn;
 
-  return (yn >> VIF_SSCALE);
+  return (_yn >> VIF_SSCALE);
 }
 
-
-inline int32_t vor_int_filter_lp_ref( uint16_t xn) {
+inline int32_t vor_int_filter_lp_ref( int32_t xn) {
 
   const int32_t a0 = VIF_PCOEF( 0.0182843871571847782497854950634064152837);
   const int32_t a1 = VIF_PCOEF( 0.0548531614715543347493564851902192458510);
@@ -260,42 +270,42 @@ inline int32_t vor_int_filter_lp_ref( uint16_t xn) {
   const int32_t b2 = VIF_PCOEF( 1.1780240265537846866550353297498077154160);
   const int32_t b3 = VIF_NCOEF(-0.2765748739957675783607271569053409621119);
 
-  //  printf("%d %d %d %d\n", a0, a1, a2, a3);
-  //  printf("%d %d %d\n", b1, b2, b3);
+  // printf("%d %d %d %d\n", a0, a1, a2, a3);
+  // printf("%d %d %d\n", b1, b2, b3);
 
-  static uint16_t x1 = 0;
-  static uint16_t x2 = 0;
-  static uint16_t x3 = 0;
+  static int16_t x1 = 0;
+  static int16_t x2 = 0;
+  static int16_t x3 = 0;
 
-  static int32_t y1 = 0;
+  static int32_t _y1 = 0;
   static int32_t y2 = 0;
   static int32_t y3 = 0;
 
   /* scale input */
   xn = (xn << VIF_SSCALE);
 
-  int32_t yn =  a0 * xn
+  int32_t _yn =  a0 * xn
               + a1 * x1
               + a2 * x2
               + a3 * x3
-              - b1 * y1
+              - b1 * _y1
               - b2 * y2
               - b3 * y3;
-  //  printf("%d\n", yn);
-  yn = (yn >> VIF_CRES);
+  //  printf("%d\n", _yn);
+  _yn = (_yn >> VIF_CRES);
   
   x3 = x2;
   x2 = x1;
   x1 = xn;
 
   y3 = y2;
-  y2 = y1;
-  y1 = yn;
+  y2 = _y1;
+  _y1 = _yn;
 
-  return (yn >> VIF_SSCALE);
+  return (_yn >> VIF_SSCALE);
 }
 
-inline int32_t vor_int_filter_lp_fm( uint16_t xn) {
+inline int32_t vor_int_filter_lp_fm( int32_t xn) {
 
   const int32_t a0 = VIF_PCOEF( 0.0001325928962621713658003030911203268261);
   const int32_t a1 = VIF_PCOEF( 0.0007955573775730281948018185467219609563);
@@ -315,14 +325,14 @@ inline int32_t vor_int_filter_lp_fm( uint16_t xn) {
   //  printf("%d %d %d %d %d %d %d\n", a0, a1, a2, a3, a4, a5, a6);
   //  printf("%d %d %d %d %d %d\n", b1, b2, b3, b4, b5, b6);
 
-  static uint16_t x1 = 0;
-  static uint16_t x2 = 0;
-  static uint16_t x3 = 0;
-  static uint16_t x4 = 0;
-  static uint16_t x5 = 0;
-  static uint16_t x6 = 0;
+  static int16_t x1 = 0;
+  static int16_t x2 = 0;
+  static int16_t x3 = 0;
+  static int16_t x4 = 0;
+  static int16_t x5 = 0;
+  static int16_t x6 = 0;
 
-  static int32_t y1 = 0;
+  static int32_t _y1 = 0;
   static int32_t y2 = 0;
   static int32_t y3 = 0;
   static int32_t y4 = 0;
@@ -332,21 +342,21 @@ inline int32_t vor_int_filter_lp_fm( uint16_t xn) {
   /* scale input */
   xn = (xn << VIF_SSCALE);
 
-  int32_t yn =  a0 * xn
+  int32_t _yn =  a0 * xn
               + a1 * x1
               + a2 * x2
               + a3 * x3
               + a4 * x4
               + a5 * x5
               + a6 * x6
-              - b1 * y1
+              - b1 * _y1
               - b2 * y2
               - b3 * y3
               - b4 * y4
               - b5 * y5
               - b6 * y6;
-  //  printf("%d\n", yn);
-  yn = (yn >> VIF_CRES);
+  //  printf("%d\n", _yn);
+  _yn = (_yn >> VIF_CRES);
   
   x6 = x5;
   x5 = x4;
@@ -359,15 +369,11 @@ inline int32_t vor_int_filter_lp_fm( uint16_t xn) {
   y5 = y4;
   y4 = y3;
   y3 = y2;
-  y2 = y1;
-  y1 = yn;
+  y2 = _y1;
+  _y1 = _yn;
 
-  return (yn >> VIF_SSCALE);
+  return (_yn >> VIF_SSCALE);
 
 }
-
-
-
-
 
 #endif /* VOR_INT_FILTERS_H */

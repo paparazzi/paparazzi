@@ -24,6 +24,9 @@ const float vfd_fm_alpha  = -1.0;
 
       float vfd_qdr;
 
+      float vfd_var_sig;
+      float vfd_fm_local_sig;
+
 static uint32_t i;
 static uint32_t decim;
 static uint32_t vfd_DECIM = 3 * 83;
@@ -67,7 +70,8 @@ void vor_float_demod_run ( float sample) {
   const float vfd_ref_err_decim = vor_float_filter_lp_decim(vfd_ref_err);
     
   // get VAR signal by bandpassing input signal 
-  const float vfd_var_sig = vor_float_filter_bp_var(sample);
+  //  const float vfd_var_sig = vor_float_filter_bp_var(sample);
+  vfd_var_sig = vor_float_filter_bp_var(sample);
 
   if (decim >= vfd_DECIM) {
     decim = 0;
@@ -80,7 +84,8 @@ void vor_float_demod_run ( float sample) {
       
     vfd_fm_phi -= vfd_fm_alpha * vfd_fm_err;
     const float vfd_fm_phase = 2. * M_PI * vfd_fm_freq * ti + vfd_fm_phi;
-    const float vfd_fm_local_sig = -sin( vfd_fm_phase );
+    //    const float vfd_fm_local_sig = -sin( vfd_fm_phase );
+    vfd_fm_local_sig = -sin( vfd_fm_phase );
     const float vfd_fm_y = vfd_ref_err_decim * vfd_fm_local_sig;
     vfd_fm_err = vor_float_filter_lp_fm(vfd_fm_y);
     
