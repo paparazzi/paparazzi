@@ -51,21 +51,23 @@ sim.CFLAGS += -DBSM_PARAMS=\"booz_sensors_model_params.h\"
 sim.srcs = $(BOOZ_PRIV)/main_sim.c                   \
 	   $(SIMDIR)/booz_flight_model.c             \
            $(SIMDIR)/booz_flight_model_utils.c       \
-#           $(SIMDIR)/booz_sensors_model.c            \
-#	   $(SIMDIR)/booz_sensors_model_utils.c      \
-#           $(SIMDIR)/booz_sensors_model_accel.c      \
-#           $(SIMDIR)/booz_sensors_model_gyro.c       \
-#           $(SIMDIR)/booz_sensors_model_mag.c        \
-#           $(SIMDIR)/booz_sensors_model_rangemeter.c \
-#           $(SIMDIR)/booz_sensors_model_baro.c       \
-#           $(SIMDIR)/booz_sensors_model_gps.c        \
+           $(SIMDIR)/booz_sensors_model.c            \
+	   $(SIMDIR)/booz_sensors_model_utils.c      \
+           $(SIMDIR)/booz_sensors_model_accel.c      \
+           $(SIMDIR)/booz_sensors_model_gyro.c       \
+           $(SIMDIR)/booz_sensors_model_mag.c        \
+           $(SIMDIR)/booz_sensors_model_rangemeter.c \
+           $(SIMDIR)/booz_sensors_model_baro.c       \
+           $(SIMDIR)/booz_sensors_model_gps.c        \
 #           $(SIMDIR)/booz_wind_model.c               \
 
 sim.CFLAGS += -DSITL
 sim.CFLAGS += -DBOOZ_CONTROLLER_MCU
 sim.CFLAGS += -DCONFIG=\"conf_booz.h\"
 
+sim.srcs += $(BOOZ_PRIV)/booz_imu_int.c
 sim.srcs += $(BOOZ_PRIV)/booz_estimator_int.c
+sim.srcs += $(BOOZ_PRIV)/booz_cmp_flt_quat_int.c
 sim.srcs += $(BOOZ_PRIV)/booz_guidance_int.c
 sim.srcs += $(BOOZ_PRIV)/booz_stabilization_int.c
 sim.srcs += $(BOOZ_PRIV)/booz_supervision_int.c

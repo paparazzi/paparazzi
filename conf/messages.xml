@@ -853,6 +853,16 @@
    <field name="theta_sp" type="float"/>
    <field name="psi_m"    type="float"/>
    <field name="psi_sp"   type="float"/>
+   <field name="cmd_a"    type="int32"/>
+   <field name="cmd_e"    type="int32"/>
+   <field name="cmd_r"    type="int32"/>
+   <field name="cmd_t"    type="int32"/>
+ </message>
+
+ <message name="BOOZ2_GYRO" ID="131">   
+   <field name="gp"    type="int32"/>
+   <field name="gq"    type="int32"/>
+   <field name="gr"    type="int32"/>
  </message>
 
 <!--
