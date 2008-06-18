@@ -476,7 +476,7 @@ let _ =
     "Usage: ";
 
   (** Connect to the Ivy bus *)
-  Ivy.init "Paparazzi messages" "READY" (fun _ _ -> ());
+  Ivy.init "Paparazzi plotter" "READY" (fun _ _ -> ());
   Ivy.start !ivy_bus;
 
   List.iter plot_window !init;
