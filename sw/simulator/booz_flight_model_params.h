@@ -20,9 +20,9 @@
 /* inertia on x axis in kg * m2                    */
 #define Ix .007
 /* inertia on y axis in kg * m2                    */
-#define Iy .0137
+#define Iy .0073
 /* inertia on z axis in kg * m2                    */
-#define Iz .0073
+#define Iz .0137
 /* lenght between centers of vehicle and prop in m */
 #define L  0.25
 
