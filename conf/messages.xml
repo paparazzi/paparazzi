@@ -841,22 +841,28 @@
  </message>
 
  <message name="BOOZ2_STABILIZATION" ID="130">
-   <field name="p_m"      type="float"/>
-   <field name="p_sp"     type="float"/>
-   <field name="q_m"      type="float"/>
-   <field name="q_sp"     type="float"/>
-   <field name="r_m"      type="float"/>
-   <field name="r_sp"     type="float"/>
-   <field name="phi_m"    type="float"/>
-   <field name="phi_sp"   type="float"/>
-   <field name="theta_m"  type="float"/>
-   <field name="theta_sp" type="float"/>
-   <field name="psi_m"    type="float"/>
-   <field name="psi_sp"   type="float"/>
-   <field name="cmd_a"    type="int32"/>
-   <field name="cmd_e"    type="int32"/>
-   <field name="cmd_r"    type="int32"/>
-   <field name="cmd_t"    type="int32"/>
+   <field name="pd_ref"     type="float"/>
+   <field name="qd_ref"     type="float"/>
+   <field name="rd_ref"     type="float"/>
+   <field name="p_est"      type="float"/>
+   <field name="p_ref"      type="float"/>
+   <field name="q_est"      type="float"/>
+   <field name="q_ref"      type="float"/>
+   <field name="r_est"      type="float"/>
+   <field name="r_ref"      type="float"/>
+   <field name="phi_est"    type="float"/>
+   <field name="phi_ref"    type="float"/>
+   <field name="phi_sp"     type="float"/>
+   <field name="theta_est"  type="float"/>
+   <field name="theta_ref"  type="float"/>
+   <field name="theta_sp"   type="float"/>
+   <field name="psi_est"    type="float"/>
+   <field name="psi_ref"    type="float"/>
+   <field name="psi_sp"     type="float"/>
+   <field name="cmd_a"      type="int32"/>
+   <field name="cmd_e"      type="int32"/>
+   <field name="cmd_r"      type="int32"/>
+   <field name="cmd_t"      type="int32"/>
  </message>
 
  <message name="BOOZ2_GYRO" ID="131">   
