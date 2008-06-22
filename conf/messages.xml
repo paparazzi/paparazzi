@@ -951,6 +951,7 @@
  </message>
 
  <message name="JOYSTICK_RAW" id="11">
+   <field name="ac_id" type="uint8"/>
    <field name="roll" type="int8"/>
    <field name="pitch" type="int8"/>
    <field name="throttle" type="uint8"/>
