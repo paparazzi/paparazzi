@@ -950,6 +950,12 @@
 	 <field name="status" type="uint8"/>
  </message>
 
+ <message name="JOYSTICK_RAW" id="11">
+   <field name="roll" type="int8"/>
+   <field name="pitch" type="int8"/>
+   <field name="throttle" type="uint8"/>
+ </message>
+
  <message name="SET_ACTUATOR" id="100">
    <field name="value" type="uint16"/>
    <field name="no" type="uint8"/>
