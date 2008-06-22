@@ -35,7 +35,7 @@
 #include <Ivy/ivyglibloop.h>
 
 
-#define TIMEOUT_PERIOD 20
+#define TIMEOUT_PERIOD 100
 
 #define MB_ID 1
 
@@ -94,6 +94,7 @@ void init_hid_device()
 	unsigned long key_bits[32],abs_bits[32];
 //	unsigned long ff_bits[32];
 	int valbuf[16];
+	char name[256] = "Unknown";
 
 	/* Open event device read only (with write permission for ff) */
 	device_handle = open(device_name,O_RDONLY|O_NONBLOCK);
@@ -102,6 +103,9 @@ void init_hid_device()
 		        device_name,strerror(errno),__FILE__,__LINE__);
 		exit(1);
 	}
+
+	ioctl(device_handle, EVIOCGNAME(sizeof(name)), name);
+	printf("Input device name: \"%s\"\n", name);
 
 	/* Which buttons has the device? */
 	memset(key_bits,0,32*sizeof(unsigned long));
