@@ -248,6 +248,11 @@ void h_ctl_attitude_loop ( void ) {
 #ifdef H_CTL_ROLL_ATTITUDE_GAIN
 inline static void h_ctl_roll_loop( void ) {
   float err = estimator_phi - h_ctl_roll_setpoint;
+#ifdef SITL
+  static float last_err = 0;
+  estimator_p = (err - last_err)/(1/60.);
+  last_err = err;
+#endif
   float cmd = - h_ctl_roll_attitude_gain * err
     - h_ctl_roll_rate_gain * estimator_p
     + v_ctl_throttle_setpoint * h_ctl_aileron_of_throttle;

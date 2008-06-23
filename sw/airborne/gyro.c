@@ -50,6 +50,7 @@ static struct adc_buf buf_pitch;
 #endif
 
 void gyro_init( void) {
+#ifndef SITL
   adc_buf_channel(ADC_CHANNEL_GYRO_ROLL, &buf_roll, ADC_CHANNEL_GYRO_NB_SAMPLES);
 #if defined ADC_CHANNEL_GYRO_TEMP
   adc_buf_channel(ADC_CHANNEL_GYRO_TEMP, &buf_temp, ADC_CHANNEL_GYRO_NB_SAMPLES);
@@ -57,11 +58,13 @@ void gyro_init( void) {
 #if defined ADC_CHANNEL_GYRO_PITCH
   adc_buf_channel(ADC_CHANNEL_GYRO_PITCH, &buf_pitch, ADC_CHANNEL_GYRO_NB_SAMPLES);
 #endif
+#endif /* SITL */
 }
 
 
 
 void gyro_update( void ) {
+#ifndef SITL
   float pitch_rate = 0.;
   roll_rate_adc = (buf_roll.sum/buf_roll.av_nb_sample) - GYRO_ADC_ROLL_NEUTRAL; 
 #if defined ADC_CHANNEL_GYRO_TEMP
@@ -74,4 +77,5 @@ void gyro_update( void ) {
 #endif
   float roll_rate = GYRO_ROLL_DIRECTION * RadiansOfADC(roll_rate_adc, GYRO_ROLL_SCALE);
   EstimatorSetRate(roll_rate, pitch_rate);
+#endif /* SITL */
 }

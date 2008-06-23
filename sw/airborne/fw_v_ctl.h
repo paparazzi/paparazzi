@@ -97,4 +97,9 @@ extern void v_ctl_throttle_slew( void );
   Bound(v_ctl_auto_throttle_cruise_throttle, V_CTL_AUTO_THROTTLE_MIN_CRUISE_THROTTLE, V_CTL_AUTO_THROTTLE_MAX_CRUISE_THROTTLE); \
 }
 
+#define fw_v_ctl_SetAutoThrottleIgain(_v) {	\
+    v_ctl_auto_throttle_igain = _v;		\
+    v_ctl_auto_throttle_sum_err = 0;		\
+  }
+
 #endif /* FW_V_CTL_H */
