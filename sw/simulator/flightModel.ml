@@ -191,7 +191,7 @@ module Make(A:Data.MISSION) = struct
       and dy = state.air_speed *. sin state.psi *. dt +. wy *. dt in
       state.x <- state.x +.dx ;
       state.y <- state.y +. dy;
-      let gamma = (state.thrust -. drag) /. weight +. state.theta -. 0.1 *. abs_float (sin state.phi)) in
+      let gamma = (state.thrust -. drag) /. weight +. state.theta -. 0.1 *. abs_float (sin state.phi) in
       let dz = sin gamma *. state.air_speed *. dt in
       state.z <- state.z +. dz;
 
