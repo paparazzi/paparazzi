@@ -113,7 +113,6 @@
 
   <section name="VERTICAL CONTROL" prefix="V_CTL_">
 
-    <define name="POWER_CTL_BAT_NOMINAL" value="11.1" unit="volt"/>
     <!-- outer loop proportional gain -->
     <define name="ALTITUDE_PGAIN" value="-0.03"/>
     <!-- outer loop saturation -->
