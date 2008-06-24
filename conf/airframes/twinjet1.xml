@@ -58,8 +58,8 @@
     <define name="IR1_SIGN" value="-1"/>
     <define name="IR2_SIGN" value="-1"/>
 
-    <define name="ROLL_NEUTRAL_DEFAULT" value="10" unit="deg"/>
-    <define name="PITCH_NEUTRAL_DEFAULT" value="-1" unit="deg"/>
+    <define name="ROLL_NEUTRAL_DEFAULT" value="5" unit="deg"/>
+    <define name="PITCH_NEUTRAL_DEFAULT" value="10" unit="deg"/>
 
     <define name="LATERAL_CORRECTION" value="1."/>
     <define name="LONGITUDINAL_CORRECTION" value="1."/>
@@ -237,6 +237,8 @@ ap.srcs += nav_survey_rectangle.c snav.c
 ap.srcs += light.c
 ap.CFLAGS += -DUSE_LIGHT
 
+ap.CFLAGS += -DNAV_JOYSTICK
+
 
 
 
@@ -251,6 +253,8 @@ sim.CFLAGS += -DCONFIG=\"classix.h\" -DAGR_CLIMB -DLOITER_TRIM
 
 sim.srcs += nav_survey_rectangle.c nav_line.c light.c snav.c
 sim.CFLAGS += -DUSE_LIGHT
+
+sim.CFLAGS += -DNAV_JOYSTICK
 
 
   </makefile>
