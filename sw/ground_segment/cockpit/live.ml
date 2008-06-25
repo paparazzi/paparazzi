@@ -940,20 +940,22 @@ let listen_flight_params = fun geomap auto_center_new_ac alert alt_graph ->
     ac.last_dist_to_wp <- d;
 
     (* Estimated Time to HOME *)
-    match ac.wp_HOME with
-      Some wp_HOME ->
-	let (bearing_to_HOME_deg, d) = Latlong.bearing ac.track#pos wp_HOME#pos in
-	let bearing_to_HOME = (Deg>>Rad)bearing_to_HOME_deg in
-	let wind_north = -. ac.wind_speed *. cos ac.wind_dir
-	and wind_east = -. ac.wind_speed *. sin ac.wind_dir in
-	let c = ac.wind_speed *. ac.wind_speed -. ac.airspeed *. ac.airspeed
-	and scal = wind_east *. sin bearing_to_HOME +. wind_north *. cos bearing_to_HOME in
-	let delta = 4. *. (scal*.scal -. c) in
-	let ground_speed_to_HOME = scal +. sqrt delta /. 2. in
-	let time_to_HOME = d /. ground_speed_to_HOME in
+    try
+      match ac.wp_HOME with
+	Some wp_HOME ->
+	  let (bearing_to_HOME_deg, d) = Latlong.bearing ac.track#pos wp_HOME#pos in
+	  let bearing_to_HOME = (Deg>>Rad)bearing_to_HOME_deg in
+	  let wind_north = -. ac.wind_speed *. cos ac.wind_dir
+	  and wind_east = -. ac.wind_speed *. sin ac.wind_dir in
+	  let c = ac.wind_speed *. ac.wind_speed -. ac.airspeed *. ac.airspeed
+	  and scal = wind_east *. sin bearing_to_HOME +. wind_north *. cos bearing_to_HOME in
+	  let delta = 4. *. (scal*.scal -. c) in
+	  let ground_speed_to_HOME = scal +. sqrt delta /. 2. in
+	  let time_to_HOME = d /. ground_speed_to_HOME in
 	ac.misc_page#set_value "Time to HOME" (sprintf "%.0fs" time_to_HOME)
-    | None -> ()
-
+      | _ -> ()
+    with
+      _NotSoImportant -> ()
   in
   safe_bind "NAV_STATUS" get_ns;
 
