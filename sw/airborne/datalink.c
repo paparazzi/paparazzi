@@ -39,13 +39,14 @@
 #include "formation.h"
 #endif // FORMATION
 
-#ifdedf USE_JOYSTICK
+#ifdef USE_JOYSTICK
 #include "joystick.h"
 #endif
 
 #include "common_nav.h"
 #include "settings.h"
 #include "latlong.h"
+#include "nav_joystick.h"
 
 #ifndef DOWNLINK_DEVICE
 #define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
@@ -105,6 +106,7 @@ void dl_parse_msg(void) {
     estimator_airspeed = DL_WIND_INFO_airspeed(dl_buffer);
   } else
 #endif /** WIND_INFO */
+
 #ifdef HITL
   /** Infrared and GPS sensors are replaced by messages on the datalink */
   if (msg_id == DL_HITL_INFRARED) {
@@ -155,9 +157,11 @@ void dl_parse_msg(void) {
   } else
 #endif
 #ifdef USE_JOYSTICK
-    if (msg_id == DL_FORMATION_SLOT) {
-      JoystickHandeDatalink();
+    if (msg_id == DL_JOYSTICK_RAW && DL_JOYSTICK_RAW_ac_id(dl_buffer) == AC_ID) {
+      JoystickHandeDatalink(DL_JOYSTICK_RAW_roll(dl_buffer),
+			    DL_JOYSTICK_RAW_pitch(dl_buffer),
+			    DL_JOYSTICK_RAW_throttle(dl_buffer));
     } else
-#endif USE_JOYSTICK
+#endif // USE_JOYSTICK
   { /* Last else */ }
 }
