@@ -245,7 +245,7 @@ static gboolean joystick_periodic(gpointer data __attribute__ ((unused))) {
 	while (read(device_handle,&event,sizeof(event))==sizeof(event)) {
 	    for (cnt=0; cnt<AXIS_COUNT; cnt++) {
             if (event.type==EV_ABS && event.code==axis_code[cnt]) {
-    			position[cnt]=(((event.value)-axis_min[cnt]))*255/(axis_max[cnt]-axis_min[cnt])-128;
+    			position[cnt]=(((event.value)-axis_min[cnt]))*254/(axis_max[cnt]-axis_min[cnt])-127;
 	        }
 		}
 	}
