@@ -79,6 +79,7 @@ external int16_of_bytes : string -> int -> int = "c_int16_of_indexed_bytes"
 external sprint_float : string -> int -> float -> unit = "c_sprint_float"
 external sprint_int32 : string -> int -> int32 -> unit = "c_sprint_int32"
 external sprint_int16 : string -> int -> int -> unit = "c_sprint_int16"
+external sprint_int8 : string -> int -> int -> unit = "c_sprint_int8"
 
 let types = [
   ("uint8",  { format = "%u"; glib_type = "guint8"; inttype = "uint8_t";  size = 1; value=Int 42 });
@@ -242,10 +243,14 @@ let byte = fun x -> Char.chr (x land 0xff)
 (** Returns the size of outputed data *)
 let rec sprint_value = fun buf i _type v ->
   match _type, v with
-    Scalar ("int8"|"uint8"), Int x ->
+    Scalar "uint8", Int x ->
       if x < 0 || x > 0xff then
-	failwith (sprintf "Value too large to fit in a (u)int8: %d" x);
+	failwith (sprintf "Value too large to fit in a uint8: %d" x);
       buf.[i] <- Char.chr x; sizeof _type
+  | Scalar "int8", Int x ->
+      if x < -0x7f || x > 0x7f then
+	failwith (sprintf "Value too large to fit in a int8: %d" x);
+      sprint_int8 buf i x; sizeof _type
   | Scalar "float", Float f -> sprint_float buf i f; sizeof _type
   | Scalar ("int32"|"uint32"), Int32 x -> sprint_int32 buf i x; sizeof _type
   | Scalar "int16", Int x -> sprint_int16 buf i x; sizeof _type

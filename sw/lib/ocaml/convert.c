@@ -55,6 +55,13 @@ c_sprint_int16(value s, value index, value f) {
 }
 
 value
+c_sprint_int8(value s, value index, value f) {
+  int8_t *p = (int8_t*) (String_val(s) + Int_val(index));
+  *p = (int8_t)Int_val(f);
+  return Val_unit;
+}
+
+value
 c_sprint_int32(value s, value index, value x) {
   int32_t *p = (int32_t*) (String_val(s) + Int_val(index));
   *p = (int32_t)Int32_val(x);
