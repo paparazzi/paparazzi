@@ -32,6 +32,7 @@
 #include "estimator.h"
 #include "nav.h"
 #include "airframe.h"
+#include "autopilot.h"
 
 /* mode */
 uint8_t v_ctl_mode;
@@ -235,7 +236,7 @@ inline static void v_ctl_climb_auto_pitch_loop(void) {
 #endif
 
 #ifdef V_CTL_THROTTLE_SLEW_LIMITER
-#define V_CTL_THROTTLE_SLEW (1/20./(V_CTL_THROTTLE_SLEW_LIMITER))
+#define V_CTL_THROTTLE_SLEW (1./CONTROL_RATE/(V_CTL_THROTTLE_SLEW_LIMITER))
 #endif
 
 #ifndef V_CTL_THROTTLE_SLEW
