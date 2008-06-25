@@ -39,6 +39,10 @@
 #include "formation.h"
 #endif // FORMATION
 
+#ifdedf USE_JOYSTICK
+#include "joystick.h"
+#endif
+
 #include "common_nav.h"
 #include "settings.h"
 #include "latlong.h"
@@ -150,5 +154,10 @@ void dl_parse_msg(void) {
     else { UpdateFormationStatus(ac_id,UNSET); }
   } else
 #endif
+#ifdef USE_JOYSTICK
+    if (msg_id == DL_FORMATION_SLOT) {
+      JoystickHandeDatalink();
+    } else
+#endif USE_JOYSTICK
   { /* Last else */ }
 }

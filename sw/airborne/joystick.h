@@ -6,4 +6,10 @@ extern float joystick_y;
 
 extern void joystick_init(void);
 
+#define JoystickHandeDatalink() { \
+				  \
+}
+
+
+
 #endif /* JOYSTICK_H */
