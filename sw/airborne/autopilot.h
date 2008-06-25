@@ -114,4 +114,10 @@ extern bool_t power_switch;
   estimator_flight_time = 0; launch = FALSE; \
 }
 
+
+/* For backward compatibility with old airframe files */
+#ifndef CONTROL_RATE
+#define CONTROL_RATE 20
+#endif
+
 #endif /* AUTOPILOT_H */
