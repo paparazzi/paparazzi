@@ -46,7 +46,6 @@
 #include "common_nav.h"
 #include "settings.h"
 #include "latlong.h"
-#include "nav_joystick.h"
 
 #ifndef DOWNLINK_DEVICE
 #define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
