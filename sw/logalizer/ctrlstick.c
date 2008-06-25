@@ -21,6 +21,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+//#define DBG 1
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -34,10 +36,17 @@
 #include <Ivy/ivy.h>
 #include <Ivy/ivyglibloop.h>
 
+#ifdef DBG
+#define dbgprintf fprintf
+#else
+#define dbgprintf(x ...)
+#endif
 
 #define TIMEOUT_PERIOD 100
 
 #define MB_ID 1
+
+#define INPUT_DEV_MAX   15
 
 #define AXIS_COUNT      3
 
@@ -50,12 +59,13 @@
 #define TEST_BIT(bit,bits) (((bits[bit>>5]>>(bit&0x1f))&1)!=0)
 
 /* Default values for the options */
+#define DEVICE_NAME         "/dev/input/event"
 #define DEFAULT_DEVICE_NAME "/dev/input/event4"
 #define DEFAULT_AC_ID       1
 
 /* Options */
-const char * device_name = DEFAULT_DEVICE_NAME;
-int aircraft_id    = DEFAULT_AC_ID;
+const char * device_name_default = DEFAULT_DEVICE_NAME;
+int aircraft_id                  = DEFAULT_AC_ID;
 
 /* Global variables about the initialized device */
 int device_handle;
@@ -71,8 +81,8 @@ void parse_args(int argc, char * argv[])
 	if (argc<2) goto l_help;
 
 	for (i=1; i<argc; i++) {
-		if      (!strcmp(argv[i],"-d") && i<argc-1) device_name     =argv[++i];
-		else if (!strcmp(argv[i],"-a") && i<argc-1) aircraft_id     =atoi(argv[++i]);
+		if      (!strcmp(argv[i],"-d") && i<argc-1) device_name_default =argv[++i];
+		else if (!strcmp(argv[i],"-a") && i<argc-1) aircraft_id         =atoi(argv[++i]);
 		else if (!strcmp(argv[i],"-o")) ;
 		else goto l_help;
 	}
@@ -82,13 +92,13 @@ l_help:
 	printf("Usage:\n");
 	printf("  %s <option> [<option>...]\n",argv[0]);
 	printf("Options:\n");
-	printf("  -d <string>  device name (default: %s)\n",DEFAULT_DEVICE_NAME);
+//	printf("  -d <string>  device name (default: %s)\n",DEFAULT_DEVICE_NAME);
 	printf("  -a <int>     aircraft id (default: %d)\n",DEFAULT_AC_ID);
 	printf("  -o           dummy option (useful because at least one option is needed)\n");
 	exit(1);
 }
 
-void init_hid_device()
+int init_hid_device(char* device_name)
 {
     int cnt;
 	unsigned long key_bits[32],abs_bits[32];
@@ -99,66 +109,63 @@ void init_hid_device()
 	/* Open event device read only (with write permission for ff) */
 	device_handle = open(device_name,O_RDONLY|O_NONBLOCK);
 	if (device_handle<0) {
-		fprintf(stderr,"ERROR: can not open %s (%s) [%s:%d]\n",
+		dbgprintf(stderr,"ERROR: can not open %s (%s) [%s:%d]\n",
 		        device_name,strerror(errno),__FILE__,__LINE__);
-		exit(1);
+		return(1);
 	}
-
-	ioctl(device_handle, EVIOCGNAME(sizeof(name)), name);
-	printf("Input device name: \"%s\"\n", name);
 
 	/* Which buttons has the device? */
 	memset(key_bits,0,32*sizeof(unsigned long));
 	if (ioctl(device_handle,EVIOCGBIT(EV_KEY,32*sizeof(unsigned long)),key_bits)<0) {
-		fprintf(stderr,"ERROR: can not get key bits (%s) [%s:%d]\n",
+		dbgprintf(stderr,"ERROR: can not get key bits (%s) [%s:%d]\n",
 		        strerror(errno),__FILE__,__LINE__);
-		exit(1);
+		return(1);
 	}
 
 	/* Which axes has the device? */
 	memset(abs_bits,0,32*sizeof(unsigned long));
 	if (ioctl(device_handle,EVIOCGBIT(EV_ABS,32*sizeof(unsigned long)),abs_bits)<0) {
-		fprintf(stderr,"ERROR: can not get abs bits (%s) [%s:%d]\n",
+		dbgprintf(stderr,"ERROR: can not get abs bits (%s) [%s:%d]\n",
 		        strerror(errno),__FILE__,__LINE__);
-		exit(1);
+		return(1);
 	}
 
 	/* Which axis? */
 	if  (!TEST_BIT(AXIS_RUDDER ,abs_bits)) {
-		fprintf(stderr,"ERROR: no suitable rudder axis found [%s:%d]\n",
+		dbgprintf(stderr,"ERROR: no suitable rudder axis found [%s:%d]\n",
 		        __FILE__,__LINE__);
-		exit(1);
+		return(1);
 	}
 	if (!TEST_BIT(AXIS_ELEVATOR ,abs_bits)) {
-		fprintf(stderr,"ERROR: no suitable elevator axis found [%s:%d]\n",
+		dbgprintf(stderr,"ERROR: no suitable elevator axis found [%s:%d]\n",
 		        __FILE__,__LINE__);
-		exit(1);
+		return(1);
 	}
 	if (!TEST_BIT(AXIS_AILERON ,abs_bits)) {
-		fprintf(stderr,"ERROR: no suitable aileron axis found [%s:%d]\n",
+		dbgprintf(stderr,"ERROR: no suitable aileron axis found [%s:%d]\n",
 		        __FILE__,__LINE__);
-		exit(1);
+		return(1);
 	}
 	if (!TEST_BIT(AXIS_THROTTLE ,abs_bits)) {
-		fprintf(stderr,"ERROR: no suitable throttle axis found [%s:%d]\n",
+		dbgprintf(stderr,"ERROR: no suitable throttle axis found [%s:%d]\n",
 		        __FILE__,__LINE__);
-		exit(1);
+		return(1);
 	}
 	
     for (cnt=0; cnt<AXIS_COUNT; cnt++)
     {
     	/* get axis value range */
     	if (ioctl(device_handle,EVIOCGABS(axis_code[cnt]),valbuf)<0) {
-    		fprintf(stderr,"ERROR: can not get axis value range (%s) [%s:%d]\n",
+    		dbgprintf(stderr,"ERROR: can not get axis value range (%s) [%s:%d]\n",
     		        strerror(errno),__FILE__,__LINE__);
-    		exit(1);
+    		return(1);
     	}
     	axis_min[cnt]=valbuf[1];
     	axis_max[cnt]=valbuf[2];
     	if (axis_min[cnt]>=axis_max[cnt]) {
-    		fprintf(stderr,"ERROR: bad axis value range (%d,%d) [%s:%d]\n",
+    		dbgprintf(stderr,"ERROR: bad axis value range (%d,%d) [%s:%d]\n",
     		        axis_min[cnt],axis_max[cnt],__FILE__,__LINE__);
-    		exit(1);
+    		return(1);
     	}
 	}
 
@@ -166,16 +173,16 @@ void init_hid_device()
 	/* Now get some information about force feedback */
 	memset(ff_bits,0,32*sizeof(unsigned long));
 	if (ioctl(device_handle,EVIOCGBIT(EV_FF ,32*sizeof(unsigned long)),ff_bits)<0) {
-		fprintf(stderr,"ERROR: can not get ff bits (%s) [%s:%d]\n",
+		dbgprintf(stderr,"ERROR: can not get ff bits (%s) [%s:%d]\n",
 		        strerror(errno),__FILE__,__LINE__);
-		exit(1);
+		return(1);
 	}
 
 	/* force feedback supported? */
 	if (!TEST_BIT(FF_CONSTANT,ff_bits)) {
-		fprintf(stderr,"ERROR: device (or driver) has no force feedback support [%s:%d]\n",
+		dbgprintf(stderr,"ERROR: device (or driver) has no force feedback support [%s:%d]\n",
 		        __FILE__,__LINE__);
-		exit(1);
+		return(1);
 	}
 
 	/* Switch off auto centering */
@@ -184,9 +191,9 @@ void init_hid_device()
 	event.code=FF_AUTOCENTER;
 	event.value=0;
 	if (write(device_handle,&event,sizeof(event))!=sizeof(event)) {
-		fprintf(stderr,"ERROR: failed to disable auto centering (%s) [%s:%d]\n",
+		dbgprintf(stderr,"ERROR: failed to disable auto centering (%s) [%s:%d]\n",
 		        strerror(errno),__FILE__,__LINE__);
-		exit(1);
+		return(1);
 	}
 
 	/* Initialize constant force effect */
@@ -206,9 +213,9 @@ void init_hid_device()
 
 	/* Upload effect */
 	if (ioctl(device_handle,EVIOCSFF,&effect)==-1) {
-		fprintf(stderr,"ERROR: uploading effect failed (%s) [%s:%d]\n",
+		dbgprintf(stderr,"ERROR: uploading effect failed (%s) [%s:%d]\n",
 		        strerror(errno),__FILE__,__LINE__);
-		exit(1);
+		return(1);
 	}
 
 	/* Start effect */
@@ -217,11 +224,16 @@ void init_hid_device()
 	event.code=effect.id;
 	event.value=1;
 	if (write(device_handle,&event,sizeof(event))!=sizeof(event)) {
-		fprintf(stderr,"ERROR: starting effect failed (%s) [%s:%d]\n",
+		dbgprintf(stderr,"ERROR: starting effect failed (%s) [%s:%d]\n",
 		        strerror(errno),__FILE__,__LINE__);
-		exit(1);
+		return(1);
 	}
 #endif	
+
+	ioctl(device_handle, EVIOCGNAME(sizeof(name)), name);
+	printf("Input device name: \"%s\"\n", name);
+
+    return(0);
 }
 
 static gboolean joystick_periodic(gpointer data __attribute__ ((unused))) {
@@ -259,15 +271,26 @@ void on_DL_SETTING(IvyClientPtr app, void *user_data, int argc, char *argv[]){
 int main ( int argc, char** argv) {
 
   GMainLoop *ml =  g_main_loop_new(NULL, FALSE);
-
+  char devname[256];
+  int cnt;
+  
   parse_args(argc, argv);
   
-  IvyInit ("IvyExample", "IvyExample READY", NULL, NULL, NULL, NULL);
+  IvyInit ("IvyCtrlJoystick", "IvyCtrlJoystick READY", NULL, NULL, NULL, NULL);
   IvyBindMsg(on_DL_SETTING, NULL, "(\\S*) DL_SETTING (\\S*) (\\S*) (\\S*)");
   IvyStart("127.255.255.255");
 
-  init_hid_device();
-    
+  for (cnt=0; cnt<INPUT_DEV_MAX; cnt++){
+    sprintf(devname, DEVICE_NAME "%d", cnt);
+    if (init_hid_device(devname) == 0) break;
+  }
+  
+  if (cnt == INPUT_DEV_MAX) {
+    fprintf(stderr,"ERROR: no suitable joystick found [%s:%d]\n",
+              __FILE__,__LINE__);
+    return(1);
+  }  
+  
   g_timeout_add(TIMEOUT_PERIOD, joystick_periodic, NULL);
   
   g_main_loop_run(ml);
