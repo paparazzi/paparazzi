@@ -12,3 +12,6 @@ BUS=="usb", SYSFS{idVendor}=="7070", GROUP="plugdev"
 # FTDI 2232 parallel converter / Amontec JTAG-Tiny (access through libftdi)
 BUS=="usb",  SYSFS{idVendor}=="0403", SYSFS{idProduct}=="cff8", GROUP="plugdev"
 
+# make joysticks/gamepads readable on event interface (writeable for force feedback), see input_event.sh
+KERNEL=="event*", IMPORT{program}="input_event.sh %p", NAME="input/%k", GROUP="plugdev", MODE="0640"
+ENV{FF_DEVICE}=="1", MODE="0660"
