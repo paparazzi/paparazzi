@@ -40,10 +40,13 @@ let check_unique_id = fun conf ->
   List.iter
     (fun x -> 
       if String.lowercase (Xml.tag x) = "aircraft" then 
-	let id = ExtXml.attrib x "ac_id" in
-	if Hashtbl.mem ids id then
-	  failwith (sprintf "Error: A/C Id '%s' duplicated in %s" id conf_xml);
-	Hashtbl.add ids id ())
+	let id = ExtXml.attrib x "ac_id"
+	and name = ExtXml.attrib x "name" in
+	if Hashtbl.mem ids id then begin
+	  let other_name = Hashtbl.find ids id in
+	  failwith (sprintf "Error: A/C Id '%s' duplicated in %s (%s and %s)" id conf_xml name other_name)
+	end;
+	Hashtbl.add ids id name)
     (Xml.children conf)
 
 let _ =
