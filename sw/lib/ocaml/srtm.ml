@@ -67,7 +67,7 @@ let find = fun tile ->
 let get = fun tile y x ->
   let tile = find tile in
   let pos = (2*((tile_size-y)*tile_size+x)) in
-  (Char.code tile.[pos] lsl 8) lor Char.code tile.[pos+1]
+  (((Char.code tile.[pos] land 127) lsl 8) lor Char.code tile.[pos+1]) - ((Char.code tile.[pos] lsr 7) * 256 * 128)
 
 let of_wgs84 = fun geo ->
   let lat = (Rad>>Deg)geo.posn_lat
