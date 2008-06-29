@@ -37,6 +37,7 @@ let fos = float_of_string
 let raw_datalink_msg_separator = Str.regexp ";"
 
 let norc = ref false
+let adc1 = ref false
 
 module Make (A:Data.MISSION) (FM: FlightModel.SIG) = struct
 
@@ -126,6 +127,7 @@ module Make (A:Data.MISSION) (FM: FlightModel.SIG) = struct
   external periodic_task : unit -> unit = "sim_periodic_task"
   external sim_init : unit -> unit = "sim_init"
   external update_bat : int -> unit = "update_bat"
+  external update_adc1 : int -> unit = "update_adc1"
 
   let bat_button = GButton.check_button ~label:"Auto" ~active:false ()
 
@@ -144,7 +146,16 @@ module Make (A:Data.MISSION) (FM: FlightModel.SIG) = struct
     let tips = GData.tooltips () in
     tips#set_tip bat_button#coerce ~text:"Select for auto-decreasing voltage";
     ignore (adj_bat#connect#value_changed update);
-    update ()
+    update ();
+
+    if !adc1 then
+      let hbox = GPack.hbox ~spacing:4 ~packing:vbox#add () in
+      let _label = GMisc.label ~text:"Generic ADC 1 " ~packing:hbox#pack () in
+      let adj_adc1 = GData.adjustment ~value:512. ~lower:0. ~upper:1033. ~step_incr:1. () in
+      let _scale = GRange.scale `HORIZONTAL ~adjustment:adj_adc1 ~packing:hbox#add () in
+      let update = fun () -> update_adc1 (truncate adj_adc1#value) in
+      ignore (adj_adc1#connect#value_changed update);
+      update ()
 
   open Latlong
 
@@ -190,4 +201,5 @@ module Make (A:Data.MISSION) (FM: FlightModel.SIG) = struct
     use_gps_pos (cm utm.utm_x) (cm utm.utm_y) utm.utm_zone gps.Gps.course gps.Gps.alt gps.Gps.gspeed gps.Gps.climb gps.Gps.time gps.Gps.availability gps.Gps.wgs84.Latlong.posn_lat gps.Gps.wgs84.Latlong.posn_long
 
 end
-let options = ["-norc", Arg.Set norc, "Hide the simulated RC"]
+let options = ["-norc", Arg.Set norc, "Hide the simulated RC";
+	       "-adc1", Arg.Set adc1, "Enable the generic adc 1"]
