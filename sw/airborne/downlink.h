@@ -33,6 +33,7 @@
 #include <inttypes.h>
 
 #include "messages.h"
+#include "airframe.h" // AC_ID is required
 
 #if defined SITL
 
