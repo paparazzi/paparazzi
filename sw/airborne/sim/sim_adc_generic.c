@@ -1,10 +1,8 @@
 #include <caml/mlvalues.h>
 #include "adc_generic.h"
 
-#ifdef USE_ADC_GENERIC
 uint16_t adc_generic_val1;
 uint16_t adc_generic_val2;
-#endif
 
 void adc_generic_init( void ) {
 }
