@@ -7,8 +7,8 @@
 
 
 static void on_Attitude(IvyClientPtr app, void *user_data, int argc, char *argv[]){
-  guint ac_id = atoi(argv[0]);
-  float estimator_phi = argv[1];
+  //  guint ac_id = atoi(argv[0]);
+  //  float estimator_phi = atof(argv[1]);
 }
 
 

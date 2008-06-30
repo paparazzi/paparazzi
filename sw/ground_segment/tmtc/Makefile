@@ -118,6 +118,18 @@ settings.cmo : ../cockpit/pages.cmi
 	$(Q)$(OCAMLC) $(INCLUDES) $<
 
 
+
+
+
+c_ivy_client_example_1: c_ivy_client_example_1.c
+	gcc -Wall c_ivy_client_example_1.c -o c_ivy_client_example_1 `pkg-config glib-2.0 --cflags` `pkg-config glib-2.0 --libs` -lglibivy 
+
+c_ivy_client_example_2: c_ivy_client_example_2.c
+	gcc -Wall c_ivy_client_example_2.c -o c_ivy_client_example_2 `pkg-config glib-2.0 --cflags` `pkg-config glib-2.0 --libs` -lglibivy 
+
+c_ivy_client_example_3: c_ivy_client_example_3.c
+	gcc -Wall c_ivy_client_example_3.c -o c_ivy_client_example_3 `pkg-config gtk+-2.0 --cflags` `pkg-config gtk+-2.0 --libs` -lglibivy 
+
 #
 # Dependencies
 #
