@@ -871,6 +871,14 @@
    <field name="gr"    type="int32"/>
  </message>
 
+
+ <message name="BOOZ2_FILTER" ID="132">   
+   <field name="bp"    type="int32"/>
+   <field name="bq"    type="int32"/>
+   <field name="br"    type="int32"/>
+ </message>
+
+
 <!--
   <message name="DC_MC_STATUS" ID="255">
       <field name="time_sec" type="uint16"/>

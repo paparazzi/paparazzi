@@ -46,7 +46,7 @@ sim.CFLAGS +=  `pkg-config glib-2.0 --cflags` -I /usr/include/meschach
 sim.LDFLAGS += `pkg-config glib-2.0 --libs` -lm -lmeschach -lpcre -lglibivy
 
 sim.CFLAGS += -I$(BOOZ) -I../simulator -DFLOAT_T=float
-sim.CFLAGS += -DBSM_PARAMS=\"booz_sensors_model_params.h\"
+sim.CFLAGS += -DBSM_PARAMS=\"booz_sensors_model_params_booz2.h\"
 
 sim.srcs = $(BOOZ_PRIV)/main_sim.c                   \
 	   $(SIMDIR)/booz_flight_model.c             \
