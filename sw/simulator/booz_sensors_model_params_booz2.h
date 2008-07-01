@@ -37,13 +37,13 @@
 #define BSM_ACCEL_NEUTRAL_Y       32768
 #define BSM_ACCEL_NEUTRAL_Z       32768
 /* m2s-4 */
-#define BSM_ACCEL_NOISE_STD_DEV_X 1e-1
-#define BSM_ACCEL_NOISE_STD_DEV_Y 1e-1
-#define BSM_ACCEL_NOISE_STD_DEV_Z 1e-1
+#define BSM_ACCEL_NOISE_STD_DEV_X 0
+#define BSM_ACCEL_NOISE_STD_DEV_Y 0
+#define BSM_ACCEL_NOISE_STD_DEV_Z 0
 /* ms-2 */
-#define BSM_ACCEL_BIAS_X          1e-3
-#define BSM_ACCEL_BIAS_Y          1e-3
-#define BSM_ACCEL_BIAS_Z          1e-3
+#define BSM_ACCEL_BIAS_X          0
+#define BSM_ACCEL_BIAS_Y          0
+#define BSM_ACCEL_BIAS_Z          0
 /* s */
 #define BSM_ACCEL_DT              (1./1000.)
 
@@ -53,10 +53,6 @@
  * Gyrometer 
  */
 #define BSM_GYRO_RESOLUTION       65536
-/* degres/s - nominal 300 */
-//#define BSM_GYRO_SENSITIVITY_PP   65536. / (2.*RadOfDeg(-413.41848));
-//#define BSM_GYRO_SENSITIVITY_QQ   65536. / (2.*RadOfDeg(-403.65564));
-//#define BSM_GYRO_SENSITIVITY_RR   65536. / (2.*RadOfDeg( 395.01929));
 
 #define BSM_GYRO_SENSITIVITY_PP   (-4541.3261)
 #define BSM_GYRO_SENSITIVITY_QQ   (-4651.1628)
@@ -66,17 +62,17 @@
 #define BSM_GYRO_NEUTRAL_Q        32768
 #define BSM_GYRO_NEUTRAL_R        32768
 
-#define BSM_GYRO_NOISE_STD_DEV_P  RadOfDeg(.5)
-#define BSM_GYRO_NOISE_STD_DEV_Q  RadOfDeg(.5)
-#define BSM_GYRO_NOISE_STD_DEV_R  RadOfDeg(.5)
+#define BSM_GYRO_NOISE_STD_DEV_P  RadOfDeg(0.5)
+#define BSM_GYRO_NOISE_STD_DEV_Q  RadOfDeg(0.)
+#define BSM_GYRO_NOISE_STD_DEV_R  RadOfDeg(0.)
 
-#define BSM_GYRO_BIAS_INITIAL_P  RadOfDeg(  .0)
+#define BSM_GYRO_BIAS_INITIAL_P  RadOfDeg( 0.0)
 #define BSM_GYRO_BIAS_INITIAL_Q  RadOfDeg(  .0)
 #define BSM_GYRO_BIAS_INITIAL_R  RadOfDeg(  .0)
 
-#define BSM_GYRO_BIAS_RANDOM_WALK_STD_DEV_P RadOfDeg(5.e-1)
-#define BSM_GYRO_BIAS_RANDOM_WALK_STD_DEV_Q RadOfDeg(5.e-1)
-#define BSM_GYRO_BIAS_RANDOM_WALK_STD_DEV_R RadOfDeg(5.e-1)
+#define BSM_GYRO_BIAS_RANDOM_WALK_STD_DEV_P RadOfDeg(0.5)
+#define BSM_GYRO_BIAS_RANDOM_WALK_STD_DEV_Q RadOfDeg(0.)
+#define BSM_GYRO_BIAS_RANDOM_WALK_STD_DEV_R RadOfDeg(0.)
 
 #define BSM_GYRO_DT (1./1000.)
 

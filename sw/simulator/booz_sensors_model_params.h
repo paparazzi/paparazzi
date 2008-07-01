@@ -74,7 +74,7 @@
 #define BSM_GYRO_NOISE_STD_DEV_Q  RadOfDeg(.5)
 #define BSM_GYRO_NOISE_STD_DEV_R  RadOfDeg(.5)
 
-#define BSM_GYRO_BIAS_INITIAL_P  RadOfDeg(  .5)
+#define BSM_GYRO_BIAS_INITIAL_P  RadOfDeg(  .0)
 #define BSM_GYRO_BIAS_INITIAL_Q  RadOfDeg(-0.5)
 #define BSM_GYRO_BIAS_INITIAL_R  RadOfDeg(  .25)
 

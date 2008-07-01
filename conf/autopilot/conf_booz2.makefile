@@ -28,6 +28,7 @@ FLASH_MODE = IAP
 
 BOOZ=booz
 BOOZ_PRIV=booz_priv
+BOOZ_PRIV_ARCH=booz_priv/arm7
 BOOZ_ARCH=booz/arm7
 
 #
@@ -71,3 +72,26 @@ sim.srcs += $(BOOZ_PRIV)/booz_cmp_flt_quat_int.c
 sim.srcs += $(BOOZ_PRIV)/booz_guidance_int.c
 sim.srcs += $(BOOZ_PRIV)/booz_stabilization_int.c
 sim.srcs += $(BOOZ_PRIV)/booz_supervision_int.c
+
+
+
+# test imu
+test_imu.ARCHDIR = $(ARCHI)
+test_imu.ARCH = arm7tdmi
+test_imu.TARGET = test_imu
+test_imu.TARGETDIR = test_imu
+
+test_imu.CFLAGS += -DCONFIG=\"tiny_1_1.h\" -I$(BOOZ_PRIV_ARCH)
+test_imu.srcs += $(BOOZ_PRIV)/test_imu.c
+test_imu.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./1000.))' -DTIME_LED=1
+test_imu.CFLAGS += -DLED
+test_imu.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
+
+test_imu.CFLAGS += -DUSE_UART0 -DUART0_BAUD=B57600
+test_imu.srcs += $(SRC_ARCH)/uart_hw.c
+
+test_imu.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart0 
+test_imu.srcs += downlink.c pprz_transport.c
+
+test_imu.CFLAGS += -DFLOAT_T=float
+test_imu.srcs += $(BOOZ_PRIV)/booz_imu_int.c $(BOOZ_PRIV_ARCH)/booz_imu_int_hw.c

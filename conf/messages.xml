@@ -871,13 +871,20 @@
    <field name="gr"    type="int32"/>
  </message>
 
+ <message name="BOOZ2_ACCEL" ID="132">   
+   <field name="ax"    type="int32"/>
+   <field name="ay"    type="int32"/>
+   <field name="az"    type="int32"/>
+ </message>
 
- <message name="BOOZ2_FILTER" ID="132">   
+ <message name="BOOZ2_FILTER" ID="133">   
+   <field name="gp"    type="int32"/>
+   <field name="gq"    type="int32"/>
+   <field name="gr"    type="int32"/>
    <field name="bp"    type="int32"/>
    <field name="bq"    type="int32"/>
    <field name="br"    type="int32"/>
  </message>
-
 
 <!--
   <message name="DC_MC_STATUS" ID="255">

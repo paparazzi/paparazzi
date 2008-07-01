@@ -65,7 +65,6 @@
     <define name="GYRO_Y_NEUTRAL" value="32768"/>
     <define name="GYRO_Z_NEUTRAL" value="32768"/>
 
-
     <define name="GYRO_X_SENS" value="(-4541.3261)"/>
     <define name="GYRO_Y_SENS" value="(-4651.1628)"/>
     <define name="GYRO_Z_SENS" value="( 4752.8517)"/>
