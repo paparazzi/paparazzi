@@ -118,17 +118,22 @@ settings.cmo : ../cockpit/pages.cmi
 	$(Q)$(OCAMLC) $(INCLUDES) $<
 
 
-
+CC = gcc
+GLIB_CFLAGS  = -Wall  `pkg-config glib-2.0 --cflags`
+GLIB_LDFLAGS =  `pkg-config glib-2.0 --libs` -lglibivy -lpcre
+GTK_CFLAGS  = -Wall  `pkg-config gtk+-2.0 --cflags`
+GTK_LDFLAGS =  `pkg-config gtk+-2.0 --libs` -lglibivy -lpcre
 
 
 c_ivy_client_example_1: c_ivy_client_example_1.c
-	gcc -Wall c_ivy_client_example_1.c -o c_ivy_client_example_1 `pkg-config glib-2.0 --cflags` `pkg-config glib-2.0 --libs` -lglibivy -lpcre
+	$(CC) $(GLIB_CFLAGS) -o $@ $< $(GLIB_LDFLAGS)
 
 c_ivy_client_example_2: c_ivy_client_example_2.c
-	gcc -Wall c_ivy_client_example_2.c -o c_ivy_client_example_2 `pkg-config glib-2.0 --cflags` `pkg-config glib-2.0 --libs` -lglibivy -lpcre
+	$(CC) $(GLIB_CFLAGS) -o $@ $< $(GLIB_LDFLAGS)
 
 c_ivy_client_example_3: c_ivy_client_example_3.c
-	gcc -Wall c_ivy_client_example_3.c -o c_ivy_client_example_3 `pkg-config gtk+-2.0 --cflags` `pkg-config gtk+-2.0 --libs` -lglibivy -lpcre
+	$(CC) $(GTK_CFLAGS) -o $@ $< $(GTK_LDFLAGS)
+
 
 #
 # Dependencies
