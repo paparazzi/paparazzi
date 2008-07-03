@@ -878,15 +878,15 @@
  </message>
 
  <message name="BOOZ2_FILTER" ID="133">   
-   <field name="gp"    type="int32"/>
-   <field name="gq"    type="int32"/>
-   <field name="gr"    type="int32"/>
-   <field name="egx"   type="int32"/>
-   <field name="egy"   type="int32"/>
-   <field name="egz"   type="int32"/>
-   <field name="bp"    type="int32"/>
-   <field name="bq"    type="int32"/>
-   <field name="br"    type="int32"/>
+   <field name="gp"     type="int32"/>
+   <field name="gq"     type="int32"/>
+   <field name="gr"     type="int32"/>
+   <field name="err_gx" type="int32"/>
+   <field name="err_gy" type="int32"/>
+   <field name="err_gz" type="int32"/>
+   <field name="bp"     type="int32"/>
+   <field name="bq"     type="int32"/>
+   <field name="br"     type="int32"/>
  </message>
 
 <!--
