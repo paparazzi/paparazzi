@@ -877,13 +877,22 @@
    <field name="az"    type="int32"/>
  </message>
 
- <message name="BOOZ2_FILTER" ID="133">   
+ <message name="BOOZ2_MAG" ID="133">   
+   <field name="mx"    type="int32"/>
+   <field name="my"    type="int32"/>
+   <field name="mz"    type="int32"/>
+ </message>
+
+ <message name="BOOZ2_FILTER" ID="134">   
    <field name="gp"     type="int32"/>
    <field name="gq"     type="int32"/>
    <field name="gr"     type="int32"/>
    <field name="err_gx" type="int32"/>
    <field name="err_gy" type="int32"/>
    <field name="err_gz" type="int32"/>
+   <field name="err_hx" type="int32"/>
+   <field name="err_hy" type="int32"/>
+   <field name="err_hz" type="int32"/>
    <field name="bp"     type="int32"/>
    <field name="bq"     type="int32"/>
    <field name="br"     type="int32"/>
