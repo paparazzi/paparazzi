@@ -81,8 +81,25 @@
 /*
  *  Magnetometer
  */
+#define BSM_MAG_RESOLUTION 4096
 
-#define BSM_MAG_DT (1./20.)
+#define BSM_MAG_SENSITIVITY_XX   (680)
+#define BSM_MAG_SENSITIVITY_YY   (680)
+#define BSM_MAG_SENSITIVITY_ZZ   (680)
+
+#define BSM_MAG_NEUTRAL_X  0
+#define BSM_MAG_NEUTRAL_Y  0
+#define BSM_MAG_NEUTRAL_Z  0
+
+#define BSM_MAG_NOISE_STD_DEV_X  0
+#define BSM_MAG_NOISE_STD_DEV_Y  0
+#define BSM_MAG_NOISE_STD_DEV_Z  0
+
+//#define BSM_MAG_NOISE_STD_DEV_X  2e-2
+//#define BSM_MAG_NOISE_STD_DEV_Y  2e-2
+//#define BSM_MAG_NOISE_STD_DEV_Z  2e-2
+
+#define BSM_MAG_DT (1./1000.)
 
 
 /*

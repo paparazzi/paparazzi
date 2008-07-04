@@ -19,23 +19,23 @@ void booz_sensors_model_mag_init( double time ) {
   bsm.mag->ve[AXIS_X] = 0.;
   bsm.mag->ve[AXIS_Y] = 0.;
   bsm.mag->ve[AXIS_Z] = 0.;
-  bsm.mag_resolution = 4096;
+  bsm.mag_resolution = BSM_MAG_RESOLUTION;
 
   bsm.mag_sensitivity = m_get(AXIS_NB, AXIS_NB);
   m_zero(bsm.mag_sensitivity);
-  bsm.mag_sensitivity->me[AXIS_X][AXIS_X] = -(double)bsm.mag_resolution / 6.;
-  bsm.mag_sensitivity->me[AXIS_Y][AXIS_Y] = -(double)bsm.mag_resolution / 6.;
-  bsm.mag_sensitivity->me[AXIS_Z][AXIS_Z] = (double)bsm.mag_resolution / 6.;
+  bsm.mag_sensitivity->me[AXIS_X][AXIS_X] = BSM_MAG_SENSITIVITY_XX;
+  bsm.mag_sensitivity->me[AXIS_Y][AXIS_Y] = BSM_MAG_SENSITIVITY_YY;
+  bsm.mag_sensitivity->me[AXIS_Z][AXIS_Z] = BSM_MAG_SENSITIVITY_ZZ;
 
   bsm.mag_neutral = v_get(AXIS_NB);
-  bsm.mag_neutral->ve[AXIS_X] = 0.;
-  bsm.mag_neutral->ve[AXIS_Y] = 0.;
-  bsm.mag_neutral->ve[AXIS_Z] = 0.;
+  bsm.mag_neutral->ve[AXIS_X] = BSM_MAG_NEUTRAL_X;
+  bsm.mag_neutral->ve[AXIS_Y] = BSM_MAG_NEUTRAL_Y;
+  bsm.mag_neutral->ve[AXIS_Z] = BSM_MAG_NEUTRAL_Z;
 
   bsm.mag_noise_std_dev = v_get(AXIS_NB);
-  bsm.mag_noise_std_dev->ve[AXIS_X] = 2e-2;
-  bsm.mag_noise_std_dev->ve[AXIS_Y] = 2e-2;
-  bsm.mag_noise_std_dev->ve[AXIS_Z] = 2e-2;
+  bsm.mag_noise_std_dev->ve[AXIS_X] = BSM_MAG_NOISE_STD_DEV_X;
+  bsm.mag_noise_std_dev->ve[AXIS_Y] = BSM_MAG_NOISE_STD_DEV_Y;
+  bsm.mag_noise_std_dev->ve[AXIS_Z] = BSM_MAG_NOISE_STD_DEV_Z;
 
   bsm.mag_next_update = time;
   bsm.mag_available = FALSE;
