@@ -68,6 +68,7 @@ sim.CFLAGS += -DCONFIG=\"conf_booz.h\"
 
 sim.srcs += $(BOOZ_PRIV)/booz_imu_int.c
 sim.srcs += $(BOOZ_PRIV)/booz_estimator_int.c
+sim.srcs += $(BOOZ_PRIV)/booz_nav_filter_int.c
 sim.srcs += $(BOOZ_PRIV)/booz_cmp_flt_quat_int.c
 sim.srcs += $(BOOZ_PRIV)/booz_guidance_int.c
 sim.srcs += $(BOOZ_PRIV)/booz_stabilization_int.c

@@ -898,6 +898,15 @@
    <field name="br"     type="int32"/>
  </message>
 
+ <message name="BOOZ2_FILTER2" ID="135">   
+   <field name="px"  type="int32"/>
+   <field name="py"  type="int32"/>
+   <field name="pz"  type="int32"/>
+   <field name="gsx" type="int32"/>
+   <field name="gsy" type="int32"/>
+   <field name="gsz" type="int32"/>
+ </message>
+
 <!--
   <message name="DC_MC_STATUS" ID="255">
       <field name="time_sec" type="uint16"/>
