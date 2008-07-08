@@ -64,7 +64,7 @@ let load_xml_fp = fun geomap editor_frame accel_group ?(xml_file=Env.flight_plan
    List.iter 
     (fun w ->
       let (i, w) = fp#index w in
-      geomap#add_info_georef (sprintf "%s" w#name) (w :> < pos : geographic>))
+      geomap#add_info_georef (sprintf "%s" w#name) w#pos)
     fp#waypoints;
   
   fp
@@ -151,7 +151,7 @@ let create_wp = fun geomap geo ->
       failwith "create_wp"
   | Some (fp,_) ->
       let w = fp#add_waypoint geo in 
-      geomap#add_info_georef (sprintf "%s" w#name) (w :> < pos : geographic>);
+      geomap#add_info_georef (sprintf "%s" w#name) w#pos;
       w
 
 

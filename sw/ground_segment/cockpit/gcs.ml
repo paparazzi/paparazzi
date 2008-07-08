@@ -345,9 +345,9 @@ let options =
   [ "-b", Arg.String (fun x -> ivy_bus := x), "Bus\tDefault is 127.255.255.25:2010";
     "-maximize", Arg.Set maximize, "Maximize window";
     "-fullscreen", Arg.Set fullscreen, "Fullscreen window";
-    "-ref", Arg.Set_string geo_ref, "Geographic ref (default '')";
+    "-ref", Arg.Set_string geo_ref, "Geographic ref (e.g. 'WGS84 43.605 1.443')";
     "-zoom", Arg.Set_float zoom, "Initial zoom";
-    "-center", Arg.Set_string center, "Initial map center";
+    "-center", Arg.Set_string center, "Initial map center (e.g. 'WGS84 43.605 1.443')";
     "-center_ac", Arg.Set auto_center_new_ac, "Centers the map on any new A/C";
     "-track_size", Arg.Set_int Live.track_size, (sprintf "Default track length (%d)" !Live.track_size);
     "-plugin", Arg.Set_string  plugin_window, "External X application (launched with the id of the plugin window as argument)";

@@ -353,12 +353,7 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
 	      and long = wx /. mercator_coeff +. georef.LL.posn_long in
 	      LL.make_geo lat long
 	end
-      | None -> failwith "#of_world : no georef"
-
-		
-    method geo_string = fun wgs84 ->
-      LL.string_degrees_of_geographic wgs84
-
+      | None -> failwith "#of_world : no georef"	
 
     method move_item = fun (item:GnomeCanvas.re_p GnoCanvas.item) wgs84 ->
       let (xw,yw) = self#world_of wgs84 in
@@ -638,7 +633,7 @@ class widget =  fun ?(height=800) ?width ?projection ?georef () ->
 
     val mutable utm_grid_group = None
     val mutable georefs = []
-    val mutable selected_georef = None
+    val mutable selected_georef = WGS84_dec
 
     method pack_labels =
       self#info#pack lbl_xy#coerce;
@@ -671,8 +666,9 @@ class widget =  fun ?(height=800) ?width ?projection ?georef () ->
       ignore (GMisc.image ~stock:(`STOCK "gtk-zoom-fit") ~packing:b#add ());
       tooltips#set_tip b#coerce ~text:"Fit to window";
 
-      let callback = fun () -> selected_georef <- None in
-      my_menu_item "WGS84" ~packing:georef_menu#append ~callback ();
+      let set = fun x () -> selected_georef <- x in
+      my_menu_item "WGS84" ~packing:georef_menu#append ~callback:(set WGS84_dec) ();
+      my_menu_item "WGS84_dms" ~packing:georef_menu#append ~callback:(set WGS84_dms) ();
       optmenu#set_menu georef_menu
      )
 
@@ -726,19 +722,13 @@ class widget =  fun ?(height=800) ?width ?projection ?georef () ->
 
     method add_info_georef = fun name geo ->
       georefs <- (name, geo) :: georefs;
-      let callback = fun () -> selected_georef <- Some geo in
+      let callback = fun () -> selected_georef <- Bearing geo in
       my_menu_item name ~packing:georef_menu#append ~callback ();
 
     (** display methods *)
     method display_xy = fun s ->  lbl_xy#set_text s
     method display_geo = fun geo ->
-      match selected_georef with
-	None -> lbl_geo#set_text (self#geo_string geo)
-      | Some (georef:< pos : LL.geographic>) ->
-	  let (dx, dy) = Latlong.utm_sub (LL.utm_of LL.WGS84 geo) (LL.utm_of LL.WGS84 georef#pos) in
-	  let d = sqrt (dx*.dx+.dy*.dy) in
-	  let bearing = (int_of_float ((Rad>>Deg)(atan2 dx dy)) + 360) mod 360 in
-	  lbl_geo#set_text (sprintf "%4ddeg %4.0fm" bearing d)
+      lbl_geo#set_text (string_of_coordinates selected_georef geo)
 	  
 
     method display_alt = fun wgs84 ->

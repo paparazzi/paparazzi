@@ -31,13 +31,6 @@ open LL
 let s = 6.
 let losange = [|s;0.; 0.;s; -.s;0.; 0.;-.s|]
 
-
-let wgs84_of_string = fun georef s ->
-  match georef with
-    None -> LL.of_string ("WGS84 " ^ s)
-  | Some (georef:< pos : LL.geographic>) ->
-      LL.of_string (sprintf "WGS84_bearing %s %s" (LL.string_degrees_of_geographic georef#pos) s)
-
 class group = fun ?(color="red") ?(editable=true) ?(show_moved=false) (geomap:MapCanvas.widget) ->
   let g = GnoCanvas.group geomap#canvas#root in
   object
@@ -106,29 +99,35 @@ class waypoint = fun ?(show = true) (wpts_group:group) (name :string) ?(alt=0.) 
       let dialog = GWindow.window ~position:`MOUSE ~border_width:10 ~title:"Waypoint Edit" () in
       let dvbx = GPack.box `VERTICAL ~packing:dialog#add () in
 
-      let wgs84 = self#pos in
-      let s = sprintf "%s" (geomap#geo_string wgs84) in
       let ename  = GEdit.entry ~text:name ~editable ~packing:dvbx#add () in
       let hbox = GPack.hbox ~packing:dvbx#add () in
 
       let optmenu = GMenu.option_menu ~packing:hbox#add () in
-      let e_pos  = GEdit.entry ~text:s ~packing:hbox#add () in
+      let e_pos  = GEdit.entry ~packing:hbox#add () in
 
       (* We would like to share the menu of the map: it does not work ! *)
-      let selected_georef = ref None in
+      let selected_georef = ref WGS84_dec in
+      let display_coordinates = fun () ->
+	e_pos#set_text (string_of_coordinates !selected_georef self#pos)
+      and set_coordinates = fun () ->
+	self#set (geographic_of_coordinates !selected_georef e_pos#text) in
+
+      display_coordinates ();
+
+      let initial_wgs84 = self#pos in
+
       let menu = GMenu.menu () in
-      let callback = fun () ->
-	e_pos#set_text (sprintf "%s" (geomap#geo_string wgs84));
-	selected_georef := None in
+      let set = fun kind () ->
+	set_coordinates ();
+	selected_georef := kind;
+	display_coordinates () in
       let mi = GMenu.menu_item ~label:"WGS84" ~packing:menu#append () in
-      ignore (mi#connect#activate ~callback);
+      ignore (mi#connect#activate ~callback:(set WGS84_dec));
+      let mi = GMenu.menu_item ~label:"WGS84_dms" ~packing:menu#append () in
+      ignore (mi#connect#activate ~callback:(set WGS84_dms));
       List.iter (fun (label, geo) ->
-	let callback = fun () ->
-	  let (a, d) = LL.bearing geo#pos wgs84 in
-	  e_pos#set_text (sprintf "%.1f %.1f" a d);
-	  selected_georef := Some geo in
 	let mi = GMenu.menu_item ~label ~packing:menu#append () in
-	ignore (mi#connect#activate ~callback))
+	ignore (mi#connect#activate ~callback:(set (Bearing geo))))
 	geomap#georefs;
       optmenu#set_menu menu;
 
@@ -147,9 +146,7 @@ class waypoint = fun ?(show = true) (wpts_group:group) (name :string) ?(alt=0.) 
 	self#set_name ename#text;
 	alt <- float_of_string ea#text;
 	label#set [`TEXT name];
-	let wgs84 = wgs84_of_string !selected_georef e_pos#text in
-
-	self#set wgs84;
+	set_coordinates ();
 	updated ();
 	if wpts_group#show_moved then
 	  moved <- anim moved;
@@ -164,6 +161,7 @@ class waypoint = fun ?(show = true) (wpts_group:group) (name :string) ?(alt=0.) 
 
       let cancel = GButton.button ~stock:`CANCEL ~packing: dhbx#add () in
       let destroy = fun () ->
+	self#set initial_wgs84;
 	self#reset_moved ();
 	wpt_group#lower_to_bottom ();
 	dialog#destroy () in
@@ -191,7 +189,8 @@ class waypoint = fun ?(show = true) (wpts_group:group) (name :string) ?(alt=0.) 
       (* Update AGL on pos or alt change *)
       let callback = fun _ ->
 	try
-	  let wgs84 = wgs84_of_string !selected_georef e_pos#text in
+	  set_coordinates ();
+	  let wgs84 = self#pos in
 	  let agl  = float_of_string ea#text -. float (try Srtm.of_wgs84 wgs84 with _ -> 0) in
 	  agl_lab#set_text (sprintf " AGL: %4.0fm" agl)
 	with _ -> ()

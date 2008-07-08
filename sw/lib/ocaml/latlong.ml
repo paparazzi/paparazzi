@@ -67,6 +67,14 @@ let (>>) u1 u2 x = (x *. piradian u2) /. piradian u1;;
 
 let deg_string_of_rad = fun r -> Printf.sprintf "%.6f" ((Rad>>Deg)r)
 
+let decimal d m s = float d +. float m /. 60. +. s /. 3600.;;
+let dms = fun x ->
+  let d = truncate x in
+  let m = truncate ((x -. float d) *. 60.) in
+  let s = 3600. *. (x -. float d -. float m /. 60.) in
+  (d, m, s);;
+
+
 let sprint_degree_of_radian x =
   Printf.sprintf "%.6f" ((Rad>>Deg) x)
 
@@ -74,19 +82,22 @@ let string_degrees_of_geographic sm =
   Printf.sprintf "%s\t%s"
     (sprint_degree_of_radian sm.posn_lat) (sprint_degree_of_radian sm.posn_long)
 
+let string_dms_of_geographic = fun geo ->
+  let hemi = if geo.posn_lat >= 0. then 'N' else 'S'
+  and east = if geo.posn_long >= 0. then 'E' else 'W'
+  and lat = abs_float geo.posn_lat
+  and lon = abs_float geo.posn_long in
+  let (lat_d, lat_m, lat_s) = dms ((Rad>>Deg) lat)
+  and (lon_d, lon_m, lon_s) = dms ((Rad>>Deg) lon) in
+  Printf.sprintf "%2d %02d' %02.1f\" %c\t%2d %02d' %02.1f\" %c"
+    lat_d lat_m lat_s hemi lon_d lon_m lon_s east
+
 
 let of_semicircle x =
   { posn_lat = (Semi>>Rad) x.lat ; posn_long = (Semi>>Rad) x.long }
 
 let semicircle_of x =
   { lat = (Rad>>Semi) x.posn_lat ; long = (Rad>>Semi) x.posn_long }
-
-let decimal d m s = float d +. float m /. 60. +. s /. 3600.;;
-let dms x =
-  let d = truncate x in
-  let m = truncate ((x -. float d) *. 60.) in
-  let s = 3600. *. (x -. float d -. float m /. 60.) in
-  (d, m, s);;
 
 
 
@@ -411,14 +422,26 @@ let lbt_add = fun {lbt_x=x; lbt_y=y} (dx, dy) ->
 let lbt_sub = fun {lbt_x=x1; lbt_y=y1} {lbt_x=x2; lbt_y=y2} ->
   (float (x1-x2), float (y1-y2))
 
-let space = Str.regexp "[ \t]+"
+let space = Str.regexp "[ \t\'\"]+"
 let fos = float_of_string
-let ios = int_of_string
+let ios = fun x -> try int_of_string x with _ -> failwith (Printf.sprintf "int_of_string: %s" x)
 let rodg = fun s -> (Deg>>Rad)(fos s)
 let of_string = fun s ->
   match Str.split space s with
     ["WGS84"; lat; long] ->
       make_geo (rodg lat) (rodg long)
+  | ["WGS84_dms"; lat_d; lat_m; lat_s; hemi; lon_d; lon_m; lon_s; east_west] ->
+      let sign_hemi =
+	match hemi with
+	  "N" -> 1. | "S" -> -1.
+	| _ -> failwith (Printf.sprintf "N or S expected for hemispere in dms, found '%s'" hemi) in
+      let sign_east =
+	match east_west with
+	  "E" -> 1. | "W" -> -1.
+	| _ -> failwith (Printf.sprintf "E or W expected for hemispere in dms, found '%s'" east_west) in
+      let lat = sign_hemi *. decimal (ios lat_d) (ios lat_m) (fos lat_s)
+      and lon = sign_east *. decimal (ios lon_d) (ios lon_m) (fos lon_s) in
+      make_geo ((Deg>>Rad) lat) ((Deg>>Rad) lon)
   | ["WGS84_bearing"; lat; long; dir; dist] ->
       let utm_ref = utm_of WGS84 (make_geo (rodg lat) (rodg long)) in
       let dir = rodg dir and dist = fos dist in
@@ -462,3 +485,32 @@ let get_gps_tow = fun () ->
 let unix_time_of_tow = fun tow ->
   let host_tow = get_gps_tow () in
   Unix.gettimeofday () +. float (tow - host_tow)
+
+
+type coordinates_kind = 
+    WGS84_dec
+  | WGS84_dms
+  | Bearing of geographic
+
+
+let string_of_coordinates = fun kind geo ->
+  match kind with
+    WGS84_dec ->
+      string_degrees_of_geographic geo
+  | WGS84_dms ->
+      string_dms_of_geographic geo
+  | Bearing georef ->
+      let (dx, dy) = utm_sub (utm_of WGS84 geo) (utm_of WGS84 georef) in
+      let d = sqrt (dx*.dx+.dy*.dy) in
+      let bearing = (int_of_float ((Rad>>Deg)(atan2 dx dy)) + 360) mod 360 in
+      Printf.sprintf "%4d %4.0f" bearing d
+
+let geographic_of_coordinates = fun kind s ->
+  match kind with
+    WGS84_dec -> 
+      of_string ("WGS84 " ^ s)
+  | WGS84_dms -> 
+      of_string ("WGS84_dms " ^ s)
+  | Bearing georef ->
+      of_string (Printf.sprintf "WGS84_bearing %s %s" (string_degrees_of_geographic georef) s)
+

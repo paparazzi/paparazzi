@@ -81,6 +81,7 @@ val make_geo : float -> float -> geographic
 (** [make_geo lat long] *)
 
 val string_degrees_of_geographic : geographic -> string
+val string_dms_of_geographic : geographic -> string
 (** Pretty printing *)
 
 
@@ -155,3 +156,11 @@ val get_gps_tow : unit -> int
 (** Returns the current GPS time of week in seconds *)
 
 val unix_time_of_tow : int -> float
+
+type coordinates_kind = 
+    WGS84_dec
+  | WGS84_dms
+  | Bearing of geographic
+
+val string_of_coordinates : coordinates_kind -> geographic -> string
+val geographic_of_coordinates : coordinates_kind -> string -> geographic
