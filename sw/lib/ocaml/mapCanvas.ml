@@ -618,8 +618,8 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
  ****************************************************************)
 
     
-class widget =  fun ?(height=800) ?width ?projection ?georef () ->
-  let srtm = GMenu.check_menu_item ~label:"SRTM" ~active:false () in
+class widget =  fun ?(height=800) ?(srtm=false) ?width ?projection ?georef () ->
+  let srtm = GMenu.check_menu_item ~label:"SRTM" ~active:srtm () in
   let lbl_xy = GMisc.label ()
   and lbl_geo = GMisc.label ()
   and lbl_alt =  GMisc.label ()

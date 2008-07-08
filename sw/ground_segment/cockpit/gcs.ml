@@ -340,33 +340,37 @@ and layout_file = ref "horizontal.xml"
 and edit = ref false
 and display_particules = ref false
 and wid = ref None
+and srtm = ref false
 
 let options =
-  [ "-b", Arg.String (fun x -> ivy_bus := x), "Bus\tDefault is 127.255.255.25:2010";
-    "-maximize", Arg.Set maximize, "Maximize window";
-    "-fullscreen", Arg.Set fullscreen, "Fullscreen window";
-    "-ref", Arg.Set_string geo_ref, "Geographic ref (e.g. 'WGS84 43.605 1.443')";
-    "-zoom", Arg.Set_float zoom, "Initial zoom";
-    "-center", Arg.Set_string center, "Initial map center (e.g. 'WGS84 43.605 1.443')";
-    "-center_ac", Arg.Set auto_center_new_ac, "Centers the map on any new A/C";
-    "-track_size", Arg.Set_int Live.track_size, (sprintf "Default track length (%d)" !Live.track_size);
+  [
+   "-auto_ortho", Arg.Set auto_ortho, "IGN tiles path";
+   "-b", Arg.String (fun x -> ivy_bus := x), "Bus\tDefault is 127.255.255.25:2010";
+   "-center", Arg.Set_string center, "Initial map center (e.g. 'WGS84 43.605 1.443')";
+   "-center_ac", Arg.Set auto_center_new_ac, "Centers the map on any new A/C";
+   "-edit", Arg.Unit (fun () -> edit := true; layout_file := "editor.xml"), "Flight plan editor";
+   "-fullscreen", Arg.Set fullscreen, "Fullscreen window";
+   "-google_fill", Arg.Set GM.auto, "Google maps auto fill";
+   "-ign", Arg.String (fun s -> ign:=true; IGN.data_path := s), "IGN tiles path";
+   "-lambertIIe", Arg.Unit (fun () -> projection:=G.LambertIIe),"Switch to LambertIIe projection";
+   "-layout", Arg.Set_string layout_file, (sprintf "<XML layout specification> GUI layout. Default: %s" !layout_file);
+   "-m", Arg.String (fun x -> map_files := x :: !map_files), "Map XML description file";
+   "-maximize", Arg.Set maximize, "Maximize window";
+   "-mercator", Arg.Unit (fun () -> projection:=G.Mercator),"Switch to (Google Maps) Mercator projection, default";
+   "-mplayer", Arg.Set_string mplayer, "Launch mplayer with the given argument as X plugin";
+   "-no_alarm", Arg.Set no_alarm, "Disables alarm page";
+   "-no_google_http", Arg.Set Gm.no_http, "Switch off Google Maps downloading";
+   "-ortho", Arg.Set_string get_bdortho, "IGN tiles path";
+   "-particules", Arg.Set display_particules, "Display particules";
     "-plugin", Arg.Set_string  plugin_window, "External X application (launched with the id of the plugin window as argument)";
-    "-mplayer", Arg.Set_string mplayer, "Launch mplayer with the given argument as X plugin";
-    "-utm", Arg.Unit (fun () -> projection:=G.UTM),"Switch to UTM local projection";
-    "-mercator", Arg.Unit (fun () -> projection:=G.Mercator),"Switch to (Google Maps) Mercator projection, default";
-    "-no_google_http", Arg.Set Gm.no_http, "Switch off Google Maps downloading";
-    "-lambertIIe", Arg.Unit (fun () -> projection:=G.LambertIIe),"Switch to LambertIIe projection";
-    "-ign", Arg.String (fun s -> ign:=true; IGN.data_path := s), "IGN tiles path";
-    "-ortho", Arg.Set_string get_bdortho, "IGN tiles path";
-    "-edit", Arg.Unit (fun () -> edit := true; layout_file := "editor.xml"), "Flight plan editor";
-    "-layout", Arg.Set_string layout_file, (sprintf "<XML layout specification> GUI layout. Default: %s" !layout_file);
-    "-no_alarm", Arg.Set no_alarm, "Disables alarm page";
-    "-auto_ortho", Arg.Set auto_ortho, "IGN tiles path";
-    "-google_fill", Arg.Set GM.auto, "Google maps auto fill";
-    "-speech", Arg.Set Speech.active, "Active vocal messages";
-    "-particules", Arg.Set display_particules, "Display particules";
-    "-wid", Arg.String (fun s -> wid := Some (Int32.of_string s)), "<window id> Id of an existing window to be attached to";
-    "-m", Arg.String (fun x -> map_files := x :: !map_files), "Map description file"]
+   "-ref", Arg.Set_string geo_ref, "Geographic ref (e.g. 'WGS84 43.605 1.443')";
+   "-speech", Arg.Set Speech.active, "Enable vocal messages";
+   "-srtm", Arg.Set srtm, "Enable SRTM elevation display";
+   "-track_size", Arg.Set_int Live.track_size, (sprintf "Default track length (%d)" !Live.track_size);
+   "-utm", Arg.Unit (fun () -> projection:=G.UTM),"Switch to UTM local projection";
+   "-wid", Arg.String (fun s -> wid := Some (Int32.of_string s)), "<window id> Id of an existing window to be attached to";
+   "-zoom", Arg.Set_float zoom, "Initial zoom";
+ ]
 
 
 let quit = fun () ->
@@ -377,7 +381,7 @@ let quit = fun () ->
   | _ -> ()
 
 let create_geomap = fun window switch_fullscreen editor_frame ->
-  let geomap = new G.widget ~height:500 ~projection:!projection () in
+  let geomap = new G.widget ~srtm:!srtm ~height:500 ~projection:!projection () in
 
   let menu_fact = new GMenu.factory geomap#file_menu in
   let accel_group = menu_fact#accel_group in
