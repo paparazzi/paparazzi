@@ -59,7 +59,7 @@ extern float estimator_t;
 extern float estimator_hspeed_mod;
 extern float estimator_hspeed_dir;
 
-/* Wind and airspeed estimatation sent by the GPS */
+/* Wind and airspeed estimation sent by the GCS */
 extern float wind_east, wind_north; /* m/s */
 extern float estimator_airspeed; /* m/s */
 
