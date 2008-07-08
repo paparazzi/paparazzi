@@ -1,0 +1,13 @@
+<!DOCTYPE flight_plan SYSTEM "flight_plan.dtd">
+
+<flight_plan security_height="25" alt="???" ground_alt="???" lat0="???" lon0="???" max_dist_from_home="???" name="Example">
+  <waypoints>
+    <waypoint name="HOME" x="0" y="0"/>
+    <waypoint name="STDBY" x="0" y="75"/>
+  </waypoints>
+  <blocks>
+    <block name="Standby">
+      <circle radius="75" wp="STDBY"/>
+    </block>
+  </blocks>
+</flight_plan>
