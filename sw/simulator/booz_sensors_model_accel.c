@@ -91,11 +91,11 @@ void booz_sensors_model_accel_run( double time, MAT* dcm ) {
 	     accel_body->ve[AXIS_X], 
 	     accel_body->ve[AXIS_Y], 
 	     accel_body->ve[AXIS_Z]);
-#endif
 
  
   accel_body = mv_mlt(dcm, g_inert, accel_body);
   accel_body = sv_mlt(-1., accel_body, accel_body);
+#endif
 
   //  printf(" accel_body ~ %f %f %f\n", accel_body->ve[AXIS_X], accel_body->ve[AXIS_Y], accel_body->ve[AXIS_Z]);
 #endif

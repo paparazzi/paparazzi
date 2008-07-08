@@ -78,8 +78,8 @@
     <define name="ACCEL_Z_NEUTRAL" value="32768"/>
 
     <define name="ACCEL_X_SENS" value="( 1250.)"/>
-    <define name="ACCEL_Y_SENS" value="(-1250.)"/>
-    <define name="ACCEL_Z_SENS" value="(-1250.)"/>
+    <define name="ACCEL_Y_SENS" value="( 1250.)"/>
+    <define name="ACCEL_Z_SENS" value="( 1250.)"/>
 
 
     <define name="MAG_X_CHAN" value="0"/>
