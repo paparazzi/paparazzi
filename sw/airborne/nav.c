@@ -306,10 +306,11 @@ void fly_to_xy(float x, float y) {
   desired_x = x;
   desired_y = y;
   if (nav_mode == NAV_MODE_COURSE) {
-    h_ctl_course_setpoint = M_PI/2.-atan2(y - estimator_y, x - estimator_x);
+    h_ctl_course_setpoint = atan2(x - estimator_x, y - estimator_y);
+    if (h_ctl_course_setpoint < 0.)
+      h_ctl_course_setpoint += 2 * M_PI;
     lateral_mode = LATERAL_MODE_COURSE;
-  }
-  else {
+  } else {
     float diff = atan2(x - estimator_x, y - estimator_y) - estimator_hspeed_dir;
     NormRadAngle(diff);
     BoundAbs(diff,M_PI/2.);
