@@ -62,7 +62,7 @@ Q=@
 #
 # End of configuration part.
 #
-
+SRCAVR = $($(TARGET).srcs)
 
 CFLAGS		=							\
 	-W -Wall -Wundef \
@@ -79,12 +79,13 @@ LDFLAGS		=	-lm						\
 # General rules
 #
 
-$(TARGET).srcsnd = $(notdir $($(TARGET).srcs))
-$(TARGET).objso	= $($(TARGET).srcsnd:%.c=$(OBJDIR)/%.o)
-$(TARGET).objs	= $($(TARGET).objso:%.S=$(OBJDIR)/%.o)
+#$(TARGET).srcsnd = $(notdir $($(TARGET).srcs))
+#$(TARGET).objso	= $($(TARGET).srcsnd:%.c=$(OBJDIR)/%.o)
+#$(TARGET).objs	= $($(TARGET).objso:%.S=$(OBJDIR)/%.o)
 
 
-all compile: $($(TARGET).objs) $(OBJDIR)/$(TARGET).elf
+all: build
+#all compile: $($(TARGET).objs) $(OBJDIR)/$(TARGET).elf
 #all:
 #	@echo !!!!!!!
 #	@echo $($(TARGET).objs)
@@ -113,37 +114,45 @@ check_fuses: check_arch
 	@$(UISP) $(ISP_FLAGS) --rd_fuses >$(TMPFILE)
 	@if (grep -i 'Fuse Low Byte' $(TMPFILE) | cut -c24- | grep -iq $($(TARGET).LOW_FUSE)) && (grep -i 'Fuse High Byte' $(TMPFILE) |cut -c24- | grep -iq $($(TARGET).HIGH_FUSE)) && (grep -i 'Fuse Extended Byte' $(TMPFILE) |cut -c24- | grep -iq $($(TARGET).EXT_FUSE)) && (grep -i 'Lock Bits' $(TMPFILE) |cut -c24- | grep -iq $($(TARGET).LOCK_FUSE)); then echo "-> Fuses are Ok"; rm $(TMPFILE); else echo "-> Wrong fuses. Type 'make wr_fuses'"; rm $(TMPFILE); exit 1; fi
 
+# Define all object files.
+COBJ      = $(SRC:%.c=$(OBJDIR)/%.o) 
+COBJAVR   = $(SRCAVR:%.c=$(OBJDIR)/%.o)
 
-$(OBJDIR)/%.elf: $($(TARGET).objs)
+
+build: elf hex
+
+elf: $(OBJDIR)/$(TARGET).elf
+hex: $(OBJDIR)/$(TARGET).hex
+
+
+%.hex: %.elf
+	@echo OBJC $@
+	$(OBJCOPY) -O ihex -R .eeprom $< $@
+
+.SECONDARY : $(OBJDIR)/$(TARGET).elf
+.PRECIOUS : $(COBJ) $(COBJAVR)
+
+%.elf: $(COBJ) $(COBJAVR)
 	@echo LD $@
-	$(Q)$(LD)								\
-	$(LOCAL_LDFLAGS)						\
-		$^							\
-		-o $@							\
-		$(LDFLAGS)
+	$(Q)$(LD) $(LOCAL_LDFLAGS) $^ -o $@ $(LDFLAGS)
 	@echo SIZE
 	$(Q)$(SIZE) $@
 
 
-%.s: %.c
-	$(CC) $(CFLAGS) -S -o $@ $<
+#%.s: %.c
+#	$(CC) $(CFLAGS) -S -o $@ $<
 
-$(OBJDIR)/%.s: %.c
-	$(CC) $(CFLAGS) -S -o $@ $<
+#$(OBJDIR)/%.s: %.c
+#	$(CC) $(CFLAGS) -S -o $@ $<
 
-$(OBJDIR)/%.o: %.c
+$(OBJDIR)/%.o: %.c $(OBJDIR)/../Makefile.ac
 	@echo CC $@
-	$(Q)$(CC) $(CFLAGS) -c -o $@ $<
+	$(Q)test -d $(dir $@) || mkdir -p $(dir $@)
+	$(Q)$(CC)  -c $(CFLAGS)  $< -o $@
 
-$(OBJDIR)/%.o: $(SRC_ARCH)/%.c
-	@echo CC $@
-	$(Q)$(CC) $(CFLAGS) -c -o $@ $<
+#$(OBJDIR)/%.o: $(SRC_ARCH)/%.S
+#	$(CC) $(CFLAGS) -c -o $@ $<
 
-$(OBJDIR)/%.o: $(SRC_ARCH)/%.S
-	$(CC) $(CFLAGS) -c -o $@ $<
-
-$(OBJDIR)/%.hex: $(OBJDIR)/%.elf
-	 $(OBJCOPY) -O ihex -R .eeprom $< $@
 
 
 %.install: $(OBJDIR)/%.hex check_arch
