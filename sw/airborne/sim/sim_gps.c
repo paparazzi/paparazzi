@@ -10,6 +10,8 @@
 #include "autopilot.h"
 #include "gps.h"
 #include "estimator.h"
+#include "latlong.h"
+#include "common_nav.h"
 
 #include <caml/mlvalues.h>
 
@@ -32,16 +34,26 @@ uint16_t gps_reset;
 
 value sim_use_gps_pos(value x, value y, value z, value c, value a, value s, value cl, value t, value m, value lat, value lon) {
   gps_mode = (Bool_val(m) ? 3 : 0);
-  gps_utm_east = Int_val(x);
-  gps_utm_north = Int_val(y);
-  gps_utm_zone = Int_val(z);
   gps_course = DegOfRad(Double_val(c)) * 10.;
   gps_alt = Double_val(a) * 100.;
   gps_gspeed = Double_val(s) * 100.;
   gps_climb = Double_val(cl) * 100.;
   gps_itow = Double_val(t) * 1000.;
+
+#ifdef GPS_USE_LATLONG
   gps_lat = DegOfRad(Double_val(lat))*1e7;
   gps_lon = DegOfRad(Double_val(lon))*1e7;
+  latlong_utm_of(RadOfDeg(gps_lat/1e7), RadOfDeg(gps_lon/1e7), nav_utm_zone0);
+  gps_utm_east = latlong_utm_x * 100;
+  gps_utm_north = latlong_utm_y * 100;
+  gps_utm_zone = nav_utm_zone0;
+  x = y = z; /* Just to get rid of the "unused arg" warning */
+#else // GPS_USE_LATLONG
+  gps_utm_east = Int_val(x);
+  gps_utm_north = Int_val(y);
+  gps_utm_zone = Int_val(z);
+#endif // GPS_USE_LATLONG
+
 
   /** Space vehicle info simulation */
   gps_nb_channels=7;
