@@ -103,7 +103,7 @@ class waypoint = fun ?(show = true) (wpts_group:group) (name :string) ?(alt=0.) 
       let hbox = GPack.hbox ~packing:dvbx#add () in
 
       let optmenu = GMenu.option_menu ~packing:hbox#add () in
-      let e_pos  = GEdit.entry ~packing:hbox#add () in
+      let e_pos  = GEdit.entry ~width_chars:25 ~packing:hbox#add () in
 
       (* We would like to share the menu of the map: it does not work ! *)
       let selected_georef = ref WGS84_dec in
