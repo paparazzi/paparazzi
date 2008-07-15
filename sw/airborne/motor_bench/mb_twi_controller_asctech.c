@@ -79,3 +79,8 @@ void mb_twi_controller_set( float throttle ) {
   else
     mb_twi_nb_overun++;
 }
+
+void mb_twi_controller_set_raw( uint8_t throttle ) {
+
+
+}

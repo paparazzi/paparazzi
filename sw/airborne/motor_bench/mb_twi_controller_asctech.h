@@ -5,6 +5,7 @@
 
 extern void mb_twi_controller_init(void);
 extern void mb_twi_controller_set( float throttle );
+extern void mb_twi_controller_set_raw( uint8_t throttle );
 
 #define MB_TWI_CONTROLLER_COMMAND_NONE     0
 #define MB_TWI_CONTROLLER_COMMAND_TEST     1

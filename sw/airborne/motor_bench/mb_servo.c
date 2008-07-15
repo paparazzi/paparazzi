@@ -13,7 +13,7 @@ void mb_servo_init( void ) {
   /* enable and select the type of PWM channel */
   PWMPCR |= PWMPCR_ENA5;
   /* set Match0 value (refresh rate) */
-  PWMMR0 = MY_NB_CLOCK_TIMER_PWM(25000);  
+  PWMMR0 = MY_NB_CLOCK_TIMER_PWM(5000);  
   /* commit PWMMRx changes */
   PWMLER = PWMLER_LATCH0;
   /* enable PWM timer in PWM mode */
