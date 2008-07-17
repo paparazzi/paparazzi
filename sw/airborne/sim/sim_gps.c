@@ -52,6 +52,7 @@ value sim_use_gps_pos(value x, value y, value z, value c, value a, value s, valu
   gps_utm_east = Int_val(x);
   gps_utm_north = Int_val(y);
   gps_utm_zone = Int_val(z);
+  lat = lon; /* Just to get rid of the "unused arg" warning */
 #endif // GPS_USE_LATLONG
 
 
