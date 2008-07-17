@@ -99,7 +99,7 @@ $(OBJDIR)/%.s: %.c
 	$(Q)test -d $(dir $@) || mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) -S -o $@ $<
 
-$(OBJDIR)/%.o: %.c
+$(OBJDIR)/%.o: %.c $(OBJDIR)/../Makefile.ac
 	@echo CC $@
 	$(Q)test -d $(dir $@) || mkdir -p $(dir $@)
 	$(Q)$(CC) $(CFLAGS) -c -o $@ $<
