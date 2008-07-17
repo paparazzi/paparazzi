@@ -799,7 +799,7 @@ let draw_altgraph = fun (da:GMisc.drawing_area) (geomap:MapCanvas.widget) aircra
   else
     min_alt := (!min_alt / lines_height) * lines_height;
   min_alt := max !min_alt 0;
-  let height_alt = max (!max_alt - !min_alt) min_height in
+  let height_alt = max (!max_alt - !min_alt + 10) min_height in
 
   (* lines *)
   dr#set_foreground (`NAME "grey");
