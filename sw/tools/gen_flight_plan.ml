@@ -29,6 +29,12 @@ open Latlong
 
 module G2D = Geometry_2d
 
+(* From mapFP.ml to avoid complex linking *)
+let georef_of_xml = fun xml ->
+  let lat0 = Latlong.deg_of_string (ExtXml.attrib xml "lat0")
+  and lon0 = Latlong.deg_of_string (ExtXml.attrib xml "lon0") in
+  { posn_lat = (Deg>>Rad)lat0; posn_long = (Deg>>Rad)lon0 }
+
 let sof = string_of_float
 let soi = string_of_int
 
@@ -547,12 +553,9 @@ let check_distance = fun (hx, hy) max_d wp ->
 
 (* Check coherence between global ref and waypoints ref *)
 (* Returns a patched xml with utm_x0 and utm_y0 set *)
-let check_geo_ref = fun xml ->
+let check_geo_ref = fun wgs84 xml ->
   let get_float = fun x -> float_attrib xml x in
-  let lat0_deg = get_float "lat0"
-  and lon0_deg = get_float "lon0" in
-  let utm0 = utm_of WGS84 { posn_lat=(Deg>>Rad)lat0_deg;
-			    posn_long=(Deg>>Rad)lon0_deg } in
+  let utm0 = utm_of WGS84 wgs84 in
 
   let max_d = min 1000. (get_float "max_dist_from_home") in
   let check_zone = fun u ->
@@ -652,8 +655,9 @@ let () =
     failwith (sprintf "Usage: %s <xml-flight-plan-file>" Sys.argv.(0));
   try
     let xml = Xml.parse_file !xml_file in
-    
-    let xml = check_geo_ref xml in
+
+    let wgs84 = georef_of_xml xml in
+    let xml = check_geo_ref wgs84 xml in
 
     let dir = Filename.dirname !xml_file in
     let xml = Fp_proc.process_includes dir xml in
@@ -695,9 +699,7 @@ let () =
       Xml2h.define_string "FLIGHT_PLAN_NAME" name;
       
       let get_float = fun x -> float_attrib xml x in
-      let lat0_deg = get_float "lat0"
-      and lon0_deg = get_float "lon0"
-      and qfu = try get_float "qfu" with Xml.No_attribute "qfu" -> 0.
+      let qfu = try get_float "qfu" with Xml.No_attribute "qfu" -> 0.
       and mdfh = get_float "max_dist_from_home"
       and alt = ExtXml.attrib xml "alt" in
       security_height := get_float "security_height";
@@ -705,7 +707,6 @@ let () =
 
       check_altitude (float_of_string alt) xml;
 
-      let wgs84 = {posn_lat=(Deg>>Rad)lat0_deg;posn_long=(Deg>>Rad)lon0_deg } in
       let utm0 = utm_of WGS84 wgs84 in
       let rel_utm_of_wgs84 = fun wgs84 ->
 	let utm = utm_of WGS84 wgs84 in

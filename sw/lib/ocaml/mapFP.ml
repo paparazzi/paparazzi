@@ -126,9 +126,9 @@ let rec new_gensym = fun p l ->
   if List.mem s l then new_gensym p l else s
 
 let georef_of_xml = fun xml ->
-  let lat0 = float_attr xml "lat0"
-  and lon0 = float_attr xml "lon0" in
-  {posn_lat = (Deg>>Rad)lat0; posn_long = (Deg>>Rad)lon0 }
+  let lat0 = Latlong.deg_of_string (ExtXml.attrib xml "lat0")
+  and lon0 = Latlong.deg_of_string (ExtXml.attrib xml "lon0") in
+  { posn_lat = (Deg>>Rad)lat0; posn_long = (Deg>>Rad)lon0 }
 
 
 let display_lines = fun ?group color (geomap:MapCanvas.widget) points ->

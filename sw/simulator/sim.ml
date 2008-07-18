@@ -26,10 +26,18 @@
 
 open Printf
 open Stdlib
+open Latlong
 
 module Ground_Pprz = Pprz.Messages(struct let name = "ground" end)
 
 let float_attrib xml a = float_of_string (ExtXml.attrib xml a)
+
+(* From mapFP.ml to avoid complex linking *)
+let georef_of_xml = fun xml ->
+  let lat0 = Latlong.deg_of_string (ExtXml.attrib xml "lat0")
+  and lon0 = Latlong.deg_of_string (ExtXml.attrib xml "lon0") in
+  { posn_lat = (Deg>>Rad)lat0; posn_long = (Deg>>Rad)lon0 }
+
 
 (* Frequencies for perdiodic tasks are expressed in s *)
 let ir_period = 1./.20.
@@ -92,9 +100,7 @@ module Make(AircraftItl : AIRCRAFT_ITL) = struct
 
   let flight_plan = A.ac.Data.flight_plan
 
-  let lat0 = rad_of_deg (float_attrib flight_plan "lat0")
-  let lon0 = rad_of_deg (float_attrib flight_plan "lon0")
-  let pos0 = ref (Latlong.make_geo lat0 lon0)
+  let pos0 = ref (georef_of_xml flight_plan)
   let qfu = try float_attrib flight_plan "qfu" with _ -> 0.
 
   (* Try to get the ground alt from the SRTM data, default to flight plan *)
