@@ -456,6 +456,19 @@ let of_string = fun s ->
 let string_of = fun geo ->
   Printf.sprintf "WGS84 %s" (string_degrees_of_geographic geo)
 
+let deg_of_string = fun s ->
+  match Str.split space s with
+    [lat_d; lat_m; lat_s] ->
+      decimal (ios lat_d) (ios lat_m) (fos lat_s)
+  | [lat_d; lat_m; lat_s; hemi] ->
+      let sign =
+	match hemi with
+	  "N" | "E" -> 1. | "S" | "W" -> -1.
+	| _ -> failwith (Printf.sprintf "N or S expected for hemispere in dms, found '%s'" hemi) in
+      sign *. decimal (ios lat_d) (ios lat_m) (fos lat_s)
+  | [deg] -> float_of_string deg
+  | _ -> invalid_arg (Printf.sprintf "Latlong.of_string: %s" s)
+
 
 let mercator_lat = fun l -> log (tan (pi/.4. +. 0.5*. l))
 let inv_mercator_lat = fun l -> 2. *. atan (exp l) -. pi/.2.
