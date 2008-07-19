@@ -231,10 +231,23 @@ uint8_t humid_sht_reset( void )
 void humid_sht_init( void )
 {
   /* Configure DAT/SCL pin as GPIO */
+#if 0  
   PINSEL0 &= ~(_BV(DAT_PIN*2)|_BV(DAT_PIN*2+1)|
                _BV(SCK_PIN*2)|_BV(SCK_PIN*2+1));
-//  PINSEL0 &= ~(_BV(20)|_BV(21)|_BV(30)|_BV(31));
-  
+#endif
+
+//#if (DAT_PIN<16)
+    PINSEL0 &= ~(_BV(DAT_PIN*2)|_BV(DAT_PIN*2+1));
+//#else  
+//    PINSEL1 &= ~(_BV((DAT_PIN-16)*2)|_BV((DAT_PIN-16)*2+1));
+//#endif
+
+//#if (SCK_PIN<16)
+    PINSEL0 &= ~(_BV(SCK_PIN*2)|_BV(SCK_PIN*2+1));
+//#else  
+//    PINSEL1 &= ~(_BV((SCK_PIN-16)*2)|_BV((SCK_PIN-16)*2+1));
+//#endif  
+
   IO0DIR &= ~(_BV(DAT_PIN)); 
   IO0CLR = _BV(DAT_PIN);
   IO0DIR = _BV(SCK_PIN);

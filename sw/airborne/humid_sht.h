@@ -3,9 +3,14 @@
 
 #include "std.h"
 
-/* GPIO P0.x */
+/* GPIO P0.x defaults */
+#ifndef DAT_PIN
 #define DAT_PIN         13
+#endif
+
+#ifndef SCK_PIN
 #define SCK_PIN         15
+#endif
 
 #define noACK           0
 #define ACK             1

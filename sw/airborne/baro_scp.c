@@ -54,12 +54,6 @@ void baro_scp_periodic(void) {
 #define ScpSelect()   SetBit(SS_IOCLR,SS_PIN)
 #define ScpUnselect() SetBit(SS_IOSET,SS_PIN)
 
-#define DRDY_PINSEL PINSEL0
-#define DRDY_PINSEL_BIT  14
-#define DRDY_PINSEL_VAL   3
-#define DRDY_EINT         2
-#define DRDY_VIC_IT       VIC_EINT2
-
 
 void baro_scp_init( void ) {
   /* setup pins for SSP (SCK, MISO, MOSI) */
@@ -82,15 +76,15 @@ void baro_scp_init( void ) {
 
   /* configure DRDY pin */
   /* connected pin to EXINT */ 
-  DRDY_PINSEL |= DRDY_PINSEL_VAL << DRDY_PINSEL_BIT;
-  SetBit(EXTMODE, DRDY_EINT); /* EINT is edge trigered */
-  SetBit(EXTPOLAR,DRDY_EINT); /* EINT is trigered on rising edge */
-  SetBit(EXTINT,DRDY_EINT);   /* clear pending EINT */
+  SPI1_DRDY_PINSEL |= SPI1_DRDY_PINSEL_VAL << SPI1_DRDY_PINSEL_BIT;
+  SetBit(EXTMODE, SPI1_DRDY_EINT); /* EINT is edge trigered */
+  SetBit(EXTPOLAR,SPI1_DRDY_EINT); /* EINT is trigered on rising edge */
+  SetBit(EXTINT,SPI1_DRDY_EINT);   /* clear pending EINT */
   
   /* initialize interrupt vector */
-  VICIntSelect &= ~VIC_BIT( DRDY_VIC_IT );  /* select EINT as IRQ source */
-  VICIntEnable = VIC_BIT( DRDY_VIC_IT );    /* enable it */
-  VICVectCntl11 = VIC_ENABLE | DRDY_VIC_IT;
+  VICIntSelect &= ~VIC_BIT( SPI1_DRDY_VIC_IT );  /* select EINT as IRQ source */
+  VICIntEnable = VIC_BIT( SPI1_DRDY_VIC_IT );    /* enable it */
+  VICVectCntl11 = VIC_ENABLE | SPI1_DRDY_VIC_IT;
   VICVectAddr11 = (uint32_t)EXTINT_ISR;         // address of the ISR 
   
   baro_scp_status = STA_UNINIT;
@@ -139,7 +133,7 @@ void EXTINT_ISR(void) {
   ISR_ENTRY();
   baro_scp_read();
 
-  SetBit(EXTINT,DRDY_EINT); /* clear EINT2 */
+  SetBit(EXTINT,SPI1_DRDY_EINT); /* clear EINT2 */
   VICVectAddr = 0x00000000; /* clear this interrupt from the VIC */
   ISR_EXIT();
 }

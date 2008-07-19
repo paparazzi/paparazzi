@@ -788,6 +788,17 @@
 	 <field name="status" type="uint8"/>
  </message>
 
+  <message name="SCP_STATUS" ID="88">
+      <field name="press" type="uint32"/>
+      <field name="temp"  type="int16"/>
+  </message>
+
+  <message name="SHT_STATUS" ID="89">
+      <field name="ihumid" type="uint16"/>
+      <field name="itemp"  type="uint16"/>
+      <field name="humid"  type="float"/>
+      <field name="temp"   type="float"/>
+  </message>
 
   <message name="ENOSE_STATUS" ID="90">
       <field name="val1" type="uint16"/>
@@ -800,6 +811,8 @@
   <message name="DPICCO_STATUS" ID="91">
       <field name="humid" type="uint16"/>
       <field name="temp" type="uint16"/>
+      <field name="fhumid" type="float"/>
+      <field name="ftemp" type="float"/>
   </message>
 
   <message name="ANTENNA_DEBUG" ID="92">
@@ -991,6 +1004,12 @@
    <field name="roll" type="int8"/>
    <field name="pitch" type="int8"/>
    <field name="throttle" type="int8"/>
+ </message>
+
+ <message name="DGPS_RAW" id="12" link="forwarded">
+   <field name="ac_id" type="uint8"/>
+   <field name="length" type="uint8"/>
+   <field name="rtcm" type="uint8[]"/>
  </message>
 
  <message name="SET_ACTUATOR" id="100">
