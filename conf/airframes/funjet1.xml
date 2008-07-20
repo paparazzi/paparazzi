@@ -3,7 +3,6 @@
 <!-- Funjet Multiplex (http://www.multiplex-rc.de/)
      Tiny 2.1 board (http://paparazzi.enac.fr/wiki/index.php/Tiny_v2)
      Tilted infrared sensor (http://paparazzi.enac.fr/wiki/index.php/Image:Tiny_v2_1_Funjet.jpg)
-     Chemical sensor (http://www.alpha-mos.com) with SPI interface
      Radiotronix modem
 -->
 
@@ -140,7 +139,7 @@
   </section>
 
   <section name="HORIZONTAL CONTROL" prefix="H_CTL_">
-    <define name="COURSE_PGAIN" value="-1.35"/>
+    <define name="COURSE_PGAIN" value="-1.2"/>
 
     <define name="ROLL_MAX_SETPOINT" value="0.7" unit="radians"/>
     <define name="PITCH_MAX_SETPOINT" value="0.5" unit="radians"/>
@@ -163,8 +162,8 @@
   <section name="AGGRESSIVE" prefix="AGR_">
     <define name="BLEND_START" value="20"/><!-- Altitude Error to Initiate Aggressive Climb CANNOT BE ZERO!!-->
     <define name="BLEND_END" value="10"/><!-- Altitude Error to Blend Aggressive to Regular Climb Modes  CANNOT BE ZERO!!-->
-    <define name="CLIMB_THROTTLE" value="0.8"/><!-- Gaz for Aggressive Climb -->
-    <define name="CLIMB_PITCH" value="0.3"/><!-- Pitch for Aggressive Climb -->
+    <define name="CLIMB_THROTTLE" value="0.7"/><!-- Gaz for Aggressive Climb -->
+    <define name="CLIMB_PITCH" value="0.25"/><!-- Pitch for Aggressive Climb -->
     <define name="DESCENT_THROTTLE" value="0.1"/><!-- Gaz for Aggressive Decent -->
     <define name="DESCENT_PITCH" value="-0.15"/><!-- Pitch for Aggressive Decent -->
     <define name="CLIMB_NAV_RATIO" value="0.8"/><!-- Percent Navigation for Altitude Error Equal to Start Altitude -->
@@ -281,9 +280,15 @@ ap.srcs += dc.c
 
 # Config for SITL simulation
 include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
-sim.CFLAGS += -DCONFIG=\"tiny.h\" -DAGR_CLIMB -DLOITER_TRIM -DALT_KALMAN -DENOSE
+sim.CFLAGS += -DCONFIG=\"tiny.h\" -DAGR_CLIMB -DLOITER_TRIM -DALT_KALMAN
+
 sim.srcs += nav_line.c nav_survey_rectangle.c
+# -DENOSE
 # chemotaxis.c anemotaxis.c discsurvey.c $(SRC_ARCH)/sim_enose.c chemo_detect.c
+
+sim.CFLAGS += -DDIGITAL_CAM -DPOWER_SWITCH_LED=4
+sim.srcs += dc.c
+
 
 
 
