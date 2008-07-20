@@ -44,6 +44,12 @@ let ir_period = 1./.20.
 let fm_period = 1./.25.
 let fg_period = 1./.25.
 
+let gensym = let n = ref 0 in fun p -> incr n; p ^ string_of_int !n
+let cb_register = fun closure ->
+  let s = gensym "sim_callback_" in
+  Callback.register s closure;
+  s
+
 
 module type AIRCRAFT = 
   sig
@@ -68,6 +74,7 @@ module type AIRCRAFT_ITL =
 
 external fg_sizeof : unit -> int = "fg_sizeof"
 external fg_msg : string -> float -> float -> float -> float -> float -> float -> unit = "fg_msg_bytecode" "fg_msg_native"
+external register_leds_cb : string -> unit = "register_leds_cb"
 
 
 let ac_name = ref "A/C not set"
@@ -79,13 +86,15 @@ let fg_client = ref ""
 let autoboot = ref false
 let autolaunch = ref false
 let noground = ref false
+let leds = ref 0
 
 let common_options = [
   "-b", Arg.Set_string ivy_bus, "Bus\tDefault is 127.255.255.25:2010";
   "-boot", Arg.Set autoboot, "Boot the A/C on start";
   "-launch", Arg.Set autolaunch, "Launch the A/C on start";
   "-noground", Arg.Set noground, "Disable ground detection";
-  "-fg", Arg.Set_string fg_client, "Flight gear client address"
+  "-fg", Arg.Set_string fg_client, "Flight gear client address";
+  "-leds", Arg.Set_int leds, "<n> Enable display of n LEDs";
 ]
 
 module Make(AircraftItl : AIRCRAFT_ITL) = struct
@@ -291,6 +300,28 @@ module Make(AircraftItl : AIRCRAFT_ITL) = struct
     l "East:"; hbox#pack east_label#coerce;
     l " North:"; hbox#pack north_label#coerce;
     l " Height:"; hbox#pack alt_label#coerce;
+
+    if !leds > 0 then begin (* Display LEDs *)
+      let hbox = GPack.hbox ~packing:vbox#pack () in
+      let leds_eb_status = Array.init !leds (fun i ->
+	let eb = GBin.event_box ~packing:hbox#pack () in
+	eb#coerce#misc#modify_bg [`SELECTED, `NAME "red"];
+	let text = string_of_int (i+1) in
+	ignore (GMisc.label ~width:20 ~text ~packing:eb#add ());
+	(eb, ref `NORMAL)) in
+      let cb = fun i x ->
+	if 0 < i && i <= !leds then
+	  let (eb, status) = leds_eb_status.(i-1) in
+	  let old_status = !status in
+	  status := 
+	    (match x with
+	      0 -> `NORMAL | 1 -> `SELECTED
+	    | _ -> if !status = `NORMAL then `SELECTED else `NORMAL);
+	  if old_status <> !status then eb#coerce#misc#set_state !status in
+      let name = "sim_leds_callback" in
+      Callback.register name cb;
+      register_leds_cb name
+    end;
 
     Ivy.init (sprintf "Paparazzi sim %d" A.ac.Data.id) "READY" (fun _ _ -> ());
     Ivy.start !ivy_bus;
