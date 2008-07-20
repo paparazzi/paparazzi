@@ -103,6 +103,9 @@ void dl_parse_msg(void) {
     wind_east = DL_WIND_INFO_east(dl_buffer);
     wind_north = DL_WIND_INFO_north(dl_buffer);
     estimator_airspeed = DL_WIND_INFO_airspeed(dl_buffer);
+#ifdef WIND_INFO_RET
+    DOWNLINK_SEND_WIND_INFO_RET(&wind_east, &wind_north, &estimator_airspeed);
+#endif
   } else
 #endif /** WIND_INFO */
 

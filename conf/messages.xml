@@ -788,6 +788,12 @@
 	 <field name="status" type="uint8"/>
  </message>
 
+ <message name="WIND_INFO_RET" ID="87">
+  <field name="east" type="float" unit="m/s"/>
+  <field name="north" type="float" unit="m/s"/>
+  <field name="airspeed" type="float" unit="m/s"/>
+ </message>
+
   <message name="SCP_STATUS" ID="88">
       <field name="press" type="uint32"/>
       <field name="temp"  type="int16"/>
