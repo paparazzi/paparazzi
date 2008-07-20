@@ -66,7 +66,7 @@
       <set var="lateral_mode" value="LATERAL_MODE_ROLL"/>
       <set var="v_ctl_mode" value="V_CTL_MODE_MANUAL"/>
       <set var="joystick_block" value="nav_block"/>
-      <while/>
+      <call fun="TRUE"/>
     </block>
 
     <block name="Land Right AF-TD" strip_button="Land right (wp AF-TD)" strip_icon="land-right.png">
