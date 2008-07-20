@@ -95,7 +95,7 @@
     <define name="ALT_KALMAN_ENABLED" value="FALSE"/>
 
     <define name="TRIGGER_DELAY" value="1."/>
-    <define name="DEFAULT_CIRCLE_RADIUS" value="150."/>
+    <define name="DEFAULT_CIRCLE_RADIUS" value="80."/>
     <define name="LIGHT_PIN_1" value="3"/>
   </section>
  
@@ -180,6 +180,10 @@
     <define name="DEVICE_ADDRESS" value="...."/>
   </section>
   
+ <section name="SIMU">
+    <define name="YAW_RESPONSE_FACTOR" value="0.5"/>
+ </section>
+
  <makefile>
 include $(PAPARAZZI_SRC)/conf/autopilot/tiny.makefile
 
