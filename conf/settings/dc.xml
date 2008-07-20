@@ -9,6 +9,7 @@
       <dl_setting MAX="1" MIN="1" STEP="1" VAR="dc_timer" module="dc" handler="Zoom" shortname="Zoom">
        <strip_button name="Zoom" icon="zoom.png" value="1"/>
       </dl_setting>
+      <dl_setting MAX="60" MIN="0" STEP="1" VAR="dc_periodic_shutter" module="dc" handler="Periodic" shortname="Periodic"/>
     </dl_settings>
   </dl_settings>
 </settings>
