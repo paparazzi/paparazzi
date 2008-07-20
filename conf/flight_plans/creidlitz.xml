@@ -1,6 +1,6 @@
 <!DOCTYPE flight_plan SYSTEM "flight_plan.dtd">
 
-<flight_plan alt="70" ground_alt="360" lat0="50.230060" lon0="10.990449" max_dist_from_home="1500" name="Flugplatz Steinruecken" security_height="25">
+<flight_plan alt="420" ground_alt="360" lat0="50.230060" lon0="10.990449" max_dist_from_home="1500" name="Flugplatz Steinruecken" security_height="25">
 
   <header>
 #include "nav_line.h"
@@ -68,11 +68,6 @@
     </block>
     <block name="Oval 1-2" strip_button="Oval (wp 1-2)" strip_icon="oval.png">
       <oval p1="1" p2="2" radius="nav_radius"/>
-    </block>
-    <block name="Line 1-2" strip_button="Line (wp 1-2)" strip_icon="line.png">
-      <exception cond="datalink_time > 22" deroute="Standby"/>
-      <call fun="nav_line_init()"/>
-      <call fun="nav_line(WP_1, WP_2, nav_radius)"/>
-    </block>
+    </block>    
   </blocks>
 </flight_plan>
