@@ -41,7 +41,7 @@ VARINCLUDE=$(PAPARAZZI_HOME)/var/include
 ACINCLUDE = $(PAPARAZZI_HOME)/var/$(AIRCRAFT)
 LAUNCHSITL = launchsitl
 
-all : gaia sitl.cma simhitl $(LAUNCHSITL)
+all : gaia sitl.cma $(LAUNCHSITL)
 	@chmod a+x $(LAUNCHSITL)
 
 simhitl : fg.o $(SIMHCMO) simhitl.cmo
