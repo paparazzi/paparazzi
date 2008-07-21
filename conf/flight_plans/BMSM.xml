@@ -60,6 +60,9 @@
     <block name="Survey S1-S2" strip_button="Survey (wp S1-S2)" strip_icon="survey.png">
       <survey_rectangle grid="150" wp1="S1" wp2="S2"/>
     </block>
+    <block name="Survey E-W" strip_button="Survey E-W">
+      <survey_rectangle grid="150" wp1="S1" wp2="S2" orientation="WE"/>
+    </block>
     <block name="Land Right AF-TD" strip_button="Land right (wp AF-TD)" strip_icon="land-right.png">
       <set value="DEFAULT_CIRCLE_RADIUS" var="nav_radius"/>
       <deroute block="land"/>
