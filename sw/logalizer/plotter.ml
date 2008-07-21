@@ -56,6 +56,7 @@ let labelled_entry = fun ?width_chars text value (h:GPack.box) ->
 type values = { 
     mutable array: float option array;
     mutable index: int; 
+    mutable discrete : bool;
     color : string;
     average : GData.adjustment;
     stdev : GData.adjustment
@@ -63,7 +64,7 @@ type values = {
 
 let create_values = fun size color ->
   { array = Array.create size None; index = 0; color = color;
-    average = GData.adjustment ~value:0. ();
+    average = GData.adjustment ~value:0. (); discrete = false;
     stdev = GData.adjustment ~value:0. ()}
 
 type status = 
@@ -229,6 +230,7 @@ class plot = fun ~size ~width ~height ~packing () ->
 		and sum = ref 0. and sum_squares = ref 0.
 		and n = ref 0 in
 		assert (size = Array.length a.array);
+		let last_value = ref None in
 		for i = 0 to size - 1 do
 		  let i' = (i+a.index) mod size in
 		  match a.array.(i') with
@@ -237,7 +239,15 @@ class plot = fun ~size ~width ~height ~packing () ->
 		      incr n;
 		      sum := !sum +. v;
 		      sum_squares := !sum_squares +. v *. v;
-		      curve := ((i * width) / size, y v) :: !curve;
+		      let x = (i * width) / size in
+		      begin
+			match !last_value with
+			 Some lv when a.discrete ->
+			   curve := (x, y lv) :: !curve
+			| _ -> ()
+		      end;
+		      curve := (x, y v) :: !curve;
+		      last_value := Some v
 		done;
 		if !curve <> [] then begin
 		  dr#set_foreground (`NAME a.color);
@@ -332,7 +342,7 @@ let rec plot_window = fun window ->
   ignore (max_entry#connect#activate ~callback:(fun () -> if not plot#auto_scale then plot#set_max (float_of_string max_entry#text)));
 
   (* Update time slider *)
-  let adj = GData.adjustment ~lower:0.1 ~value: !update_time ~step_incr:0.1 ~upper:11.0 () in
+  let adj = GData.adjustment ~lower:0.05 ~value: !update_time ~step_incr:0.1 ~upper:11.0 () in
   let scale = GRange.scale `HORIZONTAL ~digits:2 ~adjustment:adj ~packing:h#add () in
   ignore (adj#connect#value_changed ~callback:(fun () -> plot#set_update_time adj#value));
   plot#set_update_time adj#value;
@@ -388,6 +398,12 @@ let rec plot_window = fun window ->
       Ivy.unbind binding;
       curves_menu#remove (curve_item :> GMenu.menu_item) in
     ignore (delete_item#connect#activate ~callback:delete);
+
+    (* Discrete *)
+    let discrete_item = submenu_fact#add_check_item "Discrete" in
+    let callback = fun () ->
+      curve.discrete <- discrete_item#active in
+    ignore (discrete_item#connect#toggled ~callback);
 
     (* Average *)
     let average_value = GMisc.label ~height:10 ~text:"N/A" () in
