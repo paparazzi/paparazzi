@@ -290,6 +290,16 @@
     <field name="values" type="uint16[]" unit="none"/>
   </message>
 
+  <message name="DC_SHOT" id="110">
+     <field name="utm_east"  type="int32" unit="cm"></field>
+     <field name="utm_north" type="int32" unit="cm"></field>
+     <field name="utm_zone"  type="uint8"></field>
+     <field name="course" type="int16" unit="decideg"></field>
+     <field name="z" type="float" unit="m"/>
+     <field name="phi" type="int16" unit="deg"></field>
+     <field name="theta" type="int16" unit="deg"></field>	 
+  </message>
+
   <message name="TCAS_TA" ID="120">
     <field name="ac_id" type="uint8"/>
   </message>
