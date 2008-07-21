@@ -128,12 +128,12 @@
   </section>
 
   <section name="HORIZONTAL CONTROL" prefix="H_CTL_">
-    <define name="COURSE_PGAIN" value="-1.25"/>
+    <define name="COURSE_PGAIN" value="-1.35"/>
     <define name="ROLL_MAX_SETPOINT" value="0.7" unit="radians"/>
     <define name="PITCH_MAX_SETPOINT" value="0.5" unit="radians"/>
     <define name="PITCH_MIN_SETPOINT" value="-0.5" unit="radians"/>
 
-    <define name="ROLL_PGAIN" value="9000."/>
+    <define name="ROLL_PGAIN" value="5000."/>
     <define name="AILERON_OF_THROTTLE" value="0.0"/>
     <define name="PITCH_PGAIN" value="-5500."/>
     <define name="PITCH_DGAIN" value="0.4"/>
@@ -221,7 +221,7 @@ ap.CFLAGS += -DINFRARED
 # -DALT_KALMAN
 ap.srcs += infrared.c estimator.c
 
-ap.CFLAGS += -DNAV -DH_CTL_RATE_LOOP -DAGR_CLIMB -DLOITER_TRIM
+ap.CFLAGS += -DNAV -DH_CTL_RATE_LOOP -DAGR_CLIMB -DLOITER_TRIM -DWIND_INFO -DWIND_INFO_RET
 ap.srcs += nav.c fw_h_ctl.c fw_v_ctl.c latlong.c nav_survey_rectangle.c nav_line.c
 
 #ap.srcs += traffic_info.c
