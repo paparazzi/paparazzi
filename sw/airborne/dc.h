@@ -18,6 +18,10 @@ extern uint8_t dc_periodic_shutter;
 extern uint8_t dc_shutter_timer;
 /* In s. Related counter */
 
+extern uint8_t dc_utm_threshold;
+/* In m. If non zero, automatic shots when greater than utm_north % 100 */
+
+
 
 #define SHUTTER_DELAY 2  /* 4Hz -> 0.5s */
 
@@ -42,6 +46,7 @@ static inline uint8_t dc_zoom( void ) {
 #define dc_Zoom(_) { dc_zoom(); }
 #define dc_Periodic(s) { dc_periodic_shutter = s; dc_shutter_timer = s; }
 
+
 #define dc_init() { /* initialized as leds */ dc_periodic_shutter = 0; } /* Output */
 
 /* 4Hz */
@@ -63,6 +68,14 @@ static inline void dc_periodic( void ) {
 	dc_shutter_timer = dc_periodic_shutter;
       }
     });
+  }
+}
+
+static inline void dc_shot_on_utm_north_close_to_100m_grid( void ) {
+  if (dc_utm_threshold && !dc_timer) {
+    uint32_t dist_to_100m_grid = (gps_utm_north) / 100 % 100;
+    if (dist_to_100m_grid < dc_utm_threshold || 100 - dist_to_100m_grid < dc_utm_threshold)
+      dc_shutter();
   }
 }
 

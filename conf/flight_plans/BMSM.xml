@@ -4,6 +4,7 @@
   <header>
 #include "nav_line.h"
 #include "datalink.h"
+#include "dc.h"
 </header>
   <waypoints>
     <waypoint name="HOME" x="0" y="0"/>
@@ -18,7 +19,6 @@
     <waypoint name="_BASELEG" x="168.8" y="-13.8"/>
     <waypoint name="CLIMB" x="-129.9" y="54.6"/>
   </waypoints>
-  <exceptions/>
   <blocks>
     <block name="Wait GPS">
       <set value="1" var="kill_throttle"/>
@@ -57,7 +57,7 @@
       <call fun="nav_line_init()"/>
       <call fun="nav_line(WP_1, WP_2, nav_radius)"/>
     </block>
-    <block name="Survey S1-S2" strip_button="Survey (wp S1-S2)" strip_icon="survey.png">
+    <block name="Survey S1-S2" strip_button="Survey (wp S1-S2)" strip_icon="survey.png" pre_call="dc_shot_on_utm_north_close_to_100m_grid()">
       <survey_rectangle grid="150" wp1="S1" wp2="S2"/>
     </block>
     <block name="Survey E-W" strip_button="Survey E-W">

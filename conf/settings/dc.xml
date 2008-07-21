@@ -10,6 +10,7 @@
        <strip_button name="Zoom" icon="zoom.png" value="1"/>
       </dl_setting>
       <dl_setting MAX="60" MIN="0" STEP="1" VAR="dc_periodic_shutter" module="dc" handler="Periodic" shortname="Periodic"/>
+      <dl_setting MAX="5" MIN="0" STEP="1" VAR="dc_utm_threshold" shortname="UTM%"/>
     </dl_settings>
   </dl_settings>
 </settings>
