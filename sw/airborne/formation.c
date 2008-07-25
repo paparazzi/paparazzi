@@ -94,7 +94,7 @@ int add_slot(uint8_t _id, float slot_e, float slot_n, float slot_a) {
 }
 
 int start_formation(void) {
-  int i;
+  uint8_t i;
   uint8_t ac_id = AC_ID;
   for (i = 0; i < NB_ACS; ++i) {
     if (formation[i].status == IDLE) formation[i].status = ACTIVE;
@@ -108,7 +108,7 @@ int start_formation(void) {
 }
 
 int stop_formation(void) {
-  int i;
+  uint8_t i;
   uint8_t ac_id = AC_ID;
   for (i = 0; i < NB_ACS; ++i) {
     if (formation[i].status == ACTIVE) formation[i].status = IDLE;
@@ -127,7 +127,7 @@ int stop_formation(void) {
 int formation_flight(void) {
 
   static uint8_t _1Hz   = 0;
-  int nb = 0, i;
+  uint8_t nb = 0, i;
   float ch = cos(estimator_hspeed_dir);
   float sh = sin(estimator_hspeed_dir);
   form_n = 0.;
@@ -159,7 +159,8 @@ int formation_flight(void) {
 
   // get leader info
   struct ac_info_ * leader = get_ac_info(leader_id);
-  if (formation[the_acs_id[leader_id]].status != ACTIVE) return FALSE; // leader not ready
+  if (formation[the_acs_id[leader_id]].status == UNSET ||
+      formation[the_acs_id[leader_id]].status == IDLE) return FALSE; // leader not ready or not in formation
 
   // compute slots in the right reference frame
   struct slot_ form[NB_ACS];
@@ -177,16 +178,17 @@ int formation_flight(void) {
 
   // compute control forces
   for (i = 0; i < NB_ACS; ++i) {
-    if (formation[i].status != ACTIVE || the_acs[i].ac_id == AC_ID) continue;
+    if (the_acs[i].ac_id == AC_ID) continue;
     struct ac_info_ * ac = get_ac_info(the_acs[i].ac_id);
-    if (fabs(estimator_z - ac->alt) < form_prox && ac->alt > 0) {
-      float delta_t = Max((int)(gps_itow - ac->itow) / 1000., 0.);
-      if (delta_t > FORM_CARROT) {
-        // if AC not responding for too long
-        formation[i].status = IDLE;
-        continue;
-      }
-      else formation[i].status = ACTIVE;
+    float delta_t = Max((int)(gps_itow - ac->itow) / 1000., 0.);
+    if (delta_t > FORM_CARROT) {
+      // if AC not responding for too long
+      formation[i].status = LOST;
+      continue;
+    }
+    else formation[i].status = ACTIVE;
+    // compute control if AC is ACTIVE and around the same altitude (maybe not so usefull)
+    if (formation[i].status == ACTIVE && fabs(estimator_z - ac->alt) < form_prox && ac->alt > 0) {
       form_e += (ac->east  + ac->gspeed*sin(ac->course)*delta_t - estimator_x)
         - (form[i].east - form[the_acs_id[AC_ID]].east);
       form_n += (ac->north + ac->gspeed*cos(ac->course)*delta_t - estimator_y)
@@ -198,11 +200,10 @@ int formation_flight(void) {
       ++nb;
     }
   }
-  if (nb > 0) {
-    form_n /= nb;
-    form_e /= nb;
-    form_a /= nb;
-  }
+  uint8_t _nb = Max(1,nb);
+  form_n /= _nb;
+  form_e /= _nb;
+  form_a /= _nb;
   form_speed = form_speed / (nb+1) - estimator_hspeed_mod;
   //form_speed_e = form_speed_e / (nb+1) - estimator_hspeed_mod * sh;
   //form_speed_n = form_speed_n / (nb+1) - estimator_hspeed_mod * ch;

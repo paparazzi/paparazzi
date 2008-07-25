@@ -18,7 +18,7 @@ extern float form_prox;
 extern int form_mode;
 extern uint8_t leader_id;
 
-enum slot_status {UNSET, ACTIVE, IDLE};
+enum slot_status {UNSET, ACTIVE, IDLE, LOST};
 
 struct slot_ {
     enum slot_status status;
