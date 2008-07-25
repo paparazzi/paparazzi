@@ -35,7 +35,7 @@
     <block name="start formation">
       <call fun="start_formation()"/> <!-- inform other AC that formation is started -->
     </block>
-    <block name="traj" post_call="formation_flight()"> <!-- formation flight is call after all other navigation tasks -->
+    <block name="traj" pre_call="formation_pre_call()" post_call="formation_flight()"> <!-- formation flight is call after all other navigation tasks -->
       <go from="wp5" hmode="route" wp="wp0"/>
       <go from="wp0" hmode="route" wp="wp1"/>
       <go from="wp1" hmode="route" wp="wp2"/>
