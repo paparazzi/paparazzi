@@ -6,6 +6,9 @@ LDFLAGS = -lm
 i86_vor_test_float_demod: i86_vor_test_float_demod.c vor_float_demod.c
 	gcc $(CFLAGS) $^ -o $@ $(LDFLAGS) -lsndfile
 
+i86_vor_test_int_demod_decim: i86_vor_test_int_demod_decim.c vor_int_demod_decim.c
+	gcc $(CFLAGS) $^ -o $@ $(LDFLAGS) -lsndfile
+
 i86_vor_test_int_demod: i86_vor_test_int_demod.c vor_int_demod.c
 	gcc $(CFLAGS) $^ -o $@ $(LDFLAGS) -lsndfile
 

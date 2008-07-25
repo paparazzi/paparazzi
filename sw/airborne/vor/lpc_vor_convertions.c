@@ -5,8 +5,11 @@
 
 #include "sys_time.h"
 
+#include "led.h"
+
 volatile uint16_t vor_adc_sample;
 volatile bool_t vor_adc_sample_available;
+volatile uint32_t vor_adc_overrun;
 
 
 void adcISR0 ( void ) __attribute__((naked));
@@ -33,6 +36,7 @@ void vor_adc_init( void ) {
   T0EMR |= TEMR_EMC11;
   /* first match in a while */
   T0MR1 = 1024;
+  vor_adc_overrun = FALSE;
 }
 
 
@@ -42,6 +46,10 @@ void adcISR0 ( void ) {
   //  uint32_t tmp = AD0DR3;
   //  uint8_t  channel = (uint8_t)(tmp >> 24) & 0x07;
   vor_adc_sample = (uint16_t)(tmp >> 6) & 0x03FF;
+  if (vor_adc_sample_available) {
+    vor_adc_overrun++;
+    LED_ON(1);
+  }
   vor_adc_sample_available = TRUE;
 
   /* trigger next convertion */

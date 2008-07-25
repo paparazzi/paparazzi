@@ -8,12 +8,13 @@
 
 extern volatile uint16_t vor_adc_sample;
 extern volatile bool_t vor_adc_sample_available;
+extern volatile uint32_t vor_adc_overrun;
 
 // DAC on P0.25
 #define VorDacInit() { \
-    /* turn on DAC pins */			\
-    PINSEL1 &=  1 << 19;			\
-    PINSEL1 |= ~(1 << 18);			\
+    /* turn on DAC pins */				\
+    PINSEL1 &=  1 << 19;			        \
+    PINSEL1 |= ~(1 << 18);				\
   }
 
 
