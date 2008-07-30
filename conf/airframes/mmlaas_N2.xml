@@ -94,7 +94,7 @@
 <!--    <define name="NO_XBEE_API_INIT" value="TRUE"/>-->
     <define name="ALT_KALMAN_ENABLED" value="TRUE"/>
     <define name="TRIGGER_DELAY" value="1."/>
-    <define name="DEFAULT_CIRCLE_RADIUS" value="50."/>
+    <define name="DEFAULT_CIRCLE_RADIUS" value="40."/>
   </section>
  
   <section name="VERTICAL CONTROL" prefix="V_CTL_">
@@ -156,6 +156,13 @@
     <define name="ALTITUDE_PGAIN" value="0.1"/> <!-- coef on altitude error -->
     <define name="PROX" value="60." unit="m"/> <!-- proximity distance -->
     <define name="MODE" value="0"/> <!-- mode 0 = global, 1 = local -->
+  </section>
+
+  <section name="TCAS" prefix="TCAS_">
+    <define name="TAU_TA" value="10." unit="s"/> <!-- traffic advisory -->
+    <define name="TAU_RA" value="6." unit="s"/> <!-- resolution advisory -->
+    <define name="ALIM" value="15." unit="m"/> <!-- altitude limitation -->
+    <define name="DT_MAX" value="2000" unit="ms"/> <!-- lost comm or timeout -->
   </section>
 
   <section name="AGGRESSIVE" prefix="AGR_">
@@ -228,6 +235,10 @@ ap.srcs += traffic_info.c formation.c snav.c
 # external module
 ap.srcs += external.c
 
+# tcas
+ap.CFLAGS += -DTCAS
+ap.srcs += tcas.c
+
 
 # Harware In The Loop
 
@@ -236,8 +247,8 @@ ap.srcs += external.c
 
 # Config for SITL simulation
 include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
-sim.CFLAGS += -DCONFIG=\"tiny.h\" -DAGR_CLIMB -DLOITER_TRIM -DALT_KALMAN -DFORMATION -DTRAFFIC_INFO
-sim.srcs += nav_survey_rectangle.c nav_line.c external.c traffic_info.c formation.c snav.c
+sim.CFLAGS += -DCONFIG=\"tiny.h\" -DAGR_CLIMB -DLOITER_TRIM -DALT_KALMAN -DFORMATION -DTRAFFIC_INFO -DTCAS
+sim.srcs += nav_survey_rectangle.c nav_line.c external.c traffic_info.c formation.c snav.c tcas.c
 
   </makefile>
 </airframe>
