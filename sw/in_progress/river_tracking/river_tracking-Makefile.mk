@@ -19,6 +19,6 @@ main : src/river_track.c
 	$(CC) src/river_track.c -o bin/river_track $(INCLUDES)
 
 clean :
-	rm -f *.o
+	cd $(RTHOME) rm -f *.o
 	cd $(RTSOURCE); rm -f *.o;
 	cd $(RTBIN); rm -f river_track;
