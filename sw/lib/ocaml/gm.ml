@@ -156,7 +156,7 @@ let get_from_cache = fun f ->
 
 
 let google_maps_url = fun s -> 
-  sprintf "http://kh1.google.com/kh?n=404&v=3&t=%s" s
+  sprintf "http://khm.google.com/kh?n=404&v=3&t=%s" s
 
 exception Not_available
 
