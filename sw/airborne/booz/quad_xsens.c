@@ -30,9 +30,12 @@
 
 #include <inttypes.h>
 
+#include "airframe.h"
 #include "led.h"
 #include "booz_estimator.h"
 #include "quad_gps.h"
+#include "quad_vfilter.h"
+#include "agl_vfilter.h"
 #include "booz_inter_mcu.h"
 #include "booz_autopilot.h"
 
@@ -71,11 +74,17 @@ volatile uint8_t ins_msg_received;
 uint8_t xsens_msg_buf[XSENS_MAX_PAYLOAD];
 
 /* output mode : calibrated, orientation, position, velocity, status */
-#define XSENS_DEFAULT_OUTPUT_MODE 0x0836
-//#define XSENS_DEFAULT_OUTPUT_MODE 0x0036
-//#define XSENS_DEFAULT_OUTPUT_MODE 0x0030
+#ifndef XSENS_OUTPUT_MODE
+#define XSENS_OUTPUT_MODE 0x0836
+#endif
 /* output settings : timestamp, euler, acc, rate, mag, float, no aux, lla, m/s, NED */
-#define XSENS_DEFAULT_OUTPUT_SETTINGS 0x80000C05
+#ifndef XSENS_OUTPUT_SETTINGS
+#define XSENS_OUTPUT_SETTINGS 0x80000C05
+#endif
+
+#ifndef XSENS_NED
+#define XSENS_NED 1
+#endif
 
 #define UNINIT        0
 #define GOT_START     1
@@ -110,8 +119,8 @@ void quad_ins_init( void ) {
 
   xsens_msg_status = 0;
   xsens_time_stamp = 0;
-  xsens_output_mode = XSENS_DEFAULT_OUTPUT_MODE;
-  xsens_output_settings = XSENS_DEFAULT_OUTPUT_SETTINGS;
+  xsens_output_mode = XSENS_OUTPUT_MODE;
+  xsens_output_settings = XSENS_OUTPUT_SETTINGS;
   /* send mode and settings to MT */
   XSENS_GoToConfig();
   XSENS_SetOutputMode(xsens_output_mode);
@@ -202,12 +211,27 @@ void parse_ins_msg( void ) {
       if (XSENS_MASK_Calibrated(xsens_output_mode)) {
         uint8_t l = 0;
         if (!XSENS_MASK_AccOut(xsens_output_settings)) {
+          inter_mcu_state.accel[AXIS_X] = XSENS_DATA_Calibrated_accX(xsens_msg_buf,offset);
+          inter_mcu_state.accel[AXIS_Y] = XSENS_NED * XSENS_DATA_Calibrated_accY(xsens_msg_buf,offset);
+          inter_mcu_state.accel[AXIS_Z] = XSENS_NED * XSENS_DATA_Calibrated_accZ(xsens_msg_buf,offset);
+#ifdef USE_VFILTER
+#ifdef USE_BARO_MS5534A
+          inter_mcu_state.pos[AXIS_Z] = quad_vf_z;
+          inter_mcu_state.speed[AXIS_Z] = quad_vf_zdot;
+          gps_alt = inter_mcu_state.pos[AXIS_Z] * 100;
+          gps_climb = (int16_t)(inter_mcu_state.speed[AXIS_Z] * 100);
+#endif
+#ifdef USE_TELEMETER
+          booz_estimator_agl_z = agl_vf_z;
+          booz_estimator_agl_zdot = agl_vf_zdot;
+#endif
+#endif
           l++;
         }
         if (!XSENS_MASK_GyrOut(xsens_output_settings)) {
           inter_mcu_state.r_rates[AXIS_P] = XSENS_DATA_Calibrated_gyrX(xsens_msg_buf,offset) * RATE_PI_S/M_PI;
-          inter_mcu_state.r_rates[AXIS_Q] = XSENS_DATA_Calibrated_gyrY(xsens_msg_buf,offset) * RATE_PI_S/M_PI;
-          inter_mcu_state.r_rates[AXIS_R] = XSENS_DATA_Calibrated_gyrZ(xsens_msg_buf,offset) * RATE_PI_S/M_PI;
+          inter_mcu_state.r_rates[AXIS_Q] = XSENS_NED * XSENS_DATA_Calibrated_gyrY(xsens_msg_buf,offset) * RATE_PI_S/M_PI;
+          inter_mcu_state.r_rates[AXIS_R] = XSENS_NED * XSENS_DATA_Calibrated_gyrZ(xsens_msg_buf,offset) * RATE_PI_S/M_PI;
           inter_mcu_state.f_rates[AXIS_P] = inter_mcu_state.r_rates[AXIS_P];
           inter_mcu_state.f_rates[AXIS_Q] = inter_mcu_state.r_rates[AXIS_Q];
           inter_mcu_state.f_rates[AXIS_R] = inter_mcu_state.r_rates[AXIS_R];
@@ -220,12 +244,26 @@ void parse_ins_msg( void ) {
       }
       if (XSENS_MASK_Orientation(xsens_output_mode)) {
         if (XSENS_MASK_OrientationMode(xsens_output_settings) == 0x00) {
+          float q0 = XSENS_DATA_Quaternion_q0(xsens_msg_buf,offset);
+          float q1 = XSENS_DATA_Quaternion_q1(xsens_msg_buf,offset);
+          float q2 = XSENS_DATA_Quaternion_q2(xsens_msg_buf,offset);
+          float q3 = XSENS_DATA_Quaternion_q3(xsens_msg_buf,offset);
+          float dcm00 = 1.0 - 2 * (q2*q2 + q3*q3);
+          float dcm01 =       2 * (q1*q2 + q0*q3);
+          float dcm02 =       2 * (q1*q3 - q0*q2);
+          float dcm12 =       2 * (q2*q3 + q0*q1);
+          float dcm22 = 1.0 - 2 * (q1*q1 + q2*q2);
+          inter_mcu_state.f_eulers[AXIS_X] = atan2(dcm12, dcm22) * ANGLE_PI/M_PI;
+          inter_mcu_state.f_eulers[AXIS_Y] = -asin(dcm02)        * ANGLE_PI/M_PI;
+          inter_mcu_state.f_eulers[AXIS_Z] = atan2(dcm01, dcm00) * ANGLE_PI/M_PI;
+          gps_course = inter_mcu_state.f_eulers[AXIS_Z] * 1800 / ANGLE_PI;
           offset += XSENS_DATA_Quaternion_LENGTH;
         }
         if (XSENS_MASK_OrientationMode(xsens_output_settings) == 0x01) {
           inter_mcu_state.f_eulers[AXIS_X] = XSENS_DATA_Euler_roll(xsens_msg_buf,offset)  * ANGLE_PI/180;
-          inter_mcu_state.f_eulers[AXIS_Y] = XSENS_DATA_Euler_pitch(xsens_msg_buf,offset) * ANGLE_PI/180;
-          inter_mcu_state.f_eulers[AXIS_Z] = XSENS_DATA_Euler_yaw(xsens_msg_buf,offset)   * ANGLE_PI/180;
+          inter_mcu_state.f_eulers[AXIS_Y] = XSENS_NED * XSENS_DATA_Euler_pitch(xsens_msg_buf,offset) * ANGLE_PI/180;
+          inter_mcu_state.f_eulers[AXIS_Z] = XSENS_NED * XSENS_DATA_Euler_yaw(xsens_msg_buf,offset)   * ANGLE_PI/180;
+          gps_course = (int16_t)(XSENS_NED * XSENS_DATA_Euler_yaw(xsens_msg_buf,offset) * 10);
           offset += XSENS_DATA_Euler_LENGTH;
         }
         if (XSENS_MASK_OrientationMode(xsens_output_settings) == 0x10) {
@@ -248,29 +286,35 @@ void parse_ins_msg( void ) {
         float lon = XSENS_DATA_Position_lon(xsens_msg_buf,offset);
         gps_lat = (int32_t)(lat * 1e7);
         gps_lon = (int32_t)(lon * 1e7);
-#ifdef NAV_HORIZONTAL
+//#ifdef NAV_HORIZONTAL
         gps_utm_zone = (lon+180) / 6 + 1;
         latlong_utm_of(RadOfDeg(lat), RadOfDeg(lon), gps_utm_zone);
-#endif
+//#endif
         inter_mcu_state.pos[AXIS_X] = latlong_utm_x;
         inter_mcu_state.pos[AXIS_Y] = latlong_utm_y;
-        inter_mcu_state.pos[AXIS_Z] = -XSENS_DATA_Position_alt(xsens_msg_buf,offset);
         gps_utm_east  = inter_mcu_state.pos[AXIS_X] * 100;
         gps_utm_north = inter_mcu_state.pos[AXIS_Y] * 100;
+#ifndef USE_VFILTER
+        inter_mcu_state.pos[AXIS_Z] = -XSENS_DATA_Position_alt(xsens_msg_buf,offset);
         gps_alt = inter_mcu_state.pos[AXIS_Z] * 100;
+#endif
         offset += XSENS_DATA_Position_LENGTH;
       }
       if (XSENS_MASK_Velocity(xsens_output_mode)) {
     //DOWNLINK_SEND_DEBUG(xsens_len,xsens_msg_buf);
         inter_mcu_state.speed[AXIS_X] = XSENS_DATA_Velocity_vx(xsens_msg_buf,offset);
-        inter_mcu_state.speed[AXIS_Y] = XSENS_DATA_Velocity_vy(xsens_msg_buf,offset);
-        inter_mcu_state.speed[AXIS_Z] = XSENS_DATA_Velocity_vz(xsens_msg_buf,offset);
+        inter_mcu_state.speed[AXIS_Y] = XSENS_NED * XSENS_DATA_Velocity_vy(xsens_msg_buf,offset);
+#ifndef USE_VFILTER
+        inter_mcu_state.speed[AXIS_Z] = XSENS_NED * XSENS_DATA_Velocity_vz(xsens_msg_buf,offset);
         gps_climb = (int16_t)(-inter_mcu_state.speed[AXIS_Z] * 100);
+#endif
         gps_gspeed = (uint16_t)(sqrt(inter_mcu_state.speed[AXIS_X]*inter_mcu_state.speed[AXIS_X] + inter_mcu_state.speed[AXIS_Y]*inter_mcu_state.speed[AXIS_Y]) * 100);
         offset += XSENS_DATA_Velocity_LENGTH;
       }
       if (XSENS_MASK_Status(xsens_output_mode)) {
         xsens_msg_status = XSENS_DATA_Status_status(xsens_msg_buf,offset);
+        if (bit_is_set(xsens_msg_status,2)) gps_mode = 0x03; // gps fix
+        else gps_mode = 0;
         offset += XSENS_DATA_Status_LENGTH;
       }
       if (XSENS_MASK_TimeStamp(xsens_output_settings)) {
