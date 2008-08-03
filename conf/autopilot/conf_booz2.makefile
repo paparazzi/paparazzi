@@ -75,6 +75,40 @@ sim.srcs += $(BOOZ_PRIV)/booz_stabilization_int.c
 sim.srcs += $(BOOZ_PRIV)/booz_supervision_int.c
 
 
+# test leds
+test_led.ARCHDIR = $(ARCHI)
+test_led.ARCH = arm7tdmi
+test_led.TARGET = test_led
+test_led.TARGETDIR = test_led
+
+test_led.CFLAGS += -DCONFIG=\"tiny_1_1.h\" -I$(BOOZ_PRIV_ARCH)
+test_led.srcs += $(BOOZ_PRIV)/test_led.c
+test_led.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./1000.))' -DTIME_LED=1
+test_led.CFLAGS += -DLED
+test_led.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
+
+
+# test modem
+test_modem.ARCHDIR = $(ARCHI)
+test_modem.ARCH = arm7tdmi
+test_modem.TARGET = test_modem
+test_modem.TARGETDIR = test_modem
+
+test_modem.CFLAGS += -DCONFIG=\"tiny_1_1.h\" -I$(BOOZ_PRIV_ARCH)
+test_modem.srcs += $(BOOZ_PRIV)/test_modem.c
+test_modem.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./1000.))' -DTIME_LED=1
+test_modem.CFLAGS += -DLED
+test_modem.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
+
+test_modem.CFLAGS += -DUSE_UART0 -DUART0_BAUD=B9600
+test_modem.srcs += $(SRC_ARCH)/uart_hw.c
+
+test_modem.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart0 
+test_modem.srcs += downlink.c pprz_transport.c
+
+test_modem.CFLAGS += -DBOOZ_ANALOG_BARO_PERIOD='SYS_TICS_OF_SEC((1./100.))'
+test_modem.srcs += $(BOOZ_PRIV)/booz_analog_baro.c
+
 
 # test imu
 test_imu.ARCHDIR = $(ARCHI)
