@@ -101,6 +101,69 @@ typedef uint8_t unit_t;
   }
 
 
+#define PeriodicPrescaleBy5( _code_0, _code_1, _code_2, _code_3, _code_4) { \
+    static uint8_t _50hz = 0;						\
+    _50hz++;								\
+    if (_50hz >= 5) _50hz = 0;						\
+    switch (_50hz) {							\
+    case 0:								\
+      _code_0;								\
+      break;								\
+    case 1:								\
+      _code_1;								\
+      break;								\
+    case 2:								\
+      _code_2;								\
+      break;								\
+    case 3:								\
+      _code_3;								\
+      break;								\
+    case 4:								\
+      _code_4;								\
+      break;								\
+    }									\
+  }
+
+#define PeriodicPrescaleBy10( _code_0, _code_1, _code_2, _code_3, _code_4, _code_5, _code_6, _code_7, _code_8, _code_9) { \
+    static uint8_t _cnt = 0;						\
+    _cnt++;								\
+    if (_cnt >= 10) _cnt = 0;						\
+    switch (_cnt) {							\
+    case 0:								\
+      _code_0;								\
+      break;								\
+    case 1:								\
+      _code_1;								\
+      break;								\
+    case 2:								\
+      _code_2;								\
+      break;								\
+    case 3:								\
+      _code_3;								\
+      break;								\
+    case 4:								\
+      _code_4;								\
+      break;								\
+    case 5:								\
+      _code_5;								\
+      break;								\
+    case 6:								\
+      _code_6;								\
+      break;								\
+    case 7:								\
+      _code_7;								\
+      break;								\
+    case 8:								\
+      _code_8;								\
+      break;								\
+    case 9:								\
+      _code_9;								\
+      break;								\
+    }									\
+  }
+
+
+
 
 
 #endif /* STD_H */

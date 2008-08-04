@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<!DOCTYPE telemetry SYSTEM "telemetry.dtd">
+<telemetry>
+
+
+  <process name="Controller">
+    <mode name="default">
+      <message name="ALIVE"             period="5."/>
+      <message name="DL_VALUE"          period="1."/>
+    </mode>
+    <mode name="debug">
+      <message name="DL_VALUE"          period=".5"/>
+    </mode>
+  </process>
+
+
+
+  <process name="Filter">
+
+    <mode name="default">
+    </mode>
+
+    <mode name="raw_sensors">
+    </mode>
+
+    <mode name="scaled_sensors">
+    </mode>
+
+    <mode name="simulation">
+    </mode>
+
+  </process>
+
+
+</telemetry>

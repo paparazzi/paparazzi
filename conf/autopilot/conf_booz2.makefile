@@ -82,7 +82,7 @@ ctl.TARGET = ctl
 ctl.TARGETDIR = ctl
 
 ctl.CFLAGS += -DCONFIG=\"tiny_1_1.h\" -I$(BOOZ_PRIV) -I$(BOOZ_PRIV_ARCH)
-ctl.srcs += $(BOOZ_PRIV)/booz_controller_main.c
+ctl.srcs += $(BOOZ_PRIV)/booz2_controller_main.c
 ctl.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./1000.))' 
 #-DTIME_LED=1
 ctl.CFLAGS += -DLED
