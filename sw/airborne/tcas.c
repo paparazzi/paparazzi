@@ -60,8 +60,8 @@ uint8_t tcas_acs_status[NB_ACS];
 #define TCAS_ALIM 10.
 #endif
 
-#ifndef TCAS_DT_MAX
-#define TCAS_DT_MAX 1500 // ms
+#ifndef TCAS_DT_MAX     // ms (lost com and timeout)
+#define TCAS_DT_MAX 1500
 #endif
 
 #define TCAS_HUGE_TAU 100*TCAS_TAU_TA
@@ -81,6 +81,12 @@ void tcas_init( void ) {
 
 /* conflicts detection and monitoring */
 void tcas_periodic_task_1Hz( void ) {
+  // no TCAS under security_height
+  if (estimator_z < GROUND_ALT + SECURITY_HEIGHT) {
+    uint8_t i;
+    for (i = 0; i < NB_ACS; i++) tcas_acs_status[i] = TCAS_NO_ALARM;
+    return;
+  }
   // test possible conflicts
   float tau_min = tcas_tau_ta;
   uint8_t ac_id_close = AC_ID;
