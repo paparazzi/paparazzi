@@ -73,6 +73,33 @@ sim.srcs += $(BOOZ_PRIV)/booz_cmp_flt_quat_int.c
 sim.srcs += $(BOOZ_PRIV)/booz_guidance_int.c
 sim.srcs += $(BOOZ_PRIV)/booz_stabilization_int.c
 sim.srcs += $(BOOZ_PRIV)/booz_supervision_int.c
+sim.srcs += $(BOOZ_PRIV)/booz_a_la_mkk.c
+
+# Controller MCU
+ctl.ARCHDIR = $(ARCHI)
+ctl.ARCH = arm7tdmi
+ctl.TARGET = ctl
+ctl.TARGETDIR = ctl
+
+ctl.CFLAGS += -DCONFIG=\"tiny_1_1.h\" -I$(BOOZ_PRIV) -I$(BOOZ_PRIV_ARCH)
+ctl.srcs += $(BOOZ_PRIV)/booz_controller_main.c
+ctl.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./1000.))' 
+#-DTIME_LED=1
+ctl.CFLAGS += -DLED
+ctl.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
+
+ctl.CFLAGS += -DUSE_UART0 -DUART0_BAUD=B9600
+ctl.srcs += $(SRC_ARCH)/uart_hw.c
+
+ctl.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart0 
+ctl.srcs += $(BOOZ_PRIV)/booz2_controller_telemetry.c downlink.c pprz_transport.c
+
+ctl.CFLAGS += -DDATALINK=PPRZ -DPPRZ_UART=Uart0
+ctl.srcs += $(BOOZ)/booz_datalink.c
+
+
+ctl.CFLAGS += -DBOOZ_ANALOG_BARO_LED=2 -DBOOZ_ANALOG_BARO_PERIOD='SYS_TICS_OF_SEC((1./100.))'
+ctl.srcs += $(BOOZ_PRIV)/booz_analog_baro.c
 
 
 # test leds
@@ -106,7 +133,7 @@ test_modem.srcs += $(SRC_ARCH)/uart_hw.c
 test_modem.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart0 
 test_modem.srcs += downlink.c pprz_transport.c
 
-test_modem.CFLAGS += -DBOOZ_ANALOG_BARO_PERIOD='SYS_TICS_OF_SEC((1./100.))'
+test_modem.CFLAGS += -DBOOZ_ANALOG_BARO_LED=2 -DBOOZ_ANALOG_BARO_PERIOD='SYS_TICS_OF_SEC((1./100.))'
 test_modem.srcs += $(BOOZ_PRIV)/booz_analog_baro.c
 
 
