@@ -1,0 +1,1746 @@
+<configuration time_of_day="1127312642.57" data_file="test.data">
+  <conf>
+    <aircraft name="Morue1" ac_id="0" airframe="airframes/microjet1.xml" radio="radios/mc3030.xml" flight_plan="flight_plans/muret3.xml">
+      <flight_plan NAME="example t2 - Muret" LON0="1.27289" MAX_DIST_FROM_HOME="1000" GROUND_ALT="185" SECURITY_HEIGHT="25" QFU="270" ALT="250" LAT0="43.46223">
+        <rc_control>
+          <mode NAME="AUTO1">
+            <setting VAR="ir_pitch_neutral" RANGE="60." RC="gain_1_up" TYPE="int16"/>
+            <setting VAR="ir_roll_neutral" RANGE="-60." RC="gain_1_down" TYPE="int16"/>
+          </mode>
+          <mode NAME="AUTO2">
+            <setting VAR="course_pgain" RANGE="0.1" RC="gain_1_up" TYPE="float"/>
+            <setting VAR="pitch_of_roll" RANGE=".2" RC="gain_1_down" TYPE="float"/>
+          </mode>
+        </rc_control>
+        <waypoints UTM_X0="360284.8" UTM_Y0="4813595.5">
+          <waypoint Y="35.0" LON="1.27618631405" NAME="AF" X="267.5" LAT="43.4625948985" ALT="215."/>
+          <waypoint Y="285.0" LON="1.27312587027" NAME="3" X="25.0" LAT="43.464799741" ALT="250."/>
+          <waypoint Y="210.0" LON="1.27484411158" NAME="4" X="162.5" LAT="43.4641503744" ALT="250."/>
+          <waypoint Y="60.0" LON="1.27407935592" NAME="5" X="97.5" LAT="43.4627882109" ALT="250."/>
+          <waypoint Y="217.5" LON="1.27122790867" NAME="2" X="-130.0" LAT="43.4641632754" ALT="250."/>
+          <waypoint Y="60.0" LON="1.2716390001" NAME="1" X="-100.0" LAT="43.4627513408" ALT="250."/>
+          <waypoint Y="30.0" LON="1.27288231142" NAME="RWAY" X="0.0" LAT="43.4625000078" ALT="185."/>
+          <waypoint Y="30.0" LON="1.27288231142" NAME="HOME" X="0.0" LAT="43.4625000078" ALT="250."/>
+          <waypoint Y="200.0" NAME="IAF" X="267.5" ALT="250."/>
+        </waypoints>
+        <include Y="200" NAME="slow" PROCEDURE="circles.xml" X="00" ROTATE="0">
+          <arg NAME="vz" VALUE="0.5"/>
+          <arg NAME="top" VALUE="GROUND_ALT+200"/>
+          <arg NAME="bottom" VALUE="GROUND_ALT+50"/>
+          <with FROM="event1" TO="fast.climb"/>
+        </include>
+        <include Y="200" NAME="fast" PROCEDURE="circles.xml" X="00" ROTATE="0">
+          <arg NAME="rad" VALUE="150"/>
+          <arg NAME="bottom" VALUE="GROUND_ALT+50"/>
+          <with FROM="event1" TO="xyz"/>
+        </include>
+        <include Y="150" NAME="hippo1" PROCEDURE="hippo.xml" X="-100" ROTATE="0">
+          <arg NAME="alt" VALUE="GROUND_ALT+100"/>
+          <with FROM="event1" TO="huit"/>
+        </include>
+        <blocks>
+          <block NAME="init">
+            <while COND="(!launch)"/>
+            <heading GAZ="0.8" PITCH="0.15" COURSE="QFU" UNTIL="(estimator_flight_time > 8)" VMODE="gaz"/>
+            <heading PITCH="0.15" CLIMB="3.0" COURSE="QFU" UNTIL="(estimator_z > SECURITY_ALT)" VMODE="climb"/>
+          </block>
+          <block NAME="deux">
+            <exception COND="(RcEvent1())" DEROUTE="hippo1.loop"/>
+            <circle WP="HOME" ALT="GROUND_ALT+50" RADIUS="75"/>
+          </block>
+          <block NAME="huit">
+            <exception COND="(RcEvent1())" DEROUTE="slow.climb"/>
+            <while>
+              <go WP="1" HMODE="route" FROM="5"/>
+              <go WP="2" HMODE="route"/>
+              <go WP="3" HMODE="route"/>
+              <go WP="4" HMODE="route"/>
+              <go WP="5" HMODE="route"/>
+            </while>
+          </block>
+          <block NAME="xyz">
+            <exception COND="(RcEvent1())" DEROUTE="land"/>
+            <xyz/>
+          </block>
+          <block NAME="land">
+            <exception COND="(RcEvent1())" DEROUTE="rdg"/>
+            <exception COND="(GROUND_ALT+10> estimator_z)" DEROUTE="rdg"/>
+            <exception COND="(RcEvent2())" DEROUTE="stop"/>
+            <circle WP="2" ALT="215" RADIUS="50" UNTIL="And(225 > estimator_z, Qdr(0))"/>
+            <go WP="IAF" ALT="215"/>
+            <go WP="AF" ALT="215"/>
+            <go WP="RWAY" HMODE="route" VMODE="glide"/>
+          </block>
+          <block NAME="rdg">
+            <exception COND="(RcEvent1())" DEROUTE="land"/>
+            <heading PITCH="0.15" CLIMB="2.0" COURSE="QFU" UNTIL="(estimator_z > GROUND_ALT+25)" VMODE="climb"/>
+            <deroute BLOCK="land"/>
+          </block>
+          <block NAME="stop">
+            <exception COND="(RcEvent1())" DEROUTE="rdg"/>
+            <stay WP="HOME" VMODE="gaz" GAZ="0"/>
+          </block>
+        </blocks>
+      </flight_plan>
+      <airframe name="Microjet one" ctl_board="V1_2" gps="SAM_LS">
+        <section name="adc" prefix="ADC_CHANNEL_">
+          <define name="IR1" value="1"/>
+          <define name="IR2" value="0"/>
+          <define name="AIRSPEED" value="2"/>
+          <define name="CURRENT " value="3"/>
+          <define name="BAT" value="4"/>
+        </section>
+        <servos min="1000" neutral="1500" max="2000">
+          <servo name="GAZ" no="3" min="1000" neutral="1000" max="2000"/>
+          <servo name="AILEVON_LEFT" no="0" min="1800" neutral="1492" max="1179"/>
+          <servo name="AILEVON_RIGHT" no="2" min="1990" neutral="1662" max="1389"/>
+        </servos>
+        <command>
+          <set servo="GAZ" value="2 * @THROTTLE"/>
+          <let var="aileron" value="@ROLL * AILEVON_AILERON_RATE"/>
+          <let var="elevator" value="@PITCH * AILEVON_ELEVATOR_RATE"/>
+          <set servo="AILEVON_LEFT" value="$aileron + $elevator"/>
+          <set servo="AILEVON_RIGHT" value="$aileron - $elevator"/>
+        </command>
+        <section name="MIXER">
+          <define name="AILEVON_AILERON_RATE" value="0.55"/>
+          <define name="AILEVON_ELEVATOR_RATE" value="0.75"/>
+        </section>
+        <section name="INFRARED" prefix="IR_">
+          <define name="ADC_ROLL_NEUTRAL" value="0"/>
+          <define name="ADC_PITCH_NEUTRAL" value="1040"/>
+          <define name="ROLL_NEUTRAL_DEFAULT" value="0" unit="deg"/>
+          <define name="PITCH_NEUTRAL_DEFAULT" value="0" unit="deg"/>
+          <define name="DEFAULT_CONTRAST" value="400"/>
+          <define name="RAD_OF_IR_CONTRAST" value="0.666"/>
+          <linear name="RollOfIrs" arity="2" coeff1="1" coeff2="-1"/>
+          <linear name="PitchOfIrs" arity="2" coeff1="1" coeff2="1"/>
+        </section>
+        <section name="PID">
+          <define name="ROLL_PGAIN" value="7000."/>
+          <define name="PITCH_OF_ROLL" value="0.2"/>
+          <define name="PITCH_PGAIN" value="10000."/>
+          <define name="MAX_ROLL" value="0.4"/>
+          <define name="MAX_PITCH" value="0.35"/>
+          <define name="MIN_PITCH" value="-0.35"/>
+          <define name="AILERON_OF_GAZ" value="-0.13"/>
+        </section>
+        <section name="ALT" prefix="CLIMB_">
+          <define name="PITCH_PGAIN" value="-0.1"/>
+          <define name="PITCH_IGAIN" value="0.025"/>
+          <define name="PGAIN" value="-0.025"/>
+          <define name="IGAIN" value="0.01"/>
+          <define name="MAX" value="1."/>
+          <define name="LEVEL_GAZ" value="0.21"/>
+          <define name="GAZ_OF_CLIMB" value="0.16" unit="% / m/s"/>
+          <define name="PITCH_OF_VZ_PGAIN" value="0.00"/>
+        </section>
+        <section name="NAV">
+          <define name="COURSE_PGAIN" value="-0.3"/>
+          <define name="ALTITUDE_PGAIN" value="-0.05"/>
+          <define name="NAV_PITCH" value="0."/>
+        </section>
+        <section name="BAT">
+          <define name="MILLIAMP_PER_PERCENT" value="2.16"/>
+          <define name="VOLTAGE_ADC_A" value="0.016768"/>
+          <define name="VOLTAGE_ADC_B" value="0.089803"/>
+          <define name="VoltageOfAdc(adc)" value="(VOLTAGE_ADC_A * adc + VOLTAGE_ADC_B)"/>
+          <define name="LOW_BATTERY" value="90" unit="1e-1V"/>
+        </section>
+        <section name="MISC">
+          <define name="NOMINAL_AIRSPEED" value="15."/>
+          <define name="CARROT" value="5." unit="s"/>
+        </section>
+        <section name="SIMU">
+          <define name="ROLL_RESPONSE_FACTOR" value="5."/>
+          <define name="YAW_RESPONSE_FACTOR" value="1."/>
+          <define name="WEIGHT" value="0.45"/>
+        </section>
+        <section name="FAILSAFE" prefix="FAILSAFE_">
+          <define name="DELAY_WITHOUT_GPS" value="2" unit="s"/>
+          <define name="DEFAULT_GAZ" value="CLIMB_LEVEL_GAZ+0.05" unit="%"/>
+          <define name="DEFAULT_ROLL" value="0.17" unit="rad"/>
+          <define name="DEFAULT_PITCH" value="0.08" unit="rad"/>
+          <define name="HOME_RADIUS" value="50" unit="m"/>
+        </section>
+      </airframe>
+      <radio MAX="2100" SYNC="5000" NAME="mc3030" MIN="850">
+        <channel CTL="D" NEUTRAL="1000" MAX="2200" FUNCTION="THROTTLE" MIN="1000" AVERAGE="0"/>
+        <channel CTL="C" NEUTRAL="1600" MAX="2200" FUNCTION="ROLL" MIN="1000" AVERAGE="0"/>
+        <channel CTL="B" NEUTRAL="1600" MAX="2200" FUNCTION="PITCH" MIN="1000" AVERAGE="0"/>
+        <channel CTL="A" NEUTRAL="1600" MAX="2200" FUNCTION="YAW" MIN="1000" AVERAGE="0"/>
+        <channel CTL="G" NEUTRAL="1600" MAX="2200" FUNCTION="MODE" MIN="1000" AVERAGE="10"/>
+        <channel CTL="E" NEUTRAL="1600" MAX="2200" FUNCTION="GAIN1" MIN="1000" AVERAGE="10"/>
+        <channel CTL="F" NEUTRAL="1600" MAX="2200" FUNCTION="GAIN2" MIN="1000" AVERAGE="10"/>
+        <channel CTL="H" NEUTRAL="1600" MAX="2200" FUNCTION="SWITCH1" MIN="1000" AVERAGE="10"/>
+        <channel CTL="I" NEUTRAL="1600" MAX="2200" FUNCTION="CALIB" MIN="1000" AVERAGE="10"/>
+      </radio>
+    </aircraft>
+    <aircraft name="Thon1" ac_id="1" airframe="airframes/twinstar1.xml" radio="radios/cockpitMM.xml" flight_plan="flight_plans/muret_cw.xml">
+      <flight_plan SECURITY_HEIGHT="25" lat0="47.4820" lon0="11.0945" ground_alt="730" qfu="0" alt="772" ir_square_utmx_min="657530.0" ir_square_utmy_max="5261130.0" ir_square_width="180.0" ir_correct_steps="2" max_dist_from_home="300" name="Garmisch">
+        <rc_control>
+          <mode NAME="AUTO1">
+            <setting VAR="ir_pitch_neutral" RANGE="60." RC="gain_1_up" TYPE="int16"/>
+            <setting VAR="ir_roll_neutral" RANGE="-60." RC="gain_1_down" TYPE="int16"/>
+          </mode>
+          <mode NAME="AUTO2">
+            <setting VAR="course_pgain" RANGE="0.1" RC="gain_1_up" TYPE="float"/>
+            <setting VAR="pitch_of_roll" RANGE=".2" RC="gain_1_down" TYPE="float"/>
+          </mode>
+        </rc_control>
+        <waypoints>
+          <waypoint name="HOME" x="-1.05263157895" y="-3.68421052632" alt="0."/>
+        </waypoints>
+        <include name="zz" procedure="zigzag.xml" x="120" y="-20" rotate="0">
+          <arg name="alt" value="GROUND_ALT+50"/>
+          <arg name="rad" value="35"/>
+          <with from="end" to="init"/>
+        </include>
+        <blocks>
+          <block NAME="init">
+            <deroute BLOCK="zz.takeoff"/>
+          </block>
+        </blocks>
+      </flight_plan>
+      <airframe name="Thon1" ctl_board="V1_2_1" gps="SAM_LS">
+        <section name="adc" prefix="ADC_CHANNEL_">
+          <define name="IR1" value="1"/>
+          <define name="IR2" value="2"/>
+        </section>
+        <servos min="1000" neutral="1500" max="2000">
+          <servo name="GAZ" no="9" min="1000" neutral="1000" max="2000"/>
+          <servo name="AILERON_LEFT" no="2" min="1100" neutral="1492" max="2000"/>
+          <servo name="AILERON_RIGHT" no="6" min="1000" neutral="1385" max="1833"/>
+          <servo name="ELEVATOR" no="7" min="1816" neutral="1586" max="1220"/>
+          <servo name="RUDDER" no="3" min="1270" neutral="1546" max="1850"/>
+        </servos>
+        <command>
+          <set servo="GAZ" value="2 * @THROTTLE"/>
+          <set servo="ELEVATOR" value="@PITCH"/>
+          <let var="roll" value="@ROLL"/>
+          <set servo="AILERON_LEFT" value="($roll > 0 ? 1 : AILERON_DIFF) * $roll"/>
+          <set servo="AILERON_RIGHT" value="($roll > 0 ? AILERON_DIFF : 1) * $roll"/>
+          <set servo="RUDDER" value="@YAW + @ROLL*COMBI_SWITCH"/>
+        </command>
+        <section name="MIXER">
+          <define name="AILERON_DIFF" value="0.66"/>
+          <define name="COMBI_SWITCH" value="1.0"/>
+        </section>
+        <section name="INFRARED" prefix="IR_">
+          <define name="ROLL_NEUTRAL_DEFAULT" value="0" unit="deg"/>
+          <define name="PITCH_NEUTRAL_DEFAULT" value="0" unit="deg"/>
+          <define name="ADC_ROLL_NEUTRAL" value="-1005"/>
+          <define name="ADC_PITCH_NEUTRAL" value="75"/>
+          <define name="DEFAULT_CONTRAST" value="200"/>
+          <define name="RAD_OF_IR_CONTRAST" value="0.75"/>
+          <linear name="RollOfIrs" arity="2" coeff1="-1" coeff2="-1"/>
+          <linear name="PitchOfIrs" arity="2" coeff1="-1" coeff2="1"/>
+        </section>
+        <section name="PID">
+          <define name="ROLL_PGAIN" value="10000."/>
+          <define name="PITCH_OF_ROLL" value="0.0"/>
+          <define name="PITCH_PGAIN" value="15000."/>
+          <define name="MAX_ROLL" value="0.35"/>
+          <define name="MAX_PITCH" value="0.35"/>
+          <define name="MIN_PITCH" value="-0.35"/>
+          <define name="AILERON_OF_GAZ" value="0"/>
+        </section>
+        <section name="ALT" prefix="CLIMB_">
+          <define name="PITCH_PGAIN" value="-0.1"/>
+          <define name="PITCH_IGAIN" value="0.025"/>
+          <define name="PGAIN" value="-0.03"/>
+          <define name="IGAIN" value="0.1"/>
+          <define name="MAX" value="1."/>
+          <define name="LEVEL_GAZ" value="0.45"/>
+          <define name="GAZ_OF_CLIMB" value="0.2" unit="%/(m/s)"/>
+          <define name="PITCH_OF_VZ_PGAIN" value="0.00"/>
+        </section>
+        <section name="NAV">
+          <define name="COURSE_PGAIN" value="-0.4"/>
+          <define name="ALTITUDE_PGAIN" value="-0.025"/>
+          <define name="NAV_PITCH" value="0."/>
+        </section>
+        <section name="BAT">
+          <define name="MILLIAMP_PER_PERCENT" value="2.16"/>
+          <define name="VOLTAGE_ADC_A" value="0.0175"/>
+          <define name="VOLTAGE_ADC_B" value="0.088"/>
+          <define name="VoltageOfAdc(adc)" value="(VOLTAGE_ADC_A * adc + VOLTAGE_ADC_B)"/>
+          <define name="LOW_BATTERY" value="93" unit="1e-1V"/>
+        </section>
+        <section name="MISC">
+          <define name="NOMINAL_AIRSPEED" value="12." unit="m/s"/>
+          <define name="CARROT" value="5." unit="s"/>
+        </section>
+        <section name="SIMU">
+          <define name="ROLL_RESPONSE_FACTOR" value="2."/>
+          <define name="YAW_RESPONSE_FACTOR" value="1.25"/>
+          <define name="WEIGHT" value="1.3"/>
+        </section>
+        <section name="FAILSAFE" prefix="FAILSAFE_">
+          <define name="DELAY_WITHOUT_GPS" value="2" unit="s"/>
+          <define name="DEFAULT_GAZ" value="CLIMB_LEVEL_GAZ+0.05" unit="%"/>
+          <define name="DEFAULT_ROLL" value="0.17" unit="rad"/>
+          <define name="DEFAULT_PITCH" value="0.08" unit="rad"/>
+          <define name="HOME_RADIUS" value="50" unit="m"/>
+        </section>
+        <section name="CAM" prefix="CAM_">
+          <define name="THETA0" value="45" unit="deg"/>
+          <define name="PHI0" value="-45" unit="deg"/>
+        </section>
+      </airframe>
+      <radio MAX="2100" SYNC="5000" NAME="cockpitMM" MIN="850">
+        <channel CTL="D" NEUTRAL="1498" MAX="1000" FUNCTION="ROLL" MIN="2000" AVERAGE="0"/>
+        <channel CTL="C" NEUTRAL="1498" MAX="1000" FUNCTION="PITCH" MIN="2000" AVERAGE="0"/>
+        <channel CTL="B" NEUTRAL="1498" MAX="1000" FUNCTION="YAW" MIN="2000" AVERAGE="0"/>
+        <channel CTL="A" NEUTRAL="1120" MAX="2000" FUNCTION="THROTTLE" MIN="1120" AVERAGE="0"/>
+        <channel CTL="G" NEUTRAL="1498" MAX="1000" FUNCTION="GAIN1" MIN="2000" AVERAGE="10"/>
+        <channel CTL="E" NEUTRAL="1500" MAX="1000" FUNCTION="MODE" MIN="2000" AVERAGE="10"/>
+        <channel CTL="F" NEUTRAL="1500" MAX="1000" FUNCTION="CALIB" MIN="2000" AVERAGE="10"/>
+      </radio>
+    </aircraft>
+    <aircraft name="Thon2" ac_id="2" airframe="airframes/twinstar2.xml" radio="radios/cockpitMM.xml" flight_plan="flight_plans/mav05_ccw.xml">
+      <flight_plan SECURITY_HEIGHT="25" lat0="47.4820" lon0="11.0945" ground_alt="730" qfu="280" alt="780" ir_square_utmx_min="657530.0" ir_square_utmy_max="5261130.0" ir_square_width="180.0" ir_correct_steps="2" max_dist_from_home="300" name="Garmisch">
+        <rc_control>
+          <mode NAME="AUTO1">
+            <setting VAR="ir_pitch_neutral" RANGE="0.1" RC="gain_1_up" TYPE="float"/>
+            <setting VAR="ir_roll_neutral" RANGE="-0.1" RC="gain_1_down" TYPE="float"/>
+          </mode>
+          <mode NAME="AUTO2">
+            <setting VAR="ir_pitch_neutral" RANGE="0.1" RC="gain_1_up" TYPE="float"/>
+            <setting VAR="ir_roll_neutral" RANGE="-0.1" RC="gain_1_down" TYPE="float"/>
+          </mode>
+        </rc_control>
+        <waypoints>
+          <waypoint NAME="HOME" X="-30" Y="30"/>
+        </waypoints>
+        <include name="zz" procedure="zigzag.xml" x="0" y="0" rotate="0">
+          <arg name="alt" value="GROUND_ALT+50"/>
+          <arg name="rad" value="-40"/>
+          <with from="end" to="init"/>
+        </include>
+        <blocks>
+          <block NAME="init">
+            <deroute BLOCK="zz.takeoff"/>
+          </block>
+        </blocks>
+      </flight_plan>
+      <airframe name="Thon2" ctl_board="V1_2_1" gps="SAM_LS">
+        <section name="adc" prefix="ADC_CHANNEL_">
+          <define name="IR1" value="1"/>
+          <define name="IR2" value="2"/>
+        </section>
+        <servos min="1000" neutral="1500" max="2000">
+          <servo name="GAZ" no="9" min="1000" neutral="1000" max="2000"/>
+          <servo name="AILERON_LEFT" no="2" min="1100" neutral="1492" max="2000"/>
+          <servo name="AILERON_RIGHT" no="6" min="1000" neutral="1385" max="1833"/>
+          <servo name="ELEVATOR" no="7" min="1816" neutral="1586" max="1220"/>
+          <servo name="RUDDER" no="3" min="1270" neutral="1546" max="1850"/>
+        </servos>
+        <command>
+          <set servo="GAZ" value="2 * @THROTTLE"/>
+          <set servo="ELEVATOR" value="@PITCH"/>
+          <let var="roll" value="@ROLL"/>
+          <set servo="AILERON_LEFT" value="($roll > 0 ? 1 : AILERON_DIFF) * $roll"/>
+          <set servo="AILERON_RIGHT" value="($roll > 0 ? AILERON_DIFF : 1) * $roll"/>
+          <set servo="RUDDER" value="@YAW + @ROLL*COMBI_SWITCH"/>
+        </command>
+        <section name="MIXER">
+          <define name="AILERON_DIFF" value="0.66"/>
+          <define name="COMBI_SWITCH" value="1.0"/>
+        </section>
+        <section name="INFRARED" prefix="IR_">
+          <define name="ROLL_NEUTRAL_DEFAULT" value="0" unit="deg"/>
+          <define name="PITCH_NEUTRAL_DEFAULT" value="0" unit="deg"/>
+          <define name="ADC_ROLL_NEUTRAL" value="-1005"/>
+          <define name="ADC_PITCH_NEUTRAL" value="75"/>
+          <define name="DEFAULT_CONTRAST" value="200"/>
+          <define name="RAD_OF_IR_CONTRAST" value="0.75"/>
+          <linear name="RollOfIrs" arity="2" coeff1="-1" coeff2="-1"/>
+          <linear name="PitchOfIrs" arity="2" coeff1="-1" coeff2="1"/>
+        </section>
+        <section name="PID">
+          <define name="ROLL_PGAIN" value="10000."/>
+          <define name="PITCH_OF_ROLL" value="0.0"/>
+          <define name="PITCH_PGAIN" value="15000."/>
+          <define name="MAX_ROLL" value="0.35"/>
+          <define name="MAX_PITCH" value="0.35"/>
+          <define name="MIN_PITCH" value="-0.35"/>
+          <define name="AILERON_OF_GAZ" value="0"/>
+        </section>
+        <section name="ALT" prefix="CLIMB_">
+          <define name="PITCH_PGAIN" value="-0.1"/>
+          <define name="PITCH_IGAIN" value="0.025"/>
+          <define name="PGAIN" value="-0.03"/>
+          <define name="IGAIN" value="0.1"/>
+          <define name="MAX" value="1."/>
+          <define name="LEVEL_GAZ" value="0.45"/>
+          <define name="PITCH_OF_VZ_PGAIN" value="0.05"/>
+          <define name="GAZ_OF_CLIMB" value="0.2" unit="%/(m/s)"/>
+        </section>
+        <section name="NAV">
+          <define name="COURSE_PGAIN" value="-0.4"/>
+          <define name="ALTITUDE_PGAIN" value="-0.025"/>
+          <define name="NAV_PITCH" value="0."/>
+        </section>
+        <section name="BAT">
+          <define name="MILLIAMP_PER_PERCENT" value="2.16"/>
+          <define name="VOLTAGE_ADC_A" value="0.0175"/>
+          <define name="VOLTAGE_ADC_B" value="0.088"/>
+          <define name="VoltageOfAdc(adc)" value="(VOLTAGE_ADC_A * adc + VOLTAGE_ADC_B)"/>
+          <define name="LOW_BATTERY" value="93" unit="1e-1V"/>
+        </section>
+        <section name="MISC">
+          <define name="NOMINAL_AIRSPEED" value="12." unit="m/s"/>
+          <define name="CARROT" value="5." unit="s"/>
+        </section>
+        <section name="SIMU">
+          <define name="ROLL_RESPONSE_FACTOR" value="2."/>
+          <define name="YAW_RESPONSE_FACTOR" value="1.3"/>
+          <define name="WEIGHT" value="1.3"/>
+        </section>
+        <section name="FAILSAFE" prefix="FAILSAFE_">
+          <define name="DELAY_WITHOUT_GPS" value="2" unit="s"/>
+          <define name="DEFAULT_GAZ" value="CLIMB_LEVEL_GAZ+0.05" unit="%"/>
+          <define name="DEFAULT_ROLL" value="0.17" unit="rad"/>
+          <define name="DEFAULT_PITCH" value="0.08" unit="rad"/>
+          <define name="HOME_RADIUS" value="50" unit="m"/>
+        </section>
+        <section name="CAM" prefix="CAM_">
+          <define name="THETA0" value="45" unit="deg"/>
+          <define name="PHI0" value="45" unit="deg"/>
+        </section>
+      </airframe>
+      <radio MAX="2100" SYNC="5000" NAME="cockpitMM" MIN="850">
+        <channel CTL="D" NEUTRAL="1498" MAX="1000" FUNCTION="ROLL" MIN="2000" AVERAGE="0"/>
+        <channel CTL="C" NEUTRAL="1498" MAX="1000" FUNCTION="PITCH" MIN="2000" AVERAGE="0"/>
+        <channel CTL="B" NEUTRAL="1498" MAX="1000" FUNCTION="YAW" MIN="2000" AVERAGE="0"/>
+        <channel CTL="A" NEUTRAL="1120" MAX="2000" FUNCTION="THROTTLE" MIN="1120" AVERAGE="0"/>
+        <channel CTL="G" NEUTRAL="1498" MAX="1000" FUNCTION="GAIN1" MIN="2000" AVERAGE="10"/>
+        <channel CTL="E" NEUTRAL="1500" MAX="1000" FUNCTION="MODE" MIN="2000" AVERAGE="10"/>
+        <channel CTL="F" NEUTRAL="1500" MAX="1000" FUNCTION="CALIB" MIN="2000" AVERAGE="10"/>
+      </radio>
+    </aircraft>
+    <aircraft name="Twinstar3" ac_id="3" airframe="airframes/twinstar3.xml" radio="radios/mc3030.xml" flight_plan="flight_plans/castagnac.xml">
+      <flight_plan NAME="Castagnac" LON0="1.3525" MAX_DIST_FROM_HOME="500" GROUND_ALT="300" SECURITY_HEIGHT="25" QFU="245" ALT="400" LAT0="43.2303">
+        <rc_control>
+          <mode NAME="AUTO1">
+            <setting VAR="ir_pitch_neutral" RANGE="0.1" RC="gain_1_up" TYPE="float"/>
+            <setting VAR="ir_roll_neutral" RANGE="-0.1" RC="gain_2_up" TYPE="float"/>
+            <setting VAR="pitch_pgain" RANGE="-1000." RC="gain_1_down" TYPE="int16"/>
+            <setting VAR="roll_pgain" RANGE="-1000." RC="gain_2_down" TYPE="int16"/>
+          </mode>
+          <mode NAME="AUTO2">
+            <setting VAR="ir_pitch_neutral" RANGE="0.1" RC="gain_1_up" TYPE="float"/>
+            <setting VAR="ir_roll_neutral" RANGE="-0.1" RC="gain_2_up" TYPE="float"/>
+            <setting VAR="aileron_of_gaz" RANGE="0.1" RC="gain_1_down" TYPE="float"/>
+            <setting VAR="pitch_of_vz" RANGE=".1" RC="gain_2_down" TYPE="float"/>
+          </mode>
+        </rc_control>
+        <waypoints>
+          <waypoint name="HOME" x="0." y="0." alt="340."/>
+          <waypoint x="-102.5" y="230." name="Chateau"/>
+          <waypoint name="Eglise" x="142.5" y="-245." alt="0."/>
+          <waypoint x="-387.5" y="-185." name="Labau"/>
+        </waypoints>
+        <blocks>
+          <block NAME="home">
+            <exception COND="(RcEvent1())" DEROUTE="Chateau"/>
+            <exception COND="(RcEvent2())" DEROUTE="Village"/>
+            <circle WP="HOME" ALT="GROUND_ALT+50" RADIUS="50"/>
+          </block>
+          <block name="Chateau">
+            <exception COND="(RcEvent1())" DEROUTE="Village"/>
+            <exception COND="(RcEvent2())" DEROUTE="home"/>
+            <circle wp="Chateau" radius="50"/>
+          </block>
+          <block name="Village">
+            <exception cond="(RcEvent2())" deroute="home"/>
+            <go wp="Labau" alt="400"/>
+            <go wp="Eglise" from="Labau" hmode="route" alt="370"/>
+            <deroute block="Eglise"/>
+          </block>
+          <block name="Eglise">
+            <exception COND="(RcEvent2())" DEROUTE="home"/>
+            <circle wp="Eglise" radius="50" alt="370"/>
+          </block>
+        </blocks>
+      </flight_plan>
+      <airframe name="Twinstar trois" ctl_board="V1_2_1" gps="SAM_LS">
+        <section name="adc" prefix="ADC_CHANNEL_">
+          <define name="IR1" value="1"/>
+          <define name="IR2" value="2"/>
+        </section>
+        <servos min="1000" neutral="1500" max="2000">
+          <servo name="MOTOR_LEFT" no="3" min="1000" neutral="1000" max="2000"/>
+          <servo name="MOTOR_RIGHT" no="9" min="1000" neutral="1000" max="2000"/>
+          <servo name="AILERON_LEFT" no="0" max="1190" neutral="1600" min="1850"/>
+          <servo name="AILERON_RIGHT" no="2" max="1375" neutral="1650" min="2000"/>
+          <servo name="ELEVATOR" no="6" max="1816" neutral="1530" min="1220"/>
+          <servo name="RUDDER" no="7" max="1270" neutral="1550" min="1850"/>
+          <servo name="CAM_ROLL" no="8" max="1816" neutral="1530" min="1220"/>
+          <servo name="CAM_PITCH" no="4" max="1270" neutral="1450" min="1850"/>
+        </servos>
+        <command>
+          <set servo="MOTOR_LEFT" value="2 * @THROTTLE"/>
+          <set servo="MOTOR_RIGHT" value="2 * @THROTTLE"/>
+          <set servo="ELEVATOR" value="@PITCH"/>
+          <let var="roll" value="@ROLL"/>
+          <set servo="AILERON_LEFT" value="($roll > 0 ? 1 : AILERON_DIFF) * $roll"/>
+          <set servo="AILERON_RIGHT" value="($roll > 0 ? AILERON_DIFF : 1) * $roll"/>
+          <set servo="RUDDER" value="@YAW + @ROLL*COMBI_SWITCH"/>
+          <set servo="CAM_ROLL" value="@GAIN1"/>
+          <set servo="CAM_PITCH" value="@CALIB"/>
+        </command>
+        <section name="MIXER">
+          <define name="AILERON_DIFF" value="0.66"/>
+          <define name="COMBI_SWITCH" value="1.0"/>
+        </section>
+        <section name="INFRARED" prefix="IR_">
+          <define name="ROLL_NEUTRAL_DEFAULT" value="6" unit="deg"/>
+          <define name="PITCH_NEUTRAL_DEFAULT" value="5" unit="deg"/>
+          <define name="DEFAULT_CONTRAST" value="200"/>
+          <define name="RAD_OF_IR_CONTRAST" value="0.75"/>
+          <linear name="RollOfIrs" arity="2" coeff1="-1" coeff2="-1"/>
+          <linear name="PitchOfIrs" arity="2" coeff1="-1" coeff2="1"/>
+          <define name="RAD_OF_IR_MAX_VALUE" value="0.0045"/>
+          <define name="RAD_OF_IR_MIN_VALUE" value="0.00075"/>
+          <define name="ADC_ROLL_NEUTRAL" value="-1026"/>
+          <define name="ADC_PITCH_NEUTRAL" value="5"/>
+        </section>
+        <section name="PID">
+          <define name="ROLL_PGAIN" value="10000."/>
+          <define name="PITCH_OF_ROLL" value="0.0"/>
+          <define name="PITCH_PGAIN" value="15000."/>
+          <define name="MAX_ROLL" value="0.35"/>
+          <define name="MAX_PITCH" value="0.35"/>
+          <define name="MIN_PITCH" value="-0.35"/>
+          <define name="AILERON_OF_GAZ" value="0.0"/>
+        </section>
+        <section name="ALT" prefix="CLIMB_">
+          <define name="PITCH_PGAIN" value="-0.1"/>
+          <define name="PITCH_IGAIN" value="0.025"/>
+          <define name="PGAIN" value="-0.03"/>
+          <define name="IGAIN" value="0.1"/>
+          <define name="MAX" value="1."/>
+          <define name="LEVEL_GAZ" value="0.31"/>
+          <define name="PITCH_OF_VZ_PGAIN" value="0.05"/>
+          <define name="GAZ_OF_CLIMB" value="0.2" unit="%/(m/s)"/>
+        </section>
+        <section name="NAV">
+          <define name="COURSE_PGAIN" value="-0.2"/>
+          <define name="ALTITUDE_PGAIN" value="-0.025"/>
+          <define name="NAV_PITCH" value="0."/>
+        </section>
+        <section name="BAT">
+          <define name="MILLIAMP_PER_PERCENT" value="0.86"/>
+          <define name="VOLTAGE_ADC_A" value="0.0175"/>
+          <define name="VOLTAGE_ADC_B" value="0.088"/>
+          <define name="VoltageOfAdc(adc)" value="(VOLTAGE_ADC_A * adc + VOLTAGE_ADC_B)"/>
+          <define name="LOW_BATTERY" value="93" unit="1e-1V"/>
+        </section>
+        <section name="MISC">
+          <define name="NOMINAL_AIRSPEED" value="10." unit="m/s"/>
+          <define name="CARROT" value="5." unit="s"/>
+        </section>
+        <section name="SIMU">
+          <define name="ROLL_RESPONSE_FACTOR" value="1."/>
+          <define name="YAW_RESPONSE_FACTOR" value="1."/>
+          <define name="WEIGHT" value="1.3"/>
+        </section>
+        <section name="FAILSAFE" prefix="FAILSAFE_">
+          <define name="DELAY_WITHOUT_GPS" value="2" unit="s"/>
+          <define name="DEFAULT_GAZ" value="CLIMB_LEVEL_GAZ+0.05" unit="%"/>
+          <define name="DEFAULT_ROLL" value="0.17" unit="rad"/>
+          <define name="DEFAULT_PITCH" value="0.08" unit="rad"/>
+          <define name="HOME_RADIUS" value="50" unit="m"/>
+        </section>
+      </airframe>
+      <radio MAX="2100" SYNC="5000" NAME="mc3030" MIN="850">
+        <channel CTL="D" NEUTRAL="1000" MAX="2200" FUNCTION="THROTTLE" MIN="1000" AVERAGE="0"/>
+        <channel CTL="C" NEUTRAL="1600" MAX="2200" FUNCTION="ROLL" MIN="1000" AVERAGE="0"/>
+        <channel CTL="B" NEUTRAL="1600" MAX="2200" FUNCTION="PITCH" MIN="1000" AVERAGE="0"/>
+        <channel CTL="A" NEUTRAL="1600" MAX="2200" FUNCTION="YAW" MIN="1000" AVERAGE="0"/>
+        <channel CTL="G" NEUTRAL="1600" MAX="2200" FUNCTION="MODE" MIN="1000" AVERAGE="10"/>
+        <channel CTL="E" NEUTRAL="1600" MAX="2200" FUNCTION="GAIN1" MIN="1000" AVERAGE="10"/>
+        <channel CTL="F" NEUTRAL="1600" MAX="2200" FUNCTION="GAIN2" MIN="1000" AVERAGE="10"/>
+        <channel CTL="H" NEUTRAL="1600" MAX="2200" FUNCTION="SWITCH1" MIN="1000" AVERAGE="10"/>
+        <channel CTL="I" NEUTRAL="1600" MAX="2200" FUNCTION="CALIB" MIN="1000" AVERAGE="10"/>
+      </radio>
+    </aircraft>
+    <aircraft name="Plaster1" ac_id="4" airframe="airframes/plaster1.xml" radio="radios/cockpitMM.xml" flight_plan="flight_plans/mav05_cw.xml">
+      <flight_plan SECURITY_HEIGHT="25" lat0="47.4820" lon0="11.0945" ground_alt="730" qfu="280" alt="780" ir_square_utmx_min="657530.0" ir_square_utmy_max="5261130.0" ir_square_width="180.0" ir_correct_steps="2" max_dist_from_home="300" name="Garmisch">
+        <rc_control>
+          <mode NAME="AUTO1">
+            <setting VAR="ir_pitch_neutral" RANGE="0.1" RC="gain_1_up" TYPE="float"/>
+            <setting VAR="ir_roll_neutral" RANGE="-0.1" RC="gain_1_down" TYPE="float"/>
+          </mode>
+          <mode NAME="AUTO2">
+            <setting VAR="ir_pitch_neutral" RANGE="0.1" RC="gain_1_up" TYPE="float"/>
+            <setting VAR="ir_roll_neutral" RANGE="-0.1" RC="gain_1_down" TYPE="float"/>
+          </mode>
+        </rc_control>
+        <waypoints>
+          <waypoint name="HOME" x="-30" y="30" alt="730."/>
+        </waypoints>
+        <include name="zz" procedure="zigzag.xml" x="0" y="0" rotate="0">
+          <arg name="alt" value="GROUND_ALT+30"/>
+          <arg name="rad" value="30"/>
+          <with from="end" to="init"/>
+        </include>
+        <blocks>
+          <block NAME="init">
+            <deroute BLOCK="zz.takeoff"/>
+          </block>
+        </blocks>
+      </flight_plan>
+      <airframe name="Plaster White 1" ctl_board="V1_2_1" gps="SAM_LS">
+        <section name="adc" prefix="ADC_CHANNEL_">
+          <define name="IR1" value="1"/>
+          <define name="IR2" value="0"/>
+          <define name="IR_NB_SAMPLES" value="16"/>
+        </section>
+        <servos min="1000" neutral="1500" max="2000">
+          <servo name="GAZ" no="0" min="1000" neutral="1000" max="1750"/>
+          <servo name="AILEVON_RIGHT" no="2" min="1800" neutral="1480" max="1200"/>
+          <servo name="AILEVON_LEFT" no="6" min="1800" neutral="1440" max="1200"/>
+        </servos>
+        <command>
+          <set servo="GAZ" value="2 * @THROTTLE"/>
+          <let var="aileron" value="@ROLL * AILEVON_AILERON_RATE"/>
+          <let var="elevator" value="@PITCH * AILEVON_ELEVATOR_RATE"/>
+          <set servo="AILEVON_LEFT" value="$aileron + $elevator"/>
+          <set servo="AILEVON_RIGHT" value="$aileron - $elevator"/>
+        </command>
+        <section name="MIXER">
+          <define name="AILEVON_AILERON_RATE" value="0.55"/>
+          <define name="AILEVON_ELEVATOR_RATE" value="0.75"/>
+        </section>
+        <section name="INFRARED" prefix="IR_">
+          <define name="ROLL_NEUTRAL_DEFAULT" value="-4.3" unit="deg"/>
+          <define name="PITCH_NEUTRAL_DEFAULT" value="3" unit="deg"/>
+          <define name="DEFAULT_CONTRAST" value="400"/>
+          <define name="RAD_OF_IR_CONTRAST" value="0.6"/>
+          <define name="RAD_OF_IR_MIN_VALUE" value="0.0008"/>
+          <define name="RAD_OF_IR_MAX_VALUE" value="0.008"/>
+          <linear name="RollOfIrs" arity="2" coeff1="-1" coeff2="-1"/>
+          <linear name="PitchOfIrs" arity="2" coeff1="-1" coeff2="1"/>
+          <define name="ADC_ROLL_NEUTRAL" value="-1042"/>
+          <define name="ADC_PITCH_NEUTRAL" value="10"/>
+        </section>
+        <section name="PID">
+          <define name="ROLL_PGAIN" value="6000."/>
+          <define name="PITCH_OF_ROLL" value="0.2"/>
+          <define name="PITCH_PGAIN" value="9000."/>
+          <define name="MAX_ROLL" value="0.4"/>
+          <define name="AUTO1_MAX_ROLL" value="0.8"/>
+          <define name="MAX_PITCH" value="0.25"/>
+          <define name="MIN_PITCH" value="-0.35"/>
+          <define name="AILERON_OF_GAZ" value="-0.13"/>
+        </section>
+        <section name="ALT" prefix="CLIMB_">
+          <define name="PITCH_PGAIN" value="-0.1"/>
+          <define name="PITCH_IGAIN" value="1.0"/>
+          <define name="PGAIN" value="-0.025"/>
+          <define name="IGAIN" value="0.01"/>
+          <define name="MAX" value="1."/>
+          <define name="LEVEL_GAZ" value="0.50"/>
+          <define name="GAZ_OF_CLIMB" value="0.15" unit="% / m/s"/>
+          <define name="PITCH_OF_VZ_PGAIN" value="0.1"/>
+        </section>
+        <section name="NAV">
+          <define name="COURSE_PGAIN" value="-0.3"/>
+          <define name="ALTITUDE_PGAIN" value="-0.05"/>
+          <define name="NAV_PITCH" value="0."/>
+        </section>
+        <section name="BAT" channel="3">
+          <define name="MILLIAMP_PER_PERCENT" value="1.24"/>
+          <define name="VOLTAGE_ADC_A" value="0.01727"/>
+          <define name="VOLTAGE_ADC_B" value="0.2965"/>
+          <define name="VoltageOfAdc(adc)" value="(VOLTAGE_ADC_A * adc + VOLTAGE_ADC_B)"/>
+          <define name="LOW_BATTERY" value="90" unit="1e-1V"/>
+        </section>
+        <section name="SERVOS" channel="6">
+          <define name="SERVOS_VOLTAGE_ADC_A" value="0.005661"/>
+          <define name="SERVOS_VOLTAGE_ADC_B" value="0.014948"/>
+          <define name="ServosVoltageOfAdc(adc)" value="(VOLTAGE_ADC_A * adc + VOLTAGE_ADC_B)"/>
+        </section>
+        <section name="MISC">
+          <define name="NOMINAL_AIRSPEED" value="9."/>
+          <define name="CARROT" value="5." unit="s"/>
+        </section>
+        <section name="SIMU">
+          <define name="ROLL_RESPONSE_FACTOR" value="-10."/>
+          <define name="YAW_RESPONSE_FACTOR" value="1."/>
+          <define name="WEIGHT" value="0.45"/>
+        </section>
+        <section name="FAILSAFE" prefix="FAILSAFE_">
+          <define name="DELAY_WITHOUT_GPS" value="2" unit="s"/>
+          <define name="DEFAULT_GAZ" value="CLIMB_LEVEL_GAZ+0.05" unit="%"/>
+          <define name="DEFAULT_ROLL" value="0.17" unit="rad"/>
+          <define name="DEFAULT_PITCH" value="0.08" unit="rad"/>
+          <define name="HOME_RADIUS" value="50" unit="m"/>
+        </section>
+        <section name="CAM" prefix="CAM_">
+          <define name="THETA0" value="45" unit="deg"/>
+          <define name="PHI0" value="-45" unit="deg"/>
+        </section>
+      </airframe>
+      <radio MAX="2100" SYNC="5000" NAME="cockpitMM" MIN="850">
+        <channel CTL="D" NEUTRAL="1498" MAX="1000" FUNCTION="ROLL" MIN="2000" AVERAGE="0"/>
+        <channel CTL="C" NEUTRAL="1498" MAX="1000" FUNCTION="PITCH" MIN="2000" AVERAGE="0"/>
+        <channel CTL="B" NEUTRAL="1498" MAX="1000" FUNCTION="YAW" MIN="2000" AVERAGE="0"/>
+        <channel CTL="A" NEUTRAL="1120" MAX="2000" FUNCTION="THROTTLE" MIN="1120" AVERAGE="0"/>
+        <channel CTL="G" NEUTRAL="1498" MAX="1000" FUNCTION="GAIN1" MIN="2000" AVERAGE="10"/>
+        <channel CTL="E" NEUTRAL="1500" MAX="1000" FUNCTION="MODE" MIN="2000" AVERAGE="10"/>
+        <channel CTL="F" NEUTRAL="1500" MAX="1000" FUNCTION="CALIB" MIN="2000" AVERAGE="10"/>
+      </radio>
+    </aircraft>
+    <aircraft name="Microjet" ac_id="5" airframe="airframes/microjet1.xml" radio="radios/mc3030.xml" flight_plan="flight_plans/mav05_mj.xml">
+      <flight_plan SECURITY_HEIGHT="25" lat0="47.4820" lon0="11.0945" ground_alt="730" qfu="280" alt="780" ir_square_utmx_min="657530.0" ir_square_utmy_max="5261130.0" ir_square_width="180.0" ir_correct_steps="2" max_dist_from_home="300" name="Garmisch">
+        <rc_control>
+          <mode NAME="AUTO1">
+            <setting VAR="ir_pitch_neutral" RANGE="0.1" RC="gain_1_up" TYPE="float"/>
+            <setting VAR="ir_roll_neutral" RANGE="-0.1" RC="gain_2_up" TYPE="float"/>
+            <setting VAR="pitch_pgain" RANGE="-1000." RC="gain_1_down" TYPE="int16"/>
+            <setting VAR="roll_pgain" RANGE="-1000." RC="gain_2_down" TYPE="int16"/>
+          </mode>
+          <mode NAME="AUTO2">
+            <setting VAR="ir_pitch_neutral" RANGE="0.1" RC="gain_1_up" TYPE="float"/>
+            <setting VAR="ir_roll_neutral" RANGE="-0.1" RC="gain_2_up" TYPE="float"/>
+            <setting VAR="aileron_of_gaz" RANGE="0.1" RC="gain_1_down" TYPE="float"/>
+            <setting VAR="pitch_of_vz" RANGE=".1" RC="gain_2_down" TYPE="float"/>
+          </mode>
+        </rc_control>
+        <waypoints>
+          <waypoint name="HOME" x="0" y="0"/>
+          <waypoint name="CENTER" x="50" y="50"/>
+        </waypoints>
+        <blocks>
+          <block NAME="init">
+            <circle wp="HOME" radius="50" alt="GROUND_ALT+50"/>
+          </block>
+        </blocks>
+      </flight_plan>
+      <airframe name="Microjet one" ctl_board="V1_2" gps="SAM_LS">
+        <section name="adc" prefix="ADC_CHANNEL_">
+          <define name="IR1" value="1"/>
+          <define name="IR2" value="0"/>
+          <define name="AIRSPEED" value="2"/>
+          <define name="CURRENT " value="3"/>
+          <define name="BAT" value="4"/>
+        </section>
+        <servos min="1000" neutral="1500" max="2000">
+          <servo name="GAZ" no="3" min="1000" neutral="1000" max="2000"/>
+          <servo name="AILEVON_LEFT" no="0" min="1800" neutral="1492" max="1179"/>
+          <servo name="AILEVON_RIGHT" no="2" min="1990" neutral="1662" max="1389"/>
+        </servos>
+        <command>
+          <set servo="GAZ" value="2 * @THROTTLE"/>
+          <let var="aileron" value="@ROLL * AILEVON_AILERON_RATE"/>
+          <let var="elevator" value="@PITCH * AILEVON_ELEVATOR_RATE"/>
+          <set servo="AILEVON_LEFT" value="$aileron + $elevator"/>
+          <set servo="AILEVON_RIGHT" value="$aileron - $elevator"/>
+        </command>
+        <section name="MIXER">
+          <define name="AILEVON_AILERON_RATE" value="0.55"/>
+          <define name="AILEVON_ELEVATOR_RATE" value="0.75"/>
+        </section>
+        <section name="INFRARED" prefix="IR_">
+          <define name="ADC_ROLL_NEUTRAL" value="0"/>
+          <define name="ADC_PITCH_NEUTRAL" value="1040"/>
+          <define name="ROLL_NEUTRAL_DEFAULT" value="0" unit="deg"/>
+          <define name="PITCH_NEUTRAL_DEFAULT" value="0" unit="deg"/>
+          <define name="DEFAULT_CONTRAST" value="400"/>
+          <define name="RAD_OF_IR_CONTRAST" value="0.666"/>
+          <linear name="RollOfIrs" arity="2" coeff1="1" coeff2="-1"/>
+          <linear name="PitchOfIrs" arity="2" coeff1="1" coeff2="1"/>
+        </section>
+        <section name="PID">
+          <define name="ROLL_PGAIN" value="7000."/>
+          <define name="PITCH_OF_ROLL" value="0.2"/>
+          <define name="PITCH_PGAIN" value="10000."/>
+          <define name="MAX_ROLL" value="0.4"/>
+          <define name="MAX_PITCH" value="0.35"/>
+          <define name="MIN_PITCH" value="-0.35"/>
+          <define name="AILERON_OF_GAZ" value="-0.13"/>
+        </section>
+        <section name="ALT" prefix="CLIMB_">
+          <define name="PITCH_PGAIN" value="-0.1"/>
+          <define name="PITCH_IGAIN" value="0.025"/>
+          <define name="PGAIN" value="-0.025"/>
+          <define name="IGAIN" value="0.01"/>
+          <define name="MAX" value="1."/>
+          <define name="LEVEL_GAZ" value="0.21"/>
+          <define name="GAZ_OF_CLIMB" value="0.16" unit="% / m/s"/>
+          <define name="PITCH_OF_VZ_PGAIN" value="0.00"/>
+        </section>
+        <section name="NAV">
+          <define name="COURSE_PGAIN" value="-0.3"/>
+          <define name="ALTITUDE_PGAIN" value="-0.05"/>
+          <define name="NAV_PITCH" value="0."/>
+        </section>
+        <section name="BAT">
+          <define name="MILLIAMP_PER_PERCENT" value="2.16"/>
+          <define name="VOLTAGE_ADC_A" value="0.016768"/>
+          <define name="VOLTAGE_ADC_B" value="0.089803"/>
+          <define name="VoltageOfAdc(adc)" value="(VOLTAGE_ADC_A * adc + VOLTAGE_ADC_B)"/>
+          <define name="LOW_BATTERY" value="90" unit="1e-1V"/>
+        </section>
+        <section name="MISC">
+          <define name="NOMINAL_AIRSPEED" value="15."/>
+          <define name="CARROT" value="5." unit="s"/>
+        </section>
+        <section name="SIMU">
+          <define name="ROLL_RESPONSE_FACTOR" value="5."/>
+          <define name="YAW_RESPONSE_FACTOR" value="1."/>
+          <define name="WEIGHT" value="0.45"/>
+        </section>
+        <section name="FAILSAFE" prefix="FAILSAFE_">
+          <define name="DELAY_WITHOUT_GPS" value="2" unit="s"/>
+          <define name="DEFAULT_GAZ" value="CLIMB_LEVEL_GAZ+0.05" unit="%"/>
+          <define name="DEFAULT_ROLL" value="0.17" unit="rad"/>
+          <define name="DEFAULT_PITCH" value="0.08" unit="rad"/>
+          <define name="HOME_RADIUS" value="50" unit="m"/>
+        </section>
+      </airframe>
+      <radio MAX="2100" SYNC="5000" NAME="mc3030" MIN="850">
+        <channel CTL="D" NEUTRAL="1000" MAX="2200" FUNCTION="THROTTLE" MIN="1000" AVERAGE="0"/>
+        <channel CTL="C" NEUTRAL="1600" MAX="2200" FUNCTION="ROLL" MIN="1000" AVERAGE="0"/>
+        <channel CTL="B" NEUTRAL="1600" MAX="2200" FUNCTION="PITCH" MIN="1000" AVERAGE="0"/>
+        <channel CTL="A" NEUTRAL="1600" MAX="2200" FUNCTION="YAW" MIN="1000" AVERAGE="0"/>
+        <channel CTL="G" NEUTRAL="1600" MAX="2200" FUNCTION="MODE" MIN="1000" AVERAGE="10"/>
+        <channel CTL="E" NEUTRAL="1600" MAX="2200" FUNCTION="GAIN1" MIN="1000" AVERAGE="10"/>
+        <channel CTL="F" NEUTRAL="1600" MAX="2200" FUNCTION="GAIN2" MIN="1000" AVERAGE="10"/>
+        <channel CTL="H" NEUTRAL="1600" MAX="2200" FUNCTION="SWITCH1" MIN="1000" AVERAGE="10"/>
+        <channel CTL="I" NEUTRAL="1600" MAX="2200" FUNCTION="CALIB" MIN="1000" AVERAGE="10"/>
+      </radio>
+    </aircraft>
+    <aircraft name="Gorazoptere_brushless_3DMG" ac_id="6" airframe="airframes/gorazoptere_brushless_3DMG.xml" radio="radios/mc3030.xml" flight_plan="flight_plans/muret_mini.xml">
+      <flight_plan NAME="Muret mini" LON0="1.27289" MAX_DIST_FROM_HOME="1000" GROUND_ALT="185" SECURITY_HEIGHT="25" QFU="270" ALT="250" LAT0="43.46223">
+        <rc_control>
+          <mode NAME="AUTO1">
+            <setting VAR="ir_pitch_neutral" RANGE="0.1" RC="gain_1_up" TYPE="float"/>
+            <setting VAR="ir_roll_neutral" RANGE="-0.1" RC="gain_1_down" TYPE="float"/>
+          </mode>
+          <mode NAME="AUTO2">
+            <setting VAR="aileron_of_gaz" RANGE="0.1" RC="gain_1_down" TYPE="float"/>
+            <setting VAR="pitch_of_vz" RANGE=".1" RC="gain_1_up" TYPE="float"/>
+          </mode>
+        </rc_control>
+        <waypoints UTM_X0="360284.8" UTM_Y0="4813595.5">
+          <waypoint Y="120.0" NAME="HOME" X="0.0" ALT="250."/>
+        </waypoints>
+        <blocks>
+          <block NAME="home">
+            <exception COND="(RcEvent1())" DEROUTE="c50"/>
+            <circle WP="HOME" ALT="GROUND_ALT+50" RADIUS="-75"/>
+          </block>
+          <block NAME="c50">
+            <exception COND="(RcEvent1())" DEROUTE="c40"/>
+            <exception COND="(RcEvent2())" DEROUTE="home"/>
+            <circle WP="HOME" ALT="GROUND_ALT+50" RADIUS="-50"/>
+          </block>
+          <block NAME="c40">
+            <exception COND="(RcEvent1())" DEROUTE="c30"/>
+            <exception COND="(RcEvent2())" DEROUTE="home"/>
+            <circle WP="HOME" ALT="GROUND_ALT+50" RADIUS="-40"/>
+          </block>
+          <block NAME="c30">
+            <exception COND="(RcEvent1())" DEROUTE="c20"/>
+            <circle WP="HOME" ALT="GROUND_ALT+30" RADIUS="-30"/>
+          </block>
+          <block NAME="c20">
+            <exception COND="(RcEvent1())" DEROUTE="home"/>
+            <circle WP="HOME" ALT="GROUND_ALT+25" RADIUS="-20"/>
+          </block>
+        </blocks>
+      </flight_plan>
+      <airframe name="Gorazoptere_brushless_3DMG" ctl_board="V1_2_1" gps="SAM_LS">
+        <section name="IMU_3DMG" prefix="IMU_"/>
+        <section name="RATE_LOOP">
+          <define name="ROLL_DOT_PGAIN" value="-192."/>
+          <define name="ROLL_DOT_IGAIN" value="0."/>
+          <define name="ROLL_DOT_DGAIN" value="0."/>
+          <define name="PITCH_DOT_PGAIN" value="-192."/>
+          <define name="PITCH_DOT_IGAIN" value="0."/>
+          <define name="PITCH_DOT_DGAIN" value="0."/>
+          <define name="YAW_DOT_PGAIN" value="-100."/>
+          <define name="YAW_DOT_IGAIN" value="0."/>
+          <define name="YAW_DOT_DGAIN" value="0."/>
+        </section>
+        <section name="DESIRED_OF_RADIO" prefix="DESIRED_OF_RADIO_">
+          <define name="ROLL_DOT" value="0.015"/>
+          <define name="PITCH_DOT" value="0.015"/>
+          <define name="YAW_DOT" value="0.015"/>
+        </section>
+        <section name="adc" prefix="ADC_CHANNEL_">
+          <define name="IR1" value="0"/>
+          <define name="IR2" value="1"/>
+        </section>
+        <servos min="1000" neutral="1500" max="2000">
+          <servo name="MOTOR_FRONT" no="1" min="1250" neutral="1250" max="1850"/>
+          <servo name="MOTOR_BACK" no="2" min="1250" neutral="1250" max="1850"/>
+          <servo name="MOTOR_LEFT" no="3" min="1250" neutral="1250" max="1850"/>
+          <servo name="MOTOR_RIGHT" no="4" min="1250" neutral="1250" max="1850"/>
+        </servos>
+        <command>
+          <let var="roll" value="0.3  * @ROLL"/>
+          <let var="pitch" value="0.3  * @PITCH"/>
+          <let var="yaw" value="0.4  * @YAW"/>
+          <let var="throttle" value="2.0   * @THROTTLE"/>
+          <set servo="MOTOR_FRONT" value="$throttle + $pitch - $yaw"/>
+          <set servo="MOTOR_BACK" value="$throttle - $pitch - $yaw"/>
+          <set servo="MOTOR_RIGHT" value="$throttle + $roll  + $yaw"/>
+          <set servo="MOTOR_LEFT" value="$throttle - $roll  + $yaw"/>
+        </command>
+        <section name="INFRARED" prefix="IR_">
+          <define name="ROLL_NEUTRAL_DEFAULT" value="-1024"/>
+          <define name="PITCH_NEUTRAL_DEFAULT" value="0"/>
+          <define name="DEFAULT_CONTRAST" value="200"/>
+          <define name="RAD_OF_IR_CONTRAST" value="0.75"/>
+          <linear name="RollOfIrs" arity="2" coeff1="-1" coeff2="-1"/>
+          <linear name="PitchOfIrs" arity="2" coeff1="-1" coeff2="1"/>
+        </section>
+        <section name="PID">
+          <define name="ROLL_PGAIN" value="15000."/>
+          <define name="PITCH_OF_ROLL" value="0.0"/>
+          <define name="PITCH_PGAIN" value="15000."/>
+          <define name="MAX_ROLL" value="0.35"/>
+          <define name="MAX_PITCH" value="0.35"/>
+          <define name="MIN_PITCH" value="-0.35"/>
+        </section>
+        <section name="ALT" prefix="CLIMB_">
+          <define name="PITCH_PGAIN" value="-0.1"/>
+          <define name="PITCH_IGAIN" value="0.025"/>
+          <define name="PGAIN" value="-0.03"/>
+          <define name="IGAIN" value="0.1"/>
+          <define name="MAX" value="1."/>
+          <define name="LEVEL_GAZ" value="0.31"/>
+          <define name="PITCH_OF_VZ_PGAIN" value="0.05"/>
+          <define name="GAZ_OF_CLIMB" value="0.2" unit="%/(m/s)"/>
+        </section>
+        <section name="NAV">
+          <define name="COURSE_PGAIN" value="-0.2"/>
+          <define name="ALTITUDE_PGAIN" value="-0.025"/>
+          <define name="NAV_PITCH" value="0."/>
+        </section>
+        <section name="BAT">
+          <define name="MILLIAMP_PER_PERCENT" value="2.16"/>
+          <define name="VOLTAGE_ADC_A" value="0.0175"/>
+          <define name="VOLTAGE_ADC_B" value="0.088"/>
+          <define name="VoltageOfAdc(adc)" value="(VOLTAGE_ADC_A * adc + VOLTAGE_ADC_B)"/>
+          <define name="LOW_BATTERY" value="93" unit="1e-1V"/>
+        </section>
+        <section name="MISC">
+          <define name="NOMINAL_AIRSPEED" value="10." unit="m/s"/>
+          <define name="CARROT" value="5." unit="s"/>
+        </section>
+      </airframe>
+      <radio MAX="2100" SYNC="5000" NAME="mc3030" MIN="850">
+        <channel CTL="D" NEUTRAL="1000" MAX="2200" FUNCTION="THROTTLE" MIN="1000" AVERAGE="0"/>
+        <channel CTL="C" NEUTRAL="1600" MAX="2200" FUNCTION="ROLL" MIN="1000" AVERAGE="0"/>
+        <channel CTL="B" NEUTRAL="1600" MAX="2200" FUNCTION="PITCH" MIN="1000" AVERAGE="0"/>
+        <channel CTL="A" NEUTRAL="1600" MAX="2200" FUNCTION="YAW" MIN="1000" AVERAGE="0"/>
+        <channel CTL="G" NEUTRAL="1600" MAX="2200" FUNCTION="MODE" MIN="1000" AVERAGE="10"/>
+        <channel CTL="E" NEUTRAL="1600" MAX="2200" FUNCTION="GAIN1" MIN="1000" AVERAGE="10"/>
+        <channel CTL="F" NEUTRAL="1600" MAX="2200" FUNCTION="GAIN2" MIN="1000" AVERAGE="10"/>
+        <channel CTL="H" NEUTRAL="1600" MAX="2200" FUNCTION="SWITCH1" MIN="1000" AVERAGE="10"/>
+        <channel CTL="I" NEUTRAL="1600" MAX="2200" FUNCTION="CALIB" MIN="1000" AVERAGE="10"/>
+      </radio>
+    </aircraft>
+    <aircraft name="Gorazoptere_brushless_ANALOG" ac_id="7" airframe="airframes/gorazoptere_brushless_ANALOG.xml" radio="radios/mc3030.xml" flight_plan="flight_plans/muret_mini.xml">
+      <flight_plan NAME="Muret mini" LON0="1.27289" MAX_DIST_FROM_HOME="1000" GROUND_ALT="185" SECURITY_HEIGHT="25" QFU="270" ALT="250" LAT0="43.46223">
+        <rc_control>
+          <mode NAME="AUTO1">
+            <setting VAR="ir_pitch_neutral" RANGE="0.1" RC="gain_1_up" TYPE="float"/>
+            <setting VAR="ir_roll_neutral" RANGE="-0.1" RC="gain_1_down" TYPE="float"/>
+          </mode>
+          <mode NAME="AUTO2">
+            <setting VAR="aileron_of_gaz" RANGE="0.1" RC="gain_1_down" TYPE="float"/>
+            <setting VAR="pitch_of_vz" RANGE=".1" RC="gain_1_up" TYPE="float"/>
+          </mode>
+        </rc_control>
+        <waypoints UTM_X0="360284.8" UTM_Y0="4813595.5">
+          <waypoint Y="120.0" NAME="HOME" X="0.0" ALT="250."/>
+        </waypoints>
+        <blocks>
+          <block NAME="home">
+            <exception COND="(RcEvent1())" DEROUTE="c50"/>
+            <circle WP="HOME" ALT="GROUND_ALT+50" RADIUS="-75"/>
+          </block>
+          <block NAME="c50">
+            <exception COND="(RcEvent1())" DEROUTE="c40"/>
+            <exception COND="(RcEvent2())" DEROUTE="home"/>
+            <circle WP="HOME" ALT="GROUND_ALT+50" RADIUS="-50"/>
+          </block>
+          <block NAME="c40">
+            <exception COND="(RcEvent1())" DEROUTE="c30"/>
+            <exception COND="(RcEvent2())" DEROUTE="home"/>
+            <circle WP="HOME" ALT="GROUND_ALT+50" RADIUS="-40"/>
+          </block>
+          <block NAME="c30">
+            <exception COND="(RcEvent1())" DEROUTE="c20"/>
+            <circle WP="HOME" ALT="GROUND_ALT+30" RADIUS="-30"/>
+          </block>
+          <block NAME="c20">
+            <exception COND="(RcEvent1())" DEROUTE="home"/>
+            <circle WP="HOME" ALT="GROUND_ALT+25" RADIUS="-20"/>
+          </block>
+        </blocks>
+      </flight_plan>
+      <airframe name="Gorazoptere_brushless_ANALOG" ctl_board="V1_2_1" gps="SAM_LS">
+        <section name="IMU_ANALOG" prefix="IMU_">
+          <define name="INIT_EULER_DOT_VARIANCE_MAX" value="3"/>
+          <define name="INIT_EULER_DOT_NB_SAMPLES_MIN" value="10"/>
+          <define name="ADC_ROLL_DOT" value="1"/>
+          <define name="ADC_PITCH_DOT" value="2"/>
+          <define name="ADC_YAW_DOT" value="3"/>
+          <define name="ADC_ROLL_DOT_SIGN" value="-1"/>
+          <define name="ADC_PITCH_DOT_SIGN" value="1"/>
+          <define name="ADC_YAW_DOT_SIGN" value="-1"/>
+          <define name="ADC_ROLL_DOT_ZERO" value="512"/>
+          <define name="ADC_PITCH_DOT_ZERO" value="512"/>
+          <define name="ADC_YAW_DOT_ZERO" value="512"/>
+          <define name="ADC_ROLL_DOT_SCALE" value="(real_t) (0.9444 * 3.14159 / 180.0)"/>
+          <define name="ADC_PITCH_DOT_SCALE" value="(real_t) (0.9444 * 3.14159 / 180.0)"/>
+          <define name="ADC_YAW_DOT_SCALE" value="(real_t) (0.9444 * 3.14159 / 180.0)"/>
+          <define name="ADC_ACCELX" value="3"/>
+          <define name="ADC_ACCELY" value="4"/>
+          <define name="ADC_ACCELZ" value="5"/>
+          <define name="ADC_ACCELX_SIGN" value="-"/>
+          <define name="ADC_ACCELY_SIGN" value="+"/>
+          <define name="ADC_ACCELZ_SIGN" value="-"/>
+          <define name="ADC_ACCELX_ZERO" value="0x24A"/>
+          <define name="ADC_ACCELY_ZERO" value="0x280"/>
+          <define name="ADC_ACCELZ_ZERO" value="0x210"/>
+          <define name="ADC_ACCELX_SCALE" value="0x24A"/>
+          <define name="ADC_ACCELY_SCALE" value="0x280"/>
+          <define name="ADC_ACCELZ_SCALE" value="0x210"/>
+        </section>
+        <section name="RATE_LOOP">
+          <define name="ROLL_DOT_PGAIN" value="-100."/>
+          <define name="ROLL_DOT_IGAIN" value="0."/>
+          <define name="ROLL_DOT_DGAIN" value="0."/>
+          <define name="PITCH_DOT_PGAIN" value="-100."/>
+          <define name="PITCH_DOT_IGAIN" value="0."/>
+          <define name="PITCH_DOT_DGAIN" value="0."/>
+          <define name="YAW_DOT_PGAIN" value="-100."/>
+          <define name="YAW_DOT_IGAIN" value="0."/>
+          <define name="YAW_DOT_DGAIN" value="0."/>
+        </section>
+        <section name="DESIRED_OF_RADIO" prefix="DESIRED_OF_RADIO_">
+          <define name="ROLL_DOT" value="0.015"/>
+          <define name="PITCH_DOT" value="0.015"/>
+          <define name="YAW_DOT" value="0.015"/>
+        </section>
+        <section name="adc" prefix="ADC_CHANNEL_">
+          <define name="IR1" value="0"/>
+          <define name="IR2" value="1"/>
+          <define name="VSUPPLY" value="6"/>
+        </section>
+        <section name="servo">
+          <define name="SERVOS_FALLING_EDGE" value="1"/>
+        </section>
+        <servos min="1000" neutral="1500" max="2000">
+          <servo name="MOTOR_FRONT" no="1" min="1250" neutral="1250" max="1850"/>
+          <servo name="MOTOR_BACK" no="2" min="1250" neutral="1250" max="1850"/>
+          <servo name="MOTOR_LEFT" no="3" min="1250" neutral="1250" max="1850"/>
+          <servo name="MOTOR_RIGHT" no="4" min="1250" neutral="1250" max="1850"/>
+        </servos>
+        <command>
+          <let var="roll" value="0.3  * @ROLL"/>
+          <let var="pitch" value="0.3  * @PITCH"/>
+          <let var="yaw" value="-0.4  * @YAW"/>
+          <let var="throttle" value="2.0   * @THROTTLE"/>
+          <set servo="MOTOR_FRONT" value="$throttle + $pitch - $yaw"/>
+          <set servo="MOTOR_BACK" value="$throttle - $pitch - $yaw"/>
+          <set servo="MOTOR_RIGHT" value="$throttle + $roll  + $yaw"/>
+          <set servo="MOTOR_LEFT" value="$throttle - $roll  + $yaw"/>
+        </command>
+        <section name="INFRARED" prefix="IR_">
+          <define name="ADC_ROLL_NEUTRAL" value="0"/>
+          <define name="ADC_PITCH_NEUTRAL" value="1024"/>
+          <define name="ROLL_NEUTRAL_DEFAULT" value="0" unit="deg"/>
+          <define name="PITCH_NEUTRAL_DEFAULT" value="0" unit="deg"/>
+          <define name="DEFAULT_CONTRAST" value="200"/>
+          <define name="RAD_OF_IR_CONTRAST" value="0.75"/>
+          <linear name="RollOfIrs" arity="2" coeff1="-1" coeff2="1"/>
+          <linear name="PitchOfIrs" arity="2" coeff1="1" coeff2="1"/>
+        </section>
+        <section name="PID">
+          <define name="ROLL_PGAIN" value="15000."/>
+          <define name="PITCH_OF_ROLL" value="0.0"/>
+          <define name="PITCH_PGAIN" value="15000."/>
+          <define name="MAX_ROLL" value="0.35"/>
+          <define name="MAX_PITCH" value="0.35"/>
+          <define name="MIN_PITCH" value="-0.35"/>
+          <define name="AILERON_OF_GAZ" value="-0.13"/>
+        </section>
+        <section name="ALT" prefix="CLIMB_">
+          <define name="PITCH_PGAIN" value="-0.1"/>
+          <define name="PITCH_IGAIN" value="0.025"/>
+          <define name="PGAIN" value="-0.03"/>
+          <define name="IGAIN" value="0.1"/>
+          <define name="MAX" value="1."/>
+          <define name="LEVEL_GAZ" value="0.31"/>
+          <define name="PITCH_OF_VZ_PGAIN" value="0.05"/>
+          <define name="GAZ_OF_CLIMB" value="0.2" unit="%/(m/s)"/>
+        </section>
+        <section name="NAV">
+          <define name="COURSE_PGAIN" value="-0.2"/>
+          <define name="ALTITUDE_PGAIN" value="-0.025"/>
+          <define name="NAV_PITCH" value="0."/>
+        </section>
+        <section name="BAT">
+          <define name="MILLIAMP_PER_PERCENT" value="2.16"/>
+          <define name="VOLTAGE_ADC_A" value="0.0175"/>
+          <define name="VOLTAGE_ADC_B" value="0.088"/>
+          <define name="VoltageOfAdc(adc)" value="(VOLTAGE_ADC_A * adc + VOLTAGE_ADC_B)"/>
+          <define name="LOW_BATTERY" value="93" unit="1e-1V"/>
+        </section>
+        <section name="MISC">
+          <define name="NOMINAL_AIRSPEED" value="10." unit="m/s"/>
+          <define name="CARROT" value="5." unit="s"/>
+        </section>
+      </airframe>
+      <radio MAX="2100" SYNC="5000" NAME="mc3030" MIN="850">
+        <channel CTL="D" NEUTRAL="1000" MAX="2200" FUNCTION="THROTTLE" MIN="1000" AVERAGE="0"/>
+        <channel CTL="C" NEUTRAL="1600" MAX="2200" FUNCTION="ROLL" MIN="1000" AVERAGE="0"/>
+        <channel CTL="B" NEUTRAL="1600" MAX="2200" FUNCTION="PITCH" MIN="1000" AVERAGE="0"/>
+        <channel CTL="A" NEUTRAL="1600" MAX="2200" FUNCTION="YAW" MIN="1000" AVERAGE="0"/>
+        <channel CTL="G" NEUTRAL="1600" MAX="2200" FUNCTION="MODE" MIN="1000" AVERAGE="10"/>
+        <channel CTL="E" NEUTRAL="1600" MAX="2200" FUNCTION="GAIN1" MIN="1000" AVERAGE="10"/>
+        <channel CTL="F" NEUTRAL="1600" MAX="2200" FUNCTION="GAIN2" MIN="1000" AVERAGE="10"/>
+        <channel CTL="H" NEUTRAL="1600" MAX="2200" FUNCTION="SWITCH1" MIN="1000" AVERAGE="10"/>
+        <channel CTL="I" NEUTRAL="1600" MAX="2200" FUNCTION="CALIB" MIN="1000" AVERAGE="10"/>
+      </radio>
+    </aircraft>
+    <aircraft name="Ladybug" ac_id="8" airframe="airframes/ladybug.xml" radio="radios/cockpitMM.xml" flight_plan="flight_plans/muret_mini.xml">
+      <flight_plan NAME="Muret mini" LON0="1.27289" MAX_DIST_FROM_HOME="1000" GROUND_ALT="185" SECURITY_HEIGHT="25" QFU="270" ALT="250" LAT0="43.46223">
+        <rc_control>
+          <mode NAME="AUTO1">
+            <setting VAR="ir_pitch_neutral" RANGE="0.1" RC="gain_1_up" TYPE="float"/>
+            <setting VAR="ir_roll_neutral" RANGE="-0.1" RC="gain_1_down" TYPE="float"/>
+          </mode>
+          <mode NAME="AUTO2">
+            <setting VAR="aileron_of_gaz" RANGE="0.1" RC="gain_1_down" TYPE="float"/>
+            <setting VAR="pitch_of_vz" RANGE=".1" RC="gain_1_up" TYPE="float"/>
+          </mode>
+        </rc_control>
+        <waypoints UTM_X0="360284.8" UTM_Y0="4813595.5">
+          <waypoint Y="120.0" NAME="HOME" X="0.0" ALT="250."/>
+        </waypoints>
+        <blocks>
+          <block NAME="home">
+            <exception COND="(RcEvent1())" DEROUTE="c50"/>
+            <circle WP="HOME" ALT="GROUND_ALT+50" RADIUS="-75"/>
+          </block>
+          <block NAME="c50">
+            <exception COND="(RcEvent1())" DEROUTE="c40"/>
+            <exception COND="(RcEvent2())" DEROUTE="home"/>
+            <circle WP="HOME" ALT="GROUND_ALT+50" RADIUS="-50"/>
+          </block>
+          <block NAME="c40">
+            <exception COND="(RcEvent1())" DEROUTE="c30"/>
+            <exception COND="(RcEvent2())" DEROUTE="home"/>
+            <circle WP="HOME" ALT="GROUND_ALT+50" RADIUS="-40"/>
+          </block>
+          <block NAME="c30">
+            <exception COND="(RcEvent1())" DEROUTE="c20"/>
+            <circle WP="HOME" ALT="GROUND_ALT+30" RADIUS="-30"/>
+          </block>
+          <block NAME="c20">
+            <exception COND="(RcEvent1())" DEROUTE="home"/>
+            <circle WP="HOME" ALT="GROUND_ALT+25" RADIUS="-20"/>
+          </block>
+        </blocks>
+      </flight_plan>
+      <airframe name="Ladybug" ctl_board="V1_2" gps="SAM_LS">
+        <section name="adc" prefix="ADC_CHANNEL_">
+          <define name="IR1" value="1"/>
+          <define name="IR2" value="0"/>
+          <define name="IR_NB_SAMPLES" value="16"/>
+        </section>
+        <servos min="1000" neutral="1500" max="2000">
+          <servo name="GAZ" no="0" min="1250" neutral="1250" max="1850"/>
+          <servo name="AILEVON_RIGHT" no="2" min="1200" neutral="1495" max="2000"/>
+          <servo name="AILEVON_LEFT" no="4" min="1200" neutral="1540" max="2000"/>
+        </servos>
+        <command>
+          <set servo="GAZ" value="2 * @THROTTLE"/>
+          <let var="aileron" value="@ROLL * AILEVON_AILERON_RATE"/>
+          <let var="elevator" value="@PITCH * AILEVON_ELEVATOR_RATE"/>
+          <set servo="AILEVON_LEFT" value="$aileron + $elevator"/>
+          <set servo="AILEVON_RIGHT" value="$aileron - $elevator"/>
+        </command>
+        <section name="MIXER">
+          <define name="AILEVON_AILERON_RATE" value="0.55"/>
+          <define name="AILEVON_ELEVATOR_RATE" value="0.75"/>
+        </section>
+        <section name="INFRARED" prefix="IR_">
+          <define name="ROLL_NEUTRAL_DEFAULT" value="-5" unit="deg"/>
+          <define name="PITCH_NEUTRAL_DEFAULT" value="9" unit="deg"/>
+          <define name="DEFAULT_CONTRAST" value="400"/>
+          <define name="RAD_OF_IR_CONTRAST" value="0.6"/>
+          <define name="RAD_OF_IR_MIN_VALUE" value="0.0008"/>
+          <define name="RAD_OF_IR_MAX_VALUE" value="0.004"/>
+          <linear name="RollOfIrs" arity="2" coeff1="1" coeff2="-1"/>
+          <linear name="PitchOfIrs" arity="2" coeff1="1" coeff2="1"/>
+          <define name="ADC_ROLL_NEUTRAL" value="0"/>
+          <define name="ADC_PITCH_NEUTRAL" value="1020"/>
+        </section>
+        <section name="PID">
+          <define name="ROLL_PGAIN" value="6000."/>
+          <define name="PITCH_OF_ROLL" value="0.2"/>
+          <define name="PITCH_PGAIN" value="11000."/>
+          <define name="MAX_ROLL" value="0.4"/>
+          <define name="AUTO1_MAX_ROLL" value="0.8"/>
+          <define name="MAX_PITCH" value="0.25"/>
+          <define name="MIN_PITCH" value="-0.35"/>
+          <define name="AILERON_OF_GAZ" value="-0.04"/>
+        </section>
+        <section name="ALT" prefix="CLIMB_">
+          <define name="PITCH_PGAIN" value="-0.1"/>
+          <define name="PITCH_IGAIN" value="1.0"/>
+          <define name="PGAIN" value="-0.025"/>
+          <define name="IGAIN" value="0.01"/>
+          <define name="MAX" value="1."/>
+          <define name="LEVEL_GAZ" value="0.5"/>
+          <define name="GAZ_OF_CLIMB" value="0.15" unit="% / m/s"/>
+          <define name="PITCH_OF_VZ_PGAIN" value="0.08"/>
+        </section>
+        <section name="NAV">
+          <define name="COURSE_PGAIN" value="-0.3"/>
+          <define name="ALTITUDE_PGAIN" value="-0.05"/>
+          <define name="NAV_PITCH" value="0."/>
+        </section>
+        <section name="BAT" channel="3">
+          <define name="MILLIAMP_PER_PERCENT" value="1."/>
+          <define name="VOLTAGE_ADC_A" value="0.01753"/>
+          <define name="VOLTAGE_ADC_B" value="0.214462"/>
+          <define name="VoltageOfAdc(adc)" value="(VOLTAGE_ADC_A * adc + VOLTAGE_ADC_B)"/>
+          <define name="LOW_BATTERY" value="90" unit="1e-1V"/>
+        </section>
+        <section name="SERVOS" channel="6">
+          <define name="SERVOS_VOLTAGE_ADC_A" value="0.005661"/>
+          <define name="SERVOS_VOLTAGE_ADC_B" value="0.014948"/>
+          <define name="ServosVoltageOfAdc(adc)" value="(VOLTAGE_ADC_A * adc + VOLTAGE_ADC_B)"/>
+        </section>
+        <section name="MISC">
+          <define name="NOMINAL_AIRSPEED" value="9."/>
+          <define name="CARROT" value="5." unit="s"/>
+        </section>
+        <section name="SIMU">
+          <define name="ROLL_RESPONSE_FACTOR" value="-10."/>
+          <define name="YAW_RESPONSE_FACTOR" value="1."/>
+          <define name="WEIGHT" value="0.45"/>
+        </section>
+        <section name="FAILSAFE" prefix="FAILSAFE_">
+          <define name="DELAY_WITHOUT_GPS" value="2" unit="s"/>
+          <define name="DEFAULT_GAZ" value="CLIMB_LEVEL_GAZ+0.05" unit="%"/>
+          <define name="DEFAULT_ROLL" value="0.17" unit="rad"/>
+          <define name="DEFAULT_PITCH" value="0.08" unit="rad"/>
+          <define name="HOME_RADIUS" value="50" unit="m"/>
+        </section>
+      </airframe>
+      <radio MAX="2100" SYNC="5000" NAME="cockpitMM" MIN="850">
+        <channel CTL="D" NEUTRAL="1498" MAX="1000" FUNCTION="ROLL" MIN="2000" AVERAGE="0"/>
+        <channel CTL="C" NEUTRAL="1498" MAX="1000" FUNCTION="PITCH" MIN="2000" AVERAGE="0"/>
+        <channel CTL="B" NEUTRAL="1498" MAX="1000" FUNCTION="YAW" MIN="2000" AVERAGE="0"/>
+        <channel CTL="A" NEUTRAL="1120" MAX="2000" FUNCTION="THROTTLE" MIN="1120" AVERAGE="0"/>
+        <channel CTL="G" NEUTRAL="1498" MAX="1000" FUNCTION="GAIN1" MIN="2000" AVERAGE="10"/>
+        <channel CTL="E" NEUTRAL="1500" MAX="1000" FUNCTION="MODE" MIN="2000" AVERAGE="10"/>
+        <channel CTL="F" NEUTRAL="1500" MAX="1000" FUNCTION="CALIB" MIN="2000" AVERAGE="10"/>
+      </radio>
+    </aircraft>
+    <aircraft name="FlyingTux" ac_id="9" airframe="airframes/flyingtux.xml" radio="radios/cockpitMM.xml" flight_plan="flight_plans/mav05_ccw.xml">
+      <flight_plan SECURITY_HEIGHT="25" lat0="47.4820" lon0="11.0945" ground_alt="730" qfu="280" alt="780" ir_square_utmx_min="657530.0" ir_square_utmy_max="5261130.0" ir_square_width="180.0" ir_correct_steps="2" max_dist_from_home="300" name="Garmisch">
+        <rc_control>
+          <mode NAME="AUTO1">
+            <setting VAR="ir_pitch_neutral" RANGE="0.1" RC="gain_1_up" TYPE="float"/>
+            <setting VAR="ir_roll_neutral" RANGE="-0.1" RC="gain_1_down" TYPE="float"/>
+          </mode>
+          <mode NAME="AUTO2">
+            <setting VAR="ir_pitch_neutral" RANGE="0.1" RC="gain_1_up" TYPE="float"/>
+            <setting VAR="ir_roll_neutral" RANGE="-0.1" RC="gain_1_down" TYPE="float"/>
+          </mode>
+        </rc_control>
+        <waypoints>
+          <waypoint NAME="HOME" X="-30" Y="30"/>
+        </waypoints>
+        <include name="zz" procedure="zigzag.xml" x="0" y="0" rotate="0">
+          <arg name="alt" value="GROUND_ALT+50"/>
+          <arg name="rad" value="-40"/>
+          <with from="end" to="init"/>
+        </include>
+        <blocks>
+          <block NAME="init">
+            <deroute BLOCK="zz.takeoff"/>
+          </block>
+        </blocks>
+      </flight_plan>
+      <airframe name="FlyingTux" ctl_board="V1_2" gps="SAM_LS">
+        <section name="adc" prefix="ADC_CHANNEL_">
+          <define name="IR1" value="1"/>
+          <define name="IR2" value="0"/>
+          <define name="IR_NB_SAMPLES" value="16"/>
+        </section>
+        <servos min="1000" neutral="1500" max="2000">
+          <servo name="GAZ" no="0" min="1250" neutral="1250" max="1850"/>
+          <servo name="AILEVON_RIGHT" no="1" min="1200" neutral="1425" max="2000"/>
+          <servo name="AILEVON_LEFT" no="2" min="1200" neutral="1520" max="2000"/>
+        </servos>
+        <command>
+          <set servo="GAZ" value="2 * @THROTTLE"/>
+          <let var="aileron" value="@ROLL * AILEVON_AILERON_RATE"/>
+          <let var="elevator" value="@PITCH * AILEVON_ELEVATOR_RATE"/>
+          <set servo="AILEVON_LEFT" value="$aileron + $elevator"/>
+          <set servo="AILEVON_RIGHT" value="$aileron - $elevator"/>
+        </command>
+        <section name="MIXER">
+          <define name="AILEVON_AILERON_RATE" value="0.55"/>
+          <define name="AILEVON_ELEVATOR_RATE" value="0.75"/>
+        </section>
+        <section name="INFRARED" prefix="IR_">
+          <define name="ROLL_NEUTRAL_DEFAULT" value="-3" unit="deg"/>
+          <define name="PITCH_NEUTRAL_DEFAULT" value="6" unit="deg"/>
+          <define name="DEFAULT_CONTRAST" value="400"/>
+          <define name="RAD_OF_IR_CONTRAST" value="0.6"/>
+          <define name="RAD_OF_IR_MIN_VALUE" value="0.0008"/>
+          <define name="RAD_OF_IR_MAX_VALUE" value="0.008"/>
+          <linear name="RollOfIrs" arity="2" coeff1="-1" coeff2="1"/>
+          <linear name="PitchOfIrs" arity="2" coeff1="1" coeff2="1"/>
+          <define name="ADC_ROLL_NEUTRAL" value="0"/>
+          <define name="ADC_PITCH_NEUTRAL" value="1020"/>
+        </section>
+        <section name="PID">
+          <define name="ROLL_PGAIN" value="6000."/>
+          <define name="PITCH_OF_ROLL" value="0.2"/>
+          <define name="PITCH_PGAIN" value="10000."/>
+          <define name="MAX_ROLL" value="0.4"/>
+          <define name="AUTO1_MAX_ROLL" value="0.8"/>
+          <define name="MAX_PITCH" value="0.25"/>
+          <define name="MIN_PITCH" value="-0.35"/>
+          <define name="AILERON_OF_GAZ" value="-0.13"/>
+        </section>
+        <section name="ALT" prefix="CLIMB_">
+          <define name="PITCH_PGAIN" value="-0.1"/>
+          <define name="PITCH_IGAIN" value="1.0"/>
+          <define name="PGAIN" value="-0.025"/>
+          <define name="IGAIN" value="0.01"/>
+          <define name="MAX" value="1."/>
+          <define name="LEVEL_GAZ" value="0.5"/>
+          <define name="GAZ_OF_CLIMB" value="0.15" unit="% / m/s"/>
+          <define name="PITCH_OF_VZ_PGAIN" value="0.05"/>
+        </section>
+        <section name="NAV">
+          <define name="COURSE_PGAIN" value="-0.3"/>
+          <define name="ALTITUDE_PGAIN" value="-0.05"/>
+          <define name="NAV_PITCH" value="0."/>
+        </section>
+        <section name="BAT" channel="3">
+          <define name="MILLIAMP_PER_PERCENT" value="1.25"/>
+          <define name="VOLTAGE_ADC_A" value="0.0178771"/>
+          <define name="VOLTAGE_ADC_B" value="-0.556983"/>
+          <define name="VoltageOfAdc(adc)" value="(VOLTAGE_ADC_A * adc + VOLTAGE_ADC_B)"/>
+          <define name="LOW_BATTERY" value="90" unit="1e-1V"/>
+        </section>
+        <section name="SERVOS" channel="6">
+          <define name="SERVOS_FALLING_EDGE" value="1"/>
+          <define name="SERVOS_VOLTAGE_ADC_A" value="0.005661"/>
+          <define name="SERVOS_VOLTAGE_ADC_B" value="0.014948"/>
+          <define name="ServosVoltageOfAdc(adc)" value="(VOLTAGE_ADC_A * adc + VOLTAGE_ADC_B)"/>
+        </section>
+        <section name="MISC">
+          <define name="NOMINAL_AIRSPEED" value="9."/>
+          <define name="CARROT" value="5." unit="s"/>
+        </section>
+        <section name="SIMU">
+          <define name="ROLL_RESPONSE_FACTOR" value="-10."/>
+          <define name="YAW_RESPONSE_FACTOR" value="1."/>
+          <define name="WEIGHT" value="0.45"/>
+        </section>
+        <section name="FAILSAFE" prefix="FAILSAFE_">
+          <define name="DELAY_WITHOUT_GPS" value="2" unit="s"/>
+          <define name="DEFAULT_GAZ" value="CLIMB_LEVEL_GAZ+0.05" unit="%"/>
+          <define name="DEFAULT_ROLL" value="0.17" unit="rad"/>
+          <define name="DEFAULT_PITCH" value="0.08" unit="rad"/>
+          <define name="HOME_RADIUS" value="50" unit="m"/>
+        </section>
+        <section name="CAM" prefix="CAM_">
+          <define name="THETA0" value="45" unit="deg"/>
+          <define name="PHI0" value="45" unit="deg"/>
+        </section>
+      </airframe>
+      <radio MAX="2100" SYNC="5000" NAME="cockpitMM" MIN="850">
+        <channel CTL="D" NEUTRAL="1498" MAX="1000" FUNCTION="ROLL" MIN="2000" AVERAGE="0"/>
+        <channel CTL="C" NEUTRAL="1498" MAX="1000" FUNCTION="PITCH" MIN="2000" AVERAGE="0"/>
+        <channel CTL="B" NEUTRAL="1498" MAX="1000" FUNCTION="YAW" MIN="2000" AVERAGE="0"/>
+        <channel CTL="A" NEUTRAL="1120" MAX="2000" FUNCTION="THROTTLE" MIN="1120" AVERAGE="0"/>
+        <channel CTL="G" NEUTRAL="1498" MAX="1000" FUNCTION="GAIN1" MIN="2000" AVERAGE="10"/>
+        <channel CTL="E" NEUTRAL="1500" MAX="1000" FUNCTION="MODE" MIN="2000" AVERAGE="10"/>
+        <channel CTL="F" NEUTRAL="1500" MAX="1000" FUNCTION="CALIB" MIN="2000" AVERAGE="10"/>
+      </radio>
+    </aircraft>
+    <ground name="desktop" ivy_bus="127.255.255.255:2010">
+      <link name="downlink" port="/dev/ttyS0" protocol="pprz/modem"/>
+      <link name="datalink" port="/dev/ttyS1" protocol="pprz/coronis"/>
+      <link name="ap" port="/dev/ttyS1" protocol="pprz"/>
+      <link name="fbw" port="/dev/ttyS0" protocol="pprz"/>
+    </ground>
+  </conf>
+  <protocol>
+    <class name="telemetry_ap" ID="0x40">
+      <message name="BOOT" id="1">
+        <field name="version" type="uint16"/>
+      </message>
+      <message name="CALIB_START" ID="2" period="1"/>
+      <message name="CALIB_CONTRAST" ID="3" period="1">
+        <field name="adc" type="int16"/>
+      </message>
+      <message name="TAKEOFF" ID="4">
+        <field name="cpu_time" type="uint16" unit="s"/>
+      </message>
+      <message name="RAD_OF_IR" ID="5">
+        <field name="ir" type="int16"/>
+        <field name="rad" type="int16" unit="decideg"/>
+        <field name="rad_of_ir" type="float" format="%.5f"/>
+      </message>
+      <message name="ATTITUDE" ID="6" period="0.5">
+        <field name="phi" type="int8" unit="deg"/>
+        <field name="psi" type="int8" unit="deg"/>
+        <field name="theta" type="int8" unit="deg"/>
+      </message>
+      <message name="ADC" ID="7" period="0.5">
+        <field name="roll" type="int16"/>
+        <field name="pitch" type="int16"/>
+      </message>
+      <message name="GPS" ID="8">
+        <field name="mode" type="uint8" unit="byte_mask"/>
+        <field name="utm_east" type="int32" unit="cm"/>
+        <field name="utm_north" type="int32" unit="cm"/>
+        <field name="course" type="int16" unit="decideg"/>
+        <field name="alt" type="int32" unit="cm"/>
+        <field name="speed" type="uint16" unit="cm/s"/>
+        <field name="climb" type="int16" unit="cm/s"/>
+        <field name="itow" type="uint32" unit="ms"/>
+        <field name="utm_zone" type="uint8"/>
+      </message>
+      <message name="NAVIGATION_REF" ID="0x09" period="9">
+        <field name="utm_east" type="int32" unit="m"/>
+        <field name="utm_north" type="int32" unit="m"/>
+        <field name="utm_zone" type="uint8"/>
+      </message>
+      <message name="NAVIGATION" ID="10">
+        <field name="cur_block" type="uint8"/>
+        <field name="cur_stage" type="uint8"/>
+        <field name="pos_x" type="int16" unit="m"/>
+        <field name="pos_y" type="int16" unit="m"/>
+        <field name="desired_course" type="int16" unit="decideg"/>
+        <field name="dist2_wp" type="float" format="%.1f" unit="m^2"/>
+        <field name="dist2_home" type="float" format="%.1f" unit="m^2"/>
+      </message>
+      <message name="PPRZ_MODE" ID="11" period="5">
+        <field name="ap_mode" type="uint8" values="MANUAL|AUTO1|AUTO2|HOME|FAILSAFE"/>
+        <field name="ap_gaz" type="uint8" values="MANUAL|AUTO_GAZ|AUTO_CLIMB|AUTO_ALT"/>
+        <field name="ap_lateral" type="uint8" values="MANUAL|ROLL_RATE|ROLL|COURSE"/>
+        <field name="ap_horizontal" type="uint8" values="WAYPOINT|ROUTE|CIRCLE"/>
+        <field name="if_calib_mode" type="uint8" values="NONE|DOWN|UP"/>
+        <field name="mcu1_status" type="uint8" values="LOST|OK|REALLY_LOST"/>
+        <field name="lls_calib" type="uint8" values="LLS_CALIB_MODE_OFF|LLS_CALIB_MODE_ON"/>
+      </message>
+      <message name="BAT" ID="12" period="2">
+        <field name="desired_gaz" type="int16" unit="pprz"/>
+        <field name="voltage" type="uint8" unit="1e-1V"/>
+        <field name="flight_time" type="uint16" unit="s"/>
+        <field name="status_battery" type="uint8" values="LOW|OK"/>
+        <field name="block_time" type="uint16" unit="s"/>
+        <field name="stage_time" type="uint16" unit="s"/>
+        <field name="energy" type="uint16" unit="mAh"/>
+      </message>
+      <message name="DEBUG" ID="13" period="5">
+        <field name="i2c_nb_err" type="uint8"/>
+        <field name="i2c_mcu1_nb_err" type="uint8"/>
+        <field name="modem_nb_err" type="uint8"/>
+        <field name="gps_nb_err" type="uint8"/>
+        <field name="ppm_rate" type="uint8"/>
+      </message>
+      <message name="CALIBRATION" ID="14" period="2">
+        <field name="climb_sum_err" type="float" format="%.1f"/>
+        <field name="climb_pgain" type="float" format="%.3f"/>
+        <field name="course_pgain" type="float" format="%.3f"/>
+      </message>
+      <message name="SETTINGS" ID="15" period="0.5">
+        <field name="slider_1_val" type="float"/>
+        <field name="slider_2_val" type="float"/>
+      </message>
+      <message name="DESIRED" ID="16" period="1">
+        <field name="roll" type="float" format="%.2f"/>
+        <field name="pitch" type="float" format="%.2f"/>
+        <field name="desired_x" type="float" format="%.0f"/>
+        <field name="desired_y" type="float" format="%.0f"/>
+        <field name="desired_altitude" type="float" format="%.0f"/>
+        <field name="desired_climb" type="float" format="%.1f"/>
+      </message>
+      <message name="IMU" ID="17">
+        <field name="gyro_x" type="float"/>
+        <field name="gyro_y" type="float"/>
+        <field name="gyro_z" type="float"/>
+        <field name="accel_x" type="float"/>
+        <field name="accel_y" type="float"/>
+        <field name="accel_z" type="float"/>
+      </message>
+      <message name="KALMAN" ID="18">
+        <field name="phi" type="float" format="%.3f"/>
+        <field name="phi_dot" type="float" format="%.3f"/>
+        <field name="phi_bias" type="float" format="%.3f"/>
+        <field name="theta" type="float" format="%.3f"/>
+        <field name="theta_dot" type="float" format="%.3f"/>
+        <field name="theta_bias" type="float" format="%.3f"/>
+      </message>
+      <message name="IDENT" ID="19" period="10">
+        <field name="id" type="uint8"/>
+      </message>
+      <message name="CAM" ID="20">
+        <field name="phi" type="int8" unit="deg"/>
+        <field name="theta" type="int8" unit="deg"/>
+        <field name="target_x" type="int16" unit="m"/>
+        <field name="target_y" type="int16" unit="m"/>
+      </message>
+      <message name="CIRCLE" ID="21" period="1">
+        <field name="center_east" type="int16" unit="m"/>
+        <field name="center_north" type="int16" unit="m"/>
+        <field name="radius" type="int16" unit="m"/>
+      </message>
+      <message name="SEGMENT" ID="22" period="1">
+        <field name="segment_east_1" type="int16" unit="m"/>
+        <field name="segment_north_1" type="int16" unit="m"/>
+        <field name="segment_east_2" type="int16" unit="m"/>
+        <field name="segment_north_2" type="int16" unit="m"/>
+      </message>
+      <message name="DOWNLINK_STATUS" ID="23">
+        <field name="run_time" type="uint32" unit="s"/>
+        <field name="rx_bytes" type="uint32"/>
+        <field name="rx_msgs" type="uint32"/>
+        <field name="rx_err" type="uint32"/>
+        <field name="rx_bytes_rate" type="float" format="%.1f"/>
+        <field name="rx_msgs_rate" type="float" format="%.1f"/>
+      </message>
+      <message name="MODEM_STATUS" ID="24">
+        <field name="detected" type="uint8"/>
+        <field name="valim" type="float" format="%.1f"/>
+        <field name="cd" type="uint8"/>
+        <field name="nb_byte" type="uint32"/>
+        <field name="nb_msg" type="uint32"/>
+        <field name="nb_err" type="uint32"/>
+      </message>
+      <message name="SVINFO" id="25">
+        <field name="chn" type="uint8"/>
+        <field name="SVID" type="uint8"/>
+        <field name="Flags" type="uint8"/>
+        <field name="QI" type="int8"/>
+        <field name="CNO" type="uint8" unit="dbHz"/>
+        <field name="Elev" type="int8" unit="deg"/>
+        <field name="Azim" type="int16" unit="deg"/>
+      </message>
+      <message name="IMU_3DMG" ID="26">
+        <field name="roll_dot" type="int16"/>
+        <field name="pitch_dot" type="int16"/>
+        <field name="yaw_dot" type="int16"/>
+        <field name="roll" type="int16"/>
+        <field name="pitch" type="int16"/>
+        <field name="yaw" type="int16"/>
+      </message>
+    </class>
+    <class name="telemetry_fbw" ID="0X41">
+      <message name="PPM" ID="0x01" period="1">
+        <field name="nb_channels" type="uint8"/>
+        <field name="sync_len" type="uint8"/>
+        <field name="ppm01" type="uint16" unit="us"/>
+        <field name="ppm02" type="uint16" unit="us"/>
+        <field name="ppm03" type="uint16" unit="us"/>
+        <field name="ppm04" type="uint16" unit="us"/>
+        <field name="ppm05" type="uint16" unit="us"/>
+        <field name="ppm06" type="uint16" unit="us"/>
+        <field name="ppm07" type="uint16" unit="us"/>
+        <field name="ppm08" type="uint16" unit="us"/>
+        <field name="ppm09" type="uint16" unit="us"/>
+        <field name="ppm10" type="uint16" unit="us"/>
+        <field name="ppm11" type="uint16" unit="us"/>
+        <field name="ppm12" type="uint16" unit="us"/>
+      </message>
+      <message name="RC" ID="0x02" period="1">
+        <field name="nb_channels" type="uint8"/>
+        <field name="pprz01" type="int16" unit="pprz"/>
+        <field name="pprz02" type="int16" unit="pprz"/>
+        <field name="pprz03" type="int16" unit="pprz"/>
+        <field name="pprz04" type="int16" unit="pprz"/>
+        <field name="pprz05" type="int16" unit="pprz"/>
+        <field name="pprz06" type="int16" unit="pprz"/>
+        <field name="pprz07" type="int16" unit="pprz"/>
+        <field name="pprz08" type="int16" unit="pprz"/>
+        <field name="pprz09" type="int16" unit="pprz"/>
+        <field name="pprz10" type="int16" unit="pprz"/>
+        <field name="pprz11" type="int16" unit="pprz"/>
+        <field name="pprz12" type="int16" unit="pprz"/>
+      </message>
+      <message name="SERVOS" ID="0x03" period="1">
+        <field name="nb_servos" type="uint8"/>
+        <field name="ser01" type="uint16" unit="us"/>
+        <field name="ser02" type="uint16" unit="us"/>
+        <field name="ser03" type="uint16" unit="us"/>
+        <field name="ser04" type="uint16" unit="us"/>
+        <field name="ser05" type="uint16" unit="us"/>
+        <field name="ser06" type="uint16" unit="us"/>
+        <field name="ser07" type="uint16" unit="us"/>
+        <field name="ser08" type="uint16" unit="us"/>
+        <field name="ser09" type="uint16" unit="us"/>
+        <field name="ser10" type="uint16" unit="us"/>
+      </message>
+      <message name="FBW_STATUS" ID="0x04" period="1">
+        <field name="nb_spi_err" type="uint8"/>
+        <field name="rc_status" type="uint8" values="OK|LOST|REALLY_LOST"/>
+        <field name="mode" type="uint8" values="MANUAL|AUTO|FAILSAFE"/>
+      </message>
+    </class>
+    <class name="ground" ID="0x42">
+      <message name="NEW_AIRCRAFT" ID="1">
+        <field name="ac_id" type="string"/>
+      </message>
+      <message name="AIRCRAFT_DIE" ID="2">
+        <field name="ac_id" type="string"/>
+      </message>
+      <message name="AIRCRAFTS" ID="3">
+        <field name="ac_list" type="string" format="csv"/>
+      </message>
+      <message name="AIRCRAFTS_REQ" ID="4"/>
+      <message name="SELECTED" ID="5">
+        <field name="aircraft_id" type="string"/>
+      </message>
+      <message name="SELECTED_REQ" ID="6"/>
+      <message name="WIND_CLEAR" ID="7">
+        <field name="ac_id" type="string"/>
+      </message>
+      <message name="WIND" ID="8">
+        <field name="ac_id" type="string"/>
+        <field name="dir" type="float" unit="deg_wind"/>
+        <field name="wspeed" type="float" unit="m/s"/>
+        <field name="mean_aspeed" type="float" unit="m/s"/>
+        <field name="stddev" type="float" unit="m/s"/>
+      </message>
+      <message name="CONFIG_REQ" ID="9">
+        <field name="ac_id" type="string"/>
+      </message>
+      <message name="CONFIG" ID="10">
+        <field name="ac_id" type="string"/>
+        <field name="flight_plan" type="string" unit="url"/>
+        <field name="airframe" type="string" unit="url"/>
+        <field name="radio" type="string" unit="url"/>
+      </message>
+      <message name="FLIGHT_PARAM" ID="11">
+        <field name="ac_id" type="string"/>
+        <field name="roll" type="float" unit="deg"/>
+        <field name="pitch" type="float" unit="deg"/>
+        <field name="east" type="float" unit="m"/>
+        <field name="north" type="float" unit="m"/>
+        <field name="speed" type="float" unit="m/s"/>
+        <field name="course" type="float" unit="deg" format="%.1f"/>
+        <field name="alt" type="float" unit="m"/>
+        <field name="climb" type="float" unit="m/s"/>
+      </message>
+      <message name="AP_STATUS" ID="12">
+        <field name="ac_id" type="string"/>
+        <field name="ap_mode" type="string" values="MANUAL|AUTO1|AUTO2|HOME|FAILSAFE"/>
+        <field name="lat_mode" type="string" values="MANUAL|ROLL_RATE|ROLL|COURSE"/>
+        <field name="horiz_mode" type="string" values="WAYPOINT|ROUTE|CIRCLE"/>
+        <field name="gaz_mode" type="string" values="MANUAL|GAZ|CLIMB|ALT"/>
+        <field name="gps_mode" type="string" values="NOFIX|DRO|2D|3D|GPSDRO"/>
+        <field name="flight_time" type="uint32"/>
+      </message>
+      <message name="NAV_STATUS" ID="13">
+        <field name="ac_id" type="string"/>
+        <field name="cur_block" type="uint8"/>
+        <field name="cur_stage" type="uint8"/>
+        <field name="block_time" type="uint32"/>
+        <field name="stage_time" type="uint32"/>
+        <field name="target_east" type="float" unit="m"/>
+        <field name="target_north" type="float" unit="m"/>
+        <field name="target_climb" type="float" unit="m/s"/>
+        <field name="target_alt" type="float" unit="m"/>
+        <field name="target_course" type="float" unit="deg"/>
+      </message>
+      <message name="CAM_STATUS" ID="14">
+        <field name="ac_id" type="string"/>
+        <field name="cam_east" type="float" unit="m" format="%.1f"/>
+        <field name="cam_north" type="float" unit="m" format="%.1f"/>
+        <field name="target_east" type="float" unit="m"/>
+        <field name="target_north" type="float" unit="m"/>
+      </message>
+      <message name="ENGINE_STATUS" ID="15">
+        <field name="ac_id" type="string"/>
+        <field name="throttle" type="float" unit="%" format="%.1f"/>
+        <field name="throttle_accu" type="float" format="%.1f"/>
+        <field name="rpm" type="float" unit="rpm" format="%.1f"/>
+        <field name="temp" type="float" unit="celcius"/>
+        <field name="bat" type="float" unit="V"/>
+        <field name="amp" type="float" unit="A"/>
+        <field name="energy" type="uint16" unit="Wh"/>
+      </message>
+      <message name="SVSINFO" ID="16">
+        <field name="ac_id" type="string"/>
+        <field name="svid" type="string" format="csv"/>
+        <field name="flags" type="string" format="csv"/>
+        <field name="qi" type="string" format="csv" values="IDLE|SEARCH|SEARCH|UNUSABLE|CODELOCK|CARRIERLOCK|CARRIERLOCK|RECEIVING"/>
+        <field name="cno" type="string" format="csv" unit="dbHz"/>
+        <field name="elev" type="string" format="csv" unit="deg"/>
+        <field name="azim" type="string" format="csv" unit="deg"/>
+      </message>
+      <message name="FLY_BY_WIRE" id="17">
+        <field name="ac_id" type="string"/>
+        <field name="rc_status" type="string" values="OK|LOST|REALLY_LOST"/>
+        <field name="rc_mode" type="string" values="MANUAL|AUTO|FAILSAFE"/>
+      </message>
+      <message name="INFRARED" id="18">
+        <field name="ac_id" type="string"/>
+        <field name="gps_hybrid_mode" type="string" values="OFF|ON"/>
+        <field name="gps_hybrid_factor" type="float"/>
+        <field name="contrast_status" type="string" values="DEFAULT|WAITING|SET|SKIPPED"/>
+        <field name="contrast_value" type="int16"/>
+      </message>
+      <message name="INFLIGH_CALIB" id="19">
+        <field name="ac_id" type="string"/>
+        <field name="if_mode" type="string" values="OFF|DOWN|UP"/>
+        <field name="if_value1" type="float"/>
+        <field name="if_value2" type="float"/>
+      </message>
+      <message name="WORLD_ENV" id="20">
+        <field name="wind_east" type="float" unit="m/s" format="%.1f"/>
+        <field name="wind_north" type="float" unit="m/s" format="%.1f"/>
+        <field name="ir_contrast" type="float"/>
+        <field name="time_scale" type="float"/>
+        <field name="gps_availability" type="uint8" values="OFF|ON"/>
+      </message>
+      <message name="WORLD_ENV_REQ" id="21"/>
+      <message name="CIRCLE_STATUS" ID="22">
+        <field name="ac_id" type="string"/>
+        <field name="circle_east" type="float" unit="m"/>
+        <field name="circle_north" type="float" unit="m"/>
+        <field name="radius" type="int16" unit="m"/>
+      </message>
+      <message name="SEGMENT_STATUS" ID="23">
+        <field name="ac_id" type="string"/>
+        <field name="segment1_east" type="float" unit="m"/>
+        <field name="segment1_north" type="float" unit="m"/>
+        <field name="segment2_east" type="float" unit="m"/>
+        <field name="segment2_north" type="float" unit="m"/>
+      </message>
+    </class>
+    <class name="alert">
+      <message name="BAT_LOW" ID="1">
+        <field name="ac_id" type="string"/>
+        <field name="level" type="string" values="CATASTROPHIC|CRITIC|WARNING"/>
+        <field name="value" type="float"/>
+      </message>
+    </class>
+  </protocol>
+</configuration>
