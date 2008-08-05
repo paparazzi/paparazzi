@@ -81,14 +81,13 @@ ctl.ARCH = arm7tdmi
 ctl.TARGET = ctl
 ctl.TARGETDIR = ctl
 
-ctl.CFLAGS += -DCONFIG=\"tiny_1_1.h\" -I$(BOOZ_PRIV) -I$(BOOZ_PRIV_ARCH)
+ctl.CFLAGS += -DCONFIG=\"booz2_board.h\" -I$(BOOZ_ARCH) -I$(BOOZ_PRIV) -I$(BOOZ_PRIV_ARCH)
 ctl.srcs += $(BOOZ_PRIV)/booz2_controller_main.c
-ctl.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./1000.))' 
-#-DTIME_LED=1
+ctl.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./500.))' -DTIME_LED=1
 ctl.CFLAGS += -DLED
 ctl.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
 
-ctl.CFLAGS += -DUSE_UART0 -DUART0_BAUD=B9600
+ctl.CFLAGS += -DUSE_UART0 -DUART0_BAUD=B57600
 ctl.srcs += $(SRC_ARCH)/uart_hw.c
 
 ctl.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart0 
@@ -97,9 +96,51 @@ ctl.srcs += $(BOOZ_PRIV)/booz2_controller_telemetry.c downlink.c pprz_transport.
 ctl.CFLAGS += -DDATALINK=PPRZ -DPPRZ_UART=Uart0
 ctl.srcs += $(BOOZ)/booz_datalink.c
 
+ctl.srcs += commands.c
 
-ctl.CFLAGS += -DBOOZ_ANALOG_BARO_LED=2 -DBOOZ_ANALOG_BARO_PERIOD='SYS_TICS_OF_SEC((1./100.))'
+ctl.CFLAGS += -DRADIO_CONTROL -DRADIO_CONTROL_TYPE=RC_FUTABA -DRC_LED=4
+ctl.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c
+
+ctl.CFLAGS += -DACTUATORS=\"actuators_buss_twi_blmc_hw.h\" -DUSE_BUSS_TWI_BLMC
+ctl.srcs += $(BOOZ_ARCH)/actuators_buss_twi_blmc_hw.c actuators.c
+ctl.CFLAGS += -DI2C_SCLL=150 -DI2C_SCLH=150 -DI2C_VIC_SLOT=10
+ctl.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
+
+ctl.srcs += $(BOOZ_PRIV)/booz_stabilization_euler_int.c
+ctl.srcs += $(BOOZ_PRIV)/booz_supervision_int.c
+ctl.srcs += $(BOOZ_PRIV)/booz2_autopilot.c
+
+
+
+ctl.CFLAGS += -DBOOZ_ANALOG_BARO_LED=5 -DBOOZ_ANALOG_BARO_PERIOD='SYS_TICS_OF_SEC((1./100.))'
 ctl.srcs += $(BOOZ_PRIV)/booz_analog_baro.c
+
+# IMU MCU
+
+imu.ARCHDIR = $(ARCHI)
+imu.ARCH = arm7tdmi
+imu.TARGET = imu
+imu.TARGETDIR = imu
+
+imu.CFLAGS += -DCONFIG=\"pprz_imu.h\" -I$(BOOZ) -I$(BOOZ_ARCH) -I$(BOOZ_PRIV) -I$(BOOZ_PRIV_ARCH)
+imu.srcs += $(BOOZ_PRIV)/imu_v3_main.c
+imu.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./500.))' -DTIME_LED=1
+imu.CFLAGS += -DLED
+imu.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
+
+imu.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600
+imu.srcs += $(SRC_ARCH)/uart_hw.c
+
+imu.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart1 
+imu.srcs += downlink.c pprz_transport.c $(BOOZ_PRIV)/imu_v3_telemetry.c
+
+imu.srcs += $(BOOZ_PRIV)/imu_v3_sensors.c $(BOOZ_PRIV_ARCH)/imu_v3_sensors_hw.c
+imu.CFLAGS += -DADC -DUSE_AD0 -DUSE_AD0_1 -DUSE_AD0_2 -DUSE_AD0_3
+imu.srcs += $(SRC_ARCH)/adc_hw.c
+imu.srcs += max1167.c  $(SRC_ARCH)/max1167_hw.c 
+imu.srcs += micromag.c $(SRC_ARCH)/micromag_hw.c
+
+imu.srcs += $(BOOZ_PRIV)/imu_v3_client_link.c $(BOOZ_PRIV_ARCH)/imu_v3_client_link_hw.c
 
 
 # test leds
@@ -108,7 +149,7 @@ test_led.ARCH = arm7tdmi
 test_led.TARGET = test_led
 test_led.TARGETDIR = test_led
 
-test_led.CFLAGS += -DCONFIG=\"tiny_1_1.h\" -I$(BOOZ_PRIV_ARCH)
+test_led.CFLAGS += -DCONFIG=\"booz2_board.h\" -I$(BOOZ_PRIV_ARCH)
 test_led.srcs += $(BOOZ_PRIV)/test_led.c
 test_led.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./1000.))' -DTIME_LED=1
 test_led.CFLAGS += -DLED

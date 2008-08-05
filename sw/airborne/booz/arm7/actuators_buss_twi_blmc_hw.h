@@ -5,6 +5,17 @@
 #include "std.h"
 #include "i2c.h"
 
+#ifndef SetActuatorsFromCommands
+#define SetActuatorsFromCommands() {			      \
+    Actuator(SERVO_FRONT) = (uint8_t)commands[COMMAND_FRONT]; \
+    Actuator(SERVO_BACK)  = (uint8_t)commands[COMMAND_BACK];  \
+    Actuator(SERVO_RIGHT) = (uint8_t)commands[COMMAND_RIGHT]; \
+    Actuator(SERVO_LEFT)  = (uint8_t)commands[COMMAND_LEFT];  \
+    ActuatorsCommit();					      \
+}
+#endif
+
+
 #define ChopServo(x,a,b) ((x)>(b)?(b):(x))
 #define Actuator(i) buss_twi_blmc_motor_power[i]
 #define ActuatorsCommit() {			                \

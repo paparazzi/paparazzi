@@ -7,7 +7,9 @@
     <mode name="default">
       <message name="ALIVE"             period="5."/>
       <message name="DL_VALUE"          period="1."/>
+      <message name="BOOZ_STATUS"       period="1."/>
     </mode>
+
     <mode name="debug">
       <message name="DL_VALUE"          period=".5"/>
     </mode>
@@ -15,9 +17,12 @@
 
 
 
-  <process name="Filter">
+  <process name="Imu">
 
     <mode name="default">
+      <message name="IMU_ACCEL_RAW"     period=".1"/>
+      <message name="IMU_GYRO_RAW"      period=".1"/>
+      <message name="IMU_MAG_RAW"       period=".1"/>
     </mode>
 
     <mode name="raw_sensors">

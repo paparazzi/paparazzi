@@ -1,36 +1,19 @@
 <airframe name="BOOZ2">
 
   <servos min="0" neutral="0" max="0xff">
-    <servo name="MOTOR_FRONT" no="0" min="0" neutral="0" max="255"/>
-    <servo name="MOTOR_BACK"  no="1" min="0" neutral="0" max="255"/>
-    <servo name="MOTOR_RIGHT" no="3" min="0" neutral="0" max="255"/>
-    <servo name="MOTOR_LEFT"  no="2" min="0" neutral="0" max="255"/>
+    <servo name="FRONT" no="0" min="0" neutral="0" max="255"/>
+    <servo name="BACK"  no="1" min="0" neutral="0" max="255"/>
+    <servo name="RIGHT" no="3" min="0" neutral="0" max="255"/>
+    <servo name="LEFT"  no="2" min="0" neutral="0" max="255"/>
   </servos>
 
   <commands>
-    <axis name="THROTTLE" failsafe_value="0"/>
-    <axis name="P"        failsafe_value="0"/>
-    <axis name="Q"        failsafe_value="0"/>
-    <axis name="R"        failsafe_value="0"/>
+    <axis name="FRONT" failsafe_value="0"/>
+    <axis name="BACK"  failsafe_value="0"/>
+    <axis name="RIGHT" failsafe_value="0"/>
+    <axis name="LEFT"  failsafe_value="0"/>
   </commands>
 
-  <command_laws>
-    <let var="throttle" value="@THROTTLE"/>
-    <let var="p" value="trim_p + @P"/>
-    <let var="q" value="trim_q + @Q"/>
-    <let var="r" value="trim_r + @R"/>
-    <set servo="MOTOR_FRONT" value="$throttle + $q + $r"/>
-    <set servo="MOTOR_BACK"  value="$throttle - $q + $r"/>
-    <set servo="MOTOR_RIGHT" value="$throttle - $p - $r"/>
-    <set servo="MOTOR_LEFT"  value="$throttle + $p - $r"/>
-  </command_laws>
-
-  <rc_commands>
-    <set command="THROTTLE" value="@THROTTLE"/>
-    <set command="ROLL" value="@ROLL"/>
-    <set command="PITCH" value="@PITCH"/>
-    <set command="YAW" value="@YAW"/>
-  </rc_commands>
 
 
  <section name="MICROMAG">
@@ -97,11 +80,6 @@
     <define name="MAG_X_GAIN" value="-1."/>
     <define name="MAG_Y_GAIN" value="-1."/>
     <define name="MAG_Z_GAIN" value=" 1."/>
-
-
-    <define name="PRESSURE_NEUTRAL" value="0"/>
-
-    <define name="PRESSURE_GAIN" value="0.25"/>
 
 
   </section>
