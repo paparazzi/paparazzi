@@ -3,7 +3,7 @@
 <telemetry>
 
 
-  <process name="Controller">
+  <process name="Main">
     <mode name="default">
       <message name="ALIVE"             period="5."/>
       <message name="DL_VALUE"          period="1."/>

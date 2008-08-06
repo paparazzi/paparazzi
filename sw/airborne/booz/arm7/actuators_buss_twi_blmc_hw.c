@@ -2,7 +2,7 @@
 
 uint8_t buss_twi_blmc_motor_power[BUSS_TWI_BLMC_NB];
 volatile bool_t  buss_twi_blmc_status;
-volatile uint8_t buss_twi_blmc_nb_err;
+uint8_t buss_twi_blmc_nb_err;
 volatile bool_t  buss_twi_blmc_i2c_done;
 volatile uint8_t buss_twi_blmc_idx;
 

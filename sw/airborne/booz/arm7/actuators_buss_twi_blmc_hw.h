@@ -35,7 +35,7 @@
 #define BUSS_TWI_BLMC_NB 4
 extern uint8_t buss_twi_blmc_motor_power[BUSS_TWI_BLMC_NB];
 extern volatile bool_t  buss_twi_blmc_status;
-extern volatile uint8_t buss_twi_blmc_nb_err;
+extern uint8_t buss_twi_blmc_nb_err;
 extern volatile bool_t  buss_twi_blmc_i2c_done;
 extern volatile uint8_t buss_twi_blmc_idx;
 extern const uint8_t buss_twi_blmc_addr[];
