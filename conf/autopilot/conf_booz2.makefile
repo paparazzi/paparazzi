@@ -110,12 +110,12 @@ ctl.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
 
 ctl.srcs += $(BOOZ_PRIV)/booz2_imu_v3.c $(BOOZ_PRIV_ARCH)/booz2_imu_v3_hw.c
 
-ctl.CFLAGS += -DBOOZ_ANALOG_BARO_LED=5 -DBOOZ_ANALOG_BARO_PERIOD='SYS_TICS_OF_SEC((1./100.))'
-ctl.srcs += $(BOOZ_PRIV)/booz_analog_baro.c
+ctl.CFLAGS += -DBOOZ2_ANALOG_BARO_LED=5 -DBOOZ2_ANALOG_BARO_PERIOD='SYS_TICS_OF_SEC((1./100.))'
+ctl.srcs += $(BOOZ_PRIV)/booz2_analog_baro.c
 
+ctl.srcs += $(BOOZ_PRIV)/booz2_autopilot.c
 ctl.srcs += $(BOOZ_PRIV)/booz_stabilization_euler_int.c
 ctl.srcs += $(BOOZ_PRIV)/booz_supervision_int.c
-ctl.srcs += $(BOOZ_PRIV)/booz2_autopilot.c
 
 
 #

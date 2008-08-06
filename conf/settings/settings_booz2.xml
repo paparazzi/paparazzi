@@ -4,7 +4,7 @@
   <dl_settings>
 
     <dl_settings NAME="Analog Baro">
-      <dl_setting var="booz_analog_baro_offset" min="1" step="1" max="1022" module="booz_analog_baro" handler="SetOffset" shortname="offset"/>
+      <dl_setting var="booz2_analog_baro_offset" min="1" step="1" max="1022" module="booz2_analog_baro" handler="SetOffset" shortname="offset"/>
     </dl_settings>
 
   </dl_settings>
