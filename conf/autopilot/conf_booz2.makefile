@@ -109,6 +109,8 @@ ctl.CFLAGS += -DI2C_SCLL=150 -DI2C_SCLH=150 -DI2C_VIC_SLOT=10
 ctl.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
 
 ctl.srcs += $(BOOZ_PRIV)/booz2_imu_v3.c $(BOOZ_PRIV_ARCH)/booz2_imu_v3_hw.c
+ctl.CFLAGS += -DFLOAT_T=float
+ctl.srcs += $(BOOZ_PRIV)/booz2_imu.c
 
 ctl.CFLAGS += -DBOOZ2_ANALOG_BARO_LED=5 -DBOOZ2_ANALOG_BARO_PERIOD='SYS_TICS_OF_SEC((1./100.))'
 ctl.srcs += $(BOOZ_PRIV)/booz2_analog_baro.c
