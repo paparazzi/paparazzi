@@ -53,7 +53,7 @@ EXTERN uint8_t dl_buffer[MSG_SIZE]  __attribute__ ((aligned));
 void dl_parse_msg(void);
 /** Should be called when chars are available in dl_buffer */
 
-#define DlEventCheckAndHandle() {		\
+#define DatalinkEvent() {			\
     if (PprzBuffer()) {				\
       ReadPprzBuffer();				\
       if (pprz_msg_received) {			\

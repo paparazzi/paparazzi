@@ -105,7 +105,7 @@ static inline void tl_main_event_task( void ) {
 
   GpsEventCheckAndHandle(tl_estimator_use_gps, !estimator_in_flight);
 
-  DlEventCheckAndHandle();
+  DatalinkEvent();
 
   TlImuEventCheckAndHandle(tl_estimator_use_imu);
 }
