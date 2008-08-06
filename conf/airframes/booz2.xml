@@ -44,42 +44,44 @@
     <define name="GYRO_Y_CHAN" value="1"/>
     <define name="GYRO_Z_CHAN" value="2"/>
 
-    <define name="GYRO_X_NEUTRAL" value="32768"/>
-    <define name="GYRO_Y_NEUTRAL" value="32768"/>
-    <define name="GYRO_Z_NEUTRAL" value="32768"/>
+    <define name="GYRO_X_NEUTRAL" value="40852"/>
+    <define name="GYRO_Y_NEUTRAL" value="40916"/>
+    <define name="GYRO_Z_NEUTRAL" value="39616"/>
 
-    <define name="GYRO_X_SENS" value="(-4541.3261)"/>
-    <define name="GYRO_Y_SENS" value="(-4651.1628)"/>
+    <define name="GYRO_X_SENS" value="( 4541.3261)"/>
+    <define name="GYRO_Y_SENS" value="( 4651.1628)"/>
     <define name="GYRO_Z_SENS" value="( 4752.8517)"/>
   
     <define name="ACCEL_X_CHAN" value="2"/>
     <define name="ACCEL_Y_CHAN" value="1"/>
     <define name="ACCEL_Z_CHAN" value="3"/>    
 
-    <define name="ACCEL_X_NEUTRAL" value="32768"/>
-    <define name="ACCEL_Y_NEUTRAL" value="32768"/>
-    <define name="ACCEL_Z_NEUTRAL" value="32768"/>
+    <define name="ACCEL_X_NEUTRAL" value="17732"/>
+    <define name="ACCEL_Y_NEUTRAL" value="16555"/>
+    <define name="ACCEL_Z_NEUTRAL" value="16645"/>
 
-    <define name="ACCEL_X_SENS" value="( 1250.)"/>
-    <define name="ACCEL_Y_SENS" value="( 1250.)"/>
-    <define name="ACCEL_Z_SENS" value="( 1250.)"/>
+    <define name="ACCEL_X_SENS" value="(-829.62787)"/>
+    <define name="ACCEL_Y_SENS" value="( 829.60535)"/>
+    <define name="ACCEL_Z_SENS" value="(-826.85295)"/>
 
 
     <define name="MAG_X_CHAN" value="0"/>
     <define name="MAG_Y_CHAN" value="1"/>
     <define name="MAG_Z_CHAN" value="2"/>
 
-<!--    
+    
     <define name="MAG_X_NEUTRAL" value="0"/>
     <define name="MAG_Y_NEUTRAL" value="0"/> 
--->
+
+<!--
     <define name="MAG_X_NEUTRAL" value="60"/>
     <define name="MAG_Y_NEUTRAL" value="60"/>
+-->
     <define name="MAG_Z_NEUTRAL" value="0"/>
 
-    <define name="MAG_X_GAIN" value="-1."/>
-    <define name="MAG_Y_GAIN" value="-1."/>
-    <define name="MAG_Z_GAIN" value=" 1."/>
+    <define name="MAG_X_SENS" value=" 1000."/>
+    <define name="MAG_Y_SENS" value=" 1000."/>
+    <define name="MAG_Z_SENS" value=" 1000."/>
 
 
   </section>
