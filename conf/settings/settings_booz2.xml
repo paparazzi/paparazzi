@@ -7,5 +7,12 @@
       <dl_setting var="booz2_analog_baro_offset" min="1" step="1" max="1022" module="booz2_analog_baro" handler="SetOffset" shortname="offset"/>
     </dl_settings>
 
+    <dl_settings NAME="Rate Loop">
+      <dl_setting var="booz2_stabilization_rate_gain.x" min="-1000" step="1" max="-1" module="booz2_stabilization_rate" shortname="gain p"/>
+      <dl_setting var="booz2_stabilization_rate_gain.y" min="-1000" step="1" max="-1" module="booz2_stabilization_rate" shortname="gain q"/>
+      <dl_setting var="booz2_stabilization_rate_gain.z" min="-1000" step="1" max="-1" module="booz2_stabilization_rate" shortname="gain r"/>
+    </dl_settings>
+
+
   </dl_settings>
 </settings>

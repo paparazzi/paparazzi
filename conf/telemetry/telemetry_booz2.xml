@@ -8,6 +8,7 @@
       <message name="ALIVE"             period="5."/>
       <message name="DL_VALUE"          period="1."/>
       <message name="BOOZ_STATUS"       period="1."/>
+      <message name="BOOZ2_RATE_LOOP"   period=".05"/>
     </mode>
 
     <mode name="debug">

@@ -6,15 +6,24 @@
 #include "i2c.h"
 
 #ifndef SetActuatorsFromCommands
+#ifdef KILL_MOTORS
+#define SetActuatorsFromCommands() {			      \
+    Actuator(SERVO_FRONT) = 0;				      \
+    Actuator(SERVO_BACK)  = 0;				      \
+    Actuator(SERVO_RIGHT) = 0;				      \
+    Actuator(SERVO_LEFT)  = 0;				      \
+    ActuatorsCommit();					      \
+  }
+#else
 #define SetActuatorsFromCommands() {			      \
     Actuator(SERVO_FRONT) = (uint8_t)commands[COMMAND_FRONT]; \
     Actuator(SERVO_BACK)  = (uint8_t)commands[COMMAND_BACK];  \
     Actuator(SERVO_RIGHT) = (uint8_t)commands[COMMAND_RIGHT]; \
     Actuator(SERVO_LEFT)  = (uint8_t)commands[COMMAND_LEFT];  \
     ActuatorsCommit();					      \
-}
-#endif
-
+  }
+#endif /* KILL_MOTORS              */
+#endif /* SetActuatorsFromCommands */
 
 #define ChopServo(x,a,b) ((x)>(b)?(b):(x))
 #define Actuator(i) buss_twi_blmc_motor_power[i]
