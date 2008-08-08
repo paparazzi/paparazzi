@@ -24,6 +24,7 @@
  *
  *)
 
+open Printf
 open Latlong
 let (//) = Filename.concat
 
@@ -189,12 +190,23 @@ class flight_plan = fun ?format_attribs ?editable ~show_moved geomap color fp_dt
   (** The graphical waypoints *)
   let wpts_group = new MapWaypoints.group ~show_moved ~color ?editable geomap in
 
+  let array_of_waypoints = ref (Array.create 13 None) in
+  let add_wp_to_array = fun index w ->
+    let n = Array.length !array_of_waypoints in
+    if index >= n then begin
+      let new_array = Array.create (n*2) None in
+      Array.blit !array_of_waypoints 0 new_array 0 n;
+      array_of_waypoints := new_array
+    end;
+    !array_of_waypoints.(index) <- Some w in
+
   let yaws = Hashtbl.create 5 in (* Yes Another Waypoints Store *)
   let create_wp =
     let i = ref 1 in
     fun node ->
       let w = new_wp ?editable geomap xml_tree_view wpts_group utm0 ~alt node in
       Hashtbl.add yaws (XmlEdit.attrib node "name") (!i, w);
+      add_wp_to_array !i w;
       incr i;
       w in
 
@@ -257,6 +269,12 @@ class flight_plan = fun ?format_attribs ?editable ~show_moved geomap color fp_dt
     method show () = wpts_group#group#show ()
     method hide () = wpts_group#group#hide ()
     method index wp = Hashtbl.find yaws (XmlEdit.attrib wp "name")
+    method get_wp = fun i ->
+      if i >= Array.length !array_of_waypoints then
+	raise Not_found;
+      match !array_of_waypoints.(i) with
+	None -> raise Not_found
+      | Some w -> w
     method waypoints = XmlEdit.children (waypoints_node xml_tree_view)
     method xml = XmlEdit.xml_of_view xml_tree_view
     method highlight_stage = fun block_no stage_no ->

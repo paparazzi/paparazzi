@@ -39,6 +39,7 @@ class flight_plan :
     method georef : Latlong.geographic
     method hide : unit -> unit
     method index : XmlEdit.node -> int * MapWaypoints.waypoint
+    method get_wp : int -> MapWaypoints.waypoint (** May raise Not_found *)
     method show : unit -> unit
     method window : GObj.widget
     method waypoints : XmlEdit.node list
