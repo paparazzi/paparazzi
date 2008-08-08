@@ -6,7 +6,7 @@ uint8_t buss_twi_blmc_nb_err;
 volatile bool_t  buss_twi_blmc_i2c_done;
 volatile uint8_t buss_twi_blmc_idx;
 
-const uint8_t buss_twi_blmc_addr[BUSS_TWI_BLMC_NB] = { 0x52, 0x54, 0x56, 0x58 };
+const uint8_t buss_twi_blmc_addr[BUSS_TWI_BLMC_NB] = { 0x52, 0x54, 0x58, 0x56 };
 
 void actuators_init ( void ) {
   uint8_t i;

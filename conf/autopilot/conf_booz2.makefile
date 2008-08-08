@@ -81,7 +81,7 @@ ap.ARCH = arm7tdmi
 ap.TARGET = ap
 ap.TARGETDIR = ap
 
-ap.CFLAGS += -DKILL_MOTORS
+#ap.CFLAGS += -DKILL_MOTORS
 
 ap.CFLAGS += -DCONFIG=\"booz2_board.h\" -I$(BOOZ_ARCH) -I$(BOOZ_PRIV) -I$(BOOZ_PRIV_ARCH)
 ap.srcs += $(BOOZ_PRIV)/booz2_main.c

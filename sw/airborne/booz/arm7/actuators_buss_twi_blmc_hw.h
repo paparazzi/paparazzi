@@ -15,12 +15,12 @@
     ActuatorsCommit();					      \
   }
 #else
-#define SetActuatorsFromCommands() {			      \
-    Actuator(SERVO_FRONT) = (uint8_t)commands[COMMAND_FRONT]; \
-    Actuator(SERVO_BACK)  = (uint8_t)commands[COMMAND_BACK];  \
-    Actuator(SERVO_RIGHT) = (uint8_t)commands[COMMAND_RIGHT]; \
-    Actuator(SERVO_LEFT)  = (uint8_t)commands[COMMAND_LEFT];  \
-    ActuatorsCommit();					      \
+#define SetActuatorsFromCommands() {				\
+    Actuator(SERVO_FRONT) = (uint8_t)commands[COMMAND_FRONT];	\
+    Actuator(SERVO_BACK)  = (uint8_t)commands[COMMAND_BACK];	\
+    Actuator(SERVO_RIGHT) = (uint8_t)commands[COMMAND_RIGHT];	\
+    Actuator(SERVO_LEFT)  = (uint8_t)commands[COMMAND_LEFT];	\
+    ActuatorsCommit();						\
   }
 #endif /* KILL_MOTORS              */
 #endif /* SetActuatorsFromCommands */
