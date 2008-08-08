@@ -945,24 +945,15 @@
    <field name="spr" type="int32"/>
    <field name="delta_a" type="int32"/>
    <field name="delta_e" type="int32"/>
-   <field name="delta_r" type="int32"/> 
-   <field name="delta_t" type="int32"/> 
+   <field name="delta_r" type="int32"/>
+   <field name="delta_t" type="int32"/>
  </message>
-
-
 
  <message name="VOR" ID="140"> 
    <field name="qdr"  type="int32"/>
    <field name="nb_adc_overrun"  type="uint32"/>
  </message>
 
-<!--
-  <message name="DC_MC_STATUS" ID="255">
-      <field name="time_sec" type="uint16"/>
-      <field name="time_ticks" type="uint16"/>
-      <field name="command" type="uint16"/>
-  </message>
--->
 </class>
 
 

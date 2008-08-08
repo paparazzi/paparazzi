@@ -88,10 +88,10 @@ extern VEC* booz_get_forces_body_frame(VEC* M, MAT* dcm, VEC* omega_square, VEC*
   }
 
 #define BoozFlighModelGetRPMS(_dest) {				\
-    _dest->ve[SERVO_MOTOR_BACK]  = bfm.state->ve[BFMS_OM_B];	\
-    _dest->ve[SERVO_MOTOR_FRONT] = bfm.state->ve[BFMS_OM_F];	\
-    _dest->ve[SERVO_MOTOR_RIGHT] = bfm.state->ve[BFMS_OM_R];	\
-    _dest->ve[SERVO_MOTOR_LEFT]  = bfm.state->ve[BFMS_OM_L];	\
+    _dest->ve[SERVO_BACK]  = bfm.state->ve[BFMS_OM_B];	\
+    _dest->ve[SERVO_FRONT] = bfm.state->ve[BFMS_OM_F];	\
+    _dest->ve[SERVO_RIGHT] = bfm.state->ve[BFMS_OM_R];	\
+    _dest->ve[SERVO_LEFT]  = bfm.state->ve[BFMS_OM_L];	\
   }
 
 #endif /* BOOZ_FLIGHT_MODEL_H */

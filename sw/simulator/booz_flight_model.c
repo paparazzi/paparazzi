@@ -42,14 +42,14 @@ void booz_flight_model_init( void ) {
 
   bfm.props_moment_matrix = m_get(AXIS_NB, SERVOS_NB);
   m_zero(bfm.props_moment_matrix);
-  bfm.props_moment_matrix->me[AXIS_X][SERVO_MOTOR_LEFT]  =  L * bfm.thrust_factor;
-  bfm.props_moment_matrix->me[AXIS_X][SERVO_MOTOR_RIGHT] = -L * bfm.thrust_factor;
-  bfm.props_moment_matrix->me[AXIS_Y][SERVO_MOTOR_BACK]  = -L * bfm.thrust_factor;
-  bfm.props_moment_matrix->me[AXIS_Y][SERVO_MOTOR_FRONT] =  L * bfm.thrust_factor;
-  bfm.props_moment_matrix->me[AXIS_Z][SERVO_MOTOR_LEFT]  =  bfm.torque_factor;
-  bfm.props_moment_matrix->me[AXIS_Z][SERVO_MOTOR_RIGHT] =  bfm.torque_factor;
-  bfm.props_moment_matrix->me[AXIS_Z][SERVO_MOTOR_BACK]  =  -bfm.torque_factor;
-  bfm.props_moment_matrix->me[AXIS_Z][SERVO_MOTOR_FRONT] =  -bfm.torque_factor;
+  bfm.props_moment_matrix->me[AXIS_X][SERVO_LEFT]  =  L * bfm.thrust_factor;
+  bfm.props_moment_matrix->me[AXIS_X][SERVO_RIGHT] = -L * bfm.thrust_factor;
+  bfm.props_moment_matrix->me[AXIS_Y][SERVO_BACK]  = -L * bfm.thrust_factor;
+  bfm.props_moment_matrix->me[AXIS_Y][SERVO_FRONT] =  L * bfm.thrust_factor;
+  bfm.props_moment_matrix->me[AXIS_Z][SERVO_LEFT]  =  bfm.torque_factor;
+  bfm.props_moment_matrix->me[AXIS_Z][SERVO_RIGHT] =  bfm.torque_factor;
+  bfm.props_moment_matrix->me[AXIS_Z][SERVO_BACK]  =  -bfm.torque_factor;
+  bfm.props_moment_matrix->me[AXIS_Z][SERVO_FRONT] =  -bfm.torque_factor;
 
   bfm.mass = MASS;
 
@@ -236,10 +236,10 @@ static void booz_flight_model_get_derivatives(VEC* X, VEC* u, VEC* Xdot) {
 
   /* derivatives of motors rpm */
   /* omega_dot = -1/THAU*omega - Kq*omega^2 + Kv/THAU * V */
-  Xdot->ve[BFMS_OM_B] = -1./THAU * X->ve[BFMS_OM_B] - Kq * omega_square->ve[SERVO_MOTOR_BACK] + Kv/THAU * u->ve[SERVO_MOTOR_BACK];
-  Xdot->ve[BFMS_OM_F] = -1./THAU * X->ve[BFMS_OM_F] - Kq * omega_square->ve[SERVO_MOTOR_FRONT] + Kv/THAU * u->ve[SERVO_MOTOR_FRONT];
-  Xdot->ve[BFMS_OM_R] = -1./THAU * X->ve[BFMS_OM_R] - Kq * omega_square->ve[SERVO_MOTOR_RIGHT] + Kv/THAU * u->ve[SERVO_MOTOR_RIGHT];
-  Xdot->ve[BFMS_OM_L] = -1./THAU * X->ve[BFMS_OM_L] - Kq * omega_square->ve[SERVO_MOTOR_LEFT] + Kv/THAU * u->ve[SERVO_MOTOR_LEFT];
+  Xdot->ve[BFMS_OM_B] = -1./THAU * X->ve[BFMS_OM_B] - Kq * omega_square->ve[SERVO_BACK] + Kv/THAU * u->ve[SERVO_BACK];
+  Xdot->ve[BFMS_OM_F] = -1./THAU * X->ve[BFMS_OM_F] - Kq * omega_square->ve[SERVO_FRONT] + Kv/THAU * u->ve[SERVO_FRONT];
+  Xdot->ve[BFMS_OM_R] = -1./THAU * X->ve[BFMS_OM_R] - Kq * omega_square->ve[SERVO_RIGHT] + Kv/THAU * u->ve[SERVO_RIGHT];
+  Xdot->ve[BFMS_OM_L] = -1./THAU * X->ve[BFMS_OM_L] - Kq * omega_square->ve[SERVO_LEFT] + Kv/THAU * u->ve[SERVO_LEFT];
 
 }
 

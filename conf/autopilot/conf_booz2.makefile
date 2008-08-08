@@ -49,7 +49,7 @@ sim.LDFLAGS += `pkg-config glib-2.0 --libs` -lm -lmeschach -lpcre -lglibivy
 sim.CFLAGS += -I$(BOOZ) -I../simulator -DFLOAT_T=float
 sim.CFLAGS += -DBSM_PARAMS=\"booz_sensors_model_params_booz2.h\"
 
-sim.srcs = $(BOOZ_PRIV)/main_sim.c                   \
+sim.srcs = $(BOOZ_PRIV)/sim_main.c                   \
 	   $(SIMDIR)/booz_flight_model.c             \
            $(SIMDIR)/booz_flight_model_utils.c       \
            $(SIMDIR)/booz_sensors_model.c            \
@@ -64,20 +64,18 @@ sim.srcs = $(BOOZ_PRIV)/main_sim.c                   \
 
 sim.CFLAGS += -DSITL
 sim.CFLAGS += -DBOOZ_CONTROLLER_MCU
-sim.CFLAGS += -DCONFIG=\"conf_booz.h\"
+sim.CFLAGS += -DCONFIG=\"booz2_board.h\"
 
-sim.srcs += $(BOOZ_PRIV)/booz_imu_int.c
-sim.srcs += $(BOOZ_PRIV)/booz_estimator_int.c
-sim.srcs += $(BOOZ_PRIV)/booz_nav_filter_int.c
-sim.srcs += $(BOOZ_PRIV)/booz_cmp_flt_quat_int.c
-sim.srcs += $(BOOZ_PRIV)/booz_guidance_int.c
-sim.srcs += $(BOOZ_PRIV)/booz_stabilization_int.c
-sim.srcs += $(BOOZ_PRIV)/booz_supervision_int.c
-sim.srcs += $(BOOZ_PRIV)/booz_a_la_mkk.c
+sim.srcs += $(BOOZ_PRIV)/booz2_imu.c
+
+
+
+
 
 #
-# Controller MCU
+# Autopilot MCU
 #
+
 ap.ARCHDIR = $(ARCHI)
 ap.ARCH = arm7tdmi
 ap.TARGET = ap
@@ -151,6 +149,21 @@ imu.srcs += max1167.c  $(SRC_ARCH)/max1167_hw.c
 imu.srcs += micromag.c $(SRC_ARCH)/micromag_hw.c
 
 imu.srcs += $(BOOZ_PRIV)/imu_v3_client_link.c $(BOOZ_PRIV_ARCH)/imu_v3_client_link_hw.c
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 # test leds
