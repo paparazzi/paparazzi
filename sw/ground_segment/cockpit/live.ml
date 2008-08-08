@@ -1051,17 +1051,11 @@ let listen_waypoint_moved = fun () ->
     let geo = { posn_lat = (Deg>>Rad)(a "lat"); posn_long = (Deg>>Rad)(a "long") }
     and altitude = a "alt" in
 
-    (** FIXME: No indexed access to waypoints: iter and compare: *)
     try
-      List.iter (fun w ->
-	let (i, w) = ac.fp_group#index w in
-	if i = wp_id then begin
-	  w#set ~if_not_moved:true ~altitude ~update:true geo;
-	  raise Exit
-	end)
-	ac.fp_group#waypoints
+      let w = ac.fp_group#get_wp wp_id in
+      w#set ~if_not_moved:true ~altitude ~update:true geo
     with
-      Exit -> ()
+      Not_found -> () (* Silently ignore unknown waypoints *)
   in
   safe_bind "WAYPOINT_MOVED" get_values
     
