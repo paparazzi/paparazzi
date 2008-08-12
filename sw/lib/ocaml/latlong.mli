@@ -77,7 +77,10 @@ val norm_angle : float -> float
 
 val valid_geo : geographic -> bool
 
-val make_geo : float -> float -> geographic
+val make_geo : radian -> radian -> geographic
+(** [make_geo lat long] *)
+
+val make_geo_deg : degree -> degree -> geographic
 (** [make_geo lat long] *)
 
 val string_degrees_of_geographic : geographic -> string

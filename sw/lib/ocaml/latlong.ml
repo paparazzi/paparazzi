@@ -65,6 +65,10 @@ let piradian = function
   Semi -> 2. ** 31. | Rad -> pi | Deg -> 180. | Grd -> 200.
 let (>>) u1 u2 x = (x *. piradian u2) /. piradian u1;;
 
+let make_geo_deg = fun lat long ->
+  { posn_long = norm_angle ((Deg>>Rad)long); posn_lat = ((Deg>>Rad)lat) }
+
+
 let deg_string_of_rad = fun r -> Printf.sprintf "%.6f" ((Rad>>Deg)r)
 
 let decimal d m s = float d +. float m /. 60. +. s /. 3600.;;
