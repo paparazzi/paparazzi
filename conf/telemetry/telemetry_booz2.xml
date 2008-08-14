@@ -11,6 +11,7 @@
       <message name="BOOZ2_RATE_LOOP"   period=".05"/>
       <message name="BOOZ2_ALIGNER"     period=".1"/>
       <message name="BOOZ2_FILTER_Q"    period=".05"/>
+<!--      <message name="BOOZ2_ATT_LOOP"  period=".05"/> -->
     </mode>
 
     <mode name="debug">

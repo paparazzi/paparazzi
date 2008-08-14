@@ -971,7 +971,6 @@
    <field name="qz"  type="int32"/>
  </message>
 
-
  <message name="VOR" ID="140"> 
    <field name="qdr"  type="int32"/>
    <field name="nb_adc_overrun"  type="uint32"/>

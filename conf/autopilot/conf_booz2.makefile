@@ -82,7 +82,7 @@ ap.ARCH = arm7tdmi
 ap.TARGET = ap
 ap.TARGETDIR = ap
 
-ap.CFLAGS += -DKILL_MOTORS
+#ap.CFLAGS += -DKILL_MOTORS
 
 ap.CFLAGS += -DCONFIG=\"booz2_board.h\" -I$(BOOZ_ARCH) -I$(BOOZ_PRIV) -I$(BOOZ_PRIV_ARCH)
 ap.srcs += $(BOOZ_PRIV)/booz2_main.c
@@ -119,11 +119,13 @@ ap.srcs += $(BOOZ_PRIV)/booz2_analog_baro.c
 ap.srcs += $(BOOZ_PRIV)/booz2_autopilot.c
 ap.srcs += $(BOOZ_PRIV)/booz2_stabilization.c
 ap.srcs += $(BOOZ_PRIV)/booz2_stabilization_rate.c
+ap.srcs += $(BOOZ_PRIV)/booz2_stabilization_attitude.c
 ap.srcs += $(BOOZ_PRIV)/booz_supervision_int.c
 
 ap.CFLAGS += -DALIGNER_LED=6
 ap.srcs += $(BOOZ_PRIV)/booz2_aligner.c
 ap.srcs += $(BOOZ_PRIV)/booz2_att_cmpl_flt.c
+
 
 #
 # IMU V3 MCU
@@ -136,7 +138,8 @@ imu.TARGETDIR = imu
 
 imu.CFLAGS += -DCONFIG=\"pprz_imu.h\" -I$(BOOZ) -I$(BOOZ_ARCH) -I$(BOOZ_PRIV) -I$(BOOZ_PRIV_ARCH)
 imu.srcs += $(BOOZ_PRIV)/imu_v3_main.c
-imu.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./500.))' -DTIME_LED=1
+imu.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./500.))'
+# -DTIME_LED=1
 imu.CFLAGS += -DLED
 imu.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
 
