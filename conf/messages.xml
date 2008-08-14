@@ -949,6 +949,29 @@
    <field name="delta_t" type="int32"/>
  </message>
 
+ <message name="BOOZ2_ALIGNER" ID="137">  
+   <field name="lp_gp"  type="int32"/>
+   <field name="lp_gq"  type="int32"/>
+   <field name="lp_gr"  type="int32"/>
+   <field name="lp_ax"  type="int32"/>
+   <field name="lp_ay"  type="int32"/>
+   <field name="lp_az"  type="int32"/>
+   <field name="lp_mx"  type="int32"/>
+   <field name="lp_my"  type="int32"/>
+   <field name="lp_mz"  type="int32"/>
+   <field name="lp_noisex"  type="int32"/>
+   <field name="lp_noisey"  type="int32"/>
+   <field name="lp_noisez"  type="int32"/>
+ </message>
+
+ <message name="BOOZ2_FILTER_Q" ID="138">   
+   <field name="qi"  type="int32"/>
+   <field name="qx"  type="int32"/>
+   <field name="qy"  type="int32"/>
+   <field name="qz"  type="int32"/>
+ </message>
+
+
  <message name="VOR" ID="140"> 
    <field name="qdr"  type="int32"/>
    <field name="nb_adc_overrun"  type="uint32"/>

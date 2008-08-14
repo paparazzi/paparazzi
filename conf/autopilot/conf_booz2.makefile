@@ -67,6 +67,7 @@ sim.CFLAGS += -DBOOZ_CONTROLLER_MCU
 sim.CFLAGS += -DCONFIG=\"booz2_board.h\"
 
 sim.srcs += $(BOOZ_PRIV)/booz2_imu.c
+sim.srcs += $(BOOZ_PRIV)/booz_a_la_mkk.c
 
 
 
@@ -81,7 +82,7 @@ ap.ARCH = arm7tdmi
 ap.TARGET = ap
 ap.TARGETDIR = ap
 
-#ap.CFLAGS += -DKILL_MOTORS
+ap.CFLAGS += -DKILL_MOTORS
 
 ap.CFLAGS += -DCONFIG=\"booz2_board.h\" -I$(BOOZ_ARCH) -I$(BOOZ_PRIV) -I$(BOOZ_PRIV_ARCH)
 ap.srcs += $(BOOZ_PRIV)/booz2_main.c
@@ -120,6 +121,9 @@ ap.srcs += $(BOOZ_PRIV)/booz2_stabilization.c
 ap.srcs += $(BOOZ_PRIV)/booz2_stabilization_rate.c
 ap.srcs += $(BOOZ_PRIV)/booz_supervision_int.c
 
+ap.CFLAGS += -DALIGNER_LED=6
+ap.srcs += $(BOOZ_PRIV)/booz2_aligner.c
+ap.srcs += $(BOOZ_PRIV)/booz2_att_cmpl_flt.c
 
 #
 # IMU V3 MCU
