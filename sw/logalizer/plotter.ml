@@ -77,7 +77,7 @@ class plot = fun ~size ~width ~height ~packing () ->
   let curves = Hashtbl.create 3 in
   object (self)
     val mutable min = max_float
-    val mutable max = min_float
+    val mutable max = -. max_float
     val mutable size = size
     val mutable dt = 0.5
     val mutable color_index = 0
