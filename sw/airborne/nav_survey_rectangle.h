@@ -1,4 +1,4 @@
-/** Automatic survey of a sector (south-north or west-east sweep) */
+/** Automatic survey of a rectangle (defined by two points) (south-north or west-east sweep) */
 
 #ifndef NAV_SURVEY_RECTANGLE_H
 #define NAV_SURVEY_RECTANGLE_H
