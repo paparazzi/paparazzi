@@ -1,8 +1,46 @@
+/*
+ * $Id$
+ *  
+ * Copyright (C) 2008  Pascal Brisset, Antoine Drouin
+ *
+ * This file is part of paparazzi.
+ *
+ * paparazzi is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * paparazzi is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with paparazzi; see the file COPYING.  If not, write to
+ * the Free Software Foundation, 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA. 
+ *
+ */
+
 #include "adc.h"
 
 #include "LPC21xx.h"
 #include "armVIC.h"
 #include CONFIG
+
+
+#ifdef USE_AD0
+#ifndef AD0_VIC_SLOT
+#define AD0_VIC_SLOT 2
+#endif
+#endif
+
+#ifdef USE_AD1
+#ifndef AD1_VIC_SLOT
+#define AD1_VIC_SLOT 4
+#endif
+#endif
+
 
 /** First NB_ADC for bank 0, others for bank 2 */
 static struct adc_buf* buffers[NB_ADC*2];
@@ -162,8 +200,8 @@ void adc_init( void ) {
   /* AD0 interrupt enabled */
   VICIntEnable = VIC_BIT(VIC_AD0);  
   /* AD0 interrupt as VIC2 */
-  VICVectCntl2 = VIC_ENABLE | VIC_AD0;
-  VICVectAddr2 = (uint32_t)adcISR0;
+  _VIC_CNTL(AD0_VIC_SLOT) = VIC_ENABLE | VIC_AD0;
+  _VIC_ADDR(AD0_VIC_SLOT) = (uint32_t)adcISR0;
 #endif
 
 #ifdef USE_AD1
@@ -174,8 +212,8 @@ void adc_init( void ) {
   /* AD1 interrupt enabled */
   VICIntEnable = VIC_BIT(VIC_AD1);  
   /* AD1 interrupt as VIC2 */
-  VICVectCntl4 = VIC_ENABLE | VIC_AD1;
-  VICVectAddr4 = (uint32_t)adcISR1;
+  _VIC_CNTL(AD1_VIC_SLOT) = VIC_ENABLE | VIC_AD1;
+  _VIC_ADDR(AD1_VIC_SLOT) = (uint32_t)adcISR1;
 #endif
 
 }

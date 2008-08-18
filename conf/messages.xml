@@ -387,7 +387,12 @@
     <field name="p" type="float" unit="pascal"/>
   </message>
 
-
+  <message name="IMU_DEBUG" ID="211">
+    <field name="max1167_status"  type="uint8"/>
+    <field name="micromag_status" type="uint8"/>
+    <field name="imu_v3_sensors_micromag_timeout"  type="uint8"/>
+    <field name="imu_v3_sensors_micromag_nb_reset"  type="uint8"/>
+  </message>
 
   <message name="IMU_TURNTABLE" ID="220">
     <field name="omega" type="float" unit="rad/s"/>
@@ -913,18 +918,21 @@
  </message>
 
  <message name="BOOZ2_FILTER" ID="134">   
-   <field name="gp"     type="int32"/>
-   <field name="gq"     type="int32"/>
-   <field name="gr"     type="int32"/>
-   <field name="err_gx" type="int32"/>
-   <field name="err_gy" type="int32"/>
-   <field name="err_gz" type="int32"/>
-   <field name="err_hx" type="int32"/>
-   <field name="err_hy" type="int32"/>
-   <field name="err_hz" type="int32"/>
-   <field name="bp"     type="int32"/>
-   <field name="bq"     type="int32"/>
-   <field name="br"     type="int32"/>
+   <field name="phi"              type="int32"/>
+   <field name="theta"            type="int32"/>
+   <field name="psi"              type="int32"/>
+   <field name="measure_phi"      type="int32"/>
+   <field name="measure_theta"    type="int32"/>
+   <field name="measure_psi"      type="int32"/>
+   <field name="corrected_phi"    type="int32"/>
+   <field name="corrected_theta"  type="int32"/>
+   <field name="corrected_psi"    type="int32"/>
+   <field name="correction_phi"   type="int32"/>
+   <field name="correction_theta" type="int32"/>
+   <field name="correction_psi"   type="int32"/>
+   <field name="bp"               type="int32"/>
+   <field name="bq"               type="int32"/>
+   <field name="br"               type="int32"/>
  </message>
 
  <message name="BOOZ2_FILTER2" ID="135">   
@@ -949,7 +957,7 @@
    <field name="delta_t" type="int32"/>
  </message>
 
- <message name="BOOZ2_ALIGNER" ID="137">  
+ <message name="BOOZ2_FILTER_ALIGNER" ID="137">  
    <field name="lp_gp"  type="int32"/>
    <field name="lp_gq"  type="int32"/>
    <field name="lp_gr"  type="int32"/>
@@ -971,10 +979,59 @@
    <field name="qz"  type="int32"/>
  </message>
 
- <message name="VOR" ID="140"> 
-   <field name="qdr"  type="int32"/>
-   <field name="nb_adc_overrun"  type="uint32"/>
+ <message name="BOOZ2_FILTER_COR" ID="139">   
+   <field name="mphi"   type="int32"/>
+   <field name="mtheta" type="int32"/>
+   <field name="mpsi"   type="int32"/>
+   <field name="qi"  type="int32"/>
+   <field name="qx"  type="int32"/>
+   <field name="qy"  type="int32"/>
+   <field name="qz"  type="int32"/>
  </message>
+
+
+
+ <message name="BOOZ2_STAB_ATTITUDE" ID="140"> 
+    <field name="sp_phi"   type="int32"/>   
+    <field name="sp_theta" type="int32"/>   
+    <field name="sp_psi"   type="int32"/>   
+ </message>
+
+ <message name="BOOZ2_STAB_ATTITUDE_REF" ID="141"> 
+    <field name="pd"   type="int32"/>   
+    <field name="qd"   type="int32"/>   
+    <field name="rd"   type="int32"/>   
+    <field name="p"    type="int32"/>   
+    <field name="q"    type="int32"/>   
+    <field name="r"    type="int32"/>   
+    <field name="qi"    type="int32"/>   
+    <field name="qx"    type="int32"/>   
+    <field name="qy"    type="int32"/>   
+    <field name="qz"    type="int32"/>   
+ </message>
+
+
+ <message name="BOOZ2_STAB_ATTITUDE_REF_EULER" ID="142"> 
+    <field name="pd"   type="int32"/>   
+    <field name="qd"   type="int32"/>   
+    <field name="rd"   type="int32"/>   
+    <field name="p"    type="int32"/>   
+    <field name="q"    type="int32"/>   
+    <field name="r"    type="int32"/>   
+    <field name="phi"    type="int32"/>   
+    <field name="theta"    type="int32"/>   
+    <field name="psi"    type="int32"/>   
+ </message>
+
+
+
+ <message name="BOOZ2_CMD" ID="143">
+    <field name="cmd_a"   type="int32"/>   
+    <field name="cmd_e"   type="int32"/>   
+    <field name="cmd_r"   type="int32"/>   
+    <field name="cmd_t"   type="int32"/>   
+ </message>
+
 
 </class>
 

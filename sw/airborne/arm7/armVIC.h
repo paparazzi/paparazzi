@@ -14,6 +14,12 @@
 #ifndef INC_ARM_VIC_H
 #define INC_ARM_VIC_H
 
+#define __VIC_CNTL(idx)  VICVectCntl##idx
+#define __VIC_ADDR(idx)  VICVectAddr##idx
+#define _VIC_CNTL(idx)  __VIC_CNTL(idx)
+#define _VIC_ADDR(idx)  __VIC_ADDR(idx)
+
+
 /******************************************************************************
  *
  * MACRO Name: ISR_ENTRY()

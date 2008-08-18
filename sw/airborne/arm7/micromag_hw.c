@@ -37,10 +37,10 @@ void micromag_hw_init( void ) {
   SetBit(EXTINT,MM_DRDY_EINT);   /* clear pending EINT */
   
   /* initialize interrupt vector */
-  VICIntSelect &= ~VIC_BIT( MM_DRDY_VIC_IT );  /* select EINT as IRQ source */
-  VICIntEnable = VIC_BIT( MM_DRDY_VIC_IT );    /* enable it */
-  VICVectCntl9 = VIC_ENABLE | MM_DRDY_VIC_IT;
-  VICVectAddr9 = (uint32_t)EXTINT_ISR;         // address of the ISR 
+  VICIntSelect &= ~VIC_BIT( MM_DRDY_VIC_IT );                       /* select EINT as IRQ source */
+  VICIntEnable = VIC_BIT( MM_DRDY_VIC_IT );                         /* enable it                 */
+  _VIC_CNTL(MICROMAG_DRDY_VIC_SLOT) = VIC_ENABLE | MM_DRDY_VIC_IT;
+  _VIC_ADDR(MICROMAG_DRDY_VIC_SLOT) = (uint32_t)EXTINT_ISR;         // address of the ISR 
 
 }
 
@@ -50,8 +50,6 @@ void micromag_hw_init( void ) {
 
 void EXTINT_ISR(void) {
   ISR_ENTRY();
-
-  //  DOWNLINK_SEND_BOOZ_DEBUG_FOO(&micromag_status);
 
   micromag_status = MM_GOT_EOC;
   /* clear EINT */

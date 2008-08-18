@@ -1,8 +1,36 @@
+/*
+ * $Id$
+ *  
+ * Copyright (C) 2008  Pascal Brisset, Antoine Drouin
+ *
+ * This file is part of paparazzi.
+ *
+ * paparazzi is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * paparazzi is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with paparazzi; see the file COPYING.  If not, write to
+ * the Free Software Foundation, 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA. 
+ *
+ */
 
 #include "uart.h"
 #include "armVIC.h"
 
 #ifdef USE_UART0
+
+#ifndef UART0_VIC_SLOT
+#define UART0_VIC_SLOT 5
+#endif
+
 
 void uart0_ISR(void) __attribute__((naked));
 
@@ -39,10 +67,10 @@ void uart0_init_param( uint16_t baud, uint8_t mode, uint8_t fmode) {
   U0FCR = fmode;
 
   // initialize the interrupt vector
-  VICIntSelect &= ~VIC_BIT(VIC_UART0);  // UART0 selected as IRQ
-  VICIntEnable = VIC_BIT(VIC_UART0);    // UART0 interrupt enabled
-  VICVectCntl5 = VIC_ENABLE | VIC_UART0;
-  VICVectAddr5 = (uint32_t)uart0_ISR;    // address of the ISR
+  VICIntSelect &= ~VIC_BIT(VIC_UART0);                // UART0 selected as IRQ
+  VICIntEnable = VIC_BIT(VIC_UART0);                  // UART0 interrupt enabled
+  _VIC_CNTL(UART0_VIC_SLOT) = VIC_ENABLE | VIC_UART0;
+  _VIC_ADDR(UART0_VIC_SLOT) = (uint32_t)uart0_ISR;    // address of the ISR
 
   // initialize the transmit data queue
   uart0_tx_extract_idx = 0;
@@ -178,6 +206,10 @@ void uart0_ISR(void)
 
 #ifdef USE_UART1
 
+#ifndef UART1_VIC_SLOT
+#define UART1_VIC_SLOT 6
+#endif
+
 void uart1_ISR(void) __attribute__((naked));
 
 uint8_t  uart1_rx_buffer[UART1_RX_BUFFER_SIZE];
@@ -222,10 +254,10 @@ void uart1_init_param( uint16_t baud, uint8_t mode, uint8_t fmode) {
   U1FCR = fmode;
 
   // initialize the interrupt vector
-  VICIntSelect &= ~VIC_BIT(VIC_UART1);  // UART1 selected as IRQ
-  VICIntEnable = VIC_BIT(VIC_UART1);    // UART1 interrupt enabled
-  VICVectCntl6 = VIC_ENABLE | VIC_UART1;
-  VICVectAddr6 = (uint32_t)uart1_ISR;    // address of the ISR
+  VICIntSelect &= ~VIC_BIT(VIC_UART1);                // UART1 selected as IRQ
+  VICIntEnable = VIC_BIT(VIC_UART1);                  // UART1 interrupt enabled
+  _VIC_CNTL(UART1_VIC_SLOT) = VIC_ENABLE | VIC_UART1;
+  _VIC_ADDR(UART1_VIC_SLOT) = (uint32_t)uart1_ISR;    // address of the ISR
 
   // initialize the transmit data queue
   uart1_tx_extract_idx = 0;

@@ -86,24 +86,31 @@
 
   </section>
 
-  <section name="BOOZ_STABILIZATION_RATE" prefix="BOOZ_STABILIZATION_RATE_">
+  <section name="STABILIZATION_RATE" prefix="BOOZ_STABILIZATION_RATE_">
 
     <define name="SP_MAX_P" value="10000"/>
     <define name="SP_MAX_Q" value="10000"/>
     <define name="SP_MAX_R" value=" 5000"/>
 
-    <define name="GAIN_P" value="-250"/>
-    <define name="GAIN_Q" value="-250"/>
-    <define name="GAIN_R" value="-100"/>
+    <define name="GAIN_P" value="-400"/>
+    <define name="GAIN_Q" value="-400"/>
+    <define name="GAIN_R" value="-300"/>
 
   </section>
 
 
-  <section name="BOOZ_STABILIZATION_ATTITUDE" prefix="BOOZ_STABILIZATION_ATTITUDE_">
+  <section name="STABILIZATION_ATTITUDE" prefix="BOOZ_STABILIZATION_ATTITUDE_">
 
     <define name="SP_MAX_PHI"     value="4000"/>
     <define name="SP_MAX_THETA"   value="4000"/>
-    <define name="SP_MAX_R"       value=" 5000"/>
+    <define name="SP_MAX_R"       value="5500"/>
+    <define name="DEADBAND_R"     value="250"/>
+
+    <define name="PHI_THETA_PGAIN" value="-4000"/>
+    <define name="PHI_THETA_DGAIN" value="-2000"/>
+
+    <define name="PSI_PGAIN" value="-2000"/>
+    <define name="PSI_DGAIN" value="-1000"/>
 
   </section>
 

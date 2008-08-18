@@ -8,6 +8,8 @@
 extern void micromag_init( void );
 extern void micromag_read( void );
 
+extern void micromag_reset( void);
+
 #define MM_IDLE            0
 #define MM_BUSY            1
 #define MM_SENDING_REQ     2

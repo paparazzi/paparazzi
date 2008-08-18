@@ -45,10 +45,10 @@ extern void max1167_hw_init( void ) {
   SetBit(EXTINT, MAX1167_EOC_EINT);
 
    /* initialize interrupt vector */
-  VICIntSelect &= ~VIC_BIT( VIC_EINT0 );  // EXTINT0 selected as IRQ
-  VICIntEnable = VIC_BIT( VIC_EINT0 );    // EXTINT0 interrupt enabled
-  VICVectCntl8 = VIC_ENABLE | VIC_EINT0;
-  VICVectAddr8 = (uint32_t)EXTINT0_ISR;    // address of the ISR 
+  VICIntSelect &= ~VIC_BIT( VIC_EINT0 );                     // EXTINT0 selected as IRQ
+  VICIntEnable = VIC_BIT( VIC_EINT0 );                       // EXTINT0 interrupt enabled
+  _VIC_CNTL(MAX1167_EOC_VIC_SLOT) = VIC_ENABLE | VIC_EINT0;
+  _VIC_ADDR(MAX1167_EOC_VIC_SLOT) = (uint32_t)EXTINT0_ISR;   // address of the ISR 
 }
 
 
@@ -81,7 +81,6 @@ void EXTINT0_ISR(void) {
   SpiSend(0);
   SpiClearRti();
   SpiEnableRti();
-  /* and it would be re enabled when we enter WAIT_EOC */
   max1167_status = STA_MAX1167_READING_RES;
   
   SetBit(EXTINT, MAX1167_EOC_EINT);   /* clear extint0 */

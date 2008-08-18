@@ -1,6 +1,8 @@
 #ifndef MICROMAG_HW_H
 #define MICROMAG_HW_H
 
+#include <stdlib.h>  // for abs
+
 #include "std.h"
 #include "LPC21xx.h"
 #include "interrupt_hw.h" 
@@ -30,19 +32,24 @@ extern volatile uint8_t micromag_cur_axe;
       }									\
       break;								\
     case MM_READING_RES:						\
-      micromag_values[micromag_cur_axe] = SSPDR << 8;			\
-      micromag_values[micromag_cur_axe] += SSPDR;			\
-      MmUnselect();							\
-      SpiClearRti();							\
-      SpiDisableRti();							\
-      SpiDisable();							\
-      micromag_cur_axe++;						\
-      if (micromag_cur_axe > 2) {					\
-	micromag_cur_axe = 0;						\
-	micromag_status = MM_DATA_AVAILABLE;				\
+      {									\
+	int16_t new_val;						\
+	new_val = SSPDR << 8;						\
+	new_val += SSPDR;						\
+	if (abs(new_val) < 2000)					\
+	  micromag_values[micromag_cur_axe] = new_val;			\
+	MmUnselect();							\
+	SpiClearRti();							\
+	SpiDisableRti();						\
+	SpiDisable();							\
+	micromag_cur_axe++;						\
+	if (micromag_cur_axe > 2) {					\
+	  micromag_cur_axe = 0;						\
+	  micromag_status = MM_DATA_AVAILABLE;				\
+	}								\
+	else								\
+	  micromag_status = MM_IDLE;					\
       }									\
-      else								\
-	micromag_status = MM_IDLE;					\
       break;								\
     }									\
   }
@@ -70,6 +77,7 @@ extern volatile uint8_t micromag_cur_axe;
     SSPDR = 0;								\
     SpiEnable();                                                        \
   }
+
 
 
 #endif /* MICROMAG_HW_H */

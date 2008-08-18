@@ -12,3 +12,7 @@ void micromag_init( void ) {
     micromag_values[i] = 0;
   micromag_status = MM_IDLE;
 }
+
+void micromag_reset() {
+  micromag_status = MM_IDLE;
+}
