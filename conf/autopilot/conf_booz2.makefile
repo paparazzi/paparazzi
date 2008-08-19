@@ -129,6 +129,13 @@ ap.srcs += $(BOOZ_PRIV)/booz2_filter_aligner.c
 ap.srcs += $(BOOZ_PRIV)/booz2_filter_attitude_cmpl_euler.c
 ap.srcs += $(BOOZ_PRIV)/booz_trig_int.c
 
+ap.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B38400
+ap.CFLAGS += -DGPS_LINK=Uart1 -DGPS_LED=7
+ap.srcs += $(BOOZ_PRIV)/booz2_gps.c
+ap.srcs += $(BOOZ_PRIV)/booz2_guidance.c
+
+
+
 
 #
 # IMU V3 MCU
@@ -198,7 +205,50 @@ imu_test_micromag.srcs   += micromag.c $(SRC_ARCH)/micromag_hw.c
 
 
 
+#
+# Controller MCU tests
+#
 
+#
+# test GPS, aka tunnel
+#
+
+tunnel.ARCHDIR = $(ARCHI)
+tunnel.ARCH = arm7tdmi
+tunnel.TARGET = tunnel
+tunnel.TARGETDIR = tunnel
+
+tunnel.CFLAGS += -DCONFIG=\"booz2_board.h\" -I$(BOOZ_PRIV_ARCH)
+tunnel.srcs += $(BOOZ_PRIV_TEST)/booz2_tunnel.c
+tunnel.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./500.))' -DTIME_LED=1
+tunnel.CFLAGS += -DLED
+tunnel.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
+
+tunnel.CFLAGS += -DUSE_UART0 -DUART0_BAUD=B57600
+tunnel.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B38400
+tunnel.srcs += $(SRC_ARCH)/uart_hw.c
+
+#
+# test GPS
+#
+
+test_gps.ARCHDIR = $(ARCHI)
+test_gps.ARCH = arm7tdmi
+test_gps.TARGET = test_gps
+test_gps.TARGETDIR = test_gps
+
+test_gps.CFLAGS += -DCONFIG=\"booz2_board.h\" -I$(BOOZ_PRIV) -I$(BOOZ_PRIV_ARCH)
+test_gps.srcs += $(BOOZ_PRIV_TEST)/booz2_test_gps.c
+test_gps.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./500.))' -DTIME_LED=1
+test_gps.CFLAGS += -DLED
+test_gps.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
+
+test_gps.CFLAGS += -DUSE_UART0 -DUART0_BAUD=B57600
+test_gps.srcs += $(SRC_ARCH)/uart_hw.c
+
+test_gps.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B38400
+test_gps.CFLAGS += -DGPS_LINK=Uart1 -DGPS_LED=7
+test_gps.srcs += $(BOOZ_PRIV)/booz2_gps.c
 
 
 

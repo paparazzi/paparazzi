@@ -1033,6 +1033,15 @@
  </message>
 
 
+ <message name="BOOZ2_GUIDANCE" ID="144">
+    <field name="pos_n"    type="int32"/>   
+    <field name="pos_e"    type="int32"/>   
+    <field name="sp_pos_n" type="int32"/>   
+    <field name="sp_pos_e" type="int32"/>   
+ </message>
+
+
+
 </class>
 
 

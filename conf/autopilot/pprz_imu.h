@@ -18,11 +18,13 @@
 #define ADC_CHANNEL_AZ  3
 #define ADC_CHANNEL_BAT 4
 
-#define LED_1_BANK 0
-#define LED_1_PIN 2
+//#define LED_1_BANK 0
+//#define LED_1_PIN 2
+#define LED_1_BANK 1
+#define LED_1_PIN  24
 
-#define LED_2_BANK 0
-#define LED_2_PIN 3
+//#define LED_2_BANK 0
+//#define LED_2_PIN 3
 
 
 

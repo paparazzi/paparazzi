@@ -14,6 +14,7 @@
 <!--      <message name="BOOZ2_ALIGNER"     period=".1"/> -->
       <message name="BOOZ2_FILTER"      period=".5"/>
 <!--      <message name="BOOZ2_FILTER_Q"    period=".1"/>  -->
+      <message name="BOOZ2_GUIDANCE"    period=".25"/>
       <message name="BOOZ2_GYRO"        period=".5"/>
       <message name="BOOZ2_ACCEL"       period=".5"/>
       <message name="BOOZ2_MAG"         period=".5"/>
