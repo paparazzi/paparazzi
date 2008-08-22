@@ -66,7 +66,7 @@ void ami601_read( void ) {
     ami601_i2c_done = FALSE;
     ami601_status = AMI601_SENDING_REQ;
     const uint8_t read_cmd[] = { 0x55, 0xAA, 0X14};
-    memcpy((void*)i2c_buf, read_cmd, sizeof(read_cmd));
-    i2c_transmit(AMI601_SLAVE_ADDR, sizeof(read_cmd), &ami601_i2c_done);
+    memcpy((void*)i2c1_buf, read_cmd, sizeof(read_cmd));
+    i2c1_transmit(AMI601_SLAVE_ADDR, sizeof(read_cmd), &ami601_i2c_done);
   }
 }

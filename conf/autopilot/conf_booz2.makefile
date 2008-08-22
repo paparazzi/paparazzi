@@ -83,7 +83,7 @@ ap.ARCH = arm7tdmi
 ap.TARGET = ap
 ap.TARGETDIR = ap
 
-ap.CFLAGS += -DKILL_MOTORS
+#ap.CFLAGS += -DKILL_MOTORS
 
 ap.CFLAGS += -DCONFIG=\"booz2_board.h\" -I$(BOOZ_ARCH) -I$(BOOZ_PRIV) -I$(BOOZ_PRIV_ARCH)
 ap.srcs += $(BOOZ_PRIV)/booz2_main.c
@@ -107,15 +107,23 @@ ap.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c
 
 ap.CFLAGS += -DACTUATORS=\"actuators_buss_twi_blmc_hw.h\" -DUSE_BUSS_TWI_BLMC
 ap.srcs += $(BOOZ_ARCH)/actuators_buss_twi_blmc_hw.c actuators.c
-ap.CFLAGS += -DI2C_SCLL=150 -DI2C_SCLH=150 -DI2C_VIC_SLOT=10
+ap.CFLAGS += -DUSE_I2C0 -DI2C0_SCLL=150 -DI2C0_SCLH=150 -DI2C0_VIC_SLOT=10
 ap.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
 
-ap.srcs += $(BOOZ_PRIV)/booz2_imu_v3.c $(BOOZ_PRIV_ARCH)/booz2_imu_v3_hw.c
+#ap.srcs += $(BOOZ_PRIV)/booz2_imu_v3.c $(BOOZ_PRIV_ARCH)/booz2_imu_v3_hw.c
+ap.srcs += $(BOOZ_PRIV)/booz2_imu_crista.c $(BOOZ_PRIV_ARCH)/booz2_imu_crista_hw.c
 ap.CFLAGS += -DFLOAT_T=float
 ap.srcs += $(BOOZ_PRIV)/booz2_imu.c
 
 ap.CFLAGS += -DBOOZ2_ANALOG_BARO_LED=5 -DBOOZ2_ANALOG_BARO_PERIOD='SYS_TICS_OF_SEC((1./100.))'
 ap.srcs += $(BOOZ_PRIV)/booz2_analog_baro.c
+
+
+ap.CFLAGS += -DUSE_I2C1  -DI2C1_SCLL=150 -DI2C1_SCLH=150 -DI2C1_VIC_SLOT=11 -DI2C1_BUF_LEN=16
+#ap.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
+ap.CFLAGS += -DUSE_AMI601
+ap.srcs += AMI601.c
+
 
 ap.srcs += $(BOOZ_PRIV)/booz2_autopilot.c
 
@@ -129,7 +137,7 @@ ap.srcs += $(BOOZ_PRIV)/booz2_filter_aligner.c
 ap.srcs += $(BOOZ_PRIV)/booz2_filter_attitude_cmpl_euler.c
 ap.srcs += $(BOOZ_PRIV)/booz_trig_int.c
 
-ap.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B38400
+ap.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B38400 -DUART1_VIC_SLOT=6
 ap.CFLAGS += -DGPS_LINK=Uart1 -DGPS_LED=7
 ap.srcs += $(BOOZ_PRIV)/booz2_gps.c
 ap.srcs += $(BOOZ_PRIV)/booz2_guidance.c
@@ -231,7 +239,6 @@ tunnel.srcs += $(SRC_ARCH)/uart_hw.c
 #
 # test GPS
 #
-
 test_gps.ARCHDIR = $(ARCHI)
 test_gps.ARCH = arm7tdmi
 test_gps.TARGET = test_gps
@@ -266,8 +273,9 @@ test_led.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./1000.))' -DTIME_L
 test_led.CFLAGS += -DLED
 test_led.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
 
-
+#
 # test modem
+#
 test_modem.ARCHDIR = $(ARCHI)
 test_modem.ARCH = arm7tdmi
 test_modem.TARGET = test_modem
@@ -289,23 +297,54 @@ test_modem.CFLAGS += -DBOOZ_ANALOG_BARO_LED=2 -DBOOZ_ANALOG_BARO_PERIOD='SYS_TIC
 test_modem.srcs += $(BOOZ_PRIV)/booz_analog_baro.c
 
 
-# test imu
-test_imu.ARCHDIR = $(ARCHI)
-test_imu.ARCH = arm7tdmi
-test_imu.TARGET = test_imu
-test_imu.TARGETDIR = test_imu
+#
+# test AMI
+#
+test_ami.ARCHDIR = $(ARCHI)
+test_ami.ARCH = arm7tdmi
+test_ami.TARGET = test_ami
+test_ami.TARGETDIR = test_ami
 
-test_imu.CFLAGS += -DCONFIG=\"tiny_1_1.h\" -I$(BOOZ_PRIV_ARCH)
-test_imu.srcs += $(BOOZ_PRIV)/test_imu.c
-test_imu.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./1000.))' -DTIME_LED=1
-test_imu.CFLAGS += -DLED
-test_imu.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
+test_ami.CFLAGS += -DCONFIG=\"booz2_board.h\" -I$(BOOZ_PRIV_ARCH)
+test_ami.srcs += $(BOOZ_PRIV_TEST)/booz2_test_ami.c
+test_ami.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./50.))' -DTIME_LED=1
+test_ami.CFLAGS += -DLED
+test_ami.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
 
-test_imu.CFLAGS += -DUSE_UART0 -DUART0_BAUD=B57600
-test_imu.srcs += $(SRC_ARCH)/uart_hw.c
+test_ami.CFLAGS += -DUSE_UART0 -DUART0_BAUD=B57600
+test_ami.srcs += $(SRC_ARCH)/uart_hw.c
 
-test_imu.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart0 
-test_imu.srcs += downlink.c pprz_transport.c
+test_ami.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart0 
+test_ami.srcs += downlink.c pprz_transport.c
 
-test_imu.CFLAGS += -DFLOAT_T=float
-test_imu.srcs += $(BOOZ_PRIV)/booz_imu_int.c $(BOOZ_PRIV_ARCH)/booz_imu_int_hw.c
+test_ami.CFLAGS += -DUSE_I2C1  -DI2C1_SCLL=150 -DI2C1_SCLH=150 -DI2C1_VIC_SLOT=11 -DI2C1_BUF_LEN=16
+test_ami.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
+test_ami.CFLAGS += -DUSE_AMI601
+test_ami.srcs += AMI601.c
+
+
+#
+# test crista
+#
+test_crista.ARCHDIR = $(ARCHI)
+test_crista.ARCH = arm7tdmi
+test_crista.TARGET = test_crista
+test_crista.TARGETDIR = test_crista
+
+test_crista.CFLAGS += -DCONFIG=\"booz2_board.h\" -I$(BOOZ_PRIV) -I$(BOOZ_PRIV_ARCH)
+test_crista.srcs += $(BOOZ_PRIV_TEST)/booz2_test_crista.c
+test_crista.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./500.))' -DTIME_LED=1
+test_crista.CFLAGS += -DLED
+test_crista.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
+
+test_crista.CFLAGS += -DUSE_UART0 -DUART0_BAUD=B57600
+test_crista.srcs += $(SRC_ARCH)/uart_hw.c
+
+test_crista.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart0 
+test_crista.srcs += downlink.c pprz_transport.c
+
+test_crista.CFLAGS += -DFLOAT_T=float
+test_crista.srcs += $(BOOZ_PRIV)/booz2_imu.c
+test_crista.srcs += $(BOOZ_PRIV)/booz2_imu_crista.c $(BOOZ_PRIV_ARCH)/booz2_imu_crista_hw.c
+
+

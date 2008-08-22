@@ -37,7 +37,8 @@
 
   </section>
 
-
+<!-- IMU v3 -->
+<!--
   <section name="IMU" prefix="IMU_">
 
     <define name="GYRO_X_CHAN" value="0"/>
@@ -72,16 +73,56 @@
     
     <define name="MAG_X_NEUTRAL" value="0"/>
     <define name="MAG_Y_NEUTRAL" value="0"/> 
-
-<!--
-    <define name="MAG_X_NEUTRAL" value="60"/>
-    <define name="MAG_Y_NEUTRAL" value="60"/>
--->
     <define name="MAG_Z_NEUTRAL" value="0"/>
 
     <define name="MAG_X_SENS" value=" 1000."/>
     <define name="MAG_Y_SENS" value=" 1000."/>
     <define name="MAG_Z_SENS" value=" 1000."/>
+
+
+  </section>
+-->
+
+<!-- crista -->
+  <section name="IMU" prefix="IMU_">
+
+    <define name="GYRO_X_CHAN" value="4"/>
+    <define name="GYRO_Y_CHAN" value="0"/>
+    <define name="GYRO_Z_CHAN" value="1"/>
+
+    <define name="GYRO_X_NEUTRAL" value="32734"/>
+    <define name="GYRO_Y_NEUTRAL" value="32272"/>
+    <define name="GYRO_Z_NEUTRAL" value="32420"/>
+
+    <define name="GYRO_X_SENS" value="( 4500.)"/>
+    <define name="GYRO_Y_SENS" value="(-4500.)"/>
+    <define name="GYRO_Z_SENS" value="( 4500.)"/>
+  
+    <define name="ACCEL_X_CHAN" value="2"/>
+    <define name="ACCEL_Y_CHAN" value="5"/>
+    <define name="ACCEL_Z_CHAN" value="6"/>    
+
+    <define name="ACCEL_X_NEUTRAL" value="39913"/>
+    <define name="ACCEL_Y_NEUTRAL" value="40135"/>
+    <define name="ACCEL_Z_NEUTRAL" value="39755"/>
+
+    <define name="ACCEL_X_SENS" value="( 171)"/>
+    <define name="ACCEL_Y_SENS" value="( 167)"/>
+    <define name="ACCEL_Z_SENS" value="( 167)"/>
+
+
+    <define name="MAG_X_CHAN" value="0"/>
+    <define name="MAG_Y_CHAN" value="4"/>
+    <define name="MAG_Z_CHAN" value="2"/>
+
+    
+    <define name="MAG_X_NEUTRAL" value="1950"/>
+    <define name="MAG_Y_NEUTRAL" value="2017"/> 
+    <define name="MAG_Z_NEUTRAL" value="2110"/>
+
+    <define name="MAG_X_SENS" value=" 467."/>
+    <define name="MAG_Y_SENS" value="-434."/>
+    <define name="MAG_Z_SENS" value=" 440."/>
 
 
   </section>

@@ -157,6 +157,18 @@
 #define I2C0SCLL          I2C0->scll       /* SCL Duty Cycle Register (low half word) */
 #define I2C0CONCLR        I2C0->conclr     /* Control Clear Register */
 
+
+#define I2C1             ((i2cRegs_t *)0xE005C000)
+// I2C Registers
+#define I2C1CONSET        I2C1->conset     /* Control Set Register */
+#define I2C1STAT          I2C1->stat       /* Status Register */
+#define I2C1DAT           I2C1->dat        /* Data Register */
+#define I2C1ADR           I2C1->adr        /* Slave Address Register */
+#define I2C1SCLH          I2C1->sclh       /* SCL Duty Cycle Register (high half word) */
+#define I2C1SCLL          I2C1->scll       /* SCL Duty Cycle Register (low half word) */
+#define I2C1CONCLR        I2C1->conclr     /* Control Clear Register */
+
+
 // I2CONSET bit definition
 
 #define AA   2

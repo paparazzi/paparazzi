@@ -16,14 +16,6 @@ extern uint8_t ami601_foo1;
 extern uint8_t ami601_foo2;
 extern uint8_t ami601_foo3;
 
-extern float ami601_ax;
-extern float ami601_ay;
-extern float ami601_az;
-
-extern float ami601_mx;
-extern float ami601_my;
-extern float ami601_mz;
-
 #define AMI601_IDLE            0
 #define AMI601_SENDING_REQ     1
 #define AMI601_WAITING_MEASURE 2
@@ -36,7 +28,7 @@ extern volatile uint32_t ami601_nb_err;
 #define AMI601_SLAVE_ADDR 0x60
 
 
-#define AMI601EventCheckAndHandle() {					\
+#define AMI601Event(_handler) {						\
     switch (ami601_status) {						\
     case AMI601_SENDING_REQ :						\
       if ( ami601_i2c_done ) {						\
@@ -51,15 +43,16 @@ extern volatile uint32_t ami601_nb_err;
       break;								\
     case AMI601_READING_MEASURE :					\
       if ( ami601_i2c_done ) {						\
-	ami601_foo1 = i2c_buf[0]; /* AA ?  */				\
-	ami601_foo2 = i2c_buf[1]; /* 55 ?  */				\
-	ami601_foo3 = i2c_buf[2]; /* ERR ? */				\
+	ami601_foo1 = i2c1_buf[0]; /* AA ?  */				\
+	ami601_foo2 = i2c1_buf[1]; /* 55 ?  */				\
+	ami601_foo3 = i2c1_buf[2]; /* ERR ? */				\
 	uint8_t i;							\
 	for (i=0; i< AMI601_NB_CHAN; i++) {				\
-	  ami601_val[i] = i2c_buf[3 + 2 * i];				\
-	  ami601_val[i] += i2c_buf[3 + 2 * i + 1] * 256;		\
+	  ami601_val[i] = i2c1_buf[3 + 2 * i];				\
+	  ami601_val[i] += i2c1_buf[3 + 2 * i + 1] * 256;		\
 	}								\
 	ami601_status = AMI601_DATA_AVAILABLE;				\
+	_handler();							\
       }									\
       break;								\
     }									\
@@ -70,7 +63,7 @@ extern volatile uint32_t ami601_nb_err;
     /*    T0MCR |= TMCR_MR1_I;   */					\
     ami601_i2c_done = FALSE;						\
     ami601_status =  AMI601_READING_MEASURE;				\
-    i2c_receive(AMI601_SLAVE_ADDR, 15, &ami601_i2c_done);		\
+    i2c1_receive(AMI601_SLAVE_ADDR, 15, &ami601_i2c_done);		\
   }
 
 #endif /* AMI601_H */

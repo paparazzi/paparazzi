@@ -32,16 +32,16 @@
 #include "interrupt_hw.h"
 
 /* default clock speed 37.5KHz with our 15MHz PCLK */
-#ifndef I2C_SCLL
-#define I2C_SCLL 200
+#ifndef I2C0_SCLL
+#define I2C0_SCLL 200
 #endif
 
-#ifndef I2C_SCLH
-#define I2C_SCLH 200
+#ifndef I2C0_SCLH
+#define I2C0_SCLH 200
 #endif
 
-#ifndef I2C_VIC_SLOT
-#define I2C_VIC_SLOT 9
+#ifndef I2C0_VIC_SLOT
+#define I2C0_VIC_SLOT 9
 #endif
 
 void i2c0_ISR(void) __attribute__((naked));
@@ -49,7 +49,7 @@ void i2c0_ISR(void) __attribute__((naked));
 
 /* SDA0 on P0.3 */
 /* SCL0 on P0.2 */
-void i2c_hw_init ( void ) {
+void i2c0_hw_init ( void ) {
 
   /* set P0.2 and P0.3 to I2C0 */
   PINSEL0 |= 1 << 4 | 1 << 6;
@@ -58,14 +58,14 @@ void i2c_hw_init ( void ) {
   /* enable I2C */
   I2C0CONSET = _BV(I2EN);
   /* set bitrate */
-  I2C0SCLL = I2C_SCLL;  
-  I2C0SCLH = I2C_SCLH;  
+  I2C0SCLL = I2C0_SCLL;  
+  I2C0SCLH = I2C0_SCLH;  
   
   // initialize the interrupt vector
   VICIntSelect &= ~VIC_BIT(VIC_I2C0);              // I2C0 selected as IRQ
   VICIntEnable = VIC_BIT(VIC_I2C0);                // I2C0 interrupt enabled
-  _VIC_CNTL(I2C_VIC_SLOT) = VIC_ENABLE | VIC_I2C0;
-  _VIC_ADDR(I2C_VIC_SLOT) = (uint32_t)i2c0_ISR;    // address of the ISR
+  _VIC_CNTL(I2C0_VIC_SLOT) = VIC_ENABLE | VIC_I2C0;
+  _VIC_ADDR(I2C0_VIC_SLOT) = (uint32_t)i2c0_ISR;    // address of the ISR
 }
 
 #define I2C_DATA_REG I2C0DAT
@@ -82,3 +82,47 @@ void i2c0_ISR(void)
   VICVectAddr = 0x00000000;             // clear this interrupt from the VIC
   ISR_EXIT();                           // recover registers and return
 }
+
+#ifdef USE_I2C1
+
+#define I2C1_DATA_REG   I2C1DAT
+#define I2C1_STATUS_REG I2C1STAT
+
+void i2c1_ISR(void) __attribute__((naked));
+
+/* SDA1 on P0.14 */
+/* SCL1 on P0.11 */
+void i2c1_hw_init ( void ) {
+
+  /* set P0.11 and P0.14 to I2C1 */
+  PINSEL0 |= 3 << 22 | 3 << 28;
+  /* clear all flags */
+  I2C1CONCLR = _BV(AAC) | _BV(SIC) | _BV(STAC) | _BV(I2ENC);
+  /* enable I2C */
+  I2C1CONSET = _BV(I2EN);
+  /* set bitrate */
+  I2C1SCLL = I2C1_SCLL;  
+  I2C1SCLH = I2C1_SCLH;  
+  
+  // initialize the interrupt vector
+  VICIntSelect &= ~VIC_BIT(VIC_I2C1);              // I2C0 selected as IRQ
+  VICIntEnable = VIC_BIT(VIC_I2C1);                // I2C0 interrupt enabled
+  _VIC_CNTL(I2C1_VIC_SLOT) = VIC_ENABLE | VIC_I2C1;
+  _VIC_ADDR(I2C1_VIC_SLOT) = (uint32_t)i2c1_ISR;    // address of the ISR
+}
+
+void i2c1_ISR(void)
+{
+  ISR_ENTRY();
+
+  uint32_t state = I2C1_STATUS_REG;
+  I2c1Automaton(state);
+  I2c1ClearIT();
+  
+  VICVectAddr = 0x00000000;             // clear this interrupt from the VIC
+  ISR_EXIT();                           // recover registers and return
+}
+
+
+#endif /* USE_I2C1 */
+
