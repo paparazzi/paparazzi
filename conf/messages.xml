@@ -989,25 +989,32 @@
    <field name="qz"  type="int32"/>
  </message>
 
-
-
  <message name="BOOZ2_STAB_ATTITUDE" ID="140"> 
+    <field name="m_p"   type="int32"/>   
+    <field name="m_q" type="int32"/>   
+    <field name="m_r"   type="int32"/>   
+    <field name="m_phi"   type="int32"/>   
+    <field name="m_theta" type="int32"/>   
+    <field name="m_psi"   type="int32"/>   
     <field name="sp_phi"   type="int32"/>   
     <field name="sp_theta" type="int32"/>   
     <field name="sp_psi"   type="int32"/>   
+    <field name="delta_a" type="int32"/>
+    <field name="delta_e" type="int32"/>
+    <field name="delta_r" type="int32"/>
+    <field name="delta_t" type="int32"/>
  </message>
 
  <message name="BOOZ2_STAB_ATTITUDE_REF" ID="141"> 
-    <field name="pd"   type="int32"/>   
-    <field name="qd"   type="int32"/>   
-    <field name="rd"   type="int32"/>   
-    <field name="p"    type="int32"/>   
-    <field name="q"    type="int32"/>   
-    <field name="r"    type="int32"/>   
-    <field name="qi"    type="int32"/>   
-    <field name="qx"    type="int32"/>   
-    <field name="qy"    type="int32"/>   
-    <field name="qz"    type="int32"/>   
+    <field name="pd"    type="int32"/>   
+    <field name="qd"    type="int32"/>   
+    <field name="rd"    type="int32"/>   
+    <field name="p"     type="int32"/>   
+    <field name="q"     type="int32"/>   
+    <field name="r"     type="int32"/>   
+    <field name="phi"   type="int32"/>   
+    <field name="theta" type="int32"/>   
+    <field name="psi"   type="int32"/>   
  </message>
 
 

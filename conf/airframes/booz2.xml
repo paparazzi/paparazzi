@@ -94,9 +94,9 @@
     <define name="GYRO_Y_NEUTRAL" value="32272"/>
     <define name="GYRO_Z_NEUTRAL" value="32420"/>
 
-    <define name="GYRO_X_SENS" value="( 4500.)"/>
-    <define name="GYRO_Y_SENS" value="(-4500.)"/>
-    <define name="GYRO_Z_SENS" value="( 4500.)"/>
+    <define name="GYRO_X_SENS" value="( 4000.)"/>
+    <define name="GYRO_Y_SENS" value="(-4000.)"/>
+    <define name="GYRO_Z_SENS" value="( 4000.)"/>
   
     <define name="ACCEL_X_CHAN" value="2"/>
     <define name="ACCEL_Y_CHAN" value="5"/>
@@ -111,18 +111,18 @@
     <define name="ACCEL_Z_SENS" value="( 167)"/>
 
 
-    <define name="MAG_X_CHAN" value="0"/>
-    <define name="MAG_Y_CHAN" value="4"/>
+    <define name="MAG_X_CHAN" value="4"/>
+    <define name="MAG_Y_CHAN" value="0"/>
     <define name="MAG_Z_CHAN" value="2"/>
 
     
-    <define name="MAG_X_NEUTRAL" value="1950"/>
-    <define name="MAG_Y_NEUTRAL" value="2017"/> 
-    <define name="MAG_Z_NEUTRAL" value="2110"/>
+    <define name="MAG_X_NEUTRAL" value="2035"/>
+    <define name="MAG_Y_NEUTRAL" value="2121"/> 
+    <define name="MAG_Z_NEUTRAL" value="1943"/>
 
-    <define name="MAG_X_SENS" value=" 467."/>
-    <define name="MAG_Y_SENS" value="-434."/>
-    <define name="MAG_Z_SENS" value=" 440."/>
+    <define name="MAG_X_SENS" value="-446."/>
+    <define name="MAG_Y_SENS" value="-456."/>
+    <define name="MAG_Z_SENS" value=" 474."/>
 
 
   </section>
@@ -147,11 +147,11 @@
     <define name="SP_MAX_R"       value="5500"/>
     <define name="DEADBAND_R"     value="250"/>
 
-    <define name="PHI_THETA_PGAIN" value="-4000"/>
-    <define name="PHI_THETA_DGAIN" value="-2000"/>
+    <define name="PHI_THETA_PGAIN" value="-400"/>
+    <define name="PHI_THETA_DGAIN" value="-300"/>
 
-    <define name="PSI_PGAIN" value="-2000"/>
-    <define name="PSI_DGAIN" value="-1000"/>
+    <define name="PSI_PGAIN" value="-300"/>
+    <define name="PSI_DGAIN" value="-200"/>
 
   </section>
 

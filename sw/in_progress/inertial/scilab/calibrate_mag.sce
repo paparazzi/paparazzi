@@ -1,9 +1,10 @@
 clear();
 exec("calibration_utils.sci");
 
-[raw_mag, raw_accel] = read_log("log_calib_accel_mag_2.dat");
+[raw_mag, raw_accel] = read_log("log_calib_mag_3.dat");
 
-[fraw_mag] = filter_noise(raw_mag,15,300);
+//[fraw_mag] = filter_noise(raw_mag,15,300);
+fraw_mag = raw_mag;
 
   
 n0 = [ 1950; 2000; 2150];
@@ -36,26 +37,23 @@ subplot(4,1,1);
 plot2d(1:nc, raw_mag(1,:), 1);
 plot2d(1:nc, raw_mag(2,:), 2);
 plot2d(1:nc, raw_mag(3,:), 3);
+xtitle('raw senors');
 
 subplot(4,1,2);
 [nl, nc] = size(fraw_mag);
-plot2d(1:nc, fraw_mag(1,:), 1);
-plot2d(1:nc, fraw_mag(2,:), 2);
-plot2d(1:nc, fraw_mag(3,:), 3);
-
-subplot(4,1,3);
 plot2d(1:nc, scaled_mag(1,:), 1);
 plot2d(1:nc, scaled_mag(2,:), 2);
 plot2d(1:nc, scaled_mag(3,:), 3);
+xtitle('scaled sensors initial guess');
 
-plot2d(1:nc, scaled_mag2(1,:), 4);
-plot2d(1:nc, scaled_mag2(2,:), 5);
-plot2d(1:nc, scaled_mag2(3,:), 6);
-
-
+subplot(4,1,3);
+plot2d(1:nc, scaled_mag2(1,:), 1);
+plot2d(1:nc, scaled_mag2(2,:), 2);
+plot2d(1:nc, scaled_mag2(3,:), 3);
+xtitle('scaled sensors optimised');
 
 subplot(4,1,4);
 plot2d(1:nc, scaled_module, 1);
-
 subplot(4,1,4);
 plot2d(1:nc, scaled_module2, 2);
+xtitle('norm');

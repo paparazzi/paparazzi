@@ -87,7 +87,7 @@ ap.TARGETDIR = ap
 
 ap.CFLAGS += -DCONFIG=\"booz2_board.h\" -I$(BOOZ_ARCH) -I$(BOOZ_PRIV) -I$(BOOZ_PRIV_ARCH)
 ap.srcs += $(BOOZ_PRIV)/booz2_main.c
-ap.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./500.))' -DTIME_LED=1
+ap.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))' -DTIME_LED=1
 ap.CFLAGS += -DLED
 ap.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
 
@@ -156,7 +156,7 @@ imu.TARGETDIR = imu
 
 imu.CFLAGS += -DCONFIG=\"pprz_imu.h\" -I$(BOOZ) -I$(BOOZ_ARCH) -I$(BOOZ_PRIV) -I$(BOOZ_PRIV_ARCH)
 imu.srcs += $(BOOZ_PRIV)/imu_v3_main.c
-imu.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./500.))'
+imu.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))'
 # -DTIME_LED=1
 imu.CFLAGS += -DLED
 imu.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
@@ -195,7 +195,7 @@ imu_test_micromag.TARGETDIR = imu_test_micromag
 
 imu_test_micromag.CFLAGS += -DCONFIG=\"pprz_imu.h\" -I$(BOOZ) -I$(BOOZ_ARCH) -I$(BOOZ_PRIV) -I$(BOOZ_PRIV_ARCH)
 imu_test_micromag.srcs += $(BOOZ_PRIV_TEST)/imu_v3_test_micromag.c
-imu_test_micromag.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./500.))'
+imu_test_micromag.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))'
 # -DTIME_LED=1
 imu_test_micromag.CFLAGS += -DLED
 imu_test_micromag.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
@@ -228,7 +228,7 @@ tunnel.TARGETDIR = tunnel
 
 tunnel.CFLAGS += -DCONFIG=\"booz2_board.h\" -I$(BOOZ_PRIV_ARCH)
 tunnel.srcs += $(BOOZ_PRIV_TEST)/booz2_tunnel.c
-tunnel.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./500.))' -DTIME_LED=1
+tunnel.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))' -DTIME_LED=1
 tunnel.CFLAGS += -DLED
 tunnel.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
 
@@ -246,7 +246,7 @@ test_gps.TARGETDIR = test_gps
 
 test_gps.CFLAGS += -DCONFIG=\"booz2_board.h\" -I$(BOOZ_PRIV) -I$(BOOZ_PRIV_ARCH)
 test_gps.srcs += $(BOOZ_PRIV_TEST)/booz2_test_gps.c
-test_gps.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./500.))' -DTIME_LED=1
+test_gps.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))' -DTIME_LED=1
 test_gps.CFLAGS += -DLED
 test_gps.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
 
@@ -269,7 +269,7 @@ test_led.TARGETDIR = test_led
 
 test_led.CFLAGS += -DCONFIG=\"booz2_board.h\" -I$(BOOZ_PRIV_ARCH)
 test_led.srcs += $(BOOZ_PRIV)/test_led.c
-test_led.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./1000.))' -DTIME_LED=1
+test_led.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./1024.))' -DTIME_LED=1
 test_led.CFLAGS += -DLED
 test_led.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
 
@@ -283,7 +283,7 @@ test_modem.TARGETDIR = test_modem
 
 test_modem.CFLAGS += -DCONFIG=\"tiny_1_1.h\" -I$(BOOZ_PRIV_ARCH)
 test_modem.srcs += $(BOOZ_PRIV)/test_modem.c
-test_modem.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./1000.))' -DTIME_LED=1
+test_modem.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./1024.))' -DTIME_LED=1
 test_modem.CFLAGS += -DLED
 test_modem.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
 
@@ -333,7 +333,7 @@ test_crista.TARGETDIR = test_crista
 
 test_crista.CFLAGS += -DCONFIG=\"booz2_board.h\" -I$(BOOZ_PRIV) -I$(BOOZ_PRIV_ARCH)
 test_crista.srcs += $(BOOZ_PRIV_TEST)/booz2_test_crista.c
-test_crista.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./500.))' -DTIME_LED=1
+test_crista.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))' -DTIME_LED=1
 test_crista.CFLAGS += -DLED
 test_crista.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
 

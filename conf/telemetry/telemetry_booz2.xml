@@ -8,18 +8,18 @@
       <message name="DL_VALUE"          period="1.1"/>
       <message name="BOOZ_STATUS"       period="1.2"/>
 
-<!--      <message name="BOOZ2_RATE_LOOP"   period=".05"/>  -->
+<!--      <message name="BOOZ2_RATE_LOOP"   period=".05"/> -->
 <!--      <message name="BOOZ2_STAB_ATTITUDE"     period=".05"/> -->
 <!--      <message name="BOOZ2_CMD"               period=".05"/> -->
 <!--      <message name="BOOZ2_STAB_ATTITUDE_REF" period=".05"/> -->
 <!--      <message name="BOOZ2_ALIGNER"     period=".1"/> -->
-<!--      <message name="BOOZ2_FILTER"      period=".5"/> -->
+<!--      <message name="BOOZ2_FILTER"      period=".1"/> -->
 <!--      <message name="BOOZ2_FILTER_Q"    period=".1"/>  -->
 <!--      <message name="BOOZ2_GUIDANCE"    period=".25"/> -->
 
-      <message name="BOOZ2_GYRO"        period=".05"/>
-      <message name="BOOZ2_ACCEL"       period=".05"/>
-      <message name="BOOZ2_MAG"         period=".05"/>
+      <message name="BOOZ2_GYRO"        period=".075"/>
+      <message name="BOOZ2_ACCEL"       period=".075"/>
+      <message name="BOOZ2_MAG"         period=".1"/>
 
 <!--      <message name="IMU_ACCEL_RAW"     period=".05"/> -->
 <!--      <message name="IMU_GYRO_RAW"      period=".1"/>  -->
@@ -30,9 +30,51 @@
       <message name="ALIVE"             period="2.1"/>
     </mode>
 
-    <mode name="debug">
-      <message name="DL_VALUE"          period=".5"/>
+    <mode name="raw_sensors">
+      <message name="BOOZ_STATUS"       period="1.2"/>
+      <message name="DL_VALUE"          period="0.5"/>
+      <message name="ALIVE"             period="2.1"/>
+      <message name="IMU_ACCEL_RAW"     period=".05"/>
+      <message name="IMU_GYRO_RAW"      period=".05"/>
+      <message name="IMU_MAG_RAW"       period=".05"/>      
     </mode>
+
+    <mode name="scaled_sensors">
+      <message name="BOOZ_STATUS"       period="1.2"/>
+      <message name="DL_VALUE"          period="0.5"/>
+      <message name="ALIVE"             period="2.1"/>
+      <message name="BOOZ2_GYRO"        period=".075"/>
+      <message name="BOOZ2_ACCEL"       period=".075"/>
+      <message name="BOOZ2_MAG"         period=".1"/>
+    </mode>
+
+    <mode name="filter">
+      <message name="BOOZ_STATUS"       period="1.2"/>
+      <message name="DL_VALUE"          period="0.5"/>
+      <message name="ALIVE"             period="2.1"/>
+<!--      <message name="BOOZ2_ALIGNER"     period=".1"/> -->
+      <message name="BOOZ2_FILTER"      period=".02"/>
+    </mode>
+
+    <mode name="rate_loop">
+      <message name="BOOZ_STATUS"       period="1.2"/>
+      <message name="DL_VALUE"          period="0.5"/>
+      <message name="ALIVE"             period="2.1"/>
+      <message name="BOOZ2_RATE_LOOP"   period=".02"/>
+    </mode>
+
+
+    <mode name="attitude_loop">
+      <message name="BOOZ_STATUS"             period="1.2"/>
+      <message name="DL_VALUE"                period="0.5"/>
+      <message name="ALIVE"                   period="2.1"/>
+      <message name="BOOZ2_STAB_ATTITUDE"     period=".02"/>
+      <message name="BOOZ2_STAB_ATTITUDE_REF" period=".02"/>
+    </mode>
+
+
+
+
   </process>
 
 
