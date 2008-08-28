@@ -999,6 +999,9 @@
     <field name="sp_phi"   type="int32"/>   
     <field name="sp_theta" type="int32"/>   
     <field name="sp_psi"   type="int32"/>   
+    <field name="sum_err_phi"   type="int32"/>   
+    <field name="sum_err_theta" type="int32"/>   
+    <field name="sum_err_psi"   type="int32"/>   
     <field name="delta_a" type="int32"/>
     <field name="delta_e" type="int32"/>
     <field name="delta_r" type="int32"/>

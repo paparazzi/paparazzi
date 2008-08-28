@@ -67,9 +67,9 @@
     <mode name="attitude_loop">
       <message name="BOOZ_STATUS"             period="1.2"/>
       <message name="DL_VALUE"                period="0.5"/>
-      <message name="ALIVE"                   period="2.1"/>
-      <message name="BOOZ2_STAB_ATTITUDE"     period=".02"/>
-      <message name="BOOZ2_STAB_ATTITUDE_REF" period=".02"/>
+      <message name="ALIVE"                   period="0.9"/>
+      <message name="BOOZ2_STAB_ATTITUDE"     period=".03"/>
+      <message name="BOOZ2_STAB_ATTITUDE_REF" period=".2"/>
     </mode>
 
 

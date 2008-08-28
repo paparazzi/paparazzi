@@ -121,8 +121,8 @@
     <define name="MAG_Z_NEUTRAL" value="1943"/>
 
     <define name="MAG_X_SENS" value="-446."/>
-    <define name="MAG_Y_SENS" value="-456."/>
-    <define name="MAG_Z_SENS" value=" 474."/>
+    <define name="MAG_Y_SENS" value=" 456."/>
+    <define name="MAG_Z_SENS" value="-474."/>
 
 
   </section>
@@ -131,11 +131,11 @@
 
     <define name="SP_MAX_P" value="10000"/>
     <define name="SP_MAX_Q" value="10000"/>
-    <define name="SP_MAX_R" value=" 5000"/>
+    <define name="SP_MAX_R" value="10000"/>
 
     <define name="GAIN_P" value="-400"/>
     <define name="GAIN_Q" value="-400"/>
-    <define name="GAIN_R" value="-300"/>
+    <define name="GAIN_R" value="-350"/>
 
   </section>
 
@@ -149,13 +149,19 @@
 
     <define name="PHI_THETA_PGAIN" value="-400"/>
     <define name="PHI_THETA_DGAIN" value="-300"/>
+    <define name="PHI_THETA_IGAIN" value="-100"/>
 
     <define name="PSI_PGAIN" value="-300"/>
     <define name="PSI_DGAIN" value="-200"/>
+    <define name="PSI_IGAIN" value="-100"/>
 
   </section>
 
-
+  <section name="FILTER" prefix="FILTER_">
+   <define name="ALIGNMENT_DPHI" value="BOOZ_ANGLE_I_OF_F(RadOfDeg(-0.5))"/>
+   <define name="ALIGNMENT_DTHETA" value="BOOZ_ANGLE_I_OF_F(RadOfDeg(2.5))"/>
+   <define name="ALIGNMENT_DPSI" value="BOOZ_ANGLE_I_OF_F(0)"/>
+  </section>
 
 
   <makefile>
