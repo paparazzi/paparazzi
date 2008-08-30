@@ -482,7 +482,9 @@
       <field name="link_imu_nb_err" type="uint32"/>
       <field name="imu_status" type="uint8" values="NO_LINK|UNINIT|RUNNING|CRASHED"/>
       <field name="rc_status" type="uint8" values="OK|LOST|REALLY_LOST"/>
-      <field name="ap_mode" type="uint8" values="FAILSAFE|KILL|RATE|ATTITUDE|NAV"/>
+      <field name="ap_mode" type="uint8" values=""/>
+      <field name="ap_h_mode" type="uint8" values=""/>
+      <field name="ap_v_mode" type="uint8" values=""/>
       <field name="vsupply" type="uint8" unit="decivolt"/>
       <field name="cpu_time" type="uint16" unit="s"></field>
       <field name="blmc_nb_err" type="uint8"/>
@@ -1043,12 +1045,22 @@
  </message>
 
 
- <message name="BOOZ2_GUIDANCE" ID="144">
+  <message name="BOOZ2_GUIDANCE" ID="144">
     <field name="pos_n"    type="int32"/>   
     <field name="pos_e"    type="int32"/>   
     <field name="sp_pos_n" type="int32"/>   
     <field name="sp_pos_e" type="int32"/>   
- </message>
+  </message>
+
+  <message name="BOOZ2_VERT_LOOP" ID="145">
+    <field name="z_sp"    type="int32"/>
+    <field name="z_meas"  type="int32"/>
+    <field name="zd_est"  type="int32"/>
+    <field name="sum_err" type="int32"/>
+    <field name="g_est"   type="int32"/>
+    <field name="delta_t" type="int32"/>
+  </message>
+
 
 
 

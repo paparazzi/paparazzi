@@ -30,7 +30,7 @@
 
 
     <dl_settings NAME="Misc">
-       <dl_setting var="telemetry_mode_Main" min="0" step="1" max="5" module="booz2_telemetry" shortname="telemetry mode"/>
+       <dl_setting var="telemetry_mode_Main" min="0" step="1" max="6" module="booz2_telemetry" shortname="telemetry mode"/>
     </dl_settings>
 
 

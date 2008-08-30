@@ -127,11 +127,6 @@ ap.srcs += AMI601.c
 
 ap.srcs += $(BOOZ_PRIV)/booz2_autopilot.c
 
-ap.srcs += $(BOOZ_PRIV)/booz2_stabilization.c
-ap.srcs += $(BOOZ_PRIV)/booz2_stabilization_rate.c
-ap.srcs += $(BOOZ_PRIV)/booz2_stabilization_attitude.c
-ap.srcs += $(BOOZ_PRIV)/booz_supervision_int.c
-
 ap.CFLAGS += -DFILTER_ALIGNER_LED=6
 ap.srcs += $(BOOZ_PRIV)/booz2_filter_aligner.c
 ap.srcs += $(BOOZ_PRIV)/booz2_filter_attitude_cmpl_euler.c
@@ -140,7 +135,13 @@ ap.srcs += $(BOOZ_PRIV)/booz_trig_int.c
 ap.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B38400 -DUART1_VIC_SLOT=6
 ap.CFLAGS += -DGPS_LINK=Uart1 -DGPS_LED=7
 ap.srcs += $(BOOZ_PRIV)/booz2_gps.c
-ap.srcs += $(BOOZ_PRIV)/booz2_guidance.c
+ap.srcs += $(BOOZ_PRIV)/booz2_guidance_h.c
+ap.srcs += $(BOOZ_PRIV)/booz2_guidance_v.c
+
+ap.srcs += $(BOOZ_PRIV)/booz2_stabilization.c
+ap.srcs += $(BOOZ_PRIV)/booz2_stabilization_rate.c
+ap.srcs += $(BOOZ_PRIV)/booz2_stabilization_attitude.c
+ap.srcs += $(BOOZ_PRIV)/booz_supervision_int.c
 
 
 
