@@ -35,7 +35,7 @@ clean:
 OCAMLC = ocamlc
 OCAMLOPT = ocamlopt
 OCAMLLIB = ../../lib/ocaml
-INCLUDES= -I $(OCAMLLIB) -I ../multimon -I +lablgtk2 -I +xml-light -I +netstring -I +pcre
+INCLUDES= -I $(OCAMLLIB) -I ../multimon -I +lablgtk2 -I +xml-light -I +netsys -I +netstring -I +pcre
 LIBPPRZCMA=$(OCAMLLIB)/lib-pprz.cma
 
 SERVERCMO = aircraft.cmo wind.cmo airprox.cmo kml.cmo server.cmo
@@ -54,7 +54,7 @@ messages : messages.cmo ../../lib/ocaml/xlib-pprz.cma ../../lib/ocaml/lib-pprz.c
 
 settings : settings.cmo ../../lib/ocaml/xlib-pprz.cma ../../lib/ocaml/lib-pprz.cma
 	@echo OL $@
-	$(Q)$(OCAMLC) -custom $(INCLUDES) -I ../cockpit -o $@ unix.cma str.cma xml-light.cma lablgtk.cma lablglade.cma pcre.cma netstring.cma glibivy-ocaml.cma lib-pprz.cma gtkInit.cmo gtk_save_settings.cmo saveSettings.cmo pages.cmo $<
+	$(Q)$(OCAMLC) -custom $(INCLUDES) -I ../cockpit -o $@ unix.cma str.cma xml-light.cma lablgtk.cma lablglade.cma pcre.cma netsys.cma netstring.cma glibivy-ocaml.cma lib-pprz.cma gtkInit.cmo gtk_save_settings.cmo saveSettings.cmo pages.cmo $<
 
 
 server : $(SERVERCMO) ../../lib/ocaml/lib-pprz.cma

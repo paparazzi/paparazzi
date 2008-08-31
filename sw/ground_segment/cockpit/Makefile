@@ -27,8 +27,8 @@ OCAMLC=ocamlc
 OCAMLCFLAGS=-thread
 OCAMLOPT=ocamlopt
 OCAMLOPTFLAGS=-thread
-INCLUDES=-I +lablgtk2 -I ../../lib/ocaml -I +xml-light -I +netstring -I +pcre
-LIBS=pcre.cma netstring.cma glibivy-ocaml.cma lablgtk.cma lablglade.cma lib-pprz.cma lablgnomecanvas.cma xlib-pprz.cma
+INCLUDES=-I +lablgtk2 -I ../../lib/ocaml -I +xml-light -I +netsys -I +netstring -I +pcre
+LIBS=pcre.cma netsys.cma netstring.cma glibivy-ocaml.cma lablgtk.cma lablglade.cma lib-pprz.cma lablgnomecanvas.cma xlib-pprz.cma
 CMXA=$(LIBS:.cma=.cmxa)
 
 ML= gtk_setting_time.ml gtk_strip.ml horizon.ml strip.ml gtk_save_settings.ml saveSettings.ml pages.ml speech.ml plugin.ml sectors.ml map2d.ml editFP.ml live.ml particules.ml gcs.ml
