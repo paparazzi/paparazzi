@@ -73,7 +73,7 @@ static inline void dc_periodic( void ) {
 
 static inline void dc_shot_on_utm_north_close_to_100m_grid( void ) {
   if (dc_utm_threshold && !dc_timer) {
-    uint32_t dist_to_100m_grid = (gps_utm_north) / 100 % 100;
+    uint32_t dist_to_100m_grid = (gps_utm_north / 100) % 100;
     if (dist_to_100m_grid < dc_utm_threshold || 100 - dist_to_100m_grid < dc_utm_threshold)
       dc_shutter();
   }
