@@ -28,8 +28,8 @@
 #include "std.h"
 #include "airframe.h"
 
-extern float ir_roll_neutral;
-extern float ir_pitch_neutral;
+extern float ir_roll_neutral; /* Rad */
+extern float ir_pitch_neutral; /* Rad */
 
 extern int16_t ir_ir1; /* First horizontal channel */
 extern int16_t ir_ir2; /* Second horizontal channel */
