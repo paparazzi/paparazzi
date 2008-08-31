@@ -7,7 +7,8 @@ DESTDIR=$(PREFIX)/usr/share/paparazzi
 INSTALL=install -o root
 INSTALLDATA=install -o root -m 644
 
-install : install_files post_install
+install : install_files
+# post_install
 
 install_files: install_data install_conf install_bin install_libs install_tools install_airborne_sources
 

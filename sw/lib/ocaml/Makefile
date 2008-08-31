@@ -22,13 +22,13 @@
 
 Q=@
 
-INCLUDES= -I +xml-light
+INCLUDES= -I +xml-light -I +pcre -I +netstring
 XINCLUDES= -I +lablgl -I +lablgtk2 -I +xml-light
 OCAMLC=ocamlc
 OCAMLOPT=ocamlopt
 
 
-SRC = debug.ml base64.ml serial.ml ocaml_tools.ml extXml.ml env.ml xml2h.ml latlong.ml srtm.ml http.ml gm.ml iGN.ml geometry_2d.ml cserial.o convert.o ubx.ml pprz.ml xbee.ml
+SRC = debug.ml base64.ml serial.ml ocaml_tools.ml extXml.ml env.ml xml2h.ml latlong.ml srtm.ml http.ml gm.ml iGN.ml geometry_2d.ml cserial.o convert.o ubx.ml pprz.ml xbee.ml xmlCom.ml editAirframe.ml
 CMO = $(SRC:.ml=.cmo)
 CMX = $(SRC:.ml=.cmx)
 
@@ -87,7 +87,7 @@ ml_gtkgl_hack.o   : ml_gtkgl_hack.c
 
 %.cmi : %.mli
 	@echo OC $<
-	$(Q)$(OCAMLC) $(XINCLUDES) $<
+	$(Q)$(OCAMLC) $(XINCLUDES) $(INCLUDES) $<
 
 %.cmi : %.ml
 	@echo OC $<

@@ -27,11 +27,11 @@ OCAMLC=ocamlc
 OCAMLCFLAGS=-thread
 OCAMLOPT=ocamlopt
 OCAMLOPTFLAGS=-thread
-INCLUDES=-I +lablgtk2 -I ../../lib/ocaml -I +xml-light
-LIBS=glibivy-ocaml.cma lablgtk.cma lablglade.cma lib-pprz.cma lablgnomecanvas.cma xlib-pprz.cma
+INCLUDES=-I +lablgtk2 -I ../../lib/ocaml -I +xml-light -I +netstring -I +pcre
+LIBS=pcre.cma netstring.cma glibivy-ocaml.cma lablgtk.cma lablglade.cma lib-pprz.cma lablgnomecanvas.cma xlib-pprz.cma
 CMXA=$(LIBS:.cma=.cmxa)
 
-ML= gtk_setting_time.ml gtk_strip.ml horizon.ml strip.ml pages.ml speech.ml plugin.ml sectors.ml map2d.ml editFP.ml live.ml particules.ml gcs.ml
+ML= gtk_setting_time.ml gtk_strip.ml horizon.ml strip.ml gtk_save_settings.ml saveSettings.ml pages.ml speech.ml plugin.ml sectors.ml map2d.ml editFP.ml live.ml particules.ml gcs.ml
 MAIN=gcs
 CMO=$(ML:.ml=.cmo)
 CMX=$(ML:.ml=.cmx)
@@ -65,6 +65,9 @@ gtk_strip.ml : gcs.glade
 gtk_setting_time.ml : gcs.glade
 	lablgladecc2 -root setting_time -hide-default $< | grep -B 1000000 "  end" > $@
 
+gtk_save_settings.ml : gcs.glade
+	lablgladecc2 -root save_settings -hide-default $< | grep -B 1000000 "  end" > $@
+
 strip.cmo : gtk_strip.cmo gtk_setting_time.cmo
 
 compass : compass.ml
@@ -72,7 +75,7 @@ compass : compass.ml
 
 
 clean:
-	rm -f *~* *.cm* *.o *.out *.opt map2d gcs .depend gtk_strip.ml gtk_setting_time.ml
+	rm -f *~* *.cm* *.o *.out *.opt map2d gcs .depend gtk_strip.ml gtk_setting_time.ml gtk_save_settings.ml
 
 
 

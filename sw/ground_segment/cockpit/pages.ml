@@ -223,18 +223,18 @@ class misc ~packing (widget: GBin.frame) =
 (*****************************************************************************)
 (* Dataling settings paged                                                   *)
 (*****************************************************************************)
-let one_setting = fun i do_change packing s (tooltips:GData.tooltips) strip ->
-  let f = fun a -> float_of_string (ExtXml.attrib s a) in
+let one_setting = fun i do_change packing dl_setting (tooltips:GData.tooltips) strip ->
+  let f = fun a -> float_of_string (ExtXml.attrib dl_setting a) in
   let lower = f "min"
   and upper = f "max"
   and step_incr = f "step"
   and page_incr = f "step"
   and page_size = f "step"
-  and show_auto = try ExtXml.attrib s "auto" = "true" with _ -> false in
+  and show_auto = try ExtXml.attrib dl_setting "auto" = "true" with _ -> false in
   
   let hbox = GPack.hbox ~packing () in
-  let varname = ExtXml.attrib s "var" in
-  let text = try ExtXml.attrib s "shortname" with _ -> varname in
+  let varname = ExtXml.attrib dl_setting "var" in
+  let text = try ExtXml.attrib dl_setting "shortname" with _ -> varname in
   let _l = GMisc.label ~width:100 ~text ~packing:hbox#pack () in
   let _v = GMisc.label ~width:50 ~text:"N/A" ~packing:hbox#pack () in
 
@@ -247,17 +247,21 @@ let one_setting = fun i do_change packing s (tooltips:GData.tooltips) strip ->
       (* Discrete values: radio buttons *)
       let ilower = truncate lower
       and iupper = truncate upper in
-      let label = Printf.sprintf "%d" ilower in
-      let first = GButton.radio_button ~label ~packing:hbox#add () in
       let value = ref lower in
-      ignore (first#connect#clicked (fun () -> value := lower));
-      let group = first#group in
-      for j = ilower+1 to iupper do
+      let callback = fun _ -> do_change i !value in
+      let group = (GButton.radio_button ())#group in (* Group shared by the buttons *)
+      for j = ilower to iupper do
+	(* Build the button *)
 	let label = Printf.sprintf "%d" j in
 	let b = GButton.radio_button ~group ~label ~packing:hbox#add () in
-	ignore (b#connect#clicked (fun () -> value := float j))
+
+	(* Connect the event *)
+	ignore (b#connect#pressed
+		  (fun () ->
+		    value := float j;
+		    if auto_but#active then callback ()))
       done;
-      (fun _ -> do_change i !value)
+      callback
     else (* slider *)
       let value = (lower +. upper) /. 2. in
       let adj = GData.adjustment ~value ~lower ~upper:(upper+.step_incr) ~step_incr ~page_incr ~page_size () in
@@ -321,19 +325,21 @@ let one_setting = fun i do_change packing s (tooltips:GData.tooltips) strip ->
 	  GButton.button ~label () in
     (strip b#coerce : unit);
     ignore (b#connect#clicked (fun _ -> do_change i sp_value)))
-    (Xml.children s);
-  (i, varname, _v)
+    (Xml.children dl_setting);
+  (i, dl_setting, _v)
   
   
 let rec build_settings = fun do_change i flat_list xml_settings packing tooltips strip ->
   match xml_settings with
     [] -> ()
   | x::xs ->
+      (* All the node have the same tag *)
       List.iter (fun y -> assert(ExtXml.tag_is y (Xml.tag x))) xs;
+
       if ExtXml.tag_is x "dl_setting" then
 	List.iter
-	  (fun s ->
-	    let label_value = one_setting !i do_change packing s tooltips strip in
+	  (fun dl_setting ->
+	    let label_value = one_setting !i do_change packing dl_setting tooltips strip in
 	    flat_list := label_value :: !flat_list;
 	    incr i)
 	  xml_settings
@@ -365,17 +371,21 @@ class settings = fun ?(visible = fun _ -> true) xml_settings do_change strip ->
     build_settings do_change i l xml_settings vbox#add tooltips strip;
     List.rev !l in
   let variables = Array.of_list ordered_list in
-  let assocs = List.map (fun (i,var,_v) -> (var, (i, _v))) ordered_list in
+  let length = Array.length variables in
+  let assocs = List.map (fun (i,dl_setting,_label) -> (ExtXml.attrib dl_setting "var", i)) ordered_list in
   object (self)
     method widget = sw#coerce
-    method length = !i
+    method length = length
     method set = fun i v ->
       if visible self#widget then
 	let s = string_of_float v in
-	let (_, _, current_value) = variables.(i) in
-	if current_value#text <> s then
-	  current_value#set_text s
+	let (_, _, label_current_value) = variables.(i) in
+	if label_current_value#text <> s then
+	  label_current_value#set_text s
     method assoc var = List.assoc var assocs
+    method save = fun airframe_filename ->
+      let settings = Array.map (fun (_i, dl_setting, label) -> (dl_setting, float_of_string label#text)) variables in
+      SaveSettings.popup airframe_filename settings
   end
 
 

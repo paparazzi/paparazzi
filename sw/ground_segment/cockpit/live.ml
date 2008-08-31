@@ -480,8 +480,13 @@ let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id
       let xml_settings = Xml.children (ExtXml.child settings_xml "dl_settings") in
       let settings_tab = new Pages.settings ~visible xml_settings dl_setting_callback (fun x -> strip#add_widget x) in
 
-      let tab_label = (GMisc.label ~text:"Settings" ())#coerce in
-      ignore (ac_notebook#append_page ~tab_label settings_tab#widget);
+      let tab_label = GPack.hbox () in
+      let _label = (GMisc.label ~text:"Settings" ~packing:tab_label#pack ()) in
+      let button_save_settings = GButton.button ~packing:tab_label#pack () in
+      ignore (GMisc.image ~stock:`SAVE ~packing:button_save_settings#add ());
+      button_save_settings#set_border_width 0;
+      ignore (button_save_settings#connect#clicked (fun () -> settings_tab#save af_file));
+      ignore (ac_notebook#append_page ~tab_label:tab_label#coerce settings_tab#widget);
       Some settings_tab
     with exc ->
       log alert ac_id (Printexc.to_string exc);
@@ -564,7 +569,7 @@ let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id
         (** Connect the strip buttons *)
 	let connect = fun ?(warning=true) setting_name strip_connect ->
 	  try
-	    let id, _label = settings_tab#assoc setting_name in
+	    let id = settings_tab#assoc setting_name in
 	    strip_connect (fun x -> dl_setting_callback id x)
 	  with Not_found ->
 	    if warning then
@@ -580,7 +585,7 @@ let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id
 	connect ~warning:false "snav_desired_tow" (ac.strip#connect_apt get_ac_unix_time);
 	begin (* Periodically update the appointment *)
 	  try
-	    let id, _label = settings_tab#assoc "snav_desired_tow" in
+	    let id = settings_tab#assoc "snav_desired_tow" in
 	    let set_appointment = fun _ ->
 	      begin try
 		let v = ac.dl_values.(id) in
@@ -596,7 +601,7 @@ let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id
 	(** Connect the GPS reset button *)
 	begin
 	  try
-	    let gps_reset_id, _ = settings_tab#assoc "gps_reset" in
+	    let gps_reset_id = settings_tab#assoc "gps_reset" in
 	    gps_page#connect_reset
 	      (fun x -> dl_setting_callback gps_reset_id (float x))
 	  with Not_found ->
