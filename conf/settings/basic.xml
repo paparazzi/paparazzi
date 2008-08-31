@@ -26,8 +26,8 @@
     </dl_settings>
 
     <dl_settings NAME="Infrared">
-        <dl_setting MAX="0.3" MIN="-0.3" STEP="0.01" VAR="ir_roll_neutral" shortname="roll neutral" module="infrared"/>
-        <dl_setting MAX="0.5" MIN="-0.3" STEP="0.01" VAR="ir_pitch_neutral" shortname="pitch neutral" module="infrared"/>
+        <dl_setting MAX="0.3" MIN="-0.3" STEP="0.01" VAR="ir_roll_neutral" shortname="roll neutral" module="infrared" param="IR_ROLL_NEUTRAL_DEFAULT" unit="rad"/>
+        <dl_setting MAX="0.5" MIN="-0.3" STEP="0.01" VAR="ir_pitch_neutral" shortname="pitch neutral" module="infrared" param="IR_PITCH_NEUTRAL_DEFAULT" unit="rad"/>
     </dl_settings>
   </dl_settings>
 </settings>

@@ -30,6 +30,8 @@ shortname CDATA #IMPLIED
 module CDATA #IMPLIED
 handler CDATA #IMPLIED
 auto CDATA #IMPLIED
+param CDATA #IMPLIED
+unit CDATA #IMPLIED
 >
 
 <!ATTLIST strip_button
