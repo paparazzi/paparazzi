@@ -30,8 +30,8 @@ module CP = Pc_control_panel
 module AC = Pc_aircraft
 
 let (//) = Filename.concat
-
-let fullscreen = ref false
+let ios = int_of_string
+let soi = string_of_int
 
 
 (*********************** Preferences handling **************************)
@@ -40,32 +40,33 @@ let get_entry_value = fun xml name ->
   let e = ExtXml.child ~select:(fun x -> Xml.attrib x "name" = name) xml "entry" in
   Xml.attrib e "value"
 
-let read_preferences = fun file (ac_combo:Utils.combo) (session_combo:Utils.combo) (target_combo:Utils.combo) ->
+let read_preferences = fun (gui:Gtk_pc.window) file (ac_combo:Utils.combo) (session_combo:Utils.combo) (target_combo:Utils.combo) ->
   let xml = Xml.parse_file file in
 
-  (*********** Last A/C *)
-  begin
+  let read_one = fun name use ->
     try 
-      let ac_name = get_entry_value xml "last A/C" in
-      Utils.select_in_combo ac_combo ac_name
-    with Not_found -> ()
-  end;
+      let ac_name = get_entry_value xml name in
+      use ac_name
+    with Not_found -> () in
+
+  (*********** Last A/C *)
+  read_one "last A/C" (Utils.select_in_combo ac_combo);
 
   (*********** Last session *)
-  begin
-    try 
-      let session_name = get_entry_value xml "last session" in
-      Utils.select_in_combo session_combo session_name
-    with Not_found -> ()
-  end;
+  read_one "last session" (Utils.select_in_combo session_combo);
 
   (*********** Last target *)
-  begin
-    try 
-      let name = get_entry_value xml "last target" in
-      Utils.select_in_combo target_combo name
-    with Not_found -> ()
-  end
+  read_one "last target" (Utils.select_in_combo target_combo);
+
+  (*********** Window Size *)
+  read_one "width"
+    (fun width ->
+      read_one "height" (fun height -> gui#window#resize (ios width) (ios height)));
+
+  (*********** Left pane size *)
+  read_one "left_pane_width"
+    (fun width -> gui#vbox_left_pane#misc#set_size_request ~width:(ios width) ())
+  
 
 
 let gconf_entry = fun name value ->
@@ -81,33 +82,49 @@ let add_entry = fun xml name value ->
   Xml.Element (Xml.tag xml, Xml.attribs xml, entry::Xml.children xml)
 
 
-let write_preferences = fun file (ac_combo:Utils.combo) (session_combo:Utils.combo) (target_combo:Utils.combo) ->
+let write_preferences = fun (gui:Gtk_pc.window) file (ac_combo:Utils.combo) (session_combo:Utils.combo) (target_combo:Utils.combo) ->
   let xml = if Sys.file_exists file then Xml.parse_file file else Xml.Element ("gconf", [], []) in
-
+  
   (* Save A/C name *)
   let xml = 
     try
       let ac_name = Utils.combo_value ac_combo in
       add_entry xml "last A/C" ac_name 
     with Not_found -> xml in
-
+  
   (* Save session *)
   let xml = 
     let session_name = Utils.combo_value session_combo in
     add_entry xml "last session" session_name in
-
+  
   (* Save target *)
   let xml = 
     let name = Utils.combo_value target_combo in
     add_entry xml "last target" name in
-
+  
+  let xml =
+    try
+      (* Save window size *)
+      let width, height = Gdk.Drawable.get_size gui#window#misc#window in
+      let xml = add_entry xml "width" (soi width) in
+      let xml = add_entry xml "height" (soi height) in
+      
+      (* Save left pane width *)
+      let width = gui#hpaned#position in
+      let xml = add_entry xml "left_pane_width" (soi width) in
+      xml
+    with
+      Gpointer.Null -> 
+	prerr_endline "Please properly quit to save layout preferences";
+	xml in
+  
   let f = open_out file in
   Printf.fprintf f "%s\n" (ExtXml.to_string_fmt xml);
   close_out f
 
 let quit_callback = fun gui ac_combo session_combo target_combo () ->
   CP.close_programs gui;
-  write_preferences Env.gconf_file ac_combo session_combo target_combo;
+  write_preferences gui Env.gconf_file ac_combo session_combo target_combo;
   exit 0
 
 let quit_button_callback = fun gui ac_combo session_combo target_combo () ->
@@ -132,7 +149,8 @@ let quit_button_callback = fun gui ac_combo session_combo target_combo () ->
 
 
 let () =
-  let session = ref "" in
+  let session = ref ""
+  and fullscreen = ref false in
   Arg.parse
     ["-fullscreen", Arg.Set fullscreen, "Fullscreen window";
      "-session", Arg.Set_string session, "<session name> Run a custom session"]
@@ -230,7 +248,7 @@ let () =
 
   (* Read preferences *)
   if Sys.file_exists Env.gconf_file then begin
-    read_preferences Env.gconf_file ac_combo session_combo target_combo
+    read_preferences gui Env.gconf_file ac_combo session_combo target_combo
   end;
 
   (* Run the command line session *)

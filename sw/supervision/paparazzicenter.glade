@@ -376,12 +376,12 @@
       </child>
 
       <child>
-	<widget class="GtkHPaned" id="hpaned1">
+	<widget class="GtkHPaned" id="hpaned">
 	  <property name="visible">True</property>
 	  <property name="can_focus">True</property>
 
 	  <child>
-	    <widget class="GtkVBox" id="vbox20">
+	    <widget class="GtkVBox" id="vbox_left_pane">
 	      <property name="width_request">250</property>
 	      <property name="height_request">400</property>
 	      <property name="visible">True</property>
