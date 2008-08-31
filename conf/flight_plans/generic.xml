@@ -9,14 +9,13 @@
     <waypoint name="S2" x="300" y="400"/>
   </waypoints>
   <blocks>
-    <block name="wait GPS">
-      <while cond="!GPS_FIX_VALID(gps_mode)"/>
-    </block>
-    <block name="init">
-      <while cond="10 > block_time"/>
-      <set value="reset_nav_reference()" var="unit"/>
-      <set value="reset_waypoints()" var="unit"/>
-      <deroute block="circlehome"/>
+	  <block name="Wait GPS">
+		  <set value="1" var="kill_throttle"/>
+		  <while cond="!GpsFixValid()"/>
+	  </block>
+	  <block name="Geo init">
+		  <while cond="LessThan(NavBlockTime(), 10)"/>
+		  <call fun="NavSetGroundReferenceHere()"/>
     </block>
     <block name="circlehome">
       <circle radius="75" wp="HOME"/>
