@@ -72,9 +72,6 @@ let compute_ticks = fun min_y max_y ->
   (delta, scale, u, tick_min)
 	
 
-
-let (//) = Filename.concat
-
 let colors = [|"red"; "blue"; "green"; "orange"; "purple"; "magenta"|]
 
 type curve = { values: (float*float) array; color : string }
