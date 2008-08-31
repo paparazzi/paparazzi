@@ -86,11 +86,15 @@ let horiz_mode =
        [ data "altitudeMode" "absolute";
 	 data "coordinates" ""]]
 
+let georef_of_xml = fun xml ->
+  let lat0 = Latlong.deg_of_string (ExtXml.attrib xml "lat0")
+  and lon0 = Latlong.deg_of_string (ExtXml.attrib xml "lon0") in
+  { posn_lat = (Deg>>Rad)lat0; posn_long = (Deg>>Rad)lon0 }
+
 let flight_plan = fun ac_name fp ->
-  let lat0 = ExtXml.float_attrib fp "lat0"
-  and lon0 = ExtXml.float_attrib fp "lon0"
+  let geo0 = georef_of_xml fp
   and alt0 = ExtXml.attrib fp "alt" in
-  let utm0 = utm_of WGS84 {posn_lat=(Deg>>Rad)lat0; posn_long=(Deg>>Rad)lon0} in
+  let utm0 = utm_of WGS84 geo0 in
   let xml_waypoints = Xml.children (ExtXml.child fp "waypoints") in
   let array_waypoints = Array.of_list xml_waypoints in
   (* Index the waypoints for further access *)
