@@ -94,7 +94,7 @@ uint8_t ubx_msg_buf[UBX_MAX_PAYLOAD] __attribute__ ((aligned));
 #define GOT_ID        4
 #define GOT_LEN1      5
 #define GOT_LEN2      6
-#define GOT_PAYLOAD   7
+#define GPS_UBX_GOT_PAYLOAD   7
 #define GOT_CHECKSUM1 8
 
 static uint8_t  ubx_status;
@@ -246,7 +246,7 @@ uint8_t gps_nb_ovrn;
 
 
 void parse_ubx( uint8_t c ) {
-  if (ubx_status < GOT_PAYLOAD) {
+  if (ubx_status < GPS_UBX_GOT_PAYLOAD) {
     ck_a += c;
     ck_b += ck_a;
   }
@@ -293,7 +293,7 @@ void parse_ubx( uint8_t c ) {
       ubx_status++;
     }
     break;
-  case GOT_PAYLOAD:
+  case GPS_UBX_GOT_PAYLOAD:
     if (c != ck_a)
       goto error;
     ubx_status++;
