@@ -78,7 +78,7 @@ let display_columns = fun w model ->
     text_columns;
   let renderer = GTree.cell_renderer_toggle [`XALIGN 0.] in
   let vc = GTree.view_column ~renderer:(renderer, ["active", col_to_save]) () in
-  let save_all = GButton.check_button ~draw_indicator:true ~active:true ~label:"Save" () in
+  let save_all = GButton.check_button ~draw_indicator:true ~active:false ~label:"Save" () in
   vc#set_widget (Some save_all#coerce);
   vc#set_clickable true;
 
@@ -123,7 +123,12 @@ let fill_data = fun (model:GTree.tree_store) settings airframe_xml ->
 	  scale_of_units unit_setting unit_airframe
 	with
 	  _ -> 1. in
-      let scaled_value = float_of_string airframe_value *. scale in
+      let scaled_value =
+	try
+	  float_of_string airframe_value *. scale
+	with
+	  Failure "float_of_string" -> raise (EditAirframe.No_param param)
+      in
 
       let row = model#append () in
       model#set ~row ~column:col_param param;
@@ -139,7 +144,7 @@ let fill_data = fun (model:GTree.tree_store) settings airframe_xml ->
 
   (* Warning if needed *)
   if !not_in_airframe_file <> [] then begin
-    GToolbox.message_box ~title:"Warning" (Printf.sprintf "Parameters '%s' not in the airframe file" (String.concat "," !not_in_airframe_file));
+    GToolbox.message_box ~title:"Warning" (Printf.sprintf "Parameter(s) '%s' not writable in the airframe file" (String.concat "," !not_in_airframe_file));
   end
 
 
@@ -150,6 +155,8 @@ let popup = fun airframe_filename settings ->
   (* Build the list window *)
   let file = Env.paparazzi_src // "sw" // "ground_segment" // "cockpit" // "gcs.glade" in
   let w = new Gtk_save_settings.save_settings ~file () in
+  let icon = GdkPixbuf.from_file Env.icon_file in
+  w#save_settings#set_icon (Some icon);
 
   (* Build the tree model *)
   let model = GTree.tree_store cols in
