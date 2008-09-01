@@ -59,9 +59,17 @@ let one_ac = fun (notebook:GPack.notebook) ac_name ->
       in
     ignore (Tele_Pprz.message_bind "DL_VALUE" get_dl_value);
 
+    (* Get the aiframe file *)
+    let af = Xml.attrib aircraft "airframe" in
+    let af_file = conf_dir // af in
+
     (* Show the page *)
-    let label = GMisc.label ~text:ac_name () in
-    ignore (notebook#append_page ~tab_label:label#coerce settings#widget)
+    let tab_label = GPack.hbox () in
+    let _label = GMisc.label ~text:ac_name ~packing:tab_label#pack () in
+    let button_save_settings = GButton.button ~packing:tab_label#pack () in
+    ignore (GMisc.image ~stock:`SAVE ~packing:button_save_settings#add ());
+    ignore (button_save_settings#connect#clicked (fun () -> settings#save af_file));
+    ignore (notebook#append_page ~tab_label:tab_label#coerce settings#widget)
 
 
 let _ =
