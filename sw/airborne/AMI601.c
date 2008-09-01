@@ -2,9 +2,9 @@
 
 
 
-#include "led.h"
+//#include "led.h"
 
-#include <string.h>
+//#include <string.h>
 
 
 uint8_t ami601_foo1;
@@ -65,8 +65,12 @@ void ami601_read( void ) {
   else {
     ami601_i2c_done = FALSE;
     ami601_status = AMI601_SENDING_REQ;
-    const uint8_t read_cmd[] = { 0x55, 0xAA, 0X14};
-    memcpy((void*)i2c1_buf, read_cmd, sizeof(read_cmd));
-    i2c1_transmit(AMI601_SLAVE_ADDR, sizeof(read_cmd), &ami601_i2c_done);
+    //    const uint8_t read_cmd[] = { 0x55, 0xAA, 0X14};
+    //    memcpy((void*)i2c1_buf, read_cmd, sizeof(read_cmd));
+    //    i2c1_transmit(AMI601_SLAVE_ADDR, sizeof(read_cmd), &ami601_i2c_done);
+    i2c1_buf[0] = 0x55;
+    i2c1_buf[1] = 0xAA;
+    i2c1_buf[2] = 0x14;
+    i2c1_transmit(AMI601_SLAVE_ADDR, 3, &ami601_i2c_done);
   }
 }
