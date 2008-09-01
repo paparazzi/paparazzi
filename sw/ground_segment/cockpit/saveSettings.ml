@@ -24,6 +24,8 @@
  *
  *)
 
+module U = Unix
+
 (** How to have them local ? *)
 let cols = new GTree.column_list
 let col_param = cols#add Gobject.Data.string
@@ -95,7 +97,7 @@ let display_columns = fun w model ->
 
 
     
-let write_xml = fun (model:GTree.tree_store) airframe_xml file ->
+let write_xml = fun (model:GTree.tree_store) old_file airframe_xml file ->
   let new_xml = ref airframe_xml in
   model#foreach (fun _path row ->
     if model#get ~row ~column:col_to_save then begin
@@ -104,6 +106,11 @@ let write_xml = fun (model:GTree.tree_store) airframe_xml file ->
       new_xml := EditAirframe.set !new_xml param (string_of_float new_value)
     end;
     false);
+  if old_file = file then begin
+    let now = U.localtime (Unix.gettimeofday ()) in
+    let backup_file = Printf.sprintf "%s.%d-%02d-%02d_%02d%02d%02d" old_file (now.U.tm_year + 1900) (now.U.tm_mon+1) now.U.tm_mday now.U.tm_hour now.U.tm_min now.U.tm_sec in
+    Sys.rename old_file backup_file
+  end;
   XmlCom.to_file !new_xml file
 
 
@@ -177,4 +184,4 @@ let popup = fun airframe_filename settings ->
   ignore (w#button_cancel#connect#clicked (fun () -> w#save_settings#destroy ()));
 
   (** Connect the Save button to the write action *)
-  ignore (w#button_save#connect#clicked (fun () -> save_airframe w airframe_filename (write_xml model airframe_xml)))
+  ignore (w#button_save#connect#clicked (fun () -> save_airframe w airframe_filename (write_xml model airframe_filename airframe_xml)))
