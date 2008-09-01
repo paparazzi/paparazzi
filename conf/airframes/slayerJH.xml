@@ -4,20 +4,20 @@
 <!-- commands section -->
   <servos>
     <servo name="AILEVON_RIGHT" no="1" min="1000" neutral="1500" max="2000"/>
-    <servo name="AILEVON_LEFT"  no="3" min="2000" neutral="1500" max="1000"/>
-    <servo name="THROTTLE"      no="4" min="1250" neutral="1250" max="1850"/>
+    <servo name="AILEVON_LEFT" no="3" min="2000" neutral="1500" max="1000"/>
+    <servo name="THROTTLE" no="4" min="1250" neutral="1250" max="1850"/>
   </servos>
 
   <commands>
     <axis name="THROTTLE" failsafe_value="0"/>
-    <axis name="ROLL"     failsafe_value="0"/>
-    <axis name="PITCH"    failsafe_value="0"/>
+    <axis name="ROLL" failsafe_value="0"/>
+    <axis name="PITCH" failsafe_value="0"/>
   </commands>
 
   <rc_commands>
     <set command="THROTTLE" value="@THROTTLE"/>
-    <set command="ROLL"     value="@ROLL"/>
-    <set command="PITCH"    value="@PITCH"/>
+    <set command="ROLL" value="@ROLL"/>
+    <set command="PITCH" value="@PITCH"/>
   </rc_commands>
 
   <section name="MIXER">
@@ -26,11 +26,11 @@
   </section>
 
   <command_laws>
-    <let var="aileron"  value="@ROLL  * AILEVON_AILERON_RATE"/>
+    <let var="aileron" value="@ROLL  * AILEVON_AILERON_RATE"/>
     <let var="elevator" value="@PITCH * AILEVON_ELEVATOR_RATE"/>  
-    <set servo="THROTTLE"           value="@THROTTLE"/>
+    <set servo="THROTTLE" value="@THROTTLE"/>
     <set servo="AILEVON_RIGHT" value="$elevator - $aileron"/>
-    <set servo="AILEVON_LEFT"  value="$elevator + $aileron"/>
+    <set servo="AILEVON_LEFT" value="$elevator + $aileron"/>
   </command_laws>
 
   <section name="AUTO1" prefix="AUTO1_">
@@ -49,7 +49,7 @@
 
   <section name="INFRARED" prefix="IR_">
     <define name="ROLL_NEUTRAL_DEFAULT" value="0" unit="deg"/>
-    <define name="PITCH_NEUTRAL_DEFAULT" value="6" unit="deg"/>
+    <define name="PITCH_NEUTRAL_DEFAULT" value="11.4" unit="deg"/>
     <define name="DEFAULT_CONTRAST" value="200"/> <!-- Contrast used prior to capture on models without z-sensor -->
     <define name="HORIZ_SENSOR_TILTED" value="1"/> <!-- "0" indicates x-y sensor is aligned with the fueslage, "1" indicates a 45 deg rotation -->
     <define name="IR1_SIGN" value="-1"/>
@@ -61,7 +61,7 @@
     <define name="ADC_TOP_NEUTRAL" value="512"/>
 
     <define name="CORRECTION_UP" value="1.0"/> <!-- multiplies the up pitch angle reading -->
-    <define name="CORRECTION_DOWN" value="1.0"/> <!-- multiplies the down pitch angle reading -->
+    <define name="CORRECTION_DOWN" value="1.5"/> <!-- multiplies the down pitch angle reading -->
     <define name="CORRECTION_LEFT" value="1.0"/> <!-- multiplies the left roll angle reading -->
     <define name="CORRECTION_RIGHT" value="1.0"/> <!-- multiplies the right roll angle reading -->
 
@@ -78,7 +78,9 @@
 
  <section name="BAT">
     <define name="MILLIAMP_PER_PERCENT" value="0.86"/>
-    <define name="CATASTROPHIC_BAT_LEVEL" value="9.1" unit="V"/>
+    <define name="CATASTROPHIC_BAT_LEVEL" value="9.0" unit="V"/>
+    <define name="CRITIC_BAT_LEVEL" value="9.3" unit="V"/>
+    <define name="LOW_BAT_LEVEL" value="10." unit="V"/>
   </section>
  
  <section name="MISC">
@@ -95,6 +97,7 @@
 
     <define name="UNLOCKED_HOME_MODE" value="TRUE"/>
     <define name="RC_LOST_MODE" value="PPRZ_MODE_AUTO2"/>
+
   </section>
 
  <section name="VERTICAL CONTROL" prefix="V_CTL_">
@@ -104,7 +107,7 @@
     <define name="ALTITUDE_MAX_CLIMB" value="3."/>
 
     <!-- auto throttle inner loop -->
-    <define name="AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE" value="0.60"/>
+    <define name="AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE" value="0.45"/>
     <define name="AUTO_THROTTLE_MIN_CRUISE_THROTTLE" value="0.45"/>
     <define name="AUTO_THROTTLE_MAX_CRUISE_THROTTLE" value="1.0"/>
     <define name="AUTO_THROTTLE_LOITER_TRIM" value="2000"/>
@@ -126,15 +129,17 @@
     <define name="AILERON_OF_THROTTLE" value="0.0"/>
     <define name="PITCH_PGAIN" value="-6000."/>
     <define name="PITCH_DGAIN" value="0."/>
-    <define name="ELEVATOR_OF_ROLL" value="0"/>
+    <define name="ELEVATOR_OF_ROLL" value="3213.20800781"/>
 
-    <define name="ROLL_ATTITUDE_GAIN" value="-6600"/>
-    <define name="ROLL_RATE_GAIN" value="-1200"/>
+    <define name="ROLL_ATTITUDE_GAIN" value="-5000."/>
+    <define name="ROLL_RATE_GAIN" value="-495.282989502"/>
   </section>
 
   <section name="NAV">
     <define name="NAV_PITCH" value="0."/>
     <define name="NAV_GLIDE_PITCH_TRIM" value="(V_CTL_AUTO_THROTTLE_PITCH_OF_VZ_PGAIN*V_CTL_ALTITUDE_MAX_CLIMB)"/>
+    <define name="THROTTLE_CUT_APPROACHING_TIME" value="16"/>
+    <define name="FLARE_APPROACHING_TIME" value="16"/>
   </section>
 
 
@@ -210,6 +215,10 @@ ap.srcs += nav.c fw_h_ctl.c fw_v_ctl.c nav_survey_rectangle.c nav_line.c snav.c
 ap.CFLAGS += -DGYRO -DADXRS150
 ap.srcs += gyro.c 
 
+
+# Video switch
+ap.CFLAGS += -DLIGHT_PIN_1=3 -DUSE_GPIO
+ap.srcs += $(SRC_ARCH)/gpio.c
 
 # Harware In The Loop
 
