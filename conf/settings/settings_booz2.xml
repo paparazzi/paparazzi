@@ -21,6 +21,15 @@
       <dl_setting var="booz_stabilization_dgain.x" min="-4000" step="1" max="-1" module="booz2_stabilization_attitude" shortname="dgain p"/>
       <dl_setting var="booz_stabilization_dgain.y" min="-4000" step="1" max="-1" module="booz2_stabilization_attitude" shortname="dgain q"/>
       <dl_setting var="booz_stabilization_dgain.z" min="-4000" step="1" max="-1" module="booz2_stabilization_attitude" shortname="dgain r"/>
+      <dl_setting var="booz_stabilization_igain.x" min="-300" step="1" max="0" module="booz2_stabilization_attitude" shortname="igain phi"/>
+      <dl_setting var="booz_stabilization_igain.y" min="-300" step="1" max="0" module="booz2_stabilization_attitude" shortname="igain theta"/>
+      <dl_setting var="booz_stabilization_igain.z" min="-300" step="1" max="0" module="booz2_stabilization_attitude" shortname="igain psi"/>
+    </dl_settings>
+
+    <dl_settings NAME="Vert Loop">
+      <dl_setting var="booz2_guidance_v_kp" min="-400" step="1" max="0" module="booz2_guidance_v" shortname="kp"/>
+      <dl_setting var="booz2_guidance_v_kd" min="-400" step="1" max="0" module="booz2_guidance_v" shortname="kd"/>
+      <dl_setting var="booz2_guidance_v_ki" min="-400" step="1" max="0" module="booz2_guidance_v" shortname="ki"/>
     </dl_settings>
 
 

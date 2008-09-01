@@ -142,8 +142,8 @@
 
   <section name="STABILIZATION_ATTITUDE" prefix="BOOZ_STABILIZATION_ATTITUDE_">
 
-    <define name="SP_MAX_PHI"     value="4000"/>
-    <define name="SP_MAX_THETA"   value="4000"/>
+    <define name="SP_MAX_PHI"     value="3000"/>
+    <define name="SP_MAX_THETA"   value="3000"/>
     <define name="SP_MAX_R"       value="5500"/>
     <define name="DEADBAND_R"     value="250"/>
 
