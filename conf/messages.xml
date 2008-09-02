@@ -1072,19 +1072,14 @@
   </message>
 
   <message name="BOOZ2_FP" ID="147">
-    <field name="north"    type="int32"/>
-    <field name="east"     type="int32"/>
+    <field name="lon"      type="int32"/>
+    <field name="lat"      type="int32"/>
+    <field name="alt"      type="int32"/>
     <field name="vnorth"   type="int32"/>
     <field name="veast"    type="int32"/>
-    <field name="alt"      type="int32"/>
     <field name="phi"      type="int32"/>
     <field name="theta"    type="int32"/>
     <field name="psi"      type="int32"/>
-  </message>
-
-  <message name="BOOZ2_FP_REF" ID="148">
-    <field name="north_0"    type="int32"/>
-    <field name="east_0"     type="int32"/>
   </message>
 
 
