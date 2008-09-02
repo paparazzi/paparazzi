@@ -1071,7 +1071,7 @@
     <field name="delta_t" type="int32"/>
   </message>
 
-  <message name="BOOZ2_FLIGHT_PARAM" ID="147">
+  <message name="BOOZ2_FP" ID="147">
     <field name="north"    type="int32"/>
     <field name="east"     type="int32"/>
     <field name="vnorth"   type="int32"/>
@@ -1082,7 +1082,7 @@
     <field name="psi"      type="int32"/>
   </message>
 
-  <message name="BOOZ2_FLIGHT_PARAM_REF" ID="148">
+  <message name="BOOZ2_FP_REF" ID="148">
     <field name="north_0"    type="int32"/>
     <field name="east_0"     type="int32"/>
   </message>
