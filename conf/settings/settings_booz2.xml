@@ -33,6 +33,11 @@
       <dl_setting var="booz2_guidance_v_z_sp" min="50" step="1" max="950" module="booz2_guidance_v" shortname="sp"/>
    </dl_settings>
 
+   <dl_settings NAME="Horiz Loop">
+      <dl_setting var="booz2_guidance_h_pgain" min="-400" step="1" max="0" module="booz2_guidance_h" shortname="kp"/>
+      <dl_setting var="booz2_guidance_h_dgain" min="-400" step="1" max="0" module="booz2_guidance_h" shortname="kd"/>
+      <dl_setting var="booz2_guidance_h_igain" min="-400" step="1" max="0" module="booz2_guidance_h" shortname="ki"/>
+   </dl_settings>
 
     <dl_settings NAME="Filter">
        <dl_setting var="booz2_face_reinj_1" min="512" step="512" max="262144" module="booz2_filter_attitude_cmpl_euler" shortname="reinj_1"/>
