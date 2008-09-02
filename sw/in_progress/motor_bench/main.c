@@ -7,6 +7,8 @@
 #include <Ivy/ivy.h>
 #include <Ivy/ivyglibloop.h>
 
+#define ASTECH 1
+
 #include "tuning.h"
 
 //#include "sliding_plot.h"
@@ -16,6 +18,8 @@
 #define MB_MODES_RAMP   2
 #define MB_MODES_STEP   3
 #define MB_MODES_PRBS   4
+#define MB_MODES_SINE       5
+#define MB_MODES_FIXED_RPM  6
 
 #define AS_MOT_FRONT 0
 #define AS_MOT_BACK  1
@@ -39,7 +43,12 @@ struct motor_bench_state {
   double amps;
   double thrust;
   double torque;
+  double av_rpm;
+  double av_throttle;
+  double av_thrust;
+  double av_amps;
   GIOChannel* log_channel;
+  GIOChannel* log_channel_static;
 };
 
 struct motor_bench_gui {
@@ -111,6 +120,24 @@ static void on_MOTOR_BENCH_STATUS(IvyClientPtr app, void *user_data, int argc, c
   //  g_message("foo %f %f %f %f %d", mb_state.time, throttle, rpm, amp, mode);
 }
 
+static void on_MOTOR_BENCH_STATIC(IvyClientPtr app, void *user_data, int argc, char *argv[]){
+  mb_state.av_rpm =  atof(argv[0]);
+  mb_state.av_thrust =  atof(argv[1]);
+  mb_state.av_amps =  atof(argv[2]);
+  mb_state.av_throttle =  atof(argv[3]);
+
+  if (mb_state.log_channel_static) {
+    GString* str = g_string_sized_new(256);
+    g_string_printf(str, "%0f %.3f %.2f %.1f\n", mb_state.av_throttle, mb_state.av_rpm, mb_state.av_amps, mb_state.av_thrust);
+    gsize b_writen;
+    GError* my_err = NULL;
+    GIOStatus stat = g_io_channel_write_chars(mb_state.log_channel_static,str->str, str->len, &b_writen, &my_err); 
+    g_string_free(str, TRUE);
+  }
+  g_message("in_static %f %f %f %f", mb_state.av_throttle, mb_state.av_rpm, mb_state.av_amps, mb_state.av_thrust);
+}
+
+
 static gboolean timeout_callback(gpointer data) {
   GString* str = g_string_sized_new(64);
   g_string_printf(str, "%.2f s", mb_state.time);
@@ -135,31 +162,43 @@ static void on_log_button_toggled (GtkWidget *widget, gpointer data) {
      const gchar *log_file_name = gtk_entry_get_text (GTK_ENTRY (mb_gui.entry_log));
      GError* my_err = NULL;
      mb_state.log_channel = g_io_channel_new_file (log_file_name, "w", &my_err);
+     GString* static_name = g_string_sized_new(128);
+     g_string_printf(static_name,"%s%s", log_file_name, "_static"); 
+     mb_state.log_channel_static = g_io_channel_new_file (static_name->str, "w", &my_err);
+     g_string_free(static_name, TRUE);
    }
    else {
      gtk_editable_set_editable( GTK_EDITABLE(mb_gui.entry_log), TRUE );
      if (mb_state.log_channel) {
        g_io_channel_close(mb_state.log_channel);
+       g_io_channel_close(mb_state.log_channel_static);
        mb_state.log_channel = NULL;
+       mb_state.log_channel_static = NULL;
      }
    }
 }
 
 
 static void on_as_test_button_clicked (GtkWidget *widget, gpointer data) {
+#ifdef ASTECH
   IvySendMsg("dl DL_SETTING %d %d %d", mb_id, PPRZ_MB_TWI_CONTROLLER_ASCTECH_COMMAND_TYPE, AS_CMD_TEST_ADDR);
+#endif
 }
 
 static void on_as_reverse_button_clicked (GtkWidget *widget, gpointer data) {
+#ifdef ASTECH
   IvySendMsg("dl DL_SETTING %d %d %d", mb_id, PPRZ_MB_TWI_CONTROLLER_ASCTECH_COMMAND_TYPE, AS_CMD_REVERSE);
+#endif
 }
 
 
 static void on_as_addr_changed (GtkRadioButton  *radiobutton, gpointer user_data) {
+#ifdef ASTECH
   if (!gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(radiobutton)))
     return;
   guint new_addr = (guint)user_data;
   IvySendMsg("dl DL_SETTING %d %d %d", mb_id, PPRZ_MB_TWI_CONTROLLER_ASCTECH_ADDR, new_addr);
+#endif
 }
 
 
@@ -175,6 +214,7 @@ int main (int argc, char** argv) {
 
   IvyInit ("MotorBench", "MotorBench READY", NULL, NULL, NULL, NULL);
   IvyBindMsg(on_MOTOR_BENCH_STATUS, NULL, "^\\S* MOTOR_BENCH_STATUS (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*)");
+  IvyBindMsg(on_MOTOR_BENCH_STATIC, NULL, "^\\S* MOTOR_BENCH_STATIC (\\S*) (\\S*) (\\S*) (\\S*)");
   IvyStart("127.255.255.255");
 
   g_timeout_add(40, timeout_callback, NULL);
@@ -232,12 +272,24 @@ static GtkWidget* build_gui ( void ) {
   gtk_box_pack_start (GTK_BOX (vbox2), rb_prbs, TRUE, TRUE, 0);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (rb_prbs), rb_mode_group);
   rb_mode_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (rb_prbs));
+  GtkWidget* rb_sine = gtk_radio_button_new_with_mnemonic (NULL, "sine");
+  gtk_box_pack_start (GTK_BOX (vbox2), rb_sine, TRUE, TRUE, 0);
+  gtk_radio_button_set_group (GTK_RADIO_BUTTON (rb_sine), rb_mode_group);
+  rb_mode_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (rb_sine));
+  GtkWidget* rb_fixed_rpm = gtk_radio_button_new_with_mnemonic (NULL, "fixed");
+  gtk_box_pack_start (GTK_BOX (vbox2), rb_fixed_rpm, TRUE, TRUE, 0);
+  gtk_radio_button_set_group (GTK_RADIO_BUTTON (rb_fixed_rpm), rb_mode_group);
+  rb_mode_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (rb_fixed_rpm));
+
+
 
   g_signal_connect ((gpointer) rb_idle, "toggled", G_CALLBACK (on_mode_changed), (gpointer)MB_MODES_IDLE);
   g_signal_connect ((gpointer) rb_manual, "toggled", G_CALLBACK (on_mode_changed), (gpointer)MB_MODES_MANUAL);
   g_signal_connect ((gpointer) rb_ramp, "toggled", G_CALLBACK (on_mode_changed), (gpointer)MB_MODES_RAMP);
   g_signal_connect ((gpointer) rb_step, "toggled", G_CALLBACK (on_mode_changed), (gpointer)MB_MODES_STEP);
   g_signal_connect ((gpointer) rb_prbs, "toggled", G_CALLBACK (on_mode_changed), (gpointer)MB_MODES_PRBS);
+  g_signal_connect ((gpointer) rb_sine, "toggled", G_CALLBACK (on_mode_changed), (gpointer)MB_MODES_SINE);
+  g_signal_connect ((gpointer) rb_fixed_rpm, "toggled", G_CALLBACK (on_mode_changed), (gpointer)MB_MODES_FIXED_RPM);
 
 
   //

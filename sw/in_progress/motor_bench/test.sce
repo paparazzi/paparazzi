@@ -5,12 +5,12 @@ getf('mb_utils.sci');
 args = sciargs();
 [nb_args, foo] = size(args)
 filename = args(nb_args);
-filename = "data/steps2_stout_aero_geared.txt"
+filename = "asctech/log_ramp_crooked_prop.txt"
 
 [time, throttle, rpm, amp, thrust, torque] = read_mb_log(filename);
 
 
-f_sample = 200.;
+f_sample = 250.;
 fc = 100.;
 f_rpm = low_pass_filter(f_sample, fc, rpm);
 
@@ -28,3 +28,5 @@ subplot(3,1,3)
 xtitle('Filtered Rpm');
 plot2d(time, f_rpm);
 //plot2d(rpm, throttle);
+
+save('asctech/log_ramp_crooked_prop.dat', time, throttle, rpm, amp, thrust, torque);

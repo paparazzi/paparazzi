@@ -1078,6 +1078,7 @@
     <field name="cmd_y"         type="int32"/>
     <field name="cmd_phi"       type="int32"/>
     <field name="cmd_theta"     type="int32"/>
+    <field name="cmd_psi"       type="int32"/>
   </message>
 
 

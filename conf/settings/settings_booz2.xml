@@ -3,8 +3,8 @@
 <settings>
   <dl_settings>
 
-    <dl_settings NAME="Analog Baro">
-      <dl_setting var="booz2_analog_baro_offset" min="1" step="1" max="1022" module="booz2_analog_baro" handler="SetOffset" shortname="offset"/>
+    <dl_settings NAME="Misc">
+       <dl_setting var="telemetry_mode_Main" min="0" step="1" max="7" module="booz2_telemetry" shortname="telemetry mode"/>
     </dl_settings>
 
     <dl_settings NAME="Rate Loop">
@@ -30,7 +30,8 @@
       <dl_setting var="booz2_guidance_v_kp" min="-400" step="1" max="0" module="booz2_guidance_v" shortname="kp"/>
       <dl_setting var="booz2_guidance_v_kd" min="-400" step="1" max="0" module="booz2_guidance_v" shortname="kd"/>
       <dl_setting var="booz2_guidance_v_ki" min="-400" step="1" max="0" module="booz2_guidance_v" shortname="ki"/>
-    </dl_settings>
+      <dl_setting var="booz2_guidance_v_z_sp" min="50" step="1" max="950" module="booz2_guidance_v" shortname="sp"/>
+   </dl_settings>
 
 
     <dl_settings NAME="Filter">
@@ -38,8 +39,8 @@
     </dl_settings>
 
 
-    <dl_settings NAME="Misc">
-       <dl_setting var="telemetry_mode_Main" min="0" step="1" max="6" module="booz2_telemetry" shortname="telemetry mode"/>
+    <dl_settings NAME="Analog Baro">
+      <dl_setting var="booz2_analog_baro_offset" min="1" step="1" max="1022" module="booz2_analog_baro" handler="SetOffset" shortname="offset"/>
     </dl_settings>
 
 
