@@ -1062,6 +1062,31 @@
   </message>
 
 
+  <message name="BOOZ2_HOVER_LOOP" ID="146">
+    <field name="z_sp"    type="int32"/>
+    <field name="z_meas"  type="int32"/>
+    <field name="zd_est"  type="int32"/>
+    <field name="sum_err" type="int32"/>
+    <field name="g_est"   type="int32"/>
+    <field name="delta_t" type="int32"/>
+  </message>
+
+  <message name="BOOZ2_FLIGHT_PARAM" ID="147">
+    <field name="north"    type="int32"/>
+    <field name="east"     type="int32"/>
+    <field name="vnorth"   type="int32"/>
+    <field name="veast"    type="int32"/>
+    <field name="alt"      type="int32"/>
+    <field name="phi"      type="int32"/>
+    <field name="theta"    type="int32"/>
+    <field name="psi"      type="int32"/>
+  </message>
+
+  <message name="BOOZ2_FLIGHT_PARAM_REF" ID="148">
+    <field name="north_0"    type="int32"/>
+    <field name="east_0"     type="int32"/>
+  </message>
+
 
 
 </class>
