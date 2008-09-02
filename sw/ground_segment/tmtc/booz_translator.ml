@@ -4,6 +4,8 @@ module Tm_Pprz = Pprz.Messages (struct let name = "telemetry" end)
 
 let ac_id = "149"
 
+let gps_status = ref 0
+
 let get_status = fun _ values ->
   let ivalue = fun x -> try Pprz.int_assoc x values with Not_found ->
     failwith (sprintf "Error: field '%s' not found\n" x) in
@@ -11,6 +13,7 @@ let get_status = fun _ values ->
   let ap_mode = ivalue "ap_mode" in
   if ap_mode = 0 then (); (* send kill *)
   let pprz_mode = ref 0 in
+  gps_status := (ivalue "gps_status");
   (* let rc_mode = ivalue "rc_status" in *)
   let mode_values = [
     "ap_mode",       Pprz.Int !pprz_mode;
@@ -40,7 +43,7 @@ let get_fp = fun _ values ->
   let power_12 = 1 lsl 12 in
 
   let gps_values = [
-    "mode",       Pprz.Int 0;
+    "mode",       Pprz.Int !gps_status;
     "utm_east",   Pprz.Int32 (Int32.of_float (utm.Latlong.utm_x *. 100.));
     "utm_north",  Pprz.Int32 (Int32.of_float (utm.Latlong.utm_y *. 100.));
     "course",     Pprz.Int (573 * psi / power_12);
