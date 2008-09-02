@@ -122,7 +122,7 @@ let write_preferences = fun (gui:Gtk_pc.window) file (ac_combo:Utils.combo) (ses
   Printf.fprintf f "%s\n" (ExtXml.to_string_fmt xml);
   close_out f
 
-let quit_callback = fun gui ac_combo session_combo target_combo () ->
+let quit_callback = fun gui ac_combo session_combo target_combo _ ->
   CP.close_programs gui;
   write_preferences gui Env.gconf_file ac_combo session_combo target_combo;
   exit 0
@@ -236,7 +236,7 @@ let () =
   (* Quit button *)
   ignore (gui#menu_item_quit#connect#activate ~callback:(quit_button_callback gui ac_combo session_combo target_combo));
 
-  ignore (gui#window#connect#destroy ~callback:(quit_callback gui ac_combo session_combo target_combo));
+  ignore (gui#window#event#connect#delete ~callback:(quit_callback gui ac_combo session_combo target_combo));
 
   let callback = fun () ->
     fullscreen := not !fullscreen;
