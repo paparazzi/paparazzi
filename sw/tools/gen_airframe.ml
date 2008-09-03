@@ -45,12 +45,33 @@ let define_macro name n x =
   | 3 -> printf "x1,x2,x3) (%s*(x1)+ %s*(x2)+%s*(x3))\n" (a "coeff1") (a "coeff2") (a "coeff3")
   | _ -> failwith "define_macro"
 	  
+let define_integer name v n =
+  let max_val = 1 lsl n in
+  let print = fun name num den ->
+    define (name^"_NUM") (string_of_int num);
+    define (name^"_DEN") (string_of_int den) in
+  let rec continious_frac = fun a x num den ->
+    let x1 = 1. /. (x -. (float_of_int a)) in
+    let a1 = truncate x1 in
+    let (num1, num2) = num in
+    let num3 = a1 * num2 + num1 in
+    let (den1, den2) = den in
+    let den3 = a1 * den2 + den1 in
+    if num3 > max_val || den3 > max_val then
+      print name num2 den2
+    else if (float_of_int num3) /. (float_of_int den3) = v then
+      print name num3 den3
+    else
+      continious_frac a1 x1 (num2, num3) (den2, den3)
+  in
+  continious_frac (truncate v) v (1, (truncate v)) (0, 1)
+
 let parse_element = fun prefix s ->
   match Xml.tag s with
     "define" -> begin
 			try	
       	define (prefix^ExtXml.attrib s "name") (ExtXml.attrib s "value");
-      	define (prefix^(ExtXml.attrib s "name")^"_NB_SAMPLE") (ExtXml.attrib s "nb_sample");
+      	define_integer (prefix^(ExtXml.attrib s "name")) (ExtXml.float_attrib s "value") (ExtXml.int_attrib s "integer");
 			with _ -> ();
 		end
   | "linear" ->
