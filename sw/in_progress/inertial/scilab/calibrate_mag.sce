@@ -1,14 +1,14 @@
 clear();
 exec("calibration_utils.sci");
 
-[raw_mag, raw_accel] = read_log("log_calib_mag_3.dat");
+[raw_mag, raw_accel] = read_log("log_calib_mag_4.dat");
 
 //[fraw_mag] = filter_noise(raw_mag,15,300);
 fraw_mag = raw_mag;
 
   
-n0 = [ 1950; 2000; 2150];
-g0 = [ 2; 2; 2];
+n0 = [ 2000; 2000; 2000];
+g0 = [ 4; 4; 4];
 
 [scaled_mag] = scale_sensor(fraw_mag, g0, n0);
 [scaled_module] = compute_mod(scaled_mag);
@@ -37,7 +37,7 @@ subplot(4,1,1);
 plot2d(1:nc, raw_mag(1,:), 1);
 plot2d(1:nc, raw_mag(2,:), 2);
 plot2d(1:nc, raw_mag(3,:), 3);
-xtitle('raw senors');
+xtitle('raw sensors');
 
 subplot(4,1,2);
 [nl, nc] = size(fraw_mag);

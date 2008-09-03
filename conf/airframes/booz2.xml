@@ -116,13 +116,13 @@
     <define name="MAG_Z_CHAN" value="2"/>
 
     
-    <define name="MAG_X_NEUTRAL" value="2035"/>
-    <define name="MAG_Y_NEUTRAL" value="2121"/> 
-    <define name="MAG_Z_NEUTRAL" value="1943"/>
+    <define name="MAG_X_NEUTRAL" value="2038"/>
+    <define name="MAG_Y_NEUTRAL" value="1945"/> 
+    <define name="MAG_Z_NEUTRAL" value="1957"/>
 
-    <define name="MAG_X_SENS" value="-446."/>
-    <define name="MAG_Y_SENS" value=" 456."/>
-    <define name="MAG_Z_SENS" value="-474."/>
+    <define name="MAG_X_SENS" value="-401."/>
+    <define name="MAG_Y_SENS" value=" 388."/>
+    <define name="MAG_Z_SENS" value="-414."/>
 
 
   </section>
@@ -152,10 +152,10 @@
     <define name="PHI_THETA_DDGAIN" value="0"/>
     <define name="PHI_THETA_IGAIN"  value="-100"/>
 
-    <define name="PSI_PGAIN"  value="-300"/>
-    <define name="PSI_DGAIN"  value="-200"/>
+    <define name="PSI_PGAIN"  value="-380"/>
+    <define name="PSI_DGAIN"  value="-320"/>
     <define name="PSI_DDGAIN" value="0"/>
-    <define name="PSI_IGAIN"  value="-100"/>
+    <define name="PSI_IGAIN"  value="-75"/>
 
   </section>
 

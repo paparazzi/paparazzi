@@ -480,15 +480,17 @@
 
   <message name="BOOZ_STATUS" ID="231">
       <field name="link_imu_nb_err" type="uint32"/>
-      <field name="blmc_nb_err" type="uint8"/>
-      <field name="imu_status"  type="uint8" values="NO_LINK|UNINIT|RUNNING|CRASHED"/>
-      <field name="rc_status"   type="uint8" values="OK|LOST|REALLY_LOST"/>
-      <field name="gps_status"  type="uint8" values="OK|LOST|REALLY_LOST"/>
-      <field name="ap_mode"     type="uint8" values=""/>
-      <field name="ap_h_mode"   type="uint8" values=""/>
-      <field name="ap_v_mode"   type="uint8" values=""/>
-      <field name="vsupply"     type="uint8" unit="decivolt"/>
-      <field name="cpu_time"    type="uint16" unit="s"></field>
+      <field name="blmc_nb_err"  type="uint8"/>
+      <field name="imu_status"   type="uint8" values="NO_LINK|UNINIT|RUNNING|CRASHED"/>
+      <field name="rc_status"    type="uint8" values="OK|LOST|REALLY_LOST"/>
+      <field name="gps_status"   type="uint8" values="OK|LOST|REALLY_LOST"/>
+      <field name="ap_mode"      type="uint8" values=""/>
+      <field name="ap_in_flight" type="uint8" values=""/>
+      <field name="ap_motors_on" type="uint8" values=""/>
+      <field name="ap_h_mode"    type="uint8" values=""/>
+      <field name="ap_v_mode"    type="uint8" values=""/>
+      <field name="vsupply"      type="uint8" unit="decivolt"/>
+      <field name="cpu_time"     type="uint16" unit="s"></field>
   </message>
 
   <message name="BOOZ_DEBUG_BAR" ID="232">
