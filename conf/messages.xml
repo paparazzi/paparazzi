@@ -966,15 +966,11 @@
    <field name="lp_gp"  type="int32"/>
    <field name="lp_gq"  type="int32"/>
    <field name="lp_gr"  type="int32"/>
-   <field name="lp_ax"  type="int32"/>
-   <field name="lp_ay"  type="int32"/>
-   <field name="lp_az"  type="int32"/>
-   <field name="lp_mx"  type="int32"/>
-   <field name="lp_my"  type="int32"/>
-   <field name="lp_mz"  type="int32"/>
-   <field name="lp_noisex"  type="int32"/>
-   <field name="lp_noisey"  type="int32"/>
-   <field name="lp_noisez"  type="int32"/>
+   <field name="gp"     type="int32"/>
+   <field name="gq"     type="int32"/>
+   <field name="gr"     type="int32"/>
+   <field name="noise"  type="int32"/>
+   <field name="cnt"    type="int32"/>
  </message>
 
  <message name="BOOZ2_FILTER_Q" ID="138">   

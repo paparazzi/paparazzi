@@ -128,7 +128,7 @@ ap.srcs += AMI601.c
 ap.srcs += $(BOOZ_PRIV)/booz2_autopilot.c
 
 ap.CFLAGS += -DFILTER_ALIGNER_LED=6
-ap.srcs += $(BOOZ_PRIV)/booz2_filter_aligner.c
+ap.srcs += $(BOOZ_PRIV)/booz2_filter_aligner2.c
 ap.srcs += $(BOOZ_PRIV)/booz2_filter_attitude_cmpl_euler.c
 ap.srcs += $(BOOZ_PRIV)/booz_trig_int.c
 

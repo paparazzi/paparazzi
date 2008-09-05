@@ -64,6 +64,10 @@
       <message name="BOOZ2_HOVER_LOOP"        period="0.25"/>
     </mode>
 
+    <mode name="aligner">
+      <message name="BOOZ2_FILTER_ALIGNER"    period="0.02"/>
+    </mode>
+
 
   </process>
 
