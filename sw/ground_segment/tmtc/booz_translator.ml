@@ -33,20 +33,18 @@ let get_fp = fun _ values ->
   and alt    = Int32.to_float (i32value "alt") /. 100.
   and vnorth = Int32.to_float (i32value "vnorth")
   and veast  = Int32.to_float (i32value "veast")
-  and phi    = Int32.to_int (i32value "phi")
-  and theta  = Int32.to_int (i32value "theta")
-  and psi    = Int32.to_int (i32value "psi") in
-  let utm = Latlong.utm_of Latlong.WGS84 (Latlong.make_geo lat lon) in
+  and phi    = i32value "phi"
+  and theta  = i32value "theta"
+  and psi    = i32value "psi" in
+  (*let utm = Latlong.utm_of Latlong.WGS84 (Latlong.make_geo lat lon) in*)
   let gspeed = sqrt(vnorth*.vnorth +. veast*.veast) in
-  (*let power_12 = Num.int_of_num (Num.power_num (Num.num_of_int 2)
-   * (Num.num_of_int 12)) in*)
   let power_12 = 1 lsl 12 in
 
   let gps_values = [
     "mode",       Pprz.Int !gps_status;
-    "utm_east",   Pprz.Int32 (Int32.of_float (utm.Latlong.utm_x *. 100.));
-    "utm_north",  Pprz.Int32 (Int32.of_float (utm.Latlong.utm_y *. 100.));
-    "course",     Pprz.Int (573 * psi / power_12);
+    "utm_east",   Pprz.Int32 (Int32.of_int 0) (* (Int32.of_float (utm.Latlong.utm_x *. 100.))*);
+    "utm_north",  Pprz.Int32 (Int32.of_int 0) (* (Int32.of_float (utm.Latlong.utm_y *. 100.))*);
+    "course",     Pprz.Int (573 * (Int32.to_int psi) / power_12);
     "alt",        Pprz.Int 0;
     "speed",      Pprz.Int (int_of_float gspeed);
     "climb",      Pprz.Int 0;
@@ -61,9 +59,9 @@ let get_fp = fun _ values ->
   Tm_Pprz.message_send ac_id "ESTIMATOR" est_values;
 
   let att_values = [
-    "phi",   Pprz.Float (57.3 *. float_of_int (phi / power_12));
-    "psi",   Pprz.Float (57.3 *. float_of_int (psi / power_12));
-    "theta", Pprz.Float (57.3 *. float_of_int (theta / power_12))] in
+    "phi",   Pprz.Int (truncate (57.3 *. Int32.to_float(phi)   /. float_of_int(power_12)));
+    "psi",   Pprz.Int (truncate (57.3 *. Int32.to_float(psi)   /. float_of_int(power_12)));
+    "theta", Pprz.Int (truncate (57.3 *. Int32.to_float(theta) /. float_of_int(power_12)))] in
   Tm_Pprz.message_send ac_id "ATTITUDE" att_values
 
 

@@ -238,6 +238,8 @@ let log_and_parse = fun logging ac_name (a:Aircraft.aircraft) msg values ->
 	  failwith msg
       | _ -> f
   and ivalue = fun x -> ivalue (value x) in
+  if not (msg.Pprz.name = "DOWNLINK_STATUS") then
+    a.last_bat_msg_date <- U.gettimeofday ();
   match msg.Pprz.name with
     "GPS" ->
       a.pos <- { utm_x = fvalue "utm_east" /. 100.;
@@ -274,7 +276,6 @@ let log_and_parse = fun logging ac_name (a:Aircraft.aircraft) msg values ->
       a.cur_stage <- ivalue "cur_stage";
       a.dist_to_wp <- sqrt (fvalue "dist2_wp")
   | "BAT" ->
-      a.last_bat_msg_date <- U.gettimeofday ();
       a.throttle <- fvalue "throttle" /. 9600. *. 100.;
       a.kill_mode <- ivalue "kill_auto_throttle" <> 0;
       a.flight_time <- ivalue "flight_time";
