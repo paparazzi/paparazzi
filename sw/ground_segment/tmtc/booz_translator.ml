@@ -11,17 +11,23 @@ let get_status = fun _ values ->
     failwith (sprintf "Error: field '%s' not found\n" x) in
 
   let ap_mode = ivalue "ap_mode" in
-  if ap_mode = 0 then (); (* send kill *)
   let pprz_mode = ref 0 in
+  if ap_mode = 0 || ap_mode = 1 || ap_mode = 2 || ap_mode = 5 then pprz_mode := 0
+  else if ap_mode = 3 || ap_mode = 6 then pprz_mode := 1
+  else if ap_mode = 7 || ap_mode = 8 then pprz_mode := 2;
+  let rc_status = ivalue "rc_status" in
+  let mcu1_status = ref 2 in
+  if rc_status = 0 then mcu1_status := 1
+  else if rc_status = 1 then mcu1_status := 2
+  else if rc_status = 2 then mcu1_status := 0;
   gps_status := (ivalue "gps_status");
-  (* let rc_mode = ivalue "rc_status" in *)
   let mode_values = [
     "ap_mode",       Pprz.Int !pprz_mode;
     "ap_gaz",        Pprz.Int 0;
     "ap_lateral",    Pprz.Int 0;
     "ap_horizontal", Pprz.Int 0;
     "if_calib_mode", Pprz.Int 0;
-    "mcu1_status",   Pprz.Int 0] in
+    "mcu1_status",   Pprz.Int !mcu1_status] in
   Tm_Pprz.message_send ac_id "PPRZ_MODE" mode_values
 
 let get_fp = fun _ values ->
