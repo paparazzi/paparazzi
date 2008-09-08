@@ -36,20 +36,20 @@ let get_fp = fun _ values ->
   and phi    = i32value "phi"
   and theta  = i32value "theta"
   and psi    = i32value "psi" in
-  (*let utm = Latlong.utm_of Latlong.WGS84 (Latlong.make_geo lat lon) in*)
+  let utm = Latlong.utm_of Latlong.WGS84 (Latlong.make_geo_deg lat lon) in
   let gspeed = sqrt(vnorth*.vnorth +. veast*.veast) in
   let power_12 = 1 lsl 12 in
 
   let gps_values = [
     "mode",       Pprz.Int !gps_status;
-    "utm_east",   Pprz.Int32 (Int32.of_int 0) (* (Int32.of_float (utm.Latlong.utm_x *. 100.))*);
-    "utm_north",  Pprz.Int32 (Int32.of_int 0) (* (Int32.of_float (utm.Latlong.utm_y *. 100.))*);
+    "utm_east",   Pprz.Int32 (Int32.of_float (utm.Latlong.utm_x *. 100.));
+    "utm_north",  Pprz.Int32 (Int32.of_float (utm.Latlong.utm_y *. 100.));
     "course",     Pprz.Int (573 * (Int32.to_int psi) / power_12);
     "alt",        Pprz.Int 0;
     "speed",      Pprz.Int (int_of_float gspeed);
     "climb",      Pprz.Int 0;
     "itow",       Pprz.Int32 (Int32.of_int 0);
-    "utm_zone",   Pprz.Int 0;
+    "utm_zone",   Pprz.Int utm.Latlong.utm_zone;
     "gps_nb_err", Pprz.Int 0] in
   Tm_Pprz.message_send ac_id "GPS" gps_values;
 
