@@ -384,8 +384,8 @@ class settings = fun ?(visible = fun _ -> true) xml_settings do_change strip ->
 	  label_current_value#set_text s
     method assoc var = List.assoc var assocs
     method save = fun airframe_filename ->
-      let settings = Array.fold_right (fun (_i, dl_setting, label) r -> try (dl_setting, float_of_string label#text)::r with _ -> r) variables [] in
-      SaveSettings.popup airframe_filename (Array.of_list settings)
+      let settings = Array.fold_right (fun (i, dl_setting, label) r -> try (i, dl_setting, float_of_string label#text)::r with _ -> r) variables [] in
+      SaveSettings.popup airframe_filename (Array.of_list settings) do_change
   end
 
 

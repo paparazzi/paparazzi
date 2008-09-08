@@ -24,5 +24,5 @@
  *
  *)
 
-val popup : string -> (Xml.xml*float) array -> unit
-(** [popup airframe_filename settings] *)
+val popup : string -> (int*Xml.xml*float) array -> (int -> float -> unit) -> unit
+(** [popup airframe_filename settings send_value] *)

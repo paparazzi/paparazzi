@@ -28,6 +28,7 @@ module U = Unix
 
 (** How to have them local ? *)
 let cols = new GTree.column_list
+let col_index = cols#add Gobject.Data.int
 let col_param = cols#add Gobject.Data.string
 and col_airframe_value = cols#add Gobject.Data.float
 and col_settings_value = cols#add Gobject.Data.float
@@ -38,7 +39,7 @@ let (//) = Filename.concat
 
 (** Float not equal to 0.1% *)
 let floats_not_equal = fun f1 f2 ->
-  f2 = 0. ||
+  f2 = 0. && f1 <> 0. ||
   let r = abs_float (f1 /. f2) in
   r < 0.999 || r > 1.001
 
@@ -80,7 +81,7 @@ let display_columns = fun w model ->
     text_columns;
   let renderer = GTree.cell_renderer_toggle [`XALIGN 0.] in
   let vc = GTree.view_column ~renderer:(renderer, ["active", col_to_save]) () in
-  let save_all = GButton.check_button ~draw_indicator:true ~active:false ~label:"Save" () in
+  let save_all = GButton.check_button ~draw_indicator:true ~active:false () in
   vc#set_widget (Some save_all#coerce);
   vc#set_clickable true;
 
@@ -115,9 +116,20 @@ let write_xml = fun (model:GTree.tree_store) old_file airframe_xml file ->
 
 
 
+let send_airframe_values = fun (model:GTree.tree_store) send_value ->
+   model#foreach (fun _path row ->
+     if model#get ~row ~column:col_to_save then begin
+       let index = model#get ~row ~column:col_index
+       and airframe_value = model#get ~row ~column:col_airframe_value in
+       send_value index airframe_value
+     end;
+     false)
+
+
+
 let fill_data = fun (model:GTree.tree_store) settings airframe_xml ->
   let not_in_airframe_file = ref [] in
-  Array.iter (fun (dl_setting, value) ->
+  Array.iter (fun (index, dl_setting, value) ->
     let attrib = fun a -> Xml.attrib dl_setting a in
     try
       let param = attrib "param" in
@@ -138,6 +150,7 @@ let fill_data = fun (model:GTree.tree_store) settings airframe_xml ->
       in
 
       let row = model#append () in
+      model#set ~row ~column:col_index index;
       model#set ~row ~column:col_param param;
       model#set ~row ~column:col_airframe_value scaled_value;
       model#set ~row ~column:col_settings_value value;
@@ -158,7 +171,7 @@ let fill_data = fun (model:GTree.tree_store) settings airframe_xml ->
 
 
 (** The popup window displaying airframe and settings values *)
-let popup = fun airframe_filename settings ->
+let popup = fun airframe_filename settings send_value ->
   (* Build the list window *)
   let file = Env.paparazzi_src // "sw" // "ground_segment" // "cockpit" // "gcs.glade" in
   let w = new Gtk_save_settings.save_settings ~file () in
@@ -182,6 +195,9 @@ let popup = fun airframe_filename settings ->
     
   (** The Cancel button *)
   ignore (w#button_cancel#connect#clicked (fun () -> w#save_settings#destroy ()));
+
+  (** Connect the Save button to the write action *)
+  ignore (w#button_upload#connect#clicked (fun ()-> send_airframe_values model send_value));
 
   (** Connect the Save button to the write action *)
   ignore (w#button_save#connect#clicked (fun () -> save_airframe w airframe_filename (write_xml model airframe_filename airframe_xml)))
