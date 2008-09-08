@@ -57,7 +57,7 @@
       <message name="BOOZ_STATUS"             period="1.2"/>
       <message name="DL_VALUE"                period="0.5"/>
       <message name="ALIVE"                   period="0.9"/>
-      <message name="BOOZ2_VERT_LOOP"         period=".02"/>
+      <message name="BOOZ2_VERT_LOOP"         period=".05"/>
     </mode>
 
     <mode name="h_loop">

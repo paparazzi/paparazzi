@@ -369,8 +369,11 @@ let add_ac_submenu = fun ?(factor=object method text="1" end) plot menubar (curv
     
 
 let load_log = fun ?factor (plot:plot) (menubar:GMenu.menu_shell GMenu.factory) curves_fact xml_file ->
+  Debug.call 'p' (fun f ->  fprintf f "load_log: %s\n" xml_file);
   let xml = Xml.parse_file xml_file in
   let data_file =  ExtXml.attrib xml "data_file" in
+
+  Debug.call 'p' (fun f ->  fprintf f "data_file: %s\n" data_file);
 
   let protocol = ExtXml.child xml "protocol" in
 
@@ -382,10 +385,24 @@ let load_log = fun ?factor (plot:plot) (menubar:GMenu.menu_shell GMenu.factory) 
       name
     with _ -> "telemetry" in
 
+  Debug.call 'p' (fun f ->  fprintf f "class_name: %s\n" class_name);
+
   let module M = struct let name = class_name let xml = protocol end in
   let module P = Pprz.MessagesOfXml(M) in
 
-  let f = Ocaml_tools.find_file [Filename.dirname xml_file] data_file in
+  let f = 
+    try 
+      Ocaml_tools.find_file [Filename.dirname xml_file] data_file
+    with
+      Not_found ->
+	fprintf stderr "File '%s' not found\n%!" data_file;
+	let data_file = Filename.chop_extension (Filename.basename xml_file) ^ ".data" in
+	fprintf stderr "Trying with '%s'\n%!" data_file;
+	try
+          Ocaml_tools.find_file [Filename.dirname xml_file] data_file
+        with Not_found ->
+          fprintf stderr "File '%s' not found\n%!" data_file;
+	  failwith "Data file not found" in
   let f = Ocaml_tools.open_compress f in
   let acs = Hashtbl.create 3 in (* indexed by A/C *)
   try
@@ -416,7 +433,7 @@ let load_log = fun ?factor (plot:plot) (menubar:GMenu.menu_shell GMenu.factory) 
       (* Compile the data to ease the menu building *)
       Hashtbl.iter (* For all A/Cs *)
 	(fun ac msgs ->
-	  let menu_name = sprintf "%s:%s" (String.sub data_file 0 18) ac in
+	  let menu_name = sprintf "%s:%s" (Filename.chop_extension (Filename.basename xml_file)) ac in
 
 	  (* First sort by message id *)
 	  let l = ref [] in 
