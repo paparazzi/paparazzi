@@ -59,6 +59,9 @@ let my_id = 0
 (* enable broadcast messages by default *)
 let ac_info = ref true
 
+(* Enable trafic statistics on standard output *)
+let gen_stat_trafic = ref false
+
 let ios = int_of_string
 let (//) = Filename.concat
 let conf_dir = Env.paparazzi_home // "conf"
@@ -89,6 +92,8 @@ type status = {
 let statuss = Hashtbl.create 3
 let dead_aircraft_time_ms = 5000
 let update_status = fun ac_id buf_size is_pong ->
+  if !gen_stat_trafic then
+    Printf.printf "%.3f %d\n%!" (Unix.gettimeofday ()) buf_size;
   let status = 
     try Hashtbl.find statuss ac_id with Not_found ->
       let s = { last_rx_byte = 0; last_rx_msg = 0; rx_byte = 0; rx_msg = 0; rx_err = 0; ms_since_last_msg = dead_aircraft_time_ms; last_ping = 0.; last_pong = 0. } in
@@ -402,6 +407,7 @@ let () =
   let options =
     [ "-b", Arg.Set_string ivy_bus, (sprintf "<ivy bus> Default is %s" !ivy_bus);
       "-d", Arg.Set_string port, (sprintf "<port> Default is %s" !port);
+      "-fg",  Arg.Set gen_stat_trafic, "Enable trafic statistics on standard output";
       "-xbee_addr", Arg.Set_int XB.my_addr, (sprintf "<my_addr> (%d)" !XB.my_addr);
       "-xbee_retries", Arg.Set_int XB.my_addr, (sprintf "<nb retries> (%d)" !XB.nb_retries);
       "-transport", Arg.Set_string transport, (sprintf "<transport> Available protocols are modem,pprz and xbee. Default is %s" !transport);
