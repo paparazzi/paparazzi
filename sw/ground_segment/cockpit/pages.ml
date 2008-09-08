@@ -223,6 +223,13 @@ class misc ~packing (widget: GBin.frame) =
 (*****************************************************************************)
 (* Dataling settings paged                                                   *)
 (*****************************************************************************)
+let pipe_regexp = Str.regexp "|"
+let values_of_dl_setting = fun dl_setting ->
+  try 
+    Array.of_list (Str.split pipe_regexp (Xml.attrib dl_setting "values"))
+  with
+    _ -> [||]
+
 let one_setting = fun i do_change packing dl_setting (tooltips:GData.tooltips) strip ->
   let f = fun a -> float_of_string (ExtXml.attrib dl_setting a) in
   let lower = f "min"
@@ -241,9 +248,9 @@ let one_setting = fun i do_change packing dl_setting (tooltips:GData.tooltips) s
   let auto_but = GButton.check_button ~label:"Auto" ~active:false () in
 
   (** For a small number of values, radio buttons, else a slider *)
-  let _n = truncate ((upper -. lower) /. step_incr) in
+  let values = values_of_dl_setting dl_setting in
   let commit =
-    if step_incr = 1. && upper -. lower <= 2. then
+    if step_incr = 1. && upper -. lower <= 2. || Array.length values > 0 then
       (* Discrete values: radio buttons *)
       let ilower = truncate lower
       and iupper = truncate upper in
@@ -252,7 +259,10 @@ let one_setting = fun i do_change packing dl_setting (tooltips:GData.tooltips) s
       let group = (GButton.radio_button ())#group in (* Group shared by the buttons *)
       for j = ilower to iupper do
 	(* Build the button *)
-	let label = Printf.sprintf "%d" j in
+	let label = 
+	  if Array.length values = 0 
+	  then Printf.sprintf "%d" j
+	  else values.(j) in
 	let b = GButton.radio_button ~group ~label ~packing:hbox#add () in
 
 	(* Connect the event *)
@@ -379,7 +389,13 @@ class settings = fun ?(visible = fun _ -> true) xml_settings do_change strip ->
     method set = fun i v ->
       if visible self#widget then
 	let s = string_of_float v in
-	let (_, _, label_current_value) = variables.(i) in
+	let (_, dl_setting, label_current_value) = variables.(i) in
+	let s = 
+	  let values = values_of_dl_setting dl_setting in
+	  try
+	    values.(truncate (float_of_string s))
+	  with
+	    _ -> s in
 	if label_current_value#text <> s then
 	  label_current_value#set_text s
     method assoc var = List.assoc var assocs

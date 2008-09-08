@@ -32,6 +32,7 @@ handler CDATA #IMPLIED
 auto CDATA #IMPLIED
 param CDATA #IMPLIED
 unit CDATA #IMPLIED
+values CDATA #IMPLIED
 >
 
 <!ATTLIST strip_button
