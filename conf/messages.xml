@@ -1089,8 +1089,8 @@
     <field name="phi"      type="int32"/>
     <field name="theta"    type="int32"/>
     <field name="psi"      type="int32"/>
-    <field name="carot_lon"  type="int32"/>
-    <field name="carot_lat"  type="int32"/>
+    <field name="carrot_lon"  type="int32"/>
+    <field name="carrot_lat"  type="int32"/>
   </message>
 
 
