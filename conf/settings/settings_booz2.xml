@@ -4,7 +4,7 @@
   <dl_settings>
 
     <dl_settings NAME="Misc">
-       <dl_setting var="telemetry_mode_Main" min="0" step="1" max="8" module="booz2_telemetry" shortname="telemetry mode"/>
+       <dl_setting var="telemetry_mode_Main" min="0" step="1" max="8" module="booz2_telemetry" shortname="telemetry" values="Default|Raw sensors|Scaled sensors|Filter|Rate loop|Att loop|Vert loop|H loop|Aligner"/>
     </dl_settings>
 
     <dl_settings NAME="Rate Loop">
