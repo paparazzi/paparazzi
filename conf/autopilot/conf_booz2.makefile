@@ -137,6 +137,8 @@ ap.CFLAGS += -DGPS_LINK=Uart1 -DGPS_LED=7
 ap.srcs += $(BOOZ_PRIV)/booz2_gps.c
 ap.srcs += $(BOOZ_PRIV)/booz2_guidance_h.c
 ap.srcs += $(BOOZ_PRIV)/booz2_guidance_v.c
+ap.srcs += $(BOOZ_PRIV)/booz2_navigation.c
+
 
 ap.srcs += $(BOOZ_PRIV)/booz2_stabilization.c
 ap.srcs += $(BOOZ_PRIV)/booz2_stabilization_rate.c
