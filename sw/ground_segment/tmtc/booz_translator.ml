@@ -3,6 +3,7 @@ open Printf
 module Tm_Pprz = Pprz.Messages (struct let name = "telemetry" end)
 
 let ac_id = "149"
+let nav_ref = Latlong.utm_of Latlong.WGS84 (Latlong.make_geo_deg 48.8613611 1.8951388)
 
 let gps_status = ref 0
 
@@ -14,7 +15,7 @@ let get_status = fun _ values ->
   let pprz_mode = ref 0 in
   if ap_mode = 0 || ap_mode = 1 || ap_mode = 2 || ap_mode = 5 then pprz_mode := 0
   else if ap_mode = 3 || ap_mode = 6 then pprz_mode := 1
-  else if ap_mode = 7 || ap_mode = 8 then pprz_mode := 2;
+  else if ap_mode = 7 || ap_mode = 8 || ap_mode = 9 then pprz_mode := 2;
   let rc_status = ivalue "rc_status" in
   let mcu1_status = ref 2 in
   if rc_status = 0 then mcu1_status := 1
@@ -41,8 +42,11 @@ let get_fp = fun _ values ->
   and veast  = Int32.to_float (i32value "veast")
   and phi    = i32value "phi"
   and theta  = i32value "theta"
-  and psi    = i32value "psi" in
+  and psi    = i32value "psi"
+  and carrot_lat = Int32.to_float (i32value "carrot_lat") /. 1e7
+  and carrot_lon = Int32.to_float (i32value "carrot_lon") /. 1e7 in
   let utm = Latlong.utm_of Latlong.WGS84 (Latlong.make_geo_deg lat lon) in
+  let carrot_utm = Latlong.utm_of Latlong.WGS84 (Latlong.make_geo_deg carrot_lat carrot_lon) in
   let gspeed = sqrt(vnorth*.vnorth +. veast*.veast) in
   let power_12 = 1 lsl 12 in
 
@@ -68,8 +72,25 @@ let get_fp = fun _ values ->
     "phi",   Pprz.Int (truncate (57.3 *. Int32.to_float(phi)   /. float_of_int(power_12)));
     "psi",   Pprz.Int (truncate (57.3 *. Int32.to_float(psi)   /. float_of_int(power_12)));
     "theta", Pprz.Int (truncate (57.3 *. Int32.to_float(theta) /. float_of_int(power_12)))] in
-  Tm_Pprz.message_send ac_id "ATTITUDE" att_values
+  Tm_Pprz.message_send ac_id "ATTITUDE" att_values;
 
+  let nav_ref_val = [
+    "utm_east",  Pprz.Int32 (Int32.of_float nav_ref.Latlong.utm_y);
+    "utm_north", Pprz.Int32 (Int32.of_float nav_ref.Latlong.utm_x);
+    "utm_zone",  Pprz.Int   nav_ref.Latlong.utm_zone] in
+  Tm_Pprz.message_send ac_id "NAVIGATION_REF" nav_ref_val;
+
+  let dx = (carrot_utm.Latlong.utm_x -. nav_ref.Latlong.utm_x) in
+  let dy = (carrot_utm.Latlong.utm_y -. nav_ref.Latlong.utm_y) in
+  let desired_val = [
+    "roll",     Pprz.Float 0.;
+    "pitch",    Pprz.Float 0.;
+    "course",   Pprz.Float 0.;
+    "x",        Pprz.Float dx;
+    "y",        Pprz.Float dy;
+    "altitude", Pprz.Float 0.;
+    "climb",    Pprz.Float 0.] in
+  Tm_Pprz.message_send ac_id "DESIRED" desired_val
 
 (*********************** Main ************************************************)
 let _ =
