@@ -1,31 +1,20 @@
-<flight_plan name="booz test 1" lon0="1.27289" lat0="43.46223" ground_alt="185"  alt="250" max_dist_from_home="400" security_height="1">
+<!DOCTYPE flight_plan SYSTEM "flight_plan.dtd">
 
-
+<flight_plan alt="250" ground_alt="0" lat0="48.8613611" lon0="1.8951388" max_dist_from_home="400" name="booz test 1" security_height="1">
   <waypoints>
-    <waypoint name="HOME" x="0.0"  y="0.0" alt="187."/>
-    <waypoint name="p1"   x="10"   y="0"   alt="187."/>
-    <waypoint name="p2"   x="20"   y="0"   alt="187."/>
+    <waypoint alt="0.0" name="HOME" x="-18.2" y="-24.6"/>
+    <waypoint alt="0.0" name="D1" x="-0.6" y="0.0"/>
+    <waypoint alt="0.0" name="D2" x="-53.7" y="-45.6"/>
+    <waypoint alt="0.0" name="p1" x="-72.8" y="-70.0"/>
+    <waypoint alt="0.0" name="p2" x="-132.2" y="-118.5"/>
+    <waypoint alt="0.0" name="p3" x="-76.0" y="-137.9"/>
   </waypoints>
-
   <blocks>
-
     <block name="stay_p1">
       <stay wp="p1"/>
     </block>
-
     <block name="stay_p2">
       <stay wp="p2"/>
     </block>
-
-<!--
-   <block name="Steps roll -5, +5">
-      <while cond="TRUE">
-        <attitude alt="187" roll="5.0" until=" stage_time > 2" vmode="alt"/>
-        <attitude alt="187" roll="-5.0" until="stage_time > 2" vmode="alt"/>
-      </while>
-    </block>
--->
-
   </blocks>
-
 </flight_plan>

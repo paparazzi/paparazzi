@@ -167,7 +167,7 @@
 
 
   <section name="GUIDANCE_V" prefix="BOOZ2_GUIDANCE_V_">
-   <define name="HOVER_POWER" value="60"/>
+   <define name="HOVER_POWER" value="65"/>
    <define name="HOVER_KP"    value="-200"/>
    <define name="HOVER_KD"    value="-100"/>
    <define name="HOVER_KI"    value="-50"/>
