@@ -170,8 +170,8 @@ let float_assoc = fun (a:string) vs ->
     Float x -> x
   | _ -> invalid_arg "Pprz.float_assoc"
 
-let int_assoc = fun (a:string) vs -> 
-  match assoc a vs with
+let int_of_value = fun value ->
+  match value with
     Int x -> x
   | Int32 x ->
       let i = Int32.to_int x in
@@ -179,6 +179,9 @@ let int_assoc = fun (a:string) vs ->
 	failwith "Pprz.int_assoc: Int32 too large to be converted into an int";
       i
   | _ -> invalid_arg "Pprz.int_assoc"
+
+let int_assoc = fun (a:string) vs ->
+  int_of_value (assoc a vs)
 
 let int32_assoc = fun (a:string) vs -> 
   match assoc a vs with

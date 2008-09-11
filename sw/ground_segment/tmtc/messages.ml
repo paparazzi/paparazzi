@@ -33,6 +33,13 @@ let led_delay = 500 (* Time in milliseconds while the green led is displayed *)
 
 let dnd_targets = [ { Gtk.target = "STRING"; flags = []; info = 0} ]
 
+let pipe_regexp = Str.regexp "|"
+let values_of_field = fun field ->
+  try 
+    Array.of_list (Str.split pipe_regexp (Xml.attrib field "values"))
+  with
+    _ -> [||]
+
 (** Display one page for a message *)
 let one_page = fun sender class_name (notebook:GPack.notebook) bind m ->
   let id = (Xml.attrib m "name") in
@@ -55,8 +62,13 @@ let one_page = fun sender class_name (notebook:GPack.notebook) bind m ->
 	  let field_label = GButton.button ~label:name ~packing:h#pack () in
 	  let value = ref "XXXX" in
 	  let l = GMisc.label ~text: !value ~packing:h#pack () in
+	  let values = values_of_field f in
 	  let update = fun (_a, x) -> 
-	    value := Pprz.string_of_value x
+	    value := 
+	      try 
+		let i = Pprz.int_of_value x in
+		sprintf "%s (%d)" values.(i) i
+	      with _ -> Pprz.string_of_value x
 	  and display_value = fun () ->
 	    if notebook#page_num v#coerce = notebook#current_page then
 	      if l#label <> !value then l#set_text !value in

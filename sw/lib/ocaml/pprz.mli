@@ -50,6 +50,7 @@ val separator : string
 
 val size_of_field : field -> int
 val string_of_value : value -> string
+val int_of_value : value -> int (* May raise Invalid_argument *)
 type type_descr = {
     format : string ;
     glib_type : string;
