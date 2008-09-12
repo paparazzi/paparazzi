@@ -118,6 +118,16 @@
 #include "tcas.h"
 #endif
 
+/*code added by Haiyang Chao for using Xsens IMU for fixed wing UAV 20080804*/
+#ifdef UGEAR
+#include "osam_imu_ugear.h"
+#endif 
+
+#ifdef XSENS 
+#include "xsens_ins.h"
+#endif
+/*code added by Haiyang Chao ends*/
+
 #if ! defined CATASTROPHIC_BAT_LEVEL && defined LOW_BATTERY
 #warning "LOW_BATTERY deprecated. Renammed into CATASTROPHIC_BAT_LEVEL (in aiframe file)"
 #define CATASTROPHIC_BAT_LEVEL LOW_BATTERY
@@ -675,6 +685,10 @@ void init_ap( void ) {
   gps_configure_uart();
 #endif
 
+#ifdef UGEAR
+  ugear_init();
+#endif /*added by haiyang for ugear communication*/
+
 #if defined DATALINK
 
 #if DATALINK == XBEE
@@ -716,6 +730,22 @@ void init_ap( void ) {
 
 /*********** EVENT ***********************************************************/
 void event_task_ap( void ) {
+#ifdef UGEAR
+	if (UgearBuffer()){
+		ReadUgearBuffer();
+	}
+	if (ugear_msg_received){
+		parse_ugear_msg();
+		ugear_msg_received = FALSE;
+		if (gps_pos_available){
+			gps_downlink();
+			gps_verbose_downlink = !launch;
+			UseGpsPos(estimator_update_state_gps);
+			gps_pos_available = FALSE;
+		}
+	}
+#endif /* UGEAR*/
+
 #ifdef GPS
 #ifndef HITL /** else comes through the datalink */
   if (GpsBuffer()) {

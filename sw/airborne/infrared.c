@@ -39,6 +39,10 @@
 #include "sys_time.h"
 #include "airframe.h"
 
+#ifdef UGEAR
+#include "osam_imu_ugear.h"
+#endif 
+
 #if defined IR_ESTIMATED_PHI_PI_4 || defined IR_ESTIMATED_PHI_MINUS_PI_4 || defined IR_ESTIMATED_THETA_PI_4
 #error "IR_ESTIMATED_PHI_PI_4 correction has been deprecated. Please remove the definition from your airframe config file"
 #endif
@@ -231,4 +235,13 @@ void estimator_update_state_infrared( void ) {
     else
       estimator_theta *= ir_correction_down;
 #endif
+
+#if defined UGEAR
+	#if !(defined IMUIR)
+		ugear_debug3 = 333;
+  		estimator_phi  = (float)ugear_phi/10000 - ir_roll_neutral;  
+  		estimator_theta  = (float)ugear_theta/10000 - ir_pitch_neutral;
+	#endif
+#endif
+
 }
