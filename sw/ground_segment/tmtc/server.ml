@@ -31,6 +31,7 @@ open Printf
 open Latlong
 open Aircraft
 module U = Unix
+module LL = Latlong
 
 module Ground = struct let name = "ground" end
 module Ground_Pprz = Pprz.Messages(Ground)
@@ -48,7 +49,7 @@ let kml = ref false
 let hostname = ref "localhost"
 
 let rec norm_course =
-  let _2pi = 2. *. Latlong.pi in
+  let _2pi = 2. *. LL.pi in
   fun c ->
     if c < 0. then norm_course (c +. _2pi)
     else if c >= _2pi then norm_course (c -. _2pi)
@@ -245,7 +246,7 @@ let log_and_parse = fun logging ac_name (a:Aircraft.aircraft) msg values ->
       a.pos <- { utm_x = fvalue "utm_east" /. 100.;
 		 utm_y = fvalue "utm_north" /. 100.;
 		 utm_zone = ivalue "utm_zone" };
-      a.unix_time <- Latlong.unix_time_of_tow (truncate (fvalue "itow" /. 1000.));
+      a.unix_time <- LL.unix_time_of_tow (truncate (fvalue "itow" /. 1000.));
       a.itow <- Int32.of_float (fvalue "itow");
       (*Printf.fprintf stderr "itow %lu %ld\n" a.itow a.itow;*)
       a.gspeed  <- fvalue "speed" /. 100.;
@@ -325,7 +326,7 @@ let log_and_parse = fun logging ac_name (a:Aircraft.aircraft) msg values ->
       begin
 	match a.nav_ref, a.horizontal_mode with
 	  Some nav_ref, 2 -> (** FIXME *)
-	    a.horiz_mode <- Circle (Latlong.utm_add nav_ref (fvalue "center_east", fvalue "center_north"), ivalue "radius");
+	    a.horiz_mode <- Circle (LL.utm_add nav_ref (fvalue "center_east", fvalue "center_north"), ivalue "radius");
 	    if !kml then kml_update_horiz_mode a
 	| _ -> ()
       end
@@ -333,8 +334,8 @@ let log_and_parse = fun logging ac_name (a:Aircraft.aircraft) msg values ->
       begin
 	match a.nav_ref, a.horizontal_mode with
 	  Some nav_ref, 1 -> (** FIXME *)
-	    let p1 = Latlong.utm_add nav_ref (fvalue "segment_east_1", fvalue "segment_north_1")
-	    and p2 = Latlong.utm_add nav_ref (fvalue "segment_east_2",  fvalue "segment_north_2") in
+	    let p1 = LL.utm_add nav_ref (fvalue "segment_east_1", fvalue "segment_north_1")
+	    and p2 = LL.utm_add nav_ref (fvalue "segment_east_2",  fvalue "segment_north_2") in
 	    a.horiz_mode <- Segment (p1, p2);
 	    if !kml then kml_update_horiz_mode a
 	| _ -> ()
@@ -344,9 +345,9 @@ let log_and_parse = fun logging ac_name (a:Aircraft.aircraft) msg values ->
 	a.time_since_last_survey_msg <- 0.;
 	match a.nav_ref with
 	  Some nav_ref ->
-	    let p1 = Latlong.utm_add nav_ref (fvalue "west", fvalue "south")
-	    and p2 = Latlong.utm_add nav_ref (fvalue "east",  fvalue "north") in
-	    a.survey <- Some (Latlong.of_utm WGS84 p1, Latlong.of_utm WGS84 p2)
+	    let p1 = LL.utm_add nav_ref (fvalue "west", fvalue "south")
+	    and p2 = LL.utm_add nav_ref (fvalue "east",  fvalue "north") in
+	    a.survey <- Some (LL.of_utm WGS84 p1, LL.of_utm WGS84 p2)
 	| None -> ()
       end
   | "CALIBRATION" ->
@@ -363,7 +364,7 @@ let log_and_parse = fun logging ac_name (a:Aircraft.aircraft) msg values ->
 	match a.nav_ref with
 	  Some nav_ref ->
 	    let utm_zone = try ivalue "utm_zone" with _ -> nav_ref.utm_zone in
-	    let p = { Latlong.utm_x = fvalue "utm_east";
+	    let p = { LL.utm_x = fvalue "utm_east";
 		      utm_y = fvalue "utm_north";
 		      utm_zone = utm_zone } in
 	    update_waypoint a (ivalue "wp_id") p (fvalue "alt")
@@ -408,10 +409,10 @@ let send_cam_status = fun a ->
 	  let alpha = -. a.course in
 	  let east = dx *. cos alpha -. dy *. sin alpha
 	  and north = dx *. sin alpha +. dy *. cos alpha in
-	  let utm = Latlong.utm_add a.pos (east, north) in
-	  let wgs84 = Latlong.of_utm WGS84 utm in
-	  let utm_target = Latlong.utm_add nav_ref a.cam.target in
-	  let twgs84 =  Latlong.of_utm WGS84 utm_target in
+	  let utm = LL.utm_add a.pos (east, north) in
+	  let wgs84 = LL.of_utm WGS84 utm in
+	  let utm_target = LL.utm_add nav_ref a.cam.target in
+	  let twgs84 =  LL.of_utm WGS84 utm_target in
 	  let values = ["ac_id", Pprz.String a.id; 
 			"cam_lat", Pprz.Float ((Rad>>Deg)wgs84.posn_lat);
 			"cam_long", Pprz.Float ((Rad>>Deg)wgs84.posn_long); 
@@ -463,15 +464,15 @@ let send_svsinfo = fun a ->
 let send_horiz_status = fun a ->
   match a.horiz_mode with
     Circle (utm, r) ->
-      let wgs84 = Latlong.of_utm WGS84 utm in
+      let wgs84 = LL.of_utm WGS84 utm in
       let vs = [ "ac_id", Pprz.String a.id; 
 		 "circle_lat", Pprz.Float ((Rad>>Deg)wgs84.posn_lat);
 		 "circle_long", Pprz.Float ((Rad>>Deg)wgs84.posn_long);
 		 "radius", Pprz.Int r ] in
        Ground_Pprz.message_send my_id "CIRCLE_STATUS" vs
   | Segment (u1, u2) ->
-      let geo1 = Latlong.of_utm WGS84 u1 in
-      let geo2 = Latlong.of_utm WGS84 u2 in
+      let geo1 = LL.of_utm WGS84 u1 in
+      let geo2 = LL.of_utm WGS84 u2 in
       let vs = [ "ac_id", Pprz.String a.id; 
 		 "segment1_lat", Pprz.Float ((Rad>>Deg)geo1.posn_lat);
 		 "segment1_long", Pprz.Float ((Rad>>Deg)geo1.posn_long);
@@ -521,7 +522,7 @@ let send_telemetry_status = fun a ->
 let send_moved_waypoints = fun a ->
   Hashtbl.iter
     (fun wp_id wp ->
-      let geo = Latlong.of_utm WGS84 wp.wp_utm in
+      let geo = LL.of_utm WGS84 wp.wp_utm in
       let vs =
 	["ac_id", Pprz.String a.id;
 	 "wp_id", Pprz.Int wp_id;
@@ -552,7 +553,7 @@ let send_aircraft_msg = fun ac ->
   try
     let a = Hashtbl.find aircrafts ac in
     let f = fun x -> Pprz.Float x in
-    let wgs84 = Latlong.of_utm WGS84 a.pos in
+    let wgs84 = try LL.of_utm WGS84 a.pos with _ -> LL.make_geo 0. 0. in
     let values = ["ac_id", Pprz.String ac;
 		  "roll", f (Geometry_2d.rad2deg a.roll);
 		  "pitch", f (Geometry_2d.rad2deg a.pitch);
@@ -588,8 +589,8 @@ let send_aircraft_msg = fun ac ->
     begin
       match a.nav_ref with
 	Some nav_ref ->
-	  let target_utm = Latlong.utm_add nav_ref (a.desired_east, a.desired_north) in
-	  let target_wgs84 = Latlong.of_utm WGS84 target_utm in 
+	  let target_utm = LL.utm_add nav_ref (a.desired_east, a.desired_north) in
+	  let target_wgs84 = LL.of_utm WGS84 target_utm in 
 	  let values = ["ac_id", Pprz.String ac; 
 			"cur_block", Pprz.Int a.cur_block;
 			"cur_stage", Pprz.Int a.cur_stage;
