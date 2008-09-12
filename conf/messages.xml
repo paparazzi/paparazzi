@@ -19,6 +19,16 @@
      <field name="cpu_time" type="uint16" unit="s"></field>
    </message>
 
+<!-- add the following msg for debugging Haiyang 20080521-->
+   <message name="DebugChao" ID="5">
+     <field name="int16_1" type="int16" unit="deg"></field>
+     <field name="int16_2" type="int16" unit="deg"></field>
+     <field name="int16_3" type="int16" unit="deg"></field>
+     <field name="int32_1" type="int32" unit="deg"></field>
+     <field name="int32_2" type="int32" unit="deg"></field>
+     <field name="int32_3" type="int32" unit="deg"></field>
+   </message>
+
    <message name="ATTITUDE" ID="6">
      <field name="phi" type="int16" unit="deg"></field>
      <field name="psi" type="int16" unit="deg"></field>
