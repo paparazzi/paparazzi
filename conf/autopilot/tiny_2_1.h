@@ -137,7 +137,7 @@
 
 
 #ifndef VoltageOfAdc
-#define VoltageOfAdc(adc) (0.01787109375*adc)
+#define VoltageOfAdc(adc) (0.0247311828*adc)
 #endif
 
 #define SPI_SELECT_SLAVE0_PORT 0
