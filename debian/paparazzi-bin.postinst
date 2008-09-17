@@ -7,15 +7,17 @@ set -e
 OCAMLC=ocamlc
 OCAMLOPT=ocamlopt
 DESTDIR=/usr/share/paparazzi
+OCAMLNETINCLUDES=`ocamlfind query -r -i-format netstring`
+OCAMLNETCMA=`ocamlfind query -r -a-format -predicates byte netstring`
 
 cd ${DESTDIR}/sw/ground_segment/tmtc
 ${OCAMLC} -custom -I +xml-light -I +lablgtk2 -I ${DESTDIR}/sw/lib/ocaml unix.cma str.cma xml-light.cma lablgtk.cma glibivy-ocaml.cma lib-pprz.cma aircraft.cmo wind.cmo airprox.cmo aircraft.cmo wind.cmo airprox.cmo kml.cmo server.cmo -o server
 ${OCAMLC} -custom -I +xml-light -I +lablgtk2 -I ${DESTDIR}/sw/lib/ocaml -I ../multimon unix.cma str.cma xml-light.cma lablgtk.cma glibivy-ocaml.cma lib-pprz.cma multimon.cma link.cmo -o link
 ${OCAMLC} -custom -I +xml-light -I +lablgtk2 -I ${DESTDIR}/sw/lib/ocaml unix.cma str.cma xml-light.cma lablgtk.cma glibivy-ocaml.cma lib-pprz.cma gtkInit.cmo messages.cmo -o messages
-${OCAMLC} -custom -I +xml-light -I +lablgtk2 -I ${DESTDIR}/sw/lib/ocaml -I ../cockpit unix.cma str.cma xml-light.cma lablgtk.cma glibivy-ocaml.cma lib-pprz.cma gtkInit.cmo pages.cmo settings.cmo -o settings
+${OCAMLC} -custom -I +xml-light -I +lablgtk2 -I ${DESTDIR}/sw/lib/ocaml -I ../cockpit ${OCAMLNETINCLUDES} unix.cma str.cma xml-light.cma lablgtk.cma lablglade.cma ${OCAMLNETCMA} glibivy-ocaml.cma lib-pprz.cma gtkInit.cmo gtk_save_settings.cmo saveSettings.cmo pages.cmo settings.cmo -o settings
 
 cd ${DESTDIR}/sw/ground_segment/cockpit
-${OCAMLC} -thread -custom -I +xml-light -I +lablgtk2 -I ${DESTDIR}/sw/lib/ocaml unix.cma str.cma xml-light.cma lablgtk.cma glibivy-ocaml.cma lablglade.cma lib-pprz.cma lablgnomecanvas.cma xlib-pprz.cma threads.cma gtkThread.cmo gtkInit.cmo gtk_setting_time.cmo gtk_strip.cmo horizon.cmo strip.cmo pages.cmo speech.cmo plugin.cmo sectors.cmo map2d.cmo editFP.cmo live.cmo particules.cmo gcs.cmo -o gcs
+${OCAMLC} -thread -custom -I +xml-light -I +lablgtk2 -I ${DESTDIR}/sw/lib/ocaml ${OCAMLNETINCLUDES} unix.cma str.cma xml-light.cma lablgtk.cma lablglade.cma ${OCAMLNETCMA} glibivy-ocaml.cma lablglade.cma lib-pprz.cma lablgnomecanvas.cma xlib-pprz.cma threads.cma gtkThread.cmo gtkInit.cmo gtk_setting_time.cmo gtk_strip.cmo horizon.cmo strip.cmo gtk_save_settings.cmo saveSettings.cmo pages.cmo speech.cmo plugin.cmo sectors.cmo map2d.cmo editFP.cmo live.cmo particules.cmo gcs.cmo -o gcs
 
 cd ${DESTDIR}/sw/logalizer
 ${OCAMLC} -custom -I +xml-light -I +lablgtk2 -I ${DESTDIR}/sw/lib/ocaml unix.cma str.cma xml-light.cma lablgtk.cma glibivy-ocaml.cma lib-pprz.cma gtkInit.cmo log_file.cmo play.cmo -o play
