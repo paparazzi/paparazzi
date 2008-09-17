@@ -174,7 +174,7 @@
 		      <accelerator key="N" modifiers="GDK_CONTROL_MASK" signal="activate"/>
 
 		      <child internal-child="image">
-			<widget class="GtkImage" id="image81">
+			<widget class="GtkImage" id="image85">
 			  <property name="visible">True</property>
 			  <property name="stock">gtk-add</property>
 			  <property name="icon_size">1</property>
@@ -196,7 +196,7 @@
 		      <accelerator key="X" modifiers="GDK_CONTROL_MASK" signal="activate"/>
 
 		      <child internal-child="image">
-			<widget class="GtkImage" id="image82">
+			<widget class="GtkImage" id="image86">
 			  <property name="visible">True</property>
 			  <property name="stock">gtk-delete</property>
 			  <property name="icon_size">1</property>
@@ -254,7 +254,7 @@
 		      <signal name="activate" handler="on_menu_item_new session_activate" last_modification_time="Tue, 02 Oct 2007 19:48:09 GMT"/>
 
 		      <child internal-child="image">
-			<widget class="GtkImage" id="image83">
+			<widget class="GtkImage" id="image87">
 			  <property name="visible">True</property>
 			  <property name="stock">gtk-add</property>
 			  <property name="icon_size">1</property>
@@ -275,7 +275,7 @@
 		      <signal name="activate" handler="on_menu_item_save_session_activate" last_modification_time="Tue, 07 Aug 2007 08:09:29 GMT"/>
 
 		      <child internal-child="image">
-			<widget class="GtkImage" id="image84">
+			<widget class="GtkImage" id="image88">
 			  <property name="visible">True</property>
 			  <property name="stock">gtk-save</property>
 			  <property name="icon_size">1</property>
@@ -329,7 +329,7 @@
 		      <accelerator key="F11" modifiers="0" signal="activate"/>
 
 		      <child internal-child="image">
-			<widget class="GtkImage" id="image85">
+			<widget class="GtkImage" id="image89">
 			  <property name="visible">True</property>
 			  <property name="stock">gtk-fullscreen</property>
 			  <property name="icon_size">1</property>
@@ -356,7 +356,7 @@
 		<widget class="GtkMenu" id="menuitem8_menu">
 
 		  <child>
-		    <widget class="GtkMenuItem" id="about2">
+		    <widget class="GtkMenuItem" id="menu_item_about">
 		      <property name="visible">True</property>
 		      <property name="label" translatable="yes">_About</property>
 		      <property name="use_underline">True</property>

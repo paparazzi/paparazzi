@@ -148,6 +148,8 @@ let quit_button_callback = fun gui ac_combo session_combo target_combo () ->
   | _ -> ()
 
 
+
+(************************** Main *********************************************)
 let () =
   let session = ref ""
   and fullscreen = ref false in
@@ -163,7 +165,8 @@ let () =
     gui#window#fullscreen ();
   gui#toplevel#show ();
 
-  gui#window#set_icon (Some (GdkPixbuf.from_file Env.icon_file));
+  let paparazzi_pixbuf = GdkPixbuf.from_file Env.icon_file in
+  gui#window#set_icon (Some paparazzi_pixbuf);
 
   let s = gui#statusbar#new_context "env" in
   ignore (s#push (sprintf "HOME=%s SRC=%s" Env.paparazzi_home Env.paparazzi_src));
@@ -238,6 +241,7 @@ let () =
 
   ignore (gui#window#event#connect#delete ~callback:(quit_callback gui ac_combo session_combo target_combo));
 
+  (* Fullscreen menu entry *)
   let callback = fun () ->
     fullscreen := not !fullscreen;
     if !fullscreen then
@@ -245,6 +249,11 @@ let () =
     else
       gui#window#unfullscreen () in
   ignore (gui#menu_item_fullscreen#connect#activate ~callback);
+
+  (* Help/About menu entry *)
+  let callback = fun () ->
+    ignore (GToolbox.message_box ~title:"About Paparazzi Center" ~icon:(GMisc.image ~pixbuf:paparazzi_pixbuf ())#coerce "Copyright (C) 2007-2008 ENAC, Pascal Brisset\nhttp://paparazzi.enac.fr") in
+  ignore (gui#menu_item_about#connect#activate ~callback);
 
   (* Read preferences *)
   if Sys.file_exists Env.gconf_file then begin
