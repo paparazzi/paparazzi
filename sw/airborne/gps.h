@@ -74,6 +74,10 @@ extern volatile uint8_t gps_msg_received;
 extern bool_t gps_pos_available;
 extern uint8_t gps_nb_ovrn;
 
+#ifdef UGEAR
+extern volatile uint16_t gps_msg_received_counter;
+#endif
+
 /** Number of scanned satellites */
 extern uint8_t gps_nb_channels;
 
@@ -120,6 +124,15 @@ extern struct svinfo gps_svinfos[GPS_NB_CHANNELS];
     gps_downlink();				\
   }
 
+#ifdef UGEAR
+#define UseGpsPosUgear(_callback) {		\
+    if (GpsFixValid()) {			\
+      last_gps_msg_t = cpu_time_sec;		\
+      _callback();				\
+      GpsToggleLed();				\
+    }						\
+  }
+#endif
 
 #ifdef GPS_CONFIGURE
 #define GpsParseOrConfigure() {			\

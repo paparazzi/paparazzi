@@ -46,6 +46,10 @@
 uint16_t last_gps_msg_t;	/** cputime of the last gps message */
 bool_t gps_verbose_downlink;
 
+#ifdef UGEAR
+volatile uint16_t gps_msg_received_counter;
+#endif
+
 void gps_downlink( void ) {
   static uint8_t _4Hz;
   _4Hz++; if (_4Hz > 3) _4Hz = 0;
