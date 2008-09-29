@@ -307,10 +307,14 @@ let load_mission = fun ?editable color geomap xml ->
   new MapFP.flight_plan ~format_attribs:attributes_pretty_printer ?editable ~show_moved:true geomap color Env.flight_plan_dtd xml
 
 let get_bat_levels = fun af_xml ->
-  let bat_section = ExtXml.child af_xml ~select:(fun x -> Xml.attrib x "name" = "BAT") "section" in
-  let fvalue = fun name default ->
-    try ExtXml.float_attrib (ExtXml.child bat_section ~select:(fun x -> ExtXml.attrib x "name" = name) "define") "value" with _ -> default in
-  fvalue "CATASTROPHIC_BAT_LEVEL" 9., fvalue "MAX_BAT_LEVEL" 12.5
+  let default_catastrophic_level = 9.
+  and default_max_level = 12.5 in
+  try
+    let bat_section = ExtXml.child af_xml ~select:(fun x -> Xml.attrib x "name" = "BAT") "section" in
+    let fvalue = fun name default ->
+      try ExtXml.float_attrib (ExtXml.child bat_section ~select:(fun x -> ExtXml.attrib x "name" = name) "define") "value" with _ -> default in
+    fvalue "CATASTROPHIC_BAT_LEVEL" default_catastrophic_level, fvalue "MAX_BAT_LEVEL" default_max_level
+  with _ -> (default_catastrophic_level, default_max_level)
 
 let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id:string) config ->
   let color = Pprz.string_assoc "default_gui_color" config
