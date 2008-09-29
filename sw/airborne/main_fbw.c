@@ -56,6 +56,9 @@
 
 #ifdef ADC
 struct adc_buf vsupply_adc_buf;
+#ifndef VoltageOfAdc
+#define VoltageOfAdc(adc) DefaultVoltageOfAdc(adc)
+#endif
 #endif
 
 uint8_t fbw_vsupply_decivolt;
