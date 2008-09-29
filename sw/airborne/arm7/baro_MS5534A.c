@@ -30,7 +30,9 @@
 #include "baro_MS5534A.h"
 #include "spi.h"
 #include "uart.h"
+#ifndef BARO_NO_DOWNLINK
 #include "ap_downlink.h"
+#endif
 #include "nav.h"
 
 bool_t baro_MS5534A_do_reset;
@@ -186,7 +188,9 @@ static void calibration( void ) {
   
   ut1 = (c5 << 3) + 20224;
   
+#ifndef BARO_NO_DOWNLINK
   DOWNLINK_SEND_BARO_WORDS(&words[0], &words[1], &words[2], &words[3]);
+#endif
 }
 
 
