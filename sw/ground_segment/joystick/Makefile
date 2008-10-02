@@ -23,17 +23,11 @@
 # Quiet compilation
 Q=@
 
-all: main_stick ctrlstick ffjoystick
+all: main_stick
 
 main_stick: main_stick.c usb_stick.c
 	gcc -g -O2 -Wall `pkg-config glib-2.0 --cflags` -o $@ $^ `pkg-config glib-2.0 --libs`  `pcre-config --libs` -lglibivy
 
-ctrlstick: ctrlstick.c
-	gcc -g -O2 -Wall `pkg-config glib-2.0 --cflags` -o $@ $^ `pkg-config glib-2.0 --libs`  `pcre-config --libs` -lglibivy
-
-ffjoystick: ffjoystick.c
-	gcc -g -O2 -Wall `pkg-config glib-2.0 --cflags` -o $@ $^ `pkg-config glib-2.0 --libs`  `pcre-config --libs` -lglibivy -lm
-	
 clean:
-	rm -f *.opt *.out *~ core *.o *.bak .depend *.cm* main_stick ctrlstick ffjoystick
+	rm -f *~ core *.o *.bak .depend main_stick
 
