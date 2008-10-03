@@ -147,6 +147,8 @@ ap.srcs += $(BOOZ_PRIV)/booz2_stabilization_rate.c
 ap.srcs += $(BOOZ_PRIV)/booz2_stabilization_attitude.c
 ap.srcs += $(BOOZ_PRIV)/booz_supervision_int.c
 
+# Joystick
+ap.CFLAGS += -DBOOZ2_STICK
 
 
 
