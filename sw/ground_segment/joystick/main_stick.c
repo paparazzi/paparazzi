@@ -64,7 +64,7 @@ static gboolean joystick_periodic(gpointer data __attribute__ ((unused))) {
 
 	stick_read();
 
-	IvySendMsg("dl JOYSTICK_RAW %d %d %d %d", aircraft_id, stick_axis_values[0], stick_axis_values[1], stick_axis_values[2]);
+	IvySendMsg("dl COMMANDS_RAW %d 2 %d %d", aircraft_id, stick_axis_values[0], stick_axis_values[1]);
 
 	return 1;
 }

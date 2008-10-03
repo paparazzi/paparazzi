@@ -1,5 +1,5 @@
 /*
- * $Id: 
+ * $Id$
  *
  * joystick lib
  *
