@@ -1184,7 +1184,12 @@
    <field name="throttle" type="int8"/>
  </message>
 
- <message name="DGPS_RAW" id="12" link="forwarded">
+ <message name="COMMANDS_RAW" id="12" link="forwarded">
+   <field name="ac_id" type="uint8"/>
+   <field name="commands" type="int8[]"/>
+ </message>
+
+ <message name="DGPS_RAW" id="13" link="forwarded">
    <field name="ac_id" type="uint8"/>
    <field name="length" type="uint8"/>
    <field name="rtcm" type="uint8[]"/>
