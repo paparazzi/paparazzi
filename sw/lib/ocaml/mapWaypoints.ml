@@ -275,9 +275,10 @@ class waypoint = fun ?(show = true) (wpts_group:group) (name :string) ?(alt=0.) 
       deleted <- true; (* BOF *)
       wpt_group#destroy ()
     method zoom (z:float) =
-      let a = wpt_group#i2w_affine in
-      a.(0) <- 1./.z; a.(3) <- 1./.z; 
-      wpt_group#affine_absolute a
+      if List.length wpt_group#get_items > 0 then
+	let a = wpt_group#i2w_affine in
+	a.(0) <- 1./.z; a.(3) <- 1./.z;
+	wpt_group#affine_absolute a
     initializer wpt_group#raise_to_top ()
     initializer self#zoom geomap#zoom_adj#value
     initializer ignore(geomap#zoom_adj#connect#value_changed (fun () -> self#zoom geomap#zoom_adj#value))
