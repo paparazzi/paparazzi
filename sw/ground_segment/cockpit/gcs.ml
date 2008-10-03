@@ -226,43 +226,15 @@ let fill_ortho = fun (geomap:G.widget) ->
     
 
 (******* Mouse motion handling **********************************************)
-let motion_notify = fun (geomap:G.widget) ev ->
-  let xc = GdkEvent.Motion.x ev 
-  and yc = GdkEvent.Motion.y ev in
-  let xwyw = geomap#window_to_world xc yc in
-  EditFP.path_notify geomap xwyw
-
+let motion_notify = fun (geomap:G.widget) ev -> false
 
 (******* Mouse wheel handling ***********************************************)
-let any_event = fun (geomap:G.widget) ev ->
-  try
-    match GdkEvent.get_type ev with
-      `SCROLL ->
-	let state = GdkEvent.Scroll.state (GdkEvent.Scroll.cast ev) in
-	if Gdk.Convert.test_modifier `CONTROL state && Gdk.Convert.test_modifier `SHIFT state then 
-	  let scroll_event = GdkEvent.Scroll.cast ev in
-	EditFP.path_change_radius (GdkEvent.Scroll.direction scroll_event);
-	  let xc = GdkEvent.Scroll.x scroll_event 
-	  and yc = GdkEvent.Scroll.y scroll_event in
-	  let xwyw = geomap#window_to_world xc yc in
-	  EditFP.path_notify geomap xwyw
-	else
-	  false
-    | _ ->
-	false
-  with
-    Invalid_argument "ml_lookup_from_c" -> (* Raised GdkEvent.get_type *)
-      false
-
-
+let any_event = fun (geomap:G.widget) ev -> false
 
 (******* Mouse buttons handling **********************************************)
 let button_press = fun (geomap:G.widget) ev ->
   let state = GdkEvent.Button.state ev in
-  if GdkEvent.Button.button ev = 3 && Gdk.Convert.test_modifier `CONTROL state && Gdk.Convert.test_modifier `SHIFT state then begin
-    EditFP.path_close ();
-    true
-  end else if GdkEvent.Button.button ev = 3 then begin
+  if GdkEvent.Button.button ev = 3 then begin
     (** Display a tile from Google Maps or IGN *)
     let xc = GdkEvent.Button.x ev 
     and yc = GdkEvent.Button.y ev in
@@ -288,20 +260,13 @@ let button_press = fun (geomap:G.widget) ev ->
       ~button:3 ~time:(Int32.of_int 0);
     true
   end else if GdkEvent.Button.button ev = 1 && Gdk.Convert.test_modifier `CONTROL state then
-    if Gdk.Convert.test_modifier `SHIFT state then begin
-      let xc = GdkEvent.Button.x ev in
-      let yc = GdkEvent.Button.y ev in
-      let xyw = geomap#canvas#window_to_world xc yc in
-      EditFP.path_button geomap xyw;
-      true
-    end else begin
-      let xc = GdkEvent.Button.x ev in
-      let yc = GdkEvent.Button.y ev in
-      let xyw = geomap#canvas#window_to_world xc yc in
-      let geo = geomap#of_world xyw in
-      ignore (EditFP.create_wp geomap geo);
-      true
-    end else 
+    let xc = GdkEvent.Button.x ev in
+    let yc = GdkEvent.Button.y ev in
+    let xyw = geomap#canvas#window_to_world xc yc in
+    let geo = geomap#of_world xyw in
+    ignore (EditFP.create_wp geomap geo);
+    true
+  else 
     false
 
 
