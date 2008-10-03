@@ -180,6 +180,10 @@
    <define name="IGAIN" value="-0"/>
  </section>
 
+ <section name="JOYSTICK" prefix="BOOZ2_JOYSTICK_">
+   <define name="SP_PHI_COEF" value="2860"/> <!-- MAX SP = 20 deg ( RadOfDeg(20 / 128) << 20 ) -->
+   <define name="SP_THETA_COEF" value="2860"/> <!-- MAX SP = 20 deg ( RadOfDeg(20 / 128) << 20 ) -->
+ </section>
 
  <section name="BAT">
    <define name="MILLIAMP_PER_PERCENT" value="0.86"/>
