@@ -465,7 +465,7 @@ module MessagesOfXml(Class:CLASS_Xml) = struct
 	    let values = List.map2 (fun (field_name, field) v -> (field_name, value field._type v)) msg.fields args in
 	    (msg_id, values)
 	  with
-	    Invalid_argument "List.map2" -> failwith (sprintf "Pprz.values_of_string: '%s'" s)
+	    Invalid_argument "List.map2" -> failwith (sprintf "Pprz.values_of_string: incorrect number of fields in '%s'" s)
 	end
     | [] -> invalid_arg (sprintf "Pprz.values_of_string: %s" s)
 
@@ -498,13 +498,13 @@ module MessagesOfXml(Class:CLASS_Xml) = struct
       None ->
 	Ivy.bind 
 	  (fun _ args -> 
-	    let values = try snd (values_of_string args.(1)) with _ -> [] in
+	    let values = try snd (values_of_string args.(1)) with exc -> prerr_endline (Printexc.to_string exc); [] in
 	    cb args.(0) values) 
 	  (sprintf "^([^ ]*) +(%s( .*|$))" msg_name)
     | Some s ->
 	Ivy.bind
 	  (fun _ args -> 
-	    let values = try snd (values_of_string args.(0)) with  _ -> [] in
+	    let values = try snd (values_of_string args.(0)) with  exc -> prerr_endline (Printexc.to_string exc); [] in
 	    cb s values)
 	  (sprintf "^%s +(%s( .*|$))" s msg_name)
 
