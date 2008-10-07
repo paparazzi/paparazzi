@@ -53,18 +53,43 @@ EXTERN uint8_t dl_buffer[MSG_SIZE]  __attribute__ ((aligned));
 void dl_parse_msg(void);
 /** Should be called when chars are available in dl_buffer */
 
+#if DATALINK == PPRZ
+
 #define DatalinkEvent() {			\
-    if (PprzBuffer()) {				\
-      ReadPprzBuffer();				\
-      if (pprz_msg_received) {			\
-	pprz_parse_payload();			\
-	pprz_msg_received = FALSE;		\
-      }						\
+  if (PprzBuffer()) {				\
+    ReadPprzBuffer();				\
+    if (pprz_msg_received) {			\
+      pprz_parse_payload();			\
+      pprz_msg_received = FALSE;		\
     }						\
-    if (dl_msg_available) {			\
-      dl_parse_msg();				\
-      dl_msg_available = FALSE;			\
+  }						\
+  if (dl_msg_available) {			\
+    dl_parse_msg();				\
+    dl_msg_available = FALSE;			\
+  }						\
+}
+
+#elif DATALINK == XBEE
+
+#define DatalinkEvent() {			\
+  if (XbeeBuffer()) {				\
+    ReadXbeeBuffer();				\
+    if (xbee_msg_received) {			\
+      xbee_parse_payload();			\
+      xbee_msg_received = FALSE;		\
     }						\
-  }
+  }						\
+  if (dl_msg_available) {			\
+    dl_parse_msg();				\
+    dl_msg_available = FALSE;			\
+  }						\
+}
+
+#else
+
+// Unknown DATALINK
+#define DatalinkEvent() {}
+
+#endif
 
 #endif
