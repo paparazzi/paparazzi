@@ -743,10 +743,18 @@ void event_task_ap( void ) {
 //			UseGpsPos(estimator_update_state_gps);
 			UseGpsPosUgear(estimator_update_state_gps);
 			gps_msg_received_counter = gps_msg_received_counter+1;
+			#ifdef GX2			
+			if (gps_msg_received_counter == 1){
+				gps_downlink();
+				gps_msg_received_counter = 0;
+			}
+			#endif
+			#ifdef XSENSDL
 			if (gps_msg_received_counter == 25){
 				gps_downlink();
 				gps_msg_received_counter = 0;
 			}
+			#endif
 			gps_pos_available = FALSE;
 		}
 	}
