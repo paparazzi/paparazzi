@@ -19,6 +19,11 @@
       </dl_setting>
       <dl_setting MAX="1" MIN="0" STEP="1" VAR="telemetry_mode_Ap" shortname="tele_AP"/>
       <dl_setting MAX="2" MIN="0" STEP="1" VAR="gps_reset" module="gps_ubx" handler="Reset" shortname="GPS reset"/>
+
+      <dl_setting MAX="200" MIN="-200" STEP="10" VAR="nav_radius" module="nav" handler="SetNavRadius">
+        <strip_button icon="circle-right.png" name="Circle right" value="1"/>        
+        <strip_button icon="circle-left.png" name="Circle left" value="-1"/>        
+      </dl_setting>
     </dl_settings>
 
     <dl_settings NAME="control">

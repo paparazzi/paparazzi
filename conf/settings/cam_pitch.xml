@@ -1,0 +1,26 @@
+<!DOCTYPE settings SYSTEM "settings.dtd">
+
+<settings>
+  <dl_settings NAME="control">
+    <dl_settings name="cam">
+      <dl_setting MAX="5" MIN="0" STEP="1" module="cam" VAR="cam_mode">
+<!--        <strip_button name="TARGET" value="4"/>
+        <strip_button name="NADIR" value="2"/>
+-->        <strip_button name="ANGLES" value="1"/>
+      </dl_setting>
+    </dl_settings>
+
+    <dl_settings name="angles">
+      <dl_setting MAX="0.5" MIN="-0.5" STEP="0.1" module="cam" VAR="cam_tilt_c">
+        <strip_button name="Look Foreward" icon="lookfore.png" value="-0.5"/>
+        <strip_button name="Look Down" icon="lookdown.png" value="0.5"/>
+      </dl_setting>
+      <dl_setting MAX="0.5" MIN="-0.5" STEP="0.1" module="cam" VAR="cam_pan_c"/>
+    </dl_settings>
+<!--
+    <dl_settings name="target">
+<dl_setting min="1" max="10" step="1" module="cam" var="cam_target_wp" shortname="wp"/>
+    </dl_settings>
+-->
+  </dl_settings>
+</settings>
