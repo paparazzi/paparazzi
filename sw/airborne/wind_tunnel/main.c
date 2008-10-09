@@ -14,6 +14,8 @@
 
 #include "wt_servo.h"
 
+#include "spi.h"
+#include "wt_baro.h"
 
 static inline void main_init( void );
 static inline void main_periodic_task( void );
@@ -45,16 +47,32 @@ static inline void main_init( void ) {
   wt_servo_init();
   wt_servo_set(500);
 
+  spi_init();
+  wt_baro_init();
+
   int_enable();
 }
 
 static inline void main_periodic_task( void ) {
-  //  LED_TOGGLE(1);
+  LED_TOGGLE(1);
   DOWNLINK_SEND_TAKEOFF(&motor_power);
+  wt_baro_periodic();
+  DOWNLINK_SEND_DEBUG(3,buf_input);
 }
 
 static inline void main_event_task( void ) {
   DatalinkEvent();
+
+  // spi baro
+  if (spi_message_received) {
+    /* Got a message on SPI. */
+    spi_message_received = FALSE;
+    wt_baro_event();
+    uint16_t temp = 0;
+    float alt = 0.;
+    DOWNLINK_SEND_BARO_MS5534A(&wt_baro_pressure,&temp,&alt);
+  }
+
 }
 
 
@@ -82,3 +100,5 @@ void dl_parse_msg(void) {
 
   }
 }
+
+
