@@ -148,6 +148,15 @@ let parse_rc_commands = fun rc ->
    | _ -> xml_error "set|let"
 
 
+let parse_ap_only_commands = fun ap_only ->
+  let a = fun s -> ExtXml.attrib ap_only s in
+  match Xml.tag ap_only with
+    "copy" ->
+      let com = a "command" in
+      printf "  commands[COMMAND_%s] = ap_commands[COMMAND_%s];\\\n" com com
+   | _ -> xml_error "copy"
+
+
 let parse_command = fun command no ->
    let command_name = "COMMAND_"^ExtXml.attrib command "name" in
    define command_name (string_of_int no);
@@ -177,6 +186,10 @@ let parse_section = fun s ->
   | "rc_commands" ->
       printf "#define SetCommandsFromRC(commands) { \\\n";
       List.iter parse_rc_commands (Xml.children s);
+      printf "}\n\n"
+  | "ap_only_commands" ->
+      printf "#define SetApOnlyCommands(ap_commands) { \\\n";
+      List.iter parse_ap_only_commands (Xml.children s);
       printf "}\n\n"
   | "command_laws" ->
       printf "#define SetActuatorsFromCommands(values) { \\\n";

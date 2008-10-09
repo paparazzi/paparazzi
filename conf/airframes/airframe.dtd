@@ -1,14 +1,16 @@
 <!-- Paparazzi airframe DTD -->
 
-<!ELEMENT airframe (servos|commands|rc_commands|command_laws|section|makefile)*>
+<!ELEMENT airframe (servos|commands|rc_commands|ap_only_commands|command_laws|section|makefile)*>
 <!ELEMENT servos (servo)*>
 <!ELEMENT commands (axis)*>
 <!ELEMENT rc_commands (set)*>
+<!ELEMENT ap_only_commands (copy)*>
 <!ELEMENT command_laws (let|set)*>
 <!ELEMENT section (define|linear)*>
 <!ELEMENT servo EMPTY>
 <!ELEMENT axis EMPTY>
 <!ELEMENT set EMPTY>
+<!ELEMENT copy EMPTY>
 <!ELEMENT let EMPTY>
 <!ELEMENT define EMPTY>
 <!ELEMENT linear EMPTY>
@@ -21,6 +23,7 @@ name CDATA #IMPLIED>
 
 <!ATTLIST commands>
 <!ATTLIST rc_commands>
+<!ATTLIST ap_only_commands>
 <!ATTLIST command_laws>
 
 <!ATTLIST section
@@ -42,6 +45,9 @@ failsafe_value CDATA #REQUIRED>
 value CDATA #REQUIRED
 command CDATA #IMPLIED
 servo CDATA #IMPLIED>
+
+<!ATTLIST copy
+command CDATA #REQUIRED>
 
 <!ATTLIST let
 var CDATA #REQUIRED

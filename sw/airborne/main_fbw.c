@@ -152,6 +152,12 @@ void event_task_fbw( void) {
     if (fbw_mode == FBW_MODE_AUTO) {
       SetCommands(ap_state->commands);
     }
+#ifdef SetApOnlyCommands
+    else
+    {
+      SetApOnlyCommands(ap_state->commands);
+    }
+#endif
 #ifdef SINGLE_MCU
     inter_mcu_fill_fbw_state();
 #endif /**Else the buffer is filled even if the last receive was not correct */
