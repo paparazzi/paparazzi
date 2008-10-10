@@ -4,7 +4,7 @@
   <dl_settings>
 
     <dl_settings NAME="Misc">
-      <dl_setting var="motor_power" min="0" step="10" max="1000" shortname="power" handler="SetPower" module="wt_servo"/>
+      <dl_setting var="wt_servo_motor_power" min="0" step="10" max="1000" shortname="power" handler="SetPower" module="wt_servo"/>
     </dl_settings>
 
   </dl_settings>

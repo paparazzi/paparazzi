@@ -1103,6 +1103,10 @@
     <field name="carrot_lat"  type="int32"/>
   </message>
 
+  <message name="WT" ID="148">
+    <field name="rpm"      type="float"/>
+  </message>
+
 
 
 </class>
