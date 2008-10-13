@@ -36,9 +36,9 @@ XSRC = platform.ml wind_sock.ml mapCanvas.ml mapWaypoints.ml mapTrack.ml mapGoog
 XCMO = $(XSRC:.ml=.cmo)
 XCMX = $(XSRC:.ml=.cmx)
 
-$(XCMO) $(XCMX) : INCLUDES=$(XINCLUDES)
+$(XCMO) $(XCMX) myGtkInit.cmo : INCLUDES=$(XINCLUDES)
 
-all : lib-pprz.cma xlib-pprz.cma xml_get.out opt
+all : lib-pprz.cma xlib-pprz.cma myGtkInit.cmo xml_get.out opt
 opt : lib-pprz.cmxa xlib-pprz.cmxa
 
 

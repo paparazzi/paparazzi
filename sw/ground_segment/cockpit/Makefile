@@ -44,7 +44,7 @@ opt : $(MAIN).opt
 
 $(MAIN) : $(CMO) ../../lib/ocaml/xlib-pprz.cma ../../lib/ocaml/lib-pprz.cma
 	@echo OL $@
-	$(Q)$(OCAMLC) $(OCAMLCFLAGS) -custom $(INCLUDES) unix.cma str.cma xml-light.cma $(LIBS) threads.cma gtkThread.cmo gtkInit.cmo $(CMO) -o $@
+	$(Q)$(OCAMLC) $(OCAMLCFLAGS) -custom $(INCLUDES) unix.cma str.cma xml-light.cma $(LIBS) threads.cma gtkThread.cmo myGtkInit.cmo $(CMO) -o $@
 
 $(MAIN).opt : $(CMX)
 	@echo OOL $@
