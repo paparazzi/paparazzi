@@ -32,7 +32,7 @@ OCAMLC = ocamlc
 SIMDIR = $(PAPARAZZI_SRC)/sw/simulator
 CAMLINCLUDES = -I +lablgtk2 -I $(PAPARAZZI_SRC)/sw/lib/ocaml -I $(SIMDIR) -I +xml-light
 SIMSITLML = $(OBJDIR)/simsitl.ml
-MYGTKINITCMO = $(SIMDIR)/myGtkInit.cmo
+MYGTKINITCMO = myGtkInit.cmo
 SITLCMA = $(SIMDIR)/sitl.cma
 
 # Launch with "make Q=''" to get full command display
