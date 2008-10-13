@@ -76,15 +76,32 @@ let set_color labels name color =
   let eb, _l = List.assoc (name^"_value") labels in
   eb#coerce#misc#modify_bg [`NORMAL, `NAME color]
 
+class gauge = fun (gauge_da:GMisc.drawing_area) ->
+  object (self)
+    method layout = fun string ->
+      let context = gauge_da#misc#create_pango_context in
+      let layout = context#create_layout in
+      let fd = Pango.Context.get_font_description (Pango.Layout.get_context layout) in
+      Pango.Font.modify fd ~weight:`BOLD ();
+      context#set_font_description fd;
+      Pango.Layout.set_text layout string;
+      layout
+    method request_width = fun string ->
+      let layout = self#layout string in
+      let (width,_h) = Pango.Layout.get_pixel_size layout in
+      (gauge_da#misc#set_size_request ~width () : unit)
+  end
 
-class gauge = fun ?(color="green") ?(history_len=50) gauge v_min v_max ->
-  object
+
+class vgauge = fun ?(color="green") ?(history_len=50) gauge_da v_min v_max ->
+  object (self)
+    inherit gauge gauge_da
     val history = Array.create history_len 0
     val mutable history_index = -1
     method set = fun ?arrow ?(background="orange") value strings ->
-      let {Gtk.width=width; height=height} = gauge#misc#allocation in
+      let {Gtk.width=width; height=height} = gauge_da#misc#allocation in
       if height > 1 then (* Else the drawing area is not allocated already *)
-	let dr = GDraw.pixmap ~width ~height ~window:gauge () in
+	let dr = GDraw.pixmap ~width ~height ~window:gauge_da () in
 	dr#set_foreground (`NAME background);
 	dr#rectangle ~x:0 ~y:0 ~width ~height ~filled:true ();
 	
@@ -136,27 +153,23 @@ class gauge = fun ?(color="green") ?(history_len=50) gauge v_min v_max ->
 	      dr#lines l	      
 	end;
 	
-	let context = gauge#misc#create_pango_context in
 	List.iter (fun (vpos, string) ->
-	  let layout = context#create_layout in
-	  let fd = Pango.Context.get_font_description (Pango.Layout.get_context layout) in
-	  Pango.Font.modify fd ~weight:`BOLD ();
-	  context#set_font_description fd;
-	  Pango.Layout.set_text layout string;
+	  let layout = self#layout string in 
 	  let (w,h) = Pango.Layout.get_pixel_size layout in
 	  let y = truncate (vpos *. float height) - h / 2 in
 	  dr#put_layout ~x:((width-w)/2) ~y ~fore:`BLACK layout)
 	  strings;
 	
-	(new GDraw.drawable gauge#misc#window)#put_pixmap ~x:0 ~y:0 dr#pixmap
+	(new GDraw.drawable gauge_da#misc#window)#put_pixmap ~x:0 ~y:0 dr#pixmap
   end
 
-class hgauge = fun ?(color="green") gauge v_min v_max ->
-  object
+class hgauge = fun ?(color="green") gauge_da v_min v_max ->
+  object (self)
+    inherit gauge gauge_da
     method set = fun ?(background="orange") value string ->
-      let {Gtk.width=width; height=height} = gauge#misc#allocation in
+      let {Gtk.width=width; height=height} = gauge_da#misc#allocation in
       if height > 1 then (* Else the drawing area is not allocated already *)
-	let dr = GDraw.pixmap ~width ~height ~window:gauge () in
+	let dr = GDraw.pixmap ~width ~height ~window:gauge_da () in
 	dr#set_foreground (`NAME background);
 	dr#rectangle ~x:0 ~y:0 ~width ~height ~filled:true ();
 	
@@ -167,16 +180,11 @@ class hgauge = fun ?(color="green") gauge v_min v_max ->
 	dr#set_foreground (`NAME color);
 	dr#rectangle ~x:0 ~y:0 ~width:w ~height ~filled:true ();
 	
-	let context = gauge#misc#create_pango_context in
-	let layout = context#create_layout in
-	let fd = Pango.Context.get_font_description (Pango.Layout.get_context layout) in
-	Pango.Font.modify fd ~weight:`BOLD ();
-	context#set_font_description fd;
-	Pango.Layout.set_text layout string;
+	let layout = self#layout string in
 	let (w,h) = Pango.Layout.get_pixel_size layout in
 	dr#put_layout ~x:((width-w)/2) ~y:((height-h)/2) ~fore:`BLACK layout;
 	
-	(new GDraw.drawable gauge#misc#window)#put_pixmap ~x:0 ~y:0 dr#pixmap
+	(new GDraw.drawable gauge_da#misc#window)#put_pixmap ~x:0 ~y:0 dr#pixmap
   end
 
 (** add a strip to the panel *)
@@ -210,16 +218,18 @@ let add = fun config color center_ac min_bat max_bat ->
   (* battery gauge *)
   let bat_da = strip#drawingarea_battery in
   bat_da#misc#realize ();
-  let bat = new gauge bat_da min_bat max_bat in
+  let bat = new vgauge bat_da min_bat max_bat in
+  bat#request_width "22.5";
 
   (* AGL gauge *)
   let agl_da = strip#drawingarea_agl in
   agl_da#misc#realize ();
-  let agl = new gauge agl_da 0. agl_max in
+  let agl = new vgauge agl_da 0. agl_max in
 
   (* Speed gauge *)
   strip#drawingarea_speed#misc#realize ();
   let speed = new hgauge strip#drawingarea_speed 0. 10. in (* FIXME *)
+  speed#request_width "33.3m/s";
 
   (* Throttle gauge *)
   strip#drawingarea_throttle#misc#realize ();
