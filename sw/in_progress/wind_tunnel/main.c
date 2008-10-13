@@ -62,14 +62,32 @@ static void dump_buf ( int len, char* buf) {
 static gboolean on_serial_data_received(GIOChannel *source,
                                         GIOCondition condition,
                                         gpointer data) {
+  gchar* _buf;
+  GError* _err = NULL;
+  GIOStatus st = g_io_channel_read_line(source, &_buf, NULL, NULL, &_err);
 
+  switch (st) {
+  case G_IO_STATUS_AGAIN :
+    g_message("again");
+    break;
+  case G_IO_STATUS_NORMAL:
+    g_message("normal [%s]", _buf);
+    // faire un truc
+    g_free(_buf);
+    break;
+  default:
+     g_message("something else");
+
+  }
+
+#if 0
   static gchar buf[BUF_SIZE];
   gsize len;
-  //int fd = open("data", O_RDWR | O_APPEND | O_CREAT);
   
   g_io_channel_read_chars(source, buf, BUF_SIZE, &len, NULL);
   dump_buf(len, buf);
-  
+#endif
+
   return TRUE;
 }
 
