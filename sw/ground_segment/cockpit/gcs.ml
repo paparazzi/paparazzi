@@ -450,11 +450,43 @@ and pack_list = fun resize orientation xmls widgets packing ->
       pack_widgets orientation x widgets paned#add1;
       pack_list resize orientation xs widgets paned#add2
 
-      
-      
-    
+let rec find_widget_children = fun name xml ->
+  let xmls = Xml.children xml in
+  match String.lowercase (Xml.tag xml) with
+    "widget" when ExtXml.attrib xml "name" = name -> xmls
+  | "rows" | "colums" ->
+      let rec loop = function
+	  [] -> raise Not_found
+	| x::xs ->
+	    try find_widget_children name x with
+	      Not_found -> loop xs in
+      loop xmls
+  | _ -> raise Not_found
 
-let _main =
+      
+let pack_papget =
+  let sep = Str.regexp ":" in
+  fun geomap papget ->
+    let field = ExtXml.attrib papget "field"
+    and x = ExtXml.float_attrib papget "x"
+    and y = ExtXml.float_attrib papget "y" in
+    match Str.split sep field with
+      [msg_name; field_name] ->
+	let msg_listener = new Papget.message msg_name in
+	let ct = new Papget.canvas_text geomap#still x y msg_listener field_name  in
+	begin
+	  try
+	    let format = ExtXml.attrib papget "format" in
+	    ct#set_renderer (fun x -> sprintf (Obj.magic format) (float_of_string x))
+	  with
+	    _ -> ()
+	end
+    | _ -> failwith (sprintf "pack_papget: %s" field)
+
+
+
+(************************** MAIN ********************************************)
+let () =
   let file_to_edit = ref "" in
   Arg.parse options
     (fun x -> if !edit then file_to_edit := x else Printf.fprintf stderr "Warning: Don't do anything with '%s'\n%!" x)
@@ -528,8 +560,12 @@ let _main =
 		 "altgraph", alt_graph#coerce (*alt_frame#coerce*);
 	   "plugin", plugin_frame#coerce] in
 
+  let the_layout = ExtXml.child layout "0" in
+  pack_widgets `HORIZONTAL the_layout widgets window#add;
 
-  pack_widgets `HORIZONTAL (ExtXml.child layout "0") widgets window#add;
+  (** packing mapgets *)
+  let papgets = find_widget_children "map2d" the_layout in
+  List.iter (pack_papget geomap) papgets;
 
   if !mplayer <> "" then
     plugin_window := sprintf "mplayer -nomouseinput %s -wid " !mplayer;
