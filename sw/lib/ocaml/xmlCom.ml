@@ -24,7 +24,7 @@
  *
  *)
 
-type state = A | B | C | D | E
+type state = A | B | C | D | D' | D'' | E
 
 let children = function
     Nethtml.Element (_tag, _params, children) -> children
@@ -58,16 +58,27 @@ let parse_file = fun file ->
     match state, char with
       A, '<' -> copy_and_continue B
     | A, _   -> copy_and_continue A
+
     | B, '!' -> copy_and_continue A
-    | B, ' ' | B, '\t' | B, '\n' -> copy_and_continue B
+    | B, (' ' | '\t' | '\n') -> copy_and_continue B
     | B, _   -> Buffer.add_char name char; copy_and_continue C
-    | C, ' ' | C, '\t' | C, '\n' -> copy_and_continue D
+
+    | C, (' ' | '\t' | '\n') -> copy_and_continue D
     | C, '>' -> Buffer.clear name; copy_and_continue A
     | C, '/' -> mem_and_continue E
     | C, _   -> Buffer.add_char name char; copy_and_continue C
+
     | D, '/' -> mem_and_continue E
     | D, '>' -> Buffer.clear name; copy_and_continue A
+    | D, '"' -> copy_and_continue D'
     | D, _   -> copy_and_continue D
+
+    | D', '"' -> copy_and_continue D
+    | D', '\\' -> copy_and_continue D''
+    | D', _  -> copy_and_continue D'
+
+    | D'', _  -> copy_and_continue D'
+
     | E, '>' -> replace_and_continue A
     | E, _   -> copy_and_continue D
   in
