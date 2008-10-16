@@ -1,7 +1,8 @@
 <!ELEMENT layout (rows|columns|widget)>
 <!ELEMENT rows (columns|widget)*>
 <!ELEMENT columns (rows|widget)*>
-<!ELEMENT widget EMPTY>
+<!ELEMENT widget (papget)*>
+<!ELEMENT papget EMPTY>
 
 <!ATTLIST layout
 width CDATA #IMPLIED
@@ -19,4 +20,11 @@ size CDATA #IMPLIED
 <!ATTLIST widget
 name CDATA #REQUIRED
 size CDATA #IMPLIED
+>
+
+<!ATTLIST papget
+field CDATA #REQUIRED
+x CDATA #REQUIRED
+y CDATA #REQUIRED
+format CDATA #IMPLIED
 >
