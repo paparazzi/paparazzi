@@ -476,12 +476,34 @@ let pack_papget =
 	let ct = new Papget.canvas_text geomap#still x y msg_listener field_name  in
 	begin
 	  try
-	    let format = ExtXml.attrib papget "format" in
-	    ct#set_renderer (fun x -> sprintf (Obj.magic format) (float_of_string x))
+	    ct#set_format (ExtXml.attrib papget "format")
 	  with
 	    _ -> ()
 	end
     | _ -> failwith (sprintf "pack_papget: %s" field)
+
+
+(* Drag and drop handler *)
+let dnd_targets = [ { Gtk.target = "STRING"; flags = []; info = 0} ]
+let parse_dnd =
+  let sep = Str.regexp ":" in
+  fun s ->
+    match Str.split sep s with
+      [s; c; m; f] -> (s, c, m, f)
+    | _ -> failwith (Printf.sprintf "parse_dnd: %s" s)
+let listen_dropped_papgets = fun (geomap:G.widget) ->
+  let data_received = fun context ~x ~y data ~info ~time ->
+    try
+      let (sender, class_name, msg_name, field_name) = parse_dnd data#data in
+      let sender = if sender = "*" then None else Some sender in
+      let msg_listener = new Papget.message ~class_name ?sender msg_name in
+      let _ct = new Papget.canvas_text geomap#still (float x) (float y) msg_listener field_name  in
+      ()
+    with
+      exc -> prerr_endline (Printexc.to_string exc) in
+  
+  geomap#canvas#drag#dest_set dnd_targets ~actions:[`COPY];
+  ignore (geomap#canvas#drag#connect#data_received ~callback:data_received)
 
 
 
@@ -566,6 +588,7 @@ let () =
   (** packing mapgets *)
   let papgets = find_widget_children "map2d" the_layout in
   List.iter (pack_papget geomap) papgets;
+  listen_dropped_papgets geomap;
 
   if !mplayer <> "" then
     plugin_window := sprintf "mplayer -nomouseinput %s -wid " !mplayer;

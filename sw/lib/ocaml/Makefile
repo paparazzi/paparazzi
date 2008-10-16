@@ -32,7 +32,7 @@ SRC = debug.ml base64.ml serial.ml ocaml_tools.ml extXml.ml env.ml xml2h.ml latl
 CMO = $(SRC:.ml=.cmo)
 CMX = $(SRC:.ml=.cmx)
 
-XSRC = platform.ml wind_sock.ml papget.ml mapCanvas.ml mapWaypoints.ml mapTrack.ml mapGoogle.ml mapIGN.ml ml_gtk_drag.o xmlEdit.ml mapFP.ml
+XSRC = platform.ml wind_sock.ml gtk_papget_text_editor.ml papget.ml mapCanvas.ml mapWaypoints.ml mapTrack.ml mapGoogle.ml mapIGN.ml ml_gtk_drag.o xmlEdit.ml mapFP.ml
 XCMO = $(XSRC:.ml=.cmo)
 XCMX = $(XSRC:.ml=.cmx)
 
@@ -92,6 +92,9 @@ ml_gtkgl_hack.o   : ml_gtkgl_hack.c
 %.cmi : %.ml
 	@echo OC $<
 	$(Q)$(OCAMLC) $(XINCLUDES) $<
+
+gtk_papget_text_editor.ml : widgets.glade
+	lablgladecc2 -root papget_text_editor -hide-default $< | grep -B 1000000 "  end" > $@
 
 clean :
 	rm -f *~ *.cm* *.out *.opt .depend *.a *.o *.so
