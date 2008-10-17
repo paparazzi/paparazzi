@@ -473,10 +473,11 @@ let pack_papget =
     match Str.split sep field with
       [msg_name; field_name] ->
 	let msg_listener = new Papget.message msg_name in
-	let ct = new Papget.canvas_text geomap#still x y msg_listener field_name  in
+	let renderer = new Papget.canvas_text geomap#still x y in
+	let _ = new Papget.canvas_item msg_listener field_name renderer in
 	begin
 	  try
-	    ct#set_format (ExtXml.attrib papget "format")
+	    renderer#set_format (ExtXml.attrib papget "format")
 	  with
 	    _ -> ()
 	end
@@ -497,7 +498,9 @@ let listen_dropped_papgets = fun (geomap:G.widget) ->
       let (sender, class_name, msg_name, field_name) = parse_dnd data#data in
       let sender = if sender = "*" then None else Some sender in
       let msg_listener = new Papget.message ~class_name ?sender msg_name in
-      let _ct = new Papget.canvas_text geomap#still (float x) (float y) msg_listener field_name  in
+(***      let renderer = new Papget.canvas_text geomap#still (float x) (float y) in ***)
+      let renderer = new Papget.canvas_ruler geomap#still (float x) (float y) in
+      let _ = new Papget.canvas_item msg_listener field_name renderer in
       ()
     with
       exc -> prerr_endline (Printexc.to_string exc) in
