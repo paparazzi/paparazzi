@@ -69,3 +69,4 @@ val parse_file : ?noprovedtd:bool -> string -> Xml.xml
 
 val digest : Xml.xml -> Digest.t
 (** Returns the MD5 digest of an XML tree (c.f. Digest module of std library) *)
+val display_entities : string -> string

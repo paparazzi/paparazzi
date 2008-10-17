@@ -73,11 +73,14 @@ let parse_file = fun file ->
     | D, '"' -> copy_and_continue D'
     | D, _   -> copy_and_continue D
 
+    (* Inside a quoted string *)
     | D', '"' -> copy_and_continue D
-    | D', '\\' -> copy_and_continue D''
+    | D', '\\' -> automata D''
     | D', _  -> copy_and_continue D'
 
-    | D'', _  -> copy_and_continue D'
+    (* Inside a quoted string, just after a \ (backslash) *)
+    | D'', '"' -> Buffer.add_string buff "&quot;"; automata D'
+    | D'', _  -> Buffer.add_char buff '\\'; copy_and_continue D'
 
     | E, '>' -> replace_and_continue A
     | E, _   -> copy_and_continue D

@@ -70,7 +70,7 @@ let parse_element = fun prefix s ->
   match Xml.tag s with
     "define" -> begin
 			try	
-      	define (prefix^ExtXml.attrib s "name") (ExtXml.attrib s "value");
+      	define (prefix^ExtXml.attrib s "name") (ExtXml.display_entities (ExtXml.attrib s "value"));
       	define_integer (prefix^(ExtXml.attrib s "name")) (ExtXml.float_attrib s "value") (ExtXml.int_attrib s "integer");
 			with _ -> ();
 		end

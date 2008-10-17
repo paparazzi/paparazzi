@@ -229,3 +229,14 @@ let parse_file = fun ?(noprovedtd = false) file ->
 
 let digest = fun xml -> 
   Digest.string (Xml.to_string xml)
+
+let predefined_general_entities =
+  [ Str.regexp "&amp;", "&";
+    Str.regexp "&quot;", "\"" ]
+
+let display_entities = fun s ->
+  List.fold_right
+    (fun (regexp, displayed_as) r -> Str.global_replace regexp displayed_as r)
+    predefined_general_entities
+    s
+  
