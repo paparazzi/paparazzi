@@ -206,22 +206,20 @@ void h_ctl_course_loop ( void ) {
 
 
 #if defined AGR_CLIMB
-/** limit navigation during extreme altitude changes */
-if (AGR_BLEND_START > AGR_BLEND_END && AGR_BLEND_END > 0) { /* prevent divide by zero, reversed or negative values */
-if (v_ctl_auto_throttle_submode == V_CTL_AUTO_THROTTLE_AGRESSIVE || V_CTL_AUTO_THROTTLE_BLENDED) {
-BoundAbs(cmd, h_ctl_roll_max_setpoint); /* bound cmd before NAV_RATIO and again after */
-if (v_ctl_altitude_error < 0) {
-nav_ratio = AGR_CLIMB_NAV_RATIO + (1 - AGR_CLIMB_NAV_RATIO) * (1 - (fabs(v_ctl_altitude_error) - AGR_BLEND_END) / (AGR_BLEND_START - AGR_BLEND_END));
-Bound (nav_ratio, AGR_CLIMB_NAV_RATIO, 1);
-}
-else if (v_ctl_altitude_error > 0) {
-nav_ratio = AGR_DESCENT_NAV_RATIO + (1 - AGR_DESCENT_NAV_RATIO) * (1 - (fabs(v_ctl_altitude_error) - AGR_BLEND_END) / (AGR_BLEND_START - AGR_BLEND_END));
-Bound (nav_ratio, AGR_DESCENT_NAV_RATIO, 1);
-}
-cmd *= nav_ratio;
-}
-}
-
+  /** limit navigation during extreme altitude changes */
+  if (AGR_BLEND_START > AGR_BLEND_END && AGR_BLEND_END > 0) { /* prevent divide by zero, reversed or negative values */
+    if (v_ctl_auto_throttle_submode == V_CTL_AUTO_THROTTLE_AGRESSIVE || V_CTL_AUTO_THROTTLE_BLENDED) {
+      BoundAbs(cmd, h_ctl_roll_max_setpoint); /* bound cmd before NAV_RATIO and again after */
+      if (v_ctl_altitude_error < 0) {
+	nav_ratio = AGR_CLIMB_NAV_RATIO + (1 - AGR_CLIMB_NAV_RATIO) * (1 - (fabs(v_ctl_altitude_error) - AGR_BLEND_END) / (AGR_BLEND_START - AGR_BLEND_END));
+	Bound (nav_ratio, AGR_CLIMB_NAV_RATIO, 1);
+      } else {
+	nav_ratio = AGR_DESCENT_NAV_RATIO + (1 - AGR_DESCENT_NAV_RATIO) * (1 - (fabs(v_ctl_altitude_error) - AGR_BLEND_END) / (AGR_BLEND_START - AGR_BLEND_END));
+	Bound (nav_ratio, AGR_DESCENT_NAV_RATIO, 1);
+      }
+      cmd *= nav_ratio;
+    }
+  }
 #endif
 
   float roll_setpoint = cmd + h_ctl_course_pre_bank_correction * h_ctl_course_pre_bank;
