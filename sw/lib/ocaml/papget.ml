@@ -72,6 +72,7 @@ class canvas_text = fun ?(text="") canvas_group x y ->
   end
 
 
+(********************************* Ruler *************************************)
 class canvas_ruler = fun ?(index_on_right=false) ?(text_props=[`ANCHOR `CENTER; `FILL_COLOR "white"]) ?(max=1000) ?(scale=2.) ?(w=32.) ?(index_width=10.) ?(step=10) ?(h=100.) canvas_group x y ->
   let root = GnoCanvas.group ~x ~y canvas_group in
   let r = GnoCanvas.group root in
@@ -180,6 +181,10 @@ class canvas_item = fun msg_obj field_name canvas_renderer ->
     method edit = fun () ->
       let file = Env.paparazzi_src // "sw" // "lib" // "ocaml" // "widgets.glade" in
       let dialog = new Gtk_papget_editor.papget_editor ~file () in
+
+      let strings = ["Text"; "Ruler"] in
+
+      let _ = GEdit.combo_box_text ~packing:dialog#box_item_chooser#add ~strings () in
       
       renderer#edit dialog#box_item_editor#add;
 
