@@ -133,7 +133,6 @@ install_tools:
 	$(INSTALLDATA) sw/simulator/sim.cmi  $(DESTDIR)/sw/simulator
 	$(INSTALLDATA) sw/simulator/sitl.cmi  $(DESTDIR)/sw/simulator
 	$(INSTALLDATA) sw/simulator/libsitl.a  $(DESTDIR)/sw/simulator
-	$(INSTALLDATA) sw/simulator/myGtkInit.ml  $(DESTDIR)/sw/simulator
 
 install_airborne_sources:
 	$(INSTALL) -d $(DESTDIR)/sw/

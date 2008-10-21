@@ -8,9 +8,8 @@ Standards-Version: 3.6.1
 
 Package: paparazzi-dev
 Architecture: any
-Suggests: paparazzi-avr, paparazzi-arm7
-Recommends: eagle, gs-common, tetex-extra, dia-gnome
-Depends: ivy-c-dev, ivy-c, ivy-ocaml, libxml-light-ocaml-dev, liblablgtk2-ocaml-dev, make, gcc, boa, gnuplot, libgnomecanvas2-dev, bzip2, cvs, liblablgtk2-gnome-ocaml-dev, libcamlimages-ocaml-dev, libusb-dev, speech-dispatcher, glade, gedit, imagemagick, libpcre3-dev, libocamlnet-ocaml-dev, meschach-dev
+Suggests: paparazzi-avr, paparazzi-arm7, eagle, gs-common, tetex-extra, dia-gnome, boa
+Depends: ivy-c-dev, ivy-c, ivy-ocaml, libxml-light-ocaml-dev, liblablgtk2-ocaml-dev, make, gcc, gnuplot, libgnomecanvas2-dev, bzip2, cvs, liblablgtk2-gnome-ocaml-dev, libcamlimages-ocaml-dev, libusb-dev, speech-dispatcher, glade, gedit, imagemagick, libpcre3-dev, libocamlnet-ocaml-dev, meschach-dev | libmeschach-dev
 Conflicts: xml-light-ocaml
 Description: Paparazzi Meta Package : common support
 

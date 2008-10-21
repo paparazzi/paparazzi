@@ -1,3 +1,10 @@
+paparazzi (3.2-5) unstable; urgency=low
+
+  * Dependency over meschach-dev OR libmeschach-dev (for Gutsy). Boa moved from
+    Depends to Suggests
+
+ -- Pascal Brisset <pascal.brisset@enac.fr>  Tue, 21 Oct 2008 14:20:57 +0200
+
 paparazzi (3.2-4) unstable; urgency=low
 
   * New dependency over meschach-dev
