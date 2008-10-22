@@ -128,20 +128,13 @@ class canvas_ruler = fun ?(index_on_right=false) ?(text_props=[`ANCHOR `CENTER; 
   end
     
 
-
-
-
-
-class canvas_item = fun msg_obj field_name canvas_renderer ->
+class canvas_item = fun canvas_renderer ->
   object (self)
-    inherit field msg_obj field_name as super
-
     val mutable motion = false
     val mutable renderer = canvas_renderer
 
     method update = fun value ->
-      super#update value;
-      renderer#update value
+      (renderer#update:string->unit) value
 
     method event = fun (ev : GnoCanvas.item_event) ->
       let item = (renderer#item :> movable_item) in
@@ -196,3 +189,41 @@ class canvas_item = fun msg_obj field_name canvas_renderer ->
       let item = (renderer#item :> movable_item) in
       ignore (item#connect#event self#event)
   end
+
+
+class canvas_display_item = fun msg_obj field_name canvas_renderer ->
+  object
+    inherit field msg_obj field_name as super
+    inherit canvas_item canvas_renderer as item
+
+    method update = fun value ->
+      super#update value;
+      item#update value
+
+  end
+
+
+(****************************************************************************)
+class canvas_button = fun icon_file ->
+  let button = GButton.button () in
+  let pixbuf = GdkPixbuf.from_file icon_file in
+  let _ = GMisc.image ~pixbuf ~packing:button#add () in
+  object
+    method update = fun (value:float) -> ()
+  end
+
+
+(****************************************************************************)
+class canvas_setting_item = fun variable canvas_renderer ->
+  object
+    inherit canvas_item canvas_renderer as item
+
+    method clicked = fun value ->
+      (variable#set : float -> unit) value
+
+    initializer
+      variable#connect item#update
+  end
+
+
+

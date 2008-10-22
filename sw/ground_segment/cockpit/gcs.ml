@@ -474,7 +474,7 @@ let pack_papget =
       [msg_name; field_name] ->
 	let msg_listener = new Papget.message msg_name in
 	let renderer = new Papget.canvas_text geomap#still x y in
-	let _ = new Papget.canvas_item msg_listener field_name renderer in
+	let _ = new Papget.canvas_display_item msg_listener field_name renderer in
 	begin
 	  try
 	    renderer#set_format (ExtXml.attrib papget "format")
@@ -500,7 +500,7 @@ let listen_dropped_papgets = fun (geomap:G.widget) ->
       let msg_listener = new Papget.message ~class_name ?sender msg_name in
 (***      let renderer = new Papget.canvas_text geomap#still (float x) (float y) in ***)
       let renderer = new Papget.canvas_ruler geomap#still (float x) (float y) in
-      let _ = new Papget.canvas_item msg_listener field_name renderer in
+      let _ = new Papget.canvas_display_item msg_listener field_name renderer in
       ()
     with
       exc -> prerr_endline (Printexc.to_string exc) in
