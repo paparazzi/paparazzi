@@ -454,7 +454,7 @@ let rec find_widget_children = fun name xml ->
   let xmls = Xml.children xml in
   match String.lowercase (Xml.tag xml) with
     "widget" when ExtXml.attrib xml "name" = name -> xmls
-  | "rows" | "colums" ->
+  | "rows" | "columns" ->
       let rec loop = function
 	  [] -> raise Not_found
 	| x::xs ->
