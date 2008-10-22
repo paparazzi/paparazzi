@@ -26,9 +26,9 @@ class message = fun ?sender ?(class_name="telemetry") msg_name ->
 class field = fun msg_obj field_name ->
   object (self)
     val mutable last_val = ""
-    method update = fun value -> last_val <- value
+    method update_field = fun value -> last_val <- value
     initializer
-      msg_obj#connect field_name self#update
+      msg_obj#connect field_name self#update_field
   end
 
 
@@ -39,18 +39,31 @@ class type movable_item =
     end
 
 
+class type renderer =
+  object
+    method tag : string
+    method edit : (GObj.widget -> unit) -> unit
+    method item : movable_item
+    method update : string -> unit
+  end
 
-class canvas_text = fun ?(text="") canvas_group x y ->
-  let text = GnoCanvas.text ~x ~y ~text canvas_group in
+
+class canvas_text = fun canvas_group x y ->
+  let group = GnoCanvas.group ~x ~y canvas_group in
+  let text = GnoCanvas.text group in
   object (self)
     val mutable format = "%.2f"
     val mutable size = 15.
+    val mutable color = "green"
  
-    method item = text
+    method tag = "Text"
+    method item = (group :> movable_item)
     method set_format = fun f -> format <- f 
+    method set_size = fun f -> size <- f 
+    method set_color = fun f -> color <- f 
     method update = fun value ->
       let renderer = fun x -> sprintf (Obj.magic format) (float_of_string x) in
-      text#set [`SIZE_POINTS size; `TEXT (renderer value); `FILL_COLOR "green"; `ANCHOR `NW]
+      text#set [`SIZE_POINTS size; `TEXT (renderer value); `FILL_COLOR color; `ANCHOR `NW]
 
 
     method edit = fun (pack:GObj.widget -> unit) ->
@@ -95,7 +108,6 @@ class canvas_ruler = fun ?(index_on_right=false) ?(text_props=[`ANCHOR `CENTER; 
     () in
   
   let lazy_drawer = fun v ->
-    Printf.printf "v=%f\n%!" v;
     let v = truncate v / step in
     let k = truncate (h /. scale) / step in
     for i = Pervasives.max 0 (v - k) to min (v + k) (Array.length tab - 1) do (* FIXME *)
@@ -118,20 +130,38 @@ class canvas_ruler = fun ?(index_on_right=false) ?(text_props=[`ANCHOR `CENTER; 
   let _ = GnoCanvas.rect ~x1:0. ~y1:height ~x2:w ~y2:h ~fill_color:"black" root in
   
   object
+    method tag = "Ruler"
     method edit = fun (pack:GObj.widget -> unit) -> ()
     method update = fun value ->
       let value = float_of_string value in
       r#affine_absolute (affine_pos 0. 0.);
       lazy_drawer value;
       r#affine_absolute (affine_pos 0. (scale*.value));
-    method item = root
+    method item = (root :> movable_item)
   end
+
+
+let renderers =
+  [ (new canvas_text :> #GnoCanvas.group -> float -> float -> renderer);
+    new canvas_ruler ] 
+
+let lazy_tagged_renderers = lazy
+  (let x = 0. and y = 0.
+  and group = (GnoCanvas.canvas ())#root in
+  List.map
+    (fun constructor ->
+      let o = constructor group x y in
+      (o#tag, constructor))
+    renderers)
     
 
 class canvas_item = fun canvas_renderer ->
+  let canvas_renderer = (canvas_renderer :> renderer) in
   object (self)
     val mutable motion = false
     val mutable renderer = canvas_renderer
+    val mutable x_press = 0.
+    val mutable y_press = 0.
 
     method update = fun value ->
       (renderer#update:string->unit) value
@@ -144,6 +174,11 @@ class canvas_item = fun canvas_renderer ->
 	    match GdkEvent.Button.button ev with
 	    | 1 ->
 		motion <- false;
+		let x = GdkEvent.Button.x ev and y = GdkEvent.Button.y ev in
+		let (xm, ym) = renderer#item#parent#w2i x y in
+		let (x0, y0) = renderer#item#i2w 0. 0. in
+		let (xi, yi) = renderer#item#parent#w2i x0 y0 in
+		x_press <- xm -. xi; y_press <- ym -. yi;
 		let curs = Gdk.Cursor.create `FLEUR in
 		item#grab [`POINTER_MOTION; `BUTTON_RELEASE] curs 
 		  (GdkEvent.Button.time ev)
@@ -157,7 +192,7 @@ class canvas_item = fun canvas_renderer ->
 	    let x = GdkEvent.Motion.x ev
 	    and y = GdkEvent.Motion.y ev in
 	    let (xw, yw) = renderer#item#parent#w2i x y in
-	    item#set [`X xw; `Y yw]
+	    item#set [`X (xw-.x_press); `Y (yw-.y_press)]
 	  end;
 	  true
       | `BUTTON_RELEASE ev ->
@@ -175,19 +210,51 @@ class canvas_item = fun canvas_renderer ->
       let file = Env.paparazzi_src // "sw" // "lib" // "ocaml" // "widgets.glade" in
       let dialog = new Gtk_papget_editor.papget_editor ~file () in
 
-      let strings = ["Text"; "Ruler"] in
+      let tagged_renderers = Lazy.force lazy_tagged_renderers in
+      let strings = List.map fst tagged_renderers in
 
-      let _ = GEdit.combo_box_text ~packing:dialog#box_item_chooser#add ~strings () in
+      let (combo, (tree, column)) = GEdit.combo_box_text ~packing:dialog#box_item_chooser#add ~strings () in
       
-      renderer#edit dialog#box_item_editor#add;
+      let connect_item_editor = fun () ->
+	begin (* Remove the current child ? *)
+	  try
+	    let child = dialog#box_item_editor#child  in
+	    dialog#box_item_editor#remove child
+	  with
+	    Gpointer.Null -> ()
+	end;
+	renderer#edit dialog#box_item_editor#add in
+
+      connect_item_editor ();
+
+      (* Connect the renderer chooser *)
+      ignore (combo#connect#changed
+		(fun () ->
+		  match combo#active_iter with
+		  | None -> ()
+		  | Some row ->
+		      let data = combo#model#get ~row ~column in
+		      if data <> renderer#tag then
+			let new_renderer = List.assoc data tagged_renderers in
+			let group = renderer#item#parent in
+			let (x, y) = renderer#item#i2w 0. 0. in
+			let (x, y) = group#w2i x y in
+			renderer#item#destroy ();
+			renderer <- new_renderer group x y;
+			self#connect ();
+			connect_item_editor ()));
 
       (* Connect the buttons *)
       ignore (dialog#button_ok#connect#clicked (fun () -> dialog#papget_editor#destroy ()))
 
+    val mutable connection =
+      canvas_renderer#item#connect#event (fun _ -> false)
+    method connect = fun () ->
+      let item = (renderer#item :> movable_item) in
+      connection <- item#connect#event self#event
 
     initializer
-      let item = (renderer#item :> movable_item) in
-      ignore (item#connect#event self#event)
+      self#connect ()
   end
 
 
@@ -196,8 +263,8 @@ class canvas_display_item = fun msg_obj field_name canvas_renderer ->
     inherit field msg_obj field_name as super
     inherit canvas_item canvas_renderer as item
 
-    method update = fun value ->
-      super#update value;
+    method update_field = fun value ->
+      super#update_field value;
       item#update value
 
   end

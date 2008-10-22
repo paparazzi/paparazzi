@@ -3,8 +3,30 @@
 <layout width="1024" height="768">
  <rows>
   <widget size="500" name="map2d">
-    <papget field="ESTIMATOR:z" x="10" y="150" format="Alt:%.0fm"/>
-    <papget field="ESTIMATOR:z_dot" x="10" y="200" format="Climb:%.1fm/s"/>
+    <papget x="10" y="400" type="message_field" display="text">
+      <attr name="field" value="ESTIMATOR:z_dot" />
+      <attr name="format" value="Climb:%.1fm/s"/>
+      <attr name="size" value="20"/>
+      <attr name="color" value="blue"/>
+    </papget>
+    <papget x="990" y="250" type="message_field" display="ruler">
+      <attr name="height" value="200" />
+      <attr name="field" value="ESTIMATOR:z" />
+    </papget>
+    <papget x="10" y="250" type="variable_setting" display="button">
+      <attr name="variable" value="launch" />
+      <attr name="value" value="1"/>
+      <attr name="icon" value="launch.png" />
+    </papget>
+    <papget x="10" y="250" type="variable_setting" display="slider">
+      <attr name="variable" value="nav_altitude" />
+      <attr name="min" value="0"/>
+      <attr name="max" value="1000"/>
+    </papget>
+    <papget x="10" y="300" type="goto_block" display="button">
+      <attr name="block_name" value="Standby" />
+      <attr name="icon" value="home.png" />
+    </papget>    
   </widget>
   <columns>
    <rows size="375">

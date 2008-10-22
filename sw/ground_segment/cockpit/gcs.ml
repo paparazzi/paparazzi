@@ -463,28 +463,54 @@ let rec find_widget_children = fun name xml ->
       loop xmls
   | _ -> raise Not_found
 
+
+let get_papget_attr = fun xml attr_name ->
+  let attr = ExtXml.child ~select:(fun x -> ExtXml.attrib x "name" = attr_name) xml "attr" in
+  ExtXml.attrib attr "value"
+
+let try_fun = fun f -> try f () with _ -> ()
+
+let papget_listener =
+  let sep = Str.regexp ":" in
+  fun papget ->
+    try
+      let field = get_papget_attr papget "field" in
+      match Str.split sep field with
+	[msg_name; field_name] ->
+	  (new Papget.message msg_name, field_name)
+      | _ -> failwith (sprintf "Unexpected field spec: %s" field)
+    with
+      _ -> failwith (sprintf "field attr expected in '%s" (Xml.to_string papget))
       
 let pack_papget =
-  let sep = Str.regexp ":" in
   fun geomap papget ->
-    let field = ExtXml.attrib papget "field"
+    let type_ = ExtXml.attrib papget "type"
+    and display = ExtXml.attrib papget "display"
     and x = ExtXml.float_attrib papget "x"
     and y = ExtXml.float_attrib papget "y" in
-    match Str.split sep field with
-      [msg_name; field_name] ->
-	let msg_listener = new Papget.message msg_name in
-	let renderer = new Papget.canvas_text geomap#still x y in
-	let _ = new Papget.canvas_display_item msg_listener field_name renderer in
-	begin
-	  try
-	    renderer#set_format (ExtXml.attrib papget "format")
-	  with
-	    _ -> ()
-	end
-    | _ -> failwith (sprintf "pack_papget: %s" field)
+    match type_ with
+      "message_field" ->
+	let msg_listener, field_name = papget_listener papget
+	and renderer =
+	  match display with
+	    "text" ->
+	      let renderer = new Papget.canvas_text geomap#still x y in
+	      try_fun (fun () ->renderer#set_format (get_papget_attr papget "format") );
+	      try_fun (fun () ->renderer#set_size (float_of_string (get_papget_attr papget "size")) );
+	      try_fun (fun () ->renderer#set_color (get_papget_attr papget "color") );
+	      (renderer :> Papget.renderer)
+		
+	| "ruler" ->
+	    let h = try Some (float_of_string (get_papget_attr papget "height")) with _ -> None in
+	    (new Papget.canvas_ruler geomap#still ?h x y :> Papget.renderer)
+	| _ -> failwith (sprintf "Unexpected papget display: %s" display) in
+	ignore (new Papget.canvas_display_item msg_listener field_name renderer)
+    | "variable_setting" | "goto_block" ->
+	fprintf stderr "Papget %s soon\n%!" type_
+    | _ -> failwith (sprintf "Unexpected papget type: %s" type_)
+	    
 
-
-(* Drag and drop handler *)
+(* Drag and drop handler for papgets *)
 let dnd_targets = [ { Gtk.target = "STRING"; flags = []; info = 0} ]
 let parse_dnd =
   let sep = Str.regexp ":" in
@@ -498,9 +524,8 @@ let listen_dropped_papgets = fun (geomap:G.widget) ->
       let (sender, class_name, msg_name, field_name) = parse_dnd data#data in
       let sender = if sender = "*" then None else Some sender in
       let msg_listener = new Papget.message ~class_name ?sender msg_name in
-(***      let renderer = new Papget.canvas_text geomap#still (float x) (float y) in ***)
-      let renderer = new Papget.canvas_ruler geomap#still (float x) (float y) in
-      let _ = new Papget.canvas_display_item msg_listener field_name renderer in
+      let renderer = new Papget.canvas_text geomap#still (float x) (float y) in
+      let _ = new Papget.canvas_display_item msg_listener field_name (renderer:> Papget.renderer) in
       ()
     with
       exc -> prerr_endline (Printexc.to_string exc) in
