@@ -204,6 +204,10 @@ let jump_to_block = fun ac_id id ->
   Ground_Pprz.message_send "gcs" "JUMP_TO_BLOCK" 
     ["ac_id", Pprz.String ac_id; "block_id", Pprz.Int id]
 
+let dl_setting = fun ac_id idx value ->
+  let vs = ["ac_id", Pprz.String ac_id; "index", Pprz.Int idx;"value", Pprz.Float value] in
+  Ground_Pprz.message_send "dl" "DL_SETTING" vs
+
 let menu_entry_of_block = fun ac_id (id, name) ->
   let send_msg = fun () -> jump_to_block ac_id id in
   `I (name, send_msg)
@@ -476,9 +480,8 @@ let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id
       prerr_endline (Printexc.to_string exc);
       Xml.Element("empty", [], [])
   in
-  let dl_setting_callback = fun idx value -> 
-    let vs = ["ac_id", Pprz.String ac_id; "index", Pprz.Int idx;"value", Pprz.Float value] in
-    Ground_Pprz.message_send "dl" "DL_SETTING" vs in
+  let dl_setting_callback = fun idx value ->
+    dl_setting ac_id idx value in
   let dl_settings_page =
     try
       let xml_settings = Xml.children (ExtXml.child settings_xml "dl_settings") in

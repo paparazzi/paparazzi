@@ -26,7 +26,7 @@
 
 
 type color = string
-type aircraft = {
+type aircraft = private {
     ac_name : string;
     config : Pprz.values;
     track : MapTrack.track;
@@ -72,3 +72,10 @@ val track_size : int ref
 
 val listen_acs_and_msgs : MapCanvas.widget -> GPack.notebook -> Pages.alert -> bool -> GMisc.drawing_area -> unit
 (** [listen_acs_and_msgs geomap aircraft_notebook alert_page auto_center_new_ac] *)
+
+val jump_to_block : string -> int -> unit
+(** [jump_to_block ac_id block_id] Sends a JUMP_TO_BLOCK message *)
+
+val dl_setting : string -> int -> float -> unit
+(** [dl_setting ac_id var_index value] Sends a DL_SETTING message *)
+

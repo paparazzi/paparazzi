@@ -8,10 +8,17 @@ let affine_pos xw yw = affine_pos_and_angle xw yw 0.
 
 let (//) = Filename.concat
 
+
+class type item = object
+  method config : unit -> Xml.xml
+  method deleted : bool
+end
+
 class message = fun ?sender ?(class_name="telemetry") msg_name ->
   object
     val mutable callbacks = []
     method connect = fun f cb -> callbacks <- (f, cb) :: callbacks
+    method msg_name = msg_name
     initializer
       let module P = Pprz.Messages (struct let name = class_name end) in
       let cb = fun _sender values -> 
@@ -45,19 +52,38 @@ class type renderer =
     method edit : (GObj.widget -> unit) -> unit
     method item : movable_item
     method update : string -> unit
+    method config : unit -> Xml.xml list
   end
 
+let get_property = fun attr_name xml ->
+  let attr = ExtXml.child ~select:(fun x -> ExtXml.attrib x "name" = attr_name) xml "property" in
+  ExtXml.attrib attr "value"
 
-class canvas_text = fun canvas_group x y ->
+
+let get_prop = fun name children default ->
+  let xml = Xml.Element ("", [], children) in
+  try get_property name xml with _ -> default
+
+let property = fun name value ->
+  Xml.Element("property", [ "name", name; "value", value ], [])
+
+let float_property = fun name value ->
+  property name (string_of_float value)
+
+class canvas_text = fun ?(config=[]) canvas_group x y ->
   let group = GnoCanvas.group ~x ~y canvas_group in
   let text = GnoCanvas.text group in
   object (self)
-    val mutable format = "%.2f"
-    val mutable size = 15.
-    val mutable color = "green"
+    val mutable format = get_prop "format" config "%.2f"
+    val mutable size = float_of_string (get_prop "size" config "15.")
+    val mutable color = get_prop "color" config "green"
  
     method tag = "Text"
     method item = (group :> movable_item)
+    method config = fun () ->
+      [ property "format" format;
+	float_property "size" size;
+	property "color" color ]
     method set_format = fun f -> format <- f 
     method set_size = fun f -> size <- f 
     method set_color = fun f -> color <- f 
@@ -85,36 +111,43 @@ class canvas_text = fun canvas_group x y ->
   end
 
 
-(********************************* Ruler *************************************)
-class canvas_ruler = fun ?(index_on_right=false) ?(text_props=[`ANCHOR `CENTER; `FILL_COLOR "white"]) ?(max=1000) ?(scale=2.) ?(w=32.) ?(index_width=10.) ?(step=10) ?(h=100.) canvas_group x y ->
+(***************************Vertical Ruler ***********************************)
+class canvas_ruler = fun ?(config=[]) canvas_group x y ->
+
+  let h = float_of_string (get_prop "height" config "100.")
+  and index_on_right = bool_of_string (get_prop "index_on_right" config "false")
+  and scale = float_of_string (get_prop "scale" config "2.")
+  and w = float_of_string (get_prop "width" config "32.")
+  and step = int_of_string (get_prop "step" config "10") in
+  let text_props=[`ANCHOR `CENTER; `FILL_COLOR "white"]
+  and index_width = 10. in
+
   let root = GnoCanvas.group ~x ~y canvas_group in
   let r = GnoCanvas.group root in
-  let height = scale *. float max in
   
-  (* Grey background *)
-  let _ = GnoCanvas.rect ~x1:0. ~y1:(-.height) ~x2:w ~y2:height ~fill_color:"#808080" r in
   let props = (text_props@[`ANCHOR `EAST]) in
   
   (* One step drawer *)
-  let tab = Array.create (max/step) false in
-  let draw = fun i ->
+  let draw = fun i value ->
     let i = i * step in
-    let y = -. scale *. float i in
-    let text = Printf.sprintf "%d" i in
-    let _ = GnoCanvas.text ~text ~props ~y ~x:(w*.0.75) r in
-    let _ = GnoCanvas.line ~points:[|w*.0.8;y;w-.1.;y|] ~fill_color:"white" r in
+    let y = -. scale *. (float i -. value) in
+    if y >= -. h && y <= h then begin
+      let text = Printf.sprintf "%d" i in
+      ignore (GnoCanvas.text ~text ~props ~y ~x:(w*.0.75) r);
+      ignore(GnoCanvas.line ~points:[|w*.0.8;y;w-.1.;y|] ~fill_color:"white" r)
+    end;
     let y = y -. float step /. 2. *. scale in
-    let _ = GnoCanvas.line ~points:[|w*.0.8;y;w-.1.;y|] ~fill_color:"white" r in
-    () in
+    if y >= -. h && y <= h then
+      ignore(GnoCanvas.line ~points:[|w*.0.8;y;w-.1.;y|] ~fill_color:"white" r)
+  in
   
-  let lazy_drawer = fun v ->
-    let v = truncate v / step in
+  let drawer = fun value ->
+    (* Remove previous items *)
+    List.iter (fun i -> i#destroy ()) r#get_items;
+    let v = truncate value / step in
     let k = truncate (h /. scale) / step in
-    for i = Pervasives.max 0 (v - k) to min (v + k) (Array.length tab - 1) do (* FIXME *)
-      if not tab.(i) then begin
-	tab.(i) <- true;
-	draw i
-      end
+    for i = Pervasives.max 0 (v - k) to (v + k) do
+      draw i value
     done in
   
   (** Yellow index *)
@@ -125,34 +158,57 @@ class canvas_ruler = fun ?(index_on_right=false) ?(text_props=[`ANCHOR `CENTER; 
     if index_on_right then
       idx#affine_absolute (affine_pos_and_angle w 0. Latlong.pi) in
   
-  (** Mask (bottom & top) *)
-  let _ = GnoCanvas.rect ~x1:0. ~y1:(-.height) ~x2:w ~y2:(-.h) ~fill_color:"black" root in
-  let _ = GnoCanvas.rect ~x1:0. ~y1:height ~x2:w ~y2:h ~fill_color:"black" root in
-  
   object
     method tag = "Ruler"
     method edit = fun (pack:GObj.widget -> unit) -> ()
     method update = fun value ->
       let value = float_of_string value in
-      r#affine_absolute (affine_pos 0. 0.);
-      lazy_drawer value;
-      r#affine_absolute (affine_pos 0. (scale*.value));
+      drawer value
     method item = (root :> movable_item)
+    method config = fun () -> config (* Not editable *)
+  end
+
+(****************************************************************************)
+class canvas_button = fun ?(config=[]) canvas_group x y ->
+  let icon = get_prop "icon" config "icon_file" in
+  let pixbuf = GdkPixbuf.from_file (Env.gcs_icons_path // icon) in
+  let group = GnoCanvas.group ~x ~y canvas_group in
+  let _item = GnoCanvas.pixbuf ~pixbuf group in
+  object
+    method tag = "Button"
+    method item = (group :> movable_item)
+    method edit = fun (pack:GObj.widget -> unit) -> ()
+    method update = fun (value:string) -> ()
+    method config = fun () ->
+      [ property "icon" icon]
+  end
+
+
+(****************************************************************************)
+class widget_renderer = fun (tag:string) widget ?(config=[]) canvas_group x y ->
+  let group = GnoCanvas.group ~x ~y canvas_group in
+  let item = GnoCanvas.widget ~width:50. ~height:50. ~widget group in
+  object
+    method tag = tag
+    method edit = fun (_:GObj.widget->unit) -> () 
+    method item = (item :> movable_item)
+    method update = fun (_:string) -> ()
+    method config = fun () -> (config : Xml.xml list)
   end
 
 
 let renderers =
-  [ (new canvas_text :> #GnoCanvas.group -> float -> float -> renderer);
-    new canvas_ruler ] 
+  [ (new canvas_text :> ?config:Xml.xml list -> #GnoCanvas.group -> float -> float -> renderer);
+    (new canvas_ruler :> ?config:Xml.xml list -> #GnoCanvas.group -> float -> float -> renderer) ] 
 
 let lazy_tagged_renderers = lazy
-  (let x = 0. and y = 0.
-  and group = (GnoCanvas.canvas ())#root in
-  List.map
-    (fun constructor ->
-      let o = constructor group x y in
-      (o#tag, constructor))
-    renderers)
+    (let x = 0. and y = 0.
+    and group = (GnoCanvas.canvas ())#root in
+    List.map
+      (fun constructor ->
+	let o = constructor ?config:None group x y in
+	(o#tag, constructor))
+      renderers)
     
 
 class canvas_item = fun canvas_renderer ->
@@ -162,6 +218,15 @@ class canvas_item = fun canvas_renderer ->
     val mutable renderer = canvas_renderer
     val mutable x_press = 0.
     val mutable y_press = 0.
+    val mutable deleted = false
+	
+    method renderer = renderer
+
+    method xy = 
+      let (x0, y0) = renderer#item#i2w 0. 0. in
+      renderer#item#parent#w2i x0 y0
+
+    method deleted = deleted
 
     method update = fun value ->
       (renderer#update:string->unit) value
@@ -192,7 +257,8 @@ class canvas_item = fun canvas_renderer ->
 	    let x = GdkEvent.Motion.x ev
 	    and y = GdkEvent.Motion.y ev in
 	    let (xw, yw) = renderer#item#parent#w2i x y in
-	    item#set [`X (xw-.x_press); `Y (yw-.y_press)]
+	    item#set [`X (xw-.x_press); `Y (yw-.y_press)];
+	    renderer#item#parent#affine_relative [|1.;0.;0.;1.;0.;0.|]
 	  end;
 	  true
       | `BUTTON_RELEASE ev ->
@@ -214,6 +280,13 @@ class canvas_item = fun canvas_renderer ->
       let strings = List.map fst tagged_renderers in
 
       let (combo, (tree, column)) = GEdit.combo_box_text ~packing:dialog#box_item_chooser#add ~strings () in
+      tree#foreach 
+	(fun _path row ->
+	  if tree#get ~row ~column = renderer#tag then begin
+	    combo#set_active_iter (Some row);
+	    true
+	  end else
+	    false);
       
       let connect_item_editor = fun () ->
 	begin (* Remove the current child ? *)
@@ -245,6 +318,11 @@ class canvas_item = fun canvas_renderer ->
 			connect_item_editor ()));
 
       (* Connect the buttons *)
+      ignore (dialog#button_delete#connect#clicked
+		(fun () -> 
+		  dialog#papget_editor#destroy ();
+		  renderer#item#destroy ();
+		  deleted <- true));
       ignore (dialog#button_ok#connect#clicked (fun () -> dialog#papget_editor#destroy ()))
 
     val mutable connection =
@@ -257,26 +335,27 @@ class canvas_item = fun canvas_renderer ->
       self#connect ()
   end
 
-
 class canvas_display_item = fun msg_obj field_name canvas_renderer ->
   object
     inherit field msg_obj field_name as super
     inherit canvas_item canvas_renderer as item
 
     method update_field = fun value ->
-      super#update_field value;
-      item#update value
+      if not deleted then begin
+	super#update_field value;
+	item#update value
+      end
 
-  end
-
-
-(****************************************************************************)
-class canvas_button = fun icon_file ->
-  let button = GButton.button () in
-  let pixbuf = GdkPixbuf.from_file icon_file in
-  let _ = GMisc.image ~pixbuf ~packing:button#add () in
-  object
-    method update = fun (value:float) -> ()
+    method config = fun () ->
+      let props = renderer#config () in
+      let field = sprintf "%s:%s" msg_obj#msg_name field_name in
+      let prop = property "field" field in
+      let (x, y) = item#xy in
+      let attrs =
+	[ "type", "message_field";
+	  "display", String.lowercase item#renderer#tag;
+	  "x", sprintf "%.0f" x; "y", sprintf "%.0f" y ] in
+      Xml.Element ("papget", attrs, prop::props)
   end
 
 
@@ -293,4 +372,31 @@ class canvas_setting_item = fun variable canvas_renderer ->
   end
 
 
+(****************************************************************************)
+(** A clickable item is not editable: The #edit method is overiden with a
+    provided callback *)
+class canvas_clickable_item = fun type_ properties callback canvas_renderer ->
+  object
+    inherit canvas_item canvas_renderer as item
+    method edit = fun () -> callback () 
 
+    method config = fun () ->
+      let props = renderer#config () in
+      let (x, y) = item#xy in
+      let attrs =
+	[ "type", type_;
+	  "display", String.lowercase item#renderer#tag;
+	  "x", sprintf "%.0f" x; "y", sprintf "%.0f" y ] in
+      Xml.Element ("papget", attrs, properties@props)
+  end
+
+
+class canvas_goto_block_item = fun properties callback canvas_renderer ->
+  object
+    inherit canvas_clickable_item "goto_block" properties callback canvas_renderer as item
+  end
+
+class canvas_variable_setting_item = fun properties callback canvas_renderer ->
+  object
+    inherit canvas_clickable_item "variable_setting" properties callback canvas_renderer
+  end

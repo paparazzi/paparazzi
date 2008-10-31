@@ -464,17 +464,46 @@ let rec find_widget_children = fun name xml ->
   | _ -> raise Not_found
 
 
-let get_papget_attr = fun xml attr_name ->
-  let attr = ExtXml.child ~select:(fun x -> ExtXml.attrib x "name" = attr_name) xml "attr" in
-  ExtXml.attrib attr "value"
+let rec replace_widget_children = fun name children xml ->
+  let xmls = Xml.children xml
+  and tag = String.lowercase (Xml.tag xml) in
+  match tag with
+    "widget" ->
+      Xml.Element("widget",
+		  Xml.attribs xml,
+		  if ExtXml.attrib xml "name" = name then children else xmls)
+  | "rows" | "columns" ->
+      let rec loop = function
+	  [] -> []
+	| x::xs ->
+	    replace_widget_children name children x :: loop xs in
+      Xml.Element(tag,
+		  Xml.attribs xml,
+		  loop xmls)
+  | x -> xml
+
+
 
 let try_fun = fun f -> try f () with _ -> ()
+let papget = fun type_ display attrs ->
+  Xml.Element ("papget", ["type", type_; "display", display], attrs)
+let papgets = Hashtbl.create 5
+let register_papget = fun p p -> Hashtbl.add papgets p p
+let papgets_config = fun () ->
+  Hashtbl.fold
+    (fun _ p r ->
+      if not p#deleted then
+	p#config ()::r
+      else
+	r)
+    papgets
+    []
 
 let papget_listener =
   let sep = Str.regexp ":" in
   fun papget ->
     try
-      let field = get_papget_attr papget "field" in
+      let field = Papget.get_property "field" papget in
       match Str.split sep field with
 	[msg_name; field_name] ->
 	  (new Papget.message msg_name, field_name)
@@ -487,31 +516,84 @@ let pack_papget =
     let type_ = ExtXml.attrib papget "type"
     and display = ExtXml.attrib papget "display"
     and x = ExtXml.float_attrib papget "x"
-    and y = ExtXml.float_attrib papget "y" in
+    and y = ExtXml.float_attrib papget "y"
+    and config = Xml.children papget in
     match type_ with
       "message_field" ->
 	let msg_listener, field_name = papget_listener papget
 	and renderer =
 	  match display with
 	    "text" ->
-	      let renderer = new Papget.canvas_text geomap#still x y in
-	      try_fun (fun () ->renderer#set_format (get_papget_attr papget "format") );
-	      try_fun (fun () ->renderer#set_size (float_of_string (get_papget_attr papget "size")) );
-	      try_fun (fun () ->renderer#set_color (get_papget_attr papget "color") );
-	      (renderer :> Papget.renderer)
+	      (new Papget.canvas_text ~config geomap#still x y :> Papget.renderer)
 		
-	| "ruler" ->
-	    let h = try Some (float_of_string (get_papget_attr papget "height")) with _ -> None in
-	    (new Papget.canvas_ruler geomap#still ?h x y :> Papget.renderer)
+	  | "ruler" ->
+	      (new Papget.canvas_ruler geomap#still ~config x y :> Papget.renderer)
 	| _ -> failwith (sprintf "Unexpected papget display: %s" display) in
-	ignore (new Papget.canvas_display_item msg_listener field_name renderer)
-    | "variable_setting" | "goto_block" ->
-	fprintf stderr "Papget %s soon\n%!" type_
+	let p = new Papget.canvas_display_item msg_listener field_name renderer in
+	let p = (p :> Papget.item) in
+	register_papget p p
+    | "goto_block" ->
+(***
+	let button = GButton.button ()
+	and icon = Papget.get_property "icon" papget in
+	let pixbuf = GdkPixbuf.from_file (Env.gcs_icons_path // icon) in
+	ignore (GMisc.image ~pixbuf ~packing:button#add ());
+	let renderer = (new Papget.widget_renderer "Button" button#coerce geomap#still ~config x y :> Papget.renderer) in
+***)
+	let renderer = 
+	  match display with
+	    "button" ->
+	      (new Papget.canvas_button geomap#still ~config x y :> Papget.renderer)
+	  | _ -> failwith (sprintf "Unexpected papget display: %s" display) in
+	let block_name = Papget.get_property "block_name" papget in
+	let clicked = fun () ->
+	  prerr_endline "Warning: goto_block papget sends to all A/C";
+	  Hashtbl.iter
+	    (fun ac_id ac ->
+	      let blocks = ExtXml.child ac.Live.fp "blocks" in
+	      let block = ExtXml.child ~select:(fun x -> ExtXml.attrib x "name" = block_name) blocks "block" in
+	      let block_id = ExtXml.int_attrib block "no" in
+	      Live.jump_to_block ac_id block_id
+	      )
+	    Live.aircrafts
+	in
+	let properties = [ Papget.property "block_name" block_name ] in
+
+	let p = new Papget.canvas_goto_block_item properties clicked renderer in
+	let p = (p :> Papget.item) in
+	register_papget p p
+    | "variable_setting" ->
+	let renderer = 
+	  match display with
+	    "button" ->
+	      (new Papget.canvas_button geomap#still ~config x y :> Papget.renderer)
+	  | _ -> failwith (sprintf "Unexpected papget display: %s" display) in
+
+	let varname = Papget.get_property "variable" papget
+	and value = float_of_string (Papget.get_property "value" papget) in
+
+	let clicked = fun () ->
+	  prerr_endline "Warning: variable_setting papget sending to all active A/C";
+	  Hashtbl.iter
+	    (fun ac_id ac ->
+	      match ac.Live.dl_settings_page with
+		None -> ()
+	      | Some settings ->
+		  let var_id = settings#assoc varname in
+		  Live.dl_setting ac_id var_id value)
+	    Live.aircrafts
+	in
+	let properties = [ Papget.property "variable" varname;
+			   Papget.float_property "value" value ] in
+	let p = new Papget.canvas_variable_setting_item properties clicked renderer in
+	let p = (p :> Papget.item) in
+	register_papget p p
+	
     | _ -> failwith (sprintf "Unexpected papget type: %s" type_)
 	    
 
 (* Drag and drop handler for papgets *)
-let dnd_targets = [ { Gtk.target = "STRING"; flags = []; info = 0} ]
+let dnd_targets = [ { Gtk.target = "STRING"; flags = []; info = 0 } ]
 let parse_dnd =
   let sep = Str.regexp ":" in
   fun s ->
@@ -525,13 +607,34 @@ let listen_dropped_papgets = fun (geomap:G.widget) ->
       let sender = if sender = "*" then None else Some sender in
       let msg_listener = new Papget.message ~class_name ?sender msg_name in
       let renderer = new Papget.canvas_text geomap#still (float x) (float y) in
-      let _ = new Papget.canvas_display_item msg_listener field_name (renderer:> Papget.renderer) in
-      ()
+      let p = new Papget.canvas_display_item msg_listener field_name (renderer:> Papget.renderer) in
+      let p = (p :> Papget.item) in
+      register_papget p p
     with
       exc -> prerr_endline (Printexc.to_string exc) in
   
   geomap#canvas#drag#dest_set dnd_targets ~actions:[`COPY];
   ignore (geomap#canvas#drag#connect#data_received ~callback:data_received)
+
+
+
+let save_layout = fun filename contents ->
+  let dir = Filename.dirname filename in
+  let dialog = GWindow.file_chooser_dialog ~action:`SAVE ~title:"Save Layout" () in
+  ignore (dialog#set_current_folder dir);
+  dialog#add_filter (GFile.filter ~name:"xml" ~patterns:["*.xml"] ());
+  dialog#add_button_stock `CANCEL `CANCEL ;
+  dialog#add_select_button_stock `SAVE `SAVE ;
+  let _ = dialog#set_current_name (Filename.basename filename) in
+  begin match dialog#run (), dialog#filename with
+    `SAVE, Some name ->
+      dialog#destroy ();
+      let f = open_out name in
+      fprintf f "%s\n" contents;
+      close_out f
+  | _ -> dialog#destroy ()
+  end
+
 
 
 
@@ -614,9 +717,17 @@ let () =
   pack_widgets `HORIZONTAL the_layout widgets window#add;
 
   (** packing mapgets *)
-  let papgets = find_widget_children "map2d" the_layout in
+  let papgets = try find_widget_children "map2d" the_layout with Not_found -> [] in
   List.iter (pack_papget geomap) papgets;
   listen_dropped_papgets geomap;
+  let save_layout = fun () ->
+    let the_new_layout = replace_widget_children "map2d" (papgets_config ()) the_layout in
+    let width, height = Gdk.Drawable.get_size window#misc#window in
+    let new_layout = Xml.Element ("layout", ["width", soi width; "height", soi height], [the_new_layout]) in
+    save_layout layout_file (Xml.to_string_fmt new_layout)
+ in
+  ignore (menu_fact#add_item "Save layout" ~key:GdkKeysyms._S ~callback:save_layout);
+
 
   if !mplayer <> "" then
     plugin_window := sprintf "mplayer -nomouseinput %s -wid " !mplayer;
