@@ -295,13 +295,29 @@ let attributes_pretty_printer = fun attribs ->
   (* Remove the "no", "strip_icon" and "strip_button" attributes *)
   let valid = fun a ->
     let a = String.lowercase a in
-    a <> "no" && a <> "strip_icon" && a <> "strip_button" in
+    a <> "no" && a <> "strip_icon" && a <> "strip_button" && a <> "pre_call" && a <> "post_call" in
+
+  let string_of_attrib = fun (_, v) -> v in
+  let pretty_print_call = fun a b s ->
+    if String.length b > 0 then
+      Printf.sprintf "%s %s%s%s" a s b s
+    else
+      a
+  in
+  let pre_call =
+    try string_of_attrib (List.find (fun (x, _) -> (String.lowercase x) = "pre_call") attribs)
+    with _ -> ""
+  in
+  let post_call =
+    try string_of_attrib (List.find (fun (x, _) -> (String.lowercase x) = "post_call") attribs)
+    with _ -> ""
+  in
 
   let attribs = List.filter (fun (a, _) -> valid a) attribs in
 
   (* Don't print the name of the attribute if there is only one *)
   match attribs with
-    [(_, v)] -> v
+    [(_, v)] -> pretty_print_call (pretty_print_call v pre_call "]") post_call "["
   | _        -> XmlEdit.string_of_attribs attribs
 
 
