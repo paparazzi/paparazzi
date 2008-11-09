@@ -2,8 +2,10 @@
 
 <!-- Funjet Multiplex (http://www.multiplex-rc.de/)
      Tiny 2.1 board (http://paparazzi.enac.fr/wiki/index.php/Tiny_v2)
+     PerkinElmer TPS334 IR Sensors
      Tilted infrared sensor (http://paparazzi.enac.fr/wiki/index.php/Image:Tiny_v2_1_Funjet.jpg)
      XBee modem
+     Payload: Sensirion humidity/temp, VTI pressure/temp
 -->
 
 <airframe name="Funjet GFI 4 Tiny 2.1">
@@ -11,8 +13,8 @@
 <!-- commands section -->
   <servos>
     <servo name="MOTOR"         no="0" min="1550" neutral="1550" max="2000"/>
-    <servo name="AILEVON_LEFT"  no="2" min="1900" neutral="1490" max="1100"/>
-    <servo name="AILEVON_RIGHT" no="6" min="1120" neutral="1544" max="1900"/>
+    <servo name="AILEVON_LEFT"  no="2" min="1900" neutral="1516" max="1100"/>
+    <servo name="AILEVON_RIGHT" no="6" min="1120" neutral="1549" max="1900"/>
   </servos>
 
   <commands>
@@ -93,13 +95,13 @@
     <define name="ALT_KALMAN_ENABLED" value="FALSE"/>
 
     <define name="TRIGGER_DELAY" value="1."/>
-    <define name="DEFAULT_CIRCLE_RADIUS" value="80."/>
+    <define name="DEFAULT_CIRCLE_RADIUS" value="120."/>
     <define name="MIN_CIRCLE_RADIUS" value="50."/>
   </section>
  
   <section name="VERTICAL CONTROL" prefix="V_CTL_">
 
-    <define name="POWER_CTL_BAT_NOMINAL" value="11.1" unit="volt"/>
+    <define name="POWER_CTL_BAT_NOMINAL" value="10" unit="volt"/>
     <!-- outer loop proportional gain -->
     <define name="ALTITUDE_PGAIN" value="-0.024"/>
     <!-- outer loop saturation -->
@@ -127,12 +129,13 @@
   </section>
 
   <section name="HORIZONTAL CONTROL" prefix="H_CTL_">
-    <define name="COURSE_PGAIN" value="-1.35"/>
+    <define name="COURSE_PGAIN" value="-0.8"/>
     <define name="ROLL_MAX_SETPOINT" value="0.7" unit="radians"/>
     <define name="PITCH_MAX_SETPOINT" value="0.5" unit="radians"/>
     <define name="PITCH_MIN_SETPOINT" value="-0.5" unit="radians"/>
-    <define name="ROLL_PGAIN" value="5000."/>
 
+    <define name="ROLL_PGAIN" value="7600."/>
+    <define name="AILERON_OF_THROTTLE" value="0.0"/>
     <define name="PITCH_PGAIN" value="-5500."/>
     <define name="PITCH_DGAIN" value="0.4"/>
 
@@ -160,7 +163,7 @@
     </section>
 
   <section name="FAILSAFE" prefix="FAILSAFE_">
-	<define name="DELAY_WITHOUT_GPS" value="1" unit="s"/>
+	<define name="DELAY_WITHOUT_GPS" value="2" unit="s"/>
     	<define name="DEFAULT_THROTTLE" value="0.3" unit="%"/>
     	<define name="DEFAULT_ROLL" value="0.3" unit="rad"/>
     	<define name="DEFAULT_PITCH" value="0.5" unit="rad"/>
@@ -208,7 +211,7 @@ ap.srcs += inter_mcu.c
 ap.CFLAGS += -DADC -DUSE_ADC_0 -DUSE_ADC_1 -DUSE_ADC_2
 ap.srcs += $(SRC_ARCH)/adc_hw.c
 
-ap.CFLAGS += -DGPS -DUBX -DUSE_UART0 -DGPS_LINK=Uart0 -DUART0_BAUD=B38400
+ap.CFLAGS += -DGPS -DUBX -DUSE_UART0 -DGPS_LINK=Uart0 -DUART0_BAUD=B38400 -DGPS_USE_LATLONG
 # -DGPS_LED=2
 ap.srcs += gps_ubx.c gps.c latlong.c
 
@@ -227,11 +230,16 @@ ap.CFLAGS += -DUSE_HUMID_SHT -DDAT_PIN=3  -DSCK_PIN=2
 ap.srcs += baro_scp.c
 ap.CFLAGS += -DUSE_BARO_SCP
 
+ap.srcs += joystick.c
+ap.CFLAGS += -DUSE_JOYSTICK
 
 # Config for SITL simulation
 include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
 sim.CFLAGS += -DCONFIG=\"tiny.h\" -DAGR_CLIMB -DLOITER_TRIM -DALT_KALMAN
 sim.srcs += nav_line.c nav_survey_rectangle.c
+
+sim.srcs += joystick.c
+sim.CFLAGS += -DUSE_JOYSTICK
 
 
   </makefile>
