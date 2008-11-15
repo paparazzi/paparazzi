@@ -1,4 +1,4 @@
-<airframe name="BOOZ2">
+<airframe name="BOOZ2_A1">
 
   <servos min="0" neutral="0" max="0xff">
     <servo name="FRONT" no="0" min="0" neutral="0" max="255"/>
@@ -13,30 +13,6 @@
     <axis name="RIGHT" failsafe_value="0"/>
     <axis name="LEFT"  failsafe_value="0"/>
   </commands>
-
-
-
- <section name="MICROMAG">
-
-    <define name="MM_SS_PIN" value="20"/>
-    <define name="MM_SS_IODIR" value="IO0DIR"/>
-    <define name="MM_SS_IOSET" value="IO0SET"/>
-    <define name="MM_SS_IOCLR" value="IO0CLR"/>
-
-    <define name="MM_RESET_PIN" value="21"/>
-    <define name="MM_RESET_IODIR" value="IO1DIR"/>
-    <define name="MM_RESET_IOSET" value="IO1SET"/>
-    <define name="MM_RESET_IOCLR" value="IO1CLR"/>
-
-    <define name="MM_DRDY_PIN" value="15"/>
-    <define name="MM_DRDY_PINSEL" value="PINSEL0"/>
-    <define name="MM_DRDY_PINSEL_BIT" value="30"/>
-    <define name="MM_DRDY_PINSEL_VAL" value="2"/>
-    <define name="MM_DRDY_EINT" value="2"/>
-    <define name="MM_DRDY_VIC_IT" value="VIC_EINT2"/>
-
-  </section>
-
 
 
 <!-- crista -->
@@ -150,7 +126,7 @@
 
   <makefile>
 
-include $(PAPARAZZI_SRC)/conf/autopilot/conf_booz2.makefile
+include $(PAPARAZZI_SRC)/conf/autopilot/conf_booz2_a1.makefile
 
 
   </makefile>

@@ -3,6 +3,7 @@
 
 #ifdef BOOZ_DEBUG
 
+#include "std.h"
 #include "uart.h"
 #include "messages.h"
 #include "downlink.h"

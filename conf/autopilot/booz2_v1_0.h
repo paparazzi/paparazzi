@@ -69,13 +69,26 @@
 #define VoltageOfAdc(adc) (0.01787109375*adc)
 #endif
 
-#define SPI_SELECT_SLAVE0_PORT 0
-#define SPI_SELECT_SLAVE0_PIN 20
 
-#define SPI1_DRDY_PINSEL PINSEL0
-#define SPI1_DRDY_PINSEL_BIT  14
-#define SPI1_DRDY_PINSEL_VAL   3
-#define SPI1_DRDY_EINT         2
-#define SPI1_DRDY_VIC_IT       VIC_EINT2
+/* Micromag on SSP, IMU connector */
+#define MM_SS_PIN   28
+#define MM_SS_IODIR IO1DIR
+#define MM_SS_IOSET IO1SET
+#define MM_SS_IOCLR IO1CLR
+
+#define MM_RESET_PIN   19
+#define MM_RESET_IODIR IO1DIR
+#define MM_RESET_IOSET IO1SET
+#define MM_RESET_IOCLR IO1CLR
+
+#define MM_DRDY_PIN  30
+#define MM_DRDY_PINSEL PINSEL1
+#define MM_DRDY_PINSEL_BIT 28
+#define MM_DRDY_PINSEL_VAL 2
+#define MM_DRDY_EINT 3
+#define MM_DRDY_VIC_IT VIC_EINT3
+
+
+
 
 #endif /* CONFIG_BOOZ2_V1_0_H */
