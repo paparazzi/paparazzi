@@ -127,7 +127,7 @@
   <makefile>
 
 include $(PAPARAZZI_SRC)/conf/autopilot/conf_booz2_a1.makefile
-
+include $(PAPARAZZI_SRC)/conf/autopilot/booz2_test_progs.makefile
 
   </makefile>
 
