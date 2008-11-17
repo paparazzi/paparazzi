@@ -30,24 +30,12 @@
 #define LED_4_BANK 1
 #define LED_4_PIN 31
 
-// damit, we have two of them now
-//#define POWER_SWITCH_LED 3
 
-/* 4017 servo driver on CAM connector */
-/* P0.28 aka MAT0.2  */
-//#define SERVO_CLOCK_PIN  28
-//#define SERVO_CLOCK_PINSEL PINSEL0
-//#define SERVO_CLOCK_PINSEL_VAL 0x02
-//#define SERVO_CLOCK_PINSEL_BIT 10
-/* p1.23          */
-//#define SERVO_DATA_PIN  23
-/* p1.24          */
-//#define SERVO_RESET_PIN 24
 
 /* PPM : rc rx on P0.28 ( CAP0.2 ) */
-#define PPM_PINSEL PINSEL0
+#define PPM_PINSEL PINSEL1
 #define PPM_PINSEL_VAL 0x02
-#define PPM_PINSEL_BIT 12
+#define PPM_PINSEL_BIT 24
 
 /* ADC */
 
@@ -88,7 +76,19 @@
 #define MM_DRDY_EINT 3
 #define MM_DRDY_VIC_IT VIC_EINT3
 
+// damit, we have two of them now
+//#define POWER_SWITCH_LED 3
 
+/* 4017 servo driver on CAM connector */
+/* P0.28 aka MAT0.2  */
+//#define SERVO_CLOCK_PIN  28
+//#define SERVO_CLOCK_PINSEL PINSEL0
+//#define SERVO_CLOCK_PINSEL_VAL 0x02
+//#define SERVO_CLOCK_PINSEL_BIT 10
+/* p1.23          */
+//#define SERVO_DATA_PIN  23
+/* p1.24          */
+//#define SERVO_RESET_PIN 24
 
 
 #endif /* CONFIG_BOOZ2_V1_0_H */

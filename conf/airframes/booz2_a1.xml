@@ -18,29 +18,29 @@
 <!-- crista -->
   <section name="IMU" prefix="IMU_">
 
-    <define name="GYRO_X_CHAN" value="4"/>
+    <define name="GYRO_X_CHAN" value="1"/>
     <define name="GYRO_Y_CHAN" value="0"/>
-    <define name="GYRO_Z_CHAN" value="1"/>
+    <define name="GYRO_Z_CHAN" value="2"/>
 
-    <define name="GYRO_X_NEUTRAL" value="32734"/>
-    <define name="GYRO_Y_NEUTRAL" value="32272"/>
-    <define name="GYRO_Z_NEUTRAL" value="32420"/>
+    <define name="GYRO_X_NEUTRAL" value="30744"/>
+    <define name="GYRO_Y_NEUTRAL" value="32331"/>
+    <define name="GYRO_Z_NEUTRAL" value="32486"/>
 
     <define name="GYRO_X_SENS" value="( 4000.)"/>
     <define name="GYRO_Y_SENS" value="(-4000.)"/>
-    <define name="GYRO_Z_SENS" value="( 4000.)"/>
+    <define name="GYRO_Z_SENS" value="(-4000.)"/>
   
-    <define name="ACCEL_X_CHAN" value="2"/>
+    <define name="ACCEL_X_CHAN" value="3"/>
     <define name="ACCEL_Y_CHAN" value="5"/>
     <define name="ACCEL_Z_CHAN" value="6"/>    
 
-    <define name="ACCEL_X_NEUTRAL" value="39913"/>
-    <define name="ACCEL_Y_NEUTRAL" value="40135"/>
-    <define name="ACCEL_Z_NEUTRAL" value="39755"/>
+    <define name="ACCEL_X_NEUTRAL" value="31782"/>
+    <define name="ACCEL_Y_NEUTRAL" value="32500"/>
+    <define name="ACCEL_Z_NEUTRAL" value="32768"/>
 
-    <define name="ACCEL_X_SENS" value="( 171)"/>
-    <define name="ACCEL_Y_SENS" value="( 167)"/>
-    <define name="ACCEL_Z_SENS" value="( 167)"/>
+    <define name="ACCEL_X_SENS" value="( -171)"/>
+    <define name="ACCEL_Y_SENS" value="( -167)"/>
+    <define name="ACCEL_Z_SENS" value="( -167)"/>
 
 
     <define name="MAG_X_CHAN" value="4"/>

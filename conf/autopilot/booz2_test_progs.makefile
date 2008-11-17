@@ -31,7 +31,7 @@ tunnel.ARCH = arm7tdmi
 tunnel.TARGET = tunnel
 tunnel.TARGETDIR = tunnel
 
-tunnel.CFLAGS += -DCONFIG=$(BOARD_CFG) -I$(BOOZ_PRIV_ARCH)
+tunnel.CFLAGS += -DCONFIG=$(BOARD_CFG) $(BOOZ_CFLAGS)
 tunnel.srcs += $(BOOZ_PRIV_TEST)/booz2_tunnel.c
 tunnel.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))' -DTIME_LED=1
 tunnel.CFLAGS += -DLED
@@ -53,11 +53,12 @@ tunnel_bb.ARCH = arm7tdmi
 tunnel_bb.TARGET = tunnel_bb
 tunnel_bb.TARGETDIR = tunnel_bb
 
-tunnel_bb.CFLAGS += -DCONFIG=$(BOARD_CFG) -I$(BOOZ_PRIV_ARCH)
+tunnel_bb.CFLAGS += -DCONFIG=$(BOARD_CFG) $(BOOZ_CFLAGS)
 tunnel_bb.srcs += $(BOOZ_PRIV_TEST)/booz2_tunnel_bb.c
 tunnel_bb.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))' -DTIME_LED=1
 tunnel_bb.CFLAGS += -DLED
 tunnel_bb.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
+
 
 #
 # test leds
@@ -72,7 +73,6 @@ test_led.srcs += $(BOOZ_PRIV)/test_led.c
 test_led.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))' -DTIME_LED=1
 test_led.CFLAGS += -DLED
 test_led.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
-
 
 
 #
@@ -189,10 +189,10 @@ test_max1168.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))' -DTIM
 test_max1168.CFLAGS += -DLED
 test_max1168.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
 
-test_max1168.CFLAGS += -DUSE_UART0 -DUART0_BAUD=B57600
+test_max1168.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600
 test_max1168.srcs += $(SRC_ARCH)/uart_hw.c
 
-test_max1168.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart0 
+test_max1168.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart1 
 test_max1168.srcs += downlink.c pprz_transport.c
 
 test_max1168.CFLAGS += -I$(BOOZ)
@@ -243,28 +243,32 @@ test_micromag.srcs += micromag.c $(SRC_ARCH)/micromag_hw.c
 #
 # test IMU b2
 #
-test_b2.ARCHDIR = $(ARCHI)
-test_b2.ARCH = arm7tdmi
-test_b2.TARGET = test_b2
-test_b2.TARGETDIR = test_b2
+test_imu_b2.ARCHDIR = $(ARCHI)
+test_imu_b2.ARCH = arm7tdmi
+test_imu_b2.TARGET = test_imu_b2
+test_imu_b2.TARGETDIR = test_imu_b2
 
-test_b2.CFLAGS += -DCONFIG=$(BOARD_CFG) -I$(BOOZ_PRIV) -I$(BOOZ_PRIV_ARCH)
-test_b2.srcs += $(BOOZ_PRIV_TEST)/booz2_test_b2.c
-test_b2.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))' -DTIME_LED=1
-test_b2.CFLAGS += -DLED
-test_b2.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
+test_imu_b2.CFLAGS += -DCONFIG=$(BOARD_CFG) $(BOOZ_CFLAGS)
+test_imu_b2.srcs += $(BOOZ_PRIV_TEST)/booz2_test_imu_b2.c
+test_imu_b2.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))' -DTIME_LED=1
+test_imu_b2.CFLAGS += -DLED
+test_imu_b2.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
 
-test_b2.CFLAGS += -DUSE_UART0 -DUART0_BAUD=B57600
-test_b2.srcs += $(SRC_ARCH)/uart_hw.c
+test_imu_b2.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600
+test_imu_b2.srcs += $(SRC_ARCH)/uart_hw.c
 
-test_b2.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart0 
-test_b2.srcs += downlink.c pprz_transport.c
+test_imu_b2.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart1 
+test_imu_b2.srcs += downlink.c pprz_transport.c
 
-test_b2.CFLAGS += -DFLOAT_T=float
-test_b2.srcs += $(BOOZ_PRIV)/booz2_imu.c
-test_b2.CFLAGS += -DMAX1168_EOC_VIC_SLOT=8 -DSSP_VIC_SLOT=9
-test_b2.srcs += $(BOOZ_PRIV)/booz2_imu_b2.c $(BOOZ_PRIV_ARCH)/booz2_imu_b2_hw.c
+test_imu_b2.CFLAGS += -DFLOAT_T=float
+test_imu_b2.srcs += $(BOOZ_PRIV)/booz2_imu.c
+test_imu_b2.CFLAGS += -DSSP_VIC_SLOT=9
+test_imu_b2.srcs += $(BOOZ_PRIV)/booz2_imu_b2.c $(BOOZ_PRIV_ARCH)/booz2_imu_b2_hw.c
+test_imu_b2.CFLAGS += -DMAX1168_EOC_VIC_SLOT=8
+test_imu_b2.srcs += $(BOOZ_PRIV)/booz2_max1168.c $(BOOZ_PRIV_ARCH)/booz2_max1168_hw.c
 
+test_imu_b2.CFLAGS += -I$(BOOZ)
+test_imu_b2.srcs += $(BOOZ)/booz_debug.c
 
 #
 # test RC
@@ -280,18 +284,17 @@ test_rc.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))' -DTIME_LED
 test_rc.CFLAGS += -DLED
 test_rc.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
 
-test_rc.CFLAGS += -DUSE_UART0 -DUART0_BAUD=B57600
+test_rc.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600
 test_rc.srcs += $(SRC_ARCH)/uart_hw.c
 
-test_rc.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart0 
+test_rc.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart1 
 test_rc.srcs += downlink.c pprz_transport.c
 
 test_rc.CFLAGS += -I$(BOOZ)
 test_rc.srcs += $(BOOZ)/booz_debug.c
 
-test_rc.CFLAGS += -DRADIO_CONTROL -DRADIO_CONTROL_TYPE=RC_FUTABA -DRC_LED=4
+test_rc.CFLAGS += -DRADIO_CONTROL -DRADIO_CONTROL_TYPE=RC_FUTABA -DRC_LED=2
 test_rc.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c
-
 
 #
 # test MC
