@@ -89,11 +89,14 @@ test_gps.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))' -DTIME_LE
 test_gps.CFLAGS += -DLED
 test_gps.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
 
-test_gps.CFLAGS += -DUSE_UART0 -DUART0_BAUD=B57600
+test_gps.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600
 test_gps.srcs += $(SRC_ARCH)/uart_hw.c
 
-test_gps.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B38400
-test_gps.CFLAGS += -DGPS_LINK=Uart1 -DGPS_LED=7
+test_gps.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart1 
+test_gps.srcs += downlink.c pprz_transport.c
+
+test_gps.CFLAGS += -DUSE_UART0 -DUART0_BAUD=B38400
+test_gps.CFLAGS += -DGPS_LINK=Uart0 -DGPS_LED=2
 test_gps.srcs += $(BOOZ_PRIV)/booz2_gps.c
 
 
@@ -132,16 +135,16 @@ test_ami.ARCH = arm7tdmi
 test_ami.TARGET = test_ami
 test_ami.TARGETDIR = test_ami
 
-test_ami.CFLAGS += -DCONFIG=$(BOARD_CFG) -I$(BOOZ_PRIV_ARCH)
+test_ami.CFLAGS += -DCONFIG=$(BOARD_CFG) $(BOOZ_CFLAGS)
 test_ami.srcs += $(BOOZ_PRIV_TEST)/booz2_test_ami.c
 test_ami.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./50.))' -DTIME_LED=1
 test_ami.CFLAGS += -DLED
 test_ami.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
 
-test_ami.CFLAGS += -DUSE_UART0 -DUART0_BAUD=B57600
+test_ami.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600
 test_ami.srcs += $(SRC_ARCH)/uart_hw.c
 
-test_ami.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart0 
+test_ami.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart1 
 test_ami.srcs += downlink.c pprz_transport.c
 
 test_ami.CFLAGS += -DUSE_I2C1  -DI2C1_SCLL=150 -DI2C1_SCLH=150 -DI2C1_VIC_SLOT=11 -DI2C1_BUF_LEN=16
