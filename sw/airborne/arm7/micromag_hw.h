@@ -59,13 +59,13 @@ extern volatile uint8_t micromag_cur_axe;
     MmSelect();								\
     micromag_status = MM_SENDING_REQ;					\
     MmSet();								\
-    MmReset();								\
     SpiClearRti();							\
     SpiEnableRti();							\
-    uint8_t control_byte = (micromag_cur_axe+1) << 0 | 4 << 4;		\
+    uint8_t control_byte = (micromag_cur_axe+1) << 0 | 3 << 4;		\
     SSPDR = control_byte;						\
+    MmReset();								\
     SpiEnable();                                                        \
-}
+  }
 
 #define MmReadRes() {							\
     micromag_status = MM_READING_RES;					\

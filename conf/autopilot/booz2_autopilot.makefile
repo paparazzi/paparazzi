@@ -25,7 +25,7 @@
 ARCHI=arm7
 
 FLASH_MODE = IAP
-BOARD_CFG = \"booz2_v1_0.h\"
+BOARD_CFG = \"booz2_board_v1_0.h\"
 
 BOOZ=booz
 BOOZ_PRIV=booz_priv
@@ -42,7 +42,7 @@ ap.TARGETDIR = ap
 
 #ap.CFLAGS += -DKILL_MOTORS
 
-ap.CFLAGS += -DCONFIG=\"booz2_v1_0.h\" $(BOOZ_CFLAGS)
+ap.CFLAGS += -DCONFIG=$(BOARD_CFG) $(BOOZ_CFLAGS)
 ap.srcs += $(BOOZ_PRIV)/booz2_main.c
 ap.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))' -DTIME_LED=1
 ap.CFLAGS += -DLED
@@ -72,7 +72,7 @@ ap.srcs += $(BOOZ_PRIV)/booz2_imu_crista.c $(BOOZ_PRIV_ARCH)/booz2_imu_crista_hw
 ap.CFLAGS += -DFLOAT_T=float
 ap.srcs += $(BOOZ_PRIV)/booz2_imu.c
 
-ap.CFLAGS += -DBOOZ2_ANALOG_BARO_LED=5 -DBOOZ2_ANALOG_BARO_PERIOD='SYS_TICS_OF_SEC((1./100.))'
+ap.CFLAGS += -DBOOZ2_ANALOG_BARO_LED=2 -DBOOZ2_ANALOG_BARO_PERIOD='SYS_TICS_OF_SEC((1./100.))'
 ap.srcs += $(BOOZ_PRIV)/booz2_analog_baro.c
 
 
@@ -84,7 +84,7 @@ ap.srcs += AMI601.c
 
 ap.srcs += $(BOOZ_PRIV)/booz2_autopilot.c
 
-ap.CFLAGS += -DFILTER_ALIGNER_LED=6
+ap.CFLAGS += -DFILTER_ALIGNER_LED=3
 ap.srcs += $(BOOZ_PRIV)/booz2_filter_aligner2.c
 ap.srcs += $(BOOZ_PRIV)/booz2_filter_attitude_cmpl_euler.c
 ap.srcs += $(BOOZ_PRIV)/booz_trig_int.c

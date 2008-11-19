@@ -7,10 +7,17 @@
 */
 
 /* 
-   IMU
+   IMU v3
    SS on P0.20
    RESET on P1.21
    DRDY on P0.15 ( EINT2 )
+*/
+
+/*
+  IMU b2
+  SS on P1.28
+  RESET on P1.19
+  DRDY on P0.30 ( EINT3)
 */
 
 #include "micromag.h"
@@ -47,10 +54,11 @@ void micromag_hw_init( void ) {
 #include "uart.h"
 #include "messages.h"
 #include "downlink.h"
+#include "led.h"
 
 void EXTINT_ISR(void) {
   ISR_ENTRY();
-
+  LED_ON(2);
   micromag_status = MM_GOT_EOC;
   /* clear EINT */
   SetBit(EXTINT,MM_DRDY_EINT);

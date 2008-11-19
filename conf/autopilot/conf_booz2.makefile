@@ -84,7 +84,7 @@ ap.TARGETDIR = ap
 
 #ap.CFLAGS += -DKILL_MOTORS
 
-ap.CFLAGS += -DCONFIG=\"booz2_board.h\" -I$(BOOZ_ARCH) -I$(BOOZ_PRIV) -I$(BOOZ_PRIV_ARCH)
+ap.CFLAGS += -DCONFIG=\"booz2_board_proto.h\" -I$(BOOZ_ARCH) -I$(BOOZ_PRIV) -I$(BOOZ_PRIV_ARCH)
 ap.srcs += $(BOOZ_PRIV)/booz2_main.c
 ap.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))' -DTIME_LED=1
 ap.CFLAGS += -DLED
@@ -232,7 +232,7 @@ tunnel.ARCH = arm7tdmi
 tunnel.TARGET = tunnel
 tunnel.TARGETDIR = tunnel
 
-tunnel.CFLAGS += -DCONFIG=\"booz2_board.h\" -I$(BOOZ_PRIV_ARCH)
+tunnel.CFLAGS += -DCONFIG=\"booz2_board_proto.h\" -I$(BOOZ_PRIV_ARCH)
 tunnel.srcs += $(BOOZ_PRIV_TEST)/booz2_tunnel.c
 tunnel.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))' -DTIME_LED=1
 tunnel.CFLAGS += -DLED
@@ -250,7 +250,7 @@ test_gps.ARCH = arm7tdmi
 test_gps.TARGET = test_gps
 test_gps.TARGETDIR = test_gps
 
-test_gps.CFLAGS += -DCONFIG=\"booz2_board.h\" -I$(BOOZ_PRIV) -I$(BOOZ_PRIV_ARCH)
+test_gps.CFLAGS += -DCONFIG=\"booz2_board_proto.h\" -I$(BOOZ_PRIV) -I$(BOOZ_PRIV_ARCH)
 test_gps.srcs += $(BOOZ_PRIV_TEST)/booz2_test_gps.c
 test_gps.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))' -DTIME_LED=1
 test_gps.CFLAGS += -DLED
@@ -273,7 +273,7 @@ test_led.ARCH = arm7tdmi
 test_led.TARGET = test_led
 test_led.TARGETDIR = test_led
 
-test_led.CFLAGS += -DCONFIG=\"booz2_board.h\" -I$(BOOZ_PRIV_ARCH)
+test_led.CFLAGS += -DCONFIG=\"booz2_board_proto.h\" -I$(BOOZ_PRIV_ARCH)
 test_led.srcs += $(BOOZ_PRIV)/test_led.c
 test_led.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./1024.))' -DTIME_LED=1
 test_led.CFLAGS += -DLED
@@ -311,7 +311,7 @@ test_ami.ARCH = arm7tdmi
 test_ami.TARGET = test_ami
 test_ami.TARGETDIR = test_ami
 
-test_ami.CFLAGS += -DCONFIG=\"booz2_board.h\" -I$(BOOZ_PRIV_ARCH)
+test_ami.CFLAGS += -DCONFIG=\"booz2_board_proto.h\" -I$(BOOZ_PRIV_ARCH)
 test_ami.srcs += $(BOOZ_PRIV_TEST)/booz2_test_ami.c
 test_ami.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./50.))' -DTIME_LED=1
 test_ami.CFLAGS += -DLED
@@ -337,7 +337,7 @@ test_crista.ARCH = arm7tdmi
 test_crista.TARGET = test_crista
 test_crista.TARGETDIR = test_crista
 
-test_crista.CFLAGS += -DCONFIG=\"booz2_board.h\" -I$(BOOZ_PRIV) -I$(BOOZ_PRIV_ARCH)
+test_crista.CFLAGS += -DCONFIG=\"booz2_board_proto.h\" -I$(BOOZ_PRIV) -I$(BOOZ_PRIV_ARCH)
 test_crista.srcs += $(BOOZ_PRIV_TEST)/booz2_test_crista.c
 test_crista.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))' -DTIME_LED=1
 test_crista.CFLAGS += -DLED

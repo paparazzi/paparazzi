@@ -15,7 +15,6 @@
   </commands>
 
 
-<!-- crista -->
   <section name="IMU" prefix="IMU_">
 
     <define name="GYRO_X_CHAN" value="1"/>
@@ -126,8 +125,9 @@
 
   <makefile>
 
-include $(PAPARAZZI_SRC)/conf/autopilot/conf_booz2_a1.makefile
+include $(PAPARAZZI_SRC)/conf/autopilot/booz2_autopilot.makefile
 include $(PAPARAZZI_SRC)/conf/autopilot/booz2_test_progs.makefile
+include $(PAPARAZZI_SRC)/conf/autopilot/booz2_simulator.makefile
 
   </makefile>
 

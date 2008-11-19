@@ -221,10 +221,10 @@ test_micromag.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))' -DTI
 test_micromag.CFLAGS += -DLED
 test_micromag.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
 
-test_micromag.CFLAGS += -DUSE_UART0 -DUART0_BAUD=B57600
+test_micromag.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600
 test_micromag.srcs += $(SRC_ARCH)/uart_hw.c
 
-test_micromag.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart0 
+test_micromag.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart1 
 test_micromag.srcs += downlink.c pprz_transport.c
 
 test_micromag.CFLAGS += -I$(BOOZ)
@@ -232,14 +232,6 @@ test_micromag.srcs += $(BOOZ)/booz_debug.c
 
 test_micromag.CFLAGS += -DMICROMAG_DRDY_VIC_SLOT=8 -DSSP_VIC_SLOT=9
 test_micromag.srcs += micromag.c $(SRC_ARCH)/micromag_hw.c
-
-
-
-
-
-
-
-
 
 
 
