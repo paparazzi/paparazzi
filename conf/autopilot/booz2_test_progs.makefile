@@ -275,7 +275,7 @@ test_rc.TARGETDIR = test_rc
 
 test_rc.CFLAGS += -DCONFIG=$(BOARD_CFG) -I$(BOOZ_PRIV) -I$(BOOZ_PRIV_ARCH)
 test_rc.srcs += $(BOOZ_PRIV_TEST)/booz2_test_rc.c
-test_rc.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))' -DTIME_LED=1
+test_rc.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))' -DTIME_LED=4
 test_rc.CFLAGS += -DLED
 test_rc.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
 
@@ -288,7 +288,7 @@ test_rc.srcs += downlink.c pprz_transport.c
 test_rc.CFLAGS += -I$(BOOZ)
 test_rc.srcs += $(BOOZ)/booz_debug.c
 
-test_rc.CFLAGS += -DRADIO_CONTROL -DRADIO_CONTROL_TYPE=RC_FUTABA -DRC_LED=2
+test_rc.CFLAGS += -DRADIO_CONTROL -DRADIO_CONTROL_TYPE=RC_FUTABA -DRC_LED=1
 test_rc.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c
 
 #
