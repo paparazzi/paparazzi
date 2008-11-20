@@ -494,11 +494,11 @@
       <field name="imu_status"   type="uint8" values="NO_LINK|UNINIT|RUNNING|CRASHED"/>
       <field name="rc_status"    type="uint8" values="OK|LOST|REALLY_LOST"/>
       <field name="gps_status"   type="uint8" values="OK|LOST|REALLY_LOST"/>
-      <field name="ap_mode"      type="uint8" values=""/>
-      <field name="ap_in_flight" type="uint8" values=""/>
-      <field name="ap_motors_on" type="uint8" values=""/>
-      <field name="ap_h_mode"    type="uint8" values=""/>
-      <field name="ap_v_mode"    type="uint8" values=""/>
+      <field name="ap_mode"      type="uint8" values="FAILSAFE|KILL|RATE_DIRECT|ATTITUDE_DIRECT|RATE_Z_HOLD|ATTITUDE_Z_HOLD|HOVER_DIRECT|HOVER_Z_HOLD|NAV"/>
+      <field name="ap_in_flight" type="uint8" values="ON_GROUND|IN_FLIGHT"/>
+      <field name="ap_motors_on" type="uint8" values="MOTORS_OFF|MOTORS_ON"/>
+      <field name="ap_h_mode"    type="uint8" values="KILL|RATE|ATTITUDE|HOVER|NAV"/>
+      <field name="ap_v_mode"    type="uint8" values="KILL|DIRECT|HOVER"/>
       <field name="vsupply"      type="uint8" unit="decivolt"/>
       <field name="cpu_time"     type="uint16" unit="s"></field>
   </message>
