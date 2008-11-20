@@ -325,7 +325,14 @@ let one_setting = fun i do_change packing dl_setting (tooltips:GData.tooltips) s
 	let pixbuf = GdkPixbuf.from_file (Env.gcs_icons_path // icon) in
 	ignore (GMisc.image ~pixbuf ~packing:b#add ());
 
-	(* Associates the label as a tooltip *)
+	(* Drag for Drop *)
+	let papget = Papget.xml "variable_setting" "button"
+	    ["variable", varname; 
+	     "value", ExtXml.attrib x "value";
+	     "icon", icon] in
+	Papget.dnd_source b#coerce papget;
+	
+        (* Associates the label as a tooltip *)
 	tooltips#set_tip b#coerce ~text:label;
 	b
       with

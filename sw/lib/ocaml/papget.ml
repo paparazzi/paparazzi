@@ -67,6 +67,10 @@ let get_prop = fun name children default ->
 let property = fun name value ->
   Xml.Element("property", [ "name", name; "value", value ], [])
 
+let xml = fun type_ display_ properties ->
+  Xml.Element ("papget", ["type", type_; "display", display_], 
+	       List.map (fun (x, y) -> property x y) properties)
+
 let float_property = fun name value ->
   property name (string_of_float value)
 
@@ -400,3 +404,12 @@ class canvas_variable_setting_item = fun properties callback canvas_renderer ->
   object
     inherit canvas_clickable_item "variable_setting" properties callback canvas_renderer
   end
+
+
+
+let dnd_source = fun (widget:GObj.widget) papget_xml ->
+  let dnd_targets = [ { Gtk.target = "STRING"; flags = []; info = 0} ] in
+  widget#drag#source_set dnd_targets ~modi:[`BUTTON1] ~actions:[`COPY];
+  let data_get = fun _ (sel:GObj.selection_context) ~info ~time ->
+    sel#return (Xml.to_string papget_xml) in
+  ignore (widget#drag#connect#data_get ~callback:data_get);

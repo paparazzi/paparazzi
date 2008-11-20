@@ -438,6 +438,7 @@ let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id
   List.iter (fun block ->
     try (* Is it a strip button ? *)
       let label = ExtXml.attrib block "strip_button"
+      and block_name = ExtXml.attrib block "name"
       and id = ExtXml.int_attrib block "no" in
       let b =
 	try (* Is it an icon ? *)
@@ -445,6 +446,13 @@ let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id
 	  let b = GButton.button () in
 	  let pixbuf = GdkPixbuf.from_file (Env.gcs_icons_path // icon) in
 	  ignore (GMisc.image ~pixbuf ~packing:b#add ());
+    
+	  (* Drag for Drop *)
+	  let papget = Papget.xml "goto_block" "button"
+	      ["block_name", block_name;
+	       "icon", icon]
+	  in
+	  Papget.dnd_source b#coerce papget;
 	  
 	  (* Associates the label as a tooltip *)
 	  tooltips#set_tip b#coerce ~text:label;
