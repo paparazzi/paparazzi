@@ -255,12 +255,14 @@ test_imu_b2.srcs += $(SRC_ARCH)/uart_hw.c
 test_imu_b2.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart1 
 test_imu_b2.srcs += downlink.c pprz_transport.c
 
-test_imu_b2.CFLAGS += -DFLOAT_T=float
-test_imu_b2.srcs += $(BOOZ_PRIV)/booz2_imu.c
+test_imu_b2.CFLAGS += -DBOOZ2_IMU_TYPE=IMU_B2
 test_imu_b2.CFLAGS += -DSSP_VIC_SLOT=9
 test_imu_b2.srcs += $(BOOZ_PRIV)/booz2_imu_b2.c $(BOOZ_PRIV_ARCH)/booz2_imu_b2_hw.c
 test_imu_b2.CFLAGS += -DMAX1168_EOC_VIC_SLOT=8
 test_imu_b2.srcs += $(BOOZ_PRIV)/booz2_max1168.c $(BOOZ_PRIV_ARCH)/booz2_max1168_hw.c
+test_imu_b2.CFLAGS += -DFLOAT_T=float
+test_imu_b2.srcs += $(BOOZ_PRIV)/booz2_imu.c
+
 
 test_imu_b2.CFLAGS += -I$(BOOZ)
 test_imu_b2.srcs += $(BOOZ)/booz_debug.c
