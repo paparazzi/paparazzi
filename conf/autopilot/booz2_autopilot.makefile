@@ -83,6 +83,7 @@ ap.srcs += $(BOOZ_PRIV)/booz2_max1168.c $(BOOZ_PRIV_ARCH)/booz2_max1168_hw.c
 ap.CFLAGS += -DFLOAT_T=float
 ap.srcs += $(BOOZ_PRIV)/booz2_imu.c
 
+ap.CFLAGS += -DADC1_VIC_SLOT=2
 ap.CFLAGS += -DBOOZ2_ANALOG_BARO_LED=2 -DBOOZ2_ANALOG_BARO_PERIOD='SYS_TICS_OF_SEC((1./100.))'
 ap.srcs += $(BOOZ_PRIV)/booz2_analog_baro.c
 

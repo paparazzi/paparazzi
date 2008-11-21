@@ -149,4 +149,12 @@
 #define SPI1_DRDY_EINT         2
 #define SPI1_DRDY_VIC_IT       VIC_EINT2
 
+
+/* pressure : P0.28 AD0.1 */
+#define ANALOG_BARO_PINSEL PINSEL1
+#define ANALOG_BARO_PINSEL_VAL 0x01
+#define ANALOG_BARO_PINSEL_BIT 24
+#define ANALOG_BARO_ADC 0
+
+
 #endif /* CONFIG_TINY_H */

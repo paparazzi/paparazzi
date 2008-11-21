@@ -87,10 +87,10 @@ static inline void radio_control_periodic_task ( void ) {
 
 #if defined RC_LED
   if (rc_status == RC_OK) {
-    LED_OFF(RC_LED);
+    LED_ON(RC_LED);
   }
   else {
-    LED_ON(RC_LED);
+    LED_OFF(RC_LED);
   }
 #endif
  

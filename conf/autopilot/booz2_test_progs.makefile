@@ -273,20 +273,17 @@ test_rc.ARCH = arm7tdmi
 test_rc.TARGET = test_rc
 test_rc.TARGETDIR = test_rc
 
-test_rc.CFLAGS += -DCONFIG=$(BOARD_CFG) -I$(BOOZ_PRIV) -I$(BOOZ_PRIV_ARCH)
+test_rc.CFLAGS += -DCONFIG=$(BOARD_CFG) $(BOOZ_CFLAGS)
 test_rc.srcs += $(BOOZ_PRIV_TEST)/booz2_test_rc.c
 test_rc.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))' -DTIME_LED=4
 test_rc.CFLAGS += -DLED
 test_rc.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
 
-test_rc.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600
+test_rc.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600 -DUART1_VIC_SLOT=6
 test_rc.srcs += $(SRC_ARCH)/uart_hw.c
 
 test_rc.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart1 
 test_rc.srcs += downlink.c pprz_transport.c
-
-test_rc.CFLAGS += -I$(BOOZ)
-test_rc.srcs += $(BOOZ)/booz_debug.c
 
 test_rc.CFLAGS += -DRADIO_CONTROL -DRADIO_CONTROL_TYPE=RC_FUTABA -DRC_LED=1
 test_rc.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c

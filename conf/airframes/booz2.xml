@@ -14,6 +14,9 @@
     <axis name="LEFT"  failsafe_value="0"/>
   </commands>
 
+  <section name="BUSS_BLMC" prefix="BUSS_BLMC_">
+    <define name="ADDR" value="{ 0x52, 0x54, 0x58, 0x56 }"/>
+  </section>
 
 
  <section name="MICROMAG">

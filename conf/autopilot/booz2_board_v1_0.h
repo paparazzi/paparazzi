@@ -39,23 +39,12 @@
 
 /* ADC */
 
-#define ADC_0 AdcBank0(3)
-#ifdef USE_ADC_0
-#ifndef USE_AD0
-#define USE_AD0
-#endif
-#define USE_AD0_3
-#endif
+/* pressure : P0.10 AD1.2 */
+#define ANALOG_BARO_PINSEL PINSEL0
+#define ANALOG_BARO_PINSEL_VAL 0x03
+#define ANALOG_BARO_PINSEL_BIT 20
+#define ANALOG_BARO_ADC 1
 
-#define ADC_CHANNEL_VSUPPLY AdcBank1(6)
-#ifndef USE_AD1
-#define USE_AD1
-#endif
-#define USE_AD1_6
-
-#ifndef VoltageOfAdc
-#define VoltageOfAdc(adc) (0.01787109375*adc)
-#endif
 
 
 /* Micromag on SSP, IMU connector */

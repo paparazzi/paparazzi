@@ -109,11 +109,12 @@ ap.srcs += $(BOOZ_ARCH)/actuators_buss_twi_blmc_hw.c actuators.c
 ap.CFLAGS += -DUSE_I2C0 -DI2C0_SCLL=150 -DI2C0_SCLH=150 -DI2C0_VIC_SLOT=10
 ap.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
 
-#ap.srcs += $(BOOZ_PRIV)/booz2_imu_v3.c $(BOOZ_PRIV_ARCH)/booz2_imu_v3_hw.c
+ap.CFLAGS += -DBOOZ2_IMU_TYPE=IMU_CRISTA
 ap.srcs += $(BOOZ_PRIV)/booz2_imu_crista.c $(BOOZ_PRIV_ARCH)/booz2_imu_crista_hw.c
 ap.CFLAGS += -DFLOAT_T=float
 ap.srcs += $(BOOZ_PRIV)/booz2_imu.c
 
+ap.CFLAGS += -DADC0_VIC_SLOT=2
 ap.CFLAGS += -DBOOZ2_ANALOG_BARO_LED=5 -DBOOZ2_ANALOG_BARO_PERIOD='SYS_TICS_OF_SEC((1./100.))'
 ap.srcs += $(BOOZ_PRIV)/booz2_analog_baro.c
 

@@ -1,12 +1,14 @@
 #include "actuators.h"
 
+#include CONFIG
+
 uint8_t buss_twi_blmc_motor_power[BUSS_TWI_BLMC_NB];
 volatile bool_t  buss_twi_blmc_status;
 uint8_t buss_twi_blmc_nb_err;
 volatile bool_t  buss_twi_blmc_i2c_done;
 volatile uint8_t buss_twi_blmc_idx;
 
-const uint8_t buss_twi_blmc_addr[BUSS_TWI_BLMC_NB] = { 0x52, 0x54, 0x58, 0x56 };
+const uint8_t buss_twi_blmc_addr[BUSS_TWI_BLMC_NB] = BUSS_BLMC_ADDR;
 
 void actuators_init ( void ) {
   uint8_t i;
