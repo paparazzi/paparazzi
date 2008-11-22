@@ -42,13 +42,13 @@
     <define name="ACCEL_Y_CHAN" value="5"/>
     <define name="ACCEL_Z_CHAN" value="6"/>    
 
-    <define name="ACCEL_X_NEUTRAL" value="31782"/>
-    <define name="ACCEL_Y_NEUTRAL" value="32500"/>
-    <define name="ACCEL_Z_NEUTRAL" value="32768"/>
+    <define name="ACCEL_X_NEUTRAL" value="32068"/>
+    <define name="ACCEL_Y_NEUTRAL" value="33734"/>
+    <define name="ACCEL_Z_NEUTRAL" value="32438"/>
 
-    <define name="ACCEL_X_SENS" value="( -171)"/>
-    <define name="ACCEL_Y_SENS" value="( -167)"/>
-    <define name="ACCEL_Z_SENS" value="( -167)"/>
+    <define name="ACCEL_X_SENS" value="( -410)"/><!-- 409.58772 -->
+    <define name="ACCEL_Y_SENS" value="( -414)"/><!-- 414.00958 -->
+    <define name="ACCEL_Z_SENS" value="( -409)"/><!-- 408.84626 -->
 
 
     <define name="MAG_X_CHAN" value="4"/>
@@ -56,14 +56,15 @@
     <define name="MAG_Z_CHAN" value="2"/>
 
     
-    <define name="MAG_X_NEUTRAL" value="2038"/>
-    <define name="MAG_Y_NEUTRAL" value="1945"/> 
-    <define name="MAG_Z_NEUTRAL" value="1957"/>
+    <define name="MAG_X_NEUTRAL" value="2358"/>
+    <define name="MAG_Y_NEUTRAL" value="2362"/> 
+    <define name="MAG_Z_NEUTRAL" value="2119"/>
 
-    <define name="MAG_X_SENS" value="-401."/>
-    <define name="MAG_Y_SENS" value=" 388."/>
-    <define name="MAG_Z_SENS" value="-414."/>
+    <define name="MAG_X_SENS" value="-414."/><!-- 414.51787 -->
+    <define name="MAG_Y_SENS" value=" 401."/><!-- 401.40112 -->
+    <define name="MAG_Z_SENS" value="-417."/><!-- 417.2869  -->
 
+    <define name="MAG_Z_SENS_FOO" value="-0.0024124412" integer="16"/>
 
   </section>
 

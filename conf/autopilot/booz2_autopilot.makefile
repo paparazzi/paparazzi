@@ -33,14 +33,14 @@ BOOZ_PRIV_ARCH=booz_priv/arm7
 BOOZ_PRIV_TEST=booz_priv/test
 BOOZ_ARCH=booz/arm7
 
-BOOZ_CFLAGS = -I$(BOOZ) -I$(BOOZ_ARCH) -I$(BOOZ_PRIV) -I$(BOOZ_PRIV_ARCH)
+BOOZ_CFLAGS = -I$(BOOZ_PRIV) -I$(BOOZ_PRIV_ARCH)
 
 ap.ARCHDIR = $(ARCHI)
 ap.ARCH = arm7tdmi
 ap.TARGET = ap
 ap.TARGETDIR = ap
 
-#ap.CFLAGS += -DKILL_MOTORS
+ap.CFLAGS += -DKILL_MOTORS
 
 ap.CFLAGS += -DCONFIG=$(BOARD_CFG) $(BOOZ_CFLAGS)
 ap.srcs += $(BOOZ_PRIV)/booz2_main.c
@@ -56,7 +56,7 @@ ap.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uar
 ap.srcs += $(BOOZ_PRIV)/booz2_telemetry.c downlink.c pprz_transport.c
 
 ap.CFLAGS += -DDATALINK=PPRZ -DPPRZ_UART=Uart1
-ap.srcs += $(BOOZ)/booz_datalink.c
+ap.srcs += $(BOOZ_PRIV)/booz2_datalink.c
 
 ap.srcs += commands.c
 
@@ -64,7 +64,7 @@ ap.CFLAGS += -DRADIO_CONTROL -DRADIO_CONTROL_TYPE=RC_FUTABA -DRC_LED=1
 ap.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c
 
 ap.CFLAGS += -DACTUATORS=\"actuators_buss_twi_blmc_hw.h\" -DUSE_BUSS_TWI_BLMC
-ap.srcs += $(BOOZ_ARCH)/actuators_buss_twi_blmc_hw.c actuators.c
+ap.srcs += $(BOOZ_PRIV_ARCH)/actuators_buss_twi_blmc_hw.c actuators.c
 ap.CFLAGS += -DUSE_I2C0 -DI2C0_SCLL=150 -DI2C0_SCLH=150 -DI2C0_VIC_SLOT=10
 ap.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
 
@@ -117,6 +117,5 @@ ap.srcs += $(BOOZ_PRIV)/booz2_stabilization_attitude.c
 ap.srcs += $(BOOZ_PRIV)/booz_supervision_int.c
 
 # Joystick
-ap.CFLAGS += -DBOOZ2_STICK
-
-
+ap.CFLAGS += -DUSE_DATALINK_FMS
+ap.srcs += $(BOOZ_PRIV)/booz2_fms.c
