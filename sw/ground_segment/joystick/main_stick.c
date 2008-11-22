@@ -60,11 +60,17 @@ l_help:
 }
 
 
+#define BOOZ2_STICK_DEADBAND 5
+#define BOOZ2_STICK_APPLY_DEADBAND(_v) (abs(_v) >= BOOZ2_STICK_DEADBAND ? _v : 0)
+
 static gboolean joystick_periodic(gpointer data __attribute__ ((unused))) {
 
 	stick_read();
 
-	IvySendMsg("dl COMMANDS_RAW %d %d,%d", aircraft_id, stick_axis_values[0], stick_axis_values[1]);
+	int8_t roll = BOOZ2_STICK_APPLY_DEADBAND(stick_axis_values[0]);
+	int8_t pitch = BOOZ2_STICK_APPLY_DEADBAND(stick_axis_values[0]);
+
+	IvySendMsg("dl COMMANDS_RAW %d %d,%d", aircraft_id, roll, pitch);
 
 	return 1;
 }
