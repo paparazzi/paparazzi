@@ -72,6 +72,12 @@
       <message name="BOOZ2_FILTER_ALIGNER"    period="0.02"/>
     </mode>
 
+    <mode name="hs_att_roll">
+      <message name="BOOZ_STATUS"                 period="1.2"/>
+      <message name="ALIVE"                       period="0.9"/>
+      <message name="DL_VALUE"                    period="0.5"/>
+      <message name="BOOZ2_STAB_ATTITUDE_HS_ROLL" period="0.02"/>
+    </mode>
 
   </process>
 

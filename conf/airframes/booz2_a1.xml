@@ -18,11 +18,12 @@
     <define name="ADDR" value="{ 0x52, 0x54, 0x58, 0x56 }"/>
   </section>
 
-  <section name="ROTOR" prefix="ROTOR_">
-    <define name="FRONT_CW" value="1"/>
+  <section name="SUPERVISION" prefix="SUPERVISION_">
+    <define name="FRONT_ROTOR_CW" value="1"/>
+    <define name="TRIM_A" value="2"/>
+    <define name="TRIM_E" value="-1"/>
+    <define name="TRIM_R" value="3"/>
   </section>
-
-
 
   <section name="IMU" prefix="IMU_">
 
@@ -30,9 +31,9 @@
     <define name="GYRO_Y_CHAN" value="0"/>
     <define name="GYRO_Z_CHAN" value="2"/>
 
-    <define name="GYRO_X_NEUTRAL" value="30744"/>
-    <define name="GYRO_Y_NEUTRAL" value="32331"/>
-    <define name="GYRO_Z_NEUTRAL" value="32486"/>
+    <define name="GYRO_X_NEUTRAL" value="33924"/>
+    <define name="GYRO_Y_NEUTRAL" value="33417"/>
+    <define name="GYRO_Z_NEUTRAL" value="32809"/>
 
     <define name="GYRO_X_SENS" value="( 4000.)"/>
     <define name="GYRO_Y_SENS" value="(-4000.)"/>
@@ -43,8 +44,8 @@
     <define name="ACCEL_Z_CHAN" value="6"/>    
 
     <define name="ACCEL_X_NEUTRAL" value="32068"/>
-    <define name="ACCEL_Y_NEUTRAL" value="33734"/>
-    <define name="ACCEL_Z_NEUTRAL" value="32438"/>
+    <define name="ACCEL_Y_NEUTRAL" value="33731"/>
+    <define name="ACCEL_Z_NEUTRAL" value="32439"/>
 
     <define name="ACCEL_X_SENS" value="( -410)"/><!-- 409.58772 -->
     <define name="ACCEL_Y_SENS" value="( -414)"/><!-- 414.00958 -->
@@ -90,7 +91,7 @@
 
     <define name="PHI_THETA_PGAIN"  value="-400"/>
     <define name="PHI_THETA_DGAIN"  value="-300"/>
-    <define name="PHI_THETA_DDGAIN" value="0"/>
+    <define name="PHI_THETA_DDGAIN" value=" 300"/>
     <define name="PHI_THETA_IGAIN"  value="-100"/>
 
     <define name="PSI_PGAIN"  value="-380"/>
@@ -101,14 +102,14 @@
   </section>
 
   <section name="FILTER" prefix="FILTER_">
-   <define name="ALIGNMENT_DPHI" value="BOOZ_ANGLE_I_OF_F(RadOfDeg(-0.5))"/>
-   <define name="ALIGNMENT_DTHETA" value="BOOZ_ANGLE_I_OF_F(RadOfDeg(2.5))"/>
-   <define name="ALIGNMENT_DPSI" value="BOOZ_ANGLE_I_OF_F(0)"/>
+   <define name="ALIGNMENT_DPHI" value="BOOZ_ANGLE_I_OF_F(RadOfDeg(4.))"/>
+   <define name="ALIGNMENT_DTHETA" value="BOOZ_ANGLE_I_OF_F(RadOfDeg(3.))"/>
+   <define name="ALIGNMENT_DPSI" value="BOOZ_ANGLE_I_OF_F(0.)"/>
   </section>
 
 
   <section name="GUIDANCE_V" prefix="BOOZ2_GUIDANCE_V_">
-   <define name="HOVER_POWER" value="65"/>
+   <define name="HOVER_POWER" value="81"/>
    <define name="HOVER_KP"    value="-200"/>
    <define name="HOVER_KD"    value="-100"/>
    <define name="HOVER_KI"    value="-50"/>

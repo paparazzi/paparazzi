@@ -20,5 +20,7 @@
   format CDATA #IMPLIED
   unit CDATA #IMPLIED
   values CDATA #IMPLIED
+  alt_unit CDATA #IMPLIED
+  alt_unit_coef CDATA #IMPLIED
 >
 
