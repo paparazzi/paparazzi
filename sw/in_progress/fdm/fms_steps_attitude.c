@@ -58,6 +58,17 @@ l_help:
   exit(1);
 }
 
+/*
+   <field name="ac_id" type="uint8"/>
+   <field name="h_mode" type="uint8" values="RATE|ATTITUDE|SPEED|POS"/>
+   <field name="v_mode" type="uint8" values="DIRECT|CLIMB|HEIGHT"/>
+   <field name="pad0" type="uint8"/>
+   <field name="pad1" type="uint8"/>
+   <field name="pad2" type="uint8"/>
+   <field name="v_sp" type="int32"/>
+   <field name="h_sp" type="int32[]"/>
+*/
+
 static gboolean periodic(gpointer data __attribute__ ((unused))) {
   
   counter++;
@@ -70,7 +81,7 @@ static gboolean periodic(gpointer data __attribute__ ((unused))) {
   int32_t unused = 0;
   if ((counter%(2*STEP_PERIOD)) >= STEP_PERIOD) roll = -roll;
 
-  IvySendMsg("dl BOOZ2_FMS_COMMAND %d %d %d %d,%d,%d %d", aircraft_id, h_mode, v_mode, roll, pitch, yaw, unused);
+  IvySendMsg("dl BOOZ2_FMS_COMMAND %d %d %d %d d %d %d %d,%d,%d", aircraft_id, h_mode, v_mode, unused, unused, unused, unused, roll, pitch, yaw);
   return TRUE;
 }
 
