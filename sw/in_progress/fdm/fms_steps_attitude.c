@@ -1,5 +1,5 @@
 /*
- * fdm_step
+ * fms_steps_attitude
  *
  *
  * This program is free software; you can redistribute it and/or modify
@@ -24,13 +24,20 @@
 #include <Ivy/ivy.h>
 #include <Ivy/ivyglibloop.h>
 
+#include <inttypes.h>
+#include "booz2_fms_extern.h"
+
+
 #define TIMEOUT_PERIOD  100
+#define DEFAULT_AC_ID   150
+#define STEP_VAL 2
+#define STEP_PERIOD 3
 
-#define DEFAULT_AC_ID       1
-
-/* Options */
-static int aircraft_id       = DEFAULT_AC_ID;
+static int aircraft_id = DEFAULT_AC_ID;
 static int counter;
+
+static gboolean periodic(gpointer data __attribute__ ((unused)));
+
 
 void parse_args(int argc, char * argv[])
 {
@@ -51,15 +58,19 @@ l_help:
   exit(1);
 }
 
-#define STEP_VAL 32
 static gboolean periodic(gpointer data __attribute__ ((unused))) {
-  int roll, pitch;
+  
   counter++;
-  pitch = 0;
-  roll = STEP_VAL;
-  if ((counter%6) >=3) roll = -roll;
-    
-  IvySendMsg("dl COMMANDS_RAW %d %d,%d", aircraft_id, roll, pitch);
+
+  uint8_t h_mode = FMS_H_MODE_ATTITUDE; 
+  uint8_t v_mode = FMS_V_MODE_DIRECT; 
+  int32_t pitch  = FMS_ATTITUDE_OF_DEG(0);
+  int32_t roll   = FMS_ATTITUDE_OF_DEG(STEP_VAL);
+  int32_t yaw    = FMS_ATTITUDE_OF_DEG(0);
+  int32_t unused = 0;
+  if ((counter%(2*STEP_PERIOD)) >= STEP_PERIOD) roll = -roll;
+
+  IvySendMsg("dl BOOZ2_FMS_COMMAND %d %d %d %d,%d,%d %d", aircraft_id, h_mode, v_mode, roll, pitch, yaw, unused);
   return TRUE;
 }
 
@@ -70,7 +81,7 @@ int main ( int argc, char** argv) {
   
   parse_args(argc, argv);
   
-  IvyInit ("IvyFdmStep", "IvyFdmStep READY", NULL, NULL, NULL, NULL);
+  IvyInit ("IvyBooz2FmsAttStep", "IvyBooz2FmsAttStep READY", NULL, NULL, NULL, NULL);
   IvyStart("127.255.255.255");
 
   g_timeout_add(TIMEOUT_PERIOD, periodic, NULL);

@@ -1,5 +1,5 @@
 /*
- * fdm_step
+ * fdm_step_position
  *
  *
  * This program is free software; you can redistribute it and/or modify
@@ -25,12 +25,13 @@
 #include <Ivy/ivyglibloop.h>
 
 #define TIMEOUT_PERIOD  100
+#define DEFAULT_AC_ID   150
 
-#define DEFAULT_AC_ID       1
-
-/* Options */
-static int aircraft_id       = DEFAULT_AC_ID;
+static int aircraft_id = DEFAULT_AC_ID;
 static int counter;
+
+static gboolean periodic(gpointer data __attribute__ ((unused)));
+static void on_FMS_info(IvyClientPtr app, void *user_data, int argc, char *argv[]);
 
 void parse_args(int argc, char * argv[])
 {
@@ -50,6 +51,13 @@ l_help:
   printf("  -h           display this help\n");
   exit(1);
 }
+
+static void on_FMS_state(IvyClientPtr app, void *user_data, int argc, char *argv[]){
+  //  guint ac_id = atoi(argv[0]);
+  //  float estimator_phi = atof(argv[1]);
+}
+
+
 
 #define STEP_VAL 32
 static gboolean periodic(gpointer data __attribute__ ((unused))) {

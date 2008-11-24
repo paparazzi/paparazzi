@@ -28,6 +28,12 @@ all: fdm_step
 fdm_step: fdm_step.c
 	gcc -g -O2 -Wall `pkg-config glib-2.0 --cflags` -o $@ $^ `pkg-config glib-2.0 --libs`  `pcre-config --libs` -lglibivy
 
+
+fms_steps_attitude: fms_steps_attitude.c
+	gcc -g -O2 -Wall `pkg-config glib-2.0 --cflags` -o $@ $^ `pkg-config glib-2.0 --libs`  `pcre-config --libs` -lglibivy
+
+
+
 clean:
-	rm -f *~ core *.o *.bak .depend fdm_step
+	rm -f *~ core *.o *.bak .depend fdm_step fms_steps_attitude
 
