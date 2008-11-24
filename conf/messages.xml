@@ -1101,11 +1101,14 @@
     <field name="carrot_lat"  type="int32"/>
   </message>
 
-  <message name="WT" ID="148">
-    <field name="rpm"      type="float"/>
+  <message name="BOOZ2_FMS_INFO" ID="148">
+    <field name="tbd"      type="float"/>
   </message>
 
 
+  <message name="WT" ID="150">
+    <field name="rpm"      type="float"/>
+  </message>
 
 </class>
 
@@ -1158,25 +1161,24 @@
  </message>
 
  <message name="HITL_INFRARED" id="7">
-   <field name="roll" type="int16"/>
-   <field name="pitch" type="int16"/>
+  <field name="roll" type="int16"/>
+  <field name="pitch" type="int16"/>
  </message>
-
- <message name="PING" id="8">
- </message>
+    
+ <message name="PING" id="8"/>
 
  <message name="FORMATION_SLOT" id="9" link="broadcasted">
-	 <field name="ac_id" type="uint8"/>
-	 <field name="mode" type="uint8"/>
-	 <field name="slot_east" format="%.1f" type="float" unit="m"/>
-	 <field name="slot_north" format="%.1f" type="float" unit="m"/>
-	 <field name="slot_alt" format="%.1f" type="float" unit="m"/>
+  <field name="ac_id" type="uint8"/>
+  <field name="mode" type="uint8"/>
+  <field name="slot_east" format="%.1f" type="float" unit="m"/>
+  <field name="slot_north" format="%.1f" type="float" unit="m"/>
+  <field name="slot_alt" format="%.1f" type="float" unit="m"/>
  </message>
 
  <message name="FORMATION_STATUS" id="10" link="broadcasted">
-	 <field name="ac_id" type="uint8"/>
-	 <field name="leader_id" type="uint8"/>
-	 <field name="status" type="uint8"/>
+  <field name="ac_id" type="uint8"/>
+  <field name="leader_id" type="uint8"/>
+  <field name="status" type="uint8"/>
  </message>
 
  <message name="JOYSTICK_RAW" id="11" link="forwarded">
@@ -1195,6 +1197,15 @@
    <field name="ac_id" type="uint8"/>
    <field name="length" type="uint8"/>
    <field name="rtcm" type="uint8[]"/>
+ </message>
+
+ <message name="BOOZ2_FMS_COMMAND" ID="149" link="forwarded">
+   <field name="ac_id" type="uint8"/>
+   <field name="h_mode" type="uint8" values="RATE|ATTITUDE|SPEED|POS"/>
+   <field name="v_mode" type="uint8" values="DIRECT|CLIMB|HEIGHT"/>
+   <field name="pad0" type="uint8"/>
+   <field name="h_sp" type="int32[]"/>
+   <field name="v_sp" type="int32"/>
  </message>
 
  <message name="SET_ACTUATOR" id="100">
