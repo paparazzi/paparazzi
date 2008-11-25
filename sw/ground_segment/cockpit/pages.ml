@@ -326,7 +326,7 @@ let one_setting = fun i do_change packing dl_setting (tooltips:GData.tooltips) s
 	ignore (GMisc.image ~pixbuf ~packing:b#add ());
 
 	(* Drag for Drop *)
-	let papget = Papget.xml "variable_setting" "button"
+	let papget = Papget_common.xml "variable_setting" "button"
 	    ["variable", varname; 
 	     "value", ExtXml.attrib x "value";
 	     "icon", icon] in

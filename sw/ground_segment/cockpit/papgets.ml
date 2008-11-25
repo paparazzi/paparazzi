@@ -42,7 +42,7 @@ let papget_listener =
   let sep = Str.regexp ":" in
   fun papget ->
     try
-      let field = Papget.get_property "field" papget in
+      let field = Papget_common.get_property "field" papget in
       match Str.split sep field with
 	[msg_name; field_name] ->
 	  (new Papget.message msg_name, field_name)
@@ -62,12 +62,12 @@ let create = fun canvas_group papget ->
       and renderer =
 	match display with
 	  "text" ->
-	    (new Papget.canvas_text ~config canvas_group x y :> Papget.renderer)
+	    (new Papget_renderer.canvas_text ~config canvas_group x y :> Papget_renderer.t)
 	      
 	| "ruler" ->
-	    (new Papget.canvas_ruler canvas_group ~config x y :> Papget.renderer)
+	    (new Papget_renderer.canvas_ruler canvas_group ~config x y :> Papget_renderer.t)
 	| _ -> failwith (sprintf "Unexpected papget display: %s" display) in
-      let p = new Papget.canvas_display_float_item msg_listener field_name renderer in
+      let p = new Papget.canvas_display_float_item ~config msg_listener field_name renderer in
       let p = (p :> Papget.item) in
       register_papget p p
   | "goto_block" ->
@@ -81,9 +81,9 @@ let create = fun canvas_group papget ->
       let renderer = 
 	match display with
 	  "button" ->
-	    (new Papget.canvas_button canvas_group ~config x y :> Papget.renderer)
+	    (new Papget_renderer.canvas_button canvas_group ~config x y :> Papget_renderer.t)
 	| _ -> failwith (sprintf "Unexpected papget display: %s" display) in
-      let block_name = Papget.get_property "block_name" papget in
+      let block_name = Papget_common.get_property "block_name" papget in
       let clicked = fun () ->
 	prerr_endline "Warning: goto_block papget sends to all A/C";
 	Hashtbl.iter
@@ -95,7 +95,7 @@ let create = fun canvas_group papget ->
 	  )
 	  Live.aircrafts
       in
-      let properties = [ Papget.property "block_name" block_name ] in
+      let properties = [ Papget_common.property "block_name" block_name ] in
 
       let p = new Papget.canvas_goto_block_item properties clicked renderer in
       let p = (p :> Papget.item) in
@@ -104,11 +104,11 @@ let create = fun canvas_group papget ->
       let renderer = 
 	match display with
 	  "button" ->
-	    (new Papget.canvas_button canvas_group ~config x y :> Papget.renderer)
+	    (new Papget_renderer.canvas_button canvas_group ~config x y :> Papget_renderer.t)
 	| _ -> failwith (sprintf "Unexpected papget display: %s" display) in
 
-      let varname = Papget.get_property "variable" papget
-      and value = float_of_string (Papget.get_property "value" papget) in
+      let varname = Papget_common.get_property "variable" papget
+      and value = float_of_string (Papget_common.get_property "value" papget) in
 
       let clicked = fun () ->
 	prerr_endline "Warning: variable_setting papget sending to all active A/C";
@@ -121,8 +121,8 @@ let create = fun canvas_group papget ->
 		Live.dl_setting ac_id var_id value)
 	  Live.aircrafts
       in
-      let properties = [ Papget.property "variable" varname;
-			 Papget.float_property "value" value ] in
+      let properties = [ Papget_common.property "variable" varname;
+			 Papget_common.float_property "value" value ] in
       let p = new Papget.canvas_variable_setting_item properties clicked renderer in
       let p = (p :> Papget.item) in
       register_papget p p
@@ -146,7 +146,7 @@ let dnd_data_received = fun canvas_group context ~x ~y data ~info ~time ->
 	"display", "text";
 	"x", sprintf "%d" x; "y", sprintf "%d" y ]
     and props =
-      [ Papget.property "field" (sprintf "%s:%s" msg_name field_name) ] in
+      [ Papget_common.property "field" (sprintf "%s:%s" msg_name field_name) ] in
     let papget_xml = Xml.Element ("papget", attrs, props) in
     create canvas_group papget_xml
   with
