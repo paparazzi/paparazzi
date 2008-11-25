@@ -1,4 +1,4 @@
-<airframe name="BOOZ2_A1">
+<airframe name="BOOZ2_J1">
 
   <servos min="0" neutral="0" max="0xff">
     <servo name="FRONT" no="0" min="0" neutral="0" max="255"/>
@@ -18,11 +18,12 @@
     <define name="ADDR" value="{ 0x52, 0x54, 0x58, 0x56 }"/>
   </section>
 
-  <section name="ROTOR" prefix="ROTOR_">
-    <define name="FRONT_CW" value="1"/>
+  <section name="SUPERVISION" prefix="SUPERVISION_">
+    <define name="FRONT_ROTOR_CW" value="1"/>
+    <define name="TRIM_A" value="0"/>
+    <define name="TRIM_E" value="0"/>
+    <define name="TRIM_R" value="0"/>
   </section>
-
-
 
   <section name="IMU" prefix="IMU_">
 
@@ -34,37 +35,34 @@
     <define name="GYRO_Y_NEUTRAL" value="32348"/>
     <define name="GYRO_Z_NEUTRAL" value="32524"/>
 
-    <define name="GYRO_X_SENS" value="( 4000.)"/>
-    <define name="GYRO_Y_SENS" value="(-4000.)"/>
-    <define name="GYRO_Z_SENS" value="(-4000.)"/>
-  
+    <define name="GYRO_X_SENS" value=" 1.01" integer="16"/>
+    <define name="GYRO_Y_SENS" value="-1.01" integer="16"/>
+    <define name="GYRO_Z_SENS" value="-1.01" integer="16"/>
+ 
     <define name="ACCEL_X_CHAN" value="3"/>
     <define name="ACCEL_Y_CHAN" value="5"/>
     <define name="ACCEL_Z_CHAN" value="6"/>    
 
-    <define name="ACCEL_X_NEUTRAL" value="31782"/>
-    <define name="ACCEL_Y_NEUTRAL" value="32500"/>
-    <define name="ACCEL_Z_NEUTRAL" value="32768"/>
-
-    <define name="ACCEL_X_SENS" value="( -171)"/>
-    <define name="ACCEL_Y_SENS" value="( -167)"/>
-    <define name="ACCEL_Z_SENS" value="( -167)"/>
-
+    <define name="ACCEL_X_SENS" value="-2.44665442" integer="16"/>
+    <define name="ACCEL_Y_SENS" value="-2.44994081" integer="16"/>
+    <define name="ACCEL_Z_SENS" value="-2.50555481" integer="16"/>
+    
+    <define name="ACCEL_X_NEUTRAL" value="32311"/>
+    <define name="ACCEL_Y_NEUTRAL" value="32536"/>
+    <define name="ACCEL_Z_NEUTRAL" value="32779"/>
 
     <define name="MAG_X_CHAN" value="4"/>
     <define name="MAG_Y_CHAN" value="0"/>
     <define name="MAG_Z_CHAN" value="2"/>
 
+    <define name="MAG_X_SENS" value="-5.25419691" integer="16"/>
+    <define name="MAG_Y_SENS" value="5.19820787" integer="16"/>
+    <define name="MAG_Z_SENS" value="-5.02819063" integer="16"/>
     
-    <define name="MAG_X_NEUTRAL" value="2038"/>
-    <define name="MAG_Y_NEUTRAL" value="1945"/> 
-    <define name="MAG_Z_NEUTRAL" value="1957"/>
-
-    <define name="MAG_X_SENS" value="-401."/>
-    <define name="MAG_Y_SENS" value=" 388."/>
-    <define name="MAG_Z_SENS" value="-414."/>
-
-
+    <define name="MAG_X_NEUTRAL" value="2129"/>
+    <define name="MAG_Y_NEUTRAL" value="2327"/>
+    <define name="MAG_Z_NEUTRAL" value="1817"/>
+    
   </section>
 
   <section name="STABILIZATION_RATE" prefix="BOOZ_STABILIZATION_RATE_">
@@ -100,8 +98,8 @@
   </section>
 
   <section name="FILTER" prefix="FILTER_">
-   <define name="ALIGNMENT_DPHI" value="BOOZ_ANGLE_I_OF_F(RadOfDeg(-0.5))"/>
-   <define name="ALIGNMENT_DTHETA" value="BOOZ_ANGLE_I_OF_F(RadOfDeg(2.5))"/>
+   <define name="ALIGNMENT_DPHI" value="BOOZ_ANGLE_I_OF_F(RadOfDeg(0.0))"/>
+   <define name="ALIGNMENT_DTHETA" value="BOOZ_ANGLE_I_OF_F(RadOfDeg(0.0))"/>
    <define name="ALIGNMENT_DPSI" value="BOOZ_ANGLE_I_OF_F(0)"/>
   </section>
 
