@@ -87,12 +87,12 @@
 
     <define name="PHI_THETA_PGAIN"  value="-400"/>
     <define name="PHI_THETA_DGAIN"  value="-300"/>
-    <define name="PHI_THETA_DDGAIN" value="0"/>
+    <define name="PHI_THETA_DDGAIN" value="300"/>
     <define name="PHI_THETA_IGAIN"  value="-100"/>
 
     <define name="PSI_PGAIN"  value="-380"/>
     <define name="PSI_DGAIN"  value="-320"/>
-    <define name="PSI_DDGAIN" value="0"/>
+    <define name="PSI_DDGAIN" value="300"/>
     <define name="PSI_IGAIN"  value="-75"/>
 
   </section>
