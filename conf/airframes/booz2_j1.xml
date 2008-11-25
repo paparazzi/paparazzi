@@ -22,7 +22,7 @@
     <define name="FRONT_ROTOR_CW" value="1"/>
     <define name="TRIM_A" value="0"/>
     <define name="TRIM_E" value="0"/>
-    <define name="TRIM_R" value="0"/>
+    <define name="TRIM_R" value="1"/>
   </section>
 
   <section name="IMU" prefix="IMU_">
@@ -98,14 +98,14 @@
   </section>
 
   <section name="FILTER" prefix="FILTER_">
-   <define name="ALIGNMENT_DPHI" value="BOOZ_ANGLE_I_OF_F(RadOfDeg(-0.25))"/>
+   <define name="ALIGNMENT_DPHI" value="BOOZ_ANGLE_I_OF_F(RadOfDeg(0.75))"/>
    <define name="ALIGNMENT_DTHETA" value="BOOZ_ANGLE_I_OF_F(RadOfDeg(1.5))"/>
    <define name="ALIGNMENT_DPSI" value="BOOZ_ANGLE_I_OF_F(0)"/>
   </section>
 
 
   <section name="GUIDANCE_V" prefix="BOOZ2_GUIDANCE_V_">
-   <define name="HOVER_POWER" value="65"/>
+   <define name="HOVER_POWER" value="95"/>
    <define name="HOVER_KP"    value="-200"/>
    <define name="HOVER_KD"    value="-100"/>
    <define name="HOVER_KI"    value="-50"/>
