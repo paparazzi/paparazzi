@@ -116,6 +116,8 @@ ap.srcs += $(BOOZ_PRIV)/booz2_stabilization_rate.c
 ap.srcs += $(BOOZ_PRIV)/booz2_stabilization_attitude.c
 ap.srcs += $(BOOZ_PRIV)/booz_supervision_int.c
 
+ap.CFLAGS += -DHS_YAW
+
 # Joystick
 ap.CFLAGS += -DUSE_DATALINK_FMS -DFMS_USE_COMMANDS_RAW
 ap.srcs += $(BOOZ_PRIV)/booz2_fms.c

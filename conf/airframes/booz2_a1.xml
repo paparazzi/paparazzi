@@ -35,37 +35,33 @@
     <define name="GYRO_Y_NEUTRAL" value="33417"/>
     <define name="GYRO_Z_NEUTRAL" value="32809"/>
 
-    <define name="GYRO_X_SENS" value="( 4000.)"/>
-    <define name="GYRO_Y_SENS" value="(-4000.)"/>
-    <define name="GYRO_Z_SENS" value="(-4000.)"/>
+    <define name="GYRO_X_SENS" value=" 1.01" integer="16"/>
+    <define name="GYRO_Y_SENS" value="-1.01" integer="16"/>
+    <define name="GYRO_Z_SENS" value="-1.01" integer="16"/>
   
     <define name="ACCEL_X_CHAN" value="3"/>
     <define name="ACCEL_Y_CHAN" value="5"/>
     <define name="ACCEL_Z_CHAN" value="6"/>    
 
-    <define name="ACCEL_X_NEUTRAL" value="32068"/>
-    <define name="ACCEL_Y_NEUTRAL" value="33731"/>
-    <define name="ACCEL_Z_NEUTRAL" value="32439"/>
+    <define name="ACCEL_X_SENS" value="-2.50411474" integer="16"/>
+    <define name="ACCEL_Y_SENS" value="-2.48126183" integer="16"/>
+    <define name="ACCEL_Z_SENS" value="-2.51396167" integer="16"/>
 
-    <define name="ACCEL_X_SENS" value="( -410)"/><!-- 409.58772 -->
-    <define name="ACCEL_Y_SENS" value="( -414)"/><!-- 414.00958 -->
-    <define name="ACCEL_Z_SENS" value="( -409)"/><!-- 408.84626 -->
-
+    <define name="ACCEL_X_NEUTRAL" value="32081"/>
+    <define name="ACCEL_Y_NEUTRAL" value="33738"/>
+    <define name="ACCEL_Z_NEUTRAL" value="32441"/>
 
     <define name="MAG_X_CHAN" value="4"/>
     <define name="MAG_Y_CHAN" value="0"/>
     <define name="MAG_Z_CHAN" value="2"/>
-
     
     <define name="MAG_X_NEUTRAL" value="2358"/>
     <define name="MAG_Y_NEUTRAL" value="2362"/> 
     <define name="MAG_Z_NEUTRAL" value="2119"/>
 
-    <define name="MAG_X_SENS" value="-414."/><!-- 414.51787 -->
-    <define name="MAG_Y_SENS" value=" 401."/><!-- 401.40112 -->
-    <define name="MAG_Z_SENS" value="-417."/><!-- 417.2869  -->
-
-    <define name="MAG_Z_SENS_FOO" value="-0.0024124412" integer="16"/>
+    <define name="MAG_X_SENS" value="-4.94075530" integer="16"/>
+    <define name="MAG_Y_SENS" value="5.10207664" integer="16"/>
+    <define name="MAG_Z_SENS" value="-4.90788848" integer="16"/>
 
   </section>
 
@@ -96,15 +92,15 @@
 
     <define name="PSI_PGAIN"  value="-380"/>
     <define name="PSI_DGAIN"  value="-320"/>
-    <define name="PSI_DDGAIN" value="0"/>
+    <define name="PSI_DDGAIN" value=" 300"/>
     <define name="PSI_IGAIN"  value="-75"/>
 
   </section>
 
   <section name="FILTER" prefix="FILTER_">
-   <define name="ALIGNMENT_DPHI" value="BOOZ_ANGLE_I_OF_F(RadOfDeg(4.))"/>
+   <define name="ALIGNMENT_DPHI"   value="BOOZ_ANGLE_I_OF_F(RadOfDeg(4.))"/>
    <define name="ALIGNMENT_DTHETA" value="BOOZ_ANGLE_I_OF_F(RadOfDeg(3.))"/>
-   <define name="ALIGNMENT_DPSI" value="BOOZ_ANGLE_I_OF_F(0.)"/>
+   <define name="ALIGNMENT_DPSI"   value="BOOZ_ANGLE_I_OF_F(0.)"/>
   </section>
 
 

@@ -933,12 +933,12 @@
  </message>
 
  <message name="BOOZ2_FILTER" ID="134">   
-   <field name="phi"              type="int32"/>
-   <field name="theta"            type="int32"/>
-   <field name="psi"              type="int32"/>
-   <field name="measure_phi"      type="int32"/>
-   <field name="measure_theta"    type="int32"/>
-   <field name="measure_psi"      type="int32"/>
+   <field name="phi"              type="int32" alt_unit="degres" alt_unit_coef="0.0139882"/>
+   <field name="theta"            type="int32" alt_unit="degres" alt_unit_coef="0.0139882"/>
+   <field name="psi"              type="int32" alt_unit="degres" alt_unit_coef="0.0139882"/>
+   <field name="measure_phi"      type="int32" alt_unit="degres" alt_unit_coef="0.0000273"/>
+   <field name="measure_theta"    type="int32" alt_unit="degres" alt_unit_coef="0.0000273"/>
+   <field name="measure_psi"      type="int32" alt_unit="degres" alt_unit_coef="0.0000273"/>
    <field name="corrected_phi"    type="int32"/>
    <field name="corrected_theta"  type="int32"/>
    <field name="corrected_psi"    type="int32"/>
@@ -1037,11 +1037,10 @@
       <field name="p_ref"     type="int32" alt_unit="degres/s" alt_unit_coef="0.0008743"/>   
       <field name="pd_ref"    type="int32" alt_unit="degres/s2" alt_unit_coef="0.0139882"/>
       <field name="m_phi"     type="int32" alt_unit="degres" alt_unit_coef="0.0139882"/>   
-      <field name="m_p"   type="int32" alt_unit="degres/s" alt_unit_coef="0.0139882"/>
+      <field name="m_p"       type="int32" alt_unit="degres/s" alt_unit_coef="0.0139882"/>
       <field name="sum_err_phi"   type="int32"/>   
       <field name="delta_a" type="int32"/>
-    </message>
-
+ </message>
 
 
  <message name="BOOZ2_CMD" ID="143">
