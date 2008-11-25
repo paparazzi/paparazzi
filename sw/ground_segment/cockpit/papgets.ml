@@ -67,7 +67,7 @@ let create = fun canvas_group papget ->
 	| "ruler" ->
 	    (new Papget.canvas_ruler canvas_group ~config x y :> Papget.renderer)
 	| _ -> failwith (sprintf "Unexpected papget display: %s" display) in
-      let p = new Papget.canvas_display_item msg_listener field_name renderer in
+      let p = new Papget.canvas_display_float_item msg_listener field_name renderer in
       let p = (p :> Papget.item) in
       register_papget p p
   | "goto_block" ->
@@ -141,12 +141,14 @@ let parse_message_dnd =
 let dnd_data_received = fun canvas_group context ~x ~y data ~info ~time ->
   try (* With the format sent by Messages *)
     let (sender, class_name, msg_name, field_name) = parse_message_dnd data#data in
-    let sender = if sender = "*" then None else Some sender in
-    let msg_listener = new Papget.message ~class_name ?sender msg_name in
-    let renderer = new Papget.canvas_text canvas_group (float x) (float y) in
-    let p = new Papget.canvas_display_item msg_listener field_name (renderer:> Papget.renderer) in
-    let p = (p :> Papget.item) in
-    register_papget p p
+    let attrs = 
+      [ "type", "message_field";
+	"display", "text";
+	"x", sprintf "%d" x; "y", sprintf "%d" y ]
+    and props =
+      [ Papget.property "field" (sprintf "%s:%s" msg_name field_name) ] in
+    let papget_xml = Xml.Element ("papget", attrs, props) in
+    create canvas_group papget_xml
   with
     Parse_message_dnd _ ->
       try (* XML spec *)

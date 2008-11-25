@@ -1,3 +1,29 @@
+(*
+ * $Id$
+ *
+ * Paparazzi widgets
+ *  
+ * Copyright (C) 2008 ENAC
+ *
+ * This file is part of paparazzi.
+ *
+ * paparazzi is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * paparazzi is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with paparazzi; see the file COPYING.  If not, write to
+ * the Free Software Foundation, 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA. 
+ *
+ *)
+
 open Printf
 
 let affine_pos_and_angle xw yw angle =
@@ -213,6 +239,15 @@ let lazy_tagged_renderers = lazy
 	let o = constructor ?config:None group x y in
 	(o#tag, constructor))
       renderers)
+
+let regexp_plus = Str.regexp "\\+" 
+let affine_transform = fun format value ->
+  let value = float_of_string value in
+  let a, b =
+    match Str.split regexp_plus format with
+      [a;b] -> float_of_string a, float_of_string b
+    | _ -> 1., 0. in
+  string_of_float (value *. a +. b)
     
 
 class canvas_item = fun canvas_renderer ->
@@ -223,6 +258,8 @@ class canvas_item = fun canvas_renderer ->
     val mutable x_press = 0.
     val mutable y_press = 0.
     val mutable deleted = false
+    val mutable affine = "1"
+    val mutable dialog_widget = None
 	
     method renderer = renderer
 
@@ -327,7 +364,9 @@ class canvas_item = fun canvas_renderer ->
 		  dialog#papget_editor#destroy ();
 		  renderer#item#destroy ();
 		  deleted <- true));
-      ignore (dialog#button_ok#connect#clicked (fun () -> dialog#papget_editor#destroy ()))
+      ignore (dialog#button_ok#connect#clicked (fun () -> dialog#papget_editor#destroy ()));
+
+      dialog_widget <- Some dialog
 
     val mutable connection =
       canvas_renderer#item#connect#event (fun _ -> false)
@@ -339,10 +378,30 @@ class canvas_item = fun canvas_renderer ->
       self#connect ()
   end
 
-class canvas_display_item = fun msg_obj field_name canvas_renderer ->
+class canvas_float_item = fun canvas_renderer ->
+  object
+    inherit canvas_item canvas_renderer as super
+	
+    method update = fun value ->
+      super#update (affine_transform affine value)
+
+    method edit = fun () ->
+      super#edit ();
+      match dialog_widget with
+	None -> ()
+      | Some dialog ->
+        (* Connect the scale entry *)
+	  let callback = fun () ->
+	    affine <- dialog#entry_scale#text in
+	  ignore (dialog#entry_scale#connect#activate ~callback);
+	  dialog#hbox_scale#misc#show ()
+  end
+
+
+class canvas_display_float_item = fun msg_obj field_name canvas_renderer ->
   object
     inherit field msg_obj field_name as super
-    inherit canvas_item canvas_renderer as item
+    inherit canvas_float_item canvas_renderer as item
 
     method update_field = fun value ->
       if not deleted then begin
@@ -353,20 +412,21 @@ class canvas_display_item = fun msg_obj field_name canvas_renderer ->
     method config = fun () ->
       let props = renderer#config () in
       let field = sprintf "%s:%s" msg_obj#msg_name field_name in
-      let prop = property "field" field in
+      let field_prop = property "field" field
+      and scale_prop = property "scale" affine in
       let (x, y) = item#xy in
       let attrs =
 	[ "type", "message_field";
 	  "display", String.lowercase item#renderer#tag;
 	  "x", sprintf "%.0f" x; "y", sprintf "%.0f" y ] in
-      Xml.Element ("papget", attrs, prop::props)
+      Xml.Element ("papget", attrs, field_prop::scale_prop::props)
   end
 
 
 (****************************************************************************)
 class canvas_setting_item = fun variable canvas_renderer ->
   object
-    inherit canvas_item canvas_renderer as item
+    inherit canvas_float_item canvas_renderer as item
 
     method clicked = fun value ->
       (variable#set : float -> unit) value
