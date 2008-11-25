@@ -98,8 +98,8 @@
   </section>
 
   <section name="FILTER" prefix="FILTER_">
-   <define name="ALIGNMENT_DPHI" value="BOOZ_ANGLE_I_OF_F(RadOfDeg(0.0))"/>
-   <define name="ALIGNMENT_DTHETA" value="BOOZ_ANGLE_I_OF_F(RadOfDeg(0.0))"/>
+   <define name="ALIGNMENT_DPHI" value="BOOZ_ANGLE_I_OF_F(RadOfDeg(-0.25))"/>
+   <define name="ALIGNMENT_DTHETA" value="BOOZ_ANGLE_I_OF_F(RadOfDeg(1.5))"/>
    <define name="ALIGNMENT_DPSI" value="BOOZ_ANGLE_I_OF_F(0)"/>
   </section>
 
