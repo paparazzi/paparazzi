@@ -118,6 +118,10 @@ ap.srcs += $(BOOZ_PRIV)/booz_supervision_int.c
 
 ap.CFLAGS += -DHS_YAW
 
-# Joystick
-ap.CFLAGS += -DUSE_DATALINK_FMS -DFMS_USE_COMMANDS_RAW
 ap.srcs += $(BOOZ_PRIV)/booz2_fms.c
+
+#ap.CFLAGS += -DBOOZ2_FMS_TYPE=BOOZ2_FMS_TYPE_DATALINK -DFMS_DATALINK_USE_COMMANDS_RAW
+#ap.srcs += $(BOOZ_PRIV)/booz2_fms_datalink.c
+
+ap.CFLAGS += -DBOOZ2_FMS_TYPE=BOOZ2_FMS_TYPE_TEST_SIGNAL
+ap.srcs += $(BOOZ_PRIV)/booz2_fms_test_signal.c
