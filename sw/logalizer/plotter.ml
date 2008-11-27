@@ -423,8 +423,8 @@ let rec plot_window = fun window ->
     let (a, b) = factor in
     let (sender, class_name, msg_name, field_name, (a',b')) = parse_dnd name in
     let a = a *. a' and b = a*.b' +. b in
-    let offset = if a <> 0. then sprintf "%.2f" b else "" in
-    let name = Printf.sprintf "%s:%f%s" name a offset in
+    let offset = if a <> 0. then sprintf "+%.2f" b else "" in
+    let name = Printf.sprintf "%s:%s:%s:%s:%f%s" sender class_name msg_name field_name a offset in
     let cb = fun _sender values ->
       let v = float_of_string (Pprz.string_assoc field_name values) *. a +. b in
       plot#add_value name v in
