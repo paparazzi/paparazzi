@@ -136,17 +136,18 @@ let parse_message_dnd =
   let sep = Str.regexp ":" in
   fun s ->
     match Str.split sep s with
-      [s; c; m; f] -> (s, c, m, f)
+      [s; c; m; f;scale] -> (s, c, m, f,scale)
     | _ -> raise (Parse_message_dnd (Printf.sprintf "parse_dnd: %s" s))
 let dnd_data_received = fun canvas_group context ~x ~y data ~info ~time ->
   try (* With the format sent by Messages *)
-    let (sender, class_name, msg_name, field_name) = parse_message_dnd data#data in
+    let (sender, class_name, msg_name, field_name,scale) = parse_message_dnd data#data in
     let attrs = 
       [ "type", "message_field";
 	"display", "text";
 	"x", sprintf "%d" x; "y", sprintf "%d" y ]
     and props =
-      [ Papget_common.property "field" (sprintf "%s:%s" msg_name field_name) ] in
+      [ Papget_common.property "field" (sprintf "%s:%s" msg_name field_name);
+	Papget_common.property "scale" scale ] in
     let papget_xml = Xml.Element ("papget", attrs, props) in
     create canvas_group papget_xml
   with
