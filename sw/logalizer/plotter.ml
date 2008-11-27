@@ -42,8 +42,8 @@ let parse_dnd =
   let sep = Str.regexp ":" in
   fun s ->
     match Str.split sep s with
-      [s; c; m; f] -> (s, c, m, f, 1.)
-    | [s; c; m; f; factor] -> (s, c, m, f, float_of_string factor)
+      [s; c; m; f] -> (s, c, m, f, (1.,0.))
+    | [s; c; m; f; factor] -> (s, c, m, f, Ocaml_tools.affine_transform factor)
     | _ -> failwith (Printf.sprintf "parse_dnd: %s" s)
 
 
@@ -419,12 +419,14 @@ let rec plot_window = fun window ->
       stdev_value#set_text (sprintf "%.6f" curve.stdev#value) in
     ignore (curve.stdev#connect#value_changed update_stdev_value) in
 
-  let add_curve = fun ?(factor=1.) name ->
-    let (sender, class_name, msg_name, field_name, factor') = parse_dnd name in
-    let factor = factor *. factor' in
-    let name = Printf.sprintf "%s:%f" name factor in
+  let add_curve = fun ?(factor=(1.,0.)) name ->
+    let (a, b) = factor in
+    let (sender, class_name, msg_name, field_name, (a',b')) = parse_dnd name in
+    let a = a *. a' and b = a*.b' +. b in
+    let offset = if a <> 0. then sprintf "%.2f" b else "" in
+    let name = Printf.sprintf "%s:%f%s" name a offset in
     let cb = fun _sender values ->
-      let v = float_of_string (Pprz.string_assoc field_name values) *. factor in
+      let v = float_of_string (Pprz.string_assoc field_name values) *. a +. b in
       plot#add_value name v in
     
     let module P = Pprz.Messages (struct let name = class_name end) in
@@ -439,7 +441,7 @@ let rec plot_window = fun window ->
 
     (* Drag and drop handler *)
     let data_received = fun context ~x ~y data ~info ~time ->
-      let factor =  float_of_string factor#text in
+      let factor =  Ocaml_tools.affine_transform factor#text in
       try
 	let name = data#data in
 	add_curve ~factor name

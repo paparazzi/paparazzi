@@ -342,10 +342,10 @@ let add_ac_submenu = fun ?(factor=object method text="1" end) plot menubar (curv
       (* Build the field menus *)
       List.iter
 	(fun (f, values) ->
-	  let name = sprintf "%s:%s:%s" menu_name msg_name f in
 	  let callback = fun _ ->
-	    let factor = try float_of_string factor#text with _ -> 1. in
-	    let values = Array.map (fun (t,v) -> (t, v*.factor)) values in
+	    let name = sprintf "%s:%s:%s:%s" menu_name msg_name f factor#text in
+	    let (a, b) = Ocaml_tools.affine_transform factor#text in
+	    let values = Array.map (fun (t,v) -> (t, v*.a+.b)) values in
 	    let curve = plot#add_curve name values in
 	    let eb = GBin.event_box ~width:10 ~height:10 () in
 	    eb#coerce#misc#modify_bg [`NORMAL, `NAME curve.color];
@@ -578,8 +578,8 @@ let rec plot_window = fun init ->
   tooltips#set_tip cst#coerce ~text:"Enter value for a constant curve";
 
  (* Factor *)
-  let factor_label, factor = labelled_entry ~width_chars:5 "Scale next by" "1." h in
-  tooltips#set_tip factor#coerce ~text:"Scale next curve (e.g. 0.0174 to convert deg in rad, 57.3 to convert rad in deg)";
+  let factor_label, factor = labelled_entry ~width_chars:5 "Scale next by" "1+0" h in
+  tooltips#set_tip factor#coerce ~text:"Scale next curve (e.g. 0.0174 to convert deg in rad, 57.3 to convert rad in deg, 1.8+32 to convert Celsius into Fahrenheit)";
 
   List.iter
     (fun (ac, menu_name, msgs) ->
