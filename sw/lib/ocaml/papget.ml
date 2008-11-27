@@ -59,15 +59,6 @@ class field = fun msg_obj field_name ->
   end
 
 
-let regexp_plus = Str.regexp "\\+" 
-let affine_transform = fun format value ->
-  let value = float_of_string value in
-  let a, b =
-    match Str.split regexp_plus format with
-      [a;b] -> float_of_string a, float_of_string b
-    | [a] -> float_of_string a, 0.
-    | _ -> 1., 0. in
-  string_of_float (value *. a +. b)
 
 class type canvas_item_type = 
   object
@@ -215,7 +206,9 @@ class canvas_float_item = fun canvas_renderer ->
     val mutable affine = "1"
 	
     method update = fun value ->
-      super#update (affine_transform affine value)
+      let (a, b) =  Ocaml_tools.affine_transform affine
+      and fvalue = float_of_string value in
+      super#update (string_of_float (fvalue *. a +. b))
 
     method edit = fun () ->
       super#edit ();
@@ -301,12 +294,3 @@ class canvas_variable_setting_item = fun properties callback (canvas_renderer:PR
   object
     inherit canvas_clickable_item "variable_setting" properties callback canvas_renderer
   end
-
-
-
-let dnd_source = fun (widget:GObj.widget) papget_xml ->
-  let dnd_targets = [ { Gtk.target = "STRING"; flags = []; info = 0} ] in
-  widget#drag#source_set dnd_targets ~modi:[`BUTTON1] ~actions:[`COPY];
-  let data_get = fun _ (sel:GObj.selection_context) ~info ~time ->
-    sel#return (Xml.to_string papget_xml) in
-  ignore (widget#drag#connect#data_get ~callback:data_get);

@@ -29,3 +29,4 @@ val get_prop : string -> Xml.xml list -> string -> string
 val property : string -> string -> Xml.xml
 val xml : string -> string -> (string * string) list -> Xml.xml
 val float_property : string -> float -> Xml.xml
+val dnd_source : GObj.widget -> Xml.xml -> unit

@@ -391,3 +391,8 @@ val timer_string_of_secondes : int -> string
 (** [tirage_aleatoire_lst liste] effectue un tirage aléatoire d'un des éléments de la
    liste et renvoie cet élément *)
 val tirage_aleatoire_lst : 'a list -> 'a
+
+(** Misc *)
+val affine_transform : string -> float * float
+(* [affine_transform format] Parses [format] as a+b and returns (a,b). Returns
+a if +b is not present. Returns 1. if the parsing fails *)

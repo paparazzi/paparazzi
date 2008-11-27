@@ -706,3 +706,10 @@ let timer_string_of_secondes sec =
 let tirage_aleatoire_lst (lst:'a list) = List.nth lst (Random.int (List.length lst))
 
 (* =============================== FIN ========================================= *)
+
+let regexp_plus = Str.regexp "\\+" 
+let affine_transform = fun format ->
+  match Str.split regexp_plus format with
+    [a;b] -> float_of_string a, float_of_string b
+  | [a] -> float_of_string a, 0.
+  | _ -> 1., 0.

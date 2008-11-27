@@ -93,6 +93,3 @@ class canvas_variable_setting_item :
     method update : string -> unit
     method xy : float * float
   end
-
-val dnd_source : GObj.widget -> Xml.xml -> unit
-

@@ -330,7 +330,7 @@ let one_setting = fun i do_change packing dl_setting (tooltips:GData.tooltips) s
 	    ["variable", varname; 
 	     "value", ExtXml.attrib x "value";
 	     "icon", icon] in
-	Papget.dnd_source b#coerce papget;
+	Papget_common.dnd_source b#coerce papget;
 	
         (* Associates the label as a tooltip *)
 	tooltips#set_tip b#coerce ~text:label;

@@ -449,10 +449,9 @@ let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id
     
 	  (* Drag for Drop *)
 	  let papget = Papget_common.xml "goto_block" "button"
-	      ["block_name", block_name;
-	       "icon", icon]
-	  in
-	  Papget.dnd_source b#coerce papget;
+	      [ "block_name", block_name; 
+		"icon", icon] in
+	  Papget_common.dnd_source b#coerce papget;
 	  
 	  (* Associates the label as a tooltip *)
 	  tooltips#set_tip b#coerce ~text:label;
