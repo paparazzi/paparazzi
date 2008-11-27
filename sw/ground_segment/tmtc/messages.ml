@@ -63,12 +63,20 @@ let one_page = fun sender class_name (notebook:GPack.notebook) bind m ->
 	  let value = ref "XXXX" in
 	  let l = GMisc.label ~text: !value ~packing:h#pack () in
 	  let values = values_of_field f in
+	  let alt_value =
+	    try
+	      let coeff = ExtXml.float_attrib f "alt_unit_coef"
+	      and unit = Xml.attrib f "alt_unit" in
+	      fun value -> sprintf "%s (%f%s)" value (coeff*.float_of_string value) unit
+	    with
+	      _ -> fun value -> value in
 	  let update = fun (_a, x) -> 
 	    value := 
 	      try 
 		let i = Pprz.int_of_value x in
 		sprintf "%s (%d)" values.(i) i
-	      with _ -> Pprz.string_of_value x
+	      with _ -> 
+		alt_value (Pprz.string_of_value x)
 	  and display_value = fun () ->
 	    if notebook#page_num v#coerce = notebook#current_page then
 	      if l#label <> !value then l#set_text !value in
@@ -76,7 +84,8 @@ let one_page = fun sender class_name (notebook:GPack.notebook) bind m ->
 	  (* box dragger *)
 	  field_label#drag#source_set dnd_targets ~modi:[`BUTTON1] ~actions:[`COPY];
 	  let data_get = fun _ (sel:GObj.selection_context) ~info ~time ->
-	    sel#return (sprintf "%s:%s:%s:%s" sender class_name id field_name) in
+	    let scale =  ExtXml.attrib_or_default f "alt_unit_coef" "1" in
+	    sel#return (sprintf "%s:%s:%s:%s:%s" sender class_name id field_name scale) in
 	  ignore (field_label#drag#connect#data_get ~callback:data_get);
 
 	  (update, display_value)::rest
