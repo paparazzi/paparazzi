@@ -35,7 +35,7 @@ class widget :
   ?georef:Latlong.geographic ->
   unit ->
   object
-    method add_info_georef : string -> Latlong.geographic -> unit
+    method add_info_georef : string -> < pos : Latlong.geographic > -> unit
     method altitude : Latlong.geographic -> int
     method any_event : GdkEvent.any -> bool
     method arc :
@@ -68,7 +68,7 @@ class widget :
     method fix_bg_coords : Latlong.fmeter * Latlong.fmeter -> Latlong.fmeter * Latlong.fmeter
     method frame : GPack.box
     method georef : Latlong.geographic option
-    method georefs : (string * Latlong.geographic) list
+    method georefs : (string * < pos : Latlong.geographic >) list
     method get_center : unit -> Latlong.geographic
     method goto : unit -> unit
     method info : GPack.box

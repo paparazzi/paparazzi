@@ -430,7 +430,7 @@ let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id
    List.iter 
     (fun w ->
       let (i, w) = fp#index w in
-      geomap#add_info_georef (sprintf "%s.%s" name w#name) w#pos)
+      geomap#add_info_georef (sprintf "%s.%s" name w#name) (w :> < pos : Latlong.geographic >))
     fp#waypoints;
   
   (** Add the short cut buttons in the strip *)

@@ -507,7 +507,7 @@ let unix_time_of_tow = fun tow ->
 type coordinates_kind = 
     WGS84_dec
   | WGS84_dms
-  | Bearing of geographic
+  | Bearing of < pos : geographic>
 
 
 let string_of_coordinates = fun kind geo ->
@@ -517,7 +517,7 @@ let string_of_coordinates = fun kind geo ->
   | WGS84_dms ->
       string_dms_of_geographic geo
   | Bearing georef ->
-      let (dx, dy) = utm_sub (utm_of WGS84 geo) (utm_of WGS84 georef) in
+      let (dx, dy) = utm_sub (utm_of WGS84 geo) (utm_of WGS84 georef#pos) in
       let d = sqrt (dx*.dx+.dy*.dy) in
       let bearing = (int_of_float ((Rad>>Deg)(atan2 dx dy)) + 360) mod 360 in
       Printf.sprintf "%4d %4.0f" bearing d
@@ -529,5 +529,5 @@ let geographic_of_coordinates = fun kind s ->
   | WGS84_dms -> 
       of_string ("WGS84_dms " ^ s)
   | Bearing georef ->
-      of_string (Printf.sprintf "WGS84_bearing %s %s" (string_degrees_of_geographic georef) s)
+      of_string (Printf.sprintf "WGS84_bearing %s %s" (string_degrees_of_geographic georef#pos) s)
 

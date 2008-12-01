@@ -165,7 +165,7 @@ val unix_time_of_tow : int -> float
 type coordinates_kind = 
     WGS84_dec
   | WGS84_dms
-  | Bearing of geographic
+  | Bearing of < pos : geographic >
 
 val string_of_coordinates : coordinates_kind -> geographic -> string
 val geographic_of_coordinates : coordinates_kind -> string -> geographic

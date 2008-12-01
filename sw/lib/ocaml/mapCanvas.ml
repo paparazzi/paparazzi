@@ -728,7 +728,7 @@ class widget =  fun ?(height=800) ?(srtm=false) ?width ?projection ?georef () ->
     (** display methods *)
     method display_xy = fun s ->  lbl_xy#set_text s
     method display_geo = fun geo ->
-      lbl_geo#set_text (string_of_coordinates selected_georef geo)
+      lbl_geo#set_text (LL.string_of_coordinates selected_georef geo)
 	  
 
     method display_alt = fun wgs84 ->
