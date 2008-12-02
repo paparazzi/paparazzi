@@ -23,6 +23,7 @@
 
 #include "usb_stick.h"
 
+#include <inttypes.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -33,6 +34,10 @@
 #define TIMEOUT_PERIOD  100
 
 #define DEFAULT_AC_ID       1
+
+/* Global vars */
+uint8_t fp_received_once = 0;
+long int lon_sp,lat_sp,alt_sp,psi_sp;
 
 /* Options */
 char * device_name    = NULL;
@@ -60,21 +65,40 @@ l_help:
 }
 
 
-#define BOOZ2_STICK_DEADBAND 5
-#define BOOZ2_STICK_APPLY_DEADBAND(_v) (abs(_v) >= BOOZ2_STICK_DEADBAND ? _v : 0)
+#define STICK_DEADBAND 5
+#define STICK_APPLY_DEADBAND(_v) (abs(_v) >= STICK_DEADBAND ? _v : 0)
 
 static gboolean joystick_periodic(gpointer data __attribute__ ((unused))) {
 
+  if (! fp_received_once) return 1;
+
 	stick_read();
 
-	int8_t roll = BOOZ2_STICK_APPLY_DEADBAND(stick_axis_values[0]);
-	int8_t pitch = BOOZ2_STICK_APPLY_DEADBAND(stick_axis_values[0]);
+	int8_t roll = STICK_APPLY_DEADBAND(stick_axis_values[0]);
+	int8_t pitch = STICK_APPLY_DEADBAND(stick_axis_values[1]);
+	int8_t yaw_rate = STICK_APPLY_DEADBAND(stick_axis_values[2]);
+  int8_t climb = STICK_APPLY_DEADBAND(stick_axis_values[3]);
 
-	IvySendMsg("dl COMMANDS_RAW %d %d,%d", aircraft_id, roll, pitch);
+	//IvySendMsg("dl COMMANDS_RAW %d %d,%d", aircraft_id, roll, pitch);
+
+  // ATTITUDE
+  // 2860 = ( RadOfDeg(20 / 128) << 20 )
+  IvySendMsg("dl BOOZ2_FMS_COMMAND %d %d %d %d %d %d %ld %ld %ld %ld",
+      aircraft_id, 2, 2, roll, pitch, yaw_rate,
+      alt_sp + climb, 2860 * roll, 2860 * pitch, psi_sp + yaw_rate );
 
 	return 1;
 }
 
+void readBOOZ2_FPIvyBus(IvyClientPtr app, void *data, int argc, char **argv) {
+
+  if (argc > 0) {
+    sscanf(argv[0],"%*d %*s %*d %*d %*d %*d %*d %*d %*d %*d %ld %ld %ld %ld",
+        &lon_sp, &lat_sp, &alt_sp, &psi_sp);
+
+    fp_received_once = 1;
+  }
+}
 
 int main ( int argc, char** argv) {
 
@@ -86,7 +110,11 @@ int main ( int argc, char** argv) {
   IvyStart("127.255.255.255");
 
   if (stick_init(device_name) != 0) return 0;
-  
+
+  char bindMsgBOOZ2_FP[32];
+  snprintf(bindMsgBOOZ2_FP,32,"%s%d%s","(",aircraft_id," BOOZ2_FP .*)");
+  IvyBindMsg(readBOOZ2_FPIvyBus,0,bindMsgBOOZ2_FP);
+ 
   g_timeout_add(TIMEOUT_PERIOD, joystick_periodic, NULL);
   
   g_main_loop_run(ml);

@@ -28,6 +28,9 @@ all: main_stick
 main_stick: main_stick.c usb_stick.c
 	gcc -g -O2 -Wall `pkg-config glib-2.0 --cflags` -o $@ $^ `pkg-config glib-2.0 --libs`  `pcre-config --libs` -lglibivy
 
+main_stick_debug: main_stick.c usb_stick.c
+	gcc -g -O2 -Wall `pkg-config glib-2.0 --cflags` -o $@ $^ `pkg-config glib-2.0 --libs`  `pcre-config --libs` -lglibivy -DSTICK_DBG
+
 clean:
-	rm -f *~ core *.o *.bak .depend main_stick
+	rm -f *~ core *.o *.bak .depend main_stick main_stick_debug
 
