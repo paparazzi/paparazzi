@@ -103,6 +103,7 @@ extern void nav_circle_XY(float x, float y, float radius);
 #define NavCircleWaypoint(wp, radius) \
   nav_circle_XY(waypoints[wp].x, waypoints[wp].y, radius)
 
+/** Normalize a degree angle between 0 and 359 */
 #define NormCourse(x) { \
   while (x < 0) x += 360; \
   while (x >= 360) x -= 360; \
@@ -110,7 +111,10 @@ extern void nav_circle_XY(float x, float y, float radius);
 
 #define NavCircleCount() (fabs(nav_circle_radians) / (2*M_PI))
 #define NavCircleQdr() ({ float qdr = DegOfRad(M_PI_2 - nav_circle_trigo_qdr); NormCourse(qdr); qdr; })
+
+/** True if x (in degrees) is close to the current QDR (less than 10 degrees)*/
 #define NavQdrCloseTo(x) ({ float _course = x; NormCourse(_course); float circle_qdr = NavCircleQdr(); (Min(_course, 350) < circle_qdr && circle_qdr < _course+10); })
+
 #define NavCourseCloseTo(x) ({ float _course = x; NormCourse(_course); float deg = DegOfRad(estimator_hspeed_dir); (Min(_course, 350) < deg && deg < _course+10); })
 
 /*********** Navigation along a line *************************************/

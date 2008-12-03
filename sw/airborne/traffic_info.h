@@ -34,8 +34,8 @@
 
 struct ac_info_ {
   uint8_t ac_id;
-  float east; /* m */
-  float north; /* m */
+  float east; /* m relative to nav_utm_east0 */
+  float north; /* m relative to nav_utm_north0 */
   float course; /* rad (CW) */
   float alt; /* m */
   float gspeed; /* m/s */

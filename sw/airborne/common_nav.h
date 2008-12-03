@@ -18,7 +18,7 @@ struct point {
 #define WaypointY(_wp) (waypoints[_wp].y)
 #define WaypointAlt(_wp) (waypoints[_wp].a)
 
-extern void nav_move_waypoint(uint8_t wp_id, float ux, float uy, float alt);
+extern void nav_move_waypoint(uint8_t wp_id, float utm_east, float utm_north, float alt);
 
 extern const uint8_t nb_waypoint;
 extern struct point waypoints[];
@@ -65,8 +65,10 @@ void common_nav_periodic_task_4Hz(void);
 #define Or(x, y) ((x) || (y))
 #define Min(x,y) (x < y ? x : y)
 #define Max(x,y) (x > y ? x : y)
-#define NavBlockTime() (block_time)
 #define LessThan(_x, _y) ((_x) < (_y))
+
+/** Time in s since the entrance in the current block */
+#define NavBlockTime() (block_time)
 
 #define NavSetGroundReferenceHere() ({ nav_reset_reference(); nav_update_waypoints_alt(); FALSE; })
 
