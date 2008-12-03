@@ -33,15 +33,19 @@
 
 #define TIMEOUT_PERIOD  100
 
-#define DEFAULT_AC_ID       1
+#define DEFAULT_AC_ID   1
+
+#define MODE_ATTITUDE   0
+#define MODE_HOVER      1
 
 /* Global vars */
-uint8_t fp_received_once = 0;
+int fp_received_once  = 0;
 long int lon_sp,lat_sp,alt_sp,psi_sp;
 
 /* Options */
 char * device_name    = NULL;
 int aircraft_id       = DEFAULT_AC_ID;
+int mode              = MODE_ATTITUDE;
 
 void parse_args(int argc, char * argv[])
 {
@@ -50,6 +54,7 @@ void parse_args(int argc, char * argv[])
   for (i = 1; i < argc; i++) {
     if      (!strcmp(argv[i],"-d") && i<argc-1) device_name = argv[++i];
     else if (!strcmp(argv[i],"-a") && i<argc-1) aircraft_id = atoi(argv[++i]);
+    else if (!strcmp(argv[i],"-m") && i<argc-1) mode        = atoi(argv[++i]);
     else if (!strcmp(argv[i],"-h")) goto l_help;
   }
   return;
@@ -60,6 +65,7 @@ l_help:
   printf("Options:\n");
   printf("  -d <string>  device name\n");
   printf("  -a <int>     aircraft id (default: %d)\n",DEFAULT_AC_ID);
+  printf("  -m <int>     joystick mode: (%d) ATTITUDE, (%d) HOVER. (default: %d)\n",MODE_ATTITUDE,MODE_HOVER,MODE_ATTITUDE);
   printf("  -h           display this help\n");
   exit(1);
 }
@@ -68,9 +74,12 @@ l_help:
 #define STICK_DEADBAND 5
 #define STICK_APPLY_DEADBAND(_v) (abs(_v) >= STICK_DEADBAND ? _v : 0)
 
-static gboolean joystick_periodic(gpointer data __attribute__ ((unused))) {
+#define ATTITUDE_COEF 2860  // RadOfDeg(20 / 128) << 20
+#define CLIMB_COEF_SHIFT 6  // around 1 m/s
+#define YAW_RATE_COEF 286   // 20 deg/s = ATTITUDE_COEF / 10 (update frequncy)
 
-  if (! fp_received_once) return 1;
+// ATTITUDE
+static gboolean joystick_attitude_periodic(gpointer data __attribute__ ((unused))) {
 
 	stick_read();
 
@@ -79,13 +88,40 @@ static gboolean joystick_periodic(gpointer data __attribute__ ((unused))) {
 	int8_t yaw_rate = STICK_APPLY_DEADBAND(stick_axis_values[2]);
   int8_t climb = STICK_APPLY_DEADBAND(stick_axis_values[3]);
 
+  if (! fp_received_once) return 1;
+
 	//IvySendMsg("dl COMMANDS_RAW %d %d,%d", aircraft_id, roll, pitch);
 
-  // ATTITUDE
-  // 2860 = ( RadOfDeg(20 / 128) << 20 )
   IvySendMsg("dl BOOZ2_FMS_COMMAND %d %d %d %d %d %d %ld %ld %ld %ld",
-      aircraft_id, 2, 2, roll, pitch, yaw_rate,
-      alt_sp + climb, 2860 * roll, 2860 * pitch, psi_sp + yaw_rate );
+      aircraft_id, 2, 2, 0, 0, 0,
+      alt_sp + (climb >> CLIMB_COEF_SHIFT),
+      ATTITUDE_COEF * roll,
+      ATTITUDE_COEF * pitch,
+      psi_sp + YAW_RATE_COEF * yaw_rate );
+
+	return 1;
+}
+
+#define SPEED_COEF_SHIFT 3  // around 2 m/s (128 >> 3 ~= 2 / 6378137 * 180 / pi * 10^7 / 10)
+
+// HOVER
+static gboolean joystick_hover_periodic(gpointer data __attribute__ ((unused))) {
+
+	stick_read();
+
+	int8_t vx = STICK_APPLY_DEADBAND(stick_axis_values[0]);
+	int8_t vy = STICK_APPLY_DEADBAND(stick_axis_values[1]);
+	//int8_t yaw_rate = STICK_APPLY_DEADBAND(stick_axis_values[2]);
+  int8_t climb = STICK_APPLY_DEADBAND(stick_axis_values[3]);
+
+  if (! fp_received_once) return 1;
+
+  IvySendMsg("dl BOOZ2_FMS_COMMAND %d %d %d %d %d %d %ld %ld %ld %ld",
+      aircraft_id, 3, 2, 0, 0, 0,
+      alt_sp + (climb >> CLIMB_COEF_SHIFT),
+      lon_sp + (vx >> SPEED_COEF_SHIFT),
+      lat_sp + (vy >> SPEED_COEF_SHIFT));
+      //psi_sp + YAW_RATE_COEF * yaw_rate );
 
 	return 1;
 }
@@ -115,7 +151,15 @@ int main ( int argc, char** argv) {
   snprintf(bindMsgBOOZ2_FP,32,"%s%d%s","(",aircraft_id," BOOZ2_FP .*)");
   IvyBindMsg(readBOOZ2_FPIvyBus,0,bindMsgBOOZ2_FP);
  
-  g_timeout_add(TIMEOUT_PERIOD, joystick_periodic, NULL);
+  switch(mode) {
+    case MODE_ATTITUDE:
+      g_timeout_add(TIMEOUT_PERIOD, joystick_attitude_periodic, NULL);
+      break;
+    case MODE_HOVER:
+      g_timeout_add(TIMEOUT_PERIOD, joystick_hover_periodic, NULL);
+      break;
+  }
+
   
   g_main_loop_run(ml);
 
