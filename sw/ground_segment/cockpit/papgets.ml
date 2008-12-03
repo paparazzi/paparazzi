@@ -72,13 +72,6 @@ let create = fun canvas_group papget ->
       let p = (p :> Papget.item) in
       register_papget p p
   | "goto_block" ->
-(***
-    let button = GButton.button ()
-    and icon = Papget.get_property "icon" papget in
-    let pixbuf = GdkPixbuf.from_file (Env.gcs_icons_path // icon) in
-    ignore (GMisc.image ~pixbuf ~packing:button#add ());
-    let renderer = (new Papget.widget_renderer "Button" button#coerce canvas_group ~config x y :> Papget.renderer) in
- ***)
       let renderer = 
 	match display with
 	  "button" ->
