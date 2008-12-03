@@ -43,6 +43,8 @@ class canvas_text : ?config:Xml.xml list -> #GnoCanvas.group -> float -> float -
 
 class canvas_ruler : ?config:Xml.xml list -> #GnoCanvas.group -> float -> float -> t
 
+class canvas_gauge : ?config:Xml.xml list -> #GnoCanvas.group -> float -> float -> t
+
 class canvas_button : ?config:Xml.xml list -> #GnoCanvas.group -> float -> float -> t
 
 class widget_renderer : string -> GObj.widget -> ?config:Xml.xml list -> #GnoCanvas.group -> float -> float -> t

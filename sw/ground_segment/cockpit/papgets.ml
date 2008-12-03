@@ -63,9 +63,10 @@ let create = fun canvas_group papget ->
 	match display with
 	  "text" ->
 	    (new Papget_renderer.canvas_text ~config canvas_group x y :> Papget_renderer.t)
-	      
 	| "ruler" ->
 	    (new Papget_renderer.canvas_ruler canvas_group ~config x y :> Papget_renderer.t)
+	| "gauge" ->
+	    (new Papget_renderer.canvas_gauge ~config canvas_group x y :> Papget_renderer.t)
 	| _ -> failwith (sprintf "Unexpected papget display: %s" display) in
       let p = new Papget.canvas_display_float_item ~config msg_listener field_name renderer in
       let p = (p :> Papget.item) in

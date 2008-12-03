@@ -44,6 +44,7 @@ class type t =
   end
 
 
+(*************************** Text ***********************************)
 class canvas_text = fun ?(config=[]) canvas_group x y ->
   let group = GnoCanvas.group ~x ~y canvas_group in
   let text = GnoCanvas.text group in
@@ -145,6 +146,48 @@ class canvas_ruler = fun ?(config=[]) canvas_group x y ->
     method config = fun () -> config (* Not editable *)
   end
 
+(*************************** Gauge ***********************************)
+
+class canvas_gauge = fun ?(config=[]) canvas_group x y ->
+  let min = float_of_string (PC.get_prop "min" config "-50.")
+  and max = float_of_string (PC.get_prop "max" config "50.")
+  and size = float_of_string (PC.get_prop "size" config "50.") in
+  (*let text_props = [`ANCHOR `CENTER; `FILL_COLOR "white"] in*)
+
+  let r1 = Pervasives.max 10. (size /. 2.) in
+  let r2 = r1 +. 2. in
+  let r3 = 3.5 in
+  let max_rot = 2. *. Latlong.pi /. 3. in
+
+  let root = GnoCanvas.group ~x ~y canvas_group in
+  (*let gauge = GnoCanvas.group root in*)
+  
+  (*let props = (text_props@[`ANCHOR `EAST]) in*)
+
+  let _ = GnoCanvas.ellipse ~x1:r2 ~y1:r2 ~x2:(-.r2) ~y2:(-.r2) ~fill_color:"grey" root in
+  let _ = GnoCanvas.ellipse ~x1:r1 ~y1:r1 ~x2:(-.r1) ~y2:(-.r1) ~fill_color:"black" root in
+  let _ = GnoCanvas.ellipse ~x1:r3 ~y1:r3 ~x2:(-.r3) ~y2:(-.r3) ~fill_color:"red" root in
+
+  let idx = GnoCanvas.polygon ~points:[|r3-.0.2;0.;0.;-.r1;-.(r3-.0.2);0.|] ~fill_color:"red" root in
+  (* Gauge drawer *)
+  let drawer = fun value ->
+    (*List.iter (fun i -> i#destroy ()) gauge#get_items;*)
+    let rot = ref (-.max_rot +. 2. *. max_rot *. (value -. min) /. (max -. min)) in
+    if !rot > max_rot then rot := max_rot;
+    if !rot < -.max_rot then rot := -.max_rot;
+    idx#affine_absolute (affine_pos_and_angle 0. 0. !rot)
+  in
+
+  object
+    method tag = "Gauge"
+    method edit = fun (pack:GObj.widget -> unit) -> ()
+    method update = fun value ->
+      let value = float_of_string value in
+      drawer value
+    method item = (root :> movable_item)
+    method config = fun () -> config (* Not editable *)
+  end
+
 (****************************************************************************)
 class canvas_button = fun ?(config=[]) canvas_group x y ->
   let icon = PC.get_prop "icon" config "icon_file" in
@@ -176,7 +219,8 @@ class widget_renderer = fun (tag:string) (widget:GObj.widget) ?(config=[]) canva
 
 let renderers =
   [ (new canvas_text :> ?config:Xml.xml list -> #GnoCanvas.group -> float -> float -> t);
-    (new canvas_ruler :> ?config:Xml.xml list -> #GnoCanvas.group -> float -> float -> t) ] 
+    (new canvas_ruler :> ?config:Xml.xml list -> #GnoCanvas.group -> float -> float -> t);
+    (new canvas_gauge :> ?config:Xml.xml list -> #GnoCanvas.group -> float -> float -> t) ] 
 
 let lazy_tagged_renderers = lazy
     (let x = 0. and y = 0.
