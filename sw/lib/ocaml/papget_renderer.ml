@@ -204,19 +204,6 @@ class canvas_button = fun ?(config=[]) canvas_group x y ->
   end
 
 
-(****************************************************************************)
-class widget_renderer = fun (tag:string) (widget:GObj.widget) ?(config=[]) canvas_group x y ->
-  let group = GnoCanvas.group ~x ~y canvas_group in
-  let item = GnoCanvas.widget ~width:50. ~height:50. ~widget group in
-  object
-    method tag = tag
-    method edit = fun (_:GObj.widget->unit) -> () 
-    method item = (item :> movable_item)
-    method update = fun (_:string) -> ()
-    method config = fun () -> (config : Xml.xml list)
-  end
-
-
 let renderers =
   [ (new canvas_text :> ?config:Xml.xml list -> #GnoCanvas.group -> float -> float -> t);
     (new canvas_ruler :> ?config:Xml.xml list -> #GnoCanvas.group -> float -> float -> t);

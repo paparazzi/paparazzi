@@ -47,8 +47,6 @@ class canvas_gauge : ?config:Xml.xml list -> #GnoCanvas.group -> float -> float 
 
 class canvas_button : ?config:Xml.xml list -> #GnoCanvas.group -> float -> float -> t
 
-class widget_renderer : string -> GObj.widget -> ?config:Xml.xml list -> #GnoCanvas.group -> float -> float -> t
-
 val lazy_tagged_renderers :
   (string * (?config:Xml.xml list -> GnoCanvas.group -> float -> float -> t))
   list lazy_t
