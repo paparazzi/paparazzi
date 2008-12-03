@@ -159,6 +159,7 @@ let run_and_monitor = fun ?(once = false) ?file gui log com_name com args ->
     | _ -> ()
   in
   ignore (p#button_stop#connect#clicked ~callback:(fun () -> callback false));
+  ignore (p#entry_program#connect#activate ~callback:(fun () -> callback false));
   run callback;
   
   (* Stop the program if the box is closed *)
