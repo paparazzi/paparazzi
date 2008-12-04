@@ -147,15 +147,13 @@ class canvas_ruler = fun ?(config=[]) canvas_group x y ->
   end
 
 (*************************** Gauge ***********************************)
-
 class canvas_gauge = fun ?(config=[]) canvas_group x y ->
-  let min = float_of_string (PC.get_prop "min" config "-50.")
-  and max = float_of_string (PC.get_prop "max" config "50.")
-  and size = float_of_string (PC.get_prop "size" config "50.") in
+  let size = PC.get_prop "size" config "50." in
+  let text = PC.get_prop "text" config "" in
   (*let text_props = [`ANCHOR `CENTER; `FILL_COLOR "white"] in*)
 
-  let r1 = Pervasives.max 10. (size /. 2.) in
-  let r2 = r1 +. 2. in
+  let r1 = Pervasives.max 10. ((float_of_string size) /. 2.) in
+  let r2 = r1 +. 3. in
   let r3 = 3.5 in
   let max_rot = 2. *. Latlong.pi /. 3. in
 
@@ -164,28 +162,75 @@ class canvas_gauge = fun ?(config=[]) canvas_group x y ->
   
   (*let props = (text_props@[`ANCHOR `EAST]) in*)
 
-  let _ = GnoCanvas.ellipse ~x1:r2 ~y1:r2 ~x2:(-.r2) ~y2:(-.r2) ~fill_color:"grey" root in
-  let _ = GnoCanvas.ellipse ~x1:r1 ~y1:r1 ~x2:(-.r1) ~y2:(-.r1) ~fill_color:"black" root in
-  let _ = GnoCanvas.ellipse ~x1:r3 ~y1:r3 ~x2:(-.r3) ~y2:(-.r3) ~fill_color:"red" root in
+  let _ = GnoCanvas.ellipse ~x1:r2 ~y1:r2 ~x2:(-.r2) ~y2:(-.r2)
+    ~props:[`NO_FILL_COLOR; `OUTLINE_COLOR "grey"; `WIDTH_UNITS 6.]  root in
+  let points = [|0.;-.r1;0.;-.r1+.3.|] in
+  let props = [`WIDTH_UNITS 2.; `FILL_COLOR "red"] in
+  let _ = GnoCanvas.line ~points ~props root in
+  let il = GnoCanvas.line ~points ~props root in
+  let () = il#affine_absolute (affine_pos_and_angle 0. 0. (-. Latlong.pi /. 3.)) in
+  let ill = GnoCanvas.line ~points ~props root in
+  let () = ill#affine_absolute (affine_pos_and_angle 0. 0. (-. 2. *. Latlong.pi /. 3.)) in
+  let ir = GnoCanvas.line ~points ~props root in
+  let () = ir#affine_absolute (affine_pos_and_angle 0. 0. (Latlong.pi /. 3.)) in
+  let irr = GnoCanvas.line ~points ~props root in
+  let () = irr#affine_absolute (affine_pos_and_angle 0. 0. (2. *. Latlong.pi /. 3.)) in
 
-  let idx = GnoCanvas.polygon ~points:[|r3-.0.2;0.;0.;-.r1;-.(r3-.0.2);0.|] ~fill_color:"red" root in
-  (* Gauge drawer *)
-  let drawer = fun value ->
-    (*List.iter (fun i -> i#destroy ()) gauge#get_items;*)
-    let rot = ref (-.max_rot +. 2. *. max_rot *. (value -. min) /. (max -. min)) in
-    if !rot > max_rot then rot := max_rot;
-    if !rot < -.max_rot then rot := -.max_rot;
-    idx#affine_absolute (affine_pos_and_angle 0. 0. !rot)
-  in
+  let idx = GnoCanvas.polygon ~points:[|r3-.0.2;0.;0.;-.r1;-.(r3-.0.2);0.|] 
+    ~props:[`FILL_COLOR "red"; `OUTLINE_COLOR "white"] root in
+  let _ = GnoCanvas.ellipse ~x1:r3 ~y1:r3 ~x2:(-.r3) ~y2:(-.r3) ~props:[`OUTLINE_COLOR "grey"] ~fill_color:"red" root in
+  let text_min = GnoCanvas.text ~x:(-.r1) ~y:(r1/.2.) ~props:[`ANCHOR `NE; `FILL_COLOR "green"] root in
+  let text_max = GnoCanvas.text ~x:r1 ~y:(r1/.2.) ~props:[`ANCHOR `NW; `FILL_COLOR "green"] root in
+  let text_mid = GnoCanvas.text ~x:0. ~y:(-.r2-.3.) ~props:[`ANCHOR `SOUTH; `FILL_COLOR "green"] root in
+  let text_text = GnoCanvas.text ~x:0. ~y:(r2+.3.) ~props:[`ANCHOR `NORTH; `FILL_COLOR "green"] root in
 
   object
+    val mutable min = PC.get_prop "min" config "-50."
+    val mutable max = PC.get_prop "max" config "50."
+    val mutable text = PC.get_prop "text" config ""
+
     method tag = "Gauge"
-    method edit = fun (pack:GObj.widget -> unit) -> ()
+    method edit = fun (pack:GObj.widget -> unit) ->
+      let file = Env.paparazzi_src // "sw" // "lib" // "ocaml" // "widgets.glade" in
+      let gauge_editor = new Gtk_papget_gauge_editor.table_gauge_editor ~file () in
+      pack gauge_editor#table_gauge_editor#coerce;
+
+      (* Initialize the entries *)
+      gauge_editor#entry_min#set_text min;
+      gauge_editor#entry_max#set_text max;
+      gauge_editor#entry_text#set_text text;
+
+      (* Connect the entries *)
+      let callback = fun () ->
+        min <- gauge_editor#entry_min#text in
+      ignore (gauge_editor#entry_min#connect#activate ~callback);
+      let callback = fun () ->
+        max <- gauge_editor#entry_max#text in
+      ignore (gauge_editor#entry_max#connect#activate ~callback);
+      let callback = fun () ->
+        text <- gauge_editor#entry_text#text in
+      ignore (gauge_editor#entry_text#connect#activate ~callback);
+
     method update = fun value ->
       let value = float_of_string value in
-      drawer value
+      (* Gauge drawer *)
+      let fmin = float_of_string min in
+      let fmax = float_of_string max in
+      let rot = ref (-.max_rot +. 2. *. max_rot *. (value -. fmin) /. (fmax -. fmin)) in
+      if !rot > max_rot then rot := max_rot;
+      if !rot < -.max_rot then rot := -.max_rot;
+      idx#affine_absolute (affine_pos_and_angle 0. 0. !rot);
+      text_min#set [`TEXT min];
+      text_max#set [`TEXT max];
+      text_mid#set [`TEXT (string_of_float ((fmin +. fmax)/.2.))];
+      text_text#set [`TEXT text]
+
     method item = (root :> movable_item)
-    method config = fun () -> config (* Not editable *)
+    method config = fun () ->
+      [ PC.property "min" min;
+        PC.property "max" max;
+        PC.property "size" size;
+        PC.property "text" text ]
   end
 
 (****************************************************************************)
