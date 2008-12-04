@@ -17,14 +17,14 @@
 <!ELEMENT exceptions (exception*)>
 
 <!ELEMENT blocks (block+)>
-<!ELEMENT block (exception|while|heading|attitude|go|xyz|set|call|circle|deroute|stay|follow|survey_rectangle|for|return|eight|oval|home)*>
+<!ELEMENT block (exception|while|heading|attitude|go|xyz|set|call|circle|deroute|stay|follow|survey_rectangle|bungeetakeoff|for|return|eight|oval|home)*>
 
 <!ELEMENT include (arg|with)*>
 <!ELEMENT arg EMPTY>
 <!ELEMENT with EMPTY>
 
-<!ELEMENT while (exception|while|heading|attitude|go|xyz|set|call|circle|deroute|stay|follow|survey_rectangle|for|return|eight|oval)*>
-<!ELEMENT for (exception|while|heading|attitude|go|xyz|set|call|circle|deroute|stay|follow|survey_rectangle|for|return|eight|oval)*>
+<!ELEMENT while (exception|while|heading|attitude|go|xyz|set|call|circle|deroute|stay|follow|survey_rectangle|bungeetakeoff|for|return|eight|oval)*>
+<!ELEMENT for (exception|while|heading|attitude|go|xyz|set|call|circle|deroute|stay|follow|survey_rectangle|bungeetakeoff|for|return|eight|oval)*>
 <!ELEMENT exception EMPTY>
 <!ELEMENT heading EMPTY>
 <!ELEMENT attitude EMPTY>
@@ -37,6 +37,7 @@
 <!ELEMENT eight EMPTY>
 <!ELEMENT oval EMPTY>
 <!ELEMENT survey_rectangle EMPTY>
+<!ELEMENT bungeetakeoff EMPTY>
 <!ELEMENT deroute EMPTY>
 <!ELEMENT stay EMPTY>
 <!ELEMENT follow EMPTY>
@@ -174,6 +175,8 @@ orientation CDATA #IMPLIED
 wp1 CDATA #REQUIRED
 wp2 CDATA #REQUIRED>
 
+<!ATTLIST bungeetakeoff
+BungeeWP CDATA #REQUIRED>
 
 <!ATTLIST stay
 wp CDATA #REQUIRED
