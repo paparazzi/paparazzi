@@ -52,6 +52,13 @@ void TIMER0_ISR ( void ) {
       T0IR = TIR_MR1I; 
     }
 #endif
+#ifdef SERVOS_PPM_MAT
+    if (T0IR&TIR_MR1I) {
+      ServosPPMMat_ISR();
+      /* clear interrupt */
+      T0IR = TIR_MR1I; 
+    }
+#endif
 #ifdef MB_SCALE
     if (T0IR&TIR_CR3I) {
        MB_SCALE_ICP_ISR();
