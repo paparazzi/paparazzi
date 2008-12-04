@@ -100,21 +100,22 @@ ap.CFLAGS += -DFILTER_ALIGNER_LED=3
 ap.srcs += $(BOOZ_PRIV)/booz2_filter_aligner2.c
 ap.srcs += $(BOOZ_PRIV)/booz2_filter_attitude_cmpl_euler.c
 ap.srcs += $(BOOZ_PRIV)/booz_trig_int.c
+ap.srcs += $(BOOZ_PRIV)/booz2_stabilization.c
+ap.srcs += $(BOOZ_PRIV)/booz2_stabilization_rate.c
+ap.srcs += $(BOOZ_PRIV)/booz2_stabilization_attitude.c
+ap.srcs += $(BOOZ_PRIV)/booz_supervision_int.c
 
 ap.CFLAGS += -DUSE_UART0 -DUART0_BAUD=B38400 -DUART0_VIC_SLOT=5
 ap.CFLAGS += -DGPS_LINK=Uart0 -DGPS_LED=4
 ap.srcs += $(BOOZ_PRIV)/booz2_gps.c
 ap.srcs += $(BOOZ_PRIV)/booz2_guidance_h.c
 ap.srcs += $(BOOZ_PRIV)/booz2_guidance_v.c
+ap.srcs += $(BOOZ_PRIV)/booz2_ins.c
 
 #ap.CFLAGS += -DNAV_ENAC
 ap.srcs += $(BOOZ_PRIV)/booz2_navigation.c
 
 
-ap.srcs += $(BOOZ_PRIV)/booz2_stabilization.c
-ap.srcs += $(BOOZ_PRIV)/booz2_stabilization_rate.c
-ap.srcs += $(BOOZ_PRIV)/booz2_stabilization_attitude.c
-ap.srcs += $(BOOZ_PRIV)/booz_supervision_int.c
 
 ap.CFLAGS += -DHS_YAW
 

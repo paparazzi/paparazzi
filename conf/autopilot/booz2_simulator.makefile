@@ -34,3 +34,6 @@ sim.CFLAGS += -DBOOZ_CONTROLLER_MCU
 sim.CFLAGS += -DCONFIG=\"booz2_board_v1_0.h\"
 
 sim.srcs += $(BOOZ_PRIV)/booz2_main.c
+
+
+
