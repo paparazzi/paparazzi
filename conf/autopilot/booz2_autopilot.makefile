@@ -40,7 +40,6 @@ ap.ARCH = arm7tdmi
 ap.TARGET = ap
 ap.TARGETDIR = ap
 
-#ap.CFLAGS += -DKILL_MOTORS
 
 ap.CFLAGS += -DCONFIG=$(BOARD_CFG) $(BOOZ_CFLAGS)
 ap.srcs += $(BOOZ_PRIV)/booz2_main.c
@@ -86,6 +85,7 @@ ap.srcs += $(BOOZ_PRIV)/booz2_imu.c
 ap.CFLAGS += -DADC1_VIC_SLOT=2
 ap.CFLAGS += -DBOOZ2_ANALOG_BARO_LED=2 -DBOOZ2_ANALOG_BARO_PERIOD='SYS_TICS_OF_SEC((1./100.))'
 ap.srcs += $(BOOZ_PRIV)/booz2_analog_baro.c
+ap.srcs += $(BOOZ_PRIV)/booz2_analog.c $(BOOZ_PRIV_ARCH)/booz2_analog_hw.c
 
 
 ap.CFLAGS += -DUSE_I2C1  -DI2C1_SCLL=150 -DI2C1_SCLH=150 -DI2C1_VIC_SLOT=11 -DI2C1_BUF_LEN=16
