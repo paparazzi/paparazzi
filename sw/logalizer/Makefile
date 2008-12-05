@@ -25,7 +25,7 @@ Q=@
 
 OCAMLC = ocamlc
 OCAMLOPT = ocamlopt
-INCLUDES= -I +xml-light
+INCLUDES= -I +xml-light -I +lablgtk2 -I ../lib/ocaml 
 
 all: play plotter plot
 
@@ -33,13 +33,28 @@ play : log_file.ml play.ml
 	@echo OL $@
 	$(Q)$(OCAMLC) $(INCLUDES) -custom -o $@ unix.cma str.cma xml-light.cma glibivy-ocaml.cma -I +lablgtk2 -I ../lib/ocaml lablgtk.cma lib-pprz.cma gtkInit.cmo  $^
 
-plotter : plotter.ml
+plotter : plotter.cmo
 	@echo OL $@
-	$(Q)$(OCAMLC) $(INCLUDES) -custom -o $@ unix.cma str.cma xml-light.cma glibivy-ocaml.cma -I +lablgtk2 -I ../lib/ocaml lablgtk.cma lib-pprz.cma gtkInit.cmo  $^
+	$(Q)$(OCAMLC) $(INCLUDES) -custom -o $@ unix.cma str.cma xml-light.cma glibivy-ocaml.cma lablgtk.cma lib-pprz.cma gtkInit.cmo  $^
 
-plot : log_file.ml plot.ml
+plot : log_file.cmx gtk_export.cmx export.cmx plot.cmx
 	@echo OL $@
-	$(Q)$(OCAMLOPT) $(INCLUDES) -o $@ unix.cmxa str.cmxa xml-light.cmxa glibivy-ocaml.cmxa -I +lablgtk2 -I ../lib/ocaml lablgtk.cmxa lib-pprz.cmxa gtkInit.cmx  $^
+	$(Q)$(OCAMLOPT) $(INCLUDES) -o $@ unix.cmxa str.cmxa xml-light.cmxa glibivy-ocaml.cmxa lablgtk.cmxa lib-pprz.cmxa lablglade.cmxa gtkInit.cmx  $^
+
+%.cmo: %.ml
+	@echo OC $<
+	$(Q)$(OCAMLC) $(OCAMLCFLAGS) $(INCLUDES) -c $<
+%.cmi: %.mli
+	@echo OCI $<
+	$(Q)$(OCAMLC) $(OCAMLCFLAGS) $(INCLUDES) -c $<
+%.cmx: %.ml
+	@echo OOC $<
+	$(Q)$(OCAMLOPT) $(OCAMLCFLAGS) $(INCLUDES) -c $<
+
+
+
+gtk_export.ml : export.glade
+	lablgladecc2 -root export -hide-default $< | grep -B 1000000 "  end" > $@
 
 
 
@@ -121,6 +136,17 @@ tmclient: tmclient.c
 
 ffjoystick: ffjoystick.c
 	gcc -g -O2 -Wall `pkg-config glib-2.0 --cflags` -o $@ $^ `pkg-config glib-2.0 --libs`  `pcre-config --libs` -lglibivy -lm
-	
+
 ctrlstick: ctrlstick.c
 	gcc -g -O2 -Wall `pkg-config glib-2.0 --cflags` -o $@ $^ `pkg-config glib-2.0 --libs`  `pcre-config --libs` -lglibivy
+
+#
+# Dependencies
+#
+
+.depend: Makefile
+	ocamldep -I ../lib/ocaml *.ml* > .depend
+
+ifneq ($(MAKECMDGOALS),clean) 
+-include .depend
+endif

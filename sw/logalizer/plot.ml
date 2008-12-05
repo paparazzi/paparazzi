@@ -326,7 +326,7 @@ let write_kml = fun plot log_name values ->
 
 
 
-let add_ac_submenu = fun ?(factor=object method text="1" end) plot menubar (curves_menu_fact: GMenu.menu GMenu.factory) ac menu_name l ->
+let add_ac_submenu = fun ?(factor=object method text="1" end) plot menubar (curves_menu_fact: GMenu.menu GMenu.factory) ac menu_name l raw_msgs ->
   let menu = GMenu.menu () in
   let menuitem = GMenu.menu_item ~label:menu_name () in
   menuitem#set_submenu menu;
@@ -364,7 +364,10 @@ let add_ac_submenu = fun ?(factor=object method text="1" end) plot menubar (curv
   let callback = fun () ->
     let gps_values = List.assoc "GPS" l in
     write_kml plot menu_name gps_values in
-  ignore (menu_fact#add_item ~callback "Export KML path")
+  ignore (menu_fact#add_item ~callback "Export KML path");
+  let callback = fun () ->
+    Export.popup menu_name raw_msgs in
+  ignore (menu_fact#add_item ~callback "Export CSV")
     
     
 
@@ -412,8 +415,8 @@ let load_log = fun ?factor (plot:plot) (menubar:GMenu.menu_shell GMenu.factory) 
 	Scanf.sscanf l "%f %s %[^\n]"
 	  (fun t ac m ->
 	    if not (Hashtbl.mem acs ac) then
-	      Hashtbl.add acs ac (Hashtbl.create 97);
-	    let msgs = Hashtbl.find acs ac in
+	      Hashtbl.add acs ac (Hashtbl.create 97, ref []);
+	    let msgs, raw_msgs = Hashtbl.find acs ac in
 
 	    (*Elements of [acs] are assoc lists of [fields] indexed by msg id*)
 	    let msg_id, vs = P.values_of_string m in
@@ -422,7 +425,10 @@ let load_log = fun ?factor (plot:plot) (menubar:GMenu.menu_shell GMenu.factory) 
 	    let fields = Hashtbl.find msgs msg_id in
 
 	    (* Elements of [fields] are values indexed by field name *)
-	    List.iter (fun (f, v) -> Hashtbl.add fields f (t, v)) vs
+	    List.iter (fun (f, v) -> Hashtbl.add fields f (t, v)) vs;
+
+	    let msg_name = (P.message_of_id msg_id).Pprz.name in
+	    raw_msgs := (t, msg_name, vs) :: !raw_msgs
 	  )
       with
 	exc -> prerr_endline (Printexc.to_string exc)
@@ -432,7 +438,8 @@ let load_log = fun ?factor (plot:plot) (menubar:GMenu.menu_shell GMenu.factory) 
       close_in f;
       (* Compile the data to ease the menu building *)
       Hashtbl.iter (* For all A/Cs *)
-	(fun ac msgs ->
+	(fun ac (msgs, raw_msgs) ->
+	  let raw_msgs = List.rev !raw_msgs in
 	  let menu_name = sprintf "%s:%s" (Filename.chop_extension (Filename.basename xml_file)) ac in
 
 	  (* First sort by message id *)
@@ -457,9 +464,9 @@ let load_log = fun ?factor (plot:plot) (menubar:GMenu.menu_shell GMenu.factory) 
 	      msgs in
 	  
 	  (* Store data for other windows *)
-	  logs_menus := (ac, menu_name, msgs) :: !logs_menus;
+	  logs_menus := (ac, menu_name, (msgs, raw_msgs)) :: !logs_menus;
 	  
-	  add_ac_submenu ?factor plot menubar curves_fact ac menu_name msgs;
+	  add_ac_submenu ?factor plot menubar curves_fact ac menu_name msgs raw_msgs;
 	)
 	acs
 
@@ -582,8 +589,8 @@ let rec plot_window = fun init ->
   tooltips#set_tip factor#coerce ~text:"Scale next curve (e.g. 0.0174 to convert deg in rad, 57.3 to convert rad in deg, 1.8+32 to convert Celsius into Fahrenheit)";
 
   List.iter
-    (fun (ac, menu_name, msgs) ->
-      add_ac_submenu ~factor:(factor:>text_value) plot factory curves_menu_fact ac menu_name msgs) 
+    (fun (ac, menu_name, (msgs, raw_msgs)) ->
+      add_ac_submenu ~factor:(factor:>text_value) plot factory curves_menu_fact ac menu_name msgs raw_msgs) 
     !logs_menus;
 
   ignore(open_log_item#connect#activate ~callback:(fun () -> let factor = (factor:>text_value) in open_log ~factor plot factory curves_menu_fact ()));
