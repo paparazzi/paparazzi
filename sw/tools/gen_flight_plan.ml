@@ -778,8 +778,6 @@ let () =
       let sectors =  List.map (parse_wpt_sector waypoints) sectors in
       List.iter print_inside_sector sectors;
 
-      Xml2h.finish h_name;
-
       lprintf "#ifdef NAV_C\n";
       lprintf "\nstatic inline void auto_nav(void) {\n";
       right ();
@@ -789,7 +787,17 @@ let () =
       print_blocks index_of_waypoints blocks;
       left (); lprintf "}\n";
       left (); lprintf "}\n";
-      lprintf "#endif // NAV_C\n"
+      lprintf "#endif // NAV_C\n";
+
+      begin
+        try
+          let airspace = Xml.attrib xml "airspace" in
+          lprintf "#define InAirspace(_x, _y) %s(_x, _y)\n" (inside_function airspace)
+        with
+          _ -> ()
+      end;
+
+      Xml2h.finish h_name
     end
   with
     Xml.Error e -> fprintf stderr "%s: XML error:%s\n" !xml_file (Xml.error e); exit 1
