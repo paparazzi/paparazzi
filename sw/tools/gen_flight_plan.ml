@@ -99,14 +99,23 @@ let check_altitude = fun a x ->
   end
 
 
-let print_waypoint = fun rel_utm_of_wgs84 default_alt waypoint ->
-  let (x, y) =
-    try
-      rel_utm_of_wgs84 {posn_lat=(Deg>>Rad)(float_attrib waypoint "lat");
-			posn_long=(Deg>>Rad)(float_attrib waypoint "lon") }
-    with
-      Xml.No_attribute "lat" | Xml.No_attribute "lon" ->
-	(float_attrib waypoint "x", float_attrib waypoint "y")
+(** Computes "x" and "y" attributes if "lat" and "lon" are availabele *)
+let localize_waypoint = fun rel_utm_of_wgs84 waypoint ->
+  try
+    let (x, y) =
+      rel_utm_of_wgs84
+	(Latlong.make_geo_deg
+	   (float_attrib waypoint "lat")
+	   (float_attrib waypoint "lon")) in
+    let x = sprintf "%.2f" x and y = sprintf "%.2f" y in
+    ExtXml.subst_attrib "y" y (ExtXml.subst_attrib "x" x waypoint)
+  with
+    Xml.No_attribute "lat" | Xml.No_attribute "lon" ->
+      waypoint
+
+
+let print_waypoint = fun default_alt waypoint ->
+  let (x, y) = (float_attrib waypoint "x", float_attrib waypoint "y")
   and alt = try Xml.attrib waypoint "alt" with _ -> default_alt in
   check_altitude (float_of_string alt) waypoint;
   printf " {%.1f, %.1f, %s},\\\n" x y alt
@@ -679,9 +688,18 @@ let () =
     let blocks = Xml.children (ExtXml.child xml "blocks") @ [home_block] in
 
     let xml = ExtXml.subst_child "blocks" (index_blocks (element "blocks" [] blocks)) xml in
-    let waypoints = ExtXml.child xml "waypoints"
+    let waypoints = Xml.children (ExtXml.child xml "waypoints")
     and blocks = Xml.children (ExtXml.child xml "blocks")
     and global_exceptions = try Xml.children (ExtXml.child xml "exceptions") with _ -> [] in
+
+    let utm0 = utm_of WGS84 wgs84 in
+    let rel_utm_of_wgs84 = fun wgs84 ->
+      let utm = utm_of WGS84 wgs84 in
+      (utm.utm_x -. utm0.utm_x, utm.utm_y -. utm0.utm_y) in
+    let waypoints =
+      List.map (localize_waypoint rel_utm_of_wgs84) waypoints in
+
+    let xml = ExtXml.subst_child "waypoints" (element "waypoints" [] waypoints) xml in
 
     if !dump then
       let xml_stages = Xml.Element ("stages", [], indexed_stages blocks) in
@@ -718,24 +736,22 @@ let () =
 
       check_altitude (float_of_string alt) xml;
 
-      let utm0 = utm_of WGS84 wgs84 in
-      let rel_utm_of_wgs84 = fun wgs84 ->
-	let utm = utm_of WGS84 wgs84 in
-	(utm.utm_x -. utm0.utm_x, utm.utm_y -. utm0.utm_y) in
-
       Xml2h.define "NAV_UTM_EAST0" (sprintf "%.0f" utm0.utm_x);
       Xml2h.define "NAV_UTM_NORTH0" (sprintf "%.0f" utm0.utm_y);
       Xml2h.define "NAV_UTM_ZONE0" (sprintf "%d" utm0.utm_zone);
       Xml2h.define "QFU" (sprintf "%.1f" qfu);
 
       
-      let waypoints = dummy_waypoint :: Xml.children waypoints in
+      let waypoints = dummy_waypoint :: waypoints in
+
+
+
       let (hx, hy) = home waypoints in
       List.iter (check_distance (hx, hy) mdfh) waypoints;
       define_waypoints_indices waypoints;
 
       Xml2h.define "WAYPOINTS" "{ \\";
-      List.iter (print_waypoint rel_utm_of_wgs84 alt) waypoints;
+      List.iter (print_waypoint alt) waypoints;
       lprintf "};\n";
       Xml2h.define "NB_WAYPOINT" (string_of_int (List.length waypoints));
 
@@ -761,8 +777,9 @@ let () =
       let sectors = List.filter (fun x -> String.lowercase (Xml.tag x) = "sector") (Xml.children sectors_element) in
       let sectors =  List.map (parse_wpt_sector waypoints) sectors in
       List.iter print_inside_sector sectors;
-      
-      
+
+      Xml2h.finish h_name;
+
       lprintf "#ifdef NAV_C\n";
       lprintf "\nstatic inline void auto_nav(void) {\n";
       right ();
@@ -772,17 +789,7 @@ let () =
       print_blocks index_of_waypoints blocks;
       left (); lprintf "}\n";
       left (); lprintf "}\n";
-      lprintf "#endif // NAV_C\n";
-
-      begin
-	try
-	  let airspace = Xml.attrib xml "airspace" in
-	  lprintf "#define InAirspace(_x, _y) %s(_x, _y)\n" (inside_function airspace)
-	with
-	  _ -> ()
-      end;
-
-      Xml2h.finish h_name
+      lprintf "#endif // NAV_C\n"
     end
   with
     Xml.Error e -> fprintf stderr "%s: XML error:%s\n" !xml_file (Xml.error e); exit 1
