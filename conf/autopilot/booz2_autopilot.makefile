@@ -52,7 +52,9 @@ ap.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600 -DUART1_VIC_SLOT=6
 ap.srcs += $(SRC_ARCH)/uart_hw.c
 
 ap.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart1 
-ap.srcs += $(BOOZ_PRIV)/booz2_telemetry.c downlink.c pprz_transport.c
+ap.srcs += $(BOOZ_PRIV)/booz2_telemetry.c \
+	   downlink.c \
+           pprz_transport.c
 
 ap.CFLAGS += -DDATALINK=PPRZ -DPPRZ_UART=Uart1
 ap.srcs += $(BOOZ_PRIV)/booz2_datalink.c
@@ -79,19 +81,23 @@ ap.CFLAGS += -DSSP_VIC_SLOT=9
 ap.srcs += $(BOOZ_PRIV)/booz2_imu_b2.c $(BOOZ_PRIV_ARCH)/booz2_imu_b2_hw.c
 ap.CFLAGS += -DMAX1168_EOC_VIC_SLOT=8
 ap.srcs += $(BOOZ_PRIV)/booz2_max1168.c $(BOOZ_PRIV_ARCH)/booz2_max1168_hw.c
+ap.CFLAGS += -DUSE_I2C1  -DI2C1_SCLL=150 -DI2C1_SCLH=150 -DI2C1_VIC_SLOT=11 -DI2C1_BUF_LEN=16
+#ap.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
+ap.CFLAGS += -DUSE_AMI601
+ap.srcs += AMI601.c
 ap.CFLAGS += -DFLOAT_T=float
 ap.srcs += $(BOOZ_PRIV)/booz2_imu.c
+
 
 ap.CFLAGS += -DADC1_VIC_SLOT=2
 ap.CFLAGS += -DBOOZ2_ANALOG_BARO_LED=2 -DBOOZ2_ANALOG_BARO_PERIOD='SYS_TICS_OF_SEC((1./100.))'
 ap.srcs += $(BOOZ_PRIV)/booz2_analog_baro.c
 ap.srcs += $(BOOZ_PRIV)/booz2_analog.c $(BOOZ_PRIV_ARCH)/booz2_analog_hw.c
 
+ap.srcs += $(BOOZ_PRIV)/booz2_gps.c
+ap.CFLAGS += -DUSE_UART0 -DUART0_BAUD=B38400 -DUART0_VIC_SLOT=5
+ap.CFLAGS += -DGPS_LINK=Uart0 -DGPS_LED=4
 
-ap.CFLAGS += -DUSE_I2C1  -DI2C1_SCLL=150 -DI2C1_SCLH=150 -DI2C1_VIC_SLOT=11 -DI2C1_BUF_LEN=16
-#ap.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
-ap.CFLAGS += -DUSE_AMI601
-ap.srcs += AMI601.c
 
 
 ap.srcs += $(BOOZ_PRIV)/booz2_autopilot.c
@@ -105,9 +111,6 @@ ap.srcs += $(BOOZ_PRIV)/booz2_stabilization_rate.c
 ap.srcs += $(BOOZ_PRIV)/booz2_stabilization_attitude.c
 ap.srcs += $(BOOZ_PRIV)/booz_supervision_int.c
 
-ap.CFLAGS += -DUSE_UART0 -DUART0_BAUD=B38400 -DUART0_VIC_SLOT=5
-ap.CFLAGS += -DGPS_LINK=Uart0 -DGPS_LED=4
-ap.srcs += $(BOOZ_PRIV)/booz2_gps.c
 ap.srcs += $(BOOZ_PRIV)/booz2_guidance_h.c
 ap.srcs += $(BOOZ_PRIV)/booz2_guidance_v.c
 ap.srcs += $(BOOZ_PRIV)/booz2_ins.c
