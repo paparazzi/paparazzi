@@ -95,6 +95,10 @@ extern void i2c1_transmit(uint8_t slave_addr, uint8_t len, volatile bool_t* fini
 
 extern volatile uint8_t i2c1_status;
 
+#ifndef I2C1_BUF_LEN
+#define I2C1_BUF_LEN 16
+#endif
+
 extern volatile uint8_t i2c1_buf[I2C1_BUF_LEN];
 extern volatile uint8_t i2c1_len;
 extern volatile uint8_t i2c1_index;

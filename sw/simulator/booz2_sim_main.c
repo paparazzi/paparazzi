@@ -31,6 +31,7 @@
 #include "booz_flight_model.h"
 #include "booz_sensors_model.h"
 #include "booz_wind_model.h"
+#include "booz_rc_sim.h"
 
 #include "booz2_main.h"
 
@@ -53,6 +54,7 @@ static void     booz2_sim_parse_options(int argc, char** argv);
 static void     booz2_sim_init(void);
 static gboolean booz2_sim_periodic(gpointer data);
 static void     booz2_sim_display(void);
+static void     booz_sim_read_actuators(void);
 
 static void ivy_transport_init(void);
 
@@ -69,29 +71,35 @@ static void booz2_sim_init(void) {
 
   ivy_transport_init();
 
-  //  booz2_main_init();
+  booz2_main_init();
 
 }
 
 static gboolean booz2_sim_periodic(gpointer data __attribute__ ((unused))) {
   /* read actuators positions */
-  //  booz_sim_read_actuators();
+  booz_sim_read_actuators();
 
   /* run our models */
-  //  if (sim_time > 3.)
-  //    bfm.on_ground = FALSE;
-    /* no fdm at start to allow for filter initialisation */
-    /* it sucks, I know */
+  if (sim_time > 3.)
+    bfm.on_ground = FALSE;
+
+  booz_wind_model_run(DT);
+
   booz_flight_model_run(DT, booz_sim_actuators_values);
 
   booz_sensors_model_run(sim_time);
   
-  booz_wind_model_run(DT);
-
   sim_time += DT;
 
-
   booz2_sim_display();
+
+  /* run the airborne code */
+  
+  BoozRcSimFeed(sim_time);
+  
+  booz2_main_periodic();
+  
+
  
   return TRUE;
 }
@@ -101,29 +109,33 @@ static void booz2_sim_display(void) {
   if (sim_time >= disp_time) {
     disp_time+= DT_DISPLAY;
     //    booz_flightgear_send();
-    IvySendMsg("148 BOOZ_SIM_RPMS %f %f %f %f",  
+    IvySendMsg("%d BOOZ_SIM_RPMS %f %f %f %f",  
+	       AC_ID,
 	       RPM_OF_RAD_S(bfm.state->ve[BFMS_OM_F]), 
 	       RPM_OF_RAD_S(bfm.state->ve[BFMS_OM_B]), 
 	       RPM_OF_RAD_S(bfm.state->ve[BFMS_OM_L]),
 	       RPM_OF_RAD_S(bfm.state->ve[BFMS_OM_R]) );
-    IvySendMsg("148 BOOZ_SIM_RATE_ATTITUDE %f %f %f %f %f %f",  
+    IvySendMsg("%d BOOZ_SIM_RATE_ATTITUDE %f %f %f %f %f %f",  
+	       AC_ID,
 	       DegOfRad(bfm.state->ve[BFMS_P]), 
 	       DegOfRad(bfm.state->ve[BFMS_Q]), 
 	       DegOfRad(bfm.state->ve[BFMS_R]),
 	       DegOfRad(bfm.state->ve[BFMS_PHI]), 
 	       DegOfRad(bfm.state->ve[BFMS_THETA]), 
 	       DegOfRad(bfm.state->ve[BFMS_PSI]));
-    IvySendMsg("148 BOOZ_SIM_SPEED_POS %f %f %f %f %f %f",  
+    IvySendMsg("%d BOOZ_SIM_SPEED_POS %f %f %f %f %f %f",  
+	       AC_ID,
 	       (bfm.state->ve[BFMS_U]), 
 	       (bfm.state->ve[BFMS_V]), 
 	       (bfm.state->ve[BFMS_W]),
 	       (bfm.state->ve[BFMS_X]), 
 	       (bfm.state->ve[BFMS_Y]), 
 	       (bfm.state->ve[BFMS_Z]));
-    //    IvySendMsg("148 BOOZ_SIM_WIND %f %f %f",  
-    //	       bwm.velocity->ve[AXIS_X], 
-    //	       bwm.velocity->ve[AXIS_Y], 
-    //	       bwm.velocity->ve[AXIS_Z]);
+    IvySendMsg("%d BOOZ_SIM_WIND %f %f %f",  
+    	       AC_ID,
+	       bwm.velocity->ve[AXIS_X], 
+    	       bwm.velocity->ve[AXIS_Y], 
+    	       bwm.velocity->ve[AXIS_Z]);
   }
 }
 
@@ -165,6 +177,13 @@ static void on_DL_SETTING(IvyClientPtr app __attribute__ ((unused)),
 #endif
 
 
+#include "actuators.h"
+static void booz_sim_read_actuators(void) {
+  booz_sim_actuators_values[0] = actuators[SERVO_FRONT];
+  booz_sim_actuators_values[1] = actuators[SERVO_BACK];
+  booz_sim_actuators_values[2] = actuators[SERVO_RIGHT];
+  booz_sim_actuators_values[3] = actuators[SERVO_LEFT];
+}
 
 static void booz2_sim_parse_options(int argc, char** argv) {
 
