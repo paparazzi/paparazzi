@@ -74,9 +74,9 @@ l_help:
 #define STICK_DEADBAND 5
 #define STICK_APPLY_DEADBAND(_v) (abs(_v) >= STICK_DEADBAND ? _v : 0)
 
-#define ATTITUDE_COEF 2860  // RadOfDeg(20 / 128) << 20
+#define ATTITUDE_COEF 1430  // RadOfDeg(10 / 128) << 20
 #define CLIMB_COEF_SHIFT 6  // around 1 m/s
-#define YAW_RATE_COEF 286   // 20 deg/s = ATTITUDE_COEF / 10 (update frequncy)
+#define YAW_RATE_COEF 143   // 10 deg/s = ATTITUDE_COEF / 10 (update frequncy)
 
 // ATTITUDE
 static gboolean joystick_attitude_periodic(gpointer data __attribute__ ((unused))) {
@@ -90,14 +90,13 @@ static gboolean joystick_attitude_periodic(gpointer data __attribute__ ((unused)
 
   if (! fp_received_once) return 1;
 
-	//IvySendMsg("dl COMMANDS_RAW %d %d,%d", aircraft_id, roll, pitch);
-
-  IvySendMsg("dl BOOZ2_FMS_COMMAND %d %d %d %d %d %d %ld %ld %ld %ld",
-      aircraft_id, 2, 2, 0, 0, 0,
+  IvySendMsg("dl BOOZ2_FMS_COMMAND %d %d %d %d %d %d %d",
+      2, 2,
       alt_sp + (climb >> CLIMB_COEF_SHIFT),
       ATTITUDE_COEF * roll,
       ATTITUDE_COEF * pitch,
-      psi_sp + YAW_RATE_COEF * yaw_rate );
+      psi_sp + YAW_RATE_COEF * yaw_rate,
+      aircraft_id);
 
 	return 1;
 }
@@ -111,17 +110,18 @@ static gboolean joystick_hover_periodic(gpointer data __attribute__ ((unused))) 
 
 	int8_t vx = STICK_APPLY_DEADBAND(stick_axis_values[0]);
 	int8_t vy = STICK_APPLY_DEADBAND(stick_axis_values[1]);
-	//int8_t yaw_rate = STICK_APPLY_DEADBAND(stick_axis_values[2]);
+	int8_t yaw_rate = STICK_APPLY_DEADBAND(stick_axis_values[2]);
   int8_t climb = STICK_APPLY_DEADBAND(stick_axis_values[3]);
 
   if (! fp_received_once) return 1;
 
-  IvySendMsg("dl BOOZ2_FMS_COMMAND %d %d %d %d %d %d %ld %ld %ld %ld",
-      aircraft_id, 3, 2, 0, 0, 0,
+  IvySendMsg("dl BOOZ2_FMS_COMMAND %d %d %d %d %d %d %d",
+      3, 2,
       alt_sp + (climb >> CLIMB_COEF_SHIFT),
       lon_sp + (vx >> SPEED_COEF_SHIFT),
-      lat_sp + (vy >> SPEED_COEF_SHIFT));
-      //psi_sp + YAW_RATE_COEF * yaw_rate );
+      lat_sp + (vy >> SPEED_COEF_SHIFT),
+      psi_sp + YAW_RATE_COEF * yaw_rate,
+      aircraft_id);
 
 	return 1;
 }
