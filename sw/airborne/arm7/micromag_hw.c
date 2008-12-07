@@ -54,11 +54,11 @@ void micromag_hw_init( void ) {
 #include "uart.h"
 #include "messages.h"
 #include "downlink.h"
-#include "led.h"
+//#include "led.h"
 
 void EXTINT_ISR(void) {
   ISR_ENTRY();
-  LED_ON(2);
+  //LED_ON(2);
   micromag_status = MM_GOT_EOC;
   /* clear EINT */
   SetBit(EXTINT,MM_DRDY_EINT);

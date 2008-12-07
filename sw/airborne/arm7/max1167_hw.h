@@ -12,7 +12,7 @@
 #include "interrupt_hw.h"  
 #include "spi_hw.h"
 
-#include "booz_debug.h"
+//#include "booz_debug.h"
 
 #define MAX1167_ERR_ISR_STATUS   0
 #define MAX1167_ERR_READ_OVERUN  1
@@ -33,8 +33,8 @@
 #define Max1167Select() SetBit(MAX1167_SS_IOCLR, MAX1167_SS_PIN)
 
 #define Max1167OnSpiInt() {						\
-    ASSERT((max1167_status == STA_MAX1167_READING_RES),			\
-	   DEBUG_MAX_1117, MAX1167_ERR_ISR_STATUS);			\
+   /* ASSERT((max1167_status == STA_MAX1167_READING_RES),			\
+	   DEBUG_MAX_1117, MAX1167_ERR_ISR_STATUS);*/			\
     /* read dummy control byte reply */					\
     uint8_t foo __attribute__ ((unused));				\
     foo = SSPDR;							\

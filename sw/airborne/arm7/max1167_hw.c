@@ -53,8 +53,8 @@ extern void max1167_hw_init( void ) {
 
 
 void max1167_read( void ) {
-  ASSERT((max1167_status == STA_MAX1167_IDLE),		\
-	 DEBUG_MAX_1117, MAX1167_ERR_READ_OVERUN);
+  //ASSERT((max1167_status == STA_MAX1167_IDLE),		\
+	// DEBUG_MAX_1117, MAX1167_ERR_READ_OVERUN);
   /* select max1167 */ 
   Max1167Select();
   /* enable SPI */
@@ -70,8 +70,8 @@ void max1167_read( void ) {
 void EXTINT0_ISR(void) {
   ISR_ENTRY();
 
-  ASSERT((max1167_status == STA_MAX1167_SENDING_REQ),	\
-	 DEBUG_MAX_1117, MAX1167_ERR_SPURIOUS_EOC);
+  //ASSERT((max1167_status == STA_MAX1167_SENDING_REQ),	\
+//	 DEBUG_MAX_1117, MAX1167_ERR_SPURIOUS_EOC);
   /* trigger 6 bytes read */
   SpiSend(0);
   SpiSend(0);
