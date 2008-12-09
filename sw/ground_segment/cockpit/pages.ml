@@ -226,15 +226,12 @@ class misc ~packing (widget: GBin.frame) =
 
 class setting = fun (i:int) (xml:Xml.xml) (current_value:GMisc.label) set_default ->
   object
-    val mutable default_set_once = false
     method index = i
     method xml = xml
     method current_value = current_value#text
     method update = fun s ->
-      if current_value#text <> s then
+      if current_value#text <> s then begin
 	current_value#set_text s;
-      if not default_set_once then begin
-	default_set_once <- true;
 	try set_default (float_of_string s) with Failure "float_of_string" -> ()
       end
   end
@@ -264,7 +261,8 @@ let one_setting = fun i do_change packing dl_setting (tooltips:GData.tooltips) s
   let auto_but = GButton.check_button ~label:"Auto" ~active:false () in
 
   (** For a small number of values, radio buttons, else a slider *)
-  let values = values_of_dl_setting dl_setting in
+  let values = values_of_dl_setting dl_setting
+  and modified = ref false in
   let commit, set_default =
     if step_incr = 1. && upper -. lower <= 2. || Array.length values > 0 then
       (* Discrete values: radio buttons *)
@@ -285,6 +283,7 @@ let one_setting = fun i do_change packing dl_setting (tooltips:GData.tooltips) s
 	    (* Connect the event *)
 	    ignore (b#connect#pressed
 		      (fun () ->
+			modified := true;
 			value := float j;
 			if auto_but#active then callback ()));
 	    b) in
@@ -294,11 +293,13 @@ let one_setting = fun i do_change packing dl_setting (tooltips:GData.tooltips) s
       let adj = GData.adjustment ~value ~lower ~upper:(upper+.step_incr) ~step_incr ~page_incr ~page_size () in
       let _scale = GRange.scale `HORIZONTAL ~digits:3 ~update_policy:`DELAYED ~adjustment:adj ~packing:hbox#add () in
       let f = fun _ -> do_change i adj#value in
-      let callback = fun () -> if auto_but#active then f () in
+      let callback = fun () -> modified := true; if auto_but#active then f () in
       ignore (adj#connect#value_changed ~callback);
       ignore (auto_but#connect#toggled ~callback);
       (f, fun x -> adj#set_value x)
   in
+  let set_default = fun x ->
+    if not !modified then set_default x else () in
   
   (* Auto check button *)
   if show_auto then begin
