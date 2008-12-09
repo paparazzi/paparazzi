@@ -240,3 +240,20 @@ let display_entities = fun s ->
     predefined_general_entities
     s
   
+module Gconf = struct
+  let get_value = fun xml name ->
+    let e = child ~select:(fun x -> Xml.attrib x "name" = name) xml "entry" in
+    Xml.attrib e "value"
+      
+  let entry = fun application name value ->
+    Xml.Element ("entry", ["name", name;
+			   "value", value;
+			   "application", application],
+		 [])
+      
+  let add_entry = fun xml appli name value ->
+    let entry = entry appli name value in
+    let select = fun x -> Xml.attrib x "name" = name in
+    let xml = remove_child ~select "entry" xml in
+    Xml.Element (Xml.tag xml, Xml.attribs xml, entry::Xml.children xml)
+end

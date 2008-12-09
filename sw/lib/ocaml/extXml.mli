@@ -70,3 +70,10 @@ val parse_file : ?noprovedtd:bool -> string -> Xml.xml
 val digest : Xml.xml -> Digest.t
 (** Returns the MD5 digest of an XML tree (c.f. Digest module of std library) *)
 val display_entities : string -> string
+
+(** Conf à gconf handling *)
+module Gconf : sig
+  val get_value : Xml.xml -> string -> string
+  val entry : string -> string -> string -> Xml.xml
+  val add_entry : Xml.xml -> string -> string -> string -> Xml.xml
+end
