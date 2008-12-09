@@ -37,7 +37,7 @@ type tile_t = {
     key : string;
     sw_corner : Latlong.geographic;
     width : float; (* Longitude difference *)
-    height : float (* Longitude difference *)
+    height : float (* Latitude difference *)
   }
 
 let (/.=) r x = r := !r /. x
