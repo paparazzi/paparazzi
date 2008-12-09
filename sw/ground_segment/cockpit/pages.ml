@@ -223,6 +223,22 @@ class misc ~packing (widget: GBin.frame) =
 (*****************************************************************************)
 (* Dataling settings paged                                                   *)
 (*****************************************************************************)
+
+class setting = fun (i:int) (xml:Xml.xml) (current_value:GMisc.label) set_default ->
+  object
+    val mutable default_set_once = false
+    method index = i
+    method xml = xml
+    method current_value = current_value#text
+    method update = fun s ->
+      if current_value#text <> s then
+	current_value#set_text s;
+      if not default_set_once then begin
+	default_set_once <- true;
+	try set_default (float_of_string s) with Failure "float_of_string" -> ()
+      end
+  end
+
 let pipe_regexp = Str.regexp "|"
 let values_of_dl_setting = fun dl_setting ->
   try 
@@ -243,13 +259,13 @@ let one_setting = fun i do_change packing dl_setting (tooltips:GData.tooltips) s
   let varname = ExtXml.attrib dl_setting "var" in
   let text = try ExtXml.attrib dl_setting "shortname" with _ -> varname in
   let _l = GMisc.label ~width:100 ~text ~packing:hbox#pack () in
-  let _v = GMisc.label ~width:50 ~text:"N/A" ~packing:hbox#pack () in
+  let current_value = GMisc.label ~width:50 ~text:"N/A" ~packing:hbox#pack () in
 
   let auto_but = GButton.check_button ~label:"Auto" ~active:false () in
 
   (** For a small number of values, radio buttons, else a slider *)
   let values = values_of_dl_setting dl_setting in
-  let commit =
+  let commit, set_default =
     if step_incr = 1. && upper -. lower <= 2. || Array.length values > 0 then
       (* Discrete values: radio buttons *)
       let ilower = truncate lower
@@ -257,21 +273,22 @@ let one_setting = fun i do_change packing dl_setting (tooltips:GData.tooltips) s
       let value = ref lower in
       let callback = fun _ -> do_change i !value in
       let group = (GButton.radio_button ())#group in (* Group shared by the buttons *)
-      for j = ilower to iupper do
-	(* Build the button *)
-	let label = 
-	  if Array.length values = 0 
-	  then Printf.sprintf "%d" j
-	  else values.(j) in
-	let b = GButton.radio_button ~group ~label ~packing:hbox#add () in
-
-	(* Connect the event *)
-	ignore (b#connect#pressed
-		  (fun () ->
-		    value := float j;
-		    if auto_but#active then callback ()))
-      done;
-      callback
+      let buttons = Array.init (iupper-ilower+1)
+	  (fun j ->
+	    (* Build the button *)
+	    let label = 
+	      if Array.length values = 0 
+	      then Printf.sprintf "%d" j
+	      else values.(j) in
+	    let b = GButton.radio_button ~group ~label ~packing:hbox#add () in
+	    
+	    (* Connect the event *)
+	    ignore (b#connect#pressed
+		      (fun () ->
+			value := float j;
+			if auto_but#active then callback ()));
+	    b) in
+      (callback, fun j -> buttons.(truncate j - ilower)#set_active true)
     else (* slider *)
       let value = (lower +. upper) /. 2. in
       let adj = GData.adjustment ~value ~lower ~upper:(upper+.step_incr) ~step_incr ~page_incr ~page_size () in
@@ -280,7 +297,7 @@ let one_setting = fun i do_change packing dl_setting (tooltips:GData.tooltips) s
       let callback = fun () -> if auto_but#active then f () in
       ignore (adj#connect#value_changed ~callback);
       ignore (auto_but#connect#toggled ~callback);
-      f
+      (f, fun x -> adj#set_value x)
   in
   
   (* Auto check button *)
@@ -293,7 +310,7 @@ let one_setting = fun i do_change packing dl_setting (tooltips:GData.tooltips) s
   commit_but#set_border_width 2;
   let _icon = GMisc.image ~stock:`APPLY ~packing:commit_but#add () in
   let callback = fun x ->
-    prev_value := (try Some (float_of_string _v#text) with _ -> None);
+    prev_value := (try Some (float_of_string current_value#text) with _ -> None);
     commit x
   in
   ignore (commit_but#connect#clicked ~callback);
@@ -314,6 +331,7 @@ let one_setting = fun i do_change packing dl_setting (tooltips:GData.tooltips) s
       commit_but#misc#set_sensitive (not auto_but#active);
       undo_but#misc#set_sensitive (not auto_but#active)));
 
+  (** Insert the related buttons in the strip and prepare the papgets DnD *)
   List.iter (fun x ->
     assert(ExtXml.tag_is x "strip_button");
     let label = ExtXml.attrib x "name"
@@ -343,7 +361,7 @@ let one_setting = fun i do_change packing dl_setting (tooltips:GData.tooltips) s
     (strip b#coerce : unit);
     ignore (b#connect#clicked (fun _ -> do_change i sp_value)))
     (Xml.children dl_setting);
-  (i, dl_setting, _v)
+  new setting i dl_setting current_value set_default
   
   
 let rec build_settings = fun do_change i flat_list xml_settings packing tooltips strip ->
@@ -389,25 +407,25 @@ class settings = fun ?(visible = fun _ -> true) xml_settings do_change strip ->
     List.rev !l in
   let variables = Array.of_list ordered_list in
   let length = Array.length variables in
-  let assocs = List.map (fun (i,dl_setting,_label) -> (ExtXml.attrib dl_setting "var", i)) ordered_list in
+  let assocs = 
+    List.map (fun setting -> (ExtXml.attrib setting#xml "var", setting#index)) ordered_list in
   object (self)
     method widget = sw#coerce
     method length = length
     method set = fun i v ->
       if visible self#widget then
 	let s = string_of_float v in
-	let (_, dl_setting, label_current_value) = variables.(i) in
+	let setting = variables.(i) in
 	let s = 
-	  let values = values_of_dl_setting dl_setting in
+	  let values = values_of_dl_setting setting#xml in
 	  try
 	    values.(truncate (float_of_string s))
 	  with
 	    _ -> s in
-	if label_current_value#text <> s then
-	  label_current_value#set_text s
+	setting#update s
     method assoc var = List.assoc var assocs
     method save = fun airframe_filename ->
-      let settings = Array.fold_right (fun (i, dl_setting, label) r -> try (i, dl_setting, float_of_string label#text)::r with _ -> r) variables [] in
+      let settings = Array.fold_right (fun setting r -> try (setting#index, setting#xml, float_of_string setting#current_value)::r with _ -> r) variables [] in
       SaveSettings.popup airframe_filename (Array.of_list settings) do_change
   end
 
