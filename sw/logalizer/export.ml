@@ -3,7 +3,7 @@
  *
  * GUI to export some values of a log
  *  
- * Copyright (C) 2008, Cyril Allignol, Pascal Brisset
+ * Copyright (C) 2008, ENAC
  *
  * This file is part of paparazzi.
  *
@@ -59,14 +59,21 @@ let display_columns = fun treeview model ->
     
 
 
-let fill_data = fun (model:GTree.tree_store) messages_xml ->
+let fill_data = fun (treeview:GTree.view) (model:GTree.tree_store) messages_xml prefs ->
   List.iter (fun msg ->
-    let row = model#append () in
-    model#set ~row ~column:col_message (ExtXml.attrib msg "name");
+    let row = model#append ()
+    and msg_name = ExtXml.attrib msg "name" in
+    model#set ~row ~column:col_message msg_name;
     List.iter (fun field ->
-      let row = model#append ~parent:row () in
+      let parent = row in
+      let row = model#append ~parent ()
+      and field_name = ExtXml.attrib field "name" in
       model#set ~row ~column:col_visible true;
-      model#set ~row ~column:col_field (ExtXml.attrib field "name"))
+      let to_export = List.mem (msg_name,field_name) prefs in
+      if to_export then
+	treeview#expand_row (model#get_path parent);
+      model#set ~row ~column:col_to_export to_export;
+      model#set ~row ~column:col_field field_name)
       (Xml.children msg))
     (Xml.children messages_xml)
 
@@ -74,6 +81,8 @@ type timestamp =
     Msg of string
   | Period of float (* in s *)
 
+
+(*****************************************************************************)
 let export_values = fun (model:GTree.tree_store) data timestamp filename ->
   let fields_to_export = ref [] in
   model#foreach (fun _path row ->
@@ -84,6 +93,14 @@ let export_values = fun (model:GTree.tree_store) data timestamp filename ->
       fields_to_export := (msg, field) :: !fields_to_export
     end;
     false);
+
+  (* Save preferences *)
+  let value = String.concat ";" (List.map (fun (msg, field) -> sprintf "%s:%s" msg field) !fields_to_export) in
+  let xml = if Sys.file_exists Env.gconf_file then Xml.parse_file Env.gconf_file else Xml.Element ("gconf", [], []) in
+  let xml = ExtXml.Gconf.add_entry xml "log plotter" "to_export" value in
+  let f = open_out Env.gconf_file in
+  Printf.fprintf f "%s\n" (ExtXml.to_string_fmt xml);
+  close_out f;  
   
   let f = open_out filename in
   (* Print the header *)
@@ -127,6 +144,21 @@ let export_values = fun (model:GTree.tree_store) data timestamp filename ->
   close_out f;;
 
 
+let read_preferences = fun () ->
+  if Sys.file_exists Env.gconf_file then
+    let xml = Xml.parse_file Env.gconf_file in
+    let to_export = ExtXml.Gconf.get_value xml "to_export" in
+    let pairs = Str.split (Str.regexp ";") to_export in
+    List.map 
+      (fun s ->
+	match Str.split (Str.regexp ":") s with
+	  [m; f] -> (m, f)
+	| _ -> failwith (sprintf "Unexpected pref in '%s'" s))
+      pairs
+  else
+    []
+
+
 (** The save file dialog box *)
 let save_values = fun w log_filename save ->
   let filename = Env.paparazzi_home // "var" // "logs" // log_filename ^ ".csv" in
@@ -137,7 +169,7 @@ let save_values = fun w log_filename save ->
       w#export#destroy ()
 
 
-
+(*****************************************************************************)
 (** The popup window displaying values to export *)
 let popup = fun log_filename data ->
   (* Build the list window *)
@@ -158,7 +190,8 @@ let popup = fun log_filename data ->
   (** Fill the colums *)
   let xml = Pprz.messages_xml () in
   let xml_class = ExtXml.child ~select:(fun c -> ExtXml.attrib c "name" = class_name) xml "class" in
-  fill_data model xml_class;
+  let prefs = read_preferences () in
+  fill_data w#treeview_messages model xml_class prefs;
 
   (* The combo box for the timestamp choice *)
   let strings = "Periodic" :: List.map (fun msg -> Xml.attrib msg "name") (Xml.children xml_class) in
