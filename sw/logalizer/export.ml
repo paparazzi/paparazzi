@@ -120,10 +120,12 @@ let export_values = fun (model:GTree.tree_store) data timestamp filename ->
       !fields_to_export;
     fprintf f "\n%!" in
 
+  (* Write one line per time stamp. *)
   List.iter (fun (t, msg, fields) ->
     begin
       match timestamp with
-      | Period p ->
+      | Period p -> (* We suppose that the period is higher than the time between
+		       any two consecutives messages *)
 	  if t >= !time then begin
 	    print_last_values !time;
 	    time := !time +. p
@@ -144,17 +146,21 @@ let export_values = fun (model:GTree.tree_store) data timestamp filename ->
   close_out f;;
 
 
+(***********************************************************************************)
 let read_preferences = fun () ->
   if Sys.file_exists Env.gconf_file then
-    let xml = Xml.parse_file Env.gconf_file in
-    let to_export = ExtXml.Gconf.get_value xml "to_export" in
-    let pairs = Str.split (Str.regexp ";") to_export in
-    List.map 
-      (fun s ->
-	match Str.split (Str.regexp ":") s with
-	  [m; f] -> (m, f)
-	| _ -> failwith (sprintf "Unexpected pref in '%s'" s))
-      pairs
+    try
+      let xml = Xml.parse_file Env.gconf_file in
+      let to_export = ExtXml.Gconf.get_value xml "to_export" in
+      let pairs = Str.split (Str.regexp ";") to_export in
+      List.map 
+	(fun s ->
+	  match Str.split (Str.regexp ":") s with
+	    [m; f] -> (m, f)
+	  | _ -> failwith (sprintf "Unexpected pref in '%s'" s))
+	pairs
+    with
+      Not_found -> []
   else
     []
 
@@ -212,10 +218,11 @@ let popup = fun log_filename data ->
 
 	    
 
-  (* The combo box for the extrapolation *)
-  let strings = ["Last Value"; "Linear Extrapol"] in
+  (* The combo box for the extrapolation FIXME
+  let strings = ["Last Value"; "Linear Extrapolation"] in
   let (combo, (tree, column)) = GEdit.combo_box_text ~packing:w#box_choose_interpol#add ~strings () in
   tree#foreach (fun _path row -> combo#set_active_iter (Some row); true); (* Select the first *)
+   *)
 
   ignore (w#button_cancel#connect#clicked (fun () -> w#export#destroy ()));
 
