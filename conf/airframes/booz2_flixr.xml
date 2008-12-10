@@ -65,7 +65,8 @@
 
   </section>
 
- <section name="MICROMAG">
+ <!--
+<section name="MICROMAG">
 
     <define name="MM_SS_PIN" value="20"/>
     <define name="MM_SS_IODIR" value="IO0DIR"/>
@@ -85,6 +86,7 @@
     <define name="MM_DRDY_VIC_IT" value="VIC_EINT2"/>
 
   </section>
+-->
 
   <section name="STABILIZATION_RATE" prefix="BOOZ_STABILIZATION_RATE_">
 
@@ -148,7 +150,24 @@
 
   <makefile>
 # prevents motors from ever starting
-ap.CFLAGS += -DKILL_MOTORS
+#ap.CFLAGS += -DKILL_MOTORS
+
+# mikrokopter controllers
+ap.CFLAGS += -DACTUATORS=\"actuators_buss_twi_blmc_hw.h\" -DUSE_BUSS_TWI_BLMC
+ap.srcs += actuators.c $(BOOZ_PRIV_ARCH)/actuators_buss_twi_blmc_hw.c
+
+
+# IMU v3
+ap.CFLAGS += -DBOOZ2_IMU_TYPE=\"booz2_imu_v3.h\"
+ap.srcs += $(BOOZ_PRIV)/booz2_imu_v3.c $(BOOZ_PRIV_ARCH)/booz2_imu_v3_hw.c
+ap.CFLAGS += -DFLOAT_T=float
+# IXME: remove that, uneeded
+ap.CFLAGS += -DUSE_I2C1  -DI2C1_SCLL=150 -DI2C1_SCLH=150 -DI2C1_VIC_SLOT=11 -DI2C1_BUF_LEN=16
+ap.CFLAGS += -DUSE_AMI601
+ap.srcs += AMI601.c
+
+ap.srcs += $(BOOZ_PRIV)/booz2_imu.c
+
 
 include $(PAPARAZZI_SRC)/conf/autopilot/booz2_imu_v3.makefile
 include $(PAPARAZZI_SRC)/conf/autopilot/booz2_autopilot.makefile
