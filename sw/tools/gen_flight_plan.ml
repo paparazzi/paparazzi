@@ -40,10 +40,8 @@ let soi = string_of_int
 
 let check_expressions = ref false
 
-let parse_expression = Fp_proc.parse_expression
-
 let parse = fun s ->
-  let e = parse_expression s in
+  let e = Fp_proc.parse_expression s in
   if !check_expressions then begin
     let unexpected = fun kind x ->
       fprintf stderr "Parsing error in '%s': unexpected %s: '%s' \n" s kind x;
@@ -62,15 +60,11 @@ let parse = fun s ->
 let parsed_attrib = fun xml a ->
   parse (ExtXml.attrib xml a)
 
-let pi = atan 1. *. 4.
-
-let deg_of_rad = fun r ->
-  r /. pi *. 180.
-
 let gen_label =
   let x = ref 0 in
   fun p -> incr x; sprintf "%s_%d" p !x
 
+(** Formatting with a margin *)
 let margin = ref 0
 let step = 2
 
@@ -80,6 +74,7 @@ let left () = margin := !margin - step
 let lprintf = fun f ->
   printf "%s" (String.make !margin ' ');
   printf f
+
 
 let float_attrib = fun xml a -> 
   try
@@ -99,7 +94,7 @@ let check_altitude = fun a x ->
   end
 
 
-(** Computes "x" and "y" attributes if "lat" and "lon" are availabele *)
+(** Computes "x" and "y" attributes if "lat" and "lon" are available *)
 let localize_waypoint = fun rel_utm_of_wgs84 waypoint ->
   try
     let (x, y) =
@@ -161,26 +156,27 @@ let pprz_throttle = fun s ->
   sprintf "9600*(%s)" s
 
 
-let output_vmode x wp last_wp =
-  let pitch = try Xml.attrib x "pitch" with _ -> "0.0" in
+(********************* Vertical control ********************************************)
+let output_vmode = fun stage_xml wp last_wp ->
+  let pitch = try Xml.attrib stage_xml "pitch" with _ -> "0.0" in
   if pitch = "auto"
   then begin
-    lprintf "NavVerticalAutoPitchMode(%s);\n" (pprz_throttle (parsed_attrib x "throttle"))
+    lprintf "NavVerticalAutoPitchMode(%s);\n" (pprz_throttle (parsed_attrib stage_xml "throttle"))
   end else begin
     lprintf "NavVerticalAutoThrottleMode(RadOfDeg(%s));\n" (parse pitch);
   end;
-  let vmode = try ExtXml.attrib x "vmode" with _ -> "alt" in
+  let vmode = try ExtXml.attrib stage_xml "vmode" with _ -> "alt" in
   begin
     match vmode with
       "climb" ->
-	lprintf "NavVerticalClimbMode(%s);\n" (parsed_attrib x "climb")
+	lprintf "NavVerticalClimbMode(%s);\n" (parsed_attrib stage_xml "climb")
     | "alt" ->
 	let alt =
 	  try
-	    let a = parsed_attrib x "alt" in
+	    let a = parsed_attrib stage_xml "alt" in
 	    begin
 	      try
-		check_altitude (float_of_string a) x
+		check_altitude (float_of_string a) stage_xml
 	      with
 		(* Impossible to check the altitude on an expression: *)
 		Failure "float_of_string" -> ()
@@ -197,11 +193,12 @@ let output_vmode x wp last_wp =
     | "throttle" ->
 	if (pitch = "auto") then
 	  failwith "auto pich mode not compatible with vmode=throttle";
-	lprintf "NavVerticalThrottleMode(%s);\n" (pprz_throttle (parsed_attrib x "throttle"))
+	lprintf "NavVerticalThrottleMode(%s);\n" (pprz_throttle (parsed_attrib stage_xml "throttle"))
     | x -> failwith (sprintf "Unknown vmode '%s'" x)
   end;
   vmode
-	  
+
+(****************** Horizontal control *********************************************)
 let output_hmode x wp last_wp =
   try
     let hmode = ExtXml.attrib x "hmode" in
@@ -633,18 +630,6 @@ let print_inside_sector = fun (s, pts) ->
   lprintf "}\n"
 
 
-let parse_sector = fun rel_utm_of_wgs84 x ->
-  let xml = ExtXml.child x "0" in
-  match String.lowercase (Xml.tag xml) with
-    "polygon" ->
-      let p2D_of = fun x ->
-	let geo = Latlong.of_string (ExtXml.attrib x "pos") in
-	let (x, y) = rel_utm_of_wgs84 geo in
-	{G2D.x2D = x; G2D.y2D = y } in
-      let pts =  List.map p2D_of (Xml.children xml) in
-      (ExtXml.attrib x "name", pts)
-  | s -> failwith (sprintf "sector: %s not yet" s)
-
 let parse_wpt_sector = fun waypoints xml ->
   let sector_name = ExtXml.attrib xml "name" in
   let p2D_of = fun x ->
@@ -663,12 +648,9 @@ let parse_wpt_sector = fun waypoints xml ->
 (************************** MAIN ******************************************)
 let () =
   let xml_file = ref "fligh_plan.xml"
-  and dump = ref false
-  and gen_sectors = ref false in
-  Arg.parse [("-check", Arg.Set check_expressions, "Enable expression checking");
-	     ("-dump", Arg.Set dump, "Dump compile result");
-	     ("-sectors", Arg.Set gen_sectors, "Generatess inside functions for sectors.xml");
-	     ]
+  and dump = ref false in
+  Arg.parse [ ("-check", Arg.Set check_expressions, "Enable expression checking");
+	      ("-dump", Arg.Set dump, "Dump compile result") ]
     (fun f -> xml_file := f)
     "Usage:";
   if !xml_file = "" then
@@ -765,13 +747,6 @@ let () =
       let index_of_waypoints =
 	let i = ref (-1) in
 	List.map (fun w -> incr i; (name_of w, !i)) waypoints in
-
-      if !gen_sectors then begin
-	let sectors_filename = Filename.concat dir "sectors.xml" in (** FIXME **)
-	let sectors_xml = Xml.parse_file sectors_filename in
-	let sectors = List.map (parse_sector rel_utm_of_wgs84) (Xml.children sectors_xml) in
-	List.iter print_inside_sector sectors
-      end;
 
       let sectors_element = try ExtXml.child xml "sectors" with Not_found -> Xml.Element ("", [], []) in
       let sectors = List.filter (fun x -> String.lowercase (Xml.tag x) = "sector") (Xml.children sectors_element) in
