@@ -57,6 +57,10 @@ static void     booz2_sim_display(void);
 static void     booz_sim_read_actuators(void);
 
 static void ivy_transport_init(void);
+static void on_DL_SETTING(IvyClientPtr app __attribute__ ((unused)), 
+			  void *user_data __attribute__ ((unused)), 
+			  int argc __attribute__ ((unused)), char *argv[]);
+
 
 static void booz2_sim_init(void) {
 
@@ -75,12 +79,14 @@ static void booz2_sim_init(void) {
 
 }
 
+#include "booz2_analog_baro.h"
+
 static gboolean booz2_sim_periodic(gpointer data __attribute__ ((unused))) {
   /* read actuators positions */
   booz_sim_read_actuators();
 
   /* run our models */
-  if (sim_time > 3.)
+  if (sim_time > 1.)
     bfm.on_ground = FALSE;
 
   booz_wind_model_run(DT);
@@ -89,14 +95,29 @@ static gboolean booz2_sim_periodic(gpointer data __attribute__ ((unused))) {
 
   booz_sensors_model_run(sim_time);
   
+
   sim_time += DT;
 
+  /* outputs models state */
   booz2_sim_display();
 
   /* run the airborne code */
   
+  // feed a rc frame and signal event
   BoozRcSimFeed(sim_time);
-  
+  // process it
+  booz2_main_event();
+
+  if (booz_sensors_model_baro_available()) {
+    Booz2BaroISRHandler(bsm.baro);
+    booz2_main_event();
+  }
+
+
+
+  //  printf("throttle %d\n", rc_values[RADIO_THROTTLE]);
+  //  printf("yaw %d\n", rc_values[RADIO_YAW]);
+
   booz2_main_periodic();
   
 
@@ -157,22 +178,23 @@ int main ( int argc, char** argv) {
 
 static void ivy_transport_init(void) {
   IvyInit ("BoozSim", "BoozSim READY", NULL, NULL, NULL, NULL);
-  //  IvyBindMsg(on_DL_SETTING, NULL, "^(\\S*) DL_SETTING (\\S*) (\\S*) (\\S*)");
+  IvyBindMsg(on_DL_SETTING, NULL, "^(\\S*) DL_SETTING (\\S*) (\\S*) (\\S*)");
   IvyStart("127.255.255.255");
 }
 
-#if 0
+#if 1
 #include "std.h"
-//#include "settings.h"
-//#include "booz_controller_telemetry.h"
+#include "settings.h"
+#include "dl_protocol.h"
+#include "downlink.h"
 static void on_DL_SETTING(IvyClientPtr app __attribute__ ((unused)), 
 			  void *user_data __attribute__ ((unused)), 
 			  int argc __attribute__ ((unused)), char *argv[]){
   uint8_t index = atoi(argv[2]);
   float value = atof(argv[3]);
-  //  DlSetting(index, value);
-  //  DOWNLINK_SEND_DL_VALUE(&index, &value);
-  printf("setting %d %f\n", index, value);
+  DlSetting(index, value);
+  DOWNLINK_SEND_DL_VALUE(&index, &value);
+  //  printf("setting %d %f\n", index, value);
 }
 #endif
 
