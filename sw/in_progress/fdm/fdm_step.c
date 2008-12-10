@@ -51,7 +51,7 @@ l_help:
   exit(1);
 }
 
-#define STEP_VAL 32
+#define STEP_VAL 127
 static gboolean periodic(gpointer data __attribute__ ((unused))) {
   int roll, pitch;
   counter++;

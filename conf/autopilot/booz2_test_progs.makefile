@@ -198,8 +198,8 @@ test_max1168.srcs += $(SRC_ARCH)/uart_hw.c
 test_max1168.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart1 
 test_max1168.srcs += downlink.c pprz_transport.c
 
-test_max1168.CFLAGS += -I$(BOOZ)
-test_max1168.srcs += $(BOOZ)/booz_debug.c
+#test_max1168.CFLAGS += -I$(BOOZ)
+#test_max1168.srcs += $(BOOZ)/booz_debug.c
 
 test_max1168.CFLAGS += -DMAX1168_EOC_VIC_SLOT=8 -DSSP_VIC_SLOT=9
 test_max1168.srcs += $(BOOZ_PRIV)/booz2_max1168.c $(BOOZ_PRIV_ARCH)/booz2_max1168_hw.c
@@ -227,8 +227,8 @@ test_micromag.srcs += $(SRC_ARCH)/uart_hw.c
 test_micromag.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart1 
 test_micromag.srcs += downlink.c pprz_transport.c
 
-test_micromag.CFLAGS += -I$(BOOZ)
-test_micromag.srcs += $(BOOZ)/booz_debug.c
+#test_micromag.CFLAGS += -I$(BOOZ)
+#test_micromag.srcs += $(BOOZ)/booz_debug.c
 
 test_micromag.CFLAGS += -DMICROMAG_DRDY_VIC_SLOT=8 -DSSP_VIC_SLOT=9
 test_micromag.srcs += micromag.c $(SRC_ARCH)/micromag_hw.c
@@ -264,8 +264,8 @@ test_imu_b2.CFLAGS += -DFLOAT_T=float
 test_imu_b2.srcs += $(BOOZ_PRIV)/booz2_imu.c
 
 
-test_imu_b2.CFLAGS += -I$(BOOZ)
-test_imu_b2.srcs += $(BOOZ)/booz_debug.c
+#test_imu_b2.CFLAGS += -I$(BOOZ)
+#test_imu_b2.srcs += $(BOOZ)/booz_debug.c
 
 #
 # test RC
@@ -318,6 +318,36 @@ test_mc.CFLAGS += -DACTUATORS=\"actuators_buss_twi_blmc_hw.h\" -DUSE_BUSS_TWI_BL
 test_mc.srcs += $(BOOZ_ARCH)/actuators_buss_twi_blmc_hw.c actuators.c
 test_mc.CFLAGS += -DUSE_I2C0 -DI2C0_SCLL=150 -DI2C0_SCLH=150 -DI2C0_VIC_SLOT=10
 test_mc.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
+
+
+#
+# test asctec BLMC
+#
+test_amc.ARCHDIR = $(ARCHI)
+test_amc.ARCH = arm7tdmi
+test_amc.TARGET = test_amc
+test_amc.TARGETDIR = test_amc
+
+test_amc.CFLAGS += -DCONFIG=$(BOARD_CFG) -I$(BOOZ_PRIV) -I$(BOOZ_PRIV_ARCH) -I$(BOOZ_ARCH)
+test_amc.srcs += $(BOOZ_PRIV_TEST)/booz2_test_amc.c
+test_amc.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))' -DTIME_LED=1
+test_amc.CFLAGS += -DLED
+test_amc.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
+
+test_amc.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600
+test_amc.srcs += $(SRC_ARCH)/uart_hw.c
+
+test_amc.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart1
+test_amc.srcs += downlink.c pprz_transport.c
+test_amc.CFLAGS += -DDATALINK=PPRZ -DPPRZ_UART=Uart1
+test_amc.srcs += $(BOOZ_PRIV)/booz2_datalink.c
+
+test_amc.CFLAGS += -DACTUATORS=\"actuators_asctec_twi_blmc_hw.h\"
+test_amc.srcs += $(BOOZ_PRIV_ARCH)/actuators_asctec_twi_blmc_hw.c actuators.c
+test_amc.CFLAGS += -DUSE_I2C0 -DI2C0_SCLL=150 -DI2C0_SCLH=150 -DI2C0_VIC_SLOT=10
+test_amc.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
+
+test_amc.CFLAGS += -DFLOAT_T=float
 
 
 #
