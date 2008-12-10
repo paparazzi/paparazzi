@@ -24,9 +24,9 @@
     <define name="GYRO_Y_CHAN" value="0"/>
     <define name="GYRO_Z_CHAN" value="2"/>
 
-    <define name="GYRO_X_NEUTRAL" value="33924"/>
-    <define name="GYRO_Y_NEUTRAL" value="33417"/>
-    <define name="GYRO_Z_NEUTRAL" value="32809"/>
+    <define name="GYRO_X_NEUTRAL" value="32338"/>
+    <define name="GYRO_Y_NEUTRAL" value="32033"/>
+    <define name="GYRO_Z_NEUTRAL" value="32041"/>
 
     <define name="GYRO_X_SENS" value=" 1.01" integer="16"/>
     <define name="GYRO_Y_SENS" value="-1.01" integer="16"/>
@@ -40,8 +40,8 @@
     <define name="ACCEL_Y_SENS" value="-2.48126183" integer="16"/>
     <define name="ACCEL_Z_SENS" value="-2.51396167" integer="16"/>
 
-    <define name="ACCEL_X_NEUTRAL" value="32081"/>
-    <define name="ACCEL_Y_NEUTRAL" value="33738"/>
+    <define name="ACCEL_X_NEUTRAL" value="31917"/>
+    <define name="ACCEL_Y_NEUTRAL" value="32260"/>
     <define name="ACCEL_Z_NEUTRAL" value="32441"/>
 
     <define name="MAG_X_CHAN" value="4"/>
@@ -70,6 +70,9 @@
 
   </section>
 
+  <section name="SUPERVISION" prefix="BOOZ_SUPERVISION_">
+     <define name="MAX_CMD" value="200"/>
+  </section>
 
   <section name="STABILIZATION_ATTITUDE" prefix="BOOZ_STABILIZATION_ATTITUDE_">
 
@@ -122,9 +125,12 @@
 # prevents motors from ever starting
 #ap.CFLAGS += -DKILL_MOTORS
 
-# mikrokopter controllers
-ap.CFLAGS += -DACTUATORS=\"actuators_buss_twi_blmc_hw.h\" -DUSE_BUSS_TWI_BLMC
-ap.srcs += $(BOOZ_PRIV_ARCH)/actuators_buss_twi_blmc_hw.c actuators.c
+# asctec controllers
+ap.CFLAGS += -DACTUATORS=\"actuators_asctec_twi_blmc_hw.h\"
+ap.srcs += $(BOOZ_PRIV_ARCH)/actuators_asctec_twi_blmc_hw.c actuators.c
+
+# supervision
+ap.srcs += $(BOOZ_PRIV)/booz_supervision_int_nomix.c
 
 # imu Booz2 v1
 ap.CFLAGS += -DBOOZ2_IMU_TYPE=\"booz2_imu_b2.h\"

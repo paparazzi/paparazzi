@@ -491,7 +491,6 @@
   <message name="BOOZ_STATUS" ID="231">
       <field name="link_imu_nb_err" type="uint32"/>
       <field name="blmc_nb_err"  type="uint8"/>
-      <field name="imu_status"   type="uint8" values="NO_LINK|UNINIT|RUNNING|CRASHED"/>
       <field name="rc_status"    type="uint8" values="OK|LOST|REALLY_LOST"/>
       <field name="gps_status"   type="uint8" values="NO_FIX|NA|NA|3Dfix"/>
       <field name="ap_mode"      type="uint8" values="FAILSAFE|KILL|RATE_DIRECT|ATTITUDE_DIRECT|RATE_Z_HOLD|ATTITUDE_Z_HOLD|HOVER_DIRECT|HOVER_Z_HOLD|NAV"/>

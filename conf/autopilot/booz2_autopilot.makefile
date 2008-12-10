@@ -109,7 +109,7 @@ ap.srcs += $(BOOZ_PRIV)/booz_trig_int.c
 ap.srcs += $(BOOZ_PRIV)/booz2_stabilization.c
 ap.srcs += $(BOOZ_PRIV)/booz2_stabilization_rate.c
 ap.srcs += $(BOOZ_PRIV)/booz2_stabilization_attitude.c
-ap.srcs += $(BOOZ_PRIV)/booz_supervision_int.c
+#ap.srcs += $(BOOZ_PRIV)/booz_supervision_int.c
 
 ap.srcs += $(BOOZ_PRIV)/booz2_guidance_h.c
 ap.srcs += $(BOOZ_PRIV)/booz2_guidance_v.c
