@@ -139,6 +139,9 @@
 ap.CFLAGS += -DACTUATORS=\"actuators_buss_twi_blmc_hw.h\" -DUSE_BUSS_TWI_BLMC
 ap.srcs += $(BOOZ_PRIV_ARCH)/actuators_buss_twi_blmc_hw.c actuators.c
 
+# supervision
+ap.srcs += $(BOOZ_PRIV)/booz_supervision_int.c
+
 # imu Booz2 v1
 ap.CFLAGS += -DBOOZ2_IMU_TYPE=IMU_B2
 ap.CFLAGS += -DSSP_VIC_SLOT=9

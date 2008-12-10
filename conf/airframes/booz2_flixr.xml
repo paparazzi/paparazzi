@@ -134,6 +134,8 @@
 ap.CFLAGS += -DACTUATORS=\"actuators_buss_twi_blmc_hw.h\" -DUSE_BUSS_TWI_BLMC
 ap.srcs += actuators.c $(BOOZ_PRIV_ARCH)/actuators_buss_twi_blmc_hw.c
 
+# supervision
+ap.srcs += $(BOOZ_PRIV)/booz_supervision_int.c
 
 # IMU v3
 ap.CFLAGS += -DBOOZ2_IMU_TYPE=\"booz2_imu_v3.h\"
