@@ -27,11 +27,11 @@
 open Printf
 
 module Ground_Pprz = Pprz.Messages(struct let name = "ground" end)
+module Tm_Pprz = Pprz.Messages(struct let name = "telemetry" end)
 
 let (//) = Filename.concat
 let replay_dir = Env.paparazzi_home // "var" // "replay"
 let dump_fp = Env.paparazzi_src // "sw" // "tools" // "gen_flight_plan.out -dump"
-
 
 let log = ref [||]
 
@@ -132,20 +132,33 @@ let index_of_time = fun log t ->
     if t <= time_of log.(c) then loop a c else loop (c+1) b in
   loop 0 (Array.length log - 1)
 
-let rec run = fun timescale log adj i speed ->
+let rec run = fun serial_port timescale log adj i speed ->
   let (t, ac, m) = log.(i) in
   Ivy.send (Printf.sprintf "replay%s %s" ac m);
+  begin
+    match serial_port with
+      None -> ()
+    | Some channel ->
+	try
+	  let msg_id, vs = Tm_Pprz.values_of_string m in
+	  let payload = Tm_Pprz.payload_of_values msg_id (int_of_string ac) vs in
+	  let buf = Pprz.Transport.packet payload in
+	  Debug.call 'o' (fun f -> fprintf f "%s\n" (Debug.xprint buf));
+	  fprintf channel "%s%!" buf
+	with
+	  _ -> ()
+  end;
   adj#set_value t;
   if i + 1 < Array.length log then
     let dt = time_of log.(i+1) -. t in
-    timer := Some (GMain.Timeout.add (truncate (1000. *. dt /. speed#value)) (fun () -> run timescale log adj (i+1) speed; false))
+    timer := Some (GMain.Timeout.add (truncate (1000. *. dt /. speed#value)) (fun () -> run serial_port timescale log adj (i+1) speed; false))
   else
     timescale#misc#set_sensitive true
       
-let play = fun timescale adj speed ->
+let play = fun serial_port timescale adj speed ->
   stop ();
   if Array.length !log > 1 then
-    run timescale !log adj (index_of_time !log adj#value) speed
+    run serial_port timescale !log adj (index_of_time !log adj#value) speed
   
   
 
@@ -164,8 +177,14 @@ let _ =
   end in
 
   let bus = ref "127.255.255.255:2010" in
+  let port = ref "/dev/ttyUSB0"
+  and baudrate = ref "9600"
+  and output_on_serial = ref false in
   Arg.parse 
-    [ "-b", Arg.String (fun x -> bus := x), "Bus\tDefault is 127.255.255.25:2010"]
+    [ "-b", Arg.String (fun x -> bus := x), "Bus\tDefault is 127.255.255.25:2010";
+      "-d", Arg.Set_string port, (sprintf "<port> Default is %s" !port);
+      "-o", Arg.Set output_on_serial, "Output binary messages on serial port";
+      "-s", Arg.Set_string baudrate, (sprintf "<baudrate>  Default is %s" !baudrate)]
     (fun x -> load_log window adj x)
     "Usage: ";
       
@@ -177,9 +196,16 @@ let _ =
   let file_menu_fact = new GMenu.factory file_menu ~accel_group in
 
   let timescale = GRange.scale `HORIZONTAL ~adjustment:adj ~packing:window#vbox#pack () in
+
+  let serial_port = 
+    if !output_on_serial then
+      Some (Unix.out_channel_of_descr (Serial.opendev !port (Serial.speed_of_baudrate !baudrate)))
+    else 
+      None
+  in
   
   ignore (file_menu_fact#add_item "Open Log" ~key:GdkKeysyms._O ~callback:(open_log window adj));  
-  ignore (file_menu_fact#add_item "Play" ~key:GdkKeysyms._X ~callback:(fun () -> timescale#misc#set_sensitive false; play timescale adj speed));  
+  ignore (file_menu_fact#add_item "Play" ~key:GdkKeysyms._X ~callback:(fun () -> timescale#misc#set_sensitive false; play serial_port timescale adj speed));  
   ignore (file_menu_fact#add_item "Stop" ~key:GdkKeysyms._S ~callback:(fun () -> timescale#misc#set_sensitive true; stop ()));  
   ignore (file_menu_fact#add_item "Quit" ~key:GdkKeysyms._Q ~callback:quit);  
 
