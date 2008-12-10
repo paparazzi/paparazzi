@@ -27,5 +27,23 @@
 //#define LED_2_PIN 3
 
 
+#define MM_SS_PIN 20
+#define MM_SS_IODIR IO0DIR
+#define MM_SS_IOSET IO0SET
+#define MM_SS_IOCLR IO0CLR
+
+#define MM_RESET_PIN 21
+#define MM_RESET_IODIR IO1DIR
+#define MM_RESET_IOSET IO1SET
+#define MM_RESET_IOCLR IO1CLR
+
+#define MM_DRDY_PIN 15
+#define MM_DRDY_PINSEL PINSEL0
+#define MM_DRDY_PINSEL_BIT 30
+#define MM_DRDY_PINSEL_VAL 2
+#define MM_DRDY_EINT 2
+#define MM_DRDY_VIC_IT VIC_EINT2
+
+
 
 #endif /* CONFIG_PPRZ_IMU_H */
