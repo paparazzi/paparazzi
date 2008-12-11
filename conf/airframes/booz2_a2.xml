@@ -71,6 +71,7 @@
   </section>
 
   <section name="SUPERVISION" prefix="BOOZ_SUPERVISION_">
+     <define name="MIN_CMD" value="30"/>
      <define name="MAX_CMD" value="200"/>
   </section>
 
