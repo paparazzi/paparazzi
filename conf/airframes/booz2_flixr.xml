@@ -19,10 +19,10 @@
   </section>
 
   <section name="SUPERVISION" prefix="SUPERVISION_">
-    <define name="FRONT_ROTOR_CW" value="1"/>
-    <define name="TRIM_A" value="2"/>
-    <define name="TRIM_E" value="-1"/>
-    <define name="TRIM_R" value="3"/>
+    <!-- <define name="FRONT_ROTOR_CW" value="1"/> -->
+    <define name="TRIM_A" value="0"/>
+    <define name="TRIM_E" value="0"/>
+    <define name="TRIM_R" value="0"/>
   </section>
 
   <section name="IMU" prefix="IMU_">
@@ -39,17 +39,17 @@
     <define name="GYRO_Y_SENS" value="-1.01" integer="16"/>
     <define name="GYRO_Z_SENS" value="-1.01" integer="16"/>
   
-    <define name="ACCEL_X_CHAN" value="1"/>
-    <define name="ACCEL_Y_CHAN" value="2"/>
-    <define name="ACCEL_Z_CHAN" value="3"/>    
+    <define name="ACCEL_X_CHAN" value="3"/>
+    <define name="ACCEL_Y_CHAN" value="5"/>
+    <define name="ACCEL_Z_CHAN" value="6"/>    
 
-    <define name="ACCEL_X_SENS" value="-2.50411474" integer="16"/>
-    <define name="ACCEL_Y_SENS" value="-2.48126183" integer="16"/>
-    <define name="ACCEL_Z_SENS" value="-2.51396167" integer="16"/>
+    <define name="ACCEL_X_SENS" value="-2.46029007" integer="16"/>
+    <define name="ACCEL_Y_SENS" value="-2.45046527" integer="16"/>
+    <define name="ACCEL_Z_SENS" value="-2.48071774" integer="16"/>
 
-    <define name="ACCEL_X_NEUTRAL" value="32081"/>
-    <define name="ACCEL_Y_NEUTRAL" value="33738"/>
-    <define name="ACCEL_Z_NEUTRAL" value="32441"/>
+    <define name="ACCEL_X_NEUTRAL" value="31893"/>
+    <define name="ACCEL_Y_NEUTRAL" value="32204"/>
+    <define name="ACCEL_Z_NEUTRAL" value="33009"/>
 
     <define name="MAG_X_CHAN" value="0"/>
     <define name="MAG_Y_CHAN" value="1"/>
@@ -129,6 +129,7 @@
   <makefile>
 # prevents motors from ever starting
 #ap.CFLAGS += -DKILL_MOTORS
+ap.CFLAGS += -DKILL_SWITCH
 
 include $(PAPARAZZI_SRC)/conf/autopilot/booz2_actuators_buss.makefile
 include $(PAPARAZZI_SRC)/conf/autopilot/booz2_imu_b2v1.makefile

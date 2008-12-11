@@ -920,9 +920,9 @@
  </message>
 
  <message name="BOOZ2_ACCEL" ID="132">   
-   <field name="ax"    type="int32"/>
-   <field name="ay"    type="int32"/>
-   <field name="az"    type="int32"/>
+   <field name="ax"    type="int32" alt_unit="m/s2" alt_unit_coef="0.0009766"/>
+   <field name="ay"    type="int32" alt_unit="m/s2" alt_unit_coef="0.0009766"/>
+   <field name="az"    type="int32" alt_unit="m/s2" alt_unit_coef="0.0009766"/>
  </message>
 
  <message name="BOOZ2_MAG" ID="133">   
