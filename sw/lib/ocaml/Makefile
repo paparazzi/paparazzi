@@ -26,6 +26,7 @@ INCLUDES= -I +xml-light -I +pcre -I +netstring
 XINCLUDES= -I +lablgl -I +lablgtk2 -I +xml-light
 OCAMLC=ocamlc
 OCAMLOPT=ocamlopt
+OCAMLLIBDIR=$(shell ocamlc -where)
 
 
 SRC = debug.ml base64.ml serial.ml ocaml_tools.ml extXml.ml env.ml xml2h.ml latlong.ml srtm.ml http.ml gm.ml iGN.ml geometry_2d.ml cserial.o convert.o ubx.ml pprz.ml xbee.ml xmlCom.ml editAirframe.ml
@@ -76,6 +77,12 @@ ml_gtk_drag.o : ml_gtk_drag.c
 ml_gtkgl_hack.o   : ml_gtkgl_hack.c
 	@echo OC $<
 	$(Q)$(OCAMLC) $(INCLUDES) -c -ccopt "$(GTKCFLAGS)" $<
+
+camltm.o : register_example.cmo
+	$(OCAMLC) $(INCLUDES) -output-obj -o $@ unix.cma str.cma xml-light.cma ivy-ocaml.cma debug.cmo serial.cmo extXml.cmo env.cmo pprz.cmo tm.cmo
+
+caml_from_c_example : cserial.o convert.o caml_from_c_example.o camltm.o
+	$(CC) -o $@ $^ -L$(OCAMLLIBDIR) -lunix -lstr -livy-ocaml -lcamlrun -lm -livy -lcurses
 
 %.cmo : %.ml
 	@echo OC $<
