@@ -64,7 +64,7 @@ sim.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
 
 
 
-sim.CFLAGS += -DBOOZ2_IMU_TYPE=IMU_B2
+sim.CFLAGS += -DBOOZ2_IMU_TYPE=\"booz2_imu_b2.h\"
 sim.srcs += $(BOOZ_PRIV)/booz2_imu.c \
 	    $(BOOZ_PRIV)/booz2_imu_b2.c \
             $(BOOZ_PRIV_SIM)/booz2_imu_b2_hw.c \
