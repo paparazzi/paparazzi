@@ -43,6 +43,10 @@
 #include "joystick.h"
 #endif
 
+#ifdef HITL
+#include "gps.h"
+#endif
+
 #include "common_nav.h"
 #include "settings.h"
 #include "latlong.h"
