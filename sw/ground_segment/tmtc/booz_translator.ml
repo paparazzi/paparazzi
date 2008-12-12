@@ -2,8 +2,8 @@ open Printf
 
 module Tm_Pprz = Pprz.Messages (struct let name = "telemetry" end)
 
-let ac_id = "149"
-let nav_ref = Latlong.utm_of Latlong.WGS84 (Latlong.make_geo_deg 48.8613611 1.8951388)
+let ac_id = ref "1"
+let nav_ref = ref (Latlong.utm_of Latlong.WGS84 (Latlong.make_geo_deg 43.46223 1.27289)) (* Muret *)
 
 let gps_status = ref 0
 
@@ -29,7 +29,7 @@ let get_status = fun _ values ->
     "ap_horizontal", Pprz.Int 0;
     "if_calib_mode", Pprz.Int 0;
     "mcu1_status",   Pprz.Int !mcu1_status] in
-  Tm_Pprz.message_send ac_id "PPRZ_MODE" mode_values
+  Tm_Pprz.message_send !ac_id "PPRZ_MODE" mode_values
 
 let get_fp = fun _ values ->
   let i32value = fun x -> try Pprz.int32_assoc x values with Not_found ->
@@ -61,27 +61,23 @@ let get_fp = fun _ values ->
     "itow",       Pprz.Int32 (Int32.of_int 0);
     "utm_zone",   Pprz.Int utm.Latlong.utm_zone;
     "gps_nb_err", Pprz.Int 0] in
-  Tm_Pprz.message_send ac_id "GPS" gps_values;
+  Tm_Pprz.message_send !ac_id "GPS" gps_values;
 
   let est_values = [
     "z", Pprz.Float alt;
     "z_dot", Pprz.Float 0.] in
-  Tm_Pprz.message_send ac_id "ESTIMATOR" est_values;
+  Tm_Pprz.message_send !ac_id "ESTIMATOR" est_values;
 
   let att_values = [
     "phi",   Pprz.Int (truncate (57.3 *. Int32.to_float(phi)   /. float_of_int(power_12)));
     "psi",   Pprz.Int (truncate (57.3 *. Int32.to_float(psi)   /. float_of_int(power_12)));
     "theta", Pprz.Int (truncate (57.3 *. Int32.to_float(theta) /. float_of_int(power_12)))] in
-  Tm_Pprz.message_send ac_id "ATTITUDE" att_values;
+  Tm_Pprz.message_send !ac_id "ATTITUDE" att_values;
 
-  let nav_ref_val = [
-    "utm_east",  Pprz.Int32 (Int32.of_float nav_ref.Latlong.utm_y);
-    "utm_north", Pprz.Int32 (Int32.of_float nav_ref.Latlong.utm_x);
-    "utm_zone",  Pprz.Int   nav_ref.Latlong.utm_zone] in
-  Tm_Pprz.message_send ac_id "NAVIGATION_REF" nav_ref_val;
-
-  let dx = (carrot_utm.Latlong.utm_x -. nav_ref.Latlong.utm_x) in
-  let dy = (carrot_utm.Latlong.utm_y -. nav_ref.Latlong.utm_y) in
+  (*
+  let dx = (carrot_utm.Latlong.utm_x -. !nav_ref.Latlong.utm_x) in
+  let dy = (carrot_utm.Latlong.utm_y -. !nav_ref.Latlong.utm_y) in *)
+  let (dx, dy) = Latlong.utm_sub carrot_utm !nav_ref in
   let desired_val = [
     "roll",     Pprz.Float 0.;
     "pitch",    Pprz.Float 0.;
@@ -90,14 +86,29 @@ let get_fp = fun _ values ->
     "y",        Pprz.Float dy;
     "altitude", Pprz.Float 0.;
     "climb",    Pprz.Float 0.] in
-  Tm_Pprz.message_send ac_id "DESIRED" desired_val
+  Tm_Pprz.message_send !ac_id "DESIRED" desired_val
+
+let get_nav_ref = fun _ values ->
+  let i32value = fun x -> try Pprz.int32_assoc x values with Not_found ->
+    failwith (sprintf "Error: field '%s' not found\n" x) in
+
+  let lat = Int32.to_float (i32value "lat") /. 1e7
+  and lon = Int32.to_float (i32value "lon") /. 1e7 in
+  nav_ref := Latlong.utm_of Latlong.WGS84 (Latlong.make_geo_deg lat lon);
+
+  let nav_ref_val = [
+    "utm_east",  Pprz.Int32 (Int32.of_float !nav_ref.Latlong.utm_x);
+    "utm_north", Pprz.Int32 (Int32.of_float !nav_ref.Latlong.utm_y);
+    "utm_zone",  Pprz.Int   !nav_ref.Latlong.utm_zone] in
+  Tm_Pprz.message_send !ac_id "NAVIGATION_REF" nav_ref_val
 
 (*********************** Main ************************************************)
 let _ =
   let ivy_bus = ref "127.255.255.255:2010" in
 
   Arg.parse
-    [ "-b", Arg.String (fun x -> ivy_bus := x), "Bus\tDefault is 127.255.255.255:2010"]
+    [ "-b", Arg.String (fun x -> ivy_bus := x), "Bus\tDefault is 127.255.255.255:2010";
+      "-a", Arg.String (fun x -> ac_id := x), "AC id\tDefault is 1"]
     (fun x -> prerr_endline ("WARNING: don't do anything with "^x))
     "Usage: ";
 
@@ -108,6 +119,7 @@ let _ =
 
   ignore (Tm_Pprz.message_bind "BOOZ_STATUS" get_status);
   ignore (Tm_Pprz.message_bind "BOOZ2_FP" get_fp);
+  ignore (Tm_Pprz.message_bind "BOOZ2_NAV_REF" get_nav_ref);
 
   let loop = Glib.Main.create true in
   while Glib.Main.is_running loop do ignore (Glib.Main.iteration true) done
