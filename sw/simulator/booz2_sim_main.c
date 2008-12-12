@@ -80,13 +80,14 @@ static void booz2_sim_init(void) {
 }
 
 #include "booz2_analog_baro.h"
+#include "booz2_imu.h"
 
 static gboolean booz2_sim_periodic(gpointer data __attribute__ ((unused))) {
   /* read actuators positions */
   booz_sim_read_actuators();
 
   /* run our models */
-  if (sim_time > 1.)
+  if (sim_time > 3.)
     bfm.on_ground = FALSE;
 
   booz_wind_model_run(DT);
@@ -95,7 +96,6 @@ static gboolean booz2_sim_periodic(gpointer data __attribute__ ((unused))) {
 
   booz_sensors_model_run(sim_time);
   
-
   sim_time += DT;
 
   /* outputs models state */
@@ -112,8 +112,10 @@ static gboolean booz2_sim_periodic(gpointer data __attribute__ ((unused))) {
     Booz2BaroISRHandler(bsm.baro);
     booz2_main_event();
   }
-
-
+  if (booz_sensors_model_gyro_available()) {
+    booz2_imu_b2_feed_data();
+    booz2_main_event();
+  }
 
   //  printf("throttle %d\n", rc_values[RADIO_THROTTLE]);
   //  printf("yaw %d\n", rc_values[RADIO_YAW]);
@@ -200,11 +202,12 @@ static void on_DL_SETTING(IvyClientPtr app __attribute__ ((unused)),
 
 
 #include "actuators.h"
+#include "booz_supervision_int.h"
 static void booz_sim_read_actuators(void) {
-  booz_sim_actuators_values[0] = actuators[SERVO_FRONT];
-  booz_sim_actuators_values[1] = actuators[SERVO_BACK];
-  booz_sim_actuators_values[2] = actuators[SERVO_RIGHT];
-  booz_sim_actuators_values[3] = actuators[SERVO_LEFT];
+  booz_sim_actuators_values[0] = (double)Actuator(SERVO_FRONT) / BOOZ_SUPERVISION_MAX_CMD;
+  booz_sim_actuators_values[1] = (double)Actuator(SERVO_BACK) / BOOZ_SUPERVISION_MAX_CMD;
+  booz_sim_actuators_values[2] = (double)Actuator(SERVO_RIGHT) / BOOZ_SUPERVISION_MAX_CMD;
+  booz_sim_actuators_values[3] = (double)Actuator(SERVO_LEFT) / BOOZ_SUPERVISION_MAX_CMD;
 }
 
 static void booz2_sim_parse_options(int argc, char** argv) {

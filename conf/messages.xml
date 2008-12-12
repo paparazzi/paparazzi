@@ -914,9 +914,9 @@
  </message>
 
  <message name="BOOZ2_GYRO" ID="131">   
-   <field name="gp"    type="int32"/>
-   <field name="gq"    type="int32"/>
-   <field name="gr"    type="int32"/>
+   <field name="gp"    type="int32" alt_unit="deg/s" alt_unit_coef="0.0139882"/>
+   <field name="gq"    type="int32" alt_unit="deg/s" alt_unit_coef="0.0139882"/>
+   <field name="gr"    type="int32" alt_unit="deg/s" alt_unit_coef="0.0139882"/>
  </message>
 
  <message name="BOOZ2_ACCEL" ID="132">   

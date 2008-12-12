@@ -66,8 +66,8 @@ ap.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c
 
 #ap.CFLAGS += -DACTUATORS=\"actuators_buss_twi_blmc_hw.h\" -DUSE_BUSS_TWI_BLMC
 #ap.srcs += $(BOOZ_PRIV_ARCH)/actuators_buss_twi_blmc_hw.c actuators.c
-ap.CFLAGS += -DUSE_I2C0 -DI2C0_SCLL=150 -DI2C0_SCLH=150 -DI2C0_VIC_SLOT=10
-ap.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
+#ap.CFLAGS += -DUSE_I2C0 -DI2C0_SCLL=150 -DI2C0_SCLH=150 -DI2C0_VIC_SLOT=10
+#ap.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
 
 
 #ap.CFLAGS += -DBOOZ2_IMU_TYPE=IMU_V3
