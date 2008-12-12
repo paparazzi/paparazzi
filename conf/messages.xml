@@ -1105,6 +1105,11 @@
     <field name="tbd"      type="float"/>
   </message>
 
+  <message name="BOOZ2_NAV_REF" ID="149">
+    <field name="lon"  type="int32"/>
+    <field name="lat"  type="int32"/>
+  </message>
+
 
   <message name="WT" ID="150">
     <field name="rpm"      type="float"/>
