@@ -12,7 +12,7 @@
       <message name="IMU_ACCEL_RAW"     period=".21"/>
       <message name="IMU_GYRO_RAW"      period=".22"/>
       <message name="IMU_MAG_RAW"       period=".23"/> 
-  <!--    <message name="IMU_DEBUG"         period=".24"/> -->
+<!--      <message name="IMU_DEBUG"         period=".24"/>-->
     </mode>
 
     <mode name="raw_sensors">
@@ -101,28 +101,6 @@
       <message name="ALIVE"                       period="0.9"/>
       <message name="DL_VALUE"                    period="0.5"/>
       <message name="BOOZ2_STAB_ATTITUDE_HS_ROLL" period="0.02"/>
-    </mode>
-
-  </process>
-
-
-
-  <process name="Imu">
-
-    <mode name="default">
-<!--      <message name="IMU_ACCEL_RAW"     period=".1"/> -->
-<!--      <message name="IMU_GYRO_RAW"      period=".1"/> -->
-<!--      <message name="IMU_MAG_RAW"       period=".1"/> -->
-      <message name="IMU_DEBUG"         period=".1"/>
-    </mode>
-
-    <mode name="raw_sensors">
-    </mode>
-
-    <mode name="scaled_sensors">
-    </mode>
-
-    <mode name="simulation">
     </mode>
 
   </process>
