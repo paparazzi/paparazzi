@@ -87,7 +87,7 @@ static gboolean booz2_sim_periodic(gpointer data __attribute__ ((unused))) {
   booz_sim_read_actuators();
 
   /* run our models */
-  if (sim_time > 3.)
+  if (sim_time > 10.)
     bfm.on_ground = FALSE;
 
   booz_wind_model_run(DT);
@@ -208,6 +208,9 @@ static void booz_sim_read_actuators(void) {
   booz_sim_actuators_values[1] = (double)Actuator(SERVO_BACK) / BOOZ_SUPERVISION_MAX_CMD;
   booz_sim_actuators_values[2] = (double)Actuator(SERVO_RIGHT) / BOOZ_SUPERVISION_MAX_CMD;
   booz_sim_actuators_values[3] = (double)Actuator(SERVO_LEFT) / BOOZ_SUPERVISION_MAX_CMD;
+
+  printf("%f %f %f %f\n",  booz_sim_actuators_values[0], booz_sim_actuators_values[1], booz_sim_actuators_values[2], booz_sim_actuators_values[3]);
+
 }
 
 static void booz2_sim_parse_options(int argc, char** argv) {

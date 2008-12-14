@@ -146,16 +146,22 @@ typedef struct
 
 
 // Timer Externam Match Register
-#define TEMR_EM0   (1 << 0)             // reflects state of output match 0
-#define TEMR_EM1   (1 << 1)             // reflects state of output match 1
-#define TEMR_EM2   (1 << 2)             // reflects state of output match 2
-#define TEMR_EM3   (1 << 3)             // reflects state of output match 3
-#define TEMR_EMC00 (1 << 4)             // configure match 0 pin behaviour
-#define TEMR_EMC01 (1 << 5)             // configure match 0 pin behaviour
-#define TEMR_EMC10 (1 << 6)             // configure match 1 pin behaviour
-#define TEMR_EMC11 (1 << 7)             // configure match 1 pin behaviour
-#define TEMR_EMC2  (1 << 8)             // configure match 0 pin behaviour
-#define TEMR_EMC3  (1 << 10)            // configure match 1 pin behaviour
+#define TEMR_EM0    (1 << 0)             // reflects state of output match 0
+#define TEMR_EM1    (1 << 1)             // reflects state of output match 1
+#define TEMR_EM2    (1 << 2)             // reflects state of output match 2
+#define TEMR_EM3    (1 << 3)             // reflects state of output match 3
+#define TEMR_EMC0_0 (0 << 4)             // configure match 0 pin behaviour
+#define TEMR_EMC0_1 (1 << 4)             // configure match 0 pin behaviour
+#define TEMR_EMC0_2 (2 << 4)             // configure match 0 pin behaviour
+#define TEMR_EMC1_0 (0 << 6)             // configure match 1 pin behaviour
+#define TEMR_EMC1_1 (1 << 6)             // configure match 1 pin behaviour
+#define TEMR_EMC1_2 (2 << 6)             // configure match 1 pin behaviour
+#define TEMR_EMC2_0 (0 << 8)             // configure match 1 pin behaviour
+#define TEMR_EMC2_1 (1 << 8)             // configure match 1 pin behaviour
+#define TEMR_EMC2_2 (2 << 8)             // configure match 1 pin behaviour
+#define TEMR_EMC3_0 (0 << 10)             // configure match 1 pin behaviour
+#define TEMR_EMC3_1 (1 << 10)             // configure match 1 pin behaviour
+#define TEMR_EMC3_2 (2 << 10)             // configure match 1 pin behaviour
 
 
 #endif

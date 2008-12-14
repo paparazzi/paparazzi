@@ -20,29 +20,29 @@
 
   <section name="IMU" prefix="IMU_">
 
-    <define name="GYRO_X_CHAN" value="1"/>
+    <define name="GYRO_X_CHAN" value="4"/>
     <define name="GYRO_Y_CHAN" value="0"/>
-    <define name="GYRO_Z_CHAN" value="2"/>
+    <define name="GYRO_Z_CHAN" value="1"/>
 
-    <define name="GYRO_X_NEUTRAL" value="32338"/>
-    <define name="GYRO_Y_NEUTRAL" value="32033"/>
-    <define name="GYRO_Z_NEUTRAL" value="32041"/>
+    <define name="GYRO_X_NEUTRAL" value="32734"/>
+    <define name="GYRO_Y_NEUTRAL" value="32272"/>
+    <define name="GYRO_Z_NEUTRAL" value="32420"/>
 
-    <define name="GYRO_X_SENS" value=" 1.01" integer="16"/>
-    <define name="GYRO_Y_SENS" value="-1.01" integer="16"/>
-    <define name="GYRO_Z_SENS" value="-1.01" integer="16"/>
+    <define name="GYRO_X_SENS" value="-0.85" integer="16"/>
+    <define name="GYRO_Y_SENS" value=" 0.85" integer="16"/>
+    <define name="GYRO_Z_SENS" value=" 0.85" integer="16"/>
   
-    <define name="ACCEL_X_CHAN" value="3"/>
+    <define name="ACCEL_X_CHAN" value="2"/>
     <define name="ACCEL_Y_CHAN" value="5"/>
     <define name="ACCEL_Z_CHAN" value="6"/>    
 
-    <define name="ACCEL_X_SENS" value="-2.50411474" integer="16"/>
-    <define name="ACCEL_Y_SENS" value="-2.48126183" integer="16"/>
-    <define name="ACCEL_Z_SENS" value="-2.51396167" integer="16"/>
+    <define name="ACCEL_X_SENS" value="-5.94047559" integer="16"/>
+    <define name="ACCEL_Y_SENS" value="-5.25008239" integer="16"/>
+    <define name="ACCEL_Z_SENS" value=" 6.06493700" integer="16"/>
 
-    <define name="ACCEL_X_NEUTRAL" value="31917"/>
-    <define name="ACCEL_Y_NEUTRAL" value="32260"/>
-    <define name="ACCEL_Z_NEUTRAL" value="32441"/>
+    <define name="ACCEL_X_NEUTRAL" value="39897"/>
+    <define name="ACCEL_Y_NEUTRAL" value="39865"/>
+    <define name="ACCEL_Z_NEUTRAL" value="39735"/>
 
     <define name="MAG_X_CHAN" value="4"/>
     <define name="MAG_Y_CHAN" value="0"/>
@@ -118,18 +118,30 @@
  <section name="BAT">
    <define name="MILLIAMP_PER_PERCENT" value="0.86"/>
    <define name="CATASTROPHIC_BAT_LEVEL" value="9.3" unit="V"/>
+   <define name="BATTERY_SENS"   value="0.24" integer="16"/>
+   <define name="BATTERY_OFFSET" value="270"/>
+<!--   <define name="BATTERY_SENS"   value="1" integer="16"/>
+   <define name="BATTERY_OFFSET" value="0"/> -->
  </section>
 
 
 
   <makefile>
+
+# calib bat
+# 8.39     80
+# 10.12    149
+# 12       227
+# 12.55    250
+#
+
+
 # prevents motors from ever starting
 #ap.CFLAGS += -DKILL_MOTORS
 
 include $(PAPARAZZI_SRC)/conf/autopilot/booz2_actuators_asctec.makefile
 
-include $(PAPARAZZI_SRC)/conf/autopilot/booz2_imu_b2v1.makefile
-
+include $(PAPARAZZI_SRC)/conf/autopilot/booz2_imu_crista.makefile
 
 include $(PAPARAZZI_SRC)/conf/autopilot/booz2_autopilot.makefile
 include $(PAPARAZZI_SRC)/conf/autopilot/booz2_test_progs.makefile

@@ -89,9 +89,14 @@ ap.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c
 #ap.srcs += $(BOOZ_PRIV)/booz2_imu.c
 
 
-ap.CFLAGS += -DADC1_VIC_SLOT=2
 ap.CFLAGS += -DBOOZ2_ANALOG_BARO_LED=2 -DBOOZ2_ANALOG_BARO_PERIOD='SYS_TICS_OF_SEC((1./100.))'
 ap.srcs += $(BOOZ_PRIV)/booz2_analog_baro.c
+
+ap.CFLAGS += -DBOOZ2_ANALOG_BATTERY_PERIOD='SYS_TICS_OF_SEC((1./10.))'
+ap.srcs += $(BOOZ_PRIV)/booz2_battery.c
+
+ap.CFLAGS += -DADC0_VIC_SLOT=2
+ap.CFLAGS += -DADC1_VIC_SLOT=3
 ap.srcs += $(BOOZ_PRIV)/booz2_analog.c $(BOOZ_PRIV_ARCH)/booz2_analog_hw.c
 
 ap.srcs += $(BOOZ_PRIV)/booz2_gps.c

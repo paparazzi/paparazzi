@@ -62,7 +62,7 @@
     <define name="MAG_X_SENS" value="-4.94075530" integer="16"/>
     <define name="MAG_Y_SENS" value="5.10207664" integer="16"/>
     <define name="MAG_Z_SENS" value="-4.90788848" integer="16"/>
-
+    <define name="MAG_45_HACK" value="1"/>
   </section>
 
 
@@ -122,6 +122,9 @@
  <section name="BAT">
    <define name="MILLIAMP_PER_PERCENT" value="0.86"/>
    <define name="CATASTROPHIC_BAT_LEVEL" value="9.3" unit="V"/>
+   <define name="BATTERY_SENS" value="1.00" integer="16"/>
+   <define name="BATTERY_SENS"   value="1" integer="16"/>
+   <define name="BATTERY_OFFSET" value="0"/>
  </section>
 
 

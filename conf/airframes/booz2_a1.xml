@@ -59,9 +59,12 @@
     <define name="MAG_Y_NEUTRAL" value="2362"/> 
     <define name="MAG_Z_NEUTRAL" value="2119"/>
 
-    <define name="MAG_X_SENS" value="-4.94075530" integer="16"/>
-    <define name="MAG_Y_SENS" value="5.10207664" integer="16"/>
+<!--    <define name="MAG_X_SENS" value="-4.94075530" integer="16"/>
+    <define name="MAG_Y_SENS" value="5.10207664" integer="16"/> * sqrt(2)/2 -->
+    <define name="MAG_X_SENS" value="-3.4936416" integer="16"/>
+    <define name="MAG_Y_SENS" value=" 3.607713" integer="16"/>
     <define name="MAG_Z_SENS" value="-4.90788848" integer="16"/>
+    <define name="MAG_45_HACK" value="1"/> 
 
   </section>
 
@@ -121,6 +124,8 @@
  <section name="BAT">
    <define name="MILLIAMP_PER_PERCENT" value="0.86"/>
    <define name="CATASTROPHIC_BAT_LEVEL" value="9.3" unit="V"/>
+   <define name="BATTERY_SENS"   value="1" integer="16"/>
+   <define name="BATTERY_OFFSET" value="0"/>
  </section>
 
  <section name="FMS">
@@ -130,7 +135,7 @@
 
   <makefile>
 # prevents motors from ever starting
-#ap.CFLAGS += -DKILL_MOTORS
+ap.CFLAGS += -DKILL_MOTORS
 
 include $(PAPARAZZI_SRC)/conf/autopilot/booz2_actuators_buss.makefile
 include $(PAPARAZZI_SRC)/conf/autopilot/booz2_imu_b2v1.makefile
