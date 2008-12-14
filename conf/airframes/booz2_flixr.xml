@@ -122,8 +122,7 @@
  <section name="BAT">
    <define name="MILLIAMP_PER_PERCENT" value="0.86"/>
    <define name="CATASTROPHIC_BAT_LEVEL" value="9.3" unit="V"/>
-   <define name="BATTERY_SENS" value="1.00" integer="16"/>
-   <define name="BATTERY_SENS"   value="1" integer="16"/>
+   <define name="BATTERY_SENS"   value="1.0" integer="16"/>
    <define name="BATTERY_OFFSET" value="0"/>
  </section>
 
@@ -131,7 +130,7 @@
 
   <makefile>
 # prevents motors from ever starting
-#ap.CFLAGS += -DKILL_MOTORS
+ap.CFLAGS += -DKILL_MOTORS
 ap.CFLAGS += -DKILL_SWITCH
 
 include $(PAPARAZZI_SRC)/conf/autopilot/booz2_actuators_buss.makefile
