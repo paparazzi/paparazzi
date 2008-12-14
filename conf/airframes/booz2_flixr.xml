@@ -55,14 +55,14 @@
     <define name="MAG_Y_CHAN" value="0"/>
     <define name="MAG_Z_CHAN" value="2"/>
     
-    <define name="MAG_X_NEUTRAL" value="2358"/>
-    <define name="MAG_Y_NEUTRAL" value="2362"/> 
-    <define name="MAG_Z_NEUTRAL" value="2119"/>
-
-    <define name="MAG_X_SENS" value="-4.94075530" integer="16"/>
-    <define name="MAG_Y_SENS" value="5.10207664" integer="16"/>
-    <define name="MAG_Z_SENS" value="-4.90788848" integer="16"/>
+    <define name="MAG_X_SENS" value="-3.3915023" integer="16"/>
+    <define name="MAG_Y_SENS" value="3.3855561" integer="16"/>
+    <define name="MAG_Z_SENS" value="-4.50143271" integer="16"/>
     <define name="MAG_45_HACK" value="1"/>
+
+    <define name="MAG_X_NEUTRAL" value="2054"/>
+    <define name="MAG_Y_NEUTRAL" value="1963"/>
+    <define name="MAG_Z_NEUTRAL" value="2078"/>
   </section>
 
 
