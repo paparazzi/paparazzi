@@ -51,8 +51,8 @@
     <define name="ACCEL_Y_NEUTRAL" value="32204"/>
     <define name="ACCEL_Z_NEUTRAL" value="33009"/>
 
-    <define name="MAG_X_CHAN" value="0"/>
-    <define name="MAG_Y_CHAN" value="1"/>
+    <define name="MAG_X_CHAN" value="4"/>
+    <define name="MAG_Y_CHAN" value="0"/>
     <define name="MAG_Z_CHAN" value="2"/>
     
     <define name="MAG_X_NEUTRAL" value="2358"/>
