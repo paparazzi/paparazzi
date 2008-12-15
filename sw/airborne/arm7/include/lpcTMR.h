@@ -145,7 +145,7 @@ typedef struct
 #define TCCR_CR3_I (1 << 11)           // Enable Interrupt on load of CR3
 
 
-// Timer Externam Match Register
+// Timer External Match Register
 #define TEMR_EM0    (1 << 0)             // reflects state of output match 0
 #define TEMR_EM1    (1 << 1)             // reflects state of output match 1
 #define TEMR_EM2    (1 << 2)             // reflects state of output match 2
@@ -153,15 +153,19 @@ typedef struct
 #define TEMR_EMC0_0 (0 << 4)             // configure match 0 pin behaviour
 #define TEMR_EMC0_1 (1 << 4)             // configure match 0 pin behaviour
 #define TEMR_EMC0_2 (2 << 4)             // configure match 0 pin behaviour
+#define TEMR_EMC0_3 (3 << 4)             // configure match 0 pin behaviour
 #define TEMR_EMC1_0 (0 << 6)             // configure match 1 pin behaviour
 #define TEMR_EMC1_1 (1 << 6)             // configure match 1 pin behaviour
 #define TEMR_EMC1_2 (2 << 6)             // configure match 1 pin behaviour
+#define TEMR_EMC1_3 (3 << 6)             // configure match 0 pin behaviour
 #define TEMR_EMC2_0 (0 << 8)             // configure match 1 pin behaviour
 #define TEMR_EMC2_1 (1 << 8)             // configure match 1 pin behaviour
 #define TEMR_EMC2_2 (2 << 8)             // configure match 1 pin behaviour
-#define TEMR_EMC3_0 (0 << 10)             // configure match 1 pin behaviour
-#define TEMR_EMC3_1 (1 << 10)             // configure match 1 pin behaviour
-#define TEMR_EMC3_2 (2 << 10)             // configure match 1 pin behaviour
+#define TEMR_EMC2_3 (3 << 8)             // configure match 0 pin behaviour
+#define TEMR_EMC3_0 (0 << 10)            // configure match 1 pin behaviour
+#define TEMR_EMC3_1 (1 << 10)            // configure match 1 pin behaviour
+#define TEMR_EMC3_2 (2 << 10)            // configure match 1 pin behaviour
+#define TEMR_EMC2_3 (3 << 10)            // configure match 0 pin behaviour
 
 
 #endif
