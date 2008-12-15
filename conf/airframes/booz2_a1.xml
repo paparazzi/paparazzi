@@ -136,7 +136,7 @@
 
   <makefile>
 # prevents motors from ever starting
-ap.CFLAGS += -DKILL_MOTORS
+#ap.CFLAGS += -DKILL_MOTORS
 
 include $(PAPARAZZI_SRC)/conf/autopilot/booz2_actuators_buss.makefile
 include $(PAPARAZZI_SRC)/conf/autopilot/booz2_imu_b2v1.makefile

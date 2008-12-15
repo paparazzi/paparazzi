@@ -405,7 +405,7 @@
   </message>
 
   <message name="IMU_TURNTABLE" ID="220">
-    <field name="omega" type="float" unit="rad/s"/>
+    <field name="omega" type="float" unit="rad/s" alt_unit="deg/s" alt_unit_coef="57.29578"/>
   </message>
 
 

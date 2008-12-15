@@ -32,7 +32,7 @@
     <define name="GYRO_Z_CHAN" value="2"/>
 
     <define name="GYRO_X_NEUTRAL" value="32372"/>
-    <define name="GYRO_Y_NEUTRAL" value="32167"/>
+    <define name="GYRO_Y_NEUTRAL" value="32080"/>
     <define name="GYRO_Z_NEUTRAL" value="31978"/>
 
     <define name="GYRO_X_SENS" value=" 1.1032765"    integer="16"/>
@@ -99,8 +99,8 @@
   </section>
 
   <section name="FILTER" prefix="FILTER_">
-   <define name="ALIGNMENT_DPHI"   value="BOOZ_ANGLE_I_OF_F(RadOfDeg(4.))"/>
-   <define name="ALIGNMENT_DTHETA" value="BOOZ_ANGLE_I_OF_F(RadOfDeg(3.))"/>
+   <define name="ALIGNMENT_DPHI"   value="BOOZ_ANGLE_I_OF_F(RadOfDeg(0.))"/>
+   <define name="ALIGNMENT_DTHETA" value="BOOZ_ANGLE_I_OF_F(RadOfDeg(0.))"/>
    <define name="ALIGNMENT_DPSI"   value="BOOZ_ANGLE_I_OF_F(0.)"/>
   </section>
 
@@ -130,7 +130,7 @@
 
   <makefile>
 # prevents motors from ever starting
-ap.CFLAGS += -DKILL_MOTORS
+#ap.CFLAGS += -DKILL_MOTORS
 ap.CFLAGS += -DKILL_SWITCH
 
 include $(PAPARAZZI_SRC)/conf/autopilot/booz2_actuators_buss.makefile
