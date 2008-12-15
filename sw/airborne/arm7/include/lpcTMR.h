@@ -165,7 +165,7 @@ typedef struct
 #define TEMR_EMC3_0 (0 << 10)            // configure match 1 pin behaviour
 #define TEMR_EMC3_1 (1 << 10)            // configure match 1 pin behaviour
 #define TEMR_EMC3_2 (2 << 10)            // configure match 1 pin behaviour
-#define TEMR_EMC2_3 (3 << 10)            // configure match 0 pin behaviour
+#define TEMR_EMC3_3 (3 << 10)            // configure match 0 pin behaviour
 
 
 #endif
