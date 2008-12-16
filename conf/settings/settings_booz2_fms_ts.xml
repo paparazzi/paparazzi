@@ -1,0 +1,10 @@
+<settings>
+  <dl_settings>
+
+    <dl_settings NAME="FMS_TS">
+       <dl_setting var="booz_fms_test_signal_period" min="1" step="1" max="100" module="booz2_fms_test_signal" shortname="period" handler="SetPeriod"/>
+       <dl_setting var="booz_fms_test_signal_amplitude" min="0" step="100" max="10000" module="booz2_fms_test_signal" shortname="amplitude"/>
+    </dl_settings>
+
+  </dl_settings>
+</settings>
