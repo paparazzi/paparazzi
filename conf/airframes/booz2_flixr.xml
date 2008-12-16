@@ -1,4 +1,4 @@
-<airframe name="BOOZ2_A1">
+<airframe name="BOOZ2_F1">
 
   <servos min="0" neutral="0" max="0xff">
     <servo name="FRONT" no="0" min="0" neutral="0" max="255"/>
