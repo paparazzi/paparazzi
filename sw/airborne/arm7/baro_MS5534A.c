@@ -131,7 +131,7 @@ void baro_MS5534A_init( void ) {
   baro_MS5534A_available = FALSE;
   alt_baro_enabled = FALSE;
 
-  baro_MS5534A_ground_pressure = 100000;
+  baro_MS5534A_ground_pressure = 101300;
   baro_MS5534A_r = 20.;
   baro_MS5534A_sigma2 = 1;
   baro_MS5534A_do_reset = FALSE;
