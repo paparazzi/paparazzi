@@ -12,7 +12,12 @@
 #define SERVOS_TICS_OF_USEC(s) SYS_TICS_OF_USEC(s)
 #define ChopServo(x,a,b) Chop(x, a, b)
 
+#if defined NB_CHANNELS
+#define _4017_NB_CHANNELS Chop(NB_CHANNELS,0,10)
+#else
 #define _4017_NB_CHANNELS 10
+#endif
+
 extern uint16_t servos_values[_4017_NB_CHANNELS];
 #define Actuator(i) servos_values[i]
 
