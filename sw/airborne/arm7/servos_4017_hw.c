@@ -31,7 +31,7 @@ void actuators_init ( void ) {
   /* assert clock       */
   T0EMR |= TEMR_EM1;	
   /* set low on match 1 */
-  T0EMR |= TEMR_EMC10;
+  T0EMR |= TEMR_EMC1_1;
 #endif
   /* set first pulse in a while */
   T0MR1 = START_TIMEOUT;
