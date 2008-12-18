@@ -274,6 +274,7 @@
   </message>
 
   <message name="PPM" ID="100">
+    <field name="ppm_rate" type="uint8"></field>
     <field name="values" type="uint16[]" unit="ticks"/>
   </message>
 
@@ -1158,16 +1159,18 @@
   <field name="ac_id" type="uint8"/>
  </message>
 
- <message name="HITL_UBX" id="6">
+ <message name="HITL_UBX" id="6" link="forwarded">
   <field name="class" type="uint8"/>
   <field name="id" type="uint8"/>
   <field name="ac_id" type="uint8"/>
   <field name="ubx_payload" type="uint8[]"/>
  </message>
 
- <message name="HITL_INFRARED" id="7">
+ <message name="HITL_INFRARED" id="7" link="forwarded">
   <field name="roll" type="int16"/>
   <field name="pitch" type="int16"/>
+  <field name="top" type="int16"/>
+  <field name="ac_id" type="uint8"/>
  </message>
     
  <message name="PING" id="8"/>
