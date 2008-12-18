@@ -1,28 +1,28 @@
 <!DOCTYPE airframe SYSTEM "airframe.dtd">
 
-<airframe name="Microjet III Tiny 1.1">
+<airframe name="Easy Glider Tiny 0.99">
 
 <!-- commands section -->
   <servos>
-    <servo name="THROTTLE"      no="0" min="1290" neutral="1290" max="1810"/>
-    <servo name="AILERON_LEFT"  no="4" min="1000" neutral="1485" max="2000"/>
+    <servo name="THROTTLE" no="0" min="1290" neutral="1290" max="1810"/>
+    <servo name="AILERON_LEFT" no="4" min="1000" neutral="1485" max="2000"/>
     <servo name="AILERON_RIGHT" no="5" min="1000" neutral="1510" max="2000"/>
     <servo name="RUDDER" no="3" min="1040" neutral="1540" max="2040"/>
-    <servo name="ELEVATOR" no="1" min="1770" neutral="1470" max="970"/>
+    <servo name="ELEVATOR" no="1" min="1770" neutral="1550" max="970"/>
   </servos>
 
   <commands>
     <axis name="THROTTLE" failsafe_value="0"/>
-    <axis name="ROLL"     failsafe_value="0"/>
-    <axis name="PITCH"    failsafe_value="0"/>
-    <axis name="YAW"    failsafe_value="0"/>
+    <axis name="ROLL" failsafe_value="0"/>
+    <axis name="PITCH" failsafe_value="0"/>
+    <axis name="YAW" failsafe_value="0"/>
   </commands>
 
   <rc_commands>
     <set command="THROTTLE" value="@THROTTLE"/>
-    <set command="ROLL"     value="@ROLL"/>
-    <set command="PITCH"    value="@PITCH"/>
-    <set command="YAW"    value="@YAW"/>
+    <set command="ROLL" value="@ROLL"/>
+    <set command="PITCH" value="@PITCH"/>
+    <set command="YAW" value="@YAW"/>
   </rc_commands>
 
   <section name="MIXER">
@@ -31,7 +31,7 @@
   </section>
 
   <command_laws>
-    <set servo="THROTTLE"           value="@THROTTLE"/>
+    <set servo="THROTTLE" value="@THROTTLE"/>
     <set servo="ELEVATOR" value="@PITCH"/>
     <set servo="RUDDER" value="@YAW + @ROLL*COMBI_SWITCH"/>
 
@@ -61,12 +61,12 @@
     <define name="IR2_SIGN" value="-1"/>
     <define name="TOP_SIGN" value="1"/>
 
-    <define name="LATERAL_CORRECTION" value="1."/>
-    <define name="LONGITUDINAL_CORRECTION" value="1."/>
-    <define name="VERTICAL_CORRECTION" value="1."/>
+    <define name="LATERAL_CORRECTION" value="0.75"/>
+    <define name="LONGITUDINAL_CORRECTION" value="0.75"/>
+    <define name="VERTICAL_CORRECTION" value="1.5"/>
 
-    <define name="ROLL_NEUTRAL_DEFAULT" value="-7" unit="deg"/>
-    <define name="PITCH_NEUTRAL_DEFAULT" value="0" unit="deg"/>
+    <define name="ROLL_NEUTRAL_DEFAULT" value="0." unit="deg"/>
+    <define name="PITCH_NEUTRAL_DEFAULT" value="2" unit="deg"/>
 
     <define name="CORRECTION_UP" value="1.0"/>
     <define name="CORRECTION_DOWN" value="1.0"/>
@@ -84,8 +84,6 @@
     <define name="CARROT" value="5." unit="s"/>
     <define name="KILL_MODE_DISTANCE" value="(1.5*MAX_DIST_FROM_HOME)"/>
     <define name="CONTROL_RATE" value="60" unit="Hz"/>
-<!--    <define name="XBEE_INIT" value="\"ATPL2\rATRN5\rATTT80\r\""/> -->
-<!--    <define name="NO_XBEE_API_INIT" value="TRUE"/> -->
     <define name="ALT_KALMAN_ENABLED" value="TRUE"/>
 
     <define name="DEFAULT_CIRCLE_RADIUS" value="80."/>
@@ -104,9 +102,9 @@
     <define name="ALTITUDE_MAX_CLIMB" value="2."/>
 
     <!-- auto throttle inner loop -->
-    <define name="AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE" value="0.32"/>
+    <define name="AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE" value="0.5"/>
     <define name="AUTO_THROTTLE_MIN_CRUISE_THROTTLE" value="0.25"/>
-    <define name="AUTO_THROTTLE_MAX_CRUISE_THROTTLE" value="0.65"/>
+    <define name="AUTO_THROTTLE_MAX_CRUISE_THROTTLE" value="0.85"/>
     <define name="AUTO_THROTTLE_LOITER_TRIM" value="1500"/>
     <define name="AUTO_THROTTLE_DASH_TRIM" value="-4000"/>
     <define name="AUTO_THROTTLE_CLIMB_THROTTLE_INCREMENT" value="0.15" unit="%/(m/s)"/>
@@ -118,13 +116,13 @@
   </section>
 
   <section name="HORIZONTAL CONTROL" prefix="H_CTL_">
-    <define name="COURSE_PGAIN" value="-1.4"/>
+    <define name="COURSE_PGAIN" value="-1.10800004005"/>
 
     <define name="ROLL_MAX_SETPOINT" value="0.6" unit="radians"/>
     <define name="PITCH_MAX_SETPOINT" value="0.5" unit="radians"/>
     <define name="PITCH_MIN_SETPOINT" value="-0.5" unit="radians"/>
 
-    <define name="PITCH_PGAIN" value="-12000."/>
+    <define name="PITCH_PGAIN" value="-15184.5644531"/>
     <define name="PITCH_DGAIN" value="1.5"/>
 
     <define name="ELEVATOR_OF_ROLL" value="1250"/>
@@ -157,12 +155,6 @@
     <define name="DEFAULT_ROLL" value="0.3" unit="rad"/>
     <define name="DEFAULT_PITCH" value="0.5" unit="rad"/>
   </section>
-<!--   
- <section name="DATALINK" prefix="DATALINK_">
-    <define name="DEVICE_TYPE" value="XBEE"/>
-    <define name="DEVICE_ADDRESS" value="...."/>
-  </section>
--->
   
  <section name="SIMU">
     <define name="YAW_RESPONSE_FACTOR" value="0.5"/>
@@ -186,13 +178,9 @@ ap.srcs += $(SRC_ARCH)/servos_4015_MAT_hw.c actuators.c
 ap.CFLAGS += -DRADIO_CONTROL -DRADIO_CONTROL_TYPE=RC_FUTABA
 ap.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c  
 
-#ap.CFLAGS += -DDOWNLINK -DUSE_UART0 -DDOWNLINK_TRANSPORT=XBeeTransport -DDOWNLINK_FBW_DEVICE=Uart0 -DDOWNLINK_AP_DEVICE=Uart0 -DXBEE_UART=Uart0 -DDATALINK=XBEE -DUART0_BAUD=B9600
-#ap.srcs += downlink.c $(SRC_ARCH)/uart_hw.c datalink.c xbee.c
-
 # transparent 
 ap.CFLAGS += -DDOWNLINK -DUSE_UART0 -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_FBW_DEVICE=Uart0 -DDOWNLINK_AP_DEVICE=Uart0 -DPPRZ_UART=Uart0 -DDATALINK=PPRZ -DUART0_BAUD=B9600
 ap.srcs += downlink.c $(SRC_ARCH)/uart_hw.c datalink.c pprz_transport.c
-
 
 ap.CFLAGS += -DINTER_MCU
 ap.srcs += inter_mcu.c 
@@ -216,6 +204,9 @@ ap.srcs += nav_line.c nav_survey_rectangle.c
 # Current sensor
 ap.CFLAGS += -DUSE_ADC_7 -DUSE_ADC_GENERIC -DADC_CHANNEL_GENERIC1=ADC_7 -DADC_CHANNEL_GENERIC_NB_SAMPLES=16
 ap.srcs += adc_generic.c
+
+# Configuration for Hardware In The Loop
+# ap.CFLAGS += -DHITL -UGPS_CONFIGURE -UUART0_BAUD -DUART0_BAUD=B57600
 
 # Config for SITL simulation
 include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
