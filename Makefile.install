@@ -40,7 +40,7 @@ install_conf:
 	$(INSTALLDATA) conf/airframes/microjet5.xml $(DESTDIR)/conf/airframes
 	$(INSTALLDATA) conf/airframes/twinstar1.xml $(DESTDIR)/conf/airframes
 	$(INSTALLDATA) conf/airframes/twinjet1.xml $(DESTDIR)/conf/airframes
-	$(INSTALLDATA) conf/airframes/tiny_sitl.xml $(DESTDIR)/conf/airframes
+	$(INSTALLDATA) conf/airframes/tiny_hitl.xml $(DESTDIR)/conf/airframes
 	$(INSTALLDATA) conf/airframes/booz.xml $(DESTDIR)/conf/airframes
 	$(INSTALL) -d $(DESTDIR)/conf/autopilot
 	$(INSTALLDATA) conf/autopilot/*.makefile $(DESTDIR)/conf/autopilot
