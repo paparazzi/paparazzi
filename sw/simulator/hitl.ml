@@ -47,25 +47,21 @@ module Make (A:Data.MISSION) (FM: FlightModel.SIG) = struct
   let array_of_string = fun s ->
     Array.init (String.length s) (fun i -> Pprz.Int (Char.code s.[i]))
 
-  let send_raw = fun m ->
-    let vs = ["ac_id",Pprz.Int !my_id; "message", Pprz.String m] in
-    GroundPprz.message_send "hitl" "RAW_DATALINK" vs
-
-  let datalink_message = fun msg_name vs ->
-    let (mid, m) = DatalinkPprz.message_of_name msg_name in
-    DatalinkPprz.string_of_message ~sep:";" m vs
-
   let send_ubx_message = fun class_name msg_name vs ->
     let class_id, msg_id, msg_spec = Ubx.message class_name msg_name in
     let ubx_payload = Ubx.ubx_payload msg_spec vs in
     Debug.call 'h' (fun f -> fprintf f "ubx_payload: %d:%s\n" msg_id (Debug.xprint ubx_payload));
     let a = array_of_string ubx_payload in
     let s = Pprz.string_of_value (Pprz.Array a) in
-    let vs = ["class", Pprz.Int class_id;
+    let vs = ["ac_id",Pprz.Int !my_id;
+	      "class", Pprz.Int class_id;
 	      "id", Pprz.Int msg_id;
 	      "ubx_payload", Pprz.String s] in
-    let m = datalink_message "HITL_UBX" vs in
-    send_raw m
+    
+    try
+      DatalinkPprz.message_send "hitl" "HITL_UBX" vs
+    with
+      exc -> prerr_endline (Printexc.to_string exc)
 	
 
   let gps = fun gps ->
@@ -82,12 +78,15 @@ module Make (A:Data.MISSION) (FM: FlightModel.SIG) = struct
 				      "Heading", scale (deg_of_rad gps.course) 1e5]
 	
   let infrared = fun ir_left ir_front ir_top ->
-    let m =
-      datalink_message "HITL_INFRARED"
-	["roll", Pprz.Int (truncate ir_left);
-	 "pitch", Pprz.Int (truncate ir_front)] in
-    send_raw m
-
+    try
+      DatalinkPprz.message_send "hitl" "HITL_INFRARED"
+	["ac_id",Pprz.Int !my_id;
+	 "top", Pprz.Int (truncate ir_top);
+	 "roll", Pprz.Int (truncate ir_left);
+	 "pitch", Pprz.Int (truncate ir_front)]
+    with
+      exc -> prerr_endline (Printexc.to_string exc)
+	
   let sep_reg = Str.regexp Pprz.separator
   let read_commands = fun commands _sender values ->
     let s = Pprz.string_assoc "values" values in
