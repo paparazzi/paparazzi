@@ -38,7 +38,7 @@
 
   <aircraft
    name="HITL"
-   ac_id="6"
+   ac_id="7"
    airframe="airframes/tiny_hitl.xml"
    radio="radios/cockpitSX.xml"
    telemetry="telemetry/hitl.xml"
