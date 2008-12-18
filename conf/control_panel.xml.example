@@ -82,6 +82,19 @@
       <program name="GCS"/>
     </session>
 
+    <session name="HITL">
+      <program name="Hardware in the Loop">
+        <arg flag="-a" constant="HITL"/>
+        <arg flag="-noground"/>
+        <arg flag="-boot"/>
+      </program>
+      <program name="GCS"/>
+      <program name="Data Link">
+        <arg flag="-s" constant="57600"/>
+      </program>
+      <program name="Server"/>
+    </session>
+
     <session name="Booz simulation : AHRS">
 
      <program name="Messages">
