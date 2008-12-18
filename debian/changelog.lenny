@@ -1,3 +1,9 @@
+paparazzi (3.2-6) unstable; urgency=low
+
+  * Papgets, CSV export, ..., Xmas 2008
+
+ -- Pascal Brisset <pascal.brisset@enac.fr>  Mon, 15 Dec 2008 06:20:07 +0100
+
 paparazzi (3.2-5) unstable; urgency=low
 
   * New dependency over meschach-dev

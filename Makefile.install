@@ -40,6 +40,7 @@ install_conf:
 	$(INSTALLDATA) conf/airframes/microjet5.xml $(DESTDIR)/conf/airframes
 	$(INSTALLDATA) conf/airframes/twinstar1.xml $(DESTDIR)/conf/airframes
 	$(INSTALLDATA) conf/airframes/twinjet1.xml $(DESTDIR)/conf/airframes
+	$(INSTALLDATA) conf/airframes/tiny_sitl.xml $(DESTDIR)/conf/airframes
 	$(INSTALLDATA) conf/airframes/booz.xml $(DESTDIR)/conf/airframes
 	$(INSTALL) -d $(DESTDIR)/conf/autopilot
 	$(INSTALLDATA) conf/autopilot/*.makefile $(DESTDIR)/conf/autopilot
@@ -88,13 +89,14 @@ install_bin:
 	$(INSTALLDATA) sw/ground_segment/cockpit/*.cmo $(DESTDIR)/sw/ground_segment/cockpit
 	$(INSTALLDATA) sw/ground_segment/cockpit/gcs.glade $(DESTDIR)/sw/ground_segment/cockpit
 	$(INSTALLDATA) sw/ground_segment/tmtc/*.cmo $(DESTDIR)/sw/ground_segment/tmtc
-	$(INSTALLDATA) sw/ground_segment/tmtc/boa $(DESTDIR)/sw/ground_segment/tmtc
+	$(INSTALL) sw/ground_segment/tmtc/boa $(DESTDIR)/sw/ground_segment/tmtc
 	$(INSTALLDATA) sw/ground_segment/multimon/multimon.cma $(DESTDIR)/sw/ground_segment/multimon
 	$(INSTALLDATA) sw/ground_segment/multimon/libmultimon.a $(DESTDIR)/sw/ground_segment/multimon
 	$(INSTALLDATA) sw/ground_segment/multimon/dllmultimon.so $(DESTDIR)/sw/ground_segment/multimon
 	$(INSTALL) -d  $(DESTDIR)/sw/logalizer
 	$(INSTALLDATA) sw/logalizer/*.cm[ox] $(DESTDIR)/sw/logalizer
 	$(INSTALLDATA) sw/logalizer/*.o $(DESTDIR)/sw/logalizer
+	$(INSTALLDATA) sw/logalizer/export.glade $(DESTDIR)/sw/logalizer
 	ln -sf ../share/paparazzi/sw/supervision/paparazzicenter $(PREFIX)/usr/bin/paparazzi
 
 install_libs:
@@ -104,6 +106,8 @@ install_libs:
 	$(INSTALLDATA) sw/lib/ocaml/*.so $(DESTDIR)/sw/lib/ocaml
 	$(INSTALLDATA) sw/lib/ocaml/*.a $(DESTDIR)/sw/lib/ocaml
 	$(INSTALLDATA) sw/lib/ocaml/*.cmi $(DESTDIR)/sw/lib/ocaml
+	$(INSTALLDATA) sw/lib/ocaml/myGtkInit.cmo $(DESTDIR)/sw/lib/ocaml
+	$(INSTALLDATA) sw/lib/ocaml/widgets.glade $(DESTDIR)/sw/lib/ocaml
 
 install_tools:
 	$(INSTALLDATA) Makefile.ac $(DESTDIR)
@@ -133,6 +137,7 @@ install_tools:
 	$(INSTALLDATA) sw/simulator/sim.cmi  $(DESTDIR)/sw/simulator
 	$(INSTALLDATA) sw/simulator/sitl.cmi  $(DESTDIR)/sw/simulator
 	$(INSTALLDATA) sw/simulator/libsitl.a  $(DESTDIR)/sw/simulator
+	$(INSTALL) sw/simulator/simhitl  $(DESTDIR)/sw/simulator
 
 install_airborne_sources:
 	$(INSTALL) -d $(DESTDIR)/sw/
