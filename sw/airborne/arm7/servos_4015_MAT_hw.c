@@ -56,7 +56,7 @@ void actuators_init ( void ) {
   /* lower clock         */
   T0EMR &= ~TEMR_EM1;	
   /* set high on match 1 */
-  T0EMR |= TEMR_EMC11;
+  T0EMR |= TEMR_EMC1_2;
 
   /* set first pulse in a while */
   T0MR1 = START_TIMEOUT;
