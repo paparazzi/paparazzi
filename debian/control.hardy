@@ -1,0 +1,31 @@
+Source: paparazzi
+Section: extra
+Priority: optional
+Maintainer: Pascal Brisset <pascal.brisset@enac.fr>
+Build-Depends: debhelper (>= 4.0.0)
+Standards-Version: 3.6.1
+
+
+Package: paparazzi-dev
+Architecture: any
+Suggests: eagle, paparazzi-avr, paparazzi-arm7, gs-common, dia-gnome
+Depends: ivy-c-dev, ivy-c, ivy-ocaml, libxml-light-ocaml-dev, liblablgtk2-ocaml-dev, make, gcc, boa, gnuplot, libgnomecanvas2-dev, bzip2, cvs, liblablgtk2-gnome-ocaml-dev, libcamlimages-ocaml-dev, libusb-dev, speech-dispatcher, glade, gedit, imagemagick, libpcre3-dev
+Description: Paparazzi Meta Package : common support
+
+
+Package: paparazzi-avr
+Architecture: any
+Depends: uisp, gcc-avr, avr-libc, binutils-avr,
+Description: Paparazzi Meta Package. Atmel AVR support
+
+
+Package: paparazzi-arm7
+Architecture: any
+Depends: lpc21isp, gcc-arm, binutils-arm, libusb-dev, newlib-arm
+Description: Paparazzi Meta Package. Philips ARM7 support
+
+
+Package: paparazzi-bin
+Architecture: i386
+Depends: ivy-c-dev, ivy-c, ivy-ocaml, libxml-light-ocaml-dev, liblablgtk2-ocaml-dev, make, gcc, boa, gnuplot, bzip2, liblablgtk2-gnome-ocaml-dev, speech-dispatcher, gedit, imagemagick, libpcre3-dev
+Description: Paparazzi main package
