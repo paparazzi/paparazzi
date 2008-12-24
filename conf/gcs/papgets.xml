@@ -1,0 +1,54 @@
+<layout width="1024" height="768">
+  <rows>
+    <widget NAME="map2d" SIZE="500">
+      <papget type="goto_block" display="button" x="10" y="330">
+        <property name="block_name" value="Takeoff"/>
+        <property name="icon" value="takeoff.png"/>
+      </papget>
+      <papget type="message_field" display="gauge" x="47" y="414">
+        <property name="field" value="BAT:voltage"/>
+        <property name="scale" value="0.1"/>
+        <property name="min" value="0."/>
+        <property name="max" value="15."/>
+        <property name="size" value="50."/>
+        <property name="text" value="Bat(V)"/>
+      </papget>
+      <papget type="message_field" display="gauge" x="120" y="414">
+        <property name="field" value="BAT:throttle"/>
+        <property name="scale" value="0.0104167"/>
+        <property name="min" value="0."/>
+        <property name="max" value="100."/>
+        <property name="size" value="50."/>
+        <property name="text" value="Throttle(%)"/>
+      </papget>
+      <papget type="goto_block" display="button" x="10" y="300">
+        <property name="block_name" value="Standby"/>
+        <property name="icon" value="home.png"/>
+      </papget>
+      <papget type="message_field" display="text" x="826" y="10">
+        <property name="field" value="ESTIMATOR:z_dot"/>
+        <property name="scale" value="1"/>
+        <property name="format" value="Climb:%.1fm/s"/>
+        <property name="size" value="20."/>
+        <property name="color" value="pink"/>
+      </papget>
+      <papget type="variable_setting" display="button" x="10" y="250">
+        <property name="variable" value="launch"/>
+        <property name="value" value="1."/>
+        <property name="icon" value="launch.png"/>
+      </papget>
+      <papget type="message_field" display="ruler" x="990" y="250">
+        <property name="field" value="ESTIMATOR:z"/>
+        <property name="scale" value="1"/>
+        <property NAME="height" VALUE="200"/>
+      </papget>
+    </widget>
+    <columns>
+      <rows SIZE="375">
+        <widget NAME="strips" SIZE="200"/>
+      </rows>
+      <widget NAME="aircraft" SIZE="400"/>
+      <widget NAME="alarms"/>
+    </columns>
+  </rows>
+</layout>
