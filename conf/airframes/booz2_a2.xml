@@ -3,8 +3,8 @@
   <servos min="0" neutral="0" max="0xff">
     <servo name="PITCH" no="0" min="0" neutral="0" max="255"/>
     <servo name="ROLL"  no="1" min="0" neutral="0" max="255"/>
-    <servo name="YAW"   no="3" min="0" neutral="0" max="255"/>
-    <servo name="POWER" no="2" min="0" neutral="0" max="255"/>
+    <servo name="YAW"   no="2" min="0" neutral="0" max="255"/>
+    <servo name="POWER" no="3" min="0" neutral="0" max="255"/>
   </servos>
 
   <commands>
