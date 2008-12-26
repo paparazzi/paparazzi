@@ -55,30 +55,26 @@ sim.srcs   += commands.c
 sim.CFLAGS += -DRADIO_CONTROL -DRADIO_CONTROL_TYPE=RC_FUTABA -DRC_LED=1
 sim.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c
 
-sim.CFLAGS += -DACTUATORS=\"actuators_buss_twi_blmc_hw.h\" -DUSE_BUSS_TWI_BLMC
-sim.srcs += $(BOOZ_PRIV_SIM)/actuators_buss_twi_blmc_hw.c actuators.c
-sim.CFLAGS += -DUSE_I2C0 -DI2C0_SCLL=150 -DI2C0_SCLH=150 -DI2C0_VIC_SLOT=10
-sim.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
-
-
-
-
-sim.CFLAGS += -DBOOZ2_IMU_TYPE=\"booz2_imu_b2.h\"
-sim.srcs += $(BOOZ_PRIV)/booz2_imu.c \
-	    $(BOOZ_PRIV)/booz2_imu_b2.c \
-            $(BOOZ_PRIV_SIM)/booz2_imu_b2_hw.c \
-            $(BOOZ_PRIV)/booz2_max1168.c \
-            $(BOOZ_PRIV_SIM)/booz2_max1168_sim.c
-
-sim.CFLAGS += -DUSE_I2C1
-#  -DI2C1_SCLL=150 -DI2C1_SCLH=150 -DI2C1_VIC_SLOT=11 -DI2C1_BUF_LEN=16
+#sim.CFLAGS += -DACTUATORS=\"actuators_buss_twi_blmc_hw.h\" -DUSE_BUSS_TWI_BLMC
+#sim.srcs += $(BOOZ_PRIV_SIM)/actuators_buss_twi_blmc_hw.c actuators.c
+#sim.CFLAGS += -DUSE_I2C0 -DI2C0_SCLL=150 -DI2C0_SCLH=150 -DI2C0_VIC_SLOT=10
 #sim.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
-sim.CFLAGS += -DUSE_AMI601
-sim.srcs += AMI601.c
+
+
+
+
+
 
 sim.CFLAGS += -DBOOZ2_ANALOG_BARO_LED=2 -DBOOZ2_ANALOG_BARO_PERIOD='SYS_TICS_OF_SEC((1./100.))'
 sim.srcs += $(BOOZ_PRIV)/booz2_analog_baro.c
+
+sim.CFLAGS += -DBOOZ2_ANALOG_BATTERY_PERIOD='SYS_TICS_OF_SEC((1./10.))'
+sim.srcs += $(BOOZ_PRIV)/booz2_battery.c
+
 sim.srcs += $(BOOZ_PRIV)/booz2_analog.c $(BOOZ_PRIV_SIM)/booz2_analog_hw.c
+
+
+
 
 sim.srcs += $(BOOZ_PRIV)/booz2_gps.c
 

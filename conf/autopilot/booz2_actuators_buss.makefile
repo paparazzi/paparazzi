@@ -1,7 +1,22 @@
 #
 # Booz2 Mikrokopter Actuators
 #
-# mikrokopter controllers
+#
+# required xml:
+#  <section name="BUSS_BLMC" prefix="BUSS_BLMC_">
+#   <define name="ADDR" value="{ 0x52, 0x54, 0x56, 0x58 }"/>
+#  </section>
+#
+#  <section name="SUPERVISION" prefix="SUPERVISION_">
+#    <define name="FRONT_ROTOR_CW" value="1"/>
+#    <define name="TRIM_A" value="2"/>
+#    <define name="TRIM_E" value="-1"/>
+#    <define name="TRIM_R" value="3"/>
+#  </section>
+#
+#
+
+#
 ap.CFLAGS += -DACTUATORS=\"actuators_buss_twi_blmc_hw.h\" -DUSE_BUSS_TWI_BLMC
 ap.srcs += $(BOOZ_PRIV_ARCH)/actuators_buss_twi_blmc_hw.c actuators.c
 # on I2C0

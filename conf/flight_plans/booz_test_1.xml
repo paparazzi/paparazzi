@@ -2,12 +2,12 @@
 
 <flight_plan alt="250" ground_alt="0" lat0="48.8613611" lon0="1.8951388" max_dist_from_home="400" name="booz test 1" security_height="1">
   <waypoints>
-    <waypoint alt="0.0" name="HOME" x="-18.2" y="-24.6"/>
-    <waypoint alt="0.0" name="D1" x="-0.6" y="0.0"/>
-    <waypoint alt="0.0" name="D2" x="-53.7" y="-45.6"/>
-    <waypoint alt="0.0" name="p1" x="-72.8" y="-70.0"/>
-    <waypoint alt="0.0" name="p2" x="-132.2" y="-118.5"/>
-    <waypoint alt="0.0" name="p3" x="-76.0" y="-137.9"/>
+    <waypoint alt="1.5" name="HOME" x="-18.2" y="-24.6"/>
+    <waypoint alt="1.5" name="D1" x="-0.6" y="0.0"/>
+    <waypoint alt="1.5" name="D2" x="-53.7" y="-45.6"/>
+    <waypoint alt="1.5" name="p1" x="-72.8" y="-70.0"/>
+    <waypoint alt="1.5" name="p2" x="-132.2" y="-118.5"/>
+    <waypoint alt="1.5" name="p3" x="-76.0" y="-137.9"/>
   </waypoints>
   <blocks>
     <block name="stay_p1">

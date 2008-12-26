@@ -6,7 +6,7 @@
     <dl_settings NAME="Misc">
        <dl_setting var="telemetry_mode_Main" min="0" step="1" max="9" module="booz2_telemetry" shortname="telemetry" values="Default|Raw sensors|Scaled sensors|Filter|Rate loop|Att loop|Vert loop|H loop|Aligner|HS_att_roll"/>
        <dl_setting var="booz_fms_on" min="0" step="1" max="1" module="booz2_fms" shortname="fms_on" values="OFF|ON"/>
-       <dl_setting var="booz2_autopilot_mode_auto2" min="0" step="1" max="8" module="booz2_autopilot" shortname="auto2" values="Fail|Kill|Rate|Att|Rate_Z|Att_Z|Hover|Hover_Z|Nav"/>
+<!--       <dl_setting var="booz2_autopilot_mode_auto2" min="0" step="1" max="8" module="booz2_autopilot" shortname="auto2" values="Fail|Kill|Rate|Att|Rate_Z|Att_Z|Hover|Hover_Z|Nav"/> -->
     </dl_settings>
 
     <dl_settings NAME="Rate Loop">
