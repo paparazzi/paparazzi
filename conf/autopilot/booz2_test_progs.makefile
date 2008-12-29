@@ -310,12 +310,8 @@ test_mc.srcs += $(SRC_ARCH)/uart_hw.c
 test_mc.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart1 
 test_mc.srcs += downlink.c pprz_transport.c
 
-test_mc.CFLAGS += -I$(BOOZ)
-test_mc.srcs += $(BOOZ)/booz_debug.c
-
-
 test_mc.CFLAGS += -DACTUATORS=\"actuators_buss_twi_blmc_hw.h\" -DUSE_BUSS_TWI_BLMC
-test_mc.srcs += $(BOOZ_ARCH)/actuators_buss_twi_blmc_hw.c actuators.c
+test_mc.srcs += $(BOOZ_PRIV_ARCH)/actuators_buss_twi_blmc_hw.c actuators.c
 test_mc.CFLAGS += -DUSE_I2C0 -DI2C0_SCLL=150 -DI2C0_SCLH=150 -DI2C0_VIC_SLOT=10
 test_mc.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
 

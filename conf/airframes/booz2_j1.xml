@@ -55,14 +55,15 @@
     <define name="MAG_Y_CHAN" value="0"/>
     <define name="MAG_Z_CHAN" value="2"/>
 
+    <define name="MAG_X_NEUTRAL" value="2129"/>
+    <define name="MAG_Y_NEUTRAL" value="2327"/>
+    <define name="MAG_Z_NEUTRAL" value="1817"/>
+
     <define name="MAG_X_SENS" value="-3.7152783"  integer="16"/>
     <define name="MAG_Y_SENS" value=" 3.675688"   integer="16"/>
     <define name="MAG_Z_SENS" value="-5.02819063" integer="16"/>
     <define name="MAG_45_HACK" value="1"/> 
 
-    <define name="MAG_X_NEUTRAL" value="2129"/>
-    <define name="MAG_Y_NEUTRAL" value="2327"/>
-    <define name="MAG_Z_NEUTRAL" value="1817"/>
     
     <!-- FIXME 45DEG MAG BUG -->
 
@@ -121,22 +122,20 @@
    <define name="IGAIN" value="-0"/>
  </section>
 
- <section name="JOYSTICK" prefix="BOOZ2_JOYSTICK_">
-   <define name="SP_PHI_COEF" value="2860"/> <!-- MAX SP = 20 deg ( RadOfDeg(20 / 128) << 20 ) -->
-   <define name="SP_THETA_COEF" value="2860"/> <!-- MAX SP = 20 deg ( RadOfDeg(20 / 128) << 20 ) -->
- </section>
-
  <section name="BAT">
    <define name="MILLIAMP_PER_PERCENT" value="0.86"/>
    <define name="CATASTROPHIC_BAT_LEVEL" value="9.3" unit="V"/>
-   <define name="BATTERY_SENS"   value="1" integer="16"/>
+  <define name="BATTERY_SENS"   value="0.25" integer="16"/>
+ <!--   <define name="BATTERY_SENS"   value="0.46" integer="16"/> -->
    <define name="BATTERY_OFFSET" value="0"/>
  </section>
 
+ <section name="FMS">
+   <define name="BOOZ_FMS_PHI_THETA_MAX" value="183040"/>
+ </section>
 
 
   <makefile>
-
 # prevents motors from ever starting
 #ap.CFLAGS += -DKILL_MOTORS
 
