@@ -238,7 +238,7 @@ let rec index_stage = fun x ->
     | "heading" | "attitude" | "go" | "stay" | "xyz" | "set" | "circle" ->
 	incr stage;
 	Xml.Element (Xml.tag x, Xml.attribs x@["no", soi !stage], Xml.children x)
-    | "bungeetakeoff"| "survey_rectangle" | "eight" | "oval"->
+    | "survey_rectangle" | "eight" | "oval"->
 	incr stage; incr stage;
 	Xml.Element (Xml.tag x, Xml.attribs x@["no", soi !stage], Xml.children x)
     | "exception" ->
@@ -445,17 +445,6 @@ let rec print_stage = fun index_of_waypoints x ->
 	left ();
 	stage ();
 	lprintf "NavSurveyRectangle(%s, %s);\n" wp1 wp2;
-	lprintf "break;\n"
-    | "bungeetakeoff" ->
-        let bwp = get_index_waypoint (ExtXml.attrib x "BungeeWP") index_of_waypoints in
-	stage ();
-	lprintf "if (! (InitializeBungeeTakeoff(%s)))\n" bwp;
-	lprintf "   NextStageAndBreak();\n";
-	lprintf "break;\n";
-	left ();
-	stage ();
-	lprintf "if (! (BungeeTakeoff()))\n";
-	lprintf "   NextStageAndBreak();\n";
 	lprintf "break;\n"
     | _s -> failwith "Unreachable"
   end;
