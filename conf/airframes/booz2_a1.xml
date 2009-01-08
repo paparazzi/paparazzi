@@ -8,10 +8,10 @@
   </servos>
 
   <commands>
-    <axis name="FRONT" failsafe_value="0"/>
-    <axis name="BACK"  failsafe_value="0"/>
-    <axis name="RIGHT" failsafe_value="0"/>
-    <axis name="LEFT"  failsafe_value="0"/>
+    <axis name="DELTA_A" failsafe_value="0"/>
+    <axis name="DELTA_E" failsafe_value="0"/>
+    <axis name="DELTA_R" failsafe_value="0"/>
+    <axis name="DELTA_T" failsafe_value="0"/>
   </commands>
 
   <section name="BUSS_BLMC" prefix="BUSS_BLMC_">
@@ -138,15 +138,16 @@
 # prevents motors from ever starting
 #ap.CFLAGS += -DKILL_MOTORS
 
+include $(PAPARAZZI_SRC)/conf/autopilot/booz2_autopilot.makefile
+include $(PAPARAZZI_SRC)/conf/autopilot/booz2_test_progs.makefile
+
+sim.CFLAGS += -DBSM_PARAMS=\"booz_sensors_model_params_booz2_a1.h\"
 include $(PAPARAZZI_SRC)/conf/autopilot/booz2_simulator.makefile
 
 include $(PAPARAZZI_SRC)/conf/autopilot/booz2_actuators_buss.makefile
 include $(PAPARAZZI_SRC)/conf/autopilot/booz2_imu_b2v1.makefile
 
-include $(PAPARAZZI_SRC)/conf/autopilot/booz2_autopilot.makefile
-include $(PAPARAZZI_SRC)/conf/autopilot/booz2_test_progs.makefile
 
-sim.CFLAGS += -DBSM_PARAMS=\"booz_sensors_model_params_booz2_a1.h\"
 
   </makefile>
 

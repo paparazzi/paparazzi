@@ -1,22 +1,18 @@
-<airframe name="BOOZ2_A1">
+<airframe name="BOOZ2_A2">
 
   <servos min="0" neutral="0" max="0xff">
-    <servo name="PITCH" no="0" min="0" neutral="0" max="255"/>
-    <servo name="ROLL"  no="1" min="0" neutral="0" max="255"/>
-    <servo name="YAW"   no="2" min="0" neutral="0" max="255"/>
-    <servo name="POWER" no="3" min="0" neutral="0" max="255"/>
+    <servo name="PITCH"  no="0" min="0" neutral="0" max="255"/>
+    <servo name="ROLL"   no="1" min="0" neutral="0" max="255"/>
+    <servo name="YAW"    no="2" min="0" neutral="0" max="255"/>
+    <servo name="THRUST" no="3" min="0" neutral="0" max="255"/>
   </servos>
 
   <commands>
-    <axis name="PITCH" failsafe_value="0"/>
-    <axis name="ROLL"  failsafe_value="0"/>
-    <axis name="YAW"   failsafe_value="0"/>
-    <axis name="POWER" failsafe_value="0"/>
+    <axis name="PITCH"  failsafe_value="0"/>
+    <axis name="ROLL"   failsafe_value="0"/>
+    <axis name="YAW"    failsafe_value="0"/>
+    <axis name="THRUST" failsafe_value="0"/>
   </commands>
-
-  <section name="BUSS_BLMC" prefix="BUSS_BLMC_">
-    <define name="ADDR" value="{ 0x52, 0x54, 0x58, 0x56 }"/>
-  </section>
 
   <section name="IMU" prefix="IMU_">
 

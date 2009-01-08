@@ -7,7 +7,7 @@
       <dl_setting var="asctec_twi_blmc_motor_power[SERVO_PITCH]" min="-100" step="1" max="100" module="actuators_asctec_twi_blmc_hw" shortname="pitch"/>
       <dl_setting var="asctec_twi_blmc_motor_power[SERVO_ROLL]"  min="-100" step="1" max="100" module="actuators_asctec_twi_blmc_hw" shortname="roll"/>
       <dl_setting var="asctec_twi_blmc_motor_power[SERVO_YAW]"   min="-100" step="1" max="100" module="actuators_asctec_twi_blmc_hw" shortname="yaw"/>
-      <dl_setting var="asctec_twi_blmc_motor_power[SERVO_POWER]" min="0"    step="1" max="200" module="actuators_asctec_twi_blmc_hw" shortname="power"/>
+      <dl_setting var="asctec_twi_blmc_motor_power[SERVO_THRUST]" min="0"    step="1" max="200" module="actuators_asctec_twi_blmc_hw" shortname="power"/>
     </dl_settings>
 
   </dl_settings>
