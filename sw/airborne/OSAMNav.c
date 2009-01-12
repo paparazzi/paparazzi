@@ -154,7 +154,7 @@ bool_t InitializeBungeeTakeoff(uint8_t BungeeWP)
 	initialy = estimator_y;
 
 	//Takeoff_Distance can only be positive
-	float TDistance = abs(Takeoff_Distance);
+	float TDistance = fabs(Takeoff_Distance);
 
 	//Translate initial position so that the position of the bungee is (0,0)
 	float Currentx = initialx-(waypoints[BungeeWP].x);
@@ -274,7 +274,7 @@ static float MaxY;
 uint16_t PolySurveySweepNum;
 uint16_t PolySurveySweepBackNum;
 
-bool_t InitializePolygonSurvey(uint8_t EntryWP, uint8_t Size, float Sweep, float Orientation)
+bool_t InitializePolygonSurvey(uint8_t EntryWP, uint8_t Size, float sw, float Orientation)
 {
 	PolygonCenter.x = 0;
 	PolygonCenter.y = 0;
@@ -406,9 +406,9 @@ bool_t InitializePolygonSurvey(uint8_t EntryWP, uint8_t Size, float Sweep, float
 
 		//Find amount to increment by every sweep
 		if(EntryPoint.y >= 0)
-			dSweep = -Sweep;
+			dSweep = -sw;
 		else
-			dSweep = Sweep;
+			dSweep = sw;
 
 		//CircleQdr tells the plane when to exit the circle
 		if(dSweep >= 0)
@@ -454,7 +454,7 @@ bool_t InitializePolygonSurvey(uint8_t EntryWP, uint8_t Size, float Sweep, float
 		}
 	
 		//Find point to come from and point to go to
-		if(abs(EntryPoint.x - XIntercept2) <= abs(EntryPoint.x - XIntercept1))
+		if(fabs(EntryPoint.x - XIntercept2) <= fabs(EntryPoint.x - XIntercept1))
 		{
 			SurveyToWP.x = XIntercept1;
 			SurveyToWP.y = ys;
@@ -576,7 +576,7 @@ bool_t PolygonSurvey(void)
 			}
 
 			//Find point to come from and point to go to
-			if(abs(LastPoint.x - XIntercept2) <= abs(LastPoint.x - XIntercept1))
+			if(fabs(LastPoint.x - XIntercept2) <= fabs(LastPoint.x - XIntercept1))
 			{
 				SurveyToWP.x = XIntercept1;
 				SurveyToWP.y = ys;
@@ -593,7 +593,7 @@ bool_t PolygonSurvey(void)
 				SurveyFromWP.y = ys;
 			}
 
-			if(abs(LastPoint.x) > abs(SurveyFromWP.x))
+			if(fabs(LastPoint.x) > fabs(SurveyFromWP.x))
 				SurveyCircle.x = LastPoint.x;
 			else
 				SurveyCircle.x = SurveyFromWP.x;
