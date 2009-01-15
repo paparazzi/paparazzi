@@ -98,10 +98,6 @@ uint8_t xsens_msg_buf[XSENS_MAX_PAYLOAD];
 #define XSENS_OUTPUT_SETTINGS 0x80000C05
 #endif
 
-#ifndef XSENS_NED
-#define XSENS_NED 1
-#endif
-
 #define UNINIT        0
 #define GOT_START     1
 #define GOT_BID       2
@@ -204,20 +200,20 @@ void parse_ins_msg( void ) {
         uint8_t l = 0;
         if (!XSENS_MASK_AccOut(xsens_output_settings)) {
           ins_ax = XSENS_DATA_Calibrated_accX(xsens_msg_buf,offset);
-          ins_ay = XSENS_NED * XSENS_DATA_Calibrated_accY(xsens_msg_buf,offset);
-          ins_az = XSENS_NED * XSENS_DATA_Calibrated_accZ(xsens_msg_buf,offset);
+          ins_ay = XSENS_DATA_Calibrated_accY(xsens_msg_buf,offset);
+          ins_az = XSENS_DATA_Calibrated_accZ(xsens_msg_buf,offset);
           l++;
         }
         if (!XSENS_MASK_GyrOut(xsens_output_settings)) {
           ins_p = XSENS_DATA_Calibrated_gyrX(xsens_msg_buf,offset);
-          ins_q = XSENS_NED * XSENS_DATA_Calibrated_gyrY(xsens_msg_buf,offset);
-          ins_r = XSENS_NED * XSENS_DATA_Calibrated_gyrZ(xsens_msg_buf,offset);
+          ins_q = XSENS_DATA_Calibrated_gyrY(xsens_msg_buf,offset);
+          ins_r = XSENS_DATA_Calibrated_gyrZ(xsens_msg_buf,offset);
           l++;
         }
         if (!XSENS_MASK_MagOut(xsens_output_settings)) {
           ins_mx = XSENS_DATA_Calibrated_magX(xsens_msg_buf,offset);
-          ins_my = XSENS_NED * XSENS_DATA_Calibrated_magY(xsens_msg_buf,offset);
-          ins_mz = XSENS_NED * XSENS_DATA_Calibrated_magZ(xsens_msg_buf,offset);
+          ins_my = XSENS_DATA_Calibrated_magY(xsens_msg_buf,offset);
+          ins_mz = XSENS_DATA_Calibrated_magZ(xsens_msg_buf,offset);
           l++;
         }
         offset += l * XSENS_DATA_Calibrated_LENGTH / 3;
@@ -241,9 +237,9 @@ void parse_ins_msg( void ) {
         }
         if (XSENS_MASK_OrientationMode(xsens_output_settings) == 0x01) {
           ins_phi   = XSENS_DATA_Euler_roll(xsens_msg_buf,offset) * M_PI / 180;
-          ins_theta = XSENS_NED * XSENS_DATA_Euler_pitch(xsens_msg_buf,offset) * M_PI / 180;
-          ins_psi   = XSENS_NED * XSENS_DATA_Euler_yaw(xsens_msg_buf,offset) * M_PI / 180;
-          gps_course = (int16_t)(XSENS_NED * XSENS_DATA_Euler_yaw(xsens_msg_buf,offset) * 10);
+          ins_theta = XSENS_DATA_Euler_pitch(xsens_msg_buf,offset) * M_PI / 180;
+          ins_psi   = XSENS_DATA_Euler_yaw(xsens_msg_buf,offset) * M_PI / 180;
+          gps_course = (int16_t)(XSENS_DATA_Euler_yaw(xsens_msg_buf,offset) * 10);
           offset += XSENS_DATA_Euler_LENGTH;
         }
         if (XSENS_MASK_OrientationMode(xsens_output_settings) == 0x10) {
@@ -279,8 +275,8 @@ void parse_ins_msg( void ) {
       }
       if (XSENS_MASK_Velocity(xsens_output_mode)) {
         ins_vx = XSENS_DATA_Velocity_vx(xsens_msg_buf,offset);
-        ins_vy = XSENS_NED * XSENS_DATA_Velocity_vy(xsens_msg_buf,offset);
-        ins_vz = XSENS_NED * XSENS_DATA_Velocity_vz(xsens_msg_buf,offset);
+        ins_vy = XSENS_DATA_Velocity_vy(xsens_msg_buf,offset);
+        ins_vz = XSENS_DATA_Velocity_vz(xsens_msg_buf,offset);
 #ifndef USE_VFILTER
         gps_climb = (int16_t)(-ins_vz * 100);
 #endif
