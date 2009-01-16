@@ -59,7 +59,7 @@ ap.srcs += $(BOOZ_PRIV)/booz2_telemetry.c \
 ap.CFLAGS += -DDATALINK=PPRZ -DPPRZ_UART=Uart1
 ap.srcs += $(BOOZ_PRIV)/booz2_datalink.c
 
-ap.srcs += commands.c
+ap.srcs += $(BOOZ_PRIV)/booz2_commands.c
 
 ap.CFLAGS += -DRADIO_CONTROL -DRADIO_CONTROL_TYPE=RC_FUTABA -DRC_LED=1
 ap.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c

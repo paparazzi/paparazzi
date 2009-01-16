@@ -66,11 +66,6 @@
 
   </section>
 
-  <section name="SUPERVISION" prefix="BOOZ_SUPERVISION_">
-     <define name="MIN_CMD" value="30"/>
-     <define name="MAX_CMD" value="200"/>
-  </section>
-
   <section name="STABILIZATION_ATTITUDE" prefix="BOOZ_STABILIZATION_ATTITUDE_">
 
     <define name="SP_MAX_PHI"     value="3000"/>
@@ -91,8 +86,8 @@
   </section>
 
   <section name="FILTER" prefix="FILTER_">
-   <define name="ALIGNMENT_DPHI"   value="BOOZ_ANGLE_I_OF_F(RadOfDeg(4.))"/>
-   <define name="ALIGNMENT_DTHETA" value="BOOZ_ANGLE_I_OF_F(RadOfDeg(3.))"/>
+   <define name="ALIGNMENT_DPHI"   value="BOOZ_ANGLE_I_OF_F(RadOfDeg(12.))"/>
+   <define name="ALIGNMENT_DTHETA" value="BOOZ_ANGLE_I_OF_F(RadOfDeg(-3.5))"/>
    <define name="ALIGNMENT_DPSI"   value="BOOZ_ANGLE_I_OF_F(0.)"/>
   </section>
 

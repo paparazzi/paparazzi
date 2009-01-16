@@ -81,6 +81,12 @@
       <message name="BOOZ2_STAB_ATTITUDE_HS_ROLL" period="0.02"/>
     </mode>
 
+    <mode name="tune_hover">
+      <message name="BOOZ2_TUNE_HOVER"               period=".05"/>
+
+    </mode>
+
+
   </process>
 
 

@@ -1044,10 +1044,10 @@
 
 
  <message name="BOOZ2_CMD" id="143">
-    <field name="cmd_a"   type="int32"/>   
-    <field name="cmd_e"   type="int32"/>   
-    <field name="cmd_r"   type="int32"/>   
-    <field name="cmd_t"   type="int32"/>   
+    <field name="cmd_roll"   type="int32"/>   
+    <field name="cmd_pitch"  type="int32"/>   
+    <field name="cmd_yaw"    type="int32"/>   
+    <field name="cmd_thrust" type="int32"/>   
  </message>
 
 
@@ -1111,8 +1111,19 @@
     <field name="lat"  type="int32"/>
   </message>
 
+  <message name="BOOZ2_TUNE_HOVER" id="150">
+    <field name="cmd_roll"   type="int32"/>   
+    <field name="cmd_pitch"  type="int32"/>   
+    <field name="cmd_yaw"    type="int32"/>   
+    <field name="cmd_thrust" type="int32"/>   
+    <field name="ua_phi"      type="int32"/>
+    <field name="ua_theta"    type="int32"/>
+    <field name="ua_psi"      type="int32"/>
+  </message>
 
-  <message name="WT" id="150">
+
+
+  <message name="WT" id="151">
     <field name="rpm"      type="float"/>
   </message>
 
