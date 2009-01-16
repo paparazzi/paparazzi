@@ -26,6 +26,10 @@ uint32_t last_periodic_event;
 #include "AMI601.h"
 #endif
 
+#ifdef IMU_CAL_TACHO
+#include "imu_cal_tacho.h"
+#define TIMER0_IT_MASK (TIR_CR0I)
+#endif
 
 void TIMER0_ISR ( void ) {
   ISR_ENTRY();
@@ -73,6 +77,13 @@ void TIMER0_ISR ( void ) {
       T0IR = TIR_CR0I;
     }
 #endif /* MB_TACHO */
+#ifdef IMU_CAL_TACHO
+   if (T0IR&TIR_CR0I) {
+      IMU_CAL_TACHO_ISR();
+      /* clear interrupt */
+      T0IR = TIR_CR0I;
+    }
+#endif /* IMU_CAL_TACHO */
 #ifdef USE_AMI601
     if (T0IR&TIR_MR1I) {
       AMI601ReadMeasure();

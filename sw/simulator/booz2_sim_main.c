@@ -202,7 +202,6 @@ static void on_DL_SETTING(IvyClientPtr app __attribute__ ((unused)),
 
 
 #include "actuators.h"
-#include "booz_supervision_int.h"
 static void booz_sim_read_actuators(void) {
 
   
@@ -211,10 +210,10 @@ static void booz_sim_read_actuators(void) {
   printf("actatuors %d %d %d %d\n",  
 	 Actuator(SERVO_FRONT), Actuator(SERVO_BACK), Actuator(SERVO_RIGHT), Actuator(SERVO_LEFT));
 
-  booz_sim_actuators_values[0] = (double)Actuator(SERVO_FRONT) / BOOZ_SUPERVISION_MAX_CMD;
-  booz_sim_actuators_values[1] = (double)Actuator(SERVO_BACK) / BOOZ_SUPERVISION_MAX_CMD;
-  booz_sim_actuators_values[2] = (double)Actuator(SERVO_RIGHT) / BOOZ_SUPERVISION_MAX_CMD;
-  booz_sim_actuators_values[3] = (double)Actuator(SERVO_LEFT) / BOOZ_SUPERVISION_MAX_CMD;
+  booz_sim_actuators_values[0] = (double)Actuator(SERVO_FRONT) / SUPERVISION_MAX_MOTOR;
+  booz_sim_actuators_values[1] = (double)Actuator(SERVO_BACK)  / SUPERVISION_MAX_MOTOR;
+  booz_sim_actuators_values[2] = (double)Actuator(SERVO_RIGHT) / SUPERVISION_MAX_MOTOR;
+  booz_sim_actuators_values[3] = (double)Actuator(SERVO_LEFT)  / SUPERVISION_MAX_MOTOR;
 
   //  printf("%f %f %f %f\n",  booz_sim_actuators_values[0], booz_sim_actuators_values[1], booz_sim_actuators_values[2], booz_sim_actuators_values[3]);
 

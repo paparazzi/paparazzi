@@ -50,7 +50,7 @@ sim.srcs += $(BOOZ_PRIV)/booz2_telemetry.c \
 #sim.CFLAGS += -DDATALINK=PPRZ -DPPRZ_UART=Uart1
 #sim.srcs += $(BOOZ_PRIV)/booz2_datalink.c
 
-sim.srcs   += commands.c
+sim.srcs   += $(BOOZ_PRIV)/booz2_commands.c
 
 sim.CFLAGS += -DRADIO_CONTROL -DRADIO_CONTROL_TYPE=RC_FUTABA -DRC_LED=1
 sim.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c
@@ -87,7 +87,6 @@ sim.srcs += $(BOOZ_PRIV)/booz_trig_int.c
 sim.srcs += $(BOOZ_PRIV)/booz2_stabilization.c
 sim.srcs += $(BOOZ_PRIV)/booz2_stabilization_rate.c
 sim.srcs += $(BOOZ_PRIV)/booz2_stabilization_attitude.c
-sim.srcs += $(BOOZ_PRIV)/booz_supervision_int.c
 
 sim.srcs += $(BOOZ_PRIV)/booz2_guidance_h.c
 sim.srcs += $(BOOZ_PRIV)/booz2_guidance_v.c
