@@ -8,10 +8,10 @@
   </servos>
 
   <commands>
-    <axis name="FRONT" failsafe_value="0"/>
-    <axis name="BACK"  failsafe_value="0"/>
-    <axis name="RIGHT" failsafe_value="0"/>
-    <axis name="LEFT"  failsafe_value="0"/>
+    <axis name="PITCH"  failsafe_value="0"/>
+    <axis name="ROLL"   failsafe_value="0"/>
+    <axis name="YAW"    failsafe_value="0"/>
+    <axis name="THRUST" failsafe_value="0"/>
   </commands>
 
   <section name="BUSS_BLMC" prefix="BUSS_BLMC_">
@@ -20,6 +20,8 @@
 
   <section name="SUPERVISION" prefix="SUPERVISION_">
     <define name="FRONT_ROTOR_CW" value="1"/>
+    <define name="MIN_MOTOR" value="2"/>
+    <define name="MAX_MOTOR" value="210"/>
     <define name="TRIM_A" value="0"/>
     <define name="TRIM_E" value="0"/>
     <define name="TRIM_R" value="1"/>
