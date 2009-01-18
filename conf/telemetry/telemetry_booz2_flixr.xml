@@ -36,6 +36,12 @@
       <message name="ALIVE"             period="2.1"/>
     </mode>
 
+    <mode name="ppm">
+      <message name="PPM"               period="0.5"/>
+      <message name="RC"                period="0.5"/>
+      <message name="BOOZ_STATUS"       period="1"/>
+    </mode>
+
     <mode name="raw_sensors">
       <message name="BOOZ_STATUS"       period="1.2"/>
       <message name="DL_VALUE"          period="0.5"/>

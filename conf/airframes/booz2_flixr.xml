@@ -108,7 +108,7 @@
 
 
   <section name="GUIDANCE_V" prefix="BOOZ2_GUIDANCE_V_">
-   <define name="HOVER_POWER" value="81"/>
+   <define name="HOVER_POWER" value="86"/>
    <define name="HOVER_KP"    value="-200"/>
    <define name="HOVER_KD"    value="-100"/>
    <define name="HOVER_KI"    value="-50"/>
@@ -133,7 +133,7 @@
   <makefile>
 # prevents motors from ever starting
 #ap.CFLAGS += -DKILL_MOTORS
-ap.CFLAGS += -DKILL_SWITCH
+ap.CFLAGS += -DKILL_SWITCH=RADIO_SWITCH1
 
 include $(PAPARAZZI_SRC)/conf/autopilot/booz2_actuators_buss.makefile
 include $(PAPARAZZI_SRC)/conf/autopilot/booz2_imu_b2v1.makefile
