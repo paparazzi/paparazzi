@@ -386,7 +386,7 @@ let ac_msg = fun messages_xml log ac_name ac ->
       log_and_parse log ac_name ac msg values
     with
       Pprz.Unknown_msg_name (x, c) ->
-	fprintf stderr "Unknown message %s in class %s from %s: %s\n" x c ac_name m
+	fprintf stderr "Unknown message %s in class %s from %s: %s\n%!" x c ac_name m
   | x -> prerr_endline (Printexc.to_string x)
 
 
