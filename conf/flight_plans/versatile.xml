@@ -76,10 +76,18 @@
     <block name="Climb nav_climb m/s">
       <circle climb="nav_climb" radius="nav_radius" until="(10 > PowerVoltage()) || (estimator_z > ground_alt+ 1350)" vmode="climb" wp="1"/>
     </block>
-    <block name="Descent 0% throttle">
-      <circle pitch="-5" radius="50+(estimator_z-ground_alt)/2" throttle="0.0" until="ground_alt+50 > estimator_z" vmode="throttle" wp="1"/>
+
+    <block name="Circle 0% throttle">
+      <circle pitch="fp_pitch" radius="nav_radius" throttle="0.0" until="ground_alt+50 > estimator_z" vmode="throttle" wp="1"/>
       <deroute block="Standby"/>
     </block>
+
+    <block name="Oval 0% throttle">
+      <oval p1="1" p2="2" pitch="fp_pitch" radius="nav_radius" throttle="0.0" until="ground_alt+50 > estimator_z" vmode="throttle"/>
+      <deroute block="Standby"/>
+    </block>
+
+
     <block name="Route 1-2">
       <go approaching_time="0" from="1" hmode="route" wp="2"/>
     </block>

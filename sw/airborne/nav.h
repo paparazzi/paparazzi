@@ -50,7 +50,9 @@ extern float last_x, last_y;
 extern float desired_x, desired_y, nav_altitude, flight_altitude, nav_glide_pitch_trim;
 
 extern pprz_t nav_throttle_setpoint;
-extern float nav_pitch, rc_pitch;
+extern float nav_pitch; /* Rad */
+extern float rc_pitch;
+extern float fp_pitch; /* Degrees */
 
 extern float carrot_x, carrot_y;
 

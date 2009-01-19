@@ -272,7 +272,8 @@ static inline void nav_follow(uint8_t _ac_id, float _distance, float _height) {
 float nav_altitude = GROUND_ALT + MIN_HEIGHT_CARROT;
 float desired_x, desired_y;
 pprz_t nav_throttle_setpoint;
-float nav_pitch;
+float nav_pitch; /* Rad */
+float fp_pitch; /* deg */
 
 
 /** \brief Decide if the UAV is approaching the current waypoint.
