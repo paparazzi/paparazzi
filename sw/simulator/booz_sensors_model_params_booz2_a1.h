@@ -30,27 +30,28 @@
  */
 #define BSM_ACCEL_RESOLUTION      (65536)
 /* ms-2 */
-#define BSM_ACCEL_SENSITIVITY_XX  1250.
-#define BSM_ACCEL_SENSITIVITY_YY  1250.
-#define BSM_ACCEL_SENSITIVITY_ZZ  1250.
-#define BSM_ACCEL_NEUTRAL_X       32768
-#define BSM_ACCEL_NEUTRAL_Y       32768
-#define BSM_ACCEL_NEUTRAL_Z       32768
+/* aka 2^10/ACCEL_X_SENS  */
+#define BSM_ACCEL_SENSITIVITY_XX  -408.92695
+#define BSM_ACCEL_SENSITIVITY_YY  -412.69325
+#define BSM_ACCEL_SENSITIVITY_ZZ  -407.32522
+#define BSM_ACCEL_NEUTRAL_X       32081
+#define BSM_ACCEL_NEUTRAL_Y       33738
+#define BSM_ACCEL_NEUTRAL_Z       32441
 /* m2s-4 */
-//#define BSM_ACCEL_NOISE_STD_DEV_X 0
-//#define BSM_ACCEL_NOISE_STD_DEV_Y 0
-//#define BSM_ACCEL_NOISE_STD_DEV_Z 0
+#define BSM_ACCEL_NOISE_STD_DEV_X 0
+#define BSM_ACCEL_NOISE_STD_DEV_Y 0
+#define BSM_ACCEL_NOISE_STD_DEV_Z 0
 
-#define BSM_ACCEL_NOISE_STD_DEV_X 5e-1
-#define BSM_ACCEL_NOISE_STD_DEV_Y 5e-1
-#define BSM_ACCEL_NOISE_STD_DEV_Z 5e-1
+//#define BSM_ACCEL_NOISE_STD_DEV_X 1e-1
+//#define BSM_ACCEL_NOISE_STD_DEV_Y 1e-1
+//#define BSM_ACCEL_NOISE_STD_DEV_Z 1e-1
 
 /* ms-2 */
 #define BSM_ACCEL_BIAS_X          0
 #define BSM_ACCEL_BIAS_Y          0
 #define BSM_ACCEL_BIAS_Z          0
 /* s */
-#define BSM_ACCEL_DT              (1./1000.)
+#define BSM_ACCEL_DT              (1./512.)
 
 
 
@@ -59,17 +60,18 @@
  */
 #define BSM_GYRO_RESOLUTION       65536
 
-#define BSM_GYRO_SENSITIVITY_PP   (-4541.3261)
-#define BSM_GYRO_SENSITIVITY_QQ   (-4651.1628)
-#define BSM_GYRO_SENSITIVITY_RR   ( 4752.8517)
+/* 2^12/GYRO_X_SENS */
+#define BSM_GYRO_SENSITIVITY_PP   ( 4055.)
+#define BSM_GYRO_SENSITIVITY_QQ   (-4055.)
+#define BSM_GYRO_SENSITIVITY_RR   (-4055.)
 
-#define BSM_GYRO_NEUTRAL_P        32768
-#define BSM_GYRO_NEUTRAL_Q        32768
-#define BSM_GYRO_NEUTRAL_R        32768
+#define BSM_GYRO_NEUTRAL_P        33924
+#define BSM_GYRO_NEUTRAL_Q        33417
+#define BSM_GYRO_NEUTRAL_R        32809
 
 #define BSM_GYRO_NOISE_STD_DEV_P  RadOfDeg(0.5)
-#define BSM_GYRO_NOISE_STD_DEV_Q  RadOfDeg(0.)
-#define BSM_GYRO_NOISE_STD_DEV_R  RadOfDeg(0.)
+#define BSM_GYRO_NOISE_STD_DEV_Q  RadOfDeg(0.5)
+#define BSM_GYRO_NOISE_STD_DEV_R  RadOfDeg(0.5)
 
 #define BSM_GYRO_BIAS_INITIAL_P  RadOfDeg( 0.0)
 #define BSM_GYRO_BIAS_INITIAL_Q  RadOfDeg(  .0)
@@ -79,7 +81,7 @@
 #define BSM_GYRO_BIAS_RANDOM_WALK_STD_DEV_Q RadOfDeg(0.)
 #define BSM_GYRO_BIAS_RANDOM_WALK_STD_DEV_R RadOfDeg(0.)
 
-#define BSM_GYRO_DT (1./1000.)
+#define BSM_GYRO_DT (1./512.)
 
 
 

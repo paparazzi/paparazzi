@@ -87,7 +87,7 @@ static gboolean booz2_sim_periodic(gpointer data __attribute__ ((unused))) {
   booz_sim_read_actuators();
 
   /* run our models */
-  if (sim_time > 10.)
+  if (sim_time > 13.)
     bfm.on_ground = FALSE;
 
   booz_wind_model_run(DT);
@@ -205,10 +205,10 @@ static void on_DL_SETTING(IvyClientPtr app __attribute__ ((unused)),
 static void booz_sim_read_actuators(void) {
 
   
-  printf("actatuors %d %d %d %d\n",  
-	 Actuator(SERVO_FRONT), Actuator(SERVO_BACK), Actuator(SERVO_RIGHT), Actuator(SERVO_LEFT));
-  printf("actatuors %d %d %d %d\n",  
-	 Actuator(SERVO_FRONT), Actuator(SERVO_BACK), Actuator(SERVO_RIGHT), Actuator(SERVO_LEFT));
+  //  printf("actatuors %d %d %d %d\n",  
+  //	 Actuator(SERVO_FRONT), Actuator(SERVO_BACK), Actuator(SERVO_RIGHT), Actuator(SERVO_LEFT));
+//  printf("actatuors %d %d %d %d\n",  
+//	 Actuator(SERVO_FRONT), Actuator(SERVO_BACK), Actuator(SERVO_RIGHT), Actuator(SERVO_LEFT));
 
   booz_sim_actuators_values[0] = (double)Actuator(SERVO_FRONT) / SUPERVISION_MAX_MOTOR;
   booz_sim_actuators_values[1] = (double)Actuator(SERVO_BACK)  / SUPERVISION_MAX_MOTOR;

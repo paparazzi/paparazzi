@@ -3,6 +3,7 @@
 #include BSM_PARAMS
 #include "booz_sensors_model_utils.h"
 #include "booz_flight_model.h"
+#include "booz_flight_model_utils.h"
 
 
 bool_t booz_sensors_model_accel_available() {
@@ -57,7 +58,7 @@ void booz_sensors_model_accel_run( double time, MAT* dcm ) {
   accel_body = v_resize(accel_body, AXIS_NB);
   accel_body = v_zero(accel_body);
 #if 1
-  /* compute sum of forces in body frame except gravity */
+  /* compute sum of forces in body frame  */
 
   /* square of prop rotational speeds */
   static VEC *omega_square = VNULL;
@@ -69,7 +70,19 @@ void booz_sensors_model_accel_run( double time, MAT* dcm ) {
   speed_body = v_resize(speed_body, AXIS_NB);
   BoozFlighModelGetSpeed(speed_body);
 
-  accel_body = booz_get_forces_body_frame(accel_body , dcm, omega_square, speed_body, FALSE);
+  accel_body = booz_get_forces_body_frame(accel_body , dcm, omega_square, speed_body);
+
+  /* add non inertial forces        */
+  /* extract body rate from state */
+  static VEC *rate_body = VNULL;
+  rate_body = v_resize(rate_body, AXIS_NB);
+  BoozFlighModelGetRate(rate_body);
+  static VEC *fict_f = VNULL;
+  fict_f = v_resize(fict_f, AXIS_NB);
+  fict_f = out_prod(speed_body, rate_body, fict_f);
+  fict_f = sv_mlt(bfm.mass, fict_f, fict_f);
+  accel_body = v_add(accel_body, fict_f, accel_body);
+
   /* divide by mass */
   accel_body = sv_mlt(1./bfm.mass, accel_body, accel_body);
   
@@ -83,8 +96,6 @@ void booz_sensors_model_accel_run( double time, MAT* dcm ) {
   g_body = mv_mlt(dcm, g_inert, g_body);
 
   accel_body = v_sub(accel_body, g_body, accel_body);
-  //#else
-  //  printf(" accel_body # %f %f %f\n", accel_body->ve[AXIS_X], accel_body->ve[AXIS_Y], accel_body->ve[AXIS_Z]);
 
 #if 0
  IvySendMsg("148 BOOZ_SIM_WIND %f %f %f",  

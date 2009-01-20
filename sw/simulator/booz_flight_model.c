@@ -91,32 +91,27 @@ void booz_flight_model_run( double dt, double* commands ) {
    compute the sum of external forces. 
    assumes that dcm and omega_square are already precomputed from X 
 */
-VEC* booz_get_forces_body_frame(VEC* F , MAT* dcm, VEC* omega_square, VEC* speed_body, int exclude_weight) {
+VEC* booz_get_forces_body_frame(VEC* F , MAT* dcm, VEC* omega_square, VEC* speed_body) {
 
   // FIXME : nimporte koi !
   if (bfm.on_ground) {
     F->ve[AXIS_X] = 0;
     F->ve[AXIS_Y] = 0;
-    if (!exclude_weight)
-      F->ve[AXIS_Z] = 0;
-    else
-      F->ve[AXIS_Z] = -9.81*bfm.mass;
+    F->ve[AXIS_Z] = 0;
   }
   else {
     // propeller thrust
     F->ve[AXIS_X] = 0;
     F->ve[AXIS_Y] = 0;
     F->ve[AXIS_Z] = -v_sum(omega_square) * bfm.thrust_factor;
-    if (!exclude_weight) {
-      // gravity
-      static VEC *g_body = VNULL;
-      g_body = v_resize(g_body, AXIS_NB);
-      g_body = mv_mlt(dcm, bfm.g_earth, g_body); 
-      F = v_mltadd(F, g_body, bfm.mass, F); 
-    }
+    // gravity
+    static VEC *g_body = VNULL;
+    g_body = v_resize(g_body, AXIS_NB);
+    g_body = mv_mlt(dcm, bfm.g_earth, g_body); 
+    F = v_mltadd(F, g_body, bfm.mass, F); 
     // body drag
     double norm_speed = v_norm2(speed_body);
-    F = v_mltadd(F, speed_body, - norm_speed * C_d_body, F);
+    F = v_mltadd(F, speed_body, -norm_speed * C_d_body, F);
   }
   return F;
 }
@@ -176,7 +171,7 @@ static void booz_flight_model_get_derivatives(VEC* X, VEC* u, VEC* Xdot) {
   /* compute external forces        */
   static VEC *f_body = VNULL;
   f_body = v_resize(f_body, AXIS_NB);
-  f_body = booz_get_forces_body_frame(f_body , dcm, omega_square, speed_body, FALSE);
+  f_body = booz_get_forces_body_frame(f_body , dcm, omega_square, speed_body);
 
   /* add non inertial forces        */
   static VEC *fict_f = VNULL;

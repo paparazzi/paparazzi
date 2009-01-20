@@ -29,6 +29,8 @@ void booz_wind_model_init( void ) {
 
 void booz_wind_model_run( double dt ) {
 
+
+#if 0
   static VEC *u = VNULL;
   u = v_resize(u, AXIS_NB);
   u = v_rand(u);
@@ -43,6 +45,8 @@ void booz_wind_model_run( double dt ) {
   bwm.velocity->ve[AXIS_X] = bwm.state->ve[0] * BWM_WM * BWM_WM * BWM_MAX_X;
   bwm.velocity->ve[AXIS_Y] = bwm.state->ve[2] * BWM_WM * BWM_WM * BWM_MAX_Y;
   bwm.velocity->ve[AXIS_Z] = bwm.state->ve[4] * BWM_WM * BWM_WM * BWM_MAX_Z;
+#endif
+
 
 }
 

@@ -9,13 +9,13 @@
 
 #define BoozRcSimFeed(_time) {						\
     if (_time < 0.18) {							\
-      ppm_pulses[RADIO_YAW]      = 1493 - 0.5  * (2050-950);		\
+      ppm_pulses[RADIO_YAW]      = 1493 - 0.5 * (2050-950);		\
       ppm_pulses[RADIO_THROTTLE] = 1223 + 0.0 * (2050-1223);		\
       ppm_pulses[RADIO_MODE]     = MODE_SWITCH_MANUAL;			\
     }									\
     else if (_time < 3.5) { 						\
       ppm_pulses[RADIO_YAW]      = 1493 + 0.  * (2050-950);		\
-      ppm_pulses[RADIO_THROTTLE] = 1223 + 0.7 * (2050-1223);		\
+      ppm_pulses[RADIO_THROTTLE] = 1223 + 0.4 * (2050-1223);		\
       ppm_pulses[RADIO_MODE]     = MODE_SWITCH_AUTO1;			\
     }									\
     else {								\
@@ -30,4 +30,3 @@
 
 
 #endif /* BOOZ_RC_SIM_H */
-
