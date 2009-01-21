@@ -145,6 +145,8 @@ static float initialy;
 static float ThrottleSlope;
 static bool_t AboveLine;
 static float BungeeAlt;
+static float TDistance;
+static uint8_t BungeeWaypoint;
 
 bool_t InitializeBungeeTakeoff(uint8_t BungeeWP)
 {
@@ -153,15 +155,17 @@ bool_t InitializeBungeeTakeoff(uint8_t BungeeWP)
 	initialx = estimator_x;
 	initialy = estimator_y;
 
+	BungeeWaypoint = BungeeWP;
+
 	//Takeoff_Distance can only be positive
-	float TDistance = fabs(Takeoff_Distance);
+	TDistance = fabs(Takeoff_Distance);
 
 	//Translate initial position so that the position of the bungee is (0,0)
-	float Currentx = initialx-(waypoints[BungeeWP].x);
-	float Currenty = initialy-(waypoints[BungeeWP].y);
+	float Currentx = initialx-(waypoints[BungeeWaypoint].x);
+	float Currenty = initialy-(waypoints[BungeeWaypoint].y);
 
 	//Record bungee alt (which should be the ground alt at that point)
-	BungeeAlt = waypoints[BungeeWP].a;
+	BungeeAlt = waypoints[BungeeWaypoint].a;
 
 	//Find Launch line slope and Throttle line slope
 	float MLaunch = Currenty/Currentx;
@@ -204,6 +208,7 @@ bool_t BungeeTakeoff(void)
 	float Currentx = estimator_x-throttlePx;
 	float Currenty = estimator_y-throttlePy;
 	bool_t CurrentAboveLine;
+	float ThrottleB;
 	
 	NavVerticalAutoThrottleMode(0);
   	NavVerticalAltitudeMode(BungeeAlt+Takeoff_Height, 0.);
@@ -215,6 +220,39 @@ bool_t BungeeTakeoff(void)
 		nav_route_xy(initialx,initialy,throttlePx,throttlePy);
 		kill_throttle = 1;
 
+		//recalculate lines if below min speed
+		if(estimator_hspeed_mod < Takeoff_MinSpeed)
+		{
+			initialx = estimator_x;
+			initialy = estimator_y;
+
+			//Translate initial position so that the position of the bungee is (0,0)
+			Currentx = initialx-(waypoints[BungeeWaypoint].x);
+			Currenty = initialy-(waypoints[BungeeWaypoint].y);
+
+			//Find Launch line slope and Throttle line slope
+			float MLaunch = Currenty/Currentx;
+	
+			//Find Throttle Point (the point where the throttle line and launch line intersect)
+			if(Currentx < 0)
+				throttlePx = TDistance/sqrt(MLaunch*MLaunch+1);
+			else
+				throttlePx = -(TDistance/sqrt(MLaunch*MLaunch+1));
+
+			if(Currenty < 0)
+				throttlePy = sqrt((TDistance*TDistance)-(throttlePx*throttlePx));
+			else
+				throttlePy = -sqrt((TDistance*TDistance)-(throttlePx*throttlePx));
+
+			//Find ThrottleLine
+			ThrottleSlope = -MLaunch;
+			ThrottleB = (throttlePy - (ThrottleSlope*throttlePx));
+
+			//Translate the throttle point back
+			throttlePx = throttlePx+(waypoints[BungeeWaypoint].x);
+			throttlePy = throttlePy+(waypoints[BungeeWaypoint].y);
+		}
+
 		//Find out if the UAV is currently above the line
 		if(Currenty > (ThrottleSlope*Currentx))
 			CurrentAboveLine = TRUE;
@@ -222,7 +260,7 @@ bool_t BungeeTakeoff(void)
 			CurrentAboveLine = FALSE;
 
 		//Find out if UAV has crossed the line
-		if(AboveLine != CurrentAboveLine && estimator_hspeed_mod > 5)
+		if(AboveLine != CurrentAboveLine && estimator_hspeed_mod > Takeoff_MinSpeed)
 		{
 			CTakeoffStatus = Throttle;
 			kill_throttle = 0;
