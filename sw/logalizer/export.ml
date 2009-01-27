@@ -25,6 +25,8 @@
  *)
 
 open Printf
+open Latlong
+
 let (//) = Filename.concat
 let class_name="telemetry"
 
@@ -83,7 +85,7 @@ type timestamp =
 
 
 (*****************************************************************************)
-let export_values = fun (model:GTree.tree_store) data timestamp filename ->
+let export_values = fun ?(export_geo_pos=true) (model:GTree.tree_store) data timestamp filename ->
   let fields_to_export = ref [] in
   model#foreach (fun _path row ->
     if model#get ~row ~column:col_to_export then begin
@@ -105,23 +107,39 @@ let export_values = fun (model:GTree.tree_store) data timestamp filename ->
   let f = open_out filename in
   (* Print the header *)
   fprintf f "Time";
+  if export_geo_pos then
+    fprintf f ";GPS lat(deg);GPS long(deg)";
   List.iter (fun (m,field) -> fprintf f ";%s:%s" m field) !fields_to_export;
   fprintf f "\n%!";
 
+  (* Store for the current values *)
   let last_values = Hashtbl.create 97
   and time = ref (match data with (t, _, _)::_ -> t | _ -> 0.) in
 
   let print_last_values = fun t ->
     fprintf f "%.3f" t;
+    let lookup = fun m field  -> 
+      try Pprz.string_of_value (Hashtbl.find last_values (m,field)) with Not_found -> "" in
+    if export_geo_pos then begin
+      try
+	let utm_east = float_of_string (lookup "GPS" "utm_east") /. 100.
+	and utm_north = float_of_string (lookup "GPS" "utm_north") /. 100.
+	and utm_zone = int_of_string (lookup "GPS" "utm_zone") in
+	let wgs84 = Latlong.of_utm WGS84 {utm_x=utm_east; utm_y=utm_north; utm_zone=utm_zone} in
+	fprintf f ";%.6f;%.6f" ((Rad>>Deg) wgs84.posn_lat) ((Rad>>Deg) wgs84.posn_long)
+      with
+	exc -> fprintf stderr "%s\n%!" (Printexc.to_string exc)
+    end;
     List.iter 
       (fun (m,field) -> 
-	let v = try Pprz.string_of_value (Hashtbl.find last_values (m,field)) with Not_found -> "" in
+	let v = lookup m field  in
 	fprintf f ";%s" v)
       !fields_to_export;
     fprintf f "\n%!" in
 
   (* Write one line per time stamp. *)
   List.iter (fun (t, msg, fields) ->
+    (* Output values on a time period basis *)
     begin
       match timestamp with
       | Period p -> (* We suppose that the period is higher than the time between
@@ -137,6 +155,7 @@ let export_values = fun (model:GTree.tree_store) data timestamp filename ->
       Hashtbl.replace last_values (msg, f) v)
       fields;
 
+    (* Output values on a msg name basis *)
     match timestamp with
       Msg m when m =  msg ->
 	print_last_values t
@@ -234,5 +253,5 @@ let popup = fun log_filename data ->
 	Period (float_of_string w#entry_period#text)
       else
 	Msg combo_value in
-    save_values w log_filename (export_values model data timestamp) in
+    save_values w log_filename (fun x -> export_values ~export_geo_pos:w#checkbutton_LL#active model data timestamp x) in
   ignore (w#button_save#connect#clicked callback)
