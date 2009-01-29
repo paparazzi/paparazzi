@@ -725,6 +725,8 @@ let () =
       Xml2h.define "NAV_UTM_EAST0" (sprintf "%.0f" utm0.utm_x);
       Xml2h.define "NAV_UTM_NORTH0" (sprintf "%.0f" utm0.utm_y);
       Xml2h.define "NAV_UTM_ZONE0" (sprintf "%d" utm0.utm_zone);
+      Xml2h.define "NAV_LAT0" (sprintf "%d" (convert_angle wgs84.posn_lat));
+      Xml2h.define "NAV_LON0" (sprintf "%d" (convert_angle wgs84.posn_long));
       Xml2h.define "QFU" (sprintf "%.1f" qfu);
       
       let waypoints = dummy_waypoint :: waypoints in
@@ -744,6 +746,7 @@ let () =
       Xml2h.define "NB_BLOCK" (string_of_int (List.length blocks));
 
       Xml2h.define "GROUND_ALT" (sof !ground_alt);
+      Xml2h.define "GROUND_ALT_CM" (sprintf "%.0f" (100.*. !ground_alt));
       Xml2h.define "SECURITY_HEIGHT" (sof !security_height);
       Xml2h.define "SECURITY_ALT" (sof (!security_height +. !ground_alt));
       Xml2h.define "MAX_DIST_FROM_HOME" (sof mdfh);
