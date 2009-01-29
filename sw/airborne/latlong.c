@@ -6,12 +6,14 @@
 #include "latlong.h"
 #include "led.h"
 
-float latlong_utm_x, latlong_utm_y;
+float latlong_utm_x, latlong_utm_y; /* m */
+float latlong_lat, latlong_lon; /* rad */
 
 /* Computation for the WGS84 geoid only */
 #define E 0.08181919106
 #define K0 0.9996
 #define XS 500000.
+#define YS 0.
 #define A 6378137.0
 #define N (K0*A)
 
@@ -21,6 +23,14 @@ static const float serie_coeff_proj_mercator[5] = {
   0.00000075957783563707,
   0.00000000119563131778,
   0.00000000000241079916
+};
+
+static const float serie_coeff_proj_mercator_inverse[5] = {
+  0.998324298422428424,
+  0.000837732168742475825,
+  5.90586914811817062e-08,
+  1.6734091890305064e-10,
+  2.13883575853313883e-13
 };
 
 struct complex { float re; float im; };
@@ -44,6 +54,21 @@ static inline float isometric_latitude0(float phi) {
   return log (tan (M_PI_4 + phi / 2.0));
 }
 
+static inline float inverse_isometric_latitude(float lat, float e, float epsilon) {
+  float exp_l = exp(lat);
+  float phi0 = 2 * atan(exp_l) - M_PI_2;
+  float phi_;
+  uint8_t bound = 3; /* To be sure to return */
+
+  do {
+    phi_ = phi0;
+    float sin_phi = e * sin(phi_);
+    phi0 = 2 * atan (pow((1 + sin_phi) / (1. - sin_phi), e/2.) * exp_l) - M_PI_2;
+    bound--;
+  } while (bound && fabs(phi_ - phi0) > epsilon);
+  return phi0;
+}
+
 /** us on arm7@60MHz, i.e. % of cputime at 4Hz
     specialize CSin: 951us i.e.
     One CSin: 120us
@@ -53,8 +78,11 @@ static inline float isometric_latitude0(float phi) {
 
 
  %*/
+
+#define LambdaOfUtmZone(utm_zone) RadOfDeg((utm_zone-1)*6-180+3)
+
 void latlong_utm_of(float phi, float lambda, uint8_t utm_zone) {
-  float lambda_c = RadOfDeg((utm_zone-1)*6-180+3);
+  float lambda_c = LambdaOfUtmZone(utm_zone);
   float ll = isometric_latitude(phi , E);
   float dl = lambda - lambda_c;
   float phi_ = asin(sin(dl) / cosh(ll));
@@ -75,6 +103,29 @@ void latlong_utm_of(float phi, float lambda, uint8_t utm_zone) {
   latlong_utm_y = z_.re;
 }
 
+void latlong_of_utm(float x, float y, uint8_t utm_zone) {
+  float lambda_c = LambdaOfUtmZone(utm_zone);
+  float scale = 1 / N / serie_coeff_proj_mercator[0];
+  float real = (y - YS) * scale;
+  float img = (x - XS) * scale;
+  struct complex z = { real, img };
+
+  uint8_t k;
+  for(k = 1; k < 2; k++) {
+    struct complex z_ = { real, img };
+    CScal(2*k, z_);
+    CSin(z_);
+    CScal(serie_coeff_proj_mercator_inverse[k], z_);
+    CSub(z_, z);
+  }
+  float ll = z.re;
+  float lls = z.im;
+  latlong_lon = lambda_c + atan (sinh(lls) / cos(ll));
+  float phi_ = asin (sin(ll) / cosh(lls));
+  ll = isometric_latitude0(phi_);
+  latlong_lat = inverse_isometric_latitude(ll, E, 1e-8);
+}
+
 
 #ifdef TEST_LATLONG
 #include <stdio.h>
@@ -92,6 +143,9 @@ int main () {
 
   latlong_utm_of(0.5, -1.5707, 16);
   printf("utm_x=%.2f utm_y=%.2f {utm_x = 207282.313014950836; utm_y = 3172645.2213267833; utm_zone = 16}\n", latlong_utm_x, latlong_utm_y);
+
+  latlong_of_utm(348805.71, 4759354.89, 31);
+  printf("lat=%.8f lon=%.8f posn_lat = 0.749999999392454875; posn_long = 0.019999999054505127}\n", latlong_lat, latlong_lon);
 
   return 0;
 }
