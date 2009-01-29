@@ -274,7 +274,7 @@
   </message>
 
 
- <message name="WP_MOVED_LLA" id="35">
+ <message name="WP_MOVED_LLA" id="47">
     <field name="wp_id" type="uint8"/>
     <field name="lat" type="int32" unit="degres"></field>
     <field name="lon" type="int32" unit="degres"></field>
