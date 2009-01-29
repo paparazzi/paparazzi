@@ -45,7 +45,7 @@
    </dl_settings>
 
    <dl_settings NAME="NAV">
-     <dl_setting var="booz2_navigation_waypoint_idx" min="0" step="1" max="4" module="booz2_navigation" shortname="wp"  values="S1|S2|P1|P2|P3"  handler="SetWp"/>
+<!--     <dl_setting var="booz2_navigation_waypoint_idx" min="0" step="1" max="4" module="booz2_navigation" shortname="wp"  values="S1|S2|P1|P2|P3"  handler="SetWp"/>-->
    </dl_settings>
 
     <dl_settings NAME="Filter">
