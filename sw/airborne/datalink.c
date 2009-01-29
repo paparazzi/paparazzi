@@ -88,8 +88,8 @@ void dl_parse_msg(void) {
     float a = MOfCm(DL_MOVE_WP_alt(dl_buffer));
 
     /* Computes from (lat, long) in the referenced UTM zone */
-    float lat = RadOfDeg(DL_MOVE_WP_lat(dl_buffer));
-    float lon = RadOfDeg(DL_MOVE_WP_lon(dl_buffer));
+    float lat = RadOfDeg((float)(DL_MOVE_WP_lat(dl_buffer) / 1e7));
+    float lon = RadOfDeg((float)(DL_MOVE_WP_lon(dl_buffer) / 1e7));
     latlong_utm_of(lat, lon, nav_utm_zone0);
     nav_move_waypoint(wp_id, latlong_utm_x, latlong_utm_y, a);
 
