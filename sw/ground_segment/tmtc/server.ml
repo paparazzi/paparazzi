@@ -841,11 +841,12 @@ let dl_id = "ground_dl" (* Hack, should be [my_id] *)
 (** Got a ground.MOVE_WAYPOINT and send a datalink.MOVE_WP *)
 let move_wp = fun logging _sender vs ->
   let f = fun a -> List.assoc a vs
-  and ac_id = Pprz.string_assoc "ac_id" vs in
+  and ac_id = Pprz.string_assoc "ac_id" vs
+  and deg7 = fun f -> Pprz.Int (truncate (Pprz.float_assoc f vs *. 1e7)) in
   let vs = [ "ac_id", Pprz.String ac_id;
 	     "wp_id", f "wp_id";
-	     "lat", f "lat";
-	     "lon", f "long";
+	     "lat", deg7 "lat";
+	     "lon", deg7 "long";
 	     "alt", cm_of_m (Pprz.float_assoc "alt" vs) ] in
   Dl_Pprz.message_send dl_id "MOVE_WP" vs;
   log logging ac_id "MOVE_WP" vs

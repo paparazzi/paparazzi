@@ -273,6 +273,15 @@
       <field name="w4"  type="uint16"/>
   </message>
 
+
+ <message name="WP_MOVED_LLA" id="35">
+    <field name="wp_id" type="uint8"/>
+    <field name="lat" type="int32" unit="degres"></field>
+    <field name="lon" type="int32" unit="degres"></field>
+    <field name="alt" type="int32" unit="cm"></field>
+ </message>
+
+
   <message name="PPM" id="100">
     <field name="ppm_rate" type="uint8"></field>
     <field name="values" type="uint16[]" unit="ticks"/>
@@ -861,8 +870,8 @@
  <message name="MOVE_WP" id="2" link="forwarded">
   <field name="wp_id" type="uint8"/>
   <field name="ac_id" type="uint8"/>
-  <field name="lat" type="float" unit="deg"></field>
-  <field name="lon" type="float" unit="deg"></field>
+  <field name="lat" type="int32" unit="e-7deg"></field>
+  <field name="lon" type="int32" unit="e-7deg"></field>
   <field name="alt" type="int32" unit="cm"></field>
  </message>
 
