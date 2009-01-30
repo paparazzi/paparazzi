@@ -43,6 +43,7 @@ void TIMER0_ISR ( void ) __attribute__((naked));
 /* T0 prescaler */
 //#define T0_PCLK_DIV     3
 #define T0_PCLK_DIV     1
+//new: #define T0_PCLK_DIV     (PCLK/15000000)
 
 static inline void sys_time_init( void ) {
   /* setup Timer 0 to count forever  */

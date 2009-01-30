@@ -8,6 +8,8 @@ void TIMER1_ISR ( void ) __attribute__((naked));
 
 
 #define T1_PCLK_DIV 3
+//new: #define T1_PCLK_DIV (PCLK/5000000)
+
 #define SAMPLES_PER_PERIOD 4
 #define SAMPLE_PERIOD (PCLK/4762/SAMPLES_PER_PERIOD/T1_PCLK_DIV)
 

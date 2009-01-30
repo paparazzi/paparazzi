@@ -34,6 +34,11 @@
 #include "sys_time.h"
 #include "airframe.h"
 
+#ifdef USE_USB_SERIAL
+#include "usb_serial.h"
+#endif
+
+
 /** For backward compatibility */
 #ifndef DOWNLINK_GPS_DEVICE
 #define DOWNLINK_GPS_DEVICE DOWNLINK_AP_DEVICE

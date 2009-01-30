@@ -43,6 +43,10 @@
 #include "joystick.h"
 #endif
 
+#ifdef USE_USB_SERIAL
+#include "usb_serial.h"
+#endif
+
 #ifdef HITL
 #include "gps.h"
 #endif

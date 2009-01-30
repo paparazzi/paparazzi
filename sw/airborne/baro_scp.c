@@ -33,6 +33,9 @@ void baro_scp_periodic(void) {
   }
 }
 
+/* ssp input clock 500kHz, clock is ssp divided by SCR+1 */
+#define SSP_CLOCK 500000
+
 /* SSPCR0 settings */
 #define SSP_DDS  0x07 << 0  /* data size         : 8 bits        */
 #define SSP_FRF  0x00 << 4  /* frame format      : SPI           */
@@ -54,7 +57,6 @@ void baro_scp_periodic(void) {
 #define ScpSelect()   SetBit(SS_IOCLR,SS_PIN)
 #define ScpUnselect() SetBit(SS_IOSET,SS_PIN)
 
-
 void baro_scp_init( void ) {
   /* setup pins for SSP (SCK, MISO, MOSI) */
   PINSEL1 |= 2 << 2 | 2 << 4 | 2 << 6;
@@ -62,7 +64,8 @@ void baro_scp_init( void ) {
   /* setup SSP */
   SSPCR0 = SSP_DDS | SSP_FRF | SSP_CPOL | SSP_CPHA | SSP_SCR;
   SSPCR1 = SSP_LBM | SSP_MS | SSP_SOD;
-  SSPCPSR = 0x20;
+  /* set prescaler for SSP clock */
+  SSPCPSR = PCLK/SSP_CLOCK;
 
   /* initialize interrupt vector */
   VICIntSelect &= ~VIC_BIT(VIC_SPI1);   // SPI1 selected as IRQ

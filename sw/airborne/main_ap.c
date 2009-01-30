@@ -118,6 +118,13 @@
 #include "tcas.h"
 #endif
 
+#ifdef USE_USB_SERIAL
+#if PCLK < 18000000
+#error PCLK needs to be higher than 18MHz for USB to work properly
+#endif
+#include "usb_serial.h"
+#endif
+
 /*code added by Haiyang Chao for using Xsens IMU for fixed wing UAV 20080804*/
 #ifdef UGEAR
 #include "osam_imu_ugear.h"
@@ -615,6 +622,10 @@ void init_ap( void ) {
 #endif
 #ifdef USE_UART1
   Uart1Init();
+#endif
+
+#ifdef USE_USB_SERIAL
+  VCOM_init();
 #endif
 
 #ifdef USE_GPIO

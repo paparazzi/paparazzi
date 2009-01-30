@@ -1,3 +1,50 @@
+/*
+	LPCUSB, an USB device driver for LPC microcontrollers	
+	Copyright (C) 2006 Bertrik Sikken (bertrik@sikken.nl)
+    adapted to pprz    Martin Mueller (martinmm@pfump.org)
+
+	Redistribution and use in source and binary forms, with or without
+	modification, are permitted provided that the following conditions are met:
+
+	1. Redistributions of source code must retain the above copyright
+	   notice, this list of conditions and the following disclaimer.
+	2. Redistributions in binary form must reproduce the above copyright
+	   notice, this list of conditions and the following disclaimer in the
+	   documentation and/or other materials provided with the distribution.
+	3. The name of the author may not be used to endorse or promote products
+	   derived from this software without specific prior written permission.
+
+	THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+	IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+	OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+	IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, 
+	INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+	NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+	DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+	THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+	(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+	THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*/
+
+/*
+	Minimal implementation of a USB serial port, using the CDC class.
+	This example application simply echoes everything it receives right back
+	to the host.
+
+	Windows:
+	Extract the usbser.sys file from .cab file in C:\WINDOWS\Driver Cache\i386
+	and store it somewhere (C:\temp is a good place) along with the usbser.inf
+	file. Then plug in the LPC214x and direct windows to the usbser driver.
+	Windows then creates an extra COMx port that you can open in a terminal
+	program, like hyperterminal.
+
+	Linux:
+	The device should be recognised automatically by the cdc_acm driver,
+	which creates a /dev/ttyACMx device file that acts just like a regular
+	serial port.
+
+*/
+
 
 #include <string.h>
 #include "std.h"
@@ -61,12 +108,6 @@ BOOL fifo_put(fifo_t *fifo, U8 c);
 BOOL fifo_get(fifo_t *fifo, U8 *pc);
 int  fifo_avail(fifo_t *fifo);
 int	 fifo_free(fifo_t *fifo);
-
-void VCOM_init(void);
-int  VCOM_putchar(int c);
-int  VCOM_getchar(void);
-bool_t VCOM_check_free_space(uint8_t len);
-
 
 static const uint8_t abDescriptors[] = {
 
@@ -133,7 +174,7 @@ static const uint8_t abDescriptors[] = {
 	INT_IN_EP,					// bEndpointAddress
 	0x03,						// bmAttributes = intr
 	LE_WORD(8),					// wMaxPacketSize
-	0x0A,						// bInterval
+	0xFE,						// bInterval
 // data class interface descriptor
 	0x09,
 	DESC_INTERFACE,
@@ -174,7 +215,7 @@ static const uint8_t abDescriptors[] = {
 
 	0x12,
 	DESC_STRING,
-	'D', 0, 'E', 0, 'A', 0, 'D', 0, 'C', 0, '0', 0, 'D', 0, 'E', 0,
+	'1', 0, '2', 0, '3', 0, '4', 0, '5', 0, '6', 0, '7', 0, '8', 0,
 
 // terminating zero
 	0
@@ -236,16 +277,6 @@ int fifo_free(fifo_t *fifo)
 
 
 /**
-	Initialises the VCOM port.
-	Call this function before using VCOM_putchar or VCOM_getchar
- */
-void VCOM_init(void)
-{
-	fifo_init(&txfifo, txdata);
-	fifo_init(&rxfifo, rxdata);
-}
-
-/**
 	Writes one character to VCOM port
 	
 	@param [in] c character to write
@@ -271,11 +302,22 @@ int VCOM_getchar(void)
 /**
 	Checks if buffer free in VCOM buffer
 	
-	@returns character read, or EOF if character could not be read
+	@returns TRUE if len bytes are free
  */
 bool_t VCOM_check_free_space(uint8_t len)
 {
-	return (fifo_avail(&txfifo) >= len ? TRUE : FALSE);
+	return (fifo_free(&txfifo) >= len ? TRUE : FALSE);
+}
+
+
+/**
+	Checks if data available in VCOM buffer
+	
+	@returns character read, or EOF if character could not be read
+ */
+int VCOM_check_available(void)
+{
+	return (fifo_avail(&rxfifo));
 }
 
 
@@ -394,7 +436,7 @@ static void USBFrameHandler(U16 wFrame)
 }
 
 
-void usb_serial_init(void) {
+void VCOM_init(void) {
 	// initialise stack
 	USBInit();
 
@@ -415,8 +457,9 @@ void usb_serial_init(void) {
 	// enable bulk-in interrupts on NAKs
 	USBHwNakIntEnable(INACK_BI);
 
-	// initialise VCOM
-	VCOM_init();
+	// initialise fifos
+	fifo_init(&txfifo, txdata);
+	fifo_init(&rxfifo, rxdata);
 
 	// set up USB interrupt
 	VICIntSelect &= ~VIC_BIT(VIC_USB);               // select IRQ for USB
@@ -429,12 +472,5 @@ void usb_serial_init(void) {
 	USBHwConnect(TRUE);
 }
 
-void   usb_serial_transmit( unsigned char data ) {
-    VCOM_putchar(data);
-};
-
-bool_t usb_serial_check_free_space( uint8_t len ) {
-    return VCOM_check_free_space(len);
-};
 
 #endif /* USE_USB_SERIAL */

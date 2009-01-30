@@ -41,6 +41,10 @@
 #include "spi.h"
 #include "adc.h"
 
+#ifdef USE_USB_SERIAL
+#include "usb_serial.h"
+#endif
+
 #include "sys_time.h"
 #include "commands.h"
 #include "actuators.h"

@@ -22,8 +22,8 @@
  *
  */
 
-/** \file uart.h
- *  \brief arch independant UART (Universal Asynchronous Receiver/Transmitter) API
+/** \file usb_serial.h
+ *  \brief arch independant USB API
  *
  */
 
@@ -34,13 +34,18 @@
 #include "std.h"
 //#include "usb_serial_hw.h"
 
-void   usb_serial_init( void );
-void   usb_serial_transmit( unsigned char data );
-bool_t usb_serial_check_free_space( uint8_t len);
+void VCOM_init(void);
+int  VCOM_putchar(int c);
+int  VCOM_getchar(void);
+bool_t VCOM_check_free_space(uint8_t len);
+int VCOM_check_available(void);
 
-#define UsbSInit() usb_serial_init()
-#define UsbSCheckFreeSpace(_x) usb_serial_check_free_space(_x)
-#define UsbSTransmit(_x) usb_serial_transmit(_x)
+#define UsbSInit() VCOM_init()
+#define UsbSCheckFreeSpace(_x) VCOM_check_free_space(_x)
+#define UsbSTransmit(_x) VCOM_putchar(_x)
 #define UsbSSendMessage() {}
+#define UsbSGetch() VCOM_getchar()
+#define UsbSChAvailable() VCOM_check_available()
+
 
 #endif /* USB_S_H */
