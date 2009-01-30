@@ -1,11 +1,10 @@
 #include "pprz_geodetic_float.h"
 
+#include "pprz_algebra_float.h"
 #include <math.h>
 
 void init_ltp_from_ecef_f(struct LtpRef_f* ref_param, struct EcefCoor_f* ref_pos) {
-  ref_param->ecef.x = ref_pos->x;
-  ref_param->ecef.y = ref_pos->y;
-  ref_param->ecef.z = ref_pos->z;
+  PPRZ_FLOAT_VECT_COPY(ref_param->ecef, (*ref_pos));
   /* compute lon and lat */
 
 }
