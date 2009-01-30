@@ -1,13 +1,12 @@
 #ifndef PPRZ_ALGEBRA_INT_H
 #define PPRZ_ALGEBRA_INT_H
 
-
-
+#include "std.h"
 
 struct Int32Vect3 {
   int32_t x;
-  FLOAT_T y;
-  FLOAT_T z;
+  int32_t y;
+  int32_t z;
 };
 
 
