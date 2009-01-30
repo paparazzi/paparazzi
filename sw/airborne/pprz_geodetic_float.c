@@ -4,7 +4,7 @@
 #include <math.h>
 
 void init_ltp_from_ecef_f(struct LtpRef_f* ref_param, struct EcefCoor_f* ref_pos) {
-  PPRZ_FLOAT_VECT_COPY(ref_param->ecef, (*ref_pos));
+  PPRZ_FLOAT_VECT3_COPY(ref_param->ecef, (*ref_pos));
   /* compute lon and lat */
 
 }
@@ -32,3 +32,11 @@ void enu_of_ecef_f(struct LtpRef_f* ref_param, struct EnuCoor_f* out, struct Ece
   out->z =  cos_lat*cos_lon * dx + cos_lat*sin_lon * dy + sin_lat * dz;
 
 }
+
+void ned_of_ecef_f(struct LtpRef_f* ref_param, struct NedCoor_f* out, struct EcefCoor_f* in) {
+
+
+
+}
+
+
