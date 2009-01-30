@@ -1,0 +1,8 @@
+#ifndef PPRZ_ALGEBRA_FLOAT_H
+#define PPRZ_ALGEBRA_FLOAT_H
+
+
+
+
+
+#endif /* PPRZ_ALGEBRA_FLOAT_H */
