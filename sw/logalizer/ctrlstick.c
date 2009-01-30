@@ -102,7 +102,9 @@ int init_hid_device(char* device_name)
 {
     int cnt;
 	unsigned long key_bits[32],abs_bits[32];
-//	unsigned long ff_bits[32];
+	unsigned long ff_bits[32];
+	struct input_event event;
+
 	int valbuf[16];
 	char name[256] = "Unknown";
 
@@ -195,7 +197,9 @@ int init_hid_device(char* device_name)
 		        strerror(errno),__FILE__,__LINE__);
 		return(1);
 	}
+#endif
 
+#if 0 // turn on for ff effect
 	/* Initialize constant force effect */
 	memset(&effect,0,sizeof(effect));
 	effect.type=FF_CONSTANT;
