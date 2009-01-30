@@ -37,6 +37,9 @@ XSRC = platform.ml wind_sock.ml gtk_papget_editor.ml gtk_papget_text_editor.ml g
 XCMO = $(XSRC:.ml=.cmo)
 XCMX = $(XSRC:.ml=.cmx)
 
+TESTS_SRC = test/test_latlong.ml
+TESTS_CMO = $(TESTS_SRC:.ml=.cmo)
+
 $(XCMO) $(XCMX) myGtkInit.cmo : INCLUDES=$(XINCLUDES)
 
 all : lib-pprz.cma xlib-pprz.cma myGtkInit.cmo xml_get.out opt
@@ -62,6 +65,9 @@ xlib-pprz.cmxa : $(XCMX)
 xml_get.out : lib-pprz.cma xml_get.cmo
 	@echo OL $@
 	$(Q)$(OCAMLC) $(INCLUDES) -o $@ str.cma xml-light.cma -I . $^
+
+tests : lib-pprz.cma $(TESTS_CMO)
+	$(OCAMLC) -custom -I . -o $@ str.cma unix.cma $^
 
 GTKCFLAGS := -I /usr/lib/gtk-2.0/include -I/usr/include/gtk-2.0 -I/usr/include/atk-1.0 -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include -I/usr/include/pango-1.0 -I /usr/include/cairo
 # GTKCFLAGS := $(shell gtk-config --cflags)
@@ -110,7 +116,7 @@ gtk_papget_gauge_editor.ml : widgets.glade
 	lablgladecc2 -root table_gauge_editor -hide-default $< | grep -B 1000000 "  end" > $@
 
 clean :
-	rm -f *~ *.cm* *.out *.opt .depend *.a *.o *.so
+	rm -f *~ *.cm* *.out *.opt .depend *.a *.o *.so tests
 
 
 #

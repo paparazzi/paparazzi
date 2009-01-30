@@ -310,7 +310,7 @@ let utm_of =
   | NAD27 -> u_NAD27
 
 let of_utm' geo  =
-  let ellipsoid =  ellipsoid_of geo in
+  let ellipsoid = ellipsoid_of geo in
   let k0 = 0.9996
   and xs = 500000.
   and ys = 0. in
@@ -531,3 +531,104 @@ let geographic_of_coordinates = fun kind s ->
   | Bearing georef ->
       of_string (Printf.sprintf "WGS84_bearing %s %s" (string_degrees_of_geographic georef#pos) s)
 
+
+let fprint_utm = fun c utm ->
+  Printf.fprintf c "[%.2f %.2f %d]" utm.utm_x utm.utm_y utm.utm_zone
+
+type ecef = float array
+type ned = float array
+
+let make_ecef = fun x -> x
+let make_ned = fun x -> x
+let array_of_ecef = fun x -> x
+let array_of_ned = fun x -> x
+
+let fprint_ecef = fun c x -> Printf.fprintf c "[%.2f %.2f %.2f]" x.(0) x.(1) x.(2)
+let fprint_ned = fprint_ecef
+
+let geocentric_of_ecef = fun r ->
+  let xr = r.(0) and yr = r.(1) and zr = r.(2) in
+  let phiP = atan2 zr (sqrt (xr*.xr +. yr*.yr))
+  and lambda = atan2 yr xr in
+  (phiP, lambda)
+
+
+(* http://en.wikipedia.org/wiki/Geodetic_system
+   Approximation using the geocentric latitude instead of the geodetic one *)
+let ned_of_ecef = fun r ->
+  let phiP, lambda = geocentric_of_ecef r in
+  let sin_lambda = sin lambda
+  and cos_lambda = cos lambda
+  and sin_phiP = sin phiP
+  and cos_phiP = cos phiP in
+
+  fun p ->
+    let x_xr = p.(0) -. r.(0)
+    and y_yr = p.(1) -. r.(1) 
+    and z_zr = p.(2) -. r.(2) in 
+    
+    let e = -.sin_lambda*.x_xr +. cos_lambda*.y_yr
+    and n = -.sin_phiP*.cos_lambda*.x_xr -. sin_phiP*.sin_lambda*.y_yr +. cos_phiP*.z_zr
+    and u = cos_phiP*.cos_lambda*.x_xr +. cos_phiP*.sin_lambda*.y_yr +. sin_phiP*.z_zr in
+    [|n; e; -.u|]
+      
+let ecef_of_ned = fun r ->
+  let phiP, lambda = geocentric_of_ecef r in
+  let sin_lambda = sin lambda
+  and cos_lambda = cos lambda
+  and sin_phiP = sin phiP
+  and cos_phiP = cos phiP in
+  fun ned ->
+    let n = ned.(0) and e = ned.(1) and u = -.ned.(2) in
+    let x = -.sin_lambda*.e -. cos_lambda*.sin_phiP*.n +. cos_lambda*.cos_phiP*.u +. r.(0)
+    and y =  cos_lambda*.e -. sin_lambda*.sin_phiP*.n +. cos_phiP*.sin_lambda*.u +. r.(1)
+    and z = cos_phiP*.n +. sin_phiP*.u +. r.(2) in
+    [|x; y; z|]
+
+let ecef_of_geo = fun geo ->
+  let elps = ellipsoid_of geo in
+  let e2 = 2.*.elps.df -. elps.df*.elps.df in
+  fun {posn_lat=lat; posn_long=long} h ->
+    let sin_lat = sin lat
+    and cos_lat = cos lat
+    and cos_long = cos long in
+
+    let chi = sqrt (1. -. e2*.sin_lat*.sin_lat) in
+    let x = (elps.a/.chi +.h)*.cos_lat*.cos_long
+    and y = (elps.a/.chi +.h)*.cos_lat*.sin long
+    and z = (elps.a*.(1.-.e2)/.chi +. h)*.sin_lat in
+    [|x; y; z|]
+
+let geo_of_ecef = fun geo ->
+  let elps = ellipsoid_of geo in
+
+  let e2 = 2.*.elps.df -. elps.df*.elps.df
+  and ep2 = elps.df*.(2.-.elps.df)/.((1.-.elps.df)**2.)
+  and b = elps.a*.(1.-.elps.df) in
+
+  fun ecef ->
+    let x = ecef.(0) and y = ecef.(1) and z = ecef.(2) in
+    let z2 = z**2.
+    and r2 = x**2. +. y**2. in
+    let r = sqrt r2
+    and _E2 = elps.a**2. -. b**2.
+    and _F = 54.*.b**2.*.z2 in
+    let _G = r2 +. (1.-.e2)*.z2 -. e2*._E2 in
+    let _C = (e2*.e2*._F*.r2)/.(_G**3.) in
+    let _S = ( 1. +. _C +. sqrt (_C**2. +. 2.*._C))**(1./.3.) in
+    let _P = _F/.(3.*.(_S +. 1./._S +. 1.)**2. *. _G**2.) in
+    let _Q = sqrt (1.+.2.*.e2*.e2*._P) in
+    let r0 = -. (e2*._P*.r)/.(1.+._Q) +. sqrt ((elps.a**2./.2.)*.(1. +. 1./._Q) -. ((1.-.e2)*._P*.z2)/.(_Q*.(1.+._Q)) -. _P*.r2/.2.) in
+    let tmp = (r -. e2*.r0)**2. in
+    let _U = sqrt (tmp +. z2)
+    and _V = sqrt (tmp +. (1.-.e2)*.z2) in
+    let z0 = (b**2.*.z)/.(elps.a *. _V) in
+ 
+    let h = _U*.(1. -. b**2./.(elps.a *. _V))
+    and phi = atan ((z +. ep2*.z0)/.r )
+    and lambda = atan2 y x in
+    
+    ({posn_lat = phi; posn_long = lambda}, h)
+
+    
+      

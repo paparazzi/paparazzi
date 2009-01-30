@@ -85,6 +85,7 @@ val make_geo_deg : degree -> degree -> geographic
 
 val string_degrees_of_geographic : geographic -> string
 val string_dms_of_geographic : geographic -> string
+val fprint_utm : out_channel -> utm -> unit
 (** Pretty printing *)
 
 
@@ -169,3 +170,29 @@ type coordinates_kind =
 
 val string_of_coordinates : coordinates_kind -> geographic -> string
 val geographic_of_coordinates : coordinates_kind -> string -> geographic
+
+
+type ecef
+type ned
+
+val array_of_ecef : ecef -> float array
+val make_ecef : float array -> ecef
+
+val array_of_ned : ned -> float array
+val make_ned : float array -> ned
+
+val fprint_ecef : out_channel -> ecef -> unit
+val fprint_ned : out_channel -> ned -> unit
+
+val ned_of_ecef : ecef -> ecef -> ned
+(** [ned_of_ecef r p] Returns the coordinates of [p] in a local NED (north east down)
+    located in [r] *)
+
+val ecef_of_ned : ecef -> ned -> ecef
+(** [ecef_of_ned r ned] *)
+
+val ecef_of_geo : geodesic -> geographic -> float -> ecef
+(** [ecef_of_geo ellipsoid geo h] *)
+
+val geo_of_ecef : geodesic -> ecef -> geographic * float
+(** [geo_of_ecef ellipsoid geo ecef] Returns llh *)
