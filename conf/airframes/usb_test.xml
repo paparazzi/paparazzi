@@ -185,13 +185,13 @@ ap.CFLAGS += -DRADIO_CONTROL -DRADIO_CONTROL_TYPE=RC_FUTABA
 ap.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c  
 
 #TRANSPARENT
-ap.CFLAGS += -DDOWNLINK -DUSE_UART1 -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_FBW_DEVICE=Uart1 -DDOWNLINK_AP_DEVICE=Uart1 -DPPRZ_UART=Uart1 -DDATALINK=PPRZ -DUART1_BAUD=B9600
-ap.srcs += downlink.c $(SRC_ARCH)/uart_hw.c datalink.c pprz_transport.c
+#ap.CFLAGS += -DDOWNLINK -DUSE_UART1 -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_FBW_DEVICE=Uart1 -DDOWNLINK_AP_DEVICE=Uart1 -DPPRZ_UART=Uart1 -DDATALINK=PPRZ -DUART1_BAUD=B9600
+#ap.srcs += downlink.c $(SRC_ARCH)/uart_hw.c datalink.c pprz_transport.c
 
 #USB
-#ap.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_FBW_DEVICE=UsbS -DDOWNLINK_AP_DEVICE=UsbS -DUSE_USB_SERIAL -DPPRZ_UART=UsbS -DDATALINK=PPRZ
-#ap.srcs += downlink.c $(SRC_ARCH)/uart_hw.c $(SRC_ARCH)/usb_ser_hw.c datalink.c pprz_transport.c
-#ap.srcs += $(SRC_ARCH)/lpcusb/usbhw_lpc.c $(SRC_ARCH)/lpcusb/usbcontrol.c $(SRC_ARCH)/lpcusb/usbstdreq.c $(SRC_ARCH)/lpcusb/usbinit.c
+ap.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_FBW_DEVICE=UsbS -DDOWNLINK_AP_DEVICE=UsbS -DUSE_USB_SERIAL -DPPRZ_UART=UsbS -DDATALINK=PPRZ
+ap.srcs += downlink.c $(SRC_ARCH)/uart_hw.c $(SRC_ARCH)/usb_ser_hw.c datalink.c pprz_transport.c
+ap.srcs += $(SRC_ARCH)/lpcusb/usbhw_lpc.c $(SRC_ARCH)/lpcusb/usbcontrol.c $(SRC_ARCH)/lpcusb/usbstdreq.c $(SRC_ARCH)/lpcusb/usbinit.c
 
 ap.CFLAGS += -DINTER_MCU
 ap.srcs += inter_mcu.c 

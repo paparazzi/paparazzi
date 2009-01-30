@@ -36,7 +36,7 @@
 #include "usbapi.h"
 
 
-#ifdef DEBUG
+#ifdef USBDEBUG
 // comment out the following line if you don't want to use debug LEDs
 #define DEBUG_LED
 #endif
