@@ -3,7 +3,9 @@
 #include "6dof.h"
 #include "booz_flight_model_utils.h"
 
+#if 0
 static void booz_wind_model_get_derivatives(VEC* X, VEC* u, VEC* Xdot);
+#endif
 
 struct BoozWindModel bwm;
 
@@ -27,7 +29,7 @@ void booz_wind_model_init( void ) {
 }
 
 
-void booz_wind_model_run( double dt ) {
+void booz_wind_model_run( double dt __attribute__ ((unused))) {
 
 
 #if 0
@@ -51,6 +53,8 @@ void booz_wind_model_run( double dt ) {
 }
 
 
+#if 0
+
 static void booz_wind_model_get_derivatives(VEC* X, VEC* u, VEC* Xdot) {
 
   Xdot->ve[0] = X->ve[1];
@@ -64,3 +68,5 @@ static void booz_wind_model_get_derivatives(VEC* X, VEC* u, VEC* Xdot) {
                 BWM_WM * BWM_WM * X->ve[4] + u->ve[AXIS_Z];
 
 }
+
+#endif

@@ -28,6 +28,7 @@
 #include <matrix.h>
 #include <glib.h>
 
+#include "pprz_algebra_f.h"
 #include "6dof.h"
 #include "std.h"
 
@@ -100,6 +101,7 @@ struct BoozSensorsModel {
   double  gps_pos_utm_north;
   double  gps_pos_utm_east;
   double  gps_pos_utm_alt;
+  struct Pprz_double_lla gps_pos_lla;
   VEC*    gps_pos_noise_std_dev;
   VEC*    gps_pos_bias_initial;
   VEC*    gps_pos_bias_random_walk_std_dev;

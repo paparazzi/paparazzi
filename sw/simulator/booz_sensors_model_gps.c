@@ -120,6 +120,18 @@ void booz_sensors_model_gps_run( double time, MAT* dcm_t ) {
   bsm.gps_pos_utm_alt = bsm.gps_pos->ve[AXIS_Z] * 100. + BSM_GPS_POS_INITIAL_UTM_ALT;
   bsm.gps_pos_utm_alt = rint(bsm.gps_pos_utm_alt);
 
+  /* LLA conversion */
+
+#define LAT0   40.
+#define LON0   1.
+#define GROUND_ALT  180.
+
+  bsm.gps_pos_lla.lat = (bsm.gps_pos->ve[AXIS_Y] * 9e-6 + LAT0) * 1e7;
+  bsm.gps_pos_lla.lat = rint(bsm.gps_pos_lla.lat);
+  bsm.gps_pos_lla.lon = (bsm.gps_pos->ve[AXIS_X] * 9e-6 + LON0) * 1e7;
+  bsm.gps_pos_lla.lon = rint(bsm.gps_pos_lla.lon);
+  bsm.gps_pos_lla.alt = (bsm.gps_pos->ve[AXIS_Z] + GROUND_ALT)* 100.;
+  bsm.gps_pos_lla.alt = rint(bsm.gps_pos_lla.alt);
 
   bsm.gps_next_update += BSM_GPS_DT;
   bsm.gps_available = TRUE;

@@ -50,6 +50,9 @@ double disp_time;
 
 double booz_sim_actuators_values[] = {0., 0., 0., 0.};
 
+static void sim_gps_feed_data(void);
+static void sim_mag_feed_data(void);
+
 static void     booz2_sim_parse_options(int argc, char** argv);
 static void     booz2_sim_init(void);
 static gboolean booz2_sim_periodic(gpointer data);
@@ -117,8 +120,14 @@ static gboolean booz2_sim_periodic(gpointer data __attribute__ ((unused))) {
     booz2_main_event();
   }
 
-  //  printf("throttle %d\n", rc_values[RADIO_THROTTLE]);
-  //  printf("yaw %d\n", rc_values[RADIO_YAW]);
+  if (booz_sensors_model_gps_available()) {
+    sim_gps_feed_data();
+    booz2_main_event();
+  }
+
+  if (booz_sensors_model_mag_available()) {
+    sim_mag_feed_data();
+  }
 
   booz2_main_periodic();
   
@@ -126,6 +135,24 @@ static gboolean booz2_sim_periodic(gpointer data __attribute__ ((unused))) {
  
   return TRUE;
 }
+
+#include "booz2_gps.h"
+static void sim_gps_feed_data(void) {
+  booz2_gps_lat = bsm.gps_pos_lla.lat;
+  booz2_gps_lon = bsm.gps_pos_lla.lon;
+  // speed?
+  booz2_gps_vel_n = rint(bsm.gps_speed->ve[AXIS_Y] * 100.);
+  booz2_gps_vel_e = rint(bsm.gps_speed->ve[AXIS_X] * 100.);
+  booz_gps_state.fix = BOOZ2_GPS_FIX_3D;
+}
+
+
+static void sim_mag_feed_data(void) {
+  bsm.mag->ve[AXIS_Y];
+
+}
+
+
 
 #define RPM_OF_RAD_S(a) ((a)*60./M_PI)
 static void booz2_sim_display(void) {
@@ -184,7 +211,6 @@ static void ivy_transport_init(void) {
   IvyStart("127.255.255.255");
 }
 
-#if 1
 #include "std.h"
 #include "settings.h"
 #include "dl_protocol.h"
@@ -198,7 +224,6 @@ static void on_DL_SETTING(IvyClientPtr app __attribute__ ((unused)),
   DOWNLINK_SEND_DL_VALUE(&index, &value);
   //  printf("setting %d %f\n", index, value);
 }
-#endif
 
 
 #include "actuators.h"
