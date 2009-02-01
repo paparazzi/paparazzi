@@ -553,38 +553,6 @@ let geocentric_of_ecef = fun r ->
   (phiP, lambda)
 
 
-(* http://en.wikipedia.org/wiki/Geodetic_system
-   Approximation using the geocentric latitude instead of the geodetic one *)
-let ned_of_ecef = fun r ->
-  let phiP, lambda = geocentric_of_ecef r in
-  let sin_lambda = sin lambda
-  and cos_lambda = cos lambda
-  and sin_phiP = sin phiP
-  and cos_phiP = cos phiP in
-
-  fun p ->
-    let x_xr = p.(0) -. r.(0)
-    and y_yr = p.(1) -. r.(1) 
-    and z_zr = p.(2) -. r.(2) in 
-    
-    let e = -.sin_lambda*.x_xr +. cos_lambda*.y_yr
-    and n = -.sin_phiP*.cos_lambda*.x_xr -. sin_phiP*.sin_lambda*.y_yr +. cos_phiP*.z_zr
-    and u = cos_phiP*.cos_lambda*.x_xr +. cos_phiP*.sin_lambda*.y_yr +. sin_phiP*.z_zr in
-    [|n; e; -.u|]
-      
-let ecef_of_ned = fun r ->
-  let phiP, lambda = geocentric_of_ecef r in
-  let sin_lambda = sin lambda
-  and cos_lambda = cos lambda
-  and sin_phiP = sin phiP
-  and cos_phiP = cos phiP in
-  fun ned ->
-    let n = ned.(0) and e = ned.(1) and u = -.ned.(2) in
-    let x = -.sin_lambda*.e -. cos_lambda*.sin_phiP*.n +. cos_lambda*.cos_phiP*.u +. r.(0)
-    and y =  cos_lambda*.e -. sin_lambda*.sin_phiP*.n +. cos_phiP*.sin_lambda*.u +. r.(1)
-    and z = cos_phiP*.n +. sin_phiP*.u +. r.(2) in
-    [|x; y; z|]
-
 let ecef_of_geo = fun geo ->
   let elps = ellipsoid_of geo in
   let e2 = 2.*.elps.df -. elps.df*.elps.df in
@@ -630,5 +598,35 @@ let geo_of_ecef = fun geo ->
     
     ({posn_lat = phi; posn_long = lambda}, h)
 
+(* http://en.wikipedia.org/wiki/Geodetic_system
+   Approximation using the geocentric latitude instead of the geodetic one *)
+let ned_of_ecef = fun r ->
+  let wgs84, _h = geo_of_ecef WGS84 r in
+  let sin_lambda = sin wgs84.posn_long
+  and cos_lambda = cos wgs84.posn_long
+  and sin_phiP = sin wgs84.posn_lat
+  and cos_phiP = cos wgs84.posn_lat in
+
+  fun p ->
+    let x_xr = p.(0) -. r.(0)
+    and y_yr = p.(1) -. r.(1) 
+    and z_zr = p.(2) -. r.(2) in 
     
+    let e = -.sin_lambda*.x_xr +. cos_lambda*.y_yr
+    and n = -.sin_phiP*.cos_lambda*.x_xr -. sin_phiP*.sin_lambda*.y_yr +. cos_phiP*.z_zr
+    and u = cos_phiP*.cos_lambda*.x_xr +. cos_phiP*.sin_lambda*.y_yr +. sin_phiP*.z_zr in
+    [|n; e; -.u|]
       
+let ecef_of_ned = fun r ->
+  let wgs84, _h = geo_of_ecef WGS84 r in
+  let sin_lambda = sin wgs84.posn_long
+  and cos_lambda = cos wgs84.posn_long
+  and sin_phiP = sin wgs84.posn_lat
+  and cos_phiP = cos wgs84.posn_lat in
+  fun ned ->
+    let n = ned.(0) and e = ned.(1) and u = -.ned.(2) in
+    let x = -.sin_lambda*.e -. cos_lambda*.sin_phiP*.n +. cos_lambda*.cos_phiP*.u +. r.(0)
+    and y =  cos_lambda*.e -. sin_lambda*.sin_phiP*.n +. cos_phiP*.sin_lambda*.u +. r.(1)
+    and z = cos_phiP*.n +. sin_phiP*.u +. r.(2) in
+    [|x; y; z|]
+
