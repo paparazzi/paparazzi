@@ -102,6 +102,26 @@ let get_nav_ref = fun _ values ->
     "utm_zone",  Pprz.Int   !nav_ref.Latlong.utm_zone] in
   Tm_Pprz.message_send !ac_id "NAVIGATION_REF" nav_ref_val
 
+let get_wp_moved = fun _ values ->
+  let i32value = fun x -> try Pprz.int32_assoc x values with Not_found ->
+    failwith (sprintf "Error: field '%s' not found\n" x) in
+
+  let wp_id = Pprz.int_assoc "wp_id" values in
+  let lat = Int32.to_float (i32value "lat") /. 1e7
+  and lon = Int32.to_float (i32value "lon") /. 1e7
+  and alt = Int32.to_float (i32value "alt") *. 100. in
+  let wp = Latlong.utm_of Latlong.WGS84 (Latlong.make_geo_deg lat lon) in
+
+  let wp_moved_val = [
+    "wp_id",     Pprz.Int wp_id;
+    "utm_east",  Pprz.Float wp.Latlong.utm_x;
+    "utm_north", Pprz.Float wp.Latlong.utm_y;
+    "alt",       Pprz.Float alt;
+    "utm_zone",  Pprz.Int   wp.Latlong.utm_zone] in
+  Tm_Pprz.message_send !ac_id "WP_MOVED" wp_moved_val
+
+
+
 (*********************** Main ************************************************)
 let _ =
   let ivy_bus = ref "127.255.255.255:2010" in
@@ -120,6 +140,7 @@ let _ =
   ignore (Tm_Pprz.message_bind "BOOZ_STATUS" get_status);
   ignore (Tm_Pprz.message_bind "BOOZ2_FP" get_fp);
   ignore (Tm_Pprz.message_bind "BOOZ2_NAV_REF" get_nav_ref);
+  ignore (Tm_Pprz.message_bind "WP_MOVED_LLA" get_wp_moved);
 
   let loop = Glib.Main.create true in
   while Glib.Main.is_running loop do ignore (Glib.Main.iteration true) done
