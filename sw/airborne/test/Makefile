@@ -1,10 +1,13 @@
 
 
 CC = gcc
-CFLAGS = -I.. -DFLOAT_T=double -Wall
+CFLAGS = -I.. -I../../include -DFLOAT_T=double -Wall
 LDFLAGS = -lm
 
-test_geodetic: test_geodetic.c ../pprz_geodetic_float.c
+test_geodetic: test_geodetic.c ../pprz_geodetic_float.c ../pprz_geodetic_int.c
+	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
+
+test_fmul: test_fmul.c
 	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
 

@@ -27,7 +27,12 @@ extern volatile uint32_t ami601_nb_err;
 
 #define AMI601_SLAVE_ADDR 0x60
 
-
+#ifdef SITL
+#define AMI601Event(_handler) {			\
+    ami601_status = AMI601_DATA_AVAILABLE;	\
+    _handler();					\
+  }
+#else
 #define AMI601Event(_handler) {						\
     switch (ami601_status) {						\
     case AMI601_SENDING_REQ :						\
@@ -57,6 +62,8 @@ extern volatile uint32_t ami601_nb_err;
       break;								\
     }									\
   }
+#endif
+
 
 #define AMI601ReadMeasure() {						\
     /* disable match 1 interrupt */					\

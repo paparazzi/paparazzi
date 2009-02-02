@@ -127,6 +127,7 @@ static gboolean booz2_sim_periodic(gpointer data __attribute__ ((unused))) {
 
   if (booz_sensors_model_mag_available()) {
     sim_mag_feed_data();
+    booz2_main_event();
   }
 
   booz2_main_periodic();
@@ -146,10 +147,21 @@ static void sim_gps_feed_data(void) {
   booz_gps_state.fix = BOOZ2_GPS_FIX_3D;
 }
 
-
+#include "AMI601.h"
 static void sim_mag_feed_data(void) {
-  bsm.mag->ve[AXIS_Y];
-
+#ifdef IMU_MAG_45_HACK
+  //    booz2_imu_mag.x = msx - msy;
+  //    booz2_imu_mag.y = msx + msy;
+  int32_t foo_x = bsm.mag->ve[AXIS_X] * cos(M_PI_4);
+  int32_t foo_y = bsm.mag->ve[AXIS_Y] * cos(M_PI_4);
+  ami601_val[IMU_MAG_X_CHAN] =  foo_x + foo_y;
+  ami601_val[IMU_MAG_Y_CHAN] = -foo_x + foo_y;
+  ami601_val[IMU_MAG_Z_CHAN] = bsm.mag->ve[AXIS_Z];
+#else
+  ami601_val[IMU_MAG_X_CHAN] = bsm.mag->ve[AXIS_X];
+  ami601_val[IMU_MAG_Y_CHAN] = bsm.mag->ve[AXIS_Y];
+  ami601_val[IMU_MAG_Z_CHAN] = bsm.mag->ve[AXIS_Z];
+#endif
 }
 
 
