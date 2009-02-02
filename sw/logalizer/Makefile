@@ -41,6 +41,11 @@ plot : log_file.cmx gtk_export.cmx export.cmx plot.cmx
 	@echo OL $@
 	$(Q)$(OCAMLOPT) $(INCLUDES) -o $@ unix.cmxa str.cmxa xml-light.cmxa glibivy-ocaml.cmxa lablgtk.cmxa lib-pprz.cmxa lablglade.cmxa gtkInit.cmx  $^
 
+# Target for bytecode executable (if ocamlopt is not available)
+# plot : log_file.cmo gtk_export.cmo export.cmo plot.cmo
+#	@echo OL $@
+#	$(Q)$(OCAMLC) $(INCLUDES) -o $@ unix.cma str.cma xml-light.cma glibivy-ocaml.cma lablgtk.cma lib-pprz.cma lablglade.cma gtkInit.cmo  $^
+
 %.cmo: %.ml
 	@echo OC $<
 	$(Q)$(OCAMLC) $(OCAMLCFLAGS) $(INCLUDES) -c $<
