@@ -22,6 +22,7 @@ let get_status = fun _ values ->
   else if rc_status = 1 then mcu1_status := 2
   else if rc_status = 2 then mcu1_status := 0;
   gps_status := (ivalue "gps_status");
+  let bat = ivalue "vsupply" in
   let mode_values = [
     "ap_mode",       Pprz.Int !pprz_mode;
     "ap_gaz",        Pprz.Int 0;
@@ -29,7 +30,12 @@ let get_status = fun _ values ->
     "ap_horizontal", Pprz.Int 0;
     "if_calib_mode", Pprz.Int 0;
     "mcu1_status",   Pprz.Int !mcu1_status] in
-  Tm_Pprz.message_send !ac_id "PPRZ_MODE" mode_values
+  Tm_Pprz.message_send !ac_id "PPRZ_MODE" mode_values;
+  let bat_values = [
+    "rc_status",  Pprz.Int 0;
+    "mode",       Pprz.Int 0;
+    "vsupply",    Pprz.Int bat] in
+  Tm_Pprz.message_send !ac_id "FBW_STATUS" bat_values
 
 let get_fp = fun _ values ->
   let i32value = fun x -> try Pprz.int32_assoc x values with Not_found ->
