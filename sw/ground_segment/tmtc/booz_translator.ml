@@ -13,9 +13,9 @@ let get_status = fun _ values ->
 
   let ap_mode = ivalue "ap_mode" in
   let pprz_mode = ref 0 in
-  if ap_mode = 0 || ap_mode = 1 || ap_mode = 2 || ap_mode = 5 then pprz_mode := 0
-  else if ap_mode = 3 || ap_mode = 6 then pprz_mode := 1
-  else if ap_mode = 7 || ap_mode = 8 || ap_mode = 9 then pprz_mode := 2;
+  if ap_mode = 0 || ap_mode = 1 || ap_mode = 2 || ap_mode = 4 then pprz_mode := 0
+  else if ap_mode = 3 || ap_mode = 5 then pprz_mode := 1
+  else if ap_mode = 6 || ap_mode = 7 || ap_mode = 8 then pprz_mode := 2;
   let rc_status = ivalue "rc_status" in
   let mcu1_status = ref 2 in
   if rc_status = 0 then mcu1_status := 1
