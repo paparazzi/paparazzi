@@ -10,6 +10,25 @@
 
 #include "micromag.h"
 
+/* set SSP input clock, PCLK / CPSDVSR = 468.75kHz */
+
+#if (PCLK == 15000000)
+#define CPSDVSR    32
+#else
+
+#if (PCLK == 30000000)
+#define CPSDVSR    64
+#else
+
+#if (PCLK == 60000000)
+#define CPSDVSR    128
+#else
+
+#error unknown PCLK frequency
+#endif
+#endif
+#endif
+
 static inline void tl_main_init( void );
 static inline void tl_main_periodic_task( void );
 static inline void tl_main_event_task( void );
@@ -78,7 +97,7 @@ static void test_spi_init(void) {
   /* setup SSP */
   SSPCR0 = SSP_DDS | SSP_FRF | SSP_CPOL | SSP_CPHA | SSP_SCR;
   SSPCR1 = SSP_LBM | SSP_MS | SSP_SOD;
-  SSPCPSR = 0x20;
+  SSPCPSR = CPSDVSR;
   
   /* initialize interrupt vector */
   VICIntSelect &= ~VIC_BIT(VIC_SPI1);   // SPI1 selected as IRQ

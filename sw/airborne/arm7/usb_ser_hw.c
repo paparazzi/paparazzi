@@ -51,9 +51,15 @@
 #include "LPC21xx.h"
 #include "armVIC.h"
 #include "usb_serial.h"
+#include CONFIG
 
 #include "lpcusb/usbapi.h"
 
+#ifdef USE_USB_SERIAL
+#if PCLK < 18000000
+#error PCLK needs to be higher than 18MHz for USB to work properly
+#endif
+#endif
 
 #define INT_IN_EP               0x81
 #define BULK_OUT_EP             0x05

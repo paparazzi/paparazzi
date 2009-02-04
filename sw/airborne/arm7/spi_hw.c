@@ -48,12 +48,31 @@ volatile uint8_t spi_rx_idx;
 #ifdef SPI_SLAVE
 void SPI1_ISR(void) __attribute__((naked));
 
+/* set SSP input clock, PCLK / CPSDVSR = 468.75kHz */
+
+#if (PCLK == 15000000)
+#define CPSDVSR    32
+#else
+
+#if (PCLK == 30000000)
+#define CPSDVSR    64
+#else
+
+#if (PCLK == 60000000)
+#define CPSDVSR    128
+#else
+
+#error unknown PCLK frequency
+#endif
+#endif
+#endif
+
 /* SSPCR0 settings */
 #define SSP_DSS  0x07 << 0  /* data size            : 8 bits   */
 #define SSP_FRF  0x00 << 4  /* frame format         : SPI      */
 #define SSP_CPOL 0x00 << 6  /* clock polarity       : idle low */  
 #define SSP_CPHA 0x01 << 7  /* clock phase          : 1        */
-#define SSP_SCR  0x0F << 8  /* serial clock rate    :          */
+#define SSP_SCR  0x0F << 8  /* serial clock rate    : 29.3kHz, SSP input clock / 16 */
 
 /* SSPCR1 settings */
 #define SSP_LBM  0x00 << 0  /* loopback mode        : disabled */
@@ -68,7 +87,7 @@ void spi_init( void ) {
   /* setup SSP  */
   SSPCR0 = SSP_DSS | SSP_FRF | SSP_CPOL | SSP_CPHA | SSP_SCR;
   SSPCR1 = SSP_LBM | SSP_MS | SSP_SOD;
-  SSPCPSR = 0x20; /* Prescaler, UM10120_1.pdf page 167 */
+  SSPCPSR = CPSDVSR; /* Prescaler, UM10120_1.pdf page 167 */
 
   /* initialize interrupt vector */
   VICIntSelect &= ~VIC_BIT(VIC_SPI1);   // SPI1 selected as IRQ

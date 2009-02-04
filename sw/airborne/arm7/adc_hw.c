@@ -193,7 +193,10 @@ void adc_init( void ) {
   PINSEL1 |= ADC_PINSEL1_ONES;
 
 #ifdef USE_AD0
-  /* setup hw scan - PCLK/7 ( 4.3MHz)  - BURST ON */
+  /* FIXME: this needs to be investigated, we should run just below 4.5MHz,
+            but we are a lot slower (e.g. 58.6kHz with PCLK = 15MHz), see 
+            lpc_vor_convertions.c for right timing code */  
+  /* setup hw scan - PCLK/256 ( 58.6kHz/117.2kHz/234.4kHz ) - BURST ON */
   AD0CR = ADC_AD0CR_SEL_HW_SCAN | 0xFF << 8 | 1 << 16 | 0x01 << 21 ;
   /* AD0 selected as IRQ */
   VICIntSelect &= ~VIC_BIT(VIC_AD0);
@@ -205,7 +208,10 @@ void adc_init( void ) {
 #endif
 
 #ifdef USE_AD1
-  /* setup hw scan - PCLK/7 ( 4.3MHz)  - BURST ON */
+  /* FIXME: this needs to be investigated, we should run just below 4.5MHz,
+            but we are a lot slower (e.g. 58.6kHz with PCLK = 15MHz), see 
+            lpc_vor_convertions.c for right timing code */  
+  /* setup hw scan - PCLK/256 ( 58.6kHz/117.2kHz/234.4kHz ) - BURST ON */
   AD1CR = ADC_AD1CR_SEL_HW_SCAN | 0xFF << 8 | 1 << 16 | 0x01 << 21 ;
   /* AD1 selected as IRQ */
   VICIntSelect &= ~VIC_BIT(VIC_AD1);

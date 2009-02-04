@@ -15,8 +15,26 @@ uint8_t tl_baro_cur_data;
 
 static uint16_t c1, c2, c3, c4, ut1, c6;
 
+/* PWM prescaler, set PWM input clock to 15MHz, PWM_CLK = PCLK / PWM_PRESCALER */
+
+#if (PCLK == 15000000)
+#define PWM_PRESCALER   1
+#else
+
+#if (PCLK == 30000000)
+#define PWM_PRESCALER   2
+#else
+
+#if (PCLK == 60000000)
+#define PWM_PRESCALER   4
+#else
+
+#error unknown PCLK frequency
+#endif
+#endif
+#endif
+
 #define MS5534A_MCLK 32768
-#define PWM_PRESCALER 1
 #define PWM_PERIOD ((PCLK / PWM_PRESCALER) / MS5534A_MCLK)
 #define PWM_DUTY (PWM_PERIOD / 2)
 

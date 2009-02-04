@@ -31,13 +31,52 @@
 
 #include "interrupt_hw.h"
 
-/* default clock speed 37.5KHz with our 15MHz PCLK */
+/* default clock speed 37.5KHz with our 15MHz PCLK 
+   I2C0_CLOCK = PCLK / (I2C0_SCLL + I2C0_SCLH)     */
 #ifndef I2C0_SCLL
 #define I2C0_SCLL 200
 #endif
 
 #ifndef I2C0_SCLH
 #define I2C0_SCLH 200
+#endif
+
+/* default clock speed 37.5KHz with our 15MHz PCLK 
+   I2C1_CLOCK = PCLK / (I2C1_SCLL + I2C1_SCLH)     */
+#ifndef I2C1_SCLL
+#define I2C1_SCLL 200
+#endif
+
+#ifndef I2C1_SCLH
+#define I2C1_SCLH 200
+#endif
+
+/* adjust for other PCLKs */
+
+#if (PCLK == 15000000)
+#define I2C0_SCLL_D I2C0_SCLL
+#define I2C0_SCLH_D I2C0_SCLH
+#define I2C1_SCLL_D I2C1_SCLL
+#define I2C1_SCLH_D I2C1_SCLH
+#else
+
+#if (PCLK == 30000000)
+#define I2C0_SCLL_D (2*I2C0_SCLL)
+#define I2C0_SCLH_D (2*I2C0_SCLH)
+#define I2C1_SCLL_D (2*I2C1_SCLL)
+#define I2C1_SCLH_D (2*I2C1_SCLH)
+#else
+
+#if (PCLK == 60000000)
+#define I2C0_SCLL_D (4*I2C0_SCLL)
+#define I2C0_SCLH_D (4*I2C0_SCLH)
+#define I2C1_SCLL_D (4*I2C1_SCLL)
+#define I2C1_SCLH_D (4*I2C1_SCLH)
+#else
+
+#error unknown PCLK frequency
+#endif
+#endif
 #endif
 
 #ifndef I2C0_VIC_SLOT
@@ -58,8 +97,8 @@ void i2c0_hw_init ( void ) {
   /* enable I2C */
   I2C0CONSET = _BV(I2EN);
   /* set bitrate */
-  I2C0SCLL = I2C0_SCLL;  
-  I2C0SCLH = I2C0_SCLH;  
+  I2C0SCLL = I2C0_SCLL_D;  
+  I2C0SCLH = I2C0_SCLH_D;  
   
   // initialize the interrupt vector
   VICIntSelect &= ~VIC_BIT(VIC_I2C0);              // I2C0 selected as IRQ
@@ -101,8 +140,8 @@ void i2c1_hw_init ( void ) {
   /* enable I2C */
   I2C1CONSET = _BV(I2EN);
   /* set bitrate */
-  I2C1SCLL = I2C1_SCLL;  
-  I2C1SCLH = I2C1_SCLH;  
+  I2C1SCLL = I2C1_SCLL_D;  
+  I2C1SCLH = I2C1_SCLH_D;  
   
   // initialize the interrupt vector
   VICIntSelect &= ~VIC_BIT(VIC_I2C1);              // I2C0 selected as IRQ

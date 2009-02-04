@@ -9,6 +9,26 @@ void SPI0_ISR(void) __attribute__((naked));
 #define PtAntSensorsSelect() { SetBit(IO0SET, PT_ANT_SENSOR_SS_PIN);}
 #define PtAntSensorsUnselect() { SetBit(IO0CLR, PT_ANT_SENSOR_SS_PIN);}
 
+/* set SPI0 clock, PCLK / SPCCR0 = 468.75kHz */
+
+#if (PCLK == 15000000)
+#define SPCCR0    32
+#else
+
+#if (PCLK == 30000000)
+#define SPCCR0    64
+#else
+
+#if (PCLK == 60000000)
+#define SPCCR0    128
+#else
+
+#error unknown PCLK frequency
+#endif
+#endif
+#endif
+
+
 volatile uint8_t pt_ant_sensors_data_available;
 struct PtAntSensorData pt_ant_sensors_data;
 
@@ -40,8 +60,8 @@ void pt_ant_sensors_init_spi(void) {
   PtAntSensorsUnselect();
   /* configure SPI : 8 bits CPOL=0 CPHA=0 MSB_first master */
   S0SPCR = 1<<5;
-  /* setup SPI clock rate : PCLK / 32 */
-  S0SPCCR = 0x20;
+  /* setup SPI clock rate : PCLK / SPCCR0 = 468.75kHz */
+  S0SPCCR = SPCCR0;
 
   /* initialize interrupt vector */
   VICIntSelect &= ~VIC_BIT(VIC_SPI0);   // SPI0 selected as IRQ

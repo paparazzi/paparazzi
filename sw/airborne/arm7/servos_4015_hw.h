@@ -9,7 +9,24 @@
 
 #include CONFIG
 
-#define PWM_PRESCALER 1
+/* PWM prescaler, set PWM input clock to 15MHz, PWM_CLK = PCLK / PWM_PRESCALER */
+
+#if (PCLK == 15000000)
+#define PWM_PRESCALER   1
+#else
+
+#if (PCLK == 30000000)
+#define PWM_PRESCALER   2
+#else
+
+#if (PCLK == 60000000)
+#define PWM_PRESCALER   4
+#else
+
+#error unknown PCLK frequency
+#endif
+#endif
+#endif
 
 #define PWM_TICS_OF_USEC(us)   (uint32_t)((us) *1e-6 * PCLK / PWM_PRESCALER + 0.5)
 

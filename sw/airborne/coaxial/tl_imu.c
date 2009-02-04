@@ -23,6 +23,24 @@ float tl_imu_pressure;
 
 static void SPI1_ISR(void) __attribute__((naked));
 
+/* set SSP input clock, PCLK / CPSDVSR = 468.75kHz */
+
+#if (PCLK == 15000000)
+#define CPSDVSR    32
+#else
+
+#if (PCLK == 30000000)
+#define CPSDVSR    64
+#else
+
+#if (PCLK == 60000000)
+#define CPSDVSR    128
+#else
+
+#error unknown PCLK frequency
+#endif
+#endif
+#endif
 
 /* SSPCR0 settings */
 #define SSP_DDS  0x07 << 0  /* data size         : 8 bits        */
@@ -51,7 +69,7 @@ void tl_imu_init(void) {
   /* setup SSP */
   SSPCR0 = SSP_DDS | SSP_FRF | SSP_CPOL | SSP_CPHA | SSP_SCR;
   SSPCR1 = SSP_LBM | SSP_MS | SSP_SOD;
-  SSPCPSR = 0x20;
+  SSPCPSR = CPSDVSR;
   
   /* initialize interrupt vector */
   VICIntSelect &= ~VIC_BIT(VIC_SPI1);   // SPI1 selected as IRQ

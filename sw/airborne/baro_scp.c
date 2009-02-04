@@ -33,8 +33,8 @@ void baro_scp_periodic(void) {
   }
 }
 
-/* ssp input clock 500kHz, clock is ssp divided by SCR+1 */
-#define SSP_CLOCK 500000
+/* ssp input clock 468.75kHz, clock that divided by SCR+1 */
+#define SSP_CLOCK 468750
 
 /* SSPCR0 settings */
 #define SSP_DDS  0x07 << 0  /* data size         : 8 bits        */

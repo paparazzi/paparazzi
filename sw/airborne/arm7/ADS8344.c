@@ -43,6 +43,27 @@ uint16_t ADS8344_values[NB_CHANNELS];
 #define POWER_MODE (1 << 1 | 1)
 #define SGL_DIF 1 // Single ended
 
+
+/* set SSP input clock, PCLK / CPSDVSR = 750kHz      */
+/* SSP clock, 750kHz / (SCR+1) = 750kHz / 15 = 50kHz */
+
+#if (PCLK == 15000000)
+#define CPSDVSR    20
+#else
+
+#if (PCLK == 30000000)
+#define CPSDVSR    40
+#else
+
+#if (PCLK == 60000000)
+#define CPSDVSR    80
+#else
+
+#error unknown PCLK frequency
+#endif
+#endif
+#endif
+
 /* SSPCR0 settings */
 #define SSP_DSS  0x07 << 0  /* data size            : 8 bits   */
 #define SSP_FRF  0x00 << 4  /* frame format         : SPI      */
@@ -70,7 +91,7 @@ void ADS8344_init( void ) {
   /* setup SSP */
   SSPCR0 = SSP_DSS | SSP_FRF | SSP_CPOL | SSP_CPHA | SSP_SCR;
   SSPCR1 = SSP_LBM | SSP_MS | SSP_SOD;
-  SSPCPSR = 20; /* -> 50kHz */
+  SSPCPSR = CPSDVSR; /* -> 50kHz */
   
   /* initialize interrupt vector */
   VICIntSelect &= ~VIC_BIT(VIC_SPI1);   // SPI1 selected as IRQ

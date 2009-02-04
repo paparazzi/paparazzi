@@ -7,6 +7,28 @@
 
 #include "led.h"
 
+/* ADC clock, set just below 4.5MHz */
+
+#if (PCLK == 15000000)
+/* 15MHz / 4 = 3.75MHz */
+#define AD_CLK_DIV      4
+#else
+
+#if (PCLK == 30000000)
+/* 30MHz / 7 = 4.29MHz */
+#define AD_CLK_DIV      7
+#else
+
+#if (PCLK == 60000000)
+/* 60MHz / 14 = 4.29MHz */
+#define AD_CLK_DIV      14
+#else
+
+#error unknown PCLK frequency
+#endif
+#endif
+#endif
+
 volatile uint16_t vor_adc_sample;
 volatile bool_t vor_adc_sample_available;
 volatile uint32_t vor_adc_overrun;
@@ -18,8 +40,8 @@ void adcISR0 ( void ) __attribute__((naked));
 void vor_adc_init( void ) {
   /* select P0.4 as ADC */
   PINSEL0 |=  3 << 8;
-  /* sample AD0.6 - PCLK/4 ( 3.75MHz) - ON */
-  AD0CR = 1 << 6 | 0x03 << 8 | 1 << 21;// | 1<<16;
+  /* sample AD0.6 - clock see above - ON */
+  AD0CR = 1 << 6 | (AD_CLK_DIV-1) << 8 | 1 << 21;// | 1<<16;
   /* AD0 selected as IRQ */
   VICIntSelect &= ~VIC_BIT(VIC_AD0);
   /* AD0 interrupt enabled */

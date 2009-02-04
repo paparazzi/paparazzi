@@ -40,10 +40,24 @@ extern uint32_t last_periodic_event;
 
 void TIMER0_ISR ( void ) __attribute__((naked));
 
-/* T0 prescaler */
-//#define T0_PCLK_DIV     3
+/* T0 prescaler, set T0_CLK to 15MHz, T0_CLK = PCLK / T0PCLK_DIV */
+
+#if (PCLK == 15000000)
 #define T0_PCLK_DIV     1
-//new: #define T0_PCLK_DIV     (PCLK/15000000)
+#else
+
+#if (PCLK == 30000000)
+#define T0_PCLK_DIV     2
+#else
+
+#if (PCLK == 60000000)
+#define T0_PCLK_DIV     4
+#else
+
+#error unknown PCLK frequency
+#endif
+#endif
+#endif
 
 static inline void sys_time_init( void ) {
   /* setup Timer 0 to count forever  */

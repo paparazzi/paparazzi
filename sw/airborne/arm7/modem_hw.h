@@ -6,9 +6,24 @@
 
 void TIMER1_ISR ( void ) __attribute__((naked));
 
+/* T1 prescaler, set T1_CLK to 5MHz, T1_CLK = PCLK / T1PCLK_DIV */
 
-#define T1_PCLK_DIV 3
-//new: #define T1_PCLK_DIV (PCLK/5000000)
+#if (PCLK == 15000000)
+#define T1_PCLK_DIV     3
+#else
+
+#if (PCLK == 30000000)
+#define T1_PCLK_DIV     6
+#else
+
+#if (PCLK == 60000000)
+#define T1_PCLK_DIV     12
+#else
+
+#error unknown PCLK frequency
+#endif
+#endif
+#endif
 
 #define SAMPLES_PER_PERIOD 4
 #define SAMPLE_PERIOD (PCLK/4762/SAMPLES_PER_PERIOD/T1_PCLK_DIV)
