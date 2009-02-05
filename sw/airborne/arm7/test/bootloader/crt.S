@@ -9,8 +9,11 @@
   *************************************************************************************************************** */
 
 /* use the four first sectors for bootloader */
-.set  IOPIN0,    0xE0028000
 .set  APP_START, 0x00004000
+
+.set  IOPIN0,    0xE0028000
+.set  IOPIN1,    0xE0028010
+.set  PINSEL2,   0xE002C014
 
 #ifdef PROC_AP
 #define BOARD_CLASSIX
@@ -23,6 +26,9 @@
 #endif
 #ifdef PROC_TINYJ
 #define BOARD_TINYJ
+#endif
+#ifdef PROC_LPCH2148
+#define BOARD_LPCH2148
 #endif
 
 #ifdef BOARD_TINYJ
@@ -39,8 +45,13 @@
 /* CLASSIX old I2C_SDA  P0.03 */
 .set  BOOT_PIN,  0x00000008
 #else
+#ifdef BOARD_LPCH2148
+/* Olimex LPC-H2148 P1.24 */
+.set  BOOT_PIN,  0x04000000
+#else
 /* Vbus P0.23 */
 .set  BOOT_PIN,  0x00800000
+#endif
 #endif
 #endif
 #endif
@@ -102,15 +113,32 @@ AppS_Addr:      .word   APP_START
 # Reset Handler
 
 Reset_Handler:  
+#ifndef BOARD_LPCH2148
     			/* check status of the USB in P0.xx */
     			ldr   r0, =IOPIN0   /* load gpio addr */
     			ldr   r1,[r0]       /* get data */
     			ldr   r2, =BOOT_PIN /* get boot pin */
     			and   r1, r1, r2    /* clear all other bits */
     			cmp   r1, r2        /* compare bits */ 
-    			beq   Bootloader /* beq */
-			ldr   PC, AppS_Addr
-
+    			beq   Bootloader    /* beq */
+    			ldr   PC, AppS_Addr
+#else
+    			/* check status of the USB in P1.24 */
+    			ldr   r0, =PINSEL2  /* load mode addr */
+    			mov   r3, #8        /* Pins P1.25-16 are used as GPIO pins */
+                str   r3, [r0]
+    			ldr   r0, =IOPIN1   /* load gpio addr */
+    			ldr   r1,[r0]       /* get data */
+    			ldr   r2, =BOOT_PIN /* get boot pin */
+    			ldr   r0, =PINSEL2  /* load mode addr */
+    			mov   r3, #0        /* Pins P1.25-16 default */
+                str   r3, [r0]
+    			and   r1, r1, r2    /* clear all other bits */
+    			cmp   r1, r2        /* compare bits */ 
+    			beq   Bootloader    /* beq */
+    			ldr   PC, AppS_Addr
+#endif
+            
 				/* Setup a stack for each mode - note that this only sets up a usable stack
 				for User mode.   Also each mode is setup with interrupts initially disabled. */
 Bootloader:
