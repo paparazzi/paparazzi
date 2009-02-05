@@ -13,6 +13,12 @@
     <axis name="YAW"    failsafe_value="0"/>
     <axis name="THRUST" failsafe_value="0"/>
   </commands>
+ 
+  <section name="BOOZ2_MODE" prefix="BOOZ2_MODE_">
+  	<define name="MANUAL" value="BOOZ2_AP_MODE_RATE_DIRECT"/>
+  	<define name="AUTO1"  value="BOOZ2_AP_MODE_ATTITUDE_DIRECT"/>
+  	<define name="AUTO2"  value="BOOZ2_AP_MODE_HOVER_Z_HOLD"/>
+  </section>
 
   <section name="BUSS_BLMC" prefix="BUSS_BLMC_">
     <define name="ADDR" value="{ 0x52, 0x54, 0x58, 0x56 }"/>
@@ -87,6 +93,8 @@
     <define name="SP_MAX_THETA"   value="3000"/>
     <define name="SP_MAX_R"       value="5500"/>
     <define name="DEADBAND_R"     value="250"/>
+    <define name="DEADBAND_ROLL"  value="150"/>
+    <define name="DEADBAND_PITCH" value="150"/>
 
     <define name="PHI_THETA_PGAIN"  value="-400"/>
     <define name="PHI_THETA_DGAIN"  value="-300"/>
