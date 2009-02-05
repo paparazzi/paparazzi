@@ -842,7 +842,7 @@ let dl_id = "ground_dl" (* Hack, should be [my_id] *)
 let move_wp = fun logging _sender vs ->
   let f = fun a -> List.assoc a vs
   and ac_id = Pprz.string_assoc "ac_id" vs
-  and deg7 = fun f -> Pprz.Int (truncate (Pprz.float_assoc f vs *. 1e7)) in
+  and deg7 = fun f -> Pprz.Int32 (Int32.of_float (Pprz.float_assoc f vs *. 1e7)) in
   let vs = [ "ac_id", Pprz.String ac_id;
 	     "wp_id", f "wp_id";
 	     "lat", deg7 "lat";
