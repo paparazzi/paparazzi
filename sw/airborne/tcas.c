@@ -57,7 +57,7 @@ uint8_t tcas_acs_status[NB_ACS];
 #endif
 
 #ifndef TCAS_ALIM       // Altitude Limit
-#define TCAS_ALIM 10.
+#define TCAS_ALIM 15.
 #endif
 
 #ifndef TCAS_DT_MAX     // ms (lost com and timeout)
@@ -65,6 +65,9 @@ uint8_t tcas_acs_status[NB_ACS];
 #endif
 
 #define TCAS_HUGE_TAU 100*TCAS_TAU_TA
+
+/* AC is inside the horizontol dmod area and twice the vertical alim separation */
+#define TCAS_IsInside() ( (ddh < Square(tcas_dmod) && ddv < Square(2*tcas_alim)) ? 1 : 0 )
 
 void tcas_init( void ) {
   tcas_alt_setpoint = GROUND_ALT + SECURITY_HEIGHT;
@@ -107,30 +110,35 @@ void tcas_periodic_task_1Hz( void ) {
     float dvx = vx - the_acs[i].gspeed * sin(the_acs[i].course);
     float dvy = vy - the_acs[i].gspeed * cos(the_acs[i].course);
     float dvz = estimator_z_dot - the_acs[i].climb;
-    float scal = (dvx*dx + dvy*dy + dvz*dz);
+    float scal = dvx*dx + dvy*dy + dvz*dz;
+    float ddh = dx*dx + dy*dy;
+    float ddv = dz*dz;
     float tau = TCAS_HUGE_TAU;
-    if (scal > 0) tau = (dx*dx + dy*dy + dz*dz) / scal;
+    if (scal > 0.) tau = (ddh + ddv) / scal;
     // monitor conflicts
+    uint8_t inside = TCAS_IsInside();
     switch (tcas_acs_status[i]) {
       case TCAS_RA:
-        if (tau == TCAS_HUGE_TAU) tcas_acs_status[i] = TCAS_NO_ALARM; // conflict is now resolved
+        if (tau >= TCAS_HUGE_TAU && !inside)
+          tcas_acs_status[i] = TCAS_NO_ALARM; // conflict is now resolved
         break;
       case TCAS_TA:
-        if (tau < TCAS_TAU_RA) {
+        if (tau < tcas_tau_ra || inside) {
           tcas_acs_status[i] = TCAS_RA; // TA -> RA
           // Downlink alert
           DOWNLINK_SEND_TCAS_RA(&(the_acs[i].ac_id));
           break;
         }
-        if (tau > TCAS_TAU_TA) tcas_acs_status[i] = TCAS_NO_ALARM; // conflict is now resolved
+        if (tau > tcas_tau_ta && !inside)
+          tcas_acs_status[i] = TCAS_NO_ALARM; // conflict is now resolved
         break;
       case TCAS_NO_ALARM:
-        if (tau < TCAS_TAU_TA) {
+        if (tau < tcas_tau_ta || inside) {
           tcas_acs_status[i] = TCAS_TA; // NO_ALARM -> TA
           // Downlink warning
           DOWNLINK_SEND_TCAS_TA(&(the_acs[i].ac_id));
         }
-        if (tau < TCAS_TAU_RA) {
+        if (tau < tcas_tau_ra || inside) {
           tcas_acs_status[i] = TCAS_RA; // NO_ALARM -> RA = big problem ?
           // Downlink alert
           DOWNLINK_SEND_TCAS_RA(&(the_acs[i].ac_id));
