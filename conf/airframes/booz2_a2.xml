@@ -106,6 +106,12 @@
    <define name="IGAIN" value="-0"/>
  </section>
 
+ <section name="AUTOPILOT">
+   <define name="BOOZ2_MODE_MANUAL" value="BOOZ2_AP_MODE_ATTITUDE_DIRECT"/>
+   <define name="BOOZ2_MODE_AUTO1" value="BOOZ2_AP_MODE_ATTITUDE_Z_HOLD"/>
+   <define name="BOOZ2_MODE_AUTO2" value="BOOZ2_AP_MODE_ATTITUDE_Z_HOLD"/>
+ </section>
+
  <section name="BAT">
    <define name="MILLIAMP_PER_PERCENT" value="0.86"/>
    <define name="CATASTROPHIC_BAT_LEVEL" value="9.3" unit="V"/>
