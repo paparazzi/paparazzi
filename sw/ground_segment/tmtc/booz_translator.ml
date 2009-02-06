@@ -6,7 +6,10 @@ let ac_id = ref "1"
 let nav_ref = ref (Latlong.utm_of Latlong.WGS84 (Latlong.make_geo_deg 43.46223 1.27289)) (* Muret *)
 
 let gps_status = ref 0
+let vsupply = ref 0
+let kill = ref 1
 
+(** PPRZ_MODE **)
 let get_status = fun _ values ->
   let ivalue = fun x -> try Pprz.int_assoc x values with Not_found ->
     failwith (sprintf "Error: field '%s' not found\n" x) in
@@ -22,7 +25,8 @@ let get_status = fun _ values ->
   else if rc_status = 1 then mcu1_status := 2
   else if rc_status = 2 then mcu1_status := 0;
   gps_status := (ivalue "gps_status");
-  let bat = ivalue "vsupply" in
+  vsupply := (ivalue "vsupply");
+  kill := 1 - (ivalue "ap_motors_on");
   let mode_values = [
     "ap_mode",       Pprz.Int !pprz_mode;
     "ap_gaz",        Pprz.Int 0;
@@ -30,13 +34,9 @@ let get_status = fun _ values ->
     "ap_horizontal", Pprz.Int 0;
     "if_calib_mode", Pprz.Int 0;
     "mcu1_status",   Pprz.Int !mcu1_status] in
-  Tm_Pprz.message_send !ac_id "PPRZ_MODE" mode_values;
-  let bat_values = [
-    "rc_status",  Pprz.Int 0;
-    "mode",       Pprz.Int 0;
-    "vsupply",    Pprz.Int bat] in
-  Tm_Pprz.message_send !ac_id "FBW_STATUS" bat_values
+  Tm_Pprz.message_send !ac_id "PPRZ_MODE" mode_values
 
+(** FLIGHT PARAM **)
 let get_fp = fun _ values ->
   let i32value = fun x -> try Pprz.int32_assoc x values with Not_found ->
     failwith (sprintf "Error: field '%s' not found\n" x) in
@@ -92,8 +92,20 @@ let get_fp = fun _ values ->
     "y",        Pprz.Float dy;
     "altitude", Pprz.Float 0.;
     "climb",    Pprz.Float 0.] in
-  Tm_Pprz.message_send !ac_id "DESIRED" desired_val
+  Tm_Pprz.message_send !ac_id "DESIRED" desired_val;
 
+  let throttle = (Int32.to_int (i32value "thrust")) * 9600 / 200 in
+  let bat_values = [
+    "throttle",           Pprz.Int throttle;
+    "voltage",            Pprz.Int !vsupply;
+    "flight_time",        Pprz.Int 0;
+    "kill_auto_throttle", Pprz.Int !kill;
+    "block_time",         Pprz.Int 0;
+    "stage_time",         Pprz.Int 0;
+    "energy",             Pprz.Int 0] in
+  Tm_Pprz.message_send !ac_id "BAT" bat_values
+
+(** NAV_REF **)
 let get_nav_ref = fun _ values ->
   let i32value = fun x -> try Pprz.int32_assoc x values with Not_found ->
     failwith (sprintf "Error: field '%s' not found\n" x) in
@@ -108,6 +120,7 @@ let get_nav_ref = fun _ values ->
     "utm_zone",  Pprz.Int   !nav_ref.Latlong.utm_zone] in
   Tm_Pprz.message_send !ac_id "NAVIGATION_REF" nav_ref_val
 
+(** WP_MOVED **)
 let get_wp_moved = fun _ values ->
   let i32value = fun x -> try Pprz.int32_assoc x values with Not_found ->
     failwith (sprintf "Error: field '%s' not found\n" x) in
