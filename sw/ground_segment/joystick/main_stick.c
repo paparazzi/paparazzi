@@ -140,8 +140,8 @@ static gboolean joystick_hover_periodic(gpointer data __attribute__ ((unused))) 
   if (! fp_received_once) return 1;
 
   alt_sp += (climb >> CLIMB_COEF_SHIFT);
-  lon_sp += (vy >> SPEED_COEF_SHIFT);
-  lat_sp += (vx >> SPEED_COEF_SHIFT);
+  lon_sp += (vx >> SPEED_COEF_SHIFT);
+  lat_sp -= (vy >> SPEED_COEF_SHIFT);
   psi_sp += YAW_RATE_COEF * yaw_rate;
   //printf("%ld %ld %ld %ld\n",alt_sp,lon_sp,lat_sp,psi_sp);
   IvySendMsg("dl BOOZ2_FMS_COMMAND %d %d %d %d %d %d %d",
