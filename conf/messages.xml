@@ -824,6 +824,7 @@
     <field name="carrot_lat"  type="int32"/>
     <field name="carrot_alt"  type="int32"/>
     <field name="carrot_psi"  type="int32"/>
+    <field name="thrust" type="int32"/>   
   </message>
 
   <message name="BOOZ2_FMS_INFO" id="148">
