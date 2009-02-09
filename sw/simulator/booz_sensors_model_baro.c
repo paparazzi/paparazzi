@@ -24,16 +24,19 @@ void booz_sensors_model_baro_init( double time ) {
 void booz_sensors_model_baro_run( double time ) {
   if (time < bsm.baro_next_update)
     return;
-  
-  double z = bfm.state->ve[BFMS_Z];
-  //  double p = ( z / 0.084 ) + BSM_BARO_QNH;
-  //  double baro_reading = p * BSM_BARO_SENSITIVITY;
-  double baro_reading = BSM_BARO_QNH + z * BSM_BARO_SENSITIVITY;
 
-  /* FIXME : add noise and random walk */
-  baro_reading = rint(baro_reading);
-  bsm.baro = baro_reading;
-
+  if (time < 12.5)
+    bsm.baro = 840;
+  else {
+    double z = bfm.state->ve[BFMS_Z];
+    //  double p = ( z / 0.084 ) + BSM_BARO_QNH;
+    //  double baro_reading = p * BSM_BARO_SENSITIVITY;
+    double baro_reading = BSM_BARO_QNH + z * BSM_BARO_SENSITIVITY;
+    
+    /* FIXME : add noise and random walk */
+    baro_reading = rint(baro_reading);
+    bsm.baro = baro_reading;
+  }
   bsm.baro_next_update += BSM_BARO_DT;
   bsm.baro_available = TRUE;
 }

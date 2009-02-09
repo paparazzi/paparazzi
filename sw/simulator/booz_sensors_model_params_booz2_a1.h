@@ -122,8 +122,8 @@
  *  Barometer
  */
 #define BSM_BARO_QNH             900.
-#define BSM_BARO_SENSITIVITY      10.
-#define BSM_BARO_DT          (1./10.)
+#define BSM_BARO_SENSITIVITY      18.
+#define BSM_BARO_DT          (1./100.)
 
 
 /*

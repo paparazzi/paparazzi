@@ -20,7 +20,7 @@
     }									\
     else {								\
       ppm_pulses[RADIO_YAW]      = 1493 + 0.  * (2050-950);		\
-      ppm_pulses[RADIO_THROTTLE] = 1223 + 0.9 * (2050-1223);		\
+      ppm_pulses[RADIO_THROTTLE] = 1223 + 0.99 * (2050-1223);		\
       ppm_pulses[RADIO_MODE]     = MODE_SWITCH_AUTO2;			\
     }									\
     ppm_pulses[RADIO_PITCH]    = 1498 + 0.  * (2050-950);		\

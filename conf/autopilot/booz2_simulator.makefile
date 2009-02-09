@@ -91,6 +91,13 @@ sim.srcs += $(BOOZ_PRIV)/booz2_stabilization_attitude.c
 sim.srcs += $(BOOZ_PRIV)/booz2_guidance_h.c
 sim.srcs += $(BOOZ_PRIV)/booz2_guidance_v.c
 sim.srcs += $(BOOZ_PRIV)/booz2_ins.c
+# vertical filter dummy complementary
+#sim.CFLAGS += -DUSE_VFD
+#  vertical filter float version
+sim.srcs += $(BOOZ_PRIV)/booz2_vf_float.c
+sim.CFLAGS += -DUSE_VFF -DDT_VFILTER="(1./512.)" -DFLOAT_T=float
+
+
 
 sim.srcs += $(BOOZ_PRIV)/booz2_navigation.c
 
