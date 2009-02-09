@@ -91,12 +91,15 @@
    <define name="ALIGNMENT_DPSI"   value="BOOZ_ANGLE_I_OF_F(0.)"/>
   </section>
 
+  <section name="INS" prefix="BOOZ_INS_">
+    <define name="BARO_SENS" value="18.1" integer="16"/>
+  </section>
 
   <section name="GUIDANCE_V" prefix="BOOZ2_GUIDANCE_V_">
    <define name="HOVER_POWER" value="81"/>
-   <define name="HOVER_KP"    value="-200"/>
-   <define name="HOVER_KD"    value="-100"/>
-   <define name="HOVER_KI"    value="-50"/>
+   <define name="HOVER_KP"    value="-300"/>
+   <define name="HOVER_KD"    value="-200"/>
+   <define name="HOVER_KI"    value="-75"/>
   </section>
 
 
@@ -108,8 +111,8 @@
 
  <section name="AUTOPILOT">
    <define name="BOOZ2_MODE_MANUAL" value="BOOZ2_AP_MODE_ATTITUDE_DIRECT"/>
-   <define name="BOOZ2_MODE_AUTO1" value="BOOZ2_AP_MODE_ATTITUDE_Z_HOLD"/>
-   <define name="BOOZ2_MODE_AUTO2" value="BOOZ2_AP_MODE_ATTITUDE_Z_HOLD"/>
+   <define name="BOOZ2_MODE_AUTO1"  value="BOOZ2_AP_MODE_ATTITUDE_Z_HOLD"/>
+   <define name="BOOZ2_MODE_AUTO2"  value="BOOZ2_AP_MODE_ATTITUDE_Z_HOLD"/>
  </section>
 
  <section name="BAT">

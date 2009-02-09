@@ -114,13 +114,16 @@ ap.srcs += $(BOOZ_PRIV)/booz_trig_int.c
 ap.srcs += $(BOOZ_PRIV)/booz2_stabilization.c
 ap.srcs += $(BOOZ_PRIV)/booz2_stabilization_rate.c
 ap.srcs += $(BOOZ_PRIV)/booz2_stabilization_attitude.c
-#ap.srcs += $(BOOZ_PRIV)/booz_supervision_int.c
 
 ap.srcs += $(BOOZ_PRIV)/booz2_guidance_h.c
 ap.srcs += $(BOOZ_PRIV)/booz2_guidance_v.c
 ap.srcs += $(BOOZ_PRIV)/booz2_ins.c
+# vertical filter dummy complementary
+#ap.CFLAGS += -DUSE_VFD
+#  vertical filter float version
+ap.srcs += $(BOOZ_PRIV)/booz2_vf_float.c
+ap.CFLAGS += -DUSE_VFF -DDT_VFILTER="(1./512.)" -DFLOAT_T=float
 
-#ap.CFLAGS += -DNAV_ENAC
 ap.srcs += $(BOOZ_PRIV)/booz2_navigation.c
 
 
