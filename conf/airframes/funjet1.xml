@@ -209,12 +209,6 @@
     <define name="DC_ZOOM_LED" value="7"/>
   </section>
  
-
-
- <section name="SIMU">
-    <define name="YAW_RESPONSE_FACTOR" value="0.5"/>
- </section>
-
  <makefile>
 CONFIG = \"tiny_2_1.h\"
 

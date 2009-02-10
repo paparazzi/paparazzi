@@ -141,11 +141,6 @@
     <define name="LIGHT_LED_1" value="3"/>
   </section>
  
-  <section name="SIMU">
-    <define name="WEIGHT" value="1."/>
-    <define name="YAW_RESPONSE_FACTOR" value="0.5"/>
-  </section>
-
   <section name="FAILSAFE" prefix="FAILSAFE_">
     <define name="DELAY_WITHOUT_GPS" value="2" unit="s"/>
     <define name="DEFAULT_THROTTLE" value="V_CTL_AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE+0.05" unit="%"/>
@@ -262,5 +257,3 @@ sim.CFLAGS += -DUSE_JOYSTICK
 
   </makefile>
 </airframe>
-
-
