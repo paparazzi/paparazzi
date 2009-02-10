@@ -27,13 +27,9 @@ ARCHI=arm7
 FLASH_MODE = IAP
 BOARD_CFG = \"booz2_board_v1_0.h\"
 
-BOOZ=booz
-BOOZ_PRIV=booz_priv
-BOOZ_PRIV_ARCH=booz_priv/arm7
-BOOZ_PRIV_TEST=booz_priv/test
-BOOZ_ARCH=booz/arm7
-
-BOOZ_CFLAGS = -I$(BOOZ_PRIV) -I$(BOOZ_PRIV_ARCH)
+SRC_BOOZ=booz
+SRC_BOOZ_ARCH=booz/arm7
+SRC_BOOZ_TEST=booz/test
 
 ap.ARCHDIR = $(ARCHI)
 ap.ARCH = arm7tdmi
@@ -41,8 +37,9 @@ ap.TARGET = ap
 ap.TARGETDIR = ap
 
 
-ap.CFLAGS += -DCONFIG=$(BOARD_CFG) $(BOOZ_CFLAGS)
-ap.srcs += $(BOOZ_PRIV)/booz2_main.c
+ap.CFLAGS += -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH)
+ap.CFLAGS += -DCONFIG=$(BOARD_CFG)
+ap.srcs += $(SRC_BOOZ)/booz2_main.c
 ap.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))'
 # -DTIME_LED=1
 ap.CFLAGS += -DLED
@@ -52,88 +49,81 @@ ap.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600 -DUART1_VIC_SLOT=6
 ap.srcs += $(SRC_ARCH)/uart_hw.c
 
 ap.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart1 
-ap.srcs += $(BOOZ_PRIV)/booz2_telemetry.c \
+ap.srcs += $(SRC_BOOZ)/booz2_telemetry.c \
 	   downlink.c \
            pprz_transport.c
 
 ap.CFLAGS += -DDATALINK=PPRZ -DPPRZ_UART=Uart1
-ap.srcs += $(BOOZ_PRIV)/booz2_datalink.c
+ap.srcs += $(SRC_BOOZ)/booz2_datalink.c
 
-ap.srcs += $(BOOZ_PRIV)/booz2_commands.c
+ap.srcs += $(SRC_BOOZ)/booz2_commands.c
 
 ap.CFLAGS += -DRADIO_CONTROL -DRADIO_CONTROL_TYPE=RC_FUTABA -DRC_LED=1
 ap.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c
 
-#ap.CFLAGS += -DACTUATORS=\"actuators_buss_twi_blmc_hw.h\" -DUSE_BUSS_TWI_BLMC
-#ap.srcs += $(BOOZ_PRIV_ARCH)/actuators_buss_twi_blmc_hw.c actuators.c
-#ap.CFLAGS += -DUSE_I2C0 -DI2C0_SCLL=150 -DI2C0_SCLH=150 -DI2C0_VIC_SLOT=10
-#ap.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
+#
+# Actuator choice
+#
+# include booz2_actuators_buss.makefile
+# or
+# include booz2_actuators_asctec.makefile
+#
 
+#
+# IMU choice
+#
+# include booz2_imu_b2v1.makefile
+# or
+# include booz2_imu_crista.makefile
+#
 
-#ap.CFLAGS += -DBOOZ2_IMU_TYPE=IMU_V3
-#ap.srcs += $(BOOZ_PRIV)/booz2_imu_v3.c $(BOOZ_PRIV_ARCH)/booz2_imu_v3_hw.c
-
-#ap.CFLAGS += -DBOOZ2_IMU_TYPE=IMU_CRISTA
-#ap.srcs += $(BOOZ_PRIV)/booz2_imu_crista.c $(BOOZ_PRIV_ARCH)/booz2_imu_crista_hw.c
-
-#ap.CFLAGS += -DBOOZ2_IMU_TYPE=IMU_B2
-#ap.CFLAGS += -DSSP_VIC_SLOT=9
-#ap.srcs += $(BOOZ_PRIV)/booz2_imu_b2.c $(BOOZ_PRIV_ARCH)/booz2_imu_b2_hw.c
-#ap.CFLAGS += -DMAX1168_EOC_VIC_SLOT=8
-#ap.srcs += $(BOOZ_PRIV)/booz2_max1168.c $(BOOZ_PRIV_ARCH)/booz2_max1168_hw.c
-#ap.CFLAGS += -DUSE_I2C1  -DI2C1_SCLL=150 -DI2C1_SCLH=150 -DI2C1_VIC_SLOT=11 -DI2C1_BUF_LEN=16
-##ap.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
-#ap.CFLAGS += -DUSE_AMI601
-#ap.srcs += AMI601.c
-#ap.CFLAGS += -DFLOAT_T=float
-#ap.srcs += $(BOOZ_PRIV)/booz2_imu.c
 
 
 ap.CFLAGS += -DBOOZ2_ANALOG_BARO_LED=2 -DBOOZ2_ANALOG_BARO_PERIOD='SYS_TICS_OF_SEC((1./100.))'
-ap.srcs += $(BOOZ_PRIV)/booz2_analog_baro.c
+ap.srcs += $(SRC_BOOZ)/booz2_analog_baro.c
 
 ap.CFLAGS += -DBOOZ2_ANALOG_BATTERY_PERIOD='SYS_TICS_OF_SEC((1./10.))'
-ap.srcs += $(BOOZ_PRIV)/booz2_battery.c
+ap.srcs += $(SRC_BOOZ)/booz2_battery.c
 
 ap.CFLAGS += -DADC0_VIC_SLOT=2
 ap.CFLAGS += -DADC1_VIC_SLOT=3
-ap.srcs += $(BOOZ_PRIV)/booz2_analog.c $(BOOZ_PRIV_ARCH)/booz2_analog_hw.c
+ap.srcs += $(SRC_BOOZ)/booz2_analog.c $(SRC_BOOZ_ARCH)/booz2_analog_hw.c
 
-ap.srcs += $(BOOZ_PRIV)/booz2_gps.c
+ap.srcs += $(SRC_BOOZ)/booz2_gps.c
 ap.CFLAGS += -DUSE_UART0 -DUART0_BAUD=B38400 -DUART0_VIC_SLOT=5
 ap.CFLAGS += -DGPS_LINK=Uart0 -DGPS_LED=4
 
 
 
-ap.srcs += $(BOOZ_PRIV)/booz2_autopilot.c
+ap.srcs += $(SRC_BOOZ)/booz2_autopilot.c
 
 ap.CFLAGS += -DFILTER_ALIGNER_LED=3
-ap.srcs += $(BOOZ_PRIV)/booz2_filter_aligner2.c
-ap.srcs += $(BOOZ_PRIV)/booz2_filter_attitude_cmpl_euler.c
-ap.srcs += $(BOOZ_PRIV)/booz_trig_int.c
-ap.srcs += $(BOOZ_PRIV)/booz2_stabilization.c
-ap.srcs += $(BOOZ_PRIV)/booz2_stabilization_rate.c
-ap.srcs += $(BOOZ_PRIV)/booz2_stabilization_attitude.c
+ap.srcs += $(SRC_BOOZ)/booz2_filter_aligner2.c
+ap.srcs += $(SRC_BOOZ)/booz2_filter_attitude_cmpl_euler.c
+ap.srcs += $(SRC_BOOZ)/booz_trig_int.c
+ap.srcs += $(SRC_BOOZ)/booz2_stabilization.c
+ap.srcs += $(SRC_BOOZ)/booz2_stabilization_rate.c
+ap.srcs += $(SRC_BOOZ)/booz2_stabilization_attitude.c
 
-ap.srcs += $(BOOZ_PRIV)/booz2_guidance_h.c
-ap.srcs += $(BOOZ_PRIV)/booz2_guidance_v.c
-ap.srcs += $(BOOZ_PRIV)/booz2_ins.c
+ap.srcs += $(SRC_BOOZ)/booz2_guidance_h.c
+ap.srcs += $(SRC_BOOZ)/booz2_guidance_v.c
+ap.srcs += $(SRC_BOOZ)/booz2_ins.c
 # vertical filter dummy complementary
 #ap.CFLAGS += -DUSE_VFD
 #  vertical filter float version
-ap.srcs += $(BOOZ_PRIV)/booz2_vf_float.c
+ap.srcs += $(SRC_BOOZ)/booz2_vf_float.c
 ap.CFLAGS += -DUSE_VFF -DDT_VFILTER="(1./512.)" -DFLOAT_T=float
 
-ap.srcs += $(BOOZ_PRIV)/booz2_navigation.c
+ap.srcs += $(SRC_BOOZ)/booz2_navigation.c
 
 
 
 ap.CFLAGS += -DHS_YAW
 
-ap.srcs += $(BOOZ_PRIV)/booz2_fms.c
+ap.srcs += $(SRC_BOOZ)/booz2_fms.c
 
 #ap.CFLAGS += -DBOOZ2_FMS_TYPE=BOOZ2_FMS_TYPE_DATALINK -DFMS_DATALINK_USE_COMMANDS_RAW
-#ap.srcs += $(BOOZ_PRIV)/booz2_fms_datalink.c
+#ap.srcs += $(SRC_BOOZ)/booz2_fms_datalink.c
 
 ap.CFLAGS += -DBOOZ2_FMS_TYPE=BOOZ2_FMS_TYPE_TEST_SIGNAL
-ap.srcs += $(BOOZ_PRIV)/booz2_fms_test_signal.c
+ap.srcs += $(SRC_BOOZ)/booz2_fms_test_signal.c
