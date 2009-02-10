@@ -287,7 +287,7 @@ let one_setting = fun i do_change packing dl_setting (tooltips:GData.tooltips) s
 			value := float j;
 			if auto_but#active then callback ()));
 	    b) in
-      (callback, fun j -> buttons.(truncate j - ilower)#set_active true)
+      (callback, fun j -> try buttons.(truncate j - ilower)#set_active true with _ -> ())
     else (* slider *)
       let value = (lower +. upper) /. 2. in
       let adj = GData.adjustment ~value ~lower ~upper:(upper+.step_incr) ~step_incr ~page_incr ~page_size () in
@@ -296,7 +296,7 @@ let one_setting = fun i do_change packing dl_setting (tooltips:GData.tooltips) s
       let callback = fun () -> modified := true; if auto_but#active then f () in
       ignore (adj#connect#value_changed ~callback);
       ignore (auto_but#connect#toggled ~callback);
-      (f, fun x -> adj#set_value x)
+      (f, fun x -> try adj#set_value x with _ -> ())
   in
   let set_default = fun x ->
     if not !modified then set_default x else () in
@@ -416,6 +416,8 @@ class settings = fun ?(visible = fun _ -> true) xml_settings do_change strip ->
     method set = fun i v ->
       if visible self#widget then
 	let s = string_of_float v in
+	if i < 0 || i >= Array.length variables then
+	  failwith (sprintf "Pages.settings#set: %d out of bounnds (length=%d)" i (Array.length variables));
 	let setting = variables.(i) in
 	let s = 
 	  let values = values_of_dl_setting setting#xml in
