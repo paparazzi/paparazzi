@@ -659,7 +659,7 @@ let safe_bind = fun msg cb ->
   let safe_cb = fun sender vs ->
     try cb sender vs with 
       AC_not_found -> () (* A/C not yet registed; silently ignore *)
-    | x -> fprintf stderr "safe_bind (%s): %s\n%!" msg (Printexc.to_string x) in
+    | x -> fprintf stderr "%s: safe_bind (%s:%a): %s\n%!" Sys.argv.(0) msg (fun c vs -> List.iter (fun (_,v) -> fprintf c "%s " (Pprz.string_of_value v)) vs) vs (Printexc.to_string x) in
   ignore (Ground_Pprz.message_bind msg safe_cb)
 
 let alert_bind = fun msg cb ->
@@ -762,7 +762,7 @@ let listen_dl_value = fun () ->
 	let values = Array.map float_of_string (Array.of_list (Str.split list_separator csv)) in
 	ac.dl_values <- values;
 	for i = 0 to min (Array.length values) settings#length - 1 do
-	  settings#set i values.(i)
+	  settings#set i (try values.(i) with _ -> failwith (sprintf "values.(%d)" i))
 	done
     | None -> () in
   safe_bind "DL_VALUES" get_dl_value
