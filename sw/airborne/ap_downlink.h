@@ -119,7 +119,7 @@
 #endif
 
 #ifdef AGR_CLIMB
-#define PERIODIC_SEND_CALIBRATION() DOWNLINK_SEND_CALIBRATION(&v_ctl_auto_throttle_sum_err, &v_ctl_auto_throttle_pgain, &h_ctl_course_pgain, &v_ctl_auto_throttle_submode)
+#define PERIODIC_SEND_CALIBRATION() DOWNLINK_SEND_CALIBRATION(&v_ctl_auto_throttle_sum_err, &v_ctl_auto_throttle_submode)
 #else
 #define PERIODIC_SEND_CALIBRATION() DOWNLINK_SEND_CALIBRATION(&v_ctl_auto_throttle_sum_err, &v_ctl_auto_throttle_pgain, &h_ctl_course_pgain, &pprz_mode)
 #endif
