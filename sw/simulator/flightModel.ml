@@ -101,7 +101,7 @@ module Make(A:Data.MISSION) = struct
     try section "SIMU" with _ -> Xml.Element("", [], [])
 
   let roll_response_factor = 
-    try float_value simu_section "ROLL_RESPONSE_FACTOR" with _ -> 10.
+    try float_value simu_section "ROLL_RESPONSE_FACTOR" with _ -> 15.
 
   let yaw_response_factor = 
     try float_value simu_section "YAW_RESPONSE_FACTOR" with _ -> 1.
@@ -113,6 +113,7 @@ module Make(A:Data.MISSION) = struct
     try float_value (section "BAT") "MAX_BAT_LEVEL" with _ -> 12.5
 
   let max_phi = 0.7 (* rad *)
+  let max_phi_dot = 0.25 (* rad/s *)
   let bound = fun x mi ma -> if x > ma then ma else if x < mi then mi else x
 
 
@@ -181,6 +182,7 @@ module Make(A:Data.MISSION) = struct
     if agl >= -3. && state.air_speed > 0. then begin
       let phi_dot_dot = roll_response_factor *. state.delta_a -. state.phi_dot in
       state.phi_dot <- state.phi_dot +. phi_dot_dot *. dt;
+      state.phi_dot <- bound state.phi_dot (-.max_phi_dot) max_phi_dot;
       state.phi <- norm_angle (state.phi +. state.phi_dot *. dt);
       state.phi <- bound state.phi (-.max_phi) max_phi;
 
@@ -196,7 +198,7 @@ module Make(A:Data.MISSION) = struct
       state.z <- state.z +. dz;
 
       (* Awfull: just to respond to the controller ... *)
-      state.theta <- state.theta +. 0.1 *. (4e-4 *. state.delta_b -. state.theta)
+      state.theta <- state.theta +. 1e-5 *. state.delta_b
     end;
     state.t <- now
 end (* Make functor *)
