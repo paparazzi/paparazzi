@@ -195,6 +195,7 @@ inline static void v_ctl_climb_auto_throttle_loop(void) {
     f_throttle = (1-ratio) * controlled_throttle;
     nav_pitch = (1-ratio) * v_ctl_pitch_of_vz;
     v_ctl_auto_throttle_sum_err += (1-ratio) * err;
+    BoundAbs(v_ctl_auto_throttle_sum_err, V_CTL_AUTO_THROTTLE_MAX_SUM_ERR);
     if (v_ctl_altitude_error < 0) {
       f_throttle +=  ratio * AGR_CLIMB_THROTTLE;
       nav_pitch += ratio * AGR_CLIMB_PITCH;
