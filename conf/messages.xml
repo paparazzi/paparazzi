@@ -98,8 +98,6 @@
 
    <message name="CALIBRATION" id="14">
      <field name="climb_sum_err" type="float" format="%.1f"></field>
-     <field name="climb_pgain" type="float" format="%.3f"></field> 
-     <field name="course_pgain" type="float" format="%.3f"></field>
      <field name="climb_gaz_submode" type="uint8"></field>
    </message>
 
@@ -279,6 +277,11 @@
     <field name="lat" type="int32" unit="degres"></field>
     <field name="lon" type="int32" unit="degres"></field>
     <field name="alt" type="int32" unit="cm"></field>
+ </message>
+
+ <message name="CHRONO" id="48">
+    <field name="tag" type="uint8"/>
+    <field name="time" type="uint32" unit="us"></field>
  </message>
 
 
