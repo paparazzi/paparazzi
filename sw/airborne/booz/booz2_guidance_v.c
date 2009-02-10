@@ -1,7 +1,7 @@
 #include "booz2_guidance_v.h"
 
 #define B2_GUIDANCE_V_C
-#define B2_GUIDANCE_V_USE_REF
+//#define B2_GUIDANCE_V_USE_REF
 #include "booz2_guidance_v_ref.h"
 
 #include "radio_control.h"
@@ -105,8 +105,8 @@ static inline void run_hover_loop(bool_t in_flight) {
 #else
   b2_gv_set_ref(booz2_guidance_v_z_sp, 0, 0);
 #endif
-  int64_t ref_z = b2_gv_z_ref>>(B2_GV_Z_REF_FRAC - B2_GV_Z_SP_FRAC);
-  int32_t err_z =  booz_ins_position.z - (int32_t)ref_z;
+  int64_t ref_z  = b2_gv_z_ref>>(B2_GV_Z_REF_FRAC - B2_GV_Z_SP_FRAC);
+  int32_t err_z  =  booz_ins_position.z - (int32_t)ref_z;
   int32_t ref_zd =  b2_gv_zd_ref<<(ISPEED_RES - B2_GV_ZD_REF_FRAC);
   int32_t err_zd =  booz_ins_speed_earth.z - ref_zd;
 

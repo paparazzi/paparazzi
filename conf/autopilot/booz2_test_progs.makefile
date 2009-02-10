@@ -298,8 +298,8 @@ test_mc.ARCH = arm7tdmi
 test_mc.TARGET = test_mc
 test_mc.TARGETDIR = test_mc
 
-test_mc.CFLAGS += -DCONFIG=$(BOARD_CFG) -I$(BOOZ_PRIV) -I$(BOOZ_PRIV_ARCH) -I$(BOOZ_ARCH)
-test_mc.srcs += $(BOOZ_PRIV_TEST)/booz2_test_mc.c
+test_mc.CFLAGS += -DCONFIG=$(BOARD_CFG) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH)
+test_mc.srcs += $(SRC_BOOZ_TEST)/booz2_test_mc.c
 test_mc.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))' -DTIME_LED=1
 test_mc.CFLAGS += -DLED
 test_mc.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
@@ -311,7 +311,7 @@ test_mc.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVIC
 test_mc.srcs += downlink.c pprz_transport.c
 
 test_mc.CFLAGS += -DACTUATORS=\"actuators_buss_twi_blmc_hw.h\" -DUSE_BUSS_TWI_BLMC
-test_mc.srcs += $(BOOZ_PRIV_ARCH)/actuators_buss_twi_blmc_hw.c actuators.c
+test_mc.srcs += $(SRC_BOOZ_ARCH)/actuators_buss_twi_blmc_hw.c actuators.c
 test_mc.CFLAGS += -DUSE_I2C0 -DI2C0_SCLL=150 -DI2C0_SCLH=150 -DI2C0_VIC_SLOT=10
 test_mc.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
 

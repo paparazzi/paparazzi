@@ -24,18 +24,6 @@
 extern void booz_fms_impl_init(void);
 extern void booz_fms_impl_periodic(void);
 
-#if defined FMS_DATALINK_USE_COMMANDS_RAW
-#define BOOZ_FMS_PARSE_DATALINK(_l, _cmds) {				\
-    if (_l >= 2) {							\
-      booz_fms_input.h_mode = BOOZ2_GUIDANCE_H_MODE_ATTITUDE;		\
-      booz_fms_input.h_sp.attitude.phi   = BOOZ2_JOYSTICK_SP_PHI_COEF   * _cmds[0]; \
-      booz_fms_input.h_sp.attitude.theta = BOOZ2_JOYSTICK_SP_THETA_COEF * _cmds[1]; \
-      booz_fms_input.h_sp.attitude.psi   = 0;				\
-      booz_fms_last_msg = 0;						\
-      booz_fms_timeout = FALSE;						\
-    }									\
-  }
-#else
 
 #ifdef BOOZ_FMS_PHI_THETA_MAX
 #define BOOZ_FMS_LIMIT_ATTITUDE(_fms_att) { \
@@ -80,6 +68,5 @@ extern void booz_fms_impl_periodic(void);
       break;								\
     }									\
   }
-#endif /* FMS_USE_COMMANDS_RAW */
 
 #endif /* BOOZ2_FMS_DATALINK_H */
