@@ -97,22 +97,15 @@
 
   <section name="GUIDANCE_V" prefix="BOOZ2_GUIDANCE_V_">
    <define name="HOVER_POWER" value="81"/>
-   <define name="HOVER_KP"    value="-300"/>
+   <define name="HOVER_KP"    value="-400"/>
    <define name="HOVER_KD"    value="-300"/>
    <define name="HOVER_KI"    value="-75"/>
   </section>
-
 
  <section name="GUIDANCE_H" prefix="BOOZ2_GUIDANCE_H_">
    <define name="PGAIN" value="-100"/>
    <define name="DGAIN" value="-100"/>
    <define name="IGAIN" value="-0"/>
- </section>
-
- <section name="AUTOPILOT">
-   <define name="BOOZ2_MODE_MANUAL" value="BOOZ2_AP_MODE_ATTITUDE_DIRECT"/>
-   <define name="BOOZ2_MODE_AUTO1"  value="BOOZ2_AP_MODE_ATTITUDE_Z_HOLD"/>
-   <define name="BOOZ2_MODE_AUTO2"  value="BOOZ2_AP_MODE_ATTITUDE_Z_HOLD"/>
  </section>
 
  <section name="BAT">
@@ -122,7 +115,16 @@
 <!--   <define name="BATTERY_SENS"   value="1" integer="16"/>-->
  </section>
 
+ <section name="AUTOPILOT">
+   <define name="BOOZ2_MODE_MANUAL" value="BOOZ2_AP_MODE_ATTITUDE_DIRECT"/>
+   <define name="BOOZ2_MODE_AUTO1"  value="BOOZ2_AP_MODE_ATTITUDE_Z_HOLD"/>
+   <define name="BOOZ2_MODE_AUTO2"  value="BOOZ2_AP_MODE_ATTITUDE_Z_HOLD"/>
+ </section>
 
+
+ <section name="FMS">
+
+ </section>
 
   <makefile>
 
