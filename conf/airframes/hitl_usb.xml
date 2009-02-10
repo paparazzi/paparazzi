@@ -159,10 +159,6 @@
     <define name="DEFAULT_PITCH" value="0.5" unit="rad"/>
   </section>
  
- <section name="SIMU">
-    <define name="YAW_RESPONSE_FACTOR" value="0.5"/>
- </section>
-
  <makefile>
 CONFIG=\"tiny_2_1_1_usb.h\"
 include $(PAPARAZZI_SRC)/conf/autopilot/tiny.makefile
