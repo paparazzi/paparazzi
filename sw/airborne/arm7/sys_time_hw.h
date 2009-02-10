@@ -34,6 +34,7 @@
 #include "LPC21xx.h"
 #include CONFIG
 #include "led.h"
+#include "armVIC.h"
 
 extern uint32_t cpu_time_ticks;
 extern uint32_t last_periodic_event;
@@ -44,20 +45,40 @@ void TIMER0_ISR ( void ) __attribute__((naked));
 
 #if (PCLK == 15000000)
 #define T0_PCLK_DIV     1
-#else
 
-#if (PCLK == 30000000)
+#elif (PCLK == 30000000)
 #define T0_PCLK_DIV     2
-#else
 
-#if (PCLK == 60000000)
+#elif (PCLK == 60000000)
 #define T0_PCLK_DIV     4
-#else
 
+#else
 #error unknown PCLK frequency
 #endif
-#endif
-#endif
+
+extern uint32_t sys_time_chrono_start; /* T0TC ticks */
+extern uint32_t sys_time_chrono; /* T0TC ticks,frequency: PCLK / T0PCLK_DIV */
+/* A division by SYS_TICS_OF_USEC(1) to get microseconds is too expensive
+   for time measurement: about 2us */
+
+#define SysTimeChronoStart() { sys_time_chrono_start = T0TC; }
+#define SysTimeChronoStop() { sys_time_chrono = (T0TC - sys_time_chrono_start); }
+/** Usage example, disabling IRQ and scaling to us to send
+    disableIRQ(); SysTimeChronoStart();
+    <Code to measure>
+    SysTimeChronoStop(); enableIRQ();
+    sys_time_chrono /=SYS_TICS_OF_USEC(1);
+    DOWNLINK_SEND_CHRONO(42, &sys_time_chrono);
+**/
+#define SysTimeChronoStartDisableIRQ() { disableIRQ(); SysTimeChronoStart(); }
+#define SysTimeChronoStopEnableIRQAndSendUS(_tag) { \
+  SysTimeChronoStop(); \
+  enableIRQ(); \
+  sys_time_chrono /=SYS_TICS_OF_USEC(1); \
+  DOWNLINK_SEND_CHRONO(_tag, &sys_time_chrono); \
+}
+
+
 
 static inline void sys_time_init( void ) {
   /* setup Timer 0 to count forever  */
