@@ -61,6 +61,7 @@
 #include "uart.h"
 #include "downlink.h"
 
+
 #define MOfCm(_x) (((float)(_x))/100.)
 
 #define SenderIdOfMsg(x) (x[0])
@@ -135,10 +136,7 @@ void dl_parse_msg(void) {
       ubx_id = DL_HITL_UBX_id(dl_buffer);
       uint8_t l = DL_HITL_UBX_ubx_payload_length(dl_buffer);
       uint8_t *ubx_payload = DL_HITL_UBX_ubx_payload(dl_buffer);
-      uint8_t i;
-      for(i=0; i<l; i++) {
-	ubx_msg_buf[i] = ubx_payload[i];
-      }
+      memcpy(ubx_msg_buf, ubx_payload, l);
       gps_msg_received = TRUE;
     }
   } else
