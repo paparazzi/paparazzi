@@ -60,6 +60,7 @@ void booz2_guidance_v_read_rc(void) {
   switch (booz2_guidance_v_mode) {
     case BOOZ2_GUIDANCE_V_MODE_DIRECT:
       booz2_guidance_v_z_sp = booz_ins_position.z;
+      b2_gv_set_ref(booz_ins_position.z, 0, 0);
       break;
     case BOOZ2_GUIDANCE_V_MODE_HOVER:
       if (booz_fms_on && booz_fms_input.v_mode >= BOOZ2_GUIDANCE_V_MODE_HOVER)

@@ -99,7 +99,7 @@
    <define name="HOVER_POWER" value="81"/>
    <define name="HOVER_KP"    value="-500"/>
    <define name="HOVER_KD"    value="-200"/>
-   <define name="HOVER_KI"    value="-75"/>
+   <define name="HOVER_KI"    value="0"/>
   </section>
 
  <section name="GUIDANCE_H" prefix="BOOZ2_GUIDANCE_H_">
