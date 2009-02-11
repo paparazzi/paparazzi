@@ -4,11 +4,6 @@
 #include "inttypes.h"
 #include "booz_geometry_mixed.h"
 
-/* altitude setpoint in meters (input)            */
-/* Q23.8 : accuracy 0.0039, range 8388km          */
-extern int32_t b2_gv_z_sp;
-#define B2_GV_Z_SP_FRAC IPOS_FRAC
-
 /* update frequency                               */
 #define B2_GV_FREQ_FRAC 9
 #define B2_GV_FREQ (1<<B2_GV_FREQ_FRAC)
@@ -29,9 +24,9 @@ extern int64_t b2_gv_z_ref;
 #define B2_GV_Z_REF_FRAC (B2_GV_ZD_REF_FRAC + B2_GV_FREQ_FRAC)
 
 /* Saturations definition */
-#define B2_GV_MIN_ZDD_F (-0.8*9.81)
+#define B2_GV_MIN_ZDD_F (-2.0*9.81)
 #define B2_GV_MIN_ZDD BOOZ_INT_OF_FLOAT(B2_GV_MIN_ZDD_F, B2_GV_ZDD_REF_FRAC)
-#define B2_GV_MAX_ZDD_F ( 2.0*9.81)
+#define B2_GV_MAX_ZDD_F ( 0.8*9.81)
 #define B2_GV_MAX_ZDD BOOZ_INT_OF_FLOAT(B2_GV_MAX_ZDD_F, B2_GV_ZDD_REF_FRAC)
 #define B2_GV_MIN_ZD_F  (-5.)
 #define B2_GV_MIN_ZD  BOOZ_INT_OF_FLOAT(B2_GV_MIN_ZD_F , B2_GV_ZD_REF_FRAC)
@@ -49,21 +44,20 @@ extern int64_t b2_gv_z_ref;
 
 #ifdef B2_GUIDANCE_V_C
 static inline void b2_gv_set_ref(int32_t alt, int32_t speed, int32_t accel);
-static inline void b2_gv_update_ref(void);
+static inline void b2_gv_update_ref(int32_t z_sp);
 
-int32_t b2_gv_z_sp;
 int64_t b2_gv_z_ref;
 int32_t b2_gv_zd_ref;
 int32_t b2_gv_zdd_ref;
 
 static inline void b2_gv_set_ref(int32_t alt, int32_t speed, int32_t accel) {
-  int64_t new_ref = ((int64_t)alt)<<(B2_GV_Z_REF_FRAC - B2_GV_Z_SP_FRAC);
-  b2_gv_z_ref   = new_ref;
-  b2_gv_zd_ref  = speed;
-  b2_gv_zdd_ref = accel;
+  int64_t new_z = ((int64_t)alt)<<(B2_GV_Z_REF_FRAC - IPOS_FRAC);
+  b2_gv_z_ref   = new_z;
+  b2_gv_zd_ref  = speed>>(ISPEED_RES - B2_GV_ZD_REF_FRAC);
+  b2_gv_zdd_ref = accel>>(IACCEL_RES - B2_GV_ZDD_REF_FRAC);
 }
 
-static inline void b2_gv_update_ref(void) {
+static inline void b2_gv_update_ref(int32_t z_sp) {
 
   b2_gv_z_ref  += b2_gv_zd_ref;
   b2_gv_zd_ref += b2_gv_zdd_ref;
@@ -72,9 +66,9 @@ static inline void b2_gv_update_ref(void) {
   int32_t zd_zdd_res = b2_gv_zd_ref>>(B2_GV_ZD_REF_FRAC - B2_GV_ZDD_REF_FRAC);
   int32_t zdd_speed = ((int32_t)(-2*B2_GV_ZETA_OMEGA)*zd_zdd_res)>>(B2_GV_ZETA_OMEGA_FRAC);
   // compute z error in z_sp resolution
-  int32_t z_err_sp = b2_gv_z_sp - (int32_t)(b2_gv_z_ref>>(B2_GV_Z_REF_FRAC-B2_GV_Z_SP_FRAC));
+  int32_t z_err_sp = z_sp - (int32_t)(b2_gv_z_ref>>(B2_GV_Z_REF_FRAC-IPOS_FRAC));
   // convert to accel resolution
-  int32_t z_err_accel = z_err_sp>>(B2_GV_Z_SP_FRAC-B2_GV_ZDD_REF_FRAC);
+  int32_t z_err_accel = z_err_sp>>(IPOS_FRAC-B2_GV_ZDD_REF_FRAC);
   int32_t zdd_pos = ((int32_t)(B2_GV_OMEGA_2)*z_err_accel)>>B2_GV_OMEGA_2_FRAC;
   b2_gv_zdd_ref = zdd_speed + zdd_pos;
 

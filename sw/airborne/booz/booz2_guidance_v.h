@@ -9,10 +9,13 @@
 
 extern uint8_t booz2_guidance_v_mode;
 
-extern int32_t booz2_guidance_v_est_g;
-extern int32_t booz2_guidance_v_est_zd;
 extern int32_t booz2_guidance_v_z_sp;
+extern int32_t booz2_guidance_v_z_ref;
+extern int32_t booz2_guidance_v_zd_ref;
+extern int32_t booz2_guidance_v_zdd_ref;
 extern int32_t booz2_guidance_v_z_sum_err;
+extern int32_t booz2_guidance_v_ff_cmd;
+extern int32_t booz2_guidance_v_fb_cmd;
 extern int32_t booz2_guidance_v_delta_t;
 
 extern int32_t booz2_guidance_v_kp;

@@ -787,9 +787,15 @@
 
   <message name="BOOZ2_VERT_LOOP" id="145">
     <field name="z_sp"    type="int32" alt_unit="m"    alt_unit_coef="0.0039063"/>
-    <field name="z_meas"  type="int32" alt_unit="m"    alt_unit_coef="0.0039063"/>
+    <field name="z_est"   type="int32" alt_unit="m"    alt_unit_coef="0.0039063"/>
     <field name="zd_est"  type="int32" alt_unit="m/s"  alt_unit_coef="0.0000019"/>
+    <field name="zdd_est" type="int32" alt_unit="m/s2" alt_unit_coef="0.0009766"/>
+    <field name="z_ref"   type="int32" alt_unit="m"    alt_unit_coef="0.0039063"/>
+    <field name="zd_ref"  type="int32" alt_unit="m/s"  alt_unit_coef="0.0000019"/>
+    <field name="zdd_ref" type="int32" alt_unit="m/s2" alt_unit_coef="0.0009766"/>
     <field name="sum_err" type="int32" />
+    <field name="ff_cmd"  type="int32"/>
+    <field name="fb_cmd"  type="int32"/>
     <field name="delta_t" type="int32"/>
   </message>
 

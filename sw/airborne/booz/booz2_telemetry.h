@@ -251,7 +251,13 @@
     DOWNLINK_SEND_BOOZ2_VERT_LOOP(&booz2_guidance_v_z_sp,		\
 				  &booz_ins_position.z,			\
 				  &booz_ins_speed_earth.z,		\
+				  &booz_ins_accel_earth.z,		\
+				  &booz2_guidance_v_z_ref,		\
+				  &booz2_guidance_v_zd_ref,		\
+				  &booz2_guidance_v_zdd_ref,		\
 				  &booz2_guidance_v_z_sum_err,		\
+				  &booz2_guidance_v_ff_cmd,		\
+				  &booz2_guidance_v_fb_cmd,		\
 				  &booz2_guidance_v_delta_t);		\
   }
 

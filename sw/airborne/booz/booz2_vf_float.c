@@ -12,7 +12,7 @@ temps :
 /* initial covariance diagonal */
 #define INIT_PXX 1.
 /* process noise */
-#define ACCEL_NOISE 0.1
+#define ACCEL_NOISE 0.5
 #define Qzz       ACCEL_NOISE/512./512./2.
 #define Qzdotzdot ACCEL_NOISE/512.
 #define Qbiasbias 1e-7

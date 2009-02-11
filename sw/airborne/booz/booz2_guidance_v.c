@@ -1,7 +1,7 @@
 #include "booz2_guidance_v.h"
 
 #define B2_GUIDANCE_V_C
-//#define B2_GUIDANCE_V_USE_REF
+#define B2_GUIDANCE_V_USE_REF
 #include "booz2_guidance_v_ref.h"
 
 #include "radio_control.h"
@@ -13,11 +13,23 @@
 #include "booz_geometry_mixed.h"
 
 uint8_t booz2_guidance_v_mode;
+int32_t booz2_guidance_v_ff_cmd;
+int32_t booz2_guidance_v_fb_cmd;
 int32_t booz2_guidance_v_delta_t;
 int32_t booz2_guidance_v_rc_delta_t;
 
-
+/* altitude setpoint in meter (input)             */
+/* Q23.8 : accuracy 0.0039, range 8388km          */
 int32_t booz2_guidance_v_z_sp;
+/* altitude reference in meter                    */
+/* Q23.8 : accuracy 0.0039, range 8388km          */
+int32_t booz2_guidance_v_z_ref;
+/* vertical speed reference in meter/s            */
+/* Q12.19 : accuracy 0.0000038, range 4096        */
+int32_t booz2_guidance_v_zd_ref;
+/* vertical acceleration reference in meter/s^2   */
+/* Q21.10 : accuracy 0.0009766, range 2097152     */
+int32_t booz2_guidance_v_zdd_ref;
 
 int32_t booz2_guidance_v_kp;
 int32_t booz2_guidance_v_kd;
@@ -101,14 +113,16 @@ void booz2_guidance_v_run(bool_t in_flight) {
 static inline void run_hover_loop(bool_t in_flight) {
 
 #ifdef B2_GUIDANCE_V_USE_REF
-  b2_gv_update_ref();
+  b2_gv_update_ref(booz2_guidance_v_z_sp);
 #else
   b2_gv_set_ref(booz2_guidance_v_z_sp, 0, 0);
 #endif
-  int64_t ref_z  = b2_gv_z_ref>>(B2_GV_Z_REF_FRAC - B2_GV_Z_SP_FRAC);
-  int32_t err_z  =  booz_ins_position.z - (int32_t)ref_z;
-  int32_t ref_zd =  b2_gv_zd_ref<<(ISPEED_RES - B2_GV_ZD_REF_FRAC);
-  int32_t err_zd =  booz_ins_speed_earth.z - ref_zd;
+  int64_t tmp  = b2_gv_z_ref>>(B2_GV_Z_REF_FRAC - IPOS_FRAC);
+  booz2_guidance_v_z_ref = (int32_t)tmp;
+  booz2_guidance_v_zd_ref = b2_gv_zd_ref<<(ISPEED_RES - B2_GV_ZD_REF_FRAC);
+  booz2_guidance_v_zdd_ref = b2_gv_zdd_ref<<(IACCEL_RES - B2_GV_ZDD_REF_FRAC);
+  int32_t err_z  =  booz_ins_position.z - booz2_guidance_v_z_ref;
+  int32_t err_zd =  booz_ins_speed_earth.z - booz2_guidance_v_zd_ref;
 
   if (in_flight) {
     booz2_guidance_v_z_sum_err += err_z;
@@ -117,12 +131,16 @@ static inline void run_hover_loop(bool_t in_flight) {
   else
     booz2_guidance_v_z_sum_err = 0;
 
-  const int32_t hover_power = BOOZ2_GUIDANCE_V_HOVER_POWER;
+  const int32_t inv_m = BOOZ_INT_OF_FLOAT(0.140, IACCEL_RES);
+  booz2_guidance_v_ff_cmd = (BOOZ_INT_OF_FLOAT(9.81, IACCEL_RES) - booz2_guidance_v_zdd_ref) / inv_m;
+  //  booz2_guidance_v_ff_cmd = BOOZ2_GUIDANCE_V_HOVER_POWER;
+
+  booz2_guidance_v_fb_cmd = ((-booz2_guidance_v_kp * err_z) >> 12) + 
+                            ((-booz2_guidance_v_kd * err_zd) >> 21) +
+                            ((-booz2_guidance_v_ki * booz2_guidance_v_z_sum_err) >> 24);
+
   
-  booz2_guidance_v_delta_t = hover_power + 
-    ((-booz2_guidance_v_kp * err_z) >> 12) + 
-    ((-booz2_guidance_v_kd * err_zd) >> 21) +
-    ((-booz2_guidance_v_ki * booz2_guidance_v_z_sum_err) >> 24);
+  booz2_guidance_v_delta_t = booz2_guidance_v_ff_cmd + booz2_guidance_v_fb_cmd;
 
 
 }

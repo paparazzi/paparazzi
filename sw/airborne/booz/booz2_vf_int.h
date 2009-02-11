@@ -10,7 +10,7 @@ extern void booz2_vfi_propagate( int32_t accel_reading );
 /* z_meas : altitude measurement in meter       */
 /* Q23.8 : accuracy 0.004m range 8388km         */
 extern void booz2_vfi_update( int32_t z_meas );
-#define B2_VFI_MEAS_Z_FRAC IPOS_FRAC
+#define B2_VFI_Z_MEAS_FRAC IPOS_FRAC
 
 /* propagate frequency : 512 Hz */
 #define B2_VFI_F_UPDATE_FRAC 9
