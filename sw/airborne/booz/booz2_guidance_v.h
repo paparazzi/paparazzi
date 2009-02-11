@@ -3,6 +3,9 @@
 
 #include "std.h"
 
+#include "booz2_guidance_v_ref.h"
+#include "booz2_guidance_v_adpt.h"
+
 #define BOOZ2_GUIDANCE_V_MODE_KILL   0
 #define BOOZ2_GUIDANCE_V_MODE_DIRECT 1
 #define BOOZ2_GUIDANCE_V_MODE_HOVER  2

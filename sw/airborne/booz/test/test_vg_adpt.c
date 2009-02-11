@@ -35,8 +35,9 @@ static void float_filter_run( int i) {
 
   int prev = i>0 ? i-1 : i;
   ffX[i] = ffX[prev];
-  ffP[i] = ffP[prev] + B2_GV_ADAPT_SYS_NOISE_F;
+  ffP[i] = ffP[prev];
   if (thrust[prev] == 0) return;
+  ffP[i] = ffP[i] + B2_GV_ADAPT_SYS_NOISE_F;
   ffm[i] = (9.81 - (double)measure[i]/(double)(1<<10)) / (double)thrust[prev];
   double residual = ffm[i] - ffX[i];
   double E = ffP[i] + B2_GV_ADAPT_MEAS_NOISE_F;
@@ -83,7 +84,7 @@ void gen_data(void) {
 void dump_res(void) {
  int i = 0;
   while (i<n_dat) {
-    printf("%f %d %d %d %f %f %f %d %d\n", time[i], measure[i], thrust[i], zdd_ref[i], ffX[i], ffP[i], ffm[i], ifX[i], ifX[i]);
+    printf("%f %d %d %d %f %f %f %d %d\n", time[i], measure[i], thrust[i], zdd_ref[i], ffX[i], ffP[i], ffm[i], ifX[i], ifP[i]);
     i++;
   }
   

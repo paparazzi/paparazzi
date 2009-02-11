@@ -1,8 +1,7 @@
-#include "booz2_guidance_v.h"
-
 #define B2_GUIDANCE_V_C
 #define B2_GUIDANCE_V_USE_REF
-#include "booz2_guidance_v_ref.h"
+#include "booz2_guidance_v.h"
+
 
 #include "radio_control.h"
 #include "airframe.h"
@@ -50,6 +49,7 @@ void booz2_guidance_v_init(void) {
 
   booz2_guidance_v_z_sum_err = 0;
 
+  b2_gv_adapt_init();
 }
 
 
@@ -112,6 +112,10 @@ void booz2_guidance_v_run(bool_t in_flight) {
 
 static inline void run_hover_loop(bool_t in_flight) {
 
+  if (in_flight) {
+    b2_gv_adapt_run(booz_ins_accel_earth.z, booz2_stabilization_cmd[COMMAND_THRUST]);
+  }
+		
 #ifdef B2_GUIDANCE_V_USE_REF
   b2_gv_update_ref(booz2_guidance_v_z_sp);
 #else
@@ -131,7 +135,8 @@ static inline void run_hover_loop(bool_t in_flight) {
   else
     booz2_guidance_v_z_sum_err = 0;
 
-  const int32_t inv_m = BOOZ_INT_OF_FLOAT(0.140, IACCEL_RES);
+  //  const int32_t inv_m = BOOZ_INT_OF_FLOAT(0.140, IACCEL_RES);
+  const int32_t inv_m =  b2_gv_adapt_X>>(B2_GV_ADAPT_X_FRAC - IACCEL_RES);
   booz2_guidance_v_ff_cmd = (BOOZ_INT_OF_FLOAT(9.81, IACCEL_RES) - booz2_guidance_v_zdd_ref) / inv_m;
   //  booz2_guidance_v_ff_cmd = BOOZ2_GUIDANCE_V_HOVER_POWER;
 
