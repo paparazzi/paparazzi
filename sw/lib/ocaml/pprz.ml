@@ -40,6 +40,7 @@ type value =
 type field = {
     _type : _type;
     fformat : format;
+    alt_unit_coef : string option
   }
 
 type link_mode = Forwarded | Broadcasted
@@ -156,7 +157,8 @@ let field_of_xml = fun xml ->
   let t = ExtXml.attrib xml "type" in
   let t = if is_array_type t then ArrayType (type_of_array_type t) else Scalar t in
   let f = try Xml.attrib xml "format" with _ -> default_format t in
-  (String.lowercase (ExtXml.attrib xml "name"), { _type = t; fformat = f })
+  let auc = try Some (Xml.attrib xml "alt_unit_coef") with _ -> None in
+  (String.lowercase (ExtXml.attrib xml "name"), { _type = t; fformat = f; alt_unit_coef = auc })
 
 let string_of_values = fun vs ->
   String.concat " " (List.map (fun (a,v) -> sprintf "%s=%s" a (string_of_value v)) vs)

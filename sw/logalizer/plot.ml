@@ -453,14 +453,18 @@ let load_log = fun ?factor (plot:plot) (menubar:GMenu.menu_shell GMenu.factory) 
 	      Hashtbl.iter
 		(fun f v -> if not (List.mem f !l) then l := f :: !l)
 		fields;
-	      let l = List.map (fun f ->
-		let values = Hashtbl.find_all fields f in
-		let values = List.map (fun (t, v) -> (t, pprz_float v)) values in
-		let values = Array.of_list values in
-		Array.sort compare values;
-		(f, values))
-		  (List.sort compare !l) in
-	      (msg.Pprz.name, l))
+	      let sorted_fields = List.sort compare !l in
+
+	      let field_values_assoc = 
+		List.map
+		  (fun f ->
+		    let values = Hashtbl.find_all fields f in
+		    let values = List.map (fun (t, v) -> (t, pprz_float v)) values in
+		    let values = Array.of_list values in
+		    Array.sort compare values;
+		    (f, values))
+		  sorted_fields in
+	      (msg.Pprz.name, field_values_assoc))
 	      msgs in
 	  
 	  (* Store data for other windows *)
@@ -508,6 +512,7 @@ let screenshot = fun frame ->
   end
 
 
+(*****************************************************************************)
 let rec plot_window = fun init ->
   let plotter = GWindow.window ~allow_shrink:true ~title:"Log Plotter" () in
   plotter#set_icon (Some (GdkPixbuf.from_file Env.icon_file));  

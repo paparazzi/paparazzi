@@ -36,7 +36,11 @@ type _type =
 type value = 
     Int of int | Float of float | String of string | Int32 of int32
   | Array of value array
-type field = { _type : _type; fformat : format; }
+type field = {
+    _type : _type;
+    fformat : format;
+    alt_unit_coef : string option
+  }
 type link_mode = Forwarded | Broadcasted
 type message = { 
     name : string; 
