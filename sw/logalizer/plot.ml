@@ -336,15 +336,19 @@ let add_ac_submenu = fun ?(factor=object method text="1" end) plot menubar (curv
   
   (* Build the msg menus *)
   List.iter
-    (fun (msg_name, l) ->
+    (fun (msg, l) ->
+      let msg_name = msg.Pprz.name in
       let menu = menu_fact#add_submenu (double__ msg_name) in
       let menu_fact = new GMenu.factory menu in
       (* Build the field menus *)
       List.iter
 	(fun (f, values) ->
 	  let callback = fun _ ->
-	    let name = sprintf "%s:%s:%s:%s" menu_name msg_name f factor#text in
-	    let (a, b) = Ocaml_tools.affine_transform factor#text in
+	    let alt_unit_coef =  (List.assoc f msg.Pprz.fields).Pprz.alt_unit_coef in
+	    let name = sprintf "%s:%s:%s:%s" menu_name msg_name f factor#text
+	    and (a, b) = Ocaml_tools.affine_transform factor#text
+	    and (a', b') = Ocaml_tools.affine_transform alt_unit_coef in
+	    let a = a *. a' and b = a*.b' +. b in
 	    let values = Array.map (fun (t,v) -> (t, v*.a+.b)) values in
 	    let curve = plot#add_curve name values in
 	    let eb = GBin.event_box ~width:10 ~height:10 () in
@@ -362,7 +366,8 @@ let add_ac_submenu = fun ?(factor=object method text="1" end) plot menubar (curv
     l;
   ignore (menu_fact#add_separator ());
   let callback = fun () ->
-    let gps_values = List.assoc "GPS" l in
+    let gps_values = 
+      snd (List.find (fun (m, _) -> m.Pprz.name = "GPS") l) in
     write_kml plot menu_name gps_values in
   ignore (menu_fact#add_item ~callback "Export KML path");
   let callback = fun () ->
@@ -464,7 +469,7 @@ let load_log = fun ?factor (plot:plot) (menubar:GMenu.menu_shell GMenu.factory) 
 		    Array.sort compare values;
 		    (f, values))
 		  sorted_fields in
-	      (msg.Pprz.name, field_values_assoc))
+	      (msg, field_values_assoc))
 	      msgs in
 	  
 	  (* Store data for other windows *)

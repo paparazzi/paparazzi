@@ -39,7 +39,7 @@ type value =
 type field = {
     _type : _type;
     fformat : format;
-    alt_unit_coef : string option
+    alt_unit_coef : string (* May be empty *)
   }
 type link_mode = Forwarded | Broadcasted
 type message = { 
