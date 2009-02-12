@@ -791,7 +791,7 @@
     <field name="est_zd"    type="int32" alt_unit="m/s"  alt_unit_coef="0.0000019"/>
     <field name="est_zdd"   type="int32" alt_unit="m/s2" alt_unit_coef="0.0009766"/>
     <field name="ref_z"     type="int32" alt_unit="m"    alt_unit_coef="0.0039063"/>
-    <field name="red_zd"    type="int32" alt_unit="m/s"  alt_unit_coef="0.0000019"/>
+    <field name="ref_zd"    type="int32" alt_unit="m/s"  alt_unit_coef="0.0000019"/>
     <field name="ref_zdd"   type="int32" alt_unit="m/s2" alt_unit_coef="0.0009766"/>
     <field name="adp_inv_m" type="int32" alt_unit="foo"  alt_unit_coef="0.0000038"/>
     <field name="adp_cov"   type="int32" alt_unit="foo"  alt_unit_coef="0.0000038"/>

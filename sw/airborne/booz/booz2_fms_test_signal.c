@@ -3,7 +3,7 @@
 #include "booz2_ins.h"
 #include "booz_geometry_mixed.h"
 
-#define BOOZ2_FMS_TEST_SIGNAL_DEFAULT_PERIOD    200;
+#define BOOZ2_FMS_TEST_SIGNAL_DEFAULT_PERIOD    300;
 #define BOOZ2_FMS_TEST_SIGNAL_DEFAULT_AMPLITUDE 20;
 #define BOOZ2_FMS_TEST_SIGNAL_DEFAULT_AXE  0
 

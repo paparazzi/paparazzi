@@ -48,7 +48,7 @@ void print_ref(int i) {
 
 int32_t get_sp (int i) {
   //  return BOOZ_INT_OF_FLOAT(i>512 ? -50.0 : 0, IPOS_FRAC);
-  return BOOZ_INT_OF_FLOAT((i>512&&i<3072) ? 10.0 : 0, IPOS_FRAC);
+  return BOOZ_INT_OF_FLOAT((i>512&&i<3072) ? -5.0 : 0, IPOS_FRAC);
 }
 
 

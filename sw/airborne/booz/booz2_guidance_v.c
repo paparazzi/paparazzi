@@ -36,6 +36,15 @@ int32_t booz2_guidance_v_ki;
 
 int32_t booz2_guidance_v_z_sum_err;
 
+
+#define Booz2GuidanceVSetRef(_pos, _speed, _accel) { \
+    b2_gv_set_ref(_pos, _speed, _accel);	     \
+    booz2_guidance_v_z_ref = _pos;		     \
+    booz2_guidance_v_zd_ref = _speed;		     \
+    booz2_guidance_v_zdd_ref = _accel;		     \
+  }
+
+
 static inline void run_hover_loop(bool_t in_flight);
 
 
@@ -60,7 +69,7 @@ void booz2_guidance_v_read_rc(void) {
   switch (booz2_guidance_v_mode) {
     case BOOZ2_GUIDANCE_V_MODE_DIRECT:
       booz2_guidance_v_z_sp = booz_ins_position.z;
-      b2_gv_set_ref(booz_ins_position.z, 0, 0);
+      Booz2GuidanceVSetRef(booz_ins_position.z, 0, 0);
       break;
     case BOOZ2_GUIDANCE_V_MODE_HOVER:
       if (booz_fms_on && booz_fms_input.v_mode >= BOOZ2_GUIDANCE_V_MODE_HOVER)
@@ -84,6 +93,7 @@ void booz2_guidance_v_mode_changed(uint8_t new_mode) {
   case BOOZ2_GUIDANCE_V_MODE_HOVER:
     booz2_guidance_v_z_sum_err = 0;
     booz2_guidance_v_z_sp = booz_ins_position.z;
+    Booz2GuidanceVSetRef(booz_ins_position.z, 0, 0);
     break;
   }
   
@@ -136,7 +146,7 @@ static inline void run_hover_loop(bool_t in_flight) {
   else
     booz2_guidance_v_z_sum_err = 0;
 
-  /* our nominal command : (g + zdd)/m   */
+  /* our nominal command : (g + zdd)*m   */
   //  const int32_t inv_m = BOOZ_INT_OF_FLOAT(0.140, IACCEL_RES);
   const int32_t inv_m =  b2_gv_adapt_X>>(B2_GV_ADAPT_X_FRAC - IACCEL_RES);
   booz2_guidance_v_ff_cmd = (BOOZ_INT_OF_FLOAT(9.81, IACCEL_RES) - booz2_guidance_v_zdd_ref) / inv_m;
