@@ -37,8 +37,7 @@
     <dl_settings NAME="Vert Loop">
       <dl_setting var="booz2_guidance_v_kp" min="-600" step="1" max="0" module="booz2_guidance_v" shortname="kp"/>
       <dl_setting var="booz2_guidance_v_kd" min="-600" step="1" max="0" module="booz2_guidance_v" shortname="kd"/>
-      <dl_setting var="booz2_guidance_v_ki" min="-400" step="1" max="0" module="booz2_guidance_v" shortname="ki"/>
-      <dl_setting var="booz2_guidance_v_z_sp" min="50" step="1" max="950" module="booz2_guidance_v" shortname="sp"/>
+      <dl_setting var="booz2_guidance_v_z_sp" min="-20" step="1" max="10" module="booz2_guidance_v" shortname="sp"/>
    </dl_settings>
 
    <dl_settings NAME="Horiz Loop">

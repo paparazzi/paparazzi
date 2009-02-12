@@ -136,16 +136,16 @@ static inline void run_hover_loop(bool_t in_flight) {
   else
     booz2_guidance_v_z_sum_err = 0;
 
+  /* our nominal command : (g + zdd)/m   */
   //  const int32_t inv_m = BOOZ_INT_OF_FLOAT(0.140, IACCEL_RES);
   const int32_t inv_m =  b2_gv_adapt_X>>(B2_GV_ADAPT_X_FRAC - IACCEL_RES);
   booz2_guidance_v_ff_cmd = (BOOZ_INT_OF_FLOAT(9.81, IACCEL_RES) - booz2_guidance_v_zdd_ref) / inv_m;
   //  booz2_guidance_v_ff_cmd = BOOZ2_GUIDANCE_V_HOVER_POWER;
-
-  booz2_guidance_v_fb_cmd = ((-booz2_guidance_v_kp * err_z) >> 12) + 
-                            ((-booz2_guidance_v_kd * err_zd) >> 21) +
-                            ((-booz2_guidance_v_ki * booz2_guidance_v_z_sum_err) >> 24);
-
   
+  /* our error command                   */
+  booz2_guidance_v_fb_cmd = ((-booz2_guidance_v_kp * err_z) >> 12) + 
+                            ((-booz2_guidance_v_kd * err_zd) >> 21);
+
   booz2_guidance_v_delta_t = booz2_guidance_v_ff_cmd + booz2_guidance_v_fb_cmd;
 
 
