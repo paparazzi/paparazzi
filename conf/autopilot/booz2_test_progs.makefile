@@ -22,6 +22,11 @@
 #
 #
 
+BOARD_CFG = \"booz2_board_v1_0.h\"
+
+SRC_BOOZ=booz
+SRC_BOOZ_ARCH=booz/arm7
+SRC_BOOZ_TEST=booz/test
 
 #
 # tunnel hw
@@ -161,8 +166,8 @@ test_crista.ARCH = arm7tdmi
 test_crista.TARGET = test_crista
 test_crista.TARGETDIR = test_crista
 
-test_crista.CFLAGS += -DCONFIG=$(BOARD_CFG) -I$(BOOZ_PRIV) -I$(BOOZ_PRIV_ARCH)
-test_crista.srcs += $(BOOZ_PRIV_TEST)/booz2_test_crista.c
+test_crista.CFLAGS += -DCONFIG=$(BOARD_CFG) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH)
+test_crista.srcs += $(SRC_BOOZ_TEST)/booz2_test_crista.c
 test_crista.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))' -DTIME_LED=1
 test_crista.CFLAGS += -DLED
 test_crista.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
@@ -173,9 +178,9 @@ test_crista.srcs += $(SRC_ARCH)/uart_hw.c
 test_crista.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart0 
 test_crista.srcs += downlink.c pprz_transport.c
 
-test_crista.CFLAGS += -DFLOAT_T=float
-test_crista.srcs += $(BOOZ_PRIV)/booz2_imu.c
-test_crista.srcs += $(BOOZ_PRIV)/booz2_imu_crista.c $(BOOZ_PRIV_ARCH)/booz2_imu_crista_hw.c
+test_crista.CFLAGS += -DFLOAT_T=float -DBOOZ2_IMU_TYPE=\"booz2_imu_crista.h\"
+test_crista.srcs += $(SRC_BOOZ)/booz2_imu.c
+test_crista.srcs += $(SRC_BOOZ)/booz2_imu_crista.c $(SRC_BOOZ_ARCH)/booz2_imu_crista_hw.c
 
 
 #

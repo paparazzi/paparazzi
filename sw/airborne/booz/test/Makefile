@@ -10,3 +10,5 @@ test_vg_ref: test_vg_ref.c
 
 test_vg_adpt: test_vg_adpt.c
 	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
+
+
