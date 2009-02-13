@@ -309,13 +309,19 @@
 
 
 #define PERIODIC_SEND_BOOZ2_TUNE_HOVER() {				\
-    DOWNLINK_SEND_BOOZ2_TUNE_HOVER(&booz2_stabilization_cmd[COMMAND_ROLL], \
+    DOWNLINK_SEND_BOOZ2_TUNE_HOVER(&rc_values[RADIO_ROLL],		\
+				   &rc_values[RADIO_PITCH],		\
+				   &rc_values[RADIO_YAW],		\
+				   &booz2_stabilization_cmd[COMMAND_ROLL], \
 				   &booz2_stabilization_cmd[COMMAND_PITCH], \
 				   &booz2_stabilization_cmd[COMMAND_YAW], \
 				   &booz2_stabilization_cmd[COMMAND_THRUST], \
 				   &booz2_filter_attitude_euler.phi,	\
 				   &booz2_filter_attitude_euler.theta,	\
-				   &booz2_filter_attitude_euler.psi	\
+				   &booz2_filter_attitude_euler.psi,	\
+				   &booz2_filter_attitude_euler_aligned.phi, \
+				   &booz2_filter_attitude_euler_aligned.theta, \
+				   &booz2_filter_attitude_euler_aligned.psi \
 				   );					\
   }
 

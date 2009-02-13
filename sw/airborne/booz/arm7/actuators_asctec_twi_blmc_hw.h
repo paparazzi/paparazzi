@@ -41,6 +41,9 @@ extern uint8_t actuators_asctec_twi_blmc_new_addr;
   }
 #else
 #define SetActuatorsFromCommands(_motors_on) {				\
+    booz2_commands[COMMAND_PITCH] += SUPERVISION_TRIM_E;		\
+    booz2_commands[COMMAND_ROLL]  += SUPERVISION_TRIM_A;		\
+    booz2_commands[COMMAND_YAW]   += SUPERVISION_TRIM_R;		\
     Bound(booz2_commands[COMMAND_PITCH],-100, 100);			\
     Bound(booz2_commands[COMMAND_ROLL], -100, 100);			\
     Bound(booz2_commands[COMMAND_YAW],  -100, 100);			\
