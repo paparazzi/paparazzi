@@ -32,8 +32,8 @@
 
 #include "messages.h"
 #include "downlink.h"
-
 #include "booz2_telemetry.h"
+#include "datalink.h"
 
 #include "booz2_commands.h"
 #include "i2c.h"
@@ -69,6 +69,7 @@ static inline void on_mag_event( void );
 
 uint32_t t0, t1, diff;
 
+#ifndef SITL
 int main( void ) {
   booz2_main_init();
   while(1) {
@@ -78,6 +79,8 @@ int main( void ) {
   }
   return 0;
 }
+#endif /* SITL */
+
 
 STATIC_INLINE void booz2_main_init( void ) {
   hw_init();

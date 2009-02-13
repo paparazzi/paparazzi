@@ -145,13 +145,14 @@
 # prevents motors from ever starting
 #ap.CFLAGS += -DKILL_MOTORS
 
-include $(PAPARAZZI_SRC)/conf/autopilot/booz2_actuators_asctec.makefile
-
-include $(PAPARAZZI_SRC)/conf/autopilot/booz2_imu_crista.makefile
-
 include $(PAPARAZZI_SRC)/conf/autopilot/booz2_autopilot.makefile
 include $(PAPARAZZI_SRC)/conf/autopilot/booz2_test_progs.makefile
+
+sim.CFLAGS += -DBSM_PARAMS=\"booz_sensors_model_params_booz2_a2.h\"
 include $(PAPARAZZI_SRC)/conf/autopilot/booz2_simulator.makefile
+
+include $(PAPARAZZI_SRC)/conf/autopilot/booz2_actuators_asctec.makefile
+include $(PAPARAZZI_SRC)/conf/autopilot/booz2_imu_crista.makefile
 
   </makefile>
 

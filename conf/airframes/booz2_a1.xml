@@ -110,7 +110,7 @@
 
 
   <section name="INS" prefix="BOOZ_INS_">
-    <define name="BARO_SENS" value="18.1" integer="16"/>
+    <define name="BARO_SENS" value="15." integer="16"/>
   </section>
 
   <section name="GUIDANCE_V" prefix="BOOZ2_GUIDANCE_V_">

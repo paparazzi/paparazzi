@@ -90,6 +90,6 @@ void dl_parse_msg(void);
 // Unknown DATALINK
 #define DatalinkEvent() {}
 
-#endif
+#endif /* DATALINK == */
 
-#endif
+#endif /* DATALINK_H */

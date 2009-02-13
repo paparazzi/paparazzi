@@ -41,8 +41,8 @@ unsigned int fg_port = 5501;
 char* joystick_dev = "/dev/input/js0";
 
 /* 250Hz <-> 4ms */
-#define TIMEOUT_PERIOD 4
-#define DT (TIMEOUT_PERIOD*1e-3)
+//#define TIMEOUT_PERIOD 4
+#define DT (1./512.)
 double sim_time;
 
 #define DT_DISPLAY 0.04
@@ -116,7 +116,7 @@ static gboolean booz2_sim_periodic(gpointer data __attribute__ ((unused))) {
     booz2_main_event();
   }
   if (booz_sensors_model_gyro_available()) {
-    booz2_imu_b2_feed_data();
+    booz2_imu_feed_data();
     booz2_main_event();
   }
 
@@ -209,7 +209,7 @@ int main ( int argc, char** argv) {
 
   GMainLoop *ml =  g_main_loop_new(NULL, FALSE);
   
-  g_timeout_add(TIMEOUT_PERIOD, booz2_sim_periodic, NULL);
+  g_timeout_add(4, booz2_sim_periodic, NULL);
 
   g_main_loop_run(ml);
 
@@ -242,15 +242,26 @@ static void on_DL_SETTING(IvyClientPtr app __attribute__ ((unused)),
 static void booz_sim_read_actuators(void) {
 
   
-  //  printf("actatuors %d %d %d %d\n",  
-  //	 Actuator(SERVO_FRONT), Actuator(SERVO_BACK), Actuator(SERVO_RIGHT), Actuator(SERVO_LEFT));
 //  printf("actatuors %d %d %d %d\n",  
 //	 Actuator(SERVO_FRONT), Actuator(SERVO_BACK), Actuator(SERVO_RIGHT), Actuator(SERVO_LEFT));
+  int32_t ut_front = Actuator(SERVO_FRONT) - TRIM_FRONT;
+  int32_t ut_back  = Actuator(SERVO_BACK)  - TRIM_BACK;
+  int32_t ut_right = Actuator(SERVO_RIGHT) - TRIM_RIGHT;
+  int32_t ut_left  = Actuator(SERVO_LEFT)  - TRIM_LEFT;
+#if 1
+  booz_sim_actuators_values[0] = (double)ut_front / SUPERVISION_MAX_MOTOR;
+  booz_sim_actuators_values[1] = (double)ut_back  / SUPERVISION_MAX_MOTOR;
+  booz_sim_actuators_values[2] = (double)ut_right / SUPERVISION_MAX_MOTOR;
+  booz_sim_actuators_values[3] = (double)ut_left  / SUPERVISION_MAX_MOTOR;
+#else
+  //  double foo = 0.33;
+  double foo = 0.35;
+  booz_sim_actuators_values[0] = foo;
+  booz_sim_actuators_values[1] = foo;
+  booz_sim_actuators_values[2] = foo;
+  booz_sim_actuators_values[3] = foo;
+#endif
 
-  booz_sim_actuators_values[0] = (double)Actuator(SERVO_FRONT) / SUPERVISION_MAX_MOTOR;
-  booz_sim_actuators_values[1] = (double)Actuator(SERVO_BACK)  / SUPERVISION_MAX_MOTOR;
-  booz_sim_actuators_values[2] = (double)Actuator(SERVO_RIGHT) / SUPERVISION_MAX_MOTOR;
-  booz_sim_actuators_values[3] = (double)Actuator(SERVO_LEFT)  / SUPERVISION_MAX_MOTOR;
 
   //  printf("%f %f %f %f\n",  booz_sim_actuators_values[0], booz_sim_actuators_values[1], booz_sim_actuators_values[2], booz_sim_actuators_values[3]);
 
