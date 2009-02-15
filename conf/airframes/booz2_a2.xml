@@ -101,11 +101,19 @@
     <define name="BARO_SENS" value="14.9" integer="16"/>
   </section>
 
-  <section name="GUIDANCE_V" prefix="BOOZ2_GUIDANCE_V_">
-   <define name="HOVER_POWER" value="81"/>
-   <define name="HOVER_KP"    value="-300"/>
-   <define name="HOVER_KD"    value="-150"/>
-   <define name="HOVER_KI"    value="0"/>
+
+  <section name="GUIDANCE_V"   prefix="BOOZ2_GUIDANCE_V_">
+
+   <define name="MIN_ERR_Z"    value="BOOZ_POS_I_OF_F(-10.)"/>
+   <define name="MAX_ERR_Z"    value="BOOZ_POS_I_OF_F( 10.)"/>
+   <define name="MIN_ERR_ZD"   value="BOOZ_SPEED_I_OF_F(-10.)"/>
+   <define name="MAX_ERR_ZD"   value="BOOZ_SPEED_I_OF_F( 10.)"/>
+   <define name="HOVER_KP"     value="-300"/>
+   <define name="HOVER_KD"     value="-150"/>
+   <!-- BOOZ_SPEED_I_OF_F(1.0) / (MAX_PPRZ/2) -->
+   <define name="RC_CLIMB_COEF" value ="109"/>
+   <!-- BOOZ_SPEED_I_OF_F(0.1) -->
+   <define name="RC_CLIMB_DEAD_BAND" value ="100000"/>
   </section>
 
  <section name="GUIDANCE_H" prefix="BOOZ2_GUIDANCE_H_">
@@ -123,7 +131,7 @@
 
  <section name="AUTOPILOT">
    <define name="BOOZ2_MODE_MANUAL" value="BOOZ2_AP_MODE_ATTITUDE_DIRECT"/>
-   <define name="BOOZ2_MODE_AUTO1"  value="BOOZ2_AP_MODE_ATTITUDE_Z_HOLD"/>
+   <define name="BOOZ2_MODE_AUTO1"  value="BOOZ2_AP_MODE_ATTITUDE_RC_CLIMB"/>
    <define name="BOOZ2_MODE_AUTO2"  value="BOOZ2_AP_MODE_ATTITUDE_Z_HOLD"/>
  </section>
 

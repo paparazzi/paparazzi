@@ -249,6 +249,7 @@
 #include "booz2_guidance_v.h"
 #define PERIODIC_SEND_BOOZ2_VERT_LOOP() {				\
     DOWNLINK_SEND_BOOZ2_VERT_LOOP(&booz2_guidance_v_z_sp,		\
+				  &booz2_guidance_v_zd_sp,		\
 				  &booz_ins_position.z,			\
 				  &booz_ins_speed_earth.z,		\
 				  &booz_ins_accel_earth.z,		\

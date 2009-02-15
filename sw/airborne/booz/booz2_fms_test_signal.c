@@ -23,7 +23,7 @@ void booz_fms_impl_init(void) {
   booz_fms_test_signal_axe = BOOZ2_FMS_TEST_SIGNAL_DEFAULT_AXE;
   booz_fms_test_signal_counter = 0;
   booz_fms_input.h_mode = BOOZ2_GUIDANCE_H_MODE_ATTITUDE;
-  booz_fms_input.v_mode = BOOZ2_GUIDANCE_V_MODE_DIRECT;
+  booz_fms_input.v_mode = BOOZ2_GUIDANCE_V_MODE_RC_DIRECT;
 }
 
 void booz_fms_impl_periodic(void) {
@@ -58,7 +58,6 @@ void booz_fms_impl_periodic(void) {
   break;
 
   }
-
   booz_fms_test_signal_counter++;
   if (booz_fms_test_signal_counter >= 2 * booz_fms_test_signal_period)
     booz_fms_test_signal_counter = 0;

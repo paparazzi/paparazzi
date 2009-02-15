@@ -30,15 +30,17 @@
 #include "booz_geometry_int.h"
 #include "airframe.h"
 
-#define BOOZ2_AP_MODE_FAILSAFE         0
-#define BOOZ2_AP_MODE_KILL             1
-#define BOOZ2_AP_MODE_RATE_DIRECT      2
-#define BOOZ2_AP_MODE_ATTITUDE_DIRECT  3
-#define BOOZ2_AP_MODE_RATE_Z_HOLD      4
-#define BOOZ2_AP_MODE_ATTITUDE_Z_HOLD  5
-#define BOOZ2_AP_MODE_HOVER_DIRECT     6
-#define BOOZ2_AP_MODE_HOVER_Z_HOLD     7
-#define BOOZ2_AP_MODE_NAV              8
+#define BOOZ2_AP_MODE_FAILSAFE          0
+#define BOOZ2_AP_MODE_KILL              1
+#define BOOZ2_AP_MODE_RATE_DIRECT       2
+#define BOOZ2_AP_MODE_ATTITUDE_DIRECT   3
+#define BOOZ2_AP_MODE_RATE_RC_CLIMB     4
+#define BOOZ2_AP_MODE_ATTITUDE_RC_CLIMB 5
+#define BOOZ2_AP_MODE_RATE_Z_HOLD       6
+#define BOOZ2_AP_MODE_ATTITUDE_Z_HOLD   7
+#define BOOZ2_AP_MODE_HOVER_DIRECT      8
+#define BOOZ2_AP_MODE_HOVER_Z_HOLD      9
+#define BOOZ2_AP_MODE_NAV               10
 
 extern uint8_t booz2_autopilot_mode;
 extern uint8_t booz2_autopilot_mode_auto2;

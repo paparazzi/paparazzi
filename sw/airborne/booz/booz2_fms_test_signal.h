@@ -27,7 +27,7 @@ extern void booz_fms_impl_periodic(void);
     if (booz_fms_test_signal_mode == BOOZ_FMS_TEST_SIGNAL_MODE_VERTICAL) \
       booz_fms_input.v_mode = BOOZ2_GUIDANCE_V_MODE_HOVER;		\
     else								\
-      booz_fms_input.v_mode = BOOZ2_GUIDANCE_V_MODE_DIRECT;		\
+      booz_fms_input.v_mode = BOOZ2_GUIDANCE_V_MODE_RC_DIRECT;		\
 }
 
 #endif /* BOOZ_FMS_TEST_SIGNAL_H */

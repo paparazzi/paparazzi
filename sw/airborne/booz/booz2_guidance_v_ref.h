@@ -41,10 +41,15 @@ extern int64_t b2_gv_z_ref;
 #define B2_GV_OMEGA_2_FRAC 7
 #define B2_GV_OMEGA_2    BOOZ_INT_OF_FLOAT((B2_GV_OMEGA*B2_GV_OMEGA), B2_GV_OMEGA_2_FRAC)
 
+/* first order time constant */
+#define B2_GV_REF_THAU_F  0.25
+#define B2_GV_REF_INV_THAU_FRAC 16
+#define B2_GV_REF_INV_THAU  BOOZ_INT_OF_FLOAT((1./0.25), B2_GV_REF_INV_THAU_FRAC) 
 
 #ifdef B2_GUIDANCE_V_C
 static inline void b2_gv_set_ref(int32_t alt, int32_t speed, int32_t accel);
-static inline void b2_gv_update_ref(int32_t z_sp);
+static inline void b2_gv_update_ref_from_z_sp(int32_t z_sp);
+static inline void b2_gv_update_ref_from_zd_sp(int32_t zd_sp);
 
 int64_t b2_gv_z_ref;
 int32_t b2_gv_zd_ref;
@@ -57,7 +62,7 @@ static inline void b2_gv_set_ref(int32_t alt, int32_t speed, int32_t accel) {
   b2_gv_zdd_ref = accel>>(IACCEL_RES - B2_GV_ZDD_REF_FRAC);
 }
 
-static inline void b2_gv_update_ref(int32_t z_sp) {
+static inline void b2_gv_update_ref_from_z_sp(int32_t z_sp) {
 
   b2_gv_z_ref  += b2_gv_zd_ref;
   b2_gv_zd_ref += b2_gv_zdd_ref;
@@ -88,6 +93,31 @@ static inline void b2_gv_update_ref(int32_t z_sp) {
   }
 }
 
+
+static inline void b2_gv_update_ref_from_zd_sp(int32_t zd_sp) {
+
+  b2_gv_z_ref  += b2_gv_zd_ref;
+  b2_gv_zd_ref += b2_gv_zdd_ref;
+
+  int32_t zd_err = b2_gv_zd_ref - (zd_sp>>(ISPEED_RES - B2_GV_ZD_REF_FRAC));
+  int32_t zd_err_zdd_res = zd_err>>(B2_GV_ZD_REF_FRAC-B2_GV_ZDD_REF_FRAC);
+  b2_gv_zdd_ref = (-(int32_t)B2_GV_REF_INV_THAU * zd_err_zdd_res)>>B2_GV_REF_INV_THAU_FRAC;
+
+  /* Saturate accelerations */
+  Bound(b2_gv_zdd_ref, B2_GV_MIN_ZDD, B2_GV_MAX_ZDD);
+  
+  /* Saturate speed and adjust acceleration accordingly */
+  if (b2_gv_zd_ref <= B2_GV_MIN_ZD) {
+    b2_gv_zd_ref = B2_GV_MIN_ZD;
+    if (b2_gv_zdd_ref < 0)
+      b2_gv_zdd_ref = 0;
+  }
+  else if (b2_gv_zd_ref >= B2_GV_MAX_ZD) {
+    b2_gv_zd_ref = B2_GV_MAX_ZD;
+    if (b2_gv_zdd_ref > 0)
+      b2_gv_zdd_ref = 0;
+  }
+}
 
 #endif /* B2_GUIDANCE_V_C */
 

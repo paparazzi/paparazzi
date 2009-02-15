@@ -98,10 +98,10 @@ static inline void b2_gv_adapt_run(int32_t zdd_meas, int32_t thrust_applied) {
      give less than zero throttle and don't let it down to zero.
      30254 = MAX_ACCEL*B2_GV_ADAPT_X_FRAC/MAX_THROTTLE
      aka
-     30254 = 3*9.81*2^10/255
+     30254 = 3*9.81*2^8/255
      2571632 = 9.81*2^18
   */ 
-  Bound(b2_gv_adapt_X, 30254, 2571632);
+  Bound(b2_gv_adapt_X, 10000, 2571632);
 }
 
 

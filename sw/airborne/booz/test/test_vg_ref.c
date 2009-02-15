@@ -7,7 +7,7 @@
 #define NB_STEP 10000
 #define DT (1./B2_GV_FREQ)
 
-double z_sp, z_ref, zd_ref, zdd_ref;
+double z_sp, zd_sp, z_ref, zd_ref, zdd_ref;
 
 void set_ref(double z, double zd, double zdd) {
   z_ref = z;
@@ -15,7 +15,7 @@ void set_ref(double z, double zd, double zdd) {
   zdd_ref = zdd;
 }
 
-void update_ref(void) {
+void update_ref_from_z(void) {
 
   z_ref  += (zd_ref  * DT);
   zd_ref += (zdd_ref * DT);
@@ -36,19 +36,40 @@ void update_ref(void) {
 
 }
 
+void update_ref_from_zd(void) {
+  
+  z_ref  += (zd_ref  * DT);
+  zd_ref += (zdd_ref * DT);
+  zdd_ref = -1/B2_GV_REF_THAU_F*(zd_ref - zd_sp);
+
+  Bound(zdd_ref, B2_GV_MIN_ZDD_F, B2_GV_MAX_ZDD_F);
+
+  if (zd_ref <= B2_GV_MIN_ZD_F) {
+    zd_ref = B2_GV_MIN_ZD_F;
+    if (zdd_ref < 0)
+      zdd_ref = 0;
+  }
+  else if (zd_ref >= B2_GV_MAX_ZD_F) {
+    zd_ref = B2_GV_MAX_ZD_F;
+    if (zdd_ref > 0)
+      zdd_ref = 0;
+  }
+
+}
+
 void print_ref(int i) {
   double i2f_z   = BOOZ_FLOAT_OF_INT( b2_gv_z_ref,   B2_GV_Z_REF_FRAC);
   double i2f_zd  = BOOZ_FLOAT_OF_INT( b2_gv_zd_ref,  B2_GV_ZD_REF_FRAC);
   double i2f_zdd = BOOZ_FLOAT_OF_INT( b2_gv_zdd_ref, B2_GV_ZDD_REF_FRAC);
-  printf("%f %f %f %f %f %f %f %f\n", 
-	 (double)i*DT, z_sp, 
+  printf("%f %f %f %f %f %f %f %f %f\n", 
+	 (double)i*DT, z_sp, zd_sp,
 	 z_ref, zd_ref, zdd_ref,
 	 i2f_z, i2f_zd, i2f_zdd );
 }
 
 int32_t get_sp (int i) {
   //  return BOOZ_INT_OF_FLOAT(i>512 ? -50.0 : 0, IPOS_FRAC);
-  return BOOZ_INT_OF_FLOAT((i>512&&i<3072) ? -5.0 : 0, IPOS_FRAC);
+  return BOOZ_INT_OF_FLOAT((i>512&&i<3072) ? -1.0 : 0, ISPEED_RES);
 }
 
 
@@ -59,9 +80,12 @@ int main(int argc, char** argv) {
   int i = 0;
   while (i<NB_STEP) {
     int32_t sp_i = get_sp(i);
-    b2_gv_update_ref(sp_i);
-    z_sp = BOOZ_FLOAT_OF_INT(sp_i, IPOS_FRAC);
-    update_ref();
+    //    b2_gv_update_ref_from_z_sp(sp_i);
+    b2_gv_update_ref_from_zd_sp(sp_i);
+    //    z_sp = BOOZ_FLOAT_OF_INT(sp_i, IPOS_FRAC);
+    //    update_ref_from_z();
+    zd_sp = BOOZ_FLOAT_OF_INT(sp_i, ISPEED_RES);
+    update_ref_from_zd();
     print_ref(i);
     i++;
   }

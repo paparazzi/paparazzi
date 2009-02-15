@@ -61,7 +61,11 @@ extern void booz_fms_impl_periodic(void);
     }									\
     switch (booz_fms_input.v_mode) {					\
     case BOOZ2_GUIDANCE_V_MODE_KILL:					\
-    case BOOZ2_GUIDANCE_V_MODE_DIRECT:					\
+    case BOOZ2_GUIDANCE_V_MODE_RC_DIRECT:				\
+    case BOOZ2_GUIDANCE_V_MODE_RC_CLIMB:				\
+      break;								\
+    case BOOZ2_GUIDANCE_V_MODE_CLIMB :					\
+      booz_fms_input.v_sp.climb = DL_BOOZ2_FMS_COMMAND_v_sp(_dl_buffer); \
       break;								\
     case BOOZ2_GUIDANCE_V_MODE_HOVER :					\
       booz_fms_input.v_sp.height = DL_BOOZ2_FMS_COMMAND_v_sp(_dl_buffer); \

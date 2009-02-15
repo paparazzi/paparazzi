@@ -20,8 +20,8 @@ void booz_fms_init(void) {
 
   booz_fms_input.h_mode = BOOZ2_GUIDANCE_H_MODE_ATTITUDE;
   BOOZ_IEULER_ZERO(booz_fms_input.h_sp.attitude);
-  booz_fms_input.v_mode = BOOZ2_GUIDANCE_V_MODE_DIRECT;
-
+  booz_fms_input.v_mode = BOOZ2_GUIDANCE_V_MODE_CLIMB;
+  booz_fms_input.v_sp.climb = 0;
   booz_fms_impl_init();
 }
 
@@ -32,6 +32,8 @@ void booz_fms_periodic(void) {
     booz_fms_timeout = TRUE;
     booz_fms_input.h_mode = BOOZ2_GUIDANCE_H_MODE_ATTITUDE;
     BOOZ_IEULER_ZERO(booz_fms_input.h_sp.attitude);
+    booz_fms_input.v_mode = BOOZ2_GUIDANCE_V_MODE_CLIMB;
+    booz_fms_input.v_sp.climb = 0;
   }
   booz_fms_impl_periodic();
 }
