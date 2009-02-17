@@ -72,17 +72,6 @@ void booz_sensors_model_accel_run( double time, MAT* dcm ) {
 
   accel_body = booz_get_forces_body_frame(accel_body , dcm, omega_square, speed_body);
 
-  /* add non inertial forces        */
-  /* extract body rate from state */
-  static VEC *rate_body = VNULL;
-  rate_body = v_resize(rate_body, AXIS_NB);
-  BoozFlighModelGetRate(rate_body);
-  static VEC *fict_f = VNULL;
-  fict_f = v_resize(fict_f, AXIS_NB);
-  fict_f = out_prod(speed_body, rate_body, fict_f);
-  fict_f = sv_mlt(bfm.mass, fict_f, fict_f);
-  accel_body = v_add(accel_body, fict_f, accel_body);
-
   /* divide by mass */
   accel_body = sv_mlt(1./bfm.mass, accel_body, accel_body);
   

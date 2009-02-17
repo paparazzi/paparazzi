@@ -159,6 +159,8 @@ void booz2_guidance_v_run(bool_t in_flight) {
 }
 
 
+#define FF_CMD_FRAC 18
+
 static inline void run_hover_loop(bool_t in_flight) {
 
   /* convert our reference to generic representation */
@@ -172,16 +174,20 @@ static inline void run_hover_loop(bool_t in_flight) {
   int32_t err_zd =  booz_ins_speed_earth.z - booz2_guidance_v_zd_ref;
   Bound(err_zd, BOOZ2_GUIDANCE_V_MIN_ERR_ZD, BOOZ2_GUIDANCE_V_MAX_ERR_ZD);
 
-  if (in_flight) {
+  if (in_flight)
     booz2_guidance_v_z_sum_err += err_z;
-  }
   else
     booz2_guidance_v_z_sum_err = 0;
 
   /* our nominal command : (g + zdd)*m   */
   //const int32_t inv_m = BOOZ_INT_OF_FLOAT(0.140, IACCEL_RES);
-  const int32_t inv_m =  b2_gv_adapt_X>>(B2_GV_ADAPT_X_FRAC - IACCEL_RES);
-  booz2_guidance_v_ff_cmd = (BOOZ_INT_OF_FLOAT(9.81, IACCEL_RES) - booz2_guidance_v_zdd_ref) / inv_m;
+  const int32_t inv_m =  b2_gv_adapt_X>>(B2_GV_ADAPT_X_FRAC - FF_CMD_FRAC);
+  const int32_t g_m_zdd = (int32_t)BOOZ_INT_OF_FLOAT(9.81, FF_CMD_FRAC) - 
+                          (booz2_guidance_v_zdd_ref<<(FF_CMD_FRAC - IACCEL_RES));
+  if (g_m_zdd > 0) 
+    booz2_guidance_v_ff_cmd = ( g_m_zdd + (inv_m>>1)) / inv_m;
+  else
+    booz2_guidance_v_ff_cmd = ( g_m_zdd - (inv_m>>1)) / inv_m;
   //  booz2_guidance_v_ff_cmd = BOOZ2_GUIDANCE_V_HOVER_POWER;
   
   /* our error command                   */

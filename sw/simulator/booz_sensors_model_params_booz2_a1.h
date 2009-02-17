@@ -77,7 +77,7 @@
 #define BSM_GYRO_BIAS_INITIAL_Q  RadOfDeg(  .0)
 #define BSM_GYRO_BIAS_INITIAL_R  RadOfDeg(  .0)
 
-#define BSM_GYRO_BIAS_RANDOM_WALK_STD_DEV_P RadOfDeg(0.5)
+#define BSM_GYRO_BIAS_RANDOM_WALK_STD_DEV_P RadOfDeg(0.)
 #define BSM_GYRO_BIAS_RANDOM_WALK_STD_DEV_Q RadOfDeg(0.)
 #define BSM_GYRO_BIAS_RANDOM_WALK_STD_DEV_R RadOfDeg(0.)
 
@@ -121,8 +121,10 @@
 /*
  *  Barometer
  */
+/* m */
+/* aka 2^8/INS_BARO_SENS  */
 #define BSM_BARO_QNH             900.
-#define BSM_BARO_SENSITIVITY      15.
+#define BSM_BARO_SENSITIVITY      17.066667
 #define BSM_BARO_DT          (1./100.)
 
 

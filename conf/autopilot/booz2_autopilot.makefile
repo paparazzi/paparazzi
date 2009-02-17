@@ -28,8 +28,7 @@ FLASH_MODE = IAP
 BOARD_CFG = \"booz2_board_v1_0.h\"
 
 SRC_BOOZ=booz
-SRC_BOOZ_ARCH=booz/arm7
-SRC_BOOZ_TEST=booz/test
+SRC_BOOZ_ARCH=$(SRC_BOOZ)/arm7
 
 ap.ARCHDIR = $(ARCHI)
 ap.ARCH = arm7tdmi

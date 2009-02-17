@@ -4,7 +4,6 @@
 
 SIM_TYPE = BOOZ
 SRC_BOOZ=booz
-#SRC_BOOZ_ARCH=booz/arm7
 SRC_BOOZ_SIM = $(SRC_BOOZ)/sim
 #BOOZ_PRIV_ARCH = $(BOOZ_PRIV_SIM)
 
@@ -18,7 +17,7 @@ sim.CFLAGS  += -DSITL
 sim.CFLAGS  += `pkg-config glib-2.0 --cflags` -I /usr/include/meschach
 sim.LDFLAGS += `pkg-config glib-2.0 --libs` -lm -lmeschach -lpcre -lglibivy
 
-sim.CFLAGS += -I$(SRC_BOOZ) -I $(SRC_BOOZ_SIM) -I../simulator -DFLOAT_T=float
+sim.CFLAGS += -I$(SRC_BOOZ) -I$(SRC_BOOZ_SIM) -I../simulator -DFLOAT_T=float
 
 sim.srcs = $(SIMDIR)/booz2_sim_main.c                \
 	   $(SIMDIR)/booz_flight_model.c             \

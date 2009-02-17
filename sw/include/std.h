@@ -86,7 +86,14 @@ typedef uint8_t unit_t;
 #define Chop(_x, _min, _max) ( (_x) < (_min) ? (_min) : (_x) > (_max) ? (_max) : (_x) )
 #define ChopAbs(x, max) Chop(x, -max, max)
 
-#define DeadBand(_x, _v) { _x = (abs(_x) < _v) ? 0 : _x; }
+#define DeadBand(_x, _v) {						\
+    if (_x > _v)							\
+      _x = _x -_v;							\
+    else if  (_x < -_v)							\
+      _x = _x +_v;							\
+    else								\
+      _x = 0;								\
+  }
 
 #define Blend(a, b, rho) (((rho)*(a))+(1-(rho))*(b))
 

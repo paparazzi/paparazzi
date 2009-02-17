@@ -13,8 +13,8 @@ ifX     = M(:,8);
 ifP     = M(:,9);
 
 //k = find(time > 500 & time < 550);
-k = find(time > 1110 & time < 1168);
-//k = 1:length(time);
+//k = find(time > 1110 & time < 1168);
+k = 1:length(time);
 
 
 clf();
