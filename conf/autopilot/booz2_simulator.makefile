@@ -17,6 +17,8 @@ sim.CFLAGS  += -DSITL
 sim.CFLAGS  += `pkg-config glib-2.0 --cflags` -I /usr/include/meschach
 sim.LDFLAGS += `pkg-config glib-2.0 --libs` -lm -lmeschach -lpcre -lglibivy
 
+sim.CFLAGS  += -DBYPASS_AHRS
+
 sim.CFLAGS += -I$(SRC_BOOZ) -I$(SRC_BOOZ_SIM) -I../simulator -DFLOAT_T=float
 
 sim.srcs = $(SIMDIR)/booz2_sim_main.c                \

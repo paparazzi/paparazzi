@@ -50,6 +50,7 @@ double disp_time;
 
 double booz_sim_actuators_values[] = {0., 0., 0., 0.};
 
+static void sim_bypass_ahrs(void);
 static void sim_gps_feed_data(void);
 static void sim_mag_feed_data(void);
 
@@ -118,6 +119,9 @@ static gboolean booz2_sim_periodic(gpointer data __attribute__ ((unused))) {
   if (booz_sensors_model_gyro_available()) {
     booz2_imu_feed_data();
     booz2_main_event();
+#ifdef BYPASS_AHRS
+    sim_bypass_ahrs();
+#endif /* BYPASS_AHRS */
   }
 
   if (booz_sensors_model_gps_available()) {
@@ -135,6 +139,19 @@ static gboolean booz2_sim_periodic(gpointer data __attribute__ ((unused))) {
 
  
   return TRUE;
+}
+
+#include "booz_geometry_mixed.h"
+#include "booz2_filter_attitude.h"
+static void sim_bypass_ahrs(void) {
+  booz2_filter_attitude_euler_aligned.phi   = BOOZ_ANGLE_I_OF_F(bfm.state->ve[BFMS_PHI]);
+  booz2_filter_attitude_euler_aligned.theta = BOOZ_ANGLE_I_OF_F(bfm.state->ve[BFMS_THETA]);
+  booz2_filter_attitude_euler_aligned.psi   = BOOZ_ANGLE_I_OF_F(bfm.state->ve[BFMS_PSI]);
+
+  booz2_filter_attitude_rate.x = BOOZ_RATE_I_OF_F(bfm.state->ve[BFMS_P]);
+  booz2_filter_attitude_rate.y = BOOZ_RATE_I_OF_F(bfm.state->ve[BFMS_Q]);
+  booz2_filter_attitude_rate.z = BOOZ_RATE_I_OF_F(bfm.state->ve[BFMS_R]);
+
 }
 
 #include "booz2_gps.h"
