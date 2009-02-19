@@ -13,7 +13,7 @@ extern void UpdateSensorLatency(double time, VEC* cur_reading, GSList* history,
 			 double latency, VEC* sensor_reading);
 extern VEC* v_update_random_walk(VEC* in, VEC* std_dev, double dt, VEC* out);
 extern VEC* v_add_gaussian_noise(VEC* in, VEC* std_dev, VEC* out);
-
+extern double get_gaussian_noise();
 
 #define RoundSensor(_sensor) {				\
     _sensor->ve[AXIS_X] = rint(_sensor->ve[AXIS_X]);	\
@@ -29,12 +29,6 @@ extern VEC* v_add_gaussian_noise(VEC* in, VEC* std_dev, VEC* out);
   if ( _sensor->ve[AXIS_Z] < _min) _sensor->ve[AXIS_Z] = _min; \
   if ( _sensor->ve[AXIS_Z] > _max) _sensor->ve[AXIS_Z] = _max; \
   }
-
-#define CopyVect(_dest, _src) {			\
-    _dest->ve[AXIS_X] = _src->ve[AXIS_X];	\
-    _dest->ve[AXIS_Y] = _src->ve[AXIS_Y];	\
-    _dest->ve[AXIS_Z] = _src->ve[AXIS_Z];	\
-}
 
 
 

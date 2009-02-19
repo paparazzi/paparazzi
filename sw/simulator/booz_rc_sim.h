@@ -22,7 +22,7 @@
     else {								\
       ppm_pulses[RADIO_YAW]      = 1500 + 0.   * (2050-950);		\
       ppm_pulses[RADIO_THROTTLE] = 1223 + 0.99 * (2050-1223);		\
-      ppm_pulses[RADIO_MODE]     = MODE_SWITCH_AUTO1;			\
+      ppm_pulses[RADIO_MODE]     = MODE_SWITCH_AUTO2;			\
     }									\
     ppm_pulses[RADIO_PITCH]    = 1500 + 0.  * (2050-950);		\
     ppm_pulses[RADIO_ROLL]     = 1500 + 0.  * (2050-950);		\

@@ -49,60 +49,30 @@ void booz_sensors_model_accel_init(double time) {
 
 }
 
-void booz_sensors_model_accel_run( double time, MAT* dcm ) {
+void booz_sensors_model_accel_run( double time ) {
   if (time < bsm.accel_next_update)
     return;
 
-  /*  */
+  static VEC* accel_ltp = VNULL;
+  accel_ltp = v_resize(accel_ltp, AXIS_NB);
+  /* substract gravity to acceleration in ltp frame */
+  accel_ltp = v_sub(bfm.accel_ltp, bfm.g_ltp, accel_ltp);
+  /* convert to body frame */
   static VEC* accel_body = VNULL;
   accel_body = v_resize(accel_body, AXIS_NB);
-  accel_body = v_zero(accel_body);
-#if 1
-  /* compute sum of forces in body frame  */
-
-  /* square of prop rotational speeds */
-  static VEC *omega_square = VNULL;
-  omega_square = v_resize(omega_square,SERVOS_NB);
-  BoozFlighModelGetRPMS(omega_square);
-  omega_square = v_star(omega_square, omega_square, omega_square);
-  /* extract body speed from state */
-  static VEC *speed_body = VNULL;
-  speed_body = v_resize(speed_body, AXIS_NB);
-  BoozFlighModelGetSpeed(speed_body);
-
-  accel_body = booz_get_forces_body_frame(accel_body , dcm, omega_square, speed_body);
-
-  /* divide by mass */
-  accel_body = sv_mlt(1./bfm.mass, accel_body, accel_body);
+  mv_mlt(bfm.dcm, accel_ltp, accel_body);
+  /* convert to imu frame */
+  static VEC* accel_imu = VNULL;
+  accel_imu = v_resize(accel_imu, AXIS_NB);
+  mv_mlt(bsm.body_to_imu, accel_body, accel_imu);
   
-  static VEC* g_inert = VNULL;
-  g_inert = v_resize(g_inert, AXIS_NB);
-  g_inert->ve[AXIS_X] = 0;
-  g_inert->ve[AXIS_Y] = 0;
-  g_inert->ve[AXIS_Z] = 9.81;
-  static VEC* g_body = VNULL;
-  g_body = v_resize(g_body, AXIS_NB);
-  g_body = mv_mlt(dcm, g_inert, g_body);
 
-  accel_body = v_sub(accel_body, g_body, accel_body);
-
-#if 0
- IvySendMsg("148 BOOZ_SIM_WIND %f %f %f",  
-	     accel_body->ve[AXIS_X], 
-	     accel_body->ve[AXIS_Y], 
-	     accel_body->ve[AXIS_Z]);
-
- 
-  accel_body = mv_mlt(dcm, g_inert, accel_body);
-  accel_body = sv_mlt(-1., accel_body, accel_body);
-#endif
 
   //  printf(" accel_body ~ %f %f %f\n", accel_body->ve[AXIS_X], accel_body->ve[AXIS_Y], accel_body->ve[AXIS_Z]);
-#endif
 
   /* compute accel reading */
-  bsm.accel = mv_mlt(bsm.accel_sensitivity, accel_body, bsm.accel); 
-  bsm.accel = v_add(bsm.accel, bsm.accel_neutral, bsm.accel);
+  mv_mlt(bsm.accel_sensitivity, accel_imu, bsm.accel); 
+  v_add(bsm.accel, bsm.accel_neutral, bsm.accel);
 
   /* compute accel error readings */
   static VEC *accel_error = VNULL;

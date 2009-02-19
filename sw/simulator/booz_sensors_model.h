@@ -43,6 +43,9 @@ extern bool_t booz_sensors_model_gps_available();
 
 struct BoozSensorsModel {
 
+  /* our imu alignement */
+  MAT*   body_to_imu;
+
   /* Accelerometer */
   VEC*   accel;
   unsigned int accel_resolution;
@@ -69,7 +72,7 @@ struct BoozSensorsModel {
 
   /* Magnetometer */
   VEC*   mag;
-  unsigned int mag_resolution;
+  MAT*   mag_imu_to_sensor;
   MAT*   mag_sensitivity;
   VEC*   mag_neutral;
   VEC*   mag_noise_std_dev;

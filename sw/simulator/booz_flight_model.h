@@ -5,24 +5,6 @@
 #include "airframe.h"
 
 
-#define BFMS_X     0
-#define BFMS_Y     1
-#define BFMS_Z     2
-#define BFMS_U     3
-#define BFMS_V     4
-#define BFMS_W     5
-#define BFMS_PHI   6
-#define BFMS_THETA 7
-#define BFMS_PSI   8
-#define BFMS_P     9
-#define BFMS_Q    10
-#define BFMS_R    11 
-#define BFMS_OM_B 12
-#define BFMS_OM_F 13
-#define BFMS_OM_R 14 
-#define BFMS_OM_L 15 
-#define BFMS_SIZE 16
-
 
 struct BoozFlightModel {
   /* are we flying ? */
@@ -34,14 +16,31 @@ struct BoozFlightModel {
   /* motors supply voltage in V */
   VEC* mot_voltage;
 
-  /* state : see define above for fields */
+  /* private state : see defines in .c for fields */
   VEC* state;
+
+  /* user products */
+  VEC* pos_ltp;
+  VEC* speed_ltp;
+  VEC* accel_ltp;
+  VEC* speed_body;
+  VEC* accel_body;
+
+  VEC* eulers;
+  VEC* ang_rate_body;
+  VEC* ang_accel_body;
+  MAT* dcm;
+  MAT* dcm_t;
+  VEC* quat;
+
+  VEC* omega;
+  VEC* omega_square;
 
   /* constants used in derivative computation */
   /* magnetic field in earth frame            */
-  VEC* h_earth;
+  VEC* h_ltp;
   /* gravitation in earth frame */
-  VEC* g_earth;
+  VEC* g_ltp;
   /* propeller thrust factor    */
   double thrust_factor;
   /* propeller torque factor    */
@@ -61,37 +60,5 @@ extern struct BoozFlightModel bfm;
 extern void booz_flight_model_init( void );
 extern void booz_flight_model_run( double t, double* commands );
 
-extern VEC* booz_get_forces_body_frame(VEC* F, MAT* dcm, VEC* omega_square, VEC* speed_body);
-
-#define BoozFlighModelGetPos(_dest) {		\
-    _dest->ve[AXIS_X] = bfm.state->ve[BFMS_X];	\
-    _dest->ve[AXIS_Y] = bfm.state->ve[BFMS_Y];	\
-    _dest->ve[AXIS_Z] = bfm.state->ve[BFMS_Z];	\
-  }
-
-#define BoozFlighModelGetSpeed(_dest) {		\
-    _dest->ve[AXIS_X] = bfm.state->ve[BFMS_U];	\
-    _dest->ve[AXIS_Y] = bfm.state->ve[BFMS_V];	\
-    _dest->ve[AXIS_Z] = bfm.state->ve[BFMS_W];	\
-  }
-
-#define BoozFlighModelGetAngles(_dest) {		\
-    _dest->ve[EULER_PHI]   = bfm.state->ve[BFMS_PHI];	\
-    _dest->ve[EULER_THETA] = bfm.state->ve[BFMS_THETA];	\
-    _dest->ve[EULER_PSI]   = bfm.state->ve[BFMS_PSI];	\
-  }
-
-#define BoozFlighModelGetRate(_dest) {		\
-    _dest->ve[AXIS_P] = bfm.state->ve[BFMS_P];	\
-    _dest->ve[AXIS_Q] = bfm.state->ve[BFMS_Q];	\
-    _dest->ve[AXIS_R] = bfm.state->ve[BFMS_R];	\
-  }
-
-#define BoozFlighModelGetRPMS(_dest) {				\
-    _dest->ve[SERVO_BACK]  = bfm.state->ve[BFMS_OM_B];	\
-    _dest->ve[SERVO_FRONT] = bfm.state->ve[BFMS_OM_F];	\
-    _dest->ve[SERVO_RIGHT] = bfm.state->ve[BFMS_OM_R];	\
-    _dest->ve[SERVO_LEFT]  = bfm.state->ve[BFMS_OM_L];	\
-  }
 
 #endif /* BOOZ_FLIGHT_MODEL_H */

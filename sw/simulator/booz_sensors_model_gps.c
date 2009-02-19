@@ -58,21 +58,16 @@ void booz_sensors_model_gps_init( double time ) {
 }
 
 /* We store our positions like the fdm and convert to UTM and funcky course, gspeed, climb */
-void booz_sensors_model_gps_run( double time, MAT* dcm_t ) {
+void booz_sensors_model_gps_run( double time) {
   if (time < bsm.gps_next_update)
     return;
 
   /* 
    * simulate speed sensor 
    */
-  /* extract body speed from state */
-  static VEC *speed_body = VNULL;
-  speed_body = v_resize(speed_body, AXIS_NB);
-  BoozFlighModelGetSpeed(speed_body);
   static VEC *cur_speed_reading = VNULL;
   cur_speed_reading = v_resize(cur_speed_reading, AXIS_NB);
-  /* convert to earth frame */
-  cur_speed_reading = mv_mlt(dcm_t, speed_body, cur_speed_reading);
+  v_copy(bfm.speed_ltp, cur_speed_reading);;
   /* add a gaussian noise */
   cur_speed_reading = v_add_gaussian_noise(cur_speed_reading, bsm.gps_speed_noise_std_dev, 
 					   cur_speed_reading);
@@ -90,12 +85,8 @@ void booz_sensors_model_gps_run( double time, MAT* dcm_t ) {
   /* 
    * simulate position sensor 
    */
-  static VEC *cur_pos_reading = VNULL;
-  cur_pos_reading = v_resize(cur_pos_reading, AXIS_NB);
-  /* extract pos from state */
-  BoozFlighModelGetPos(cur_pos_reading);
 
-  /* compute position error reading */
+  /* compute position error */
   static VEC *pos_error = VNULL;
   pos_error = v_resize(pos_error, AXIS_NB);
   pos_error = v_zero(pos_error);
@@ -106,10 +97,13 @@ void booz_sensors_model_gps_run( double time, MAT* dcm_t ) {
     v_update_random_walk(bsm.gps_pos_bias_random_walk_value, 
   			 bsm.gps_pos_bias_random_walk_std_dev, BSM_GPS_DT, 
   			 bsm.gps_pos_bias_random_walk_value);
+  /* add it */
   pos_error = v_add(pos_error, bsm.gps_pos_bias_random_walk_value, pos_error); 
-  /* add error reading */
-  cur_pos_reading = v_add(cur_pos_reading, pos_error, cur_pos_reading); 
-
+  /* sum true pos and error reading */
+  static VEC *cur_pos_reading = VNULL;
+  cur_pos_reading = v_resize(cur_pos_reading, AXIS_NB);
+  v_add(bfm.pos_ltp, pos_error, cur_pos_reading); 
+  /* store that for later and retrieve a previously stored data */
   UpdateSensorLatency(time, cur_pos_reading, bsm.gps_pos_history, BSM_GPS_POS_LATENCY, bsm.gps_pos);
 
   /* UTM conversion */
@@ -126,9 +120,9 @@ void booz_sensors_model_gps_run( double time, MAT* dcm_t ) {
 #define LON0   1.
 #define GROUND_ALT  180.
 
-  bsm.gps_pos_lla.lat = (bsm.gps_pos->ve[AXIS_Y] * 9e-6 + LAT0) * 1e7;
+  bsm.gps_pos_lla.lat = (bsm.gps_pos->ve[AXIS_X] * 9e-6 + LAT0) * 1e7;
   bsm.gps_pos_lla.lat = rint(bsm.gps_pos_lla.lat);
-  bsm.gps_pos_lla.lon = (bsm.gps_pos->ve[AXIS_X] * 9e-6 + LON0) * 1e7;
+  bsm.gps_pos_lla.lon = (bsm.gps_pos->ve[AXIS_Y] * 9e-6 + LON0) * 1e7;
   bsm.gps_pos_lla.lon = rint(bsm.gps_pos_lla.lon);
   bsm.gps_pos_lla.alt = (bsm.gps_pos->ve[AXIS_Z] + GROUND_ALT)* 100.;
   bsm.gps_pos_lla.alt = rint(bsm.gps_pos_lla.alt);

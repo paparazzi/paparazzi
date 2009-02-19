@@ -60,15 +60,13 @@ void booz_sensors_model_gyro_run( double time ) {
   if (time < bsm.gyro_next_update)
     return;
 
-  /* extract rotational speed from flight model state */
-  static VEC *rate_body = VNULL;
-  rate_body = v_resize(rate_body, AXIS_NB);
-  rate_body->ve[AXIS_P] = bfm.state->ve[BFMS_P];
-  rate_body->ve[AXIS_Q] = bfm.state->ve[BFMS_Q];
-  rate_body->ve[AXIS_R] = bfm.state->ve[BFMS_R];
-
+  /* rotate to IMU frame */
+  /* convert to imu frame */
+  static VEC* rate_imu = VNULL;
+  rate_imu = v_resize(rate_imu, AXIS_NB);
+  mv_mlt(bsm.body_to_imu, bfm.ang_rate_body, rate_imu);
   /* compute gyros readings */
-  bsm.gyro = mv_mlt(bsm.gyro_sensitivity, rate_body, bsm.gyro); 
+  bsm.gyro = mv_mlt(bsm.gyro_sensitivity, rate_imu, bsm.gyro); 
   bsm.gyro = v_add(bsm.gyro, bsm.gyro_neutral, bsm.gyro); 
 
   /* compute gyro error readings */

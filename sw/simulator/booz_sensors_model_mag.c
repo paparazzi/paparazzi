@@ -3,6 +3,7 @@
 #include BSM_PARAMS
 #include "booz_sensors_model_utils.h"
 #include "booz_flight_model.h"
+#include "booz_flight_model_utils.h"
 
 bool_t booz_sensors_model_mag_available() {
   if (bsm.mag_available) {
@@ -19,7 +20,14 @@ void booz_sensors_model_mag_init( double time ) {
   bsm.mag->ve[AXIS_X] = 0.;
   bsm.mag->ve[AXIS_Y] = 0.;
   bsm.mag->ve[AXIS_Z] = 0.;
-  bsm.mag_resolution = BSM_MAG_RESOLUTION;
+  //  bsm.mag_resolution = BSM_MAG_RESOLUTION;
+
+  bsm.mag_imu_to_sensor = m_get(AXIS_NB, AXIS_NB);
+  VEC* tmp_eulers = v_get(AXIS_NB);
+  tmp_eulers->ve[EULER_PHI]   = BSM_MAG_IMU_TO_SENSOR_PHI;
+  tmp_eulers->ve[EULER_THETA] = BSM_MAG_IMU_TO_SENSOR_THETA;
+  tmp_eulers->ve[EULER_PSI]   = BSM_MAG_IMU_TO_SENSOR_PSI;
+  dcm_of_eulers (tmp_eulers, bsm.mag_imu_to_sensor );
 
   bsm.mag_sensitivity = m_get(AXIS_NB, AXIS_NB);
   m_zero(bsm.mag_sensitivity);
@@ -42,21 +50,30 @@ void booz_sensors_model_mag_init( double time ) {
 
 }
 
-void booz_sensors_model_mag_run( double time, MAT* dcm ) {
+void booz_sensors_model_mag_run( double time ) {
   if (time < bsm.mag_next_update)
     return;
   
   /* rotate h to body frame */
   static VEC *h_body = VNULL;
   h_body = v_resize(h_body, AXIS_NB);
-  h_body = mv_mlt(dcm, bfm.h_earth, h_body);
-  
-  bsm.mag = mv_mlt(bsm.mag_sensitivity, h_body, bsm.mag); 
-  bsm.mag = v_add(bsm.mag, bsm.mag_neutral, bsm.mag); 
+  mv_mlt(bfm.dcm, bfm.h_ltp, h_body);
+  /* rotate to imu frame */
+  static VEC *h_imu = VNULL;
+  h_imu = v_resize(h_imu, AXIS_NB);
+  mv_mlt(bsm.body_to_imu, h_body, h_imu);
+  /* rotate to sensor frame */
+  static VEC *h_sensor = VNULL;
+  h_sensor = v_resize(h_sensor, AXIS_NB);
+  mv_mlt(bsm.mag_imu_to_sensor, h_imu, h_sensor);
+
+  mv_mlt(bsm.mag_sensitivity, h_sensor, bsm.mag); 
+  v_add(bsm.mag, bsm.mag_neutral, bsm.mag); 
 
   /* compute mag error readings */  
   static VEC *mag_error = VNULL;
   mag_error = v_resize(mag_error, AXIS_NB);
+  /* add hard iron now ? */
   mag_error = v_zero(mag_error);
   /* add a gaussian noise */
   mag_error = v_add_gaussian_noise(mag_error, bsm.mag_noise_std_dev, mag_error);
@@ -66,7 +83,7 @@ void booz_sensors_model_mag_run( double time, MAT* dcm ) {
   mag_error->ve[AXIS_Z] = mag_error->ve[AXIS_Z] * bsm.mag_sensitivity->me[AXIS_Z][AXIS_Z];
 
   /* add error */
-  bsm.mag =  v_add(bsm.mag, mag_error, bsm.mag); 
+  v_add(bsm.mag, mag_error, bsm.mag); 
 
   //  printf("h body %f %f %f\n", h_body->ve[AXIS_X], h_body->ve[AXIS_Y], h_body->ve[AXIS_Z]);
   //  printf("mag %f %f %f\n", bsm.mag->ve[AXIS_X], bsm.mag->ve[AXIS_Y], bsm.mag->ve[AXIS_Z]);

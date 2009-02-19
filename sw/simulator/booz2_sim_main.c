@@ -24,6 +24,7 @@
 
 #include <glib.h>
 #include <getopt.h>
+#include <sys/time.h>
 
 #include <Ivy/ivy.h>
 #include <Ivy/ivyglibloop.h>
@@ -40,9 +41,14 @@ char* fg_host = "10.31.4.107";
 unsigned int fg_port = 5501;
 char* joystick_dev = "/dev/input/js0";
 
+/* rate of the host mainloop */
+#define HOST_TIMEOUT_PERIOD 4
+struct timeval host_time_start;
+double host_time_elapsed;
+double host_time_factor = 1.;
+
 /* 250Hz <-> 4ms */
-//#define TIMEOUT_PERIOD 4
-#define DT (1./512.)
+#define SIM_DT (1./512.)
 double sim_time;
 
 #define DT_DISPLAY 0.04
@@ -50,7 +56,13 @@ double disp_time;
 
 double booz_sim_actuators_values[] = {0., 0., 0., 0.};
 
-static void sim_bypass_ahrs(void);
+static void sim_run_one_step(void);
+#ifdef BYPASS_AHRS
+static void sim_overwrite_ahrs(void);
+#endif
+#ifdef BYPASS_INS
+static void sim_overwrite_ins(void);
+#endif
 static void sim_gps_feed_data(void);
 static void sim_mag_feed_data(void);
 
@@ -68,6 +80,7 @@ static void on_DL_SETTING(IvyClientPtr app __attribute__ ((unused)),
 
 static void booz2_sim_init(void) {
 
+  gettimeofday (&host_time_start, NULL);
   sim_time = 0.;
   disp_time = 0.;
   
@@ -87,80 +100,124 @@ static void booz2_sim_init(void) {
 #include "booz2_imu.h"
 
 static gboolean booz2_sim_periodic(gpointer data __attribute__ ((unused))) {
-  /* read actuators positions */
-  booz_sim_read_actuators();
 
-  /* run our models */
-  if (sim_time > 13.)
-    bfm.on_ground = FALSE;
-
-  booz_wind_model_run(DT);
-
-  booz_flight_model_run(DT, booz_sim_actuators_values);
-
-  booz_sensors_model_run(sim_time);
+  struct timeval host_time_now;
+  gettimeofday (&host_time_now, NULL);
+  host_time_elapsed = host_time_factor *
+    ((host_time_now.tv_sec  - host_time_start.tv_sec) +
+     (host_time_now.tv_usec - host_time_start.tv_usec)*1e-6);
   
-  sim_time += DT;
-
-  /* outputs models state */
-  booz2_sim_display();
-
-  /* run the airborne code */
+  while (sim_time <= host_time_elapsed) {
+    sim_run_one_step();
+    sim_time += SIM_DT;
+  }  
+    
   
-  // feed a rc frame and signal event
-  BoozRcSimFeed(sim_time);
-  // process it
-  booz2_main_event();
-
-  if (booz_sensors_model_baro_available()) {
-    Booz2BaroISRHandler(bsm.baro);
-    booz2_main_event();
-  }
-  if (booz_sensors_model_gyro_available()) {
-    booz2_imu_feed_data();
-    booz2_main_event();
-#ifdef BYPASS_AHRS
-    sim_bypass_ahrs();
-#endif /* BYPASS_AHRS */
-  }
-
-  if (booz_sensors_model_gps_available()) {
-    sim_gps_feed_data();
-    booz2_main_event();
-  }
-
-  if (booz_sensors_model_mag_available()) {
-    sim_mag_feed_data();
-    booz2_main_event();
-  }
-
-  booz2_main_periodic();
-  
-
- 
+    
   return TRUE;
 }
+  
 
-#include "booz_geometry_mixed.h"
-#include "booz2_filter_attitude.h"
-static void sim_bypass_ahrs(void) {
-  booz2_filter_attitude_euler_aligned.phi   = BOOZ_ANGLE_I_OF_F(bfm.state->ve[BFMS_PHI]);
-  booz2_filter_attitude_euler_aligned.theta = BOOZ_ANGLE_I_OF_F(bfm.state->ve[BFMS_THETA]);
-  booz2_filter_attitude_euler_aligned.psi   = BOOZ_ANGLE_I_OF_F(bfm.state->ve[BFMS_PSI]);
+static void sim_run_one_step(void) {
 
-  booz2_filter_attitude_rate.x = BOOZ_RATE_I_OF_F(bfm.state->ve[BFMS_P]);
-  booz2_filter_attitude_rate.y = BOOZ_RATE_I_OF_F(bfm.state->ve[BFMS_Q]);
-  booz2_filter_attitude_rate.z = BOOZ_RATE_I_OF_F(bfm.state->ve[BFMS_R]);
+   /* read actuators positions */
+    booz_sim_read_actuators();
+    
+    /* run our models */
+    if (sim_time > 13.)
+      bfm.on_ground = FALSE;
+
+    booz_wind_model_run(SIM_DT);
+
+    booz_flight_model_run(SIM_DT, booz_sim_actuators_values);
+
+    booz_sensors_model_run(sim_time);
+    
+    /* outputs models state */
+    booz2_sim_display();
+
+    /* run the airborne code */
+  
+    // feed a rc frame and signal event
+    BoozRcSimFeed(sim_time);
+    // process it
+    booz2_main_event();
+
+    if (booz_sensors_model_baro_available()) {
+      Booz2BaroISRHandler(bsm.baro);
+      booz2_main_event();
+#ifdef BYPASS_INS
+      sim_overwrite_ins();
+#endif /* BYPASS_INS */
+    }
+    if (booz_sensors_model_gyro_available()) {
+      booz2_imu_feed_data();
+      booz2_main_event();
+#ifdef BYPASS_AHRS
+      sim_overwrite_ahrs();
+#endif /* BYPASS_AHRS */
+#ifdef BYPASS_INS
+      sim_overwrite_ins();
+#endif /* BYPASS_INS */
+    }
+
+    if (booz_sensors_model_gps_available()) {
+      sim_gps_feed_data();
+      booz2_main_event();
+    }
+    
+    if (booz_sensors_model_mag_available()) {
+      sim_mag_feed_data();
+      booz2_main_event();
+#ifdef BYPASS_AHRS
+      sim_overwrite_ahrs();
+#endif /* BYPASS_AHRS */
+    }
+    
+    booz2_main_periodic();
+
 
 }
+
+
+
+
+
+#ifdef BYPASS_AHRS
+#include "booz_geometry_mixed.h"
+#include "booz2_filter_attitude.h"
+static void sim_overwrite_ahrs(void) {
+  booz2_filter_attitude_euler_aligned.phi   = BOOZ_ANGLE_I_OF_F(bfm.eulers->ve[AXIS_X]);
+  booz2_filter_attitude_euler_aligned.theta = BOOZ_ANGLE_I_OF_F(bfm.eulers->ve[AXIS_Y]);
+  booz2_filter_attitude_euler_aligned.psi   = BOOZ_ANGLE_I_OF_F(bfm.eulers->ve[AXIS_Z]);
+
+  booz2_filter_attitude_rate.x = BOOZ_RATE_I_OF_F(bfm.ang_rate_body->ve[AXIS_X]);
+  booz2_filter_attitude_rate.y = BOOZ_RATE_I_OF_F(bfm.ang_rate_body->ve[AXIS_Y]);
+  booz2_filter_attitude_rate.z = BOOZ_RATE_I_OF_F(bfm.ang_rate_body->ve[AXIS_Z]);
+
+}
+#endif /* BYPASS_AHRS */
+
+
+#ifdef BYPASS_INS
+#include "booz2_ins.h"
+static void sim_overwrite_ins(void) {
+  booz_ins_position.z    = BOOZ_POS_I_OF_F(bfm.pos_ltp->ve[AXIS_Z]);
+  booz_ins_speed_earth.z = BOOZ_SPEED_I_OF_F(bfm.speed_ltp->ve[AXIS_Z]);
+  booz_ins_accel_earth.z = BOOZ_ACCEL_I_OF_F(bfm.accel_ltp->ve[AXIS_Z]);
+}
+#endif /* BYPASS_INS */
+
+
+
 
 #include "booz2_gps.h"
 static void sim_gps_feed_data(void) {
   booz2_gps_lat = bsm.gps_pos_lla.lat;
   booz2_gps_lon = bsm.gps_pos_lla.lon;
   // speed?
-  booz2_gps_vel_n = rint(bsm.gps_speed->ve[AXIS_Y] * 100.);
-  booz2_gps_vel_e = rint(bsm.gps_speed->ve[AXIS_X] * 100.);
+  booz2_gps_vel_n = rint(bsm.gps_speed->ve[AXIS_X] * 100.);
+  booz2_gps_vel_e = rint(bsm.gps_speed->ve[AXIS_Y] * 100.);
   booz_gps_state.fix = BOOZ2_GPS_FIX_3D;
 }
 
@@ -169,16 +226,20 @@ static void sim_mag_feed_data(void) {
 #ifdef IMU_MAG_45_HACK
   //    booz2_imu_mag.x = msx - msy;
   //    booz2_imu_mag.y = msx + msy;
-  int32_t foo_x = bsm.mag->ve[AXIS_X] * cos(M_PI_4);
-  int32_t foo_y = bsm.mag->ve[AXIS_Y] * cos(M_PI_4);
-  ami601_val[IMU_MAG_X_CHAN] =  foo_x + foo_y;
-  ami601_val[IMU_MAG_Y_CHAN] = -foo_x + foo_y;
+  //  double cos_pi_4 = cos(M_PI_4);
+  //  int32_t foo_x = bsm.mag->ve[AXIS_X];// / cos(M_PI_4);
+  //  int32_t foo_y = bsm.mag->ve[AXIS_Y];// / cos(M_PI_4);
+  ami601_val[IMU_MAG_X_CHAN] = bsm.mag->ve[AXIS_X];
+  ami601_val[IMU_MAG_Y_CHAN] = bsm.mag->ve[AXIS_Y];
+  //  ami601_val[IMU_MAG_X_CHAN] =  foo_x + foo_y;
+  //  ami601_val[IMU_MAG_Y_CHAN] = -foo_x + foo_y;
   ami601_val[IMU_MAG_Z_CHAN] = bsm.mag->ve[AXIS_Z];
 #else
   ami601_val[IMU_MAG_X_CHAN] = bsm.mag->ve[AXIS_X];
   ami601_val[IMU_MAG_Y_CHAN] = bsm.mag->ve[AXIS_Y];
   ami601_val[IMU_MAG_Z_CHAN] = bsm.mag->ve[AXIS_Z];
 #endif
+  ami601_status = AMI601_DATA_AVAILABLE;
 }
 
 
@@ -190,26 +251,26 @@ static void booz2_sim_display(void) {
     //    booz_flightgear_send();
     IvySendMsg("%d BOOZ_SIM_RPMS %f %f %f %f",  
 	       AC_ID,
-	       RPM_OF_RAD_S(bfm.state->ve[BFMS_OM_F]), 
-	       RPM_OF_RAD_S(bfm.state->ve[BFMS_OM_B]), 
-	       RPM_OF_RAD_S(bfm.state->ve[BFMS_OM_L]),
-	       RPM_OF_RAD_S(bfm.state->ve[BFMS_OM_R]) );
+	       RPM_OF_RAD_S(bfm.omega->ve[SERVO_FRONT]), 
+	       RPM_OF_RAD_S(bfm.omega->ve[SERVO_BACK]), 
+	       RPM_OF_RAD_S(bfm.omega->ve[SERVO_RIGHT]),
+	       RPM_OF_RAD_S(bfm.omega->ve[SERVO_LEFT]) );
     IvySendMsg("%d BOOZ_SIM_RATE_ATTITUDE %f %f %f %f %f %f",  
 	       AC_ID,
-	       DegOfRad(bfm.state->ve[BFMS_P]), 
-	       DegOfRad(bfm.state->ve[BFMS_Q]), 
-	       DegOfRad(bfm.state->ve[BFMS_R]),
-	       DegOfRad(bfm.state->ve[BFMS_PHI]), 
-	       DegOfRad(bfm.state->ve[BFMS_THETA]), 
-	       DegOfRad(bfm.state->ve[BFMS_PSI]));
+	       DegOfRad(bfm.ang_rate_body->ve[AXIS_X]), 
+	       DegOfRad(bfm.ang_rate_body->ve[AXIS_Y]), 
+	       DegOfRad(bfm.ang_rate_body->ve[AXIS_Z]),
+	       DegOfRad(bfm.eulers->ve[AXIS_X]), 
+	       DegOfRad(bfm.eulers->ve[AXIS_Y]), 
+	       DegOfRad(bfm.eulers->ve[AXIS_Z]));
     IvySendMsg("%d BOOZ_SIM_SPEED_POS %f %f %f %f %f %f",  
 	       AC_ID,
-	       (bfm.state->ve[BFMS_U]), 
-	       (bfm.state->ve[BFMS_V]), 
-	       (bfm.state->ve[BFMS_W]),
-	       (bfm.state->ve[BFMS_X]), 
-	       (bfm.state->ve[BFMS_Y]), 
-	       (bfm.state->ve[BFMS_Z]));
+	       (bfm.speed_ltp->ve[AXIS_X]), 
+	       (bfm.speed_ltp->ve[AXIS_Y]), 
+	       (bfm.speed_ltp->ve[AXIS_Z]),
+	       (bfm.pos_ltp->ve[AXIS_X]), 
+	       (bfm.pos_ltp->ve[AXIS_Y]), 
+	       (bfm.pos_ltp->ve[AXIS_Z]));
     IvySendMsg("%d BOOZ_SIM_WIND %f %f %f",  
     	       AC_ID,
 	       bwm.velocity->ve[AXIS_X], 
@@ -226,7 +287,7 @@ int main ( int argc, char** argv) {
 
   GMainLoop *ml =  g_main_loop_new(NULL, FALSE);
   
-  g_timeout_add(4, booz2_sim_periodic, NULL);
+  g_timeout_add(HOST_TIMEOUT_PERIOD, booz2_sim_periodic, NULL);
 
   g_main_loop_run(ml);
 

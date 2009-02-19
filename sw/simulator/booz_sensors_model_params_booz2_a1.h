@@ -25,6 +25,13 @@
 #ifndef BOOZ_SENSORS_MODEL_PARAMS_H
 #define BOOZ_SENSORS_MODEL_PARAMS_H
 
+#include "airframe.h"
+
+
+#define BSM_BODY_TO_IMU_PHI    RadOfDeg(4.)
+#define BSM_BODY_TO_IMU_THETA  RadOfDeg(3.)
+#define BSM_BODY_TO_IMU_PSI    RadOfDeg(0.)
+
 /* 
  * Accelerometer 
  */
@@ -38,13 +45,13 @@
 #define BSM_ACCEL_NEUTRAL_Y       33738
 #define BSM_ACCEL_NEUTRAL_Z       32441
 /* m2s-4 */
-#define BSM_ACCEL_NOISE_STD_DEV_X 0
-#define BSM_ACCEL_NOISE_STD_DEV_Y 0
-#define BSM_ACCEL_NOISE_STD_DEV_Z 0
+//#define BSM_ACCEL_NOISE_STD_DEV_X 0
+//#define BSM_ACCEL_NOISE_STD_DEV_Y 0
+//#define BSM_ACCEL_NOISE_STD_DEV_Z 0
 
-//#define BSM_ACCEL_NOISE_STD_DEV_X 1e-1
-//#define BSM_ACCEL_NOISE_STD_DEV_Y 1e-1
-//#define BSM_ACCEL_NOISE_STD_DEV_Z 1e-1
+#define BSM_ACCEL_NOISE_STD_DEV_X 1.e-1
+#define BSM_ACCEL_NOISE_STD_DEV_Y 1.e-1
+#define BSM_ACCEL_NOISE_STD_DEV_Z 1.1e-1
 
 /* ms-2 */
 #define BSM_ACCEL_BIAS_X          0
@@ -88,11 +95,15 @@
 /*
  *  Magnetometer
  */
-#define BSM_MAG_RESOLUTION 65536
+//#define BSM_MAG_RESOLUTION 65536
 
-#define BSM_MAG_SENSITIVITY_XX   (1./-3.4936416)
-#define BSM_MAG_SENSITIVITY_YY   (1./ 3.607713)
-#define BSM_MAG_SENSITIVITY_ZZ   (1./-4.90788848)
+#define BSM_MAG_IMU_TO_SENSOR_PHI              0.
+#define BSM_MAG_IMU_TO_SENSOR_THETA            0.
+#define BSM_MAG_IMU_TO_SENSOR_PSI    RadOfDeg(45.)
+
+#define BSM_MAG_SENSITIVITY_XX   (1.*(1<<11)/-4.94075530)
+#define BSM_MAG_SENSITIVITY_YY   (1.*(1<<11)/ 5.10207664)
+#define BSM_MAG_SENSITIVITY_ZZ   (1.*(1<<11)/-4.90788848)
 
 #define BSM_MAG_NEUTRAL_X  2358
 #define BSM_MAG_NEUTRAL_Y  2362
@@ -102,9 +113,9 @@
 //#define BSM_MAG_NOISE_STD_DEV_Y  0
 //#define BSM_MAG_NOISE_STD_DEV_Z  0
 
-#define BSM_MAG_NOISE_STD_DEV_X  2e-2
-#define BSM_MAG_NOISE_STD_DEV_Y  2e-2
-#define BSM_MAG_NOISE_STD_DEV_Z  2e-2
+#define BSM_MAG_NOISE_STD_DEV_X  2e-3
+#define BSM_MAG_NOISE_STD_DEV_Y  2e-3
+#define BSM_MAG_NOISE_STD_DEV_Z  2e-3
 
 #define BSM_MAG_DT (1./100.)
 
@@ -126,7 +137,7 @@
 #define BSM_BARO_QNH             900.
 #define BSM_BARO_SENSITIVITY      17.066667
 #define BSM_BARO_DT          (1./100.)
-
+#define BSM_BARO_NOISE_STD_DEV     5.e-2
 
 /*
  *  GPS
@@ -134,7 +145,7 @@
 #define BSM_GPS_SPEED_NOISE_STD_DEV  1e-1
 #define BSM_GPS_SPEED_LATENCY        0.25
 
-#define BSM_GPS_POS_NOISE_STD_DEV              3e-1
+#define BSM_GPS_POS_NOISE_STD_DEV              3e-2
 #define BSM_GPS_POS_BIAS_INITIAL_X             1e-1
 #define BSM_GPS_POS_BIAS_INITIAL_Y            -1e-1
 #define BSM_GPS_POS_BIAS_INITIAL_Z            -5e-1

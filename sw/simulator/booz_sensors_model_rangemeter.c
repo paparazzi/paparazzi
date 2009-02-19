@@ -28,10 +28,10 @@ void booz_sensors_model_rangemeter_run( double time ) {
     return;
 
   /* compute dist from ground */
-  double dz = bfm.state->ve[BFMS_Z];
+  double dz = bfm.pos_ltp->ve[AXIS_Z];
   if (dz > 0.) dz = 0.;
-  double dx = dz * tan(bfm.state->ve[BFMS_THETA]);
-  double dy = dz * tan(bfm.state->ve[BFMS_PHI]);
+  double dx = dz * tan(bfm.eulers->ve[EULER_THETA]);
+  double dy = dz * tan(bfm.eulers->ve[EULER_PHI]);
   double dist = sqrt( dx*dx + dy*dy + dz*dz);
   dist *= BSM_RANGEMETER_SENSITIVITY;
   /* add gaussian noise */

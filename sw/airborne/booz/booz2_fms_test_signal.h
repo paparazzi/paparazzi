@@ -3,9 +3,8 @@
 
 #include "std.h"
 
-#define BOOZ_FMS_TEST_SIGNAL_MODE_DISABLED 0
-#define BOOZ_FMS_TEST_SIGNAL_MODE_ATTITUDE 1
-#define BOOZ_FMS_TEST_SIGNAL_MODE_VERTICAL 2
+#define BOOZ_FMS_TEST_SIGNAL_MODE_ATTITUDE 0
+#define BOOZ_FMS_TEST_SIGNAL_MODE_VERTICAL 1
 
 extern uint8_t  booz_fms_test_signal_mode;
 
@@ -24,11 +23,7 @@ extern void booz_fms_impl_periodic(void);
 
 #define booz2_fms_test_signal_SetTsMode(_val) {				\
     booz_fms_test_signal_mode = _val;					\
-    if (booz_fms_test_signal_mode == BOOZ_FMS_TEST_SIGNAL_MODE_VERTICAL) \
-      booz_fms_input.v_mode = BOOZ2_GUIDANCE_V_MODE_HOVER;		\
-    else								\
-      booz_fms_input.v_mode = BOOZ2_GUIDANCE_V_MODE_RC_DIRECT;		\
-}
+  }
 
 #endif /* BOOZ_FMS_TEST_SIGNAL_H */
 

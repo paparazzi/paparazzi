@@ -22,6 +22,10 @@ void booz_wind_model_init( void ) {
 
   bwm.velocity = v_get(AXIS_NB);
   v_zero(bwm.velocity);
+  bwm.velocity->ve[AXIS_X] = INIT_WIND_X; 
+  bwm.velocity->ve[AXIS_Y] = INIT_WIND_Y; 
+  bwm.velocity->ve[AXIS_Z] = INIT_WIND_Z; 
+
 
   bwm.state = v_get(BWM_STATE_SIZE);
   v_zero(bwm.state);

@@ -174,25 +174,25 @@ void booz2_filter_attitude_update(void) {
 }
 
 
-// FIXME
+// FIXME : make a real frame change and rotate rates too
 
 static inline void apply_alignment(void) {
   
 #if 0
   booz2_filter_attitude_euler_aligned.phi = 
-    booz2_filter_attitude_euler.phi
-    + (FILTER_ALIGNMENT_DPSI   * booz2_filter_attitude_euler.theta) >>  IANGLE_RES
-    - (FILTER_ALIGNMENT_DTHETA * booz2_filter_attitude_euler.psi)   >>  IANGLE_RES;
+                                           booz2_filter_attitude_euler.phi
+    + (((int32_t)FILTER_ALIGNMENT_DPSI   * booz2_filter_attitude_euler.theta) >>  IANGLE_RES)
+    - (((int32_t)FILTER_ALIGNMENT_DTHETA * booz2_filter_attitude_euler.psi)   >>  IANGLE_RES);
 
   booz2_filter_attitude_euler_aligned.theta = 
-    - (FILTER_ALIGNMENT_DPSI   * booz2_filter_attitude_euler.phi)   >>  IANGLE_RES
-    + booz2_filter_attitude_euler.theta
-    + (FILTER_ALIGNMENT_DPHI * booz2_filter_attitude_euler.psi)     >>  IANGLE_RES;
+    - (((int32_t)FILTER_ALIGNMENT_DPSI * booz2_filter_attitude_euler.phi) >>  IANGLE_RES)
+    +                                        booz2_filter_attitude_euler.theta
+    + (((int32_t)FILTER_ALIGNMENT_DPHI * booz2_filter_attitude_euler.psi) >>  IANGLE_RES);
 
   booz2_filter_attitude_euler_aligned.psi = 
-      (FILTER_ALIGNMENT_DTHETA * booz2_filter_attitude_euler.phi)    >>  IANGLE_RES
-    - (FILTER_ALIGNMENT_DPHI   * booz2_filter_attitude_euler.theta)  >>  IANGLE_RES
-    + booz2_filter_attitude_euler.psi;
+      (((int32_t)FILTER_ALIGNMENT_DTHETA * booz2_filter_attitude_euler.phi) >>  IANGLE_RES)
+    - (((int32_t)FILTER_ALIGNMENT_DPHI   * booz2_filter_attitude_euler.theta)  >>  IANGLE_RES)
+    +                                          booz2_filter_attitude_euler.psi;
 #else
 
   booz2_filter_attitude_euler_aligned.phi   = booz2_filter_attitude_euler.phi - FILTER_ALIGNMENT_DPHI;

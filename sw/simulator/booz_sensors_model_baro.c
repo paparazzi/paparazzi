@@ -28,7 +28,7 @@ void booz_sensors_model_baro_run( double time ) {
   if (time < 12.5)
     bsm.baro = 840;
   else {
-    double z = bfm.state->ve[BFMS_Z];
+    double z = bfm.pos_ltp->ve[AXIS_Z] + get_gaussian_noise()*BSM_BARO_NOISE_STD_DEV;
     //  double p = ( z / 0.084 ) + BSM_BARO_QNH;
     //  double baro_reading = p * BSM_BARO_SENSITIVITY;
     double baro_reading = BSM_BARO_QNH + z * BSM_BARO_SENSITIVITY;

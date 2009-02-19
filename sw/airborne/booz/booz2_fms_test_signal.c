@@ -17,23 +17,18 @@ uint32_t booz_fms_test_signal_counter;
 uint32_t booz_fms_test_signal_start_z;
 
 void booz_fms_impl_init(void) {
-  booz_fms_test_signal_mode = BOOZ_FMS_TEST_SIGNAL_MODE_DISABLED;
+  booz_fms_test_signal_mode = BOOZ_FMS_TEST_SIGNAL_MODE_ATTITUDE;
   booz_fms_test_signal_period = BOOZ2_FMS_TEST_SIGNAL_DEFAULT_PERIOD;
   booz_fms_test_signal_amplitude = BOOZ2_FMS_TEST_SIGNAL_DEFAULT_AMPLITUDE;
   booz_fms_test_signal_axe = BOOZ2_FMS_TEST_SIGNAL_DEFAULT_AXE;
   booz_fms_test_signal_counter = 0;
   booz_fms_input.h_mode = BOOZ2_GUIDANCE_H_MODE_ATTITUDE;
-  booz_fms_input.v_mode = BOOZ2_GUIDANCE_V_MODE_RC_DIRECT;
+  booz_fms_input.v_mode = BOOZ2_GUIDANCE_V_MODE_HOVER;
 }
 
 void booz_fms_impl_periodic(void) {
 
   switch (booz_fms_test_signal_mode) {
-    
-  case BOOZ_FMS_TEST_SIGNAL_MODE_DISABLED: {
-    PPRZ_INT32_EULER_ASSIGN(booz_fms_input.h_sp.attitude, 0, 0, 0);
-  }
-    break;
     
   case BOOZ_FMS_TEST_SIGNAL_MODE_ATTITUDE: {
     if (booz_fms_test_signal_counter < booz_fms_test_signal_period) {

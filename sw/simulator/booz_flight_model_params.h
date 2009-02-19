@@ -2,7 +2,7 @@
 #define BOOZ_FLIGHT_MODEL_PARAMS_H
 
 /* body drag coefficient                           */
-#define C_d_body .0005
+#define C_d_body .0075
 /* propeller thrust aerodynamic coefficient        */
 #define C_t 0.297
 /* propeller moment aerodynamic coefficient        */

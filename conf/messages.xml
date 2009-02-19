@@ -458,17 +458,17 @@
   <message name="BOOZ_SIM_RPMS" id="239">
     <field name="front"    type="float" unit="RPM"/>
     <field name="back"     type="float" unit="RPM"/>
-    <field name="left"     type="float" unit="RPM"/>
     <field name="right"    type="float" unit="RPM"/>
+    <field name="left"     type="float" unit="RPM"/>
   </message>
 
   <message name="BOOZ_SIM_SPEED_POS" id="240">
-    <field name="u" type="float" unit="m/s"/>
-    <field name="v" type="float" unit="m/s"/>
-    <field name="w" type="float" unit="m/s"/>
-    <field name="x" type="float" unit="m"/>
-    <field name="y" type="float" unit="m"/>
-    <field name="z" type="float" unit="m"/>
+    <field name="xd" type="float" unit="m/s"/>
+    <field name="yd" type="float" unit="m/s"/>
+    <field name="zd" type="float" unit="m/s"/>
+    <field name="x"  type="float" unit="m"/>
+    <field name="y"  type="float" unit="m"/>
+    <field name="z"  type="float" unit="m"/>
   </message>
 
   <message name="BOOZ_SIM_RATE_ATTITUDE" id="241">
@@ -654,9 +654,9 @@
  </message>
 
  <message name="BOOZ2_MAG" id="133">   
-   <field name="mx"    type="int32"/>
-   <field name="my"    type="int32"/>
-   <field name="mz"    type="int32"/>
+   <field name="mx"    type="int32" alt_unit="1" alt_unit_coef="0.0004883"/>
+   <field name="my"    type="int32" alt_unit="1" alt_unit_coef="0.0004883"/>
+   <field name="mz"    type="int32" alt_unit="1" alt_unit_coef="0.0004883"/>
  </message>
 
  <message name="BOOZ2_FILTER" id="134">   
@@ -666,9 +666,9 @@
    <field name="measure_phi"      type="int32" alt_unit="degres" alt_unit_coef="0.0000273"/>
    <field name="measure_theta"    type="int32" alt_unit="degres" alt_unit_coef="0.0000273"/>
    <field name="measure_psi"      type="int32" alt_unit="degres" alt_unit_coef="0.0000273"/>
-   <field name="corrected_phi"    type="int32"/>
-   <field name="corrected_theta"  type="int32"/>
-   <field name="corrected_psi"    type="int32"/>
+   <field name="corrected_phi"    type="int32" alt_unit="degres" alt_unit_coef="0.0001093"/>
+   <field name="corrected_theta"  type="int32" alt_unit="degres" alt_unit_coef="0.0001093"/>
+   <field name="corrected_psi"    type="int32" alt_unit="degres" alt_unit_coef="0.0001093"/>
    <field name="correction_phi"   type="int32"/>
    <field name="correction_theta" type="int32"/>
    <field name="correction_psi"   type="int32"/>

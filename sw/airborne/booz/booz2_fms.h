@@ -80,6 +80,7 @@ extern struct Booz_fms_info    booz_fms_info;
 extern struct Booz_fms_command booz_fms_input;
 
 extern void booz_fms_init(void);
+extern void booz_fms_set_on_off(bool_t state);
 extern void booz_fms_periodic(void);
 extern void booz_fms_update_info(void);
 
@@ -108,6 +109,11 @@ extern void booz_fms_update_info(void);
   booz_fms_input.h_sp.pos.y = _pos_sp.y; \
   booz_fms_input.h_sp.pos.z = _psi_sp; \
 }
+
+#define booz2_fms_SetOnOff(_val) {			\
+    booz_fms_on = _val;					\
+    booz_fms_set_on_off(booz_fms_on);			\
+  }
 
 #endif /* BOOZ2_FMS_H */
 

@@ -3,8 +3,8 @@
 
     <dl_settings NAME="FMS_TS">
        <dl_setting var="booz_fms_test_signal_period" min="1" step="1" max="100" module="booz2_fms_test_signal" shortname="period" handler="SetPeriod"/>
-       <dl_setting var="booz_fms_test_signal_amplitude" min="0" step="100" max="10000" module="booz2_fms_test_signal" shortname="amplitude"/>
-       <dl_setting var="booz_fms_test_signal_mode" min="0" step="1" max="2" module="booz2_fms_test_signal" shortname="ts mode" handler="SetTsMode" values="DISABLED|ATTITUDE|VERTICAL"/>
+       <dl_setting var="booz_fms_test_signal_amplitude" min="0" step="100" max="183000" module="booz2_fms_test_signal" shortname="amplitude"/>
+       <dl_setting var="booz_fms_test_signal_mode" min="0" step="1" max="1" module="booz2_fms_test_signal" shortname="ts mode" handler="SetTsMode" values="ATTITUDE|VERTICAL"/>
     </dl_settings>
 
   </dl_settings>

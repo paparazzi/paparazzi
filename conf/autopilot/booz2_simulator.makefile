@@ -17,7 +17,12 @@ sim.CFLAGS  += -DSITL
 sim.CFLAGS  += `pkg-config glib-2.0 --cflags` -I /usr/include/meschach
 sim.LDFLAGS += `pkg-config glib-2.0 --libs` -lm -lmeschach -lpcre -lglibivy
 
-sim.CFLAGS  += -DBYPASS_AHRS
+#sim.CFLAGS  += -DBYPASS_AHRS
+#sim.CFLAGS  += -DBYPASS_INS
+sim.CFLAGS  += -DINIT_WIND_X=-5.0
+sim.CFLAGS  += -DINIT_WIND_Y=-0.0
+sim.CFLAGS  += -DINIT_WIND_Z=-0.0
+
 
 sim.CFLAGS += -I$(SRC_BOOZ) -I$(SRC_BOOZ_SIM) -I../simulator -DFLOAT_T=float
 
@@ -26,7 +31,9 @@ sim.srcs = $(SIMDIR)/booz2_sim_main.c                \
            $(SIMDIR)/booz_flight_model_utils.c       \
            $(SIMDIR)/booz_sensors_model.c            \
 	   $(SIMDIR)/booz_sensors_model_utils.c      \
-           $(SIMDIR)/booz_sensors_model_accel.c      \
+	   $(SIMDIR)/booz_r250.c      		     \
+	   $(SIMDIR)/booz_randlcg.c	             \
+	   $(SIMDIR)/booz_sensors_model_accel.c      \
            $(SIMDIR)/booz_sensors_model_gyro.c       \
            $(SIMDIR)/booz_sensors_model_mag.c        \
            $(SIMDIR)/booz_sensors_model_rangemeter.c \
