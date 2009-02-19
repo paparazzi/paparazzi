@@ -35,6 +35,15 @@
 #include "main_ap.h"
 #include "main_fbw.h"
 
+/*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+GLOBAL DATA
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*/
+
+string RootDir = "";
+string ScriptName;
+string AircraftName;
+string LogOutputName;
+JSBSim::FGFDMExec* FDMExec;
 
 /* 60Hz <-> 17ms */
 #define TIMEOUT_PERIOD 17
@@ -64,7 +73,7 @@ static void sim_init(void) {
   disp_time = 0.;
   
   // init flight model
-
+  
   // init sensors
 
   // init environment
@@ -136,6 +145,11 @@ static void sim_display(void) {
 }
 
 int main ( int argc, char** argv) {
+
+  ScriptName = "";
+  AircraftName = "";
+  LogOutputName = "";
+  bool result = false;
 
   sim_parse_options(argc, argv);
 
