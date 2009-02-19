@@ -19,4 +19,13 @@
 #define EULER_PSI   2
 #define EULER_NB    3
 
+#define QUAT_QI  0
+#define QUAT_QX  1
+#define QUAT_QY  2
+#define QUAT_QZ  3
+#define QUAT_NB  4
+
+
+
+
 #endif /* _6DOF_H */

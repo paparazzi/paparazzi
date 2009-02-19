@@ -16,6 +16,8 @@ struct Booz_ahrs_state {
 extern struct Booz_ahrs_state booz_ahrs_state;
 
 extern struct booz_ieuler booz2_filter_attitude_euler_aligned;
+extern struct booz_iquat  booz2_filter_attitude_quat_aligned;
+
 
 extern struct booz_ieuler booz2_filter_attitude_euler;
 extern struct booz_ivect  booz2_filter_attitude_rate;

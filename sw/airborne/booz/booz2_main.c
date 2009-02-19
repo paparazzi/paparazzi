@@ -193,6 +193,7 @@ static inline void on_imu_event( void ) {
     //    LED_ON(7);
     booz2_filter_attitude_propagate();
     booz2_filter_attitude_update();
+
     //    LED_OFF(7);
     booz_ins_propagate();
   }

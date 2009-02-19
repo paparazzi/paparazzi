@@ -19,7 +19,7 @@ sim.LDFLAGS += `pkg-config glib-2.0 --libs` -lm -lmeschach -lpcre -lglibivy
 
 #sim.CFLAGS  += -DBYPASS_AHRS
 #sim.CFLAGS  += -DBYPASS_INS
-sim.CFLAGS  += -DINIT_WIND_X=-5.0
+sim.CFLAGS  += -DINIT_WIND_X=-0.0
 sim.CFLAGS  += -DINIT_WIND_Y=-0.0
 sim.CFLAGS  += -DINIT_WIND_Z=-0.0
 
@@ -106,6 +106,7 @@ sim.srcs += $(SRC_BOOZ)/booz2_ins.c
 #  vertical filter float version
 sim.srcs += $(SRC_BOOZ)/booz2_vf_float.c
 sim.CFLAGS += -DUSE_VFF -DDT_VFILTER="(1./512.)" -DFLOAT_T=float
+sim.srcs += $(SRC_BOOZ)/booz2_hf_float.c
 
 
 

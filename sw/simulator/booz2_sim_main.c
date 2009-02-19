@@ -118,6 +118,8 @@ static gboolean booz2_sim_periodic(gpointer data __attribute__ ((unused))) {
 }
   
 
+#include "booz2_filter_attitude.h"
+
 static void sim_run_one_step(void) {
 
    /* read actuators positions */
@@ -190,6 +192,13 @@ static void sim_overwrite_ahrs(void) {
   booz2_filter_attitude_euler_aligned.phi   = BOOZ_ANGLE_I_OF_F(bfm.eulers->ve[AXIS_X]);
   booz2_filter_attitude_euler_aligned.theta = BOOZ_ANGLE_I_OF_F(bfm.eulers->ve[AXIS_Y]);
   booz2_filter_attitude_euler_aligned.psi   = BOOZ_ANGLE_I_OF_F(bfm.eulers->ve[AXIS_Z]);
+
+
+  booz2_filter_attitude_quat_aligned.qi = BOOZ_INT_OF_FLOAT(bfm.quat->ve[QUAT_QI], IQUAT_RES);
+  booz2_filter_attitude_quat_aligned.qx = BOOZ_INT_OF_FLOAT(bfm.quat->ve[QUAT_QX], IQUAT_RES);
+  booz2_filter_attitude_quat_aligned.qy = BOOZ_INT_OF_FLOAT(bfm.quat->ve[QUAT_QY], IQUAT_RES);
+  booz2_filter_attitude_quat_aligned.qz = BOOZ_INT_OF_FLOAT(bfm.quat->ve[QUAT_QZ], IQUAT_RES);
+
 
   booz2_filter_attitude_rate.x = BOOZ_RATE_I_OF_F(bfm.ang_rate_body->ve[AXIS_X]);
   booz2_filter_attitude_rate.y = BOOZ_RATE_I_OF_F(bfm.ang_rate_body->ve[AXIS_Y]);
@@ -271,11 +280,19 @@ static void booz2_sim_display(void) {
 	       (bfm.pos_ltp->ve[AXIS_X]), 
 	       (bfm.pos_ltp->ve[AXIS_Y]), 
 	       (bfm.pos_ltp->ve[AXIS_Z]));
+#if 0
     IvySendMsg("%d BOOZ_SIM_WIND %f %f %f",  
     	       AC_ID,
 	       bwm.velocity->ve[AXIS_X], 
     	       bwm.velocity->ve[AXIS_Y], 
     	       bwm.velocity->ve[AXIS_Z]);
+#endif
+    IvySendMsg("%d BOOZ_SIM_ACCEL_LTP %f %f %f",  
+    	       AC_ID,
+	       bfm.accel_ltp->ve[AXIS_X], 
+    	       bfm.accel_ltp->ve[AXIS_Y], 
+    	       bfm.accel_ltp->ve[AXIS_Z]);
+    
   }
 }
 

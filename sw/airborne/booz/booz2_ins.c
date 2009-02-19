@@ -10,6 +10,10 @@
 #ifdef USE_VFF
 #include "booz2_vf_float.h"
 #endif
+#ifdef SITL
+#include "booz2_filter_attitude.h"
+#include "booz2_hf_float.h"
+#endif
 
 struct Pprz_int32_lla booz_ins_position_init_lla;  // LLA
 
@@ -38,6 +42,9 @@ void booz_ins_init() {
   booz_ins_baro_initialised = FALSE;
   b2_vff_init(0., 0., 0.);
 #endif
+#ifdef SITL
+  b2ins_init();
+#endif
 }
 
 void booz_ins_propagate() {
@@ -56,6 +63,10 @@ void booz_ins_propagate() {
     booz_ins_speed_earth.z = BOOZ_SPEED_I_OF_F(b2_vff_zdot);
     booz_ins_position.z = BOOZ_POS_I_OF_F(b2_vff_z);
   }
+#endif
+#ifdef SITL
+  if (booz2_filter_attitude_status == BOOZ2_FILTER_ATTITUDE_RUNNING)
+    b2ins_propagate();
 #endif
 }
 
@@ -90,6 +101,9 @@ void booz_ins_update_gps(void) {
     // copy to pos NED
     PPRZ_INT32_VECT2_OF_LL(booz_ins_position, booz_ins_position_lla);
   }
+  
+
+
 }
 
 

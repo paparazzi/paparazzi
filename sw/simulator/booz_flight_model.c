@@ -169,7 +169,9 @@ static void booz_flight_model_update_byproducts(void) {
   dcm_of_eulers(bfm.eulers, bfm.dcm);
   /* transpose of dcm ( body to inertial ) */
   m_transp(bfm.dcm, bfm.dcm_t);
-  
+  /* quaternion */
+  quat_of_eulers(bfm.quat, bfm.eulers);
+
   BoozFlighModelGetPos(bfm.pos_ltp);
   /* extract speed in ltp frame from state */
   BoozFlighModelGetSpeedLtp(bfm.speed_ltp);
@@ -188,8 +190,7 @@ static void booz_flight_model_update_byproducts(void) {
   
 
   /* rotational accelerations  */
-  /* quaternion                */
-
+  
 
 }
 

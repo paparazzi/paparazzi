@@ -14,7 +14,7 @@ struct booz_ieuler booz2_filter_attitude_euler;
 struct booz_ivect  booz2_filter_attitude_rate;
 
 struct booz_ieuler booz2_filter_attitude_euler_aligned;
-
+struct booz_iquat  booz2_filter_attitude_quat_aligned;
 
 struct booz_ivect  booz2_face_gyro_bias;
 struct booz_ieuler booz2_face_measure;
@@ -161,10 +161,10 @@ void booz2_filter_attitude_propagate(void) {
 
   /* scale our result      */
   BOOZ_IEULER_SDIV(booz2_filter_attitude_euler, booz2_face_corrected, F_UPDATE);
-  /* convert to quaternion */
-  //  BOOZ_IQUAT_OF_EULER(booz2_filter_attitude_quat, booz2_filter_attitude_euler);
 
   apply_alignment();
+  /* convert to quaternion */
+  BOOZ_IQUAT_OF_EULER(booz2_filter_attitude_quat_aligned, booz2_filter_attitude_euler_aligned);
 
 }
 

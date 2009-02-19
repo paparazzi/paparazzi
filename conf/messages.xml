@@ -510,6 +510,12 @@
     <field name="errno"   type="uint8"/>
   </message>
 
+  <message name="BOOZ_SIM_ACCEL_LTP" id="248"> 
+    <field name="xdd"   type="float" unit="m/s2"/>
+    <field name="ydd"   type="float" unit="m/s2"/>
+    <field name="zdd"   type="float" unit="m/s2"/>
+  </message>
+
  <message name="VF_UPDATE" id="76">
    <field name="baro" type="float" unit="m"/>
    <field name="range_meter" type="float" unit="m"/>
@@ -870,8 +876,22 @@
     <field name="ins_zdd"   type="int32" alt_unit="m/s2" alt_unit_coef="0.0009766"/>
   </message>
 
+  <message name="BOOZ2_INS2" id="152">
+    <field name="xdd" type="int32" alt_unit="m/s2" alt_unit_coef="0.0009766"/>
+    <field name="ydd" type="int32" alt_unit="m/s2" alt_unit_coef="0.0009766"/>
+    <field name="zdd" type="int32" alt_unit="m/s2" alt_unit_coef="0.0009766"/>
+    <field name="xd"  type="int32" alt_unit="m/s"  alt_unit_coef="0.0000019073"/>
+    <field name="yd"  type="int32" alt_unit="m/s"  alt_unit_coef="0.0000019073"/>
+    <field name="zd"  type="int32" alt_unit="m/s"  alt_unit_coef="0.0000019073"/>
+    <field name="x"   type="int32" alt_unit="m"    alt_unit_coef="0.0039"/>
+    <field name="y"   type="int32" alt_unit="m"    alt_unit_coef="0.0039"/>
+    <field name="z"   type="int32" alt_unit="m"    alt_unit_coef="0.0039"/>
+  </message>
 
-  <message name="WT" id="152">
+
+
+
+  <message name="WT" id="153">
     <field name="rpm"      type="float"/>
   </message>
 
