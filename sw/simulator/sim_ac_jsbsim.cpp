@@ -22,18 +22,13 @@
  *
  */
 
+#include "sim_ac_jsbsim.hpp"
+
 #include <glib.h>
 #include <getopt.h>
 
-#include <JSBSim/FGFDMExec.h>
-
 #include <Ivy/ivy.h>
 #include <Ivy/ivyglibloop.h>
-
-#include "aircraft.h"
-
-#include "main_ap.h"
-#include "main_fbw.h"
 
 /*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 GLOBAL DATA
@@ -53,13 +48,10 @@ double sim_time;
 #define DT_DISPLAY 0.04
 double disp_time;
 
-static void sim_gps_feed_data(void);
-static void sim_ir_feed_data(void);
-
 static void     sim_parse_options(int argc, char** argv);
 static void     sim_init(void);
 static gboolean sim_periodic(gpointer data);
-static void     sim_display(void);
+//static void     sim_display(void);
 
 static void ivy_transport_init(void);
 static void on_DL_SETTING(IvyClientPtr app __attribute__ ((unused)), 
@@ -71,34 +63,64 @@ static void sim_init(void) {
 
   sim_time = 0.;
   disp_time = 0.;
-  
-  // init flight model
-  
-  // init sensors
 
-  // init environment
+  // *** SET UP JSBSIM *** //
+  FDMExec = new JSBSim::FGFDMExec();
+  FDMExec->SetAircraftPath(RootDir + "aircraft");
+  FDMExec->SetEnginePath(RootDir + "engine");
+  FDMExec->SetSystemsPath(RootDir + "systems");
+  //FDMExec->GetPropertyManager()->Tie("simulation/frame_start_time", &actual_elapsed_time);
+  //FDMExec->GetPropertyManager()->Tie("simulation/cycle_duration", &cycle_duration);
+
+  if (!AircraftName.empty()) {
+
+    FDMExec->SetDebugLevel(0); // No DEBUG messages
+
+    if ( ! FDMExec->LoadModel( RootDir + "aircraft",
+                               RootDir + "engine",
+                               RootDir + "systems",
+                               AircraftName)) {
+      cerr << "  JSBSim could not be started" << endl << endl;
+      delete FDMExec;
+      exit(-1);
+    }
+
+    // Initial conditions (from flight_plan.h and aircraft.h ???)
+    JSBSim::FGInitialCondition *IC = FDMExec->GetIC();
+    //if ( ! IC->Load(ResetName)) {
+    //  delete FDMExec;
+    //  cerr << "Initialization unsuccessful" << endl;
+    //  exit(-1);
+    //}
+
+  } else {
+    cerr << "  No Aircraft given" << endl << endl;
+    delete FDMExec;
+    exit(-1);
+  }
+
+  // init sensors ? or discribe them in jSBSim
 
   ivy_transport_init();
 
-  // main init
-  init_fbw();
-  init_ap();
+  // main AP init (feed the sensors once before ?)
+  init_autopilot();
 
 }
 
 
 static gboolean sim_periodic(gpointer data __attribute__ ((unused))) {
-  /* read actuators positions */
 
-  // wind model
+  /* read actuators positions and feed JSBSim inputs */
+  copy_inputs_to_jsbsim(FDMExec);
 
-  // flight model
+  /* run JSBSim flight model */
+  FDMExec->Run();
 
-  // sensors
-  
   sim_time += DT;
 
-  /* outputs models state */
+  /* read outputs from model state (and display ?) */
+  copy_outputs_from_jsbsim(FDMExec);
   sim_display();
 
   /* run the airborne code */
@@ -106,43 +128,16 @@ static gboolean sim_periodic(gpointer data __attribute__ ((unused))) {
   // feed a rc frame and signal event
 
   // process it
-  event_task_ap();
-  event_task_fbw();
+  autopilot_event_task();
 
-  //if (booz_sensors_model_baro_available()) {
-  //  Booz2BaroISRHandler(bsm.baro);
-  //  booz2_main_event();
-  //}
-
-  //if (booz_sensors_model_gyro_available()) {
-  //  booz2_imu_b2_feed_data();
-  //  booz2_main_event();
-  //}
-
-  //if (booz_sensors_model_gps_available()) {
-  //  sim_gps_feed_data();
-  //  booz2_main_event();
-  //}
-
-  //if (booz_sensors_model_mag_available()) {
-  //  sim_mag_feed_data();
-  //  booz2_main_event();
-  //}
-
-  periodic_task_ap();
-  periodic_task_fbw();
+  autopilot_periodic_task();
 
   return TRUE;
 }
 
-#include "gps.h"
-static void sim_gps_feed_data(void) {
-}
 
-
-#define RPM_OF_RAD_S(a) ((a)*60./M_PI)
-static void sim_display(void) {
-}
+//static void sim_display(void) {
+//}
 
 int main ( int argc, char** argv) {
 
@@ -170,48 +165,40 @@ static void ivy_transport_init(void) {
   IvyStart("127.255.255.255");
 }
 
+void print_help(char** argv) {
+  cout << "Usage: " << argv[0] << " [options]" << endl;
+  cout << " Options :" << endl;
+  cout << "   -a <aircraft name>" << endl;
+  cout << "   -b <Ivy bus>\tdefault is 127.255.255.255:2010" << endl;
+  cout << "   -fg <flight gear client address>" << endl;
+  cout << "   -h --help show this help" << endl;
+}
 
 static void sim_parse_options(int argc, char** argv) {
 
-  static const char* usage =
-"Usage: %s [options]\n"
-" Options :\n";
+  if (argc == 1) {
+    print_help();
+    exit(0);
+  }
 
+  int i;
+  for (i = 1; i < argc; ++i) {
+    string argument = string(argv[i]);
 
-//  while (1) {
-//
-//    static struct option long_options[] = {
-//      {"fg_host", 1, NULL, 0},
-//      {"fg_port", 1, NULL, 0},
-//      {"js_dev", 1, NULL, 0},
-//      {0, 0, 0, 0}
-//    };
-//    int option_index = 0;
-//    int c = getopt_long(argc, argv, "j:",
-//			long_options, &option_index);
-//    if (c == -1)
-//      break;
-//    
-//    switch (c) {
-//    case 0:
-//      switch (option_index) {
-//      case 0:
-//	fg_host = strdup(optarg); break;
-//      case 1:
-//	fg_port = atoi(optarg); break;
-//      case 2:
-//	joystick_dev = strdup(optarg); break;
-//      }
-//      break;
-//
-//    case 'j':
-//      joystick_dev = strdup(optarg);
-//      break;
-//    
-//    default: /* ’?’ */
-//      printf("?? getopt returned character code 0%o ??\n", c);
-//      fprintf(stderr, usage, argv[0]);
-//      exit(EXIT_FAILURE);
-//    }
-//  }
+    if (argument == "--help" || argument == "-h") {
+      PrintHelp();
+      exit(0);
+    } else if (argument == "-a") {
+
+    } else if (argument == "-b") {
+
+    } else if (argument == "-fg") {
+
+    } else {
+      cerr << "Unknown argument" << endl;
+      PrintHelp();
+      exit(0);
+    }
+  }
+
 }
