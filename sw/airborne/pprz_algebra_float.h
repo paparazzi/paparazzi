@@ -9,11 +9,13 @@ struct FloatVect3 {
 };
 
 
-#define PPRZ_FLOAT_VECT3_COPY(_o, _i) {		\
+#define FLOAT_VECT3_COPY(_o, _i) {		\
     _o.x = _i.x;				\
     _o.y = _i.y;				\
     _o.z = _i.z;				\
   }
+
+
 
 
 
