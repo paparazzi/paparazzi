@@ -80,7 +80,22 @@ diffusion : stdlib.cmo diffusion.cmo
 	$(Q)$(OCAMLC) $(INCLUDES) -c $<
 
 clean :
-	rm -f *.cm* *~ *.out .depend *.o *.a *.so gaia simhitl booz_sim
+	rm -f *.cm* *~ *.out .depend *.o *.a *.so gaia simhitl booz_sim nps_test1
+
+
+#
+#  NPS
+#
+JSBSIM = /home/violato/JSBSim
+
+CC = g++
+CFLAGS  = -Wall -I $(JSBSIM)/src -I../include
+LDFLAGS = -L $(JSBSIM)/lib -lJSBSim
+CFLAGS  += `pkg-config glib-2.0 --cflags` -I /usr/include/meschach
+LDFLAGS += `pkg-config glib-2.0 --libs` -lm -lmeschach -lpcre -lglibivy
+
+test1: nps_test1.c
+	$(CC) $(CFLAGS) -o $@ $< $(LDFLAGS)
 
 
 #
