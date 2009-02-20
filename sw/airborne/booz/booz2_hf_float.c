@@ -88,8 +88,8 @@ void b2ins_propagate(void) {
 
 void b2ins_update_gps(void) {
 
-  b2ins_ltp_meas_gps.x = ;
-  b2ins_ltp_meas_gps.y = ;
+  b2ins_ltp_meas_gps.x = 0;
+  b2ins_ltp_meas_gps.y = 0;
 
 
 

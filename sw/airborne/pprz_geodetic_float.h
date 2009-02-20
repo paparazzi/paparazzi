@@ -1,6 +1,9 @@
 #ifndef PPRZ_GEODETIC_FLOAT_H
 #define PPRZ_GEODETIC_FLOAT_H
 
+
+#include "pprz_algebra_float.h"
+
 /* Earth Centered Earth Fixed in meters */
 struct EcefCoor_f {
   FLOAT_T x;
@@ -34,10 +37,12 @@ struct EnuCoor_f {
 struct LtpRef_f {
   struct EcefCoor_f ecef;
   struct LlaCoor_f  lla;
+  struct FloatMat33 ltp_of_ecef;
 };
 
-extern void init_ltp_from_ecef_f(struct LtpRef_f* ref_param, struct EcefCoor_f* ref_pos);
-extern void init_ltp_from_lla_f(struct LtpRef_f* ref_param, struct LlaCoor_f* ref_pos);
-extern void enu_of_ecef_f(struct LtpRef_f* ref_param, struct EnuCoor_f* out, struct EcefCoor_f* in);
+extern void init_ltp_ref_from_ecef_f(struct LtpRef_f* ref_param, struct EcefCoor_f* ref_pos);
+extern void init_ltp_ref_from_lla_f(struct LtpRef_f* ref_param, struct LlaCoor_f* ref_pos);
+extern void enu_of_ecef_f(struct EnuCoor_f* out, struct LtpRef_f* ref_param, struct EcefCoor_f* in);
+extern void lla_of_ecef_f(struct LlaCoor_f* out, struct EcefCoor_f* in);
 
 #endif /* PPRZ_GEODETIC_FLOAT_H */

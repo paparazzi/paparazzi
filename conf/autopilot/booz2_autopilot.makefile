@@ -107,8 +107,6 @@ ap.srcs += $(SRC_BOOZ)/booz2_stabilization_attitude.c
 ap.srcs += $(SRC_BOOZ)/booz2_guidance_h.c
 ap.srcs += $(SRC_BOOZ)/booz2_guidance_v.c
 ap.srcs += $(SRC_BOOZ)/booz2_ins.c
-# vertical filter dummy complementary
-#ap.CFLAGS += -DUSE_VFD
 #  vertical filter float version
 ap.srcs += $(SRC_BOOZ)/booz2_vf_float.c
 ap.CFLAGS += -DUSE_VFF -DDT_VFILTER="(1./512.)" -DFLOAT_T=float

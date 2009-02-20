@@ -6,50 +6,86 @@
 #include <stdlib.h>
 #include <math.h>
 
-#define DEG_OF_RAD(_r) (_r * 180. / M_PI)
-#define RAD_OF_DEG(_d) (_d / 180. * M_PI)
+#include "std.h"
 
 #include "pprz_geodetic_float.h"
-#include "pprz_geodetic_int.h"
+//#include "pprz_geodetic_int.h"
 
 static void test_floats(void);
-static void test_int(void);
+//static void test_int(void);
 
 /* 
- * toulouse 43.605278,1.442778,180.0 -> 4624497.0 116475.0 4376563.0
+ * toulouse 43.6052765, 1.4427764, 180.123019274324 -> 4624497.0 116475.0 4376563.0
  */
 
 int main(int argc, char** argv) {
 
   test_floats();
-  test_int();
+  //  test_int();
   return 0;
 }
 
 
 static void test_floats(void) {
-  struct LlaCoor_f ref_coor;
-  ref_coor.lat = RAD_OF_DEG(43.605278);
-  ref_coor.lon = RAD_OF_DEG(1.442778);
-  ref_coor.alt = 180.0;
+
+  //  struct LlaCoor_f ref_coor;
+  //  ref_coor.lat = RAD_OF_DEG(43.605278);
+  //  ref_coor.lon = RAD_OF_DEG(1.442778);
+  //  ref_coor.alt = 180.0;
   
-  struct LtpRef_f lpt_param;
-  init_ltp_from_lla_f(&lpt_param, &ref_coor);
+  struct EcefCoor_f ref_coor;
+  ref_coor.x = 4624497.0;
+  ref_coor.y =  116475.0;
+  ref_coor.z = 4376563.0;
 
-  /*  FIXME: init_ltp_from_lla_f not implemented */
-  lpt_param.ecef.x = 4624497.0;
-  lpt_param.ecef.y =  116475.0;
-  lpt_param.ecef.z = 4376563.0;
+  struct LtpRef_f ltp_param;
+  init_ltp_ref_from_ecef_f(&ltp_param, &ref_coor);
 
-  struct EcefCoor_f my_ecef_point = { 4624491.0, 116475.0, 4376563.0};
+  printf("lla0 : (%f,%f,%f)\n", DegOfRad(ltp_param.lla.lat), DegOfRad(ltp_param.lla.lon), ltp_param.lla.alt); 
+  
+
+  struct EcefCoor_f my_ecef_point = ref_coor; //{ 4624491.0, 116475.0, 4376563.0};
   struct EnuCoor_f my_enu_point;
-  enu_of_ecef_f(&lpt_param, &my_enu_point, &my_ecef_point);
+  enu_of_ecef_f(&my_enu_point, &ltp_param, &my_ecef_point);
 
   printf("ecef to enu : (%f,%f,%f) -> (%f,%f,%f)\n", 
 	 my_ecef_point.x, my_ecef_point.y, my_ecef_point.z, 
 	 my_enu_point.x, my_enu_point.y, my_enu_point.z );
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#if 0
 static void test_int(void) {
   struct LlaCoor_i ref_coor;
   ref_coor.lat = (int32_t)(RAD_OF_DEG(43.605278)*1e7);
@@ -74,5 +110,5 @@ static void test_int(void) {
 	 my_ecef_point.x, my_ecef_point.y, my_ecef_point.z, 
 	 my_enu_point.x, my_enu_point.y, my_enu_point.z );
 }
-
+#endif
 

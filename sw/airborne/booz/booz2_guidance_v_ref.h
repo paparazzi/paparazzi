@@ -10,6 +10,7 @@
 
 /* reference model vaccel in meters/sec2 (output) */
 /* Q23.8 : accuracy 0.0039 , range 8388km/s2      */
+/* int32_4_8_t */
 extern int32_t b2_gv_zdd_ref;
 #define B2_GV_ZDD_REF_FRAC 8
 

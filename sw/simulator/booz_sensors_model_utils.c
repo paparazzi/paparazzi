@@ -53,8 +53,9 @@ VEC* v_add_gaussian_noise(VEC* in, VEC* std_dev, VEC* out) {
 
 double get_gaussian_noise(void) {
  
+  double x1;
   static int nb_call = 0;
-  static double x1, x2, w;
+  static double x2, w;
   if (nb_call==0) r250_init(0);
   nb_call++;
   if (nb_call%2) {

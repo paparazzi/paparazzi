@@ -2,12 +2,11 @@
 #define BOOZ2_GPS_H
 
 #include "std.h"
-#include "booz_geometry_int.h"
-#include "led.h"
+#include "pprz_algebra_int.h"
 
 struct Booz_gps_state {
-  struct Pprz_int32_vect3 pos;   /* pos ECEF in cm     */
-  struct Pprz_int32_vect3 speed; /* speed ECEF in cm/s */
+  struct Int32Vect3 pos;         /* pos ECEF in cm     */
+  struct Int32Vect3 speed;       /* speed ECEF in cm/s */
   uint32_t pacc;                 /*                    */
   uint32_t sacc;                 /*                    */
   uint8_t num_sv;

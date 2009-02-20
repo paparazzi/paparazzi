@@ -15,6 +15,12 @@
 #include "booz2_hf_float.h"
 #endif
 
+
+struct LtpRef_f booz_ins_ltp_ref;
+         bool_t booz_ins_ltp_initialised;
+
+
+
 struct Pprz_int32_lla booz_ins_position_init_lla;  // LLA
 
 struct Pprz_int32_lla booz_ins_position_lla;  // LLA
@@ -22,11 +28,6 @@ struct Pprz_int32_vect3 booz_ins_position;    // NED
 struct Pprz_int32_vect3 booz_ins_speed_earth; // NED
 struct Pprz_int32_vect3 booz_ins_accel_earth; // NED
 
-#ifdef USE_VFD
-int32_t booz_ins_g;
-#define Z_EST_MAG 14
-#define K_UPDATE_G 1
-#endif
 #ifdef USE_VFF
 int32_t  booz_ins_baro_alt;
 int32_t  booz_ins_qfe;
@@ -34,10 +35,6 @@ bool_t   booz_ins_baro_initialised;
 #endif
 
 void booz_ins_init() {
-#ifdef USE_VFD
-  const int32_t g_init = BOOZ_ACCEL_I_OF_F(9.81);
-  booz_ins_g = g_init << Z_EST_MAG ;
-#endif
 #ifdef USE_VFF
   booz_ins_baro_initialised = FALSE;
   b2_vff_init(0., 0., 0.);
@@ -49,12 +46,6 @@ void booz_ins_init() {
 
 void booz_ins_propagate() {
 
-#ifdef USE_VFD
-  booz_ins_accel_earth.z = booz2_imu_accel.z + (booz_ins_g >> Z_EST_MAG);
-  booz_ins_g -= booz_ins_accel_earth.z / K_UPDATE_G;
-  booz_ins_speed_earth.z += booz_ins_accel_earth.z;
-  booz_ins_speed_earth.z -= (booz_ins_speed_earth.z >> 10);
-#endif
 #ifdef USE_VFF
   if (booz2_analog_baro_status == BOOZ2_ANALOG_BARO_RUNNING && booz_ins_baro_initialised) {
     FLOAT_T accel_float = BOOZ_ACCEL_F_OF_I(booz2_imu_accel.z);
@@ -72,9 +63,6 @@ void booz_ins_propagate() {
 
 void booz_ins_update_baro() {
 
-#ifdef USE_VFD
-  booz_ins_position.z = booz2_analog_baro_value_filtered;
-#endif
 #ifdef USE_VFF
   if (booz2_analog_baro_status == BOOZ2_ANALOG_BARO_RUNNING) {
     if (!booz_ins_baro_initialised) {
@@ -103,6 +91,17 @@ void booz_ins_update_gps(void) {
   }
   
 
+  if (booz_gps_state.fix == BOOZ2_GPS_FIX_3D) {
+    if (!booz_ins_ltp_initialised) {
+      
+
+
+      booz_ins_ltp_initialised = TRUE;
+    }
+#ifdef SITL
+    b2ins_update_gps();
+#endif
+  }
 
 }
 

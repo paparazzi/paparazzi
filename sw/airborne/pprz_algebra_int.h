@@ -15,13 +15,17 @@ struct Int32Vect3 {
   int32_t z;
 };
 
+
+struct Int64Vect2 {
+  int64_t x;
+  int64_t y;
+};
+
 struct Int64Vect3 {
   int64_t x;
   int64_t y;
   int64_t z;
 };
-
-
 
 struct Int32Quat {
   int32_t qi;
@@ -36,13 +40,19 @@ struct Int32Eulers {
   int32_t psi;
 };
 
+struct Int32Rates {
+  int32_t p;
+  int32_t q;
+  int32_t r;
+};
 
-#if 0
+
+
+
 struct Int32Mat33 {
   int32_t m[3*3];
 };
-#endif
-typedef int32_t Int32Mat33[3*3];
+
 
 #define INT32_VECT3_ZERO(_o) {			\
     _o.x = 0;					\
