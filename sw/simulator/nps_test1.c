@@ -1,6 +1,7 @@
-#include "nps_fdm.h"
 #include <FGFDMExec.h>
 #include <math/FGColumnVector3.h>
+
+#include "nps_fdm.h"
 
 string RootDir = "/home/violato/JSBSim/";
 string AircraftName = "ball";
@@ -9,14 +10,12 @@ string ResetName = "reset00";
 static struct NpsFdmState fdm_state;
 
 
-
 static void feed_inputs(JSBSim::FGFDMExec* fdmex) {
 
   //double hover_force = 0.;
 
-  fdmex->SetPropertyValue("/fdm/jsbsim/fcs/parachute_reef_pos_norm", fdm_state.dummy.f_input);
+  fdmex->SetPropertyValue("/fdm/jsbsim/fcs/parachute_reef_pos_norm", fdm_state.vehicle.dummy.f_input);
   
-
 }
 
 static void fetch_state(JSBSim::FGFDMExec* fdmex) {

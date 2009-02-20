@@ -91,8 +91,10 @@ JSBSIM = /home/violato/JSBSim
 CC = g++
 CFLAGS  = -Wall -I $(JSBSIM)/src -I../include
 LDFLAGS = -L $(JSBSIM)/lib -lJSBSim
-CFLAGS  += `pkg-config glib-2.0 --cflags` -I /usr/include/meschach
-LDFLAGS += `pkg-config glib-2.0 --libs` -lm -lmeschach -lpcre -lglibivy
+CFLAGS  += -I /usr/include/meschach
+LDFLAGS += -lmeschach
+#CFLAGS  += `pkg-config glib-2.0 --cflags`
+#LDFLAGS += `pkg-config glib-2.0 --libs` -lm -lpcre -lglibivy
 
 test1: nps_test1.c
 	$(CC) $(CFLAGS) -o $@ $< $(LDFLAGS)
