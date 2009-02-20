@@ -20,6 +20,7 @@ struct BoozFlightModel {
   VEC* state;
 
   /* user products */
+  VEC* pos_ecef;
   VEC* pos_ltp;
   VEC* speed_ltp;
   VEC* accel_ltp;

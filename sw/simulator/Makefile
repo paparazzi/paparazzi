@@ -82,6 +82,14 @@ diffusion : stdlib.cmo diffusion.cmo
 clean :
 	rm -f *.cm* *~ *.out .depend *.o *.a *.so gaia simhitl booz_sim
 
+
+#
+#  NPS
+#
+JSBSIM_SRC = /home/gustavo...
+
+
+
 #
 # Dependencies
 #
