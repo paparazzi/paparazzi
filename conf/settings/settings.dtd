@@ -32,6 +32,8 @@ handler CDATA #IMPLIED
 auto CDATA #IMPLIED
 param CDATA #IMPLIED
 unit CDATA #IMPLIED
+alt_unit CDATA #IMPLIED
+alt_unit_coef CDATA #IMPLIED
 values CDATA #IMPLIED
 >
 

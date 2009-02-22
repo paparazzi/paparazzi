@@ -221,14 +221,17 @@ class misc ~packing (widget: GBin.frame) =
   end
 
 (*****************************************************************************)
-(* Dataling settings paged                                                   *)
+(* Datalink settings paged                                                   *)
 (*****************************************************************************)
 
 class setting = fun (i:int) (xml:Xml.xml) (current_value:GMisc.label) set_default ->
   object
     method index = i
     method xml = xml
-    method current_value = current_value#text
+    method current_value =
+      let auc = try Xml.attrib xml "alt_unit_coef" with _ -> "" in
+      let (alt_a, alt_b) = Ocaml_tools.affine_transform auc in
+      (float_of_string current_value#text -. alt_b) /. alt_a
     method update = fun s ->
       if current_value#text <> s then begin
 	current_value#set_text s;
@@ -251,6 +254,8 @@ let one_setting = fun i do_change packing dl_setting (tooltips:GData.tooltips) s
   and page_incr = f "step"
   and page_size = f "step"
   and show_auto = try ExtXml.attrib dl_setting "auto" = "true" with _ -> false in
+  let auc = try Xml.attrib dl_setting "alt_unit_coef" with _ -> "" in
+  let (alt_a, alt_b) = Ocaml_tools.affine_transform auc in
   
   let hbox = GPack.hbox ~packing () in
   let varname = ExtXml.attrib dl_setting "var" in
@@ -292,7 +297,7 @@ let one_setting = fun i do_change packing dl_setting (tooltips:GData.tooltips) s
       let value = (lower +. upper) /. 2. in
       let adj = GData.adjustment ~value ~lower ~upper:(upper+.step_incr) ~step_incr ~page_incr ~page_size () in
       let _scale = GRange.scale `HORIZONTAL ~digits:3 ~update_policy:`DELAYED ~adjustment:adj ~packing:hbox#add () in
-      let f = fun _ -> do_change i adj#value in
+      let f = fun _ -> do_change i ((adj#value-.alt_b)/.alt_a)  in
       let callback = fun () -> modified := true; if auto_but#active then f () in
       ignore (adj#connect#value_changed ~callback);
       ignore (auto_but#connect#toggled ~callback);
@@ -311,7 +316,7 @@ let one_setting = fun i do_change packing dl_setting (tooltips:GData.tooltips) s
   commit_but#set_border_width 2;
   let _icon = GMisc.image ~stock:`APPLY ~packing:commit_but#add () in
   let callback = fun x ->
-    prev_value := (try Some (float_of_string current_value#text) with _ -> None);
+    prev_value := (try Some ((float_of_string current_value#text-.alt_b)/.alt_a) with _ -> None);
     commit x
   in
   ignore (commit_but#connect#clicked ~callback);
@@ -415,20 +420,23 @@ class settings = fun ?(visible = fun _ -> true) xml_settings do_change strip ->
     method length = length
     method set = fun i v ->
       if visible self#widget then
+	let setting = variables.(i) in
+	let auc = ExtXml.attrib_or_default setting#xml "alt_unit_coef" "" in
+	let (alt_a, alt_b) = Ocaml_tools.affine_transform auc in
+	let v = alt_a *. v +. alt_b in
 	let s = string_of_float v in
 	if i < 0 || i >= Array.length variables then
 	  failwith (sprintf "Pages.settings#set: %d out of bounnds (length=%d)" i (Array.length variables));
-	let setting = variables.(i) in
 	let s = 
 	  let values = values_of_dl_setting setting#xml in
 	  try
-	    values.(truncate (float_of_string s))
+	    values.(truncate v)
 	  with
 	    _ -> s in
 	setting#update s
     method assoc var = List.assoc var assocs
     method save = fun airframe_filename ->
-      let settings = Array.fold_right (fun setting r -> try (setting#index, setting#xml, float_of_string setting#current_value)::r with _ -> r) variables [] in
+      let settings = Array.fold_right (fun setting r -> try (setting#index, setting#xml, setting#current_value)::r with _ -> r) variables [] in
       SaveSettings.popup airframe_filename (Array.of_list settings) do_change
   end
 
