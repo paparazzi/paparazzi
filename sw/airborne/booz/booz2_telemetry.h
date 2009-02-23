@@ -128,12 +128,12 @@
 
 #include "booz2_stabilization_attitude.h"
 #define PERIODIC_SEND_BOOZ2_STAB_ATTITUDE() {				\
-    DOWNLINK_SEND_BOOZ2_STAB_ATTITUDE(&booz2_filter_attitude_rate.x,	\
-				      &booz2_filter_attitude_rate.y,	\
-				      &booz2_filter_attitude_rate.z,	\
-				      &booz2_filter_attitude_euler_aligned.phi,	\
-				      &booz2_filter_attitude_euler_aligned.theta, \
-				      &booz2_filter_attitude_euler_aligned.psi,	\
+    DOWNLINK_SEND_BOOZ2_STAB_ATTITUDE(&booz_ahrs.body_rate.x,		\
+				      &booz_ahrs.body_rate.y,		\
+				      &booz_ahrs.body_rate.z,		\
+				      &booz_ahrs.ltp_to_body_euler.phi,	\
+				      &booz_ahrs.ltp_to_body_euler.theta, \
+				      &booz_ahrs.ltp_to_body_euler.psi,	\
                                       &booz_stabilization_att_sp.phi,	\
 				      &booz_stabilization_att_sp.theta,	\
 				      &booz_stabilization_att_sp.psi,	\
@@ -164,8 +164,8 @@
     DOWNLINK_SEND_BOOZ2_STAB_ATTITUDE_HS_ROLL(&booz_stabilization_att_ref.psi, \
 					      &booz_stabilization_rate_ref.z, \
 					      &booz_stabilization_accel_ref.z, \
-					      &booz2_filter_attitude_euler_aligned.psi,	\
-					      &booz2_filter_attitude_rate.z, \
+					      &booz_ahrs.ltp_to_body_euler.psi,	\
+					      &booz_ahrs.body_rate.z, \
 					      &booz_stabilization_att_sum_err.psi, \
 					      &booz2_stabilization_cmd[COMMAND_YAW]); \
   }
@@ -174,8 +174,8 @@
     DOWNLINK_SEND_BOOZ2_STAB_ATTITUDE_HS_ROLL(&booz_stabilization_att_ref.phi, \
 					      &booz_stabilization_rate_ref.x,  \
 					      &booz_stabilization_accel_ref.x, \
-					      &booz2_filter_attitude_euler_aligned.phi,	\
-					      &booz2_filter_attitude_rate.x, \
+					      &booz_ahrs.ltp_to_body_euler.phi,	\
+					      &booz_ahrs.body_rate.x, \
 					      &booz_stabilization_att_sum_err.phi, \
 					      &booz2_stabilization_cmd[COMMAND_ROLL]); \
   }
@@ -206,9 +206,9 @@
 
 #include "booz2_filter_attitude_cmpl_euler.h"
 #define PERIODIC_SEND_BOOZ2_FILTER() {					\
-    DOWNLINK_SEND_BOOZ2_FILTER(&booz2_filter_attitude_euler.phi,	\
-			       &booz2_filter_attitude_euler.theta,	\
-			       &booz2_filter_attitude_euler.psi,	\
+    DOWNLINK_SEND_BOOZ2_FILTER(&booz_ahrs.ltp_to_imu_euler.phi,	\
+			       &booz_ahrs.ltp_to_imu_euler.theta,	\
+			       &booz_ahrs.ltp_to_imu_euler.psi,	\
 			       &booz2_face_measure.phi,			\
 			       &booz2_face_measure.theta,		\
 			       &booz2_face_measure.psi,			\
@@ -331,18 +331,18 @@
 #include "booz2_gps.h"
 #include "booz2_navigation.h"
 #define PERIODIC_SEND_BOOZ2_FP() {					\
-    DOWNLINK_SEND_BOOZ2_FP( &booz_ins_position_lla.lon,				\
-			    &booz_ins_position_lla.lat,				\
-			    &booz_ins_position.z,				\
-			    &booz_ins_speed_earth.x,				\
-			    &booz_ins_speed_earth.y,				\
-			    &booz2_filter_attitude_euler_aligned.phi,	\
-			    &booz2_filter_attitude_euler_aligned.theta,	\
-			    &booz2_filter_attitude_euler_aligned.psi,	\
-			    &booz2_guidance_h_pos_sp.y,		\
-			    &booz2_guidance_h_pos_sp.x,		\
+    DOWNLINK_SEND_BOOZ2_FP( &booz_ins_position_lla.lon,			\
+			    &booz_ins_position_lla.lat,			\
+			    &booz_ins_position.z,			\
+			    &booz_ins_speed_earth.x,			\
+			    &booz_ins_speed_earth.y,			\
+			    &booz_ahrs.ltp_to_body_euler.phi,		\
+			    &booz_ahrs.ltp_to_body_euler.theta,		\
+			    &booz_ahrs.ltp_to_body_euler.psi,		\
+			    &booz2_guidance_h_pos_sp.y,			\
+			    &booz2_guidance_h_pos_sp.x,			\
 			    &booz2_guidance_v_z_sp,			\
-			    &booz2_guidance_h_command_body.psi, \
+			    &booz2_guidance_h_command_body.psi,		\
 			    &booz2_stabilization_cmd[COMMAND_THRUST]);	\
   }
 
@@ -376,12 +376,12 @@
 				   &booz2_stabilization_cmd[COMMAND_PITCH], \
 				   &booz2_stabilization_cmd[COMMAND_YAW], \
 				   &booz2_stabilization_cmd[COMMAND_THRUST], \
-				   &booz2_filter_attitude_euler.phi,	\
-				   &booz2_filter_attitude_euler.theta,	\
-				   &booz2_filter_attitude_euler.psi,	\
-				   &booz2_filter_attitude_euler_aligned.phi, \
-				   &booz2_filter_attitude_euler_aligned.theta, \
-				   &booz2_filter_attitude_euler_aligned.psi \
+				   &booz_ahrs.ltp_to_imu_euler.phi,	\
+				   &booz_ahrs.ltp_to_imu_euler.theta,	\
+				   &booz_ahrs.ltp_to_imu_euler.psi,	\
+				   &booz_ahrs.ltp_to_body_euler.phi,	\
+				   &booz_ahrs.ltp_to_body_euler.theta,	\
+				   &booz_ahrs.ltp_to_body_euler.psi	\
 				   );					\
   }
 

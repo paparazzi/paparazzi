@@ -148,7 +148,7 @@ extern struct booz_ivect  booz_stabilization_accel_ref;
       }									\
     }									\
     else { /* if not flying, use current yaw as setpoint */		\
-      _sp.psi = (booz2_filter_attitude_euler_aligned.psi << (ANGLE_REF_RES - IANGLE_RES));		\
+      _sp.psi = (booz_ahrs.ltp_to_body_euler.psi << (ANGLE_REF_RES - IANGLE_RES));		\
     }									\
   }
 
@@ -159,7 +159,7 @@ extern struct booz_ivect  booz_stabilization_accel_ref;
 
 
 #define BOOZ2_STABILIZATION_ATTITUDE_RESET_PSI_REF(_sp) {			\
-    _sp.psi = booz2_filter_attitude_euler_aligned.psi << (ANGLE_REF_RES - IANGLE_RES); \
+    _sp.psi = booz_ahrs.ltp_to_body_euler.psi << (ANGLE_REF_RES - IANGLE_RES); \
     booz_stabilization_att_ref.psi = _sp.psi;				\
     booz_stabilization_rate_ref.z = 0;					\
   }

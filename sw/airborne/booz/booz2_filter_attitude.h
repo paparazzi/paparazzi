@@ -3,32 +3,30 @@
 
 #include "std.h"
 #include "booz_geometry_int.h"
+#include "pprz_algebra_int.h"
 
-#define BOOZ2_FILTER_ATTITUDE_UNINIT  0
-#define BOOZ2_FILTER_ATTITUDE_RUNNING 1
+#define BOOZ2_AHRS_UNINIT  0
+#define BOOZ2_AHRS_RUNNING 1
 
-struct Booz_ahrs_state {
-  struct Pprz_int32_euler euler;
-  struct Pprz_int32_rate  rate;
+struct BoozAhrs {
+  struct booz_ieuler ltp_to_body_euler;
+  struct booz_iquat  ltp_to_body_quat;
+  struct booz_ieuler ltp_to_imu_euler;
+  struct booz_iquat  ltp_to_imu_quat;
+  struct booz_ivect  imu_rate;
+  struct booz_ivect  body_rate;  
+  struct booz_iquat  body_to_imu_quat;
   uint8_t status;
 };
 
-extern struct Booz_ahrs_state booz_ahrs_state;
+extern struct BoozAhrs booz_ahrs;
 
-extern struct booz_ieuler booz2_filter_attitude_euler_aligned;
-extern struct booz_iquat  booz2_filter_attitude_quat_aligned;
+extern uint8_t booz2_ahrs_status;
 
-
-extern struct booz_ieuler booz2_filter_attitude_euler;
-extern struct booz_ivect  booz2_filter_attitude_rate;
-
-
-extern uint8_t booz2_filter_attitude_status;
-
-extern void booz2_filter_attitude_init(void);
-extern void booz2_filter_attitude_align(void);
-extern void booz2_filter_attitude_propagate(void);
-extern void booz2_filter_attitude_update(void);
+extern void booz2_ahrs_init(void);
+extern void booz2_ahrs_align(void);
+extern void booz2_ahrs_propagate(void);
+extern void booz2_ahrs_update(void);
 
 
 #endif /* BOOZ2_ATTITUDE_FILTER_H */

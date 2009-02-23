@@ -68,7 +68,7 @@ void booz_ins_propagate() {
   }
 #endif
   //#ifdef SITL
-  if (booz2_filter_attitude_status == BOOZ2_FILTER_ATTITUDE_RUNNING &&
+  if (booz_ahrs.status == BOOZ2_AHRS_RUNNING &&
       booz_gps_state.fix == BOOZ2_GPS_FIX_3D && booz_ins_ltp_initialised )
     b2ins_propagate();
   //#endif
@@ -114,11 +114,14 @@ void booz_ins_update_gps(void) {
 
     //#ifdef SITL
     b2ins_update_gps();
+#ifdef USE_H_FILTER
     VECT2_SDIV(booz_ins_ltp_pos, (1<<(B2INS_POS_LTP_FRAC-IPOS_FRAC)), b2ins_pos_ltp);
     VECT2_SDIV(booz_ins_ltp_speed, (1<<(B2INS_SPEED_LTP_FRAC-ISPEED_RES)), b2ins_speed_ltp);
-    //    VECT3_COPY(booz_ins_ltp_pos,   b2ins_meas_gps_pos_ned);
-    //    VECT3_COPY(booz_ins_ltp_speed, b2ins_meas_gps_speed_ned);
-    //#endif
+#else
+    VECT3_COPY(booz_ins_ltp_pos,   b2ins_meas_gps_pos_ned);
+    VECT3_COPY(booz_ins_ltp_speed, b2ins_meas_gps_speed_ned);
+#endif
+  
   }
 
 }

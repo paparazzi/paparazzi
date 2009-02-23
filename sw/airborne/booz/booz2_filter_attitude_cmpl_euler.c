@@ -6,15 +6,8 @@
 #include "airframe.h"
 #include "booz_geometry_mixed.h"
 
-struct Booz_ahrs_state booz_ahrs_state;
+struct BoozAhrs booz_ahrs;
 
-uint8_t booz2_filter_attitude_status;
-
-struct booz_ieuler booz2_filter_attitude_euler;
-struct booz_ivect  booz2_filter_attitude_rate;
-
-struct booz_ieuler booz2_filter_attitude_euler_aligned;
-struct booz_iquat  booz2_filter_attitude_quat_aligned;
 
 struct booz_ivect  booz2_face_gyro_bias;
 struct booz_ieuler booz2_face_measure;
@@ -39,23 +32,31 @@ static struct booz_ivect lp_accel_sum;
 static uint8_t samples_idx;
 
 
-static inline void apply_alignment(void);
+//static inline void apply_alignment(void);
 
-void booz2_filter_attitude_init(void) {
-  booz2_filter_attitude_status = BOOZ2_FILTER_ATTITUDE_UNINIT;
-  BOOZ_IEULER_ZERO(booz2_filter_attitude_euler);
-  BOOZ_IVECT_ZERO( booz2_filter_attitude_rate);
+void booz2_ahrs_init(void) {
+  booz_ahrs.status = BOOZ2_AHRS_UNINIT;
+  BOOZ_IEULER_ZERO(booz_ahrs.ltp_to_body_euler);
+  BOOZ_IEULER_ZERO(booz_ahrs.ltp_to_imu_euler);
+  BOOZ_IQUAT_ZERO(booz_ahrs.ltp_to_body_quat);
+  BOOZ_IQUAT_ZERO(booz_ahrs.ltp_to_body_quat);
+  BOOZ_IVECT_ZERO( booz_ahrs.body_rate);
+  BOOZ_IVECT_ZERO( booz_ahrs.imu_rate);
   BOOZ_IVECT_ZERO( booz2_face_gyro_bias);
   //  booz2_face_reinj_1 = 1024;
   booz2_face_reinj_1 = 2048;
   samples_idx = 0;
+
+  struct booz_ieuler body_to_imu_eulers = {FILTER_ALIGNMENT_DPHI, FILTER_ALIGNMENT_DTHETA, FILTER_ALIGNMENT_DPSI};
+  BOOZ_IQUAT_OF_EULER(booz_ahrs.body_to_imu_quat, body_to_imu_eulers);
+  
 }
 
 void booz2_filter_attitude_align(void) {
 
   BOOZ_IVECT_COPY( booz2_face_gyro_bias, booz2_filter_aligner_lp_gyro);
 
-  booz2_filter_attitude_status = BOOZ2_FILTER_ATTITUDE_RUNNING;
+  booz_ahrs.status = BOOZ2_AHRS_RUNNING;
 
 }
 
@@ -112,7 +113,7 @@ void booz2_filter_attitude_align(void) {
 
 
 
-void booz2_filter_attitude_propagate(void) {
+void booz2_ahrs_propagate(void) {
 
   /* low pass accels         */
   BOOZ_IVECT_DIFF(lp_accel_sum, lp_accel_sum, lp_accel_samples[samples_idx]);
@@ -123,24 +124,23 @@ void booz2_filter_attitude_propagate(void) {
   struct booz_ivect  uf_rate;
   BOOZ_IVECT_DIFF(uf_rate, booz2_imu_gyro, booz2_face_gyro_bias);
   /* low pass rate */  
-  BOOZ_IVECT_SUM(booz2_filter_attitude_rate, booz2_filter_attitude_rate, uf_rate);
-  BOOZ_IVECT_SDIV(booz2_filter_attitude_rate, booz2_filter_attitude_rate, 2);
+  VECT3_ADD(booz_ahrs.imu_rate, uf_rate);
+  BOOZ_IVECT_SDIV(booz_ahrs.imu_rate, booz_ahrs.imu_rate, 2);
 
   /* dumb integrate eulers */
   struct booz_ieuler euler_dot;
-  euler_dot.phi   = booz2_filter_attitude_rate.x;
-  euler_dot.theta = booz2_filter_attitude_rate.y;
-  euler_dot.psi   = booz2_filter_attitude_rate.z;
+  euler_dot.phi   = booz_ahrs.imu_rate.x;
+  euler_dot.theta = booz_ahrs.imu_rate.y;
+  euler_dot.psi   = booz_ahrs.imu_rate.z;
   BOOZ_IEULER_SUM(booz2_face_uncorrected, booz2_face_uncorrected, euler_dot);
   BOOZ_IEULER_SUM(booz2_face_corrected, booz2_face_corrected, euler_dot);
-
 
   /* build a measurement */
   struct booz_ieuler measurement;
   measurement.phi   = -booz2_imu_accel.y * ACC_AMP;
   measurement.theta =  booz2_imu_accel.x * ACC_AMP;
   PSI_OF_MAG(measurement.psi, booz2_imu_mag, 
-	     booz2_filter_attitude_euler.phi, booz2_filter_attitude_euler.theta);
+	     booz_ahrs.ltp_to_imu_euler.phi, booz_ahrs.ltp_to_imu_euler.theta);
 
   /* low pass it */
   BOOZ_IEULER_SUM(booz2_face_measure, booz2_face_measure, measurement);
@@ -159,47 +159,35 @@ void booz2_filter_attitude_propagate(void) {
   INTEG_EULER_NORMALIZE(booz2_face_corrected.psi);
 
 
-  /* scale our result      */
-  BOOZ_IEULER_SDIV(booz2_filter_attitude_euler, booz2_face_corrected, F_UPDATE);
+  /* Compute LTP to IMU eulers      */
+  BOOZ_IEULER_SDIV(booz_ahrs.ltp_to_imu_euler, booz2_face_corrected, F_UPDATE);
+  /* Compute LTP to IMU quaternion */
+  BOOZ_IQUAT_OF_EULER(booz_ahrs.ltp_to_imu_quat, booz_ahrs.ltp_to_imu_euler);
+  /* Compute LTP to BODY quaternion */
+  BOOZ_IQUAT_DIV(booz_ahrs.ltp_to_body_quat, booz_ahrs.body_to_imu_quat, booz_ahrs.ltp_to_imu_quat);
+  /* compute LTP to BODY eulers */
+  booz_ahrs.ltp_to_body_euler.phi   = booz_ahrs.ltp_to_imu_euler.phi   - FILTER_ALIGNMENT_DPHI;
+  booz_ahrs.ltp_to_body_euler.theta = booz_ahrs.ltp_to_imu_euler.theta - FILTER_ALIGNMENT_DTHETA;
+  booz_ahrs.ltp_to_body_euler.psi   = booz_ahrs.ltp_to_imu_euler.psi;
+  /* Do we compute real body rate ? */
+  BOOZ_IVECT_COPY(booz_ahrs.body_rate, booz_ahrs.imu_rate);
+}
 
-  apply_alignment();
-  /* convert to quaternion */
-  BOOZ_IQUAT_OF_EULER(booz2_filter_attitude_quat_aligned, booz2_filter_attitude_euler_aligned);
+void booz2_ahrs_update(void) {
+
 
 }
 
-void booz2_filter_attitude_update(void) {
 
-
-}
-
+#if 0
 
 // FIXME : make a real frame change and rotate rates too
 
 static inline void apply_alignment(void) {
-  
-#if 0
-  booz2_filter_attitude_euler_aligned.phi = 
-                                           booz2_filter_attitude_euler.phi
-    + (((int32_t)FILTER_ALIGNMENT_DPSI   * booz2_filter_attitude_euler.theta) >>  IANGLE_RES)
-    - (((int32_t)FILTER_ALIGNMENT_DTHETA * booz2_filter_attitude_euler.psi)   >>  IANGLE_RES);
-
-  booz2_filter_attitude_euler_aligned.theta = 
-    - (((int32_t)FILTER_ALIGNMENT_DPSI * booz2_filter_attitude_euler.phi) >>  IANGLE_RES)
-    +                                        booz2_filter_attitude_euler.theta
-    + (((int32_t)FILTER_ALIGNMENT_DPHI * booz2_filter_attitude_euler.psi) >>  IANGLE_RES);
-
-  booz2_filter_attitude_euler_aligned.psi = 
-      (((int32_t)FILTER_ALIGNMENT_DTHETA * booz2_filter_attitude_euler.phi) >>  IANGLE_RES)
-    - (((int32_t)FILTER_ALIGNMENT_DPHI   * booz2_filter_attitude_euler.theta)  >>  IANGLE_RES)
-    +                                          booz2_filter_attitude_euler.psi;
-#else
-
   booz2_filter_attitude_euler_aligned.phi   = booz2_filter_attitude_euler.phi - FILTER_ALIGNMENT_DPHI;
   booz2_filter_attitude_euler_aligned.theta = booz2_filter_attitude_euler.theta - FILTER_ALIGNMENT_DTHETA;
   booz2_filter_attitude_euler_aligned.psi   = booz2_filter_attitude_euler.psi;
+}
 
 #endif
 
-
-}

@@ -81,7 +81,7 @@ void booz2_stabilization_attitude_run(bool_t  in_flight) {
     booz_stabilization_att_ref.theta >> (ANGLE_REF_RES - IANGLE_RES),
     booz_stabilization_att_ref.psi   >> (ANGLE_REF_RES - IANGLE_RES) };
   struct booz_ieuler att_err;
-  BOOZ_IEULER_DIFF(att_err, booz2_filter_attitude_euler_aligned, att_ref_scaled);
+  BOOZ_IEULER_DIFF(att_err, booz_ahrs.ltp_to_body_euler, att_ref_scaled);
   BOOZ_ANGLE_NORMALIZE(att_err.psi);
 
   if (in_flight) {
@@ -101,7 +101,7 @@ void booz2_stabilization_attitude_run(bool_t  in_flight) {
     booz_stabilization_rate_ref.y >> (RATE_REF_RES - IRATE_RES),
     booz_stabilization_rate_ref.z >> (RATE_REF_RES - IRATE_RES) };
   struct booz_ivect rate_err;
-  BOOZ_IVECT_DIFF(rate_err, booz2_filter_attitude_rate, rate_ref_scaled);
+  BOOZ_IVECT_DIFF(rate_err, booz_ahrs.body_rate, rate_ref_scaled);
 
   /* compute PID loop                  */
   booz2_stabilization_cmd[COMMAND_ROLL] = booz_stabilization_pgain.x    * att_err.phi +

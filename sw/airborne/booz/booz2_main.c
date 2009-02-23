@@ -109,7 +109,7 @@ STATIC_INLINE void booz2_main_init( void ) {
   booz2_stabilization_attitude_init();
 
   booz2_filter_aligner_init();
-  booz2_filter_attitude_init();
+  booz2_ahrs_init();
 
   booz_ins_init();
 
@@ -183,16 +183,16 @@ static inline void on_imu_event( void ) {
   Booz2ImuScaleGyro();
   Booz2ImuScaleAccel();
 
-  if (booz2_filter_attitude_status == BOOZ2_FILTER_ATTITUDE_UNINIT) {
+  if (booz_ahrs.status == BOOZ2_AHRS_UNINIT) {
     // 150
     booz2_filter_aligner_run();
     if (booz2_filter_aligner_status == BOOZ2_FILTER_ALIGNER_LOCKED)
-      booz2_filter_attitude_align();
+      booz2_ahrs_align();
   }
   else {
     //    LED_ON(7);
-    booz2_filter_attitude_propagate();
-    booz2_filter_attitude_update();
+    booz2_ahrs_propagate();
+    //    booz2_filter_attitude_update();
 
     //    LED_OFF(7);
     booz_ins_propagate();
