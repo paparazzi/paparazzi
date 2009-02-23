@@ -14,8 +14,10 @@
 uint8_t booz2_guidance_h_mode;
 
 struct booz_ivect2 booz2_guidance_h_pos_sp;
+int32_t            booz2_guidance_h_psi_sp;
 
 struct booz_ivect2 booz2_guidance_h_pos_err;
+struct booz_ivect2 booz2_guidance_h_speed_err;
 struct booz_ivect2 booz2_guidance_h_pos_err_sum;
 
 struct booz_ieuler booz2_guidance_h_rc_sp;
@@ -35,6 +37,8 @@ static inline void booz2_guidance_h_hover_enter(void);
 void booz2_guidance_h_init(void) {
 
   booz2_guidance_h_mode = BOOZ2_GUIDANCE_H_MODE_KILL;
+  booz2_guidance_h_psi_sp = 0;
+  INT_VECT2_ZERO(booz2_guidance_h_pos_sp);
   BOOZ_IVECT2_ZERO(booz2_guidance_h_pos_err_sum);
   BOOZ_IEULER_ZERO(booz2_guidance_h_rc_sp);
   BOOZ_IEULER_ZERO(booz2_guidance_h_command_body);
@@ -128,9 +132,9 @@ void booz2_guidance_h_run(bool_t  in_flight) {
 
 }
 
-#define MAX_POS_ERR   4096
-#define MAX_SPEED_ERR 4096
-#define MAX_POS_ERR_SUM (4096 << 12)
+#define MAX_POS_ERR   BOOZ_POS_I_OF_F(16.)
+#define MAX_SPEED_ERR BOOZ_SPEED_I_OF_F(16.)
+#define MAX_POS_ERR_SUM ((int32_t)(MAX_POS_ERR)<< 12)
 
 // 15 degres
 #define MAX_BANK 65536
@@ -138,13 +142,12 @@ void booz2_guidance_h_run(bool_t  in_flight) {
 static inline void  booz2_guidance_h_hover_run(void) {
 
   /* compute position error    */
-  BOOZ_IVECT2_DIFF(booz2_guidance_h_pos_err, booz_ins_position, booz2_guidance_h_pos_sp);
+  BOOZ_IVECT2_DIFF(booz2_guidance_h_pos_err, booz_ins_ltp_pos, booz2_guidance_h_pos_sp);
   /* saturate it               */
   BOOZ_IVECT2_STRIM(booz2_guidance_h_pos_err, -MAX_POS_ERR, MAX_POS_ERR);
 
   /* compute speed error    */
-  struct booz_ivect2 booz2_guidance_h_speed_err;
-  BOOZ_IVECT2_COPY(booz2_guidance_h_speed_err, booz_ins_speed_earth);
+  BOOZ_IVECT2_COPY(booz2_guidance_h_speed_err, booz_ins_ltp_speed);
   /* saturate it               */
   BOOZ_IVECT2_STRIM(booz2_guidance_h_speed_err, -MAX_SPEED_ERR, MAX_SPEED_ERR);
   
@@ -155,11 +158,11 @@ static inline void  booz2_guidance_h_hover_run(void) {
 		    
   /* run PID */
   // cmd_earth < 15.17
-  booz2_guidance_h_command_earth.x = booz2_guidance_h_pgain * booz2_guidance_h_pos_err.x +
-                                      booz2_guidance_h_dgain * booz2_guidance_h_speed_err.x +
+  booz2_guidance_h_command_earth.x = (booz2_guidance_h_pgain<<1)  * booz2_guidance_h_pos_err.x +
+                                     booz2_guidance_h_dgain * (booz2_guidance_h_speed_err.x>>9) +
                                       booz2_guidance_h_igain * (booz2_guidance_h_pos_err_sum.x >> 12); 
-  booz2_guidance_h_command_earth.y = booz2_guidance_h_pgain * booz2_guidance_h_pos_err.y +
-                                      booz2_guidance_h_dgain * booz2_guidance_h_speed_err.y +
+  booz2_guidance_h_command_earth.y = (booz2_guidance_h_pgain<<1)  * booz2_guidance_h_pos_err.y +
+                                     booz2_guidance_h_dgain *( booz2_guidance_h_speed_err.y>>9) +
 		                      booz2_guidance_h_igain * (booz2_guidance_h_pos_err_sum.y >> 12); 
 
   BOOZ_IVECT2_STRIM(booz2_guidance_h_command_earth, -MAX_BANK, MAX_BANK);
@@ -181,7 +184,8 @@ static inline void  booz2_guidance_h_hover_run(void) {
 
   booz2_guidance_h_command_body.phi   += booz2_guidance_h_rc_sp.phi;
   booz2_guidance_h_command_body.theta += booz2_guidance_h_rc_sp.theta;
-  booz2_guidance_h_command_body.psi   = booz2_guidance_h_rc_sp.psi;
+  booz2_guidance_h_command_body.psi    = booz2_guidance_h_psi_sp + booz2_guidance_h_rc_sp.psi;
+  ANGLE_REF_NORMALIZE(booz2_guidance_h_command_body.psi);
 
   BOOZ_IEULER_COPY(booz_stabilization_att_sp, booz2_guidance_h_command_body);
 
@@ -189,7 +193,7 @@ static inline void  booz2_guidance_h_hover_run(void) {
 
 static inline void booz2_guidance_h_hover_enter(void) {
 
-  BOOZ_IVECT2_COPY(booz2_guidance_h_pos_sp, booz_ins_position);
+  BOOZ_IVECT2_COPY(booz2_guidance_h_pos_sp, booz_ins_ltp_pos);
 
   BOOZ2_STABILIZATION_ATTITUDE_RESET_PSI_REF( booz2_guidance_h_rc_sp );
 

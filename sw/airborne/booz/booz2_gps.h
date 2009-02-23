@@ -2,15 +2,16 @@
 #define BOOZ2_GPS_H
 
 #include "std.h"
-#include "pprz_algebra_int.h"
+#include "pprz_geodetic_int.h"
 
 struct Booz_gps_state {
-  struct Int32Vect3 pos;         /* pos ECEF in cm     */
-  struct Int32Vect3 speed;       /* speed ECEF in cm/s */
-  uint32_t pacc;                 /*                    */
-  uint32_t sacc;                 /*                    */
-  uint8_t num_sv;
-  uint8_t fix;
+  struct EcefCoor_i ecef_pos;    /* pos ECEF in cm        */
+  struct EcefCoor_i ecef_speed;  /* speed ECEF in cm/s    */
+  uint32_t pacc;                 /* position accuracy     */
+  uint32_t sacc;                 /* speed accuracy        */
+  uint16_t pdop;                 /* dilution of precision */
+  uint8_t  num_sv;               /* number of sat in fix  */
+  uint8_t  fix;                  /* status of fix         */
 };
 
 extern struct Booz_gps_state booz_gps_state;
@@ -25,11 +26,6 @@ extern uint32_t booz2_gps_vacc;
 /* UBX NAV SOL */
 #define  BOOZ2_GPS_FIX_NONE 0x00
 #define  BOOZ2_GPS_FIX_3D   0x03
-//extern uint8_t  booz2_gps_fix;
-//extern int32_t  booz2_gps_pacc;
-//extern int32_t  booz2_gps_sacc;
-//extern uint8_t  booz2_gps_num_sv;
-
 
 /* UBX NAV VELNED */
 extern int32_t  booz2_gps_vel_n;

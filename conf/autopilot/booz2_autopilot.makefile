@@ -107,6 +107,8 @@ ap.srcs += $(SRC_BOOZ)/booz2_stabilization_attitude.c
 ap.srcs += $(SRC_BOOZ)/booz2_guidance_h.c
 ap.srcs += $(SRC_BOOZ)/booz2_guidance_v.c
 ap.srcs += $(SRC_BOOZ)/booz2_ins.c
+ap.srcs += pprz_geodetic_int.c pprz_geodetic_float.c
+ap.srcs += $(SRC_BOOZ)/booz2_hf_float.c
 #  vertical filter float version
 ap.srcs += $(SRC_BOOZ)/booz2_vf_float.c
 ap.CFLAGS += -DUSE_VFF -DDT_VFILTER="(1./512.)" -DFLOAT_T=float

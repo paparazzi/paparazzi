@@ -29,6 +29,8 @@
 #include <glib.h>
 
 #include "pprz_algebra_f.h"
+#include "pprz_geodetic_double.h"
+#include "booz_geometry_int.h"
 #include "6dof.h"
 #include "std.h"
 
@@ -94,22 +96,27 @@ struct BoozSensorsModel {
 
 
   /* GPS */
+  /* state */
   VEC*    gps_speed;
-  double  gps_speed_course;
-  double  gps_speed_gspeed;
-  double  gps_speed_climb;
   VEC*    gps_speed_noise_std_dev;
   GSList* gps_speed_history;
   VEC*    gps_pos;
-  double  gps_pos_utm_north;
-  double  gps_pos_utm_east;
-  double  gps_pos_utm_alt;
-  struct Pprz_double_lla gps_pos_lla;
   VEC*    gps_pos_noise_std_dev;
   VEC*    gps_pos_bias_initial;
   VEC*    gps_pos_bias_random_walk_std_dev;
   VEC*    gps_pos_bias_random_walk_value;
   GSList* gps_pos_history;
+  /* outputs */
+  struct LtpDef_d gps_ltp_def;
+  struct EcefCoor_d gps_speed_ecef;
+  struct EcefCoor_d gps_pos_ecef;
+  double  gps_pos_utm_north;
+  double  gps_pos_utm_east;
+  double  gps_pos_utm_alt;
+  struct Pprz_double_lla gps_pos_lla;
+  double  gps_speed_course;
+  double  gps_speed_gspeed;
+  double  gps_speed_climb;
   double  gps_next_update;
   int     gps_available;
 

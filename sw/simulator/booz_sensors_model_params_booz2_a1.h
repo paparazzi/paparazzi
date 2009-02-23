@@ -146,17 +146,35 @@
 /*
  *  GPS
  */
-#define BSM_GPS_SPEED_NOISE_STD_DEV  1e-1
-#define BSM_GPS_SPEED_LATENCY        0.25
 
-#define BSM_GPS_POS_NOISE_STD_DEV              3e-2
-#define BSM_GPS_POS_BIAS_INITIAL_X             1e-1
-#define BSM_GPS_POS_BIAS_INITIAL_Y            -1e-1
-#define BSM_GPS_POS_BIAS_INITIAL_Z            -5e-1
-#define BSM_GPS_POS_BIAS_RANDOM_WALK_STD_DEV_X 1e-1 
-#define BSM_GPS_POS_BIAS_RANDOM_WALK_STD_DEV_Y 1e-1 
-#define BSM_GPS_POS_BIAS_RANDOM_WALK_STD_DEV_Z 1e-1 
-#define BSM_GPS_POS_LATENCY                    0.25
+#ifdef GPS_PERFECT
+
+#define BSM_GPS_SPEED_NOISE_STD_DEV            0.
+#define BSM_GPS_SPEED_LATENCY                  0.
+#define BSM_GPS_POS_NOISE_STD_DEV              0.001
+#define BSM_GPS_POS_BIAS_INITIAL_X             0.
+#define BSM_GPS_POS_BIAS_INITIAL_Y             0.
+#define BSM_GPS_POS_BIAS_INITIAL_Z             0.
+#define BSM_GPS_POS_BIAS_RANDOM_WALK_STD_DEV_X 0. 
+#define BSM_GPS_POS_BIAS_RANDOM_WALK_STD_DEV_Y 0. 
+#define BSM_GPS_POS_BIAS_RANDOM_WALK_STD_DEV_Z 0. 
+#define BSM_GPS_POS_LATENCY                    0.
+
+#else
+
+#define BSM_GPS_SPEED_NOISE_STD_DEV            1e-1
+#define BSM_GPS_SPEED_LATENCY                  0.25
+#define BSM_GPS_POS_NOISE_STD_DEV              5e-2
+#define BSM_GPS_POS_BIAS_INITIAL_X             0e-1
+#define BSM_GPS_POS_BIAS_INITIAL_Y            -0e-1
+#define BSM_GPS_POS_BIAS_INITIAL_Z            -0e-1
+#define BSM_GPS_POS_BIAS_RANDOM_WALK_STD_DEV_X 1e-3 
+#define BSM_GPS_POS_BIAS_RANDOM_WALK_STD_DEV_Y 1e-3 
+#define BSM_GPS_POS_BIAS_RANDOM_WALK_STD_DEV_Z 1e-3 
+#define BSM_GPS_POS_LATENCY                    5.
+
+#endif /* GPS_PERFECT */
+
 #define BSM_GPS_POS_INITIAL_UTM_EAST            37728000
 #define BSM_GPS_POS_INITIAL_UTM_NORTH          482464300
 #define BSM_GPS_POS_INITIAL_UTM_ALT                15200

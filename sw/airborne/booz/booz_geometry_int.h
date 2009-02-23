@@ -4,6 +4,14 @@
 #include <inttypes.h>
 
 
+#define IPOS_OF_CM 2.56
+#define IPOS_OF_CM_NUM 64
+#define IPOS_OF_CM_DEN 25
+#define ISPEED_OF_CM_S 5242.88
+#define ISPEED_OF_CM_S_NUM 41943
+#define ISPEED_OF_CM_S_DEN 8
+
+
 #define IQUAT_RES  15
 #define IPOS_FRAC   8
 /* max 8 rad/s for 16bits */

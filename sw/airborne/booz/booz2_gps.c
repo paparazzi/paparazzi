@@ -1,5 +1,7 @@
 #include "booz2_gps.h"
 
+#include "led.h"
+
 struct Booz_gps_state booz_gps_state;
 
 /* UBX NAV POSLLH */
@@ -8,13 +10,6 @@ int32_t  booz2_gps_lat;
 int32_t  booz2_gps_hmsl;
 uint32_t booz2_gps_hacc;
 uint32_t booz2_gps_vacc;
-
-/* UBX NAV SOL */
-//uint8_t  booz2_gps_fix;
-//int32_t  booz2_gps_pacc;
-//int32_t  booz2_gps_sacc;
-//uint8_t  booz2_gps_num_sv;
-
 
 /* UBX NAV VELNED */
 int32_t  booz2_gps_vel_n;
@@ -45,16 +40,17 @@ void booz2_gps_read_ubx_message(void) {
       booz2_gps_hmsl = UBX_NAV_POSLLH_HMSL(ubx_msg_buf);
     }
     else if (ubx_id == UBX_NAV_SOL_ID) {
-      booz_gps_state.fix     = UBX_NAV_SOL_GPSfix(ubx_msg_buf);
-      booz_gps_state.pos.x   = UBX_NAV_SOL_ECEF_X(ubx_msg_buf);
-      booz_gps_state.pos.y   = UBX_NAV_SOL_ECEF_Y(ubx_msg_buf);
-      booz_gps_state.pos.z   = UBX_NAV_SOL_ECEF_Z(ubx_msg_buf);
-      booz_gps_state.pacc    = UBX_NAV_SOL_Pacc(ubx_msg_buf);
-      booz_gps_state.speed.x = UBX_NAV_SOL_ECEFVX(ubx_msg_buf);
-      booz_gps_state.speed.y = UBX_NAV_SOL_ECEFVY(ubx_msg_buf);
-      booz_gps_state.speed.z = UBX_NAV_SOL_ECEFVZ(ubx_msg_buf);
-      booz_gps_state.sacc    = UBX_NAV_SOL_Sacc(ubx_msg_buf);
-      booz_gps_state.num_sv  = UBX_NAV_SOL_numSV(ubx_msg_buf);
+      booz_gps_state.fix          = UBX_NAV_SOL_GPSfix(ubx_msg_buf);
+      booz_gps_state.ecef_pos.x   = UBX_NAV_SOL_ECEF_X(ubx_msg_buf);
+      booz_gps_state.ecef_pos.y   = UBX_NAV_SOL_ECEF_Y(ubx_msg_buf);
+      booz_gps_state.ecef_pos.z   = UBX_NAV_SOL_ECEF_Z(ubx_msg_buf);
+      booz_gps_state.pacc         = UBX_NAV_SOL_Pacc(ubx_msg_buf);
+      booz_gps_state.ecef_speed.x = UBX_NAV_SOL_ECEFVX(ubx_msg_buf);
+      booz_gps_state.ecef_speed.y = UBX_NAV_SOL_ECEFVY(ubx_msg_buf);
+      booz_gps_state.ecef_speed.z = UBX_NAV_SOL_ECEFVZ(ubx_msg_buf);
+      booz_gps_state.sacc         = UBX_NAV_SOL_Sacc(ubx_msg_buf);
+      booz_gps_state.pdop         = UBX_NAV_SOL_PDOP(ubx_msg_buf);
+      booz_gps_state.num_sv       = UBX_NAV_SOL_numSV(ubx_msg_buf);
 #ifdef GPS_LED
       if (booz_gps_state.fix == BOOZ2_GPS_FIX_3D) {
       	LED_OFF(GPS_LED);

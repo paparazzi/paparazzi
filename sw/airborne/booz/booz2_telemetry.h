@@ -246,6 +246,49 @@
 			    &booz_ins_speed_earth.z,		\
 			    &booz_ins_accel_earth.z);		\
   }
+
+
+#include "booz2_hf_float.h"
+#define PERIODIC_SEND_BOOZ2_INS2() {				\
+    struct Int32Vect3 pos_low_res;				\
+    pos_low_res.x = (int32_t)(b2ins_pos_ltp.x>>20);		\
+    pos_low_res.y = (int32_t)(b2ins_pos_ltp.y>>20);		\
+    pos_low_res.z = (int32_t)(b2ins_pos_ltp.z>>20);		\
+    DOWNLINK_SEND_BOOZ2_INS2(&b2ins_accel_ltp.x,		\
+			     &b2ins_accel_ltp.y,		\
+			     &b2ins_accel_ltp.z,		\
+			     &b2ins_speed_ltp.x,		\
+			     &b2ins_speed_ltp.y,		\
+			     &b2ins_speed_ltp.z,		\
+			     &pos_low_res.x,			\
+			     &pos_low_res.y,			\
+			     &pos_low_res.z			\
+			     );					\
+  }
+
+#define PERIODIC_SEND_BOOZ2_INS3() {					\
+    DOWNLINK_SEND_BOOZ2_INS3(&b2ins_meas_gps_pos_ned.x,			\
+			     &b2ins_meas_gps_pos_ned.y,			\
+			     &b2ins_meas_gps_pos_ned.z,			\
+			     &b2ins_meas_gps_speed_ned.x,		\
+			     &b2ins_meas_gps_speed_ned.y,		\
+			     &b2ins_meas_gps_speed_ned.z		\
+			     );						\
+  }
+
+
+#define PERIODIC_SEND_BOOZ2_INS_REF() {					\
+    DOWNLINK_SEND_BOOZ2_INS_REF(&booz_ins_ltp_def.ecef.x,		\
+				&booz_ins_ltp_def.ecef.y,		\
+				&booz_ins_ltp_def.ecef.z,		\
+				&booz_ins_ltp_def.lla.lat,		\
+				&booz_ins_ltp_def.lla.lon,		\
+				&booz_ins_ltp_def.lla.alt,		\
+				&booz_ins_qfe);				\
+  }
+
+
+
 #include "booz2_guidance_v.h"
 #define PERIODIC_SEND_BOOZ2_VERT_LOOP() {				\
     DOWNLINK_SEND_BOOZ2_VERT_LOOP(&booz2_guidance_v_z_sp,		\
@@ -265,14 +308,16 @@
   }
 
 #define PERIODIC_SEND_BOOZ2_HOVER_LOOP() {				\
-    DOWNLINK_SEND_BOOZ2_HOVER_LOOP(&booz_ins_position.x,	\
-				   &booz_ins_position.y,	\
-				   &booz2_guidance_h_pos_sp.x,		\
+    DOWNLINK_SEND_BOOZ2_HOVER_LOOP(&booz2_guidance_h_pos_sp.x,		\
 				   &booz2_guidance_h_pos_sp.y,		\
-				   &booz_ins_speed_earth.x,	\
-				   &booz_ins_speed_earth.y,	\
+				   &booz_ins_ltp_pos.x,			\
+				   &booz_ins_ltp_pos.y,			\
+				   &booz_ins_ltp_speed.x,		\
+				   &booz_ins_ltp_speed.y,		\
 				   &booz2_guidance_h_pos_err.x,		\
 				   &booz2_guidance_h_pos_err.y,		\
+				   &booz2_guidance_h_speed_err.x,		\
+				   &booz2_guidance_h_speed_err.y,		\
 				   &booz2_guidance_h_pos_err_sum.x,	\
 				   &booz2_guidance_h_pos_err_sum.y,	\
 				   &booz2_guidance_h_command_earth.x,	\
@@ -302,10 +347,24 @@
   }
 
 
-#define PERIODIC_SEND_BOOZ2_NAV_REF() { \
-  DOWNLINK_SEND_BOOZ2_NAV_REF(					\
-  &booz_ins_position_init_lla.lon,		\
-  &booz_ins_position_init_lla.lat)		\
+#define PERIODIC_SEND_BOOZ2_GPS() {				\
+    DOWNLINK_SEND_BOOZ2_GPS( &booz_gps_state.ecef_pos.x,	\
+			     &booz_gps_state.ecef_pos.y,	\
+			     &booz_gps_state.ecef_pos.z,	\
+			     &booz_gps_state.ecef_speed.x,	\
+			     &booz_gps_state.ecef_speed.y,	\
+			     &booz_gps_state.ecef_speed.z,	\
+			     &booz_gps_state.pacc,		\
+			     &booz_gps_state.sacc,		\
+			     &booz_gps_state.pdop,		\
+			     &booz_gps_state.num_sv,		\
+			     &booz_gps_state.fix);		\
+  }
+
+
+#define PERIODIC_SEND_BOOZ2_NAV_REF() {					\
+    DOWNLINK_SEND_BOOZ2_NAV_REF(&booz_ins_position_init_lla.lon,	\
+				&booz_ins_position_init_lla.lat);	\
   }
 
 

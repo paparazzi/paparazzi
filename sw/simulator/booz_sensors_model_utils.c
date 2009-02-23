@@ -25,12 +25,20 @@ void UpdateSensorLatency(double time, VEC* cur_reading, GSList* history,
   v_copy(((struct BoozDatedSensor*)last->data)->value, sensor_reading);
 }
 
-
+#define THAU 5.
 VEC* v_update_random_walk(VEC* in, VEC* std_dev, double dt, VEC* out) {
+
+  static VEC *drw = VNULL;
+  drw = v_resize(drw, AXIS_NB);
+  v_get_gaussian_noise(std_dev, drw);
+
   static VEC *tmp = VNULL;
   tmp = v_resize(tmp, AXIS_NB);
-  tmp = sv_mlt(dt, std_dev, tmp);
-  out =  v_add_gaussian_noise(in, tmp, out);
+  v_copy(in, tmp);
+  sv_mlt((-1./THAU), tmp, tmp);
+  v_add(drw, tmp, drw);
+  sv_mlt(dt, drw, drw);
+  v_add(drw, in, out);
   return out;
 }
 
@@ -44,6 +52,14 @@ VEC* v_add_gaussian_noise(VEC* in, VEC* std_dev, VEC* out) {
   return out;
 }
 
+VEC* v_get_gaussian_noise(VEC* std_dev, VEC* out) {
+
+  unsigned int i;
+  for (i=0; i<out->dim; i++)
+    out->ve[i] = get_gaussian_noise() * std_dev->ve[i];
+  return out;
+
+}
 
 /* 
    http://www.taygeta.com/random/gaussian.html 

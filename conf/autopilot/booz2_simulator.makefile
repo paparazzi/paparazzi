@@ -19,7 +19,9 @@ sim.LDFLAGS += `pkg-config glib-2.0 --libs` -lm -lmeschach -lpcre -lglibivy
 
 #sim.CFLAGS  += -DBYPASS_AHRS
 #sim.CFLAGS  += -DBYPASS_INS
-sim.CFLAGS  += -DINIT_WIND_X=-0.0
+#sim.CFLAGS  += -DGPS_PERFECT
+
+sim.CFLAGS  += -DINIT_WIND_X=-3.0
 sim.CFLAGS  += -DINIT_WIND_Y=-0.0
 sim.CFLAGS  += -DINIT_WIND_Z=-0.0
 
@@ -31,6 +33,7 @@ sim.srcs = $(SIMDIR)/booz2_sim_main.c                \
            $(SIMDIR)/booz_flight_model_utils.c       \
            $(SIMDIR)/booz_sensors_model.c            \
 	   $(SIMDIR)/booz_sensors_model_utils.c      \
+	   pprz_geodetic_double.c	             \
 	   $(SIMDIR)/booz_r250.c      		     \
 	   $(SIMDIR)/booz_randlcg.c	             \
 	   $(SIMDIR)/booz_sensors_model_accel.c      \
@@ -57,22 +60,10 @@ sim.srcs += $(SRC_BOOZ)/booz2_telemetry.c \
             downlink.c \
             $(SRC_ARCH)/ivy_transport.c
 
-#sim.CFLAGS += -DDATALINK=PPRZ -DPPRZ_UART=Uart1
-#sim.srcs += $(SRC_BOOZ)/booz2_datalink.c
-
 sim.srcs   += $(SRC_BOOZ)/booz2_commands.c
 
 sim.CFLAGS += -DRADIO_CONTROL -DRADIO_CONTROL_TYPE=RC_FUTABA -DRC_LED=1
 sim.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c
-
-#sim.CFLAGS += -DACTUATORS=\"actuators_buss_twi_blmc_hw.h\" -DUSE_BUSS_TWI_BLMC
-#sim.srcs += $(BOOZ_PRIV_SIM)/actuators_buss_twi_blmc_hw.c actuators.c
-#sim.CFLAGS += -DUSE_I2C0 -DI2C0_SCLL=150 -DI2C0_SCLH=150 -DI2C0_VIC_SLOT=10
-#sim.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
-
-
-
-
 
 
 sim.CFLAGS += -DBOOZ2_ANALOG_BARO_LED=2 -DBOOZ2_ANALOG_BARO_PERIOD='SYS_TICS_OF_SEC((1./100.))'
@@ -100,10 +91,11 @@ sim.srcs += $(SRC_BOOZ)/booz2_stabilization_attitude.c
 
 sim.srcs += $(SRC_BOOZ)/booz2_guidance_h.c
 sim.srcs += $(SRC_BOOZ)/booz2_guidance_v.c
+sim.srcs += pprz_geodetic_int.c pprz_geodetic_float.c
 sim.srcs += $(SRC_BOOZ)/booz2_ins.c
 #  vertical filter float version
 sim.srcs += $(SRC_BOOZ)/booz2_vf_float.c
-sim.CFLAGS += -DUSE_VFF -DDT_VFILTER="(1./512.)" -DFLOAT_T=float
+sim.CFLAGS += -DUSE_VFF -DDT_VFILTER="(1./512.)"
 sim.srcs += $(SRC_BOOZ)/booz2_hf_float.c
 
 

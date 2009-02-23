@@ -228,26 +228,21 @@ static void sim_gps_feed_data(void) {
   booz2_gps_vel_n = rint(bsm.gps_speed->ve[AXIS_X] * 100.);
   booz2_gps_vel_e = rint(bsm.gps_speed->ve[AXIS_Y] * 100.);
   booz_gps_state.fix = BOOZ2_GPS_FIX_3D;
+
+  booz_gps_state.ecef_pos.x = rint(bsm.gps_pos_ecef.x);
+  booz_gps_state.ecef_pos.y = rint(bsm.gps_pos_ecef.y);
+  booz_gps_state.ecef_pos.z = rint(bsm.gps_pos_ecef.z);
+  //  VECT3_COPY(booz_gps_state.ecef_pos,   bsm.gps_pos_ecef);
+  VECT3_COPY(booz_gps_state.ecef_speed, bsm.gps_speed_ecef);
+
+
 }
 
 #include "AMI601.h"
 static void sim_mag_feed_data(void) {
-#ifdef IMU_MAG_45_HACK
-  //    booz2_imu_mag.x = msx - msy;
-  //    booz2_imu_mag.y = msx + msy;
-  //  double cos_pi_4 = cos(M_PI_4);
-  //  int32_t foo_x = bsm.mag->ve[AXIS_X];// / cos(M_PI_4);
-  //  int32_t foo_y = bsm.mag->ve[AXIS_Y];// / cos(M_PI_4);
-  ami601_val[IMU_MAG_X_CHAN] = bsm.mag->ve[AXIS_X];
-  ami601_val[IMU_MAG_Y_CHAN] = bsm.mag->ve[AXIS_Y];
-  //  ami601_val[IMU_MAG_X_CHAN] =  foo_x + foo_y;
-  //  ami601_val[IMU_MAG_Y_CHAN] = -foo_x + foo_y;
-  ami601_val[IMU_MAG_Z_CHAN] = bsm.mag->ve[AXIS_Z];
-#else
   ami601_val[IMU_MAG_X_CHAN] = bsm.mag->ve[AXIS_X];
   ami601_val[IMU_MAG_Y_CHAN] = bsm.mag->ve[AXIS_Y];
   ami601_val[IMU_MAG_Z_CHAN] = bsm.mag->ve[AXIS_Z];
-#endif
   ami601_status = AMI601_DATA_AVAILABLE;
 }
 

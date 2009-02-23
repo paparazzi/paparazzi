@@ -14,3 +14,6 @@ test_vg_adpt: test_vg_adpt.c
 
 test_deadband: test_deadband.c
 	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
+
+test_scaling: test_scaling.c
+	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)

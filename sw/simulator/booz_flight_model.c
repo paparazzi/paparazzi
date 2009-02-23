@@ -76,7 +76,8 @@ void booz_flight_model_init( void ) {
   bfm.mot_voltage = v_get(SERVOS_NB);
 
   bfm.state =  v_get(BFMS_SIZE);
-  
+  v_zero(bfm.state);
+
   bfm.pos_ltp   = v_get(AXIS_NB);
   bfm.speed_ltp = v_get(AXIS_NB);
   bfm.accel_ltp = v_get(AXIS_NB);

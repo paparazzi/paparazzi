@@ -113,6 +113,8 @@
 
   <section name="INS" prefix="BOOZ_INS_">
     <define name="BARO_SENS" value="15." integer="16"/>
+    <define name="POS_OF_CM" value="2.56" integer="16"/>
+    <define name="SPEED_OF_CM_S" value="5242.88" integer="16"/>
   </section>
 
   <section name="GUIDANCE_V" prefix="BOOZ2_GUIDANCE_V_">
@@ -155,7 +157,7 @@
 
   <makefile>
 # prevents motors from ever starting
-#ap.CFLAGS += -DKILL_MOTORS
+ap.CFLAGS += -DKILL_MOTORS
 
 include $(PAPARAZZI_SRC)/conf/autopilot/booz2_autopilot.makefile
 include $(PAPARAZZI_SRC)/conf/autopilot/booz2_test_progs.makefile

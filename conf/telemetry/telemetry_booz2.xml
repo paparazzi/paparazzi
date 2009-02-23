@@ -67,6 +67,7 @@
       <message name="BOOZ2_VERT_LOOP"         period=".05"/>
 <!--      <message name="BOOZ2_CMD"               period=".05"/> -->
       <message name="BOOZ2_INS"               period=".05"/>
+      <message name="BOOZ2_INS_REF"           period="5.1"/>
     </mode>
 
     <mode name="h_loop">
@@ -92,8 +93,11 @@
     </mode>
 
     <mode name="tune_hover">
-      <message name="BOOZ2_TUNE_HOVER"               period=".05"/>
-
+<!--      <message name="BOOZ2_TUNE_HOVER"               period=".05"/> -->
+      <message name="BOOZ2_GPS"                      period=".2"/>
+      <message name="BOOZ2_INS2"                     period=".05"/>
+      <message name="BOOZ2_INS3"                     period=".2"/>
+      <message name="BOOZ2_INS_REF"           period="5.1"/>
     </mode>
 
 

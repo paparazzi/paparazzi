@@ -37,13 +37,23 @@
     <dl_settings NAME="Vert Loop">
       <dl_setting var="booz2_guidance_v_kp" min="-600" step="1" max="0" module="booz2_guidance_v" shortname="kp"/>
       <dl_setting var="booz2_guidance_v_kd" min="-600" step="1" max="0" module="booz2_guidance_v" shortname="kd"/>
-      <dl_setting var="booz2_guidance_v_z_sp" min="-2560" step="1" max="1024" module="booz2_guidance_v" shortname="sp"/>
+      <dl_setting var="booz2_guidance_v_z_sp" min="-5" step="0.5" max="3" module="booz2_guidance_v" 
+	shortname="sp" unit="2e-8m" alt_unit="m" alt_unit_coef="0.00390625"/>
    </dl_settings>
 
    <dl_settings NAME="Horiz Loop">
-      <dl_setting var="booz2_guidance_h_pgain" min="-400" step="1" max="0" module="booz2_guidance_h" shortname="kp"/>
-      <dl_setting var="booz2_guidance_h_dgain" min="-400" step="1" max="0" module="booz2_guidance_h" shortname="kd"/>
-      <dl_setting var="booz2_guidance_h_igain" min="-400" step="1" max="0" module="booz2_guidance_h" shortname="ki"/>
+      <dl_setting var="booz2_guidance_h_pos_sp.x" MIN="-10" MAX="10" STEP="1"  module="booz2_guidance_h" 
+	          shortname="sp_x_ned" unit="1/2^8m" alt_unit="m" alt_unit_coef="0.00390625"/>
+      <dl_setting var="booz2_guidance_h_pos_sp.y" MIN="-10" MAX="10" STEP="1"  module="booz2_guidance_h" 
+	          shortname="sp_y_ned" unit="1/2^8m" alt_unit="m" alt_unit_coef="0.00390625"/>
+      <dl_setting var="booz2_guidance_h_psi_sp" MIN="-180" MAX="180" STEP="5"  module="booz2_guidance_h" 
+	          shortname="sp_psi" unit="1/2^20r" alt_unit="deg" alt_unit_coef="0.000054641513360"/>
+      <dl_setting var="booz2_guidance_h_pgain" min="-400" step="1" max="0" module="booz2_guidance_h" 
+	          shortname="kp"/>
+      <dl_setting var="booz2_guidance_h_dgain" min="-400" step="1" max="0" module="booz2_guidance_h" 
+	          shortname="kd"/>
+      <dl_setting var="booz2_guidance_h_igain" min="-400" step="1" max="0" module="booz2_guidance_h" 
+                  shortname="ki" handler="SetKi"/>
    </dl_settings>
 
    <dl_settings NAME="NAV">

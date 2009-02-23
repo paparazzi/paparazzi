@@ -3,6 +3,7 @@
 #include BSM_PARAMS
 #include "booz_sensors_model_utils.h"
 #include "booz_flight_model.h"
+#include "pprz_geodetic_double.h"
 
 bool_t booz_sensors_model_gps_available() {
   if (bsm.gps_available) {
@@ -51,6 +52,12 @@ void booz_sensors_model_gps_init( double time ) {
   bsm.gps_pos_bias_random_walk_value->ve[AXIS_Z] = bsm.gps_pos_bias_initial->ve[AXIS_Z];
 
   bsm.gps_pos_history = NULL;
+
+  /* Toulouse */
+  struct EcefCoor_d ref_coor = { 4624497.0 , 116475.0, 4376563.0};
+  //  struct EcefCoor_d ref_coor = {  6368189. , 0., 0.};
+
+  ltp_def_from_ecef_d(&bsm.gps_ltp_def, &ref_coor);
 
   bsm.gps_next_update = time;
   bsm.gps_available = FALSE;
@@ -126,6 +133,14 @@ void booz_sensors_model_gps_run( double time) {
   bsm.gps_pos_lla.lon = rint(bsm.gps_pos_lla.lon);
   bsm.gps_pos_lla.alt = (bsm.gps_pos->ve[AXIS_Z] + GROUND_ALT)* 100.;
   bsm.gps_pos_lla.alt = rint(bsm.gps_pos_lla.alt);
+
+  /* ECEF Conversion */
+  struct NedCoor_d pos_ned = {bsm.gps_pos->ve[AXIS_X], bsm.gps_pos->ve[AXIS_Y], bsm.gps_pos->ve[AXIS_Z]};
+  ecef_of_ned_point_d(&bsm.gps_pos_ecef, &bsm.gps_ltp_def, &pos_ned);
+  VECT3_SMUL(bsm.gps_pos_ecef, (double)1e2, bsm.gps_pos_ecef); 
+  struct NedCoor_d speed_ned = {bsm.gps_speed->ve[AXIS_X], bsm.gps_speed->ve[AXIS_Y], bsm.gps_speed->ve[AXIS_Z]};
+  ecef_of_ned_vect_d(&bsm.gps_speed_ecef, &bsm.gps_ltp_def  , &speed_ned);
+  VECT3_SMUL(bsm.gps_speed_ecef, (double)1e2, bsm.gps_speed_ecef); 
 
   bsm.gps_next_update += BSM_GPS_DT;
   bsm.gps_available = TRUE;

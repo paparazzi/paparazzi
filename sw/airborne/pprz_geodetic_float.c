@@ -3,61 +3,99 @@
 #include "pprz_algebra_float.h"
 #include <math.h>
 
-void init_ltp_ref_from_ecef_f(struct LtpRef_f* ref_param, struct EcefCoor_f* ref_pos) {
+void ltp_def_from_ecef_f(struct LtpDef_f* def, struct EcefCoor_f* ecef) {
 
-  /* store ECEF0                 */
-  FLOAT_VECT3_COPY(ref_param->ecef, *ref_pos);
-  /* compute lla0                */
-  lla_of_ecef_f(&ref_param->lla, &ref_param->ecef);
-  /* store transformation matrix */
-  const FLOAT_T sin_lat = sin(ref_param->lla.lat);
-  const FLOAT_T cos_lat = cos(ref_param->lla.lat);
-  const FLOAT_T sin_lon = sin(ref_param->lla.lon);
-  const FLOAT_T cos_lon = cos(ref_param->lla.lon);
-  ref_param->ltp_of_ecef.m[0] = -sin_lon;
-  ref_param->ltp_of_ecef.m[1] =  cos_lon;
-  ref_param->ltp_of_ecef.m[2] =  0.;
-  ref_param->ltp_of_ecef.m[3] = -sin_lat*cos_lon;
-  ref_param->ltp_of_ecef.m[4] = -sin_lat*sin_lon;
-  ref_param->ltp_of_ecef.m[5] =  cos_lat;
-  ref_param->ltp_of_ecef.m[6] =  cos_lat*cos_lon;
-  ref_param->ltp_of_ecef.m[7] =  cos_lat*sin_lon;
-  ref_param->ltp_of_ecef.m[8] =  sin_lat;
+  /* store the origin of the tangeant plane       */
+  VECT3_COPY(def->ecef, *ecef);
+  /* compute the lla representation of the origin */
+  lla_of_ecef_f(&def->lla, &def->ecef);
+  /* store the rotation matrix                    */
+  const float sin_lat = sin(def->lla.lat);
+  const float cos_lat = cos(def->lla.lat);
+  const float sin_lon = sin(def->lla.lon);
+  const float cos_lon = cos(def->lla.lon);
+  def->ltp_of_ecef.m[0] = -sin_lon;
+  def->ltp_of_ecef.m[1] =  cos_lon;
+  def->ltp_of_ecef.m[2] =  0.;
+  def->ltp_of_ecef.m[3] = -sin_lat*cos_lon;
+  def->ltp_of_ecef.m[4] = -sin_lat*sin_lon;
+  def->ltp_of_ecef.m[5] =  cos_lat;
+  def->ltp_of_ecef.m[6] =  cos_lat*cos_lon;
+  def->ltp_of_ecef.m[7] =  cos_lat*sin_lon;
+  def->ltp_of_ecef.m[8] =  sin_lat;
 
 }
 
-void init_ltp_ref_from_lla_f(struct LtpRef_f* ref_param, struct LlaCoor_f* ref_pos) {
-  ref_param->lla.lon = ref_pos->lon;
-  ref_param->lla.lat = ref_pos->lat;
+#if 0
+void init_ltp_ref_from_lla_f(struct LtpRef_f* def, struct LlaCoor_f* ref_pos) {
+  def->lla.lon = ref_pos->lon;
+  def->lla.lat = ref_pos->lat;
   /* compute ecef */
 
 }
+#endif
 
-void enu_of_ecef_f(struct EnuCoor_f* out, struct LtpRef_f* ref_param, struct EcefCoor_f* in) {
-
+void enu_of_ecef_point_f(struct EnuCoor_f* enu, struct LtpDef_f* def, struct EcefCoor_f* ecef) {
   struct EcefCoor_f delta;
-  FLOAT_VECT3_DIFF(delta, *in, ref_param->ecef);
-  FLOAT_MAT33_VECT3_MUL(*out, ref_param->ltp_of_ecef.m, delta);
-
+  VECT3_DIFF(delta, *ecef, def->ecef);
+  MAT33_VECT3_MUL(*enu, def->ltp_of_ecef.m, delta);
 }
 
-void ned_of_ecef_f(struct LtpRef_f* ref_param, struct NedCoor_f* out, struct EcefCoor_f* in) {
-
-
-
+void ned_of_ecef_point_f(struct NedCoor_f* ned, struct LtpDef_f* def, struct EcefCoor_f* ecef) {
+  struct EnuCoor_f enu;
+  enu_of_ecef_point_f(&enu, def, ecef);
+  ENU_OF_TO_NED(*ned, enu);
 }
+
+
+void enu_of_ecef_vect_f(struct EnuCoor_f* enu, struct LtpDef_f* def, struct EcefCoor_f* ecef) {
+  MAT33_VECT3_MUL(*enu, def->ltp_of_ecef.m, *ecef);
+}
+
+void ned_of_ecef_vect_f(struct NedCoor_f* ned, struct LtpDef_f* def, struct EcefCoor_f* ecef) {
+  struct EnuCoor_f enu;
+  enu_of_ecef_vect_f(&enu, def, ecef);
+  ENU_OF_TO_NED(*ned, enu);
+}
+
+/* not enought precision with float - use double */
+# if 0
+void ecef_of_enu_point_f(struct EcefCoor_f* ecef, struct LtpDef_f* def, struct EnuCoor_f* enu) {
+  MAT33_VECT3_TRANSP_MUL(*ecef, def->ltp_of_ecef.m, *enu);
+  VECT3_ADD(*ecef, def->ecef);
+}
+
+void ecef_of_ned_point_f(struct EcefCoor_f* ecef, struct LtpDef_f* def, struct NedCoor_f* ned) {
+  struct EnuCoor_f enu;
+  ENU_OF_TO_NED(enu, *ned);
+  ecef_of_enu_pos_f(ecef, def, &enu);
+}
+
+void ecef_of_enu_vect_f(struct EcefCoor_f* ecef, struct LtpDef_f* def, struct EnuCoor_f* enu) {
+  MAT33_VECT3_TRANSP_MUL(*ecef, def->ltp_of_ecef.m, *enu);
+}
+
+void ecef_of_ned_vect_f(struct EcefCoor_f* ecef, struct LtpDef_f* def, struct NedCoor_f* ned) {
+  struct EnuCoor_f enu;
+  ENU_OF_TO_NED(enu, *ned);
+  ecef_of_enu_vect_f(ecef, def, &enu);
+}
+#endif 
+
+
+
 
 /* http://en.wikipedia.org/wiki/Geodetic_system */
 void lla_of_ecef_f(struct LlaCoor_f* out, struct EcefCoor_f* in) {
 
   // FIXME : make an ellipsoid struct
-  static const FLOAT_T a = 6378137.0;         /* earth semimajor axis in meters */
-  static const FLOAT_T f = 1./298.257223563;  /* reciprocal flattening */
-  const FLOAT_T b = a*(1.-f);                 /* semi-minor axis */
-  const FLOAT_T b2 = b*b;          
+  static const FLOAT_T a = 6378137.0;           /* earth semimajor axis in meters */
+  static const FLOAT_T f = 1./298.257223563;    /* reciprocal flattening          */
+  const FLOAT_T b = a*(1.-f);                   /* semi-minor axis                */
+  const FLOAT_T b2 = b*b;                       
  
-  const FLOAT_T e2 = 2.*f-(f*f);// first eccentricity squared
-  const FLOAT_T ep2 = f*(2.-f)/((1.-f)*(1.-f)); // second eccentricity squared
+  const FLOAT_T e2 = 2.*f-(f*f);                /* first eccentricity squared     */
+  const FLOAT_T ep2 = f*(2.-f)/((1.-f)*(1.-f)); /* second eccentricity squared    */
   const FLOAT_T E2 = a*a - b2;
  
   
@@ -78,7 +116,7 @@ void lla_of_ecef_f(struct LlaCoor_f* out, struct EcefCoor_f* in) {
   const FLOAT_T zo = (b2*in->z)/(a*V);
  
   out->alt = U*(1 - b2/(a*V));
-  out->lat = atan( (in->z + ep2*zo)/r );
+  out->lat = atan((in->z + ep2*zo)/r);
   out->lon = atan2(in->y,in->x);
 
 }

@@ -49,8 +49,8 @@ void booz_fms_update_info(void) {
   PPRZ_INT16_OF_INT32_VECT3(booz_fms_info.imu.accel, booz_imu_state.accel);
   PPRZ_INT16_OF_INT32_VECT3(booz_fms_info.imu.mag,   booz_imu_state.mag);
 
-  PPRZ_INT32_VECT3_COPY(booz_fms_info.gps.pos, booz_gps_state.pos);
-  PPRZ_INT16_OF_INT32_VECT3(booz_fms_info.gps.speed, booz_gps_state.speed);
+  PPRZ_INT32_VECT3_COPY(booz_fms_info.gps.pos, booz_gps_state.ecef_pos);
+  PPRZ_INT16_OF_INT32_VECT3(booz_fms_info.gps.speed, booz_gps_state.ecef_speed);
   booz_fms_info.gps.pacc = booz_gps_state.pacc;
   booz_fms_info.gps.num_sv = booz_gps_state.num_sv;
   booz_fms_info.gps.fix = booz_gps_state.fix;

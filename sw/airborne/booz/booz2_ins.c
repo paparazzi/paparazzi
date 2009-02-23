@@ -10,15 +10,31 @@
 #ifdef USE_VFF
 #include "booz2_vf_float.h"
 #endif
-#ifdef SITL
+//#ifdef SITL
 #include "booz2_filter_attitude.h"
 #include "booz2_hf_float.h"
+//#endif
+
+#include "pprz_geodetic_int.h"
+
+
+/* gps transformed to LTP-NED  */
+struct LtpDef_i  booz_ins_ltp_def;
+         bool_t  booz_ins_ltp_initialised;
+struct NedCoor_i booz_ins_gps_pos_cm_ned;
+struct NedCoor_i booz_ins_gps_speed_cm_s_ned;
+
+/* barometer                   */
+#ifdef USE_VFF
+int32_t  booz_ins_qfe;
+bool_t   booz_ins_baro_initialised;
+int32_t  booz_ins_baro_alt;
 #endif
 
-
-struct LtpRef_f booz_ins_ltp_ref;
-         bool_t booz_ins_ltp_initialised;
-
+/* output                      */
+struct NedCoor_i booz_ins_ltp_pos;
+struct NedCoor_i booz_ins_ltp_speed;
+struct NedCoor_i booz_ins_ltp_accel;
 
 
 struct Pprz_int32_lla booz_ins_position_init_lla;  // LLA
@@ -28,20 +44,16 @@ struct Pprz_int32_vect3 booz_ins_position;    // NED
 struct Pprz_int32_vect3 booz_ins_speed_earth; // NED
 struct Pprz_int32_vect3 booz_ins_accel_earth; // NED
 
-#ifdef USE_VFF
-int32_t  booz_ins_baro_alt;
-int32_t  booz_ins_qfe;
-bool_t   booz_ins_baro_initialised;
-#endif
 
 void booz_ins_init() {
 #ifdef USE_VFF
+  booz_ins_ltp_initialised  = FALSE;
   booz_ins_baro_initialised = FALSE;
   b2_vff_init(0., 0., 0.);
 #endif
-#ifdef SITL
+  //#ifdef SITL
   b2ins_init();
-#endif
+  //#endif
 }
 
 void booz_ins_propagate() {
@@ -55,10 +67,11 @@ void booz_ins_propagate() {
     booz_ins_position.z = BOOZ_POS_I_OF_F(b2_vff_z);
   }
 #endif
-#ifdef SITL
-  if (booz2_filter_attitude_status == BOOZ2_FILTER_ATTITUDE_RUNNING)
+  //#ifdef SITL
+  if (booz2_filter_attitude_status == BOOZ2_FILTER_ATTITUDE_RUNNING &&
+      booz_gps_state.fix == BOOZ2_GPS_FIX_3D && booz_ins_ltp_initialised )
     b2ins_propagate();
-#endif
+  //#endif
 }
 
 void booz_ins_update_baro() {
@@ -93,14 +106,19 @@ void booz_ins_update_gps(void) {
 
   if (booz_gps_state.fix == BOOZ2_GPS_FIX_3D) {
     if (!booz_ins_ltp_initialised) {
-      
-
-
+      ltp_def_from_ecef_i(&booz_ins_ltp_def, &booz_gps_state.ecef_pos);
       booz_ins_ltp_initialised = TRUE;
     }
-#ifdef SITL
+    ned_of_ecef_point_i(&booz_ins_gps_pos_cm_ned, &booz_ins_ltp_def, &booz_gps_state.ecef_pos);
+    ned_of_ecef_vect_i(&booz_ins_gps_speed_cm_s_ned, &booz_ins_ltp_def, &booz_gps_state.ecef_speed);
+
+    //#ifdef SITL
     b2ins_update_gps();
-#endif
+    VECT2_SDIV(booz_ins_ltp_pos, (1<<(B2INS_POS_LTP_FRAC-IPOS_FRAC)), b2ins_pos_ltp);
+    VECT2_SDIV(booz_ins_ltp_speed, (1<<(B2INS_SPEED_LTP_FRAC-ISPEED_RES)), b2ins_speed_ltp);
+    //    VECT3_COPY(booz_ins_ltp_pos,   b2ins_meas_gps_pos_ned);
+    //    VECT3_COPY(booz_ins_ltp_speed, b2ins_meas_gps_speed_ned);
+    //#endif
   }
 
 }
