@@ -23,12 +23,6 @@ struct Int32Vect3  b2ins_meas_gps_speed_ned;
 
 void b2ins_init(void) {
   INT32_VECT3_ZERO(b2ins_accel_bias);
-  b2ins_body_to_imu_eulers.phi   = FILTER_ALIGNMENT_DPHI;
-  b2ins_body_to_imu_eulers.theta = FILTER_ALIGNMENT_DTHETA;
-  b2ins_body_to_imu_eulers.psi   = FILTER_ALIGNMENT_DPSI;
-  BOOZ_IQUAT_OF_EULER(b2ins_body_to_imu_quat, b2ins_body_to_imu_eulers);
-  INT32_QUAT_INVERT(b2ins_imu_to_body_quat, b2ins_body_to_imu_quat);
-
 }
 
 #ifdef BYPASS_AHRS
@@ -46,20 +40,19 @@ void b2ins_propagate(void) {
 #endif /* BYPASS_AHRS */
 
 
+  struct Int32Vect3 scaled_biases;
+  VECT3_SDIV(scaled_biases, (1<<(B2INS_ACCEL_BIAS_FRAC-B2INS_ACCEL_LTP_FRAC)), b2ins_accel_bias);
   struct Int32Vect3 accel_imu;
   /* unbias accelerometers */
-  VECT3_DIFF(accel_imu, booz2_imu_accel, b2ins_accel_bias);
+  VECT3_DIFF(accel_imu, booz2_imu_accel, scaled_biases);
   /* convert to LTP */
   BOOZ_IQUAT_VDIV(b2ins_accel_ltp, booz_ahrs.ltp_to_imu_quat, accel_imu);
   /* correct for gravity */
   b2ins_accel_ltp.z += BOOZ_ACCEL_I_OF_F(9.81);
-
-  /* propagate speed */
-  VECT3_ADD(b2ins_speed_ltp, b2ins_accel_ltp);
-
   /* propagate position */
   VECT3_ADD(b2ins_pos_ltp, b2ins_speed_ltp);
-
+  /* propagate speed */
+  VECT3_ADD(b2ins_speed_ltp, b2ins_accel_ltp);
 
 }
 
@@ -88,7 +81,7 @@ void b2ins_update_gps(void) {
   VECT2_SDIV(pos_cor_1, (1<<K_POS), pos_residual);
   VECT2_ADD(b2ins_pos_ltp, pos_cor_1);
   struct Int32Vect2 speed_cor_1;
-  VECT2_SDIV(speed_cor_1, (1<<(KPOS+9)), pos_residual);
+  VECT2_SDIV(speed_cor_1, (1<<(K_POS+9)), pos_residual);
   VECT2_ADD(b2ins_speed_ltp, speed_cor_1);
 #endif /* UPDATE_FROM_POS */
 
@@ -103,8 +96,13 @@ void b2ins_update_gps(void) {
   struct Int32Vect2 speed_cor_s;
   VECT2_SDIV(speed_cor_s, (1<<K_SPEED), speed_residual);
   VECT2_ADD(b2ins_speed_ltp, speed_cor_s);
+
+  struct Int32Vect3 speed_residual3;
+  VECT2_SDIV(speed_residual3, (1<<9), speed_residual);
+  speed_residual3.z = 0;
   struct Int32Vect3 bias_cor_s;
-  //  BOOZ_IQUAT_VMULT( bias_cor_s, b
+  BOOZ_IQUAT_VMULT( bias_cor_s, booz_ahrs.ltp_to_imu_quat, speed_residual3);
+  //  VECT3_ADD(b2ins_accel_bias, bias_cor_s); 
 
 #endif /* UPDATE_FROM_SPEED */ 
 

@@ -56,8 +56,8 @@
 #include "booz2_guidance_h.h"
 #include "booz2_guidance_v.h"
 
-#include "booz2_filter_aligner.h"
-#include "booz2_filter_attitude.h"
+#include "booz_ahrs_aligner.h"
+#include "booz_ahrs.h"
 #include "booz2_ins.h"
 
 #include "booz2_main.h"
@@ -108,8 +108,8 @@ STATIC_INLINE void booz2_main_init( void ) {
   booz2_stabilization_rate_init();
   booz2_stabilization_attitude_init();
 
-  booz2_filter_aligner_init();
-  booz2_ahrs_init();
+  booz_ahrs_aligner_init();
+  booz_ahrs_init();
 
   booz_ins_init();
 
@@ -183,17 +183,17 @@ static inline void on_imu_event( void ) {
   Booz2ImuScaleGyro();
   Booz2ImuScaleAccel();
 
-  if (booz_ahrs.status == BOOZ2_AHRS_UNINIT) {
+  if (booz_ahrs.status == BOOZ_AHRS_UNINIT) {
     // 150
-    booz2_filter_aligner_run();
-    if (booz2_filter_aligner_status == BOOZ2_FILTER_ALIGNER_LOCKED)
-      booz2_ahrs_align();
+    booz_ahrs_aligner_run();
+    if (booz_ahrs_aligner.status == BOOZ_AHRS_ALIGNER_LOCKED)
+      booz_ahrs_align();
   }
   else {
     //    LED_ON(7);
-    booz2_ahrs_propagate();
+    booz_ahrs_propagate();
     //    booz2_filter_attitude_update();
-
+    
     //    LED_OFF(7);
     booz_ins_propagate();
   }
@@ -214,9 +214,9 @@ static inline void on_gps_event(void) {
 }
 
 static inline void on_mag_event(void) {
-  booz2_imu_mag_unscaled.x = ami601_val[IMU_MAG_X_CHAN];
-  booz2_imu_mag_unscaled.y = ami601_val[IMU_MAG_Y_CHAN];
-  booz2_imu_mag_unscaled.z = ami601_val[IMU_MAG_Z_CHAN];
+  booz_imu.mag_unscaled.x = ami601_val[IMU_MAG_X_CHAN];
+  booz_imu.mag_unscaled.y = ami601_val[IMU_MAG_Y_CHAN];
+  booz_imu.mag_unscaled.z = ami601_val[IMU_MAG_Z_CHAN];
 
   //  LED_TOGGLE(2);
   Booz2ImuScaleMag();

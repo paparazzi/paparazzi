@@ -96,8 +96,8 @@ ap.CFLAGS += -DGPS_LINK=Uart0 -DGPS_LED=4
 
 ap.srcs += $(SRC_BOOZ)/booz2_autopilot.c
 
-ap.CFLAGS += -DFILTER_ALIGNER_LED=3
-ap.srcs += $(SRC_BOOZ)/booz2_filter_aligner2.c
+ap.CFLAGS += -DAHRS_ALIGNER_LED=3
+ap.srcs += $(SRC_BOOZ)/booz_ahrs_aligner.c
 ap.srcs += $(SRC_BOOZ)/booz2_filter_attitude_cmpl_euler.c
 ap.srcs += $(SRC_BOOZ)/booz_trig_int.c
 ap.srcs += $(SRC_BOOZ)/booz2_stabilization.c

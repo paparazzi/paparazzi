@@ -55,7 +55,7 @@ void booz_fms_update_info(void) {
   booz_fms_info.gps.num_sv = booz_gps_state.num_sv;
   booz_fms_info.gps.fix = booz_gps_state.fix;
 
-  PPRZ_INT16_OF_INT32_EULER(booz_fms_info.ahrs.euler, booz_ahrs_state.euler)
-  PPRZ_INT16_OF_INT32_RATE (booz_fms_info.ahrs.rate,  booz_ahrs_state.rate)
+  //  PPRZ_INT16_OF_INT32_EULER(booz_fms_info.ahrs.euler, booz_ahrs_state.euler)
+  //  PPRZ_INT16_OF_INT32_RATE (booz_fms_info.ahrs.rate,  booz_ahrs_state.rate)
 
 }

@@ -52,6 +52,10 @@
     <define name="MAG_Y_SENS" value="5.10207664" integer="16"/>
     <define name="MAG_Z_SENS" value="-4.90788848" integer="16"/>
 
+    <define name="BODY_TO_IMU_PHI"   value="ANGLE_BFP(RadOfDeg(10.66))"/>
+    <define name="BODY_TO_IMU_THETA" value="ANGLE_BFP(RadOfDeg(-0.7))"/>
+    <define name="BODY_TO_IMU_PSI"   value="ANGLE_BFP(RadOfDeg(0.))"/>
+
   </section>
 
   <section name="STABILIZATION_RATE" prefix="BOOZ_STABILIZATION_RATE_">
@@ -89,12 +93,6 @@
     <define name="TRIM_A" value="0"/>
     <define name="TRIM_E" value="6"/>
     <define name="TRIM_R" value="0"/>
-  </section>
-
-  <section name="FILTER" prefix="FILTER_">
-   <define name="ALIGNMENT_DPHI"   value="BOOZ_ANGLE_I_OF_F(RadOfDeg(10.66))"/>
-   <define name="ALIGNMENT_DTHETA" value="BOOZ_ANGLE_I_OF_F(RadOfDeg(-0.7))"/>
-   <define name="ALIGNMENT_DPSI"   value="BOOZ_ANGLE_I_OF_F(0.)"/>
   </section>
 
   <section name="INS" prefix="BOOZ_INS_">

@@ -10,10 +10,10 @@ void ltp_def_from_ecef_f(struct LtpDef_f* def, struct EcefCoor_f* ecef) {
   /* compute the lla representation of the origin */
   lla_of_ecef_f(&def->lla, &def->ecef);
   /* store the rotation matrix                    */
-  const float sin_lat = sin(def->lla.lat);
-  const float cos_lat = cos(def->lla.lat);
-  const float sin_lon = sin(def->lla.lon);
-  const float cos_lon = cos(def->lla.lon);
+  const float sin_lat = sinf(def->lla.lat);
+  const float cos_lat = cosf(def->lla.lat);
+  const float sin_lon = sinf(def->lla.lon);
+  const float cos_lon = cosf(def->lla.lon);
   def->ltp_of_ecef.m[0] = -sin_lon;
   def->ltp_of_ecef.m[1] =  cos_lon;
   def->ltp_of_ecef.m[2] =  0.;
@@ -89,35 +89,35 @@ void ecef_of_ned_vect_f(struct EcefCoor_f* ecef, struct LtpDef_f* def, struct Ne
 void lla_of_ecef_f(struct LlaCoor_f* out, struct EcefCoor_f* in) {
 
   // FIXME : make an ellipsoid struct
-  static const FLOAT_T a = 6378137.0;           /* earth semimajor axis in meters */
-  static const FLOAT_T f = 1./298.257223563;    /* reciprocal flattening          */
-  const FLOAT_T b = a*(1.-f);                   /* semi-minor axis                */
-  const FLOAT_T b2 = b*b;                       
+  static const float a = 6378137.0;           /* earth semimajor axis in meters */
+  static const float f = 1./298.257223563;    /* reciprocal flattening          */
+  const float b = a*(1.-f);                   /* semi-minor axis                */
+  const float b2 = b*b;                       
  
-  const FLOAT_T e2 = 2.*f-(f*f);                /* first eccentricity squared     */
-  const FLOAT_T ep2 = f*(2.-f)/((1.-f)*(1.-f)); /* second eccentricity squared    */
-  const FLOAT_T E2 = a*a - b2;
+  const float e2 = 2.*f-(f*f);                /* first eccentricity squared     */
+  const float ep2 = f*(2.-f)/((1.-f)*(1.-f)); /* second eccentricity squared    */
+  const float E2 = a*a - b2;
  
   
-  const FLOAT_T z2 = in->z*in->z;
-  const FLOAT_T r2 = in->x*in->x+in->y*in->y;
-  const FLOAT_T r = sqrt(r2);
-  const FLOAT_T F = 54.*b2*z2;
-  const FLOAT_T G = r2 + (1-e2)*z2 - e2*E2;
-  const FLOAT_T c = (e2*e2*F*r2)/(G*G*G);
-  const FLOAT_T s = powf( (1 + c + sqrt(c*c + 2*c)), 1./3.);
-  const FLOAT_T s1 = 1+s+1/s;
-  const FLOAT_T P = F/(3*s1*s1*G*G);
-  const FLOAT_T Q = sqrt(1+2*e2*e2*P);
-  const FLOAT_T ro = -(e2*P*r)/(1+Q) + sqrt((a*a/2)*(1+1/Q) - ((1-e2)*P*z2)/(Q*(1+Q)) - P*r2/2);
-  const FLOAT_T tmp = (r - e2*ro)*(r - e2*ro);
-  const FLOAT_T U = sqrt( tmp + z2 );
-  const FLOAT_T V = sqrt( tmp + (1-e2)*z2 );
-  const FLOAT_T zo = (b2*in->z)/(a*V);
+  const float z2 = in->z*in->z;
+  const float r2 = in->x*in->x+in->y*in->y;
+  const float r = sqrtf(r2);
+  const float F = 54.*b2*z2;
+  const float G = r2 + (1-e2)*z2 - e2*E2;
+  const float c = (e2*e2*F*r2)/(G*G*G);
+  const float s = powf( (1 + c + sqrtf(c*c + 2*c)), 1./3.);
+  const float s1 = 1+s+1/s;
+  const float P = F/(3*s1*s1*G*G);
+  const float Q = sqrtf(1+2*e2*e2*P);
+  const float ro = -(e2*P*r)/(1+Q) + sqrtf((a*a/2)*(1+1/Q) - ((1-e2)*P*z2)/(Q*(1+Q)) - P*r2/2);
+  const float tmp = (r - e2*ro)*(r - e2*ro);
+  const float U = sqrtf( tmp + z2 );
+  const float V = sqrtf( tmp + (1-e2)*z2 );
+  const float zo = (b2*in->z)/(a*V);
  
   out->alt = U*(1 - b2/(a*V));
-  out->lat = atan((in->z + ep2*zo)/r);
-  out->lon = atan2(in->y,in->x);
+  out->lat = atanf((in->z + ep2*zo)/r);
+  out->lon = atan2f(in->y,in->x);
 
 }
 

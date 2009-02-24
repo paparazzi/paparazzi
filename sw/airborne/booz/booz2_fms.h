@@ -53,7 +53,7 @@ struct Booz_fms_info {
   struct Booz_fms_imu_info  imu;
   struct Booz_fms_gps_info  gps;
   struct Booz_fms_ahrs_info ahrs;
-//  struct Booz_fms_ins_info  ins;
+  //  struct Booz_fms_ins_info  ins;
 };
 
 struct Booz_fms_command {

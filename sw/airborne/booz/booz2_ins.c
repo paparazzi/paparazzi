@@ -67,11 +67,9 @@ void booz_ins_propagate() {
     booz_ins_position.z = BOOZ_POS_I_OF_F(b2_vff_z);
   }
 #endif
-  //#ifdef SITL
   if (booz_ahrs.status == BOOZ2_AHRS_RUNNING &&
       booz_gps_state.fix == BOOZ2_GPS_FIX_3D && booz_ins_ltp_initialised )
     b2ins_propagate();
-  //#endif
 }
 
 void booz_ins_update_baro() {

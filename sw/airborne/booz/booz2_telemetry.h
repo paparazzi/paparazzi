@@ -69,41 +69,41 @@
 #endif // RADIO_CONTROL
 
 #define PERIODIC_SEND_BOOZ2_GYRO() {			\
-    DOWNLINK_SEND_BOOZ2_GYRO(&booz2_imu_gyro.x,		\
-			     &booz2_imu_gyro.y,		\
-			     &booz2_imu_gyro.z);	\
+    DOWNLINK_SEND_BOOZ2_GYRO(&booz_imu.gyro.p,		\
+			     &booz_imu.gyro.q,		\
+			     &booz_imu.gyro.r);		\
   }
 
 #define PERIODIC_SEND_BOOZ2_ACCEL() {				\
-    DOWNLINK_SEND_BOOZ2_ACCEL(&booz2_imu_accel.x,		\
-			      &booz2_imu_accel.y,		\
-			      &booz2_imu_accel.z);		\
+    DOWNLINK_SEND_BOOZ2_ACCEL(&booz_imu.accel.x,		\
+			      &booz_imu.accel.y,		\
+			      &booz_imu.accel.z);		\
   }
 
 #define PERIODIC_SEND_BOOZ2_MAG() {				\
-    DOWNLINK_SEND_BOOZ2_MAG(&booz2_imu_mag.x,			\
-			    &booz2_imu_mag.y,			\
-			    &booz2_imu_mag.z);			\
+    DOWNLINK_SEND_BOOZ2_MAG(&booz_imu.mag.x,			\
+			    &booz_imu.mag.y,			\
+			    &booz_imu.mag.z);			\
   }
 
 
 
 #define PERIODIC_SEND_IMU_GYRO_RAW() {					\
-    DOWNLINK_SEND_IMU_GYRO_RAW(&booz2_imu_gyro_unscaled.x,		\
-			       &booz2_imu_gyro_unscaled.y,		\
-			       &booz2_imu_gyro_unscaled.z);		\
+    DOWNLINK_SEND_IMU_GYRO_RAW(&booz_imu.gyro_unscaled.p,		\
+			       &booz_imu.gyro_unscaled.q,		\
+			       &booz_imu.gyro_unscaled.r);		\
   }
 
 #define PERIODIC_SEND_IMU_ACCEL_RAW() {					\
-    DOWNLINK_SEND_IMU_ACCEL_RAW(&booz2_imu_accel_unscaled.x,		\
-				&booz2_imu_accel_unscaled.y,		\
-				&booz2_imu_accel_unscaled.z);		\
+    DOWNLINK_SEND_IMU_ACCEL_RAW(&booz_imu.accel_unscaled.x,		\
+				&booz_imu.accel_unscaled.y,		\
+				&booz_imu.accel_unscaled.z);		\
   }
 
 #define PERIODIC_SEND_IMU_MAG_RAW() {					\
-    DOWNLINK_SEND_IMU_MAG_RAW(&booz2_imu_mag_unscaled.x,		\
-			      &booz2_imu_mag_unscaled.y,		\
-			      &booz2_imu_mag_unscaled.z);		\
+    DOWNLINK_SEND_IMU_MAG_RAW(&booz_imu.mag_unscaled.x,		\
+			      &booz_imu.mag_unscaled.y,		\
+			      &booz_imu.mag_unscaled.z);		\
   }
 
 
@@ -128,9 +128,9 @@
 
 #include "booz2_stabilization_attitude.h"
 #define PERIODIC_SEND_BOOZ2_STAB_ATTITUDE() {				\
-    DOWNLINK_SEND_BOOZ2_STAB_ATTITUDE(&booz_ahrs.body_rate.x,		\
-				      &booz_ahrs.body_rate.y,		\
-				      &booz_ahrs.body_rate.z,		\
+    DOWNLINK_SEND_BOOZ2_STAB_ATTITUDE(&booz_ahrs.body_rate.p,		\
+				      &booz_ahrs.body_rate.q,		\
+				      &booz_ahrs.body_rate.r,		\
 				      &booz_ahrs.ltp_to_body_euler.phi,	\
 				      &booz_ahrs.ltp_to_body_euler.theta, \
 				      &booz_ahrs.ltp_to_body_euler.psi,	\
@@ -165,7 +165,7 @@
 					      &booz_stabilization_rate_ref.z, \
 					      &booz_stabilization_accel_ref.z, \
 					      &booz_ahrs.ltp_to_body_euler.psi,	\
-					      &booz_ahrs.body_rate.z, \
+					      &booz_ahrs.body_rate.r, \
 					      &booz_stabilization_att_sum_err.psi, \
 					      &booz2_stabilization_cmd[COMMAND_YAW]); \
   }
@@ -175,23 +175,23 @@
 					      &booz_stabilization_rate_ref.x,  \
 					      &booz_stabilization_accel_ref.x, \
 					      &booz_ahrs.ltp_to_body_euler.phi,	\
-					      &booz_ahrs.body_rate.x, \
+					      &booz_ahrs.body_rate.p, \
 					      &booz_stabilization_att_sum_err.phi, \
 					      &booz2_stabilization_cmd[COMMAND_ROLL]); \
   }
 #endif
 
 
-#include "booz2_filter_aligner.h"
+#include "booz_ahrs_aligner.h"
 #define PERIODIC_SEND_BOOZ2_FILTER_ALIGNER() {				\
-    DOWNLINK_SEND_BOOZ2_FILTER_ALIGNER(&booz2_filter_aligner_lp_gyro.x,	\
-				       &booz2_filter_aligner_lp_gyro.y,	\
-				       &booz2_filter_aligner_lp_gyro.z,	\
-				       &booz2_imu_gyro.x,		\
-				       &booz2_imu_gyro.y,		\
-				       &booz2_imu_gyro.z,		\
-				       &booz2_filter_aligner_noise,	\
-				       &booz2_filter_aligner_low_noise_cnt); \
+    DOWNLINK_SEND_BOOZ2_FILTER_ALIGNER(&booz_ahrs_aligner.lp_gyro.p,	\
+				       &booz_ahrs_aligner.lp_gyro.q,	\
+				       &booz_ahrs_aligner.lp_gyro.r,	\
+				       &booz_imu.gyro.p,		\
+				       &booz_imu.gyro.q,		\
+				       &booz_imu.gyro.r,		\
+				       &booz_ahrs_aligner.noise,	\
+				       &booz_ahrs_aligner.low_noise_cnt); \
   }
 
 
@@ -218,9 +218,9 @@
 			       &booz2_face_residual.phi,		\
 			       &booz2_face_residual.theta,		\
 			       &booz2_face_residual.psi,		\
-			       &booz2_face_gyro_bias.x,			\
-			       &booz2_face_gyro_bias.y,			\
-			       &booz2_face_gyro_bias.z);		\
+			       &booz2_face_gyro_bias.p,			\
+			       &booz2_face_gyro_bias.q,			\
+			       &booz2_face_gyro_bias.r);		\
   }
 
 

@@ -5,6 +5,7 @@
 #include "pprz_algebra_int.h"
 
 extern struct Int32Vect3 b2ins_accel_bias;
+#define B2INS_ACCEL_BIAS_FRAC 19
 extern struct Int32Vect3 b2ins_accel_ltp;
 #define B2INS_ACCEL_LTP_FRAC 10
 extern struct Int32Vect3 b2ins_speed_ltp;

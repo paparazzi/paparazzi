@@ -237,13 +237,6 @@ struct Pprz_int32_quat {
   }
 
 
-#define BOOZ_IQUAT_ZERO(q) {						\
-    q.qi = (1 << IQUAT_RES);						\
-    q.qx = 0;								\
-    q.qy = 0;								\
-    q.qz = 0;								\
-  }
-
 
 #define BOOZ_IQUAT_COPY(_qo, _qi) {					\
     _qo.qi = _qi.qi;							\
@@ -310,10 +303,6 @@ struct Pprz_int32_quat {
     qdot.qz = qdot.qz + ((dn * q.qz)>>IQUAT_RES);			\
   }
 
-#define BOOZ_IQUAT_NORM(n, q) {			                        \
-    int32_t n2 = q.qi*q.qi + q.qx*q.qx + q.qy*q.qy + q.qz*q.qz;		\
-    BOOZ_ISQRT(n, n2);							\
-  }
 
 /* wrong !!! */
 #define BOOZ_IQUAT_INTEG_T(q,qdot,f) {		                        \
@@ -333,17 +322,12 @@ struct Pprz_int32_quat {
 
 
 
-#define BOOZ_IQUAT_NORMALISE(q) {		                        \
-    int32_t n;								\
-    BOOZ_IQUAT_NORM(n, q);						\
-    q.qi = q.qi * (1<<(IQUAT_RES)) / n;					\
-    q.qx = q.qx * (1<<(IQUAT_RES)) / n;					\
-    q.qy = q.qy * (1<<(IQUAT_RES)) / n;					\
-    q.qz = q.qz * (1<<(IQUAT_RES)) / n;					\
-  }
 
 
-#define BOOZ_IQUAT_VMULT(v_out, q, v_in) {				\
+/*
+  rotate a vector by the invert of a quaternion 
+*/
+#define BOOZ_IQUAT_VDIV(v_out, q, v_in) {				\
     const int32_t qi2  = (q.qi*q.qi)>>IQUAT_RES;			\
     const int32_t qx2  = (q.qx*q.qx)>>IQUAT_RES;			\
     const int32_t qy2  = (q.qy*q.qy)>>IQUAT_RES;			\
@@ -363,10 +347,13 @@ struct Pprz_int32_quat {
     const int32_t m20 = 2 * (qxqz + qiqy );				\
     const int32_t m21 = 2 * (qyqz - qiqx );				\
     const int32_t m22 = qi2 - qx2 - qy2 + qz2;				\
-    v_out.x = (m00 * v_in.x + m01 * v_in.y + m02 * v_in.z)>>IQUAT_RES;	\
-    v_out.y = (m10 * v_in.x + m11 * v_in.y + m12 * v_in.z)>>IQUAT_RES;	\
-    v_out.z = (m20 * v_in.x + m21 * v_in.y + m22 * v_in.z)>>IQUAT_RES;	\
+    v_out.x = (m00 * v_in.x + m10 * v_in.y + m20 * v_in.z)>>IQUAT_RES;	\
+    v_out.y = (m01 * v_in.x + m11 * v_in.y + m21 * v_in.z)>>IQUAT_RES;	\
+    v_out.z = (m02 * v_in.x + m12 * v_in.y + m22 * v_in.z)>>IQUAT_RES;	\
   }
+
+
+
 
 
 /* 
@@ -388,40 +375,6 @@ struct Pprz_int32_quat {
     v_out.x = (m02 * zv_in)>>IQUAT_RES;					\
     v_out.y = (m12 * zv_in)>>IQUAT_RES;					\
     v_out.z = (m22 * zv_in)>>IQUAT_RES;					\
-  }
-
-
-#define BOOZ_IQUAT_OF_EULER(q, e) {                                     \
-    const int32_t phi2   = e.phi   / 2;					\
-    const int32_t theta2 = e.theta / 2;					\
-    const int32_t psi2   = e.psi   / 2;					\
-									\
-    int32_t s_phi2;							\
-    BOOZ_ISIN(s_phi2, phi2);						\
-    int32_t c_phi2;							\
-    BOOZ_ICOS(c_phi2, phi2);						\
-    int32_t s_theta2;							\
-    BOOZ_ISIN(s_theta2, theta2);					\
-    int32_t c_theta2;							\
-    BOOZ_ICOS(c_theta2, theta2);					\
-    int32_t s_psi2;							\
-    BOOZ_ISIN(s_psi2, psi2);						\
-    int32_t c_psi2;							\
-    BOOZ_ICOS(c_psi2, psi2);						\
-									\
-    int32_t c_th_c_ps = BOOZ_IMULT(c_theta2, c_psi2, ITRIG_RES);	\
-    int32_t c_th_s_ps = BOOZ_IMULT(c_theta2, s_psi2, ITRIG_RES);	\
-    int32_t s_th_s_ps = BOOZ_IMULT(s_theta2, s_psi2, ITRIG_RES);	\
-    int32_t s_th_c_ps = BOOZ_IMULT(s_theta2, c_psi2, ITRIG_RES);	\
-    									\
-    q.qi = BOOZ_IMULT( c_phi2, c_th_c_ps, ITRIG_RES + ITRIG_RES - IQUAT_RES) + \
-           BOOZ_IMULT( s_phi2, s_th_s_ps, ITRIG_RES + ITRIG_RES - IQUAT_RES);  \
-    q.qx = BOOZ_IMULT(-c_phi2, s_th_s_ps, ITRIG_RES + ITRIG_RES - IQUAT_RES) + \
-           BOOZ_IMULT( s_phi2, c_th_c_ps, ITRIG_RES + ITRIG_RES - IQUAT_RES);  \
-    q.qy = BOOZ_IMULT( c_phi2, s_th_c_ps, ITRIG_RES + ITRIG_RES - IQUAT_RES) + \
-           BOOZ_IMULT( s_phi2, c_th_s_ps, ITRIG_RES + ITRIG_RES - IQUAT_RES);  \
-    q.qz = BOOZ_IMULT( c_phi2, c_th_s_ps, ITRIG_RES + ITRIG_RES - IQUAT_RES) + \
-           BOOZ_IMULT(-s_phi2, s_th_c_ps, ITRIG_RES + ITRIG_RES - IQUAT_RES);  \
   }
 
 
@@ -497,11 +450,6 @@ struct Pprz_int32_quat {
     BOOZ_IVECT_ASSIGN(v, 0, 0, 0);					\
   }
 
-
-#define BOOZ_IVECT_NORM(n, v) {			                        \
-    int32_t n2 = v.x*v.x + v.y*v.y + v.z*v.z;				\
-    BOOZ_ISQRT(n, n2);							\
-  }
 
 
 #define BOOZ_IVECT_DIFF(c, a, b) {		                        \

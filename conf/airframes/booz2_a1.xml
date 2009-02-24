@@ -70,6 +70,10 @@
     <define name="MAG_X_SENS" value="-3.4936416" integer="16"/>
     <define name="MAG_Y_SENS" value=" 3.607713"  integer="16"/>
 
+   <define name="BODY_TO_IMU_PHI"   value="ANGLE_BFP(RadOfDeg(4.))"/>
+   <define name="BODY_TO_IMU_THETA" value="ANGLE_BFP(RadOfDeg(3.))"/>
+   <define name="BODY_TO_IMU_PSI"   value="ANGLE_BFP(RadOfDeg(0.))"/>
+
   </section>
 
   <section name="STABILIZATION_RATE" prefix="BOOZ_STABILIZATION_RATE_">
@@ -103,13 +107,6 @@
     <define name="PSI_IGAIN"  value="-75"/>
 
   </section>
-
-  <section name="FILTER" prefix="FILTER_">
-   <define name="ALIGNMENT_DPHI"   value="BOOZ_ANGLE_I_OF_F(RadOfDeg(4.))"/>
-   <define name="ALIGNMENT_DTHETA" value="BOOZ_ANGLE_I_OF_F(RadOfDeg(3.))"/>
-   <define name="ALIGNMENT_DPSI"   value="BOOZ_ANGLE_I_OF_F(0.)"/>
-  </section>
-
 
   <section name="INS" prefix="BOOZ_INS_">
     <define name="BARO_SENS" value="15." integer="16"/>

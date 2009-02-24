@@ -81,8 +81,8 @@ sim.srcs += $(SRC_BOOZ)/booz2_gps.c
 
 sim.srcs += $(SRC_BOOZ)/booz2_autopilot.c
 
-sim.CFLAGS += -DFILTER_ALIGNER_LED=3
-sim.srcs += $(SRC_BOOZ)/booz2_filter_aligner2.c
+sim.CFLAGS += -DAHRS_ALIGNER_LED=3
+sim.srcs += $(SRC_BOOZ)/booz_ahrs_aligner.c
 sim.srcs += $(SRC_BOOZ)/booz2_filter_attitude_cmpl_euler.c
 sim.srcs += $(SRC_BOOZ)/booz_trig_int.c
 sim.srcs += $(SRC_BOOZ)/booz2_stabilization.c
