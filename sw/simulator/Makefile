@@ -80,7 +80,7 @@ diffusion : stdlib.cmo diffusion.cmo
 	$(Q)$(OCAMLC) $(INCLUDES) -c $<
 
 clean :
-	rm -f *.cm* *~ *.out .depend *.o *.a *.so gaia simhitl booz_sim nps_test1
+	rm -f *.cm* *~ *.out .depend *.o *.a *.so gaia simhitl booz_sim test2
 
 
 #
@@ -96,14 +96,11 @@ LDFLAGS += -lmeschach
 #CFLAGS  += `pkg-config glib-2.0 --cflags`
 #LDFLAGS += `pkg-config glib-2.0 --libs` -lm -lpcre -lglibivy
 
-test1: nps_test1.c
-	$(CC) $(CFLAGS) -o $@ $< $(LDFLAGS)
+test1: nps_test1.c nps_jsbsim.c
+	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
-
-#
-#  NPS
-#
-JSBSIM_SRC = /home/gustavo...
+test2: nps_test2.c nps_jsbsim.c
+	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
 
 

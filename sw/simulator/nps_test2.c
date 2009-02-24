@@ -1,4 +1,4 @@
-#include <glib.h>
+#include <glibmm.h>
 #include <getopt.h>
 #include <sys/time.h>
 
@@ -6,6 +6,7 @@
 #include <Ivy/ivyglibloop.h>
 
 #include "nps_fdm.h"
+#include "nps_jsbsim.h"
 
 static struct NpsFdmState fdm_state;
 
@@ -34,18 +35,17 @@ static gboolean sim_periodic(gpointer data __attribute__ ((unused))) {
     sim_time += SIM_DT;
   }  
     
-  
-    
   return TRUE;
 }
 
 static void sim_run_one_step(void) {
 
-  // met les entrées
-
-  // fait tourner 1 coupo JSBSIM
-
-  // affiche l'etat
+  // run autopilot
+  nps_jsbsim_feed_inputs(fdmex, &fdm_state);
+  result = fdmex->Run();
+  nps_jsbsim_fetch_state(fdmex, &fdm_state);
+  
+  // Balancer les messages
 
   //  IvySendMsg("%d BOOZ_SIM_SPEED_POS %f %f %f %f %f %f",  
   //	     AC_ID,
@@ -57,22 +57,23 @@ static void sim_run_one_step(void) {
   //	     (bfm.pos_ltp->ve[AXIS_Z]));
 
 
-
-
 }
-
 
 static void sim_init(void) {
 
+  /* Setting JSBSim */
+  
+  if (~JSBInit(SIM_DT)) {/* message d'erreur */}
+  
+  /* Setting Ivy */
+
   gettimeofday (&host_time_start, NULL);
   sim_time = 0.;
-
+  
   IvyInit ("nps_test2", "nps_test2 READY", NULL, NULL, NULL, NULL);
   IvyStart("127.255.255.255");
 
 }
-
-
 
 int main ( int argc, char** argv) {
 

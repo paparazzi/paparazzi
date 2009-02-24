@@ -4,11 +4,14 @@
 #include "std.h"
 #include <matrix.h>
 
+/* Unit Conversion Constants */
+
+#define FT2M 0.3048
 
 /* Vehicle specific descriptions */
 
 struct NpsDummy {
-  /* force applied to the ball in Newton */
+  /* throttle for the control force */
   double f_input;
 };
 
@@ -52,15 +55,13 @@ struct NpsFdmState {
   bool_t on_ground;
   
   VEC* ecef_pos;
-  VEC* ecef_speed;
+  VEC* ecef_vel;
   VEC* ecef_accel;
 
   VEC* ltp_to_body_quat;
   VEC* ltp_body_rate;
   VEC* ltp_body_accel;
 
-  VEC* ecef_to_ltp_quat;
-  
   /* vehicle specific */
   union {
     struct NpsDummy dummy;
