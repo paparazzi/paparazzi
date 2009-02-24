@@ -10,9 +10,9 @@ extern void booz2_imu_periodic(void);
 
 #define Booz2ImuEvent(handler) {					\
     if (booz2_max1168_status == STA_MAX1168_DATA_AVAILABLE) {		\
-      booz_imu.gyro_unscaled.p = booz2_max1168_values[IMU_GYRO_X_CHAN]; \
-      booz_imu.gyro_unscaled.q = booz2_max1168_values[IMU_GYRO_Y_CHAN]; \
-      booz_imu.gyro_unscaled.r = booz2_max1168_values[IMU_GYRO_Z_CHAN]; \
+      booz_imu.gyro_unscaled.p = booz2_max1168_values[IMU_GYRO_P_CHAN]; \
+      booz_imu.gyro_unscaled.q = booz2_max1168_values[IMU_GYRO_Q_CHAN]; \
+      booz_imu.gyro_unscaled.r = booz2_max1168_values[IMU_GYRO_R_CHAN]; \
       booz_imu.accel_unscaled.x = booz2_max1168_values[IMU_ACCEL_X_CHAN]; \
       booz_imu.accel_unscaled.y = booz2_max1168_values[IMU_ACCEL_Y_CHAN]; \
       booz_imu.accel_unscaled.z = booz2_max1168_values[IMU_ACCEL_Z_CHAN]; \

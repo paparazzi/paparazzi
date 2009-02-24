@@ -33,9 +33,9 @@
 extern void booz2_imu_b2_hw_init(void);
 
 #define booz2_imu_feed_data() {						\
-    booz2_max1168_values[IMU_GYRO_X_CHAN] = bsm.gyro->ve[AXIS_P];	\
-    booz2_max1168_values[IMU_GYRO_Y_CHAN] = bsm.gyro->ve[AXIS_Q];	\
-    booz2_max1168_values[IMU_GYRO_Z_CHAN] = bsm.gyro->ve[AXIS_R];	\
+    booz2_max1168_values[IMU_GYRO_P_CHAN] = bsm.gyro->ve[AXIS_P];	\
+    booz2_max1168_values[IMU_GYRO_Q_CHAN] = bsm.gyro->ve[AXIS_Q];	\
+    booz2_max1168_values[IMU_GYRO_R_CHAN] = bsm.gyro->ve[AXIS_R];	\
     booz2_max1168_values[IMU_ACCEL_X_CHAN] = bsm.accel->ve[AXIS_X];	\
     booz2_max1168_values[IMU_ACCEL_Y_CHAN] = bsm.accel->ve[AXIS_Y];	\
     booz2_max1168_values[IMU_ACCEL_Z_CHAN] = bsm.accel->ve[AXIS_Z];	\

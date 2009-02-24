@@ -2,7 +2,7 @@
 
 #include "booz2_imu.h"
 #include "booz2_gps.h"
-#include "booz2_filter_attitude.h"
+#include "booz_ahrs.h"
 
 bool_t  booz_fms_on;
 bool_t  booz_fms_timeout;
@@ -45,9 +45,9 @@ void booz_fms_set_on_off(bool_t state) {
 
 void booz_fms_update_info(void) {
 
-  PPRZ_INT16_OF_INT32_VECT3(booz_fms_info.imu.gyro,  booz_imu_state.gyro);
-  PPRZ_INT16_OF_INT32_VECT3(booz_fms_info.imu.accel, booz_imu_state.accel);
-  PPRZ_INT16_OF_INT32_VECT3(booz_fms_info.imu.mag,   booz_imu_state.mag);
+  //  PPRZ_INT16_OF_INT32_RATES(booz_fms_info.imu.gyro,  booz_imu.gyro);
+  PPRZ_INT16_OF_INT32_VECT3(booz_fms_info.imu.accel, booz_imu.accel);
+  PPRZ_INT16_OF_INT32_VECT3(booz_fms_info.imu.mag,   booz_imu.mag);
 
   PPRZ_INT32_VECT3_COPY(booz_fms_info.gps.pos, booz_gps_state.ecef_pos);
   PPRZ_INT16_OF_INT32_VECT3(booz_fms_info.gps.speed, booz_gps_state.ecef_speed);

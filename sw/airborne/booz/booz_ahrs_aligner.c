@@ -36,8 +36,8 @@ void booz_ahrs_aligner_run(void) {
   ref_sensor_samples[samples_idx] = booz_imu.accel.z;
   samples_idx++;
 
-#ifdef FILTER_ALIGNER_LED
-  RunOnceEvery(50, {LED_TOGGLE(FILTER_ALIGNER_LED);});
+#ifdef AHRS_ALIGNER_LED
+  RunOnceEvery(50, {LED_TOGGLE(AHRS_ALIGNER_LED);});
 #endif
 
   if (samples_idx >= SAMPLES_NB) {
@@ -72,8 +72,8 @@ void booz_ahrs_aligner_run(void) {
     
     if (booz_ahrs_aligner.low_noise_cnt > LOW_NOISE_TIME) {
       booz_ahrs_aligner.status = BOOZ_AHRS_ALIGNER_LOCKED;
-#ifdef FILTER_ALIGNER_LED
-      LED_ON(FILTER_ALIGNER_LED);
+#ifdef AHRS_ALIGNER_LED
+      LED_ON(AHRS_ALIGNER_LED);
 #endif
     }
   }

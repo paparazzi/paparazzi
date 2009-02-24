@@ -1,6 +1,6 @@
 #include "booz2_guidance_h.h"
 
-#include "booz2_filter_attitude.h"
+#include "booz_ahrs.h"
 #include "booz2_stabilization_rate.h"
 #include "booz2_stabilization_attitude.h"
 #include "booz2_stabilization_attitude_ref_traj_euler.h"

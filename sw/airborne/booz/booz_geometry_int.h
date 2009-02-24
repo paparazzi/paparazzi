@@ -246,28 +246,6 @@ struct Pprz_int32_quat {
   }
 
 
-#define BOOZ_IQUAT_INVERT(_qo, _qi) {					\
-    _qo.qi = _qi.qi;							\
-    _qo.qx = -_qi.qx;							\
-    _qo.qy = -_qi.qy;							\
-    _qo.qz = -_qi.qz;							\
-  }
-
-
-#define BOOZ_IQUAT_MULT(c, a, b) {					\
-    c.qi = (a.qi*b.qi - a.qx*b.qx - a.qy*b.qy - a.qz*b.qz)>>IQUAT_RES;	\
-    c.qx = (a.qi*b.qx + a.qx*b.qi + a.qy*b.qz - a.qz*b.qy)>>IQUAT_RES;	\
-    c.qy = (a.qi*b.qy - a.qx*b.qz + a.qy*b.qi + a.qz*b.qx)>>IQUAT_RES;	\
-    c.qz = (a.qi*b.qz + a.qx*b.qy - a.qy*b.qx + a.qz*b.qi)>>IQUAT_RES;	\
-  }
-
-#define BOOZ_IQUAT_DIV(b, a, c) {					\
-    b.qi = (c.qi*a.qi + c.qx*a.qx + c.qy*a.qy + c.qz*a.qz)>>IQUAT_RES;	\
-    b.qx = (c.qx*a.qi - c.qi*a.qx - c.qz*a.qy + c.qy*a.qz)>>IQUAT_RES;	\
-    b.qy = (c.qy*a.qi + c.qz*a.qx - c.qi*a.qy - c.qx*a.qz)>>IQUAT_RES;	\
-    b.qz = (c.qz*a.qi - c.qy*a.qx + c.qx*a.qy - c.qi*a.qz)>>IQUAT_RES;	\
-  }
-
 #define BOOZ_IQUAT_EXPLEMENTARY(b,a) {		                        \
     b.qi = -a.qi;							\
     b.qx = -a.qx;							\

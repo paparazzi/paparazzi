@@ -27,9 +27,9 @@ extern void booz2_imu_init(void);
 
 #define Booz2ImuScaleGyro() {						\
     RATES_COPY(booz_imu.gyro_prev, booz_imu.gyro);			\
-    booz_imu.gyro.p = ((booz_imu.gyro_unscaled.p - booz_imu.gyro_neutral.p)*IMU_GYRO_X_SENS_NUM)/IMU_GYRO_X_SENS_DEN; \
-    booz_imu.gyro.q = ((booz_imu.gyro_unscaled.q - booz_imu.gyro_neutral.q)*IMU_GYRO_Y_SENS_NUM)/IMU_GYRO_Y_SENS_DEN; \
-    booz_imu.gyro.r = ((booz_imu.gyro_unscaled.r - booz_imu.gyro_neutral.r)*IMU_GYRO_Z_SENS_NUM)/IMU_GYRO_Z_SENS_DEN; \
+    booz_imu.gyro.p = ((booz_imu.gyro_unscaled.p - booz_imu.gyro_neutral.p)*IMU_GYRO_P_SENS_NUM)/IMU_GYRO_P_SENS_DEN; \
+    booz_imu.gyro.q = ((booz_imu.gyro_unscaled.q - booz_imu.gyro_neutral.q)*IMU_GYRO_Q_SENS_NUM)/IMU_GYRO_Q_SENS_DEN; \
+    booz_imu.gyro.r = ((booz_imu.gyro_unscaled.r - booz_imu.gyro_neutral.r)*IMU_GYRO_R_SENS_NUM)/IMU_GYRO_R_SENS_DEN; \
   }
 
 

@@ -2,7 +2,7 @@
 
 #include "booz2_stabilization_attitude_ref_traj_euler.h"
 #include "booz2_stabilization.h"
-#include "booz2_filter_attitude.h"
+#include "booz_ahrs.h"
 #include "airframe.h"
 #include "radio_control.h"
 
@@ -96,28 +96,28 @@ void booz2_stabilization_attitude_run(bool_t  in_flight) {
   }
   
   /* compute rate error                */
-  const struct booz_ivect rate_ref_scaled = {
+  const struct Int32Rates rate_ref_scaled = {
     booz_stabilization_rate_ref.x >> (RATE_REF_RES - IRATE_RES),
     booz_stabilization_rate_ref.y >> (RATE_REF_RES - IRATE_RES),
     booz_stabilization_rate_ref.z >> (RATE_REF_RES - IRATE_RES) };
-  struct booz_ivect rate_err;
-  BOOZ_IVECT_DIFF(rate_err, booz_ahrs.body_rate, rate_ref_scaled);
+  struct Int32Rates rate_err;
+  RATES_DIFF(rate_err, booz_ahrs.body_rate, rate_ref_scaled);
 
   /* compute PID loop                  */
   booz2_stabilization_cmd[COMMAND_ROLL] = booz_stabilization_pgain.x    * att_err.phi +
-    booz_stabilization_dgain.x    * rate_err.x +
+    booz_stabilization_dgain.x    * rate_err.p +
     ((booz_stabilization_ddgain.x * booz_stabilization_accel_ref.x) >> 5) +
     ((booz_stabilization_igain.x  * booz_stabilization_att_sum_err.phi) >> 10);
   booz2_stabilization_cmd[COMMAND_ROLL] = booz2_stabilization_cmd[COMMAND_ROLL] >> 16;
 
   booz2_stabilization_cmd[COMMAND_PITCH] = booz_stabilization_pgain.y    * att_err.theta +
-    booz_stabilization_dgain.y    * rate_err.y +
+    booz_stabilization_dgain.y    * rate_err.q +
     ((booz_stabilization_ddgain.y * booz_stabilization_accel_ref.y) >> 5) +
     ((booz_stabilization_igain.y  * booz_stabilization_att_sum_err.theta) >> 10);
   booz2_stabilization_cmd[COMMAND_PITCH] = booz2_stabilization_cmd[COMMAND_PITCH] >> 16;
   
   booz2_stabilization_cmd[COMMAND_YAW] = booz_stabilization_pgain.z    * att_err.psi +
-    booz_stabilization_dgain.z    * rate_err.z +
+    booz_stabilization_dgain.z    * rate_err.r +
     ((booz_stabilization_ddgain.z * booz_stabilization_accel_ref.z) >> 5) +
     ((booz_stabilization_igain.z  * booz_stabilization_att_sum_err.psi) >> 10);
   booz2_stabilization_cmd[COMMAND_YAW] = booz2_stabilization_cmd[COMMAND_YAW] >> 16;

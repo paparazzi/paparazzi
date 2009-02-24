@@ -200,9 +200,6 @@ static inline void on_imu_event( void ) {
 }
 
 static inline void on_baro_event( void ) {
-  RunOnceEvery(20, {
-      DOWNLINK_SEND_ADC_GENERIC(&booz2_analog_baro_offset, &booz2_analog_baro_value_filtered);
-    });
   booz_ins_update_baro();
 }
 

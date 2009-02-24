@@ -10,10 +10,9 @@
 #ifdef USE_VFF
 #include "booz2_vf_float.h"
 #endif
-//#ifdef SITL
-#include "booz2_filter_attitude.h"
+
+#include "booz_ahrs.h"
 #include "booz2_hf_float.h"
-//#endif
 
 #include "pprz_geodetic_int.h"
 
@@ -60,14 +59,14 @@ void booz_ins_propagate() {
 
 #ifdef USE_VFF
   if (booz2_analog_baro_status == BOOZ2_ANALOG_BARO_RUNNING && booz_ins_baro_initialised) {
-    FLOAT_T accel_float = BOOZ_ACCEL_F_OF_I(booz2_imu_accel.z);
+    FLOAT_T accel_float = BOOZ_ACCEL_F_OF_I(booz_imu.accel.z);
     b2_vff_propagate(accel_float);
     booz_ins_accel_earth.z = BOOZ_ACCEL_I_OF_F(b2_vff_zdotdot);
     booz_ins_speed_earth.z = BOOZ_SPEED_I_OF_F(b2_vff_zdot);
     booz_ins_position.z = BOOZ_POS_I_OF_F(b2_vff_z);
   }
 #endif
-  if (booz_ahrs.status == BOOZ2_AHRS_RUNNING &&
+  if (booz_ahrs.status == BOOZ_AHRS_RUNNING &&
       booz_gps_state.fix == BOOZ2_GPS_FIX_3D && booz_ins_ltp_initialised )
     b2ins_propagate();
 }

@@ -29,17 +29,17 @@
 
   <section name="IMU" prefix="IMU_">
 
-    <define name="GYRO_X_CHAN" value="1"/>
-    <define name="GYRO_Y_CHAN" value="0"/>
-    <define name="GYRO_Z_CHAN" value="2"/>
+    <define name="GYRO_P_CHAN" value="1"/>
+    <define name="GYRO_Q_CHAN" value="0"/>
+    <define name="GYRO_R_CHAN" value="2"/>
 
-    <define name="GYRO_X_NEUTRAL" value="33924"/>
-    <define name="GYRO_Y_NEUTRAL" value="33417"/>
-    <define name="GYRO_Z_NEUTRAL" value="32809"/>
+    <define name="GYRO_P_NEUTRAL" value="33924"/>
+    <define name="GYRO_Q_NEUTRAL" value="33417"/>
+    <define name="GYRO_R_NEUTRAL" value="32809"/>
 
-    <define name="GYRO_X_SENS" value=" 1.01" integer="16"/>
-    <define name="GYRO_Y_SENS" value="-1.01" integer="16"/>
-    <define name="GYRO_Z_SENS" value="-1.01" integer="16"/>
+    <define name="GYRO_P_SENS" value=" 1.01" integer="16"/>
+    <define name="GYRO_Q_SENS" value="-1.01" integer="16"/>
+    <define name="GYRO_R_SENS" value="-1.01" integer="16"/>
   
     <define name="ACCEL_X_CHAN" value="3"/>
     <define name="ACCEL_Y_CHAN" value="5"/>
@@ -110,8 +110,6 @@
 
   <section name="INS" prefix="BOOZ_INS_">
     <define name="BARO_SENS" value="15." integer="16"/>
-    <define name="POS_OF_CM" value="2.56" integer="16"/>
-    <define name="SPEED_OF_CM_S" value="5242.88" integer="16"/>
   </section>
 
   <section name="GUIDANCE_V" prefix="BOOZ2_GUIDANCE_V_">

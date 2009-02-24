@@ -7,7 +7,7 @@ struct BoozImu booz_imu;
 void booz2_imu_init(void) {
 
   /* initialises neutrals */
-  VECT3_ASSIGN(booz_imu.gyro_neutral,  IMU_GYRO_X_NEUTRAL,  IMU_GYRO_Y_NEUTRAL,  IMU_GYRO_Z_NEUTRAL);
+  RATES_ASSIGN(booz_imu.gyro_neutral,  IMU_GYRO_P_NEUTRAL,  IMU_GYRO_Q_NEUTRAL,  IMU_GYRO_R_NEUTRAL);
   VECT3_ASSIGN(booz_imu.accel_neutral, IMU_ACCEL_X_NEUTRAL, IMU_ACCEL_Y_NEUTRAL, IMU_ACCEL_Z_NEUTRAL);
   VECT3_ASSIGN(booz_imu.mag_neutral,   IMU_MAG_X_NEUTRAL,   IMU_MAG_Y_NEUTRAL,   IMU_MAG_Z_NEUTRAL);
   

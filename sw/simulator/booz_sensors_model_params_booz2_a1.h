@@ -30,6 +30,8 @@
 
 #define BSM_BODY_TO_IMU_PHI    RadOfDeg(4.)
 #define BSM_BODY_TO_IMU_THETA  RadOfDeg(3.)
+//#define BSM_BODY_TO_IMU_PHI    RadOfDeg(0.)
+//#define BSM_BODY_TO_IMU_THETA  RadOfDeg(0.)
 #define BSM_BODY_TO_IMU_PSI    RadOfDeg(0.)
 
 /* 
@@ -113,13 +115,13 @@
 #define BSM_MAG_NEUTRAL_Y  2362
 #define BSM_MAG_NEUTRAL_Z  2119
 
-//#define BSM_MAG_NOISE_STD_DEV_X  0
-//#define BSM_MAG_NOISE_STD_DEV_Y  0
-//#define BSM_MAG_NOISE_STD_DEV_Z  0
+#define BSM_MAG_NOISE_STD_DEV_X  0
+#define BSM_MAG_NOISE_STD_DEV_Y  0
+#define BSM_MAG_NOISE_STD_DEV_Z  0
 
-#define BSM_MAG_NOISE_STD_DEV_X  2e-3
-#define BSM_MAG_NOISE_STD_DEV_Y  2e-3
-#define BSM_MAG_NOISE_STD_DEV_Z  2e-3
+//#define BSM_MAG_NOISE_STD_DEV_X  2e-3
+//#define BSM_MAG_NOISE_STD_DEV_Y  2e-3
+//#define BSM_MAG_NOISE_STD_DEV_Z  2e-3
 
 #define BSM_MAG_DT (1./100.)
 

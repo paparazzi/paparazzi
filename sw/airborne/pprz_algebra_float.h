@@ -77,10 +77,10 @@ struct FloatRates {
   }
 
 #define FLOAT_QUAT_COPY(_qo, _qi) {					\
-    (_qo).qi = (_qi).qi;							\
-    (_qo).qx = (_qi).qx;							\
-    (_qo).qy = (_qi).qy;							\
-    (_qo).qz = (_qi).qz;							\
+    (_qo).qi = (_qi).qi;						\
+    (_qo).qx = (_qi).qx;						\
+    (_qo).qy = (_qi).qy;						\
+    (_qo).qz = (_qi).qz;						\
   }
 
 #define FLOAT_QUAT_NORM(_n, _q) {					\
@@ -118,25 +118,25 @@ struct FloatRates {
   }
 
 #define FLOAT_QUAT_VMULT(v_out, q, v_in) {				\
-    const FLOAT_T qi2  = q.qi*q.qi;					\
-    const FLOAT_T qiqx = q.qi*q.qx;					\
-    const FLOAT_T qiqy = q.qi*q.qy;					\
-    const FLOAT_T qiqz = q.qi*q.qz;					\
-    const FLOAT_T qx2  = q.qx*q.qx;					\
-    const FLOAT_T qxqy = q.qx*q.qy;					\
-    const FLOAT_T qxqz = q.qx*q.qz;					\
-    const FLOAT_T qy2  = q.qy*q.qy;					\
-    const FLOAT_T qyqz = q.qy*q.qz;					\
-    const FLOAT_T qz2 = q.qz*q.qz;					\
-    const FLOAT_T m00 = qi2 + qx2 - qy2 - qz2;				\
-    const FLOAT_T m01 = 2 * ( qxqy + qiqz );				\
-    const FLOAT_T m02 = 2 * ( qxqz - qiqy );				\
-    const FLOAT_T m10 = 2 * ( qxqy - qiqz );				\
-    const FLOAT_T m11 = qi2 - qx2 + qy2 - qz2;				\
-    const FLOAT_T m12 = 2 * ( qyqz + qiqx );				\
-    const FLOAT_T m20 = 2 * ( qxqz + qiqy );				\
-    const FLOAT_T m21 = 2 * ( qyqz - qiqx );				\
-    const FLOAT_T m22 = qi2 - qx2 - qy2 + qz2;				\
+    const float qi2  = q.qi*q.qi;					\
+    const float qiqx = q.qi*q.qx;					\
+    const float qiqy = q.qi*q.qy;					\
+    const float qiqz = q.qi*q.qz;					\
+    const float qx2  = q.qx*q.qx;					\
+    const float qxqy = q.qx*q.qy;					\
+    const float qxqz = q.qx*q.qz;					\
+    const float qy2  = q.qy*q.qy;					\
+    const float qyqz = q.qy*q.qz;					\
+    const float qz2 = q.qz*q.qz;					\
+    const float m00 = qi2 + qx2 - qy2 - qz2;				\
+    const float m01 = 2 * ( qxqy + qiqz );				\
+    const float m02 = 2 * ( qxqz - qiqy );				\
+    const float m10 = 2 * ( qxqy - qiqz );				\
+    const float m11 = qi2 - qx2 + qy2 - qz2;				\
+    const float m12 = 2 * ( qyqz + qiqx );				\
+    const float m20 = 2 * ( qxqz + qiqy );				\
+    const float m21 = 2 * ( qyqz - qiqx );				\
+    const float m22 = qi2 - qx2 - qy2 + qz2;				\
     v_out.x = m00 * v_in.x + m01 * v_in.y + m02 * v_in.z;		\
     v_out.y = m10 * v_in.x + m11 * v_in.y + m12 * v_in.z;		\
     v_out.z = m20 * v_in.x + m21 * v_in.y + m22 * v_in.z;		\
@@ -162,6 +162,13 @@ struct FloatRates {
     									\
   }
 
+
+/*
+ *  Euler angles
+ */
+
+#define FLOAT_EULERS_ZERO(_e) EULERS_ASSIGN(_e, 0., 0., 0.);
+
 #define FLOAT_EULERS_OF_QUAT(_e, _q) {					\
 									\
     const float qx2  = q.qx*q.qx;					\
@@ -185,8 +192,6 @@ struct FloatRates {
 									\
   }
 
-
-#define FLOAT_EULERS_ZERO(_e) EULERS_ASSIGN(_e, 0., 0., 0.);
 
 
 

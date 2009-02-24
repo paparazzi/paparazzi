@@ -101,8 +101,8 @@
   }
 
 #define PERIODIC_SEND_IMU_MAG_RAW() {					\
-    DOWNLINK_SEND_IMU_MAG_RAW(&booz_imu.mag_unscaled.x,		\
-			      &booz_imu.mag_unscaled.y,		\
+    DOWNLINK_SEND_IMU_MAG_RAW(&booz_imu.mag_unscaled.x,			\
+			      &booz_imu.mag_unscaled.y,			\
 			      &booz_imu.mag_unscaled.z);		\
   }
 
@@ -113,12 +113,12 @@
 #include "booz2_stabilization.h"
 #include "booz2_stabilization_rate.h"
 #define PERIODIC_SEND_BOOZ2_RATE_LOOP() {				\
-    DOWNLINK_SEND_BOOZ2_RATE_LOOP(&booz2_stabilization_rate_measure.x,	\
-				  &booz2_stabilization_rate_measure.y,	\
-				  &booz2_stabilization_rate_measure.z,	\
-				  &booz2_stabilization_rate_sp.x,	\
-				  &booz2_stabilization_rate_sp.y,	\
-				  &booz2_stabilization_rate_sp.z,	\
+    DOWNLINK_SEND_BOOZ2_RATE_LOOP(&booz2_stabilization_rate_measure.p,	\
+				  &booz2_stabilization_rate_measure.q,	\
+				  &booz2_stabilization_rate_measure.r,	\
+				  &booz2_stabilization_rate_sp.p,	\
+				  &booz2_stabilization_rate_sp.q,	\
+				  &booz2_stabilization_rate_sp.r,	\
 				  &booz2_stabilization_cmd[COMMAND_ROLL], \
 				  &booz2_stabilization_cmd[COMMAND_PITCH], \
 				  &booz2_stabilization_cmd[COMMAND_YAW], \

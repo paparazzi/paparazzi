@@ -2,7 +2,7 @@
 #include "booz2_ins.h"
 
 #include "booz2_imu.h"
-#include "booz2_filter_attitude.h"
+#include "booz_ahrs.h"
 #include "booz_geometry_mixed.h"
 
 
@@ -41,10 +41,10 @@ void b2ins_propagate(void) {
 
 
   struct Int32Vect3 scaled_biases;
-  VECT3_SDIV(scaled_biases, (1<<(B2INS_ACCEL_BIAS_FRAC-B2INS_ACCEL_LTP_FRAC)), b2ins_accel_bias);
+  VECT3_SDIV(scaled_biases, b2ins_accel_bias, (1<<(B2INS_ACCEL_BIAS_FRAC-B2INS_ACCEL_LTP_FRAC)));
   struct Int32Vect3 accel_imu;
   /* unbias accelerometers */
-  VECT3_DIFF(accel_imu, booz2_imu_accel, scaled_biases);
+  VECT3_DIFF(accel_imu, booz_imu.accel, scaled_biases);
   /* convert to LTP */
   BOOZ_IQUAT_VDIV(b2ins_accel_ltp, booz_ahrs.ltp_to_imu_quat, accel_imu);
   /* correct for gravity */
@@ -101,7 +101,7 @@ void b2ins_update_gps(void) {
   VECT2_SDIV(speed_residual3, (1<<9), speed_residual);
   speed_residual3.z = 0;
   struct Int32Vect3 bias_cor_s;
-  BOOZ_IQUAT_VMULT( bias_cor_s, booz_ahrs.ltp_to_imu_quat, speed_residual3);
+  INT32_QUAT_VMULT( bias_cor_s, booz_ahrs.ltp_to_imu_quat, speed_residual3);
   //  VECT3_ADD(b2ins_accel_bias, bias_cor_s); 
 
 #endif /* UPDATE_FROM_SPEED */ 

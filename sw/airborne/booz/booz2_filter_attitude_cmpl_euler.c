@@ -40,9 +40,9 @@ void booz_ahrs_init(void) {
   INT_EULERS_ZERO(booz_ahrs.ltp_to_imu_euler);
   INT32_QUAT_ZERO(booz_ahrs.ltp_to_body_quat);
   INT32_QUAT_ZERO(booz_ahrs.ltp_to_body_quat);
-  INT_RATES_ZERO( booz_ahrs.body_rate);
-  INT_RATES_ZERO( booz_ahrs.imu_rate);
-  INT_RATES_ZERO( booz2_face_gyro_bias);
+  INT_RATES_ZERO(booz_ahrs.body_rate);
+  INT_RATES_ZERO(booz_ahrs.imu_rate);
+  INT_RATES_ZERO(booz2_face_gyro_bias);
   //  booz2_face_reinj_1 = 1024;
   booz2_face_reinj_1 = 2048;
   samples_idx = 0;
@@ -94,6 +94,7 @@ void booz_ahrs_align(void) {
     									\
   }
 
+
 /*
  *
  * fc = 1/(2*pi*tau)
@@ -108,9 +109,7 @@ void booz_ahrs_align(void) {
  *
  */
 
-
-
-void booz2_ahrs_propagate(void) {
+void booz_ahrs_propagate(void) {
 
   /* low pass accels         */
   VECT3_SUB(lp_accel_sum, lp_accel_samples[samples_idx]);
@@ -162,31 +161,25 @@ void booz2_ahrs_propagate(void) {
   EULERS_SDIV(booz_ahrs.ltp_to_imu_euler, booz2_face_corrected, F_UPDATE);
   /* Compute LTP to IMU quaternion */
   INT32_QUAT_OF_EULERS(booz_ahrs.ltp_to_imu_quat, booz_ahrs.ltp_to_imu_euler);
+  /* Compute LTP to IMU rotation matrix */
+  INT32_RMAT_OF_EULERS(booz_ahrs.ltp_to_imu_rmat, booz_ahrs.ltp_to_imu_euler);
+
   /* Compute LTP to BODY quaternion */
-  BOOZ_IQUAT_DIV(booz_ahrs.ltp_to_body_quat, booz_imu.body_to_imu_quat, booz_ahrs.ltp_to_imu_quat);
+  INT32_QUAT_DIV(booz_ahrs.ltp_to_body_quat, booz_imu.body_to_imu_quat, booz_ahrs.ltp_to_imu_quat);
+  /* Compute LTP to BODY rotation matrix */
+  INT32_RMAT_COMP_INV(booz_ahrs.ltp_to_body_rmat, booz_ahrs.ltp_to_imu_rmat, booz_imu.body_to_imu_rmat);
   /* compute LTP to BODY eulers */
-  booz_ahrs.ltp_to_body_euler.phi   = booz_ahrs.ltp_to_imu_euler.phi   - FILTER_ALIGNMENT_DPHI;
-  booz_ahrs.ltp_to_body_euler.theta = booz_ahrs.ltp_to_imu_euler.theta - FILTER_ALIGNMENT_DTHETA;
-  booz_ahrs.ltp_to_body_euler.psi   = booz_ahrs.ltp_to_imu_euler.psi;
-  /* Do we compute real body rate ? */
-  BOOZ_IVECT_COPY(booz_ahrs.body_rate, booz_ahrs.imu_rate);
+  //  INT32_EULERS_OF_RMAT(booz_ahrs.ltp_to_body_euler, booz_ahrs.ltp_to_body_rmat);
+  booz_ahrs.ltp_to_body_euler.phi   = booz_ahrs.ltp_to_imu_euler.phi - IMU_BODY_TO_IMU_PHI;
+  booz_ahrs.ltp_to_body_euler.theta = booz_ahrs.ltp_to_imu_euler.theta - IMU_BODY_TO_IMU_THETA;
+
+  /* Do we compute actual body rate ? */
+  RATES_COPY(booz_ahrs.body_rate, booz_ahrs.imu_rate);
 }
 
-void booz2_ahrs_update(void) {
+void booz_ahrs_update(void) {
 
 
 }
 
-
-#if 0
-
-// FIXME : make a real frame change and rotate rates too
-
-static inline void apply_alignment(void) {
-  booz2_filter_attitude_euler_aligned.phi   = booz2_filter_attitude_euler.phi - FILTER_ALIGNMENT_DPHI;
-  booz2_filter_attitude_euler_aligned.theta = booz2_filter_attitude_euler.theta - FILTER_ALIGNMENT_DTHETA;
-  booz2_filter_attitude_euler_aligned.psi   = booz2_filter_attitude_euler.psi;
-}
-
-#endif
 
