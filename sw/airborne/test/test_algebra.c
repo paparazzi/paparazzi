@@ -188,10 +188,16 @@ static void test_4_int(void) {
 
   /* trasnform to quaternion */
   struct Int32Quat _q;
-  INT32_QUAT_OF_EULERS(_q, _e);
-  //  DISPLAY_INT32_QUAT("_q", _q);
-  INT32_QUAT_NORMALISE(_q);
-  DISPLAY_INT32_QUAT_2("_q_n", _q);
+  INT32_QUAT_OF_EULERS_2(_q, _e);
+  DISPLAY_INT32_QUAT("_q", _q);
+  //  INT32_QUAT_NORMALISE(_q);
+  //DISPLAY_INT32_QUAT_2("_q_n", _q);
+
+  struct Int32Quat _q2;
+  INT32_QUAT_OF_EULERS(_q2, _e);
+  DISPLAY_INT32_QUAT("_q2", _q2);
+
+
 
   /* back to eulers */
   struct Int32Eulers _e2;

@@ -282,7 +282,7 @@ struct Int64Vect3 {
 #define INT32_QUAT_NORMALISE(q) {		                        \
     int32_t n;								\
     INT32_QUAT_NORM(n, q);						\
-    q.qi = q.qi * QUAT_BFP(1) / n;			\
+    q.qi = q.qi * QUAT_BFP(1) / n;					\
     q.qx = q.qx * QUAT_BFP(1) / n;					\
     q.qy = q.qy * QUAT_BFP(1) / n;					\
     q.qz = q.qz * QUAT_BFP(1) / n;					\
@@ -368,6 +368,48 @@ struct Int64Vect3 {
     (_q).qz = INT_MULT_RSHIFT( c_phi2, c_th_s_ps, ITRIG_RES + ITRIG_RES - INT32_QUAT_FRAC) + \
               INT_MULT_RSHIFT(-s_phi2, s_th_c_ps, ITRIG_RES + ITRIG_RES - INT32_QUAT_FRAC);  \
   }
+
+
+
+/*
+ * http://www.mathworks.com/access/helpdesk_r13/help/toolbox/aeroblks/euleranglestoquaternions.html
+ */
+#define INT32_QUAT_OF_EULERS_2(_q, _e) {				\
+    const int32_t phi2   = (_e).phi   / 2;				\
+    const int32_t theta2 = (_e).theta / 2;				\
+    const int32_t psi2   = (_e).psi   / 2;				\
+    									\
+    int32_t s_phi2;							\
+    BOOZ_ISIN(s_phi2, phi2);						\
+    int32_t c_phi2;							\
+    BOOZ_ICOS(c_phi2, phi2);						\
+    int32_t s_theta2;							\
+    BOOZ_ISIN(s_theta2, theta2);					\
+    int32_t c_theta2;							\
+    BOOZ_ICOS(c_theta2, theta2);					\
+    int32_t s_psi2;							\
+    BOOZ_ISIN(s_psi2, psi2);						\
+    int32_t c_psi2;							\
+    BOOZ_ICOS(c_psi2, psi2);						\
+									\
+    const int32_t c_th_c_ps = c_theta2 * c_psi2;			\
+    const int32_t c_th_s_ps = c_theta2 * s_psi2;			\
+    const int32_t s_th_s_ps = s_theta2 * s_psi2;			\
+    const int32_t s_th_c_ps = s_theta2 * c_psi2;			\
+    									\
+    const int64_t qi = ( c_phi2 * c_th_c_ps + s_phi2 * s_th_s_ps) >> (3*INT32_ANGLE_FRAC-INT32_QUAT_FRAC); \
+    const int64_t qx = (-c_phi2 * s_th_s_ps + s_phi2 * c_th_c_ps) >> (3*INT32_ANGLE_FRAC-INT32_QUAT_FRAC); \
+    const int64_t qy = ( c_phi2 * s_th_c_ps + s_phi2 * c_th_s_ps) >> (3*INT32_ANGLE_FRAC-INT32_QUAT_FRAC); \
+    const int64_t qz = ( c_phi2 * c_th_s_ps - s_phi2 * s_th_c_ps) >> (3*INT32_ANGLE_FRAC-INT32_QUAT_FRAC); \
+									\
+    (_q).qi = (int32_t)qi;						\
+    (_q).qx = (int32_t)qx;						\
+    (_q).qy = (int32_t)qy;						\
+    (_q).qz = (int32_t)qz;						\
+									\
+  }
+
+
 
 
 
