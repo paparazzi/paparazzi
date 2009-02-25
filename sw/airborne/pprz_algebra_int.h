@@ -382,9 +382,14 @@ struct Int64Vect3 {
 
 #define INT32_EULERS_OF_RMAT(_e, _rm) {					\
 									\
-    /* (_e).phi = atan2f( dcm12, dcm22 ); */				\
-    /* (_e).theta = -asinf( dcm02 );      */				\
-    /* (_e).psi = atan2f( dcm01, dcm00 ); */				\
+    const float dcm12 = (float)(_rm).m[5]/(1<<INT32_ANGLE_FRAC);	\
+    const float dcm22 = (float)(_rm).m[8]/(1<<INT32_ANGLE_FRAC);	\
+    const float dcm02 = (float)(_rm).m[2]/(1<<INT32_ANGLE_FRAC);	\
+    const float dcm01 = (float)(_rm).m[1]/(1<<INT32_ANGLE_FRAC);	\
+    const float dcm00 = (float)(_rm).m[0]/(1<<INT32_ANGLE_FRAC);	\
+    (_e).phi = atan2f( dcm12, dcm22 );					\
+    (_e).theta = -asinf( dcm02 );					\
+    (_e).psi = atan2f( dcm01, dcm00 );					\
     									\
   }
 

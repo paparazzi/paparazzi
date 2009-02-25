@@ -47,13 +47,13 @@
 #define BSM_ACCEL_NEUTRAL_Y       33738
 #define BSM_ACCEL_NEUTRAL_Z       32441
 /* m2s-4 */
-#define BSM_ACCEL_NOISE_STD_DEV_X 0
-#define BSM_ACCEL_NOISE_STD_DEV_Y 0
-#define BSM_ACCEL_NOISE_STD_DEV_Z 0
+//#define BSM_ACCEL_NOISE_STD_DEV_X 0
+//#define BSM_ACCEL_NOISE_STD_DEV_Y 0
+//#define BSM_ACCEL_NOISE_STD_DEV_Z 0
 
-//#define BSM_ACCEL_NOISE_STD_DEV_X 1.e-1
-//#define BSM_ACCEL_NOISE_STD_DEV_Y 1.e-1
-//#define BSM_ACCEL_NOISE_STD_DEV_Z 1.1e-1
+#define BSM_ACCEL_NOISE_STD_DEV_X 1.e-1
+#define BSM_ACCEL_NOISE_STD_DEV_Y 1.e-1
+#define BSM_ACCEL_NOISE_STD_DEV_Z 1.1e-1
 
 /* ms-2 */
 #define BSM_ACCEL_BIAS_X          0
@@ -78,13 +78,13 @@
 #define BSM_GYRO_NEUTRAL_Q        33417
 #define BSM_GYRO_NEUTRAL_R        32809
 
-#define BSM_GYRO_NOISE_STD_DEV_P  RadOfDeg(0.)
-#define BSM_GYRO_NOISE_STD_DEV_Q  RadOfDeg(0.)
-#define BSM_GYRO_NOISE_STD_DEV_R  RadOfDeg(0.)
+//#define BSM_GYRO_NOISE_STD_DEV_P  RadOfDeg(0.)
+//#define BSM_GYRO_NOISE_STD_DEV_Q  RadOfDeg(0.)
+//#define BSM_GYRO_NOISE_STD_DEV_R  RadOfDeg(0.)
 
-//#define BSM_GYRO_NOISE_STD_DEV_P  RadOfDeg(0.5)
-//#define BSM_GYRO_NOISE_STD_DEV_Q  RadOfDeg(0.5)
-//#define BSM_GYRO_NOISE_STD_DEV_R  RadOfDeg(0.5)
+#define BSM_GYRO_NOISE_STD_DEV_P  RadOfDeg(0.5)
+#define BSM_GYRO_NOISE_STD_DEV_Q  RadOfDeg(0.5)
+#define BSM_GYRO_NOISE_STD_DEV_R  RadOfDeg(0.5)
 
 #define BSM_GYRO_BIAS_INITIAL_P  RadOfDeg( 0.0)
 #define BSM_GYRO_BIAS_INITIAL_Q  RadOfDeg(  .0)
@@ -115,13 +115,13 @@
 #define BSM_MAG_NEUTRAL_Y  2362
 #define BSM_MAG_NEUTRAL_Z  2119
 
-#define BSM_MAG_NOISE_STD_DEV_X  0
-#define BSM_MAG_NOISE_STD_DEV_Y  0
-#define BSM_MAG_NOISE_STD_DEV_Z  0
+//#define BSM_MAG_NOISE_STD_DEV_X  0
+//#define BSM_MAG_NOISE_STD_DEV_Y  0
+//#define BSM_MAG_NOISE_STD_DEV_Z  0
 
-//#define BSM_MAG_NOISE_STD_DEV_X  2e-3
-//#define BSM_MAG_NOISE_STD_DEV_Y  2e-3
-//#define BSM_MAG_NOISE_STD_DEV_Z  2e-3
+#define BSM_MAG_NOISE_STD_DEV_X  2e-3
+#define BSM_MAG_NOISE_STD_DEV_Y  2e-3
+#define BSM_MAG_NOISE_STD_DEV_Z  2e-3
 
 #define BSM_MAG_DT (1./100.)
 
@@ -166,14 +166,14 @@
 
 #define BSM_GPS_SPEED_NOISE_STD_DEV            1e-1
 #define BSM_GPS_SPEED_LATENCY                  0.25
-#define BSM_GPS_POS_NOISE_STD_DEV              5e-2
+#define BSM_GPS_POS_NOISE_STD_DEV              1e-1
 #define BSM_GPS_POS_BIAS_INITIAL_X             0e-1
 #define BSM_GPS_POS_BIAS_INITIAL_Y            -0e-1
 #define BSM_GPS_POS_BIAS_INITIAL_Z            -0e-1
 #define BSM_GPS_POS_BIAS_RANDOM_WALK_STD_DEV_X 1e-3 
 #define BSM_GPS_POS_BIAS_RANDOM_WALK_STD_DEV_Y 1e-3 
 #define BSM_GPS_POS_BIAS_RANDOM_WALK_STD_DEV_Z 1e-3 
-#define BSM_GPS_POS_LATENCY                    5.
+#define BSM_GPS_POS_LATENCY                    0.25
 
 #endif /* GPS_PERFECT */
 

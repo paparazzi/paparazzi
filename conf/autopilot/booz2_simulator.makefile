@@ -20,6 +20,7 @@ sim.LDFLAGS += `pkg-config glib-2.0 --libs` -lm -lmeschach -lpcre -lglibivy
 #sim.CFLAGS  += -DBYPASS_AHRS
 #sim.CFLAGS  += -DBYPASS_INS
 #sim.CFLAGS  += -DGPS_PERFECT
+sim.CFLAGS  += -DUSE_H_FILETER
 
 sim.CFLAGS  += -DINIT_WIND_X=-3.0
 sim.CFLAGS  += -DINIT_WIND_Y=-0.0
