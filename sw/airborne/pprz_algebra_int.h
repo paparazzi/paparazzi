@@ -410,12 +410,17 @@ struct Int64Vect3 {
     const int32_t qyqz = INT_MULT_RSHIFT((_q).qy,(_q).qz, INT32_QUAT_FRAC); \
     const int32_t one = INT_BFP( 1, ITRIG_RES);				\
     const int32_t two = INT_BFP( 2, ITRIG_RES);				\
+									\
+    const int32_t qxqz_m_qiqy = ((_q).qx*(_q).qz - (_q).qi*(_q).qy)>>INT32_QUAT_FRAC; \
+    const int32_t _2_qxqz_m_qiqy = 2 * qxqz_m_qiqy;			\
+									\
     /* dcm00 = 1.0 - 2.*(  qy2 +  qz2 ); */				\
     const int32_t idcm00 =  one - INT_MULT_RSHIFT( two, (qy2+qz2), ITRIG_RES+INT32_QUAT_FRAC-ITRIG_RES); \
     /* dcm01 =       2.*( qxqy + qiqz ); */				\
     const int32_t idcm01 = INT_MULT_RSHIFT( two, (qxqy+qiqz), ITRIG_RES+INT32_QUAT_FRAC-ITRIG_RES); \
     /* dcm02 =       2.*( qxqz - qiqy ); */				\
-    const int32_t idcm02 = INT_MULT_RSHIFT( two, (qxqz-qiqy), ITRIG_RES+INT32_QUAT_FRAC-ITRIG_RES); \
+    /* const int32_t idcm02 = INT_MULT_RSHIFT( two, (qxqz-qiqy), ITRIG_RES+INT32_QUAT_FRAC-ITRIG_RES); */ \
+    const int32_t idcm02 = _2_qxqz_m_qiqy;				\
     /* dcm12 =       2.*( qyqz + qiqx ); */				\
     const int32_t idcm12 = INT_MULT_RSHIFT( two, (qyqz+qiqx), ITRIG_RES+INT32_QUAT_FRAC-ITRIG_RES); \
     /* dcm22 = 1.0 - 2.*(  qx2 +  qy2 ); */				\

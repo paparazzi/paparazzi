@@ -60,7 +60,9 @@
     printf("%s %d %d %d %d (%d) (%f %f %f %f)\n",text,			\
 	   quat.qi, quat.qx, quat.qy, quat.qz, quat_norm,		\
 	   (float)quat.qi/(1<<INT32_QUAT_FRAC),				\
-	   );								\
+	   (float)quat.qx/(1<<INT32_QUAT_FRAC),				\
+	   (float)quat.qy/(1<<INT32_QUAT_FRAC),				\
+	   (float)quat.qz/(1<<INT32_QUAT_FRAC));			\
   }
 
 

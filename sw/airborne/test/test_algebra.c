@@ -189,9 +189,9 @@ static void test_4_int(void) {
   /* trasnform to quaternion */
   struct Int32Quat _q;
   INT32_QUAT_OF_EULERS(_q, _e);
-  DISPLAY_INT32_QUAT("_q", _q);
+  //  DISPLAY_INT32_QUAT("_q", _q);
   INT32_QUAT_NORMALISE(_q);
-  DISPLAY_INT32_QUAT("_q_n", _q);
+  DISPLAY_INT32_QUAT_2("_q_n", _q);
 
   /* back to eulers */
   struct Int32Eulers _e2;
@@ -213,7 +213,7 @@ static void test_4_float(void) {
   /* trasnform to quaternion */
   struct FloatQuat q;
   FLOAT_QUAT_OF_EULERS(q, e);
-  DISPLAY_FLOAT_QUAT("q", q);
+  //  DISPLAY_FLOAT_QUAT("q", q);
   FLOAT_QUAT_NORMALISE(q);
   DISPLAY_FLOAT_QUAT("q_n", q);
 
