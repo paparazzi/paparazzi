@@ -863,12 +863,12 @@
     <field name="cmd_pitch"  type="int32"/>   
     <field name="cmd_yaw"    type="int32"/>   
     <field name="cmd_thrust" type="int32"/>   
-    <field name="ua_phi"     type="int32" alt_unit="degres" alt_unit_coef="0.0139882"/>
-    <field name="ua_theta"   type="int32" alt_unit="degres" alt_unit_coef="0.0139882"/>
-    <field name="ua_psi"     type="int32" alt_unit="degres" alt_unit_coef="0.0139882"/>
-    <field name="a_phi"      type="int32" alt_unit="degres" alt_unit_coef="0.0139882"/>
-    <field name="a_theta"    type="int32" alt_unit="degres" alt_unit_coef="0.0139882"/>
-    <field name="a_psi"      type="int32" alt_unit="degres" alt_unit_coef="0.0139882"/>
+    <field name="imu_phi"    type="int32" alt_unit="degres" alt_unit_coef="0.0139882"/>
+    <field name="imu_theta"  type="int32" alt_unit="degres" alt_unit_coef="0.0139882"/>
+    <field name="imu_psi"    type="int32" alt_unit="degres" alt_unit_coef="0.0139882"/>
+    <field name="body_phi"   type="int32" alt_unit="degres" alt_unit_coef="0.0139882"/>
+    <field name="body_theta" type="int32" alt_unit="degres" alt_unit_coef="0.0139882"/>
+    <field name="body_psi"   type="int32" alt_unit="degres" alt_unit_coef="0.0139882"/>
   </message>
 
   <message name="BOOZ2_INS" id="151">
@@ -922,6 +922,50 @@
      <field name="numsv"   type="uint8"/>
      <field name="fix"     type="uint8"/>
  </message>
+
+
+  <message name="BOOZ2_AHRS_EULER" id="156">
+    <field name="imu_phi"    type="int32" alt_unit="degres" alt_unit_coef="0.0139882"/>
+    <field name="imu_theta"  type="int32" alt_unit="degres" alt_unit_coef="0.0139882"/>
+    <field name="imu_psi"    type="int32" alt_unit="degres" alt_unit_coef="0.0139882"/>
+    <field name="body_phi"   type="int32" alt_unit="degres" alt_unit_coef="0.0139882"/>
+    <field name="body_theta" type="int32" alt_unit="degres" alt_unit_coef="0.0139882"/>
+    <field name="body_psi"   type="int32" alt_unit="degres" alt_unit_coef="0.0139882"/>
+  </message>
+
+  <message name="BOOZ2_AHRS_QUAT" id="157">
+    <field name="imu_qi"  type="int32" alt_unit=""  alt_unit_coef="0.0000305"/>
+    <field name="imu_qx"  type="int32" alt_unit=""  alt_unit_coef="0.0000305"/>
+    <field name="imu_qy"  type="int32" alt_unit=""  alt_unit_coef="0.0000305"/>
+    <field name="imu_qz"  type="int32" alt_unit=""  alt_unit_coef="0.0000305"/>
+    <field name="body_qi" type="int32" alt_unit=""  alt_unit_coef="0.0000305"/>
+    <field name="body_qx" type="int32" alt_unit=""  alt_unit_coef="0.0000305"/>
+    <field name="body_qy" type="int32" alt_unit=""  alt_unit_coef="0.0000305"/>
+    <field name="body_qz" type="int32" alt_unit=""  alt_unit_coef="0.0000305"/>
+  </message>
+
+  <message name="BOOZ2_AHRS_RMAT" id="158">
+    <field name="imu_m00"  type="int32" alt_unit=""  alt_unit_coef="0.0000610"/>
+    <field name="imu_m01"  type="int32" alt_unit=""  alt_unit_coef="0.0000610"/>
+    <field name="imu_m02"  type="int32" alt_unit=""  alt_unit_coef="0.0000610"/>
+    <field name="imu_m10"  type="int32" alt_unit=""  alt_unit_coef="0.0000610"/>
+    <field name="imu_m11"  type="int32" alt_unit=""  alt_unit_coef="0.0000610"/>
+    <field name="imu_m12"  type="int32" alt_unit=""  alt_unit_coef="0.0000610"/>
+    <field name="imu_m20"  type="int32" alt_unit=""  alt_unit_coef="0.0000610"/>
+    <field name="imu_m21"  type="int32" alt_unit=""  alt_unit_coef="0.0000610"/>
+    <field name="imu_m22"  type="int32" alt_unit=""  alt_unit_coef="0.0000610"/>
+    <field name="body_m00" type="int32" alt_unit=""  alt_unit_coef="0.0000610"/>
+    <field name="body_m01" type="int32" alt_unit=""  alt_unit_coef="0.0000610"/>
+    <field name="body_m02" type="int32" alt_unit=""  alt_unit_coef="0.0000610"/>
+    <field name="body_m10" type="int32" alt_unit=""  alt_unit_coef="0.0000610"/>
+    <field name="body_m11" type="int32" alt_unit=""  alt_unit_coef="0.0000610"/>
+    <field name="body_m12" type="int32" alt_unit=""  alt_unit_coef="0.0000610"/>
+    <field name="body_m20" type="int32" alt_unit=""  alt_unit_coef="0.0000610"/>
+    <field name="body_m21" type="int32" alt_unit=""  alt_unit_coef="0.0000610"/>
+    <field name="body_m22" type="int32" alt_unit=""  alt_unit_coef="0.0000610"/>
+  </message>
+
+
 
   <message name="WT" id="175">
     <field name="rpm"      type="float"/>

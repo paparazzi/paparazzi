@@ -12,11 +12,20 @@ static void test_1(void);
 static void test_2(void);
 static void test_3(void);
 
+/* euler to quat to euler */
+static void test_4_int(void);
+static void test_4_float(void);
+
 int main(int argc, char** argv) {
 
   //  test_1();
   //  test_2();
-  test_3();
+  //  test_3();
+  printf("\n");
+  test_4_int();
+  printf("\n");
+  test_4_float();
+  printf("\n");
   return 0;
 
 }
@@ -97,6 +106,121 @@ static void test_2(void) {
 }
 
 static void test_3(void) {
+
+  /* Compute BODY to IMU eulers */
+  struct Int32Eulers b2i_e;
+  EULERS_ASSIGN(b2i_e, ANGLE_BFP(RadOfDeg(10.66)), ANGLE_BFP(RadOfDeg(-0.7)), ANGLE_BFP(RadOfDeg(0.)));
+  DISPLAY_INT32_EULERS_2("b2i_e", b2i_e);
+
+  /* Compute BODY to IMU quaternion */
+  struct Int32Quat b2i_q;
+  INT32_QUAT_OF_EULERS(b2i_q, b2i_e);
+  DISPLAY_INT32_QUAT("b2i_q", b2i_q);
+  INT32_QUAT_NORMALISE(b2i_q);
+  DISPLAY_INT32_QUAT("b2i_q_n", b2i_q);
+
+  /* Compute BODY to IMU rotation matrix */
+  struct Int32Rmat b2i_r;
+  INT32_RMAT_OF_EULERS(b2i_r, b2i_e);
+  DISPLAY_INT32_RMAT("b2i_r", b2i_r);
+  
+
+  /* Compute LTP to IMU eulers */
+  struct Int32Eulers atti_e;
+  EULERS_ASSIGN(atti_e, ANGLE_BFP(RadOfDeg(0.)), ANGLE_BFP(RadOfDeg(20.)), ANGLE_BFP(RadOfDeg(0.)));
+  DISPLAY_INT32_EULERS_2("atti_e", atti_e);
+
+  /* Compute LTP to IMU quaternion */
+  struct Int32Quat atti_q;
+  INT32_QUAT_OF_EULERS(atti_q, atti_e);
+  DISPLAY_INT32_QUAT("atti_q", atti_q);
+ 
+  /* Compute LTP to IMU rotation matrix */
+  struct Int32Rmat atti_r;
+  INT32_RMAT_OF_EULERS(atti_r, atti_e);
+  DISPLAY_INT32_RMAT("atti_r", atti_r);
+
+
+  /* again but from quaternion */
+  struct Int32Rmat atti_r2;
+  INT32_RMAT_OF_QUAT(atti_r2, atti_q);
+  DISPLAY_INT32_RMAT("atti_r2", atti_r2);
+
+
+  /* Compute LTP to BODY quaternion */
+  struct Int32Quat attb_q;
+  INT32_QUAT_DIV(attb_q, b2i_q, atti_q);
+  DISPLAY_INT32_QUAT("attb_q", attb_q);
+
+  /* Compute LTP to BODY rotation matrix */
+  struct Int32Rmat attb_r;
+  //  INT32_RMAT_COMP_INV(attb_r, b2i_r, atti_r);
+  INT32_RMAT_COMP_INV(attb_r, atti_r, b2i_r);
+  DISPLAY_INT32_RMAT("attb_r", attb_r);
+
+ /* again but from quaternion */
+  struct Int32Rmat attb_r2;
+  INT32_RMAT_OF_QUAT(attb_r2, attb_q);
+  DISPLAY_INT32_RMAT("attb_r2", attb_r2);
+
+
+  /* compute LTP to BODY eulers */
+  struct Int32Eulers attb_e;
+  INT32_EULERS_OF_RMAT(attb_e, attb_r);
+  DISPLAY_INT32_EULERS_2("attb_e", attb_e);
+
+  /* again but from quaternion */
+  struct Int32Eulers attb_e2;
+  INT32_EULERS_OF_QUAT(attb_e2, attb_q);
+  DISPLAY_INT32_EULERS_2("attb_e2", attb_e2);
+  
+}
+
+
+
+
+static void test_4_int(void) {
+
+  /* initial euler angles */
+  struct Int32Eulers _e;
+  EULERS_ASSIGN(_e, ANGLE_BFP(RadOfDeg(10.66)), ANGLE_BFP(RadOfDeg(-0.7)), ANGLE_BFP(RadOfDeg(0.)));
+  DISPLAY_INT32_EULERS_2("_e", _e);
+
+  /* trasnform to quaternion */
+  struct Int32Quat _q;
+  INT32_QUAT_OF_EULERS(_q, _e);
+  DISPLAY_INT32_QUAT("_q", _q);
+  INT32_QUAT_NORMALISE(_q);
+  DISPLAY_INT32_QUAT("_q_n", _q);
+
+  /* back to eulers */
+  struct Int32Eulers _e2;
+  INT32_EULERS_OF_QUAT(_e2, _q);
+  DISPLAY_INT32_EULERS_2("_e2", _e2);
+
+
+}
+
+
+
+static void test_4_float(void) {
+
+  /* initial euler angles */
+  struct FloatEulers e;
+  EULERS_ASSIGN(e, RadOfDeg(10.66), RadOfDeg(-0.7), RadOfDeg(0.));
+  DISPLAY_FLOAT_EULERS_DEG("e", e);
+
+  /* trasnform to quaternion */
+  struct FloatQuat q;
+  FLOAT_QUAT_OF_EULERS(q, e);
+  DISPLAY_FLOAT_QUAT("q", q);
+  FLOAT_QUAT_NORMALISE(q);
+  DISPLAY_FLOAT_QUAT("q_n", q);
+
+  /* back to eulers */
+  struct FloatEulers e2;
+  FLOAT_EULERS_OF_QUAT(e2, q);
+  DISPLAY_FLOAT_EULERS_DEG("e2", e2);
 
 
 }

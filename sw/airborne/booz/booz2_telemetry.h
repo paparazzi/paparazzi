@@ -204,6 +204,7 @@
 
 
 
+#include "booz_ahrs.h"
 #include "booz2_filter_attitude_cmpl_euler.h"
 #define PERIODIC_SEND_BOOZ2_FILTER() {					\
     DOWNLINK_SEND_BOOZ2_FILTER(&booz_ahrs.ltp_to_imu_euler.phi,	\
@@ -222,6 +223,50 @@
 			       &booz2_face_gyro_bias.q,			\
 			       &booz2_face_gyro_bias.r);		\
   }
+
+
+#define PERIODIC_SEND_BOOZ2_AHRS_QUAT() {				\
+    DOWNLINK_SEND_BOOZ2_AHRS_QUAT(&booz_ahrs.ltp_to_imu_quat.qi,	\
+				  &booz_ahrs.ltp_to_imu_quat.qx,	\
+				  &booz_ahrs.ltp_to_imu_quat.qy,	\
+				  &booz_ahrs.ltp_to_imu_quat.qz,	\
+				  &booz_ahrs.ltp_to_body_quat.qi,	\
+				  &booz_ahrs.ltp_to_body_quat.qx,	\
+				  &booz_ahrs.ltp_to_body_quat.qy,	\
+				  &booz_ahrs.ltp_to_body_quat.qz);	\
+  }
+
+#define PERIODIC_SEND_BOOZ2_AHRS_EULER() {				\
+    DOWNLINK_SEND_BOOZ2_AHRS_EULER(&booz_ahrs.ltp_to_imu_euler.phi,	\
+				   &booz_ahrs.ltp_to_imu_euler.theta,	\
+				   &booz_ahrs.ltp_to_imu_euler.psi,	\
+				   &booz_ahrs.ltp_to_body_euler.phi,	\
+				   &booz_ahrs.ltp_to_body_euler.theta,	\
+				   &booz_ahrs.ltp_to_body_euler.psi);	\
+  }
+
+#define PERIODIC_SEND_BOOZ2_AHRS_RMAT() {				\
+    DOWNLINK_SEND_BOOZ2_AHRS_RMAT(&booz_ahrs.ltp_to_imu_rmat.m[0],	\
+				  &booz_ahrs.ltp_to_imu_rmat.m[1],	\
+				  &booz_ahrs.ltp_to_imu_rmat.m[2],	\
+				  &booz_ahrs.ltp_to_imu_rmat.m[3],	\
+				  &booz_ahrs.ltp_to_imu_rmat.m[4],	\
+				  &booz_ahrs.ltp_to_imu_rmat.m[5],	\
+				  &booz_ahrs.ltp_to_imu_rmat.m[6],	\
+				  &booz_ahrs.ltp_to_imu_rmat.m[7],	\
+				  &booz_ahrs.ltp_to_imu_rmat.m[8],	\
+				  &booz_ahrs.ltp_to_body_rmat.m[0],	\
+				  &booz_ahrs.ltp_to_body_rmat.m[1],	\
+				  &booz_ahrs.ltp_to_body_rmat.m[2],	\
+				  &booz_ahrs.ltp_to_body_rmat.m[3],	\
+				  &booz_ahrs.ltp_to_body_rmat.m[4],	\
+				  &booz_ahrs.ltp_to_body_rmat.m[5],	\
+				  &booz_ahrs.ltp_to_body_rmat.m[6],	\
+				  &booz_ahrs.ltp_to_body_rmat.m[7],	\
+				  &booz_ahrs.ltp_to_body_rmat.m[8]);	\
+  }
+
+
 
 
 #define PERIODIC_SEND_BOOZ2_FILTER_Q() {				\

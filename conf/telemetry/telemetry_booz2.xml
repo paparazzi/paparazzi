@@ -37,12 +37,15 @@
       <message name="BOOZ2_MAG"         period=".1"/>
     </mode>
 
-    <mode name="filter">
+    <mode name="ahrs">
       <message name="BOOZ_STATUS"       period="1.2"/>
       <message name="DL_VALUE"          period="0.5"/>
       <message name="ALIVE"             period="2.1"/>
 <!--      <message name="BOOZ2_ALIGNER"     period=".1"/> -->
-      <message name="BOOZ2_FILTER"      period=".02"/>
+      <message name="BOOZ2_FILTER"      period=".5"/>
+      <message name="BOOZ2_AHRS_QUAT"   period=".25"/>
+      <message name="BOOZ2_AHRS_EULER"  period=".25"/>
+      <message name="BOOZ2_AHRS_RMAT"   period=".5"/>
     </mode>
 
     <mode name="rate_loop">
@@ -93,11 +96,11 @@
     </mode>
 
     <mode name="tune_hover">
-<!--      <message name="BOOZ2_TUNE_HOVER"               period=".05"/> -->
-      <message name="BOOZ2_GPS"                      period=".2"/>
-      <message name="BOOZ2_INS2"                     period=".05"/>
-      <message name="BOOZ2_INS3"                     period=".2"/>
-      <message name="BOOZ2_INS_REF"           period="5.1"/>
+      <message name="BOOZ2_TUNE_HOVER"               period=".05"/>
+<!--      <message name="BOOZ2_GPS"               period=".20"/>
+          <message name="BOOZ2_INS2"              period=".05"/>
+          <message name="BOOZ2_INS3"              period=".20"/>
+          <message name="BOOZ2_INS_REF"           period="5.1"/> -->
     </mode>
 
 

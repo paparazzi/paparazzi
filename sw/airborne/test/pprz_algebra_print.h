@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 
+
 #define DISPLAY_FLOAT_VECT3(text, _v) {				\
     printf("%s %f %f %f\n",text,  (_v).x, (_v).y, (_v).z);	\
   }
@@ -11,6 +12,13 @@
 #define DISPLAY_FLOAT_EULERS(text, _e) {				\
     printf("%s %f %f %f\n",text,  (_e).phi, (_e).theta, (_e).psi);	\
   }
+
+#define DISPLAY_FLOAT_EULERS_DEG(text, _e) {				\
+    printf("%s %f %f %f\n",text,  DegOfRad((_e).phi),			\
+	   DegOfRad((_e).theta), DegOfRad((_e).psi));			\
+  }
+
+
 
 #define DISPLAY_FLOAT_QUAT(text, quat) {				\
     float quat_norm;							\
@@ -30,11 +38,32 @@
     printf("%s %d %d %d\n",text,  (_e).phi, (_e).theta, (_e).psi);	\
   }
 
+#define DISPLAY_INT32_EULERS_2(text, _e) {				\
+    printf("%s %d %d %d (%f %f %f)\n",text,				\
+	   (_e).phi, (_e).theta, (_e).psi,				\
+	   DegOfRad((float)(_e).phi/(1<<INT32_ANGLE_FRAC)),		\
+	   DegOfRad((float)(_e).theta/(1<<INT32_ANGLE_FRAC)),		\
+	   DegOfRad((float)(_e).psi/(1<<INT32_ANGLE_FRAC)));		\
+  }
+
+
 #define DISPLAY_INT32_QUAT(text, quat) {				\
     int32_t quat_norm;							\
     INT32_QUAT_NORM(quat_norm, quat);					\
     printf("%s %d %d %d %d (%d)\n",text, quat.qi, quat.qx, quat.qy, quat.qz, quat_norm); \
   }
+
+
+#define DISPLAY_INT32_QUAT_2(text, quat) {				\
+    int32_t quat_norm;							\
+    INT32_QUAT_NORM(quat_norm, quat);					\
+    printf("%s %d %d %d %d (%d) (%f %f %f %f)\n",text,			\
+	   quat.qi, quat.qx, quat.qy, quat.qz, quat_norm,		\
+	   (float)quat.qi/(1<<INT32_QUAT_FRAC),				\
+	   );								\
+  }
+
+
 
 #define DISPLAY_INT32_RMAT(text, mat) {					\
     printf("%s\n %05d %05d %05d\n %05d %05d %05d\n %05d %05d %05d\n",text, \

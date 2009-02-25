@@ -37,7 +37,6 @@ struct NedCoor_i booz_ins_ltp_accel;
 
 
 struct Pprz_int32_lla booz_ins_position_init_lla;  // LLA
-
 struct Pprz_int32_lla booz_ins_position_lla;  // LLA
 struct Pprz_int32_vect3 booz_ins_position;    // NED
 struct Pprz_int32_vect3 booz_ins_speed_earth; // NED
@@ -66,9 +65,11 @@ void booz_ins_propagate() {
     booz_ins_position.z = BOOZ_POS_I_OF_F(b2_vff_z);
   }
 #endif
+#ifdef USE_HFF
   if (booz_ahrs.status == BOOZ_AHRS_RUNNING &&
       booz_gps_state.fix == BOOZ2_GPS_FIX_3D && booz_ins_ltp_initialised )
     b2ins_propagate();
+#endif
 }
 
 void booz_ins_update_baro() {
@@ -108,9 +109,8 @@ void booz_ins_update_gps(void) {
     }
     ned_of_ecef_point_i(&booz_ins_gps_pos_cm_ned, &booz_ins_ltp_def, &booz_gps_state.ecef_pos);
     ned_of_ecef_vect_i(&booz_ins_gps_speed_cm_s_ned, &booz_ins_ltp_def, &booz_gps_state.ecef_speed);
-
+#ifdef USE_HFF
     b2ins_update_gps();
-#ifdef USE_H_FILTER
     VECT2_SDIV(booz_ins_ltp_pos, (1<<(B2INS_POS_LTP_FRAC-IPOS_FRAC)), b2ins_pos_ltp);
     VECT2_SDIV(booz_ins_ltp_speed, (1<<(B2INS_SPEED_LTP_FRAC-ISPEED_RES)), b2ins_speed_ltp);
 #else

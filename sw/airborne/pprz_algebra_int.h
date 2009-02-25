@@ -387,11 +387,55 @@ struct Int64Vect3 {
     const float dcm02 = (float)(_rm).m[2]/(1<<INT32_ANGLE_FRAC);	\
     const float dcm01 = (float)(_rm).m[1]/(1<<INT32_ANGLE_FRAC);	\
     const float dcm00 = (float)(_rm).m[0]/(1<<INT32_ANGLE_FRAC);	\
-    (_e).phi = atan2f( dcm12, dcm22 );					\
-    (_e).theta = -asinf( dcm02 );					\
-    (_e).psi = atan2f( dcm01, dcm00 );					\
+    const float phi   = atan2f( dcm12, dcm22 );				\
+    const float theta = -asinf( dcm02 );				\
+    const float psi   = atan2f( dcm01, dcm00 );				\
+    (_e).phi   = ANGLE_BFP(phi);					\
+    (_e).theta = ANGLE_BFP(theta);					\
+    (_e).psi   = ANGLE_BFP(psi);					\
     									\
   }
+
+
+#define INT32_EULERS_OF_QUAT(_e, _q) {					\
+									\
+    const int32_t qx2  = INT_MULT_RSHIFT((_q).qx,(_q).qx, INT32_QUAT_FRAC); \
+    const int32_t qy2  = INT_MULT_RSHIFT((_q).qy,(_q).qy, INT32_QUAT_FRAC); \
+    const int32_t qz2  = INT_MULT_RSHIFT((_q).qz,(_q).qz, INT32_QUAT_FRAC); \
+    const int32_t qiqx = INT_MULT_RSHIFT((_q).qi,(_q).qx, INT32_QUAT_FRAC); \
+    const int32_t qiqy = INT_MULT_RSHIFT((_q).qi,(_q).qy, INT32_QUAT_FRAC); \
+    const int32_t qiqz = INT_MULT_RSHIFT((_q).qi,(_q).qz, INT32_QUAT_FRAC); \
+    const int32_t qxqy = INT_MULT_RSHIFT((_q).qx,(_q).qy, INT32_QUAT_FRAC); \
+    const int32_t qxqz = INT_MULT_RSHIFT((_q).qx,(_q).qz, INT32_QUAT_FRAC); \
+    const int32_t qyqz = INT_MULT_RSHIFT((_q).qy,(_q).qz, INT32_QUAT_FRAC); \
+    const int32_t one = INT_BFP( 1, ITRIG_RES);				\
+    const int32_t two = INT_BFP( 2, ITRIG_RES);				\
+    /* dcm00 = 1.0 - 2.*(  qy2 +  qz2 ); */				\
+    const int32_t idcm00 =  one - INT_MULT_RSHIFT( two, (qy2+qz2), ITRIG_RES+INT32_QUAT_FRAC-ITRIG_RES); \
+    /* dcm01 =       2.*( qxqy + qiqz ); */				\
+    const int32_t idcm01 = INT_MULT_RSHIFT( two, (qxqy+qiqz), ITRIG_RES+INT32_QUAT_FRAC-ITRIG_RES); \
+    /* dcm02 =       2.*( qxqz - qiqy ); */				\
+    const int32_t idcm02 = INT_MULT_RSHIFT( two, (qxqz-qiqy), ITRIG_RES+INT32_QUAT_FRAC-ITRIG_RES); \
+    /* dcm12 =       2.*( qyqz + qiqx ); */				\
+    const int32_t idcm12 = INT_MULT_RSHIFT( two, (qyqz+qiqx), ITRIG_RES+INT32_QUAT_FRAC-ITRIG_RES); \
+    /* dcm22 = 1.0 - 2.*(  qx2 +  qy2 ); */				\
+    const int32_t idcm22 = one - INT_MULT_RSHIFT( two, (qx2+qy2), ITRIG_RES+INT32_QUAT_FRAC-ITRIG_RES); \
+    									\
+    const float dcm12 = (float)idcm12/(1<<INT32_ANGLE_FRAC);		\
+    const float dcm22 = (float)idcm22/(1<<INT32_ANGLE_FRAC);		\
+    const float dcm02 = (float)idcm02/(1<<INT32_ANGLE_FRAC);		\
+    const float dcm01 = (float)idcm01/(1<<INT32_ANGLE_FRAC);		\
+    const float dcm00 = (float)idcm00/(1<<INT32_ANGLE_FRAC);		\
+									\
+    const float phi   = atan2f( dcm12, dcm22 );				\
+    const float theta = -asinf( dcm02 );				\
+    const float psi   = atan2f( dcm01, dcm00 );				\
+    (_e).phi   = ANGLE_BFP(phi);					\
+    (_e).theta = ANGLE_BFP(theta);					\
+    (_e).psi   = ANGLE_BFP(psi);					\
+    									\
+  }
+
 
 
 

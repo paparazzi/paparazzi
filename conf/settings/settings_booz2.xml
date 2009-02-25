@@ -4,7 +4,7 @@
   <dl_settings>
 
     <dl_settings NAME="Misc">
-       <dl_setting var="telemetry_mode_Main" min="0" step="1" max="11" module="booz2_telemetry" shortname="telemetry" values="Default|PPM|Raw sensors|Scaled sensors|Filter|Rate loop|Att loop|Vert loop|H loop|Aligner|HS_att_roll|Tune_hover"/>
+       <dl_setting var="telemetry_mode_Main" min="0" step="1" max="11" module="booz2_telemetry" shortname="telemetry" values="Default|PPM|Raw sensors|Scaled sensors|AHRS|Rate loop|Att loop|Vert loop|H loop|Aligner|HS_att_roll|Tune_hover"/>
        <dl_setting var="booz_fms_on" min="0" step="1" max="1" module="booz2_fms" shortname="fms_on" values="OFF|ON" handler="SetOnOff">
         <strip_button name="FMS ON" icon="on.png" value="1"/>
         <strip_button name="FMS OFF" icon="off.png" value="0"/>

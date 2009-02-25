@@ -17,6 +17,7 @@ void booz2_imu_init(void) {
   */
   struct booz_ieuler body_to_imu_eulers = {IMU_BODY_TO_IMU_PHI, IMU_BODY_TO_IMU_THETA, IMU_BODY_TO_IMU_PSI};
   INT32_QUAT_OF_EULERS(booz_imu.body_to_imu_quat, body_to_imu_eulers);
+  INT32_QUAT_NORMALISE(booz_imu.body_to_imu_quat);
   INT32_RMAT_OF_EULERS(booz_imu.body_to_imu_rmat, body_to_imu_eulers);
 
 }

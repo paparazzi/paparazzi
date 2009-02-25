@@ -29,9 +29,9 @@ extern int64_t b2_gv_z_ref;
 #define B2_GV_MIN_ZDD BOOZ_INT_OF_FLOAT(B2_GV_MIN_ZDD_F, B2_GV_ZDD_REF_FRAC)
 #define B2_GV_MAX_ZDD_F ( 0.8*9.81)
 #define B2_GV_MAX_ZDD BOOZ_INT_OF_FLOAT(B2_GV_MAX_ZDD_F, B2_GV_ZDD_REF_FRAC)
-#define B2_GV_MIN_ZD_F  (-5.)
+#define B2_GV_MIN_ZD_F  (-3.)
 #define B2_GV_MIN_ZD  BOOZ_INT_OF_FLOAT(B2_GV_MIN_ZD_F , B2_GV_ZD_REF_FRAC)
-#define B2_GV_MAX_ZD_F  ( 5.)
+#define B2_GV_MAX_ZD_F  ( 3.)
 #define B2_GV_MAX_ZD  BOOZ_INT_OF_FLOAT(B2_GV_MAX_ZD_F , B2_GV_ZD_REF_FRAC)
 
 /* second order model natural frequency and damping */
