@@ -1,6 +1,6 @@
 
 CC = gcc
-CFLAGS = -I.. -I/home/poine/work/savannah/paparazzi3/sw/include -DFLOAT_T=double -Wall
+CFLAGS = -Wall -I.. -I/home/poine/work/savannah/paparazzi3/sw/include -DFLOAT_T=double -Wall
 LDFLAGS = -lm
 
 

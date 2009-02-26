@@ -26,6 +26,10 @@ struct FloatMat33 {
   FLOAT_T m[3*3];
 };
 
+struct FloatRMat {
+  FLOAT_T m[3*3];
+};
+
 struct FloatEulers {
   FLOAT_T phi;
   FLOAT_T theta;
@@ -64,6 +68,68 @@ struct FloatRates {
     vo.z = v1.x*v2.y - v1.y*v2.x;					\
   }
 
+/*
+ * Rotation Matrices
+ */
+
+/* _m_a2c = _m_a2b comp _m_b2c , aka  _m_a2c = _m_b2c * _m_a2b */
+#define FLOAT_RMAT_COMP(_m_a2c, _m_a2b, _m_b2c) {			\
+    _m_a2c.m[0] = (_m_b2c.m[0]*_m_a2b.m[0] + _m_b2c.m[1]*_m_a2b.m[3] + _m_b2c.m[2]*_m_a2b.m[6]); \
+    _m_a2c.m[1] = (_m_b2c.m[0]*_m_a2b.m[1] + _m_b2c.m[1]*_m_a2b.m[4] + _m_b2c.m[2]*_m_a2b.m[7]); \
+    _m_a2c.m[2] = (_m_b2c.m[0]*_m_a2b.m[2] + _m_b2c.m[1]*_m_a2b.m[5] + _m_b2c.m[2]*_m_a2b.m[8]); \
+    _m_a2c.m[3] = (_m_b2c.m[3]*_m_a2b.m[0] + _m_b2c.m[4]*_m_a2b.m[3] + _m_b2c.m[5]*_m_a2b.m[6]); \
+    _m_a2c.m[4] = (_m_b2c.m[3]*_m_a2b.m[1] + _m_b2c.m[4]*_m_a2b.m[4] + _m_b2c.m[5]*_m_a2b.m[7]); \
+    _m_a2c.m[5] = (_m_b2c.m[3]*_m_a2b.m[2] + _m_b2c.m[4]*_m_a2b.m[5] + _m_b2c.m[5]*_m_a2b.m[8]); \
+    _m_a2c.m[6] = (_m_b2c.m[6]*_m_a2b.m[0] + _m_b2c.m[7]*_m_a2b.m[3] + _m_b2c.m[8]*_m_a2b.m[6]); \
+    _m_a2c.m[7] = (_m_b2c.m[6]*_m_a2b.m[1] + _m_b2c.m[7]*_m_a2b.m[4] + _m_b2c.m[8]*_m_a2b.m[7]); \
+    _m_a2c.m[8] = (_m_b2c.m[6]*_m_a2b.m[2] + _m_b2c.m[7]*_m_a2b.m[5] + _m_b2c.m[8]*_m_a2b.m[8]); \
+  }
+
+/* _m_a2b = _m_a2c comp_inv _m_b2c , aka  _m_a2b = inv(_m_b2c) * _m_a2c */
+#define FLOAT_RMAT_COMP_INV(_m_a2b, _m_a2c, _m_b2c) {			\
+    _m_a2b.m[0] = (_m_b2c.m[0]*_m_a2c.m[0] + _m_b2c.m[3]*_m_a2c.m[3] + _m_b2c.m[6]*_m_a2c.m[6]); \
+    _m_a2b.m[1] = (_m_b2c.m[0]*_m_a2c.m[1] + _m_b2c.m[3]*_m_a2c.m[4] + _m_b2c.m[6]*_m_a2c.m[7]); \
+    _m_a2b.m[2] = (_m_b2c.m[0]*_m_a2c.m[2] + _m_b2c.m[3]*_m_a2c.m[5] + _m_b2c.m[6]*_m_a2c.m[8]); \
+    _m_a2b.m[3] = (_m_b2c.m[1]*_m_a2c.m[0] + _m_b2c.m[4]*_m_a2c.m[3] + _m_b2c.m[7]*_m_a2c.m[6]); \
+    _m_a2b.m[4] = (_m_b2c.m[1]*_m_a2c.m[1] + _m_b2c.m[4]*_m_a2c.m[4] + _m_b2c.m[7]*_m_a2c.m[7]); \
+    _m_a2b.m[5] = (_m_b2c.m[1]*_m_a2c.m[2] + _m_b2c.m[4]*_m_a2c.m[5] + _m_b2c.m[7]*_m_a2c.m[8]); \
+    _m_a2b.m[6] = (_m_b2c.m[2]*_m_a2c.m[0] + _m_b2c.m[5]*_m_a2c.m[3] + _m_b2c.m[8]*_m_a2c.m[6]); \
+    _m_a2b.m[7] = (_m_b2c.m[2]*_m_a2c.m[1] + _m_b2c.m[5]*_m_a2c.m[4] + _m_b2c.m[8]*_m_a2c.m[7]); \
+    _m_a2b.m[8] = (_m_b2c.m[2]*_m_a2c.m[2] + _m_b2c.m[5]*_m_a2c.m[5] + _m_b2c.m[8]*_m_a2c.m[8]); \
+  }
+
+
+#define FLOAT_RMAT_NORM(_m) (						\
+    sqrtf(SQUARE((_m).m[0])+ SQUARE((_m).m[1])+ SQUARE((_m).m[2])+	\
+	  SQUARE((_m).m[3])+ SQUARE((_m).m[4])+ SQUARE((_m).m[5])+	\
+	  SQUARE((_m).m[6])+ SQUARE((_m).m[7])+ SQUARE((_m).m[8]))	\
+    )
+
+#define FLOAT_RMAT_OF_EULERS(_rm, _e) {					\
+    									\
+    const float sphi   = sinf((_e).phi);				\
+    const float cphi   = cosf((_e).phi);				\
+    const float stheta = sinf((_e).theta);				\
+    const float ctheta = cosf((_e).theta);				\
+    const float spsi   = sinf((_e).psi);				\
+    const float cpsi   = cosf((_e).psi);				\
+    									\
+    _rm.m[0] = ctheta*cpsi;						\
+    _rm.m[1] = ctheta*spsi;						\
+    _rm.m[2] = -stheta;							\
+    _rm.m[3] = sphi*stheta*cpsi - cphi*spsi;				\
+    _rm.m[4] = sphi*stheta*spsi + cphi*cpsi;				\
+    _rm.m[5] = sphi*ctheta;						\
+    _rm.m[6] = cphi*stheta*cpsi + sphi*spsi;				\
+    _rm.m[7] = cphi*stheta*spsi - sphi*cpsi;				\
+    _rm.m[8] = cphi*ctheta;						\
+    									\
+  }
+
+
+
+
+
 
 /*
  * Quaternions
@@ -83,13 +149,11 @@ struct FloatRates {
     (_qo).qz = (_qi).qz;						\
   }
 
-#define FLOAT_QUAT_NORM(_n, _q) {					\
-    _n = sqrtf(_q.qi*_q.qi+_q.qx*_q.qx+_q.qy*_q.qy+_q.qz*_q.qz);	\
-  }
+#define FLOAT_QUAT_NORM(_q) (sqrtf(SQUARE(_q.qi) + SQUARE(_q.qx)+	\
+				   SQUARE(_q.qx) + SQUARE(_q.qy)))	\
 
 #define FLOAT_QUAT_NORMALISE(q) {		                        \
-    float norm;								\
-    FLOAT_QUAT_NORM(norm, q);						\
+    float norm = FLOAT_QUAT_NORM(q);					\
     q.qi = q.qi / norm;							\
     q.qx = q.qx / norm;							\
     q.qy = q.qy / norm;							\
@@ -103,11 +167,18 @@ struct FloatRates {
     (_qo).qz = -(_qi).qz;						\
   }
 
-#define FLOAT_QUAT_MULT(_c, _a, _b) {					             \
+/* _a2c = _a2b comp _b2c , aka  _a2c = _b2c * _a2b */
+#define FLOAT_QUAT_COMP(_a2c, _a2b, _b2c) FLOAT_QUAT_MULT(_a2c, _a2b, _b2c)
+
+/* _a2b = _a2b comp_inv _b2c , aka  _a2b = inv(_b2c) * _a2c */
+#define FLOAT_QUAT_COMP_INV(_a2b, _a2c, _b2c) FLOAT_QUAT_DIV(_a2b, _a2c, _b2c)
+
+
+#define FLOAT_QUAT_MULT(_c, _a, _b) {					\
     (_c).qi = (_a).qi*(_b).qi - (_a).qx*(_b).qx - (_a).qy*(_b).qy - (_a).qz*(_b).qz; \
     (_c).qx = (_a).qi*(_b).qx + (_a).qx*(_b).qi + (_a).qy*(_b).qz - (_a).qz*(_b).qy; \
     (_c).qy = (_a).qi*(_b).qy - (_a).qx*(_b).qz + (_a).qy*(_b).qi + (_a).qz*(_b).qx; \
-    (_c).qz = (_a).qi*(_b).qz + (_a).qx*(_b).qy - (_a).qy*(_b).qx + (_a).qz*b.qi;    \
+    (_c).qz = (_a).qi*(_b).qz + (_a).qx*(_b).qy - (_a).qy*(_b).qx + (_a).qz*(_b).qi; \
   }
 
 #define FLOAT_QUAT_DIV(b, a, c) {					\
@@ -169,17 +240,32 @@ struct FloatRates {
 
 #define FLOAT_EULERS_ZERO(_e) EULERS_ASSIGN(_e, 0., 0., 0.);
 
+#define FLOAT_EULERS_NORM(_e) (sqrtf(SQUARE((_e).phi)+SQUARE((_e).theta)+SQUARE((_e).psi))) ;
+
+#define FLOAT_EULERS_OF_RMAT(_e, _rm) {					\
+    									\
+    const float dcm00 = (_rm).m[0];					\
+    const float dcm01 = (_rm).m[1];					\
+    const float dcm02 = (_rm).m[2];					\
+    const float dcm12 = (_rm).m[5];					\
+    const float dcm22 = (_rm).m[8];					\
+    (_e).phi   = atan2f( dcm12, dcm22 );				\
+    (_e).theta = -asinf( dcm02 );					\
+    (_e).psi   = atan2f( dcm01, dcm00 );				\
+									\
+  }
+
 #define FLOAT_EULERS_OF_QUAT(_e, _q) {					\
 									\
-    const float qx2  = q.qx*q.qx;					\
-    const float qy2  = q.qy*q.qy;					\
-    const float qz2  = q.qz*q.qz;					\
-    const float qiqx = q.qi*q.qx;					\
-    const float qiqy = q.qi*q.qy;					\
-    const float qiqz = q.qi*q.qz;					\
-    const float qxqy = q.qx*q.qy;					\
-    const float qxqz = q.qx*q.qz;					\
-    const float qyqz = q.qy*q.qz;					\
+    const float qx2  = (_q).qx*(_q).qx;					\
+    const float qy2  = (_q).qy*(_q).qy;					\
+    const float qz2  = (_q).qz*(_q).qz;					\
+    const float qiqx = (_q).qi*(_q).qx;					\
+    const float qiqy = (_q).qi*(_q).qy;					\
+    const float qiqz = (_q).qi*(_q).qz;					\
+    const float qxqy = (_q).qx*(_q).qy;					\
+    const float qxqz = (_q).qx*(_q).qz;					\
+    const float qyqz = (_q).qy*(_q).qz;					\
     const float dcm00 = 1.0 - 2.*(  qy2 +  qz2 );			\
     const float dcm01 =       2.*( qxqy + qiqz );			\
     const float dcm02 =       2.*( qxqz - qiqy );			\

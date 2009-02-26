@@ -172,7 +172,7 @@ typedef uint8_t unit_t;
   }
 
 
-
+#define SQUARE(_a) ((_a)*(_a))
 
 
 #endif /* STD_H */

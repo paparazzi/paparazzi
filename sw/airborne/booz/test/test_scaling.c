@@ -9,8 +9,17 @@
 #define IMU_ACCEL_X_SENS_NUM -10650
 #define IMU_ACCEL_X_SENS_DEN 4253
 
+void test_1(void);
+void test_2(void);
+
 int main(int argc, char** argv){
 
+  test_2();
+
+  return 0;
+}
+
+void test_1(void) {
 
   double value_f;
   for (value_f=-9.81; value_f<9.81; value_f += 0.001) {
@@ -42,13 +51,19 @@ int main(int argc, char** argv){
 
     printf("%f %f %d %f %d\n", value_f, sensor_raw_f, sensor_raw_i, scaled_sensor_f, scaled_sensor_i);
 
+
+
   }
-
-
-
-
-
-
-  return 0;
 }
 
+void test_2(void) {
+    
+  int a;    
+  for (a=-7; a<7; a++) {
+    int b = a/-2;
+    int c = (a>0 ? a+1 : a-1)/-2;
+    double d = rint((double)a/-2.);
+    printf("%- d %- d %- d %- .1f\n", a, b, c, d);
+  }
+    
+}

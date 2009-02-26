@@ -30,10 +30,10 @@ struct Int32Quat {
 
 /* Euler angles                                 */
 #define INT32_ANGLE_FRAC 12
-#define INT32_ANGLE_PI_4   (int32_t)INT_BFP(   0.7853981633974483096156608458198757, INT32_ANGLE_FRAC)
-#define INT32_ANGLE_PI_2   (int32_t)INT_BFP(   1.5707963267948966192313216916397514, INT32_ANGLE_FRAC)
-#define INT32_ANGLE_PI     (int32_t)INT_BFP(   3.1415926535897932384626433832795029, INT32_ANGLE_FRAC)
-#define INT32_ANGLE_2_PI   (int32_t)INT_BFP(2.*3.1415926535897932384626433832795029, INT32_ANGLE_FRAC)
+#define INT32_ANGLE_PI_4   (int32_t)ANGLE_BFP_OF_REAL(   0.7853981633974483096156608458198757)
+#define INT32_ANGLE_PI_2   (int32_t)ANGLE_BFP_OF_REAL(   1.5707963267948966192313216916397514)
+#define INT32_ANGLE_PI     (int32_t)ANGLE_BFP_OF_REAL(   3.1415926535897932384626433832795029)
+#define INT32_ANGLE_2_PI   (int32_t)ANGLE_BFP_OF_REAL(2.*3.1415926535897932384626433832795029)
 
 struct Int32Eulers {
   int32_t phi;
@@ -41,10 +41,11 @@ struct Int32Eulers {
   int32_t psi;
 };
 
+
 /* Rotation matrix. */
 #define INT32_TRIG_FRAC 14
-struct Int32Rmat {
-  int32_t m[9];
+struct Int32RMat {
+  int32_t m[3*3];
 };
 
 /* 3x3 matrix                                    */
@@ -60,8 +61,6 @@ struct Int32Rates {
 };
 
 
-
-
 struct Int64Vect2 {
   int64_t x;
   int64_t y;
@@ -74,9 +73,14 @@ struct Int64Vect3 {
 };
 
 
-#define INT_BFP(_v, _frac) ((_v)*(1<<(_frac)))
-#define ANGLE_BFP(_v) INT_BFP(_v, INT32_ANGLE_FRAC)
-#define QUAT_BFP(_v)  INT_BFP(_v, INT32_QUAT_FRAC)
+#define BFP_OF_REAL(_vr, _frac)    ((_vr)*(1<<(_frac)))
+#define FLOAT_OF_BFP(_vbfp, _frac) ((float)(_vbfp)/(1<<(_frac)))
+#define ANGLE_BFP_OF_REAL(_af)  BFP_OF_REAL(_af, INT32_ANGLE_FRAC)
+#define ANGLE_FLOAT_OF_BFP(_ai) FLOAT_OF_BFP((_ai), INT32_ANGLE_FRAC)
+#define QUAT1_BFP_OF_REAL(_qf)  BFP_OF_REAL(_qf, INT32_QUAT_FRAC)
+#define QUAT1_FLOAT_OF_BFP(_qi) FLOAT_OF_BFP(_qi, INT32_QUAT_FRAC)
+#define TRIG_BFP_OF_REAL(_tf)   BFP_OF_REAL(_tf, INT32_TRIG_FRAC)
+#define TRIG_FLOAT_OF_BFP(_ti)  FLOAT_OF_BFP(_ti,INT32_TRIG_FRAC)
 
 #define INT_MULT_RSHIFT(_a, _b, _r) (((_a)*(_b))>>(_r))
 /*
@@ -188,8 +192,8 @@ struct Int64Vect3 {
     const int32_t qxqy = INT_MULT_RSHIFT((_q).qx,(_q).qy, INT32_QUAT_FRAC); \
     const int32_t qxqz = INT_MULT_RSHIFT((_q).qx,(_q).qz, INT32_QUAT_FRAC); \
     const int32_t qyqz = INT_MULT_RSHIFT((_q).qy,(_q).qz, INT32_QUAT_FRAC); \
-    const int32_t one = INT_BFP( 1, ITRIG_RES);				\
-    const int32_t two = INT_BFP( 2, ITRIG_RES);				\
+    const int32_t one = TRIG_BFP_OF_REAL( 1);				\
+    const int32_t two = TRIG_BFP_OF_REAL( 2);				\
     /* dcm00 = 1.0 - 2.*(  qy2 +  qz2 ); */				\
     _rm.m[0] =  one - INT_MULT_RSHIFT( two, (qy2+qz2), ITRIG_RES+INT32_QUAT_FRAC-ITRIG_RES); \
     /* dcm01 =       2.*( qxqy + qiqz ); */				\
@@ -214,6 +218,7 @@ struct Int64Vect3 {
  * http://www.mathworks.com/access/helpdesk_r13/help/toolbox/aeroblks/euleranglestodirectioncosinematrix.html
  */
 #define INT32_RMAT_OF_EULERS(_rm, _e) {					\
+									\
     int32_t sphi;							\
     BOOZ_ISIN(sphi, (_e).phi);						\
     int32_t cphi;							\
@@ -243,15 +248,15 @@ struct Int64Vect3 {
     int32_t cphi_stheta_cpsi = INT_MULT_RSHIFT(cphi_stheta, cpsi, INT32_TRIG_FRAC); \
     int32_t cphi_stheta_spsi = INT_MULT_RSHIFT(cphi_stheta, spsi, INT32_TRIG_FRAC); \
     									\
-    _rm.m[0] = ctheta_cpsi;						\
-    _rm.m[1] = ctheta_spsi;						\
-    _rm.m[2] = -stheta;							\
-    _rm.m[3] = sphi_stheta_cpsi - cphi_spsi;				\
-    _rm.m[4] = sphi_stheta_spsi + cphi_cpsi;				\
-    _rm.m[5] = sphi_ctheta;						\
-    _rm.m[6] = cphi_stheta_cpsi + sphi_spsi;				\
-    _rm.m[7] = cphi_stheta_spsi - sphi_cpsi;				\
-    _rm.m[8] = cphi_ctheta;						\
+    (_rm).m[0] = ctheta_cpsi;						\
+    (_rm).m[1] = ctheta_spsi;						\
+    (_rm).m[2] = -stheta;							\
+    (_rm).m[3] = sphi_stheta_cpsi - cphi_spsi;				\
+    (_rm).m[4] = sphi_stheta_spsi + cphi_cpsi;				\
+    (_rm).m[5] = sphi_ctheta;						\
+    (_rm).m[6] = cphi_stheta_cpsi + sphi_spsi;				\
+    (_rm).m[7] = cphi_stheta_spsi - sphi_cpsi;				\
+    (_rm).m[8] = cphi_ctheta;						\
     									\
   }
 
@@ -261,7 +266,7 @@ struct Int64Vect3 {
  */
 
 #define INT32_QUAT_ZERO(_q) {						\
-    _q.qi = QUAT_BFP(1);						\
+    _q.qi = QUAT1_BFP_OF_REAL(1);						\
     _q.qx = 0;								\
     _q.qy = 0;								\
     _q.qz = 0;								\
@@ -282,11 +287,17 @@ struct Int64Vect3 {
 #define INT32_QUAT_NORMALISE(q) {		                        \
     int32_t n;								\
     INT32_QUAT_NORM(n, q);						\
-    q.qi = q.qi * QUAT_BFP(1) / n;					\
-    q.qx = q.qx * QUAT_BFP(1) / n;					\
-    q.qy = q.qy * QUAT_BFP(1) / n;					\
-    q.qz = q.qz * QUAT_BFP(1) / n;					\
+    q.qi = q.qi * QUAT1_BFP_OF_REAL(1) / n;					\
+    q.qx = q.qx * QUAT1_BFP_OF_REAL(1) / n;					\
+    q.qy = q.qy * QUAT1_BFP_OF_REAL(1) / n;					\
+    q.qz = q.qz * QUAT1_BFP_OF_REAL(1) / n;					\
   }
+
+/* _a2c = _a2b comp _b2c , aka  _a2c = _b2c * _a2b */
+#define INT32_QUAT_COMP(_a2c, _a2b, _b2c) INT32_QUAT_MULT(_a2c, _a2b, _b2c)
+
+/* _a2b = _a2b comp_inv _b2c , aka  _a2b = inv(_b2c) * _a2c */
+#define INT32_QUAT_COMP_INV(_a2b, _a2c, _b2c) INT32_QUAT_DIV(_a2b, _a2c, _b2c)
 
 
 #define INT32_QUAT_MULT(c, a, b) {					\
@@ -372,50 +383,6 @@ struct Int64Vect3 {
 
 
 /*
- * http://www.mathworks.com/access/helpdesk_r13/help/toolbox/aeroblks/euleranglestoquaternions.html
- */
-#define INT32_QUAT_OF_EULERS_2(_q, _e) {				\
-    const int32_t phi2   = (_e).phi   / 2;				\
-    const int32_t theta2 = (_e).theta / 2;				\
-    const int32_t psi2   = (_e).psi   / 2;				\
-    									\
-    int32_t s_phi2;							\
-    BOOZ_ISIN(s_phi2, phi2);						\
-    int32_t c_phi2;							\
-    BOOZ_ICOS(c_phi2, phi2);						\
-    int32_t s_theta2;							\
-    BOOZ_ISIN(s_theta2, theta2);					\
-    int32_t c_theta2;							\
-    BOOZ_ICOS(c_theta2, theta2);					\
-    int32_t s_psi2;							\
-    BOOZ_ISIN(s_psi2, psi2);						\
-    int32_t c_psi2;							\
-    BOOZ_ICOS(c_psi2, psi2);						\
-									\
-    const int32_t c_th_c_ps = c_theta2 * c_psi2;			\
-    const int32_t c_th_s_ps = c_theta2 * s_psi2;			\
-    const int32_t s_th_s_ps = s_theta2 * s_psi2;			\
-    const int32_t s_th_c_ps = s_theta2 * c_psi2;			\
-    									\
-    const int64_t qi = ( c_phi2 * c_th_c_ps + s_phi2 * s_th_s_ps) >> (3*INT32_ANGLE_FRAC-INT32_QUAT_FRAC); \
-    const int64_t qx = (-c_phi2 * s_th_s_ps + s_phi2 * c_th_c_ps) >> (3*INT32_ANGLE_FRAC-INT32_QUAT_FRAC); \
-    const int64_t qy = ( c_phi2 * s_th_c_ps + s_phi2 * c_th_s_ps) >> (3*INT32_ANGLE_FRAC-INT32_QUAT_FRAC); \
-    const int64_t qz = ( c_phi2 * c_th_s_ps - s_phi2 * s_th_c_ps) >> (3*INT32_ANGLE_FRAC-INT32_QUAT_FRAC); \
-									\
-    (_q).qi = (int32_t)qi;						\
-    (_q).qx = (int32_t)qx;						\
-    (_q).qy = (int32_t)qy;						\
-    (_q).qz = (int32_t)qz;						\
-									\
-  }
-
-
-
-
-
-
-
-/*
  * Euler angles
  */
 
@@ -423,18 +390,18 @@ struct Int64Vect3 {
 
 
 #define INT32_EULERS_OF_RMAT(_e, _rm) {					\
-									\
-    const float dcm12 = (float)(_rm).m[5]/(1<<INT32_ANGLE_FRAC);	\
-    const float dcm22 = (float)(_rm).m[8]/(1<<INT32_ANGLE_FRAC);	\
-    const float dcm02 = (float)(_rm).m[2]/(1<<INT32_ANGLE_FRAC);	\
-    const float dcm01 = (float)(_rm).m[1]/(1<<INT32_ANGLE_FRAC);	\
-    const float dcm00 = (float)(_rm).m[0]/(1<<INT32_ANGLE_FRAC);	\
+    									\
+    const float dcm00 = TRIG_FLOAT_OF_BFP((_rm).m[0]);			\
+    const float dcm01 = TRIG_FLOAT_OF_BFP((_rm).m[1]);			\
+    const float dcm02 = TRIG_FLOAT_OF_BFP((_rm).m[2]);			\
+    const float dcm12 = TRIG_FLOAT_OF_BFP((_rm).m[5]);			\
+    const float dcm22 = TRIG_FLOAT_OF_BFP((_rm).m[8]);			\
     const float phi   = atan2f( dcm12, dcm22 );				\
     const float theta = -asinf( dcm02 );				\
     const float psi   = atan2f( dcm01, dcm00 );				\
-    (_e).phi   = ANGLE_BFP(phi);					\
-    (_e).theta = ANGLE_BFP(theta);					\
-    (_e).psi   = ANGLE_BFP(psi);					\
+    (_e).phi   = ANGLE_BFP_OF_REAL(phi);				\
+    (_e).theta = ANGLE_BFP_OF_REAL(theta);				\
+    (_e).psi   = ANGLE_BFP_OF_REAL(psi);				\
     									\
   }
 
@@ -450,36 +417,36 @@ struct Int64Vect3 {
     const int32_t qxqy = INT_MULT_RSHIFT((_q).qx,(_q).qy, INT32_QUAT_FRAC); \
     const int32_t qxqz = INT_MULT_RSHIFT((_q).qx,(_q).qz, INT32_QUAT_FRAC); \
     const int32_t qyqz = INT_MULT_RSHIFT((_q).qy,(_q).qz, INT32_QUAT_FRAC); \
-    const int32_t one = INT_BFP( 1, ITRIG_RES);				\
-    const int32_t two = INT_BFP( 2, ITRIG_RES);				\
-									\
-    const int32_t qxqz_m_qiqy = ((_q).qx*(_q).qz - (_q).qi*(_q).qy)>>INT32_QUAT_FRAC; \
-    const int32_t _2_qxqz_m_qiqy = 2 * qxqz_m_qiqy;			\
+    const int32_t one = TRIG_BFP_OF_REAL( 1);				\
+    const int32_t two = TRIG_BFP_OF_REAL( 2);				\
 									\
     /* dcm00 = 1.0 - 2.*(  qy2 +  qz2 ); */				\
-    const int32_t idcm00 =  one - INT_MULT_RSHIFT( two, (qy2+qz2), ITRIG_RES+INT32_QUAT_FRAC-ITRIG_RES); \
+    const int32_t idcm00 =  one - INT_MULT_RSHIFT( two, (qy2+qz2),	\
+						   INT32_TRIG_FRAC+INT32_QUAT_FRAC-INT32_TRIG_FRAC); \
     /* dcm01 =       2.*( qxqy + qiqz ); */				\
-    const int32_t idcm01 = INT_MULT_RSHIFT( two, (qxqy+qiqz), ITRIG_RES+INT32_QUAT_FRAC-ITRIG_RES); \
+    const int32_t idcm01 = INT_MULT_RSHIFT( two, (qxqy+qiqz),		\
+					    INT32_TRIG_FRAC+INT32_QUAT_FRAC-INT32_TRIG_FRAC); \
     /* dcm02 =       2.*( qxqz - qiqy ); */				\
-    /* const int32_t idcm02 = INT_MULT_RSHIFT( two, (qxqz-qiqy), ITRIG_RES+INT32_QUAT_FRAC-ITRIG_RES); */ \
-    const int32_t idcm02 = _2_qxqz_m_qiqy;				\
+    const int32_t idcm02 = INT_MULT_RSHIFT( two, (qxqz-qiqy),		\
+					    INT32_TRIG_FRAC+INT32_QUAT_FRAC-INT32_TRIG_FRAC); \
     /* dcm12 =       2.*( qyqz + qiqx ); */				\
-    const int32_t idcm12 = INT_MULT_RSHIFT( two, (qyqz+qiqx), ITRIG_RES+INT32_QUAT_FRAC-ITRIG_RES); \
+    const int32_t idcm12 = INT_MULT_RSHIFT( two, (qyqz+qiqx),		\
+					    INT32_TRIG_FRAC+INT32_QUAT_FRAC-INT32_TRIG_FRAC); \
     /* dcm22 = 1.0 - 2.*(  qx2 +  qy2 ); */				\
-    const int32_t idcm22 = one - INT_MULT_RSHIFT( two, (qx2+qy2), ITRIG_RES+INT32_QUAT_FRAC-ITRIG_RES); \
-    									\
-    const float dcm12 = (float)idcm12/(1<<INT32_ANGLE_FRAC);		\
-    const float dcm22 = (float)idcm22/(1<<INT32_ANGLE_FRAC);		\
-    const float dcm02 = (float)idcm02/(1<<INT32_ANGLE_FRAC);		\
-    const float dcm01 = (float)idcm01/(1<<INT32_ANGLE_FRAC);		\
-    const float dcm00 = (float)idcm00/(1<<INT32_ANGLE_FRAC);		\
+    const int32_t idcm22 = one - INT_MULT_RSHIFT( two, (qx2+qy2),	\
+						  INT32_TRIG_FRAC+INT32_QUAT_FRAC-INT32_TRIG_FRAC); \
+    const float dcm00 = (float)idcm00/(1<<INT32_TRIG_FRAC);		\
+    const float dcm01 = (float)idcm01/(1<<INT32_TRIG_FRAC);		\
+    const float dcm02 = (float)idcm02/(1<<INT32_TRIG_FRAC);		\
+    const float dcm12 = (float)idcm12/(1<<INT32_TRIG_FRAC);		\
+    const float dcm22 = (float)idcm22/(1<<INT32_TRIG_FRAC);		\
 									\
     const float phi   = atan2f( dcm12, dcm22 );				\
     const float theta = -asinf( dcm02 );				\
     const float psi   = atan2f( dcm01, dcm00 );				\
-    (_e).phi   = ANGLE_BFP(phi);					\
-    (_e).theta = ANGLE_BFP(theta);					\
-    (_e).psi   = ANGLE_BFP(psi);					\
+    (_e).phi   = ANGLE_BFP_OF_REAL(phi);				\
+    (_e).theta = ANGLE_BFP_OF_REAL(theta);				\
+    (_e).psi   = ANGLE_BFP_OF_REAL(psi);				\
     									\
   }
 
@@ -552,7 +519,7 @@ struct Int64Vect3 {
     if ( _x >= 0) {							\
       r = ((_x-abs_y)<<R_FRAC) / (_x+abs_y);				\
       int32_t r2 = (r * r)>>R_FRAC;					\
-      int32_t tmp1 = ((r2 * (int32_t)ANGLE_BFP(0.1963))>>INT32_ANGLE_FRAC) - ANGLE_BFP(0.9817); \
+      int32_t tmp1 = ((r2 * (int32_t)ANGLE_BFP_OF_REAL(0.1963))>>INT32_ANGLE_FRAC) - ANGLE_BFP_OF_REAL(0.9817); \
       _a = ((tmp1 * r)>>R_FRAC) + c1;					\
     }									\
     else {								\
