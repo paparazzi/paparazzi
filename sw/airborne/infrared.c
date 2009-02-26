@@ -78,7 +78,7 @@ float ir_correction_up;
 #define IR_CORRECTION_DOWN 1.
 #endif
 
-#ifndef SITL
+#if ! (defined SITL || defined HITL)
 static struct adc_buf buf_ir1;
 static struct adc_buf buf_ir2;
 #endif
@@ -129,7 +129,7 @@ float ir_vertical_correction;
 /** Initialize \a adc_buf_channel
  */
 void ir_init(void) {
-#ifndef SITL
+#if ! (defined SITL || defined HITL)
   adc_buf_channel(ADC_CHANNEL_IR1, &buf_ir1, ADC_CHANNEL_IR_NB_SAMPLES);
   adc_buf_channel(ADC_CHANNEL_IR2, &buf_ir2, ADC_CHANNEL_IR_NB_SAMPLES);
 #endif
@@ -155,7 +155,7 @@ void ir_init(void) {
   ir_longitudinal_correction = IR_LONGITUDINAL_CORRECTION;
   ir_vertical_correction = IR_VERTICAL_CORRECTION;
 
-#ifndef ADC_CHANNEL_IR_TOP
+#if ! (defined ADC_CHANNEL_IR_TOP || defined HITL || defined SITL)
   ir_top = IR_DEFAULT_CONTRAST;
 #endif
 }
