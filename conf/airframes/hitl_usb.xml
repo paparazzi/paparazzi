@@ -3,14 +3,6 @@
 <airframe name="HITL for Olimex">
 
 <!-- commands section -->
-  <servos>
-    <servo name="THROTTLE" no="0" min="1290" neutral="1290" max="1810"/>
-    <servo name="AILERON_LEFT" no="4" min="1000" neutral="1485" max="2000"/>
-    <servo name="AILERON_RIGHT" no="5" min="1000" neutral="1510" max="2000"/>
-    <servo name="RUDDER" no="3" min="1040" neutral="1540" max="2040"/>
-    <servo name="ELEVATOR" no="1" min="1770" neutral="1550" max="970"/>
-  </servos>
-
   <commands>
     <axis name="THROTTLE" failsafe_value="0"/>
     <axis name="ROLL" failsafe_value="0"/>
@@ -18,49 +10,12 @@
     <axis name="YAW" failsafe_value="0"/>
   </commands>
 
-  <rc_commands>
-    <set command="THROTTLE" value="@THROTTLE"/>
-    <set command="ROLL" value="@ROLL"/>
-    <set command="PITCH" value="@PITCH"/>
-    <set command="YAW" value="@YAW"/>
-  </rc_commands>
-
   <section name="MIXER">
      <define name="AILERON_DIFF" value="0.66"/>
      <define name="COMBI_SWITCH" value="1.0"/>
   </section>
 
-  <command_laws>
-    <set servo="THROTTLE" value="@THROTTLE"/>
-    <set servo="ELEVATOR" value="@PITCH"/>
-    <set servo="RUDDER" value="@YAW + @ROLL*COMBI_SWITCH"/>
-
-    <let var="roll" value="@ROLL"/>
-    <set servo="AILERON_LEFT" value="($roll > 0 ? 1 : AILERON_DIFF) * $roll"/>
-    <set servo="AILERON_RIGHT" value="($roll > 0 ? AILERON_DIFF : 1) * $roll"/>
-  </command_laws>
-
-  <section name="AUTO1" prefix="AUTO1_">
-    <define name="MAX_ROLL" value="0.7"/>
-    <define name="MAX_PITCH" value="0.6"/>
-  </section>
-
-  <section name="adc" prefix="ADC_CHANNEL_">
-    <define name="IR1" value="ADC_1"/>
-    <define name="IR2" value="ADC_2"/>
-    <define name="IR_TOP" value="ADC_0"/>
-    <define name="IR_NB_SAMPLES" value="16"/>
-  </section>
-
   <section name="INFRARED" prefix="IR_">
-    <define name="ADC_IR1_NEUTRAL" value="512"/>
-    <define name="ADC_IR2_NEUTRAL" value="512"/>
-    <define name="ADC_TOP_NEUTRAL" value="512"/>
-
-    <define name="HORIZ_SENSOR_TILTED" value="1"/>
-    <define name="IR2_SIGN" value="-1"/>
-    <define name="TOP_SIGN" value="1"/>
-
     <define name="LATERAL_CORRECTION" value="0.75"/>
     <define name="LONGITUDINAL_CORRECTION" value="0.75"/>
     <define name="VERTICAL_CORRECTION" value="1.5"/>
@@ -170,13 +125,6 @@ ap.srcs = sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c main_fbw.c m
 
 ap.srcs += commands.c
 
-ap.CFLAGS += -DACTUATORS=\"servos_4017_hw.h\" -DSERVOS_4017
-ap.srcs += $(SRC_ARCH)/servos_4017_hw.c actuators.c
-
-# 41.200MHz
-ap.CFLAGS += -DRADIO_CONTROL -DRADIO_CONTROL_TYPE=RC_FUTABA
-ap.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c  
-
 # Through USB
 ap.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DUSE_USB_SERIAL
 ap.CFLAGS += -DDOWNLINK_FBW_DEVICE=UsbS -DDOWNLINK_AP_DEVICE=UsbS -DPPRZ_UART=UsbS -DDATALINK=PPRZ
@@ -186,9 +134,6 @@ ap.srcs += $(SRC_ARCH)/lpcusb/usbstdreq.c $(SRC_ARCH)/lpcusb/usbinit.c
 
 ap.CFLAGS += -DINTER_MCU
 ap.srcs += inter_mcu.c 
-
-ap.CFLAGS += -DADC -DUSE_ADC_0 -DUSE_ADC_1 -DUSE_ADC_2 -DUSE_ADC_3
-ap.srcs += $(SRC_ARCH)/adc_hw.c
 
 ap.CFLAGS += -DGPS -DUBX -DUSE_UART1 -DGPS_LINK=Uart1 -DUART1_BAUD=B38400
 ap.CFLAGS += -DGPS_CONFIGURE -DGPS_BAUD=38400
@@ -207,7 +152,12 @@ ap.srcs += nav_line.c nav_survey_rectangle.c
 ap.CFLAGS += -DHITL -UGPS_CONFIGURE -UUART0_BAUD -DUART0_BAUD=B57600
 
 # Config for SITL simulation
-include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
+sim.ARCHDIR = $(ARCHI)
+sim.ARCH = sitl
+sim.TARGET = autopilot
+sim.TARGETDIR = autopilot
+sim.CFLAGS += -DSITL -DAP -DFBW -DINTER_MCU -DDOWNLINK -DDOWNLINK_TRANSPORT=IvyTransport -DINFRARED -DNAV -DLED
+sim.srcs = latlong.c downlink.c commands.c gps.c inter_mcu.c infrared.c fw_h_ctl.c fw_v_ctl.c nav.c estimator.c sys_time.c main_fbw.c main_ap.c datalink.c $(SRC_ARCH)/ppm_hw.c $(SRC_ARCH)/sim_gps.c $(SRC_ARCH)/sim_ir.c $(SRC_ARCH)/sim_ap.c $(SRC_ARCH)/ivy_transport.c $(SRC_ARCH)/sim_adc_generic.c $(SRC_ARCH)/led_hw.c
 sim.CFLAGS += -DCONFIG=\"tiny.h\" -DAGR_CLIMB -DLOITER_TRIM -DALT_KALMAN
 sim.srcs += nav_survey_rectangle.c nav_line.c traffic_info.c
 
