@@ -18,7 +18,7 @@ struct BoozImu {
   struct Int32Vect3 accel_unscaled;
   struct Int32Vect3 mag_unscaled;
   struct Int32Quat  body_to_imu_quat;
-  struct Int32Rmat  body_to_imu_rmat;
+  struct Int32RMat  body_to_imu_rmat;
 };
 
 extern struct BoozImu booz_imu;
