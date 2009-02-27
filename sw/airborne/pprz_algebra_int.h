@@ -287,33 +287,27 @@ struct Int64Vect3 {
 #define INT32_QUAT_NORMALISE(q) {		                        \
     int32_t n;								\
     INT32_QUAT_NORM(n, q);						\
-    q.qi = q.qi * QUAT1_BFP_OF_REAL(1) / n;					\
-    q.qx = q.qx * QUAT1_BFP_OF_REAL(1) / n;					\
-    q.qy = q.qy * QUAT1_BFP_OF_REAL(1) / n;					\
-    q.qz = q.qz * QUAT1_BFP_OF_REAL(1) / n;					\
+    q.qi = q.qi * QUAT1_BFP_OF_REAL(1) / n;				\
+    q.qx = q.qx * QUAT1_BFP_OF_REAL(1) / n;				\
+    q.qy = q.qy * QUAT1_BFP_OF_REAL(1) / n;				\
+    q.qz = q.qz * QUAT1_BFP_OF_REAL(1) / n;				\
   }
 
 /* _a2c = _a2b comp _b2c , aka  _a2c = _b2c * _a2b */
-#define INT32_QUAT_COMP(_a2c, _a2b, _b2c) INT32_QUAT_MULT(_a2c, _a2b, _b2c)
+#define INT32_QUAT_COMP(_a2c, _a2b, _b2c) {				\
+    (_a2c).qi = ((_a2b).qi*(_b2c).qi - (_a2b).qx*(_b2c).qx - (_a2b).qy*(_b2c).qy - (_a2b).qz*(_b2c).qz)>>INT32_QUAT_FRAC; \
+    (_a2c).qx = ((_a2b).qi*(_b2c).qx + (_a2b).qx*(_b2c).qi + (_a2b).qy*(_b2c).qz - (_a2b).qz*(_b2c).qy)>>INT32_QUAT_FRAC; \
+    (_a2c).qy = ((_a2b).qi*(_b2c).qy - (_a2b).qx*(_b2c).qz + (_a2b).qy*(_b2c).qi + (_a2b).qz*(_b2c).qx)>>INT32_QUAT_FRAC; \
+    (_a2c).qz = ((_a2b).qi*(_b2c).qz + (_a2b).qx*(_b2c).qy - (_a2b).qy*(_b2c).qx + (_a2b).qz*(_b2c).qi)>>INT32_QUAT_FRAC; \
+  }
 
 /* _a2b = _a2b comp_inv _b2c , aka  _a2b = inv(_b2c) * _a2c */
-#define INT32_QUAT_COMP_INV(_a2b, _a2c, _b2c) INT32_QUAT_DIV(_a2b, _a2c, _b2c)
-
-
-#define INT32_QUAT_MULT(c, a, b) {					\
-    c.qi = (a.qi*b.qi - a.qx*b.qx - a.qy*b.qy - a.qz*b.qz)>>INT32_QUAT_FRAC; \
-    c.qx = (a.qi*b.qx + a.qx*b.qi + a.qy*b.qz - a.qz*b.qy)>>INT32_QUAT_FRAC; \
-    c.qy = (a.qi*b.qy - a.qx*b.qz + a.qy*b.qi + a.qz*b.qx)>>INT32_QUAT_FRAC; \
-    c.qz = (a.qi*b.qz + a.qx*b.qy - a.qy*b.qx + a.qz*b.qi)>>INT32_QUAT_FRAC; \
+#define INT32_QUAT_COMP_INV(_a2b, _a2c, _b2c) {				\
+    (_a2b).qi = ( (_a2c).qi*(_b2c).qi + (_a2c).qx*(_b2c).qx + (_a2c).qy*(_b2c).qy + (_a2c).qz*(_b2c).qz)>>INT32_QUAT_FRAC; \
+    (_a2b).qx = (-(_a2c).qi*(_b2c).qx + (_a2c).qx*(_b2c).qi - (_a2c).qy*(_b2c).qz + (_a2c).qz*(_b2c).qy)>>INT32_QUAT_FRAC; \
+    (_a2b).qy = (-(_a2c).qi*(_b2c).qy + (_a2c).qx*(_b2c).qz + (_a2c).qy*(_b2c).qi - (_a2c).qz*(_b2c).qx)>>INT32_QUAT_FRAC; \
+    (_a2b).qz = (-(_a2c).qi*(_b2c).qz - (_a2c).qx*(_b2c).qy + (_a2c).qy*(_b2c).qx + (_a2c).qz*(_b2c).qi)>>INT32_QUAT_FRAC; \
   }
-
-#define INT32_QUAT_DIV(b, a, c) {					\
-    b.qi = (c.qi*a.qi + c.qx*a.qx + c.qy*a.qy + c.qz*a.qz)>>IQUAT_RES;	\
-    b.qx = (c.qx*a.qi - c.qi*a.qx - c.qz*a.qy + c.qy*a.qz)>>IQUAT_RES;	\
-    b.qy = (c.qy*a.qi + c.qz*a.qx - c.qi*a.qy - c.qx*a.qz)>>IQUAT_RES;	\
-    b.qz = (c.qz*a.qi - c.qy*a.qx + c.qx*a.qy - c.qi*a.qz)>>IQUAT_RES;	\
-  }
-
 
 
 #define INT32_QUAT_VMULT(v_out, q, v_in) {				\

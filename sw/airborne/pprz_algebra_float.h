@@ -168,25 +168,21 @@ struct FloatRates {
   }
 
 /* _a2c = _a2b comp _b2c , aka  _a2c = _b2c * _a2b */
-#define FLOAT_QUAT_COMP(_a2c, _a2b, _b2c) FLOAT_QUAT_MULT(_a2c, _a2b, _b2c)
+#define FLOAT_QUAT_COMP(_a2c, _a2b, _b2c) {				\
+    (_a2c).qi = (_a2b).qi*(_b2c).qi - (_a2b).qx*(_b2c).qx - (_a2b).qy*(_b2c).qy - (_a2b).qz*(_b2c).qz; \
+    (_a2c).qx = (_a2b).qi*(_b2c).qx + (_a2b).qx*(_b2c).qi + (_a2b).qy*(_b2c).qz - (_a2b).qz*(_b2c).qy; \
+    (_a2c).qy = (_a2b).qi*(_b2c).qy - (_a2b).qx*(_b2c).qz + (_a2b).qy*(_b2c).qi + (_a2b).qz*(_b2c).qx; \
+    (_a2c).qz = (_a2b).qi*(_b2c).qz + (_a2b).qx*(_b2c).qy - (_a2b).qy*(_b2c).qx + (_a2b).qz*(_b2c).qi; \
+  }
 
 /* _a2b = _a2b comp_inv _b2c , aka  _a2b = inv(_b2c) * _a2c */
-#define FLOAT_QUAT_COMP_INV(_a2b, _a2c, _b2c) FLOAT_QUAT_DIV(_a2b, _a2c, _b2c)
-
-
-#define FLOAT_QUAT_MULT(_c, _a, _b) {					\
-    (_c).qi = (_a).qi*(_b).qi - (_a).qx*(_b).qx - (_a).qy*(_b).qy - (_a).qz*(_b).qz; \
-    (_c).qx = (_a).qi*(_b).qx + (_a).qx*(_b).qi + (_a).qy*(_b).qz - (_a).qz*(_b).qy; \
-    (_c).qy = (_a).qi*(_b).qy - (_a).qx*(_b).qz + (_a).qy*(_b).qi + (_a).qz*(_b).qx; \
-    (_c).qz = (_a).qi*(_b).qz + (_a).qx*(_b).qy - (_a).qy*(_b).qx + (_a).qz*(_b).qi; \
+#define FLOAT_QUAT_COMP_INV(_a2b, _a2c, _b2c) {				\
+    (_a2b).qi =  (_a2c).qi*(_b2c).qi + (_a2c).qx*(_b2c).qx + (_a2c).qy*(_b2c).qy + (_a2c).qz*(_b2c).qz; \
+    (_a2b).qx = -(_a2c).qi*(_b2c).qx + (_a2c).qx*(_b2c).qi - (_a2c).qy*(_b2c).qz + (_a2c).qz*(_b2c).qy; \
+    (_a2b).qy = -(_a2c).qi*(_b2c).qy + (_a2c).qx*(_b2c).qz + (_a2c).qy*(_b2c).qi - (_a2c).qz*(_b2c).qx; \
+    (_a2b).qz = -(_a2c).qi*(_b2c).qz - (_a2c).qx*(_b2c).qy + (_a2c).qy*(_b2c).qx + (_a2c).qz*(_b2c).qi; \
   }
 
-#define FLOAT_QUAT_DIV(b, a, c) {					\
-    b.qi = c.qi*a.qi + c.qx*a.qx + c.qy*a.qy + c.qz*a.qz;		\
-    b.qx = c.qx*a.qi - c.qi*a.qx - c.qz*a.qy + c.qy*a.qz;		\
-    b.qy = c.qy*a.qi + c.qz*a.qx - c.qi*a.qy - c.qx*a.qz;		\
-    b.qz = c.qz*a.qi - c.qy*a.qx + c.qx*a.qy - c.qi*a.qz;		\
-  }
 
 #define FLOAT_QUAT_VMULT(v_out, q, v_in) {				\
     const float qi2  = q.qi*q.qi;					\

@@ -165,7 +165,7 @@ static void test_3(void) {
 
   /* Compute LTP to BODY quaternion */
   struct Int32Quat l2b_q;
-  INT32_QUAT_DIV(l2b_q, b2i_q, l2i_q);
+  INT32_QUAT_COMP_INV(l2b_q, b2i_q, l2i_q);
   DISPLAY_INT32_QUAT_AS_EULERS_DEG("l2b_q", l2b_q);
 
   /* Compute LTP to BODY rotation matrix */
@@ -344,6 +344,61 @@ static void test_6(void) {
 
 }
 
+
+
+float test_rmat_comp(struct FloatRMat ma2b_f, struct FloatRMat mb2c_f, int display) {
+
+  struct FloatRMat ma2c_f;
+  FLOAT_RMAT_COMP(ma2c_f, ma2b_f, mb2c_f);
+  struct Int32RMat ma2b_i;
+  RMAT_BFP_OF_REAL(ma2b_i, ma2b_f);
+  struct Int32RMat mb2c_i;
+  RMAT_BFP_OF_REAL(mb2c_i, mb2c_f);
+  struct Int32RMat ma2c_i;
+  INT32_RMAT_COMP(ma2c_i, ma2b_i, mb2c_i);
+
+  struct FloatRMat err;
+  RMAT_DIFF(err, ma2c_f, ma2c_i);
+  float norm_err = FLOAT_RMAT_NORM(err);
+
+  if (display) { 
+    printf("rmap comp\n");
+    DISPLAY_FLOAT_RMAT_AS_EULERS_DEG("a2cf", ma2c_f);
+    DISPLAY_INT32_RMAT_AS_EULERS_DEG("a2ci", ma2c_i);
+  }
+  
+  return norm_err;
+
+}
+
+
+float test_quat_comp(struct FloatQuat qa2b_f, struct FloatQuat qb2c_f, int display) {
+
+  struct FloatQuat qa2c_f;
+  FLOAT_QUAT_COMP(qa2c_f, qa2b_f, qb2c_f);
+  struct Int32Quat qa2b_i;
+  QUAT_BFP_OF_REAL(qa2b_i, qa2b_f);
+  struct Int32Quat qb2c_i;
+  QUAT_BFP_OF_REAL(qb2c_i, qb2c_f);
+  struct Int32Quat qa2c_i;
+  INT32_QUAT_COMP(qa2c_i, qa2b_i, qb2c_i);
+
+  struct FloatQuat err;
+  QUAT_DIFF(err, qa2c_f, qa2c_i);
+  float norm_err = FLOAT_QUAT_NORM(err);
+
+  if (display) { 
+    printf("quat comp\n");
+    DISPLAY_FLOAT_QUAT_AS_EULERS_DEG("a2cf", qa2c_f);
+    DISPLAY_INT32_QUAT_AS_EULERS_DEG("a2ci", qa2c_i);
+  }
+  
+  return norm_err;
+
+}
+
+
+
 static void test_7(void) {
   printf("\n");
   struct FloatEulers ea2c;
@@ -374,35 +429,6 @@ static void test_7(void) {
 
 }
 
-
-
-float test_rmat_comp(struct FloatRMat ma2b_f, struct FloatRMat mb2c_f, int display) {
-
-  struct FloatRMat ma2c_f;
-  FLOAT_RMAT_COMP(ma2c_f, ma2b_f, mb2c_f);
-  struct Int32RMat ma2b_i;
-  RMAT_BFP_OF_REAL(ma2b_i, ma2b_f);
-  struct Int32RMat mb2c_i;
-  RMAT_BFP_OF_REAL(mb2c_i, mb2c_f);
-  struct Int32RMat ma2c_i;
-  INT32_RMAT_COMP(ma2c_i, ma2b_i, mb2c_i);
-
-  struct FloatRMat err;
-  RMAT_DIFF(err, ma2c_f, ma2c_i);
-  float norm_err = FLOAT_RMAT_NORM(err);
-
-  if (display) { 
-    printf("rmap comp\n");
-    DISPLAY_FLOAT_RMAT_AS_EULERS_DEG("a2cf", ma2c_f);
-    DISPLAY_INT32_RMAT_AS_EULERS_DEG("a2ci", ma2c_i);
-  }
-  
-  return norm_err;
-
-}
-
-
-
 float test_rmat_comp_inv(struct FloatRMat ma2c_f, struct FloatRMat mb2c_f, int display) {
 
   struct FloatRMat ma2b_f;
@@ -422,32 +448,6 @@ float test_rmat_comp_inv(struct FloatRMat ma2c_f, struct FloatRMat mb2c_f, int d
     printf("rmap comp_inv\n");
     DISPLAY_FLOAT_RMAT_AS_EULERS_DEG("a2cf", ma2b_f);
     DISPLAY_INT32_RMAT_AS_EULERS_DEG("a2ci", ma2b_i);
-  }
-  
-  return norm_err;
-
-}
-
-
-float test_quat_comp(struct FloatQuat qa2b_f, struct FloatQuat qb2c_f, int display) {
-
-  struct FloatQuat qa2c_f;
-  FLOAT_QUAT_COMP(qa2c_f, qa2b_f, qb2c_f);
-  struct Int32Quat qa2b_i;
-  QUAT_BFP_OF_REAL(qa2b_i, qa2b_f);
-  struct Int32Quat qb2c_i;
-  QUAT_BFP_OF_REAL(qb2c_i, qb2c_f);
-  struct Int32Quat qa2c_i;
-  INT32_QUAT_COMP(qa2c_i, qa2b_i, qb2c_i);
-
-  struct FloatQuat err;
-  QUAT_DIFF(err, qa2c_f, qa2c_i);
-  float norm_err = FLOAT_QUAT_NORM(err);
-
-  if (display) { 
-    printf("quat comp\n");
-    DISPLAY_FLOAT_QUAT_AS_EULERS_DEG("a2cf", qa2c_f);
-    DISPLAY_INT32_QUAT_AS_EULERS_DEG("a2ci", qa2c_i);
   }
   
   return norm_err;
