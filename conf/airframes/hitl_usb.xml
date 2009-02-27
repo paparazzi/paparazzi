@@ -10,11 +10,6 @@
     <axis name="YAW" failsafe_value="0"/>
   </commands>
 
-  <section name="MIXER">
-     <define name="AILERON_DIFF" value="0.66"/>
-     <define name="COMBI_SWITCH" value="1.0"/>
-  </section>
-
   <section name="INFRARED" prefix="IR_">
     <define name="LATERAL_CORRECTION" value="0.75"/>
     <define name="LONGITUDINAL_CORRECTION" value="0.75"/>
@@ -135,8 +130,7 @@ ap.srcs += $(SRC_ARCH)/lpcusb/usbstdreq.c $(SRC_ARCH)/lpcusb/usbinit.c
 ap.CFLAGS += -DINTER_MCU
 ap.srcs += inter_mcu.c 
 
-ap.CFLAGS += -DGPS -DUBX -DUSE_UART1 -DGPS_LINK=Uart1 -DUART1_BAUD=B38400
-ap.CFLAGS += -DGPS_CONFIGURE -DGPS_BAUD=38400
+ap.CFLAGS += -DGPS -DUBX
 
 ap.srcs += gps_ubx.c gps.c latlong.c
 
@@ -149,7 +143,8 @@ ap.srcs += nav.c fw_h_ctl.c fw_v_ctl.c
 ap.srcs += nav_line.c nav_survey_rectangle.c
 
 # Configuration for Hardware In The Loop
-ap.CFLAGS += -DHITL -UGPS_CONFIGURE -UUART0_BAUD -DUART0_BAUD=B57600
+ap.CFLAGS += -DHITL
+ap.CFLAGS += -DGPS_USE_LATLONG # simulating LEA 5H
 
 # Config for SITL simulation
 sim.ARCHDIR = $(ARCHI)
