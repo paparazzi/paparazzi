@@ -181,7 +181,9 @@ void gps_configure ( void ) {
 #endif /* GPS_CONFIGURE */
 
 void ubxsend_cfg_rst(uint16_t bbr , uint8_t reset_mode) {
+#ifdef GPS_LINK
   UbxSend_CFG_RST(bbr, reset_mode, 0x00);
+#endif /* else less harmful for HITL */
 }
 
 
