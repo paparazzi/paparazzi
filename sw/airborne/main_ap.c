@@ -372,8 +372,10 @@ static void navigation_task( void ) {
       v_ctl_throttle_setpoint = nav_throttle_setpoint;
 
 #ifdef V_CTL_POWER_CTL_BAT_NOMINAL
-    v_ctl_throttle_setpoint *= 10. * V_CTL_POWER_CTL_BAT_NOMINAL / (float)vsupply;
-    v_ctl_throttle_setpoint = TRIM_UPPRZ(v_ctl_throttle_setpoint);
+    if (vsupply > 0.) {
+      v_ctl_throttle_setpoint *= 10. * V_CTL_POWER_CTL_BAT_NOMINAL / (float)vsupply;
+      v_ctl_throttle_setpoint = TRIM_UPPRZ(v_ctl_throttle_setpoint);
+    }
 #endif
 
     h_ctl_pitch_setpoint = nav_pitch;
@@ -732,7 +734,6 @@ void init_ap( void ) {
 #ifdef TCAS
   tcas_init();
 #endif
-
 }
 
 
