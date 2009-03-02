@@ -20,10 +20,10 @@ void ltp_def_from_ecef_i(struct LtpDef_i* def, struct EcefCoor_i* ecef) {
   /* store the rotation matrix                    */
 
 #if 1
-  int32_t sin_lat = rint(BOOZ_INT_OF_FLOAT(sin(RAD_OF_EM7RAD((FLOAT_T)def->lla.lat)), HIGH_RES_TRIG_FRAC));
-  int32_t cos_lat = rint(BOOZ_INT_OF_FLOAT(cos(RAD_OF_EM7RAD((FLOAT_T)def->lla.lat)), HIGH_RES_TRIG_FRAC)); 
-  int32_t sin_lon = rint(BOOZ_INT_OF_FLOAT(sin(RAD_OF_EM7RAD((FLOAT_T)def->lla.lon)), HIGH_RES_TRIG_FRAC));
-  int32_t cos_lon = rint(BOOZ_INT_OF_FLOAT(cos(RAD_OF_EM7RAD((FLOAT_T)def->lla.lon)), HIGH_RES_TRIG_FRAC)); 
+  int32_t sin_lat = rint(BOOZ_INT_OF_FLOAT(sinf(RAD_OF_EM7RAD((float)def->lla.lat)), HIGH_RES_TRIG_FRAC));
+  int32_t cos_lat = rint(BOOZ_INT_OF_FLOAT(cosf(RAD_OF_EM7RAD((float)def->lla.lat)), HIGH_RES_TRIG_FRAC)); 
+  int32_t sin_lon = rint(BOOZ_INT_OF_FLOAT(sinf(RAD_OF_EM7RAD((float)def->lla.lon)), HIGH_RES_TRIG_FRAC));
+  int32_t cos_lon = rint(BOOZ_INT_OF_FLOAT(cosf(RAD_OF_EM7RAD((float)def->lla.lon)), HIGH_RES_TRIG_FRAC)); 
 #else
   int32_t sin_lat = rint(BOOZ_INT_OF_FLOAT(sin(RAD_OF_EM7RAD((double)def->lla.lat)), HIGH_RES_TRIG_FRAC));
   int32_t cos_lat = rint(BOOZ_INT_OF_FLOAT(cos(RAD_OF_EM7RAD((double)def->lla.lat)), HIGH_RES_TRIG_FRAC)); 
@@ -78,8 +78,6 @@ void ned_of_ecef_point_i(struct NedCoor_i* ned, struct LtpDef_i* def, struct Ece
 
 void enu_of_ecef_vect_i(struct EnuCoor_i* enu, struct LtpDef_i* def, struct EcefCoor_i* ecef) {
 
-  struct EcefCoor_i delta;
-  VECT3_DIFF(delta, *ecef, def->ecef);
   const int64_t tmpx = (int64_t)def->ltp_of_ecef.m[0]*ecef->x +
                        (int64_t)def->ltp_of_ecef.m[1]*ecef->y +
                        0;                                     
@@ -117,9 +115,9 @@ void lla_of_ecef_i(struct LlaCoor_i* out, struct EcefCoor_i* in) {
 
   /* convert our input to floating point */
   struct EcefCoor_f in_f;
-  in_f.x = M_OF_CM((FLOAT_T)in->x);
-  in_f.y = M_OF_CM((FLOAT_T)in->y);
-  in_f.z = M_OF_CM((FLOAT_T)in->z);
+  in_f.x = M_OF_CM((float)in->x);
+  in_f.y = M_OF_CM((float)in->y);
+  in_f.z = M_OF_CM((float)in->z);
   /* calls the floating point transformation */
   struct LlaCoor_f out_f;
   lla_of_ecef_f(&out_f, &in_f);
