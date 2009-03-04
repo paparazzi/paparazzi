@@ -8,6 +8,9 @@
 #include "nps_fdm.h"
 #include "nps_jsbsim.h"
 
+string RootDir = "/home/violato/JSBSim/";
+string AircraftName = "quad";
+string ResetName = "reset00";
 static struct NpsFdmState fdm_state;
 
 
