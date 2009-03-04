@@ -93,8 +93,8 @@ CFLAGS  = -Wall -I $(JSBSIM)/src -I../include
 LDFLAGS = -L $(JSBSIM)/lib -lJSBSim
 CFLAGS  += -I /usr/include/meschach
 LDFLAGS += -lmeschach
-#CFLAGS  += `pkg-config glib-2.0 --cflags`
-#LDFLAGS += `pkg-config glib-2.0 --libs` -lm -lpcre -lglibivy
+CFLAGS  += `pkg-config glib-2.0 --cflags`
+LDFLAGS += `pkg-config glib-2.0 --libs` -lm -lpcre -lglibivy
 
 test1: nps_test1.c nps_jsbsim.c
 	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)

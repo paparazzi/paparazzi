@@ -1,4 +1,4 @@
-#include <glibmm.h>
+#include <glib.h>
 #include <getopt.h>
 #include <sys/time.h>
 
@@ -45,7 +45,7 @@ static void sim_run_one_step(void) {
   result = fdmex->Run();
   nps_jsbsim_fetch_state(fdmex, &fdm_state);
   
-  // Balancer les messages
+  // balancer les messages
 
   //  IvySendMsg("%d BOOZ_SIM_SPEED_POS %f %f %f %f %f %f",  
   //	     AC_ID,
