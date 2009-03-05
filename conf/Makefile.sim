@@ -27,7 +27,11 @@
 
 SRC_ARCH = $(PAPARAZZI_SRC)/sw/airborne/sim
 
+ifneq ($(SIM_TYPE),JSBSIM)
 CC = gcc
+else
+CC = g++
+endif
 OCAMLC = ocamlc
 SIMDIR = $(PAPARAZZI_SRC)/sw/simulator
 CAMLINCLUDES = -I +lablgtk2 -I $(PAPARAZZI_SRC)/sw/lib/ocaml -I $(SIMDIR) -I +xml-light
@@ -42,7 +46,9 @@ Q=@
 # End of configuration part.
 #
 
+ifneq ($(SIM_TYPE),JSBSIM)
 INCLUDES += -I `ocamlc -where`
+endif
 
 CFLAGS		=						\
 	-W -Wall 						\
@@ -53,13 +59,18 @@ CFLAGS		=						\
 
 # meschach prototypes trigger numerous warnings
 ifneq ($(SIM_TYPE),BOOZ)
+ifneq ($(SIM_TYPE),JSBSIM)
 CFLAGS	+= -Wstrict-prototypes
+endif
 endif
 
 
 LDFLAGS		=	-lm					\
 
 ifeq ($(SIM_TYPE),BOOZ)
+LDFLAGS		+= $($(TARGET).LDFLAGS)
+endif
+ifeq ($(SIM_TYPE),JSBSIM)
 LDFLAGS		+= $($(TARGET).LDFLAGS)
 endif
 #
@@ -79,11 +90,16 @@ $(OBJDIR)/simsitl : $($(TARGET).objs)
 	@echo LD $@
 	$(Q)$(CC) -o $@ $($(TARGET).objs) $(LDFLAGS)
 else
+ifeq ($(SIM_TYPE),JSBSIM)
+$(OBJDIR)/simsitl : $($(TARGET).objs)
+	@echo LD $@
+	$(Q)$(CC) $(CFLAGS) -o $@ $($(TARGET).objs) $(LDFLAGS)
+else
 $(OBJDIR)/simsitl : $($(TARGET).objs) $(SITLCMA) $(SIMSITLML)
 	@echo LD $@
 	$(Q)$(OCAMLC) -g -custom $(CAMLINCLUDES) -o $@ unix.cma str.cma xml-light.cma glibivy-ocaml.cma lib-pprz.cma lablgtk.cma $($(TARGET).objs) $(MYGTKINITCMO) $(SITLCMA) $(SIMSITLML)
 endif
-
+endif
 
 
 # The id of the A/C is hardcoded in the code (to be improved with dynlink ?)
@@ -94,12 +110,25 @@ $(SIMSITLML) : $(SIMDIR)/simsitl.ml
 %.s: %.c
 	$(CC) $(CFLAGS) -S -o $@ $<
 
+%.s: %.cpp
+	$(CC) $(CFLAGS) -S -o $@ $<
+
 $(OBJDIR)/%.s: %.c
 	@echo CC $@
 	$(Q)test -d $(dir $@) || mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) -S -o $@ $<
 
+$(OBJDIR)/%.s: %.cpp
+	@echo CC $@
+	$(Q)test -d $(dir $@) || mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) -S -o $@ $<
+
 $(OBJDIR)/%.o: %.c $(OBJDIR)/../Makefile.ac
+	@echo CC $@
+	$(Q)test -d $(dir $@) || mkdir -p $(dir $@)
+	$(Q)$(CC) $(CFLAGS) -c -o $@ $<
+
+$(OBJDIR)/%.o: %.cpp $(OBJDIR)/../Makefile.ac
 	@echo CC $@
 	$(Q)test -d $(dir $@) || mkdir -p $(dir $@)
 	$(Q)$(CC) $(CFLAGS) -c -o $@ $<
