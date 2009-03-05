@@ -25,17 +25,16 @@
 #ifndef SIM_AC_JSBSIM_HPP
 #define SIM_AC_JSBSIM_HPP
 
-#include <JSBSim/FGFDMExec.h>
-//#include <JSBSIM/math/FGColumnVector3.h>
+#include <FGFDMExec.h>
 
-#include "aircraft.h"
+#include "airframe.h"
 #include "flight_plan.h"
 
-extern void autopilot_init(void);
-extern void autopilot_periodic_task(void);
-extern void autopilot_event_task(void);
-extern void copy_inputs_to_jsbsim(JSBSIM::FGFDMExec & FDMExec);
-extern void copy_outputs_from_jsbsim(JSBSIM::FGFDMExec & FDMExec);
+void autopilot_init(void);
+void autopilot_periodic_task(void);
+void autopilot_event_task(void);
+void copy_inputs_to_jsbsim(JSBSim::FGFDMExec & FDMExec);
+void copy_outputs_from_jsbsim(JSBSim::FGFDMExec & FDMExec);
 
 
 #endif // SIM_AC_JSBSIM_HPP

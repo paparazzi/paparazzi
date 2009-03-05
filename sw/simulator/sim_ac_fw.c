@@ -28,8 +28,8 @@
 #include "main_ap.h"
 #include "main_fbw.h"
 
-static void sim_gps_feed_data(void);
-static void sim_ir_feed_data(void);
+//static void sim_gps_feed_data(void);
+//static void sim_ir_feed_data(void);
 
 void autopilot_init(void) {
   init_fbw();
@@ -53,7 +53,7 @@ void copy_inputs_to_jsbsim(JSBSim::FGFDMExec & FDMExec) {
 void copy_outputs_from_jsbsim(JSBSim::FGFDMExec & FDMExec) {
 }
 
-#include "gps.h"
-static void sim_gps_feed_data(void) {
-}
+//#include "gps.h"
+//static void sim_gps_feed_data(void) {
+//}
 

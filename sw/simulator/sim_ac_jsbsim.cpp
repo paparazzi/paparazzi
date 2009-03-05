@@ -35,45 +35,45 @@ GLOBAL DATA
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*/
 
 string RootDir = "";
-string ScriptName;
+string ICName;
 string AircraftName;
 string LogOutputName;
 JSBSim::FGFDMExec* FDMExec;
 
 /* 60Hz <-> 17ms */
-#define TIMEOUT_PERIOD 17
-#define DT (TIMEOUT_PERIOD*1e-3)
-double sim_time;
-
-#define DT_DISPLAY 0.04
-double disp_time;
+#ifndef JSBSIM_PERIOD
+#define JSBSIM_PERIOD 17
+#endif
+#define DT (JSBSIM_PERIOD*1e-3)
 
 static void     sim_parse_options(int argc, char** argv);
 static void     sim_init(void);
 static gboolean sim_periodic(gpointer data);
-//static void     sim_display(void);
 
 static void ivy_transport_init(void);
-static void on_DL_SETTING(IvyClientPtr app __attribute__ ((unused)), 
-    void *user_data __attribute__ ((unused)), 
-    int argc __attribute__ ((unused)), char *argv[]);
+//static void on_DL_SETTING(IvyClientPtr app __attribute__ ((unused)), 
+//    void *user_data __attribute__ ((unused)), 
+//    int argc __attribute__ ((unused)), char *argv[]);
 
 
 static void sim_init(void) {
 
-  sim_time = 0.;
-  disp_time = 0.;
+  //sim_time = 0.;
 
   // *** SET UP JSBSIM *** //
   FDMExec = new JSBSim::FGFDMExec();
-  FDMExec->SetAircraftPath(RootDir + "aircraft");
-  FDMExec->SetEnginePath(RootDir + "engine");
-  FDMExec->SetSystemsPath(RootDir + "systems");
+#ifdef JSBSIM_ROOT_DIR
+  RootDir = JSBSIM_ROOT_DIR;
+#endif
+  //FDMExec->SetAircraftPath(RootDir + "aircraft");
+  //FDMExec->SetEnginePath(RootDir + "engine");
+  //FDMExec->SetSystemsPath(RootDir + "systems");
   //FDMExec->GetPropertyManager()->Tie("simulation/frame_start_time", &actual_elapsed_time);
   //FDMExec->GetPropertyManager()->Tie("simulation/cycle_duration", &cycle_duration);
 
   if (!AircraftName.empty()) {
 
+    FDMExec->DisableOutput();
     FDMExec->SetDebugLevel(0); // No DEBUG messages
 
     if ( ! FDMExec->LoadModel( RootDir + "aircraft",
@@ -87,11 +87,12 @@ static void sim_init(void) {
 
     // Initial conditions (from flight_plan.h and aircraft.h ???)
     JSBSim::FGInitialCondition *IC = FDMExec->GetIC();
-    //if ( ! IC->Load(ResetName)) {
-    //  delete FDMExec;
-    //  cerr << "Initialization unsuccessful" << endl;
-    //  exit(-1);
-    //}
+    if ( ! IC->Load(ICName)) {
+      delete FDMExec;
+      cerr << "Initialization unsuccessful" << endl;
+      exit(-1);
+    }
+    FDMExec->RunIC();
 
   } else {
     cerr << "  No Aircraft given" << endl << endl;
@@ -104,7 +105,7 @@ static void sim_init(void) {
   ivy_transport_init();
 
   // main AP init (feed the sensors once before ?)
-  init_autopilot();
+  autopilot_init();
 
 }
 
@@ -112,16 +113,15 @@ static void sim_init(void) {
 static gboolean sim_periodic(gpointer data __attribute__ ((unused))) {
 
   /* read actuators positions and feed JSBSim inputs */
-  copy_inputs_to_jsbsim(FDMExec);
+  copy_inputs_to_jsbsim(*FDMExec);
 
   /* run JSBSim flight model */
-  FDMExec->Run();
+  bool result = FDMExec->Run();
 
-  sim_time += DT;
+  //sim_time += DT;
 
   /* read outputs from model state (and display ?) */
-  copy_outputs_from_jsbsim(FDMExec);
-  sim_display();
+  copy_outputs_from_jsbsim(*FDMExec);
 
   /* run the airborne code */
   
@@ -132,19 +132,15 @@ static gboolean sim_periodic(gpointer data __attribute__ ((unused))) {
 
   autopilot_periodic_task();
 
-  return TRUE;
+  return result;
 }
 
 
-//static void sim_display(void) {
-//}
-
 int main ( int argc, char** argv) {
 
-  ScriptName = "";
+  ICName = "";
   AircraftName = "";
   LogOutputName = "";
-  bool result = false;
 
   sim_parse_options(argc, argv);
 
@@ -152,10 +148,11 @@ int main ( int argc, char** argv) {
 
   GMainLoop *ml =  g_main_loop_new(NULL, FALSE);
   
-  g_timeout_add(TIMEOUT_PERIOD, sim_periodic, NULL);
+  g_timeout_add(JSBSIM_PERIOD, sim_periodic, NULL);
 
   g_main_loop_run(ml);
 
+  //delete FDMExec;
   return 0;
 }
 
@@ -165,8 +162,9 @@ static void ivy_transport_init(void) {
   IvyStart("127.255.255.255");
 }
 
-void print_help(char** argv) {
-  cout << "Usage: " << argv[0] << " [options]" << endl;
+void print_help() {
+  //cout << "Usage: " << argv[0] << " [options]" << endl;
+  cout << "Usage: simsitl [options]" << endl;
   cout << " Options :" << endl;
   cout << "   -a <aircraft name>" << endl;
   cout << "   -b <Ivy bus>\tdefault is 127.255.255.255:2010" << endl;
@@ -186,7 +184,7 @@ static void sim_parse_options(int argc, char** argv) {
     string argument = string(argv[i]);
 
     if (argument == "--help" || argument == "-h") {
-      PrintHelp();
+      print_help();
       exit(0);
     } else if (argument == "-a") {
 
@@ -196,7 +194,7 @@ static void sim_parse_options(int argc, char** argv) {
 
     } else {
       cerr << "Unknown argument" << endl;
-      PrintHelp();
+      print_help();
       exit(0);
     }
   }
