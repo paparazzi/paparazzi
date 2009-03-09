@@ -318,6 +318,17 @@
     (_qi).qz = QUAT1_BFP_OF_REAL((_qf).qz);		\
   }
 
+#define RATES_FLOAT_OF_BFP(_ef, _ei) {				\
+    (_ef).phi   = RATE_FLOAT_OF_BFP((_ei).phi);		\
+    (_ef).theta = RATE_FLOAT_OF_BFP((_ei).theta);		\
+    (_ef).psi   = RATE_FLOAT_OF_BFP((_ei).psi);		\
+  }
+
+#define RATES_BFP_OF_REAL(_ei, _ef) {			\
+    (_ei).phi   = RATE_BFP_OF_REAL((_ef).phi);		\
+    (_ei).theta = RATE_BFP_OF_REAL((_ef).theta);	\
+    (_ei).psi   = RATE_BFP_OF_REAL((_ef).psi);		\
+  }
 
 
 #endif /* PPRZ_ALGEBRA_H */

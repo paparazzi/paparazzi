@@ -75,6 +75,8 @@ struct Int64Vect3 {
 
 #define BFP_OF_REAL(_vr, _frac)    ((_vr)*(1<<(_frac)))
 #define FLOAT_OF_BFP(_vbfp, _frac) ((float)(_vbfp)/(1<<(_frac)))
+#define RATE_BFP_OF_REAL(_af)  BFP_OF_REAL(_af, INT32_RATE_FRAC)
+#define RATE_FLOAT_OF_BFP(_ai) FLOAT_OF_BFP((_ai), INT32_RATE_FRAC)
 #define ANGLE_BFP_OF_REAL(_af)  BFP_OF_REAL(_af, INT32_ANGLE_FRAC)
 #define ANGLE_FLOAT_OF_BFP(_ai) FLOAT_OF_BFP((_ai), INT32_ANGLE_FRAC)
 #define QUAT1_BFP_OF_REAL(_qf)  BFP_OF_REAL(_qf, INT32_QUAT_FRAC)
