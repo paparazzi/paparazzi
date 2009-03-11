@@ -1,0 +1,15 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="demo_module">
+  <header>
+    <file name="demo_module.h"/>
+  </header>
+  <init fun="init_demo()"/>
+  <periodic fun="periodic_1Hz_demo()" period="1." start="start_demo()" stop="stop_demo()"/>
+  <periodic fun="periodic_10Hz_demo()" period="0.1" start="start_demo()" stop="stop_demo()"/>
+  <makefile>
+    <flag name="DEMO_MODULE_LED" value="2"/>
+    <file name="demo_module.c"/>
+  </makefile>
+</module>
+

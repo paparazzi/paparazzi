@@ -1,0 +1,49 @@
+<!-- Paparazzi Modules DTD -->
+
+<!ELEMENT module (depend?,header,init?,periodic*,event*,makefile*)>
+<!ELEMENT depend EMPTY>
+<!ELEMENT header (file*)>
+<!ELEMENT init EMPTY>
+<!ELEMENT periodic EMPTY>
+<!ELEMENT event (handler*)>
+<!ELEMENT handler EMPTY>
+<!ELEMENT makefile (flag*,file*)>
+<!ELEMENT flag EMPTY>
+<!ELEMENT file EMPTY>
+
+<!ATTLIST module
+name CDATA #REQUIRED>
+
+<!ATTLIST depend
+require CDATA #IMPLIED
+conflict CDATA #IMPLIED>
+
+<!ATTLIST header>
+
+<!ATTLIST init
+fun CDATA #REQUIRED>
+
+<!ATTLIST periodic
+fun CDATA #REQUIRED
+period CDATA #REQUIRED
+delay CDATA #IMPLIED
+start CDATA #IMPLIED
+stop CDATA #IMPLIED
+autorun (TRUE|FALSE) #IMPLIED >
+
+<!ATTLIST event
+fun CDATA #REQUIRED>
+
+<!ATTLIST handler
+fun CDATA #REQUIRED>
+
+<!ATTLIST makefile
+target CDATA "ap|sim">
+
+<!ATTLIST flag
+name CDATA #REQUIRED
+value CDATA #IMPLIED>
+
+<!ATTLIST file
+name CDATA #REQUIRED>
+
