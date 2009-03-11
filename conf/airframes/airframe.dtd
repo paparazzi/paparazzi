@@ -1,6 +1,6 @@
 <!-- Paparazzi airframe DTD -->
 
-<!ELEMENT airframe (servos|commands|rc_commands|ap_only_commands|command_laws|section|makefile)*>
+<!ELEMENT airframe (servos|commands|rc_commands|ap_only_commands|command_laws|section|makefile|modules)*>
 <!ELEMENT servos (servo)*>
 <!ELEMENT commands (axis)*>
 <!ELEMENT rc_commands (set)*>
@@ -15,6 +15,8 @@
 <!ELEMENT define EMPTY>
 <!ELEMENT linear EMPTY>
 <!ELEMENT makefile (#PCDATA)>
+<!ELEMENT modules (load)*>
+<!ELEMENT load EMPTY>
 
 <!ATTLIST airframe
 name CDATA #IMPLIED>
@@ -68,3 +70,9 @@ coeff3 CDATA #IMPLIED>
 
 <!ATTLIST makefile
 target CDATA #IMPLIED>
+
+<!ATTLIST modules
+main_freq CDATA #IMPLIED>
+
+<!ATTLIST load
+name CDATA #REQUIRED>
