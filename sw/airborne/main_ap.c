@@ -29,6 +29,8 @@
  * aircraft attitude and running the different control loops
  */
 
+#define MODULES_C
+
 #include <math.h>
 
 #include "main_ap.h"
@@ -143,6 +145,9 @@
 #define MILLIAMP_PER_PERCENT 0
 #endif
 
+#ifdef USE_MODULES
+#include "modules.h"
+#endif
 
 /** FIXME: should be in rc_settings but required by telemetry (ap_downlink.h)*/
 uint8_t rc_settings_mode = RC_SETTINGS_MODE_NONE;
@@ -590,6 +595,10 @@ void periodic_task_ap( void ) {
     cam_periodic();
 #endif
     }
+
+#ifdef USE_MODULES
+  modules_periodic_task();
+#endif
 }
 
 
@@ -738,6 +747,10 @@ void init_ap( void ) {
 #ifdef TCAS
   tcas_init();
 #endif
+
+#ifdef USE_MODULES
+  modules_init();
+#endif
 }
 
 
@@ -865,4 +878,9 @@ void event_task_ap( void ) {
     inter_mcu_received_fbw = FALSE;
     telecommand_task();
   }
+
+#ifdef USE_MODULES
+  modules_event_task();
+#endif
+
 } /* event_task_ap() */
