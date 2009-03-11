@@ -67,6 +67,11 @@ let start_and_begin_c = fun xml_file name ->
   nl ();
   xml
 
+let begin_c_out = fun xml_file name out ->
+  fprintf out "/* This file has been generated from %s */\n" xml_file;
+  fprintf out "/* Please DO NOT EDIT */\n\n";
+  fprintf out "#include \"%s.h\"\n\n" name
+
 let finish = fun h_name ->
   printf "\n#endif // %s\n" h_name
 
