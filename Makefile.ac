@@ -46,6 +46,9 @@ TUNING_H=$(ACINCLUDE)/tuning.h
 TUNING_INC_H=$(PAPARAZZI_HOME)/var/include/"$(SETTINGS:settings/%.xml=%).h"
 SUPERVISION=./paparazzi
 MAKE=make PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME)
+MODULES_H=$(ACINCLUDE)/modules.h
+MODULES_C=$(ACINCLUDE)/modules.c
+MODULES_DIR=$(PAPARAZZI_HOME)/conf/modules/
 
 
 # "make Q=''" to get full echo
@@ -57,7 +60,7 @@ init:
 demo:
 	$(SUPERVISION)
 
-all_ac_h: $(AIRFRAME_H) $(RADIO_H) $(FLIGHT_PLAN_H) $(FLIGHT_PLAN_XML) $(SETTINGS_H) $(TUNING_H) $(MAKEFILE_AC) $(PERIODIC_H)
+all_ac_h: $(AIRFRAME_H) $(RADIO_H) $(FLIGHT_PLAN_H) $(FLIGHT_PLAN_XML) $(SETTINGS_H) $(TUNING_H) $(MAKEFILE_AC) $(PERIODIC_H) $(MODULES_H)
 
 $(AIRFRAME_H) : $(CONF)/$(AIRFRAME_XML) $(CONF_XML)
 	@echo BUILD $@
@@ -104,7 +107,12 @@ $(TUNING_H) : $(SETTINGS_XMLS) $(CONF_XML) $(TOOLS)/gen_tuning.out
 
 $(MAKEFILE_AC) : $(CONF)/$(AIRFRAME_XML)
 	@echo BUILD $@
-	$(Q)$(TOOLS)/extract_makefile.out $< > $@
+	$(Q)$(TOOLS)/extract_makefile.out $< $(MODULES_DIR) > $@
+
+$(MODULES_H) : $(CONF)/$(AIRFRAME_XML) $(TOOLS)/gen_modules.out
+	@echo BUILD $@
+	$(Q)$(TOOLS)/gen_modules.out $(MODULES_DIR) $(MODULES_C) $< > $@
+	$(Q)chmod a+r $@
 
 
 ac_h :
