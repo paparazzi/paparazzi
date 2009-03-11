@@ -1,0 +1,36 @@
+<!DOCTYPE flight_plan SYSTEM "flight_plan.dtd">
+
+<flight_plan alt="75" ground_alt="0" lat0="43.46223" lon0="1.27289" max_dist_from_home="1500" name="Demo module" security_height="25">
+  <header>
+#include "modules.h"
+</header>
+  <waypoints>
+    <waypoint name="HOME" x="0" y="0"/>
+    <waypoint name="STDBY" x="0" y="100"/>
+  </waypoints>
+  <exceptions/>
+  <blocks>
+    <block name="Kill">
+      <set value="1" var="kill_throttle"/>
+      <deroute block="Standby"/>
+    </block>
+    <block name="Periodic 1Hz">
+      <set value="MODULES_STOP" var="demo_module_periodic_10Hz_demo_status"/>
+      <set value="MODULES_START" var="demo_module_periodic_1Hz_demo_status"/>
+      <deroute block="Standby"/>
+    </block>
+    <block name="Periodic 10Hz">
+      <set value="MODULES_STOP" var="demo_module_periodic_1Hz_demo_status"/>
+      <set value="MODULES_START" var="demo_module_periodic_10Hz_demo_status"/>
+      <deroute block="Standby"/>
+    </block>
+    <block name="Stop all">
+      <set value="MODULES_STOP" var="demo_module_periodic_10Hz_demo_status"/>
+      <set value="MODULES_STOP" var="demo_module_periodic_1Hz_demo_status"/>
+      <deroute block="Standby"/>
+    </block>
+    <block name="Standby" strip_button="Standby" strip_icon="home.png">
+      <circle radius="nav_radius" wp="STDBY"/>
+    </block>
+  </blocks>
+</flight_plan>
