@@ -24,6 +24,9 @@ fdm_g       = 9.81;
 fdm_mass    = 0.25;
 fdm_inertia = 0.0078;
 
+fdm_min_thrust =  0.5 * 0.1 * fdm_mass * fdm_g;
+fdm_max_thrust =  0.5 * 4.0 * fdm_mass * fdm_g;
+
 fdm_dt = 1./512.;
 
 global fdm_time;
@@ -42,6 +45,7 @@ endfunction
 
 function fdm_run(i, cmd)
  
+  cmd = trim_vect(cmd, fdm_min_thrust, fdm_max_thrust);
   global fdm_state;
   global fdm_time;
   fdm_state(:,i) = ode(fdm_state(:,i-1), fdm_time(i-1), fdm_time(i), list(fdm_get_derivatives, cmd));
@@ -57,7 +61,6 @@ function [Xdot] = fdm_get_derivatives(t, X, U)
   Xdot(FDM_SXD) = sum(U)/fdm_mass*sin(X(FDM_STHETA));
   Xdot(FDM_SZD) = 1/fdm_mass*(sum(U)*cos(X(FDM_STHETA))-fdm_mass*fdm_g);
   Xdot(FDM_STHETAD) = 1/fdm_inertia*(U(FDM_MOTOR_RIGHT) - U(FDM_MOTOR_LEFT));
-  
   
   
 endfunction

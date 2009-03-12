@@ -8,20 +8,23 @@ exec('q3d_ctl.sci');
 
 
 
-fdm_init(0,20.);
+fdm_init(0,8.0);
 ctl_init();
 
+global ctl_motor;
+ctl_motor(:,1) = fdm_mass * fdm_g * [0.5;0.5];
+
 for i=1:length(fdm_time)-1
-  fdm_run(i+1, [1.227; 1.227]);
+
+  fdm_run(i+1, ctl_motor(:,i));
   ctl_run(i+1);
-  
   
 end
 
-drawlater();
 set("current_figure",0);
 clf();
 f=get("current_figure");
 f.figure_name="CTL";
+drawlater();
 ctl_display();
 drawnow();
