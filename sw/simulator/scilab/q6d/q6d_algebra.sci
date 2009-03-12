@@ -1,3 +1,12 @@
+function [o] = trim(i,_min, _max)
+  o = i;
+  if i > _max
+    o = _max
+  elseif i < _min
+    o = _min
+  end
+endfunction
+
 function [rad] = rad_of_deg(deg)
   rad = deg / 180 * %pi;
 endfunction

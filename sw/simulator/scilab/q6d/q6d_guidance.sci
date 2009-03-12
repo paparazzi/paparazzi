@@ -7,6 +7,8 @@ global guidance_sp_pos;
 global guidance_ref_pos;
 global guidance_ref_speed;
 global guidance_ref_accel;
+global guidance_ref_acceld;
+
 
 global guidance_cmd_ff;
 global guidance_cmd_fb;
@@ -15,6 +17,17 @@ global guidance_output_thrust;
 
 guidance_omega_ref = [ rad_of_deg(90); rad_of_deg(90); rad_of_deg(270) ]; 
 guidance_zeta_ref  = [ 0.8; 0.8; 0.8 ]; 
+
+guidance_vsat = [ -3  3
+                  -8 16
+		  40 40 ];
+guidance_hsat = [ -3  3
+                  -3  3
+		 -10 10 ];
+	      
+guidance_thau = [ -1/1. -1/0.6 -1/0.25
+                  -1/1. -1/0.6 -1/0.25
+		  -1/0.36 -1/0.15 -1/0.7  ];
 
 guidance_mass = 0.5;
 guidance_Ct0  = 0.5*9.81*4;
@@ -115,12 +128,13 @@ endfunction
 //
 //
 //
-function guidance_update_ref(i)
+function guidance_update_ref_old(i)
 
   global guidance_sp_pos;
   global guidance_ref_pos;
   global guidance_ref_speed;
   global guidance_ref_accel;
+  global guidance_ref_acceld;
 
   ref_err_pos = guidance_ref_pos(:,i-1) - guidance_sp_pos(:,i-1);
 
@@ -132,6 +146,39 @@ function guidance_update_ref(i)
 			
 endfunction
 
+function guidance_update_ref(i)
+
+  global guidance_sp_pos;
+  global guidance_ref_pos;
+  global guidance_ref_speed;
+  global guidance_ref_accel;
+  global guidance_ref_acceld;
+
+  dt = 1/512;
+  guidance_ref_pos(:,i) = guidance_ref_pos(:,i-1) + dt * guidance_ref_speed(:,i-1);
+  guidance_ref_speed(:,i) = guidance_ref_speed(:,i-1) + dt * guidance_ref_accel(:,i-1);
+  guidance_ref_accel(:,i) = guidance_ref_accel(:,i-1) + dt * guidance_ref_acceld(:,i-1);
+
+
+  err_pos = guidance_ref_pos(:,i-1) - guidance_sp_pos(:,i);
+//  trim(err_pos, -5,  5);
+  sp_speed = guidance_thau(:,1).*err_pos;
+//  sp_speed(1) = trim(sp_speed(1), guidance_hsat(1,1),  guidance_hsat(1,2));
+//  sp_speed(2) = trim(sp_speed(2), guidance_hsat(1,1),  guidance_hsat(1,2));
+  sp_speed(3) = trim(sp_speed(3), guidance_vsat(1,1),  guidance_vsat(1,2));
+  err_speed = guidance_ref_speed(:,i) - sp_speed;
+  sp_accel = guidance_thau(:,2).*err_speed;
+//  sp_accel(1) = trim(sp_accel(1), guidance_hsat(2,1),  guidance_hsat(2,2));
+//  sp_accel(2) = trim(sp_accel(2), guidance_hsat(2,1),  guidance_hsat(2,2));
+  sp_accel(3) = trim(sp_accel(3), guidance_vsat(2,1),  guidance_vsat(2,2));
+  err_accel = guidance_ref_accel(:,i) - sp_accel;
+  sp_acceld = guidance_thau(:,3).*err_accel;
+//  sp_acceld(1) = trim(sp_acceld(1), guidance_hsat(3,1),  guidance_hsat(3,2));
+//  sp_acceld(2) = trim(sp_acceld(2), guidance_hsat(3,1),  guidance_hsat(3,2));
+  sp_acceld(3) = trim(sp_acceld(3), guidance_vsat(3,1),  guidance_vsat(3,2));
+  guidance_ref_acceld(:,i) = sp_acceld;
+			
+endfunction
 
 
 //
@@ -139,10 +186,10 @@ endfunction
 //
 function guidance_step_x(i)
   global fdm_time;
-  if modulo(i,2048) < 1024
-    pos_sp = [ 1; 0; 0];
+  if modulo(i,6144) < 3072
+    pos_sp = [ 10; 0; 0];
   else
-    pos_sp = [ -1; 0; 0];
+    pos_sp = [ -10; 0; 0];
   end  
   global guidance_sp_pos;
   guidance_sp_pos(:,i) = pos_sp;
@@ -153,10 +200,10 @@ endfunction
 //
 function guidance_step_y(i)
   global fdm_time;
-  if modulo(i,2048) < 1024
-    pos_sp = [ 0; 1; 0];
+  if modulo(i,6144) < 3072
+    pos_sp = [ 0; 5; 0];
   else
-    pos_sp = [ 0; -1; 0];
+    pos_sp = [ 0; -5; 0];
   end  
   global guidance_sp_pos;
   guidance_sp_pos(:,i) = pos_sp;

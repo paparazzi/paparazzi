@@ -1,13 +1,13 @@
 clear();
 clearglobal();
 
-exec('tins_algebra.sci');
-exec('tins_fdm.sci');
-exec('tins_sensors.sci');
-exec('tins_ahrs.sci');
-exec('tins_ins.sci');
-exec('tins_guidance.sci');
-exec('tins_stabilization.sci');
+exec('q6d_algebra.sci');
+exec('q6d_fdm.sci');
+exec('q6d_sensors.sci');
+exec('q6d_ahrs.sci');
+exec('q6d_ins.sci');
+exec('q6d_guidance.sci');
+exec('q6d_stabilization.sci');
 
 
 
