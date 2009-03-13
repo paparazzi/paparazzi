@@ -61,7 +61,7 @@ function ctl_run(i)
  if fdm_time(i) < 4
    ctl_sp_pos(:,i)= [ 1; 0];
  else
-   ctl_sp_pos(:,i)= [ 0; 0];
+   ctl_sp_pos(:,i)= [ 0; 1];
  end
  
  ctl_update_ref_4th_order(i);
@@ -81,11 +81,11 @@ function ctl_run(i)
  b = z2p1^2+x2^2;
  c = 2 * (z2p1*z3 + x2*x3);
  d = x3*z2p1-z3*x2;
- ctl_cmd(CMD_DF,i) = ctl_inertia * ( a/b - c*d/b^2);
+ ctl_cmd(CMD_DF,i) = -ctl_inertia * ( a/b - c*d/b^2);
  
  global ctl_motor;
  A2M = 0.5 * [ 1  1
-     1 -1 ];
+               1 -1 ];
  ctl_motor(:,i) = A2M * ctl_cmd(:,i);
 	
 endfunction
@@ -126,9 +126,9 @@ function ctl_update_ref_4th_order(i)
   ctl_ref_4(:,i) = -a3 .* ctl_ref_3(:,i) -a2 .* ctl_ref_2(:,i) -a1 .* ctl_ref_1(:,i) -a0.*err_pos;
   
   global ctl_ref_theta;
-  ctl_ref_theta(i) = atan(ctl_ref_2(AXIS_X,i), 9.81 + ctl_ref_2(AXIS_Z,i));
+  ctl_ref_theta(i) = -atan(ctl_ref_2(AXIS_X,i), 9.81 + ctl_ref_2(AXIS_Z,i));
   global ctl_ref_thetad;
-  ctl_ref_thetad(i) = ((9.81 + ctl_ref_2(AXIS_Z,i))*ctl_ref_3(AXIS_X,i) - ctl_ref_2(AXIS_X,i)*ctl_ref_3(AXIS_Z,i)) / ...
+  ctl_ref_thetad(i) = -((9.81 + ctl_ref_2(AXIS_Z,i))*ctl_ref_3(AXIS_X,i) - ctl_ref_2(AXIS_X,i)*ctl_ref_3(AXIS_Z,i)) / ...
                       ((9.81 + ctl_ref_2(AXIS_Z,i))^2+ctl_ref_2(AXIS_X,i)^2);
   
   
@@ -148,40 +148,46 @@ function ctl_display()
   nr = 5;
   nc = 3;
   subplot(nr,nc,1);
-  plot2d(fdm_time, fdm_state(FDM_SX,:),2);
+  plot_with_min_rect(fdm_time, fdm_state(FDM_SX,:),2, -0.5, 0.5);
+//  plot2d(fdm_time, fdm_state(FDM_SX,:),2);
   plot2d(fdm_time, ctl_ref_0(AXIS_X,:),3);
   plot2d(fdm_time, ctl_sp_pos(AXIS_X,:),5);
   legends(["setpoint", "fdm", "ref"],[5 2 3], with_box=%f, opt="ur");
   xtitle('X(0)');
 
   subplot(nr,nc,2);
-  plot2d(fdm_time, fdm_state(FDM_SZ,:),2);
+  plot_with_min_rect(fdm_time, fdm_state(FDM_SZ,:),2, -0.5, 0.5);
+//  plot2d(fdm_time, fdm_state(FDM_SZ,:),2);
   plot2d(fdm_time, ctl_ref_0(AXIS_Z,:),3);
   plot2d(fdm_time, ctl_sp_pos(AXIS_Z,:),5);
   legends(["setpoint", "fdm", "ref"],[5 2 3], with_box=%f, opt="ur");
   xtitle('Z(0)');
 
   subplot(nr,nc,3);
-  plot2d(fdm_time, deg_of_rad(fdm_state(FDM_STHETA,:)),2);
+  plot_with_min_rect(fdm_time, deg_of_rad(fdm_state(FDM_STHETA,:)),2, -1., 1.);
+//  plot2d(fdm_time, deg_of_rad(fdm_state(FDM_STHETA,:)),2);
   plot2d(fdm_time, deg_of_rad(ctl_ref_theta),3);
 //  plot2d(fdm_time, ctl_sp_pos(AXIS_Z,:),5);
   legends(["setpoint", "fdm", "ref"],[5 2 3], with_box=%f, opt="ur");
   xtitle('Theta(0)');
 
   subplot(nr,nc,4);
-  plot2d(fdm_time, fdm_state(FDM_SXD,:),2);
+  plot_with_min_rect(fdm_time, fdm_state(FDM_SXD,:),2, -0.5, 0.5);
+//  plot2d(fdm_time, fdm_state(FDM_SXD,:),2);
   plot2d(fdm_time, ctl_ref_1(AXIS_X,:),3);
   legends(["setpoint", "fdm", "ref"],[5 2 3], with_box=%f, opt="ur");
   xtitle('X(1)');
 
   subplot(nr,nc,5);
-  plot2d(fdm_time, fdm_state(FDM_SZD,:),2);
+  plot_with_min_rect(fdm_time, fdm_state(FDM_SZD,:),2, -0.5, 0.5);
+//  plot2d(fdm_time, fdm_state(FDM_SZD,:),2);
   plot2d(fdm_time, ctl_ref_1(AXIS_Z,:),3);
   legends(["setpoint", "fdm", "ref"],[5 2 3], with_box=%f, opt="ur");
   xtitle('Z(1)');
 
   subplot(nr,nc,6);
-  plot2d(fdm_time, deg_of_rad(fdm_state(FDM_STHETAD,:)),2);
+   plot_with_min_rect(fdm_time, deg_of_rad(fdm_state(FDM_STHETAD,:)),2, -1., 1.);
+   //plot2d(fdm_time, deg_of_rad(fdm_state(FDM_STHETAD,:)),2);
   plot2d(fdm_time, deg_of_rad(ctl_ref_thetad),3);
 //  plot2d(fdm_time, ctl_sp_pos(AXIS_Z,:),5);
   legends(["setpoint", "fdm", "ref"],[5 2 3], with_box=%f, opt="ur");

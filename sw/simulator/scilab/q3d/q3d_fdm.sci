@@ -58,7 +58,7 @@ function [Xdot] = fdm_get_derivatives(t, X, U)
   Xdot(FDM_SX) = X(FDM_SXD);
   Xdot(FDM_SZ) = X(FDM_SZD);
   Xdot(FDM_STHETA) = X(FDM_STHETAD);
-  Xdot(FDM_SXD) = sum(U)/fdm_mass*sin(X(FDM_STHETA));
+  Xdot(FDM_SXD) = -sum(U)/fdm_mass*sin(X(FDM_STHETA));
   Xdot(FDM_SZD) = 1/fdm_mass*(sum(U)*cos(X(FDM_STHETA))-fdm_mass*fdm_g);
   Xdot(FDM_STHETAD) = 1/fdm_inertia*(U(FDM_MOTOR_RIGHT) - U(FDM_MOTOR_LEFT));
   

@@ -1,12 +1,12 @@
 clear();
 
-exec("tvc_utils.sci");
-exec("tvc_fdm.sci");
-exec("tvc_sensors.sci");
-exec("tvc_ins.sci");
-exec("tvc_ctl_common.sci");
-exec("tvc_ctl_miac.sci");
-exec("tvc_ctl_mrac.sci");
+exec("q1d_utils.sci");
+exec("q1d_fdm.sci");
+exec("q1d_sensors.sci");
+exec("q1d_ins.sci");
+exec("q1d_ctl_common.sci");
+exec("q1d_ctl_miac.sci");
+exec("q1d_ctl_mrac.sci");
 
 
 //

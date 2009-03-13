@@ -8,7 +8,7 @@ exec('q3d_ctl.sci');
 
 
 
-fdm_init(0,8.0);
+fdm_init(0,7.0);
 ctl_init();
 
 global ctl_motor;
@@ -21,10 +21,15 @@ for i=1:length(fdm_time)-1
   
 end
 
-set("current_figure",0);
+//set("current_figure",0);
 clf();
-f=get("current_figure");
-f.figure_name="CTL";
-drawlater();
-ctl_display();
-drawnow();
+//f=get("current_figure");
+//f.figure_name="CTL";
+
+if 1
+  drawlater();
+  ctl_display();
+  drawnow();
+end
+pause
+gen_video();
