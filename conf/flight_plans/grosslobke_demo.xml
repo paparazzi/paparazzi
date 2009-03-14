@@ -75,12 +75,20 @@
     </block>
 
     <block NAME="down" strip_button="Down">
-     <attitude roll="0" pitch="0.1" vmode="throttle" throttle="0" until="(estimator_flight_time > 1)"/>
+     <set var="lateral_mode" value="LATERAL_MODE_ROLL"/>
+     <set var="v_ctl_mode" value="V_CTL_MODE_MANUAL"/>
      <set value="TRUE" var="h_ctl_disabled"/>
-     <set value="(-0.9*MAX_PPRZ)" var="h_ctl_aileron_setpoint"/>
-     <while cond="estimator_z > 210"/>
+     <set value="(-0.6*MAX_PPRZ)" var="h_ctl_aileron_setpoint"/>
+     <set value="(0.9*MAX_PPRZ)" var="h_ctl_elevator_setpoint"/>
+     <while cond="estimator_z > ground_alt + 220"/>
      <set value="0" var="h_ctl_aileron_setpoint"/>
-     <while cond="2.> stage_time"/>
+     <set value="0" var="h_ctl_elevator_setpoint"/>
+     <!--deroute block="down_end"/-->
+    </block>
+    <block NAME="down_end" strip_button="DownEnd">
+     <set value="0" var="h_ctl_aileron_setpoint"/>
+     <set value="0" var="h_ctl_elevator_setpoint"/>
+     <while cond="1.> stage_time"/>
      <set value="FALSE" var="h_ctl_disabled"/>
      <deroute block="wait"/>
     </block>
