@@ -47,12 +47,12 @@ endfunction
 function draw_quad(i)
 
   global fdm_state;
-  body_lines = list([-0.5 0; 0.5 0], [-0.8 0.08; -0.2 0.08], [0.2 0.08; 0.8 0.08]);
+  body_lines = list([-0.25 0; 0.25 0], [-0.37 0.04; -0.13 0.04], [0.13 0.04; 0.37 0.04]);
   dcmt = [ cos(fdm_state(FDM_STHETA,i)) -sin(fdm_state(FDM_STHETA,i))
            sin(fdm_state(FDM_STHETA,i)) cos(fdm_state(FDM_STHETA,i)) ];
-  _rect = [ -1 -1 1 1];  
+  _rect = [ -1. -0.5 2.0 1.5];  
   earth_lines = list();
-  plot2d(fdm_state(FDM_SX,i), fdm_state(FDM_SZ,i),3);
+  plot2d(fdm_state(FDM_SX,1:i), fdm_state(FDM_SZ,1:i),3);
   for j=1:length(body_lines)
     earth_lines(j) = dcmt*body_lines(j)';
     plot2d(earth_lines(j)(1,:)+fdm_state(FDM_SX,i),earth_lines(j)(2,:)+fdm_state(FDM_SZ,i),1, rect=_rect);
@@ -66,6 +66,7 @@ function gen_video()
   dt_display = 1/25;
   
   time_display = 0;
+  frame_idx = 1;
   for i=1:length(fdm_time)
     if fdm_time(i) >= time_display
       set("current_figure",0);
@@ -74,13 +75,17 @@ function gen_video()
       clf();
       drawlater();
       draw_quad(i);
-//      filename = sprintf('images/frame_%03d.gif',i);
-      filename = sprintf('images/frame_%03d.ppm',i);
-//      xs2gif(0, filename);
-      xs2ppm(0, filename);
       drawnow();
-      pause
+      if 1
+	filename = sprintf('images/frame_%04d.ppm',frame_idx);
+	xs2ppm(0, filename, 1);
+      else
+	filename = sprintf('images/frame_%04d.gif',i);
+	xs2gif(0, filename);
+      end
+//      pause
       time_display = time_display + dt_display;
+      frame_idx = frame_idx + 1;
     end
   end
   

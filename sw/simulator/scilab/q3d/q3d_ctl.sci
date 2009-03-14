@@ -55,14 +55,10 @@ endfunction
 ctl_mass    = 0.25;
 ctl_inertia = 0.0078;
 
-function ctl_run(i)
+function ctl_run(i, sp)
 
  global ctl_sp_pos;
- if fdm_time(i) < 4
-   ctl_sp_pos(:,i)= [ 1; 0];
- else
-   ctl_sp_pos(:,i)= [ 0; 1];
- end
+ ctl_sp_pos(:,i) = sp;
  
  ctl_update_ref_4th_order(i);
 
