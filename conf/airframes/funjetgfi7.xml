@@ -6,16 +6,16 @@
      Tilted infrared sensor (http://paparazzi.enac.fr/wiki/index.php/Image:Tiny_v2_1_Funjet.jpg)
      XBee modem
      Payload: Sensirion humidity/temp, VTI pressure/temp
-     K68, LEA 5
+     K66, LEA 4
 -->
 
-<airframe name="Funjet GFI 8 K68">
+<airframe name="Funjet GFI 7 K66">
 
 <!-- commands section -->
   <servos>
-    <servo name="MOTOR"         no="0" min="1550" neutral="1550" max="2000"/>
-    <servo name="AILEVON_LEFT"  no="2" min="1900" neutral="1545" max="1100"/>
-    <servo name="AILEVON_RIGHT" no="6" min="1100" neutral="1515" max="1900"/>
+    <servo name="MOTOR"         no="0" min="1000" neutral="1000" max="2000"/>
+    <servo name="AILEVON_LEFT"  no="2" min="1900" neutral="1519" max="1100"/>
+    <servo name="AILEVON_RIGHT" no="6" min="1100" neutral="1493" max="1900"/>
   </servos>
 
   <commands>
@@ -212,7 +212,7 @@ ap.srcs += inter_mcu.c
 ap.CFLAGS += -DADC -DUSE_ADC_0 -DUSE_ADC_1 -DUSE_ADC_2
 ap.srcs += $(SRC_ARCH)/adc_hw.c
 
-ap.CFLAGS += -DGPS -DUBX -DUSE_UART0 -DGPS_LINK=Uart0 -DUART0_BAUD=B38400 -DGPS_USE_LATLONG
+ap.CFLAGS += -DGPS -DUBX -DUSE_UART0 -DGPS_LINK=Uart0 -DUART0_BAUD=B38400
 # -DGPS_LED=2
 ap.srcs += gps_ubx.c gps.c latlong.c
 
