@@ -35,17 +35,17 @@
 
   <section name="IMU" prefix="IMU_">
 
-    <define name="GYRO_X_CHAN" value="1"/>
-    <define name="GYRO_Y_CHAN" value="0"/>
-    <define name="GYRO_Z_CHAN" value="2"/>
+    <define name="GYRO_P_CHAN" value="1"/>
+    <define name="GYRO_Q_CHAN" value="0"/>
+    <define name="GYRO_R_CHAN" value="2"/>
 
-    <define name="GYRO_X_NEUTRAL" value="32372"/>
-    <define name="GYRO_Y_NEUTRAL" value="32080"/>
-    <define name="GYRO_Z_NEUTRAL" value="31978"/>
+    <define name="GYRO_P_NEUTRAL" value="32372"/>
+    <define name="GYRO_Q_NEUTRAL" value="32080"/>
+    <define name="GYRO_R_NEUTRAL" value="31978"/>
 
-    <define name="GYRO_X_SENS" value=" 1.1032765"    integer="16"/>
-    <define name="GYRO_Y_SENS" value="-1.1360802599" integer="16"/>
-    <define name="GYRO_Z_SENS" value="-1.1249874614" integer="16"/>
+    <define name="GYRO_P_SENS" value=" 1.1032765"    integer="16"/>
+    <define name="GYRO_Q_SENS" value="-1.1360802599" integer="16"/>
+    <define name="GYRO_R_SENS" value="-1.1249874614" integer="16"/>
   
     <define name="ACCEL_X_CHAN" value="3"/>
     <define name="ACCEL_Y_CHAN" value="5"/>
@@ -71,6 +71,10 @@
     <define name="MAG_X_NEUTRAL" value="2054"/>
     <define name="MAG_Y_NEUTRAL" value="1963"/>
     <define name="MAG_Z_NEUTRAL" value="2078"/>
+    
+    <define name="BODY_TO_IMU_PHI"   value="ANGLE_BFP_OF_REAL(RadOfDeg(0.))"/>
+    <define name="BODY_TO_IMU_THETA" value="ANGLE_BFP_OF_REAL(RadOfDeg(0.))"/>
+    <define name="BODY_TO_IMU_PSI"   value="ANGLE_BFP_OF_REAL(RadOfDeg(0.))"/>
   </section>
 
 
