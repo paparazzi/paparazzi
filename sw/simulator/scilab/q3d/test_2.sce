@@ -45,4 +45,6 @@ if 0
   drawnow();
   pause
 end
+if 0
 gen_video();
+end

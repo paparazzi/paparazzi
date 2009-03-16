@@ -44,13 +44,12 @@ endfunction
 
 
 
-function draw_quad(i)
+function draw_quad(i, _rect)
 
   global fdm_state;
   body_lines = list([-0.25 0; 0.25 0], [-0.37 0.04; -0.13 0.04], [0.13 0.04; 0.37 0.04]);
   dcmt = [ cos(fdm_state(FDM_STHETA,i)) -sin(fdm_state(FDM_STHETA,i))
            sin(fdm_state(FDM_STHETA,i)) cos(fdm_state(FDM_STHETA,i)) ];
-  _rect = [ -1. -0.5 2.0 1.5];  
   earth_lines = list();
   plot2d(fdm_state(FDM_SX,1:i), fdm_state(FDM_SZ,1:i),3);
   for j=1:length(body_lines)
@@ -62,7 +61,14 @@ endfunction
 
 
 function gen_video()
-
+  global fdm_state;
+  margin = 0.30;
+  min_x = min(fdm_state(FDM_SX,:))-margin;
+  max_x = max(fdm_state(FDM_SX,:))+margin;
+  min_z = min(fdm_state(FDM_SZ,:))-margin;
+  max_z = max(fdm_state(FDM_SZ,:))+margin;
+  _rect = [min_x min_z max_x max_z];
+  
   dt_display = 1/25;
   
   time_display = 0;
@@ -74,7 +80,7 @@ function gen_video()
       f.figure_name="CTL";
       clf();
       drawlater();
-      draw_quad(i);
+      draw_quad(i, _rect);
       drawnow();
       if 1
 	filename = sprintf('images/frame_%04d.ppm',frame_idx);
