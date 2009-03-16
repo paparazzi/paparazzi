@@ -258,7 +258,9 @@ let () =
         freq := int_of_string main_freq;
       with _ -> ();
       let modules_list = List.map (get_modules modules_dir) (Xml.children modules) in
-      let modules_name = List.map (fun l -> try Xml.attrib l "name" with _ -> "") (Xml.children modules) in
+      let modules_name = 
+        (List.map (fun l -> try Xml.attrib l "name" with _ -> "") (Xml.children modules)) @
+        (List.map (fun m -> try Xml.attrib m "name" with _ -> "") modules_list) in
       check_dependencies modules_list modules_name;
       parse_modules modules_list out_c;
     end
