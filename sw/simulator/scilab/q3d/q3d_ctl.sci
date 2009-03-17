@@ -62,6 +62,22 @@ function ctl_run(i, sp)
  
  ctl_update_ref_4th_order(i);
 
+ ctl_run_flatness(i);
+	
+endfunction
+
+
+
+function ctl_run_flatness(i)
+
+
+  global ctl_ref_theta;
+  ctl_ref_theta(i) = -atan(ctl_ref_2(AXIS_X,i), 9.81 + ctl_ref_2(AXIS_Z,i));
+  global ctl_ref_thetad;
+  ctl_ref_thetad(i) = -((9.81 + ctl_ref_2(AXIS_Z,i))*ctl_ref_3(AXIS_X,i) - ctl_ref_2(AXIS_X,i)*ctl_ref_3(AXIS_Z,i)) / ...
+      ((9.81 + ctl_ref_2(AXIS_Z,i))^2+ctl_ref_2(AXIS_X,i)^2);
+
+
  global ctl_cmd;
  global ctl_ref_2;
  ctl_cmd(CMD_SF,i) = ctl_mass * sqrt(ctl_ref_2(AXIS_X,i)^2 +...
@@ -83,9 +99,8 @@ function ctl_run(i, sp)
  A2M = 0.5 * [ 1  1
                1 -1 ];
  ctl_motor(:,i) = A2M * ctl_cmd(:,i);
-	
-endfunction
 
+endfunction
 
 
 
@@ -121,11 +136,6 @@ function ctl_update_ref_4th_order(i)
   err_pos = ctl_ref_0(:,i) - ctl_sp_pos(:,i);
   ctl_ref_4(:,i) = -a3 .* ctl_ref_3(:,i) -a2 .* ctl_ref_2(:,i) -a1 .* ctl_ref_1(:,i) -a0.*err_pos;
   
-  global ctl_ref_theta;
-  ctl_ref_theta(i) = -atan(ctl_ref_2(AXIS_X,i), 9.81 + ctl_ref_2(AXIS_Z,i));
-  global ctl_ref_thetad;
-  ctl_ref_thetad(i) = -((9.81 + ctl_ref_2(AXIS_Z,i))*ctl_ref_3(AXIS_X,i) - ctl_ref_2(AXIS_X,i)*ctl_ref_3(AXIS_Z,i)) / ...
-                      ((9.81 + ctl_ref_2(AXIS_Z,i))^2+ctl_ref_2(AXIS_X,i)^2);
   
   
   
