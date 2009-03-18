@@ -142,6 +142,13 @@ upgrade_bl bl.upgrade: bl lpc21iap
 	$(PAPARAZZI_SRC)/sw/ground_segment/lpc21iap/lpc21iap $(AIRBORNE)/arm7/test/bootloader/bl_ram.elf
 	$(PAPARAZZI_SRC)/sw/ground_segment/lpc21iap/lpc21iap $(AIRBORNE)/arm7/test/bootloader/bl.elf
 
+ms:
+	cd $(AIRBORNE)/arm7/lpcusb; make
+	cd $(AIRBORNE)/arm7/lpcusb/examples; make 
+
+upload_ms ms.upload: ms
+	$(PAPARAZZI_SRC)/sw/ground_segment/lpc21iap/lpc21iap $(AIRBORNE)/arm7/lpcusb/examples/msc.elf
+
 ####
 # temporary hack for BOOZ simulator
 #
