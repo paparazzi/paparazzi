@@ -128,8 +128,8 @@ int formation_flight(void) {
 
   static uint8_t _1Hz   = 0;
   uint8_t nb = 0, i;
-  float ch = cos(estimator_hspeed_dir);
-  float sh = sin(estimator_hspeed_dir);
+  float ch = cosf(estimator_hspeed_dir);
+  float sh = sinf(estimator_hspeed_dir);
   form_n = 0.;
   form_e = 0.;
   form_a = 0.;
@@ -166,8 +166,8 @@ int formation_flight(void) {
   struct slot_ form[NB_ACS];
   float cr = 0., sr = 1.;
   if (form_mode == FORM_MODE_COURSE) {
-    cr = cos(leader->course);
-    sr = sin(leader->course);
+    cr = cosf(leader->course);
+    sr = sinf(leader->course);
   }
   for (i = 0; i < NB_ACS; ++i) {
     if (formation[i].status == UNSET) continue;
@@ -189,14 +189,14 @@ int formation_flight(void) {
     else formation[i].status = ACTIVE;
     // compute control if AC is ACTIVE and around the same altitude (maybe not so usefull)
     if (formation[i].status == ACTIVE && fabs(estimator_z - ac->alt) < form_prox && ac->alt > 0) {
-      form_e += (ac->east  + ac->gspeed*sin(ac->course)*delta_t - estimator_x)
+      form_e += (ac->east  + ac->gspeed*sinf(ac->course)*delta_t - estimator_x)
         - (form[i].east - form[the_acs_id[AC_ID]].east);
-      form_n += (ac->north + ac->gspeed*cos(ac->course)*delta_t - estimator_y)
+      form_n += (ac->north + ac->gspeed*cosf(ac->course)*delta_t - estimator_y)
         - (form[i].north - form[the_acs_id[AC_ID]].north);
       form_a += (ac->alt - estimator_z) - (formation[i].alt - formation[the_acs_id[AC_ID]].alt);
       form_speed += ac->gspeed;
-      //form_speed_e += ac->gspeed * sin(ac->course);
-      //form_speed_n += ac->gspeed * cos(ac->course);
+      //form_speed_e += ac->gspeed * sinf(ac->course);
+      //form_speed_n += ac->gspeed * cosf(ac->course);
       ++nb;
     }
   }
@@ -222,8 +222,8 @@ int formation_flight(void) {
   if (AC_ID != leader_id) {
     float dx = form[the_acs_id[AC_ID]].east - form[the_acs_id[leader_id]].east;
     float dy = form[the_acs_id[AC_ID]].north - form[the_acs_id[leader_id]].north;
-    desired_x = leader->east  + NOMINAL_AIRSPEED * form_carrot * sin(leader->course) + dx;
-    desired_y = leader->north + NOMINAL_AIRSPEED * form_carrot * cos(leader->course) + dy;
+    desired_x = leader->east  + NOMINAL_AIRSPEED * form_carrot * sinf(leader->course) + dx;
+    desired_y = leader->north + NOMINAL_AIRSPEED * form_carrot * cosf(leader->course) + dy;
     // fly to desired
     fly_to_xy(desired_x, desired_y);
     desired_x = leader->east  + dx;

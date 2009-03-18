@@ -94,8 +94,8 @@ void tcas_periodic_task_1Hz( void ) {
   float tau_min = tcas_tau_ta;
   uint8_t ac_id_close = AC_ID;
   uint8_t i;
-  float vx = estimator_hspeed_mod * sin(estimator_hspeed_dir);
-  float vy = estimator_hspeed_mod * cos(estimator_hspeed_dir);
+  float vx = estimator_hspeed_mod * sinf(estimator_hspeed_dir);
+  float vy = estimator_hspeed_mod * cosf(estimator_hspeed_dir);
   for (i = 2; i < NB_ACS; i++) {
     if (the_acs[i].ac_id == 0) continue; // no AC data
     uint32_t dt = gps_itow - the_acs[i].itow;
@@ -107,8 +107,8 @@ void tcas_periodic_task_1Hz( void ) {
     float dx = the_acs[i].east - estimator_x;
     float dy = the_acs[i].north - estimator_y;
     float dz = the_acs[i].alt - estimator_z;
-    float dvx = vx - the_acs[i].gspeed * sin(the_acs[i].course);
-    float dvy = vy - the_acs[i].gspeed * cos(the_acs[i].course);
+    float dvx = vx - the_acs[i].gspeed * sinf(the_acs[i].course);
+    float dvy = vy - the_acs[i].gspeed * cosf(the_acs[i].course);
     float dvz = estimator_z_dot - the_acs[i].climb;
     float scal = dvx*dx + dvy*dy + dvz*dz;
     float ddh = dx*dx + dy*dy;
