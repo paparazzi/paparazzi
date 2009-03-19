@@ -30,7 +30,7 @@ struct NedCoor_i {
   int32_t z;
 };
 
-/* East North Down local tangeant plane */
+/* East North Up local tangeant plane */
 struct EnuCoor_i {
   int32_t x;
   int32_t y;
