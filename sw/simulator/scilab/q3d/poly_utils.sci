@@ -9,7 +9,7 @@ function P = coeff_from_bound(a,b,d_time)
     P = list();
     A = lin_sys(d);
     for i = 1:d+1
-      a(i) = (-1)^(N-i+1)*a(i);
+      a(i) = d_time^(i-1)*(-1)^(N-i+1)*a(i);
       b(i) = d_time^(i-1)*b(i);
     end
     p_0_init = (A\a)';
@@ -17,7 +17,10 @@ function P = coeff_from_bound(a,b,d_time)
     p_0_end = p_0_end(:,$:-1:1);
     P($+1) = cat(2,p_0_init,p_0_end);
     for i = 1:d
-      P($+1) = (1/d_time)^i*deriv_coeff(P($),i,N);
+      P($+1) = deriv_coeff(P($),i,N);
+    end
+    for i = 1:d
+      P(i+1) = d_time^(-i)*P(i+1);
     end
   end
     
