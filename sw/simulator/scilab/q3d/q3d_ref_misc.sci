@@ -108,18 +108,18 @@ function [time, Xref] = get_reference_poly2(duration, a, b)
 
   
   p1_4 = p0_4 + p0_5;
-  p2_4 = ;
-  p2_3 = ;
+ // p2_4 = ;
+ // p2_3 = ;
   
-  p3_4 = ;
-  p3_3 = ;
-  p3_4 = ;
-  p3_2 = ;
+ // p3_4 = ;
+ // p3_3 = ;
+ // p3_4 = ;
+ // p3_2 = ;
 
-  p4_4 = ;
-  p4_3 = ;
-  p4_2 = ;
-  p4_1 = ;
+ // p4_4 = ;
+ // p4_3 = ;
+ // p4_2 = ;
+ // p4_1 = ;
   
   dt = 1/512; 
   dt = 1/512;
@@ -131,9 +131,35 @@ function [time, Xref] = get_reference_poly2(duration, a, b)
     Xref(1:2,i)  = p0_0*(1-t)^9 + p0_1*t*(1-t)^8 + p0_2*t^2*(1-t)^7 + p0_3*t^3*(1-t)^6 + p0_4*t^4*(1-t)^5 + p0_5*t^5*(1-t)^4 + p0_6*t^6*(1-t)^3 + p0_7*t^7*(1-t)^2 + p0_8*t^8*(1-t)^1 + p0_9*t^9;
     Xref(3:4,i)  = p1_0*(1-t)^8 + p1_1*t*(1-t)^7 + p1_2*t^2*(1-t)^6 + p1_3*t^3*(1-t)^5 + p1_4*t^4*(1-t)^4 + p1_5*t^5*(1-t)^3 + p1_6*t^6*(1-t)^2 + p1_7*t^7*(1-t)^1 + p1_8*t^8;
     Xref(5:6,i)  = p2_0*(1-t)^7 + p2_1*t*(1-t)^6 + p2_2*t^2*(1-t)^5 + p2_3*t^3*(1-t)^4 + p2_4*t^4*(1-t)^3 + p2_5*t^5*(1-t)^2 + p2_6*t^6*(1-t)^1 + p2_7*t^7;
-    Xref(7:8,i)  = p3_0*(1-t)^6 + p3_1*t*(1-t)^5 + p3_2*t^2*(1-t)^4 + p3_3*t^3*(1-t)^3 + p3_4*t^4*(1-t)^2 + p3_5*t^5*(1-t)^1 + p3_6*t^6*;
+    Xref(7:8,i)  = p3_0*(1-t)^6 + p3_1*t*(1-t)^5 + p3_2*t^2*(1-t)^4 + p3_3*t^3*(1-t)^3 + p3_4*t^4*(1-t)^2 + p3_5*t^5*(1-t)^1 + p3_6*t^6;
     Xref(9:10,i) = p4_0*(1-t)^5 + p4_1*t*(1-t)^4 + p4_2*t^2*(1-t)^3 + p4_3*t^3*(1-t)^2 + p4_4*t^4*(1-t)^1 + p4_5*t^5;
   end
   
+endfunction
+
+function [time, Xref] = get_reference_poly3(duration, a, b)
+
+if size(a)~=size(b)
+  error('get_ref_poly3: boundary conditions not compatible');
+end
+
+nb_states = size(a,1);
+dt = 1/512;
+time = 0:dt:duration;
+
+Coeff = list();
+for i = 1:nb_states
+  Coeff($+1) = coeff_from_bound(a(i,:)',b(i,:)',duration);
+end
+
+for i = 1:nb_states
   
+  for j = 1:length(time)
+    for k = 1:length(Coeff(i))
+      Xref(i+2*(k-1),j) = polyval(Coeff(i)(k),time(j),0,duration);
+    end
+  end
+        
+end
+
 endfunction
