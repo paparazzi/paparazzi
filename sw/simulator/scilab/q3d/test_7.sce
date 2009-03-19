@@ -17,7 +17,7 @@ b = [ 0        ;  0
       0        ;  1.5791367 
      -1.9844017;  0
       0        ; -2.4936727 ];
-[time, Xref] = get_reference_poly(1, a, b);
+[time, Xref] = get_reference_looping(0, 4, [0;0], 2);
 
 clf();
 

@@ -10,26 +10,34 @@ exec('poly_utils.sci');
 
 global fdm_state
 
+[time_loop, ref_loop] = get_reference_circle();
+
 a = [-1 0 0 0 0;
-    0 0 0 0 0];
+      0 0 0 0 0];
 
-b = [0 1.2566371 0 -1.9844017 0;
-    0 0 1.5791367 0 -2.4936727];
+[time_foo, ref_foo] = get_reference_poly3(1,a ,a);
+  
+  
+start_loop = [ref_loop(1,1) ref_loop(3,1) ref_loop(5,1) ref_loop(7,1) ref_loop(9,1)
+              ref_loop(2,1) ref_loop(4,1) ref_loop(6,1) ref_loop(8,1) ref_loop(10,1)];
 
-[time1, Xref1] = get_reference_poly3(5, a, b);
-[time2, Xref2] = get_reference_circle();
+[time_intro, ref_intro] = get_reference_poly3(0.9, a, start_loop);
 
-c = [Xref2(1,$),Xref2(3,$),Xref2(5,$),Xref2(7,$),Xref2(9,$);
-    Xref2(2,$),Xref2(4,$),Xref2(6,$),Xref2(8,$),Xref2(10,$)];
-a(1,1) = 3;
-a(2,1) = 1;
+end_loop = [ref_loop(1,$),ref_loop(3,$),ref_loop(5,$),ref_loop(7,$),ref_loop(9,$);
+            ref_loop(2,$),ref_loop(4,$),ref_loop(6,$),ref_loop(8,$),ref_loop(10,$)];
 
-[time3, Xref3] = get_reference_poly3(4,c,a);
+c = [ 1 0 0 0 0;
+      0 0 0 0 0];
 
-Xref = [Xref1  Xref2(:,2:$)  Xref3(:,2:$)];
+[time_outro, ref_outro] = get_reference_poly3(0.9,end_loop,c);
+
+[time_bar, ref_bar] = get_reference_poly3(1,c ,c);
 
 
-fdm_init(0,time1($)+time2($)+time3($));
+Xref = [ref_foo ref_intro(:,2:$)  ref_loop(:,2:$)  ref_outro(:,2:$) ref_bar(:,2:$)];
+
+
+fdm_init(0,time_foo($)+time_intro($)+time_loop($)+time_outro($)+time_bar($));
 fdm_state(FDM_SX,1) = -1;
 
 ctl_init();

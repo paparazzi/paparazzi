@@ -28,6 +28,37 @@ function [time, Xref] = get_reference_circle()
   
 endfunction
 
+
+
+function [time, Xref] = get_reference_looping(t0, duration, center, radius)
+
+  dt = 1/512;
+  time = t0:dt:t0+duration;
+  delta_dot = %pi/duration;
+  delta = delta_dot*time;
+
+  X0 = radius *  sin(2*delta) + center(AXIS_X);
+  Z0 = -radius * (cos(2*delta)-1) + center(AXIS_Z);
+  
+  X1 = +2*radius*delta_dot.*cos(2*delta);
+  Z1 = +2*radius*delta_dot.*sin(2*delta);
+
+  X2 = -4*radius*(delta_dot^2).*sin(2*delta);
+  Z2 = +4*radius*(delta_dot^2).*cos(2*delta);
+  
+  X3 = -8*radius*(delta_dot^3).*cos(2*delta);
+  Z3 = -8*radius*(delta_dot^3).*sin(2*delta);
+  
+  X4 = +16*radius*(delta_dot^4).*sin(2*delta);
+  Z4 = -16*radius*(delta_dot^4).*cos(2*delta);
+
+  Xref = [X0;Z0;X1;Z1;X2;Z2;X3;Z3;X4;Z4];
+
+endfunction
+
+
+
+
 //http://www.tsplines.com/resources/class_notes/Bezier_curves.pdf
 function [time, Xref] = get_reference_poly(duration, a, b)
 
@@ -106,7 +137,6 @@ function [time, Xref] = get_reference_poly2(duration, a, b)
   
   p0_5 = 1/6*(p1_5 - p0_6);
 
-  
   p1_4 = p0_4 + p0_5;
  // p2_4 = ;
  // p2_3 = ;
@@ -128,11 +158,11 @@ function [time, Xref] = get_reference_poly2(duration, a, b)
   Xref = zeros(10, length(time));
   for i=1:length(time)
     t = time(i);
-    Xref(1:2,i)  = p0_0*(1-t)^9 + p0_1*t*(1-t)^8 + p0_2*t^2*(1-t)^7 + p0_3*t^3*(1-t)^6 + p0_4*t^4*(1-t)^5 + p0_5*t^5*(1-t)^4 + p0_6*t^6*(1-t)^3 + p0_7*t^7*(1-t)^2 + p0_8*t^8*(1-t)^1 + p0_9*t^9;
-    Xref(3:4,i)  = p1_0*(1-t)^8 + p1_1*t*(1-t)^7 + p1_2*t^2*(1-t)^6 + p1_3*t^3*(1-t)^5 + p1_4*t^4*(1-t)^4 + p1_5*t^5*(1-t)^3 + p1_6*t^6*(1-t)^2 + p1_7*t^7*(1-t)^1 + p1_8*t^8;
-    Xref(5:6,i)  = p2_0*(1-t)^7 + p2_1*t*(1-t)^6 + p2_2*t^2*(1-t)^5 + p2_3*t^3*(1-t)^4 + p2_4*t^4*(1-t)^3 + p2_5*t^5*(1-t)^2 + p2_6*t^6*(1-t)^1 + p2_7*t^7;
-    Xref(7:8,i)  = p3_0*(1-t)^6 + p3_1*t*(1-t)^5 + p3_2*t^2*(1-t)^4 + p3_3*t^3*(1-t)^3 + p3_4*t^4*(1-t)^2 + p3_5*t^5*(1-t)^1 + p3_6*t^6;
-    Xref(9:10,i) = p4_0*(1-t)^5 + p4_1*t*(1-t)^4 + p4_2*t^2*(1-t)^3 + p4_3*t^3*(1-t)^2 + p4_4*t^4*(1-t)^1 + p4_5*t^5;
+//    Xref(1:2,i)  = p0_0*(1-t)^9 + p0_1*t*(1-t)^8 + p0_2*t^2*(1-t)^7 + p0_3*t^3*(1-t)^6 + p0_4*t^4*(1-t)^5 + p0_5*t^5*(1-t)^4 + p0_6*t^6*(1-t)^3 + p0_7*t^7*(1-t)^2 + p0_8*t^8*(1-t)^1 + p0_9*t^9;
+//    Xref(3:4,i)  = p1_0*(1-t)^8 + p1_1*t*(1-t)^7 + p1_2*t^2*(1-t)^6 + p1_3*t^3*(1-t)^5 + p1_4*t^4*(1-t)^4 + p1_5*t^5*(1-t)^3 + p1_6*t^6*(1-t)^2 + p1_7*t^7*(1-t)^1 + p1_8*t^8;
+//    Xref(5:6,i)  = p2_0*(1-t)^7 + p2_1*t*(1-t)^6 + p2_2*t^2*(1-t)^5 + p2_3*t^3*(1-t)^4 + p2_4*t^4*(1-t)^3 + p2_5*t^5*(1-t)^2 + p2_6*t^6*(1-t)^1 + p2_7*t^7;
+//    Xref(7:8,i)  = p3_0*(1-t)^6 + p3_1*t*(1-t)^5 + p3_2*t^2*(1-t)^4 + p3_3*t^3*(1-t)^3 + p3_4*t^4*(1-t)^2 + p3_5*t^5*(1-t)^1 + p3_6*t^6*;
+//    Xref(9:10,i) = p4_0*(1-t)^5 + p4_1*t*(1-t)^4 + p4_2*t^2*(1-t)^3 + p4_3*t^3*(1-t)^2 + p4_4*t^4*(1-t)^1 + p4_5*t^5;
   end
   
 endfunction
