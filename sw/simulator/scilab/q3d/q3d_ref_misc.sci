@@ -1,30 +1,33 @@
 
+function [ref_in] = get_reference_circle_entry(center, radius, duration)
+  [time_out, ref_out] = get_reference_circle(center, [0], [], radius, duration);
+  ref_in = ref_out(:,1);
+endfunction
 
 
-function [time, Xref] = get_reference_circle()
+function [time_out, ref_out] = get_reference_circle(time_in, ref_in, center, radius, duration)
    
-  radius = 1;
-  period = 5;
   dt = 1/512;
-  time = 0:dt:period;
+  time = time_in($)+dt:dt:time_in($)+duration;
   
   omega = 2*%pi/period;
-  X0 = radius * sin(omega * time);
-  Z0 = radius * (1-cos(omega * time));
+  X0 = radius * sin(omega * time) + center(AXIS_X);
+  Z0 = radius * -cos(omega * time)) + center(AXIS_Z);
 
-  X1 = omega * radius * cos(omega * time);
-  Z1 = omega * radius * sin(omega * time);
+  X1 = omega   * radius * cos(omega * time);
+  Z1 = omega   * radius * sin(omega * time);
 
-  X2 = omega * omega * radius * -sin(omega * time);
-  Z2 = omega * omega * radius * cos(omega * time);
+  X2 = omega^2 * radius * -sin(omega * time);
+  Z2 = omega^2 * radius * cos(omega * time);
   
-  X3 = omega * omega * omega * radius * -cos(omega * time);
-  Z3 = omega * omega * omega * radius * -sin(omega * time);
+  X3 = omega^3 * radius * -cos(omega * time);
+  Z3 = omega^3 * radius * -sin(omega * time);
 
-  X4 = omega * omega * omega * omega * radius * sin(omega * time);
-  Z4 = omega * omega * omega * omega * radius * -cos(omega * time);
+  X4 = omega^4 * radius * sin(omega * time);
+  Z4 = omega^4 * radius * -cos(omega * time);
 
-  Xref = [X0;Z0;X1;Z1;X2;Z2;X3;Z3;X4;Z4];
+  time_out = [time_in time];
+  ref_out = [ref_in X0;Z0;X1;Z1;X2;Z2;X3;Z3;X4;Z4];
   
 endfunction
 
@@ -60,7 +63,7 @@ endfunction
 
 
 //http://www.tsplines.com/resources/class_notes/Bezier_curves.pdf
-function [time, Xref] = get_reference_poly(duration, a, b)
+function [time_out, Xref] = get_reference_poly(duration, a, b)
 
   p0 = a(1:2);
   p3 = b(1:2);
@@ -167,15 +170,15 @@ function [time, Xref] = get_reference_poly2(duration, a, b)
   
 endfunction
 
-function [time, Xref] = get_reference_poly3(duration, a, b)
+function [time_out, ref_out] = get_reference_poly3(time_in, ref_in, duration, state_out)
 
-if size(a)~=size(b)
+if size(ref_in($))~=size(state_out)
   error('get_ref_poly3: boundary conditions not compatible');
 end
 
-nb_states = size(a,1);
+nb_states = size(ref_in($),1);
 dt = 1/512;
-time = 0:dt:duration;
+time = time_in($)+dt:dt:time_in($)+duration;
 
 Coeff = list();
 for i = 1:nb_states

@@ -61,6 +61,7 @@ fdm_state(FDM_SXD, 1) = ctl_ref_1(AXIS_X,1);
 fdm_state(FDM_SZD, 1) = ctl_ref_1(AXIS_Z,1);
 ctl_run_flatness(1);
 //global ctl_ref_thetad;
+fdm_state(FDM_STHETA,  1) = ctl_ref_theta(1);
 fdm_state(FDM_STHETAD, 1) = ctl_ref_thetad(1);
 
 for i=1:length(fdm_time)-1
