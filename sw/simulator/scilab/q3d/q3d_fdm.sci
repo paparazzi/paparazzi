@@ -34,12 +34,13 @@ global fdm_state;
 global fdm_accel;
 
 
-function fdm_init(t_start, t_stop) 
+function fdm_init(time_ref, ref) 
 
   global fdm_time;
-  fdm_time = t_start:fdm_dt:t_stop;
+  fdm_time = time_ref;
   global fdm_state;
   fdm_state = zeros(FDM_SSIZE, length(fdm_time));
+  fdm_state(:,1) = ctl_state_of_flat_out(ref);
   
 endfunction
 

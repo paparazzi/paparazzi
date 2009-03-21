@@ -12,7 +12,7 @@ function [time_out, ref_out] = get_reference_circle(time_in, ref_in, center, rad
   
   omega = 2*%pi/period;
   X0 = radius * sin(omega * time) + center(AXIS_X);
-  Z0 = radius * -cos(omega * time)) + center(AXIS_Z);
+  Z0 = radius * -cos(omega * time) + center(AXIS_Z);
 
   X1 = omega   * radius * cos(omega * time);
   Z1 = omega   * radius * sin(omega * time);
@@ -172,27 +172,83 @@ endfunction
 
 function [time_out, ref_out] = get_reference_poly3(time_in, ref_in, duration, state_out)
 
-if size(ref_in($))~=size(state_out)
-  error('get_ref_poly3: boundary conditions not compatible');
-end
+  if size(ref_in($))~=size(state_out)
+   error('get_ref_poly3: boundary conditions not compatible');
+  end
 
-nb_states = size(ref_in($),1);
-dt = 1/512;
-time = time_in($)+dt:dt:time_in($)+duration;
+  dimension = 2;
+  a = [ ref_in(1,$) ref_in(3,$) ref_in(5,$) ref_in(7,$) ref_in(9,$)
+        ref_in(2,$) ref_in(4,$) ref_in(6,$) ref_in(8,$) ref_in(10,$) ];
+  b = [ state_out(1) state_out(3) state_out(5) state_out(7) state_out(9)
+        state_out(2) state_out(4) state_out(6) state_out(8) state_out(10) ];
+  dt = 1/512;
+  time = dt:dt:duration;
 
-Coeff = list();
-for i = 1:nb_states
-  Coeff($+1) = coeff_from_bound(a(i,:)',b(i,:)',duration);
-end
+  Coeff = list();
+  for i = 1:dimension
+    Coeff($+1) = coeff_from_bound(a(i,:)',b(i,:)', duration);
+  end
 
-for i = 1:nb_states
-  
-  for j = 1:length(time)
-    for k = 1:length(Coeff(i))
-      Xref(i+2*(k-1),j) = polyval(Coeff(i)(k),time(j),0,duration);
+  for i = 1:dimension
+    for j = 1:length(time)
+      for k = 1:length(Coeff(i))
+        ref_out(i+2*(k-1),j) = polyval(Coeff(i)(k),time(j),0,duration);
+      end
     end
   end
-        
-end
+
+  time_out = [time_in time];
+  ref_out = [ref_in ref_out];
+endfunction
+
+
+
+
+
+
+
+
+function ref_display(time, ref)
+
+  subplot(5,2,1);
+  plot2d(time, ref(1,:));
+  xtitle('X(0)');
+
+  subplot(5,2,2);
+  plot2d(time, ref(2,:));
+  xtitle('Z(0)');
+
+  subplot(5,2,3);
+  plot2d(time, ref(3,:));
+  xtitle('X(1)');
+
+  subplot(5,2,4);
+  plot2d(time, ref(4,:));
+  xtitle('Z(1)');
+
+  subplot(5,2,5);
+  plot2d(time, ref(5,:));
+  xtitle('X(2)');
+
+  subplot(5,2,6);
+  plot2d(time, ref(6,:));
+  xtitle('Z(2)');
+
+  subplot(5,2,7);
+  plot2d(time, ref(7,:));
+  xtitle('X(3)');
+
+  subplot(5,2,8);
+  plot2d(time, ref(8,:));
+  xtitle('Z(3)');
+
+  subplot(5,2,9);
+  plot2d(time, ref(9,:));
+  xtitle('X(4)');
+
+  subplot(5,2,10);
+  plot2d(time, ref(10,:));
+  xtitle('Z(4)');
 
 endfunction
+

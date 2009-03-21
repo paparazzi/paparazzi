@@ -77,7 +77,6 @@ function ctl_run_flatness(i)
   ctl_ref_thetad(i) = -((9.81 + ctl_ref_2(AXIS_Z,i))*ctl_ref_3(AXIS_X,i) - ctl_ref_2(AXIS_X,i)*ctl_ref_3(AXIS_Z,i)) / ...
       ((9.81 + ctl_ref_2(AXIS_Z,i))^2+ctl_ref_2(AXIS_X,i)^2);
 
-
  global ctl_cmd;
  global ctl_ref_2;
  ctl_cmd(CMD_SF,i) = ctl_mass * sqrt(ctl_ref_2(AXIS_X,i)^2 +...
@@ -101,6 +100,24 @@ function ctl_run_flatness(i)
  ctl_motor(:,i) = A2M * ctl_cmd(:,i);
 
 endfunction
+
+
+function [state] = ctl_state_of_flat_out(ref)
+
+  state = zeros(FDM_SSIZE, 1);
+  state(FDM_SX)      = ref(1);
+  state(FDM_SZ)      = ref(2);
+  state(FDM_SXD)     = ref(3);
+  state(FDM_SZD)     = ref(4);
+  theta = -atan(ref(5), 9.81 + ref(6));
+  thetad = -((9.81 + ref(6))*ref(7) - ref(5)*ref(8)) / ...
+      ((9.81 + ref(6))^2+ref(5)^2);
+  state(FDM_STHETA)  = theta;
+  state(FDM_STHETAD) = thetad;
+
+endfunction
+
+
 
 
 
