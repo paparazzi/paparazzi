@@ -29,6 +29,7 @@ let gps_mode_3D = 3
 
 open Printf
 open Latlong
+open Server_globals
 open Aircraft
 module U = Unix
 module LL = Latlong
@@ -44,32 +45,6 @@ let (//) = Filename.concat
 let logs_path = Env.paparazzi_home // "var" // "logs"
 let conf_xml = Xml.parse_file (Env.paparazzi_home // "conf" // "conf.xml")
 let srtm_path = Env.paparazzi_home // "data" // "srtm"
-
-let kml = ref false
-let hostname = ref "localhost"
-
-let rec norm_course =
-  let _2pi = 2. *. LL.pi in
-  fun c ->
-    if c < 0. then norm_course (c +. _2pi)
-    else if c >= _2pi then norm_course (c -. _2pi)
-    else c
-
-(** FIXME: Should be read from messages.xml *)
-let ap_modes = [|"MANUAL";"AUTO1";"AUTO2";"HOME";"NOGPS"|]
-let _AUTO2 = 2
-let gaz_modes = [|"MANUAL";"GAZ";"CLIMB";"ALT"|]
-let lat_modes = [|"MANUAL";"ROLL_RATE";"ROLL";"COURSE"|]
-let gps_modes = [|"NOFIX";"DRO";"2D";"3D";"GPSDRO"|]
-let gps_hybrid_modes = [|"OFF";"ON"|]
-let horiz_modes = [|"WAYPOINT";"ROUTE";"CIRCLE"|]
-
-let check_index = fun i t where ->
-  if i < 0 || i >= Array.length t then begin
-    Debug.call 'E' (fun f -> fprintf f "Wrong index in %s: %d" where i);
-    -1
-  end else
-    i
 
 let get_indexed_value = fun t i ->
   if i >= 0 then t.(i) else "UNK"  
@@ -137,85 +112,10 @@ let logger = fun () ->
   close_out f;
   open_out (logs_path // data_name)
 
-let fvalue = fun x ->
-  match x with
-    Pprz.Float x -> x 
-    | Pprz.Int32 x -> Int32.to_float x 
-    | Pprz.Int x -> float_of_int x 
-    | _ -> failwith (sprintf "Receive.log_and_parse: float expected, got '%s'" (Pprz.string_of_value x))
-
-	  
-
-
-let ivalue = fun x ->
-  match x with
-    Pprz.Int x -> x
-  | Pprz.Int32 x -> Int32.to_int x 
-  | _ -> failwith "Receive.log_and_parse: int expected"
-
-let print_xml = fun ac_name file xml ->
-  let f = open_out (sprintf "%s/var/%s/%s" Env.paparazzi_home ac_name file) in
-  fprintf f "%s\n" (Xml.to_string_fmt xml);
-  close_out f
-
-
-let update_waypoint = fun ac wp_id p alt ->
-  let new_wp = { altitude = alt; wp_utm = p } in
-  try
-    let prev_wp = Hashtbl.find ac.waypoints wp_id in
-    if new_wp <> prev_wp then
-      Hashtbl.replace ac.waypoints wp_id new_wp
-  with
-    Not_found ->
-      Hashtbl.add ac.waypoints wp_id new_wp
 
 
 
-let kml_update_waypoints =
-  let last_state = ref [] in
-  fun ac ->
-    let l = ref [] in
-    Hashtbl.iter (fun wp_id wp -> if wp_id > 0 then l := (wp_id, wp) :: !l) ac.waypoints;
-    if !l <> !last_state then begin
-      last_state := !l;
-      let url_flight_plan = sprintf "http://%s:8889/var/%s/flight_plan.kml" !hostname ac.name in
-      let changes = List.map (fun (wp_id, wp) -> Kml.change_waypoint ac.name wp_id(of_utm WGS84 wp.wp_utm) wp.altitude) !l in
-      let kml_update = Kml.link_update url_flight_plan changes in
-      print_xml ac.name "wp_changes.kml" kml_update
-    end
-  
 
-let kml_update_horiz_mode =
-  let last_horiz_mode = ref UnknownHorizMode in
-  fun ac ->
-    if ac.horiz_mode <> !last_horiz_mode then begin
-      last_horiz_mode := ac.horiz_mode;
-      let url_flight_plan = sprintf "http://%s:8889/var/%s/flight_plan.kml" !hostname ac.name in
-      let alt = ac.desired_altitude in
-      match ac.horiz_mode with
-	Segment (p1, p2) -> 
-	  let coordinates = String.concat " " (List.map (fun p -> Kml.coordinates (of_utm WGS84 p) alt) [p1; p2]) in
-	  let kml_changes = Kml.update_linear_ring url_flight_plan "horiz_mode" coordinates in
-	  print_xml ac.name "route_changes.kml" kml_changes
-      | Circle (p, r) ->
-	  let coordinates = Kml.circle p (float r) alt in
-	  let kml_changes = Kml.update_linear_ring url_flight_plan "horiz_mode" coordinates in
-	  print_xml ac.name "route_changes.kml" kml_changes
-      | _ -> ()
-    end
-
-
-let format_string_field = fun s ->
-  let s = String.copy s in
-  for i = 0 to String.length s - 1 do
-    match s.[i] with
-      ' ' -> s.[i] <- '_'
-    | _ -> ()
-  done;
-  s
-
-let string_of_values = fun values ->
-  String.concat " " (List.map (fun (_, v) -> Pprz.string_of_value v) values)
 
 let log = fun logging ac_name msg_name values ->
   match logging with
@@ -226,168 +126,22 @@ let log = fun logging ac_name msg_name values ->
   | None -> ()
 
 
-let log_and_parse = fun logging ac_name (a:Aircraft.aircraft) msg values ->
-  log logging ac_name msg.Pprz.name values;
-  let value = fun x -> try Pprz.assoc x values with Not_found -> failwith (sprintf "Error: field '%s' not found\n" x) in
-
-  let fvalue = fun x -> 
-    let f = fvalue (value x) in
-      match classify_float f with
-	FP_infinite | FP_nan ->
-	  let msg = sprintf "Non normal number: %f in '%s %s %s'" f ac_name msg.Pprz.name (string_of_values values) in
-	  Ground_Pprz.message_send my_id "TELEMETRY_ERROR" ["ac_id", Pprz.String ac_name;"message", Pprz.String (format_string_field msg)];
-	  failwith msg
-      | _ -> f
-  and ivalue = fun x -> ivalue (value x) in
-  if not (msg.Pprz.name = "DOWNLINK_STATUS") then
-    a.last_bat_msg_date <- U.gettimeofday ();
-  match msg.Pprz.name with
-    "GPS" ->
-      a.pos <- { utm_x = fvalue "utm_east" /. 100.;
-		 utm_y = fvalue "utm_north" /. 100.;
-		 utm_zone = ivalue "utm_zone" };
-      a.unix_time <- LL.unix_time_of_tow (truncate (fvalue "itow" /. 1000.));
-      a.itow <- Int32.of_float (fvalue "itow");
-      (*Printf.fprintf stderr "itow %lu %ld\n" a.itow a.itow;*)
-      a.gspeed  <- fvalue "speed" /. 100.;
-      a.course  <- norm_course ((Deg>>Rad)(fvalue "course" /. 10.));
-      a.agl     <- a.alt -. float (try Srtm.of_utm a.pos with _ -> 0);
-      a.gps_mode <- check_index (ivalue "mode") gps_modes "GPS_MODE";
-      if a.gspeed > 3. && a.ap_mode = _AUTO2 then
-	Wind.update ac_name a.gspeed a.course
-  | "GPS_SOL" ->
-      a.gps_Pacc <- ivalue "Pacc"
-  | "ESTIMATOR" ->
-      a.alt     <- fvalue "z";
-      a.climb   <- fvalue "z_dot"
-  | "DESIRED" ->
-      (* Trying to be compatible with old logs ... *)
-      a.desired_east <- (try fvalue "x" with _ -> fvalue "desired_x");
-      a.desired_north <- (try fvalue "y" with _ -> fvalue "desired_y");
-      a.desired_altitude <- (try fvalue "altitude" with _ -> fvalue "desired_altitude");
-      a.desired_climb <- (try fvalue "climb" with _ -> fvalue "desired_climb");
-      begin try	a.desired_course <- norm_course (fvalue "course") with _ -> () end
-  | "NAVIGATION_REF" ->
-      a.nav_ref <- Some { utm_x = fvalue "utm_east"; utm_y = fvalue "utm_north"; utm_zone = ivalue "utm_zone" }
-  | "ATTITUDE" ->
-      a.roll <- (Deg>>Rad) (fvalue "phi");
-      a.pitch <- (Deg>>Rad) (fvalue "theta")
-  | "NAVIGATION" -> 
-      a.cur_block <- ivalue "cur_block";
-      a.cur_stage <- ivalue "cur_stage";
-      a.dist_to_wp <- sqrt (fvalue "dist2_wp")
-  | "BAT" ->
-      a.throttle <- fvalue "throttle" /. 9600. *. 100.;
-      a.kill_mode <- ivalue "kill_auto_throttle" <> 0;
-      a.flight_time <- ivalue "flight_time";
-      a.rpm <- a.throttle *. 100.;
-      a.bat <- fvalue "voltage" /. 10.;
-      a.stage_time <- ivalue "stage_time";
-      a.block_time <- ivalue "block_time";
-      a.energy <- ivalue "energy"
-  | "FBW_STATUS" ->
-      a.bat <- fvalue "vsupply" /. 10.		
-  | "PPRZ_MODE" ->
-      a.ap_mode <- check_index (ivalue "ap_mode") ap_modes "AP_MODE";
-      a.gaz_mode <- check_index (ivalue "ap_gaz") gaz_modes "AP_GAZ";
-      a.lateral_mode <- check_index (ivalue "ap_lateral") lat_modes "AP_LAT";
-      a.horizontal_mode <- check_index (ivalue "ap_horizontal") horiz_modes "AP_HORIZ";
-      let mcu1_status = ivalue "mcu1_status" in
-      (** c.f. link_autopilot.h *)
-      a.fbw.rc_status <- 
-	if mcu1_status land 0b1 > 0
-	then "OK"
-	else if mcu1_status land 0b10 > 0
-	then "NONE"
-	else "LOST";
-      a.fbw.rc_mode <-
-	if mcu1_status land 0b1000 > 0
-	then "FAILSAFE"
-	else if mcu1_status land 0b100 > 0
-	then "AUTO"
-	else "MANUAL";
-  | "CAM" ->
-      a.cam.phi <- (Deg>>Rad) (fvalue  "phi");
-      a.cam.theta <- (Deg>>Rad) (fvalue  "theta");
-      a.cam.target <- (fvalue  "target_x", fvalue  "target_y")
-  | "SVINFO" ->
-      let i = ivalue "chn" in
-      assert(i < Array.length a.svinfo);
-      a.svinfo.(i) <- {  
-	svid = ivalue "SVID";
-	flags = ivalue "Flags";
-	qi = ivalue "QI";
-	cno = ivalue "CNO";
-	elev = ivalue "Elev";
-	azim = ivalue "Azim";
-	age = 0
-      }
-  | "CIRCLE" ->
-      begin
-	match a.nav_ref, a.horizontal_mode with
-	  Some nav_ref, 2 -> (** FIXME *)
-	    a.horiz_mode <- Circle (LL.utm_add nav_ref (fvalue "center_east", fvalue "center_north"), ivalue "radius");
-	    if !kml then kml_update_horiz_mode a
-	| _ -> ()
-      end
-  | "SEGMENT" ->
-      begin
-	match a.nav_ref, a.horizontal_mode with
-	  Some nav_ref, 1 -> (** FIXME *)
-	    let p1 = LL.utm_add nav_ref (fvalue "segment_east_1", fvalue "segment_north_1")
-	    and p2 = LL.utm_add nav_ref (fvalue "segment_east_2",  fvalue "segment_north_2") in
-	    a.horiz_mode <- Segment (p1, p2);
-	    if !kml then kml_update_horiz_mode a
-	| _ -> ()
-      end
-  | "SURVEY" ->
-      begin
-	a.time_since_last_survey_msg <- 0.;
-	match a.nav_ref with
-	  Some nav_ref ->
-	    let p1 = LL.utm_add nav_ref (fvalue "west", fvalue "south")
-	    and p2 = LL.utm_add nav_ref (fvalue "east",  fvalue "north") in
-	    a.survey <- Some (LL.of_utm WGS84 p1, LL.of_utm WGS84 p2)
-	| None -> ()
-      end
-  | "CALIBRATION" ->
-      a.throttle_accu <- fvalue "climb_sum_err"
-  | "DL_VALUE" ->
-      let i = ivalue "index" in
-      if i < max_nb_dl_setting_values then begin
-	a.dl_setting_values.(i) <- fvalue "value";
-	a.nb_dl_setting_values <- max a.nb_dl_setting_values (i+1)
-      end else
-	failwith "Too much dl_setting values !!!"
-  | "WP_MOVED" ->
-      begin
-	match a.nav_ref with
-	  Some nav_ref ->
-	    let utm_zone = try ivalue "utm_zone" with _ -> nav_ref.utm_zone in
-	    let p = { LL.utm_x = fvalue "utm_east";
-		      utm_y = fvalue "utm_north";
-		      utm_zone = utm_zone } in
-	    update_waypoint a (ivalue "wp_id") p (fvalue "alt")
-	| None -> () (** Can't use this message  *)
-      end
-  | "FORMATION_SLOT_TM" ->
-      Dl_Pprz.message_send "ground_dl" "FORMATION_SLOT" values
-  | "FORMATION_STATUS_TM" ->
-      Dl_Pprz.message_send "ground_dl" "FORMATION_STATUS" values
-  | _ -> ()
-
 (** Callback for a message from a registered A/C *)
-let ac_msg = fun messages_xml log ac_name ac ->
+let ac_msg = fun messages_xml logging ac_name ac ->
   let module Tele_Pprz = Pprz.MessagesOfXml(struct let xml = messages_xml let name="telemetry" end) in
   fun m ->
     try
       let (msg_id, values) = Tele_Pprz.values_of_string m in
       let msg = Tele_Pprz.message_of_id msg_id in
-      log_and_parse log ac_name ac msg values
+      log logging ac_name msg.Pprz.name values;
+      Fw_server.log_and_parse ac_name ac msg values
     with
-      Pprz.Unknown_msg_name (x, c) ->
+      Telemetry_error (ac_name, msg) ->
+	Ground_Pprz.message_send my_id "TELEMETRY_ERROR" ["ac_id", Pprz.String ac_name;"message", Pprz.String msg];
+	prerr_endline msg
+    | Pprz.Unknown_msg_name (x, c) ->
 	fprintf stderr "Unknown message %s in class %s from %s: %s\n%!" x c ac_name m
-  | x -> prerr_endline (Printexc.to_string x)
+    | x -> prerr_endline (Printexc.to_string x)
 
 
 (** If you are 1km above the ground, an angle of 89 degrees between the vertical and
@@ -534,19 +288,6 @@ let send_moved_waypoints = fun a ->
 
 
 
-let update_kml_ac = fun ac ->
-  try
-    let url_flight_plan = sprintf "http://%s:8889/var/%s/flight_plan.kml" !hostname ac.name in
-    let blocks = ExtXml.child ac.flight_plan "blocks" in
-    let block = ExtXml.child blocks (string_of_int ac.cur_block) in
-    let block_name = ExtXml.attrib block "name" in
-    let description = sprintf "<b><font color=\"green\">%s</font></b>: %s\nBat: <b><font color=\"red\">%.1fV</font></b>\nAGL: %.0fm\nSpeed: %.1fm/s" ap_modes.(ac.ap_mode) block_name ac.bat ac.agl ac.gspeed in
-    let wgs84 = of_utm WGS84 ac.pos in
-    let change = Kml.change_placemark ~description ac.name wgs84 ac.alt in
-    let kml_changes = Kml.link_update url_flight_plan [change] in
-    print_xml ac.name "ac_changes.kml" kml_changes
-  with
-    _ -> ()
 	 
 
 let send_aircraft_msg = fun ac ->
@@ -583,8 +324,8 @@ let send_aircraft_msg = fun ac ->
         Dl_Pprz.message_send my_id "ACINFO" ac_info;
       end;
 
-    if !kml then
-      update_kml_ac a;
+    if !Kml.enabled then
+      Kml.update_ac a;
 
     begin
       match a.nav_ref with
@@ -646,8 +387,8 @@ let send_aircraft_msg = fun ac ->
     send_survey_status a;
     send_dl_values a;
     send_moved_waypoints a;
-    if !kml then
-      kml_update_waypoints a;
+    if !Kml.enabled then
+      Kml.update_waypoints a;
     send_telemetry_status a
   with
     Not_found -> prerr_endline ac
@@ -761,18 +502,8 @@ let register_aircraft = fun name a ->
   Wind.new_ac name 36;
   ignore(Ground_Pprz.message_bind "WIND_CLEAR" wind_clear);
 
-  if !kml then
-    (* Build KML files *)
-    let xml_fp = a.flight_plan in
-    let kml_fp = Kml.flight_plan a.name xml_fp in
-    print_xml a.name "flight_plan.kml" kml_fp;
-    
-    let url_flight_plan = sprintf "http://%s:8889/var/%s/flight_plan.kml" !hostname a.name in
-    let url_ac_changes = sprintf "http://%s:8889/var/%s/ac_changes.kml" !hostname a.name in
-    let url_wp_changes = sprintf "http://%s:8889/var/%s/wp_changes.kml" !hostname a.name in
-    let url_route_changes = sprintf "http://%s:8889/var/%s/route_changes.kml" !hostname a.name in
-    let kml_ac = Kml.aircraft a.name url_flight_plan [url_ac_changes; url_wp_changes; url_route_changes] in
-    print_xml a.name "FollowMe.kml" kml_ac;;
+  if !Kml.enabled then
+    Kml.build_files a
 
 
 (** Identifying message from an A/C *)
@@ -899,7 +630,7 @@ let _ =
   let options =
     [ "-b", Arg.String (fun x -> ivy_bus := x), (sprintf "Bus\tDefault is %s" !ivy_bus);
       "-n", Arg.Clear logging, "Disable log";
-      "-kml", Arg.Set kml, "Enable KML file updating";
+      "-kml", Arg.Set Kml.enabled, "Enable KML file updating";
       "-hostname", Arg.Set_string hostname, "<hostname> Set the address for the http server";
       "-http", Arg.Set http, "Send http: URLs (default is file:)"] in
   Arg.parse (options)

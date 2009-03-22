@@ -1,5 +1,35 @@
+(*
+ * $Id$
+ *
+ * KML export for Google Earth display
+ *  
+ * Copyright (C) 2004 CENA/ENAC, Pascal Brisset, Antoine Drouin
+ *
+ * This file is part of paparazzi.
+ *
+ * paparazzi is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * paparazzi is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with paparazzi; see the file COPYING.  If not, write to
+ * the Free Software Foundation, 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA. 
+ *
+ *)
+
+open Aircraft
 open Latlong
 open Printf
+open Server_globals
+
+let enabled = ref false
 
 let el = fun t a c -> Xml.Element (t, a, c)
 let data = fun t d -> el t [] [Xml.PCData d]
@@ -168,5 +198,68 @@ let update_linear_ring = fun target_href id coordinates ->
 		   [data "coordinates" coordinates]]]]]]
   
   
+let print_xml = fun ac_name file xml ->
+  let f = open_out (sprintf "%s/var/%s/%s" Env.paparazzi_home ac_name file) in
+  fprintf f "%s\n" (Xml.to_string_fmt xml);
+  close_out f
+
+let update_waypoints =
+  let last_state = ref [] in
+  fun ac ->
+    let l = ref [] in
+    Hashtbl.iter (fun wp_id wp -> if wp_id > 0 then l := (wp_id, wp) :: !l) ac.waypoints;
+    if !l <> !last_state then begin
+      last_state := !l;
+      let url_flight_plan = sprintf "http://%s:8889/var/%s/flight_plan.kml" !hostname ac.name in
+      let changes = List.map (fun (wp_id, wp) -> change_waypoint ac.name wp_id(of_utm WGS84 wp.wp_utm) wp.altitude) !l in
+      let kml_update = link_update url_flight_plan changes in
+      print_xml ac.name "wp_changes.kml" kml_update
+    end
+  
+
+let update_horiz_mode =
+  let last_horiz_mode = ref UnknownHorizMode in
+  fun ac ->
+    if ac.horiz_mode <> !last_horiz_mode then begin
+      last_horiz_mode := ac.horiz_mode;
+      let url_flight_plan = sprintf "http://%s:8889/var/%s/flight_plan.kml" !hostname ac.name in
+      let alt = ac.desired_altitude in
+      match ac.horiz_mode with
+	Segment (p1, p2) -> 
+	  let coordinates = String.concat " " (List.map (fun p -> coordinates (of_utm WGS84 p) alt) [p1; p2]) in
+	  let kml_changes = update_linear_ring url_flight_plan "horiz_mode" coordinates in
+	  print_xml ac.name "route_changes.kml" kml_changes
+      | Circle (p, r) ->
+	  let coordinates = circle p (float r) alt in
+	  let kml_changes = update_linear_ring url_flight_plan "horiz_mode" coordinates in
+	  print_xml ac.name "route_changes.kml" kml_changes
+      | _ -> ()
+    end
 
 
+let update_ac = fun ac ->
+  try
+    let url_flight_plan = sprintf "http://%s:8889/var/%s/flight_plan.kml" !hostname ac.name in
+    let blocks = ExtXml.child ac.flight_plan "blocks" in
+    let block = ExtXml.child blocks (string_of_int ac.cur_block) in
+    let block_name = ExtXml.attrib block "name" in
+    let description = sprintf "<b><font color=\"green\">%s</font></b>: %s\nBat: <b><font color=\"red\">%.1fV</font></b>\nAGL: %.0fm\nSpeed: %.1fm/s" ap_modes.(ac.ap_mode) block_name ac.bat ac.agl ac.gspeed in
+    let wgs84 = of_utm WGS84 ac.pos in
+    let change = change_placemark ~description ac.name wgs84 ac.alt in
+    let kml_changes = link_update url_flight_plan [change] in
+    print_xml ac.name "ac_changes.kml" kml_changes
+  with
+    _ -> ()
+
+
+let build_files = fun a ->
+  let xml_fp = a.flight_plan in
+  let kml_fp = flight_plan a.name xml_fp in
+  print_xml a.name "flight_plan.kml" kml_fp;
+  
+  let url_flight_plan = sprintf "http://%s:8889/var/%s/flight_plan.kml" !hostname a.name in
+  let url_ac_changes = sprintf "http://%s:8889/var/%s/ac_changes.kml" !hostname a.name in
+  let url_wp_changes = sprintf "http://%s:8889/var/%s/wp_changes.kml" !hostname a.name in
+  let url_route_changes = sprintf "http://%s:8889/var/%s/route_changes.kml" !hostname a.name in
+  let kml_ac = aircraft a.name url_flight_plan [url_ac_changes; url_wp_changes; url_route_changes] in
+  print_xml a.name "FollowMe.kml" kml_ac;;
