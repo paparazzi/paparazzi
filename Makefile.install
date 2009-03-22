@@ -128,6 +128,7 @@ install_tools:
 	$(INSTALLDATA) sw/tools/gen_radio.ml $(DESTDIR)/sw/tools/
 	$(INSTALLDATA) sw/tools/gen_tuning.ml $(DESTDIR)/sw/tools/
 	$(INSTALLDATA) sw/tools/gen_settings.ml $(DESTDIR)/sw/tools/
+	$(INSTALLDATA) sw/tools/gen_tuning.ml $(DESTDIR)/sw/tools/
 	$(INSTALLDATA) sw/tools/gen_ubx.ml $(DESTDIR)/sw/tools/
 	$(INSTALL) -d $(DESTDIR)/sw/ground_segment/lpc21iap
 	$(INSTALL) sw/ground_segment/lpc21iap/lpc21iap $(DESTDIR)/sw/ground_segment/lpc21iap/
