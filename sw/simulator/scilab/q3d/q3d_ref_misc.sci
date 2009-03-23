@@ -202,8 +202,47 @@ function [time_out, ref_out] = get_reference_poly3(time_in, ref_in, duration, st
 endfunction
 
 
+function [time_out, ref_out] = get_reference_lti4(time_in, ref_in, duration, pos_out)
+
+  dt = 1/512;
+  time_out = time_in;
+  ref_out = ref_in;
+  for i=1:duration/dt
+    time_out = [time_out time_out($)+dt];
+    refi = ode(ref_out(1:8,$), time_out($-1), time_out($), list(lti4_get_derivatives, pos_out));
+    xdot = lti4_get_derivatives(0, refi, pos_out)
+    ref_out = [ref_out [refi; xdot(7:8)]];
+  end
+  
+endfunction
+
+lti4_omega1 = [ rad_of_deg(35); rad_of_deg(35)]; 
+lti4_zeta1  = [ 0.9; 0.9 ]; 
+
+lti4_omega2 = [ rad_of_deg(720); rad_of_deg(720)]; 
+lti4_zeta2  = [ 0.9; 0.9 ]; 
+
+lti4_a0 = lti4_omega1^2 .* lti4_omega2^2;
+lti4_a1 = 2 * lti4_zeta1 .* lti4_omega1 .* lti4_omega2^2 + ...
+    2 * lti4_zeta2 .* lti4_omega2 .* lti4_omega1^2; 
+lti4_a2 = lti4_omega1^2 + ...
+    2 * lti4_zeta1 .* lti4_omega1 .* lti4_zeta2 .* lti4_omega2 + ...
+    lti4_omega2^2;
+lti4_a3 = 2 * lti4_zeta1 .* lti4_omega1 + 2 * lti4_zeta2 .* lti4_omega2;
+
+lti4_sat_err = 5;
 
 
+function [Xdot] =lti4_get_derivatives(t, X, u)
+
+  Xdot(1:2) = X(3:4);
+  Xdot(3:4) = X(5:6);
+  Xdot(5:6) = X(7:8);
+  err_pos = X(1:2) - u;
+  err_pos = trim(err_pos, -lti4_sat_err, lti4_sat_err);
+  Xdot(7:8) = -lti4_a3 .* X(7:8) -lti4_a2 .* X(5:6) -lti4_a1 .* X(3:4) -lti4_a0.*err_pos;
+
+endfunction
 
 
 

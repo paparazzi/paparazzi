@@ -18,20 +18,30 @@ start = [ -10; 0
 circle_center =  [  0; 0 ];
        
        
-stop  = [  10; 0
+stop  = [  200; 0
            0; 0
 	   0; 0
 	   0; 0
 	   0; 0 ];
 
+if 0
+  time_ref = [0];
+  ref = start;
+  
+  // stay
+  //[time_ref, ref] = get_reference_poly3(time_ref, ref, 1, start);
+  [time_ref, ref] = get_reference_poly3(time_ref, ref, 20, stop);
+  //[time_ref, ref] = get_reference_poly3(time_ref, ref, 1, stop);
+  
+  
+  clf();
+  ref_display(time_ref, ref);
+  pause
+end
+
 time_ref = [0];
 ref = start;
-       
-// stay
-//[time_ref, ref] = get_reference_poly3(time_ref, ref, 1, start);
-[time_ref, ref] = get_reference_poly3(time_ref, ref, 20, stop);
-//[time_ref, ref] = get_reference_poly3(time_ref, ref, 1, stop);
-
+[time_ref, ref] = get_reference_lti4(time_ref, ref, 10, stop(1:2));
 
 clf();
 ref_display(time_ref, ref);
