@@ -11,7 +11,7 @@ struct FmsApLink* ap_link_new(const char* device) {
 
   struct FmsApLink* me = malloc(sizeof(struct FmsApLink));
   me->sp = serial_port_new();
-  if (!serial_port_open(me->sp, device, configure_term)) {
+  if (serial_port_open(me->sp, device, configure_term)) {
     ap_link_free(me);
     return NULL;
   }
@@ -33,7 +33,7 @@ void ap_link_free(struct FmsApLink* me) {
 
 void ap_link_parse(struct FmsApLink* me, int nb_bytes) {
 
-
+  printf("got %d bytes\n", nb_bytes);
 
 }
 

@@ -140,17 +140,25 @@ test_usb.ARCH = arm7tdmi
 test_usb.TARGET = test_usb
 test_usb.TARGETDIR = test_usb
 
-test_usb.CFLAGS += -DCONFIG=$(BOARD_CFG) $(BOOZ_CFLAGS)
+test_usb.CFLAGS += -DCONFIG=\"booz2_board_usb.h\" $(BOOZ_CFLAGS)
 test_usb.srcs += $(SRC_BOOZ_TEST)/booz2_test_usb.c
 test_usb.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))' -DTIME_LED=1
 test_usb.CFLAGS += -DLED
 test_usb.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
 
-test_usb.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600
-test_usb.srcs += $(SRC_ARCH)/uart_hw.c
+#test_usb.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600
+#test_usb.srcs += $(SRC_ARCH)/uart_hw.c
+#test_usb.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart1 
+#test_usb.srcs += downlink.c pprz_transport.c
 
-test_usb.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart1 
-test_usb.srcs += downlink.c pprz_transport.c
+test_usb.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DUSE_USB_SERIAL
+test_usb.CFLAGS += -DDOWNLINK_DEVICE=UsbS -DPPRZ_UART=UsbS -DDATALINK=PPRZ
+test_usb.srcs += downlink.c $(SRC_ARCH)/uart_hw.c $(SRC_ARCH)/usb_ser_hw.c pprz_transport.c
+# datalink.c
+test_usb.srcs += $(SRC_ARCH)/lpcusb/usbhw_lpc.c $(SRC_ARCH)/lpcusb/usbcontrol.c
+test_usb.srcs += $(SRC_ARCH)/lpcusb/usbstdreq.c $(SRC_ARCH)/lpcusb/usbinit.c
+
+
 
 
 
