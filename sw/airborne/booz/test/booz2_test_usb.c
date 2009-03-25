@@ -33,11 +33,6 @@ static inline void main_init( void ) {
   sys_time_init();
   led_init();
 
-/*   LED_ON(4); */
-/*   LED_ON(5); */
-/*   LED_ON(6); */
-/*   LED_ON(7); */
-
   //uart1_init_tx();
   VCOM_init();
 

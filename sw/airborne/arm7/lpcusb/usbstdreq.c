@@ -99,7 +99,7 @@ void USBRegisterDescriptors(const U8 *pabDescriptors)
 	
 	@return TRUE if the descriptor was found, FALSE otherwise
  */
-BOOL USBGetDescriptor(U16 wTypeIndex, U16 wLangID, int *piLen, U8 **ppbData)
+BOOL USBGetDescriptor(U16 wTypeIndex, U16 wLangID __attribute__ ((unused)), int *piLen, U8 **ppbData)
 {
 	U8	bType, bIndex;
 	U8	*pab;

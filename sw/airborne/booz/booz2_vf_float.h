@@ -14,6 +14,7 @@ extern FLOAT_T b2_vff_z_meas;
 extern void b2_vff_init(FLOAT_T z, FLOAT_T zdot, FLOAT_T bias);
 extern void b2_vff_propagate(FLOAT_T accel);
 extern void b2_vff_update(FLOAT_T z_meas);
+extern void b2_vff_realign(FLOAT_T z_meas);
 
 #endif /* BOOZ2_VF_FLOAT_H */
 

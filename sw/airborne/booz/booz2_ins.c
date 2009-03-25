@@ -25,9 +25,10 @@ struct NedCoor_i booz_ins_gps_speed_cm_s_ned;
 
 /* barometer                   */
 #ifdef USE_VFF
-int32_t  booz_ins_qfe;
-bool_t   booz_ins_baro_initialised;
-int32_t  booz_ins_baro_alt;
+int32_t booz_ins_qfe;
+bool_t  booz_ins_baro_initialised;
+int32_t booz_ins_baro_alt;
+bool_t  booz_ins_vff_realign; 
 #endif
 
 /* output                      */
@@ -43,6 +44,7 @@ void booz_ins_init() {
 #ifdef USE_VFF
   booz_ins_ltp_initialised  = FALSE;
   booz_ins_baro_initialised = FALSE;
+  booz_ins_vff_realign = FALSE;
   b2_vff_init(0., 0., 0.);
 #endif
   //#ifdef SITL
@@ -84,6 +86,10 @@ void booz_ins_update_baro() {
     }
     booz_ins_baro_alt = (((int32_t)booz2_analog_baro_value - booz_ins_qfe) * BOOZ_INS_BARO_SENS_NUM)/BOOZ_INS_BARO_SENS_DEN;
     FLOAT_T alt_float = BOOZ_POS_F_OF_I(booz_ins_baro_alt);
+    if (booz_ins_vff_realign) {
+      booz_ins_vff_realign = FALSE;
+      b2_vff_realign(alt_float);
+    }
     b2_vff_update(alt_float);
   }
 #endif

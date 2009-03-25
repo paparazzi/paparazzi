@@ -13,9 +13,10 @@ extern struct NedCoor_i booz_ins_gps_speed_cm_s_ned;
 
 /* barometer                   */
 #ifdef USE_VFF
-extern int32_t  booz_ins_baro_alt;
-extern int32_t  booz_ins_qfe;
-extern bool_t   booz_ins_baro_initialised;
+extern int32_t booz_ins_baro_alt;
+extern int32_t booz_ins_qfe;
+extern bool_t  booz_ins_baro_initialised;
+extern bool_t  booz_ins_vff_realign; 
 #endif
 
 /* output LTP NED               */

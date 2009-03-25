@@ -133,3 +133,9 @@ void b2_vff_update(FLOAT_T z_meas) {
   b2_vff_P[2][2] = P33;
 
 }
+
+void b2_vff_realign(FLOAT_T z_meas) {
+  b2_vff_z = z_meas;
+}
+
+

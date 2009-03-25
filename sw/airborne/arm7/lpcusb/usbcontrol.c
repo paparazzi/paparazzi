@@ -105,7 +105,7 @@ static BOOL _HandleRequest(TSetupPacket *pSetup, int *piLen, U8 **ppbData)
 	
 	@param [in]	bEPStat	Endpoint status
  */
-static void StallControlPipe(U8 bEPStat)
+static void StallControlPipe(U8 bEPStat __attribute__ ((unused)))
 {
 	U8	*pb;
 	int	i;
