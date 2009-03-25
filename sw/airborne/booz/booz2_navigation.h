@@ -2,12 +2,13 @@
 #define BOOZ2_NAVIGATION_H
 
 #include "std.h"
-#include "booz_geometry_int.h"
+#include "pprz_geodetic_int.h"
 
-extern struct Pprz_int32_lla booz2_navigation_target;
-extern struct Pprz_int32_lla booz2_navigation_carrot;
+extern struct EnuCoor_i booz2_navigation_target;
+extern struct EnuCoor_i booz2_navigation_carrot;
 
-extern struct Pprz_int32_lla waypoints[];
+extern struct EnuCoor_i waypoints[];
+extern const uint8_t nb_waypoint;
 
 extern void booz2_nav_init(void);
 extern void booz2_nav_run(void);
@@ -27,7 +28,7 @@ void compute_dist2_to_home(void);
 unit_t nav_reset_reference( void ) __attribute__ ((unused));
 unit_t nav_update_waypoints_alt( void ) __attribute__ ((unused));
 void nav_periodic_task_10Hz(void);
-void nav_move_waypoint(uint8_t wp_id, struct Pprz_int32_lla new_pos);
+void nav_move_waypoint(uint8_t wp_id, struct EnuCoor_i * new_pos);
 
 void nav_home(void);
 
@@ -73,13 +74,13 @@ void nav_home(void);
 #define NavQdrCloseTo(x) {}
 #define NavCourseCloseTo(x) {}
 
-#define WaypointX(_wp) (waypoints[_wp].lon)
-#define WaypointY(_wp) (waypoints[_wp].lat)
-#define WaypointAlt(_wp) (waypoints[_wp].alt)
+#define WaypointX(_wp) (waypoints[_wp].x)
+#define WaypointY(_wp) (waypoints[_wp].y)
+#define WaypointAlt(_wp) (- waypoints[_wp].z)
 
 /*********** Navigation to  waypoint *************************************/
 #define NavGotoWaypoint(_wp) { \
-  PPRZ_INT32_LLA_COPY( booz2_navigation_target, waypoints[_wp]); \
+  INT32_VECT3_COPY( booz2_navigation_target, waypoints[_wp]); \
 }
 
 #define NavGlide(_last_wp, _wp) {}

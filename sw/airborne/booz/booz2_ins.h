@@ -18,17 +18,14 @@ extern int32_t  booz_ins_qfe;
 extern bool_t   booz_ins_baro_initialised;
 #endif
 
-/* output                      */
+/* output LTP NED               */
 extern struct NedCoor_i booz_ins_ltp_pos;
 extern struct NedCoor_i booz_ins_ltp_speed;
 extern struct NedCoor_i booz_ins_ltp_accel;
-
-extern struct Pprz_int32_lla booz_ins_position_init_lla;
-extern struct Pprz_int32_lla booz_ins_position_lla;
-extern struct Pprz_int32_vect3 booz_ins_position;
-extern struct Pprz_int32_vect3 booz_ins_speed_earth;
-extern struct Pprz_int32_vect3 booz_ins_accel_earth;
-
+/* output LTP ENU               */
+extern struct EnuCoor_i booz_ins_enu_pos;
+extern struct EnuCoor_i booz_ins_enu_speed;
+extern struct EnuCoor_i booz_ins_enu_accel;
 
 
 extern void booz_ins_init( void );

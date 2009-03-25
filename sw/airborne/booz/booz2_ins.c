@@ -34,13 +34,9 @@ int32_t  booz_ins_baro_alt;
 struct NedCoor_i booz_ins_ltp_pos;
 struct NedCoor_i booz_ins_ltp_speed;
 struct NedCoor_i booz_ins_ltp_accel;
-
-
-struct Pprz_int32_lla booz_ins_position_init_lla;  // LLA
-struct Pprz_int32_lla booz_ins_position_lla;  // LLA
-struct Pprz_int32_vect3 booz_ins_position;    // NED
-struct Pprz_int32_vect3 booz_ins_speed_earth; // NED
-struct Pprz_int32_vect3 booz_ins_accel_earth; // NED
+struct EnuCoor_i booz_ins_enu_pos;
+struct EnuCoor_i booz_ins_enu_speed;
+struct EnuCoor_i booz_ins_enu_accel;
 
 
 void booz_ins_init() {
@@ -52,6 +48,9 @@ void booz_ins_init() {
   //#ifdef SITL
   b2ins_init();
   //#endif
+  INT32_VECT3_ZERO(booz_ins_enu_pos);
+  INT32_VECT3_ZERO(booz_ins_enu_speed);
+  INT32_VECT3_ZERO(booz_ins_enu_accel);
 }
 
 void booz_ins_propagate() {
@@ -60,9 +59,12 @@ void booz_ins_propagate() {
   if (booz2_analog_baro_status == BOOZ2_ANALOG_BARO_RUNNING && booz_ins_baro_initialised) {
     FLOAT_T accel_float = BOOZ_ACCEL_F_OF_I(booz_imu.accel.z);
     b2_vff_propagate(accel_float);
-    booz_ins_accel_earth.z = BOOZ_ACCEL_I_OF_F(b2_vff_zdotdot);
-    booz_ins_speed_earth.z = BOOZ_SPEED_I_OF_F(b2_vff_zdot);
-    booz_ins_position.z = BOOZ_POS_I_OF_F(b2_vff_z);
+    booz_ins_ltp_accel.z = BOOZ_ACCEL_I_OF_F(b2_vff_zdotdot);
+    booz_ins_ltp_speed.z = BOOZ_SPEED_I_OF_F(b2_vff_zdot);
+    booz_ins_ltp_pos.z = BOOZ_POS_I_OF_F(b2_vff_z);
+    booz_ins_enu_pos.z = -booz_ins_ltp_pos.z;
+    booz_ins_enu_speed.z = -booz_ins_ltp_speed.z;
+    booz_ins_enu_accel.z = -booz_ins_ltp_accel.z;
   }
 #endif
 #ifdef USE_HFF
@@ -89,18 +91,6 @@ void booz_ins_update_baro() {
 
 
 void booz_ins_update_gps(void) {
-  static bool_t first_pos_init_done = FALSE;
-  if (booz_gps_state.fix == BOOZ2_GPS_FIX_3D) {
-    if (!first_pos_init_done) {
-      PPRZ_INT32_LLA_ASSIGN(booz_ins_position_init_lla, booz2_gps_lat, booz2_gps_lon, booz_ins_position.z);
-      first_pos_init_done = TRUE;
-    }
-    PPRZ_INT32_LLA_ASSIGN(booz_ins_position_lla, booz2_gps_lat, booz2_gps_lon, booz_ins_position.z);
-    BOOZ_IVECT2_ASSIGN(booz_ins_speed_earth, booz2_gps_vel_n, booz2_gps_vel_e);
-    // copy to pos NED
-    PPRZ_INT32_VECT2_OF_LL(booz_ins_position, booz_ins_position_lla);
-  }
-  
 
   if (booz_gps_state.fix == BOOZ2_GPS_FIX_3D) {
     if (!booz_ins_ltp_initialised) {
@@ -117,7 +107,9 @@ void booz_ins_update_gps(void) {
     VECT3_COPY(booz_ins_ltp_pos,   b2ins_meas_gps_pos_ned);
     VECT3_COPY(booz_ins_ltp_speed, b2ins_meas_gps_speed_ned);
 #endif
-  
+    INT32_VECT3_ENU_OF_NED(booz_ins_enu_pos, booz_ins_ltp_pos);
+    INT32_VECT3_ENU_OF_NED(booz_ins_enu_speed, booz_ins_ltp_speed);
+    INT32_VECT3_ENU_OF_NED(booz_ins_enu_accel, booz_ins_ltp_accel);
   }
 
 }

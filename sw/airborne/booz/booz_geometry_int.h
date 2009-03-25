@@ -160,6 +160,11 @@ struct Pprz_int32_quat {
     v.z = _z;								\
   }
 
+#define PPRZ_INT32_VECT2_DIFF(_o_i32v2, _i1_i32v2, _i2_i32v2) {	\
+    _o_i32v2.x = _i1_i32v2.x - _i2_i32v2.x;			\
+    _o_i32v2.y = _i1_i32v2.y - _i2_i32v2.y;			\
+  }
+
 #define PPRZ_INT32_EULER_ASSIGN(e, _phi, _theta, _psi) {		\
     e.phi   = _phi;							\
     e.theta = _theta;							\

@@ -121,7 +121,7 @@ void booz2_guidance_h_run(bool_t  in_flight) {
     break;
     
   case BOOZ2_GUIDANCE_H_MODE_NAV:
-    PPRZ_INT32_VECT2_OF_LL(booz2_guidance_h_pos_sp, booz2_navigation_carrot);
+    INT32_VECT2_NED_OF_ENU(booz2_guidance_h_pos_sp, booz2_navigation_carrot);
     booz2_guidance_h_hover_run();
     booz2_stabilization_attitude_run(in_flight);
     break;

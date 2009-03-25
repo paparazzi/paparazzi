@@ -287,9 +287,9 @@
 #include "booz2_ins.h"
 #define PERIODIC_SEND_BOOZ2_INS() {				\
     DOWNLINK_SEND_BOOZ2_INS(&booz_ins_baro_alt,			\
-			    &booz_ins_position.z,		\
-			    &booz_ins_speed_earth.z,		\
-			    &booz_ins_accel_earth.z);		\
+			    &booz_ins_ltp_pos.z,		\
+			    &booz_ins_ltp_speed.z,		\
+			    &booz_ins_ltp_accel.z);		\
   }
 
 
@@ -338,9 +338,9 @@
 #define PERIODIC_SEND_BOOZ2_VERT_LOOP() {				\
     DOWNLINK_SEND_BOOZ2_VERT_LOOP(&booz2_guidance_v_z_sp,		\
 				  &booz2_guidance_v_zd_sp,		\
-				  &booz_ins_position.z,			\
-				  &booz_ins_speed_earth.z,		\
-				  &booz_ins_accel_earth.z,		\
+				  &booz_ins_ltp_pos.z,			\
+				  &booz_ins_ltp_speed.z,		\
+				  &booz_ins_ltp_accel.z,		\
 				  &booz2_guidance_v_z_ref,		\
 				  &booz2_guidance_v_zd_ref,		\
 				  &booz2_guidance_v_zdd_ref,		\
@@ -376,11 +376,12 @@
 #include "booz2_gps.h"
 #include "booz2_navigation.h"
 #define PERIODIC_SEND_BOOZ2_FP() {					\
-    DOWNLINK_SEND_BOOZ2_FP( &booz_ins_position_lla.lon,			\
-			    &booz_ins_position_lla.lat,			\
-			    &booz_ins_position.z,			\
-			    &booz_ins_speed_earth.x,			\
-			    &booz_ins_speed_earth.y,			\
+    DOWNLINK_SEND_BOOZ2_FP( &booz_ins_enu_pos.x,			\
+			    &booz_ins_enu_pos.y,			\
+			    &booz_ins_enu_pos.z,			\
+			    &booz_ins_enu_speed.x,			\
+			    &booz_ins_enu_speed.y,			\
+			    &booz_ins_enu_speed.z,			\
 			    &booz_ahrs.ltp_to_body_euler.phi,		\
 			    &booz_ahrs.ltp_to_body_euler.theta,		\
 			    &booz_ahrs.ltp_to_body_euler.psi,		\
@@ -407,10 +408,20 @@
   }
 
 
+#include "booz2_navigation.h"
 #define PERIODIC_SEND_BOOZ2_NAV_REF() {					\
-    DOWNLINK_SEND_BOOZ2_NAV_REF(&booz_ins_position_init_lla.lon,	\
-				&booz_ins_position_init_lla.lat);	\
+    DOWNLINK_SEND_BOOZ2_NAV_REF(&booz_ins_ltp_def.lla.lon,	\
+				&booz_ins_ltp_def.lla.lat);	\
   }
+
+#define PERIODIC_SEND_BOOZ2_NAV_STATUS() {					\
+    DOWNLINK_SEND_BOOZ2_NAV_STATUS(&block_time,&stage_time,&nav_block,&nav_stage); }
+
+#define PERIODIC_SEND_WP_MOVED() { \
+  static uint8_t i; \
+  i++; if (i >= nb_waypoint) i = 0; \
+  DOWNLINK_SEND_WP_MOVED_LTP(&i, &(waypoints[i].x), &(waypoints[i].y), &(waypoints[i].z)); \
+}
 
 
 #define PERIODIC_SEND_BOOZ2_TUNE_HOVER() {				\

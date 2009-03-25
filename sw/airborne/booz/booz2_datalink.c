@@ -43,6 +43,13 @@ void dl_parse_msg(void) {
     break;
 #endif
 
+  case DL_BLOCK :
+    {
+      if (DL_BLOCK_ac_id(dl_buffer) != AC_ID) break;
+      nav_goto_block(DL_BLOCK_block_id(dl_buffer));
+    }
+    break;
+
   case DL_MOVE_WP :
     {
       uint8_t ac_id = DL_MOVE_WP_ac_id(dl_buffer);
@@ -51,7 +58,7 @@ void dl_parse_msg(void) {
       int32_t lat = DL_MOVE_WP_lat(dl_buffer);
       int32_t lon = DL_MOVE_WP_lon(dl_buffer);
       int32_t alt = DL_MOVE_WP_alt(dl_buffer);
-      PPRZ_INT32_LLA_ASSIGN(waypoints[wp_id], lat, lon, alt);
+      //PPRZ_INT32_LLA_ASSIGN(waypoints[wp_id], lat, lon, alt);
       DOWNLINK_SEND_WP_MOVED_LLA(&wp_id, &lat, &lon, &alt);
     }
     break;
