@@ -29,6 +29,7 @@
 
 #include "booz_geometry_int.h"
 #include "airframe.h"
+#include "booz2_ins.h"
 
 #define BOOZ2_AP_MODE_FAILSAFE          0
 #define BOOZ2_AP_MODE_KILL              1
@@ -48,6 +49,7 @@ extern uint8_t booz2_autopilot_mode;
 extern uint8_t booz2_autopilot_mode_auto2;
 extern bool_t  booz2_autopilot_motors_on;
 extern bool_t  booz2_autopilot_in_flight;
+extern uint8_t booz2_autopilot_tol;
 
 extern void booz2_autopilot_init(void);
 extern void booz2_autopilot_periodic(void);
@@ -73,5 +75,21 @@ extern void booz2_autopilot_set_mode(uint8_t new_autopilot_mode);
     else if (_rc > TRESHOLD_1_PPRZ) _booz_mode = BOOZ2_MODE_AUTO1;	\
     else                            _booz_mode = BOOZ2_MODE_MANUAL;	\
   }
+
+#define booz2_autopilot_SetTol(_v) { \
+  booz2_autopilot_tol = _v; \
+  if (_v == 1) { \
+    booz_ins_vff_realign = TRUE; \
+    booz2_guidance_v_z_sp = -POS_BFP_OF_REAL(2); \
+    booz2_autopilot_mode_auto2 = BOOZ2_AP_MODE_ATTITUDE_Z_HOLD; \
+    booz2_autopilot_set_mode(booz2_autopilot_mode_auto2); \
+  } \
+  if (_v == 2) { \
+    booz2_guidance_v_zd_sp = SPEED_BFP_OF_REAL(0.5); \
+    booz2_autopilot_mode_auto2 = BOOZ2_AP_MODE_ATTITUDE_CLIMB; \
+    booz2_autopilot_set_mode(booz2_autopilot_mode_auto2); \
+  } \
+  booz2_autopilot_tol = 0; \
+}
 
 #endif /* BOOZ2_AUTOPILOT_H */

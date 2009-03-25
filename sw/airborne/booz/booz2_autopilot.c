@@ -35,6 +35,7 @@ uint8_t booz2_autopilot_mode;
 uint8_t booz2_autopilot_mode_auto2;
 bool_t  booz2_autopilot_motors_on;
 bool_t  booz2_autopilot_in_flight;
+uint8_t booz2_autopilot_tol;
 uint32_t booz2_autopilot_motors_on_counter;
 uint32_t booz2_autopilot_in_flight_counter;
 
@@ -50,6 +51,7 @@ void booz2_autopilot_init(void) {
   booz2_autopilot_motors_on_counter = 0;
   booz2_autopilot_in_flight_counter = 0;
   booz2_autopilot_mode_auto2 = BOOZ2_MODE_AUTO2;
+  booz2_autopilot_tol = 0;
 }
 
 
