@@ -115,14 +115,24 @@ let print_waypoint = fun default_alt waypoint ->
   check_altitude (float_of_string alt) waypoint;
   printf " {%.1f, %.1f, %s},\\\n" x y alt
 
+let print_waypoint_int32 = fun default_alt waypoint ->
+  let (x, y) = (float_attrib waypoint "x", float_attrib waypoint "y")
+  and alt = float_of_string (try Xml.attrib waypoint "alt" with _ -> default_alt) in
+  check_altitude alt waypoint;
+  let pow8 = 2. ** 8. in
+  let x_int = truncate (x *. pow8) and
+  y_int = truncate (y *. pow8) and
+  alt_int = truncate (alt *. pow8) in
+  printf " {%d, %d, %d},\\\n" x_int y_int alt_int
 
 let convert_angle = fun rad -> truncate (1e7 *. (Rad>>Deg)rad)
+(*
 let print_waypoint_latlong = fun utm0 default_alt waypoint ->
   let (x, y) = (float_attrib waypoint "x", float_attrib waypoint "y")
   and alt = try Xml.attrib waypoint "alt" with _ -> default_alt in
   let wgs84 = Latlong.of_utm Latlong.WGS84 (Latlong.utm_add utm0 (x, y)) in
   printf " {%d, %d, %.0f},\\\n" (convert_angle wgs84.posn_lat) (convert_angle wgs84.posn_long) (100. *. float_of_string alt)
-
+*)
 
 let index_of_blocks = ref []
 
@@ -738,8 +748,8 @@ let () =
       Xml2h.define "WAYPOINTS" "{ \\";
       List.iter (print_waypoint alt) waypoints;
       lprintf "};\n";
-      Xml2h.define "WAYPOINTS_LATLONG" "{ \\";
-      List.iter (print_waypoint_latlong utm0 alt) waypoints;
+      Xml2h.define "WAYPOINTS_INT32" "{ \\";
+      List.iter (print_waypoint_int32 alt) waypoints;
       lprintf "};\n";
       Xml2h.define "NB_WAYPOINT" (string_of_int (List.length waypoints));
 
