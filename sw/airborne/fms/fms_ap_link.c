@@ -1,6 +1,8 @@
 #include "fms_ap_link.h"
 
 #include <stdlib.h>
+
+#include "fms_debug.h"
 #include "fms_serial_port.h"
 
 
@@ -33,7 +35,7 @@ void ap_link_free(struct FmsApLink* me) {
 
 void ap_link_parse(struct FmsApLink* me, int nb_bytes) {
 
-  printf("got %d bytes\n", nb_bytes);
+  TRACE(TRACE_DEBUG, "ap link parsing %d bytes \n", nb_bytes);
 
 }
 

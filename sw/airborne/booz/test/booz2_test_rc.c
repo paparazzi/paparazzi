@@ -4,19 +4,19 @@
 #include "init_hw.h"
 #include "sys_time.h"
 #include "led.h"
-
-//#include "uart.h"
-#include "usb_serial.h"
-
+#include "uart.h"
 #include "messages.h"
 #include "downlink.h"
 
 #include "interrupt_hw.h"
 
+#include "radio_control.h"
 
 static inline void main_init( void );
 static inline void main_periodic_task( void );
 static inline void main_event_task( void );
+
+static void on_rc_event(void);
 
 int main( void ) {
   main_init();
@@ -33,25 +33,23 @@ static inline void main_init( void ) {
   sys_time_init();
   led_init();
 
-/*   LED_ON(4); */
-/*   LED_ON(5); */
-/*   LED_ON(6); */
-/*   LED_ON(7); */
+  uart1_init_tx();
 
-  //uart1_init_tx();
-  VCOM_init();
+  ppm_init();
+  radio_control_init();
 
   int_enable();
 }
 
 static inline void main_periodic_task( void ) {
-  RunOnceEvery(10, {
-      LED_TOGGLE(1);
-      DOWNLINK_SEND_ALIVE(16, MD5SUM);
-    });
+  RunOnceEvery(100, {LED_TOGGLE(3); DOWNLINK_SEND_BOOT(&cpu_time_sec);});
+  RunOnceEvery(10, { radio_control_periodic_task(); });
 }
 
 static inline void main_event_task( void ) {
-
+  RadioControlEventCheckAndHandle(on_rc_event);
 }
 
+static void on_rc_event(void) {
+
+}

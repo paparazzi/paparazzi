@@ -142,7 +142,8 @@ test_usb.TARGETDIR = test_usb
 
 test_usb.CFLAGS += -DCONFIG=\"booz2_board_usb.h\" $(BOOZ_CFLAGS)
 test_usb.srcs += $(SRC_BOOZ_TEST)/booz2_test_usb.c
-test_usb.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))' -DTIME_LED=1
+test_usb.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))'
+# -DTIME_LED=1
 test_usb.CFLAGS += -DLED
 test_usb.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
 
@@ -312,7 +313,7 @@ test_rc.TARGET = test_rc
 test_rc.TARGETDIR = test_rc
 
 test_rc.CFLAGS += -DCONFIG=$(BOARD_CFG) $(BOOZ_CFLAGS)
-test_rc.srcs += $(BOOZ_PRIV_TEST)/booz2_test_rc.c
+test_rc.srcs += $(SRC_BOOZ_TEST)/booz2_test_rc.c
 test_rc.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))' -DTIME_LED=4
 test_rc.CFLAGS += -DLED
 test_rc.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
@@ -360,8 +361,8 @@ test_amc.ARCH = arm7tdmi
 test_amc.TARGET = test_amc
 test_amc.TARGETDIR = test_amc
 
-test_amc.CFLAGS += -DCONFIG=$(BOARD_CFG) -I$(BOOZ_PRIV) -I$(BOOZ_PRIV_ARCH) -I$(BOOZ_ARCH)
-test_amc.srcs += $(BOOZ_PRIV_TEST)/booz2_test_amc.c
+test_amc.CFLAGS += -DCONFIG=$(BOARD_CFG) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) 
+test_amc.srcs += $(SRC_BOOZ_TEST)/booz2_test_amc.c
 test_amc.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))' -DTIME_LED=1
 test_amc.CFLAGS += -DLED
 test_amc.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
@@ -372,15 +373,15 @@ test_amc.srcs += $(SRC_ARCH)/uart_hw.c
 test_amc.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart1
 test_amc.srcs += downlink.c pprz_transport.c
 test_amc.CFLAGS += -DDATALINK=PPRZ -DPPRZ_UART=Uart1
-test_amc.srcs += $(BOOZ_PRIV)/booz2_datalink.c
+test_amc.srcs += $(SRC_BOOZ)/booz2_datalink.c
 
 test_amc.CFLAGS += -DACTUATORS=\"actuators_asctec_twi_blmc_hw.h\"
-test_amc.srcs += $(BOOZ_PRIV_ARCH)/actuators_asctec_twi_blmc_hw.c actuators.c
+test_amc.srcs += $(SRC_BOOZ_ARCH)/actuators_asctec_twi_blmc_hw.c actuators.c
 test_amc.CFLAGS += -DUSE_I2C0 -DI2C0_SCLL=150 -DI2C0_SCLH=150 -DI2C0_VIC_SLOT=10
 test_amc.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
 
-test_amc.CFLAGS += -DFLOAT_T=float
-
+test_amc.CFLAGS += -DFLOAT_T=float 
+#-DBOOZ2_IMU_TYPE=\"booz2_imu_crista.h\"
 
 #
 # test 24 bits baro

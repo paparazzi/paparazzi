@@ -1,3 +1,4 @@
+
 # Paparazzi simulator $Id$
 #  
 # Copyright (C) 2003-2006  Pascal Brisset, Antoine Drouin

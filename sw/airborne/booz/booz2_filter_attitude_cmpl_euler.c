@@ -170,8 +170,6 @@ void booz_ahrs_propagate(void) {
   INT32_RMAT_COMP_INV(booz_ahrs.ltp_to_body_rmat, booz_ahrs.ltp_to_imu_rmat, booz_imu.body_to_imu_rmat);
   /* compute LTP to BODY eulers */
   INT32_EULERS_OF_RMAT(booz_ahrs.ltp_to_body_euler, booz_ahrs.ltp_to_body_rmat);
-  //  booz_ahrs.ltp_to_body_euler.phi   = booz_ahrs.ltp_to_imu_euler.phi - IMU_BODY_TO_IMU_PHI;
-  //booz_ahrs.ltp_to_body_euler.theta = booz_ahrs.ltp_to_imu_euler.theta - IMU_BODY_TO_IMU_THETA;
 
   /* Do we compute actual body rate ? */
   RATES_COPY(booz_ahrs.body_rate, booz_ahrs.imu_rate);

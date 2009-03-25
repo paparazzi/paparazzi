@@ -3,7 +3,8 @@
 
 #include "fms_serial_port.h"
 
-#define AP_LINK_BUF_SIZE 4096
+//#define AP_LINK_BUF_SIZE 4096
+#define AP_LINK_BUF_SIZE 256
 
 struct FmsApLink {
   struct FmsSerialPort* sp;

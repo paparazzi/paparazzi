@@ -34,8 +34,9 @@ main.CFLAGS += -DDATALINK=PPRZ -DPPRZ_UART=Uart0
 
 main.srcs += $(MB)/mb_servo.c
 
+main.CFLAGS += -DUSE_I2C0 -DI2C0_SCLL=150 -DI2C0_SCLH=150 -DI2C0_VIC_SLOT=3
 main.CFLAGS += -DUSE_TWI_CONTROLLER
-main.CFLAGS += -DI2C_SCLL=100 -DI2C_SCLH=100
+#main.CFLAGS += -DI2C_SCLL=100 -DI2C_SCLH=100
 #main.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c $(MB)/mb_twi_controller.c
 main.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c $(MB)/mb_twi_controller_asctech.c
 #main.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c $(MB)/mb_twi_controller_mkk.c
@@ -54,7 +55,46 @@ main.srcs += $(MB)/mb_modes.c
 main.srcs += $(MB)/mb_static.c
 main.srcs += $(MB)/mb_mode_fixed_rpm.c
 
+foo.ARCHDIR = $(ARCHI)
+foo.ARCH = arm7tdmi
+foo.TARGET = mb
+foo.TARGETDIR = mb
 
+foo.CFLAGS += -DCONFIG=\"conf_motor_bench.h\" -I$(MB)
+foo.srcs = $(MB)/main_foo.c
+
+foo.CFLAGS += -DPERIODIC_TASK_FREQ='250.'
+foo.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(1./PERIODIC_TASK_FREQ)'
+foo.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
+
+foo.CFLAGS += -DLED
+foo.srcs += $(SRC_ARCH)/armVIC.c
+
+foo.CFLAGS += -DUSE_I2C0 -DI2C0_SCLL=150 -DI2C0_SCLH=150 -DI2C0_VIC_SLOT=9
+foo.CFLAGS += -DUSE_TWI_CONTROLLER
+foo.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c $(MB)/mb_twi_controller_asctech.c
+
+
+
+
+bar.ARCHDIR = $(ARCHI)
+bar.ARCH = arm7tdmi
+bar.TARGET = mb
+bar.TARGETDIR = mb
+
+bar.CFLAGS += -DCONFIG=\"conf_motor_bench.h\" -I$(MB)
+bar.srcs = $(MB)/main_bar.c
+
+bar.CFLAGS += -DPERIODIC_TASK_FREQ='250.'
+bar.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(1./PERIODIC_TASK_FREQ)'
+bar.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
+
+bar.CFLAGS += -DLED
+bar.srcs += $(SRC_ARCH)/armVIC.c
+
+bar.CFLAGS += -DUSE_I2C0 -DI2C0_SCLL=150 -DI2C0_SCLH=150 -DI2C0_VIC_SLOT=9
+bar.CFLAGS += -DUSE_TWI_CONTROLLER
+bar.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c $(MB)/mb_twi_controller_mkk.c
 
   </makefile>
 
