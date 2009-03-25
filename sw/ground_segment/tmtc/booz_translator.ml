@@ -90,13 +90,14 @@ let get_fp = fun _ values ->
   let dx = (carrot_utm.Latlong.utm_x -. !nav_ref.Latlong.utm_x) in
   let dy = (carrot_utm.Latlong.utm_y -. !nav_ref.Latlong.utm_y) in *)
   let (dx, dy) = Latlong.utm_sub carrot_utm !nav_ref in
+  let carrot_alt = -. Int32.to_float (i32value "carrot_up") /. pow8 in
   let desired_val = [
     "roll",     Pprz.Float 0.;
     "pitch",    Pprz.Float 0.;
     "course",   Pprz.Float 0.;
     "x",        Pprz.Float dx;
     "y",        Pprz.Float dy;
-    "altitude", Pprz.Float 0.;
+    "altitude", Pprz.Float carrot_alt;
     "climb",    Pprz.Float 0.] in
   Tm_Pprz.message_send !ac_id "DESIRED" desired_val;
 
