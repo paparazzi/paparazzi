@@ -93,10 +93,12 @@ void booz2_autopilot_set_mode(uint8_t new_autopilot_mode) {
       booz2_guidance_h_mode_changed(BOOZ2_GUIDANCE_H_MODE_RATE);
       break;
     case BOOZ2_AP_MODE_ATTITUDE_DIRECT:
+    case BOOZ2_AP_MODE_ATTITUDE_CLIMB:
     case BOOZ2_AP_MODE_ATTITUDE_Z_HOLD:
       booz2_guidance_h_mode_changed(BOOZ2_GUIDANCE_H_MODE_ATTITUDE);
       break;
     case BOOZ2_AP_MODE_HOVER_DIRECT:
+    case BOOZ2_AP_MODE_HOVER_CLIMB:
     case BOOZ2_AP_MODE_HOVER_Z_HOLD:
       booz2_guidance_h_mode_changed(BOOZ2_GUIDANCE_H_MODE_HOVER);
       break;
@@ -118,6 +120,10 @@ void booz2_autopilot_set_mode(uint8_t new_autopilot_mode) {
     case BOOZ2_AP_MODE_RATE_RC_CLIMB:
     case BOOZ2_AP_MODE_ATTITUDE_RC_CLIMB:
       booz2_guidance_v_mode_changed(BOOZ2_GUIDANCE_V_MODE_RC_CLIMB);
+      break;
+    case BOOZ2_AP_MODE_ATTITUDE_CLIMB:
+    case BOOZ2_AP_MODE_HOVER_CLIMB:
+      booz2_guidance_v_mode_changed(BOOZ2_GUIDANCE_V_MODE_CLIMB);
       break;
     case BOOZ2_AP_MODE_RATE_Z_HOLD:
     case BOOZ2_AP_MODE_ATTITUDE_Z_HOLD:

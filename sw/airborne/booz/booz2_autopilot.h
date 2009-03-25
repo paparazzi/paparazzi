@@ -36,11 +36,13 @@
 #define BOOZ2_AP_MODE_ATTITUDE_DIRECT   3
 #define BOOZ2_AP_MODE_RATE_RC_CLIMB     4
 #define BOOZ2_AP_MODE_ATTITUDE_RC_CLIMB 5
-#define BOOZ2_AP_MODE_RATE_Z_HOLD       6
-#define BOOZ2_AP_MODE_ATTITUDE_Z_HOLD   7
-#define BOOZ2_AP_MODE_HOVER_DIRECT      8
-#define BOOZ2_AP_MODE_HOVER_Z_HOLD      9
-#define BOOZ2_AP_MODE_NAV               10
+#define BOOZ2_AP_MODE_ATTITUDE_CLIMB    6
+#define BOOZ2_AP_MODE_RATE_Z_HOLD       7
+#define BOOZ2_AP_MODE_ATTITUDE_Z_HOLD   8
+#define BOOZ2_AP_MODE_HOVER_DIRECT      9
+#define BOOZ2_AP_MODE_HOVER_CLIMB       10
+#define BOOZ2_AP_MODE_HOVER_Z_HOLD      11
+#define BOOZ2_AP_MODE_NAV               12
 
 extern uint8_t booz2_autopilot_mode;
 extern uint8_t booz2_autopilot_mode_auto2;
