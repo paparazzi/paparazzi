@@ -88,7 +88,8 @@ void booz_ins_update_baro() {
     FLOAT_T alt_float = BOOZ_POS_F_OF_I(booz_ins_baro_alt);
     if (booz_ins_vff_realign) {
       booz_ins_vff_realign = FALSE;
-      b2_vff_realign(alt_float);
+      booz_ins_qfe = booz2_analog_baro_value;
+      b2_vff_realign(0.);
     }
     b2_vff_update(alt_float);
   }
