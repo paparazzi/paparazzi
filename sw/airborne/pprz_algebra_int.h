@@ -9,7 +9,7 @@
 #include "booz_geometry_int.h"
 
 #define INT32_POS_FRAC 8
-#define INT32_SPEED_FRAC 8
+#define INT32_SPEED_FRAC 19
 struct Int32Vect2 {
   int32_t x;
   int32_t y;
@@ -88,6 +88,8 @@ struct Int64Vect3 {
 #define TRIG_FLOAT_OF_BFP(_ti)  FLOAT_OF_BFP(_ti,INT32_TRIG_FRAC)
 #define POS_BFP_OF_REAL(_af)  BFP_OF_REAL(_af, INT32_POS_FRAC)
 #define POS_FLOAT_OF_BFP(_ai) FLOAT_OF_BFP((_ai), INT32_POS_FRAC)
+#define SPEED_BFP_OF_REAL(_af)  BFP_OF_REAL(_af, INT32_SPEED_FRAC)
+#define SPEED_FLOAT_OF_BFP(_ai) FLOAT_OF_BFP((_ai), INT32_SPEED_FRAC)
 
 #define INT_MULT_RSHIFT(_a, _b, _r) (((_a)*(_b))>>(_r))
 /*
