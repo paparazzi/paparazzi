@@ -196,7 +196,7 @@ let save_values = fun w log_filename save ->
 
 (*****************************************************************************)
 (** The popup window displaying values to export *)
-let popup = fun log_filename data ->
+let popup = fun xml log_filename data ->
   (* Build the list window *)
   let file = Env.paparazzi_src // "sw" // "logalizer" // "export.glade" in
   let w = new Gtk_export.export ~file () in
@@ -213,7 +213,6 @@ let popup = fun log_filename data ->
   display_columns w#treeview_messages model;
 
   (** Fill the colums *)
-  let xml = Pprz.messages_xml () in
   let xml_class = ExtXml.child ~select:(fun c -> ExtXml.attrib c "name" = class_name) xml "class" in
   let prefs = read_preferences () in
   fill_data w#treeview_messages model xml_class prefs;

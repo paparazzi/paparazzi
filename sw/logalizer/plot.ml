@@ -326,7 +326,7 @@ let write_kml = fun plot log_name values ->
 
 
 
-let add_ac_submenu = fun ?(factor=object method text="1" end) plot menubar (curves_menu_fact: GMenu.menu GMenu.factory) ac menu_name l raw_msgs ->
+let add_ac_submenu = fun protocol ?(factor=object method text="1" end) plot menubar (curves_menu_fact: GMenu.menu GMenu.factory) ac menu_name l raw_msgs ->
   let menu = GMenu.menu () in
   let menuitem = GMenu.menu_item ~label:menu_name () in
   menuitem#set_submenu menu;
@@ -371,7 +371,7 @@ let add_ac_submenu = fun ?(factor=object method text="1" end) plot menubar (curv
     write_kml plot menu_name gps_values in
   ignore (menu_fact#add_item ~callback "Export KML path");
   let callback = fun () ->
-    Export.popup menu_name raw_msgs in
+    Export.popup protocol menu_name raw_msgs in
   ignore (menu_fact#add_item ~callback "Export CSV")
     
     
@@ -473,9 +473,9 @@ let load_log = fun ?factor (plot:plot) (menubar:GMenu.menu_shell GMenu.factory) 
 	      msgs in
 	  
 	  (* Store data for other windows *)
-	  logs_menus := (ac, menu_name, (msgs, raw_msgs)) :: !logs_menus;
+	  logs_menus := (ac, menu_name, (msgs, raw_msgs), protocol) :: !logs_menus;
 	  
-	  add_ac_submenu ?factor plot menubar curves_fact ac menu_name msgs raw_msgs;
+	  add_ac_submenu protocol ?factor plot menubar curves_fact ac menu_name msgs raw_msgs;
 	)
 	acs
 
@@ -493,7 +493,7 @@ let screenshot_hint_name =
   let n = ref 0 in
   fun () ->
     match !logs_menus with
-      (_, menu_name, _)::_ -> sprintf "%s.png" menu_name
+      (_, menu_name, _, _)::_ -> sprintf "%s.png" menu_name
     | _ -> incr n; sprintf "pprz_log-%d.png" !n
 	  
 let screenshot = fun frame ->
@@ -599,8 +599,8 @@ let rec plot_window = fun init ->
   tooltips#set_tip factor#coerce ~text:"Scale next curve (e.g. 0.0174 to convert deg in rad, 57.3 to convert rad in deg, 1.8+32 to convert Celsius into Fahrenheit)";
 
   List.iter
-    (fun (ac, menu_name, (msgs, raw_msgs)) ->
-      add_ac_submenu ~factor:(factor:>text_value) plot factory curves_menu_fact ac menu_name msgs raw_msgs) 
+    (fun (ac, menu_name, (msgs, raw_msgs), protocol) ->
+      add_ac_submenu protocol ~factor:(factor:>text_value) plot factory curves_menu_fact ac menu_name msgs raw_msgs) 
     !logs_menus;
 
   ignore(open_log_item#connect#activate ~callback:(fun () -> let factor = (factor:>text_value) in open_log ~factor plot factory curves_menu_fact ()));
