@@ -53,6 +53,12 @@
     (_vo).y =  (_vi).y / (_s);			\
   }
 
+/* _v = Bound(_v, _min, _max) */
+#define VECT2_STRIM(_v, _min, _max) {				\
+    (_v).x = (_v).x < _min ? _min : (_v).x > _max ? _max : (_v).x;		\
+    (_v).y = (_v).y < _min ? _min : (_v).y > _max ? _max : (_v).y;		\
+  }
+
 
 
 /*
@@ -113,6 +119,13 @@
     (_vo).x =  (_vi).x / (_s);				\
     (_vo).y =  (_vi).y / (_s);				\
     (_vo).z =  (_vi).z / (_s);				\
+  }
+
+/* _v = Bound(_v, _min, _max) */
+#define VECT3_STRIM(_v, _min, _max) {				\
+    (_v).x = (_v).x < _min ? _min : (_v).x > _max ? _max : (_v).x;		\
+    (_v).y = (_v).y < _min ? _min : (_v).y > _max ? _max : (_v).y;		\
+    (_v).z = (_v).z < _min ? _min : (_v).z > _max ? _max : (_v).z;		\
   }
 
 

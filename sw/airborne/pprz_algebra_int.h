@@ -8,6 +8,8 @@
 // TO BE REMOVED
 #include "booz_geometry_int.h"
 
+#define INT32_POS_FRAC 8
+#define INT32_SPEED_FRAC 8
 struct Int32Vect2 {
   int32_t x;
   int32_t y;
@@ -30,6 +32,7 @@ struct Int32Quat {
 
 /* Euler angles                                 */
 #define INT32_ANGLE_FRAC 12
+#define INT32_RATE_FRAC 12
 #define INT32_ANGLE_PI_4   (int32_t)ANGLE_BFP_OF_REAL(   0.7853981633974483096156608458198757)
 #define INT32_ANGLE_PI_2   (int32_t)ANGLE_BFP_OF_REAL(   1.5707963267948966192313216916397514)
 #define INT32_ANGLE_PI     (int32_t)ANGLE_BFP_OF_REAL(   3.1415926535897932384626433832795029)
@@ -83,6 +86,8 @@ struct Int64Vect3 {
 #define QUAT1_FLOAT_OF_BFP(_qi) FLOAT_OF_BFP(_qi, INT32_QUAT_FRAC)
 #define TRIG_BFP_OF_REAL(_tf)   BFP_OF_REAL(_tf, INT32_TRIG_FRAC)
 #define TRIG_FLOAT_OF_BFP(_ti)  FLOAT_OF_BFP(_ti,INT32_TRIG_FRAC)
+#define POS_BFP_OF_REAL(_af)  BFP_OF_REAL(_af, INT32_POS_FRAC)
+#define POS_FLOAT_OF_BFP(_ai) FLOAT_OF_BFP((_ai), INT32_POS_FRAC)
 
 #define INT_MULT_RSHIFT(_a, _b, _r) (((_a)*(_b))>>(_r))
 /*
