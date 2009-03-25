@@ -11,6 +11,7 @@
 #define BOOZ2_GUIDANCE_V_MODE_RC_CLIMB  2
 #define BOOZ2_GUIDANCE_V_MODE_CLIMB     3
 #define BOOZ2_GUIDANCE_V_MODE_HOVER     4
+#define BOOZ2_GUIDANCE_V_MODE_NAV       5
 
 extern uint8_t booz2_guidance_v_mode;
 

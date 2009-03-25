@@ -130,8 +130,10 @@ void booz2_autopilot_set_mode(uint8_t new_autopilot_mode) {
     case BOOZ2_AP_MODE_RATE_Z_HOLD:
     case BOOZ2_AP_MODE_ATTITUDE_Z_HOLD:
     case BOOZ2_AP_MODE_HOVER_Z_HOLD:
-    case BOOZ2_AP_MODE_NAV:
       booz2_guidance_v_mode_changed(BOOZ2_GUIDANCE_V_MODE_HOVER);
+      break;
+    case BOOZ2_AP_MODE_NAV:
+      booz2_guidance_v_mode_changed(BOOZ2_GUIDANCE_V_MODE_NAV);
       break;
     }
     booz2_autopilot_mode = new_autopilot_mode;

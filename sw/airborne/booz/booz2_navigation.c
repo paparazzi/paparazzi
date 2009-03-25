@@ -31,6 +31,7 @@ void booz2_nav_init(void) {
   nav_block = 0;
   nav_stage = 0;
   ground_alt = (int32_t)(GROUND_ALT * 100); // cm
+  nav_altitude = ground_alt + SECURITY_HEIGHT;
   INT32_VECT3_COPY( booz2_navigation_target, waypoints[WP_HOME]);
   INT32_VECT3_COPY( booz2_navigation_carrot, waypoints[WP_HOME]);
 

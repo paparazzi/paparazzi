@@ -76,7 +76,7 @@ void nav_home(void);
 
 #define WaypointX(_wp) (waypoints[_wp].x)
 #define WaypointY(_wp) (waypoints[_wp].y)
-#define WaypointAlt(_wp) (- waypoints[_wp].z)
+#define WaypointAlt(_wp) (waypoints[_wp].z)
 
 /*********** Navigation to  waypoint *************************************/
 #define NavGotoWaypoint(_wp) { \

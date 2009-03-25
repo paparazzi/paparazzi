@@ -7,6 +7,7 @@
 #include "airframe.h"
 #include "booz2_stabilization.h"
 #include "booz2_fms.h"
+#include "booz2_navigation.h"
 
 #include "booz2_ins.h"
 #include "booz_geometry_mixed.h"
@@ -96,6 +97,7 @@ void booz2_guidance_v_mode_changed(uint8_t new_mode) {
   case BOOZ2_GUIDANCE_V_MODE_RC_CLIMB:
   case BOOZ2_GUIDANCE_V_MODE_CLIMB:
   case BOOZ2_GUIDANCE_V_MODE_HOVER:
+  case BOOZ2_GUIDANCE_V_MODE_NAV:
     booz2_guidance_v_z_sum_err = 0;
     Booz2GuidanceVSetRef(booz_ins_ltp_pos.z, booz_ins_ltp_speed.z, 0);
     break;
@@ -150,6 +152,14 @@ void booz2_guidance_v_run(bool_t in_flight) {
   case BOOZ2_GUIDANCE_V_MODE_HOVER:
     if (booz_fms_on && booz_fms_input.v_mode == BOOZ2_GUIDANCE_V_MODE_HOVER)
       booz2_guidance_v_z_sp = booz_fms_input.v_sp.height;
+    b2_gv_update_ref_from_z_sp(booz2_guidance_v_z_sp);
+    run_hover_loop(in_flight);
+    // saturate max authority with RC stick
+    booz2_stabilization_cmd[COMMAND_THRUST] = Min( booz2_guidance_v_rc_delta_t, booz2_guidance_v_delta_t);
+    break;
+
+  case BOOZ2_GUIDANCE_V_MODE_NAV:
+    booz2_guidance_v_z_sp = -nav_altitude;
     b2_gv_update_ref_from_z_sp(booz2_guidance_v_z_sp);
     run_hover_loop(in_flight);
     // saturate max authority with RC stick
