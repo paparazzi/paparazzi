@@ -279,6 +279,13 @@
     <field name="alt" type="int32" unit="cm"></field>
  </message>
 
+ <message name="WP_MOVED_LTP" id="49">
+    <field name="wp_id" type="uint8"/>
+    <field name="x" type="int32" unit="2^8m"></field>
+    <field name="y" type="int32" unit="2^8m"></field>
+    <field name="z" type="int32" unit="2^8m"></field>
+ </message>
+
  <message name="CHRONO" id="48">
     <field name="tag" type="uint8"/>
     <field name="time" type="uint32" unit="us"></field>
@@ -831,17 +838,18 @@
 
 
   <message name="BOOZ2_FP" id="147">
-    <field name="lon"      type="int32"/>
-    <field name="lat"      type="int32"/>
-    <field name="alt"      type="int32"/>
-    <field name="vnorth"   type="int32"/>
+    <field name="east"     type="int32"/>
+    <field name="north"    type="int32"/>
+    <field name="up"       type="int32"/>
     <field name="veast"    type="int32"/>
+    <field name="vnorth"   type="int32"/>
+    <field name="vup"      type="int32"/>
     <field name="phi"      type="int32"/>
     <field name="theta"    type="int32"/>
     <field name="psi"      type="int32"/>
-    <field name="carrot_lon"  type="int32"/>
-    <field name="carrot_lat"  type="int32"/>
-    <field name="carrot_alt"  type="int32"/>
+    <field name="carrot_east"   type="int32"/>
+    <field name="carrot_north"  type="int32"/>
+    <field name="carrot_up"     type="int32"/>
     <field name="carrot_psi"  type="int32"/>
     <field name="thrust" type="int32"/>   
   </message>
@@ -963,6 +971,13 @@
     <field name="body_m20" type="int32" alt_unit=""  alt_unit_coef="0.0000610"/>
     <field name="body_m21" type="int32" alt_unit=""  alt_unit_coef="0.0000610"/>
     <field name="body_m22" type="int32" alt_unit=""  alt_unit_coef="0.0000610"/>
+  </message>
+
+  <message name="BOOZ2_NAV_STATUS" id="159">
+    <field name="block_time" type="uint16" unit="s"/>
+    <field name="stage_time" type="uint16" unit="s"/>
+    <field name="cur_block" type="uint8"/>
+    <field name="cur_stage" type="uint8"/>
   </message>
 
 
