@@ -3,7 +3,7 @@
 //  dimension one kalman filter estimating invert
 //  of the mass
 //
-adp_sys_noise = 0.0000005;
+adp_sys_noise = 0.0005;
 adp_accel_noise = 0.5;
 
 adp_min_cmd = 0.01;

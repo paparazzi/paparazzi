@@ -30,12 +30,12 @@ ctl_type = CTL_MIAC;
 //
 // single input - height
 ctl_sp = zeros(1, length(time));
-if 0
+if 1
   // step 1m 5s
   k = find ( time > 3. & time < 6.);
   ctl_sp(k) = 1.;
 end
-if 1
+if 0
   // step 15m 14s
   k = find ( time > 1. & time < 7);
   ctl_sp(k) = 15.;
@@ -59,7 +59,7 @@ if 0
   k = find(time >= 5 & time < 5.25);
   fdm_perturb(k) = 20.;
 end
-if 0
+if 1
   k = find(time >= 5);
   fdm_param(k) = 0.5*fdm_mass;
 end

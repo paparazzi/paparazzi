@@ -1,0 +1,166 @@
+<airframe name="BOOZ2_A2">
+
+  <servos min="0" neutral="0" max="0xff">
+    <servo name="PITCH"  no="0" min="0" neutral="0" max="255"/>
+    <servo name="ROLL"   no="1" min="0" neutral="0" max="255"/>
+    <servo name="YAW"    no="2" min="0" neutral="0" max="255"/>
+    <servo name="THRUST" no="3" min="0" neutral="0" max="255"/>
+  </servos>
+
+  <commands>
+    <axis name="PITCH"  failsafe_value="0"/>
+    <axis name="ROLL"   failsafe_value="0"/>
+    <axis name="YAW"    failsafe_value="0"/>
+    <axis name="THRUST" failsafe_value="0"/>
+  </commands>
+
+  <section name="IMU" prefix="IMU_">
+
+    <define name="GYRO_P_CHAN" value="4"/>
+    <define name="GYRO_Q_CHAN" value="0"/>
+    <define name="GYRO_R_CHAN" value="1"/>
+
+    <define name="GYRO_P_NEUTRAL" value="32734"/>
+    <define name="GYRO_Q_NEUTRAL" value="32272"/>
+    <define name="GYRO_R_NEUTRAL" value="32420"/>
+
+    <define name="GYRO_P_SENS" value="-0.85" integer="16"/>
+    <define name="GYRO_Q_SENS" value=" 0.85" integer="16"/>
+    <define name="GYRO_R_SENS" value=" 0.85" integer="16"/>
+  
+    <define name="ACCEL_X_CHAN" value="2"/>
+    <define name="ACCEL_Y_CHAN" value="5"/>
+    <define name="ACCEL_Z_CHAN" value="6"/>    
+
+    <define name="ACCEL_X_SENS" value="-5.94047559" integer="16"/>
+    <define name="ACCEL_Y_SENS" value="-5.25008239" integer="16"/>
+    <define name="ACCEL_Z_SENS" value=" 6.06493700" integer="16"/>
+
+    <define name="ACCEL_X_NEUTRAL" value="39897"/>
+    <define name="ACCEL_Y_NEUTRAL" value="39865"/>
+    <define name="ACCEL_Z_NEUTRAL" value="39735"/>
+
+    <define name="MAG_X_CHAN" value="4"/>
+    <define name="MAG_Y_CHAN" value="0"/>
+    <define name="MAG_Z_CHAN" value="2"/>
+    
+    <define name="MAG_X_NEUTRAL" value="2358"/>
+    <define name="MAG_Y_NEUTRAL" value="2362"/> 
+    <define name="MAG_Z_NEUTRAL" value="2119"/>
+
+    <define name="MAG_X_SENS" value="-4.94075530" integer="16"/>
+    <define name="MAG_Y_SENS" value="5.10207664" integer="16"/>
+    <define name="MAG_Z_SENS" value="-4.90788848" integer="16"/>
+
+    <define name="BODY_TO_IMU_PHI"   value="ANGLE_BFP_OF_REAL(RadOfDeg(  0.0))"/>
+    <define name="BODY_TO_IMU_THETA" value="ANGLE_BFP_OF_REAL(RadOfDeg(  0.0))"/>
+    <define name="BODY_TO_IMU_PSI"   value="ANGLE_BFP_OF_REAL(RadOfDeg(-45.))"/>
+
+  </section>
+
+  <section name="STABILIZATION_RATE" prefix="BOOZ_STABILIZATION_RATE_">
+
+    <define name="SP_MAX_P" value="10000"/>
+    <define name="SP_MAX_Q" value="10000"/>
+    <define name="SP_MAX_R" value="10000"/>
+
+    <define name="GAIN_P" value="-400"/>
+    <define name="GAIN_Q" value="-400"/>
+    <define name="GAIN_R" value="-350"/>
+
+  </section>
+
+  <section name="STABILIZATION_ATTITUDE" prefix="BOOZ_STABILIZATION_ATTITUDE_">
+
+    <define name="SP_MAX_PHI"     value="3000"/>
+    <define name="SP_MAX_THETA"   value="3000"/>
+    <define name="SP_MAX_R"       value="5500"/>
+    <define name="DEADBAND_R"     value="250"/>
+
+    <define name="PHI_THETA_PGAIN"  value="-300"/>
+    <define name="PHI_THETA_DGAIN"  value="-200"/>
+    <define name="PHI_THETA_DDGAIN" value=" 300"/>
+    <define name="PHI_THETA_IGAIN"  value="-50"/>
+
+    <define name="PSI_PGAIN"  value="-300"/>
+    <define name="PSI_DGAIN"  value="-200"/>
+    <define name="PSI_DDGAIN" value=" 300"/>
+    <define name="PSI_IGAIN"  value="-50"/>
+
+  </section>
+
+  <section name="SUPERVISION" prefix="SUPERVISION_">
+    <define name="TRIM_A" value="0"/>
+    <define name="TRIM_E" value="6"/>
+    <define name="TRIM_R" value="0"/>
+  </section>
+
+  <section name="INS" prefix="BOOZ_INS_">
+    <define name="BARO_SENS" value="14.9" integer="16"/>
+  </section>
+
+
+  <section name="GUIDANCE_V"   prefix="BOOZ2_GUIDANCE_V_">
+
+   <define name="MIN_ERR_Z"    value="BOOZ_POS_I_OF_F(-10.)"/>
+   <define name="MAX_ERR_Z"    value="BOOZ_POS_I_OF_F( 10.)"/>
+   <define name="MIN_ERR_ZD"   value="BOOZ_SPEED_I_OF_F(-10.)"/>
+   <define name="MAX_ERR_ZD"   value="BOOZ_SPEED_I_OF_F( 10.)"/>
+   <define name="HOVER_KP"     value="-500"/>
+   <define name="HOVER_KD"     value="-250"/>
+   <!-- BOOZ_SPEED_I_OF_F(1.5) / (MAX_PPRZ/2) -->
+   <define name="RC_CLIMB_COEF" value ="163"/>
+   <!-- BOOZ_SPEED_I_OF_F(1.5) * 20% -->
+   <define name="RC_CLIMB_DEAD_BAND" value ="160000"/>
+  </section>
+
+ <section name="GUIDANCE_H" prefix="BOOZ2_GUIDANCE_H_">
+   <define name="PGAIN" value="-100"/>
+   <define name="DGAIN" value="-100"/>
+   <define name="IGAIN" value="-0"/>
+ </section>
+
+ <section name="BAT">
+   <define name="MILLIAMP_PER_PERCENT" value="0.86"/>
+   <define name="CATASTROPHIC_BAT_LEVEL" value="9.3" unit="V"/>
+   <define name="BATTERY_SENS"   value="0.25" integer="16"/>
+<!--   <define name="BATTERY_SENS"   value="1" integer="16"/>-->
+ </section>
+
+ <section name="AUTOPILOT">
+   <define name="BOOZ2_MODE_MANUAL" value="BOOZ2_AP_MODE_ATTITUDE_DIRECT"/>
+   <define name="BOOZ2_MODE_AUTO1"  value="BOOZ2_AP_MODE_ATTITUDE_RC_CLIMB"/>
+   <define name="BOOZ2_MODE_AUTO2"  value="BOOZ2_AP_MODE_ATTITUDE_Z_HOLD"/>
+ </section>
+
+
+ <section name="FMS">
+
+ </section>
+
+  <makefile>
+
+# calib bat
+# 8.39     80
+# 10.12    149
+# 12       227
+# 12.55    250
+#
+
+
+# prevents motors from ever starting
+#ap.CFLAGS += -DKILL_MOTORS
+
+include $(PAPARAZZI_SRC)/conf/autopilot/booz2_autopilot.makefile
+include $(PAPARAZZI_SRC)/conf/autopilot/booz2_test_progs.makefile
+
+sim.CFLAGS += -DBSM_PARAMS=\"booz_sensors_model_params_booz2_a2.h\"
+include $(PAPARAZZI_SRC)/conf/autopilot/booz2_simulator.makefile
+
+ap.CFLAGS += -DUART1_BAUD=B57600
+include $(PAPARAZZI_SRC)/conf/autopilot/booz2_actuators_asctec.makefile
+include $(PAPARAZZI_SRC)/conf/autopilot/booz2_imu_crista.makefile
+
+  </makefile>
+
+</airframe>
