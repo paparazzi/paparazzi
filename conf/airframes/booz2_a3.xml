@@ -78,12 +78,12 @@
     <define name="DEADBAND_R"     value="250"/>
 
     <define name="PHI_THETA_PGAIN"  value="-300"/>
-    <define name="PHI_THETA_DGAIN"  value="-200"/>
+    <define name="PHI_THETA_DGAIN"  value="-130"/>
     <define name="PHI_THETA_DDGAIN" value=" 300"/>
     <define name="PHI_THETA_IGAIN"  value="-50"/>
 
     <define name="PSI_PGAIN"  value="-300"/>
-    <define name="PSI_DGAIN"  value="-200"/>
+    <define name="PSI_DGAIN"  value="-130"/>
     <define name="PSI_DDGAIN" value=" 300"/>
     <define name="PSI_IGAIN"  value="-50"/>
 
