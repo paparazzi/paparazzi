@@ -79,7 +79,8 @@ let print_init_functions = fun modules ->
     List.iter (fun i ->
       match Xml.tag i with
         "init" -> lprintf out_h "%s;\n" (Xml.attrib i "fun")
-      | "periodic" -> lprintf out_h "%s = %s;\n" (get_status_name i module_name) (try Xml.attrib i "autorun" with _ -> "FALSE")
+      | "periodic" -> lprintf out_h "%s = %s;\n" (get_status_name i module_name)
+      (try Xml.attrib i "autorun" with _ -> "TRUE")
       | _ -> ())
     (Xml.children m))
   modules;
