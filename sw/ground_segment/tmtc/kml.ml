@@ -30,6 +30,7 @@ open Printf
 open Server_globals
 
 let enabled = ref false
+let port = ref 8889
 
 let el = fun t a c -> Xml.Element (t, a, c)
 let data = fun t d -> el t [] [Xml.PCData d]
@@ -210,7 +211,7 @@ let update_waypoints =
     Hashtbl.iter (fun wp_id wp -> if wp_id > 0 then l := (wp_id, wp) :: !l) ac.waypoints;
     if !l <> !last_state then begin
       last_state := !l;
-      let url_flight_plan = sprintf "http://%s:8889/var/%s/flight_plan.kml" !hostname ac.name in
+      let url_flight_plan = sprintf "http://%s:%d/var/%s/flight_plan.kml" !hostname !port ac.name in
       let changes = List.map (fun (wp_id, wp) -> change_waypoint ac.name wp_id(of_utm WGS84 wp.wp_utm) wp.altitude) !l in
       let kml_update = link_update url_flight_plan changes in
       print_xml ac.name "wp_changes.kml" kml_update
@@ -222,7 +223,7 @@ let update_horiz_mode =
   fun ac ->
     if ac.horiz_mode <> !last_horiz_mode then begin
       last_horiz_mode := ac.horiz_mode;
-      let url_flight_plan = sprintf "http://%s:8889/var/%s/flight_plan.kml" !hostname ac.name in
+      let url_flight_plan = sprintf "http://%s:%d/var/%s/flight_plan.kml" !hostname !port ac.name in
       let alt = ac.desired_altitude in
       match ac.horiz_mode with
 	Segment (p1, p2) -> 
@@ -239,7 +240,7 @@ let update_horiz_mode =
 
 let update_ac = fun ac ->
   try
-    let url_flight_plan = sprintf "http://%s:8889/var/%s/flight_plan.kml" !hostname ac.name in
+    let url_flight_plan = sprintf "http://%s:%d/var/%s/flight_plan.kml" !hostname !port ac.name in
     let blocks = ExtXml.child ac.flight_plan "blocks" in
     let block = ExtXml.child blocks (string_of_int ac.cur_block) in
     let block_name = ExtXml.attrib block "name" in
@@ -257,9 +258,9 @@ let build_files = fun a ->
   let kml_fp = flight_plan a.name xml_fp in
   print_xml a.name "flight_plan.kml" kml_fp;
   
-  let url_flight_plan = sprintf "http://%s:8889/var/%s/flight_plan.kml" !hostname a.name in
-  let url_ac_changes = sprintf "http://%s:8889/var/%s/ac_changes.kml" !hostname a.name in
-  let url_wp_changes = sprintf "http://%s:8889/var/%s/wp_changes.kml" !hostname a.name in
-  let url_route_changes = sprintf "http://%s:8889/var/%s/route_changes.kml" !hostname a.name in
+  let url_flight_plan = sprintf "http://%s:%d/var/%s/flight_plan.kml" !hostname !port a.name in
+  let url_ac_changes = sprintf "http://%s:%d/var/%s/ac_changes.kml" !hostname !port a.name in
+  let url_wp_changes = sprintf "http://%s:%d/var/%s/wp_changes.kml" !hostname !port a.name in
+  let url_route_changes = sprintf "http://%s:%d/var/%s/route_changes.kml" !hostname  !port a.name in
   let kml_ac = aircraft a.name url_flight_plan [url_ac_changes; url_wp_changes; url_route_changes] in
   print_xml a.name "FollowMe.kml" kml_ac;;

@@ -25,6 +25,7 @@
  *)
 
 val enabled : bool ref
+val port : int ref
 val build_files : Aircraft.aircraft -> unit
 val update_waypoints : Aircraft.aircraft -> unit
 val update_horiz_mode : Aircraft.aircraft -> unit

@@ -631,6 +631,7 @@ let _ =
     [ "-b", Arg.String (fun x -> ivy_bus := x), (sprintf "Bus\tDefault is %s" !ivy_bus);
       "-n", Arg.Clear logging, "Disable log";
       "-kml", Arg.Set Kml.enabled, "Enable KML file updating";
+      "-kml_port", Arg.Set_int Kml.port, (sprintf "Port for KML files (default is %d)" !Kml.port);
       "-hostname", Arg.Set_string hostname, "<hostname> Set the address for the http server";
       "-http", Arg.Set http, "Send http: URLs (default is file:)"] in
   Arg.parse (options)
