@@ -143,7 +143,7 @@ let flight_plan = fun ac_name fp ->
   let wgs84 = of_utm WGS84 utm0 in
   let lookat =
     el "LookAt" []
-      [data "longigude" (sprintf "%f" ((Rad>>Deg)wgs84.posn_long));
+      [data "longitude" (sprintf "%f" ((Rad>>Deg)wgs84.posn_long));
        data "latitude" (sprintf "%f" ((Rad>>Deg)wgs84.posn_lat));
        data "range" (ExtXml.attrib fp "max_dist_from_home")] in
   kml
