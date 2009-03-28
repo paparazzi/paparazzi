@@ -395,29 +395,34 @@ let send_ping_msg = fun device ->
 
 (** Main *********************************************************************)
 let () =
-  let ivy_bus = ref "127.255.255.255:2010" in
-  let port = ref "/dev/ttyUSB0" in
-  let baudrate = ref "9600" in
-  let transport = ref "pprz" in
-  let uplink = ref true in
-  let audio = ref false in
-  let aerocomm = ref false in
+  let ivy_bus = ref "127.255.255.255:2010"
+  and port = ref "/dev/ttyUSB0"
+  and baudrate = ref "9600"
+  and transport = ref "pprz"
+  and uplink = ref true
+  and audio = ref false
+  and aerocomm = ref false
+  and udp_port = ref 4242
+  and udp = ref false in
   
   (* Parse command line options *)
   let options =
-    [ "-b", Arg.Set_string ivy_bus, (sprintf "<ivy bus> Default is %s" !ivy_bus);
+    [ "-aerocomm", Arg.Set aerocomm, "Set serial Aerocomm data mode";
+      "-audio", Arg.Unit (fun () -> audio := true; port := "/dev/dsp"), (sprintf "Listen a modulated audio signal on <port>. Sets <port> to /dev/dsp (the -d option must used after this one if needed)");
+      "-b", Arg.Set_string ivy_bus, (sprintf "<ivy bus> Default is %s" !ivy_bus);
       "-d", Arg.Set_string port, (sprintf "<port> Default is %s" !port);
+      "-dtr", Arg.Set aerocomm, "Set serial DTR to false (deprecated)";
       "-fg",  Arg.Set gen_stat_trafic, "Enable trafic statistics on standard output";
+      "-noac_info", Arg.Clear ac_info, (sprintf "Disables AC traffic info (uplink).");
+      "-nouplink", Arg.Clear uplink, (sprintf "Disables the uplink (from the ground to the aircraft).");
+      "-s", Arg.Set_string baudrate, (sprintf "<baudrate>  Default is %s" !baudrate);
+      "-transport", Arg.Set_string transport, (sprintf "<transport> Available protocols are modem,pprz and xbee. Default is %s" !transport);
+      "-udp", Arg.Set udp, "Listen a UDP connection on <udp_port>";
+      "-udp_port", Arg.Set_int udp_port, (sprintf "<UDP port> Default is %d" !udp_port);
+      "-uplink", Arg.Set uplink, (sprintf "Deprecated (now default)");
       "-xbee_addr", Arg.Set_int XB.my_addr, (sprintf "<my_addr> (%d)" !XB.my_addr);
       "-xbee_retries", Arg.Set_int XB.my_addr, (sprintf "<nb retries> (%d)" !XB.nb_retries);
-      "-transport", Arg.Set_string transport, (sprintf "<transport> Available protocols are modem,pprz and xbee. Default is %s" !transport);
-      "-uplink", Arg.Set uplink, (sprintf "Deprecated (now default)");
-      "-nouplink", Arg.Clear uplink, (sprintf "Disables the uplink (from the ground to the aircraft).");
-      "-noac_info", Arg.Clear ac_info, (sprintf "Disables AC traffic info (uplink).");
-      "-dtr", Arg.Set aerocomm, "Set serial DTR to false (deprecated)";
-      "-aerocomm", Arg.Set aerocomm, "Set serial Aerocomm data mode";
-      "-audio", Arg.Unit (fun () -> audio := true; port := "/dev/dsp"), (sprintf "Listen a modulated audio signal on <port>. Sets <port> to /dev/dsp (the -d option must used after this one if needed)");
-      "-s", Arg.Set_string baudrate, (sprintf "<baudrate>  Default is %s" !baudrate)] in
+    ] in
   Arg.parse options (fun _x -> ()) "Usage: ";
 
   (** Connect to Ivy bus *)
@@ -430,8 +435,13 @@ let () =
     (** Listen on audio input or on a serial device or on multimon pipe *)
     let on_serial_device = 
       String.length !port >= 4 && String.sub !port 0 4 = "/dev" in (* FIXME *)
-    let fd = 
-      if !audio then
+    let fd =
+      if !udp then begin
+	let sockaddr = Unix.ADDR_INET (Unix.inet_addr_any, !udp_port)
+	and socket = Unix.socket Unix.PF_INET Unix.SOCK_DGRAM 0 in
+	Unix.bind socket sockaddr;	
+	socket
+      end else if !audio then
 	Demod.init !port
       else if on_serial_device then
 	Serial.opendev !port (Serial.speed_of_baudrate !baudrate)
