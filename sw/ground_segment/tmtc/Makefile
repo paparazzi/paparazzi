@@ -27,7 +27,7 @@ include ../../../conf/Makefile.local
 CONF = ../../../conf
 VAR = ../../../var
 
-all: link server messages settings dia diadec $(VAR)/boa.conf ivy_tcp_aircraft ivy_tcp_controller broadcaster
+all: link server messages settings dia diadec $(VAR)/boa.conf ivy_tcp_aircraft ivy_tcp_controller broadcaster ivy2udp
 
 clean:
 	rm -f link server messages settings dia diadec *.bak *~ core *.o .depend *.opt *.out *.cm* ivy_tcp_aircraft ivy_tcp_controller broadcaster
@@ -87,6 +87,11 @@ ivy_tcp_controller : ivy_tcp_controller.cmo  ../../lib/ocaml/lib-pprz.cma
 broadcaster : broadcaster.cmo  ../../lib/ocaml/lib-pprz.cma
 	@echo OL $@
 	$(Q)$(OCAMLC) -custom $(INCLUDES) -o $@ unix.cma str.cma xml-light.cma lablgtk.cma glibivy-ocaml.cma lib-pprz.cma multimon.cma broadcaster.cmo
+
+
+ivy2udp : ivy2udp.cmo  ../../lib/ocaml/lib-pprz.cma
+	@echo OL $@
+	$(Q)$(OCAMLC) -custom $(INCLUDES) -o $@ unix.cma str.cma xml-light.cma lablgtk.cma glibivy-ocaml.cma lib-pprz.cma $<
 
 
 dia : dia.cmo ../multimon/multimon.cma

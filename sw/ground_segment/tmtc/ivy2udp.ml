@@ -1,0 +1,69 @@
+(*
+ * $Id$
+ *
+ * Copyright (C) 2008 ENAC, Pascal Brisset, Antoine Drouin
+ *
+ * This file is part of paparazzi.
+ *
+ * paparazzi is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * paparazzi is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with paparazzi; see the file COPYING.  If not, write to
+ * the Free Software Foundation, 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA. 
+ *
+ *)
+
+(** Forward telemetry messages from the ivy bus to an UDP connection *)
+
+
+let my_id = 0
+module Tm_Pprz = Pprz.Messages(struct let name = "telemetry" end)
+module Ground_Pprz = Pprz.Messages(struct let name = "ground" end)
+open Printf
+let () =
+  let ivy_bus = ref "127.255.255.255:2010" in
+  let host = ref "85.214.48.162"
+  and port = ref 4242
+  and id = ref "7" in
+
+  let options = [
+    "-b", Arg.Set_string ivy_bus, (sprintf "<ivy bus> Default is %s" !ivy_bus);
+    "-h", Arg.Set_string host, (sprintf "<remote host> Default is %s" !host);
+    "-id", Arg.Set_string id , (sprintf "<id> Default is %s" !host);
+    "-p", Arg.Set_int port, (sprintf "<remote port> Default is %s" !id)
+  ] in
+  Arg.parse
+    options
+    (fun x -> fprintf stderr "Warning: Discarding '%s'" x)
+    "Usage: ";
+  
+  let addr = Unix.inet_addr_of_string !host in
+  let sockaddr = Unix.ADDR_INET (addr, !port) in
+  let socket = Unix.socket Unix.PF_INET Unix.SOCK_DGRAM 0 in
+
+  Ivy.init "Link" "READY" (fun _ _ -> ());
+  Ivy.start !ivy_bus;
+
+  let get_ivy_message = fun _ args ->
+    try
+      let (msg_id, vs) = Tm_Pprz.values_of_string args.(0) in
+      let payload = Tm_Pprz.payload_of_values msg_id (int_of_string !id) vs in
+      let buf = Pprz.Transport.packet payload in
+      let n = String.length buf in
+      let n' = Unix.sendto socket buf 0 n [] sockaddr in
+      assert (n = n')
+    with _ -> () in
+
+  let _b = Ivy.bind get_ivy_message (sprintf "^%s (.*)" !id) in
+  
+  (* Main Loop *)
+  GMain.main () 
