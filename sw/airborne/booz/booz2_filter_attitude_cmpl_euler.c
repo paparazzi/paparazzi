@@ -44,7 +44,7 @@ void booz_ahrs_init(void) {
   INT_RATES_ZERO(booz_ahrs.imu_rate);
   INT_RATES_ZERO(booz2_face_gyro_bias);
   //  booz2_face_reinj_1 = 1024;
-  booz2_face_reinj_1 = 2048;
+  booz2_face_reinj_1 = BOOZ2_FACE_REINJ_1;
   samples_idx = 0;
 
   
@@ -172,7 +172,11 @@ void booz_ahrs_propagate(void) {
   INT32_EULERS_OF_RMAT(booz_ahrs.ltp_to_body_euler, booz_ahrs.ltp_to_body_rmat);
 
   /* Do we compute actual body rate ? */
+#if 0
   RATES_COPY(booz_ahrs.body_rate, booz_ahrs.imu_rate);
+#else
+  INT32_RMAT_TRANSP_RATEMULT(booz_ahrs.body_rate, booz_imu.body_to_imu_rmat, booz_ahrs.imu_rate);
+#endif
 }
 
 void booz_ahrs_update(void) {
