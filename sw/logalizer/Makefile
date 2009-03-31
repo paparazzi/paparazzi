@@ -98,7 +98,7 @@ test3: test3.c sliding_plot.c
 	$(CC) $(CFLAGS) -g -o $@ $^ $(LDFLAGS)
 
 clean:
-	rm -f *.opt *.out *~ core *.o *.bak .depend *.cm* play ahrsview imuview ahrs2fg plot plotter
+	rm -f *.opt *.out *~ core *.o *.bak .depend *.cm* play ahrsview imuview ahrs2fg plot plotter gtk_export.ml
 
 #FGFS_PREFIX=/home/poine/local
 FGFS_PREFIX=/home/poine/flightgear
