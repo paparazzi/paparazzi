@@ -116,7 +116,7 @@ gtk_papget_gauge_editor.ml : widgets.glade
 	lablgladecc2 -root table_gauge_editor -hide-default $< | grep -B 1000000 "  end" > $@
 
 clean :
-	rm -f *~ *.cm* *.out *.opt .depend *.a *.o *.so tests
+	rm -f *~ *.cm* *.out *.opt .depend *.a *.o *.so tests gtk_papget_*.ml
 
 
 #
