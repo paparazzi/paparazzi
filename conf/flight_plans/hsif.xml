@@ -1,0 +1,34 @@
+<!DOCTYPE flight_plan SYSTEM "flight_plan.dtd">
+
+<flight_plan alt="75" ground_alt="0" lat0="43.46223" lon0="1.27289" max_dist_from_home="1500" name="Basic" security_height="25">
+  <header>
+#include "nav_line.h"
+#include "datalink.h"
+</header>
+  <waypoints>
+    <waypoint name="HOME" x="0" y="0"/>
+    <waypoint name="STDBY" x="25.1" y="102.1"/>
+    <waypoint name="1" x="115.4" y="191.1"/>
+    <waypoint name="3" x="332.7" y="100.6"/>
+    <waypoint name="2" x="107.5" y="16.3"/>
+    <waypoint name="CLIMB" x="-67.3" y="98.8"/>
+  </waypoints>
+  <exceptions/>
+  <blocks>
+    <block name="Geo init">
+      <call fun="NavSetGroundReferenceHere()"/>
+    </block>
+    <block name="Takeoff">
+      <exception cond="estimator_z > ground_alt+25" deroute="Standby"/>
+      <set value="0" var="kill_throttle"/>
+      <set value="0" var="estimator_flight_time"/>
+      <go from="HOME" pitch="15" throttle="1.0" vmode="throttle" wp="CLIMB"/>
+    </block>
+    <block name="Standby" strip_button="Standby" strip_icon="home.png">
+      <circle radius="200" until="estimator_x > 200" wp="2"/>
+      <circle radius="-75" until="NavQdrCloseTo(330)" wp="3"/>
+      <circle radius="200" until="0 > estimator_x" wp="1"/>
+      <circle radius="35" wp="STDBY"/>
+    </block>
+  </blocks>
+</flight_plan>
