@@ -249,8 +249,8 @@ test_micromag.ARCH = arm7tdmi
 test_micromag.TARGET = test_micromag
 test_micromag.TARGETDIR = test_micromag
 
-test_micromag.CFLAGS += -DCONFIG=$(BOARD_CFG) -I$(BOOZ_PRIV) -I$(BOOZ_PRIV_ARCH)
-test_micromag.srcs += $(BOOZ_PRIV_TEST)/booz2_test_micromag.c
+test_micromag.CFLAGS += -DCONFIG=$(BOARD_CFG) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH)
+test_micromag.srcs += $(SRC_BOOZ_PRIV_TEST)/booz2_test_micromag.c
 test_micromag.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))' -DTIME_LED=1
 test_micromag.CFLAGS += -DLED
 test_micromag.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
@@ -277,8 +277,8 @@ test_imu_b2.ARCH = arm7tdmi
 test_imu_b2.TARGET = test_imu_b2
 test_imu_b2.TARGETDIR = test_imu_b2
 
-test_imu_b2.CFLAGS += -DCONFIG=$(BOARD_CFG) $(BOOZ_CFLAGS)
-test_imu_b2.srcs += $(BOOZ_PRIV_TEST)/booz2_test_imu_b2.c
+test_imu_b2.CFLAGS += -DCONFIG=$(BOARD_CFG) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH)
+test_imu_b2.srcs += $(SRC_BOOZ_TEST)/booz2_test_imu_b2.c
 test_imu_b2.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))' -DTIME_LED=1
 test_imu_b2.CFLAGS += -DLED
 test_imu_b2.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
@@ -289,17 +289,15 @@ test_imu_b2.srcs += $(SRC_ARCH)/uart_hw.c
 test_imu_b2.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart1 
 test_imu_b2.srcs += downlink.c pprz_transport.c
 
-test_imu_b2.CFLAGS += -DBOOZ2_IMU_TYPE=IMU_B2
+test_imu_b2.srcs += $(SRC_BOOZ)/booz_trig_int.c
+
+test_imu_b2.CFLAGS += -DBOOZ2_IMU_TYPE=\"booz2_imu_b2.h\"
 test_imu_b2.CFLAGS += -DSSP_VIC_SLOT=9
-test_imu_b2.srcs += $(BOOZ_PRIV)/booz2_imu_b2.c $(BOOZ_PRIV_ARCH)/booz2_imu_b2_hw.c
+test_imu_b2.srcs += $(SRC_BOOZ)/booz2_imu_b2.c $(SRC_BOOZ_ARCH)/booz2_imu_b2_hw.c
 test_imu_b2.CFLAGS += -DMAX1168_EOC_VIC_SLOT=8
-test_imu_b2.srcs += $(BOOZ_PRIV)/booz2_max1168.c $(BOOZ_PRIV_ARCH)/booz2_max1168_hw.c
+test_imu_b2.srcs += $(SRC_BOOZ)/booz2_max1168.c $(SRC_BOOZ_ARCH)/booz2_max1168_hw.c
 test_imu_b2.CFLAGS += -DFLOAT_T=float
-test_imu_b2.srcs += $(BOOZ_PRIV)/booz2_imu.c
-
-
-#test_imu_b2.CFLAGS += -I$(BOOZ)
-#test_imu_b2.srcs += $(BOOZ)/booz_debug.c
+test_imu_b2.srcs += $(SRC_BOOZ)/booz2_imu.c
 
 #
 # test RC
