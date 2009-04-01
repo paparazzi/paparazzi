@@ -37,7 +37,7 @@ tunnel.TARGET = tunnel
 tunnel.TARGETDIR = tunnel
 
 tunnel.CFLAGS += -DCONFIG=$(BOARD_CFG) $(BOOZ_CFLAGS)
-tunnel.srcs += $(BOOZ_PRIV_TEST)/booz2_tunnel.c
+tunnel.srcs += $(SRC_BOOZ_TEST)/booz2_tunnel.c
 tunnel.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))' -DTIME_LED=1
 tunnel.CFLAGS += -DLED
 tunnel.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
