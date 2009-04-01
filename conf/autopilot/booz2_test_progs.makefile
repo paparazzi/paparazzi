@@ -74,7 +74,7 @@ test_led.TARGET = test_led
 test_led.TARGETDIR = test_led
 
 test_led.CFLAGS += -DCONFIG=$(BOARD_CFG) $(BOOZ_CFLAGS)
-test_led.srcs += $(BOOZ_PRIV)/test_led.c
+test_led.srcs += $(SRC_BOOZ_TEST)/booz2_test_led.c
 test_led.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))' -DTIME_LED=1
 test_led.CFLAGS += -DLED
 test_led.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
