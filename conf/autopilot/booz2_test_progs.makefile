@@ -116,8 +116,8 @@ test_modem.ARCH = arm7tdmi
 test_modem.TARGET = test_modem
 test_modem.TARGETDIR = test_modem
 
-test_modem.CFLAGS += -DCONFIG=\"pprz_imu.h\" -I$(BOOZ_PRIV_ARCH)
-test_modem.srcs += $(BOOZ_PRIV)/test_modem.c
+test_modem.CFLAGS += -DCONFIG=$(BOARD_CFG) $(BOOZ_CFLAGS)
+test_modem.srcs += $(SRC_BOOZ_TEST)/booz2_test_modem.c
 test_modem.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))' -DTIME_LED=1
 test_modem.CFLAGS += -DLED
 test_modem.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
