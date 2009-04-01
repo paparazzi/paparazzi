@@ -247,6 +247,8 @@ let () =
   try
     let xml = start_and_begin xml_file h_name in
     begin_c_out xml_file "modules" out_c;
+    fprintf out_h "#ifdef USE_MODULES\n\n";
+    fprintf out_c "#ifdef USE_MODULES\n\n";
     fprintf out_h "#define MODULES_IDLE  0\n";
     fprintf out_h "#define MODULES_RUN   1\n";
     fprintf out_h "#define MODULES_START 2\n";
@@ -266,6 +268,8 @@ let () =
       parse_modules modules_list out_c;
     end
     else print_empty_functions ();
+    fprintf out_h "\n#endif // USE_MODULES\n";
+    fprintf out_c "\n#endif // USE_MODULES\n";
     finish h_name;
     close_out out_c;
   with

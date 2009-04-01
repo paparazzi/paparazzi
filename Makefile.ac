@@ -109,7 +109,7 @@ $(MAKEFILE_AC) : $(CONF)/$(AIRFRAME_XML)
 	@echo BUILD $@
 	$(Q)$(TOOLS)/extract_makefile.out $< $(MODULES_DIR) > $@
 
-$(MODULES_H) : $(CONF)/$(AIRFRAME_XML) $(TOOLS)/gen_modules.out
+$(MODULES_H) : $(CONF)/$(AIRFRAME_XML) $(TOOLS)/gen_modules.out $(CONF)/modules/*.xml
 	@echo BUILD $@
 	$(Q)$(TOOLS)/gen_modules.out $(MODULES_DIR) $(MODULES_C) $< > $@
 	$(Q)chmod a+r $@
