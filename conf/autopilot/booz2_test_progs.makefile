@@ -223,8 +223,8 @@ test_max1168.ARCH = arm7tdmi
 test_max1168.TARGET = test_max1168
 test_max1168.TARGETDIR = test_max1168
 
-test_max1168.CFLAGS += -DCONFIG=$(BOARD_CFG) -I$(BOOZ_PRIV) -I$(BOOZ_PRIV_ARCH)
-test_max1168.srcs += $(BOOZ_PRIV_TEST)/booz2_test_max1168.c
+test_max1168.CFLAGS += -DCONFIG=$(BOARD_CFG) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH)
+test_max1168.srcs += $(SRC_BOOZ_TEST)/booz2_test_max1168.c
 test_max1168.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))' -DTIME_LED=1
 test_max1168.CFLAGS += -DLED
 test_max1168.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
@@ -235,11 +235,8 @@ test_max1168.srcs += $(SRC_ARCH)/uart_hw.c
 test_max1168.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart1 
 test_max1168.srcs += downlink.c pprz_transport.c
 
-#test_max1168.CFLAGS += -I$(BOOZ)
-#test_max1168.srcs += $(BOOZ)/booz_debug.c
-
 test_max1168.CFLAGS += -DMAX1168_EOC_VIC_SLOT=8 -DSSP_VIC_SLOT=9
-test_max1168.srcs += $(BOOZ_PRIV)/booz2_max1168.c $(BOOZ_PRIV_ARCH)/booz2_max1168_hw.c
+test_max1168.srcs += $(SRC_BOOZ)/booz2_max1168.c $(SRC_BOOZ_ARCH)/booz2_max1168_hw.c
 
 
 
