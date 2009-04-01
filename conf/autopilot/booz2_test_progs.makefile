@@ -173,7 +173,7 @@ test_ami.TARGET = test_ami
 test_ami.TARGETDIR = test_ami
 
 test_ami.CFLAGS += -DCONFIG=$(BOARD_CFG) $(BOOZ_CFLAGS)
-test_ami.srcs += $(BOOZ_PRIV_TEST)/booz2_test_ami.c
+test_ami.srcs += $(SRC_BOOZ_TEST)/booz2_test_ami.c
 test_ami.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./50.))' -DTIME_LED=1
 test_ami.CFLAGS += -DLED
 test_ami.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
