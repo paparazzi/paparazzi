@@ -92,6 +92,10 @@ let _ =
   close_out f;
 
   let md5sum = Digest.to_hex (Digest.file conf_aircraft_file) in
+  let md5sum_file = aircraft_conf_dir // "aircraft.md5" in
+  let f = open_out md5sum_file in
+  Printf.fprintf f "%s\n" md5sum;
+  close_out f;
   
   let c = sprintf "make -f Makefile.ac AIRCRAFT=%s AC_ID=%s AIRFRAME_XML=%s RADIO=%s FLIGHT_PLAN=%s TELEMETRY=%s SETTINGS=\"%s\" MD5SUM=\"%s\" all_ac_h" aircraft (value "ac_id") (value "airframe") (value "radio") (value "flight_plan") (value "telemetry") settings md5sum in
   begin (** Quiet is speficied in the Makefile *)
