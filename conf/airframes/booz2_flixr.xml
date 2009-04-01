@@ -149,7 +149,9 @@
    <define name="BATTERY_OFFSET" value="0"/>
  </section>
 
-
+ <section name="MISC">
+   <define name="BOOZ2_FACE_REINJ_1"  value="1024"/>
+ </section>
 
   <makefile>
 # prevents motors from ever starting
