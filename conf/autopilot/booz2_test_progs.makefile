@@ -88,8 +88,8 @@ test_gps.ARCH = arm7tdmi
 test_gps.TARGET = test_gps
 test_gps.TARGETDIR = test_gps
 
-test_gps.CFLAGS += -DCONFIG=$(BOARD_CFG) -I$(BOOZ_PRIV) -I$(BOOZ_PRIV_ARCH)
-test_gps.srcs += $(BOOZ_PRIV_TEST)/booz2_test_gps.c
+test_gps.CFLAGS += -DCONFIG=$(BOARD_CFG) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH)
+test_gps.srcs += $(SRC_BOOZ_TEST)/booz2_test_gps.c
 test_gps.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))' -DTIME_LED=1
 test_gps.CFLAGS += -DLED
 test_gps.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
@@ -102,7 +102,7 @@ test_gps.srcs += downlink.c pprz_transport.c
 
 test_gps.CFLAGS += -DUSE_UART0 -DUART0_BAUD=B38400
 test_gps.CFLAGS += -DGPS_LINK=Uart0 -DGPS_LED=2
-test_gps.srcs += $(BOOZ_PRIV)/booz2_gps.c
+test_gps.srcs += $(SRC_BOOZ)/booz2_gps.c
 
 
 
