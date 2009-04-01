@@ -192,13 +192,6 @@ let parse_modules modules out_c =
   nl ();
   fprintf out_h "#endif // MODULES_C\n"
 
-let print_empty_functions = fun () ->
-  fprintf out_h "#ifdef MODULES_C\n";
-  fprintf out_h "\nstatic inline void modules_init(void) {}\n";
-  fprintf out_h "\nstatic inline void modules_periodic_task(void) {}\n";
-  fprintf out_h "\nstatic inline void modules_event_task(void) {}\n";
-  fprintf out_h "\n#endif // MODULES_C\n"
-
 let get_modules = fun dir m ->
   match Xml.tag m with
     "load" -> begin
@@ -254,20 +247,17 @@ let () =
     fprintf out_h "#define MODULES_START 2\n";
     fprintf out_h "#define MODULES_STOP  3\n";
     nl ();
-    if (test_section_modules xml) then begin
-      let modules = (ExtXml.child xml "modules") in
-      try
-        let main_freq = Xml.attrib modules "main_freq" in
-        freq := int_of_string main_freq;
-      with _ -> ();
-      let modules_list = List.map (get_modules modules_dir) (Xml.children modules) in
-      let modules_name = 
-        (List.map (fun l -> try Xml.attrib l "name" with _ -> "") (Xml.children modules)) @
-        (List.map (fun m -> try Xml.attrib m "name" with _ -> "") modules_list) in
-      check_dependencies modules_list modules_name;
-      parse_modules modules_list out_c;
-    end
-    else print_empty_functions ();
+    let modules = try (ExtXml.child xml "modules") with _ -> Xml.Element("modules",[],[]) in
+    try
+      let main_freq = Xml.attrib modules "main_freq" in
+      freq := int_of_string main_freq;
+    with _ -> ();
+    let modules_list = List.map (get_modules modules_dir) (Xml.children modules) in
+    let modules_name = 
+      (List.map (fun l -> try Xml.attrib l "name" with _ -> "") (Xml.children modules)) @
+      (List.map (fun m -> try Xml.attrib m "name" with _ -> "") modules_list) in
+    check_dependencies modules_list modules_name;
+    parse_modules modules_list out_c;
     fprintf out_h "\n#endif // USE_MODULES\n";
     fprintf out_c "\n#endif // USE_MODULES\n";
     finish h_name;
