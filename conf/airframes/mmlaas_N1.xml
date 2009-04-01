@@ -93,7 +93,7 @@
 <!--    <define name="NO_XBEE_API_INIT" value="TRUE"/> -->
     <define name="ALT_KALMAN_ENABLED" value="TRUE"/>
     <define name="TRIGGER_DELAY" value="1."/>
-    <define name="DEFAULT_CIRCLE_RADIUS" value="40."/>
+    <define name="DEFAULT_CIRCLE_RADIUS" value="60."/>
   </section>
  
   <section name="VERTICAL CONTROL" prefix="V_CTL_">
