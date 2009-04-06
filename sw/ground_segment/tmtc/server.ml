@@ -400,9 +400,9 @@ let send_aircraft_msg = fun ac ->
 let replayed = fun ac_id ->
   let n = String.length ac_id in
   if n > 6 && String.sub ac_id 0 6 = "replay" then
-    (String.sub ac_id 6 (n - 6), "/var/replay/",  Xml.parse_file (Env.paparazzi_home // "var/replay/conf/conf.xml"))
+    (true, String.sub ac_id 6 (n - 6), "/var/replay/",  Xml.parse_file (Env.paparazzi_home // "var/replay/conf/conf.xml"))
   else
-    (ac_id, "", conf_xml)
+    (false, ac_id, "", conf_xml)
 
 (* Store of unknown received A/C ids. To be able to report an error only once *)
 let unknown_aircrafts = Hashtbl.create 5
@@ -440,7 +440,7 @@ let check_md5sum = fun ac_name alive_md5sum aircraft_conf_dir ->
 
       
 let new_aircraft = fun alive_md5sum real_id ->
-  let id, root_dir, conf_xml = replayed real_id in
+  let is_replayed, id, root_dir, conf_xml = replayed real_id in
   let conf = get_conf real_id id conf_xml in
   let ac_name = ExtXml.attrib conf "name" in
   let var_aircraft_dir = Env.paparazzi_home // root_dir // "var" // ac_name in
@@ -452,7 +452,8 @@ let new_aircraft = fun alive_md5sum real_id ->
   let airframe_file =  aircraft_conf_dir // ExtXml.attrib conf "airframe" in
   let airframe_xml = Xml.parse_file airframe_file in
 
-  check_md5sum real_id alive_md5sum aircraft_conf_dir;
+  if not is_replayed then
+    check_md5sum real_id alive_md5sum aircraft_conf_dir;
   
   let ac = Aircraft.new_aircraft real_id ac_name xml_fp airframe_xml in
   let update = fun () ->
@@ -562,7 +563,7 @@ let listen_acs = fun log ->
 let send_config = fun http _asker args ->
   let ac_id' = Pprz.string_assoc "ac_id" args in
   try
-    let ac_id, root_dir, conf_xml = replayed ac_id' in
+    let is_replayed, ac_id, root_dir, conf_xml = replayed ac_id' in
 
     let conf = ExtXml.child conf_xml "aircraft" ~select:(fun x -> ExtXml.attrib x "ac_id" = ac_id) in
     let ac_name = ExtXml.attrib conf "name" in

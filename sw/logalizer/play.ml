@@ -48,16 +48,21 @@ let store_conf = fun conf acs ->
     List.fold_right (fun x r ->
       if ExtXml.tag_is x "aircraft" then
 	if List.mem (ExtXml.attrib x "ac_id") acs then
+	  let ac_name = ExtXml.attrib x "name" in
+	  let ac_dir = replay_dir // "var" // ac_name in
+
 	  let w = fun s ->
+	    (* Histotical: still useful ? *)
 	    let f = replay_dir // "conf" // ExtXml.attrib x s in
+	    write_xml f (ExtXml.child x s);
+	    (* Write in the conf/ directory of the A/C *)
+	    let f = ac_dir // "conf" // ExtXml.attrib x s in
 	    write_xml f (ExtXml.child x s);
 	    f in
 	  ignore (w "airframe");
 	  ignore (w "radio");
 	  let fp = w "flight_plan" in
 	  (** We must "dump" the flight plan from the original one *)
-	  let ac_name = ExtXml.attrib x "name" in
-	  let ac_dir = replay_dir // "var" // ac_name in
 	  ignore (Sys.command (sprintf "mkdir -p %s" ac_dir));
 	  let dump = ac_dir // "flight_plan.xml" in
 	  let c = sprintf "%s %s > %s" dump_fp fp dump in
