@@ -1,8 +1,10 @@
-x = 1.12345678910111213;
+x0 = %pi/180.;
 
-n = 6;
+x = x0;
+n = 20;
+m = 31;
 
-a(1) = floor(x)
+a(1) = floor(x);
 for i = 2:n,
   x = 1 / (x - a(i-1));
   a(i) = floor(x);
@@ -14,11 +16,21 @@ D = [0 1];
 for i = 2:n,
   N(i+1) = a(i)*N(i) + N(i-1);
   D(i+1) = a(i)*D(i) + D(i-1);
+  if N(i+1)/D(i+1) == x0,
+    break
+  end
+  if N(i+1) > 2^m | D(i+1) > 2^m,
+    N(i+1) = N(i);
+    D(i+1) = D(i);
+    break
+  end
 end
 
-y = N(n+1)/D(n+1);
+y = N(i+1)/D(i+1);
 
-N
-D
-printf('%0.12f',y)
+//N
+//D
+printf('%0.20f, delta=%e, %d',y,y-x0,i)
+printf('%20f',N(i+1))
+printf('%20f',D(i+1))
 
