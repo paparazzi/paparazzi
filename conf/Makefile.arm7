@@ -97,10 +97,12 @@ LDFLAGS += -lc -lgcc
 LDFLAGS += $(CPLUSPLUS_LIB)
 # -lusbstack -Larm7/lpcusb
 
+ifndef LDSCRIPT
 ifeq ($(FLASH_MODE),ISP)
 LDSCRIPT = $(SRC_ARCH)/LPC2148-ROM.ld
 else
 LDSCRIPT = $(SRC_ARCH)/LPC2148-ROM-bl.ld
+endif
 endif
 LDFLAGS +=-T$(LDSCRIPT)
 #endif
@@ -112,14 +114,18 @@ LDFLAGS +=-T$(LDSCRIPT)
 
 # Settings and variables:
 LPC21ISP = lpc21isp
+ifndef LPC21ISP_PORT
 LPC21ISP_PORT = /dev/ttyS0
+endif
 LPC21ISP_FLASHFILE = $(OBJDIR)/$(TARGET).hex
 # verbose output:
 #LPC21ISP_DEBUG = -debug
 # enter bootloader via RS232 DTR/RTS (only if hardware supports this
 # feature - see Philips AppNote):
+ifndef LPC21ISP_CONTROL
 LPC21ISP_CONTROL =
 # -control
+endif
 
 # ---------------------------------------------------------------------------
 # Flash-Programming support using lpc21iap by Martin Muller  (usb bootloader) 

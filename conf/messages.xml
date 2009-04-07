@@ -344,9 +344,9 @@
   </message>
 
   <message name="IMU_GYRO" id="200">
-    <field name="gp" type="float" unit="rad/s"/>
-    <field name="gq" type="float" unit="rad/s"/>
-    <field name="gr" type="float" unit="rad/s"/>
+    <field name="gp" type="float" unit="rad/s" alt_unit="deg/s" alt_unit_coef="57.29578"/>
+    <field name="gq" type="float" unit="rad/s" alt_unit="deg/s" alt_unit_coef="57.29578"/>
+    <field name="gr" type="float" unit="rad/s" alt_unit="deg/s" alt_unit_coef="57.29578"/>
   </message>
 
   <message name="IMU_MAG" id="201">
@@ -978,6 +978,18 @@
     <field name="stage_time" type="uint16" unit="s"/>
     <field name="cur_block" type="uint8"/>
     <field name="cur_stage" type="uint8"/>
+  </message>
+
+  <message name="AHRS_EULER" id="160">
+    <field name="phi"   type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.29578" />
+    <field name="theta" type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.29578" />
+    <field name="psi"   type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.29578" />
+  </message>
+
+  <message name="AHRS_MEASUREMENT_EULER" id="161">
+    <field name="phi"   type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.29578" />
+    <field name="theta" type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.29578" />
+    <field name="psi"   type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.29578" />
   </message>
 
 

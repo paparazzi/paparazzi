@@ -1,7 +1,8 @@
 clear();
 exec("calibration_utils.sci");
 
-[raw_mag, raw_accel] = read_log("log_calib_mag_4.dat");
+//[raw_mag, raw_accel] = read_log("log_calib_mag_4.dat");
+[raw_mag, raw_accel] = read_log("log_calib_mag_b2a2");
 
 //[fraw_mag] = filter_noise(raw_mag,15,300);
 fraw_mag = raw_mag;

@@ -8,7 +8,7 @@ function [raw_mag, raw_accel] = read_log(filename)
   while meof(u) == 0,
     line = mgetl(u, 1);
     if strindex(line, '#') ~= 1 & length(line) ~= 0,
-      [nb_scan, _time, _mx, _my, _mz] = msscanf(1, line, '%f 149 IMU_MAG_RAW %f %f %f');
+      [nb_scan, _time, _mx, _my, _mz] = msscanf(1, line, '%f 151 IMU_MAG_RAW %f %f %f');
       if nb_scan == 4,
         raw_mag = [raw_mag [_mx _my _mz]'];
       else

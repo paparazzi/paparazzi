@@ -1,0 +1,9 @@
+<airframe name="CSC">
+
+  <makefile>
+
+include $(PAPARAZZI_SRC)/conf/autopilot/csc.makefile
+
+  </makefile>
+
+</airframe>
