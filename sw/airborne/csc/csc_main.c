@@ -34,8 +34,8 @@
 int main( void ) {
   csc_main_init();
   while(1) {
-    //    if (sys_time_periodic())
-    //      csc_main_periodic();
+    if (sys_time_periodic())
+      csc_main_periodic();
     csc_main_event();
   }
   return 0;
@@ -43,9 +43,9 @@ int main( void ) {
 
 
 STATIC_INLINE void csc_main_init( void ) {
-  //  hw_init();
+  hw_init();
 
-  //  sys_time_init();
+  sys_time_init();
   led_init();
   //  int_enable();
   LED_ON(1);
@@ -53,8 +53,7 @@ STATIC_INLINE void csc_main_init( void ) {
 
 
 STATIC_INLINE void csc_main_periodic( void ) {
-
-  LED_TOGGLE(1);
+  RunOnceEvery(100, { LED_TOGGLE(1);});
 
 }
 

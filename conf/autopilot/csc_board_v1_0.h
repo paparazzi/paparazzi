@@ -24,11 +24,11 @@
 #define LED_2_BANK 0
 #define LED_2_PIN 13
 
-#define LED_3_BANK 1
-#define LED_3_PIN 23
+//#define LED_3_BANK 1
+//#define LED_3_PIN 23
 
-#define LED_4_BANK 1
-#define LED_4_PIN 31
+//#define LED_4_BANK 1
+//#define LED_4_PIN 31
 
 
 
