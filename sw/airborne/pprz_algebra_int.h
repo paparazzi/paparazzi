@@ -38,6 +38,9 @@ struct Int32Quat {
 #define INT32_ANGLE_PI     (int32_t)ANGLE_BFP_OF_REAL(   3.1415926535897932384626433832795029)
 #define INT32_ANGLE_2_PI   (int32_t)ANGLE_BFP_OF_REAL(2.*3.1415926535897932384626433832795029)
 
+#define INT32_RAD_OF_DEG(_deg) (int32_t)(((int64_t)_deg * 14964008)/857374503)
+#define INT32_DEG_OF_RAD(_rad) (int32_t)(((int64_t)_rad * 857374503)/14964008)
+
 struct Int32Eulers {
   int32_t phi;
   int32_t theta;
@@ -103,6 +106,16 @@ struct Int64Vect3 {
     INT32_SQRT(n, n2);							\
   }
 
+#define INT32_VECT2_RSHIFT(_o, _i, _r) { \
+  (_o).x = ((_i).x >> (_r)); \
+  (_o).y = ((_i).y >> (_r)); \
+}
+
+#define INT32_VECT2_LSHIFT(_o, _i, _l) { \
+  (_o).x = ((_i).x << (_l)); \
+  (_o).y = ((_i).y << (_l)); \
+}
+
 /*
  * Dimension 3 Vectors
  */
@@ -114,6 +127,12 @@ struct Int64Vect3 {
     _o.x = _i.x;				\
     _o.y = _i.y;				\
     _o.z = _i.z;				\
+  }
+
+#define INT32_VECT3_SUM(_c, _a, _b) {		\
+    _c.x = _a.x + _b.x;				\
+    _c.y = _a.y + _b.y;				\
+    _c.z = _a.z + _b.z;				\
   }
 
 #define INT32_VECT3_DIFF(_c, _a, _b) {		\

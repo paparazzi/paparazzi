@@ -121,3 +121,22 @@ void lla_of_ecef_f(struct LlaCoor_f* out, struct EcefCoor_f* in) {
 
 }
 
+void ecef_of_lla_f(struct EcefCoor_f* out, struct LlaCoor_f* in) {
+
+  // FIXME : make an ellipsoid struct
+  static const float a = 6378137.0;           /* earth semimajor axis in meters */
+  static const float f = 1./298.257223563;    /* reciprocal flattening          */
+  const float e2 = 2.*f-(f*f);                /* first eccentricity squared     */
+
+  const float sin_lat = sinf(in->lat);
+  const float cos_lat = cosf(in->lat);
+  const float sin_lon = sinf(in->lon);
+  const float cos_lon = cosf(in->lon);
+  const float chi = sqrtf(1. - e2*sin_lat*sin_lat);
+  const float a_chi = a / chi;
+
+  out->x = (a_chi + in->alt) * cos_lat * cos_lon;
+  out->y = (a_chi + in->alt) * cos_lat * sin_lon;
+  out->z = (a_chi*(1. - e2) + in->alt) * sin_lat;
+}
+

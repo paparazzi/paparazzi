@@ -128,3 +128,35 @@ void lla_of_ecef_i(struct LlaCoor_i* out, struct EcefCoor_i* in) {
 
 }
 
+void ecef_of_lla_i(struct EcefCoor_i* out, struct LlaCoor_i* in) {
+
+  /* convert our input to floating point */
+  struct LlaCoor_f in_f;
+  in_f.lon = RAD_OF_EM7RAD((float)in->lon);
+  in_f.lat = RAD_OF_EM7RAD((float)in->lat);
+  in_f.alt = M_OF_CM((float)in->alt);
+  /* calls the floating point transformation */
+  struct EcefCoor_f out_f;
+  ecef_of_lla_f(&out_f, &in_f);
+  /* convert the output to fixed point       */
+  out->x = (int32_t)CM_OF_M(out_f.x);
+  out->y = (int32_t)CM_OF_M(out_f.y);
+  out->z = (int32_t)CM_OF_M(out_f.z);
+
+}
+
+//#include "stdio.h"
+void enu_of_lla_point_i(struct EnuCoor_i* enu, struct LtpDef_i* def, struct LlaCoor_i* lla) {
+  struct EcefCoor_i ecef;
+  ecef_of_lla_i(&ecef,lla);
+  //printf("sim %d %d %d, def %d %d %d\n",ecef.x,ecef.y,ecef.z,def->ecef.x,def->ecef.y,def->ecef.z);
+  //printf("sim lla def %d %d %d\n",def->lla.lat,def->lla.lon,def->lla.alt);
+  enu_of_ecef_point_i(enu,def,&ecef);
+}
+
+void ned_of_lla_point_i(struct NedCoor_i* ned, struct LtpDef_i* def, struct LlaCoor_i* lla) {
+  struct EcefCoor_i ecef;
+  ecef_of_lla_i(&ecef,lla);
+  ned_of_ecef_point_i(ned,def,&ecef);
+}
+
