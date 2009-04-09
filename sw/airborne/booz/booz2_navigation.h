@@ -21,6 +21,12 @@ extern uint8_t last_wp __attribute__ ((unused));
 
 extern int32_t ground_alt, nav_altitude;
 
+extern uint8_t horizontal_mode;
+extern uint8_t nav_segment_start, nav_segment_end;
+#define HORIZONTAL_MODE_WAYPOINT 0
+#define HORIZONTAL_MODE_ROUTE 1
+#define HORIZONTAL_MODE_CIRCLE 2
+
 void nav_init_stage(void);
 void nav_init_block(void);
 void nav_goto_block(uint8_t block_id);
@@ -86,12 +92,8 @@ void nav_home(void);
 #define NavGlide(_last_wp, _wp) {}
 
 /*********** Navigation along a line *************************************/
-#define NavSegment(_start, _end) {}
-/*
-extern void nav_route_xy(int32_t last_wp_lat, int32_t last_wp_lon, int32_t wp_lat, int32_t wp_lon);
-#define NavSegment(_start, _end) \
-  nav_route_xy(waypoints[_start].lat, waypoints[_start].lon, waypoints[_end].lat, waypoints[_end].lon)
-*/
+extern void nav_route(uint8_t wp_start, uint8_t wp_end);
+#define NavSegment(_start, _end) nav_route(_start, _end)
 
 bool_t nav_approaching_from(uint8_t wp_idx, uint8_t from_idx);
 #define NavApproaching(wp, time) nav_approaching_from(wp, 0)
@@ -109,6 +111,7 @@ bool_t nav_approaching_from(uint8_t wp_idx, uint8_t from_idx);
  setpoint and climb pre-command. */
 #define NavVerticalAltitudeMode(_alt, _pre_climb) { \
   nav_altitude = _alt; \
+  booz2_navigation_target.z = (nav_altitude << INT32_POS_FRAC); \
 }
 
 /** Set the vertical mode to climb control with the specified climb setpoint */

@@ -376,6 +376,7 @@
 #include "booz2_gps.h"
 #include "booz2_navigation.h"
 #define PERIODIC_SEND_BOOZ2_FP() {					\
+    int32_t carrot_up = -booz2_guidance_v_z_sp; \
     DOWNLINK_SEND_BOOZ2_FP( &booz_ins_enu_pos.x,			\
 			    &booz_ins_enu_pos.y,			\
 			    &booz_ins_enu_pos.z,			\
@@ -387,7 +388,7 @@
 			    &booz_ahrs.ltp_to_body_euler.psi,		\
 			    &booz2_guidance_h_pos_sp.y,			\
 			    &booz2_guidance_h_pos_sp.x,			\
-			    &booz2_guidance_v_z_sp,			\
+			    &carrot_up,			\
 			    &booz2_guidance_h_command_body.psi,		\
 			    &booz2_stabilization_cmd[COMMAND_THRUST]);	\
   }
@@ -410,12 +411,19 @@
 
 #include "booz2_navigation.h"
 #define PERIODIC_SEND_BOOZ2_NAV_REF() {					\
-    DOWNLINK_SEND_BOOZ2_NAV_REF(&booz_ins_ltp_def.lla.lon,	\
-				&booz_ins_ltp_def.lla.lat);	\
+    DOWNLINK_SEND_BOOZ2_NAV_REF(&booz_ins_ltp_def.ecef.x, &booz_ins_ltp_def.ecef.y, &booz_ins_ltp_def.ecef.z);	\
   }
 
 #define PERIODIC_SEND_BOOZ2_NAV_STATUS() {					\
-    DOWNLINK_SEND_BOOZ2_NAV_STATUS(&block_time,&stage_time,&nav_block,&nav_stage); }
+    DOWNLINK_SEND_BOOZ2_NAV_STATUS(&block_time,&stage_time,&nav_block,&nav_stage,&horizontal_mode); \
+    if (horizontal_mode == HORIZONTAL_MODE_ROUTE) { \
+      int32_t sx = waypoints[nav_segment_start].x >> INT32_POS_FRAC; \
+      int32_t sy = waypoints[nav_segment_start].y >> INT32_POS_FRAC; \
+      int32_t ex = waypoints[nav_segment_end].x >> INT32_POS_FRAC; \
+      int32_t ey = waypoints[nav_segment_end].y >> INT32_POS_FRAC; \
+      DOWNLINK_SEND_SEGMENT(&sx, &sy, &ex, &ey); \
+    } \
+  }
 
 #define PERIODIC_SEND_WP_MOVED() { \
   static uint8_t i; \
