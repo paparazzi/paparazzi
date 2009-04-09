@@ -76,6 +76,12 @@ static void ivy_transport_init(void);
 static void on_DL_SETTING(IvyClientPtr app __attribute__ ((unused)), 
 			  void *user_data __attribute__ ((unused)), 
 			  int argc __attribute__ ((unused)), char *argv[]);
+static void on_DL_BLOCK(IvyClientPtr app __attribute__ ((unused)), 
+			  void *user_data __attribute__ ((unused)), 
+			  int argc __attribute__ ((unused)), char *argv[]);
+static void on_DL_MOVE_WP(IvyClientPtr app __attribute__ ((unused)), 
+			  void *user_data __attribute__ ((unused)), 
+			  int argc __attribute__ ((unused)), char *argv[]);
 
 
 static void booz2_sim_init(void) {
@@ -308,6 +314,8 @@ int main ( int argc, char** argv) {
 static void ivy_transport_init(void) {
   IvyInit ("BoozSim", "BoozSim READY", NULL, NULL, NULL, NULL);
   IvyBindMsg(on_DL_SETTING, NULL, "^(\\S*) DL_SETTING (\\S*) (\\S*) (\\S*)");
+  IvyBindMsg(on_DL_BLOCK, NULL, "^(\\S*) BLOCK (\\S*) (\\S*)");
+  IvyBindMsg(on_DL_MOVE_WP, NULL, "^(\\S*) MOVE_WP (\\S*) (\\S*) (\\S*) (\\S*) (\\S*)");
   IvyStart("127.255.255.255");
 }
 
@@ -325,6 +333,42 @@ static void on_DL_SETTING(IvyClientPtr app __attribute__ ((unused)),
   //  printf("setting %d %f\n", index, value);
 }
 
+static void on_DL_BLOCK(IvyClientPtr app __attribute__ ((unused)), 
+			  void *user_data __attribute__ ((unused)), 
+			  int argc __attribute__ ((unused)), char *argv[]){
+  int block = atoi(argv[1]);
+  nav_goto_block(block);
+}
+
+#include "pprz_geodetic_int.h"
+#include "stdio.h"
+static void on_DL_MOVE_WP(IvyClientPtr app __attribute__ ((unused)), 
+			  void *user_data __attribute__ ((unused)), 
+			  int argc __attribute__ ((unused)), char *argv[]){
+  int wp_id = atoi(argv[1]);
+  //int ac_id = atoi(argv[1]);
+  struct LlaCoor_i lla;
+  struct EnuCoor_i enu;
+  //printf("move deg %d %d %d\n",atoi(argv[3]),atoi(argv[4]),atoi(argv[5]));
+  int lat = atoi(argv[3]);
+  int lon = atoi(argv[4]);
+  int alt = atoi(argv[5]);
+  lla.lat = INT32_RAD_OF_DEG(lat);
+  lla.lon = INT32_RAD_OF_DEG(lon);
+  lla.alt = alt+booz_ins_ltp_def.lla.alt;
+  //printf("move rad %d %d %d (%d)\n",lla.lat,lla.lon,lla.alt,booz_ins_ltp_def.lla.alt);
+  enu_of_lla_point_i(&enu,&booz_ins_ltp_def,&lla);
+  enu.x = POS_BFP_OF_REAL(enu.x)/100;
+  enu.y = POS_BFP_OF_REAL(enu.y)/100;
+  enu.z = POS_BFP_OF_REAL(enu.z)/100;
+  //printf("enu_of_lla %d %d %d -> %d %d %d (%f %f %f)\n",waypoints[wp_id].x,waypoints[wp_id].y,waypoints[wp_id].z,enu.x,enu.y,enu.z,
+  //    POS_FLOAT_OF_BFP(enu.x),POS_FLOAT_OF_BFP(enu.y),POS_FLOAT_OF_BFP(enu.z));
+  VECT3_ASSIGN(waypoints[wp_id],enu.x,enu.y,enu.z);
+  DOWNLINK_SEND_WP_MOVED_LTP(&wp_id, &enu.x, &enu.y, &enu.z);
+  //DOWNLINK_SEND_WP_MOVED_LLA(&wp_id, &lat, &lon, &alt);
+  //printf("WP_MOVED\n");
+  //fflush(stdout);
+}
 
 #include "actuators.h"
 static void booz_sim_read_actuators(void) {
