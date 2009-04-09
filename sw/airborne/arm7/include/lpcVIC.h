@@ -91,6 +91,13 @@ typedef struct
 #define VIC_AD1         21
 #define VIC_USB         22
 
+#define VIC_CAN         19
+#define VIC_CAN1_TX     20
+#define VIC_CAN2_TX     21
+#define VIC_CAN1_RX     26
+#define VIC_CAN2_RX     27
+
+
 // Vector Control Register bit definitions
 #define VIC_ENABLE      (1 << 5)
 

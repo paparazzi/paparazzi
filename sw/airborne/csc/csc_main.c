@@ -30,6 +30,10 @@
 #include "sys_time.h"
 #include "led.h"
 #include "interrupt_hw.h"
+#include "uart.h"
+
+#include "csc_can.h"
+
 
 int main( void ) {
   csc_main_init();
@@ -44,17 +48,23 @@ int main( void ) {
 
 STATIC_INLINE void csc_main_init( void ) {
   hw_init();
-
   sys_time_init();
   led_init();
-  //  int_enable();
-  LED_ON(1);
+  Uart0Init();
+  csc_can1_init();
+  csc_can2_init();
+  int_enable();
+
 }
 
 
 STATIC_INLINE void csc_main_periodic( void ) {
-  RunOnceEvery(100, { LED_TOGGLE(1);});
-
+  RunOnceEvery(100, {
+      //      LED_TOGGLE(2);
+      struct CscCanMsg out_msg;
+      out_msg.dat_a = 0x1234;
+      csc_can1_send(&out_msg);
+    });
 }
 
 STATIC_INLINE void csc_main_event( void ) {

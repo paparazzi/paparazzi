@@ -25,7 +25,7 @@
 ARCHI=arm7
 
 FLASH_MODE = ISP
-LPC21ISP_PORT = /dev/ttyUSB1
+LPC21ISP_PORT = /dev/ttyUSB0
 LPC21ISP_BAUD = 115200
 LPC21ISP_XTAL = 14746
 LPC21ISP_CONTROL = -control
@@ -47,8 +47,16 @@ main.TARGETDIR = main
 main.CFLAGS += -I$(SRC_CSC)
 main.CFLAGS += -DCONFIG=$(BOARD_CFG)
 main.srcs += $(SRC_CSC)/csc_main.c
-main.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))'
-# -DTIME_LED=1
+main.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))' -DTIME_LED=1
 main.CFLAGS += -DLED
 main.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
 
+main.CFLAGS += -DUSE_UART0 -DUART0_BAUD=57600 -DUART0_VIC_SLOT=5
+main.srcs += $(SRC_ARCH)/uart_hw.c
+
+#main.srcs += $(SRC_ARCH)/servos_direct_hw.c
+
+main.CFLAGS += -DUSE_CAN1 -DCAN1_BTR=CANBitrate125k_12MHz -DCAN1_VIC_SLOT=3
+main.srcs += $(SRC_CSC)/csc_can.c
+
+main.CFLAGS += -DUSE_CAN2 -DCAN2_BTR=CANBitrate125k_12MHz -DCAN2_VIC_SLOT=4

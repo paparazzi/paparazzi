@@ -30,6 +30,7 @@
 #include "lpcADC.h"
 #include "lpcSCB.h"
 #include "lpcVIC.h"
+#include "lpcCAN.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // Watchdog
@@ -417,5 +418,72 @@
 #define VICVectCntl13   VIC->vectCntl13 /* Vector Control 13 Register */
 #define VICVectCntl14   VIC->vectCntl14 /* Vector Control 14 Register */
 #define VICVectCntl15   VIC->vectCntl15 /* Vector Control 15 Register */
+
+
+///////////////////////////////////////////////////////////////////////////////
+// CAN controllers
+
+
+#define CAN_CENTRAL       ((can_central_Regs_t *)0xE0040000)
+#define CANTxSR CAN_CENTRAL->tx_sr /* CAN Central Transmit Status Register */
+#define CANRxSR CAN_CENTRAL->rx_sr /* CAN Central Receive Status Register  */
+#define CANMSR  CAN_CENTRAL->m_sr  /* CAN Central Miscellanous Register    */
+
+#define CAN_ACCEPT       ((can_accept_Regs_t *)0xE003C000)
+#define AFMR CAN_ACCEPT->afmr      /* Acceptance Filter Register           */
+
+#define CAN1             ((can_Regs_t *)0xE0044000)
+#define C1MOD   CAN1->can_mod      /* */
+#define C1CMR   CAN1->can_cmr      /* */
+#define C1GSR   CAN1->can_gsr      /* */
+#define C1ICR   CAN1->can_icr
+#define C1IER   CAN1->can_ier
+#define C1BTR   CAN1->can_btr
+#define C1EWL   CAN1->can_ewl
+#define C1SR    CAN1->can_sr
+#define C1RFS   CAN1->can_rfs
+#define C1RID   CAN1->can_rid
+#define C1RDA   CAN1->can_rda
+#define C1RDB   CAN1->can_rdb
+#define C1TFI1  CAN1->can_tfi1
+#define C1TID1  CAN1->can_tid1
+#define C1TDA1  CAN1->can_tda1
+#define C1TDB1  CAN1->can_tdb1
+#define C1TFI2  CAN1->can_tfi2
+#define C1TID2  CAN1->can_tid2
+#define C1TDA2  CAN1->can_tda2
+#define C1TDB2  CAN1->can_tdb2
+#define C1TFI3  CAN1->can_tfi3
+#define C1TID3  CAN1->can_tid3
+#define C1TDA3  CAN1->can_tda3
+#define C1TDB3  CAN1->can_tdb3
+
+#define CAN2             ((can_Regs_t *)0xE0048000)
+#define C2MOD   CAN2->can_mod      /* */
+#define C2CMR   CAN2->can_cmr      /* */
+#define C2GSR   CAN2->can_gsr      /* */
+#define C2ICR   CAN2->can_icr
+#define C2IER   CAN2->can_ier
+#define C2BTR   CAN2->can_btr
+#define C2EWL   CAN2->can_ewl
+#define C2SR    CAN2->can_sr
+#define C2RFS   CAN2->can_rfs
+#define C2RID   CAN2->can_rid
+#define C2RDA   CAN2->can_rda
+#define C2RDB   CAN2->can_rdb
+#define C2TFI1  CAN2->can_tfi1
+#define C2TID1  CAN2->can_tid1
+#define C2TDA1  CAN2->can_tda1
+#define C2TDB1  CAN2->can_tdb1
+#define C2TFI2  CAN2->can_tfi2
+#define C2TID2  CAN2->can_tid2
+#define C2TDA2  CAN2->can_tda2
+#define C2TDB2  CAN2->can_tdb2
+#define C2TFI3  CAN2->can_tfi3
+#define C2TID3  CAN2->can_tid3
+#define C2TDA3  CAN2->can_tda3
+#define C2TDB3  CAN2->can_tdb3
+
+
 
 #endif
