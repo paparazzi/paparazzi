@@ -264,6 +264,11 @@
       <field name="alt" type="float" unit="m"/>
   </message>
 
+  <message name="AIRSPEED" id="45">
+      <field name="adc" type="uint16"/>
+      <field name="airspeed" type="float"/>
+  </message>
+
   <message name="BARO_WORDS" id="46">
       <field name="w1"  type="uint16"/>
       <field name="w2"  type="uint16"/>
