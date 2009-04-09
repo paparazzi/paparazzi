@@ -858,9 +858,10 @@
     <field name="tbd"      type="float"/>
   </message>
 
-  <message name="BOOZ2_NAV_REF" id="149">
-    <field name="lon"  type="int32"/>
-    <field name="lat"  type="int32"/>
+  <message name="BOOZ2_NAV_REF" id="149"> <!-- ECEF -->
+    <field name="x"  type="int32"/>
+    <field name="y"  type="int32"/>
+    <field name="z"  type="int32"/>
   </message>
 
   <message name="BOOZ2_TUNE_HOVER" id="150">
@@ -978,6 +979,7 @@
     <field name="stage_time" type="uint16" unit="s"/>
     <field name="cur_block" type="uint8"/>
     <field name="cur_stage" type="uint8"/>
+    <field name="horizontal_mode" type="uint8"/>
   </message>
 
   <message name="AHRS_EULER" id="160">
@@ -1090,14 +1092,16 @@
  </message>
 
  <message name="BOOZ2_FMS_COMMAND" id="149" link="forwarded">
-   <field name="ac_id" type="uint8"/>
    <field name="h_mode" type="uint8" values="RATE|ATTITUDE|SPEED|POS"/>
    <field name="v_mode" type="uint8" values="DIRECT|CLIMB|HEIGHT"/>
-   <field name="pad0" type="uint8"/>
-   <field name="pad1" type="uint8"/>
-   <field name="pad2" type="uint8"/>
    <field name="v_sp" type="int32"/>
-   <field name="h_sp" type="int32[]"/>
+   <field name="h_sp_1" type="int32"/>
+   <field name="h_sp_2" type="int32"/>
+   <field name="h_sp_3" type="int32"/>
+   <field name="ac_id" type="uint8"/>
+   <!--<field name="pad0" type="uint8"/>
+   <field name="pad1" type="uint8"/>
+   <field name="pad2" type="uint8"/>-->
  </message>
 
  <message name="SET_ACTUATOR" id="100">
