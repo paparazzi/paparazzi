@@ -56,6 +56,11 @@ void TIMER0_ISR ( void ) __attribute__((naked));
 #error unknown PCLK frequency
 #endif
 
+#ifndef TIMER0_VIC_SLOT
+#define TIMER0_VIC_SLOT 1
+#endif /* TIMER0_VIC_SLOT */
+
+
 extern uint32_t sys_time_chrono_start; /* T0TC ticks */
 extern uint32_t sys_time_chrono; /* T0TC ticks,frequency: PCLK / T0PCLK_DIV */
 /* A division by SYS_TICS_OF_USEC(1) to get microseconds is too expensive
@@ -103,9 +108,9 @@ static inline void sys_time_init( void ) {
   /* enable TIMER0 interrupt */
   VICIntEnable = VIC_BIT(VIC_TIMER0); 
   /* on slot vic slot 1      */
-  VICVectCntl1 = VIC_ENABLE | VIC_TIMER0;
+  _VIC_CNTL(TIMER0_VIC_SLOT) = VIC_ENABLE | VIC_TIMER0;
   /* address of the ISR      */
-  VICVectAddr1 = (uint32_t)TIMER0_ISR; 
+  _VIC_ADDR(TIMER0_VIC_SLOT) = (uint32_t)TIMER0_ISR; 
 
 }
 
