@@ -23,9 +23,6 @@ struct CscCanMotorStatus {
 
 
 static void CAN_Err_ISR ( void ) __attribute__((naked));
-static void CAN2_Rx_ISR ( void ) __attribute__((naked));
-static void CAN2_Tx_ISR ( void ) __attribute__((naked));
-
 
 
 #ifdef USE_CAN1
@@ -62,11 +59,12 @@ void csc_can1_init(void) {
 
 
 void csc_can1_send(struct CscCanMsg* msg) {
-
+#if 0
   if (C1SR & 0x00000004L) { /* transmit channel not available */
     LED_ON(2);
     return;
   }
+#endif
   // Write DLC, RTR and FF
   C1TFI1 = (msg->frame &  0xC00F0000L);
   // Write CAN ID
@@ -83,7 +81,7 @@ void csc_can1_send(struct CscCanMsg* msg) {
 void CAN1_Rx_ISR ( void ) {
  ISR_ENTRY();
  
- LED_ON(2);
+ // LED_ON(2);
 
  C1CMR = 0x04;             // release receive buffer
  VICVectAddr = 0x00000000; // acknowledge interrupt
@@ -99,7 +97,14 @@ void CAN1_Tx_ISR ( void ) {
 
 #endif /* USE_CAN1 */
 
+
 #ifdef USE_CAN2
+
+bool_t can2_msg_received;
+struct CscCanMsg can2_rx_msg;
+
+static void CAN2_Rx_ISR ( void ) __attribute__((naked));
+static void CAN2_Tx_ISR ( void ) __attribute__((naked));
 
 void csc_can2_init(void) {
 
@@ -126,6 +131,9 @@ void csc_can2_init(void) {
   C2IER = 1;
   // Get out of reset Mode
   C2MOD = 0;
+
+  can2_msg_received = FALSE;
+
 }
 
 
@@ -153,12 +161,24 @@ void csc_can2_send(struct CscCanMsg* msg) {
 void CAN2_Rx_ISR ( void ) {
  ISR_ENTRY();
  
- LED_ON(2);
+ can2_rx_msg.frame  = C2RFS;
+ can2_rx_msg.msg_id = C2RID;
+ can2_rx_msg.dat_a  = C2RDA;
+ can2_rx_msg.dat_b  = C2RDB;
+ can2_msg_received = TRUE;
 
  C2CMR = 0x04;             // release receive buffer
  VICVectAddr = 0x00000000; // acknowledge interrupt
  ISR_EXIT();
 }
+
+
+void CAN2_Tx_ISR ( void ) {
+ ISR_ENTRY();
+
+ ISR_EXIT();
+}
+
 
 #endif /* USE_CAN2 */
 

@@ -31,9 +31,12 @@
 #include "led.h"
 #include "interrupt_hw.h"
 #include "uart.h"
+#include "downlink.h"
 
+#include "csc_servos.h"
 #include "csc_can.h"
 
+static inline void on_can_msg(void);
 
 int main( void ) {
   csc_main_init();
@@ -53,22 +56,45 @@ STATIC_INLINE void csc_main_init( void ) {
   Uart0Init();
   csc_can1_init();
   csc_can2_init();
+  csc_servos_init();
   int_enable();
 
 }
 
 
 STATIC_INLINE void csc_main_periodic( void ) {
-  RunOnceEvery(100, {
+  static uint32_t cnt = 0;
+  RunOnceEvery(10, {
+      cnt++;
       //      LED_TOGGLE(2);
       struct CscCanMsg out_msg;
-      out_msg.dat_a = 0x1234;
+      out_msg.dat_a = cnt;
+      out_msg.dat_b = cnt;
       csc_can1_send(&out_msg);
     });
+
+  uint16_t foo = 42;
+  RunOnceEvery(100, {DOWNLINK_SEND_BOOT(&foo);});
+      
 }
 
 STATIC_INLINE void csc_main_event( void ) {
-
+  Can2Event(on_can_msg);
 }
 
+
+static inline void on_can_msg(void) {
+  uint8_t foo = 0;
+  static int32_t bar;
+  int32_t new_bar = can2_rx_msg.dat_a;
+
+  if (new_bar - bar == 1)
+    LED_TOGGLE(2);
+  
+  bar = new_bar;
+  DOWNLINK_SEND_CHRONO(&foo, &bar);
+  int32_t foobar[] = { 0, 0, 0, 0};
+  csc_servos_set(foobar);
+  
+}
 

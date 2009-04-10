@@ -2,6 +2,7 @@
 #define CSC_CAN_H
 
 #include <inttypes.h>
+#include "std.h"
 
 // Common CAN bit rates
 #define   CANBitrate125k_12MHz          0x001C001D
@@ -17,11 +18,28 @@ struct CscCanMsg {
 };
 
 
+#ifdef USE_CAN1
 extern void csc_can1_init(void);
 extern void csc_can1_send(struct CscCanMsg* msg);
+#endif /* USE_CAN1 */
 
+
+#ifdef USE_CAN2
 
 extern void csc_can2_init(void);
+extern void csc_can2_send(struct CscCanMsg* msg);
+
+extern bool_t can2_msg_received;
+extern struct CscCanMsg can2_rx_msg;
+
+#define Can2Event(_rx_handler) {		\
+    if (can2_msg_received) {			\
+      _rx_handler();				\
+      can2_msg_received = FALSE;		\
+    }						\
+  }
+
+#endif /* USE_CAN2 */
 
 
 #endif /* CSC_CAN_H */
