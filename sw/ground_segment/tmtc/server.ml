@@ -300,6 +300,7 @@ let send_aircraft_msg = fun ac ->
     let values = ["ac_id", Pprz.String ac;
 		  "roll", f (Geometry_2d.rad2deg a.roll);
 		  "pitch", f (Geometry_2d.rad2deg a.pitch);
+		  "heading", f (Geometry_2d.rad2deg a.heading);
 		  "lat", f ((Rad>>Deg)wgs84.posn_lat);
 		  "long", f ((Rad>>Deg) wgs84.posn_long);
 		  "unix_time", f a.unix_time;
