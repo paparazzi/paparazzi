@@ -54,12 +54,10 @@ extern uint8_t v_ctl_climb_mode;
 #define V_CTL_CLIMB_MODE_AUTO_THROTTLE 0 
 #define V_CTL_CLIMB_MODE_AUTO_PITCH    1
 
-#ifdef AGR_CLIMB
 extern uint8_t v_ctl_auto_throttle_submode;
 #define V_CTL_AUTO_THROTTLE_STANDARD  0
 #define V_CTL_AUTO_THROTTLE_AGRESSIVE 1
 #define V_CTL_AUTO_THROTTLE_BLENDED   2
-#endif
 
 /* "auto throttle" inner loop parameters */
 extern float v_ctl_auto_throttle_nominal_cruise_throttle;
