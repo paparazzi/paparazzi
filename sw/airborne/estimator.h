@@ -40,9 +40,9 @@ extern float estimator_y;
 extern float estimator_z;
 
 /* attitude in radians */
-extern float estimator_phi;
-extern float estimator_psi;
-extern float estimator_theta;
+extern float estimator_phi; /* + = right */
+extern float estimator_psi; /* CW, 0 = N */
+extern float estimator_theta; /* + = up */
 
 /* speed in meters per second */
 extern float estimator_z_dot;
