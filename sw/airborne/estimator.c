@@ -205,5 +205,10 @@ void estimator_update_state_gps( void ) {
   float fclimb = gps_climb / 100.;
   float fcourse = RadOfDeg(gps_course / 10.);
   EstimatorSetSpeedPol(fspeed, fcourse, fclimb);
+
+  // Heading estimator from wind-information, usually computed with -DWIND_INFO
+  float w_vn = cosf(estimator_hspeed_dir) * estimator_hspeed_mod - wind_north;
+  float w_ve = sinf(estimator_hspeed_dir) * estimator_hspeed_mod - wind_east;
+  estimator_psi = atan2f(w_ve, w_vn);
 }
 
