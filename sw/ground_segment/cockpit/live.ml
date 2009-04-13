@@ -901,7 +901,7 @@ let listen_flight_params = fun geomap auto_center_new_ac alert alt_graph ->
     pfd_page#set_speed speed;
 
     let wgs84 = { posn_lat=(Deg>>Rad)(a "lat"); posn_long = (Deg>>Rad)(a "long") } in
-    ac.track#move_icon wgs84 (a "course") alt speed climb;
+    ac.track#move_icon wgs84 (a "heading") alt speed climb;
     ac.speed <- speed;
 
     let unix_time = a "unix_time" in
