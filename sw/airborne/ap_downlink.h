@@ -72,10 +72,7 @@
 
 
 #define PERIODIC_SEND_ATTITUDE() Downlink({ \
-  int16_t phi = DegOfRad(estimator_phi); \
-  int16_t psi = DegOfRad(estimator_psi); \
-  int16_t theta = DegOfRad(estimator_theta); \
-  DOWNLINK_SEND_ATTITUDE(&phi, &psi, &theta); \
+  DOWNLINK_SEND_ATTITUDE(&estimator_phi, &estimator_psi, &estimator_theta); \
 })
 
 #define PERIODIC_SEND_PPRZ_MODE() DOWNLINK_SEND_PPRZ_MODE(&pprz_mode, &v_ctl_mode, &lateral_mode, &horizontal_mode, &rc_settings_mode, &mcu1_status);
@@ -118,11 +115,7 @@
 #define PERIODIC_SEND_GYRO_RATES() {}
 #endif
 
-#ifdef AGR_CLIMB
 #define PERIODIC_SEND_CALIBRATION() DOWNLINK_SEND_CALIBRATION(&v_ctl_auto_throttle_sum_err, &v_ctl_auto_throttle_submode)
-#else
-#define PERIODIC_SEND_CALIBRATION() DOWNLINK_SEND_CALIBRATION(&v_ctl_auto_throttle_sum_err, &v_ctl_auto_throttle_pgain, &h_ctl_course_pgain, &pprz_mode)
-#endif
 
 #define PERIODIC_SEND_CIRCLE() if (nav_in_circle) { DOWNLINK_SEND_CIRCLE(&nav_circle_x, &nav_circle_y, &nav_circle_radius); }
 
