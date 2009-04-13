@@ -30,9 +30,9 @@
    </message>
 
    <message name="ATTITUDE" id="6">
-     <field name="phi" type="int16" unit="deg"></field>
-     <field name="psi" type="int16" unit="deg"></field>
-     <field name="theta" type="int16" unit="deg"></field>
+     <field name="phi" type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.3"></field>
+     <field name="psi" type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.3"></field>
+     <field name="theta" type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.3"></field>
    </message>
 
    <message name="IR_SENSORS" id="7">
@@ -1172,6 +1172,7 @@
     <field name="ac_id"  type="string"/>
     <field name="roll"   type="float" unit="deg"/>
     <field name="pitch"  type="float" unit="deg"/>
+    <field name="heading" type="float" unit="deg"/>
     <field name="lat"    type="float" unit="deg"/>
     <field name="long"   type="float" unit="deg"/>
     <field name="speed"  type="float" unit="m/s"/>
