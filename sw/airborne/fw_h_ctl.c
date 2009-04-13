@@ -184,12 +184,6 @@ void h_ctl_course_loop ( void ) {
        (estimator_hspeed_mod < reference_advance)  // Small path speed is due to wind (small groundspeed)
      )
   {
-    // Heading estimator from wind-information
-    // (define angle as counting from zero clockwise from the north)
-    float w_vn = cos(estimator_hspeed_dir) * estimator_hspeed_mod - wind_north;
-    float w_ve = sin(estimator_hspeed_dir) * estimator_hspeed_mod - wind_east;
-    estimator_psi = atan2(w_ve,w_vn);
-
 /*
     // rough crabangle approximation
     float wind_mod = sqrt(wind_east*wind_east + wind_north*wind_north);
