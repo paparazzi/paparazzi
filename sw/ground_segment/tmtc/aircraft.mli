@@ -68,6 +68,7 @@ type aircraft = {
     mutable itow : int32;
     mutable roll : float;
     mutable pitch : float;
+    mutable heading : float; (* rad *)
     mutable nav_ref : Latlong.utm option;
     mutable desired_east : float;
     mutable desired_north : float;

@@ -82,6 +82,7 @@ type aircraft = {
     mutable itow : int32; (* ms *)
     mutable roll    : float;
     mutable pitch   : float;
+    mutable heading  : float; (* rad, CW 0=N *)
     mutable nav_ref    : Latlong.utm option;
     mutable desired_east    : float;
     mutable desired_north    : float;
@@ -89,7 +90,7 @@ type aircraft = {
     mutable desired_course : float;
     mutable desired_climb : float;
     mutable gspeed  : float; (* m/s *)
-    mutable course  : float; (* rad *)
+    mutable course : float; (* rad *)
     mutable alt     : float;
     mutable agl     : float;
     mutable climb   : float;
@@ -133,7 +134,7 @@ let new_aircraft = fun id name fp airframe ->
   let svsinfo_init = Array.init gps_nb_channels (fun _ -> svinfo_init ()) in
   { id = id ; name = name; roll = 0.; pitch = 0.; desired_east = 0.; desired_north = 0.; flight_plan = fp; airframe = airframe; dist_to_wp = 0.;
     desired_course = 0.;
-    gspeed=0.; course = 0.; alt=0.; climb=0.; cur_block=0; cur_stage=0;
+    gspeed=0.; course = 0.; heading = 0.; alt=0.; climb=0.; cur_block=0; cur_stage=0;
     throttle = 0.; throttle_accu = 0.; rpm = 0.; temp = 0.; bat = 42.; amp = 0.; energy = 0; ap_mode= -1; agl = 0.;
     gaz_mode= -1; lateral_mode= -1;
     gps_mode =0; gps_Pacc = 0; periodic_callbacks = [];

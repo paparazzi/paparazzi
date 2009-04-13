@@ -105,7 +105,6 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
 		 utm_zone = ivalue "utm_zone" };
       a.unix_time <- LL.unix_time_of_tow (truncate (fvalue "itow" /. 1000.));
       a.itow <- Int32.of_float (fvalue "itow");
-      (*Printf.fprintf stderr "itow %lu %ld\n" a.itow a.itow;*)
       a.gspeed  <- fvalue "speed" /. 100.;
       a.course  <- norm_course ((Deg>>Rad)(fvalue "course" /. 10.));
       a.agl     <- a.alt -. float (try Srtm.of_utm a.pos with _ -> 0);
@@ -127,8 +126,9 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
   | "NAVIGATION_REF" ->
       a.nav_ref <- Some { utm_x = fvalue "utm_east"; utm_y = fvalue "utm_north"; utm_zone = ivalue "utm_zone" }
   | "ATTITUDE" ->
-      a.roll <- (Deg>>Rad) (fvalue "phi");
-      a.pitch <- (Deg>>Rad) (fvalue "theta")
+      a.heading  <- norm_course (fvalue "psi");
+      a.roll <- fvalue "phi";
+      a.pitch <- fvalue "theta"
   | "NAVIGATION" -> 
       a.cur_block <- ivalue "cur_block";
       a.cur_stage <- ivalue "cur_stage";
