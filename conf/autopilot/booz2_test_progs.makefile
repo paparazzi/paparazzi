@@ -250,7 +250,7 @@ test_micromag.TARGET = test_micromag
 test_micromag.TARGETDIR = test_micromag
 
 test_micromag.CFLAGS += -DCONFIG=$(BOARD_CFG) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH)
-test_micromag.srcs += $(SRC_BOOZ_PRIV_TEST)/booz2_test_micromag.c
+test_micromag.srcs += $(SRC_BOOZ_TEST)/booz2_test_micromag.c
 test_micromag.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))' -DTIME_LED=1
 test_micromag.CFLAGS += -DLED
 test_micromag.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
