@@ -17,7 +17,7 @@ uint8_t actuators_asctec_twi_blmc_new_addr;
 
 int8_t asctec_twi_blmc_motor_power[ASCTEC_TWI_BLMC_NB];
 uint8_t twi_blmc_nb_err;
-uint8_t mb_twi_i2c_done;
+volatile uint8_t mb_twi_i2c_done;
 
 
 #define MB_TWI_CONTROLLER_MAX_CMD 200
@@ -70,6 +70,7 @@ void asctec_twi_controller_send() {
       i2c_buf[1] = 100 + asctec_twi_blmc_motor_power[SERVO_ROLL];
       i2c_buf[2] = 100 + asctec_twi_blmc_motor_power[SERVO_YAW];
       i2c_buf[3] = asctec_twi_blmc_motor_power[SERVO_THRUST];
+      mb_twi_i2c_done = FALSE;
       i2c_transmit(MB_TWI_CONTROLLER_ADDR, 4, &mb_twi_i2c_done);
     }
   }

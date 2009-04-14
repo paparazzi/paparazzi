@@ -9,7 +9,7 @@ struct FmsSerialPort {
   struct termios  cur_termios;    /* tty state structure       */
 };
 
-extern struct FmsSerialPort* serial_port_new();
+extern struct FmsSerialPort* serial_port_new(void);
 extern void serial_port_free(struct FmsSerialPort* me);
 extern int  serial_port_open(struct FmsSerialPort* me, const char* device, 
 			     void(*term_conf_callback)(struct termios*, speed_t*));

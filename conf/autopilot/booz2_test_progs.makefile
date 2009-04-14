@@ -386,20 +386,20 @@ test_baro_24.ARCH = arm7tdmi
 test_baro_24.TARGET = test_baro_24
 test_baro_24.TARGETDIR = test_baro_24
 
-test_baro_24.CFLAGS += -DCONFIG=$(BOARD_CFG) $(BOOZ_CFLAGS)
-test_baro_24.srcs += $(BOOZ_PRIV_TEST)/booz2_test_baro_24.c
-test_baro_24.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./50.))' -DTIME_LED=1
+test_baro_24.CFLAGS += -DCONFIG=$(BOARD_CFG) -I$(SRC_BOOZ) $(BOOZ_CFLAGS)
+test_baro_24.srcs += $(SRC_BOOZ_TEST)/booz2_test_baro_24.c
+test_baro_24.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./5.))' -DTIME_LED=1
 test_baro_24.CFLAGS += -DLED
 test_baro_24.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
 
-test_baro_24.CFLAGS += -DUSE_UART0 -DUART0_BAUD=B57600
+
+test_baro_24.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600
 test_baro_24.srcs += $(SRC_ARCH)/uart_hw.c
 
-test_baro_24.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart0 
+test_baro_24.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart1 
 test_baro_24.srcs += downlink.c pprz_transport.c
 
 test_baro_24.CFLAGS += -DUSE_I2C1  -DI2C1_SCLL=150 -DI2C1_SCLH=150 -DI2C1_VIC_SLOT=11 -DI2C1_BUF_LEN=16
 test_baro_24.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
-#test_baro_24.CFLAGS += -DUSE_AMI601
-test_baro_24.srcs += $(BOOZ_PRIV)/booz2_baro_24.c
+test_baro_24.srcs += $(SRC_BOOZ)/booz2_baro_24.c
 

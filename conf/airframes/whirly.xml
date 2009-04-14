@@ -1,0 +1,9 @@
+<airframe name="wirly_ng">
+
+  <makefile>
+
+include $(PAPARAZZI_SRC)/conf/autopilot/whirly_ap.makefile
+
+  </makefile>
+
+</airframe>

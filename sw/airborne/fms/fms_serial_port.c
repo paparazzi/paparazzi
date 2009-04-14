@@ -9,7 +9,7 @@
 #define TRACE(type,fmt,args...)
 #define TRACE_ERROR 1
 
-struct FmsSerialPort* serial_port_new() {
+struct FmsSerialPort* serial_port_new(void) {
   struct FmsSerialPort* me = malloc(sizeof(struct FmsSerialPort));
   return me;
 }
