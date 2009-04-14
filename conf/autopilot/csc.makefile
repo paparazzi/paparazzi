@@ -61,15 +61,16 @@ main.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
 main.srcs += $(SRC_ARCH)/uart_hw.c
 
 
+main.CFLAGS += -DUSE_UART0 -DUART0_BAUD=B57600 -DUART0_VIC_SLOT=5
 main.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600 -DUART1_VIC_SLOT=6
 main.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport \
-	                  -DDOWNLINK_DEVICE=Uart0
+	                  -DDOWNLINK_DEVICE=Uart1
 main.srcs += downlink.c pprz_transport.c
 
 
 main.CFLAGS += -DAP_LINK_CAN
-main.CFLAGS += -DUSE_CAN1 -DCAN1_BTR=CANBitrate125k_2MHz -DCAN1_VIC_SLOT=3
-main.CFLAGS += -DCAN_ERR_VIC_SLOT=7
+main.CFLAGS += -DUSE_CAN1 -DCAN1_BTR=CANBitrate125k_2MHz
+main.CFLAGS +=  -DCAN1_VIC_SLOT=3 -DCAN_ERR_VIC_SLOT=7
 main.srcs += $(SRC_CSC)/csc_can.c
 main.CFLAGS += -DUSE_CAN2 -DCAN2_BTR=CANBitrate125k_2MHz -DCAN2_VIC_SLOT=4
 
@@ -81,6 +82,34 @@ main.srcs += $(SRC_CSC)/csc_ap_link.c
 
 main.srcs += $(SRC_CSC)/csc_servos.c
 
-main.CFLAGS += -DUSE_UART0 -DUART0_BAUD=B57600 -DUART0_VIC_SLOT=5
 #main.CFLAGS += -DTHROTTLE_LINK=Uart0 -DTHROTTLE_ID=0
 #main.srcs += $(SRC_CSC)/uart_throttle.c
+
+
+
+
+
+
+SRC_CSC=csc
+
+test_uart.ARCHDIR = $(ARCHI)
+test_uart.ARCH = arm7tdmi
+test_uart.TARGET = test_uart
+test_uart.TARGETDIR = test_uart
+
+
+test_uart.CFLAGS += -I$(SRC_CSC)
+test_uart.CFLAGS += -DCONFIG=$(BOARD_CFG)
+test_uart.srcs += $(SRC_CSC)/csc_test_uart.c
+test_uart.CFLAGS += -DLED
+
+# -DTIME_LED=1
+test_uart.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))' -DTIMER0_VIC_SLOT=1
+test_uart.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
+
+test_uart.srcs += $(SRC_ARCH)/uart_hw.c
+
+test_uart.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600 -DUART1_VIC_SLOT=6
+test_uart.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport \
+	                  -DDOWNLINK_DEVICE=Uart1
+test_uart.srcs += downlink.c pprz_transport.c

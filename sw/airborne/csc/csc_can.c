@@ -75,7 +75,7 @@ void csc_can1_send(struct CscCanMsg* msg) {
   // Write DLC, RTR and FF
   C1TFI1 = (msg->frame &  0xC00F0000L);
   // Write CAN ID
-  C1TID1 = msg->msg_id;
+  C1TID1 = msg->id;
   // Write first 4 data bytes 
   C1TDA1 = msg->dat_a;
   // Write second 4 data bytes 
@@ -90,10 +90,8 @@ void csc_can1_send(struct CscCanMsg* msg) {
 void CAN1_Rx_ISR ( void ) {
  ISR_ENTRY();
  
- // LED_ON(1);
- 
  can1_rx_msg.frame  = C1RFS;
- can1_rx_msg.msg_id = C1RID;
+ can1_rx_msg.id     = C1RID;
  can1_rx_msg.dat_a  = C1RDA;
  can1_rx_msg.dat_b  = C1RDB;
  can1_msg_received = TRUE;
@@ -125,7 +123,7 @@ static void CAN2_Tx_ISR ( void ) __attribute__((naked));
 void csc_can2_init(void) {
 
   //  Set bits 14 and 16
-  PINSEL1 |= 0x00014000L;
+  PINSEL1 |= _BV(14) | _BV(16);
   // Acceptance Filter Mode Register = filter off, receive all
   AFMR = 0x00000002L;
   // Go into Reset mode
@@ -156,7 +154,7 @@ void csc_can2_init(void) {
 
 void csc_can2_send(struct CscCanMsg* msg) {
 
-  if (C2SR & 0x00000004L) { /* transmit channel not available */
+  if (!(C2SR & 0x00000004L)) { /* transmit channel not available */
     //    LED_ON(2);
     return;
   }
@@ -164,7 +162,7 @@ void csc_can2_send(struct CscCanMsg* msg) {
   // Write DLC, RTR and FF
   C2TFI1 = (msg->frame &  0xC00F0000L);
   // Write CAN ID
-  C2TID1 = msg->msg_id;
+  C2TID1 = msg->id;
   // Write first 4 data bytes 
   C2TDA1 = msg->dat_a;
   // Write second 4 data bytes 
@@ -180,7 +178,7 @@ void CAN2_Rx_ISR ( void ) {
  ISR_ENTRY();
  
  can2_rx_msg.frame  = C2RFS;
- can2_rx_msg.msg_id = C2RID;
+ can2_rx_msg.id = C2RID;
  can2_rx_msg.dat_a  = C2RDA;
  can2_rx_msg.dat_b  = C2RDB;
  can2_msg_received = TRUE;

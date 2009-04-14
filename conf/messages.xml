@@ -814,6 +814,7 @@
     <field name="ref_zdd"   type="int32" alt_unit="m/s2" alt_unit_coef="0.0009766"/>
     <field name="adp_inv_m" type="int32" alt_unit="foo"  alt_unit_coef="0.0000038"/>
     <field name="adp_cov"   type="int32" alt_unit="foo"  alt_unit_coef="0.0000038"/>
+    <field name="adp_meas"  type="int32" alt_unit="foo"  alt_unit_coef="0.0000038"/>
     <field name="sum_err"   type="int32" />
     <field name="ff_cmd"    type="int32"/>
     <field name="fb_cmd"    type="int32"/>

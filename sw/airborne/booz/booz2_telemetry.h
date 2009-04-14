@@ -346,6 +346,7 @@
 				  &booz2_guidance_v_zdd_ref,		\
 				  &b2_gv_adapt_X,			\
 				  &b2_gv_adapt_P,			\
+				  &b2_gv_adapt_Xmeas,			\
 				  &booz2_guidance_v_z_sum_err,		\
 				  &booz2_guidance_v_ff_cmd,		\
 				  &booz2_guidance_v_fb_cmd,		\

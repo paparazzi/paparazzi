@@ -33,7 +33,7 @@
 
 extern int32_t b2_gv_adapt_X;
 extern int32_t b2_gv_adapt_P;
-
+extern int32_t b2_gv_adapt_Xmeas;
 
 
 #ifdef B2_GUIDANCE_V_C
@@ -49,6 +49,9 @@ int32_t b2_gv_adapt_X;
 */
 int32_t b2_gv_adapt_P;
 #define B2_GV_ADAPT_P_FRAC 18
+
+/* Our measurement */
+int32_t b2_gv_adapt_Xmeas;
 
 
 /* Initial State and Covariance    */
@@ -83,13 +86,12 @@ static inline void b2_gv_adapt_run(int32_t zdd_meas, int32_t thrust_applied) {
   b2_gv_adapt_P =  b2_gv_adapt_P + B2_GV_ADAPT_SYS_NOISE;
   /* Compute our measurement. If zdd_meas is in the range +/-5g, meas is less than 24 bits */
   const int32_t g_m_zdd = ((int32_t)BOOZ_INT_OF_FLOAT(9.81, IACCEL_RES) - zdd_meas)<<(B2_GV_ADAPT_X_FRAC - IACCEL_RES);
-  int32_t meas;
   if ( g_m_zdd > 0)
-    meas = (g_m_zdd + (thrust_applied>>1)) / thrust_applied;
+    b2_gv_adapt_Xmeas = (g_m_zdd + (thrust_applied>>1)) / thrust_applied;
   else
-    meas = (g_m_zdd - (thrust_applied>>1)) / thrust_applied;
+    b2_gv_adapt_Xmeas = (g_m_zdd - (thrust_applied>>1)) / thrust_applied;
   /* Compute a residual */
-  int32_t residual = meas - b2_gv_adapt_X;
+  int32_t residual = b2_gv_adapt_Xmeas - b2_gv_adapt_X;
   /* Covariance Error   */
   int32_t E = b2_gv_adapt_P + B2_GV_ADAPT_MEAS_NOISE;
   /* Kalman gain        */

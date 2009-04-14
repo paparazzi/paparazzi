@@ -12,7 +12,7 @@ struct CscCanMsg {
   uint32_t frame;  // Bits 16..19: DLC - Data Length Counter
                    // Bit 30: Set if this is a RTR message
                    // Bit 31: Set if this is a 29-bit ID message
-  uint32_t msg_id; // CAN Message ID (11-bit or 29-bit)
+  uint32_t id;     // CAN Message ID (11-bit or 29-bit)
   uint32_t dat_a;  // CAN Message Data Bytes 0-3
   uint32_t dat_b;  // CAN Message Data Bytes 4-7
 };
