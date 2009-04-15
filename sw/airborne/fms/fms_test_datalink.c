@@ -46,7 +46,6 @@ static struct FmsNetwork* network;
     struct timeval tv;							\
     evutil_timerclear(&tv);						\
     tv.tv_sec  = PERIODIC_SEC;						\
-    /*    tv.tv_usec = PERIODIC_USEC; */				\
     tv.tv_usec = dt_ns / 1000;						\
     event_add(&periodic_event, &tv);					\
   }
@@ -54,12 +53,11 @@ static struct FmsNetwork* network;
 
 static void periodic_task(int fd, short event, void *arg) {
 
-  //  DOWNLINK_SEND_ALIVE(16, MD5SUM);
+  DOWNLINK_SEND_ALIVE(16, MD5SUM);
 
   struct timespec ts;
   clock_gettime(CLOCK_MONOTONIC, &ts);
   DOWNLINK_SEND_FMS_TIME(&ts.tv_sec, &ts.tv_nsec);
-
 
   PERIODIC_RESCHEDULE();
 
@@ -79,6 +77,8 @@ static void on_datalink_event(int fd, short event, void *arg) {
   }
   printf("on_datalink_event, read %d\n", bytes_read);
 
+  struct event *ev = arg;
+  event_add(ev, NULL);
 }
 
 
@@ -100,7 +100,7 @@ int main(int argc , char** argv) {
   evtimer_set(&periodic_event, periodic_task, &periodic_event);
   PERIODIC_START();
 
-  /* */
+  /* Add our datalink event */
   network = network_new(LINK_HOST, LINK_PORT, DATALINK_PORT);
   event_set(&datalink_event, network->socket_in, EV_READ, on_datalink_event, &datalink_event);
   event_add(&datalink_event, NULL);
