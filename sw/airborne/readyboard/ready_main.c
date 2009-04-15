@@ -123,7 +123,7 @@ int main(int argc , char** argv) {
   if (sched_setscheduler(0, SCHED_FIFO, &param) == -1) {
     //    TRACE(TRACE_ERROR, "sched_setscheduler failed");
     perror("sched_setscheduler failed");
-    exit(EXIT_FAILURE);
+    return(EXIT_FAILURE);
   }
 
   /* Initalize event library */
@@ -136,7 +136,7 @@ int main(int argc , char** argv) {
   /* instanciate xsens */
   if (!(xsens1 = xsens_new())) {
     TRACE(TRACE_ERROR, "opening xsens1 failed %d\n", 1);
-    exit(EXIT_FAILURE);
+    return(EXIT_FAILURE);
   }
 
   /* Add xsens as event source */
