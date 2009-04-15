@@ -15,6 +15,7 @@ ap.srcs+=$(SRC_RDY)/rdyb_xsens.c
 ap.srcs+=$(SRC_FMS)/fms_serial_port.c
 ap.srcs+=$(SRC_RDY)/rdyb_ahrs.c
 ap.srcs+=$(SRC_RDY)/rdyb_gpio.c
+ap.srcs+=$(SRC_RDY)/rdyb_can.c
 
 ap.CFLAGS += -DDOWNLINK
 ap.CFLAGS += -DDOWNLINK_TRANSPORT=UdpTransport
