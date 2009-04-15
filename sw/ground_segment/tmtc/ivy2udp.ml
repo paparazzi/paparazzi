@@ -36,13 +36,15 @@ let () =
   let ivy_bus = ref "127.255.255.255:2010" in
   let host = ref "85.214.48.162"
   and port = ref 4242
+  and datalink_port = ref 4243
   and id = ref "7" in
 
   let options = [
     "-b", Arg.Set_string ivy_bus, (sprintf "<ivy bus> Default is %s" !ivy_bus);
     "-h", Arg.Set_string host, (sprintf "<remote host> Default is %s" !host);
     "-id", Arg.Set_string id , (sprintf "<id> Default is %s" !id);
-    "-p", Arg.Set_int port, (sprintf "<remote port> Default is %d" !port)
+    "-p", Arg.Set_int port, (sprintf "<remote port> Default is %d" !port);
+    "-dp", Arg.Set_int datalink_port, (sprintf "<listening port> Default is %d" !datalink_port)
   ] in
   Arg.parse
     options
@@ -69,7 +71,7 @@ let () =
   let _b = Ivy.bind get_ivy_message (sprintf "^%s (.*)" !id) in
 
   (* Receiving a datalink message over UDP, on the same port *)
-  let sockaddr = Unix.ADDR_INET (Unix.inet_addr_any, !port)
+  let sockaddr = Unix.ADDR_INET (Unix.inet_addr_any, !datalink_port)
   and socket = Unix.socket Unix.PF_INET Unix.SOCK_DGRAM 0 in
   Unix.bind socket sockaddr;	
 
