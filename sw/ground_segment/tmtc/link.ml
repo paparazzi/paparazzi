@@ -59,6 +59,10 @@ let my_id = 0
 (* enable broadcast messages by default *)
 let ac_info = ref true
 
+(* Listening on an UDP port *)
+let udp = ref false
+let udp_uplink_port = ref 4243
+
 (* Enable trafic statistics on standard output *)
 let gen_stat_trafic = ref false
 
@@ -87,16 +91,26 @@ type status = {
     mutable ms_since_last_msg : int;
     mutable last_ping : float; (* s *)
     mutable last_pong : float; (* s *)
+    udp_peername : Unix.sockaddr option
   }
 
 let statuss = Hashtbl.create 3
 let dead_aircraft_time_ms = 5000
-let update_status = fun ac_id buf_size is_pong ->
+
+let initial_status = {
+  last_rx_byte = 0; last_rx_msg = 0;
+  rx_byte = 0; rx_msg = 0; rx_err = 0;
+  ms_since_last_msg = dead_aircraft_time_ms;
+  last_ping = 0.; last_pong = 0.;
+  udp_peername = None
+}
+
+let update_status = fun ?udp_peername ac_id buf_size is_pong ->
   if !gen_stat_trafic then
     Printf.printf "%.3f %d\n%!" (Unix.gettimeofday ()) buf_size;
   let status = 
     try Hashtbl.find statuss ac_id with Not_found ->
-      let s = { last_rx_byte = 0; last_rx_msg = 0; rx_byte = 0; rx_msg = 0; rx_err = 0; ms_since_last_msg = dead_aircraft_time_ms; last_ping = 0.; last_pong = 0. } in
+      let s = { initial_status with udp_peername = udp_peername } in
       Hashtbl.add statuss ac_id s;
       s in
   status.rx_byte <- status.rx_byte + buf_size;
@@ -116,6 +130,18 @@ let live_aircraft = fun ac_id ->
     s.ms_since_last_msg < dead_aircraft_time_ms
   with
     Not_found -> false
+
+let udp_peername = fun ac_id ->
+  try
+    (Hashtbl.find statuss ac_id).udp_peername
+  with
+    Not_found -> invalid_arg "udp_peername"
+
+let last_udp_peername = ref (Unix.ADDR_UNIX "not initialized")
+let udp_read = fun fd buf pos len ->
+  let (n, sockaddr) = Unix.recvfrom fd buf pos len [] in
+  last_udp_peername := sockaddr;
+  n
 
 let send_status_msg =
   let start = Unix.gettimeofday () in
@@ -176,7 +202,7 @@ let airborne_device = fun ac_id airframes device ->
   | _ -> raise NotSendingToThis
 
 
-let use_tele_message = fun ?raw_data_size payload ->
+let use_tele_message = fun ?udp_peername ?raw_data_size payload ->
   let raw_data_size = match raw_data_size with None -> String.length (Serial.string_of_payload payload) | Some d -> d in
   let buf = Serial.string_of_payload payload in
   Debug.call 'l' (fun f ->  fprintf f "pprz receiving: %s\n" (Debug.xprint buf));
@@ -184,7 +210,7 @@ let use_tele_message = fun ?raw_data_size payload ->
     let (msg_id, ac_id, values) = Tm_Pprz.values_of_payload payload in
     let msg = Tm_Pprz.message_of_id msg_id in
     Tm_Pprz.message_send (string_of_int ac_id) msg.Pprz.name values;
-    update_status ac_id raw_data_size (msg.Pprz.name = "PONG")
+    update_status ?udp_peername ac_id raw_data_size (msg.Pprz.name = "PONG")
   with
     exc ->
       prerr_endline (Printexc.to_string exc);
@@ -299,14 +325,22 @@ end (** XBee module *)
 
 let send = fun ac_id device ac_device payload priority ->
   if live_aircraft ac_id then
-    match ac_device with
-      Uart ->
-	let o = Unix.out_channel_of_descr device.fd in
+    match udp_peername ac_id with
+      Some (Unix.ADDR_INET (peername, port)) ->
 	let buf = Pprz.Transport.packet payload in
-	Printf.fprintf o "%s" buf; flush o;
-	Debug.call 'l' (fun f -> fprintf f "mm sending: %s\n" (Debug.xprint buf));
-    | XBeeDevice ->
-	XB.send ~ac_id device payload
+	let len = String.length buf in
+	let sockaddr = Unix.ADDR_INET (peername, !udp_uplink_port) in
+	let n = Unix.sendto device.fd buf 0 len [] sockaddr in
+	assert (n = len)
+    | _ ->
+	match ac_device with
+	  Uart ->
+	    let o = Unix.out_channel_of_descr device.fd in
+	    let buf = Pprz.Transport.packet payload in
+	    Printf.fprintf o "%s" buf; flush o;
+	    Debug.call 'l' (fun f -> fprintf f "mm sending: %s\n" (Debug.xprint buf));
+	| XBeeDevice ->
+	    XB.send ~ac_id device payload
 
 
 let broadcast = fun device payload priority ->
@@ -337,7 +371,12 @@ let parser_of_device = fun device ->
     Pprz ->
       let use = fun s ->
 	let raw_data_size = String.length (Serial.string_of_payload s) + 4(*stx,len,ck_a, ck_b*) in
-	use_tele_message ~raw_data_size s in
+	let udp_peername =
+	  if !udp then
+	    Some !last_udp_peername
+	  else
+	    None in
+	use_tele_message ?udp_peername ~raw_data_size s in
       PprzTransport.parse use
   | XBee ->
       let module XbeeTransport = Serial.Transport (Xbee.Protocol) in
@@ -402,8 +441,7 @@ let () =
   and uplink = ref true
   and audio = ref false
   and aerocomm = ref false
-  and udp_port = ref 4242
-  and udp = ref false in
+  and udp_port = ref 4242 in
   
   (* Parse command line options *)
   let options =
@@ -418,6 +456,8 @@ let () =
       "-s", Arg.Set_string baudrate, (sprintf "<baudrate>  Default is %s" !baudrate);
       "-transport", Arg.Set_string transport, (sprintf "<transport> Available protocols are modem,pprz and xbee. Default is %s" !transport);
       "-udp", Arg.Set udp, "Listen a UDP connection on <udp_port>";
+      "-udp_port", Arg.Set_int udp_port, (sprintf "<UDP port> Default is %d" !udp_port);
+      "-udp_uplink_port", Arg.Set_int udp_uplink_port, (sprintf "<UDP uplink port> Default is %d" !udp_uplink_port);
       "-udp_port", Arg.Set_int udp_port, (sprintf "<UDP port> Default is %d" !udp_port);
       "-uplink", Arg.Set uplink, (sprintf "Deprecated (now default)");
       "-xbee_addr", Arg.Set_int XB.my_addr, (sprintf "<my_addr> (%d)" !XB.my_addr);
@@ -464,8 +504,9 @@ let () =
 	let buffered_parser =
 	  (* Get the specific parser for the given transport protocol *)
 	  let parser = parser_of_device device in
+	  let read = if !udp then udp_read else Unix.read in
 	  (* Wrap the parser into the buffered bytes reader *)
-	  match Serial.input parser with Serial.Closure f -> f in
+	  match Serial.input ~read parser with Serial.Closure f -> f in
 	fun _io_event ->
 	  begin
 	    try buffered_parser fd with
