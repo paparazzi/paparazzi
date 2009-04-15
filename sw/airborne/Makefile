@@ -53,3 +53,4 @@ warn_conf :
 
 clean :
 	rm -f *~ a.out *.elf
+.PHONY: clean
