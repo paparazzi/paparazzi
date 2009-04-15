@@ -27,8 +27,11 @@
 
 let my_id = 0
 module Tm_Pprz = Pprz.Messages(struct let name = "telemetry" end)
-module Ground_Pprz = Pprz.Messages(struct let name = "ground" end)
+module Dl_Pprz = Pprz.Messages(struct let name = "datalink" end)
+module PprzTransport = Serial.Transport(Pprz.Transport)
+
 open Printf
+
 let () =
   let ivy_bus = ref "127.255.255.255:2010" in
   let host = ref "85.214.48.162"
@@ -64,6 +67,36 @@ let () =
     with _ -> () in
 
   let _b = Ivy.bind get_ivy_message (sprintf "^%s (.*)" !id) in
+
+  (* Receiving a datalink message over UDP, on the same port *)
+  let sockaddr = Unix.ADDR_INET (Unix.inet_addr_any, !port)
+  and socket = Unix.socket Unix.PF_INET Unix.SOCK_DGRAM 0 in
+  Unix.bind socket sockaddr;	
+
+  let buffer_size = 256 in
+  let buffer = String.create buffer_size in
+  let get_datalink_message = fun _ ->
+    begin
+      try
+	let n = input (Unix.in_channel_of_descr socket) buffer 0 buffer_size in
+	let b = String.sub buffer 0 n in
+	Debug.trace 'x' (Debug.xprint b);
+
+	let use_dl_message = fun payload ->
+	  Debug.trace 'x' (Debug.xprint (Serial.string_of_payload payload));
+	  let (msg_id, ac_id, values) = Dl_Pprz.values_of_payload payload in
+	  let msg = Dl_Pprz.message_of_id msg_id in
+	  Dl_Pprz.message_send "ground_dl" msg.Pprz.name values in
+	
+	assert (PprzTransport.parse use_dl_message b = n)
+      with
+	exc ->
+	  prerr_endline (Printexc.to_string exc)
+    end;
+    true in
+ 
+  let ginput = GMain.Io.channel_of_descr socket in
+  ignore (Glib.Io.add_watch [`IN] get_datalink_message ginput);
   
   (* Main Loop *)
   GMain.main () 
