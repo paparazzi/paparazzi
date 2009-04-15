@@ -54,11 +54,13 @@ val close : Unix.file_descr -> unit
 val set_dtr : Unix.file_descr -> bool -> unit
 val set_speed : Unix.file_descr -> speed -> unit
 
-val input : (string -> int) -> (Unix.file_descr -> unit) closure
-(** Buffered input. [input f] Returns a closure which must be called when
+val input : 
+  ?read:(Unix.file_descr -> string -> int -> int -> int) ->
+  (string -> int) -> (Unix.file_descr -> unit) closure
+(** Buffered input. [input ?read f] Returns a closure which must be called when
 characters are available on the stream. These characters are stored in a
 a buffer. [f] is then called on the buffer. [f] must return the number
-of consumed characters. *)
+of consumed characters. Default [read] is [Unix.read] *)
 
 type payload
 

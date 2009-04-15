@@ -93,7 +93,7 @@ let close = Unix.close
 type 'a closure = Closure of 'a
 
 let buffer_len = 256
-let input = fun f ->
+let input = fun ?(read = Unix.read) f ->
   let buffer = String.create buffer_len
   and index = ref 0 in
 
@@ -102,7 +102,7 @@ let input = fun f ->
     index := n in
 
   Closure (fun fd ->
-    let n = !index + Unix.read fd buffer !index (buffer_len - !index) in
+    let n = !index + read fd buffer !index (buffer_len - !index) in
     Debug.call 'T' (fun f -> fprintf f "input: %d %d\n" !index n);
     let rec parse = fun start n -> 
       Debug.call 'T' (fun f -> fprintf f "input parse: %d %d\n" start n);
