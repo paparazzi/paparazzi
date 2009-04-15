@@ -1018,6 +1018,11 @@
     </message>
 
 
+    <message name="FMS_TIME" id="180">
+      <field name="tv_sec" type="uint32"/>
+      <field name="tv_nsec" type="uint32"/>
+    </message>
+
 </class>
 
 

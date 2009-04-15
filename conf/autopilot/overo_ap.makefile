@@ -1,20 +1,14 @@
-
 ARCHI=geode
 
-SRC_RDY=readyboard
 SRC_FMS=fms
 
 ap.ARCHDIR = $(ARCHI)
 
 ap.LDFLAGS = -lm -levent -lrt
 
-ap.CFLAGS += -I$(SRC_RDY) -I$(SRC_FMS)
+ap.CFLAGS += -I$(SRC_FMS)
 
-ap.srcs=$(SRC_RDY)/ready_main.c
-ap.srcs+=$(SRC_RDY)/rdyb_xsens.c
-ap.srcs+=$(SRC_FMS)/fms_serial_port.c
-ap.srcs+=$(SRC_RDY)/rdyb_ahrs.c
-ap.srcs+=$(SRC_RDY)/rdyb_gpio.c
+ap.srcs=$(SRC_FMS)/fms_test_datalink.c
 
 ap.CFLAGS += -DDOWNLINK
 ap.CFLAGS += -DDOWNLINK_TRANSPORT=UdpTransport
