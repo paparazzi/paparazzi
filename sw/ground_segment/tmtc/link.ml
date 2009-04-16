@@ -70,7 +70,7 @@ let ios = int_of_string
 let (//) = Filename.concat
 let conf_dir = Env.paparazzi_home // "conf"
 
-let airborne_device = fun device addr ->
+let airborne_device = fun device ->
   match device with
     "XBEE" -> XBeeDevice
   | "PPRZ" | "AEROCOMM" -> Uart
@@ -174,9 +174,8 @@ let airframes =
       try
 	let airframe_xml = Xml.parse_file airframe_file in
 	let dls = ExtXml.child ~select:(fun s -> Xml.attrib s "name" = "DATALINK") airframe_xml "section" in
-	let device = get_define dls "DEVICE_TYPE"
-	and addr = get_define dls "DEVICE_ADDRESS" in
-	let dl = airborne_device device addr in
+	let device = get_define dls "DEVICE_TYPE" in
+	let dl = airborne_device device in
 	(ios (ExtXml.attrib a "ac_id"), dl)::r
       with
 	Not_found -> r
@@ -323,15 +322,18 @@ module XB = struct (** XBee module *)
 end (** XBee module *)
 
 
-let send = fun ac_id device ac_device payload priority ->
+let udp_send = fun fd payload peername ->
+  let buf = Pprz.Transport.packet payload in
+  let len = String.length buf in
+  let sockaddr = Unix.ADDR_INET (peername, !udp_uplink_port) in
+  let n = Unix.sendto fd buf 0 len [] sockaddr in
+  assert (n = len)
+
+let send = fun ac_id device ac_device payload _priority ->
   if live_aircraft ac_id then
     match udp_peername ac_id with
-      Some (Unix.ADDR_INET (peername, port)) ->
-	let buf = Pprz.Transport.packet payload in
-	let len = String.length buf in
-	let sockaddr = Unix.ADDR_INET (peername, !udp_uplink_port) in
-	let n = Unix.sendto device.fd buf 0 len [] sockaddr in
-	assert (n = len)
+      Some (Unix.ADDR_INET (peername, _port)) ->
+	udp_send device.fd payload peername
     | _ ->
 	match ac_device with
 	  Uart ->
@@ -343,12 +345,22 @@ let send = fun ac_id device ac_device payload priority ->
 	    XB.send ~ac_id device payload
 
 
-let broadcast = fun device payload priority ->
+let broadcast = fun device payload _priority ->
+  if !udp then
+    Hashtbl.iter (* Sending to all alive A/C *)
+      (fun ac_id status ->
+	if live_aircraft ac_id then
+	  match status.udp_peername with
+	    Some (Unix.ADDR_INET (peername, _port)) ->
+	      udp_send device.fd payload peername
+	  | _ -> ())
+      statuss
+  else
     match device.transport with
       Pprz ->
         let o = Unix.out_channel_of_descr device.fd in
         let buf = Pprz.Transport.packet payload in
-        Printf.fprintf o "%s" buf; flush o;
+	Printf.fprintf o "%s" buf; flush o;
         Debug.call 'l' (fun f -> fprintf f "mm sending: %s\n" (Debug.xprint buf));
     | XBee ->
         XB.send device payload
@@ -387,10 +399,10 @@ let hangup = fun _ ->
   prerr_endline "Modem hangup. Exiting";
   exit 1
 
-(*************** Messages *******************************************************)
+(*************** Sending messages over link ***********************************)
 
 let message_uplink = fun device ->
-  let forwarder = fun name sender vs ->
+  let forwarder = fun name _sender vs ->
     Debug.call 'f' (fun f -> fprintf f "forward %s\n" name);
     let ac_id = Pprz.int_assoc "ac_id" vs in
     try
@@ -403,15 +415,15 @@ let message_uplink = fun device ->
   let set_forwarder = fun name ->
     ignore (Dl_Pprz.message_bind name (forwarder name)) in
 
-  let broadcaster = fun name sender vs ->
+  let broadcaster = fun name _sender vs ->
     Debug.call 'f' (fun f -> fprintf f "broadcast %s\n" name);
     let msg_id, _ = Dl_Pprz.message_of_name name in
     let payload = Dl_Pprz.payload_of_values msg_id my_id vs in
     broadcast device payload Low in
-
   let set_broadcaster = fun name ->
     ignore (Dl_Pprz.message_bind name (broadcaster name)) in
 
+  (* Set a forwarder or a broadcaster for all messages tagged in messages.xml *)
   Hashtbl.iter
     (fun _m_id msg ->
       match msg.Pprz.link with
