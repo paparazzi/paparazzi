@@ -33,8 +33,12 @@ test_timing.CFLAGS += -I$(SRC_RDY) -I$(SRC_FMS)
 test_timing.srcs=$(SRC_RDY)/rdyb_test_timing.c
 test_timing.srcs+=$(SRC_RDY)/rdyb_gpio.c
 
-test_timing.CFLAGS += -DDOWNLINK
-test_timing.CFLAGS += -DDOWNLINK_TRANSPORT=UdpTransport
-test_timing.srcs += $(SRC_FMS)/fms_network.c
-test_timing.srcs += $(SRC_FMS)/udp_transport.c
-test_timing.srcs += downlink.c
+
+test_timing2.ARCHDIR = $(ARCHI)
+
+test_timing2.LDFLAGS = -lm -levent -lrt
+
+test_timing2.CFLAGS += -I$(SRC_RDY)
+
+test_timing2.srcs=$(SRC_RDY)/test_timing2.c
+test_timing2.srcs+=$(SRC_RDY)/rdyb_gpio.c
