@@ -2,6 +2,7 @@
 
   <makefile>
 
+
 include $(PAPARAZZI_SRC)/conf/autopilot/csc.makefile
 
   </makefile>

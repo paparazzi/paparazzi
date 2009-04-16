@@ -6,9 +6,9 @@
 #WHIRLY_HOST = whirly-dev
 #WHIRLY_DIR  = /home/poine
 
-WHIRLY_USER = 
-WHIRLY_HOST = whirly-dev
-WHIRLY_DIR  = ~
+USER = 
+HOST = whirly-dev
+TARGET_DIR  = ~
 
 include $(PAPARAZZI_SRC)/conf/autopilot/whirly_ap.makefile
 

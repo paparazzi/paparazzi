@@ -26,6 +26,8 @@
 
 #include "csc_main.h"
 
+#include "std.h"
+
 #include "init_hw.h"
 #include "sys_time.h"
 #include "led.h"
@@ -40,7 +42,6 @@
 #include "csc_ap_link.h"
 static inline void on_servo_cmd(void);
 static inline void on_motor_cmd(void);
-static inline void on_can_msg(void);
 
 
 int main( void ) {
@@ -61,13 +62,12 @@ STATIC_INLINE void csc_main_init( void ) {
   led_init();
 
   Uart0Init();
-  //  Uart1Init();
+  Uart1Init();
 
-  csc_can1_init();
   csc_can2_init();
 
   csc_servos_init();
-  //  uart_throttle_init();
+  uart_throttle_init();
   int_enable();
 
 }
@@ -75,66 +75,37 @@ STATIC_INLINE void csc_main_init( void ) {
 
 STATIC_INLINE void csc_main_periodic( void ) {
 
-  LED_TOGGLE(2);
-  static uint32_t cnt = 0;
-  RunOnceEvery(10, {
-      cnt++;
-      struct CscCanMsg out_msg;
-      out_msg.frame = (8<<16);
-      out_msg.id = 42;
-      out_msg.dat_a = cnt;
-      out_msg.dat_b = cnt;
-      csc_can2_send(&out_msg);
-    });
 
-  const float omega = 6.14 * 0.25;
-  float now = GET_CUR_TIME_FLOAT();
-  float srv_us = 1500. + 500. * cosf(omega*now);
-  DOWNLINK_SEND_ATTITUDE(&srv_us, &srv_us, &srv_us);
-  // FIXME : why *2 ?
-  uint32_t srv_tic = 2 * SYS_TICS_OF_USEC(rint(srv_us));
-  //uint32_t srv_tic = SYS_TICS_OF_USEC(1500);
-  
-  //  int32_t foobar[] = { 0, 0, 0, 0};
-  int32_t foobar[] = { srv_tic, srv_tic, srv_tic, srv_tic};
-  csc_servos_set(foobar);
-
-
-  //  RunOnceEvery(100, {DOWNLINK_SEND_BOOT(&cpu_time_sec);});
       
 }
 
 STATIC_INLINE void csc_main_event( void ) {
 
-  Can1Event(on_can_msg);
-  Can2Event(on_can_msg);
+  CscApLinkEvent(on_servo_cmd, on_motor_cmd);
 
 }
 
 
-
-static inline void on_can_msg(void) {
-
-  //  DOWNLINK_SEND_CSC_CAN_MSG(&can1_rx_msg.frame, &can1_rx_msg.id, 
-  //			    &can1_rx_msg.dat_a, &can1_rx_msg.dat_b);
-
-  // FIXME : why *2 ?
-  int32_t foo = SYS_TICS_OF_USEC(2 * 1500.);
-  int32_t foobar[] = { foo, foo, foo, foo};
-  csc_servos_set(foobar);
-}
-
-
-
-
-
+#define MIN_SERVO 2*SYS_TICS_OF_USEC(1000)
+#define MAX_SERVO 2*SYS_TICS_OF_USEC(2000)
 
 static inline void on_servo_cmd(void) {
-  //  LED_TOGGLE(1);
+
+  uint16_t* servos = (uint16_t*)(&csc_servo_cmd);
+  uint32_t servos_checked[4];
+  uint32_t i;
+  for (i=0; i<4; i++)
+    servos_checked[i] = Chop(servos[i],MIN_SERVO, MAX_SERVO);
+  csc_servos_set(servos_checked);
+
+  //  DOWNLINK_SEND_CSC_CAN_MSG(&can1_rx_msg.frame, &can1_rx_msg.id, 
+  //  			    &can1_rx_msg.dat_a, &can1_rx_msg.dat_b);
+  //  DOWNLINK_SEND_ADC_GENERIC(&servos[0], &servos[1]);
+
 }
+
 
 static inline void on_motor_cmd(void) {
-  //  LED_TOGGLE(1);
+
+
 }
-
-

@@ -27,8 +27,6 @@ ARCHI=arm7
 FLASH_MODE = ISP
 LPC21ISP_PORT = /dev/ttyUSB0
 
-#LPC21ISP_BAUD = 115200
-#LPC21ISP_XTAL = 14746
 LPC21ISP_BAUD = 38400
 LPC21ISP_XTAL = 12000
 
@@ -48,6 +46,7 @@ main.ARCH = arm7tdmi
 main.TARGET = main
 main.TARGETDIR = main
 
+main.CFLAGS += -DCSC_BOARD_ID=0
 
 main.CFLAGS += -I$(SRC_CSC)
 main.CFLAGS += -DCONFIG=$(BOARD_CFG)
@@ -72,7 +71,7 @@ main.CFLAGS += -DAP_LINK_CAN
 main.CFLAGS += -DUSE_CAN1 -DCAN1_BTR=CANBitrate125k_2MHz
 main.CFLAGS +=  -DCAN1_VIC_SLOT=3 -DCAN_ERR_VIC_SLOT=7
 main.srcs += $(SRC_CSC)/csc_can.c
-main.CFLAGS += -DUSE_CAN2 -DCAN2_BTR=CANBitrate125k_2MHz -DCAN2_VIC_SLOT=4
+#main.CFLAGS += -DUSE_CAN2 -DCAN2_BTR=CANBitrate125k_2MHz -DCAN2_VIC_SLOT=4
 
 #main.CFLAGS += -DAP_LINK_UART -DPPRZ_UART=Uart1
 #main.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600 -DUART1_VIC_SLOT=6
@@ -82,16 +81,14 @@ main.srcs += $(SRC_CSC)/csc_ap_link.c
 
 main.srcs += $(SRC_CSC)/csc_servos.c
 
-#main.CFLAGS += -DTHROTTLE_LINK=Uart0 -DTHROTTLE_ID=0
-#main.srcs += $(SRC_CSC)/uart_throttle.c
+main.CFLAGS += -DTHROTTLE_LINK=Uart1 -DTHROTTLE_ID=0
+main.srcs += $(SRC_CSC)/uart_throttle.c
 
 
-
-
-
-
-SRC_CSC=csc
-
+#
+#
+#
+#
 test_uart.ARCHDIR = $(ARCHI)
 test_uart.ARCH = arm7tdmi
 test_uart.TARGET = test_uart
@@ -113,3 +110,54 @@ test_uart.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600 -DUART1_VIC_SLOT=6
 test_uart.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport \
 	                  -DDOWNLINK_DEVICE=Uart1
 test_uart.srcs += downlink.c pprz_transport.c
+
+
+#
+# TEST CAN1
+#
+
+test_can1.ARCHDIR = $(ARCHI)
+test_can1.ARCH = arm7tdmi
+test_can1.TARGET = test_can1
+test_can1.TARGETDIR = test_can1
+
+
+test_can1.CFLAGS += -I$(SRC_CSC)
+test_can1.CFLAGS += -DCONFIG=$(BOARD_CFG)
+test_can1.srcs += $(SRC_CSC)/test_can1.c
+test_can1.CFLAGS += -DLED
+
+# -DTIME_LED=1
+test_can1.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))' -DTIMER0_VIC_SLOT=1
+test_can1.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
+
+test_can1.CFLAGS += -DUSE_CAN1 -DCAN1_BTR=CANBitrate125k_2MHz
+test_can1.CFLAGS +=  -DCAN1_VIC_SLOT=3 -DCAN_ERR_VIC_SLOT=7
+test_can1.srcs += $(SRC_CSC)/csc_can.c
+test_can1.CFLAGS += -DCSC_BOARD_ID=0
+
+
+
+#
+# TEST CAN2
+#
+
+test_can2.ARCHDIR = $(ARCHI)
+test_can2.ARCH = arm7tdmi
+test_can2.TARGET = test_can2
+test_can2.TARGETDIR = test_can2
+
+
+test_can2.CFLAGS += -I$(SRC_CSC)
+test_can2.CFLAGS += -DCONFIG=$(BOARD_CFG)
+test_can2.srcs += $(SRC_CSC)/test_can2.c
+test_can2.CFLAGS += -DLED
+
+# -DTIME_LED=1
+test_can2.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))' -DTIMER0_VIC_SLOT=1
+test_can2.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
+
+test_can2.CFLAGS += -DUSE_CAN2 -DCAN2_BTR=CANBitrate125k_2MHz
+test_can2.CFLAGS +=  -DCAN2_VIC_SLOT=3 -DCAN_ERR_VIC_SLOT=7
+test_can2.srcs += $(SRC_CSC)/csc_can.c
+test_can2.CFLAGS += -DCSC_BOARD_ID=0

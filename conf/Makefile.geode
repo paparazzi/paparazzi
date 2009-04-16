@@ -65,7 +65,7 @@ elf: $(OBJDIR)/$(TARGET).elf
 
 # Program the device.  
 load upload program: $(OBJDIR)/$(TARGET).elf
-	scp $(OBJDIR)/$(TARGET).elf $(WHIRLY_USER)@$(WHIRLY_HOST):$(WHIRLY_DIR)
+	scp $(OBJDIR)/$(TARGET).elf $(USER)@$(HOST):$(TARGET_DIR)
 
 # Link: create ELF output file from object files.
 .SECONDARY : $(OBJDIR)/$(TARGET).elf

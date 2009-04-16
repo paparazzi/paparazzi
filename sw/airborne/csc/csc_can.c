@@ -6,6 +6,7 @@
 #include "led.h"
 
 
+#define CSC_BOARD_MASK 0x0F
 
 static void CAN_Err_ISR ( void ) __attribute__((naked));
 
@@ -67,10 +68,10 @@ void csc_can1_init(void) {
 void csc_can1_send(struct CscCanMsg* msg) {
 
   if (!(C1SR & 0x00000004L)) { /* transmit channel not available */
-    LED_ON(2);
+    //    LED_ON(2);
     return;
   }
-  LED_OFF(2);
+  //  LED_OFF(2);
   
   // Write DLC, RTR and FF
   C1TFI1 = (msg->frame &  0xC00F0000L);
@@ -94,11 +95,12 @@ void CAN1_Rx_ISR ( void ) {
  can1_rx_msg.id     = C1RID;
  can1_rx_msg.dat_a  = C1RDA;
  can1_rx_msg.dat_b  = C1RDB;
- can1_msg_received = TRUE;
+ if ((can1_rx_msg.id & CSC_BOARD_MASK) == CSC_BOARD_ID)
+   can1_msg_received = TRUE;
 
  C1CMR = 0x04;             // release receive buffer
  VICVectAddr = 0x00000000; // acknowledge interrupt
-
+ 
  ISR_EXIT();
 }
 
@@ -181,7 +183,8 @@ void CAN2_Rx_ISR ( void ) {
  can2_rx_msg.id = C2RID;
  can2_rx_msg.dat_a  = C2RDA;
  can2_rx_msg.dat_b  = C2RDB;
- can2_msg_received = TRUE;
+ if (((can2_rx_msg.id>>7) & CSC_BOARD_MASK) == CSC_BOARD_ID)
+   can2_msg_received = TRUE;
 
  C2CMR = 0x04;             // release receive buffer
  VICVectAddr = 0x00000000; // acknowledge interrupt
@@ -207,7 +210,7 @@ void CAN_Err_ISR ( void ) {
  ISR_ENTRY();
  
  err_cnt++;
- // LED_TOGGLE(1); 
+ LED_ON(2); 
  uint32_t c1icr = C1ICR;
  DOWNLINK_SEND_CSC_CAN_DEBUG(&err_cnt, &c1icr);
 

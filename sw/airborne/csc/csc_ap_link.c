@@ -9,6 +9,3 @@ void csc_ap_link_init(void) {
 
 }
 
-
-
-
