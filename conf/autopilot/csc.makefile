@@ -52,9 +52,9 @@ main.TARGETDIR = main
 main.CFLAGS += -I$(SRC_CSC)
 main.CFLAGS += -DCONFIG=$(BOARD_CFG)
 main.srcs += $(SRC_CSC)/csc_main.c
-main.CFLAGS += -DLED
+main.CFLAGS += -DLED -DTIME_LED=1
 
-# -DTIME_LED=1
+
 main.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))' -DTIMER0_VIC_SLOT=1
 main.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
 
@@ -64,7 +64,7 @@ main.srcs += $(SRC_ARCH)/uart_hw.c
 main.CFLAGS += -DUSE_UART0 -DUART0_BAUD=B57600 -DUART0_VIC_SLOT=5
 main.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600 -DUART1_VIC_SLOT=6
 main.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport \
-	                  -DDOWNLINK_DEVICE=Uart1
+	                  -DDOWNLINK_DEVICE=Uart0
 main.srcs += downlink.c pprz_transport.c
 
 

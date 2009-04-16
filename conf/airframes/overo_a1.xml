@@ -2,10 +2,6 @@
 
   <makefile>
 
-#WHIRLY_USER = poine
-#WHIRLY_HOST = whirly-dev
-#WHIRLY_DIR  = /home/poine
-
 WHIRLY_USER = 
 WHIRLY_HOST = whirly-dev
 WHIRLY_DIR  = ~

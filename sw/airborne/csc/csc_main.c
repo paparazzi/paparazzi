@@ -61,12 +61,12 @@ STATIC_INLINE void csc_main_init( void ) {
   led_init();
 
   Uart0Init();
-  Uart1Init();
+  //  Uart1Init();
 
   csc_can1_init();
   csc_can2_init();
 
-  //  csc_servos_init();
+  csc_servos_init();
   //  uart_throttle_init();
   int_enable();
 
@@ -75,10 +75,10 @@ STATIC_INLINE void csc_main_init( void ) {
 
 STATIC_INLINE void csc_main_periodic( void ) {
 
+  LED_TOGGLE(2);
   static uint32_t cnt = 0;
   RunOnceEvery(10, {
       cnt++;
-      //      LED_TOGGLE(2);
       struct CscCanMsg out_msg;
       out_msg.frame = (8<<16);
       out_msg.id = 42;
@@ -87,7 +87,20 @@ STATIC_INLINE void csc_main_periodic( void ) {
       csc_can2_send(&out_msg);
     });
 
-  RunOnceEvery(100, {DOWNLINK_SEND_BOOT(&cpu_time_sec);});
+  const float omega = 6.14 * 0.25;
+  float now = GET_CUR_TIME_FLOAT();
+  float srv_us = 1500. + 500. * cosf(omega*now);
+  DOWNLINK_SEND_ATTITUDE(&srv_us, &srv_us, &srv_us);
+  // FIXME : why *2 ?
+  uint32_t srv_tic = 2 * SYS_TICS_OF_USEC(rint(srv_us));
+  //uint32_t srv_tic = SYS_TICS_OF_USEC(1500);
+  
+  //  int32_t foobar[] = { 0, 0, 0, 0};
+  int32_t foobar[] = { srv_tic, srv_tic, srv_tic, srv_tic};
+  csc_servos_set(foobar);
+
+
+  //  RunOnceEvery(100, {DOWNLINK_SEND_BOOT(&cpu_time_sec);});
       
 }
 
@@ -102,10 +115,12 @@ STATIC_INLINE void csc_main_event( void ) {
 
 static inline void on_can_msg(void) {
 
-  DOWNLINK_SEND_CSC_CAN_MSG(&can1_rx_msg.frame, &can1_rx_msg.id, 
-			    &can1_rx_msg.dat_a, &can1_rx_msg.dat_b);
+  //  DOWNLINK_SEND_CSC_CAN_MSG(&can1_rx_msg.frame, &can1_rx_msg.id, 
+  //			    &can1_rx_msg.dat_a, &can1_rx_msg.dat_b);
 
-  int32_t foobar[] = { 0, 0, 0, 0};
+  // FIXME : why *2 ?
+  int32_t foo = SYS_TICS_OF_USEC(2 * 1500.);
+  int32_t foobar[] = { foo, foo, foo, foo};
   csc_servos_set(foobar);
 }
 

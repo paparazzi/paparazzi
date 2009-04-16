@@ -5,7 +5,8 @@
 #include "sys_time.h"
 
 #define CSC_SERVOS_NB 4
-#define CSC_SERVOS_PERIOD SYS_TICS_OF_USEC(25000); /* 40 Hz */
+#define CSC_SERVOS_PERIOD SYS_TICS_OF_SEC((1./40.)); /* 40 Hz */
+//#define CSC_SERVOS_PERIOD 375000
 
 #define PWM_SERVO_0_PINSEL PINSEL0 
 #define PWM_SERVO_0_PINSEL_VAL 2
@@ -43,9 +44,10 @@ void csc_servos_init(void) {
   
   /* set pins as PWM outputs */
   PWM_SERVO_0_PINSEL |= (PWM_SERVO_0_PINSEL_VAL << PWM_SERVO_0_PINSEL_BIT);
-  PWM_SERVO_1_PINSEL |= (PWM_SERVO_1_PINSEL_VAL << PWM_SERVO_1_PINSEL_BIT);
+  //  PWM_SERVO_1_PINSEL |= (PWM_SERVO_1_PINSEL_VAL << PWM_SERVO_1_PINSEL_BIT);
   PWM_SERVO_2_PINSEL |= (PWM_SERVO_2_PINSEL_VAL << PWM_SERVO_2_PINSEL_BIT);
-  PWM_SERVO_3_PINSEL |= (PWM_SERVO_3_PINSEL_VAL << PWM_SERVO_3_PINSEL_BIT);
+  //  PWM_SERVO_3_PINSEL |= (PWM_SERVO_3_PINSEL_VAL << PWM_SERVO_3_PINSEL_BIT);
+
   /* set servo refresh rate */
   PWMMR0 = CSC_SERVOS_PERIOD;
   /* enable PWM outputs in single edge mode*/
@@ -59,15 +61,14 @@ void csc_servos_init(void) {
 
 void csc_servos_set(int32_t* val) {
   
-  SERVO_REG_0 = SYS_TICS_OF_USEC(1500);//val[0];
-  SERVO_REG_1 = SYS_TICS_OF_USEC(1500);//val[1];
-  SERVO_REG_2 = SYS_TICS_OF_USEC(1500);//val[2];
-  SERVO_REG_3 = SYS_TICS_OF_USEC(1500);//val[3];
-
   int i;
   for (i=0; i<CSC_SERVOS_NB; i++)
-    //    csc_servo_val[i] = val[i];
-    csc_servo_val[i] = SYS_TICS_OF_USEC(1500);
+    csc_servo_val[i] = val[i];
+  
+  SERVO_REG_0 = val[0];
+  SERVO_REG_1 = val[1];
+  SERVO_REG_2 = val[2];
+  SERVO_REG_3 = val[3];
 
   PWMLER = PWM_SERVO_0_LATCH | PWM_SERVO_1_LATCH | PWM_SERVO_2_LATCH | PWM_SERVO_3_LATCH; 
 
