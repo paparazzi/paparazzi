@@ -131,7 +131,7 @@ static void send_ap_msg( struct throttle_msg *msg)
 	ap_msg.arg1 =  msg->arg1;
 	ap_msg.arg2 = msg->arg2;
 
-	csc_ap_send_msg(CSC_MOTOR_STATUS_ID, (const char *)&msg, sizeof(ap_msg));
+	csc_ap_send_msg(CSC_MOTOR_STATUS_ID, (const char *)&ap_msg, sizeof(ap_msg));
 }
 
 
