@@ -101,7 +101,7 @@ int main(int argc , char** argv) {
   PERIODIC_START();
 
   /* Add our datalink event */
-  network = network_new(LINK_HOST, LINK_PORT, DATALINK_PORT);
+  network = network_new(LINK_HOST, LINK_PORT, DATALINK_PORT, FMS_UNICAST);
   event_set(&datalink_event, network->socket_in, EV_READ, on_datalink_event, &datalink_event);
   event_add(&datalink_event, NULL);
   

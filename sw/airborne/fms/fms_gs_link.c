@@ -7,7 +7,7 @@
 struct FmsGsLink* gs_link_new(const char* str_ip, const int port) {
 
   struct FmsGsLink* me = malloc(sizeof(struct FmsGsLink));
-  me->network = network_new(str_ip, port);
+  me->network = network_new(str_ip, port, FMS_UNICAST);
   return me;
 
 }

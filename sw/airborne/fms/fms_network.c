@@ -6,15 +6,21 @@
 
 #include "fms_debug.h"
 
-struct FmsNetwork* network_new(const char* str_ip_out, const int port_out, const int port_in) {
+struct FmsNetwork* network_new(const char* str_ip_out, const int port_out, const int port_in, const int broadcast) {
 
   struct FmsNetwork* me = malloc(sizeof(struct FmsNetwork));
  
+	int so_broadcast = 1;
   int so_reuseaddr = 1;
   struct protoent * pte = getprotobyname("UDP");
   me->socket_out = socket( PF_INET, SOCK_DGRAM, pte->p_proto);
   setsockopt(me->socket_out, SOL_SOCKET, SO_REUSEADDR, 
              &so_reuseaddr, sizeof(so_reuseaddr));
+
+	/* only set broadcast option if explicitly enabled */
+  if (broadcast)
+    setsockopt(me->socket_out, SOL_SOCKET, SO_BROADCAST,
+               &broadcast, sizeof(broadcast));
   
   me->addr_out.sin_family = PF_INET;
   me->addr_out.sin_port = htons(port_out);
