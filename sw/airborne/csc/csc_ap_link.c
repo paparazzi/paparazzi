@@ -21,7 +21,7 @@ void csc_ap_send_msg(uint8_t msg_id, const uint8_t *buf, uint8_t len)
 	// build msg id using our board ID and requested msg id
 	out_msg.id = ((CSC_BOARD_ID << 7) & CSC_BOARD_MASK) | (msg_id & CSC_MSGID_MASK);
 	// copy msg payload in host order
-	memcpy((char *)out_msg.dat_a, buf, len);
+	memcpy((char *)&out_msg.dat_a, buf, len);
 	// send via CAN2 
 	csc_can2_send(&out_msg);
 }
