@@ -38,6 +38,8 @@
 #define THROTTLE_START1 0xAC
 #define THROTTLE_START2 0xBE
 
+#define THROTTLE_ID 0	
+
 uint32_t throttle_err_count;
 uint32_t throttle_recv_count;
 
@@ -118,8 +120,6 @@ void uart_throttle_init( void )
 
   throttle_err_count = 0;
   throttle_recv_count = 0;
-  // uart 3 initialisation
-  //  PINSEL1 |= (0x3 << 18) | (0x3 << 20);
 }
 
 void uart_throttle_event_task( void ) 
@@ -159,30 +159,6 @@ void throttle_parse_msg( void )
 uint16_t throttle_calculate_checksum(struct throttle_msg *send)
 {
   return send->throttle_id + send->cmd_id + send->arg1 + send->arg2;
-}
-
-void uart_throttle_set(uint16_t throttle_rpm)
-{
-  static uint16_t last_throttle_rpm;
-  static uint16_t timeout = 0;
-  
-  ++timeout;
-  if (uart_throttle_send_cmd_req) {
-    throttle_send_command(uart_throttle_send_cmd_tid, uart_throttle_send_cmd_cid, uart_throttle_send_cmd_arg1, uart_throttle_send_cmd_arg2);
-    uart_throttle_send_cmd_req = 0;
-    timeout = 0;
-  } else if (last_throttle_rpm != throttle_rpm || timeout > 10) {
-    timeout = 0;
-    if (throttle_rpm == 0) {
-      throttle_send_command(THROTTLE_ID, THROTTLE_CMD_STOP, 0, 0);
-    } else {
-      if (last_throttle_rpm == 0) {
-	throttle_send_command(THROTTLE_ID, THROTTLE_CMD_START, 0, 0);
-      }
-      throttle_send_command(THROTTLE_ID, THROTTLE_CMD_SET_SPEED, throttle_rpm, 0);
-    }
-    last_throttle_rpm = throttle_rpm;
-  }
 }
 
 void throttle_send_command(uint8_t throttle_id, uint8_t cmd_id, uint16_t arg1, uint16_t arg2)

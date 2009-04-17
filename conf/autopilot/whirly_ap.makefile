@@ -18,6 +18,7 @@ ap.srcs+=$(SRC_FMS)/fms_serial_port.c
 ap.srcs+=$(SRC_RDY)/rdyb_ahrs.c
 ap.srcs+=$(SRC_RDY)/rdyb_can.c
 ap.srcs+=$(SRC_RDY)/rdyb_control.c
+ap.srcs+=$(SRC_RDY)/rdyb_throttle.c
 
 ap.CFLAGS += -DDOWNLINK
 ap.CFLAGS += -DDOWNLINK_TRANSPORT=UdpTransport
@@ -100,7 +101,7 @@ csc1.srcs += $(SRC_CSC)/csc_ap_link.c
 csc1.srcs += $(SRC_CSC)/csc_servos.c
 
 csc1.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600 -DUART1_VIC_SLOT=6
-csc1.CFLAGS += -DTHROTTLE_LINK=Uart1 -DTHROTTLE_ID=0
+csc1.CFLAGS += -DTHROTTLE_LINK=Uart1 
 csc1.srcs += $(SRC_CSC)/uart_throttle.c
 
 
@@ -143,6 +144,6 @@ csc2.srcs += $(SRC_CSC)/csc_ap_link.c
 csc2.srcs += $(SRC_CSC)/csc_servos.c
 
 csc2.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600 -DUART1_VIC_SLOT=6
-csc2.CFLAGS += -DTHROTTLE_LINK=Uart1 -DTHROTTLE_ID=0
+csc2.CFLAGS += -DTHROTTLE_LINK=Uart1 
 csc2.srcs += $(SRC_CSC)/uart_throttle.c
 

@@ -19,10 +19,9 @@ struct CscServoCmd {
 
 struct CscMotorCmd {
   uint8_t  cmd_id;
+  uint8_t  pad1;
   uint16_t arg1;
   uint16_t arg2;
-  uint8_t  pad1;
-  uint16_t pad2;
 };
 
 /* Sent to the autopilot */
@@ -30,7 +29,6 @@ struct CscMotorStatus {
   uint16_t uart_throttle_faultflags;
   uint16_t uart_throttle_rpm;
   uint16_t uart_throttle_vbus;
-  uint16_t pad1;
 };
 
 
@@ -59,6 +57,9 @@ extern void csc_ap_link_init(void);
       _on_servo_msg();						  \
       break;							  \
     case CSC_MOTOR_CMD_ID:					  \
+      csc_motor_cmd.cmd_id = can2_rx_msg.dat_a & 0xFF;		  \
+      csc_motor_cmd.arg1 = (can2_rx_msg.dat_a>>16) & 0xFFFF;	  \
+      csc_motor_cmd.arg2 = can2_rx_msg.dat_b & 0xFFFF;		  \
       _on_motor_msg();						  \
       break;							  \
     }								  \

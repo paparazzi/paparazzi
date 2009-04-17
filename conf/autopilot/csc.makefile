@@ -81,7 +81,7 @@ main.srcs += $(SRC_CSC)/csc_ap_link.c
 
 main.srcs += $(SRC_CSC)/csc_servos.c
 
-main.CFLAGS += -DTHROTTLE_LINK=Uart1 -DTHROTTLE_ID=0
+main.CFLAGS += -DTHROTTLE_LINK=Uart1
 main.srcs += $(SRC_CSC)/uart_throttle.c
 
 
