@@ -90,7 +90,7 @@ STATIC_INLINE void csc_main_periodic( void ) {
 STATIC_INLINE void csc_main_event( void ) {
 
   CscApLinkEvent(on_servo_cmd, on_motor_cmd);
-
+	csc_throttle_event_task();
 }
 
 
