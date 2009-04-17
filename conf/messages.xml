@@ -1024,6 +1024,13 @@
       <field name="delay_ns" type="uint32"/>
     </message>
 
+
+    <message name="WHIRLY_CONTROL" id="181">
+      <field name="throttle_1" type="uint32"/>
+      <field name="throttle_2" type="uint32"/>
+    </message>
+
+
 </class>
 
 

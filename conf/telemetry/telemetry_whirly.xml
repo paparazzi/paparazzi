@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<!DOCTYPE telemetry SYSTEM "telemetry.dtd">
+<telemetry>
+
+
+  <process name="Main">
+
+    <mode name="default">
+      <message name="DL_VALUE"          period="1.1"/>
+      <message name="ALIVE"             period="2.1"/>
+      <message name="WHIRLY_CONTROL"    period="0.16"/>
+    </mode>
+
+    <mode name="raw_sensors">
+<!--      <message name="DL_VALUE"          period="0.5"/> -->
+      <message name="ALIVE"             period="2.1"/>
+<!--      <message name="IMU_ACCEL_RAW"     period=".05"/>
+      <message name="IMU_GYRO_RAW"      period=".05"/>
+      <message name="IMU_MAG_RAW"       period=".05"/>    -->  
+    </mode>
+
+    <mode name="scaled_sensors">
+<!--      <message name="DL_VALUE"          period="0.5"/> -->
+      <message name="ALIVE"             period="2.1"/>
+<!--      <message name="BOOZ2_GYRO"        period=".075"/>
+      <message name="BOOZ2_ACCEL"       period=".075"/>
+      <message name="BOOZ2_MAG"         period=".1"/> -->
+    </mode>
+
+  </process>
+
+</telemetry>

@@ -87,7 +87,7 @@ main.srcs += $(SRC_CSC)/uart_throttle.c
 
 #
 #
-#
+# test uart
 #
 test_uart.ARCHDIR = $(ARCHI)
 test_uart.ARCH = arm7tdmi

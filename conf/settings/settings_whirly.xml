@@ -1,0 +1,14 @@
+<!DOCTYPE settings SYSTEM "settings.dtd">
+
+<settings>
+  <dl_settings>
+
+    <dl_settings NAME="Misc" >
+      <dl_setting var="control.throttle[PLANE_1]" min="0" step="1" max="100" module="rdyb_control" shortname="throttle 1"/>
+    </dl_settings>
+
+
+
+
+  </dl_settings>
+</settings>
