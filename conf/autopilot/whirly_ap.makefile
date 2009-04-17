@@ -103,7 +103,7 @@ csc1.srcs += $(SRC_CSC)/csc_servos.c
 
 csc1.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600 -DUART1_VIC_SLOT=6
 csc1.CFLAGS += -DTHROTTLE_LINK=Uart1 
-csc1.srcs += $(SRC_CSC)/uart_throttle.c
+csc1.srcs += $(SRC_CSC)/csc_throttle.c
 
 
 #
