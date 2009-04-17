@@ -10,7 +10,6 @@ struct FmsNetwork* network_new(const char* str_ip_out, const int port_out, const
 
   struct FmsNetwork* me = malloc(sizeof(struct FmsNetwork));
  
-	int so_broadcast = 1;
   int so_reuseaddr = 1;
   struct protoent * pte = getprotobyname("UDP");
   me->socket_out = socket( PF_INET, SOCK_DGRAM, pte->p_proto);
