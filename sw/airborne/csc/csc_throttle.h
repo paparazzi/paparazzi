@@ -22,8 +22,8 @@
 /** \file uart_throttle.h
  */
 
-#ifndef __UART_THROTTLE_H__
-#define __UART_THROTTLE_H__
+#ifndef __CSC_THROTTLE_H__
+#define __CSC_THROTTLE_H__
 
 #include "types.h"
 #include "std.h"

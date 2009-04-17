@@ -23,7 +23,7 @@
 /** \file uart_throttle.c
  */
 
-#include "uart_throttle.h"
+#include "csc_throttle.h"
 
 #include <inttypes.h>
 

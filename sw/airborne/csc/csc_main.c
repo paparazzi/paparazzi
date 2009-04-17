@@ -36,7 +36,7 @@
 #include "downlink.h"
 
 #include "csc_servos.h"
-#include "uart_throttle.h"
+#include "csc_throttle.h"
 
 #include "csc_can.h"
 #include "csc_ap_link.h"
