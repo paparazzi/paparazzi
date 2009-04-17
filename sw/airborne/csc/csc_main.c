@@ -80,6 +80,7 @@ STATIC_INLINE void csc_main_periodic( void ) {
 	static uint32_t zeros[4] = {0, 0, 0, 0};
 
 	if (servo_cmd_timeout > SERVO_TIMEOUT) {
+		LED_OFF(2);
 		csc_servos_set(zeros);
 	} else {
 		servo_cmd_timeout++;
