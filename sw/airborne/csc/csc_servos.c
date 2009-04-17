@@ -5,7 +5,7 @@
 #include "sys_time.h"
 
 #define CSC_SERVOS_NB 4
-#define CSC_SERVOS_PERIOD SYS_TICS_OF_SEC((1./40.)); /* 40 Hz */
+#define CSC_SERVOS_PERIOD (2 * SYS_TICS_OF_SEC((1./250.))); /* 250 Hz */
 //#define CSC_SERVOS_PERIOD 375000
 
 #define PWM_SERVO_0_PINSEL PINSEL0 
