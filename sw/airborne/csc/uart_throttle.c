@@ -32,6 +32,7 @@
 //#include "downlink.h"
 //#include "messages.h"
 #include "uart.h"
+#include "csc_ap_link.h"
 //#include "print.h"
 //#include "com_stats.h"
 
@@ -43,32 +44,12 @@
 uint32_t throttle_err_count;
 uint32_t throttle_recv_count;
 
-uint16_t uart_throttle_faultflags;
-uint16_t uart_throttle_rpm;
-uint16_t uart_throttle_vbus;
-
-uint16_t uart_throttle_recv_cmd_tid;
-uint16_t uart_throttle_recv_cmd_cid;
-uint16_t uart_throttle_recv_cmd_arg1;
-uint16_t uart_throttle_recv_cmd_arg2;
-
-uint16_t uart_throttle_send_cmd_req;
-uint16_t uart_throttle_send_cmd_tid;
-uint16_t uart_throttle_send_cmd_cid;
-uint16_t uart_throttle_send_cmd_arg1;
-uint16_t uart_throttle_send_cmd_arg2;
-
 #define __ThrottleLink(dev, _x) dev##_x
 #define _ThrottleLink(dev, _x)  __ThrottleLink(dev, _x)
 #define ThrottleLink(_x) _ThrottleLink(THROTTLE_LINK, _x)
 
 #define ThrottlePrintString(s) ThrottleLink(PrintString(s))
-#define ThrottleBuffer() ThrottleLink(ChAvailable())
-#define ReadThrottleBuffer() { while (ThrottleLink(ChAvailable())&&!throttle_msg_received) parse_throttle_msg(ThrottleLink(Getch())); }
-
 #define ThrottleUartSend1(c) ThrottleLink(Transmit(c))
-#define ThrottleUartInitParam(_a,_b,_c) ThrottleLink(InitParam(_a,_b,_c))
-#define ThrottleUartRunning ThrottleLink(TxRunning)
 
 #define UNINIT         0
 #define GOT_START1     1
@@ -94,12 +75,9 @@ uint16_t uart_throttle_send_cmd_arg2;
 #define THROTTLE_CMD_SET_MREG 11
 #define THROTTLE_CMD_REG_MVALUE 12
 
-#define THROTTLE_MAX_PAYLOAD 254
 static volatile uint8_t throttle_msg_received;
 
 struct throttle_msg {
-  uint8_t start_byte1;
-  uint8_t start_byte2;
   uint8_t throttle_id;
   uint8_t cmd_id;
   uint16_t arg1;
@@ -109,11 +87,10 @@ struct throttle_msg {
 
 static struct throttle_msg recv_msg;
 
-void parse_throttle_msg(uint8_t c );
-void throttle_parse_msg( void );
-void throttle_send_command(uint8_t throttle_id, uint8_t cmd_id, uint16_t arg1, uint16_t arg2);
-void throttle_send_message(struct throttle_msg *send);
-uint16_t throttle_calculate_checksum(struct throttle_msg *send);
+static void parse_throttle_msg(uint8_t c);
+static void throttle_process_msg( void );
+static void throttle_send_message(struct throttle_msg *send);
+static uint16_t throttle_calculate_checksum(struct throttle_msg *send);
 
 void uart_throttle_init( void )
 {
@@ -124,17 +101,30 @@ void uart_throttle_init( void )
 
 void uart_throttle_event_task( void ) 
 {
-  if (ThrottleBuffer()) {
-    ReadThrottleBuffer();
+	while (!throttle_msg_received && ThrottleLink(ChAvailable())) {
+		parse_throttle_msg(ThrottleLink(Getch()));
   }
   if (throttle_msg_received) {
-    throttle_parse_msg();
+    throttle_process_msg();
     throttle_msg_received = FALSE;
   }
 }
 
+static void uart_throttle_send_ap_msg( struct throttle_msg *msg)
+{
+
+	struct CscMotorMsg ap_msg;
+
+	ap_msg.cmd_id = msg->cmd_id;
+	ap_msg.csc_id = CSC_BOARD_ID;
+	ap_msg.arg1 =  msg->arg1;
+	ap_msg.arg2 = msg->arg2;
+
+	csc_ap_send_msg(CSC_MOTOR_STATUS_ID, (const char *)&msg, sizeof(ap_msg));
+}
+
 // Called after receipt of valid message
-void throttle_parse_msg( void )
+static void throttle_process_msg( void )
 {
   if (throttle_calculate_checksum(&recv_msg) != recv_msg.checksum) {
     throttle_err_count++;
@@ -142,21 +132,10 @@ void throttle_parse_msg( void )
   }
   throttle_recv_count++;
 
-  switch (recv_msg.cmd_id) {
-     case THROTTLE_CMD_INFO:
-      uart_throttle_rpm = recv_msg.arg1;
-      uart_throttle_faultflags = recv_msg.arg2;
-      break;
-     default:
-      uart_throttle_recv_cmd_tid = recv_msg.throttle_id;
-      uart_throttle_recv_cmd_cid = recv_msg.cmd_id;
-      uart_throttle_recv_cmd_arg1 = recv_msg.arg1;
-      uart_throttle_recv_cmd_arg2 = recv_msg.arg2;
-      break;
-  }
+	uart_throttle_send_ap_msg(&recv_msg);
 }
 
-uint16_t throttle_calculate_checksum(struct throttle_msg *send)
+static uint16_t throttle_calculate_checksum(struct throttle_msg *send)
 {
   return send->throttle_id + send->cmd_id + send->arg1 + send->arg2;
 }
@@ -165,8 +144,6 @@ void throttle_send_command(uint8_t throttle_id, uint8_t cmd_id, uint16_t arg1, u
 {
   struct throttle_msg msg;
 
-  msg.start_byte1 = THROTTLE_START1;
-  msg.start_byte2 = THROTTLE_START2;
   msg.throttle_id = throttle_id;
   msg.cmd_id = cmd_id;
   msg.arg1 = arg1;
@@ -177,11 +154,11 @@ void throttle_send_command(uint8_t throttle_id, uint8_t cmd_id, uint16_t arg1, u
   throttle_send_message(&msg);
 }
 
-void throttle_send_message(struct throttle_msg *send)
+static void throttle_send_message(struct throttle_msg *send)
 {
 
-  ThrottleUartSend1(send->start_byte1);
-  ThrottleUartSend1(send->start_byte2);
+  ThrottleUartSend1(THROTTLE_START1);
+  ThrottleUartSend1(THROTTLE_START2);
   ThrottleUartSend1(send->throttle_id);
   ThrottleUartSend1(send->cmd_id);
   ThrottleUartSend1(send->arg1 >> 8);
@@ -195,7 +172,7 @@ void throttle_send_message(struct throttle_msg *send)
 // Simple state machine parser for throttle messages
 // Passed serial bytes one per call and parses stream into message id, data length, and data buffer
 // for use at higher level
-void parse_throttle_msg( uint8_t c ) {
+static void parse_throttle_msg( uint8_t c ) {
   static uint8_t throttle_status;
 
   switch (throttle_status) {
@@ -203,14 +180,12 @@ void parse_throttle_msg( uint8_t c ) {
     // Look for throttle start byte 1
     if (c != THROTTLE_START1)
       goto error;
-    recv_msg.start_byte1 = c;
     throttle_status++; 
     break;
   case GOT_START1:
     // Look for throttle start byte 2
     if (c != THROTTLE_START2)
       goto error;
-    recv_msg.start_byte2 = c;
     throttle_status++;
     break;
   case GOT_START2:

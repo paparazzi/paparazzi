@@ -120,5 +120,5 @@ static inline void on_motor_cmd(void)
 	// always send to throttle_id zero, only one motorcontrol per csc board
 	const static uint8_t throttle_id = 0;
 
-	throttle_send_command(throttle_id, csc_motor_cmd.cmd_id, csc_motor_cmd.arg1, csc_motor_cmd.arg2);
+	throttle_send_command(throttle_id, csc_motor_msg.cmd_id, csc_motor_msg.arg1, csc_motor_msg.arg2);
 }

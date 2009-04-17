@@ -8,6 +8,9 @@
 #define   CANBitrate62k5_1MHz           0x001C001D
 #define   CANBitrate125k_2MHz           0x001C000E
 
+#define CSC_BOARD_MASK 0x0F
+#define CSC_MSGID_MASK 0x7F
+
 struct CscCanMsg {
   uint32_t frame;  // Bits 16..19: DLC - Data Length Counter
                    // Bit 30: Set if this is a RTR message

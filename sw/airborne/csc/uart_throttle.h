@@ -45,6 +45,7 @@ extern uint16_t uart_throttle_send_cmd_arg2;
 
 void uart_throttle_init( void );
 void uart_throttle_event_task( void );
+void throttle_send_command(uint8_t throttle_id, uint8_t cmd_id, uint16_t arg1, uint16_t arg2);
 
 #if 0
 #ifdef USE_UART_THROTTLE

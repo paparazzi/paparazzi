@@ -6,7 +6,6 @@
 #include "led.h"
 
 
-#define CSC_BOARD_MASK 0x0F
 
 static void CAN_Err_ISR ( void ) __attribute__((naked));
 
@@ -175,6 +174,7 @@ void csc_can2_send(struct CscCanMsg* msg) {
   C2CMR = 0x21;
 
 }
+
 
 void CAN2_Rx_ISR ( void ) {
  ISR_ENTRY();
