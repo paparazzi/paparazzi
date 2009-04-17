@@ -29,9 +29,9 @@
 #include "std.h"
 
 
-void uart_throttle_init( void );
-void uart_throttle_event_task( void );
-void throttle_send_command(uint8_t throttle_id, uint8_t cmd_id, uint16_t arg1, uint16_t arg2);
+void csc_throttle_init( void );
+void csc_throttle_event_task( void );
+void csc_throttle_send_msg(uint8_t throttle_id, uint8_t cmd_id, uint16_t arg1, uint16_t arg2);
 
 
 #endif 

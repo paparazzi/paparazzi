@@ -70,7 +70,7 @@ STATIC_INLINE void csc_main_init( void ) {
   csc_can2_init();
 
   csc_servos_init();
-  uart_throttle_init();
+  csc_throttle_init();
   int_enable();
 
 }
@@ -120,5 +120,5 @@ static inline void on_motor_cmd(void)
 	// always send to throttle_id zero, only one motorcontrol per csc board
 	const static uint8_t throttle_id = 0;
 
-	throttle_send_command(throttle_id, csc_motor_msg.cmd_id, csc_motor_msg.arg1, csc_motor_msg.arg2);
+	csc_throttle_send_msg(throttle_id, csc_motor_msg.cmd_id, csc_motor_msg.arg1, csc_motor_msg.arg2);
 }
