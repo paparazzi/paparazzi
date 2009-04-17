@@ -1,6 +1,8 @@
 #ifndef PPRZ_ALGEBRA_H
 #define PPRZ_ALGEBRA_H
 
+#define SQUARE(_a) ((_a)*(_a))
+
 /*
  * Dimension 2 vectors
  */
@@ -128,6 +130,12 @@
     (_v).z = (_v).z < _min ? _min : (_v).z > _max ? _max : (_v).z;		\
   }
 
+/*  */
+#define VECT3_EW_DIV(_vo, _va, _vb) {				\
+    (_vo).x =  (_va).x / (_vb).x;				\
+    (_vo).y =  (_va).y / (_vb).y;				\
+    (_vo).z =  (_va).z / (_vb).z;				\
+  } 
 
 /*
  * Euler angles

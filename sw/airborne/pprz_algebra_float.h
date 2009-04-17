@@ -3,43 +3,44 @@
 
 #include "pprz_algebra.h"
 
+#include <math.h>
 
 struct FloatVect2 {
-  FLOAT_T x;
-  FLOAT_T y;
+  float x;
+  float y;
 };
 
 struct FloatVect3 {
-  FLOAT_T x;
-  FLOAT_T y;
-  FLOAT_T z;
+  float x;
+  float y;
+  float z;
 };
 
 struct FloatQuat {
-  FLOAT_T qi;
-  FLOAT_T qx;
-  FLOAT_T qy;
-  FLOAT_T qz;
+  float qi;
+  float qx;
+  float qy;
+  float qz;
 };
 
 struct FloatMat33 {
-  FLOAT_T m[3*3];
+  float m[3*3];
 };
 
 struct FloatRMat {
-  FLOAT_T m[3*3];
+  float m[3*3];
 };
 
 struct FloatEulers {
-  FLOAT_T phi;
-  FLOAT_T theta;
-  FLOAT_T psi;
+  float phi;
+  float theta;
+  float psi;
 };
 
 struct FloatRates {
-  FLOAT_T p;
-  FLOAT_T q;
-  FLOAT_T r;
+  float p;
+  float q;
+  float r;
 };
 
 
@@ -57,10 +58,7 @@ struct FloatRates {
     (_vo).z = (_s) * (_vi).z;				\
   }
 
-#define FLOAT_VECT3_NORM(n, v) {					\
-    const float n2 = v.x*v.x + v.y*v.y + v.z*v.z;			\
-    n = sqrtf(n2);							\
-  }
+#define FLOAT_VECT3_NORM(_v) (sqrtf((_v).x*(_v).x + (_v).y*(_v).y + (_v).z*(_v).z))
 
 #define FLOAT_VECT3_CROSS_PRODUCT(vo, v1, v2) {				\
     vo.x = v1.y*v2.z - v1.z*v2.y;					\
@@ -71,6 +69,20 @@ struct FloatRates {
 /*
  * Rotation Matrices
  */
+
+/* */
+#define FLOAT_RMAT_ZERO(_rm) {			\
+    (_rm).m[0] = 1.;                            \
+    (_rm).m[1] = 0.;                            \
+    (_rm).m[2] = 0.;                            \
+    (_rm).m[3] = 0.;                            \
+    (_rm).m[4] = 1.;                            \
+    (_rm).m[5] = 0.;                            \
+    (_rm).m[6] = 0.;                            \
+    (_rm).m[7] = 0.;                            \
+    (_rm).m[8] = 1.;                            \
+  }
+
 
 /* _m_a2c = _m_a2b comp _m_b2c , aka  _m_a2c = _m_b2c * _m_a2b */
 #define FLOAT_RMAT_COMP(_m_a2c, _m_a2b, _m_b2c) {			\
