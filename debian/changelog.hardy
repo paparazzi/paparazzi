@@ -1,3 +1,9 @@
+paparazzi (3.10.0-3) unstable; urgency=low
+
+  * Dependency over subversion added
+
+ -- Pascal Brisset <pascal.brisset@enac.fr>  Sat, 18 Apr 2009 12:35:47 +0200
+
 paparazzi (3.10.0-2) unstable; urgency=low
 
   * Recommends -> Suggests dependencies
