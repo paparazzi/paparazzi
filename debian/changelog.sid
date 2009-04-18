@@ -1,3 +1,9 @@
+paparazzi (3.2-6) unstable; urgency=low
+
+  * New dependency over subversion
+
+ -- Pascal Brisset <pascal.brisset@enac.fr>  Sat, 18 Apr 2009 15:01:21 +0200
+
 paparazzi (3.2-5) unstable; urgency=low
 
   * New dependency over meschach-dev
