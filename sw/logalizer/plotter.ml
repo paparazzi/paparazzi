@@ -72,6 +72,14 @@ type status =
   | Suspend (* Display is freezed, data are updated *)
   | Stop    (* Display is active, data are not updated *)
 
+let check_cache ~cond ~create ~destroy = function
+    Some pm ->
+      if cond pm then pm else begin
+        destroy pm;
+        create ()
+      end
+  | None -> create ()
+
 class plot = fun ~size ~width ~height ~packing () ->
   let da = GMisc.drawing_area ~width ~height ~show:true ~packing () in
   let curves = Hashtbl.create 3 in
@@ -85,6 +93,7 @@ class plot = fun ~size ~width ~height ~packing () ->
     val mutable csts = ([] : float list)
     val mutable status = Run
     val mutable auto_scale = true
+    val mutable pixmap = None
 
     method auto_scale = auto_scale
     method set_auto_scale = fun x -> auto_scale <- x
@@ -170,7 +179,14 @@ class plot = fun ~size ~width ~height ~packing () ->
 	    self#shift ();
 	  if status <> Suspend then
 	    let {Gtk.width=width; height=height} = da#misc#allocation in
-	    let dr = GDraw.pixmap ~width ~height ~window:da () in
+	    let dr = check_cache pixmap
+		~cond:(fun pm -> pm#size = (width, height))
+		~destroy:(fun pm -> Gdk.Pixmap.destroy pm#pixmap)
+		~create:
+		(fun () ->
+		  GDraw.pixmap ~width ~height ~window:da ())
+	    in
+	    pixmap <- Some dr;
 	    dr#set_foreground (`NAME "white");
 	    dr#rectangle ~x:0 ~y:0 ~width ~height ~filled:true ();
 	    let margin = Pervasives.min (height / 10) 20 in
