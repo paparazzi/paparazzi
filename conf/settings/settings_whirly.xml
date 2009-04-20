@@ -3,19 +3,22 @@
 <settings>
   <dl_settings>
 
+    <dl_settings NAME="Misc" >
+      <dl_setting var="telemetry_mode_Main" min="0" step="1" max="3" module="rdyb_telemetry" shortname="telemetry" 
+	values="Default|Raw sensors|Scaled sensors|ahrs"/>
+    </dl_settings>
+
     <dl_settings NAME="Throttle" >
-      <dl_setting var="control[PLANE_1].throttle" min="0" step="1" max="100" module="rdyb_control" shortname="throttle 1"/>
-      <dl_setting var="control[PLANE_2].throttle" min="0" step="1" max="100" module="rdyb_control" shortname="throttle 2"/>
+      <dl_setting var="control.cmd[PLANE_1].throttle" min="0" step="1" max="100" module="rdyb_control" shortname="throttle 1"/>
+      <dl_setting var="control.cmd[PLANE_2].throttle" min="0" step="1" max="100" module="rdyb_control" shortname="throttle 2"/>
     </dl_settings>
+
     <dl_settings NAME="Control" >
-      <dl_setting var="control[PLANE_1].elevator" min="-1000" step="1" max="1000" module="rdyb_control" shortname="elevator 1"/>
-      <dl_setting var="control[PLANE_2].elevator" min="-1000" step="1" max="1000" module="rdyb_control" shortname="elevator 2"/>
-      <dl_setting var="control[PLANE_1].flap" min="-1000" step="1" max="1000" module="rdyb_control" shortname="flap 1"/>
-      <dl_setting var="control[PLANE_2].flap" min="-1000" step="1" max="1000" module="rdyb_control" shortname="flap 2"/>
+      <dl_setting var="control.cmd[PLANE_1].elevator" min="-1000" step="1" max="1000" module="rdyb_control" shortname="elevator 1"/>
+      <dl_setting var="control.cmd[PLANE_2].elevator" min="-1000" step="1" max="1000" module="rdyb_control" shortname="elevator 2"/>
+      <dl_setting var="control.cmd[PLANE_1].flap" min="-1000" step="1" max="1000" module="rdyb_control" shortname="flap 1"/>
+      <dl_setting var="control.cmd[PLANE_2].flap" min="-1000" step="1" max="1000" module="rdyb_control" shortname="flap 2"/>
     </dl_settings>
-
-
-
 
   </dl_settings>
 </settings>

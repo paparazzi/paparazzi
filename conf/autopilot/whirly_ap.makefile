@@ -14,11 +14,18 @@ ap.CFLAGS += -I$(SRC_RDY) -I$(SRC_FMS) -I$(SRC_BOOZ)
 ap.srcs =$(SRC_RDY)/ready_main.c
 ap.srcs+=$(SRC_RDY)/rdyb_gpio.c
 ap.srcs+=$(SRC_RDY)/rdyb_timer.c
+
+ap.CFLAGS += -DUSE_XSENS_AHRS
 ap.srcs+=$(SRC_RDY)/rdyb_xsens.c
 ap.srcs+=$(SRC_FMS)/fms_serial_port.c
-ap.srcs+=$(SRC_RDY)/rdyb_ahrs.c
+ap.srcs+=$(SRC_RDY)/rdyb_estimator.c
+#ap.srcs+=$(SRC_RDY)/rdyb_ahrs.c
+#ap.srcs+=$(SRC_RDY)/rdyb_control.c
+
+ap.srcs+=$(SRC_RDY)/elevator_control.c
+ap.srcs+=$(SRC_RDY)/pid_generic.c
+
 ap.srcs+=$(SRC_RDY)/rdyb_can.c
-ap.srcs+=$(SRC_RDY)/rdyb_control.c
 ap.srcs+=$(SRC_RDY)/rdyb_throttle.c
 
 ap.CFLAGS += -DDOWNLINK

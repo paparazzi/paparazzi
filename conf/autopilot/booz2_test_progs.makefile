@@ -267,6 +267,31 @@ test_micromag.srcs += downlink.c pprz_transport.c
 test_micromag.CFLAGS += -DMICROMAG_DRDY_VIC_SLOT=8 -DSSP_VIC_SLOT=9
 test_micromag.srcs += micromag.c $(SRC_ARCH)/micromag_hw.c
 
+#
+# test MICROMAG
+#
+test_micromag2.ARCHDIR = $(ARCHI)
+test_micromag2.ARCH = arm7tdmi
+test_micromag2.TARGET = test_micromag2
+test_micromag2.TARGETDIR = test_micromag2
+
+test_micromag2.CFLAGS += -DCONFIG=$(BOARD_CFG) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH)
+test_micromag2.srcs += $(SRC_BOOZ_TEST)/booz2_test_micromag_2.c
+test_micromag2.CFLAGS += -DSSP_VIC_SLOT=9
+test_micromag2.CFLAGS += -DMICROMAG_DRDY_VIC_SLOT=8
+test_micromag2.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./50.))' -DTIME_LED=1
+test_micromag2.CFLAGS += -DLED
+test_micromag2.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
+
+test_micromag2.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600
+test_micromag2.srcs += $(SRC_ARCH)/uart_hw.c
+
+test_micromag2.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart1 
+test_micromag2.srcs += downlink.c pprz_transport.c
+
+
+
+
 
 
 #

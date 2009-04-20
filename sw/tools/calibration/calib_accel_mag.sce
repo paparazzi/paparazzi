@@ -5,16 +5,17 @@
 
 clear();
 
-ac_id = 155;
+ac_id = 152;
 //log_name = '/home/john.stower/paparazzi3/var/logs/08_11_24__12_53_41.data';
-log_name = 'calib_mag4.data';
+log_name = 'log_accel_booz2_a3';
 //log_name = 'log_accel_booz2_a1_2';
 //log_name = 'log_accel_booz2_a1_5';
 
 SENSOR_ACCEL = 0;
 SENSOR_MAG   = 1;
+SENSOR_GYRO  = 2;
 
-sensor_type = SENSOR_MAG;
+sensor_type = SENSOR_ACCEL;
 
 select sensor_type
 

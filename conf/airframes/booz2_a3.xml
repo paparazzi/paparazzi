@@ -16,29 +16,29 @@
 
   <section name="IMU" prefix="IMU_">
 
-    <define name="GYRO_P_CHAN" value="4"/>
+    <define name="GYRO_P_CHAN" value="1"/>
     <define name="GYRO_Q_CHAN" value="0"/>
-    <define name="GYRO_R_CHAN" value="1"/>
+    <define name="GYRO_R_CHAN" value="2"/>
 
-    <define name="GYRO_P_NEUTRAL" value="32734"/>
-    <define name="GYRO_Q_NEUTRAL" value="32272"/>
-    <define name="GYRO_R_NEUTRAL" value="32420"/>
+    <define name="GYRO_P_NEUTRAL" value="31993"/>
+    <define name="GYRO_Q_NEUTRAL" value="31923"/>
+    <define name="GYRO_R_NEUTRAL" value="32727"/>
 
-    <define name="GYRO_P_SENS" value="-0.85" integer="16"/>
-    <define name="GYRO_Q_SENS" value=" 0.85" integer="16"/>
-    <define name="GYRO_R_SENS" value=" 0.85" integer="16"/>
+    <define name="GYRO_P_SENS" value=" 1.00" integer="16"/>
+    <define name="GYRO_Q_SENS" value="-1.00" integer="16"/>
+    <define name="GYRO_R_SENS" value="-1.01" integer="16"/>
   
-    <define name="ACCEL_X_CHAN" value="2"/>
-    <define name="ACCEL_Y_CHAN" value="5"/>
-    <define name="ACCEL_Z_CHAN" value="6"/>    
+    <define name="ACCEL_X_CHAN" value="5"/>
+    <define name="ACCEL_Y_CHAN" value="3"/>
+    <define name="ACCEL_Z_CHAN" value="4"/>    
 
-    <define name="ACCEL_X_SENS" value="-5.94047559" integer="16"/>
-    <define name="ACCEL_Y_SENS" value="-5.25008239" integer="16"/>
-    <define name="ACCEL_Z_SENS" value=" 6.06493700" integer="16"/>
+    <define name="ACCEL_X_SENS" value="-2.58291748" integer="16"/>
+    <define name="ACCEL_Y_SENS" value="-2.53729378" integer="16"/>
+    <define name="ACCEL_Z_SENS" value="-2.57289306" integer="16"/>
 
-    <define name="ACCEL_X_NEUTRAL" value="39897"/>
-    <define name="ACCEL_Y_NEUTRAL" value="39865"/>
-    <define name="ACCEL_Z_NEUTRAL" value="39735"/>
+    <define name="ACCEL_X_NEUTRAL" value="32803"/>
+    <define name="ACCEL_Y_NEUTRAL" value="32466"/>
+    <define name="ACCEL_Z_NEUTRAL" value="32575"/>
 
     <define name="MAG_X_CHAN" value="4"/>
     <define name="MAG_Y_CHAN" value="0"/>
@@ -52,8 +52,8 @@
     <define name="MAG_Y_SENS" value="5.10207664" integer="16"/>
     <define name="MAG_Z_SENS" value="-4.90788848" integer="16"/>
 
-    <define name="BODY_TO_IMU_PHI"   value="ANGLE_BFP_OF_REAL(RadOfDeg( 10.34))"/>
-    <define name="BODY_TO_IMU_THETA" value="ANGLE_BFP_OF_REAL(RadOfDeg( 0.68))"/>
+    <define name="BODY_TO_IMU_PHI"   value="ANGLE_BFP_OF_REAL(RadOfDeg( 6.))"/>
+    <define name="BODY_TO_IMU_THETA" value="ANGLE_BFP_OF_REAL(RadOfDeg(-6.))"/>
     <define name="BODY_TO_IMU_PSI"   value="ANGLE_BFP_OF_REAL(RadOfDeg(-45.))"/>
 
   </section>
@@ -159,7 +159,7 @@ include $(PAPARAZZI_SRC)/conf/autopilot/booz2_simulator.makefile
 
 ap.CFLAGS += -DUART1_BAUD=B57600
 include $(PAPARAZZI_SRC)/conf/autopilot/booz2_actuators_asctec.makefile
-include $(PAPARAZZI_SRC)/conf/autopilot/booz2_imu_crista.makefile
+include $(PAPARAZZI_SRC)/conf/autopilot/booz2_imu_b2v1.makefile
 
   </makefile>
 

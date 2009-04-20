@@ -1,5 +1,67 @@
 <airframe name="wirly_ng">
 
+   <commands>
+    <axis name="THROTTLE" failsafe_value="0"/>
+    <axis name="ELEVATOR1" failsafe_value="0"/>
+    <axis name="ELEVATOR2" failsafe_value="0"/>
+    <axis name="FLAP1" failsafe_value="0"/>
+    <axis name="FLAP2" failsafe_value="0"/>
+    <axis name="GRAVITY_ANGLE" failsafe_value="0"/>
+    <axis name="PITCH" failsafe_value="0"/>
+    <axis name="ROLL" failsafe_value="0"/>
+    <axis name="PHASE" failsafe_value="0"/>
+  </commands>
+
+
+
+
+  <section name="CONTROL">
+
+    <define name="CTL_ELEVATOR_PITCH_KP" value="10000."/>
+    <define name="CTL_ELEVATOR_PITCH_KI" value="  100."/>
+    <define name="CTL_ELEVATOR_PITCH_KD" value="    0."/>
+    <define name="CTL_FLAP_PITCH_KP"     value="30000."/>
+    <define name="CTL_FLAP_PITCH_KI"     value="    0."/>
+    <define name="CTL_FLAP_PITCH_KD"     value="    0."/>
+
+    <define name="CTL_ELEVATOR_1_TRIM"   value="    0."/>
+    <define name="CTL_ELEVATOR_2_TRIM"   value="    0."/>
+    <define name="CTL_FLAP_1_TRIM"       value="    0."/>
+    <define name="CTL_FLAP_2_TRIM"       value="    0."/>
+
+  </section>
+
+
+  <section name="ELEVATOR_CONTROL">
+    <define name="DEFAULT_ELEVATOR1_TRIM" value="0"/>
+    <define name="DEFAULT_ELEVATOR2_TRIM" value="0."/>
+    <define name="DEFAULT_FLAP1_TRIM" value="0"/>
+    <define name="DEFAULT_FLAP2_TRIM" value="0."/>
+    <define name="DEFAULT_PLANE1_PITCH_OFFSET" value="0."/>
+    <define name="DEFAULT_PLANE2_PITCH_OFFSET" value="0."/>
+    <define name="DEFAULT_PLANE1_PHASE_OFFSET" value="225."/>
+    <define name="DEFAULT_CYCLIC_SETPOINT" value="0."/>
+    <define name="DEFAULT_COLLECTIVE_SETPOINT" value="0."/>
+    <define name="DEFAULT_WHIRLY_ELEVATOR_PITCH_KP" value="10000."/>
+    <define name="DEFAULT_WHIRLY_ELEVATOR_PITCH_KD" value="0."/>
+    <define name="DEFAULT_WHIRLY_ELEVATOR_PITCH_KI" value="100"/>
+    <define name="DEFAULT_WHIRLY_ELEVATOR_ROLL_KP" value="0."/>
+    <define name="DEFAULT_WHIRLY_ELEVATOR_ROLL_KD" value="0."/>
+    <define name="DEFAULT_WHIRLY_ELEVATOR_FLAP_MIX" value="0."/>
+    <define name="DEFAULT_WHIRLY_FLAP_PITCH_KP" value="30000."/>
+    <define name="DEFAULT_WHIRLY_FLAP_PITCH_KD" value="0."/>
+    <define name="DEFAULT_WHIRLY_FLAP_PITCH_KI" value="0"/>
+    <define name="DEFAULT_WHIRLY_FLAP_ROLL_KP" value="0."/>
+    <define name="DEFAULT_WHIRLY_FLAP_ROLL_KD" value="0."/>
+    <define name="DEFAULT_WHIRLY_ROLL_PHASE" value="90."/>
+    <define name="DEFAULT_ITERM_WINDOW" value="360."/>
+    <define name="DEFAULT_PITCH_DT" value="1."/>
+    <define name="DEFAULT_ROLL_DT" value="1."/>
+    <!-- whirly rpm_pgain defaults -->
+    <define name="DEFAULT_WHIRLY_RPM_PGAIN_SLOPE" value="0."/>
+    <define name="DEFAULT_WHIRLY_RPM_PGAIN_INTERCEPT" value="15000"/>
+  </section>
+
   <makefile>
 
 #WHIRLY_USER = poine

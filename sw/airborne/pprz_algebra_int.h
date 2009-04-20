@@ -8,6 +8,18 @@
 // TO BE REMOVED
 #include "booz_geometry_int.h"
 
+struct Uint16Vect3 {
+  uint16_t x;
+  uint16_t y;
+  uint16_t z;
+};
+
+struct Int16Vect3 {
+  int16_t x;
+  int16_t y;
+  int16_t z;
+};
+
 #define INT32_POS_FRAC 8
 #define INT32_SPEED_FRAC 19
 struct Int32Vect2 {
