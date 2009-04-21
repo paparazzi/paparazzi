@@ -1033,12 +1033,12 @@
     </message>
 
     <message name="WHIRLY_ESTIMATOR" id="182">
-      <field name="phi_1"   type="float"/>
-      <field name="theta_1" type="float"/>
-      <field name="psi_1"   type="float"/>
-      <field name="phi_2"   type="float"/>
-      <field name="theta_2" type="float"/>
-      <field name="psi_2"   type="float"/>
+      <field name="phi_1"   type="float" alt_unit="deg" alt_unit_coef="57.29578"/>
+      <field name="theta_1" type="float" alt_unit="deg" alt_unit_coef="57.29578"/>
+      <field name="psi_1"   type="float" alt_unit="deg" alt_unit_coef="57.29578"/>
+      <field name="phi_2"   type="float" alt_unit="deg" alt_unit_coef="57.29578"/>
+      <field name="theta_2" type="float" alt_unit="deg" alt_unit_coef="57.29578"/>
+      <field name="psi_2"   type="float" alt_unit="deg" alt_unit_coef="57.29578"/>
     </message>
 
 
