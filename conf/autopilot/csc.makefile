@@ -71,7 +71,7 @@ main.CFLAGS += -DAP_LINK_CAN
 main.CFLAGS += -DUSE_CAN1 -DCAN1_BTR=CANBitrate125k_2MHz
 main.CFLAGS +=  -DCAN1_VIC_SLOT=3 -DCAN_ERR_VIC_SLOT=7
 main.srcs += $(SRC_CSC)/csc_can.c
-#main.CFLAGS += -DUSE_CAN2 -DCAN2_BTR=CANBitrate125k_2MHz -DCAN2_VIC_SLOT=4
+main.CFLAGS += -DUSE_CAN2 -DCAN2_BTR=CANBitrate125k_2MHz -DCAN2_VIC_SLOT=4
 
 #main.CFLAGS += -DAP_LINK_UART -DPPRZ_UART=Uart1
 #main.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600 -DUART1_VIC_SLOT=6
@@ -82,7 +82,7 @@ main.srcs += $(SRC_CSC)/csc_ap_link.c
 main.srcs += $(SRC_CSC)/csc_servos.c
 
 main.CFLAGS += -DTHROTTLE_LINK=Uart1
-main.srcs += $(SRC_CSC)/uart_throttle.c
+main.srcs += $(SRC_CSC)/csc_throttle.c
 
 
 #

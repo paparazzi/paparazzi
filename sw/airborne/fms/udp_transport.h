@@ -72,8 +72,11 @@ extern uint16_t udpt_buf_idx;
     }					     \
 }
 
+#define UdpTransportPutInt16Array(_n, _x) UdpTransportPutArray(UdpTransportPutInt16ByAddr, _n, _x)
+
 #define UdpTransportPutUint8Array(_n, _x) UdpTransportPutArray(UdpTransportPutUint8ByAddr, _n, _x)
 
+#define UdpTransportPutUint16Array(_n, _x) UdpTransportPutArray(UdpTransportPutUint16ByAddr, _n, _x)
 
 
 /*

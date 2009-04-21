@@ -24,6 +24,11 @@ ap.srcs+=$(SRC_RDY)/rdyb_estimator.c
 
 ap.srcs+=$(SRC_RDY)/elevator_control.c
 ap.srcs+=$(SRC_RDY)/pid_generic.c
+ap.srcs+= commands.c
+
+ap.CFLAGS+= -DACTUATORS=\"rdyb_actuators.h\"
+ap.srcs+= actuators.c $(SRC_RDY)/rdyb_actuators.c
+
 
 ap.srcs+=$(SRC_RDY)/rdyb_can.c
 ap.srcs+=$(SRC_RDY)/rdyb_throttle.c

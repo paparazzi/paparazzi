@@ -325,6 +325,8 @@
     <field name="values" type="uint16[]" unit="none"/>
   </message>
 
+
+
   <message name="DC_SHOT" id="110">
      <field name="utm_east"  type="int32" unit="cm"></field>
      <field name="utm_north" type="int32" unit="cm"></field>
@@ -1029,6 +1031,16 @@
       <field name="throttle_1" type="uint32"/>
       <field name="throttle_2" type="uint32"/>
     </message>
+
+    <message name="WHIRLY_ESTIMATOR" id="182">
+      <field name="phi_1"   type="float"/>
+      <field name="theta_1" type="float"/>
+      <field name="psi_1"   type="float"/>
+      <field name="phi_2"   type="float"/>
+      <field name="theta_2" type="float"/>
+      <field name="psi_2"   type="float"/>
+    </message>
+
 
 
 </class>
