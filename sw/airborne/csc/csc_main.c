@@ -64,7 +64,9 @@ STATIC_INLINE void csc_main_init( void ) {
   sys_time_init();
   led_init();
 
+#ifdef USE_UART0
   Uart0Init();
+#endif
   Uart1Init();
 
   csc_can2_init();

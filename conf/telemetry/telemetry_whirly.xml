@@ -6,7 +6,7 @@
   <process name="Main">
 
     <mode name="default">
-      <message name="DL_VALUE"          period="1.1"/>
+      <message name="DL_VALUE"          period="0.25"/>
       <message name="ALIVE"             period="2.1"/>
 <!--      <message name="WHIRLY_CONTROL"    period="0.16"/> -->
     </mode>

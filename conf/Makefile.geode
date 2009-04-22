@@ -33,7 +33,7 @@ CSTANDARD = -std=gnu99
 CINCS = $(INCLUDES) -I$(PAPARAZZI_SRC)/sw/include
 
 # Compiler flags.
-CFLAGS = $(CINCS)
+CFLAGS += $(CINCS)
 CFLAGS += -O$(OPT)
 # CFLAGS += -malignment-traps
 CFLAGS += -Wall -Wcast-qual -Wimplicit -Wcast-align

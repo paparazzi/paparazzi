@@ -7,9 +7,9 @@
    lpc2129 pwm pinout
 
 LPC   shared         port   csc servo
-PWM1  TXD0           P0.0       
+PWM1  TXD0           P0.0    4   
 PWM2  SSEL0  EINT2   P0.7    0
-PWM3  RXD0   EINT0   P0.1  
+PWM3  RXD0   EINT0   P0.1    5 
 PWM4  TXD1   AD1_1   P0.8    1
 PWM5  AD1_6  CAP1_3  P0.21   2
 PWM6  RXD1   EINT3   P0.9    3

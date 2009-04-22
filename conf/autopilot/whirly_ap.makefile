@@ -80,6 +80,8 @@ BOARD_CFG = \"csc_board_v1_0.h\"
 
 SRC_CSC=csc
 
+csc1.CFLAGS +=-DCSC_FRIED_CHIP
+
 csc1.CFLAGS += -DCSC_BOARD_ID=0
 
 csc1.ARCHDIR = arm7
@@ -99,10 +101,10 @@ csc1.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
 
 csc1.srcs += $(SRC_ARCH)/uart_hw.c
 
-csc1.CFLAGS += -DUSE_UART0 -DUART0_BAUD=B57600 -DUART0_VIC_SLOT=5
-csc1.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport \
-	                  -DDOWNLINK_DEVICE=Uart0
-csc1.srcs += downlink.c pprz_transport.c
+#csc1.CFLAGS += -DUSE_UART0 -DUART0_BAUD=B57600 -DUART0_VIC_SLOT=5
+#csc1.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport \
+#	                  -DDOWNLINK_DEVICE=Uart0
+#csc1.srcs += downlink.c pprz_transport.c
 
 csc1.CFLAGS += -DAP_LINK_CAN
 csc1.CFLAGS += -DUSE_CAN2 -DCAN2_BTR=CANBitrate125k_2MHz
