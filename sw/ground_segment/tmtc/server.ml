@@ -136,7 +136,8 @@ let ac_msg = fun messages_xml logging ac_name ac ->
       let (msg_id, values) = Tele_Pprz.values_of_string m in
       let msg = Tele_Pprz.message_of_id msg_id in
       log logging ac_name msg.Pprz.name values;
-      Fw_server.log_and_parse ac_name ac msg values
+      Fw_server.log_and_parse ac_name ac msg values;
+      Booz_server.log_and_parse ac_name ac msg values
     with
       Telemetry_error (ac_name, msg) ->
 	Ground_Pprz.message_send my_id "TELEMETRY_ERROR" ["ac_id", Pprz.String ac_name;"message", Pprz.String msg];
