@@ -59,6 +59,26 @@ test_timer.srcs=$(SRC_RDY)/test_timer.c
 test_timer.srcs+=$(SRC_RDY)/rdyb_timer.c
 test_timer.srcs+=$(SRC_RDY)/rdyb_gpio.c
 
+#
+#
+# test xtend
+#
+#
+test_xtend.ARCHDIR = $(ARCHI)
+
+test_xtend.LDFLAGS = -lm -levent -lrt
+
+test_xtend.CFLAGS += -I$(SRC_RDY)
+
+test_xtend.srcs=$(SRC_RDY)/test_xtend.c
+test_xtend.srcs+=$(SRC_RDY)/rdyb_timer.c
+test_xtend.srcs+=$(SRC_RDY)/rdyb_gpio.c
+
+test_xtend.CFLAGS += -DXTEND_DEVICE=\"/dev/ttyS2\"
+#test_xtend.srcs+=$(SRC_RDY)/rdyb_xtend.c
+test_xtend.srcs+=$(SRC_FMS)/fms_serial_port.c
+
+
 
 
 #
