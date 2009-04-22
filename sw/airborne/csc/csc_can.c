@@ -10,6 +10,7 @@
 static void CAN_Err_ISR ( void ) __attribute__((naked));
 
 
+
 #ifdef USE_CAN1
 
 bool_t can1_msg_received;
@@ -94,7 +95,7 @@ void CAN1_Rx_ISR ( void ) {
  can1_rx_msg.id     = C1RID;
  can1_rx_msg.dat_a  = C1RDA;
  can1_rx_msg.dat_b  = C1RDB;
- if ((can1_rx_msg.id & CSC_BOARD_MASK) == CSC_BOARD_ID)
+ if (BOARDID_OF_CANMSG_ID(can1_rx_msg.id) == CSC_BOARD_ID)
    can1_msg_received = TRUE;
 
  C1CMR = 0x04;             // release receive buffer
@@ -183,9 +184,9 @@ void CAN2_Rx_ISR ( void ) {
  can2_rx_msg.id = C2RID;
  can2_rx_msg.dat_a  = C2RDA;
  can2_rx_msg.dat_b  = C2RDB;
- if (((can2_rx_msg.id>>7) & CSC_BOARD_MASK) == CSC_BOARD_ID)
+ if (BOARDID_OF_CANMSG_ID(can2_rx_msg.id) == CSC_BOARD_ID)
    can2_msg_received = TRUE;
-
+ 
  C2CMR = 0x04;             // release receive buffer
  VICVectAddr = 0x00000000; // acknowledge interrupt
  ISR_EXIT();

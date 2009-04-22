@@ -3,10 +3,12 @@
 
 struct CscServoCmd csc_servo_cmd;
 struct CscMotorMsg csc_motor_msg;
+int32_t csc_ap_link_error_cnt;
 
 
 void csc_ap_link_init(void) {
 
+  csc_ap_link_error_cnt = 0;
 
 }
 

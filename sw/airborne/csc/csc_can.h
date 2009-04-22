@@ -4,6 +4,11 @@
 #include <inttypes.h>
 #include "std.h"
 
+
+#define BOARDID_OF_CANMSG_ID(_id) (((_id)>>7) & CSC_BOARD_MASK)
+#define MSGID_OF_CANMSG_ID(_id) ((_id) & CSC_MSGID_MASK)
+#define CAN_MSG_LENGH_OF_FRAME(_f) (((_f)>>16) & 0x0F)
+
 // Common CAN bit rates
 #define   CANBitrate62k5_1MHz           0x001C001D
 #define   CANBitrate125k_2MHz           0x001C000E

@@ -126,12 +126,12 @@ static void send_ap_msg( struct throttle_msg *msg)
 
   throttle_recv_count++;
 
-	ap_msg.cmd_id = msg->cmd_id;
-	ap_msg.csc_id = CSC_BOARD_ID;
-	ap_msg.arg1 =  msg->arg1;
-	ap_msg.arg2 = msg->arg2;
+  ap_msg.cmd_id = msg->cmd_id;
+  ap_msg.csc_id = CSC_BOARD_ID;
+  ap_msg.arg1 =  msg->arg1;
+  ap_msg.arg2 = msg->arg2;
 
-	csc_ap_send_msg(CSC_MOTOR_STATUS_ID, (const char *)&ap_msg, sizeof(ap_msg));
+  csc_ap_send_msg(CSC_MOTOR_STATUS_ID, (const char *)&ap_msg, sizeof(ap_msg));
 }
 
 
