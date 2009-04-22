@@ -29,6 +29,7 @@
 #define STD_H
 
 #include <inttypes.h>
+#include <stdbool.h>
 #include <math.h>
 
 #ifndef FALSE
