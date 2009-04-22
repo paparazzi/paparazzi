@@ -28,9 +28,13 @@
 volatile uint8_t booz2_max1168_status;
 uint16_t booz2_max1168_values[MAX1168_NB_CHAN];
 
+uint8_t do_booz2_max1168_read;
+
 extern void booz2_max1168_init( void ) {
 
   booz2_max1168_hw_init();
+
+  do_booz2_max1168_read = false;
 
   uint8_t i;
   for (i=0; i<MAX1168_NB_CHAN; i++)

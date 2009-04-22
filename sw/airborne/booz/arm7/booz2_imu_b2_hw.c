@@ -5,6 +5,7 @@ static void SSP_ISR(void) __attribute__((naked));
 
 
 /* SSPCR0 settings */
+//#define SSP_DDS  0x07 << 0  /* data size         : 8 bits        */
 #define SSP_DDS  0x0F << 0  /* data size         : 16 bits        */
 #define SSP_FRF  0x00 << 4  /* frame format      : SPI           */
 #define SSP_CPOL 0x00 << 6  /* clock polarity    : data captured on first clock transition */  
@@ -46,7 +47,23 @@ void booz2_imu_b2_hw_init(void) {
 static void SSP_ISR(void) {
  ISR_ENTRY();
  
- Max1168OnSpiInt();
+ switch (booz2_imu_spi_selected) {
+   case BOOZ2_SPI_SLAVE_MAX1168:
+     {
+       Max1168OnSpiInt();
+       booz2_imu_spi_selected = BOOZ2_SPI_NONE;
+     }
+     break;
+#ifdef USE_MICROMAG
+    case BOOZ2_SPI_SLAVE_MM:
+     {
+       MmOnSpiIt();
+       if (booz2_micromag_status == MM_DATA_AVAILABLE)
+         booz2_imu_spi_selected = BOOZ2_SPI_NONE;
+     }
+     break;
+#endif
+ }
 
  VICVectAddr = 0x00000000; /* clear this interrupt from the VIC */
  ISR_EXIT();

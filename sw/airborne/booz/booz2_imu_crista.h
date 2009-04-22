@@ -26,5 +26,7 @@ extern bool_t ADS8344_available;
     }									\
   }
 
+#define Booz2ImuSpiEvent(_handler) {}
+
 #endif /* BOOZ2_IMU_CRISTA_H */
 

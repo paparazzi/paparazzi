@@ -26,9 +26,11 @@
 #define BOOZ2_MAX1168_H
 
 #include "std.h"
+#include "stdbool.h"
 
 #define MAX1168_NB_CHAN 8
 
+extern uint8_t do_booz2_max1168_read;
 extern void booz2_max1168_init( void );
 extern void booz2_max1168_read( void );
 

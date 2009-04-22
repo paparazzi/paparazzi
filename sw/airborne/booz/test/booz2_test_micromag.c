@@ -53,14 +53,17 @@ static inline void main_init( void ) {
 }
 
 static inline void main_periodic_task( void ) {
-  static uint32_t cnt = 0;
+  static uint8_t cnt = 0;
 
   if (micromag_status == MM_IDLE) {
     LED_TOGGLE(4);
+    uint8_t * tab = &cnt;
+    DOWNLINK_SEND_DEBUG(1,tab);
     cnt = 0;
     MmSendReq();
   }
   else if (micromag_status ==  MM_GOT_EOC) {
+    LED_TOGGLE(2);
     MmReadRes();
   }
   else if (micromag_status == MM_WAITING_EOC) {
@@ -75,7 +78,7 @@ static inline void main_periodic_task( void ) {
 static inline void main_event_task( void ) {
 
   if (micromag_status == MM_DATA_AVAILABLE) {
-    LED_ON(3);
+    LED_TOGGLE(3);
     DOWNLINK_SEND_IMU_MAG_RAW(&micromag_values[0],
 			      &micromag_values[1],
 			      &micromag_values[2] );
