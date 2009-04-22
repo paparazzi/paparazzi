@@ -4,15 +4,15 @@
   <dl_settings>
 
     <dl_settings NAME="Misc" >
-      <dl_setting var="telemetry_mode_Main" min="0" step="1" max="4" module="rdyb_telemetry" shortname="telemetry" 
+      <dl_setting VAR="telemetry_mode_Main" MIN="0" STEP="1" MAX="4" module="rdyb_telemetry" shortname="telemetry" 
 	values="Default|Raw sensors|Scaled sensors|AHRS|setup_commands"/>
     </dl_settings>
 
     <dl_settings NAME="Control setpoints" >
-      <dl_setting var="throttle"                           min="0" step="100" max="9600" module="ready_main"       shortname="throttle_sp"/>
-      <dl_setting var="whirly_cyclic_setpoint"             min="-40" step="1" max=" 40"  module="elevator_control" shortname="cyclic_sp"/>
-      <dl_setting var="whirly_collective_setpoint"         min="-15" step="1" max=" 15"  module="elevator_control" shortname="collective_sp"/>
-      <dl_setting var="whirly_plane1_phase_offset_degrees" min="  0" step="5" max="360"  module="elevator_control" shortname="phase_offset"/>
+      <dl_setting VAR="throttle"                           MIN="0" STEP="100" MAX="9600" module="ready_main"       shortname="throttle_sp"/>
+      <dl_setting VAR="whirly_cyclic_setpoint"             MIN="-40" STEP="1" MAX=" 40"  module="elevator_control" shortname="cyclic_sp"/>
+      <dl_setting VAR="whirly_collective_setpoint"         MIN="-15" STEP="1" MAX=" 15"  module="elevator_control" shortname="collective_sp"/>
+      <dl_setting VAR="whirly_plane1_phase_offset_degrees" MIN="  0" STEP="5" MAX="360"  module="elevator_control" shortname="phase_offset"/>
     </dl_settings>
 
     <dl_settings NAME="Control gains" >
@@ -38,10 +38,10 @@
     </dl_settings>
 
     <dl_settings NAME="Trims" >
-      <dl_setting var="whirly_elevator1_trim" min="-9600" step="100" max="9600" module="elevator_control" shortname="trim_ele_1"/>
-      <dl_setting var="whirly_elevator2_trim" min="-9600" step="100" max="9600" module="elevator_control" shortname="trim_ele_2"/>
-      <dl_setting var="whirly_flap1_trim"     min="-9600" step="100" max="9600" module="elevator_control" shortname="trim_flap_1"/>
-      <dl_setting var="whirly_flap2_trim"     min="-9600" step="100" max="9600" module="elevator_control" shortname="trim_flap_2"/>
+      <dl_setting VAR="whirly_elevator1_trim" MIN="-9600" STEP="100" MAX="9600" module="elevator_control" shortname="trim_ele_1"/>
+      <dl_setting VAR="whirly_elevator2_trim" MIN="-9600" STEP="100" MAX="9600" module="elevator_control" shortname="trim_ele_2"/>
+      <dl_setting VAR="whirly_flap1_trim"     MIN="-9600" STEP="100" MAX="9600" module="elevator_control" shortname="trim_flap_1"/>
+      <dl_setting VAR="whirly_flap2_trim"     MIN="-9600" STEP="100" MAX="9600" module="elevator_control" shortname="trim_flap_2"/>
       <dl_setting MAX="30" MIN="-30" STEP="0.5" VAR="whirly_plane1_pitch_offset" shortname="offset 1" module="elevator_control"
 	param="DEFAULT_PLANE1_PITCH_OFFSET"/>
       <dl_setting MAX="30" MIN="-30" STEP="0.5" VAR="whirly_plane2_pitch_offset" shortname="offset 2" module="elevator_control"
@@ -49,20 +49,20 @@
    </dl_settings>
 
     <dl_settings NAME="Commands" >
-      <dl_setting var="disable_control"  min="0"     step="1" max="1" module="ready_main" shortname="disable control" values="FALSE|TRUE"/>
-      <dl_setting var="commands[COMMAND_THROTTLE]"  min="0"     step="100" max="9600" module="commands" shortname="throttle"/>
-      <dl_setting var="commands[COMMAND_ELEVATOR1]" min="-9600" step="100" max="9600" module="commands" shortname="ele_1"/>
-      <dl_setting var="commands[COMMAND_ELEVATOR2]" min="-9600" step="100" max="9600" module="commands" shortname="ele_2"/>
-      <dl_setting var="commands[COMMAND_FLAP1]"     min="-9600" step="100" max="9600" module="commands" shortname="flap_1"/>
-      <dl_setting var="commands[COMMAND_FLAP2]"     min="-9600" step="100" max="9600" module="commands" shortname="flap_2"/>
+      <dl_setting VAR="disable_control"  MIN="0"     STEP="1" MAX="1" module="ready_main" shortname="disable control" values="FALSE|TRUE"/>
+      <dl_setting VAR="commands[COMMAND_THROTTLE]"  MIN="0"     STEP="100" MAX="9600" module="commands" shortname="throttle"/>
+      <dl_setting VAR="commands[COMMAND_ELEVATOR1]" MIN="-9600" STEP="100" MAX="9600" module="commands" shortname="ele_1"/>
+      <dl_setting VAR="commands[COMMAND_ELEVATOR2]" MIN="-9600" STEP="100" MAX="9600" module="commands" shortname="ele_2"/>
+      <dl_setting VAR="commands[COMMAND_FLAP1]"     MIN="-9600" STEP="100" MAX="9600" module="commands" shortname="flap_1"/>
+      <dl_setting VAR="commands[COMMAND_FLAP2]"     MIN="-9600" STEP="100" MAX="9600" module="commands" shortname="flap_2"/>
     </dl_settings>
 
     <dl_settings NAME="Actuators" >
-      <dl_setting var="disable_commands"  min="0"     step="1" max="1" module="ready_main" shortname="disable commands" values="FALSE|TRUE"/>
-      <dl_setting var="actuators[SERVO_ELEVATOR1]" min="15000" step="100" max="30000" module="actuators" shortname="ele_1"/>
-      <dl_setting var="actuators[SERVO_ELEVATOR2]" min="15000" step="100" max="30000" module="actuators" shortname="ele_2"/>
-      <dl_setting var="actuators[SERVO_FLAP1]"     min="15000" step="100" max="30000" module="actuators" shortname="flap_1"/>
-      <dl_setting var="actuators[SERVO_FLAP2]"     min="15000" step="100" max="30000" module="actuators" shortname="flap_2"/>
+      <dl_setting VAR="disable_commands"  MIN="0"     STEP="1" MAX="1" module="ready_main" shortname="disable commands" values="FALSE|TRUE"/>
+      <dl_setting VAR="actuators[SERVO_ELEVATOR1]" MIN="15000" STEP="100" MAX="30000" module="actuators" shortname="ele_1"/>
+      <dl_setting VAR="actuators[SERVO_ELEVATOR2]" MIN="15000" STEP="100" MAX="30000" module="actuators" shortname="ele_2"/>
+      <dl_setting VAR="actuators[SERVO_FLAP1]"     MIN="15000" STEP="100" MAX="30000" module="actuators" shortname="flap_1"/>
+      <dl_setting VAR="actuators[SERVO_FLAP2]"     MIN="15000" STEP="100" MAX="30000" module="actuators" shortname="flap_2"/>
     </dl_settings>
 
    <dl_settings NAME="motor_control">
