@@ -9,7 +9,7 @@
     </dl_settings>
 
     <dl_settings NAME="Control setpoints" >
-      <dl_setting var="throttle"                           min="0" step="100" max="9600" module="ready_main"       shortname="throttle"/>
+      <dl_setting var="throttle"                           min="0" step="100" max="9600" module="ready_main"       shortname="throttle_sp"/>
       <dl_setting var="whirly_cyclic_setpoint"             min="-40" step="1" max=" 40"  module="elevator_control" shortname="cyclic_sp"/>
       <dl_setting var="whirly_collective_setpoint"         min="-15" step="1" max=" 15"  module="elevator_control" shortname="collective_sp"/>
       <dl_setting var="whirly_plane1_phase_offset_degrees" min="  0" step="5" max="360"  module="elevator_control" shortname="phase_offset"/>
