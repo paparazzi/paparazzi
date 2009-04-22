@@ -66,11 +66,11 @@
     </dl_settings>
 
    <dl_settings NAME="motor_control">
-        <dl_setting MAX="1" MIN="0" STEP="1" VAR="uart_throttle_send_cmd_req" shortname="send_req" module="uart_throttle"/>
-        <dl_setting MAX="1" MIN="0" STEP="1" VAR="uart_throttle_send_cmd_tid" shortname="send_tid" module="uart_throttle"/>
-        <dl_setting MAX="16" MIN="0" STEP="1" VAR="uart_throttle_send_cmd_cid" shortname="send_cid" module="uart_throttle"/>
-        <dl_setting MAX="65535" MIN="0" STEP="1" VAR="uart_throttle_send_cmd_arg1" shortname="send_arg1" module="uart_throttle"/>
-        <dl_setting MAX="65535" MIN="0" STEP="1" VAR="uart_throttle_send_cmd_arg2" shortname="send_arg2" module="uart_throttle"/>
+        <dl_setting MAX="1" MIN="0" STEP="1" VAR="rdyb_throttle_send_cmd_req" shortname="send_req" module="rdyb_throttle"/>
+        <dl_setting MAX="1" MIN="0" STEP="1" VAR="rdyb_throttle_send_cmd_bid" shortname="send_tid" module="rdyb_throttle"/>
+        <dl_setting MAX="16" MIN="0" STEP="1" VAR="rdyb_throttle_send_cmd_cid" shortname="send_cid" module="rdyb_throttle"/>
+        <dl_setting MAX="65535" MIN="0" STEP="1" VAR="rdyb_throttle_send_cmd_arg1" shortname="send_arg1" module="rdyb_throttle"/>
+        <dl_setting MAX="65535" MIN="0" STEP="1" VAR="rdyb_throttle_send_cmd_arg2" shortname="send_arg2" module="rdyb_throttle"/>
    </dl_settings>
 
 
