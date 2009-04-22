@@ -412,7 +412,7 @@
 
 #include "booz2_navigation.h"
 #define PERIODIC_SEND_BOOZ2_NAV_REF() {					\
-    DOWNLINK_SEND_BOOZ2_NAV_REF(&booz_ins_ltp_def.ecef.x, &booz_ins_ltp_def.ecef.y, &booz_ins_ltp_def.ecef.z);	\
+    if (booz_gps_state.fix == BOOZ2_GPS_FIX_3D) { DOWNLINK_SEND_BOOZ2_NAV_REF(&booz_ins_ltp_def.ecef.x, &booz_ins_ltp_def.ecef.y, &booz_ins_ltp_def.ecef.z); }	\
   }
 
 #define PERIODIC_SEND_BOOZ2_NAV_STATUS() {					\

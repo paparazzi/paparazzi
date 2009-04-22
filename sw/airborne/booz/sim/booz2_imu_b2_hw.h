@@ -42,4 +42,11 @@ extern void booz2_imu_b2_hw_init(void);
     booz2_max1168_status = STA_MAX1168_DATA_AVAILABLE;			\
   }
 
+#ifdef USE_MICROMAG
+#define Booz2ImuSpiEvent(_handler1,_handler2) {}
+#else // NO MICROMAG
+#define Booz2ImuSpiEvent(_handler) {}
+#endif
+
+
 #endif /* BOOZ2_IMU_B2_HW_H */
