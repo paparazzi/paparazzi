@@ -52,9 +52,12 @@ extern void booz2_imu_b2_hw_init(void);
 }
 #else // NO MICROMAG
 #define Booz2ImuSpiEvent(_handler) { \
-  booz2_imu_spi_selected = BOOZ2_SPI_SLAVE_MAX1168; \
-  do_booz2_max1168_read = false; \
-  _handler(); \
+  if (do_booz2_max1168_read && booz2_imu_spi_selected == BOOZ2_SPI_NONE) { \
+    Booz2ImuSetSpi16bits(); \
+    booz2_imu_spi_selected = BOOZ2_SPI_SLAVE_MAX1168; \
+    do_booz2_max1168_read = false; \
+    _handler(); \
+  } \
 }
 #endif
 
