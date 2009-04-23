@@ -67,20 +67,17 @@
     <define name="DEFAULT_ITERM_WINDOW" value="360."/>
     <define name="DEFAULT_PITCH_DT" value="1."/>
     <define name="DEFAULT_ROLL_DT" value="1."/>
-    <!-- whirly rpm_pgain defaults -->
-    <define name="DEFAULT_WHIRLY_RPM_PGAIN_SLOPE" value="0."/>
-    <define name="DEFAULT_WHIRLY_RPM_PGAIN_INTERCEPT" value="15000"/>
   </section>
 
   <makefile>
 
-#WHIRLY_USER = poine
-#WHIRLY_HOST = whirly-dev
-#WHIRLY_DIR  = /home/poine
 
 USER = 
 HOST = whirly-dev
 TARGET_DIR  = ~
+
+ap.CFLAGS += -DDISABLE_CAN=1
+ap.CFLAGS += -DTELEMETRY_MODE_DEFAULT=TELEMETRY_MODE_Main_ahrs
 
 include $(PAPARAZZI_SRC)/conf/autopilot/whirly_ap.makefile
 

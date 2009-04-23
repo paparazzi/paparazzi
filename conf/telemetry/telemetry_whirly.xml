@@ -30,7 +30,8 @@
     <mode name="ahrs">
       <message name="DL_VALUE"          period="0.5"/>
       <message name="ALIVE"             period="2.1"/>
-      <message name="WHIRLY_ESTIMATOR"  period=" .075"/>
+      <message name="WHIRLY_ESTIMATOR"  period=" .025"/>
+      <message name="WHIRLY_CONTROL"    period="0.025"/>
     </mode>
 
     <mode name="setup_commands">

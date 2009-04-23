@@ -38,6 +38,7 @@ ap.CFLAGS += -DDOWNLINK_TRANSPORT=UdpTransport
 ap.srcs += $(SRC_FMS)/fms_network.c
 ap.srcs += $(SRC_FMS)/udp_transport.c
 ap.srcs += downlink.c
+
 ap.srcs += $(SRC_RDY)/rdyb_telemetry.c
 ap.srcs += $(SRC_RDY)/rdyb_datalink.c
 

@@ -1026,10 +1026,15 @@
       <field name="delay_ns" type="uint32"/>
     </message>
 
-
     <message name="WHIRLY_CONTROL" id="181">
-      <field name="throttle_1" type="uint32"/>
-      <field name="throttle_2" type="uint32"/>
+      <field name="sp_pitch_1"   type="float" alt_unit="deg" alt_unit_coef="57.29578"/>
+      <field name="meas_pitch_1" type="float" alt_unit="deg" alt_unit_coef="57.29578"/>
+      <field name="sp_pitch_2"   type="float" alt_unit="deg" alt_unit_coef="57.29578"/>
+      <field name="meas_pitch_2" type="float" alt_unit="deg" alt_unit_coef="57.29578"/>
+      <field name="ele_1" type="int16"/>
+      <field name="ele_2" type="int16"/>
+      <field name="flap_1" type="int16"/>
+      <field name="flap_2" type="int16"/>
     </message>
 
     <message name="WHIRLY_ESTIMATOR" id="182">
