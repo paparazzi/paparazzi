@@ -28,6 +28,7 @@ ap.srcs+= commands.c
 
 ap.CFLAGS+= -DACTUATORS=\"rdyb_actuators.h\"
 ap.srcs+= actuators.c $(SRC_RDY)/rdyb_actuators.c
+ap.srcs+= $(SRC_RDY)/rdyb_event_manager.c
 
 
 ap.srcs+=$(SRC_RDY)/rdyb_can.c
