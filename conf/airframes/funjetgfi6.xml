@@ -13,9 +13,9 @@
 
 <!-- commands section -->
   <servos>
-    <servo name="MOTOR"         no="0" min="1550" neutral="1550" max="2000"/>
-    <servo name="AILEVON_LEFT"  no="2" min="1900" neutral="1561" max="1100"/>
-    <servo name="AILEVON_RIGHT" no="6" min="1100" neutral="1500" max="1900"/>
+    <servo name="MOTOR"         no="0" min="1000" neutral="1000" max="2000"/>
+    <servo name="AILEVON_LEFT"  no="2" min="1900" neutral="1573" max="1100"/>
+    <servo name="AILEVON_RIGHT" no="6" min="1100" neutral="1399" max="1900"/>
   </servos>
 
   <commands>
@@ -173,9 +173,13 @@
 
  <section name="DATALINK" prefix="DATALINK_">
     <define name="DEVICE_TYPE" value="XBEE"/>
+
+
+
     <define name="DEVICE_ADDRESS" value="...."/>
   </section>
  
+
  <section name="SIMU">
     <define name="YAW_RESPONSE_FACTOR" value="0.5"/>
  </section>
