@@ -46,14 +46,12 @@
 #
 #
 
-# imu Booz2 v1
+# imu Booz2 v1.1
 ap.CFLAGS += -DBOOZ2_IMU_TYPE=\"booz2_imu_b2.h\"
 ap.CFLAGS += -DSSP_VIC_SLOT=9
 ap.srcs += $(SRC_BOOZ)/booz2_imu_b2.c $(SRC_BOOZ_ARCH)/booz2_imu_b2_hw.c
 ap.CFLAGS += -DMAX1168_EOC_VIC_SLOT=8
 ap.srcs += $(SRC_BOOZ)/booz2_max1168.c $(SRC_BOOZ_ARCH)/booz2_max1168_hw.c
-#ap.CFLAGS += -DUSE_I2C1  -DI2C1_SCLL=150 -DI2C1_SCLH=150 -DI2C1_VIC_SLOT=11 -DI2C1_BUF_LEN=16
-#ap.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
 ap.CFLAGS += -DUSE_MICROMAG -DMICROMAG_DRDY_VIC_SLOT=11
 ap.srcs += $(SRC_BOOZ)/booz2_micromag.c $(SRC_BOOZ_ARCH)/booz2_micromag_hw.c
 ap.CFLAGS += -DFLOAT_T=float
@@ -68,8 +66,3 @@ sim.srcs += $(SRC_BOOZ)/booz2_imu.c \
             $(SRC_BOOZ)/booz2_max1168.c \
             $(SRC_BOOZ_SIM)/booz2_max1168_sim.c
 
-sim.CFLAGS += -DUSE_I2C1
-#  -DI2C1_SCLL=150 -DI2C1_SCLH=150 -DI2C1_VIC_SLOT=11 -DI2C1_BUF_LEN=16
-#sim.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
-sim.CFLAGS += -DUSE_AMI601
-sim.srcs += AMI601.c

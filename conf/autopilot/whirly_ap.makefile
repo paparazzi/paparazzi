@@ -28,6 +28,9 @@ ap.srcs+= commands.c
 
 ap.CFLAGS+= -DACTUATORS=\"rdyb_actuators.h\"
 ap.srcs+= actuators.c $(SRC_RDY)/rdyb_actuators.c
+
+ap.CFLAGS  += `pkg-config --cflags glib-2.0`
+ap.LDFLAGS += `pkg-config --libs glib-2.0`
 ap.srcs+= $(SRC_RDY)/rdyb_event_manager.c
 
 
@@ -42,6 +45,7 @@ ap.srcs += downlink.c
 
 ap.srcs += $(SRC_RDY)/rdyb_telemetry.c
 ap.srcs += $(SRC_RDY)/rdyb_datalink.c
+ap.CFLAGS += -DLINK_HOST=\"255.255.255.255\"
 
 
 
@@ -63,6 +67,28 @@ test_timer.srcs+=$(SRC_RDY)/rdyb_gpio.c
 
 #
 #
+# test telemetry
+#
+#
+test_telemetry.ARCHDIR = $(ARCHI)
+
+test_telemetry.LDFLAGS = -lm -levent -lrt
+
+test_telemetry.CFLAGS += -I$(SRC_RDY) -I$(SRC_FMS)
+
+test_telemetry.srcs =$(SRC_RDY)/test_telemetry.c
+test_telemetry.srcs+=$(SRC_RDY)/rdyb_timer.c
+test_telemetry.srcs+=$(SRC_RDY)/rdyb_gpio.c
+
+test_telemetry.CFLAGS += -DDOWNLINK
+test_telemetry.CFLAGS += -DDOWNLINK_TRANSPORT=UdpTransport
+test_telemetry.srcs += $(SRC_FMS)/fms_network.c
+test_telemetry.srcs += $(SRC_FMS)/udp_transport.c
+test_telemetry.srcs += downlink.c
+
+
+#
+#
 # test xtend
 #
 #
@@ -79,7 +105,6 @@ test_xtend.srcs+=$(SRC_RDY)/rdyb_gpio.c
 test_xtend.CFLAGS += -DXTEND_DEVICE=\"/dev/ttyS2\"
 #test_xtend.srcs+=$(SRC_RDY)/rdyb_xtend.c
 test_xtend.srcs+=$(SRC_FMS)/fms_serial_port.c
-
 
 
 

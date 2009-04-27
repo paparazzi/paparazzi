@@ -105,11 +105,11 @@ static uint16_t calculate_checksum(struct throttle_msg *send)
 
 void csc_throttle_event_task( void ) 
 {
-	while (!uart_msg_received && ThrottleLink(ChAvailable())) {
-		parse_uart_msg(ThrottleLink(Getch()));
+  while (!uart_msg_received && ThrottleLink(ChAvailable())) {
+    parse_uart_msg(ThrottleLink(Getch()));
   }
   if (uart_msg_received) {
-		send_ap_msg(&recv_msg);
+    send_ap_msg(&recv_msg);
     uart_msg_received = FALSE;
   }
 }
@@ -117,7 +117,7 @@ void csc_throttle_event_task( void )
 static void send_ap_msg( struct throttle_msg *msg)
 {
 
-	struct CscMotorMsg ap_msg;
+  struct CscMotorMsg ap_msg;
 
   if (calculate_checksum(&recv_msg) != recv_msg.checksum) {
     throttle_err_count++;

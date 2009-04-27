@@ -44,16 +44,16 @@
     <define name="MAG_Y_CHAN" value="0"/>
     <define name="MAG_Z_CHAN" value="2"/>
     
-    <define name="MAG_X_NEUTRAL" value="2358"/>
-    <define name="MAG_Y_NEUTRAL" value="2362"/> 
-    <define name="MAG_Z_NEUTRAL" value="2119"/>
+    <define name="MAG_X_NEUTRAL" value="0"/>
+    <define name="MAG_Y_NEUTRAL" value="0"/> 
+    <define name="MAG_Z_NEUTRAL" value="0"/>
 
-    <define name="MAG_X_SENS" value="-4.94075530" integer="16"/>
-    <define name="MAG_Y_SENS" value="5.10207664" integer="16"/>
-    <define name="MAG_Z_SENS" value="-4.90788848" integer="16"/>
+    <define name="MAG_X_SENS" value="20." integer="16"/>
+    <define name="MAG_Y_SENS" value="20." integer="16"/>
+    <define name="MAG_Z_SENS" value="15." integer="16"/>
 
-    <define name="BODY_TO_IMU_PHI"   value="ANGLE_BFP_OF_REAL(RadOfDeg( 6.))"/>
-    <define name="BODY_TO_IMU_THETA" value="ANGLE_BFP_OF_REAL(RadOfDeg(-6.))"/>
+    <define name="BODY_TO_IMU_PHI"   value="ANGLE_BFP_OF_REAL(RadOfDeg( 14.5))"/>
+    <define name="BODY_TO_IMU_THETA" value="ANGLE_BFP_OF_REAL(RadOfDeg(-8.5))"/>
     <define name="BODY_TO_IMU_PSI"   value="ANGLE_BFP_OF_REAL(RadOfDeg(-45.))"/>
 
   </section>
@@ -160,6 +160,7 @@ include $(PAPARAZZI_SRC)/conf/autopilot/booz2_simulator.makefile
 ap.CFLAGS += -DUART1_BAUD=B57600
 include $(PAPARAZZI_SRC)/conf/autopilot/booz2_actuators_asctec.makefile
 include $(PAPARAZZI_SRC)/conf/autopilot/booz2_imu_b2v1.makefile
+#include $(PAPARAZZI_SRC)/conf/autopilot/booz2_imu_b2v1_1.makefile
 
   </makefile>
 

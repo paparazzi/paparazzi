@@ -2,21 +2,30 @@
 #define UDP_TRANSPORT_H
 
 #include "fms_network.h"
+#include "fms_debug.h"
 #include "std.h"
 
 #define STX  0x99
-#define UDP_TRANSPORT_BUF_SIZE 1024
-extern char upd_transport_buf[UDP_TRANSPORT_BUF_SIZE];
-
+#define UDPT_TX_BUF_LEN 1496
+extern char updt_tx_buf[UDPT_TX_BUF_LEN];
+extern uint16_t udpt_tx_buf_idx;
 extern uint8_t udpt_ck_a, udpt_ck_b;
-extern uint16_t udpt_buf_idx;
+#define  UDPT_TX_BUF_WATERMARK 1024
 
-#define UdpTransportCheckFreeSpace(_x) ((_x) < UDP_TRANSPORT_BUF_SIZE)
+
+#define UdpTransportPeriodic() {				\
+    if (udpt_tx_buf_idx) {					\
+      network_write(network, updt_tx_buf, udpt_tx_buf_idx);	\
+      udpt_tx_buf_idx = 0;					\
+    }								\
+  }
+
+#define UdpTransportCheckFreeSpace(_x) (TRUE)
 
 #define UdpTransportSizeOf(_payload) (_payload+4)
 
 #define UdpTransportHeader(payload_len) {		\
-    udpt_buf_idx = 0;					\
+    /*udpt_tx_buf_idx = 0;*/				\
     UdpTransportPut1Byte(STX);				\
     uint8_t msg_len = UdpTransportSizeOf(payload_len);	\
     UdpTransportPut1Byte(msg_len);			\
@@ -26,14 +35,21 @@ extern uint16_t udpt_buf_idx;
 #define UdpTransportTrailer() {						\
     UdpTransportPut1Byte(udpt_ck_a);					\
     UdpTransportPut1Byte(udpt_ck_b);					\
-    network_write(network, upd_transport_buf, udpt_buf_idx);		\
+    if (udpt_tx_buf_idx > UDPT_TX_BUF_WATERMARK) {			\
+      TRACE(TRACE_DEBUG, "in UdpTransportTrailer : watermark crossed, sending (%d/%d)\n", udpt_tx_buf_idx, UDPT_TX_BUF_WATERMARK); \
+      network_write(network, updt_tx_buf, udpt_tx_buf_idx);		\
+      udpt_tx_buf_idx = 0;						\
+    }									\
   }
 
-#define UdpTransportPut1Byte(_x) {upd_transport_buf[udpt_buf_idx] = (_x); udpt_buf_idx++;}
+#define UdpTransportPut1Byte(_x) {			\
+    updt_tx_buf[udpt_tx_buf_idx] = (_x);		\
+    udpt_tx_buf_idx++;					\
+  }
 
 #define UdpTransportPutUint8(_byte) {	  \
     udpt_ck_a += _byte;			  \
-    udpt_ck_b += udpt_ck_a;			  \
+    udpt_ck_b += udpt_ck_a;		  \
     UdpTransportPut1Byte(_byte);	  \
   }
 

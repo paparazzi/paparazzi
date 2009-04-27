@@ -7,12 +7,16 @@
 
     <mode name="default">
       <message name="DL_VALUE"          period="0.25"/>
+      <message name="WHIRLY_MOTORCONTROL" period="0.33"/>
+      <message name="WHIRLY_ERRORCOUNTER" period="0.33"/>
       <message name="ALIVE"             period="2.1"/>
 <!--      <message name="WHIRLY_CONTROL"    period="0.16"/> -->
     </mode>
 
     <mode name="raw_sensors">
       <message name="DL_VALUE"          period="0.5"/>
+      <message name="WHIRLY_MOTORCONTROL" period="0.33"/>
+      <message name="WHIRLY_ERRORCOUNTER" period="0.33"/>
       <message name="ALIVE"             period="2.1"/>
       <message name="IMU_ACCEL_RAW"     period=".05"/>
       <message name="IMU_GYRO_RAW"      period=".05"/>
@@ -21,6 +25,8 @@
 
     <mode name="scaled_sensors">
       <message name="DL_VALUE"          period="0.5"/>
+      <message name="WHIRLY_MOTORCONTROL" period="0.33"/>
+      <message name="WHIRLY_ERRORCOUNTER" period="0.33"/>
       <message name="ALIVE"             period="2.1"/>
       <message name="IMU_ACCEL"         period=" .075"/>
       <message name="IMU_GYRO"          period=" .075"/>
@@ -29,13 +35,17 @@
 
     <mode name="ahrs">
       <message name="DL_VALUE"          period="0.5"/>
+      <message name="WHIRLY_MOTORCONTROL" period="0.25"/>
+      <message name="WHIRLY_ERRORCOUNTER" period="0.33"/>
       <message name="ALIVE"             period="2.1"/>
-      <message name="WHIRLY_ESTIMATOR"  period=" .025"/>
-      <message name="WHIRLY_CONTROL"    period="0.025"/>
+      <message name="WHIRLY_ESTIMATOR"  period=" .01"/>
+      <message name="WHIRLY_CONTROL"    period="0.01"/>
     </mode>
 
     <mode name="setup_commands">
       <message name="DL_VALUE"          period="0.5"/>
+      <message name="WHIRLY_MOTORCONTROL" period="0.33"/>
+      <message name="WHIRLY_ERRORCOUNTER" period="0.33"/>
       <message name="ALIVE"             period="2.1"/>
       <message name="ACTUATORS"         period="0.25"/>
       <message name="COMMANDS"          period="0.25"/>

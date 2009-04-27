@@ -15,7 +15,7 @@ struct CscServoCmd {
   uint16_t servo_2;
   uint16_t servo_3;
   uint16_t servo_4;
-};
+} __attribute__((packed));
 
 /* Send and Received between autopilot and csc */
 struct CscMotorMsg {
@@ -23,7 +23,7 @@ struct CscMotorMsg {
   uint8_t  csc_id;
   uint16_t arg1;
   uint16_t arg2;
-};
+} __attribute__((packed));
 
 
 extern struct CscServoCmd    csc_servo_cmd;
@@ -57,8 +57,7 @@ void csc_ap_send_msg(uint8_t msg_id, const uint8_t *buf, uint8_t len);
       }									\
       break;								\
     case CSC_MOTOR_CMD_ID:						\
-      /* FIXME : alignement issue, better fix to come */		\
-      if (CAN_MSG_LENGH_OF_FRAME(can2_rx_msg.frame) != 6) { /*sizeof(csc_motor_msg)) {*/ \
+      if (CAN_MSG_LENGH_OF_FRAME(can2_rx_msg.frame) != sizeof(csc_motor_msg)) { \
 	LED_ON(1);							\
 	csc_ap_link_error_cnt++;					\
       }									\

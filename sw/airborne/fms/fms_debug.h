@@ -6,9 +6,12 @@
 #define TRACE_DEBUG 1
 #define TRACE_ERROR 2
 
+#if 0
 #define TRACE(type,fmt,args...) {               \
     fprintf(stderr, fmt, args);                 \
   }
-
+#else
+#define TRACE(type,fmt,args...) {}
+#endif
 
 #endif /* FMS_DEBUG_H */

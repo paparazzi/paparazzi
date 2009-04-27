@@ -3,8 +3,8 @@
 /*
  * Downlink
  */
-char upd_transport_buf[UDP_TRANSPORT_BUF_SIZE];
-uint16_t udpt_buf_idx;
+char updt_tx_buf[UDPT_TX_BUF_LEN];
+uint16_t udpt_tx_buf_idx;
 uint8_t udpt_ck_a, udpt_ck_b;
 
 /*

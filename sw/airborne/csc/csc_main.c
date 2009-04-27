@@ -79,21 +79,21 @@ STATIC_INLINE void csc_main_init( void ) {
 
 
 STATIC_INLINE void csc_main_periodic( void ) {
-	static uint32_t zeros[4] = {0, 0, 0, 0};
+  static uint32_t zeros[4] = {0, 0, 0, 0};
 
-	if (servo_cmd_timeout > SERVO_TIMEOUT) {
-		LED_OFF(2);
-		csc_servos_set(zeros);
-	} else {
-		servo_cmd_timeout++;
-	}
-      
+  if (servo_cmd_timeout > SERVO_TIMEOUT) {
+    LED_OFF(2);
+    csc_servos_set(zeros);
+  } else {
+    servo_cmd_timeout++;
+  }
+
 }
 
 STATIC_INLINE void csc_main_event( void ) {
 
   CscApLinkEvent(on_servo_cmd, on_motor_cmd);
-	csc_throttle_event_task();
+  csc_throttle_event_task();
 }
 
 
@@ -109,7 +109,7 @@ static inline void on_servo_cmd(void) {
     servos_checked[i] = Chop(servos[i],MIN_SERVO, MAX_SERVO);
   csc_servos_set(servos_checked);
 
-	servo_cmd_timeout = 0;
+  servo_cmd_timeout = 0;
 
   //  DOWNLINK_SEND_CSC_CAN_MSG(&can1_rx_msg.frame, &can1_rx_msg.id, 
   //  			    &can1_rx_msg.dat_a, &can1_rx_msg.dat_b);
@@ -120,8 +120,8 @@ static inline void on_servo_cmd(void) {
 
 static inline void on_motor_cmd(void)
 {
-	// always send to throttle_id zero, only one motorcontrol per csc board
-	const static uint8_t throttle_id = 0;
+  // always send to throttle_id zero, only one motorcontrol per csc board
+  const static uint8_t throttle_id = 0;
 
-	csc_throttle_send_msg(throttle_id, csc_motor_msg.cmd_id, csc_motor_msg.arg1, csc_motor_msg.arg2);
+  csc_throttle_send_msg(throttle_id, csc_motor_msg.cmd_id, csc_motor_msg.arg1, csc_motor_msg.arg2);
 }
