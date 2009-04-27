@@ -72,18 +72,11 @@ type status =
   | Suspend (* Display is freezed, data are updated *)
   | Stop    (* Display is active, data are not updated *)
 
-let check_cache ~cond ~create ~destroy = function
-    Some pm ->
-      if cond pm then pm else begin
-        destroy pm;
-        create ()
-      end
-  | None -> create ()
-
 class plot = fun ~size ~width ~height ~packing () ->
-  let da = GMisc.drawing_area ~width ~height ~show:true ~packing () in
   let curves = Hashtbl.create 3 in
   object (self)
+    inherit Gtk_tools.pixmap_in_drawin_area ~width ~height ~packing () as pm
+
     val mutable min = max_float
     val mutable max = -. max_float
     val mutable size = size
@@ -93,8 +86,6 @@ class plot = fun ~size ~width ~height ~packing () ->
     val mutable csts = ([] : float list)
     val mutable status = Run
     val mutable auto_scale = true
-    val mutable pixmap = None
-
     method auto_scale = auto_scale
     method set_auto_scale = fun x -> auto_scale <- x
     method min = min
@@ -113,8 +104,6 @@ class plot = fun ~size ~width ~height ~packing () ->
 
     method destroy = fun () ->
       self#stop_timer ()
-
-    method drawing_area = da
 
     method add_cst = fun v ->
       csts <- v :: csts
@@ -178,15 +167,9 @@ class plot = fun ~size ~width ~height ~packing () ->
 	  if status <> Stop then
 	    self#shift ();
 	  if status <> Suspend then
+	    let da = pm#drawing_area in
 	    let {Gtk.width=width; height=height} = da#misc#allocation in
-	    let dr = check_cache pixmap
-		~cond:(fun pm -> pm#size = (width, height))
-		~destroy:(fun pm -> Gdk.Pixmap.destroy pm#pixmap)
-		~create:
-		(fun () ->
-		  GDraw.pixmap ~width ~height ~window:da ())
-	    in
-	    pixmap <- Some dr;
+	    let dr = pm#get_pixmap () in
 	    dr#set_foreground (`NAME "white");
 	    dr#rectangle ~x:0 ~y:0 ~width ~height ~filled:true ();
 	    let margin = Pervasives.min (height / 10) 20 in
@@ -284,7 +267,7 @@ class plot = fun ~size ~width ~height ~packing () ->
 		dr#put_layout ~x:(width-2*margin-w-h) ~y:(!title_y) layout;
 		title_y := !title_y + h + margin)
 	      curves;
-	    (new GDraw.drawable da#misc#window)#put_pixmap ~x:0 ~y:0 dr#pixmap
+	    pm#redraw ()
 	with
 	  exc ->
 	    prerr_endline (Printexc.to_string exc)

@@ -35,7 +35,7 @@ play : log_file.ml play.ml
 
 plotter : plotter.cmo
 	@echo OL $@
-	$(Q)$(OCAMLC) $(INCLUDES) -custom -o $@ unix.cma str.cma xml-light.cma glibivy-ocaml.cma lablgtk.cma lib-pprz.cma gtkInit.cmo  $^
+	$(Q)$(OCAMLC) $(INCLUDES) -custom -o $@ unix.cma str.cma xml-light.cma glibivy-ocaml.cma lablgtk.cma lib-pprz.cma xlib-pprz.cma gtkInit.cmo  $^
 
 plot : log_file.cmx gtk_export.cmx export.cmx plot.cmx
 	@echo OL $@
