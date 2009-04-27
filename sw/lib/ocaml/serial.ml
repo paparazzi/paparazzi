@@ -92,7 +92,8 @@ let close = Unix.close
 
 type 'a closure = Closure of 'a
 
-let buffer_len = 256
+(*let buffer_len = 256 *)
+let buffer_len = 2048
 let input = fun ?(read = Unix.read) f ->
   let buffer = String.create buffer_len
   and index = ref 0 in
