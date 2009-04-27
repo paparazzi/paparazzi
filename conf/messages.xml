@@ -1035,6 +1035,8 @@
       <field name="ele_2" type="int16"/>
       <field name="flap_1" type="int16"/>
       <field name="flap_2" type="int16"/>
+      <field name="xsens1_seq" type="uint16"/>
+      <field name="xsens2_seq" type="uint16"/>
     </message>
 
     <message name="WHIRLY_ESTIMATOR" id="182">
@@ -1046,7 +1048,21 @@
       <field name="psi_2"   type="float" alt_unit="deg" alt_unit_coef="57.29578"/>
     </message>
 
+    <message name="WHIRLY_MOTORCONTROL" id="183">
+      <field name="rpm1"	type="uint16"/>
+      <field name="rpm2"	type="uint16"/>
+      <field name="fault1"	type="uint16"/>
+      <field name="fault2"	type="uint16"/>
+    </message>
 
+    <message name="WHIRLY_ERRORCOUNTER" id="184">
+      <field name="xsens1_error_ck" type="uint32"/>
+      <field name="xsens2_error_ck" type="uint32"/>
+      <field name="xsens1_error_mid" type="uint32"/>
+      <field name="xsens2_error_mid" type="uint32"/>
+      <field name="xsens1_error_seq" type="uint32"/>
+      <field name="xsens2_error_seq" type="uint32"/>
+    </message>
 
 </class>
 
