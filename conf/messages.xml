@@ -107,9 +107,9 @@
    </message>
 
    <message name="DESIRED" id="16">
-     <field name="roll" type="float" format="%.2f" unit="rad"/>
-     <field name="pitch" type="float" format="%.2f" unit="rad"/>
-     <field name="course" type="float" format="%.1f" unit="rad"></field>
+     <field name="roll" type="float" format="%.2f" unit="rad" alt_unit="deg" alt_unit_coef="57.3"/>
+     <field name="pitch" type="float" format="%.2f" unit="rad" alt_unit="deg" alt_unit_coef="57.3"/>
+     <field name="course" type="float" format="%.1f" unit="rad" alt_unit="deg" alt_unit_coef="57.3"/>
      <field name="x" type="float" format="%.0f"  unit="m"/>
      <field name="y" type="float" format="%.0f" unit="m"/>
      <field name="altitude" type="float" format="%.0f"  unit="m"/>
