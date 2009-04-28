@@ -5,7 +5,7 @@ SRC_RDY=readyboard
 SRC_FMS=fms
 SRC_BOOZ=booz
 
-PERIODIC_FREQ = 123
+PERIODIC_FREQ = 120
 
 ap.ARCHDIR = $(ARCHI)
 
