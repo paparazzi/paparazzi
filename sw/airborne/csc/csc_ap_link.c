@@ -12,6 +12,18 @@ void csc_ap_link_init(void) {
 
 }
 
+void csc_ap_link_send_status(uint32_t loops, uint32_t msgs)
+{
+
+  struct CscStatusMsg msg;
+
+  msg.loop_count = loops;
+  msg.msg_count = msgs;
+
+  csc_ap_send_msg(CSC_BOARD_STATUS_ID, &msg, sizeof(msg));
+}
+
+
 void csc_ap_send_msg(uint8_t msg_id, const uint8_t *buf, uint8_t len)
 {
   struct CscCanMsg out_msg;

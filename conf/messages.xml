@@ -1062,6 +1062,10 @@
       <field name="xsens2_error_mid" type="uint32"/>
       <field name="xsens1_error_seq" type="uint32"/>
       <field name="xsens2_error_seq" type="uint32"/>
+      <field name="csc1_loops" type="uint32"/>
+      <field name="csc1_msgs" type="uint32"/>
+      <field name="csc2_loops" type="uint32"/>
+      <field name="csc2_msgs" type="uint32"/>
     </message>
 
 </class>

@@ -44,8 +44,10 @@ static inline void on_servo_cmd(void);
 static inline void on_motor_cmd(void);
 
 #define SERVO_TIMEOUT (SYS_TICS_OF_SEC(0.1) / PERIODIC_TASK_PERIOD)
+#define CSC_STATUS_TIMEOUT (SYS_TICS_OF_SEC(0.2) / PERIODIC_TASK_PERIOD)
 
 static uint32_t servo_cmd_timeout = 0;
+static uint32_t can_msg_count = 0;
 
 int main( void ) {
   csc_main_init();
@@ -80,12 +82,17 @@ STATIC_INLINE void csc_main_init( void ) {
 
 STATIC_INLINE void csc_main_periodic( void ) {
   static uint32_t zeros[4] = {0, 0, 0, 0};
+  static uint32_t csc_loops = 0;
 
   if (servo_cmd_timeout > SERVO_TIMEOUT) {
     LED_OFF(2);
     csc_servos_set(zeros);
   } else {
     servo_cmd_timeout++;
+  }
+  
+  if ((++csc_loops % CSC_STATUS_TIMEOUT) == 0) {
+    csc_ap_link_send_status(csc_loops, can_msg_count);
   }
 
 }
@@ -110,6 +117,7 @@ static inline void on_servo_cmd(void) {
   csc_servos_set(servos_checked);
 
   servo_cmd_timeout = 0;
+  ++can_msg_count;
 
   //  DOWNLINK_SEND_CSC_CAN_MSG(&can1_rx_msg.frame, &can1_rx_msg.id, 
   //  			    &can1_rx_msg.dat_a, &can1_rx_msg.dat_b);
