@@ -3,7 +3,7 @@
  <!-- commands section -->
   <servos>
     <servo name="ELEVATOR1"  no="0" min="1129" neutral="1277" max="1466"/>
-    <servo name="ELEVATOR2"  no="1" min="1251" neutral="1430" max="1638"/>
+    <servo name="ELEVATOR2"  no="1" min="1251" neutral="1486" max="1638"/>
     <servo name="FLAP1"      no="2" min="1700" neutral="1450" max="1200"/>
     <servo name="FLAP2"      no="3" min="1700" neutral="1450" max="1200"/>
   </servos>
