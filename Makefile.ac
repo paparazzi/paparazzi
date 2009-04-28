@@ -32,6 +32,11 @@ MESSAGES_XML = $(CONF)/messages.xml
 ACINCLUDE = $(PAPARAZZI_HOME)/var/$(AIRCRAFT)
 AIRCRAFT_CONF_DIR = $(ACINCLUDE)/conf
 AIRFRAME_H=$(ACINCLUDE)/airframe.h
+
+ifndef PERIODIC_FREQ
+PERIODIC_FREQ = 60
+endif
+
 PERIODIC_H=$(ACINCLUDE)/periodic.h
 RADIO_H=$(ACINCLUDE)/radio.h
 FLIGHT_PLAN_H=$(ACINCLUDE)/flight_plan.h
@@ -75,9 +80,10 @@ $(RADIO_H) : $(CONF)/$(RADIO) $(CONF_XML) $(TOOLS)/gen_radio.out
 	$(Q)mv /tmp/radio.h $@
 	$(Q)cp $< $(AIRCRAFT_CONF_DIR)/radios
 
-$(PERIODIC_H) : $(MESSAGES_XML) $(CONF_XML) $(CONF)/$(TELEMETRY)
+include $(MAKEFILE_AC)
+$(PERIODIC_H) : $(MESSAGES_XML) $(CONF_XML) $(CONF)/$(TELEMETRY) $(MAKEFILE_AC)
 	@echo BUILD $@
-	$(Q)$(TOOLS)/gen_periodic.out $(MESSAGES_XML) $(CONF)/$(TELEMETRY) > $@
+	$(Q)$(TOOLS)/gen_periodic.out $(MESSAGES_XML) $(CONF)/$(TELEMETRY) $(PERIODIC_FREQ) > $@
 	$(Q)chmod a+r $@
 	$(Q)cp $< $(AIRCRAFT_CONF_DIR)
 	$(Q)cp $(CONF)/$(TELEMETRY) $(AIRCRAFT_CONF_DIR)/telemetry

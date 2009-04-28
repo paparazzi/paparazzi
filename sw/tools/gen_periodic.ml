@@ -26,6 +26,7 @@
 
 open Printf
 
+
 let margin = ref 0
 let step = 2
 
@@ -36,9 +37,9 @@ let lprintf = fun c f ->
   fprintf c "%s" (String.make !margin ' ');
   fprintf c f
 
-let freq = 60
-let min_period = 1./.float freq
-let max_period = 65536. /. float freq
+let freq = ref 60
+let min_period = 1./.float !freq
+let max_period = 65536. /. float !freq
 
 let remove_dup = fun l ->
   let rec loop = fun l ->
@@ -64,7 +65,7 @@ let output_modes = fun avr_h process_name modes ->
 	    let p = float_of_string (ExtXml.attrib x "period") in
 	    if p < min_period || p > max_period then
 	      fprintf stderr "Warning: period is bound between %.3fs and %.3fs for message %s\n%!" min_period max_period (ExtXml.attrib x "name");
-	    (x, min 65535 (max 1 (int_of_float (p*.float_of_int freq)))))
+	    (x, min 65535 (max 1 (int_of_float (p*.float_of_int !freq)))))
 	  (Xml.children mode)
       in
       let modulos = remove_dup (List.map snd messages) in
@@ -87,7 +88,7 @@ let output_modes = fun avr_h process_name modes ->
 	  let else_ = if List.mem_assoc p !l && not (List.mem (p, !i) !l) then "else " else "" in
 	  lprintf avr_h "%sif (i%d == %d) {\\\n" else_ p !i;
 	  l := (p, !i) :: !l;
-	  i := !i + freq/10;
+	  i := !i + !freq/10;
 	  right ();
 	  lprintf avr_h "PERIODIC_SEND_%s();\\\n" message_name;
 	  left ();
@@ -100,10 +101,11 @@ let output_modes = fun avr_h process_name modes ->
 
 
 let _ =
-  if Array.length Sys.argv <> 3 then begin
-    failwith (sprintf "Usage: %s <messages.xml> <telemetry.xml>" Sys.argv.(0)) 
+  if Array.length Sys.argv <> 4 then begin
+    failwith (sprintf "Usage: %s <messages.xml> <telemetry.xml> frequency_in_hz" Sys.argv.(0)) 
   end;
 
+  freq := int_of_string(Sys.argv.(3));
   let telemetry_xml = 
     try
       Xml.parse_file Sys.argv.(2)
@@ -140,7 +142,7 @@ let _ =
 	incr i)
 	modes;
 
-      lprintf avr_h "#define PeriodicSend%s() {  /* %dHz */ \\\n" process_name freq;
+      lprintf avr_h "#define PeriodicSend%s() {  /* %dHz */ \\\n" process_name !freq;
       right ();
       output_modes avr_h process_name modes;
       left ();
