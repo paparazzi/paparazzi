@@ -2,6 +2,7 @@
 #define CSC_AP_LINK_H
 
 #include "std.h"
+#include "string.h"
 
 #define CSC_SERVO_CMD_ID    0
 #define CSC_MOTOR_CMD_ID    1
@@ -55,10 +56,7 @@ void csc_ap_link_send_status(uint32_t loops, uint32_t msgs);
 	csc_ap_link_error_cnt++;					\
       }									\
       else {								\
-	csc_servo_cmd.servo_1 = can2_rx_msg.dat_a&0xFFFF;		\
-	csc_servo_cmd.servo_2 = (can2_rx_msg.dat_a>>16)&0xFFFF;		\
-	csc_servo_cmd.servo_3 = can2_rx_msg.dat_b&0xFFFF;		\
-	csc_servo_cmd.servo_4 = (can2_rx_msg.dat_b>>16)&0xFFFF;		\
+	memcpy(&csc_servo_cmd, &can2_rx_msg.dat_a, sizeof(csc_servo_cmd));\
 	_on_servo_msg();						\
       }									\
       break;								\
@@ -68,9 +66,7 @@ void csc_ap_link_send_status(uint32_t loops, uint32_t msgs);
 	csc_ap_link_error_cnt++;					\
       }									\
       else {								\
-	csc_motor_msg.cmd_id = can2_rx_msg.dat_a & 0xFF;		\
-	csc_motor_msg.arg1 = (can2_rx_msg.dat_a>>16) & 0xFFFF;		\
-	csc_motor_msg.arg2 = can2_rx_msg.dat_b & 0xFFFF;		\
+	memcpy(&csc_motor_msg, &can2_rx_msg.dat_a, sizeof(csc_motor_msg));\
 	_on_motor_msg();						\
       }									\
       break;								\
