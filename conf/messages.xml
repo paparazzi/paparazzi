@@ -1037,6 +1037,10 @@
       <field name="flap_2" type="int16"/>
       <field name="xsens1_seq" type="uint16"/>
       <field name="xsens2_seq" type="uint16"/>
+      <field name="csc1_loops" type="uint32"/>
+      <field name="csc1_msgs" type="uint32"/>
+      <field name="csc2_loops" type="uint32"/>
+      <field name="csc2_msgs" type="uint32"/>
     </message>
 
     <message name="WHIRLY_ESTIMATOR" id="182">
@@ -1062,10 +1066,6 @@
       <field name="xsens2_error_mid" type="uint32"/>
       <field name="xsens1_error_seq" type="uint32"/>
       <field name="xsens2_error_seq" type="uint32"/>
-      <field name="csc1_loops" type="uint32"/>
-      <field name="csc1_msgs" type="uint32"/>
-      <field name="csc2_loops" type="uint32"/>
-      <field name="csc2_msgs" type="uint32"/>
     </message>
 
 </class>

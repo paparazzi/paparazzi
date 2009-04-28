@@ -127,7 +127,6 @@ static void send_ap_msg( struct throttle_msg *msg)
   throttle_recv_count++;
 
   ap_msg.cmd_id = msg->cmd_id;
-  ap_msg.csc_id = CSC_BOARD_ID;
   ap_msg.arg1 =  msg->arg1;
   ap_msg.arg2 = msg->arg2;
 

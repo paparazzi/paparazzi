@@ -21,7 +21,6 @@ struct CscServoCmd {
 /* Send and Received between autopilot and csc */
 struct CscMotorMsg {
   uint8_t  cmd_id;
-  uint8_t  csc_id;
   uint16_t arg1;
   uint16_t arg2;
 } __attribute__((packed));
