@@ -5,6 +5,8 @@ SRC_RDY=readyboard
 SRC_FMS=fms
 SRC_BOOZ=booz
 
+PERIODIC_FREQ = 123
+
 ap.ARCHDIR = $(ARCHI)
 
 ap.LDFLAGS = -lm -levent -lrt
