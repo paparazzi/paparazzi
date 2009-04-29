@@ -50,14 +50,17 @@ debian: Debian packaging control files
 
 Required Software
 -----------------
+
+Installation is described in the wiki (paparazzi.enac.fr/wiki/Installation).
+Main requirements include
  - OCaml (ocaml.org), xml-light library (http://tech.motion-twin.com/xmllight)
  - gcc, GTK2, Glib2, libgnomecanvas, libxml2
  - ARM7 micro-controller development environnment (gcc, loader, libc, binutils)
  - ...
 
-For Debian users: Required packages are available at
+For Debian or Ubuntu users, required packages are available at
 
-	http://www.recherche.enac.fr/paparazzi/debian
+	http://paparazzi.enac.fr/debian
 
 Installation of the meta-package "paparazzi-dev" will install
 everything needed to compile this project (if something is missing,
@@ -67,7 +70,7 @@ the code for the ARM based boards.
 Compilation and demo simulation
 -------------------------------
 
-  1) "make" in the top directory to compile all the tools.
+  1) "make" in the top directory to compile all the libraries and tools.
 
   2) "./paparazzi" to run the Paparazzi Center
 
