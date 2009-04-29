@@ -1071,6 +1071,7 @@
     </message>
 
     <message name="WHIRLY_IMU" id="185">
+      <field name="whirly_timestamp"   type="float"/>
       <field name="p1_gyro_p" type="float"/>
       <field name="p1_gyro_r" type="float"/>
       <field name="p1_gyro_y" type="float"/>
