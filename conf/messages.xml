@@ -1070,6 +1070,27 @@
       <field name="xsens2_error_seq" type="uint32"/>
     </message>
 
+    <message name="WHIRLY_IMU" id="185">
+      <field name="p1_gyro_p" type="float"/>
+      <field name="p1_gyro_r" type="float"/>
+      <field name="p1_gyro_y" type="float"/>
+      <field name="p1_accel_x" type="float"/>
+      <field name="p1_accel_y" type="float"/>
+      <field name="p1_accel_z" type="float"/>
+      <field name="p1_mag_x" type="float"/>
+      <field name="p1_mag_y" type="float"/>
+      <field name="p1_mag_z" type="float"/>
+      <field name="p2_gyro_p" type="float"/>
+      <field name="p2_gyro_r" type="float"/>
+      <field name="p2_gyro_y" type="float"/>
+      <field name="p2_accel_x" type="float"/>
+      <field name="p2_accel_y" type="float"/>
+      <field name="p2_accel_z" type="float"/>
+      <field name="p2_mag_x" type="float"/>
+      <field name="p2_mag_y" type="float"/>
+      <field name="p2_mag_z" type="float"/>
+    </message>
+
 </class>
 
 

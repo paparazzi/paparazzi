@@ -7,10 +7,12 @@
 
     <mode name="default">
       <message name="DL_VALUE"          period="0.25"/>
-      <message name="WHIRLY_MOTORCONTROL" period="0.33"/>
-      <message name="WHIRLY_ERRORCOUNTER" period="0.33"/>
+      <message name="WHIRLY_MOTORCONTROL" period="0.25"/>
+      <message name="WHIRLY_ERRORCOUNTER" period="0.25"/>
       <message name="ALIVE"             period="2.1"/>
-<!--      <message name="WHIRLY_CONTROL"    period="0.16"/> -->
+      <message name="WHIRLY_CONTROL"    period="0.01"/>
+      <message name="WHIRLY_IMU"	period="0.01"/>
+      <message name="WHIRLY_ESTIMATOR"  period="0.01"/>
     </mode>
 
     <mode name="raw_sensors">
