@@ -97,9 +97,15 @@ let _ =
   Printf.fprintf f "%s\n" md5sum;
   close_out f;
   
-  let c = sprintf "make -f Makefile.ac AIRCRAFT=%s AC_ID=%s AIRFRAME_XML=%s RADIO=%s FLIGHT_PLAN=%s TELEMETRY=%s SETTINGS=\"%s\" MD5SUM=\"%s\" all_ac_h" aircraft (value "ac_id") (value "airframe") (value "radio") (value "flight_plan") (value "telemetry") settings md5sum in
-  begin (** Quiet is speficied in the Makefile *)
-    try if Sys.getenv "Q" <> "@" then raise Not_found with
-      Not_found -> prerr_endline c
-  end;
-  exit (Sys.command c)
+  let make = fun target ->
+    let c = sprintf "make -f Makefile.ac AIRCRAFT=%s AC_ID=%s AIRFRAME_XML=%s RADIO=%s FLIGHT_PLAN=%s TELEMETRY=%s SETTINGS=\"%s\" MD5SUM=\"%s\" %s" aircraft (value "ac_id") (value "airframe") (value "radio") (value "flight_plan") (value "telemetry") settings md5sum target in
+    prerr_endline c;
+    begin (** Quiet is speficied in the Makefile *)
+      try if Sys.getenv "Q" <> "@" then raise Not_found with
+	Not_found -> prerr_endline c
+    end;
+    let returned_code = Sys.command c in
+    if returned_code <> 0 then
+      exit returned_code in
+  make "makefile_ac";
+  make "all_ac_h"
