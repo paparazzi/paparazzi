@@ -32,7 +32,9 @@
 
 void gsm_init(void);
 void gsm_periodic_1Hz(void);
+void gsm_send_report(void);
 void gsm_start(void);
 void gsm_stop(void);
+void gsm_event(void);
 
 #endif

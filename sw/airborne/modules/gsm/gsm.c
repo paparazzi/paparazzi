@@ -23,12 +23,33 @@
  */
 
 #include "gsm.h"
+#include "std.h"
+#include "uart.h"
+
+#define GSM_LINK Uart0
+#define GSM_MAX_PAYLOAD 160
+
+#define __GSMLink(dev, _x) dev##_x
+#define _GSMLink(dev, _x)  __GSMLink(dev, _x)
+#define GSMLink(_x) _GSMLink(GSM_LINK, _x)
+
+#define GSMBuffer() GSMLink(ChAvailable())
+#define ReadGSMBuffer() { while (GSMLink(ChAvailable())&&!gsm_line_received) gsm_parse(GSMLink(Getch())); }
+
+static bool gsm_line_received;
+static uint8_t gsm_buf[GSM_MAX_PAYLOAD] __attribute__ ((aligned));
+static uint8_t gsm_buf_idx;
 
 void gsm_init(void) {
-  
+  gsm_buf_idx = 0;
+  gsm_line_received = false;
 }
 
 void gsm_periodic_1Hz(void) {
+  
+}
+
+void gsm_send_report(void) {
   
 }
 
@@ -38,5 +59,33 @@ void gsm_start(void) {
 
 void gsm_stop(void) {
 
+}
+
+
+static void gsm_parse(uint8_t c) {
+  switch(c) {
+  case '\n':
+    /* ignore */
+    break;
+  case '\r':
+    gsm_line_received = true;
+    break;
+  default:
+    if (gsm_buf_idx < GSM_MAX_PAYLOAD) { 
+      gsm_buf[gsm_buf_idx] = c;
+      gsm_buf_idx++;
+    } /* else extra characters are ignored */
+    break;
+  }
+}
+
+void gsm_event(void) {
+  if (GSMBuffer())
+    ReadGSMBuffer();
+
+  if (gsm_line_received) {
+    /* utiliser l'info */
+    gsm_line_received = false;
+  }
 }
 
