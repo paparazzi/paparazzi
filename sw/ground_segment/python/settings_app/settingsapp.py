@@ -7,7 +7,7 @@ import settingsframe
 import getopt
 import sys
 
-sys.path.append(os.getenv("JOBY_PYTHON") + "/joby_lib")
+sys.path.append(os.getenv("PAPARAZZI_HOME") + "/sw/lib/python")
 import settings_xml_parse
 DEFAULT_AC_IDS = [ 11 ] # biwhirly
 
