@@ -22,17 +22,18 @@ class DashboardFrame(wx.Frame):
   def message_recv(self, ac_id, name, values):
     if name == "BAT":
       self.batteryVolts = float(values[1]) / 10
-    elif name == "ACTUATOR_WHIRLY":
-      self.throttle = (float(values[2]) - 1000) / 10.0
-      self.uptime = float(values[0])
-    elif name == "XSENS_DATA":
-      self.rpmYaw = (float(values[9]) + float(values[19])) / 2
+    elif name == "WHIRLY_MOTORCONTROL":
+      self.throttle1 = int(values[0])
+      self.throttle2 = int(values[0])
+    elif name == "WHIRLY_IMU":
+      self.rpmYaw = (float(values[3]) + float(values[11])) / 2
       self.rpmYaw = -self.rpmYaw * RADS_SEC_TO_RPM
+      self.uptime = float(values[0])
 
   def gui_update(self):
     self.batteryText.SetLabel("%0.1f V" % self.batteryVolts)
     self.rpmTextYaw.SetLabel("%0.1f RPM" % self.rpmYaw)
-    self.throttleText.SetLabel("%0.1f %%" % self.throttle)
+    self.throttleText.SetLabel("%0.1i RPM %0.1i RPM" % (self.throttle1, self.throttle2))
     self.uptimeText.SetLabel("%02i:%02i:%02i" % (self.uptime / (60 * 60), (self.uptime / 60) % 60, self.uptime % 60))
     self.update_timer.Restart(UPDATE_INTERVAL)
 
@@ -67,7 +68,8 @@ class DashboardFrame(wx.Frame):
 
     self.batteryVolts = -1
     self.rpmYaw = -1
-    self.throttle = -1
+    self.throttle1 = -1
+    self.throttle2 = -1
     self.uptime = 0
 
     pynotify.init("Paparazzi Dashboard")
