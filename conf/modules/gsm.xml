@@ -1,0 +1,13 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="gsm">
+  <header>
+    <file name="gsm.h"/>
+  </header>
+  <init fun="gsm_init()"/>
+  <periodic fun="gsm_periodic_1Hz()" period="1." start="gsm_start()" stop="gsm_stop()"/>
+  <makefile>
+    <file name="gsm.c"/>
+  </makefile>
+</module>
+
