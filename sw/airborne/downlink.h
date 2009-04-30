@@ -32,6 +32,7 @@
 
 #include <inttypes.h>
 
+#include "modules.h"
 #include "messages.h"
 #include "airframe.h" // AC_ID is required
 
