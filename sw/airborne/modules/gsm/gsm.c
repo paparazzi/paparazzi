@@ -24,9 +24,9 @@
 
 #include "gsm.h"
 #include "std.h"
-#include "uart.h"
+#include "downlink.h"
 
-#define GSM_LINK Uart0
+#define GSM_LINK Uart3100
 #define GSM_MAX_PAYLOAD 160
 
 #define __GSMLink(dev, _x) dev##_x
