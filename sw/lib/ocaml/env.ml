@@ -54,8 +54,7 @@ let gcs_icons_path = paparazzi_home // "data" // "pictures" // "gcs_icons"
 
 let expand_ac_xml = fun ac_conf ->
   let prefix = fun s -> sprintf "%s/conf/%s" paparazzi_home s in
-  let parse = fun a ->
-    let file = prefix (ExtXml.attrib ac_conf a) in
+  let parse_file = fun a file ->
     try
       Xml.parse_file file
     with
@@ -66,10 +65,19 @@ let expand_ac_xml = fun ac_conf ->
 	let s = Xml.error e in
 	prerr_endline (sprintf "Parse error in %s: %s" file s);
 	make_element "cannot_parse" ["file",file;"error", s] [] in
-  let fp = parse "flight_plan"
-  and af = parse "airframe"
-  and rc = parse "radio"
-  and st = parse "settings"
-  and tm = parse "telemetry" in
-  let children = Xml.children ac_conf@[fp; af; rc; st; tm] in
+
+  let parse = fun a ->
+    let file = prefix (ExtXml.attrib ac_conf a) in
+    parse_file a file in
+
+  let parse_opt = fun a others ->
+    try
+      parse a :: others
+    with
+      ExtXml.Error _ -> others in
+
+  let pervasives = [parse "airframe"; parse "settings"; parse "telemetry"] in
+  let optionals = parse_opt "radio" (parse_opt "flight_plan" pervasives) in
+
+  let children = Xml.children ac_conf@optionals in
   make_element (Xml.tag ac_conf) (Xml.attribs ac_conf) children

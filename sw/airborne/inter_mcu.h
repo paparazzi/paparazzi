@@ -38,7 +38,9 @@
 #include <inttypes.h>
 
 #include "std.h"
+#if defined RADIO_CONTROL || RADIO_CONTROL_AUTO1
 #include "radio.h"
+#endif
 #include "paparazzi.h"
 #include "airframe.h"
 #include "radio_control.h"

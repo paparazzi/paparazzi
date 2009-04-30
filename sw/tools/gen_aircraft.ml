@@ -3,7 +3,7 @@
  *
  * Call to Makefile.ac with the appropriate attributes from conf.xml
  *  
- * Copyright (C) 2003-2008 Pascal Brisset, Antoine Drouin, ENAC
+ * Copyright (C) 2003-2009 Pascal Brisset, Antoine Drouin, ENAC
  *
  * This file is part of paparazzi.
  *
@@ -36,7 +36,8 @@ let mkdir = fun d ->
     Unix.mkdir d 0o755
 
 let check_unique_id = fun conf ->
-  let ids = Hashtbl.create 5 in
+  let ids = Hashtbl.create 5
+  and names = Hashtbl.create 5 in
   List.iter
     (fun x -> 
       if String.lowercase (Xml.tag x) = "aircraft" then 
@@ -46,10 +47,17 @@ let check_unique_id = fun conf ->
 	  let other_name = Hashtbl.find ids id in
 	  failwith (sprintf "Error: A/C Id '%s' duplicated in %s (%s and %s)" id conf_xml name other_name)
 	end;
-	Hashtbl.add ids id name)
+	if Hashtbl.mem names name then begin
+	  let other_id = Hashtbl.find names name in
+	  failwith (sprintf "Error: A/C name '%s' duplicated in %s (ids %s and %s)" name conf_xml id other_id)
+	end;
+	Hashtbl.add ids id name;
+	Hashtbl.add names name id)
     (Xml.children conf)
 
-let _ =
+
+
+let () =
   if Array.length Sys.argv <> 2 then
     failwith (sprintf "Usage: %s <A/C ident (conf.xml)>" Sys.argv.(0));
   let aircraft = Sys.argv.(1) in
@@ -97,8 +105,8 @@ let _ =
   Printf.fprintf f "%s\n" md5sum;
   close_out f;
   
-  let make = fun target ->
-    let c = sprintf "make -f Makefile.ac AIRCRAFT=%s AC_ID=%s AIRFRAME_XML=%s RADIO=%s FLIGHT_PLAN=%s TELEMETRY=%s SETTINGS=\"%s\" MD5SUM=\"%s\" %s" aircraft (value "ac_id") (value "airframe") (value "radio") (value "flight_plan") (value "telemetry") settings md5sum target in
+  let make = fun target options ->
+    let c = sprintf "make -f Makefile.ac AIRCRAFT=%s AC_ID=%s AIRFRAME_XML=%s TELEMETRY=%s SETTINGS=\"%s\" MD5SUM=\"%s\" %s %s" aircraft (value "ac_id") (value "airframe") (value "telemetry") settings md5sum options target in
     prerr_endline c;
     begin (** Quiet is speficied in the Makefile *)
       try if Sys.getenv "Q" <> "@" then raise Not_found with
@@ -107,5 +115,15 @@ let _ =
     let returned_code = Sys.command c in
     if returned_code <> 0 then
       exit returned_code in
-  make "makefile_ac";
-  make "all_ac_h"
+
+  let make_opt = fun target var attr ->
+    try
+      let value = Xml.attrib aircraft_xml attr in
+      make target (sprintf "%s=%s" var value)
+    with
+      Xml.No_attribute _ -> () in
+
+  make "makefile_ac" "";
+  make "all_ac_h" "";
+  make_opt "radio_ac_h" "RADIO" "radio";
+  make_opt "flight_plan_ac_h" "FLIGHT_PLAN" "flight_plan"

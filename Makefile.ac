@@ -65,7 +65,11 @@ init:
 demo:
 	$(SUPERVISION)
 
-all_ac_h: $(AIRFRAME_H) $(RADIO_H) $(FLIGHT_PLAN_H) $(FLIGHT_PLAN_XML) $(SETTINGS_H) $(TUNING_H) $(MAKEFILE_AC) $(PERIODIC_H) $(MODULES_H)
+all_ac_h: $(AIRFRAME_H) $(SETTINGS_H) $(TUNING_H) $(MAKEFILE_AC) $(PERIODIC_H) $(MODULES_H)
+
+radio_ac_h : $(RADIO_H)
+
+flight_plan_ac_h : $(FLIGHT_PLAN_H) $(FLIGHT_PLAN_XML)
 
 makefile_ac: $(MAKEFILE_AC)
 
