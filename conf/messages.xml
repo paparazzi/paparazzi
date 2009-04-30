@@ -1052,6 +1052,10 @@
       <field name="phi_2"   type="float" alt_unit="deg" alt_unit_coef="57.29578"/>
       <field name="theta_2" type="float" alt_unit="deg" alt_unit_coef="57.29578"/>
       <field name="psi_2"   type="float" alt_unit="deg" alt_unit_coef="57.29578"/>
+      <field name="euler_1_error_nb" type="uint32"/>
+      <field name="euler_2_error_nb" type="uint32"/>
+      <field name="psi_mag_1_error_nb" type="uint32"/>
+      <field name="psi_mag_2_error_nb" type="uint32"/>
     </message>
 
     <message name="WHIRLY_MOTORCONTROL" id="183">
