@@ -26,7 +26,7 @@ class DashboardFrame(wx.Frame):
       self.throttle1 = int(values[0])
       self.throttle2 = int(values[0])
     elif name == "WHIRLY_IMU":
-      self.rpmYaw = (float(values[3]) + float(values[11])) / 2
+      self.rpmYaw = (float(values[3]) + float(values[12])) / 2
       self.rpmYaw = -self.rpmYaw * RADS_SEC_TO_RPM
       self.uptime = float(values[0])
 
