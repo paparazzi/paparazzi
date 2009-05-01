@@ -21,7 +21,7 @@ ap.srcs+=$(SRC_RDY)/rdyb_timer.c
 ap.srcs+=$(SRC_RDY)/rdyb_xsens.c
 ap.srcs+=$(SRC_FMS)/fms_serial_port.c
 ap.srcs+=$(SRC_RDY)/rdyb_estimator.c
-#ap.srcs+=$(SRC_RDY)/rdyb_ahrs.c
+ap.srcs+=$(SRC_RDY)/rdyb_ahrs.c
 #ap.srcs+=$(SRC_RDY)/rdyb_control.c
 
 ap.srcs+=$(SRC_RDY)/elevator_control.c
