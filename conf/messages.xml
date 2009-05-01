@@ -1096,6 +1096,28 @@
       <field name="p2_mag_z" type="float"/>
     </message>
 
+    <message name="WHIRLY_IMU_RAW" id="186">
+      <field name="whirly_timestamp"   type="float"/>
+      <field name="p1_gyro_p_raw" type="uint16"/>
+      <field name="p1_gyro_r_raw" type="uint16"/>
+      <field name="p1_gyro_y_raw" type="uint16"/>
+      <field name="p1_accel_x_raw" type="uint16"/>
+      <field name="p1_accel_y_raw" type="uint16"/>
+      <field name="p1_accel_z_raw" type="uint16"/>
+      <field name="p1_mag_x_raw" type="uint16"/>
+      <field name="p1_mag_y_raw" type="uint16"/>
+      <field name="p1_mag_z_raw" type="uint16"/>
+      <field name="p2_gyro_p_raw" type="uint16"/>
+      <field name="p2_gyro_r_raw" type="uint16"/>
+      <field name="p2_gyro_y_raw" type="uint16"/>
+      <field name="p2_accel_x_raw" type="uint16"/>
+      <field name="p2_accel_y_raw" type="uint16"/>
+      <field name="p2_accel_z_raw" type="uint16"/>
+      <field name="p2_mag_x_raw" type="uint16"/>
+      <field name="p2_mag_y_raw" type="uint16"/>
+      <field name="p2_mag_z_raw" type="uint16"/>
+    </message>
+
 </class>
 
 
