@@ -17,7 +17,7 @@ ap.srcs =$(SRC_RDY)/ready_main.c
 ap.srcs+=$(SRC_RDY)/rdyb_gpio.c
 ap.srcs+=$(SRC_RDY)/rdyb_timer.c
 
-ap.CFLAGS += -DUSE_XSENS_AHRS
+#ap.CFLAGS += -DUSE_XSENS_AHRS
 ap.srcs+=$(SRC_RDY)/rdyb_xsens.c
 ap.srcs+=$(SRC_FMS)/fms_serial_port.c
 ap.srcs+=$(SRC_RDY)/rdyb_estimator.c
