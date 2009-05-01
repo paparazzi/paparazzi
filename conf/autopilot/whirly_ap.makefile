@@ -11,7 +11,7 @@ ap.ARCHDIR = $(ARCHI)
 
 ap.LDFLAGS = -lm -levent -lrt
 
-ap.CFLAGS += -I$(SRC_RDY) -I$(SRC_FMS) -I$(SRC_BOOZ)
+ap.CFLAGS += -I$(SRC_RDY) -I$(SRC_FMS) -I$(SRC_BOOZ) -DPERIODIC_FREQ=$(PERIODIC_FREQ)
 
 ap.srcs =$(SRC_RDY)/ready_main.c
 ap.srcs+=$(SRC_RDY)/rdyb_gpio.c
