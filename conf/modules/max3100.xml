@@ -1,0 +1,15 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="max3100">
+  <header>
+    <file name="max3100_hw.h"/>
+  </header>
+  <init fun="max3100_init()"/>
+  <periodic fun="max3100_test_write()" period="0.2" autorun="TRUE"/>
+<!--  <event fun="Max3100_test_read()"/> -->
+  <makefile>
+    <flag name="MAX3100_BAUD_RATE" value="MAX3100_BAUD_RATE_9600"/>
+    <file name="max3100_hw.c"/>
+  </makefile>
+</module>
+
