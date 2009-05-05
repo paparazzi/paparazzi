@@ -23,7 +23,6 @@ ap.srcs+=$(SRC_FMS)/fms_serial_port.c
 ap.srcs+=$(SRC_RDY)/rdyb_estimator.c
 ap.srcs+=$(SRC_RDY)/rdyb_ahrs.c
 #ap.srcs+=$(SRC_RDY)/rdyb_control.c
-ap.srcs+=$(SRC_RDY)/booz_ahrs.c
 ap.srcs+=$(SRC_RDY)/ahrs_quat_fast_ekf.c
 
 ap.srcs+=$(SRC_RDY)/elevator_control.c

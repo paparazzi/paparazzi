@@ -1056,6 +1056,9 @@
       <field name="euler_2_error_nb" type="uint32"/>
       <field name="psi_mag_1_error_nb" type="uint32"/>
       <field name="psi_mag_2_error_nb" type="uint32"/>
+      <field name="gyro1x_lp" type="float"/>
+      <field name="gyro1y_lp" type="float"/>
+      <field name="gyro1z_lp" type="float"/>
     </message>
 
     <message name="WHIRLY_MOTORCONTROL" id="183">
