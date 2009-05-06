@@ -255,15 +255,16 @@ class waypoint = fun ?(show = true) (wpts_group:group) (name :string) ?(alt=0.) 
       let (xw, yw) = geomap#world_of wgs84
       and (xw0, yw0) = self#xy
       and z = geomap#zoom_adj#value in
+
       let dx = (xw-.xw0)*.z
       and dy = (yw-.yw0)*.z
-      and dz =
-	match altitude with
-	  Some a -> 
-	    let dz = a -. alt in
-	    dz
-	| _ -> 0. in
-      let new_pos = dx*.dx +. dy*.dy +. dz*.dz > 3. in
+      and dz = match altitude with Some a -> a -. alt | _ -> 0. in
+
+      let current_utm = utm_of WGS84 self#pos
+      and new_utm = utm_of WGS84 wgs84 in
+      let d = utm_distance current_utm new_utm in
+
+      let new_pos = d > 1. in
       match moved, new_pos with
 	None, true ->
 	  self#move dx dy;
