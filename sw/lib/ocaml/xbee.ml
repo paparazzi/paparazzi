@@ -70,24 +70,36 @@ type frame_data = string
 type frame_id = int
 type addr64 = Int64.t
 type addr16 = int
-
+type byte = int
+type rssi = int
 type frame =
     Modem_Status of int
   | AT_Command_Response of frame_id * string * int * string
-  | TX_Status of frame_id * int
+  | TX_Status of frame_id * byte
+  | TX868_Status of frame_id * byte * int
   | RX_Packet_64 of addr64 * int * int * string
+  | RX868_Packet of addr64 * byte * string
   | RX_Packet_16 of addr16 * int * int * string
  
 
+let mode868 = ref false
+
+let check_not_in_868 = fun s ->
+  if !mode868 then 
+    failwith (Printf.sprintf "Xbee.%s not available in mode868" s)
+
 
 let api_tx64_id = Char.chr 0x00
+let api868_tx64_id = Char.chr 0x10
 let api_tx16_id = Char.chr 0x01
 let api_rx64_id = Char.chr 0x80
 let api_rx16_id = Char.chr 0x81
 let api_at_command_response_id = Char.chr 0x88
 let api_tx_status_id = Char.chr 0x89
+let api868_tx_status_id = Char.chr 0x8b
 let api_modem_status_id = Char.chr 0x8a
 let api_rx64_id = Char.chr 0x80
+let api868_rx64_id = Char.chr 0x90
 let api_rx16_id = Char.chr 0x81
 
 let write_int64 = fun buf offset x ->
@@ -113,16 +125,23 @@ let api_tx64 = fun ?(frame_id = 0) dest data ->
   assert (frame_id >=0 && frame_id < 0x100);
   let n = String.length data in
   assert (n <= 100);
-  let l = 1 + 1 + 8 + 1 + n in
+  let optional868 = if !mode868 then 3 else 0 in
+  let l = 1 + 1 + 8 + optional868 + 1 + n in
   let s = String.create l in
   s.[0] <- api_tx64_id;
   s.[1] <- Char.chr frame_id;
+  if !mode868 then begin
+    s.[10] <- Char.chr 0xff;
+    s.[11] <- Char.chr 0xfe;
+    s.[12] <- Char.chr 0x0;
+  end;
   write_int64 s 2 dest;
-  s.[10] <- Char.chr 0;
-  String.blit data 0 s 11 n;
+  s.[10+optional868] <- Char.chr 0;
+  String.blit data 0 s (11+ optional868) n;
   s
   
 let api_tx16 = fun ?(frame_id = 0) dest data ->
+  check_not_in_868 "api_tx16";
   assert (frame_id >=0 && frame_id < 0x100);
   let n = String.length data in
   assert (n <= 100);
@@ -160,16 +179,24 @@ let api_parse_frame = fun s ->
       assert(n >= 5);
       AT_Command_Response (Char.code s.[1], String.sub s 2 2, 
 			   Char.code s.[4], String.sub s 5 (n-5))
-  | x when x = api_tx_status_id ->
+  | x when not !mode868 && x = api_tx_status_id ->
       assert(n = 3);
       TX_Status (Char.code s.[1], Char.code s.[2])
+  | x when !mode868 && x = api868_tx_status_id ->
+      assert(n = 7);
+      TX868_Status (Char.code s.[1], Char.code s.[5], Char.code s.[4])
   | x when x = api_modem_status_id -> 
       Modem_Status (Char.code s.[1])
-  | x when x = api_rx64_id ->
+  | x when not !mode868 && x = api_rx64_id ->
       assert(n >= 11);
       RX_Packet_64 (read_int64 s 1, Char.code s.[9],
 		    Char.code s.[10], String.sub s 11 (n-11))
-  | x when x = api_rx16_id || x = api_tx16_id ->
+  | x when !mode868 && x = api868_rx64_id ->
+      let idx_data = 12 in
+      assert(n >= idx_data);
+      RX868_Packet (read_int64 s 1,
+		    Char.code s.[11], String.sub s idx_data (n-idx_data))
+  | x when not !mode868 && (x = api_rx16_id || x = api_tx16_id) ->
       (* tx16 here allows to receive simulated xbee messages *)
       RX_Packet_16 (read_int16 s 1, Char.code s.[3], Char.code  s.[4], String.sub s 5 (n-5))
   | x -> failwith (Printf.sprintf "Xbee.parse_frame: unknown frame id '%d'" (Char.code x))

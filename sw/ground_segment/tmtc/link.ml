@@ -284,7 +284,7 @@ module XB = struct (** XBee module *)
 	Debug.trace 'x' (sprintf "getting XBee status %d" x)
     | Xbee.AT_Command_Response (frame_id, comm, status, value) ->
 	Debug.trace 'x' (sprintf "getting XBee AT command response: %d %s %d %s" frame_id comm status (Debug.xprint value))
-    | Xbee.TX_Status (frame_id, status) ->
+    | Xbee.TX_Status (frame_id,status) | Xbee.TX868_Status (frame_id,status,_) ->
 	Debug.trace 'x' (sprintf "getting XBee TX status: %d %d" frame_id status);
 	if status = 1 then (* no ack, retry *)
 	  let (packet, nb_prev_retries) = packets.(frame_id) in
@@ -301,6 +301,9 @@ module XB = struct (** XBee module *)
     | Xbee.RX_Packet_64 (addr64, rssi, options, data) ->
 	Debug.trace 'x' (sprintf "getting XBee RX64: %Lx %d %d %s" addr64 rssi options (Debug.xprint data));
 	use_tele_message ~raw_data_size:(String.length frame_data + oversize_packet) (Serial.payload_of_string data)
+    | Xbee.RX868_Packet (addr64, options, data) ->
+	Debug.trace 'x' (sprintf "getting XBee868 RX: %Lx %d %s" addr64 options (Debug.xprint data));
+	use_tele_message ~raw_data_size:(String.length frame_data + oversize_packet) (Serial.payload_of_string data)
     | Xbee.RX_Packet_16 (addr16, rssi, options, data) ->
 	Debug.trace 'x' (sprintf "getting XBee RX16: from=%x %d %d %s" addr16 rssi options (Debug.xprint data));
 	use_tele_message ~raw_data_size:(String.length frame_data + oversize_packet) (Serial.payload_of_string data)
@@ -310,7 +313,11 @@ module XB = struct (** XBee module *)
     let ac_id = match ac_id with None -> 0xffff | Some a -> a in
     let rf_data = Serial.string_of_payload rf_data in
     let frame_id = gen_frame_id () in
-    let frame_data = Xbee.api_tx16 ~frame_id ac_id rf_data in
+    let frame_data = 
+      if !Xbee.mode868 then
+	Xbee.api_tx64 ~frame_id (Int64.of_int ac_id) rf_data
+      else
+	Xbee.api_tx16 ~frame_id ac_id rf_data in
     let packet = Xbee.Protocol.packet (Serial.payload_of_string frame_data) in
 
     (* Store the packet for further retry *)
@@ -474,6 +481,7 @@ let () =
       "-uplink", Arg.Set uplink, (sprintf "Deprecated (now default)");
       "-xbee_addr", Arg.Set_int XB.my_addr, (sprintf "<my_addr> (%d)" !XB.my_addr);
       "-xbee_retries", Arg.Set_int XB.my_addr, (sprintf "<nb retries> (%d)" !XB.nb_retries);
+      "-xbee_868", Arg.Set Xbee.mode868, (sprintf "Enables the 868 protocol");
     ] in
   Arg.parse options (fun _x -> ()) "Usage: ";
 

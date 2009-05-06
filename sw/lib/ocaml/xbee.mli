@@ -43,14 +43,20 @@ type frame_data = string
 type frame_id = int
 type addr64 = Int64.t
 type addr16 = int
+type byte = int
+type rssi = int
 type frame =
-    Modem_Status of int
+    Modem_Status of byte
   | AT_Command_Response of frame_id * string * int * string
-  | TX_Status of frame_id * int
-  | RX_Packet_64 of addr64 * int * int * string
-  | RX_Packet_16 of addr16 * int * int * string
+  | TX_Status of frame_id * byte (** [(frame_if, status)] *)
+  | TX868_Status of frame_id * byte * int (** [(frame_if, status, nb_retries)] *)
+  | RX_Packet_64 of addr64 * rssi * byte * string
+  | RX868_Packet of addr64 * byte * string
+  | RX_Packet_16 of addr16 * rssi * byte * string
 val api_parse_frame : frame_data -> frame
 
+(** Default to false *)
+val mode868 : bool ref
 
 (** Building API frames data *)
 val api_tx64 : ?frame_id:int -> int64 -> string -> frame_data
