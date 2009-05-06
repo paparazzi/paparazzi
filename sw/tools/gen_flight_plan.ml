@@ -40,6 +40,8 @@ let soi = string_of_int
 
 let check_expressions = ref false
 
+let cm = fun x -> 100. *. x
+
 let parse = fun s ->
   let e = Fp_proc.parse_expression s in
   if !check_expressions then begin
@@ -737,6 +739,13 @@ let () =
       Xml2h.define "NAV_UTM_ZONE0" (sprintf "%d" utm0.utm_zone);
       Xml2h.define "NAV_LAT0" (sprintf "%d" (convert_angle wgs84.posn_lat));
       Xml2h.define "NAV_LON0" (sprintf "%d" (convert_angle wgs84.posn_long));
+
+      let ecef0 = Latlong.ecef_of_geo Latlong.WGS84 wgs84 !ground_alt in
+      let ecef0 = Latlong.array_of_ecef ecef0 in
+      Xml2h.define "NAV_ECEF_X0" (sprintf "%.0f" (cm ecef0.(0)));
+      Xml2h.define "NAV_ECEF_Y0" (sprintf "%.0f" (cm ecef0.(1)));
+      Xml2h.define "NAV_ECEF_Z0" (sprintf "%.0f" (cm ecef0.(2)));
+
       Xml2h.define "QFU" (sprintf "%.1f" qfu);
       
       let waypoints = dummy_waypoint :: waypoints in
