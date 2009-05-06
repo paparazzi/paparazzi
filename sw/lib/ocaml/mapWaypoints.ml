@@ -264,7 +264,7 @@ class waypoint = fun ?(show = true) (wpts_group:group) (name :string) ?(alt=0.) 
       and new_utm = utm_of WGS84 wgs84 in
       let d = utm_distance current_utm new_utm in
 
-      let new_pos = d > 1. in
+      let new_pos = d*.d +. dz*.dz > 3. in
       match moved, new_pos with
 	None, true ->
 	  self#move dx dy;
