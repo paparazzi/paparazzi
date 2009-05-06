@@ -867,9 +867,9 @@
   </message>
 
   <message name="BOOZ2_NAV_REF" id="149"> <!-- ECEF -->
-    <field name="x"  type="int32"/>
-    <field name="y"  type="int32"/>
-    <field name="z"  type="int32"/>
+    <field name="x"  type="int32" unit="cm"/>
+    <field name="y"  type="int32" unit="cm"/>
+    <field name="z"  type="int32" unit="cm"/>
   </message>
 
   <message name="BOOZ2_TUNE_HOVER" id="150">
