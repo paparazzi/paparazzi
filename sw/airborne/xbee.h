@@ -30,6 +30,17 @@
 #include "datalink.h"
 #include "airframe.h"
 
+#ifdef XBEE868
+#include "xbee868.h"
+#else /* Not 868 */
+#include "xbee24.h"
+#endif
+
+/** Constants for the API protocol */
+#define XBEE_START 0x7e
+#define TX_OPTIONS 0x00
+#define NO_FRAME_ID 0
+
 #define GROUND_STATION_ADDR 0x100
 
 extern uint8_t xbee_cs;
@@ -59,8 +70,6 @@ void xbee_init( void );
 #define XBeeTransportCheckFreeSpace(x) XBeeLink(CheckFreeSpace(x))
 /* 5 = Start + len_msb + len_lsb + API_id + checksum */
 #define XBeeAPISizeOf(_x) (_x+5)
-/* 4 = frame_id + addr_msb + addr_lsb + options */
-#define XBeeTransportSizeOf(_x) XBeeAPISizeOf(_x+4)
 #define XBeeTransportSendMessage() XBeeLink(SendMessage())
 
 #define XBeeTransportPutUint8(_x) { \
@@ -113,29 +122,13 @@ void xbee_init( void );
 #define XBeeTransportPutUint8Array(_n, _x) XBeeTransportPutArray(XBeeTransportPutUint8ByAddr, _n, _x)
 
 
-/** Constants for the API protocol */
-#define XBEE_START 0x7e
-#define XBEE_TX16_ID 0x01
-#define TX16_OPTIONS 0x00
-#define NO_FRAME_ID 0
-#define XBEE_RFDATA_OFFSET 5
-#define XBEE_RX16_ID 0x81
-
-
-#define XBeeTransportPutTX16Header() { \
-  XBeeTransportPutUint8(XBEE_TX16_ID); \
-  XBeeTransportPutUint8(NO_FRAME_ID); \
-  XBeeTransportPutUint8(GROUND_STATION_ADDR >> 8); \
-  XBeeTransportPutUint8(GROUND_STATION_ADDR & 0xff); \
-  XBeeTransportPutUint8(TX16_OPTIONS); \
-}
 
 #define XBeeTransportHeader(_len) { \
   XBeeTransportPut1Byte(XBEE_START); \
   uint8_t payload_len = XBeeAPISizeOf(_len); \
   XBeeTransportPut2Bytes(payload_len); \
   xbee_cs = 0; \
-  XBeeTransportPutTX16Header(); \
+  XBeeTransportPutTXHeader(); \
 }
 
 #define XBeeTransportTrailer() { \
@@ -202,9 +195,9 @@ static inline void parse_xbee( uint8_t c ) {
 /** Parsing a frame data and copy the payload to the datalink buffer */
 static inline void xbee_parse_payload(void) {
   switch (xbee_payload[0]) {
-  case XBEE_RX16_ID:
-  case XBEE_TX16_ID: /* Useful if A/C is connected to the PC with a cable */
-    xbee_rssi = xbee_payload[3];
+  case XBEE_RX_ID:
+  case XBEE_TX_ID: /* Useful if A/C is connected to the PC with a cable */
+    XbeeGetRSSI();
     uint8_t i;
     for(i = XBEE_RFDATA_OFFSET; i < xbee_payload_len; i++) 
       dl_buffer[i-XBEE_RFDATA_OFFSET] = xbee_payload[i];
