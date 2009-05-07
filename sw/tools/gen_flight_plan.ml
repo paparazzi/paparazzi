@@ -102,8 +102,8 @@ let localize_waypoint = fun rel_utm_of_wgs84 waypoint ->
     let (x, y) =
       rel_utm_of_wgs84
 	(Latlong.make_geo_deg
-	   (float_attrib waypoint "lat")
-	   (float_attrib waypoint "lon")) in
+	   (Latlong.deg_of_string (Xml.attrib waypoint "lat"))
+	   (Latlong.deg_of_string (Xml.attrib waypoint "lon"))) in
     let x = sprintf "%.2f" x and y = sprintf "%.2f" y in
     ExtXml.subst_attrib "y" y (ExtXml.subst_attrib "x" x waypoint)
   with
