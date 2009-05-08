@@ -24,14 +24,13 @@
  *
  *)
 
-module LL = Latlong
-open LL
-
+open Latlong
 open Printf
 
 let (//) = Filename.concat
 let logs_dir = Env.paparazzi_home // "var" // "logs"
 let sample_kml = Env.paparazzi_home // "data/maps/sample_path.kml"
+let verbose = ref false
 
 class type text_value = object method text : string end
 
@@ -284,9 +283,9 @@ let write_kml = fun plot log_name values ->
       and y = snd ys.(i) /. 100.
       and z = truncate (snd zs.(i))
       and a = snd alts.(i) /. 100. in
-      let utm = { LL.utm_x = x; LL.utm_y = y; LL.utm_zone = z } in
+      let utm = { utm_x = x; utm_y = y; utm_zone = z } in
       if z <> 0 then
-	l := (LL.of_utm LL.WGS84 utm, a) :: !l
+	l := (of_utm WGS84 utm, a) :: !l
   done;
   let l = List.rev !l in
   let xml = Xml.parse_file sample_kml in
@@ -326,7 +325,7 @@ let write_kml = fun plot log_name values ->
 
 
 
-let add_ac_submenu = fun protocol ?(factor=object method text="1" end) plot menubar (curves_menu_fact: GMenu.menu GMenu.factory) ac menu_name l raw_msgs ->
+let add_ac_submenu = fun ?(export=false) protocol ?(factor=object method text="1" end) plot menubar (curves_menu_fact: GMenu.menu GMenu.factory) ac menu_name l raw_msgs ->
   let menu = GMenu.menu () in
   let menuitem = GMenu.menu_item ~label:menu_name () in
   menuitem#set_submenu menu;
@@ -370,13 +369,14 @@ let add_ac_submenu = fun protocol ?(factor=object method text="1" end) plot menu
       snd (List.find (fun (m, _) -> m.Pprz.name = "GPS") l) in
     write_kml plot menu_name gps_values in
   ignore (menu_fact#add_item ~callback "Export KML path");
-  let callback = fun () ->
-    Export.popup protocol menu_name raw_msgs in
-  ignore (menu_fact#add_item ~callback "Export CSV")
-    
+  let callback = fun ?no_gui () ->
+    Export.popup ?no_gui protocol menu_name raw_msgs in
+  ignore (menu_fact#add_item ~callback "Export CSV");
+  if export then
+    callback ~no_gui:true ()    
     
 
-let load_log = fun ?factor (plot:plot) (menubar:GMenu.menu_shell GMenu.factory) curves_fact xml_file ->
+let load_log = fun ?export ?factor (plot:plot) (menubar:GMenu.menu_shell GMenu.factory) curves_fact xml_file ->
   Debug.call 'p' (fun f ->  fprintf f "load_log: %s\n" xml_file);
   let xml = Xml.parse_file xml_file in
   let data_file =  ExtXml.attrib xml "data_file" in
@@ -436,7 +436,9 @@ let load_log = fun ?factor (plot:plot) (menubar:GMenu.menu_shell GMenu.factory) 
 	    raw_msgs := (t, msg_name, vs) :: !raw_msgs
 	  )
       with
-	exc -> prerr_endline (Printexc.to_string exc)
+	exc ->
+	  if !verbose then
+	    prerr_endline (Printexc.to_string exc)
     done
   with
     End_of_file ->
@@ -475,7 +477,7 @@ let load_log = fun ?factor (plot:plot) (menubar:GMenu.menu_shell GMenu.factory) 
 	  (* Store data for other windows *)
 	  logs_menus := (ac, menu_name, (msgs, raw_msgs), protocol) :: !logs_menus;
 	  
-	  add_ac_submenu protocol ?factor plot menubar curves_fact ac menu_name msgs raw_msgs;
+	  add_ac_submenu ?export protocol ?factor plot menubar curves_fact ac menu_name msgs raw_msgs;
 	)
 	acs
 
@@ -518,7 +520,7 @@ let screenshot = fun frame ->
 
 
 (*****************************************************************************)
-let rec plot_window = fun init ->
+let rec plot_window = fun ?export init ->
   let plotter = GWindow.window ~allow_shrink:true ~title:"Log Plotter" () in
   plotter#set_icon (Some (GdkPixbuf.from_file Env.icon_file));  
   let vbox = GPack.vbox ~packing:plotter#add () in
@@ -606,24 +608,27 @@ let rec plot_window = fun init ->
   ignore(open_log_item#connect#activate ~callback:(fun () -> let factor = (factor:>text_value) in open_log ~factor plot factory curves_menu_fact ()));
 
 
-  List.iter (fun f -> load_log ~factor:(factor:>text_value) plot factory curves_menu_fact f) init;
+  List.iter (fun f -> load_log ?export ~factor:(factor:>text_value) plot factory curves_menu_fact f) init;
 
   plotter#add_accel_group accel_group;
   plotter#show ()
 
 
 
-
-let _ =
-  let logs = ref [] in
+(***************************** Main ****************************************)
+let () =
+  let logs = ref []
+  and export = ref false in
   Arg.parse
-    []
+    [ ("-export_csv", Arg.Set export, "Export in CSV in batch mode according to saved preferences (conf/%gconf.xml)");
+      ("-v", Arg.Set verbose, "Verbose")]
     (fun x -> logs := x :: !logs)
     "Usage: plot <log files>";
 
-  plot_window !logs;
+  plot_window ~export: !export !logs;
 
-  let loop = Glib.Main.create true in
-  while Glib.Main.is_running loop do 
-    ignore (Glib.Main.iteration true) 
-  done
+  if not !export then
+    let loop = Glib.Main.create true in
+    while Glib.Main.is_running loop do 
+      ignore (Glib.Main.iteration true) 
+    done

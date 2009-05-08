@@ -26,7 +26,7 @@
 
 open Printf
 open Latlong
-
+ 
 let (//) = Filename.concat
 let class_name="telemetry"
 
@@ -85,7 +85,8 @@ type timestamp =
 
 
 (*****************************************************************************)
-let export_values = fun ?(export_geo_pos=true) (model:GTree.tree_store) data timestamp filename ->
+let export_values = fun ?(sep="tab") ?(export_geo_pos=true) (model:GTree.tree_store) data timestamp filename ->
+  let sep = if sep = "tab" then "\t" else sep in
   let fields_to_export = ref [] in
   model#foreach (fun _path row ->
     if model#get ~row ~column:col_to_export then begin
@@ -108,8 +109,8 @@ let export_values = fun ?(export_geo_pos=true) (model:GTree.tree_store) data tim
   (* Print the header *)
   fprintf f "Time";
   if export_geo_pos then
-    fprintf f ";GPS lat(deg);GPS long(deg)";
-  List.iter (fun (m,field) -> fprintf f ";%s:%s" m field) !fields_to_export;
+    fprintf f "%sGPS lat(deg)%sGPS long(deg)" sep sep;
+  List.iter (fun (m,field) -> fprintf f "%s%s:%s" sep m field) !fields_to_export;
   fprintf f "\n%!";
 
   (* Store for the current values *)
@@ -117,25 +118,35 @@ let export_values = fun ?(export_geo_pos=true) (model:GTree.tree_store) data tim
   and time = ref (match data with (t, _, _)::_ -> t | _ -> 0.) in
 
   let print_last_values = fun t ->
-    fprintf f "%.3f" t;
+    let all_values = ref true in
+
     let lookup = fun m field  -> 
-      try Pprz.string_of_value (Hashtbl.find last_values (m,field)) with Not_found -> "" in
+      try Pprz.string_of_value (Hashtbl.find last_values (m,field)) with Not_found -> all_values := false; "" in
+
+    let buf = Buffer.create 64 in
+
+    bprintf buf "%.3f" t;
+
     if export_geo_pos then begin
       try
 	let utm_east = float_of_string (lookup "GPS" "utm_east") /. 100.
 	and utm_north = float_of_string (lookup "GPS" "utm_north") /. 100.
 	and utm_zone = int_of_string (lookup "GPS" "utm_zone") in
 	let wgs84 = Latlong.of_utm WGS84 {utm_x=utm_east; utm_y=utm_north; utm_zone=utm_zone} in
-	fprintf f ";%.6f;%.6f" ((Rad>>Deg) wgs84.posn_lat) ((Rad>>Deg) wgs84.posn_long)
+	bprintf buf "%s%.6f%s%.6f" sep ((Rad>>Deg) wgs84.posn_lat) sep ((Rad>>Deg) wgs84.posn_long)
       with
-	exc -> fprintf stderr "%s\n%!" (Printexc.to_string exc)
+	Failure "float_of_string" -> ()
+      | exc -> fprintf stderr "%s\n%!" (Printexc.to_string exc)
     end;
+
     List.iter 
       (fun (m,field) -> 
 	let v = lookup m field  in
-	fprintf f ";%s" v)
+	bprintf buf "%s%s" sep v)
       !fields_to_export;
-    fprintf f "\n%!" in
+
+    if !all_values then
+      fprintf f "%s\n" (Buffer.contents buf) in
 
   (* Write one line per time stamp. *)
   List.iter (fun (t, msg, fields) ->
@@ -185,8 +196,7 @@ let read_preferences = fun () ->
 
 
 (** The save file dialog box *)
-let save_values = fun w log_filename save ->
-  let filename = Env.paparazzi_home // "var" // "logs" // log_filename ^ ".csv" in
+let save_values = fun w filename save ->
   match GToolbox.select_file ~title:"Save Values" ~filename () with
     None -> ()
   | Some file -> 
@@ -196,7 +206,7 @@ let save_values = fun w log_filename save ->
 
 (*****************************************************************************)
 (** The popup window displaying values to export *)
-let popup = fun xml log_filename data ->
+let popup = fun ?(no_gui = false) xml log_filename data ->
   (* Build the list window *)
   let file = Env.paparazzi_src // "sw" // "logalizer" // "export.glade" in
   let w = new Gtk_export.export ~file () in
@@ -236,11 +246,15 @@ let popup = fun xml log_filename data ->
 
 	    
 
-  (* The combo box for the extrapolation FIXME
-  let strings = ["Last Value"; "Linear Extrapolation"] in
-  let (combo, (tree, column)) = GEdit.combo_box_text ~packing:w#box_choose_interpol#add ~strings () in
+  (* The combo box for the separator *)
+  let strings = ["tab"; ";"; ","] in
+  let (combo, (tree, column)) = GEdit.combo_box_text ~packing:w#box_choose_sep#add ~strings () in
   tree#foreach (fun _path row -> combo#set_active_iter (Some row); true); (* Select the first *)
-   *)
+  let get_separator = fun () ->
+    match combo#active_iter with
+    | None -> failwith "get_timestamp"
+    | Some row ->
+	combo#model#get ~row ~column in
 
   ignore (w#button_cancel#connect#clicked (fun () -> w#export#destroy ()));
 
@@ -252,5 +266,21 @@ let popup = fun xml log_filename data ->
 	Period (float_of_string w#entry_period#text)
       else
 	Msg combo_value in
-    save_values w log_filename (fun x -> export_values ~export_geo_pos:w#checkbutton_LL#active model data timestamp x) in
-  ignore (w#button_save#connect#clicked callback)
+    let sep = get_separator () in
+
+    let do_export = fun x -> export_values ~sep ~export_geo_pos:w#checkbutton_LL#active model data timestamp x in
+   
+    let default_filename = Env.paparazzi_home // "var" // "logs" // log_filename ^ ".csv" in
+
+    if no_gui then
+      do_export default_filename
+    else
+      save_values w default_filename do_export in
+  ignore (w#button_save#connect#clicked callback);
+
+  if no_gui then begin
+    callback ();
+    w#export#destroy ()
+  end else
+    w#export#show ()
+
