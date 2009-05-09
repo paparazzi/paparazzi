@@ -44,7 +44,7 @@ let item_toggled ~(model : GTree.tree_store) ~column path =
   model#set ~row ~column (not b)
 
 
-
+(****************************************************************************)
 let display_columns = fun treeview model ->
   let renderer = GTree.cell_renderer_text [`XALIGN 0.] in
   let vc = GTree.view_column ~title:"Message" ~renderer:(renderer, ["text", col_message]) () in
@@ -60,7 +60,8 @@ let display_columns = fun treeview model ->
   ignore (treeview#append_column vc)
     
 
-
+(****************************************************************************)
+(** Fill the tree model from the message_xml data structure *)
 let fill_data = fun (treeview:GTree.view) (model:GTree.tree_store) messages_xml prefs ->
   List.iter (fun msg ->
     let row = model#append ()
@@ -82,6 +83,29 @@ let fill_data = fun (treeview:GTree.view) (model:GTree.tree_store) messages_xml 
 type timestamp =
     Msg of string
   | Period of float (* in s *)
+
+
+(****************************************************************************)
+(** Returns the last available WGS84 position or raise a Failure exception *)
+let get_last_geo_pos = fun lookup ->
+  if lookup "GPS" "mode" <> "" then
+    let utm_east = float_of_string (lookup "GPS" "utm_east") /. 100.
+    and utm_north = float_of_string (lookup "GPS" "utm_north") /. 100.
+    and utm_zone = int_of_string (lookup "GPS" "utm_zone") in
+    Latlong.of_utm WGS84 {utm_x=utm_east; utm_y=utm_north; utm_zone=utm_zone}
+  else if lookup "BOOZ2_NAV_REF" "x" <>"" && lookup "BOOZ2_FP" "east" <>"" then
+    let getf = fun m f -> float_of_string (lookup m f) in
+    let x0 = getf "BOOZ2_NAV_REF" "x" /. 100.
+    and y0 = getf "BOOZ2_NAV_REF" "y" /. 100.
+    and z0 = getf "BOOZ2_NAV_REF" "z" /. 100.
+    and e = getf "BOOZ2_FP" "east" /. 256.
+    and n = getf "BOOZ2_FP" "north" /. 256.
+    and u = getf "BOOZ2_FP" "up" /. 256. in
+    let ecef0 = make_ecef [|x0; y0; z0 |]
+    and ned = make_ned [|n; e; -.u|] in
+    fst (geo_of_ecef WGS84 (ecef_of_ned ecef0 ned))
+  else
+    failwith "No geo pos found"
 
 
 (*****************************************************************************)
@@ -121,7 +145,7 @@ let export_values = fun ?(sep="tab") ?(export_geo_pos=true) (model:GTree.tree_st
     let all_values = ref true in
 
     let lookup = fun m field  -> 
-      try Pprz.string_of_value (Hashtbl.find last_values (m,field)) with Not_found -> all_values := false; "" in
+      try Pprz.string_of_value (Hashtbl.find last_values (m,field)) with Not_found -> "" in
 
     let buf = Buffer.create 64 in
 
@@ -129,18 +153,22 @@ let export_values = fun ?(sep="tab") ?(export_geo_pos=true) (model:GTree.tree_st
 
     if export_geo_pos then begin
       try
-	let utm_east = float_of_string (lookup "GPS" "utm_east") /. 100.
-	and utm_north = float_of_string (lookup "GPS" "utm_north") /. 100.
-	and utm_zone = int_of_string (lookup "GPS" "utm_zone") in
-	let wgs84 = Latlong.of_utm WGS84 {utm_x=utm_east; utm_y=utm_north; utm_zone=utm_zone} in
+	let wgs84 = get_last_geo_pos lookup in
 	bprintf buf "%s%.6f%s%.6f" sep ((Rad>>Deg) wgs84.posn_lat) sep ((Rad>>Deg) wgs84.posn_long)
       with
-	Failure "float_of_string" -> ()
-      | exc -> fprintf stderr "%s\n%!" (Printexc.to_string exc)
+	exc ->
+	  all_values := false;
+	  bprintf buf "%sN/A%sN/A" sep sep
     end;
 
+    (** Encapsulation of lookout function to mark the [all_values] flag *)
+    let lookup = fun m f ->
+      let s = lookup m f in
+      if s = "" then all_values := false;
+      s in
+
     List.iter 
-      (fun (m,field) -> 
+      (fun (m,field) ->
 	let v = lookup m field  in
 	bprintf buf "%s%s" sep v)
       !fields_to_export;
@@ -176,7 +204,7 @@ let export_values = fun ?(sep="tab") ?(export_geo_pos=true) (model:GTree.tree_st
   close_out f;;
 
 
-(***********************************************************************************)
+(*****************************************************************************)
 let read_preferences = fun () ->
   if Sys.file_exists Env.gconf_file then
     try
@@ -278,6 +306,7 @@ let popup = fun ?(no_gui = false) xml log_filename data ->
       save_values w default_filename do_export in
   ignore (w#button_save#connect#clicked callback);
 
+  (** Call automatic export or show the popup window *)
   if no_gui then begin
     callback ();
     w#export#destroy ()
