@@ -48,10 +48,15 @@
 #define TRUE (!FALSE)
 #endif
 
+/* BUTTON that stops logging (BUTTON = P0.7, INT1 = P0.14) */
+#define STOP_KEY 14
+
 static inline void main_init( void );
 static inline void main_periodic_task( void );
 int main_log(void);
 void set_filename(unsigned int local, char* name);
+
+extern int main_mass_storage(void);
 
 DirList list;
 EmbeddedFileSystem efs;
@@ -93,9 +98,9 @@ int main_log(void)
 		return(-1);
     }
 
-    /* write to SD until BUTTON (P0.7) is pressed */
+    /* write to SD until key is pressed */
     LED_ON(3);
-    while ((IO0PIN & _BV(7))>>7)
+    while ((IO0PIN & _BV(STOP_KEY))>>STOP_KEY)
     {
         if (Uart1ChAvailable())
         {   
@@ -109,7 +114,9 @@ int main_log(void)
 
     file_fclose( &filew );
     fs_umount( &efs.myFs ) ;
-    
+ 
+main_mass_storage();
+   
 	return(0);
 }
 
