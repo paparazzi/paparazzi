@@ -46,7 +46,7 @@ extern int32_t  booz2_gps_vel_e;
     }									\
     if (ubx_msg_available) {						\
       booz2_gps_read_ubx_message();					\
-      if (ubx_class == UBX_NAV_ID && ubx_id == UBX_NAV_VELNED_ID) {	\
+      if (ubx_class == UBX_NAV_ID && ubx_id == UBX_NAV_SOL_ID) {	\
 	_sol_available_callback();					\
       }									\
       ubx_msg_available = FALSE;					\
@@ -54,6 +54,7 @@ extern int32_t  booz2_gps_vel_e;
   }
 #endif
 
+      //if (ubx_class == UBX_NAV_ID && ubx_id == UBX_NAV_VELNED_ID) {
 
 extern void booz2_gps_init(void);
 extern void booz2_gps_read_ubx_message(void);
