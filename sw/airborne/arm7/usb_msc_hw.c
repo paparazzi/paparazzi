@@ -239,3 +239,4 @@ int main_mass_storage(void)
 }
 
 #endif /* USE_USB_MSC */
+
