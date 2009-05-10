@@ -65,6 +65,15 @@ ap.srcs += $(SRC_ARCH)/efsl/src/interfaces/lpc2000_spi.c
 ap.srcs += $(SRC_ARCH)/efsl/src/interfaces/sd.c
 #ap.srcs += $(SRC_ARCH)/efsl/src/interfaces/lpc2000_dbg_printf.c
 
+#usb mass storage
+ap.CFLAGS += -DUSE_USB_MSC
+ap.CFLAGS += -I $(SRC_ARCH)/lpcusb -I $(SRC_ARCH)/lpcusb/examples
+
+ap.srcs += $(SRC_ARCH)/usb_msc_hw.c
+ap.srcs += $(SRC_ARCH)/lpcusb/usbhw_lpc.c $(SRC_ARCH)/lpcusb/usbcontrol.c $(SRC_ARCH)/lpcusb/usbstdreq.c $(SRC_ARCH)/lpcusb/usbinit.c
+ap.srcs += $(SRC_ARCH)/lpcusb/examples/msc_bot.c $(SRC_ARCH)/lpcusb/examples/msc_scsi.c $(SRC_ARCH)/lpcusb/examples/blockdev_sd.c $(SRC_ARCH)/lpcusb/examples/lpc2000_spi.c
+
+
   </makefile>
 
 </airframe>
