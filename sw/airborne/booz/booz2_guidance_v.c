@@ -124,6 +124,10 @@ void booz2_guidance_v_run(bool_t in_flight) {
     int32_t cmd_hack = Chop(booz2_stabilization_cmd[COMMAND_THRUST], 1, 200);
     b2_gv_adapt_run(booz_ins_ltp_accel.z, cmd_hack);
   }
+  else {
+    // reset vertical filter until takeoff
+    //booz_ins_vff_realign = TRUE;
+  }
 		
   switch (booz2_guidance_v_mode) {
 
@@ -159,12 +163,26 @@ void booz2_guidance_v_run(bool_t in_flight) {
     break;
 
   case BOOZ2_GUIDANCE_V_MODE_NAV:
-    booz2_guidance_v_z_sp = -nav_altitude;
-    b2_gv_update_ref_from_z_sp(booz2_guidance_v_z_sp);
-    run_hover_loop(in_flight);
-    // saturate max authority with RC stick
-    booz2_stabilization_cmd[COMMAND_THRUST] = Min( booz2_guidance_v_rc_delta_t, booz2_guidance_v_delta_t);
-    break;
+    {
+      if (vertical_mode == VERTICAL_MODE_ALT) {
+        booz2_guidance_v_z_sp = -nav_altitude;
+        b2_gv_update_ref_from_z_sp(booz2_guidance_v_z_sp);
+        run_hover_loop(in_flight);
+      }
+      else if (vertical_mode == VERTICAL_MODE_CLIMB) {
+        booz2_guidance_v_zd_sp = -nav_climb;
+        b2_gv_update_ref_from_zd_sp(booz2_guidance_v_zd_sp);
+        nav_altitude = -booz2_guidance_v_z_sp;
+        run_hover_loop(in_flight);
+      }
+      else if (vertical_mode == VERTICAL_MODE_MANUAL) {
+        booz2_guidance_v_delta_t = nav_throttle;
+      }
+      // saturate max authority with RC stick
+      booz2_stabilization_cmd[COMMAND_THRUST] = Min( booz2_guidance_v_rc_delta_t, booz2_guidance_v_delta_t);
+      //booz2_stabilization_cmd[COMMAND_THRUST] = booz2_guidance_v_rc_delta_t;
+      break;
+    }
   }
 }
 
@@ -190,8 +208,11 @@ static inline void run_hover_loop(bool_t in_flight) {
     booz2_guidance_v_z_sum_err = 0;
 
   /* our nominal command : (g + zdd)*m   */
-  //const int32_t inv_m = BOOZ_INT_OF_FLOAT(0.140, IACCEL_RES);
+#ifdef BOOZ2_GUIDANCE_V_INV_M
+  const int32_t inv_m = BOOZ_INT_OF_FLOAT(BOOZ2_GUIDANCE_V_INV_M, B2_GV_ADAPT_X_FRAC);
+#else
   const int32_t inv_m =  b2_gv_adapt_X>>(B2_GV_ADAPT_X_FRAC - FF_CMD_FRAC);
+#endif
   const int32_t g_m_zdd = (int32_t)BOOZ_INT_OF_FLOAT(9.81, FF_CMD_FRAC) - 
                           (booz2_guidance_v_zdd_ref<<(FF_CMD_FRAC - IACCEL_RES));
   if (g_m_zdd > 0) 

@@ -121,10 +121,19 @@ void booz2_guidance_h_run(bool_t  in_flight) {
     break;
     
   case BOOZ2_GUIDANCE_H_MODE_NAV:
-    INT32_VECT2_NED_OF_ENU(booz2_guidance_h_pos_sp, booz2_navigation_carrot);
-    booz2_guidance_h_hover_run();
-    booz2_stabilization_attitude_run(in_flight);
-    break;
+    {
+      if (horizontal_mode == HORIZONTAL_MODE_ATTITUDE) {
+        booz_stabilization_att_sp.phi = 0;
+        booz_stabilization_att_sp.theta = 0;
+      }
+      else {
+        INT32_VECT2_NED_OF_ENU(booz2_guidance_h_pos_sp, booz2_navigation_carrot);
+        booz2_guidance_h_psi_sp = (nav_heading << (ANGLE_REF_RES - INT32_ANGLE_FRAC));
+        booz2_guidance_h_hover_run();
+      }
+      booz2_stabilization_attitude_run(in_flight);
+      break;
+    }
     
   }
 
@@ -137,7 +146,8 @@ void booz2_guidance_h_run(bool_t  in_flight) {
 #define MAX_POS_ERR_SUM ((int32_t)(MAX_POS_ERR)<< 12)
 
 // 15 degres
-#define MAX_BANK 65536
+//#define MAX_BANK (65536)
+#define MAX_BANK (98000)
 
 static inline void  booz2_guidance_h_hover_run(void) {
 

@@ -63,6 +63,7 @@ void booz2_autopilot_init(void) {
 
 void booz2_autopilot_periodic(void) {
   
+  RunOnceEvery(50, nav_periodic_task_10Hz())
   if ( !booz2_autopilot_motors_on ||
        booz2_autopilot_mode == BOOZ2_AP_MODE_FAILSAFE ||
        booz2_autopilot_mode == BOOZ2_AP_MODE_KILL ) {
@@ -70,11 +71,10 @@ void booz2_autopilot_periodic(void) {
 		booz2_autopilot_in_flight, booz2_autopilot_motors_on);
   }
   else {
-    RunOnceEvery(50, nav_periodic_task_10Hz())
     booz2_guidance_v_run( booz2_autopilot_in_flight );
     booz2_guidance_h_run( booz2_autopilot_in_flight );
     SetCommands(booz2_stabilization_cmd, 
-		booz2_autopilot_in_flight, booz2_autopilot_motors_on);
+        booz2_autopilot_in_flight, booz2_autopilot_motors_on);
   }
 
 }

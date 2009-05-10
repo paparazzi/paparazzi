@@ -22,23 +22,40 @@ uint8_t nav_stage, nav_block;
 uint8_t last_block, last_stage;
 uint8_t last_wp __attribute__ ((unused));
 
-int32_t ground_alt, nav_altitude;
+int32_t ground_alt;
 
 uint8_t horizontal_mode;
 uint8_t nav_segment_start, nav_segment_end;
 
-#define ARRIVED_AT_WAYPOINT (15 << 8)
+int32_t nav_roll, nav_pitch;
+int32_t nav_heading, nav_course;
+
+uint8_t vertical_mode;
+uint32_t nav_throttle;
+int32_t nav_climb, nav_altitude;
+
+#define CLOSE_TO_WAYPOINT (15 << 8)
+#define ARRIVED_AT_WAYPOINT (10 << 8)
 #define CARROT_DIST (10 << 8)
 
 void booz2_nav_init(void) {
   nav_block = 0;
   nav_stage = 0;
   ground_alt = (int32_t)(GROUND_ALT * 100); // cm
-  nav_altitude = ground_alt + SECURITY_HEIGHT;
+  nav_altitude = POS_BFP_OF_REAL(SECURITY_HEIGHT);
   INT32_VECT3_COPY( booz2_navigation_target, waypoints[WP_HOME]);
   INT32_VECT3_COPY( booz2_navigation_carrot, waypoints[WP_HOME]);
 
   horizontal_mode = HORIZONTAL_MODE_WAYPOINT;
+  vertical_mode = VERTICAL_MODE_ALT;
+
+  nav_roll = 0;
+  nav_pitch = 0;
+  nav_heading = 0;
+  nav_course = 0;
+  nav_throttle = 0;
+  nav_climb = 0;
+
 }
 
 void booz2_nav_run(void) {
@@ -53,7 +70,7 @@ void booz2_nav_run(void) {
   int32_t dist_to_waypoint;
   INT32_VECT2_NORM(dist_to_waypoint, path_to_waypoint);
   
-  if (dist_to_waypoint < ARRIVED_AT_WAYPOINT) {
+  if (dist_to_waypoint < CLOSE_TO_WAYPOINT) {
     VECT2_COPY( booz2_navigation_carrot, booz2_navigation_target);
   }
   else {
@@ -120,17 +137,23 @@ static int32_t previous_ground_alt;
 /** Reset the geographic reference to the current GPS fix */
 unit_t nav_reset_reference( void ) {
   booz_ins_ltp_initialised = FALSE;
+  booz_ins_vff_realign = TRUE;
   previous_ground_alt = ground_alt;
-  ground_alt = booz_ins_enu_pos.z;
+  return 0;
+}
+
+unit_t nav_reset_alt( void ) {
+  booz_ins_vff_realign = TRUE;
+  previous_ground_alt = ground_alt;
   return 0;
 }
 
 /** Shift altitude of the waypoint according to a new ground altitude */
 unit_t nav_update_waypoints_alt( void ) {
-  uint8_t i;
-  for(i = 0; i < NB_WAYPOINT; i++) {
-    waypoints[i].z += ground_alt - previous_ground_alt;
-  }
+//  uint8_t i;
+//  for(i = 0; i < NB_WAYPOINT; i++) {
+//    waypoints[i].z -= ground_alt - previous_ground_alt;
+//  }
   return 0;
 }
 
@@ -156,6 +179,7 @@ void nav_goto_block(uint8_t b) {
   GotoBlock(b);
 }
 
+#include <stdio.h>
 void nav_periodic_task_10Hz() {
   RunOnceEvery(10, { stage_time++;  block_time++; });
 
@@ -164,6 +188,9 @@ void nav_periodic_task_10Hz() {
 
   /* run carrot loop */
   booz2_nav_run();
+
+  ground_alt = booz_ins_ltp_def.lla.alt;
+
 }
 
 void nav_move_waypoint(uint8_t wp_id, struct EnuCoor_i * new_pos) {

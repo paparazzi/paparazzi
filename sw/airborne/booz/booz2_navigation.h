@@ -19,19 +19,30 @@ extern uint8_t nav_stage, nav_block;
 extern uint8_t last_block, last_stage;
 extern uint8_t last_wp __attribute__ ((unused));
 
-extern int32_t ground_alt, nav_altitude;
+extern int32_t ground_alt;
 
 extern uint8_t horizontal_mode;
 extern uint8_t nav_segment_start, nav_segment_end;
-#define HORIZONTAL_MODE_WAYPOINT 0
-#define HORIZONTAL_MODE_ROUTE 1
-#define HORIZONTAL_MODE_CIRCLE 2
+#define HORIZONTAL_MODE_WAYPOINT  0
+#define HORIZONTAL_MODE_ROUTE     1
+#define HORIZONTAL_MODE_CIRCLE    2
+#define HORIZONTAL_MODE_ATTITUDE  3
+extern int32_t nav_roll, nav_pitch;
+extern int32_t nav_heading, nav_course;
+
+extern uint8_t vertical_mode;
+extern uint32_t nav_throttle;
+extern int32_t nav_climb, nav_altitude;
+#define VERTICAL_MODE_MANUAL      0
+#define VERTICAL_MODE_CLIMB       1
+#define VERTICAL_MODE_ALT         2
 
 void nav_init_stage(void);
 void nav_init_block(void);
 void nav_goto_block(uint8_t block_id);
 void compute_dist2_to_home(void);
 unit_t nav_reset_reference( void ) __attribute__ ((unused));
+unit_t nav_reset_alt( void ) __attribute__ ((unused));
 unit_t nav_update_waypoints_alt( void ) __attribute__ ((unused));
 void nav_periodic_task_10Hz(void);
 void nav_move_waypoint(uint8_t wp_id, struct EnuCoor_i * new_pos);
@@ -57,11 +68,13 @@ void nav_home(void);
 #define Min(x,y) (x < y ? x : y)
 #define Max(x,y) (x > y ? x : y)
 #define LessThan(_x, _y) ((_x) < (_y))
+#define MoreThan(_x, _y) ((_x) > (_y))
 
 /** Time in s since the entrance in the current block */
 #define NavBlockTime() (block_time)
 
 #define NavSetGroundReferenceHere() ({ nav_reset_reference(); nav_update_waypoints_alt(); FALSE; })
+#define NavSetAltitudeReferenceHere() ({ nav_reset_alt(); nav_update_waypoints_alt(); FALSE; })
 
 #define NavSetWaypointHere(_wp) { FALSE; }
 
@@ -86,6 +99,7 @@ void nav_home(void);
 
 /*********** Navigation to  waypoint *************************************/
 #define NavGotoWaypoint(_wp) { \
+  horizontal_mode = HORIZONTAL_MODE_WAYPOINT; \
   INT32_VECT3_COPY( booz2_navigation_target, waypoints[_wp]); \
 }
 
@@ -93,7 +107,11 @@ void nav_home(void);
 
 /*********** Navigation along a line *************************************/
 extern void nav_route(uint8_t wp_start, uint8_t wp_end);
-#define NavSegment(_start, _end) nav_route(_start, _end)
+#define NavSegment(_start, _end) { \
+  horizontal_mode = HORIZONTAL_MODE_ROUTE; \
+  nav_route(_start, _end); \
+}
+
 
 bool_t nav_approaching_from(uint8_t wp_idx, uint8_t from_idx);
 #define NavApproaching(wp, time) nav_approaching_from(wp, 0)
@@ -101,7 +119,9 @@ bool_t nav_approaching_from(uint8_t wp_idx, uint8_t from_idx);
 
 /** Set the climb control to auto-throttle with the specified pitch
     pre-command */
-#define NavVerticalAutoThrottleMode(_pitch) {}
+#define NavVerticalAutoThrottleMode(_pitch) { \
+  nav_pitch = _pitch; \
+}
 
 /** Set the climb control to auto-pitch with the specified throttle
     pre-command */
@@ -110,22 +130,34 @@ bool_t nav_approaching_from(uint8_t wp_idx, uint8_t from_idx);
 /** Set the vertical mode to altitude control with the specified altitude
  setpoint and climb pre-command. */
 #define NavVerticalAltitudeMode(_alt, _pre_climb) { \
+  vertical_mode = VERTICAL_MODE_ALT; \
   nav_altitude = _alt; \
-  booz2_navigation_target.z = (nav_altitude << INT32_POS_FRAC); \
 }
 
 /** Set the vertical mode to climb control with the specified climb setpoint */
-#define NavVerticalClimbMode(_climb) {}
+#define NavVerticalClimbMode(_climb) { \
+  vertical_mode = VERTICAL_MODE_CLIMB; \
+  nav_climb = SPEED_BFP_OF_REAL(_climb); \
+}
 
 /** Set the vertical mode to fixed throttle with the specified setpoint */
-#define NavVerticalThrottleMode(_throttle) {}
+#define NavVerticalThrottleMode(_throttle) { \
+  vertical_mode = VERTICAL_MODE_MANUAL; \
+  nav_throttle = (200 * ((uint32_t)_throttle) / 9600); \
+}
 
 #define NavHeading(_course) {}
 
-#define NavAttitude(_roll) {}
+#define NavAttitude(_roll) { \
+  horizontal_mode = HORIZONTAL_MODE_ATTITUDE; \
+  nav_roll = _roll; \
+}
 
 #define nav_IncreaseShift(x) {}
 
 #define nav_SetNavRadius(x) {}
 
+#define booz2_navigation_SetNavHeading(x) { \
+  nav_heading = ANGLE_BFP_OF_REAL(x); \
+}
 #endif /* BOOZ2_NAVIGATION_H */
