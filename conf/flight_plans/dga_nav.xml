@@ -1,0 +1,45 @@
+<!DOCTYPE flight_plan SYSTEM "flight_plan.dtd">
+
+<flight_plan alt="5" ground_alt="0" lat0="48 51 39.266" lon0="1 53 40.116" max_dist_from_home="400" name="DGA 09 Nav" security_height="1">
+  <waypoints>
+    <waypoint alt="5.0" name="HOME" x="-10.0" y="-20.0"/>
+    <waypoint alt="8.0" name="D2" lat="48 51 39.266" lon="1 53 40.116"/>
+    <waypoint alt="8.0" name="P1" lat="48 51 38.555" lon="1 53 38.409"/>
+    <waypoint alt="8.0" name="P2" lat="48 51 36.955" lon="1 53 36.207"/>
+    <waypoint alt="8.0" name="P3" lat="48 51 36.615" lon="1 53 39.902"/>
+    <waypoint alt="8.0" name="CAM" x="-50.0" y="-150.0"/>
+  </waypoints>
+  <blocks>
+    <block name="Geo init">
+      <while cond="LessThan(NavBlockTime(), 3)"/>
+      <call fun="NavSetAltitudeReferenceHere()"/> <!-- TODO reset alt only -->
+    </block>
+    <block name="Holding point">
+      <stay alt="POS_BFP_OF_REAL(-20.0)" vmode="alt" wp="D2"/>
+    </block>
+    <block name="Takeoff" strip_button="Takeoff" strip_icon="takeoff.png">
+      <exception cond="booz_ins_enu_pos.z > POS_BFP_OF_REAL(1.5)" deroute="Standby"/>
+      <attitude roll="0" pitch="0" throttle="0.65" vmode="throttle"/>
+    </block>
+    <block name="Standby" strip_button="Standby" strip_icon="home.png">
+      <stay wp="HOME"/>
+    </block>
+    <block name="Wait P1">
+      <exception cond="MoreThan(NavBlockTime(), 40)" deroute="Route"/>
+      <stay wp="P1"/>
+    </block>
+    <block name="Route">
+      <go from="P1" hmode="route" wp="P2"/>
+      <go from="P2" hmode="route" wp="P3"/>
+      <go from="P3" hmode="route" wp="P1"/>
+      <deroute block="Standby"/>
+    </block>
+    <block name="Land">
+      <go wp="D2"/>
+      <stay climb="-0.6" vmode="climb" wp="D2"/>
+    </block>
+    <block name="Flare">
+      <attitude pitch="0.0" roll="0.0" throttle="0.0" until="FALSE" vmode="throttle"/>
+    </block>
+  </blocks>
+</flight_plan>
