@@ -9,7 +9,7 @@ let gaz_modes = [|"MANUAL";"GAZ";"CLIMB";"ALT"|]
 let lat_modes = [|"MANUAL";"ROLL_RATE";"ROLL";"COURSE"|]
 let gps_modes = [|"NOFIX";"DRO";"2D";"3D";"GPSDRO"|]
 let gps_hybrid_modes = [|"OFF";"ON"|]
-let horiz_modes = [|"WAYPOINT";"ROUTE";"CIRCLE"|]
+let horiz_modes = [|"WAYPOINT";"ROUTE";"CIRCLE";"ATTITUDE"|]
 
 let string_of_values = fun values ->
   String.concat " " (List.map (fun (_, v) -> Pprz.string_of_value v) values)

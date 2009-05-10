@@ -136,28 +136,28 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
       begin match a.nav_ref with
         None -> (); (* No nav_ref yet *)
         | Some nav_ref ->
-          (*a.pos <- LL.utm_add nav_ref (foi32value "east" /. pos_frac,
-           * foi32value "north" /. pos_frac)*)
           let x = foi32value "north" /. pos_frac
           and y = foi32value "east" /. pos_frac
-          and z = -. foi32value "up" /. pos_frac in
-          let (geo, _) = LL.geo_of_ecef LL.WGS84 (LL.ecef_of_ned !nav_ref_ecef (LL.make_ned [| x; y; z |])) in
-          a.pos <- LL.utm_of LL.WGS84 geo
+          and z = foi32value "up" /. pos_frac in
+          let (geo, _) = LL.geo_of_ecef LL.WGS84 (LL.ecef_of_ned !nav_ref_ecef (LL.make_ned [| x; y; -. z |])) in
+          let (_, ref_alt) = LL.geo_of_ecef LL.WGS84 !nav_ref_ecef in
+          a.pos <- LL.utm_of LL.WGS84 geo;
+          a.alt <- z +. ref_alt;
+          a.desired_east     <- foi32value "carrot_east" /. pos_frac;
+          a.desired_north    <- foi32value "carrot_north" /. pos_frac;
+          a.desired_altitude <- (foi32value "carrot_up" /. pos_frac) +. ref_alt;
+          a.desired_course   <- foi32value "carrot_psi" /. angle_frac
+          (* a.desired_climb <-  ?? *)
       end;
-      a.alt     <- foi32value "up" /. pos_frac;
       let veast  = foi32value "veast" /. speed_frac /. 10000.
       and vnorth = foi32value "vnorth" /. speed_frac /. 10000. in
       a.gspeed  <- sqrt(vnorth*.vnorth +. veast*.veast);
       a.climb   <- foi32value "vup" /. speed_frac /. 10000.;
       a.agl     <- a.alt -. float (try Srtm.of_utm a.pos with _ -> 0);
-      a.course  <- norm_course (foi32value "psi" /. angle_frac);
+      a.course  <- norm_course ((Rad>>Deg) (foi32value "psi" /. angle_frac));
+      a.heading <- norm_course (foi32value "psi" /. angle_frac);
       a.roll    <- foi32value "phi" /. angle_frac;
       a.pitch   <- foi32value "theta" /. angle_frac;
-      a.desired_east      <- foi32value "carrot_east" /. pos_frac;
-      a.desired_north     <- foi32value "carrot_north" /. pos_frac;
-      a.desired_altitude  <- foi32value "carrot_up" /. pos_frac;
-      a.desired_course    <- foi32value "carrot_psi" /. angle_frac;
-      (* a.desired_climb <-  ?? *)
       a.throttle <- foi32value "thrust" /. 2.; (* thrust / 200 * 100 *)
       (*a.unix_time <- LL.unix_time_of_tow (truncate (fvalue "itow" /. 1000.));
       a.itow <- Int32.of_float (fvalue "itow");
@@ -171,15 +171,12 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
       a.kill_mode     <- ivalue "ap_motors_on" == 0;
       a.bat           <- fvalue "vsupply" /. 10.;
   | "BOOZ2_NAV_REF" ->
-      (*let lat = (Rad>>Deg) (foi32value "lat" /. gps_frac)
-      and lon = (Rad>>Deg) (foi32value "lon" /. gps_frac) in*)
       let x = (foi32value "x" /. 100.)
       and y = (foi32value "y" /. 100.)
       and z = (foi32value "z" /. 100.) in
       nav_ref_ecef := LL.make_ecef [| x; y; z |];
       let (geo, _) = LL.geo_of_ecef LL.WGS84 !nav_ref_ecef in
       a.nav_ref <- Some (LL.utm_of LL.WGS84 geo);
-      (*a.nav_ref <- Some (LL.utm_of LL.WGS84 (LL.make_geo_deg lat lon));*)
   | "BOOZ2_NAV_STATUS" ->
       a.block_time <- ivalue "block_time";
       a.stage_time <- ivalue "stage_time";
