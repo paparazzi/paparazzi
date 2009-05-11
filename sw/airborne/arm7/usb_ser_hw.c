@@ -106,8 +106,12 @@ static uint8_t rxdata[VCOM_FIFO_SIZE];
 static fifo_t txfifo;
 static fifo_t rxfifo;
 
+static bool BulkOut_is_blocked = false;
+
 // forward declaration of interrupt handler
 static void USBIntHandler(void) __attribute__ ((interrupt("IRQ")));
+
+static void BulkOut(U8 bEP, U8 bEPStatus);
 
 void fifo_init(fifo_t *fifo, U8 *buf);
 BOOL fifo_put(fifo_t *fifo, U8 c);
@@ -300,9 +304,20 @@ int VCOM_putchar(int c)
  */
 int VCOM_getchar(void)
 {
-	U8 c;
-	
-	return fifo_get(&rxfifo, &c) ? c : EOF;
+  int result;
+  U8 c;
+  
+  result = fifo_get(&rxfifo, &c) ? c : EOF;
+  
+  if (BulkOut_is_blocked && fifo_free(&rxfifo) >= MAX_PACKET_SIZE) {
+    // get more data from usb bus
+    disableIRQ();
+    BulkOut(BULK_OUT_EP, 0);
+    BulkOut_is_blocked = false;
+    enableIRQ();
+  }
+
+  return result;
 }
 
 /**
@@ -338,8 +353,9 @@ static void BulkOut(U8 bEP, U8 bEPStatus)
 	int i, iLen;
 
 	if (fifo_free(&rxfifo) < MAX_PACKET_SIZE) {
-		// may not fit into fifo
-		return;
+	  // may not fit into fifo
+	  BulkOut_is_blocked = true;
+	  return;
 	}
 
 	// get data from USB into intermediate buffer
