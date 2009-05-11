@@ -83,7 +83,7 @@ let update_waypoint = fun ac wp_id p alt ->
     Not_found ->
       Hashtbl.add ac.waypoints wp_id new_wp
 
-
+let heading_from_course = ref false
 let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
   let value = fun x -> try Pprz.assoc x values with Not_found -> failwith (sprintf "Error: field '%s' not found\n" x) in
 
@@ -107,6 +107,8 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
       a.itow <- Int32.of_float (fvalue "itow");
       a.gspeed  <- fvalue "speed" /. 100.;
       a.course  <- norm_course ((Deg>>Rad)(fvalue "course" /. 10.));
+      if !heading_from_course then
+	a.heading <- a.course;
       a.agl     <- a.alt -. float (try Srtm.of_utm a.pos with _ -> 0);
       a.gps_mode <- check_index (ivalue "mode") gps_modes "GPS_MODE";
       if a.gspeed > 3. && a.ap_mode = _AUTO2 then
@@ -126,9 +128,17 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
   | "NAVIGATION_REF" ->
       a.nav_ref <- Some { utm_x = fvalue "utm_east"; utm_y = fvalue "utm_north"; utm_zone = ivalue "utm_zone" }
   | "ATTITUDE" ->
-      a.heading  <- norm_course (fvalue "psi");
-      a.roll <- fvalue "phi";
-      a.pitch <- fvalue "theta"
+      let roll = fvalue "phi"
+      and pitch = fvalue "theta" in
+      if (List.assoc "phi" msg.Pprz.fields).Pprz._type = Pprz.Scalar "int16" then begin (* Compatibility with old message in degrees *)
+	a.roll <- roll /. 180. *. pi;
+	a.pitch <- pitch /. 180. *. pi;
+	heading_from_course := true; (* Awfull hack to get heading from GPS *)
+      end else begin
+	a.roll <- roll;
+	a.pitch <- pitch;
+	a.heading  <- norm_course (fvalue "psi")
+      end
   | "NAVIGATION" -> 
       a.cur_block <- ivalue "cur_block";
       a.cur_stage <- ivalue "cur_stage";
