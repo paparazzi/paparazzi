@@ -65,6 +65,13 @@
 #define MM_DRDY_EINT 3
 #define MM_DRDY_VIC_IT VIC_EINT3
 
+/* PWM5 on CAM connector */
+/* P0.21 */
+#define PWM_PINSEL PINSEL1
+#define PWM_PINSEL_VAL 0x01
+#define PWM_PINSEL_BIT 10
+
+
 // damit, we have two of them now
 //#define POWER_SWITCH_LED 3
 
