@@ -32,6 +32,7 @@ int32_t booz2_guidance_h_igain;
 
 static inline void booz2_guidance_h_hover_run(void);
 static inline void booz2_guidance_h_hover_enter(void);
+static inline void booz2_guidance_h_nav_enter(void);
 
 
 void booz2_guidance_h_init(void) {
@@ -66,8 +67,11 @@ void booz2_guidance_h_mode_changed(uint8_t new_mode) {
     break;
     
   case BOOZ2_GUIDANCE_H_MODE_HOVER:
-  case BOOZ2_GUIDANCE_H_MODE_NAV:
     booz2_guidance_h_hover_enter();
+    break;
+
+  case BOOZ2_GUIDANCE_H_MODE_NAV:
+    booz2_guidance_h_nav_enter();
     break;
 
   }
@@ -98,6 +102,7 @@ void booz2_guidance_h_read_rc(bool_t  in_flight) {
   
   case BOOZ2_GUIDANCE_H_MODE_NAV:
     BOOZ2_STABILIZATION_ATTITUDE_READ_RC(booz2_guidance_h_rc_sp, in_flight);
+    booz2_guidance_h_rc_sp.psi = 0;
     break;
   }
 
@@ -211,3 +216,18 @@ static inline void booz2_guidance_h_hover_enter(void) {
 
   BOOZ2_FMS_POS_INIT(booz2_guidance_h_pos_sp,booz2_guidance_h_rc_sp.psi);
 }
+
+static inline void booz2_guidance_h_nav_enter(void) {
+
+  INT32_VECT2_NED_OF_ENU(booz2_guidance_h_pos_sp, booz2_navigation_carrot);
+
+  struct booz_ieuler tmp_sp;
+  BOOZ2_STABILIZATION_ATTITUDE_RESET_PSI_REF( tmp_sp );
+  booz2_guidance_h_psi_sp = tmp_sp.psi;
+  nav_heading = (booz2_guidance_h_psi_sp >> (ANGLE_REF_RES - INT32_ANGLE_FRAC));
+  booz2_guidance_h_rc_sp.psi = 0;
+
+  BOOZ_IVECT2_ZERO(booz2_guidance_h_pos_err_sum);
+
+}
+
