@@ -36,6 +36,8 @@ module Alert_Pprz = Pprz.Messages(struct let name = "alert" end)
 
 let (//) = Filename.concat
 
+let gcs_id = "GCS"
+
 let approaching_alert_time = 3.
 let track_size = ref 500
 
@@ -887,52 +889,77 @@ let draw_altgraph = fun (da:GMisc.drawing_area) (geomap:MapCanvas.widget) aircra
   (new GDraw.drawable da#misc#window)#put_pixmap ~x:0 ~y:0 dr#pixmap
 
 
+(*****************************************************************************)
+let gcs_icon = ref None
+let display_gcs_pos = fun (geomap:G.widget) vs ->
+  let item = 
+    match !gcs_icon with
+      None ->
+	let rad = 7. in
+	let c = GnoCanvas.ellipse ~fill_color:"brown" ~props:[`WIDTH_PIXELS 1; `OUTLINE_COLOR "black"] ~x1: ~-.rad ~y1:  ~-.rad ~x2:rad ~y2:rad geomap#canvas#root in
+	gcs_icon := Some c;
+	c
+  | Some item ->
+      item in
+
+  let lat = Pprz.float_assoc "lat" vs
+  and lon = Pprz.float_assoc "long" vs in
+  let wgs84 = LL.make_geo_deg lat lon in
+  
+  geomap#move_item item wgs84
+
+
+(******************************** FLIGHT_PARAMS ******************************)
 let listen_flight_params = fun geomap auto_center_new_ac alert alt_graph ->
   let get_fp = fun _sender vs ->
-    let ac = get_ac vs in
-    let pfd_page = ac.pfd_page in
-    let a = fun s -> Pprz.float_assoc s vs in
-    let alt = a "alt"
-    and climb = a "climb"
-    and speed = a "speed" in
-    pfd_page#set_attitude (a "roll") (a "pitch");
-    pfd_page#set_alt alt;
-    pfd_page#set_climb climb;
-    pfd_page#set_speed speed;
-
-    let wgs84 = { posn_lat=(Deg>>Rad)(a "lat"); posn_long = (Deg>>Rad)(a "long") } in
-    ac.track#move_icon wgs84 (a "heading") alt speed climb;
-    ac.speed <- speed;
-
-    let unix_time = a "unix_time" in
-    if unix_time > ac.last_unix_time then begin
-      let utc = Unix.gmtime unix_time in
-      geomap#set_utc_time utc.Unix.tm_hour utc.Unix.tm_min utc.Unix.tm_sec;
-      ac.last_unix_time <- unix_time
-    end;
-
-    if auto_center_new_ac && ac.first_pos then begin
-      center geomap ac.track ();
-      ac.first_pos <- false
-    end;
-
-    let set_label = fun lbl_name value ->
-      ac.strip#set_label lbl_name (sprintf "%.0fm" value)
-    in
-    set_label "altitude" alt;
-    ac.strip#set_speed speed;
-    ac.strip#set_climb climb;
-    let agl = (a "agl") in
-    ac.alt <- alt;
-    ac.strip#set_agl agl;
-    if not ac.ground_prox && ac.flight_time > 10 && agl < 20. then begin
-      log_and_say alert ac.ac_name (sprintf "%s, %s" ac.ac_name "Ground Proximity Warning");
+    let ac_id = Pprz.string_assoc "ac_id" vs in
+    if ac_id = gcs_id then
+      display_gcs_pos geomap vs
+    else
+      let ac = get_ac vs in
+      let pfd_page = ac.pfd_page in
+      let a = fun s -> Pprz.float_assoc s vs in
+      let alt = a "alt"
+      and climb = a "climb"
+      and speed = a "speed" in
+      pfd_page#set_attitude (a "roll") (a "pitch");
+      pfd_page#set_alt alt;
+      pfd_page#set_climb climb;
+      pfd_page#set_speed speed;
+      
+      let wgs84 = { posn_lat=(Deg>>Rad)(a "lat"); posn_long = (Deg>>Rad)(a "long") } in
+      ac.track#move_icon wgs84 (a "heading") alt speed climb;
+      ac.speed <- speed;
+      
+      let unix_time = a "unix_time" in
+      if unix_time > ac.last_unix_time then begin
+	let utc = Unix.gmtime unix_time in
+	geomap#set_utc_time utc.Unix.tm_hour utc.Unix.tm_min utc.Unix.tm_sec;
+	ac.last_unix_time <- unix_time
+      end;
+      
+      if auto_center_new_ac && ac.first_pos then begin
+	center geomap ac.track ();
+	ac.first_pos <- false
+      end;
+      
+      let set_label = fun lbl_name value ->
+	ac.strip#set_label lbl_name (sprintf "%.0fm" value)
+      in
+      set_label "altitude" alt;
+      ac.strip#set_speed speed;
+      ac.strip#set_climb climb;
+      let agl = (a "agl") in
+      ac.alt <- alt;
+      ac.strip#set_agl agl;
+      if not ac.ground_prox && ac.flight_time > 10 && agl < 20. then begin
+	log_and_say alert ac.ac_name (sprintf "%s, %s" ac.ac_name "Ground Proximity Warning");
       ac.ground_prox <- true
-    end else if agl > 25. then
-      ac.ground_prox <- false;
-    try
-      draw_altgraph alt_graph geomap aircrafts;
-    with _ -> ()
+      end else if agl > 25. then
+	ac.ground_prox <- false;
+      try
+	draw_altgraph alt_graph geomap aircrafts;
+      with _ -> ()
 
   in
   safe_bind "FLIGHT_PARAM" get_fp;
