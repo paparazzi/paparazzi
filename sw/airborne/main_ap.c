@@ -48,7 +48,6 @@
 #include "autopilot.h"
 #include "estimator.h"
 #include "settings.h"
-#include "rc_settings.h"
 #include "cam.h"
 #include "link_mcu.h"
 #include "sys_time.h"
@@ -57,6 +56,10 @@
 #include "xbee.h"
 #include "gpio.h"
 #include "light.h"
+
+#if defined RADIO_CONTROL || defined RADIO_CONTROL_AUTO1
+#include "rc_settings.h"
+#endif
 
 #ifdef LED
 #include "led.h"
@@ -150,7 +153,7 @@
 #endif
 
 /** FIXME: should be in rc_settings but required by telemetry (ap_downlink.h)*/
-uint8_t rc_settings_mode = RC_SETTINGS_MODE_NONE;
+uint8_t rc_settings_mode = 0;
 
 /** Define minimal speed for takeoff in m/s */
 #define MIN_SPEED_FOR_TAKEOFF 5.
@@ -185,6 +188,7 @@ bool_t gps_lost = FALSE;
 
 /** \brief Update paparazzi mode
  */
+#ifdef RADIO_CONTROL
 static inline uint8_t pprz_mode_update( void ) {
   if ((pprz_mode != PPRZ_MODE_HOME &&
        pprz_mode != PPRZ_MODE_GPS_OUT_OF_ORDER)
@@ -196,6 +200,11 @@ static inline uint8_t pprz_mode_update( void ) {
   } else
     return FALSE;
 }
+#else // not RADIO_CONTROL
+static inline uint8_t pprz_mode_update( void ) {
+  return FALSE;
+}
+#endif
 
 static inline uint8_t mcu1_status_update( void ) {
   uint8_t new_status = fbw_state->status;
@@ -211,7 +220,7 @@ static inline uint8_t mcu1_status_update( void ) {
 /** \brief Send back uncontrolled channels (actually only rudder)
  */
 static inline void copy_from_to_fbw ( void ) {
-#ifdef COMMAND_YAW /* FIXME */
+#if defined RADIO_CONTROL_AUTO1 && defined COMMAND_YAW /* FIXME */
   ap_state->commands[COMMAND_YAW] = fbw_state->channels[RADIO_YAW];
 #endif
 }
@@ -279,7 +288,7 @@ inline void telecommand_task( void ) {
   if ( mode_changed )
     PERIODIC_SEND_PPRZ_MODE();
 
-#if defined RADIO_CONTROL || RADIO_CONTROL_AUTO1
+#if defined RADIO_CONTROL || defined RADIO_CONTROL_AUTO1
   /** In AUTO1 mode, compute roll setpoint and pitch setpoint from 
    * \a RADIO_ROLL and \a RADIO_PITCH \n
    */
@@ -303,12 +312,14 @@ inline void telecommand_task( void ) {
 
 
   vsupply = fbw_state->vsupply;
-  
+
+#ifdef RADIO_CONTROL  
   if (!estimator_flight_time) {
     if (pprz_mode == PPRZ_MODE_AUTO2 && fbw_state->channels[RADIO_THROTTLE] > THROTTLE_THRESHOLD_TAKEOFF) {
       launch = TRUE;
     }
   }
+#endif
 }
 
 /** \fn void navigation_task( void )
