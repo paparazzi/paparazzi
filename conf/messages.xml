@@ -1121,6 +1121,20 @@
       <field name="p2_mag_z_raw" type="uint16"/>
     </message>
 
+    <message name="WHIRLY_KALMAN_DEBUG" id="187">
+      <field name="whirly_timestamp"   type="float"/>
+      <field name="p00" type="float"/>
+      <field name="p11" type="float"/>
+      <field name="p22" type="float"/>
+      <field name="p33" type="float"/>
+      <field name="p44" type="float"/>
+      <field name="p55" type="float"/>
+      <field name="p66" type="float"/>
+      <field name="meas_phi" type="float"/>
+      <field name="meas_theta" type="float"/>
+      <field name="meas_psi" type="float"/>
+    </message>
+
 </class>
 
 

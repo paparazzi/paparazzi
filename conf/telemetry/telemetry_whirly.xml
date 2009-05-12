@@ -13,6 +13,7 @@
       <message name="WHIRLY_CONTROL"    period="0.01"/>
       <message name="WHIRLY_IMU"	period="0.001"/>
       <message name="WHIRLY_ESTIMATOR"  period="0.01"/>
+      <message name="WHIRLY_KALMAN_DEBUG"  period="0.002"/>
     </mode>
 
     <mode name="raw_sensors">
