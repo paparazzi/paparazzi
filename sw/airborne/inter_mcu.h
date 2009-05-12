@@ -41,15 +41,18 @@
 #if defined RADIO_CONTROL || RADIO_CONTROL_AUTO1
 #include "radio.h"
 #endif
+
 #include "paparazzi.h"
 #include "airframe.h"
 #include "radio_control.h"
 #include "main_fbw.h"
 
-/** Data structure shared by fbw and ap process */
+/** Data structure shared by fbw and ap processes */
 struct fbw_state {
+#if defined RADIO_CONTROL || RADIO_CONTROL_AUTO1
   pprz_t channels[RADIO_CTL_NB];  
   uint8_t ppm_cpt;
+#endif
   uint8_t status;
   uint8_t nb_err;
   uint8_t vsupply; /* 1e-1 V */
