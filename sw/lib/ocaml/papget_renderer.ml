@@ -47,7 +47,7 @@ class type t =
 (*************************** Text ***********************************)
 class canvas_text = fun ?(config=[]) canvas_group x y ->
   let group = GnoCanvas.group ~x ~y canvas_group in
-  let text = GnoCanvas.text group in
+  let text = GnoCanvas.text ~text:"_" group in
   object (self)
     val mutable format = PC.get_prop "format" config "%.2f"
     val mutable size = float_of_string (PC.get_prop "size" config "15.")
@@ -59,7 +59,7 @@ class canvas_text = fun ?(config=[]) canvas_group x y ->
       [ PC.property "format" format;
 	PC.float_property "size" size;
 	PC.property "color" color ]
-    method update = fun value ->
+    method update = fun (value : string) ->
       let renderer = fun x -> sprintf (Obj.magic format) (float_of_string x) in
       text#set [`SIZE_POINTS size; `TEXT (renderer value); `FILL_COLOR color; `ANCHOR `NW]
 
