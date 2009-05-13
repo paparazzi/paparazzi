@@ -107,6 +107,25 @@ let get_last_geo_pos = fun lookup ->
   else
     failwith "No geo pos found"
 
+(***************************************************)
+let date_of_log_filename = fun filename ->
+  let filename = Filename.basename filename in
+  try
+    Scanf.sscanf filename "%2d_%2d_%2d__%2d_%2d_%2d" (fun y m md h min s ->
+      let tm = { Unix.tm_sec = s; tm_min= min; tm_hour = h;
+		 tm_mday = md; tm_mon = m-1; tm_year = y+100;
+		 tm_wday= -1; tm_yday= -1; tm_isdst=false } in
+      fst (Unix.mktime tm))
+  with
+    exc ->
+      fprintf stderr "Error parsing filename to get date (%s) : %s\nUsing current time\n%!" filename (Printexc.to_string exc);
+      Unix.gettimeofday ()
+    
+let format_time = fun t ->
+  let tm = Unix.gmtime t in
+  let sec = float  tm.Unix.tm_sec +. fst (modf t) in
+  Printf.sprintf "%02d:%02d:%2.3f" tm.Unix.tm_hour tm.Unix.tm_min sec
+
 
 (*****************************************************************************)
 let export_values = fun ?(sep="tab") ?(export_geo_pos=true) (model:GTree.tree_store) data timestamp filename ->
@@ -131,11 +150,13 @@ let export_values = fun ?(sep="tab") ?(export_geo_pos=true) (model:GTree.tree_st
   
   let f = open_out filename in
   (* Print the header *)
-  fprintf f "Time";
+  fprintf f "Time%sUTC" sep;
   if export_geo_pos then
     fprintf f "%sGPS lat(deg)%sGPS long(deg)" sep sep;
   List.iter (fun (m,field) -> fprintf f "%s%s:%s" sep m field) !fields_to_export;
   fprintf f "\n%!";
+
+  let log_date = date_of_log_filename filename in
 
   (* Store for the current values *)
   let last_values = Hashtbl.create 97
@@ -149,7 +170,9 @@ let export_values = fun ?(sep="tab") ?(export_geo_pos=true) (model:GTree.tree_st
 
     let buf = Buffer.create 64 in
 
-    bprintf buf "%.3f" t;
+    let local_time = log_date +. t in
+
+    bprintf buf "%.3f%s%s" t sep (format_time local_time);
 
     if export_geo_pos then begin
       try
