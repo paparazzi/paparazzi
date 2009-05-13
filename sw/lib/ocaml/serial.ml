@@ -103,7 +103,10 @@ let input = fun ?(read = Unix.read) f ->
     index := n in
 
   Closure (fun fd ->
-    let n = !index + read fd buffer !index (buffer_len - !index) in
+    let nread = read fd buffer !index (buffer_len - !index) in
+    if nread = 0 then
+      raise End_of_file;
+    let n = !index + nread in
     Debug.call 'T' (fun f -> fprintf f "input: %d %d\n" !index n);
     let rec parse = fun start n -> 
       Debug.call 'T' (fun f -> fprintf f "input parse: %d %d\n" start n);
