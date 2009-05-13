@@ -1130,9 +1130,9 @@
       <field name="p44" type="float"/>
       <field name="p55" type="float"/>
       <field name="p66" type="float"/>
-      <field name="meas_phi" type="float"/>
-      <field name="meas_theta" type="float"/>
-      <field name="meas_psi" type="float"/>
+      <field name="meas_phi" type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.3"/>
+      <field name="meas_theta" type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.3"/>
+      <field name="meas_psi" type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.3"/>
     </message>
 
 </class>
