@@ -58,10 +58,10 @@
      A PPRZ_STX (0x99)
      B LENGTH (H->H)
      C SOURCE (0=uart0, 1=uart1, 2=i2c0, ...)
-     D TIMESTAMP_MSB (100 microsec raster?)
+     D TIMESTAMP_LSB (100 microsec raster)
      E TIMESTAMP
      F TIMESTAMP
-     G TIMESTAMP_LSB
+     G TIMESTAMP_MSB
      H PPRZ_DATA
        0 SENDER_ID
        1 MSG_ID
@@ -112,6 +112,7 @@
 #define PPRZ_PAYLOAD_LEN 256
 #define PPRZ_DATA_OFFSET 2
 
+/** logging messages **/
 #define LOG_DATA_OFFSET 7
 #define MSG_SIZE 256
 
@@ -124,14 +125,15 @@ unsigned char xbeel_payload[XBEE_PAYLOAD_LEN];
 unsigned char pprzl_payload[PPRZ_PAYLOAD_LEN];
 volatile unsigned char xbeel_payload_len;
 volatile unsigned char pprzl_payload_len;
-unsigned char xbeel_error;
-unsigned char pprzl_error;
+unsigned char xbeel_error = 0;
+unsigned char pprzl_error = 0;
 unsigned char log_buffer[MSG_SIZE]  __attribute__ ((aligned));
 static unsigned int xbeel_timestamp = 0;
 static unsigned int pprzl_timestamp = 0;
 unsigned int nb_messages = 0;
 unsigned int nb_fail_write = 0;
-int bytes = 0;
+int bytes_in = 0;
+int bytes_out = 0;
 
 //dummy
 int fdw;	
@@ -166,10 +168,10 @@ void log_payload(int len, unsigned char source, unsigned int timestamp)
   log_buffer[2] = source;
     
   /* add a 32bit timestamp */
-  log_buffer[3] = (timestamp >> 24) & 0xFF; // MSB first
-  log_buffer[4] = (timestamp >> 16) & 0xFF;
-  log_buffer[5] = (timestamp >> 8)  & 0xFF;
-  log_buffer[6] = (timestamp) & 0xFF;
+  log_buffer[3] = (timestamp) & 0xFF;       // LSB first
+  log_buffer[4] = (timestamp >> 8)  & 0xFF;
+  log_buffer[5] = (timestamp >> 16) & 0xFF;
+  log_buffer[6] = (timestamp >> 24) & 0xFF;
 
   /* data is already written */
 
@@ -193,7 +195,7 @@ void log_payload(int len, unsigned char source, unsigned int timestamp)
     nb_fail_write++;
   }
   
-  bytes += chk;
+  bytes_out += chk;
   nb_messages++;
 //  dl_parse_msg();
 }
@@ -321,16 +323,16 @@ int main(void)
     int fd;	
     unsigned char inc;
     
-//    fd = open("xbee.bin", O_RDONLY);
-    fd = open("pprz.bin", O_RDONLY);
+    fd = open("xbee.bin", O_RDONLY);
+//    fd = open("pprz.bin", O_RDONLY);
     if(fd < 0)
     {
         perror("open file");
         exit(1);
     }
 
-//    fdw = open("xbee.log", O_CREAT|O_WRONLY);
-    fdw = open("pprz.log", O_CREAT|O_WRONLY);
+    fdw = open("xbee.log", O_CREAT|O_WRONLY);
+//    fdw = open("pprz.log", O_CREAT|O_WRONLY);
     if(fdw < 0)
     {
         perror("open write file");
@@ -346,14 +348,20 @@ int main(void)
     while(read(fd, &inc, 1) == 1)
     {
 //        printf("0x%02X\n", inc);
-//        log_xbee(inc);
-        log_pprz(inc);
+        log_xbee(inc);
+//        log_pprz(inc);
+        bytes_in++;
     }
 
     close(fdw);
     close(fd);
 
-    printf("\n");
+    printf("\nmsg detected %d\nbytes in %d, out %d\nerr xbee %d, pprz %d\n", 
+           nb_messages,
+           bytes_in,
+           bytes_out,
+           xbeel_error,
+           pprzl_error);
 
 	return(0);
 }
