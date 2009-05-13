@@ -49,6 +49,10 @@ type message = {
   }
 (** Message specification *)
 
+
+external int32_of_bytes : string -> int -> int32 = "c_int32_of_indexed_bytes"
+(** [int32_of_bytes buffer offset] *)
+
 val separator : string
 (** Separator in array values *)
 
