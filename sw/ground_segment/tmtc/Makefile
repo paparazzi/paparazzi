@@ -135,6 +135,8 @@ GLIB_LDFLAGS =  `pkg-config glib-2.0 --libs` -lglibivy -lpcre
 GTK_CFLAGS  = -Wall  `pkg-config gtk+-2.0 --cflags`
 GTK_LDFLAGS =  `pkg-config gtk+-2.0 --libs` -lglibivy -lpcre
 
+gpsd2ivy: gpsd2ivy.c
+	$(CC) $(GLIB_CFLAGS) -o $@ $< $(GLIB_LDFLAGS) -lgps
 
 c_ivy_client_example_1: c_ivy_client_example_1.c
 	$(CC) $(GLIB_CFLAGS) -o $@ $< $(GLIB_LDFLAGS)
