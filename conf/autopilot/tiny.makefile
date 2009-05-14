@@ -42,3 +42,29 @@ test_adcs.srcs += downlink.c $(SRC_ARCH)/uart_hw.c xbee.c
 
 test_adcs.srcs += sys_time.c $(SRC_ARCH)/adc_hw.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c test_adcs.c
 # pprz_transport.c
+
+
+# a configuration program to access both uart through usb
+usb_tunnel_0.ARCHDIR = $(ARCHI)
+usb_tunnel_0.ARCH = arm7tdmi
+usb_tunnel_0.TARGET = usb_tunnel_0
+usb_tunnel_0.TARGETDIR = usb_tunnel_0
+usb_tunnel_0.CFLAGS += -DFBW -DCONFIG=\"tiny_2_1_1_usb.h\" -DUSE_UART0 -DUART0_BAUD=B115200
+usb_tunnel_0.CFLAGS += -DUSE_USB_LINE_CODING -DUSE_USB_SERIAL
+usb_tunnel_0.srcs += $(SRC_ARCH)/usb_tunnel.c $(SRC_ARCH)/usb_ser_hw.c $(SRC_ARCH)/uart_hw.c 
+usb_tunnel_0.srcs += $(SRC_ARCH)/lpcusb/usbhw_lpc.c $(SRC_ARCH)/lpcusb/usbinit.c
+usb_tunnel_0.srcs += $(SRC_ARCH)/lpcusb/usbcontrol.c $(SRC_ARCH)/lpcusb/usbstdreq.c
+usb_tunnel_0.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
+
+usb_tunnel_1.ARCHDIR = $(ARCHI)
+usb_tunnel_1.ARCH = arm7tdmi
+usb_tunnel_1.TARGET = usb_tunnel_1
+usb_tunnel_1.TARGETDIR = usb_tunnel_1
+usb_tunnel_1.CFLAGS += -DFBW -DCONFIG=\"tiny_2_1_1_usb.h\" -DUSE_UART1 -DUART1_BAUD=B115200
+usb_tunnel_1.CFLAGS += -DUSE_USB_LINE_CODING -DUSE_USB_SERIAL
+usb_tunnel_1.srcs += $(SRC_ARCH)/usb_tunnel.c $(SRC_ARCH)/usb_ser_hw.c $(SRC_ARCH)/uart_hw.c 
+usb_tunnel_1.srcs += $(SRC_ARCH)/lpcusb/usbhw_lpc.c $(SRC_ARCH)/lpcusb/usbinit.c
+usb_tunnel_1.srcs += $(SRC_ARCH)/lpcusb/usbcontrol.c $(SRC_ARCH)/lpcusb/usbstdreq.c
+usb_tunnel_1.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
+
+
