@@ -1135,6 +1135,13 @@
       <field name="meas_psi" type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.3"/>
     </message>
 
+    <message name="WHIRLY_ESTIMATOR_DEBUG" id="188">
+      <field name="whirly_timestamp"   type="float"/>
+      <field name="phi"   type="float" alt_unit="deg" alt_unit_coef="57.29578"/>
+      <field name="theta" type="float" alt_unit="deg" alt_unit_coef="57.29578"/>
+      <field name="psi"   type="float" alt_unit="deg" alt_unit_coef="57.29578"/>
+    </message>
+
 </class>
 
 
