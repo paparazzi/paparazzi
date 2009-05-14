@@ -77,7 +77,7 @@
 #define	GET_LINE_CODING         0x21
 #define	SET_CONTROL_LINE_STATE  0x22
 
-#define VCOM_FIFO_SIZE          128
+#define VCOM_FIFO_SIZE          8192
 
 #define EOF                     (-1)
 #define ASSERT(x) 
@@ -96,6 +96,8 @@ typedef struct {
     uint8_t     bDataBits;
 } TLineCoding;
 
+int allow_line_coding = 0;
+ /* this settings are virtual unless you enable line coding */
 static TLineCoding LineCoding = {115200, 0, 0, 8};
 static uint8_t abBulkBuf[64];
 static uint8_t abClassReqData[8];
@@ -112,6 +114,11 @@ static bool BulkOut_is_blocked = false;
 static void USBIntHandler(void) __attribute__ ((interrupt("IRQ")));
 
 static void BulkOut(U8 bEP, U8 bEPStatus);
+
+#ifdef USE_USB_LINE_CODING
+void set_linecoding(TLineCoding linecoding);
+void VCOM_allow_linecoding(uint8_t mode);
+#endif
 
 void fifo_init(fifo_t *fifo, U8 *buf);
 BOOL fifo_put(fifo_t *fifo, U8 c);
@@ -285,6 +292,80 @@ int fifo_free(fifo_t *fifo)
 	return (VCOM_FIFO_SIZE - 1 - fifo_avail(fifo));
 }
 
+#ifdef USE_USB_LINE_CODING
+void set_linecoding(TLineCoding linecoding)
+{
+    uint16_t baud;
+    uint8_t mode;
+  
+    // set the baudrate
+    baud = (uint16_t)((PCLK / ((linecoding.dwDTERate) * 16.0)) + 0.5);
+        
+    // set the number of characters and other
+    // user specified operating parameters
+    switch (linecoding.bCharFormat)
+    {
+        case 0: /* 1 stop bit */
+            mode = ULCR_STOP_1;
+            break;
+        case 1: /* 1.5 stop bit (only with 5 bit character) */
+        case 2: /* 2 stop bit */
+            mode = ULCR_STOP_2;
+            break;
+        default:
+            mode = ULCR_STOP_1;
+            break;
+    }
+    switch (linecoding.bParityType)
+    {
+        case 0:  mode += ULCR_PAR_NO;
+            break;
+        case 1:  mode += ULCR_PAR_ODD;
+            break;
+        case 2:  mode += ULCR_PAR_EVEN;
+            break;
+        case 3:  mode += ULCR_PAR_MARK;
+            break;
+        case 4:  mode += ULCR_PAR_SPACE;
+            break;
+        default: mode += ULCR_PAR_NO;
+            break;
+    }
+    switch (linecoding.bDataBits)
+    {
+        case 5:  mode += ULCR_CHAR_5;
+            break;
+        case 6:  mode += ULCR_CHAR_6;
+            break;
+        case 7:  mode += ULCR_CHAR_7;
+            break;
+        case 8:  mode += ULCR_CHAR_8;
+            break;
+        case 16:  
+        default: mode += ULCR_CHAR_8;
+            break;
+    }
+ 
+#ifdef USE_UART0
+    U0LCR = ULCR_DLAB_ENABLE;             // select divisor latches 
+    U0DLL = (uint8_t)baud;                // set for baud low byte
+    U0DLM = (uint8_t)(baud >> 8);         // set for baud high byte
+    U0LCR = (mode & ~ULCR_DLAB_ENABLE);
+#endif
+#ifdef USE_UART1
+    U1LCR = ULCR_DLAB_ENABLE;             // select divisor latches 
+    U1DLL = (uint8_t)baud;                // set for baud low byte
+    U1DLM = (uint8_t)(baud >> 8);         // set for baud high byte
+    U1LCR = (mode & ~ULCR_DLAB_ENABLE);
+#endif
+}
+#endif        
+
+void VCOM_allow_linecoding(uint8_t mode)
+{
+    allow_line_coding = mode;
+}
+
 
 /**
 	Writes one character to VCOM port
@@ -310,8 +391,8 @@ int VCOM_getchar(void)
   result = fifo_get(&rxfifo, &c) ? c : EOF;
   
   if (BulkOut_is_blocked && fifo_free(&rxfifo) >= MAX_PACKET_SIZE) {
-    // get more data from usb bus
     disableIRQ();
+    // get more data from usb bus
     BulkOut(BULK_OUT_EP, 0);
     BulkOut_is_blocked = false;
     enableIRQ();
@@ -417,6 +498,12 @@ static BOOL HandleClassRequest(TSetupPacket *pSetup, int *piLen, U8 **ppbData)
 	case SET_LINE_CODING:
 		memcpy((U8 *)&LineCoding, *ppbData, 7);
 		*piLen = 7;
+#ifdef USE_USB_LINE_CODING
+        if (allow_line_coding)
+        {
+            set_linecoding(LineCoding);
+        }
+#endif        
 		break;
 
 	// get line coding
@@ -427,7 +514,7 @@ static BOOL HandleClassRequest(TSetupPacket *pSetup, int *piLen, U8 **ppbData)
 
 	// set control line state
 	case SET_CONTROL_LINE_STATE:
-		// bit0 = DTR, bit = RTS
+		// bit0 = DTR, bit1 = RTS
 		break;
 
 	default:
@@ -461,6 +548,10 @@ static void USBFrameHandler(U16 wFrame)
 void VCOM_init(void) {
 	// initialise stack
 	USBInit();
+#ifdef USE_USB_LINE_CODING
+	// set default line coding
+    set_linecoding(LineCoding);
+#endif        
 
 	// register descriptors
 	USBRegisterDescriptors(abDescriptors);

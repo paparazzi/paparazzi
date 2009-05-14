@@ -61,6 +61,7 @@
 #include <string.h>
 #include "std.h"
 #include "LPC21xx.h"
+#include "armVIC.h"
 #include CONFIG
 
 #include "lpcusb/usbapi.h"
