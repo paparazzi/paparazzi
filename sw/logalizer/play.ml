@@ -118,6 +118,7 @@ let load_log = fun window (adj:GData.adjustment) xml_file ->
 
 let timer = ref None
 let was_running = ref false
+let no_gui = ref false
 
 let stop = fun () ->
   match !timer with
@@ -158,7 +159,10 @@ let rec run = fun serial_port timescale log adj i speed ->
     let dt = time_of log.(i+1) -. t in
     timer := Some (GMain.Timeout.add (truncate (1000. *. dt /. speed#value)) (fun () -> run serial_port timescale log adj (i+1) speed; false))
   else
-    timescale#misc#set_sensitive true
+    if !no_gui then
+      exit 0
+    else
+      timescale#misc#set_sensitive true
       
 let play = fun serial_port timescale adj speed ->
   stop ();
@@ -188,6 +192,7 @@ let _ =
   Arg.parse 
     [ "-b", Arg.String (fun x -> bus := x), "Bus\tDefault is 127.255.255.25:2010";
       "-d", Arg.Set_string port, (sprintf "<port> Default is %s" !port);
+      "-no_gui", Arg.Set no_gui, "Disable graphical interface";
       "-o", Arg.Set output_on_serial, "Output binary messages on serial port";
       "-s", Arg.Set_string baudrate, (sprintf "<baudrate>  Default is %s" !baudrate)]
     (fun x -> load_log window adj x)
@@ -214,9 +219,12 @@ let _ =
   ignore (file_menu_fact#add_item "Stop" ~key:GdkKeysyms._S ~callback:(fun () -> timescale#misc#set_sensitive true; stop ()));  
   ignore (file_menu_fact#add_item "Quit" ~key:GdkKeysyms._Q ~callback:quit);  
 
-
-  window#add_accel_group accel_group;
-  window#show ();
+  if !no_gui then
+    play serial_port timescale adj speed
+  else begin
+    window#add_accel_group accel_group;
+    window#show ()
+  end;
 
   Ivy.init "Paparazzi replay" "READY" (fun _ _ -> ());
   Ivy.start !bus;
