@@ -44,29 +44,29 @@ void csc_ap_link_send_status(uint32_t loops, uint32_t msgs);
 #include "csc_can.h"
 
 #define CscApLinkEvent(_on_servo_msg, _on_motor_msg) {		\
-    Can2Event(CscApLinkOnCanMsg(_on_servo_msg, _on_motor_msg));	\
+    Can1Event(CscApLinkOnCanMsg(_on_servo_msg, _on_motor_msg));	\
   }
 
 #define CscApLinkOnCanMsg(_on_servo_msg, _on_motor_msg) {		\
-    uint32_t msg_id = MSGID_OF_CANMSG_ID(can2_rx_msg.id);		\
+    uint32_t msg_id = MSGID_OF_CANMSG_ID(can1_rx_msg.id);		\
     switch (msg_id) {							\
     case CSC_SERVO_CMD_ID:						\
-      if (CAN_MSG_LENGH_OF_FRAME(can2_rx_msg.frame) != sizeof(csc_servo_cmd)) { \
-	LED_ON(1);							\
+      if (CAN_MSG_LENGH_OF_FRAME(can1_rx_msg.frame) != sizeof(csc_servo_cmd)) { \
+	LED_ON(ERROR_LED);							\
 	csc_ap_link_error_cnt++;					\
       }									\
       else {								\
-	memcpy(&csc_servo_cmd, &can2_rx_msg.dat_a, sizeof(csc_servo_cmd));\
+	memcpy(&csc_servo_cmd, &can1_rx_msg.dat_a, sizeof(csc_servo_cmd));\
 	_on_servo_msg();						\
       }									\
       break;								\
     case CSC_MOTOR_CMD_ID:						\
-      if (CAN_MSG_LENGH_OF_FRAME(can2_rx_msg.frame) != sizeof(csc_motor_msg)) { \
-	LED_ON(1);							\
+      if (CAN_MSG_LENGH_OF_FRAME(can1_rx_msg.frame) != sizeof(csc_motor_msg)) { \
+	LED_ON(ERROR_LED);							\
 	csc_ap_link_error_cnt++;					\
       }									\
       else {								\
-	memcpy(&csc_motor_msg, &can2_rx_msg.dat_a, sizeof(csc_motor_msg));\
+	memcpy(&csc_motor_msg, &can1_rx_msg.dat_a, sizeof(csc_motor_msg));\
 	_on_motor_msg();						\
       }									\
       break;								\
