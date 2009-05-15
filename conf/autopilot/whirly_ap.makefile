@@ -109,4 +109,4 @@ test_xtend.CFLAGS += -DXTEND_DEVICE=\"/dev/ttyS2\"
 #test_xtend.srcs+=$(SRC_RDY)/rdyb_xtend.c
 test_xtend.srcs+=$(SRC_FMS)/fms_serial_port.c
 
-include $(PAPARAZZI_SRC)/conf/autopilot/csc.makefile
+#include $(PAPARAZZI_SRC)/conf/autopilot/csc.makefile
