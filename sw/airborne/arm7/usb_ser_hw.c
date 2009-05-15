@@ -77,7 +77,7 @@
 #define	GET_LINE_CODING         0x21
 #define	SET_CONTROL_LINE_STATE  0x22
 
-#define VCOM_FIFO_SIZE          8192
+#define VCOM_FIFO_SIZE          128
 
 #define EOF                     (-1)
 #define ASSERT(x) 

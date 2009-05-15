@@ -26,7 +26,7 @@ tunnel.ARCH = arm7tdmi
 tunnel.TARGET = tunnel
 tunnel.TARGETDIR = tunnel
 
-tunnel.CFLAGS += -DFBW -DCONFIG=\"tiny.h\" -DLED -DTIME_LED=1
+tunnel.CFLAGS += -DFBW -DCONFIG=\"tiny_2_1_1_usb.h\"
 tunnel.srcs += $(SRC_ARCH)/uart_tunnel.c
 
 
@@ -50,7 +50,7 @@ usb_tunnel_0.ARCH = arm7tdmi
 usb_tunnel_0.TARGET = usb_tunnel_0
 usb_tunnel_0.TARGETDIR = usb_tunnel_0
 usb_tunnel_0.CFLAGS += -DFBW -DCONFIG=\"tiny_2_1_1_usb.h\" -DUSE_UART0 -DUART0_BAUD=B115200
-usb_tunnel_0.CFLAGS += -DUSE_USB_LINE_CODING -DUSE_USB_SERIAL
+usb_tunnel_0.CFLAGS += -DUSE_USB_LINE_CODING -DUSE_USB_SERIAL -DLED
 usb_tunnel_0.srcs += $(SRC_ARCH)/usb_tunnel.c $(SRC_ARCH)/usb_ser_hw.c $(SRC_ARCH)/uart_hw.c 
 usb_tunnel_0.srcs += $(SRC_ARCH)/lpcusb/usbhw_lpc.c $(SRC_ARCH)/lpcusb/usbinit.c
 usb_tunnel_0.srcs += $(SRC_ARCH)/lpcusb/usbcontrol.c $(SRC_ARCH)/lpcusb/usbstdreq.c
@@ -61,7 +61,7 @@ usb_tunnel_1.ARCH = arm7tdmi
 usb_tunnel_1.TARGET = usb_tunnel_1
 usb_tunnel_1.TARGETDIR = usb_tunnel_1
 usb_tunnel_1.CFLAGS += -DFBW -DCONFIG=\"tiny_2_1_1_usb.h\" -DUSE_UART1 -DUART1_BAUD=B115200
-usb_tunnel_1.CFLAGS += -DUSE_USB_LINE_CODING -DUSE_USB_SERIAL
+usb_tunnel_1.CFLAGS += -DUSE_USB_LINE_CODING -DUSE_USB_SERIAL -DLED
 usb_tunnel_1.srcs += $(SRC_ARCH)/usb_tunnel.c $(SRC_ARCH)/usb_ser_hw.c $(SRC_ARCH)/uart_hw.c 
 usb_tunnel_1.srcs += $(SRC_ARCH)/lpcusb/usbhw_lpc.c $(SRC_ARCH)/lpcusb/usbinit.c
 usb_tunnel_1.srcs += $(SRC_ARCH)/lpcusb/usbcontrol.c $(SRC_ARCH)/lpcusb/usbstdreq.c
