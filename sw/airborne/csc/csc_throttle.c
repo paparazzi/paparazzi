@@ -161,6 +161,7 @@ static void throttle_send_message(struct throttle_msg *send)
   ThrottleUartSend1(send->arg2 & 0xFF);
   ThrottleUartSend1(send->checksum >> 8);
   ThrottleUartSend1(send->checksum & 0xFF);
+  LED_TOGGLE(THROTTLE_LED);
 }
 
 // Simple state machine parser for throttle messages
