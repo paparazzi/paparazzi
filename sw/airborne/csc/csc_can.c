@@ -211,7 +211,7 @@ void CAN_Err_ISR ( void ) {
  ISR_ENTRY();
  
  err_cnt++;
- LED_ON(2); 
+ LED_ON(ERROR_LED); 
  uint32_t c1icr = C1ICR;
  DOWNLINK_SEND_CSC_CAN_DEBUG(&err_cnt, &c1icr);
 
