@@ -69,9 +69,9 @@ STATIC_INLINE void csc_main_init( void ) {
 #ifdef USE_UART0
   Uart0Init();
 #endif
-  Uart1Init();
+//  Uart1Init();
 
-  csc_can2_init();
+  csc_can1_init();
 
   csc_servos_init();
   csc_throttle_init();
@@ -85,7 +85,7 @@ STATIC_INLINE void csc_main_periodic( void ) {
   static uint32_t csc_loops = 0;
 
   if (servo_cmd_timeout > SERVO_TIMEOUT) {
-    LED_OFF(2);
+    LED_OFF(CAN_LED);
     csc_servos_set(zeros);
   } else {
     servo_cmd_timeout++;
