@@ -36,7 +36,7 @@ extern struct CscCanMsg can1_rx_msg;
 #define Can1Event(_rx_handler) {		\
     if (can1_msg_received) {			\
       _rx_handler;				\
-      LED_ON(2);				\
+      LED_ON(CAN_LED);				\
       can1_msg_received = FALSE;		\
     }						\
   }
@@ -55,7 +55,7 @@ extern struct CscCanMsg can2_rx_msg;
 #define Can2Event(_rx_handler) {		\
     if (can2_msg_received) {			\
       _rx_handler;				\
-      LED_ON(2);				\
+      LED_ON(CAN_LED);				\
       can2_msg_received = FALSE;		\
     }						\
   }
