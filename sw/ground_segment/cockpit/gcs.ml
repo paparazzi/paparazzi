@@ -3,7 +3,7 @@
 *
 * Multi aircrafts map display and flight plan editor
 *  
-* Copyright (C) 2004-2006 ENAC, Pascal Brisset, Antoine Drouin
+* Copyright (C) 2004-2009 ENAC, Pascal Brisset, Antoine Drouin
 *
 * This file is part of paparazzi.
 *
@@ -530,6 +530,19 @@ let () =
   let layout = ExtXml.parse_file layout_file in
   let width = ExtXml.int_attrib layout "width"
   and height = ExtXml.int_attrib layout "height" in
+
+  let pid_plugin = ref None in
+  let kill_plugin = fun () ->
+    match !pid_plugin with
+      None -> ()
+    | Some pid -> 
+	try 
+	  Unix.kill pid (-9);
+	  ignore (Unix.waitpid [] pid)
+	with _ -> () in
+  let destroy = fun _ ->
+    kill_plugin ();
+    exit 0 in
   
   (** The whole window map2d **)
   let window, switch_fullscreen =
@@ -542,7 +555,7 @@ let () =
 	  window#maximize ();
 	if !fullscreen then
 	  window#fullscreen ();
-	ignore (window#connect#destroy ~callback:(fun _ -> exit 0));
+	ignore (window#connect#destroy ~callback:destroy);
 	let switch_fullscreen = fun () ->
 	  fullscreen := not !fullscreen;
 	  if !fullscreen then
@@ -602,19 +615,20 @@ let () =
 
 
   if !mplayer <> "" then
-    plugin_window := sprintf "mplayer -nomouseinput %s -wid " !mplayer;
+    plugin_window := sprintf "mplayer -really-quiet -nomouseinput %s -wid " !mplayer;
   if !plugin_window <> "" then begin  
     let frame = GBin.event_box ~packing:plugin_frame#add ~width:plugin_width ~height:plugin_height () in
     let s = GWindow.socket ~packing:frame#add () in
     let com = sprintf "%s 0x%lx -geometry %dx%d" !plugin_window s#xwindow plugin_width plugin_height in
 
-    let pid = ref None in
     let restart = fun () ->
-      begin match !pid with
+      begin match !pid_plugin with
 	None -> ()
-      | Some p -> try Unix.kill p 9 with _ -> () 
+      | Some p -> try Unix.kill p Sys.sigkill with _ -> () 
       end;
-      pid := Some (Unix.create_process "/bin/sh" [|"/bin/sh"; "-c"; com|] Unix.stdin Unix.stdout Unix.stderr) in
+      let com = sprintf "exec %s" com in
+      let dev_null = Unix.descr_of_out_channel (open_out "/dev/null") in
+      pid_plugin := Some (Unix.create_process "/bin/sh" [|"/bin/sh"; "-c"; com|] dev_null dev_null dev_null) in
 
     restart ();
 
