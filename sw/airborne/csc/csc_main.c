@@ -37,6 +37,7 @@
 
 #include "csc_servos.h"
 #include "csc_throttle.h"
+#include "csc_adc.h"
 
 #include "csc_can.h"
 #include "csc_ap_link.h"
@@ -44,7 +45,7 @@ static inline void on_servo_cmd(struct CscServoCmd *cmd);
 static inline void on_motor_cmd(struct CscMotorMsg *msg);
 
 #define SERVO_TIMEOUT (SYS_TICS_OF_SEC(0.1) / PERIODIC_TASK_PERIOD)
-#define CSC_STATUS_TIMEOUT (SYS_TICS_OF_SEC(0.2) / PERIODIC_TASK_PERIOD)
+#define CSC_STATUS_TIMEOUT (SYS_TICS_OF_SEC(0.25) / PERIODIC_TASK_PERIOD)
 
 static uint32_t servo_cmd_timeout = 0;
 static uint32_t can_msg_count = 0;
@@ -75,6 +76,8 @@ STATIC_INLINE void csc_main_init( void ) {
   csc_ap_link_set_servo_cmd_cb(on_servo_cmd);
   csc_ap_link_set_motor_cmd_cb(on_motor_cmd);
 
+  csc_adc_init();
+
   csc_servos_init();
   csc_throttle_init();
   int_enable();
@@ -95,6 +98,9 @@ STATIC_INLINE void csc_main_periodic( void ) {
   
   if ((++csc_loops % CSC_STATUS_TIMEOUT) == 0) {
     csc_ap_link_send_status(csc_loops, can_msg_count);
+  }
+  if ((++csc_loops % CSC_STATUS_TIMEOUT) == 0) {
+    csc_adc_periodic();
   }
 
 }

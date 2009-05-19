@@ -53,15 +53,15 @@ csc.CFLAGS += -DLED -DTIME_LED=1
 
 csc.CFLAGS += -DCSC_BOARD_ID=$(CSC_ID)
 
-
 csc.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))' -DTIMER0_VIC_SLOT=1
 csc.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
 
 csc.srcs += $(SRC_ARCH)/uart_hw.c
-
+csc.srcs += $(SRC_ARCH)/adc_hw.c
+csc.CFLAGS += -DADC -DUSE_AD0 -DUSE_AD0_0 -DUSE_AD0_1
 
 csc.CFLAGS += -DUSE_UART0 -DUART0_BAUD=B57600 -DUART0_VIC_SLOT=5
-csc.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600 -DUART1_VIC_SLOT=6
+#csc.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600 -DUART1_VIC_SLOT=6
 #csc.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport \
 #	                  -DDOWNLINK_DEVICE=Uart0
 #csc.srcs += downlink.c pprz_transport.c
@@ -80,6 +80,8 @@ csc.srcs += $(SRC_CSC)/csc_can.c
 csc.srcs += $(SRC_CSC)/csc_ap_link.c
 
 csc.srcs += $(SRC_CSC)/csc_servos.c
+
+csc.srcs += $(SRC_CSC)/csc_adc.c
 
 csc.CFLAGS += -DTHROTTLE_LINK=Uart0 -DTHROTTLE_LED=3
 csc.srcs += $(SRC_CSC)/csc_throttle.c
@@ -137,28 +139,3 @@ test_can1.CFLAGS +=  -DCAN1_VIC_SLOT=3 -DCAN1_ERR_VIC_SLOT=7
 test_can1.srcs += $(SRC_CSC)/csc_can.c
 test_can1.CFLAGS += -DCSC_BOARD_ID=0
 
-
-
-#
-# TEST CAN2
-#
-
-test_can2.ARCHDIR = $(ARCHI)
-test_can2.ARCH = arm7tdmi
-test_can2.TARGET = test_can2
-test_can2.TARGETDIR = test_can2
-
-
-test_can2.CFLAGS += -I$(SRC_CSC)
-test_can2.CFLAGS += -DCONFIG=$(BOARD_CFG)
-test_can2.srcs += $(SRC_CSC)/test_can2.c
-test_can2.CFLAGS += -DLED
-
-# -DTIME_LED=1
-test_can2.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))' -DTIMER0_VIC_SLOT=1
-test_can2.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
-
-test_can2.CFLAGS += -DUSE_CAN2 -DCAN2_BTR=CANBitrate125k_2MHz
-test_can2.CFLAGS +=  -DCAN2_VIC_SLOT=3 -DCAN2_ERR_VIC_SLOT=7
-test_can2.srcs += $(SRC_CSC)/csc_can.c
-test_can2.CFLAGS += -DCSC_BOARD_ID=0

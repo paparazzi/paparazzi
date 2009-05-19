@@ -1038,10 +1038,6 @@
       <field name="flap_2" type="int16"/>
       <field name="xsens1_seq" type="uint16"/>
       <field name="xsens2_seq" type="uint16"/>
-      <field name="csc1_loops" type="uint32"/>
-      <field name="csc1_msgs" type="uint32"/>
-      <field name="csc2_loops" type="uint32"/>
-      <field name="csc2_msgs" type="uint32"/>
     </message>
 
     <message name="WHIRLY_ESTIMATOR" id="182">
@@ -1068,13 +1064,22 @@
       <field name="fault2"	type="uint16"/>
     </message>
 
-    <message name="WHIRLY_ERRORCOUNTER" id="184">
+    <message name="WHIRLY_STATUS" id="184">
+      <field name="whirly_timestamp"   type="float"/>
       <field name="xsens1_error_ck" type="uint32"/>
       <field name="xsens2_error_ck" type="uint32"/>
       <field name="xsens1_error_mid" type="uint32"/>
       <field name="xsens2_error_mid" type="uint32"/>
       <field name="xsens1_error_seq" type="uint32"/>
       <field name="xsens2_error_seq" type="uint32"/>
+      <field name="csc1_loops" type="uint32"/>
+      <field name="csc1_msgs" type="uint32"/>
+      <field name="csc2_loops" type="uint32"/>
+      <field name="csc2_msgs" type="uint32"/>
+      <field name="busvolts0_0"	type="float"/>
+      <field name="busvolts0_1"	type="float"/>
+      <field name="busvolts1_0"	type="float"/>
+      <field name="busvolts1_1"	type="float"/>
     </message>
 
     <message name="WHIRLY_IMU" id="185">

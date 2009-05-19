@@ -8,6 +8,16 @@ int32_t csc_ap_link_error_cnt;
 static void (* servo_msg_cb)(struct CscServoCmd *);
 static void (* motor_msg_cb)(struct CscMotorMsg *);
 
+void csc_ap_link_send_adc(float adc1, float adc2)
+{
+  struct CscADCMsg msg;
+
+  msg.ADCVolts1 = adc1;
+  msg.ADCVolts2 = adc2;
+
+  csc_ap_send_msg(CSC_BOARD_ADCVOLTS_ID, &msg, sizeof(msg));
+}
+
 void csc_ap_link_send_status(uint32_t loops, uint32_t msgs)
 {
 
