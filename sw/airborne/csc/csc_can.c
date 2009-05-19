@@ -9,7 +9,16 @@
 
 static void CAN_Err_ISR ( void ) __attribute__((naked));
 
+void csc_can_init(void)
+{
+  #ifdef USE_CAN1
+  csc_can1_init();
+  #endif /* USE_CAN1 */
 
+  #ifdef USE_CAN2
+  csc_can2_init();
+  #endif /* USE_CAN2 */
+}
 
 #ifdef USE_CAN1
 

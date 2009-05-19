@@ -71,7 +71,7 @@ STATIC_INLINE void csc_main_init( void ) {
 #endif
 //  Uart1Init();
 
-  csc_can1_init();
+  csc_can_init();
 
   csc_servos_init();
   csc_throttle_init();

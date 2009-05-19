@@ -25,6 +25,7 @@ struct CscCanMsg {
   uint32_t dat_b;  // CAN Message Data Bytes 4-7
 };
 
+extern void csc_can_init(void);
 
 #ifdef USE_CAN1
 extern void csc_can1_init(void);
