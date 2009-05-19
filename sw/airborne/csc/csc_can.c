@@ -9,7 +9,6 @@
 static void csc_can1_init(void);
 static void csc_can2_init(void);
 
-static void CAN_Err_ISR ( void ) __attribute__((naked));
 
 void csc_can_init(void)
 {
@@ -29,6 +28,7 @@ struct CscCanMsg can1_rx_msg;
 
 static void CAN1_Rx_ISR ( void ) __attribute__((naked));
 static void CAN1_Tx_ISR ( void ) __attribute__((naked));
+static void CAN1_Err_ISR ( void ) __attribute__((naked));
 
 static void csc_can1_init(void) {
 
@@ -52,7 +52,7 @@ static void csc_can1_init(void) {
   _VIC_ADDR(CAN1_VIC_SLOT) = (uint32_t)CAN1_Rx_ISR;    // address of the ISR
 
   
-#ifdef  CAN_ERR_VIC_SLOT
+#ifdef  CAN1_ERR_VIC_SLOT
   C1IER =  (1<<0) | /* RIE */
            (1<<2) | /* EIE */
            (1<<6) | /* ALIE */ 
@@ -63,8 +63,8 @@ static void csc_can1_init(void) {
 
   VICIntSelect &= ~VIC_BIT(VIC_CAN);                  // VIC_CAN selected as IRQ
   VICIntEnable = VIC_BIT(VIC_CAN);                    // VIC_CAN interrupt enabled
-  _VIC_CNTL(CAN_ERR_VIC_SLOT) = VIC_ENABLE | VIC_CAN; //
-  _VIC_ADDR(CAN_ERR_VIC_SLOT) = (uint32_t)CAN_Err_ISR; 
+  _VIC_CNTL(CAN1_ERR_VIC_SLOT) = VIC_ENABLE | VIC_CAN; //
+  _VIC_ADDR(CAN1_ERR_VIC_SLOT) = (uint32_t)CAN1_Err_ISR; 
 #endif
 
   // Enable Interrupts
@@ -132,6 +132,7 @@ struct CscCanMsg can2_rx_msg;
 
 static void CAN2_Rx_ISR ( void ) __attribute__((naked));
 static void CAN2_Tx_ISR ( void ) __attribute__((naked));
+static void CAN2_Err_ISR ( void ) __attribute__((naked));
 
 static void csc_can2_init(void) {
 
@@ -161,6 +162,21 @@ static void csc_can2_init(void) {
   // error passive mode
   //  C2MOD = 2;
   can2_msg_received = FALSE;
+
+#ifdef  CAN2_ERR_VIC_SLOT
+  C2IER =  (1<<0) | /* RIE */
+           (1<<2) | /* EIE */
+           (1<<6) | /* ALIE */ 
+           (1<<7) | /* BEIE */ 
+           (1<<7)   /* BEIE */ 
+    ;
+
+
+  VICIntSelect &= ~VIC_BIT(VIC_CAN);                  // VIC_CAN selected as IRQ
+  VICIntEnable = VIC_BIT(VIC_CAN);                    // VIC_CAN interrupt enabled
+  _VIC_CNTL(CAN2_ERR_VIC_SLOT) = VIC_ENABLE | VIC_CAN; //
+  _VIC_ADDR(CAN2_ERR_VIC_SLOT) = (uint32_t)CAN2_Err_ISR; 
+#endif
 
 }
 
@@ -218,13 +234,26 @@ void CAN2_Tx_ISR ( void ) {
 
 static uint32_t err_cnt = 0;
 
-void CAN_Err_ISR ( void ) {
+void CAN1_Err_ISR ( void ) {
  ISR_ENTRY();
  
  err_cnt++;
  LED_ON(ERROR_LED); 
  uint32_t c1icr = C1ICR;
  DOWNLINK_SEND_CSC_CAN_DEBUG(&err_cnt, &c1icr);
+
+
+ VICVectAddr = 0x00000000; // acknowledge interrupt
+ ISR_EXIT();
+}
+
+void CAN2_Err_ISR ( void ) {
+ ISR_ENTRY();
+ 
+ err_cnt++;
+ LED_ON(ERROR_LED); 
+ uint32_t c2icr = C2ICR;
+ DOWNLINK_SEND_CSC_CAN_DEBUG(&err_cnt, &c2icr);
 
 
  VICVectAddr = 0x00000000; // acknowledge interrupt

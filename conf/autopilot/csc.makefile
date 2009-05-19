@@ -69,7 +69,7 @@ csc.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600 -DUART1_VIC_SLOT=6
 
 csc.CFLAGS += -DAP_LINK_CAN -DCAN_LED=2
 csc.CFLAGS += -DUSE_CAN1 -DCAN1_BTR=CANBitrate125k_2MHz
-csc.CFLAGS +=  -DCAN1_VIC_SLOT=3 -DCAN_ERR_VIC_SLOT=7
+csc.CFLAGS +=  -DCAN1_VIC_SLOT=3 -DCAN1_ERR_VIC_SLOT=7
 csc.srcs += $(SRC_CSC)/csc_can.c
 #csc.CFLAGS += -DUSE_CAN2 -DCAN2_BTR=CANBitrate125k_2MHz -DCAN2_VIC_SLOT=4
 
@@ -133,7 +133,7 @@ test_can1.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))' -DTIMER0
 test_can1.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
 
 test_can1.CFLAGS += -DUSE_CAN1 -DCAN1_BTR=CANBitrate125k_2MHz
-test_can1.CFLAGS +=  -DCAN1_VIC_SLOT=3 -DCAN_ERR_VIC_SLOT=7
+test_can1.CFLAGS +=  -DCAN1_VIC_SLOT=3 -DCAN1_ERR_VIC_SLOT=7
 test_can1.srcs += $(SRC_CSC)/csc_can.c
 test_can1.CFLAGS += -DCSC_BOARD_ID=0
 
@@ -159,6 +159,6 @@ test_can2.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))' -DTIMER0
 test_can2.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
 
 test_can2.CFLAGS += -DUSE_CAN2 -DCAN2_BTR=CANBitrate125k_2MHz
-test_can2.CFLAGS +=  -DCAN2_VIC_SLOT=3 -DCAN_ERR_VIC_SLOT=7
+test_can2.CFLAGS +=  -DCAN2_VIC_SLOT=3 -DCAN2_ERR_VIC_SLOT=7
 test_can2.srcs += $(SRC_CSC)/csc_can.c
 test_can2.CFLAGS += -DCSC_BOARD_ID=0
