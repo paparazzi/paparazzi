@@ -102,16 +102,17 @@ void csc_can1_send(struct CscCanMsg* msg) {
 void CAN1_Rx_ISR ( void ) {
  ISR_ENTRY();
  
- can1_rx_msg.frame  = C1RFS;
- can1_rx_msg.id     = C1RID;
- can1_rx_msg.dat_a  = C1RDA;
- can1_rx_msg.dat_b  = C1RDB;
- if (BOARDID_OF_CANMSG_ID(can1_rx_msg.id) == CSC_BOARD_ID)
+ if (BOARDID_OF_CANMSG_ID(can1_rx_msg.id) == CSC_BOARD_ID) {
+   can1_rx_msg.frame  = C1RFS;
+   can1_rx_msg.id     = C1RID;
+   can1_rx_msg.dat_a  = C1RDA;
+   can1_rx_msg.dat_b  = C1RDB;
    can1_msg_received = TRUE;
+  }
 
  C1CMR = 0x04;             // release receive buffer
  VICVectAddr = 0x00000000; // acknowledge interrupt
- 
+
  ISR_EXIT();
 }
 
@@ -207,12 +208,13 @@ void csc_can2_send(struct CscCanMsg* msg) {
 void CAN2_Rx_ISR ( void ) {
  ISR_ENTRY();
  
- can2_rx_msg.frame  = C2RFS;
- can2_rx_msg.id = C2RID;
- can2_rx_msg.dat_a  = C2RDA;
- can2_rx_msg.dat_b  = C2RDB;
- if (BOARDID_OF_CANMSG_ID(can2_rx_msg.id) == CSC_BOARD_ID)
+ if (BOARDID_OF_CANMSG_ID(can2_rx_msg.id) == CSC_BOARD_ID) {
+   can2_rx_msg.frame  = C2RFS;
+   can2_rx_msg.id = C2RID;
+   can2_rx_msg.dat_a  = C2RDA;
+   can2_rx_msg.dat_b  = C2RDB;
    can2_msg_received = TRUE;
+ }
  
  C2CMR = 0x04;             // release receive buffer
  VICVectAddr = 0x00000000; // acknowledge interrupt
