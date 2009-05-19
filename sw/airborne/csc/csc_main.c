@@ -40,8 +40,8 @@
 
 #include "csc_can.h"
 #include "csc_ap_link.h"
-static inline void on_servo_cmd(void);
-static inline void on_motor_cmd(void);
+static inline void on_servo_cmd(struct CscServoCmd *cmd);
+static inline void on_motor_cmd(struct CscMotorMsg *msg);
 
 #define SERVO_TIMEOUT (SYS_TICS_OF_SEC(0.1) / PERIODIC_TASK_PERIOD)
 #define CSC_STATUS_TIMEOUT (SYS_TICS_OF_SEC(0.2) / PERIODIC_TASK_PERIOD)
@@ -71,7 +71,9 @@ STATIC_INLINE void csc_main_init( void ) {
 #endif
 //  Uart1Init();
 
-  csc_can_init();
+  csc_ap_link_init();
+  csc_ap_link_set_servo_cmd_cb(on_servo_cmd);
+  csc_ap_link_set_motor_cmd_cb(on_motor_cmd);
 
   csc_servos_init();
   csc_throttle_init();
@@ -99,7 +101,7 @@ STATIC_INLINE void csc_main_periodic( void ) {
 
 STATIC_INLINE void csc_main_event( void ) {
 
-  CscApLinkEvent(on_servo_cmd, on_motor_cmd);
+  csc_can_event();
   csc_throttle_event_task();
 }
 
@@ -107,9 +109,10 @@ STATIC_INLINE void csc_main_event( void ) {
 #define MIN_SERVO 2*SYS_TICS_OF_USEC(1000)
 #define MAX_SERVO 2*SYS_TICS_OF_USEC(2000)
 
-static inline void on_servo_cmd(void) {
+static inline void on_servo_cmd(struct CscServoCmd *cmd)
+{
 
-  uint16_t* servos = (uint16_t*)(&csc_servo_cmd);
+  uint16_t* servos = (uint16_t*)(cmd);
   uint32_t servos_checked[4];
   uint32_t i;
   for (i=0; i<4; i++)
@@ -126,10 +129,10 @@ static inline void on_servo_cmd(void) {
 }
 
 
-static inline void on_motor_cmd(void)
+static inline void on_motor_cmd(struct CscMotorMsg *msg)
 {
   // always send to throttle_id zero, only one motorcontrol per csc board
   const static uint8_t throttle_id = 0;
 
-  csc_throttle_send_msg(throttle_id, csc_motor_msg.cmd_id, csc_motor_msg.arg1, csc_motor_msg.arg2);
+  csc_throttle_send_msg(throttle_id, msg->cmd_id, msg->arg1, msg->arg2);
 }

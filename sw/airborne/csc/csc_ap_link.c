@@ -1,16 +1,12 @@
 #include <string.h>
 #include "csc_ap_link.h"
+#include "csc_can.h"
+#include "led.h"
 
-struct CscServoCmd csc_servo_cmd;
-struct CscMotorMsg csc_motor_msg;
 int32_t csc_ap_link_error_cnt;
 
-
-void csc_ap_link_init(void) {
-
-  csc_ap_link_error_cnt = 0;
-
-}
+static void (* servo_msg_cb)(struct CscServoCmd *);
+static void (* motor_msg_cb)(struct CscMotorMsg *);
 
 void csc_ap_link_send_status(uint32_t loops, uint32_t msgs)
 {
@@ -36,7 +32,49 @@ void csc_ap_send_msg(uint8_t msg_id, const uint8_t *buf, uint8_t len)
   out_msg.id = ((CSC_BOARD_ID & CSC_BOARD_MASK) << 7) | (msg_id & CSC_MSGID_MASK);
   // copy msg payload in host order
   memcpy((char *)&out_msg.dat_a, buf, len);
-  // send via CAN2 
+  // send via CAN 
   csc_can1_send(&out_msg);
+}
+
+void csc_ap_link_set_servo_cmd_cb(void (* cb)(struct CscServoCmd *cmd))
+{
+  servo_msg_cb = cb;
+}
+
+void csc_ap_link_set_motor_cmd_cb(void (* cb)(struct CscMotorMsg *msg))
+{
+  motor_msg_cb = cb;
+}
+
+static void on_ap_link_msg( struct CscCanMsg *msg)
+{
+  uint32_t msg_id = MSGID_OF_CANMSG_ID(msg->id);
+  uint32_t len = CAN_MSG_LENGTH_OF_FRAME(msg->frame);
+  switch (msg_id) {
+    case CSC_SERVO_CMD_ID:
+      if (len != sizeof(struct CscServoCmd)) {
+	LED_ON(ERROR_LED);
+	csc_ap_link_error_cnt++;
+      } else {
+	// cast can data buffer pointer directly to csc_servo_cmd pointer
+	servo_msg_cb((struct CscServoCmd *) &msg->dat_a);
+      }
+      break;
+    case CSC_MOTOR_CMD_ID:
+      if (len != sizeof(struct CscMotorMsg)) {
+	LED_ON(ERROR_LED);
+	csc_ap_link_error_cnt++;
+      } else {
+	// cast can data buffer pointer directly to csc_motor_msg pointer
+	motor_msg_cb((struct CscMotorMsg *) &msg->dat_a);
+      }
+      break;
+  }
+}
+
+void csc_ap_link_init(void)
+{
+  csc_can1_init(on_ap_link_msg);
+  csc_ap_link_error_cnt = 0;
 }
 
