@@ -28,7 +28,6 @@ struct CscCanMsg {
 extern void csc_can_init(void);
 
 #ifdef USE_CAN1
-extern void csc_can1_init(void);
 extern void csc_can1_send(struct CscCanMsg* msg);
 
 extern bool_t can1_msg_received;
@@ -47,7 +46,6 @@ extern struct CscCanMsg can1_rx_msg;
 
 #ifdef USE_CAN2
 
-extern void csc_can2_init(void);
 extern void csc_can2_send(struct CscCanMsg* msg);
 
 extern bool_t can2_msg_received;

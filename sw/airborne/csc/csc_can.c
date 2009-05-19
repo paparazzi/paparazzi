@@ -6,6 +6,8 @@
 #include "led.h"
 
 
+static void csc_can1_init(void);
+static void csc_can2_init(void);
 
 static void CAN_Err_ISR ( void ) __attribute__((naked));
 
@@ -28,7 +30,7 @@ struct CscCanMsg can1_rx_msg;
 static void CAN1_Rx_ISR ( void ) __attribute__((naked));
 static void CAN1_Tx_ISR ( void ) __attribute__((naked));
 
-void csc_can1_init(void) {
+static void csc_can1_init(void) {
 
   // Set bit 18
   PINSEL1 |= _BV(18);
@@ -131,7 +133,7 @@ struct CscCanMsg can2_rx_msg;
 static void CAN2_Rx_ISR ( void ) __attribute__((naked));
 static void CAN2_Tx_ISR ( void ) __attribute__((naked));
 
-void csc_can2_init(void) {
+static void csc_can2_init(void) {
 
   //  Set bits 14 and 16
   PINSEL1 |= _BV(14) | _BV(16);
