@@ -5,6 +5,7 @@
 #define CSC_MOTOR_CMD_ID    1
 #define CSC_MOTOR_STATUS_ID 2
 #define CSC_BOARD_STATUS_ID 3
+#define CSC_BOARD_ADCVOLTS_ID 4
 
 /* Received from the autopilot */
 struct CscServoCmd {
@@ -24,6 +25,11 @@ struct CscMotorMsg {
 struct CscStatusMsg {
   uint32_t loop_count;
   uint32_t msg_count;
+} __attribute__((packed));
+
+struct CscADCMsg {
+  float ADCVolts1;
+  float ADCVolts2;
 } __attribute__((packed));
 
 #endif
