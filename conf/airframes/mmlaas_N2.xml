@@ -189,6 +189,10 @@
     <define name="DEVICE_ADDRESS" value="...."/>
   </section>
 
+  <section name="SIMU">
+    <define name="YAW_RESPONSE_FACTOR" value="0.5"/>
+  </section>
+
  <makefile>
 include $(PAPARAZZI_SRC)/conf/autopilot/tiny.makefile
 
