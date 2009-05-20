@@ -1,3 +1,27 @@
+/*
+ * $Id$
+ *
+ * Copyright (C) 2008  Antoine Drouin
+ *
+ * This file is part of paparazzi.
+ *
+ * paparazzi is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * paparazzi is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with paparazzi; see the file COPYING.  If not, write to
+ * the Free Software Foundation, 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA.
+ *
+ */
+
 #ifndef PPRZ_ALGEBRA_FLOAT_H
 #define PPRZ_ALGEBRA_FLOAT_H
 
@@ -70,19 +94,46 @@ struct FloatRates {
  * Rotation Matrices
  */
 
-/* */
-#define FLOAT_RMAT_ZERO(_rm) {			\
-    (_rm).m[0] = 1.;                            \
-    (_rm).m[1] = 0.;                            \
-    (_rm).m[2] = 0.;                            \
-    (_rm).m[3] = 0.;                            \
-    (_rm).m[4] = 1.;                            \
-    (_rm).m[5] = 0.;                            \
-    (_rm).m[6] = 0.;                            \
-    (_rm).m[7] = 0.;                            \
-    (_rm).m[8] = 1.;                            \
+/* accessor : row and col range from 0 to 2 */
+#define RMAT_ELMT(_rm, _row, _col) (_rm.m[_row*3+_col])
+
+/* initialises a matrix to identity */
+#define FLOAT_RMAT_ZERO(_rm) {						\
+    RMAT_ELMT(_rm, 0, 0) = 1.;						\
+    RMAT_ELMT(_rm, 0, 1) = 0.;						\
+    RMAT_ELMT(_rm, 0, 2) = 0.;                                          \
+    RMAT_ELMT(_rm, 1, 0) = 0.;						\
+    RMAT_ELMT(_rm, 1, 1) = 1.;						\
+    RMAT_ELMT(_rm, 1, 2) = 0.;						\
+    RMAT_ELMT(_rm, 2, 0) = 0.;						\
+    RMAT_ELMT(_rm, 2, 1) = 0.;						\
+    RMAT_ELMT(_rm, 2, 2) = 1.;						\
   }
 
+/* initialises a rotation matrix from unit vector axis and angle */
+#define FLOAT_RMAT_OF_AXIS_ANGLE(_rm, _ax, _an) {			\
+    									\
+    const float ux2 = _rm.x*_rm.x;					\
+    const float uy2 = _rm.y*_rm.y;					\
+    const float uz2 = _rm.z*_rm.z;					\
+    const float uxuy = _rm.x*_rm.y;					\
+    const float uyuz = _rm.y*_rm.z;					\
+    const float uxuz = _rm.x*_rm.z;					\
+    const float can = cosf(_am);					\
+    const float san = sinf(_am);					\
+    const float one_m_can = (1. - can);					\
+    									\
+    RMAT_ELMT(_rm, 0, 0) = ux2 + (1.-ux2)*can;				\
+    RMAT_ELMT(_rm, 0, 1) = uxuy*one_m_can - uz*san;			\
+    RMAT_ELMT(_rm, 0, 2) = uxuz*one_m_can + uy*san;			\
+    RMAT_ELMT(_rm, 1, 0) = uxuy*one_m_can + uz*san;			\
+    RMAT_ELMT(_rm, 1, 1) = uy2 + (1.-uy2)*can;				\
+    RMAT_ELMT(_rm, 1, 2) = uyuz*one_m_can-ux*san;			\
+    RMAT_ELMT(_rm, 2, 0) = uxuz*one_m_can-uy*san;			\
+    RMAT_ELMT(_rm, 2, 1) = uyuz*one_m_can+ux*san;			\
+    RMAT_ELMT(_rm, 2, 2) = uz2 + (1.-uz2)*can;				\
+    									\
+  }
 
 /* _m_a2c = _m_a2b comp _m_b2c , aka  _m_a2c = _m_b2c * _m_a2b */
 #define FLOAT_RMAT_COMP(_m_a2c, _m_a2b, _m_b2c) {			\
@@ -97,6 +148,7 @@ struct FloatRates {
     _m_a2c.m[8] = (_m_b2c.m[6]*_m_a2b.m[2] + _m_b2c.m[7]*_m_a2b.m[5] + _m_b2c.m[8]*_m_a2b.m[8]); \
   }
 
+
 /* _m_a2b = _m_a2c comp_inv _m_b2c , aka  _m_a2b = inv(_m_b2c) * _m_a2c */
 #define FLOAT_RMAT_COMP_INV(_m_a2b, _m_a2c, _m_b2c) {			\
     _m_a2b.m[0] = (_m_b2c.m[0]*_m_a2c.m[0] + _m_b2c.m[3]*_m_a2c.m[3] + _m_b2c.m[6]*_m_a2c.m[6]); \
@@ -110,6 +162,19 @@ struct FloatRates {
     _m_a2b.m[8] = (_m_b2c.m[2]*_m_a2c.m[2] + _m_b2c.m[5]*_m_a2c.m[5] + _m_b2c.m[8]*_m_a2c.m[8]); \
   }
 
+
+/* _m_b2a = inv(_m_a2b) = transp(_m_a2b) */
+#define FLOAT_RMAT_INV(_m_b2a, _m_a2b) {			\
+    RMAT_ELMT(_m_b2a, 0, 0) = RMAT_ELMT(_m_a2b, 0, 0);		\
+    RMAT_ELMT(_m_b2a, 0, 1) = RMAT_ELMT(_m_a2b, 1, 0);		\
+    RMAT_ELMT(_m_b2a, 0, 2) = RMAT_ELMT(_m_a2b, 2, 0);		\
+    RMAT_ELMT(_m_b2a, 1, 0) = RMAT_ELMT(_m_a2b, 0, 1);		\
+    RMAT_ELMT(_m_b2a, 1, 1) = RMAT_ELMT(_m_a2b, 1, 1);		\
+    RMAT_ELMT(_m_b2a, 1, 2) = RMAT_ELMT(_m_a2b, 2, 1);		\
+    RMAT_ELMT(_m_b2a, 2, 0) = RMAT_ELMT(_m_a2b, 0, 2);		\
+    RMAT_ELMT(_m_b2a, 2, 1) = RMAT_ELMT(_m_a2b, 1, 2);		\
+    RMAT_ELMT(_m_b2a, 2, 2) = RMAT_ELMT(_m_a2b, 2, 2);		\
+  }
 
 #define FLOAT_RMAT_NORM(_m) (						\
     sqrtf(SQUARE((_m).m[0])+ SQUARE((_m).m[1])+ SQUARE((_m).m[2])+	\
@@ -126,19 +191,47 @@ struct FloatRates {
     const float spsi   = sinf((_e).psi);				\
     const float cpsi   = cosf((_e).psi);				\
     									\
-    _rm.m[0] = ctheta*cpsi;						\
-    _rm.m[1] = ctheta*spsi;						\
-    _rm.m[2] = -stheta;							\
-    _rm.m[3] = sphi*stheta*cpsi - cphi*spsi;				\
-    _rm.m[4] = sphi*stheta*spsi + cphi*cpsi;				\
-    _rm.m[5] = sphi*ctheta;						\
-    _rm.m[6] = cphi*stheta*cpsi + sphi*spsi;				\
-    _rm.m[7] = cphi*stheta*spsi - sphi*cpsi;				\
-    _rm.m[8] = cphi*ctheta;						\
+    RMAT_ELMT(_rm, 0, 0) = ctheta*cpsi;					\
+    RMAT_ELMT(_rm, 0, 1) = ctheta*spsi;					\
+    RMAT_ELMT(_rm, 0, 2) = -stheta;					\
+    RMAT_ELMT(_rm, 1, 0) = sphi*stheta*cpsi - cphi*spsi;		\
+    RMAT_ELMT(_rm, 1, 1) = sphi*stheta*spsi + cphi*cpsi;		\
+    RMAT_ELMT(_rm, 1, 2) = sphi*ctheta;					\
+    RMAT_ELMT(_rm, 2, 0) = cphi*stheta*cpsi + sphi*spsi;		\
+    RMAT_ELMT(_rm, 2, 1) = cphi*stheta*spsi - sphi*cpsi;		\
+    RMAT_ELMT(_rm, 2, 2) = cphi*ctheta;					\
     									\
   }
 
-
+#define FLOAT_RMAT_OF_QUAT(_rm, _q) {	                                \
+    const float qx2  = (_q).qx*(_q).qx;					\
+    const float qy2  = (_q).qy*(_q).qy;					\
+    const float qz2  = (_q).qz*(_q).qz;					\
+    const float qiqx = (_q).qi*(_q).qx;					\
+    const float qiqy = (_q).qi*(_q).qy;					\
+    const float qiqz = (_q).qi*(_q).qz;					\
+    const float qxqy = (_q).qx*(_q).qy;					\
+    const float qxqz = (_q).qx*(_q).qz;					\
+    const float qyqz = (_q).qy*(_q).qz;					\
+    /* dcm00 = 1.0 - 2.*(  qy2 +  qz2 ); */				\
+    RMAT_ELMT(_rm, 0, 0) =  1. - 2.*(  qy2 +  qz2 );			\
+    /* dcm01 =       2.*( qxqy + qiqz ); */				\
+    RMAT_ELMT(_rm, 0, 1) = 2.*( qxqy + qiqz );				\
+    /* dcm02 =       2.*( qxqz - qiqy ); */				\
+    RMAT_ELMT(_rm, 0, 2) = 2.*( qxqz - qiqy );				\
+    /* dcm10 = 2.*( qxqy - qiqz );       */				\
+    RMAT_ELMT(_rm, 1, 0) = 2.*( qxqy - qiqz );				\
+    /* dcm11 = 1.0 - 2.*(qx2+qz2);       */				\
+    RMAT_ELMT(_rm, 1, 1) = 1.0 - 2.*(qx2+qz2);				\
+    /* dcm12 =       2.*( qyqz + qiqx ); */				\
+    RMAT_ELMT(_rm, 1, 2) = 2.*( qyqz + qiqx );				\
+    /* dcm20 =       2.*( qxqz + qiqy ); */				\
+    RMAT_ELMT(_rm, 2, 0) = 2.*( qxqz + qiqy );				\
+    /* dcm21 =       2.*( qyqz - qiqx ); */				\
+    RMAT_ELMT(_rm, 2, 1) = 2.*( qyqz - qiqx );				\
+    /* dcm22 = 1.0 - 2.*(  qx2 +  qy2 ); */				\
+    RMAT_ELMT(_rm, 2, 2) = 1.0 - 2.*(  qx2 +  qy2 );			\
+  }
 
 
 

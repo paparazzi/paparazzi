@@ -56,9 +56,9 @@
   }
 
 /* _v = Bound(_v, _min, _max) */
-#define VECT2_STRIM(_v, _min, _max) {				\
-    (_v).x = (_v).x < _min ? _min : (_v).x > _max ? _max : (_v).x;		\
-    (_v).y = (_v).y < _min ? _min : (_v).y > _max ? _max : (_v).y;		\
+#define VECT2_STRIM(_v, _min, _max) {					\
+    (_v).x = (_v).x < _min ? _min : (_v).x > _max ? _max : (_v).x;	\
+    (_v).y = (_v).y < _min ? _min : (_v).y > _max ? _max : (_v).y;	\
   }
 
 
@@ -110,10 +110,10 @@
   }
 
 /* _vo = _s * _vi */
-#define VECT3_SMUL(_vo, _s, _vi) {			\
-    (_vo).x = (_s) * (_vi).x;				\
-    (_vo).y = (_s) * (_vi).y;				\
-    (_vo).z = (_s) * (_vi).z;				\
+#define VECT3_SMUL(_vo, _s, _vi) {		\
+    (_vo).x = (_s) * (_vi).x;			\
+    (_vo).y = (_s) * (_vi).y;			\
+    (_vo).z = (_s) * (_vi).z;			\
   }
 
 /* _vo =  _vi / _s */

@@ -10,8 +10,16 @@ extern void htonf (float *x);
 #define NORM_ANGLE_RAD(r) {			\
     while (r>2*M_PI)				\
       r -= 2*M_PI;				\
-    while (r<0)				\
+    while (r<0)					\
       r += 2*M_PI;				\
   }
+
+#define NORM_ANGLE_DEG(d) {			\
+    while (d>180)				\
+      d -= 360;					\
+    while (d<=-180)				\
+      d += 360;					\
+  }
+
 
 #endif /* UTILS_H */
