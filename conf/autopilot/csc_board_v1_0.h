@@ -40,6 +40,10 @@
 #define LED_4_BANK 1
 #define LED_4_PIN 20
 
+/* PPM : rc rx on P0.30 (ADC pico-blade pin 3)*/
+#define PPM_PINSEL PINSEL0
+#define PPM_PINSEL_VAL 0x3
+#define PPM_PINSEL_BIT 28
 
 
 #endif /* CONFIG_CSC_V1_0_H */
