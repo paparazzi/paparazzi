@@ -1,0 +1,10 @@
+<airframe name="CSCAP">
+
+  <makefile>
+
+
+include $(PAPARAZZI_SRC)/conf/autopilot/csc_ap.makefile
+
+  </makefile>
+
+</airframe>
