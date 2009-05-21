@@ -1,8 +1,10 @@
+#include "std.h"
 #include "actuators.h"
+#include "servos_direct_hw.h"
 
 /* 40 Hz */
 #ifndef SERVOS_PERIOD
-#define SERVOS_PERIOD SERVOS_TICS_OF_USEC(25000);
+#define SERVOS_PERIOD SERVOS_TICS_OF_USEC(25000)
 #endif
 
 const uint8_t pwm_latch_value = 0
