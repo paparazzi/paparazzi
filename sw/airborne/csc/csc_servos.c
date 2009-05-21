@@ -59,12 +59,7 @@ int32_t csc_servo_val[CSC_SERVOS_NB];
 void csc_servos_init(void) {
   
   /* set pins as PWM outputs */
-#ifndef CSC_FRIED_CHIP
   PWM_SERVO_0_PINSEL |= (PWM_SERVO_0_PINSEL_VAL << PWM_SERVO_0_PINSEL_BIT);
-#else
-  PWM_SERVO_4_PINSEL |= (PWM_SERVO_4_PINSEL_VAL << PWM_SERVO_4_PINSEL_BIT);
-  PWM_SERVO_5_PINSEL |= (PWM_SERVO_5_PINSEL_VAL << PWM_SERVO_5_PINSEL_BIT);
-#endif
   //  PWM_SERVO_1_PINSEL |= (PWM_SERVO_1_PINSEL_VAL << PWM_SERVO_1_PINSEL_BIT);
   PWM_SERVO_2_PINSEL |= (PWM_SERVO_2_PINSEL_VAL << PWM_SERVO_2_PINSEL_BIT);
   //  PWM_SERVO_3_PINSEL |= (PWM_SERVO_3_PINSEL_VAL << PWM_SERVO_3_PINSEL_BIT);
@@ -72,11 +67,7 @@ void csc_servos_init(void) {
   /* set servo refresh rate */
   PWMMR0 = CSC_SERVOS_PERIOD;
   /* enable PWM outputs in single edge mode*/
-  PWMPCR = PWM_SERVO_0_ENA | PWM_SERVO_1_ENA | PWM_SERVO_2_ENA | PWM_SERVO_3_ENA
-#ifdef CSC_FRIED_CHIP
- | PWM_SERVO_4_ENA | PWM_SERVO_5_ENA
-#endif
-;
+  PWMPCR = PWM_SERVO_0_ENA | PWM_SERVO_1_ENA | PWM_SERVO_2_ENA | PWM_SERVO_3_ENA;
   /* commit PWMMRx changes */
   PWMLER = PWMLER_LATCH0;
   /* enable PWM timer in PWM mode */
@@ -94,15 +85,7 @@ void csc_servos_set(int32_t* val) {
   SERVO_REG_1 = val[1];
   SERVO_REG_2 = val[2];
   SERVO_REG_3 = val[3];
-#ifdef CSC_FRIED_CHIP
-  SERVO_REG_4 = val[0];
-  SERVO_REG_5 = val[2];
-#endif
 
-  PWMLER = PWM_SERVO_0_LATCH | PWM_SERVO_1_LATCH | PWM_SERVO_2_LATCH | PWM_SERVO_3_LATCH
-#ifdef CSC_FRIED_CHIP
-    | PWM_SERVO_4_LATCH | PWM_SERVO_5_LATCH
-#endif 
-    ;
+  PWMLER = PWM_SERVO_0_LATCH | PWM_SERVO_1_LATCH | PWM_SERVO_2_LATCH | PWM_SERVO_3_LATCH;
 }
 
