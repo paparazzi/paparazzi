@@ -26,6 +26,7 @@ float test_quat_comp(struct FloatQuat qa2b_f, struct FloatQuat qb2c_f, int displ
 float test_rmat_comp_inv(struct FloatRMat ma2c_f, struct FloatRMat mb2c_f, int display);
 float test_quat_comp_inv(struct FloatQuat qa2c_f, struct FloatQuat qb2c_f, int display);
 
+void test_of_axis_angle(void);
 
 int main(int argc, char** argv) {
 
@@ -38,9 +39,10 @@ int main(int argc, char** argv) {
   //  test_4_float();
   printf("\n");
 
-  test_5();
-  test_6();
-  test_7();
+  //  test_5();
+  //test_6();
+  //test_7();
+  test_of_axis_angle();
   return 0;
 
 }
@@ -478,3 +480,61 @@ float test_quat_comp_inv(struct FloatQuat qa2c_f, struct FloatQuat qb2c_f, int d
   return norm_err;
 
 }
+
+
+
+void test_of_axis_angle(void) {
+
+  struct FloatVect3 axis = { 0., 1., 0.};
+  FLOAT_VECT3_NORMALIZE(axis);
+  DISPLAY_FLOAT_VECT3("axis", axis);
+  const float angle = RadOfDeg(30.);
+  printf("angle %f\n", DegOfRad(angle));
+
+  struct FloatQuat my_q;
+  FLOAT_QUAT_OF_AXIS_ANGLE(my_q, axis, angle);
+  DISPLAY_FLOAT_QUAT_AS_EULERS_DEG("quat", my_q);
+
+  struct FloatMat33 my_r1;
+  FLOAT_RMAT_OF_QUAT(my_r1, my_q);
+  DISPLAY_FLOAT_RMAT_AS_EULERS_DEG("rmat1", my_r1);
+  DISPLAY_FLOAT_RMAT("rmat1", my_r1);
+
+  struct FloatMat33 my_r;
+  FLOAT_RMAT_OF_AXIS_ANGLE(my_r, axis, angle); 
+  DISPLAY_FLOAT_RMAT_AS_EULERS_DEG("rmat", my_r);
+  DISPLAY_FLOAT_RMAT("rmat", my_r);
+
+  printf("\n");
+
+  struct FloatEulers eul = {RadOfDeg(30.), RadOfDeg(30.), 0.};
+
+  struct FloatVect3 uz = { 0., 0., 1.};
+  struct FloatMat33 r_yaw;
+  FLOAT_RMAT_OF_AXIS_ANGLE(r_yaw, uz, eul.psi);
+
+  struct FloatVect3 uy = { 0., 1., 0.};
+  struct FloatMat33 r_pitch;
+  FLOAT_RMAT_OF_AXIS_ANGLE(r_pitch, uy, eul.theta);
+
+  struct FloatVect3 ux = { 1., 0., 0.};
+  struct FloatMat33 r_roll;
+  FLOAT_RMAT_OF_AXIS_ANGLE(r_roll, ux, eul.phi);
+
+  struct FloatMat33 r_yaw_pitch;
+  FLOAT_RMAT_COMP(r_yaw_pitch, r_yaw, r_pitch);
+
+  struct FloatMat33 r_yaw_pitch_roll;
+  FLOAT_RMAT_COMP(r_yaw_pitch_roll, r_yaw_pitch, r_roll);
+
+  DISPLAY_FLOAT_RMAT_AS_EULERS_DEG("rmat", r_yaw_pitch_roll);
+  DISPLAY_FLOAT_RMAT("rmat", r_yaw_pitch_roll);
+
+  DISPLAY_FLOAT_EULERS_DEG("eul", eul);
+  struct FloatMat33 rmat1;
+  FLOAT_RMAT_OF_EULERS(rmat1, eul);
+  DISPLAY_FLOAT_RMAT_AS_EULERS_DEG("rmat1", rmat1);
+  DISPLAY_FLOAT_RMAT("rmat1", rmat1);
+  
+}
+

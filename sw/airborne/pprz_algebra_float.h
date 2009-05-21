@@ -90,6 +90,11 @@ struct FloatRates {
     vo.z = v1.x*v2.y - v1.y*v2.x;					\
   }
 
+#define FLOAT_VECT3_NORMALIZE(_v) {		\
+    const float n = FLOAT_VECT3_NORM(_v);	\
+    FLOAT_VECT3_SMUL(_v, 1./n, _v);		\
+  }
+
 /*
  * Rotation Matrices
  */
@@ -111,26 +116,26 @@ struct FloatRates {
   }
 
 /* initialises a rotation matrix from unit vector axis and angle */
-#define FLOAT_RMAT_OF_AXIS_ANGLE(_rm, _ax, _an) {			\
+#define FLOAT_RMAT_OF_AXIS_ANGLE(_rm, _uv, _an) {			\
     									\
-    const float ux2 = _rm.x*_rm.x;					\
-    const float uy2 = _rm.y*_rm.y;					\
-    const float uz2 = _rm.z*_rm.z;					\
-    const float uxuy = _rm.x*_rm.y;					\
-    const float uyuz = _rm.y*_rm.z;					\
-    const float uxuz = _rm.x*_rm.z;					\
-    const float can = cosf(_am);					\
-    const float san = sinf(_am);					\
+    const float ux2 = _uv.x*_uv.x;					\
+    const float uy2 = _uv.y*_uv.y;					\
+    const float uz2 = _uv.z*_uv.z;					\
+    const float uxuy = _uv.x*_uv.y;					\
+    const float uyuz = _uv.y*_uv.z;					\
+    const float uxuz = _uv.x*_uv.z;					\
+    const float can = cosf(_an);					\
+    const float san = sinf(_an);					\
     const float one_m_can = (1. - can);					\
     									\
     RMAT_ELMT(_rm, 0, 0) = ux2 + (1.-ux2)*can;				\
-    RMAT_ELMT(_rm, 0, 1) = uxuy*one_m_can - uz*san;			\
-    RMAT_ELMT(_rm, 0, 2) = uxuz*one_m_can + uy*san;			\
-    RMAT_ELMT(_rm, 1, 0) = uxuy*one_m_can + uz*san;			\
+    RMAT_ELMT(_rm, 0, 1) = uxuy*one_m_can + _uv.z*san;			\
+    RMAT_ELMT(_rm, 0, 2) = uxuz*one_m_can - _uv.y*san;			\
+    RMAT_ELMT(_rm, 1, 0) = uxuy*one_m_can - _uv.z*san;			\
     RMAT_ELMT(_rm, 1, 1) = uy2 + (1.-uy2)*can;				\
-    RMAT_ELMT(_rm, 1, 2) = uyuz*one_m_can-ux*san;			\
-    RMAT_ELMT(_rm, 2, 0) = uxuz*one_m_can-uy*san;			\
-    RMAT_ELMT(_rm, 2, 1) = uyuz*one_m_can+ux*san;			\
+    RMAT_ELMT(_rm, 1, 2) = uyuz*one_m_can + _uv.x*san;			\
+    RMAT_ELMT(_rm, 2, 0) = uxuz*one_m_can + _uv.y*san;			\
+    RMAT_ELMT(_rm, 2, 1) = uyuz*one_m_can - _uv.x*san;			\
     RMAT_ELMT(_rm, 2, 2) = uz2 + (1.-uz2)*can;				\
     									\
   }
@@ -334,6 +339,13 @@ struct FloatRates {
     									\
   }
 
+#define FLOAT_QUAT_OF_AXIS_ANGLE(_q, _uv, _an) {	\
+    const float san = sinf(_an/2.);			\
+    _q.qi = cosf(_an/2.);					\
+    _q.qx = san * _uv.x;				\
+    _q.qy = san * _uv.y;				\
+    _q.qz = san * _uv.z;				\
+  }
 
 /*
  *  Euler angles
