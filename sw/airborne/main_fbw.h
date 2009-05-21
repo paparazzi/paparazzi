@@ -41,8 +41,8 @@
 
 extern uint8_t fbw_mode;
 extern uint8_t fbw_vsupply_decivolt;
+extern uint16_t fbw_current_milliamp;
 extern bool_t failsafe_mode;
-extern struct adc_buf vsupply_adc_buf;
 
 void init_fbw( void );
 void periodic_task_fbw( void );

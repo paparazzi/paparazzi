@@ -58,14 +58,25 @@
 #include "link_mcu.h"
 #endif
 
+#ifndef MILLIAMP_AT_FULL_THROTTLE
+#define MILLIAMP_AT_FULL_THROTTLE 0
+#endif
+
 #ifdef ADC
 struct adc_buf vsupply_adc_buf;
 #ifndef VoltageOfAdc
 #define VoltageOfAdc(adc) DefaultVoltageOfAdc(adc)
 #endif
+#ifdef ADC_CHANNEL_CURRENT
+struct adc_buf current_adc_buf;
+#ifndef MilliAmpereOfAdc
+#define MilliAmpereOfAdc(adc) DefaultMilliAmpereOfAdc(adc)
+#endif
+#endif
 #endif
 
 uint8_t fbw_vsupply_decivolt;
+uint16_t fbw_current_milliamp;
 
 uint8_t fbw_mode;
 
@@ -87,6 +98,9 @@ void init_fbw( void ) {
 #ifdef ADC
   adc_init();
   adc_buf_channel(ADC_CHANNEL_VSUPPLY, &vsupply_adc_buf, DEFAULT_AV_NB_SAMPLE);
+#  ifdef ADC_CHANNEL_CURRENT
+  adc_buf_channel(ADC_CHANNEL_CURRENT, &current_adc_buf, DEFAULT_AV_NB_SAMPLE);
+#  endif
 #endif
 #ifdef ACTUATORS
   actuators_init();
@@ -147,6 +161,7 @@ void event_task_fbw( void) {
   }
 #endif /* MCU_SPI_LINK */
 
+
   if (inter_mcu_received_ap) {
     inter_mcu_received_ap = FALSE;
     inter_mcu_event_task();
@@ -202,10 +217,22 @@ void periodic_task_fbw( void ) {
   fbw_downlink_periodic_task();
 #endif
 
-#ifdef ADC
   if (!_10Hz)
-    fbw_vsupply_decivolt = VoltageOfAdc((10*(vsupply_adc_buf.sum/vsupply_adc_buf.av_nb_sample)));
+  {
+#ifdef ADC
+      fbw_vsupply_decivolt = VoltageOfAdc((10*(vsupply_adc_buf.sum/vsupply_adc_buf.av_nb_sample)));
+#   ifdef ADC_CHANNEL_CURRENT
+      fbw_current_milliamp = MilliAmpereOfAdc((current_adc_buf.sum/current_adc_buf.av_nb_sample));
+#   endif
 #endif
+
+#ifndef ADC_CHANNEL_CURRENT
+#   ifdef MILLIAMP_PER_PERCENT
+#     warning "deprecated MILLIAMP_PER_PERCENT --> Please use MILLIAMP_AT_FULL_THROTTLE
+#   endif
+    fbw_current_milliamp = Min(((float)commands[COMMAND_THROTTLE]) * ((float)MILLIAMP_AT_FULL_THROTTLE) / ((float)MAX_PPRZ), 65000);
+#   endif
+  }
 
 #ifdef ACTUATORS
   SetActuatorsFromCommands(commands);

@@ -144,10 +144,6 @@
 
 #define LOW_BATTERY_DECIVOLT (CATASTROPHIC_BAT_LEVEL*10)
 
-#ifndef MILLIAMP_PER_PERCENT
-#define MILLIAMP_PER_PERCENT 0
-#endif
-
 #ifdef USE_MODULES
 #include "modules.h"
 #endif
@@ -165,8 +161,6 @@ static const uint16_t version = 1;
 uint8_t pprz_mode = PPRZ_MODE_AUTO2;
 uint8_t lateral_mode = LATERAL_MODE_MANUAL;
 
-uint8_t vsupply;
-
 static uint8_t  mcu1_status;
 
 #if defined RADIO_CONTROL || defined RADIO_CONTROL_AUTO1
@@ -179,7 +173,10 @@ float slider_1_val, slider_2_val;
 
 bool_t launch = FALSE;
 
-float energy; /** Fuel consumption */
+uint8_t vsupply;	// deciVolt
+uint16_t current;	// milliAmpere
+
+float energy; 		// Fuel consumption (mAh)
 
 bool_t gps_lost = FALSE;
 
@@ -312,6 +309,7 @@ inline void telecommand_task( void ) {
 
 
   vsupply = fbw_state->vsupply;
+  current = fbw_state->current;
 
 #ifdef RADIO_CONTROL  
   if (!estimator_flight_time) {
@@ -402,8 +400,8 @@ static void navigation_task( void ) {
     Bound(h_ctl_pitch_setpoint, H_CTL_PITCH_MIN_SETPOINT, H_CTL_PITCH_MAX_SETPOINT);
     if (kill_throttle || (!estimator_flight_time && !launch))
       v_ctl_throttle_setpoint = 0;
-  }  
-  energy += (float)v_ctl_throttle_setpoint * (MILLIAMP_PER_PERCENT / MAX_PPRZ * 0.25);
+  }
+  energy += ((float)current) / 3600.0f * 0.25f;	// mAh = mA * dt (4Hz -> hours)
 }
 
 
@@ -576,7 +574,6 @@ void periodic_task_ap( void ) {
     baro_MS5534A_send();
   }
 #endif
-
 
 #if CONTROL_RATE == 20
   if (!_20Hz)

@@ -57,6 +57,8 @@
     <define name="GYRO_NB_SAMPLES" value="16"/> 
     <define name="AIRSPEED" value="ADC_5"/>
     <define name="AIRSPEED_NB_SAMPLES" value="32"/> 
+
+    <define name="CURRENT" value="ADC_6"/>		<!-- Current Measurement -->
   </section>
 
   <section name="INFRARED" prefix="IR_">
@@ -100,8 +102,10 @@
   </section>
 
   <section name="BAT">
-    <define name="MILLIAMP_PER_PERCENT" value="1.5"/> <!-- 15Amp Full power on Ground -->
+    <define name="MILLIAMP_AT_FULL_THROTTLE" value="12000"/> <!-- 12Amp Full power on Ground -->
     <define name="CATASTROPHIC_BAT_LEVEL" value="9.3" unit="V"/>
+
+    <define name="MilliAmpereOfAdc(adc)" value="((adc-508)*50)"/>
   </section>
  
   <section name="MISC">

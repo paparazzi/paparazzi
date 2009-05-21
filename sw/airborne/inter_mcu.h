@@ -55,7 +55,8 @@ struct fbw_state {
 #endif
   uint8_t status;
   uint8_t nb_err;
-  uint8_t vsupply; /* 1e-1 V */
+  uint8_t vsupply; 	/* 1e-1 V */
+  uint16_t current;	/* milliAmps */
 };
 
 struct ap_state {
@@ -121,6 +122,7 @@ static inline void inter_mcu_fill_fbw_state (void) {
 #endif // RADIO_CONTROL
 
   fbw_state->vsupply = fbw_vsupply_decivolt;
+  fbw_state->current = fbw_current_milliamp;
 }
 
 /** Prepares date for next comm with AP. Set ::ap_ok to TRUE */
