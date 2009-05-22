@@ -2,7 +2,7 @@
 
 <!-- commands section -->
   <servos>
-    <servo name="AILERON"  no="3" min="2000" neutral="1500" max="1000"/>
+    <servo name="AILERON"  no="0" min="2000" neutral="1500" max="1000"/>
     <servo name="ELEVATOR" no="5" min="2000" neutral="1500" max="1000"/>
 
   </servos>
