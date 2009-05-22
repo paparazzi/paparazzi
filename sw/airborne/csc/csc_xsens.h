@@ -72,19 +72,9 @@ extern uint16_t xsens_time_stamp[XSENS_COUNT];
   &xsens_mag_x, &xsens_mag_y, &xsens_mag_z \
 )
 
-/*
-#define PERIODIC_SEND_XSENS_DATA() DOWNLINK_SEND_XSENS_DATA (\
-  &whirly_timestamp, \
-  xsens_accel_x, xsens_accel_y, xsens_accel_z, \
-  xsens_mag_x, xsens_mag_y, xsens_mag_z, \
-  xsens_gyro_x, xsens_gyro_y, xsens_gyro_z, \
-  xsens_time_stamp, \
-  xsens_accel_x + 1, xsens_accel_y + 1, xsens_accel_z + 1, \
-  xsens_mag_x + 1, xsens_mag_y + 1, xsens_mag_z + 1, \
-  xsens_gyro_x + 1, xsens_gyro_y + 1, xsens_gyro_z + 1, \
-  xsens_time_stamp + 1 \
+#define PERIODIC_SEND_ATTITUDE() DOWNLINK_SEND_ATTITUDE (\
+  &xsens_roll, &xsens_pitch, &xsens_yaw \
 )
-*/
 
 #include "std.h"
 

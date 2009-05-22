@@ -4,18 +4,19 @@
   <process name="Ap">
     <mode name="default">
       <message name="ALIVE"          period="5"/>
+      <message name="ATTITUDE"	     period="0.1"/>
       <message name="COMMANDS"       period="0.5"/>
       <message name="QUAD_STATUS"    period="1.1"/>
       <message name="DL_VALUE"       period="1.5"/>
-      <message name="IMU_GYRO"       period="1.2"/>
-      <message name="IMU_ACCEL"       period="1.2"/>
-      <message name="IMU_MAG"       period="1.2"/>
     </mode>
     <mode name="debug">
       <message name="ACTUATORS"      period="0.5"/>
       <message name="QUAD_STATUS"    period="1.1"/>
       <message name="RC"	     period="0.5"/>
       <message name="PPM"	     period="0.5"/>
+      <message name="IMU_ACCEL"      period="1.2"/>
+      <message name="IMU_GYRO"       period="0.2"/>
+      <message name="IMU_MAG"        period="1.2"/>
     </mode>
   </process>
 </telemetry>

@@ -37,7 +37,7 @@ LDSCRIPT=$(SRC_ARCH)/LPC2129-ROM.ld
 
 BOARD_CFG = \"csc_board_v1_0.h\"
 
-
+PERIODIC_FREQ = 240
 
 SRC_CSC=csc
 
@@ -53,7 +53,7 @@ ap.CFLAGS += -DLED -DTIME_LED=1
 
 ap.CFLAGS += -DCSC_BOARD_ID=$(CSC_ID)
 
-ap.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))' -DTIMER0_VIC_SLOT=1
+ap.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./240.))' -DTIMER0_VIC_SLOT=1
 ap.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
 
 ap.srcs += $(SRC_ARCH)/uart_hw.c
