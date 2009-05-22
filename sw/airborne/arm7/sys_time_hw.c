@@ -20,9 +20,9 @@ uint32_t sys_time_chrono; /* T0TC ticks */
 #ifdef MB_TACHO
 #include "mb_tacho.h"
 // FIXME : declared the scale interrupt here :(
-#define TIMER0_IT_MASK (TIR_CR2I | TIR_MR1I | TIR_CR0I | TIR_CR3I)
+#define TIMER0_IT_MASK (PPM_CRI | TIR_MR1I | TIR_CR0I | TIR_CR3I)
 #else
-#define TIMER0_IT_MASK (TIR_CR2I | TIR_MR1I)
+#define TIMER0_IT_MASK (PPM_CRI | TIR_MR1I)
 #endif /* MB_TACHO */
 
 #ifdef USE_AMI601
@@ -36,13 +36,12 @@ uint32_t sys_time_chrono; /* T0TC ticks */
 
 void TIMER0_ISR ( void ) {
   ISR_ENTRY();
-
   while (T0IR & TIMER0_IT_MASK) {
 #ifdef RADIO_CONTROL
-    if (T0IR&TIR_CR2I) {
+    if (T0IR&PPM_CRI) {
       PPM_ISR();
       /* clear interrupt */
-      T0IR = TIR_CR2I;
+      T0IR = PPM_CRI;
     }
 #endif
 #ifdef SERVOS_4017

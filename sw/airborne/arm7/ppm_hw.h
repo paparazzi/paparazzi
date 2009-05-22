@@ -4,14 +4,35 @@
 #include "LPC21xx.h"
 #include CONFIG
 
+#ifndef PPM_CRI
+#define PPM_CRI TIR_CR2I
+#endif
+
+#ifndef PPM_CCR_CRF
+#define PPM_CCR_CRF TCCR_CR2_F
+#endif
+
+#ifndef PPM_CCR_CRR
+#define PPM_CCR_CRR TCCR_CR2_R
+#endif
+
+#ifndef PPM_CCR_CRI
+#define PPM_CCR_CRI TCCR_CR2_I
+#endif
+
+#ifndef PPM_CR
+#define PPM_CR T0CR2
+#endif
+
+
 static inline void ppm_init ( void ) {
    /* select pin for capture */
   PPM_PINSEL |= PPM_PINSEL_VAL << PPM_PINSEL_BIT;
   /* enable capture 0.2 on falling edge + trigger interrupt */
 #if defined RADIO_CONTROL_TYPE && RADIO_CONTROL_TYPE == RC_FUTABA
-  T0CCR = TCCR_CR2_F | TCCR_CR2_I;
+  T0CCR = PPM_CCR_CRF | PPM_CCR_CRI;
 #elif defined RADIO_CONTROL_TYPE && RADIO_CONTROL_TYPE == RC_JR
-  T0CCR = TCCR_CR2_R | TCCR_CR2_I;
+  T0CCR = PPM_CCR_CRR | PPM_CCR_CRI;
 #else
 #error "ppm_hw.h: Unknown RADIO_CONTROL_TYPE"
 #endif
@@ -25,7 +46,7 @@ static inline void ppm_init ( void ) {
    static uint8_t state = PPM_NB_CHANNEL;			\
    static uint32_t last;					\
 								\
-    uint32_t now = T0CR2;					\
+    uint32_t now = PPM_CR;					\
     uint32_t length = now - last;				\
     last = now;							\
 								\
