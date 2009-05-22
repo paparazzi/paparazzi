@@ -45,5 +45,12 @@
 #define PPM_PINSEL_VAL 0x3
 #define PPM_PINSEL_BIT 28
 
+#define PPM_CRI TIR_CR0I
+#define PPM_CCR_CRF TCCR_CR0_F
+#define PPM_CCR_CRR TCCR_CR0_R
+#define PPM_CCR_CRI TCCR_CR0_I
+#define PPM_CR T0CR0
+
+
 
 #endif /* CONFIG_CSC_V1_0_H */
