@@ -241,7 +241,7 @@
   <mask name="RAWInertial"  bitmask="0x4000"/>
 
   <mask name="TimeStamp"        bitmask="0x00000003"/>
-  <mask name="OrientationMode"  bitmask="0x00000006" shift=">>2"/>
+  <mask name="OrientationMode"  bitmask="0x0000000C" shift=">>2"/>
   <mask name="AccOut"           bitmask="0x00000010"/>
   <mask name="GyrOut"           bitmask="0x00000020"/>
   <mask name="MagOut"           bitmask="0x00000040"/>
