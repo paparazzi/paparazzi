@@ -41,7 +41,7 @@
 #define LED_4_PIN 20
 
 /* PPM : rc rx on P0.30 (ADC pico-blade pin 3)*/
-#define PPM_PINSEL PINSEL0
+#define PPM_PINSEL PINSEL1
 #define PPM_PINSEL_VAL 0x3
 #define PPM_PINSEL_BIT 28
 
