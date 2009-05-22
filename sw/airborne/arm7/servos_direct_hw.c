@@ -53,6 +53,10 @@ void actuators_init ( void ) {
   /* set servo refresh rate */
   PWMMR0 = SERVOS_PERIOD;
 
+  /* FIXME: For now, this prescaler needs to match the TIMER0 prescaler, as the
+  higher level code treats them the same */
+  PWMPR = 1;
+
   /* enable all 6 PWM outputs in single edge mode*/
   PWMPCR = 0
 #if defined PWM_SERVO_0

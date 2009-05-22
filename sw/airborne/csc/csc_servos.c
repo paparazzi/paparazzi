@@ -6,7 +6,7 @@
 #include "servos_direct_hw.h"
 
 #define CSC_SERVOS_NB 4
-#define SERVOS_PERIOD (2 * SYS_TICS_OF_SEC((1./250.))); /* 250 Hz */
+#define SERVOS_PERIOD (SYS_TICS_OF_SEC((1./250.))); /* 250 Hz */
 
 void csc_servos_init(void)
 {
