@@ -3,6 +3,7 @@
 #include "LPC21xx.h"
 #include "std.h"
 #include "sys_time.h"
+#include "actuators.h"
 #include "servos_direct_hw.h"
 
 #define CSC_SERVOS_NB 4
