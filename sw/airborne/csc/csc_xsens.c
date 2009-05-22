@@ -283,7 +283,6 @@ void xsens_parse_msg( uint8_t xsens_id ) {
         offset += XSENS_DATA_Calibrated_LENGTH;
       }
       if (XSENS_MASK_Orientation(xsens_output_mode[xsens_id])) {
-	  LED_TOGGLE(3);
         if (XSENS_MASK_OrientationMode(xsens_output_settings[xsens_id]) == 0x0) {
           offset += XSENS_DATA_Quaternion_LENGTH;
         }
@@ -303,7 +302,6 @@ void xsens_parse_msg( uint8_t xsens_id ) {
           xsens_r_g[xsens_id] = XSENS_DATA_Matrix_g(xsens_msg_buf[xsens_id][buf_slot],offset);
           xsens_r_h[xsens_id] = XSENS_DATA_Matrix_h(xsens_msg_buf[xsens_id][buf_slot],offset);
           xsens_r_i[xsens_id] = XSENS_DATA_Matrix_i(xsens_msg_buf[xsens_id][buf_slot],offset);
-	  LED_TOGGLE(2);
 
           // Calculate roll, pitch, yaw from rotation matrix ( p 31-33 MTi-G USer Man and Tech Doc)
           xsens_pitch[xsens_id] = atan2 (xsens_r_f[xsens_id], xsens_r_i[xsens_id]);
