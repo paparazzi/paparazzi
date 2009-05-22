@@ -65,7 +65,7 @@ let output_modes = fun avr_h process_name modes ->
 	    let p = float_of_string (ExtXml.attrib x "period") in
 	    if p < min_period || p > max_period then
 	      fprintf stderr "Warning: period is bound between %.3fs and %.3fs for message %s\n%!" min_period max_period (ExtXml.attrib x "name");
-	    (x, min 65535 (max 1 (int_of_float (p*.float_of_int !freq)))))
+	    (x, min 65536 (max 1 (int_of_float (p*.float_of_int !freq)))))
 	  (Xml.children mode)
       in
       let modulos = remove_dup (List.map snd messages) in
@@ -73,21 +73,25 @@ let output_modes = fun avr_h process_name modes ->
 	(fun m ->
 	  let v = sprintf "i%d" m in
 	  let _type = if m >= 256 then "uint16_t" else "uint8_t" in
-	  lprintf avr_h "static %s %s; %s++; if (%s>=%d) %s=0;\\\n" _type v v v m v;
+	  lprintf avr_h "static %s %s = 0; %s++; if (%s>=%d) %s=0;\\\n" _type v v v m v;
 	)
 	modulos;
       
       (** For each message in this mode *)
       let messages = List.sort (fun (_,p) (_,p') -> compare p p') messages in
       let i = ref 0 in (** Basic balancing:1 message every 10Hz *)
+      let phase = ref 0 in
       let l = ref [] in
       List.iter
 	(fun (message, p) ->
 	  let message_name = ExtXml.attrib message "name" in
 	  i := !i mod p;
-	  let else_ = if List.mem_assoc p !l && not (List.mem (p, !i) !l) then "else " else "" in
-	  lprintf avr_h "%sif (i%d == %d) {\\\n" else_ p !i;
-	  l := (p, !i) :: !l;
+	  (* if phase attribute is present, use it, otherwise shedule at 10Hz *)
+	  let message_phase = try int_of_float (float_of_string (ExtXml.attrib message "phase")*.float_of_int !freq) with _ -> !i in
+	  phase := message_phase;
+	  let else_ = if List.mem_assoc p !l && not (List.mem (p, !phase) !l) then "else " else "" in
+	  lprintf avr_h "%sif (i%d == %d) {\\\n" else_ p !phase;
+	  l := (p, !phase) :: !l;
 	  i := !i + !freq/10;
 	  right ();
 	  lprintf avr_h "PERIODIC_SEND_%s();\\\n" message_name;

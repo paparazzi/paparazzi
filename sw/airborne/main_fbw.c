@@ -58,6 +58,9 @@
 #include "link_mcu.h"
 #endif
 
+#ifdef MILLIAMP_PER_PERCENT
+#  warning "deprecated MILLIAMP_PER_PERCENT --> Please use MILLIAMP_AT_FULL_THROTTLE
+#endif
 #ifndef MILLIAMP_AT_FULL_THROTTLE
 #define MILLIAMP_AT_FULL_THROTTLE 0
 #endif
@@ -227,9 +230,6 @@ void periodic_task_fbw( void ) {
 #endif
 
 #ifndef ADC_CHANNEL_CURRENT
-#   ifdef MILLIAMP_PER_PERCENT
-#     warning "deprecated MILLIAMP_PER_PERCENT --> Please use MILLIAMP_AT_FULL_THROTTLE
-#   endif
     fbw_current_milliamp = Min(((float)commands[COMMAND_THROTTLE]) * ((float)MILLIAMP_AT_FULL_THROTTLE) / ((float)MAX_PPRZ), 65000);
 #   endif
   }
