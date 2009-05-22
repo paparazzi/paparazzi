@@ -60,11 +60,12 @@ ap.srcs += $(SRC_ARCH)/uart_hw.c
 ap.srcs += $(SRC_ARCH)/adc_hw.c
 ap.CFLAGS += -DADC -DUSE_AD0 -DUSE_AD0_0 -DUSE_AD0_1
 
-ap.CFLAGS += -DUSE_UART0 -DUART0_BAUD=B57600 -DUART0_VIC_SLOT=5
+ap.CFLAGS += -DUSE_UART0 -DUART0_BAUD=B230400 -DUART0_VIC_SLOT=5
 ap.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600 -DUART1_VIC_SLOT=6
 ap.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport \
-	                  -DDOWNLINK_DEVICE=Uart0
+	                  -DDOWNLINK_DEVICE=Uart1
 ap.srcs += downlink.c pprz_transport.c $(SRC_CSC)/csc_telemetry.c
+ap.srcs += $(SRC_CSC)/csc_datalink.c
 
 
 #ap.CFLAGS += -DAP_LINK_CAN -DCAN_LED=2
@@ -76,7 +77,7 @@ ap.srcs += downlink.c pprz_transport.c $(SRC_CSC)/csc_telemetry.c
 #ap.srcs += $(SRC_CSC)/csc_ap_link.c
 
 ap.srcs += $(SRC_CSC)/csc_servos.c
-ap.CFLAGS += -DPWM_SERVO_3 -DPWM_SERVO_4 -DPWM_SERVO_5 -DPWM_SERVO_0
+ap.CFLAGS += -DPWM_SERVO_5 -DPWM_SERVO_0
 ap.srcs += $(SRC_ARCH)/servos_direct_hw.c
 
 ap.srcs += $(SRC_CSC)/csc_adc.c
@@ -85,9 +86,6 @@ ap.srcs += commands.c actuators.c
 
 ap.CFLAGS += -DRADIO_CONTROL -DRADIO_CONTROL_TYPE=RC_JR
 ap.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c
-
-#ap.CFLAGS += -DTHROTTLE_LINK=Uart0 -DTHROTTLE_LED=3
-#ap.srcs += $(SRC_CSC)/csc_throttle.c
 
 ap.CFLAGS += -DERROR_LED=4
 
