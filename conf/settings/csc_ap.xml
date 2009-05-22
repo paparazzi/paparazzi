@@ -4,10 +4,13 @@
 
 <settings>
   <dl_settings>
-    <dl_settings NAME="flight params">
+       <dl_settings NAME="Misc" >
+      <dl_setting VAR="telemetry_mode_Ap" MIN="0" STEP="1" MAX="2" module="csc/csc_telemetry" shortname="telemetry" 
+        values="Default|Debug"/>
     </dl_settings>
-
-    <dl_settings NAME="mode">
+    <dl_settings NAME="flight params">
+      <dl_setting VAR="csc_pgain" MIN="0" STEP="1" MAX="5000" module="csc/csc_ap" shortname="pgain"/>
+      <dl_setting VAR="csc_pgain_pitch" MIN="0" STEP="1" MAX="5000" module="csc/csc_ap" shortname="pgain_pitch"/>
     </dl_settings>
 
   </dl_settings>

@@ -66,6 +66,7 @@ ap.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600 -DUART1_VIC_SLOT=6
 ap.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport \
 	                  -DDOWNLINK_DEVICE=Uart1
 ap.srcs += downlink.c pprz_transport.c $(SRC_CSC)/csc_telemetry.c
+ap.CFLAGS += -DDATALINK=PPRZ -DPPRZ_UART=Uart1
 ap.srcs += $(SRC_CSC)/csc_datalink.c
 
 ap.srcs += $(SRC_CSC)/csc_xsens.c
@@ -89,6 +90,8 @@ ap.srcs += commands.c actuators.c
 
 ap.CFLAGS += -DRADIO_CONTROL -DRADIO_CONTROL_TYPE=RC_JR
 ap.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c
+
+ap.srcs += $(SRC_CSC)/csc_ap.c
 
 ap.CFLAGS += -DERROR_LED=4
 
