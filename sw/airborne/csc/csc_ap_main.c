@@ -42,6 +42,7 @@
 #include "csc_telemetry.h"
 #include "csc_adc.h"
 #include "csc_xsens.h"
+#include "csc_ap.h"
 
 #define CSC_STATUS_TIMEOUT (SYS_TICS_OF_SEC(0.25) / PERIODIC_TASK_PERIOD)
 
@@ -78,12 +79,12 @@ STATIC_INLINE void csc_main_init( void ) {
 
   xsens_init();
 
-
-
   csc_adc_init();
   ppm_init();
 
   csc_servos_init();
+
+  csc_ap_init();
   int_enable();
 
 }
@@ -105,6 +106,8 @@ STATIC_INLINE void csc_main_periodic( void )
     csc_adc_periodic();
   }
   xsens_periodic_task();
+  if (pprz_mode == PPRZ_MODE_AUTO1)
+    csc_ap_periodic();
 
 #ifdef ACTUATORS
   SetActuatorsFromCommands(commands);
