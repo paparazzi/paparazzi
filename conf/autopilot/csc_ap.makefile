@@ -60,6 +60,7 @@ ap.srcs += $(SRC_ARCH)/uart_hw.c
 ap.srcs += $(SRC_ARCH)/adc_hw.c
 ap.CFLAGS += -DADC -DUSE_AD0 -DUSE_AD0_0 -DUSE_AD0_1
 
+
 ap.CFLAGS += -DUSE_UART0 -DUART0_BAUD=B230400 -DUART0_VIC_SLOT=5
 ap.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600 -DUART1_VIC_SLOT=6
 ap.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport \
@@ -67,6 +68,8 @@ ap.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport \
 ap.srcs += downlink.c pprz_transport.c $(SRC_CSC)/csc_telemetry.c
 ap.srcs += $(SRC_CSC)/csc_datalink.c
 
+ap.srcs += $(SRC_CSC)/csc_xsens.c
+ap.CFLAGS += -DXSENS1_LINK=Uart0
 
 #ap.CFLAGS += -DAP_LINK_CAN -DCAN_LED=2
 #ap.CFLAGS += -DUSE_CAN1 -DCAN1_BTR=CANBitrate125k_2MHz

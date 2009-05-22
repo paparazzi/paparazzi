@@ -41,6 +41,7 @@
 #include "csc_servos.h"
 #include "csc_telemetry.h"
 #include "csc_adc.h"
+#include "csc_xsens.h"
 
 #define CSC_STATUS_TIMEOUT (SYS_TICS_OF_SEC(0.25) / PERIODIC_TASK_PERIOD)
 
@@ -75,6 +76,10 @@ STATIC_INLINE void csc_main_init( void ) {
   Uart0Init();
   Uart1Init();
 
+  xsens_init();
+
+
+
   csc_adc_init();
   ppm_init();
 
@@ -99,6 +104,7 @@ STATIC_INLINE void csc_main_periodic( void )
   if ((++csc_loops % CSC_STATUS_TIMEOUT) == 0) {
     csc_adc_periodic();
   }
+  xsens_periodic_task();
 
 #ifdef ACTUATORS
   SetActuatorsFromCommands(commands);
@@ -108,6 +114,7 @@ STATIC_INLINE void csc_main_periodic( void )
 
 STATIC_INLINE void csc_main_event( void )
 {
+  xsens_event_task();
   DatalinkEvent();
 #ifdef RADIO_CONTROL
   if (ppm_valid) {
