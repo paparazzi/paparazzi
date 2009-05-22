@@ -48,7 +48,7 @@ ap.TARGETDIR = main
 
 ap.CFLAGS += -I$(SRC_CSC)
 ap.CFLAGS += -DCONFIG=$(BOARD_CFG)
-ap.srcs += $(SRC_CSC)/csc_main.c
+ap.srcs += $(SRC_CSC)/csc_ap_main.c
 ap.CFLAGS += -DLED -DTIME_LED=1
 
 ap.CFLAGS += -DCSC_BOARD_ID=$(CSC_ID)
@@ -61,32 +61,33 @@ ap.srcs += $(SRC_ARCH)/adc_hw.c
 ap.CFLAGS += -DADC -DUSE_AD0 -DUSE_AD0_0 -DUSE_AD0_1
 
 ap.CFLAGS += -DUSE_UART0 -DUART0_BAUD=B57600 -DUART0_VIC_SLOT=5
-#ap.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600 -DUART1_VIC_SLOT=6
-#ap.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport \
-#	                  -DDOWNLINK_DEVICE=Uart0
-#ap.srcs += downlink.c pprz_transport.c
+ap.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600 -DUART1_VIC_SLOT=6
+ap.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport \
+	                  -DDOWNLINK_DEVICE=Uart0
+ap.srcs += downlink.c pprz_transport.c $(SRC_CSC)/csc_telemetry.c
 
 
-ap.CFLAGS += -DAP_LINK_CAN -DCAN_LED=2
-ap.CFLAGS += -DUSE_CAN1 -DCAN1_BTR=CANBitrate125k_2MHz
-ap.CFLAGS +=  -DCAN1_VIC_SLOT=3 -DCAN1_ERR_VIC_SLOT=7
-ap.srcs += $(SRC_CSC)/csc_can.c
+#ap.CFLAGS += -DAP_LINK_CAN -DCAN_LED=2
+#ap.CFLAGS += -DUSE_CAN1 -DCAN1_BTR=CANBitrate125k_2MHz
+#ap.CFLAGS +=  -DCAN1_VIC_SLOT=3 -DCAN1_ERR_VIC_SLOT=7
+#ap.srcs += $(SRC_CSC)/csc_can.c
 #ap.CFLAGS += -DUSE_CAN2 -DCAN2_BTR=CANBitrate125k_2MHz -DCAN2_VIC_SLOT=4
 
-#ap.CFLAGS += -DAP_LINK_UART -DPPRZ_UART=Uart1
-#ap.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600 -DUART1_VIC_SLOT=6
-#ap.srcs += pprz_transport.c
-
-ap.srcs += $(SRC_CSC)/csc_ap_link.c
+#ap.srcs += $(SRC_CSC)/csc_ap_link.c
 
 ap.srcs += $(SRC_CSC)/csc_servos.c
 ap.CFLAGS += -DPWM_SERVO_3 -DPWM_SERVO_4 -DPWM_SERVO_5 -DPWM_SERVO_0
 ap.srcs += $(SRC_ARCH)/servos_direct_hw.c
 
 ap.srcs += $(SRC_CSC)/csc_adc.c
+ap.CFLAGS += -DACTUATORS=\"servos_direct_hw.h\"
+ap.srcs += commands.c actuators.c
 
-ap.CFLAGS += -DTHROTTLE_LINK=Uart0 -DTHROTTLE_LED=3
-ap.srcs += $(SRC_CSC)/csc_throttle.c
+ap.CFLAGS += -DRADIO_CONTROL -DRADIO_CONTROL_TYPE=RC_JR
+ap.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c
+
+#ap.CFLAGS += -DTHROTTLE_LINK=Uart0 -DTHROTTLE_LED=3
+#ap.srcs += $(SRC_CSC)/csc_throttle.c
 
 ap.CFLAGS += -DERROR_LED=4
 

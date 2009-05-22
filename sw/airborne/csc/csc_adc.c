@@ -25,6 +25,6 @@ void csc_adc_periodic(void)
 {
   float v1 = adc0.sum / adc0.av_nb_sample / ADC_FACTOR;
   float v2 = adc1.sum / adc1.av_nb_sample / ADC_FACTOR;
-  csc_ap_link_send_adc(v1, v2);
+  //csc_ap_link_send_adc(v1, v2);
 }
 
