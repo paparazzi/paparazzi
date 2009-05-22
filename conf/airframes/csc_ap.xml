@@ -1,10 +1,29 @@
 <airframe name="CSCAP">
 
-  <makefile>
+<!-- commands section -->
+  <servos>
+    <servo name="AILERON"  no="3" min="2000" neutral="1500" max="1000"/>
+    <servo name="ELEVATOR" no="5" min="2000" neutral="1500" max="1000"/>
 
+  </servos>
 
+  <commands>
+    <axis name="ROLL"     failsafe_value="0"/>
+    <axis name="PITCH"    failsafe_value="0"/>
+  </commands>
+
+  <rc_commands>
+    <set command="ROLL"     value="@ROLL"/>
+    <set command="PITCH"    value="@PITCH"/>
+  </rc_commands>
+
+  <command_laws>
+    <set servo="ELEVATOR" value="@PITCH"/>
+    <set servo="AILERON" value="@ROLL"/>
+  </command_laws>
+
+<makefile>
 include $(PAPARAZZI_SRC)/conf/autopilot/csc_ap.makefile
-
-  </makefile>
+</makefile>
 
 </airframe>
