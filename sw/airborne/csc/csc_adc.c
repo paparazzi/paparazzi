@@ -8,6 +8,8 @@
 struct adc_buf adc0;
 struct adc_buf adc1;
 
+extern uint8_t vsupply;
+
 #define ADC_VDIV 5.7
 #define ADC_VOLT 3.28
 #define ADC_FACTOR 1024.0 * ADC_VOLT * ADC_VDIV
@@ -23,8 +25,8 @@ void csc_adc_init(void)
 
 void csc_adc_periodic(void)
 {
-  float v1 = adc0.sum / adc0.av_nb_sample / ADC_FACTOR;
-  float v2 = adc1.sum / adc1.av_nb_sample / ADC_FACTOR;
+  vsupply = adc0.sum / adc0.av_nb_sample / ADC_FACTOR * 10;
+  //float v2 = adc1.sum / adc1.av_nb_sample / ADC_FACTOR;
   //csc_ap_link_send_adc(v1, v2);
 }
 
