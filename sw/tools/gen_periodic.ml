@@ -65,7 +65,7 @@ let output_modes = fun avr_h process_name modes ->
 	    let p = float_of_string (ExtXml.attrib x "period") in
 	    if p < min_period || p > max_period then
 	      fprintf stderr "Warning: period is bound between %.3fs and %.3fs for message %s\n%!" min_period max_period (ExtXml.attrib x "name");
-	    (x, min 65536 (max 1 (int_of_float (p*.float_of_int !freq)))))
+	    (x, min 65535 (max 1 (int_of_float (p*.float_of_int !freq)))))
 	  (Xml.children mode)
       in
       let modulos = remove_dup (List.map snd messages) in
