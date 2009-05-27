@@ -102,9 +102,9 @@ void parse_xsens_msg(uint8_t xsens_id, uint8_t c );
 uint8_t xsens_mode[XSENS_COUNT]; // Receiver status 
 volatile uint8_t xsens_msg_received[XSENS_COUNT];
 
-float xsens_pitch[XSENS_COUNT];
-float xsens_roll[XSENS_COUNT];
-float xsens_yaw[XSENS_COUNT];
+float xsens_phi[XSENS_COUNT];
+float xsens_theta[XSENS_COUNT];
+float xsens_psi[XSENS_COUNT];
 
 float xsens_r_a[XSENS_COUNT];
 float xsens_r_b[XSENS_COUNT];
@@ -271,8 +271,8 @@ void xsens_parse_msg( uint8_t xsens_id ) {
           xsens_mag_x[xsens_id] = XSENS_DATA_Calibrated_magX(xsens_msg_buf[xsens_id][buf_slot],offset);
           xsens_mag_y[xsens_id] = XSENS_DATA_Calibrated_magY(xsens_msg_buf[xsens_id][buf_slot],offset);
           xsens_mag_z[xsens_id] = XSENS_DATA_Calibrated_magZ(xsens_msg_buf[xsens_id][buf_slot],offset);
-          float pitch = xsens_roll[xsens_id];
-          float roll = -xsens_pitch[xsens_id];
+          float pitch = xsens_phi[xsens_id];
+          float roll = -xsens_theta[xsens_id];
           float tilt_comp_x = xsens_mag_x[xsens_id] * cos(pitch)
                             + xsens_mag_y[xsens_id] * sin(roll) * sin(pitch)
                             - xsens_mag_z[xsens_id] * cos(roll) * sin(pitch);
@@ -287,9 +287,9 @@ void xsens_parse_msg( uint8_t xsens_id ) {
           offset += XSENS_DATA_Quaternion_LENGTH;
         }
         if (XSENS_MASK_OrientationMode(xsens_output_settings[xsens_id]) == 0x1) {
-          xsens_roll[xsens_id] = XSENS_DATA_Euler_roll(xsens_msg_buf[xsens_id][buf_slot],offset)  * M_PI/180;
-          xsens_pitch[xsens_id] =XSENS_DATA_Euler_pitch(xsens_msg_buf[xsens_id][buf_slot],offset) * M_PI/180;
-          xsens_yaw[xsens_id] =  XSENS_DATA_Euler_yaw(xsens_msg_buf[xsens_id][buf_slot],offset)   * M_PI/180;
+          xsens_phi[xsens_id] = XSENS_DATA_Euler_roll(xsens_msg_buf[xsens_id][buf_slot],offset)  * M_PI/180;
+          xsens_theta[xsens_id] =XSENS_DATA_Euler_pitch(xsens_msg_buf[xsens_id][buf_slot],offset) * M_PI/180;
+          xsens_psi[xsens_id] =  XSENS_DATA_Euler_yaw(xsens_msg_buf[xsens_id][buf_slot],offset)   * M_PI/180;
           offset += XSENS_DATA_Euler_LENGTH;
         }
         if (XSENS_MASK_OrientationMode(xsens_output_settings[xsens_id]) == 0x2) {
@@ -304,9 +304,9 @@ void xsens_parse_msg( uint8_t xsens_id ) {
           xsens_r_i[xsens_id] = XSENS_DATA_Matrix_i(xsens_msg_buf[xsens_id][buf_slot],offset);
 
           // Calculate roll, pitch, yaw from rotation matrix ( p 31-33 MTi-G USer Man and Tech Doc)
-          xsens_roll[xsens_id] = -atan2 (xsens_r_f[xsens_id], xsens_r_i[xsens_id]);
-          xsens_pitch[xsens_id] = asin (xsens_r_c[xsens_id]);
-          xsens_yaw[xsens_id] = atan2 (xsens_r_b[xsens_id], xsens_r_a[xsens_id]);
+          xsens_phi[xsens_id] = -atan2 (xsens_r_f[xsens_id], xsens_r_i[xsens_id]);
+          xsens_theta[xsens_id] = asin (xsens_r_c[xsens_id]);
+          xsens_psi[xsens_id] = atan2 (xsens_r_b[xsens_id], xsens_r_a[xsens_id]);
 
           offset += XSENS_DATA_Matrix_LENGTH;
         }

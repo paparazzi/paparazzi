@@ -27,9 +27,28 @@
 
 #include "types.h"
 #include "std.h"
+#include "pprz_algebra_float.h"
 
-extern float csc_pgain;
-extern float csc_pgain_pitch;
+struct control_gains {
+  float pitch_kp;
+  float roll_kp;
+  float pitch_kd;
+  float roll_kd;
+};
+
+struct control_reference {
+  struct FloatEulers eulers;
+  struct FloatRates rates;
+};
+
+struct control_trims {
+  int elevator;
+  int aileron;
+};
+
+extern struct control_gains csc_gains;
+extern struct control_reference csc_reference;
+extern struct control_trims csc_trims;
 
 void csc_ap_init( void );
 void csc_ap_periodic (void );

@@ -29,17 +29,68 @@
 #include "commands.h"
 #include "csc_xsens.h"
 #include "led.h"
+#include "pprz_algebra_float.h"
+#include "string.h"
+#include "radio_control.h"
 
-float csc_pgain = 2500;
-float csc_pgain_pitch = 2500;
+struct control_gains csc_gains;
+struct control_reference csc_reference;
+struct control_reference csc_errors;
+struct control_trims csc_trims;
+
+static const int xsens_id = 0;
 
 void csc_ap_init( void )
 {
+  csc_gains.roll_kp = 2500;
+  csc_gains.pitch_kp = 2500;
+  csc_gains.roll_kd = 2500;
+  csc_gains.pitch_kd = 2500;
+  
+  memset(&csc_reference, 0, sizeof(struct control_reference));
+}
 
+static void calculate_errors(struct control_reference *errors)
+{
+  struct FloatEulers xsens_eulers;
+  struct FloatRates xsens_rates;
+
+  xsens_eulers.phi = xsens_phi[xsens_id];
+  xsens_eulers.theta = xsens_theta[xsens_id];
+  xsens_eulers.psi =  xsens_psi[xsens_id];
+
+  xsens_rates.p = xsens_gyro_x[xsens_id];
+  xsens_rates.q = xsens_gyro_y[xsens_id];
+  xsens_rates.r = xsens_gyro_z[xsens_id];
+
+  errors->eulers.phi = xsens_eulers.phi - csc_reference.eulers.phi;
+  errors->eulers.theta = xsens_eulers.theta - csc_reference.eulers.theta;
+  errors->eulers.psi = xsens_eulers.psi - csc_reference.eulers.psi;
+
+  errors->rates.p = xsens_rates.p - csc_reference.rates.p;
+  errors->rates.q = xsens_rates.q - csc_reference.rates.q;
+  errors->rates.r = xsens_rates.r - csc_reference.rates.r;
+}
+
+static void calculate_reference(struct control_reference *reference)
+{
+  reference->eulers.phi = M_PI / 6.0 * rc_values[RADIO_ROLL];
+  reference->eulers.theta = M_PI  / 6.0 * rc_values[RADIO_PITCH];
+
+  reference->eulers.phi /= MAX_PPRZ;
+  reference->eulers.theta /= MAX_PPRZ;
 }
 
 void csc_ap_periodic( void )
 {
-  commands[COMMAND_ROLL] = -csc_pgain * xsens_roll[0];
-  commands[COMMAND_PITCH] = -csc_pgain_pitch * xsens_pitch[0];
+  calculate_reference(&csc_reference);
+  calculate_errors(&csc_errors);
+
+  commands[COMMAND_ROLL] = -csc_gains.roll_kp * csc_errors.eulers.phi
+			   + csc_gains.roll_kd * csc_errors.rates.p;
+  commands[COMMAND_ROLL] += csc_trims.aileron;
+
+  commands[COMMAND_PITCH] = -csc_gains.pitch_kp * csc_errors.eulers.theta
+			   + csc_gains.pitch_kd * csc_errors.rates.q;
+  commands[COMMAND_PITCH] += csc_trims.elevator;
 }

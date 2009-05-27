@@ -32,9 +32,9 @@
 extern uint8_t xsens_mode[XSENS_COUNT]; // Receiver status 
 extern volatile uint8_t xsens_msg_received[XSENS_COUNT];
 
-extern float xsens_pitch[XSENS_COUNT];
-extern float xsens_roll[XSENS_COUNT];
-extern float xsens_yaw[XSENS_COUNT];
+extern float xsens_phi[XSENS_COUNT];
+extern float xsens_theta[XSENS_COUNT];
+extern float xsens_psi[XSENS_COUNT];
 extern uint8_t xsens_msg_status[XSENS_COUNT];
 
 extern float xsens_r_a[XSENS_COUNT];
@@ -73,7 +73,7 @@ extern uint16_t xsens_time_stamp[XSENS_COUNT];
 )
 
 #define PERIODIC_SEND_ATTITUDE() DOWNLINK_SEND_ATTITUDE (\
-  &xsens_roll, &xsens_pitch, &xsens_yaw \
+  &xsens_phi, &xsens_psi, &xsens_theta \
 )
 
 #include "std.h"
