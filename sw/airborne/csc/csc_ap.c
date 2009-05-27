@@ -40,6 +40,6 @@ void csc_ap_init( void )
 
 void csc_ap_periodic( void )
 {
-  commands[COMMAND_ROLL] = csc_pgain * xsens_roll[0];
-  commands[COMMAND_PITCH] = csc_pgain_pitch * xsens_pitch[0];
+  commands[COMMAND_ROLL] = -csc_pgain * xsens_roll[0];
+  commands[COMMAND_PITCH] = -csc_pgain_pitch * xsens_pitch[0];
 }

@@ -304,8 +304,8 @@ void xsens_parse_msg( uint8_t xsens_id ) {
           xsens_r_i[xsens_id] = XSENS_DATA_Matrix_i(xsens_msg_buf[xsens_id][buf_slot],offset);
 
           // Calculate roll, pitch, yaw from rotation matrix ( p 31-33 MTi-G USer Man and Tech Doc)
-          xsens_pitch[xsens_id] = atan2 (xsens_r_f[xsens_id], xsens_r_i[xsens_id]);
-          xsens_roll[xsens_id] = asin (xsens_r_c[xsens_id]);
+          xsens_roll[xsens_id] = -atan2 (xsens_r_f[xsens_id], xsens_r_i[xsens_id]);
+          xsens_pitch[xsens_id] = asin (xsens_r_c[xsens_id]);
           xsens_yaw[xsens_id] = atan2 (xsens_r_b[xsens_id], xsens_r_a[xsens_id]);
 
           offset += XSENS_DATA_Matrix_LENGTH;
