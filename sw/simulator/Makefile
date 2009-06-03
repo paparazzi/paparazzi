@@ -87,22 +87,21 @@ clean :
 #
 #  NPS
 #
-JSBSIM = /home/violato/JSBSim
+JSBSIM = /usr/local
 
 CC = g++
-CFLAGS  = -Wall -I $(JSBSIM)/src -I../include
+CFLAGS  = -Wall -I $(JSBSIM)/include/JSBSim -I../include
 LDFLAGS = -L $(JSBSIM)/lib -lJSBSim
-CFLAGS  += -I /usr/include/meschach
-LDFLAGS += -lmeschach
+CFLAGS  += -I /usr/include/meschach -I /usr/local/include/
+LDFLAGS += -lmeschach -L /usr/lib
 CFLAGS  += `pkg-config glib-2.0 --cflags`
 LDFLAGS += `pkg-config glib-2.0 --libs` -lm -lpcre -lglibivy
 
 test1: nps_test1.c nps_jsbsim.c
 	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
-test2: nps_test2.c nps_jsbsim.c
+test2: nps_test2.c
 	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
-
 
 
 #

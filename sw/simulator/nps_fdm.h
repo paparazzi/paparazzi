@@ -1,21 +1,26 @@
 #ifndef NPS_FDM
 #define NPS_FDM
 
+
 #include "std.h"
-#include <matrix.h>
+#include <matrix.h> 
 
 /* Unit Conversion Constants */
 
 #define FT2M 0.3048
 
-/* Vehicle specific descriptions */
+/********************************************/
+/* Vehicle specific descriptions            */
+/********************************************/
 
+/* Dummy test vehicle (mass with vertical force) */
 struct NpsDummy {
   /* throttle for the control force */
   double f_input;
 };
 
 
+/* Quadrotor */
 #define NPS_QUAD_MOTOR_FRONT 0
 #define NPS_QUAD_MOTOR_BACK  1
 #define NPS_QUAD_MOTOR_RIGHT 2
@@ -32,6 +37,7 @@ struct NpsQuad {
 };
 
 
+/* Fixed Wing Airplane */
 #define NPS_SFW_ACTUATOR_THROTTLE   0
 #define NPS_SFW_ACTUATOR_AILERON_R  1
 #define NPS_SFW_ACTUATOR_AILERON_L  2
@@ -48,10 +54,14 @@ struct NpsSFW {
 };
 
 
+/********************************************/
+/* State Structure                          */
+/********************************************/
 
 struct NpsFdmState {
   
-  // generic vehicle state
+  // part of state 
+  // valid for any kind of vehicle
   bool_t on_ground;
   
   VEC* ecef_pos;
@@ -70,14 +80,5 @@ struct NpsFdmState {
   } vehicle;
 
 };
-
-
-
-
-
-
-
-
-
 
 #endif /* NPS_FDM */

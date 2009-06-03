@@ -22,7 +22,7 @@
  *
  */
 
-#include "sim_ac_jsbsim.hpp"
+#include "sim_ac_jsbsim.h"
 
 #include <glib.h>
 #include <getopt.h>
@@ -58,18 +58,20 @@ static void ivy_transport_init(void);
 
 static void sim_init(void) {
 
-  //sim_time = 0.;
-
+  double actual_elapsed_time = 0;
+  double cycle_duration = 0.0;
+  
   // *** SET UP JSBSIM *** //
   FDMExec = new JSBSim::FGFDMExec();
+  FDMExec->SetAircraftPath(RootDir + "aircraft");
+  FDMExec->SetEnginePath(RootDir + "engine");
+  FDMExec->SetSystemsPath(RootDir + "systems");
+  FDMExec->GetPropertyManager()->Tie("simulation/frame_start_time", &actual_elapsed_time);
+  FDMExec->GetPropertyManager()->Tie("simulation/cycle_duration", &cycle_duration);
+
 #ifdef JSBSIM_ROOT_DIR
   RootDir = JSBSIM_ROOT_DIR;
 #endif
-  //FDMExec->SetAircraftPath(RootDir + "aircraft");
-  //FDMExec->SetEnginePath(RootDir + "engine");
-  //FDMExec->SetSystemsPath(RootDir + "systems");
-  //FDMExec->GetPropertyManager()->Tie("simulation/frame_start_time", &actual_elapsed_time);
-  //FDMExec->GetPropertyManager()->Tie("simulation/cycle_duration", &cycle_duration);
 
   if (!AircraftName.empty()) {
 
@@ -79,12 +81,26 @@ static void sim_init(void) {
     if ( ! FDMExec->LoadModel( RootDir + "aircraft",
                                RootDir + "engine",
                                RootDir + "systems",
-                               AircraftName)) {
+                               AircraftName)){
       cerr << "  JSBSim could not be started" << endl << endl;
       delete FDMExec;
       exit(-1);
     }
 
+    if (1) {
+      FDMExec->PrintPropertyCatalog();
+      delete FDMExec;
+      return 0;
+    }
+
+    if ( ! FDMExec->LoadModel("quad")) {
+      cerr << "  JSBSim could not be started" << endl << endl;
+      delete FDMExec;
+      exit(-1);
+    }
+
+    cout << "Quad Loaded." << endl << endl;    
+    
     // Initial conditions (from flight_plan.h and aircraft.h ???)
     JSBSim::FGInitialCondition *IC = FDMExec->GetIC();
     if ( ! IC->Load(ICName)) {
@@ -100,6 +116,9 @@ static void sim_init(void) {
     exit(-1);
   }
 
+  // DEBUG
+  cout << "So far so good. Init." << endl;
+
   // init sensors ? or discribe them in jSBSim
 
   ivy_transport_init();
@@ -113,15 +132,18 @@ static void sim_init(void) {
 static gboolean sim_periodic(gpointer data __attribute__ ((unused))) {
 
   /* read actuators positions and feed JSBSim inputs */
-  copy_inputs_to_jsbsim(*FDMExec);
+  cout <<"Copy Inputs." << endl;
+  copy_inputs_to_jsbsim(FDMExec);
 
   /* run JSBSim flight model */
+  cout << "Run model." << endl;
   bool result = FDMExec->Run();
 
   //sim_time += DT;
 
   /* read outputs from model state (and display ?) */
-  copy_outputs_from_jsbsim(*FDMExec);
+  cout <<"Copy Outputs." << endl;
+  copy_outputs_from_jsbsim(FDMExec);
 
   /* run the airborne code */
   
@@ -139,10 +161,10 @@ static gboolean sim_periodic(gpointer data __attribute__ ((unused))) {
 int main ( int argc, char** argv) {
 
   ICName = "";
-  AircraftName = "";
+  AircraftName = "quad";
   LogOutputName = "";
 
-  sim_parse_options(argc, argv);
+  //sim_parse_options(argc, argv);
 
   sim_init();
 
@@ -180,6 +202,7 @@ static void sim_parse_options(int argc, char** argv) {
   }
 
   int i;
+
   for (i = 1; i < argc; ++i) {
     string argument = string(argv[i]);
 

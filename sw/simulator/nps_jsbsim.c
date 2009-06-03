@@ -5,11 +5,8 @@
 #include <math/FGMatrix33.h>
 #include <math/FGQuaternion.h>
 
-
-
 static void cp_fgvec_to_vec(JSBSim::FGColumnVector3 jsbvec, VEC* vec);
 static void cp_fgquat_to_quat(JSBSim::FGQuaternion jsbquat, VEC* quat);
-
 
 static void cp_fgvec_to_vec(JSBSim::FGColumnVector3 jsbvec, VEC* vec) {
   while(int i=0 < 3) {vec->ve[i] = jsbvec.Entry(i); }
@@ -29,7 +26,7 @@ int JSBInit(double sim_dt) {
   fdmex->DisableOutput();
   fdmex->SetDebugLevel(0);
   
-  JSBSim::FGState State (fdmex);
+  JSBSim::FGState State(fdmex);
   State.Setdt(sim_dt);
   
   if ( ! fdmex->LoadModel( RootDir + "aircraft",
@@ -37,7 +34,7 @@ int JSBInit(double sim_dt) {
 			   RootDir + "systems",
 			   AircraftName,
 			   1)) {
-    cerr << "  JSBSim could not be started" << endl << endl;
+    cerr << "JSBSim could not load model" << endl << endl;
     delete fdmex;
     exit(-1);
   }
@@ -45,7 +42,7 @@ int JSBInit(double sim_dt) {
   JSBSim::FGInitialCondition* IC = fdmex->GetIC();
   if ( ! IC->Load(ResetName)) {
     delete fdmex;
-    cerr << "Initialization unsuccessful" << endl;
+    cerr << "JSBSim could not initialize state" << endl;
     exit(-1);
   }
   

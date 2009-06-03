@@ -213,6 +213,8 @@
 
  <makefile>
 CONFIG = \"tiny_2_1.h\"
+MY_JSBSIM_ROOT = /home/violato/enac/programs/JSBSim
+MY_JSBSIM_LIB = /home/violato/enac/programs/install_jsbsim
 
 include $(PAPARAZZI_SRC)/conf/autopilot/tiny.makefile
 
@@ -224,11 +226,11 @@ sim.ARCH = sitl
 sim.TARGET = sim
 sim.TARGETDIR = sim
 
-sim.CFLAGS += -I$(SIMDIR) -I/home/cocoleon/usr/include/JSBSim -I/usr/include
+sim.CFLAGS += -I$(SIMDIR) -I/usr/local/include -I$(MY_JSBSIM_LIB)/include/JSBSim
 sim.CFLAGS += `pkg-config glib-2.0 --cflags` -I /usr/include/meschach
-sim.LDFLAGS += `pkg-config glib-2.0 --libs` -lm -lmeschach -lpcre -lglibivy -L/home/cocoleon/usr/lib/ -lJSBSim
+sim.LDFLAGS += `pkg-config glib-2.0 --libs` -lm -lmeschach -lpcre -lglibivy -L$(MY_JSBSIM_LIB)/lib -lJSBSim
 
-sim.CFLAGS += -DJSBSIM_ROOT_DIR=\"/home/cocoleon/dev/paparazzi3/conf/simulator/JSBSim/\"
+sim.CFLAGS += -DJSBSIM_ROOT_DIR=\"/home/violato/enac/programs/JSBSim/\"
 
 sim.CFLAGS += -DCONFIG=\"tiny.h\" -DAGR_CLIMB -DLOITER_TRIM -DALT_KALMAN
 
@@ -238,7 +240,7 @@ sim.srcs = $(SRC_ARCH)/sim_jsbsim.c $(SRC_ARCH)/ivy_transport.c
 sim.srcs += latlong.c radio_control.c downlink.c commands.c gps.c inter_mcu.c infrared.c fw_h_ctl.c fw_v_ctl.c nav.c estimator.c sys_time.c main_fbw.c main_ap.c datalink.c
 sim.srcs += nav_line.c nav_survey_rectangle.c
 
-sim.srcs += $(SIMDIR)/sim_ac_jsbsim.cpp $(SIMDIR)/sim_ac_fw.cpp
+sim.srcs += $(SIMDIR)/sim_ac_jsbsim.c $(SIMDIR)/sim_ac_fw.c
 
   </makefile>
 </airframe>

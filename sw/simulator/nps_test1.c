@@ -11,7 +11,7 @@
 //#include "nps_fdm.h"
 //#include "nps_jsbsim.h"
 
-string RootDir = "/home/violato/JSBSim/";
+string RootDir = "/home/violato/enac/programs/JSBSim/";
 string AircraftName = "quad";
 string ResetName = "reset00";
 
@@ -61,7 +61,7 @@ int main(int argc, char** argv) {
 
   result = fdmex->RunIC();
 
-  IvyInit ("nps_test2", "nps_test2 READY", NULL, NULL, NULL, NULL);
+  IvyInit ("nps_test1", "nps_test1 READY", NULL, NULL, NULL, NULL);
   IvyStart("127.255.255.255");
 
   GMainLoop *ml =  g_main_loop_new(NULL, FALSE);

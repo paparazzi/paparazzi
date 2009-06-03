@@ -22,10 +22,12 @@
  *
  */
 
-#ifndef SIM_AC_JSBSIM_HPP
-#define SIM_AC_JSBSIM_HPP
+#ifndef SIM_AC_JSBSIM_H
+#define SIM_AC_JSBSIM_H
 
 #include <FGFDMExec.h>
+#include <FGJSBBase.h>
+// #include <input_output/FGPropertyManager.h>
 
 #include "airframe.h"
 #include "flight_plan.h"
@@ -33,8 +35,8 @@
 void autopilot_init(void);
 void autopilot_periodic_task(void);
 void autopilot_event_task(void);
-void copy_inputs_to_jsbsim(JSBSim::FGFDMExec & FDMExec);
-void copy_outputs_from_jsbsim(JSBSim::FGFDMExec & FDMExec);
+void copy_inputs_to_jsbsim(JSBSim::FGFDMExec* FDMExec);
+void copy_outputs_from_jsbsim(JSBSim::FGFDMExec* FDMExec);
 
 
-#endif // SIM_AC_JSBSIM_HPP
+#endif // SIM_AC_JSBSIM_H
