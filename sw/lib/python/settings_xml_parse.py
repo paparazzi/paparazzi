@@ -46,6 +46,11 @@ class PaparazziACSettings:
         settings.min_value = float(the_setting.attrib['MIN'])
         settings.max_value = float(the_setting.attrib['MAX'])
         settings.step = float(the_setting.attrib['STEP'])
+	if (the_setting.attrib.has_key('values')):
+	  settings.values = the_setting.attrib['values'].split('|')
+	  count = int((settings.max_value - settings.min_value + settings.step) / settings.step)
+	  if (len(settings.values) != count):
+	    print "Warning: wrong number of values (%i) for %s (expected %i)" % (len(settings.values), name, count)
   
         setting_group.member_list.append(settings)
         self.lookup.append(settings)
@@ -75,6 +80,7 @@ class PaparazziSetting:
   step = 1
   index = 0
   value = None
+  values = None
   def __init__(self, shortname):
     self.shortname = shortname
 
