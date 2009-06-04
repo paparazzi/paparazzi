@@ -4,7 +4,7 @@
 #include "std.h"
 #include "sys_time.h"
 #include "actuators.h"
-#include "servos_direct_hw.h"
+#include ACTUATORS
 
 #define CSC_SERVOS_NB 4
 #define SERVOS_PERIOD (SYS_TICS_OF_SEC((1./250.))); /* 250 Hz */
