@@ -220,6 +220,9 @@ static inline void copy_from_to_fbw ( void ) {
 #if defined RADIO_CONTROL_AUTO1 && defined COMMAND_YAW /* FIXME */
   ap_state->commands[COMMAND_YAW] = fbw_state->channels[RADIO_YAW];
 #endif
+#if defined COMMAND_FLAPS && defined RADIO_FLAPS/* FIXME */
+  ap_state->commands[COMMAND_FLAPS] = fbw_state->channels[RADIO_FLAPS];
+#endif
 }
 
 
