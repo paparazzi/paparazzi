@@ -8,6 +8,9 @@
       <dl_setting VAR="telemetry_mode_Ap" MIN="0" STEP="1" MAX="1" module="csc/csc_telemetry" shortname="telemetry" 
         values="Default|Debug"/>
     </dl_settings>
+    <dl_settings NAME="imu params">
+      <dl_setting VAR="xsens_setzero" MIN="0" STEP="1" MAX="1" module="csc/csc_xsens" shortname="zero orientation"/>
+    </dl_settings>
     <dl_settings NAME="flight params">
       <dl_setting VAR="csc_gains.pitch_kp" MIN="0" STEP="1" MAX="6000" module="csc/csc_ap" shortname="pitch kp"/>
       <dl_setting VAR="csc_gains.pitch_kd" MIN="0" STEP="1" MAX="6000" module="csc/csc_ap" shortname="ptch kd"/>

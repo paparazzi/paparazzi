@@ -36,6 +36,8 @@
 #include "messages.h"
 #include "uart.h"
 //#include "com_stats.h"
+#include "pprz_algebra_float.h"
+#include "string.h"
 
 void parse_xsens_msg(uint8_t xsens_id, uint8_t c );
 
@@ -116,6 +118,10 @@ float xsens_r_g[XSENS_COUNT];
 float xsens_r_h[XSENS_COUNT];
 float xsens_r_i[XSENS_COUNT];
 
+struct FloatRMat xsens_rmat[XSENS_COUNT];
+struct FloatRMat xsens_rmat_neutral[XSENS_COUNT];
+struct FloatRMat xsens_rmat_adj[XSENS_COUNT];
+
 float xsens_accel_x[XSENS_COUNT];
 float xsens_accel_y[XSENS_COUNT];
 float xsens_accel_z[XSENS_COUNT];
@@ -130,7 +136,9 @@ float xsens_gyro_z[XSENS_COUNT];
 
 float xsens_mag_heading[XSENS_COUNT];
 
-#define XSENS_MSG_BUF 2
+int xsens_setzero = 0;
+
+#define XSENS_MSG_BUF 1
 #define XSENS_MAX_PAYLOAD 254
 uint8_t xsens_msg_buf[XSENS_COUNT][XSENS_MSG_BUF][XSENS_MAX_PAYLOAD];
 static volatile uint8_t xsens_msg_buf_count[XSENS_COUNT]; // buffer count
@@ -186,6 +194,7 @@ void xsens_init( void )
     xsens_msg_buf_count[i] = 0;
     xsens_msg_buf_pi[i] = 0;
     xsens_msg_buf_ci[i] = 0;
+    FLOAT_RMAT_ZERO(xsens_rmat_neutral[i]);
   }
   // Also TODO: set scenario to aerospace
   // set magnetic declination angle
@@ -206,7 +215,11 @@ void xsens_periodic_task ( void )
       xsens_msg_buf_count[i]--;
       xsens_msg_buf_ci[i] = (xsens_msg_buf_ci[i] + 1) % XSENS_MSG_BUF;
     }
+    if (xsens_setzero) {
+      memcpy(&xsens_rmat_neutral[i], &xsens_rmat[i], sizeof(struct FloatRMat));
+    }
   }
+  xsens_setzero = 0;
 }
 
 void xsens_event_task( void ) 
@@ -293,20 +306,22 @@ void xsens_parse_msg( uint8_t xsens_id ) {
           offset += XSENS_DATA_Euler_LENGTH;
         }
         if (XSENS_MASK_OrientationMode(xsens_output_settings[xsens_id]) == 0x2) {
-          xsens_r_a[xsens_id] = XSENS_DATA_Matrix_a(xsens_msg_buf[xsens_id][buf_slot],offset);
-          xsens_r_b[xsens_id] = XSENS_DATA_Matrix_b(xsens_msg_buf[xsens_id][buf_slot],offset);
-          xsens_r_c[xsens_id] = XSENS_DATA_Matrix_c(xsens_msg_buf[xsens_id][buf_slot],offset);
-          xsens_r_d[xsens_id] = XSENS_DATA_Matrix_d(xsens_msg_buf[xsens_id][buf_slot],offset);
-          xsens_r_e[xsens_id] = XSENS_DATA_Matrix_e(xsens_msg_buf[xsens_id][buf_slot],offset);
-          xsens_r_f[xsens_id] = XSENS_DATA_Matrix_f(xsens_msg_buf[xsens_id][buf_slot],offset);
-          xsens_r_g[xsens_id] = XSENS_DATA_Matrix_g(xsens_msg_buf[xsens_id][buf_slot],offset);
-          xsens_r_h[xsens_id] = XSENS_DATA_Matrix_h(xsens_msg_buf[xsens_id][buf_slot],offset);
-          xsens_r_i[xsens_id] = XSENS_DATA_Matrix_i(xsens_msg_buf[xsens_id][buf_slot],offset);
+          xsens_rmat[xsens_id].m[0] = XSENS_DATA_Matrix_a(xsens_msg_buf[xsens_id][buf_slot],offset);
+          xsens_rmat[xsens_id].m[1] = XSENS_DATA_Matrix_b(xsens_msg_buf[xsens_id][buf_slot],offset);
+          xsens_rmat[xsens_id].m[2] = XSENS_DATA_Matrix_c(xsens_msg_buf[xsens_id][buf_slot],offset);
+          xsens_rmat[xsens_id].m[3] = XSENS_DATA_Matrix_d(xsens_msg_buf[xsens_id][buf_slot],offset);
+          xsens_rmat[xsens_id].m[4] = XSENS_DATA_Matrix_e(xsens_msg_buf[xsens_id][buf_slot],offset);
+          xsens_rmat[xsens_id].m[5] = XSENS_DATA_Matrix_f(xsens_msg_buf[xsens_id][buf_slot],offset);
+          xsens_rmat[xsens_id].m[6] = XSENS_DATA_Matrix_g(xsens_msg_buf[xsens_id][buf_slot],offset);
+          xsens_rmat[xsens_id].m[7] = XSENS_DATA_Matrix_h(xsens_msg_buf[xsens_id][buf_slot],offset);
+          xsens_rmat[xsens_id].m[8] = XSENS_DATA_Matrix_i(xsens_msg_buf[xsens_id][buf_slot],offset);
+	  
+	  FLOAT_RMAT_COMP_INV(xsens_rmat_adj[xsens_id], xsens_rmat_neutral[xsens_id], xsens_rmat[xsens_id]);
 
           // Calculate roll, pitch, yaw from rotation matrix ( p 31-33 MTi-G USer Man and Tech Doc)
-          xsens_phi[xsens_id] = -atan2 (xsens_r_f[xsens_id], xsens_r_i[xsens_id]);
-          xsens_theta[xsens_id] = asin (xsens_r_c[xsens_id]);
-          xsens_psi[xsens_id] = atan2 (xsens_r_b[xsens_id], xsens_r_a[xsens_id]);
+          xsens_phi[xsens_id] = -atan2 (xsens_rmat_adj[xsens_id].m[5], xsens_rmat_adj[xsens_id].m[8]);
+          xsens_theta[xsens_id] = asin (xsens_rmat_adj[xsens_id].m[2]);
+          xsens_psi[xsens_id] = atan2 (xsens_rmat_adj[xsens_id].m[1], xsens_rmat_adj[xsens_id].m[0]);
 
           offset += XSENS_DATA_Matrix_LENGTH;
         }

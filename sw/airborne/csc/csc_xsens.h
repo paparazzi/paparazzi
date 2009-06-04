@@ -60,6 +60,8 @@ extern float xsens_mag_heading[XSENS_COUNT];
 
 extern uint16_t xsens_time_stamp[XSENS_COUNT];
 
+extern int xsens_setzero;
+
 #define PERIODIC_SEND_IMU_GYRO() DOWNLINK_SEND_IMU_GYRO (\
   &xsens_gyro_x, &xsens_gyro_y, &xsens_gyro_z \
 )
