@@ -81,7 +81,7 @@ csc.srcs += $(SRC_CSC)/csc_ap_link.c
 
 csc.srcs += $(SRC_CSC)/csc_servos.c
 csc.CFLAGS += -DPWM_SERVO_3 -DPWM_SERVO_4 -DPWM_SERVO_5 -DPWM_SERVO_0
-csc.CFLAGS += -DACTUATORS=\"servos_csc.h\"
+csc.CFLAGS += -DACTUATORS=\"servos_direct_hw.h\"
 csc.srcs += $(SRC_ARCH)/servos_direct_hw.c
 
 csc.srcs += $(SRC_CSC)/csc_adc.c
