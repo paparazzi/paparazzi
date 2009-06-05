@@ -37,7 +37,7 @@ LDSCRIPT=$(SRC_ARCH)/LPC2129-ROM.ld
 
 BOARD_CFG = \"csc_board_v1_0.h\"
 
-PERIODIC_FREQ = 240
+PERIODIC_FREQ = 40
 
 SRC_CSC=csc
 
@@ -53,7 +53,7 @@ ap.CFLAGS += -DLED -DTIME_LED=1
 
 ap.CFLAGS += -DCSC_BOARD_ID=$(CSC_ID)
 
-ap.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./240.))' -DTIMER0_VIC_SLOT=1
+ap.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./40.))' -DTIMER0_VIC_SLOT=1
 ap.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
 
 ap.srcs += $(SRC_ARCH)/uart_hw.c
@@ -72,20 +72,20 @@ ap.srcs += $(SRC_CSC)/csc_datalink.c
 ap.srcs += $(SRC_CSC)/csc_xsens.c
 ap.CFLAGS += -DXSENS1_LINK=Uart0
 
-#ap.CFLAGS += -DAP_LINK_CAN -DCAN_LED=2
-#ap.CFLAGS += -DUSE_CAN1 -DCAN1_BTR=CANBitrate125k_2MHz
-#ap.CFLAGS +=  -DCAN1_VIC_SLOT=3 -DCAN1_ERR_VIC_SLOT=7
-#ap.srcs += $(SRC_CSC)/csc_can.c
+ap.CFLAGS += -DAP_LINK_CAN -DCAN_LED=2
+ap.CFLAGS += -DUSE_CAN1 -DCAN1_BTR=CANBitrate125k_2MHz
+ap.CFLAGS +=  -DCAN1_VIC_SLOT=3 -DCAN1_ERR_VIC_SLOT=7
+ap.srcs += $(SRC_CSC)/csc_can.c
 #ap.CFLAGS += -DUSE_CAN2 -DCAN2_BTR=CANBitrate125k_2MHz -DCAN2_VIC_SLOT=4
 
-#ap.srcs += $(SRC_CSC)/csc_ap_link.c
+ap.srcs += $(SRC_CSC)/csc_ap_link.c
 
 ap.srcs += $(SRC_CSC)/csc_servos.c
 ap.CFLAGS += -DPWM_SERVO_5 -DPWM_SERVO_0
-ap.srcs += $(SRC_ARCH)/servos_direct_hw.c
+ap.srcs += $(SRC_ARCH)/servos_csc.c
 
 ap.srcs += $(SRC_CSC)/csc_adc.c
-ap.CFLAGS += -DACTUATORS=\"servos_direct_hw.h\"
+ap.CFLAGS += -DACTUATORS=\"servos_csc.h\"
 ap.srcs += commands.c actuators.c
 
 ap.CFLAGS += -DRADIO_CONTROL -DRADIO_CONTROL_TYPE=RC_JR

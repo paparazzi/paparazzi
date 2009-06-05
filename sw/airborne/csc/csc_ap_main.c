@@ -43,6 +43,7 @@
 #include "csc_adc.h"
 #include "csc_xsens.h"
 #include "csc_ap.h"
+#include "csc_can.h"
 
 #define CSC_STATUS_TIMEOUT (SYS_TICS_OF_SEC(0.25) / PERIODIC_TASK_PERIOD)
 
@@ -55,7 +56,6 @@
 
 uint8_t pprz_mode = PPRZ_MODE_AUTO1;
 static uint16_t cpu_time = 0;
-uint8_t vsupply;
 
 int main( void ) {
   csc_main_init();
@@ -67,6 +67,10 @@ int main( void ) {
   return 0;
 }
 
+static void nop(struct CscCanMsg *msg)
+{
+
+}
 
 STATIC_INLINE void csc_main_init( void ) {
 
@@ -82,7 +86,8 @@ STATIC_INLINE void csc_main_init( void ) {
   csc_adc_init();
   ppm_init();
 
-  csc_servos_init();
+  csc_can1_init(&nop);
+  actuators_init();
 
   csc_ap_init();
   int_enable();

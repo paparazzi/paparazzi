@@ -8,7 +8,7 @@
 struct adc_buf adc0;
 struct adc_buf adc1;
 
-extern uint8_t vsupply;
+uint8_t vsupply;
 
 #define ADC_VDIV 5.7
 #define ADC_VOLT 3.28
