@@ -9,10 +9,7 @@
 
 /* Received from the autopilot */
 struct CscServoCmd {
-  uint16_t servo_1;
-  uint16_t servo_2;
-  uint16_t servo_3;
-  uint16_t servo_4;
+  uint16_t servos[4];
 } __attribute__((packed));
 
 /* Send and Received between autopilot and csc */
