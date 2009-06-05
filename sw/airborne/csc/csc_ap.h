@@ -32,8 +32,10 @@
 struct control_gains {
   float pitch_kp;
   float roll_kp;
+  float yaw_kp;
   float pitch_kd;
   float roll_kd;
+  float yaw_kd;
 };
 
 struct control_reference {
@@ -44,6 +46,7 @@ struct control_reference {
 struct control_trims {
   int elevator;
   int aileron;
+  int rudder;
 };
 
 extern struct control_gains csc_gains;

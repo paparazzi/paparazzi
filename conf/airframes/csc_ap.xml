@@ -3,23 +3,26 @@
 <!-- commands section -->
   <servos>
     <servo name="AILERON"  no="0" min="1000" neutral="1523" max="2000"/>
-    <servo name="ELEVATOR" no="5" min="2000" neutral="1500" max="1000"/>
-
+    <servo name="ELEVATOR" no="1" min="2000" neutral="1500" max="1000"/>
+    <servo name="RUDDER" no="2" min="1000" neutral="1500" max="2000"/>
   </servos>
 
   <commands>
     <axis name="ROLL"     failsafe_value="0"/>
     <axis name="PITCH"    failsafe_value="0"/>
+    <axis name="YAW"    failsafe_value="0"/>
   </commands>
 
   <rc_commands>
     <set command="ROLL"     value="@ROLL"/>
     <set command="PITCH"    value="@PITCH"/>
+    <set command="YAW"    value="@YAW"/>
   </rc_commands>
 
   <command_laws>
     <set servo="ELEVATOR" value="@PITCH"/>
     <set servo="AILERON" value="@ROLL"/>
+    <set servo="RUDDER" value="@YAW"/>
   </command_laws>
 
 <makefile>

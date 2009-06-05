@@ -44,8 +44,10 @@ void csc_ap_init( void )
 {
   csc_gains.roll_kp = 2500;
   csc_gains.pitch_kp = 2500;
+  csc_gains.yaw_kp = 2500;
   csc_gains.roll_kd = 2500;
   csc_gains.pitch_kd = 2500;
+  csc_gains.yaw_kd = 2500;
   
   memset(&csc_reference, 0, sizeof(struct control_reference));
 }
@@ -76,13 +78,16 @@ static void calculate_reference(struct control_reference *reference)
 {
   reference->eulers.phi = M_PI / 6.0 * rc_values[RADIO_ROLL];
   reference->eulers.theta = M_PI  / 6.0 * rc_values[RADIO_PITCH];
+  reference->eulers.psi = M_PI  / 6.0 * rc_values[RADIO_YAW];
 
   reference->eulers.phi /= MAX_PPRZ;
   reference->eulers.theta /= MAX_PPRZ;
+  reference->eulers.psi /= MAX_PPRZ;
 }
 
 void csc_ap_periodic( void )
 {
+  static int counter = 0;
   calculate_reference(&csc_reference);
   calculate_errors(&csc_errors);
 
@@ -93,4 +98,8 @@ void csc_ap_periodic( void )
   commands[COMMAND_PITCH] = -csc_gains.pitch_kp * csc_errors.eulers.theta
 			   + csc_gains.pitch_kd * csc_errors.rates.q;
   commands[COMMAND_PITCH] += csc_trims.elevator;
+
+  commands[COMMAND_YAW] = -csc_gains.yaw_kp * csc_errors.eulers.psi;
+			   + csc_gains.yaw_kd * csc_errors.rates.r;
+  commands[COMMAND_YAW] += csc_trims.rudder;
 }
