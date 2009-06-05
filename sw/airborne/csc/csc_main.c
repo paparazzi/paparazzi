@@ -112,8 +112,8 @@ STATIC_INLINE void csc_main_event( void ) {
 }
 
 
-#define MIN_SERVO 2*SYS_TICS_OF_USEC(1000)
-#define MAX_SERVO 2*SYS_TICS_OF_USEC(2000)
+#define MIN_SERVO SYS_TICS_OF_USEC(1000)
+#define MAX_SERVO SYS_TICS_OF_USEC(2000)
 
 static inline void on_servo_cmd(struct CscServoCmd *cmd)
 {
