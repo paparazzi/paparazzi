@@ -12,7 +12,7 @@ all: paparazzicenter
 
 paparazzicenter : $(PAPARAZZICENTERCMO) $(OCAMLLIB)/lib-pprz.cma
 	@echo OL $@
-	$(Q)$(OCAMLC) -custom $(INCLUDES) -o $@ unix.cma str.cma xml-light.cma lablgtk.cma lablglade.cma gtkInit.cmo lib-pprz.cma lablgnomeui.cma $^
+	$(Q)$(OCAMLC) -custom $(INCLUDES) -o $@ unix.cma str.cma xml-light.cma lablgtk.cma lablglade.cma gtkInit.cmo lib-pprz.cma xlib-pprz.cma lablgnomeui.cma $^
 
 gtk_pc.ml : paparazzicenter.glade
 	lablgladecc2 -hide-default -root window $< > $@

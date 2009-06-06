@@ -60,42 +60,6 @@ let run_and_log = fun log com ->
   let io_watch_out = Glib.Io.add_watch [`IN; `HUP] cb channel_out in
   pid, channel_out, com_stdout, io_watch_out
 
-type combo = GEdit.combo_box * (GTree.list_store * string GTree.column)
-let combo_widget = fst
-let combo_model = snd
-
-let combo_value = fun ((combo: #GEdit.combo_box), (_,column)) ->
-  match combo#active_iter with
-  | None -> raise Not_found
-  | Some row -> combo#model#get ~row ~column
-
-let combo_separator = "--"
-      
-let combo = fun strings vbox ->
-  let (combo, (tree, column)) =
-    GEdit.combo_box_text ~packing:vbox#add ~strings () in
-  combo#set_active 0;
-  combo#set_row_separator_func
-    (Some (fun m row -> m#get ~row ~column = combo_separator)) ;
-  (combo, (tree, column))
-
-let add_to_combo = fun (combo : combo) string ->
-  let (store, column) = combo_model combo in
-  let row = store#append () in
-  store#set ~row ~column string;
-  (combo_widget combo)#set_active_iter (Some row)
-
-
-let select_in_combo = fun  (combo : combo) string ->
-  let (store, column) = combo_model combo in
-  store#foreach 
-    (fun _path row ->
-      if store#get ~row ~column = string then begin
-	(combo_widget combo)#set_active_iter (Some row);
-	true
-      end else
-	false)
-
 let choose_xml_file = fun ?(multiple = false) title subdir cb ->
   let dir = conf_dir // subdir in
   let dialog = GWindow.file_chooser_dialog ~action:`OPEN ~title () in

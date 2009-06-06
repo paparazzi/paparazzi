@@ -79,18 +79,9 @@ let new_ac_id = fun () ->
 let parse_conf_xml = fun vbox ->
   let strings = ref [] in
   Hashtbl.iter (fun name _ac -> strings := name :: !strings) Utils.aircrafts;
-  Utils.combo ("" :: !strings) vbox
+  Gtk_tools.combo ("" :: !strings) vbox
 
 
-let combo_connect = fun ((combo: #GEdit.combo_box), (_,column)) cb ->
-  ignore (combo#connect#changed
-	    (fun () ->
-	      match combo#active_iter with
-	      | None -> ()
-	      | Some row ->
-		  let data = combo#model#get ~row ~column in
-		  cb data))
-	    
 let editor =
   try Sys.getenv "EDITOR" with _ -> "gedit"
 
@@ -116,7 +107,7 @@ let ac_files = fun gui ->
 let current_color = ref "white"
 
 let save_callback = fun ?user_save gui ac_combo () ->
-  let ac_name = Utils.combo_value ac_combo in
+  let ac_name = Gtk_tools.combo_value ac_combo in
   if ac_name <> "" then begin
     let color = !current_color in
     let aircraft =
@@ -148,7 +139,7 @@ let first_word = fun s ->
 
 
 (* Link A/C to airframe & flight_plan labels *)
-let ac_combo_handler = fun gui (ac_combo:Utils.combo) target_combo ->
+let ac_combo_handler = fun gui (ac_combo:Gtk_tools.combo) target_combo ->
   let update_params = fun ac_name ->
     try
       let aircraft = Hashtbl.find Utils.aircrafts ac_name in
@@ -165,23 +156,23 @@ let ac_combo_handler = fun gui (ac_combo:Utils.combo) target_combo ->
 	gui#eventbox_gui_color#misc#modify_bg [`NORMAL, `NAME gui_color];
 	current_color := gui_color;
 	gui#entry_ac_id#set_text ac_id;
-	(Utils.combo_widget target_combo)#misc#set_sensitive true;
+	(Gtk_tools.combo_widget target_combo)#misc#set_sensitive true;
     with
       Not_found ->
 	gui#label_airframe#set_text "";
 	gui#label_flight_plan#set_text "";
 	gui#button_clean#misc#set_sensitive false;
 	gui#button_build#misc#set_sensitive false;
-	(Utils.combo_widget target_combo)#misc#set_sensitive false
+	(Gtk_tools.combo_widget target_combo)#misc#set_sensitive false
   in
-  combo_connect ac_combo update_params;
+  Gtk_tools.combo_connect ac_combo update_params;
 
   (* New A/C button *)
   let callback = fun _ ->
     match GToolbox.input_string ~title:"New A/C" ~text:"MYAC" "New A/C name ?" with
       None -> ()
     | Some s ->
-	Utils.add_to_combo ac_combo s;
+	Gtk_tools.add_to_combo ac_combo s;
 	let a = aircraft_sample s (string_of_int (new_ac_id ())) in
 	Hashtbl.add Utils.aircrafts s a;
 	update_params s
@@ -190,16 +181,16 @@ let ac_combo_handler = fun gui (ac_combo:Utils.combo) target_combo ->
 
   (* Delete A/C *)
   let callback = fun _ ->
-    let ac_name = Utils.combo_value ac_combo in
+    let ac_name = Gtk_tools.combo_value ac_combo in
     if ac_name <> "" then
       match GToolbox.question_box ~title:"Delete A/C" ~buttons:["Cancel"; "Delete"] ~default:2 (sprintf "Delete %s ? (no undo after Save)" ac_name) with
 	2 -> begin
 	  begin try Hashtbl.remove Utils.aircrafts ac_name with _ -> () end;
-	  let combo_box = Utils.combo_widget ac_combo in
+	  let combo_box = Gtk_tools.combo_widget ac_combo in
 	  match combo_box#active_iter with
 	  | None -> ()
 	  | Some row ->
-	      let (store, _column) = Utils.combo_model ac_combo in
+	      let (store, _column) = Gtk_tools.combo_model ac_combo in
 	      ignore (store#remove row);
 	      combo_box#set_active 1
 	end
@@ -245,9 +236,9 @@ let ac_combo_handler = fun gui (ac_combo:Utils.combo) target_combo ->
   ignore(gui#menu_item_save_ac#connect#activate ~callback:(save_callback ~user_save:true gui ac_combo))
 
 
-let build_handler = fun ~file gui ac_combo (target_combo:Utils.combo) (log:string->unit) ->
+let build_handler = fun ~file gui ac_combo (target_combo:Gtk_tools.combo) (log:string->unit) ->
   (* Link target to upload button *)
-  combo_connect target_combo
+  Gtk_tools.combo_connect target_combo
     (fun target ->
       gui#button_upload#misc#set_sensitive (target <> "sim"));
 
@@ -256,30 +247,30 @@ let build_handler = fun ~file gui ac_combo (target_combo:Utils.combo) (log:strin
     match GToolbox.input_string ~title:"New Target" ~text:"tunnel" "New build target ?" with
       None -> ()
     | Some s ->
-	let (store, column) = Utils.combo_model target_combo in
+	let (store, column) = Gtk_tools.combo_model target_combo in
 	let row = store#append () in
 	store#set ~row ~column s;
-	(Utils.combo_widget target_combo)#set_active_iter (Some row)
+	(Gtk_tools.combo_widget target_combo)#set_active_iter (Some row)
   in
   ignore (gui#button_new_target#connect#clicked ~callback);
 
   (* Clean button *)
   let callback = fun () ->
-    Utils.command ~file gui log (Utils.combo_value ac_combo) "clean_ac" in
+    Utils.command ~file gui log (Gtk_tools.combo_value ac_combo) "clean_ac" in
   ignore (gui#button_clean#connect#clicked ~callback);
   
   (* Build button *)
   let callback = fun () ->
-    let ac_name = Utils.combo_value ac_combo
-    and target = Utils.combo_value target_combo in
+    let ac_name = Gtk_tools.combo_value ac_combo
+    and target = Gtk_tools.combo_value target_combo in
     let target = if target="sim" then target else sprintf "%s.compile" target in
     Utils.command ~file gui log ac_name target in
   ignore (gui#button_build#connect#clicked ~callback);
   
   (* Upload button *)
   let callback = fun () ->
-    let ac_name = Utils.combo_value ac_combo
-    and target = Utils.combo_value target_combo in
+    let ac_name = Gtk_tools.combo_value ac_combo
+    and target = Gtk_tools.combo_value target_combo in
     Utils.command ~file gui log ac_name (sprintf "%s.upload" target) in
   ignore (gui#button_upload#connect#clicked ~callback)
 

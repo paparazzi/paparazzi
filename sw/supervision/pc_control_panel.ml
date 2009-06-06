@@ -115,7 +115,7 @@ let parse_process_args = fun (name, args) ->
 
 let save_session = fun gui session_combo ->
   (* Ask for a session name *)
-  let text = Utils.combo_value session_combo in
+  let text = Gtk_tools.combo_value session_combo in
   let text = if text = "" then "My session" else text in
   match GToolbox.input_string ~ok:"Save" ~text ~title:"Session name" "Save custom session ?" with
     None -> ""
@@ -143,7 +143,7 @@ let double_quote = fun s ->
   else
     s
 
-let supervision = fun ?file gui log (ac_combo : Utils.combo) ->
+let supervision = fun ?file gui log (ac_combo : Gtk_tools.combo) ->
   let run_gcs = fun () ->
     run_and_monitor ?file gui log "GCS" ""
   and run_server = fun args ->
@@ -154,25 +154,25 @@ let supervision = fun ?file gui log (ac_combo : Utils.combo) ->
   in
 
   (* Sessions *)
-  let session_combo = Utils.combo [] gui#vbox_session in
+  let session_combo = Gtk_tools.combo [] gui#vbox_session in
 
   let remove_custom_sessions = fun () ->
-    let (store, _column) = Utils.combo_model session_combo in
+    let (store, _column) = Gtk_tools.combo_model session_combo in
     store#clear ()
   in
 
   let register_custom_sessions = fun () ->
     remove_custom_sessions ();
-    Utils.add_to_combo session_combo "Simulation";
-    Utils.add_to_combo session_combo "Replay";
-    Utils.add_to_combo session_combo Utils.combo_separator;
+    Gtk_tools.add_to_combo session_combo "Simulation";
+    Gtk_tools.add_to_combo session_combo "Replay";
+    Gtk_tools.add_to_combo session_combo Gtk_tools.combo_separator;
     Hashtbl.iter
       (fun name _session ->
-	Utils.add_to_combo session_combo name)
+	Gtk_tools.add_to_combo session_combo name)
       sessions in
 
   register_custom_sessions ();
-  Utils.select_in_combo session_combo "Simulation";
+  Gtk_tools.select_in_combo session_combo "Simulation";
 
   let execute_custom = fun session_name ->
     let session = try Hashtbl.find sessions session_name with Not_found -> failwith (sprintf "Unknown session: %s" session_name) in
@@ -200,11 +200,11 @@ let supervision = fun ?file gui log (ac_combo : Utils.combo) ->
   let simulation = fun () ->
     run_gcs ();
     run_server "-n";
-    run_sitl (Utils.combo_value ac_combo) in
+    run_sitl (Gtk_tools.combo_value ac_combo) in
 
   (* Run session *)
   let callback = fun () ->
-    match Utils.combo_value session_combo with
+    match Gtk_tools.combo_value session_combo with
       "Simulation" -> simulation ()
     | "Replay" -> replay ()
     | custom -> execute_custom custom in	
@@ -237,7 +237,7 @@ let supervision = fun ?file gui log (ac_combo : Utils.combo) ->
     match GToolbox.input_string ~title:"New session" ~text:"My session" "New session name ?" with
       None -> ()
     | Some s ->
-	Utils.add_to_combo session_combo s in
+	Gtk_tools.add_to_combo session_combo s in
   ignore (gui#menu_item_new_session#connect#activate ~callback);
 
   (* Save new session *)
@@ -246,13 +246,13 @@ let supervision = fun ?file gui log (ac_combo : Utils.combo) ->
       "" -> ()
     | session_name ->
 	register_custom_sessions ();
-	Utils.select_in_combo session_combo session_name
+	Gtk_tools.select_in_combo session_combo session_name
   in
   ignore (gui#menu_item_save_session#connect#activate ~callback);
 
   (* Remove current session *)
   let callback = fun () ->
-    let session_name = Utils.combo_value session_combo in
+    let session_name = Gtk_tools.combo_value session_combo in
     match GToolbox.question_box ~title:"Delete custom session" ~buttons:["Cancel"; "Delete"] ~default:2 (sprintf "Delete '%s' custom session ? (NO undo)" session_name) with
       2 ->
 	if Hashtbl.mem sessions session_name then begin

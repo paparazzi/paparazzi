@@ -40,7 +40,7 @@ let get_entry_value = fun xml name ->
   let e = ExtXml.child ~select:(fun x -> Xml.attrib x "name" = name) xml "entry" in
   Xml.attrib e "value"
 
-let read_preferences = fun (gui:Gtk_pc.window) file (ac_combo:Utils.combo) (session_combo:Utils.combo) (target_combo:Utils.combo) ->
+let read_preferences = fun (gui:Gtk_pc.window) file (ac_combo:Gtk_tools.combo) (session_combo:Gtk_tools.combo) (target_combo:Gtk_tools.combo) ->
   let xml = Xml.parse_file file in
 
   let read_one = fun name use ->
@@ -50,13 +50,13 @@ let read_preferences = fun (gui:Gtk_pc.window) file (ac_combo:Utils.combo) (sess
     with Not_found -> () in
 
   (*********** Last A/C *)
-  read_one "last A/C" (Utils.select_in_combo ac_combo);
+  read_one "last A/C" (Gtk_tools.select_in_combo ac_combo);
 
   (*********** Last session *)
-  read_one "last session" (Utils.select_in_combo session_combo);
+  read_one "last session" (Gtk_tools.select_in_combo session_combo);
 
   (*********** Last target *)
-  read_one "last target" (Utils.select_in_combo target_combo);
+  read_one "last target" (Gtk_tools.select_in_combo target_combo);
 
   (*********** Window Size *)
   read_one "width"
@@ -82,24 +82,24 @@ let add_entry = fun xml name value ->
   Xml.Element (Xml.tag xml, Xml.attribs xml, entry::Xml.children xml)
 
 
-let write_preferences = fun (gui:Gtk_pc.window) file (ac_combo:Utils.combo) (session_combo:Utils.combo) (target_combo:Utils.combo) ->
+let write_preferences = fun (gui:Gtk_pc.window) file (ac_combo:Gtk_tools.combo) (session_combo:Gtk_tools.combo) (target_combo:Gtk_tools.combo) ->
   let xml = if Sys.file_exists file then Xml.parse_file file else Xml.Element ("gconf", [], []) in
   
   (* Save A/C name *)
   let xml = 
     try
-      let ac_name = Utils.combo_value ac_combo in
+      let ac_name = Gtk_tools.combo_value ac_combo in
       add_entry xml "last A/C" ac_name 
     with Not_found -> xml in
   
   (* Save session *)
   let xml = 
-    let session_name = Utils.combo_value session_combo in
+    let session_name = Gtk_tools.combo_value session_combo in
     add_entry xml "last session" session_name in
   
   (* Save target *)
   let xml = 
-    let name = Utils.combo_value target_combo in
+    let name = Gtk_tools.combo_value target_combo in
     add_entry xml "last target" name in
   
   let xml =
@@ -183,9 +183,9 @@ let () =
   Utils.build_aircrafts ();
 
   let ac_combo = AC.parse_conf_xml gui#vbox_ac
-  and target_combo = Utils.combo ["sim";"fbw";"ap"] gui#vbox_target in
+  and target_combo = Gtk_tools.combo ["sim";"fbw";"ap"] gui#vbox_target in
 
-  (Utils.combo_widget target_combo)#misc#set_sensitive false;
+  (Gtk_tools.combo_widget target_combo)#misc#set_sensitive false;
   gui#button_clean#misc#set_sensitive false;
   gui#button_build#misc#set_sensitive false;
 
@@ -262,7 +262,7 @@ let () =
 
   (* Run the command line session *)
   if !session <> "" then begin
-    Utils.select_in_combo session_combo !session;
+    Gtk_tools.select_in_combo session_combo !session;
     execute_session !session
   end;
 
