@@ -43,17 +43,6 @@ class gps : ?visible:(GBin.frame -> bool) -> GBin.frame ->
     method connect_reset : (int -> unit) -> unit
   end
 
-(** [new Pages.settings ?visible dl_settings callback short_button_receiver] *)
-class settings : ?visible:(GObj.widget -> bool) -> Xml.xml list -> (int -> float -> unit) -> (GObj.widget -> unit) ->
-  object
-    method length : int (** Total number of settings *)
-    method set : int -> float -> unit (** Set the current value *)
-    method assoc : string -> int
-    method widget : GObj.widget
-    method save : string -> unit
-	(** [save airframe_filename] *)
-  end
-
 class misc :
   packing:(GObj.widget -> unit) ->
   GBin.frame ->
