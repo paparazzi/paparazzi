@@ -25,9 +25,10 @@
  *)
 
 open Printf
+module PC = Papget_common
 
 let papgets = Hashtbl.create 5
-let register_papget = fun p p -> Hashtbl.add papgets p p
+let register_papget = fun p -> Hashtbl.add papgets p p
 let dump_store = fun () ->
   Hashtbl.fold
     (fun _ p r ->
@@ -49,6 +50,11 @@ let papget_listener =
       | _ -> failwith (sprintf "Unexpected field spec: %s" field)
     with
       _ -> failwith (sprintf "field attr expected in '%s" (Xml.to_string papget))
+
+let locked = fun config ->
+  try
+    [PC.property "locked" (PC.get_property "locked" config)]
+  with _ -> []
 	  
 let create = fun canvas_group papget ->
   let type_ = ExtXml.attrib papget "type"
@@ -70,7 +76,7 @@ let create = fun canvas_group papget ->
 	| _ -> failwith (sprintf "Unexpected papget display: %s" display) in
       let p = new Papget.canvas_display_float_item ~config msg_listener field_name renderer in
       let p = (p :> Papget.item) in
-      register_papget p p
+      register_papget p
   | "goto_block" ->
       let renderer = 
 	match display with
@@ -89,11 +95,12 @@ let create = fun canvas_group papget ->
 	  )
 	  Live.aircrafts
       in
-      let properties = [ Papget_common.property "block_name" block_name ] in
+      let properties =
+	[ Papget_common.property "block_name" block_name ] @ locked papget in
 
       let p = new Papget.canvas_goto_block_item properties clicked renderer in
       let p = (p :> Papget.item) in
-      register_papget p p
+      register_papget p
   | "variable_setting" ->
       let renderer = 
 	match display with
@@ -115,11 +122,13 @@ let create = fun canvas_group papget ->
 		Live.dl_setting ac_id var_id value)
 	  Live.aircrafts
       in
-      let properties = [ Papget_common.property "variable" varname;
-			 Papget_common.float_property "value" value ] in
+      let properties =
+	[ Papget_common.property "variable" varname;
+	  Papget_common.float_property "value" value ]
+	@ locked papget in
       let p = new Papget.canvas_variable_setting_item properties clicked renderer in
       let p = (p :> Papget.item) in
-      register_papget p p
+      register_papget p
 	
   | _ -> failwith (sprintf "Unexpected papget type: %s" type_)
 	
@@ -132,9 +141,9 @@ let parse_message_dnd =
     match Str.split sep s with
       [s; c; m; f;scale] -> (s, c, m, f,scale)
     | _ -> raise (Parse_message_dnd (Printf.sprintf "parse_dnd: %s" s))
-let dnd_data_received = fun canvas_group context ~x ~y data ~info ~time ->
+let dnd_data_received = fun canvas_group _context ~x ~y data ~info ~time ->
   try (* With the format sent by Messages *)
-    let (sender, class_name, msg_name, field_name,scale) = parse_message_dnd data#data in
+    let (_sender, _class_name, msg_name, field_name,scale) = parse_message_dnd data#data in
     let attrs = 
       [ "type", "message_field";
 	"display", "text";

@@ -143,7 +143,12 @@ class canvas_ruler = fun ?(config=[]) canvas_group x y ->
       let value = float_of_string value in
       drawer value
     method item = (root :> movable_item)
-    method config = fun () -> config (* Not editable *)
+    method config = fun () ->
+      [ PC.float_property "height" h;
+	PC.property "index_of_right" (sprintf "%b" index_on_right);
+	PC.float_property "scale" scale;
+	PC.float_property "width" w;
+	PC.property "scale" (sprintf "%d" step) ]
   end
 
 (*************************** Gauge ***********************************)

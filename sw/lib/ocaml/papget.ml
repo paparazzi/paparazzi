@@ -72,7 +72,7 @@ class type canvas_item_type =
   end
     
 
-class canvas_item = fun canvas_renderer ->
+class canvas_item = fun ~config canvas_renderer ->
   let canvas_renderer = (canvas_renderer :> PR.t) in
   object (self)
     val mutable motion = false
@@ -192,16 +192,17 @@ class canvas_item = fun canvas_renderer ->
     val mutable connection =
       canvas_renderer#item#connect#event (fun _ -> false)
     method connect = fun () ->
-      let item = (renderer#item :> PR.movable_item) in
-      connection <- item#connect#event self#event
+      if PC.get_prop "locked" config "false" = "false" then
+	let item = (renderer#item :> PR.movable_item) in
+	connection <- item#connect#event self#event
 
     initializer
       self#connect ()
   end
 
-class canvas_float_item = fun canvas_renderer ->
+class canvas_float_item = fun ~config canvas_renderer ->
   object
-    inherit canvas_item canvas_renderer as super
+    inherit canvas_item ~config canvas_renderer as super
 
     val mutable affine = "1"
 	
@@ -228,10 +229,10 @@ class canvas_float_item = fun canvas_renderer ->
 class canvas_display_float_item = fun ~config (msg_obj:message) field_name (canvas_renderer:PR.t) ->
   object
     inherit field msg_obj field_name as super
-    inherit canvas_float_item canvas_renderer as item
+    inherit canvas_float_item ~config canvas_renderer as item
 
     initializer
-      affine <- PC.get_prop "scale" config "1"
+      affine <- PC.get_prop "pscale" config "1"
 
     method update_field = fun value ->
       if not deleted then begin
@@ -254,9 +255,9 @@ class canvas_display_float_item = fun ~config (msg_obj:message) field_name (canv
 
 
 (****************************************************************************)
-class canvas_setting_item = fun variable canvas_renderer ->
+class canvas_setting_item = fun ~config variable canvas_renderer ->
   object
-    inherit canvas_float_item canvas_renderer as item
+    inherit canvas_float_item ~config canvas_renderer as item
 
     method clicked = fun value ->
       (variable#set : float -> unit) value
@@ -271,7 +272,7 @@ class canvas_setting_item = fun variable canvas_renderer ->
     provided callback *)
 class canvas_clickable_item = fun type_ properties callback canvas_renderer ->
   object
-    inherit canvas_item canvas_renderer as item
+    inherit canvas_item ~config:properties canvas_renderer as item
     method edit = fun () -> callback () 
 
     method config = fun () ->
