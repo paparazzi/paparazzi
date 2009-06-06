@@ -41,7 +41,7 @@ type aircraft = private {
     gps_page : Pages.gps;
     pfd_page : Horizon.pfd;
     misc_page : Pages.misc;
-    dl_settings_page : Pages.settings option;
+    dl_settings_page : Page_settings.settings option;
     rc_settings_page : Pages.rc_settings option;
     pages : GObj.widget;
     notebook_label : GMisc.label;

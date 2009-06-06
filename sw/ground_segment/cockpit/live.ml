@@ -82,7 +82,7 @@ type aircraft = {
     gps_page : Pages.gps;
     pfd_page : Horizon.pfd;
     misc_page : Pages.misc;
-    dl_settings_page : Pages.settings option;
+    dl_settings_page : Page_settings.settings option;
     rc_settings_page : Pages.rc_settings option;
     pages : GObj.widget;
     notebook_label : GMisc.label;
@@ -510,7 +510,7 @@ let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id
   let dl_settings_page =
     try
       let xml_settings = Xml.children (ExtXml.child settings_xml "dl_settings") in
-      let settings_tab = new Pages.settings ~visible xml_settings dl_setting_callback (fun x -> strip#add_widget x) in
+      let settings_tab = new Page_settings.settings ~visible xml_settings dl_setting_callback (fun x -> strip#add_widget x) in
 
       let tab_label = GPack.hbox () in
       let _label = (GMisc.label ~text:"Settings" ~packing:tab_label#pack ()) in

@@ -51,7 +51,7 @@ let one_ac = fun (notebook:GPack.notebook) ac_name ->
     (* Build the buttons and sliders *)
     let xml = Xml.parse_file xml_file in
     let xmls = Xml.children (ExtXml.child xml "dl_settings") in
-    let settings = new Pages.settings xmls callback (fun _ -> ()) in
+    let settings = new Page_settings.settings xmls callback (fun _ -> ()) in
 
     (* Bind to values updates *)
     let get_dl_value = fun _sender vs ->
