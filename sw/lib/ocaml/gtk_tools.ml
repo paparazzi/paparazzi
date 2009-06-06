@@ -56,3 +56,49 @@ class pixmap_in_drawin_area = fun ~width ~height ~packing () ->
       pixmap <- Some pm;
       pm
   end
+
+type combo = GEdit.combo_box * (GTree.list_store * string GTree.column)
+let combo_widget = fst
+let combo_model = snd
+
+let combo_value = fun ((combo: #GEdit.combo_box), (_,column)) ->
+  match combo#active_iter with
+  | None -> raise Not_found
+  | Some row -> combo#model#get ~row ~column
+
+let combo_separator = "--"
+      
+let combo = fun strings vbox ->
+  let (combo, (tree, column)) =
+    GEdit.combo_box_text ~packing:vbox#add ~strings () in
+  combo#set_active 0;
+  combo#set_row_separator_func
+    (Some (fun m row -> m#get ~row ~column = combo_separator)) ;
+  (combo, (tree, column))
+
+let add_to_combo = fun (combo : combo) string ->
+  let (store, column) = combo_model combo in
+  let row = store#append () in
+  store#set ~row ~column string;
+  (combo_widget combo)#set_active_iter (Some row)
+
+
+let select_in_combo = fun  (combo : combo) string ->
+  let (store, column) = combo_model combo in
+  store#foreach 
+    (fun _path row ->
+      if store#get ~row ~column = string then begin
+	(combo_widget combo)#set_active_iter (Some row);
+	true
+      end else
+	false)
+
+let combo_connect = fun ((combo: #GEdit.combo_box), (_,column)) cb ->
+  ignore (combo#connect#changed
+	    (fun () ->
+	      match combo#active_iter with
+	      | None -> ()
+	      | Some row ->
+		  let data = combo#model#get ~row ~column in
+		  cb data))
+	    
