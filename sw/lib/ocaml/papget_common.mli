@@ -25,7 +25,11 @@
  *)
 
 val get_property : string -> Xml.xml -> string
+(** [get_property name config] *)
+
 val get_prop : string -> Xml.xml list -> string -> string
+(** [get_prop name config_list default_value] *)
+
 val property : string -> string -> Xml.xml
 val xml : string -> string -> (string * string) list -> Xml.xml
 val float_property : string -> float -> Xml.xml
