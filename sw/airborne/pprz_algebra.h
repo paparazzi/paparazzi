@@ -1,3 +1,27 @@
+/*
+ * $Id$
+ *
+ * Copyright (C) 2008  Antoine Drouin
+ *
+ * This file is part of paparazzi.
+ *
+ * paparazzi is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * paparazzi is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with paparazzi; see the file COPYING.  If not, write to
+ * the Free Software Foundation, 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA.
+ *
+ */
+
 #ifndef PPRZ_ALGEBRA_H
 #define PPRZ_ALGEBRA_H
 
@@ -222,6 +246,13 @@
     (_c).r = (_a).r - (_b).r;			\
   }
 
+/* _ro =  _ri * _s */
+#define RATES_SMUL(_ro, _ri, _s) {		\
+    (_ro).p =  (_ri).p * (_s);			\
+    (_ro).q =  (_ri).q * (_s);			\
+    (_ro).r =  (_ri).r * (_s);			\
+  }
+
 /* _ro =  _ri / _s */
 #define RATES_SDIV(_ro, _ri, _s) {		\
     (_ro).p =  (_ri).p / (_s) ;			\
@@ -252,6 +283,13 @@
     (_vout).z = (_mat)[2]*(_vin).x + (_mat)[5]*(_vin).y + (_mat)[8]*(_vin).z; \
   }
 
+
+//
+//
+// Quaternions
+//
+//
+
 #define QUAT_DIFF(_qc, _qa, _qb) {				\
     (_qc).qi = (_qa).qi - (_qb).qi;				\
     (_qc).qx = (_qa).qx - (_qb).qx;				\
@@ -259,12 +297,46 @@
     (_qc).qz = (_qa).qz - (_qb).qz;				\
   }
 
-#define QUAT_COPY(_qo, _qi) {			\
-    (_qo).qi = (_qi).qi;			\
-    (_qo).qx = (_qi).qx;			\
-    (_qo).qy = (_qi).qy;			\
-    (_qo).qz = (_qi).qz;			\
+#define QUAT_COPY(_qo, _qi) {			                \
+    (_qo).qi = (_qi).qi;					\
+    (_qo).qx = (_qi).qx;					\
+    (_qo).qy = (_qi).qy;					\
+    (_qo).qz = (_qi).qz;					\
   }
+
+#define QUAT_EXPLEMENTARY(b,a) {				\
+    b.qi = -a.qi;                                               \
+    b.qx = -a.qx;                                               \
+    b.qy = -a.qy;                                               \
+    b.qz = -a.qz;                                               \
+  }
+
+
+#define QUAT_SMUL(_qo, _qi, _s) {				\
+    (_qo).qi = (_qi).qi * _s;					\
+    (_qo).qx = (_qi).qx * _s;					\
+    (_qo).qy = (_qi).qy * _s;					\
+    (_qo).qz = (_qi).qz * _s;					\
+  }
+
+#define QUAT_ADD(_qo, _qi) {					\
+    (_qo).qi += (_qi).qi;					\
+    (_qo).qx += (_qi).qx;					\
+    (_qo).qy += (_qi).qy;					\
+    (_qo).qz += (_qi).qz;					\
+  }
+
+
+/*
+ * Rotation Matrices
+ */
+
+/* accessor : row and col range from 0 to 2 */
+#define RMAT_ELMT(_rm, _row, _col) (_rm.m[_row*3+_col])
+
+/* trace */
+#define RMAT_TRACE(_rm) (RMAT_ELMT(_rm, 0, 0)+RMAT_ELMT(_rm, 1, 1)+RMAT_ELMT(_rm, 2, 2))
+
 
 #define RMAT_DIFF(_c, _a, _b) {					\
     (_c).m[0] = (_a).m[0] - (_b).m[0];				\

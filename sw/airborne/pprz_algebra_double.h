@@ -54,5 +54,24 @@ struct DoubleRates {
     (_vout).z = (_mat)[2]*(_vin).x + (_mat)[5]*(_vin).y + (_mat)[8]*(_vin).z;	\
   }
 
+#define DOUBLE_QUAT_OF_EULERS(_q, _e) {					\
+    									\
+    const double phi2   = (_e).phi/ 2.0;					\
+    const double theta2 = (_e).theta/2.0;				\
+    const double psi2   = (_e).psi/2.0;					\
+									\
+    const double s_phi2   = sin( phi2 );				\
+    const double c_phi2   = cos( phi2 );				\
+    const double s_theta2 = sin( theta2 );				\
+    const double c_theta2 = cos( theta2 );				\
+    const double s_psi2   = sin( psi2 );				\
+    const double c_psi2   = cos( psi2 );				\
+									\
+    (_q).qi =  c_phi2 * c_theta2 * c_psi2 + s_phi2 * s_theta2 * s_psi2; \
+    (_q).qx = -c_phi2 * s_theta2 * s_psi2 + s_phi2 * c_theta2 * c_psi2; \
+    (_q).qy =  c_phi2 * s_theta2 * c_psi2 + s_phi2 * c_theta2 * s_psi2; \
+    (_q).qz =  c_phi2 * c_theta2 * s_psi2 - s_phi2 * s_theta2 * c_psi2; \
+    									\
+  }
 
 #endif /* PPRZ_ALGEBRA_DOUBLE_H */

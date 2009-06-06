@@ -224,7 +224,7 @@ struct Int64Vect3 {
   }
 
 /* _m_a2b = _m_a2c comp_inv _m_b2c , aka  _m_a2b = inv(_m_b2c) * _m_a2c */
-#define INT32_RMAT_COMP_INV(_m_a2b, _m_a2c, _m_b2c) {			\
+#define INT32_RMAT_COMP_INV(_m_a2b, _m_a2c, _m_b2c) {			                                          \
     _m_a2b.m[0] = (_m_b2c.m[0]*_m_a2c.m[0] + _m_b2c.m[3]*_m_a2c.m[3] + _m_b2c.m[6]*_m_a2c.m[6])>>INT32_TRIG_FRAC; \
     _m_a2b.m[1] = (_m_b2c.m[0]*_m_a2c.m[1] + _m_b2c.m[3]*_m_a2c.m[4] + _m_b2c.m[6]*_m_a2c.m[7])>>INT32_TRIG_FRAC; \
     _m_a2b.m[2] = (_m_b2c.m[0]*_m_a2c.m[2] + _m_b2c.m[3]*_m_a2c.m[5] + _m_b2c.m[6]*_m_a2c.m[8])>>INT32_TRIG_FRAC; \
@@ -237,14 +237,14 @@ struct Int64Vect3 {
   }
 
 /* _vb = _m_a2b * _va */
-#define INT32_RMAT_VMULT(_vb, _m_a2b, _va) {				\
+#define INT32_RMAT_VMULT(_vb, _m_a2b, _va) {				                                 \
     (_vb).x = ( (_m_a2b).m[0]*(_va).x + (_m_a2b).m[1]*(_va).y + (_m_a2b).m[2]*(_va).z)>>INT32_TRIG_FRAC; \
     (_vb).y = ( (_m_a2b).m[3]*(_va).x + (_m_a2b).m[4]*(_va).y + (_m_a2b).m[5]*(_va).z)>>INT32_TRIG_FRAC; \
     (_vb).z = ( (_m_a2b).m[6]*(_va).x + (_m_a2b).m[7]*(_va).y + (_m_a2b).m[8]*(_va).z)>>INT32_TRIG_FRAC; \
   }
 
 
-#define INT32_RMAT_TRANSP_RATEMULT(_vb, _m_b2a, _va) {				\
+#define INT32_RMAT_TRANSP_RATEMULT(_vb, _m_b2a, _va) {				                         \
     (_vb).p = ( (_m_b2a).m[0]*(_va).p + (_m_b2a).m[3]*(_va).q + (_m_b2a).m[6]*(_va).r)>>INT32_TRIG_FRAC; \
     (_vb).q = ( (_m_b2a).m[1]*(_va).p + (_m_b2a).m[4]*(_va).q + (_m_b2a).m[7]*(_va).r)>>INT32_TRIG_FRAC; \
     (_vb).r = ( (_m_b2a).m[2]*(_va).p + (_m_b2a).m[5]*(_va).q + (_m_b2a).m[8]*(_va).r)>>INT32_TRIG_FRAC; \
@@ -254,7 +254,7 @@ struct Int64Vect3 {
 /* 
  * http://www.mathworks.com/access/helpdesk_r13/help/toolbox/aeroblks/quaternionstodirectioncosinematrix.html 
  */
-#define INT32_RMAT_OF_QUAT(_rm, _q) {					\
+#define INT32_RMAT_OF_QUAT(_rm, _q) {					    \
     const int32_t qx2  = INT_MULT_RSHIFT((_q).qx,(_q).qx, INT32_QUAT_FRAC); \
     const int32_t qy2  = INT_MULT_RSHIFT((_q).qy,(_q).qy, INT32_QUAT_FRAC); \
     const int32_t qz2  = INT_MULT_RSHIFT((_q).qz,(_q).qz, INT32_QUAT_FRAC); \
@@ -264,32 +264,35 @@ struct Int64Vect3 {
     const int32_t qxqy = INT_MULT_RSHIFT((_q).qx,(_q).qy, INT32_QUAT_FRAC); \
     const int32_t qxqz = INT_MULT_RSHIFT((_q).qx,(_q).qz, INT32_QUAT_FRAC); \
     const int32_t qyqz = INT_MULT_RSHIFT((_q).qy,(_q).qz, INT32_QUAT_FRAC); \
-    const int32_t one = TRIG_BFP_OF_REAL( 1);				\
-    const int32_t two = TRIG_BFP_OF_REAL( 2);				\
-    /* dcm00 = 1.0 - 2.*(  qy2 +  qz2 ); */				\
+    const int32_t one = TRIG_BFP_OF_REAL( 1);				    \
+    const int32_t two = TRIG_BFP_OF_REAL( 2);				    \
+    /* dcm00 = 1.0 - 2.*(  qy2 +  qz2 ); */				    \
     _rm.m[0] =  one - INT_MULT_RSHIFT( two, (qy2+qz2), ITRIG_RES+INT32_QUAT_FRAC-ITRIG_RES); \
-    /* dcm01 =       2.*( qxqy + qiqz ); */				\
+    /* dcm01 =       2.*( qxqy + qiqz ); */				    \
     _rm.m[1] = INT_MULT_RSHIFT( two, (qxqy+qiqz), ITRIG_RES+INT32_QUAT_FRAC-ITRIG_RES); \
-    /* dcm02 =       2.*( qxqz - qiqy ); */				\
+    /* dcm02 =       2.*( qxqz - qiqy ); */				    \
     _rm.m[2] = INT_MULT_RSHIFT( two, (qxqz-qiqy), ITRIG_RES+INT32_QUAT_FRAC-ITRIG_RES); \
-    /* dcm10 = 2.*( qxqy - qiqz );       */				\
+    /* dcm10 = 2.*( qxqy - qiqz );       */				    \
     _rm.m[3] = INT_MULT_RSHIFT( two, (qxqy-qiqz), ITRIG_RES+INT32_QUAT_FRAC-ITRIG_RES); \
-    /* dcm11 = 1.0 - 2.*(qx2+qz2);       */				\
+    /* dcm11 = 1.0 - 2.*(qx2+qz2);       */				    \
     _rm.m[4] = one - INT_MULT_RSHIFT( two, (qx2+qz2), ITRIG_RES+INT32_QUAT_FRAC-ITRIG_RES); \
-    /* dcm12 =       2.*( qyqz + qiqx ); */				\
+    /* dcm12 =       2.*( qyqz + qiqx ); */				    \
     _rm.m[5] = INT_MULT_RSHIFT( two, (qyqz+qiqx), ITRIG_RES+INT32_QUAT_FRAC-ITRIG_RES); \
-    /* dcm20 =       2.*( qxqz + qiqy ); */				\
+    /* dcm20 =       2.*( qxqz + qiqy ); */				    \
     _rm.m[6] = INT_MULT_RSHIFT( two, (qxqz+qiqy), ITRIG_RES+INT32_QUAT_FRAC-ITRIG_RES); \
-    /* dcm21 =       2.*( qyqz - qiqx ); */				\
+    /* dcm21 =       2.*( qyqz - qiqx ); */				    \
     _rm.m[7] = INT_MULT_RSHIFT( two, (qyqz-qiqx), ITRIG_RES+INT32_QUAT_FRAC-ITRIG_RES); \
-    /* dcm22 = 1.0 - 2.*(  qx2 +  qy2 ); */				\
+    /* dcm22 = 1.0 - 2.*(  qx2 +  qy2 ); */				    \
     _rm.m[8] = one - INT_MULT_RSHIFT( two, (qx2+qy2), ITRIG_RES+INT32_QUAT_FRAC-ITRIG_RES); \
   }
 
 /*
  * http://www.mathworks.com/access/helpdesk_r13/help/toolbox/aeroblks/euleranglestodirectioncosinematrix.html
  */
-#define INT32_RMAT_OF_EULERS(_rm, _e) {					\
+
+#define INT32_RMAT_OF_EULERS(_rm, _e) INT32_RMAT_OF_EULERS_321(_rm, _e)
+
+#define INT32_RMAT_OF_EULERS_321(_rm, _e) {				\
 									\
     int32_t sphi;							\
     BOOZ_ISIN(sphi, (_e).phi);						\
@@ -320,16 +323,61 @@ struct Int64Vect3 {
     int32_t cphi_stheta_cpsi = INT_MULT_RSHIFT(cphi_stheta, cpsi, INT32_TRIG_FRAC); \
     int32_t cphi_stheta_spsi = INT_MULT_RSHIFT(cphi_stheta, spsi, INT32_TRIG_FRAC); \
     									\
-    (_rm).m[0] = ctheta_cpsi;						\
-    (_rm).m[1] = ctheta_spsi;						\
-    (_rm).m[2] = -stheta;							\
-    (_rm).m[3] = sphi_stheta_cpsi - cphi_spsi;				\
-    (_rm).m[4] = sphi_stheta_spsi + cphi_cpsi;				\
-    (_rm).m[5] = sphi_ctheta;						\
-    (_rm).m[6] = cphi_stheta_cpsi + sphi_spsi;				\
-    (_rm).m[7] = cphi_stheta_spsi - sphi_cpsi;				\
-    (_rm).m[8] = cphi_ctheta;						\
+    RMAT_ELMT(_rm, 0, 0) = ctheta_cpsi;					\
+    RMAT_ELMT(_rm, 0, 1) = ctheta_spsi;					\
+    RMAT_ELMT(_rm, 0, 2) = -stheta;					\
+    RMAT_ELMT(_rm, 1, 0) = sphi_stheta_cpsi - cphi_spsi;		\
+    RMAT_ELMT(_rm, 1, 1) = sphi_stheta_spsi + cphi_cpsi;		\
+    RMAT_ELMT(_rm, 1, 2) = sphi_ctheta;					\
+    RMAT_ELMT(_rm, 2, 0) = cphi_stheta_cpsi + sphi_spsi;		\
+    RMAT_ELMT(_rm, 2, 1) = cphi_stheta_spsi - sphi_cpsi;		\
+    RMAT_ELMT(_rm, 2, 2) = cphi_ctheta;					\
     									\
+  }
+
+
+#define INT32_RMAT_OF_EULERS_312(_rm, _e) {				\
+    									\
+    int32_t sphi;							\
+    BOOZ_ISIN(sphi, (_e).phi);						\
+    int32_t cphi;							\
+    BOOZ_ICOS(cphi, (_e).phi);						\
+    int32_t stheta;							\
+    BOOZ_ISIN(stheta, (_e).theta);					\
+    int32_t ctheta;							\
+    BOOZ_ICOS(ctheta, (_e).theta);					\
+    int32_t spsi;							\
+    BOOZ_ISIN(spsi, (_e).psi);						\
+    int32_t cpsi;							\
+    BOOZ_ICOS(cpsi, (_e).psi);						\
+    									\
+    									\
+    int32_t stheta_spsi = INT_MULT_RSHIFT(stheta, cpsi,   INT32_TRIG_FRAC); \
+    int32_t stheta_cpsi = INT_MULT_RSHIFT(stheta, cpsi,   INT32_TRIG_FRAC); \
+    int32_t ctheta_spsi = INT_MULT_RSHIFT(ctheta, spsi,   INT32_TRIG_FRAC); \
+    int32_t ctheta_cpsi = INT_MULT_RSHIFT(ctheta, cpsi,   INT32_TRIG_FRAC); \
+    int32_t cphi_stheta = INT_MULT_RSHIFT(cphi,   stheta, INT32_TRIG_FRAC); \
+    int32_t cphi_ctheta = INT_MULT_RSHIFT(cphi,   ctheta, INT32_TRIG_FRAC); \
+    int32_t cphi_spsi   = INT_MULT_RSHIFT(cphi,   spsi,   INT32_TRIG_FRAC); \
+    int32_t cphi_cpsi   = INT_MULT_RSHIFT(cphi,   cpsi,   INT32_TRIG_FRAC); \
+    int32_t sphi_stheta = INT_MULT_RSHIFT(sphi,   stheta, INT32_TRIG_FRAC); \
+    int32_t sphi_ctheta = INT_MULT_RSHIFT(sphi,   ctheta, INT32_TRIG_FRAC); \
+    									\
+    int32_t sphi_stheta_spsi = INT_MULT_RSHIFT(sphi_stheta, spsi, INT32_TRIG_FRAC); \
+    int32_t sphi_stheta_cpsi = INT_MULT_RSHIFT(sphi_stheta, cpsi, INT32_TRIG_FRAC); \
+    int32_t sphi_ctheta_spsi = INT_MULT_RSHIFT(sphi_ctheta, spsi, INT32_TRIG_FRAC); \
+    int32_t sphi_ctheta_cpsi = INT_MULT_RSHIFT(sphi_ctheta, cpsi, INT32_TRIG_FRAC); \
+    									\
+    RMAT_ELMT(_rm, 0, 0) =  ctheta_cpsi - sphi_stheta_spsi;		\
+    RMAT_ELMT(_rm, 0, 1) =  ctheta_spsi + sphi_stheta_cpsi;		\
+    RMAT_ELMT(_rm, 0, 2) = -cphi_stheta;				\
+    RMAT_ELMT(_rm, 1, 0) = -cphi_spsi;					\
+    RMAT_ELMT(_rm, 1, 1) =  cphi_cpsi;					\
+    RMAT_ELMT(_rm, 1, 2) =  sphi;					\
+    RMAT_ELMT(_rm, 2, 0) =  stheta_cpsi + sphi_ctheta_spsi;		\
+    RMAT_ELMT(_rm, 2, 1) =  stheta_spsi - sphi_ctheta_cpsi;		\
+    RMAT_ELMT(_rm, 2, 2) =  cphi_ctheta;				\
+									\
   }
 
 
@@ -446,6 +494,22 @@ struct Int64Vect3 {
               INT_MULT_RSHIFT(-s_phi2, s_th_c_ps, ITRIG_RES + ITRIG_RES - INT32_QUAT_FRAC);  \
   }
 
+#define INT32_QUAT_OF_RMAT(_q, _r) {					\
+    const int32_t tr = RMAT_TRACE(_r);					\
+    if (tr > 0) {							\
+      									\
+    }									\
+    else {								\
+      if (RMAT_ELMT(_r, 0, 0) > RMAT_ELMT(_r, 1, 1) &&			\
+	  RMAT_ELMT(_r, 0, 0) > RMAT_ELMT(_r, 2, 2)) {			\
+									\
+      }									\
+      else if (RMAT_ELMT(_r, 1, 1) > RMAT_ELMT(_r, 2, 2)) {		\
+      }									\
+      else {								\
+      }									\
+    }									\
+  }
 
 
 /*
