@@ -295,3 +295,20 @@ class canvas_variable_setting_item = fun properties callback (canvas_renderer:PR
   object
     inherit canvas_clickable_item "variable_setting" properties callback canvas_renderer
   end
+
+
+
+(****************************************************************************)
+class canvas_video_plugin_item = fun properties (canvas_renderer:PR.t) ->
+  object
+    inherit canvas_item ~config:properties canvas_renderer as item
+    method config = fun () ->
+      let props = renderer#config () in
+      let (x, y) = item#xy in
+      let attrs =
+	[ "type", "video_plugin";
+	  "display", String.lowercase item#renderer#tag;
+	  "x", sprintf "%.0f" x; "y", sprintf "%.0f" y ] in
+      Xml.Element ("papget", attrs, properties@props)
+  end
+

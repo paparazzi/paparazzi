@@ -1,6 +1,13 @@
 <layout width="1024" height="768">
   <rows>
     <widget NAME="map2d" SIZE="500">
+<!--
+      <papget type="video_plugin" display="mplayer" x="300" y="250">
+        <property name="video_feed" value="rtsp:my video source"/>
+        <property NAME="width" VALUE="320"/>
+        <property NAME="height" VALUE="240"/>
+      </papget>
+-->
       <papget type="goto_block" display="button" x="10" y="330">
         <property name="block_name" value="Takeoff"/>
         <property name="icon" value="takeoff.png"/>

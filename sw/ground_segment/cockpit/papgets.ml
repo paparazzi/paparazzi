@@ -130,6 +130,18 @@ let create = fun canvas_group papget ->
       let p = (p :> Papget.item) in
       register_papget p
 	
+  | "video_plugin" ->
+      let renderer = 
+	match display with
+	  "mplayer" ->
+	    (new Papget_renderer.canvas_mplayer canvas_group ~config x y :> Papget_renderer.t)
+	| _ -> failwith (sprintf "Unexpected papget display: %s" display) in
+
+      let properties = locked papget in
+      let p = new Papget.canvas_video_plugin_item properties renderer in
+      let p = (p :> Papget.item) in
+      register_papget p
+	
   | _ -> failwith (sprintf "Unexpected papget type: %s" type_)
 	
 

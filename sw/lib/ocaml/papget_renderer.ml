@@ -251,7 +251,36 @@ class canvas_button = fun ?(config=[]) canvas_group x y ->
     method update = fun (value:string) -> ()
     method config = fun () ->
       [ PC.property "icon" icon]
+    initializer
+      group#raise_to_top ();
   end
+
+
+(****************************************************************************)
+class canvas_mplayer = fun ?(config=[]) canvas_group x y ->
+  let video_feed = PC.get_prop "video_feed" config "video_URI" in
+  let width = float_of_string (PC.get_prop "width" config "320.")
+  and height = float_of_string (PC.get_prop "height" config "240.") in
+  let socket = GWindow.socket () in
+  let group = GnoCanvas.group ~x ~y canvas_group in
+  let _item = GnoCanvas.widget ~width ~height ~widget:socket group in
+
+  object
+    method tag = "Mplayer"
+    method item = (group :> movable_item)
+    method edit = fun (pack:GObj.widget -> unit) -> ()
+    method update = fun (value:string) -> ()
+    method config = fun () ->
+      [ PC.property "video_feed" video_feed;
+	PC.float_property "width" width;
+	PC.float_property "height" height ]
+    initializer
+      group#lower_to_bottom ();
+      let com = sprintf "exec mplayer -vo xv -really-quiet -nomouseinput %s -wid 0x%lx -geometry %.0fx%.0f" video_feed socket#xwindow width height in
+      let dev_null = Unix.descr_of_out_channel (open_out "/dev/null") in
+      ignore (Unix.create_process "/bin/sh" [|"/bin/sh"; "-c"; com|] dev_null dev_null dev_null)
+  end
+
 
 
 let renderers =

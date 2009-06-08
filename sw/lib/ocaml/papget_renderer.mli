@@ -40,13 +40,21 @@ class type t =
   end
 
 class canvas_text : ?config:Xml.xml list -> #GnoCanvas.group -> float -> float -> t
+(** [canvas_text config group x y] *)
 
 class canvas_ruler : ?config:Xml.xml list -> #GnoCanvas.group -> float -> float -> t
+(** [canvas_ruler config group x y] *)
 
 class canvas_gauge : ?config:Xml.xml list -> #GnoCanvas.group -> float -> float -> t
+(** [canvas_gauge config group x y] *)
 
 class canvas_button : ?config:Xml.xml list -> #GnoCanvas.group -> float -> float -> t
+(** [canvas_button config group x y] *)
+
+class canvas_mplayer : ?config:Xml.xml list -> #GnoCanvas.group -> float -> float -> t
+(** [canvas_mplayer config group x y] *)
 
 val lazy_tagged_renderers :
   (string * (?config:Xml.xml list -> GnoCanvas.group -> float -> float -> t))
   list lazy_t
+(** List of renderers available to display a telemetry field value *)

@@ -93,3 +93,22 @@ class canvas_variable_setting_item :
     method update : string -> unit
     method xy : float * float
   end
+
+class canvas_video_plugin_item :
+  Xml.xml list ->
+  Papget_renderer.t ->
+  object
+    inherit canvas_item_type
+    method config : unit -> Xml.xml
+(*
+
+    method connect : unit -> unit
+    method deleted : bool
+    method edit : unit -> unit
+    method event : GnoCanvas.item_event -> bool
+    method renderer : Papget_renderer.t
+    method update : string -> unit
+    method xy : float * float
+*)
+  end
+
