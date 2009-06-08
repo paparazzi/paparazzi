@@ -86,7 +86,7 @@ class SettingCtrl(wx.Slider):
     return index
 
   def SetSettingValue(self, value):
-      self.SetValue(int(float(value * SLIDER_FACTOR)))
+      self.SetValue(int(float(value)) * SLIDER_FACTOR)
 
   def GetSettingValue(self):
       if (self.setting.step < 1):
