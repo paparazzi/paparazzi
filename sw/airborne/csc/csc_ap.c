@@ -42,11 +42,11 @@ static const int xsens_id = 0;
 
 void csc_ap_init( void )
 {
-  csc_gains.roll_kp = 2500;
-  csc_gains.pitch_kp = 2500;
-  csc_gains.yaw_kp = 2500;
-  csc_gains.roll_kd = 2500;
-  csc_gains.pitch_kd = 2500;
+  csc_gains.roll_kp = 3500;
+  csc_gains.pitch_kp = 0;
+  csc_gains.yaw_kp = 8000;
+  csc_gains.roll_kd = 1000;
+  csc_gains.pitch_kd = 0;
   csc_gains.yaw_kd = 2500;
   
   memset(&csc_reference, 0, sizeof(struct control_reference));
@@ -99,7 +99,7 @@ void csc_ap_periodic( void )
 			   + csc_gains.pitch_kd * csc_errors.rates.q;
   commands[COMMAND_PITCH] += csc_trims.elevator;
 
-  commands[COMMAND_YAW] = -csc_gains.yaw_kp * csc_errors.eulers.psi;
+  commands[COMMAND_YAW] = csc_gains.yaw_kp * csc_errors.eulers.psi
 			   + csc_gains.yaw_kd * csc_errors.rates.r;
   commands[COMMAND_YAW] += csc_trims.rudder;
 }
