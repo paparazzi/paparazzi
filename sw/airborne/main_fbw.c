@@ -59,7 +59,7 @@
 #endif
 
 #ifdef MILLIAMP_PER_PERCENT
-#  warning "deprecated MILLIAMP_PER_PERCENT --> Please use MILLIAMP_AT_FULL_THROTTLE
+#  warning "deprecated MILLIAMP_PER_PERCENT --> Please use MILLIAMP_AT_FULL_THROTTLE"
 #endif
 #ifndef MILLIAMP_AT_FULL_THROTTLE
 #define MILLIAMP_AT_FULL_THROTTLE 0
