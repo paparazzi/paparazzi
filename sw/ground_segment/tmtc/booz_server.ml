@@ -111,7 +111,7 @@ let get_rc_status = fun rc_status ->
   !status
 
 let pos_frac = 2. ** 8.
-let speed_frac = 2. ** 8.
+let speed_frac = 2. ** 19.
 let angle_frac = 2. ** 12.
 let gps_frac = 1e7
 
@@ -140,8 +140,13 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
           and y = foi32value "east" /. pos_frac
           and z = foi32value "up" /. pos_frac in
           let (geo, _) = LL.geo_of_ecef LL.WGS84 (LL.ecef_of_ned !nav_ref_ecef (LL.make_ned [| x; y; -. z |])) in
-          let (_, ref_alt) = LL.geo_of_ecef LL.WGS84 !nav_ref_ecef in
+          (*let (_, ref_alt) = LL.geo_of_ecef LL.WGS84 !nav_ref_ecef in*)
           a.pos <- LL.utm_of LL.WGS84 geo;
+          (* find ground alt using srtm if available (geoid), or computation instead (ellipsoid) *)
+          let (ref_geo, ref_alt) = LL.geo_of_ecef LL.WGS84 !nav_ref_ecef in
+          let ref_alt = try float (Srtm.of_utm (LL.utm_of LL.WGS84 ref_geo)) with _ -> ref_alt in
+          (*let (_, ref_alt) = try (LL.make_geo 0. 0., float (Srtm.of_utm (LL.utm_of LL.WGS84 ref_geo)))
+            with _ -> LL.geo_of_ecef LL.WGS84 !nav_ref_ecef in*)
           a.alt <- z +. ref_alt;
           a.desired_east     <- foi32value "carrot_east" /. pos_frac;
           a.desired_north    <- foi32value "carrot_north" /. pos_frac;
@@ -149,10 +154,10 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
           a.desired_course   <- foi32value "carrot_psi" /. angle_frac
           (* a.desired_climb <-  ?? *)
       end;
-      let veast  = foi32value "veast" /. speed_frac /. 10000.
-      and vnorth = foi32value "vnorth" /. speed_frac /. 10000. in
+      let veast  = foi32value "veast" /. speed_frac
+      and vnorth = foi32value "vnorth" /. speed_frac in
       a.gspeed  <- sqrt(vnorth*.vnorth +. veast*.veast);
-      a.climb   <- foi32value "vup" /. speed_frac /. 10000.;
+      a.climb   <- foi32value "vup" /. speed_frac;
       a.agl     <- a.alt -. float (try Srtm.of_utm a.pos with _ -> 0);
       a.course  <- norm_course ((Rad>>Deg) (foi32value "psi" /. angle_frac));
       a.heading <- norm_course (foi32value "psi" /. angle_frac);
