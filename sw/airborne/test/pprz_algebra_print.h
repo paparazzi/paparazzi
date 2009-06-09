@@ -115,6 +115,17 @@
 	   mat.m[6], mat.m[7], mat.m[8]);				\
   }
 
+
+#define DISPLAY_INT32_RMAT_AS_FLOAT(text, mat) {			\
+    printf("%s\n %f %f %f\n %f %f %f\n %f %f %f\n",text, \
+	   TRIG_FLOAT_OF_BFP(mat.m[0]), TRIG_FLOAT_OF_BFP(mat.m[1]),	\
+	   TRIG_FLOAT_OF_BFP(mat.m[2]), TRIG_FLOAT_OF_BFP(mat.m[3]),	\
+	   TRIG_FLOAT_OF_BFP(mat.m[4]), TRIG_FLOAT_OF_BFP(mat.m[5]),	\
+	   TRIG_FLOAT_OF_BFP(mat.m[6]), TRIG_FLOAT_OF_BFP(mat.m[7]),	\
+	   TRIG_FLOAT_OF_BFP(mat.m[8]));				\
+  }
+
+
 #define DISPLAY_INT32_RMAT_AS_EULERS_DEG(text, _mat) {			\
     struct FloatRMat _frm;						\
     RMAT_FLOAT_OF_BFP(_frm, (_mat));					\

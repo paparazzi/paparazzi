@@ -19,6 +19,8 @@ static void test_4_float(void);
 static void test_5(void);
 static void test_6(void);
 static void test_7(void);
+static void test_8(void);
+static void test_9(void);
 
 void test1234(void);
 
@@ -34,6 +36,8 @@ float test_rmat_of_eulers_312(void);
 
 float test_quat(void);
 float test_quat2(void);
+
+float test_INT32_QUAT_OF_RMAT(struct FloatEulers* eul, bool_t display);
 
 void test_of_axis_angle(void);
 
@@ -56,7 +60,9 @@ int main(int argc, char** argv) {
   //  test_quat_of_rmat();
   printf("\n");
   //  test_rmat_of_eulers_312();
-  test_quat2();
+  //  test_quat2();
+  test_8();
+  //test_9();
   return 0;
 
 }
@@ -445,6 +451,39 @@ static void test_7(void) {
 
 }
 
+#define NB_ITER 100000
+
+static void test_8(void) {
+  float max_err = 0.;
+  float sum_err = 0.;
+  int i;
+  for (i=0; i<NB_ITER; i++) {
+    struct FloatEulers eul;
+    eul.phi   = ((double)random()/(double)RAND_MAX - 0.5)*M_PI*2.;
+    eul.theta = ((double)random()/(double)RAND_MAX - 0.5)*M_PI*2.;
+    eul.psi   = ((double)random()/(double)RAND_MAX - 0.5)*M_PI*2.;
+    float err = test_INT32_QUAT_OF_RMAT(&eul, FALSE);
+    sum_err += err;
+    if (err > max_err) max_err = err;
+    if (err > .01) {
+      printf("%f\n", err);
+      DISPLAY_FLOAT_EULERS_DEG("eul", eul);
+      test_INT32_QUAT_OF_RMAT(&eul, TRUE);
+    }
+  }
+  printf("err %f (%f)\n", sum_err/NB_ITER, max_err);
+}
+
+
+static void test_9(void) {
+  struct FloatEulers eul;
+  eul.phi   = RadOfDeg(80.821376);
+  eul.theta = RadOfDeg(44.227319);
+  eul.psi   = RadOfDeg(-134.047298);
+  float err = test_INT32_QUAT_OF_RMAT(&eul, TRUE);
+}
+
+
 float test_rmat_comp_inv(struct FloatRMat ma2c_f, struct FloatRMat mb2c_f, int display) {
 
   struct FloatRMat ma2b_f;
@@ -740,5 +779,47 @@ float test_quat2(void) {
   DISPLAY_FLOAT_QUAT("qb2c2", qb2c2); 
 
   return 0.;
+
+}
+
+
+float test_INT32_QUAT_OF_RMAT(struct FloatEulers* eul_f, bool_t display) {
+  
+  struct Int32Eulers eul312_i;
+  EULERS_BFP_OF_REAL(eul312_i, (*eul_f));
+  if (display)  DISPLAY_INT32_EULERS("eul312_i", eul312_i);
+  
+  struct FloatRMat rmat_f;
+  FLOAT_RMAT_OF_EULERS_312(rmat_f, (*eul_f));
+  if (display) DISPLAY_FLOAT_RMAT_AS_EULERS_DEG("rmat float", rmat_f);  
+  if (display) DISPLAY_FLOAT_RMAT("rmat float", rmat_f);  
+
+  struct Int32RMat rmat_i;
+  INT32_RMAT_OF_EULERS_312(rmat_i, eul312_i);
+  if (display) DISPLAY_INT32_RMAT_AS_EULERS_DEG("rmat int", rmat_i);  
+  if (display) DISPLAY_INT32_RMAT("rmat int", rmat_i);  
+  if (display) DISPLAY_INT32_RMAT_AS_FLOAT("rmat int", rmat_i);  
+
+  struct FloatQuat qf;
+  FLOAT_QUAT_OF_RMAT(qf, rmat_f);
+  FLOAT_QUAT_WRAP_SHORTEST(qf);
+  if (display) DISPLAY_FLOAT_QUAT("qf", qf); 
+
+  struct Int32Quat qi;
+  INT32_QUAT_OF_RMAT(qi, rmat_i);
+  INT32_QUAT_WRAP_SHORTEST(qi);
+  if (display) DISPLAY_INT32_QUAT("qi", qi); 
+  if (display) DISPLAY_INT32_QUAT_2("qi", qi); 
+
+  struct FloatQuat qif;
+  QUAT_FLOAT_OF_BFP(qif, qi); 
+  struct FloatQuat qerr;
+  QUAT_DIFF(qerr, qif, qf);
+
+  float err_norm = FLOAT_QUAT_NORM(qerr);
+  if (display) printf("err %f\n", err_norm);
+  if (display) printf("\n");
+
+  return err_norm;
 
 }
