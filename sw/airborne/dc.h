@@ -88,9 +88,9 @@ static inline uint8_t dc_zoom( void ) {
   return 0;
 }
 
-#define dc_Shutter(_) { dc_shutter(); }
-#define dc_Zoom(_) { dc_zoom(); }
-#define dc_Periodic(s) { dc_periodic_shutter = s; dc_shutter_timer = s; }
+#define dc_Shutter(_) ({ dc_shutter(); 0; })
+#define dc_Zoom(_) ({ dc_zoom(); 0; })
+#define dc_Periodic(s) ({ dc_periodic_shutter = s; dc_shutter_timer = s; 0; })
 
 
 #define dc_init() { /* initialized as leds */ dc_periodic_shutter = 0; } /* Output */
