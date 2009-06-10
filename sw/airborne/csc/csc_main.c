@@ -70,7 +70,9 @@ STATIC_INLINE void csc_main_init( void ) {
 #ifdef USE_UART0
   Uart0Init();
 #endif
-//  Uart1Init();
+#ifdef USE_UART1
+  Uart1Init();
+#endif
 
   csc_ap_link_init();
   csc_ap_link_set_servo_cmd_cb(on_servo_cmd);
