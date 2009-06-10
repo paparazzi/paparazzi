@@ -12,6 +12,7 @@
 // Common CAN bit rates
 #define   CANBitrate62k5_1MHz           0x001C001D
 #define   CANBitrate125k_2MHz           0x001C000E
+#define   CANBitrate125k_3MHz           0x001C0009
 
 #define CSC_BOARD_MASK 0x0F
 #define CSC_MSGID_MASK 0x7F
