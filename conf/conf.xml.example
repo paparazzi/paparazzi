@@ -64,4 +64,26 @@
     gui_color="white"
   />
 
+  <aircraft 
+    name="KITEWING"
+    ac_id="12"
+    airframe="airframes/csc_ap.xml" 
+    radio="radios/jrxp903.xml" 
+    telemetry="telemetry/csc_ap.xml"
+    flight_plan="flight_plans/dummy.xml"
+    settings="settings/csc_ap.xml"
+    gui_color="white"
+  />
+
+  <aircraft 
+    name="CSC"
+    ac_id="13"
+    airframe="airframes/csc.xml" 
+    radio="radios/jrxp903.xml" 
+    telemetry="telemetry/default.xml"
+    flight_plan="flight_plans/dummy.xml"
+    settings="settings/basic.xml"
+    gui_color="white"
+  />
+
 </conf>
