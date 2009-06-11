@@ -39,7 +39,7 @@ void booz_ahrs_init(void) {
   INT_EULERS_ZERO(booz_ahrs.ltp_to_body_euler);
   INT_EULERS_ZERO(booz_ahrs.ltp_to_imu_euler);
   INT32_QUAT_ZERO(booz_ahrs.ltp_to_body_quat);
-  INT32_QUAT_ZERO(booz_ahrs.ltp_to_body_quat);
+  INT32_QUAT_ZERO(booz_ahrs.ltp_to_imu_quat);
   INT_RATES_ZERO(booz_ahrs.body_rate);
   INT_RATES_ZERO(booz_ahrs.imu_rate);
   INT_RATES_ZERO(booz2_face_gyro_bias);
