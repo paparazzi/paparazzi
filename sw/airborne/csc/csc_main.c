@@ -38,6 +38,7 @@
 #include "csc_servos.h"
 #include "csc_throttle.h"
 #include "csc_adc.h"
+#include "csc_rc_spektrum.h"
 
 #include "csc_can.h"
 #include "csc_ap_link.h"
@@ -74,12 +75,17 @@ STATIC_INLINE void csc_main_init( void ) {
   Uart1Init();
 #endif
 
+#ifdef SPEKTRUM_LINK
+  spektrum_init();
+#endif
+
   csc_ap_link_init();
   csc_ap_link_set_servo_cmd_cb(on_servo_cmd);
   csc_ap_link_set_motor_cmd_cb(on_motor_cmd);
 
   csc_adc_init();
 
+  // be sure to call servos_init after uart1 init since they are sharing pins
   csc_servos_init();
   csc_throttle_init();
   int_enable();
@@ -111,6 +117,9 @@ STATIC_INLINE void csc_main_event( void ) {
 
   csc_can_event();
   csc_throttle_event_task();
+#ifdef SPEKTRUM_LINK
+  spektrum_event_task();
+#endif
 }
 
 

@@ -15,6 +15,7 @@ void csc_ap_link_send_status(uint32_t loops, uint32_t msgs);
 void csc_ap_link_send_adc(float adc1, float adc2);
 void csc_ap_link_set_servo_cmd_cb(void (* cb)(struct CscServoCmd *cmd));
 void csc_ap_link_set_motor_cmd_cb(void (* cb)(struct CscMotorMsg *msg));
+void csc_ap_link_set_rc_cmd_cb(void (* cb)(struct CscRCMsg *msg));
 
 #endif /* CSC_AP_LINK_H */
 

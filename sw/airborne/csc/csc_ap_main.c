@@ -72,6 +72,26 @@ static void nop(struct CscCanMsg *msg)
 
 }
 
+#define RADIO_SCALE 20
+#define ROLL_OFFSET 1544
+#define PITCH_OFFSET 2551
+#define YAW_OFFSET 3585
+#define MODE_OFFSET 5632
+
+static void on_rc_cmd(struct CscRCMsg *msg)
+{
+
+  rc_values[RADIO_ROLL] = -RADIO_SCALE * (msg->right_stick_horizontal - ROLL_OFFSET);
+  rc_values[RADIO_PITCH] = -RADIO_SCALE * (msg->right_stick_vertical - PITCH_OFFSET);
+  rc_values[RADIO_YAW] = RADIO_SCALE * (msg->left_stick_horizontal - YAW_OFFSET);
+  rc_values[RADIO_MODE] = RADIO_SCALE * (msg->flap_mix - MODE_OFFSET);
+  time_since_last_ppm = 0;
+  rc_status = RC_OK;
+  pprz_mode = PPRZ_MODE_OF_RC(rc_values[RADIO_MODE]);
+  if (pprz_mode == PPRZ_MODE_MANUAL)
+    SetCommandsFromRC(commands);
+}
+
 STATIC_INLINE void csc_main_init( void ) {
 
   hw_init();
@@ -86,7 +106,10 @@ STATIC_INLINE void csc_main_init( void ) {
   csc_adc_init();
   ppm_init();
 
-  csc_can1_init(&nop);
+  csc_ap_link_init();
+  csc_ap_link_set_servo_cmd_cb(&nop);
+  csc_ap_link_set_motor_cmd_cb(&nop);
+  csc_ap_link_set_rc_cmd_cb(on_rc_cmd);
   actuators_init();
 
   csc_ap_init();
@@ -122,15 +145,7 @@ STATIC_INLINE void csc_main_periodic( void )
 
 STATIC_INLINE void csc_main_event( void )
 {
+  csc_can_event();
   xsens_event_task();
   DatalinkEvent();
-#ifdef RADIO_CONTROL
-  if (ppm_valid) {
-    ppm_valid = FALSE;
-    radio_control_event_task();
-    pprz_mode = PPRZ_MODE_OF_RC(rc_values[RADIO_MODE]);
-    if (pprz_mode == PPRZ_MODE_MANUAL)
-      SetCommandsFromRC(commands);
-  }
-#endif
 }

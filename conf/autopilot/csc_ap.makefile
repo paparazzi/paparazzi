@@ -80,8 +80,8 @@ ap.srcs += $(SRC_CSC)/csc_can.c
 
 ap.srcs += $(SRC_CSC)/csc_ap_link.c
 
-ap.srcs += $(SRC_CSC)/csc_servos.c
-ap.CFLAGS += -DPWM_SERVO_5 -DPWM_SERVO_0
+#ap.srcs += $(SRC_CSC)/csc_servos.c
+#ap.CFLAGS += -DPWM_SERVO_5 -DPWM_SERVO_0
 ap.srcs += $(SRC_ARCH)/servos_csc.c
 
 ap.srcs += $(SRC_CSC)/csc_adc.c

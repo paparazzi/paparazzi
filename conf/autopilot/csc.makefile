@@ -80,7 +80,7 @@ csc.srcs += $(SRC_CSC)/csc_can.c
 csc.srcs += $(SRC_CSC)/csc_ap_link.c
 
 csc.srcs += $(SRC_CSC)/csc_servos.c
-csc.CFLAGS += -DPWM_SERVO_3 -DPWM_SERVO_4 -DPWM_SERVO_5 -DPWM_SERVO_0
+csc.CFLAGS += -DPWM_SERVO_4 -DPWM_SERVO_5 -DPWM_SERVO_0 # -DPWM_SERVO_3
 csc.CFLAGS += -DACTUATORS=\"servos_direct_hw.h\"
 csc.srcs += $(SRC_ARCH)/servos_direct_hw.c
 
@@ -88,6 +88,9 @@ csc.srcs += $(SRC_CSC)/csc_adc.c
 
 csc.CFLAGS += -DTHROTTLE_LINK=Uart0 -DTHROTTLE_LED=3
 csc.srcs += $(SRC_CSC)/csc_throttle.c
+
+csc.CFLAGS += -DSPEKTRUM_LINK=Uart1 -DUSE_UART1 -DUART1_BAUD=B115200 -DUART1_VIC_SLOT=6
+csc.srcs += $(SRC_CSC)/csc_rc_spektrum.c
 
 csc.CFLAGS += -DERROR_LED=4
 
