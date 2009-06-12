@@ -27,7 +27,7 @@
 
 #include <FGFDMExec.h>
 #include <FGJSBBase.h>
-// #include <input_output/FGPropertyManager.h>
+#include <FGState.h>
 
 #include "airframe.h"
 #include "flight_plan.h"

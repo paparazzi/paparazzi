@@ -52,6 +52,8 @@ void copy_inputs_to_jsbsim(JSBSim::FGFDMExec* FDMExec) {
   FGPropagate* Propagate;
 
   Propagate = FDMExec->GetPropagate();
+
+  // FDMExec->SetPropertyValue(CommandLineProperties[i], CommandLinePropertyValues[i]);
   
   cout << "Input " << Propagate->GetEuler(FGJSBBase::ePhi) << endl;
   cout << "Input " << Propagate->GetEuler(FGJSBBase::eTht) << endl;
@@ -60,16 +62,15 @@ void copy_inputs_to_jsbsim(JSBSim::FGFDMExec* FDMExec) {
 }
 
 void copy_outputs_from_jsbsim(JSBSim::FGFDMExec* FDMExec) {
-  
-  
-  FGPropagate* Propagate;  
+    
+  FGPropertyManager* cur_node;
+  double time;
 
-  Propagate = FDMExec->GetPropagate();
-  
-  cout << "Output " << Propagate->GetEuler(FGJSBBase::ePhi) << endl;
-  cout << "Output " << Propagate->GetEuler(FGJSBBase::eTht) << endl;
-  cout << "Output " << Propagate->GetEuler(FGJSBBase::ePsi) << endl;
-  
+  cur_node = FDMExec->GetPropertyManager()->GetNode("sim-time-sec");
+  time = cur_node->getDoubleValue();
+
+  cout << "Time " << time << endl;
+  printf("%f \n",time);
 }
 
 /*

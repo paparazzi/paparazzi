@@ -39,6 +39,7 @@ string ICName;
 string AircraftName;
 string LogOutputName;
 JSBSim::FGFDMExec* FDMExec;
+JSBSim::FGState* State;
 
 /* 60Hz <-> 17ms */
 #ifndef JSBSIM_PERIOD
@@ -58,16 +59,18 @@ static void ivy_transport_init(void);
 
 static void sim_init(void) {
 
-  double actual_elapsed_time = 0;
-  double cycle_duration = 0.0;
-  
+  double dt;
+
+  dt = DT;
+
   // *** SET UP JSBSIM *** //
+  
   FDMExec = new JSBSim::FGFDMExec();
   FDMExec->SetAircraftPath(RootDir + "aircraft");
   FDMExec->SetEnginePath(RootDir + "engine");
   FDMExec->SetSystemsPath(RootDir + "systems");
-  FDMExec->GetPropertyManager()->Tie("simulation/frame_start_time", &actual_elapsed_time);
-  FDMExec->GetPropertyManager()->Tie("simulation/cycle_duration", &cycle_duration);
+
+  FDMExec->GetPropertyManager()->Tie("sim-time-sec", &dt);
 
 #ifdef JSBSIM_ROOT_DIR
   RootDir = JSBSIM_ROOT_DIR;
@@ -87,28 +90,12 @@ static void sim_init(void) {
       exit(-1);
     }
 
-    if (1) {
-      FDMExec->PrintPropertyCatalog();
-      delete FDMExec;
-      return 0;
-    }
-
-    if ( ! FDMExec->LoadModel("quad")) {
-      cerr << "  JSBSim could not be started" << endl << endl;
-      delete FDMExec;
-      exit(-1);
-    }
-
-    cout << "Quad Loaded." << endl << endl;    
-    
-    // Initial conditions (from flight_plan.h and aircraft.h ???)
     JSBSim::FGInitialCondition *IC = FDMExec->GetIC();
     if ( ! IC->Load(ICName)) {
       delete FDMExec;
       cerr << "Initialization unsuccessful" << endl;
       exit(-1);
     }
-    FDMExec->RunIC();
 
   } else {
     cerr << "  No Aircraft given" << endl << endl;
@@ -116,8 +103,14 @@ static void sim_init(void) {
     exit(-1);
   }
 
-  // DEBUG
-  cout << "So far so good. Init." << endl;
+  FDMExec->Run(); // MAKE AN INITIAL RUN
+  State = new JSBSim::FGState(FDMExec);
+  State->Setdt(0.2);
+
+  //Debug
+  dt = FDMExec->GetDeltaT();
+  cout << "DT" << dt << endl;
+  //
 
   // init sensors ? or discribe them in jSBSim
 
@@ -132,17 +125,14 @@ static void sim_init(void) {
 static gboolean sim_periodic(gpointer data __attribute__ ((unused))) {
 
   /* read actuators positions and feed JSBSim inputs */
-  cout <<"Copy Inputs." << endl;
   copy_inputs_to_jsbsim(FDMExec);
 
   /* run JSBSim flight model */
-  cout << "Run model." << endl;
   bool result = FDMExec->Run();
 
   //sim_time += DT;
 
   /* read outputs from model state (and display ?) */
-  cout <<"Copy Outputs." << endl;
   copy_outputs_from_jsbsim(FDMExec);
 
   /* run the airborne code */
@@ -160,9 +150,9 @@ static gboolean sim_periodic(gpointer data __attribute__ ((unused))) {
 
 int main ( int argc, char** argv) {
 
-  ICName = "";
+  ICName = "reset00";
   AircraftName = "quad";
-  LogOutputName = "";
+  LogOutputName = "out.csv";
 
   //sim_parse_options(argc, argv);
 
