@@ -18,10 +18,8 @@ void csc_servos_set(int32_t* val)
 {
   Actuator(0) = val[0];
   Actuator(5) = val[1];
-#ifndef USE_UART1
   Actuator(4) = val[2];
   Actuator(3) = val[3];
-#endif
 
   ActuatorsCommit();
 }
