@@ -134,6 +134,22 @@ float xsens_gyro_x[XSENS_COUNT];
 float xsens_gyro_y[XSENS_COUNT];
 float xsens_gyro_z[XSENS_COUNT];
 
+// Raw data
+
+uint16_t xsens_raw_accel_x[XSENS_COUNT];
+uint16_t xsens_raw_accel_y[XSENS_COUNT];
+uint16_t xsens_raw_accel_z[XSENS_COUNT];
+
+uint16_t xsens_raw_mag_x[XSENS_COUNT];
+uint16_t xsens_raw_mag_y[XSENS_COUNT];
+uint16_t xsens_raw_mag_z[XSENS_COUNT];
+
+uint16_t xsens_raw_gyro_x[XSENS_COUNT];
+uint16_t xsens_raw_gyro_y[XSENS_COUNT];
+uint16_t xsens_raw_gyro_z[XSENS_COUNT];
+
+
+
 float xsens_mag_heading[XSENS_COUNT];
 
 int xsens_setzero = 0;
@@ -145,12 +161,19 @@ static volatile uint8_t xsens_msg_buf_count[XSENS_COUNT]; // buffer count
 static volatile uint8_t xsens_msg_buf_pi[XSENS_COUNT]; // produce index
 static volatile uint8_t xsens_msg_buf_ci[XSENS_COUNT]; // consume index
 
+//#define XSENS_RAW_MODE
+
 // See Page 25 MT Low-Level Comm Doc
 #define XSENS_OUTPUT_CALIBRATED (1 << 1)
 #define XSENS_OUTPUT_ORIENTATION (1 << 2)
 #define XSENS_OUTPUT_AUXDATA (1 << 3)
 #define XSENS_OUTPUT_STATUS (1 << 11)
+#define XSENS_RAW_INERTIAL (1 << 14)
+#ifdef XSENS_RAW_MODE
+#define XSENS_DEFAULT_OUTPUT_MODE (XSENS_RAW_INERTIAL | XSENS_OUTPUT_STATUS)
+#else
 #define XSENS_DEFAULT_OUTPUT_MODE (XSENS_OUTPUT_ORIENTATION | XSENS_OUTPUT_STATUS | XSENS_OUTPUT_CALIBRATED)
+#endif
 
 // output settings : (Page 26 MT Low-Level Comm Doc)
 // Sample Counter, rotation matrix, floating point output
@@ -161,7 +184,11 @@ static volatile uint8_t xsens_msg_buf_ci[XSENS_COUNT]; // consume index
 #define XSENS_GYROS (1 << 5)
 #define XSENS_MAGS (1 << 6)
 #define XSENS_TIMESTAMP (1 << 0)
+#ifdef XSENS_RAW_MODE
+#define XSENS_DEFAULT_OUTPUT_SETTINGS (XSENS_ACCELS | XSENS_MAGS | XSENS_GYROS | XSENS_TIMESTAMP)
+#else
 #define XSENS_DEFAULT_OUTPUT_SETTINGS (XSENS_ORIENTATION | XSENS_ACCELS | XSENS_MAGS | XSENS_GYROS | XSENS_TIMESTAMP)
+#endif
 
 #define UNINIT        0
 #define GOT_START     1
@@ -265,7 +292,17 @@ void xsens_parse_msg( uint8_t xsens_id ) {
   else if (msg_id[xsens_id][buf_slot] == XSENS_MTData_ID) {
     uint8_t offset = 0;
     // test RAW modes else calibrated modes 
-    //if ((XSENS_MASK_RAWInertial(xsens2_output_mode)) || (XSENS_MASK_RAWGPS(xsens2_output_mode))) {
+      if (XSENS_MASK_RAWInertial(xsens_output_mode[xsens_id])){// || (XSENS_MASK_RAWGPS(xsens2_output_mode))) {
+	xsens_raw_accel_x[xsens_id] = XSENS_DATA_RAWInertial_accX(xsens_msg_buf[xsens_id][buf_slot],offset);
+	xsens_raw_accel_y[xsens_id] = XSENS_DATA_RAWInertial_accY(xsens_msg_buf[xsens_id][buf_slot],offset);
+	xsens_raw_accel_z[xsens_id] = XSENS_DATA_RAWInertial_accZ(xsens_msg_buf[xsens_id][buf_slot],offset);
+	xsens_raw_gyro_x[xsens_id] = XSENS_DATA_RAWInertial_gyrX(xsens_msg_buf[xsens_id][buf_slot],offset);
+	xsens_raw_gyro_y[xsens_id] = XSENS_DATA_RAWInertial_gyrY(xsens_msg_buf[xsens_id][buf_slot],offset);
+	xsens_raw_gyro_z[xsens_id] = XSENS_DATA_RAWInertial_gyrZ(xsens_msg_buf[xsens_id][buf_slot],offset);
+        xsens_raw_mag_x[xsens_id]  = XSENS_DATA_RAWInertial_magX(xsens_msg_buf[xsens_id][buf_slot],offset);
+	xsens_raw_mag_y[xsens_id]  = XSENS_DATA_RAWInertial_magY(xsens_msg_buf[xsens_id][buf_slot],offset);
+	xsens_raw_mag_z[xsens_id]  = XSENS_DATA_RAWInertial_magZ(xsens_msg_buf[xsens_id][buf_slot],offset);
+      }
       if (XSENS_MASK_Temp(xsens_output_mode[xsens_id])) {
         offset += XSENS_DATA_Temp_LENGTH;
       }
