@@ -232,7 +232,7 @@ class canvas_display_float_item = fun ~config (msg_obj:message) field_name (canv
     inherit canvas_float_item ~config canvas_renderer as item
 
     initializer
-      affine <- PC.get_prop "pscale" config "1"
+      affine <- PC.get_prop "scale" config "1"
 
     method update_field = fun value ->
       if not deleted then begin
