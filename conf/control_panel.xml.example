@@ -31,9 +31,13 @@
       <arg flag="-b" variable="ivy_bus"/>
     </program>
 
+    <program name="Messages (Python)" command="sw/ground_segment/python/messages_app/messagesapp.py"/>
+
     <program name="Settings" command="sw/ground_segment/tmtc/settings">
       <arg flag="-b" variable="ivy_bus"/>
     </program>
+
+    <program name="Settings (Python)" command="sw/ground_segment/python/settings_app/settingsapp.py"/>
 
     <program name="Log Plotter" command ="sw/logalizer/plot"/>
 
