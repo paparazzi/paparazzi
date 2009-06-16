@@ -29,7 +29,7 @@ class TextCtrlSetting(wx.TextCtrl):
   def onEvtText(self, event):
     index = int(self.GetId())
     try:
-      value = float(edit.GetValue())
+      value = float(self.GetValue())
       self.update_callback(index, value)
     except:
       return
