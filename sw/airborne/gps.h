@@ -67,6 +67,7 @@ void gps_init( void );
 void gps_configure( void );
 void parse_gps_msg( void );
 void gps_downlink( void );
+void gps_send( void );
 void gps_configure_uart( void );
 
 
@@ -115,24 +116,13 @@ extern struct svinfo gps_svinfos[GPS_NB_CHANNELS];
 #define GpsToggleLed() {}
 #endif
 
-#define UseGpsPos(_callback) {			\
-    if (GpsFixValid()) {			\
-      last_gps_msg_t = cpu_time_sec;		\
-      _callback();				\
-      GpsToggleLed();				\
-    }						\
-    gps_downlink();				\
-  }
-
-#ifdef UGEAR
-#define UseGpsPosUgear(_callback) {		\
+#define UseGpsPosNoSend(_callback) {			\
     if (GpsFixValid()) {			\
       last_gps_msg_t = cpu_time_sec;		\
       _callback();				\
       GpsToggleLed();				\
     }						\
   }
-#endif
 
 #ifdef GPS_CONFIGURE
 #define GpsParseOrConfigure() {			\

@@ -33,6 +33,7 @@
 #include "latlong.h"
 #include "sys_time.h"
 #include "airframe.h"
+#include "periodic.h"
 
 #ifdef USE_USB_SERIAL
 #include "usb_serial.h"
@@ -56,13 +57,19 @@ volatile uint16_t gps_msg_received_counter;
 #endif
 
 void gps_downlink( void ) {
-  static uint8_t _4Hz;
-  _4Hz++; if (_4Hz > 3) _4Hz = 0;
 
-  
-#if defined DOWNLINK_GPS_1Hz
-  if (_4Hz == 0)
+#  ifdef DOWNLINK_GPS_1Hz
+#  warning "Deperecated DOWNLINK_GPS_1Hz: Please Use Telemetry xml to reduce data rate"
+#  endif
+
+
+#ifndef PERIOD_GPS_0
+   gps_send();
 #endif
+}
+
+void gps_send( void ) {
+  
     DOWNLINK_SEND_GPS(&gps_mode, &gps_utm_east, &gps_utm_north, &gps_course, &gps_alt, &gps_gspeed,&gps_climb, &gps_itow, &gps_utm_zone, &gps_nb_ovrn);
   
   static uint8_t i;
