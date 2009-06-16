@@ -75,6 +75,17 @@
     gui_color="white"
   />
 
+  <aircraft
+   name="MERCURY"
+   ac_id="10"
+   airframe="airframes/mercury.xml"
+   radio="radios/jrxp903.xml"
+   telemetry="telemetry/mercury.xml"
+   flight_plan="flight_plans/dummy.xml"
+   settings="settings/csc_ap.xml"
+   gui_color="white"
+  />
+  
   <aircraft 
     name="CSC"
     ac_id="13"
