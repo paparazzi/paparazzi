@@ -32,11 +32,15 @@
 #include "airframe.h"
 #include "flight_plan.h"
 
+#define RAD2DEG 57.29578
+#define FT2M 0.3048
+
 void autopilot_init(void);
 void autopilot_periodic_task(void);
 void autopilot_event_task(void);
 void copy_inputs_to_jsbsim(JSBSim::FGFDMExec* FDMExec);
 void copy_outputs_from_jsbsim(JSBSim::FGFDMExec* FDMExec);
+bool check_crash_jsbsim(JSBSim::FGFDMExec* FDMExec);
 
 
 #endif // SIM_AC_JSBSIM_H

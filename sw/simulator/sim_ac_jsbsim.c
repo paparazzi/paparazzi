@@ -58,19 +58,16 @@ static void ivy_transport_init(void);
 
 
 static void sim_init(void) {
-
+  
   double dt;
-
-  dt = DT;
 
   // *** SET UP JSBSIM *** //
   
   FDMExec = new JSBSim::FGFDMExec();
-  FDMExec->SetAircraftPath(RootDir + "aircraft");
-  FDMExec->SetEnginePath(RootDir + "engine");
-  FDMExec->SetSystemsPath(RootDir + "systems");
 
-  FDMExec->GetPropertyManager()->Tie("sim-time-sec", &dt);
+  State = FDMExec->GetState();
+  State->Setsim_time(0.);
+  State->Setdt(DT);
 
 #ifdef JSBSIM_ROOT_DIR
   RootDir = JSBSIM_ROOT_DIR;
@@ -102,15 +99,6 @@ static void sim_init(void) {
     delete FDMExec;
     exit(-1);
   }
-
-  FDMExec->Run(); // MAKE AN INITIAL RUN
-  State = new JSBSim::FGState(FDMExec);
-  State->Setdt(0.2);
-
-  //Debug
-  dt = FDMExec->GetDeltaT();
-  cout << "DT" << dt << endl;
-  //
 
   // init sensors ? or discribe them in jSBSim
 
