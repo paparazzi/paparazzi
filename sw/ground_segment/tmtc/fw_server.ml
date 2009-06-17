@@ -193,7 +193,7 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
       begin
 	match a.nav_ref, a.horizontal_mode with
 	  Some nav_ref, 2 -> (** FIXME *)
-	    a.horiz_mode <- Circle (LL.utm_add nav_ref (fvalue "center_east", fvalue "center_north"), ivalue "radius");
+	    a.horiz_mode <- Circle (LL.utm_add nav_ref (fvalue "center_east", fvalue "center_north"), truncate (fvalue "radius"));
 	    if !Kml.enabled then Kml.update_horiz_mode a
 	| _ -> ()
       end

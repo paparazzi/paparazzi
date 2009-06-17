@@ -65,8 +65,8 @@
    <message name="NAVIGATION" id="10">
      <field name="cur_block" type="uint8"></field>
      <field name="cur_stage" type="uint8"></field>
-     <field name="pos_x" type="int16" unit="m"></field>
-     <field name="pos_y" type="int16" unit="m"></field>
+     <field name="pos_x" type="float" unit="m" format="%.1f"></field>
+     <field name="pos_y" type="float" unit="m" format="%.1f"></field>
      <field name="dist2_wp" type="float" format="%.1f" unit="m^2"></field>
      <field name="dist2_home" type="float" format="%.1f" unit="m^2"></field>
    </message>
@@ -136,16 +136,16 @@
    </message>
 	
   <message name="CIRCLE" id="21">
-     <field name="center_east" type="int16" unit="m"/>
-     <field name="center_north" type="int16" unit="m"/>
-     <field name="radius" type="int16" unit="m"/>
+     <field name="center_east" type="float" unit="m"/>
+     <field name="center_north" type="float" unit="m"/>
+     <field name="radius" type="float" unit="m"/>
      </message>
 	
    <message name="SEGMENT" id="22">
-      <field name="segment_east_1" type="int16" unit="m"/>
-      <field name="segment_north_1" type="int16" unit="m"/>
-      <field name="segment_east_2" type="int16" unit="m"/>
-      <field name="segment_north_2" type="int16" unit="m"/>
+      <field name="segment_east_1" type="float" unit="m"/>
+      <field name="segment_north_1" type="float" unit="m"/>
+      <field name="segment_east_2" type="float" unit="m"/>
+      <field name="segment_north_2" type="float" unit="m"/>
   </message>
 
   <message name="DOWNLINK_STATUS" id="23">

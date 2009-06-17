@@ -65,8 +65,8 @@ static float nav_leg_length;
 
 bool_t nav_in_circle = FALSE;
 bool_t nav_in_segment = FALSE;
-int16_t nav_circle_x, nav_circle_y, nav_circle_radius;
-int16_t nav_segment_x_1, nav_segment_y_1, nav_segment_x_2, nav_segment_y_2;
+float nav_circle_x, nav_circle_y, nav_circle_radius;
+float nav_segment_x_1, nav_segment_y_1, nav_segment_x_2, nav_segment_y_2;
 uint8_t horizontal_mode;
 float circle_bank = 0;
 

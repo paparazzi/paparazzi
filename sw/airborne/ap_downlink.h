@@ -129,7 +129,7 @@
 
 #define PERIODIC_SEND_ESTIMATOR() DOWNLINK_SEND_ESTIMATOR(&estimator_z, &estimator_z_dot)
 
-#define SEND_NAVIGATION() Downlink({ int16_t pos_x = estimator_x; int16_t pos_y = estimator_y; DOWNLINK_SEND_NAVIGATION(&nav_block, &nav_stage, &pos_x, &pos_y, &dist2_to_wp, &dist2_to_home);})
+#define SEND_NAVIGATION() Downlink({ DOWNLINK_SEND_NAVIGATION(&nav_block, &nav_stage, &estimator_x, &estimator_y, &dist2_to_wp, &dist2_to_home);})
 
 #define PERIODIC_SEND_NAVIGATION() SEND_NAVIGATION()
 

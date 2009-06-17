@@ -59,8 +59,8 @@ extern float carrot_x, carrot_y;
 extern float nav_circle_radians; /* Cumulated */
 extern bool_t nav_in_circle;
 extern bool_t nav_in_segment;
-extern int16_t nav_circle_x, nav_circle_y, nav_circle_radius;
-extern int16_t nav_segment_x_1, nav_segment_y_1, nav_segment_x_2, nav_segment_y_2;
+extern float nav_circle_x, nav_circle_y, nav_circle_radius; /* m */
+extern float nav_segment_x_1, nav_segment_y_1, nav_segment_x_2, nav_segment_y_2; /* m */
 
 extern int nav_mode;
 #define NAV_MODE_ROLL 1
