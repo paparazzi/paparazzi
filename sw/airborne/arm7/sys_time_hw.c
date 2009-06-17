@@ -17,6 +17,10 @@ uint32_t sys_time_chrono; /* T0TC ticks */
 #include "mb_scale.h"
 #endif /* MB_SCALE */
 
+#ifndef RADIO_CONTROL
+#define PPM_CRI 0x0
+#endif
+
 #ifdef MB_TACHO
 #include "mb_tacho.h"
 // FIXME : declared the scale interrupt here :(
