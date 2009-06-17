@@ -29,7 +29,7 @@ OCAMLOPT=ocamlopt
 OCAMLLIBDIR=$(shell ocamlc -where)
 
 
-SRC = debug.ml base64.ml serial.ml ocaml_tools.ml extXml.ml env.ml xml2h.ml latlong.ml srtm.ml http.ml gm.ml iGN.ml geometry_2d.ml cserial.o convert.o ubx.ml pprz.ml xbee.ml xmlCom.ml editAirframe.ml
+SRC = debug.ml base64.ml serial.ml ocaml_tools.ml extXml.ml env.ml xml2h.ml latlong.ml srtm.ml http.ml gm.ml iGN.ml geometry_2d.ml cserial.o convert.o ubx.ml pprz.ml xbee.ml logpprz.ml xmlCom.ml editAirframe.ml
 CMO = $(SRC:.ml=.cmo)
 CMX = $(SRC:.ml=.cmx)
 
@@ -37,7 +37,7 @@ XSRC = gtk_tools.ml platform.ml wind_sock.ml gtk_papget_editor.ml gtk_papget_tex
 XCMO = $(XSRC:.ml=.cmo)
 XCMX = $(XSRC:.ml=.cmx)
 
-TESTS_SRC = test/test_latlong.ml
+TESTS_SRC = test/test_logpprz.ml
 TESTS_CMO = $(TESTS_SRC:.ml=.cmo)
 
 $(XCMO) $(XCMX) myGtkInit.cmo : INCLUDES=$(XINCLUDES)
@@ -67,7 +67,7 @@ xml_get.out : lib-pprz.cma xml_get.cmo
 	$(Q)$(OCAMLC) $(INCLUDES) -o $@ str.cma xml-light.cma -I . $^
 
 tests : lib-pprz.cma $(TESTS_CMO)
-	$(OCAMLC) -custom -I . -o $@ str.cma unix.cma $^
+	$(OCAMLC) $(INCLUDES) -custom -I . -o $@ str.cma unix.cma ivy-ocaml.cma xml-light.cma $^
 
 GTKCFLAGS := -I /usr/lib/gtk-2.0/include -I/usr/include/gtk-2.0 -I/usr/include/atk-1.0 -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include -I/usr/include/pango-1.0 -I /usr/include/cairo
 # GTKCFLAGS := $(shell gtk-config --cflags)
