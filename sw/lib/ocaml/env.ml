@@ -27,6 +27,7 @@
 open Printf
 
 let (//) = Filename.concat
+let space_regexp = Str.regexp "[ \t]+"
 let make_element = fun t a c -> Xml.Element (t,a,c)
 
 let paparazzi_src =
@@ -67,17 +68,15 @@ let expand_ac_xml = fun ac_conf ->
 	make_element "cannot_parse" ["file",file;"error", s] [] in
 
   let parse = fun a ->
-    let file = prefix (ExtXml.attrib ac_conf a) in
-    parse_file a file in
+    List.map
+      (fun filename ->parse_file a (prefix filename))
+      (Str.split space_regexp (ExtXml.attrib ac_conf a)) in
 
-  let parse_opt = fun a others ->
-    try
-      parse a :: others
-    with
-      ExtXml.Error _ -> others in
+  let parse_opt = fun a ->
+    try parse a with ExtXml.Error _ -> [] in
 
-  let pervasives = [parse "airframe"; parse "settings"; parse "telemetry"] in
-  let optionals = parse_opt "radio" (parse_opt "flight_plan" pervasives) in
+  let pervasives = parse "airframe" @ parse "telemetry" @ parse "settings" in
+  let optionals = parse_opt "radio" @ parse_opt "flight_plan" @ pervasives in
 
   let children = Xml.children ac_conf@optionals in
   make_element (Xml.tag ac_conf) (Xml.attribs ac_conf) children
