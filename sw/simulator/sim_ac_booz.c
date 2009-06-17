@@ -1,5 +1,5 @@
 /*
- * $Id$
+ * $Id: sim_ac_fw.c 3499 2009-06-16 17:38:56Z gov $
  *  
  * Copyright (C) 2008 Gautier Hattenberger
  *
@@ -48,8 +48,22 @@ void autopilot_event_task(void) {
 }
 
 void copy_inputs_to_jsbsim(FGFDMExec* FDMExec) {
+  
+  FGPropertyManager* cur_node;
+  double cur_value;
+  char buf[64];
+  const char* state[] = {"front_motor",
+			 "back_motor",
+			 "right_motor",
+			 "left_motor"};
 
-
+  for (int i=0; i<4; i++) {
+    sprintf(buf,"fcs/%s",state[i]);
+    FDMExec->GetPropertyManager()->SetDouble(buf,0.5);
+    cur_node = FDMExec->GetPropertyManager()->GetNode(buf);
+    cur_value = cur_node->getDoubleValue();
+    cout << state[i] << " " << cur_value << endl;
+  }
 }
 
 void copy_outputs_from_jsbsim(FGFDMExec* FDMExec) {
@@ -79,4 +93,3 @@ void copy_outputs_from_jsbsim(FGFDMExec* FDMExec) {
   }
 
 }
-

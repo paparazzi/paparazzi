@@ -39,13 +39,6 @@ string ICName;
 string AircraftName;
 string LogOutputName;
 JSBSim::FGFDMExec* FDMExec;
-JSBSim::FGState* State;
-
-/* 60Hz <-> 17ms */
-#ifndef JSBSIM_PERIOD
-#define JSBSIM_PERIOD 17
-#endif
-#define DT (JSBSIM_PERIOD*1e-3)
 
 static void     sim_parse_options(int argc, char** argv);
 static void     sim_init(void);
@@ -58,47 +51,8 @@ static void ivy_transport_init(void);
 
 
 static void sim_init(void) {
-  
-  double dt;
 
-  // *** SET UP JSBSIM *** //
-  
-  FDMExec = new JSBSim::FGFDMExec();
-
-  State = FDMExec->GetState();
-  State->Setsim_time(0.);
-  State->Setdt(DT);
-
-#ifdef JSBSIM_ROOT_DIR
-  RootDir = JSBSIM_ROOT_DIR;
-#endif
-
-  if (!AircraftName.empty()) {
-
-    FDMExec->DisableOutput();
-    FDMExec->SetDebugLevel(0); // No DEBUG messages
-
-    if ( ! FDMExec->LoadModel( RootDir + "aircraft",
-                               RootDir + "engine",
-                               RootDir + "systems",
-                               AircraftName)){
-      cerr << "  JSBSim could not be started" << endl << endl;
-      delete FDMExec;
-      exit(-1);
-    }
-
-    JSBSim::FGInitialCondition *IC = FDMExec->GetIC();
-    if ( ! IC->Load(ICName)) {
-      delete FDMExec;
-      cerr << "Initialization unsuccessful" << endl;
-      exit(-1);
-    }
-
-  } else {
-    cerr << "  No Aircraft given" << endl << endl;
-    delete FDMExec;
-    exit(-1);
-  }
+  jsbsim_init();
 
   // init sensors ? or discribe them in jSBSim
 
@@ -109,7 +63,6 @@ static void sim_init(void) {
 
 }
 
-
 static gboolean sim_periodic(gpointer data __attribute__ ((unused))) {
 
   /* read actuators positions and feed JSBSim inputs */
@@ -119,6 +72,9 @@ static gboolean sim_periodic(gpointer data __attribute__ ((unused))) {
   bool result = FDMExec->Run();
 
   //sim_time += DT;
+
+  /* check if still flying */
+  result = check_crash_jsbsim(FDMExec);
 
   /* read outputs from model state (and display ?) */
   copy_outputs_from_jsbsim(FDMExec);
@@ -200,4 +156,66 @@ static void sim_parse_options(int argc, char** argv) {
     }
   }
 
+}
+
+void jsbsim_init(void) {
+
+  JSBSim::FGState* State;
+  bool result;
+
+  FDMExec = new JSBSim::FGFDMExec();
+
+  State = FDMExec->GetState();
+  State->Setsim_time(0.);
+  State->Setdt(DT);
+
+  cout << "Simulation elapsed time: " << FDMExec->GetSimTime() << endl;
+  cout << "Simulation delta " << FDMExec->GetDeltaT() << endl;
+
+#ifdef JSBSIM_ROOT_DIR
+  RootDir = JSBSIM_ROOT_DIR;
+#endif
+
+  if (!AircraftName.empty()) {
+    
+    FDMExec->DisableOutput();
+    FDMExec->SetDebugLevel(0); // No DEBUG messages
+    
+    if ( ! FDMExec->LoadModel( RootDir + "aircraft",
+                               RootDir + "engine",
+                               RootDir + "systems",
+                               AircraftName)){
+      cerr << "  JSBSim could not be started" << endl << endl;
+      delete FDMExec;
+      exit(-1);
+    }
+
+    JSBSim::FGInitialCondition *IC = FDMExec->GetIC();
+    if ( ! IC->Load(ICName)) {
+      delete FDMExec;
+      cerr << "Initialization unsuccessful" << endl;
+      exit(-1);
+    }
+
+  } else {
+    cerr << "  No Aircraft given" << endl << endl;
+    delete FDMExec;
+    exit(-1);
+  }
+
+  result = FDMExec->Run();
+  if (result) cout << "Made Initial Run" << endl;
+
+}
+
+bool check_crash_jsbsim(JSBSim::FGFDMExec* FDMExec) {
+
+  JSBSim::FGPropertyManager* cur_node;
+  double cur_value;
+  
+  cur_node = FDMExec->GetPropertyManager()->GetNode("ic/h-agl-ft");
+  cur_value = cur_node->getDoubleValue();
+
+  if (cur_value>0) return true;
+  else return false;
 }
