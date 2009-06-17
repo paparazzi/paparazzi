@@ -154,6 +154,13 @@
  </section>
 
 
+ <section name="SIMULATOR">
+   <define name="ACTUATOR_COMMAND_NAMES"  value="[&quot;front_motor&quot;, &quot;back_motor&quot;, &quot;right_motor&quot;, &quot;left_motor&quot;]"/>
+ </section>
+
+
+
+
   <makefile>
 # prevents motors from ever starting
 #ap.CFLAGS += -DKILL_MOTORS
@@ -162,9 +169,9 @@ include $(PAPARAZZI_SRC)/conf/autopilot/booz2_autopilot.makefile
 include $(PAPARAZZI_SRC)/conf/autopilot/booz2_test_progs.makefile
 
 sim.CFLAGS += -DBSM_PARAMS=\"booz_sensors_model_params_booz2_a1.h\"
-include $(PAPARAZZI_SRC)/conf/autopilot/booz2_simulator.makefile
-
-include $(PAPARAZZI_SRC)/conf/autopilot/booz2_simulator_jsbsim.makefile
+#include $(PAPARAZZI_SRC)/conf/autopilot/booz2_simulator.makefile
+#include $(PAPARAZZI_SRC)/conf/autopilot/booz2_simulator_jsbsim.makefile
+include $(PAPARAZZI_SRC)/conf/autopilot/booz2_simulator_nps.makefile
 
 
 ap.CFLAGS += -DUART1_BAUD=B57600
