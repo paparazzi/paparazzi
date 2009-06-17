@@ -2,6 +2,7 @@
 #define NPS_SENSORS_GYRO_H
 
 #include "pprz_algebra_double.h"
+#include "std.h"
 
 struct NpsSensorGyro {
   struct DoubleVect3  value;
@@ -13,7 +14,7 @@ struct NpsSensorGyro {
   struct DoubleVect3  bias_random_walk_std_dev;
   struct DoubleVect3  bias_random_walk_value;
   double       next_update;
-  int          available;
+  bool_t       data_available;
 };
 
 #endif /* NPS_SENSORS_GYRO_H */

@@ -13,7 +13,8 @@ bool_t nps_sensor_gyro_available() {
 }
 
 void  nps_sensor_gyro_init(double time) {
-
+  VECT3_ASSIGN(sensors.gyro.value, 0., 0., 0.);
+#if 0
   bsm.gyro = v_get(AXIS_NB);
   bsm.gyro->ve[AXIS_P] = 0.;
   bsm.gyro->ve[AXIS_Q] = 0.;
@@ -53,10 +54,11 @@ void  nps_sensor_gyro_init(double time) {
   
   bsm.gyro_next_update = time;
   bsm.gyro_available = FALSE;
-  
+#endif
 }
 
 void booz_sensors_model_gyro_run( double time ) {
+#if 0
   if (time < bsm.gyro_next_update)
     return;
 
@@ -97,6 +99,7 @@ void booz_sensors_model_gyro_run( double time ) {
 
   bsm.gyro_next_update += BSM_GYRO_DT;
   bsm.gyro_available = TRUE;
+#endif
 }
 
 

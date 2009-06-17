@@ -8,7 +8,6 @@ MY_JSBSIM_ROOT = /home/violato/enac/programs/JSBSim
 MY_JSBSIM_LIB = /home/violato/enac/programs/install_jsbsim
 SRC_BOOZ=booz
 SRC_BOOZ_SIM = $(SRC_BOOZ)/sim
-#BOOZ_PRIV_ARCH = $(BOOZ_PRIV_SIM)
 
 
 sim.ARCHDIR = $(ARCHI)
@@ -31,3 +30,4 @@ sim.srcs = $(SIMDIR)/nps_main.c                      \
 	   $(SIMDIR)/nps_sensor_gyro.c               \
 	   $(SIMDIR)/nps_autopilot.c                 \
 
+sim.srcs += $(SRC_BOOZ)/booz_trig_int.c
