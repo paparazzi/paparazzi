@@ -123,8 +123,6 @@ include Makefile.ac
 
 sim : sim_static
 
-jsim:
-	cd $(SIMULATOR); $(MAKE) PAPARAZZI_SRC=$(PAPARAZZI_SRC)
 
 ac_h ac1 ac2 ac3 ac fbw ap: static conf
 

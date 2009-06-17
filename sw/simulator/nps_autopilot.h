@@ -9,6 +9,7 @@ struct NpsAutopilot {
 
 extern struct NpsAutopilot autopilot;
 
+extern void nps_autopilot_init(void);
 extern void nps_autopilot_run_step(void);
 
 #endif /* NPS_AUTOPILOT_H */

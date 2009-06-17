@@ -9,8 +9,8 @@
 
 using namespace JSBSim;
 
-void nps_fdm_feed_jsbsim(void);
-void nps_fdm_fetch_state(void);
+static void feed_jsbsim(double* commands);
+static void fetch_state(void);
 
 FGFDMExec* FDMExec;
 
@@ -22,15 +22,15 @@ void nps_fdm_init(double dt) {
 
 void nps_fdm_run_step(double* commands) {
 
-  nps_fdm_feed_jsbsim(double* commands);
+  feed_jsbsim(commands);
 
   /* run JSBSim */
 
-  nps_fdm_fetch_state();
+  fetch_state();
 
 }
 
-void nps_fdm_feed_jsbsim(double* commands) {
+static void feed_jsbsim(double* commands) {
 
 #if 0
   printf("Actuators Names:\n");
@@ -39,7 +39,9 @@ void nps_fdm_feed_jsbsim(double* commands) {
   }
 #endif
 
-void nps_fdm_fetch_state(void) {
+}
+
+static void fetch_state(void) {
 
   /* JSBSim to fdm */
 

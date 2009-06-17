@@ -1,23 +1,30 @@
 
+#include <glib.h>
 
 #include "nps_fdm.h"
 #include "nps_sensors.h"
-#include "nps_athmosphere.h"
-#include "nps_autopilot"
+#include "nps_atmosphere.h"
+#include "nps_autopilot.h"
 
 
 #define SIM_DT     (1./512.)
 #define DISPLAY_DT (1./25.)
 
 
-struct {
+static struct {
   double sim_time;
   double display_time;
 } nps_main;
 
+static void nps_main_init(void);
+static void nps_main_display(void);
+static void nps_main_run_sim_step(void);
+static gboolean nps_main_periodic(gpointer data __attribute__ ((unused)));
+
 
 int main ( int argc, char** argv) {
 
+  nps_main_init();
 
   return 0;
 }
@@ -26,7 +33,7 @@ int main ( int argc, char** argv) {
 
 
 
-void nps_main_init(void) {
+static void nps_main_init(void) {
 
   nps_main.sim_time = 0.;
   nps_main.display_time = 0.;
@@ -35,23 +42,24 @@ void nps_main_init(void) {
 
 
 
-void nps_main_run_sim_step(void) {
+static void nps_main_run_sim_step(void) {
 
   nps_fdm_run_step(autopilot.commands);
 
-  nps_sensors_run_step();
+  //  nps_sensors_run_step();
 
-  nps_autopilot_run_step();
-
-}
-
-void nps_main_display(void) {
-
+  //  nps_autopilot_run_step();
 
 }
 
 
-gboolean nps_main_periodic(gpointer data __attribute__ ((unused))) {
+static void nps_main_display(void) {
+
+
+}
+
+
+static gboolean nps_main_periodic(gpointer data __attribute__ ((unused))) {
   
   /* FIXME */
 #if 0

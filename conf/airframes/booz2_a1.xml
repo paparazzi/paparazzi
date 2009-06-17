@@ -171,6 +171,7 @@ include $(PAPARAZZI_SRC)/conf/autopilot/booz2_test_progs.makefile
 sim.CFLAGS += -DBSM_PARAMS=\"booz_sensors_model_params_booz2_a1.h\"
 #include $(PAPARAZZI_SRC)/conf/autopilot/booz2_simulator.makefile
 #include $(PAPARAZZI_SRC)/conf/autopilot/booz2_simulator_jsbsim.makefile
+sim.CFLAGS += -DNPS_SENSORS_PARAMS=\"booz_sensors_model_params_booz2_a1.h\"
 include $(PAPARAZZI_SRC)/conf/autopilot/booz2_simulator_nps.makefile
 
 
