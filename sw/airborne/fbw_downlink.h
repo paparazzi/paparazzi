@@ -57,7 +57,7 @@
 #define PERIODIC_SEND_PPM() DOWNLINK_SEND_PPM(&last_ppm_cpt, PPM_NB_PULSES, ppm_pulses)
 #define PERIODIC_SEND_RC() DOWNLINK_SEND_RC(PPM_NB_PULSES, rc_values)
 #else // RADIO_CONTROL
-#define PERIODIC_SEND_FBW_STATUS() { uint8_t dummy = 0; DOWNLINK_SEND_FBW_STATUS(&dummy, &fbw_mode, &fbw_vsupply_decivolt); }
+#define PERIODIC_SEND_FBW_STATUS() { uint8_t dummy = 0; DOWNLINK_SEND_FBW_STATUS(&dummy, &fbw_mode, &fbw_vsupply_decivolt, &fbw_current_milliamp); }
 #define PERIODIC_SEND_PPM() {}
 #define PERIODIC_SEND_RC() {}
 #endif // RADIO_CONTROL
