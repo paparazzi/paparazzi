@@ -25,30 +25,67 @@
 #include "LPC21xx.h"
 #include "interrupt_hw.h"  
 #include "max3100_hw.h"
-#include "led.h"
 
-uint8_t max3100_status;
-bool max3100_data_available;
-
-uint8_t max3100_tx_insert_idx, max3100_tx_extract_idx;
-uint8_t max3100_rx_insert_idx, max3100_rx_extract_idx;
-
-uint8_t max3100_tx_buf[MAX3100_TX_BUF_LEN];
-uint8_t max3100_rx_buf[MAX3100_RX_BUF_LEN];
+#include "ap_downlink.h"
+#include "uart.h"
 
 
-static void EXTINT0_ISR(void) __attribute__((naked));
+uint8_t volatile max3100_status;
+bool volatile max3100_data_available;
+
+uint8_t volatile max3100_tx_insert_idx, max3100_tx_extract_idx;
+uint8_t volatile max3100_rx_insert_idx, max3100_rx_extract_idx;
+
+uint8_t volatile max3100_tx_buf[MAX3100_TX_BUF_LEN];
+uint8_t volatile max3100_rx_buf[MAX3100_RX_BUF_LEN];
+
+
+bool read_bytes = false;
+
+
+static void EXTINT2_ISR(void) __attribute__((naked));
 static void SPI1_ISR(void) __attribute__((naked));
+
+#define PINSEL1_SCK  (2 << 2)
+#define PINSEL1_MISO (2 << 4)
+#define PINSEL1_MOSI (2 << 6)
+#define PINSEL1_SSEL (2 << 8)
+
+/* SSPCR0 settings */
+#define SSP_DSS  0x0F << 0  /* data size            : 16 bits   */
+// #define SSP_DSS  0x07 << 0  /* data size            : 8 bits   */
+#define SSP_FRF  0x00 << 4  /* frame format         : SPI      */
+#define SSP_CPOL 0x00 << 6  /* clock polarity       : idle low */  
+#define SSP_CPHA 0x00 << 7  /* clock phase          : 0        */
+#define SSP_SCR  0x0F << 8  /* serial clock rate    : 29.3kHz, SSP input clock / 16 */
+
+/* SSPCR1 settings */
+#define SSP_LBM  0x00 << 0  /* loopback mode     : disabled                  */
+#define SSP_SSE  0x00 << 1  /* SSP enable        : disabled                  */
+#define SSP_MS   0x00 << 2  /* master slave mode : master                    */
+#define SSP_SOD  0x00 << 3  /* slave output disable : don't care when master */
+
+#ifndef SSPCPSR_VAL
+#define SSPCPSR_VAL 0x04
+#endif
 
 
 void max3100_init( void ) {
-
   max3100_status = MAX3100_STATUS_IDLE;
   max3100_data_available = false;
   max3100_tx_insert_idx = 0;
   max3100_tx_extract_idx = 0;
   max3100_rx_insert_idx = 0;
   max3100_rx_extract_idx = 0;
+
+  /* setup pins for SSP (SCK, MISO, MOSI) */
+  PINSEL1 |= PINSEL1_SCK | PINSEL1_MISO | PINSEL1_MOSI;
+
+  /* setup SSP */
+  SSPCR0 = SSP_DSS | SSP_FRF | SSP_CPOL | SSP_CPHA | SSP_SCR;
+  SSPCR1 = SSP_LBM | SSP_MS | SSP_SOD;
+  SSPCPSR = SSPCPSR_VAL; /* Prescaler */
+
 
   /* From arm7/max1167_hw.c */
   
@@ -57,7 +94,7 @@ void max3100_init( void ) {
   /* unselected max3100 */
   Max3100Unselect();
 
-  /* connect P0.16 to extint0 (IRQ) */
+  /* connect P0.7 to extint2 (IRQ) */
   MAX3100_IRQ_PINSEL |= MAX3100_IRQ_PINSEL_VAL << MAX3100_IRQ_PINSEL_BIT;
   /* extint0 is edge trigered */
   SetBit(EXTMODE, MAX3100_IRQ_EINT);
@@ -67,10 +104,10 @@ void max3100_init( void ) {
   SetBit(EXTINT, MAX3100_IRQ_EINT);
 
    /* Configure interrupt vector for external pin interrupt */
-  VICIntSelect &= ~VIC_BIT( VIC_EINT0 );                     // EXTINT0 selected as IRQ
-  VICIntEnable = VIC_BIT( VIC_EINT0 );                       // EXTINT0 interrupt enabled
-  VICVectCntl8 = VIC_ENABLE | VIC_EINT0;
-  VICVectAddr8 = (uint32_t)EXTINT0_ISR;   // address of the ISR 
+  VICIntSelect &= ~VIC_BIT( VIC_EINT2 );                     // EXTINT2 selected as IRQ
+  VICIntEnable = VIC_BIT( VIC_EINT2 );                       // EXTINT2 interrupt enabled
+  VICVectCntl8 = VIC_ENABLE | VIC_EINT2;
+  VICVectAddr8 = (uint32_t)EXTINT2_ISR;   // address of the ISR 
 
   /* Configure interrupt vector for SPI */
   VICIntSelect &= ~VIC_BIT(VIC_SPI1);   /* SPI1 selected as IRQ */
@@ -83,45 +120,47 @@ void max3100_init( void ) {
 }
 
 
-void EXTINT0_ISR(void) {
+/******* External interrupt: Data input available ***********/
+void EXTINT2_ISR(void) {
   ISR_ENTRY();
+
+  LED_ON(2);
 
   max3100_data_available = true;
   
-  SetBit(EXTINT, MAX3100_IRQ_EINT);   /* clear extint0 */
+  SetBit(EXTINT, MAX3100_IRQ_EINT);   /* clear extint */
   VICVectAddr = 0x00000000; /* clear this interrupt from the VIC */
+
+  LED_OFF(2);
 
   ISR_EXIT();
 }
 
 void SPI1_ISR(void) {
-  uint8_t read_byte;
-
   ISR_ENTRY();
 
+  while (bit_is_set(SSPSR, RNE)) {
+    //    uint8_t byte1 = SSPDR;
+    //uint8_t byte2 = SSPDR;
+    //    uint16_t data = byte1 << 8 | byte2;
+    uint16_t data = SSPDR;
+
+    if (bit_is_set(data, MAX3100_R_BIT)) { /* Data available */
+      max3100_rx_buf[max3100_rx_insert_idx] = data & 0xff;
+      max3100_rx_insert_idx++;  // automatic overflow because len=256
+      read_bytes = true;
+    }
+  }
+  SpiClearRti();                  /* clear interrupt */
+  SpiDisableRti();    
+  SpiDisable ();
   Max3100Unselect();
   max3100_status = MAX3100_STATUS_IDLE;
-
-  switch (max3100_status) {
-  case MAX3100_STATUS_READING:
-    SpiRead(read_byte); 
-    SpiRead(max3100_rx_buf[max3100_rx_insert_idx]);
-    max3100_rx_insert_idx++;  // automatic overflow because len=256
-    max3100_data_available = Max3100BitR(read_byte);
-    break;
-
-  case MAX3100_STATUS_WRITING:
-    SpiRead(read_byte); 
-    SpiRead(read_byte);
-    break;
-  }
 
   VICVectAddr = 0x00000000; /* clear this interrupt from the VIC */
   ISR_EXIT();
 }
 
-
-
-void max3100_test_write( void ) {
-  max3100_putchar('a');
+void max3100_debug(void) {
+  /***/     DOWNLINK_SEND_DEBUG(16, max3100_rx_buf); /***/
 }
