@@ -226,7 +226,7 @@ let fill_ortho = fun (geomap:G.widget) ->
     
 
 (******* Mouse motion handling **********************************************)
-let motion_notify = fun (geomap:G.widget) ev -> false
+let motion_notify = fun (geomap:G.widget) _ev -> false
 
 (******* Mouse wheel handling ***********************************************)
 let any_event = fun (geomap:G.widget) ev -> false
@@ -394,8 +394,8 @@ let create_geomap = fun window switch_fullscreen editor_frame ->
     let fp_menu_fact = new GMenu.factory ~accel_group fp_menu in
     ignore (fp_menu_fact#add_item "New flight plan" ~key:GdkKeysyms._N ~callback:(EditFP.new_fp geomap editor_frame accel_group));
     ignore (fp_menu_fact#add_item "Open flight plan" ~key:GdkKeysyms._O ~callback:(EditFP.load_fp geomap editor_frame accel_group));
-    ignore (fp_menu_fact#add_item "Save flight plan" ~key:GdkKeysyms._S ~callback:(EditFP.save_fp));
-    ignore (fp_menu_fact#add_item "Close flight plan" ~key:GdkKeysyms._W ~callback:(EditFP.close_fp))
+    ignore (fp_menu_fact#add_item "Save flight plan" ~key:GdkKeysyms._S ~callback:(fun () -> EditFP.save_fp geomap));
+    ignore (fp_menu_fact#add_item "Close flight plan" ~key:GdkKeysyms._W ~callback:(fun () -> EditFP.close_fp geomap))
   end;
 
   (** Help pushed to the right *)
@@ -549,8 +549,7 @@ let () =
     match !wid with
       None ->
 	let icon = GdkPixbuf.from_file Env.icon_file in
-	let title = if !edit then "Flight Plan Editor" else "GCS" in
-  	let window = GWindow.window ~icon ~title ~border_width:1 ~width ~height ~allow_shrink:true () in
+  	let window = GWindow.window ~icon ~title:"GCS" ~border_width:1 ~width ~height ~allow_shrink:true () in
 	if !maximize then
 	  window#maximize ();
 	if !fullscreen then
@@ -692,6 +691,9 @@ let () =
       EditFP.load_xml_file geomap editor_frame accel_group !file_to_edit
     else
       GToolbox.message_box "Error" (sprintf "Error: '%s' file does not exist\n%!" !file_to_edit);
+
+  if !edit then
+    EditFP.set_window_title geomap;
 
   (** Threaded main loop (map tiles loaded concurently) *)
   GtkThread.main ()

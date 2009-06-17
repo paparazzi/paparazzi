@@ -30,7 +30,19 @@ let if_none = fun f ->
   | None ->
       f ()
 
-let save_fp = fun () ->
+let set_window_title = fun geomap ->
+  let title_suffix =
+    match !current_fp with 
+      None -> ""
+    | Some (_fp, xml_file) -> sprintf " (%s)" (Filename.basename xml_file) in
+  match GWindow.toplevel geomap#canvas with
+    Some w ->
+      w#set_title (sprintf "Flight Plan Editor%s" title_suffix)
+  | None -> ()
+
+
+
+let save_fp = fun geomap ->
   match !current_fp with
     None -> () (* Nothing to save *)
   | Some (fp, filename) ->
@@ -40,9 +52,12 @@ let save_fp = fun () ->
 	  let f  = open_out file in
 	  fprintf f "<!DOCTYPE flight_plan SYSTEM \"flight_plan.dtd\">\n\n";
 	  fprintf f "%s\n" (ExtXml.to_string_fmt fp#xml);
-	  close_out f
+	  close_out f;
+	  current_fp := Some (fp, file);
+	  set_window_title geomap
+	  
 
-let close_fp = fun () ->
+let close_fp = fun geomap ->
   match !current_fp with
     None -> () (* Nothing to close *)
   | Some (fp, _filename) ->
@@ -50,11 +65,11 @@ let close_fp = fun () ->
 	fp#destroy ();
 	current_fp := None in
       match GToolbox.question_box ~title:"Closing flight plan" ~buttons:["Close"; "Save&Close"; "Cancel"] "Do you want to save/close ?" with
-	2 -> save_fp (); close ()
+	2 -> save_fp geomap; close ()
       | 1 -> close ()	  
       | _ -> ()
 	  
-let load_xml_fp = fun geomap editor_frame accel_group ?(xml_file=Env.flight_plans_path) xml ->
+let load_xml_fp = fun geomap editor_frame _accel_group ?(xml_file=Env.flight_plans_path) xml ->
   Map2d.set_georef_if_none geomap (MapFP.georef_of_xml xml);
   let fp = new MapFP.flight_plan ~editable:true ~show_moved:false geomap "red" Env.flight_plan_dtd xml in
   editor_frame#add fp#window;
@@ -63,7 +78,7 @@ let load_xml_fp = fun geomap editor_frame accel_group ?(xml_file=Env.flight_plan
   (** Add waypoints as geo references *)
    List.iter 
     (fun w ->
-      let (i, w) = fp#index w in
+      let (_i, w) = fp#index w in
       geomap#add_info_georef (sprintf "%s" w#name) (w :> < pos : Latlong.geographic >))
     fp#waypoints;
   
@@ -121,15 +136,13 @@ let loading_error = fun xml_file e ->
   GToolbox.message_box "Error" m
 
 
+
 let load_xml_file = fun geomap editor_frame accel_group xml_file ->
   try
     let xml = Xml.parse_file xml_file in
     ignore (load_xml_fp geomap editor_frame accel_group ~xml_file xml);
     geomap#fit_to_window ();
-    match GWindow.toplevel geomap#canvas with
-      Some w ->
-	w#set_title (sprintf "%s (%s)" w#title (Filename.basename xml_file))
-    | None -> ()
+    set_window_title geomap
   with
     Dtd.Prove_error(e) -> loading_error xml_file (Dtd.prove_error e)
   | Dtd.Check_error(e) -> loading_error xml_file (Dtd.check_error e)
@@ -194,7 +207,7 @@ let calibrate_map = fun (geomap:MapCanvas.widget) editor_frame accel_group () ->
 	  let cal = GButton.button ~stock:`OK ~packing:h#add () in
 	  let destroy = fun () ->
 	    dialog#destroy ();
-	    close_fp ();
+	    close_fp geomap;
 	    pix#destroy () in
 	  ignore(cancel#connect#clicked ~callback:destroy);
 	  ignore(cal#connect#clicked ~callback:(fun _ ->

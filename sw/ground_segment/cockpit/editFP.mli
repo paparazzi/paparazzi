@@ -3,5 +3,6 @@ val calibrate_map : MapCanvas.widget -> GBin.frame -> Gtk.accel_group -> unit ->
 val new_fp : MapCanvas.widget -> GBin.frame -> Gtk.accel_group -> unit -> unit
 val load_fp : MapCanvas.widget -> GBin.frame -> Gtk.accel_group -> unit -> unit
 val load_xml_file : MapCanvas.widget -> GBin.frame -> Gtk.accel_group -> string -> unit
-val save_fp : unit -> unit
-val close_fp : unit -> unit
+val save_fp : MapCanvas.widget -> unit
+val close_fp : MapCanvas.widget -> unit
+val set_window_title : MapCanvas.widget -> unit
