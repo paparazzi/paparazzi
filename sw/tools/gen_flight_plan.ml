@@ -92,7 +92,7 @@ let security_height = ref 0.
 
 let check_altitude = fun a x ->
   if a < !ground_alt +. !security_height then begin
-    fprintf stderr "\nWARNING: low altitude (%.0f<%.0f+%.0f) in %s\n\n" a !ground_alt !security_height (Xml.to_string x)
+    fprintf stderr "\nWarning: low altitude (%.0f<%.0f+%.0f) in %s\n\n" a !ground_alt !security_height (Xml.to_string x)
   end
 
 
@@ -226,7 +226,7 @@ let output_hmode x wp last_wp =
       match hmode with
 	"route" ->
 	  if last_wp = "last_wp" then
-	    fprintf stderr "WARNING: Deprecated use of 'route' using last waypoint in %s\n"(Xml.to_string x);
+	    fprintf stderr "Warning: Deprecated use of 'route' using last waypoint in %s\n"(Xml.to_string x);
 	  lprintf "NavSegment(%s, %s);\n" last_wp wp
       | "direct" -> lprintf "NavGotoWaypoint(%s);\n" wp
       | x -> failwith (sprintf "Unknown hmode '%s'" x)
@@ -581,7 +581,7 @@ let check_distance = fun (hx, hy) max_d wp ->
   and y = float_attrib wp "y" in
   let d = sqrt ((x-.hx)**2. +. (y-.hy)**2.) in
   if d > max_d then
-    fprintf stderr "\nWARNING: Waypoint '%s' too far from HOME (%.0f>%.0f)\n\n" (name_of wp) d max_d
+    fprintf stderr "\nWarning: Waypoint '%s' too far from HOME (%.0f>%.0f)\n\n" (name_of wp) d max_d
   
 
 (* Check coherence between global ref and waypoints ref *)
