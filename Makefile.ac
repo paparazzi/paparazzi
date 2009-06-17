@@ -120,11 +120,6 @@ $(TUNING_H) : $(SETTINGS_XMLS) $(CONF_XML) $(TOOLS)/gen_tuning.out
 	$(Q)cp $@ $(TUNING_INC_H)
 	$(Q)chmod a+r $@ $(TUNING_INC_H)
 
-$(MAKEFILE_AC) : $(CONF)/$(AIRFRAME_XML)
-	@echo BUILD $@
-	$(Q)mkdir -p $(ACINCLUDE)
-	$(Q)$(TOOLS)/extract_makefile.out $< $(MODULES_DIR) > $@
-
 $(MODULES_H) : $(CONF)/$(AIRFRAME_XML) $(TOOLS)/gen_modules.out $(CONF)/modules/*.xml
 	@echo BUILD $@
 	$(Q)$(TOOLS)/gen_modules.out $(MODULES_DIR) $(MODULES_C) $< > $@
