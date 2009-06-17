@@ -81,12 +81,7 @@ static gboolean sim_periodic(gpointer data __attribute__ ((unused))) {
 
   /* run the airborne code */
   
-  // feed a rc frame and signal event
-
-  // process it
-  autopilot_event_task();
-
-  autopilot_periodic_task();
+  airborne_run_one_step();
 
   return result;
 }

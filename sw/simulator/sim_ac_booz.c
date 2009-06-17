@@ -32,6 +32,11 @@ using namespace JSBSim;
 //static void sim_gps_feed_data(void);
 //static void sim_ir_feed_data(void);
 
+
+void airborne_run_one_step(void) {
+  // SEE  sim_run_one_step
+}
+
 void autopilot_init(void) {
   init_fbw();
   init_ap();

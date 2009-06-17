@@ -226,18 +226,19 @@ static void sim_overwrite_ins(void) {
 
 #include "booz2_gps.h"
 static void sim_gps_feed_data(void) {
-  booz2_gps_lat = bsm.gps_pos_lla.lat;
-  booz2_gps_lon = bsm.gps_pos_lla.lon;
+  //  booz2_gps_lat = bsm.gps_pos_lla.lat;
+  //  booz2_gps_lon = bsm.gps_pos_lla.lon;
   // speed?
-  booz2_gps_vel_n = rint(bsm.gps_speed->ve[AXIS_X] * 100.);
-  booz2_gps_vel_e = rint(bsm.gps_speed->ve[AXIS_Y] * 100.);
-  booz_gps_state.fix = BOOZ2_GPS_FIX_3D;
+  //  booz2_gps_vel_n = rint(bsm.gps_speed->ve[AXIS_X] * 100.);
+  //  booz2_gps_vel_e = rint(bsm.gps_speed->ve[AXIS_Y] * 100.);
+  
 
   booz_gps_state.ecef_pos.x = rint(bsm.gps_pos_ecef.x);
   booz_gps_state.ecef_pos.y = rint(bsm.gps_pos_ecef.y);
   booz_gps_state.ecef_pos.z = rint(bsm.gps_pos_ecef.z);
   //  VECT3_COPY(booz_gps_state.ecef_pos,   bsm.gps_pos_ecef);
   VECT3_COPY(booz_gps_state.ecef_speed, bsm.gps_speed_ecef);
+  booz_gps_state.fix = BOOZ2_GPS_FIX_3D;
 
 
 }

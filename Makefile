@@ -122,6 +122,10 @@ $(DL_PROTOCOL_H) : $(MESSAGES_XML) $(TOOLS)/gen_messages.out
 include Makefile.ac
 
 sim : sim_static
+
+jsim:
+	cd $(SIMULATOR); $(MAKE) PAPARAZZI_SRC=$(PAPARAZZI_SRC)
+
 ac_h ac1 ac2 ac3 ac fbw ap: static conf
 
 ##### preliminary hard wired arm7 bootloader rules
@@ -148,14 +152,6 @@ ms:
 
 upload_ms ms.upload: ms
 	$(PAPARAZZI_SRC)/sw/ground_segment/lpc21iap/lpc21iap $(AIRBORNE)/arm7/lpcusb/examples/msc.elf
-
-####
-# temporary hack for BOOZ simulator
-#
-booz_sim:
-	make AIRCRAFT=BOOZ flt.compile
-	make AIRCRAFT=BOOZ ctl.compile
-	cd sw/simulator; make booz_sim
 
 #####
 #####

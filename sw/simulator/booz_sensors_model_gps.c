@@ -123,6 +123,7 @@ void booz_sensors_model_gps_run( double time) {
 
   /* LLA conversion */
 
+#if 0
 #define LAT0   40.
 #define LON0   1.
 #define GROUND_ALT  180.
@@ -133,6 +134,7 @@ void booz_sensors_model_gps_run( double time) {
   bsm.gps_pos_lla.lon = rint(bsm.gps_pos_lla.lon);
   bsm.gps_pos_lla.alt = (bsm.gps_pos->ve[AXIS_Z] + GROUND_ALT)* 100.;
   bsm.gps_pos_lla.alt = rint(bsm.gps_pos_lla.alt);
+#endif
 
   /* ECEF Conversion */
   struct NedCoor_d pos_ned = {bsm.gps_pos->ve[AXIS_X], bsm.gps_pos->ve[AXIS_Y], bsm.gps_pos->ve[AXIS_Z]};

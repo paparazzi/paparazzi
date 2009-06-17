@@ -28,7 +28,7 @@
 #include <matrix.h>
 #include <glib.h>
 
-#include "pprz_algebra_f.h"
+#include "pprz_algebra_float.h"
 #include "pprz_geodetic_double.h"
 #include "booz_geometry_int.h"
 #include "6dof.h"
@@ -113,7 +113,7 @@ struct BoozSensorsModel {
   double  gps_pos_utm_north;
   double  gps_pos_utm_east;
   double  gps_pos_utm_alt;
-  struct Pprz_double_lla gps_pos_lla;
+  //  struct Pprz_double_lla gps_pos_lla;
   double  gps_speed_course;
   double  gps_speed_gspeed;
   double  gps_speed_climb;

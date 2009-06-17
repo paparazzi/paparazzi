@@ -61,8 +61,8 @@ int main(int argc, char** argv) {
 
   result = fdmex->RunIC();
 
-  IvyInit ("nps_test1", "nps_test1 READY", NULL, NULL, NULL, NULL);
-  IvyStart("127.255.255.255");
+//  IvyInit ("nps_test1", "nps_test1 READY", NULL, NULL, NULL, NULL);
+//  IvyStart("127.255.255.255");
 
   GMainLoop *ml =  g_main_loop_new(NULL, FALSE);
   
