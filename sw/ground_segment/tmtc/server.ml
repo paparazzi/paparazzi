@@ -27,6 +27,7 @@
 let my_id = "ground"
 let gps_mode_3D = 3
 let no_md5_check = ref false
+let replay_old_log = ref false
 
 open Printf
 open Latlong
@@ -441,7 +442,7 @@ let check_md5sum = fun ac_name alive_md5sum aircraft_conf_dir ->
       failwith  error_message
 
       
-let new_aircraft = fun alive_md5sum real_id ->
+let new_aircraft = fun get_alive_md5sum real_id ->
   let is_replayed, id, root_dir, conf_xml = replayed real_id in
   let conf = get_conf real_id id conf_xml in
   let ac_name = ExtXml.attrib conf "name" in
@@ -455,7 +456,7 @@ let new_aircraft = fun alive_md5sum real_id ->
   let airframe_xml = Xml.parse_file airframe_file in
 
   if not is_replayed then
-    check_md5sum real_id alive_md5sum aircraft_conf_dir;
+    check_md5sum real_id (get_alive_md5sum ()) aircraft_conf_dir;
   
   let ac = Aircraft.new_aircraft real_id ac_name xml_fp airframe_xml in
   let update = fun () ->
@@ -544,8 +545,8 @@ let ident_msg = fun log name vs ->
   try
     if not (Hashtbl.mem aircrafts name) && 
       not (Hashtbl.mem unknown_aircrafts name) then
-      let md5sum = Pprz.assoc "md5sum" vs in
-      let ac, messages_xml = new_aircraft md5sum name in
+      let get_md5sum = fun () -> Pprz.assoc "md5sum" vs in
+      let ac, messages_xml = new_aircraft get_md5sum name in
       let ac_msg_closure = ac_msg messages_xml log name ac in
       let _b = Ivy.bind (fun _ args -> ac_msg_closure args.(0)) (sprintf "^%s +(.*)" name) in
       register_aircraft name ac;
@@ -559,7 +560,9 @@ let new_color = fun () ->
 (* Waits for new aircrafts *)
 let listen_acs = fun log ->
   (** Wait for any message (they all are identified with the A/C) *)
-  ignore (Tm_Pprz.message_bind "ALIVE" (ident_msg log))
+  ignore (Tm_Pprz.message_bind "ALIVE" (ident_msg log));
+  if !replay_old_log then
+    ignore (Tm_Pprz.message_bind "PPRZ_MODE" (ident_msg log))
 
 
 let send_config = fun http _asker args ->
@@ -667,7 +670,8 @@ let _ =
       "-kml", Arg.Set Kml.enabled, "Enable KML file updating";
       "-kml_port", Arg.Set_int Kml.port, (sprintf "Port for KML files (default is %d)" !Kml.port);
       "-n", Arg.Clear logging, "Disable log";
-      "-no_md5_check", Arg.Set no_md5_check, "Disable safety matching of live and current configurations"] in
+      "-no_md5_check", Arg.Set no_md5_check, "Disable safety matching of live and current configurations";
+      "-replay_old_log", Arg.Set replay_old_log, "Enable aircraft registering on PPRZ_MODE messages"] in
   Arg.parse (options)
     (fun x -> Printf.fprintf stderr "%s: Warning: Don't do anything with '%s' argument\n" Sys.argv.(0) x)
     "Usage: ";
