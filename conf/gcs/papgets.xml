@@ -11,6 +11,7 @@
       <papget type="goto_block" display="button" x="10" y="330">
         <property name="block_name" value="Takeoff"/>
         <property name="icon" value="takeoff.png"/>
+	<property name="locked" value="true"/>
       </papget>
       <papget type="message_field" display="gauge" x="47" y="414">
         <property name="field" value="BAT:voltage"/>
