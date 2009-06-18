@@ -28,11 +28,9 @@
 #include "airframe.h"
 
 
-#define BSM_BODY_TO_IMU_PHI    RadOfDeg(4.)
-#define BSM_BODY_TO_IMU_THETA  RadOfDeg(3.)
-//#define BSM_BODY_TO_IMU_PHI    RadOfDeg(0.)
-//#define BSM_BODY_TO_IMU_THETA  RadOfDeg(0.)
-#define BSM_BODY_TO_IMU_PSI    RadOfDeg(0.)
+#define NPS_BODY_TO_IMU_PHI    RadOfDeg(4.)
+#define NPS_BODY_TO_IMU_THETA  RadOfDeg(3.)
+#define NPS_BODY_TO_IMU_PSI    RadOfDeg(0.)
 
 /* 
  * Accelerometer 

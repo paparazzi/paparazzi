@@ -161,6 +161,14 @@
     (_vo).z =  (_va).z / (_vb).z;				\
   } 
 
+/*  */
+#define VECT3_BOUND_CUBE(_v, _min, _max) {				             \
+    if ((_v).x > (_max)) (_v).x = (_max); else if ((_v).x < (_min)) (_v).x = (_min); \
+    if ((_v).y > (_max)) (_v).y = (_max); else if ((_v).y < (_min)) (_v).y = (_min); \
+    if ((_v).z > (_max)) (_v).z = (_max); else if ((_v).z < (_min)) (_v).z = (_min); \
+  } 
+
+
 /*
  * Euler angles
  */
@@ -277,18 +285,29 @@
 
 /* multiply _vin by _mat, store in _vout */
 #define MAT33_VECT3_MUL(_vout, _mat, _vin) {				\
-    (_vout).x = (_mat)[0]*(_vin).x + (_mat)[1]*(_vin).y + (_mat)[2]*(_vin).z; \
-    (_vout).y = (_mat)[3]*(_vin).x + (_mat)[4]*(_vin).y + (_mat)[5]*(_vin).z; \
-    (_vout).z = (_mat)[6]*(_vin).x + (_mat)[7]*(_vin).y + (_mat)[8]*(_vin).z; \
+    (_vout).x = MAT33_ELMT((_mat), 0, 0) * (_vin).x +			\
+                MAT33_ELMT((_mat), 0, 1) * (_vin).y +			\
+                MAT33_ELMT((_mat), 0, 2) * (_vin).z;			\
+    (_vout).y = MAT33_ELMT((_mat), 1, 0) * (_vin).x +                   \
+                MAT33_ELMT((_mat), 1, 1) * (_vin).y +                   \
+                MAT33_ELMT((_mat), 1, 2) * (_vin).z;			\
+    (_vout).z = MAT33_ELMT((_mat), 2, 0) * (_vin).x +			\
+                MAT33_ELMT((_mat), 2, 1) * (_vin).y +			\
+                MAT33_ELMT((_mat), 2, 2) * (_vin).z;			\
   }
 
 /* multiply _vin by transpose of _mat, store in _vout */
 #define MAT33_VECT3_TRANSP_MUL(_vout, _mat, _vin) {			\
-    (_vout).x = (_mat)[0]*(_vin).x + (_mat)[3]*(_vin).y + (_mat)[6]*(_vin).z; \
-    (_vout).y = (_mat)[1]*(_vin).x + (_mat)[4]*(_vin).y + (_mat)[7]*(_vin).z; \
-    (_vout).z = (_mat)[2]*(_vin).x + (_mat)[5]*(_vin).y + (_mat)[8]*(_vin).z; \
+    (_vout).x = MAT33_ELMT((_mat), 0, 0) * (_vin).x +			\
+                MAT33_ELMT((_mat), 1, 0) * (_vin).y +			\
+                MAT33_ELMT((_mat), 2, 0) * (_vin).z;			\
+    (_vout).y = MAT33_ELMT((_mat), 0, 1) * (_vin).x +                   \
+                MAT33_ELMT((_mat), 1, 1) * (_vin).y +                   \
+                MAT33_ELMT((_mat), 2, 1) * (_vin).z;			\
+    (_vout).z = MAT33_ELMT((_mat), 0, 2) * (_vin).x +			\
+                MAT33_ELMT((_mat), 1, 2) * (_vin).y +			\
+                MAT33_ELMT((_mat), 2, 2) * (_vin).z;			\
   }
-
 
 //
 //

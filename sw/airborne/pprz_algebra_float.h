@@ -104,33 +104,36 @@ struct FloatRates {
  * 3x3 matrices
  */
 #define FLOAT_MAT33_ZERO(_m) {						\
-    RMAT_ELMT(_m, 0, 0) = 0.;						\
-    RMAT_ELMT(_m, 0, 1) = 0.;						\
-    RMAT_ELMT(_m, 0, 2) = 0.;                                          \
-    RMAT_ELMT(_m, 1, 0) = 0.;						\
-    RMAT_ELMT(_m, 1, 1) = 0.;						\
-    RMAT_ELMT(_m, 1, 2) = 0.;						\
-    RMAT_ELMT(_m, 2, 0) = 0.;						\
-    RMAT_ELMT(_m, 2, 1) = 0.;						\
-    RMAT_ELMT(_m, 2, 2) = 0.;						\
+    MAT33_ELMT(_m, 0, 0) = 0.;						\
+    MAT33_ELMT(_m, 0, 1) = 0.;						\
+    MAT33_ELMT(_m, 0, 2) = 0.;                                          \
+    MAT33_ELMT(_m, 1, 0) = 0.;						\
+    MAT33_ELMT(_m, 1, 1) = 0.;						\
+    MAT33_ELMT(_m, 1, 2) = 0.;						\
+    MAT33_ELMT(_m, 2, 0) = 0.;						\
+    MAT33_ELMT(_m, 2, 1) = 0.;						\
+    MAT33_ELMT(_m, 2, 2) = 0.;						\
   }
+
+#define FLOAT_MAT33_DIAG(_m, _d00, _d11, _d22) {			\
+    MAT33_ELMT(_m, 0, 0) = _d00;					\
+    MAT33_ELMT(_m, 0, 1) = 0.;						\
+    MAT33_ELMT(_m, 0, 2) = 0.;						\
+    MAT33_ELMT(_m, 1, 0) = 0.;						\
+    MAT33_ELMT(_m, 1, 1) = _d11;					\
+    MAT33_ELMT(_m, 1, 2) = 0.;						\
+    MAT33_ELMT(_m, 2, 0) = 0.;						\
+    MAT33_ELMT(_m, 2, 1) = 0.;						\
+    MAT33_ELMT(_m, 2, 2) = _d22;					\
+  }
+
 
 /*
  * Rotation Matrices
  */
 
 /* initialises a matrix to identity */
-#define FLOAT_RMAT_ZERO(_rm) {						\
-    RMAT_ELMT(_rm, 0, 0) = 1.;						\
-    RMAT_ELMT(_rm, 0, 1) = 0.;						\
-    RMAT_ELMT(_rm, 0, 2) = 0.;                                          \
-    RMAT_ELMT(_rm, 1, 0) = 0.;						\
-    RMAT_ELMT(_rm, 1, 1) = 1.;						\
-    RMAT_ELMT(_rm, 1, 2) = 0.;						\
-    RMAT_ELMT(_rm, 2, 0) = 0.;						\
-    RMAT_ELMT(_rm, 2, 1) = 0.;						\
-    RMAT_ELMT(_rm, 2, 2) = 1.;						\
-  }
+#define FLOAT_RMAT_ZERO(_rm) FLOAT_MAT33_DIAG(_m, 1., 1., 1.)
 
 /* initialises a rotation matrix from unit vector axis and angle */
 #define FLOAT_RMAT_OF_AXIS_ANGLE(_rm, _uv, _an) {			\

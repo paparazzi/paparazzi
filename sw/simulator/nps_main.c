@@ -38,6 +38,10 @@ static void nps_main_init(void) {
   nps_main.sim_time = 0.;
   nps_main.display_time = 0.;
 
+  nps_fdm_init(SIM_DT);
+  nps_sensors_init(nps_main.sim_time);
+  nps_autopilot_init();
+
 }
 
 

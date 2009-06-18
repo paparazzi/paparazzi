@@ -84,25 +84,6 @@ clean :
 	rm -f *.cm* *~ *.out .depend *.o *.a *.so gaia simhitl booz_sim test2
 
 
-#
-#  NPS
-#
-JSBSIM = /usr/local
-
-CC = g++
-CFLAGS  = -Wall -I $(JSBSIM)/include/JSBSim -I../include
-LDFLAGS = -L $(JSBSIM)/lib -lJSBSim
-CFLAGS  += -I /usr/include/meschach -I /usr/local/include/
-LDFLAGS += -lmeschach -L /usr/lib
-CFLAGS  += `pkg-config glib-2.0 --cflags`
-LDFLAGS += `pkg-config glib-2.0 --libs` -lm -lpcre -lglibivy
-
-test1: nps_test1.c nps_jsbsim.c
-	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
-
-test2: nps_test2.c
-	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
-
 
 #
 # Dependencies

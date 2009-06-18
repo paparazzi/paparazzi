@@ -26,6 +26,10 @@ struct DoubleMat33 {
   double m[3*3];
 };
 
+struct DoubleRMat {
+  double m[3*3];
+};
+
 struct DoubleEulers {
   double phi;
   double theta;
@@ -38,7 +42,14 @@ struct DoubleRates {
   double r;
 };
 
+#define DOUBLE_VECT3_ROUND(_v) DOUBLE_VECT3_RINT(_v, _v)
 
+
+#define DOUBLE_VECT3_RINT(_vout, _vin) {	\
+    (_vout).x = rint((_vin).x);			\
+    (_vout).y = rint((_vin).y);			\
+    (_vout).z = rint((_vin).z);			\
+  }
 
 /* multiply _vin by _mat, store in _vout */
 #define DOUBLE_MAT33_VECT3_MUL(_vout, _mat, _vin) {		\
