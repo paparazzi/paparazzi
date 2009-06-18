@@ -1,6 +1,7 @@
 //#include "nps_sensor_gyro.h"
 #include "nps_sensors.h"
 
+#include "airframe.h"
 #include NPS_SENSORS_PARAMS
 
 
@@ -14,11 +15,8 @@ bool_t nps_sensor_gyro_available() {
 
 void  nps_sensor_gyro_init(double time) {
   VECT3_ASSIGN(sensors.gyro.value, 0., 0., 0.);
+  sensors.gyro.resolution = NPS_GYRO_RESOLUTION;
 #if 0
-  bsm.gyro = v_get(AXIS_NB);
-  bsm.gyro->ve[AXIS_P] = 0.;
-  bsm.gyro->ve[AXIS_Q] = 0.;
-  bsm.gyro->ve[AXIS_R] = 0.;
   bsm.gyro_resolution = BSM_GYRO_RESOLUTION;
   
   bsm.gyro_sensitivity = m_get(AXIS_NB, AXIS_NB);
