@@ -16,49 +16,39 @@ struct NpsFdm fdm;
 FGFDMExec* FDMExec;
 
 void nps_fdm_init(double dt) {
-
-#if 0
-
+  
   char rootdir[1024];
   JSBSim::FGState* State;
-
-  sprintf(rootdir,"%s/conf/simulator",getenv("PPRZ_HOME"));
+  
+  sprintf(rootdir,"%s/conf/simulator",getenv("PAPARAZZI_HOME"));
   FDMExec = new FGFDMExec();
-
+  
   State = FDMExec->GetState();
   State->Setsim_time(0.);
   State->Setdt(dt);
-
-  if (!AircraftName.empty()) {
-    
-    FDMExec->DisableOutput();
-    FDMExec->SetDebugLevel(0); // No DEBUG messages
-    
-    if ( ! FDMExec->LoadModel( rootdir + "aircraft",
-                               rootdir + "engine",
-                               rootdir + "systems",
-                               AIRFRAME_NAME)){
-      cerr << "  JSBSim could not be started" << endl << endl;
-      delete FDMExec;
-      exit(-1);
-    }
-    
-    JSBSim::FGInitialCondition *IC = FDMExec->GetIC();
-    if ( ! IC->Load(NPS_INITIAL_CONDITITONS)) {
-      delete FDMExec;
-      cerr << "Initialization unsuccessful" << endl;
-      exit(-1);
-    }
-    
-  } else {
-    cerr << "  No Aircraft given" << endl << endl;
+  
+  FDMExec->DisableOutput();
+  FDMExec->SetDebugLevel(0); // No DEBUG messages
+  
+  if ( ! FDMExec->LoadModel( strcat(rootdir,"aircraft"),
+			     strcat(rootdir,"engine"),
+			     strcat(rootdir,"systems"),
+			     AIRFRAME_NAME)){
+#ifdef DEBUG
+    cerr << "  JSBSim could not be started" << endl << endl;
+#endif
     delete FDMExec;
     exit(-1);
   }
   
-  FDMExec->Run();
-
+  JSBSim::FGInitialCondition *IC = FDMExec->GetIC();
+  if ( ! IC->Load(NPS_INITIAL_CONDITITONS)) {
+#ifdef DEBUG
+    cerr << "Initialization unsuccessful" << endl;
 #endif
+    delete FDMExec;
+    exit(-1);
+  }
   
 }
 
@@ -74,14 +64,13 @@ void nps_fdm_run_step(double* commands) {
 
 static void feed_jsbsim(double* commands) {
 
-#if 0
   char buf[64];
+  const char* names[] = NPS_ACTUATOR_NAMES;
   
   for (int i=0; i<SERVOS_NB; i++) {
-    sprintf(buf,"fcs/%s",NPS_ACTUATOR_NAMES[i]);
+    sprintf(buf,"fcs/%s",names[i]);
     FDMExec->GetPropertyManager()->SetDouble(buf,commands[i]);
   }
-#endif
 
 }
 
