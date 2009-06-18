@@ -1,0 +1,120 @@
+<airframe name="MERCURY">
+
+<!-- commands section -->
+  <servos>
+    <!--
+    <servo name="AILERON"  no="0" min="1000" neutral="1523" max="2000"/>
+    <servo name="ELEVATOR" no="1" min="2000" neutral="1500" max="1000"/>
+    <servo name="RUDDER" no="2" min="1000" neutral="1500" max="2000"/>
+    -->
+    <servo name="UPPER_LEFT"  no="0" min="0" neutral="0" max="255"/>
+    <servo name="LOWER_RIGHT" no="1" min="0" neutral="0" max="255"/>
+    <servo name="LOWER_LEFT" no="2" min="0" neutral="0" max="255"/>
+    <servo name="UPPER_RIGHT" no="3" min="0" neutral="0" max="255"/>
+  </servos>
+
+  <commands>
+    <axis name="ROLL"     failsafe_value="0"/>
+    <axis name="PITCH"    failsafe_value="0"/>
+    <axis name="YAW"    failsafe_value="0"/>
+    <axis name="THRUST"    failsafe_value="0"/>
+  </commands>
+
+  <section name="BOOZ_TRIG" prefix="BOOZ_TRIG_">
+    <define name="CONST" value="const"/>
+  </section>
+  
+  <section name="IMU" prefix="IMU_">
+    
+    <define name="GYRO_P_NEUTRAL" value="32447"/>
+    <define name="GYRO_Q_NEUTRAL" value="32745"/>
+    <define name="GYRO_R_NEUTRAL" value="32665"/>
+
+    <define name="ACCEL_X_NEUTRAL" value="33029"/>
+    <define name="ACCEL_Y_NEUTRAL" value="33240"/>
+    <define name="ACCEL_Z_NEUTRAL" value="32285"/>
+    
+    <define name="MAG_X_NEUTRAL" value="32622"/>
+    <define name="MAG_Y_NEUTRAL" value="32826"/> 
+    <define name="MAG_Z_NEUTRAL" value="32802"/>
+
+    
+    <define name="GYRO_P_SENS_NUM" value="(1<<IRATE_RES)" />
+    <define name="GYRO_Q_SENS_NUM" value="(1<<IRATE_RES)" />
+    <define name="GYRO_R_SENS_NUM" value="(1<<IRATE_RES)" />
+
+    <define name="GYRO_P_SENS_DEN" value="1164" />
+    <define name="GYRO_Q_SENS_DEN" value="1165" />
+    <define name="GYRO_R_SENS_DEN" value="1174" />
+
+    <define name="ACCEL_X_SENS_NUM" value="(1<<IACCEL_RES)" />
+    <define name="ACCEL_Y_SENS_NUM" value="(1<<IACCEL_RES)" />
+    <define name="ACCEL_Z_SENS_NUM" value="(1<<IACCEL_RES)" />
+    
+    <define name="ACCEL_X_SENS_DEN" value="416" />
+    <define name="ACCEL_Y_SENS_DEN" value="411" />
+    <define name="ACCEL_Z_SENS_DEN" value="414" />
+
+    <define name="MAG_X_SENS_NUM" value="(1<<IMAG_RES)" />
+    <define name="MAG_Y_SENS_NUM" value="(1<<IMAG_RES)" />
+    <define name="MAG_Z_SENS_NUM" value="(1<<IMAG_RES)" />
+
+    <define name="MAG_X_SENS_DEN" value="7730" />
+    <define name="MAG_Y_SENS_DEN" value="7576" />
+    <define name="MAG_Z_SENS_DEN" value="7757" />
+
+    <define name="BODY_TO_IMU_PHI"   value="ANGLE_BFP_OF_REAL(RadOfDeg(-1.8))"/>
+    <define name="BODY_TO_IMU_THETA" value="ANGLE_BFP_OF_REAL(RadOfDeg(-60))"/>
+    <define name="BODY_TO_IMU_PSI"   value="ANGLE_BFP_OF_REAL(RadOfDeg(0.))"/>
+
+  </section>
+
+  
+
+  <section name="MISC">
+    <define name="BOOZ2_FACE_REINJ_1"  value="1024"/>
+  </section>
+
+  
+  <section name="STABILIZATION_ATTITUDE" prefix="BOOZ_STABILIZATION_ATTITUDE_">
+
+    <define name="SP_MAX_PHI"     value="3000"/>
+    <define name="SP_MAX_THETA"   value="3000"/>
+    <define name="SP_MAX_R"       value="5500"/>
+    <define name="DEADBAND_R"     value="250"/>
+
+    <define name="PHI_THETA_PGAIN"  value="-400"/>
+    <define name="PHI_THETA_DGAIN"  value="-300"/>
+    <define name="PHI_THETA_DDGAIN" value=" 300"/>
+    <define name="PHI_THETA_IGAIN"  value="-100"/>
+
+    <define name="PSI_PGAIN"  value="-380"/>
+    <define name="PSI_DGAIN"  value="-320"/>
+    <define name="PSI_DDGAIN" value=" 300"/>
+    <define name="PSI_IGAIN"  value="-75"/>
+
+  </section>
+
+  
+  <section name="SUPERVISION" prefix="SUPERVISION_">
+    <define name="FRONT_ROTOR_CW" value="1"/>
+    <define name="MIN_MOTOR" value="2"/>
+    <define name="MAX_MOTOR" value="210"/>
+    <define name="TRIM_A" value="0"/>
+    <define name="TRIM_E" value="0"/>
+    <define name="TRIM_R" value="0"/>
+  </section>
+
+
+  <rc_commands>
+    <set command="ROLL"     value="@ROLL"/>
+    <set command="PITCH"    value="@PITCH"/>
+    <set command="YAW"    value="@YAW"/>
+  </rc_commands>
+
+    
+<makefile>
+include $(PAPARAZZI_SRC)/conf/autopilot/mercury.makefile
+</makefile>
+
+</airframe>
