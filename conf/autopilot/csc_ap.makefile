@@ -91,7 +91,7 @@ ap.srcs += commands.c actuators.c
 ap.CFLAGS += -DRADIO_CONTROL -DRADIO_CONTROL_TYPE=RC_JR
 ap.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c
 
-ap.srcs += $(SRC_CSC)/csc_ap.c
+ap.srcs += $(SRC_CSC)/csc_autopilot.c
 
 ap.CFLAGS += -DERROR_LED=4
 

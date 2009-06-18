@@ -41,58 +41,55 @@ BOARD_CFG = \"csc_board_v1_0.h\"
 
 SRC_CSC=csc
 
-csc.ARCHDIR = $(ARCHI)
-csc.ARCH = arm7tdmi
-csc.TARGET = main
-csc.TARGETDIR = main
+ap.ARCHDIR = $(ARCHI)
+ap.ARCH = arm7tdmi
+ap.TARGET = main
+ap.TARGETDIR = main
 
-csc.CFLAGS += -I$(SRC_CSC)
-csc.CFLAGS += -DCONFIG=$(BOARD_CFG)
-csc.srcs += $(SRC_CSC)/csc_main.c
-csc.CFLAGS += -DLED -DTIME_LED=1
+ap.CFLAGS += -I$(SRC_CSC)
+ap.CFLAGS += -DCONFIG=$(BOARD_CFG)
+ap.srcs += $(SRC_CSC)/csc_main.c
+ap.CFLAGS += -DLED -DTIME_LED=1
 
-csc.CFLAGS += -DCSC_BOARD_ID=$(CSC_ID)
+ap.CFLAGS += -DCSC_BOARD_ID=$(CSC_ID)
 
-csc.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))' -DTIMER0_VIC_SLOT=1
-csc.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
+ap.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))' -DTIMER0_VIC_SLOT=1
+ap.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
 
-csc.srcs += $(SRC_ARCH)/uart_hw.c
-csc.srcs += $(SRC_ARCH)/adc_hw.c
-csc.CFLAGS += -DADC -DUSE_AD0 -DUSE_AD0_0 -DUSE_AD0_1
+ap.srcs += $(SRC_ARCH)/uart_hw.c
+ap.srcs += $(SRC_ARCH)/adc_hw.c
+ap.CFLAGS += -DADC -DUSE_AD0 -DUSE_AD0_0 -DUSE_AD0_1
 
-csc.CFLAGS += -DUSE_UART0 -DUART0_BAUD=B57600 -DUART0_VIC_SLOT=5
-#csc.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600 -DUART1_VIC_SLOT=6
-#csc.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport \
+ap.CFLAGS += -DUSE_UART0 -DUART0_BAUD=B57600 -DUART0_VIC_SLOT=5
+#ap.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600 -DUART1_VIC_SLOT=6
+#ap.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport \
 #	                  -DDOWNLINK_DEVICE=Uart0
-#csc.srcs += downlink.c pprz_transport.c
+#ap.srcs += downlink.c pprz_transport.c
 
 
-csc.CFLAGS += -DAP_LINK_CAN -DCAN_LED=2
-csc.CFLAGS += -DUSE_CAN1 -DCAN1_BTR=CANBitrate125k_3MHz
-csc.CFLAGS +=  -DCAN1_VIC_SLOT=3 -DCAN1_ERR_VIC_SLOT=7
-csc.srcs += $(SRC_CSC)/csc_can.c
-#csc.CFLAGS += -DUSE_CAN2 -DCAN2_BTR=CANBitrate125k_2MHz -DCAN2_VIC_SLOT=4
+ap.CFLAGS += -DAP_LINK_CAN -DCAN_LED=2
+ap.CFLAGS += -DUSE_CAN1 -DCAN1_BTR=CANBitrate125k_3MHz
+ap.CFLAGS +=  -DCAN1_VIC_SLOT=3 -DCAN1_ERR_VIC_SLOT=7
+ap.srcs += $(SRC_CSC)/csc_can.c
+#ap.CFLAGS += -DUSE_CAN2 -DCAN2_BTR=CANBitrate125k_2MHz -DCAN2_VIC_SLOT=4
 
-#csc.CFLAGS += -DAP_LINK_UART -DPPRZ_UART=Uart1
-#csc.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600 -DUART1_VIC_SLOT=6
-#csc.srcs += pprz_transport.c
+#ap.CFLAGS += -DAP_LINK_UART -DPPRZ_UART=Uart1
+#ap.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600 -DUART1_VIC_SLOT=6
+#ap.srcs += pprz_transport.c
 
-csc.srcs += $(SRC_CSC)/csc_ap_link.c
+ap.srcs += $(SRC_CSC)/csc_ap_link.c
 
-csc.srcs += $(SRC_CSC)/csc_servos.c
-csc.CFLAGS += -DPWM_SERVO_4 -DPWM_SERVO_5 -DPWM_SERVO_0 # -DPWM_SERVO_3
-csc.CFLAGS += -DACTUATORS=\"servos_direct_hw.h\"
-csc.srcs += $(SRC_ARCH)/servos_direct_hw.c
+ap.srcs += $(SRC_CSC)/csc_servos.c
 
-csc.srcs += $(SRC_CSC)/csc_adc.c
+ap.srcs += $(SRC_CSC)/csc_adc.c
 
-csc.CFLAGS += -DTHROTTLE_LINK=Uart0 -DTHROTTLE_LED=3
-csc.srcs += $(SRC_CSC)/csc_throttle.c
+ap.CFLAGS += -DTHROTTLE_LINK=Uart0 -DTHROTTLE_LED=3
+ap.srcs += $(SRC_CSC)/csc_throttle.c
 
-csc.CFLAGS += -DSPEKTRUM_LINK=Uart1 -DUSE_UART1 -DUART1_BAUD=B115200 -DUART1_VIC_SLOT=6
-csc.srcs += $(SRC_CSC)/csc_rc_spektrum.c
+ap.CFLAGS += -DSPEKTRUM_LINK=Uart1 -DUSE_UART1 -DUART1_BAUD=B115200 -DUART1_VIC_SLOT=6
+ap.srcs += $(SRC_CSC)/csc_rc_spektrum.c
 
-csc.CFLAGS += -DERROR_LED=4
+ap.CFLAGS += -DERROR_LED=4
 
 #
 #

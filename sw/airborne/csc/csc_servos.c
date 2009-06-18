@@ -16,10 +16,17 @@ void csc_servos_init(void)
 
 void csc_servos_set(int32_t* val)
 {
+#ifdef CSC_MOTORS_I2C
+  Actuator(0) = val[0];
+  Actuator(1) = val[1];
+  Actuator(2) = val[2];
+  Actuator(3) = val[3];
+#else
   Actuator(0) = val[0];
   Actuator(5) = val[1];
   Actuator(4) = val[2];
   Actuator(3) = val[3];
+#endif
 
   ActuatorsCommit();
 }

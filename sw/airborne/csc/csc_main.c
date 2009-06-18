@@ -33,7 +33,10 @@
 #include "led.h"
 #include "interrupt_hw.h"
 #include "uart.h"
+#include "csc_telemetry.h"
+#include "periodic.h"
 #include "downlink.h"
+#include "i2c.h"
 
 #include "csc_servos.h"
 #include "csc_throttle.h"
@@ -51,18 +54,8 @@ static inline void on_motor_cmd(struct CscMotorMsg *msg);
 static uint32_t servo_cmd_timeout = 0;
 static uint32_t can_msg_count = 0;
 
-int main( void ) {
-  csc_main_init();
-  while(1) {
-    if (sys_time_periodic())
-      csc_main_periodic();
-    csc_main_event();
-  }
-  return 0;
-}
 
-
-STATIC_INLINE void csc_main_init( void ) {
+static void csc_main_init( void ) {
 
   hw_init();
   sys_time_init();
@@ -86,16 +79,24 @@ STATIC_INLINE void csc_main_init( void ) {
   csc_adc_init();
 
   // be sure to call servos_init after uart1 init since they are sharing pins
+  #ifdef USE_I2C0
+  i2c_init();
+  #endif
   csc_servos_init();
   csc_throttle_init();
   int_enable();
+  
 
 }
 
 
-STATIC_INLINE void csc_main_periodic( void ) {
+static void csc_main_periodic( void ) {
   static uint32_t zeros[4] = {0, 0, 0, 0};
   static uint32_t csc_loops = 0;
+
+  #ifdef DOWNLINK
+  PeriodicSendAp();
+  #endif
 
   if (servo_cmd_timeout > SERVO_TIMEOUT) {
     LED_OFF(CAN_LED);
@@ -113,7 +114,7 @@ STATIC_INLINE void csc_main_periodic( void ) {
 
 }
 
-STATIC_INLINE void csc_main_event( void ) {
+static void csc_main_event( void ) {
 
   csc_can_event();
   csc_throttle_event_task();
@@ -133,7 +134,8 @@ static inline void on_servo_cmd(struct CscServoCmd *cmd)
   uint32_t servos_checked[4];
   uint32_t i;
   for (i=0; i<4; i++)
-    servos_checked[i] = Chop(servos[i],MIN_SERVO, MAX_SERVO);
+    servos_checked[i] = servos[i];
+    //    servos_checked[i] = Chop(servos[i],MIN_SERVO, MAX_SERVO);
   csc_servos_set(servos_checked);
 
   servo_cmd_timeout = 0;
@@ -153,3 +155,14 @@ static inline void on_motor_cmd(struct CscMotorMsg *msg)
 
   csc_throttle_send_msg(throttle_id, msg->cmd_id, msg->arg1, msg->arg2);
 }
+
+int main( void ) {
+  csc_main_init();
+  while(1) {
+    if (sys_time_periodic())
+      csc_main_periodic();
+    csc_main_event();
+  }
+  return 0;
+}
+

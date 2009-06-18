@@ -42,7 +42,7 @@
 #include "csc_telemetry.h"
 #include "csc_adc.h"
 #include "csc_xsens.h"
-#include "csc_ap.h"
+#include "csc_autopilot.h"
 #include "csc_can.h"
 
 #define CSC_STATUS_TIMEOUT (SYS_TICS_OF_SEC(0.25) / PERIODIC_TASK_PERIOD)
@@ -56,16 +56,7 @@
 
 uint8_t pprz_mode = PPRZ_MODE_AUTO1;
 static uint16_t cpu_time = 0;
-
-int main( void ) {
-  csc_main_init();
-  while(1) {
-    if (sys_time_periodic())
-      csc_main_periodic();
-    csc_main_event();
-  }
-  return 0;
-}
+uint8_t csc_trims_set = 0;
 
 static void nop(struct CscCanMsg *msg)
 {
@@ -88,11 +79,13 @@ static void on_rc_cmd(struct CscRCMsg *msg)
   time_since_last_ppm = 0;
   rc_status = RC_OK;
   pprz_mode = PPRZ_MODE_OF_RC(rc_values[RADIO_MODE]);
-  if (pprz_mode == PPRZ_MODE_MANUAL)
+  if (pprz_mode == PPRZ_MODE_MANUAL) {
+    csc_ap_clear_ierrors();
     SetCommandsFromRC(commands);
+  }
 }
 
-STATIC_INLINE void csc_main_init( void ) {
+static void csc_main_init( void ) {
 
   hw_init();
   sys_time_init();
@@ -118,7 +111,7 @@ STATIC_INLINE void csc_main_init( void ) {
 }
 
 
-STATIC_INLINE void csc_main_periodic( void )
+static void csc_main_periodic( void )
 {
   static uint32_t csc_loops = 0;
   
@@ -137,15 +130,30 @@ STATIC_INLINE void csc_main_periodic( void )
   if (pprz_mode == PPRZ_MODE_AUTO1)
     csc_ap_periodic();
 
+  if (csc_trims_set) {
+    csc_trims_set = 0;
+    csc_ap_set_trims();
+  }
+
 #ifdef ACTUATORS
   SetActuatorsFromCommands(commands);
 #endif
 
 }
 
-STATIC_INLINE void csc_main_event( void )
+static void csc_main_event( void )
 {
   csc_can_event();
   xsens_event_task();
   DatalinkEvent();
+}
+
+int main( void ) {
+  csc_main_init();
+  while(1) {
+    if (sys_time_periodic())
+      csc_main_periodic();
+    csc_main_event();
+  }
+  return 0;
 }

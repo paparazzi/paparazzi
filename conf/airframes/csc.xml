@@ -9,6 +9,9 @@
 
   <makefile>
 
+ap.CFLAGS += -DPWM_SERVO_4 -DPWM_SERVO_5 -DPWM_SERVO_0 # -DPWM_SERVO_3
+ap.CFLAGS += -DACTUATORS=\"servos_direct_hw.h\"
+ap.srcs += $(SRC_ARCH)/servos_direct_hw.c
 
 include $(PAPARAZZI_SRC)/conf/autopilot/csc.makefile
 

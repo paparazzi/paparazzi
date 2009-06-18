@@ -26,25 +26,35 @@
 #define CSC_TELEMETRY_H
 
 #include "actuators.h"
-#include "commands.h"
+
 #include "settings.h"
-#include "radio_control.h"
+
 
 #define PERIODIC_SEND_DL_VALUE() PeriodicSendDlValue()
 
 #define PERIODIC_SEND_ALIVE() DOWNLINK_SEND_ALIVE(16, MD5SUM)
 
-#ifdef RADIO_CONTROL
-#define PERIODIC_SEND_PPM() DOWNLINK_SEND_PPM(&last_ppm_cpt, PPM_NB_PULSES, ppm_pulses)
-#define PERIODIC_SEND_RC() DOWNLINK_SEND_RC(PPM_NB_PULSES, rc_values)
-#endif
+
+#ifdef COMMANDS_NB
+
+#include "commands.h"
 
 #define PERIODIC_SEND_COMMANDS() DOWNLINK_SEND_COMMANDS(COMMANDS_NB, commands)
-#define PERIODIC_SEND_ACTUATORS() DOWNLINK_SEND_ACTUATORS(SERVOS_NB, actuators)
 
+#endif
+
+
+#ifdef RADIO_CONTROL
+
+#include "radio_control.h"
+
+#define PERIODIC_SEND_PPM() DOWNLINK_SEND_PPM(&last_ppm_cpt, PPM_NB_PULSES, ppm_pulses)
+#define PERIODIC_SEND_RC() DOWNLINK_SEND_RC(PPM_NB_PULSES, rc_values)
 #define PERIODIC_SEND_QUAD_STATUS() DOWNLINK_SEND_QUAD_STATUS(&rc_status, &pprz_mode, &vsupply, &cpu_time)
+#endif /* RADIO_CONTROL */
+
+#define PERIODIC_SEND_ACTUATORS() DOWNLINK_SEND_ACTUATORS(SERVOS_NB, actuators)
 
 extern uint8_t telemetry_mode_Ap;
 
-
-#endif
+#endif /* CSC_TELEMETRY_H */

@@ -4,25 +4,29 @@
 
 <settings>
   <dl_settings>
-       <dl_settings NAME="Misc" >
-      <dl_setting VAR="telemetry_mode_Ap" MIN="0" STEP="1" MAX="1" module="csc/csc_telemetry" shortname="telemetry" 
+    <dl_settings NAME="Misc" >
+      <dl_setting VAR="telemetry_mode_Ap" MIN="0" STEP="1" MAX="1" module="csc_telemetry" shortname="telemetry"
         values="Default|Debug"/>
     </dl_settings>
     <dl_settings NAME="imu params">
-      <dl_setting VAR="xsens_setzero" MIN="0" STEP="1" MAX="1" module="csc/csc_xsens" shortname="zero orientation"/>
+      <dl_setting VAR="xsens_setzero" MIN="0" STEP="1" MAX="1" module="csc_xsens" shortname="zero orientation"/>
     </dl_settings>
     <dl_settings NAME="flight params">
-      <dl_setting VAR="csc_gains.pitch_kp" MIN="0" STEP="1" MAX="8000" module="csc/csc_ap" shortname="pitch kp"/>
-      <dl_setting VAR="csc_gains.pitch_kd" MIN="0" STEP="1" MAX="3000" module="csc/csc_ap" shortname="ptch kd"/>
-      <dl_setting VAR="csc_gains.roll_kp" MIN="0" STEP="1" MAX="8000" module="csc/csc_ap" shortname="roll kp"/>
-      <dl_setting VAR="csc_gains.roll_kd" MIN="0" STEP="1" MAX="3000" module="csc/csc_ap" shortname="roll kd"/>
-      <dl_setting VAR="csc_gains.yaw_kp" MIN="0" STEP="1" MAX="18000" module="csc/csc_ap" shortname="yaw kp"/>
-      <dl_setting VAR="csc_gains.yaw_kd" MIN="0" STEP="1" MAX="3000" module="csc/csc_ap" shortname="yaw kd"/>
+      <dl_setting VAR="csc_gains.pitch_kp" MIN="0" STEP="10" MAX="18000" module="csc_autopilot" shortname="pitch kp"/>
+      <dl_setting VAR="csc_gains.pitch_kd" MIN="0" STEP="10" MAX="4000" module="csc_autopilot" shortname="pitch kd"/>
+      <dl_setting VAR="csc_gains.pitch_ki" MIN="0" STEP="1" MAX="2000" module="csc_autopilot" shortname="pitch ki" handler="set_pitch_ki"/>
+      <dl_setting VAR="csc_gains.roll_kp" MIN="0" STEP="10" MAX="18000" module="csc_autopilot" shortname="roll kp"/>
+      <dl_setting VAR="csc_gains.roll_kd" MIN="0" STEP="10" MAX="4000" module="csc_autopilot" shortname="roll kd"/>
+      <dl_setting VAR="csc_gains.roll_ki" MIN="0" STEP="1" MAX="2000" module="csc_autopilot" shortname="roll ki" handler="set_roll_ki"/>
+      <dl_setting VAR="csc_gains.yaw_kp" MIN="0" STEP="10" MAX="30000" module="csc_autopilot" shortname="yaw kp"/>
+      <dl_setting VAR="csc_gains.yaw_kd" MIN="0" STEP="10" MAX="4000" module="csc_autopilot" shortname="yaw kd"/>
+      <dl_setting VAR="csc_gains.yaw_ki" MIN="0" STEP="1" MAX="2000" module="csc_autopilot" shortname="yaw ki" handler="set_yaw_ki"/>
     </dl_settings>
     <dl_settings NAME="trims">
-      <dl_setting VAR="csc_trims.elevator" MIN="-6000" STEP="10" MAX="6000" module="csc/csc_ap" shortname="elevator trim"/>
-      <dl_setting VAR="csc_trims.aileron" MIN="-6000" STEP="10" MAX="6000" module="csc/csc_ap" shortname="aileron trim"/>
-      <dl_setting VAR="csc_trims.rudder" MIN="-6000" STEP="10" MAX="6000" module="csc/csc_ap" shortname="rudder trim"/>
+      <dl_setting VAR="csc_trims_set" MIN="0" STEP="1" MAX="1" module="csc_ap_main" shortname="set trims"/>
+      <dl_setting VAR="csc_trims.elevator" MIN="-6000" STEP="10" MAX="6000" module="csc_autopilot" shortname="elevator trim"/>
+      <dl_setting VAR="csc_trims.aileron" MIN="-6000" STEP="10" MAX="6000" module="csc_autopilot" shortname="aileron trim"/>
+      <dl_setting VAR="csc_trims.rudder" MIN="-6000" STEP="10" MAX="6000" module="csc_autopilot" shortname="rudder trim"/>
     </dl_settings>
 
   </dl_settings>
