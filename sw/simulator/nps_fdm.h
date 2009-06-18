@@ -12,11 +12,11 @@ struct NpsFdm {
   
   VEC* ecef_pos;
   VEC* ecef_vel;
-  VEC* ecef_accel;
+  VEC* body_accel;
 
   VEC* ltp_to_body_quat;
-  VEC* ltp_body_rate;
-  VEC* ltp_body_accel;
+  VEC* body_rate;
+  VEC* body_rate_dot;
 
 };
 

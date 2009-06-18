@@ -240,7 +240,7 @@ sim.srcs = $(SRC_ARCH)/sim_jsbsim.c $(SRC_ARCH)/ivy_transport.c
 sim.srcs += latlong.c radio_control.c downlink.c commands.c gps.c inter_mcu.c infrared.c fw_h_ctl.c fw_v_ctl.c nav.c estimator.c sys_time.c main_fbw.c main_ap.c datalink.c
 sim.srcs += nav_line.c nav_survey_rectangle.c
 
-sim.srcs += $(SIMDIR)/sim_ac_jsbsim.c $(SIMDIR)/sim_ac_fw.c
+sim.srcs += $(SIMDIR)/sim_ac_jsbsim.c $(SIMDIR)/sim_ac_booz.c
 
   </makefile>
 </airframe>
