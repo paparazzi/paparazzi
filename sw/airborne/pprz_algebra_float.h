@@ -101,6 +101,21 @@ struct FloatRates {
 
 
 /*
+ * 3x3 matrices
+ */
+#define FLOAT_MAT33_ZERO(_m) {						\
+    RMAT_ELMT(_m, 0, 0) = 0.;						\
+    RMAT_ELMT(_m, 0, 1) = 0.;						\
+    RMAT_ELMT(_m, 0, 2) = 0.;                                          \
+    RMAT_ELMT(_m, 1, 0) = 0.;						\
+    RMAT_ELMT(_m, 1, 1) = 0.;						\
+    RMAT_ELMT(_m, 1, 2) = 0.;						\
+    RMAT_ELMT(_m, 2, 0) = 0.;						\
+    RMAT_ELMT(_m, 2, 1) = 0.;						\
+    RMAT_ELMT(_m, 2, 2) = 0.;						\
+  }
+
+/*
  * Rotation Matrices
  */
 

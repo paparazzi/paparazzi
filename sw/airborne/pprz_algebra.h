@@ -268,6 +268,12 @@
   }
 
 
+/*
+ * 3x3 matrices
+ */
+/* accessor : row and col range from 0 to 2 */
+#define MAT33_ELMT(_m, _row, _col) ((_m).m[_row*3+_col])
+
 
 /* multiply _vin by _mat, store in _vout */
 #define MAT33_VECT3_MUL(_vout, _mat, _vin) {				\
@@ -332,7 +338,7 @@
  */
 
 /* accessor : row and col range from 0 to 2 */
-#define RMAT_ELMT(_rm, _row, _col) (_rm.m[_row*3+_col])
+#define RMAT_ELMT(_rm, _row, _col) MAT33_ELMT(_rm, _row, _col)
 
 /* trace */
 #define RMAT_TRACE(_rm) (RMAT_ELMT(_rm, 0, 0)+RMAT_ELMT(_rm, 1, 1)+RMAT_ELMT(_rm, 2, 2))

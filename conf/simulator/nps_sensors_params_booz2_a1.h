@@ -70,31 +70,27 @@
 #define NPS_GYRO_RESOLUTION       65536
 
 /* 2^12/GYRO_X_SENS */
-#define BSM_GYRO_SENSITIVITY_PP   ( 4055.)
-#define BSM_GYRO_SENSITIVITY_QQ   (-4055.)
-#define BSM_GYRO_SENSITIVITY_RR   (-4055.)
+#define NPS_GYRO_SENSITIVITY_PP   ( 4055.)
+#define NPS_GYRO_SENSITIVITY_QQ   (-4055.)
+#define NPS_GYRO_SENSITIVITY_RR   (-4055.)
 
-#define BSM_GYRO_NEUTRAL_P        33924
-#define BSM_GYRO_NEUTRAL_Q        33417
-#define BSM_GYRO_NEUTRAL_R        32809
+#define NPS_GYRO_NEUTRAL_P        33924
+#define NPS_GYRO_NEUTRAL_Q        33417
+#define NPS_GYRO_NEUTRAL_R        32809
 
-//#define BSM_GYRO_NOISE_STD_DEV_P  RadOfDeg(0.)
-//#define BSM_GYRO_NOISE_STD_DEV_Q  RadOfDeg(0.)
-//#define BSM_GYRO_NOISE_STD_DEV_R  RadOfDeg(0.)
+#define NPS_GYRO_NOISE_STD_DEV_P  RadOfDeg(0.5)
+#define NPS_GYRO_NOISE_STD_DEV_Q  RadOfDeg(0.5)
+#define NPS_GYRO_NOISE_STD_DEV_R  RadOfDeg(0.5)
 
-#define BSM_GYRO_NOISE_STD_DEV_P  RadOfDeg(0.5)
-#define BSM_GYRO_NOISE_STD_DEV_Q  RadOfDeg(0.5)
-#define BSM_GYRO_NOISE_STD_DEV_R  RadOfDeg(0.5)
+#define NPS_GYRO_BIAS_INITIAL_P   RadOfDeg( 0.0)
+#define NPS_GYRO_BIAS_INITIAL_Q   RadOfDeg(  .0)
+#define NPS_GYRO_BIAS_INITIAL_R   RadOfDeg(  .0)
 
-#define BSM_GYRO_BIAS_INITIAL_P  RadOfDeg( 0.0)
-#define BSM_GYRO_BIAS_INITIAL_Q  RadOfDeg(  .0)
-#define BSM_GYRO_BIAS_INITIAL_R  RadOfDeg(  .0)
+#define NPS_GYRO_BIAS_RANDOM_WALK_STD_DEV_P RadOfDeg(0.)
+#define NPS_GYRO_BIAS_RANDOM_WALK_STD_DEV_Q RadOfDeg(0.)
+#define NPS_GYRO_BIAS_RANDOM_WALK_STD_DEV_R RadOfDeg(0.)
 
-#define BSM_GYRO_BIAS_RANDOM_WALK_STD_DEV_P RadOfDeg(0.)
-#define BSM_GYRO_BIAS_RANDOM_WALK_STD_DEV_Q RadOfDeg(0.)
-#define BSM_GYRO_BIAS_RANDOM_WALK_STD_DEV_R RadOfDeg(0.)
-
-#define BSM_GYRO_DT (1./512.)
+#define NPS_GYRO_DT (1./512.)
 
 
 

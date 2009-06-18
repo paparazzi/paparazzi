@@ -16,50 +16,29 @@ bool_t nps_sensor_gyro_available() {
 void  nps_sensor_gyro_init(double time) {
   VECT3_ASSIGN(sensors.gyro.value, 0., 0., 0.);
   sensors.gyro.resolution = NPS_GYRO_RESOLUTION;
-#if 0
-  bsm.gyro_resolution = BSM_GYRO_RESOLUTION;
-  
-  bsm.gyro_sensitivity = m_get(AXIS_NB, AXIS_NB);
-  m_zero(bsm.gyro_sensitivity);
-  bsm.gyro_sensitivity->me[AXIS_P][AXIS_P] = BSM_GYRO_SENSITIVITY_PP;
-  bsm.gyro_sensitivity->me[AXIS_Q][AXIS_Q] = BSM_GYRO_SENSITIVITY_QQ;
-  bsm.gyro_sensitivity->me[AXIS_R][AXIS_R] = BSM_GYRO_SENSITIVITY_RR;
-  
-  bsm.gyro_neutral = v_get(AXIS_NB);
-  bsm.gyro_neutral->ve[AXIS_P] = BSM_GYRO_NEUTRAL_P;
-  bsm.gyro_neutral->ve[AXIS_Q] = BSM_GYRO_NEUTRAL_Q;
-  bsm.gyro_neutral->ve[AXIS_R] = BSM_GYRO_NEUTRAL_R;
-  
-  bsm.gyro_noise_std_dev = v_get(AXIS_NB);
-  bsm.gyro_noise_std_dev->ve[AXIS_P] = BSM_GYRO_NOISE_STD_DEV_P;
-  bsm.gyro_noise_std_dev->ve[AXIS_Q] = BSM_GYRO_NOISE_STD_DEV_Q;
-  bsm.gyro_noise_std_dev->ve[AXIS_R] = BSM_GYRO_NOISE_STD_DEV_R;
-  
-  bsm.gyro_bias_initial = v_get(AXIS_NB);
-  bsm.gyro_bias_initial->ve[AXIS_P] = BSM_GYRO_BIAS_INITIAL_P;
-  bsm.gyro_bias_initial->ve[AXIS_Q] = BSM_GYRO_BIAS_INITIAL_Q;
-  bsm.gyro_bias_initial->ve[AXIS_R] = BSM_GYRO_BIAS_INITIAL_R;
-  
-  bsm.gyro_bias_random_walk_std_dev = v_get(AXIS_NB);
-  bsm.gyro_bias_random_walk_std_dev->ve[AXIS_P] = BSM_GYRO_BIAS_RANDOM_WALK_STD_DEV_P;
-  bsm.gyro_bias_random_walk_std_dev->ve[AXIS_Q] = BSM_GYRO_BIAS_RANDOM_WALK_STD_DEV_Q;
-  bsm.gyro_bias_random_walk_std_dev->ve[AXIS_R] = BSM_GYRO_BIAS_RANDOM_WALK_STD_DEV_R;
-  
-  bsm.gyro_bias_random_walk_value = v_get(AXIS_NB);
-  bsm.gyro_bias_random_walk_value->ve[AXIS_P] = bsm.gyro_bias_initial->ve[AXIS_P];
-  bsm.gyro_bias_random_walk_value->ve[AXIS_Q] = bsm.gyro_bias_initial->ve[AXIS_Q];
-  bsm.gyro_bias_random_walk_value->ve[AXIS_R] = bsm.gyro_bias_initial->ve[AXIS_R];
-  
-  bsm.gyro_next_update = time;
-  bsm.gyro_available = FALSE;
-#endif
+  FLOAT_MAT33_ZERO(sensors.gyro.sensitivity);
+  MAT33_ELMT(sensors.gyro.sensitivity, 0, 0) = NPS_GYRO_SENSITIVITY_PP;
+  MAT33_ELMT(sensors.gyro.sensitivity, 1, 1) = NPS_GYRO_SENSITIVITY_QQ;
+  MAT33_ELMT(sensors.gyro.sensitivity, 2, 2) = NPS_GYRO_SENSITIVITY_RR;
+  VECT3_ASSIGN(sensors.gyro.neutral, 
+	       NPS_GYRO_NEUTRAL_P, NPS_GYRO_NEUTRAL_Q, NPS_GYRO_NEUTRAL_R);
+  VECT3_ASSIGN(sensors.gyro.noise_std_dev, 
+	       NPS_GYRO_NOISE_STD_DEV_P, NPS_GYRO_NOISE_STD_DEV_Q, NPS_GYRO_NOISE_STD_DEV_R);
+  VECT3_ASSIGN(sensors.gyro.bias_initial, 
+	       NPS_GYRO_BIAS_INITIAL_P, NPS_GYRO_BIAS_INITIAL_Q, NPS_GYRO_BIAS_INITIAL_R);
+  VECT3_ASSIGN(sensors.gyro.bias_random_walk_std_dev, 
+	       NPS_GYRO_BIAS_RANDOM_WALK_STD_DEV_P, 
+	       NPS_GYRO_BIAS_RANDOM_WALK_STD_DEV_Q, 
+	       NPS_GYRO_BIAS_RANDOM_WALK_STD_DEV_R);
+  sensors.gyro.next_update = time;
+  sensors.gyro.data_available = FALSE;
 }
 
 void booz_sensors_model_gyro_run( double time ) {
-#if 0
-  if (time < bsm.gyro_next_update)
+  if (time < sensors.gyro.next_update)
     return;
 
+#if 0
   /* rotate to IMU frame */
   /* convert to imu frame */
   static VEC* rate_imu = VNULL;
@@ -94,10 +73,10 @@ void booz_sensors_model_gyro_run( double time ) {
   RoundSensor(bsm.gyro);
   /* saturation                                     */
   BoundSensor(bsm.gyro, 0, bsm.gyro_resolution); 
-
-  bsm.gyro_next_update += BSM_GYRO_DT;
-  bsm.gyro_available = TRUE;
 #endif
+
+  sensors.gyro.next_update += NPS_GYRO_DT;
+  sensors.gyro.data_available = TRUE;
 }
 
 
