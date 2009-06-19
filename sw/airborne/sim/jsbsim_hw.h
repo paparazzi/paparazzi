@@ -1,7 +1,6 @@
 /*
- * $Id$
  *  
- * Copyright (C) 2008 Gautier Hattenberger
+ * Copyright (C) 2009 Enac
  *
  * This file is part of paparazzi.
  *
@@ -22,34 +21,42 @@
  *
  */
 
-#ifndef SIM_AC_JSBSIM_H
-#define SIM_AC_JSBSIM_H
+/** \file jsbsim_hw.h
+ */
 
-#include <FGFDMExec.h>
-#include <FGJSBBase.h>
-#include <FGState.h>
+#ifndef JSBSIM_HW_H
+#define JSBSIM_HW_H
 
+#include <inttypes.h>
 #include "std.h"
-#include "airframe.h"
+#include "inter_mcu.h"
+#include "autopilot.h"
+#include "estimator.h"
+#include "gps.h"
+#include "traffic_info.h"
 #include "flight_plan.h"
+#include "airframe.h"
+#include "settings.h"
+#include "nav.h"
+#include "fw_h_ctl.h"
+#include "fw_v_ctl.h"
+#include "infrared.h"
+#include "cam.h"
+#include "commands.h"
+#include "main_ap.h"
+#include "ap_downlink.h"
+#include "sim_uart.h"
+#include "latlong.h"
+#include "datalink.h"
+#include "adc_generic.h"
+#include "ppm.h"
 
 
-/* 60Hz <-> 17ms */
-#ifndef JSBSIM_PERIOD
-#define JSBSIM_PERIOD 17
+void sim_use_gps_pos(double lat, double lon, double alt, double course, double gspeed, double climb, double time);
+void sim_update_sv(void);
+
+void set_ir(double roll, double pitch);
+
+void update_bat(double bat);
+
 #endif
-#define DT (JSBSIM_PERIOD*1e-3)
-
-#define RAD2DEG 57.29578
-#define FT2M 0.3048
-
-void autopilot_init(void);
-void autopilot_periodic_task(void);
-void autopilot_event_task(void);
-void jsbsim_init(void);
-void copy_inputs_to_jsbsim(JSBSim::FGFDMExec* FDMExec);
-void copy_outputs_from_jsbsim(JSBSim::FGFDMExec* FDMExec);
-bool check_crash_jsbsim(JSBSim::FGFDMExec* FDMExec);
-
-
-#endif // SIM_AC_JSBSIM_H
