@@ -3,9 +3,9 @@
 <fdm_config name="QUAD COMPLETE EXT" version="2.0" release="BETA" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://jsbsim.sourceforge.net/JSBSim.xsd">
 
     <fileheader>
-        <author> Gustavo Violato </author>
+        <author> Gustavo Violato &amp; Antoine Drouin</author>
         <filecreationdate> 24-02-2009 </filecreationdate>
-        <version> Version 1.0 </version>
+        <version> Version 0.9 - beta</version>
         <description> Test file </description>
     </fileheader>
 

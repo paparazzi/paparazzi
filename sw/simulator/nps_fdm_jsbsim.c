@@ -1,6 +1,7 @@
 #include <FGFDMExec.h>
 #include <FGJSBBase.h>
 #include <FGState.h>
+#include <stdlib.h>
 #include "nps_fdm.h"
 #include "airframe.h"
 
@@ -17,10 +18,12 @@ FGFDMExec* FDMExec;
 
 void nps_fdm_init(double dt) {
   
-  char rootdir[1024];
+  char buf[1024];
+  string rootdir;
   JSBSim::FGState* State;
   
-  sprintf(rootdir,"%s/conf/simulator",getenv("PAPARAZZI_HOME"));
+  sprintf(buf,"%s/conf/simulator/",getenv("PAPARAZZI_HOME"));
+  rootdir = string(buf);
   FDMExec = new FGFDMExec();
   
   State = FDMExec->GetState();
@@ -30,10 +33,11 @@ void nps_fdm_init(double dt) {
   FDMExec->DisableOutput();
   FDMExec->SetDebugLevel(0); // No DEBUG messages
   
-  if ( ! FDMExec->LoadModel( strcat(rootdir,"aircraft"),
-			     strcat(rootdir,"engine"),
-			     strcat(rootdir,"systems"),
-			     AIRFRAME_NAME), false){
+  if ( ! FDMExec->LoadModel( rootdir + "aircraft",
+			     rootdir + "engine",
+			     rootdir + "systems",
+			     AIRFRAME_NAME,
+			     false)){
 #ifdef DEBUG
     cerr << "  JSBSim could not be started" << endl << endl;
 #endif

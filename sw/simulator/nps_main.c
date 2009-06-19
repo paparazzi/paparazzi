@@ -67,7 +67,7 @@ static void nps_main_run_sim_step(void) {
 
   printf("sim at %f\n", nps_main.sim_time);
 
-  //  nps_fdm_run_step(autopilot.commands);
+  //nps_fdm_run_step(autopilot.commands);
 
   //  nps_sensors_run_step();
 
