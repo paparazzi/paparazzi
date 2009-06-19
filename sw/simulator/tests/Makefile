@@ -21,22 +21,22 @@
 #	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
 
-
-
-
+JSBSIM = /home/violato/enac/programs/install_jsbsim
 
 CFLAGS = -Wall                          \
          -I ..                          \
-         -I ../../../var/BOOZ           \
+         -I ../../../var/BOOZ2_A1       \
          -I ../../airborne              \
          -I ../../include               \
          -I /usr/include/meschach       \
+	 -I $(JSBSIM)/include/JSBSim    \
          `pkg-config glib-2.0 --cflags` \
 
 LDFLAGS = -lm                           \
           -lmeschach                    \
           -lpcre                        \
           -lglibivy                     \
+	  -L $(JSBSIM)/lib -lJSBSim	\
           `pkg-config glib-2.0 --libs`  \
 
 SIMDIR = ..
@@ -45,12 +45,12 @@ SIMDIR = ..
 #
 #
 
-TEST_FDM_SRCS = test_fdm.c                           \
-                $(SIMDIR)/booz_flight_model.c        \
-                $(SIMDIR)/booz_flight_model_utils.c   
+TEST_FDM_SRCS = nps_test_fdm.c                           \
+                $(SIMDIR)/nps_fdm_jsbsim.c    		 \
 
-test_fdm : $(TEST_FDM_SRCS)
-	gcc $(CFLAGS) -o $@ $^ $(LDFLAGS)
+
+nps_test_fdm : $(TEST_FDM_SRCS)
+	g++ $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
 
 #
