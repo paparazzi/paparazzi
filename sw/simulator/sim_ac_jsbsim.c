@@ -28,12 +28,14 @@
 #include <glib.h>
 #include <getopt.h>
 
-#include <Ivy/ivy.h>
+//#include <Ivy/ivy.h>
 #include <Ivy/ivyglibloop.h>
 
 /*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 GLOBAL DATA
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*/
+
+bool run_model;
 
 string ICName;
 string AircraftName;
@@ -45,13 +47,12 @@ static gboolean sim_periodic(gpointer data);
 
 string ivyBus = "127.255.255.255";
 static void ivy_transport_init(void);
-//static void on_DL_SETTING(IvyClientPtr app __attribute__ ((unused)), 
-//    void *user_data __attribute__ ((unused)), 
-//    int argc __attribute__ ((unused)), char *argv[]);
 
 
 static void sim_init(void) {
-  
+
+  run_model = false;
+
   jsbsim_init();
 
   // init sensors ? or discribe them in jSBSim
@@ -70,9 +71,9 @@ static gboolean sim_periodic(gpointer data __attribute__ ((unused))) {
 
   /* run JSBSim flight model */
   bool result = true;
-  //if (check_crash_jsbsim(FDMExec)) {
+  if (run_model) {
     result = FDMExec->Run();
-  //}
+  }
   /* check if still flying */
   //result = check_crash_jsbsim(FDMExec);
 
@@ -209,10 +210,10 @@ void jsbsim_init(void) {
       // Use flight plan initial conditions
       IC->SetLatitudeDegIC(NAV_LAT0 / 1e7);
       IC->SetLongitudeDegIC(NAV_LON0 / 1e7);
-      IC->SetAltitudeFtIC((GROUND_ALT+1) / FT2M);
+      IC->SetAltitudeFtIC((GROUND_ALT+100) / FT2M);
       IC->SetTerrainAltitudeFtIC(GROUND_ALT / FT2M);
       IC->SetPsiDegIC(QFU);
-      IC->SetVgroundFpsIC(15./FT2M);
+      IC->SetVgroundFpsIC(0.);
       if (!FDMExec->RunIC()) {
         cerr << "Initialization from flight plan unsuccessful" << endl;
         exit(-1);
@@ -235,13 +236,10 @@ void jsbsim_init(void) {
 }
 
 bool check_crash_jsbsim(JSBSim::FGFDMExec* FDMExec) {
-
-  JSBSim::FGPropertyManager* cur_node;
-  double cur_value;
-  
-  cur_node = FDMExec->GetPropertyManager()->GetNode("position/h-agl-ft");
-  cur_value = cur_node->getDoubleValue();
-
-  if (cur_value>=0) return true;
-  else return false;
+  double agl = FDMExec->GetPropertyManager()->GetNode("position/h-agl-ft")->getDoubleValue();
+  if (agl>=0) return true;
+  else {
+    cerr << "Crash detected" << endl;
+    return false;
+  }
 }

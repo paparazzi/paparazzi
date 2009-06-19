@@ -33,6 +33,7 @@
 #include "airframe.h"
 #include "flight_plan.h"
 
+#include <Ivy/ivy.h>
 
 /* 60Hz <-> 17ms */
 #ifndef JSBSIM_PERIOD
@@ -42,6 +43,8 @@
 
 #define RAD2DEG 57.29578
 #define FT2M 0.3048
+
+extern bool run_model;
 
 void autopilot_init(void);
 void autopilot_periodic_task(void);

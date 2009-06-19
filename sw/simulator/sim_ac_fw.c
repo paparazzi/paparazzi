@@ -30,7 +30,40 @@
 
 using namespace JSBSim;
 
+/* Datalink Ivy function */
+static void on_DL_PING(IvyClientPtr app __attribute__ ((unused)), 
+			  void *user_data __attribute__ ((unused)), 
+			  int argc __attribute__ ((unused)), char *argv[]){
+  parse_dl_ping(argv);
+}
+static void on_DL_ACINFO(IvyClientPtr app __attribute__ ((unused)), 
+			  void *user_data __attribute__ ((unused)), 
+			  int argc __attribute__ ((unused)), char *argv[]){
+  parse_dl_acinfo(argv);
+}
+static void on_DL_SETTING(IvyClientPtr app __attribute__ ((unused)), 
+			  void *user_data __attribute__ ((unused)), 
+			  int argc __attribute__ ((unused)), char *argv[]){
+  parse_dl_setting(argv);
+}
+static void on_DL_BLOCK(IvyClientPtr app __attribute__ ((unused)), 
+			  void *user_data __attribute__ ((unused)), 
+			  int argc __attribute__ ((unused)), char *argv[]){
+  parse_dl_block(argv);
+}
+static void on_DL_MOVE_WP(IvyClientPtr app __attribute__ ((unused)), 
+			  void *user_data __attribute__ ((unused)), 
+			  int argc __attribute__ ((unused)), char *argv[]){
+  parse_dl_move_wp(argv);
+}
+
 void autopilot_init(void) {
+  IvyBindMsg(on_DL_PING, NULL, "^(\\S*) DL_PING");
+  IvyBindMsg(on_DL_ACINFO, NULL, "^(\\S*) DL_ACINFO (\\S*) (\\S*) (\\S* (\\S*) (\\S*) (\\S*)) (\\S*) (\\S*)");
+  IvyBindMsg(on_DL_SETTING, NULL, "^(\\S*) DL_SETTING (\\S*) (\\S*) (\\S*)");
+  IvyBindMsg(on_DL_BLOCK, NULL, "^(\\S*) BLOCK (\\S*) (\\S*)");
+  IvyBindMsg(on_DL_MOVE_WP, NULL, "^(\\S*) MOVE_WP (\\S*) (\\S*) (\\S*) (\\S*) (\\S*)");
+
   init_fbw();
   init_ap();
 }
@@ -51,17 +84,17 @@ void print(FGFDMExec* FDMExec) {
   const char* state[] = {"sim-time-sec",
 			 "position/lat-gc-deg","position/long-gc-deg","position/h-sl-meters",/*
 			 "ic/lat-gc-deg","ic/long-gc-deg","ic/h-sl-ft",
-			 "velocities/v-north-fps","velocities/v-east-fps","velocities/v-down-fps","velocities/vg-fps",
-			 "attitude/roll-rad","attitude/pitch-rad","attitude/heading-true-rad",
+			 "velocities/v-north-fps","velocities/v-east-fps","velocities/v-down-fps","velocities/vg-fps",*/
+			 "attitude/roll-rad","attitude/pitch-rad","attitude/heading-true-rad",/*
 			 "velocities/p-rad_sec","velocities/q-rad_sec","velocities/r-rad_sec",*/
-			 "forces/fbx-gear-lbs","forces/fby-gear-lbs","forces/fbz-gear-lbs"};
+			 "fcs/throttle-cmd-norm","fcs/aileron-cmd-norm","fcs/elevator-cmd-norm"};
   int i=0;
 
   cur_node = FDMExec->GetPropertyManager()->GetNode("sim-time-sec");
   cur_value = cur_node->getDoubleValue();
   cout << state[i] << " " << cur_value << endl;
   
-  for (i=1; i<6+1; i++) {
+  for (i=1; i<9+1; i++) {
     if (strstr(state[i],"rad_")!=NULL) factor=RAD2DEG;
     if (strstr(state[i],"fps")!=NULL || strstr(state[i],"ft")!=NULL) factor=FT2M;
     cur_node = FDMExec->GetPropertyManager()->GetNode(state[i]);
@@ -71,12 +104,36 @@ void print(FGFDMExec* FDMExec) {
   }
 }
 
-void copy_inputs_to_jsbsim(FGFDMExec* FDMExec) {
+static inline void set_value(FGFDMExec* FDMExec, string name, double value) {
+  FDMExec->GetPropertyManager()->GetNode(name)->setDoubleValue(value);
+}
 
+static inline double normalize_from_pprz(int command) {
+  double cmd_norm = (double)command / MAX_PPRZ;
+  BoundAbs(cmd_norm, MAX_PPRZ);
+  return cmd_norm;
+}
+
+void copy_inputs_to_jsbsim(FGFDMExec* FDMExec) {
+  // detect launch
+  if (!run_model && launch && !kill_throttle) {
+    run_model = true;
+    // set initial speed
+    //FDMExec->GetIC()->SetVgroundFpsIC(15./FT2M);
+    //FDMExec->RunIC();
+  }
+
+  set_value(FDMExec, "fcs/throttle-cmd-norm", normalize_from_pprz(commands[COMMAND_THROTTLE])/3);
+  //set_value(FDMExec, "fcs/throttle-cmd-norm", 0.2);
+  set_value(FDMExec, "fcs/aileron-cmd-norm",  -normalize_from_pprz(commands[COMMAND_ROLL]));
+  set_value(FDMExec, "fcs/elevator-cmd-norm", -normalize_from_pprz(commands[COMMAND_PITCH]));
+#ifdef COMMAND_YAW
+  set_value(FDMExec, "fcs/rudder-cmd-norm",   normalize_from_pprz(commands[COMMAND_YAW]));
+#endif
 
 }
 
-double get_value(FGFDMExec* FDMExec, string name) {
+static inline double get_value(FGFDMExec* FDMExec, string name) {
   return FDMExec->GetPropertyManager()->GetNode(name)->getDoubleValue();
 }
 
@@ -100,7 +157,7 @@ void copy_outputs_from_jsbsim(FGFDMExec* FDMExec) {
     gps_period = 0.;
   }
 
-    print(FDMExec);
+    //print(FDMExec);
   // copy IR
   double roll   = get_value(FDMExec, "attitude/roll-rad");
   double pitch  = get_value(FDMExec, "attitude/pitch-rad");
