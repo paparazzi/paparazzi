@@ -33,7 +33,7 @@ void nps_fdm_init(double dt) {
   if ( ! FDMExec->LoadModel( strcat(rootdir,"aircraft"),
 			     strcat(rootdir,"engine"),
 			     strcat(rootdir,"systems"),
-			     AIRFRAME_NAME)){
+			     AIRFRAME_NAME), false){
 #ifdef DEBUG
     cerr << "  JSBSim could not be started" << endl << endl;
 #endif
