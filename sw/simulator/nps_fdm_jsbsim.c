@@ -3,6 +3,7 @@
 #include <FGState.h>
 #include <stdlib.h>
 #include "nps_fdm.h"
+#include "6dof.h"
 #include "airframe.h"
 
 using namespace JSBSim;
@@ -12,12 +13,66 @@ static void fetch_state(void);
 static void jsbsimvec_to_vec(VEC* vector, const FGColumnVector3* jsb_vector);
 static void jsbsimloc_to_vec(VEC* vector, FGLocation* location);
 static void jsbsimquat_to_vec(VEC* ltp_to_body_quat, FGQuaternion* quat);
+static void init_jsbsim(double dt);
+static void init_fdm_vars(void);
 
 struct NpsFdm fdm;
 FGFDMExec* FDMExec;
 
 void nps_fdm_init(double dt) {
-  
+
+  init_jsbsim(dt);
+  init_fdm_vars();
+ 
+}
+
+void nps_fdm_run_step(double* commands) {
+
+  feed_jsbsim(commands);
+
+  FDMExec->Run();
+
+  fetch_state();
+
+}
+
+static void feed_jsbsim(double* commands) {
+
+  char buf[64];
+  const char* names[] = NPS_ACTUATOR_NAMES;
+  string property;
+
+  int i;
+  for (i=0; i<SERVOS_NB; i++) {
+    sprintf(buf,"fcs/%s",names[i]);
+    property = string(buf);
+    FDMExec->GetPropertyManager()->SetDouble(property,commands[i]);
+  }
+}
+
+static void fetch_state(void) {
+
+  FGGroundReactions* ground_reactions;
+  FGPropagate* propagate;
+  FGPropagate::VehicleState* VState;
+
+  ground_reactions = FDMExec->GetGroundReactions();
+  propagate = FDMExec->GetPropagate();
+  VState = propagate->GetVState();
+
+  fdm.on_ground = ground_reactions->GetWOW();
+  jsbsimloc_to_vec(fdm.ecef_pos,&VState->vLocation);
+  jsbsimvec_to_vec(fdm.ecef_vel,&VState->vUVW);
+  jsbsimvec_to_vec(fdm.body_accel,&propagate->GetUVWdot());
+  jsbsimquat_to_vec(fdm.ltp_to_body_quat,&VState->vQtrn);
+  jsbsimvec_to_vec(fdm.body_rate,&VState->vPQR);
+  jsbsimvec_to_vec(fdm.body_rate_dot,&propagate->GetPQRdot());
+
+}
+
+
+static void init_jsbsim(double dt) {
+
   char buf[1024];
   string rootdir;
   JSBSim::FGState* State;
@@ -53,64 +108,33 @@ void nps_fdm_init(double dt) {
     delete FDMExec;
     exit(-1);
   }
+
+}
+
+static void init_fdm_vars(void) {
   
-}
+  fdm.ecef_pos = v_get(AXIS_NB);
+  fdm.ecef_vel = v_get(AXIS_NB);
+  fdm.body_accel = v_get(AXIS_NB);
 
-void nps_fdm_run_step(double* commands) {
-
-  feed_jsbsim(commands);
-
-  FDMExec->Run();
-
-  fetch_state();
+  fdm.ltp_to_body_quat = v_get(QUAT_NB);
+  fdm.body_rate = v_get(AXIS_NB);
+  fdm.body_rate_dot = v_get(AXIS_NB);
 
 }
 
-static void feed_jsbsim(double* commands) {
-
-  char buf[64];
-  const char* names[] = NPS_ACTUATOR_NAMES;
-  
-  for (int i=0; i<SERVOS_NB; i++) {
-    sprintf(buf,"fcs/%s",names[i]);
-    FDMExec->GetPropertyManager()->SetDouble(buf,commands[i]);
-  }
-
-}
-
-static void fetch_state(void) {
-
-  FGGroundReactions* ground_reactions;
-  FGPropagate* propagate;
-  FGPropagate::VehicleState* VState;
-
-  ground_reactions = FDMExec->GetGroundReactions();
-  propagate = FDMExec->GetPropagate();
-  VState = propagate->GetVState();
-
-  fdm.on_ground = ground_reactions->GetWOW();
-
-  jsbsimloc_to_vec(fdm.ecef_pos,&VState->vLocation);
-  jsbsimvec_to_vec(fdm.ecef_vel,&VState->vUVW);
-
-  jsbsimvec_to_vec(fdm.body_accel,&propagate->GetUVWdot());
-
-  jsbsimquat_to_vec(fdm.ltp_to_body_quat,&VState->vQtrn);
-  jsbsimvec_to_vec(fdm.body_rate,&VState->vPQR);
-  jsbsimvec_to_vec(fdm.body_rate_dot,&propagate->GetPQRdot());
-
-}
 
 static void jsbsimloc_to_vec(VEC* vector, FGLocation* location) {
   int i;
   for (i=0; i<3; i++) {
-    vector->ve[i] = location->Entry(i+1);
+    vector->ve[i] = i+1;
+    //location->Entry(i+1);
   }
 }
 
 static void jsbsimquat_to_vec(VEC* vector, FGQuaternion* quat) {
   int i;
-  for (i=0; i<3; i++) {
+  for (i=0; i<4; i++) {
     vector->ve[i] = quat->Entry(i+1);
   }
 }
