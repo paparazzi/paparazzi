@@ -3,20 +3,21 @@
 
 
 #include "std.h"
-#include <matrix.h> 
+#include "pprz_geodetic_double.h"
+#include "pprz_algebra_double.h"
 
 
 struct NpsFdm {
   
   bool_t on_ground;
-  
-  VEC* ecef_pos;
-  VEC* ecef_vel;
-  VEC* body_accel;
 
-  VEC* ltp_to_body_quat;
-  VEC* body_rate;
-  VEC* body_rate_dot;
+  struct EcefCoor_d  ecef_pos;
+  struct EcefCoor_d  ecef_vel;
+  struct DoubleVect3 body_accel;
+
+  struct DoubleQuat  ltp_to_body_quat;
+  struct DoubleRates body_rate;
+  struct DoubleRates body_rate_dot;
 
 };
 

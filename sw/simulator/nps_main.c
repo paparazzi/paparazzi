@@ -1,4 +1,6 @@
-
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <glib.h>
 #include <sys/time.h>
 #include <getopt.h>
@@ -43,9 +45,6 @@ int main ( int argc, char** argv) {
   
   return 0;
 }
-
-
-
 
 
 static void nps_main_init(void) {

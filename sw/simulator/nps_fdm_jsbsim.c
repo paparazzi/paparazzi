@@ -10,9 +10,10 @@ using namespace JSBSim;
 
 static void feed_jsbsim(double* commands);
 static void fetch_state(void);
-static void jsbsimvec_to_vec(VEC* vector, const FGColumnVector3* jsb_vector);
-static void jsbsimloc_to_vec(VEC* vector, FGLocation* location);
-static void jsbsimquat_to_vec(VEC* ltp_to_body_quat, FGQuaternion* quat);
+static void jsbsimvec_to_vec(DoubleVect3* vector, const FGColumnVector3* jsb_vector);
+static void jsbsimloc_to_loc(EcefCoor_d* fdm_loc, FGLocation* location);
+static void jsbsimquat_to_quat(DoubleQuat* ltp_to_body_quat, FGQuaternion* quat);
+static void jsbsimvec_to_rate(DoubleRates* rate, const FGColumnVector3* jsb_vector);
 static void init_jsbsim(double dt);
 static void init_fdm_vars(void);
 
@@ -32,7 +33,7 @@ void nps_fdm_run_step(double* commands) {
 
   FDMExec->Run();
 
-  fetch_state();
+  // fetch_state();
 
 }
 
@@ -61,12 +62,12 @@ static void fetch_state(void) {
   VState = propagate->GetVState();
 
   fdm.on_ground = ground_reactions->GetWOW();
-  jsbsimloc_to_vec(fdm.ecef_pos,&VState->vLocation);
-  jsbsimvec_to_vec(fdm.ecef_vel,&VState->vUVW);
-  jsbsimvec_to_vec(fdm.body_accel,&propagate->GetUVWdot());
-  jsbsimquat_to_vec(fdm.ltp_to_body_quat,&VState->vQtrn);
-  jsbsimvec_to_vec(fdm.body_rate,&VState->vPQR);
-  jsbsimvec_to_vec(fdm.body_rate_dot,&propagate->GetPQRdot());
+  //jsbsimloc_to_vec(fdm.ecef_pos,&VState->vLocation);
+  //jsbsimvec_to_vec(fdm.ecef_vel,&VState->vUVW);
+  //jsbsimvec_to_vec(fdm.body_accel,&propagate->GetUVWdot());
+  //jsbsimquat_to_vec(fdm.ltp_to_body_quat,&VState->vQtrn);
+  //jsbsimvec_to_vec(fdm.body_rate,&VState->vPQR);
+  //jsbsimvec_to_vec(fdm.body_rate_dot,&propagate->GetPQRdot());
 
 }
 
@@ -111,38 +112,9 @@ static void init_jsbsim(double dt) {
 
 }
 
-static void init_fdm_vars(void) {
-  
-  fdm.ecef_pos = v_get(AXIS_NB);
-  fdm.ecef_vel = v_get(AXIS_NB);
-  fdm.body_accel = v_get(AXIS_NB);
-
-  fdm.ltp_to_body_quat = v_get(QUAT_NB);
-  fdm.body_rate = v_get(AXIS_NB);
-  fdm.body_rate_dot = v_get(AXIS_NB);
-
-}
-
-
-static void jsbsimloc_to_vec(VEC* vector, FGLocation* location) {
-  int i;
-  for (i=0; i<3; i++) {
-    vector->ve[i] = i+1;
-    //location->Entry(i+1);
-  }
-}
-
-static void jsbsimquat_to_vec(VEC* vector, FGQuaternion* quat) {
-  int i;
-  for (i=0; i<4; i++) {
-    vector->ve[i] = quat->Entry(i+1);
-  }
-}
-
-static void jsbsimvec_to_vec(VEC* vector, const FGColumnVector3* jsb_vector) {
-  int i;
-  for (i=0; i<3; i++) {
-    vector->ve[i] = jsb_vector->Entry(i+1);
-  }  
-}
+static void init_fdm_vars(void) {}
+static void jsbsimvec_to_rate(DoubleRates* rate, const FGColumnVector3* jsb_vector) {}
+static void jsbsimloc_to_loc(EcefCoor_d* fdm_loc, FGLocation* location){}
+static void jsbsimquat_to_quat(DoubleQuat* ltp_to_body_quat, FGQuaternion* quat){}
+static void jsbsimvec_to_vec(DoubleVect3* vector, const FGColumnVector3* jsb_vector) {}
 
