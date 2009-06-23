@@ -1,5 +1,5 @@
-#ifndef NPS_SENSORS_GYRO_H
-#define NPS_SENSORS_GYRO_H
+#ifndef NPS_SENSOR_GYRO_H
+#define NPS_SENSOR_GYRO_H
 
 #include "pprz_algebra.h"
 #include "pprz_algebra_double.h"
@@ -23,5 +23,5 @@ struct NpsSensorGyro {
 extern void   nps_sensor_gyro_init(struct NpsSensorGyro* gyro, double time);
 extern void   nps_sensor_gyro_run_step(struct NpsSensorGyro* gyro, double time, struct DoubleRMat* body_to_imu);
 
-#endif /* NPS_SENSORS_GYRO_H */
+#endif /* NPS_SENSOR_GYRO_H */
 

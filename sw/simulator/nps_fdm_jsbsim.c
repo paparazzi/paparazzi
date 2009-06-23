@@ -129,6 +129,8 @@ static void init_fdm_vars(void) {
   RATES_ASSIGN(fdm.body_rate,0,0,0);   
   RATES_ASSIGN(fdm.body_rate_dot,0,0,0);
 
+  VECT3_ASSIGN(fdm.g_ltp, 9.81, 0., 0.);
+
  }
 
 static void jsbsimloc_to_loc(EcefCoor_d* fdm_location, FGLocation* jsb_location){

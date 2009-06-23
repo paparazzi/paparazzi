@@ -3,7 +3,7 @@
 
 #include "pprz_algebra.h"
 #include "nps_sensor_gyro.h"
-//nclude "nps_sensor_accel.h"
+#include "nps_sensor_accel.h"
 //nclude "nps_sensor_mag.h"
 //nclude "nps_sensor_baro.h"
 //#include "nps_sensor_gps.h"
@@ -12,7 +12,7 @@
 struct NpsSensors {
   struct DoubleRMat body_to_imu_rmat;
   struct NpsSensorGyro  gyro;
-  //  struct NpsSensorAccel accel;
+  struct NpsSensorAccel accel;
   //  struct NpsSensorMag   mag;
   //  struct NpsSensorBaro  baro;
   //  struct NpsSensorGps   gps;

@@ -19,6 +19,7 @@ struct NpsFdm {
   struct DoubleRates body_rate;
   struct DoubleRates body_rate_dot;
 
+  struct DoubleVect3 g_ltp;
 };
 
 extern struct NpsFdm fdm;

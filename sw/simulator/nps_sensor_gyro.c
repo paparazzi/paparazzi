@@ -29,14 +29,14 @@ void nps_sensor_gyro_run_step(struct NpsSensorGyro* gyro, double time, struct Do
   if (time < gyro->next_update)
     return;
 
-  /* rotate rate to IMU frame */
-  DoubleVect3 rate_body = {fdm.body_rate->ve[0], fdm.body_rate->ve[1], fdm.body_rate->ve[2]}; 
+  /* transform body rates to IMU frame */
+  DoubleVect3* rate_body = (struct DoubleVect3*)(&fdm.body_rate);
   DoubleVect3 rate_imu;
-  MAT33_VECT3_MUL(rate_imu, *body_to_imu, rate_body);
+  MAT33_VECT3_MUL(rate_imu, *body_to_imu, *rate_body );
   /* compute gyros readings */
   MAT33_VECT3_MUL(gyro->value, gyro->sensitivity, rate_imu);
   /* compute gyro error readings */
-
+  
   /* round signal to account for adc discretisation */
   DOUBLE_VECT3_ROUND(gyro->value);
   /* saturate                                       */

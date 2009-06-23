@@ -52,9 +52,9 @@ static void nps_main_init(void) {
   nps_main.sim_time = 0.;
   nps_main.display_time = 0.;
   gettimeofday (&nps_main.host_time_start, NULL);
-  nps_main.host_time_factor = 0.1;
+  nps_main.host_time_factor = 0.01;
 
-  nps_fdm_init(SIM_DT);
+  //  nps_fdm_init(SIM_DT);
   nps_sensors_init(nps_main.sim_time);
   nps_autopilot_init();
 

@@ -35,30 +35,26 @@
 /* 
  * Accelerometer 
  */
-#define BSM_ACCEL_RESOLUTION      (65536)
+#define NPS_ACCEL_RESOLUTION      (65536)
 /* ms-2 */
 /* aka 2^10/ACCEL_X_SENS  */
-#define BSM_ACCEL_SENSITIVITY_XX  -408.92695
-#define BSM_ACCEL_SENSITIVITY_YY  -412.69325
-#define BSM_ACCEL_SENSITIVITY_ZZ  -407.32522
-#define BSM_ACCEL_NEUTRAL_X       32081
-#define BSM_ACCEL_NEUTRAL_Y       33738
-#define BSM_ACCEL_NEUTRAL_Z       32441
+#define NPS_ACCEL_SENSITIVITY_XX  -408.92695
+#define NPS_ACCEL_SENSITIVITY_YY  -412.69325
+#define NPS_ACCEL_SENSITIVITY_ZZ  -407.32522
+
+#define NPS_ACCEL_NEUTRAL_X       32081
+#define NPS_ACCEL_NEUTRAL_Y       33738
+#define NPS_ACCEL_NEUTRAL_Z       32441
 /* m2s-4 */
-//#define BSM_ACCEL_NOISE_STD_DEV_X 0
-//#define BSM_ACCEL_NOISE_STD_DEV_Y 0
-//#define BSM_ACCEL_NOISE_STD_DEV_Z 0
-
-#define BSM_ACCEL_NOISE_STD_DEV_X 1.e-1
-#define BSM_ACCEL_NOISE_STD_DEV_Y 1.e-1
-#define BSM_ACCEL_NOISE_STD_DEV_Z 1.1e-1
-
+#define NPS_ACCEL_NOISE_STD_DEV_X 1.e-1
+#define NPS_ACCEL_NOISE_STD_DEV_Y 1.e-1
+#define NPS_ACCEL_NOISE_STD_DEV_Z 1.1e-1
 /* ms-2 */
-#define BSM_ACCEL_BIAS_X          0
-#define BSM_ACCEL_BIAS_Y          0
-#define BSM_ACCEL_BIAS_Z          0
+#define NPS_ACCEL_BIAS_X          0
+#define NPS_ACCEL_BIAS_Y          0
+#define NPS_ACCEL_BIAS_Z          0
 /* s */
-#define BSM_ACCEL_DT              (1./512.)
+#define NPS_ACCEL_DT              (1./512.)
 
 
 
@@ -87,7 +83,7 @@
 #define NPS_GYRO_BIAS_RANDOM_WALK_STD_DEV_P RadOfDeg(0.)
 #define NPS_GYRO_BIAS_RANDOM_WALK_STD_DEV_Q RadOfDeg(0.)
 #define NPS_GYRO_BIAS_RANDOM_WALK_STD_DEV_R RadOfDeg(0.)
-
+/* s */
 #define NPS_GYRO_DT (1./512.)
 
 

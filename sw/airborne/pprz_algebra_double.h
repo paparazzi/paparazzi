@@ -51,6 +51,34 @@ struct DoubleRates {
     (_vout).z = rint((_vin).z);			\
   }
 
+
+
+#define DOUBLE_RMAT_OF_EULERS(_rm, _e) DOUBLE_RMAT_OF_EULERS_321(_rm, _e)
+
+#define DOUBLE_RMAT_OF_EULERS_321(_rm, _e) {				\
+    									\
+    const double sphi   = sin((_e).phi);				\
+    const double cphi   = cos((_e).phi);				\
+    const double stheta = sin((_e).theta);				\
+    const double ctheta = cos((_e).theta);				\
+    const double spsi   = sin((_e).psi);				\
+    const double cpsi   = cos((_e).psi);				\
+    									\
+    RMAT_ELMT(_rm, 0, 0) = ctheta*cpsi;					\
+    RMAT_ELMT(_rm, 0, 1) = ctheta*spsi;					\
+    RMAT_ELMT(_rm, 0, 2) = -stheta;					\
+    RMAT_ELMT(_rm, 1, 0) = sphi*stheta*cpsi - cphi*spsi;		\
+    RMAT_ELMT(_rm, 1, 1) = sphi*stheta*spsi + cphi*cpsi;		\
+    RMAT_ELMT(_rm, 1, 2) = sphi*ctheta;					\
+    RMAT_ELMT(_rm, 2, 0) = cphi*stheta*cpsi + sphi*spsi;		\
+    RMAT_ELMT(_rm, 2, 1) = cphi*stheta*spsi - sphi*cpsi;		\
+    RMAT_ELMT(_rm, 2, 2) = cphi*ctheta;					\
+    									\
+  }
+
+
+
+
 /* multiply _vin by _mat, store in _vout */
 #define DOUBLE_MAT33_VECT3_MUL(_vout, _mat, _vin) {		\
     (_vout).x = (_mat)[0]*(_vin).x + (_mat)[1]*(_vin).y + (_mat)[2]*(_vin).z;	\
