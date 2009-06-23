@@ -93,27 +93,23 @@
  */
 //#define BSM_MAG_RESOLUTION 65536
 
-#define BSM_MAG_IMU_TO_SENSOR_PHI              0.
-#define BSM_MAG_IMU_TO_SENSOR_THETA            0.
-#define BSM_MAG_IMU_TO_SENSOR_PSI    RadOfDeg(45.)
+#define NPS_MAG_IMU_TO_SENSOR_PHI              0.
+#define NPS_MAG_IMU_TO_SENSOR_THETA            0.
+#define NPS_MAG_IMU_TO_SENSOR_PSI    RadOfDeg(45.)
 
-#define BSM_MAG_SENSITIVITY_XX   (1.*(1<<11)/-4.94075530)
-#define BSM_MAG_SENSITIVITY_YY   (1.*(1<<11)/ 5.10207664)
-#define BSM_MAG_SENSITIVITY_ZZ   (1.*(1<<11)/-4.90788848)
+#define NPS_MAG_SENSITIVITY_XX   (1.*(1<<11)/-4.94075530)
+#define NPS_MAG_SENSITIVITY_YY   (1.*(1<<11)/ 5.10207664)
+#define NPS_MAG_SENSITIVITY_ZZ   (1.*(1<<11)/-4.90788848)
 
-#define BSM_MAG_NEUTRAL_X  2358
-#define BSM_MAG_NEUTRAL_Y  2362
-#define BSM_MAG_NEUTRAL_Z  2119
+#define NPS_MAG_NEUTRAL_X  2358
+#define NPS_MAG_NEUTRAL_Y  2362
+#define NPS_MAG_NEUTRAL_Z  2119
 
-//#define BSM_MAG_NOISE_STD_DEV_X  0
-//#define BSM_MAG_NOISE_STD_DEV_Y  0
-//#define BSM_MAG_NOISE_STD_DEV_Z  0
+#define NPS_MAG_NOISE_STD_DEV_X  2e-3
+#define NPS_MAG_NOISE_STD_DEV_Y  2e-3
+#define NPS_MAG_NOISE_STD_DEV_Z  2e-3
 
-#define BSM_MAG_NOISE_STD_DEV_X  2e-3
-#define BSM_MAG_NOISE_STD_DEV_Y  2e-3
-#define BSM_MAG_NOISE_STD_DEV_Z  2e-3
-
-#define BSM_MAG_DT (1./100.)
+#define NPS_MAG_DT (1./100.)
 
 
 /*
