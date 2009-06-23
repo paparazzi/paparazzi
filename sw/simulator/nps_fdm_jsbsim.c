@@ -5,15 +5,16 @@
 #include "nps_fdm.h"
 #include "6dof.h"
 #include "airframe.h"
+#include "pprz_algebra.h"
 
 using namespace JSBSim;
 
 static void feed_jsbsim(double* commands);
 static void fetch_state(void);
-static void jsbsimvec_to_vec(DoubleVect3* vector, const FGColumnVector3* jsb_vector);
-static void jsbsimloc_to_loc(EcefCoor_d* fdm_loc, FGLocation* location);
-static void jsbsimquat_to_quat(DoubleQuat* ltp_to_body_quat, FGQuaternion* quat);
-static void jsbsimvec_to_rate(DoubleRates* rate, const FGColumnVector3* jsb_vector);
+static void jsbsimvec_to_vec(DoubleVect3* fdm_vector, const FGColumnVector3* jsb_vector);
+static void jsbsimloc_to_loc(EcefCoor_d* fdm_location, FGLocation* jsb_location);
+static void jsbsimquat_to_quat(DoubleQuat* fdm_quat, FGQuaternion* jsb_quat);
+static void jsbsimvec_to_rate(DoubleRates* fdm_rate, const FGColumnVector3* jsb_vector);
 static void init_jsbsim(double dt);
 static void init_fdm_vars(void);
 
@@ -33,7 +34,7 @@ void nps_fdm_run_step(double* commands) {
 
   FDMExec->Run();
 
-  // fetch_state();
+  fetch_state();
 
 }
 
@@ -112,9 +113,24 @@ static void init_jsbsim(double dt) {
 
 }
 
-static void init_fdm_vars(void) {}
-static void jsbsimvec_to_rate(DoubleRates* rate, const FGColumnVector3* jsb_vector) {}
-static void jsbsimloc_to_loc(EcefCoor_d* fdm_loc, FGLocation* location){}
-static void jsbsimquat_to_quat(DoubleQuat* ltp_to_body_quat, FGQuaternion* quat){}
-static void jsbsimvec_to_vec(DoubleVect3* vector, const FGColumnVector3* jsb_vector) {}
+static void init_fdm_vars(void) {
+
+  fdm.on_ground = false;
+
+  fdm.ecef_pos.x = 0;
+  fdm.ecef_pos.y = 0;
+  fdm.ecef_pos.z = 0;
+  VECT3_ASSIGN(fdm.ecef_vel,0,0,0);
+  VECT3_ASSIGN(fdm.body_accel,0,0,0);
+    
+  FLOAT_QUAT_ZERO(fdm.ltp_to_body_quat);
+  RATES_ASSIGN(fdm.body_rate,0,0,0);   
+  RATES_ASSIGN(fdm.body_rate_dot,0,0,0);
+
+}
+
+static void jsbsimvec_to_rate(DoubleRates* fdm_rate, const FGColumnVector3* jsb_vector) {}
+static void jsbsimloc_to_loc(EcefCoor_d* fdm_location, FGLocation* jsb_location){}
+static void jsbsimquat_to_quat(DoubleQuat* fdm_quat, FGQuaternion* jsb_quat){}
+static void jsbsimvec_to_vec(DoubleVect3* fdm_vector, const FGColumnVector3* jsb_vector) {}
 
