@@ -54,6 +54,7 @@ static void nps_main_init(void) {
   gettimeofday (&nps_main.host_time_start, NULL);
   nps_main.host_time_factor = 0.01;
 
+  nps_ivy_transport_init();
   nps_fdm_init(SIM_DT);
   nps_sensors_init(nps_main.sim_time);
   nps_autopilot_init();
@@ -78,7 +79,7 @@ static void nps_main_run_sim_step(void) {
 
 static void nps_main_display(void) {
   printf("display at %f\n", nps_main.display_time);
-
+  nps_ivy_display();
 }
 
 

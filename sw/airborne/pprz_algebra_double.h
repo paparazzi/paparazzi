@@ -113,4 +113,27 @@ struct DoubleRates {
     									\
   }
 
+#define DOUBLE_EULERS_OF_QUAT(_e, _q) {					\
+									\
+    const double qx2  = (_q).qx*(_q).qx;				\
+    const double qy2  = (_q).qy*(_q).qy;				\
+    const double qz2  = (_q).qz*(_q).qz;				\
+    const double qiqx = (_q).qi*(_q).qx;				\
+    const double qiqy = (_q).qi*(_q).qy;				\
+    const double qiqz = (_q).qi*(_q).qz;				\
+    const double qxqy = (_q).qx*(_q).qy;				\
+    const double qxqz = (_q).qx*(_q).qz;				\
+    const double qyqz = (_q).qy*(_q).qz;				\
+    const double dcm00 = 1.0 - 2.*(  qy2 +  qz2 );			\
+    const double dcm01 =       2.*( qxqy + qiqz );			\
+    const double dcm02 =       2.*( qxqz - qiqy );			\
+    const double dcm12 =       2.*( qyqz + qiqx );			\
+    const double dcm22 = 1.0 - 2.*(  qx2 +  qy2 );			\
+									\
+    (_e).phi = atan2( dcm12, dcm22 );					\
+    (_e).theta = -asin( dcm02 );					\
+    (_e).psi = atan2( dcm01, dcm00 );					\
+									\
+  }
+
 #endif /* PPRZ_ALGEBRA_DOUBLE_H */
