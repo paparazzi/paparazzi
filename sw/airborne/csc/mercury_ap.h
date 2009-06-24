@@ -27,7 +27,7 @@
 
 
 void csc_ap_init( void );
-void csc_ap_periodic (void );
+void csc_ap_periodic (int8_t flight, int8_t motors );
 
 
 #endif 

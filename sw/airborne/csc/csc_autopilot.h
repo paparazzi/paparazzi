@@ -56,6 +56,7 @@ struct control_trims {
 extern struct control_gains csc_gains;
 extern struct control_reference csc_reference;
 extern struct control_trims csc_trims;
+extern float csc_yaw_weight;
 
 void csc_autopilot_set_roll_ki(float ki);
 void csc_autopilot_set_pitch_ki(float ki);

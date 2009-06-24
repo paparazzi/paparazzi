@@ -71,11 +71,13 @@ static void nop(struct CscCanMsg *msg)
 
 static void on_rc_cmd(struct CscRCMsg *msg)
 {
+  rc_values[RADIO_ROLL]  = CSC_RC_SCALE*(msg->right_stick_horizontal - CSC_RC_OFFSET);
+  rc_values[RADIO_PITCH] = -CSC_RC_SCALE*(msg->right_stick_vertical - CSC_RC_OFFSET);
+  rc_values[RADIO_YAW]   =  CSC_RC_SCALE*(msg->left_stick_horizontal - CSC_RC_OFFSET);
+  uint8_t mode = (msg->left_stick_vertical_and_flap_mix & (3 << 13)) >> 13;
+  rc_values[RADIO_MODE]  =  mode ? -7000 : ( (mode == 1) ? 0 : 7000); 
+  rc_values[RADIO_THROTTLE] = -CSC_RC_SCALE*((msg->left_stick_vertical_and_flap_mix & ~(3 << 13)) - CSC_RC_OFFSET);
 
-  rc_values[RADIO_ROLL] = -RADIO_SCALE * (msg->right_stick_horizontal - ROLL_OFFSET);
-  rc_values[RADIO_PITCH] = -RADIO_SCALE * (msg->right_stick_vertical - PITCH_OFFSET);
-  rc_values[RADIO_YAW] = RADIO_SCALE * (msg->left_stick_horizontal - YAW_OFFSET);
-  rc_values[RADIO_MODE] = RADIO_SCALE * (msg->flap_mix - MODE_OFFSET);
   time_since_last_ppm = 0;
   rc_status = RC_OK;
   pprz_mode = PPRZ_MODE_OF_RC(rc_values[RADIO_MODE]);

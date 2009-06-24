@@ -28,12 +28,14 @@
 #include "mercury_xsens.h"
 #include "booz2_autopilot.h"
 #include "booz2_stabilization.h"
+#include "booz2_stabilization_attitude.h"
 #include "led.h"
 #include "pprz_algebra_float.h"
 #include "string.h"
 #include "radio_control.h"
 #include "mercury_supervision.h"
-#include "actuators.h"
+#include "actuators.h" 
+#include "props_csc.h"
 
 static const int xsens_id = 0;
 
@@ -131,27 +133,27 @@ void csc_ap_init(void) {
 
 // adapted from booz2_commands.h - cb6e74ae259a2384046f431c35735dc8018c0ecd
 // mmt -- 06/16/09
-pprz_t csc_ap_commands[COMMANDS_NB];
 const pprz_t csc_ap_commands_failsafe[COMMANDS_NB] = COMMANDS_FAILSAFE;
 
 
 #define CscSetCommands(_in_cmd, _in_flight, _motors_on) {			\
-    csc_ap_commands[COMMAND_PITCH]  = _in_cmd[COMMAND_PITCH];		\
-    csc_ap_commands[COMMAND_ROLL]   = _in_cmd[COMMAND_ROLL];		\
-    csc_ap_commands[COMMAND_YAW]    = (_in_flight) ? _in_cmd[COMMAND_YAW] : 0; \
-    csc_ap_commands[COMMAND_THRUST] = (_motors_on) ? _in_cmd[COMMAND_THRUST] : 0; \
+    commands[COMMAND_PITCH]  = _in_cmd[COMMAND_PITCH];		\
+    commands[COMMAND_ROLL]   = _in_cmd[COMMAND_ROLL];		\
+    commands[COMMAND_YAW]    = (_in_flight) ? _in_cmd[COMMAND_YAW] : 0; \
+    commands[COMMAND_THRUST] = (_motors_on) ? _in_cmd[COMMAND_THRUST] : 0; \
   }
 
-pprz_t mixed_commands[SERVOS_NB];
+pprz_t mixed_commands[PROPS_NB];
 
 
-void csc_ap_periodic(void) {
+void csc_ap_periodic(int8_t _in_flight, int8_t _motors_on) {
   //  RunOnceEvery(50, nav_periodic_task_10Hz())
-  booz2_autopilot_motors_on = 1; // HACK for now mmt
+  booz2_autopilot_motors_on = _motors_on;
+  booz2_autopilot_in_flight = _in_flight;
   
   booz2_stabilization_attitude_run(booz2_autopilot_in_flight);
   
-  /*   if ( !booz2_autopilot_motors_on || */
+  /*  if ( !booz2_autopilot_motors_on ){ */
 /*   if(  booz2_autopilot_mode == BOOZ2_AP_MODE_FAILSAFE || */
 /*        booz2_autopilot_mode == BOOZ2_AP_MODE_KILL ) { */
 /*     CscSetCommands(csc_ap_commands_failsafe, */
@@ -159,19 +161,23 @@ void csc_ap_periodic(void) {
     
 /*   } else { */
     booz2_stabilization_attitude_read_rc(booz2_autopilot_in_flight);
-    booz2_stabilization_cmd[COMMAND_THRUST] = (int32_t)rc_values[RADIO_THROTTLE] * 200 / MAX_PPRZ;
+    booz2_stabilization_cmd[COMMAND_THRUST] = (int32_t)rc_values[RADIO_THROTTLE] * 200 / MAX_PPRZ + 118;
     
     CscSetCommands(booz2_stabilization_cmd,
 		   booz2_autopilot_in_flight, booz2_autopilot_motors_on);
     //  }
-  
-  // TODO insert calls to servos_csc
-  // mix motors
+
     
-    BOOZ2_SUPERVISION_RUN(mixed_commands, csc_ap_commands, booz2_autopilot_motors_on); 
-    Actuator(SERVO_UPPER_LEFT) = (uint8_t)mixed_commands[SERVO_UPPER_LEFT];	
-    Actuator(SERVO_LOWER_RIGHT)= (uint8_t)mixed_commands[SERVO_LOWER_RIGHT];	
-    Actuator(SERVO_LOWER_LEFT) = (uint8_t)mixed_commands[SERVO_LOWER_LEFT];	
-    Actuator(SERVO_UPPER_RIGHT)= (uint8_t)mixed_commands[SERVO_UPPER_RIGHT];	
-    ActuatorsCommit();							
+    BOOZ2_SUPERVISION_RUN(mixed_commands, commands, booz2_autopilot_motors_on);
+    props_set(PROP_UPPER_LEFT, mixed_commands[PROP_UPPER_LEFT]);
+    props_set(PROP_LOWER_RIGHT,mixed_commands[PROP_LOWER_RIGHT]);
+    props_set(PROP_LOWER_LEFT, mixed_commands[PROP_LOWER_LEFT]);
+    props_set(PROP_UPPER_RIGHT,mixed_commands[PROP_UPPER_RIGHT]);
+    props_commit();
+
+    
+    Actuator(SERVO_S1) = (1<<15)+((1<<14)/MAX_PPRZ)*rc_values[RADIO_YAW];
+    Actuator(SERVO_S2)  = (1<<15)-((1<<14)/MAX_PPRZ)*rc_values[RADIO_YAW];
+    ActuatorsCommit();
+    
 }

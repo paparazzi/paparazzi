@@ -31,6 +31,7 @@
 
 #include "led.h"
 
+#include "paparazzi.h"
 #include "downlink.h"
 #include "messages.h"
 #include "uart.h"
@@ -66,18 +67,39 @@ void spektrum_periodic_task ( void )
 
 }
 
+
+#define ROLL_OFFSET 1544
+#define PITCH_OFFSET 2551
+#define THRUST_OFFSET 3793
+#define YAW_OFFSET 3585
+#define MODE_OFFSET 5632
+
 // Called after receipt of valid message
 static void spektrum_parse_msg( )
 {
   struct spektrum_frame *frame = (struct spektrum_frame *) msg_buf;
-  struct CscRCMsg msg; 
+  struct CscRCMsg msg;
+  int16_t flap_flag;
 
   // only copy the channels we need for now to fit within can frame size
-  msg.right_stick_vertical = bswap_16(frame->right_vertical);
-  msg.right_stick_horizontal = bswap_16(frame->right_horizontal);
-  msg.left_stick_horizontal = bswap_16(frame->left_horizontal);
-  msg.flap_mix = bswap_16(frame->flap_mix);
 
+  msg.right_stick_horizontal =  (bswap_16(frame->right_horizontal) - ROLL_OFFSET) + CSC_RC_OFFSET;
+  msg.right_stick_vertical   =  (bswap_16(frame->right_vertical)   - PITCH_OFFSET) + CSC_RC_OFFSET;
+  msg.left_stick_horizontal  =  (bswap_16(frame->left_horizontal)  - YAW_OFFSET) + CSC_RC_OFFSET;
+  msg.left_stick_vertical_and_flap_mix = -1*(bswap_16(frame->left_vertical) - THRUST_OFFSET) + CSC_RC_OFFSET;
+
+  flap_flag = CSC_RC_SCALE * (bswap_16(frame->flap_mix) - MODE_OFFSET);
+  if(flap_flag > MAX_PPRZ/2){
+    flap_flag = 0;
+  } else if (flap_flag > MIN_PPRZ/2){
+    flap_flag = 1;
+  } else {
+    flap_flag = 2;
+  }
+  flap_flag =  flap_flag << 13;
+
+  msg.left_stick_vertical_and_flap_mix = msg.left_stick_vertical_and_flap_mix | flap_flag;
+  
   csc_ap_send_msg(CSC_RC_ID, &msg, sizeof(struct CscRCMsg));
 }
 

@@ -18,7 +18,9 @@ PWM6  RXD1   EINT3   P0.9    3
 
 extern void csc_servos_init(void);
 extern void csc_servos_set(int32_t* val);
-
+extern void csc_servo_set(uint8_t id, uint32_t ticks);
+extern void csc_servo_normalized_set(uint8_t id, uint16_t val);
+extern inline void csc_servos_commit();
 
 
 #endif /* CSC_SERVOS_H */

@@ -39,6 +39,7 @@ struct control_reference csc_errors;
 struct control_trims csc_trims;
 
 static const int xsens_id = 0;
+float csc_yaw_weight;
 
 void csc_ap_init( void )
 {
@@ -69,7 +70,7 @@ static void update_ki(float new_ki, float *ki, float *ierror)
   *ki = new_ki;
 }
 
-#define I_CMD_BOUND 0.5
+#define I_CMD_BOUND 0.4
 
 static void bound_ierror(float igain, float *ierror)
 {
@@ -128,9 +129,11 @@ static void calculate_errors(struct control_reference *errors)
 
 static void calculate_reference(struct control_reference *reference)
 {
-  reference->eulers.phi = M_PI / 6.0 * rc_values[RADIO_ROLL];
-  reference->eulers.theta = M_PI  / 6.0 * rc_values[RADIO_PITCH];
   reference->eulers.psi = M_PI  / 6.0 * rc_values[RADIO_YAW];
+  reference->eulers.theta = M_PI  / 6.0 * rc_values[RADIO_PITCH];
+  // Mix reference command with yaw reference command to prevent
+  // fighting ourselves
+  reference->eulers.phi = M_PI / 6.0 * rc_values[RADIO_ROLL];// + csc_yaw_weight * reference->eulers.psi;
 
   reference->eulers.phi /= MAX_PPRZ;
   reference->eulers.theta /= MAX_PPRZ;
@@ -143,9 +146,9 @@ void csc_ap_periodic( void )
   calculate_reference(&csc_reference);
   calculate_errors(&csc_errors);
 
-  commands[COMMAND_ROLL] = -csc_gains.roll_kp * csc_errors.eulers.phi
-			   + csc_gains.roll_kd * csc_errors.rates.p
-			   - csc_gains.roll_ki * csc_errors.eulers_i.phi;
+  commands[COMMAND_ROLL] = -csc_gains.roll_kp * (csc_errors.eulers.phi + csc_errors.eulers.psi * csc_yaw_weight)
+			   + csc_gains.roll_kd * (csc_errors.rates.p + csc_errors.rates.r * csc_yaw_weight)
+			   - csc_gains.roll_ki * (csc_errors.eulers_i.phi + csc_errors.eulers_i.psi * csc_yaw_weight);
   commands[COMMAND_ROLL] += csc_trims.aileron;
 
   commands[COMMAND_PITCH] = -csc_gains.pitch_kp * csc_errors.eulers.theta
@@ -172,3 +175,4 @@ void csc_ap_set_trims( void )
   csc_trims.elevator = commands[COMMAND_PITCH];
   csc_trims.rudder = commands[COMMAND_YAW];
 }
+

@@ -1,4 +1,5 @@
 #include "csc_can.h"
+#include "string.h"
 
 #include "LPC21xx.h"
 #include "armVIC.h"
@@ -11,6 +12,9 @@
 bool_t can1_msg_received;
 struct CscCanMsg can1_rx_msg;
 static void (* can1_callback)(struct CscCanMsg *);
+
+static bool_t can1_msg_transmit_queued = 0;
+static struct CscCanMsg can1_tx_queued_msg;
 
 static void CAN1_Rx_ISR ( void ) __attribute__((naked));
 static void CAN1_Tx_ISR ( void ) __attribute__((naked));
@@ -61,12 +65,23 @@ void csc_can1_init(void(* callback)(struct CscCanMsg *msg)) {
   // Get out of reset Mode
   C1MOD = 0;
 
+
+}
+
+static inline uint32_t csc_can1_tx_available()
+{
+  return (C1SR & 0x00000004L);
 }
 
 
 void csc_can1_send(struct CscCanMsg* msg) {
 
-  if (!(C1SR & 0x00000004L)) { /* transmit channel not available */
+  if (!csc_can1_tx_available()) { /* transmit channel not available */
+    if(!can1_msg_transmit_queued){
+      can1_msg_transmit_queued = 1;
+      memcpy(&can1_tx_queued_msg,msg,sizeof(struct CscCanMsg));
+    }
+
     //    LED_ON(2);
     return;
   }
@@ -121,6 +136,12 @@ void csc_can_event(void)
     can1_callback(&can1_rx_msg);
     can1_msg_received = FALSE;
   }
+
+  if(can1_msg_transmit_queued && csc_can1_tx_available()){
+    csc_can1_send(&can1_tx_queued_msg);
+    can1_msg_transmit_queued = 0;
+  }
+
 #endif /* USE_CAN1 */
 }
 

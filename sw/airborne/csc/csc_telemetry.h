@@ -53,7 +53,9 @@
 #define PERIODIC_SEND_QUAD_STATUS() DOWNLINK_SEND_QUAD_STATUS(&rc_status, &pprz_mode, &vsupply, &cpu_time)
 #endif /* RADIO_CONTROL */
 
+#ifdef SERVOS_NB
 #define PERIODIC_SEND_ACTUATORS() DOWNLINK_SEND_ACTUATORS(SERVOS_NB, actuators)
+#endif
 
 extern uint8_t telemetry_mode_Ap;
 

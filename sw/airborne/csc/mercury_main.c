@@ -38,7 +38,8 @@
 #include "airframe.h"
 #include "commands.h"
 
-#include "csc_servos.h"
+#include "csc_msg_def.h"
+#include ACTUATORS
 #include "booz2_imu.h"
 #include "booz_ahrs_aligner.h"
 #include "booz_ahrs.h"
@@ -54,15 +55,16 @@
 
 #define CSC_STATUS_TIMEOUT (SYS_TICS_OF_SEC(0.25) / PERIODIC_TASK_PERIOD)
 
-#define PPRZ_MODE_MANUAL 0
-#define PPRZ_MODE_AUTO1 1
+#define PPRZ_MODE_MOTORS_OFF 0
+#define PPRZ_MODE_MOTORS_ON  1
+#define PPRZ_MODE_IN_FLIGHT  2
 
-#define TRESHOLD_MANUAL_PPRZ (MIN_PPRZ / 2)
-#define PPRZ_MODE_OF_RC(mode) ((mode) < TRESHOLD_MANUAL_PPRZ ? PPRZ_MODE_MANUAL : PPRZ_MODE_AUTO1)
-
-
-uint8_t pprz_mode = PPRZ_MODE_AUTO1;
+uint8_t pprz_mode = PPRZ_MODE_MOTORS_OFF;
 static uint16_t cpu_time = 0;
+
+static inline void csc_main_init( void );
+static inline void csc_main_periodic( void );
+static inline void csc_main_event( void );
 
 int main( void ) {
   csc_main_init();
@@ -79,27 +81,20 @@ static void nop(struct CscCanMsg *msg)
 
 }
 
-#define RADIO_SCALE 20
-#define ROLL_OFFSET 1544
-#define PITCH_OFFSET 2551
-#define YAW_OFFSET 3585
-#define MODE_OFFSET 5632
-
 static void on_rc_cmd(struct CscRCMsg *msg)
 {
+  rc_values[RADIO_ROLL]  = CSC_RC_SCALE*(msg->right_stick_horizontal - CSC_RC_OFFSET);
+  rc_values[RADIO_PITCH] = -CSC_RC_SCALE*(msg->right_stick_vertical - CSC_RC_OFFSET);
+  rc_values[RADIO_YAW]   =  CSC_RC_SCALE*(msg->left_stick_horizontal - CSC_RC_OFFSET);
+  pprz_mode = (msg->left_stick_vertical_and_flap_mix & (3 << 13)) >> 13;
+  rc_values[RADIO_MODE] = (pprz_mode == 0) ? -7000 : ( (pprz_mode == 1) ? 0 : 7000); 
+  rc_values[RADIO_THROTTLE] = -CSC_RC_SCALE*((msg->left_stick_vertical_and_flap_mix & ~(3 << 13)) - CSC_RC_OFFSET);
 
-  rc_values[RADIO_ROLL] = -RADIO_SCALE * (msg->right_stick_horizontal - ROLL_OFFSET);
-  rc_values[RADIO_PITCH] = -RADIO_SCALE * (msg->right_stick_vertical - PITCH_OFFSET);
-  rc_values[RADIO_YAW] = RADIO_SCALE * (msg->left_stick_horizontal - YAW_OFFSET);
-  rc_values[RADIO_MODE] = RADIO_SCALE * (msg->flap_mix - MODE_OFFSET);
   time_since_last_ppm = 0;
   rc_status = RC_OK;
-  pprz_mode = PPRZ_MODE_OF_RC(rc_values[RADIO_MODE]);
-  if (pprz_mode == PPRZ_MODE_MANUAL)
-    SetCommandsFromRC(commands);
 }
 
-STATIC_INLINE void csc_main_init( void ) {
+static inline void csc_main_init( void ) {
 
   hw_init();
   sys_time_init();
@@ -127,6 +122,8 @@ STATIC_INLINE void csc_main_init( void ) {
   csc_ap_link_set_rc_cmd_cb(on_rc_cmd);
   actuators_init();
 
+  props_init();
+
   csc_ap_init();
   int_enable();
 
@@ -134,29 +131,26 @@ STATIC_INLINE void csc_main_init( void ) {
 }
 
 
-STATIC_INLINE void csc_main_periodic( void )
+static inline void csc_main_periodic( void )
 {
   static uint32_t csc_loops = 0;
   
   PeriodicSendAp();
   radio_control_periodic_task();
 
-  if (rc_status == RC_REALLY_LOST) {
-      pprz_mode = PPRZ_MODE_AUTO1;
-  }
   cpu_time++;
 
   if ((++csc_loops % CSC_STATUS_TIMEOUT) == 0) {
     csc_adc_periodic();
   }
   xsens_periodic_task();
-  if (pprz_mode == PPRZ_MODE_AUTO1){
-    csc_ap_periodic();
-  }
+
+  csc_ap_periodic(pprz_mode == PPRZ_MODE_IN_FLIGHT,
+  		  pprz_mode > PPRZ_MODE_MOTORS_OFF && booz_ahrs_aligner.status == BOOZ_AHRS_ALIGNER_LOCKED);
 
 }
 
-STATIC_INLINE void csc_main_event( void )
+static inline void csc_main_event( void )
 {
   csc_can_event();
   xsens_event_task();

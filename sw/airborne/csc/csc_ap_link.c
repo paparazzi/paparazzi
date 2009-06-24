@@ -8,6 +8,7 @@ int32_t csc_ap_link_error_cnt;
 static void (* servo_msg_cb)(struct CscServoCmd *);
 static void (* motor_msg_cb)(struct CscMotorMsg *);
 static void (* rc_msg_cb)(struct CscRCMsg *);
+static void (* prop_msg_cb)(struct CscPropCmd *);
 
 void csc_ap_link_send_adc(float adc1, float adc2)
 {
@@ -57,6 +58,11 @@ void csc_ap_link_set_motor_cmd_cb(void (* cb)(struct CscMotorMsg *msg))
   motor_msg_cb = cb;
 }
 
+void csc_ap_link_set_prop_cmd_cb(void (* cb)(struct CscPropCmd *cmd))
+{
+  prop_msg_cb = cb;
+}
+
 void csc_ap_link_set_rc_cmd_cb(void (* cb)(struct CscRCMsg *msg))
 {
   rc_msg_cb = cb;
@@ -94,6 +100,13 @@ static void on_ap_link_msg( struct CscCanMsg *msg)
 	// cast can data buffer pointer directly to csc_motor_msg pointer
 	rc_msg_cb((struct CscRCMsg *) &msg->dat_a);
       }
+      break;
+    case CSC_PROP_CMD_ID:
+      if (len != sizeof(struct CscPropCmd)){
+	LED_ON(ERROR_LED);
+	csc_ap_link_error_cnt++;
+      }else
+	prop_msg_cb((struct CscPropCmd *) &msg->dat_a);
       break;
   }
 }

@@ -7,11 +7,53 @@
 #include ACTUATORS
 
 #define CSC_SERVOS_NB 4
-#define SERVOS_PERIOD (SYS_TICS_OF_SEC((1./250.))); /* 250 Hz */
+#define SERVOS_PERIOD (SYS_TICS_OF_SEC((1./250.))) /* 250 Hz */
+
+#include "airframe.h"
+
+static uint32_t csc_servos_rng[] = {SYS_TICS_OF_USEC(SERVO_S1_MAX-SERVO_S1_MIN),
+				    SYS_TICS_OF_USEC(SERVO_S2_MAX-SERVO_S2_MIN)};
+static uint32_t csc_servos_min[] = {((1<<16)-1)*SYS_TICS_OF_USEC(SERVO_S1_MIN),
+				    ((1<<16)-1)*SYS_TICS_OF_USEC(SERVO_S2_MIN)};
+
 
 void csc_servos_init(void)
 {
   actuators_init();
+}
+
+/* val == 0 literally mean off, otherwise, val 1-255 are continuous angle */
+void csc_servo_normalized_set(uint8_t id, uint16_t val)
+{
+  if(id > 3) return;
+  if(val == 0) csc_servo_set(id,0);
+  else{
+    uint32_t ticks = csc_servos_rng[id]*(val-1);
+  
+    csc_servo_set(id,((ticks + csc_servos_min[id])/((1<<16) - 1)));
+  }
+}
+
+
+inline void csc_servos_commit()
+{
+  ActuatorsCommit();
+}
+
+void csc_servo_set(uint8_t id, uint32_t val)
+{
+  if(id > 3) return;
+
+#ifdef CSC_MOTORS_I2C
+  Actuator(id) = val;
+#else
+  switch(id){
+  case 0: Actuator(0) = val; break;
+  case 1: Actuator(5) = val; break;
+  case 2: Actuator(4) = val; break;
+  case 3: Actuator(3) = val; break;
+  }
+#endif
 }
 
 void csc_servos_set(int32_t* val)
@@ -28,6 +70,7 @@ void csc_servos_set(int32_t* val)
   Actuator(3) = val[3];
 #endif
 
-  ActuatorsCommit();
+  csc_servos_commit();
 }
+
 

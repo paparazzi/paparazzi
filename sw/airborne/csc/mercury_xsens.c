@@ -200,6 +200,7 @@ static uint8_t xsens_msg_idx[XSENS_COUNT];
 static uint8_t ck[XSENS_COUNT];
 static uint8_t send_ck[XSENS_COUNT];
 
+    
 void xsens_init( void )
 {
   for (int i = 0; i < XSENS_COUNT; i++) {
@@ -294,15 +295,15 @@ void xsens_parse_msg( uint8_t xsens_id ) {
     uint8_t offset = 0;
     // test RAW modes else calibrated modes 
       if (XSENS_MASK_RAWInertial(xsens_output_mode[xsens_id])){// || (XSENS_MASK_RAWGPS(xsens2_output_mode))) {
-	booz_imu.accel_unscaled.x = XSENS_DATA_RAWInertial_accX(xsens_msg_buf[xsens_id][buf_slot],offset);
+	booz_imu.accel_unscaled.x = XSENS_DATA_RAWInertial_accZ(xsens_msg_buf[xsens_id][buf_slot],offset);
 	booz_imu.accel_unscaled.y = XSENS_DATA_RAWInertial_accY(xsens_msg_buf[xsens_id][buf_slot],offset);
-	booz_imu.accel_unscaled.z = XSENS_DATA_RAWInertial_accZ(xsens_msg_buf[xsens_id][buf_slot],offset);
-	booz_imu.gyro_unscaled.p = -1*XSENS_DATA_RAWInertial_gyrX(xsens_msg_buf[xsens_id][buf_slot],offset);
-	booz_imu.gyro_unscaled.q = -1*XSENS_DATA_RAWInertial_gyrY(xsens_msg_buf[xsens_id][buf_slot],offset);
-	booz_imu.gyro_unscaled.r = XSENS_DATA_RAWInertial_gyrZ(xsens_msg_buf[xsens_id][buf_slot],offset);
-        booz_imu.mag_unscaled.x  = XSENS_DATA_RAWInertial_magX(xsens_msg_buf[xsens_id][buf_slot],offset);
+	booz_imu.accel_unscaled.z = XSENS_DATA_RAWInertial_accX(xsens_msg_buf[xsens_id][buf_slot],offset);
+	booz_imu.gyro_unscaled.p = XSENS_DATA_RAWInertial_gyrZ(xsens_msg_buf[xsens_id][buf_slot],offset);
+	booz_imu.gyro_unscaled.q = XSENS_DATA_RAWInertial_gyrY(xsens_msg_buf[xsens_id][buf_slot],offset);
+	booz_imu.gyro_unscaled.r = XSENS_DATA_RAWInertial_gyrX(xsens_msg_buf[xsens_id][buf_slot],offset);
+        booz_imu.mag_unscaled.x  = XSENS_DATA_RAWInertial_magZ(xsens_msg_buf[xsens_id][buf_slot],offset);
 	booz_imu.mag_unscaled.y  = XSENS_DATA_RAWInertial_magY(xsens_msg_buf[xsens_id][buf_slot],offset);
-	booz_imu.mag_unscaled.z  = XSENS_DATA_RAWInertial_magZ(xsens_msg_buf[xsens_id][buf_slot],offset);
+	booz_imu.mag_unscaled.z  = XSENS_DATA_RAWInertial_magX(xsens_msg_buf[xsens_id][buf_slot],offset);
 	Booz2ImuScaleGyro();
 	Booz2ImuScaleAccel();
 	Booz2ImuScaleMag();
