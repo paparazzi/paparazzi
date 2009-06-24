@@ -33,7 +33,7 @@ void   nps_sensor_accel_run_step(struct NpsSensorAccel* accel, double time, stru
   
   /* substract gravity to acceleration in body frame */
   struct DoubleVect3 accelero_body;
-  FLOAT_VECT3_DIFF(accelero_body, fdm.body_accel, g_body);
+  FLOAT_VECT3_DIFF(accelero_body, fdm.body_inertial_accel, g_body);
   
   /* transform to imu frame */
   struct DoubleVect3 accelero_imu;
