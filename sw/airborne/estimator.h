@@ -32,7 +32,9 @@
 #include <inttypes.h>
 
 #include "std.h"
+#ifndef READYBOARD_NO_BARO
 #include "baro_MS5534A.h"
+#endif
 
 /* position in meters */
 extern float estimator_x;
