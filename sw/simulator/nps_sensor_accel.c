@@ -29,7 +29,7 @@ void   nps_sensor_accel_run_step(struct NpsSensorAccel* accel, double time, stru
   
   /* transform gravity to body frame */
   struct DoubleVect3 g_body;
-  FLOAT_QUAT_VMULT(g_body, fdm.ltp_to_body_quat, fdm.g_ltp);
+  FLOAT_QUAT_VMULT(g_body, fdm.ltp_to_body_quat, fdm.ltp_g);
   
   /* substract gravity to acceleration in body frame */
   struct DoubleVect3 accelero_body;

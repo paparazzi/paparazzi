@@ -22,8 +22,6 @@ extern void nps_ivy_init(void) {
 
 extern void nps_ivy_display(void) {
 
-  DoubleEulers eulers;
-  DOUBLE_EULERS_OF_QUAT(eulers, fdm.ltp_to_body_quat);
 
   /*
     IvySendMsg("%d COMMANDS %f %f %f %f",  

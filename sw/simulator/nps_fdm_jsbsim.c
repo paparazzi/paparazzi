@@ -67,13 +67,16 @@ static void fetch_state(void) {
   fdm.on_ground = ground_reactions->GetWOW();
   
   jsbsimloc_to_loc(&fdm.ecef_pos,&VState->vLocation);
-  jsbsimvec_to_loc(&fdm.ecef_vel,&VState->vUVW);
-  jsbsimvec_to_vec(&fdm.body_accel,&propagate->GetUVWdot());
+  jsbsimvec_to_vec(&fdm.body_inertial_vel,&VState->vUVW);
+  jsbsimvec_to_vec(&fdm.body_inertial_accel,&propagate->GetUVWdot());
   
   jsbsimquat_to_quat(&fdm.ltp_to_body_quat,&VState->vQtrn);
   jsbsimvec_to_rate(&fdm.body_rate,&VState->vPQR);
   jsbsimvec_to_rate(&fdm.body_rate_dot,&propagate->GetPQRdot());
 
+  DOUBLE_EULERS_OF_QUAT(fdm.ltp_to_body_eulers, fdm.ltp_to_body_quat);
+  
+  
 }
 
 
@@ -122,14 +125,14 @@ static void init_fdm_vars(void) {
   fdm.on_ground = false;
   
   VECT3_ASSIGN(fdm.ecef_pos,0,0,0);
-  VECT3_ASSIGN(fdm.ecef_vel,0,0,0);
-  VECT3_ASSIGN(fdm.body_accel,0,0,0);
+  VECT3_ASSIGN(fdm.body_inertial_vel,0,0,0);
+  VECT3_ASSIGN(fdm.body_inertial_accel,0,0,0);
   
   FLOAT_QUAT_ZERO(fdm.ltp_to_body_quat);
   RATES_ASSIGN(fdm.body_rate,0,0,0);   
   RATES_ASSIGN(fdm.body_rate_dot,0,0,0);
 
-  VECT3_ASSIGN(fdm.g_ltp, 9.81, 0., 0.);
+  VECT3_ASSIGN(fdm.ltp_g, 9.81, 0., 0.);
 
  }
 

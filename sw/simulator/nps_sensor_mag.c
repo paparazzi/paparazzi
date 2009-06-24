@@ -27,7 +27,7 @@ void nps_sensor_mag_run_step(struct NpsSensorMag* mag, double time, struct Doubl
   
   /* transform magnetic field to body frame */
   struct DoubleVect3 h_body;
-  FLOAT_QUAT_VMULT(h_body, fdm.ltp_to_body_quat, fdm.h_ltp);
+  FLOAT_QUAT_VMULT(h_body, fdm.ltp_to_body_quat, fdm.ltp_h);
   
   /* transform to imu frame */
   struct DoubleVect3 h_imu;
