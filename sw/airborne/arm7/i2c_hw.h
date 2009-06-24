@@ -4,12 +4,22 @@
 
 #include "LPC21xx.h"
 
+
 #ifdef USE_BUSS_TWI_BLMC
 #include "actuators_buss_twi_blmc_hw.h"
 #define I2cStopHandler() ActuatorsBussTwiBlmcNext()
 #else
+
+#ifdef USE_BUSS_TWI_BLMC_MOTOR
+#include "buss_twi_blmc_hw.h"
+#define I2cStopHandler() BussTwiBlmcNext()
+#else
 #define I2cStopHandler() {}
 #endif
+
+#endif
+
+
 
 extern void i2c0_hw_init(void);
 
