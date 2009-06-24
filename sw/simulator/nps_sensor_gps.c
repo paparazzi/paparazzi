@@ -19,7 +19,7 @@ void nps_sensor_gps_run_step(struct NpsSensorGps* gps, double time) {
     return;
 
   VECT3_COPY(gps->ecef_pos, fdm.ecef_pos);
-  VECT3_COPY(gps->ecef_vel, fdm.ecef_vel);
+  VECT3_COPY(gps->ecef_vel, fdm.ecef_inertial_vel);
 
   gps->next_update += NPS_GPS_DT;
   gps->data_available = TRUE;

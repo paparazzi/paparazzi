@@ -21,18 +21,20 @@ struct NpsFdm {
   bool_t on_ground;
 
   struct EcefCoor_d  ecef_pos;
-  struct EcefCoor_d  ecef_inertial_vel;
-  struct EcefCoor_d  ecef_inertial_accel;
-  struct DoubleVect3 body_inertial_vel;   /* aka UVW */
-  struct DoubleVect3 body_inertial_accel; 
+  //  struct EcefCoor_d  ecef_inertial_vel;
+  //  struct EcefCoor_d  ecef_inertial_accel;
+  struct EcefCoor_d  ecef_ecef_vel;
+  struct EcefCoor_d  ecef_ecef_accel;
+  struct DoubleVect3 body_ecef_vel;   /* aka UVW */
+  struct DoubleVect3 body_ecef_accel; 
 
   struct NedCoor_d ltp_pos;
-  struct NedCoor_d ltp_inertial_vel;
+  struct NedCoor_d ltp_ecef_vel;
 
   struct DoubleQuat   ltp_to_body_quat;
   struct DoubleEulers ltp_to_body_eulers;
-  struct DoubleRates body_rate;
-  struct DoubleRates body_rate_dot;
+  struct DoubleRates  body_ecef_rotvel;
+  struct DoubleRates  body_ecef_rotaccel;
 
   struct DoubleVect3 ltp_g;
   struct DoubleVect3 ltp_h;

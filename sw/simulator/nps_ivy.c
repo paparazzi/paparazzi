@@ -15,7 +15,7 @@ extern void nps_ivy_init(void) {
   const char* ready_msg = AIRFRAME_NAME"_NPS Ready";
   IvyInit(agent_name, ready_msg, NULL, NULL, NULL, NULL);
   //IvyBindMsg(on_DL_SETTING, NULL, "^(\\S*) DL_SETTING (\\S*) (\\S*) (\\S*)");
-  //IvyBindMsg(on_DL_BLOCK, NULL, "^(\\S*) BLOCK (\\S*) (\\S*)");
+  //IvyBindMsg(on_DL_BLOCK, NULL,   "^(\\S*) BLOCK (\\S*) (\\S*)");
   //IvyBindMsg(on_DL_MOVE_WP, NULL, "^(\\S*) MOVE_WP (\\S*) (\\S*) (\\S*) (\\S*) (\\S*)");
   IvyStart("127.255.255.255");
 }
@@ -44,7 +44,7 @@ extern void nps_ivy_display(void) {
 	     (fdm.ltp_pos.x), 
 	     (fdm.ltp_pos.y), 
 	     (fdm.ltp_pos.z),
-	     (fdm.ltp_vel.x), 
-	     (fdm.ltp_vel.y), 
-	     (fdm.ltp_vel.z));
+	     (fdm.ltp_ecef_vel.x), 
+	     (fdm.ltp_ecef_vel.y), 
+	     (fdm.ltp_ecef_vel.z));
 }
