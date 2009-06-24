@@ -2,7 +2,7 @@
 #define PPRZ_ALGEBRA_DOUBLE_H
 
 #include "pprz_algebra.h"
-
+#include "pprz_alegbra_float.h"
 
 struct DoubleVect2 {
   double x;
@@ -51,6 +51,7 @@ struct DoubleRates {
     (_vout).z = rint((_vin).z);			\
   }
 
+#define DOUBLE_VECT3_CROSS_PRODUCT(vo, v1, v2) FLOAT_VECT3_CROSS_PRODUCT(vo, v1, v2)
 
 
 #define DOUBLE_RMAT_OF_EULERS(_rm, _e) DOUBLE_RMAT_OF_EULERS_321(_rm, _e)

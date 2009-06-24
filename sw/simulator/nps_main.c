@@ -10,7 +10,7 @@
 #include "nps_atmosphere.h"
 #include "nps_autopilot.h"
 #include "nps_ivy.h"
-
+#include "nps_flighgear.h"
 
 #define SIM_DT     (1./512.)
 #define DISPLAY_DT (1./25.)
@@ -60,6 +60,8 @@ static void nps_main_init(void) {
   nps_sensors_init(nps_main.sim_time);
   nps_autopilot_init();
 
+  
+  
 }
 
 

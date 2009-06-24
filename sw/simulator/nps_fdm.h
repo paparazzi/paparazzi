@@ -30,6 +30,7 @@ struct NpsFdm {
 
   struct NedCoor_d ltp_pos;
   struct NedCoor_d ltp_ecef_vel;
+  struct LlaCoor_d lla_pos;
 
   struct DoubleQuat   ltp_to_body_quat;
   struct DoubleEulers ltp_to_body_eulers;
