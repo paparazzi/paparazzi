@@ -133,7 +133,7 @@ struct FloatRates {
  */
 
 /* initialises a matrix to identity */
-#define FLOAT_RMAT_ZERO(_rm) FLOAT_MAT33_DIAG(_m, 1., 1., 1.)
+#define FLOAT_RMAT_ZERO(_rm) FLOAT_MAT33_DIAG(_rm, 1., 1., 1.)
 
 /* initialises a rotation matrix from unit vector axis and angle */
 #define FLOAT_RMAT_OF_AXIS_ANGLE(_rm, _uv, _an) {			\
