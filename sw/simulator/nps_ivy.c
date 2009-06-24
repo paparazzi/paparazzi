@@ -33,9 +33,9 @@ extern void nps_ivy_display(void) {
   */
   IvySendMsg("%d BOOZ_SIM_RATE_ATTITUDE %f %f %f %f %f %f",  
 	     AC_ID,
-	     DegOfRad(fdm.body_rate.p), 
-	     DegOfRad(fdm.body_rate.q), 
-	     DegOfRad(fdm.body_rate.r),
+	     DegOfRad(fdm.body_ecef_rotvel.p), 
+	     DegOfRad(fdm.body_ecef_rotvel.q), 
+	     DegOfRad(fdm.body_ecef_rotvel.r),
 	     DegOfRad(fdm.ltp_to_body_eulers.phi), 
 	     DegOfRad(fdm.ltp_to_body_eulers.theta), 
 	     DegOfRad(fdm.ltp_to_body_eulers.psi));
