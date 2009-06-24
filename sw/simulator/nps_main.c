@@ -66,20 +66,21 @@ static void nps_main_init(void) {
 static void nps_main_run_sim_step(void) {
 
 
-  printf("sim at %f\n", nps_main.sim_time);
+  //  printf("sim at %f\n", nps_main.sim_time);
 
   nps_fdm_run_step(autopilot.commands);
 
-  //  nps_sensors_run_step();
+  nps_sensors_run_step(nps_main.sim_time);
 
-  //  nps_autopilot_run_step();
+  nps_autopilot_run_step();
 
 }
 
 
 static void nps_main_display(void) {
-  printf("display at %f\n", nps_main.display_time);
+  //  printf("display at %f\n", nps_main.display_time);
   nps_ivy_display();
+  
 }
 
 

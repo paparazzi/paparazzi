@@ -126,10 +126,10 @@
  */
 /* m */
 /* aka 2^8/INS_BARO_SENS  */
-#define BSM_BARO_QNH             900.
-#define BSM_BARO_SENSITIVITY      17.066667
-#define BSM_BARO_DT          (1./100.)
-#define BSM_BARO_NOISE_STD_DEV     5.e-2
+#define NPS_BARO_QNH             900.
+#define NPS_BARO_SENSITIVITY      17.066667
+#define NPS_BARO_DT              (1./100.)
+#define NPS_BARO_NOISE_STD_DEV     5.e-2
 
 /*
  *  GPS
@@ -163,10 +163,6 @@
 
 #endif /* GPS_PERFECT */
 
-#define BSM_GPS_POS_INITIAL_UTM_EAST            37728000
-#define BSM_GPS_POS_INITIAL_UTM_NORTH          482464300
-#define BSM_GPS_POS_INITIAL_UTM_ALT                15200
-
-#define BSM_GPS_DT                           (1./4.)
+#define NPS_GPS_DT                           (1./4.)
 
 #endif /* NPS_SENSORS_PARAMS_H */

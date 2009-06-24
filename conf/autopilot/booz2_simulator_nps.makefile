@@ -26,10 +26,15 @@ sim.CFLAGS += -DJSBSIM_ROOT_DIR=\"/home/violato/enac/programs/JSBSim/\"
 
 sim.srcs = $(SIMDIR)/nps_main.c                      \
 	   $(SIMDIR)/nps_fdm_jsbsim.c                \
+	   $(SIMDIR)/nps_random.c                    \
+	   $(SIMDIR)/booz_r250.c                     \
+	   $(SIMDIR)/booz_randlcg.c                  \
 	   $(SIMDIR)/nps_sensors.c                   \
 	   $(SIMDIR)/nps_sensor_gyro.c               \
 	   $(SIMDIR)/nps_sensor_accel.c              \
 	   $(SIMDIR)/nps_sensor_mag.c                \
+	   $(SIMDIR)/nps_sensor_baro.c               \
+	   $(SIMDIR)/nps_sensor_gps.c                \
 	   $(SIMDIR)/nps_autopilot.c                 \
 
 sim.srcs += $(SRC_BOOZ)/booz_trig_int.c

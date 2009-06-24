@@ -1,0 +1,19 @@
+#ifndef NPS_SENSOR_BARO_H
+#define NPS_SENSOR_BARO_H
+
+#include "pprz_algebra.h"
+#include "pprz_algebra_double.h"
+#include "pprz_algebra_float.h"
+#include "std.h"
+
+struct NpsSensorBaro {
+  double  value;
+  double  next_update;
+  bool_t  data_available;
+};
+
+
+extern void nps_sensor_baro_init(struct NpsSensorBaro* baro, double time);
+extern void nps_sensor_baro_run_step(struct NpsSensorBaro* baro, double time);
+
+#endif /* NPS_SENSOR_BARO_H */
