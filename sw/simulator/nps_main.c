@@ -59,8 +59,6 @@ static void nps_main_init(void) {
   nps_fdm_init(SIM_DT);
   nps_sensors_init(nps_main.sim_time);
   nps_autopilot_init();
-
-  
   
 }
 

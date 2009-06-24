@@ -51,8 +51,13 @@ struct DoubleRates {
     (_vout).z = rint((_vin).z);			\
   }
 
-#define DOUBLE_VECT3_CROSS_PRODUCT(vo, v1, v2) FLOAT_VECT3_CROSS_PRODUCT(vo, v1, v2)
+#define DOUBLE_VECT3_SUM(_c,_a,_b) {            \
+    (_c).x = (_a).x + (_b).x;			\
+    (_c).y = (_a).y + (_b).y;			\
+    (_c).z = (_a).z + (_b).z;			\
+  }
 
+#define DOUBLE_VECT3_CROSS_PRODUCT(vo, v1, v2) FLOAT_VECT3_CROSS_PRODUCT(vo, v1, v2)
 
 #define DOUBLE_RMAT_OF_EULERS(_rm, _e) DOUBLE_RMAT_OF_EULERS_321(_rm, _e)
 

@@ -13,10 +13,10 @@ using namespace JSBSim;
 static void feed_jsbsim(double* commands);
 static void fetch_state(void);
 static void jsbsimvec_to_vec(DoubleVect3* fdm_vector, const FGColumnVector3* jsb_vector);
-static void jsbsimvec_to_loc(EcefCoor_d* fdm_location, const FGColumnVector3* jsb_vector);
 static void jsbsimloc_to_loc(EcefCoor_d* fdm_location, FGLocation* jsb_location);
 static void jsbsimquat_to_quat(DoubleQuat* fdm_quat, FGQuaternion* jsb_quat);
 static void jsbsimvec_to_rate(DoubleRates* fdm_rate, const FGColumnVector3* jsb_vector);
+static void rate_to_vec(DoubleVect3* vector, DoubleRates* rate);
 static void init_jsbsim(double dt);
 static void init_fdm_vars(void);
 
@@ -59,6 +59,8 @@ static void fetch_state(void) {
   FGGroundReactions* ground_reactions;
   FGPropagate* propagate;
   FGPropagate::VehicleState* VState;
+  DoubleVect3 noninertial_accel;
+  DoubleVect3 dummy_vector;
 
   ground_reactions = FDMExec->GetGroundReactions();
   propagate = FDMExec->GetPropagate();
@@ -68,14 +70,16 @@ static void fetch_state(void) {
   
   jsbsimloc_to_loc(&fdm.ecef_pos,&VState->vLocation);
   jsbsimvec_to_vec(&fdm.body_ecef_vel,&VState->vUVW);
-  jsbsimvec_to_vec(&fdm.body_ecef_accel,&propagate->GetUVWdot());
-  
+  jsbsimvec_to_vec(&noninertial_accel,&propagate->GetUVWdot());
+
   jsbsimquat_to_quat(&fdm.ltp_to_body_quat,&VState->vQtrn);
   jsbsimvec_to_rate(&fdm.body_ecef_rotvel,&VState->vPQR);
   jsbsimvec_to_rate(&fdm.body_ecef_rotaccel,&propagate->GetPQRdot());
 
+  rate_to_vec(&dummy_vector,&fdm.body_ecef_rotvel);
+  DOUBLE_VECT3_CROSS_PRODUCT(fdm.body_ecef_accel,dummy_vector,fdm.body_ecef_vel);
+  DOUBLE_VECT3_SUM(fdm.body_ecef_accel,fdm.body_ecef_accel,noninertial_accel)
   DOUBLE_EULERS_OF_QUAT(fdm.ltp_to_body_eulers, fdm.ltp_to_body_quat);
-  
   
 }
 
@@ -145,14 +149,6 @@ static void jsbsimloc_to_loc(EcefCoor_d* fdm_location, FGLocation* jsb_location)
   
 }
  
-static void jsbsimvec_to_loc(EcefCoor_d* fdm_location, const FGColumnVector3* jsb_vector) {
-   
-  fdm_location->x = jsb_vector->Entry(1);
-  fdm_location->y = jsb_vector->Entry(2);
-  fdm_location->z = jsb_vector->Entry(3);
-  
-}
-
 static void jsbsimvec_to_vec(DoubleVect3* fdm_vector, const FGColumnVector3* jsb_vector) {
 
   fdm_vector->x = jsb_vector->Entry(1);
@@ -179,5 +175,11 @@ static void jsbsimvec_to_rate(DoubleRates* fdm_rate, const FGColumnVector3* jsb_
 }
 
 
+static void rate_to_vec(DoubleVect3* vector, DoubleRates* rate) {
 
+  vector->x = rate->p;
+  vector->y = rate->q;
+  vector->z = rate->r;
+
+}
 
