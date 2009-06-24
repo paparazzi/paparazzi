@@ -2,7 +2,7 @@
 #define PPRZ_ALGEBRA_DOUBLE_H
 
 #include "pprz_algebra.h"
-#include "pprz_alegbra_float.h"
+#include "pprz_algebra_float.h"
 
 struct DoubleVect2 {
   double x;

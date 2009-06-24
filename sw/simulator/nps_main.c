@@ -10,7 +10,7 @@
 #include "nps_atmosphere.h"
 #include "nps_autopilot.h"
 #include "nps_ivy.h"
-#include "nps_flighgear.h"
+#include "nps_flightgear.h"
 
 #define SIM_DT     (1./512.)
 #define DISPLAY_DT (1./25.)
