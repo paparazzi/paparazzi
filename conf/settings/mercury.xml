@@ -11,19 +11,30 @@
     <dl_settings NAME="imu params">
       <dl_setting VAR="xsens_setzero" MIN="0" STEP="1" MAX="1" module="csc/mercury_xsens" shortname="zero orientation"/>
     </dl_settings>
-<!--    <dl_settings NAME="flight params">
-      <dl_setting VAR="csc_gains.pitch_kp" MIN="0" STEP="1" MAX="8000" module="csc/csc_ap" shortname="pitch kp"/>
-      <dl_setting VAR="csc_gains.pitch_kd" MIN="0" STEP="1" MAX="3000" module="csc/csc_ap" shortname="ptch kd"/>
-      <dl_setting VAR="csc_gains.roll_kp" MIN="0" STEP="1" MAX="8000" module="csc/csc_ap" shortname="roll kp"/>
-      <dl_setting VAR="csc_gains.roll_kd" MIN="0" STEP="1" MAX="3000" module="csc/csc_ap" shortname="roll kd"/>
-      <dl_setting VAR="csc_gains.yaw_kp" MIN="0" STEP="1" MAX="18000" module="csc/csc_ap" shortname="yaw kp"/>
-      <dl_setting VAR="csc_gains.yaw_kd" MIN="0" STEP="1" MAX="3000" module="csc/csc_ap" shortname="yaw kd"/>
+
+
+
+    <dl_settings NAME="Att Loop">
+      <dl_setting VAR="booz_stabilization_pgain.x" MIN="-4000" STEP="1" MAX="-1" module="booz2_stabilization_attitude" shortname="pgain phi"/>
+      <dl_setting VAR="booz_stabilization_pgain.y" MIN="-4000" STEP="1" MAX="-1" module="booz2_stabilization_attitude" shortname="pgain tetha"/>
+      <dl_setting VAR="booz_stabilization_pgain.z" MIN="-4000" STEP="1" MAX="-1" module="booz2_stabilization_attitude" shortname="pgain psi"/>
+      <dl_setting VAR="booz_stabilization_dgain.x" MIN="-4000" STEP="1" MAX="-1" module="booz2_stabilization_attitude" shortname="dgain p"/>
+      <dl_setting VAR="booz_stabilization_dgain.y" MIN="-4000" STEP="1" MAX="-1" module="booz2_stabilization_attitude" shortname="dgain q"/>
+      <dl_setting VAR="booz_stabilization_dgain.z" MIN="-4000" STEP="1" MAX="-1" module="booz2_stabilization_attitude" shortname="dgain r"/>
+      <dl_setting VAR="booz_stabilization_igain.x" MIN="-300" STEP="1" MAX="0" module="booz2_stabilization_attitude" shortname="igain phi"/>
+      <dl_setting VAR="booz_stabilization_igain.y" MIN="-300" STEP="1" MAX="0" module="booz2_stabilization_attitude" shortname="igain theta"/>
+      <dl_setting VAR="booz_stabilization_igain.z" MIN="-300" STEP="1" MAX="0" module="booz2_stabilization_attitude" shortname="igain psi"/>
+      <dl_setting VAR="booz_stabilization_ddgain.x" MIN="0" STEP="1" MAX="500" module="booz2_stabilization_attitude" shortname="ddgain p"/>
+      <dl_setting VAR="booz_stabilization_ddgain.y" MIN="0" STEP="1" MAX="500" module="booz2_stabilization_attitude" shortname="ddgain q"/>
+      <dl_setting VAR="booz_stabilization_ddgain.z" MIN="0" STEP="1" MAX="500" module="booz2_stabilization_attitude" shortname="ddgain r"/>
     </dl_settings>
-    <dl_settings NAME="trims">
-      <dl_setting VAR="csc_trims.elevator" MIN="-6000" STEP="10" MAX="6000" module="csc/csc_ap" shortname="elevator trim"/>
-      <dl_setting VAR="csc_trims.aileron" MIN="-6000" STEP="10" MAX="6000" module="csc/csc_ap" shortname="aileron trim"/>
-      <dl_setting VAR="csc_trims.rudder" MIN="-6000" STEP="10" MAX="6000" module="csc/csc_ap" shortname="rudder trim"/>
-    </dl_settings> -->
+
+    <dl_settings NAME="Filter">
+       <dl_setting VAR="booz2_face_reinj_1" MIN="512" STEP="512" MAX="262144" module="booz2_filter_attitude_cmpl_euler" shortname="reinj_1"/>
+    </dl_settings>
+
+
+
 
   </dl_settings>
 </settings>

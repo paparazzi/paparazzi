@@ -40,6 +40,7 @@ BOARD_CFG = \"csc_board_v1_0.h\"
 PERIODIC_FREQ = 512
 
 SRC_CSC=csc
+SRC_CSC_ARCH=$(SRC_CSC)/$(ARCHI)
 SRC_BOOZ=booz
 
 ap.ARCHDIR = $(ARCHI)
@@ -47,7 +48,7 @@ ap.ARCH = arm7tdmi
 ap.TARGET = main
 ap.TARGETDIR = main
 
-ap.CFLAGS += -I$(SRC_CSC) -I$(SRC_BOOZ)
+ap.CFLAGS += -I$(SRC_CSC) -I$(SRC_BOOZ) -I$(SRC_CSC_ARCH)
 ap.CFLAGS += -DCONFIG=$(BOARD_CFG)
 ap.srcs += $(SRC_CSC)/mercury_main.c
 ap.CFLAGS += -DLED -DTIME_LED=1
@@ -88,13 +89,15 @@ ap.srcs += $(SRC_CSC)/csc_can.c
 
 ap.srcs += $(SRC_CSC)/csc_ap_link.c
 
-#ap.srcs += $(SRC_CSC)/csc_servos.c
+ap.srcs += $(SRC_CSC)/csc_adc.c
+
+ap.srcs += $(SRC_CSC)/csc_servos.c
 #ap.CFLAGS += -DPWM_SERVO_5 -DPWM_SERVO_0
 ap.srcs += $(SRC_ARCH)/servos_csc.c
-
-ap.srcs += $(SRC_CSC)/csc_adc.c
 ap.CFLAGS += -DACTUATORS=\"servos_csc.h\"
 ap.srcs += commands.c actuators.c
+
+ap.srcs += $(SRC_CSC_ARCH)/props_csc.c
 
 ap.CFLAGS += -DRADIO_CONTROL -DRADIO_CONTROL_TYPE=RC_JR
 ap.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c

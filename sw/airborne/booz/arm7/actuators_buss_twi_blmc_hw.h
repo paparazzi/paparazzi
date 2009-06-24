@@ -39,15 +39,24 @@
 
 #define ChopServo(x,a,b) ((x)>(b)?(b):(x))
 #define Actuator(i) buss_twi_blmc_motor_power[i]
+
+#ifdef TWI_IGNORE_ACK
+#define ActuatorsCommit() {						\
+    buss_twi_blmc_idx = 0;						\
+    buss_twi_blmc_status = BUSS_TWI_BLMC_STATUS_BUSY;			\
+    ActuatorsBussTwiBlmcSend();						\
+}
+#else
 #define ActuatorsCommit() {			                \
-    if ( buss_twi_blmc_status == BUSS_TWI_BLMC_STATUS_IDLE) {	\
-      buss_twi_blmc_idx = 0;					\
-      buss_twi_blmc_status = BUSS_TWI_BLMC_STATUS_BUSY;		\
-      ActuatorsBussTwiBlmcSend();				\
-    }								\
-    else							\
-      twi_blmc_nb_err++;					\
+    if ( buss_twi_blmc_status == BUSS_TWI_BLMC_STATUS_IDLE) {		\
+      buss_twi_blmc_idx = 0;						\
+      buss_twi_blmc_status = BUSS_TWI_BLMC_STATUS_BUSY;			\
+      ActuatorsBussTwiBlmcSend();					\
+    }									\
+  else					     		\
+     twi_blmc_nb_err++;					\
   }
+#endif
 
 #define SERVOS_TICS_OF_USEC(s) ((uint8_t)(s)) 
 

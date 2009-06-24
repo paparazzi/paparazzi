@@ -40,15 +40,16 @@ BOARD_CFG = \"csc_board_v1_0.h\"
 
 
 SRC_CSC=csc
+SRC_CSC_ARCH=$(SRC_CSC)/$(ARCHI)
 
 ap.ARCHDIR = $(ARCHI)
 ap.ARCH = arm7tdmi
 ap.TARGET = main
 ap.TARGETDIR = main
 
-ap.CFLAGS += -I$(SRC_CSC)
+ap.CFLAGS += -I$(SRC_CSC) -I$(SRC_CSC_ARCH)
 ap.CFLAGS += -DCONFIG=$(BOARD_CFG)
-ap.srcs += $(SRC_CSC)/csc_main.c
+ap.srcs += $(SRC_CSC)/mercury_csc_main.c
 ap.CFLAGS += -DLED -DTIME_LED=1
 
 ap.CFLAGS += -DCSC_BOARD_ID=$(CSC_ID)
@@ -60,7 +61,7 @@ ap.srcs += $(SRC_ARCH)/uart_hw.c
 ap.srcs += $(SRC_ARCH)/adc_hw.c
 ap.CFLAGS += -DADC -DUSE_AD0 -DUSE_AD0_0 -DUSE_AD0_1
 
-ap.CFLAGS += -DUSE_UART0 -DUART0_BAUD=B57600 -DUART0_VIC_SLOT=5
+#ap.CFLAGS += -DUSE_UART0 -DUART0_BAUD=B57600 -DUART0_VIC_SLOT=5
 #ap.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600 -DUART1_VIC_SLOT=6
 #ap.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport \
 #	                  -DDOWNLINK_DEVICE=Uart0
@@ -73,27 +74,35 @@ ap.CFLAGS +=  -DCAN1_VIC_SLOT=3 -DCAN1_ERR_VIC_SLOT=7
 ap.srcs += $(SRC_CSC)/csc_can.c
 #ap.CFLAGS += -DUSE_CAN2 -DCAN2_BTR=CANBitrate125k_2MHz -DCAN2_VIC_SLOT=4
 
-ap.CFLAGS += -DAP_LINK_UART -DPPRZ_UART=Uart1
-ap.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600 -DUART1_VIC_SLOT=6
+ap.CFLAGS += -DAP_LINK_UART -DPPRZ_UART=Uart0
+ap.CFLAGS += -DUSE_UART0 -DUART0_BAUD=B57600 -DUART0_VIC_SLOT=5
 ap.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport \
-	                  -DDOWNLINK_DEVICE=Uart1
+	                  -DDOWNLINK_DEVICE=Uart0
 ap.srcs += downlink.c pprz_transport.c $(SRC_CSC)/csc_telemetry.c
-ap.CFLAGS += -DDATALINK=PPRZ -DPPRZ_UART=Uart1
+ap.CFLAGS += -DDATALINK=PPRZ 
 ap.srcs += $(SRC_CSC)/csc_datalink.c
 
+ap.CFLAGS += -DACTUATORS=\"servos_direct_hw.h\"
 ap.srcs += actuators.c
+ap.srcs += $(SRC_ARCH)/servos_direct_hw.c
+ap.srcs += $(SRC_CSC)/csc_servos.c
 
 ap.srcs += $(SRC_CSC)/csc_ap_link.c
 
-ap.srcs += $(SRC_CSC)/csc_servos.c
+ap.CFLAGS += -DMOTORS=\"buss_twi_blmc_hw.h\" -DUSE_BUSS_TWI_BLMC_MOTOR
+ap.srcs += $(SRC_CSC_ARCH)/buss_twi_blmc_hw.c
+# on I2C0
+ap.CFLAGS += -DUSE_I2C0 -DI2C0_SCLL=150 -DI2C0_SCLH=150 -DI2C0_VIC_SLOT=10
+ap.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
+
 
 ap.srcs += $(SRC_CSC)/csc_adc.c
 
 ap.CFLAGS += -DTHROTTLE_LINK=Uart0 -DTHROTTLE_LED=3
 ap.srcs += $(SRC_CSC)/csc_throttle.c
 
-#ap.CFLAGS += -DSPEKTRUM_LINK=Uart1 -DUSE_UART1 -DUART1_BAUD=B115200 -DUART1_VIC_SLOT=6
-#ap.srcs += $(SRC_CSC)/csc_rc_spektrum.c
+ap.CFLAGS += -DSPEKTRUM_LINK=Uart1 -DUSE_UART1 -DUART1_BAUD=B115200 -DUART1_VIC_SLOT=6
+ap.srcs += $(SRC_CSC)/csc_rc_spektrum.c
 
 ap.CFLAGS += -DERROR_LED=4
 

@@ -13,7 +13,7 @@
       <message name="ALIVE"          period="5"/>
       <!--      <message name="ATTITUDE"	     period="0.04"/> -->
       <message name="COMMANDS"       period="0.5"/>
-      <message name="ACTUATORS"      period="0.5"/>
+<!--      <message name="ACTUATORS"      period="0.5"/> -->
       <message name="QUAD_STATUS"    period="1.1"/>
       <message name="RC"	     period="0.5"/>
       <message name="PPM"	     period="0.5"/>
