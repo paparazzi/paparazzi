@@ -16,8 +16,10 @@ struct NpsFdm {
   struct DoubleVect3 body_accel;
 
   struct NedCoor_d ltp_pos;
+  struct NedCoor_d ltp_vel;
 
-  struct DoubleQuat  ltp_to_body_quat;
+  struct DoubleQuat   ltp_to_body_quat;
+  struct DoubleEulers ltp_to_body_eulers;
   struct DoubleRates body_rate;
   struct DoubleRates body_rate_dot;
 

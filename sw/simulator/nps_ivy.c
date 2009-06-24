@@ -1,13 +1,19 @@
 #include "nps_ivy.h"
-#include "nps_autopilot.h"
-#include "pprz_algebra_double.h"
 
+#include <stdlib.h>
 #include <Ivy/ivy.h>
 #include <Ivy/ivyglibloop.h>
 
+#include "airframe.h"
+#include "pprz_algebra_double.h"
+#include "nps_autopilot.h"
+#include "nps_fdm.h"
 
-extern void ivy_transport_init(void) {
-  IvyInit("BoozSim", "BoozSim READY", NULL, NULL, NULL, NULL);
+
+extern void nps_ivy_init(void) {
+  const char* agent_name = AIRFRAME_NAME"_NPS";
+  const char* ready_msg = AIRFRAME_NAME"_NPS Ready";
+  IvyInit(agent_name, ready_msg, NULL, NULL, NULL, NULL);
   //IvyBindMsg(on_DL_SETTING, NULL, "^(\\S*) DL_SETTING (\\S*) (\\S*) (\\S*)");
   //IvyBindMsg(on_DL_BLOCK, NULL, "^(\\S*) BLOCK (\\S*) (\\S*)");
   //IvyBindMsg(on_DL_MOVE_WP, NULL, "^(\\S*) MOVE_WP (\\S*) (\\S*) (\\S*) (\\S*) (\\S*)");
@@ -17,29 +23,30 @@ extern void ivy_transport_init(void) {
 extern void nps_ivy_display(void) {
 
   DoubleEulers eulers;
-  
   DOUBLE_EULERS_OF_QUAT(eulers, fdm.ltp_to_body_quat);
 
-  IvySendMsg("%d COMMANDS %f %f %f %f",  
-	     AC_ID,
-	     autopilot.commands[SERVO_FRONT],
-	     autopilot.commands[SERVO_BACK], 
-	     autopilot.commands[SERVO_RIGHT],
-	     autopilot.commands[SERVO_LEFT]);     
+  /*
+    IvySendMsg("%d COMMANDS %f %f %f %f",  
+    AC_ID,
+    autopilot.commands[SERVO_FRONT],
+    autopilot.commands[SERVO_BACK], 
+    autopilot.commands[SERVO_RIGHT],
+    autopilot.commands[SERVO_LEFT]);     
+  */
   IvySendMsg("%d BOOZ_SIM_RATE_ATTITUDE %f %f %f %f %f %f",  
 	     AC_ID,
-	     DegOfRad(bfm.ang_rate_body->ve[AXIS_X]), 
-	     DegOfRad(bfm.ang_rate_body->ve[AXIS_Y]), 
-	     DegOfRad(bfm.ang_rate_body->ve[AXIS_Z]),
-	     DegOfRad(bfm.eulers->ve[AXIS_X]), 
-	     DegOfRad(bfm.eulers->ve[AXIS_Y]), 
-	     DegOfRad(bfm.eulers->ve[AXIS_Z]));
+	     DegOfRad(fdm.body_rate.p), 
+	     DegOfRad(fdm.body_rate.q), 
+	     DegOfRad(fdm.body_rate.r),
+	     DegOfRad(fdm.ltp_to_body_eulers.phi), 
+	     DegOfRad(fdm.ltp_to_body_eulers.theta), 
+	     DegOfRad(fdm.ltp_to_body_eulers.psi));
   IvySendMsg("%d BOOZ_SIM_SPEED_POS %f %f %f %f %f %f",  
 	     AC_ID,
-	     (bfm.speed_ltp->ve[AXIS_X]), 
-	     (bfm.speed_ltp->ve[AXIS_Y]), 
-	     (bfm.speed_ltp->ve[AXIS_Z]),
-	     (bfm.pos_ltp->ve[AXIS_X]), 
-	     (bfm.pos_ltp->ve[AXIS_Y]), 
-	     (bfm.pos_ltp->ve[AXIS_Z]));
+	     (fdm.ltp_pos.x), 
+	     (fdm.ltp_pos.y), 
+	     (fdm.ltp_pos.z),
+	     (fdm.ltp_vel.x), 
+	     (fdm.ltp_vel.y), 
+	     (fdm.ltp_vel.z));
 }

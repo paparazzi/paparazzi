@@ -9,12 +9,13 @@
 #include "nps_sensors.h"
 #include "nps_atmosphere.h"
 #include "nps_autopilot.h"
+#include "nps_ivy.h"
 
 
 #define SIM_DT     (1./512.)
 #define DISPLAY_DT (1./25.)
-
 #define HOST_TIMEOUT_MS 40
+#define HOST_TIME_FACTOR 1.
 
 static struct {
   struct timeval host_time_start;
@@ -52,9 +53,9 @@ static void nps_main_init(void) {
   nps_main.sim_time = 0.;
   nps_main.display_time = 0.;
   gettimeofday (&nps_main.host_time_start, NULL);
-  nps_main.host_time_factor = 0.01;
+  nps_main.host_time_factor = HOST_TIME_FACTOR;
 
-  nps_ivy_transport_init();
+  nps_ivy_init();
   nps_fdm_init(SIM_DT);
   nps_sensors_init(nps_main.sim_time);
   nps_autopilot_init();
