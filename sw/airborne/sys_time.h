@@ -6,6 +6,8 @@
 
 extern uint16_t cpu_time_sec;
 
+#ifndef READYBOARD_SYS_TIME
 #include "sys_time_hw.h"
+#endif
 
 #endif /* SYS_TIME_H */
