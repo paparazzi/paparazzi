@@ -339,15 +339,4 @@
         </axis>
     </aerodynamics>
 
-    <output name="test.csv" type="CSV" rate="10">
-        <property> fcs/front_motor </property>
-        <property> fcs/back_motor </property>
-        <property> fcs/right_motor </property>
-        <property> fcs/left_motor </property>
-        <rates> ON </rates>
-        <velocities> ON </velocities>
-        <forces> ON </forces>
-        <moments> ON </moments>
-        <position> ON </position>
-    </output>
 </fdm_config>
