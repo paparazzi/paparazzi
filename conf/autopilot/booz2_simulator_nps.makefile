@@ -4,8 +4,10 @@
 
 SIM_TYPE = JSBSIM
 
-MY_JSBSIM_ROOT = /home/violato/enac/programs/JSBSim
-MY_JSBSIM_LIB = /home/violato/enac/programs/install_jsbsim
+JSBSIM_ROOT = /opt/jsbsim
+JSBSIM_INC = $(JSBSIM_ROOT)/include/JSBSim
+JSBSIM_LIB = $(JSBSIM_ROOT)/lib
+
 SRC_BOOZ=booz
 SRC_BOOZ_SIM = $(SRC_BOOZ)/sim
 
@@ -18,11 +20,10 @@ sim.TARGETDIR = sim
 sim.CFLAGS  += -DSITL
 sim.CFLAGS  += `pkg-config glib-2.0 --cflags` -I /usr/include/meschach
 sim.LDFLAGS += `pkg-config glib-2.0 --libs` -lm -lmeschach -lpcre -lglibivy
-sim.CFLAGS  += -I$(SIMDIR) -I/usr/local/include -I$(MY_JSBSIM_LIB)/include/JSBSim
-sim.LDFLAGS += -L$(MY_JSBSIM_LIB)/lib -lJSBSim
+sim.CFLAGS  += -I$(SIMDIR) -I/usr/local/include -I$(JSBSIM_INC)
+sim.LDFLAGS += -L$(JSBSIM_LIB) -lJSBSim
 
 sim.CFLAGS += -I$(SRC_BOOZ) -I$(SRC_BOOZ_SIM) -I../simulator -I$(PAPARAZZI_HOME)/conf/simulator
-sim.CFLAGS += -DJSBSIM_ROOT_DIR=\"/home/violato/enac/programs/JSBSim/\"
 
 sim.srcs = $(SIMDIR)/nps_main.c                      \
 	   $(SIMDIR)/nps_fdm_jsbsim.c                \
