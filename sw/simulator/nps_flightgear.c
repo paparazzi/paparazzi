@@ -76,9 +76,17 @@ void nps_flightgear_send() {
   //  net_gui_init(&gui);
 
   gui.version = FG_NET_GUI_VERSION; 
+
+#if 0
+  gui.latitude  = fdm.lla_pos.lat;
+  gui.longitude = fdm.lla_pos.lon;
+  gui.altitude  = fdm.lla_pos.alt;
+#else
   gui.latitude = 0.656480;
   gui.longitude = -2.135537;
   gui.altitude = 0.807609;
+#endif
+
   gui.agl = 1.111652;
   
   gui.phi = 0.;
