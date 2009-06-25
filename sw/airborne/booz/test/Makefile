@@ -1,6 +1,6 @@
 
 CC = gcc
-CFLAGS = -Wall -I.. -I/home/poine/work/savannah/paparazzi3/sw/include -DFLOAT_T=double -Wall
+CFLAGS = -Wall -I.. -I../.. -I../../test/ -I../../../include -Wall
 LDFLAGS = -lm
 
 
@@ -17,3 +17,5 @@ test_deadband: test_deadband.c
 
 test_scaling: test_scaling.c
 	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
+
+

@@ -76,8 +76,8 @@
 
 #define DISPLAY_INT32_EULERS_AS_FLOAT_DEG(text, _ie) {			\
     struct FloatEulers _fe;						\
-    EULERS_FLOAT_OF_BFP(_fe, (_ie));				\
-    DISPLAY_FLOAT_EULERS_DEG(text, _fe);					\
+    EULERS_FLOAT_OF_BFP(_fe, (_ie));					\
+    DISPLAY_FLOAT_EULERS_DEG(text, _fe);				\
   }
 
 
