@@ -7,11 +7,12 @@ struct NpsAutopilot autopilot;
 void nps_autopilot_init(void) {
 
   /* Just for testing fdm */
+  double hover = 0.247;
 
-  autopilot.commands[0] = 0.5;
-  autopilot.commands[1] = 0.5;
-  autopilot.commands[2] = 0.5;
-  autopilot.commands[3] = 0.5;
+  autopilot.commands[0] = hover;
+  autopilot.commands[1] = hover;
+  autopilot.commands[2] = hover;
+  autopilot.commands[3] = hover;
 
 }
 

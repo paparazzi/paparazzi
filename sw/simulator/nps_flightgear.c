@@ -17,7 +17,7 @@ struct FGNetGUI {
   // Positions
   double longitude;           // geodetic (radians)
   double latitude;            // geodetic (radians)
-  float altitude;             // above sea level (meters)
+  float  altitude;            // above sea level (meters)
   float agl;                  // above ground level (meters)
   float phi;                  // roll (radians)
   float theta;                // pitch (radians)
@@ -73,25 +73,25 @@ void nps_flightgear_init(const char* host,  unsigned int port) {
 void nps_flightgear_send() {
   
   struct FGNetGUI gui;
-  //  net_gui_init(&gui);
 
   gui.version = FG_NET_GUI_VERSION; 
 
-#if 0
-  gui.latitude  = fdm.lla_pos.lat;
-  gui.longitude = fdm.lla_pos.lon;
+#if 1
+  gui.latitude  = DegOfRad(fdm.lla_pos.lat);
+  gui.longitude = DegOfRad(fdm.lla_pos.lon);
   gui.altitude  = fdm.lla_pos.alt;
 #else
   gui.latitude = 0.656480;
   gui.longitude = -2.135537;
   gui.altitude = 0.807609;
 #endif
+  //  printf("%f %f %f\n", gui.latitude, gui.longitude, gui.altitude);
 
   gui.agl = 1.111652;
   
   gui.phi = 0.;
   gui.theta = 0.;
-  gui.psi = 5.20;
+  gui.psi = 0.0;
   
   gui.vcas = 0.;
   gui.climb_rate = 0.;
@@ -99,7 +99,9 @@ void nps_flightgear_send() {
   gui.num_tanks = 1;
   gui.fuel_quantity[0] = 0.;
 
-  gui.cur_time = 3198060679ul;
+  //  gui.cur_time = 3198060679ul;
+  gui.cur_time = 3198060679ul + rint(fdm.time);
+  ///  gui.cur_time = 3198101679ul;
   gui.warp = 1122474394ul;
 
   gui.ground_elev = 0.;

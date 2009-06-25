@@ -18,6 +18,7 @@
 
 struct NpsFdm {
   
+  double time;
   bool_t on_ground;
 
   struct EcefCoor_d  ecef_pos;

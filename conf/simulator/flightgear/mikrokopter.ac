@@ -1,0 +1,63 @@
+AC3Db
+MATERIAL "DefaultWhite" rgb 1 1 1  amb 1 1 1  emis 0 0 0  spec 0.5 0.5 0.5  shi 64  trans 0
+MATERIAL "Material" rgb 0.8 0.8 0.8 amb 0.5 0.5 0.5 emis 0 0 0 spec 1 1 1 shi 32 trans 0
+OBJECT world
+kids 1
+OBJECT poly
+name "Cube"
+data 4
+Cube
+crease 30.000000
+numvert 8
+-622.638977 -11.644229 -392.292145
+-622.507019 -13.43874 -393.165222
+-620.52948 -13.43874 -392.866302
+-620.661438 -11.644228 -391.993195
+-622.370789 -10.761206 -394.066498
+-622.238831 -12.555717 -394.939606
+-620.261292 -12.555717 -394.640656
+-620.39325 -10.761206 -393.767578
+numsurf 6
+SURF 0x20
+mat 1
+refs 4
+0 0 0
+1 0 0
+2 0 0
+3 0 0
+SURF 0x20
+mat 1
+refs 4
+4 0 0
+7 0 0
+6 0 0
+5 0 0
+SURF 0x20
+mat 1
+refs 4
+0 0 0
+4 0 0
+5 0 0
+1 0 0
+SURF 0x20
+mat 1
+refs 4
+1 0 0
+5 0 0
+6 0 0
+2 0 0
+SURF 0x20
+mat 1
+refs 4
+2 0 0
+6 0 0
+7 0 0
+3 0 0
+SURF 0x20
+mat 1
+refs 4
+4 0 0
+0 0 0
+3 0 0
+7 0 0
+kids 0

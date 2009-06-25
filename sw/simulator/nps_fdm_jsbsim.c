@@ -11,6 +11,8 @@
 #include "pprz_algebra.h"
 #include "pprz_algebra_float.h"
 
+#define MetersOfFeet(_f) ((_f)/3.2808399)
+
 using namespace JSBSim;
 
 static void feed_jsbsim(double* commands);
@@ -69,22 +71,23 @@ static void feed_jsbsim(double* commands) {
 
 static void fetch_state(void) {
 
+  FGPropertyManager* node = FDMExec->GetPropertyManager()->GetNode("sim-time-sec");
+  fdm.time = node->getDoubleValue();
+
+  //  printf("%f\n", fdm.time); 
+
   /* Commented are the calculus of acceleration in the case where
      jsbsim does not consider body rotational velocity */
 
-  FGGroundReactions* ground_reactions;
   FGPropagate* propagate;
   FGPropagate::VehicleState* VState;
-  struct NedCoor_f ned;
-  struct EcefCoor_f ecefpos_f;
   // DoubleVect3 noninertial_accel;
   // DoubleVect3 dummy_vector;
   
-  ground_reactions = FDMExec->GetGroundReactions();
   propagate = FDMExec->GetPropagate();
   VState = propagate->GetVState();
   
-  fdm.on_ground = ground_reactions->GetWOW();
+  fdm.on_ground = FDMExec->GetGroundReactions()->GetWOW();
   
   jsbsimloc_to_loc(&fdm.ecef_pos,&VState->vLocation);
   jsbsimvec_to_vec(&fdm.body_ecef_vel,&VState->vUVW);
@@ -98,9 +101,10 @@ static void fetch_state(void) {
   // DOUBLE_VECT3_CROSS_PRODUCT(fdm.body_ecef_accel,dummy_vector,fdm.body_ecef_vel);
   // DOUBLE_VECT3_SUM(fdm.body_ecef_accel,fdm.body_ecef_accel,noninertial_accel)
   
+  struct EcefCoor_f ecefpos_f;
   VECT3_COPY(ecefpos_f, fdm.ecef_pos);
+  struct NedCoor_f ned;
   ned_of_ecef_point_f(&ned, &ltpdef, &ecefpos_f);
-  
   VECT3_COPY(fdm.ltpprz_pos,ned);
   DOUBLE_EULERS_OF_QUAT(fdm.ltp_to_body_eulers, fdm.ltp_to_body_quat);
   jsbsimloc_to_lla(&fdm.lla_pos, &VState->vLocation);
@@ -209,9 +213,9 @@ static void rate_to_vec(DoubleVect3* vector, DoubleRates* rate) {
 
 void jsbsimloc_to_lla(LlaCoor_d* fdm_lla, FGLocation* jsb_location) {
 
-  fdm_lla->lon = jsb_location->GetLatitude();
-  fdm_lla->lat = jsb_location->GetLongitude();
-  fdm_lla->alt = jsb_location->GetGeodAltitude();
+  fdm_lla->lat = jsb_location->GetLatitude();
+  fdm_lla->lon = jsb_location->GetLongitude();
+  fdm_lla->alt = MetersOfFeet(jsb_location->GetGeodAltitude());
 
 }
 
