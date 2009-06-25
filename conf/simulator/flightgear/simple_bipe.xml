@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+
+<PropertyList>
+
+ <path>simple_bipe.ac</path>
+ <offsets>
+<!--
+    <heading-deg>0</heading-deg>
+    <pitch-deg>0</pitch-deg>   
+    <roll-deg>90</roll-deg>
+-->
+    <heading-deg>-90</heading-deg>
+    <pitch-deg>90</pitch-deg>   
+    <roll-deg>0</roll-deg>
+    <x-m>-0.3</x-m>
+    <y-m>0</y-m>
+    <z-m>0.1</z-m>
+  </offsets>
+
+
+</PropertyList>

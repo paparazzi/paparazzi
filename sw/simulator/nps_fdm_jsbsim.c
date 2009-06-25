@@ -90,7 +90,7 @@ static void init_jsbsim(double dt) {
   string rootdir;
   JSBSim::FGState* State;
   
-  sprintf(buf,"%s/conf/simulator/",getenv("PAPARAZZI_HOME"));
+  sprintf(buf,"%s/conf/simulator/jsbsim/",getenv("PAPARAZZI_HOME"));
   rootdir = string(buf);
   FDMExec = new FGFDMExec();
   

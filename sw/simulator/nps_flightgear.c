@@ -1,5 +1,13 @@
 #include "nps_flightgear.h"
 
+#include <sys/socket.h>
+#include <netdb.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <stdio.h>
+#include <math.h>
+
+#include "std.h"
 
 #define FG_NET_GUI_VERSION 7
 #define FG_NET_GUI_MAX_TANKS 4
@@ -25,7 +33,7 @@ struct FGNetGUI {
 
   // Environment
   uint32_t cur_time;          // current unix time
-                                // FIXME: make this uint64_t before 2038
+                              // FIXME: make this uint64_t before 2038
   uint32_t warp;              // offset in seconds to unix time
   float ground_elev;          // ground elev (meters)
 
@@ -65,9 +73,38 @@ void nps_flightgear_init(const char* host,  unsigned int port) {
 void nps_flightgear_send() {
   
   struct FGNetGUI gui;
-  net_gui_init(&gui);
+  //  net_gui_init(&gui);
 
-  if (sendto(fflightgear.socket, (char*)(&gui), sizeof(gui), 0,
+  gui.version = FG_NET_GUI_VERSION; 
+  gui.latitude = 0.656480;
+  gui.longitude = -2.135537;
+  gui.altitude = 0.807609;
+  gui.agl = 1.111652;
+  
+  gui.phi = 0.;
+  gui.theta = 0.;
+  gui.psi = 5.20;
+  
+  gui.vcas = 0.;
+  gui.climb_rate = 0.;
+
+  gui.num_tanks = 1;
+  gui.fuel_quantity[0] = 0.;
+
+  gui.cur_time = 3198060679ul;
+  gui.warp = 1122474394ul;
+
+  gui.ground_elev = 0.;
+
+  gui.tuned_freq = 125.65;
+  gui.nav_radial = 90.;
+  gui.in_range = 1;
+  gui.dist_nm = 10.;
+  gui.course_deviation_deg = 0.;
+  gui.gs_deviation_deg = 0.;
+
+
+  if (sendto(flightgear.socket, (char*)(&gui), sizeof(gui), 0,
              (struct sockaddr*)&flightgear.addr, sizeof(flightgear.addr)) == -1)
     printf("error sending\n");
 

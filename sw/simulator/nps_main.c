@@ -59,7 +59,10 @@ static void nps_main_init(void) {
   nps_fdm_init(SIM_DT);
   nps_sensors_init(nps_main.sim_time);
   nps_autopilot_init();
-  
+
+  if (nps_main.fg_host)
+    nps_flightgear_init(nps_main.fg_host, nps_main.fg_port);
+
 }
 
 
@@ -81,7 +84,8 @@ static void nps_main_run_sim_step(void) {
 static void nps_main_display(void) {
   //  printf("display at %f\n", nps_main.display_time);
   nps_ivy_display();
-  
+  if (nps_main.fg_host)
+    nps_flightgear_send();
 }
 
 
@@ -110,6 +114,7 @@ static gboolean nps_main_periodic(gpointer data __attribute__ ((unused))) {
 static bool_t nps_main_parse_options(int argc, char** argv) {
 
   nps_main.fg_host = NULL;
+  nps_main.fg_port = 5501;
   nps_main.joystick_dev = NULL;
 
   static const char* usage =

@@ -23,7 +23,7 @@ sim.LDFLAGS += `pkg-config glib-2.0 --libs` -lm -lmeschach -lpcre -lglibivy
 sim.CFLAGS  += -I$(SIMDIR) -I/usr/local/include -I$(JSBSIM_INC)
 sim.LDFLAGS += -L$(JSBSIM_LIB) -lJSBSim
 
-sim.CFLAGS += -I$(SRC_BOOZ) -I$(SRC_BOOZ_SIM) -I../simulator -I$(PAPARAZZI_HOME)/conf/simulator
+sim.CFLAGS += -I$(SRC_BOOZ) -I$(SRC_BOOZ_SIM) -I../simulator -I$(PAPARAZZI_HOME)/conf/simulator/nps
 
 sim.srcs = $(SIMDIR)/nps_main.c                      \
 	   $(SIMDIR)/nps_fdm_jsbsim.c                \
@@ -38,5 +38,7 @@ sim.srcs = $(SIMDIR)/nps_main.c                      \
 	   $(SIMDIR)/nps_sensor_gps.c                \
 	   $(SIMDIR)/nps_autopilot.c                 \
 	   $(SIMDIR)/nps_ivy.c                       \
+	   $(SIMDIR)/nps_flightgear.c                \
+
 
 sim.srcs += $(SRC_BOOZ)/booz_trig_int.c
