@@ -76,7 +76,7 @@ static void nps_main_run_sim_step(void) {
 
   nps_sensors_run_step(nps_main.sim_time);
 
-  nps_autopilot_run_step();
+  nps_autopilot_run_step(nps_main.sim_time);
 
 }
 

@@ -3,10 +3,9 @@
 
 
 #include "booz_geometry_int.h"
-#include "booz_geometry_float.h"
 
-#define BOOZ_INT_OF_FLOAT(f,r) ((f)*(FLOAT_T)(1<<(r)))
-#define BOOZ_FLOAT_OF_INT(i,r) ((FLOAT_T)(i)/(FLOAT_T)(1<<(r)))
+#define BOOZ_INT_OF_FLOAT(f,r) ((f)*(float)(1<<(r)))
+#define BOOZ_FLOAT_OF_INT(i,r) ((float)(i)/(float)(1<<(r)))
 
 #define BOOZ_FQUAT_OF_IQUAT(fq, iq) {                                   \
     fq.qi = BOOZ_FLOAT_OF_INT(iq.qi, IQUAT_RES);			\

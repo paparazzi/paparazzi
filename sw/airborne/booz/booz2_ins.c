@@ -59,7 +59,7 @@ void booz_ins_propagate() {
 
 #ifdef USE_VFF
   if (booz2_analog_baro_status == BOOZ2_ANALOG_BARO_RUNNING && booz_ins_baro_initialised) {
-    FLOAT_T accel_float = BOOZ_ACCEL_F_OF_I(booz_imu.accel.z);
+    float accel_float = BOOZ_ACCEL_F_OF_I(booz_imu.accel.z);
     b2_vff_propagate(accel_float);
     booz_ins_ltp_accel.z = BOOZ_ACCEL_I_OF_F(b2_vff_zdotdot);
     booz_ins_ltp_speed.z = BOOZ_SPEED_I_OF_F(b2_vff_zdot);
@@ -85,7 +85,7 @@ void booz_ins_update_baro() {
       booz_ins_baro_initialised = TRUE;
     }
     booz_ins_baro_alt = (((int32_t)booz2_analog_baro_value - booz_ins_qfe) * BOOZ_INS_BARO_SENS_NUM)/BOOZ_INS_BARO_SENS_DEN;
-    FLOAT_T alt_float = BOOZ_POS_F_OF_I(booz_ins_baro_alt);
+    float alt_float = BOOZ_POS_F_OF_I(booz_ins_baro_alt);
     if (booz_ins_vff_realign) {
       booz_ins_vff_realign = FALSE;
       booz_ins_qfe = booz2_analog_baro_value;

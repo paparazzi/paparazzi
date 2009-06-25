@@ -1,27 +1,40 @@
 #include "nps_autopilot.h"
 
+#include "booz2_main.h"
+#include "nps_sensors.h"
+
 struct NpsAutopilot autopilot;
 
-#include "nps_sensors.h"
 
 void nps_autopilot_init(void) {
 
   /* Just for testing fdm */
-  double hover = 0.247;
+  double hover = 0.2495;
 
-  autopilot.commands[0] = hover;
-  autopilot.commands[1] = hover;
-  autopilot.commands[2] = hover;
-  autopilot.commands[3] = hover;
+  autopilot.commands[SERVO_FRONT] = hover;
+  autopilot.commands[SERVO_BACK]  = hover;
+  autopilot.commands[SERVO_RIGHT] = hover;
+  autopilot.commands[SERVO_LEFT]  = hover;
+  
+  booz2_main_init();
 
 }
 
 
-void nps_autopilot_run_step(void) {
-
+void nps_autopilot_run_step(double time) {
+  double hover = 0.2493;
+  autopilot.commands[SERVO_FRONT] = hover;
+  autopilot.commands[SERVO_BACK]  = hover;
+  autopilot.commands[SERVO_RIGHT] = hover;
+  autopilot.commands[SERVO_LEFT]  = hover;
+  
   if (nps_sensors_gyro_available()) {
     //    booz2_imu_feed_data();
     //    booz2_main_event();
   }
+
+
+  booz2_main_periodic();
+
 
 }

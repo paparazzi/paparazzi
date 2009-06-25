@@ -25,6 +25,7 @@ static void jsbsimvec_to_rate(DoubleRates* fdm_rate, const FGColumnVector3* jsb_
 static void jsbsimloc_to_lla(LlaCoor_d* fdm_lla, FGLocation* jsb_location);
 //static void rate_to_vec(DoubleVect3* vector, DoubleRates* rate);
 static void ltpdef_copy(struct LtpDef_f* ltpdef_f, struct LtpDef_d* ltpdef_d);
+static void test123(LlaCoor_d* fdm_lla, FGPropagate* propagate);
 
 static void init_jsbsim(double dt);
 static void init_ltp(void);
@@ -107,11 +108,19 @@ static void fetch_state(void) {
   ned_of_ecef_point_f(&ned, &ltpdef, &ecefpos_f);
   VECT3_COPY(fdm.ltpprz_pos,ned);
   DOUBLE_EULERS_OF_QUAT(fdm.ltp_to_body_eulers, fdm.ltp_to_body_quat);
-  jsbsimloc_to_lla(&fdm.lla_pos, &VState->vLocation);
+  //jsbsimloc_to_lla(&fdm.lla_pos, &VState->vLocation);
+  test123(&fdm.lla_pos, propagate);
   
   
 }
 
+static void test123(LlaCoor_d* fdm_lla, FGPropagate* propagate) {
+ 
+  fdm_lla->lat = propagate->GetLatitude();
+  fdm_lla->lon = propagate->GetLongitude();
+  fdm_lla->alt = MetersOfFeet(propagate->Geth());
+
+}
 
 static void init_jsbsim(double dt) {
 
@@ -216,7 +225,7 @@ void jsbsimloc_to_lla(LlaCoor_d* fdm_lla, FGLocation* jsb_location) {
   fdm_lla->lat = jsb_location->GetLatitude();
   fdm_lla->lon = jsb_location->GetLongitude();
   fdm_lla->alt = MetersOfFeet(jsb_location->GetGeodAltitude());
-
+  //  printf("%f\n", jsb_location->GetGeodAltitude());
 }
 
 void ltpdef_copy(struct LtpDef_f* ltpdef_f, struct LtpDef_d* ltpdef_d) {

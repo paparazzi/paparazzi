@@ -90,7 +90,7 @@ void booz_ahrs_align(void) {
       cphi        * _mag.y+						\
       -sphi       * _mag.z;						\
     float m_psi = -atan2(me, mn);					\
-    _psi = ((m_psi)*(FLOAT_T)(1<<(IANGLE_RES))*F_UPDATE);		\
+    _psi = ((m_psi)*(float)(1<<(IANGLE_RES))*F_UPDATE);			\
     									\
   }
 

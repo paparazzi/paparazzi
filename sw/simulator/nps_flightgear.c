@@ -76,22 +76,16 @@ void nps_flightgear_send() {
 
   gui.version = FG_NET_GUI_VERSION; 
 
-#if 1
-  gui.latitude  = DegOfRad(fdm.lla_pos.lat);
-  gui.longitude = DegOfRad(fdm.lla_pos.lon);
+  gui.latitude  = fdm.lla_pos.lat;
+  gui.longitude = fdm.lla_pos.lon;
   gui.altitude  = fdm.lla_pos.alt;
-#else
-  gui.latitude = 0.656480;
-  gui.longitude = -2.135537;
-  gui.altitude = 0.807609;
-#endif
   //  printf("%f %f %f\n", gui.latitude, gui.longitude, gui.altitude);
 
   gui.agl = 1.111652;
   
-  gui.phi = 0.;
-  gui.theta = 0.;
-  gui.psi = 0.0;
+  gui.phi = fdm.ltp_to_body_eulers.phi;
+  gui.theta = fdm.ltp_to_body_eulers.theta;
+  gui.psi = fdm.ltp_to_body_eulers.psi;
   
   gui.vcas = 0.;
   gui.climb_rate = 0.;

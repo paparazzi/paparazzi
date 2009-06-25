@@ -6,9 +6,9 @@
   <phi   unit="DEG"> 0.0 </phi>
   <theta unit="DEG"> 0.0 </theta>
   <psi   unit="DEG"> 0.0 </psi>
-  <latitude  unit="DEG"> 0.656480 </latitude>
-  <longitude unit="DEG">-2.135537 </longitude>
-  <altitude  unit="M"> 20.0 </altitude>
+  <latitude  unit="DEG">  37.6136 </latitude>
+  <longitude unit="DEG">-122.3569 </longitude>
+  <altitude  unit="M"> 1.0 </altitude>
   <winddir unit="DEG"> 0.0 </winddir>
   <vwind unit="FT/SEC"> 0.0 </vwind>
 </initialize>
