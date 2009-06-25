@@ -41,4 +41,6 @@ sim.srcs = $(SIMDIR)/nps_main.c                      \
 	   $(SIMDIR)/nps_flightgear.c                \
 
 
-sim.srcs += $(SRC_BOOZ)/booz_trig_int.c
+sim.srcs += $(SRC_BOOZ)/booz_trig_int.c \
+		pprz_geodetic_float.c
+

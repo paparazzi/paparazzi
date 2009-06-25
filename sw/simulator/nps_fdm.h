@@ -28,12 +28,16 @@ struct NpsFdm {
   struct DoubleVect3 body_ecef_vel;   /* aka UVW */
   struct DoubleVect3 body_ecef_accel; 
 
-  struct NedCoor_d ltp_pos;
+  struct NedCoor_d ltpprz_pos;
+  struct NedCoor_d ltpprz_ecef_vel;
+
   struct NedCoor_d ltp_ecef_vel;
   struct LlaCoor_d lla_pos;
 
   struct DoubleQuat   ltp_to_body_quat;
   struct DoubleEulers ltp_to_body_eulers;
+  struct DoubleQuat   ltpprz_to_body_quat;
+  struct DoubleEulers ltpprz_to_body_eulers;
   struct DoubleRates  body_ecef_rotvel;
   struct DoubleRates  body_ecef_rotaccel;
 

@@ -282,6 +282,18 @@
 /* accessor : row and col range from 0 to 2 */
 #define MAT33_ELMT(_m, _row, _col) ((_m).m[_row*3+_col])
 
+#define MAT33_COPY(_mat1,_mat2) {			\
+    MAT33_ELMT((_mat1),0,0) = MAT33_ELMT((_mat2),0,0);	\
+    MAT33_ELMT((_mat1),0,1) = MAT33_ELMT((_mat2),0,1);	\
+    MAT33_ELMT((_mat1),0,2) = MAT33_ELMT((_mat2),0,2);	\
+    MAT33_ELMT((_mat1),1,0) = MAT33_ELMT((_mat2),1,0);	\
+    MAT33_ELMT((_mat1),1,1) = MAT33_ELMT((_mat2),1,1);	\
+    MAT33_ELMT((_mat1),1,2) = MAT33_ELMT((_mat2),1,2);	\
+    MAT33_ELMT((_mat1),2,0) = MAT33_ELMT((_mat2),2,0);	\
+    MAT33_ELMT((_mat1),2,1) = MAT33_ELMT((_mat2),2,1);	\
+    MAT33_ELMT((_mat1),2,2) = MAT33_ELMT((_mat2),2,2);	\
+}
+
 
 /* multiply _vin by _mat, store in _vout */
 #define MAT33_VECT3_MUL(_vout, _mat, _vin) {				\

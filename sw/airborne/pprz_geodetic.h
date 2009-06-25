@@ -8,5 +8,16 @@
     (_po).z = -(_pi).z;				\
   }
 
+#define LLA_ASSIGN(_pos,_lat,_lon,_alt){		\
+    (_pos).lat = (_lat);				\
+    (_pos).lon = (_lon);				\
+    (_pos).alt = (_alt);				\
+  }
+
+#define LLA_COPY(_pos1,_pos2){			\
+    (_pos1).lat = (_pos2).lat;			\
+    (_pos1).lon = (_pos2).lon;			\
+    (_pos1).alt = (_pos2).alt;			\
+}
 
 #endif /* PPRZ_GEODETIC_H */

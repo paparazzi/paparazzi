@@ -20,7 +20,7 @@ void nps_sensor_baro_run_step(struct NpsSensorBaro* baro, double time) {
   if (time < 12.5)
     baro->value = 840;
   else {
-    double z = fdm.ltp_pos.z + get_gaussian_noise()*NPS_BARO_NOISE_STD_DEV;
+    double z = fdm.ltpprz_pos.z + get_gaussian_noise()*NPS_BARO_NOISE_STD_DEV;
     double baro_reading = NPS_BARO_QNH + z * NPS_BARO_SENSITIVITY;
     baro_reading = rint(baro_reading);
     baro->value = baro_reading;

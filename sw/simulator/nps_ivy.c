@@ -41,9 +41,9 @@ extern void nps_ivy_display(void) {
 	     DegOfRad(fdm.ltp_to_body_eulers.psi));
   IvySendMsg("%d BOOZ_SIM_SPEED_POS %f %f %f %f %f %f",  
 	     AC_ID,
-	     (fdm.ltp_pos.x), 
-	     (fdm.ltp_pos.y), 
-	     (fdm.ltp_pos.z),
+	     (fdm.ltpprz_pos.x), 
+	     (fdm.ltpprz_pos.y), 
+	     (fdm.ltpprz_pos.z),
 	     (fdm.ltp_ecef_vel.x), 
 	     (fdm.ltp_ecef_vel.y), 
 	     (fdm.ltp_ecef_vel.z));

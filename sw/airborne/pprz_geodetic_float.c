@@ -38,7 +38,7 @@ void init_ltp_ref_from_lla_f(struct LtpRef_f* def, struct LlaCoor_f* ref_pos) {
 void enu_of_ecef_point_f(struct EnuCoor_f* enu, struct LtpDef_f* def, struct EcefCoor_f* ecef) {
   struct EcefCoor_f delta;
   VECT3_DIFF(delta, *ecef, def->ecef);
-  MAT33_VECT3_MUL(*enu, def->ltp_of_ecef.m, delta);
+  MAT33_VECT3_MUL(*enu, (def->ltp_of_ecef.m), delta);
 }
 
 void ned_of_ecef_point_f(struct NedCoor_f* ned, struct LtpDef_f* def, struct EcefCoor_f* ecef) {
