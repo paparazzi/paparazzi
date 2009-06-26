@@ -27,12 +27,12 @@
   </section>
 
   <command_laws>
-    <let var="aileron"         value="@ROLL  * AILEVON_AILERON_RATE"/>
-    <let var="elevator"        value="@PITCH * AILEVON_ELEVATOR_RATE"/>  
+    <let var="aileron"  value="@ROLL  * AILEVON_AILERON_RATE"/>
+    <let var="elevator" value="@PITCH * AILEVON_ELEVATOR_RATE"/>  
 
-    <set servo="THROTTLE"      value="@THROTTLE"/>
-    <set servo="AILEVON_LEFT"  value="$elevator + $aileron"/>
-    <set servo="AILEVON_RIGHT" value="$elevator - $aileron"/>
+    <set servo="THROTTLE"       value="@THROTTLE"/>
+    <set servo="AILEVON_LEFT"   value="$elevator + $aileron"/>
+    <set servo="AILEVON_RIGHT"  value="$elevator - $aileron"/>
   </command_laws>
 
   <section name="AUTO1" prefix="AUTO1_">
@@ -59,11 +59,11 @@
     <define name="IR2_SIGN" value="-1"/>
     <define name="TOP_SIGN" value="-1"/>
 
-    <define name="LATERAL_CORRECTION" value="1."/>
+    <define name="LATERAL_CORRECTION" value="0.7"/>
     <define name="LONGITUDINAL_CORRECTION" value="1."/>
     <define name="VERTICAL_CORRECTION" value="1."/>
 
-    <define name="ROLL_NEUTRAL_DEFAULT" value="-7" unit="deg"/>
+    <define name="ROLL_NEUTRAL_DEFAULT" value="-5.15" unit="deg"/>
     <define name="PITCH_NEUTRAL_DEFAULT" value="0" unit="deg"/>
 
     <define name="CORRECTION_UP" value="1.0"/>
@@ -82,7 +82,7 @@
   </section>
 
   <section name="BAT">
-    <define name="MILLIAMP_PER_PERCENT" value="0.86"/>
+    <define name="MILLIAMP_AT_FULL_THROTTLE" value="8600"/>
     <define name="CATASTROPHIC_BAT_LEVEL" value="9.3" unit="V"/>
   </section>
  
@@ -91,7 +91,7 @@
     <define name="CARROT" value="5." unit="s"/>
     <define name="KILL_MODE_DISTANCE" value="(1.5*MAX_DIST_FROM_HOME)"/>
     <define name="CONTROL_RATE" value="60" unit="Hz"/>
-    <define name="XBEE_INIT" value="\"ATPL2\rATRN5\rATTT80\r\""/>
+    <define name="XBEE_INIT" value="&quot;ATPL2\rATRN5\rATTT80\r&quot;"/>
 <!--    <define name="NO_XBEE_API_INIT" value="TRUE"/> -->
     <define name="ALT_KALMAN_ENABLED" value="TRUE"/>
 
@@ -214,6 +214,7 @@ ap.CFLAGS += -DNAV -DAGR_CLIMB -DLOITER_TRIM -DALT_KALMAN -DWIND_INFO
 ap.srcs += nav.c fw_h_ctl.c fw_v_ctl.c
 
 ap.CFLAGS += -DGYRO -DADXRS150
+# -DESTIMATOR_COMP_FILTER
 ap.srcs += gyro.c
 
 ap.srcs += nav_line.c nav_survey_rectangle.c
@@ -226,6 +227,7 @@ ap.srcs += adc_generic.c
 # Config for SITL simulation
 include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
 sim.CFLAGS += -DCONFIG=\"tiny.h\" -DAGR_CLIMB -DLOITER_TRIM -DALT_KALMAN
+# -DESTIMATOR_COMP_FILTER
 sim.srcs += nav_survey_rectangle.c nav_line.c traffic_info.c
 
   </makefile>

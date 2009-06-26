@@ -106,7 +106,7 @@
     <define name="SP_MAX_R"       value="5500"/>
     <define name="DEADBAND_R"     value="250"/>
 
-    <define name="PHI_THETA_PGAIN"  value="-400"/>
+    <define name="PHI_THETA_PGAIN"  value="-1200"/>
     <define name="PHI_THETA_DGAIN"  value="-300"/>
     <define name="PHI_THETA_DDGAIN" value=" 300"/>
     <define name="PHI_THETA_IGAIN"  value="-200"/>
@@ -127,8 +127,8 @@
    <define name="MAX_ERR_Z"    value="BOOZ_POS_I_OF_F( 10.)"/>
    <define name="MIN_ERR_ZD"   value="BOOZ_SPEED_I_OF_F(-10.)"/>
    <define name="MAX_ERR_ZD"   value="BOOZ_SPEED_I_OF_F( 10.)"/>
-   <define name="HOVER_KP"    value="-300"/>
-   <define name="HOVER_KD"    value="-400"/>
+   <define name="HOVER_KP"    value="-200"/>
+   <define name="HOVER_KD"    value="-350"/>
    <!-- 1.5m/s for full stick : BOOZ_SPEED_I_OF_F(1.5) / (MAX_PPRZ/2) -->
    <define name="RC_CLIMB_COEF" value ="163"/>
    <!-- BOOZ_SPEED_I_OF_F(1.5) * 20% -->
@@ -138,9 +138,9 @@
 
 
  <section name="GUIDANCE_H" prefix="BOOZ2_GUIDANCE_H_">
-   <define name="PGAIN" value="-20"/>
-   <define name="DGAIN" value="-0"/>
-   <define name="IGAIN" value="-5"/>
+   <define name="PGAIN" value="-15"/>
+   <define name="DGAIN" value="-4"/>
+   <define name="IGAIN" value="-3"/>
  </section>
 
  <section name="BAT">
@@ -152,7 +152,7 @@
  <section name="AUTOPILOT">
    <define name="BOOZ2_MODE_MANUAL" value="BOOZ2_AP_MODE_ATTITUDE_DIRECT"/>
    <define name="BOOZ2_MODE_AUTO1"  value="BOOZ2_AP_MODE_ATTITUDE_Z_HOLD"/>
-   <define name="BOOZ2_MODE_AUTO2"  value="BOOZ2_AP_MODE_NAV"/>
+   <define name="BOOZ2_MODE_AUTO2"  value="BOOZ2_AP_MODE_ATTITUDE_CLIMB"/>
  </section>
 
  <section name="FMS">
