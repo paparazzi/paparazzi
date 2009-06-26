@@ -362,8 +362,8 @@
 				   &booz_ins_ltp_speed.y,		\
 				   &booz2_guidance_h_pos_err.x,		\
 				   &booz2_guidance_h_pos_err.y,		\
-				   &booz2_guidance_h_speed_err.x,		\
-				   &booz2_guidance_h_speed_err.y,		\
+				   &booz2_guidance_h_speed_err.x,	\
+				   &booz2_guidance_h_speed_err.y,	\
 				   &booz2_guidance_h_pos_err_sum.x,	\
 				   &booz2_guidance_h_pos_err_sum.y,	\
 				   &booz2_guidance_h_command_earth.x,	\
@@ -377,7 +377,7 @@
 #include "booz2_gps.h"
 #include "booz2_navigation.h"
 #define PERIODIC_SEND_BOOZ2_FP() {					\
-    int32_t carrot_up = -booz2_guidance_v_z_sp; \
+    int32_t carrot_up = -booz2_guidance_v_z_sp;				\
     DOWNLINK_SEND_BOOZ2_FP( &booz_ins_enu_pos.x,			\
 			    &booz_ins_enu_pos.y,			\
 			    &booz_ins_enu_pos.z,			\
@@ -389,7 +389,7 @@
 			    &booz_ahrs.ltp_to_body_euler.psi,		\
 			    &booz2_guidance_h_pos_sp.y,			\
 			    &booz2_guidance_h_pos_sp.x,			\
-			    &carrot_up,			\
+			    &carrot_up,					\
 			    &booz2_guidance_h_command_body.psi,		\
 			    &booz2_stabilization_cmd[COMMAND_THRUST]);	\
   }
@@ -412,18 +412,18 @@
 
 #include "booz2_navigation.h"
 #define PERIODIC_SEND_BOOZ2_NAV_REF() {					\
-    DOWNLINK_SEND_BOOZ2_NAV_REF(&booz_ins_ltp_def.ecef.x, &booz_ins_ltp_def.ecef.y, &booz_ins_ltp_def.ecef.z);	\
+    DOWNLINK_SEND_BOOZ2_NAV_REF(&booz_ins_ltp_def.ecef.x, &booz_ins_ltp_def.ecef.y, &booz_ins_ltp_def.ecef.z); \
   }
 
-#define PERIODIC_SEND_BOOZ2_NAV_STATUS() {					\
+#define PERIODIC_SEND_BOOZ2_NAV_STATUS() {				\
     DOWNLINK_SEND_BOOZ2_NAV_STATUS(&block_time,&stage_time,&nav_block,&nav_stage,&horizontal_mode); \
-    if (horizontal_mode == HORIZONTAL_MODE_ROUTE) { \
-      int32_t sx = waypoints[nav_segment_start].x >> INT32_POS_FRAC; \
-      int32_t sy = waypoints[nav_segment_start].y >> INT32_POS_FRAC; \
-      int32_t ex = waypoints[nav_segment_end].x >> INT32_POS_FRAC; \
-      int32_t ey = waypoints[nav_segment_end].y >> INT32_POS_FRAC; \
-      DOWNLINK_SEND_SEGMENT(&sx, &sy, &ex, &ey); \
-    } \
+    if (horizontal_mode == HORIZONTAL_MODE_ROUTE) {			\
+      float sx = POS_FLOAT_OF_BFP(waypoints[nav_segment_start].x);	\
+      float sy = POS_FLOAT_OF_BFP(waypoints[nav_segment_start].y);	\
+      float ex = POS_FLOAT_OF_BFP(waypoints[nav_segment_end].x);	\
+      float ey = POS_FLOAT_OF_BFP(waypoints[nav_segment_end].y);	\
+      DOWNLINK_SEND_SEGMENT(&sx, &sy, &ex, &ey);			\
+    }									\
   }
 
 #define PERIODIC_SEND_WP_MOVED() { \
