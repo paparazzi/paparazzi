@@ -5,7 +5,7 @@
 
 <!-- commands section -->
   <servos>
-    <servo name="GAZ"           no="0" min="1000" neutral="1000" max="2000"/>
+    <servo name="THROTTLE"      no="0" min="1000" neutral="1000" max="2000"/>
     <servo name="AILEVON_LEFT"  no="1" max="1150" neutral="1520" min="1950"/>
     <servo name="AILEVON_RIGHT" no="2" max="1900" neutral="1460" min="1050"/>
   </servos>
@@ -30,7 +30,7 @@
   <command_laws>
     <let var="aileron"  value="@ROLL  * AILEVON_AILERON_RATE"/>
     <let var="elevator" value="@PITCH * AILEVON_ELEVATOR_RATE"/>  
-    <set servo="GAZ"           value="@THROTTLE"/>
+    <set servo="THROTTLE" value="@THROTTLE"/>
     <set servo="AILEVON_LEFT"  value="$elevator + $aileron"/>
     <set servo="AILEVON_RIGHT" value="$elevator - $aileron"/>
   </command_laws>
@@ -74,7 +74,7 @@
   </section>
 
   <section name="BAT">
-    <define name="MILLIAMP_PER_PERCENT" value="0.86"/>
+    <define name="MILLIAMP_AT_FULL_THROTTLE" value="11000"/>
     <define name="CATASTROPHIC_BAT_LEVEL" value="9.3" unit="V"/>
   </section>
  
@@ -92,7 +92,7 @@
     <define name="IGAIN" value="0.1"/>
     <define name="MAX" value="1."/>
     <define name="PITCH_OF_VZ_PGAIN" value="0.05"/>
-    <define name="GAZ_OF_CLIMB" value="0.15" unit="%/(m/s)"/>
+    <define name="THROTTLE_OF_CLIMB" value="0.15" unit="%/(m/s)"/>
   </section>
  
   <section name="HORIZONTAL CONTROL" prefix="H_CTL_">
@@ -112,7 +112,7 @@
   </section>
 
   <section name="VERTICAL CONTROL" prefix="V_CTL_">
-
+    <define name="POWER_CTL_BAT_NOMINAL" value="11.1" unit="volt"/>
     <!-- outer loop proportional gain -->
     <define name="ALTITUDE_PGAIN" value="-0.03"/>
     <!-- outer loop saturation -->
@@ -149,7 +149,12 @@
 
   <section name="GYRO_GAINS">
     <define name="GYRO_MAX_RATE" value="200."/>
-  </section>
+    <define name="ROLLRATESUM_NB_SAMPLES" value="60"/>
+    <define name="ALT_ROLL_PGAIN" value="120.0"/>
+    <define name="ROLL_RATE_PGAIN" value="85.0"/>
+    <define name="ROLL_RATE_IGAIN" value="0.0"/>
+    <define name="ROLL_RATE_DGAIN" value="0.0"/>
+ </section>
 
   <section name="FAILSAFE" prefix="FAILSAFE_">
 	<define name="DELAY_WITHOUT_GPS" value="1" unit="s"/>

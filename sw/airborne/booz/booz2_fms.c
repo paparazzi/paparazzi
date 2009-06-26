@@ -38,7 +38,7 @@ void booz_fms_periodic(void) {
   booz_fms_impl_periodic();
 }
 
-void booz_fms_set_on_off(bool_t state) {
+void booz_fms_set_on_off(bool_t state __attribute__ ((unused))) {
 
 
 }

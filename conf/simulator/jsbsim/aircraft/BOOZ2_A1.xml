@@ -6,7 +6,7 @@
         <author> Gustavo Violato &amp; Antoine Drouin</author>
         <filecreationdate> 24-02-2009 </filecreationdate>
         <version> Version 0.9 - beta</version>
-        <description> Test file </description>
+        <description> Simple Quadrotor without rotor dynamic </description>
     </fileheader>
 
     <metrics>
@@ -42,30 +42,92 @@
         <ixz unit="SLUG*FT2"> 0. </ixz>
         <iyz unit="SLUG*FT2"> 0. </iyz>
         <emptywt unit="LBS"> 0.84 </emptywt>
-        <location name="CG" unit="IN">
+        <location name="CG" unit="M">
             <x> 0 </x>
             <y> 0 </y>
             <z> 0 </z>
         </location>
     </mass_balance>
 
-    <ground_reactions>
-        <contact type="BOGEY" name="CONTACT">
-            <location unit="IN">
-                <x> 0 </x>
+   <ground_reactions>
+        <contact type="BOGEY" name="CONTACT_FRONT">
+            <location unit="M">
+                <x>-0.15 </x>
                 <y> 0 </y>
-                <z> 0 </z>
+                <z>-0.1 </z>
             </location>
-            <static_friction> 0 </static_friction>
-            <dynamic_friction> 0 </dynamic_friction>
-            <rolling_friction> 0 </rolling_friction>
-            <spring_coeff unit="LBS/FT"> 10000 </spring_coeff>
-            <damping_coeff unit="LBS/FT/SEC"> 200000 </damping_coeff>
+            <static_friction>  0.8 </static_friction>
+            <dynamic_friction> 0.5 </dynamic_friction>
+            <rolling_friction> 0.2 </rolling_friction>
+            <spring_coeff unit="N/M"> 50000 </spring_coeff>
+            <damping_coeff unit="N/M/SEC"> 100 </damping_coeff>
+            <spring_coeff_rebound unit="N/M"> 50000 </spring_coeff_rebound>
+            <damping_coeff_rebound unit="N/M/SEC"> 100 </damping_coeff_rebound>
+            <max_steer unit="DEG"> 0.0 </max_steer>
+            <brake_group> NONE </brake_group>
+            <retractable>0</retractable>
+        </contact>
+ 
+        <contact type="BOGEY" name="CONTACT_BACK">
+            <location unit="M">
+                <x> 0.15</x>
+                <y> 0   </y>
+                <z>-0.1 </z>
+            </location>
+            <static_friction>  0.8 </static_friction>
+            <dynamic_friction> 0.5 </dynamic_friction>
+            <rolling_friction> 0.2 </rolling_friction>
+            <spring_coeff unit="N/M"> 50000 </spring_coeff>
+            <damping_coeff unit="N/M/SEC"> 100 </damping_coeff>
+            <spring_coeff_rebound unit="N/M"> 50000 </spring_coeff_rebound>
+            <damping_coeff_rebound unit="N/M/SEC"> 100 </damping_coeff_rebound>
+            <max_steer unit="DEG"> 0.0 </max_steer>
+            <brake_group> NONE </brake_group>
+            <retractable>0</retractable>
+        </contact>
+
+        <contact type="BOGEY" name="CONTACT_RIGHT">
+            <location unit="M">
+                <x> 0.  </x>
+                <y> 0.15</y>
+                <z>-0.1 </z>
+            </location>
+            <static_friction>  0.8 </static_friction>
+            <dynamic_friction> 0.5 </dynamic_friction>
+            <rolling_friction> 0.2 </rolling_friction>
+            <spring_coeff unit="N/M"> 50000 </spring_coeff>
+            <damping_coeff unit="N/M/SEC"> 100 </damping_coeff>
+            <spring_coeff_rebound unit="N/M"> 50000 </spring_coeff_rebound>
+            <damping_coeff_rebound unit="N/M/SEC"> 100 </damping_coeff_rebound>
+            <max_steer unit="DEG"> 0.0 </max_steer>
+            <brake_group> NONE </brake_group>
+            <retractable>0</retractable>
+        </contact>
+
+        <contact type="BOGEY" name="CONTACT_LEFT">
+            <location unit="M">
+                <x> 0.  </x>
+                <y>-0.15</y>
+                <z>-0.1 </z>
+            </location>
+            <static_friction>  0.8 </static_friction>
+            <dynamic_friction> 0.5 </dynamic_friction>
+            <rolling_friction> 0.2 </rolling_friction>
+            <spring_coeff unit="N/M"> 50000 </spring_coeff>
+            <damping_coeff unit="N/M/SEC"> 100 </damping_coeff>
+            <spring_coeff_rebound unit="N/M"> 50000 </spring_coeff_rebound>
+            <damping_coeff_rebound unit="N/M/SEC"> 100 </damping_coeff_rebound>
             <max_steer unit="DEG"> 0.0 </max_steer>
             <brake_group> NONE </brake_group>
             <retractable>0</retractable>
         </contact>
     </ground_reactions>
+
+
+
+
+
+
 
 
     <external_reactions>

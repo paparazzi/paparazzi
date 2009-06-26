@@ -22,8 +22,10 @@ static void jsbsimvec_to_vec(DoubleVect3* fdm_vector, const FGColumnVector3* jsb
 static void jsbsimloc_to_loc(EcefCoor_d* fdm_location, FGLocation* jsb_location);
 static void jsbsimquat_to_quat(DoubleQuat* fdm_quat, FGQuaternion* jsb_quat);
 static void jsbsimvec_to_rate(DoubleRates* fdm_rate, const FGColumnVector3* jsb_vector);
-static void jsbsimloc_to_lla(LlaCoor_d* fdm_lla,  FGPropagate* propagate);
+//static void jsbsimloc_to_lla(LlaCoor_d* fdm_lla, FGLocation* jsb_location);
+//static void rate_to_vec(DoubleVect3* vector, DoubleRates* rate);
 static void ltpdef_copy(struct LtpDef_f* ltpdef_f, struct LtpDef_d* ltpdef_d);
+static void test123(LlaCoor_d* fdm_lla, FGPropagate* propagate);
 
 static void init_jsbsim(double dt);
 static void init_ltp(void);
@@ -73,30 +75,51 @@ static void fetch_state(void) {
   FGPropertyManager* node = FDMExec->GetPropertyManager()->GetNode("sim-time-sec");
   fdm.time = node->getDoubleValue();
 
+  //  printf("%f\n", fdm.time); 
+
+  /* Commented are the calculus of acceleration in the case where
+     jsbsim does not consider body rotational velocity */
+
   FGPropagate* propagate;
   FGPropagate::VehicleState* VState;
+  // DoubleVect3 noninertial_accel;
+  // DoubleVect3 dummy_vector;
   
   propagate = FDMExec->GetPropagate();
-  *VState = propagate->GetVState();
+  VState = propagate->GetVState();
   
   fdm.on_ground = FDMExec->GetGroundReactions()->GetWOW();
   
   jsbsimloc_to_loc(&fdm.ecef_pos,&VState->vLocation);
   jsbsimvec_to_vec(&fdm.body_ecef_vel,&VState->vUVW);
   jsbsimvec_to_vec(&fdm.body_ecef_accel,&propagate->GetUVWdot());
+  //jsbsimvec_to_vec(&noninertial_accel,&propagate->GetUVWdot());
 
   jsbsimquat_to_quat(&fdm.ltp_to_body_quat,&VState->vQtrn);
   jsbsimvec_to_rate(&fdm.body_ecef_rotvel,&VState->vPQR);
   jsbsimvec_to_rate(&fdm.body_ecef_rotaccel,&propagate->GetPQRdot());
-
+  // rate_to_vec(&dummy_vector,&fdm.body_ecef_rotvel);
+  // DOUBLE_VECT3_CROSS_PRODUCT(fdm.body_ecef_accel,dummy_vector,fdm.body_ecef_vel);
+  // DOUBLE_VECT3_SUM(fdm.body_ecef_accel,fdm.body_ecef_accel,noninertial_accel)
+  
   struct EcefCoor_f ecefpos_f;
   VECT3_COPY(ecefpos_f, fdm.ecef_pos);
   struct NedCoor_f ned;
   ned_of_ecef_point_f(&ned, &ltpdef, &ecefpos_f);
   VECT3_COPY(fdm.ltpprz_pos,ned);
   DOUBLE_EULERS_OF_QUAT(fdm.ltp_to_body_eulers, fdm.ltp_to_body_quat);
-  jsbsimloc_to_lla(&fdm.lla_pos, propagate);
+  //jsbsimloc_to_lla(&fdm.lla_pos, &VState->vLocation);
+  test123(&fdm.lla_pos, propagate);
   
+  
+}
+
+static void test123(LlaCoor_d* fdm_lla, FGPropagate* propagate) {
+ 
+  fdm_lla->lat = propagate->GetLatitude();
+  fdm_lla->lon = propagate->GetLongitude();
+  fdm_lla->alt = MetersOfFeet(propagate->Geth());
+
 }
 
 static void init_jsbsim(double dt) {
@@ -146,16 +169,13 @@ static void init_ltp(void) {
   struct LtpDef_d ltpdef_d;
   
   propagate = FDMExec->GetPropagate();
-  *VState = propagate->GetVState();
+  VState = propagate->GetVState();
   
   jsbsimloc_to_loc(&fdm.ecef_pos,&VState->vLocation);
   ltp_def_from_ecef_d(&ltpdef_d,&fdm.ecef_pos);
   ltpdef_copy(&ltpdef, &ltpdef_d);
 
 }
-
-/* Auxiliary Copying functions */
-/*---------------------------- */
 
 static void jsbsimloc_to_loc(EcefCoor_d* fdm_location, FGLocation* jsb_location){
 
@@ -198,15 +218,15 @@ static void rate_to_vec(DoubleVect3* vector, DoubleRates* rate) {
   vector->z = rate->r;
 
 }
-#endif
 
-void jsbsimloc_to_lla(LlaCoor_d* fdm_lla, FGPropagate* propagate) {
+void jsbsimloc_to_lla(LlaCoor_d* fdm_lla, FGLocation* jsb_location) {
 
-  fdm_lla->lat = propagate->GetLatitude();
-  fdm_lla->lon = propagate->GetLongitude();
-  fdm_lla->alt = MetersOfFeet(propagate->Geth());
-
+  fdm_lla->lat = jsb_location->GetLatitude();
+  fdm_lla->lon = jsb_location->GetLongitude();
+  fdm_lla->alt = MetersOfFeet(jsb_location->GetGeodAltitude());
+  //  printf("%f\n", jsb_location->GetGeodAltitude());
 }
+#endif
 
 void ltpdef_copy(struct LtpDef_f* ltpdef_f, struct LtpDef_d* ltpdef_d) {
 

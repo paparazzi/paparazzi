@@ -21,7 +21,7 @@ void nps_autopilot_init(void) {
 }
 
 
-void nps_autopilot_run_step(double time) {
+void nps_autopilot_run_step(double time __attribute__ ((unused))) {
   double hover = 0.2493;
   autopilot.commands[SERVO_FRONT] = hover;
   autopilot.commands[SERVO_BACK]  = hover;
