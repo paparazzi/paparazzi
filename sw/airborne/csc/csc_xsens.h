@@ -26,6 +26,7 @@
 #define __CSC_XSENS_H__
 
 #include "types.h"
+#include "pprz_algebra_float.h"
 
 #define XSENS_COUNT 1
 
@@ -62,6 +63,8 @@ extern uint16_t xsens_time_stamp[XSENS_COUNT];
 
 extern int xsens_setzero;
 
+extern struct FloatRMat xsens_rmat_neutral[XSENS_COUNT];
+
 #define PERIODIC_SEND_IMU_GYRO() DOWNLINK_SEND_IMU_GYRO (\
   &xsens_gyro_x, &xsens_gyro_y, &xsens_gyro_z \
 )
@@ -76,6 +79,18 @@ extern int xsens_setzero;
 
 #define PERIODIC_SEND_ATTITUDE() DOWNLINK_SEND_ATTITUDE (\
   &xsens_phi, &xsens_psi, &xsens_theta \
+)
+
+#define PERIODIC_SEND_RMAT_DEBUG() DOWNLINK_SEND_RMAT_DEBUG (\
+  &xsens_rmat_neutral[0].m[0], \
+  &xsens_rmat_neutral[0].m[1], \
+  &xsens_rmat_neutral[0].m[2], \
+  &xsens_rmat_neutral[0].m[3], \
+  &xsens_rmat_neutral[0].m[4], \
+  &xsens_rmat_neutral[0].m[5], \
+  &xsens_rmat_neutral[0].m[6], \
+  &xsens_rmat_neutral[0].m[7], \
+  &xsens_rmat_neutral[0].m[8] \
 )
 
 #include "std.h"

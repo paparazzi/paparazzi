@@ -21,6 +21,7 @@
       <message name="IMU_GYRO"       period="0.2"/>
       <message name="IMU_MAG"        period="0.4"/>
       <message name="DL_VALUE"       period="0.5"/>
+      <message name="RMAT_DEBUG"     period="1"/>
     </mode>
   </process>
 </telemetry>

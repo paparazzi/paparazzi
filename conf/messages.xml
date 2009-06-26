@@ -1148,6 +1148,18 @@
       <field name="psi"   type="float" alt_unit="deg" alt_unit_coef="57.29578"/>
     </message>
 
+    <message name="RMAT_DEBUG" id="189">
+      <field name="a"   type="float" />
+      <field name="b"   type="float" />
+      <field name="c"   type="float" />
+      <field name="d"   type="float" />
+      <field name="e"   type="float" />
+      <field name="f"   type="float" />
+      <field name="g"   type="float" />
+      <field name="h"   type="float" />
+      <field name="i"   type="float" />
+    </message>
+
 </class>
 
 
