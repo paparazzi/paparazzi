@@ -70,7 +70,7 @@
     <define name="TOP_SIGN" value="-1"/>
 
     <define name="ROLL_NEUTRAL_DEFAULT" value="-3.6" unit="deg"/>
-    <define name="PITCH_NEUTRAL_DEFAULT" value="6" unit="deg"/>
+    <define name="PITCH_NEUTRAL_DEFAULT" value="17" unit="deg"/>
 
     <define name="CORRECTION_UP" value="1."/>
     <define name="CORRECTION_DOWN" value="1."/>
