@@ -36,6 +36,7 @@ sim.srcs = $(SIMDIR)/nps_main.c                      \
 	   $(SIMDIR)/nps_sensor_mag.c                \
 	   $(SIMDIR)/nps_sensor_baro.c               \
 	   $(SIMDIR)/nps_sensor_gps.c                \
+	   $(SIMDIR)/nps_radio_control.c             \
 	   $(SIMDIR)/nps_autopilot_booz.c            \
 	   $(SIMDIR)/nps_ivy.c                       \
 	   $(SIMDIR)/nps_flightgear.c                \
