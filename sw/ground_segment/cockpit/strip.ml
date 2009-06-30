@@ -188,7 +188,7 @@ class hgauge = fun ?(color="green") gauge_da v_min v_max ->
   end
 
 (** add a strip to the panel *)
-let add = fun config color center_ac min_bat max_bat ->
+let add = fun config color min_bat max_bat ->
   let strip_labels = ref  [] in
   let add_label = fun name value -> 
     strip_labels := (name, value) :: !strip_labels in
