@@ -863,11 +863,20 @@ let draw_altgraph = fun (da:GMisc.drawing_area) (geomap:MapCanvas.widget) aircra
       if track#last_speed > 0. then
         climb_angle := (atan2 track#last_climb track#last_speed);
 
-      dr#set_line_attributes ~width:2 ~cap:`ROUND ();
-      if h > 0. && h <= 180. then
-        dr#lines (rotate_and_translate ac_alt_graph (-. !climb_angle) eac aac)
-      else
+      dr#set_line_attributes ~width:4 ~cap:`ROUND ();
+      dr#set_foreground (`NAME "white");
+      if h > 0. && h <= 180. then begin
+        dr#lines (rotate_and_translate ac_alt_graph (-. !climb_angle) eac aac);
+        dr#set_line_attributes ~width:2 ();
+        dr#set_foreground (`NAME ac.color);
+        dr#lines (rotate_and_translate ac_alt_graph (-. !climb_angle) eac aac);
+      end
+      else begin
         dr#lines (rotate_and_translate (flip ac_alt_graph) !climb_angle eac aac);
+        dr#set_line_attributes ~width:2 ();
+        dr#set_foreground (`NAME ac.color);
+        dr#lines (rotate_and_translate (flip ac_alt_graph) !climb_angle eac aac);
+      end;
 
       (* altitude from ground if available *)
       let alt_from_ground = truncate (track#height ()) in
