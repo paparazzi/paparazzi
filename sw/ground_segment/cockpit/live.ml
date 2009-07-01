@@ -407,7 +407,7 @@ let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id
 
   (** Add a strip *)
   let min_bat, max_bat = get_bat_levels af_xml in
-  let strip = Strip.add config color center_ac min_bat max_bat in
+  let strip = Strip.add config color min_bat max_bat in
   strip#connect (fun () -> select_ac acs_notebook ac_id);
   strip#connect_mark (mark geomap ac_id track !Plugin.frame);
 
@@ -431,17 +431,25 @@ let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id
   (** Add waypoints as geo references *)
    List.iter 
     (fun w ->
-      let (i, w) = fp#index w in
+      let (_i, w) = fp#index w in
       geomap#add_info_georef (sprintf "%s.%s" name w#name) (w :> < pos : Latlong.geographic >))
     fp#waypoints;
   
   (** Add the short cut buttons in the strip *)
   let tooltips = GData.tooltips () in
+  let keys = ref [] in (* Associations between keys and block ids *)
   List.iter (fun block ->
+    let id = ExtXml.int_attrib block "no" in
+    begin (* Is it a key short cut ? *)
+      try
+	let key, modifiers = GtkData.AccelGroup.parse (Xml.attrib block "key") in
+	keys := (key, (modifiers, id)) :: !keys
+      with
+	_ -> ()
+    end;
     try (* Is it a strip button ? *)
       let label = ExtXml.attrib block "strip_button"
-      and block_name = ExtXml.attrib block "name"
-      and id = ExtXml.int_attrib block "no" in
+      and block_name = ExtXml.attrib block "name" in
       let b =
 	try (* Is it an icon ? *)
 	  let icon = Xml.attrib block "strip_icon" in
@@ -470,6 +478,20 @@ let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id
     with
        _ -> ())
     (Xml.children (ExtXml.child (ExtXml.child fp_xml_dump "flight_plan") "blocks"));
+  (** Handle key shortcuts for block selection *)
+  let key_press = fun ev ->
+    try
+      let (modifiers, block_id) = List.assoc (GdkEvent.Key.keyval ev) !keys in
+      let ev_modifiers = GdkEvent.Key.state ev in
+      if List.for_all (fun m -> List.mem m ev_modifiers) modifiers then begin
+	jump_to_block ac_id block_id; 
+	true
+      end else
+	false
+    with
+    | _ -> false in
+  ignore (geomap#canvas#event#connect#after#key_press key_press);
+
 
   (** Insert the flight plan tab *)
   let fp_label = GMisc.label ~text: "Flight Plan" () in
@@ -799,8 +821,8 @@ let draw_altgraph = fun (da:GMisc.drawing_area) (geomap:MapCanvas.widget) aircra
   (** First estimate the coverage of the window *)
   let width_c, height_c = Gdk.Drawable.get_size geomap#canvas#misc#window in
   let (xc0, yc0) = geomap#canvas#get_scroll_offsets in
-  let (east, y0) = geomap#window_to_world (float xc0) (float (yc0+height_c))
-  and (west, y1) = geomap#window_to_world (float (xc0+width_c)) (float yc0) in
+  let (east, _y0) = geomap#window_to_world (float xc0) (float (yc0+height_c))
+  and (west, _y1) = geomap#window_to_world (float (xc0+width_c)) (float yc0) in
 
   let width, height = Gdk.Drawable.get_size da#misc#window in
   let dr = GDraw.pixmap ~width ~height ~window:da () in
@@ -817,13 +839,13 @@ let draw_altgraph = fun (da:GMisc.drawing_area) (geomap:MapCanvas.widget) aircra
     let from_codeset = "ISO-8859-15"
     and to_codeset = "UTF-8" in
     Pango.Layout.set_text layout (Glib.Convert.convert ~from_codeset ~to_codeset string);
-    let (w,h) = Pango.Layout.get_pixel_size layout in
+    let (_w,h) = Pango.Layout.get_pixel_size layout in
     dr#put_layout ~x ~y:(y-h) ~fore:(`NAME color) layout in
 
   (* find min and max alt *)
   let max_alt = ref 0 
   and min_alt = ref 35786000 in
-  Hashtbl.iter (fun ac_id ac -> 
+  Hashtbl.iter (fun _ac_id ac -> 
     let track = ac.track in
     let alt = (truncate track#last_altitude) in
     let ground_alt = alt - (truncate (track#height ())) in
@@ -848,12 +870,12 @@ let draw_altgraph = fun (da:GMisc.drawing_area) (geomap:MapCanvas.widget) aircra
   done;
 
   (* aircrafts *)
-  Hashtbl.iter (fun ac_id ac -> 
+  Hashtbl.iter (fun _ac_id ac -> 
     dr#set_foreground (`NAME ac.color);
     let track = ac.track in
     match track#last with
     Some pos ->
-      let (xac, yac) = geomap#world_of pos in
+      let (xac, _yac) = geomap#world_of pos in
       let w = float width in
       let eac = (truncate (w *. (xac -. east) /. (west -. east))) in
       let alt = (truncate track#last_altitude) in
@@ -887,7 +909,7 @@ let draw_altgraph = fun (da:GMisc.drawing_area) (geomap:MapCanvas.widget) aircra
       (* history *)
       let v_path = track#v_path in
       for i = 0 to Array.length v_path - 1 do
-        let (x, y) = geomap#world_of (fst v_path.(i)) in
+        let (x, _y) = geomap#world_of (fst v_path.(i)) in
         let e = (truncate (w *. (x -. east) /. (west -. east))) in
         let a = height - height * ((truncate (snd v_path.(i))) - !min_alt) / height_alt in
         dr#point ~x:e ~y:a;
