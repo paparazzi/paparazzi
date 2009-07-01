@@ -27,6 +27,7 @@
  *
  */
 
+#include "airframe.h"
 #include "nav_line.h"
 #include "nav.h"
 
