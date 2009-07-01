@@ -361,11 +361,12 @@ void set_linecoding(TLineCoding linecoding)
 }
 #endif        
 
+#ifdef USE_USB_LINE_CODING
 void VCOM_allow_linecoding(uint8_t mode)
 {
     allow_line_coding = mode;
 }
-
+#endif
 
 /**
 	Writes one character to VCOM port
