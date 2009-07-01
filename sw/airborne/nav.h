@@ -1,7 +1,7 @@
 /*
- * Paparazzi mcu0 $Id$
+ * $Id$
  *  
- * Copyright (C) 2003-2005  Pascal Brisset, Antoine Drouin
+ * Copyright (C) 2003-2009  ENAC, Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
  *
@@ -34,7 +34,6 @@
 
 #include "std.h"
 #include "paparazzi.h"
-#include "airframe.h"
 #include "fw_v_ctl.h"
 #include "nav_survey_rectangle.h"
 #include "common_nav.h"
@@ -107,17 +106,20 @@ extern void nav_circle_XY(float x, float y, float radius);
 
 /** Normalize a degree angle between 0 and 359 */
 #define NormCourse(x) { \
-  while (x < 0) x += 360; \
-  while (x >= 360) x -= 360; \
+  uint8_t dont_loop_forever = 0;  \
+  while (x < 0 && ++dont_loop_forever) x += 360; \
+  while (x >= 360 && ++dont_loop_forever) x -= 360; \
 }
 
 #define NavCircleCount() (fabs(nav_circle_radians) / (2*M_PI))
 #define NavCircleQdr() ({ float qdr = DegOfRad(M_PI_2 - nav_circle_trigo_qdr); NormCourse(qdr); qdr; })
 
-/** True if x (in degrees) is close to the current QDR (less than 10 degrees)*/
-#define NavQdrCloseTo(x) ({ float _course = x; NormCourse(_course); float circle_qdr = NavCircleQdr(); (Min(_course, 350) < circle_qdr && circle_qdr < _course+10); })
+#define CloseDegAngles(_c1, _c2) ({ float _diff = _c1 - _c2; NormCourse(_diff); 350 < _diff || _diff < 10; })
 
-#define NavCourseCloseTo(x) ({ float _course = x; NormCourse(_course); float deg = DegOfRad(estimator_hspeed_dir); (Min(_course, 350) < deg && deg < _course+10); })
+/** True if x (in degrees) is close to the current QDR (less than 10 degrees)*/
+#define NavQdrCloseTo(x) CloseDegAngles(x, NavCircleQdr())
+
+#define NavCourseCloseTo(x) CloseDegAngles(x, DegOfRad(estimator_hspeed_dir))
 
 /*********** Navigation along a line *************************************/
 extern void nav_route_xy(float last_wp_x, float last_wp_y, float wp_x, float wp_y);
