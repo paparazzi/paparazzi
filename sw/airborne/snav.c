@@ -2,6 +2,7 @@
    segment (from wp_rd to wp_ta) and a second arc (around wp_ca) */
 
 #include <math.h>
+#include "airframe.h"
 #include "snav.h"
 #include "estimator.h"
 #include "nav.h"
