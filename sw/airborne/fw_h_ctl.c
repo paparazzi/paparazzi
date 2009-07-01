@@ -39,7 +39,7 @@
 
 
 /* outer loop parameters */
-float h_ctl_course_setpoint;
+float h_ctl_course_setpoint; /* rad, CW/north */
 float h_ctl_course_pre_bank;
 float h_ctl_course_pre_bank_correction;
 float h_ctl_course_pgain;
@@ -111,7 +111,6 @@ static float nav_ratio;
 #endif
 
 void h_ctl_init( void ) {
-
   h_ctl_course_setpoint = 0.;
   h_ctl_course_pre_bank = 0.;
   h_ctl_course_pre_bank_correction = H_CTL_COURSE_PRE_BANK_CORRECTION;
