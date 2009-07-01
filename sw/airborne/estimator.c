@@ -207,8 +207,11 @@ void estimator_update_state_gps( void ) {
   EstimatorSetSpeedPol(fspeed, fcourse, fclimb);
 
   // Heading estimator from wind-information, usually computed with -DWIND_INFO
+  // wind_north and wind_east initialized to 0, so still correct if not updated
   float w_vn = cosf(estimator_hspeed_dir) * estimator_hspeed_mod - wind_north;
   float w_ve = sinf(estimator_hspeed_dir) * estimator_hspeed_mod - wind_east;
   estimator_psi = atan2f(w_ve, w_vn);
+  if (estimator_psi < 0.)
+    estimator_psi += 2 * M_PI;
 }
 
