@@ -16,7 +16,8 @@ test_sqrt: test_sqrt.c
 test_fmul: test_fmul.c
 	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
-
+%.exe : %.c
+	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
 clean:
-	rm -f *~ test_geodetic
+	rm -f *~ test_geodetic *.exe
