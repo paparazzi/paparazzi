@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 
 <!DOCTYPE radio SYSTEM "radio.dtd">
-<radio name="flash5" data_min="900" data_max="2100" sync_min ="5000" sync_max ="15000">
+<radio name="flash5 mode2" data_min="900" data_max="2100" sync_min ="5000" sync_max ="15000" pulse_type="POSITIVE">
  <channel ctl="RH" function="ROLL"     min="1845" neutral="1486" max="1124" average="0"/>
  <channel ctl="RV" function="THROTTLE"  min="1120" neutral="1120" max="1845" average="0"/>
  <channel ctl="B" function="PITCH"  max="1128" neutral="1482" min="1851" average="0"/>

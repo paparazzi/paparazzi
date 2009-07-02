@@ -44,7 +44,7 @@
 -->
 
 <!DOCTYPE radio SYSTEM "radio.dtd">
-<radio name="vanguard" data_min="900" data_max="2100" sync_min ="5000" sync_max ="20000">
+<radio name="vanguard" data_min="900" data_max="2100" sync_min ="5000" sync_max ="20000" pulse_type="POSITIVE">
  <channel ctl="A" function="PITCH"    min="1240" neutral="1500" max="1760" average="0"/>
  <channel ctl="B" function="RUDDER" min="1920" neutral="1480" max="1071" average="0"/>
  <channel ctl="C" function="THROTTLE"      min="950" neutral="950" max="2027" average="0"/>

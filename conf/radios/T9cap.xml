@@ -1,7 +1,7 @@
 
   
 <!DOCTYPE radio SYSTEM "radio.dtd">
-<radio name="T9cap" data_min="900" data_max="2100" sync_min="5000" sync_max="15000">
+<radio name="T9cap" data_min="900" data_max="2100" sync_min="5000" sync_max="15000" pulse_type="POSITIVE">
   <channel ctl="right_stick_horiz" function="ROLL" min="1939" neutral="1525" max="1114" average="0"/>
   <channel ctl="right_stick_vert" function="PITCH" min="1112" neutral="1518" max="1937" average="0"/>
   <channel ctl="left_stick_vert" function="THROTTLE" min="1940" neutral="1940" max="1115" average="0"/> 

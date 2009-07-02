@@ -1,6 +1,15 @@
 #ifndef PPM_HW_H
 #define PPM_HW_H
 
+
+/**
+ *  Radio control type : futaba is falling edge clocked whereas JR is rising edge
+ */
+#define PPM_PULSE_TYPE_POSITIVE 0
+#define PPM_PULSE_TYPE_NEGATIVE 1
+
+
+
 #include "LPC21xx.h"
 #include CONFIG
 
@@ -29,14 +38,13 @@ static inline void ppm_init ( void ) {
    /* select pin for capture */
   PPM_PINSEL |= PPM_PINSEL_VAL << PPM_PINSEL_BIT;
   /* enable capture 0.2 on falling edge + trigger interrupt */
-#if defined RADIO_CONTROL_TYPE && RADIO_CONTROL_TYPE == RC_FUTABA
+#if defined PPM_PULSE_TYPE && PPM_PULSE_TYPE == PPM_PULSE_TYPE_POSITIVE
   T0CCR = PPM_CCR_CRF | PPM_CCR_CRI;
-#elif defined RADIO_CONTROL_TYPE && RADIO_CONTROL_TYPE == RC_JR
+#elif defined PPM_PULSE_TYPE && PPM_PULSE_TYPE == PPM_PULSE_TYPE_NEGATIVE
   T0CCR = PPM_CCR_CRR | PPM_CCR_CRI;
 #else
-#error "ppm_hw.h: Unknown RADIO_CONTROL_TYPE"
+#error "ppm_hw.h: Unknown PM_PULSE_TYPE"
 #endif
-
   ppm_valid = FALSE;
 }
 

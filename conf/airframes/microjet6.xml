@@ -208,7 +208,7 @@ ap.srcs += commands.c
 ap.CFLAGS += -DACTUATORS=\"servos_4015_MAT_hw.h\" -DSERVOS_4015_MAT
 ap.srcs += $(SRC_ARCH)/servos_4015_MAT_hw.c actuators.c
 
-ap.CFLAGS += -DRADIO_CONTROL -DRADIO_CONTROL_TYPE=RC_FUTABA
+ap.CFLAGS += -DRADIO_CONTROL
 ap.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c  
 
 # API mode

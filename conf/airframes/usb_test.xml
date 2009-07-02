@@ -181,7 +181,7 @@ ap.srcs += commands.c
 ap.CFLAGS += -DACTUATORS=\"servos_4017_hw.h\" -DSERVOS_4017
 ap.srcs += $(SRC_ARCH)/servos_4017_hw.c actuators.c
 
-ap.CFLAGS += -DRADIO_CONTROL -DRADIO_CONTROL_TYPE=RC_FUTABA
+ap.CFLAGS += -DRADIO_CONTROL
 ap.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c  
 
 #TRANSPARENT

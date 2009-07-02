@@ -132,11 +132,13 @@ let _ =
   let channels_params = List.map parse_channel channels in 
   nl ();
   
+  let ppm_pulse_type = ExtXml.attrib xml "pulse_type" in
   let ppm_data_min = ExtXml.attrib xml "data_min" in
   let ppm_data_max = ExtXml.attrib xml "data_max" in
   let ppm_sync_min = ExtXml.attrib xml "sync_min" in
   let ppm_sync_max = ExtXml.attrib xml "sync_max" in
 
+  printf "#define PPM_PULSE_TYPE PPM_PULSE_TYPE_%s\n" ppm_pulse_type;
   printf "#define PPM_DATA_MIN_LEN (%sul)\n" ppm_data_min;
   printf "#define PPM_DATA_MAX_LEN (%sul)\n" ppm_data_max;
   printf "#define PPM_SYNC_MIN_LEN (%sul)\n" ppm_sync_min;
