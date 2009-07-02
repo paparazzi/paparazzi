@@ -13,31 +13,11 @@
 #include "LPC21xx.h"
 #include CONFIG
 
-#ifndef PPM_CRI
-#define PPM_CRI TIR_CR2I
-#endif
-
-#ifndef PPM_CCR_CRF
-#define PPM_CCR_CRF TCCR_CR2_F
-#endif
-
-#ifndef PPM_CCR_CRR
-#define PPM_CCR_CRR TCCR_CR2_R
-#endif
-
-#ifndef PPM_CCR_CRI
-#define PPM_CCR_CRI TCCR_CR2_I
-#endif
-
-#ifndef PPM_CR
-#define PPM_CR T0CR2
-#endif
-
 
 static inline void ppm_init ( void ) {
    /* select pin for capture */
   PPM_PINSEL |= PPM_PINSEL_VAL << PPM_PINSEL_BIT;
-  /* enable capture 0.2 on falling edge + trigger interrupt */
+  /* enable capture 0.2 on falling or rising edge + trigger interrupt */
 #if defined PPM_PULSE_TYPE && PPM_PULSE_TYPE == PPM_PULSE_TYPE_POSITIVE
   T0CCR = PPM_CCR_CRF | PPM_CCR_CRI;
 #elif defined PPM_PULSE_TYPE && PPM_PULSE_TYPE == PPM_PULSE_TYPE_NEGATIVE

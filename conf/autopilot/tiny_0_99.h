@@ -43,6 +43,11 @@
 #define PPM_PINSEL PINSEL0
 #define PPM_PINSEL_VAL 0x02
 #define PPM_PINSEL_BIT 12
+#define PPM_CRI TIR_CR2I
+#define PPM_CCR_CRF TCCR_CR2_F
+#define PPM_CCR_CRR TCCR_CR2_R
+#define PPM_CCR_CRI TCCR_CR2_I
+#define PPM_CR T0CR2
 
 /* ADC */
 
