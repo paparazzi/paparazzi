@@ -58,7 +58,7 @@ ap.srcs += $(SRC_BOOZ)/booz2_datalink.c
 
 ap.srcs += $(SRC_BOOZ)/booz2_commands.c
 
-ap.CFLAGS += -DRADIO_CONTROL -DRADIO_CONTROL_TYPE=RC_FUTABA -DRC_LED=1
+ap.CFLAGS += -DRADIO_CONTROL -DRC_LED=1
 ap.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c
 
 #

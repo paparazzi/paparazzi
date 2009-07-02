@@ -324,28 +324,74 @@ test_imu_b2.srcs += $(SRC_BOOZ)/booz2_max1168.c $(SRC_BOOZ_ARCH)/booz2_max1168_h
 test_imu_b2.CFLAGS += -DFLOAT_T=float
 test_imu_b2.srcs += $(SRC_BOOZ)/booz2_imu.c
 
+
 #
-# test RC
+# test rc 2.4
 #
-test_rc.ARCHDIR = $(ARCHI)
-test_rc.ARCH = arm7tdmi
-test_rc.TARGET = test_rc
-test_rc.TARGETDIR = test_rc
 
-test_rc.CFLAGS += -DCONFIG=$(BOARD_CFG) $(BOOZ_CFLAGS)
-test_rc.srcs += $(SRC_BOOZ_TEST)/booz2_test_rc.c
-test_rc.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))' -DTIME_LED=4
-test_rc.CFLAGS += -DLED
-test_rc.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
+test_rc_24.ARCHDIR = $(ARCHI)
+test_rc_24.ARCH = arm7tdmi
+test_rc_24.TARGET = test_rc_24
+test_rc_24.TARGETDIR = test_rc_24
 
-test_rc.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600 -DUART1_VIC_SLOT=6
-test_rc.srcs += $(SRC_ARCH)/uart_hw.c
+test_rc_24.CFLAGS += -DCONFIG=$(BOARD_CFG) -I$(SRC_BOOZ) $(BOOZ_CFLAGS)
+test_rc_24.CFLAGS += -DPERIPHERALS_AUTO_INIT
+test_rc_24.srcs += $(SRC_BOOZ_TEST)/booz2_test_radio_control.c
+test_rc_24.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))' -DTIME_LED=1
+test_rc_24.CFLAGS += -DLED
+test_rc_24.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
 
-test_rc.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart1 
-test_rc.srcs += downlink.c pprz_transport.c
+#test_rc_24.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600
+#test_rc_24.srcs += $(SRC_ARCH)/uart_hw.c
+#test_rc_24.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart1 
+#test_rc_24.srcs += downlink.c pprz_transport.c
+test_rc_24.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DUSE_USB_SERIAL
+test_rc_24.CFLAGS += -DDOWNLINK_DEVICE=UsbS -DPPRZ_UART=UsbS -DDATALINK=PPRZ
+test_rc_24.srcs += downlink.c $(SRC_ARCH)/usb_ser_hw.c pprz_transport.c
+test_rc_24.srcs += $(SRC_ARCH)/lpcusb/usbhw_lpc.c $(SRC_ARCH)/lpcusb/usbcontrol.c
+test_rc_24.srcs += $(SRC_ARCH)/lpcusb/usbstdreq.c $(SRC_ARCH)/lpcusb/usbinit.c
 
-test_rc.CFLAGS += -DRADIO_CONTROL -DRADIO_CONTROL_TYPE=RC_FUTABA -DRC_LED=1
-test_rc.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c
+test_rc_24.CFLAGS += -DUSE_RADIO_CONTROL -DRADIO_CONTROL_LED=1
+test_rc_24.CFLAGS += -DRADIO_CONTROL_TYPE_H=\"booz_radio_control_spektrum.h\"
+test_rc_24.CFLAGS += -DRADIO_CONTROL_SPEKTRUM_MODEL_H=\"booz_radio_control_spektrum_dx7se.h\"
+test_rc_24.CFLAGS += -DUSE_UART0 -DUART0_BAUD=B115200
+test_rc_24.CFLAGS += -DRADIO_CONTROL_LINK=Uart0
+test_rc_24.srcs += $(SRC_BOOZ)/booz_radio_control.c \
+                   $(SRC_BOOZ)/booz_radio_control_spektrum.c \
+                   $(SRC_ARCH)/uart_hw.c
+
+#
+# test rc ppm
+#
+
+test_rc_ppm.ARCHDIR = $(ARCHI)
+test_rc_ppm.ARCH = arm7tdmi
+test_rc_ppm.TARGET = test_rc_ppm
+test_rc_ppm.TARGETDIR = test_rc_ppm
+
+test_rc_ppm.CFLAGS += -DCONFIG=$(BOARD_CFG) -I$(SRC_BOOZ) $(BOOZ_CFLAGS)
+test_rc_ppm.CFLAGS += -DPERIPHERALS_AUTO_INIT
+test_rc_ppm.srcs += $(SRC_BOOZ_TEST)/booz2_test_radio_control.c
+test_rc_ppm.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))' -DTIME_LED=1
+test_rc_ppm.CFLAGS += -DLED
+test_rc_ppm.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
+
+#test_rc_ppm.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600
+#test_rc_ppm.srcs += $(SRC_ARCH)/uart_hw.c
+#test_rc_ppm.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart1 
+#test_rc_ppm.srcs += downlink.c pprz_transport.c
+test_rc_ppm.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DUSE_USB_SERIAL
+test_rc_ppm.CFLAGS += -DDOWNLINK_DEVICE=UsbS -DPPRZ_UART=UsbS -DDATALINK=PPRZ
+test_rc_ppm.srcs += downlink.c $(SRC_ARCH)/usb_ser_hw.c pprz_transport.c
+test_rc_ppm.srcs += $(SRC_ARCH)/lpcusb/usbhw_lpc.c $(SRC_ARCH)/lpcusb/usbcontrol.c
+test_rc_ppm.srcs += $(SRC_ARCH)/lpcusb/usbstdreq.c $(SRC_ARCH)/lpcusb/usbinit.c
+
+test_rc_ppm.CFLAGS += -DUSE_RADIO_CONTROL -DRADIO_CONTROL_LED=1
+test_rc_ppm.CFLAGS += -DRADIO_CONTROL_TYPE_H=\"booz_radio_control_ppm.h\"
+test_rc_ppm.srcs += $(SRC_BOOZ)/booz_radio_control.c \
+#                    $(SRC_BOOZ)/booz_radio_control_ppm.c \
+#                    $(SRC_ARCH)/ppm_hw.c
+
 
 #
 # test MC

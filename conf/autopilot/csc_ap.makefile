@@ -88,7 +88,7 @@ ap.srcs += $(SRC_CSC)/csc_adc.c
 ap.CFLAGS += -DACTUATORS=\"servos_csc.h\"
 ap.srcs += commands.c actuators.c
 
-ap.CFLAGS += -DRADIO_CONTROL -DRADIO_CONTROL_TYPE=RC_JR
+ap.CFLAGS += -DRADIO_CONTROL
 ap.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c
 
 ap.srcs += $(SRC_CSC)/csc_autopilot.c

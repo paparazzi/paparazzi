@@ -99,7 +99,7 @@ ap.srcs += commands.c actuators.c
 
 ap.srcs += $(SRC_CSC_ARCH)/props_csc.c
 
-ap.CFLAGS += -DRADIO_CONTROL -DRADIO_CONTROL_TYPE=RC_JR
+ap.CFLAGS += -DRADIO_CONTROL
 ap.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c
 
 ap.srcs += $(SRC_CSC)/mercury_ap.c

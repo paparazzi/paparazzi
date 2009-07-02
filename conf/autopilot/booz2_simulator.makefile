@@ -63,7 +63,7 @@ sim.srcs += $(SRC_BOOZ)/booz2_telemetry.c \
 
 sim.srcs   += $(SRC_BOOZ)/booz2_commands.c
 
-sim.CFLAGS += -DRADIO_CONTROL -DRADIO_CONTROL_TYPE=RC_FUTABA -DRC_LED=1
+sim.CFLAGS += -DRADIO_CONTROL -DRC_LED=1
 sim.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c
 
 
