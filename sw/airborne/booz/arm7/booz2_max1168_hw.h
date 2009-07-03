@@ -37,7 +37,8 @@ extern void booz2_max1168_hw_init( void );
 #include "std.h"
 #include "LPC21xx.h"
 #include "interrupt_hw.h"  
-#include "spi_hw.h"
+//#include "spi_hw.h"
+#include "ssp_hw.h"
 
 #include "booz2_debug.h"
 
@@ -71,9 +72,9 @@ extern void booz2_max1168_hw_init( void );
     booz2_max1168_values[5] = SSPDR;					\
     booz2_max1168_values[6] = SSPDR;					\
     booz2_max1168_values[7] = SSPDR;					\
-    SpiClearRti();							\
-    SpiDisableRti();							\
-    SpiDisable();							\
+    SSP_ClearRti();							\
+    SSP_DisableRti();							\
+    SSP_Disable();							\
     Max1168Unselect();							\
     booz2_max1168_status = STA_MAX1168_DATA_AVAILABLE;			\
   }
