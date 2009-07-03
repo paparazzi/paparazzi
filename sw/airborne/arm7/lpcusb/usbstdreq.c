@@ -102,7 +102,7 @@ void USBRegisterDescriptors(const U8 *pabDescriptors)
 BOOL USBGetDescriptor(U16 wTypeIndex, U16 wLangID __attribute__ ((unused)), int *piLen, U8 **ppbData)
 {
 	U8	bType, bIndex;
-	U8	*pab;
+	const U8 *pab;
 	int iCurIndex;
 	
 	ASSERT(pabDescrip != NULL);
@@ -110,14 +110,14 @@ BOOL USBGetDescriptor(U16 wTypeIndex, U16 wLangID __attribute__ ((unused)), int 
 	bType = GET_DESC_TYPE(wTypeIndex);
 	bIndex = GET_DESC_INDEX(wTypeIndex);
 	
-	pab = (U8 *)pabDescrip;
+	pab = pabDescrip;
 	iCurIndex = 0;
 	
 	while (pab[DESC_bLength] != 0) {
 		if (pab[DESC_bDescriptorType] == bType) {
 			if (iCurIndex == bIndex) {
 				// set data pointer
-				*ppbData = pab;
+			  *ppbData = (U8*)pab;
 				// get length from structure
 				if (bType == DESC_CONFIGURATION) {
 					// configuration descriptor is an exception, length is at offset 2 and 3
@@ -155,7 +155,7 @@ BOOL USBGetDescriptor(U16 wTypeIndex, U16 wLangID __attribute__ ((unused)), int 
  */
 static BOOL USBSetConfiguration(U8 bConfigIndex, U8 bAltSetting)
 {
-	U8	*pab;
+	const U8 *pab;
 	U8	bCurConfig, bCurAltSetting;
 	U8	bEP;
 	U16	wMaxPktSize;
@@ -168,7 +168,7 @@ static BOOL USBSetConfiguration(U8 bConfigIndex, U8 bAltSetting)
 	}
 	else {
 		// configure endpoints for this configuration/altsetting
-		pab = (U8 *)pabDescrip;
+		pab = (const U8 *)pabDescrip;
 		bCurConfig = 0xFF;
 		bCurAltSetting = 0xFF;
 

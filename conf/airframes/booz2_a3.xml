@@ -159,8 +159,8 @@ include $(PAPARAZZI_SRC)/conf/autopilot/booz2_simulator.makefile
 
 ap.CFLAGS += -DUART1_BAUD=B57600
 include $(PAPARAZZI_SRC)/conf/autopilot/booz2_actuators_asctec.makefile
-include $(PAPARAZZI_SRC)/conf/autopilot/booz2_imu_b2v1.makefile
-#include $(PAPARAZZI_SRC)/conf/autopilot/booz2_imu_b2v1_1.makefile
+#include $(PAPARAZZI_SRC)/conf/autopilot/booz2_imu_b2v1.makefile
+include $(PAPARAZZI_SRC)/conf/autopilot/booz2_imu_b2v1_1.makefile
 
   </makefile>
 

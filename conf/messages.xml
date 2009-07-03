@@ -991,13 +991,22 @@
     <field name="horizontal_mode" type="uint8"/>
   </message>
 
-  <message name="AHRS_EULER" id="160">
+  <message name="BOOZ2_RADIO_CONTROL" id="160">
+     <field name="roll"     type="int16" unit="pprz"/>
+     <field name="pitch"    type="int16" unit="pprz"/>
+     <field name="yaw"      type="int16" unit="pprz"/>
+     <field name="throttle" type="int16" unit="pprz"/>
+     <field name="mode"     type="int16" unit="pprz"/>
+     <field name="status"   type="uint8" values="OK|LOST|REALLY_LOST"/>
+  </message>
+
+  <message name="AHRS_EULER" id="173">
     <field name="phi"   type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.29578" />
     <field name="theta" type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.29578" />
     <field name="psi"   type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.29578" />
   </message>
 
-  <message name="AHRS_MEASUREMENT_EULER" id="161">
+  <message name="AHRS_MEASUREMENT_EULER" id="174">
     <field name="phi"   type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.29578" />
     <field name="theta" type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.29578" />
     <field name="psi"   type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.29578" />

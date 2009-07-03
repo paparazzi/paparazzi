@@ -38,16 +38,14 @@
 #include "booz2_commands.h"
 #include "i2c.h"
 #include ACTUATORS
+//#include "booz2_servos_direct_hw.h"
+//#include "booz2_control_surfaces.h"
 #include "radio_control.h"
 
 
 #include "booz2_imu.h"
 #include "booz2_analog_baro.h"
 #include "booz2_battery.h"
-
-#ifdef USE_AMI601
-#include "AMI601.h"
-#endif
 
 #include "booz2_fms.h"
 #include "booz2_autopilot.h"
@@ -64,7 +62,7 @@
 
 #include "booz2_main.h"
 
-static inline void on_imu_event( void );
+static inline void on_gyro_accel_event( void );
 static inline void on_baro_event( void );
 static inline void on_gps_event( void );
 static inline void on_mag_event( void );
@@ -74,6 +72,7 @@ uint32_t t0, t1, diff;
 #ifndef SITL
 int main( void ) {
   booz2_main_init();
+
   while(1) {
     if (sys_time_periodic())
       booz2_main_periodic();
@@ -85,13 +84,20 @@ int main( void ) {
 
 
 STATIC_INLINE void booz2_main_init( void ) {
+
   hw_init();
   sys_time_init();
   led_init();
   uart0_init_tx();
   i2c_init();
   actuators_init();
+#if defined USE_BOOZ2_SERVOS_DIRECT
+  booz2_servos_direct_init();
+#endif
+  // FIXME move that in radio_control_ppm initialisation
+  //#if defined RADIO_CONTROL_TYPE && RADIO_CONTROL_TYPE == RADIO_CONTROL_PPM
   ppm_init();
+  //#endif
   radio_control_init();
 
   booz2_analog_init();
@@ -118,18 +124,13 @@ STATIC_INLINE void booz2_main_init( void ) {
   booz_ins_init();
 
   uart1_init_tx();
+#ifdef USE_GPS
   booz2_gps_init();
+#endif
 
   int_enable();
 }
 
-#ifdef USE_AMI601
-#define ReadMag() ami601_read()
-#elif USE_MICROMAG
-#define ReadMag() Booz2MicromagScheduleRead()
-#else
-#define ReadMag() {}
-#endif
 
 STATIC_INLINE void booz2_main_periodic( void ) {
   //  t0 = T0TC;
@@ -139,10 +140,9 @@ STATIC_INLINE void booz2_main_periodic( void ) {
   booz2_autopilot_periodic();
   /* set actuators     */
   SetActuatorsFromCommands(booz2_autopilot_motors_on);
-
   PeriodicPrescaleBy10(							\
     {						                        \
-      radio_control_periodic_task();		                        \
+      radio_control_periodic_task();			                \
       if (rc_status != RC_OK)						\
 	booz2_autopilot_set_mode(BOOZ2_AP_MODE_FAILSAFE);		\
     },									\
@@ -150,10 +150,10 @@ STATIC_INLINE void booz2_main_periodic( void ) {
       Booz2TelemetryPeriodic();						\
     },									\
     {									\
-      ReadMag();							\
+      booz_fms_periodic();						\
     },									\
     {									\
-      booz_fms_periodic();						\
+      /*BoozControlSurfacesSetFromCommands();*/				\
     },									\
     {},									\
     {},									\
@@ -174,28 +174,21 @@ STATIC_INLINE void booz2_main_event( void ) {
 
   DatalinkEvent();
 
+  //  RadioControlEvent(booz2_autopilot_on_rc_frame);
   RadioControlEventCheckAndHandle(booz2_autopilot_on_rc_event);
 
-  Booz2ImuEvent(on_imu_event);
-
+  Booz2ImuEvent(on_gyro_accel_event, on_mag_event);
+  
   Booz2AnalogBaroEvent(on_baro_event);
-
+ 
+#ifdef USE_GPS
   Booz2GpsEvent(on_gps_event);
-
-#ifdef USE_AMI601
-  AMI601Event(on_mag_event);
-#endif
-#ifdef USE_MICROMAG
-  Booz2ImuSpiEvent(booz2_max1168_read,booz2_micromag_read);
-  Booz2MicromagEvent(on_mag_event);
-#else
-  Booz2ImuSpiEvent(booz2_max1168_read);
 #endif
 
 }
 
 
-static inline void on_imu_event( void ) {
+static inline void on_gyro_accel_event( void ) {
 
   //  LED_TOGGLE(7);
   // 480 ???
@@ -224,27 +217,13 @@ static inline void on_baro_event( void ) {
 
 
 static inline void on_gps_event(void) {
- 
+  
   booz_ins_update_gps();
-
+  
 }
 
 static inline void on_mag_event(void) {
-#ifdef USE_AMI601
-  booz_imu.mag_unscaled.x = ami601_val[IMU_MAG_X_CHAN];
-  booz_imu.mag_unscaled.y = ami601_val[IMU_MAG_Y_CHAN];
-  booz_imu.mag_unscaled.z = ami601_val[IMU_MAG_Z_CHAN];
 
-  //  LED_TOGGLE(2);
   Booz2ImuScaleMag();
-  ami601_status = AMI601_IDLE;
-#endif
-#ifdef USE_MICROMAG
-  booz_imu.mag_unscaled.x = booz2_micromag_values[IMU_MAG_X_CHAN];
-  booz_imu.mag_unscaled.y = booz2_micromag_values[IMU_MAG_Y_CHAN];
-  booz_imu.mag_unscaled.z = booz2_micromag_values[IMU_MAG_Z_CHAN];
 
-  //  LED_TOGGLE(2);
-  Booz2ImuScaleMag();
-#endif
 }

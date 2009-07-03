@@ -16,20 +16,11 @@ struct Booz_gps_state {
 
 extern struct Booz_gps_state booz_gps_state;
 
-/* UBX NAV POSLLH */
-extern int32_t  booz2_gps_lon;
-extern int32_t  booz2_gps_lat;
-extern int32_t  booz2_gps_hmsl;
-extern uint32_t booz2_gps_hacc;
-extern uint32_t booz2_gps_vacc;
 
 /* UBX NAV SOL */
 #define  BOOZ2_GPS_FIX_NONE 0x00
 #define  BOOZ2_GPS_FIX_3D   0x03
 
-/* UBX NAV VELNED */
-extern int32_t  booz2_gps_vel_n;
-extern int32_t  booz2_gps_vel_e;
 
 #include "ubx_protocol.h"
 
@@ -53,8 +44,6 @@ extern int32_t  booz2_gps_vel_e;
     }									\
   }
 #endif
-
-      //if (ubx_class == UBX_NAV_ID && ubx_id == UBX_NAV_VELNED_ID) {
 
 extern void booz2_gps_init(void);
 extern void booz2_gps_read_ubx_message(void);

@@ -35,6 +35,20 @@
 #include CONFIG
 #include "LPC21xx.h"
 
+
+#ifdef PERIPHERALS_AUTO_INIT
+#ifdef LED
+#include "led.h"
+#endif
+#if defined USE_UART0 || defined USE_UART1
+#include "uart.h"
+#endif
+#ifdef USE_USB_SERIAL
+#include "usb_serial.h"
+#endif
+#endif /* PERIPHERALS_AUTO_INIT */
+
+
 /* declare functions and values from crt0.S & the linker control file */
 extern void reset(void);
 /* extern void exit(void); */
@@ -90,6 +104,23 @@ static inline void hw_init(void) {
   VICIntSelect = 0x00000000;
   /* point unvectored IRQs to reset() */
   VICDefVectAddr = (uint32_t)reset;
+
+
+#ifdef PERIPHERALS_AUTO_INIT
+#ifdef LED
+  led_init();
+#endif
+#ifdef USE_UART0
+  uart0_init_tx();
+#endif
+#ifdef USE_UART1
+  uart1_init_tx();
+#endif
+#ifdef USE_USB_SERIAL
+  VCOM_init();
+#endif
+#endif /* PERIPHERALS_AUTO_INIT */
+
 
 }
 
