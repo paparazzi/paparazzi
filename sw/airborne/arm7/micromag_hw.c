@@ -28,9 +28,9 @@ static void EXTINT_ISR(void) __attribute__((naked));
 
 void micromag_hw_init( void ) {
 
+  MmUnselect();                   /* pin idles high */
   /* configure SS pin */
   SetBit(MM_SS_IODIR, MM_SS_PIN); /* pin is output  */
-  MmUnselect();                   /* pin idles high */
 
   /* configure RESET pin */
   SetBit(MM_RESET_IODIR, MM_RESET_PIN); /* pin is output  */
@@ -51,18 +51,13 @@ void micromag_hw_init( void ) {
 
 }
 
-#include "uart.h"
-#include "messages.h"
-#include "downlink.h"
-//#include "led.h"
-
 void EXTINT_ISR(void) {
   ISR_ENTRY();
-  //LED_ON(2);
+  /* no, we won't do anything asynchronously, so just notify */
   micromag_status = MM_GOT_EOC;
   /* clear EINT */
-  SetBit(EXTINT,MM_DRDY_EINT);
-
+  //SetBit(EXTINT,MM_DRDY_EINT);
+  EXTINT = (1<<MM_DRDY_EINT);
   VICVectAddr = 0x00000000;    /* clear this interrupt from the VIC */
   ISR_EXIT();
 }
