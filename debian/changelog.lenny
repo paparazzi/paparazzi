@@ -1,3 +1,9 @@
+paparazzi (3.2-8) unstable; urgency=low
+
+  * Dependency over libcamlimages-ocaml-dev removed
+
+ -- Pascal Brisset <pascal.brisset@enac.fr>  Thu, 02 Jul 2009 23:47:08 +0200
+
 paparazzi (3.2-7) unstable; urgency=low
 
   * Dependency over subversion added
