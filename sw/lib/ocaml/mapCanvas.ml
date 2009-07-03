@@ -92,7 +92,10 @@ let set_opacity = fun pixbuf opacity ->
   pixbuf
 
 
-type drawing = NotDrawing | Rectangle of float*float | Polygon of (float*float) list
+type drawing =
+    NotDrawing 
+  | Rectangle of float*float
+  | Panning of float*float
 
 
 let float_array_of_points = fun l ->
@@ -155,7 +158,6 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
   and still = GnoCanvas.group canvas#root in
   let view_cbs = Hashtbl.create 3 in (* Store for view event callback *)
   let region_rectangle = GnoCanvas.rect canvas#root ~props:[`WIDTH_PIXELS 2; `OUTLINE_COLOR "red"] in
-  let region_polygon = GnoCanvas.polygon canvas#root ~props:[`WIDTH_PIXELS 2; `OUTLINE_COLOR "red"] in
 
   (* Pan arrows *)
   let s = pan_arrow_size in
@@ -211,15 +213,12 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
     val mutable dragging = None
     val mutable drawing  = NotDrawing
     val mutable region = None (* Rectangle selected region *)
-    val mutable polygon = None (* Polygon selected region *)
     val mutable last_mouse_x = 0
     val mutable last_mouse_y = 0
 
     val mutable fitted_objects = ([] : geographic list)
 
     method region = region
-    method polygon = polygon
-
     method register_to_fit = fun o -> fitted_objects <- o :: fitted_objects
 
     method fit_to_window () =
@@ -413,16 +412,17 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
 	    and state = GdkEvent.Button.state ev in
 	    let (xw,yw) = self#window_to_world xc yc in
 	    let (xw, yw) = self#fix_bg_coords (xw, yw) in
-	    match Gdk.Convert.modifier state with
-	      [] ->
-		drawing <- Rectangle (xw,yw);
-		region_rectangle#set [`X1 xw; `Y1 yw; `X2 xw; `Y2 yw];
-		region_rectangle#raise_to_top ();
-		true
-	    | [`SHIFT] ->
-		drawing <- Polygon [(xw, yw)];
-		true;
-	    | _ -> false
+	    if Gdk.Convert.test_modifier `SHIFT state then begin
+	      drawing <- Rectangle (xw,yw);
+	      region_rectangle#set [`X1 xw; `Y1 yw; `X2 xw; `Y2 yw];
+	      region_rectangle#raise_to_top ()
+	    end else begin (* panning *)
+	      drawing <- Panning (xc, yc);
+	      let curs = Gdk.Cursor.create `FLEUR in
+	      background#grab [`POINTER_MOTION; `BUTTON_RELEASE] curs 
+		(GdkEvent.Button.time ev)
+	    end;
+	    true
 	  end
       | `MOTION_NOTIFY ev ->
 	  begin
@@ -438,10 +438,13 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
 		let (east, north) = LL.utm_sub current_point starting_point in
 		region_rectangle#set [`X2 xw; `Y2 yw];
 		self#display_group (sprintf "[%.0fm %.0fm]" east north)
-	    | Polygon ps ->
-		let points = convex ((xw,yw)::ps) in
-		drawing <- Polygon points;
-		region_polygon#set [`POINTS (float_array_of_points points)]
+	    | Panning (x0, y0) ->
+		let xc = GdkEvent.Motion.x ev
+		and yc = GdkEvent.Motion.y ev in
+		let dx = self#current_zoom *. (xc -. x0) 
+		and dy = self#current_zoom *. (yc -. y0) in
+		let (x, y) = canvas#get_scroll_offsets in
+		canvas#scroll_to (x-truncate dx) (y-truncate dy)
 	    | _ -> ()
 	  end;
 	  false
@@ -453,13 +456,13 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
 	    let current_point = self#fix_bg_coords  current_point in
 	    match drawing with
 	      Rectangle (x1,y1) ->
-		    region <- Some ((x1,y1), current_point);
+		region <- Some ((x1,y1), current_point);
 		self#display_group "";
 		drawing <- NotDrawing;
 		true
-	    | Polygon points ->
-		    drawing <- NotDrawing;
-		polygon <- Some points;
+	    | Panning _ ->
+		drawing <- NotDrawing;
+		background#ungrab (GdkEvent.Button.time ev);
 		true
 	    | _ -> false
 	  end
