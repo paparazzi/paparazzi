@@ -114,7 +114,7 @@ booz_translator : booz_translator.cmo ../../lib/ocaml/lib-pprz.cma
 
 
 settings.cmo : INCLUDES += -I ../cockpit
-settings.cmo : ../cockpit/pages.cmi
+settings.cmo : ../cockpit/page_settings.cmi
 
 %.cmo : %.ml
 	@echo OC $<
