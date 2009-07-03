@@ -5,9 +5,9 @@
 
 clear();
 
-ac_id = 152;
+ac_id = 154;
 //log_name = '/home/john.stower/paparazzi3/var/logs/08_11_24__12_53_41.data';
-log_name = 'log_accel_booz2_a3';
+log_name = 'log_s1_mag_raw';
 //log_name = 'log_accel_booz2_a1_2';
 //log_name = 'log_accel_booz2_a1_5';
 
@@ -15,7 +15,7 @@ SENSOR_ACCEL = 0;
 SENSOR_MAG   = 1;
 SENSOR_GYRO  = 2;
 
-sensor_type = SENSOR_ACCEL;
+sensor_type = SENSOR_MAG;
 
 select sensor_type
 
@@ -24,7 +24,7 @@ case SENSOR_ACCEL then
   ref_norm = 9.81;
   resolution = 2^10;
   reject_noisy_data = 1;
-  threshold = 500;
+  threshold = 4000;
   size_avg = 10;
 
 case SENSOR_MAG then
