@@ -5,9 +5,9 @@
 
 clear();
 
-ac_id = 154;
+ac_id = 155;
 //log_name = '/home/john.stower/paparazzi3/var/logs/08_11_24__12_53_41.data';
-log_name = 'log_s1_mag_raw';
+log_name = 'log_x1_mag_raw';
 //log_name = 'log_accel_booz2_a1_2';
 //log_name = 'log_accel_booz2_a1_5';
 

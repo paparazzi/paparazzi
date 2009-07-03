@@ -49,6 +49,6 @@
  <channel ctl="C" function="ROLL"     min="1000" neutral="1494" max="2000" average="0"/>
  <channel ctl="B" function="THROTTLE" min="1071" neutral="1071" max="1916" average="0"/>
  <channel ctl="A" function="YAW"      min="1064" neutral="1500" max="1960" average="0"/>
- <channel ctl="G" function="UNUSED"   min="2000" neutral="1500" max="1000" average="1"/>
- <channel ctl="E" function="MODE"     min="2000" neutral="1500" max="1000" average="1"/>
+ <channel ctl="G" function="MODE"     min="1000" neutral="1500" max="2000" average="1"/>
+ <channel ctl="E" function="UNUSED"   min="2000" neutral="1500" max="1000" average="1"/>
 </radio>
