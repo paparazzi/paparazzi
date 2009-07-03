@@ -54,6 +54,7 @@ MAKE=make PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME)
 MODULES_H=$(ACINCLUDE)/modules.h
 MODULES_C=$(ACINCLUDE)/modules.c
 MODULES_DIR=$(PAPARAZZI_HOME)/conf/modules/
+AIRCRAFT_MD5=$(AIRCRAFT_CONF_DIR)/aircraft.md5
 
 
 # "make Q=''" to get full echo
@@ -73,7 +74,7 @@ flight_plan_ac_h : $(FLIGHT_PLAN_H) $(FLIGHT_PLAN_XML)
 
 makefile_ac: $(MAKEFILE_AC)
 
-$(AIRFRAME_H) : $(CONF)/$(AIRFRAME_XML) $(CONF_XML)
+$(AIRFRAME_H) : $(CONF)/$(AIRFRAME_XML) $(CONF_XML) $(AIRCRAFT_MD5)
 	@echo BUILD $@
 	$(Q)$(TOOLS)/gen_airframe.out $(AC_ID) $(AIRCRAFT) $(MD5SUM) $< > /tmp/airframe.h
 	$(Q)mv /tmp/airframe.h $@
