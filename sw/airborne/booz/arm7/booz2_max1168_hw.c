@@ -28,10 +28,10 @@ static void EXTINT0_ISR(void) __attribute__((naked));
 
 void booz2_max1168_hw_init( void ) {
   
-  /* SS pin is output */
-  SetBit(MAX1168_SS_IODIR, MAX1168_SS_PIN);
   /* unselected max1168 */
   Max1168Unselect();
+  /* SS pin is output */
+  SetBit(MAX1168_SS_IODIR, MAX1168_SS_PIN);
 
   /* connect P0.16 to extint0 (EOC) */
   MAX1168_EOC_PINSEL |= MAX1168_EOC_PINSEL_VAL << MAX1168_EOC_PINSEL_BIT;
@@ -56,13 +56,10 @@ void booz2_max1168_read( void ) {
   /* select max1168 */ 
   Max1168Select();
   /* enable SPI */
-  SpiClearRti();
-  SpiDisableRti();
-  SpiEnable();
+  SSP_ClearRti();
+  SSP_DisableRti();
+  SSP_Enable();
   /* write control byte - wait EOC on extint */
-  //  const 
-  //uint16_t control_byte = ;
-  //  control_byte = control_byte << 8;
   SSPDR = (1 << 0 | 1 << 3 | 7 << 5) << 8;
   booz2_max1168_status = STA_MAX1168_SENDING_REQ;
 
@@ -76,19 +73,19 @@ void EXTINT0_ISR(void) {
   uint16_t foo __attribute__ ((unused));
   foo = SSPDR;
   /* trigger 8 frames read */
-  SpiSend(0);
-  SpiSend(0);
-  SpiSend(0);
-  SpiSend(0);
-  SpiSend(0);
-  SpiSend(0);
-  SpiSend(0);
-  SpiSend(0);
-  SpiClearRti();
-  SpiEnableRti();
+  SSP_Send(0);
+  SSP_Send(0);
+  SSP_Send(0);
+  SSP_Send(0);
+  SSP_Send(0);
+  SSP_Send(0);
+  SSP_Send(0);
+  SSP_Send(0);
+  SSP_ClearRti();
+  SSP_EnableRti();
   booz2_max1168_status = STA_MAX1168_READING_RES;
-  
-  SetBit(EXTINT, MAX1168_EOC_EINT);   /* clear extint0 */
+  //SetBit(EXTINT, MAX1168_EOC_EINT);   /* clear extint0 */
+  EXTINT = (1<<MAX1168_EOC_EINT);
   VICVectAddr = 0x00000000;           /* clear this interrupt from the VIC */
 
   ISR_EXIT();
