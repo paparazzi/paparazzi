@@ -333,6 +333,24 @@ let get_bat_levels = fun af_xml ->
     fvalue "CATASTROPHIC_BAT_LEVEL" default_catastrophic_level, fvalue "MAX_BAT_LEVEL" default_max_level
   with _ -> (default_catastrophic_level, default_max_level)
 
+
+
+let key_press_event = fun keys do_action ev ->
+  try
+    let (modifiers, action) = List.assoc (GdkEvent.Key.keyval ev) keys in
+    let ev_modifiers = GdkEvent.Key.state ev in
+    if List.for_all (fun m -> List.mem m ev_modifiers) modifiers then begin
+      do_action action;
+      true
+    end else
+      false
+  with
+  | _ -> false
+
+
+
+
+(*****************************************************************************)
 let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id:string) config ->
   let color = Pprz.string_assoc "default_gui_color" config
   and name = Pprz.string_assoc "ac_name" config in
@@ -473,18 +491,10 @@ let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id
     with
        _ -> ())
     (Xml.children (ExtXml.child (ExtXml.child fp_xml_dump "flight_plan") "blocks"));
+
+
   (** Handle key shortcuts for block selection *)
-  let key_press = fun ev ->
-    try
-      let (modifiers, block_id) = List.assoc (GdkEvent.Key.keyval ev) !keys in
-      let ev_modifiers = GdkEvent.Key.state ev in
-      if List.for_all (fun m -> List.mem m ev_modifiers) modifiers then begin
-	jump_to_block ac_id block_id; 
-	true
-      end else
-	false
-    with
-    | _ -> false in
+  let key_press = key_press_event !keys (fun block_id -> jump_to_block ac_id block_id) in
   ignore (geomap#canvas#event#connect#after#key_press key_press);
 
 
@@ -528,6 +538,11 @@ let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id
     try
       let xml_settings = Xml.children (ExtXml.child settings_xml "dl_settings") in
       let settings_tab = new Page_settings.settings ~visible xml_settings dl_setting_callback (fun x -> strip#add_widget x) in
+
+      (** Connect key shortcuts *)
+      let key_press = fun ev ->
+	key_press_event settings_tab#keys (fun commit -> commit ()) ev in
+      ignore (geomap#canvas#event#connect#after#key_press key_press);
 
       let tab_label = GPack.hbox () in
       let _label = (GMisc.label ~text:"Settings" ~packing:tab_label#pack ()) in

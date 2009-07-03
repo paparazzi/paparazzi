@@ -33,5 +33,7 @@ class settings : ?visible:(GObj.widget -> bool) -> Xml.xml list -> (int -> float
     method widget : GObj.widget
     method save : string -> unit
 	(** [save airframe_filename] *)
+    method keys : (Gdk.keysym * (Gdk.Tags.modifier list * (unit -> unit))) list
+	(** (key, (modifiers, action)) list *)
   end
 

@@ -57,10 +57,16 @@ let search_index = fun value array ->
   let i = ref 0 in
   while !i < Array.length array && value <> array.(!i) do incr i done;
   if !i < Array.length array then !i else raise Not_found
+
+
+let add_key = fun xml do_change keys ->
+  let key, modifiers = GtkData.AccelGroup.parse (Xml.attrib xml "key")
+  and value = ExtXml.float_attrib xml "value" in
+  keys := (key, (modifiers, fun () -> do_change value)) :: !keys
   
 
 
-let one_setting = fun i do_change packing dl_setting (tooltips:GData.tooltips) strip ->
+let one_setting = fun (i:int) do_change packing dl_setting (tooltips:GData.tooltips) strip keys ->
   let f = fun a -> float_of_string (ExtXml.attrib dl_setting a) in
   let lower = f "min"
   and upper = f "max"
@@ -169,77 +175,84 @@ let one_setting = fun i do_change packing dl_setting (tooltips:GData.tooltips) s
 
   (** Insert the related buttons in the strip and prepare the papgets DnD *)
   List.iter (fun x ->
-    assert(ExtXml.tag_is x "strip_button");
-    let label = ExtXml.attrib x "name"
-    and sp_value = ExtXml.float_attrib x "value" in
-    let b =
-      try (* Is it an icon ? *)
-	let icon = Xml.attrib x "icon" in
-	let b = GButton.button () in
-	let pixbuf = GdkPixbuf.from_file (Env.gcs_icons_path // icon) in
-	ignore (GMisc.image ~pixbuf ~packing:b#add ());
-
-	(* Drag for Drop *)
-	let papget = Papget_common.xml "variable_setting" "button"
-	    ["variable", varname; 
-	     "value", ExtXml.attrib x "value";
-	     "icon", icon] in
-	Papget_common.dnd_source b#coerce papget;
-	
-        (* Associates the label as a tooltip *)
-	tooltips#set_tip b#coerce ~text:label;
-	b
-      with
-	Xml.No_attribute "icon" -> GButton.button ~label ()
-      | exc -> 
-	  prerr_endline (Printexc.to_string exc);
-	  GButton.button ~label () in
-    (strip b#coerce : unit);
-    ignore (b#connect#clicked (fun _ -> do_change i sp_value)))
+    match String.lowercase (Xml.tag x) with
+      "strip_button" ->
+	let label = ExtXml.attrib x "name"
+	and sp_value = ExtXml.float_attrib x "value" in
+	let b =
+	  try (* Is it an icon ? *)
+	    let icon = Xml.attrib x "icon" in
+	    let b = GButton.button () in
+	    let pixbuf = GdkPixbuf.from_file (Env.gcs_icons_path // icon) in
+	    ignore (GMisc.image ~pixbuf ~packing:b#add ());
+	    
+	    (* Drag for Drop *)
+	    let papget = Papget_common.xml "variable_setting" "button"
+		["variable", varname; 
+		 "value", ExtXml.attrib x "value";
+		 "icon", icon] in
+	    Papget_common.dnd_source b#coerce papget;
+	    
+            (* Associates the label as a tooltip *)
+	    tooltips#set_tip b#coerce ~text:label;
+	    b
+	  with
+	    Xml.No_attribute "icon" -> GButton.button ~label ()
+	  | exc -> 
+	      prerr_endline (Printexc.to_string exc);
+	      GButton.button ~label () in
+	(strip b#coerce : unit);
+	ignore (b#connect#clicked (fun _ -> do_change i sp_value))
+    | "key_press" -> add_key x (do_change i) keys
+    | t -> failwith (sprintf "Page_settings.one_setting, Unexpected tag: '%s'" t))
     (Xml.children dl_setting);
+
   new setting i dl_setting current_value set_default
-  
-  
-let rec build_settings = fun do_change i flat_list xml_settings packing tooltips strip ->
-  match xml_settings with
-    [] -> ()
+
+
+
+let same_tag_for_all = function
+    [] -> failwith "Page_settings: unreachable, empty dl_settings element"
   | x::xs ->
-      (* All the node have the same tag *)
-      List.iter (fun y -> assert(ExtXml.tag_is y (Xml.tag x))) xs;
+      let tag_first = Xml.tag x in
+      List.iter (fun y -> assert(ExtXml.tag_is y tag_first)) xs;
+      String.lowercase tag_first
+  
 
-      if ExtXml.tag_is x "dl_setting" then
-	List.iter
-	  (fun dl_setting ->
-	    let label_value = one_setting !i do_change packing dl_setting tooltips strip in
-	    flat_list := label_value :: !flat_list;
-	    incr i)
-	  xml_settings
-      else begin
-	assert (ExtXml.tag_is x "dl_settings");
-	let n = GPack.notebook ~packing () in
+(** Build the tree of settings *)
+let rec build_settings = fun do_change i flat_list keys xml_settings packing tooltips strip ->
+  match same_tag_for_all xml_settings with
+    "dl_setting" ->
+      List.iter
+	(fun dl_setting ->
+	  let label_value = one_setting !i do_change packing dl_setting tooltips strip keys in
+	  flat_list := label_value :: !flat_list;
+	  incr i)
+	xml_settings
+  | "dl_settings" ->
+      let n = GPack.notebook ~packing () in
 	
-	List.iter (fun p ->
-	  let text = ExtXml.attrib p "name" in
-	  let _sw = GBin.scrolled_window ~hpolicy:`AUTOMATIC ~vpolicy:`AUTOMATIC () in
-	  let vbox = GPack.vbox  () in
-	  
-	  let tab_label = (GMisc.label ~text ())#coerce in
-	  ignore (n#append_page ~tab_label vbox#coerce);
-
-	  build_settings do_change i flat_list (Xml.children p) vbox#pack tooltips strip)
-	  xml_settings
-      end
-  
-  
+      List.iter (fun dl_settings ->
+	let text = ExtXml.attrib dl_settings "name" in
+	let _sw = GBin.scrolled_window ~hpolicy:`AUTOMATIC ~vpolicy:`AUTOMATIC () in
+	let vbox = GPack.vbox  () in
+	
+	let tab_label = (GMisc.label ~text ())#coerce in
+	ignore (n#append_page ~tab_label vbox#coerce);
+	
+	let children = Xml.children dl_settings in
+	build_settings do_change i flat_list keys children vbox#pack tooltips strip)
+	xml_settings
+  | tag -> failwith (sprintf "Page_settings.build_settings, unexpected tag '%s'" tag)
 
 
 class settings = fun ?(visible = fun _ -> true) xml_settings do_change strip ->
   let sw = GBin.scrolled_window ~hpolicy:`AUTOMATIC ~vpolicy:`AUTOMATIC () in
   let vbox = GPack.vbox ~packing:sw#add_with_viewport () in
   let tooltips = GData.tooltips () in
-  let i = ref 0 and l = ref [] in
+  let i = ref 0 and l = ref [] and keys = ref [] in
   let ordered_list =
-    build_settings do_change i l xml_settings vbox#add tooltips strip;
+    build_settings do_change i l keys xml_settings vbox#add tooltips strip;
     List.rev !l in
   let variables = Array.of_list ordered_list in
   let length = Array.length variables in
@@ -248,6 +261,7 @@ class settings = fun ?(visible = fun _ -> true) xml_settings do_change strip ->
   object (self)
     method widget = sw#coerce
     method length = length
+    method keys = !keys
     method set = fun i v ->
       if visible self#widget then
 	let setting = variables.(i) in
