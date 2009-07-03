@@ -20,7 +20,7 @@
     <set command="THROTTLE" value="@THROTTLE"/>
     <set command="ROLL"     value="@ROLL"/>
     <set command="PITCH"    value="@PITCH"/>
-    <set command="HATCH"    value="@LLS"/>
+    <set command="HATCH"    value="@GAIN1"/>
   </rc_commands>
 
   <section name="MIXER">
@@ -53,27 +53,25 @@
   </section>
 
   <section name="INFRARED" prefix="IR_">
+    <define name="ADC_IR1_NEUTRAL" value="512"/>
+    <define name="ADC_IR2_NEUTRAL" value="-16"/>
+    <define name="ADC_TOP_NEUTRAL" value="533"/>
+
     <define name="ROLL_NEUTRAL_DEFAULT" value="0" unit="deg"/>
     <define name="PITCH_NEUTRAL_DEFAULT" value="6" unit="deg"/>
-    <define name="DEFAULT_CONTRAST" value="200"/>
-    <define name="RAD_OF_IR_CONTRAST" value="0.75"/>
+
     <linear name="RollOfIrs" arity="2" coeff1=".5" coeff2="0.5"/>
     <linear name="PitchOfIrs" arity="2" coeff1="-0.5" coeff2="0.5"/>
     <linear name="TopOfIr" arity="1" coeff1="-1"/>
-    <define name="RAD_OF_IR_MAX_VALUE" value="0.0045"/>
-    <define name="RAD_OF_IR_MIN_VALUE" value="0.00075"/>
-    <define name="ADC_ROLL_NEUTRAL" value="507"/>
-    <define name="ADC_PITCH_NEUTRAL" value="-16"/>
-    <define name="ADC_TOP_NEUTRAL" value="533"/>
 
     <define name="CORRECTION_UP" value="1.6"/>
     <define name="CORRECTION_DOWN" value="1.4"/>
     <define name="CORRECTION_LEFT" value="1."/>
     <define name="CORRECTION_RIGHT" value="1."/>
 
-    <define name="360_LATERAL_CORRECTION" value="1.25"/>
-    <define name="360_LONGITUDINAL_CORRECTION" value="1.25"/>
-    <define name="360_VERTICAL_CORRECTION" value="1."/>
+    <define name="LATERAL_CORRECTION" value="1.25"/>
+    <define name="LONGITUDINAL_CORRECTION" value="1.25"/>
+    <define name="VERTICAL_CORRECTION" value="1."/>
   </section>
 
  <section name="GYRO" prefix="GYRO_">
@@ -86,8 +84,7 @@
   </section>
 
  <section name="BAT">
-    <define name="MILLIAMP_PER_PERCENT" value="0.86"/>
-    <define name="LOW_BATTERY" value="9.3" unit="V"/>
+    <define name="CATASTROPHIC_BAT_LEVEL" value="9.3" unit="V"/>
   </section>
  
  <section name="MISC">
@@ -178,7 +175,7 @@
 
   <section name="FAILSAFE" prefix="FAILSAFE_">
 	<define name="DELAY_WITHOUT_GPS" value="1" unit="s"/>
-    	<define name="DEFAULT_GAZ" value="0." unit="%"/>
+    	<define name="DEFAULT_THROTTLE" value="0." unit="%"/>
     	<define name="DEFAULT_ROLL" value="0.6" unit="rad"/>
     	<define name="DEFAULT_PITCH" value="0.5" unit="rad"/>
 	<define name="HOME_RADIUS" value="100" unit="m"/>
@@ -206,8 +203,8 @@ ap.srcs += $(SRC_ARCH)/servos_4015_MAT_hw.c actuators.c
 ap.CFLAGS += -DRADIO_CONTROL
 ap.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c  
 
-ap.CFLAGS += -DDOWNLINK -DUSE_UART0 -DDOWNLINK_TRANSPORT=XBeeTransport -DDOWNLINK_FBW_DEVICE=Uart0 -DDOWNLINK_AP_DEVICE=Uart0 -DXBEE_UART=Uart0 -DDATALINK=XBEE -DUART0_BAUD=B9600
-ap.srcs += downlink.c $(SRC_ARCH)/uart_hw.c datalink.c xbee.c
+ap.CFLAGS += -DDOWNLINK -DUSE_UART0 -DDOWNLINK_TRANSPORT=XBeeTransport -DDOWNLINK_FBW_DEVICE=Uart0 -DDOWNLINK_AP_DEVICE=Uart0 -DXBEE_UART=Uart0 -DDATALINK=XBEE -DUART0_BAUD=B9600 -DXBEE868
+ap.srcs += downlink.c $(SRC_ARCH)/uart_hw.c datalink.c latlong.c xbee.c
 
 #transp ap.CFLAGS += -DDOWNLINK -DUSE_UART0 -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_FBW_DEVICE=Uart0 -DDOWNLINK_AP_DEVICE=Uart0 -DPPRZ_UART=Uart0 -DDATALINK=PPRZ -DUART0_BAUD=B9600
 #transp ap.srcs += downlink.c $(SRC_ARCH)/uart_hw.c datalink.c pprz_transport.c
@@ -223,12 +220,13 @@ ap.CFLAGS += -DGPS -DUBX -DUSE_UART1 -DGPS_LINK=Uart1 -DUART1_BAUD=B19200
 
 ap.srcs += gps_ubx.c gps.c
 
-ap.CFLAGS += -DINFRARED -DALT_KALMAN -DIR_360
+ap.CFLAGS += -DINFRARED -DALT_KALMAN
 ap.srcs += infrared.c estimator.c
 
 ap.CFLAGS += -DNAV -DH_CTL_RATE_LOOP -DAGR_CLIMB -DLOITER_TRIM
 ap.srcs += nav.c fw_h_ctl.c fw_v_ctl.c
 
+ap.srcs += nav_line.c nav_survey_rectangle.c
 
 ap.CFLAGS += -DGYRO -DIDG300
 ap.srcs += gyro.c bomb.c
@@ -245,8 +243,8 @@ ap.srcs += $(SRC_ARCH)/gpio.c
 
 # Config for SITL simulation
 include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
-sim.CFLAGS += -DCONFIG=\"tiny.h\" -DAGR_CLIMB -DH_CTL_RATE_LOOP -DLOITER_TRIM -DALT_KALMAN -DIR_360
-sim.srcs += bomb.c
+sim.CFLAGS += -DCONFIG=\"tiny.h\" -DAGR_CLIMB -DH_CTL_RATE_LOOP -DLOITER_TRIM -DALT_KALMAN
+sim.srcs += bomb.c nav_survey_rectangle.c nav_line.c 
 
   </makefile>
 </airframe>
