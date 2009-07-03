@@ -167,7 +167,7 @@ install :
 uninstall :
 	make -f Makefile.install PREFIX=$(PREFIX) uninstall
 
-DISTRO=etch
+DISTRO=lenny
 deb :
 	chmod u+x debian/rules
 	cp debian/control.$(DISTRO) debian/control
