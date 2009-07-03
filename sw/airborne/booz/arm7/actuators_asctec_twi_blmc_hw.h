@@ -39,7 +39,8 @@ extern uint8_t actuators_asctec_twi_blmc_new_addr;
     Actuator(SERVO_THRUST) = 0;				      \
     ActuatorsCommit();					      \
   }
-#else
+#else /* ! KILL_MOTORS */
+#ifndef SUPERVISION_HACK_45
 #define SetActuatorsFromCommands(_motors_on) {				\
     booz2_commands[COMMAND_PITCH] += SUPERVISION_TRIM_E;		\
     booz2_commands[COMMAND_ROLL]  += SUPERVISION_TRIM_A;		\
@@ -56,6 +57,25 @@ extern uint8_t actuators_asctec_twi_blmc_new_addr;
     Actuator(SERVO_THRUST) =  (uint8_t)booz2_commands[COMMAND_THRUST];	\
     ActuatorsCommit();							\
   }
+#else /* SUPERVISION_HACK_45 */
+#define SetActuatorsFromCommands(_motors_on) {				\
+    int32_t _r1 =  booz2_commands[COMMAND_ROLL] +  booz2_commands[COMMAND_PITCH]; \
+    int32_t _p1 =  booz2_commands[COMMAND_ROLL] -  booz2_commands[COMMAND_PITCH]; \
+    int32_t _y1 =  booz2_commands[COMMAND_YAW];				\
+    int32_t _t1 =  booz2_commands[COMMAND_THRUST];			\
+    Bound(_r1,-100, 100);						\
+    Bound(_p1,-100, 100);						\
+    Bound(_y1,-100, 100);						\
+    if (_motors_on) {							\
+      Bound(_t1,  1, 200);						\
+    }									\
+    Actuator(SERVO_ROLL)   = _r1;					\
+    Actuator(SERVO_PITCH)  = _p1;					\
+    Actuator(SERVO_YAW)    = _y1;					\
+    Actuator(SERVO_THRUST) = _t1;					\
+    ActuatorsCommit();							\
+  }
+#endif /* SUPERVISION_HACK_45 */
 #endif /* KILL_MOTORS              */
 #endif /* SetActuatorsFromCommands */
 
