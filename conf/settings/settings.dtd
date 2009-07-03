@@ -13,9 +13,10 @@
 <!ATTLIST rc_setting range CDATA #REQUIRED>
 <!ATTLIST rc_setting rc (gain_1_up|gain_2_up|gain_1_down|gain_2_down) #REQUIRED>
 
-<!ELEMENT dl_settings (dl_setting|dl_settings)*>
-<!ELEMENT dl_setting (strip_button)*>
+<!ELEMENT dl_settings (dl_setting|dl_settings)+>
+<!ELEMENT dl_setting (strip_button|key_press)*>
 <!ELEMENT strip_button EMPTY>
+<!ELEMENT key_press EMPTY>
 
 <!ATTLIST dl_settings
 name CDATA #IMPLIED
@@ -39,7 +40,11 @@ values CDATA #IMPLIED
 
 <!ATTLIST strip_button
 name CDATA #REQUIRED
+value CDATA #REQUIRED
 icon CDATA #IMPLIED
-value CDATA #IMPLIED
 >
 
+<!ATTLIST key_press
+key CDATA #REQUIRED
+value CDATA #REQUIRED
+>
