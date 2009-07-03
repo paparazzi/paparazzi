@@ -80,7 +80,6 @@ class widget :
     method moveto : Latlong.geographic -> unit
     method of_world : Latlong.fmeter * Latlong.fmeter -> Latlong.geographic
     method pack_labels : unit
-    method polygon : (float * float) list option
     method projection : string
     method pt2D_of : Latlong.geographic -> Geometry_2d.pt_2D
     method region : ((float * float) * (Latlong.fmeter * Latlong.fmeter)) option
