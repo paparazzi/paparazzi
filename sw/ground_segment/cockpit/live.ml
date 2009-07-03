@@ -294,32 +294,27 @@ let mark = fun (geomap:G.widget) ac_id track plugin_frame ->
 
 (** Light display of attributes in the flight plan. *)
 let attributes_pretty_printer = fun attribs ->
-  (* Remove the "no", "strip_icon" and "strip_button" attributes *)
+  (* Remove the optional attributes *)
   let valid = fun a ->
     let a = String.lowercase a in
-    a <> "no" && a <> "strip_icon" && a <> "strip_button" && a <> "pre_call" && a <> "post_call" in
+    a <> "no" && a <> "strip_icon" && a <> "strip_button" && a <> "pre_call"
+      && a <> "post_call" && a <> "key" in
 
-  let string_of_attrib = fun (_, v) -> v in
-  let pretty_print_call = fun a b s ->
+  let sprint_opt = fun b s ->
     if String.length b > 0 then
-      Printf.sprintf "%s %s%s%s" a s b s
+      sprintf " %s%s%s" s b s
     else
-      a
+      ""
   in
-  let pre_call =
-    try string_of_attrib (List.find (fun (x, _) -> (String.lowercase x) = "pre_call") attribs)
-    with _ -> ""
-  in
-  let post_call =
-    try string_of_attrib (List.find (fun (x, _) -> (String.lowercase x) = "post_call") attribs)
-    with _ -> ""
-  in
+  let elt = Xml.Element("", attribs, []) in
+  let pre_call = ExtXml.attrib_or_default elt "pre_call" ""
+  and post_call = ExtXml.attrib_or_default elt "post_call" "" in
 
   let attribs = List.filter (fun (a, _) -> valid a) attribs in
 
   (* Don't print the name of the attribute if there is only one *)
   match attribs with
-    [(_, v)] -> pretty_print_call (pretty_print_call v pre_call "]") post_call "["
+    [(_, v)] -> v ^ sprint_opt pre_call "]" ^ sprint_opt post_call "["
   | _        -> XmlEdit.string_of_attribs attribs
 
 
