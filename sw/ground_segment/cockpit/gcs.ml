@@ -226,10 +226,10 @@ let fill_ortho = fun (geomap:G.widget) ->
     
 
 (******* Mouse motion handling **********************************************)
-let motion_notify = fun (geomap:G.widget) _ev -> false
+let motion_notify = fun (_geomap:G.widget) _ev -> false
 
 (******* Mouse wheel handling ***********************************************)
-let any_event = fun (geomap:G.widget) ev -> false
+let any_event = fun (_geomap:G.widget) _ev -> false
 
 (******* Mouse buttons handling **********************************************)
 let button_press = fun (geomap:G.widget) ev ->
@@ -345,7 +345,7 @@ let quit = fun () ->
       exit 0
   | _ -> ()
 
-let create_geomap = fun window switch_fullscreen editor_frame ->
+let create_geomap = fun switch_fullscreen editor_frame ->
   let geomap = new G.widget ~srtm:!srtm ~height:500 ~projection:!projection () in
 
   let menu_fact = new GMenu.factory geomap#file_menu in
@@ -480,7 +480,7 @@ let rec replace_widget_children = fun name children xml ->
       Xml.Element(tag,
 		  Xml.attribs xml,
 		  loop xmls)
-  | x -> xml
+  | _ -> xml
 
 
 
@@ -569,7 +569,7 @@ let () =
   (* Editor frame *)
   let editor_frame = GBin.frame () in
 
-  let geomap, menu_fact = create_geomap window switch_fullscreen editor_frame in
+  let geomap, menu_fact = create_geomap switch_fullscreen editor_frame in
 
   let map_frame = GPack.vbox () in
   (** Put the canvas in a frame *)
