@@ -6,9 +6,19 @@
 #include "std.h"
 #include "LPC21xx.h"
 #include "interrupt_hw.h" 
-#include "spi_hw.h"
+
+#include "ssp_hw.h"
+#include CONFIG
 
 #include "airframe.h"
+
+#define MM_DIVISOR_128  2
+#define MM_DIVISOR_256  3
+#define MM_DIVISOR_512  4
+#define MM_DIVISOR_1024 5
+
+#define MM_DIVISOR MM_DIVISOR_512
+
 
 extern volatile uint8_t micromag_cur_axe;
 
@@ -26,9 +36,9 @@ extern volatile uint8_t micromag_cur_axe;
 	uint8_t foo __attribute__ ((unused)) = SSPDR;			\
 	micromag_status = MM_WAITING_EOC;				\
 	MmUnselect();							\
-	SpiClearRti();							\
-	SpiDisableRti();						\
-	SpiDisable();							\
+	SSP_ClearRti();							\
+	SSP_DisableRti();						\
+	SSP_Disable();							\
       }									\
       break;								\
     case MM_READING_RES:						\
@@ -39,9 +49,9 @@ extern volatile uint8_t micromag_cur_axe;
 	if (abs(new_val) < 2000)					\
 	  micromag_values[micromag_cur_axe] = new_val;			\
 	MmUnselect();							\
-	SpiClearRti();							\
-	SpiDisableRti();						\
-	SpiDisable();							\
+	SSP_ClearRti();							\
+	SSP_DisableRti();						\
+	SSP_Disable();							\
 	micromag_cur_axe++;						\
 	if (micromag_cur_axe > 2) {					\
 	  micromag_cur_axe = 0;						\
@@ -59,23 +69,23 @@ extern volatile uint8_t micromag_cur_axe;
     MmSelect();								\
     micromag_status = MM_SENDING_REQ;					\
     MmSet();								\
-    SpiClearRti();							\
-    SpiEnableRti();							\
-    uint8_t control_byte = (micromag_cur_axe+1) << 0 | 3 << 4;		\
-    SSPDR = control_byte;						\
+    SSP_ClearRti();							\
+    SSP_EnableRti();							\
     MmReset();								\
-    SpiEnable();                                                        \
+    uint8_t control_byte = (micromag_cur_axe+1) << 0 | MM_DIVISOR_1024 << 4; \
+    SSP_Send(control_byte);						\
+    SSP_Enable();							\
   }
 
 #define MmReadRes() {							\
     micromag_status = MM_READING_RES;					\
     MmSelect();								\
-    SpiClearRti();							\
-    SpiEnableRti();							\
     /* trigger 2 bytes read */						\
-    SSPDR = 0;								\
-    SSPDR = 0;								\
-    SpiEnable();                                                        \
+    SSP_Send(0);							\
+    SSP_Send(0);							\
+    SSP_Enable();							\
+    SSP_ClearRti();							\
+    SSP_EnableRti();							\
   }
 
 
