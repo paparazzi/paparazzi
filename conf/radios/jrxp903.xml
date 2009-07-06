@@ -50,6 +50,6 @@
  <channel ctl="right_stick_vert" function="PITCH"      min="2050" neutral="1500" max="950" average="0"/>
  <channel ctl="left_stick_horiz" function="YAW" min="950" neutral="1500" max="2050" average="0"/>
  <channel ctl="switch_C" function="MODE"    min="2050" neutral="1500" max="950" average="1"/>
- <channel ctl="aux2" function="GAIN1"     min="2050" neutral="1496" max="948" average="1"/>
+ <channel ctl="aux2" function="MODE2"     min="2050" neutral="1496" max="948" average="1"/>
  <channel ctl="switch_g" function="UNUSED"    min="2050" neutral="1500" max="948" average="1"/>
 </radio>
