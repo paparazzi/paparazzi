@@ -130,11 +130,10 @@ static void csc_main_event( void ) {
 static inline void on_servo_cmd(struct CscServoCmd *cmd)
 {
 
-  uint16_t* servos = (uint16_t*)(cmd);
   uint32_t servos_checked[4];
   uint32_t i;
   for (i=0; i<4; i++)
-    servos_checked[i] = servos[i];
+    servos_checked[i] = cmd->servos[i];
     //    servos_checked[i] = Chop(servos[i],MIN_SERVO, MAX_SERVO);
   csc_servos_set(servos_checked);
 
