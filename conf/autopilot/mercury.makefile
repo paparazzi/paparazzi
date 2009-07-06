@@ -72,6 +72,7 @@ ap.srcs += downlink.c pprz_transport.c $(SRC_CSC)/csc_telemetry.c
 ap.CFLAGS += -DDATALINK=PPRZ -DPPRZ_UART=Uart1
 ap.srcs += $(SRC_CSC)/csc_datalink.c
 
+ap.CFLAGS += -DBOOZ_TRIG_CONST=const
 ap.srcs += $(SRC_CSC)/mercury_xsens.c $(SRC_BOOZ)/booz2_imu.c $(SRC_BOOZ)/booz_trig_int.c
 ap.CFLAGS += -DXSENS1_LINK=Uart0 -DBOOZ2_IMU_TYPE=\"mercury_xsens.h\"
 

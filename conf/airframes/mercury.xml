@@ -51,10 +51,6 @@
     <axis name="THRUST"    failsafe_value="0"/>
   </commands>
 
-  <section name="BOOZ_TRIG" prefix="BOOZ_TRIG_">
-    <define name="CONST" value="const"/>
-  </section>
-  
   <section name="IMU" prefix="IMU_">
 
     <!-- *_s is Xsens.
