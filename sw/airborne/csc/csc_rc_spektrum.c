@@ -107,7 +107,7 @@ static void spektrum_parse_msg( )
   msg.left_stick_vertical_and_flap_mix = msg.left_stick_vertical_and_flap_mix | flap_flag;
   msg.left_stick_horizontal_and_aux2 |= aux2_flag << 13;
   
-  csc_ap_send_msg(CSC_RC_ID, &msg, sizeof(struct CscRCMsg));
+  csc_ap_send_msg(CSC_RC_ID, (const uint8_t *) &msg, sizeof(struct CscRCMsg));
 }
 
 
