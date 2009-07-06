@@ -17,7 +17,7 @@ void csc_ap_link_send_adc(float adc1, float adc2)
   msg.ADCVolts1 = adc1;
   msg.ADCVolts2 = adc2;
 
-  csc_ap_send_msg(CSC_BOARD_ADCVOLTS_ID, &msg, sizeof(msg));
+  csc_ap_send_msg(CSC_BOARD_ADCVOLTS_ID, (const uint8_t *) &msg, sizeof(msg));
 }
 
 void csc_ap_link_send_status(uint32_t loops, uint32_t msgs)
@@ -28,7 +28,7 @@ void csc_ap_link_send_status(uint32_t loops, uint32_t msgs)
   msg.loop_count = loops;
   msg.msg_count = msgs;
 
-  csc_ap_send_msg(CSC_BOARD_STATUS_ID, &msg, sizeof(msg));
+  csc_ap_send_msg(CSC_BOARD_STATUS_ID, (const uint8_t *) &msg, sizeof(msg));
 }
 
 
