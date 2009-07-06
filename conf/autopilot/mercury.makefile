@@ -80,6 +80,11 @@ ap.CFLAGS += -DFLOAT_T=float
 
 ap.srcs += $(SRC_BOOZ)/booz2_stabilization.c $(SRC_BOOZ)/booz2_stabilization_attitude.c
 
+# AHI copied from booz w/ light modifications for vertical control
+ap.CFLAGS += -DUSE_VFF -DDT_VFILTER="(1./512.)" -DFLOAT_T=float
+ap.srcs += $(SRC_CSC)/csc_booz2_ins.c $(SRC_CSC)/csc_booz2_hf_float.c $(SRC_CSC)/csc_booz2_vf_float.c
+ap.srcs += $(SRC_CSC)/csc_booz2_guidance_v.c
+
 
 ap.CFLAGS += -DAP_LINK_CAN -DCAN_LED=2
 ap.CFLAGS += -DUSE_CAN1 -DCAN1_BTR=CANBitrate125k_3MHz
