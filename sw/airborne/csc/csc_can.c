@@ -17,7 +17,7 @@ static bool_t can1_msg_transmit_queued = 0;
 static struct CscCanMsg can1_tx_queued_msg;
 
 static void CAN1_Rx_ISR ( void ) __attribute__((naked));
-static void CAN1_Tx_ISR ( void ) __attribute__((naked));
+/*static void CAN1_Tx_ISR ( void ) __attribute__((naked));*/
 static void CAN1_Err_ISR ( void ) __attribute__((naked));
 
 static void can1_hw_init(void)
@@ -139,11 +139,13 @@ void CAN1_Rx_ISR ( void ) {
 }
 
 
+/*
 void CAN1_Tx_ISR ( void ) {
  ISR_ENTRY();
 
  ISR_EXIT();
 }
+*/
 
 #endif /* USE_CAN1 */
 
