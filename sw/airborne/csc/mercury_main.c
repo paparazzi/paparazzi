@@ -48,10 +48,13 @@
 #include "csc_adc.h"
 #include "mercury_ap.h"
 #include "booz2_autopilot.h"
+#include "booz2_guidance_v.h"
 #include "csc_can.h"
 #include "csc_baro.h"
 
 #include "booz2_stabilization_attitude.h"
+
+extern uint8_t vsupply;
 
 
 #define CSC_STATUS_TIMEOUT (SYS_TICS_OF_SEC(0.25) / PERIODIC_TASK_PERIOD)
