@@ -3,8 +3,6 @@
 
 #include <inttypes.h>
 
-extern uint8_t vsupply;
-
 void csc_adc_init(void);
 void csc_adc_periodic(void);
 
