@@ -20,28 +20,23 @@ static void CAN1_Rx_ISR ( void ) __attribute__((naked));
 static void CAN1_Tx_ISR ( void ) __attribute__((naked));
 static void CAN1_Err_ISR ( void ) __attribute__((naked));
 
-void csc_can1_init(void(* callback)(struct CscCanMsg *msg)) {
-
-  // Set bit 18
-  PINSEL1 |= _BV(18);
+static void can1_hw_init(void)
+{
   // Acceptance Filter Mode Register = filter off, receive all
   AFMR = 0x00000002;
+
   // Go into Reset mode
   C1MOD =  1; 
-  // Disable All Interrupts
-  C1IER = 0;
-  // Clear Status register
+  // Clear Status register (including error counters)
   C1GSR = 0;
+
   // Set bit timing
   C1BTR = CAN1_BTR;
   
-  // Initialize the interrupt vector
-  VICIntSelect &= ~VIC_BIT(VIC_CAN1_RX);               // VIC_CAN1_RX selected as IRQ
-  VICIntEnable = VIC_BIT(VIC_CAN1_RX);                 // VIC_CAN1_RX interrupt enabled
-  _VIC_CNTL(CAN1_VIC_SLOT) = VIC_ENABLE | VIC_CAN1_RX; //
-  _VIC_ADDR(CAN1_VIC_SLOT) = (uint32_t)CAN1_Rx_ISR;    // address of the ISR
+  // Disable All Interrupts
+  C1IER = 0;
 
-  
+  // Enable error interrupts if handled
 #ifdef  CAN1_ERR_VIC_SLOT
   C1IER =  (1<<0) | /* RIE */
            (1<<2) | /* EIE */
@@ -49,23 +44,37 @@ void csc_can1_init(void(* callback)(struct CscCanMsg *msg)) {
            (1<<7) | /* BEIE */ 
            (1<<7)   /* BEIE */ 
     ;
+#endif
 
+  // Get out of reset Mode
+  C1MOD = 0;
+}
 
+void csc_can1_init(void(* callback)(struct CscCanMsg *msg))
+{
+
+  // Initialize the interrupt vector
+  VICIntSelect &= ~VIC_BIT(VIC_CAN1_RX);               // VIC_CAN1_RX selected as IRQ
+  VICIntEnable = VIC_BIT(VIC_CAN1_RX);                 // VIC_CAN1_RX interrupt enabled
+  _VIC_CNTL(CAN1_VIC_SLOT) = VIC_ENABLE | VIC_CAN1_RX; //
+  _VIC_ADDR(CAN1_VIC_SLOT) = (uint32_t)CAN1_Rx_ISR;    // address of the ISR
+
+  // intitialze error interrupt
+#ifdef  CAN1_ERR_VIC_SLOT
   VICIntSelect &= ~VIC_BIT(VIC_CAN);                  // VIC_CAN selected as IRQ
   VICIntEnable = VIC_BIT(VIC_CAN);                    // VIC_CAN interrupt enabled
   _VIC_CNTL(CAN1_ERR_VIC_SLOT) = VIC_ENABLE | VIC_CAN; //
   _VIC_ADDR(CAN1_ERR_VIC_SLOT) = (uint32_t)CAN1_Err_ISR; 
 #endif
 
+  // Set bit 18
+  PINSEL1 |= _BV(18);
+
   // set can callback before enabling interrupts
   can1_callback = callback;
 
-  // Enable Interrupts
-  //  C1IER = (1<<0) | /* RIE */;
-  // Get out of reset Mode
-  C1MOD = 0;
-
-
+  // initialize actual hardware
+  can1_hw_init();
 }
 
 static inline uint32_t csc_can1_tx_available()
@@ -74,7 +83,17 @@ static inline uint32_t csc_can1_tx_available()
 }
 
 
+static inline int can1_bus_off()
+{
+  // check for bit seven of CAN1 GSR (Bus-off state)
+  return C1SR & _BV(7);
+}
+
 void csc_can1_send(struct CscCanMsg* msg) {
+
+  if (can1_bus_off()) {
+    can1_hw_init();
+  }
 
   if (!csc_can1_tx_available()) { /* transmit channel not available */
     if(!can1_msg_transmit_queued){
@@ -153,12 +172,10 @@ static uint32_t err_cnt = 0;
 
 void CAN1_Err_ISR ( void ) {
  ISR_ENTRY();
- 
- err_cnt++;
- LED_ON(ERROR_LED); 
- uint32_t c1icr = C1ICR;
- DOWNLINK_SEND_CSC_CAN_DEBUG(&err_cnt, &c1icr);
+ uint32_t __attribute__ ((unused)) c1icr = C1ICR;
 
+ err_cnt++;
+ LED_ON(ERROR_LED);
 
  VICVectAddr = 0x00000000; // acknowledge interrupt
  ISR_EXIT();

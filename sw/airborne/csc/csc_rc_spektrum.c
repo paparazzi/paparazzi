@@ -38,6 +38,7 @@
 #include "string.h"
 #include "csc_ap_link.h"
 #include "csc_msg_def.h"
+#include "print.h"
 
 #define __SpektrumLink(dev, _x) dev##_x
 #define _SpektrumLink(dev, _x)  __SpektrumLink(dev, _x)
@@ -71,8 +72,9 @@ void spektrum_periodic_task ( void )
 #define ROLL_OFFSET 1544
 #define PITCH_OFFSET 2551
 #define THRUST_OFFSET 3793
-#define YAW_OFFSET 3585
+#define YAW_OFFSET 3595
 #define MODE_OFFSET 5632
+#define AUX2_OFFSET 25000 // offset for AUX2 (not byte swapped)
 
 // Called after receipt of valid message
 static void spektrum_parse_msg( )
@@ -80,12 +82,13 @@ static void spektrum_parse_msg( )
   struct spektrum_frame *frame = (struct spektrum_frame *) msg_buf;
   struct CscRCMsg msg;
   int16_t flap_flag;
+  int16_t aux2_flag;
 
   // only copy the channels we need for now to fit within can frame size
 
   msg.right_stick_horizontal =  (bswap_16(frame->right_horizontal) - ROLL_OFFSET) + CSC_RC_OFFSET;
   msg.right_stick_vertical   =  (bswap_16(frame->right_vertical)   - PITCH_OFFSET) + CSC_RC_OFFSET;
-  msg.left_stick_horizontal  =  (bswap_16(frame->left_horizontal)  - YAW_OFFSET) + CSC_RC_OFFSET;
+  msg.left_stick_horizontal_and_aux2  =  -1*(bswap_16(frame->left_horizontal)  - YAW_OFFSET) + CSC_RC_OFFSET;
   msg.left_stick_vertical_and_flap_mix = -1*(bswap_16(frame->left_vertical) - THRUST_OFFSET) + CSC_RC_OFFSET;
 
   flap_flag = CSC_RC_SCALE * (bswap_16(frame->flap_mix) - MODE_OFFSET);
@@ -98,7 +101,11 @@ static void spektrum_parse_msg( )
   }
   flap_flag =  flap_flag << 13;
 
+  // boolean value for aux2 switch
+  aux2_flag = frame->aux2 > AUX2_OFFSET;
+
   msg.left_stick_vertical_and_flap_mix = msg.left_stick_vertical_and_flap_mix | flap_flag;
+  msg.left_stick_horizontal_and_aux2 |= aux2_flag << 13;
   
   csc_ap_send_msg(CSC_RC_ID, &msg, sizeof(struct CscRCMsg));
 }

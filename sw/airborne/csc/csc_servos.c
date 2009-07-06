@@ -13,8 +13,8 @@
 
 static uint32_t csc_servos_rng[] = {SYS_TICS_OF_USEC(SERVO_S1_MAX-SERVO_S1_MIN),
 				    SYS_TICS_OF_USEC(SERVO_S2_MAX-SERVO_S2_MIN)};
-static uint32_t csc_servos_min[] = {((1<<16)-1)*SYS_TICS_OF_USEC(SERVO_S1_MIN),
-				    ((1<<16)-1)*SYS_TICS_OF_USEC(SERVO_S2_MIN)};
+static uint32_t csc_servos_min[] = {SYS_TICS_OF_USEC(SERVO_S1_MIN),
+				    SYS_TICS_OF_USEC(SERVO_S2_MIN)};
 
 
 void csc_servos_init(void)
@@ -30,7 +30,7 @@ void csc_servo_normalized_set(uint8_t id, uint16_t val)
   else{
     uint32_t ticks = csc_servos_rng[id]*(val-1);
   
-    csc_servo_set(id,((ticks + csc_servos_min[id])/((1<<16) - 1)));
+    csc_servo_set(id,ticks/((1<<16)-2) + csc_servos_min[id]);
   }
 }
 

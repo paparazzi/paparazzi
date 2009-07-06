@@ -30,6 +30,7 @@
 #include "booz2_imu.h"
 #include "booz_ahrs.h"
 #include "booz_ahrs_aligner.h"
+#include "csc_booz2_ins.h"
 
 #include <inttypes.h>
 
@@ -318,7 +319,7 @@ void xsens_parse_msg( uint8_t xsens_id ) {
 	}
 	else {
 	  booz_ahrs_propagate();
-	  //booz_ins_propagate();  // commented out INS for nwo -mmt 6/15
+	  booz_ins_propagate();
 	}
       }
       if (XSENS_MASK_Temp(xsens_output_mode[xsens_id])) {

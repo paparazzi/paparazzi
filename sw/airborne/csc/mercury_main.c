@@ -49,6 +49,7 @@
 #include "mercury_ap.h"
 #include "booz2_autopilot.h"
 #include "csc_can.h"
+#include "csc_baro.h"
 
 #include "booz2_stabilization_attitude.h"
 
@@ -83,10 +84,14 @@ static void nop(struct CscCanMsg *msg)
 
 static void on_rc_cmd(struct CscRCMsg *msg)
 {
+  uint16_t aux2_flag;
+
   rc_values[RADIO_ROLL]  = CSC_RC_SCALE*(msg->right_stick_horizontal - CSC_RC_OFFSET);
   rc_values[RADIO_PITCH] = -CSC_RC_SCALE*(msg->right_stick_vertical - CSC_RC_OFFSET);
-  rc_values[RADIO_YAW]   =  CSC_RC_SCALE*(msg->left_stick_horizontal - CSC_RC_OFFSET);
+  rc_values[RADIO_YAW]   =  CSC_RC_SCALE*((msg->left_stick_horizontal_and_aux2 & ~(3 << 13)) - CSC_RC_OFFSET);
   pprz_mode = (msg->left_stick_vertical_and_flap_mix & (3 << 13)) >> 13;
+  aux2_flag = (msg->left_stick_horizontal_and_aux2 >> 13) & 0x1;
+  rc_values[RADIO_MODE2] = (aux2_flag == 0) ? -7000 : ( (aux2_flag == 1) ? 0 : 7000); 
   rc_values[RADIO_MODE] = (pprz_mode == 0) ? -7000 : ( (pprz_mode == 1) ? 0 : 7000); 
   rc_values[RADIO_THROTTLE] = -CSC_RC_SCALE*((msg->left_stick_vertical_and_flap_mix & ~(3 << 13)) - CSC_RC_OFFSET);
 
@@ -111,10 +116,13 @@ static inline void csc_main_init( void ) {
   xsens_init();
 
   booz2_stabilization_attitude_init();
-
+  booz2_guidance_v_init();
+  booz_ins_init();
 
   csc_adc_init();
   ppm_init();
+
+  baro_scp_init();
 
   csc_ap_link_init();
   csc_ap_link_set_servo_cmd_cb(&nop);
@@ -144,6 +152,8 @@ static inline void csc_main_periodic( void )
     csc_adc_periodic();
   }
   xsens_periodic_task();
+
+  baro_scp_periodic();
 
   csc_ap_periodic(pprz_mode == PPRZ_MODE_IN_FLIGHT,
   		  pprz_mode > PPRZ_MODE_MOTORS_OFF && booz_ahrs_aligner.status == BOOZ_AHRS_ALIGNER_LOCKED);

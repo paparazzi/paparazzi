@@ -22,7 +22,12 @@ void motors_init ( void ) {
 void motors_set_motor(uint8_t id, int16_t value)
 {
   // insert range checks
-  buss_twi_blmc_motor_power[id] = value;
+  if(value < 0)
+    buss_twi_blmc_motor_power[id] = 0;
+  else if(value > 255)
+    buss_twi_blmc_motor_power[id] = 255;
+  else
+    buss_twi_blmc_motor_power[id] = value;
 }
 
 static void buss_twi_blmc_send_next()

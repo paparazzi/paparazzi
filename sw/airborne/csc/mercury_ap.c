@@ -36,6 +36,7 @@
 #include "mercury_supervision.h"
 #include "actuators.h" 
 #include "props_csc.h"
+#include "csc_booz2_guidance_v.h"
 
 static const int xsens_id = 0;
 
@@ -152,6 +153,7 @@ void csc_ap_periodic(int8_t _in_flight, int8_t _motors_on) {
   booz2_autopilot_in_flight = _in_flight;
   
   booz2_stabilization_attitude_run(booz2_autopilot_in_flight);
+  booz2_guidance_v_run(booz2_autopilot_in_flight);
   
   /*  if ( !booz2_autopilot_motors_on ){ */
 /*   if(  booz2_autopilot_mode == BOOZ2_AP_MODE_FAILSAFE || */
@@ -176,8 +178,8 @@ void csc_ap_periodic(int8_t _in_flight, int8_t _motors_on) {
     props_commit();
 
     
-    Actuator(SERVO_S1) = (1<<15)+((1<<14)/MAX_PPRZ)*rc_values[RADIO_YAW];
-    Actuator(SERVO_S2)  = (1<<15)-((1<<14)/MAX_PPRZ)*rc_values[RADIO_YAW];
+    Actuator(SERVO_S1)  = (SERVO_S1_MAX+SERVO_S1_MIN)/2 +((SERVO_S1_MAX-SERVO_S1_MIN)*rc_values[RADIO_YAW])/2/7200;
+    Actuator(SERVO_S2)  = (SERVO_S2_MAX+SERVO_S2_MIN)/2 +((SERVO_S2_MAX-SERVO_S2_MIN)*rc_values[RADIO_YAW])/2/7200;
     ActuatorsCommit();
     
 }

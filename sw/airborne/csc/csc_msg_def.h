@@ -43,7 +43,7 @@ struct CscADCMsg {
 struct CscRCMsg {
   uint16_t right_stick_vertical;
   uint16_t right_stick_horizontal;
-  uint16_t left_stick_horizontal;
+  uint16_t left_stick_horizontal_and_aux2;
   uint16_t left_stick_vertical_and_flap_mix;
 } __attribute__((packed));
 
