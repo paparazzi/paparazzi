@@ -8,8 +8,8 @@
     <servo name="ELEVATOR" no="1" min="2000" neutral="1500" max="1000"/>
     <servo name="RUDDER" no="2" min="1000" neutral="1500" max="2000"/>
     -->
-    <servo name="S1"  no="0" min="1000" neutral="1523" max="2000"/>
-    <servo name="S2" no="1" min="2000" neutral="1500" max="1000"/>
+    <servo name="S1" no="0" min="21482" neutral="32768" max="44054"/>
+    <servo name="S2" no="1" min="21482" neutral="32768" max="44054"/>
   </servos>
 
   <section name="PROP_MISC">
@@ -27,6 +27,20 @@
   <section name="CSC_ACTUATORS" PREFIX="CSC_ACTUATORS_">
     <define name="REMOTE_IDS" value="{1,2,5,6,7,8}" />
   </section>
+
+  <section name="GUIDANCE_V"   prefix="BOOZ2_GUIDANCE_V_">
+   <define name="MIN_ERR_Z"    value="BOOZ_POS_I_OF_F(-10.)"/>
+   <define name="MAX_ERR_Z"    value="BOOZ_POS_I_OF_F( 10.)"/>
+   <define name="MIN_ERR_ZD"   value="BOOZ_SPEED_I_OF_F(-10.)"/>
+   <define name="MAX_ERR_ZD"   value="BOOZ_SPEED_I_OF_F( 10.)"/>
+   <define name="HOVER_KP"     value="-500"/>
+   <define name="HOVER_KD"     value="-250"/>
+   <!-- BOOZ_SPEED_I_OF_F(1.5) / (MAX_PPRZ/2) -->
+   <define name="RC_CLIMB_COEF" value ="163"/>
+   <!-- BOOZ_SPEED_I_OF_F(1.5) * 20% -->
+   <define name="RC_CLIMB_DEAD_BAND" value ="160000"/>
+  </section>
+
   
 
 
@@ -159,6 +173,7 @@
     
 <makefile>
 include $(PAPARAZZI_SRC)/conf/autopilot/mercury.makefile
+include $(PAPARAZZI_SRC)/conf/autopilot/csc_baro.makefile
 </makefile>
 
 </airframe>
