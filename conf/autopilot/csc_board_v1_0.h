@@ -51,6 +51,14 @@
 #define PPM_CCR_CRI TCCR_CR0_I
 #define PPM_CR T0CR0
 
+#define SPI_SELECT_SLAVE0_PORT 0
+#define SPI_SELECT_SLAVE0_PIN 20
+
+#define SPI1_DRDY_PINSEL PINSEL1
+#define SPI1_DRDY_PINSEL_BIT   0
+#define SPI1_DRDY_PINSEL_VAL   1
+#define SPI1_DRDY_EINT         0
+#define SPI1_DRDY_VIC_IT       VIC_EINT0
 
 
 #endif /* CONFIG_CSC_V1_0_H */
