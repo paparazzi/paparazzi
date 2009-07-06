@@ -2,7 +2,12 @@
 #define BOOZ_TRIG_INT_H
 
 #include "std.h"
-#include "airframe.h"
+
+/* 
+   please put that in your makefile instead
+   here it breaks my test programs which are airframe independant
+*/
+//#include "airframe.h"
 
 /* Allow makefile to define BOOZ_TRIG_CONST in case we want
  to make the trig tables const and store them in flash.
