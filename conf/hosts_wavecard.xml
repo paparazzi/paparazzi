@@ -1,7 +1,0 @@
-<?xml version="1.0"?>
-
-<section name="hosts">
- <host addr="00 01 18 04 c0 00 34" name="Antenne sol"/>
- <host addr="00 01 18 04 c0 00 51" name="Twinstar4"/>
-</section>
-,

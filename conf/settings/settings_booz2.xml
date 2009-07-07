@@ -58,8 +58,6 @@
                   shortname="ki" handler="SetKi"/>
    </dl_settings>
 
-   <dl_settings NAME="NAV">
-   </dl_settings>
 
     <dl_settings NAME="Filter">
        <dl_setting var="booz2_face_reinj_1" min="512" step="512" max="262144" module="booz2_filter_attitude_cmpl_euler" shortname="reinj_1"/>

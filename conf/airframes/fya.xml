@@ -6,13 +6,16 @@
 ARCHI=stm32
 SRC_FYA=fya
 
-test1.ARCHDIR = $(ARCHI)
-test1.TARGET = test1
-test1.TARGETDIR = test1
+test_blink.ARCHDIR = $(ARCHI)
+test_blink.TARGET = test_blink
+test_blink.TARGETDIR = test_blink
 
-test1.CFLAGS += -I$(SRC_FYA)
-test1.srcs += test_blink.c
-
+test_blink.CFLAGS += -I$(SRC_FYA)
+test_blink.srcs += $(SRC_FYA)/test_blink.c
+test_blink.srcs += $(STLIB_SRC)/stm32f10x_gpio.c \
+                   $(STLIB_SRC)/stm32f10x_rcc.c  \
+                   $(STCORE_DIR)/system_stm32f10x.c \
+                   $(STCORE_DIR)/core_cm3.c
  </makefile>
 
 </airframe>

@@ -25,7 +25,7 @@
 # This is the common Makefile for the stm32-target.
 #
 
-# Verbose level
+# Pretty Printer
 # Call with "make Q=''" to get full command display
 Q=@
 
@@ -35,54 +35,154 @@ STM32_DIR=/opt/stm32
 GCC_DIR=$(STM32_DIR)/arm-2009q1
 GCC_BIN_DIR=$(GCC_DIR)/bin
 
-STLIB_DIR=$(STM32_DIR)/firmware_library/um0427/FWLib
-STLIB_SRC=$(STLIB_DIR)/library/src
-STLIB_INC=$(STLIB_DIR)/library/inc
-STLIB_ASM = $(STLIB_DIR)/project/RIDE
+# Define programs and commands.
+GCC_BIN_PREFIX=$(GCC_BIN_DIR)/arm-none-eabi-
+CC   = $(GCC_BIN_PREFIX)gcc
+LD   = $(GCC_BIN_PREFIX)ld
+CP   = $(GCC_BIN_PREFIX)objcopy
+DMP  = $(GCC_BIN_PREFIX)objdump
+NM   = $(GCC_BIN_PREFIX)nm
+SIZE = $(GCC_BIN_PREFIX)size
+RM   = rm
+
+STLIB_DIR=$(STM32_DIR)/firmware_library/Libraries
+STLIB_SRC=$(STLIB_DIR)/STM32F10x_StdPeriph_Driver/src
+STLIB_INC=$(STLIB_DIR)/STM32F10x_StdPeriph_Driver/inc
+STCORE_DIR=$(STLIB_DIR)/CMSIS/Core/CM3
 
 LOADER=$(STM32_DIR)/stm32loader-a3c51c26ad6c/stm32loader.py
 
+# inpput files
+SRCS = $($(TARGET).srcs)
+ASRC = $(STCORE_DIR)/startup/gcc/startup_stm32f10x_md.s
 
-CFLAGS  =  -Wall -I./ -c -fno-common -O0 -g -mcpu=cortex-m3 -mthumb -I$(STLIB_INC)
+# object files
+COBJ    = $(SRCS:%.c=$(OBJDIR)/%.o) 
+AOBJ    = $(ASRC:%.s=$(OBJDIR)/%.o)
+
+# linker script
+LD_SCRIPT = $(SRC_FYA)/STM32F103.ld
+#LD_SCRIPT = $(SRC_FYA)/stm32f10x_flash_extsram.ld
+
+CFLAGS  =  -Wall -c -fno-common -O0 -g -mcpu=cortex-m3 -mthumb -I$(STLIB_INC) -I$(STCORE_DIR)
+CFLAGS +=  -DSTM32F10X_MD -DHSE_Value='((uint32_t)8000000)' -DUSE_STDPERIPH_DRIVER
 AFLAGS  =  -mapcs-32 --warn
 #-ahls
-LFLAGS  = -Tld_script.cmd -nostartfiles
+LDFLAGS = -T$(LD_SCRIPT) -nostartfiles
 CPFLAGS = -Obinary
 ODFLAGS = -S
 
+CFLAGS += $($(TARGET).CFLAGS)
+
+
+# Default target.
+all: sizebefore build sizeafter
+
+build: elf bin lss sym
+
+elf: $(OBJDIR)/$(TARGET).elf
+bin: $(OBJDIR)/$(TARGET).bin
+lss: $(OBJDIR)/$(TARGET).lss 
+sym: $(OBJDIR)/$(TARGET).sym
+
+# Display size of file.
+ELFSIZE = $(SIZE) -A $(OBJDIR)/$(TARGET).elf
+sizebefore:
+	@if [ -f $(OBJDIR)/$(TARGET).elf ]; then echo; $(ELFSIZE); echo; fi
+
+sizeafter:
+	@if [ -f $(OBJDIR)/$(TARGET).elf ]; then echo; $(ELFSIZE); echo; fi
 
 
 
-#all: test_adc.bin
+%.bin: %.elf
+	@echo OBJC $@
+	$(Q)$(CP) $(CPFLAGS) $< $@
+
+# Create extended listing file from ELF output file.
+# testing: option -C
+%.lss: %.elf
+	@echo OBJD $@
+	$(Q)$(DMP) -h -S -C $< > $@
+
+
+# Create a symbol table from ELF output file.
+%.sym: %.elf
+	@echo NM $@
+	$(Q)$(NM) -n $< > $@
+
+
+# Link: create ELF output file from object files.
+.SECONDARY : $(OBJDIR)/$(TARGET).elf
+.PRECIOUS : $(COBJ) $(AOBJ)
+%.elf:  $(COBJ) $(AOBJ)
+	@echo LD $@
+	$(Q)$(CC)  $(COBJ)  --output $@ $(LDFLAGS) $($(TARGET).LDFLAGS)
+
+# Compile: create object files from C source files.
+$(OBJDIR)/%.o : %.c $(OBJDIR)/../Makefile.ac
+	@echo CC $@
+	$(Q)test -d $(dir $@) || mkdir -p $(dir $@)
+	$(Q)$(CC) -c $(CFLAGS) $< -o $@ 
+
+# Assemble: create object files from assembler source files. ARM/Thumb
+$(AOBJ) : $(OBJDIR)/%.o : %.s
+	@echo AS $@
+	$(Q)test -d $(dir $@) || mkdir -p $(dir $@)
+	$(Q)$(CC) -c $(ASFLAGS) $< -o $@
+
+upload: $(OBJDIR)/$(TARGET).bin
+	$(LOADER) -p /dev/ttyUSB1  -b 115200 -e -w -v $^
+
+
+
+# Target: clean project.
+clean: clean_list
+
+
+clean_list :
+	@echo
+	$(RM) $(OBJDIR)/$(TARGET).hex
+	$(RM) $(OBJDIR)/$(TARGET).obj
+	$(RM) $(OBJDIR)/$(TARGET).elf
+	$(RM) $(OBJDIR)/$(TARGET).map
+	$(RM) $(OBJDIR)/$(TARGET).obj
+	$(RM) $(OBJDIR)/$(TARGET).a90
+	$(RM) $(OBJDIR)/$(TARGET).sym
+	$(RM) $(OBJDIR)/$(TARGET).lnk
+	$(RM) $(OBJDIR)/$(TARGET).lss
+	$(RM) $(COBJ)
+	$(RM) $(AOBJ)
+	$(RM) $(COBJARM)
+	$(RM) $(AOBJARM)
+	$(RM) $(LST)
+	$(RM) $(SRC:.c=.s)
+	$(RM) $(SRC:.c=.d)
+	$(RM) $(SRCARM:.c=.s)
+	$(RM) $(SRCARM:.c=.d)
+	$(RM) .dep/*
+	$(RM) *~
+
+
+# Listing of phony targets.
+.PHONY : all sizebefore sizeafter \
+build elf bin lss sym clean clean_list upload
+
+
 #
-#clean:
-#        -rm -f *.list *.out *.hex *.o *.bin test_adc $(STLIB_SRC)/*.o *~
+# Dependencies
 #
-#
-#TEST_ADC_SRCS = main.c \
-#                $(STLIB_SRC)/stm32f10x_gpio.c \
-#                $(STLIB_SRC)/stm32f10x_rcc.c  \
-#
-#COBJS      = $(TEST_ADC_SRCS:%.c=$(OBJDIR)/%.o)
-#
-#$(OBJDIR)/%.o : %.c
-#        @echo CC $@
-#        $(Q)test -d $(dir $@) || mkdir -p $(dir $@)
-#        $(Q)$(CC) -c $(CFLAGS) $< -o $@ 
-#
-#cortexm3_macro.o : $(STLIB_ASMDIR)/cortexm3_macro.s
-#        @echo AS $@
-#        $(Q)$(AS) $(AFLAGS) $< -o $@
-#
-#
-#test_adc: $(COBJS) cortexm3_macro.o 
-#        @ echo "..linking"
-#        $(LD) $(LFLAGS) -o $@ $^
-#
-#test_adc.bin: test_adc
-#        @ echo "...copying"
-#        $(CP) $(CPFLAGS) $^ $@
-#
-#test_adc.upload: test_adc.bin
-#        $(FLASHER) -p /dev/ttyUSB0  -b 115200 -e -w -v $^
-#
+
+$(OBJDIR)/.depend:
+	@echo DEPEND $@
+	@test -d $(OBJDIR) || mkdir -p $(OBJDIR)
+	$(Q)$(CC) -MM -MG $(CFLAGS) $($(TARGET).CFLAGS) $($(TARGET).srcs) | sed 's|\([^\.]*\.o\)|$(OBJDIR)/\1|' > $@
+
+ifneq ($(MAKECMDGOALS),clean) 
+ifneq ($(MAKECMDGOALS),erase) 
+-include $(OBJDIR)/.depend
+endif
+endif
+
+
+
