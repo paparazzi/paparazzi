@@ -1,0 +1,88 @@
+# Hey Emacs, this is a -*- makefile -*-
+#
+#   $Id$
+#   Copyright (C) 2009 Antoine Drouin
+#
+# This file is part of paparazzi.
+#
+# paparazzi is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# paparazzi is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with paparazzi; see the file COPYING.  If not, write to
+# the Free Software Foundation, 59 Temple Place - Suite 330,
+# Boston, MA 02111-1307, USA.  
+# 
+
+#
+# This is the common Makefile for the stm32-target.
+#
+
+# Verbose level
+# Call with "make Q=''" to get full command display
+Q=@
+
+# Programs location
+STM32_DIR=/opt/stm32
+
+GCC_DIR=$(STM32_DIR)/arm-2009q1
+GCC_BIN_DIR=$(GCC_DIR)/bin
+
+STLIB_DIR=$(STM32_DIR)/firmware_library/um0427/FWLib
+STLIB_SRC=$(STLIB_DIR)/library/src
+STLIB_INC=$(STLIB_DIR)/library/inc
+STLIB_ASM = $(STLIB_DIR)/project/RIDE
+
+LOADER=$(STM32_DIR)/stm32loader-a3c51c26ad6c/stm32loader.py
+
+
+CFLAGS  =  -Wall -I./ -c -fno-common -O0 -g -mcpu=cortex-m3 -mthumb -I$(STLIB_INC)
+AFLAGS  =  -mapcs-32 --warn
+#-ahls
+LFLAGS  = -Tld_script.cmd -nostartfiles
+CPFLAGS = -Obinary
+ODFLAGS = -S
+
+
+
+
+#all: test_adc.bin
+#
+#clean:
+#        -rm -f *.list *.out *.hex *.o *.bin test_adc $(STLIB_SRC)/*.o *~
+#
+#
+#TEST_ADC_SRCS = main.c \
+#                $(STLIB_SRC)/stm32f10x_gpio.c \
+#                $(STLIB_SRC)/stm32f10x_rcc.c  \
+#
+#COBJS      = $(TEST_ADC_SRCS:%.c=$(OBJDIR)/%.o)
+#
+#$(OBJDIR)/%.o : %.c
+#        @echo CC $@
+#        $(Q)test -d $(dir $@) || mkdir -p $(dir $@)
+#        $(Q)$(CC) -c $(CFLAGS) $< -o $@ 
+#
+#cortexm3_macro.o : $(STLIB_ASMDIR)/cortexm3_macro.s
+#        @echo AS $@
+#        $(Q)$(AS) $(AFLAGS) $< -o $@
+#
+#
+#test_adc: $(COBJS) cortexm3_macro.o 
+#        @ echo "..linking"
+#        $(LD) $(LFLAGS) -o $@ $^
+#
+#test_adc.bin: test_adc
+#        @ echo "...copying"
+#        $(CP) $(CPFLAGS) $^ $@
+#
+#test_adc.upload: test_adc.bin
+#        $(FLASHER) -p /dev/ttyUSB0  -b 115200 -e -w -v $^
+#

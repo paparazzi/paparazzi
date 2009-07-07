@@ -1,0 +1,18 @@
+<airframe name="FYA">
+
+
+ <makefile>
+
+ARCHI=stm32
+SRC_FYA=fya
+
+test1.ARCHDIR = $(ARCHI)
+test1.TARGET = test1
+test1.TARGETDIR = test1
+
+test1.CFLAGS += -I$(SRC_FYA)
+test1.srcs += test_blink.c
+
+ </makefile>
+
+</airframe>
