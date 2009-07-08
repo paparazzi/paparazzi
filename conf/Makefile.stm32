@@ -29,23 +29,30 @@
 # Call with "make Q=''" to get full command display
 Q=@
 
+MCU   = cortex-m3
+DEBUG = dwarf-2
+OPT   = 0
+THUMB    = -mthumb
+THUMB_IW = -mthumb-interwork
+
 # Programs location
 STM32_DIR=/opt/stm32
 
 GCC_DIR=$(STM32_DIR)/arm-2009q1
 GCC_BIN_DIR=$(GCC_DIR)/bin
+GCC_LIB_DIR=$(GCC_DIR)/arm-none-eabi/lib/thumb2
 
 # Define programs and commands.
-GCC_BIN_PREFIX=$(GCC_BIN_DIR)/arm-none-eabi-
-CC   = $(GCC_BIN_PREFIX)gcc
-LD   = $(GCC_BIN_PREFIX)ld
-CP   = $(GCC_BIN_PREFIX)objcopy
-DMP  = $(GCC_BIN_PREFIX)objdump
-NM   = $(GCC_BIN_PREFIX)nm
-SIZE = $(GCC_BIN_PREFIX)size
+GCC_BIN_PREFIX=$(GCC_BIN_DIR)/arm-none-eabi
+CC   = $(GCC_BIN_PREFIX)-gcc
+LD   = $(GCC_BIN_PREFIX)-ld
+CP   = $(GCC_BIN_PREFIX)-objcopy
+DMP  = $(GCC_BIN_PREFIX)-objdump
+NM   = $(GCC_BIN_PREFIX)-nm
+SIZE = $(GCC_BIN_PREFIX)-size
 RM   = rm
 
-STLIB_DIR=$(STM32_DIR)/firmware_library/Libraries
+STLIB_DIR=$(STM32_DIR)/firmware_library_v3/Libraries
 STLIB_SRC=$(STLIB_DIR)/STM32F10x_StdPeriph_Driver/src
 STLIB_INC=$(STLIB_DIR)/STM32F10x_StdPeriph_Driver/inc
 STCORE_DIR=$(STLIB_DIR)/CMSIS/Core/CM3
@@ -54,21 +61,42 @@ LOADER=$(STM32_DIR)/stm32loader-a3c51c26ad6c/stm32loader.py
 
 # inpput files
 SRCS = $($(TARGET).srcs)
-ASRC = $(STCORE_DIR)/startup/gcc/startup_stm32f10x_md.s
+ASRC = $(STCORE_DIR)/startup/gcc/startup_stm32f10x_md.S
 
 # object files
 COBJ    = $(SRCS:%.c=$(OBJDIR)/%.o) 
-AOBJ    = $(ASRC:%.s=$(OBJDIR)/%.o)
+AOBJ    = $(ASRC:%.S=$(OBJDIR)/%.o)
 
 # linker script
-LD_SCRIPT = $(SRC_FYA)/STM32F103.ld
+#LD_SCRIPT = $(SRC_FYA)/STM32F103.ld
 #LD_SCRIPT = $(SRC_FYA)/stm32f10x_flash_extsram.ld
+LD_SCRIPT = $(SRC_FYA)/stm32f10x_flash_md.ld
 
-CFLAGS  =  -Wall -c -fno-common -O0 -g -mcpu=cortex-m3 -mthumb -I$(STLIB_INC) -I$(STCORE_DIR)
+CFLAGS  = -mcpu=$(MCU) $(THUMB_IW)
+CFLAGS += -std=gnu99 -Dgcc
+CFLAGS += -fno-common -O$(OPT) -g$(DEBUG) -I$(STLIB_INC) -I$(STCORE_DIR)
+CFLAGS += -ffunction-sections -fdata-sections
+CFLAGS += -Wall -Wimplicit
+CFLAGS += -Wcast-align
+CFLAGS += -Wpointer-arith -Wswitch
+CFLAGS += -Wredundant-decls -Wreturn-type -Wshadow -Wunused
+#CFLAGS += -Wa,-adhlns=$(subst $(suffix $<),.lst,$<)
+CFLAGS += -Wnested-externs
+#CFLAGS += -Wmissing-prototypes 
+#CFLAGS += -Wstrict-prototypes
+#CFLAGS += -Wmissing-declarations
 CFLAGS +=  -DSTM32F10X_MD -DHSE_Value='((uint32_t)8000000)' -DUSE_STDPERIPH_DRIVER
-AFLAGS  =  -mapcs-32 --warn
-#-ahls
+
+AFLAGS  = -mcpu=$(MCU) $(THUMB_IW)
+#AFLAGS += -x assembler-with-cpp -Wa,-adhlns=$(<:.S=.lst),--g$(DEBUG)
+AFLAGS += -x assembler-with-cpp
+
 LDFLAGS = -T$(LD_SCRIPT) -nostartfiles
+#LDFLAGS += -Wl,-Map=$(TARGET).map,--cref,--gc-sections
+#LDFLAGS += -lm
+#LDFLAGS += -L$(GCC_LIB_DIR) -L/opt/stm32/arm-2009q1/lib/gcc/arm-none-eabi/4.3.3/thumb2   
+LDFLAGS += -lc -lgcc 
+
 CPFLAGS = -Obinary
 ODFLAGS = -S
 
@@ -78,7 +106,8 @@ CFLAGS += $($(TARGET).CFLAGS)
 # Default target.
 all: sizebefore build sizeafter
 
-build: elf bin lss sym
+build: elf bin
+# lss sym
 
 elf: $(OBJDIR)/$(TARGET).elf
 bin: $(OBJDIR)/$(TARGET).bin
@@ -117,19 +146,20 @@ sizeafter:
 .PRECIOUS : $(COBJ) $(AOBJ)
 %.elf:  $(COBJ) $(AOBJ)
 	@echo LD $@
-	$(Q)$(CC)  $(COBJ)  --output $@ $(LDFLAGS) $($(TARGET).LDFLAGS)
+#	$(Q)
+	$(CC) $(LDFLAGS) $($(TARGET).LDFLAGS) $(COBJ)  --output $@
 
 # Compile: create object files from C source files.
 $(OBJDIR)/%.o : %.c $(OBJDIR)/../Makefile.ac
 	@echo CC $@
 	$(Q)test -d $(dir $@) || mkdir -p $(dir $@)
-	$(Q)$(CC) -c $(CFLAGS) $< -o $@ 
+	$(Q)$(CC) -c $(THUMB) $(CFLAGS) $< -o $@ 
 
 # Assemble: create object files from assembler source files. ARM/Thumb
-$(AOBJ) : $(OBJDIR)/%.o : %.s
+$(AOBJ) : $(OBJDIR)/%.o : %.S
 	@echo AS $@
 	$(Q)test -d $(dir $@) || mkdir -p $(dir $@)
-	$(Q)$(CC) -c $(ASFLAGS) $< -o $@
+	$(Q)$(CC) -c $(THUMB) $(AFLAGS) $< -o $@
 
 upload: $(OBJDIR)/$(TARGET).bin
 	$(LOADER) -p /dev/ttyUSB1  -b 115200 -e -w -v $^
@@ -176,7 +206,7 @@ build elf bin lss sym clean clean_list upload
 $(OBJDIR)/.depend:
 	@echo DEPEND $@
 	@test -d $(OBJDIR) || mkdir -p $(OBJDIR)
-	$(Q)$(CC) -MM -MG $(CFLAGS) $($(TARGET).CFLAGS) $($(TARGET).srcs) | sed 's|\([^\.]*\.o\)|$(OBJDIR)/\1|' > $@
+	$(Q)$(CC) -MM -MG $(THUMB) $(CFLAGS) $($(TARGET).CFLAGS) $($(TARGET).srcs) | sed 's|\([^\.]*\.o\)|$(OBJDIR)/\1|' > $@
 
 ifneq ($(MAKECMDGOALS),clean) 
 ifneq ($(MAKECMDGOALS),erase) 

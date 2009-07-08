@@ -11,7 +11,10 @@ test_blink.TARGET = test_blink
 test_blink.TARGETDIR = test_blink
 
 test_blink.CFLAGS += -I$(SRC_FYA)
-test_blink.srcs += $(SRC_FYA)/test_blink.c
+
+test_blink.srcs += $(SRC_FYA)/test_blink.c       \
+                   $(SRC_FYA)/stm32f10x_it.c
+
 test_blink.srcs += $(STLIB_SRC)/stm32f10x_gpio.c \
                    $(STLIB_SRC)/stm32f10x_rcc.c  \
                    $(STCORE_DIR)/system_stm32f10x.c \
