@@ -10,6 +10,7 @@
     </dl_settings>
     <dl_settings NAME="imu params">
       <dl_setting VAR="xsens_setzero" MIN="0" STEP="1" MAX="1" module="csc_xsens" shortname="zero orientation"/>
+      <dl_setting VAR="xsens_psi_offset[0]" MIN="-180" STEP="1" MAX="180" module="csc_xsens" shortname="psi offset"/>
     </dl_settings>
     <dl_settings NAME="flight params">
       <dl_setting VAR="csc_gains.pitch_kp" MIN="-4000" STEP="10" MAX="4000" module="csc_autopilot" shortname="pitch kp"/>

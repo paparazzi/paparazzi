@@ -148,7 +148,8 @@ uint16_t xsens_raw_gyro_x[XSENS_COUNT];
 uint16_t xsens_raw_gyro_y[XSENS_COUNT];
 uint16_t xsens_raw_gyro_z[XSENS_COUNT];
 
-
+// adjustable heading offset
+float xsens_psi_offset[XSENS_COUNT];
 
 float xsens_mag_heading[XSENS_COUNT];
 
@@ -362,6 +363,8 @@ void xsens_parse_msg( uint8_t xsens_id ) {
 	  xsens_phi[xsens_id] = -atan2(xsens_rmat_adj[xsens_id].m[7], xsens_rmat_adj[xsens_id].m[8]);
 	  xsens_theta[xsens_id] = asin(xsens_rmat_adj[xsens_id].m[6]);
 	  xsens_psi[xsens_id] = atan2(xsens_rmat_adj[xsens_id].m[3], xsens_rmat_adj[xsens_id].m[0]);
+
+	  xsens_psi[xsens_id] -= RadOfDeg(xsens_psi_offset[xsens_id]);
 
 	  /* FLOAT_RMAT_COMP(xsens_rmat_adj[xsens_id], xsens_rmat_neutral[xsens_id], xsens_rmat[xsens_id]); */
 

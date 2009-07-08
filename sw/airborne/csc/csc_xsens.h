@@ -59,6 +59,9 @@ extern float xsens_gyro_y[XSENS_COUNT];
 extern float xsens_gyro_z[XSENS_COUNT];
 extern float xsens_mag_heading[XSENS_COUNT];
 
+// adjustable heading offset
+extern float xsens_psi_offset[XSENS_COUNT];
+
 extern uint16_t xsens_time_stamp[XSENS_COUNT];
 
 extern int xsens_setzero;
