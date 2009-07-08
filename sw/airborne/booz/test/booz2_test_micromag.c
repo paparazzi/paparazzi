@@ -57,8 +57,8 @@ static inline void main_periodic_task( void ) {
 
   if (micromag_status == MM_IDLE) {
     LED_TOGGLE(4);
-    uint8_t * tab = &cnt;
-    DOWNLINK_SEND_DEBUG(1,tab);
+    //    uint8_t * tab = &cnt;
+    //    DOWNLINK_SEND_DEBUG(1,tab);
     cnt = 0;
     MmSendReq();
   }
