@@ -15,11 +15,11 @@ test_blink.srcs += $(SRC_FYA)/test_blink.c       \
                    $(SRC_FYA)/vector_table.c
 
 
-#test_uart.ARCHDIR = $(ARCHI)
-#test_uart.TARGET = test_uart
-#test_uart.TARGETDIR = test_uart
-#test_uart.CFLAGS += -I$(SRC_FYA)
-#test_uart.srcs += $(SRC_FYA)/test_uart.c
+test_uart.ARCHDIR = $(ARCHI)
+test_uart.TARGET = test_uart
+test_uart.TARGETDIR = test_uart
+test_uart.CFLAGS = -I$(SRC_FYA)
+test_uart.srcs = $(SRC_FYA)/test_uart.c
 
 
  </makefile>
