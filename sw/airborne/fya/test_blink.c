@@ -1,18 +1,20 @@
-#include "stm32f10x.h"
+#include <stm32/rcc.h>
+#include <stm32/gpio.h>
+
 
 #define LED1_GPIO_PORT              GPIOC
 #define LED1_GPIO_CLK               RCC_APB2Periph_GPIOC  
 #define LED1_GPIO_PIN               GPIO_Pin_12
 
 
-GPIO_InitTypeDef GPIO_InitStructure;
 
-void RCC_Configuration(void);
 void Delay(__IO uint32_t nCount);
 
 int main(void) {
 
-  RCC_Configuration();   
+  /* Setup the microcontroller system. Initialize the Embedded Flash Interface,  
+     initialize the PLL and update the SystemFrequency variable. */
+  SystemInit();
 
   /* Configure all unused GPIO port pins in Analog Input mode (floating input
      trigger OFF), this will reduce the power consumption and increase the device
@@ -21,6 +23,7 @@ int main(void) {
                          RCC_APB2Periph_GPIOC | RCC_APB2Periph_GPIOD |
                          RCC_APB2Periph_GPIOE, ENABLE);
   
+  GPIO_InitTypeDef GPIO_InitStructure;
   GPIO_InitStructure.GPIO_Pin = GPIO_Pin_All;
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AIN;
   GPIO_Init(GPIOA, &GPIO_InitStructure);
@@ -52,12 +55,6 @@ int main(void) {
 }
 
 
-
-void RCC_Configuration(void) {   
-  /* Setup the microcontroller system. Initialize the Embedded Flash Interface,  
-     initialize the PLL and update the SystemFrequency variable. */
-  SystemInit();
-}
 
 
 void Delay(__IO uint32_t nCount) {
