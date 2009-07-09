@@ -1,5 +1,7 @@
 #include <stm32/rcc.h>
 #include <stm32/gpio.h>
+#include <stm32/flash.h>
+#include <stm32/misc.h>
 
 
 #define LED1_GPIO_PORT              GPIOC
@@ -15,6 +17,8 @@ int main(void) {
   /* Setup the microcontroller system. Initialize the Embedded Flash Interface,  
      initialize the PLL and update the SystemFrequency variable. */
   SystemInit();
+   /* Set the Vector Table base location at 0x08000000 */
+  NVIC_SetVectorTable(NVIC_VectTab_FLASH, 0x0);
 
   /* Configure all unused GPIO port pins in Analog Input mode (floating input
      trigger OFF), this will reduce the power consumption and increase the device

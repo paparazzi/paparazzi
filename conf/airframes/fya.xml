@@ -9,16 +9,19 @@ SRC_FYA=fya
 test_blink.ARCHDIR = $(ARCHI)
 test_blink.TARGET = test_blink
 test_blink.TARGETDIR = test_blink
-
 test_blink.CFLAGS += -I$(SRC_FYA)
-
 test_blink.srcs += $(SRC_FYA)/test_blink.c       \
-                   $(SRC_FYA)/stm32f10x_it.c
+                   $(SRC_FYA)/exceptions.c       \
+                   $(SRC_FYA)/vector_table.c
 
-test_blink.srcs += $(STLIB_SRC)/stm32f10x_gpio.c \
-                   $(STLIB_SRC)/stm32f10x_rcc.c  \
-                   $(STCORE_DIR)/system_stm32f10x.c \
-                   $(STCORE_DIR)/core_cm3.c
+
+#test_uart.ARCHDIR = $(ARCHI)
+#test_uart.TARGET = test_uart
+#test_uart.TARGETDIR = test_uart
+#test_uart.CFLAGS += -I$(SRC_FYA)
+#test_uart.srcs += $(SRC_FYA)/test_uart.c
+
+
  </makefile>
 
 </airframe>
