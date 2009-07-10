@@ -26,7 +26,11 @@ uint32_t sys_time_chrono; /* T0TC ticks */
 // FIXME : declared the scale interrupt here :(
 #define TIMER0_IT_MASK (PPM_CRI | TIR_MR1I | TIR_CR0I | TIR_CR3I)
 #else
+#ifdef USE_PWM_INPUT
+#define TIMER0_IT_MASK (PPM_CRI | TIR_MR1I | TIR_CR3I)
+#else
 #define TIMER0_IT_MASK (PPM_CRI | TIR_MR1I)
+#endif /* USE_PWM_INPUT */
 #endif /* MB_TACHO */
 
 #ifdef USE_AMI601
@@ -36,6 +40,10 @@ uint32_t sys_time_chrono; /* T0TC ticks */
 #ifdef IMU_CAL_TACHO
 #include "imu_cal_tacho.h"
 #define TIMER0_IT_MASK (TIR_CR0I)
+#endif
+
+#ifdef USE_PWM_INPUT
+#include "pwm_input.h"
 #endif
 
 void TIMER0_ISR ( void ) {
@@ -96,6 +104,12 @@ void TIMER0_ISR ( void ) {
       T0IR = TIR_MR1I; 
     }
 #endif /* USE_AMI601 */
+#ifdef USE_PWM_INPUT
+    if (T0IR&TIR_CR3I) {
+      PWM_INPUT_ISR();
+      T0IR = TIR_CR3I; 
+    }
+#endif /* USE_PWM_INPUT */
   }
   VICVectAddr = 0x00000000;
 
