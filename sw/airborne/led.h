@@ -31,13 +31,14 @@
 #ifndef LED_H
 #define LED_H
 
-#ifdef LED
+// FIXME : remove LED
+#if defined USE_LED || defined LED
 
 #include "led_hw.h"
 
 static inline void led_init ( void ) {
 #ifdef LED_1_BANK
-  LED_INIT(1);
+  LED_INIT(1); 
   LED_OFF(1);
 #endif /* LED_1_BANK */
 
@@ -77,11 +78,11 @@ static inline void led_init ( void ) {
 #endif /* LED_8_BANK */
 }
 
-#else /* LED */
+#else /* USE_LED */
 static inline void led_init ( void ) {}
 #define LED_ON(i) {}
 #define LED_OFF(i) {}
 #define LED_TOGGLE(i) {}
-#endif /* LED */
+#endif /* USE_LED */
 
 #endif /* LED_H */
