@@ -6,10 +6,16 @@
 ARCHI=stm32
 SRC_FYA=fya
 
+BOARD_CFG=\"fya_board.h\"
+
+SRC_ARCH=$(ARHI)
+
 test_blink.ARCHDIR = $(ARCHI)
 test_blink.TARGET = test_blink
 test_blink.TARGETDIR = test_blink
-test_blink.CFLAGS += -I$(SRC_FYA)
+test_blink.CFLAGS += -I$(SRC_FYA) -I$(ARCHI) -DPERIPHERALS_AUTO_INIT
+test_blink.CFLAGS += -DCONFIG=$(BOARD_CFG)
+test_blink.CFLAGS += -DUSE_LED
 test_blink.srcs += $(SRC_FYA)/test_blink.c       \
                    $(SRC_FYA)/exceptions.c       \
                    $(SRC_FYA)/vector_table.c
