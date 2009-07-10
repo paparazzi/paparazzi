@@ -32,26 +32,44 @@
 #include "pprz_algebra_float.h"
 #include "string.h"
 #include "radio_control.h"
+#include "pwm_input.h"
 
 struct control_gains csc_gains;
 struct control_reference csc_reference;
 struct control_reference csc_errors;
 struct control_trims csc_trims;
+float csc_vane_angle;
+float csc_vane_angle_offset = 180;
 
 static const int xsens_id = 0;
 float csc_yaw_weight;
+float csc_yaw_rudder;
+float csc_yaw_aileron;
+float csc_yaw_deadband;
+float csc_yaw_setpoint_rate;
+float csc_yaw_setpoint_range;
+
+#define PWM_INPUT_COUNTS_PER_REV 61358.
+static void update_vane_angle( void )
+{
+  csc_vane_angle =  RadOfDeg( 360. * pwm_input_duration / PWM_INPUT_COUNTS_PER_REV) - RadOfDeg(csc_vane_angle_offset);
+}
 
 void csc_ap_init( void )
 {
-  csc_gains.roll_kp = 2700;
-  csc_gains.roll_kd = 2500;
-  csc_gains.roll_ki = 0;
+  csc_gains.roll_kp = 4218;
+  csc_gains.roll_kd = 1000;
+  csc_gains.roll_ki = 50;
   csc_gains.pitch_kp = 0;
   csc_gains.pitch_kd = 0;
   csc_gains.pitch_ki = 0;
-  csc_gains.yaw_kp = 8700;
-  csc_gains.yaw_kd = 900;
-  csc_gains.yaw_ki = 30;
+  csc_gains.yaw_kp = 5000;
+  csc_gains.yaw_kd = 800;
+  csc_gains.yaw_ki = 10;
+  csc_yaw_weight = 0;
+  csc_yaw_rudder = 0.33;
+  csc_yaw_aileron = 0;
+  csc_yaw_deadband = 1.00;
 
   csc_trims.elevator = 1800;
   csc_trims.aileron = -60;
@@ -121,15 +139,26 @@ static void calculate_errors(struct control_reference *errors)
   errors->eulers_i.phi += xsens_eulers.phi;
   errors->eulers_i.theta += xsens_eulers.theta;
   errors->eulers_i.psi += xsens_eulers.psi;
+
+  float yaw_deadband = RadOfDeg(csc_yaw_deadband);
+
+  if (errors->eulers.psi <= yaw_deadband && errors->eulers.psi >= -yaw_deadband) {
+    errors->eulers.psi = 0;
+  } else if (errors->eulers.psi <= yaw_deadband*2 && errors->eulers.psi >= -yaw_deadband*2) {
+    if (errors->eulers.psi < 0) {
+      errors->eulers.psi = (errors->eulers.psi + yaw_deadband)*2;
+    } else 
+      errors->eulers.psi = (errors->eulers.psi - yaw_deadband)*2;
+  }
   
   bound_ierror(csc_gains.roll_ki, &errors->eulers_i.phi);
   bound_ierror(csc_gains.pitch_ki, &errors->eulers_i.theta);
   bound_ierror(csc_gains.yaw_ki, &errors->eulers_i.psi);
 }
 
-static void calculate_reference(struct control_reference *reference)
+static void calculate_reference(struct control_reference *reference, int time)
 {
-  reference->eulers.psi = M_PI  / 6.0 * rc_values[RADIO_YAW];
+  reference->eulers.psi = M_PI  / 6.0 * rc_values[RADIO_YAW] + 100*csc_yaw_setpoint_range*sin(0.01*time*csc_yaw_setpoint_rate);
   reference->eulers.theta = M_PI  / 6.0 * rc_values[RADIO_PITCH];
   // Mix reference command with yaw reference command to prevent
   // fighting ourselves
@@ -140,11 +169,12 @@ static void calculate_reference(struct control_reference *reference)
   reference->eulers.psi /= MAX_PPRZ;
 }
 
-void csc_ap_periodic( void )
+void csc_ap_periodic(int time)
 {
   static int counter = 0;
-  calculate_reference(&csc_reference);
+  calculate_reference(&csc_reference, time);
   calculate_errors(&csc_errors);
+  update_vane_angle();
 
   commands[COMMAND_ROLL] = -csc_gains.roll_kp * (csc_errors.eulers.phi + csc_errors.eulers.psi * csc_yaw_weight)
 			   + csc_gains.roll_kd * (csc_errors.rates.p + csc_errors.rates.r * csc_yaw_weight)
@@ -156,10 +186,15 @@ void csc_ap_periodic( void )
 			   - csc_gains.pitch_ki * csc_errors.eulers_i.theta;
   commands[COMMAND_PITCH] += csc_trims.elevator;
 
-  commands[COMMAND_ROLL] += -csc_gains.yaw_kp * csc_errors.eulers.psi
+  commands[COMMAND_ROLL] += (-csc_gains.yaw_kp * csc_errors.eulers.psi
 			   - csc_gains.yaw_kd * csc_errors.rates.r
-			   - csc_gains.yaw_ki * csc_errors.eulers_i.psi;
+			     - csc_gains.yaw_ki * csc_errors.eulers_i.psi) * csc_yaw_aileron;
+
   commands[COMMAND_YAW] = csc_trims.rudder;
+
+  commands[COMMAND_YAW] += (-csc_gains.yaw_kp * csc_errors.eulers.psi
+			   - csc_gains.yaw_kd * csc_errors.rates.r
+			    - csc_gains.yaw_ki * csc_errors.eulers_i.psi) * csc_yaw_rudder;
 }
 
 void csc_ap_clear_ierrors( void )

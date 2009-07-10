@@ -52,11 +52,13 @@ uint8_t booz2_autopilot_tol;
 uint32_t booz2_autopilot_motors_on_counter;
 uint32_t booz2_autopilot_in_flight_counter;
 
+uint16_t mercury_yaw_servo_gain;
 
-#define BOOZ2_AUTOPILOT_MOTOR_ON_TIME     40
+
+#define BOOZ2_AUTOPILOT_MOTOR_ON_TIME     (512/4)
 #define BOOZ2_AUTOPILOT_IN_FLIGHT_TIME    40
-#define BOOZ2_AUTOPILOT_THROTTLE_TRESHOLD (MAX_PPRZ / 20)
-#define BOOZ2_AUTOPILOT_YAW_TRESHOLD      (MAX_PPRZ * 19 / 20)
+#define BOOZ2_AUTOPILOT_THROTTLE_TRESHOLD (MAX_PPRZ * -14 / 20)
+#define BOOZ2_AUTOPILOT_YAW_TRESHOLD      (MAX_PPRZ *  14 / 20)
 
 
 void csc_ap_init(void) {
@@ -101,31 +103,18 @@ void csc_ap_init(void) {
   }
 
 #define BOOZ2_AUTOPILOT_CHECK_MOTORS_ON() {				\
-    if (booz2_autopilot_motors_on) {					\
+    if(!booz2_autopilot_motors_on){					\
       if (rc_values[RADIO_THROTTLE] < BOOZ2_AUTOPILOT_THROTTLE_TRESHOLD && \
 	  (rc_values[RADIO_YAW] > BOOZ2_AUTOPILOT_YAW_TRESHOLD ||	\
 	   rc_values[RADIO_YAW] < -BOOZ2_AUTOPILOT_YAW_TRESHOLD)) {	\
-	if ( booz2_autopilot_motors_on_counter > 0) {			\
-	  booz2_autopilot_motors_on_counter--;				\
-	  if (booz2_autopilot_motors_on_counter == 0)			\
-	    booz2_autopilot_motors_on = FALSE;				\
-	}								\
-      }									\
-      else { /* sticks not in the corner */				\
-	booz2_autopilot_motors_on_counter = BOOZ2_AUTOPILOT_MOTOR_ON_TIME; \
-      }									\
-    }									\
-    else { /* motors off */						\
-      if (rc_values[RADIO_THROTTLE] < BOOZ2_AUTOPILOT_THROTTLE_TRESHOLD && \
-	  (rc_values[RADIO_YAW] > BOOZ2_AUTOPILOT_YAW_TRESHOLD ||	\
-	   rc_values[RADIO_YAW] < -BOOZ2_AUTOPILOT_YAW_TRESHOLD)) {	\
-	if ( booz2_autopilot_motors_on_counter <  BOOZ2_AUTOPILOT_MOTOR_ON_TIME) { \
-	  booz2_autopilot_motors_on_counter++;				\
-	  if (booz2_autopilot_motors_on_counter == BOOZ2_AUTOPILOT_MOTOR_ON_TIME) \
-	    booz2_autopilot_motors_on = TRUE;				\
-	}								\
-      }									\
-      else {								\
+	  if ( booz2_autopilot_motors_on_counter <  BOOZ2_AUTOPILOT_MOTOR_ON_TIME) { \
+	    booz2_autopilot_motors_on_counter++;			\
+	    if (booz2_autopilot_motors_on_counter == BOOZ2_AUTOPILOT_MOTOR_ON_TIME){ \
+	      booz2_autopilot_motors_on = TRUE;				\
+	      booz2_autopilot_in_flight_counter += BOOZ2_AUTOPILOT_MOTOR_ON_TIME; \
+	    }								\
+	  }								\
+      } else {								\
 	booz2_autopilot_motors_on_counter = 0;				\
       }									\
     }									\
@@ -147,39 +136,35 @@ const pprz_t csc_ap_commands_failsafe[COMMANDS_NB] = COMMANDS_FAILSAFE;
 pprz_t mixed_commands[PROPS_NB];
 
 
-void csc_ap_periodic(int8_t _in_flight, int8_t _motors_on) {
+void csc_ap_periodic(uint8_t _in_flight, uint8_t kill) {
   //  RunOnceEvery(50, nav_periodic_task_10Hz())
-  booz2_autopilot_motors_on = _motors_on;
+  BOOZ2_AUTOPILOT_CHECK_MOTORS_ON();
+  if(kill) booz2_autopilot_motors_on = FALSE;
   booz2_autopilot_in_flight = _in_flight;
-  
+
+  booz2_stabilization_attitude_read_rc(booz2_autopilot_in_flight);
   booz2_stabilization_attitude_run(booz2_autopilot_in_flight);
   booz2_guidance_v_run(booz2_autopilot_in_flight);
   
-  /*  if ( !booz2_autopilot_motors_on ){ */
-/*   if(  booz2_autopilot_mode == BOOZ2_AP_MODE_FAILSAFE || */
-/*        booz2_autopilot_mode == BOOZ2_AP_MODE_KILL ) { */
-/*     CscSetCommands(csc_ap_commands_failsafe, */
-/* 		   booz2_autopilot_in_flight, booz2_autopilot_motors_on); */
+  booz2_stabilization_cmd[COMMAND_THRUST] = (int32_t)rc_values[RADIO_THROTTLE] * 105 / 7200 + 95;
+ 
+  
+  CscSetCommands(booz2_stabilization_cmd,
+		 booz2_autopilot_in_flight,booz2_autopilot_motors_on);
     
-/*   } else { */
-    booz2_stabilization_attitude_read_rc(booz2_autopilot_in_flight);
-    booz2_stabilization_cmd[COMMAND_THRUST] = (int32_t)rc_values[RADIO_THROTTLE] * 200 / MAX_PPRZ + 118;
     
-    CscSetCommands(booz2_stabilization_cmd,
-		   booz2_autopilot_in_flight, booz2_autopilot_motors_on);
-    //  }
-
-    
-    BOOZ2_SUPERVISION_RUN(mixed_commands, commands, booz2_autopilot_motors_on);
-    props_set(PROP_UPPER_LEFT, mixed_commands[PROP_UPPER_LEFT]);
-    props_set(PROP_LOWER_RIGHT,mixed_commands[PROP_LOWER_RIGHT]);
-    props_set(PROP_LOWER_LEFT, mixed_commands[PROP_LOWER_LEFT]);
-    props_set(PROP_UPPER_RIGHT,mixed_commands[PROP_UPPER_RIGHT]);
-    props_commit();
-
-    
-    Actuator(SERVO_S1)  = (SERVO_S1_MAX+SERVO_S1_MIN)/2 +((SERVO_S1_MAX-SERVO_S1_MIN)*rc_values[RADIO_YAW])/2/7200;
-    Actuator(SERVO_S2)  = (SERVO_S2_MAX+SERVO_S2_MIN)/2 +((SERVO_S2_MAX-SERVO_S2_MIN)*rc_values[RADIO_YAW])/2/7200;
-    ActuatorsCommit();
+  BOOZ2_SUPERVISION_RUN(mixed_commands, commands, booz2_autopilot_motors_on);
+  props_set(PROP_UPPER_LEFT, mixed_commands[PROP_UPPER_LEFT]);
+  props_set(PROP_LOWER_RIGHT,mixed_commands[PROP_LOWER_RIGHT]);
+  props_set(PROP_LOWER_LEFT, mixed_commands[PROP_LOWER_LEFT]);
+  props_set(PROP_UPPER_RIGHT,mixed_commands[PROP_UPPER_RIGHT]);
+  props_commit();
+  
+  
+  MERCURY_SURFACES_SUPERVISION_RUN(Actuator,
+				   booz2_stabilization_cmd,
+				   mixed_commands,
+				   (!booz2_autopilot_in_flight));
+  ActuatorsCommit();
     
 }

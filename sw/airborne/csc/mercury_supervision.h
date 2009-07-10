@@ -3,6 +3,11 @@
 
 #include "airframe.h"
 
+extern pprz_t mercury_supervision_yaw_servo_gain;
+extern pprz_t mercury_supervision_yaw_motor_gain;
+extern pprz_t mercury_supervision_yaw_comp_slope;
+extern pprz_t mercury_supervision_yaw_comp_offset;
+
 /* #if defined SUPERVISION_FRONT_ROTOR_CW */
 /* #define TRIM_FRONT ( SUPERVISION_TRIM_E-SUPERVISION_TRIM_R) */
 /* #define TRIM_RIGHT (-SUPERVISION_TRIM_A+SUPERVISION_TRIM_R) */
@@ -65,10 +70,23 @@
     Bound(_mot_cmd[PROP_UPPER_RIGHT] , SUPERVISION_MIN_MOTOR, SUPERVISION_MAX_MOTOR); \
   }
 
+#define MERCURY_SURFACES_SUPERVISION_RUN(_actuators,_cmds,_props,_surfaces_manual) { \
+    if (_surfaces_manual) {						\
+      _actuators(SERVO_S1)  = (SERVO_S1_MAX+SERVO_S1_MIN)/2 +((SERVO_S1_MAX-SERVO_S1_MIN)*rc_values[RADIO_YAW])/2/7200; \
+      _actuators(SERVO_S2)  = (SERVO_S2_MAX+SERVO_S2_MIN)/2 +((SERVO_S2_MAX-SERVO_S2_MIN)*rc_values[RADIO_YAW])/2/7200; \
+    } else {								\
+      int32_t bndcmd = (mercury_supervision_yaw_servo_gain*_cmds[COMMAND_YAW]*mercury_supervision_yaw_comp_offset)/(mercury_supervision_yaw_comp_slope*((_props[PROP_UPPER_RIGHT]+_props[PROP_UPPER_LEFT])/2 - 105) + mercury_supervision_yaw_comp_offset); \
+      Bound(bndcmd,-400,400);						\
+      _actuators(SERVO_S1)  = (SERVO_S1_MAX+SERVO_S1_MIN)/2 -		\
+	((SERVO_S1_MAX-SERVO_S1_MIN)*bndcmd)/2/400; \
+      _actuators(SERVO_S2)  = (SERVO_S2_MAX+SERVO_S2_MIN)/2 - \
+	((SERVO_S2_MAX-SERVO_S2_MIN)*bndcmd)/2/400; \
+    } \
+  }
 
 #define BOOZ2_SUPERVISION_RUN(_out, _in,_motors_on) {			\
     if (_motors_on) {							\
-      SUPERVISION_MIX(_out, _in[COMMAND_ROLL], _in[COMMAND_PITCH], _in[COMMAND_YAW], _in[COMMAND_THRUST]); \
+      SUPERVISION_MIX(_out, _in[COMMAND_ROLL], _in[COMMAND_PITCH], (mercury_supervision_yaw_motor_gain*_in[COMMAND_YAW])/20, _in[COMMAND_THRUST]); \
       pprz_t min_mot;							\
       SUPERVISION_FIND_MIN_MOTOR(_out, min_mot);			\
       if (min_mot < SUPERVISION_MIN_MOTOR) {				\

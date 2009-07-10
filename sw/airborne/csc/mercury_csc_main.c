@@ -44,7 +44,6 @@
 #include "downlink.h"
 
 
-#include "csc_throttle.h"
 #include "csc_adc.h"
 #include "csc_rc_spektrum.h"
 
@@ -97,7 +96,6 @@ static void csc_main_init( void ) {
   #endif
   motors_init();
 
-  csc_throttle_init();
   int_enable();
 }
 
@@ -128,7 +126,6 @@ static void csc_main_periodic( void ) {
 static void csc_main_event( void ) {
 
   csc_can_event();
-  csc_throttle_event_task();
 #ifdef SPEKTRUM_LINK
   spektrum_event_task();
 #endif
@@ -168,10 +165,7 @@ static void on_servo_cmd(struct CscServoCmd *cmd)
 
 static void on_motor_cmd(struct CscMotorMsg *msg)
 {
-  // always send to throttle_id zero, only one motorcontrol per csc board
-  const static uint8_t throttle_id = 0;
 
-  csc_throttle_send_msg(throttle_id, msg->cmd_id, msg->arg1, msg->arg2);
 }
 
 int main( void ) {

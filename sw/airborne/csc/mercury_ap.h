@@ -25,9 +25,12 @@
 #ifndef __MERCURY_AP_H__
 #define __MERCURY_AP_H__
 
+#include "airframe.h"
+
+extern pprz_t mixed_commands[PROPS_NB];
 
 void csc_ap_init( void );
-void csc_ap_periodic (int8_t flight, int8_t motors );
+void csc_ap_periodic (uint8_t _in_flight, uint8_t kill);
 
 
 #endif 

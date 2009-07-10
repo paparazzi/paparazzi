@@ -56,16 +56,24 @@ struct control_trims {
 extern struct control_gains csc_gains;
 extern struct control_reference csc_reference;
 extern struct control_trims csc_trims;
+extern float csc_vane_angle;
+extern float csc_vane_angle_offset;
 extern float csc_yaw_weight;
+extern float csc_yaw_rudder;
+extern float csc_yaw_aileron;
+extern float csc_yaw_deadband;
+extern float csc_yaw_setpoint_rate;
+extern float csc_yaw_setpoint_range;
 
 void csc_autopilot_set_roll_ki(float ki);
 void csc_autopilot_set_pitch_ki(float ki);
 void csc_autopilot_set_yaw_ki(float ki);
 
 void csc_ap_init( void );
-void csc_ap_periodic (void );
+void csc_ap_periodic (int time);
 void csc_ap_set_trims (void );
 void csc_ap_clear_ierrors (void );
 
+#define PERIODIC_SEND_VANE_SENSOR() DOWNLINK_SEND_VANE_SENSOR(&csc_vane_angle)
 
 #endif 

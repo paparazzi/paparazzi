@@ -26,6 +26,7 @@
   </command_laws>
 
 <makefile>
+include $(PAPARAZZI_SRC)/conf/autopilot/pwm_input.makefile
 include $(PAPARAZZI_SRC)/conf/autopilot/csc_ap.makefile
 </makefile>
 

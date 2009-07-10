@@ -159,7 +159,7 @@ static inline void csc_main_periodic( void )
   baro_scp_periodic();
 
   csc_ap_periodic(pprz_mode == PPRZ_MODE_IN_FLIGHT,
-  		  pprz_mode > PPRZ_MODE_MOTORS_OFF && booz_ahrs_aligner.status == BOOZ_AHRS_ALIGNER_LOCKED);
+		  !(pprz_mode > PPRZ_MODE_MOTORS_OFF && booz_ahrs_aligner.status == BOOZ_AHRS_ALIGNER_LOCKED));
 
 }
 

@@ -34,28 +34,38 @@
 
 #define PERIODIC_SEND_ALIVE() DOWNLINK_SEND_ALIVE(16, MD5SUM)
 
+#define PERIODIC_SEND_DOWNLINK() { \
+  static uint16_t last; \
+  uint16_t rate = (downlink_nb_bytes - last) / PERIOD_DOWNLINK_0; \
+  last = downlink_nb_bytes; \
+  DOWNLINK_SEND_DOWNLINK(&downlink_nb_ovrn, &rate, &downlink_nb_msgs); \
+}
+
+
+#ifdef PROPS_NB
+
+#include "mercury_ap.h"
+#define PERIODIC_SEND_MERCURY_PROPS() DOWNLINK_SEND_MERCURY_PROPS(&(mixed_commands[0]),&(mixed_commands[1]),&(mixed_commands[2]),&(mixed_commands[3]))
+
+#endif /*  PROPS_NB */
 
 #ifdef COMMANDS_NB
-
 #include "commands.h"
-
 #define PERIODIC_SEND_COMMANDS() DOWNLINK_SEND_COMMANDS(COMMANDS_NB, commands)
+#endif /* COMMANDS_NB */
+#define PERIODIC_SEND_SIMPLE_COMMANDS() DOWNLINK_SEND_SIMPLE_COMMANDS(&commands[0], &commands[1], &commands[2])
 
+#ifdef SERVOS_NB
+#define PERIODIC_SEND_ACTUATORS() DOWNLINK_SEND_ACTUATORS(SERVOS_NB, actuators)
 #endif
 
-
 #ifdef RADIO_CONTROL
-
 #include "radio_control.h"
-
 #define PERIODIC_SEND_PPM() DOWNLINK_SEND_PPM(&last_ppm_cpt, PPM_NB_PULSES, ppm_pulses)
 #define PERIODIC_SEND_RC() DOWNLINK_SEND_RC(PPM_NB_PULSES, rc_values)
 #define PERIODIC_SEND_QUAD_STATUS() DOWNLINK_SEND_QUAD_STATUS(&rc_status, &pprz_mode, &vsupply, &cpu_time)
 #endif /* RADIO_CONTROL */
 
-#ifdef SERVOS_NB
-#define PERIODIC_SEND_ACTUATORS() DOWNLINK_SEND_ACTUATORS(SERVOS_NB, actuators)
-#endif
 
 extern uint8_t telemetry_mode_Ap;
 

@@ -28,7 +28,12 @@ CSC_ID=0
 SRC_BOOZ=booz
 SRC_BOOZ_ARCH=booz/arm7
 ap.CFLAGS += -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH)
+
+ap.CFLAGS += -DSPEKTRUM_LINK=Uart1 -DUSE_UART1 -DUART1_BAUD=B115200 -DUART1_VIC_SLOT=6
+ap.srcs += $(SRC_CSC)/csc_rc_spektrum.c
+
 include $(PAPARAZZI_SRC)/conf/autopilot/mercury_csc.makefile
+
 
   </makefile>
 

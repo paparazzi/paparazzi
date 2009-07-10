@@ -87,7 +87,7 @@ ap.srcs += $(SRC_CSC)/csc_booz2_ins.c $(SRC_CSC)/csc_booz2_hf_float.c $(SRC_CSC)
 ap.srcs += $(SRC_CSC)/csc_booz2_guidance_v.c
 
 
-ap.CFLAGS += -DAP_LINK_CAN -DCAN_LED=2
+ap.CFLAGS += -DAP_LINK_CAN # -DCAN_LED=2
 ap.CFLAGS += -DUSE_CAN1 -DCAN1_BTR=CANBitrate125k_3MHz
 ap.CFLAGS +=  -DCAN1_VIC_SLOT=3 -DCAN1_ERR_VIC_SLOT=7
 ap.srcs += $(SRC_CSC)/csc_can.c
@@ -109,6 +109,8 @@ ap.CFLAGS += -DRADIO_CONTROL
 ap.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c
 
 ap.srcs += $(SRC_CSC)/mercury_ap.c
+ap.srcs += $(SRC_CSC)/mercury_supervision.c
+
 
 ap.CFLAGS += -DERROR_LED=4
 

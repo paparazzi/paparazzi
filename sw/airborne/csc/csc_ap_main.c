@@ -44,6 +44,7 @@
 #include "csc_xsens.h"
 #include "csc_autopilot.h"
 #include "csc_can.h"
+#include "pwm_input.h"
 
 #define CSC_STATUS_TIMEOUT (SYS_TICS_OF_SEC(0.25) / PERIODIC_TASK_PERIOD)
 
@@ -53,6 +54,7 @@
 #define TRESHOLD_MANUAL_PPRZ (MIN_PPRZ / 2)
 #define PPRZ_MODE_OF_RC(mode) ((mode) < TRESHOLD_MANUAL_PPRZ ? PPRZ_MODE_MANUAL : PPRZ_MODE_AUTO1)
 
+extern uint8_t vsupply;
 
 uint8_t pprz_mode = PPRZ_MODE_AUTO1;
 static uint16_t cpu_time = 0;
@@ -71,11 +73,16 @@ static void nop(struct CscCanMsg *msg)
 
 static void on_rc_cmd(struct CscRCMsg *msg)
 {
+  int aux2_flag;
+  static int last_aux2_flag = -1;
+
   rc_values[RADIO_ROLL]  = CSC_RC_SCALE*(msg->right_stick_horizontal - CSC_RC_OFFSET);
   rc_values[RADIO_PITCH] = -CSC_RC_SCALE*(msg->right_stick_vertical - CSC_RC_OFFSET);
-  rc_values[RADIO_YAW]   =  CSC_RC_SCALE*(msg->left_stick_horizontal - CSC_RC_OFFSET);
+  rc_values[RADIO_YAW]   =  CSC_RC_SCALE*((msg->left_stick_horizontal_and_aux2 & ~(3 << 13)) - CSC_RC_OFFSET);
   uint8_t mode = (msg->left_stick_vertical_and_flap_mix & (3 << 13)) >> 13;
   rc_values[RADIO_MODE]  =  mode ? -7000 : ( (mode == 1) ? 0 : 7000); 
+  aux2_flag = (msg->left_stick_horizontal_and_aux2 >> 13) & 0x1;
+  rc_values[RADIO_MODE2] = (aux2_flag == 0) ? -7000 : ( (aux2_flag == 1) ? 0 : 7000); 
   rc_values[RADIO_THROTTLE] = -CSC_RC_SCALE*((msg->left_stick_vertical_and_flap_mix & ~(3 << 13)) - CSC_RC_OFFSET);
 
   time_since_last_ppm = 0;
@@ -100,6 +107,10 @@ static void csc_main_init( void ) {
 
   csc_adc_init();
   ppm_init();
+
+#ifdef USE_PWM_INPUT
+  pwm_input_init();
+#endif
 
   csc_ap_link_init();
   csc_ap_link_set_servo_cmd_cb(&nop);
@@ -130,7 +141,7 @@ static void csc_main_periodic( void )
   }
   xsens_periodic_task();
   if (pprz_mode == PPRZ_MODE_AUTO1)
-    csc_ap_periodic();
+    csc_ap_periodic(cpu_time);
 
   if (csc_trims_set) {
     csc_trims_set = 0;

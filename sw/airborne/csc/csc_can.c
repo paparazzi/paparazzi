@@ -153,7 +153,6 @@ void csc_can_event(void)
 {
 #ifdef USE_CAN1
   if (can1_msg_received) {
-    LED_ON(CAN_LED);
     can1_callback(&can1_rx_msg);
     can1_msg_received = FALSE;
   }

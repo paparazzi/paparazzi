@@ -8,8 +8,8 @@
     <servo name="ELEVATOR" no="1" min="2000" neutral="1500" max="1000"/>
     <servo name="RUDDER" no="2" min="1000" neutral="1500" max="2000"/>
     -->
-    <servo name="S1" no="0" min="21482" neutral="32768" max="44054"/>
-    <servo name="S2" no="1" min="21482" neutral="32768" max="44054"/>
+    <servo name="S1" no="0" min="11287" neutral="32768" max="54249"/>
+    <servo name="S2" no="1" min="11287" neutral="32768" max="54249"/>
   </servos>
 
   <section name="PROP_MISC">
@@ -24,6 +24,13 @@
     <define name="UPPER_RIGHT" value="3" />
   </section>
 
+  <section name="MERCURY_SUPERVISION" PREFIX="MERCURY_SUPERVISION_">
+    <define name="YAW_SERVO_GAIN" value="20" />
+    <define name="YAW_MOTOR_GAIN" value="10" />
+    <define name="YAW_COMP_SLOPE" value="0" />
+    <define name="YAW_COMP_OFFSET" value="3000" />
+  </section>
+	   
   <section name="CSC_ACTUATORS" PREFIX="CSC_ACTUATORS_">
     <define name="REMOTE_IDS" value="{1,2,5,6,7,8}" />
   </section>
@@ -113,12 +120,12 @@
     <define name="MAG_Y_SENS_NUM" value="(1<<IMAG_RES)" />
     <define name="MAG_Z_SENS_NUM" value="(1<<IMAG_RES)" />
 
-    <define name="MAG_X_SENS_DEN" value="7730" />
+    <define name="MAG_X_SENS_DEN" value="-7730" />
     <define name="MAG_Y_SENS_DEN" value="7576" />
     <define name="MAG_Z_SENS_DEN" value="7757" />
 
-    <define name="BODY_TO_IMU_PHI"   value="ANGLE_BFP_OF_REAL(RadOfDeg(-1.8))"/>
-    <define name="BODY_TO_IMU_THETA" value="ANGLE_BFP_OF_REAL(RadOfDeg(0.))"/> 
+    <define name="BODY_TO_IMU_PHI"   value="ANGLE_BFP_OF_REAL(RadOfDeg(0.))"/>
+    <define name="BODY_TO_IMU_THETA" value="ANGLE_BFP_OF_REAL(RadOfDeg(-2.2))"/> 
     <define name="BODY_TO_IMU_PSI"   value="ANGLE_BFP_OF_REAL(RadOfDeg(0.))"/>
 
   </section>
@@ -133,8 +140,8 @@
   <section name="STABILIZATION_ATTITUDE" prefix="BOOZ_STABILIZATION_ATTITUDE_">
 
     <define name="SP_MAX_PHI"     value="3000"/>
-    <define name="SP_MAX_THETA"   value="3000"/>
-    <define name="SP_MAX_R"       value="5500"/>
+    <define name="SP_MAX_THETA"   value="6000"/>
+    <define name="SP_MAX_R"       value="1000"/>
     <define name="DEADBAND_R"     value="250"/>
 
     <define name="PHI_THETA_PGAIN"  value="-400"/>
