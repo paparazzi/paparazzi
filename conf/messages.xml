@@ -530,6 +530,13 @@
     <field name="ydd"   type="float" unit="m/s2"/>
     <field name="zdd"   type="float" unit="m/s2"/>
   </message>
+  
+  <message name="MERCURY_PROPS" id="249">
+    <field name="upper_left" type="uint8" />
+    <field name="lower_right" type="uint8" />
+    <field name="lower_left" type="uint8" />
+    <field name="upper_right" type="uint8" />
+  </message>
 
  <message name="VF_UPDATE" id="76">
    <field name="baro" type="float" unit="m"/>
@@ -1167,6 +1174,16 @@
       <field name="g"   type="float" />
       <field name="h"   type="float" />
       <field name="i"   type="float" />
+    </message>
+
+    <message name="SIMPLE_COMMANDS" id="190">
+      <field name="roll"    type="int16" />
+      <field name="pitch"   type="int16" />
+      <field name="yaw"	    type="int16" />
+    </message>
+
+    <message name="VANE_SENSOR" id="191">
+      <field name="angle1"    type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.3"/>
     </message>
 
 </class>
