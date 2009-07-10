@@ -114,10 +114,10 @@ static inline void hw_init(void) {
   led_init();
 #endif
 #ifdef USE_UART0
-  uart0_init_tx();
+  uart0_init();
 #endif
 #ifdef USE_UART1
-  uart1_init_tx();
+  uart1_init();
 #endif
 #ifdef USE_USB_SERIAL
   VCOM_init();

@@ -41,11 +41,9 @@ uint8_t  uart0_tx_buffer[UART0_TX_BUFFER_SIZE];
 uint16_t uart0_tx_insert_idx, uart0_tx_extract_idx;
 uint8_t  uart0_tx_running;
 
-void uart0_init_tx( void ) {
+void uart0_init( void ) {
   uart0_init_param(UART0_BAUD, UART_8N1, UART_FIFO_8);
 }
-
-void uart0_init_rx( void ) {}
 
 void uart0_init_param( uint16_t baud, uint8_t mode, uint8_t fmode) {
   // set port pins for UART0
@@ -219,7 +217,7 @@ uint8_t  uart1_tx_buffer[UART1_TX_BUFFER_SIZE];
 uint16_t uart1_tx_insert_idx, uart1_tx_extract_idx;
 uint8_t  uart1_tx_running;
 
-void uart1_init_tx( void ) {
+void uart1_init( void ) {
   uart1_init_param(UART1_BAUD, UART_8N1, UART_FIFO_8);
 }
 
@@ -231,8 +229,6 @@ bool_t uart1_check_free_space( uint8_t len) {
   return (uint16_t)(space - 1) >= len;
 }
 
-
-void uart1_init_rx( void ) {}
 
 void uart1_init_param( uint16_t baud, uint8_t mode, uint8_t fmode) {
   // set port pins for UART1

@@ -34,8 +34,8 @@ MCU   = cortex-m3
 OPT   = s
 
 # Programs location
-#GCC_DIR=/opt/stm32/toolchain/arm-none-eabi
-GCC_DIR=/home/poine/arm-none-eabi
+GCC_DIR=/opt/stm32/toolchain/arm-none-eabi
+#GCC_DIR=/home/poine/arm-none-eabi
 GCC_BIN_DIR=$(GCC_DIR)/bin
 GCC_LIB_DIR=$(GCC_DIR)/arm-none-eabi/lib
 

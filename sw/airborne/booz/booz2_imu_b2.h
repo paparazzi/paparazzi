@@ -21,7 +21,7 @@
     }									\
   }
 #elif defined IMU_B2_MAG_TYPE && IMU_B2_MAG_TYPE == IMU_B2_MAG_AMI601
-#include "booz2_ami601.h"
+#include "AMI601.h"
 #define Booz2ImuMagEvent(_mag_handler) {				\
     if (booz2_ami601_status == STA_AMI601_DATA_AVAILABLE) {		\
       booz_imu.mag_unscaled.x = ami601_val[IMU_MAG_X_CHAN];		\

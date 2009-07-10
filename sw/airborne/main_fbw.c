@@ -93,10 +93,10 @@ void init_fbw( void ) {
   led_init();
 #endif
 #ifdef USE_UART0
-  uart0_init_tx();
+  uart0_init();
 #endif
 #ifdef USE_UART1
-  uart1_init_tx();
+  uart1_init();
 #endif
 #ifdef ADC
   adc_init();

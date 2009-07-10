@@ -39,7 +39,7 @@ static inline void main_init( void ) {
 /*   LED_ON(6); */
 /*   LED_ON(7); */
 
-  uart0_init_tx();
+  uart0_init();
   booz2_imu_impl_init();
   booz2_imu_init();
 

@@ -2,6 +2,8 @@
 #define CONFIG_FYA_V1_0_H
 
 
+#define AHB_CLK 72000000
+
 /* Onboard LEDs */
 #define LED_1_BANK 
 #define LED_1_GPIO GPIOC

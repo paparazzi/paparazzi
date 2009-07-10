@@ -40,7 +40,7 @@ static inline void main_init( void ) {
   hw_init();
   sys_time_init();
   led_init();
-  uart0_init_tx();
+  uart0_init();
 
   i2c_init();
   mb_twi_controller_init();

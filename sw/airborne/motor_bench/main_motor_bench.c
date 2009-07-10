@@ -59,7 +59,7 @@ static inline void main_init( void ) {
   mb_current_init();
   mb_scale_init();
 
-  uart0_init_tx();
+  uart0_init();
   mb_mode_init();
 
   int_enable();

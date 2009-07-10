@@ -125,7 +125,8 @@ static void SSP_ISR(void) {
  switch (booz2_imu_ssp_status) {
  case BOOZ2_IMU_SSP_STA_BUSY_MAX1168:
    Max1168OnSpiInt();
-   if (micromag_status == MM_IDLE || micromag_status == MM_GOT_EOC) {
+#if defined IMU_B2_MAG_TYPE && IMU_B2_MAG_TYPE == IMU_B2_MAG_MS2001 
+  if (micromag_status == MM_IDLE || micromag_status == MM_GOT_EOC) {
      Booz2ImuSetSSP8bits();
      if (micromag_status == MM_IDLE) {
        MmSendReq();
@@ -136,9 +137,13 @@ static void SSP_ISR(void) {
      booz2_imu_ssp_status = BOOZ2_IMU_SSP_STA_BUSY_MS2100;
    }
    else {
+#endif
      booz2_imu_ssp_status = BOOZ2_IMU_SSP_STA_IDLE;
+#if defined IMU_B2_MAG_TYPE && IMU_B2_MAG_TYPE == IMU_B2_MAG_MS2001 
    }
-   break;
+#endif
+  break;
+#if defined IMU_B2_MAG_TYPE && IMU_B2_MAG_TYPE == IMU_B2_MAG_MS2001 
  case BOOZ2_IMU_SSP_STA_BUSY_MS2100:
    MmOnSpiIt();
    if (micromag_status == MM_IDLE) {
@@ -148,6 +153,7 @@ static void SSP_ISR(void) {
    else
      booz2_imu_ssp_status = BOOZ2_IMU_SSP_STA_IDLE;
    break;
+#endif
    // default:
    // spurious interrupt
    // FIXME LED_ON(1);

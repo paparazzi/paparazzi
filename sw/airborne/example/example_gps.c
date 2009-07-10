@@ -29,10 +29,10 @@ static inline void main_init( void ) {
   hw_init();
   sys_time_init();
   led_init();
-  uart0_init_tx();
-  uart1_init_tx();
+  uart0_init();
+  uart1_init();
   gps_init();
- int_enable();
+  int_enable();
 }
 
 static inline void main_periodic_task( void ) {

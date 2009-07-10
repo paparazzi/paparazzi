@@ -12,7 +12,7 @@ extern void booz2_imu_periodic(void);
 extern uint16_t ADS8344_values[ADS8344_NB_CHANNELS];
 extern bool_t ADS8344_available;
 
-#define Booz2ImuEvent(handler) {					\
+#define Booz2ImuEvent(_gyro_accel_handler, _mag_handler) {		\
     if (ADS8344_available) {						\
       ADS8344_available = FALSE;					\
       booz_imu.gyro_unscaled.p = ADS8344_values[IMU_GYRO_P_CHAN];	\
@@ -22,11 +22,9 @@ extern bool_t ADS8344_available;
       booz_imu.accel_unscaled.y = ADS8344_values[IMU_ACCEL_Y_CHAN];	\
       booz_imu.accel_unscaled.z = ADS8344_values[IMU_ACCEL_Z_CHAN];	\
       /* spare 3, temp 7 */						\
-      handler();							\
+      _gyro_accel_handler();						\
     }									\
   }
-
-#define Booz2ImuSpiEvent(_handler) {}
 
 #endif /* BOOZ2_IMU_CRISTA_H */
 

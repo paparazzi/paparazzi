@@ -25,8 +25,8 @@ static inline void main_init( void ) {
   hw_init();
   sys_time_init();
   led_init();
-  uart0_init_tx();
-  uart1_init_tx();
+  uart0_init();
+  uart1_init();
   int_enable();
 }
 

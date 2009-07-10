@@ -1,7 +1,7 @@
 /*
  * Paparazzi $Id$
  *  
- * Copyright (C) 2006 Pascal Brisset, Antoine Drouin, Michel Gorraz
+ * Copyright (C) 2006 Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
  *
@@ -30,46 +30,66 @@
 #ifndef UART_H
 #define UART_H
 
-#include <inttypes.h>
-#include "std.h"
 #include "uart_hw.h"
+#include "std.h"
 
-void uart0_init_tx( void );
 
-/** uart0_init_rx() is optional but must be called _after_ uart0_init_tx */
-void uart0_init_rx( void );
+#ifdef USE_UART0
 
-void uart0_transmit( unsigned char data );
-bool_t uart0_check_free_space( uint8_t len);
+extern void uart0_init( void );
+extern void uart0_transmit( uint8_t data );
+extern bool_t uart0_check_free_space( uint8_t len);
 
-/** Not necessarily defined */
-void uart1_init_tx( void );
-
-/** uart1_init_rx() is optional but must be called _after_ uart1_init_tx */
-void uart1_init_rx( void );
-
-void uart1_transmit( unsigned char data );
-bool_t uart1_check_free_space( uint8_t len);
-
-#define Uart0Init() { uart0_init_tx(); uart0_init_rx(); }
-#define Uart1Init() { uart1_init_tx(); uart1_init_rx(); }
-
+#define Uart0Init uart0_init
 #define Uart0CheckFreeSpace(_x) uart0_check_free_space(_x)
-#define Uart1CheckFreeSpace(_x) uart1_check_free_space(_x)
-
 #define Uart0Transmit(_x) uart0_transmit(_x)
-#define Uart1Transmit(_x) uart1_transmit(_x)
-
 #define Uart0SendMessage() {}
-#define Uart1SendMessage() {}
 
 #define Uart0TxRunning uart0_tx_running
 #define Uart0InitParam uart0_init_param
+
+#endif /* USE_UART0 */
+
+#ifdef USE_UART1
+
+extern void uart1_init( void );
+extern void uart1_transmit( uint8_t data );
+extern bool_t uart1_check_free_space( uint8_t len);
+
+#define Uart1Init uart1_init
+#define Uart1CheckFreeSpace(_x) uart1_check_free_space(_x)
+#define Uart1Transmit(_x) uart1_transmit(_x)
+#define Uart1SendMessage() {}
 
 #define Uart1TxRunning uart1_tx_running
 #define Uart1InitParam uart1_init_param
 
-#define Uart0TxRunning uart0_tx_running
-#define Uart0InitParam uart0_init_param
+#endif /* USE_UART1 */
+
+#ifdef USE_UART2
+
+extern void uart2_init( void );
+extern void uart2_transmit( uint8_t data );
+extern bool_t uart2_check_free_space( uint8_t len);
+
+#define Uart2Init uart2_init
+#define Uart2CheckFreeSpace(_x) uart2_check_free_space(_x)
+#define Uart2Transmit(_x) uart2_transmit(_x)
+#define Uart2SendMessage() {}
+
+#endif /* USE_UART2 */
+
+#ifdef USE_UART3
+
+extern void   uart3_init( void );
+extern void   uart3_transmit( uint8_t data );
+extern bool_t uart3_check_free_space( uint8_t len);
+
+#define Uart3Init uart3_init
+#define Uart3CheckFreeSpace(_x) uart3_check_free_space(_x)
+#define Uart3Transmit(_x)       uart3_transmit(_x)
+#define Uart3SendMessage() {}
+
+#endif /* USE_UART3 */
 
 #endif /* UART_H */
