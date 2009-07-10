@@ -3,11 +3,12 @@
 #include <stm32/flash.h>
 #include <stm32/misc.h>
 
+#include CONFIG
+#include "led.h"
 
 #define LED1_GPIO_PORT              GPIOC
 #define LED1_GPIO_CLK               RCC_APB2Periph_GPIOC  
 #define LED1_GPIO_PIN               GPIO_Pin_12
-
 
 
 void Delay(__IO uint32_t nCount);
@@ -40,13 +41,16 @@ int main(void) {
                          RCC_APB2Periph_GPIOC | RCC_APB2Periph_GPIOD |
                          RCC_APB2Periph_GPIOE, DISABLE);  
 
-
+#if 0
   /* start LED1 */
   RCC_APB2PeriphClockCmd(LED1_GPIO_CLK, ENABLE);
   GPIO_InitStructure.GPIO_Pin = LED1_GPIO_PIN;
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP; 
   GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
   GPIO_Init(LED1_GPIO_PORT, &GPIO_InitStructure);
+#endif
+
+  led_init();
 
   while (1) {
     LED1_GPIO_PORT->BRR  = LED1_GPIO_PIN;
