@@ -11,9 +11,7 @@ void Delay(__IO uint32_t nCount);
 int main(void) {
 
   hw_init();
-
-  //  led_init();
-
+  //  led_init(); // handled by PERIPHERALS_AUTO_INIT
   while (1) {
     LED_ON(1);
     Delay(500000);
@@ -23,9 +21,6 @@ int main(void) {
   };
   return 0;
 }
-
-
-
 
 void Delay(__IO uint32_t nCount) {
   for(; nCount != 0; nCount--);

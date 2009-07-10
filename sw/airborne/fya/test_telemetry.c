@@ -9,7 +9,7 @@
 #include CONFIG
 #include "init_hw.h"
 #include "sys_time.h"
-
+#include "downlink.h"
 static inline void main_init( void );
 static inline void main_periodic( void );
 
@@ -30,8 +30,7 @@ static inline void main_init( void ) {
 }
 
 static inline void main_periodic( void ) {
-  uart3_transmit('a');
-  uart3_transmit('\n');
+  RunOnceEvery(10, {DOWNLINK_SEND_TIME(&cpu_time_sec);});
 }
 
 

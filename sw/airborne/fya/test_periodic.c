@@ -1,13 +1,10 @@
-#include <stm32/rcc.h>
-#include <stm32/gpio.h>
-
-
 
 #include <stm32/flash.h>
 #include <stm32/misc.h>
 
 #include CONFIG
 #include "init_hw.h"
+//#include "led.h"
 #include "sys_time.h"
 
 static inline void main_init( void );
@@ -26,13 +23,12 @@ int main(void) {
 
 static inline void main_init( void ) {
   hw_init();
+  //  led_init(); // handled by PERIPHERALS_AUTO_INIT
   sys_time_init();
 }
 
 static inline void main_periodic( void ) {
-  uart3_transmit('a');
-  uart3_transmit('\n');
+  //  LED_TOGGLE(1);
 }
-
 
 

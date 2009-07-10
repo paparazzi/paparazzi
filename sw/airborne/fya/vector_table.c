@@ -23,14 +23,31 @@
 
 #include "vector_table.h"
 
+#ifndef USE_SYS_TIME
+#define SYS_TICK_IRQ_HANDLER null_handler
+#else
+#include "sys_time.h"
+#define SYS_TICK_IRQ_HANDLER sys_tick_irq_handler
+#endif
+
+#ifndef USE_UART3
+#define USART3_IRQ_HANDLER null_handler
+#else
+#include "uart.h"
+#define USART3_IRQ_HANDLER usart3_irq_handler
+#endif
+
+
+
+
 /* addresses defined in the linker script */
-extern unsigned long _etext; /* end addr of .text section */
+extern unsigned long _etext;  /* end addr of .text section     */
 extern unsigned long _sidata; /* init values for .data section */
-extern unsigned long _sdata; /* start addr of .data section */
-extern unsigned long _edata; /* end addr of .data section */
-extern unsigned long _sbss; /* start addr of .bss section */
-extern unsigned long _ebss; /* end addr of .bss section */
-extern void _estack; /* stack pointer init value */
+extern unsigned long _sdata;  /* start addr of .data section   */
+extern unsigned long _edata;  /* end addr of .data section     */
+extern unsigned long _sbss;   /* start addr of .bss section    */
+extern unsigned long _ebss;   /* end addr of .bss section      */
+extern void _estack;          /* stack pointer init value      */
 
 void reset_handler_stage1(void) __attribute__((__interrupt__));
 void reset_handler_stage2(void);
@@ -51,7 +68,7 @@ void (* const vector_table[])(void) = {
     null_handler,             /* debug_monitor */
     0,                        /* reserved */
     null_handler,             /* pend_svc */
-    null_handler,             /* sys_tick_handler, */
+    SYS_TICK_IRQ_HANDLER,     /* sys_tick_handler, */
     null_handler,             /* wwdg_irq_handler */
     null_handler,             /* pvd_irq_handler */
     null_handler,             /* tamper_irq_handler */
@@ -91,7 +108,7 @@ void (* const vector_table[])(void) = {
     null_handler,             /* spi2_irq_handler */
     null_handler,             /* usart1_irq_handler */
     null_handler,             /* usart2_irq_handler */
-    null_handler,             /* usart3_irq_handler */
+    USART3_IRQ_HANDLER,       /* usart3_irq_handler */
     null_handler,             /* exti15_10_irq_handler */
     null_handler,             /* rtc_alarm_irq_handler */
     null_handler,             /* usb_wake_up_irq_handler */
