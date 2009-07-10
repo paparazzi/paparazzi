@@ -3,9 +3,10 @@
 
 
 /* Onboard LEDs */
-#define LED_1_BANK
+#define LED_1_BANK 
 #define LED_1_GPIO GPIOC
-#define LED_1_PIN 12
+#define LED_1_GPIO_CLK RCC_APB2Periph_GPIOC
+#define LED_1_GPIO_PIN GPIO_Pin_12
 
 
 

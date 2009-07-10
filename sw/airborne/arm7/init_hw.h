@@ -46,6 +46,9 @@
 #ifdef USE_USB_SERIAL
 #include "usb_serial.h"
 #endif
+#if defined USE_I2C0 || defined USE_I2C1
+#include "i2c.h"
+#endif
 #endif /* PERIPHERALS_AUTO_INIT */
 
 
@@ -118,6 +121,12 @@ static inline void hw_init(void) {
 #endif
 #ifdef USE_USB_SERIAL
   VCOM_init();
+#endif
+#ifdef USE_I2C0
+  i2c0_init();
+#endif
+#ifdef USE_I2C1
+  i2c1_init();
 #endif
 #endif /* PERIPHERALS_AUTO_INIT */
 

@@ -34,7 +34,8 @@ MCU   = cortex-m3
 OPT   = s
 
 # Programs location
-GCC_DIR=/opt/stm32/toolchain/arm-none-eabi
+#GCC_DIR=/opt/stm32/toolchain/arm-none-eabi
+GCC_DIR=/home/poine/arm-none-eabi
 GCC_BIN_DIR=$(GCC_DIR)/bin
 GCC_LIB_DIR=$(GCC_DIR)/arm-none-eabi/lib
 
@@ -65,7 +66,7 @@ AOBJ    = $(ASRC:%.S=$(OBJDIR)/%.o)
 # linker script
 LD_SCRIPT = $(SRC_FYA)/stm32f10x_flash_md.ld
 
-CFLAGS = -I. -Wall -ansi -std=c99 -c -fno-common -Os -g -mcpu=cortex-m3 -mthumb -ffunction-sections -fdata-sections -c
+CFLAGS = -I. -I./$(ARCHI) $(INCLUDES) -Wall -ansi -std=c99 -c -fno-common -Os -g -mcpu=cortex-m3 -mthumb -ffunction-sections -fdata-sections -c
 #CFLAGS  = -mcpu=$(MCU) -mthumb -ansi
 #CFLAGS += -std=c99
 #CFLAGS += -malignment-traps
