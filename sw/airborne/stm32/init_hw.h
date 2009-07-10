@@ -41,7 +41,7 @@
 #ifdef USE_LED
 #include "led.h"
 #endif
-#if defined USE_UART0 || defined USE_UART1 || defined USE_UART3
+#if defined USE_UART1 || defined USE_UART2 || defined USE_UART3
 #include "uart.h"
 #endif
 #if defined USE_I2C0 || defined USE_I2C1
@@ -62,7 +62,6 @@ static inline void hw_init(void) {
   SystemInit();
    /* Set the Vector Table base location at 0x08000000 */
   NVIC_SetVectorTable(NVIC_VectTab_FLASH, 0x0);
-
   /* Configure all unused GPIO port pins in Analog Input mode (floating input
      trigger OFF), this will reduce the power consumption and increase the device
      immunity against EMI/EMC *************************************************/
@@ -78,21 +77,33 @@ static inline void hw_init(void) {
   GPIO_Init(GPIOC, &GPIO_InitStructure);
   GPIO_Init(GPIOD, &GPIO_InitStructure);
   GPIO_Init(GPIOE, &GPIO_InitStructure);
-  
+
+#if 0
   RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA | RCC_APB2Periph_GPIOB |
                          RCC_APB2Periph_GPIOC | RCC_APB2Periph_GPIOD |
                          RCC_APB2Periph_GPIOE, DISABLE);  
+#endif
+
+  RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA |
+			 RCC_APB2Periph_GPIOB |
+			 RCC_APB2Periph_GPIOC |
+			 RCC_APB2Periph_AFIO, ENABLE);
+  
+
 
 
 #ifdef PERIPHERALS_AUTO_INIT
 #ifdef USE_LED
   led_init();
 #endif
-#ifdef USE_UART0
-  uart0_init_tx();
-#endif
 #ifdef USE_UART1
-  uart1_init_tx();
+  uart1_init();
+#endif
+#ifdef USE_UART2
+  uart2_init();
+#endif
+#ifdef USE_UART3
+  uart3_init();
 #endif
 #ifdef USE_I2C0
   i2c0_init();

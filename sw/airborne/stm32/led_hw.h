@@ -25,17 +25,8 @@
   }
 
 #define LED_ON(i) { LED_GPIO(i)->BRR  = LED_GPIO_PIN(i);}
-
 #define LED_OFF(i) {LED_GPIO(i)->BSRR = LED_GPIO_PIN(i);}
-
-#if 0
-#define LED_TOGGLE(i) {				\
-    if (LED_PIN_REG(i) & _BV(LED_PIN(i)))	\
-      LED_ON(i)				        \
-    else					\
-      LED_OFF(i)				\
-}
-#endif
+#define LED_TOGGLE(i) {	LED_GPIO(i)->ODR ^= LED_GPIO_PIN(i);}
 
 
 
