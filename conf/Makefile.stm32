@@ -67,6 +67,7 @@ AOBJ    = $(ASRC:%.S=$(OBJDIR)/%.o)
 LD_SCRIPT = $(SRC_FYA)/stm32f10x_flash_md.ld
 
 CFLAGS = -I. -I./$(ARCHI) $(INCLUDES) -Wall -ansi -std=c99 -c -fno-common -Os -g -mcpu=cortex-m3 -mthumb -ffunction-sections -fdata-sections -c
+CFLAGS += -Wl,gc-sections
 #CFLAGS  = -mcpu=$(MCU) -mthumb -ansi
 #CFLAGS += -std=c99
 #CFLAGS += -malignment-traps
