@@ -1,7 +1,7 @@
 /*
- * Paparazzi $Id: init_hw.h 3623 2009-07-03 07:32:46Z poine $
+ * Paparazzi $Id$
  *
- * Copyright (C) 2005 Pascal Brisset, Antoine Drouin
+ * Copyright (C) 2009 Antoine Drouin <poinix@gmail.com>
  *
  * This file is part of paparazzi.
  *
@@ -19,7 +19,6 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
- *
  */
 
 /*

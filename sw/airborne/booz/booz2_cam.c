@@ -1,6 +1,8 @@
-/*  $Id: booz2_commands.c 3002 2009-02-10 11:36:07Z poine $
+/* 
+ * $Id: booz2_commands.c 3002 2009-02-10 11:36:07Z poine $
  *
- * (c) 2009 Gautier Hattenberger
+ * Copyright (C) 2009 Gautier Hattenberger <gautier.hattenberger@laas.fr>,
+ *                    Antoiene Drouin <poinix@gmail.com>
  *
  * This file is part of paparazzi.
  *
@@ -18,7 +20,6 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
- *
  */
 
 #include "booz2_cam.h"

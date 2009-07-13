@@ -1,5 +1,6 @@
 /*
- * $id$
+ * $Id$
+ *
  * This is the "external interface" to the autopilot. It allows an external device to
  * fetch the vehicle state and input commands at different levels. We should support
  * different hardware peripherals like i2c, spi or uart.

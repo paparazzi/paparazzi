@@ -1,7 +1,9 @@
 /*
  * $Id$
  *
- * Copyright (C) 2009 Pascal Brisset, Antoine Drouin, Gautier Hatenberger
+ * Copyright (C) 2009 Pascal Brisset <pascal.brisset@gmail.com>, 
+ *                    Antoine Drouin <poinix@gmail.com>, 
+ *                    Gautier Hattenberger <gautier.hattenberger@laas.fr>
  *
  * This file is part of paparazzi.
  *
@@ -25,7 +27,6 @@
  * This is a dimension one kalman filter estimating
  * the ratio of vertical acceleration over thrust command ( ~ invert of the mass )
  * needed by the invert dynamic model to produce a nominal command
- *
  */
 
 #ifndef BOOZ2_GUIDANCE_V_ADPT

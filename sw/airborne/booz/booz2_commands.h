@@ -1,6 +1,6 @@
 /*  $Id$
  *
- * (c) 2009 Antoine Drouin
+ * (c) 2009 Antoine Drouin <poinix@gmail.com>
  *
  * This file is part of paparazzi.
  *
@@ -20,6 +20,7 @@
  * Boston, MA 02111-1307, USA.  
  *
  */
+
 #ifndef BOOZ2_COMMANDS_H
 #define BOOZ2_COMMANDS_H
 

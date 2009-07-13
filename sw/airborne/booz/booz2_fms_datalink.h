@@ -1,5 +1,6 @@
 /*
- * $id$
+ * $Id$
+ *
  * This is the implementation of the "external interface" to the autopilot.
  * using datalink messages. 
  *
