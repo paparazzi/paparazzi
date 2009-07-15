@@ -33,11 +33,12 @@
 
 #ifdef USE_UART1 
 
-uint16_t uart1_rx_insert_idx, uart1_rx_extract_idx;
+volatile uint16_t uart1_rx_insert_idx, uart1_rx_extract_idx;
 uint8_t  uart1_rx_buffer[UART1_RX_BUFFER_SIZE];
-uint8_t  uart1_tx_buffer[UART1_TX_BUFFER_SIZE];
+
 volatile uint16_t uart1_tx_insert_idx, uart1_tx_extract_idx;
 volatile bool_t uart1_tx_running;
+uint8_t  uart1_tx_buffer[UART1_TX_BUFFER_SIZE];
 
 
 void uart1_init( void ) {
@@ -119,7 +120,6 @@ bool_t uart1_check_free_space( uint8_t len) {
   return (uint16_t)(space - 1) >= len;
 }
 
-
 void usart1_irq_handler(void) {
   
   if(USART_GetITStatus(USART1, USART_IT_TXE) != RESET){
@@ -130,7 +130,7 @@ void usart1_irq_handler(void) {
       uart1_tx_extract_idx %= UART1_TX_BUFFER_SIZE;
     }
     else {
-      uart1_tx_running = 0;       // clear running flag
+      uart1_tx_running = FALSE;   // clear running flag
       USART_ITConfig(USART1, USART_IT_TXE, DISABLE);
     }
   }
@@ -156,11 +156,12 @@ void usart1_irq_handler(void) {
 
 #ifdef USE_UART2 
 
-uint16_t uart2_rx_insert_idx, uart2_rx_extract_idx;
+volatile uint16_t uart2_rx_insert_idx, uart2_rx_extract_idx;
 uint8_t  uart2_rx_buffer[UART2_RX_BUFFER_SIZE];
-uint8_t  uart2_tx_buffer[UART2_TX_BUFFER_SIZE];
+
 volatile uint16_t uart2_tx_insert_idx, uart2_tx_extract_idx;
 volatile bool_t uart2_tx_running;
+uint8_t  uart2_tx_buffer[UART2_TX_BUFFER_SIZE];
 
 
 void uart2_init( void ) {
@@ -253,7 +254,7 @@ void usart2_irq_handler(void) {
       uart2_tx_extract_idx %= UART2_TX_BUFFER_SIZE;
     }
     else {
-      uart2_tx_running = 0;       // clear running flag
+      uart2_tx_running = FALSE;   // clear running flag
       USART_ITConfig(USART2, USART_IT_TXE, DISABLE);
     }
   }
@@ -278,11 +279,12 @@ void usart2_irq_handler(void) {
 
 #ifdef USE_UART3 
 
-uint16_t uart3_rx_insert_idx, uart3_rx_extract_idx;
+volatile uint16_t uart3_rx_insert_idx, uart3_rx_extract_idx;
 uint8_t  uart3_rx_buffer[UART3_RX_BUFFER_SIZE];
-uint8_t  uart3_tx_buffer[UART3_TX_BUFFER_SIZE];
+
 volatile uint16_t uart3_tx_insert_idx, uart3_tx_extract_idx;
 volatile bool_t uart3_tx_running;
+uint8_t  uart3_tx_buffer[UART3_TX_BUFFER_SIZE];
 
 
 void uart3_init( void ) {
@@ -375,7 +377,7 @@ void usart3_irq_handler(void) {
       uart3_tx_extract_idx %= UART3_TX_BUFFER_SIZE;
     }
     else {
-      uart3_tx_running = 0;       // clear running flag
+      uart3_tx_running = FALSE; // clear running flag
       USART_ITConfig(USART3, USART_IT_TXE, DISABLE);
     }
   }

@@ -130,7 +130,7 @@ test_datalink.srcs = $(SRC_FYA)/test_datalink.c \
                      $(SRC_FYA)/exceptions.c    \
                      $(SRC_FYA)/vector_table.c
 test_datalink.CFLAGS += -DUSE_LED
-test_datalink.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=1
+test_datalink.CFLAGS += -DUSE_SYS_TIME # -DSYS_TIME_LED=1
 test_datalink.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(1./512.)'
 test_datalink.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
 test_datalink.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600

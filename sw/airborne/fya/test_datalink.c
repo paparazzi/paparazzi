@@ -58,14 +58,17 @@ static inline void main_init( void ) {
 }
 
 static inline void main_periodic( void ) {
-  RunOnceEvery(10, {DOWNLINK_SEND_BOOT(&cpu_time_sec);});
+  RunOnceEvery(50, {DOWNLINK_SEND_BOOT(&cpu_time_sec);});
 }
 
 static inline void main_event( void ) {
-  //  DatalinkEvent();
+  DatalinkEvent();
 }
 
 void dl_parse_msg(void) {
+
+  DOWNLINK_SEND_PONG();
+  
   uint8_t msg_id = dl_buffer[1];
   switch (msg_id) {
   

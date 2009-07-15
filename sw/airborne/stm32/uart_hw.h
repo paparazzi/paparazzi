@@ -41,11 +41,12 @@
 #define UART1_RX_BUFFER_SIZE 128
 #define UART1_TX_BUFFER_SIZE 128
 
-extern uint16_t uart1_rx_insert_idx, uart1_rx_extract_idx;
+extern volatile uint16_t uart1_rx_insert_idx, uart1_rx_extract_idx;
 extern uint8_t  uart1_rx_buffer[UART1_RX_BUFFER_SIZE];
-extern uint8_t  uart1_tx_buffer[UART1_TX_BUFFER_SIZE];
+
 extern volatile uint16_t uart1_tx_insert_idx, uart1_tx_extract_idx;
 extern volatile bool_t   uart1_tx_running;
+extern uint8_t  uart1_tx_buffer[UART1_TX_BUFFER_SIZE];
 
 extern void usart1_irq_handler(void);
 
@@ -64,11 +65,12 @@ extern void usart1_irq_handler(void);
 #define UART2_RX_BUFFER_SIZE 128
 #define UART2_TX_BUFFER_SIZE 128
 
-extern uint16_t uart2_rx_insert_idx, uart2_rx_extract_idx;
+extern volatile uint16_t uart2_rx_insert_idx, uart2_rx_extract_idx;
 extern uint8_t  uart2_rx_buffer[UART2_RX_BUFFER_SIZE];
-extern uint8_t  uart2_tx_buffer[UART2_TX_BUFFER_SIZE];
+
 extern volatile uint16_t uart2_tx_insert_idx, uart2_tx_extract_idx;
 extern volatile bool_t   uart2_tx_running;
+extern uint8_t  uart2_tx_buffer[UART2_TX_BUFFER_SIZE];
 
 extern void usart2_irq_handler(void);
 
@@ -87,11 +89,12 @@ extern void usart2_irq_handler(void);
 #define UART3_RX_BUFFER_SIZE 128
 #define UART3_TX_BUFFER_SIZE 128
 
-extern uint16_t uart3_rx_insert_idx, uart3_rx_extract_idx;
+extern volatile uint16_t uart3_rx_insert_idx, uart3_rx_extract_idx;
 extern uint8_t  uart3_rx_buffer[UART3_RX_BUFFER_SIZE];
-extern uint8_t  uart3_tx_buffer[UART3_TX_BUFFER_SIZE];
+
 extern volatile uint16_t uart3_tx_insert_idx, uart3_tx_extract_idx;
 extern volatile bool_t   uart3_tx_running;
+extern uint8_t  uart3_tx_buffer[UART3_TX_BUFFER_SIZE];
 
 extern void usart3_irq_handler(void);
 
