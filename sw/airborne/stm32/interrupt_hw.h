@@ -1,7 +1,7 @@
 /*
- * $Id$
+ * $Id: interrupt_hw.h 859 2006-05-03 21:32:23Z poine $
  *  
- * Copyright (C) 2009 Antoine Drouin <poinix@gmail.com>
+ * Copyright (C) 2005  Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
  *
@@ -19,40 +19,18 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA. 
+ *
+ */
+/** \file interrupt_hw.h
+ *  \brief STM32 Low level interrupt handling
+ *  Empty for now, just to match what we have on LPC
  */
 
-#include <stm32/rcc.h>
-#include <stm32/gpio.h>
+#ifndef INTERRUPT_HW_H
+#define INTERRUPT_HW_H
 
-#include <stm32/flash.h>
-#include <stm32/misc.h>
+#define int_enable()  {}
+#define int_disable() {}
 
-#include CONFIG
-#include "init_hw.h"
-#include "sys_time.h"
-#include "downlink.h"
-static inline void main_init( void );
-static inline void main_periodic( void );
-
-int main(void) {
-
-  main_init();
-
-  while (1) {
-    if (sys_time_periodic())
-      main_periodic();
-  }
-  return 0;
-}
-
-static inline void main_init( void ) {
-  hw_init();
-  sys_time_init();
-}
-
-static inline void main_periodic( void ) {
-  RunOnceEvery(10, {DOWNLINK_SEND_BOOT(&cpu_time_sec);});
-}
-
-
+#endif /* INTERRUPT_HW_H */
 

@@ -28,6 +28,9 @@
 struct RadioControl radio_control;
 
 void radio_control_init(void) {
+  uint8_t i;
+  for (i=0; i<RADIO_CONTROL_NB_CHANNEL; i++)
+    radio_control.values[i] = 0;
   radio_control.status = RADIO_CONTROL_REALLY_LOST;
   radio_control.time_since_last_frame = RADIO_CONTROL_REALLY_LOST_TIME;
   radio_control.frame_rate = 0;

@@ -50,7 +50,7 @@ EXTERN uint16_t datalink_time;
 #define MSG_SIZE 128
 EXTERN uint8_t dl_buffer[MSG_SIZE]  __attribute__ ((aligned));
 
-void dl_parse_msg(void);
+EXTERN void dl_parse_msg(void);
 /** Should be called when chars are available in dl_buffer */
 
 #if DATALINK == PPRZ

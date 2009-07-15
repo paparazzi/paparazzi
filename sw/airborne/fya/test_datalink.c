@@ -27,12 +27,18 @@
 #include <stm32/flash.h>
 #include <stm32/misc.h>
 
+#define DATALINK_C
+
 #include CONFIG
 #include "init_hw.h"
 #include "sys_time.h"
 #include "downlink.h"
+
+#include "datalink.h"
+
 static inline void main_init( void );
 static inline void main_periodic( void );
+static inline void main_event( void );
 
 int main(void) {
 
@@ -41,6 +47,7 @@ int main(void) {
   while (1) {
     if (sys_time_periodic())
       main_periodic();
+    main_event();
   }
   return 0;
 }
@@ -54,5 +61,18 @@ static inline void main_periodic( void ) {
   RunOnceEvery(10, {DOWNLINK_SEND_BOOT(&cpu_time_sec);});
 }
 
+static inline void main_event( void ) {
+  //  DatalinkEvent();
+}
 
-
+void dl_parse_msg(void) {
+  uint8_t msg_id = dl_buffer[1];
+  switch (msg_id) {
+  
+  case  DL_PING:
+    {
+      DOWNLINK_SEND_PONG();
+    }
+    break;
+  }
+}

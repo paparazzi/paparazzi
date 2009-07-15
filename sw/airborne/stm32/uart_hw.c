@@ -29,6 +29,253 @@
 #include <stm32/gpio.h>
 #include "std.h"
 
+
+
+#ifdef USE_UART1 
+
+uint16_t uart1_rx_insert_idx, uart1_rx_extract_idx;
+uint8_t  uart1_rx_buffer[UART1_RX_BUFFER_SIZE];
+uint8_t  uart1_tx_buffer[UART1_TX_BUFFER_SIZE];
+volatile uint16_t uart1_tx_insert_idx, uart1_tx_extract_idx;
+volatile bool_t uart1_tx_running;
+
+
+void uart1_init( void ) {
+  /* init RCC */
+  RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1, ENABLE);
+
+  /* Enable USART1 interrupts */
+  NVIC_InitTypeDef nvic;
+  nvic.NVIC_IRQChannel = USART1_IRQn;
+  nvic.NVIC_IRQChannelPreemptionPriority = 0;
+  nvic.NVIC_IRQChannelSubPriority = 1;
+  nvic.NVIC_IRQChannelCmd = ENABLE;
+  NVIC_Init(&nvic);
+
+  /* Init GPIOS */
+  GPIO_InitTypeDef gpio;
+  /* GPIOA: USART1 Tx push-pull */
+  gpio.GPIO_Pin   = GPIO_Pin_9;
+  gpio.GPIO_Mode  = GPIO_Mode_AF_PP;
+  gpio.GPIO_Speed = GPIO_Speed_50MHz;
+  GPIO_Init(GPIOA, &gpio);
+  /* GPIOA: USART1 Rx pin as floating input */
+  gpio.GPIO_Pin   = GPIO_Pin_10;
+  gpio.GPIO_Mode  = GPIO_Mode_IN_FLOATING;
+  GPIO_Init(GPIOA, &gpio);
+
+  /* Configure USART1 */
+  USART_InitTypeDef usart;
+  usart.USART_BaudRate            = UART1_BAUD;
+  usart.USART_WordLength          = USART_WordLength_8b;
+  usart.USART_StopBits            = USART_StopBits_1;
+  usart.USART_Parity              = USART_Parity_No;
+  usart.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
+  usart.USART_Mode                = USART_Mode_Rx | USART_Mode_Tx;
+  USART_Init(USART1, &usart);
+  /* Enable USART1 Receive interrupts */
+  USART_ITConfig(USART1, USART_IT_RXNE, ENABLE);
+  /* Enable the USART1 */
+  USART_Cmd(USART1, ENABLE);
+
+  // initialize the transmit data queue
+  uart1_tx_extract_idx = 0;
+  uart1_tx_insert_idx = 0;
+  uart1_tx_running = FALSE;
+
+  // initialize the receive data queue
+  uart1_rx_extract_idx = 0;
+  uart1_rx_insert_idx = 0;
+
+}
+
+void uart1_transmit( uint8_t data ) {
+
+  uint16_t temp = (uart1_tx_insert_idx + 1) % UART1_TX_BUFFER_SIZE;
+
+  if (temp == uart1_tx_extract_idx)
+    return;                          // no room
+
+  USART_ITConfig(USART1, USART_IT_TXE, DISABLE);
+
+  // check if in process of sending data
+  if (uart1_tx_running) { // yes, add to queue
+    uart1_tx_buffer[uart1_tx_insert_idx] = data;
+    uart1_tx_insert_idx = temp;
+  }
+  else { // no, set running flag and write to output register
+    uart1_tx_running = TRUE;
+    USART_SendData(USART1, data);
+  }
+
+  USART_ITConfig(USART1, USART_IT_TXE, ENABLE);
+
+}
+
+bool_t uart1_check_free_space( uint8_t len) {
+  int16_t space = uart1_tx_extract_idx - uart1_tx_insert_idx;
+  if (space <= 0)
+    space += UART1_TX_BUFFER_SIZE;
+  return (uint16_t)(space - 1) >= len;
+}
+
+
+void usart1_irq_handler(void) {
+  
+  if(USART_GetITStatus(USART1, USART_IT_TXE) != RESET){
+    // check if more data to send
+    if (uart1_tx_insert_idx != uart1_tx_extract_idx) {
+      USART_SendData(USART1,uart1_tx_buffer[uart1_tx_extract_idx]);
+      uart1_tx_extract_idx++;
+      uart1_tx_extract_idx %= UART1_TX_BUFFER_SIZE;
+    }
+    else {
+      uart1_tx_running = 0;       // clear running flag
+      USART_ITConfig(USART1, USART_IT_TXE, DISABLE);
+    }
+  }
+
+  if(USART_GetITStatus(USART1, USART_IT_RXNE) != RESET){
+    uint16_t temp = (uart1_rx_insert_idx + 1) % UART1_RX_BUFFER_SIZE;;
+    uart1_rx_buffer[uart1_rx_insert_idx] = USART_ReceiveData(USART1);
+    // check for more room in queue
+    if (temp != uart1_rx_extract_idx)
+      uart1_rx_insert_idx = temp; // update insert index
+  }
+
+}
+
+
+#endif /* USE_UART1 */
+
+
+
+
+
+
+
+#ifdef USE_UART2 
+
+uint16_t uart2_rx_insert_idx, uart2_rx_extract_idx;
+uint8_t  uart2_rx_buffer[UART2_RX_BUFFER_SIZE];
+uint8_t  uart2_tx_buffer[UART2_TX_BUFFER_SIZE];
+volatile uint16_t uart2_tx_insert_idx, uart2_tx_extract_idx;
+volatile bool_t uart2_tx_running;
+
+
+void uart2_init( void ) {
+  /* init RCC */
+  RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART2, ENABLE);
+
+  /* Enable USART2 interrupts */
+  NVIC_InitTypeDef nvic;
+  nvic.NVIC_IRQChannel = USART2_IRQn;
+  nvic.NVIC_IRQChannelPreemptionPriority = 0;
+  nvic.NVIC_IRQChannelSubPriority = 1;
+  nvic.NVIC_IRQChannelCmd = ENABLE;
+  NVIC_Init(&nvic);
+
+  /* Init GPIOS */
+  GPIO_InitTypeDef gpio;
+  /* GPIOA: USART2 Tx push-pull */
+  gpio.GPIO_Pin   = GPIO_Pin_2;
+  gpio.GPIO_Mode  = GPIO_Mode_AF_PP;
+  gpio.GPIO_Speed = GPIO_Speed_50MHz;
+  GPIO_Init(GPIOA, &gpio);
+  /* GPIOA: USART2 Rx pin as floating input */
+  gpio.GPIO_Pin   = GPIO_Pin_3;
+  gpio.GPIO_Mode  = GPIO_Mode_IN_FLOATING;
+  GPIO_Init(GPIOA, &gpio);
+
+  /* Configure USART2 */
+  USART_InitTypeDef usart;
+  usart.USART_BaudRate            = UART2_BAUD;
+  usart.USART_WordLength          = USART_WordLength_8b;
+  usart.USART_StopBits            = USART_StopBits_1;
+  usart.USART_Parity              = USART_Parity_No;
+  usart.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
+  usart.USART_Mode                = USART_Mode_Rx | USART_Mode_Tx;
+  USART_Init(USART2, &usart);
+  /* Enable USART2 Receive interrupts */
+  USART_ITConfig(USART2, USART_IT_RXNE, ENABLE);
+  /* Enable the USART2 */
+  USART_Cmd(USART2, ENABLE);
+
+  // initialize the transmit data queue
+  uart2_tx_extract_idx = 0;
+  uart2_tx_insert_idx = 0;
+  uart2_tx_running = FALSE;
+
+  // initialize the receive data queue
+  uart2_rx_extract_idx = 0;
+  uart2_rx_insert_idx = 0;
+
+}
+
+void uart2_transmit( uint8_t data ) {
+
+  uint16_t temp = (uart2_tx_insert_idx + 1) % UART2_TX_BUFFER_SIZE;
+
+  if (temp == uart2_tx_extract_idx)
+    return;                          // no room
+
+  USART_ITConfig(USART2, USART_IT_TXE, DISABLE);
+
+  // check if in process of sending data
+  if (uart2_tx_running) { // yes, add to queue
+    uart2_tx_buffer[uart2_tx_insert_idx] = data;
+    uart2_tx_insert_idx = temp;
+  }
+  else { // no, set running flag and write to output register
+    uart2_tx_running = TRUE;
+    USART_SendData(USART2, data);
+  }
+
+  USART_ITConfig(USART2, USART_IT_TXE, ENABLE);
+
+}
+
+bool_t uart2_check_free_space( uint8_t len) {
+  int16_t space = uart2_tx_extract_idx - uart2_tx_insert_idx;
+  if (space <= 0)
+    space += UART2_TX_BUFFER_SIZE;
+  return (uint16_t)(space - 1) >= len;
+}
+
+
+void usart2_irq_handler(void) {
+  
+  if(USART_GetITStatus(USART2, USART_IT_TXE) != RESET){
+    // check if more data to send
+    if (uart2_tx_insert_idx != uart2_tx_extract_idx) {
+      USART_SendData(USART2,uart2_tx_buffer[uart2_tx_extract_idx]);
+      uart2_tx_extract_idx++;
+      uart2_tx_extract_idx %= UART2_TX_BUFFER_SIZE;
+    }
+    else {
+      uart2_tx_running = 0;       // clear running flag
+      USART_ITConfig(USART2, USART_IT_TXE, DISABLE);
+    }
+  }
+
+  if(USART_GetITStatus(USART2, USART_IT_RXNE) != RESET){
+    uint16_t temp = (uart2_rx_insert_idx + 1) % UART2_RX_BUFFER_SIZE;;
+    uart2_rx_buffer[uart2_rx_insert_idx] = USART_ReceiveData(USART2);
+    // check for more room in queue
+    if (temp != uart2_rx_extract_idx)
+      uart2_rx_insert_idx = temp; // update insert index
+  }
+
+}
+
+
+#endif /* USE_UART2 */
+
+
+
+
+
+
 #ifdef USE_UART3 
 
 uint16_t uart3_rx_insert_idx, uart3_rx_extract_idx;

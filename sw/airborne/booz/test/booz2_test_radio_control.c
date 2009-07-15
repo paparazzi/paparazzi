@@ -59,7 +59,7 @@ static inline void main_init( void ) {
 
 static inline void main_periodic_task( void ) {
   
-  RunOnceEvery(51, {LED_TOGGLE(2); DOWNLINK_SEND_TIME(&cpu_time_sec);});  
+  RunOnceEvery(51, {/*LED_TOGGLE(2);*/ DOWNLINK_SEND_TIME(&cpu_time_sec);});  
 
   RunOnceEvery(10, {radio_control_periodic();});
 

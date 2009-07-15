@@ -30,13 +30,26 @@
 #define SYS_TICK_IRQ_HANDLER sys_tick_irq_handler
 #endif
 
+#ifndef USE_UART1
+#define USART1_IRQ_HANDLER null_handler
+#else
+#include "uart.h"
+#define USART1_IRQ_HANDLER usart1_irq_handler
+#endif
+
+#ifndef USE_UART2
+#define USART2_IRQ_HANDLER null_handler
+#else
+#include "uart.h"
+#define USART2_IRQ_HANDLER usart2_irq_handler
+#endif
+
 #ifndef USE_UART3
 #define USART3_IRQ_HANDLER null_handler
 #else
 #include "uart.h"
 #define USART3_IRQ_HANDLER usart3_irq_handler
 #endif
-
 
 
 
@@ -106,8 +119,8 @@ void (* const vector_table[])(void) = {
     null_handler,             /* i2c2_er_irq_handler */
     null_handler,             /* spi1_irq_handler */
     null_handler,             /* spi2_irq_handler */
-    null_handler,             /* usart1_irq_handler */
-    null_handler,             /* usart2_irq_handler */
+    USART1_IRQ_HANDLER,       /* usart1_irq_handler */
+    USART2_IRQ_HANDLER,       /* usart2_irq_handler */
     USART3_IRQ_HANDLER,       /* usart3_irq_handler */
     null_handler,             /* exti15_10_irq_handler */
     null_handler,             /* rtc_alarm_irq_handler */

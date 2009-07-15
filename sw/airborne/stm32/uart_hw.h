@@ -31,10 +31,59 @@
 
 #include "std.h"
 
-#define B38400 38400
-#define B57600 57600
+#define B38400   38400
+#define B57600   57600
+#define B115200 115200
+
+
+#ifdef USE_UART1
+
+#define UART1_RX_BUFFER_SIZE 128
+#define UART1_TX_BUFFER_SIZE 128
+
+extern uint16_t uart1_rx_insert_idx, uart1_rx_extract_idx;
+extern uint8_t  uart1_rx_buffer[UART1_RX_BUFFER_SIZE];
+extern uint8_t  uart1_tx_buffer[UART1_TX_BUFFER_SIZE];
+extern volatile uint16_t uart1_tx_insert_idx, uart1_tx_extract_idx;
+extern volatile bool_t   uart1_tx_running;
+
+extern void usart1_irq_handler(void);
+
+#define Uart1ChAvailable() (uart1_rx_insert_idx != uart1_rx_extract_idx)
+#define Uart1Getch() ({							\
+      uint8_t ret = uart1_rx_buffer[uart1_rx_extract_idx];		\
+      uart1_rx_extract_idx = (uart1_rx_extract_idx + 1)%UART1_RX_BUFFER_SIZE; \
+      ret;								\
+    })
+
+#endif /* USE_UART1 */
+
+
+#ifdef USE_UART2
+
+#define UART2_RX_BUFFER_SIZE 128
+#define UART2_TX_BUFFER_SIZE 128
+
+extern uint16_t uart2_rx_insert_idx, uart2_rx_extract_idx;
+extern uint8_t  uart2_rx_buffer[UART2_RX_BUFFER_SIZE];
+extern uint8_t  uart2_tx_buffer[UART2_TX_BUFFER_SIZE];
+extern volatile uint16_t uart2_tx_insert_idx, uart2_tx_extract_idx;
+extern volatile bool_t   uart2_tx_running;
+
+extern void usart2_irq_handler(void);
+
+#define Uart2ChAvailable() (uart2_rx_insert_idx != uart2_rx_extract_idx)
+#define Uart2Getch() ({							\
+      uint8_t ret = uart2_rx_buffer[uart2_rx_extract_idx];		\
+      uart2_rx_extract_idx = (uart2_rx_extract_idx + 1)%UART2_RX_BUFFER_SIZE; \
+      ret;								\
+    })
+
+#endif /* USE_UART2 */
+
 
 #ifdef USE_UART3
+
 #define UART3_RX_BUFFER_SIZE 128
 #define UART3_TX_BUFFER_SIZE 128
 
@@ -45,6 +94,7 @@ extern volatile uint16_t uart3_tx_insert_idx, uart3_tx_extract_idx;
 extern volatile bool_t   uart3_tx_running;
 
 extern void usart3_irq_handler(void);
+
 #endif /* USE_UART3 */
 
 #endif /* UART_HW_H */

@@ -34,6 +34,8 @@ void sys_time_init( void ) {
   /* Set SysTick handler */
   NVIC_SetPriority(SysTick_IRQn, 0x0);
   sys_time_period_elapsed = FALSE;
+
+  cpu_time_sec = 0;
   cpu_time_ticks = 0;
 }
 
