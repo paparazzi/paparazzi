@@ -102,9 +102,9 @@ extern const uint8_t buss_twi_blmc_addr[];
       buss_twi_blmc_status = BUSS_TWI_BLMC_STATUS_IDLE;	\
   }
 
-#define ActuatorsBussTwiBlmcSend() {					             \
-    i2c_buf[0] = buss_twi_blmc_motor_power[buss_twi_blmc_idx];		             \
-    i2c_transmit(buss_twi_blmc_addr[buss_twi_blmc_idx], 1, &buss_twi_blmc_i2c_done); \
+#define ActuatorsBussTwiBlmcSend() {					              \
+    i2c0_buf[0] = buss_twi_blmc_motor_power[buss_twi_blmc_idx];		              \
+    i2c0_transmit(buss_twi_blmc_addr[buss_twi_blmc_idx], 1, &buss_twi_blmc_i2c_done); \
   }
 
 

@@ -88,7 +88,7 @@ STATIC_INLINE void booz2_main_init( void ) {
   sys_time_init();
   led_init();
   uart0_init();
-  i2c_init();
+  i2c0_init();
   actuators_init();
 #if defined USE_BOOZ2_SERVOS_DIRECT
   booz2_servos_direct_init();
@@ -106,7 +106,7 @@ STATIC_INLINE void booz2_main_init( void ) {
   booz2_imu_init();
 #ifdef USE_AMI601
   i2c1_init();
-  ami601_init();
+  //  ami601_init();
 #endif
 
   booz_fms_init();

@@ -63,43 +63,43 @@ void asctec_twi_controller_send() {
     switch (actuators_asctec_twi_blmc_command) {
       
     case MB_TWI_CONTROLLER_COMMAND_TEST :
-      i2c_buf[0] = 251;
-      i2c_buf[1] = actuators_asctec_twi_blmc_addr;
-      i2c_buf[2] = 0;
-      i2c_buf[3] = 231 + actuators_asctec_twi_blmc_addr;
+      i2c0_buf[0] = 251;
+      i2c0_buf[1] = actuators_asctec_twi_blmc_addr;
+      i2c0_buf[2] = 0;
+      i2c0_buf[3] = 231 + actuators_asctec_twi_blmc_addr;
       mb_twi_i2c_done = FALSE;
-      i2c_transmit(MB_TWI_CONTROLLER_ADDR, 4, &mb_twi_i2c_done);
+      i2c0_transmit(MB_TWI_CONTROLLER_ADDR, 4, &mb_twi_i2c_done);
       break;
       
     case MB_TWI_CONTROLLER_COMMAND_REVERSE :
-      i2c_buf[0] = 254;
-      i2c_buf[1] = actuators_asctec_twi_blmc_addr;
-      i2c_buf[2] = 0;
-      i2c_buf[3] = 234 + actuators_asctec_twi_blmc_addr;
+      i2c0_buf[0] = 254;
+      i2c0_buf[1] = actuators_asctec_twi_blmc_addr;
+      i2c0_buf[2] = 0;
+      i2c0_buf[3] = 234 + actuators_asctec_twi_blmc_addr;
       mb_twi_i2c_done = FALSE;
-      i2c_transmit(MB_TWI_CONTROLLER_ADDR, 4, &mb_twi_i2c_done);
+      i2c0_transmit(MB_TWI_CONTROLLER_ADDR, 4, &mb_twi_i2c_done);
       break;
       
     case MB_TWI_CONTROLLER_COMMAND_SET_ADDR :
-      i2c_buf[0] = 250;
-      i2c_buf[1] = actuators_asctec_twi_blmc_addr;
-      i2c_buf[2] = actuators_asctec_twi_blmc_new_addr;
-      i2c_buf[3] = 230 + actuators_asctec_twi_blmc_addr + 
+      i2c0_buf[0] = 250;
+      i2c0_buf[1] = actuators_asctec_twi_blmc_addr;
+      i2c0_buf[2] = actuators_asctec_twi_blmc_new_addr;
+      i2c0_buf[3] = 230 + actuators_asctec_twi_blmc_addr + 
 	actuators_asctec_twi_blmc_new_addr;
       actuators_asctec_twi_blmc_addr = actuators_asctec_twi_blmc_new_addr;
       mb_twi_i2c_done = FALSE;
-      i2c_transmit(MB_TWI_CONTROLLER_ADDR, 4, &mb_twi_i2c_done);
+      i2c0_transmit(MB_TWI_CONTROLLER_ADDR, 4, &mb_twi_i2c_done);
       break;
       
     }
     actuators_asctec_twi_blmc_command = MB_TWI_CONTROLLER_COMMAND_NONE;
   }
   else {
-    i2c_buf[0] = 100 + asctec_twi_blmc_motor_power[SERVO_PITCH];
-    i2c_buf[1] = 100 + asctec_twi_blmc_motor_power[SERVO_ROLL];
-    i2c_buf[2] = 100 + asctec_twi_blmc_motor_power[SERVO_YAW];
-    i2c_buf[3] = asctec_twi_blmc_motor_power[SERVO_THRUST];
+    i2c0_buf[0] = 100 + asctec_twi_blmc_motor_power[SERVO_PITCH];
+    i2c0_buf[1] = 100 + asctec_twi_blmc_motor_power[SERVO_ROLL];
+    i2c0_buf[2] = 100 + asctec_twi_blmc_motor_power[SERVO_YAW];
+    i2c0_buf[3] = asctec_twi_blmc_motor_power[SERVO_THRUST];
     mb_twi_i2c_done = FALSE;
-    i2c_transmit(MB_TWI_CONTROLLER_ADDR, 4, &mb_twi_i2c_done);
+    i2c0_transmit(MB_TWI_CONTROLLER_ADDR, 4, &mb_twi_i2c_done);
   }
 }

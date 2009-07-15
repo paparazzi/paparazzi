@@ -47,7 +47,25 @@ extern bool_t ADS8344_available;
       /* spare 3, temp 7 */						\
       _gyro_accel_handler();						\
     }									\
+    Booz2ImuMagEvent(_mag_handler);					\
   }
+
+#ifdef USE_AMI601
+#include "AMI601.h"
+#define foo_handler() {}
+#define Booz2ImuMagEvent(_mag_handler) {				\
+    AMI601Event(foo_handler);						\
+    if (ami601_status == AMI601_DATA_AVAILABLE) {			\
+      booz_imu.mag_unscaled.x = ami601_val[IMU_MAG_X_CHAN];		\
+      booz_imu.mag_unscaled.y = ami601_val[IMU_MAG_Y_CHAN];		\
+      booz_imu.mag_unscaled.z = ami601_val[IMU_MAG_Z_CHAN];		\
+      ami601_status = AMI601_IDLE;					\
+      _mag_handler();							\
+    }									\
+  }
+#else
+#define Booz2ImuMagEvent(_mag_handler) {}
+#endif
 
 #endif /* BOOZ2_IMU_CRISTA_H */
 

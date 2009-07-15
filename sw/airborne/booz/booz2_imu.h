@@ -26,7 +26,7 @@
 
 #include "pprz_algebra_int.h"
 
-#include BOOZ2_IMU_TYPE
+#include BOOZ2_IMU_TYPE_H
 
 struct BoozImu {
   struct Int32Rates gyro;

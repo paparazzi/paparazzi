@@ -26,8 +26,7 @@
 #include "LPC21xx.h"
 #include "armVIC.h"
 #include CONFIG
-#include "led.h"
-#include "spi_hw.h"
+#include "ssp_hw.h"
 
 #define ADS8344_SS_IODIR IO0DIR
 #define ADS8344_SS_IOSET IO0SET
@@ -93,19 +92,17 @@ static inline void read_values( void ) {
 
 static inline void send_request( void ) {
   uint8_t control = 1 << 7 | channel << 4 | SGL_DIF << 2 | POWER_MODE;
-
-  SSPDR = control;
-  SSPDR = 0;
-  SSPDR = 0;
-  SSPDR = 0;
+  SSP_Send(control);
+  SSP_Send(0);
+  SSP_Send(0);
+  SSP_Send(0);
 }
 
 void ADS8344_start( void ) {
-  LED_ON(2);
   ADS8344Select();
-  SpiClearRti();
-  SpiEnableRti();
-  SpiEnable();
+  SSP_ClearRti();
+  SSP_EnableRti();
+  SSP_Enable();
   send_request();
 }
 
@@ -116,14 +113,13 @@ void SPI1_ISR(void) {
  if (channel > 7-1) {
    channel = 0;
    ADS8344_available = TRUE;
-   LED_OFF(2); 
    ADS8344Unselect();    
  }
  else {
    send_request();
  }
 
- SpiClearRti();
+ SSP_ClearRti();
 
  VICVectAddr = 0x00000000; /* clear this interrupt from the VIC */
  ISR_EXIT();

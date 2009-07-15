@@ -4,17 +4,18 @@
 
 #include "LPC21xx.h"
 
+#ifdef USE_I2C0
 
 #ifdef USE_BUSS_TWI_BLMC
 #include "actuators_buss_twi_blmc_hw.h"
-#define I2cStopHandler() ActuatorsBussTwiBlmcNext()
+#define I2c0StopHandler() ActuatorsBussTwiBlmcNext()
 #else
 
 #ifdef USE_BUSS_TWI_BLMC_MOTOR
 #include "buss_twi_blmc_hw.h"
-#define I2cStopHandler() BussTwiBlmcNext()
+#define I2c0StopHandler() BussTwiBlmcNext()
 #else
-#define I2cStopHandler() {}
+#define I2c0StopHandler() {}
 #endif
 
 #endif
@@ -23,23 +24,25 @@
 
 extern void i2c0_hw_init(void);
 
-#define I2cSendAck()   { I2C0CONSET = _BV(AA); }
-#define I2cSendStop()  {						\
+#define I2c0SendAck()   { I2C0CONSET = _BV(AA); }
+#define I2c0SendStop()  {						\
     I2C0CONSET = _BV(STO);						\
-    if (i2c_finished) *i2c_finished = TRUE;				\
-    i2c_status = I2C_IDLE;						\
-    I2cStopHandler();							\
+    if (i2c0_finished) *i2c0_finished = TRUE;				\
+    i2c0_status = I2C_IDLE;						\
+    I2c0StopHandler();							\
   }
-#define I2cSendStart() { I2C0CONSET = _BV(STA); }
-#define I2cSendByte(b) { I2C_DATA_REG = b; }
+#define I2c0SendStart() { I2C0CONSET = _BV(STA); }
+#define I2c0SendByte(b) { I2C_DATA_REG = b; }
 
-#define I2cReceive(_ack) {	    \
+#define I2c0Receive(_ack) {	    \
     if (_ack) I2C0CONSET = _BV(AA); \
     else I2C0CONCLR = _BV(AAC);	    \
   }
 
-#define I2cClearStart() { I2C0CONCLR = _BV(STAC); }
-#define I2cClearIT() { I2C0CONCLR = _BV(SIC); }
+#define I2c0ClearStart() { I2C0CONCLR = _BV(STAC); }
+#define I2c0ClearIT() { I2C0CONCLR = _BV(SIC); }
+
+#endif /* USE_I2C0 */
 
 
 #ifdef USE_I2C1

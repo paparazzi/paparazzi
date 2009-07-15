@@ -76,10 +76,11 @@ extern const int16_t rc_spk_throw[RADIO_CONTROL_NB_CHANNEL];
           radio_control.status = RADIO_CONTROL_OK;			\
 	  uint8_t i;							\
 	  for (i=0;i<RADIO_CONTROL_NB_CHANNEL;i++) {			\
-	    radio_control.values[i]  = rc_spk_parser_buf[2*i]<<8;	\
-	    radio_control.values[i] += rc_spk_parser_buf[2*i+1];	\
-	    radio_control.values[i] &= 0x03FF;				\
-	    radio_control.values[i] -= 512;				\
+	    const int16_t tmp = (rc_spk_parser_buf[2*i]<<8) +		\
+	                         rc_spk_parser_buf[2*i+1];		\
+	    const int16_t chan = (tmp&0xFC00) >> 10;			\
+	    const int16_t val  = (tmp&0x03FF) - 512;			\
+	    radio_control.values[i] = val;				\
 	    radio_control.values[i] *= rc_spk_throw[i];			\
 	    if (i==RADIO_CONTROL_THROTTLE) {				\
 	      radio_control.values[i] += MAX_PPRZ;			\

@@ -50,31 +50,31 @@ void enose_periodic( void ) {
   if (enose_i2c_done) {
     if (enose_conf_requested) {
       const uint8_t msg[] = { ENOSE_PWM_ADDR, enose_heat[0], enose_heat[1], enose_heat[2] };
-      memcpy((void*)i2c_buf, msg, sizeof(msg));
-      i2c_transmit(ENOSE_SLAVE_ADDR, sizeof(msg), &enose_i2c_done);
+      memcpy((void*)i2c0_buf, msg, sizeof(msg));
+      i2c0_transmit(ENOSE_SLAVE_ADDR, sizeof(msg), &enose_i2c_done);
       enose_i2c_done = FALSE;
       enose_conf_requested = FALSE;
     }
     else if (enose_status == ENOSE_IDLE) {
       enose_status = ENOSE_MEASURING_WR;
       const uint8_t msg[] = { ENOSE_DATA_ADDR };  
-      memcpy((void*)i2c_buf, msg, sizeof(msg));
-      i2c_transmit(ENOSE_SLAVE_ADDR, sizeof(msg), &enose_i2c_done);
+      memcpy((void*)i2c0_buf, msg, sizeof(msg));
+      i2c0_transmit(ENOSE_SLAVE_ADDR, sizeof(msg), &enose_i2c_done);
       enose_i2c_done = FALSE;
     }
     else if (enose_status == ENOSE_MEASURING_WR) {
       enose_status = ENOSE_MEASURING_RD;
-      i2c_receive(ENOSE_SLAVE_ADDR, 6, &enose_i2c_done);
+      i2c0_receive(ENOSE_SLAVE_ADDR, 6, &enose_i2c_done);
       enose_i2c_done = FALSE;
     }
     else if (enose_status == ENOSE_MEASURING_RD) {
-      uint16_t val = (i2c_buf[0]<<8) | i2c_buf[1];
+      uint16_t val = (i2c0_buf[0]<<8) | i2c0_buf[1];
       if (val < 5000) 
 	enose_val[0] = val;
-      val = (i2c_buf[2]<<8) | i2c_buf[3];
+      val = (i2c0_buf[2]<<8) | i2c0_buf[3];
       if (val < 5000) 
 	enose_val[1] = val;
-      val = (i2c_buf[4]<<8) | i2c_buf[5];
+      val = (i2c0_buf[4]<<8) | i2c0_buf[5];
       if (val < 5000) 
 	enose_val[2] = val;
       enose_status = ENOSE_IDLE;

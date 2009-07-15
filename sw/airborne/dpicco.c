@@ -40,18 +40,18 @@ void dpicco_periodic( void ) {
       /* init first read */
       dpicco_status = DPICCO_MEASURING_RD;
       dpicco_i2c_done = FALSE;
-      i2c_receive(DPICCO_SLAVE_ADDR, 4, &dpicco_i2c_done);
+      i2c0_receive(DPICCO_SLAVE_ADDR, 4, &dpicco_i2c_done);
       
 //      LED_ON(2);
     }
     else if (dpicco_status == DPICCO_MEASURING_RD) {
       /* get data */
-      dpicco_val[0] = (i2c_buf[0]<<8) | i2c_buf[1];
-      dpicco_val[1] = (i2c_buf[2]<<8) | i2c_buf[3];
+      dpicco_val[0] = (i2c0_buf[0]<<8) | i2c0_buf[1];
+      dpicco_val[1] = (i2c0_buf[2]<<8) | i2c0_buf[3];
       
       /* start next one right away */
       dpicco_i2c_done = FALSE;
-      i2c_receive(DPICCO_SLAVE_ADDR, 4, &dpicco_i2c_done);
+      i2c0_receive(DPICCO_SLAVE_ADDR, 4, &dpicco_i2c_done);
       
 //      LED_TOGGLE(2);
     }

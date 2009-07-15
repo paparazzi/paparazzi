@@ -21,6 +21,7 @@
  * Boston, MA 02111-1307, USA. 
  */
 
+#include "booz2_imu.h"
 #include "booz2_imu_crista.h"
 
 void booz2_imu_impl_init(void) {
@@ -29,10 +30,17 @@ void booz2_imu_impl_init(void) {
 
   booz2_imu_crista_hw_init();
 
+#ifdef USE_AMI601
+  ami601_init();
+#endif
+
 }
 
 void booz2_imu_periodic(void) {
 
   Booz2ImuCristaHwPeriodic();
+#ifdef USE_AMI601
+  RunOnceEvery(10, { ami601_read(); });
+#endif
 
 }

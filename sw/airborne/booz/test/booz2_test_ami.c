@@ -62,7 +62,7 @@ static inline void main_init( void ) {
   //  LED_ON(6);
   //  LED_ON(7);
 
-  uart1_init_tx();
+  uart1_init();
   
 #if 0
   /* set P0.11 and P0.14 to I2C1 */

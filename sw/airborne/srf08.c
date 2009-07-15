@@ -43,51 +43,51 @@ static bool_t dummy_bool;
 void srf08_init(void)
 {
   unsigned int range=0;
-  i2c_init();
+  i2c0_init();
   I2C_START_TX(address);
-  i2c_transmit(0);                    
-  i2c_transmit(0x51);
+  i2c0_transmit(0);                    
+  i2c0_transmit(0x51);
        
   do{
-    i2c_start();
+    i2c0_start();
     range=i2c_sla(address);               
-    i2c_stop();
+    i2c0_stop();
   } while(range != I2C_NO_ERROR);  /** !!!!!!!!!!!!  WARNING : blocking wait */
 
 
   /** Setting the gain to the minimun value (to avoid echos ?) */
-  i2c_buf[0]=SRF08_SET_GAIN;
-  i2c_buf[1]=SRF08_MIN_GAIN;
-  i2c_send(address, 2, &dummy_bool);
+  i2c0_buf[0]=SRF08_SET_GAIN;
+  i2c0_buf[1]=SRF08_MIN_GAIN;
+  i2c0_send(address, 2, &dummy_bool);
 
   return;
 }
 /*###########################################################################*/
 
 void srf08_initiate_ranging(void) {
-  i2c_buf[0]=SRF08_COMMAND;
-  i2c_buf[1]=SRF08_CENTIMETERS;
-  i2c_send(address, 2, &dummy_bool);
+  i2c0_buf[0]=SRF08_COMMAND;
+  i2c0_buf[1]=SRF08_CENTIMETERS;
+  i2c0_send(address, 2, &dummy_bool);
 }
 
 bool_t srf08_received, srf08_got;
 
 /** Ask the value to the device */
 void srf08_receive(void) {
-  i2c_buf[0]=SRF08_ECHO_1;
+  i2c0_buf[0]=SRF08_ECHO_1;
   srf08_received = FALSE;
-  i2c_send(address, 1, &srf08_received);
+  i2c0_send(address, 1, &srf08_received);
 }
 
 /** Read values on the bus */
 void srf08_read(void) {
   srf08_got = FALSE;
-  i2c_get(address, 2, &srf08_got);
+  i2c0_get(address, 2, &srf08_got);
 }
 
 /** Copy the I2C buffer */
 void srf08_copy(void) {
-  srf08_range = i2c_buf[0] << 8 | i2c_buf[1];
+  srf08_range = i2c0_buf[0] << 8 | i2c0_buf[1];
 }
 
 void srf08_ping()
@@ -95,12 +95,12 @@ void srf08_ping()
   uint8_t byte;
 
   srf08_initiate_ranging();
-  while (!i2c_idle);
+  while (!i2c0_idle);
        
   do {
-    i2c_start();
+    i2c0_start();
     byte=i2c_sla(address);               
-    i2c_stop();
+    i2c0_stop();
   } while(byte != I2C_NO_ERROR);
        
 
@@ -117,18 +117,18 @@ unsigned int srf08_read_register(unsigned char srf08_register)
 
 
   I2C_START_TX(address);
-  i2c_transmit(srf08_register);
+  i2c0_transmit(srf08_register);
   I2C_START_RX(address);
        
   /* get high byte msb first */ 
   if(srf08_register>=2) {
-    i2c.rx_byte[1]=i2c_receive(I2C_CONTINUE);
+    i2c.rx_byte[1]=i2c0_receive(I2C_CONTINUE);
   }                         
        
   /* get low byte msb first  */ 
-  i2c.rx_byte[0]=i2c_receive(I2C_QUIT);                          
+  i2c.rx_byte[0]=i2c0_receive(I2C_QUIT);                          
 
-  i2c_stop();
+  i2c0_stop();
 
   return(i2c.rx_word);
 }

@@ -31,6 +31,9 @@
 
 #include "interrupt_hw.h"
 
+
+#ifdef USE_I2C0
+
 /* default clock speed 37.5KHz with our 15MHz PCLK 
    I2C0_CLOCK = PCLK / (I2C0_SCLL + I2C0_SCLH)     */
 #ifndef I2C0_SCLL
@@ -41,37 +44,21 @@
 #define I2C0_SCLH 200
 #endif
 
-/* default clock speed 37.5KHz with our 15MHz PCLK 
-   I2C1_CLOCK = PCLK / (I2C1_SCLL + I2C1_SCLH)     */
-#ifndef I2C1_SCLL
-#define I2C1_SCLL 200
-#endif
-
-#ifndef I2C1_SCLH
-#define I2C1_SCLH 200
-#endif
-
 /* adjust for other PCLKs */
 
 #if (PCLK == 15000000)
 #define I2C0_SCLL_D I2C0_SCLL
 #define I2C0_SCLH_D I2C0_SCLH
-#define I2C1_SCLL_D I2C1_SCLL
-#define I2C1_SCLH_D I2C1_SCLH
 #else
 
 #if (PCLK == 30000000)
 #define I2C0_SCLL_D (2*I2C0_SCLL)
 #define I2C0_SCLH_D (2*I2C0_SCLH)
-#define I2C1_SCLL_D (2*I2C1_SCLL)
-#define I2C1_SCLH_D (2*I2C1_SCLH)
 #else
 
 #if (PCLK == 60000000)
 #define I2C0_SCLL_D (4*I2C0_SCLL)
 #define I2C0_SCLH_D (4*I2C0_SCLH)
-#define I2C1_SCLL_D (4*I2C1_SCLL)
-#define I2C1_SCLH_D (4*I2C1_SCLH)
 #else
 
 #error unknown PCLK frequency
@@ -115,14 +102,51 @@ void i2c0_ISR(void)
   ISR_ENTRY();
 
   uint32_t state = I2C_STATUS_REG;
-  I2cAutomaton(state);
-  I2cClearIT();
+  I2c0Automaton(state);
+  I2c0ClearIT();
   
   VICVectAddr = 0x00000000;             // clear this interrupt from the VIC
   ISR_EXIT();                           // recover registers and return
 }
 
+#endif /* USE_I2C0 */
+
+
+
 #ifdef USE_I2C1
+
+/* default clock speed 37.5KHz with our 15MHz PCLK 
+   I2C1_CLOCK = PCLK / (I2C1_SCLL + I2C1_SCLH)     */
+#ifndef I2C1_SCLL
+#define I2C1_SCLL 200
+#endif
+
+#ifndef I2C1_SCLH
+#define I2C1_SCLH 200
+#endif
+
+/* adjust for other PCLKs */
+
+#if (PCLK == 15000000)
+#define I2C1_SCLL_D I2C1_SCLL
+#define I2C1_SCLH_D I2C1_SCLH
+#else
+
+#if (PCLK == 30000000)
+#define I2C1_SCLL_D (2*I2C1_SCLL)
+#define I2C1_SCLH_D (2*I2C1_SCLH)
+#else
+
+#if (PCLK == 60000000)
+#define I2C1_SCLL_D (4*I2C1_SCLL)
+#define I2C1_SCLH_D (4*I2C1_SCLH)
+#else
+
+#error unknown PCLK frequency
+#endif
+#endif
+#endif
+
 
 #define I2C1_DATA_REG   I2C1DAT
 #define I2C1_STATUS_REG I2C1STAT

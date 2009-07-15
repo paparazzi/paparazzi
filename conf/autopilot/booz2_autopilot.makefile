@@ -41,6 +41,8 @@ ap.CFLAGS += -DCONFIG=$(BOARD_CFG)
 ap.srcs += $(SRC_BOOZ)/booz2_main.c
 ap.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))'
 # -DTIME_LED=1
+ap.CFLAGS += -DPERIPHERALS_AUTO_INIT
+
 ap.CFLAGS += -DLED
 ap.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
 
