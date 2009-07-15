@@ -247,6 +247,13 @@
     (_a).r -= (_b).r;				\
   }
 
+/* c = a + b */
+#define RATES_SUM(_c, _a, _b) {			\
+    (_c).p = (_a).p + (_b).p;			\
+    (_c).q = (_a).q + (_b).q;			\
+    (_c).r = (_a).r + (_b).r;			\
+  }
+
 /* c = a - b */
 #define RATES_DIFF(_c, _a, _b) {                \
     (_c).p = (_a).p - (_b).p;			\
