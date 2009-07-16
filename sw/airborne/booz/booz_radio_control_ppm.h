@@ -24,6 +24,29 @@
 #ifndef BOOZ_RADIO_CONTROL_PPM_H
 #define BOOZ_RADIO_CONTROL_PPM_H
 
-#include "radio.h"
+#include "booz_radio_control_ppm_hw.h"
+
+#include "conf_radio_control_ppm.h" /* generated code */
+
+/**
+ *  Radio control type : futaba is falling edge clocked whereas JR is rising edge
+ */
+#define PPM_PULSE_TYPE_POSITIVE 0
+#define PPM_PULSE_TYPE_NEGATIVE 1
+
+extern uint16_t booz_radio_control_ppm_pulses[ RADIO_CONTROL_NB_CHANNEL ];
+extern volatile bool_t booz_radio_control_ppm_frame_available;
+
+
+#define RadioControlEvent(_received_frame_handler) {			\
+    if (booz_radio_control_ppm_frame_available) {			\
+      radio_control.frame_cpt++;					\
+      radio_control.time_since_last_frame = 0;				\
+      radio_control.status = RADIO_CONTROL_OK;				\
+      NormalizePpm();							\
+      _received_frame_handler();					\
+      booz_radio_control_ppm_frame_available = FALSE;			\
+    }									\
+  }
 
 #endif /* BOOZ_RADIO_CONTROL_PPM_H */

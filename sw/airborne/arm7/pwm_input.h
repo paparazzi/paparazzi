@@ -30,6 +30,7 @@ static inline void pwm_input_isr()
   }
 }
 
+#define PWM_INPUT_IT PPM_CRI TIR_CR3I
 #define PWM_INPUT_ISR()	pwm_input_isr()
 
 #endif /* PWM_INPUT_H */

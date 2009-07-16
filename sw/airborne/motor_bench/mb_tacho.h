@@ -12,6 +12,7 @@ extern volatile uint8_t got_one_pulse;
 extern volatile float mb_tacho_averaged;
 extern volatile uint16_t  mb_tacho_nb_pulse;
 
+#define MB_TACHO_IT TIR_CR0I
 #define MB_TACHO_ISR() {						\
     static uint32_t tmb_last;						\
     uint32_t t_now = T0CR0;						\

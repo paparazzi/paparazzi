@@ -30,6 +30,7 @@ static inline void ppm_init ( void ) {
 
 #define PPM_NB_CHANNEL PPM_NB_PULSES
 
+#define PPM_IT PPM_CRI
 #define PPM_ISR() {						\
    static uint8_t state = PPM_NB_CHANNEL;			\
    static uint32_t last;					\

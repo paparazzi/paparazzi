@@ -21,39 +21,23 @@
  * Boston, MA 02111-1307, USA. 
  */
 
-#ifndef BOOZ_RADIO_CONTROL_H
-#define BOOZ_RADIO_CONTROL_H
+#include "booz_radio_control.h"
 
-#include "std.h"
-#include "paparazzi.h"
+uint8_t  booz_radio_control_ppm_cur_pulse;
+uint32_t booz_radio_control_ppm_last_pulse_time;
 
-/* underlying hardware */
-#include RADIO_CONTROL_TYPE_H
-/* must be defined by underlying hardware */
-extern void radio_control_impl_init(void);
-
-/* status */
-#define RADIO_CONTROL_OK          0
-#define RADIO_CONTROL_LOST        1
-#define RADIO_CONTROL_REALLY_LOST 2
-
-/* timeouts - for now assumes 60Hz periodic */
-#define RADIO_CONTROL_LOST_TIME        30
-#define RADIO_CONTROL_REALLY_LOST_TIME 60
-
-struct RadioControl {
-  uint8_t status;
-  uint8_t time_since_last_frame;
-  uint8_t frame_rate;
-  uint8_t frame_cpt;
-  pprz_t  values[RADIO_CONTROL_NB_CHANNEL];
-};
-
-extern struct RadioControl radio_control;
-
-extern void radio_control_init(void);
-extern void radio_control_periodic(void);
-
-
-#endif /* BOOZ_RADIO_CONTROL_H */
-
+void booz_radio_control_ppm_hw_init ( void ) {
+  /* select pin for capture */
+  PPM_PINSEL |= PPM_PINSEL_VAL << PPM_PINSEL_BIT;
+  /* enable capture 0.2 on falling or rising edge + trigger interrupt */
+#if defined PPM_PULSE_TYPE && PPM_PULSE_TYPE == PPM_PULSE_TYPE_POSITIVE
+  T0CCR = PPM_CCR_CRF | PPM_CCR_CRI;
+#elif defined PPM_PULSE_TYPE && PPM_PULSE_TYPE == PPM_PULSE_TYPE_NEGATIVE
+  T0CCR = PPM_CCR_CRR | PPM_CCR_CRI;
+#else
+#error "ppm_hw.h: Unknown PM_PULSE_TYPE"
+#endif
+  booz_radio_control_ppm_last_pulse_time = 0;
+  booz_radio_control_ppm_cur_pulse = RADIO_CONTROL_NB_CHANNEL;
+  booz_radio_control_ppm_frame_available = FALSE;
+}

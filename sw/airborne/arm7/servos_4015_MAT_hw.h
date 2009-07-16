@@ -50,6 +50,7 @@ extern uint32_t servos_delay;
 
 #define SERVO_REFRESH_TICS SERVOS_TICS_OF_USEC(20000)
 
+#define ACTUATORS_IT TIR_MR1I
 #define Servos4015Mat_ISR() {				\
   if (servos_4015_idx == 0) {				\
     servos_delay = SERVO_REFRESH_TICS;			\

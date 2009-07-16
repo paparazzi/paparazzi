@@ -43,6 +43,8 @@ extern uint8_t servos_4017_idx;
 #else /* SERVOS_4017_CLOCK_FALLING */
 #define SERVOS_4017_RESET_WIDTH SERVOS_TICS_OF_USEC(1000)
 #define SERVOS_4017_FIRST_PULSE_WIDTH SERVOS_TICS_OF_USEC(100)
+
+#define ACTUATORS_IT TIR_MR1I
 #define SERVOS_4017_ISR() {					\
    if (servos_4017_idx == _4017_NB_CHANNELS) {			\
       SetBit(IO1SET, SERVO_RESET_PIN);				\

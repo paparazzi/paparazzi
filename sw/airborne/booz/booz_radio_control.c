@@ -35,6 +35,7 @@ void radio_control_init(void) {
   radio_control.time_since_last_frame = RADIO_CONTROL_REALLY_LOST_TIME;
   radio_control.frame_rate = 0;
   radio_control.frame_cpt = 0;
+  radio_control_impl_init();
 }
 
 

@@ -52,6 +52,7 @@ extern uint8_t ppm_pulse; /* 1=start of pulse, 0=end of pulse */
 /* define the ppm pulse width. 550usec is typical for JR/Graupner */
 #define PPM_WIDTH SERVOS_TICS_OF_USEC(550)
 
+#define ACTUATORS_IT TIR_MR1I
 #define ServosPPMMat_ISR() {				\
   if (servos_PPM_idx == 0) {				\
     servos_delay = SERVO_REFRESH_TICS;			\

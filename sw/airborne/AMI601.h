@@ -64,7 +64,8 @@ extern volatile uint32_t ami601_nb_err;
   }
 #endif
 
-
+#define AMI_601_IT TIR_MR1I
+#define AMI_601_ISR()  AMI601ReadMeasure()
 #define AMI601ReadMeasure() {						\
     /* disable match 1 interrupt */					\
     /*    T0MCR |= TMCR_MR1_I;   */					\

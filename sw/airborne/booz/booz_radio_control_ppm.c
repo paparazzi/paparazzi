@@ -21,39 +21,13 @@
  * Boston, MA 02111-1307, USA. 
  */
 
-#ifndef BOOZ_RADIO_CONTROL_H
-#define BOOZ_RADIO_CONTROL_H
-
-#include "std.h"
-#include "paparazzi.h"
-
-/* underlying hardware */
-#include RADIO_CONTROL_TYPE_H
-/* must be defined by underlying hardware */
-extern void radio_control_impl_init(void);
-
-/* status */
-#define RADIO_CONTROL_OK          0
-#define RADIO_CONTROL_LOST        1
-#define RADIO_CONTROL_REALLY_LOST 2
-
-/* timeouts - for now assumes 60Hz periodic */
-#define RADIO_CONTROL_LOST_TIME        30
-#define RADIO_CONTROL_REALLY_LOST_TIME 60
-
-struct RadioControl {
-  uint8_t status;
-  uint8_t time_since_last_frame;
-  uint8_t frame_rate;
-  uint8_t frame_cpt;
-  pprz_t  values[RADIO_CONTROL_NB_CHANNEL];
-};
-
-extern struct RadioControl radio_control;
-
-extern void radio_control_init(void);
-extern void radio_control_periodic(void);
+#include "booz_radio_control.h"
 
 
-#endif /* BOOZ_RADIO_CONTROL_H */
+uint16_t booz_radio_control_ppm_pulses[ RADIO_CONTROL_NB_CHANNEL ];
+volatile bool_t booz_radio_control_ppm_frame_available;
 
+void radio_control_impl_init(void) {
+  booz_radio_control_ppm_frame_available = FALSE;
+  booz_radio_control_ppm_hw_init();
+}

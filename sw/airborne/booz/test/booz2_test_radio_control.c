@@ -27,7 +27,6 @@
 #include "sys_time.h"
 #include "interrupt_hw.h"
 
-#include "messages.h"
 #include "downlink.h"
 
 #include "booz_radio_control.h"
@@ -37,8 +36,6 @@ static inline void main_periodic_task( void );
 static inline void main_event_task( void );
 static        void main_on_radio_control_frame( void );
 //static        void main_on_radio_control_status_changed( void );
-
-uint32_t t0, t1, diff;
 
 int main( void ) {
   main_init();

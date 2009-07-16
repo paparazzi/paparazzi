@@ -48,6 +48,7 @@
 
 #include <string.h>
 #include "std.h"
+#include <stdbool.h>
 #include "LPC21xx.h"
 #include "armVIC.h"
 #include "usb_serial.h"

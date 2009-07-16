@@ -51,7 +51,7 @@ test_uart.CFLAGS += -DUSE_LED
 test_uart.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=1
 test_uart.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(1./512.)'
 test_uart.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
-test_uart.CFLAGS += -DUSE_UART3 -DUART3_BAUD=B57600
+test_uart.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600
 test_uart.srcs += $(SRC_ARCH)/uart_hw.c
 
 

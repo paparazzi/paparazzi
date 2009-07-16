@@ -22,7 +22,7 @@ extern volatile uint8_t  mb_scale_calib;
 
 void mb_scale_init ( void );
 
-
+#define MB_SCALE_IT TIR_CR3I
 #define MB_SCALE_ICP_ISR() {						\
     static uint32_t last;						\
     uint32_t now = T0CR3;						\
