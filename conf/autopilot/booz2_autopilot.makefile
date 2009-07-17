@@ -39,12 +39,14 @@ ap.TARGETDIR = ap
 ap.CFLAGS += -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH)
 ap.CFLAGS += -DCONFIG=$(BOARD_CFG)
 ap.srcs += $(SRC_BOOZ)/booz2_main.c
-ap.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))'
-# -DTIME_LED=1
+
 ap.CFLAGS += -DPERIPHERALS_AUTO_INIT
 
-ap.CFLAGS += -DLED
+ap.CFLAGS += -DUSE_LED
+
 ap.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
+ap.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))'
+# -DTIME_LED=1
 
 # -DUART1_BAUD=B57600
 ap.CFLAGS += -DUSE_UART1  -DUART1_VIC_SLOT=6
@@ -60,8 +62,13 @@ ap.srcs += $(SRC_BOOZ)/booz2_datalink.c
 
 ap.srcs += $(SRC_BOOZ)/booz2_commands.c
 
-ap.CFLAGS += -DRADIO_CONTROL -DRC_LED=1
-ap.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c
+#
+# Radio control choice
+#
+# include booz2_radio_control_ppm.makefile
+# or
+# include booz2_radio_control_spektrum.makefile
+#
 
 #
 # Actuator choice

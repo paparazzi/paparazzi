@@ -32,6 +32,8 @@
     <define name="ACCEL_Y_CHAN" value="5"/>
     <define name="ACCEL_Z_CHAN" value="6"/>    
 
+
+<!--
     <define name="ACCEL_X_SENS" value="-5.94047559" integer="16"/>
     <define name="ACCEL_Y_SENS" value="-5.25008239" integer="16"/>
     <define name="ACCEL_Z_SENS" value=" 6.06493700" integer="16"/>
@@ -39,6 +41,19 @@
     <define name="ACCEL_X_NEUTRAL" value="39897"/>
     <define name="ACCEL_Y_NEUTRAL" value="39865"/>
     <define name="ACCEL_Z_NEUTRAL" value="39735"/>
+-->
+
+
+<define name="ACCEL_X_SENS" value="-6.29676358" integer="16"/>
+<define name="ACCEL_Y_SENS" value="-6.07991732" integer="16"/>
+<define name="ACCEL_Z_SENS" value=" 6.62632272" integer="16"/>
+
+<define name="ACCEL_X_NEUTRAL" value="40385"/>
+<define name="ACCEL_Y_NEUTRAL" value="39223"/>
+<define name="ACCEL_Z_NEUTRAL" value="38860"/>
+
+
+
 
 <!--
     <define name="MAG_X_CHAN" value="4"/>
@@ -58,8 +73,8 @@
     <define name="MAG_Y_SENS" value="-4.2959321" integer="16"/>
     <define name="MAG_Z_SENS" value="-4.0988408" integer="16"/>
 
-    <define name="BODY_TO_IMU_PHI"   value="ANGLE_BFP_OF_REAL(RadOfDeg(10.66))"/>
-    <define name="BODY_TO_IMU_THETA" value="ANGLE_BFP_OF_REAL(RadOfDeg(-0.7))"/>
+    <define name="BODY_TO_IMU_PHI"   value="ANGLE_BFP_OF_REAL(RadOfDeg( 1.5))"/>
+    <define name="BODY_TO_IMU_THETA" value="ANGLE_BFP_OF_REAL(RadOfDeg(-1.5))"/>
     <define name="BODY_TO_IMU_PSI"   value="ANGLE_BFP_OF_REAL(RadOfDeg(0.))"/>
 
   </section>
@@ -164,6 +179,7 @@ sim.CFLAGS += -DBSM_PARAMS=\"booz_sensors_model_params_booz2_a2.h\"
 include $(PAPARAZZI_SRC)/conf/autopilot/booz2_simulator.makefile
 
 ap.CFLAGS += -DUART1_BAUD=B57600
+include $(PAPARAZZI_SRC)/conf/autopilot/booz2_radio_control_ppm.makefile
 include $(PAPARAZZI_SRC)/conf/autopilot/booz2_actuators_asctec.makefile
 include $(PAPARAZZI_SRC)/conf/autopilot/booz2_imu_crista.makefile
 

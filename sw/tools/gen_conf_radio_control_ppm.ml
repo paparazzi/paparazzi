@@ -81,14 +81,12 @@ let gen_normalize_ppm = fun channels ->
   List.iter
     (fun c ->
       let value, min_pprz = norm1_ppm c in
-      if c.averaged then begin
-	printf "  avg_rc_values[RADIO_CONTROL_%s] += ppm_pulses[RADIO_CONTROL_%s];\\\n" c.name c.name
-      end else begin
+      begin
 	printf "  tmp_radio = booz_radio_control_ppm_pulses[RADIO_CONTROL_%s] - SYS_TICS_OF_USEC(%d);\\\n" c.name c.neutral;
 	printf "  radio_control.values[RADIO_CONTROL_%s] = %s;\\\n" c.name value;
 	printf "  Bound(radio_control.values[RADIO_CONTROL_%s], %s, MAX_PPRZ); \\\n\\\n" c.name min_pprz;
       end
-      )
+    )
     channels;
   (*
   printf "  avg_cpt++;\\\n";

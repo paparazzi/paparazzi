@@ -27,7 +27,7 @@
 #include "booz2_stabilization.h"
 #include "booz_ahrs.h"
 #include "airframe.h"
-#include "radio_control.h"
+#include "booz_radio_control.h"
 
 struct booz_ieuler booz_stabilization_att_sp;
 

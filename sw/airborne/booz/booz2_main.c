@@ -27,7 +27,6 @@
 #include "sys_time.h"
 #include "led.h"
 #include "interrupt_hw.h"
-#include "uart.h"
 
 #include "messages.h"
 #include "downlink.h"
@@ -35,11 +34,10 @@
 #include "datalink.h"
 
 #include "booz2_commands.h"
-#include "i2c.h"
 #include ACTUATORS
 //#include "booz2_servos_direct_hw.h"
 //#include "booz2_control_surfaces.h"
-#include "radio_control.h"
+#include "booz_radio_control.h"
 
 
 #include "booz2_imu.h"
@@ -87,16 +85,10 @@ STATIC_INLINE void booz2_main_init( void ) {
   hw_init();
   sys_time_init();
   led_init();
-  uart0_init();
-  i2c0_init();
   actuators_init();
 #if defined USE_BOOZ2_SERVOS_DIRECT
   booz2_servos_direct_init();
 #endif
-  // FIXME move that in radio_control_ppm initialisation
-  //#if defined RADIO_CONTROL_TYPE && RADIO_CONTROL_TYPE == RADIO_CONTROL_PPM
-  ppm_init();
-  //#endif
   radio_control_init();
 
   booz2_analog_init();
@@ -104,10 +96,6 @@ STATIC_INLINE void booz2_main_init( void ) {
   booz2_battery_init();
   booz2_imu_impl_init();
   booz2_imu_init();
-#ifdef USE_AMI601
-  i2c1_init();
-  //  ami601_init();
-#endif
 
   booz_fms_init();
   booz2_autopilot_init();
@@ -122,7 +110,6 @@ STATIC_INLINE void booz2_main_init( void ) {
 
   booz_ins_init();
 
-  uart1_init();
 #ifdef USE_GPS
   booz2_gps_init();
 #endif
@@ -141,8 +128,8 @@ STATIC_INLINE void booz2_main_periodic( void ) {
   SetActuatorsFromCommands(booz2_autopilot_motors_on);
   PeriodicPrescaleBy10(							\
     {						                        \
-      radio_control_periodic_task();			                \
-      if (rc_status != RC_OK)						\
+      radio_control_periodic();						\
+      if (radio_control.status != RADIO_CONTROL_OK)			\
 	booz2_autopilot_set_mode(BOOZ2_AP_MODE_FAILSAFE);		\
     },									\
     {									\
@@ -173,8 +160,7 @@ STATIC_INLINE void booz2_main_event( void ) {
 
   DatalinkEvent();
 
-  //  RadioControlEvent(booz2_autopilot_on_rc_frame);
-  RadioControlEventCheckAndHandle(booz2_autopilot_on_rc_event);
+  RadioControlEvent(booz2_autopilot_on_rc_frame);
 
   Booz2ImuEvent(on_gyro_accel_event, on_mag_event);
   
@@ -186,26 +172,19 @@ STATIC_INLINE void booz2_main_event( void ) {
 
 }
 
-
 static inline void on_gyro_accel_event( void ) {
 
-  //  LED_TOGGLE(7);
-  // 480 ???
   Booz2ImuScaleGyro();
   Booz2ImuScaleAccel();
 
   if (booz_ahrs.status == BOOZ_AHRS_UNINIT) {
-    // 150
     booz_ahrs_aligner_run();
     if (booz_ahrs_aligner.status == BOOZ_AHRS_ALIGNER_LOCKED)
       booz_ahrs_align();
   }
   else {
-    //    LED_ON(7);
     booz_ahrs_propagate();
     //    booz2_filter_attitude_update();
-    
-    //    LED_OFF(7);
     booz_ins_propagate();
   }
 }
@@ -216,13 +195,9 @@ static inline void on_baro_event( void ) {
 
 
 static inline void on_gps_event(void) {
-  
   booz_ins_update_gps();
-  
 }
 
 static inline void on_mag_event(void) {
-
   Booz2ImuScaleMag();
-
 }

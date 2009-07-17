@@ -30,7 +30,7 @@
 
 #include "downlink.h"
 
-#include "radio_control.h"
+#include "booz_radio_control.h"
 #include "booz2_autopilot.h"
 #include "booz2_guidance_h.h"
 #include "booz2_guidance_v.h"
@@ -47,7 +47,7 @@
     uint32_t booz_imu_nb_err = 0;					\
     DOWNLINK_SEND_BOOZ_STATUS(&booz_imu_nb_err,				\
 			      &twi_blmc_nb_err,				\
-			      &rc_status,				\
+			      &radio_control.status,			\
 			      &booz_gps_state.fix,			\
 			      &booz2_autopilot_mode,			\
 			      &booz2_autopilot_in_flight,		\
@@ -59,13 +59,19 @@
 			      );					\
   }
 
-#ifdef RADIO_CONTROL
-#define PERIODIC_SEND_PPM() DOWNLINK_SEND_PPM(&last_ppm_cpt, PPM_NB_PULSES, ppm_pulses)
-#define PERIODIC_SEND_RC() DOWNLINK_SEND_RC(PPM_NB_PULSES, rc_values)
-#else // RADIO_CONTROL
-#define PERIODIC_SEND_PPM() {}
+#ifdef USE_RADIO_CONTROL
+#define PERIODIC_SEND_RC() DOWNLINK_SEND_RC(RADIO_CONTROL_NB_CHANNEL, radio_control.values)
+#else
 #define PERIODIC_SEND_RC() {}
-#endif // RADIO_CONTROL
+#endif
+
+#ifdef RADIO_CONTROL_TYPE_PPM
+#define PERIODIC_SEND_PPM() DOWNLINK_SEND_PPM(&radio_control.frame_rate, \
+					      RADIO_CONTROL_NB_CHANNEL,  \
+					      booz_radio_control_ppm_pulses)
+#else
+#define PERIODIC_SEND_PPM() {}
+#endif
 
 #define PERIODIC_SEND_BOOZ2_GYRO() {			\
     DOWNLINK_SEND_BOOZ2_GYRO(&booz_imu.gyro.p,		\
@@ -433,9 +439,9 @@
 
 
 #define PERIODIC_SEND_BOOZ2_TUNE_HOVER() {				\
-    DOWNLINK_SEND_BOOZ2_TUNE_HOVER(&rc_values[RADIO_ROLL],		\
-				   &rc_values[RADIO_PITCH],		\
-				   &rc_values[RADIO_YAW],		\
+    DOWNLINK_SEND_BOOZ2_TUNE_HOVER(&radio_control.values[RADIO_CONTROL_ROLL], \
+				   &radio_control.values[RADIO_CONTROL_PITCH], \
+				   &radio_control.values[RADIO_CONTROL_YAW], \
 				   &booz2_stabilization_cmd[COMMAND_ROLL], \
 				   &booz2_stabilization_cmd[COMMAND_PITCH], \
 				   &booz2_stabilization_cmd[COMMAND_YAW], \

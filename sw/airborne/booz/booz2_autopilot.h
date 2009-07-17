@@ -53,7 +53,7 @@ extern uint8_t booz2_autopilot_tol;
 
 extern void booz2_autopilot_init(void);
 extern void booz2_autopilot_periodic(void);
-extern void booz2_autopilot_on_rc_event(void);
+extern void booz2_autopilot_on_rc_frame(void);
 extern void booz2_autopilot_set_mode(uint8_t new_autopilot_mode);
 
 #ifndef BOOZ2_MODE_MANUAL

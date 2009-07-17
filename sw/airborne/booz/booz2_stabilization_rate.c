@@ -27,7 +27,7 @@
 
 #include "booz2_stabilization.h"
 #include "booz2_imu.h"
-#include "radio_control.h"
+#include "booz_radio_control.h"
 #include "airframe.h"
 
 struct Int32Rates booz2_stabilization_rate_measure;
@@ -49,9 +49,9 @@ void booz2_stabilization_rate_init(void) {
 void booz2_stabilization_rate_read_rc( void ) {
 
   RATES_ASSIGN(booz2_stabilization_rate_sp,
-	       (int32_t)-rc_values[RADIO_ROLL]  * BOOZ_STABILIZATION_RATE_SP_MAX_P / MAX_PPRZ,
-	       (int32_t) rc_values[RADIO_PITCH] * BOOZ_STABILIZATION_RATE_SP_MAX_Q / MAX_PPRZ,
-	       (int32_t)-rc_values[RADIO_YAW]   * BOOZ_STABILIZATION_RATE_SP_MAX_R / MAX_PPRZ);
+	       (int32_t)-radio_control.values[RADIO_CONTROL_ROLL]  * BOOZ_STABILIZATION_RATE_SP_MAX_P / MAX_PPRZ,
+	       (int32_t) radio_control.values[RADIO_CONTROL_PITCH] * BOOZ_STABILIZATION_RATE_SP_MAX_Q / MAX_PPRZ,
+	       (int32_t)-radio_control.values[RADIO_CONTROL_YAW]   * BOOZ_STABILIZATION_RATE_SP_MAX_R / MAX_PPRZ);
 
 }
 

@@ -24,7 +24,7 @@
 
 #include "booz2_autopilot.h"
 
-#include "radio_control.h"
+#include "booz_radio_control.h"
 #include "booz2_commands.h"
 #include "booz2_navigation.h"
 #include "booz2_guidance_h.h"
@@ -141,16 +141,22 @@ void booz2_autopilot_set_mode(uint8_t new_autopilot_mode) {
   
 }
 
+#define THROTTLE_STICK_DOWN()						\
+  (radio_control.values[RADIO_CONTROL_THROTTLE] < BOOZ2_AUTOPILOT_THROTTLE_TRESHOLD)
+#define YAW_STICK_PUSHED()						\
+  (radio_control.values[RADIO_CONTROL_YAW] > BOOZ2_AUTOPILOT_YAW_TRESHOLD || \
+   radio_control.values[RADIO_CONTROL_YAW] < -BOOZ2_AUTOPILOT_YAW_TRESHOLD)
+
 #define BOOZ2_AUTOPILOT_CHECK_IN_FLIGHT() {				\
     if (booz2_autopilot_in_flight) {					\
       if (booz2_autopilot_in_flight_counter > 0) {			\
-	if (rc_values[RADIO_THROTTLE] < BOOZ2_AUTOPILOT_THROTTLE_TRESHOLD) { \
+	if (THROTTLE_STICK_DOWN()) {					\
 	  booz2_autopilot_in_flight_counter--;				\
 	  if (booz2_autopilot_in_flight_counter == 0) {			\
 	    booz2_autopilot_in_flight = FALSE;				\
 	  }								\
 	}								\
-	else {	/* rc throttle > threshold */				\
+	else {	/* !THROTTLE_STICK_DOWN */				\
 	  booz2_autopilot_in_flight_counter = BOOZ2_AUTOPILOT_IN_FLIGHT_TIME; \
         }								\
       }									\
@@ -158,12 +164,12 @@ void booz2_autopilot_set_mode(uint8_t new_autopilot_mode) {
     else { /* not in flight */						\
       if (booz2_autopilot_in_flight_counter < BOOZ2_AUTOPILOT_IN_FLIGHT_TIME && \
 	  booz2_autopilot_motors_on) {					\
-	if (rc_values[RADIO_THROTTLE] > BOOZ2_AUTOPILOT_THROTTLE_TRESHOLD) { \
+	if (!THROTTLE_STICK_DOWN()) {					\
 	  booz2_autopilot_in_flight_counter++;				\
 	  if (booz2_autopilot_in_flight_counter == BOOZ2_AUTOPILOT_IN_FLIGHT_TIME) \
 	    booz2_autopilot_in_flight = TRUE;				\
 	}								\
-	else { /*  rc throttle < threshold */				\
+	else { /*  THROTTLE_STICK_DOWN */				\
 	  booz2_autopilot_in_flight_counter = 0;			\
 	}								\
       }									\
@@ -172,9 +178,7 @@ void booz2_autopilot_set_mode(uint8_t new_autopilot_mode) {
 
 #define BOOZ2_AUTOPILOT_CHECK_MOTORS_ON() {				\
     if (booz2_autopilot_motors_on) {					\
-      if (rc_values[RADIO_THROTTLE] < BOOZ2_AUTOPILOT_THROTTLE_TRESHOLD && \
-	  (rc_values[RADIO_YAW] > BOOZ2_AUTOPILOT_YAW_TRESHOLD ||	\
-	   rc_values[RADIO_YAW] < -BOOZ2_AUTOPILOT_YAW_TRESHOLD)) {	\
+      if (THROTTLE_STICK_DOWN() && YAW_STICK_PUSHED()) {		\
 	if ( booz2_autopilot_motors_on_counter > 0) {			\
 	  booz2_autopilot_motors_on_counter--;				\
 	  if (booz2_autopilot_motors_on_counter == 0)			\
@@ -186,9 +190,7 @@ void booz2_autopilot_set_mode(uint8_t new_autopilot_mode) {
       }									\
     }									\
     else { /* motors off */						\
-      if (rc_values[RADIO_THROTTLE] < BOOZ2_AUTOPILOT_THROTTLE_TRESHOLD && \
-	  (rc_values[RADIO_YAW] > BOOZ2_AUTOPILOT_YAW_TRESHOLD ||	\
-	   rc_values[RADIO_YAW] < -BOOZ2_AUTOPILOT_YAW_TRESHOLD)) {	\
+      if (THROTTLE_STICK_DOWN() && YAW_STICK_PUSHED()) {		\
 	if ( booz2_autopilot_motors_on_counter <  BOOZ2_AUTOPILOT_MOTOR_ON_TIME) { \
 	  booz2_autopilot_motors_on_counter++;				\
 	  if (booz2_autopilot_motors_on_counter == BOOZ2_AUTOPILOT_MOTOR_ON_TIME) \
@@ -203,33 +205,28 @@ void booz2_autopilot_set_mode(uint8_t new_autopilot_mode) {
 
 
 
-void booz2_autopilot_on_rc_event(void) {
+void booz2_autopilot_on_rc_frame(void) {
 
 #if 0
-      DOWNLINK_SEND_BOOZ_DEBUG(&rc_values[RADIO_THROTTLE],	\
-			       &rc_values[RADIO_ROLL],		\
-			       &rc_values[RADIO_PITCH],		\
-			       &rc_values[RADIO_YAW]);		
+  DOWNLINK_SEND_BOOZ_DEBUG(&rc_values[RADIO_THROTTLE],		\
+			   &rc_values[RADIO_ROLL],		\
+			   &rc_values[RADIO_PITCH],		\
+			   &rc_values[RADIO_YAW]);		
 #endif
-
-  /* I think this should be hidden in rc code */
-  /* the ap gets a mode everytime - the rc filters it */
-  if (rc_values_contains_avg_channels) {
-    uint8_t new_autopilot_mode = 0;
-    BOOZ_AP_MODE_OF_PPRZ(rc_values[RADIO_MODE],new_autopilot_mode);
-    booz2_autopilot_set_mode(new_autopilot_mode);
-    rc_values_contains_avg_channels = FALSE;
-  }
-
-#ifdef KILL_SWITCH
-  if (rc_values[KILL_SWITCH] < 0)
+  
+  uint8_t new_autopilot_mode = 0;
+  BOOZ_AP_MODE_OF_PPRZ(radio_control.values[RADIO_CONTROL_MODE], new_autopilot_mode);
+  booz2_autopilot_set_mode(new_autopilot_mode);
+  
+#ifdef RADIO_CONTROL_KILL_SWITCH
+  if (radio_control.values[RADIO_CONTROL_KILL_SWITCH] < 0)
     booz2_autopilot_set_mode(BOOZ2_AP_MODE_KILL);
 #endif
-
+  
   BOOZ2_AUTOPILOT_CHECK_MOTORS_ON();
   BOOZ2_AUTOPILOT_CHECK_IN_FLIGHT();
-
+  
   booz2_guidance_v_read_rc();
   booz2_guidance_h_read_rc(booz2_autopilot_in_flight);
-
+  
 }

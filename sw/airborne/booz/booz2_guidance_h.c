@@ -26,13 +26,12 @@
 #include "booz_ahrs.h"
 #include "booz2_stabilization_rate.h"
 #include "booz2_stabilization_attitude.h"
-#include "booz2_stabilization_attitude_ref_traj_euler.h"
 #include "booz2_fms.h"
 #include "booz2_ins.h"
 #include "booz2_navigation.h"
 
 #include "airframe.h"
-#include "radio_control.h"
+//#include "radio_control.h"
 
 uint8_t booz2_guidance_h_mode;
 

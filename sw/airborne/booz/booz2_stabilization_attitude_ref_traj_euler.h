@@ -25,6 +25,7 @@
 #define BOOZ2_STABILIZATION_ATTITUDE_REF_TRAJ_EULER_H
 
 #include "booz_geometry_mixed.h"
+#include "booz_radio_control.h"
 
 extern struct booz_ieuler booz_stabilization_att_sp;
 extern struct booz_ieuler booz_stabilization_att_ref;
@@ -153,19 +154,22 @@ extern struct booz_ivect  booz_stabilization_accel_ref;
 
 #define RC_UPDATE_FREQ 40
 
+#define YAW_DEADBAND_EXCEEDED()						\
+  (radio_control.values[RADIO_CONTROL_YAW] >  BOOZ_STABILIZATION_ATTITUDE_DEADBAND_R || \
+   radio_control.values[RADIO_CONTROL_YAW] < -BOOZ_STABILIZATION_ATTITUDE_DEADBAND_R)
+
 #define BOOZ2_STABILIZATION_ATTITUDE_READ_RC(_sp, _inflight) {		\
     									\
     _sp.phi =								\
-      ((int32_t)-rc_values[RADIO_ROLL]  * BOOZ_STABILIZATION_ATTITUDE_SP_MAX_PHI / MAX_PPRZ) \
+      ((int32_t)-radio_control.values[RADIO_CONTROL_ROLL]  * BOOZ_STABILIZATION_ATTITUDE_SP_MAX_PHI / MAX_PPRZ) \
       << (ANGLE_REF_RES - IANGLE_RES);					\
     _sp.theta =								\
-      ((int32_t) rc_values[RADIO_PITCH] * BOOZ_STABILIZATION_ATTITUDE_SP_MAX_THETA / MAX_PPRZ) \
+      ((int32_t) radio_control.values[RADIO_CONTROL_PITCH] * BOOZ_STABILIZATION_ATTITUDE_SP_MAX_THETA / MAX_PPRZ) \
       << (ANGLE_REF_RES - IANGLE_RES);					\
     if (_inflight) {							\
-      if (rc_values[RADIO_YAW] >  BOOZ_STABILIZATION_ATTITUDE_DEADBAND_R || \
-	  rc_values[RADIO_YAW] < -BOOZ_STABILIZATION_ATTITUDE_DEADBAND_R ) { \
+      if (YAW_DEADBAND_EXCEEDED()) {					\
 	_sp.psi +=							\
-	  ((int32_t)-rc_values[RADIO_YAW] * BOOZ_STABILIZATION_ATTITUDE_SP_MAX_R / MAX_PPRZ / RC_UPDATE_FREQ) \
+	  ((int32_t)-radio_control.values[RADIO_CONTROL_YAW] * BOOZ_STABILIZATION_ATTITUDE_SP_MAX_R / MAX_PPRZ / RC_UPDATE_FREQ) \
 	  << (ANGLE_REF_RES - IANGLE_RES);				\
 	ANGLE_REF_NORMALIZE(_sp.psi);					\
       }									\

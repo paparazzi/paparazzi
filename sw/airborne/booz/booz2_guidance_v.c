@@ -26,7 +26,7 @@
 #include "booz2_guidance_v.h"
 
 
-#include "radio_control.h"
+#include "booz_radio_control.h"
 #include "airframe.h"
 #include "booz2_stabilization.h"
 #include "booz2_fms.h"
@@ -98,9 +98,9 @@ void booz2_guidance_v_init(void) {
 void booz2_guidance_v_read_rc(void) {
 
   // used in RC_DIRECT directly and as saturation in CLIMB and HOVER
-  booz2_guidance_v_rc_delta_t = (int32_t)rc_values[RADIO_THROTTLE] * 200 / MAX_PPRZ;
+  booz2_guidance_v_rc_delta_t = (int32_t)radio_control.values[RADIO_CONTROL_THROTTLE] * 200 / MAX_PPRZ;
   // used in RC_CLIMB
-  booz2_guidance_v_rc_zd_sp   = ((MAX_PPRZ/2) - (int32_t)rc_values[RADIO_THROTTLE]) * 
+  booz2_guidance_v_rc_zd_sp   = ((MAX_PPRZ/2) - (int32_t)radio_control.values[RADIO_CONTROL_THROTTLE]) *
                                 BOOZ2_GUIDANCE_V_RC_CLIMB_COEF;
   DeadBand(booz2_guidance_v_rc_zd_sp, BOOZ2_GUIDANCE_V_RC_CLIMB_DEAD_BAND);
   
