@@ -134,6 +134,10 @@ void booz_ins_update_gps(void) {
     VECT2_SDIV(booz_ins_ltp_pos, (1<<(B2INS_POS_LTP_FRAC-IPOS_FRAC)), b2ins_pos_ltp);
     VECT2_SDIV(booz_ins_ltp_speed, (1<<(B2INS_SPEED_LTP_FRAC-ISPEED_RES)), b2ins_speed_ltp);
 #else
+    INT32_VECT3_SCALE_2(b2ins_meas_gps_pos_ned, booz_ins_gps_pos_cm_ned, 
+			IPOS_OF_CM_NUM, IPOS_OF_CM_DEN); 
+    INT32_VECT3_SCALE_2(b2ins_meas_gps_speed_ned, booz_ins_gps_speed_cm_s_ned,
+			ISPEED_OF_CM_S_NUM, ISPEED_OF_CM_S_DEN); 
     VECT3_COPY(booz_ins_ltp_pos,   b2ins_meas_gps_pos_ned);
     VECT3_COPY(booz_ins_ltp_speed, b2ins_meas_gps_speed_ned);
 #endif

@@ -27,17 +27,6 @@
 
 struct Booz_gps_state booz_gps_state;
 
-/* UBX NAV POSLLH */
-int32_t  booz2_gps_lon;
-int32_t  booz2_gps_lat;
-int32_t  booz2_gps_hmsl;
-uint32_t booz2_gps_hacc;
-uint32_t booz2_gps_vacc;
-
-/* UBX NAV VELNED */
-int32_t  booz2_gps_vel_n;
-int32_t  booz2_gps_vel_e;
-
 
 /* misc */
 volatile bool_t  booz2_gps_msg_received;
@@ -57,12 +46,7 @@ void booz2_gps_init(void) {
 void booz2_gps_read_ubx_message(void) {
 
   if (ubx_class == UBX_NAV_ID) {
-    if (ubx_id == UBX_NAV_POSLLH_ID) {
-      booz2_gps_lon = UBX_NAV_POSLLH_LON(ubx_msg_buf);
-      booz2_gps_lat = UBX_NAV_POSLLH_LAT(ubx_msg_buf);
-      booz2_gps_hmsl = UBX_NAV_POSLLH_HMSL(ubx_msg_buf);
-    }
-    else if (ubx_id == UBX_NAV_SOL_ID) {
+    if (ubx_id == UBX_NAV_SOL_ID) {
       booz_gps_state.fix          = UBX_NAV_SOL_GPSfix(ubx_msg_buf);
       booz_gps_state.ecef_pos.x   = UBX_NAV_SOL_ECEF_X(ubx_msg_buf);
       booz_gps_state.ecef_pos.y   = UBX_NAV_SOL_ECEF_Y(ubx_msg_buf);
@@ -82,10 +66,6 @@ void booz2_gps_read_ubx_message(void) {
 	LED_TOGGLE(GPS_LED);
       }
 #endif
-    }
-    else if (ubx_id == UBX_NAV_VELNED_ID) {
-      booz2_gps_vel_n = UBX_NAV_VELNED_VEL_N(ubx_msg_buf);
-      booz2_gps_vel_e = UBX_NAV_VELNED_VEL_E(ubx_msg_buf);
     }
   }
 

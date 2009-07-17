@@ -111,8 +111,11 @@
 			      &booz_imu.mag_unscaled.z);		\
   }
 
-
-
+#define PERIODIC_SEND_BOOZ2_BARO_RAW() {					\
+    DOWNLINK_SEND_BOOZ2_BARO_RAW(&booz2_analog_baro_offset,			\
+			         &booz2_analog_baro_value,			\
+			         &booz2_analog_baro_value_filtered);		\
+  }
 
 #include "booz2_imu.h"
 #include "booz2_stabilization.h"

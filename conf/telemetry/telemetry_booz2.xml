@@ -28,6 +28,7 @@
       <message name="IMU_ACCEL_RAW"     period=".05"/>
       <message name="IMU_GYRO_RAW"      period=".05"/>
       <message name="IMU_MAG_RAW"       period=".05"/>      
+      <message name="BOOZ2_BARO_RAW"    period=".1"/>      
     </mode>
 
     <mode name="scaled_sensors">
@@ -99,8 +100,9 @@
 
     <mode name="tune_hover">
       <message name="BOOZ2_TUNE_HOVER"               period=".05"/>
-<!--      <message name="BOOZ2_GPS"               period=".20"/>
-          <message name="BOOZ2_INS2"              period=".05"/>
+      <message name="BOOZ2_GPS"               period=".25"/>
+<!-- 
+         <message name="BOOZ2_INS2"              period=".05"/>
           <message name="BOOZ2_INS3"              period=".20"/>
           <message name="BOOZ2_INS_REF"           period="5.1"/> -->
     </mode>
