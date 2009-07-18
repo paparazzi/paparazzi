@@ -167,10 +167,12 @@
 				      &booz_stabilization_att_sum_err.phi, \
 				      &booz_stabilization_att_sum_err.theta, \
 				      &booz_stabilization_att_sum_err.psi, \
+				      &booz2_stabilization_att_err_cmd[COMMAND_ROLL], \
+				      &booz2_stabilization_att_err_cmd[COMMAND_PITCH], \
+				      &booz2_stabilization_att_err_cmd[COMMAND_YAW], \
 				      &booz2_stabilization_cmd[COMMAND_ROLL], \
 				      &booz2_stabilization_cmd[COMMAND_PITCH], \
-				      &booz2_stabilization_cmd[COMMAND_YAW], \
-				      &booz2_stabilization_cmd[COMMAND_THRUST]); \
+				      &booz2_stabilization_cmd[COMMAND_YAW]); \
   }
 
 

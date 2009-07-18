@@ -768,10 +768,12 @@
     <field name="sum_err_phi"   type="int32"/>   
     <field name="sum_err_theta" type="int32"/>   
     <field name="sum_err_psi"   type="int32"/>   
-    <field name="delta_a" type="int32"/>
-    <field name="delta_e" type="int32"/>
-    <field name="delta_r" type="int32"/>
-    <field name="delta_t" type="int32"/>
+    <field name="delta_a_err"   type="int32"/>
+    <field name="delta_e_err"   type="int32"/>
+    <field name="delta_r_err"   type="int32"/>
+    <field name="delta_a"       type="int32"/>
+    <field name="delta_e"       type="int32"/>
+    <field name="delta_r"       type="int32"/>
  </message>
 
  <message name="BOOZ2_STAB_ATTITUDE_REF" id="141"> 

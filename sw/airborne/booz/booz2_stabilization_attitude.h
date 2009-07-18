@@ -26,6 +26,8 @@
 
 #include "math/pprz_algebra_int.h"
 
+#include "airframe.h"
+
 extern void booz2_stabilization_attitude_init(void);
 extern void booz2_stabilization_attitude_read_rc(bool_t in_flight);
 extern void booz2_stabilization_attitude_enter(void);
@@ -44,5 +46,7 @@ extern struct Int32Vect3  booz_stabilization_pgain;
 extern struct Int32Vect3  booz_stabilization_dgain;
 extern struct Int32Vect3  booz_stabilization_ddgain;
 extern struct Int32Eulers booz_stabilization_att_sum_err;
+
+extern int32_t booz2_stabilization_att_err_cmd[COMMANDS_NB];
 
 #endif /* BOOZ2_STABILIZATION_ATTITUDE_H */
