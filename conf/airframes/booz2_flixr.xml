@@ -158,8 +158,7 @@
 #ap.CFLAGS += -DKILL_MOTORS
 ap.CFLAGS += -DKILL_SWITCH=RADIO_SWITCH1
 
-ap.CFLAGS += -DUART1_BAUD=B57600
-
+ap.CFLAGS += -DMODEM_BAUD=B57600
 include $(PAPARAZZI_SRC)/conf/autopilot/booz2_actuators_buss.makefile
 include $(PAPARAZZI_SRC)/conf/autopilot/booz2_radio_control_ppm.makefile
 include $(PAPARAZZI_SRC)/conf/autopilot/booz2_imu_b2v1.makefile

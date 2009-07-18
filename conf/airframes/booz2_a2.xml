@@ -32,34 +32,13 @@
     <define name="ACCEL_Y_CHAN" value="5"/>
     <define name="ACCEL_Z_CHAN" value="6"/>    
 
+    <define name="ACCEL_X_SENS" value="-6.29676358" integer="16"/>
+    <define name="ACCEL_Y_SENS" value="-6.07991732" integer="16"/>
+    <define name="ACCEL_Z_SENS" value=" 6.62632272" integer="16"/>
 
-<!--
-    <define name="ACCEL_X_SENS" value="-5.94047559" integer="16"/>
-    <define name="ACCEL_Y_SENS" value="-5.25008239" integer="16"/>
-    <define name="ACCEL_Z_SENS" value=" 6.06493700" integer="16"/>
-
-    <define name="ACCEL_X_NEUTRAL" value="39897"/>
-    <define name="ACCEL_Y_NEUTRAL" value="39865"/>
-    <define name="ACCEL_Z_NEUTRAL" value="39735"/>
--->
-
-
-<define name="ACCEL_X_SENS" value="-6.29676358" integer="16"/>
-<define name="ACCEL_Y_SENS" value="-6.07991732" integer="16"/>
-<define name="ACCEL_Z_SENS" value=" 6.62632272" integer="16"/>
-
-<define name="ACCEL_X_NEUTRAL" value="40385"/>
-<define name="ACCEL_Y_NEUTRAL" value="39223"/>
-<define name="ACCEL_Z_NEUTRAL" value="38860"/>
-
-
-
-
-<!--
-    <define name="MAG_X_CHAN" value="4"/>
-    <define name="MAG_Y_CHAN" value="0"/>
-    <define name="MAG_Z_CHAN" value="2"/>
--->
+    <define name="ACCEL_X_NEUTRAL" value="40385"/>
+    <define name="ACCEL_Y_NEUTRAL" value="39223"/>
+    <define name="ACCEL_Z_NEUTRAL" value="38860"/>
 
     <define name="MAG_X_CHAN" value="0"/>
     <define name="MAG_Y_CHAN" value="4"/>
@@ -161,14 +140,6 @@
 
   <makefile>
 
-# calib bat
-# 8.39     80
-# 10.12    149
-# 12       227
-# 12.55    250
-#
-
-
 # prevents motors from ever starting
 #ap.CFLAGS += -DKILL_MOTORS
 
@@ -178,7 +149,7 @@ include $(PAPARAZZI_SRC)/conf/autopilot/booz2_test_progs.makefile
 sim.CFLAGS += -DBSM_PARAMS=\"booz_sensors_model_params_booz2_a2.h\"
 include $(PAPARAZZI_SRC)/conf/autopilot/booz2_simulator.makefile
 
-ap.CFLAGS += -DUART1_BAUD=B57600
+ap.CFLAGS += -DMODEM_BAUD=B57600
 include $(PAPARAZZI_SRC)/conf/autopilot/booz2_radio_control_ppm.makefile
 include $(PAPARAZZI_SRC)/conf/autopilot/booz2_actuators_asctec.makefile
 include $(PAPARAZZI_SRC)/conf/autopilot/booz2_imu_crista.makefile

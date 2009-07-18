@@ -29,11 +29,6 @@
     <define name="GYRO_P_NEUTRAL" value="32238"/>
     <define name="GYRO_Q_NEUTRAL" value="32391"/>
     <define name="GYRO_R_NEUTRAL" value="32853"/>
-    <!--
-    <define name="GYRO_P_NEUTRAL" value="31993"/>
-    <define name="GYRO_Q_NEUTRAL" value="31923"/>
-    <define name="GYRO_R_NEUTRAL" value="32727"/>
-    -->
 
     <define name="GYRO_P_SENS" value=" 1.00" integer="16"/>
     <define name="GYRO_Q_SENS" value="-1.00" integer="16"/>
@@ -43,15 +38,6 @@
     <define name="ACCEL_Y_CHAN" value="3"/>
     <define name="ACCEL_Z_CHAN" value="4"/>    
 
-    <!--
-    <define name="ACCEL_X_SENS" value="-2.58291748" integer="16"/>
-    <define name="ACCEL_Y_SENS" value="-2.53729378" integer="16"/>
-    <define name="ACCEL_Z_SENS" value="-2.57289306" integer="16"/>
-
-    <define name="ACCEL_X_NEUTRAL" value="32803"/>
-    <define name="ACCEL_Y_NEUTRAL" value="32466"/>
-    <define name="ACCEL_Z_NEUTRAL" value="32575"/>
-    -->
     <define name="ACCEL_X_SENS" value="-2.55975587" integer="16"/>
     <define name="ACCEL_Y_SENS" value="-2.55643340" integer="16"/>
     <define name="ACCEL_Z_SENS" value="-2.57178460" integer="16"/>
@@ -71,15 +57,6 @@
     <define name="MAG_X_SENS" value="22.008352" integer="16"/>
     <define name="MAG_Y_SENS" value="-21.79885" integer="16"/>
     <define name="MAG_Z_SENS" value="-14.675745" integer="16"/>
-    <!-- 
-    <define name="MAG_X_NEUTRAL" value="2358"/>
-    <define name="MAG_Y_NEUTRAL" value="2362"/> 
-    <define name="MAG_Z_NEUTRAL" value="2119"/>
-
-    <define name="MAG_X_SENS" value="-4.94075530" integer="16"/>
-    <define name="MAG_Y_SENS" value="5.10207664" integer="16"/>
-    <define name="MAG_Z_SENS" value="-4.90788848" integer="16"/>
-    -->
 
     <define name="BODY_TO_IMU_PHI"   value="ANGLE_BFP_OF_REAL(RadOfDeg(-0.2))"/>
     <define name="BODY_TO_IMU_THETA" value="ANGLE_BFP_OF_REAL(RadOfDeg(0.9))"/>
@@ -180,10 +157,7 @@
 include $(PAPARAZZI_SRC)/conf/autopilot/booz2_autopilot.makefile
 include $(PAPARAZZI_SRC)/conf/autopilot/booz2_test_progs.makefile
 
-sim.CFLAGS += -DBSM_PARAMS=\"booz_sensors_model_params_booz2_a2.h\"
-include $(PAPARAZZI_SRC)/conf/autopilot/booz2_simulator.makefile
-
-ap.CFLAGS += -DUART1_BAUD=B57600
+ap.CFLAGS += -DMODEM_BAUD=B57600
 include $(PAPARAZZI_SRC)/conf/autopilot/booz2_actuators_asctec.makefile
 include $(PAPARAZZI_SRC)/conf/autopilot/booz2_radio_control_ppm.makefile
 include $(PAPARAZZI_SRC)/conf/autopilot/booz2_imu_b2v1_1.makefile
