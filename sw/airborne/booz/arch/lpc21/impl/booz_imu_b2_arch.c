@@ -103,13 +103,13 @@ void booz_imu_periodic(void) {
 
 static inline bool_t isr_try_mag(void) {
   switch (micromag_status) {
-  case MM_IDLE :
+  case MS2001_IDLE :
     Booz2ImuSetSSP8bits();
-    MmSendReq();
+    Ms2001SendReq();
     return TRUE;
-  case MM_GOT_EOC:
+  case MS2001_GOT_EOC:
     Booz2ImuSetSSP8bits();
-    MmReadRes();
+    Ms2001ReadRes();
     return TRUE;
   }
   return FALSE;
@@ -127,7 +127,7 @@ static void SSP_ISR(void) {
      booz2_imu_ssp_status = BOOZ2_IMU_SSP_STA_IDLE;
    break;
  case BOOZ2_IMU_SSP_STA_BUSY_MS2100:
-   MmOnSpiIt();
+   Ms2001OnSpiIt();
    booz2_imu_ssp_status = BOOZ2_IMU_SSP_STA_IDLE;
    break;
  default:
@@ -148,13 +148,13 @@ static void SSP_ISR(void) {
  case BOOZ_IMU_SSP_STA_BUSY_MAX1168:
    Max1168OnSpiInt();
 #if defined IMU_B2_MAG_TYPE && IMU_B2_MAG_TYPE == IMU_B2_MAG_MS2001 
-  if (micromag_status == MM_IDLE || micromag_status == MM_GOT_EOC) {
+  if (ms2001_status == MS2001_IDLE || ms2001_status == MS2001_GOT_EOC) {
      BoozImuSetSSP8bits();
-     if (micromag_status == MM_IDLE) {
-       MmSendReq();
+     if (ms2001_status == MS2001_IDLE) {
+       Ms2001SendReq();
      }
-     else { /* MM_GOT_EOC */
-       MmReadRes();
+     else { /* MS2001_GOT_EOC */
+       Ms2001ReadRes();
      }
      booz_imu_ssp_status = BOOZ_IMU_SSP_STA_BUSY_MS2100;
    }
@@ -167,9 +167,9 @@ static void SSP_ISR(void) {
   break;
 #if defined IMU_B2_MAG_TYPE && IMU_B2_MAG_TYPE == IMU_B2_MAG_MS2001 
  case BOOZ_IMU_SSP_STA_BUSY_MS2100:
-   MmOnSpiIt();
-   if (micromag_status == MM_IDLE) {
-    MmSendReq();
+   Ms2001OnSpiIt();
+   if (ms2001_status == MS2001_IDLE) {
+    Ms2001SendReq();
     booz_imu_ssp_status = BOOZ_IMU_SSP_STA_BUSY_MS2100;
    }
    else

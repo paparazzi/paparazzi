@@ -48,7 +48,7 @@ sim.srcs += $(SRC_BOOZ)/booz_trig_int.c \
 
 
 
-sim.CFLAGS += -DCONFIG=\"booz2_board_v1_0.h\"
+sim.CFLAGS += -DBOARD_CONFIG=\"booz2_board_v1_0.h\"
 
 sim.srcs   += $(SRC_BOOZ_SIM)/booz2_unsimulated_peripherals.c
 sim.srcs   += $(SRC_BOOZ)/booz2_main.c
@@ -66,8 +66,15 @@ sim.srcs += $(SRC_BOOZ)/booz2_telemetry.c \
 
 sim.srcs   += $(SRC_BOOZ)/booz2_commands.c
 
-sim.CFLAGS += -DRADIO_CONTROL -DRC_LED=1
-sim.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c
+#sim.CFLAGS += -DRADIO_CONTROL -DRC_LED=1
+#sim.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c
+
+sim.CFLAGS += -DUSE_RADIO_CONTROL -DRADIO_CONTROL_LED=1
+sim.CFLAGS += -DRADIO_CONTROL_TYPE_H=\"booz_radio_control_ppm.h\"
+sim.CFLAGS += -DRADIO_CONTROL_TYPE_PPM
+sim.srcs += $(SRC_BOOZ)/booz_radio_control.c \
+            $(SRC_BOOZ)/booz_radio_control_ppm.c \
+            $(SRC_BOOZ_SIM)/booz_radio_control_ppm_hw.c
 
 
 sim.CFLAGS += -DBOOZ2_ANALOG_BARO_LED=2 -DBOOZ2_ANALOG_BARO_PERIOD='SYS_TICS_OF_SEC((1./100.))'

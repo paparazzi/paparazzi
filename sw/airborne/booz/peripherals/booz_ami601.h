@@ -1,5 +1,5 @@
-#ifndef AMI601_H
-#define AMI601_H
+#ifndef BOOZ_AMI601_H
+#define BOOZ_AMI601_H
 
 #include "std.h"
 #include "i2c.h"
@@ -11,7 +11,7 @@ extern void ami601_periodic( void );
 extern void ami601_scale_measures(void);
 
 #define AMI601_NB_CHAN 6
-extern uint16_t ami601_val[AMI601_NB_CHAN];
+extern uint16_t ami601_values[AMI601_NB_CHAN];
 extern uint8_t ami601_foo1;
 extern uint8_t ami601_foo2;
 extern uint8_t ami601_foo3;
@@ -21,8 +21,8 @@ extern uint8_t ami601_foo3;
 #define AMI601_WAITING_MEASURE 2
 #define AMI601_READING_MEASURE 3
 #define AMI601_DATA_AVAILABLE  4
-extern volatile uint8_t ami601_status;
-extern volatile bool_t ami601_i2c_done;
+extern volatile uint8_t  ami601_status;
+extern volatile bool_t   ami601_i2c_done;
 extern volatile uint32_t ami601_nb_err;
 
 #define AMI601_SLAVE_ADDR 0x60
@@ -53,8 +53,8 @@ extern volatile uint32_t ami601_nb_err;
 	ami601_foo3 = i2c1_buf[2]; /* ERR ? */				\
 	uint8_t i;							\
 	for (i=0; i< AMI601_NB_CHAN; i++) {				\
-	  ami601_val[i] = i2c1_buf[3 + 2 * i];				\
-	  ami601_val[i] += i2c1_buf[3 + 2 * i + 1] * 256;		\
+	  ami601_values[i] = i2c1_buf[3 + 2 * i];			\
+	  ami601_values[i] += i2c1_buf[3 + 2 * i + 1] * 256;		\
 	}								\
 	ami601_status = AMI601_DATA_AVAILABLE;				\
 	_handler();							\
@@ -64,11 +64,9 @@ extern volatile uint32_t ami601_nb_err;
   }
 #endif
 
-#define AMI_601_IT TIR_MR1I
-#define AMI_601_ISR()  AMI601ReadMeasure()
+#define AMI601_IT TIR_MR1I
+#define AMI601_ISR()  AMI601ReadMeasure()
 #define AMI601ReadMeasure() {						\
-    /* disable match 1 interrupt */					\
-    /*    T0MCR |= TMCR_MR1_I;   */					\
     ami601_i2c_done = FALSE;						\
     ami601_status =  AMI601_READING_MEASURE;				\
     i2c1_receive(AMI601_SLAVE_ADDR, 15, &ami601_i2c_done);		\

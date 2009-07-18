@@ -1,6 +1,6 @@
 #include "adc_generic.h"
 #include "adc.h"
-#include CONFIG
+#include BOARD_CONFIG
 
 #ifdef USE_ADC_GENERIC
 uint16_t adc_generic_val1;

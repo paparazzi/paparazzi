@@ -23,7 +23,8 @@
 
 #include "booz_ahrs_aligner.h"
 
-#include "booz2_imu.h"
+#include <stdlib.h> /* for abs() */
+#include "booz_imu.h"
 #include "led.h"
 
 struct BoozAhrsAligner booz_ahrs_aligner;

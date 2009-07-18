@@ -24,9 +24,11 @@
 #ifndef LED_HW_H
 #define LED_HW_H
 
-#include CONFIG
 #include <stm32/gpio.h>
 #include <stm32/rcc.h>
+
+#include BOARD_CONFIG
+
 #include "std.h"
 
 #define _LED_GPIO_CLK(i)  i

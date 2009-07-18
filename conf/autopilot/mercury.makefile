@@ -49,7 +49,7 @@ ap.TARGET = main
 ap.TARGETDIR = main
 
 ap.CFLAGS += -I$(SRC_CSC) -I$(SRC_BOOZ) -I$(SRC_CSC_ARCH)
-ap.CFLAGS += -DCONFIG=$(BOARD_CFG)
+ap.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
 ap.srcs += $(SRC_CSC)/mercury_main.c
 ap.CFLAGS += -DLED -DTIME_LED=1
 ap.CFLAGS += -DAHRS_ALIGNER_LED=2
@@ -72,8 +72,8 @@ ap.srcs += downlink.c pprz_transport.c $(SRC_CSC)/csc_telemetry.c
 ap.CFLAGS += -DDATALINK=PPRZ -DPPRZ_UART=Uart1
 ap.srcs += $(SRC_CSC)/csc_datalink.c
 
-ap.CFLAGS += -DBOOZ_TRIG_CONST=const
-ap.srcs += $(SRC_CSC)/mercury_xsens.c $(SRC_BOOZ)/booz2_imu.c $(SRC_BOOZ)/booz_trig_int.c
+ap.CFLAGS += -DPPRZ_TRIG_CONST=const
+ap.srcs += $(SRC_CSC)/mercury_xsens.c $(SRC_BOOZ)/booz_imu.c math/pprz_trig_int.c
 ap.CFLAGS += -DXSENS1_LINK=Uart0 -DBOOZ2_IMU_TYPE=\"mercury_xsens.h\"
 
 ap.srcs += $(SRC_BOOZ)/booz2_filter_attitude_cmpl_euler.c $(SRC_BOOZ)/booz_ahrs_aligner.c
@@ -125,7 +125,7 @@ test_uart.TARGETDIR = test_uart
 
 
 test_uart.CFLAGS += -I$(SRC_CSC)
-test_uart.CFLAGS += -DCONFIG=$(BOARD_CFG)
+test_uart.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
 test_uart.srcs += $(SRC_CSC)/csc_test_uart.c
 test_uart.CFLAGS += -DLED
 

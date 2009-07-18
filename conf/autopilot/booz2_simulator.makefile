@@ -45,7 +45,7 @@ sim.srcs = $(SIMDIR)/booz2_sim_main.c                \
            $(SIMDIR)/booz_sensors_model_gps.c        \
            $(SIMDIR)/booz_wind_model.c               \
 
-sim.CFLAGS += -DCONFIG=\"booz2_board_v1_0.h\"
+sim.CFLAGS += -DBOARD_CONFIG=\"booz2_board_v1_0.h\"
 
 sim.srcs   += $(SRC_BOOZ_SIM)/booz2_unsimulated_peripherals.c
 sim.srcs   += $(SRC_BOOZ)/booz2_main.c

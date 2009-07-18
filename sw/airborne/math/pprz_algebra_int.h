@@ -27,10 +27,8 @@
 
 
 #include "std.h"
-#include "pprz_algebra.h"
-
-// TO BE REMOVED
-#include "booz_geometry_int.h"
+#include "math/pprz_algebra.h"
+#include "math/pprz_trig_int.h"
 
 struct Uint16Vect3 {
   uint16_t x;
@@ -45,7 +43,16 @@ struct Int16Vect3 {
 };
 
 #define INT32_POS_FRAC 8
+#define INT32_POS_OF_CM 2.56
+#define INT32_POS_OF_CM_NUM 64
+#define INT32_POS_OF_CM_DEN 25
+
 #define INT32_SPEED_FRAC 19
+#define INT32_SPEED_OF_CM_S 5242.88
+#define INT32_SPEED_OF_CM_S_NUM 41943
+#define INT32_SPEED_OF_CM_S_DEN 8
+
+#define INT32_ACCEL_FRAC 10
 struct Int32Vect2 {
   int32_t x;
   int32_t y;
@@ -76,6 +83,18 @@ struct Int32Quat {
 
 #define INT32_RAD_OF_DEG(_deg) (int32_t)(((int64_t)_deg * 14964008)/857374503)
 #define INT32_DEG_OF_RAD(_rad) (int32_t)(((int64_t)_rad * 857374503)/14964008)
+
+#define INT32_ANGLE_NORMALIZE(_a) {				\
+    while (_a > INT32_ANGLE_PI)  _a -= INT32_ANGLE_2_PI;	\
+    while (_a < -INT32_ANGLE_PI) _a += INT32_ANGLE_2_PI;	\
+  }
+
+
+struct Int16Eulers {
+  int16_t phi;
+  int16_t theta;
+  int16_t psi;
+};
 
 struct Int32Eulers {
   int32_t phi;
@@ -129,13 +148,15 @@ struct Int64Vect3 {
 #define POS_FLOAT_OF_BFP(_ai) FLOAT_OF_BFP((_ai), INT32_POS_FRAC)
 #define SPEED_BFP_OF_REAL(_af)  BFP_OF_REAL(_af, INT32_SPEED_FRAC)
 #define SPEED_FLOAT_OF_BFP(_ai) FLOAT_OF_BFP((_ai), INT32_SPEED_FRAC)
+#define ACCEL_BFP_OF_REAL(_af)  BFP_OF_REAL(_af, INT32_ACCEL_FRAC)
+#define ACCEL_FLOAT_OF_BFP(_ai) FLOAT_OF_BFP((_ai), INT32_ACCEL_FRAC)
 
 #define INT_MULT_RSHIFT(_a, _b, _r) (((_a)*(_b))>>(_r))
 /*
  * Dimension 2 Vectors
  */
 
-#define INT_VECT2_ZERO(_o) VECT2_ASSIGN(_o, 0, 0)
+#define INT_VECT2_ZERO(_v) VECT2_ASSIGN(_v, 0, 0)
 
 #define INT32_VECT2_NORM(n, v) {					\
     int32_t n2 = v.x*v.x + v.y*v.y;					\
@@ -156,8 +177,8 @@ struct Int64Vect3 {
  * Dimension 3 Vectors
  */
 
-#define INT_VECT3_ZERO(_o) VECT3_ASSIGN(_o, 0, 0, 0)
-#define INT32_VECT3_ZERO(_o) VECT3_ASSIGN(_o, 0, 0, 0)
+#define INT_VECT3_ZERO(_v) VECT3_ASSIGN(_v, 0, 0, 0)
+#define INT32_VECT3_ZERO(_v) VECT3_ASSIGN(_v, 0, 0, 0)
 
 #define INT32_VECT3_COPY(_o, _i) {		\
     _o.x = _i.x;				\
@@ -249,6 +270,12 @@ struct Int64Vect3 {
     (_vb).z = ( (_m_a2b).m[6]*(_va).x + (_m_a2b).m[7]*(_va).y + (_m_a2b).m[8]*(_va).z)>>INT32_TRIG_FRAC; \
   }
 
+#define INT32_RMAT_TRANSP_VMULT(_vb, _m_b2a, _va) {				                         \
+    (_vb).x = ( (_m_b2a).m[0]*(_va).x + (_m_b2a).m[3]*(_va).y + (_m_b2a).m[6]*(_va).z)>>INT32_TRIG_FRAC; \
+    (_vb).y = ( (_m_b2a).m[1]*(_va).x + (_m_b2a).m[4]*(_va).y + (_m_b2a).m[7]*(_va).z)>>INT32_TRIG_FRAC; \
+    (_vb).z = ( (_m_b2a).m[2]*(_va).x + (_m_b2a).m[5]*(_va).y + (_m_b2a).m[8]*(_va).z)>>INT32_TRIG_FRAC; \
+  }
+
 
 #define INT32_RMAT_TRANSP_RATEMULT(_vb, _m_b2a, _va) {				                         \
     (_vb).p = ( (_m_b2a).m[0]*(_va).p + (_m_b2a).m[3]*(_va).q + (_m_b2a).m[6]*(_va).r)>>INT32_TRIG_FRAC; \
@@ -273,23 +300,23 @@ struct Int64Vect3 {
     const int32_t one = TRIG_BFP_OF_REAL( 1);				    \
     const int32_t two = TRIG_BFP_OF_REAL( 2);				    \
     /* dcm00 = 1.0 - 2.*(  qy2 +  qz2 ); */				    \
-    _rm.m[0] =  one - INT_MULT_RSHIFT( two, (qy2+qz2), ITRIG_RES+INT32_QUAT_FRAC-ITRIG_RES); \
+    _rm.m[0] =  one - INT_MULT_RSHIFT( two, (qy2+qz2), INT32_TRIG_FRAC+INT32_QUAT_FRAC-INT32_TRIG_FRAC); \
     /* dcm01 =       2.*( qxqy + qiqz ); */				    \
-    _rm.m[1] = INT_MULT_RSHIFT( two, (qxqy+qiqz), ITRIG_RES+INT32_QUAT_FRAC-ITRIG_RES); \
+    _rm.m[1] = INT_MULT_RSHIFT( two, (qxqy+qiqz), INT32_TRIG_FRAC+INT32_QUAT_FRAC-INT32_TRIG_FRAC); \
     /* dcm02 =       2.*( qxqz - qiqy ); */				    \
-    _rm.m[2] = INT_MULT_RSHIFT( two, (qxqz-qiqy), ITRIG_RES+INT32_QUAT_FRAC-ITRIG_RES); \
+    _rm.m[2] = INT_MULT_RSHIFT( two, (qxqz-qiqy), INT32_TRIG_FRAC+INT32_QUAT_FRAC-INT32_TRIG_FRAC); \
     /* dcm10 = 2.*( qxqy - qiqz );       */				    \
-    _rm.m[3] = INT_MULT_RSHIFT( two, (qxqy-qiqz), ITRIG_RES+INT32_QUAT_FRAC-ITRIG_RES); \
+    _rm.m[3] = INT_MULT_RSHIFT( two, (qxqy-qiqz), INT32_TRIG_FRAC+INT32_QUAT_FRAC-INT32_TRIG_FRAC); \
     /* dcm11 = 1.0 - 2.*(qx2+qz2);       */				    \
-    _rm.m[4] = one - INT_MULT_RSHIFT( two, (qx2+qz2), ITRIG_RES+INT32_QUAT_FRAC-ITRIG_RES); \
+    _rm.m[4] = one - INT_MULT_RSHIFT( two, (qx2+qz2), INT32_TRIG_FRAC+INT32_QUAT_FRAC-INT32_TRIG_FRAC); \
     /* dcm12 =       2.*( qyqz + qiqx ); */				    \
-    _rm.m[5] = INT_MULT_RSHIFT( two, (qyqz+qiqx), ITRIG_RES+INT32_QUAT_FRAC-ITRIG_RES); \
+    _rm.m[5] = INT_MULT_RSHIFT( two, (qyqz+qiqx), INT32_TRIG_FRAC+INT32_QUAT_FRAC-INT32_TRIG_FRAC); \
     /* dcm20 =       2.*( qxqz + qiqy ); */				    \
-    _rm.m[6] = INT_MULT_RSHIFT( two, (qxqz+qiqy), ITRIG_RES+INT32_QUAT_FRAC-ITRIG_RES); \
+    _rm.m[6] = INT_MULT_RSHIFT( two, (qxqz+qiqy), INT32_TRIG_FRAC+INT32_QUAT_FRAC-INT32_TRIG_FRAC); \
     /* dcm21 =       2.*( qyqz - qiqx ); */				    \
-    _rm.m[7] = INT_MULT_RSHIFT( two, (qyqz-qiqx), ITRIG_RES+INT32_QUAT_FRAC-ITRIG_RES); \
+    _rm.m[7] = INT_MULT_RSHIFT( two, (qyqz-qiqx), INT32_TRIG_FRAC+INT32_QUAT_FRAC-INT32_TRIG_FRAC); \
     /* dcm22 = 1.0 - 2.*(  qx2 +  qy2 ); */				    \
-    _rm.m[8] = one - INT_MULT_RSHIFT( two, (qx2+qy2), ITRIG_RES+INT32_QUAT_FRAC-ITRIG_RES); \
+    _rm.m[8] = one - INT_MULT_RSHIFT( two, (qx2+qy2), INT32_TRIG_FRAC+INT32_QUAT_FRAC-INT32_TRIG_FRAC); \
   }
 
 /*
@@ -301,18 +328,18 @@ struct Int64Vect3 {
 #define INT32_RMAT_OF_EULERS_321(_rm, _e) {				\
 									\
     int32_t sphi;							\
-    BOOZ_ISIN(sphi, (_e).phi);						\
+    PPRZ_ITRIG_SIN(sphi, (_e).phi);					\
     int32_t cphi;							\
-    BOOZ_ICOS(cphi, (_e).phi);						\
+    PPRZ_ITRIG_COS(cphi, (_e).phi);					\
     int32_t stheta;							\
-    BOOZ_ISIN(stheta, (_e).theta);					\
+    PPRZ_ITRIG_SIN(stheta, (_e).theta);					\
     int32_t ctheta;							\
-    BOOZ_ICOS(ctheta, (_e).theta);					\
+    PPRZ_ITRIG_COS(ctheta, (_e).theta);					\
     int32_t spsi;							\
-    BOOZ_ISIN(spsi, (_e).psi);						\
+    PPRZ_ITRIG_SIN(spsi, (_e).psi);					\
     int32_t cpsi;							\
-    BOOZ_ICOS(cpsi, (_e).psi);						\
-									\
+    PPRZ_ITRIG_COS(cpsi, (_e).psi);					\
+    									\
     int32_t ctheta_cpsi = INT_MULT_RSHIFT(ctheta, cpsi,   INT32_TRIG_FRAC); \
     int32_t ctheta_spsi = INT_MULT_RSHIFT(ctheta, spsi,   INT32_TRIG_FRAC); \
     int32_t cphi_spsi   = INT_MULT_RSHIFT(cphi,   spsi,   INT32_TRIG_FRAC); \
@@ -345,17 +372,17 @@ struct Int64Vect3 {
 #define INT32_RMAT_OF_EULERS_312(_rm, _e) {				\
     									\
     int32_t sphi;							\
-    BOOZ_ISIN(sphi, (_e).phi);						\
+    PPRZ_ITRIG_SIN(sphi, (_e).phi);					\
     int32_t cphi;							\
-    BOOZ_ICOS(cphi, (_e).phi);						\
+    PPRZ_ITRIG_COS(cphi, (_e).phi);					\
     int32_t stheta;							\
-    BOOZ_ISIN(stheta, (_e).theta);					\
+    PPRZ_ITRIG_SIN(stheta, (_e).theta);					\
     int32_t ctheta;							\
-    BOOZ_ICOS(ctheta, (_e).theta);					\
+    PPRZ_ITRIG_COS(ctheta, (_e).theta);					\
     int32_t spsi;							\
-    BOOZ_ISIN(spsi, (_e).psi);						\
+    PPRZ_ITRIG_SIN(spsi, (_e).psi);					\
     int32_t cpsi;							\
-    BOOZ_ICOS(cpsi, (_e).psi);						\
+    PPRZ_ITRIG_COS(cpsi, (_e).psi);					\
     									\
     									\
     int32_t stheta_spsi = INT_MULT_RSHIFT(stheta, spsi,   INT32_TRIG_FRAC); \
@@ -485,17 +512,17 @@ struct Int64Vect3 {
     const int32_t psi2   = (_e).psi   / 2;				\
     									\
     int32_t s_phi2;							\
-    BOOZ_ISIN(s_phi2, phi2);						\
+    PPRZ_ITRIG_SIN(s_phi2, phi2);					\
     int32_t c_phi2;							\
-    BOOZ_ICOS(c_phi2, phi2);						\
+    PPRZ_ITRIG_COS(c_phi2, phi2);					\
     int32_t s_theta2;							\
-    BOOZ_ISIN(s_theta2, theta2);					\
+    PPRZ_ITRIG_SIN(s_theta2, theta2);					\
     int32_t c_theta2;							\
-    BOOZ_ICOS(c_theta2, theta2);					\
+    PPRZ_ITRIG_COS(c_theta2, theta2);					\
     int32_t s_psi2;							\
-    BOOZ_ISIN(s_psi2, psi2);						\
+    PPRZ_ITRIG_SIN(s_psi2, psi2);					\
     int32_t c_psi2;							\
-    BOOZ_ICOS(c_psi2, psi2);						\
+    PPRZ_ITRIG_COS(c_psi2, psi2);					\
 									\
     int32_t c_th_c_ps = INT_MULT_RSHIFT(c_theta2, c_psi2, INT32_TRIG_FRAC); \
     int32_t c_th_s_ps = INT_MULT_RSHIFT(c_theta2, s_psi2, INT32_TRIG_FRAC); \

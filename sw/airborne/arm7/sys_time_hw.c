@@ -44,9 +44,9 @@ uint32_t sys_time_chrono;       /* T0TC ticks */
 #endif
 
 #ifdef USE_AMI601
-#include "AMI601.h"
+#include "peripherals/booz_ami601.h"
 #else
-#define AMI_601_IT 0x00
+#define AMI601_IT 0x00
 #endif
 
 
@@ -56,7 +56,7 @@ uint32_t sys_time_chrono;       /* T0TC ticks */
                         MB_SCALE_IT          |\
                         MB_TACHO_IT          |\
                         PWM_INPUT_IT         |\
-                        AMI_601_IT)
+                        AMI601_IT)
 
 void TIMER0_ISR ( void ) {
   ISR_ENTRY();
@@ -108,9 +108,9 @@ void TIMER0_ISR ( void ) {
     }
 #endif
 #ifdef USE_AMI601
-    if (T0IR&AMI_601_IT) {
-      AMI_601_ISR();
-      T0IR = AMI_601_IT; 
+    if (T0IR&AMI601_IT) {
+      AMI601_ISR();
+      T0IR = AMI601_IT; 
     }
 #endif
   }

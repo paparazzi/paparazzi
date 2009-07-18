@@ -113,10 +113,10 @@
   </section>
 
   <section name="GUIDANCE_V" prefix="BOOZ2_GUIDANCE_V_">
-   <define name="MIN_ERR_Z"    value="BOOZ_POS_I_OF_F(-10.)"/>
-   <define name="MAX_ERR_Z"    value="BOOZ_POS_I_OF_F( 10.)"/>
-   <define name="MIN_ERR_ZD"   value="BOOZ_SPEED_I_OF_F(-10.)"/>
-   <define name="MAX_ERR_ZD"   value="BOOZ_SPEED_I_OF_F( 10.)"/>
+   <define name="MIN_ERR_Z"    value="POS_BFP_OF_REAL(-10.)"/>
+   <define name="MAX_ERR_Z"    value="POS_BFP_OF_REAL( 10.)"/>
+   <define name="MIN_ERR_ZD"   value="SPEED_BFP_OF_REAL(-10.)"/>
+   <define name="MAX_ERR_ZD"   value="SPEED_BFP_OF_REAL( 10.)"/>
    <define name="HOVER_KP"    value="-500"/>
    <define name="HOVER_KD"    value="-200"/>
    <!-- 1.5m/s for full stick : BOOZ_SPEED_I_OF_F(1.5) / (MAX_PPRZ/2) -->
@@ -135,8 +135,7 @@
  <section name="BAT">
    <define name="MILLIAMP_PER_PERCENT" value="0.86"/>
    <define name="CATASTROPHIC_BAT_LEVEL" value="9.3" unit="V"/>
-  <define name="BATTERY_SENS"   value="0.48" integer="16"/>
- <!--   <define name="BATTERY_SENS"   value="0.46" integer="16"/> -->
+   <define name="BATTERY_SENS"   value="0.48" integer="16"/>
  </section>
 
  <section name="AUTOPILOT">
@@ -164,9 +163,13 @@
 
 
   <makefile>
+ARCH=lpc21
+BOARD_CFG = \"booz2_board_v1_0.h\"
+
 # prevents motors from ever starting
 #ap.CFLAGS += -DKILL_MOTORS
 
+include $(PAPARAZZI_SRC)/conf/autopilot/booz2_common.makefile
 include $(PAPARAZZI_SRC)/conf/autopilot/booz2_autopilot.makefile
 include $(PAPARAZZI_SRC)/conf/autopilot/booz2_test_progs.makefile
 
@@ -178,8 +181,7 @@ ap.CFLAGS += -DMODEM_BAUD=B57600
 include $(PAPARAZZI_SRC)/conf/autopilot/booz2_radio_control_ppm.makefile
 include $(PAPARAZZI_SRC)/conf/autopilot/booz2_actuators_buss.makefile
 include $(PAPARAZZI_SRC)/conf/autopilot/booz2_imu_b2v1.makefile
-
-
+include $(PAPARAZZI_SRC)/conf/autopilot/booz2_gps.makefile
 
   </makefile>
 

@@ -36,7 +36,7 @@
 
 #include "booz2_navigation.h"
 
-#include "pprz_geodetic_int.h"
+#include "math/pprz_geodetic_int.h"
 #include "booz2_ins.h"
 
 #define IdOfMsg(x) (x[1])

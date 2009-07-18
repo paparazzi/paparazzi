@@ -8,7 +8,7 @@
 #include "interrupt_hw.h" 
 
 #include "ssp_hw.h"
-#include CONFIG
+#include BOARD_CONFIG
 
 #include "airframe.h"
 

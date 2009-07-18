@@ -8,9 +8,10 @@
 
 #include "std.h"
 
-#include "pprz_algebra_float.h"
-#include "pprz_geodetic_float.h"
-#include "pprz_geodetic_int.h"
+#include "math/pprz_algebra_float.h"
+#include "math/pprz_geodetic_double.h"
+#include "math/pprz_geodetic_float.h"
+#include "math/pprz_geodetic_int.h"
 
 //#define DEBUG 1
 
@@ -59,7 +60,7 @@ static void test_floats(void) {
 
   struct EcefCoor_f my_ecef_point = ref_coor;
   struct EnuCoor_f  my_enu_point;
-  enu_of_ecef_pos_f(&my_enu_point, &ltp_def, &my_ecef_point);
+  enu_of_ecef_point_f(&my_enu_point, &ltp_def, &my_ecef_point);
 
   printf("ecef to enu : (%f,%f,%f) -> (%f,%f,%f)\n", 
 	 my_ecef_point.x, my_ecef_point.y, my_ecef_point.z, 
@@ -67,7 +68,6 @@ static void test_floats(void) {
   printf("\n"); 
 }
 
-#include "booz_geometry_mixed.h"
 
 static void test_enu_of_ecef_int(void) {
 
@@ -99,7 +99,7 @@ static void test_enu_of_ecef_int(void) {
 	struct EcefCoor_f my_ecef_point_f = ref_coor_f; 
 	VECT3_ADD(my_ecef_point_f, offset);
 	struct EnuCoor_f  my_enu_point_f;
-	enu_of_ecef_pos_f(&my_enu_point_f, &ltp_def_f, &my_ecef_point_f);
+	enu_of_ecef_point_f(&my_enu_point_f, &ltp_def_f, &my_ecef_point_f);
 #if DEBUG
 	printf("ecef to enu float : (%.02f,%.02f,%.02f) -> (%.02f,%.02f,%.02f)\n", 
 	       my_ecef_point_f.x, my_ecef_point_f.y, my_ecef_point_f.z, 
@@ -110,7 +110,7 @@ static void test_enu_of_ecef_int(void) {
 					      rint(CM_OF_M(my_ecef_point_f.y)), 
 					      rint(CM_OF_M(my_ecef_point_f.z))};;
 	struct EnuCoor_i  my_enu_point_i;
-	enu_of_ecef_pos_i(&my_enu_point_i, &ltp_def_i, &my_ecef_point_i);
+	enu_of_ecef_point_i(&my_enu_point_i, &ltp_def_i, &my_ecef_point_i);
 
 #if DEBUG
 	//	printf("def->ecef (%d,%d,%d)\n", ltp_def_i.ecef.x, ltp_def_i.ecef.y, ltp_def_i.ecef.z);
@@ -151,27 +151,28 @@ static void test_enu_of_ecef_int(void) {
 
 void test_ned_to_ecef_to_ned( void ) {
 
-  struct EcefCoor_f ref_coor = { 4624497.0 , 116475.0, 4376563.0};
+#if 0
+  struct EcefCoor_d ref_coor = { 4624497.0 , 116475.0, 4376563.0};
   printf("ecef0 : (%.02f,%.02f,%.02f)\n", ref_coor.x, ref_coor.y, ref_coor.z); 
 
-  struct LtpDef_f ltp_def;
-  ltp_def_from_ecef_f(&ltp_def, &ref_coor);
+  struct LtpDef_d ltp_def;
+  ltp_def_from_ecef_d(&ltp_def, &ref_coor);
   
-  struct EcefCoor_f ecef_p1 = ref_coor;
-  struct NedCoor_f  ned_p1;
-  ned_of_ecef_pos_f(&ned_p1, &ltp_def, &ecef_p1);
+  struct EcefCoor_d ecef_p1 = ref_coor;
+  struct NedCoor_d  ned_p1;
+  ned_of_ecef_point_d(&ned_p1, &ltp_def, &ecef_p1);
   printf("ecef to ned : (%f,%f,%f) -> (%f,%f,%f)\n", 
 	 ecef_p1.x, ecef_p1.y, ecef_p1.z, 
 	 ned_p1.x, ned_p1.y, ned_p1.z );
 
-  struct EcefCoor_f ecef_p2;
-  ecef_of_ned_pos_f(&ecef_p2, &ltp_def, &ned_p1);
+  struct EcefCoor_d ecef_p2;
+  ecef_of_ned_point_d(&ecef_p2, &ltp_def, &ned_p1);
   printf("ned to ecef : (%f,%f,%f) -> (%f,%f,%f)\n", 
 	 ned_p1.x, ned_p1.y, ned_p1.z,
 	 ecef_p2.x, ecef_p2.y, ecef_p2.z);
   
   printf("\n"); 
-
+#endif
 
 
 }
@@ -191,19 +192,20 @@ void test_enu_to_ecef_to_enu( void ) {
   
   struct EcefCoor_f ecef_p1 = ref_coor;
   struct EnuCoor_f  enu_p1;
-  enu_of_ecef_pos_f(&enu_p1, &ltp_def, &ecef_p1);
+  enu_of_ecef_point_f(&enu_p1, &ltp_def, &ecef_p1);
   printf("ecef to enu : (%f,%f,%f) -> (%f,%f,%f)\n", 
 	 ecef_p1.x, ecef_p1.y, ecef_p1.z, 
 	 enu_p1.x, enu_p1.y, enu_p1.z );
 
+#if 0
   struct EcefCoor_f ecef_p2;
-  ecef_of_enu_pos_f(&ecef_p2, &ltp_def, &enu_p1);
+  ecef_of_enu_point_f(&ecef_p2, &ltp_def, &enu_p1);
   printf("enu to ecef : (%f,%f,%f) -> (%f,%f,%f)\n", 
 	 enu_p1.x, enu_p1.y, enu_p1.z,
 	 ecef_p2.x, ecef_p2.y, ecef_p2.z);
   
   printf("\n"); 
-
+#endif
 
 
 }

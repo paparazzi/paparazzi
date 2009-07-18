@@ -19,34 +19,22 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA. 
+ *
  */
 
-#ifndef BOOZ_RADIO_CONTROL_SPEKTRUM_DX7SE_H
-#define BOOZ_RADIO_CONTROL_SPEKTRUM_DX7SE_H
+#include "booz_max1168.h"
 
-#define RADIO_CONTROL_NB_CHANNEL 7
-#define RADIO_CONTROL_ROLL       0
-#define RADIO_CONTROL_THROTTLE   1
-#define RADIO_CONTROL_PITCH      2
-#define RADIO_CONTROL_YAW        3
-#define RADIO_CONTROL_MODE       5
 
-#define RC_SPK_SYNC_2 0x12
+volatile uint8_t booz_max1168_status;
+uint16_t booz_max1168_values[MAX1168_NB_CHAN];
 
-#define RC_SPK_THROWS { MAX_PPRZ/MAX_SPK, \
-                        MAX_PPRZ/MAX_SPK, \
-                       -MAX_PPRZ/MAX_SPK, \
-                        MAX_PPRZ/MAX_SPK, \
-                        MAX_PPRZ/MAX_SPK, \
-                        MAX_PPRZ/MAX_SPK, \
-                        MAX_PPRZ/MAX_SPK }
+extern void booz_max1168_init( void ) {
 
-/*
-  aileron 1
-  elevator 2
-  rudder 3
-  gear 4
-  throttle 5
-*/
+  booz_max1168_arch_init();
 
-#endif /* BOOZ_RADIO_CONTROL_SPEKTRUM_DX7SE_H */
+  uint8_t i;
+  for (i=0; i<MAX1168_NB_CHAN; i++)
+    booz_max1168_values[i] = 0;
+
+  booz_max1168_status = STA_MAX1168_IDLE;
+}

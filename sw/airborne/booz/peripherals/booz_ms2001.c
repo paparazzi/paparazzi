@@ -21,18 +21,21 @@
  * Boston, MA 02111-1307, USA. 
  */
 
-#ifndef BOOZ_TRIG_INT_H
-#define BOOZ_TRIG_INT_H
+#include "booz_ms2001.h"
 
-#include "std.h"
+volatile uint8_t ms2001_status;
+volatile int16_t ms2001_values[MS2001_NB_AXIS];
 
-/* Allow makefile to define BOOZ_TRIG_CONST in case we want
- to make the trig tables const and store them in flash.
- Otherwise use the empty string and keep the table in RAM. */
-#ifndef BOOZ_TRIG_CONST
-#define BOOZ_TRIG_CONST
-#endif
+void ms2001_init( void ) {
+  
+  ms2001_arch_init();
+  
+  uint8_t i;
+  for (i=0; i<MS2001_NB_AXIS; i++)
+    ms2001_values[i] = 0;
+  ms2001_status = MS2001_IDLE;
+}
 
-extern BOOZ_TRIG_CONST int16_t booz_trig_int[];
-
-#endif /* BOOZ_TRIG_INT_H */
+void ms2001_reset() {
+  ms2001_status = MS2001_IDLE;
+}

@@ -28,7 +28,6 @@
 #include "led.h"
 #include "interrupt_hw.h"
 
-#include "messages.h"
 #include "downlink.h"
 #include "booz2_telemetry.h"
 #include "datalink.h"
@@ -40,7 +39,7 @@
 #include "booz_radio_control.h"
 
 
-#include "booz2_imu.h"
+#include "booz_imu.h"
 #include "booz2_analog_baro.h"
 #include "booz2_battery.h"
 
@@ -94,8 +93,7 @@ STATIC_INLINE void booz2_main_init( void ) {
   booz2_analog_init();
   booz2_analog_baro_init();
   booz2_battery_init();
-  booz2_imu_impl_init();
-  booz2_imu_init();
+  booz_imu_init();
 
   booz_fms_init();
   booz2_autopilot_init();
@@ -121,7 +119,7 @@ STATIC_INLINE void booz2_main_init( void ) {
 STATIC_INLINE void booz2_main_periodic( void ) {
   //  t0 = T0TC;
 
-  booz2_imu_periodic();
+  booz_imu_periodic();
   /* run control loops */
   booz2_autopilot_periodic();
   /* set actuators     */
@@ -162,7 +160,7 @@ STATIC_INLINE void booz2_main_event( void ) {
 
   RadioControlEvent(booz2_autopilot_on_rc_frame);
 
-  Booz2ImuEvent(on_gyro_accel_event, on_mag_event);
+  BoozImuEvent(on_gyro_accel_event, on_mag_event);
   
   Booz2AnalogBaroEvent(on_baro_event);
  
@@ -174,8 +172,8 @@ STATIC_INLINE void booz2_main_event( void ) {
 
 static inline void on_gyro_accel_event( void ) {
 
-  Booz2ImuScaleGyro();
-  Booz2ImuScaleAccel();
+  BoozImuScaleGyro();
+  BoozImuScaleAccel();
 
   if (booz_ahrs.status == BOOZ_AHRS_UNINIT) {
     booz_ahrs_aligner_run();
@@ -199,5 +197,5 @@ static inline void on_gps_event(void) {
 }
 
 static inline void on_mag_event(void) {
-  Booz2ImuScaleMag();
+  BoozImuScaleMag();
 }

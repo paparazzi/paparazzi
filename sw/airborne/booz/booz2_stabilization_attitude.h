@@ -24,7 +24,7 @@
 #ifndef BOOZ2_STABILIZATION_ATTITUDE_H
 #define BOOZ2_STABILIZATION_ATTITUDE_H
 
-#include "booz_geometry_int.h"
+#include "math/pprz_algebra_int.h"
 
 extern void booz2_stabilization_attitude_init(void);
 extern void booz2_stabilization_attitude_read_rc(bool_t in_flight);
@@ -39,10 +39,10 @@ extern void booz2_stabilization_attitude_run(bool_t  in_flight);
 #include "booz2_stabilization_attitude_ref_traj_euler.h"
 
 
-extern struct booz_ivect  booz_stabilization_igain;
-extern struct booz_ivect  booz_stabilization_pgain;
-extern struct booz_ivect  booz_stabilization_dgain;
-extern struct booz_ivect  booz_stabilization_ddgain;
-extern struct booz_ieuler booz_stabilization_att_sum_err;
+extern struct Int32Vect3  booz_stabilization_igain;
+extern struct Int32Vect3  booz_stabilization_pgain;
+extern struct Int32Vect3  booz_stabilization_dgain;
+extern struct Int32Vect3  booz_stabilization_ddgain;
+extern struct Int32Eulers booz_stabilization_att_sum_err;
 
 #endif /* BOOZ2_STABILIZATION_ATTITUDE_H */

@@ -40,9 +40,11 @@
 #define PERIODIC_SEND_ALIVE() DOWNLINK_SEND_ALIVE(16, MD5SUM)
 
 #include "booz2_battery.h"
-#include "booz2_imu.h"
+#include "booz_imu.h"
 #include "booz2_gps.h"
 #include "booz2_ins.h"
+
+#ifdef USE_GPS
 #define PERIODIC_SEND_BOOZ_STATUS() {					\
     uint32_t booz_imu_nb_err = 0;					\
     DOWNLINK_SEND_BOOZ_STATUS(&booz_imu_nb_err,				\
@@ -58,6 +60,24 @@
 			      &cpu_time_sec				\
 			      );					\
   }
+#else /* !USE_GPS */
+#define PERIODIC_SEND_BOOZ_STATUS() {					\
+    uint32_t booz_imu_nb_err = 0;					\
+    uint8_t  fix = BOOZ2_GPS_FIX_NONE;					\
+    DOWNLINK_SEND_BOOZ_STATUS(&booz_imu_nb_err,				\
+			      &twi_blmc_nb_err,				\
+			      &radio_control.status,			\
+			      &fix,					\
+			      &booz2_autopilot_mode,			\
+			      &booz2_autopilot_in_flight,		\
+			      &booz2_autopilot_motors_on,		\
+			      &booz2_guidance_h_mode,			\
+			      &booz2_guidance_v_mode,			\
+			      &booz2_battery_voltage,			\
+			      &cpu_time_sec				\
+			      );					\
+  }
+#endif /* USE_GPS */
 
 #ifdef USE_RADIO_CONTROL
 #define PERIODIC_SEND_RC() DOWNLINK_SEND_RC(RADIO_CONTROL_NB_CHANNEL, radio_control.values)
@@ -117,7 +137,6 @@
 			         &booz2_analog_baro_value_filtered);		\
   }
 
-#include "booz2_imu.h"
 #include "booz2_stabilization.h"
 #include "booz2_stabilization_rate.h"
 #define PERIODIC_SEND_BOOZ2_RATE_LOOP() {				\
@@ -319,6 +338,7 @@
 			     );					\
   }
 
+#ifdef USE_GPS
 #define PERIODIC_SEND_BOOZ2_INS3() {					\
     DOWNLINK_SEND_BOOZ2_INS3(&b2ins_meas_gps_pos_ned.x,			\
 			     &b2ins_meas_gps_pos_ned.y,			\
@@ -328,7 +348,9 @@
 			     &b2ins_meas_gps_speed_ned.z		\
 			     );						\
   }
-
+#else /* !USE_GPS */
+#define PERIODIC_SEND_BOOZ2_INS3() {}
+#endif /* USE_GPS */
 
 #define PERIODIC_SEND_BOOZ2_INS_REF() {					\
     DOWNLINK_SEND_BOOZ2_INS_REF(&booz_ins_ltp_def.ecef.x,		\
@@ -402,7 +424,7 @@
 			    &booz2_stabilization_cmd[COMMAND_THRUST]);	\
   }
 
-
+#ifdef USE_GPS
 #define PERIODIC_SEND_BOOZ2_GPS() {				\
     DOWNLINK_SEND_BOOZ2_GPS( &booz_gps_state.ecef_pos.x,	\
 			     &booz_gps_state.ecef_pos.y,	\
@@ -416,7 +438,9 @@
 			     &booz_gps_state.num_sv,		\
 			     &booz_gps_state.fix);		\
   }
-
+#else
+#define PERIODIC_SEND_BOOZ2_GPS() {}
+#endif
 
 #include "booz2_navigation.h"
 #define PERIODIC_SEND_BOOZ2_NAV_REF() {					\

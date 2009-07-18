@@ -52,7 +52,7 @@
 #include "LPC21xx.h"
 #include "armVIC.h"
 #include "usb_serial.h"
-#include CONFIG
+#include BOARD_CONFIG
 
 #include "lpcusb/usbapi.h"
 

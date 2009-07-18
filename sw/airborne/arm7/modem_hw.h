@@ -2,7 +2,7 @@
 #define MODEM_HW_H
 
 #include "LPC21xx.h"
-#include CONFIG
+#include BOARD_CONFIG
 
 void TIMER1_ISR ( void ) __attribute__((naked));
 

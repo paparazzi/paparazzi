@@ -25,7 +25,8 @@
 #define BOOZ2_GUIDANCE_V_REF_H
 
 #include "inttypes.h"
-#include "booz_geometry_mixed.h"
+#include "math/pprz_algebra.h"
+#include "math/pprz_algebra_int.h"
 
 /* update frequency                               */
 #define B2_GV_FREQ_FRAC 9
@@ -49,26 +50,26 @@ extern int64_t b2_gv_z_ref;
 
 /* Saturations definition */
 #define B2_GV_MIN_ZDD_F (-2.0*9.81)
-#define B2_GV_MIN_ZDD BOOZ_INT_OF_FLOAT(B2_GV_MIN_ZDD_F, B2_GV_ZDD_REF_FRAC)
+#define B2_GV_MIN_ZDD BFP_OF_REAL(B2_GV_MIN_ZDD_F, B2_GV_ZDD_REF_FRAC)
 #define B2_GV_MAX_ZDD_F ( 0.8*9.81)
-#define B2_GV_MAX_ZDD BOOZ_INT_OF_FLOAT(B2_GV_MAX_ZDD_F, B2_GV_ZDD_REF_FRAC)
+#define B2_GV_MAX_ZDD BFP_OF_REAL(B2_GV_MAX_ZDD_F, B2_GV_ZDD_REF_FRAC)
 #define B2_GV_MIN_ZD_F  (-3.)
-#define B2_GV_MIN_ZD  BOOZ_INT_OF_FLOAT(B2_GV_MIN_ZD_F , B2_GV_ZD_REF_FRAC)
+#define B2_GV_MIN_ZD  BFP_OF_REAL(B2_GV_MIN_ZD_F , B2_GV_ZD_REF_FRAC)
 #define B2_GV_MAX_ZD_F  ( 3.)
-#define B2_GV_MAX_ZD  BOOZ_INT_OF_FLOAT(B2_GV_MAX_ZD_F , B2_GV_ZD_REF_FRAC)
+#define B2_GV_MAX_ZD  BFP_OF_REAL(B2_GV_MAX_ZD_F , B2_GV_ZD_REF_FRAC)
 
 /* second order model natural frequency and damping */
 #define B2_GV_OMEGA RadOfDeg(100.)
 #define B2_GV_ZETA  0.85
 #define B2_GV_ZETA_OMEGA_FRAC 10
-#define B2_GV_ZETA_OMEGA BOOZ_INT_OF_FLOAT((B2_GV_ZETA*B2_GV_OMEGA), B2_GV_ZETA_OMEGA_FRAC)
+#define B2_GV_ZETA_OMEGA BFP_OF_REAL((B2_GV_ZETA*B2_GV_OMEGA), B2_GV_ZETA_OMEGA_FRAC)
 #define B2_GV_OMEGA_2_FRAC 7
-#define B2_GV_OMEGA_2    BOOZ_INT_OF_FLOAT((B2_GV_OMEGA*B2_GV_OMEGA), B2_GV_OMEGA_2_FRAC)
+#define B2_GV_OMEGA_2    BFP_OF_REAL((B2_GV_OMEGA*B2_GV_OMEGA), B2_GV_OMEGA_2_FRAC)
 
 /* first order time constant */
 #define B2_GV_REF_THAU_F  0.25
 #define B2_GV_REF_INV_THAU_FRAC 16
-#define B2_GV_REF_INV_THAU  BOOZ_INT_OF_FLOAT((1./0.25), B2_GV_REF_INV_THAU_FRAC) 
+#define B2_GV_REF_INV_THAU  BFP_OF_REAL((1./0.25), B2_GV_REF_INV_THAU_FRAC) 
 
 #ifdef B2_GUIDANCE_V_C
 static inline void b2_gv_set_ref(int32_t alt, int32_t speed, int32_t accel);
@@ -80,10 +81,10 @@ int32_t b2_gv_zd_ref;
 int32_t b2_gv_zdd_ref;
 
 static inline void b2_gv_set_ref(int32_t alt, int32_t speed, int32_t accel) {
-  int64_t new_z = ((int64_t)alt)<<(B2_GV_Z_REF_FRAC - IPOS_FRAC);
+  int64_t new_z = ((int64_t)alt)<<(B2_GV_Z_REF_FRAC - INT32_POS_FRAC);
   b2_gv_z_ref   = new_z;
-  b2_gv_zd_ref  = speed>>(ISPEED_RES - B2_GV_ZD_REF_FRAC);
-  b2_gv_zdd_ref = accel>>(IACCEL_RES - B2_GV_ZDD_REF_FRAC);
+  b2_gv_zd_ref  = speed>>(INT32_SPEED_FRAC - B2_GV_ZD_REF_FRAC);
+  b2_gv_zdd_ref = accel>>(INT32_ACCEL_FRAC - B2_GV_ZDD_REF_FRAC);
 }
 
 static inline void b2_gv_update_ref_from_z_sp(int32_t z_sp) {
@@ -95,9 +96,9 @@ static inline void b2_gv_update_ref_from_z_sp(int32_t z_sp) {
   int32_t zd_zdd_res = b2_gv_zd_ref>>(B2_GV_ZD_REF_FRAC - B2_GV_ZDD_REF_FRAC);
   int32_t zdd_speed = ((int32_t)(-2*B2_GV_ZETA_OMEGA)*zd_zdd_res)>>(B2_GV_ZETA_OMEGA_FRAC);
   // compute z error in z_sp resolution
-  int32_t z_err_sp = z_sp - (int32_t)(b2_gv_z_ref>>(B2_GV_Z_REF_FRAC-IPOS_FRAC));
+  int32_t z_err_sp = z_sp - (int32_t)(b2_gv_z_ref>>(B2_GV_Z_REF_FRAC-INT32_POS_FRAC));
   // convert to accel resolution
-  int32_t z_err_accel = z_err_sp>>(IPOS_FRAC-B2_GV_ZDD_REF_FRAC);
+  int32_t z_err_accel = z_err_sp>>(INT32_POS_FRAC-B2_GV_ZDD_REF_FRAC);
   int32_t zdd_pos = ((int32_t)(B2_GV_OMEGA_2)*z_err_accel)>>B2_GV_OMEGA_2_FRAC;
   b2_gv_zdd_ref = zdd_speed + zdd_pos;
 
@@ -123,7 +124,7 @@ static inline void b2_gv_update_ref_from_zd_sp(int32_t zd_sp) {
   b2_gv_z_ref  += b2_gv_zd_ref;
   b2_gv_zd_ref += b2_gv_zdd_ref;
 
-  int32_t zd_err = b2_gv_zd_ref - (zd_sp>>(ISPEED_RES - B2_GV_ZD_REF_FRAC));
+  int32_t zd_err = b2_gv_zd_ref - (zd_sp>>(INT32_SPEED_FRAC - B2_GV_ZD_REF_FRAC));
   int32_t zd_err_zdd_res = zd_err>>(B2_GV_ZD_REF_FRAC-B2_GV_ZDD_REF_FRAC);
   b2_gv_zdd_ref = (-(int32_t)B2_GV_REF_INV_THAU * zd_err_zdd_res)>>B2_GV_REF_INV_THAU_FRAC;
 

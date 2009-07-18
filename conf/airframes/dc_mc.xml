@@ -16,7 +16,7 @@ main.HIGH_FUSE = cb
 main.EXT_FUSE  = ff
 main.LOCK_FUSE = ff
 
-main.CFLAGS += -DCONFIG=\"conf_dc_mc.h\"
+main.CFLAGS += -DBOARD_CONFIG=\"conf_dc_mc.h\"
 main.srcs = main_dc_mc.c
 
 main.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(10e-2)'

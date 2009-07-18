@@ -25,7 +25,7 @@
 #include "ADS8344.h"
 #include "LPC21xx.h"
 #include "armVIC.h"
-#include CONFIG
+#include BOARD_CONFIG
 #include "led.h"
 #include "spi_hw.h"
 

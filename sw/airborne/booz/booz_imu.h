@@ -21,12 +21,16 @@
  * Boston, MA 02111-1307, USA. 
  */
 
-#ifndef BOOZ2_IMU_H
-#define BOOZ2_IMU_H
+#ifndef BOOZ_IMU_H
+#define BOOZ_IMU_H
 
-#include "pprz_algebra_int.h"
+#include "math/pprz_algebra_int.h"
 
-#include BOOZ2_IMU_TYPE_H
+/* underlying hardware */
+#include BOOZ_IMU_TYPE_H
+/* must be defined by underlying hardware */
+extern void booz_imu_impl_init(void);
+extern void booz_imu_periodic(void);
 
 struct BoozImu {
   struct Int32Rates gyro;
@@ -46,9 +50,9 @@ struct BoozImu {
 
 extern struct BoozImu booz_imu;
 
-extern void booz2_imu_init(void);
+extern void booz_imu_init(void);
 
-#define Booz2ImuScaleGyro() {						\
+#define BoozImuScaleGyro() {						\
     RATES_COPY(booz_imu.gyro_prev, booz_imu.gyro);			\
     booz_imu.gyro.p = ((booz_imu.gyro_unscaled.p - booz_imu.gyro_neutral.p)*IMU_GYRO_P_SENS_NUM)/IMU_GYRO_P_SENS_DEN; \
     booz_imu.gyro.q = ((booz_imu.gyro_unscaled.q - booz_imu.gyro_neutral.q)*IMU_GYRO_Q_SENS_NUM)/IMU_GYRO_Q_SENS_DEN; \
@@ -56,7 +60,7 @@ extern void booz2_imu_init(void);
   }
 
 
-#define Booz2ImuScaleAccel() {						\
+#define BoozImuScaleAccel() {						\
     VECT3_COPY(booz_imu.accel_prev, booz_imu.accel);			\
     booz_imu.accel.x = ((booz_imu.accel_unscaled.x - booz_imu.accel_neutral.x)*IMU_ACCEL_X_SENS_NUM)/IMU_ACCEL_X_SENS_DEN; \
     booz_imu.accel.y = ((booz_imu.accel_unscaled.y - booz_imu.accel_neutral.y)*IMU_ACCEL_Y_SENS_NUM)/IMU_ACCEL_Y_SENS_DEN; \
@@ -64,7 +68,7 @@ extern void booz2_imu_init(void);
   }
 
 #if defined IMU_MAG_45_HACK
-#define Booz2ImuScaleMag() {						\
+#define BoozImuScaleMag() {						\
     int32_t msx = ((booz_imu.mag_unscaled.x - booz_imu.mag_neutral.x) * IMU_MAG_X_SENS_NUM) / IMU_MAG_X_SENS_DEN; \
     int32_t msy = ((booz_imu.mag_unscaled.y - booz_imu.mag_neutral.y) * IMU_MAG_Y_SENS_NUM) / IMU_MAG_Y_SENS_DEN; \
     booz_imu.mag.x = msx - msy;					\
@@ -72,14 +76,12 @@ extern void booz2_imu_init(void);
     booz_imu.mag.z = ((booz_imu.mag_unscaled.z - booz_imu.mag_neutral.z) * IMU_MAG_Z_SENS_NUM) / IMU_MAG_Z_SENS_DEN; \
   }
 #else
-#define Booz2ImuScaleMag() {					\
+#define BoozImuScaleMag() {					\
     booz_imu.mag.x = ((booz_imu.mag_unscaled.x - booz_imu.mag_neutral.x) * IMU_MAG_X_SENS_NUM) / IMU_MAG_X_SENS_DEN; \
     booz_imu.mag.y = ((booz_imu.mag_unscaled.y - booz_imu.mag_neutral.y) * IMU_MAG_Y_SENS_NUM) / IMU_MAG_Y_SENS_DEN; \
     booz_imu.mag.z = ((booz_imu.mag_unscaled.z - booz_imu.mag_neutral.z) * IMU_MAG_Z_SENS_NUM) / IMU_MAG_Z_SENS_DEN; \
   }
 #endif
-
-
 
 
 #endif /* BOOZ2_IMU_H */

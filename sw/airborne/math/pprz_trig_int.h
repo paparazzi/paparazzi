@@ -21,27 +21,38 @@
  * Boston, MA 02111-1307, USA. 
  */
 
-#ifndef BOOZ2_MAX1168_H
-#define BOOZ2_MAX1168_H
+#ifndef PPRZ_TRIG_INT_H
+#define PPRZ_TRIG_INT_H
 
 #include "std.h"
-#include "stdbool.h"
+#include "math/pprz_algebra_int.h"
 
-#define MAX1168_NB_CHAN 8
-
-extern uint8_t do_booz2_max1168_read;
-extern void booz2_max1168_init( void );
-extern void booz2_max1168_read( void );
-
-#define STA_MAX1168_IDLE           0
-#define STA_MAX1168_SENDING_REQ    1
-#define STA_MAX1168_READING_RES    2 
-#define STA_MAX1168_DATA_AVAILABLE 3
-extern volatile uint8_t booz2_max1168_status;
-
-extern uint16_t booz2_max1168_values[MAX1168_NB_CHAN];
+/* Allow makefile to define BOOZ_TRIG_CONST in case we want
+ to make the trig tables const and store them in flash.
+ Otherwise use the empty string and keep the table in RAM. */
+#ifndef PPRZ_TRIG_CONST
+#define PPRZ_TRIG_CONST
+#endif
 
 
-#include "booz2_max1168_hw.h"
+extern PPRZ_TRIG_CONST int16_t pprz_trig_int[];
 
-#endif /* BOOZ2_MAX1168_H */
+
+
+#define PPRZ_ITRIG_SIN(_s, _a) {					\
+    int32_t an = _a;							\
+    INT32_ANGLE_NORMALIZE(an);						\
+    if (an > INT32_ANGLE_PI_2) an = INT32_ANGLE_PI - an;		\
+    else if (an < -INT32_ANGLE_PI_2) an = -INT32_ANGLE_PI - an;		\
+    if (an >= 0) _s = pprz_trig_int[an];				\
+    else _s = -pprz_trig_int[-an];					\
+  }
+
+
+#define PPRZ_ITRIG_COS(_c, _a) {					\
+    PPRZ_ITRIG_SIN( _c, _a + INT32_ANGLE_PI_2);				\
+  }
+
+
+
+#endif /* PPRZ_TRIG_INT_H */

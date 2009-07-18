@@ -24,8 +24,8 @@
 #ifndef BOOZ2_HF_FLOAT_H
 #define BOOZ2_HF_FLOAT_H
 
-#include "pprz_algebra_float.h"
-#include "pprz_algebra_int.h"
+#include "math/pprz_algebra_float.h"
+#include "math/pprz_algebra_int.h"
 
 extern struct Int32Vect3 b2ins_accel_bias;
 #define B2INS_ACCEL_BIAS_FRAC 19

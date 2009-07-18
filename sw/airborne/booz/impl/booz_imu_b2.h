@@ -35,11 +35,11 @@
 #if defined IMU_B2_MAG_TYPE && IMU_B2_MAG_TYPE == IMU_B2_MAG_MS2001
 #include "peripherals/booz_ms2001.h"
 #define BoozImuMagEvent(_mag_handler) {					\
-    if (micromag_status == MM_DATA_AVAILABLE) {				\
-      booz_imu.mag_unscaled.x = micromag_values[IMU_MAG_X_CHAN];	\
-      booz_imu.mag_unscaled.y = micromag_values[IMU_MAG_Y_CHAN];	\
-      booz_imu.mag_unscaled.z = micromag_values[IMU_MAG_Z_CHAN];	\
-      micromag_status = MM_IDLE;					\
+    if (ms2001_status == MS2001_DATA_AVAILABLE) {			\
+      booz_imu.mag_unscaled.x = ms2001_values[IMU_MAG_X_CHAN];		\
+      booz_imu.mag_unscaled.y = ms2001_values[IMU_MAG_Y_CHAN];		\
+      booz_imu.mag_unscaled.z = ms2001_values[IMU_MAG_Z_CHAN];		\
+      ms2001_status = MS2001_IDLE;					\
       _mag_handler();							\
     }									\
   }

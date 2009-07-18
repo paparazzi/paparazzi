@@ -22,7 +22,7 @@ ant.EXT_FUSE  = ff
 ant.LOCK_FUSE = ff
 
 
-ant.CFLAGS += -DCONFIG=\"antenna.h\"
+ant.CFLAGS += -DBOARD_CONFIG=\"antenna.h\"
 ant.srcs = main_antenna.c sys_time.c $(SRC_ARCH)/sys_time_hw.c
 
 ant.CFLAGS += -DLED

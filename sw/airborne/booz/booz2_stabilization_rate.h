@@ -24,7 +24,7 @@
 #ifndef BOOZ2_STABILIZATION_RATE
 #define BOOZ2_STABILIZATION_RATE
 
-#include "pprz_algebra_int.h"
+#include "math/pprz_algebra_int.h"
 
 extern void booz2_stabilization_rate_init(void);
 extern void booz2_stabilization_rate_read_rc(void);

@@ -32,7 +32,7 @@
 #define INIT_HW_H
 
 #include <inttypes.h>
-#include CONFIG
+#include BOARD_CONFIG
 #include "LPC21xx.h"
 
 

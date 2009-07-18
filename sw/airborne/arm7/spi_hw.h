@@ -30,7 +30,7 @@
 
 #include "std.h"
 #include "LPC21xx.h"
-#include CONFIG
+#include BOARD_CONFIG
 
 extern volatile uint8_t spi_tx_idx;
 extern volatile uint8_t spi_rx_idx;

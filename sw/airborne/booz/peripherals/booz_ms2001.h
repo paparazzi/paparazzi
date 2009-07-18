@@ -19,26 +19,35 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA. 
- *
  */
 
-#include "booz2_max1168.h"
+#ifndef BOOZ_MS2001_H
+#define BOOZ_MS2001_H
 
 
-volatile uint8_t booz2_max1168_status;
-uint16_t booz2_max1168_values[MAX1168_NB_CHAN];
+#include "std.h"
+#define MS2001_NB_AXIS 3
 
-uint8_t do_booz2_max1168_read;
+extern void ms2001_init( void );
+extern void ms2001_read( void );
 
-extern void booz2_max1168_init( void ) {
+extern void ms2001_reset( void);
 
-  booz2_max1168_hw_init();
+#define MS2001_IDLE            0
+#define MS2001_BUSY            1
+#define MS2001_SENDING_REQ     2
+#define MS2001_WAITING_EOC     3
+#define MS2001_GOT_EOC         4
+#define MS2001_READING_RES     5
+#define MS2001_DATA_AVAILABLE  6
 
-  do_booz2_max1168_read = false;
+extern volatile uint8_t ms2001_status;
+extern volatile int16_t ms2001_values[MS2001_NB_AXIS];
 
-  uint8_t i;
-  for (i=0; i<MAX1168_NB_CHAN; i++)
-    booz2_max1168_values[i] = 0;
+/* underlying architecture */
+#include "peripherals/booz_ms2001_arch.h"
+/* must be implemented by underlying architecture */
+extern void ms2001_arch_init( void );
 
-  booz2_max1168_status = STA_MAX1168_IDLE;
-}
+
+#endif /* BOOZ_MS2001_H */

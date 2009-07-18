@@ -31,12 +31,12 @@
 #define INIT_HW_H
 
 #include <inttypes.h>
-#include CONFIG
 #include <stm32/gpio.h>
 #include <stm32/rcc.h>
 #include <stm32/flash.h>
 #include <stm32/misc.h>
 
+#include BOARD_CONFIG
 
 #ifdef PERIPHERALS_AUTO_INIT
 #ifdef USE_LED

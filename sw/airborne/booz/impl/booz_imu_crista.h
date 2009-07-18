@@ -27,14 +27,11 @@
 #include "booz_imu.h"
 
 
-extern void booz_imu_impl_init(void);
-extern void booz_imu_periodic(void);
-
 #define ADS8344_NB_CHANNELS 8
 extern uint16_t ADS8344_values[ADS8344_NB_CHANNELS];
 extern bool_t ADS8344_available;
 
-#define Booz2ImuEvent(_gyro_accel_handler, _mag_handler) {		\
+#define BoozImuEvent(_gyro_accel_handler, _mag_handler) {		\
     if (ADS8344_available) {						\
       ADS8344_available = FALSE;					\
       booz_imu.gyro_unscaled.p = ADS8344_values[IMU_GYRO_P_CHAN];	\
@@ -46,18 +43,18 @@ extern bool_t ADS8344_available;
       /* spare 3, temp 7 */						\
       _gyro_accel_handler();						\
     }									\
-    Booz2ImuMagEvent(_mag_handler);					\
+    BoozImuMagEvent(_mag_handler);					\
   }
 
 #ifdef USE_AMI601
 #include "peripherals/booz_ami601.h"
 #define foo_handler() {}
-#define Booz2ImuMagEvent(_mag_handler) {				\
+#define BoozImuMagEvent(_mag_handler) {					\
     AMI601Event(foo_handler);						\
     if (ami601_status == AMI601_DATA_AVAILABLE) {			\
-      booz_imu.mag_unscaled.x = ami601_val[IMU_MAG_X_CHAN];		\
-      booz_imu.mag_unscaled.y = ami601_val[IMU_MAG_Y_CHAN];		\
-      booz_imu.mag_unscaled.z = ami601_val[IMU_MAG_Z_CHAN];		\
+      booz_imu.mag_unscaled.x = ami601_values[IMU_MAG_X_CHAN];		\
+      booz_imu.mag_unscaled.y = ami601_values[IMU_MAG_Y_CHAN];		\
+      booz_imu.mag_unscaled.z = ami601_values[IMU_MAG_Z_CHAN];		\
       ami601_status = AMI601_IDLE;					\
       _mag_handler();							\
     }									\
@@ -68,7 +65,10 @@ extern bool_t ADS8344_available;
 
 /* underlying architecture */
 #include "impl/booz_imu_crista_arch.h"
+/* must be defined by underlying architecture */
+extern void booz_imu_crista_arch_init(void);
 
 
-#endif /* BOOZ2_IMU_CRISTA_H */
+
+#endif /* BOOZ_IMU_CRISTA_H */
 

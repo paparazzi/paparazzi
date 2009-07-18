@@ -35,7 +35,7 @@
 #include "LPC21xx.h"
 #include "sys_time.h"
 
-#include CONFIG
+#include BOARD_CONFIG
 
 #define SERVOS_TICS_OF_USEC(s) SYS_TICS_OF_USEC(s)
 #define ChopServo(x,a,b) Chop(x, a, b)

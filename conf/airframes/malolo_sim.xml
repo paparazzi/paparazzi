@@ -232,7 +232,7 @@ sim.CFLAGS += -I$(SIMDIR) -I/home/cocoleon/usr/include/JSBSim -I/usr/include
 sim.CFLAGS += `pkg-config glib-2.0 --cflags`
 sim.LDFLAGS += `pkg-config glib-2.0 --libs` -lm -lpcre -lglibivy -L/home/cocoleon/usr/lib/ -lJSBSim
 
-sim.CFLAGS += -DCONFIG=\"tiny.h\" -DAGR_CLIMB -DLOITER_TRIM -DALT_KALMAN
+sim.CFLAGS += -DBOARD_CONFIG=\"tiny.h\" -DAGR_CLIMB -DLOITER_TRIM -DALT_KALMAN
 
 sim.CFLAGS += -DSITL -DAP -DFBW -DRADIO_CONTROL -DINTER_MCU -DDOWNLINK -DDOWNLINK_TRANSPORT=IvyTransport -DINFRARED -DNAV
 

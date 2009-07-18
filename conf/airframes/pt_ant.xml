@@ -13,7 +13,7 @@ tunnel.ARCH = arm7tdmi
 tunnel.TARGET = tunnel
 tunnel.TARGETDIR = tunnel
 
-tunnel.CFLAGS += -DFBW -DCONFIG=\"conf_demo.h\" -DLED -DTIME_LED=1
+tunnel.CFLAGS += -DFBW -DBOARD_CONFIG=\"conf_demo.h\" -DLED -DTIME_LED=1
 tunnel.srcs += $(SRC_ARCH)/uart_tunnel.c
 
 ARCHI=arm7
@@ -26,7 +26,7 @@ main.ARCH = arm7tdmi
 main.TARGET = main
 main.TARGETDIR = main
 
-main.CFLAGS += -DCONFIG=\"conf_demo.h\" -I$(PT_ANT)
+main.CFLAGS += -DBOARD_CONFIG=\"conf_demo.h\" -I$(PT_ANT)
 main.srcs = $(PT_ANT)/pt_ant_main.c
 
 main.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(1.66666667e-2)'

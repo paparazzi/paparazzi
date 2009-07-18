@@ -57,15 +57,15 @@ int32_t b2_gv_adapt_Xmeas;
 
 /* Initial State and Covariance    */
 #define B2_GV_ADAPT_X0_F 0.15
-#define B2_GV_ADAPT_X0 BOOZ_INT_OF_FLOAT(B2_GV_ADAPT_X0_F, B2_GV_ADAPT_X_FRAC)
+#define B2_GV_ADAPT_X0 BFP_OF_REAL(B2_GV_ADAPT_X0_F, B2_GV_ADAPT_X_FRAC)
 #define B2_GV_ADAPT_P0_F 0.5
-#define B2_GV_ADAPT_P0 BOOZ_INT_OF_FLOAT(B2_GV_ADAPT_P0_F, B2_GV_ADAPT_P_FRAC)
+#define B2_GV_ADAPT_P0 BFP_OF_REAL(B2_GV_ADAPT_P0_F, B2_GV_ADAPT_P_FRAC)
 
 /* System and Measuremement noises */
 #define B2_GV_ADAPT_SYS_NOISE_F 0.00005
-#define B2_GV_ADAPT_SYS_NOISE  BOOZ_INT_OF_FLOAT(B2_GV_ADAPT_SYS_NOISE_F, B2_GV_ADAPT_P_FRAC)
+#define B2_GV_ADAPT_SYS_NOISE  BFP_OF_REAL(B2_GV_ADAPT_SYS_NOISE_F, B2_GV_ADAPT_P_FRAC)
 #define B2_GV_ADAPT_MEAS_NOISE_F 3.0
-#define B2_GV_ADAPT_MEAS_NOISE BOOZ_INT_OF_FLOAT(B2_GV_ADAPT_MEAS_NOISE_F, B2_GV_ADAPT_P_FRAC)
+#define B2_GV_ADAPT_MEAS_NOISE BFP_OF_REAL(B2_GV_ADAPT_MEAS_NOISE_F, B2_GV_ADAPT_P_FRAC)
 
 
 static inline void b2_gv_adapt_init(void) {
@@ -74,7 +74,7 @@ static inline void b2_gv_adapt_init(void) {
 }
 
 /*
-  zdd_meas : IACCEL_RES
+  zdd_meas : INT32_ACCEL_FRAC
   thrust_applied : controller input [2-200]
 */
 #define K_FRAC 12
@@ -86,7 +86,7 @@ static inline void b2_gv_adapt_run(int32_t zdd_meas, int32_t thrust_applied) {
   /* We propagate our covariance                     */
   b2_gv_adapt_P =  b2_gv_adapt_P + B2_GV_ADAPT_SYS_NOISE;
   /* Compute our measurement. If zdd_meas is in the range +/-5g, meas is less than 24 bits */
-  const int32_t g_m_zdd = ((int32_t)BOOZ_INT_OF_FLOAT(9.81, IACCEL_RES) - zdd_meas)<<(B2_GV_ADAPT_X_FRAC - IACCEL_RES);
+  const int32_t g_m_zdd = ((int32_t)BFP_OF_REAL(9.81, INT32_ACCEL_FRAC) - zdd_meas)<<(B2_GV_ADAPT_X_FRAC - INT32_ACCEL_FRAC);
   if ( g_m_zdd > 0)
     b2_gv_adapt_Xmeas = (g_m_zdd + (thrust_applied>>1)) / thrust_applied;
   else

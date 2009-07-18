@@ -23,7 +23,7 @@
 
 #include "booz2_fms.h"
 
-#include "booz2_imu.h"
+#include "booz_imu.h"
 #include "booz2_gps.h"
 #include "booz_ahrs.h"
 

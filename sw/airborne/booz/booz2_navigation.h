@@ -25,7 +25,7 @@
 #define BOOZ2_NAVIGATION_H
 
 #include "std.h"
-#include "pprz_geodetic_int.h"
+#include "math/pprz_geodetic_int.h"
 
 extern struct EnuCoor_i booz2_navigation_target;
 extern struct EnuCoor_i booz2_navigation_carrot;

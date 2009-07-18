@@ -24,7 +24,7 @@
 #include <stm32/flash.h>
 #include <stm32/misc.h>
 
-#include CONFIG
+#include BOARD_CONFIG
 #include "init_hw.h"
 #include "led.h"
 

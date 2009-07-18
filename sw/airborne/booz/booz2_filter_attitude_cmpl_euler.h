@@ -26,7 +26,7 @@
 
 #include "booz_ahrs.h"
 #include "std.h"
-#include "pprz_algebra_int.h"
+#include "math/pprz_algebra_int.h"
 
 extern struct Int32Rates  booz2_face_gyro_bias;
 extern struct Int32Eulers booz2_face_measure;

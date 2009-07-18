@@ -17,7 +17,7 @@ example_gps.ARCH = arm7tdmi
 example_gps.TARGET = example_gps
 example_gps.TARGETDIR = example_gps
 
-example_gps.CFLAGS += -DCONFIG=\"conf_demo.h\"
+example_gps.CFLAGS += -DBOARD_CONFIG=\"conf_demo.h\"
 example_gps.srcs = example/example_gps.c
 
 example_gps.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(10e-2)'

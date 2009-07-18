@@ -25,10 +25,6 @@
 ARCHI=arm7
 
 FLASH_MODE = IAP
-BOARD_CFG = \"booz2_board_v1_0.h\"
-
-SRC_BOOZ=booz
-SRC_BOOZ_ARCH=$(SRC_BOOZ)/arm7
 
 ap.ARCHDIR = $(ARCHI)
 ap.ARCH = arm7tdmi
@@ -36,8 +32,8 @@ ap.TARGET = ap
 ap.TARGETDIR = ap
 
 
-ap.CFLAGS += -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH)
-ap.CFLAGS += -DCONFIG=$(BOARD_CFG)
+ap.CFLAGS += $(BOOZ_INC)
+ap.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
 ap.srcs += $(SRC_BOOZ)/booz2_main.c
 
 ap.CFLAGS += -DPERIPHERALS_AUTO_INIT
@@ -95,11 +91,17 @@ ap.srcs += $(SRC_BOOZ)/booz2_battery.c
 
 ap.CFLAGS += -DADC0_VIC_SLOT=2
 ap.CFLAGS += -DADC1_VIC_SLOT=3
-ap.srcs += $(SRC_BOOZ)/booz2_analog.c $(SRC_BOOZ_ARCH)/booz2_analog_hw.c
+ap.srcs += $(SRC_BOOZ)/booz2_analog.c \
+           $(SRC_BOOZ_ARCH)/booz2_analog_hw.c
 
-ap.srcs += $(SRC_BOOZ)/booz2_gps.c
-ap.CFLAGS += -DUSE_UART0 -DUART0_BAUD=B38400 -DUART0_VIC_SLOT=5
-ap.CFLAGS += -DUSE_GPS -DGPS_LINK=Uart0 -DGPS_LED=4
+#
+# GPS choice
+# 
+# include booz2_gps.makefile
+# or
+# nothing
+#
+
 
 
 
@@ -108,7 +110,7 @@ ap.srcs += $(SRC_BOOZ)/booz2_autopilot.c
 ap.CFLAGS += -DAHRS_ALIGNER_LED=3
 ap.srcs += $(SRC_BOOZ)/booz_ahrs_aligner.c
 ap.srcs += $(SRC_BOOZ)/booz2_filter_attitude_cmpl_euler.c
-ap.srcs += $(SRC_BOOZ)/booz_trig_int.c
+ap.srcs += math/pprz_trig_int.c
 ap.srcs += $(SRC_BOOZ)/booz2_stabilization.c
 ap.srcs += $(SRC_BOOZ)/booz2_stabilization_rate.c
 ap.srcs += $(SRC_BOOZ)/booz2_stabilization_attitude.c
@@ -116,7 +118,7 @@ ap.srcs += $(SRC_BOOZ)/booz2_stabilization_attitude.c
 ap.srcs += $(SRC_BOOZ)/booz2_guidance_h.c
 ap.srcs += $(SRC_BOOZ)/booz2_guidance_v.c
 ap.srcs += $(SRC_BOOZ)/booz2_ins.c
-ap.srcs += pprz_geodetic_int.c pprz_geodetic_float.c
+ap.srcs += math/pprz_geodetic_int.c math/pprz_geodetic_float.c
 ap.srcs += $(SRC_BOOZ)/booz2_hf_float.c
 #  vertical filter float version
 ap.srcs += $(SRC_BOOZ)/booz2_vf_float.c
@@ -125,13 +127,12 @@ ap.CFLAGS += -DUSE_VFF -DDT_VFILTER="(1./512.)" -DFLOAT_T=float
 ap.srcs += $(SRC_BOOZ)/booz2_navigation.c
 
 
-
-ap.CFLAGS += -DHS_YAW
-
-ap.srcs += $(SRC_BOOZ)/booz2_fms.c
-
-#ap.CFLAGS += -DBOOZ2_FMS_TYPE=BOOZ2_FMS_TYPE_DATALINK
-#ap.srcs += $(SRC_BOOZ)/booz2_fms_datalink.c
-
-ap.CFLAGS += -DBOOZ2_FMS_TYPE=BOOZ2_FMS_TYPE_TEST_SIGNAL
-ap.srcs += $(SRC_BOOZ)/booz2_fms_test_signal.c
+#
+# FMS  choice
+#
+# include booz2_fms_test_signal.makefile
+# or
+# include booz2_fms_datalink.makefile
+# or 
+# nothing
+#

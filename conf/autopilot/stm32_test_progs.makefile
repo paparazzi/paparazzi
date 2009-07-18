@@ -12,7 +12,7 @@ test_led.ARCHDIR = $(ARCHI)
 test_led.TARGET = test_led
 test_led.TARGETDIR = test_led
 test_led.CFLAGS += -I$(SRC_FYA) -I$(ARCHI) -DPERIPHERALS_AUTO_INIT
-test_led.CFLAGS += -DCONFIG=$(BOARD_CFG)
+test_led.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
 test_led.srcs += $(SRC_FYA)/test_led.c       \
                  $(SRC_FYA)/exceptions.c     \
                  $(SRC_FYA)/vector_table.c
@@ -26,7 +26,7 @@ test_periodic.ARCHDIR = $(ARCHI)
 test_periodic.TARGET = test_periodic
 test_periodic.TARGETDIR = test_periodic
 test_periodic.CFLAGS += -I$(SRC_FYA) -I$(ARCHI) -DPERIPHERALS_AUTO_INIT
-test_periodic.CFLAGS += -DCONFIG=$(BOARD_CFG)
+test_periodic.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
 test_periodic.srcs += $(SRC_FYA)/test_periodic.c  \
                       $(SRC_FYA)/exceptions.c     \
                       $(SRC_FYA)/vector_table.c
@@ -43,7 +43,7 @@ test_uart.ARCHDIR = $(ARCHI)
 test_uart.TARGET = test_uart
 test_uart.TARGETDIR = test_uart
 test_uart.CFLAGS = -I$(SRC_FYA) -I$(ARCHI) -DPERIPHERALS_AUTO_INIT
-test_uart.CFLAGS += -DCONFIG=$(BOARD_CFG)
+test_uart.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
 test_uart.srcs = $(SRC_FYA)/test_uart.c         \
                       $(SRC_FYA)/exceptions.c   \
                       $(SRC_FYA)/vector_table.c
@@ -63,7 +63,7 @@ test_telemetry1.ARCHDIR = $(ARCHI)
 test_telemetry1.TARGET = test_telemetry1
 test_telemetry1.TARGETDIR = test_telemetry1
 test_telemetry1.CFLAGS = -I$(SRC_FYA) -I$(ARCHI) -DPERIPHERALS_AUTO_INIT
-test_telemetry1.CFLAGS += -DCONFIG=$(BOARD_CFG)
+test_telemetry1.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
 test_telemetry1.srcs = $(SRC_FYA)/test_telemetry.c \
                       $(SRC_FYA)/exceptions.c      \
                       $(SRC_FYA)/vector_table.c
@@ -84,7 +84,7 @@ test_telemetry2.ARCHDIR = $(ARCHI)
 test_telemetry2.TARGET = test_telemetry2
 test_telemetry2.TARGETDIR = test_telemetry2
 test_telemetry2.CFLAGS = -I$(SRC_FYA) -I$(ARCHI) -DPERIPHERALS_AUTO_INIT
-test_telemetry2.CFLAGS += -DCONFIG=$(BOARD_CFG)
+test_telemetry2.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
 test_telemetry2.srcs = $(SRC_FYA)/test_telemetry.c \
                        $(SRC_FYA)/exceptions.c     \
                        $(SRC_FYA)/vector_table.c
@@ -105,7 +105,7 @@ test_telemetry3.ARCHDIR = $(ARCHI)
 test_telemetry3.TARGET = test_telemetry3
 test_telemetry3.TARGETDIR = test_telemetry3
 test_telemetry3.CFLAGS = -I$(SRC_FYA) -I$(ARCHI) -DPERIPHERALS_AUTO_INIT
-test_telemetry3.CFLAGS += -DCONFIG=$(BOARD_CFG)
+test_telemetry3.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
 test_telemetry3.srcs = $(SRC_FYA)/test_telemetry.c \
                        $(SRC_FYA)/exceptions.c     \
                        $(SRC_FYA)/vector_table.c
@@ -125,7 +125,7 @@ test_datalink.ARCHDIR = $(ARCHI)
 test_datalink.TARGET = test_datalink
 test_datalink.TARGETDIR = test_datalink
 test_datalink.CFLAGS = -I$(SRC_FYA) -I$(ARCHI) -DPERIPHERALS_AUTO_INIT
-test_datalink.CFLAGS += -DCONFIG=$(BOARD_CFG)
+test_datalink.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
 test_datalink.srcs = $(SRC_FYA)/test_datalink.c \
                      $(SRC_FYA)/exceptions.c    \
                      $(SRC_FYA)/vector_table.c
@@ -152,7 +152,7 @@ test_rc_24.ARCHDIR = $(ARCHI)
 test_rc_24.TARGET = test_rc_24
 test_rc_24.TARGETDIR = test_rc_24
 test_rc_24.CFLAGS += -I$(SRC_FYA) -I$(ARCHI) -I$(SRC_BOOZ) -DPERIPHERALS_AUTO_INIT
-test_rc_24.CFLAGS += -DCONFIG=$(BOARD_CFG) 
+test_rc_24.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG) 
 test_rc_24.srcs += $(SRC_BOOZ_TEST)/booz2_test_radio_control.c \
                    $(SRC_FYA)/exceptions.c                     \
                    $(SRC_FYA)/vector_table.c

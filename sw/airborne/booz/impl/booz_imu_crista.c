@@ -23,11 +23,11 @@
 
 #include "booz_imu.h"
 
-void booz2_imu_impl_init(void) {
+void booz_imu_impl_init(void) {
 
   ADS8344_available = FALSE;
 
-  booz2_imu_crista_arch_init();
+  booz_imu_crista_arch_init();
 
 #ifdef USE_AMI601
   ami601_init();
@@ -35,9 +35,9 @@ void booz2_imu_impl_init(void) {
 
 }
 
-void booz2_imu_periodic(void) {
+void booz_imu_periodic(void) {
 
-  Booz2ImuCristaHwPeriodic();
+  BoozImuCristaArchPeriodic();
 #ifdef USE_AMI601
   RunOnceEvery(10, { ami601_read(); });
 #endif

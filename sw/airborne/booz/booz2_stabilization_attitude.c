@@ -29,50 +29,50 @@
 #include "airframe.h"
 #include "booz_radio_control.h"
 
-struct booz_ieuler booz_stabilization_att_sp;
+struct Int32Eulers booz_stabilization_att_sp;
 
-struct booz_ieuler booz_stabilization_att_ref;
-struct booz_ivect  booz_stabilization_rate_ref;
-struct booz_ivect  booz_stabilization_accel_ref;
+struct Int32Eulers booz_stabilization_att_ref;
+struct Int32Vect3  booz_stabilization_rate_ref;
+struct Int32Vect3  booz_stabilization_accel_ref;
 
-struct booz_ivect  booz_stabilization_pgain;
-struct booz_ivect  booz_stabilization_dgain;
-struct booz_ivect  booz_stabilization_ddgain;
-struct booz_ivect  booz_stabilization_igain;
-struct booz_ieuler booz_stabilization_att_sum_err;
+struct Int32Vect3  booz_stabilization_pgain;
+struct Int32Vect3  booz_stabilization_dgain;
+struct Int32Vect3  booz_stabilization_ddgain;
+struct Int32Vect3  booz_stabilization_igain;
+struct Int32Eulers booz_stabilization_att_sum_err;
 
 static inline void booz_stabilization_update_ref(void);
 
 
 void booz2_stabilization_attitude_init(void) {
 
-  BOOZ_IEULER_ZERO(booz_stabilization_att_sp);
+  INT_EULERS_ZERO(booz_stabilization_att_sp);
 
-  BOOZ_IEULER_ZERO(booz_stabilization_att_ref);
-  BOOZ_IVECT_ZERO(booz_stabilization_rate_ref);
-  BOOZ_IVECT_ZERO(booz_stabilization_accel_ref);
+  INT_EULERS_ZERO(booz_stabilization_att_ref);
+  INT_VECT3_ZERO(booz_stabilization_rate_ref);
+  INT_VECT3_ZERO(booz_stabilization_accel_ref);
 
-  BOOZ_IVECT_ASSIGN(booz_stabilization_pgain,
-		    BOOZ_STABILIZATION_ATTITUDE_PHI_THETA_PGAIN,
-		    BOOZ_STABILIZATION_ATTITUDE_PHI_THETA_PGAIN,
-		    BOOZ_STABILIZATION_ATTITUDE_PSI_PGAIN);
+  VECT3_ASSIGN(booz_stabilization_pgain,
+	       BOOZ_STABILIZATION_ATTITUDE_PHI_THETA_PGAIN,
+	       BOOZ_STABILIZATION_ATTITUDE_PHI_THETA_PGAIN,
+	       BOOZ_STABILIZATION_ATTITUDE_PSI_PGAIN);
   
-  BOOZ_IVECT_ASSIGN(booz_stabilization_dgain,
-		    BOOZ_STABILIZATION_ATTITUDE_PHI_THETA_DGAIN,
-		    BOOZ_STABILIZATION_ATTITUDE_PHI_THETA_DGAIN,
-		    BOOZ_STABILIZATION_ATTITUDE_PSI_DGAIN);
+  VECT3_ASSIGN(booz_stabilization_dgain,
+	       BOOZ_STABILIZATION_ATTITUDE_PHI_THETA_DGAIN,
+	       BOOZ_STABILIZATION_ATTITUDE_PHI_THETA_DGAIN,
+	       BOOZ_STABILIZATION_ATTITUDE_PSI_DGAIN);
+  
+  VECT3_ASSIGN(booz_stabilization_ddgain,
+	       BOOZ_STABILIZATION_ATTITUDE_PHI_THETA_DDGAIN,
+	       BOOZ_STABILIZATION_ATTITUDE_PHI_THETA_DDGAIN,
+	       BOOZ_STABILIZATION_ATTITUDE_PSI_DDGAIN);
+  
+  VECT3_ASSIGN(booz_stabilization_igain,
+	       BOOZ_STABILIZATION_ATTITUDE_PHI_THETA_IGAIN,
+	       BOOZ_STABILIZATION_ATTITUDE_PHI_THETA_IGAIN,
+	       BOOZ_STABILIZATION_ATTITUDE_PSI_IGAIN);
 
-  BOOZ_IVECT_ASSIGN(booz_stabilization_ddgain,
-		    BOOZ_STABILIZATION_ATTITUDE_PHI_THETA_DDGAIN,
-		    BOOZ_STABILIZATION_ATTITUDE_PHI_THETA_DDGAIN,
-		    BOOZ_STABILIZATION_ATTITUDE_PSI_DDGAIN);
-
-  BOOZ_IVECT_ASSIGN(booz_stabilization_igain,
-		    BOOZ_STABILIZATION_ATTITUDE_PHI_THETA_IGAIN,
-		    BOOZ_STABILIZATION_ATTITUDE_PHI_THETA_IGAIN,
-		    BOOZ_STABILIZATION_ATTITUDE_PSI_IGAIN);
-
-  BOOZ_IEULER_ZERO( booz_stabilization_att_sum_err );
+  INT_EULERS_ZERO( booz_stabilization_att_sum_err );
 
 }
 
@@ -87,7 +87,7 @@ void booz2_stabilization_attitude_read_rc(bool_t in_flight) {
 void booz2_stabilization_attitude_enter(void) {
 
   BOOZ2_STABILIZATION_ATTITUDE_RESET_PSI_REF(  booz_stabilization_att_sp );
-  BOOZ_IEULER_ZERO( booz_stabilization_att_sum_err );
+  INT_EULERS_ZERO( booz_stabilization_att_sum_err );
   
 }
 
@@ -99,30 +99,28 @@ void booz2_stabilization_attitude_run(bool_t  in_flight) {
   booz_stabilization_update_ref();
 
   /* compute attitude error            */
-  const struct booz_ieuler att_ref_scaled = {
-    booz_stabilization_att_ref.phi   >> (ANGLE_REF_RES - IANGLE_RES),
-    booz_stabilization_att_ref.theta >> (ANGLE_REF_RES - IANGLE_RES),
-    booz_stabilization_att_ref.psi   >> (ANGLE_REF_RES - IANGLE_RES) };
-  struct booz_ieuler att_err;
-  BOOZ_IEULER_DIFF(att_err, booz_ahrs.ltp_to_body_euler, att_ref_scaled);
-  BOOZ_ANGLE_NORMALIZE(att_err.psi);
+  const struct Int32Eulers att_ref_scaled = {
+    booz_stabilization_att_ref.phi   >> (ANGLE_REF_RES - INT32_ANGLE_FRAC),
+    booz_stabilization_att_ref.theta >> (ANGLE_REF_RES - INT32_ANGLE_FRAC),
+    booz_stabilization_att_ref.psi   >> (ANGLE_REF_RES - INT32_ANGLE_FRAC) };
+  struct Int32Eulers att_err;
+  EULERS_DIFF(att_err, booz_ahrs.ltp_to_body_euler, att_ref_scaled);
+  INT32_ANGLE_NORMALIZE(att_err.psi);
 
   if (in_flight) {
     /* update integrator */
-    BOOZ_IEULER_SUM(booz_stabilization_att_sum_err, booz_stabilization_att_sum_err, att_err);
-    const struct booz_ieuler _MIN_SUM_ERR = {-MAX_SUM_ERR, -MAX_SUM_ERR, -MAX_SUM_ERR};
-    const struct booz_ieuler _MAX_SUM_ERR = { MAX_SUM_ERR,  MAX_SUM_ERR,  MAX_SUM_ERR};
-    BOOZ_IEULER_BOUND(booz_stabilization_att_sum_err, booz_stabilization_att_sum_err, _MIN_SUM_ERR, _MAX_SUM_ERR);
+    EULERS_ADD(booz_stabilization_att_sum_err, att_err);
+    EULERS_BOUND_CUBE(booz_stabilization_att_sum_err, -MAX_SUM_ERR, MAX_SUM_ERR);
   }
   else {
-    BOOZ_IEULER_ZERO(booz_stabilization_att_sum_err);
+    INT_EULERS_ZERO(booz_stabilization_att_sum_err);
   }
   
   /* compute rate error                */
   const struct Int32Rates rate_ref_scaled = {
-    booz_stabilization_rate_ref.x >> (RATE_REF_RES - IRATE_RES),
-    booz_stabilization_rate_ref.y >> (RATE_REF_RES - IRATE_RES),
-    booz_stabilization_rate_ref.z >> (RATE_REF_RES - IRATE_RES) };
+    booz_stabilization_rate_ref.x >> (RATE_REF_RES - INT32_RATE_FRAC),
+    booz_stabilization_rate_ref.y >> (RATE_REF_RES - INT32_RATE_FRAC),
+    booz_stabilization_rate_ref.z >> (RATE_REF_RES - INT32_RATE_FRAC) };
   struct Int32Rates rate_err;
   RATES_DIFF(rate_err, booz_ahrs.body_rate, rate_ref_scaled);
 
@@ -178,9 +176,9 @@ static inline void booz_stabilization_update_ref(void) {
 #ifdef USE_REF
   BOOZ_STABILIZATION_ATTITUDE_REF_TRAJ_EULER_UPDATE();
 #else
-  BOOZ_IEULER_COPY(booz_stabilization_att_ref, booz_stabilization_att_sp);
-  BOOZ_IVECT_ZERO(booz_stabilization_rate_ref);
-  BOOZ_IVECT_ZERO(booz_stabilization_accel_ref);
+  EULERS_COPY(booz_stabilization_att_ref, booz_stabilization_att_sp);
+  INT_VECT3_ZERO(booz_stabilization_rate_ref);
+  INT_VECT3_ZERO(booz_stabilization_accel_ref);
 #endif
 
 

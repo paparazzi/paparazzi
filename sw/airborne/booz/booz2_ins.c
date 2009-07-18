@@ -23,12 +23,12 @@
 
 #include "booz2_ins.h"
 
-#include "booz2_imu.h"
+#include "booz_imu.h"
 #include "booz2_analog_baro.h"
 #include "booz2_gps.h"
 
 #include "airframe.h"
-#include "booz_geometry_mixed.h"
+#include "math/pprz_algebra_int.h"
 
 #ifdef USE_VFF
 #include "booz2_vf_float.h"
@@ -37,7 +37,7 @@
 #include "booz_ahrs.h"
 #include "booz2_hf_float.h"
 
-#include "pprz_geodetic_int.h"
+#include "math/pprz_geodetic_int.h"
 
 
 /* gps transformed to LTP-NED  */
@@ -82,11 +82,11 @@ void booz_ins_propagate() {
 
 #ifdef USE_VFF
   if (booz2_analog_baro_status == BOOZ2_ANALOG_BARO_RUNNING && booz_ins_baro_initialised) {
-    float accel_float = BOOZ_ACCEL_F_OF_I(booz_imu.accel.z);
+    float accel_float = ACCEL_FLOAT_OF_BFP(booz_imu.accel.z);
     b2_vff_propagate(accel_float);
-    booz_ins_ltp_accel.z = BOOZ_ACCEL_I_OF_F(b2_vff_zdotdot);
-    booz_ins_ltp_speed.z = BOOZ_SPEED_I_OF_F(b2_vff_zdot);
-    booz_ins_ltp_pos.z = BOOZ_POS_I_OF_F(b2_vff_z);
+    booz_ins_ltp_accel.z = ACCEL_BFP_OF_REAL(b2_vff_zdotdot);
+    booz_ins_ltp_speed.z = SPEED_BFP_OF_REAL(b2_vff_zdot);
+    booz_ins_ltp_pos.z   = POS_BFP_OF_REAL(b2_vff_z);
     booz_ins_enu_pos.z = -booz_ins_ltp_pos.z;
     booz_ins_enu_speed.z = -booz_ins_ltp_speed.z;
     booz_ins_enu_accel.z = -booz_ins_ltp_accel.z;
@@ -108,7 +108,7 @@ void booz_ins_update_baro() {
       booz_ins_baro_initialised = TRUE;
     }
     booz_ins_baro_alt = (((int32_t)booz2_analog_baro_value - booz_ins_qfe) * BOOZ_INS_BARO_SENS_NUM)/BOOZ_INS_BARO_SENS_DEN;
-    float alt_float = BOOZ_POS_F_OF_I(booz_ins_baro_alt);
+    float alt_float = POS_FLOAT_OF_BFP(booz_ins_baro_alt);
     if (booz_ins_vff_realign) {
       booz_ins_vff_realign = FALSE;
       booz_ins_qfe = booz2_analog_baro_value;
@@ -121,7 +121,7 @@ void booz_ins_update_baro() {
 
 
 void booz_ins_update_gps(void) {
-
+#ifdef USE_GPS
   if (booz_gps_state.fix == BOOZ2_GPS_FIX_3D) {
     if (!booz_ins_ltp_initialised) {
       ltp_def_from_ecef_i(&booz_ins_ltp_def, &booz_gps_state.ecef_pos);
@@ -131,13 +131,13 @@ void booz_ins_update_gps(void) {
     ned_of_ecef_vect_i(&booz_ins_gps_speed_cm_s_ned, &booz_ins_ltp_def, &booz_gps_state.ecef_speed);
 #ifdef USE_HFF
     b2ins_update_gps();
-    VECT2_SDIV(booz_ins_ltp_pos, (1<<(B2INS_POS_LTP_FRAC-IPOS_FRAC)), b2ins_pos_ltp);
-    VECT2_SDIV(booz_ins_ltp_speed, (1<<(B2INS_SPEED_LTP_FRAC-ISPEED_RES)), b2ins_speed_ltp);
+    VECT2_SDIV(booz_ins_ltp_pos, (1<<(B2INS_POS_LTP_FRAC-INT32_POS_FRAC)), b2ins_pos_ltp);
+    VECT2_SDIV(booz_ins_ltp_speed, (1<<(B2INS_SPEED_LTP_FRAC-INT32_SPEED_FRAC)), b2ins_speed_ltp);
 #else
     INT32_VECT3_SCALE_2(b2ins_meas_gps_pos_ned, booz_ins_gps_pos_cm_ned, 
-			IPOS_OF_CM_NUM, IPOS_OF_CM_DEN); 
+			INT32_POS_OF_CM_NUM, INT32_POS_OF_CM_DEN); 
     INT32_VECT3_SCALE_2(b2ins_meas_gps_speed_ned, booz_ins_gps_speed_cm_s_ned,
-			ISPEED_OF_CM_S_NUM, ISPEED_OF_CM_S_DEN); 
+			INT32_SPEED_OF_CM_S_NUM, INT32_SPEED_OF_CM_S_DEN); 
     VECT3_COPY(booz_ins_ltp_pos,   b2ins_meas_gps_pos_ned);
     VECT3_COPY(booz_ins_ltp_speed, b2ins_meas_gps_speed_ned);
 #endif
@@ -145,7 +145,7 @@ void booz_ins_update_gps(void) {
     INT32_VECT3_ENU_OF_NED(booz_ins_enu_speed, booz_ins_ltp_speed);
     INT32_VECT3_ENU_OF_NED(booz_ins_enu_accel, booz_ins_ltp_accel);
   }
-
+#endif /* USE_GPS */
 }
 
 

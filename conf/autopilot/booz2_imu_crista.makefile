@@ -48,19 +48,13 @@
 
 
 
-ap.CFLAGS += -DBOOZ2_IMU_TYPE_H=\"booz2_imu_crista.h\"
-ap.srcs += $(SRC_BOOZ)/booz2_imu_crista.c $(SRC_BOOZ_ARCH)/booz2_imu_crista_hw.c
+ap.CFLAGS += -DBOOZ_IMU_TYPE_H=\"impl/booz_imu_crista.h\"
+ap.srcs += $(SRC_BOOZ)/booz_imu.c             \
+           $(SRC_BOOZ_IMPL)/booz_imu_crista.c \
+           $(SRC_BOOZ_ARCH_IMPL)/booz_imu_crista_arch.c
 ap.CFLAGS += -DUSE_I2C1  -DI2C1_SCLL=150 -DI2C1_SCLH=150 -DI2C1_VIC_SLOT=11 -DI2C1_BUF_LEN=16
 ap.CFLAGS += -DUSE_AMI601
-ap.srcs += AMI601.c
-ap.srcs += $(SRC_BOOZ)/booz2_imu.c
+ap.srcs += $(SRC_BOOZ_PERIPH)/booz_ami601.c
 
 
 
-sim.CFLAGS += -DBOOZ2_IMU_TYPE_H=\"booz2_imu_crista.h\"
-sim.srcs += $(SRC_BOOZ)/booz2_imu.c \
-	    $(SRC_BOOZ)/booz2_imu_crista.c \
-
-sim.CFLAGS += -DUSE_I2C1
-sim.CFLAGS += -DUSE_AMI601
-sim.srcs += AMI601.c

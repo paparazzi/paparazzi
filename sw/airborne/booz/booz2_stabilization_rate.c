@@ -26,7 +26,7 @@
 #include "booz_ahrs_aligner.h"
 
 #include "booz2_stabilization.h"
-#include "booz2_imu.h"
+#include "booz_imu.h"
 #include "booz_radio_control.h"
 #include "airframe.h"
 

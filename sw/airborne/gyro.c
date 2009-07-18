@@ -27,7 +27,7 @@
  *
 */
 
-#include CONFIG
+#include BOARD_CONFIG
 #include "gyro.h"
 #include "std.h"
 #include "adc.h"

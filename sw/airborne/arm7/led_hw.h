@@ -1,7 +1,7 @@
 #ifndef LED_HW_H
 #define LED_HW_H
 
-#include CONFIG
+#include BOARD_CONFIG
 #include "LPC21xx.h"
 #include "std.h"
 

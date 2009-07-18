@@ -47,7 +47,7 @@ ap.TARGET = main
 ap.TARGETDIR = main
 
 ap.CFLAGS += -I$(SRC_CSC)
-ap.CFLAGS += -DCONFIG=$(BOARD_CFG)
+ap.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
 ap.srcs += $(SRC_CSC)/csc_main.c
 ap.CFLAGS += -DLED -DTIME_LED=1
 
@@ -102,7 +102,7 @@ test_uart.TARGETDIR = test_uart
 
 
 test_uart.CFLAGS += -I$(SRC_CSC)
-test_uart.CFLAGS += -DCONFIG=$(BOARD_CFG)
+test_uart.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
 test_uart.srcs += $(SRC_CSC)/csc_test_uart.c
 test_uart.CFLAGS += -DLED
 
@@ -129,7 +129,7 @@ test_can1.TARGETDIR = test_can1
 
 
 test_can1.CFLAGS += -I$(SRC_CSC)
-test_can1.CFLAGS += -DCONFIG=$(BOARD_CFG)
+test_can1.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
 test_can1.srcs += $(SRC_CSC)/test_can1.c
 test_can1.CFLAGS += -DLED
 

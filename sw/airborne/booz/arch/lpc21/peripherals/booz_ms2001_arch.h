@@ -47,7 +47,7 @@ extern volatile uint8_t ms2001_cur_axe;
 	new_val = SSPDR << 8;						\
 	new_val += SSPDR;						\
 	if (abs(new_val) < 2000)					\
-	  ms2001_values[micromag_cur_axe] = new_val;			\
+	  ms2001_values[ms2001_cur_axe] = new_val;			\
 	Ms2001Unselect();						\
 	SSP_ClearRti();							\
 	SSP_DisableRti();						\
@@ -78,7 +78,7 @@ extern volatile uint8_t ms2001_cur_axe;
     SSP_Enable();							\
   }
 
-#define MmReadRes() {							\
+#define Ms2001ReadRes() {						\
     ms2001_status = MS2001_READING_RES;					\
     Ms2001Select();							\
     /* trigger 2 bytes read */						\

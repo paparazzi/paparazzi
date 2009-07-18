@@ -24,7 +24,7 @@
 #ifndef BOOZ_RADIO_CONTROL_PPM_H
 #define BOOZ_RADIO_CONTROL_PPM_H
 
-#include "booz_radio_control_ppm_arch.h"
+#include "impl/booz_radio_control_ppm_arch.h"
 
 #include "conf_radio_control_ppm.h" /* generated code */
 

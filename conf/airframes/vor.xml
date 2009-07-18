@@ -12,7 +12,7 @@ main.ARCH = arm7tdmi
 main.TARGET = main
 main.TARGETDIR = main
 
-main.CFLAGS += -DCONFIG=\"conf_demo.h\"
+main.CFLAGS += -DBOARD_CONFIG=\"conf_demo.h\"
 main.srcs = $(VOR)/lpc_vor_main.c
 
 main.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(1./29880.)'

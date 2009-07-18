@@ -112,26 +112,20 @@
 
   </section>
 
-  <section name="FILTER" prefix="FILTER_">
-   <define name="ALIGNMENT_DPHI"   value="BOOZ_ANGLE_I_OF_F(RadOfDeg(0.))"/>
-   <define name="ALIGNMENT_DTHETA" value="BOOZ_ANGLE_I_OF_F(RadOfDeg(0.))"/>
-   <define name="ALIGNMENT_DPSI"   value="BOOZ_ANGLE_I_OF_F(0.)"/>
-  </section>
-
   <section name="INS" prefix="BOOZ_INS_">
     <define name="BARO_SENS" value="15." integer="16"/>
   </section>
 
   <section name="GUIDANCE_V" prefix="BOOZ2_GUIDANCE_V_">
-   <define name="MIN_ERR_Z"    value="BOOZ_POS_I_OF_F(-10.)"/>
-   <define name="MAX_ERR_Z"    value="BOOZ_POS_I_OF_F( 10.)"/>
-   <define name="MIN_ERR_ZD"   value="BOOZ_SPEED_I_OF_F(-10.)"/>
-   <define name="MAX_ERR_ZD"   value="BOOZ_SPEED_I_OF_F( 10.)"/>
+   <define name="MIN_ERR_Z"    value="POS_BFP_OF_REAL(-10.)"/>
+   <define name="MAX_ERR_Z"    value="POS_BFP_OF_REAL( 10.)"/>
+   <define name="MIN_ERR_ZD"   value="SPEED_BFP_OF_REAL(-10.)"/>
+   <define name="MAX_ERR_ZD"   value="SPEED_BFP_OF_REAL( 10.)"/>
    <define name="HOVER_KP"    value="-200"/>
    <define name="HOVER_KD"    value="-100"/>
-   <!-- 1.5m/s for full stick : BOOZ_SPEED_I_OF_F(1.5) / (MAX_PPRZ/2) -->
+   <!-- 1.5m/s for full stick : SPEED_BFP_OF_REAL(1.5) / (MAX_PPRZ/2) -->
    <define name="RC_CLIMB_COEF" value ="163"/>
-   <!-- BOOZ_SPEED_I_OF_F(1.5) * 20% -->
+   <!-- SPEED_BFP_OF_REAL(1.5) * 20% -->
    <define name="RC_CLIMB_DEAD_BAND" value ="160000"/>
   </section>
 
@@ -154,18 +148,23 @@
  </section>
 
   <makefile>
+ARCH=lpc21
+BOARD_CFG = \"booz2_board_v1_0.h\"
+
 # prevents motors from ever starting
 #ap.CFLAGS += -DKILL_MOTORS
 ap.CFLAGS += -DKILL_SWITCH=RADIO_SWITCH1
 
 ap.CFLAGS += -DMODEM_BAUD=B57600
+include $(PAPARAZZI_SRC)/conf/autopilot/booz2_common.makefile
+include $(PAPARAZZI_SRC)/conf/autopilot/booz2_autopilot.makefile
+include $(PAPARAZZI_SRC)/conf/autopilot/booz2_test_progs.makefile
+include $(PAPARAZZI_SRC)/conf/autopilot/booz2_simulator.makefile
+
 include $(PAPARAZZI_SRC)/conf/autopilot/booz2_actuators_buss.makefile
 include $(PAPARAZZI_SRC)/conf/autopilot/booz2_radio_control_ppm.makefile
 include $(PAPARAZZI_SRC)/conf/autopilot/booz2_imu_b2v1.makefile
 
-include $(PAPARAZZI_SRC)/conf/autopilot/booz2_autopilot.makefile
-include $(PAPARAZZI_SRC)/conf/autopilot/booz2_test_progs.makefile
-include $(PAPARAZZI_SRC)/conf/autopilot/booz2_simulator.makefile
 
 
 

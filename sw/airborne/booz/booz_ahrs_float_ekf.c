@@ -21,7 +21,7 @@
  * Boston, MA 02111-1307, USA. 
  */
 
-#include "pprz_algebra_float.h"
+#include "math/pprz_algebra_float.h"
 
 /* our estimated attitude                     */
 struct FloatQuat  bafe_quat;

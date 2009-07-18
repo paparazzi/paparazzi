@@ -13,7 +13,7 @@ main.ARCH = arm7tdmi
 main.TARGET = mb
 main.TARGETDIR = mb
 
-main.CFLAGS += -DCONFIG=\"conf_motor_bench.h\" -I$(MB)
+main.CFLAGS += -DBOARD_CONFIG=\"conf_motor_bench.h\" -I$(MB)
 main.srcs = $(MB)/main_motor_bench.c
 
 main.CFLAGS += -DPERIODIC_TASK_FREQ='250.'
@@ -60,7 +60,7 @@ foo.ARCH = arm7tdmi
 foo.TARGET = mb
 foo.TARGETDIR = mb
 
-foo.CFLAGS += -DCONFIG=\"conf_motor_bench.h\" -I$(MB)
+foo.CFLAGS += -DBOARD_CONFIG=\"conf_motor_bench.h\" -I$(MB)
 foo.srcs = $(MB)/main_foo.c
 
 foo.CFLAGS += -DPERIODIC_TASK_FREQ='250.'
@@ -82,7 +82,7 @@ bar.ARCH = arm7tdmi
 bar.TARGET = mb
 bar.TARGETDIR = mb
 
-bar.CFLAGS += -DCONFIG=\"conf_motor_bench.h\" -I$(MB)
+bar.CFLAGS += -DBOARD_CONFIG=\"conf_motor_bench.h\" -I$(MB)
 bar.srcs = $(MB)/main_bar.c
 
 bar.CFLAGS += -DPERIODIC_TASK_FREQ='250.'

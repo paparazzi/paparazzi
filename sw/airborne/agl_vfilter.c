@@ -1,6 +1,6 @@
 #include "agl_vfilter.h"
 
-#include CONFIG
+#include BOARD_CONFIG
 #include "airframe.h"
 #include "std.h"
 

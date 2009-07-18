@@ -1,9 +1,28 @@
+/*
+ * $Id$
+ *  
+ * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
+ *
+ * This file is part of paparazzi.
+ *
+ * paparazzi is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * paparazzi is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with paparazzi; see the file COPYING.  If not, write to
+ * the Free Software Foundation, 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA. 
+ */
+
 #include "pprz_geodetic_int.h"
-
-
 #include "pprz_algebra_int.h"
-#include "booz_geometry_int.h"
-#include "booz_geometry_mixed.h"
 
 #define CM_OF_M(_m)  ((_m)*1e2)
 #define M_OF_CM(_cm) ((_cm)/1e2)
@@ -20,15 +39,15 @@ void ltp_def_from_ecef_i(struct LtpDef_i* def, struct EcefCoor_i* ecef) {
   /* store the rotation matrix                    */
 
 #if 1
-  int32_t sin_lat = rint(BOOZ_INT_OF_FLOAT(sinf(RAD_OF_EM7RAD((float)def->lla.lat)), HIGH_RES_TRIG_FRAC));
-  int32_t cos_lat = rint(BOOZ_INT_OF_FLOAT(cosf(RAD_OF_EM7RAD((float)def->lla.lat)), HIGH_RES_TRIG_FRAC)); 
-  int32_t sin_lon = rint(BOOZ_INT_OF_FLOAT(sinf(RAD_OF_EM7RAD((float)def->lla.lon)), HIGH_RES_TRIG_FRAC));
-  int32_t cos_lon = rint(BOOZ_INT_OF_FLOAT(cosf(RAD_OF_EM7RAD((float)def->lla.lon)), HIGH_RES_TRIG_FRAC)); 
+  int32_t sin_lat = rint(BFP_OF_REAL(sinf(RAD_OF_EM7RAD((float)def->lla.lat)), HIGH_RES_TRIG_FRAC));
+  int32_t cos_lat = rint(BFP_OF_REAL(cosf(RAD_OF_EM7RAD((float)def->lla.lat)), HIGH_RES_TRIG_FRAC)); 
+  int32_t sin_lon = rint(BFP_OF_REAL(sinf(RAD_OF_EM7RAD((float)def->lla.lon)), HIGH_RES_TRIG_FRAC));
+  int32_t cos_lon = rint(BFP_OF_REAL(cosf(RAD_OF_EM7RAD((float)def->lla.lon)), HIGH_RES_TRIG_FRAC)); 
 #else
-  int32_t sin_lat = rint(BOOZ_INT_OF_FLOAT(sin(RAD_OF_EM7RAD((double)def->lla.lat)), HIGH_RES_TRIG_FRAC));
-  int32_t cos_lat = rint(BOOZ_INT_OF_FLOAT(cos(RAD_OF_EM7RAD((double)def->lla.lat)), HIGH_RES_TRIG_FRAC)); 
-  int32_t sin_lon = rint(BOOZ_INT_OF_FLOAT(sin(RAD_OF_EM7RAD((double)def->lla.lon)), HIGH_RES_TRIG_FRAC));
-  int32_t cos_lon = rint(BOOZ_INT_OF_FLOAT(cos(RAD_OF_EM7RAD((double)def->lla.lon)), HIGH_RES_TRIG_FRAC)); 
+  int32_t sin_lat = rint(BFP_OF_REAL(sin(RAD_OF_EM7RAD((double)def->lla.lat)), HIGH_RES_TRIG_FRAC));
+  int32_t cos_lat = rint(BFP_OF_REAL(cos(RAD_OF_EM7RAD((double)def->lla.lat)), HIGH_RES_TRIG_FRAC)); 
+  int32_t sin_lon = rint(BFP_OF_REAL(sin(RAD_OF_EM7RAD((double)def->lla.lon)), HIGH_RES_TRIG_FRAC));
+  int32_t cos_lon = rint(BFP_OF_REAL(cos(RAD_OF_EM7RAD((double)def->lla.lon)), HIGH_RES_TRIG_FRAC)); 
 #endif
 
 

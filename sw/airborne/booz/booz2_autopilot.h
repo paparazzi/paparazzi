@@ -27,7 +27,6 @@
 
 #include "std.h"
 
-#include "booz_geometry_int.h"
 #include "airframe.h"
 #include "booz2_ins.h"
 

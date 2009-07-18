@@ -7,7 +7,7 @@
 #include "LPC21xx.h"
 #include "sys_time.h"
 
-#include CONFIG
+#include BOARD_CONFIG
 
 /* PWM prescaler, set PWM input clock to 15MHz, PWM_CLK = PCLK / PWM_PRESCALER */
 

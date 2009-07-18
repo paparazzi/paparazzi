@@ -32,7 +32,7 @@
 
 #include "std.h"
 #include "LPC21xx.h"
-#include CONFIG
+#include BOARD_CONFIG
 #include "led.h"
 #include "armVIC.h"
 

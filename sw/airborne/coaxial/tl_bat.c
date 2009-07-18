@@ -1,5 +1,5 @@
 #include "tl_bat.h"
-#include CONFIG
+#include BOARD_CONFIG
 #include "adc.h"
 #include "airframe.h"
 

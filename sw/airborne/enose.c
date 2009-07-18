@@ -4,7 +4,7 @@
 
 #include "i2c.h"
 #include "adc.h"
-#include CONFIG
+#include BOARD_CONFIG
 
 
 uint8_t enose_status;

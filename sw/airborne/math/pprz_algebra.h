@@ -148,10 +148,10 @@
   }
 
 /* _v = Bound(_v, _min, _max) */
-#define VECT3_STRIM(_v, _min, _max) {				\
-    (_v).x = (_v).x < _min ? _min : (_v).x > _max ? _max : (_v).x;		\
-    (_v).y = (_v).y < _min ? _min : (_v).y > _max ? _max : (_v).y;		\
-    (_v).z = (_v).z < _min ? _min : (_v).z > _max ? _max : (_v).z;		\
+#define VECT3_STRIM(_v, _min, _max) {					\
+    (_v).x = (_v).x < _min ? _min : (_v).x > _max ? _max : (_v).x;	\
+    (_v).y = (_v).y < _min ? _min : (_v).y > _max ? _max : (_v).y;	\
+    (_v).z = (_v).z < _min ? _min : (_v).z > _max ? _max : (_v).z;	\
   }
 
 /*  */
@@ -162,11 +162,19 @@
   } 
 
 /*  */
-#define VECT3_BOUND_CUBE(_v, _min, _max) {				             \
+#define VECT3_BOUND_CUBE(_v, _min, _max) {				\
     if ((_v).x > (_max)) (_v).x = (_max); else if ((_v).x < (_min)) (_v).x = (_min); \
     if ((_v).y > (_max)) (_v).y = (_max); else if ((_v).y < (_min)) (_v).y = (_min); \
     if ((_v).z > (_max)) (_v).z = (_max); else if ((_v).z < (_min)) (_v).z = (_min); \
   } 
+
+/*  */
+#define VECT3_BOUND_BOX(_v, _v_min, _v_max) {				\
+    if ((_v).x > (_v_max.x)) (_v).x = (_v_max.x); else if ((_v).x < (_v_min.x)) (_v).x = (_v_min.x); \
+    if ((_v).y > (_v_max.y)) (_v).y = (_v_max.y); else if ((_v).y < (_v_min.y)) (_v).y = (_v_min.z); \
+    if ((_v).z > (_v_max.y)) (_v).z = (_v_max.z); else if ((_v).z < (_v_min.z)) (_v).z = (_v_min.z); \
+  }
+
 
 
 /*
@@ -214,6 +222,12 @@
     (_eo).psi   =  (_ei).psi   / (_s);				\
   }
 
+/* _v = Bound(_v, _min, _max) */
+#define EULERS_BOUND_CUBE(_v, _min, _max) {				           \
+    (_v).phi   = (_v).phi   < _min ? _min : (_v).phi   > _max ? _max : (_v).phi;   \
+    (_v).theta = (_v).theta < _min ? _min : (_v).theta > _max ? _max : (_v).theta; \
+    (_v).psi   = (_v).psi   < _min ? _min : (_v).psi   > _max ? _max : (_v).psi;   \
+  }
 
 /*
  * Rates

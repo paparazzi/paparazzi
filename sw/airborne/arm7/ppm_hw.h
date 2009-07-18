@@ -11,7 +11,7 @@
 
 
 #include "LPC21xx.h"
-#include CONFIG
+#include BOARD_CONFIG
 
 
 static inline void ppm_init ( void ) {

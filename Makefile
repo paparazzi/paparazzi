@@ -186,6 +186,9 @@ clean:
 dist_clean : clean
 
 
+ab_clean:
+	find sw/airborne -name '*~' -exec rm -f {} \;
+
 test_all_example_airframes:
 	$(MAKE) AIRCRAFT=BOOZ2_A2 clean_ac ap
 	$(MAKE) AIRCRAFT=MJ5 clean_ac ap sim

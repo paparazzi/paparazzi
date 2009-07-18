@@ -26,7 +26,7 @@
 
 #include "LPC21xx.h"
 #include "armVIC.h"
-#include CONFIG
+#include BOARD_CONFIG
 
 
 #ifdef USE_AD0
