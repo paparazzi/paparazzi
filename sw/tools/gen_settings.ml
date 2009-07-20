@@ -81,9 +81,9 @@ let print_dl_settings = fun settings ->
 	try
 	  let h = ExtXml.attrib s "handler" and
 	      m =  ExtXml.attrib s "module" in
-	    lprintf "case %d: %s_%s( _value ); _value = %s; break;\\\n" !idx m h v
+	  lprintf "case %d: %s_%s( _value ); _value = %s; break;\\\n" !idx (Filename.basename m) h v
 	with  
-	    ExtXml.Error e -> lprintf "case %d: %s = _value; break;\\\n" !idx v
+	  ExtXml.Error e -> lprintf "case %d: %s = _value; break;\\\n" !idx v
 	end;
 	incr idx
     ) 
