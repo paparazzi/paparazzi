@@ -31,11 +31,11 @@
 #include "math/pprz_algebra_int.h"
 
 #ifdef USE_VFF
-#include "booz2_vf_float.h"
+#include "ins/booz2_vf_float.h"
 #endif
 
 #include "booz_ahrs.h"
-#include "booz2_hf_float.h"
+#include "ins/booz2_hf_float.h"
 
 #include "math/pprz_geodetic_int.h"
 

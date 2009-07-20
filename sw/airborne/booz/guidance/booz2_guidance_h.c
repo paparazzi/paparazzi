@@ -24,8 +24,7 @@
 #include "booz2_guidance_h.h"
 
 #include "booz_ahrs.h"
-#include "booz2_stabilization_rate.h"
-#include "booz2_stabilization_attitude.h"
+#include "booz_stabilization.h"
 #include "booz2_fms.h"
 #include "booz2_ins.h"
 #include "booz2_navigation.h"
@@ -84,7 +83,7 @@ void booz2_guidance_h_mode_changed(uint8_t new_mode) {
   switch (new_mode) {
 
   case BOOZ2_GUIDANCE_H_MODE_ATTITUDE:
-    booz2_stabilization_attitude_enter();
+    booz_stabilization_attitude_enter();
     break;
     
   case BOOZ2_GUIDANCE_H_MODE_HOVER:
@@ -106,14 +105,14 @@ void booz2_guidance_h_read_rc(bool_t  in_flight) {
   switch ( booz2_guidance_h_mode ) {
 
   case BOOZ2_GUIDANCE_H_MODE_RATE:
-    booz2_stabilization_rate_read_rc();
+    booz_stabilization_rate_read_rc();
     break;
     
   case BOOZ2_GUIDANCE_H_MODE_ATTITUDE:
-    booz2_stabilization_attitude_read_rc(in_flight);
+    booz_stabilization_attitude_read_rc(in_flight);
 #ifdef USE_FMS
     if (booz_fms_on)
-      BOOZ2_STABILIZATION_ATTITUDE_ADD_SP(booz_fms_input.h_sp.attitude);
+      BOOZ_STABILIZATION_ATTITUDE_ADD_SP(booz_fms_input.h_sp.attitude);
 #endif
     break;
   
@@ -122,11 +121,11 @@ void booz2_guidance_h_read_rc(bool_t  in_flight) {
     if (booz_fms_on && booz_fms_input.h_mode >= BOOZ2_GUIDANCE_H_MODE_HOVER)
       BOOZ2_FMS_SET_POS_SP(booz2_guidance_h_pos_sp,booz_stabilization_att_sp.psi);
 #endif
-    BOOZ2_STABILIZATION_ATTITUDE_READ_RC(booz2_guidance_h_rc_sp, in_flight);
+    BOOZ_STABILIZATION_ATTITUDE_READ_RC(booz2_guidance_h_rc_sp, in_flight);
     break;
   
   case BOOZ2_GUIDANCE_H_MODE_NAV:
-    BOOZ2_STABILIZATION_ATTITUDE_READ_RC(booz2_guidance_h_rc_sp, in_flight);
+    BOOZ_STABILIZATION_ATTITUDE_READ_RC(booz2_guidance_h_rc_sp, in_flight);
     booz2_guidance_h_rc_sp.psi = 0;
     break;
   }
@@ -138,16 +137,16 @@ void booz2_guidance_h_run(bool_t  in_flight) {
   switch ( booz2_guidance_h_mode ) {
 
   case BOOZ2_GUIDANCE_H_MODE_RATE:
-    booz2_stabilization_rate_run();
+    booz_stabilization_rate_run();
     break;
 
   case BOOZ2_GUIDANCE_H_MODE_ATTITUDE:
-    booz2_stabilization_attitude_run(in_flight);
+    booz_stabilization_attitude_run(in_flight);
     break;
     
   case BOOZ2_GUIDANCE_H_MODE_HOVER:
     booz2_guidance_h_hover_run();
-    booz2_stabilization_attitude_run(in_flight);
+    booz_stabilization_attitude_run(in_flight);
     break;
     
   case BOOZ2_GUIDANCE_H_MODE_NAV:
@@ -161,7 +160,7 @@ void booz2_guidance_h_run(bool_t  in_flight) {
         booz2_guidance_h_psi_sp = (nav_heading << (ANGLE_REF_RES - INT32_ANGLE_FRAC));
         booz2_guidance_h_hover_run();
       }
-      booz2_stabilization_attitude_run(in_flight);
+      booz_stabilization_attitude_run(in_flight);
       break;
     }
     
@@ -235,7 +234,7 @@ static inline void booz2_guidance_h_hover_enter(void) {
 
   VECT2_COPY(booz2_guidance_h_pos_sp, booz_ins_ltp_pos);
 
-  BOOZ2_STABILIZATION_ATTITUDE_RESET_PSI_REF( booz2_guidance_h_rc_sp );
+  BOOZ_STABILIZATION_ATTITUDE_RESET_PSI_REF( booz2_guidance_h_rc_sp );
 
   INT_VECT2_ZERO(booz2_guidance_h_pos_err_sum);
 
@@ -249,7 +248,7 @@ static inline void booz2_guidance_h_nav_enter(void) {
   INT32_VECT2_NED_OF_ENU(booz2_guidance_h_pos_sp, booz2_navigation_carrot);
 
   struct Int32Eulers tmp_sp;
-  BOOZ2_STABILIZATION_ATTITUDE_RESET_PSI_REF( tmp_sp );
+  BOOZ_STABILIZATION_ATTITUDE_RESET_PSI_REF( tmp_sp );
   booz2_guidance_h_psi_sp = tmp_sp.psi;
   nav_heading = (booz2_guidance_h_psi_sp >> (ANGLE_REF_RES - INT32_ANGLE_FRAC));
   booz2_guidance_h_rc_sp.psi = 0;

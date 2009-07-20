@@ -27,9 +27,8 @@
 #include "booz_radio_control.h"
 #include "booz2_commands.h"
 #include "booz2_navigation.h"
-#include "booz2_guidance_h.h"
-#include "booz2_guidance_v.h"
-#include "booz2_stabilization.h"
+#include "booz_guidance.h"
+#include "booz_stabilization.h"
 
 uint8_t booz2_autopilot_mode;
 uint8_t booz2_autopilot_mode_auto2;
@@ -73,7 +72,7 @@ void booz2_autopilot_periodic(void) {
   else {
     booz2_guidance_v_run( booz2_autopilot_in_flight );
     booz2_guidance_h_run( booz2_autopilot_in_flight );
-    SetCommands(booz2_stabilization_cmd, 
+    SetCommands(booz_stabilization_cmd, 
         booz2_autopilot_in_flight, booz2_autopilot_motors_on);
   }
 

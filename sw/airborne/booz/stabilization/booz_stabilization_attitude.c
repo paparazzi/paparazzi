@@ -21,13 +21,11 @@
  * Boston, MA 02111-1307, USA. 
  */
 
-#include "booz2_stabilization_attitude.h"
-
-#include "booz2_stabilization_attitude_ref_traj_euler.h"
-#include "booz2_stabilization.h"
+#include "booz_stabilization.h"
 #include "booz_ahrs.h"
-#include "airframe.h"
 #include "booz_radio_control.h"
+
+#include "airframe.h"
 
 struct Int32Eulers booz_stabilization_att_sp;
 
@@ -41,12 +39,12 @@ struct Int32Vect3  booz_stabilization_ddgain;
 struct Int32Vect3  booz_stabilization_igain;
 struct Int32Eulers booz_stabilization_att_sum_err;
 
-int32_t booz2_stabilization_att_err_cmd[COMMANDS_NB];
+int32_t booz_stabilization_att_err_cmd[COMMANDS_NB];
 
 static inline void booz_stabilization_update_ref(void);
 
 
-void booz2_stabilization_attitude_init(void) {
+void booz_stabilization_attitude_init(void) {
 
   INT_EULERS_ZERO(booz_stabilization_att_sp);
 
@@ -79,16 +77,16 @@ void booz2_stabilization_attitude_init(void) {
 }
 
 
-void booz2_stabilization_attitude_read_rc(bool_t in_flight) {
+void booz_stabilization_attitude_read_rc(bool_t in_flight) {
 
-  BOOZ2_STABILIZATION_ATTITUDE_READ_RC(booz_stabilization_att_sp, in_flight);
+  BOOZ_STABILIZATION_ATTITUDE_READ_RC(booz_stabilization_att_sp, in_flight);
 
 }
 
 
-void booz2_stabilization_attitude_enter(void) {
+void booz_stabilization_attitude_enter(void) {
 
-  BOOZ2_STABILIZATION_ATTITUDE_RESET_PSI_REF(  booz_stabilization_att_sp );
+  BOOZ_STABILIZATION_ATTITUDE_RESET_PSI_REF(  booz_stabilization_att_sp );
   INT_EULERS_ZERO( booz_stabilization_att_sum_err );
   
 }
@@ -96,7 +94,7 @@ void booz2_stabilization_attitude_enter(void) {
 
 #define MAX_SUM_ERR 4000000
 
-void booz2_stabilization_attitude_run(bool_t  in_flight) {
+void booz_stabilization_attitude_run(bool_t  in_flight) {
 
   booz_stabilization_update_ref();
 
@@ -128,29 +126,29 @@ void booz2_stabilization_attitude_run(bool_t  in_flight) {
 
   /* compute PID loop                  */
 
-  booz2_stabilization_att_err_cmd[COMMAND_ROLL] = 
+  booz_stabilization_att_err_cmd[COMMAND_ROLL] = 
     booz_stabilization_pgain.x    * att_err.phi +
     booz_stabilization_dgain.x    * rate_err.p +
     ((booz_stabilization_igain.x  * booz_stabilization_att_sum_err.phi) >> 10);
-  booz2_stabilization_cmd[COMMAND_ROLL] = booz2_stabilization_att_err_cmd[COMMAND_ROLL] +
+  booz_stabilization_cmd[COMMAND_ROLL] = booz_stabilization_att_err_cmd[COMMAND_ROLL] +
     ((booz_stabilization_ddgain.x * booz_stabilization_accel_ref.x) >> 5);
-  booz2_stabilization_cmd[COMMAND_ROLL] = booz2_stabilization_cmd[COMMAND_ROLL] >> 16;
+  booz_stabilization_cmd[COMMAND_ROLL] = booz_stabilization_cmd[COMMAND_ROLL] >> 16;
 
-  booz2_stabilization_att_err_cmd[COMMAND_PITCH] = 
+  booz_stabilization_att_err_cmd[COMMAND_PITCH] = 
     booz_stabilization_pgain.y    * att_err.theta +
     booz_stabilization_dgain.y    * rate_err.q +
     ((booz_stabilization_igain.y  * booz_stabilization_att_sum_err.theta) >> 10);
-  booz2_stabilization_cmd[COMMAND_PITCH] = booz2_stabilization_att_err_cmd[COMMAND_PITCH] +
+  booz_stabilization_cmd[COMMAND_PITCH] = booz_stabilization_att_err_cmd[COMMAND_PITCH] +
     ((booz_stabilization_ddgain.y * booz_stabilization_accel_ref.y) >> 5);
-  booz2_stabilization_cmd[COMMAND_PITCH] = booz2_stabilization_cmd[COMMAND_PITCH] >> 16;
+  booz_stabilization_cmd[COMMAND_PITCH] = booz_stabilization_cmd[COMMAND_PITCH] >> 16;
   
-  booz2_stabilization_att_err_cmd[COMMAND_YAW] = 
+  booz_stabilization_att_err_cmd[COMMAND_YAW] = 
     booz_stabilization_pgain.z    * att_err.psi +
     booz_stabilization_dgain.z    * rate_err.r +
     ((booz_stabilization_igain.z  * booz_stabilization_att_sum_err.psi) >> 10);
-  booz2_stabilization_cmd[COMMAND_YAW] = booz2_stabilization_att_err_cmd[COMMAND_YAW] +
+  booz_stabilization_cmd[COMMAND_YAW] = booz_stabilization_att_err_cmd[COMMAND_YAW] +
     ((booz_stabilization_ddgain.z * booz_stabilization_accel_ref.z) >> 5);
-  booz2_stabilization_cmd[COMMAND_YAW] = booz2_stabilization_cmd[COMMAND_YAW] >> 16;
+  booz_stabilization_cmd[COMMAND_YAW] = booz_stabilization_cmd[COMMAND_YAW] >> 16;
   
 }
 

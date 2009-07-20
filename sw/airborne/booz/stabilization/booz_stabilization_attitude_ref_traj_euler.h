@@ -21,8 +21,8 @@
  * Boston, MA 02111-1307, USA. 
  */
 
-#ifndef BOOZ2_STABILIZATION_ATTITUDE_REF_TRAJ_EULER_H
-#define BOOZ2_STABILIZATION_ATTITUDE_REF_TRAJ_EULER_H
+#ifndef BOOZ_STABILIZATION_ATTITUDE_REF_TRAJ_EULER_H
+#define BOOZ_STABILIZATION_ATTITUDE_REF_TRAJ_EULER_H
 
 #include "booz_radio_control.h"
 
@@ -153,7 +153,7 @@ extern struct Int32Vect3  booz_stabilization_accel_ref;
   (radio_control.values[RADIO_CONTROL_YAW] >  BOOZ_STABILIZATION_ATTITUDE_DEADBAND_R || \
    radio_control.values[RADIO_CONTROL_YAW] < -BOOZ_STABILIZATION_ATTITUDE_DEADBAND_R)
 
-#define BOOZ2_STABILIZATION_ATTITUDE_READ_RC(_sp, _inflight) {		\
+#define BOOZ_STABILIZATION_ATTITUDE_READ_RC(_sp, _inflight) {		\
     									\
     _sp.phi =								\
       ((int32_t)-radio_control.values[RADIO_CONTROL_ROLL]  * BOOZ_STABILIZATION_ATTITUDE_SP_MAX_PHI / MAX_PPRZ) \
@@ -174,13 +174,13 @@ extern struct Int32Vect3  booz_stabilization_accel_ref;
     }									\
   }
 
-#define BOOZ2_STABILIZATION_ATTITUDE_ADD_SP(_add_sp) {	\
+#define BOOZ_STABILIZATION_ATTITUDE_ADD_SP(_add_sp) {	\
     EULERS_ADD(booz_stabilization_att_sp,_add_sp);	\
     ANGLE_REF_NORMALIZE(booz_stabilization_att_sp.psi); \
 }
 
 
-#define BOOZ2_STABILIZATION_ATTITUDE_RESET_PSI_REF(_sp) {		\
+#define BOOZ_STABILIZATION_ATTITUDE_RESET_PSI_REF(_sp) {		\
     _sp.psi = booz_ahrs.ltp_to_body_euler.psi << (ANGLE_REF_RES - INT32_ANGLE_FRAC); \
     booz_stabilization_att_ref.psi = _sp.psi;				\
     booz_stabilization_rate_ref.z = 0;					\

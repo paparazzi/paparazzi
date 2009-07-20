@@ -27,13 +27,14 @@
 
 
 #include "booz_radio_control.h"
-#include "airframe.h"
-#include "booz2_stabilization.h"
+#include "booz_stabilization.h"
 #include "booz2_fms.h"
 #include "booz2_navigation.h"
 
 #include "booz2_ins.h"
 #include "math/pprz_algebra_int.h"
+
+#include "airframe.h"
 
 uint8_t booz2_guidance_v_mode;
 int32_t booz2_guidance_v_ff_cmd;
@@ -144,7 +145,7 @@ void booz2_guidance_v_run(bool_t in_flight) {
   // AKA SUPERVISION and co
   if (in_flight) {
     // we should use something after the supervision!!! fuck!!!
-    int32_t cmd_hack = Chop(booz2_stabilization_cmd[COMMAND_THRUST], 1, 200);
+    int32_t cmd_hack = Chop(booz_stabilization_cmd[COMMAND_THRUST], 1, 200);
     b2_gv_adapt_run(booz_ins_ltp_accel.z, cmd_hack);
   }
   else {
@@ -157,14 +158,14 @@ void booz2_guidance_v_run(bool_t in_flight) {
   case BOOZ2_GUIDANCE_V_MODE_RC_DIRECT:
     booz2_guidance_v_z_sp = booz_ins_ltp_pos.z;  // not sure why we do that
     Booz2GuidanceVSetRef(booz_ins_ltp_pos.z, 0, 0); // or that - mode enter should take care of it ?
-    booz2_stabilization_cmd[COMMAND_THRUST] = booz2_guidance_v_rc_delta_t;
+    booz_stabilization_cmd[COMMAND_THRUST] = booz2_guidance_v_rc_delta_t;
     break;
 
   case BOOZ2_GUIDANCE_V_MODE_RC_CLIMB:
     booz2_guidance_v_zd_sp = booz2_guidance_v_rc_zd_sp;
     b2_gv_update_ref_from_zd_sp(booz2_guidance_v_zd_sp);
     run_hover_loop(in_flight);
-    booz2_stabilization_cmd[COMMAND_THRUST] = booz2_guidance_v_delta_t;
+    booz_stabilization_cmd[COMMAND_THRUST] = booz2_guidance_v_delta_t;
     break;
 
   case BOOZ2_GUIDANCE_V_MODE_CLIMB:
@@ -175,7 +176,7 @@ void booz2_guidance_v_run(bool_t in_flight) {
     b2_gv_update_ref_from_zd_sp(booz2_guidance_v_zd_sp);
     run_hover_loop(in_flight);
     // saturate max authority with RC stick
-    booz2_stabilization_cmd[COMMAND_THRUST] = Min( booz2_guidance_v_rc_delta_t, booz2_guidance_v_delta_t);
+    booz_stabilization_cmd[COMMAND_THRUST] = Min( booz2_guidance_v_rc_delta_t, booz2_guidance_v_delta_t);
     break;
 
   case BOOZ2_GUIDANCE_V_MODE_HOVER:
@@ -186,7 +187,7 @@ void booz2_guidance_v_run(bool_t in_flight) {
     b2_gv_update_ref_from_z_sp(booz2_guidance_v_z_sp);
     run_hover_loop(in_flight);
     // saturate max authority with RC stick
-    booz2_stabilization_cmd[COMMAND_THRUST] = Min( booz2_guidance_v_rc_delta_t, booz2_guidance_v_delta_t);
+    booz_stabilization_cmd[COMMAND_THRUST] = Min( booz2_guidance_v_rc_delta_t, booz2_guidance_v_delta_t);
     break;
 
   case BOOZ2_GUIDANCE_V_MODE_NAV:
@@ -206,8 +207,8 @@ void booz2_guidance_v_run(bool_t in_flight) {
         booz2_guidance_v_delta_t = nav_throttle;
       }
       // saturate max authority with RC stick
-      booz2_stabilization_cmd[COMMAND_THRUST] = Min( booz2_guidance_v_rc_delta_t, booz2_guidance_v_delta_t);
-      //booz2_stabilization_cmd[COMMAND_THRUST] = booz2_guidance_v_rc_delta_t;
+      booz_stabilization_cmd[COMMAND_THRUST] = Min( booz2_guidance_v_rc_delta_t, booz2_guidance_v_delta_t);
+      //booz_stabilization_cmd[COMMAND_THRUST] = booz2_guidance_v_rc_delta_t;
       break;
     }
   }

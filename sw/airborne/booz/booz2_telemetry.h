@@ -32,8 +32,7 @@
 
 #include "booz_radio_control.h"
 #include "booz2_autopilot.h"
-#include "booz2_guidance_h.h"
-#include "booz2_guidance_v.h"
+#include "booz_guidance.h"
 
 #include "actuators.h"
 
@@ -137,23 +136,21 @@
 			         &booz2_analog_baro_value_filtered);		\
   }
 
-#include "booz2_stabilization.h"
-#include "booz2_stabilization_rate.h"
+#include "booz_stabilization.h"
 #define PERIODIC_SEND_BOOZ2_RATE_LOOP() {				\
-    DOWNLINK_SEND_BOOZ2_RATE_LOOP(&booz2_stabilization_rate_measure.p,	\
-				  &booz2_stabilization_rate_measure.q,	\
-				  &booz2_stabilization_rate_measure.r,	\
-				  &booz2_stabilization_rate_sp.p,	\
-				  &booz2_stabilization_rate_sp.q,	\
-				  &booz2_stabilization_rate_sp.r,	\
-				  &booz2_stabilization_cmd[COMMAND_ROLL], \
-				  &booz2_stabilization_cmd[COMMAND_PITCH], \
-				  &booz2_stabilization_cmd[COMMAND_YAW], \
-				  &booz2_stabilization_cmd[COMMAND_THRUST]); \
+    DOWNLINK_SEND_BOOZ2_RATE_LOOP(&booz_stabilization_rate_measure.p,	\
+				  &booz_stabilization_rate_measure.q,	\
+				  &booz_stabilization_rate_measure.r,	\
+				  &booz_stabilization_rate_sp.p,	\
+				  &booz_stabilization_rate_sp.q,	\
+				  &booz_stabilization_rate_sp.r,	\
+				  &booz_stabilization_cmd[COMMAND_ROLL], \
+				  &booz_stabilization_cmd[COMMAND_PITCH], \
+				  &booz_stabilization_cmd[COMMAND_YAW], \
+				  &booz_stabilization_cmd[COMMAND_THRUST]); \
   }
 
 
-#include "booz2_stabilization_attitude.h"
 #define PERIODIC_SEND_BOOZ2_STAB_ATTITUDE() {				\
     DOWNLINK_SEND_BOOZ2_STAB_ATTITUDE(&booz_ahrs.body_rate.p,		\
 				      &booz_ahrs.body_rate.q,		\
@@ -167,12 +164,12 @@
 				      &booz_stabilization_att_sum_err.phi, \
 				      &booz_stabilization_att_sum_err.theta, \
 				      &booz_stabilization_att_sum_err.psi, \
-				      &booz2_stabilization_att_err_cmd[COMMAND_ROLL], \
-				      &booz2_stabilization_att_err_cmd[COMMAND_PITCH], \
-				      &booz2_stabilization_att_err_cmd[COMMAND_YAW], \
-				      &booz2_stabilization_cmd[COMMAND_ROLL], \
-				      &booz2_stabilization_cmd[COMMAND_PITCH], \
-				      &booz2_stabilization_cmd[COMMAND_YAW]); \
+				      &booz_stabilization_att_err_cmd[COMMAND_ROLL], \
+				      &booz_stabilization_att_err_cmd[COMMAND_PITCH], \
+				      &booz_stabilization_att_err_cmd[COMMAND_YAW], \
+				      &booz_stabilization_cmd[COMMAND_ROLL], \
+				      &booz_stabilization_cmd[COMMAND_PITCH], \
+				      &booz_stabilization_cmd[COMMAND_YAW]); \
   }
 
 
@@ -196,7 +193,7 @@
 					      &booz_ahrs.ltp_to_body_euler.psi,	\
 					      &booz_ahrs.body_rate.r, \
 					      &booz_stabilization_att_sum_err.psi, \
-					      &booz2_stabilization_cmd[COMMAND_YAW]); \
+					      &booz_stabilization_cmd[COMMAND_YAW]); \
   }
 #else
 #define PERIODIC_SEND_BOOZ2_STAB_ATTITUDE_HS_ROLL() {			       \
@@ -206,7 +203,7 @@
 					      &booz_ahrs.ltp_to_body_euler.phi,	\
 					      &booz_ahrs.body_rate.p, \
 					      &booz_stabilization_att_sum_err.phi, \
-					      &booz2_stabilization_cmd[COMMAND_ROLL]); \
+					      &booz_stabilization_cmd[COMMAND_ROLL]); \
   }
 #endif
 
@@ -225,10 +222,10 @@
 
 
 #define PERIODIC_SEND_BOOZ2_CMD() { \
-    DOWNLINK_SEND_BOOZ2_CMD(&booz2_stabilization_cmd[COMMAND_ROLL],	\
-			    &booz2_stabilization_cmd[COMMAND_PITCH],	\
-			    &booz2_stabilization_cmd[COMMAND_YAW],	\
-			    &booz2_stabilization_cmd[COMMAND_THRUST]);	\
+    DOWNLINK_SEND_BOOZ2_CMD(&booz_stabilization_cmd[COMMAND_ROLL],	\
+			    &booz_stabilization_cmd[COMMAND_PITCH],	\
+			    &booz_stabilization_cmd[COMMAND_YAW],	\
+			    &booz_stabilization_cmd[COMMAND_THRUST]);	\
   }
 
 
@@ -305,7 +302,6 @@
 				 &booz2_filter_attitude_quat.qz);	\
   }
 
-#include "booz2_guidance_h.h"
 #define PERIODIC_SEND_BOOZ2_GUIDANCE() {				\
     DOWNLINK_SEND_BOOZ2_GUIDANCE(&booz2_guidance_h_cur_pos.x,		\
 				 &booz2_guidance_h_cur_pos.y,		\
@@ -313,7 +309,6 @@
 				 &booz2_guidance_h_held_pos.y);		\
   }
 
-#include "booz2_ins.h"
 #define PERIODIC_SEND_BOOZ2_INS() {				\
     DOWNLINK_SEND_BOOZ2_INS(&booz_ins_baro_alt,			\
 			    &booz_ins_ltp_pos.z,		\
@@ -322,7 +317,6 @@
   }
 
 
-#include "booz2_hf_float.h"
 #define PERIODIC_SEND_BOOZ2_INS2() {				\
     struct Int32Vect3 pos_low_res;				\
     pos_low_res.x = (int32_t)(b2ins_pos_ltp.x>>20);		\
@@ -366,7 +360,6 @@
 
 
 
-#include "booz2_guidance_v.h"
 #define PERIODIC_SEND_BOOZ2_VERT_LOOP() {				\
     DOWNLINK_SEND_BOOZ2_VERT_LOOP(&booz2_guidance_v_z_sp,		\
 				  &booz2_guidance_v_zd_sp,		\
@@ -423,7 +416,7 @@
 			    &booz2_guidance_h_pos_sp.x,			\
 			    &carrot_up,					\
 			    &booz2_guidance_h_command_body.psi,		\
-			    &booz2_stabilization_cmd[COMMAND_THRUST]);	\
+			    &booz_stabilization_cmd[COMMAND_THRUST]);	\
   }
 
 #ifdef USE_GPS
@@ -471,10 +464,10 @@
     DOWNLINK_SEND_BOOZ2_TUNE_HOVER(&radio_control.values[RADIO_CONTROL_ROLL], \
 				   &radio_control.values[RADIO_CONTROL_PITCH], \
 				   &radio_control.values[RADIO_CONTROL_YAW], \
-				   &booz2_stabilization_cmd[COMMAND_ROLL], \
-				   &booz2_stabilization_cmd[COMMAND_PITCH], \
-				   &booz2_stabilization_cmd[COMMAND_YAW], \
-				   &booz2_stabilization_cmd[COMMAND_THRUST], \
+				   &booz_stabilization_cmd[COMMAND_ROLL], \
+				   &booz_stabilization_cmd[COMMAND_PITCH], \
+				   &booz_stabilization_cmd[COMMAND_YAW], \
+				   &booz_stabilization_cmd[COMMAND_THRUST], \
 				   &booz_ahrs.ltp_to_imu_euler.phi,	\
 				   &booz_ahrs.ltp_to_imu_euler.theta,	\
 				   &booz_ahrs.ltp_to_imu_euler.psi,	\

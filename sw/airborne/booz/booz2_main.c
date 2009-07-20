@@ -40,17 +40,16 @@
 
 
 #include "booz_imu.h"
+#include "booz2_gps.h"
+
 #include "booz2_analog_baro.h"
 #include "booz2_battery.h"
 
 #include "booz2_fms.h"
 #include "booz2_autopilot.h"
-#include "booz2_stabilization_rate.h"
-#include "booz2_stabilization_attitude.h"
 
-#include "booz2_gps.h"
-#include "booz2_guidance_h.h"
-#include "booz2_guidance_v.h"
+#include "booz_stabilization.h"
+#include "booz_guidance.h"
 
 #include "booz_ahrs.h"
 #include "booz2_ins.h"
@@ -82,7 +81,6 @@ STATIC_INLINE void booz2_main_init( void ) {
 
   hw_init();
   sys_time_init();
-  led_init();
   actuators_init();
 #if defined USE_BOOZ2_SERVOS_DIRECT
   booz2_servos_direct_init();
@@ -99,8 +97,7 @@ STATIC_INLINE void booz2_main_init( void ) {
   booz2_nav_init();
   booz2_guidance_h_init();
   booz2_guidance_v_init();
-  booz2_stabilization_rate_init();
-  booz2_stabilization_attitude_init();
+  booz_stabilization_init();
 
   booz_ahrs_aligner_init();
   booz_ahrs_init();
