@@ -24,12 +24,21 @@
 #ifndef BOOZ_RADIO_CONTROL_PPM_H
 #define BOOZ_RADIO_CONTROL_PPM_H
 
-#include "impl/booz_radio_control_ppm_arch.h"
-
-#include "conf_radio_control_ppm.h" /* generated code */
+/** 
+ * Architecture dependant code 
+ */
+#include "radio_control/booz_radio_control_ppm_arch.h"
+/* must be implemented by arch dependant code */
+extern void booz_radio_control_ppm_arch_init ( void );
 
 /**
- *  Radio control type : futaba is falling edge clocked whereas JR is rising edge
+ * Generated code holding the description of a given 
+ * transmitter  
+ */
+#include "conf_radio_control_ppm.h" 
+                                     
+/**
+ *  ppm pulse type : futaba is falling edge clocked whereas JR is rising edge
  */
 #define PPM_PULSE_TYPE_POSITIVE 0
 #define PPM_PULSE_TYPE_NEGATIVE 1

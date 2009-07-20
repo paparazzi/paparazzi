@@ -21,8 +21,8 @@
  * Boston, MA 02111-1307, USA. 
  */
 
-#include "booz2_imu_b2.h"
+#include "peripherals/booz_max1168.h"
 
-void booz2_imu_b2_hw_init(void) {
+void booz_max1168_arch_init( void ) {}
 
-}
+void booz_max1168_read( void ) {}

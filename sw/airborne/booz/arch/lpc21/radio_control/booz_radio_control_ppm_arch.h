@@ -21,9 +21,8 @@
  * Boston, MA 02111-1307, USA. 
  */
 
-#ifndef BOOZ_RADIO_CONTROL_PPM_HW_H
-#define BOOZ_RADIO_CONTROL_PPM_HW_H
-
+#ifndef BOOZ_RADIO_CONTROL_PPM_ARCH_H
+#define BOOZ_RADIO_CONTROL_PPM_ARCH_H
 
 
 #include "LPC21xx.h"
@@ -32,7 +31,6 @@
 extern uint8_t  booz_radio_control_ppm_cur_pulse;
 extern uint32_t booz_radio_control_ppm_last_pulse_time;
 
-extern void booz_radio_control_ppm_arch_init ( void );
 
 #define RADIO_CONTROL_PPM_IT PPM_CRI
 #define RADIO_CONTROL_PPM_ISR() {					\
@@ -62,4 +60,4 @@ extern void booz_radio_control_ppm_arch_init ( void );
   }
 
 
-#endif /* BOOZ_RADIO_CONTROL_PPM_HW_H */
+#endif /* BOOZ_RADIO_CONTROL_PPM_ARCH_H */

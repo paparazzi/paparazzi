@@ -5,7 +5,7 @@
 #include <Ivy/ivyglibloop.h>
 
 #include "airframe.h"
-#include "pprz_algebra_double.h"
+#include "math/pprz_algebra_double.h"
 #include "nps_autopilot.h"
 #include "nps_fdm.h"
 

@@ -14,13 +14,13 @@ static void EXTINT_ISR(void) __attribute__((naked));
 
 void ms2001_arch_init( void ) {
 
-  Ms2001Unselect();                   /* pin idles high */
   /* configure SS pin */
+  Ms2001Unselect();                       /* pin idles high */
   SetBit(MS2001_SS_IODIR, MS2001_SS_PIN); /* pin is output  */
 
   /* configure RESET pin */
-  SetBit(MS2001_RESET_IODIR, MS2001_RESET_PIN); /* pin is output  */
   Ms2001Reset();                                /* pin idles low  */
+  SetBit(MS2001_RESET_IODIR, MS2001_RESET_PIN); /* pin is output  */
 
   /* configure DRDY pin */
   /* connected pin to EXINT */ 
@@ -32,8 +32,8 @@ void ms2001_arch_init( void ) {
   /* initialize interrupt vector */
   VICIntSelect &= ~VIC_BIT( MS2001_DRDY_VIC_IT );                       /* select EINT as IRQ source */
   VICIntEnable = VIC_BIT( MS2001_DRDY_VIC_IT );                         /* enable it                 */
-  _VIC_CNTL(MICROMAG_DRDY_VIC_SLOT) = VIC_ENABLE | MS2001_DRDY_VIC_IT;
-  _VIC_ADDR(MICROMAG_DRDY_VIC_SLOT) = (uint32_t)EXTINT_ISR;         // address of the ISR 
+  _VIC_CNTL(MS2001_DRDY_VIC_SLOT) = VIC_ENABLE | MS2001_DRDY_VIC_IT;
+  _VIC_ADDR(MS2001_DRDY_VIC_SLOT) = (uint32_t)EXTINT_ISR;         // address of the ISR 
 
 }
 

@@ -1,7 +1,7 @@
 #ifndef NPS_SENSORS_H
 #define NPS_SENSORS_H
 
-#include "pprz_algebra.h"
+#include "math/pprz_algebra.h"
 #include "nps_sensor_gyro.h"
 #include "nps_sensor_accel.h"
 #include "nps_sensor_mag.h"

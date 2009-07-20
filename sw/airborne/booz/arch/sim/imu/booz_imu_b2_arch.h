@@ -23,15 +23,14 @@
 
 /*
  *
- * simulator plug for the booz2 v1 imu hw funtions
+ * simulator plug for the booz2 v1 imu arch dependant functions
  *
  */
-#ifndef BOOZ2_IMU_B2_HW_H
-#define BOOZ2_IMU_B2_HW_H
+#ifndef BOOZ2_IMU_B2_ARCH_H
+#define BOOZ2_IMU_B2_ARCH_H
 
-extern void booz2_imu_b2_hw_init(void);
 
-#define booz2_imu_feed_data() {						\
+#define booz_imu_feed_gyro_accel() {					\
     booz2_max1168_values[IMU_GYRO_P_CHAN] = bsm.gyro->ve[AXIS_P];	\
     booz2_max1168_values[IMU_GYRO_Q_CHAN] = bsm.gyro->ve[AXIS_Q];	\
     booz2_max1168_values[IMU_GYRO_R_CHAN] = bsm.gyro->ve[AXIS_R];	\
@@ -40,12 +39,6 @@ extern void booz2_imu_b2_hw_init(void);
     booz2_max1168_values[IMU_ACCEL_Z_CHAN] = bsm.accel->ve[AXIS_Z];	\
     booz2_max1168_status = STA_MAX1168_DATA_AVAILABLE;			\
   }
-
-#ifdef USE_MICROMAG
-#define Booz2ImuSpiEvent(_handler1,_handler2) {}
-#else // NO MICROMAG
-#define Booz2ImuSpiEvent(_handler) {}
-#endif
 
 
 #endif /* BOOZ2_IMU_B2_HW_H */

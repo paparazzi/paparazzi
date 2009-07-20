@@ -9,7 +9,7 @@ JSBSIM_INC = $(JSBSIM_ROOT)/include/JSBSim
 JSBSIM_LIB = $(JSBSIM_ROOT)/lib
 
 SRC_BOOZ=booz
-SRC_BOOZ_SIM = $(SRC_BOOZ)/sim
+SRC_BOOZ_SIM = $(SRC_BOOZ)/arch/sim
 
 
 sim.ARCHDIR = $(ARCHI)
@@ -42,9 +42,9 @@ sim.srcs = $(SIMDIR)/nps_main.c                      \
 	   $(SIMDIR)/nps_flightgear.c                \
 
 
-sim.srcs += $(SRC_BOOZ)/booz_trig_int.c \
-            pprz_geodetic_float.c       \
-            pprz_geodetic_double.c      \
+sim.srcs += math/pprz_trig_int.c             \
+            math/pprz_geodetic_float.c       \
+            math/pprz_geodetic_double.c      \
 
 
 
@@ -66,15 +66,10 @@ sim.srcs += $(SRC_BOOZ)/booz2_telemetry.c \
 
 sim.srcs   += $(SRC_BOOZ)/booz2_commands.c
 
-#sim.CFLAGS += -DRADIO_CONTROL -DRC_LED=1
-#sim.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c
 
-sim.CFLAGS += -DUSE_RADIO_CONTROL -DRADIO_CONTROL_LED=1
-sim.CFLAGS += -DRADIO_CONTROL_TYPE_H=\"booz_radio_control_ppm.h\"
-sim.CFLAGS += -DRADIO_CONTROL_TYPE_PPM
-sim.srcs += $(SRC_BOOZ)/booz_radio_control.c \
-            $(SRC_BOOZ)/booz_radio_control_ppm.c \
-            $(SRC_BOOZ_SIM)/booz_radio_control_ppm_hw.c
+#
+#
+#
 
 
 sim.CFLAGS += -DBOOZ2_ANALOG_BARO_LED=2 -DBOOZ2_ANALOG_BARO_PERIOD='SYS_TICS_OF_SEC((1./100.))'
@@ -101,7 +96,7 @@ sim.srcs += $(SRC_BOOZ)/booz2_stabilization_attitude.c
 
 sim.srcs += $(SRC_BOOZ)/booz2_guidance_h.c
 sim.srcs += $(SRC_BOOZ)/booz2_guidance_v.c
-sim.srcs += pprz_geodetic_int.c
+sim.srcs += math/pprz_geodetic_int.c
 sim.srcs += $(SRC_BOOZ)/booz2_ins.c
 #  vertical filter float version
 sim.srcs += $(SRC_BOOZ)/booz2_vf_float.c
@@ -111,9 +106,5 @@ sim.srcs += $(SRC_BOOZ)/booz2_hf_float.c
 
 
 sim.srcs += $(SRC_BOOZ)/booz2_navigation.c
-
-sim.srcs += $(SRC_BOOZ)/booz2_fms.c
-sim.CFLAGS += -DBOOZ2_FMS_TYPE=BOOZ2_FMS_TYPE_TEST_SIGNAL
-sim.srcs += $(SRC_BOOZ)/booz2_fms_test_signal.c
 
 

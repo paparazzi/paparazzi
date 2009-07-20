@@ -75,7 +75,7 @@
 
 
 /* underlying architecture */
-#include "impl/booz_imu_b2_arch.h"
+#include "imu/booz_imu_b2_arch.h"
 /* must be implemented by underlying architecture */
 extern void booz_imu_b2_arch_init(void);
 

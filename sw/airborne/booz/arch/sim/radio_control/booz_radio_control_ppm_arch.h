@@ -21,8 +21,9 @@
  * Boston, MA 02111-1307, USA. 
  */
 
-#include "booz2_max1168.h"
+#ifndef BOOZ_RADIO_CONTROL_PPM_ARCH_H
+#define BOOZ_RADIO_CONTROL_PPM_ARCH_H
 
-void booz2_max1168_hw_init( void ) {}
 
-void booz2_max1168_read( void ) {}
+
+#endif /* BOOZ_RADIO_CONTROL_PPM_ARCH_H */

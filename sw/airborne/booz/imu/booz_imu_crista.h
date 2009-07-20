@@ -64,7 +64,7 @@ extern bool_t ADS8344_available;
 #endif
 
 /* underlying architecture */
-#include "impl/booz_imu_crista_arch.h"
+#include "imu/booz_imu_crista_arch.h"
 /* must be defined by underlying architecture */
 extern void booz_imu_crista_arch_init(void);
 

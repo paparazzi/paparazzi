@@ -5,11 +5,11 @@
 #include "nps_fdm.h"
 #include "6dof.h"
 #include "airframe.h"
-#include "pprz_geodetic.h"
-#include "pprz_geodetic_double.h"
-#include "pprz_geodetic_float.h"
-#include "pprz_algebra.h"
-#include "pprz_algebra_float.h"
+#include "math/pprz_geodetic.h"
+#include "math/pprz_geodetic_double.h"
+#include "math/pprz_geodetic_float.h"
+#include "math/pprz_algebra.h"
+#include "math/pprz_algebra_float.h"
 
 #define MetersOfFeet(_f) ((_f)/3.2808399)
 
@@ -118,7 +118,8 @@ static void test123(LlaCoor_d* fdm_lla, FGPropagate* propagate) {
  
   fdm_lla->lat = propagate->GetLatitude();
   fdm_lla->lon = propagate->GetLongitude();
-  fdm_lla->alt = MetersOfFeet(propagate->Geth());
+  // FIXME
+  //  fdm_lla->alt = MetersOfFeet(propagate->Geth());
 
 }
 

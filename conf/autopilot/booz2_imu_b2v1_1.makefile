@@ -47,17 +47,17 @@
 #
 
 # imu Booz2 v1.1
-ap.CFLAGS += -DBOOZ_IMU_TYPE_H=\"impl/booz_imu_b2.h\"
+ap.CFLAGS += -DBOOZ_IMU_TYPE_H=\"imu/booz_imu_b2.h\"
 ap.srcs += $(SRC_BOOZ)/booz_imu.c
 ap.CFLAGS += -DSSP_VIC_SLOT=9 -DIMU_B2_MAG_TYPE=IMU_B2_MAG_MS2001
-ap.srcs += $(SRC_BOOZ)/impl/booz_imu_b2.c \
-           $(SRC_BOOZ_ARCH)/impl/booz_imu_b2_arch.c
+ap.srcs += $(SRC_BOOZ)/imu/booz_imu_b2.c \
+           $(SRC_BOOZ_ARCH)/imu/booz_imu_b2_arch.c
 
 ap.CFLAGS += -DMAX1168_EOC_VIC_SLOT=8
 ap.srcs += $(SRC_BOOZ)/peripherals/booz_max1168.c \
            $(SRC_BOOZ_ARCH)/peripherals/booz_max1168_arch.c
 
-ap.CFLAGS += -DUSE_MICROMAG -DMICROMAG_DRDY_VIC_SLOT=11
+ap.CFLAGS += -DMS2001_DRDY_VIC_SLOT=11
 ap.srcs += $(SRC_BOOZ)/peripherals/booz_ms2001.c \
            $(SRC_BOOZ_ARCH)/peripherals/booz_ms2001_arch.c
 

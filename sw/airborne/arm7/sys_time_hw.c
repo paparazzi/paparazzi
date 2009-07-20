@@ -20,7 +20,7 @@ uint32_t sys_time_chrono;       /* T0TC ticks */
 #endif
 
 #if defined USE_RADIO_CONTROL && defined RADIO_CONTROL_TYPE_PPM
-#include RADIO_CONTROL_TYPE_H
+#include "radio_control/booz_radio_control_ppm.h"
 #else
 #define RADIO_CONTROL_PPM_IT 0x00
 #endif

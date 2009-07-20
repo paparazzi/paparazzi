@@ -1,9 +1,9 @@
 #ifndef NPS_SENSOR_MAG_H
 #define NPS_SENSOR_MAG_H
 
-#include "pprz_algebra.h"
-#include "pprz_algebra_double.h"
-#include "pprz_algebra_float.h"
+#include "math/pprz_algebra.h"
+#include "math/pprz_algebra_double.h"
+#include "math/pprz_algebra_float.h"
 #include "std.h"
 
 struct NpsSensorMag {

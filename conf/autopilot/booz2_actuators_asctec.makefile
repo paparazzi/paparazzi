@@ -8,5 +8,5 @@ ap.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
 
 # asctec controllers
 sim.CFLAGS += -DACTUATORS=\"actuators_asctec_twi_blmc_hw.h\"
-sim.srcs += $(SRC_BOOZ_ARCH)/actuators_asctec_twi_blmc_hw.c actuators.c
+sim.srcs += $(SRC_BOOZ_SIM)/actuators_asctec_twi_blmc_hw.c actuators.c
 

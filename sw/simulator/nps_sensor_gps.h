@@ -1,10 +1,10 @@
 #ifndef NPS_SENSOR_GPS_H
 #define NPS_SENSOR_GPS_H
 
-#include "pprz_algebra.h"
-#include "pprz_algebra_double.h"
-#include "pprz_algebra_float.h"
-#include "pprz_geodetic_double.h"
+#include "math/pprz_algebra.h"
+#include "math/pprz_algebra_double.h"
+#include "math/pprz_algebra_float.h"
+#include "math/pprz_geodetic_double.h"
 
 #include "std.h"
 

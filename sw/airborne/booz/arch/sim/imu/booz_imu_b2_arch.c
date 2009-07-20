@@ -21,15 +21,13 @@
  * Boston, MA 02111-1307, USA. 
  */
 
-/*
- *
- * simulator plug for max1168 SPI Analog to Digital converter
- *
- */
+#include "booz_imu.h"
 
-#ifndef BOOZ2_MAX1168_HW_H
-#define BOOZ2_MAX1168_HW_H
+void booz_imu_b2_arch_init(void) {
 
-extern void booz2_max1168_hw_init( void );
+}
 
-#endif /* BOOZ2_MAX1168_HW_H */
+void booz_imu_periodic(void) {
+
+}
+
