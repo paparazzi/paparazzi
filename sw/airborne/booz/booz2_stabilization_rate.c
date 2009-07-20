@@ -23,7 +23,7 @@
 
 #include "booz2_stabilization_rate.h"
 
-#include "booz_ahrs_aligner.h"
+#include "ahrs/booz_ahrs_aligner.h"
 
 #include "booz2_stabilization.h"
 #include "booz_imu.h"

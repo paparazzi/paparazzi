@@ -211,7 +211,7 @@
 #endif
 
 
-#include "booz_ahrs_aligner.h"
+#include "ahrs/booz_ahrs_aligner.h"
 #define PERIODIC_SEND_BOOZ2_FILTER_ALIGNER() {				\
     DOWNLINK_SEND_BOOZ2_FILTER_ALIGNER(&booz_ahrs_aligner.lp_gyro.p,	\
 				       &booz_ahrs_aligner.lp_gyro.q,	\
@@ -234,7 +234,7 @@
 
 
 #include "booz_ahrs.h"
-#include "booz2_filter_attitude_cmpl_euler.h"
+#include "ahrs/booz2_filter_attitude_cmpl_euler.h"
 #define PERIODIC_SEND_BOOZ2_FILTER() {					\
     DOWNLINK_SEND_BOOZ2_FILTER(&booz_ahrs.ltp_to_imu_euler.phi,	\
 			       &booz_ahrs.ltp_to_imu_euler.theta,	\

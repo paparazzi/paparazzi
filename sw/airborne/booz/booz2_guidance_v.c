@@ -236,7 +236,7 @@ static inline void run_hover_loop(bool_t in_flight) {
 
   /* our nominal command : (g + zdd)*m   */
 #ifdef BOOZ2_GUIDANCE_V_INV_M
-  const int32_t inv_m = BOOZ_INT_OF_FLOAT(BOOZ2_GUIDANCE_V_INV_M, B2_GV_ADAPT_X_FRAC);
+  const int32_t inv_m = BFP_OF_REAL(BOOZ2_GUIDANCE_V_INV_M, B2_GV_ADAPT_X_FRAC);
 #else
   const int32_t inv_m =  b2_gv_adapt_X>>(B2_GV_ADAPT_X_FRAC - FF_CMD_FRAC);
 #endif
@@ -249,7 +249,7 @@ static inline void run_hover_loop(bool_t in_flight) {
   //  booz2_guidance_v_ff_cmd = BOOZ2_GUIDANCE_V_HOVER_POWER;
   
   /* our error command                   */
-  booz2_guidance_v_fb_cmd = ((-booz2_guidance_v_kp * err_z) >> 12) + 
+  booz2_guidance_v_fb_cmd = ((-booz2_guidance_v_kp * err_z)  >> 12) + 
                             ((-booz2_guidance_v_kd * err_zd) >> 21);
 
   booz2_guidance_v_delta_t = booz2_guidance_v_ff_cmd + booz2_guidance_v_fb_cmd;

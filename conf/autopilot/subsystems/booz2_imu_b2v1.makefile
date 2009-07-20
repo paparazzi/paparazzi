@@ -66,7 +66,7 @@ ap.CFLAGS += -DUSE_I2C1  -DI2C1_SCLL=150 -DI2C1_SCLH=150 -DI2C1_VIC_SLOT=11 -DI2
 # Simulator
 #
 
-sim.CFLAGS += -DBOOZ_IMU_TYPE_H=\"impl/booz_imu_b2.h\"
+sim.CFLAGS += -DBOOZ_IMU_TYPE_H=\"imu/booz_imu_b2.h\"
 sim.srcs += $(SRC_BOOZ)/booz_imu.c                 \
             $(SRC_BOOZ)/imu/booz_imu_b2.c          \
             $(SRC_BOOZ_SIM)/imu/booz_imu_b2_arch.c

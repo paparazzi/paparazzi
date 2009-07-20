@@ -52,7 +52,6 @@
 #include "booz2_guidance_h.h"
 #include "booz2_guidance_v.h"
 
-#include "booz_ahrs_aligner.h"
 #include "booz_ahrs.h"
 #include "booz2_ins.h"
 

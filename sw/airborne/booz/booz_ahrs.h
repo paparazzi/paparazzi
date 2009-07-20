@@ -26,6 +26,7 @@
 
 #include "std.h"
 #include "math/pprz_algebra_int.h"
+#include "ahrs/booz_ahrs_aligner.h"
 
 #define BOOZ_AHRS_UNINIT  0
 #define BOOZ_AHRS_RUNNING 1
