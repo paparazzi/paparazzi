@@ -33,6 +33,7 @@
 #include "booz_sensors_model.h"
 #include "booz_wind_model.h"
 #include "booz_rc_sim.h"
+#include "booz2_battery.h"
 
 #include "booz2_main.h"
 
@@ -140,6 +141,7 @@ static void sim_run_one_step(void) {
     booz_flight_model_run(SIM_DT, booz_sim_actuators_values);
 
     booz_sensors_model_run(sim_time);
+    booz2_battery_voltage = bfm.bat_voltage * 10;
     
     /* outputs models state */
     booz2_sim_display();

@@ -82,19 +82,20 @@ void print(FGFDMExec* FDMExec) {
   FGPropertyManager* cur_node;
   double cur_value, factor=1;
   const char* state[] = {"sim-time-sec",
-			 "position/lat-gc-deg","position/long-gc-deg","position/h-sl-meters",/*
+			 /*"position/lat-gc-deg","position/long-gc-deg","position/h-sl-meters",
 			 "ic/lat-gc-deg","ic/long-gc-deg","ic/h-sl-ft",
 			 "velocities/v-north-fps","velocities/v-east-fps","velocities/v-down-fps","velocities/vg-fps",*/
-			 "attitude/roll-rad","attitude/pitch-rad","attitude/heading-true-rad",/*
+			 /*"attitude/roll-rad","attitude/pitch-rad","attitude/heading-true-rad",
 			 "velocities/p-rad_sec","velocities/q-rad_sec","velocities/r-rad_sec",*/
-			 "fcs/throttle-cmd-norm","fcs/aileron-cmd-norm","fcs/elevator-cmd-norm"};
+			 "fcs/elevator-pos-deg","fcs/elevator-pos-rad","fcs/elevator-cmd-norm"};
+			 //"fcs/throttle-cmd-norm","fcs/aileron-cmd-norm","fcs/elevator-cmd-norm"};
   int i=0;
 
   cur_node = FDMExec->GetPropertyManager()->GetNode("sim-time-sec");
   cur_value = cur_node->getDoubleValue();
   cout << state[i] << " " << cur_value << endl;
   
-  for (i=1; i<9+1; i++) {
+  for (i=1; i<3+1; i++) {
     if (strstr(state[i],"rad_")!=NULL) factor=RAD2DEG;
     if (strstr(state[i],"fps")!=NULL || strstr(state[i],"ft")!=NULL) factor=FT2M;
     cur_node = FDMExec->GetPropertyManager()->GetNode(state[i]);
@@ -115,18 +116,32 @@ static inline double normalize_from_pprz(int command) {
 }
 
 void copy_inputs_to_jsbsim(FGFDMExec* FDMExec) {
+  static double throttle_slewed = 0.;
+  static double th = 0.;
+  if (run_model) th += 0.01;
+  if (th >= 1) th = 1;
   // detect launch
   if (!run_model && launch && !kill_throttle) {
     run_model = true;
+    //set_value(FDMExec, "propulsion/set-running", 1);
     // set initial speed
-    //FDMExec->GetIC()->SetVgroundFpsIC(15./FT2M);
-    //FDMExec->RunIC();
+    FDMExec->GetIC()->SetAltitudeFtIC((GROUND_ALT+50.0) / FT2M);
+    FDMExec->GetIC()->SetVgroundFpsIC(40./FT2M);
+    FDMExec->RunIC();
+    th = 0.;
   }
 
-  set_value(FDMExec, "fcs/throttle-cmd-norm", normalize_from_pprz(commands[COMMAND_THROTTLE])/3);
-  //set_value(FDMExec, "fcs/throttle-cmd-norm", 0.2);
+  double diff_throttle = normalize_from_pprz(commands[COMMAND_THROTTLE]) - throttle_slewed;
+  BoundAbs(diff_throttle, 0.01);
+  throttle_slewed += diff_throttle;
+
+  set_value(FDMExec, "fcs/throttle-cmd-norm", throttle_slewed);
+  //set_value(FDMExec, "fcs/throttle-cmd-norm", normalize_from_pprz(commands[COMMAND_THROTTLE]));
+  //set_value(FDMExec, "fcs/throttle-cmd-norm", th);
   set_value(FDMExec, "fcs/aileron-cmd-norm",  -normalize_from_pprz(commands[COMMAND_ROLL]));
   set_value(FDMExec, "fcs/elevator-cmd-norm", -normalize_from_pprz(commands[COMMAND_PITCH]));
+  //set_value(FDMExec, "fcs/elevator-cmd-norm", -5);
+  //set_value(FDMExec, "fcs/elevator-pos-rad", 0.4);
 #ifdef COMMAND_YAW
   set_value(FDMExec, "fcs/rudder-cmd-norm",   normalize_from_pprz(commands[COMMAND_YAW]));
 #endif

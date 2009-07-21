@@ -59,4 +59,10 @@ void set_ir(double roll, double pitch);
 
 void update_bat(double bat);
 
+void parse_dl_ping(char* argv[]);
+void parse_dl_acinfo(char* argv[]);
+void parse_dl_setting(char* argv[]);
+void parse_dl_block(char* argv[]);
+void parse_dl_move_wp(char* argv[]);
+
 #endif
