@@ -7,9 +7,11 @@
 <!ELEMENT periodic EMPTY>
 <!ELEMENT event (handler*)>
 <!ELEMENT handler EMPTY>
-<!ELEMENT makefile (flag*,file*)>
+<!ELEMENT makefile (flag|file|define|raw)*>
 <!ELEMENT flag EMPTY>
 <!ELEMENT file EMPTY>
+<!ELEMENT define EMPTY>
+<!ELEMENT raw (#PCDATA)>
 
 <!ATTLIST module
 name CDATA #REQUIRED>
@@ -46,4 +48,8 @@ value CDATA #IMPLIED>
 
 <!ATTLIST file
 name CDATA #REQUIRED>
+
+<!ATTLIST define
+name CDATA #REQUIRED
+value CDATA #REQUIRED>
 

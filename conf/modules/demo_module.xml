@@ -8,6 +8,9 @@
   <periodic fun="periodic_1Hz_demo()" period="1." start="start_demo()" stop="stop_demo()"/>
   <periodic fun="periodic_10Hz_demo()" period="0.1" start="start_demo()" stop="stop_demo()"/>
   <makefile>
+    <raw>
+#Exemple of RAW makefile part
+    </raw>
     <flag name="DEMO_MODULE_LED" value="2"/>
     <file name="demo_module.c"/>
   </makefile>
