@@ -1,4 +1,4 @@
-#include "booz_ami601.h"
+#include "peripherals/booz_ami601.h"
 
 uint8_t ami601_foo1;
 uint8_t ami601_foo2;

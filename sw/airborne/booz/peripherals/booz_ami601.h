@@ -29,8 +29,8 @@ extern volatile uint32_t ami601_nb_err;
 
 #ifdef SITL
 #define AMI601Event(_handler) {			\
-    ami601_status = AMI601_DATA_AVAILABLE;	\
-    _handler();					\
+    if (ami601_status == AMI601_DATA_AVAILABLE)	\
+      _handler();				\
   }
 #else
 #define AMI601Event(_handler) {						\

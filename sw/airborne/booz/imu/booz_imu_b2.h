@@ -46,11 +46,11 @@
 #elif defined IMU_B2_MAG_TYPE && IMU_B2_MAG_TYPE == IMU_B2_MAG_AMI601
 #include "peripherals/booz_ami601.h"
 #define BoozImuMagEvent(_mag_handler) {					\
-    if (booz_ami601_status == STA_AMI601_DATA_AVAILABLE) {		\
-      booz_imu.mag_unscaled.x = ami601_values[IMU_MAG_X_CHAN];	\
-      booz_imu.mag_unscaled.y = ami601_values[IMU_MAG_Y_CHAN];	\
-      booz_imu.mag_unscaled.z = ami601_values[IMU_MAG_Z_CHAN];	\
-      booz_ami601_status = STA_AMI601_IDLE;				\
+    if (ami601_status == AMI601_DATA_AVAILABLE) {			\
+      booz_imu.mag_unscaled.x = ami601_values[IMU_MAG_X_CHAN];		\
+      booz_imu.mag_unscaled.y = ami601_values[IMU_MAG_Y_CHAN];		\
+      booz_imu.mag_unscaled.z = ami601_values[IMU_MAG_Z_CHAN];		\
+      ami601_status = AMI601_IDLE;					\
       _mag_handler();							\
     }									\
   }

@@ -30,15 +30,8 @@
 #define BOOZ2_IMU_B2_ARCH_H
 
 
-#define booz_imu_feed_gyro_accel() {					\
-    booz2_max1168_values[IMU_GYRO_P_CHAN] = bsm.gyro->ve[AXIS_P];	\
-    booz2_max1168_values[IMU_GYRO_Q_CHAN] = bsm.gyro->ve[AXIS_Q];	\
-    booz2_max1168_values[IMU_GYRO_R_CHAN] = bsm.gyro->ve[AXIS_R];	\
-    booz2_max1168_values[IMU_ACCEL_X_CHAN] = bsm.accel->ve[AXIS_X];	\
-    booz2_max1168_values[IMU_ACCEL_Y_CHAN] = bsm.accel->ve[AXIS_Y];	\
-    booz2_max1168_values[IMU_ACCEL_Z_CHAN] = bsm.accel->ve[AXIS_Z];	\
-    booz2_max1168_status = STA_MAX1168_DATA_AVAILABLE;			\
-  }
+extern void booz_imu_feed_gyro_accel(void);
+extern void booz_imu_feed_mag(void);
 
 
 #endif /* BOOZ2_IMU_B2_HW_H */

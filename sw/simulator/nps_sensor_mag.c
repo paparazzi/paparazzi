@@ -39,7 +39,7 @@ void nps_sensor_mag_run_step(struct NpsSensorMag* mag, double time, struct Doubl
 
   /* compute magnetometer reading */
   MAT33_VECT3_MUL(mag->value, mag->sensitivity, h_sensor);
-  
+  VECT3_ADD(mag->value, mag->neutral);
   /* FIXME: ADD error reading */
   
   /* round signal to account for adc discretisation */

@@ -80,6 +80,14 @@
 
 #ifdef USE_RADIO_CONTROL
 #define PERIODIC_SEND_RC() DOWNLINK_SEND_RC(RADIO_CONTROL_NB_CHANNEL, radio_control.values)
+#define PERIODIC_SEND_BOOZ2_RADIO_CONTROL() {				\
+    DOWNLINK_SEND_BOOZ2_RADIO_CONTROL(&radio_control.values[RADIO_CONTROL_ROLL], \
+				      &radio_control.values[RADIO_CONTROL_PITCH], \
+				      &radio_control.values[RADIO_CONTROL_YAW], \
+				      &radio_control.values[RADIO_CONTROL_THROTTLE], \
+				      &radio_control.values[RADIO_CONTROL_MODE], \
+				      &radio_control.status);}
+      
 #else
 #define PERIODIC_SEND_RC() {}
 #endif

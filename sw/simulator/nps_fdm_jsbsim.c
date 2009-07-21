@@ -119,7 +119,7 @@ static void test123(LlaCoor_d* fdm_lla, FGPropagate* propagate) {
   fdm_lla->lat = propagate->GetLatitude();
   fdm_lla->lon = propagate->GetLongitude();
   // FIXME
-  //  fdm_lla->alt = MetersOfFeet(propagate->Geth());
+  fdm_lla->alt = MetersOfFeet(propagate->GetDistanceAGL());
 
 }
 
@@ -175,6 +175,15 @@ static void init_ltp(void) {
   jsbsimloc_to_loc(&fdm.ecef_pos,&VState->vLocation);
   ltp_def_from_ecef_d(&ltpdef_d,&fdm.ecef_pos);
   ltpdef_copy(&ltpdef, &ltpdef_d);
+
+  fdm.ltp_g.x = 0.;
+  fdm.ltp_g.y = 0.;
+  fdm.ltp_g.z = 9.81;
+  
+  fdm.ltp_h.x = 1.;
+  fdm.ltp_h.y = 0.;
+  fdm.ltp_h.z = 1.;
+  
 
 }
 

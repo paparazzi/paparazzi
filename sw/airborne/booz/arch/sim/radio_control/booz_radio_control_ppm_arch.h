@@ -24,6 +24,6 @@
 #ifndef BOOZ_RADIO_CONTROL_PPM_ARCH_H
 #define BOOZ_RADIO_CONTROL_PPM_ARCH_H
 
-
+extern void booz_radio_control_feed(void);
 
 #endif /* BOOZ_RADIO_CONTROL_PPM_ARCH_H */

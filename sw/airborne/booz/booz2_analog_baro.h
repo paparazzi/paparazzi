@@ -40,6 +40,8 @@ extern uint16_t booz2_analog_baro_value;
 extern uint16_t booz2_analog_baro_value_filtered;
 extern bool_t   booz2_analog_baro_data_available;
 
+extern void booz2_analog_baro_calibrate(void);
+
 #define Booz2AnalogBaroEvent(_handler) {	\
     if (booz2_analog_baro_data_available) {	\
       _handler();				\
@@ -55,32 +57,12 @@ extern bool_t   booz2_analog_baro_data_available;
 #define Booz2BaroISRHandler(_val) {					\
     booz2_analog_baro_value = _val;					\
     booz2_analog_baro_value_filtered = (3*booz2_analog_baro_value_filtered + booz2_analog_baro_value)/4; \
-    if (booz2_analog_baro_status == BOOZ2_ANALOG_BARO_UNINIT)		\
-      Booz2AnalogBaroCalibrate();					\
+    if (booz2_analog_baro_status == BOOZ2_ANALOG_BARO_UNINIT) {		\
+      RunOnceEvery(10, { booz2_analog_baro_calibrate();});		\
+    }									\
     /*  else */								\
     booz2_analog_baro_data_available = TRUE;				\
-}
+  }
 
-/* decrease offset until adc reading is over a threshold */
-#define Booz2AnalogBaroCalibrate() {					\
-    RunOnceEvery(10, {							\
-	if (booz2_analog_baro_value_filtered < 850 && booz2_analog_baro_offset >= 1) { \
-	  if (booz2_analog_baro_value_filtered == 0)			\
-	    booz2_analog_baro_offset -= 15;				\
-	  else								\
-	    booz2_analog_baro_offset--;					\
-	  Booz2AnalogSetDAC(booz2_analog_baro_offset);			\
-	  /* #ifdef BOOZ2_ANALOG_BARO_LED */				\
-	    LED_TOGGLE(BOOZ2_ANALOG_BARO_LED);				\
-	    /* #endif */						\
-	    }								\
-	else {								\
-	  booz2_analog_baro_status = BOOZ2_ANALOG_BARO_RUNNING;		\
-	  /* #ifdef BOOZ2_ANALOG_BARO_LED */				\
-	  LED_ON(BOOZ2_ANALOG_BARO_LED);				\
-	    /* #endif */						\
-	    }								\
-      });								\
-  }									\
 
 #endif /* BOOZ2_ANALOG_BARO_H */

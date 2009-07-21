@@ -35,6 +35,7 @@ void nps_sensor_gyro_run_step(struct NpsSensorGyro* gyro, double time, struct Do
   MAT33_VECT3_MUL(rate_imu, *body_to_imu, *rate_body );
   /* compute gyros readings */
   MAT33_VECT3_MUL(gyro->value, gyro->sensitivity, rate_imu);
+  VECT3_ADD(gyro->value, gyro->neutral);
   /* compute gyro error readings */
   
   /* round signal to account for adc discretisation */

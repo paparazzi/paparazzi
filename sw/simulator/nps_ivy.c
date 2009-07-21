@@ -9,18 +9,34 @@
 #include "nps_autopilot.h"
 #include "nps_fdm.h"
 
+static void on_DL_SETTING(IvyClientPtr app __attribute__ ((unused)), 
+			  void *user_data __attribute__ ((unused)), 
+			  int argc __attribute__ ((unused)), char *argv[]);
 
-extern void nps_ivy_init(void) {
+void nps_ivy_init(void) {
   const char* agent_name = AIRFRAME_NAME"_NPS";
   const char* ready_msg = AIRFRAME_NAME"_NPS Ready";
   IvyInit(agent_name, ready_msg, NULL, NULL, NULL, NULL);
-  //IvyBindMsg(on_DL_SETTING, NULL, "^(\\S*) DL_SETTING (\\S*) (\\S*) (\\S*)");
+  IvyBindMsg(on_DL_SETTING, NULL, "^(\\S*) DL_SETTING (\\S*) (\\S*) (\\S*)");
   //IvyBindMsg(on_DL_BLOCK, NULL,   "^(\\S*) BLOCK (\\S*) (\\S*)");
   //IvyBindMsg(on_DL_MOVE_WP, NULL, "^(\\S*) MOVE_WP (\\S*) (\\S*) (\\S*) (\\S*) (\\S*)");
   IvyStart("127.255.255.255");
 }
 
-extern void nps_ivy_display(void) {
+#include "settings.h"
+#include "dl_protocol.h"
+#include "downlink.h"
+static void on_DL_SETTING(IvyClientPtr app __attribute__ ((unused)), 
+			  void *user_data __attribute__ ((unused)), 
+			  int argc __attribute__ ((unused)), char *argv[]) {
+  uint8_t index = atoi(argv[2]);
+  float value = atof(argv[3]);
+  DlSetting(index, value);
+  DOWNLINK_SEND_DL_VALUE(&index, &value);
+  printf("setting %d %f\n", index, value);
+}
+
+void nps_ivy_display(void) {
 
 
   /*

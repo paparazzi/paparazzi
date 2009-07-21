@@ -21,6 +21,7 @@ void   nps_sensor_accel_init(struct NpsSensorAccel* accel, double time) {
   accel->data_available = FALSE;
 }
 
+//#include <stdio.h>
 
 void   nps_sensor_accel_run_step(struct NpsSensorAccel* accel, double time, struct DoubleRMat* body_to_imu) {
 
@@ -30,18 +31,23 @@ void   nps_sensor_accel_run_step(struct NpsSensorAccel* accel, double time, stru
   /* transform gravity to body frame */
   struct DoubleVect3 g_body;
   FLOAT_QUAT_VMULT(g_body, fdm.ltp_to_body_quat, fdm.ltp_g);
+  //  printf(" g_body %f %f %f\n", g_body.x, g_body.y, g_body.z);
   
+  //  printf(" accel_fdm %f %f %f\n", fdm.body_ecef_accel.x, fdm.body_ecef_accel.y, fdm.body_ecef_accel.z);
+
   /* substract gravity to acceleration in body frame */
   struct DoubleVect3 accelero_body;
   FLOAT_VECT3_DIFF(accelero_body, fdm.body_ecef_accel, g_body);
-  
+
+  //  printf(" accelero body %f %f %f\n", accelero_body.x, accelero_body.y, accelero_body.z);
+
   /* transform to imu frame */
   struct DoubleVect3 accelero_imu;
   MAT33_VECT3_MUL(accelero_imu, *body_to_imu, accelero_body );
   
   /* compute accelero readings */
   MAT33_VECT3_MUL(accel->value, accel->sensitivity, accelero_imu);
-  
+  VECT3_ADD(accel->value, accel->neutral);
   /* Compute sensor error */
   struct DoubleVect3 accelero_error;
   /* constant bias */

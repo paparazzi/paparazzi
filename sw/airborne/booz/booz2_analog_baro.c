@@ -50,6 +50,25 @@ void booz2_analog_baro_init( void ) {
 #endif
 }
 
+/* decrement offset until adc reading is over a threshold */
+void booz2_analog_baro_calibrate(void) {
+  if (booz2_analog_baro_value_filtered < 850 && booz2_analog_baro_offset >= 1) {
+    if (booz2_analog_baro_value_filtered == 0)
+      booz2_analog_baro_offset -= 15;
+    else
+      booz2_analog_baro_offset--;
+    Booz2AnalogSetDAC(booz2_analog_baro_offset);
+#ifdef BOOZ2_ANALOG_BARO_LED
+    LED_TOGGLE(BOOZ2_ANALOG_BARO_LED);
+#endif
+  }
+  else {
+    booz2_analog_baro_status = BOOZ2_ANALOG_BARO_RUNNING;
+#ifdef BOOZ2_ANALOG_BARO_LED
+    LED_ON(BOOZ2_ANALOG_BARO_LED);
+#endif
+  }
+}
 
 
 
