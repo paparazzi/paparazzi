@@ -58,6 +58,10 @@ let get_status_name = fun f n ->
   let func = (Xml.attrib f "fun") in
   n^"_"^String.sub func 0 (try String.index func '(' with _ -> (String.length func))^"_status"
 
+let is_status_lock = fun p ->
+  let mode = ExtXml.attrib_or_default p "autorun" "LOCK" in
+  mode = "LOCK"
+
 let print_status = fun modules out_c ->
   nl ();
   List.iter (fun m ->
@@ -65,8 +69,10 @@ let print_status = fun modules out_c ->
     List.iter (fun i ->
       match Xml.tag i with
         "periodic" ->
-          lprintf out_h "extern uint8_t %s;\n" (get_status_name i module_name);
-          fprintf out_c "uint8_t %s;\n" (get_status_name i module_name)
+          if not (is_status_lock i) then begin
+            lprintf out_h "extern uint8_t %s;\n" (get_status_name i module_name);
+            fprintf out_c "uint8_t %s;\n" (get_status_name i module_name)
+          end
       | _ -> ())
     (Xml.children m))
   modules
@@ -79,8 +85,8 @@ let print_init_functions = fun modules ->
     List.iter (fun i ->
       match Xml.tag i with
         "init" -> lprintf out_h "%s;\n" (Xml.attrib i "fun")
-      | "periodic" -> lprintf out_h "%s = %s;\n" (get_status_name i module_name)
-      (try Xml.attrib i "autorun" with _ -> "TRUE")
+      | "periodic" -> if not (is_status_lock i) then
+          lprintf out_h "%s = %s;\n" (get_status_name i module_name) (try Xml.attrib i "autorun" with _ -> "TRUE")
       | _ -> ())
     (Xml.children m))
   modules;
@@ -124,11 +130,17 @@ let print_periodic_functions = fun modules ->
     let periodic = List.filter (fun i -> (String.compare (Xml.tag i) "periodic") == 0) (Xml.children m) in
     nl ();
     List.iter (fun f ->
-      let status = get_status_name f module_name in
-      let start = (ExtXml.attrib_or_default f "start" "") in
-      lprintf out_h "if (%s == MODULES_START) { %s; %s = MODULES_RUN; }\n" status start status;
-      let stop = (ExtXml.attrib_or_default f "stop" "") in
-      lprintf out_h "if (%s == MODULES_STOP) { %s; %s = MODULES_IDLE; }\n" status stop status;
+      if (is_status_lock f) then begin
+        try lprintf out_h "%s;\n" (Xml.attrib f "start") with _ -> ();
+        try let stop = Xml.attrib f "stop" in fprintf stderr "Warning: stop %s function will not be called\n" stop with _ -> ();
+      end
+      else begin
+        let status = get_status_name f module_name in
+        let start = (ExtXml.attrib_or_default f "start" "") in
+        lprintf out_h "if (%s == MODULES_START) { %s; %s = MODULES_RUN; }\n" status start status;
+        let stop = (ExtXml.attrib_or_default f "stop" "") in
+        lprintf out_h "if (%s == MODULES_STOP) { %s; %s = MODULES_IDLE; }\n" status stop status;
+      end
       )
     periodic)
   modules;
@@ -147,14 +159,20 @@ let print_periodic_functions = fun modules ->
       let delay_p = delay mod p in
       let else_ = if List.mem_assoc p !l && not (List.mem (p, delay_p) !l) then
         "else " else "" in
-      lprintf out_h "%sif (i%d == %d && %s == MODULES_RUN) {\n" else_ p delay_p (get_status_name func name);
+      if (is_status_lock func) then
+        lprintf out_h "%sif (i%d == %d) {\n" else_ p delay_p
+      else
+        lprintf out_h "%sif (i%d == %d && %s == MODULES_RUN) {\n" else_ p delay_p (get_status_name func name);
       l := (p, delay_p) :: !l;
     end
     else begin
       (** Delay is automtically set *)
       i := !i mod p;
       let else_ = if List.mem_assoc p !l && not (List.mem (p, !i) !l) then "else " else "" in
-      lprintf out_h "%sif (i%d == %d && %s == MODULES_RUN) {\n" else_ p !i (get_status_name func name);
+      if (is_status_lock func) then
+        lprintf out_h "%sif (i%d == %d) {\n" else_ p !i
+      else
+        lprintf out_h "%sif (i%d == %d && %s == MODULES_RUN) {\n" else_ p !i (get_status_name func name);
       l := (p, !i) :: !l;
       let incr = p / ((List.length (List.filter (fun (_,p') -> compare p p' == 0) functions)) + 1) in
       i := !i + incr;
@@ -233,8 +251,9 @@ let h_name = "MODULES_H"
 
 let () =
   if Array.length Sys.argv <> 4 then
-    failwith (Printf.sprintf "Usage: %s conf_modules_dir out_c_file xml_file" Sys.argv.(0));
+    failwith (Printf.sprintf "Usage: %s conf_modules_dir out_c_file out_settings_file xml_file" Sys.argv.(0));
   let xml_file = Sys.argv.(3)
+  (*and out_set = open_out Sys.argv.(3)*)
   and out_c = open_out Sys.argv.(2)
   and modules_dir = Sys.argv.(1) in
   try
