@@ -45,6 +45,7 @@ FLIGHT_PLAN_XML=$(ACINCLUDE)/flight_plan.xml
 SETTINGS_H=$(ACINCLUDE)/settings.h
 SETTINGS_XMLS=$(patsubst %,$(CONF)/%,$(SETTINGS))
 SETTINGS_XML=$(ACINCLUDE)/settings.xml
+SETTINGS_MODULES=$(ACINCLUDE)/settings_modules.xml
 MAKEFILE_AC=$(ACINCLUDE)/Makefile.ac
 SETTINGS_FILE=$(SETTINGS:settings%=%)
 #TUNING_FILE=$(subst   ,_,$(SETTINGS:settings/%.xml=%)).h
@@ -67,7 +68,7 @@ init:
 demo:
 	$(SUPERVISION)
 
-all_ac_h: $(AIRFRAME_H) $(SETTINGS_H) $(TUNING_H) $(MAKEFILE_AC) $(PERIODIC_H) $(MODULES_H)
+all_ac_h: $(AIRFRAME_H) $(MODULES_H) $(SETTINGS_H) $(TUNING_H) $(MAKEFILE_AC) $(PERIODIC_H)
 
 radio_ac_h : $(RADIO_H) $(CONF_RADIO_CONTROL_PPM_H)
 
@@ -116,9 +117,9 @@ $(FLIGHT_PLAN_XML) : $(CONF)/$(FLIGHT_PLAN) $(CONF_XML) $(TOOLS)/gen_flight_plan
 	$(Q)$(TOOLS)/gen_flight_plan.out -dump $< > $@
 	$(Q)chmod a+r $@
 
-$(SETTINGS_H) : $(SETTINGS_XMLS) $(CONF_XML) $(TOOLS)/gen_settings.out
+$(SETTINGS_H) : $(SETTINGS_XMLS) $(CONF_XML) $(SETTINGS_MODULES) $(TOOLS)/gen_settings.out
 	@echo BUILD $@
-	$(Q)$(TOOLS)/gen_settings.out $(SETTINGS_XML) $(SETTINGS_XMLS) > $@
+	$(Q)$(TOOLS)/gen_settings.out $(SETTINGS_XML) $(SETTINGS_XMLS) $(SETTINGS_MODULES) > $@
 	$(Q)chmod a+r $@
 	$(Q)cp $(SETTINGS_XMLS) $(AIRCRAFT_CONF_DIR)/settings
 
@@ -130,7 +131,7 @@ $(TUNING_H) : $(SETTINGS_XMLS) $(CONF_XML) $(TOOLS)/gen_tuning.out
 
 $(MODULES_H) : $(CONF)/$(AIRFRAME_XML) $(TOOLS)/gen_modules.out $(CONF)/modules/*.xml
 	@echo BUILD $@
-	$(Q)$(TOOLS)/gen_modules.out $(MODULES_DIR) $(MODULES_C) $< > $@
+	$(Q)$(TOOLS)/gen_modules.out $(MODULES_DIR) $(MODULES_C) $(SETTINGS_MODULES) $< > $@
 	$(Q)chmod a+r $@
 
 

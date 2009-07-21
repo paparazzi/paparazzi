@@ -58,6 +58,10 @@ let get_status_name = fun f n ->
   let func = (Xml.attrib f "fun") in
   n^"_"^String.sub func 0 (try String.index func '(' with _ -> (String.length func))^"_status"
 
+let get_status_shortname = fun f ->
+  let func = (Xml.attrib f "fun") in
+  String.sub func 0 (try String.index func '(' with _ -> (String.length func))
+
 let is_status_lock = fun p ->
   let mode = ExtXml.attrib_or_default p "autorun" "LOCK" in
   mode = "LOCK"
@@ -247,13 +251,39 @@ let check_dependencies = fun modules names ->
     with _ -> ()
   ) modules
 
+let write_settings = fun xml_file out_set modules ->
+  fprintf out_set "<!-- This file has been generated from %s -->\n" xml_file;
+  fprintf out_set "<!-- Please DO NOT EDIT -->\n\n";
+  fprintf out_set "<settings>\n";
+  fprintf out_set " <dl_settings>\n";
+  let setting_exist = ref false in
+  List.iter (fun m ->
+    let module_name = ExtXml.attrib m "name" in
+    List.iter (fun i ->
+      match Xml.tag i with
+        "periodic" ->
+          if not (is_status_lock i) then begin
+            if (not !setting_exist) then begin 
+              fprintf out_set "   <dl_settings name=\"Modules\">\n";
+              setting_exist := true;
+            end;
+            fprintf out_set "      <dl_setting min=\"2\" max=\"3\" step=\"1\" var=\"%s\" shortname=\"%s\" values=\"START|STOP\"/>\n"
+              (get_status_name i module_name) (get_status_shortname i)
+          end
+      | _ -> ())
+    (Xml.children m))
+  modules;
+  if !setting_exist then fprintf out_set "   </dl_settings>\n";
+  fprintf out_set " </dl_settings>\n";
+  fprintf out_set "</settings>\n"
+
 let h_name = "MODULES_H"
 
 let () =
-  if Array.length Sys.argv <> 4 then
+  if Array.length Sys.argv <> 5 then
     failwith (Printf.sprintf "Usage: %s conf_modules_dir out_c_file out_settings_file xml_file" Sys.argv.(0));
-  let xml_file = Sys.argv.(3)
-  (*and out_set = open_out Sys.argv.(3)*)
+  let xml_file = Sys.argv.(4)
+  and out_set = open_out Sys.argv.(3)
   and out_c = open_out Sys.argv.(2)
   and modules_dir = Sys.argv.(1) in
   try
@@ -281,6 +311,8 @@ let () =
     fprintf out_c "\n#endif // USE_MODULES\n";
     finish h_name;
     close_out out_c;
+    write_settings xml_file out_set modules_list;
+    close_out out_set;
   with
     Xml.Error e -> fprintf stderr "%s: XML error:%s\n" xml_file (Xml.error e); exit 1
   | Dtd.Prove_error e -> fprintf stderr "%s: DTD error:%s\n%!" xml_file (Dtd.prove_error e); exit 1

@@ -66,6 +66,7 @@ let print_dl_settings = fun settings ->
 
   lprintf "\n";
   StringSet.iter (fun m -> lprintf "#include \"%s.h\"\n" m) !modules;
+  lprintf "#include \"modules.h\"\n";
   lprintf "\n";
     
   (** Macro to call to set one variable *)
@@ -186,8 +187,8 @@ let join_xml_files = fun xml_files ->
 
 
 let _ =
-  if Array.length Sys.argv < 3 then
-    failwith (Printf.sprintf "Usage: %s output_xml_file input_xml_file(s)" Sys.argv.(0));
+  if Array.length Sys.argv < 4 then
+    failwith (Printf.sprintf "Usage: %s output_xml_file input_xml_file(s) input_xml_modules" Sys.argv.(0));
   let h_name = "SETTINGS_H"
   and xml_files = ref [] in
   for i = 2 to Array.length Sys.argv - 1 do
