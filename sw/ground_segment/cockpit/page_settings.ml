@@ -105,7 +105,7 @@ let one_setting = fun (i:int) do_change packing dl_setting (tooltips:GData.toolt
 
 	let update_string = fun string ->
 	  try
-	    update_value (search_index string values)
+	    update_value ((search_index string values) + truncate lower)
 	  with 
 	    Not_found -> failwith (sprintf "Internal error: Settings, %s not found" string) in
 	Gtk_tools.combo_connect combo update_string;
@@ -121,12 +121,12 @@ let one_setting = fun (i:int) do_change packing dl_setting (tooltips:GData.toolt
 	      (* Build the button *)
 	      let label = 
 		if Array.length values = 0 
-		then Printf.sprintf "%d" j
+		then Printf.sprintf "%d" (ilower + j)
 		else values.(j) in
 	      let b = GButton.radio_button ~group ~label ~packing:hbox#add () in
 	      
 	      (* Connect the event *)
-	      ignore (b#connect#pressed (fun () -> update_value j));
+	      ignore (b#connect#pressed (fun () -> update_value (ilower + j)));
 	      b) in
 	(callback, fun j -> try buttons.(truncate j - ilower)#set_active true with _ -> ())
     else (* slider *)
@@ -274,7 +274,8 @@ class settings = fun ?(visible = fun _ -> true) xml_settings do_change strip ->
 	let s = 
 	  let values = values_of_dl_setting setting#xml in
 	  try
-	    values.(truncate v)
+      let lower = int_of_string (ExtXml.attrib setting#xml "min") in
+	    values.(truncate v - lower)
 	  with
 	    _ -> s in
 	setting#update s
