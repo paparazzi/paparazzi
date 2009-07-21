@@ -131,6 +131,15 @@ let extract_makefile = fun airframe_file makefile_ac ->
 		  List.iter
 		    (fun target -> fprintf f "%s.srcs += $(%s)/%s\n" target dir_name name)
 		    targets
+              | "define" -> 
+		            let value = Xml.attrib field "value"
+		            and name = Xml.attrib field "name" in
+		            fprintf f "%s = %s\n" name value
+              | "raw" ->
+                begin match Xml.children field with
+                  [Xml.PCData s] -> fprintf f "%s\n" s
+                  | _ -> fprintf stderr "Warning: wrong makefile section in module '%s'\n" name
+                end
               | _ -> ()
             )
             (Xml.children l)
