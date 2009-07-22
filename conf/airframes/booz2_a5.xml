@@ -1,0 +1,13 @@
+<airframe name="wirly_ng">
+
+  <makefile>
+
+WHIRLY_USER = 
+WHIRLY_HOST = whirly-dev
+WHIRLY_DIR  = ~
+
+include $(PAPARAZZI_SRC)/conf/autopilot/overo_ap.makefile
+
+  </makefile>
+
+</airframe>
