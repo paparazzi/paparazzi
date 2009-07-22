@@ -28,6 +28,10 @@ OVERO_OE=/overo-oe
 CC = $(OVERO_OE)/tmp/cross/armv7a/bin/arm-angstrom-linux-gnueabi-gcc
 LD = $(CC)
 
+
+GLIB_INC = $(OVERO_OE)/tmp/work/armv7a-angstrom-linux-gnueabi/glib-2.0-2.20.0-r0/staging-pkg/staging/armv7a-angstrom-linux-gnueabi/usr/include/glib-2.0
+GLIB_LIB = $(OVERO_OE)/tmp/work/armv7a-angstrom-linux-gnueabi/glib-2.0-2.20.0-r0/staging-pkg/staging/armv7a-angstrom-linux-gnueabi/usr/lib/
+
 # Launch with "make Q=''" to get full command display
 Q=@
 

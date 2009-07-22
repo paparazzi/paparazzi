@@ -11,8 +11,12 @@ TARGET_DIR = ~
 SRC_FMS=fms
 
 test_spi.ARCHDIR = omap
-
 test_spi.srcs=$(SRC_FMS)/test_spi.c
+
+test_telemetry.ARCHDIR = omap
+test_telemetry.srcs=$(SRC_FMS)/test_telemetry.c
+test_telemetry.CFLAGS += -I$(GLIB_INC)
+test_telemetry.LDFLAGS += -L$(GLIB_LIB) -lglib-2.0
 
 
 
