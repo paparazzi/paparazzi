@@ -129,6 +129,39 @@ let parse_command_laws = fun command ->
        parse_element "" command
    | _ -> xml_error "set|let"
 
+let parse_csc_fields = fun csc_fields ->
+  let a = fun s -> ExtXml.attrib csc_fields s in
+   match Xml.tag csc_fields with
+     "field_map" ->
+       let servo_id = a "servo_id" 
+       and field = a "field" in
+       printf "  temp.%s = actuators[%s]; \\\n" field servo_id;
+      | _ -> xml_error "field_map"
+
+let parse_csc_messages = (let msg_index_ref = ref 0 in fun csc_id csc_messages ->
+  let a = fun s -> ExtXml.attrib csc_messages s in
+   match Xml.tag csc_messages with
+     "msg" ->
+       let msg_id = a "id" 
+       and msg_type = a "type" 
+       and msg_index = msg_index_ref.contents in
+       msg_index_ref.contents <- msg_index + 1;
+       printf "{\\\n  struct Csc%s temp; \\\n" msg_type;
+       List.iter parse_csc_fields (Xml.children csc_messages);
+       printf "  can_write_csc(%s, CSC_%s, (uint8_t *)&temp, sizeof(struct Csc%s)); \\\n" csc_id msg_id msg_type;
+       printf "} \\\n"
+      | _ -> xml_error "msg"
+  )
+
+let parse_csc_boards = fun csc_board ->
+  let a = fun s -> ExtXml.attrib csc_board s in
+   match Xml.tag csc_board with
+     "board" ->
+       let csc_id = a "id" in
+       List.iter (parse_csc_messages csc_id) (Xml.children csc_board);
+   | "define" ->
+       parse_element "" csc_board
+   | _ -> xml_error "board"
 
 let parse_rc_commands = fun rc ->
   let a = fun s -> ExtXml.attrib rc s in
@@ -197,6 +230,12 @@ let parse_section = fun s ->
       printf "  float command_value;\\\n";
       List.iter parse_command_laws (Xml.children s);
       printf "  ActuatorsCommit();\\\n";
+      printf "}\n"
+  | "csc_boards" ->
+      let boards = Array.of_list (Xml.children s) in
+      define "CSC_BOARD_NB" (string_of_int (Array.length boards + 1));
+      printf "#define SendCscFromActuators() { \\\n";
+      List.iter parse_csc_boards (Xml.children s);
       printf "}\n"
   | "makefile" ->
       ()
