@@ -15,18 +15,17 @@ static inline void pwm_input_isr()
 {
   static uint32_t t_rise;
   static uint32_t t_fall;
-  uint32_t t_event = T0CR3;
 
   if (T0CCR & TCCR_CR3_F) {
     t_fall = T0CR3;
-    T0CCR &= ~TCCR_CR3_F;
     T0CCR |= TCCR_CR3_R;
+    T0CCR &= ~TCCR_CR3_F;
     pwm_input_duration = t_fall - t_rise;
     pwm_input_valid = TRUE;
   } else {
     t_rise = T0CR3;
-    T0CCR &= ~TCCR_CR3_R;
     T0CCR |= TCCR_CR3_F;
+    T0CCR &= ~TCCR_CR3_R;
   }
 }
 
