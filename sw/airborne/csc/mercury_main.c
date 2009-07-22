@@ -40,19 +40,20 @@
 
 #include "csc_msg_def.h"
 #include ACTUATORS
-#include "booz2_imu.h"
-#include "booz_ahrs_aligner.h"
-#include "booz_ahrs.h"
+#include "booz/booz_imu.h"
+#include "booz/ahrs/booz_ahrs_aligner.h"
+#include "booz/booz_ahrs.h"
 #include "mercury_xsens.h"
 #include "csc_telemetry.h"
 #include "csc_adc.h"
 #include "mercury_ap.h"
-#include "booz2_autopilot.h"
-#include "booz2_guidance_v.h"
+#include "booz/booz2_autopilot.h"
+#include "booz/guidance/booz2_guidance_v.h"
 #include "csc_can.h"
 #include "csc_baro.h"
+#include "booz_radio_control.h"
 
-#include "booz2_stabilization_attitude.h"
+#include "booz/stabilization/booz_stabilization_attitude.h"
 
 extern uint8_t vsupply;
 
@@ -89,17 +90,17 @@ static void on_rc_cmd(struct CscRCMsg *msg)
 {
   uint16_t aux2_flag;
 
-  rc_values[RADIO_ROLL]  = CSC_RC_SCALE*(msg->right_stick_horizontal - CSC_RC_OFFSET);
-  rc_values[RADIO_PITCH] = -CSC_RC_SCALE*(msg->right_stick_vertical - CSC_RC_OFFSET);
-  rc_values[RADIO_YAW]   =  CSC_RC_SCALE*((msg->left_stick_horizontal_and_aux2 & ~(3 << 13)) - CSC_RC_OFFSET);
+  radio_control.values[RADIO_CONTROL_ROLL]  = CSC_RC_SCALE*(msg->right_stick_horizontal - CSC_RC_OFFSET);
+  radio_control.values[RADIO_CONTROL_PITCH] = -CSC_RC_SCALE*(msg->right_stick_vertical - CSC_RC_OFFSET);
+  radio_control.values[RADIO_CONTROL_YAW]   =  CSC_RC_SCALE*((msg->left_stick_horizontal_and_aux2 & ~(3 << 13)) - CSC_RC_OFFSET);
   pprz_mode = (msg->left_stick_vertical_and_flap_mix & (3 << 13)) >> 13;
   aux2_flag = (msg->left_stick_horizontal_and_aux2 >> 13) & 0x1;
-  rc_values[RADIO_MODE2] = (aux2_flag == 0) ? -7000 : ( (aux2_flag == 1) ? 0 : 7000); 
-  rc_values[RADIO_MODE] = (pprz_mode == 0) ? -7000 : ( (pprz_mode == 1) ? 0 : 7000); 
-  rc_values[RADIO_THROTTLE] = -CSC_RC_SCALE*((msg->left_stick_vertical_and_flap_mix & ~(3 << 13)) - CSC_RC_OFFSET);
+  radio_control.values[RADIO_CONTROL_MODE2] = (aux2_flag == 0) ? -7000 : ( (aux2_flag == 1) ? 0 : 7000); 
+  radio_control.values[RADIO_CONTROL_MODE] = (pprz_mode == 0) ? -7000 : ( (pprz_mode == 1) ? 0 : 7000); 
+  radio_control.values[RADIO_CONTROL_THROTTLE] = -CSC_RC_SCALE*((msg->left_stick_vertical_and_flap_mix & ~(3 << 13)) - CSC_RC_OFFSET);
 
-  time_since_last_ppm = 0;
-  rc_status = RC_OK;
+  radio_control.time_since_last_frame = 0;
+  radio_control.status = RADIO_CONTROL_OK;
 }
 
 static inline void csc_main_init( void ) {
@@ -111,19 +112,18 @@ static inline void csc_main_init( void ) {
   Uart0Init();
   Uart1Init();
   
-  booz2_imu_init();
+  booz_imu_init();
 
   booz_ahrs_aligner_init();
   booz_ahrs_init();
   
   xsens_init();
 
-  booz2_stabilization_attitude_init();
+  booz_stabilization_attitude_init();
   booz2_guidance_v_init();
   booz_ins_init();
 
   csc_adc_init();
-  ppm_init();
 
   baro_scp_init();
 
@@ -138,7 +138,7 @@ static inline void csc_main_init( void ) {
   csc_ap_init();
   int_enable();
 
-  booz2_stabilization_attitude_enter();
+  booz_stabilization_attitude_enter();
 }
 
 
@@ -147,7 +147,7 @@ static inline void csc_main_periodic( void )
   static uint32_t csc_loops = 0;
   
   PeriodicSendAp();
-  radio_control_periodic_task();
+  radio_control_periodic();
 
   cpu_time++;
 

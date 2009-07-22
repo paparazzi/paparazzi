@@ -28,6 +28,8 @@
 #include "airframe.h"
 
 extern pprz_t mixed_commands[PROPS_NB];
+extern uint8_t props_enable[PROPS_NB];
+extern uint8_t props_throttle_pass;
 
 void csc_ap_init( void );
 void csc_ap_periodic (uint8_t _in_flight, uint8_t kill);

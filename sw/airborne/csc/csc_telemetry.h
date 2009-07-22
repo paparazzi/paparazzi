@@ -63,12 +63,11 @@
 #define PERIODIC_SEND_ACTUATORS() DOWNLINK_SEND_ACTUATORS(SERVOS_NB, actuators)
 #endif
 
-#ifdef RADIO_CONTROL
-#include "radio_control.h"
-#define PERIODIC_SEND_PPM() DOWNLINK_SEND_PPM(&last_ppm_cpt, PPM_NB_PULSES, ppm_pulses)
-#define PERIODIC_SEND_RC() DOWNLINK_SEND_RC(PPM_NB_PULSES, rc_values)
-#define PERIODIC_SEND_QUAD_STATUS() DOWNLINK_SEND_QUAD_STATUS(&rc_status, &pprz_mode, &vsupply, &cpu_time)
-#endif /* RADIO_CONTROL */
+#ifdef USE_RADIO_CONTROL
+#include "booz_radio_control.h"
+#define PERIODIC_SEND_RC() DOWNLINK_SEND_RC(RADIO_CONTROL_NB_CHANNEL, radio_control.values)
+#define PERIODIC_SEND_QUAD_STATUS() DOWNLINK_SEND_QUAD_STATUS(&radio_control.status, &pprz_mode, &vsupply, &cpu_time)
+#endif /* USE_RADIO_CONTROL */
 
 
 extern uint8_t telemetry_mode_Ap;

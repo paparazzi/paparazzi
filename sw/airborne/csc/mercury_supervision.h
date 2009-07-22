@@ -72,8 +72,8 @@ extern pprz_t mercury_supervision_yaw_comp_offset;
 
 #define MERCURY_SURFACES_SUPERVISION_RUN(_actuators,_cmds,_props,_surfaces_manual) { \
     if (_surfaces_manual) {						\
-      _actuators(SERVO_S1)  = (SERVO_S1_MAX+SERVO_S1_MIN)/2 +((SERVO_S1_MAX-SERVO_S1_MIN)*rc_values[RADIO_YAW])/2/7200; \
-      _actuators(SERVO_S2)  = (SERVO_S2_MAX+SERVO_S2_MIN)/2 +((SERVO_S2_MAX-SERVO_S2_MIN)*rc_values[RADIO_YAW])/2/7200; \
+      _actuators(SERVO_S1)  = (SERVO_S1_MAX+SERVO_S1_MIN)/2 +((SERVO_S1_MAX-SERVO_S1_MIN)*radio_control.values[RADIO_CONTROL_YAW])/2/7200; \
+      _actuators(SERVO_S2)  = (SERVO_S2_MAX+SERVO_S2_MIN)/2 +((SERVO_S2_MAX-SERVO_S2_MIN)*radio_control.values[RADIO_CONTROL_YAW])/2/7200; \
     } else {								\
       int32_t bndcmd = (mercury_supervision_yaw_servo_gain*_cmds[COMMAND_YAW]*mercury_supervision_yaw_comp_offset)/(mercury_supervision_yaw_comp_slope*((_props[PROP_UPPER_RIGHT]+_props[PROP_UPPER_LEFT])/2 - 105) + mercury_supervision_yaw_comp_offset); \
       Bound(bndcmd,-400,400);						\

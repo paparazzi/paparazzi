@@ -27,12 +27,12 @@
 #include "commands.h"
 #include "mercury_xsens.h"
 #include "booz2_autopilot.h"
-#include "booz2_stabilization.h"
-#include "booz2_stabilization_attitude.h"
+#include "booz_stabilization.h"
+#include "stabilization/booz_stabilization_attitude.h"
 #include "led.h"
-#include "pprz_algebra_float.h"
+#include "math/pprz_algebra_float.h"
 #include "string.h"
-#include "radio_control.h"
+#include "booz_radio_control.h"
 #include "mercury_supervision.h"
 #include "actuators.h" 
 #include "props_csc.h"
@@ -54,6 +54,9 @@ uint32_t booz2_autopilot_in_flight_counter;
 
 uint16_t mercury_yaw_servo_gain;
 
+uint8_t props_enable[PROPS_NB];
+uint8_t props_throttle_pass;
+
 
 #define BOOZ2_AUTOPILOT_MOTOR_ON_TIME     (512/4)
 #define BOOZ2_AUTOPILOT_IN_FLIGHT_TIME    40
@@ -69,6 +72,11 @@ void csc_ap_init(void) {
   booz2_autopilot_in_flight_counter = 0;
   booz2_autopilot_mode_auto2 = BOOZ2_MODE_AUTO2;
   booz2_autopilot_tol = 0;
+
+  props_throttle_pass = 0;
+  for(uint8_t i = 0; i < PROPS_NB; i++){
+    props_enable[i] = 1;
+  }
 }
 
 
@@ -76,7 +84,7 @@ void csc_ap_init(void) {
 #define BOOZ2_AUTOPILOT_CHECK_IN_FLIGHT() {				\
     if (booz2_autopilot_in_flight) {					\
       if (booz2_autopilot_in_flight_counter > 0) {			\
-	if (rc_values[RADIO_THROTTLE] < BOOZ2_AUTOPILOT_THROTTLE_TRESHOLD) { \
+	if (radio_control.values[RADIO_CONTROL_THROTTLE] < BOOZ2_AUTOPILOT_THROTTLE_TRESHOLD) { \
 	  booz2_autopilot_in_flight_counter--;				\
 	  if (booz2_autopilot_in_flight_counter == 0) {			\
 	    booz2_autopilot_in_flight = FALSE;				\
@@ -90,7 +98,7 @@ void csc_ap_init(void) {
     else { /* not in flight */						\
       if (booz2_autopilot_in_flight_counter < BOOZ2_AUTOPILOT_IN_FLIGHT_TIME && \
 	  booz2_autopilot_motors_on) {					\
-	if (rc_values[RADIO_THROTTLE] > BOOZ2_AUTOPILOT_THROTTLE_TRESHOLD) { \
+	if (radio_control.values[RADIO_CONTROL_THROTTLE] > BOOZ2_AUTOPILOT_THROTTLE_TRESHOLD) { \
 	  booz2_autopilot_in_flight_counter++;				\
 	  if (booz2_autopilot_in_flight_counter == BOOZ2_AUTOPILOT_IN_FLIGHT_TIME) \
 	    booz2_autopilot_in_flight = TRUE;				\
@@ -104,9 +112,9 @@ void csc_ap_init(void) {
 
 #define BOOZ2_AUTOPILOT_CHECK_MOTORS_ON() {				\
     if(!booz2_autopilot_motors_on){					\
-      if (rc_values[RADIO_THROTTLE] < BOOZ2_AUTOPILOT_THROTTLE_TRESHOLD && \
-	  (rc_values[RADIO_YAW] > BOOZ2_AUTOPILOT_YAW_TRESHOLD ||	\
-	   rc_values[RADIO_YAW] < -BOOZ2_AUTOPILOT_YAW_TRESHOLD)) {	\
+      if (radio_control.values[RADIO_CONTROL_THROTTLE] < BOOZ2_AUTOPILOT_THROTTLE_TRESHOLD && \
+	  (radio_control.values[RADIO_CONTROL_YAW] > BOOZ2_AUTOPILOT_YAW_TRESHOLD ||	\
+	   radio_control.values[RADIO_CONTROL_YAW] < -BOOZ2_AUTOPILOT_YAW_TRESHOLD)) {	\
 	  if ( booz2_autopilot_motors_on_counter <  BOOZ2_AUTOPILOT_MOTOR_ON_TIME) { \
 	    booz2_autopilot_motors_on_counter++;			\
 	    if (booz2_autopilot_motors_on_counter == BOOZ2_AUTOPILOT_MOTOR_ON_TIME){ \
@@ -142,27 +150,39 @@ void csc_ap_periodic(uint8_t _in_flight, uint8_t kill) {
   if(kill) booz2_autopilot_motors_on = FALSE;
   booz2_autopilot_in_flight = _in_flight;
 
-  booz2_stabilization_attitude_read_rc(booz2_autopilot_in_flight);
-  booz2_stabilization_attitude_run(booz2_autopilot_in_flight);
+  booz_stabilization_attitude_read_rc(booz2_autopilot_in_flight);
+  booz_stabilization_attitude_run(booz2_autopilot_in_flight);
   booz2_guidance_v_run(booz2_autopilot_in_flight);
   
-  booz2_stabilization_cmd[COMMAND_THRUST] = (int32_t)rc_values[RADIO_THROTTLE] * 105 / 7200 + 95;
+  booz_stabilization_cmd[COMMAND_THRUST] = (int32_t)radio_control.values[RADIO_CONTROL_THROTTLE] * 105 / 7200 + 95;
  
   
-  CscSetCommands(booz2_stabilization_cmd,
+  CscSetCommands(booz_stabilization_cmd,
 		 booz2_autopilot_in_flight,booz2_autopilot_motors_on);
     
     
   BOOZ2_SUPERVISION_RUN(mixed_commands, commands, booz2_autopilot_motors_on);
-  props_set(PROP_UPPER_LEFT, mixed_commands[PROP_UPPER_LEFT]);
-  props_set(PROP_LOWER_RIGHT,mixed_commands[PROP_LOWER_RIGHT]);
-  props_set(PROP_LOWER_LEFT, mixed_commands[PROP_LOWER_LEFT]);
-  props_set(PROP_UPPER_RIGHT,mixed_commands[PROP_UPPER_RIGHT]);
+
+
+  if(booz2_autopilot_motors_on && props_throttle_pass){
+    Bound(booz2_stabilization_cmd[COMMAND_THRUST],0,255);
+    for(uint8_t i = 0; i < PROPS_NB; i++)
+      mixed_commands[i] = booz2_stabilization_cmd[COMMAND_THRUST];
+    
+  }
+
+  for(uint8_t i = 0; i < PROPS_NB; i++){
+    if(props_enable[i])
+      props_set(i,mixed_commands[i]);
+    else
+      props_set(i,0);
+  }
+
   props_commit();
   
   
   MERCURY_SURFACES_SUPERVISION_RUN(Actuator,
-				   booz2_stabilization_cmd,
+				   booz_stabilization_cmd,
 				   mixed_commands,
 				   (!booz2_autopilot_in_flight));
   ActuatorsCommit();

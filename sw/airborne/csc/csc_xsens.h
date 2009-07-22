@@ -26,7 +26,7 @@
 #define __CSC_XSENS_H__
 
 #include "types.h"
-#include "pprz_algebra_float.h"
+#include "math/pprz_algebra_float.h"
 
 #define XSENS_COUNT 1
 

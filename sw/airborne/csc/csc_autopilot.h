@@ -27,7 +27,7 @@
 
 #include "types.h"
 #include "std.h"
-#include "pprz_algebra_float.h"
+#include "math/pprz_algebra_float.h"
 
 struct control_gains {
   float pitch_kp;

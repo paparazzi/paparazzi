@@ -27,9 +27,10 @@
  */
 
 #include "mercury_xsens.h"
-#include "booz2_imu.h"
-#include "booz_ahrs.h"
-#include "booz_ahrs_aligner.h"
+#include "booz/booz_imu.h"
+#include "booz/booz_ahrs.h"
+#include "booz/ahrs/booz_ahrs_aligner.h"
+#include "booz/booz_imu.h"
 #include "csc_booz2_ins.h"
 
 #include <inttypes.h>
@@ -40,7 +41,7 @@
 #include "messages.h"
 #include "uart.h"
 //#include "com_stats.h"
-#include "pprz_algebra_float.h"
+#include "math/pprz_algebra_float.h"
 #include "string.h"
 
 void parse_xsens_msg(uint8_t xsens_id, uint8_t c );
@@ -201,7 +202,11 @@ static uint8_t xsens_msg_idx[XSENS_COUNT];
 static uint8_t ck[XSENS_COUNT];
 static uint8_t send_ck[XSENS_COUNT];
 
-    
+void booz_imu_impl_init( void  )
+{
+
+}
+
 void xsens_init( void )
 {
   for (int i = 0; i < XSENS_COUNT; i++) {
@@ -305,9 +310,9 @@ void xsens_parse_msg( uint8_t xsens_id ) {
         booz_imu.mag_unscaled.x  = XSENS_DATA_RAWInertial_magZ(xsens_msg_buf[xsens_id][buf_slot],offset);
 	booz_imu.mag_unscaled.y  = XSENS_DATA_RAWInertial_magY(xsens_msg_buf[xsens_id][buf_slot],offset);
 	booz_imu.mag_unscaled.z  = XSENS_DATA_RAWInertial_magX(xsens_msg_buf[xsens_id][buf_slot],offset);
-	Booz2ImuScaleGyro();
-	Booz2ImuScaleAccel();
-	Booz2ImuScaleMag();
+	BoozImuScaleGyro();
+	BoozImuScaleAccel();
+	BoozImuScaleMag();
 	
 	// Copied from booz2_main -- 5143134f060fcc57ce657e17d8b7fc2e72119fd7
 	// mmt 6/15/09

@@ -5,8 +5,8 @@
 <settings>
   <dl_settings>
        <dl_settings NAME="Misc" >
-      <dl_setting VAR="telemetry_mode_Ap" MIN="0" STEP="1" MAX="1" module="csc/csc_telemetry" shortname="telemetry" 
-        values="Default|Debug"/>
+      <dl_setting VAR="telemetry_mode_Ap" MIN="0" STEP="1" MAX="2" module="csc/csc_telemetry" shortname="telemetry" 
+        values="Default|Debug|Props"/>
     </dl_settings>
     <dl_settings NAME="imu params">
       <dl_setting VAR="xsens_setzero" MIN="0" STEP="1" MAX="1" module="csc/mercury_xsens" shortname="zero orientation"/>
@@ -15,22 +15,22 @@
 
 
     <dl_settings NAME="Att Loop">
-      <dl_setting VAR="booz_stabilization_pgain.x" MIN="-4000" STEP="1" MAX="-1" module="booz2_stabilization_attitude" shortname="pgain phi"/>
-      <dl_setting VAR="booz_stabilization_pgain.y" MIN="-4000" STEP="1" MAX="-1" module="booz2_stabilization_attitude" shortname="pgain tetha"/>
-      <dl_setting VAR="booz_stabilization_pgain.z" MIN="-4000" STEP="1" MAX="-1" module="booz2_stabilization_attitude" shortname="pgain psi"/>
-      <dl_setting VAR="booz_stabilization_dgain.x" MIN="-4000" STEP="1" MAX="-1" module="booz2_stabilization_attitude" shortname="dgain p"/>
-      <dl_setting VAR="booz_stabilization_dgain.y" MIN="-4000" STEP="1" MAX="-1" module="booz2_stabilization_attitude" shortname="dgain q"/>
-      <dl_setting VAR="booz_stabilization_dgain.z" MIN="-4000" STEP="1" MAX="-1" module="booz2_stabilization_attitude" shortname="dgain r"/>
-      <dl_setting VAR="booz_stabilization_igain.x" MIN="-300" STEP="1" MAX="0" module="booz2_stabilization_attitude" shortname="igain phi"/>
-      <dl_setting VAR="booz_stabilization_igain.y" MIN="-300" STEP="1" MAX="0" module="booz2_stabilization_attitude" shortname="igain theta"/>
-      <dl_setting VAR="booz_stabilization_igain.z" MIN="-300" STEP="1" MAX="0" module="booz2_stabilization_attitude" shortname="igain psi"/>
-      <dl_setting VAR="booz_stabilization_ddgain.x" MIN="0" STEP="1" MAX="500" module="booz2_stabilization_attitude" shortname="ddgain p"/>
-      <dl_setting VAR="booz_stabilization_ddgain.y" MIN="0" STEP="1" MAX="500" module="booz2_stabilization_attitude" shortname="ddgain q"/>
-      <dl_setting VAR="booz_stabilization_ddgain.z" MIN="0" STEP="1" MAX="500" module="booz2_stabilization_attitude" shortname="ddgain r"/>
+      <dl_setting VAR="booz_stabilization_pgain.x" MIN="-4000" STEP="1" MAX="-1" module="stabilization/booz_stabilization_attitude" shortname="pgain phi"/>
+      <dl_setting VAR="booz_stabilization_pgain.y" MIN="-4000" STEP="1" MAX="-1" module="stabilization/booz_stabilization_attitude" shortname="pgain tetha"/>
+      <dl_setting VAR="booz_stabilization_pgain.z" MIN="-4000" STEP="1" MAX="-1" module="stabilization/booz_stabilization_attitude" shortname="pgain psi"/>
+      <dl_setting VAR="booz_stabilization_dgain.x" MIN="-4000" STEP="1" MAX="-1" module="stabilization/booz_stabilization_attitude" shortname="dgain p"/>
+      <dl_setting VAR="booz_stabilization_dgain.y" MIN="-4000" STEP="1" MAX="-1" module="stabilization/booz_stabilization_attitude" shortname="dgain q"/>
+      <dl_setting VAR="booz_stabilization_dgain.z" MIN="-4000" STEP="1" MAX="-1" module="stabilization/booz_stabilization_attitude" shortname="dgain r"/>
+      <dl_setting VAR="booz_stabilization_igain.x" MIN="-300" STEP="1" MAX="0" module="stabilization/booz_stabilization_attitude" shortname="igain phi"/>
+      <dl_setting VAR="booz_stabilization_igain.y" MIN="-300" STEP="1" MAX="0" module="stabilization/booz_stabilization_attitude" shortname="igain theta"/>
+      <dl_setting VAR="booz_stabilization_igain.z" MIN="-300" STEP="1" MAX="0" module="stabilization/booz_stabilization_attitude" shortname="igain psi"/>
+      <dl_setting VAR="booz_stabilization_ddgain.x" MIN="0" STEP="1" MAX="500" module="stabilization/booz_stabilization_attitude" shortname="ddgain p"/>
+      <dl_setting VAR="booz_stabilization_ddgain.y" MIN="0" STEP="1" MAX="500" module="stabilization/booz_stabilization_attitude" shortname="ddgain q"/>
+      <dl_setting VAR="booz_stabilization_ddgain.z" MIN="0" STEP="1" MAX="500" module="stabilization/booz_stabilization_attitude" shortname="ddgain r"/>
     </dl_settings>
 
     <dl_settings NAME="Filter">
-       <dl_setting VAR="booz2_face_reinj_1" MIN="512" STEP="512" MAX="262144" module="booz2_filter_attitude_cmpl_euler" shortname="reinj_1"/>
+       <dl_setting VAR="booz2_face_reinj_1" MIN="512" STEP="512" MAX="262144" module="ahrs/booz2_filter_attitude_cmpl_euler" shortname="reinj_1"/>
     </dl_settings>
 
     <dl_settings NAME="Servos">
@@ -39,7 +39,14 @@
       <dl_setting VAR="mercury_supervision_yaw_comp_slope"  MIN="0" STEP="1" MAX="40" module="mercury_supervision" shortname="comp slope"/>
       <dl_setting VAR="mercury_supervision_yaw_comp_offset" MIN="1700" STEP="1" MAX="3700" module="mercury_supervision" shortname="comp offset"/>
     </dl_settings>
-
+    
+    <dl_settings NAME="Props" >
+      <dl_setting VAR="props_throttle_pass"  MIN="0"     STEP="1" MAX="1" module="mercury_ap" shortname="throttle pass" values="FALSE|TRUE"/>
+      <dl_setting VAR="props_enable[PROP_UPPER_LEFT]"  MIN="0"     STEP="1" MAX="1" module="mercury_ap" shortname="upper left" values="FALSE|TRUE"/>
+      <dl_setting VAR="props_enable[PROP_UPPER_RIGHT]"  MIN="0"     STEP="1" MAX="1" module="mercury_ap" shortname="upper right" values="FALSE|TRUE"/>
+      <dl_setting VAR="props_enable[PROP_LOWER_LEFT]"  MIN="0"     STEP="1" MAX="1" module="mercury_ap" shortname="lower left" values="FALSE|TRUE"/>
+      <dl_setting VAR="props_enable[PROP_LOWER_RIGHT]"  MIN="0"     STEP="1" MAX="1" module="mercury_ap" shortname="lower right" values="FALSE|TRUE"/>
+    </dl_settings>
 
 
 

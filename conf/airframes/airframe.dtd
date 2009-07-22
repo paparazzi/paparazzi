@@ -1,8 +1,12 @@
 <!-- Paparazzi airframe DTD -->
 
-<!ELEMENT airframe (servos|commands|rc_commands|ap_only_commands|command_laws|section|makefile|modules)*>
+<!ELEMENT airframe (servos|commands|csc_boards|rc_commands|ap_only_commands|command_laws|section|makefile|modules)*>
 <!ELEMENT servos (servo)*>
 <!ELEMENT commands (axis)*>
+<!ELEMENT csc_boards (board)*>
+<!ELEMENT board (msg)*>
+<!ELEMENT msg (field_map)*>
+<!ELEMENT field_map EMPTY>
 <!ELEMENT rc_commands (set)*>
 <!ELEMENT ap_only_commands (copy)*>
 <!ELEMENT command_laws (let|set)*>
@@ -27,6 +31,7 @@ name CDATA #IMPLIED>
 <!ATTLIST rc_commands>
 <!ATTLIST ap_only_commands>
 <!ATTLIST command_laws>
+<!ATTLIST csc_boards>
 
 <!ATTLIST section
 name CDATA #IMPLIED
@@ -38,6 +43,17 @@ no CDATA #REQUIRED
 min CDATA #REQUIRED
 neutral CDATA #REQUIRED
 max CDATA #REQUIRED>
+
+<!ATTLIST board
+id CDATA #REQUIRED>
+
+<!ATTLIST msg
+id CDATA #REQUIRED
+type CDATA #REQUIRED>
+
+<!ATTLIST field_map
+field CDATA #REQUIRED
+servo_id CDATA #REQUIRED>
 
 <!ATTLIST axis
 name CDATA #REQUIRED

@@ -36,7 +36,7 @@
 #include "messages.h"
 #include "uart.h"
 //#include "com_stats.h"
-#include "pprz_algebra_float.h"
+#include "math/pprz_algebra_float.h"
 #include "string.h"
 
 void parse_xsens_msg(uint8_t xsens_id, uint8_t c );
@@ -210,6 +210,7 @@ static uint8_t xsens_len[XSENS_COUNT][XSENS_MSG_BUF];
 static uint8_t xsens_msg_idx[XSENS_COUNT];
 static uint8_t ck[XSENS_COUNT];
 static uint8_t send_ck[XSENS_COUNT];
+
 
 void xsens_init( void )
 {

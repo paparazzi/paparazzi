@@ -31,10 +31,10 @@
   </section>
 
   <section name="GUIDANCE_V"   prefix="BOOZ2_GUIDANCE_V_">
-   <define name="MIN_ERR_Z"    value="BOOZ_POS_I_OF_F(-10.)"/>
-   <define name="MAX_ERR_Z"    value="BOOZ_POS_I_OF_F( 10.)"/>
-   <define name="MIN_ERR_ZD"   value="BOOZ_SPEED_I_OF_F(-10.)"/>
-   <define name="MAX_ERR_ZD"   value="BOOZ_SPEED_I_OF_F( 10.)"/>
+   <define name="MIN_ERR_Z"    value="POS_BFP_OF_REAL(-10.)"/>
+   <define name="MAX_ERR_Z"    value="POS_BFP_OF_REAL( 10.)"/>
+   <define name="MIN_ERR_ZD"   value="SPEED_BFP_OF_REAL(-10.)"/>
+   <define name="MAX_ERR_ZD"   value="SPEED_BFP_OF_REAL( 10.)"/>
    <define name="HOVER_KP"     value="-500"/>
    <define name="HOVER_KD"     value="-250"/>
    <!-- BOOZ_SPEED_I_OF_F(1.5) / (MAX_PPRZ/2) -->
@@ -74,9 +74,10 @@
     <define name="GYRO_Q_NEUTRAL" value="32745"/>
     <define name="GYRO_R_NEUTRAL" value="32447"/>
 
-    <define name="GYRO_P_SENS_NUM" value="(1<<IRATE_RES)" />
-    <define name="GYRO_Q_SENS_NUM" value="(1<<IRATE_RES)" />
-    <define name="GYRO_R_SENS_NUM" value="(1<<IRATE_RES)" />
+    <!-- FIXME: this wants GYRO_[P|Q|R]_SENS, defines -->
+    <define name="GYRO_P_SENS_NUM" value="(1<<INT32_RATE_FRAC)" />
+    <define name="GYRO_Q_SENS_NUM" value="(1<<INT32_RATE_FRAC)" />
+    <define name="GYRO_R_SENS_NUM" value="(1<<INT32_RATE_FRAC)" />
 
     <define name="GYRO_P_SENS_DEN" value="-1174" />
     <define name="GYRO_Q_SENS_DEN" value="1165" />
@@ -95,9 +96,10 @@
     <define name="ACCEL_Y_NEUTRAL" value="33240"/>
     <define name="ACCEL_Z_NEUTRAL" value="33029"/>
 
-    <define name="ACCEL_X_SENS_NUM" value="(1<<IACCEL_RES)" />
-    <define name="ACCEL_Y_SENS_NUM" value="(1<<IACCEL_RES)" />
-    <define name="ACCEL_Z_SENS_NUM" value="(1<<IACCEL_RES)" />
+    <!-- FIXME: this wants ACCEL_[X|Y|Z]_SENS, defines -->
+    <define name="ACCEL_X_SENS_NUM" value="(1<<INT32_ACCEL_FRAC)" />
+    <define name="ACCEL_Y_SENS_NUM" value="(1<<INT32_ACCEL_FRAC)" />
+    <define name="ACCEL_Z_SENS_NUM" value="(1<<INT32_ACCEL_FRAC)" />
     
     <define name="ACCEL_X_SENS_DEN" value="-414" /> 
     <define name="ACCEL_Y_SENS_DEN" value="411" />
@@ -111,9 +113,10 @@
     <define name="MAG_Z_NEUTRAL" value="32802"/>
 
 
-    <define name="MAG_X_SENS_NUM" value="(1<<IMAG_RES)" />
-    <define name="MAG_Y_SENS_NUM" value="(1<<IMAG_RES)" />
-    <define name="MAG_Z_SENS_NUM" value="(1<<IMAG_RES)" />
+    <!-- FIXME: this wants MAG_[X|Y|Z]_SENS, define -->
+    <define name="MAG_X_SENS_NUM" value="(1<<11)" />
+    <define name="MAG_Y_SENS_NUM" value="(1<<11)" />
+    <define name="MAG_Z_SENS_NUM" value="(1<<11)" />
 
     <define name="MAG_X_SENS_DEN" value="-7730" />
     <define name="MAG_Y_SENS_DEN" value="7576" />
@@ -132,6 +135,18 @@
   </section>
 
   
+  <section name="STABILIZATION_RATE" prefix="BOOZ_STABILIZATION_RATE_">
+
+    <define name="SP_MAX_P" value="10000"/>
+    <define name="SP_MAX_Q" value="10000"/>
+    <define name="SP_MAX_R" value="10000"/>
+
+    <define name="GAIN_P" value="-400"/>
+    <define name="GAIN_Q" value="-400"/>
+    <define name="GAIN_R" value="-350"/>
+
+  </section>
+
   <section name="STABILIZATION_ATTITUDE" prefix="BOOZ_STABILIZATION_ATTITUDE_">
 
     <define name="SP_MAX_PHI"     value="3000"/>
@@ -172,6 +187,7 @@
 <makefile>
 include $(PAPARAZZI_SRC)/conf/autopilot/mercury.makefile
 include $(PAPARAZZI_SRC)/conf/autopilot/csc_baro.makefile
+include $(PAPARAZZI_SRC)/conf/autopilot/subsystems/booz2_radio_control_dummy.makefile
 </makefile>
 
 </airframe>
