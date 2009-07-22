@@ -5,10 +5,10 @@
     <mode name="default">
       <message name="ALIVE"          period="5"/>
       <message name="ATTITUDE"	     period="0.1"/>
-      <message name="VANE_SENSOR"    period="0.1"/>
+      <message name="VANE_SENSOR"    period="0.2"/>
       <message name="COMMANDS"       period="1"/>
-      <message name="SIMPLE_COMMANDS" period="0.1"/>
-      <message name="QUAD_STATUS"    period="1.1"/>
+      <message name="SIMPLE_COMMANDS" period="0.2"/>
+      <message name="QUAD_STATUS"    period="1.5"/>
       <message name="DL_VALUE"       period="1.5"/>
     </mode>
     <mode name="debug">

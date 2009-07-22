@@ -69,7 +69,7 @@ ap.CFLAGS += -DADC -DUSE_AD0 -DUSE_AD0_0 -DUSE_AD0_1
 
 
 ap.CFLAGS += -DAP_LINK_CAN -DCAN_LED=2
-ap.CFLAGS += -DUSE_CAN1 -DCAN1_BTR=CANBitrate125k_3MHz
+ap.CFLAGS += -DUSE_CAN1 #-DCAN1_BTR=CANBitrate125k_3MHz
 ap.CFLAGS +=  -DCAN1_VIC_SLOT=3 -DCAN1_ERR_VIC_SLOT=7
 ap.srcs += $(SRC_CSC)/csc_can.c
 #ap.CFLAGS += -DUSE_CAN2 -DCAN2_BTR=CANBitrate125k_2MHz -DCAN2_VIC_SLOT=4
@@ -89,11 +89,6 @@ ap.srcs += $(SRC_CSC)/csc_servos.c
 
 ap.srcs += $(SRC_CSC)/csc_ap_link.c
 
-ap.CFLAGS += -DMOTORS=\"buss_twi_blmc_hw.h\" -DUSE_BUSS_TWI_BLMC_MOTOR
-ap.srcs += $(SRC_CSC_ARCH)/buss_twi_blmc_hw.c
-# on I2C0
-ap.CFLAGS += -DUSE_I2C0 -DI2C0_SCLL=150 -DI2C0_SCLH=150 -DI2C0_VIC_SLOT=10
-ap.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
 
 ap.srcs += $(SRC_CSC)/csc_adc.c
 
