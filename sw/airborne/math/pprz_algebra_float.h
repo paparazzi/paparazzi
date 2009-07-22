@@ -298,6 +298,14 @@ struct FloatRates {
     (_q).qz = 0.;							\
   }
 
+/* _q += _qa */
+#define FLOAT_QUAT_ADD(_qo, _qi) QUAT_ADD(_qo, _qi)
+
+/* _qo = _qi * _s */
+#define FLOAT_QUAT_SMUL(_qo, _qi, _s) QUAT_SMUL(_qo, _qi, _s)
+
+#define FLOAT_QUAT_EXPLEMENTARY(b,a) QUAT_EXPLEMENTARY(b,a)
+
 #define FLOAT_QUAT_COPY(_qo, _qi) QUAT_COPY(_qo, _qi)
 
 #define FLOAT_QUAT_NORM(_q) (sqrtf(SQUARE(_q.qi) + SQUARE(_q.qx)+	\
@@ -311,12 +319,7 @@ struct FloatRates {
     q.qz = q.qz / norm;							\
   }
 
-#define FLOAT_QUAT_INVERT(_qo, _qi) {					\
-    (_qo).qi =  (_qi).qi;						\
-    (_qo).qx = -(_qi).qx;						\
-    (_qo).qy = -(_qi).qy;						\
-    (_qo).qz = -(_qi).qz;						\
-  }
+#define FLOAT_QUAT_INVERT(_qo, _qi) QUAT_INVERT(_qo, _qi)
 
 #define FLOAT_QUAT_WRAP_SHORTEST(q) {					\
     if (q.qi < 0.)							\

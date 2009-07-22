@@ -383,6 +383,13 @@
     (_qo).qy += (_qi).qy;					\
     (_qo).qz += (_qi).qz;					\
   }
+  
+#define QUAT_INVERT(_qo, _qi) {					\
+    (_qo).qi =  (_qi).qi;						\
+    (_qo).qx = -(_qi).qx;						\
+    (_qo).qy = -(_qi).qy;						\
+    (_qo).qz = -(_qi).qz;						\
+  }
 
 
 /*
