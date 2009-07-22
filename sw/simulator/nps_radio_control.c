@@ -28,10 +28,10 @@ void nps_radio_control_run_script(double time) {
   }
   else {
     nps_radio_control.yaw = 0.;
-    //    nps_radio_control.throttle = 0.99;
-    //    nps_radio_control.mode = MODE_SWITCH_AUTO2;
-    nps_radio_control.throttle = 0.265;
-    nps_radio_control.mode = MODE_SWITCH_MANUAL;
+    nps_radio_control.throttle = 0.99;
+    nps_radio_control.mode = MODE_SWITCH_AUTO2;
+    //    nps_radio_control.throttle = 0.265;
+    //    nps_radio_control.mode = MODE_SWITCH_MANUAL;
   }
 }
 
