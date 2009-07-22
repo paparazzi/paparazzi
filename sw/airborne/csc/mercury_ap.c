@@ -165,9 +165,9 @@ void csc_ap_periodic(uint8_t _in_flight, uint8_t kill) {
 
 
   if(booz2_autopilot_motors_on && props_throttle_pass){
-    Bound(booz2_stabilization_cmd[COMMAND_THRUST],0,255);
+    Bound(booz_stabilization_cmd[COMMAND_THRUST],0,255);
     for(uint8_t i = 0; i < PROPS_NB; i++)
-      mixed_commands[i] = booz2_stabilization_cmd[COMMAND_THRUST];
+      mixed_commands[i] = booz_stabilization_cmd[COMMAND_THRUST];
     
   }
 
