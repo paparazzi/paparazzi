@@ -31,8 +31,12 @@
 #include "init_hw.h"
 #include "sys_time.h"
 #include "led.h"
+
+#ifdef USE_BUSS_TWI_BLMC_MOTOR
 #include "buss_twi_blmc_hw.h"
 #include "i2c.h"
+#endif
+
 #include "csc_servos.h"
 
 
@@ -94,7 +98,10 @@ static void csc_main_init( void ) {
   #ifdef USE_I2C0
   i2c_init();
   #endif
+
+  #ifdef USE_BUSS_TWI_BLMC_MOTOR
   motors_init();
+  #endif
 
   int_enable();
 }
@@ -135,6 +142,7 @@ static void csc_main_event( void ) {
 #define MIN_SERVO SYS_TICS_OF_USEC(1000)
 #define MAX_SERVO SYS_TICS_OF_USEC(2000)
 
+#ifdef USE_BUSS_TWI_BLMC_MOTOR
 static void on_prop_cmd(struct CscPropCmd *cmd)
 {
   for(uint8_t i = 0; i < BUSS_TWI_BLMC_NB; i++)
@@ -144,6 +152,9 @@ static void on_prop_cmd(struct CscPropCmd *cmd)
 
   ++can_msg_count;
 }
+#else
+static void on_prop_cmd(struct CscPropCmd *cmd) {}
+#endif
 
 
 static void on_servo_cmd(struct CscServoCmd *cmd)

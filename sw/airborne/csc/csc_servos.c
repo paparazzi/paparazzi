@@ -12,9 +12,13 @@
 #include "airframe.h"
 
 static uint32_t csc_servos_rng[] = {SYS_TICS_OF_USEC(SERVO_S1_MAX-SERVO_S1_MIN),
-				    SYS_TICS_OF_USEC(SERVO_S2_MAX-SERVO_S2_MIN)};
+				    SYS_TICS_OF_USEC(SERVO_S2_MAX-SERVO_S2_MIN),
+				    SYS_TICS_OF_USEC(SERVO_S3_MAX-SERVO_S3_MIN),
+				    SYS_TICS_OF_USEC(SERVO_S4_MAX-SERVO_S4_MIN)};
 static uint32_t csc_servos_min[] = {SYS_TICS_OF_USEC(SERVO_S1_MIN),
-				    SYS_TICS_OF_USEC(SERVO_S2_MIN)};
+				    SYS_TICS_OF_USEC(SERVO_S2_MIN),
+				    SYS_TICS_OF_USEC(SERVO_S3_MIN),
+				    SYS_TICS_OF_USEC(SERVO_S4_MIN)};
 
 
 void csc_servos_init(void)

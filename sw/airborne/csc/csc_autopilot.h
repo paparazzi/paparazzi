@@ -58,7 +58,7 @@ extern struct control_reference csc_reference;
 extern struct control_trims csc_trims;
 extern float csc_vane_angle;
 extern float csc_vane_angle_offset;
-extern float csc_yaw_weight;
+extern float csc_vane_weight;
 extern float csc_yaw_rudder;
 extern float csc_yaw_aileron;
 extern float csc_yaw_deadband;

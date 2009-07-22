@@ -1,7 +1,6 @@
 #ifndef PROPS_CSC_H
 #define PROPS_CSC_H
 
-#include "LPC21xx.h"
 #include "airframe.h"
 #include "actuators.h"
 #include "sys_time.h"

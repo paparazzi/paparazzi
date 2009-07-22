@@ -49,6 +49,10 @@
 
 #endif /*  PROPS_NB */
 
+#ifdef BUSS_TWI_BLMC_NB
+#define PERIODIC_SEND_MERCURY_PROPS() DOWNLINK_SEND_MERCURY_PROPS(&(motor_power[0]),&(motor_power[1]),&(motor_power[2]),&(motor_power[3]))
+#endif /* BUSS_TWI_BLMC_NB */
+
 #ifdef COMMANDS_NB
 #include "commands.h"
 #define PERIODIC_SEND_COMMANDS() DOWNLINK_SEND_COMMANDS(COMMANDS_NB, commands)

@@ -33,6 +33,8 @@
 #include "string.h"
 #include "radio_control.h"
 #include "pwm_input.h"
+#include "LPC21xx.h"
+#include "print.h"
 
 struct control_gains csc_gains;
 struct control_reference csc_reference;
@@ -42,12 +44,12 @@ float csc_vane_angle;
 float csc_vane_angle_offset = 180;
 
 static const int xsens_id = 0;
-float csc_yaw_weight;
 float csc_yaw_rudder;
 float csc_yaw_aileron;
 float csc_yaw_deadband;
 float csc_yaw_setpoint_rate;
 float csc_yaw_setpoint_range;
+float csc_vane_weight;
 
 #define PWM_INPUT_COUNTS_PER_REV 61358.
 static void update_vane_angle( void )
@@ -66,10 +68,10 @@ void csc_ap_init( void )
   csc_gains.yaw_kp = 5000;
   csc_gains.yaw_kd = 800;
   csc_gains.yaw_ki = 10;
-  csc_yaw_weight = 0;
   csc_yaw_rudder = 0.33;
   csc_yaw_aileron = 0;
   csc_yaw_deadband = 1.00;
+  csc_vane_weight = 1.0;
 
   csc_trims.elevator = 1800;
   csc_trims.aileron = -60;
@@ -130,7 +132,10 @@ static void calculate_errors(struct control_reference *errors)
 
   errors->eulers.phi = xsens_eulers.phi - csc_reference.eulers.phi;
   errors->eulers.theta = xsens_eulers.theta - csc_reference.eulers.theta;
-  errors->eulers.psi = xsens_eulers.psi - csc_reference.eulers.psi;
+  //errors->eulers.psi = xsens_eulers.psi - csc_reference.eulers.psi;
+  //errors->eulers.psi = csc_vane_angle - csc_reference.eulers.psi;
+  errors->eulers.psi = (csc_vane_angle*csc_vane_weight + xsens_eulers.psi*(1 - csc_vane_weight))
+    - csc_reference.eulers.psi;
 
   errors->rates.p = xsens_rates.p - csc_reference.rates.p;
   errors->rates.q = xsens_rates.q - csc_reference.rates.q;
@@ -140,6 +145,7 @@ static void calculate_errors(struct control_reference *errors)
   errors->eulers_i.theta += xsens_eulers.theta;
   errors->eulers_i.psi += xsens_eulers.psi;
 
+  /* Deadband in yaw -- prevents it going nuts around an angle */
   float yaw_deadband = RadOfDeg(csc_yaw_deadband);
 
   if (errors->eulers.psi <= yaw_deadband && errors->eulers.psi >= -yaw_deadband) {
@@ -160,9 +166,7 @@ static void calculate_reference(struct control_reference *reference, int time)
 {
   reference->eulers.psi = M_PI  / 6.0 * rc_values[RADIO_YAW] + 100*csc_yaw_setpoint_range*sin(0.01*time*csc_yaw_setpoint_rate);
   reference->eulers.theta = M_PI  / 6.0 * rc_values[RADIO_PITCH];
-  // Mix reference command with yaw reference command to prevent
-  // fighting ourselves
-  reference->eulers.phi = M_PI / 6.0 * rc_values[RADIO_ROLL];// + csc_yaw_weight * reference->eulers.psi;
+  reference->eulers.phi = M_PI / 6.0 * rc_values[RADIO_ROLL];
 
   reference->eulers.phi /= MAX_PPRZ;
   reference->eulers.theta /= MAX_PPRZ;
@@ -172,13 +176,13 @@ static void calculate_reference(struct control_reference *reference, int time)
 void csc_ap_periodic(int time)
 {
   static int counter = 0;
+  update_vane_angle();
   calculate_reference(&csc_reference, time);
   calculate_errors(&csc_errors);
-  update_vane_angle();
 
-  commands[COMMAND_ROLL] = -csc_gains.roll_kp * (csc_errors.eulers.phi + csc_errors.eulers.psi * csc_yaw_weight)
-			   + csc_gains.roll_kd * (csc_errors.rates.p + csc_errors.rates.r * csc_yaw_weight)
-			   - csc_gains.roll_ki * (csc_errors.eulers_i.phi + csc_errors.eulers_i.psi * csc_yaw_weight);
+  commands[COMMAND_ROLL] = -csc_gains.roll_kp * (csc_errors.eulers.phi)
+                          + csc_gains.roll_kd * (csc_errors.rates.p)
+                          - csc_gains.roll_ki * (csc_errors.eulers_i.phi);
   commands[COMMAND_ROLL] += csc_trims.aileron;
 
   commands[COMMAND_PITCH] = -csc_gains.pitch_kp * csc_errors.eulers.theta
