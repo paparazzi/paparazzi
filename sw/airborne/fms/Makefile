@@ -32,7 +32,9 @@ TT_SRCS += fms_network.c udp_transport.c ../downlink.c
 #<s4wrxttcs2> I just use "export PATH=${PATH}:/home/gumstix/oe/tmp/cross/armv7a/bin" and
 #<s4wrxttcs2> or "make ARCH=arm CROSS_COMPILE=arm-angstrom-linux-gnueabi-" if I have a makefile
 
-CROSS_CC=/home/poine/overo-oe/tmp/cross/armv7a/bin/arm-angstrom-linux-gnueabi-gcc
+OVERO_OE=/overo-oe
+
+CROSS_CC=$(OVERO_OE)/tmp/cross/armv7a/bin/arm-angstrom-linux-gnueabi-gcc
 
 CROSS_CFLAGS  = -Wall
 CROSS_LDFLAGS = 
