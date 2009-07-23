@@ -1,0 +1,14 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="ins">
+  <!-- <depend conflict="ins" -->
+  <header>
+    <file name="ins.h"/>
+  </header>
+  <init fun="ins_init()"/>
+  <periodic fun="ins_periodic_task()" period="0.016"/>
+  <makefile>
+    <file name="ins_xsens.c"/>
+  </makefile>
+</module>
+
