@@ -67,6 +67,11 @@
 #include "booz_radio_control.h"
 #define PERIODIC_SEND_RC() DOWNLINK_SEND_RC(RADIO_CONTROL_NB_CHANNEL, radio_control.values)
 #define PERIODIC_SEND_QUAD_STATUS() DOWNLINK_SEND_QUAD_STATUS(&radio_control.status, &pprz_mode, &vsupply, &cpu_time)
+#else 
+#ifdef RADIO_CONTROL
+#define PERIODIC_SEND_RC() DOWNLINK_SEND_RC(PPM_NB_PULSES, rc_values)
+#define PERIODIC_SEND_QUAD_STATUS() DOWNLINK_SEND_QUAD_STATUS(&rc_status, &pprz_mode, &vsupply, &cpu_time)
+#endif
 #endif /* USE_RADIO_CONTROL */
 
 
