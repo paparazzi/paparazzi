@@ -18,7 +18,6 @@
       <message name="ACTUATORS"      period="0.5"/>
       <message name="QUAD_STATUS"    period="1.1"/>
       <message name="RC"	     period="0.5"/>
-      <message name="PPM"	     period="0.5"/>
       <message name="IMU_ACCEL"      period="0.4"/>
       <message name="IMU_GYRO"       period="0.2"/>
       <message name="IMU_MAG"        period="0.4"/>
