@@ -40,6 +40,7 @@ struct control_gains csc_gains;
 struct control_reference csc_reference;
 struct control_reference csc_errors;
 struct control_trims csc_trims;
+struct control_gains csc_gamma;
 float csc_vane_angle;
 float csc_vane_angle_offset = 180;
 
@@ -50,11 +51,12 @@ float csc_yaw_deadband;
 float csc_yaw_setpoint_rate;
 float csc_yaw_setpoint_range;
 float csc_vane_weight;
+float csc_vane_filter_constant;
 
 #define PWM_INPUT_COUNTS_PER_REV 61358.
 static void update_vane_angle( void )
 {
-  csc_vane_angle =  RadOfDeg( 360. * pwm_input_duration / PWM_INPUT_COUNTS_PER_REV) - RadOfDeg(csc_vane_angle_offset);
+  csc_vane_angle =  (csc_vane_filter_constant * csc_vane_angle) + (1-csc_vane_filter_constant)*RadOfDeg( 360. * pwm_input_duration / PWM_INPUT_COUNTS_PER_REV) - RadOfDeg(csc_vane_angle_offset);
 }
 
 void csc_ap_init( void )
@@ -69,13 +71,23 @@ void csc_ap_init( void )
   csc_gains.yaw_kd = 800;
   csc_gains.yaw_ki = 10;
   csc_yaw_rudder = 0.33;
-  csc_yaw_aileron = 0;
+  csc_yaw_aileron = 1.00;
   csc_yaw_deadband = 1.00;
-  csc_vane_weight = 1.0;
+  csc_vane_weight = 0.1;
 
   csc_trims.elevator = 1800;
   csc_trims.aileron = -60;
   csc_trims.rudder = -800;
+
+  csc_gamma.roll_kp = 0;
+  csc_gamma.roll_kd = 0;
+  csc_gamma.roll_ki = 0;
+  csc_gamma.pitch_kp = 0;
+  csc_gamma.pitch_kd = 0;
+  csc_gamma.pitch_ki = 0;
+  csc_gamma.yaw_kp = 0;
+  csc_gamma.yaw_kd = 0;
+  csc_gamma.yaw_ki = 0;
   
   memset(&csc_reference, 0, sizeof(struct control_reference));
 }
@@ -199,6 +211,8 @@ void csc_ap_periodic(int time)
   commands[COMMAND_YAW] += (-csc_gains.yaw_kp * csc_errors.eulers.psi
 			   - csc_gains.yaw_kd * csc_errors.rates.r
 			    - csc_gains.yaw_ki * csc_errors.eulers_i.psi) * csc_yaw_rudder;
+
+  csc_ap_update_gains
 }
 
 void csc_ap_clear_ierrors( void )
@@ -215,3 +229,16 @@ void csc_ap_set_trims( void )
   csc_trims.rudder = commands[COMMAND_YAW];
 }
 
+void csc_ap_update_gains(struct FloatRates *rates, struct control_reference *errors)
+{
+  // Adaptation law based on state error to be controlled, rate and i error
+  gains->pitch_kp += -csc_gamma.pitch_kp*errors->eulers.theta*abs(errors->eulers.theta);
+  gains->pitch_kd += -csc_gamma.pitch_kd*errors->eulers.theta*xsens_gyro_y[xsens_id];
+  gains->pitch_ki += -csc_gamma.pitch_ki*errors->eulers.theta*errors->eulers_i.theta;
+  gains->roll_kp += -csc_gamma.roll_kp*errors->eulers.phi*abs(errors->eulers.phi);
+  gains->roll_kd += -csc_gamma.roll_kd*errors->eulers.phi*xsens_gyro_x[xsens_id];
+  gains->roll_ki += -csc_gamma.roll_ki*errors->eulers.phi*errors->eulers_i.phi;
+  gains->yaw_kp += -csc_gamma.yaw_kp*errors->eulers.psi*abs(errors->eulers.psi);
+  gains->yaw_kd += -csc_gamma.yaw_kd*errors->eulers.psi*xsens_gyro_z[xsens_id];
+  gains->yaw_ki += -csc_gamma.yaw_ki*errors->eulers.psi*errors->eulers_i.psi;
+}

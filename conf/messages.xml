@@ -1194,6 +1194,18 @@
       <field name="angle1"    type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.3"/>
     </message>
 
+    <message name="CONTROLLER_GAINS" id="191">
+      <field name="roll gamma_p"     type="float" />
+      <field name="roll gamma_d"     type="float" />
+      <field name="roll gamma_i"     type="float" />
+      <field name="pitch gamma_p"    type="float" />
+      <field name="pitch gamma_d"    type="float" />
+      <field name="pitch gamma_i"    type="float" />
+      <field name="yaw gamma_p"      type="float" />
+      <field name="yaw gamma_d"      type="float" />
+      <field name="yaw gamma_i"      type="float" />
+    </message>
+
 </class>
 
 

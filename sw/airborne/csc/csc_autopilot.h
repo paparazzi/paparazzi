@@ -56,6 +56,7 @@ struct control_trims {
 extern struct control_gains csc_gains;
 extern struct control_reference csc_reference;
 extern struct control_trims csc_trims;
+extern struct control_gains csc_gamma;
 extern float csc_vane_angle;
 extern float csc_vane_angle_offset;
 extern float csc_vane_weight;
@@ -64,6 +65,7 @@ extern float csc_yaw_aileron;
 extern float csc_yaw_deadband;
 extern float csc_yaw_setpoint_rate;
 extern float csc_yaw_setpoint_range;
+extern float csc_vane_filter_constant;
 
 void csc_autopilot_set_roll_ki(float ki);
 void csc_autopilot_set_pitch_ki(float ki);

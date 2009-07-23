@@ -10,6 +10,7 @@
       <message name="SIMPLE_COMMANDS" period="0.2"/>
       <message name="QUAD_STATUS"    period="1.5"/>
       <message name="DL_VALUE"       period="1.5"/>
+      <message name="CONTROLLER_GAINS" period="0.5"/>
     </mode>
     <mode name="debug">
       <message name="ALIVE"          period="5"/>

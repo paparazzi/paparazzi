@@ -58,6 +58,7 @@
 #define PERIODIC_SEND_COMMANDS() DOWNLINK_SEND_COMMANDS(COMMANDS_NB, commands)
 #endif /* COMMANDS_NB */
 #define PERIODIC_SEND_SIMPLE_COMMANDS() DOWNLINK_SEND_SIMPLE_COMMANDS(&commands[0], &commands[1], &commands[2])
+#define PERIODIC_SEND_CONTROLLER_GAINS() DOWNLINK_SEND_CONTROLLER_GAINS(&commands[0], &commands[1], &commands[2], &commands[3], &commands[4], &commands[5], &commands[6], &commands[7], &commands[8])
 
 #ifdef SERVOS_NB
 #define PERIODIC_SEND_ACTUATORS() DOWNLINK_SEND_ACTUATORS(SERVOS_NB, actuators)
