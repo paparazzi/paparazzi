@@ -120,17 +120,15 @@ let extract_makefile = fun airframe_file makefile_ac ->
             List.iter (fun field ->
               match String.lowercase (Xml.tag field) with
                 "flag" -> 
-		  List.iter
-		    (fun target -> 
-		      let value = ExtXml.attrib_or_default field "value" ""
-		      and name = Xml.attrib field "name" in
-		      fprintf f "%s.CFLAGS += -D%s%s\n" target name value)
-		    targets
+		              List.iter
+		                (fun target -> 
+		                  let value = try "="^(Xml.attrib field "value") with _ -> ""
+		                  and name = Xml.attrib field "name" in
+		                  fprintf f "%s.CFLAGS += -D%s%s\n" target name value)
+		                targets
               | "file" -> 
-		  let name = Xml.attrib field "name" in
-		  List.iter
-		    (fun target -> fprintf f "%s.srcs += $(%s)/%s\n" target dir_name name)
-		    targets
+		              let name = Xml.attrib field "name" in
+		              List.iter (fun target -> fprintf f "%s.srcs += $(%s)/%s\n" target dir_name name) targets
               | "define" -> 
 		            let value = Xml.attrib field "value"
 		            and name = Xml.attrib field "name" in
