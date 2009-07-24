@@ -25,7 +25,7 @@
 #include <math.h>
 #include <inttypes.h>
 
-#include "booz_geometry_mixed.h"
+#include "math/pprz_algebra_int.h"
 
 #define IMU_ACCEL_X_NEUTRAL 32081
 #define IMU_ACCEL_X_SENS -2.50411474
@@ -34,10 +34,12 @@
 
 void test_1(void);
 void test_2(void);
+void test_3(void);
 
 int main(int argc, char** argv){
 
-  test_2();
+  //  test_2();
+  test_3();
 
   return 0;
 }
@@ -50,10 +52,10 @@ void test_1(void) {
     double neutral_f = (double)IMU_ACCEL_X_NEUTRAL;
     double sensitivity_f = 1./IMU_ACCEL_X_SENS;
     
-    double  sensor_raw_f = BOOZ_ACCEL_I_OF_F(value_f) * sensitivity_f + neutral_f;
+    double  sensor_raw_f = ACCEL_BFP_OF_REAL(value_f) * sensitivity_f + neutral_f;
     int32_t sensor_raw_i = rint(sensor_raw_f);
     
-    double  scaled_sensor_f = BOOZ_ACCEL_I_OF_F(value_f);
+    double  scaled_sensor_f = ACCEL_BFP_OF_REAL(value_f);
 #if 1
     int32_t scaled_sensor_i = ((sensor_raw_i - IMU_ACCEL_X_NEUTRAL) * IMU_ACCEL_X_SENS_NUM) / IMU_ACCEL_X_SENS_DEN;
 #endif
@@ -89,4 +91,29 @@ void test_2(void) {
     printf("%- d %- d %- d %- .1f\n", a, b, c, d);
   }
     
+}
+
+#define OFFSET_AND_ROUND(_a, _b) (((_a)+(1<<((_b)-1)))>>(_b))
+#define OFFSET_AND_ROUND2(_a, _b) (((_a)+(1<<((_b)-1))-((_a)<0?1:0))>>(_b))
+#define N_OFFSET 2
+void test_3(void) {
+
+ int a;    
+ for (a=-(1<<N_OFFSET); a<=(1<<N_OFFSET); a++) {
+   int32_t b = (a>>N_OFFSET);
+   int32_t c;
+   //   if ( a>=0 )
+   //     c = (a+(1<<(N_OFFSET-1)))>>N_OFFSET;
+   //   else
+   //     c = (a+(1<<(N_OFFSET-1))-1)>>N_OFFSET;
+   c = OFFSET_AND_ROUND(a, N_OFFSET);
+
+   int32_t d;
+   d = OFFSET_AND_ROUND2(a, N_OFFSET);
+
+   double e;
+   e = (double)a/(double)(1<<N_OFFSET);
+
+   printf("%- d %- d %- d %- d %.1f\n", a, b, c, d, e); 
+ }
 }

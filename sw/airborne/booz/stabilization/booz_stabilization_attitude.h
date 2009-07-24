@@ -41,6 +41,13 @@ extern struct Int32Vect3  booz_stabilization_dgain;
 extern struct Int32Vect3  booz_stabilization_ddgain;
 extern struct Int32Eulers booz_stabilization_att_sum_err;
 
-extern int32_t booz_stabilization_att_err_cmd[COMMANDS_NB];
+extern int32_t booz_stabilization_att_fb_cmd[COMMANDS_NB];
+extern int32_t booz_stabilization_att_ff_cmd[COMMANDS_NB];
+
+
+#define booz_stabilization_attitude_SetKiPhi(_val) {	\
+    booz_stabilization_igain.x = _val;			\
+    booz_stabilization_att_sum_err.phi = 0;		\
+  }
 
 #endif /* BOOZ2_STABILIZATION_ATTITUDE_H */

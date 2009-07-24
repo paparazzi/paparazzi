@@ -39,7 +39,8 @@ struct Int32Vect3  booz_stabilization_ddgain;
 struct Int32Vect3  booz_stabilization_igain;
 struct Int32Eulers booz_stabilization_att_sum_err;
 
-int32_t booz_stabilization_att_err_cmd[COMMANDS_NB];
+int32_t booz_stabilization_att_fb_cmd[COMMANDS_NB];
+int32_t booz_stabilization_att_ff_cmd[COMMANDS_NB];
 
 static inline void booz_stabilization_update_ref(void);
 
@@ -92,6 +93,9 @@ void booz_stabilization_attitude_enter(void) {
 }
 
 
+#define OFFSET_AND_ROUND(_a, _b) (((_a)+(1<<((_b)-1)))>>(_b)) 
+#define OFFSET_AND_ROUND2(_a, _b) (((_a)+(1<<((_b)-1))-((_a)<0?1:0))>>(_b))
+
 #define MAX_SUM_ERR 4000000
 
 void booz_stabilization_attitude_run(bool_t  in_flight) {
@@ -100,9 +104,9 @@ void booz_stabilization_attitude_run(bool_t  in_flight) {
 
   /* compute attitude error            */
   const struct Int32Eulers att_ref_scaled = {
-    booz_stabilization_att_ref.phi   >> (ANGLE_REF_RES - INT32_ANGLE_FRAC),
-    booz_stabilization_att_ref.theta >> (ANGLE_REF_RES - INT32_ANGLE_FRAC),
-    booz_stabilization_att_ref.psi   >> (ANGLE_REF_RES - INT32_ANGLE_FRAC) };
+    OFFSET_AND_ROUND2(booz_stabilization_att_ref.phi,   (ANGLE_REF_RES - INT32_ANGLE_FRAC)),
+    OFFSET_AND_ROUND2(booz_stabilization_att_ref.theta, (ANGLE_REF_RES - INT32_ANGLE_FRAC)),
+    OFFSET_AND_ROUND2(booz_stabilization_att_ref.psi,   (ANGLE_REF_RES - INT32_ANGLE_FRAC)) };
   struct Int32Eulers att_err;
   EULERS_DIFF(att_err, booz_ahrs.ltp_to_body_euler, att_ref_scaled);
   INT32_ANGLE_NORMALIZE(att_err.psi);
@@ -118,35 +122,38 @@ void booz_stabilization_attitude_run(bool_t  in_flight) {
   
   /* compute rate error                */
   const struct Int32Rates rate_ref_scaled = {
-    booz_stabilization_rate_ref.x >> (RATE_REF_RES - INT32_RATE_FRAC),
-    booz_stabilization_rate_ref.y >> (RATE_REF_RES - INT32_RATE_FRAC),
-    booz_stabilization_rate_ref.z >> (RATE_REF_RES - INT32_RATE_FRAC) };
+    OFFSET_AND_ROUND2(booz_stabilization_rate_ref.x, (RATE_REF_RES - INT32_RATE_FRAC)),
+    OFFSET_AND_ROUND2(booz_stabilization_rate_ref.y, (RATE_REF_RES - INT32_RATE_FRAC)),
+    OFFSET_AND_ROUND2(booz_stabilization_rate_ref.z, (RATE_REF_RES - INT32_RATE_FRAC)) };
   struct Int32Rates rate_err;
   RATES_DIFF(rate_err, booz_ahrs.body_rate, rate_ref_scaled);
 
   /* compute PID loop                  */
 
-  booz_stabilization_att_err_cmd[COMMAND_ROLL] = 
+  booz_stabilization_att_fb_cmd[COMMAND_ROLL] = 
     booz_stabilization_pgain.x    * att_err.phi +
     booz_stabilization_dgain.x    * rate_err.p +
-    ((booz_stabilization_igain.x  * booz_stabilization_att_sum_err.phi) >> 10);
-  booz_stabilization_cmd[COMMAND_ROLL] = booz_stabilization_att_err_cmd[COMMAND_ROLL] +
-    ((booz_stabilization_ddgain.x * booz_stabilization_accel_ref.x) >> 5);
-  booz_stabilization_cmd[COMMAND_ROLL] = booz_stabilization_cmd[COMMAND_ROLL] >> 16;
+    OFFSET_AND_ROUND((booz_stabilization_igain.x  * booz_stabilization_att_sum_err.phi), 10);
 
-  booz_stabilization_att_err_cmd[COMMAND_PITCH] = 
+  booz_stabilization_att_ff_cmd[COMMAND_ROLL] = 
+    OFFSET_AND_ROUND(booz_stabilization_ddgain.x * booz_stabilization_accel_ref.x, 5);
+    
+  booz_stabilization_cmd[COMMAND_ROLL] = 
+    OFFSET_AND_ROUND((booz_stabilization_att_fb_cmd[COMMAND_ROLL]+booz_stabilization_att_ff_cmd[COMMAND_ROLL]), 16);
+
+  booz_stabilization_att_fb_cmd[COMMAND_PITCH] = 
     booz_stabilization_pgain.y    * att_err.theta +
     booz_stabilization_dgain.y    * rate_err.q +
     ((booz_stabilization_igain.y  * booz_stabilization_att_sum_err.theta) >> 10);
-  booz_stabilization_cmd[COMMAND_PITCH] = booz_stabilization_att_err_cmd[COMMAND_PITCH] +
+  booz_stabilization_cmd[COMMAND_PITCH] = booz_stabilization_att_fb_cmd[COMMAND_PITCH] +
     ((booz_stabilization_ddgain.y * booz_stabilization_accel_ref.y) >> 5);
   booz_stabilization_cmd[COMMAND_PITCH] = booz_stabilization_cmd[COMMAND_PITCH] >> 16;
   
-  booz_stabilization_att_err_cmd[COMMAND_YAW] = 
+  booz_stabilization_att_fb_cmd[COMMAND_YAW] = 
     booz_stabilization_pgain.z    * att_err.psi +
     booz_stabilization_dgain.z    * rate_err.r +
     ((booz_stabilization_igain.z  * booz_stabilization_att_sum_err.psi) >> 10);
-  booz_stabilization_cmd[COMMAND_YAW] = booz_stabilization_att_err_cmd[COMMAND_YAW] +
+  booz_stabilization_cmd[COMMAND_YAW] = booz_stabilization_att_fb_cmd[COMMAND_YAW] +
     ((booz_stabilization_ddgain.z * booz_stabilization_accel_ref.z) >> 5);
   booz_stabilization_cmd[COMMAND_YAW] = booz_stabilization_cmd[COMMAND_YAW] >> 16;
   

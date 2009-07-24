@@ -768,9 +768,12 @@
     <field name="sum_err_phi"   type="int32"/>   
     <field name="sum_err_theta" type="int32"/>   
     <field name="sum_err_psi"   type="int32"/>   
-    <field name="delta_a_err"   type="int32"/>
-    <field name="delta_e_err"   type="int32"/>
-    <field name="delta_r_err"   type="int32"/>
+    <field name="delta_a_fb"   type="int32" alt_unit_coef="0.0000153"/>
+    <field name="delta_e_fb"   type="int32"/>
+    <field name="delta_r_fb"   type="int32"/>
+    <field name="delta_a_ff"   type="int32" alt_unit_coef="0.0000153"/>
+    <field name="delta_e_ff"   type="int32"/>
+    <field name="delta_r_ff"   type="int32"/>
     <field name="delta_a"       type="int32"/>
     <field name="delta_e"       type="int32"/>
     <field name="delta_r"       type="int32"/>
