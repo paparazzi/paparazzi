@@ -34,6 +34,7 @@
 #include <inttypes.h>
 #include "std.h"
 #include "paparazzi.h"
+#include "airframe.h"
 
 /* outer loop parameters */
 extern float h_ctl_course_setpoint; /* rad, CW/north */
@@ -66,6 +67,7 @@ extern float h_ctl_aileron_of_throttle;
 extern float h_ctl_elevator_of_roll;
 
 /* rate loop */
+
 #ifdef H_CTL_RATE_LOOP
 extern float h_ctl_roll_rate_mode;
 extern float h_ctl_roll_rate_setpoint_pgain;
