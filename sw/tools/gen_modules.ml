@@ -229,6 +229,7 @@ let print_event_functions = fun modules ->
 
 let print_datalink_functions = fun modules ->
   lprintf out_h "\n#include \"messages.h\"\n";
+  lprintf out_h "#include \"airframe.h\"\n";
   lprintf out_h "static inline void modules_parse_datalink(uint8_t msg_id __attribute__ ((unused))) {\n";
   right ();
   let else_ = ref "" in
@@ -236,7 +237,7 @@ let print_datalink_functions = fun modules ->
     List.iter (fun i ->
       match Xml.tag i with
         "datalink" ->
-          lprintf out_h "%sif (msg_id == DL_%s) { %s; };\n" !else_ (ExtXml.attrib i "message") (ExtXml.attrib i "fun");
+          lprintf out_h "%sif (msg_id == DL_%s) { %s; }\n" !else_ (ExtXml.attrib i "message") (ExtXml.attrib i "fun");
           else_ := "else "
       | _ -> ())
     (Xml.children m))
