@@ -91,20 +91,47 @@
 
   <section name="STABILIZATION_ATTITUDE" prefix="BOOZ_STABILIZATION_ATTITUDE_">
 
+    <!-- setpoints -->
     <define name="SP_MAX_PHI"     value="3000"/>
     <define name="SP_MAX_THETA"   value="3000"/>
     <define name="SP_MAX_R"       value="5500"/>
     <define name="DEADBAND_R"     value="250"/>
 
-    <define name="PHI_THETA_PGAIN"  value="-400"/>
-    <define name="PHI_THETA_DGAIN"  value="-300"/>
-    <define name="PHI_THETA_DDGAIN" value=" 300"/>
-    <define name="PHI_THETA_IGAIN"  value="-100"/>
+    <!-- reference -->
+    <define name="REF_OMEGA_P"  value="RadOfDeg(800)"/>
+    <define name="REF_ZETA_P"   value="0.85"/>
+    <define name="REF_MAX_P"    value="BFP_OF_REAL(5,RATE_REF_RES)"/>
+    <define name="REF_MAX_PDOT" value="BFP_OF_REAL(128,ACCEL_REF_RES)"/>
+
+    <define name="REF_OMEGA_Q" value="RadOfDeg(800)"/>
+    <define name="REF_ZETA_Q"  value="0.85"/>
+    <define name="REF_MAX_Q"    value="BFP_OF_REAL(5,RATE_REF_RES)"/>
+    <define name="REF_MAX_QDOT" value="BFP_OF_REAL(128,ACCEL_REF_RES)"/>
+
+    <define name="REF_OMEGA_R" value="RadOfDeg(500)"/>
+    <define name="REF_ZETA_R"  value="0.85"/>
+    <define name="REF_MAX_R"    value="BFP_OF_REAL(3,RATE_REF_RES)"/>
+    <define name="REF_MAX_RDOT" value="BFP_OF_REAL(32,ACCEL_REF_RES)"/>
+
+    <!-- feedback -->
+    <define name="PHI_PGAIN"  value="-400"/>
+    <define name="PHI_DGAIN"  value="-300"/>
+    <define name="PHI_IGAIN"  value="-100"/>
+
+    <define name="THETA_PGAIN"  value="-400"/>
+    <define name="THETA_DGAIN"  value="-300"/>
+    <define name="THETA_IGAIN"  value="-100"/>
 
     <define name="PSI_PGAIN"  value="-380"/>
     <define name="PSI_DGAIN"  value="-320"/>
-    <define name="PSI_DDGAIN" value=" 300"/>
     <define name="PSI_IGAIN"  value="-75"/>
+
+    <!-- feedforward -->
+    <define name="PHI_DDGAIN"   value=" 300"/>
+    <define name="THETA_DDGAIN" value=" 300"/>
+    <define name="PSI_DDGAIN"   value=" 300"/>
+
+
 
   </section>
 

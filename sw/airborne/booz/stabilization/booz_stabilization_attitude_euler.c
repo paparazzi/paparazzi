@@ -25,6 +25,8 @@
 #include "booz_ahrs.h"
 #include "booz_radio_control.h"
 
+
+
 #include "airframe.h"
 
 struct Int32Eulers booz_stabilization_att_sp;
@@ -54,24 +56,25 @@ void booz_stabilization_attitude_init(void) {
   INT_VECT3_ZERO(booz_stabilization_accel_ref);
 
   VECT3_ASSIGN(booz_stabilization_pgain,
-	       BOOZ_STABILIZATION_ATTITUDE_PHI_THETA_PGAIN,
-	       BOOZ_STABILIZATION_ATTITUDE_PHI_THETA_PGAIN,
+	       BOOZ_STABILIZATION_ATTITUDE_PHI_PGAIN,
+	       BOOZ_STABILIZATION_ATTITUDE_THETA_PGAIN,
 	       BOOZ_STABILIZATION_ATTITUDE_PSI_PGAIN);
   
   VECT3_ASSIGN(booz_stabilization_dgain,
-	       BOOZ_STABILIZATION_ATTITUDE_PHI_THETA_DGAIN,
-	       BOOZ_STABILIZATION_ATTITUDE_PHI_THETA_DGAIN,
+	       BOOZ_STABILIZATION_ATTITUDE_PHI_DGAIN,
+	       BOOZ_STABILIZATION_ATTITUDE_THETA_DGAIN,
 	       BOOZ_STABILIZATION_ATTITUDE_PSI_DGAIN);
   
+  VECT3_ASSIGN(booz_stabilization_igain,
+	       BOOZ_STABILIZATION_ATTITUDE_PHI_IGAIN,
+	       BOOZ_STABILIZATION_ATTITUDE_THETA_IGAIN,
+	       BOOZ_STABILIZATION_ATTITUDE_PSI_IGAIN);
+
   VECT3_ASSIGN(booz_stabilization_ddgain,
-	       BOOZ_STABILIZATION_ATTITUDE_PHI_THETA_DDGAIN,
-	       BOOZ_STABILIZATION_ATTITUDE_PHI_THETA_DDGAIN,
+	       BOOZ_STABILIZATION_ATTITUDE_PHI_DDGAIN,
+	       BOOZ_STABILIZATION_ATTITUDE_THETA_DDGAIN,
 	       BOOZ_STABILIZATION_ATTITUDE_PSI_DDGAIN);
   
-  VECT3_ASSIGN(booz_stabilization_igain,
-	       BOOZ_STABILIZATION_ATTITUDE_PHI_THETA_IGAIN,
-	       BOOZ_STABILIZATION_ATTITUDE_PHI_THETA_IGAIN,
-	       BOOZ_STABILIZATION_ATTITUDE_PSI_IGAIN);
 
   INT_EULERS_ZERO( booz_stabilization_att_sum_err );
 
@@ -104,9 +107,9 @@ void booz_stabilization_attitude_run(bool_t  in_flight) {
 
   /* compute attitude error            */
   const struct Int32Eulers att_ref_scaled = {
-    OFFSET_AND_ROUND2(booz_stabilization_att_ref.phi,   (ANGLE_REF_RES - INT32_ANGLE_FRAC)),
-    OFFSET_AND_ROUND2(booz_stabilization_att_ref.theta, (ANGLE_REF_RES - INT32_ANGLE_FRAC)),
-    OFFSET_AND_ROUND2(booz_stabilization_att_ref.psi,   (ANGLE_REF_RES - INT32_ANGLE_FRAC)) };
+    OFFSET_AND_ROUND(booz_stabilization_att_ref.phi,   (ANGLE_REF_RES - INT32_ANGLE_FRAC)),
+    OFFSET_AND_ROUND(booz_stabilization_att_ref.theta, (ANGLE_REF_RES - INT32_ANGLE_FRAC)),
+    OFFSET_AND_ROUND(booz_stabilization_att_ref.psi,   (ANGLE_REF_RES - INT32_ANGLE_FRAC)) };
   struct Int32Eulers att_err;
   EULERS_DIFF(att_err, booz_ahrs.ltp_to_body_euler, att_ref_scaled);
   INT32_ANGLE_NORMALIZE(att_err.psi);
@@ -122,9 +125,9 @@ void booz_stabilization_attitude_run(bool_t  in_flight) {
   
   /* compute rate error                */
   const struct Int32Rates rate_ref_scaled = {
-    OFFSET_AND_ROUND2(booz_stabilization_rate_ref.x, (RATE_REF_RES - INT32_RATE_FRAC)),
-    OFFSET_AND_ROUND2(booz_stabilization_rate_ref.y, (RATE_REF_RES - INT32_RATE_FRAC)),
-    OFFSET_AND_ROUND2(booz_stabilization_rate_ref.z, (RATE_REF_RES - INT32_RATE_FRAC)) };
+    OFFSET_AND_ROUND(booz_stabilization_rate_ref.x, (RATE_REF_RES - INT32_RATE_FRAC)),
+    OFFSET_AND_ROUND(booz_stabilization_rate_ref.y, (RATE_REF_RES - INT32_RATE_FRAC)),
+    OFFSET_AND_ROUND(booz_stabilization_rate_ref.z, (RATE_REF_RES - INT32_RATE_FRAC)) };
   struct Int32Rates rate_err;
   RATES_DIFF(rate_err, booz_ahrs.body_rate, rate_ref_scaled);
 
@@ -133,7 +136,7 @@ void booz_stabilization_attitude_run(bool_t  in_flight) {
   booz_stabilization_att_fb_cmd[COMMAND_ROLL] = 
     booz_stabilization_pgain.x    * att_err.phi +
     booz_stabilization_dgain.x    * rate_err.p +
-    OFFSET_AND_ROUND((booz_stabilization_igain.x  * booz_stabilization_att_sum_err.phi), 10);
+    OFFSET_AND_ROUND2((booz_stabilization_igain.x  * booz_stabilization_att_sum_err.phi), 10);
 
   booz_stabilization_att_ff_cmd[COMMAND_ROLL] = 
     OFFSET_AND_ROUND(booz_stabilization_ddgain.x * booz_stabilization_accel_ref.x, 5);
