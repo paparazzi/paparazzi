@@ -106,8 +106,10 @@ let remove_dup = fun l ->
   loop (List.sort compare l)
 
 let print_periodic_functions = fun modules ->
-  let min_period = 1. /. float !freq in
-  let max_period = 65536. /. float !freq in
+  let min_period = 1. /. float !freq
+  and max_period = 65536. /. float !freq
+  and min_freq   = float !freq /. 65536.
+  and max_freq   = float !freq in
 
   lprintf out_h "\nstatic inline void modules_periodic_task(void) {\n";
   right ();
@@ -116,10 +118,18 @@ let print_periodic_functions = fun modules ->
     let periodic = List.filter (fun i -> (String.compare (Xml.tag i) "periodic") == 0) (Xml.children m) in
     let module_name = ExtXml.attrib m "name" in
     List.map (fun x -> 
-      let p = float_of_string (ExtXml.attrib x "period") in
-      if p < min_period || p > max_period then
-        fprintf stderr "Warning: period is bound between %.3fs and %.3fs for function %s\n%!" min_period max_period (ExtXml.attrib x "fun");
-      ((x, module_name), min 65535 (max 1 (int_of_float (p*.float_of_int !freq)))))
+      try
+        let p = float_of_string (Xml.attrib x "period") in
+        let _ = try let _ = Xml.attrib x "freq" in fprintf stderr "Warning: both period and freq are defined but only period is used for function %s\n" (ExtXml.attrib x "fun") with _ -> () in
+        if p < min_period || p > max_period then
+          fprintf stderr "Warning: period is bound between %.3fs and %.3fs for function %s\n%!" min_period max_period (ExtXml.attrib x "fun");
+        ((x, module_name), min 65535 (max 1 (int_of_float (p *. float_of_int !freq))))
+      with _ ->
+        let f = float_of_string (ExtXml.attrib_or_default x "freq" (string_of_float max_freq)) in
+        if f < min_freq || f > max_freq then
+          fprintf stderr "Warning: frequency is bound between %fHz and %.1fHz for function %s\n%!" min_freq max_freq (ExtXml.attrib x "fun");
+        ((x, module_name), min 65535 (max 1 (int_of_float (float_of_int !freq /. f))))
+      )
     periodic) modules) in
   let modulos = remove_dup (List.map snd functions_modulo) in
   (** Print modulos *)
@@ -156,36 +166,51 @@ let print_periodic_functions = fun modules ->
   let test_delay = fun x -> try let _ = Xml.attrib x "delay" in true with _ -> false in
   List.iter (fun ((func, name), p) ->
     let function_name = ExtXml.attrib func "fun" in
-    if (test_delay func) then begin
-      (** Delay is set by user *)
-      let delay = int_of_string (Xml.attrib func "delay") in
-      if delay >= p then fprintf stderr "Warning: delay is bound between 0 and %d for function %s\n" (p-1) function_name;
-      let delay_p = delay mod p in
-      let else_ = if List.mem_assoc p !l && not (List.mem (p, delay_p) !l) then
-        "else " else "" in
-      if (is_status_lock func) then
-        lprintf out_h "%sif (i%d == %d) {\n" else_ p delay_p
-      else
-        lprintf out_h "%sif (i%d == %d && %s == MODULES_RUN) {\n" else_ p delay_p (get_status_name func name);
-      l := (p, delay_p) :: !l;
-    end
-    else begin
-      (** Delay is automtically set *)
-      i := !i mod p;
-      let else_ = if List.mem_assoc p !l && not (List.mem (p, !i) !l) then "else " else "" in
-      if (is_status_lock func) then
-        lprintf out_h "%sif (i%d == %d) {\n" else_ p !i
-      else
-        lprintf out_h "%sif (i%d == %d && %s == MODULES_RUN) {\n" else_ p !i (get_status_name func name);
-      l := (p, !i) :: !l;
-      let incr = p / ((List.length (List.filter (fun (_,p') -> compare p p' == 0) functions)) + 1) in
-      i := !i + incr;
-    end;
-    right ();
-    lprintf out_h "%s;\n" function_name;
-    left ();
-    lprintf out_h "}\n")
-  functions;
+    if p = 1 then
+      begin
+        if (is_status_lock func) then
+          lprintf out_h "%s;\n" function_name
+        else begin
+          lprintf out_h "if (%s == MODULES_RUN) {\n" (get_status_name func name);
+          right ();
+          lprintf out_h "%s;\n" function_name;
+          left ();
+          lprintf out_h "}\n";
+        end
+      end
+    else 
+      begin
+        if (test_delay func) then begin
+          (** Delay is set by user *)
+          let delay = int_of_string (Xml.attrib func "delay") in
+          if delay >= p then fprintf stderr "Warning: delay is bound between 0 and %d for function %s\n" (p-1) function_name;
+          let delay_p = delay mod p in
+          let else_ = if List.mem_assoc p !l && not (List.mem (p, delay_p) !l) then
+            "else " else "" in
+          if (is_status_lock func) then
+            lprintf out_h "%sif (i%d == %d) {\n" else_ p delay_p
+          else
+            lprintf out_h "%sif (i%d == %d && %s == MODULES_RUN) {\n" else_ p delay_p (get_status_name func name);
+          l := (p, delay_p) :: !l;
+        end
+        else begin
+          (** Delay is automtically set *)
+          i := !i mod p;
+          let else_ = if List.mem_assoc p !l && not (List.mem (p, !i) !l) then "else " else "" in
+          if (is_status_lock func) then
+            lprintf out_h "%sif (i%d == %d) {\n" else_ p !i
+          else
+            lprintf out_h "%sif (i%d == %d && %s == MODULES_RUN) {\n" else_ p !i (get_status_name func name);
+          l := (p, !i) :: !l;
+          let incr = p / ((List.length (List.filter (fun (_,p') -> compare p p' == 0) functions)) + 1) in
+          i := !i + incr;
+        end;
+        right ();
+        lprintf out_h "%s;\n" function_name;
+        left ();
+        lprintf out_h "}\n"
+      end;
+  ) functions;
   left ();
   lprintf out_h "}\n"
 

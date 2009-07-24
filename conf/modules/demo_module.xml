@@ -5,7 +5,7 @@
     <file name="demo_module.h"/>
   </header>
   <init fun="init_demo()"/>
-  <periodic fun="periodic_1Hz_demo()" period="1." start="start_demo()" stop="stop_demo()" autorun="TRUE"/>
+  <periodic fun="periodic_1Hz_demo()" freq="1." start="start_demo()" stop="stop_demo()" autorun="TRUE"/>
   <periodic fun="periodic_10Hz_demo()" period="0.1" start="start_demo()" stop="stop_demo()" autorun="FALSE"/>
   <makefile>
     <raw>
