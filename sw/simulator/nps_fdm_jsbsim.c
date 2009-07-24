@@ -95,9 +95,13 @@ static void fetch_state(void) {
   jsbsimvec_to_vec(&fdm.body_ecef_accel,&propagate->GetUVWdot());
   //jsbsimvec_to_vec(&noninertial_accel,&propagate->GetUVWdot());
 
+  /* attitude */
   jsbsimquat_to_quat(&fdm.ltp_to_body_quat,&VState->vQtrn);
+  /* convert to eulers */
+  DOUBLE_EULERS_OF_QUAT(fdm.ltp_to_body_eulers, fdm.ltp_to_body_quat);
   jsbsimvec_to_rate(&fdm.body_ecef_rotvel,&VState->vPQR);
   jsbsimvec_to_rate(&fdm.body_ecef_rotaccel,&propagate->GetPQRdot());
+  /* JSBSIM seems to call GetPQRdot body_ecef_rotaccel */
   // rate_to_vec(&dummy_vector,&fdm.body_ecef_rotvel);
   // DOUBLE_VECT3_CROSS_PRODUCT(fdm.body_ecef_accel,dummy_vector,fdm.body_ecef_vel);
   // DOUBLE_VECT3_SUM(fdm.body_ecef_accel,fdm.body_ecef_accel,noninertial_accel)
@@ -107,10 +111,14 @@ static void fetch_state(void) {
   struct NedCoor_f ned;
   ned_of_ecef_point_f(&ned, &ltpdef, &ecefpos_f);
   VECT3_COPY(fdm.ltpprz_pos,ned);
-  DOUBLE_EULERS_OF_QUAT(fdm.ltp_to_body_eulers, fdm.ltp_to_body_quat);
   //jsbsimloc_to_lla(&fdm.lla_pos, &VState->vLocation);
   test123(&fdm.lla_pos, propagate);
   
+
+  /* the "false" pprz lpt */
+  /* FIXME: use jsbsim lpt for now */
+  EULERS_COPY(fdm.ltpprz_to_body_eulers, fdm.ltp_to_body_eulers);
+  QUAT_COPY(fdm.ltpprz_to_body_quat, fdm.ltp_to_body_quat);
   
 }
 

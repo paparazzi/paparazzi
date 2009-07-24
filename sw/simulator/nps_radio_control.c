@@ -33,10 +33,10 @@ void nps_radio_control_run_script(double time) {
     //    nps_radio_control.throttle = 0.265;
     //    nps_radio_control.mode = MODE_SWITCH_MANUAL;
 
-    if (((int32_t)rint((time*1.)))%2)
-      nps_radio_control.roll = 0.1;
+    if (((int32_t)rint((time*0.5)))%2)
+      nps_radio_control.roll = 0.15;
     else
-      nps_radio_control.roll = -0.1;
+      nps_radio_control.roll = -0.15;
 
   }
 }

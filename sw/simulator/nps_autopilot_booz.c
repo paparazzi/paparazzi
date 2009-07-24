@@ -92,6 +92,9 @@ void nps_autopilot_run_step(double time __attribute__ ((unused))) {
 #include "math/pprz_algebra_int.h"
 #include "booz_ahrs.h"
 static void sim_overwrite_ahrs(void) {
+
+  //  printf("%f\n", fdm.ltpprz_to_body_eulers.phi);
+
   booz_ahrs.ltp_to_body_euler.phi   = ANGLE_BFP_OF_REAL(fdm.ltpprz_to_body_eulers.phi);
   booz_ahrs.ltp_to_body_euler.theta = ANGLE_BFP_OF_REAL(fdm.ltpprz_to_body_eulers.theta);
   booz_ahrs.ltp_to_body_euler.psi   = ANGLE_BFP_OF_REAL(fdm.ltpprz_to_body_eulers.psi);

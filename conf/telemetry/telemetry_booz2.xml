@@ -64,7 +64,7 @@
       <message name="DL_VALUE"                period="0.5"/>
       <message name="ALIVE"                   period="0.9"/>
       <message name="BOOZ2_STAB_ATTITUDE"     period=".03"/>
-      <message name="BOOZ2_STAB_ATTITUDE_REF" period=".2"/>
+      <message name="BOOZ2_STAB_ATTITUDE_REF" period=".03"/>
     </mode>
 
     <mode name="vert_loop">
