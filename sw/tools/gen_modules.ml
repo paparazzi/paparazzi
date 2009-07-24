@@ -227,6 +227,22 @@ let print_event_functions = fun modules ->
   left ();
   lprintf out_h "}\n"
 
+let print_datalink_functions = fun modules ->
+  lprintf out_h "\n#include \"messages.h\"\n";
+  lprintf out_h "static inline void modules_parse_datalink(uint8_t msg_id) {\n";
+  right ();
+  let else_ = ref "" in
+  List.iter (fun m ->
+    List.iter (fun i ->
+      match Xml.tag i with
+        "datalink" ->
+          lprintf out_h "%sif (msg_id == DL_%s) { %s; };\n" !else_ (ExtXml.attrib i "message") (ExtXml.attrib i "fun");
+          else_ := "else "
+      | _ -> ())
+    (Xml.children m))
+  modules;
+  left ();
+  lprintf out_h "}\n"
 
 let parse_modules modules out_c =
   print_headers modules;
@@ -237,7 +253,12 @@ let parse_modules modules out_c =
   print_periodic_functions modules;
   print_event_functions modules;
   nl ();
-  fprintf out_h "#endif // MODULES_C\n"
+  fprintf out_h "#endif // MODULES_C\n";
+  nl ();
+  fprintf out_h "#ifdef MODULES_DATALINK_C\n";
+  print_datalink_functions modules;
+  nl ();
+  fprintf out_h "#endif // MODULES_DATALINK_C\n"
 
 let get_modules = fun dir m ->
   match Xml.tag m with

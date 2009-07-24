@@ -1,12 +1,13 @@
 <!-- Paparazzi Modules DTD -->
 
-<!ELEMENT module (depend?,header,init?,periodic*,event*,makefile*)>
+<!ELEMENT module (depend?,header,init?,periodic*,event*,datalink*,makefile*)>
 <!ELEMENT depend EMPTY>
 <!ELEMENT header (file*)>
 <!ELEMENT init EMPTY>
 <!ELEMENT periodic EMPTY>
 <!ELEMENT event (handler*)>
 <!ELEMENT handler EMPTY>
+<!ELEMENT datalink EMPTY>
 <!ELEMENT makefile (flag|file|define|raw)*>
 <!ELEMENT flag EMPTY>
 <!ELEMENT file EMPTY>
@@ -38,6 +39,10 @@ autorun (TRUE|FALSE|LOCK) #IMPLIED >
 fun CDATA #REQUIRED>
 
 <!ATTLIST handler
+fun CDATA #REQUIRED>
+
+<!ATTLIST datalink
+message CDATA #REQUIRED
 fun CDATA #REQUIRED>
 
 <!ATTLIST makefile

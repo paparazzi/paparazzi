@@ -27,9 +27,15 @@
  */
 #define DATALINK_C
 
+#define MODULES_DATALINK_C
+
 #include <inttypes.h>
 #include <string.h>
 #include "datalink.h"
+
+#ifdef USE_MODULES
+#include "modules.h"
+#endif
 
 #ifdef TRAFFIC_INFO
 #include "traffic_info.h"
@@ -172,5 +178,10 @@ void dl_parse_msg(void) {
 			    DL_JOYSTICK_RAW_throttle(dl_buffer));
     } else
 #endif // USE_JOYSTICK
-  { /* Last else */ }
+  { /* Last else */
+#ifdef USE_MODULES
+    /* Parse modules datalink */
+    modules_parse_datalink(msg_id);
+#endif
+  }
 }
