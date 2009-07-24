@@ -8,6 +8,12 @@
 
 <airframe name="Funjet 1 Tiny 2.1">
 
+  <!--
+  <modules>
+    <load name="enose.xml"/>
+  </modules>
+  -->
+
 <!-- commands section -->
   <servos>
     <servo name="MOTOR"         no="0" min="1000" neutral="1000" max="2000"/>
@@ -262,8 +268,8 @@ ap.srcs += nav_survey_rectangle.c
 #ap.srcs += spi.c $(SRC_ARCH)/spi_hw.c $(SRC_ARCH)/baro_MS5534A.c
 
 ########## Chemo sensor (I2C)
-#ap.srcs += i2c.c arm7/i2c_hw.c enose.c chemo_detect.c
-#ap.CFLAGS += -DUSE_I2C -DENOSE
+#ap.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
+#ap.CFLAGS += -DUSE_I2C -DUSE_I2C0
 
 # Digital camera
 # Shutter: I2C SCL
@@ -271,6 +277,8 @@ ap.srcs += nav_survey_rectangle.c
 ap.CFLAGS += -DDIGITAL_CAM
 ap.srcs += dc.c
 
+#ap.CFLAGS += -DUSE_MODULES
+#sim.CFLAGS += -DUSE_MODULES
 
 # Config for SITL simulation
 include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
@@ -278,11 +286,12 @@ sim.CFLAGS += -DBOARD_CONFIG=\"tiny.h\" -DAGR_CLIMB -DLOITER_TRIM -DALT_KALMAN
 
 sim.srcs += nav_line.c nav_survey_rectangle.c
 # -DENOSE
+#sim.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
+#sim.CFLAGS += -DUSE_I2C -DUSE_I2C0
 # chemotaxis.c anemotaxis.c discsurvey.c $(SRC_ARCH)/sim_enose.c chemo_detect.c
 
 sim.CFLAGS += -DDIGITAL_CAM -DPOWER_SWITCH_LED=4
 sim.srcs += dc.c
-
 
 
 

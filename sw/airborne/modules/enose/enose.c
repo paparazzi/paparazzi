@@ -44,6 +44,13 @@ void enose_set_heat(uint8_t no_sensor, uint8_t value) {
 }
 
 
+#ifndef DOWNLINK_DEVICE
+#define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
+#endif
+#include "uart.h"
+#include "messages.h"
+#include "downlink.h"
+
 void enose_periodic( void ) {
   enose_PID_val = buf_PID.sum / buf_PID.av_nb_sample;
 
@@ -80,4 +87,5 @@ void enose_periodic( void ) {
       enose_status = ENOSE_IDLE;
     }
   }
+  DOWNLINK_SEND_ENOSE_STATUS(&enose_val[0], &enose_val[1], &enose_val[2], &enose_PID_val, 3, enose_heat);
 }

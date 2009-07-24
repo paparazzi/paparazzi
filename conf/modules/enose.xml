@@ -1,0 +1,21 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="enose">
+  <header>
+    <file name="enose.h"/>
+    <file name="chemo_detect.h"/>
+  </header>
+  <init fun="enose_init()"/>
+  <init fun="chemo_init()"/>
+  <periodic fun="enose_periodic()" freq="4." delay="4" autorun="TRUE"/>
+  <periodic fun="chemo_periodic()" freq="4." delay="4" autorun="TRUE"/>
+  <makefile target="ap">
+    <file name="enose.c"/>
+    <file name="chemo_detect.c"/>
+  </makefile>
+  <makefile target="sim">
+    <file name="$(SRC_ARCH)/sim_enose.c"/>
+    <file name="chemo_detect.c"/>
+  </makefile>
+</module>
+
