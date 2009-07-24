@@ -19,6 +19,9 @@ test_telemetry.CFLAGS += -I$(GLIB_INC)
 test_telemetry.LDFLAGS += -L$(GLIB_LIB) -lglib-2.0
 
 
+lpc_test_telemetry.ARCHDIR=
+
+
 
 
 ap.ARCHDIR = $(ARCHI)

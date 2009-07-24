@@ -93,7 +93,11 @@ sim.srcs += $(SRC_BOOZ)/ahrs/booz2_filter_attitude_cmpl_euler.c
 
 sim.srcs += $(SRC_BOOZ)/booz_stabilization.c
 sim.srcs += $(SRC_BOOZ)/stabilization/booz_stabilization_rate.c
-sim.srcs += $(SRC_BOOZ)/stabilization/booz_stabilization_attitude.c
+#sim.CFLAGS += -DSTABILISATION_ATTITUDE_TYPE_H=\"stabilization/booz_stabilization_attitude_euler.h\"
+#sim.srcs += $(SRC_BOOZ)/stabilization/booz_stabilization_attitude_euler.c
+sim.srcs += $(SRC_BOOZ)/stabilization/booz_stabilization_attitude_quat_float.c
+
+
 
 sim.srcs += $(SRC_BOOZ)/guidance/booz2_guidance_h.c
 sim.srcs += $(SRC_BOOZ)/guidance/booz2_guidance_v.c
