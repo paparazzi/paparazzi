@@ -1,9 +1,6 @@
 <!DOCTYPE flight_plan SYSTEM "flight_plan.dtd">
 
 <flight_plan alt="250" ground_alt="185" lat0="43.46223" lon0="1.27289" max_dist_from_home="400" name="formation flight" qfu="270" security_height="25">
-  <header>
-#include "formation.h"
-  </header>
   <waypoints>
     <waypoint name="HOME" x="0.0" y="0.0"/>
     <waypoint name="mid" x="72.9" y="133.0"/>

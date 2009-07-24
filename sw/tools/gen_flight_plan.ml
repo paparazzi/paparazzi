@@ -713,6 +713,9 @@ let () =
       printf "\n";
       
       printf "#include \"std.h\"\n";
+      printf "#ifdef USE_MODULES\n";
+      printf "#include \"modules.h\"\n";
+      printf "#endif\n";
 
       begin
 	try
