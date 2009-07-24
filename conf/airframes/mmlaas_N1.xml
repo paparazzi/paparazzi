@@ -2,6 +2,10 @@
 
 <airframe name="MiniMag Laas N1 Tiny 0.99">
 
+  <modules>
+    <load name="formation_flight.xml"/>
+  </modules>
+
 <!-- commands section -->
   <servos>
     <servo name="THROTTLE"   no="0" min="1200" neutral="1200" max="2000"/>
@@ -79,7 +83,7 @@
   </section>
 
   <section name="BAT">
-    <define name="MILLIAMP_PER_PERCENT" value="0.86"/>
+    <define name="MILLIAMP_AT_FULL_THROTTLE" value="8600"/>
     <define name="CATASTROPHIC_BAT_LEVEL" value="9.3" unit="V"/>
   </section>
  
@@ -189,7 +193,7 @@
   </section>
 
   <section name="SIMU">
-    <define name="YAW_RESPONSE_FACTOR" value="0.5"/>
+    <define name="YAW_RESPONSE_FACTOR" value="1."/>
   </section>
 
  <makefile>
@@ -231,9 +235,9 @@ ap.srcs += nav.c fw_h_ctl.c fw_v_ctl.c nav_survey_rectangle.c nav_line.c
 # ap.CFLAGS += -DUSE_GPIO
 # ap.srcs += $(SRC_ARCH)/gpio.c
 
-# formation
-ap.CFLAGS += -DFORMATION -DTRAFFIC_INFO
-ap.srcs += traffic_info.c formation.c snav.c
+# traffic
+ap.CFLAGS += -DTRAFFIC_INFO
+ap.srcs += traffic_info.c snav.c
 
 # external module
 ap.srcs += external.c
@@ -246,11 +250,14 @@ ap.srcs += tcas.c
 
 #ap.CFLAGS += -DHITL
 
+ap.CFLAGS += -DUSE_MODULES
+sim.CFLAGS += -DUSE_MODULES
+
 
 # Config for SITL simulation
 include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
-sim.CFLAGS += -DBOARD_CONFIG=\"tiny.h\" -DAGR_CLIMB -DLOITER_TRIM -DALT_KALMAN -DFORMATION -DTRAFFIC_INFO -DTCAS
-sim.srcs += nav_survey_rectangle.c nav_line.c external.c traffic_info.c formation.c snav.c tcas.c
+sim.CFLAGS += -DBOARD_CONFIG=\"tiny.h\" -DAGR_CLIMB -DLOITER_TRIM -DALT_KALMAN -DTRAFFIC_INFO -DTCAS
+sim.srcs += nav_survey_rectangle.c nav_line.c external.c traffic_info.c snav.c tcas.c
 
   </makefile>
 </airframe>

@@ -41,10 +41,6 @@
 #include "traffic_info.h"
 #endif // TRAFFIC_INFO
 
-#ifdef FORMATION
-#include "formation.h"
-#endif // FORMATION
-
 #ifdef USE_JOYSTICK
 #include "joystick.h"
 #endif
@@ -153,24 +149,6 @@ void dl_parse_msg(void) {
     DOWNLINK_SEND_DL_VALUE(&i, &val);
   } else
 #endif /** Else there is no dl_settings section in the flight plan */
-#ifdef FORMATION
-	if (msg_id == DL_FORMATION_SLOT) {
-    uint8_t ac_id = DL_FORMATION_SLOT_ac_id(dl_buffer);
-    uint8_t mode = DL_FORMATION_SLOT_mode(dl_buffer);
-    float slot_east = DL_FORMATION_SLOT_slot_east(dl_buffer);
-    float slot_north = DL_FORMATION_SLOT_slot_north(dl_buffer);
-    float slot_alt = DL_FORMATION_SLOT_slot_alt(dl_buffer);
-    UpdateSlot(ac_id, slot_east, slot_north, slot_alt);
-    if (ac_id == leader_id) form_mode = mode;
-  } else if (msg_id == DL_FORMATION_STATUS) {
-    uint8_t ac_id = DL_FORMATION_STATUS_ac_id(dl_buffer);
-    uint8_t leader = DL_FORMATION_STATUS_leader_id(dl_buffer);
-    uint8_t status = DL_FORMATION_STATUS_status(dl_buffer);
-    if (ac_id == AC_ID) leader_id = leader;
-    else if (leader == leader_id) { UpdateFormationStatus(ac_id,status); }
-    else { UpdateFormationStatus(ac_id,UNSET); }
-  } else
-#endif
 #ifdef USE_JOYSTICK
     if (msg_id == DL_JOYSTICK_RAW && DL_JOYSTICK_RAW_ac_id(dl_buffer) == AC_ID) {
       JoystickHandeDatalink(DL_JOYSTICK_RAW_roll(dl_buffer),

@@ -115,10 +115,6 @@
 #include "traffic_info.h"
 #endif
 
-#ifdef FORMATION
-#include "formation.h"
-#endif
-
 #ifdef TCAS
 #include "tcas.h"
 #endif
@@ -749,10 +745,6 @@ void init_ap( void ) {
 
 #ifdef TRAFFIC_INFO
   traffic_info_init();
-#endif
-
-#ifdef FORMATION
-  formation_init();
 #endif
 
 #ifdef TCAS
