@@ -1194,7 +1194,7 @@
       <field name="angle1"    type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.3"/>
     </message>
 
-    <message name="CONTROLLER_GAINS" id="191">
+    <message name="CONTROLLER_GAINS" id="192">
       <field name="roll_gamma_p"     type="float" />
       <field name="roll_gamma_d"     type="float" />
       <field name="roll_gamma_i"     type="float" />
