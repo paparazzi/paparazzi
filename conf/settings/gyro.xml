@@ -3,7 +3,7 @@
 <settings>
     <dl_settings NAME="control">
           <dl_settings name="rate">
-	      <dl_setting MAX="1" MIN="0" STEP="0.1" VAR="h_ctl_roll_rate_mode" shortname="mode"/>
+	      <dl_setting MAX="1" MIN="0" STEP="0.1" VAR="h_ctl_roll_rate_mode" shortname="mode" module="fw_h_ctl"/>
         <dl_setting MAX="5000" MIN="0" STEP="100" VAR="h_ctl_hi_throttle_roll_rate_pgain" shortname="lo&hi rates pgains" module="fw_h_ctl" handler="SetRollRatePGain"/>
         <dl_setting MAX="5000" MIN="0" STEP="100" VAR="h_ctl_hi_throttle_roll_rate_pgain" shortname="hi th pgain"/>
         <dl_setting MAX="5000" MIN="0" STEP="100" VAR="h_ctl_lo_throttle_roll_rate_pgain" shortname="lo th pgain"/>
