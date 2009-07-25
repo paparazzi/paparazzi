@@ -93,8 +93,10 @@ sim.srcs += $(SRC_BOOZ)/ahrs/booz2_filter_attitude_cmpl_euler.c
 
 sim.srcs += $(SRC_BOOZ)/booz_stabilization.c
 sim.srcs += $(SRC_BOOZ)/stabilization/booz_stabilization_rate.c
-#sim.CFLAGS += -DSTABILISATION_ATTITUDE_TYPE_H=\"stabilization/booz_stabilization_attitude_euler.h\"
+
+sim.CFLAGS += -DSTABILISATION_ATTITUDE_TYPE_H=\"stabilization/booz_stabilization_attitude_euler.h\"
 sim.srcs += $(SRC_BOOZ)/stabilization/booz_stabilization_attitude_euler.c
+
 #sim.srcs += $(SRC_BOOZ)/stabilization/booz_stabilization_attitude_quat_float.c
 
 
@@ -103,6 +105,7 @@ sim.srcs += $(SRC_BOOZ)/guidance/booz2_guidance_h.c
 sim.srcs += $(SRC_BOOZ)/guidance/booz2_guidance_v.c
 sim.srcs += math/pprz_geodetic_int.c
 sim.srcs += $(SRC_BOOZ)/booz2_ins.c
+
 #  vertical filter float version
 sim.srcs += $(SRC_BOOZ)/ins/booz2_vf_float.c
 sim.CFLAGS += -DUSE_VFF -DDT_VFILTER="(1./512.)"

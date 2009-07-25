@@ -100,18 +100,18 @@
     <!-- reference -->
     <define name="REF_OMEGA_P"  value="RadOfDeg(800)"/>
     <define name="REF_ZETA_P"   value="0.85"/>
-    <define name="REF_MAX_P"    value="BFP_OF_REAL(5,RATE_REF_RES)"/>
-    <define name="REF_MAX_PDOT" value="BFP_OF_REAL(128,ACCEL_REF_RES)"/>
+    <define name="REF_MAX_P"    value="RadOfDeg(300.)"/>
+    <define name="REF_MAX_PDOT" value="RadOfDeg(7000.)"/>
 
-    <define name="REF_OMEGA_Q" value="RadOfDeg(800)"/>
-    <define name="REF_ZETA_Q"  value="0.85"/>
-    <define name="REF_MAX_Q"    value="BFP_OF_REAL(5,RATE_REF_RES)"/>
-    <define name="REF_MAX_QDOT" value="BFP_OF_REAL(128,ACCEL_REF_RES)"/>
+    <define name="REF_OMEGA_Q"  value="RadOfDeg(800)"/>
+    <define name="REF_ZETA_Q"   value="0.85"/>
+    <define name="REF_MAX_Q"    value="RadOfDeg(300.)"/>
+    <define name="REF_MAX_QDOT" value="RadOfDeg(7000.)"/>
 
-    <define name="REF_OMEGA_R" value="RadOfDeg(500)"/>
-    <define name="REF_ZETA_R"  value="0.85"/>
-    <define name="REF_MAX_R"    value="BFP_OF_REAL(3,RATE_REF_RES)"/>
-    <define name="REF_MAX_RDOT" value="BFP_OF_REAL(32,ACCEL_REF_RES)"/>
+    <define name="REF_OMEGA_R"  value="RadOfDeg(500)"/>
+    <define name="REF_ZETA_R"   value="0.85"/>
+    <define name="REF_MAX_R"    value="RadOfDeg(180.)"/>
+    <define name="REF_MAX_RDOT" value="RadOfDeg(1800.)"/>
 
     <!-- feedback -->
     <define name="PHI_PGAIN"  value="-400"/>
@@ -130,8 +130,6 @@
     <define name="PHI_DDGAIN"   value=" 300"/>
     <define name="THETA_DDGAIN" value=" 300"/>
     <define name="PSI_DDGAIN"   value=" 300"/>
-
-
 
   </section>
 
