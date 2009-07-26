@@ -33,7 +33,7 @@
 #define RC_UPDATE_FREQ 40.
 #define ROLL_COEF  (-BOOZ_STABILIZATION_ATTITUDE_SP_MAX_PHI   / MAX_PPRZ)
 #define PITCH_COEF ( BOOZ_STABILIZATION_ATTITUDE_SP_MAX_THETA / MAX_PPRZ)
-#define YAW_COEF   (- BOOZ_STABILIZATION_ATTITUDE_SP_MAX_R    / MAX_PPRZ / RC_UPDATE_FREQ)
+#define YAW_COEF   (-BOOZ_STABILIZATION_ATTITUDE_SP_MAX_R     / MAX_PPRZ / RC_UPDATE_FREQ)
 
 #define YAW_DEADBAND_EXCEEDED()						\
   (radio_control.values[RADIO_CONTROL_YAW] >  BOOZ_STABILIZATION_ATTITUDE_DEADBAND_R || \
@@ -54,8 +54,8 @@
     }									\
 									\
     struct FloatRMat   sp_rmat;						\
-    /*    FLOAT_RMAT_OF_EULERS_312(sp_rmat, _sp); */			\
-    FLOAT_RMAT_OF_EULERS_321(sp_rmat, _sp);				\
+    FLOAT_RMAT_OF_EULERS_312(sp_rmat, _sp);				\
+    /* FLOAT_RMAT_OF_EULERS_321(sp_rmat, _sp);*/			\
     FLOAT_QUAT_OF_RMAT(booz_stab_att_sp_quat, sp_rmat);			\
     /*FLOAT_EULERS_OF_QUAT(sp_euler321, sp_quat);*/			\
   }

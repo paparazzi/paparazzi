@@ -236,7 +236,7 @@
       <z>0</z>
      </location>
      <direction>
-      <x>-1</x>
+      <x>1</x>
       <y>0</y>
       <z>0</z>
      </direction>
@@ -255,7 +255,7 @@
       <z>0</z>
      </location>
      <direction>
-      <x>1</x>
+      <x>-1</x>
       <y>0</y>
       <z>0</z>
      </direction>
@@ -276,7 +276,7 @@
       <z>0</z>
      </location>
      <direction>
-      <x>-1</x>
+      <x>1</x>
       <y>0</y>
       <z>0</z>
      </direction>
@@ -295,7 +295,7 @@
       <z>0</z>
      </location>
      <direction>
-      <x>1</x>
+      <x>-1</x>
       <y>0</y>
       <z>0</z>
      </direction>
@@ -317,7 +317,7 @@
      </location>
      <direction>
       <x>0</x>
-      <y>-1</y>
+      <y>1</y>
       <z>0</z>
      </direction>
     </force>
@@ -336,7 +336,7 @@
      </location>
      <direction>
       <x>0</x>
-      <y>1</y>
+      <y>-1</y>
       <z>0</z>
      </direction>
     </force>
@@ -357,7 +357,7 @@
      </location>
      <direction>
       <x>0</x>
-      <y>-1</y>
+      <y>1</y>
       <z>0</z>
      </direction>
     </force>
@@ -376,7 +376,7 @@
      </location>
      <direction>
       <x>0</x>
-      <y>1</y>
+      <y>-1</y>
       <z>0</z>
      </direction>
     </force>

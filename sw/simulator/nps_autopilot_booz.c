@@ -56,16 +56,15 @@ void nps_autopilot_run_step(double time __attribute__ ((unused))) {
   booz2_main_periodic();
 
   /* 25 */
-  if (time < 5) {
-    double hover = 0.25;
-    //double hover = 0.2493;
+  if (time < 8) {
+    //    double hover = 0.25;
+    double hover = 0.2493;
     //   double hover = 0.23;
     //  double hover = 0.;
     //  if (time > 20) hover = 0.25;
     double yaw = 0.000000;
     double pitch = 0.000;
     double roll  = 0.0000;
-
 
     autopilot.commands[SERVO_FRONT] = hover + yaw + pitch;
     autopilot.commands[SERVO_BACK]  = hover + yaw - pitch;
