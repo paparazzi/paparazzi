@@ -152,12 +152,14 @@ void booz2_guidance_h_run(bool_t  in_flight) {
   case BOOZ2_GUIDANCE_H_MODE_NAV:
     {
       if (horizontal_mode == HORIZONTAL_MODE_ATTITUDE) {
-        booz_stabilization_att_sp.phi = 0;
-        booz_stabilization_att_sp.theta = 0;
+        booz_stab_att_sp_euler.phi = 0;
+        booz_stab_att_sp_euler.theta = 0;
       }
       else {
         INT32_VECT2_NED_OF_ENU(booz2_guidance_h_pos_sp, booz2_navigation_carrot);
-        booz2_guidance_h_psi_sp = (nav_heading << (ANGLE_REF_RES - INT32_ANGLE_FRAC));
+#ifndef STABILISATION_ATTITUDE_TYPE_FLOAT
+        booz2_guidance_h_psi_sp = (nav_heading << (REF_ANGLE_FRAC - INT32_ANGLE_FRAC));
+#endif
         booz2_guidance_h_hover_run();
       }
       booz_stabilization_attitude_run(in_flight);
@@ -224,9 +226,11 @@ static inline void  booz2_guidance_h_hover_run(void) {
   booz2_guidance_h_command_body.phi   += booz2_guidance_h_rc_sp.phi;
   booz2_guidance_h_command_body.theta += booz2_guidance_h_rc_sp.theta;
   booz2_guidance_h_command_body.psi    = booz2_guidance_h_psi_sp + booz2_guidance_h_rc_sp.psi;
+#ifndef STABILISATION_ATTITUDE_TYPE_FLOAT
   ANGLE_REF_NORMALIZE(booz2_guidance_h_command_body.psi);
+#endif /* STABILISATION_ATTITUDE_TYPE_FLOAT */
 
-  EULERS_COPY(booz_stabilization_att_sp, booz2_guidance_h_command_body);
+  EULERS_COPY(booz_stab_att_sp_euler, booz2_guidance_h_command_body);
 
 }
 
@@ -250,7 +254,9 @@ static inline void booz2_guidance_h_nav_enter(void) {
   struct Int32Eulers tmp_sp;
   BOOZ_STABILIZATION_ATTITUDE_RESET_PSI_REF( tmp_sp );
   booz2_guidance_h_psi_sp = tmp_sp.psi;
-  nav_heading = (booz2_guidance_h_psi_sp >> (ANGLE_REF_RES - INT32_ANGLE_FRAC));
+#ifndef STABILISATION_ATTITUDE_TYPE_FLOAT
+  nav_heading = (booz2_guidance_h_psi_sp >> (REF_ANGLE_FRAC - INT32_ANGLE_FRAC));
+#endif /* STABILISATION_ATTITUDE_TYPE_FLOAT */
   booz2_guidance_h_rc_sp.psi = 0;
 
   INT_VECT2_ZERO(booz2_guidance_h_pos_err_sum);

@@ -29,12 +29,6 @@
 
 #include "airframe.h"
 
-struct Int32Eulers booz_stabilization_att_sp;
-
-struct Int32Eulers booz_stabilization_att_ref;
-struct Int32Vect3  booz_stabilization_rate_ref;
-struct Int32Vect3  booz_stabilization_accel_ref;
-
 struct Int32Vect3  booz_stabilization_pgain;
 struct Int32Vect3  booz_stabilization_dgain;
 struct Int32Vect3  booz_stabilization_ddgain;
@@ -44,17 +38,11 @@ struct Int32Eulers booz_stabilization_att_sum_err;
 int32_t booz_stabilization_att_fb_cmd[COMMANDS_NB];
 int32_t booz_stabilization_att_ff_cmd[COMMANDS_NB];
 
-static inline void booz_stabilization_update_ref(void);
-
-
 void booz_stabilization_attitude_init(void) {
 
-  INT_EULERS_ZERO(booz_stabilization_att_sp);
-
-  INT_EULERS_ZERO(booz_stabilization_att_ref);
-  INT_VECT3_ZERO(booz_stabilization_rate_ref);
-  INT_VECT3_ZERO(booz_stabilization_accel_ref);
-
+  booz_stabilization_attitude_ref_init();
+  
+ 
   VECT3_ASSIGN(booz_stabilization_pgain,
 	       BOOZ_STABILIZATION_ATTITUDE_PHI_PGAIN,
 	       BOOZ_STABILIZATION_ATTITUDE_THETA_PGAIN,
@@ -83,14 +71,14 @@ void booz_stabilization_attitude_init(void) {
 
 void booz_stabilization_attitude_read_rc(bool_t in_flight) {
 
-  BOOZ_STABILIZATION_ATTITUDE_READ_RC(booz_stabilization_att_sp, in_flight);
+  BOOZ_STABILIZATION_ATTITUDE_READ_RC(booz_stab_att_sp_euler, in_flight);
 
 }
 
 
 void booz_stabilization_attitude_enter(void) {
 
-  BOOZ_STABILIZATION_ATTITUDE_RESET_PSI_REF(  booz_stabilization_att_sp );
+  BOOZ_STABILIZATION_ATTITUDE_RESET_PSI_REF(  booz_stab_att_sp_euler );
   INT_EULERS_ZERO( booz_stabilization_att_sum_err );
   
 }
@@ -103,13 +91,24 @@ void booz_stabilization_attitude_enter(void) {
 
 void booz_stabilization_attitude_run(bool_t  in_flight) {
 
-  booz_stabilization_update_ref();
 
-  /* compute attitude error            */
+  /* update reference */
+  booz_stabilization_attitude_ref_update();
+
+  /* compute feedforward command */
+  booz_stabilization_att_ff_cmd[COMMAND_ROLL] = 
+    OFFSET_AND_ROUND(booz_stabilization_ddgain.x * booz_stab_att_ref_accel.p, 5);
+  booz_stabilization_att_ff_cmd[COMMAND_PITCH] = 
+    OFFSET_AND_ROUND(booz_stabilization_ddgain.y * booz_stab_att_ref_accel.q, 5);
+  booz_stabilization_att_ff_cmd[COMMAND_YAW] = 
+    OFFSET_AND_ROUND(booz_stabilization_ddgain.z * booz_stab_att_ref_accel.r, 5);
+
+  /* compute feedback command */
+  /* attitude error            */
   const struct Int32Eulers att_ref_scaled = {
-    OFFSET_AND_ROUND(booz_stabilization_att_ref.phi,   (ANGLE_REF_RES - INT32_ANGLE_FRAC)),
-    OFFSET_AND_ROUND(booz_stabilization_att_ref.theta, (ANGLE_REF_RES - INT32_ANGLE_FRAC)),
-    OFFSET_AND_ROUND(booz_stabilization_att_ref.psi,   (ANGLE_REF_RES - INT32_ANGLE_FRAC)) };
+    OFFSET_AND_ROUND(booz_stab_att_ref_euler.phi,   (REF_ANGLE_FRAC - INT32_ANGLE_FRAC)),
+    OFFSET_AND_ROUND(booz_stab_att_ref_euler.theta, (REF_ANGLE_FRAC - INT32_ANGLE_FRAC)),
+    OFFSET_AND_ROUND(booz_stab_att_ref_euler.psi,   (REF_ANGLE_FRAC - INT32_ANGLE_FRAC)) };
   struct Int32Eulers att_err;
   EULERS_DIFF(att_err, booz_ahrs.ltp_to_body_euler, att_ref_scaled);
   INT32_ANGLE_NORMALIZE(att_err.psi);
@@ -123,82 +122,40 @@ void booz_stabilization_attitude_run(bool_t  in_flight) {
     INT_EULERS_ZERO(booz_stabilization_att_sum_err);
   }
   
-  /* compute rate error                */
+  /* rate error                */
   const struct Int32Rates rate_ref_scaled = {
-    OFFSET_AND_ROUND(booz_stabilization_rate_ref.x, (RATE_REF_RES - INT32_RATE_FRAC)),
-    OFFSET_AND_ROUND(booz_stabilization_rate_ref.y, (RATE_REF_RES - INT32_RATE_FRAC)),
-    OFFSET_AND_ROUND(booz_stabilization_rate_ref.z, (RATE_REF_RES - INT32_RATE_FRAC)) };
+    OFFSET_AND_ROUND(booz_stab_att_ref_rate.p, (REF_RATE_FRAC - INT32_RATE_FRAC)),
+    OFFSET_AND_ROUND(booz_stab_att_ref_rate.q, (REF_RATE_FRAC - INT32_RATE_FRAC)),
+    OFFSET_AND_ROUND(booz_stab_att_ref_rate.r, (REF_RATE_FRAC - INT32_RATE_FRAC)) };
   struct Int32Rates rate_err;
   RATES_DIFF(rate_err, booz_ahrs.body_rate, rate_ref_scaled);
 
-  /* compute PID loop                  */
-
+  /* PID                  */
   booz_stabilization_att_fb_cmd[COMMAND_ROLL] = 
     booz_stabilization_pgain.x    * att_err.phi +
     booz_stabilization_dgain.x    * rate_err.p +
     OFFSET_AND_ROUND2((booz_stabilization_igain.x  * booz_stabilization_att_sum_err.phi), 10);
 
-  booz_stabilization_att_ff_cmd[COMMAND_ROLL] = 
-    OFFSET_AND_ROUND(booz_stabilization_ddgain.x * booz_stabilization_accel_ref.x, 5);
-    
-  booz_stabilization_cmd[COMMAND_ROLL] = 
-    OFFSET_AND_ROUND((booz_stabilization_att_fb_cmd[COMMAND_ROLL]+booz_stabilization_att_ff_cmd[COMMAND_ROLL]), 16);
-
   booz_stabilization_att_fb_cmd[COMMAND_PITCH] = 
     booz_stabilization_pgain.y    * att_err.theta +
     booz_stabilization_dgain.y    * rate_err.q +
-    ((booz_stabilization_igain.y  * booz_stabilization_att_sum_err.theta) >> 10);
-  booz_stabilization_cmd[COMMAND_PITCH] = booz_stabilization_att_fb_cmd[COMMAND_PITCH] +
-    ((booz_stabilization_ddgain.y * booz_stabilization_accel_ref.y) >> 5);
-  booz_stabilization_cmd[COMMAND_PITCH] = booz_stabilization_cmd[COMMAND_PITCH] >> 16;
-  
+    OFFSET_AND_ROUND2((booz_stabilization_igain.y  * booz_stabilization_att_sum_err.theta), 10);
+
   booz_stabilization_att_fb_cmd[COMMAND_YAW] = 
     booz_stabilization_pgain.z    * att_err.psi +
     booz_stabilization_dgain.z    * rate_err.r +
-    ((booz_stabilization_igain.z  * booz_stabilization_att_sum_err.psi) >> 10);
-  booz_stabilization_cmd[COMMAND_YAW] = booz_stabilization_att_fb_cmd[COMMAND_YAW] +
-    ((booz_stabilization_ddgain.z * booz_stabilization_accel_ref.z) >> 5);
-  booz_stabilization_cmd[COMMAND_YAW] = booz_stabilization_cmd[COMMAND_YAW] >> 16;
+    OFFSET_AND_ROUND2((booz_stabilization_igain.z  * booz_stabilization_att_sum_err.psi), 10);
+    
+  /* sum feedforward and feedback */
+  booz_stabilization_cmd[COMMAND_ROLL] = 
+    OFFSET_AND_ROUND((booz_stabilization_att_fb_cmd[COMMAND_ROLL]+booz_stabilization_att_ff_cmd[COMMAND_ROLL]), 16);
   
-}
-
-
-/* 
-
-  generation of a saturated linear second order reference trajectory
-
-  roll/pitch
-  omega : 1100 deg s-1
-  zeta : 0.85
-  max rotational accel : 128 rad.s-2  ( ~7300 deg s-2 )
-  max rotational speed :   8 rad/s    ( ~ 458 deg s-1 )
-
-  yaw
-  omega : 500 deg s-1
-  zeta : 0.85
-  max rotational accel : 32 rad.s-2  ( ~1833 deg s-2 )
-  max rotational speed :  4 rad/s    ( ~ 230 deg s-1 )
-
-  representation
-  accel : 20.12
-  speed : 16.16 
-  angle : 12.20
-
-*/
-
-#define USE_REF 1
-
-static inline void booz_stabilization_update_ref(void) {
-
-#ifdef USE_REF
-  BOOZ_STABILIZATION_ATTITUDE_REF_TRAJ_EULER_UPDATE();
-#else
-  EULERS_COPY(booz_stabilization_att_ref, booz_stabilization_att_sp);
-  INT_VECT3_ZERO(booz_stabilization_rate_ref);
-  INT_VECT3_ZERO(booz_stabilization_accel_ref);
-#endif
-
-
+  booz_stabilization_cmd[COMMAND_PITCH] = 
+    OFFSET_AND_ROUND((booz_stabilization_att_fb_cmd[COMMAND_PITCH]+booz_stabilization_att_ff_cmd[COMMAND_PITCH]), 16);
+  
+  booz_stabilization_cmd[COMMAND_YAW] = 
+    OFFSET_AND_ROUND((booz_stabilization_att_fb_cmd[COMMAND_YAW]+booz_stabilization_att_ff_cmd[COMMAND_YAW]), 16);
+  
 }
 
 

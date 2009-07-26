@@ -215,6 +215,13 @@
   }
 
 
+/* _vo =  _vi * _s */
+#define EULERS_SMUL(_eo, _ei, _s) {				\
+    (_eo).phi   =  (_ei).phi   * (_s);				\
+    (_eo).theta =  (_ei).theta * (_s);				\
+    (_eo).psi   =  (_ei).psi   * (_s);				\
+  }
+
 /* _vo =  _vi / _s */
 #define EULERS_SDIV(_eo, _ei, _s) {				\
     (_eo).phi   =  (_ei).phi   / (_s);				\
@@ -295,6 +302,21 @@
     c.q = (a.q * b.q) >> (_s);						\
     c.r = (a.r * b.r) >> (_s);						\
   }
+
+
+/* _v = Bound(_v, _min, _max) */
+#define RATES_BOUND_CUBE(_v, _min, _max) {				\
+    (_v).p = (_v).p < _min ? _min : (_v).p > _max ? _max : (_v).p;	\
+    (_v).q = (_v).q < _min ? _min : (_v).q > _max ? _max : (_v).q;	\
+    (_v).r = (_v).r < _min ? _min : (_v).r > _max ? _max : (_v).r;	\
+  }
+
+#define RATES_BOUND_BOX(_v, _v_min, _v_max) {				\
+    if ((_v).p > (_v_max.p)) (_v).p = (_v_max.p); else if ((_v).p < (_v_min.p)) (_v).p = (_v_min.p); \
+    if ((_v).q > (_v_max.q)) (_v).q = (_v_max.q); else if ((_v).q < (_v_min.q)) (_v).q = (_v_min.q); \
+    if ((_v).r > (_v_max.r)) (_v).r = (_v_max.r); else if ((_v).r < (_v_min.r)) (_v).r = (_v_min.r); \
+  }
+
 
 
 /*
@@ -476,16 +498,16 @@
     (_qi).qz = QUAT1_BFP_OF_REAL((_qf).qz);		\
   }
 
-#define RATES_FLOAT_OF_BFP(_ef, _ei) {			\
-    (_ef).phi   = RATE_FLOAT_OF_BFP((_ei).phi);		\
-    (_ef).theta = RATE_FLOAT_OF_BFP((_ei).theta);	\
-    (_ef).psi   = RATE_FLOAT_OF_BFP((_ei).psi);		\
+#define RATES_FLOAT_OF_BFP(_rf, _ri) {			\
+    (_rf).p = RATE_FLOAT_OF_BFP((_ri).p);		\
+    (_rf).q = RATE_FLOAT_OF_BFP((_ri).q);	\
+    (_rf).r = RATE_FLOAT_OF_BFP((_ri).r);		\
   }
 
-#define RATES_BFP_OF_REAL(_ei, _ef) {			\
-    (_ei).phi   = RATE_BFP_OF_REAL((_ef).phi);		\
-    (_ei).theta = RATE_BFP_OF_REAL((_ef).theta);	\
-    (_ei).psi   = RATE_BFP_OF_REAL((_ef).psi);		\
+#define RATES_BFP_OF_REAL(_ri, _rf) {			\
+    (_ri).p = RATE_BFP_OF_REAL((_rf).p);		\
+    (_ri).q = RATE_BFP_OF_REAL((_rf).q);	\
+    (_ri).r = RATE_BFP_OF_REAL((_rf).r);		\
   }
 
 

@@ -92,9 +92,9 @@
   <section name="STABILIZATION_ATTITUDE" prefix="BOOZ_STABILIZATION_ATTITUDE_">
 
     <!-- setpoints -->
-    <define name="SP_MAX_PHI"     value="3000"/>
-    <define name="SP_MAX_THETA"   value="3000"/>
-    <define name="SP_MAX_R"       value="5500"/>
+    <define name="SP_MAX_PHI"     value="RadOfDeg(45.)"/>
+    <define name="SP_MAX_THETA"   value="RadOfDeg(45.)"/>
+    <define name="SP_MAX_R"       value="RadOfDeg(90.)"/>
     <define name="DEADBAND_R"     value="250"/>
 
     <!-- reference -->
@@ -198,8 +198,6 @@ include $(PAPARAZZI_SRC)/conf/autopilot/booz2_common.makefile
 include $(CFG_BOOZ)/booz2_autopilot.makefile
 include $(CFG_BOOZ)/booz2_test_progs.makefile
 
-sim.CFLAGS += -DBSM_PARAMS=\"booz_sensors_model_params_booz2_a1.h\"
-#include $(CFG_BOOZ)/booz2_simulator.makefile
 include $(CFG_BOOZ)/booz2_simulator_nps.makefile
 
 ap.CFLAGS += -DMODEM_BAUD=B57600

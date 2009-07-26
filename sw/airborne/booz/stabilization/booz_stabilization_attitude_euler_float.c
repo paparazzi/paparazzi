@@ -1,5 +1,5 @@
 /*
- * $Id: booz_stabilization_attitude_euler.c 3787 2009-07-24 15:33:54Z poine $
+ * $Id: booz_stabilization_attitude_euler.c 3795 2009-07-24 23:43:02Z poine $
  *  
  * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
  *
@@ -88,15 +88,9 @@ void booz_stabilization_attitude_enter(void) {
 
 void booz_stabilization_attitude_run(bool_t  in_flight) {
 
-  /* 
-   * Update reference
-   */
   booz_stabilization_attitude_ref_update();
 
-  /* 
-   * Compute feedforward
-   */
-  /* FIXME : I don't understand the /32 - should be /256 */
+  /* Compute feedforward */
   booz_stabilization_att_ff_cmd[COMMAND_ROLL] = 
     booz_stabilization_ddgain.x * booz_stab_att_ref_accel.p / 32.;
   booz_stabilization_att_ff_cmd[COMMAND_PITCH] = 
@@ -104,25 +98,20 @@ void booz_stabilization_attitude_run(bool_t  in_flight) {
   booz_stabilization_att_ff_cmd[COMMAND_YAW] = 
     booz_stabilization_ddgain.z * booz_stab_att_ref_accel.r / 32.;
 
-  /*
-   * Compute feedback                        
-   */
-
-  /* attitude error                          */
-  struct FloatQuat att_quat_float;
-  QUAT_FLOAT_OF_BFP(att_quat_float, booz_ahrs.ltp_to_body_quat);
-  struct FloatQuat att_err; 
-  FLOAT_QUAT_INV_COMP(att_err, att_quat_float, booz_stab_att_ref_quat);
-  /* wrap it in the shortest direction       */
-  FLOAT_QUAT_WRAP_SHORTEST(att_err);  
+  /* Compute feedback                  */
+  /* attitude error            */
+  struct FloatEulers att_float;
+  EULERS_FLOAT_OF_BFP(att_float, booz_ahrs.ltp_to_body_euler);
+  struct FloatEulers att_err;
+  EULERS_DIFF(att_err, att_float, booz_stab_att_ref_euler);
+  FLOAT_ANGLE_NORMALIZE(att_err.psi);
 
   if (in_flight) {
-    /* update accumulator */
-    //    EULERS_ADD(booz_stabilization_att_sum_err, err);
+    /* update integrator */
+    EULERS_ADD(booz_stabilization_att_sum_err, att_err);
     EULERS_BOUND_CUBE(booz_stabilization_att_sum_err, -MAX_SUM_ERR, MAX_SUM_ERR);
   }
   else {
-    /* reset accumulator */
     FLOAT_EULERS_ZERO(booz_stabilization_att_sum_err);
   }
   
@@ -135,17 +124,17 @@ void booz_stabilization_attitude_run(bool_t  in_flight) {
   /*  PID                  */
 
   booz_stabilization_att_fb_cmd[COMMAND_ROLL] = 
-    -2. * booz_stabilization_pgain.x  * att_err.qx +
+    booz_stabilization_pgain.x  * att_err.phi +
     booz_stabilization_dgain.x  * rate_err.p +
     booz_stabilization_igain.x  * booz_stabilization_att_sum_err.phi / 1024.;
 
   booz_stabilization_att_fb_cmd[COMMAND_PITCH] = 
-    -2. * booz_stabilization_pgain.y  * att_err.qy +
+    booz_stabilization_pgain.y  * att_err.theta +
     booz_stabilization_dgain.y  * rate_err.q +
     booz_stabilization_igain.y  * booz_stabilization_att_sum_err.theta / 1024.;
 
   booz_stabilization_att_fb_cmd[COMMAND_YAW] = 
-    -2. * booz_stabilization_pgain.z  * att_err.qz +
+    booz_stabilization_pgain.z  * att_err.psi +
     booz_stabilization_dgain.z  * rate_err.r +
     booz_stabilization_igain.z  * booz_stabilization_att_sum_err.psi / 1024.;
 
@@ -158,6 +147,5 @@ void booz_stabilization_attitude_run(bool_t  in_flight) {
     (booz_stabilization_att_fb_cmd[COMMAND_YAW]+booz_stabilization_att_ff_cmd[COMMAND_YAW])/16.;
     
 }
-
 
 

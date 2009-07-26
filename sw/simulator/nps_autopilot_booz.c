@@ -55,7 +55,7 @@ void nps_autopilot_run_step(double time __attribute__ ((unused))) {
 
   booz2_main_periodic();
 
-
+  /* 25 */
   if (time < 5) {
     double hover = 0.25;
     //double hover = 0.2493;

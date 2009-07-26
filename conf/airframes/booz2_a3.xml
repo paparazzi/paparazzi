@@ -1,4 +1,4 @@
-<airframe name="BOOZ2_A2">
+<airframe name="BOOZ2_A3">
 
   <servos min="0" neutral="0" max="0xff">
     <servo name="PITCH"  no="0" min="0" neutral="0" max="255"/>
@@ -72,20 +72,45 @@
 
   <section name="STABILIZATION_ATTITUDE" prefix="BOOZ_STABILIZATION_ATTITUDE_">
 
-    <define name="SP_MAX_PHI"     value="3000"/>
-    <define name="SP_MAX_THETA"   value="3000"/>
-    <define name="SP_MAX_R"       value="5500"/>
+   <!-- setpoints -->
+    <define name="SP_MAX_PHI"     value="RadOfDeg(45.)"/>
+    <define name="SP_MAX_THETA"   value="RadOfDeg(45.)"/>
+    <define name="SP_MAX_R"       value="RadOfDeg(90.)"/>
     <define name="DEADBAND_R"     value="250"/>
 
-    <define name="PHI_THETA_PGAIN"  value="-375"/>
-    <define name="PHI_THETA_DGAIN"  value="-250"/>
-    <define name="PHI_THETA_DDGAIN" value=" 300"/>
-    <define name="PHI_THETA_IGAIN"  value="-50"/>
+    <!-- reference -->
+    <define name="REF_OMEGA_P"  value="RadOfDeg(800)"/>
+    <define name="REF_ZETA_P"   value="0.85"/>
+    <define name="REF_MAX_P"    value="RadOfDeg(300.)"/>
+    <define name="REF_MAX_PDOT" value="RadOfDeg(7000.)"/>
+
+    <define name="REF_OMEGA_Q"  value="RadOfDeg(800)"/>
+    <define name="REF_ZETA_Q"   value="0.85"/>
+    <define name="REF_MAX_Q"    value="RadOfDeg(300.)"/>
+    <define name="REF_MAX_QDOT" value="RadOfDeg(7000.)"/>
+
+    <define name="REF_OMEGA_R"  value="RadOfDeg(500)"/>
+    <define name="REF_ZETA_R"   value="0.85"/>
+    <define name="REF_MAX_R"    value="RadOfDeg(180.)"/>
+    <define name="REF_MAX_RDOT" value="RadOfDeg(1800.)"/>
+
+    <!-- feedback -->
+    <define name="PHI_PGAIN"  value="-375"/>
+    <define name="PHI_DGAIN"  value="-250"/>
+    <define name="PHI_IGAIN"  value="-50"/>
+
+    <define name="THETA_PGAIN"  value="-375"/>
+    <define name="THETA_DGAIN"  value="-250"/>
+    <define name="THETA_IGAIN"  value="-50"/>
 
     <define name="PSI_PGAIN"  value="-300"/>
     <define name="PSI_DGAIN"  value="-130"/>
-    <define name="PSI_DDGAIN" value=" 300"/>
     <define name="PSI_IGAIN"  value="-50"/>
+
+    <!-- feedforward -->
+    <define name="PHI_DDGAIN"   value=" 300"/>
+    <define name="THETA_DDGAIN" value=" 300"/>
+    <define name="PSI_DDGAIN"   value=" 300"/>
 
   </section>
 
@@ -146,16 +171,17 @@ BOARD_CFG = \"booz2_board_v1_0.h\"
 #ap.CFLAGS += -DKILL_MOTORS
 
 include $(PAPARAZZI_SRC)/conf/autopilot/booz2_common.makefile
-include $(PAPARAZZI_SRC)/conf/autopilot/booz2_autopilot.makefile
-include $(PAPARAZZI_SRC)/conf/autopilot/booz2_test_progs.makefile
+include $(CFG_BOOZ)/booz2_autopilot.makefile
+include $(CFG_BOOZ)/booz2_test_progs.makefile
 
-sim.CFLAGS += -DBSM_PARAMS=\"booz_sensors_model_params_booz2_a2.h\"
-include $(PAPARAZZI_SRC)/conf/autopilot/booz2_simulator.makefile
+include $(CFG_BOOZ)/booz2_simulator_nps.makefile
 
 ap.CFLAGS += -DMODEM_BAUD=B57600
-include $(PAPARAZZI_SRC)/conf/autopilot/booz2_actuators_asctec.makefile
-include $(PAPARAZZI_SRC)/conf/autopilot/booz2_radio_control_spektrum.makefile
-include $(PAPARAZZI_SRC)/conf/autopilot/booz2_imu_b2v1_1.makefile
+ap.CFLAGS += -DMODEM_BAUD=B57600
+include $(CFG_BOOZ)/subsystems/booz2_radio_control_spektrum.makefile
+include $(CFG_BOOZ)/subsystems/booz2_actuators_asctec.makefile
+include $(CFG_BOOZ)/subsystems/booz2_imu_b2v1.makefile
+# NO GPS, uses spektrum
 
   </makefile>
 

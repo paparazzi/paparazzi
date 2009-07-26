@@ -67,6 +67,12 @@ struct FloatRates {
   float r;
 };
 
+#define FLOAT_ANGLE_NORMALIZE(_a) {				\
+    while (_a >  M_PI) _a -= (2.*M_PI);				\
+    while (_a < -M_PI) _a += (2.*M_PI);				\
+  }
+
+
 
 #define FLOAT_VECT3_ZERO(_v) VECT3_ASSIGN(_v, 0., 0., 0.)	\
     

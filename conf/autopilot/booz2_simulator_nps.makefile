@@ -94,10 +94,25 @@ sim.srcs += $(SRC_BOOZ)/ahrs/booz2_filter_attitude_cmpl_euler.c
 sim.srcs += $(SRC_BOOZ)/booz_stabilization.c
 sim.srcs += $(SRC_BOOZ)/stabilization/booz_stabilization_rate.c
 
-sim.CFLAGS += -DSTABILISATION_ATTITUDE_TYPE_H=\"stabilization/booz_stabilization_attitude_euler.h\"
-sim.srcs += $(SRC_BOOZ)/stabilization/booz_stabilization_attitude_euler.c
+#sim.CFLAGS += -DSTABILISATION_ATTITUDE_TYPE_INT
+#sim.CFLAGS += -DSTABILISATION_ATTITUDE_H=\"stabilization/booz_stabilization_attitude_int.h\"
+#sim.CFLAGS += -DSTABILISATION_ATTITUDE_REF_H=\"stabilization/booz_stabilization_attitude_ref_euler_int.h\"
+#sim.srcs += $(SRC_BOOZ)/stabilization/booz_stabilization_attitude_ref_euler_int.c
+#sim.srcs += $(SRC_BOOZ)/stabilization/booz_stabilization_attitude_euler_int.c
 
-#sim.srcs += $(SRC_BOOZ)/stabilization/booz_stabilization_attitude_quat_float.c
+
+#sim.CFLAGS += -DSTABILISATION_ATTITUDE_TYPE_FLOAT
+#sim.CFLAGS += -DSTABILISATION_ATTITUDE_H=\"stabilization/booz_stabilization_attitude_float.h\"
+#sim.CFLAGS += -DSTABILISATION_ATTITUDE_REF_H=\"stabilization/booz_stabilization_attitude_ref_euler_float.h\"
+#sim.srcs += $(SRC_BOOZ)/stabilization/booz_stabilization_attitude_ref_euler_float.c
+#sim.srcs += $(SRC_BOOZ)/stabilization/booz_stabilization_attitude_euler_float.c
+
+sim.CFLAGS += -DSTABILISATION_ATTITUDE_TYPE_FLOAT
+sim.CFLAGS += -DSTABILISATION_ATTITUDE_H=\"stabilization/booz_stabilization_attitude_float.h\"
+sim.CFLAGS += -DSTABILISATION_ATTITUDE_REF_H=\"stabilization/booz_stabilization_attitude_ref_quat_float.h\"
+sim.srcs += $(SRC_BOOZ)/stabilization/booz_stabilization_attitude_ref_quat_float.c
+sim.srcs += $(SRC_BOOZ)/stabilization/booz_stabilization_attitude_quat_float.c
+
 
 
 

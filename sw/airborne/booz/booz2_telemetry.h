@@ -158,65 +158,89 @@
 				  &booz_stabilization_cmd[COMMAND_THRUST]); \
   }
 
-
+#ifdef STABILISATION_ATTITUDE_TYPE_INT
 #define PERIODIC_SEND_BOOZ2_STAB_ATTITUDE() {				\
-    DOWNLINK_SEND_BOOZ2_STAB_ATTITUDE(&booz_ahrs.body_rate.p,		\
-				      &booz_ahrs.body_rate.q,		\
-				      &booz_ahrs.body_rate.r,		\
-				      &booz_ahrs.ltp_to_body_euler.phi,	\
-				      &booz_ahrs.ltp_to_body_euler.theta, \
-				      &booz_ahrs.ltp_to_body_euler.psi,	\
-                                      &booz_stabilization_att_sp.phi,	\
-				      &booz_stabilization_att_sp.theta,	\
-				      &booz_stabilization_att_sp.psi,	\
-				      &booz_stabilization_att_sum_err.phi, \
-				      &booz_stabilization_att_sum_err.theta, \
-				      &booz_stabilization_att_sum_err.psi, \
-				      &booz_stabilization_att_fb_cmd[COMMAND_ROLL], \
-				      &booz_stabilization_att_fb_cmd[COMMAND_PITCH], \
-				      &booz_stabilization_att_fb_cmd[COMMAND_YAW], \
-				      &booz_stabilization_att_ff_cmd[COMMAND_ROLL], \
-				      &booz_stabilization_att_ff_cmd[COMMAND_PITCH], \
-				      &booz_stabilization_att_ff_cmd[COMMAND_YAW], \
-				      &booz_stabilization_cmd[COMMAND_ROLL], \
-				      &booz_stabilization_cmd[COMMAND_PITCH], \
-				      &booz_stabilization_cmd[COMMAND_YAW]); \
+    DOWNLINK_SEND_BOOZ2_STAB_ATTITUDE_INT(&booz_ahrs.body_rate.p,	\
+					  &booz_ahrs.body_rate.q,	\
+					  &booz_ahrs.body_rate.r,	\
+					  &booz_ahrs.ltp_to_body_euler.phi, \
+					  &booz_ahrs.ltp_to_body_euler.theta, \
+					  &booz_ahrs.ltp_to_body_euler.psi, \
+					  &booz_stab_att_sp_euler.phi, \
+					  &booz_stab_att_sp_euler.theta, \
+					  &booz_stab_att_sp_euler.psi, \
+					  &booz_stabilization_att_sum_err.phi, \
+					  &booz_stabilization_att_sum_err.theta, \
+					  &booz_stabilization_att_sum_err.psi, \
+					  &booz_stabilization_att_fb_cmd[COMMAND_ROLL], \
+					  &booz_stabilization_att_fb_cmd[COMMAND_PITCH], \
+					  &booz_stabilization_att_fb_cmd[COMMAND_YAW], \
+					  &booz_stabilization_att_ff_cmd[COMMAND_ROLL], \
+					  &booz_stabilization_att_ff_cmd[COMMAND_PITCH], \
+					  &booz_stabilization_att_ff_cmd[COMMAND_YAW], \
+					  &booz_stabilization_cmd[COMMAND_ROLL], \
+					  &booz_stabilization_cmd[COMMAND_PITCH], \
+					  &booz_stabilization_cmd[COMMAND_YAW]); \
   }
 
 
-#define PERIODIC_SEND_BOOZ2_STAB_ATTITUDE_REF() {			     \
-    DOWNLINK_SEND_BOOZ2_STAB_ATTITUDE_REF(&booz_stabilization_accel_ref.x,   \
-					  &booz_stabilization_accel_ref.y,   \
-					  &booz_stabilization_accel_ref.z,   \
-					  &booz_stabilization_rate_ref.x,    \
-					  &booz_stabilization_rate_ref.y,    \
-					  &booz_stabilization_rate_ref.z,    \
-					  &booz_stabilization_att_ref.phi,   \
-					  &booz_stabilization_att_ref.theta, \
-					  &booz_stabilization_att_ref.psi ); \
+#define PERIODIC_SEND_BOOZ2_STAB_ATTITUDE_REF() {			\
+    DOWNLINK_SEND_BOOZ2_STAB_ATTITUDE_REF_INT(&booz_stab_att_sp_euler.phi, \
+					      &booz_stab_att_sp_euler.theta, \
+					      &booz_stab_att_sp_euler.psi, \
+					      &booz_stab_att_ref_euler.phi, \
+					      &booz_stab_att_ref_euler.theta, \
+					      &booz_stab_att_ref_euler.psi, \
+					      &booz_stab_att_ref_rate.p, \
+					      &booz_stab_att_ref_rate.q, \
+					      &booz_stab_att_ref_rate.r, \
+					      &booz_stab_att_ref_accel.p, \
+					      &booz_stab_att_ref_accel.q, \
+					      &booz_stab_att_ref_accel.r); \
+  }
+#endif /* STABILISATION_ATTITUDE_TYPE_INT */
+
+#ifdef STABILISATION_ATTITUDE_TYPE_FLOAT
+#define PERIODIC_SEND_BOOZ2_STAB_ATTITUDE() {				\
+    DOWNLINK_SEND_BOOZ2_STAB_ATTITUDE_FLOAT(&booz_ahrs.body_rate.p,	\
+					    &booz_ahrs.body_rate.q,	\
+					    &booz_ahrs.body_rate.r,	\
+					    &booz_ahrs.ltp_to_body_euler.phi, \
+					    &booz_ahrs.ltp_to_body_euler.theta, \
+					    &booz_ahrs.ltp_to_body_euler.psi, \
+					    &booz_stab_att_ref_euler.phi, \
+					    &booz_stab_att_ref_euler.theta, \
+					    &booz_stab_att_ref_euler.psi, \
+					    &booz_stabilization_att_sum_err.phi, \
+					    &booz_stabilization_att_sum_err.theta, \
+					    &booz_stabilization_att_sum_err.psi, \
+					    &booz_stabilization_att_fb_cmd[COMMAND_ROLL], \
+					    &booz_stabilization_att_fb_cmd[COMMAND_PITCH], \
+					    &booz_stabilization_att_fb_cmd[COMMAND_YAW], \
+					    &booz_stabilization_att_ff_cmd[COMMAND_ROLL], \
+					    &booz_stabilization_att_ff_cmd[COMMAND_PITCH], \
+					    &booz_stabilization_att_ff_cmd[COMMAND_YAW], \
+					    &booz_stabilization_cmd[COMMAND_ROLL], \
+					    &booz_stabilization_cmd[COMMAND_PITCH], \
+					    &booz_stabilization_cmd[COMMAND_YAW]); \
   }
 
-#if defined HS_YAW
-#define PERIODIC_SEND_BOOZ2_STAB_ATTITUDE_HS_ROLL() {			\
-    DOWNLINK_SEND_BOOZ2_STAB_ATTITUDE_HS_ROLL(&booz_stabilization_att_ref.psi, \
-					      &booz_stabilization_rate_ref.z, \
-					      &booz_stabilization_accel_ref.z, \
-					      &booz_ahrs.ltp_to_body_euler.psi,	\
-					      &booz_ahrs.body_rate.r, \
-					      &booz_stabilization_att_sum_err.psi, \
-					      &booz_stabilization_cmd[COMMAND_YAW]); \
+#define PERIODIC_SEND_BOOZ2_STAB_ATTITUDE_REF() {			\
+    DOWNLINK_SEND_BOOZ2_STAB_ATTITUDE_REF_FLOAT(&booz_stab_att_sp_euler.phi, \
+						&booz_stab_att_sp_euler.theta, \
+						&booz_stab_att_sp_euler.psi, \
+						&booz_stab_att_ref_euler.phi, \
+						&booz_stab_att_ref_euler.theta, \
+						&booz_stab_att_ref_euler.psi, \
+						&booz_stab_att_ref_rate.p,	\
+						&booz_stab_att_ref_rate.q,	\
+						&booz_stab_att_ref_rate.r,	\
+						&booz_stab_att_ref_accel.p, \
+						&booz_stab_att_ref_accel.q, \
+						&booz_stab_att_ref_accel.r); \
   }
-#else
-#define PERIODIC_SEND_BOOZ2_STAB_ATTITUDE_HS_ROLL() {			       \
-    DOWNLINK_SEND_BOOZ2_STAB_ATTITUDE_HS_ROLL(&booz_stabilization_att_ref.phi, \
-					      &booz_stabilization_rate_ref.x,  \
-					      &booz_stabilization_accel_ref.x, \
-					      &booz_ahrs.ltp_to_body_euler.phi,	\
-					      &booz_ahrs.body_rate.p, \
-					      &booz_stabilization_att_sum_err.phi, \
-					      &booz_stabilization_cmd[COMMAND_ROLL]); \
-  }
-#endif
+
+#endif /* STABILISATION_ATTITUDE_TYPE_FLOAT */
 
 
 #include "ahrs/booz_ahrs_aligner.h"

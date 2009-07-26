@@ -644,30 +644,6 @@
       <field name="throttle"   type="uint16"/>
  </message>
 
- <message name="BOOZ2_STABILIZATION" id="130">
-   <field name="pd_ref"     type="float" unit="rad/s2" alt_unit="deg/s2" alt_unit_coef="57.29578"/>
-   <field name="qd_ref"     type="float" unit="rad/s2" alt_unit="deg/s2" alt_unit_coef="57.29578"/>
-   <field name="rd_ref"     type="float" unit="rad/s2" alt_unit="deg/s2" alt_unit_coef="57.29578"/>
-   <field name="p_est"      type="float" unit="rad/s" alt_unit="deg/s" alt_unit_coef="57.29578"/>
-   <field name="p_ref"      type="float" unit="rad/s" alt_unit="deg/s" alt_unit_coef="57.29578"/>
-   <field name="q_est"      type="float" unit="rad/s" alt_unit="deg/s" alt_unit_coef="57.29578"/>
-   <field name="q_ref"      type="float" unit="rad/s" alt_unit="deg/s" alt_unit_coef="57.29578"/>
-   <field name="r_est"      type="float" unit="rad/s" alt_unit="deg/s" alt_unit_coef="57.29578"/>
-   <field name="r_ref"      type="float" unit="rad/s" alt_unit="deg/s" alt_unit_coef="57.29578"/>
-   <field name="phi_est"    type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.29578"/>
-   <field name="phi_ref"    type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.29578"/>
-   <field name="phi_sp"     type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.29578"/>
-   <field name="theta_est"  type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.29578"/>
-   <field name="theta_ref"  type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.29578"/>
-   <field name="theta_sp"   type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.29578"/>
-   <field name="psi_est"    type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.29578"/>
-   <field name="psi_ref"    type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.29578"/>
-   <field name="psi_sp"     type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.29578"/>
-   <field name="cmd_a"      type="int32"/>
-   <field name="cmd_e"      type="int32"/>
-   <field name="cmd_r"      type="int32"/>
-   <field name="cmd_t"      type="int32"/>
- </message>
 
  <message name="BOOZ2_GYRO" id="131">   
    <field name="gp"    type="int32" alt_unit="deg/s" alt_unit_coef="0.0139882"/>
@@ -755,53 +731,83 @@
    <field name="qz"  type="int32"/>
  </message>
 
- <message name="BOOZ2_STAB_ATTITUDE" id="140"> 
-    <field name="m_p"   type="int32" alt_unit="degres/s" alt_unit_coef="0.0139882"/>   
-    <field name="m_q" type="int32"   alt_unit="degres/s" alt_unit_coef="0.0139882"/>   
-    <field name="m_r"   type="int32" alt_unit="degres/s" alt_unit_coef="0.0139882"/>   
-    <field name="m_phi"   type="int32" alt_unit="degres" alt_unit_coef="0.0139882"/>   
-    <field name="m_theta" type="int32" alt_unit="degres" alt_unit_coef="0.0139882"/>   
-    <field name="m_psi"   type="int32" alt_unit="degres" alt_unit_coef="0.0139882"/>   
-    <field name="sp_phi"   type="int32" alt_unit="degres" alt_unit_coef="0.0000546"/>   
-    <field name="sp_theta" type="int32" alt_unit="degres" alt_unit_coef="0.0000546"/>   
-    <field name="sp_psi"   type="int32" alt_unit="degres" alt_unit_coef="0.0000546"/>   
+ <message name="BOOZ2_STAB_ATTITUDE_INT" id="140"> 
+    <field name="est_p"         type="int32" alt_unit="degres/s" alt_unit_coef="0.0139882"/>   
+    <field name="est_q"         type="int32" alt_unit="degres/s" alt_unit_coef="0.0139882"/>   
+    <field name="est_r"         type="int32" alt_unit="degres/s" alt_unit_coef="0.0139882"/>   
+    <field name="est_phi"       type="int32" alt_unit="degres" alt_unit_coef="0.0139882"/>   
+    <field name="est_theta"     type="int32" alt_unit="degres" alt_unit_coef="0.0139882"/>   
+    <field name="est_psi"       type="int32" alt_unit="degres" alt_unit_coef="0.0139882"/>   
+    <field name="sp_phi"        type="int32" alt_unit="degres" alt_unit_coef="0.0000546"/>   
+    <field name="sp_theta"      type="int32" alt_unit="degres" alt_unit_coef="0.0000546"/>   
+    <field name="sp_psi"        type="int32" alt_unit="degres" alt_unit_coef="0.0000546"/>   
     <field name="sum_err_phi"   type="int32"/>   
     <field name="sum_err_theta" type="int32"/>   
     <field name="sum_err_psi"   type="int32"/>   
-    <field name="delta_a_fb"   type="int32" alt_unit_coef="0.0000153"/>
-    <field name="delta_e_fb"   type="int32"/>
-    <field name="delta_r_fb"   type="int32"/>
-    <field name="delta_a_ff"   type="int32" alt_unit_coef="0.0000153"/>
-    <field name="delta_e_ff"   type="int32"/>
-    <field name="delta_r_ff"   type="int32"/>
+    <field name="delta_a_fb"    type="int32" alt_unit_coef="0.0000153"/>
+    <field name="delta_e_fb"    type="int32" alt_unit_coef="0.0000153"/>
+    <field name="delta_r_fb"    type="int32" alt_unit_coef="0.0000153"/>
+    <field name="delta_a_ff"    type="int32" alt_unit_coef="0.0000153"/>
+    <field name="delta_e_ff"    type="int32" alt_unit_coef="0.0000153"/>
+    <field name="delta_r_ff"    type="int32" alt_unit_coef="0.0000153"/>
     <field name="delta_a"       type="int32"/>
     <field name="delta_e"       type="int32"/>
     <field name="delta_r"       type="int32"/>
  </message>
 
- <message name="BOOZ2_STAB_ATTITUDE_REF" id="141"> 
-    <field name="pd"    type="int32" alt_unit="degres/s2" alt_unit_coef="0.0139882"/>
-    <field name="qd"    type="int32" alt_unit="degres/s2" alt_unit_coef="0.0139882"/>   
-    <field name="rd"    type="int32" alt_unit="degres/s2" alt_unit_coef="0.0139882"/>   
-    <field name="p"     type="int32" alt_unit="degres/s" alt_unit_coef="0.0008743"/>   
-    <field name="q"     type="int32" alt_unit="degres/s" alt_unit_coef="0.0008743"/>   
-    <field name="r"     type="int32" alt_unit="degres/s" alt_unit_coef="0.0008743"/>   
-    <field name="phi"   type="int32" alt_unit="degres" alt_unit_coef="0.0000546"/>   
-    <field name="theta" type="int32" alt_unit="degres" alt_unit_coef="0.0000546"/>   
-    <field name="psi"   type="int32" alt_unit="degres" alt_unit_coef="0.0000546"/>   
+ <message name="BOOZ2_STAB_ATTITUDE_REF_INT" id="141"> 
+    <field name="sp_phi"    type="int32" alt_unit="degres" alt_unit_coef="0.0000546"/>   
+    <field name="sp_theta"  type="int32" alt_unit="degres" alt_unit_coef="0.0000546"/>   
+    <field name="sp_psi"    type="int32" alt_unit="degres" alt_unit_coef="0.0000546"/>   
+    <field name="ref_phi"   type="int32" alt_unit="degres" alt_unit_coef="0.0000546"/>   
+    <field name="ref_theta" type="int32" alt_unit="degres" alt_unit_coef="0.0000546"/>   
+    <field name="ref_psi"   type="int32" alt_unit="degres" alt_unit_coef="0.0000546"/>   
+    <field name="ref_p"     type="int32" alt_unit="degres/s" alt_unit_coef="0.0008743"/>   
+    <field name="ref_q"     type="int32" alt_unit="degres/s" alt_unit_coef="0.0008743"/>   
+    <field name="ref_r"     type="int32" alt_unit="degres/s" alt_unit_coef="0.0008743"/>   
+    <field name="ref_pd"    type="int32" alt_unit="degres/s2" alt_unit_coef="0.0139882"/>
+    <field name="ref_qd"    type="int32" alt_unit="degres/s2" alt_unit_coef="0.0139882"/>   
+    <field name="ref_rd"    type="int32" alt_unit="degres/s2" alt_unit_coef="0.0139882"/>   
  </message>
 
-
- <message name="BOOZ2_STAB_ATTITUDE_HS_ROLL" id="142"> 
-      <field name="phi_ref"   type="int32" alt_unit="degres" alt_unit_coef="0.0000546"/>   
-      <field name="p_ref"     type="int32" alt_unit="degres/s" alt_unit_coef="0.0008743"/>   
-      <field name="pd_ref"    type="int32" alt_unit="degres/s2" alt_unit_coef="0.0139882"/>
-      <field name="m_phi"     type="int32" alt_unit="degres" alt_unit_coef="0.0139882"/>   
-      <field name="m_p"       type="int32" alt_unit="degres/s" alt_unit_coef="0.0139882"/>
-      <field name="sum_err_phi"   type="int32"/>   
-      <field name="delta_a" type="int32"/>
+ <message name="BOOZ2_STAB_ATTITUDE_FLOAT" id="130">
+    <field name="est_p"         type="int32" alt_unit="degres/s" alt_unit_coef="0.0139882"/>   
+    <field name="est_q"         type="int32" alt_unit="degres/s" alt_unit_coef="0.0139882"/>   
+    <field name="est_r"         type="int32" alt_unit="degres/s" alt_unit_coef="0.0139882"/>   
+    <field name="est_phi"       type="int32" alt_unit="degres" alt_unit_coef="0.0139882"/>   
+    <field name="est_theta"     type="int32" alt_unit="degres" alt_unit_coef="0.0139882"/>   
+    <field name="est_psi"       type="int32" alt_unit="degres" alt_unit_coef="0.0139882"/>   
+    <field name="ref_phi"       type="float" alt_unit="degres" alt_unit_coef="57.29578"/>   
+    <field name="ref_theta"     type="int32" alt_unit="degres" alt_unit_coef="57.29578"/>   
+    <field name="ref_psi"       type="int32" alt_unit="degres" alt_unit_coef="57.29578"/>   
+    <field name="sum_err_phi"   type="float"/>   
+    <field name="sum_err_theta" type="float"/>   
+    <field name="sum_err_psi"   type="float"/>   
+    <field name="delta_a_fb"    type="float" alt_unit_coef="0.0625"/>
+    <field name="delta_e_fb"    type="float" alt_unit_coef="0.0625"/>
+    <field name="delta_r_fb"    type="float" alt_unit_coef="0.0625"/>
+    <field name="delta_a_ff"    type="float" alt_unit_coef="0.0625"/>
+    <field name="delta_e_ff"    type="float" alt_unit_coef="0.0625"/>
+    <field name="delta_r_ff"    type="float" alt_unit_coef="0.0625"/>
+    <field name="delta_a"       type="int32"/>
+    <field name="delta_e"       type="int32"/>
+    <field name="delta_r"       type="int32"/>
  </message>
 
+ <message name="BOOZ2_STAB_ATTITUDE_REF_FLOAT" id="142"> 
+    <field name="sp_phi"    type="float" alt_unit="degres"    alt_unit_coef="57.29578"/>   
+    <field name="sp_theta"  type="float" alt_unit="degres"    alt_unit_coef="57.29578"/>   
+    <field name="sp_psi"    type="float" alt_unit="degres"    alt_unit_coef="57.29578"/>   
+    <field name="ref_phi"   type="float" alt_unit="degres"    alt_unit_coef="57.29578"/>   
+    <field name="ref_theta" type="float" alt_unit="degres"    alt_unit_coef="57.29578"/>   
+    <field name="ref_psi"   type="float" alt_unit="degres"    alt_unit_coef="57.29578"/>   
+    <field name="ref_p"     type="float" alt_unit="degres/s"  alt_unit_coef="57.29578"/>   
+    <field name="ref_q"     type="float" alt_unit="degres/s"  alt_unit_coef="57.29578"/>   
+    <field name="ref_r"     type="float" alt_unit="degres/s"  alt_unit_coef="57.29578"/>   
+    <field name="ref_pd"    type="float" alt_unit="degres/s2" alt_unit_coef="57.29578"/>
+    <field name="ref_qd"    type="float" alt_unit="degres/s2" alt_unit_coef="57.29578"/>   
+    <field name="ref_rd"    type="float" alt_unit="degres/s2" alt_unit_coef="57.29578"/>   
+ </message>
 
  <message name="BOOZ2_CMD" id="143">
     <field name="cmd_roll"   type="int32"/>   
@@ -809,7 +815,6 @@
     <field name="cmd_yaw"    type="int32"/>   
     <field name="cmd_thrust" type="int32"/>   
  </message>
-
 
   <message name="BOOZ2_GUIDANCE" id="144">
     <field name="pos_n"    type="int32"/>   

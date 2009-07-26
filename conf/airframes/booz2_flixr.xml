@@ -189,7 +189,6 @@ include $(PAPARAZZI_SRC)/conf/autopilot/booz2_common.makefile
 include $(CFG_BOOZ)/booz2_autopilot.makefile
 include $(CFG_BOOZ)/booz2_test_progs.makefile
 
-sim.CFLAGS += -DBSM_PARAMS=\"booz_sensors_model_params_booz2_a1.h\"
 include $(CFG_BOOZ)/booz2_simulator_nps.makefile
 
 ap.CFLAGS += -DMODEM_BAUD=B57600

@@ -1,5 +1,5 @@
 /*
- * $Id$
+ * $Id: booz_stabilization_attitude.h 3794 2009-07-24 22:01:51Z poine $
  *  
  * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
  *
@@ -21,25 +21,21 @@
  * Boston, MA 02111-1307, USA. 
  */
 
-#ifndef BOOZ_STABILIZATION_ATTITUDE_H
-#define BOOZ_STABILIZATION_ATTITUDE_H
+#ifndef BOOZ_STABILIZATION_ATTITUDE_FLOAT_H
+#define BOOZ_STABILIZATION_ATTITUDE_FLOAT_H
 
+#include "math/pprz_algebra_float.h"
 
-#include STABILISATION_ATTITUDE_H
-extern void booz_stabilization_attitude_init(void);
-extern void booz_stabilization_attitude_read_rc(bool_t in_flight);
-extern void booz_stabilization_attitude_enter(void);
-extern void booz_stabilization_attitude_run(bool_t  in_flight);
+#include "airframe.h"
 
-#include "stabilization/booz_stabilization_attitude_ref.h"
-#include STABILISATION_ATTITUDE_REF_H
-extern void booz_stabilization_attitude_ref_init(void);
-extern void booz_stabilization_attitude_ref_update(void);
+extern struct FloatVect3  booz_stabilization_pgain;
+extern struct FloatVect3  booz_stabilization_dgain;
+extern struct FloatVect3  booz_stabilization_ddgain;
+extern struct FloatVect3  booz_stabilization_igain;
+extern struct FloatEulers booz_stabilization_att_sum_err;
 
+extern float booz_stabilization_att_fb_cmd[COMMANDS_NB];
+extern float booz_stabilization_att_ff_cmd[COMMANDS_NB];
 
-#define booz_stabilization_attitude_SetKiPhi(_val) {	\
-    booz_stabilization_igain.x = _val;			\
-    booz_stabilization_att_sum_err.phi = 0;		\
-  }
+#endif /* BOOZ_STABILIZATION_ATTITUDE_FLOAT_H */
 
-#endif /* BOOZ2_STABILIZATION_ATTITUDE_H */
