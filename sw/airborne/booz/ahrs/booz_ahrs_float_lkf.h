@@ -25,15 +25,9 @@
 #ifndef BOOZ_AHRS_FLOAT_LKF_H
 #define BOOZ_AHRS_FLOAT_LKF_H
 
-
-
-extern void booz_ahrs_init(void);
-extern void booz_ahrs_align(void);
-extern void booz_ahrs_propagate(void);
-extern void booz_ahrs_update(void);
-
-
-
+#include "booz_ahrs.h"
+#include "std.h"
+#include "math/pprz_algebra_int.h"
 
 #endif /* BOOZ_AHRS_FLOAT_LKF_H */
 

@@ -49,6 +49,8 @@ extern void booz_ahrs_init(void);
 extern void booz_ahrs_align(void);
 extern void booz_ahrs_propagate(void);
 extern void booz_ahrs_update(void);
+extern void booz_ahrs_update_accel(void);
+extern void booz_ahrs_update_mag(void);
 
 
 #endif /* BOOZ_AHRS_H */

@@ -22,7 +22,16 @@
  * Boston, MA 02111-1307, USA. 
  */
 
+#include "booz_ahrs_float_lkf.h"
+
+#include "booz_imu.h"
+#include "booz_ahrs_aligner.h"
+
+#include "airframe.h"
 #include "math/pprz_algebra_float.h"
+
+struct BoozAhrs booz_ahrs;
+
 
 /* our estimated attitude                     */
 struct FloatQuat  bafl_quat;
@@ -71,6 +80,8 @@ float bafl_tempK[6][3];
 float bafl_S[3][3];
 float bafl_tempS[3][6];
 float bafl_invS[3][3];
+struct FloatVect3 bafl_y;
+
 /*
  * H represents the Jacobian of the measurements of the attitude
  * with respect to the states of the filter.  We do not allocate the bottom
@@ -78,6 +89,9 @@ float bafl_invS[3][3];
  * relationship to gyro bias.
  */
 float bafl_H[3][6];
+
+struct FloatVect3 bafl_accel;
+struct FloatVect3 bafl_mag;
 
 /* temporary variables for the strapdown computation */
 float bafl_qom[4][4];
@@ -106,36 +120,44 @@ float bafl_qom[4][4];
 #define BAFL_R_THETA 1.3 * 1.3
 #define BAFL_R_PSI   2.5 * 2.5
 
+#define BAFL_R_ACCEL 5.0  * 5.0
+#define BAFL_R_MAG   300. * 300.
+
 #ifndef BAFL_DT
 #define BAFL_DT (1./512.)
 #endif
 
 void booz_ahrs_init(void) {
-  int i, k;
-  for(i = 0; i < BAFL_SSIZE; i++)
-    {
-        for(k = 0; k < BAFL_SSIZE; k++)
-        {
-		
-            Q[i][k] = 0.;
-            P_k[i][k] = 0.;
-            T_k[i][k] = 0.;
-        }
+  int i, j, k;
 
-        for(j = 0; j < 3; j++)
-        {
-            H[j][i] = 0.;
-            HT[i][j] = 0.;
-        }
+  for(i = 0; i < BAFL_SSIZE; i++) {
+	for(k = 0; k < BAFL_SSIZE; k++) {
+		bafl_T[i][k] = 0.;
+	}
+	for(j = 0; j < 3; j++) {
+		bafl_H[j][i] = 0.;
+	}
 		
-		/* Insert the diagonal elements of the T-Matrix. These will never change. */
-		bafl_T[i][i]=1.0;
-    }
+	/* Insert the diagonal elements of the T-Matrix. These will never change. */
+	bafl_T[i][i]=1.0;
+  }
 
-    FLOAT_QUAT_ZERO(bafl_quat);
+  FLOAT_QUAT_ZERO(bafl_quat);
+
+  booz_ahrs.status = BOOZ_AHRS_UNINIT;
+  INT_EULERS_ZERO(booz_ahrs.ltp_to_body_euler);
+  INT_EULERS_ZERO(booz_ahrs.ltp_to_imu_euler);
+  INT32_QUAT_ZERO(booz_ahrs.ltp_to_body_quat);
+  INT32_QUAT_ZERO(booz_ahrs.ltp_to_imu_quat);
+  INT_RATES_ZERO(booz_ahrs.body_rate);
+  INT_RATES_ZERO(booz_ahrs.imu_rate);
+
 }
 
-extern void booz_ahrs_align(void);
+void booz_ahrs_align(void) {
+  RATES_FLOAT_OF_BFP(bafl_bias, booz_ahrs_aligner.lp_gyro);
+  booz_ahrs.status = BOOZ_AHRS_RUNNING;
+}
 
 
 /* 
@@ -261,7 +283,11 @@ void booz_ahrs_propagate(void) {
   // P = temp * T_T + Q
   for ( i=0; i<BAFL_SSIZE; i++ ) {
 	for ( j=0; j<BAFL_SSIZE; j++ ) {
-	  bafl_P[i][j] = Q[i][j];
+	  if (i >= 3 && i == j) {
+		bafl_P[i][j] = bafl_Q_gyro;
+	  } else {
+		bafl_P[i][j] = 0.;
+	  }
 	  for(k=0; k < BAFL_SSIZE; k++) {
 		bafl_P[i][j] += bafl_tempP[i][k] * bafl_T[j][k]; //T[j][k] = T_T[k][j]
 	  }
@@ -271,17 +297,11 @@ void booz_ahrs_propagate(void) {
 }
 
 
-void booz_ahrs_update(void) {
+void booz_ahrs_update_accel(void) {
   int i, j, k;
-
-//   // measurement noise covariance
-//   ra = 5;
-//   R = [ ra^2  0.    0.  
-// 		0.    ra^2  0.
-// 		0.    0.    ra^2 ];
   
   
-  ACCEL_FLOAT_OF_BFP(bafl_accel, booz_imu.accel);
+  ACCELS_FLOAT_OF_BFP(bafl_accel, booz_imu.accel);
   
   /* P_prio = P */
   for ( i=0; i<BAFL_SSIZE; i++ ) {
@@ -355,7 +375,11 @@ void booz_ahrs_update(void) {
    */
   for (i=0; i<3; i++) {
 	for (j=0; j<3; j++) {
-	  bafl_S[i][j] = bafl_R[i][j];
+	  if (i < 3 && i == j) {
+		bafl_S[i][j] = BAFL_R_ACCEL;
+	  } else {
+		bafl_S[i][j] = 0.;
+	  }
 	  for (k=0; k<3; k++) {		/* normally k<6, not computing zero elements */
 		bafl_S[i][j] +=  bafl_tempS[i][k] * bafl_H[j][k]; /* H[j][k] = HT[k][j] */
 	  }
@@ -364,7 +388,6 @@ void booz_ahrs_update(void) {
   
   /* invert S 
    */
-  bafl_invS[3][3] = {{0.}};
   float detS = 0.;
   detS = bafl_S[0][0]*(bafl_S[2][2]*bafl_S[1][1]-bafl_S[2][1]*bafl_S[1][2]) -
 		 bafl_S[1][0]*(bafl_S[2][2]*bafl_S[0][1]-bafl_S[2][1]*bafl_S[0][2]) +
@@ -430,9 +453,9 @@ void booz_ahrs_update(void) {
   /* X(6) = K(6x3) * y(3) 
    */
   for (i=0; i<6; i++) {
-	bafl_X =  bafl_K[i][0] * bafl_y.x;
-	bafl_X += bafl_K[i][1] * bafl_y.y;
-	bafl_X += bafl_K[i][2] * bafl_y.z;
+	bafl_X[i]  = bafl_K[i][0] * bafl_y.x;
+	bafl_X[i] += bafl_K[i][1] * bafl_y.y;
+	bafl_X[i] += bafl_K[i][2] * bafl_y.z;
   }
   
   /**********************************************  
@@ -513,4 +536,247 @@ void booz_ahrs_update(void) {
   /* maintain rotation matrix representation */
   FLOAT_RMAT_OF_QUAT(bafl_dcm, bafl_quat);
    
+}
+
+
+
+
+void booz_ahrs_update_mag(void) {
+  int i, j, k;
+  
+  
+  //MAG_FLOAT_OF_BFP(bafl_mag, booz_imu.mag);
+  
+  /* P_prio = P */
+  for ( i=0; i<BAFL_SSIZE; i++ ) {
+	for ( j=0; j<BAFL_SSIZE; j++ ) {
+	  bafl_Pprio[i][j] = bafl_P[i][j];
+	}
+  }
+  
+  /* set up measurement matrix */ 
+  bafl_H[0][0] = -RMAT_ELMT(bafl_dcm, 0, 1) * bafl_g;
+  bafl_H[0][1] =  RMAT_ELMT(bafl_dcm, 0, 0) * bafl_g;
+  bafl_H[1][0] = -RMAT_ELMT(bafl_dcm, 1, 1) * bafl_g;
+  bafl_H[1][1] =  RMAT_ELMT(bafl_dcm, 1, 0) * bafl_g;
+  bafl_H[2][0] = -RMAT_ELMT(bafl_dcm, 2, 1) * bafl_g;
+  bafl_H[2][1] =  RMAT_ELMT(bafl_dcm, 2, 0) * bafl_g;
+  //rest is zero
+  
+  
+  
+  
+  
+  /**********************************************
+   * compute Kalman gain K
+   * 
+   * K = P_prio * H_T * inv(S)
+   * S = H * P_prio * HT + R
+   *
+   * K = P_prio * HT * inv(H * P_prio * HT + R)
+   *
+   **********************************************/
+  
+  
+  /* covariance residual S = H * P_prio * HT + R    */
+  
+  /* temp_S(3x6) = H(3x6) * P_prio(6x6)
+   * last 3 columns of H are zero
+   */
+  for (i=0; i<3; i++) {
+	for (j=0; j<6; j++) {
+	  bafl_tempS[i][j] = bafl_H[i][0] * bafl_Pprio[0][j];
+	  for (k=1; k<3; k++) {
+		bafl_tempS[i][j] +=  bafl_H[i][k] * bafl_Pprio[k][j];
+	  }
+	}
+  }
+  /*bafl_tempS[0][0] = bafl_H[0][0]*bafl_Pprio[0][0] + bafl_H[0][1]*bafl_Pprio[1][0] + bafl_H[0][2]*bafl_Pprio[2][0];
+  bafl_tempS[0][1] = bafl_H[0][0]*bafl_Pprio[0][1] + bafl_H[0][1]*bafl_Pprio[1][1] + bafl_H[0][2]*bafl_Pprio[2][1];
+  bafl_tempS[0][2] = bafl_H[0][0]*bafl_Pprio[0][2] + bafl_H[0][1]*bafl_Pprio[1][2] + bafl_H[0][2]*bafl_Pprio[2][2];
+  bafl_tempS[0][3] = bafl_H[0][0]*bafl_Pprio[0][3] + bafl_H[0][1]*bafl_Pprio[1][3] + bafl_H[0][2]*bafl_Pprio[2][3];
+  bafl_tempS[0][4] = bafl_H[0][0]*bafl_Pprio[0][4] + bafl_H[0][1]*bafl_Pprio[1][4] + bafl_H[0][2]*bafl_Pprio[2][4];
+  bafl_tempS[0][5] = bafl_H[0][0]*bafl_Pprio[0][5] + bafl_H[0][1]*bafl_Pprio[1][5] + bafl_H[0][2]*bafl_Pprio[2][5];
+
+  bafl_tempS[1][0] = bafl_H[1][0]*bafl_Pprio[0][0] + bafl_H[1][1]*bafl_Pprio[1][0] + bafl_H[1][2]*bafl_Pprio[2][0];
+  bafl_tempS[1][1] = bafl_H[1][0]*bafl_Pprio[0][1] + bafl_H[1][1]*bafl_Pprio[1][1] + bafl_H[1][2]*bafl_Pprio[2][1];
+  bafl_tempS[1][2] = bafl_H[1][0]*bafl_Pprio[0][2] + bafl_H[1][1]*bafl_Pprio[1][2] + bafl_H[1][2]*bafl_Pprio[2][2];
+  bafl_tempS[1][3] = bafl_H[1][0]*bafl_Pprio[0][3] + bafl_H[1][1]*bafl_Pprio[1][3] + bafl_H[1][2]*bafl_Pprio[2][3];
+  bafl_tempS[1][4] = bafl_H[1][0]*bafl_Pprio[0][4] + bafl_H[1][1]*bafl_Pprio[1][4] + bafl_H[1][2]*bafl_Pprio[2][4];
+  bafl_tempS[1][5] = bafl_H[1][0]*bafl_Pprio[0][5] + bafl_H[1][1]*bafl_Pprio[1][5] + bafl_H[1][2]*bafl_Pprio[2][5];
+                           
+  bafl_tempS[2][0] = bafl_H[2][0]*bafl_Pprio[0][0] + bafl_H[2][1]*bafl_Pprio[1][0] + bafl_H[2][2]*bafl_Pprio[2][0];
+  bafl_tempS[2][1] = bafl_H[2][0]*bafl_Pprio[0][1] + bafl_H[2][1]*bafl_Pprio[1][1] + bafl_H[2][2]*bafl_Pprio[2][1];
+  bafl_tempS[2][2] = bafl_H[2][0]*bafl_Pprio[0][2] + bafl_H[2][1]*bafl_Pprio[1][2] + bafl_H[2][2]*bafl_Pprio[2][2];
+  bafl_tempS[2][3] = bafl_H[2][0]*bafl_Pprio[0][3] + bafl_H[2][1]*bafl_Pprio[1][3] + bafl_H[2][2]*bafl_Pprio[2][3];
+  bafl_tempS[2][4] = bafl_H[2][0]*bafl_Pprio[0][4] + bafl_H[2][1]*bafl_Pprio[1][4] + bafl_H[2][2]*bafl_Pprio[2][4];
+  bafl_tempS[2][5] = bafl_H[2][0]*bafl_Pprio[0][5] + bafl_H[2][1]*bafl_Pprio[1][5] + bafl_H[2][2]*bafl_Pprio[2][5];*/
+
+  
+  /* S(3x3) = temp_S(3x6) * HT(6x3) + R(3x3)
+   *
+   * last 3 rows of HT are zero
+   */
+  for (i=0; i<3; i++) {
+	for (j=0; j<3; j++) {
+	  if (i < 3 && i == j) {
+		bafl_S[i][j] = BAFL_R_MAG;
+	  } else {
+		bafl_S[i][j] = 0.;
+	  }
+	  for (k=0; k<3; k++) {		/* normally k<6, not computing zero elements */
+		bafl_S[i][j] +=  bafl_tempS[i][k] * bafl_H[j][k]; /* H[j][k] = HT[k][j] */
+	  }
+	}
+  }
+  
+  /* invert S 
+   */
+  float detS = 0.;
+  detS = bafl_S[0][0]*(bafl_S[2][2]*bafl_S[1][1]-bafl_S[2][1]*bafl_S[1][2]) -
+		 bafl_S[1][0]*(bafl_S[2][2]*bafl_S[0][1]-bafl_S[2][1]*bafl_S[0][2]) +
+		 bafl_S[2][0]*(bafl_S[1][2]*bafl_S[0][1]-bafl_S[1][1]*bafl_S[0][2]);
+
+  if (detS != 0.){	//check needed? always invertible?
+	bafl_invS[0][0]= (bafl_S[2][2]*bafl_S[1][1] - bafl_S[2][1]*bafl_S[1][2]) / detS;
+	bafl_invS[0][1]= (bafl_S[2][1]*bafl_S[0][2] - bafl_S[2][2]*bafl_S[0][1]) / detS;
+	bafl_invS[0][2]= (bafl_S[1][2]*bafl_S[0][1] - bafl_S[1][1]*bafl_S[0][2]) / detS;
+
+	bafl_invS[1][0]= (bafl_S[2][0]*bafl_S[1][2] - bafl_S[2][2]*bafl_S[1][0]) / detS;
+	bafl_invS[1][1]= (bafl_S[2][2]*bafl_S[0][0] - bafl_S[2][0]*bafl_S[0][2]) / detS;
+	bafl_invS[1][2]= (bafl_S[1][0]*bafl_S[0][2] - bafl_S[1][2]*bafl_S[0][0]) / detS;
+
+	bafl_invS[2][0]= (bafl_S[2][1]*bafl_S[1][0] - bafl_S[2][0]*bafl_S[1][1]) / detS;
+	bafl_invS[2][1]= (bafl_S[2][1]*bafl_S[0][0] - bafl_S[2][0]*bafl_S[0][1]) / detS;
+	bafl_invS[2][2]= (bafl_S[1][1]*bafl_S[0][0] - bafl_S[1][0]*bafl_S[0][1]) / detS;
+  }
+
+  /* temp_K(6x3) = P_prio(6x6) * HT(6x3)
+   *
+   * last 3 rows of HT are zero
+   */
+  for (i=0; i<6; i++) {
+	for (j=1; j<3; j++) {
+	  bafl_tempK[i][j] = bafl_Pprio[i][0] * bafl_H[j][0];		/* H[j][0] = HT[0][j] */
+	  for (k=1; k<3; k++) {										/* normally k<6, not computing zero elements */
+		bafl_tempK[i][j] +=  bafl_Pprio[i][k] * bafl_H[j][k]; 	/* H[j][k] = HT[k][j] */
+	  }
+	}
+  }
+
+  /* K(6x3) = temp_K(6x3) * invS(3x3)
+   */
+  for (i=0; i<6; i++) {
+	for (j=1; j<3; j++) {
+	  bafl_K[i][j] = bafl_tempK[i][0] * bafl_invS[0][j];
+	  for (k=1; k<3; k++) {
+		bafl_K[i][j] +=  bafl_tempK[i][k] * bafl_invS[k][j];
+	  }
+	}
+  }
+  
+  
+  
+  /**********************************************  
+   * Update filter state.
+   *
+   *  The a priori filter state is zero since the errors are corrected after each update.
+   * 
+   *  X = X_prio + K (y - H * X_prio)
+   *  X = K * y
+   **********************************************/
+
+  
+  /* innovation 
+   * y = Cnb * -[0; 0; g] - accel 
+   */
+  bafl_y.x = -RMAT_ELMT(bafl_dcm, 0, 2) * bafl_g - bafl_accel.x;
+  bafl_y.y = -RMAT_ELMT(bafl_dcm, 1, 2) * bafl_g - bafl_accel.y;
+  bafl_y.z = -RMAT_ELMT(bafl_dcm, 2, 2) * bafl_g - bafl_accel.z;
+  
+  /* X(6) = K(6x3) * y(3) 
+   */
+  for (i=0; i<6; i++) {
+	bafl_X[i]  = bafl_K[i][0] * bafl_y.x;
+	bafl_X[i] += bafl_K[i][1] * bafl_y.y;
+	bafl_X[i] += bafl_K[i][2] * bafl_y.z;
+  }
+  
+  /**********************************************  
+   * Update the filter covariance.
+   *
+   *  P = P_prio - K * H * P_prio
+   *  P = ( I - K * H ) * P_prio
+   *
+   **********************************************/
+   
+  /*  temp(6x6) = I(6x6) - K(6x3)*H(3x6)
+   *  
+   *  last 3 columns of H are zero
+   */
+  for (i=0; i<6; i++) {
+	for (j=0; j<6; j++) {
+	  if (i==j) {
+		bafl_tempP[i][j] = 1.;
+	  } 
+	  else {
+		bafl_tempP[i][j] = 0.;
+	  }
+	  if (j < 3) {				/* omit the parts where H is zero */
+		for (k=0; k<3; k++) {
+		  bafl_tempP[i][j] -= bafl_K[i][k] * bafl_H[k][j];
+		}
+	  }
+	}
+  }
+
+  /*  P(6x6) = temp(6x6) * P_prio(6x6)
+   */
+  for (i=0; i<BAFL_SSIZE; i++) {
+	for (j=0; j<BAFL_SSIZE; j++) {
+	  bafl_P[i][j] = bafl_tempP[i][0] * bafl_Pprio[0][j];
+	  for (k=1; k<BAFL_SSIZE; k++) {
+		bafl_P[i][j] += bafl_tempP[i][k] * bafl_Pprio[k][j];
+	  }
+	}
+  }
+  
+  
+  
+  /**********************************************
+   *  Correct errors.
+   *
+   *
+   **********************************************/
+   
+  /*  Error quaternion.
+   */
+  float q_sq;
+  q_sq = (bafl_X[0]*bafl_X[0] + bafl_X[1]*bafl_X[1] + bafl_X[1]*bafl_X[1]) / 4;
+  if (q_sq > 1) { 			/* this should actually never happen */
+	bafl_quat_err.qi = 1;
+	bafl_quat_err.qx = bafl_X[0] / 2;
+	bafl_quat_err.qy = bafl_X[1] / 2;
+	bafl_quat_err.qz = bafl_X[2] / 2;
+	FLOAT_QUAT_SMUL(bafl_quat_err, bafl_quat_err, 1/sqrtf(1 + q_sq));
+  }
+  else {
+	bafl_quat_err.qi = sqrtf(1 - q_sq);
+	bafl_quat_err.qx = bafl_X[0] / 2;
+	bafl_quat_err.qy = bafl_X[1] / 2;
+	bafl_quat_err.qz = bafl_X[2] / 2;
+  }
+
+  /*  correct attitude
+   */
+  FLOAT_QUAT_COMP(bafl_quat, bafl_quat, bafl_quat_err);
+
+  /*  correct gyro bias
+   */
+  RATES_ASSIGN(bafl_bias_err, bafl_X[3], bafl_X[4], bafl_X[5]);
+  RATES_SUB(bafl_bias, bafl_bias_err);
+  
+
+  /* maintain rotation matrix representation */
+  FLOAT_RMAT_OF_QUAT(bafl_dcm, bafl_quat);
 }

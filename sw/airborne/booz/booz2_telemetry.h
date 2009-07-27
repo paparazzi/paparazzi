@@ -264,7 +264,7 @@
   }
 
 
-
+#ifdef USE_AHRS_CMPL
 #include "booz_ahrs.h"
 #include "ahrs/booz2_filter_attitude_cmpl_euler.h"
 #define PERIODIC_SEND_BOOZ2_FILTER() {					\
@@ -284,6 +284,9 @@
 			       &booz2_face_gyro_bias.q,			\
 			       &booz2_face_gyro_bias.r);		\
   }
+#else
+#define PERIODIC_SEND_BOOZ2_FILTER() {}
+#endif
 
 
 #define PERIODIC_SEND_BOOZ2_AHRS_QUAT() {				\

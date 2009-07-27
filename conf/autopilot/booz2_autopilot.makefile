@@ -103,13 +103,16 @@ ap.srcs += $(SRC_BOOZ)/booz2_analog.c \
 #
 
 
-
+#
+# AHRS choice
+#
+# include booz2_ahrs_cmpl.makefile
+# or
+# include booz2_ahrs_lkf.makefile
+#
 
 ap.srcs += $(SRC_BOOZ)/booz2_autopilot.c
 
-ap.CFLAGS += -DAHRS_ALIGNER_LED=3
-ap.srcs += $(SRC_BOOZ)/ahrs/booz_ahrs_aligner.c
-ap.srcs += $(SRC_BOOZ)/ahrs/booz2_filter_attitude_cmpl_euler.c
 ap.srcs += math/pprz_trig_int.c
 ap.srcs += $(SRC_BOOZ)/booz_stabilization.c
 ap.srcs += $(SRC_BOOZ)/stabilization/booz_stabilization_rate.c

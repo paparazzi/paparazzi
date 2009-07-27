@@ -510,6 +510,11 @@
     (_ri).r = RATE_BFP_OF_REAL((_rf).r);		\
   }
 
+#define ACCELS_FLOAT_OF_BFP(_ef, _ei) {				\
+    (_ef).x   = ACCEL_FLOAT_OF_BFP((_ei).x);		\
+    (_ef).y   = ACCEL_FLOAT_OF_BFP((_ei).y);		\
+    (_ef).z   = ACCEL_FLOAT_OF_BFP((_ei).z);		\
+  }
 
 #endif /* PPRZ_ALGEBRA_H */
 
