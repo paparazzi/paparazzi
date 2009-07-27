@@ -90,21 +90,28 @@ static gboolean on_js_data_received(GIOChannel *source,
     if (js.number < JS_NB_AXIS) {
       switch (js.number) {
       case JS_THROTTLE:
-	printf("joystick throttle %d\n",js.value); break;
+	nps_radio_control.throttle = ((float)js.value + 28000.)/56000.; 
+	//printf("joystick throttle %d\n",js.value);
+	break;
       case JS_ROLL: 
-	printf("joystick roll %d\n",js.value);  break;
+	nps_radio_control.roll = (float)js.value/-28000.; 
+	//printf("joystick roll %d %f\n",js.value, nps_radio_control.roll);
+	break;
       case JS_PITCH:
-	printf("joystick pitch %d\n",js.value);  break;
+	nps_radio_control.pitch = (float)js.value/-28000.; 
+	//printf("joystick pitch %d\n",js.value);
+	break;
       case JS_YAW:
-	printf("joystick yaw %d\n",js.value);  break;
+	nps_radio_control.yaw = (float)js.value/-28000.; 
+	//printf("joystick yaw %d\n",js.value);
+	break;
       case JS_MODE:
-	printf("joystick mode %d\n",js.value);  break;
+	nps_radio_control.mode = (float)js.value/-32000.; 
+	//printf("joystick mode %d\n",js.value);
+	break;
       }
-      //      booz_joystick_value[js.number] = (double)(js.value - booz_joystick_neutral[js.number]) / 
-      //	(booz_joystick_max[js.number] - booz_joystick_min[js.number]);
     }
   }
-  
   return TRUE;
 }
 

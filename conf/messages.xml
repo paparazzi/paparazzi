@@ -778,8 +778,8 @@
     <field name="est_theta"     type="int32" alt_unit="degres" alt_unit_coef="0.0139882"/>   
     <field name="est_psi"       type="int32" alt_unit="degres" alt_unit_coef="0.0139882"/>   
     <field name="ref_phi"       type="float" alt_unit="degres" alt_unit_coef="57.29578"/>   
-    <field name="ref_theta"     type="int32" alt_unit="degres" alt_unit_coef="57.29578"/>   
-    <field name="ref_psi"       type="int32" alt_unit="degres" alt_unit_coef="57.29578"/>   
+    <field name="ref_theta"     type="float" alt_unit="degres" alt_unit_coef="57.29578"/>   
+    <field name="ref_psi"       type="float" alt_unit="degres" alt_unit_coef="57.29578"/>   
     <field name="sum_err_phi"   type="float"/>   
     <field name="sum_err_theta" type="float"/>   
     <field name="sum_err_psi"   type="float"/>   
