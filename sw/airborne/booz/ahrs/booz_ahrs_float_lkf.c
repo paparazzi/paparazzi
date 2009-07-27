@@ -189,33 +189,6 @@ void booz_ahrs_propagate(void) {
    *
    */
    
-//  /* Wxq(pqr) Omega matrix */
-//   bafl_qom[0][0] = bafl_qom[1][1] = bafl_qom[2][2] = bafl_qom[3][3] = 0;
-//   bafl_qom[1][0] = bafl_qom[2][3] = bafl_rates.p * 0.5;
-//   bafl_qom[2][0] = bafl_qom[3][1] = bafl_rates.q * 0.5;
-//   bafl_qom[3][0] = bafl_qom[1][2] = bafl_rates.r * 0.5;
-//   
-//   bafl_qom[0][1] = bafl_qom[3][2] = -bafl_qom[1][0];
-//   bafl_qom[0][2] = bafl_qom[1][3] = -bafl_qom[2][0];
-//   bafl_qom[0][3] = bafl_qom[2][1] = -bafl_qom[3][0];
-//   
-//   /* quat_dot = Wxq(pqr) * quat */
-//   bafl_qdot.qi=                           bafl_qom[0][1]*bafl_quat.qx+bafl_qom[0][2]*bafl_quat.qy+bafl_qom[0][3] * bafl_quat.qz;
-//   bafl_qdot.qx= bafl_qom[1][0]*bafl_quat.qi                          +bafl_qom[1][2]*bafl_quat.qy+bafl_qom[1][3] * bafl_quat.qz;
-//   bafl_qdot.qy= bafl_qom[2][0]*bafl_quat.qi+bafl_qom[2][1]*bafl_quat.qx                          +bafl_qom[2][3] * bafl_quat.qz;
-//   bafl_qdot.qz= bafl_qom[3][0]*bafl_quat.qi+bafl_qom[3][1]*bafl_quat.qx+bafl_qom[3][2]*bafl_quat.qy                            ; 
-//     
-//   /* propagate quaternion */
-//   bafl_quat.qi += bafl_qdot.qi * BAFL_DT;
-//   bafl_quat.qx += bafl_qdot.qx * BAFL_DT;
-//   bafl_quat.qy += bafl_qdot.qy * BAFL_DT;
-//   bafl_quat.qz += bafl_qdot.qz * BAFL_DT;
-  
-  
-  /*
-   * Makro version
-   */
-  
   /* compute qdot and normalize it */
   FLOAT_QUAT_DERIVATIVE_LAGRANGE(bafl_qdot, bafl_rates, bafl_quat);
   
@@ -255,17 +228,7 @@ void booz_ahrs_propagate(void) {
 	  bafl_T[i][j+3] = - RMAT_ELMT(bafl_dcm, j, i); /* inverted bafl_dcm */
 	}
   }
-  /*
-  bafl_T[0][3] = - RMAT_ELMT(bafl_dcm, 0, 0);
-  bafl_T[0][4] = - RMAT_ELMT(bafl_dcm, 0, 1);
-  bafl_T[0][5] = - RMAT_ELMT(bafl_dcm, 0, 2);
-  bafl_T[1][3] = - RMAT_ELMT(bafl_dcm, 1, 0);
-  bafl_T[1][4] = - RMAT_ELMT(bafl_dcm, 1, 1);
-  bafl_T[1][5] = - RMAT_ELMT(bafl_dcm, 1, 2);
-  bafl_T[2][3] = - RMAT_ELMT(bafl_dcm, 2, 0);
-  bafl_T[2][4] = - RMAT_ELMT(bafl_dcm, 2, 1);
-  bafl_T[2][5] = - RMAT_ELMT(bafl_dcm, 2, 2);
-  */
+
   
   /*
    * estimate the a priori error covariance matrix P_prio = T * P * T_T + Q
@@ -347,26 +310,6 @@ void booz_ahrs_update_accel(void) {
 	  }
 	}
   }
-  /*bafl_tempS[0][0] = bafl_H[0][0]*bafl_Pprio[0][0] + bafl_H[0][1]*bafl_Pprio[1][0] + bafl_H[0][2]*bafl_Pprio[2][0];
-  bafl_tempS[0][1] = bafl_H[0][0]*bafl_Pprio[0][1] + bafl_H[0][1]*bafl_Pprio[1][1] + bafl_H[0][2]*bafl_Pprio[2][1];
-  bafl_tempS[0][2] = bafl_H[0][0]*bafl_Pprio[0][2] + bafl_H[0][1]*bafl_Pprio[1][2] + bafl_H[0][2]*bafl_Pprio[2][2];
-  bafl_tempS[0][3] = bafl_H[0][0]*bafl_Pprio[0][3] + bafl_H[0][1]*bafl_Pprio[1][3] + bafl_H[0][2]*bafl_Pprio[2][3];
-  bafl_tempS[0][4] = bafl_H[0][0]*bafl_Pprio[0][4] + bafl_H[0][1]*bafl_Pprio[1][4] + bafl_H[0][2]*bafl_Pprio[2][4];
-  bafl_tempS[0][5] = bafl_H[0][0]*bafl_Pprio[0][5] + bafl_H[0][1]*bafl_Pprio[1][5] + bafl_H[0][2]*bafl_Pprio[2][5];
-
-  bafl_tempS[1][0] = bafl_H[1][0]*bafl_Pprio[0][0] + bafl_H[1][1]*bafl_Pprio[1][0] + bafl_H[1][2]*bafl_Pprio[2][0];
-  bafl_tempS[1][1] = bafl_H[1][0]*bafl_Pprio[0][1] + bafl_H[1][1]*bafl_Pprio[1][1] + bafl_H[1][2]*bafl_Pprio[2][1];
-  bafl_tempS[1][2] = bafl_H[1][0]*bafl_Pprio[0][2] + bafl_H[1][1]*bafl_Pprio[1][2] + bafl_H[1][2]*bafl_Pprio[2][2];
-  bafl_tempS[1][3] = bafl_H[1][0]*bafl_Pprio[0][3] + bafl_H[1][1]*bafl_Pprio[1][3] + bafl_H[1][2]*bafl_Pprio[2][3];
-  bafl_tempS[1][4] = bafl_H[1][0]*bafl_Pprio[0][4] + bafl_H[1][1]*bafl_Pprio[1][4] + bafl_H[1][2]*bafl_Pprio[2][4];
-  bafl_tempS[1][5] = bafl_H[1][0]*bafl_Pprio[0][5] + bafl_H[1][1]*bafl_Pprio[1][5] + bafl_H[1][2]*bafl_Pprio[2][5];
-                           
-  bafl_tempS[2][0] = bafl_H[2][0]*bafl_Pprio[0][0] + bafl_H[2][1]*bafl_Pprio[1][0] + bafl_H[2][2]*bafl_Pprio[2][0];
-  bafl_tempS[2][1] = bafl_H[2][0]*bafl_Pprio[0][1] + bafl_H[2][1]*bafl_Pprio[1][1] + bafl_H[2][2]*bafl_Pprio[2][1];
-  bafl_tempS[2][2] = bafl_H[2][0]*bafl_Pprio[0][2] + bafl_H[2][1]*bafl_Pprio[1][2] + bafl_H[2][2]*bafl_Pprio[2][2];
-  bafl_tempS[2][3] = bafl_H[2][0]*bafl_Pprio[0][3] + bafl_H[2][1]*bafl_Pprio[1][3] + bafl_H[2][2]*bafl_Pprio[2][3];
-  bafl_tempS[2][4] = bafl_H[2][0]*bafl_Pprio[0][4] + bafl_H[2][1]*bafl_Pprio[1][4] + bafl_H[2][2]*bafl_Pprio[2][4];
-  bafl_tempS[2][5] = bafl_H[2][0]*bafl_Pprio[0][5] + bafl_H[2][1]*bafl_Pprio[1][5] + bafl_H[2][2]*bafl_Pprio[2][5];*/
 
   
   /* S(3x3) = temp_S(3x6) * HT(6x3) + R(3x3)
@@ -545,7 +488,7 @@ void booz_ahrs_update_mag(void) {
   int i, j, k;
   
   
-  //MAG_FLOAT_OF_BFP(bafl_mag, booz_imu.mag);
+  MAGS_FLOAT_OF_BFP(bafl_mag, booz_imu.mag);
   
   /* P_prio = P */
   for ( i=0; i<BAFL_SSIZE; i++ ) {
@@ -591,26 +534,6 @@ void booz_ahrs_update_mag(void) {
 	  }
 	}
   }
-  /*bafl_tempS[0][0] = bafl_H[0][0]*bafl_Pprio[0][0] + bafl_H[0][1]*bafl_Pprio[1][0] + bafl_H[0][2]*bafl_Pprio[2][0];
-  bafl_tempS[0][1] = bafl_H[0][0]*bafl_Pprio[0][1] + bafl_H[0][1]*bafl_Pprio[1][1] + bafl_H[0][2]*bafl_Pprio[2][1];
-  bafl_tempS[0][2] = bafl_H[0][0]*bafl_Pprio[0][2] + bafl_H[0][1]*bafl_Pprio[1][2] + bafl_H[0][2]*bafl_Pprio[2][2];
-  bafl_tempS[0][3] = bafl_H[0][0]*bafl_Pprio[0][3] + bafl_H[0][1]*bafl_Pprio[1][3] + bafl_H[0][2]*bafl_Pprio[2][3];
-  bafl_tempS[0][4] = bafl_H[0][0]*bafl_Pprio[0][4] + bafl_H[0][1]*bafl_Pprio[1][4] + bafl_H[0][2]*bafl_Pprio[2][4];
-  bafl_tempS[0][5] = bafl_H[0][0]*bafl_Pprio[0][5] + bafl_H[0][1]*bafl_Pprio[1][5] + bafl_H[0][2]*bafl_Pprio[2][5];
-
-  bafl_tempS[1][0] = bafl_H[1][0]*bafl_Pprio[0][0] + bafl_H[1][1]*bafl_Pprio[1][0] + bafl_H[1][2]*bafl_Pprio[2][0];
-  bafl_tempS[1][1] = bafl_H[1][0]*bafl_Pprio[0][1] + bafl_H[1][1]*bafl_Pprio[1][1] + bafl_H[1][2]*bafl_Pprio[2][1];
-  bafl_tempS[1][2] = bafl_H[1][0]*bafl_Pprio[0][2] + bafl_H[1][1]*bafl_Pprio[1][2] + bafl_H[1][2]*bafl_Pprio[2][2];
-  bafl_tempS[1][3] = bafl_H[1][0]*bafl_Pprio[0][3] + bafl_H[1][1]*bafl_Pprio[1][3] + bafl_H[1][2]*bafl_Pprio[2][3];
-  bafl_tempS[1][4] = bafl_H[1][0]*bafl_Pprio[0][4] + bafl_H[1][1]*bafl_Pprio[1][4] + bafl_H[1][2]*bafl_Pprio[2][4];
-  bafl_tempS[1][5] = bafl_H[1][0]*bafl_Pprio[0][5] + bafl_H[1][1]*bafl_Pprio[1][5] + bafl_H[1][2]*bafl_Pprio[2][5];
-                           
-  bafl_tempS[2][0] = bafl_H[2][0]*bafl_Pprio[0][0] + bafl_H[2][1]*bafl_Pprio[1][0] + bafl_H[2][2]*bafl_Pprio[2][0];
-  bafl_tempS[2][1] = bafl_H[2][0]*bafl_Pprio[0][1] + bafl_H[2][1]*bafl_Pprio[1][1] + bafl_H[2][2]*bafl_Pprio[2][1];
-  bafl_tempS[2][2] = bafl_H[2][0]*bafl_Pprio[0][2] + bafl_H[2][1]*bafl_Pprio[1][2] + bafl_H[2][2]*bafl_Pprio[2][2];
-  bafl_tempS[2][3] = bafl_H[2][0]*bafl_Pprio[0][3] + bafl_H[2][1]*bafl_Pprio[1][3] + bafl_H[2][2]*bafl_Pprio[2][3];
-  bafl_tempS[2][4] = bafl_H[2][0]*bafl_Pprio[0][4] + bafl_H[2][1]*bafl_Pprio[1][4] + bafl_H[2][2]*bafl_Pprio[2][4];
-  bafl_tempS[2][5] = bafl_H[2][0]*bafl_Pprio[0][5] + bafl_H[2][1]*bafl_Pprio[1][5] + bafl_H[2][2]*bafl_Pprio[2][5];*/
 
   
   /* S(3x3) = temp_S(3x6) * HT(6x3) + R(3x3)

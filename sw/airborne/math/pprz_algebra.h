@@ -516,5 +516,23 @@
     (_ef).z   = ACCEL_FLOAT_OF_BFP((_ei).z);		\
   }
 
+#define ACCELS_BFP_OF_REAL(_ef, _ei) {				\
+    (_ef).x   = ACCEL_BFP_OF_REAL((_ei).x);		\
+    (_ef).y   = ACCEL_BFP_OF_REAL((_ei).y);		\
+    (_ef).z   = ACCEL_BFP_OF_REAL((_ei).z);		\
+  }
+
+#define MAGS_FLOAT_OF_BFP(_ef, _ei) {				\
+    (_ef).x   = ACCEL_FLOAT_OF_BFP((_ei).x);		\
+    (_ef).y   = ACCEL_FLOAT_OF_BFP((_ei).y);		\
+    (_ef).z   = ACCEL_FLOAT_OF_BFP((_ei).z);		\
+  }
+
+#define MAGS_BFP_OF_REAL(_ef, _ei) {				\
+    (_ef).x   = ACCEL_BFP_OF_REAL((_ei).x);		\
+    (_ef).y   = ACCEL_BFP_OF_REAL((_ei).y);		\
+    (_ef).z   = ACCEL_BFP_OF_REAL((_ei).z);		\
+  }
+
 #endif /* PPRZ_ALGEBRA_H */
 

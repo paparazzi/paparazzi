@@ -55,6 +55,8 @@ struct Int16Vect3 {
 #define INT32_MAG_FRAC 11
 
 #define INT32_ACCEL_FRAC 10
+#define INT32_MAG_FRAC 11
+
 struct Int32Vect2 {
   int32_t x;
   int32_t y;
@@ -138,20 +140,22 @@ struct Int64Vect3 {
 
 #define BFP_OF_REAL(_vr, _frac)    ((_vr)*(1<<(_frac)))
 #define FLOAT_OF_BFP(_vbfp, _frac) ((float)(_vbfp)/(1<<(_frac)))
-#define RATE_BFP_OF_REAL(_af)  BFP_OF_REAL(_af, INT32_RATE_FRAC)
-#define RATE_FLOAT_OF_BFP(_ai) FLOAT_OF_BFP((_ai), INT32_RATE_FRAC)
+#define RATE_BFP_OF_REAL(_af)   BFP_OF_REAL(_af, INT32_RATE_FRAC)
+#define RATE_FLOAT_OF_BFP(_ai)  FLOAT_OF_BFP((_ai), INT32_RATE_FRAC)
 #define ANGLE_BFP_OF_REAL(_af)  BFP_OF_REAL(_af, INT32_ANGLE_FRAC)
 #define ANGLE_FLOAT_OF_BFP(_ai) FLOAT_OF_BFP((_ai), INT32_ANGLE_FRAC)
 #define QUAT1_BFP_OF_REAL(_qf)  BFP_OF_REAL(_qf, INT32_QUAT_FRAC)
 #define QUAT1_FLOAT_OF_BFP(_qi) FLOAT_OF_BFP(_qi, INT32_QUAT_FRAC)
 #define TRIG_BFP_OF_REAL(_tf)   BFP_OF_REAL(_tf, INT32_TRIG_FRAC)
 #define TRIG_FLOAT_OF_BFP(_ti)  FLOAT_OF_BFP(_ti,INT32_TRIG_FRAC)
-#define POS_BFP_OF_REAL(_af)  BFP_OF_REAL(_af, INT32_POS_FRAC)
-#define POS_FLOAT_OF_BFP(_ai) FLOAT_OF_BFP((_ai), INT32_POS_FRAC)
+#define POS_BFP_OF_REAL(_af)    BFP_OF_REAL(_af, INT32_POS_FRAC)
+#define POS_FLOAT_OF_BFP(_ai)   FLOAT_OF_BFP((_ai), INT32_POS_FRAC)
 #define SPEED_BFP_OF_REAL(_af)  BFP_OF_REAL(_af, INT32_SPEED_FRAC)
 #define SPEED_FLOAT_OF_BFP(_ai) FLOAT_OF_BFP((_ai), INT32_SPEED_FRAC)
 #define ACCEL_BFP_OF_REAL(_af)  BFP_OF_REAL(_af, INT32_ACCEL_FRAC)
 #define ACCEL_FLOAT_OF_BFP(_ai) FLOAT_OF_BFP((_ai), INT32_ACCEL_FRAC)
+#define MAG_BFP_OF_REAL(_af)    BFP_OF_REAL(_af, INT32_MAG_FRAC)
+#define MAG_FLOAT_OF_BFP(_ai) FLOAT_OF_BFP((_ai), INT32_MAG_FRAC)
 
 #define INT_MULT_RSHIFT(_a, _b, _r) (((_a)*(_b))>>(_r))
 /*
