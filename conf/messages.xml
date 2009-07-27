@@ -1023,6 +1023,17 @@
       <field name="value_filtered" type="uint16"/>
   </message>
 
+  <message name="BOOZ2_VFF" id="162">
+      <field name="measure"        type="float"/>
+      <field name="z"              type="float"/>
+      <field name="zd"             type="float"/>
+      <field name="bias"           type="float"/>
+      <field name="Pzz"            type="float"/>
+      <field name="Pzdzd"          type="float"/>
+      <field name="Pbb"            type="float"/>
+  </message>
+    
+
   <message name="AHRS_EULER" id="173">
     <field name="phi"   type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.29578" />
     <field name="theta" type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.29578" />

@@ -18,10 +18,10 @@ static void sim_overwrite_ahrs(void);
 #endif
 
 
-void nps_autopilot_init(void) {
+void nps_autopilot_init(enum NpsRadioControlType type_rc, int num_rc_script, char* js_dev) {
 
-  nps_radio_control_init();
-
+  nps_radio_control_init(type_rc, num_rc_script, js_dev);
+  
   booz2_main_init();
 
 }

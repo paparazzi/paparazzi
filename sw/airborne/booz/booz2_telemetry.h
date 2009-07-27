@@ -337,6 +337,22 @@
 				 &booz2_filter_attitude_quat.qz);	\
   }
 
+#ifdef USE_VFF
+#include "ins/booz2_vf_float.h"
+#define PERIODIC_SEND_BOOZ2_VFF() {		\
+    DOWNLINK_SEND_BOOZ2_VFF(&b2_vff_z_meas,	\
+			    &b2_vff_z,		\
+			    &b2_vff_zdot,	\
+			    &b2_vff_bias,	\
+			    & b2_vff_P[0][0],	\
+			    & b2_vff_P[1][1],	\
+			    & b2_vff_P[2][2]);	\
+  }
+#else
+define PERIODIC_SEND_BOOZ2_VFF() {}
+#endif
+
+
 #define PERIODIC_SEND_BOOZ2_GUIDANCE() {				\
     DOWNLINK_SEND_BOOZ2_GUIDANCE(&booz2_guidance_h_cur_pos.x,		\
 				 &booz2_guidance_h_cur_pos.y,		\

@@ -82,7 +82,13 @@ void booz_ins_propagate() {
 
 #ifdef USE_VFF
   if (booz2_analog_baro_status == BOOZ2_ANALOG_BARO_RUNNING && booz_ins_baro_initialised) {
+#if 0
+    struct Int32Vect3 accel_ltp;
+    INT32_RMAT_TRANSP_VMULT(accel_ltp, booz_ahrs.ltp_to_body_rmat, booz_imu.accel);
+    float accel_float = ACCEL_FLOAT_OF_BFP(accel_ltp.z);
+#else
     float accel_float = ACCEL_FLOAT_OF_BFP(booz_imu.accel.z);
+#endif
     b2_vff_propagate(accel_float);
     booz_ins_ltp_accel.z = ACCEL_BFP_OF_REAL(b2_vff_zdotdot);
     booz_ins_ltp_speed.z = SPEED_BFP_OF_REAL(b2_vff_zdot);

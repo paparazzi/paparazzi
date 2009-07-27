@@ -24,7 +24,8 @@ static struct {
   double display_time;
   char* fg_host;
   unsigned int fg_port;
-  char* joystick_dev;
+  char* js_dev;
+  int rc_script;
 } nps_main;
 
 static bool_t nps_main_parse_options(int argc, char** argv);
@@ -58,7 +59,7 @@ static void nps_main_init(void) {
   nps_ivy_init();
   nps_fdm_init(SIM_DT);
   nps_sensors_init(nps_main.sim_time);
-  nps_autopilot_init();
+  nps_autopilot_init(nps_main.js_dev?JOYSTICK:SCRIPT, nps_main.rc_script, nps_main.js_dev);
 
   if (nps_main.fg_host)
     nps_flightgear_init(nps_main.fg_host, nps_main.fg_port);
@@ -115,14 +116,16 @@ static bool_t nps_main_parse_options(int argc, char** argv) {
 
   nps_main.fg_host = NULL;
   nps_main.fg_port = 5501;
-  nps_main.joystick_dev = NULL;
+  nps_main.js_dev = NULL;
+  nps_main.rc_script = 0;
 
   static const char* usage =
 "Usage: %s [options]\n"
 " Options :\n"
 "   -j --js_dev joystick device\n"
 "   --fg_host flight gear host\n"
-"   --fg_port flight gear port\n";
+"   --fg_port flight gear port\n"
+"   --rc_script no\n";
 
 
   while (1) {
@@ -131,6 +134,7 @@ static bool_t nps_main_parse_options(int argc, char** argv) {
       {"fg_host", 1, NULL, 0},
       {"fg_port", 1, NULL, 0},
       {"js_dev", 1, NULL, 0},
+      {"rc_script", 1, NULL, 0},
       {0, 0, 0, 0}
     };
     int option_index = 0;
@@ -147,12 +151,14 @@ static bool_t nps_main_parse_options(int argc, char** argv) {
       case 1:
 	nps_main.fg_port = atoi(optarg); break;
       case 2:
-	nps_main.joystick_dev = strdup(optarg); break;
+	nps_main.js_dev = strdup(optarg); break;
+      case 3:
+	nps_main.rc_script = atoi(optarg); break;
       }
       break;
 
     case 'j':
-      nps_main.joystick_dev = strdup(optarg);
+      nps_main.js_dev = strdup(optarg);
       break;
     
     default: /* ’?’ */
