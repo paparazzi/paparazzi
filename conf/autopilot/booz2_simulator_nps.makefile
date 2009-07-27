@@ -83,8 +83,6 @@ sim.srcs += $(SRC_BOOZ)/booz2_analog.c $(SRC_BOOZ_SIM)/booz2_analog_hw.c
 
 
 
-sim.srcs += $(SRC_BOOZ)/booz2_gps.c
-
 sim.srcs += $(SRC_BOOZ)/booz2_autopilot.c
 
 sim.CFLAGS += -DAHRS_ALIGNER_LED=3

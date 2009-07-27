@@ -25,31 +25,6 @@ void ltp_def_from_ecef_d(struct LtpDef_d* def, struct EcefCoor_d* ecef) {
 
 }
 
-void ecef_of_enu_point_d(struct EcefCoor_d* ecef, struct LtpDef_d* def, struct EnuCoor_d* enu) {
-  MAT33_VECT3_TRANSP_MUL(*ecef, def->ltp_of_ecef, *enu);
-  VECT3_ADD(*ecef, def->ecef);
-}
-
-void ecef_of_ned_point_d(struct EcefCoor_d* ecef, struct LtpDef_d* def, struct NedCoor_d* ned) {
-  struct EnuCoor_d enu;
-  ENU_OF_TO_NED(enu, *ned);
-  ecef_of_enu_point_d(ecef, def, &enu);
-}
-
-void ecef_of_enu_vect_d(struct EcefCoor_d* ecef, struct LtpDef_d* def, struct EnuCoor_d* enu) {
-  MAT33_VECT3_TRANSP_MUL(*ecef, def->ltp_of_ecef, *enu);
-}
-
-void ecef_of_ned_vect_d(struct EcefCoor_d* ecef, struct LtpDef_d* def, struct NedCoor_d* ned) {
-  struct EnuCoor_d enu;
-  ENU_OF_TO_NED(enu, *ned);
-  ecef_of_enu_vect_d(ecef, def, &enu);
-}
-
-
-
-
-
 /* http://en.wikipedia.org/wiki/Geodetic_system */
 void lla_of_ecef_d(struct LlaCoor_d* lla, struct EcefCoor_d* ecef) {
 
@@ -85,3 +60,53 @@ void lla_of_ecef_d(struct LlaCoor_d* lla, struct EcefCoor_d* ecef) {
   lla->lon = atan2(ecef->y,ecef->x);
 
 }
+
+void enu_of_ecef_point_d(struct EnuCoor_d* enu, struct LtpDef_d* def, struct EcefCoor_d* ecef) {
+  struct EcefCoor_d delta;
+  VECT3_DIFF(delta, *ecef, def->ecef);
+  MAT33_VECT3_MUL(*enu, def->ltp_of_ecef, delta);
+}
+
+void ned_of_ecef_point_d(struct NedCoor_d* ned, struct LtpDef_d* def, struct EcefCoor_d* ecef) {
+  struct EnuCoor_d enu;
+  enu_of_ecef_point_d(&enu, def, ecef);
+  ENU_OF_TO_NED(*ned, enu);
+}
+
+void enu_of_ecef_vect_d(struct EnuCoor_d* enu, struct LtpDef_d* def, struct EcefCoor_d* ecef) {
+  MAT33_VECT3_MUL(*enu, def->ltp_of_ecef, *ecef);
+}
+
+void ned_of_ecef_vect_d(struct NedCoor_d* ned, struct LtpDef_d* def, struct EcefCoor_d* ecef) {
+  struct EnuCoor_d enu;
+  enu_of_ecef_vect_d(&enu, def, ecef);
+  ENU_OF_TO_NED(*ned, enu);
+}
+
+
+
+void ecef_of_enu_point_d(struct EcefCoor_d* ecef, struct LtpDef_d* def, struct EnuCoor_d* enu) {
+  MAT33_VECT3_TRANSP_MUL(*ecef, def->ltp_of_ecef, *enu);
+  VECT3_ADD(*ecef, def->ecef);
+}
+
+void ecef_of_ned_point_d(struct EcefCoor_d* ecef, struct LtpDef_d* def, struct NedCoor_d* ned) {
+  struct EnuCoor_d enu;
+  ENU_OF_TO_NED(enu, *ned);
+  ecef_of_enu_point_d(ecef, def, &enu);
+}
+
+void ecef_of_enu_vect_d(struct EcefCoor_d* ecef, struct LtpDef_d* def, struct EnuCoor_d* enu) {
+  MAT33_VECT3_TRANSP_MUL(*ecef, def->ltp_of_ecef, *enu);
+}
+
+void ecef_of_ned_vect_d(struct EcefCoor_d* ecef, struct LtpDef_d* def, struct NedCoor_d* ned) {
+  struct EnuCoor_d enu;
+  ENU_OF_TO_NED(enu, *ned);
+  ecef_of_enu_vect_d(ecef, def, &enu);
+}
+
+
+
+
+

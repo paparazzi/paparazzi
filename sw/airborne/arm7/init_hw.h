@@ -37,7 +37,7 @@
 
 
 #ifdef PERIPHERALS_AUTO_INIT
-#ifdef LED
+#if defined LED || defined USE_LED
 #include "led.h"
 #endif
 #if defined USE_UART0 || defined USE_UART1
@@ -110,7 +110,7 @@ static inline void hw_init(void) {
 
 
 #ifdef PERIPHERALS_AUTO_INIT
-#ifdef LED
+#if defined LED || defined USE_LED
   led_init();
 #endif
 #ifdef USE_UART0

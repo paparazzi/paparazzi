@@ -52,6 +52,8 @@ struct Int16Vect3 {
 #define INT32_SPEED_OF_CM_S_NUM 41943
 #define INT32_SPEED_OF_CM_S_DEN 8
 
+#define INT32_MAG_FRAC 11
+
 #define INT32_ACCEL_FRAC 10
 struct Int32Vect2 {
   int32_t x;

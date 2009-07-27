@@ -29,7 +29,7 @@
 
 struct Booz_gps_state {
   struct EcefCoor_i ecef_pos;    /* pos ECEF in cm        */
-  struct EcefCoor_i ecef_speed;  /* speed ECEF in cm/s    */
+  struct EcefCoor_i ecef_vel;    /* speed ECEF in cm/s    */
   uint32_t pacc;                 /* position accuracy     */
   uint32_t sacc;                 /* speed accuracy        */
   uint16_t pdop;                 /* dilution of precision */
@@ -48,12 +48,26 @@ extern struct Booz_gps_state booz_gps_state;
 #include "ubx_protocol.h"
 
 #ifdef SITL
+extern bool_t booz_gps_available;
 #define GPS_LINKChAvailable() (FALSE)
 #define GPS_LINKGetch() (TRUE)
-#define Booz2GpsEvent(_sol_available_callback) {	                \
-    _sol_available_callback();						\
+#include "nps_sensors.h"
+#define booz_gps_feed_value() {					\
+    booz_gps_state.ecef_pos.x = sensors.gps.ecef_pos.x * 100.;	\
+    booz_gps_state.ecef_pos.y = sensors.gps.ecef_pos.y * 100.;	\
+    booz_gps_state.ecef_pos.z = sensors.gps.ecef_pos.z * 100.;	\
+    booz_gps_state.ecef_vel.x = sensors.gps.ecef_vel.x * 100.;	\
+    booz_gps_state.ecef_vel.y = sensors.gps.ecef_vel.y * 100.;	\
+    booz_gps_state.ecef_vel.z = sensors.gps.ecef_vel.z * 100.;	\
+    booz_gps_available = TRUE;					\
   }
-#else /* not SITL */
+#define Booz2GpsEvent(_sol_available_callback) {	\
+    if (booz_gps_available) {				\
+      _sol_available_callback();			\
+      booz_gps_available = FALSE;			\
+    }							\
+  }
+#else /* ! SITL */
 #define Booz2GpsEvent(_sol_available_callback) {			\
     if (GpsBuffer()) {							\
       ReadGpsBuffer();							\

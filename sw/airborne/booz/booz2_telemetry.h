@@ -475,9 +475,9 @@ define PERIODIC_SEND_BOOZ2_VFF() {}
     DOWNLINK_SEND_BOOZ2_GPS( &booz_gps_state.ecef_pos.x,	\
 			     &booz_gps_state.ecef_pos.y,	\
 			     &booz_gps_state.ecef_pos.z,	\
-			     &booz_gps_state.ecef_speed.x,	\
-			     &booz_gps_state.ecef_speed.y,	\
-			     &booz_gps_state.ecef_speed.z,	\
+			     &booz_gps_state.ecef_vel.x,	\
+			     &booz_gps_state.ecef_vel.y,	\
+			     &booz_gps_state.ecef_vel.z,	\
 			     &booz_gps_state.pacc,		\
 			     &booz_gps_state.sacc,		\
 			     &booz_gps_state.pdop,		\

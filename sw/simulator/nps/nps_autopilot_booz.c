@@ -27,6 +27,7 @@ void nps_autopilot_init(enum NpsRadioControlType type_rc, int num_rc_script, cha
 }
 
 #include <stdio.h>
+#include "booz2_gps.h"
 
 void nps_autopilot_run_step(double time __attribute__ ((unused))) {
   
@@ -52,6 +53,11 @@ void nps_autopilot_run_step(double time __attribute__ ((unused))) {
 #ifdef BYPASS_AHRS
   sim_overwrite_ahrs();
 #endif /* BYPASS_AHRS */
+
+  if (nps_sensors_gps_available()) {
+    booz_gps_feed_value();
+    booz2_main_event();
+  }
 
   booz2_main_periodic();
 
@@ -94,14 +100,14 @@ static void sim_overwrite_ahrs(void) {
 
   //  printf("%f\n", fdm.ltpprz_to_body_eulers.phi);
 
-  booz_ahrs.ltp_to_body_euler.phi   = ANGLE_BFP_OF_REAL(fdm.ltpprz_to_body_eulers.phi);
-  booz_ahrs.ltp_to_body_euler.theta = ANGLE_BFP_OF_REAL(fdm.ltpprz_to_body_eulers.theta);
-  booz_ahrs.ltp_to_body_euler.psi   = ANGLE_BFP_OF_REAL(fdm.ltpprz_to_body_eulers.psi);
+  booz_ahrs.ltp_to_body_euler.phi   = ANGLE_BFP_OF_REAL(fdm.ltp_to_body_eulers.phi);
+  booz_ahrs.ltp_to_body_euler.theta = ANGLE_BFP_OF_REAL(fdm.ltp_to_body_eulers.theta);
+  booz_ahrs.ltp_to_body_euler.psi   = ANGLE_BFP_OF_REAL(fdm.ltp_to_body_eulers.psi);
 
-  booz_ahrs.ltp_to_body_quat.qi = QUAT1_BFP_OF_REAL(fdm.ltpprz_to_body_quat.qi);
-  booz_ahrs.ltp_to_body_quat.qx = QUAT1_BFP_OF_REAL(fdm.ltpprz_to_body_quat.qx);
-  booz_ahrs.ltp_to_body_quat.qy = QUAT1_BFP_OF_REAL(fdm.ltpprz_to_body_quat.qy);
-  booz_ahrs.ltp_to_body_quat.qz = QUAT1_BFP_OF_REAL(fdm.ltpprz_to_body_quat.qz);
+  booz_ahrs.ltp_to_body_quat.qi = QUAT1_BFP_OF_REAL(fdm.ltp_to_body_quat.qi);
+  booz_ahrs.ltp_to_body_quat.qx = QUAT1_BFP_OF_REAL(fdm.ltp_to_body_quat.qx);
+  booz_ahrs.ltp_to_body_quat.qy = QUAT1_BFP_OF_REAL(fdm.ltp_to_body_quat.qy);
+  booz_ahrs.ltp_to_body_quat.qz = QUAT1_BFP_OF_REAL(fdm.ltp_to_body_quat.qz);
 
   booz_ahrs.body_rate.p = RATE_BFP_OF_REAL(fdm.body_ecef_rotvel.p);
   booz_ahrs.body_rate.q = RATE_BFP_OF_REAL(fdm.body_ecef_rotvel.q);
