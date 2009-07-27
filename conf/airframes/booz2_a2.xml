@@ -180,6 +180,8 @@ include $(CFG_BOOZ)/subsystems/booz2_actuators_asctec.makefile
 include $(CFG_BOOZ)/subsystems/booz2_imu_crista.makefile
 include $(CFG_BOOZ)/subsystems/booz2_gps.makefile
 
+include $(CFG_BOOZ)/subsystems/booz2_ahrs_cmpl.makefile
+
   </makefile>
 
 </airframe>

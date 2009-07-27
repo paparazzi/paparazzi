@@ -192,6 +192,8 @@ include $(CFG_BOOZ)/subsystems/booz2_radio_control_ppm.makefile
 include $(CFG_BOOZ)/subsystems/booz2_imu_b2v1_1.makefile
 include $(CFG_BOOZ)/subsystems/booz2_gps.makefile
 
+include $(CFG_BOOZ)/subsystems/booz2_ahrs_cmpl.makefile
+
 ap.CFLAGS += -DUSE_CAM
 ap.srcs += $(SRC_BOOZ_ARCH)/booz2_pwm_hw.c $(SRC_BOOZ)/booz2_cam.c
 

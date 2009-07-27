@@ -160,6 +160,8 @@ include $(PAPARAZZI_SRC)/conf/autopilot/radio_control_spektrum.makefile
 include $(PAPARAZZI_SRC)/conf/autopilot/booz2_actuators_asctec.makefile
 include $(PAPARAZZI_SRC)/conf/autopilot/booz2_imu_b2v1_1.makefile
 
+include $(CFG_BOOZ)/subsystems/booz2_ahrs_cmpl.makefile
+
 ap.CFLAGS += -DUSE_BOOZ2_CONTROL_SURFACES -DUSE_BOOZ2_SERVOS_DIRECT
 ap.CFLAGS += -DUSE_BOOZ2_SERVOS_DIRECT_0 -DUSE_BOOZ2_SERVOS_DIRECT_1
 ap.srcs += $(SRC_BOOZ_ARCH)/booz2_servos_direct_hw.c

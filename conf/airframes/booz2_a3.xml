@@ -183,6 +183,8 @@ include $(CFG_BOOZ)/subsystems/booz2_actuators_asctec.makefile
 include $(CFG_BOOZ)/subsystems/booz2_imu_b2v1.makefile
 # NO GPS, uses spektrum
 
+include $(CFG_BOOZ)/subsystems/booz2_ahrs_cmpl.makefile
+
   </makefile>
 
 </airframe>
