@@ -11,6 +11,8 @@ JSBSIM_LIB = $(JSBSIM_ROOT)/lib
 SRC_BOOZ=booz
 SRC_BOOZ_SIM = $(SRC_BOOZ)/arch/sim
 
+NPSDIR = $(SIMDIR)/nps
+
 
 sim.ARCHDIR = $(ARCHI)
 sim.ARCH = sitl
@@ -20,26 +22,24 @@ sim.TARGETDIR = sim
 sim.CFLAGS  += -DSITL
 sim.CFLAGS  += `pkg-config glib-2.0 --cflags` -I /usr/include/meschach
 sim.LDFLAGS += `pkg-config glib-2.0 --libs` -lm -lmeschach -lpcre -lglibivy
-sim.CFLAGS  += -I$(SIMDIR) -I/usr/local/include -I$(JSBSIM_INC)
+sim.CFLAGS  += -I$(NPSDIR) -I/usr/local/include -I$(JSBSIM_INC)
 sim.LDFLAGS += -L$(JSBSIM_LIB) -lJSBSim
 
 sim.CFLAGS += -I$(SRC_BOOZ) -I$(SRC_BOOZ_SIM) -I../simulator -I$(PAPARAZZI_HOME)/conf/simulator/nps
 
-sim.srcs = $(SIMDIR)/nps_main.c                      \
-	   $(SIMDIR)/nps_fdm_jsbsim.c                \
-	   $(SIMDIR)/nps_random.c                    \
-	   $(SIMDIR)/booz_r250.c                     \
-	   $(SIMDIR)/booz_randlcg.c                  \
-	   $(SIMDIR)/nps_sensors.c                   \
-	   $(SIMDIR)/nps_sensor_gyro.c               \
-	   $(SIMDIR)/nps_sensor_accel.c              \
-	   $(SIMDIR)/nps_sensor_mag.c                \
-	   $(SIMDIR)/nps_sensor_baro.c               \
-	   $(SIMDIR)/nps_sensor_gps.c                \
-	   $(SIMDIR)/nps_radio_control.c             \
-	   $(SIMDIR)/nps_autopilot_booz.c            \
-	   $(SIMDIR)/nps_ivy.c                       \
-	   $(SIMDIR)/nps_flightgear.c                \
+sim.srcs = $(NPSDIR)/nps_main.c                      \
+	   $(NPSDIR)/nps_fdm_jsbsim.c                \
+	   $(NPSDIR)/nps_random.c                    \
+	   $(NPSDIR)/nps_sensors.c                   \
+	   $(NPSDIR)/nps_sensor_gyro.c               \
+	   $(NPSDIR)/nps_sensor_accel.c              \
+	   $(NPSDIR)/nps_sensor_mag.c                \
+	   $(NPSDIR)/nps_sensor_baro.c               \
+	   $(NPSDIR)/nps_sensor_gps.c                \
+	   $(NPSDIR)/nps_radio_control.c             \
+	   $(NPSDIR)/nps_autopilot_booz.c            \
+	   $(NPSDIR)/nps_ivy.c                       \
+	   $(NPSDIR)/nps_flightgear.c                \
 
 
 sim.srcs += math/pprz_trig_int.c             \
