@@ -230,7 +230,7 @@ void booz_ahrs_propagate(void) {
    */
   for (i=0; i<3; i++) {
     for (j=0; j<3; j++) {
-	  bafl_T[i][j+3] = - RMAT_ELMT(bafl_dcm, i, j); //TODO check if dcm needs to be inverted
+	  bafl_T[i][j+3] = - RMAT_ELMT(bafl_dcm, j, i); /* inverted bafl_dcm */
 	}
   }
   /*
