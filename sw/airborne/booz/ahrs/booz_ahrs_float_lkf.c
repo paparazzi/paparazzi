@@ -29,7 +29,7 @@ struct FloatQuat  bafl_quat;
 /* our estimated gyro biases                  */
 struct FloatRates bafl_bias;
 /* our estimated attitude errors              */
-struct FloatEulers bafl_quat_err;
+struct FloatQuat bafl_quat_err;
 /* our estimated gyro bias errors             */
 struct FloatRates bafl_bias_err;
 /* we get unbiased body rates as byproduct    */
@@ -482,10 +482,34 @@ void booz_ahrs_update(void) {
    *
    **********************************************/
    
-  /* Error quaternion.
+  /*  Error quaternion.
    */
+  float q_sq;
+  q_sq = (bafl_X[0]*bafl_X[0] + bafl_X[1]*bafl_X[1] + bafl_X[1]*bafl_X[1]) / 4;
+  if (q_sq > 1) { 			/* this should actually never happen */
+	bafl_quat_err.qi = 1;
+	bafl_quat_err.qx = bafl_X[0] / 2;
+	bafl_quat_err.qy = bafl_X[1] / 2;
+	bafl_quat_err.qz = bafl_X[2] / 2;
+	FLOAT_QUAT_SMUL(bafl_quat_err, bafl_quat_err, 1/sqrtf(1 + q_sq));
+  }
+  else {
+	bafl_quat_err.qi = sqrtf(1 - q_sq);
+	bafl_quat_err.qx = bafl_X[0] / 2;
+	bafl_quat_err.qy = bafl_X[1] / 2;
+	bafl_quat_err.qz = bafl_X[2] / 2;
+  }
+
+  /*  correct attitude
+   */
+  FLOAT_QUAT_COMP(bafl_quat, bafl_quat, bafl_quat_err);
+
+  /*  correct gyro bias
+   */
+  RATES_ASSIGN(bafl_bias_err, bafl_X[3], bafl_X[4], bafl_X[5]);
+  RATES_SUB(bafl_bias, bafl_bias_err);
   
-  
+
   /* maintain rotation matrix representation */
   FLOAT_RMAT_OF_QUAT(bafl_dcm, bafl_quat);
    
