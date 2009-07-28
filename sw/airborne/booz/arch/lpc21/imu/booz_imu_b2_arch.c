@@ -91,7 +91,10 @@ void booz_imu_periodic(void) {
   // read adc
   booz_imu_ssp_status = BOOZ_IMU_SSP_STA_BUSY_MAX1168;
   booz_max1168_read();
-  
+#if defined IMU_B2_MAG_TYPE && IMU_B2_MAG_TYPE == IMU_B2_MAG_AMI601
+  RunOnceEvery(10, { ami601_read(); });
+#endif
+
 }
 
 
