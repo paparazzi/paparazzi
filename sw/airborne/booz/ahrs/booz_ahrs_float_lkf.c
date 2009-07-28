@@ -87,8 +87,9 @@ struct FloatVect3 bafl_y;
  * with respect to the states of the filter.  We do not allocate the bottom
  * three rows since we know that the attitude measurements have no
  * relationship to gyro bias.
+ * The last three columns always stay zero.
  */
-float bafl_H[3][6];
+float bafl_H[3][3];
 
 struct FloatVect3 bafl_accel;
 struct FloatVect3 bafl_mag;
@@ -96,8 +97,12 @@ struct FloatVect3 bafl_mag;
 /* temporary variables for the strapdown computation */
 float bafl_qom[4][4];
 
-#define bafl_g 9.81
-#define bafl_h {236.0, -2.0, 396.0}
+#define BAFL_g 9.81
+
+#define BAFL_hx 236.0
+#define BAFL_hy -2.0
+#define BAFL_hz 396.0
+struct FloatVect3 bafl_h;
 
 /*
  * Q is our estimate noise variance.  It is supposed to be an NxN
@@ -120,24 +125,25 @@ float bafl_qom[4][4];
 #define BAFL_R_THETA 1.3 * 1.3
 #define BAFL_R_PSI   2.5 * 2.5
 
-#define BAFL_R_ACCEL 5.0  * 5.0
-#define BAFL_R_MAG   300. * 300.
+#define BAFL_SIGMA_ACCEL 5.0
+#define BAFL_SIGMA_MAG   300.
+float bafl_sigma_accel;
+float bafl_sigma_mag;
+float bafl_R_accel;
+float bafl_R_mag;
 
 #ifndef BAFL_DT
 #define BAFL_DT (1./512.)
 #endif
 
+
 void booz_ahrs_init(void) {
-  int i, j, k;
+  int i, j;
 
   for(i = 0; i < BAFL_SSIZE; i++) {
-	for(k = 0; k < BAFL_SSIZE; k++) {
-		bafl_T[i][k] = 0.;
+	for(j = 0; j < BAFL_SSIZE; j++) {
+		bafl_T[i][j] = 0.;
 	}
-	for(j = 0; j < 3; j++) {
-		bafl_H[j][i] = 0.;
-	}
-		
 	/* Insert the diagonal elements of the T-Matrix. These will never change. */
 	bafl_T[i][i]=1.0;
   }
@@ -151,6 +157,11 @@ void booz_ahrs_init(void) {
   INT32_QUAT_ZERO(booz_ahrs.ltp_to_imu_quat);
   INT_RATES_ZERO(booz_ahrs.body_rate);
   INT_RATES_ZERO(booz_ahrs.imu_rate);
+
+  booz_ahrs_float_lkf_SetRaccel(BAFL_SIGMA_ACCEL);
+  booz_ahrs_float_lkf_SetRmag(BAFL_SIGMA_MAG);
+
+  FLOAT_VECT3_ASSIGN(bafl_h, BAFL_hx, BAFL_hy, BAFL_hz);
 
 }
 
@@ -274,13 +285,16 @@ void booz_ahrs_update_accel(void) {
   }
   
   /* set up measurement matrix */ 
-  bafl_H[0][0] = -RMAT_ELMT(bafl_dcm, 0, 1) * bafl_g;
-  bafl_H[0][1] =  RMAT_ELMT(bafl_dcm, 0, 0) * bafl_g;
-  bafl_H[1][0] = -RMAT_ELMT(bafl_dcm, 1, 1) * bafl_g;
-  bafl_H[1][1] =  RMAT_ELMT(bafl_dcm, 1, 0) * bafl_g;
-  bafl_H[2][0] = -RMAT_ELMT(bafl_dcm, 2, 1) * bafl_g;
-  bafl_H[2][1] =  RMAT_ELMT(bafl_dcm, 2, 0) * bafl_g;
+  bafl_H[0][0] = -RMAT_ELMT(bafl_dcm, 0, 1) * BAFL_g;
+  bafl_H[0][1] =  RMAT_ELMT(bafl_dcm, 0, 0) * BAFL_g;
+  bafl_H[1][0] = -RMAT_ELMT(bafl_dcm, 1, 1) * BAFL_g;
+  bafl_H[1][1] =  RMAT_ELMT(bafl_dcm, 1, 0) * BAFL_g;
+  bafl_H[2][0] = -RMAT_ELMT(bafl_dcm, 2, 1) * BAFL_g;
+  bafl_H[2][1] =  RMAT_ELMT(bafl_dcm, 2, 0) * BAFL_g;
   //rest is zero
+  bafl_H[0][2] = 0.;
+  bafl_H[1][2] = 0.;
+  bafl_H[2][2] = 0.;
   
   
   
@@ -300,30 +314,28 @@ void booz_ahrs_update_accel(void) {
   /* covariance residual S = H * P_prio * HT + R    */
   
   /* temp_S(3x6) = H(3x6) * P_prio(6x6)
-   * last 3 columns of H are zero
+   * last 4 columns of H are zero
    */
   for (i=0; i<3; i++) {
 	for (j=0; j<6; j++) {
-	  bafl_tempS[i][j] = bafl_H[i][0] * bafl_Pprio[0][j];
-	  for (k=1; k<3; k++) {
-		bafl_tempS[i][j] +=  bafl_H[i][k] * bafl_Pprio[k][j];
-	  }
+	  bafl_tempS[i][j]  = bafl_H[i][0] * bafl_Pprio[0][j];
+	  bafl_tempS[i][j] += bafl_H[i][1] * bafl_Pprio[1][j];
 	}
   }
 
   
   /* S(3x3) = temp_S(3x6) * HT(6x3) + R(3x3)
    *
-   * last 3 rows of HT are zero
+   * last 4 rows of HT are zero
    */
   for (i=0; i<3; i++) {
 	for (j=0; j<3; j++) {
-	  if (i < 3 && i == j) {
-		bafl_S[i][j] = BAFL_R_ACCEL;
+	  if (i == j) {
+		bafl_S[i][j] = bafl_R_accel;
 	  } else {
 		bafl_S[i][j] = 0.;
 	  }
-	  for (k=0; k<3; k++) {		/* normally k<6, not computing zero elements */
+	  for (k=0; k<2; k++) {		/* normally k<6, not computing zero elements */
 		bafl_S[i][j] +=  bafl_tempS[i][k] * bafl_H[j][k]; /* H[j][k] = HT[k][j] */
 	  }
 	}
@@ -352,14 +364,13 @@ void booz_ahrs_update_accel(void) {
 
   /* temp_K(6x3) = P_prio(6x6) * HT(6x3)
    *
-   * last 3 rows of HT are zero
+   * bottom 4 rows of HT are zero
    */
   for (i=0; i<6; i++) {
 	for (j=1; j<3; j++) {
-	  bafl_tempK[i][j] = bafl_Pprio[i][0] * bafl_H[j][0];		/* H[j][0] = HT[0][j] */
-	  for (k=1; k<3; k++) {										/* normally k<6, not computing zero elements */
-		bafl_tempK[i][j] +=  bafl_Pprio[i][k] * bafl_H[j][k]; 	/* H[j][k] = HT[k][j] */
-	  }
+	  /* not computing zero elements */
+	  bafl_tempK[i][j]  = bafl_Pprio[i][0] * bafl_H[j][0];	/* H[j][0] = HT[0][j] */
+	  bafl_tempK[i][j] += bafl_Pprio[i][1] * bafl_H[j][1]; 	/* H[j][1] = HT[1][j] */
 	}
   }
 
@@ -389,9 +400,9 @@ void booz_ahrs_update_accel(void) {
   /* innovation 
    * y = Cnb * -[0; 0; g] - accel 
    */
-  bafl_y.x = -RMAT_ELMT(bafl_dcm, 0, 2) * bafl_g - bafl_accel.x;
-  bafl_y.y = -RMAT_ELMT(bafl_dcm, 1, 2) * bafl_g - bafl_accel.y;
-  bafl_y.z = -RMAT_ELMT(bafl_dcm, 2, 2) * bafl_g - bafl_accel.z;
+  bafl_y.x = -RMAT_ELMT(bafl_dcm, 0, 2) * BAFL_g - bafl_accel.x;
+  bafl_y.y = -RMAT_ELMT(bafl_dcm, 1, 2) * BAFL_g - bafl_accel.y;
+  bafl_y.z = -RMAT_ELMT(bafl_dcm, 2, 2) * BAFL_g - bafl_accel.z;
   
   /* X(6) = K(6x3) * y(3) 
    */
@@ -411,7 +422,7 @@ void booz_ahrs_update_accel(void) {
    
   /*  temp(6x6) = I(6x6) - K(6x3)*H(3x6)
    *  
-   *  last 3 columns of H are zero
+   *  last 4 columns of H are zero
    */
   for (i=0; i<6; i++) {
 	for (j=0; j<6; j++) {
@@ -421,7 +432,7 @@ void booz_ahrs_update_accel(void) {
 	  else {
 		bafl_tempP[i][j] = 0.;
 	  }
-	  if (j < 3) {				/* omit the parts where H is zero */
+	  if (j < 2) {				/* omit the parts where H is zero */
 		for (k=0; k<3; k++) {
 		  bafl_tempP[i][j] -= bafl_K[i][k] * bafl_H[k][j];
 		}
@@ -487,7 +498,6 @@ void booz_ahrs_update_accel(void) {
 void booz_ahrs_update_mag(void) {
   int i, j, k;
   
-  
   MAGS_FLOAT_OF_BFP(bafl_mag, booz_imu.mag);
   
   /* P_prio = P */
@@ -496,16 +506,19 @@ void booz_ahrs_update_mag(void) {
 	  bafl_Pprio[i][j] = bafl_P[i][j];
 	}
   }
+
   
   /* set up measurement matrix */ 
-  bafl_H[0][0] = -RMAT_ELMT(bafl_dcm, 0, 1) * bafl_g;
-  bafl_H[0][1] =  RMAT_ELMT(bafl_dcm, 0, 0) * bafl_g;
-  bafl_H[1][0] = -RMAT_ELMT(bafl_dcm, 1, 1) * bafl_g;
-  bafl_H[1][1] =  RMAT_ELMT(bafl_dcm, 1, 0) * bafl_g;
-  bafl_H[2][0] = -RMAT_ELMT(bafl_dcm, 2, 1) * bafl_g;
-  bafl_H[2][1] =  RMAT_ELMT(bafl_dcm, 2, 0) * bafl_g;
+  bafl_H[0][2] = RMAT_ELMT(bafl_dcm, 0, 0) * bafl_h.y - RMAT_ELMT(bafl_dcm, 0, 1) * bafl_h.x;
+  bafl_H[1][2] = RMAT_ELMT(bafl_dcm, 1, 0) * bafl_h.y - RMAT_ELMT(bafl_dcm, 1, 1) * bafl_h.x;
+  bafl_H[2][2] = RMAT_ELMT(bafl_dcm, 2, 0) * bafl_h.y - RMAT_ELMT(bafl_dcm, 2, 1) * bafl_h.x;
   //rest is zero
-  
+  bafl_H[0][0] = 0.;
+  bafl_H[0][1] = 0.;
+  bafl_H[1][0] = 0.;
+  bafl_H[1][1] = 0.;
+  bafl_H[2][0] = 0.;
+  bafl_H[2][1] = 0.;
   
   
   
@@ -524,31 +537,25 @@ void booz_ahrs_update_mag(void) {
   /* covariance residual S = H * P_prio * HT + R    */
   
   /* temp_S(3x6) = H(3x6) * P_prio(6x6)
-   * last 3 columns of H are zero
+   *
+   * only third column of H is non-zero
    */
   for (i=0; i<3; i++) {
 	for (j=0; j<6; j++) {
-	  bafl_tempS[i][j] = bafl_H[i][0] * bafl_Pprio[0][j];
-	  for (k=1; k<3; k++) {
-		bafl_tempS[i][j] +=  bafl_H[i][k] * bafl_Pprio[k][j];
-	  }
+	  bafl_tempS[i][j] = bafl_H[i][2] * bafl_Pprio[2][j];
 	}
   }
 
   
   /* S(3x3) = temp_S(3x6) * HT(6x3) + R(3x3)
    *
-   * last 3 rows of HT are zero
+   * only third row of HT is non-zero
    */
   for (i=0; i<3; i++) {
 	for (j=0; j<3; j++) {
-	  if (i < 3 && i == j) {
-		bafl_S[i][j] = BAFL_R_MAG;
-	  } else {
-		bafl_S[i][j] = 0.;
-	  }
-	  for (k=0; k<3; k++) {		/* normally k<6, not computing zero elements */
-		bafl_S[i][j] +=  bafl_tempS[i][k] * bafl_H[j][k]; /* H[j][k] = HT[k][j] */
+	  bafl_S[i][j] = bafl_tempS[i][2] * bafl_H[j][2]; /* H[j][2] = HT[2][j] */
+	  if (i == j) {
+		bafl_S[i][j] += bafl_R_mag;
 	  }
 	}
   }
@@ -576,14 +583,11 @@ void booz_ahrs_update_mag(void) {
 
   /* temp_K(6x3) = P_prio(6x6) * HT(6x3)
    *
-   * last 3 rows of HT are zero
+   * only third row of HT is non-zero
    */
   for (i=0; i<6; i++) {
 	for (j=1; j<3; j++) {
-	  bafl_tempK[i][j] = bafl_Pprio[i][0] * bafl_H[j][0];		/* H[j][0] = HT[0][j] */
-	  for (k=1; k<3; k++) {										/* normally k<6, not computing zero elements */
-		bafl_tempK[i][j] +=  bafl_Pprio[i][k] * bafl_H[j][k]; 	/* H[j][k] = HT[k][j] */
-	  }
+	  bafl_tempK[i][j] = bafl_Pprio[i][2] * bafl_H[j][2];		/* H[j][2] = HT[2][j] */
 	}
   }
 
@@ -610,12 +614,11 @@ void booz_ahrs_update_mag(void) {
    **********************************************/
 
   
-  /* innovation 
-   * y = Cnb * -[0; 0; g] - accel 
+  /*  innovation  
+   *  y = Cnb * [hx; hy; hz] - mag
    */
-  bafl_y.x = -RMAT_ELMT(bafl_dcm, 0, 2) * bafl_g - bafl_accel.x;
-  bafl_y.y = -RMAT_ELMT(bafl_dcm, 1, 2) * bafl_g - bafl_accel.y;
-  bafl_y.z = -RMAT_ELMT(bafl_dcm, 2, 2) * bafl_g - bafl_accel.z;
+  FLOAT_RMAT_VECT3_MUL(bafl_y, bafl_dcm, bafl_h);
+  FLOAT_VECT3_SUB(bafl_y, bafl_mag);
   
   /* X(6) = K(6x3) * y(3) 
    */
@@ -645,7 +648,7 @@ void booz_ahrs_update_mag(void) {
 	  else {
 		bafl_tempP[i][j] = 0.;
 	  }
-	  if (j < 3) {				/* omit the parts where H is zero */
+	  if (j == 2) {				/* omit the parts where H is zero */
 		for (k=0; k<3; k++) {
 		  bafl_tempP[i][j] -= bafl_K[i][k] * bafl_H[k][j];
 		}

@@ -29,5 +29,20 @@
 #include "std.h"
 #include "math/pprz_algebra_int.h"
 
+extern float bafl_sigma_accel;
+extern float bafl_sigma_mag;
+extern float bafl_R_accel;
+extern float bafl_R_mag;
+
+
+#define booz_ahrs_float_lkf_SetRaccel(_v) { \
+  bafl_sigma_accel = _v; \
+  bafl_R_accel = _v * _v; \
+}
+#define booz_ahrs_float_lkf_SetRmag(_v) { \
+  bafl_sigma_mag = _v; \
+  bafl_R_mag = _v * _v; \
+}
+
 #endif /* BOOZ_AHRS_FLOAT_LKF_H */
 

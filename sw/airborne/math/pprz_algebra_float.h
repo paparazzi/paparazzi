@@ -76,6 +76,8 @@ struct FloatRates {
 
 #define FLOAT_VECT3_ZERO(_v) VECT3_ASSIGN(_v, 0., 0., 0.)	\
 
+#define FLOAT_VECT3_ASSIGN(_a, _x, _y, _z) VECT3_ASSIGN(_a, _x, _y, _z)
+
 /* c = a - b */
 #define FLOAT_VECT3_DIFF(_c, _a, _b) VECT3_DIFF(_c, _a, _b)
 
