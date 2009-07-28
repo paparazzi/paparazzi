@@ -54,12 +54,6 @@
                   shortname="ki" handler="SetKi"/>
    </dl_settings>
 
-
-    <dl_settings NAME="Filter">
-       <dl_setting var="booz2_face_reinj_1" min="512" step="512" max="262144" module="ahrs/booz2_filter_attitude_cmpl_euler" shortname="reinj_1"/>
-    </dl_settings>
-
-
     <dl_settings NAME="Analog Baro">
       <dl_setting var="booz2_analog_baro_offset" min="1" step="1" max="1022" module="booz2_analog_baro" handler="SetOffset" shortname="offset"/>
     </dl_settings>
