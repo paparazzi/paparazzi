@@ -197,7 +197,7 @@ static inline void on_gps_event(void) {
 
 static inline void on_mag_event(void) {
   BoozImuScaleMag();
-#ifdef USE_LKF_AHRS
-  //booz_ahrs_update_mag();
+#ifdef USE_AHRS_LKF
+  booz_ahrs_update_mag();
 #endif
 }

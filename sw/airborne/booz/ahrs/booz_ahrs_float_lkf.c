@@ -489,7 +489,31 @@ void booz_ahrs_update_accel(void) {
 
   /* maintain rotation matrix representation */
   FLOAT_RMAT_OF_QUAT(bafl_dcm, bafl_quat);
-   
+  /* maintain euler representation */
+  FLOAT_EULERS_OF_RMAT(bafl_eulers, bafl_dcm);
+  
+
+
+  /* 
+   *  convert to binary floating point 
+   */
+  /* IMU rate */
+  RATES_BFP_OF_REAL(booz_ahrs.imu_rate, bafl_rates);
+  /* LTP to IMU eulers      */
+  EULERS_BFP_OF_REAL(booz_ahrs.ltp_to_imu_euler, bafl_eulers);
+  /* LTP to IMU quaternion */
+  QUAT_BFP_OF_REAL(booz_ahrs.ltp_to_imu_quat, bafl_quat);
+  /* LTP to IMU rotation matrix */
+  RMAT_BFP_OF_REAL(booz_ahrs.ltp_to_imu_rmat, bafl_dcm);
+
+  /* Compute LTP to BODY quaternion */
+  INT32_QUAT_COMP_INV(booz_ahrs.ltp_to_body_quat, booz_imu.body_to_imu_quat, booz_ahrs.ltp_to_imu_quat);
+  /* Compute LTP to BODY rotation matrix */
+  INT32_RMAT_COMP_INV(booz_ahrs.ltp_to_body_rmat, booz_ahrs.ltp_to_imu_rmat, booz_imu.body_to_imu_rmat);
+  /* compute LTP to BODY eulers */
+  INT32_EULERS_OF_RMAT(booz_ahrs.ltp_to_body_euler, booz_ahrs.ltp_to_body_rmat);
+  /* compute body rates */
+  INT32_RMAT_TRANSP_RATEMULT(booz_ahrs.body_rate, booz_imu.body_to_imu_rmat, booz_ahrs.imu_rate);
 }
 
 
@@ -705,4 +729,34 @@ void booz_ahrs_update_mag(void) {
 
   /* maintain rotation matrix representation */
   FLOAT_RMAT_OF_QUAT(bafl_dcm, bafl_quat);
+  /* maintain euler representation */
+  FLOAT_EULERS_OF_RMAT(bafl_eulers, bafl_dcm);
+  
+
+
+  /* 
+   *  convert to binary floating point 
+   */
+  /* IMU rate */
+  RATES_BFP_OF_REAL(booz_ahrs.imu_rate, bafl_rates);
+  /* LTP to IMU eulers      */
+  EULERS_BFP_OF_REAL(booz_ahrs.ltp_to_imu_euler, bafl_eulers);
+  /* LTP to IMU quaternion */
+  QUAT_BFP_OF_REAL(booz_ahrs.ltp_to_imu_quat, bafl_quat);
+  /* LTP to IMU rotation matrix */
+  RMAT_BFP_OF_REAL(booz_ahrs.ltp_to_imu_rmat, bafl_dcm);
+
+  /* Compute LTP to BODY quaternion */
+  INT32_QUAT_COMP_INV(booz_ahrs.ltp_to_body_quat, booz_imu.body_to_imu_quat, booz_ahrs.ltp_to_imu_quat);
+  /* Compute LTP to BODY rotation matrix */
+  INT32_RMAT_COMP_INV(booz_ahrs.ltp_to_body_rmat, booz_ahrs.ltp_to_imu_rmat, booz_imu.body_to_imu_rmat);
+  /* compute LTP to BODY eulers */
+  INT32_EULERS_OF_RMAT(booz_ahrs.ltp_to_body_euler, booz_ahrs.ltp_to_body_rmat);
+  /* compute body rates */
+  INT32_RMAT_TRANSP_RATEMULT(booz_ahrs.body_rate, booz_imu.body_to_imu_rmat, booz_ahrs.imu_rate);
+}
+
+void booz_ahrs_update(void) {
+  booz_ahrs_update_accel();
+  booz_ahrs_update_mag();
 }
