@@ -168,6 +168,12 @@
     <define name="DT_MAX" value="2000" unit="ms"/> <!-- lost comm or timeout -->
   </section>
 
+  <section name="POTENTIAL">
+    <define name="FORCE_POS_GAIN" value="50"/>
+    <define name="FORCE_SPEED_GAIN" value="1"/>
+    <define name="FORCE_CLIMB_GAIN" value="8"/>
+  </section>
+
   <section name="AGGRESSIVE" prefix="AGR_">
     <define name="BLEND_START" value="20"/><!-- Altitude Error to Initiate Aggressive Climb CANNOT BE ZERO!!-->
     <define name="BLEND_END" value="10"/><!-- Altitude Error to Blend Aggressive to Regular Climb Modes  CANNOT BE ZERO!!-->
