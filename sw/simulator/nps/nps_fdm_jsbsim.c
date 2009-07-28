@@ -141,6 +141,9 @@ static void test123(LlaCoor_d* fdm_lla, FGPropagate* propagate) {
  
   fdm_lla->lat = propagate->GetLatitude();
   fdm_lla->lon = propagate->GetLongitude();
+
+  //  fdm_lla->lat = propagate->GetGeodLatitudeRad();
+
   // FIXME
   fdm_lla->alt = MetersOfFeet(propagate->GetDistanceAGL());
 

@@ -59,13 +59,14 @@ extern bool_t booz_gps_available;
     booz_gps_state.ecef_vel.x = sensors.gps.ecef_vel.x * 100.;	\
     booz_gps_state.ecef_vel.y = sensors.gps.ecef_vel.y * 100.;	\
     booz_gps_state.ecef_vel.z = sensors.gps.ecef_vel.z * 100.;	\
+    booz_gps_state.fix = BOOZ2_GPS_FIX_3D;			\
     booz_gps_available = TRUE;					\
   }
-#define Booz2GpsEvent(_sol_available_callback) {	\
-    if (booz_gps_available) {				\
-      _sol_available_callback();			\
-      booz_gps_available = FALSE;			\
-    }							\
+#define Booz2GpsEvent(_sol_available_callback) {	        \
+    if (booz_gps_available) {					\
+      _sol_available_callback();				\
+      booz_gps_available = FALSE;				\
+    }								\
   }
 #else /* ! SITL */
 #define Booz2GpsEvent(_sol_available_callback) {			\

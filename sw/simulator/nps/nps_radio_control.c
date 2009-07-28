@@ -41,10 +41,14 @@ typedef void (*rc_script)(double);
 
 static void radio_control_script_takeoff(double time);
 static void radio_control_script_step_roll(double time);
+static void radio_control_script_step_pitch(double time);
+static void radio_control_script_step_yaw(double time);
 static void radio_control_script_ff(double time);
 
 static rc_script scripts[] = {
   radio_control_script_step_roll,
+  radio_control_script_step_pitch,
+  radio_control_script_step_yaw,
   radio_control_script_ff
 };
 
@@ -147,6 +151,33 @@ void radio_control_script_step_roll(double time) {
   }
   else {
     nps_radio_control.roll = -0.2;
+    nps_radio_control.yaw = 0.;
+  }
+}
+
+void radio_control_script_step_pitch(double time) {
+  nps_radio_control.roll = 0.;
+  nps_radio_control.yaw = 0.;
+  nps_radio_control.throttle = 0.99;
+  nps_radio_control.mode = MODE_SWITCH_AUTO2;
+  if (((int32_t)rint((time*0.5)))%2) {
+    nps_radio_control.pitch = 0.2;
+  }
+  else {
+    nps_radio_control.pitch = -0.2;
+  }
+}
+
+void radio_control_script_step_yaw(double time) {
+  nps_radio_control.roll = 0.;
+  nps_radio_control.pitch = 0.;
+  nps_radio_control.throttle = 0.99;
+  nps_radio_control.mode = MODE_SWITCH_AUTO2;
+  
+  if (((int32_t)rint((time*0.5)))%2) {
+    nps_radio_control.yaw = 0.5;
+  }
+  else {
     nps_radio_control.yaw = 0.;
   }
 }
