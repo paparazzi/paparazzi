@@ -6,11 +6,11 @@
     <file name="ins.h"/>
   </header>
   <init fun="ins_init()"/>
-  <periodic fun="ins_periodic_task()" period="0.017"/>
+  <periodic fun="ins_periodic_task()" freq="60"/>
   <makefile>
     <flag name="USE_UART0"/>
     <flag name="INS_LINK" value="Uart0"/>
-    <flag name="UART0_BAUD" value="115200"/>
+    <flag name="UART0_BAUD" value="B115200"/>
     <!-- calibrated, orientation, status -->
     <flag name="XSENS_OUTPUT_MODE" value="0x0806"/>
     <!-- timestamp, euler, acc, rate, mag, float, no aux, NED -->
