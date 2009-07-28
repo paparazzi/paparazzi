@@ -437,7 +437,18 @@
     (_c).m[8] = (_a).m[8] - (_b).m[8];				\
   }
 
-
+/* multiply _vin by _rmat, store in _vout */
+#define RMAT_VECT3_MUL(_vout, _rmat, _vin) {				\
+    (_vout).x = RMAT_ELMT((_rmat), 0, 0) * (_vin).x +			\
+                RMAT_ELMT((_rmat), 0, 1) * (_vin).y +			\
+                RMAT_ELMT((_rmat), 0, 2) * (_vin).z;			\
+    (_vout).y = RMAT_ELMT((_rmat), 1, 0) * (_vin).x +           \
+                RMAT_ELMT((_rmat), 1, 1) * (_vin).y +           \
+                RMAT_ELMT((_rmat), 1, 2) * (_vin).z;			\
+    (_vout).z = RMAT_ELMT((_rmat), 2, 0) * (_vin).x +			\
+                RMAT_ELMT((_rmat), 2, 1) * (_vin).y +			\
+                RMAT_ELMT((_rmat), 2, 2) * (_vin).z;			\
+  }
 
 
 

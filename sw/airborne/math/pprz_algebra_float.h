@@ -75,18 +75,15 @@ struct FloatRates {
 
 
 #define FLOAT_VECT3_ZERO(_v) VECT3_ASSIGN(_v, 0., 0., 0.)	\
-    
-#define FLOAT_VECT3_DIFF(_c, _a, _b) {		\
-    (_c).x = (_a).x - (_b).x;			\
-    (_c).y = (_a).y - (_b).y;			\
-    (_c).z = (_a).z - (_b).z;			\
-  }
 
-#define FLOAT_VECT3_SMUL(_vo, _s, _vi) {		\
-    (_vo).x = (_s) * (_vi).x;				\
-    (_vo).y = (_s) * (_vi).y;				\
-    (_vo).z = (_s) * (_vi).z;				\
-  }
+/* c = a - b */
+#define FLOAT_VECT3_DIFF(_c, _a, _b) VECT3_DIFF(_c, _a, _b)
+
+/* a -= b */
+#define FLOAT_VECT3_SUB(_a, _b) VECT3_SUB(_a, _b)
+
+/* _vo = _s * _vi */
+#define FLOAT_VECT3_SMUL(_vo, _s, _vi) VECT3_SMUL(_vo, _s, _vi)
 
 #define FLOAT_VECT3_NORM(_v) (sqrtf((_v).x*(_v).x + (_v).y*(_v).y + (_v).z*(_v).z))
 
@@ -165,6 +162,9 @@ struct FloatRates {
     RMAT_ELMT(_rm, 2, 2) = uz2 + (1.-uz2)*can;				\
     									\
   }
+
+/* multiply _vin by _rmat, store in _vout */
+#define FLOAT_RMAT_VECT3_MUL(_vout, _rmat, _vin) RMAT_VECT3_MUL(_vout, _rmat, _vin)
 
 /* _m_a2c = _m_a2b comp _m_b2c , aka  _m_a2c = _m_b2c * _m_a2b */
 #define FLOAT_RMAT_COMP(_m_a2c, _m_a2b, _m_b2c) {			\
