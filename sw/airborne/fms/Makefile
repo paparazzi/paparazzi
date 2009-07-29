@@ -45,7 +45,8 @@ test_telemetry: test_telemetry.c
 test_spi: test_spi.c
 	$(CROSS_CC) $(CROSS_CFLAGS) -o $@ $^ $(CROSS_LDFLAGS)
 
-
+onboard_logger: onboard_logger.c
+	$(CC) $(CFLAGS) -o $@ $^ -lpcap
 
 clean:
 	rm -f *~ fms test_telemetry
