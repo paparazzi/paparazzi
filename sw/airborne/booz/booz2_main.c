@@ -123,7 +123,7 @@ STATIC_INLINE void booz2_main_periodic( void ) {
   PeriodicPrescaleBy10(							\
     {						                        \
       radio_control_periodic();						\
-      if (radio_control.status != RADIO_CONTROL_OK)			\
+      if (radio_control.status != RADIO_CONTROL_OK && booz2_autopilot_mode != BOOZ2_AP_MODE_KILL)			\
 	booz2_autopilot_set_mode(BOOZ2_AP_MODE_FAILSAFE);		\
     },									\
     {									\
@@ -162,6 +162,10 @@ STATIC_INLINE void booz2_main_event( void ) {
  
 #ifdef USE_GPS
   Booz2GpsEvent(on_gps_event);
+#endif
+
+#ifdef BOOZ_FAILSAFE_GROUND_DETECT
+  BoozDetectGroundEvent();
 #endif
 
 }
