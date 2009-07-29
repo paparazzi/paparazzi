@@ -27,10 +27,15 @@
 
 #include "airframe.h"
 
-
+#if 1
 #define NPS_BODY_TO_IMU_PHI    RadOfDeg(4.)
 #define NPS_BODY_TO_IMU_THETA  RadOfDeg(3.)
 #define NPS_BODY_TO_IMU_PSI    RadOfDeg(0.)
+#else
+#define NPS_BODY_TO_IMU_PHI    RadOfDeg(0.)
+#define NPS_BODY_TO_IMU_THETA  RadOfDeg(0.)
+#define NPS_BODY_TO_IMU_PSI    RadOfDeg(0.)
+#endif
 
 /* 
  * Accelerometer 
@@ -38,17 +43,17 @@
 #define NPS_ACCEL_RESOLUTION      (65536)
 /* ms-2 */
 /* aka 2^10/ACCEL_X_SENS  */
-#define NPS_ACCEL_SENSITIVITY_XX  -408.92695
-#define NPS_ACCEL_SENSITIVITY_YY  -412.69325
-#define NPS_ACCEL_SENSITIVITY_ZZ  -407.32522
+#define NPS_ACCEL_SENSITIVITY_XX  ACCEL_BFP_OF_REAL(-1./2.50411474)
+#define NPS_ACCEL_SENSITIVITY_YY  ACCEL_BFP_OF_REAL(-1./2.48126183)
+#define NPS_ACCEL_SENSITIVITY_ZZ  ACCEL_BFP_OF_REAL(-1./2.51396167)
 
 #define NPS_ACCEL_NEUTRAL_X       32081
 #define NPS_ACCEL_NEUTRAL_Y       33738
 #define NPS_ACCEL_NEUTRAL_Z       32441
 /* m2s-4 */
-#define NPS_ACCEL_NOISE_STD_DEV_X 1.e-1
-#define NPS_ACCEL_NOISE_STD_DEV_Y 1.e-1
-#define NPS_ACCEL_NOISE_STD_DEV_Z 1.1e-1
+#define NPS_ACCEL_NOISE_STD_DEV_X 0.e-1
+#define NPS_ACCEL_NOISE_STD_DEV_Y 0.e-1
+#define NPS_ACCEL_NOISE_STD_DEV_Z 0.e-1
 /* ms-2 */
 #define NPS_ACCEL_BIAS_X          0
 #define NPS_ACCEL_BIAS_Y          0
@@ -64,9 +69,9 @@
 #define NPS_GYRO_RESOLUTION       65536
 
 /* 2^12/GYRO_X_SENS */
-#define NPS_GYRO_SENSITIVITY_PP   ( 4055.)
-#define NPS_GYRO_SENSITIVITY_QQ   (-4055.)
-#define NPS_GYRO_SENSITIVITY_RR   (-4055.)
+#define NPS_GYRO_SENSITIVITY_PP   RATE_BFP_OF_REAL( 1./1.01)
+#define NPS_GYRO_SENSITIVITY_QQ   RATE_BFP_OF_REAL(-1./1.01)
+#define NPS_GYRO_SENSITIVITY_RR   RATE_BFP_OF_REAL(-1./1.01)
 
 #define NPS_GYRO_NEUTRAL_P        33924
 #define NPS_GYRO_NEUTRAL_Q        33417
@@ -77,8 +82,8 @@
 #define NPS_GYRO_NOISE_STD_DEV_R  RadOfDeg(0.5)
 
 #define NPS_GYRO_BIAS_INITIAL_P   RadOfDeg( 0.0)
-#define NPS_GYRO_BIAS_INITIAL_Q   RadOfDeg(  .0)
-#define NPS_GYRO_BIAS_INITIAL_R   RadOfDeg(  .0)
+#define NPS_GYRO_BIAS_INITIAL_Q   RadOfDeg( 0.0)
+#define NPS_GYRO_BIAS_INITIAL_R   RadOfDeg( 0.0)
 
 #define NPS_GYRO_BIAS_RANDOM_WALK_STD_DEV_P RadOfDeg(0.)
 #define NPS_GYRO_BIAS_RANDOM_WALK_STD_DEV_Q RadOfDeg(0.)

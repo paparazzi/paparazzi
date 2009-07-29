@@ -1,10 +1,11 @@
 #include "nps_sensor_accel.h"
 
-#include "airframe.h"
+#include "airframe.h" /* to get NPS_SENSORS_PARAMS */
+
 #include "nps_fdm.h"
 #include "nps_random.h"
 #include NPS_SENSORS_PARAMS
-
+#include "math/pprz_algebra_int.h"
 
 void   nps_sensor_accel_init(struct NpsSensorAccel* accel, double time) {
   VECT3_ASSIGN(accel->value, 0., 0., 0.);
