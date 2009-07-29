@@ -17,6 +17,9 @@ void csc_ap_link_set_servo_cmd_cb(void (* cb)(struct CscServoCmd *cmd));
 void csc_ap_link_set_motor_cmd_cb(void (* cb)(struct CscMotorMsg *msg));
 void csc_ap_link_set_prop_cmd_cb(void (* cb)(struct CscPropCmd *cmd));
 void csc_ap_link_set_rc_cmd_cb(void (* cb)(struct CscRCMsg *msg));
+void csc_ap_link_set_gpsfix_cb(void (* cb)(struct CscGPSFixMsg *msg));
+void csc_ap_link_set_gpspos_cb(void (* cb)(struct CscGPSPosMsg *msg));
+void csc_ap_link_set_gpsacc_cb(void (* cb)(struct CscGPSAccMsg *msg));
 
 #endif /* CSC_AP_LINK_H */
 

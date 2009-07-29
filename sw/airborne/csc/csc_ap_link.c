@@ -9,6 +9,9 @@ static void (* servo_msg_cb)(struct CscServoCmd *);
 static void (* motor_msg_cb)(struct CscMotorMsg *);
 static void (* rc_msg_cb)(struct CscRCMsg *);
 static void (* prop_msg_cb)(struct CscPropCmd *);
+static void (* gpsfix_cb)(struct CscGPSFixMsg *);
+static void (* gpspos_cb)(struct CscGPSPosMsg *);
+static void (* gpsacc_cb)(struct CscGPSAccMsg *);
 
 void csc_ap_link_send_adc(float adc1, float adc2)
 {
@@ -68,6 +71,21 @@ void csc_ap_link_set_rc_cmd_cb(void (* cb)(struct CscRCMsg *msg))
   rc_msg_cb = cb;
 }
 
+void csc_ap_link_set_gpsfix_cb(void (* cb)(struct CscGPSFixMsg *msg))
+{
+  gpsfix_cb = cb;
+}
+
+void csc_ap_link_set_gpspos_cb(void (* cb)(struct CscGPSPosMsg *msg))
+{
+  gpspos_cb = cb;
+}
+
+void csc_ap_link_set_gpsacc_cb(void (* cb)(struct CscGPSAccMsg *msg))
+{
+  gpsacc_cb = cb;
+}
+
 static void on_ap_link_msg( struct CscCanMsg *msg)
 {
   uint32_t msg_id = MSGID_OF_CANMSG_ID(msg->id);
@@ -105,8 +123,29 @@ static void on_ap_link_msg( struct CscCanMsg *msg)
       if (len != sizeof(struct CscPropCmd)){
 	LED_ON(ERROR_LED);
 	csc_ap_link_error_cnt++;
-      }else
+      } else
 	prop_msg_cb((struct CscPropCmd *) &msg->dat_a);
+      break;
+    case CSC_GPS_FIX_ID:
+      if (len != sizeof(struct CscGPSFixMsg)){
+	LED_ON(ERROR_LED);
+	csc_ap_link_error_cnt++;
+      } else
+	gpsfix_cb((struct CscGPSFixMsg *) &msg->dat_a);
+      break;
+    case CSC_GPS_POS_ID:
+      if (len != sizeof(struct CscGPSPosMsg)){
+	LED_ON(ERROR_LED);
+	csc_ap_link_error_cnt++;
+      } else
+	gpspos_cb((struct CscGPSPosMsg *) &msg->dat_a);
+      break;
+    case CSC_GPS_ACC_ID:
+      if (len != sizeof(struct CscGPSAccMsg)){
+	LED_ON(ERROR_LED);
+	csc_ap_link_error_cnt++;
+      } else
+	gpsacc_cb((struct CscGPSAccMsg *) &msg->dat_a);
       break;
   }
 }

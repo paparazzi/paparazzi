@@ -42,6 +42,7 @@
 #include "csc_throttle.h"
 #include "csc_adc.h"
 #include "csc_rc_spektrum.h"
+#include "csc_msg_def.h"
 
 #include "csc_can.h"
 #include "csc_ap_link.h"
@@ -54,6 +55,14 @@ static inline void on_motor_cmd(struct CscMotorMsg *msg);
 static uint32_t servo_cmd_timeout = 0;
 static uint32_t can_msg_count = 0;
 
+// gps stuff stolen from antoine's code
+#include "booz/booz2_gps.h"
+#include "math/pprz_geodetic_int.h"
+
+struct LtpDef_i  booz_ins_ltp_def;
+         bool_t  booz_ins_ltp_initialised;
+struct NedCoor_i booz_ins_gps_pos_cm_ned;
+struct NedCoor_i booz_ins_gps_speed_cm_s_ned;
 
 static void csc_main_init( void ) {
 
@@ -72,18 +81,25 @@ static void csc_main_init( void ) {
   spektrum_init();
 #endif
 
+
+#ifdef USE_GPS
+  booz2_gps_init();
+#endif
+
   csc_ap_link_init();
   csc_ap_link_set_servo_cmd_cb(on_servo_cmd);
   csc_ap_link_set_motor_cmd_cb(on_motor_cmd);
 
   csc_adc_init();
 
-  // be sure to call servos_init after uart1 init since they are sharing pins
   #ifdef USE_I2C0
   i2c_init();
   #endif
+  // be sure to call servos_init after uart1 init since they are sharing pins
   csc_servos_init();
+#ifdef USE_CSC_THROTTLE
   csc_throttle_init();
+#endif
   int_enable();
   
 
@@ -114,12 +130,55 @@ static void csc_main_periodic( void ) {
 
 }
 
+static inline void on_gps_event(void) {
+  if (booz_gps_state.fix == BOOZ2_GPS_FIX_3D) {
+    if (!booz_ins_ltp_initialised) {
+      ltp_def_from_ecef_i(&booz_ins_ltp_def, &booz_gps_state.ecef_pos);
+      booz_ins_ltp_initialised = TRUE;
+    }
+    ned_of_ecef_point_i(&booz_ins_gps_pos_cm_ned, &booz_ins_ltp_def, &booz_gps_state.ecef_pos);
+    ned_of_ecef_vect_i(&booz_ins_gps_speed_cm_s_ned, &booz_ins_ltp_def, &booz_gps_state.ecef_speed);
+  }
+
+  struct CscGPSFixMsg fix_msg;
+  struct CscGPSAccMsg acc_msg;
+  struct CscGPSPosMsg pos_msg;
+
+  fix_msg.gps_fix = (booz_gps_state.fix == BOOZ2_GPS_FIX_3D);
+  fix_msg.vx = booz_ins_gps_speed_cm_s_ned.x;
+  fix_msg.vy = booz_ins_gps_speed_cm_s_ned.y;
+  fix_msg.vz = booz_ins_gps_speed_cm_s_ned.z;
+  csc_ap_send_msg(CSC_GPS_FIX_ID, (const uint8_t *) &fix_msg, sizeof(fix_msg));
+
+  acc_msg.pacc = booz_gps_state.pacc;
+  acc_msg.sacc = booz_gps_state.sacc;
+  csc_ap_send_msg(CSC_GPS_ACC_ID, (const uint8_t *) &acc_msg, sizeof(acc_msg));
+
+  pos_msg.val = booz_ins_gps_pos_cm_ned.x;
+  pos_msg.axis = CSC_GPS_AXIS_IDX_X;
+  csc_ap_send_msg(CSC_GPS_POS_ID, (const uint8_t *) &pos_msg, sizeof(pos_msg));
+
+  pos_msg.val = booz_ins_gps_pos_cm_ned.y;
+  pos_msg.axis = CSC_GPS_AXIS_IDX_Y;
+  csc_ap_send_msg(CSC_GPS_POS_ID, (const uint8_t *) &pos_msg, sizeof(pos_msg));
+
+  pos_msg.val = booz_ins_gps_pos_cm_ned.z;
+  pos_msg.axis = CSC_GPS_AXIS_IDX_Z;
+  csc_ap_send_msg(CSC_GPS_POS_ID, (const uint8_t *) &pos_msg, sizeof(pos_msg));
+
+}
+
 static void csc_main_event( void ) {
 
   csc_can_event();
+#ifdef USE_CSC_THROTTLE
   csc_throttle_event_task();
+#endif
 #ifdef SPEKTRUM_LINK
   spektrum_event_task();
+#endif
+#ifdef USE_GPS
+  Booz2GpsEvent(on_gps_event);
 #endif
 }
 
@@ -140,8 +199,8 @@ static inline void on_servo_cmd(struct CscServoCmd *cmd)
   servo_cmd_timeout = 0;
   ++can_msg_count;
 
-  //  DOWNLINK_SEND_CSC_CAN_MSG(&can1_rx_msg.frame, &can1_rx_msg.id, 
-  //  			    &can1_rx_msg.dat_a, &can1_rx_msg.dat_b);
+  //  DOWNLINK_SEND_CSC_CAN_MSG(&can1_rx_msg.frame, &can1_rx_msg.id,
+  //  &can1_rx_msg.dat_a, &can1_rx_msg.dat_b);
   //  DOWNLINK_SEND_ADC_GENERIC(&servos[0], &servos[1]);
 
 }
@@ -152,14 +211,16 @@ static inline void on_motor_cmd(struct CscMotorMsg *msg)
   // always send to throttle_id zero, only one motorcontrol per csc board
   const static uint8_t throttle_id = 0;
 
+  #ifdef USE_CSC_THROTTLE
   csc_throttle_send_msg(throttle_id, msg->cmd_id, msg->arg1, msg->arg2);
+  #endif
 }
 
 int main( void ) {
   csc_main_init();
   while(1) {
-    if (sys_time_periodic())
-      csc_main_periodic();
+  if (sys_time_periodic())
+    csc_main_periodic();
     csc_main_event();
   }
   return 0;

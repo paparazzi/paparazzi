@@ -60,11 +60,12 @@ ap.srcs += $(SRC_ARCH)/uart_hw.c
 ap.srcs += $(SRC_ARCH)/adc_hw.c
 ap.CFLAGS += -DADC -DUSE_AD0 -DUSE_AD0_0 -DUSE_AD0_1
 
-ap.CFLAGS += -DUSE_UART0 -DUART0_BAUD=B57600 -DUART0_VIC_SLOT=5
+#ap.CFLAGS += -DUSE_UART0 -DUART0_BAUD=B57600 -DUART0_VIC_SLOT=5
 #ap.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600 -DUART1_VIC_SLOT=6
 #ap.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport \
-#	                  -DDOWNLINK_DEVICE=Uart0
+	                  -DDOWNLINK_DEVICE=Uart1
 #ap.srcs += downlink.c pprz_transport.c
+#ap.srcs += $(SRC_CSC)/csc_telemetry.c
 
 
 ap.CFLAGS += -DAP_LINK_CAN -DCAN_LED=2
@@ -83,8 +84,8 @@ ap.srcs += $(SRC_CSC)/csc_servos.c
 
 ap.srcs += $(SRC_CSC)/csc_adc.c
 
-ap.CFLAGS += -DTHROTTLE_LINK=Uart0 -DTHROTTLE_LED=3
-ap.srcs += $(SRC_CSC)/csc_throttle.c
+#ap.CFLAGS += -DTHROTTLE_LINK=Uart0 -DTHROTTLE_LED=3 -DUSE_CSC_THROTTLE
+#ap.srcs += $(SRC_CSC)/csc_throttle.c
 
 ap.CFLAGS += -DSPEKTRUM_LINK=Uart1 -DUSE_UART1 -DUART1_BAUD=B115200 -DUART1_VIC_SLOT=6
 ap.srcs += $(SRC_CSC)/csc_rc_spektrum.c

@@ -26,10 +26,12 @@
 #include "csc_autopilot.h"
 
 #include <inttypes.h>
+#include <math.h>
+
 #include "commands.h"
 #include "csc_xsens.h"
 #include "led.h"
-#include "pprz_algebra_float.h"
+#include "math/pprz_algebra_float.h"
 #include "string.h"
 #include "radio_control.h"
 #include "pwm_input.h"
@@ -75,9 +77,9 @@ void csc_ap_init( void )
   csc_yaw_deadband = 1.00;
   csc_vane_weight = 0.1;
 
-  csc_trims.elevator = 1800;
-  csc_trims.aileron = -60;
-  csc_trims.rudder = -800;
+  csc_trims.elevator = 2020;
+  csc_trims.aileron = -80;
+  csc_trims.rudder = 80;
 
   csc_gamma.roll_kp = 0;
   csc_gamma.roll_kd = 0;
@@ -146,8 +148,8 @@ static void calculate_errors(struct control_reference *errors)
   errors->eulers.theta = xsens_eulers.theta - csc_reference.eulers.theta;
   //errors->eulers.psi = xsens_eulers.psi - csc_reference.eulers.psi;
   //errors->eulers.psi = csc_vane_angle - csc_reference.eulers.psi;
-  errors->eulers.psi = (csc_vane_angle*csc_vane_weight + xsens_eulers.psi*(1 - csc_vane_weight))
-    - csc_reference.eulers.psi;
+  errors->eulers.psi = (csc_vane_angle*csc_vane_weight) 
+    + (xsens_eulers.psi - csc_reference.eulers.psi)*(1 - csc_vane_weight);
 
   errors->rates.p = xsens_rates.p - csc_reference.rates.p;
   errors->rates.q = xsens_rates.q - csc_reference.rates.q;
@@ -187,7 +189,7 @@ static void calculate_reference(struct control_reference *reference, int time)
 
 void csc_ap_periodic(int time)
 {
-  static int counter = 0;
+  //static int counter = 0;
   update_vane_angle();
   calculate_reference(&csc_reference, time);
   calculate_errors(&csc_errors);
@@ -212,7 +214,7 @@ void csc_ap_periodic(int time)
 			   - csc_gains.yaw_kd * csc_errors.rates.r
 			    - csc_gains.yaw_ki * csc_errors.eulers_i.psi) * csc_yaw_rudder;
 
-  csc_ap_update_gains
+  csc_ap_update_gains(&csc_errors, &csc_gains);
 }
 
 void csc_ap_clear_ierrors( void )
@@ -229,16 +231,16 @@ void csc_ap_set_trims( void )
   csc_trims.rudder = commands[COMMAND_YAW];
 }
 
-void csc_ap_update_gains(struct FloatRates *rates, struct control_reference *errors)
+void csc_ap_update_gains(struct control_reference *errors, struct control_gains *gains)
 {
   // Adaptation law based on state error to be controlled, rate and i error
-  gains->pitch_kp += -csc_gamma.pitch_kp*errors->eulers.theta*abs(errors->eulers.theta);
+  gains->pitch_kp += -csc_gamma.pitch_kp*errors->eulers.theta*fabs(errors->eulers.theta);
   gains->pitch_kd += -csc_gamma.pitch_kd*errors->eulers.theta*xsens_gyro_y[xsens_id];
   gains->pitch_ki += -csc_gamma.pitch_ki*errors->eulers.theta*errors->eulers_i.theta;
-  gains->roll_kp += -csc_gamma.roll_kp*errors->eulers.phi*abs(errors->eulers.phi);
+  gains->roll_kp += -csc_gamma.roll_kp*errors->eulers.phi*fabs(errors->eulers.phi);
   gains->roll_kd += -csc_gamma.roll_kd*errors->eulers.phi*xsens_gyro_x[xsens_id];
   gains->roll_ki += -csc_gamma.roll_ki*errors->eulers.phi*errors->eulers_i.phi;
-  gains->yaw_kp += -csc_gamma.yaw_kp*errors->eulers.psi*abs(errors->eulers.psi);
+  gains->yaw_kp += -csc_gamma.yaw_kp*errors->eulers.psi*fabs(errors->eulers.psi);
   gains->yaw_kd += -csc_gamma.yaw_kd*errors->eulers.psi*xsens_gyro_z[xsens_id];
   gains->yaw_ki += -csc_gamma.yaw_ki*errors->eulers.psi*errors->eulers_i.psi;
 }

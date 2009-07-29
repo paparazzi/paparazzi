@@ -75,6 +75,7 @@ void csc_ap_init( void );
 void csc_ap_periodic (int time);
 void csc_ap_set_trims (void );
 void csc_ap_clear_ierrors (void );
+void csc_ap_update_gains(struct control_reference *errors, struct control_gains *gains);
 
 #define PERIODIC_SEND_VANE_SENSOR() DOWNLINK_SEND_VANE_SENSOR(&csc_vane_angle)
 

@@ -3,6 +3,10 @@
 
 #include "paparazzi.h"
 
+#define CSC_GPS_AXIS_IDX_X    0
+#define CSC_GPS_AXIS_IDX_Y    1
+#define CSC_GPS_AXIS_IDX_Z    2
+
 #define CSC_SERVO_CMD_ID      0
 #define CSC_MOTOR_CMD_ID      1
 #define CSC_PROP_CMD_ID       2
@@ -10,6 +14,9 @@
 #define CSC_BOARD_STATUS_ID   4
 #define CSC_BOARD_ADCVOLTS_ID 5
 #define CSC_RC_ID	      6
+#define CSC_GPS_FIX_ID	      7
+#define CSC_GPS_POS_ID	      8
+#define CSC_GPS_ACC_ID	      9
 
 
 /* Received from the autopilot */
@@ -45,6 +52,24 @@ struct CscRCMsg {
   uint16_t right_stick_horizontal;
   uint16_t left_stick_horizontal_and_aux2;
   uint16_t left_stick_vertical_and_flap_mix;
+} __attribute__((packed));
+
+struct CscGPSFixMsg {
+  uint8_t gps_fix;
+  uint8_t num_sv;
+  int16_t vx;
+  int16_t vy;
+  int16_t vz;
+} __attribute__((packed));
+
+struct CscGPSPosMsg {
+  int32_t val;
+  uint8_t axis;
+} __attribute__((packed));
+
+struct CscGPSAccMsg {
+  uint32_t pacc;
+  uint32_t sacc;
 } __attribute__((packed));
 
 #define CSC_RC_SCALE 20

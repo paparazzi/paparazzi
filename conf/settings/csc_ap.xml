@@ -43,7 +43,6 @@
       <dl_setting VAR="csc_gamma.yaw_kp" MIN="-20" STEP="0.01" MAX="20" module="csc_autopilot" shortname="yaw kp"/>
       <dl_setting VAR="csc_gamma.yaw_kd" MIN="-20" STEP="0.01" MAX="20" module="csc_autopilot" shortname="yaw kd"/>
       <dl_setting VAR="csc_gamma.yaw_ki" MIN="-20" STEP="0.01" MAX="20" module="csc_autopilot" shortname="yaw ki" handler="set_yaw_ki"/>
-"/>
     </dl_settings>
     <dl_settings NAME="trims">
       <dl_setting VAR="csc_trims_set" MIN="0" STEP="1" MAX="1" module="csc_ap_main" shortname="set trims"/>

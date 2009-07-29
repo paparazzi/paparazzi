@@ -32,8 +32,8 @@ void csc_can_event(void);
 void csc_can1_init(void(* callback)(struct CscCanMsg *msg));
 void csc_can1_send(struct CscCanMsg* msg);
 
-extern bool_t can1_msg_received;
-extern struct CscCanMsg can1_rx_msg;
+//extern bool_t can1_msg_received;
+//extern struct CscCanMsg can1_rx_msg;
 
 
 #endif /* USE_CAN1 */

@@ -38,6 +38,7 @@
 #include "airframe.h"
 #include "commands.h"
 #include "radio_control.h"
+#include "booz/booz2_gps.h"
 
 #include "csc_servos.h"
 #include "csc_telemetry.h"
@@ -46,6 +47,7 @@
 #include "csc_autopilot.h"
 #include "csc_can.h"
 #include "pwm_input.h"
+#include "led.h"
 
 #define CSC_STATUS_TIMEOUT (SYS_TICS_OF_SEC(0.25) / PERIODIC_TASK_PERIOD)
 
@@ -60,6 +62,10 @@ extern uint8_t vsupply;
 uint8_t pprz_mode = PPRZ_MODE_AUTO1;
 static uint16_t cpu_time = 0;
 uint8_t csc_trims_set = 0;
+
+struct Booz_gps_state booz_gps_state;
+struct NedCoor_i booz_ins_gps_pos_cm_ned;
+struct NedCoor_i booz_ins_gps_speed_cm_s_ned;
 
 static void nop(struct CscCanMsg *msg)
 {
@@ -95,6 +101,39 @@ static void on_rc_cmd(struct CscRCMsg *msg)
   }
 }
 
+static void on_gpsacc_cmd( struct CscGPSAccMsg *msg )
+{
+  booz_gps_state.pacc = msg->pacc;
+  booz_gps_state.sacc = msg->sacc;
+}
+
+static void on_gpsfix_cmd( struct CscGPSFixMsg *msg )
+{
+  booz_gps_state.fix = msg->gps_fix;
+  booz_gps_state.num_sv = msg->num_sv;
+  booz_ins_gps_speed_cm_s_ned.x = msg->vx;
+  booz_ins_gps_speed_cm_s_ned.y = msg->vy;
+  booz_ins_gps_speed_cm_s_ned.z = msg->vz;
+}
+
+static void on_gpspos_cmd( struct CscGPSPosMsg *msg )
+{
+  switch (msg->axis)  {
+    case CSC_GPS_AXIS_IDX_X:
+      booz_ins_gps_pos_cm_ned.x = msg->val;
+      break;
+    case CSC_GPS_AXIS_IDX_Y:
+      booz_ins_gps_pos_cm_ned.y = msg->val;
+      break;
+    case CSC_GPS_AXIS_IDX_Z:
+      booz_ins_gps_pos_cm_ned.z = msg->val;
+      break;
+    default:
+      // Invalid msg 
+      break;
+  } 
+}
+
 static void csc_main_init( void ) {
 
   hw_init();
@@ -117,6 +156,9 @@ static void csc_main_init( void ) {
   csc_ap_link_set_servo_cmd_cb(&nop);
   csc_ap_link_set_motor_cmd_cb(&nop);
   csc_ap_link_set_rc_cmd_cb(on_rc_cmd);
+  csc_ap_link_set_gpsfix_cb(on_gpsfix_cmd);
+  csc_ap_link_set_gpspos_cb(on_gpspos_cmd);
+  csc_ap_link_set_gpsacc_cb(on_gpsacc_cmd);
   actuators_init();
 
   csc_ap_init();

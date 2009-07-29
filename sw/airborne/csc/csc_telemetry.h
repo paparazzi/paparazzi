@@ -28,6 +28,7 @@
 #include "actuators.h"
 
 #include "settings.h"
+#include "booz/booz2_gps.h"
 
 
 #define PERIODIC_SEND_DL_VALUE() PeriodicSendDlValue()
@@ -58,7 +59,7 @@
 #define PERIODIC_SEND_COMMANDS() DOWNLINK_SEND_COMMANDS(COMMANDS_NB, commands)
 #endif /* COMMANDS_NB */
 #define PERIODIC_SEND_SIMPLE_COMMANDS() DOWNLINK_SEND_SIMPLE_COMMANDS(&commands[0], &commands[1], &commands[2])
-#define PERIODIC_SEND_CONTROLLER_GAINS() DOWNLINK_SEND_CONTROLLER_GAINS(&commands[0], &commands[1], &commands[2], &commands[3], &commands[4], &commands[5], &commands[6], &commands[7], &commands[8])
+#define PERIODIC_SEND_CONTROLLER_GAINS() DOWNLINK_SEND_CONTROLLER_GAINS(&csc_gains.roll_kp, &csc_gains.roll_kd, &csc_gains.roll_ki, &csc_gains.pitch_kp, &csc_gains.pitch_kd, &csc_gains.pitch_ki, &csc_gains.yaw_kp, &csc_gains.yaw_kd, &csc_gains.yaw_ki)
 
 #ifdef SERVOS_NB
 #define PERIODIC_SEND_ACTUATORS() DOWNLINK_SEND_ACTUATORS(SERVOS_NB, actuators)
@@ -75,6 +76,43 @@
 #endif
 #endif /* USE_RADIO_CONTROL */
 
+#ifdef USE_GPS
+#define PERIODIC_SEND_BOOZ2_GPS() {				\
+    DOWNLINK_SEND_BOOZ2_GPS( &booz_gps_state.ecef_pos.x,	\
+			     &booz_gps_state.ecef_pos.y,	\
+			     &booz_gps_state.ecef_pos.z,	\
+			     &booz_gps_state.ecef_speed.x,	\
+			     &booz_gps_state.ecef_speed.y,	\
+			     &booz_gps_state.ecef_speed.z,	\
+			     &booz_gps_state.pacc,		\
+			     &booz_gps_state.sacc,		\
+			     &booz_gps_state.pdop,		\
+			     &booz_gps_state.num_sv,		\
+			     &booz_gps_state.fix);		\
+  }
+#endif
+	
+#define PERIODIC_SEND_BOOZ2_INS3() { \
+DOWNLINK_SEND_BOOZ2_INS3(&booz_ins_gps_pos_cm_ned.x, \
+&booz_ins_gps_pos_cm_ned.y,	    \
+&booz_ins_gps_pos_cm_ned.z,	    \
+&booz_ins_gps_speed_cm_s_ned.x,   \
+&booz_ins_gps_speed_cm_s_ned.y,   \
+&booz_ins_gps_speed_cm_s_ned.z    \
+) }
+
+#define PERIODIC_SEND_GPS_SOL() DOWNLINK_SEND_GPS_SOL(&booz_gps_state.pacc, \
+  &booz_gps_state.sacc, &booz_gps_state.pdop, &booz_gps_state.num_sv)
+
+#define PERIODIC_SEND_GPS() { uint32_t zero = 0; DOWNLINK_SEND_GPS(&booz_gps_state.fix, \
+  &booz_ins_gps_pos_cm_ned.y, \
+  &booz_ins_gps_pos_cm_ned.x, \
+  &zero, \
+  &booz_ins_gps_pos_cm_ned.z, \
+  &zero, \
+  &zero, \
+  &zero, \
+  &zero, &zero) }
 
 extern uint8_t telemetry_mode_Ap;
 
