@@ -216,7 +216,7 @@ void booz_ahrs_propagate(void) {
   
   
   /* error KF-Filter
-   * propagage only the error covariance matrix since error is corrected after each measurement
+   * propagate only the error covariance matrix since error is corrected after each measurement
    * 
    * F = [ 0  0  0          ]
    *     [ 0  0  0   -Cbn   ]
@@ -345,8 +345,8 @@ void booz_ahrs_update_accel(void) {
    */
   float detS = 0.;
   detS = bafl_S[0][0]*(bafl_S[2][2]*bafl_S[1][1]-bafl_S[2][1]*bafl_S[1][2]) -
-		 bafl_S[1][0]*(bafl_S[2][2]*bafl_S[0][1]-bafl_S[2][1]*bafl_S[0][2]) +
-		 bafl_S[2][0]*(bafl_S[1][2]*bafl_S[0][1]-bafl_S[1][1]*bafl_S[0][2]);
+         bafl_S[1][0]*(bafl_S[2][2]*bafl_S[0][1]-bafl_S[2][1]*bafl_S[0][2]) +
+         bafl_S[2][0]*(bafl_S[1][2]*bafl_S[0][1]-bafl_S[1][1]*bafl_S[0][2]);
 
   if (detS != 0.){	//check needed? always invertible?
 	bafl_invS[0][0]= (bafl_S[2][2]*bafl_S[1][1] - bafl_S[2][1]*bafl_S[1][2]) / detS;
