@@ -55,7 +55,8 @@ extern int32_t nav_heading, nav_course;
 
 extern uint8_t vertical_mode;
 extern uint32_t nav_throttle;
-extern int32_t nav_climb, nav_altitude;
+extern int32_t nav_climb, nav_altitude, nav_flight_altitude;
+extern float flight_altitude;
 #define VERTICAL_MODE_MANUAL      0
 #define VERTICAL_MODE_CLIMB       1
 #define VERTICAL_MODE_ALT         2
@@ -143,7 +144,7 @@ bool_t nav_approaching_from(uint8_t wp_idx, uint8_t from_idx);
 /** Set the climb control to auto-throttle with the specified pitch
     pre-command */
 #define NavVerticalAutoThrottleMode(_pitch) { \
-  nav_pitch = _pitch; \
+  nav_pitch = ANGLE_BFP_OF_REAL(_pitch); \
 }
 
 /** Set the climb control to auto-pitch with the specified throttle
@@ -173,7 +174,7 @@ bool_t nav_approaching_from(uint8_t wp_idx, uint8_t from_idx);
 
 #define NavAttitude(_roll) { \
   horizontal_mode = HORIZONTAL_MODE_ATTITUDE; \
-  nav_roll = _roll; \
+  nav_roll = ANGLE_BFP_OF_REAL(_roll); \
 }
 
 #define nav_IncreaseShift(x) {}
@@ -183,4 +184,10 @@ bool_t nav_approaching_from(uint8_t wp_idx, uint8_t from_idx);
 #define booz2_navigation_SetNavHeading(x) { \
   nav_heading = ANGLE_BFP_OF_REAL(x); \
 }
+
+#define booz2_navigation_SetFlightAltitude(x) { \
+  flight_altitude = x; \
+  nav_flight_altitude = POS_BFP_OF_REAL(flight_altitude); \
+}
+
 #endif /* BOOZ2_NAVIGATION_H */

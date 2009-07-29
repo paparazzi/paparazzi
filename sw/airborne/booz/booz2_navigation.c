@@ -55,7 +55,10 @@ int32_t nav_heading, nav_course;
 
 uint8_t vertical_mode;
 uint32_t nav_throttle;
-int32_t nav_climb, nav_altitude;
+int32_t nav_climb, nav_altitude, nav_flight_altitude;
+float flight_altitude;
+
+static inline void nav_set_altitude( void );
 
 #define CLOSE_TO_WAYPOINT (15 << 8)
 #define ARRIVED_AT_WAYPOINT (10 << 8)
@@ -66,6 +69,8 @@ void booz2_nav_init(void) {
   nav_stage = 0;
   ground_alt = (int32_t)(GROUND_ALT * 100); // cm
   nav_altitude = POS_BFP_OF_REAL(SECURITY_HEIGHT);
+  nav_flight_altitude = nav_altitude;
+  flight_altitude = SECURITY_HEIGHT;
   INT32_VECT3_COPY( booz2_navigation_target, waypoints[WP_HOME]);
   INT32_VECT3_COPY( booz2_navigation_carrot, waypoints[WP_HOME]);
 
@@ -102,6 +107,8 @@ void booz2_nav_run(void) {
     VECT2_SDIV(path_to_carrot, dist_to_waypoint, path_to_carrot);
     VECT2_SUM(booz2_navigation_carrot, path_to_carrot, booz_ins_enu_pos);
   }
+
+  nav_set_altitude();
 }
 
 //#include "stdio.h"
@@ -156,6 +163,14 @@ bool_t nav_approaching_from(uint8_t wp_idx, uint8_t from_idx) {
 }
 
 static int32_t previous_ground_alt;
+
+static inline void nav_set_altitude( void ) {
+  static int32_t last_nav_alt = 0;
+  if (nav_altitude != last_nav_alt) {
+    nav_flight_altitude = nav_altitude;
+    last_nav_alt = nav_altitude;
+  }
+}
 
 /** Reset the geographic reference to the current GPS fix */
 unit_t nav_reset_reference( void ) {

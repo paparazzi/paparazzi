@@ -193,22 +193,20 @@ void booz2_guidance_v_run(bool_t in_flight) {
   case BOOZ2_GUIDANCE_V_MODE_NAV:
     {
       if (vertical_mode == VERTICAL_MODE_ALT) {
-        booz2_guidance_v_z_sp = -nav_altitude;
+        booz2_guidance_v_z_sp = -nav_flight_altitude;
         b2_gv_update_ref_from_z_sp(booz2_guidance_v_z_sp);
         run_hover_loop(in_flight);
       }
       else if (vertical_mode == VERTICAL_MODE_CLIMB) {
         booz2_guidance_v_zd_sp = -nav_climb;
         b2_gv_update_ref_from_zd_sp(booz2_guidance_v_zd_sp);
-        nav_altitude = -booz2_guidance_v_z_sp;
+        nav_flight_altitude = -booz2_guidance_v_z_sp;
         run_hover_loop(in_flight);
       }
       else if (vertical_mode == VERTICAL_MODE_MANUAL) {
         booz2_guidance_v_delta_t = nav_throttle;
       }
-      // saturate max authority with RC stick
-      booz_stabilization_cmd[COMMAND_THRUST] = Min( booz2_guidance_v_rc_delta_t, booz2_guidance_v_delta_t);
-      //booz_stabilization_cmd[COMMAND_THRUST] = booz2_guidance_v_rc_delta_t;
+      booz_stabilization_cmd[COMMAND_THRUST] = booz2_guidance_v_delta_t;
       break;
     }
   }
