@@ -37,6 +37,7 @@ bool_t  booz2_autopilot_in_flight;
 uint8_t booz2_autopilot_tol;
 uint32_t booz2_autopilot_motors_on_counter;
 uint32_t booz2_autopilot_in_flight_counter;
+bool_t kill_throttle;
 
 bool_t booz2_autopilot_detect_ground;
 
@@ -49,6 +50,7 @@ void booz2_autopilot_init(void) {
   booz2_autopilot_mode = BOOZ2_AP_MODE_KILL;
   booz2_autopilot_motors_on = FALSE;
   booz2_autopilot_in_flight = FALSE;
+  kill_throttle = ! booz2_autopilot_motors_on;
   booz2_autopilot_motors_on_counter = 0;
   booz2_autopilot_in_flight_counter = 0;
   booz2_autopilot_mode_auto2 = BOOZ2_MODE_AUTO2;
@@ -246,6 +248,7 @@ void booz2_autopilot_on_rc_frame(void) {
   
   BOOZ2_AUTOPILOT_CHECK_MOTORS_ON();
   BOOZ2_AUTOPILOT_CHECK_IN_FLIGHT();
+  kill_throttle = !booz2_autopilot_motors_on;
   
   if (booz2_autopilot_mode > BOOZ2_AP_MODE_FAILSAFE) {
     booz2_guidance_v_read_rc();

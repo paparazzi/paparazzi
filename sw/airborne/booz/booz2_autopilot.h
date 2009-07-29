@@ -49,6 +49,7 @@ extern uint8_t booz2_autopilot_mode_auto2;
 extern bool_t  booz2_autopilot_motors_on;
 extern bool_t  booz2_autopilot_in_flight;
 extern uint8_t booz2_autopilot_tol;
+extern bool_t kill_throttle;
 
 extern void booz2_autopilot_init(void);
 extern void booz2_autopilot_periodic(void);
@@ -76,6 +77,12 @@ extern bool_t booz2_autopilot_detect_ground;
     else if (_rc > TRESHOLD_1_PPRZ) _booz_mode = BOOZ2_MODE_AUTO1;	\
     else                            _booz_mode = BOOZ2_MODE_MANUAL;	\
   }
+
+#define booz2_autopilot_KillThrottle(_v) { \
+  kill_throttle = _v; \
+  booz2_autopilot_motors_on = !kill_throttle; \
+}
+
 
 #define booz2_autopilot_SetTol(_v) { \
   booz2_autopilot_tol = _v; \
