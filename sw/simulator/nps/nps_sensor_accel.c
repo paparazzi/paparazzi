@@ -8,7 +8,7 @@
 #include "math/pprz_algebra_int.h"
 
 void   nps_sensor_accel_init(struct NpsSensorAccel* accel, double time) {
-  VECT3_ASSIGN(accel->value, 0., 0., 0.);
+  FLOAT_VECT3_ZERO(accel->value);
   accel->resolution = NPS_ACCEL_RESOLUTION;
   FLOAT_MAT33_DIAG(accel->sensitivity, 
 		   NPS_ACCEL_SENSITIVITY_XX, NPS_ACCEL_SENSITIVITY_YY, NPS_ACCEL_SENSITIVITY_ZZ);
@@ -56,9 +56,8 @@ void   nps_sensor_accel_run_step(struct NpsSensorAccel* accel, double time, stru
   /* white noise   */
   double_vect3_add_gaussian_noise(&accelero_error, &accel->noise_std_dev);
   /* scale */
-  accelero_error.x *= MAT33_ELMT(accel->sensitivity, 0, 0);
-  accelero_error.y *= MAT33_ELMT(accel->sensitivity, 1, 1);
-  accelero_error.z *= MAT33_ELMT(accel->sensitivity, 2, 2);
+  struct DoubleVect3 gain = {NPS_ACCEL_SENSITIVITY_XX, NPS_ACCEL_SENSITIVITY_YY, NPS_ACCEL_SENSITIVITY_ZZ};
+  VECT3_EW_MUL(accelero_error, accelero_error, gain);
   /* add error */
   VECT3_ADD(accel->value, accelero_error);
 

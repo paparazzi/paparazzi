@@ -37,6 +37,23 @@ void double_vect3_add_gaussian_noise(struct DoubleVect3* vect, struct DoubleVect
   vect->z += get_gaussian_noise() * std_dev->z;
 }
 
+void double_vect3_get_gaussian_noise(struct DoubleVect3* vect, struct DoubleVect3* std_dev) {
+  vect->x = get_gaussian_noise() * std_dev->x;
+  vect->y = get_gaussian_noise() * std_dev->y;
+  vect->z = get_gaussian_noise() * std_dev->z;
+}
+
+
+void double_vect3_update_random_walk(struct DoubleVect3* rw, struct DoubleVect3* std_dev, double dt, double thau) {
+  struct DoubleVect3 drw;
+  double_vect3_get_gaussian_noise(&drw, std_dev);
+  struct DoubleVect3 tmp;
+  VECT3_SMUL(tmp, (-1./thau), *rw);
+  VECT3_ADD(drw, tmp);
+  VECT3_SMUL(drw, dt, drw);
+  VECT3_ADD(*rw, drw);
+}
+
 /* 
    http://www.taygeta.com/random/gaussian.html 
 */

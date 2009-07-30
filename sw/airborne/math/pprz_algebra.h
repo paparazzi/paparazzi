@@ -162,6 +162,13 @@
   } 
 
 /*  */
+#define VECT3_EW_MUL(_vo, _va, _vb) {				\
+    (_vo).x =  (_va).x * (_vb).x;				\
+    (_vo).y =  (_va).y * (_vb).y;				\
+    (_vo).z =  (_va).z * (_vb).z;				\
+  } 
+
+/*  */
 #define VECT3_BOUND_CUBE(_v, _min, _max) {				\
     if ((_v).x > (_max)) (_v).x = (_max); else if ((_v).x < (_min)) (_v).x = (_min); \
     if ((_v).y > (_max)) (_v).y = (_max); else if ((_v).y < (_min)) (_v).y = (_min); \
