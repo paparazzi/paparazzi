@@ -96,7 +96,7 @@ static void csc_main_init( void ) {
 
   // be sure to call servos_init after uart1 init since they are sharing pins
   #ifdef USE_I2C0
-  i2c_init();
+  i2c0_init();
   #endif
 
   #ifdef USE_BUSS_TWI_BLMC_MOTOR

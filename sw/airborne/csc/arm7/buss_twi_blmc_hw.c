@@ -32,8 +32,8 @@ void motors_set_motor(uint8_t id, int16_t value)
 
 static void buss_twi_blmc_send_next()
 {
-  i2c_buf[0] = motor_power[buss_twi_blmc_idx];		             
-  i2c_transmit(buss_twi_blmc_addr[buss_twi_blmc_idx], 1, &buss_twi_blmc_i2c_done); 
+  i2c0_buf[0] = motor_power[buss_twi_blmc_idx];		             
+  i2c0_transmit(buss_twi_blmc_addr[buss_twi_blmc_idx], 1, &buss_twi_blmc_i2c_done); 
 }
 
 
