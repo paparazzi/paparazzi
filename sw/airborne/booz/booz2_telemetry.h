@@ -288,6 +288,43 @@
 #define PERIODIC_SEND_BOOZ2_FILTER() {}
 #endif
 
+#ifdef USE_AHRS_LKF
+#include "booz_ahrs.h"
+#include "ahrs/booz_ahrs_float_lkf.h"
+#define PERIODIC_SEND_BOOZ_AHRS_LKF() {					\
+    DOWNLINK_SEND_BOOZ_AHRS_LKF(&bafl_eulers.phi,	\
+                   &bafl_eulers.theta,  \
+                   &bafl_eulers.psi,    \
+                   &bafl_quat.qi,       \
+                   &bafl_quat.qx,       \
+                   &bafl_quat.qy,       \
+                   &bafl_quat.qz,       \
+                   &bafl_rates.p,       \
+                   &bafl_rates.q,       \
+                   &bafl_rates.r,       \
+                   &bafl_bias.p,          \
+                   &bafl_bias.q,          \
+                   &bafl_bias.r);          \
+  }
+#define PERIODIC_SEND_BOOZ_AHRS_LKF_DEBUG() {                 \
+    DOWNLINK_SEND_BOOZ_AHRS_LKF_DEBUG(&bafl_X[0],          \
+                   &bafl_X[1],          \
+                   &bafl_X[2],          \
+                   &bafl_bias_err.p,          \
+                   &bafl_bias_err.q,          \
+                   &bafl_bias_err.r,          \
+                   &bafl_P[0][0],          \
+                   &bafl_P[1][1],          \
+                   &bafl_P[2][2],          \
+                   &bafl_P[3][3],          \
+                   &bafl_P[4][4],          \
+                   &bafl_P[5][5]);         \
+  }
+#else
+#define PERIODIC_SEND_BOOZ_AHRS_LKF() {}
+#define PERIODIC_SEND_BOOZ_AHRS_LKF_DEBUG() {}
+#endif
+
 
 #define PERIODIC_SEND_BOOZ2_AHRS_QUAT() {				\
     DOWNLINK_SEND_BOOZ2_AHRS_QUAT(&booz_ahrs.ltp_to_imu_quat.qi,	\

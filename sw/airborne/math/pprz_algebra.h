@@ -376,6 +376,14 @@
 // Quaternions
 //
 //
+#define QUAT_ASSIGN(_q, _i, _x, _y, _z) {   \
+    (_q).qi = (_i);                        \
+    (_q).qx = (_x);                        \
+    (_q).qy = (_y);                        \
+    (_q).qz = (_z);                        \
+  }
+
+
 
 #define QUAT_DIFF(_qc, _qa, _qb) {				\
     (_qc).qi = (_qa).qi - (_qb).qi;				\

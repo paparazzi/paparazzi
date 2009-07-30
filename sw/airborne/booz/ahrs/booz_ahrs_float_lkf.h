@@ -29,6 +29,19 @@
 #include "std.h"
 #include "math/pprz_algebra_int.h"
 
+extern struct FloatQuat   bafl_quat;
+extern struct FloatRates  bafl_bias;
+extern struct FloatRates  bafl_rates;
+extern struct FloatEulers bafl_eulers;
+extern struct FloatRMat   bafl_dcm;
+
+extern struct FloatQuat   bafl_quat_err;
+extern struct FloatRates  bafl_bias_err;
+
+#define BAFL_SSIZE 6
+extern float bafl_P[BAFL_SSIZE][BAFL_SSIZE];
+extern float bafl_X[BAFL_SSIZE];
+
 extern float bafl_sigma_accel;
 extern float bafl_sigma_mag;
 extern float bafl_R_accel;

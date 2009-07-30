@@ -299,12 +299,7 @@ struct FloatRates {
  * Quaternions
  */
 
-#define FLOAT_QUAT_ZERO(_q) {						\
-    (_q).qi = 1.;							\
-    (_q).qx = 0.;							\
-    (_q).qy = 0.;							\
-    (_q).qz = 0.;							\
-  }
+#define FLOAT_QUAT_ZERO(_q) QUAT_ASSIGN(_q, 1., 0., 0., 0.)
 
 /* _q += _qa */
 #define FLOAT_QUAT_ADD(_qo, _qi) QUAT_ADD(_qo, _qi)

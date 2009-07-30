@@ -33,24 +33,29 @@
 struct BoozAhrs booz_ahrs;
 
 
-/* our estimated attitude                     */
+/* our estimated attitude  (ltp <-> imu)      */
 struct FloatQuat  bafl_quat;
 /* our estimated gyro biases                  */
 struct FloatRates bafl_bias;
-/* our estimated attitude errors              */
-struct FloatQuat bafl_quat_err;
-/* our estimated gyro bias errors             */
-struct FloatRates bafl_bias_err;
 /* we get unbiased body rates as byproduct    */
 struct FloatRates bafl_rates;
 /* maintain a euler angles representation     */
 struct FloatEulers bafl_eulers;
 /* maintains a rotation matrix representation */
 struct FloatRMat bafl_dcm;
+
+/* our estimated attitude errors              */
+struct FloatQuat bafl_quat_err;
+/* our estimated gyro bias errors             */
+struct FloatRates bafl_bias_err;
 /* time derivative of our quaternion */
 struct FloatQuat bafl_qdot;
+/* correction quaternion of strapdown computatino */
+struct FloatQuat bafl_qr;
 
+#ifndef BAFL_SSIZE
 #define BAFL_SSIZE 6
+#endif
 /* error covariance matrix */
 float bafl_P[BAFL_SSIZE][BAFL_SSIZE];
 /* filter state */
@@ -121,10 +126,6 @@ struct FloatVect3 bafl_h;
  * We only have an expected noise in the pitch and roll accelerometers
  * and in the compass.
  */
-#define BAFL_R_PHI   1.3 * 1.3
-#define BAFL_R_THETA 1.3 * 1.3
-#define BAFL_R_PSI   2.5 * 2.5
-
 #define BAFL_SIGMA_ACCEL 5.0
 #define BAFL_SIGMA_MAG   300.
 float bafl_sigma_accel;
@@ -201,14 +202,47 @@ void booz_ahrs_propagate(void) {
    */
    
   /* compute qdot and normalize it */
-  FLOAT_QUAT_DERIVATIVE_LAGRANGE(bafl_qdot, bafl_rates, bafl_quat);
+  //FLOAT_QUAT_DERIVATIVE(bafl_qdot, bafl_rates, bafl_quat);
   
   /* multiply qdot with dt */
-  QUAT_SMUL(bafl_qdot, bafl_qdot, BAFL_DT);
+  //QUAT_SMUL(bafl_qdot, bafl_qdot, BAFL_DT);
   /* propagate quaternion */
-  QUAT_ADD(bafl_quat, bafl_qdot);
+  //QUAT_ADD(bafl_quat, bafl_qdot);
+
+  /* multiplicative quaternion update */
+  QUAT_ASSIGN(bafl_qr, 1., bafl_rates.p * BAFL_DT/2, bafl_rates.q * BAFL_DT/2, bafl_rates.r * BAFL_DT/2);
+  FLOAT_QUAT_COMP(bafl_quat, bafl_qr, bafl_quat);
+
+
+
+  FLOAT_QUAT_NORMALISE(bafl_quat);
+
+
   /* maintain rotation matrix representation */
   FLOAT_RMAT_OF_QUAT(bafl_dcm, bafl_quat);
+  /* maintain euler representation */
+  FLOAT_EULERS_OF_RMAT(bafl_eulers, bafl_dcm);
+
+  /* 
+   *  convert to binary floating point 
+   */
+  /* IMU rate */
+  RATES_BFP_OF_REAL(booz_ahrs.imu_rate, bafl_rates);
+  /* LTP to IMU eulers      */
+  EULERS_BFP_OF_REAL(booz_ahrs.ltp_to_imu_euler, bafl_eulers);
+  /* LTP to IMU quaternion */
+  QUAT_BFP_OF_REAL(booz_ahrs.ltp_to_imu_quat, bafl_quat);
+  /* LTP to IMU rotation matrix */
+  RMAT_BFP_OF_REAL(booz_ahrs.ltp_to_imu_rmat, bafl_dcm);
+
+  /* Compute LTP to BODY quaternion */
+  INT32_QUAT_COMP_INV(booz_ahrs.ltp_to_body_quat, booz_imu.body_to_imu_quat, booz_ahrs.ltp_to_imu_quat);
+  /* Compute LTP to BODY rotation matrix */
+  INT32_RMAT_COMP_INV(booz_ahrs.ltp_to_body_rmat, booz_ahrs.ltp_to_imu_rmat, booz_imu.body_to_imu_rmat);
+  /* compute LTP to BODY eulers */
+  INT32_EULERS_OF_RMAT(booz_ahrs.ltp_to_body_euler, booz_ahrs.ltp_to_body_rmat);
+  /* compute body rates */
+  INT32_RMAT_TRANSP_RATEMULT(booz_ahrs.body_rate, booz_imu.body_to_imu_rmat, booz_ahrs.imu_rate);
   
   //TODO check if normalization is good
   
@@ -479,7 +513,7 @@ void booz_ahrs_update_accel(void) {
 
   /*  correct attitude
    */
-  FLOAT_QUAT_COMP(bafl_quat, bafl_quat, bafl_quat_err);
+  FLOAT_QUAT_COMP(bafl_quat, bafl_quat_err, bafl_quat);
 
   /*  correct gyro bias
    */
@@ -719,7 +753,7 @@ void booz_ahrs_update_mag(void) {
 
   /*  correct attitude
    */
-  FLOAT_QUAT_COMP(bafl_quat, bafl_quat, bafl_quat_err);
+  FLOAT_QUAT_COMP(bafl_quat, bafl_quat_err, bafl_quat);
 
   /*  correct gyro bias
    */

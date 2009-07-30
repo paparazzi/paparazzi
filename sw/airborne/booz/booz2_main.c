@@ -183,7 +183,7 @@ static inline void on_gyro_accel_event( void ) {
   else {
     booz_ahrs_propagate();
 #ifdef USE_AHRS_LKF
-	booz_ahrs_update_accel();
+	//booz_ahrs_update_accel();
 #endif
     //    booz2_filter_attitude_update();
     booz_ins_propagate();
@@ -202,6 +202,6 @@ static inline void on_gps_event(void) {
 static inline void on_mag_event(void) {
   BoozImuScaleMag();
 #ifdef USE_AHRS_LKF
-  booz_ahrs_update_mag();
+  //booz_ahrs_update_mag();
 #endif
 }

@@ -9,8 +9,8 @@
 #include "nps_autopilot.h"
 #include "nps_fdm.h"
 
-static void on_DL_SETTING(IvyClientPtr app __attribute__ ((unused)), 
-			  void *user_data __attribute__ ((unused)), 
+static void on_DL_SETTING(IvyClientPtr app __attribute__ ((unused)),
+			  void *user_data __attribute__ ((unused)),
 			  int argc __attribute__ ((unused)), char *argv[]);
 
 void nps_ivy_init(void) {
@@ -26,8 +26,8 @@ void nps_ivy_init(void) {
 #include "settings.h"
 #include "dl_protocol.h"
 #include "downlink.h"
-static void on_DL_SETTING(IvyClientPtr app __attribute__ ((unused)), 
-			  void *user_data __attribute__ ((unused)), 
+static void on_DL_SETTING(IvyClientPtr app __attribute__ ((unused)),
+			  void *user_data __attribute__ ((unused)),
 			  int argc __attribute__ ((unused)), char *argv[]) {
   uint8_t index = atoi(argv[2]);
   float value = atof(argv[3]);
@@ -40,27 +40,34 @@ void nps_ivy_display(void) {
 
 
   /*
-    IvySendMsg("%d COMMANDS %f %f %f %f",  
+    IvySendMsg("%d COMMANDS %f %f %f %f",
     AC_ID,
     autopilot.commands[SERVO_FRONT],
-    autopilot.commands[SERVO_BACK], 
+    autopilot.commands[SERVO_BACK],
     autopilot.commands[SERVO_RIGHT],
-    autopilot.commands[SERVO_LEFT]);     
+    autopilot.commands[SERVO_LEFT]);
   */
-  IvySendMsg("%d BOOZ_SIM_RATE_ATTITUDE %f %f %f %f %f %f",  
+  IvySendMsg("%d BOOZ_SIM_RATE_ATTITUDE %f %f %f %f %f %f",
 	     AC_ID,
-	     DegOfRad(fdm.body_ecef_rotvel.p), 
-	     DegOfRad(fdm.body_ecef_rotvel.q), 
+	     DegOfRad(fdm.body_ecef_rotvel.p),
+	     DegOfRad(fdm.body_ecef_rotvel.q),
 	     DegOfRad(fdm.body_ecef_rotvel.r),
-	     DegOfRad(fdm.ltp_to_body_eulers.phi), 
-	     DegOfRad(fdm.ltp_to_body_eulers.theta), 
+	     DegOfRad(fdm.ltp_to_body_eulers.phi),
+	     DegOfRad(fdm.ltp_to_body_eulers.theta),
 	     DegOfRad(fdm.ltp_to_body_eulers.psi));
-  IvySendMsg("%d BOOZ_SIM_SPEED_POS %f %f %f %f %f %f",  
+  IvySendMsg("%d BOOZ_SIM_SPEED_POS %f %f %f %f %f %f",
 	     AC_ID,
-	     (fdm.ltp_ecef_vel.x), 
-	     (fdm.ltp_ecef_vel.y), 
+	     (fdm.ltp_ecef_vel.x),
+	     (fdm.ltp_ecef_vel.y),
 	     (fdm.ltp_ecef_vel.z),
-	     (fdm.ltpprz_pos.x), 
-	     (fdm.ltpprz_pos.y), 
+	     (fdm.ltpprz_pos.x),
+	     (fdm.ltpprz_pos.y),
 	     (fdm.ltpprz_pos.z));
+#if 0
+  IvySendMsg("%d BOOZ_SIM_GYRO_BIAS %f %f %f",
+         AC_ID,
+         (sensors.gyro.bias_random_walk_value.p),
+         (sensors.gyro.bias_random_walk_value.q),
+         (sensors.gyro.bias_random_walk_value.r));
+#endif
 }
