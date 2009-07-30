@@ -85,9 +85,11 @@ sim.srcs += $(SRC_BOOZ)/booz2_analog.c $(SRC_BOOZ_SIM)/booz2_analog_hw.c
 
 sim.srcs += $(SRC_BOOZ)/booz2_autopilot.c
 
-sim.CFLAGS += -DAHRS_ALIGNER_LED=3
-sim.srcs += $(SRC_BOOZ)/ahrs/booz_ahrs_aligner.c
-sim.srcs += $(SRC_BOOZ)/ahrs/booz2_filter_attitude_cmpl_euler.c
+# in makefile section of airframe xml
+# include $(CFG_BOOZ)/subsystems/booz2_ahrs_lkf.makefile
+# or
+# include $(CFG_BOOZ)/subsystems/booz2_ahrs_cmpl.makefile 
+#
 
 sim.srcs += $(SRC_BOOZ)/booz_stabilization.c
 sim.srcs += $(SRC_BOOZ)/stabilization/booz_stabilization_rate.c
