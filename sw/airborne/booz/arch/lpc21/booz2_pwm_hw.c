@@ -38,6 +38,8 @@ void booz2_pwm_init_hw( void ) {
   PWMMR5 = PWM_DUTY;
   /* commit values */
   PWMLER = PWMLER_LATCH0 | PWMLER_LATCH5;
+  /* prescle timer to match TIMER 0 (15MHz) */
+  PWMPR = T0_PCLK_DIV - 1;
   /* enable counter and pwm mode */
   PWMTCR = PWMTCR_COUNTER_ENABLE | PWMTCR_PWM_ENABLE;
   /* enable PWM5 */
