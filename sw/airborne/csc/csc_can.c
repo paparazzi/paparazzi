@@ -25,9 +25,6 @@ bool_t can1_msg_received;
 struct CscCanMsg can1_rx_msg;
 static void (* can1_callback)(struct CscCanMsg *);
 
-static bool_t can1_msg_transmit_queued = 0;
-static struct CscCanMsg can1_tx_queued_msg;
-
 static void CAN1_Rx_ISR ( void ) __attribute__((naked));
 /*static void CAN1_Tx_ISR ( void ) __attribute__((naked));*/
 static void CAN1_Err_ISR ( void ) __attribute__((naked));
@@ -143,16 +140,9 @@ void csc_can1_send(struct CscCanMsg* msg) {
   }
 
   if (!csc_can1_tx_available()) { /* transmit channel not available */
-#if 0
-    if(!can1_msg_transmit_queued){
-      can1_msg_transmit_queued = 1;
-      memcpy(&can1_tx_queued_msg,msg,sizeof(struct CscCanMsg));
-    }
-#else
     if (! msg_queue_full(&can1_tx_queue)) {
       msg_enqueue(&can1_tx_queue, msg);
     }
-#endif
 
     //    LED_ON(2);
     return;
@@ -210,7 +200,6 @@ void csc_can_event(void)
 {
 #ifdef USE_CAN1
 
-#if 1
   // drain the RX Queue
   while(!msg_queue_empty(&can1_rx_queue)) {
     struct CscCanMsg rx_msg;
@@ -219,25 +208,12 @@ void csc_can_event(void)
     can1_callback(&rx_msg);
     //restoreIRQ(cpsr);                     // restore global interrupts
   }
-#else
-  if (can1_msg_received) {
-    can1_callback(&can1_rx_msg);
-    can1_msg_received = FALSE;
-  }
-#endif
 
-#if 1
   if(!msg_queue_empty(&can1_tx_queue) && csc_can1_tx_available()) {
     struct CscCanMsg msg;
     msg_dequeue(&can1_tx_queue, &msg);
     csc_can1_send(&msg);
   }
-#else
-  if(can1_msg_transmit_queued && csc_can1_tx_available()){
-    csc_can1_send(&can1_tx_queued_msg);
-    can1_msg_transmit_queued = 0;
-  }
-#endif
 
 #endif /* USE_CAN1 */
 }

@@ -7,6 +7,27 @@
     <servo name="RUDDER" no="2" min="1000" neutral="1500" max="2000"/>
   </servos>
 
+  <csc_boards>
+   <board id="0">
+      <msg id="SERVO_CMD_ID" type="ServoCmd">
+       <field_map field="servos[0]" servo_id="SERVO_AILERON"/>
+       <field_map field="servos[1]" servo_id="SERVO_ELEVATOR"/>
+       <field_map field="servos[2]" servo_id="SERVO_RUDDER"/>
+      </msg>
+   </board>
+<!--
+   <board id="1">
+      <msg id="SERVO_CMD_ID" type="ServoCmd">
+       <field_map field="servos[0]" servo_id="DRAG1"/>
+       <field_map field="servos[1]" servo_id="DRAG2"/>
+       <field_map field="servos[2]" servo_id="DRAG3""/>
+       <field_map field="servos[3]" servo_id="DRAG4"/>
+      </msg>
+   </board>
+-->
+  </csc_boards>
+
+
   <commands>
     <axis name="ROLL"     failsafe_value="0"/>
     <axis name="PITCH"    failsafe_value="0"/>

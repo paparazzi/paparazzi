@@ -187,4 +187,5 @@ void csc_ap_periodic(uint8_t _in_flight, uint8_t kill) {
 				   (!booz2_autopilot_in_flight));
   ActuatorsCommit();
     
+  SendCscFromActuators();
 }

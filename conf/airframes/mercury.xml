@@ -7,6 +7,15 @@
     <servo name="S2" no="1" min="11287" neutral="32768" max="54249"/>
   </servos>
 
+   <csc_boards>
+    <board id="0">
+      <msg id="SERVO_CMD_ID" type="ServoCmd">
+       <field_map field="servos[0]" servo_id="SERVO_S1"/>
+       <field_map field="servos[1]" servo_id="SERVO_S2"/>
+      </msg>
+   </board>
+  </csc_boards>
+
   <section name="PROP_MISC">
     <define name="PROPS_NB" value="4" />
   </section>
@@ -149,20 +158,45 @@
 
   <section name="STABILIZATION_ATTITUDE" prefix="BOOZ_STABILIZATION_ATTITUDE_">
 
-    <define name="SP_MAX_PHI"     value="3000"/>
-    <define name="SP_MAX_THETA"   value="6000"/>
-    <define name="SP_MAX_R"       value="1000"/>
+    <!-- setpoints -->
+    <define name="SP_MAX_PHI"     value="RadOfDeg(45.)"/>
+    <define name="SP_MAX_THETA"   value="RadOfDeg(90.)"/>
+    <define name="SP_MAX_R"       value="RadOfDeg(90.)"/>
     <define name="DEADBAND_R"     value="250"/>
 
-    <define name="PHI_THETA_PGAIN"  value="-400"/>
-    <define name="PHI_THETA_DGAIN"  value="-300"/>
-    <define name="PHI_THETA_DDGAIN" value=" 300"/>
-    <define name="PHI_THETA_IGAIN"  value="-100"/>
+    <!-- reference -->
+    <define name="REF_OMEGA_P"  value="RadOfDeg(800)"/>
+    <define name="REF_ZETA_P"   value="0.85"/>
+    <define name="REF_MAX_P"    value="RadOfDeg(300.)"/>
+    <define name="REF_MAX_PDOT" value="RadOfDeg(7000.)"/>
+
+    <define name="REF_OMEGA_Q"  value="RadOfDeg(800)"/>
+    <define name="REF_ZETA_Q"   value="0.85"/>
+    <define name="REF_MAX_Q"    value="RadOfDeg(300.)"/>
+    <define name="REF_MAX_QDOT" value="RadOfDeg(7000.)"/>
+
+    <define name="REF_OMEGA_R"  value="RadOfDeg(500)"/>
+    <define name="REF_ZETA_R"   value="0.85"/>
+    <define name="REF_MAX_R"    value="RadOfDeg(180.)"/>
+    <define name="REF_MAX_RDOT" value="RadOfDeg(1800.)"/>
+
+    <!-- feedback -->
+    <define name="PHI_PGAIN"  value="-400"/>
+    <define name="PHI_DGAIN"  value="-300"/>
+    <define name="PHI_IGAIN"  value="-100"/>
+
+    <define name="THETA_PGAIN"  value="-400"/>
+    <define name="THETA_DGAIN"  value="-300"/>
+    <define name="THETA_IGAIN"  value="-100"/>
 
     <define name="PSI_PGAIN"  value="-380"/>
     <define name="PSI_DGAIN"  value="-320"/>
-    <define name="PSI_DDGAIN" value=" 300"/>
     <define name="PSI_IGAIN"  value="-75"/>
+
+    <!-- feedforward -->
+    <define name="PHI_DDGAIN"   value=" 300"/>
+    <define name="THETA_DDGAIN" value=" 300"/>
+    <define name="PSI_DDGAIN"   value=" 300"/>
 
   </section>
 

@@ -79,7 +79,15 @@ ap.CFLAGS += -DXSENS1_LINK=Uart0 -DBOOZ_IMU_TYPE_H=\"mercury_xsens.h\"
 ap.srcs += $(SRC_BOOZ)/ahrs/booz2_filter_attitude_cmpl_euler.c $(SRC_BOOZ)/ahrs/booz_ahrs_aligner.c
 ap.CFLAGS += -DFLOAT_T=float
 
-ap.srcs += $(SRC_BOOZ)/booz_stabilization.c $(SRC_BOOZ)/stabilization/booz_stabilization_attitude.c $(SRC_BOOZ)/stabilization/booz_stabilization_rate.c
+ap.srcs += $(SRC_BOOZ)/booz_stabilization.c
+ap.srcs += $(SRC_BOOZ)/stabilization/booz_stabilization_rate.c
+
+ap.CFLAGS += -DSTABILISATION_ATTITUDE_TYPE_INT
+ap.CFLAGS += -DSTABILISATION_ATTITUDE_H=\"stabilization/booz_stabilization_attitude_int.h\"
+ap.CFLAGS += -DSTABILISATION_ATTITUDE_REF_H=\"stabilization/booz_stabilization_attitude_ref_euler_int.h\"
+ap.srcs += $(SRC_BOOZ)/stabilization/booz_stabilization_attitude_ref_euler_int.c
+ap.srcs += $(SRC_BOOZ)/stabilization/booz_stabilization_attitude_euler_int.c
+
 
 # AHI copied from booz w/ light modifications for vertical control
 ap.CFLAGS += -DUSE_VFF -DDT_VFILTER="(1./512.)" -DFLOAT_T=float

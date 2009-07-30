@@ -47,6 +47,7 @@
 #include "csc_autopilot.h"
 #include "csc_can.h"
 #include "pwm_input.h"
+#include "csc_ap_link.h"
 #include "led.h"
 
 #define CSC_STATUS_TIMEOUT (SYS_TICS_OF_SEC(0.25) / PERIODIC_TASK_PERIOD)
@@ -194,6 +195,7 @@ static void csc_main_periodic( void )
 #ifdef ACTUATORS
   SetActuatorsFromCommands(commands);
 #endif
+  SendCscFromActuators();
 
 }
 

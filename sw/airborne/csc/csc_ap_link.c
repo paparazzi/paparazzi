@@ -35,7 +35,8 @@ void csc_ap_link_send_status(uint32_t loops, uint32_t msgs)
 }
 
 
-void csc_ap_send_msg(uint8_t msg_id, const uint8_t *buf, uint8_t len)
+// Generic function for sending can messages
+void can_write_csc(uint8_t board_id, uint8_t msg_id, const uint8_t *buf, uint8_t len)
 {
   struct CscCanMsg out_msg;
 
@@ -44,11 +45,16 @@ void csc_ap_send_msg(uint8_t msg_id, const uint8_t *buf, uint8_t len)
   // set frame length
   out_msg.frame = (len << 16);
   // build msg id using our board ID and requested msg id
-  out_msg.id = ((CSC_BOARD_ID & CSC_BOARD_MASK) << 7) | (msg_id & CSC_MSGID_MASK);
+  out_msg.id = ((board_id & CSC_BOARD_MASK) << 7) | (msg_id & CSC_MSGID_MASK);
   // copy msg payload in host order
   memcpy((char *)&out_msg.dat_a, buf, len);
   // send via CAN 
   csc_can1_send(&out_msg);
+}
+
+void csc_ap_send_msg(uint8_t msg_id, const uint8_t *buf, uint8_t len)
+{
+  can_write_csc(CSC_BOARD_ID, msg_id, buf, len);
 }
 
 void csc_ap_link_set_servo_cmd_cb(void (* cb)(struct CscServoCmd *cmd))
