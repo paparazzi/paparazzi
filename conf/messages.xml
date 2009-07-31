@@ -1236,18 +1236,25 @@
       <field name="p"     type="float" unit="rad/s" alt_unit="degres/s" alt_unit_coef="57.29578" />
       <field name="q"     type="float" unit="rad/s" alt_unit="degres/s" alt_unit_coef="57.29578" />
       <field name="r"     type="float" unit="rad/s" alt_unit="degres/s" alt_unit_coef="57.29578" />
-      <field name="bp"    type="float" unit="rad/s" alt_unit="degres/s" alt_unit_coef="57.29578" />
-      <field name="bq"    type="float" unit="rad/s" alt_unit="degres/s" alt_unit_coef="57.29578" />
-      <field name="br"    type="float" unit="rad/s" alt_unit="degres/s" alt_unit_coef="57.29578" />
+      <field name="ax"    type="float" />
+      <field name="ay"    type="float" />
+      <field name="az"    type="float" />
+      <field name="mx"    type="float" />
+      <field name="my"    type="float" />
+      <field name="mz"    type="float" />
     </message>
     
     <message name="BOOZ_AHRS_LKF_DEBUG" id="194">
       <field name="phi_err"   type="float" unit="rad"   alt_unit="degres"   alt_unit_coef="57.29578" />
       <field name="theta_err" type="float" unit="rad"   alt_unit="degres"   alt_unit_coef="57.29578" />
       <field name="psi_err"   type="float" unit="rad"   alt_unit="degres"   alt_unit_coef="57.29578" />
+      <field name="bp"        type="float" unit="rad/s" alt_unit="degres/s" alt_unit_coef="57.29578" />
+      <field name="bq"        type="float" unit="rad/s" alt_unit="degres/s" alt_unit_coef="57.29578" />
+      <field name="br"        type="float" unit="rad/s" alt_unit="degres/s" alt_unit_coef="57.29578" />
       <field name="bp_err"    type="float" unit="rad/s" alt_unit="degres/s" alt_unit_coef="57.29578" />
       <field name="bq_err"    type="float" unit="rad/s" alt_unit="degres/s" alt_unit_coef="57.29578" />
       <field name="br_err"    type="float" unit="rad/s" alt_unit="degres/s" alt_unit_coef="57.29578" />
+      <field name="quat_norm" type="float" />
       <field name="phi_cov"   type="float" />
       <field name="theta_cov" type="float" />
       <field name="psi_cov"   type="float" />
