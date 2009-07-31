@@ -87,7 +87,7 @@
 				      &radio_control.values[RADIO_CONTROL_THROTTLE], \
 				      &radio_control.values[RADIO_CONTROL_MODE], \
 				      &radio_control.status);}
-      
+
 #else
 #define PERIODIC_SEND_RC() {}
 #endif
@@ -302,23 +302,30 @@
                    &bafl_rates.p,       \
                    &bafl_rates.q,       \
                    &bafl_rates.r,       \
-                   &bafl_bias.p,          \
-                   &bafl_bias.q,          \
-                   &bafl_bias.r);          \
+                   &bafl_accel.x,       \
+                   &bafl_accel.y,       \
+                   &bafl_accel.z,       \
+                   &bafl_mag.x,         \
+                   &bafl_mag.y,         \
+                   &bafl_mag.z);         \
   }
 #define PERIODIC_SEND_BOOZ_AHRS_LKF_DEBUG() {                 \
     DOWNLINK_SEND_BOOZ_AHRS_LKF_DEBUG(&bafl_X[0],          \
                    &bafl_X[1],          \
                    &bafl_X[2],          \
-                   &bafl_bias_err.p,          \
-                   &bafl_bias_err.q,          \
-                   &bafl_bias_err.r,          \
-                   &bafl_P[0][0],          \
-                   &bafl_P[1][1],          \
-                   &bafl_P[2][2],          \
-                   &bafl_P[3][3],          \
-                   &bafl_P[4][4],          \
-                   &bafl_P[5][5]);         \
+                   &bafl_bias.p,        \
+                   &bafl_bias.q,        \
+                   &bafl_bias.r,       \
+                   &bafl_bias_err.p,    \
+                   &bafl_bias_err.q,    \
+                   &bafl_bias_err.r,    \
+                   &bafl_qnorm,			\
+                   &bafl_P[0][0],       \
+                   &bafl_P[1][1],       \
+                   &bafl_P[2][2],       \
+                   &bafl_P[3][3],       \
+                   &bafl_P[4][4],       \
+                   &bafl_P[5][5]);      \
   }
 #else
 #define PERIODIC_SEND_BOOZ_AHRS_LKF() {}
