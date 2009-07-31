@@ -63,11 +63,9 @@ void nps_ivy_display(void) {
 	     (fdm.ltpprz_pos.x),
 	     (fdm.ltpprz_pos.y),
 	     (fdm.ltpprz_pos.z));
-#if 0
   IvySendMsg("%d BOOZ_SIM_GYRO_BIAS %f %f %f",
          AC_ID,
-         (sensors.gyro.bias_random_walk_value.p),
-         (sensors.gyro.bias_random_walk_value.q),
-         (sensors.gyro.bias_random_walk_value.r));
-#endif
+         DegOfRad(RATE_FLOAT_OF_BFP(sensors.gyro.bias_random_walk_value.x)+sensors.gyro.bias_initial.x),
+         DegOfRad(RATE_FLOAT_OF_BFP(sensors.gyro.bias_random_walk_value.y)+sensors.gyro.bias_initial.y),
+         DegOfRad(RATE_FLOAT_OF_BFP(sensors.gyro.bias_random_walk_value.z)+sensors.gyro.bias_initial.z));
 }

@@ -18,7 +18,7 @@
 #define HOST_TIME_FACTOR 1.
 
 static struct {
-  struct timeval host_time_start;
+  double scaled_initial_time;
   double host_time_factor;
   double sim_time;
   double display_time;
@@ -34,17 +34,42 @@ static void nps_main_display(void);
 static void nps_main_run_sim_step(void);
 static gboolean nps_main_periodic(gpointer data __attribute__ ((unused)));
 
+int pauseSignal = 0;
+
+void tstp_hdl(int n __attribute__ ((unused))) {
+	if (pauseSignal) {
+		pauseSignal = 0;
+		signal (SIGTSTP, SIG_DFL);
+		raise(SIGTSTP);
+	} else {
+		pauseSignal = 1;
+	}
+}
+
+void cont_hdl (int n __attribute__ ((unused))) {
+   signal (SIGCONT, cont_hdl);
+   signal (SIGTSTP, tstp_hdl);
+   printf("Press <enter> to continue.\n");
+ }
+
+double time_to_double(timeval *t) {
+	return ((double)t->tv_sec + (double)(t->tv_usec * 1e-6));
+}
 
 int main ( int argc, char** argv) {
 
   if (!nps_main_parse_options(argc, argv)) return 1;
 
   nps_main_init();
- 
+
+  signal(SIGCONT, cont_hdl);
+  signal(SIGTSTP, tstp_hdl);
+  printf("Time factor is %f. (Press Ctrl-Z to change)\n", nps_main.host_time_factor);
+
   GMainLoop *ml =  g_main_loop_new(NULL, FALSE);
   g_timeout_add(HOST_TIMEOUT_MS, nps_main_periodic, NULL);
   g_main_loop_run(ml);
-  
+
   return 0;
 }
 
@@ -53,7 +78,9 @@ static void nps_main_init(void) {
 
   nps_main.sim_time = 0.;
   nps_main.display_time = 0.;
-  gettimeofday (&nps_main.host_time_start, NULL);
+  timeval t;
+  gettimeofday (&t, NULL);
+  nps_main.scaled_initial_time = time_to_double(&t);
   nps_main.host_time_factor = HOST_TIME_FACTOR;
 
   nps_ivy_init();
@@ -91,12 +118,40 @@ static void nps_main_display(void) {
 
 
 static gboolean nps_main_periodic(gpointer data __attribute__ ((unused))) {
-  
-  struct timeval host_time_now;
-  gettimeofday (&host_time_now, NULL);
-  double host_time_elapsed = nps_main.host_time_factor *
-    ((host_time_now.tv_sec  - nps_main.host_time_start.tv_sec) +
-     (host_time_now.tv_usec - nps_main.host_time_start.tv_usec)*1e-6);
+  struct timeval tv_now;
+  double  host_time_now;
+
+  if (pauseSignal) {
+	char line[128];
+	double tf = 1.0;
+	double t1, t2, irt;
+
+	gettimeofday(&tv_now, NULL);
+	t1 = time_to_double(&tv_now);
+	/* unscale to initial real time*/
+	irt = t1 - (t1 - nps_main.scaled_initial_time)*nps_main.host_time_factor;
+
+    printf("Press <enter> to continue (or CTRL-Z to suspend). Enter a new time factor if needed: ");
+	fflush(stdout);
+	fgets(line,127,stdin);
+	if ((sscanf(line," %le ", &tf) == 1)) {
+		if (tf > 0 && tf < 1000)
+			nps_main.host_time_factor = tf;
+	}
+	printf("Time factor is %f\n", nps_main.host_time_factor);
+
+	gettimeofday(&tv_now, NULL);
+	t2 = time_to_double(&tv_now);
+	/* add the pause to initial real time */
+	irt += t2 - t1;
+	/* convert to scaled initial real time */
+	nps_main.scaled_initial_time = t2 - (t2 - irt)/nps_main.host_time_factor;
+	pauseSignal = 0;
+  }
+
+  gettimeofday (&tv_now, NULL);
+  host_time_now = time_to_double(&tv_now);
+  double host_time_elapsed = nps_main.host_time_factor *(host_time_now  - nps_main.scaled_initial_time);
 
   while (nps_main.sim_time <= host_time_elapsed) {
     nps_main_run_sim_step();
@@ -105,8 +160,8 @@ static gboolean nps_main_periodic(gpointer data __attribute__ ((unused))) {
       nps_main_display();
       nps_main.display_time += DISPLAY_DT;
     }
-  }  
-  
+  }
+
   return TRUE;
 
 }
@@ -142,7 +197,7 @@ static bool_t nps_main_parse_options(int argc, char** argv) {
 			long_options, &option_index);
     if (c == -1)
       break;
-    
+
     switch (c) {
     case 0:
       switch (option_index) {
@@ -160,7 +215,7 @@ static bool_t nps_main_parse_options(int argc, char** argv) {
     case 'j':
       nps_main.js_dev = strdup(optarg);
       break;
-    
+
     default: /* ’?’ */
       printf("?? getopt returned character code 0%o ??\n", c);
       fprintf(stderr, usage, argv[0]);
