@@ -1,6 +1,6 @@
 /*
  * $Id:  $
- *  
+ *
  * Copyright (C) 2009 Felix Ruess <felix.ruess@gmail.com>
  * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
  *
@@ -19,7 +19,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  */
 
 #ifndef BOOZ_AHRS_FLOAT_LKF_H
@@ -37,6 +37,9 @@ extern struct FloatRMat   bafl_dcm;
 
 extern struct FloatQuat   bafl_quat_err;
 extern struct FloatRates  bafl_bias_err;
+extern float bafl_qnorm;
+extern struct FloatVect3  bafl_accel;
+extern struct FloatVect3  bafl_mag;
 
 #define BAFL_SSIZE 6
 extern float bafl_P[BAFL_SSIZE][BAFL_SSIZE];

@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
  *
  * This file is part of paparazzi.
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  */
 
 #include <inttypes.h>
@@ -157,9 +157,9 @@ STATIC_INLINE void booz2_main_event( void ) {
   RadioControlEvent(booz2_autopilot_on_rc_frame);
 
   BoozImuEvent(on_gyro_accel_event, on_mag_event);
-  
+
   Booz2AnalogBaroEvent(on_baro_event);
- 
+
 #ifdef USE_GPS
   Booz2GpsEvent(on_gps_event);
 #endif
@@ -183,7 +183,7 @@ static inline void on_gyro_accel_event( void ) {
   else {
     booz_ahrs_propagate();
 #ifdef USE_AHRS_LKF
-	//booz_ahrs_update_accel();
+    booz_ahrs_update_accel();
 #endif
     //    booz2_filter_attitude_update();
     booz_ins_propagate();
