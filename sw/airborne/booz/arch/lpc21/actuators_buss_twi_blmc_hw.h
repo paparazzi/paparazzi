@@ -70,7 +70,7 @@
     ActuatorsBussTwiBlmcSend();						\
 }
 #else
-#define ActuatorsCommit() {			                \
+#define ActuatorsCommit() {						\
     if ( buss_twi_blmc_status == BUSS_TWI_BLMC_STATUS_IDLE) {		\
       buss_twi_blmc_idx = 0;						\
       buss_twi_blmc_status = BUSS_TWI_BLMC_STATUS_BUSY;			\
