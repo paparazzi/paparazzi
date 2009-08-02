@@ -26,14 +26,23 @@
 #include "init_hw.h"
 #include "sys_time.h"
 #include "interrupt_hw.h"
+#include "downlink.h"
+#include "datalink.h"
+
+#include "booz2_test_buss_bldc_hexa.h"
+
+#define NB_MOTORS 6
+static const uint8_t motor_addr[] = {0x52, 0x54, 0x56, 0x58, 0x5A, 0x5C};
+uint8_t motor = 0; 
+uint8_t thrust = 10; 
+static bool_t  i2c_done;
 
 //static uint8_t addr = 0x52; /* 1 : back right   */
 //static uint8_t addr = 0x54; /* 2 : back left   bad balanced */
 //static uint8_t addr = 0x56; /* 3 : center right  not so well balanced */
-static uint8_t addr = 0x58; /* 4 : center left  */
+//static uint8_t addr = 0x58; /* 4 : center left  */
 //static uint8_t addr = 0x5A; /* 5 : front right  */
 //static uint8_t addr = 0x5C; /* 6 : front left   */
-static bool_t  i2c_done;
 
 static inline void main_init( void );
 static inline void main_periodic_task( void );
@@ -56,12 +65,14 @@ static inline void main_init( void ) {
 }
 
 static inline void main_periodic_task( void ) {
-  uint8_t thrust = 20;
   i2c0_buf[0] = thrust;
-  i2c0_transmit(addr, 1, &i2c_done);
+  i2c0_transmit(motor_addr[motor], 1, &i2c_done);
+
+  RunOnceEvery(128, { DOWNLINK_SEND_ALIVE(16, MD5SUM);});
+
 }
 
 static inline void main_event_task( void ) {
-
+  DatalinkEvent();
 }
 

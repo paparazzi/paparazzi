@@ -143,7 +143,7 @@
 
   <makefile>
 ARCH=lpc21
-BOARD_CFG = \"booz2_board_v1_0.h\"
+BOARD_CFG = \"boards/booz2_v1_0.h\"
 
 # prevents motors from ever starting
 #ap.CFLAGS += -DKILL_MOTORS

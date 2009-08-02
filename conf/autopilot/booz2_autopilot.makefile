@@ -124,6 +124,7 @@ ap.CFLAGS += -DSTABILISATION_ATTITUDE_REF_H=\"stabilization/booz_stabilization_a
 ap.srcs += $(SRC_BOOZ)/stabilization/booz_stabilization_attitude_ref_euler_int.c
 ap.srcs += $(SRC_BOOZ)/stabilization/booz_stabilization_attitude_euler_int.c
 
+ap.CFLAGS += -DUSE_NAVIGATION
 ap.srcs += $(SRC_BOOZ)/guidance/booz2_guidance_h.c
 ap.srcs += $(SRC_BOOZ)/guidance/booz2_guidance_v.c
 

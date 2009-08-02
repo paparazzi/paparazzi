@@ -68,7 +68,7 @@ void dl_parse_msg(void) {
     }
     break;
 #endif
-
+#if defined USE_NAVIGATION
   case DL_BLOCK :
     {
       if (DL_BLOCK_ac_id(dl_buffer) != AC_ID) break;
@@ -94,6 +94,7 @@ void dl_parse_msg(void) {
       DOWNLINK_SEND_WP_MOVED_LTP(&wp_id, &enu.x, &enu.y, &enu.z);
     }
     break;
+#endif /* USE_NAVIGATION */
 
   }
 }

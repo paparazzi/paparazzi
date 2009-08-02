@@ -21,8 +21,8 @@
  * Boston, MA 02111-1307, USA. 
  */
 
-#ifndef BOOZ2_SUPERVISION_H
-#define BOOZ2_SUPERVISION_H
+#ifndef BOOZ_SUPERVISION_H
+#define BOOZ_SUPERVISION_H
 
 #include "airframe.h"
 
@@ -117,4 +117,4 @@
 
 
 
-#endif /* BOOZ2_SUPERVISION_H */
+#endif /* BOOZ_SUPERVISION_H */

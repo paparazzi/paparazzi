@@ -31,7 +31,7 @@
 #include "i2c.h"
 
 #include "airframe.h"
-#include "booz2_supervision.h"
+#include "actuators/booz_supervision.h"
 
 /*
   We're not using the airframe file "mixer" facility
@@ -68,7 +68,7 @@
     buss_twi_blmc_idx = 0;						\
     buss_twi_blmc_status = BUSS_TWI_BLMC_STATUS_BUSY;			\
     ActuatorsBussTwiBlmcSend();						\
-}
+  }
 #else
 #define ActuatorsCommit() {						\
     if ( buss_twi_blmc_status == BUSS_TWI_BLMC_STATUS_IDLE) {		\
@@ -76,8 +76,8 @@
       buss_twi_blmc_status = BUSS_TWI_BLMC_STATUS_BUSY;			\
       ActuatorsBussTwiBlmcSend();					\
     }									\
-  else					     		\
-     twi_blmc_nb_err++;					\
+    else								\
+      twi_blmc_nb_err++;						\
   }
 #endif
 
@@ -85,7 +85,8 @@
 
 #define BUSS_TWI_BLMC_STATUS_IDLE 0
 #define BUSS_TWI_BLMC_STATUS_BUSY 1
-#define BUSS_TWI_BLMC_NB 4
+#define BUSS_TWI_BLMC_NB 4 
+//(sizeof(buss_twi_blmc_addr)/sizeof(uint8_t))
 extern uint8_t buss_twi_blmc_motor_power[BUSS_TWI_BLMC_NB];
 extern volatile bool_t  buss_twi_blmc_status;
 extern uint8_t twi_blmc_nb_err;
