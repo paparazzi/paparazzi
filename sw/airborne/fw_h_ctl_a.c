@@ -62,11 +62,14 @@ float h_ctl_ref_roll_accel;
 
 /* inner roll loop parameters */
 float  h_ctl_roll_setpoint;
-float  h_ctl_roll_pgain;
+float h_ctl_roll_attitude_gain;
+float h_ctl_roll_rate_gain;
 float  h_ctl_roll_igain;
 float  h_ctl_roll_sum_err;
 pprz_t h_ctl_aileron_setpoint;
 float  h_ctl_roll_slew;
+
+float  h_ctl_roll_pgain;
 
 /* inner pitch loop parameters */
 float  h_ctl_pitch_setpoint;
@@ -77,10 +80,6 @@ pprz_t h_ctl_elevator_setpoint;
 /* inner loop pre-command */
 float h_ctl_aileron_of_throttle;
 float h_ctl_elevator_of_roll;
-
-#ifdef H_CTL_COURSE_SLEW_INCREMENT
-float h_ctl_course_slew_increment;
-#endif
 
 
 inline static void h_ctl_roll_loop( void );
@@ -98,9 +97,6 @@ inline static void h_ctl_pitch_loop( void );
 #define H_CTL_ROLL_RATE_GAIN 0.
 #endif
 
-float h_ctl_roll_attitude_gain;
-float h_ctl_roll_rate_gain;
-
 #ifdef AGR_CLIMB
 static float nav_ratio;
 #endif
@@ -116,9 +112,6 @@ void h_ctl_init( void ) {
   h_ctl_disabled = FALSE;
 
   h_ctl_roll_setpoint = 0.;
-#ifdef H_CTL_ROLL_PGAIN
-  h_ctl_roll_pgain = H_CTL_ROLL_PGAIN;
-#endif
   h_ctl_aileron_setpoint = 0;
 #ifdef H_CTL_AILERON_OF_THROTTLE
   h_ctl_aileron_of_throttle = H_CTL_AILERON_OF_THROTTLE;
@@ -130,18 +123,8 @@ void h_ctl_init( void ) {
   h_ctl_elevator_setpoint = 0;
   h_ctl_elevator_of_roll = H_CTL_ELEVATOR_OF_ROLL;
 
-#ifdef H_CTL_ROLL_SLEW
-  h_ctl_roll_slew = H_CTL_ROLL_SLEW;
-#endif
-
-#ifdef H_CTL_COURSE_SLEW_INCREMENT
-  h_ctl_course_slew_increment = H_CTL_COURSE_SLEW_INCREMENT;
-#endif
-
-#ifdef H_CTL_ROLL_ATTITUDE_GAIN
   h_ctl_roll_attitude_gain = H_CTL_ROLL_ATTITUDE_GAIN;
   h_ctl_roll_rate_gain = H_CTL_ROLL_RATE_GAIN;
-#endif
 
 #ifdef AGR_CLIMB
 nav_ratio=0;
