@@ -90,7 +90,7 @@
   </section>
 
   <section name="GYRO" prefix="GYRO_">
-    <define name="ADC_ROLL_NEUTRAL" value="609"/>
+    <define name="ADC_ROLL_NEUTRAL" value="520"/>
     <define name="DYNAMIC_RANGE" value="300" unit="deg/s"/>
     <define name="ADXRS300_RESISTOR_BRIDGE" value="(3.3/(3.3+1.8))"/>
     <define name="ADXRS300_SENSITIVITY" value="5" unit="mV/(deg/s)"/>
