@@ -57,6 +57,8 @@ bool_t h_ctl_auto1_rate;
 float h_ctl_ref_roll_angle;
 float h_ctl_ref_roll_rate;
 float h_ctl_ref_roll_accel;
+#define H_CTL_REF_W 3.
+#define H_CTL_REF_XI 1.
 
 /* inner roll loop parameters */
 float  h_ctl_roll_setpoint;
@@ -200,18 +202,26 @@ void h_ctl_attitude_loop ( void ) {
   }
 }
 
-inline static void h_ctl_roll_filter_setpoint( void ) {
-}
+#define H_CTL_REF_DT (1./60.)
 
 inline static void h_ctl_roll_loop( void ) {
-  float err = estimator_phi - h_ctl_roll_setpoint;
+  h_ctl_ref_roll_accel = H_CTL_REF_W*H_CTL_REF_W * (h_ctl_roll_setpoint - h_ctl_ref_roll_angle) - 2*H_CTL_REF_XI*H_CTL_REF_W * h_ctl_ref_roll_rate;
+  h_ctl_ref_roll_rate += h_ctl_ref_roll_accel * H_CTL_REF_DT;
+  h_ctl_ref_roll_angle += h_ctl_ref_roll_rate * H_CTL_REF_DT;
+
+  float err = estimator_phi - h_ctl_ref_roll_angle;
 #ifdef SITL
   static float last_err = 0;
   estimator_p = (err - last_err)/(1/60.);
   last_err = err;
 #endif
-  float cmd = - h_ctl_roll_attitude_gain * err
-    - h_ctl_roll_rate_gain * estimator_p
+  float derr = estimator_p - h_ctl_ref_roll_rate;
+  h_ctl_roll_sum_err += err * H_CTL_REF_DT;
+  BoundAbs(h_ctl_roll_sum_err, H_CTL_ROLL_SUM_ERR_MAX);
+  float cmd = h_ctl_roll_Kff * h_ctl_ref_roll_accel
+    - h_ctl_roll_attitude_gain * err
+    - h_ctl_roll_rate_gain * derr
+    - h_ctl_roll_igain * h_ctl_roll_sum_err
     + v_ctl_throttle_setpoint * h_ctl_aileron_of_throttle;
 
   h_ctl_aileron_setpoint = TRIM_PPRZ(cmd); 
