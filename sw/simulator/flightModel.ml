@@ -40,15 +40,16 @@ type state = {
     mutable x : meter;
     mutable y : meter;
     mutable z : meter;
+    mutable z_dot : meter_s;
     mutable psi : radian; (* Trigonometric *)
     mutable phi : radian;
     mutable theta : radian;
+    mutable theta_dot : radian_s;
     mutable phi_dot : radian_s;
     mutable delta_a : float;
     mutable delta_b : float;
     mutable thrust : float;
-    mutable air_speed : meter_s;
-    mutable nominal_air_speed : meter_s
+    mutable air_speed : meter_s
   }
 
 module type SIG =
@@ -69,10 +70,10 @@ let get_xyz state = (state.x, state.y, state.z)
 let get_time state = state.t
 let get_attitude state = (state.phi, state.theta, state.psi)
 
-let set_air_speed state x = state.nominal_air_speed <- x
-let get_air_speed state = state.nominal_air_speed
+let get_air_speed state = state.air_speed
+let set_air_speed state = fun s -> state.air_speed <- s
 
-let drag = 0.45
+let cruise_thrust = 0.45
 let g = 9.81
 
 module Make(A:Data.MISSION) = struct
@@ -138,6 +139,8 @@ module Make(A:Data.MISSION) = struct
   let infrared_section = try section "INFRARED" with _ -> Xml.Element("",[],[])
 
   let nominal_airspeed = float_of_string (defined_value misc_section "NOMINAL_AIRSPEED")
+  let maximum_airspeed = try float_value misc_section "MAXIMUM_AIRSPEED" with _ -> nominal_airspeed *. 1.5
+  let max_power = try float_value misc_section "MAXIMUM_POWER" with _ -> 5. *. maximum_airspeed *. weight
 
   let roll_neutral_default = try rad_of_deg (float_value infrared_section "ROLL_NEUTRAL_DEFAULT") with _ -> 0.
   let pitch_neutral_default = try rad_of_deg (float_value infrared_section "PITCH_NEUTRAL_DEFAULT") with _ -> 0.
@@ -163,10 +166,9 @@ module Make(A:Data.MISSION) = struct
 
   let init route = {
     start = Unix.gettimeofday (); t = 0.; x = 0.; y = 0. ; z = 0.;
-    psi = route; phi = 0.; phi_dot = 0.;
+    psi = route; phi = 0.; phi_dot = 0.; theta_dot = 0.;
     delta_a = 0.; delta_b = 0.; thrust = 0.; air_speed = 0.;
-    nominal_air_speed = 0.;
-    theta = pitch_neutral_default;
+    theta = 0.; z_dot = 0.
   }
 
 (* Minimum complexity *)
@@ -177,10 +179,13 @@ module Make(A:Data.MISSION) = struct
   let state_update = fun state nominal_airspeed (wx, wy) agl dt ->
     let now = state.t +. dt in
     if state.air_speed = 0. && state.thrust > 0. then
-      state.nominal_air_speed <- nominal_airspeed;
-    state.air_speed <- state.nominal_air_speed*.(1.-.sin state.theta);
+      state.air_speed <- nominal_airspeed;
+
     if agl >= -3. && state.air_speed > 0. then begin
-      let phi_dot_dot = roll_response_factor *. state.delta_a -. state.phi_dot in
+      let v2 = state.air_speed**2.
+      and vn2 = nominal_airspeed ** 2.  in
+
+      let phi_dot_dot = roll_response_factor *. state.delta_a *. v2 /. vn2 -. state.phi_dot in
       state.phi_dot <- state.phi_dot +. phi_dot_dot *. dt;
       state.phi_dot <- bound state.phi_dot (-.max_phi_dot) max_phi_dot;
       state.phi <- norm_angle (state.phi +. state.phi_dot *. dt);
@@ -189,16 +194,36 @@ module Make(A:Data.MISSION) = struct
       let psi_dot = -. g /. state.air_speed *. tan (yaw_response_factor *. state.phi) in
       state.psi <- norm_angle (state.psi +. psi_dot *. dt);
 
-      let dx = state.air_speed *. cos state.psi *. dt +. wx *. dt 
-      and dy = state.air_speed *. sin state.psi *. dt +. wy *. dt in
-      state.x <- state.x +.dx ;
-      state.y <- state.y +. dy;
-      let gamma = (state.thrust -. drag) /. weight +. state.theta -. 0.1 *. abs_float (sin state.phi) in
-      let dz = sin gamma *. state.air_speed *. dt in
-      state.z <- state.z +. dz;
+      (* Aerodynamic pitching moment coeff, proportional to elevator;
+        No Thrust moment, so null (0) for steady flight *)
+      let c_m = 5e-7 *.state.delta_b in
+      let theta_dot_dot = c_m *. v2 -. state.theta_dot in
+      state.theta_dot <- state.theta_dot +. theta_dot_dot *. dt;
+      state.theta <- state.theta +. state.theta_dot *. dt;
 
-      (* Awfull: just to respond to the controller ... *)
-      state.theta <- state.theta +. 1e-5 *. state.delta_b
+      (* Flight path angle *)
+      let gamma = atan2 state.z_dot state.air_speed in
+
+      (* Cz proportional to angle of attack *)
+      let alpha = state.theta -. gamma in
+      let c_z = 0.2 *. alpha +. g /. vn2 in
+
+      (* Lift *)
+      let lift = c_z *. state.air_speed**2. in
+      let z_dot_dot = lift /. weight *. cos state.theta *. cos state.phi -. g in
+      state.z_dot <- state.z_dot +. z_dot_dot *.dt;
+      state.z <- state.z +. state.z_dot *. dt;
+      
+      (* Constant Cx, drag to get expected cruise and maximum throttle *)
+      let drag = cruise_thrust +. (v2 -. vn2)*.(1.-. cruise_thrust)/.(maximum_airspeed ** 2. -. vn2) in
+      let air_speed_dot = max_power /. state.air_speed *. (state.thrust -. drag) /. weight -. g *. sin gamma in
+      state.air_speed <- state.air_speed +. air_speed_dot *. dt;
+
+      (* FIXME: wind effect should be in the forces *)
+      let x_dot = state.air_speed *. cos state.psi +. wx
+      and y_dot = state.air_speed *. sin state.psi +. wy in
+      state.x <- state.x +. x_dot *. dt;
+      state.y <- state.y +. y_dot *. dt
     end;
     state.t <- now
 end (* Make functor *)
