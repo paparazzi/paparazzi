@@ -121,8 +121,7 @@
 #define USE_AD1_7
 
 
-#ifndef VoltageOfAdc
-#define VoltageOfAdc(adc) (0.01787109375*adc)
-#endif
+#define DefaultVoltageOfAdc(adc) (0.01787109375*adc)
+
 
 #endif /* CONFIG_TINY_H */
