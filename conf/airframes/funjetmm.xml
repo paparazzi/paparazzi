@@ -14,20 +14,23 @@
 <!-- commands section -->
   <servos>
     <servo name="MOTOR"         no="0" min="1000" neutral="1000" max="2000"/>
-    <servo name="AILEVON_LEFT"  no="2" min="1900" neutral="1500" max="1100"/>
-    <servo name="AILEVON_RIGHT" no="6" min="1100" neutral="1500" max="1900"/>
+    <servo name="AILEVON_LEFT"  no="2" min="1900" neutral="1442" max="1100"/>
+    <servo name="AILEVON_RIGHT" no="6" min="1100" neutral="1549" max="1900"/>
+    <servo name="HATCH"         no="7" min="1070" neutral="1070" max="2200"/>
   </servos>
 
   <commands>
     <axis name="THROTTLE" failsafe_value="0"/>
     <axis name="ROLL"     failsafe_value="0"/>
     <axis name="PITCH"    failsafe_value="0"/>
+    <axis name="HATCH"     failsafe_value="0"/>
   </commands>
 
   <rc_commands>
     <set command="THROTTLE" value="@THROTTLE"/>
     <set command="ROLL"     value="@ROLL"/>
     <set command="PITCH"    value="@PITCH"/>
+    <set command="HATCH"    value="@CALIB"/>
   </rc_commands>
 
   <section name="MIXER">
@@ -38,9 +41,10 @@
   <command_laws>
     <let var="aileron"  value="@ROLL  * AILEVON_AILERON_RATE"/>
     <let var="elevator" value="@PITCH * AILEVON_ELEVATOR_RATE"/>  
-    <set servo="MOTOR"           value="@THROTTLE"/>
+    <set servo="MOTOR"         value="@THROTTLE"/>
     <set servo="AILEVON_LEFT"  value="$elevator + $aileron"/>
     <set servo="AILEVON_RIGHT" value="$elevator - $aileron"/>
+    <set servo="HATCH"         value="@HATCH"/>
   </command_laws>
 
   <section name="AUTO1" prefix="AUTO1_">
@@ -79,7 +83,7 @@
   </section>
 
   <section name="BAT">
-    <define name="MILLIAMP_PER_PERCENT" value="0.86"/>
+    <define name="MILLIAMP_AT_FULL_THROTTLE" value="10000."/>
     <define name="CATASTROPHIC_BAT_LEVEL" value="9.3" unit="V"/>
                                         <!-- 0.0247311828 -->
                                         <!-- 0.02432905 -->
@@ -102,7 +106,7 @@
  
   <section name="VERTICAL CONTROL" prefix="V_CTL_">
 
-    <define name="POWER_CTL_BAT_NOMINAL" value="10" unit="volt"/>
+    <define name="POWER_CTL_BAT_NOMINAL" value="11.1" unit="volt"/>
     <!-- outer loop proportional gain -->
     <define name="ALTITUDE_PGAIN" value="-0.06"/> <!-- -0.024 -->
     <!-- outer loop saturation -->
@@ -110,10 +114,10 @@
 
     <!-- auto throttle inner loop -->
     <define name="AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE" value="0.45"/>
-    <define name="AUTO_THROTTLE_MIN_CRUISE_THROTTLE" value="0.35"/>
-    <define name="AUTO_THROTTLE_MAX_CRUISE_THROTTLE" value="0.80"/>
-    <define name="AUTO_THROTTLE_LOITER_TRIM" value="50"/>
-    <define name="AUTO_THROTTLE_DASH_TRIM" value="-60"/>
+    <define name="AUTO_THROTTLE_MIN_CRUISE_THROTTLE" value="0.25"/>
+    <define name="AUTO_THROTTLE_MAX_CRUISE_THROTTLE" value="0.85"/>
+    <define name="AUTO_THROTTLE_LOITER_TRIM" value="1000"/>
+    <define name="AUTO_THROTTLE_DASH_TRIM" value="-1200"/>
     <define name="AUTO_THROTTLE_CLIMB_THROTTLE_INCREMENT" value="0.2" unit="%/(m/s)"/>
     <define name="AUTO_THROTTLE_PGAIN" value="-0.023"/> <!-- -0.012 -->
     <define name="AUTO_THROTTLE_IGAIN" value="0.01"/>
@@ -130,8 +134,8 @@
   </section>
 
   <section name="HORIZONTAL CONTROL" prefix="H_CTL_">
-    <define name="COURSE_PGAIN" value="-0.8"/>
-    <define name="ROLL_MAX_SETPOINT" value="0.62" unit="radians"/> <!-- 0.5 -->
+    <define name="COURSE_PGAIN" value="-0.9"/>
+    <define name="ROLL_MAX_SETPOINT" value="0.70" unit="radians"/> <!-- 0.5 -->
     <define name="PITCH_MAX_SETPOINT" value="0.5" unit="radians"/>
     <define name="PITCH_MIN_SETPOINT" value="-0.5" unit="radians"/>
 
@@ -140,7 +144,7 @@
     <define name="PITCH_PGAIN" value="-5500."/>
     <define name="PITCH_DGAIN" value="0.4"/>
 
-    <define name="ELEVATOR_OF_ROLL" value="1200"/>
+    <define name="ELEVATOR_OF_ROLL" value="2400"/>
 
     <!--define name="ROLL_ATTITUDE_GAIN" value="-7500"/>
     <define name="ROLL_RATE_GAIN" value="-1500"/-->
@@ -179,6 +183,26 @@
  <section name="SIMU">
     <define name="YAW_RESPONSE_FACTOR" value="0.5"/>
  </section>
+
+  <section name="MICROMAG">
+
+    <define name="MM_SS_PIN" value="20"/>
+    <define name="MM_SS_IODIR" value="IO0DIR"/>
+    <define name="MM_SS_IOSET" value="IO0SET"/>
+    <define name="MM_SS_IOCLR" value="IO0CLR"/>
+
+    <define name="MM_RESET_PIN" value="29"/>
+    <define name="MM_RESET_IODIR" value="IO0DIR"/>
+    <define name="MM_RESET_IOSET" value="IO0SET"/>
+    <define name="MM_RESET_IOCLR" value="IO0CLR"/>
+
+    <define name="MM_DRDY_PINSEL" value="PINSEL1"/>
+    <define name="MM_DRDY_PINSEL_BIT" value="0"/>
+    <define name="MM_DRDY_PINSEL_VAL" value="1"/>
+    <define name="MM_DRDY_EINT" value="0"/>
+    <define name="MM_DRDY_VIC_IT" value="VIC_EINT0"/>
+
+  </section>
 
  <makefile>
 CONFIG = \"tiny_2_1.h\"
@@ -225,14 +249,25 @@ ap.srcs += nav.c fw_h_ctl.c fw_v_ctl.c
 ap.srcs += nav_line.c
 ap.srcs += nav_survey_rectangle.c
 
-#ap.srcs += humid_sht.c
-#ap.CFLAGS += -DUSE_HUMID_SHT -DDAT_PIN=3  -DSCK_PIN=2
+ap.srcs += humid_sht.c
+ap.CFLAGS += -DUSE_HUMID_SHT -DDAT_PIN=3  -DSCK_PIN=2
 
 #ap.srcs += baro_scp.c
 #ap.CFLAGS += -DUSE_BARO_SCP
 
+#ap.CFLAGS += -DMICROMAG_DRDY_VIC_SLOT=9 -DSSP_VIC_SLOT=11 -DUSE_MICROMAG
+#ap.srcs += micromag.c $(SRC_ARCH)/micromag_hw.c
+
 ap.srcs += joystick.c
 ap.CFLAGS += -DUSE_JOYSTICK
+
+ap.srcs += bomb.c
+
+ap.srcs += snav.c
+
+# distance sensor
+ap.CFLAGS += -DUSE_ADC_3 -DUSE_ADC_GENERIC -DADC_CHANNEL_GENERIC1=ADC_3 -DADC_CHANNEL_GENERIC_NB_SAMPLES=16
+ap.srcs += adc_generic.c
 
 # Config for SITL simulation
 include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile

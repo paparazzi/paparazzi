@@ -56,6 +56,15 @@ void actuators_init ( void ) {
 #ifdef SERVO_MOTOR
   servos_values[SERVO_MOTOR] = SERVOS_TICS_OF_USEC(SERVO_MOTOR_NEUTRAL);
 #endif
+#ifdef SERVO_MOTOR_LEFT
+  servos_values[SERVO_MOTOR_LEFT] = SERVOS_TICS_OF_USEC(SERVO_MOTOR_LEFT_NEUTRAL);
+#endif
+#ifdef SERVO_MOTOR_RIGHT
+  servos_values[SERVO_RIGHT_MOTOR] = SERVOS_TICS_OF_USEC(SERVO_MOTOR_RIGHT_NEUTRAL);
+#endif
+#ifdef SERVO_HATCH
+  servos_values[SERVO_HATCH] = SERVOS_TICS_OF_USEC(SERVO_HATCH_NEUTRAL);
+#endif
 }
 
 
