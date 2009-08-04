@@ -57,7 +57,7 @@ bool_t h_ctl_auto1_rate;
 float h_ctl_ref_roll_angle;
 float h_ctl_ref_roll_rate;
 float h_ctl_ref_roll_accel;
-#define H_CTL_REF_W 3.
+#define H_CTL_REF_W 2.
 #define H_CTL_REF_XI 1.
 
 /* inner roll loop parameters */
@@ -66,6 +66,7 @@ float h_ctl_roll_attitude_gain;
 float h_ctl_roll_rate_gain;
 float  h_ctl_roll_igain;
 float  h_ctl_roll_sum_err;
+float  h_ctl_roll_Kff;
 pprz_t h_ctl_aileron_setpoint;
 float  h_ctl_roll_slew;
 
@@ -122,6 +123,9 @@ void h_ctl_init( void ) {
   h_ctl_pitch_dgain = H_CTL_PITCH_DGAIN;
   h_ctl_elevator_setpoint = 0;
   h_ctl_elevator_of_roll = H_CTL_ELEVATOR_OF_ROLL;
+
+  h_ctl_roll_Kff = H_CTL_ROLL_KFF;
+  h_ctl_roll_igain = H_CTL_ROLL_IGAIN;
 
   h_ctl_roll_attitude_gain = H_CTL_ROLL_ATTITUDE_GAIN;
   h_ctl_roll_rate_gain = H_CTL_ROLL_RATE_GAIN;
@@ -254,5 +258,3 @@ inline static void h_ctl_pitch_loop( void ) {
 #endif
   h_ctl_elevator_setpoint = TRIM_PPRZ(cmd);
 }
-
-

@@ -1,7 +1,7 @@
 /*
  * Paparazzi $Id: fw_h_ctl.h 3784 2009-07-24 14:55:54Z poine $
  *  
- * Copyright (C) 2006  Pascal Brisset, Antoine Drouin, Michel Gorraz
+ * Copyright (C) 2009  ENAC
  *
  * This file is part of paparazzi.
  *
@@ -38,7 +38,13 @@
 
 extern float h_ctl_roll_sum_err;
 extern float h_ctl_roll_igain;
+extern float h_ctl_roll_Kff;
 #define H_CTL_ROLL_SUM_ERR_MAX 100.
+
+#define fw_h_ctl_a_SetRollIGain(_gain) { \
+  h_ctl_roll_sum_err = 0; \
+  h_ctl_roll_igain = _gain; \
+  }
 
 /* inner roll loop parameters */
 extern float h_ctl_ref_roll_angle;
