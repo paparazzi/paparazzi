@@ -48,7 +48,7 @@ sim.srcs += math/pprz_trig_int.c             \
 
 
 
-sim.CFLAGS += -DBOARD_CONFIG=\"booz2_board_v1_0.h\"
+sim.CFLAGS += -DBOARD_CONFIG=\"boards/booz2_v1_0.h\"
 
 sim.srcs   += $(SRC_BOOZ_SIM)/booz2_unsimulated_peripherals.c
 sim.srcs   += $(SRC_BOOZ)/booz2_main.c

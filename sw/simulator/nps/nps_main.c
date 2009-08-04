@@ -131,7 +131,7 @@ static gboolean nps_main_periodic(gpointer data __attribute__ ((unused))) {
 	/* unscale to initial real time*/
 	irt = t1 - (t1 - nps_main.scaled_initial_time)*nps_main.host_time_factor;
 
-    printf("Press <enter> to continue (or CTRL-Z to suspend). Enter a new time factor if needed: ");
+    printf("Press <enter> to continue (or CTRL-Z to suspend).\nEnter a new time factor if needed (current: %f): ", nps_main.host_time_factor);
 	fflush(stdout);
 	fgets(line,127,stdin);
 	if ((sscanf(line," %le ", &tf) == 1)) {
