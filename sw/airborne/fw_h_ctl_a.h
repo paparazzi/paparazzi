@@ -52,5 +52,8 @@ extern float h_ctl_ref_roll_rate;
 extern float h_ctl_ref_roll_accel;
 
 /* inner pitch loop parameters */
+extern float h_ctl_ref_pitch_angle;
+extern float h_ctl_ref_pitch_rate;
+extern float h_ctl_ref_pitch_accel;
 
 #endif /* FW_H_CTL_A_H */

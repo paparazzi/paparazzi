@@ -57,7 +57,10 @@ bool_t h_ctl_auto1_rate;
 float h_ctl_ref_roll_angle;
 float h_ctl_ref_roll_rate;
 float h_ctl_ref_roll_accel;
-#define H_CTL_REF_W 2.
+float h_ctl_ref_pitch_angle;
+float h_ctl_ref_pitch_rate;
+float h_ctl_ref_pitch_accel;
+#define H_CTL_REF_W 3.
 #define H_CTL_REF_XI 1.
 
 /* inner roll loop parameters */
@@ -66,7 +69,7 @@ float h_ctl_roll_attitude_gain;
 float h_ctl_roll_rate_gain;
 float  h_ctl_roll_igain;
 float  h_ctl_roll_sum_err;
-float  h_ctl_roll_Kff;
+float h_ctl_roll_Kff;
 pprz_t h_ctl_aileron_setpoint;
 float  h_ctl_roll_slew;
 
@@ -125,9 +128,6 @@ void h_ctl_init( void ) {
   h_ctl_pitch_dgain = H_CTL_PITCH_DGAIN;
   h_ctl_elevator_setpoint = 0;
   h_ctl_elevator_of_roll = H_CTL_ELEVATOR_OF_ROLL;
-
-  h_ctl_roll_Kff = H_CTL_ROLL_KFF;
-  h_ctl_roll_igain = H_CTL_ROLL_IGAIN;
 
   h_ctl_roll_attitude_gain = H_CTL_ROLL_ATTITUDE_GAIN;
   h_ctl_roll_rate_gain = H_CTL_ROLL_RATE_GAIN;
@@ -241,6 +241,10 @@ inline static float loiter(void) {
 
 
 inline static void h_ctl_pitch_loop( void ) {
+  h_ctl_ref_pitch_accel = H_CTL_REF_W*H_CTL_REF_W * (h_ctl_pitch_loop_setpoint - h_ctl_ref_pitch_angle) - 2*H_CTL_REF_XI*H_CTL_REF_W * h_ctl_ref_pitch_rate;
+  h_ctl_ref_pitch_rate += h_ctl_ref_pitch_accel * H_CTL_REF_DT;
+  h_ctl_ref_pitch_angle += h_ctl_ref_pitch_rate * H_CTL_REF_DT;
+
   static float last_err;
   /* sanity check */
   if (h_ctl_elevator_of_roll <0.)
@@ -254,9 +258,11 @@ inline static void h_ctl_pitch_loop( void ) {
   h_ctl_pitch_loop_setpoint -= loiter();
 #endif
 
-  float err = estimator_theta - h_ctl_pitch_loop_setpoint;
-  float d_err = err - last_err;
+  float err = estimator_theta - h_ctl_ref_pitch_angle;
+  float d_err = (err - last_err)/H_CTL_REF_DT - h_ctl_ref_pitch_rate;
   last_err = err;
-  float cmd = h_ctl_pitch_pgain * (err + h_ctl_pitch_dgain * d_err);
+  float cmd = h_ctl_pitch_pgain * err + h_ctl_pitch_dgain * d_err;
   h_ctl_elevator_setpoint = TRIM_PPRZ(cmd);
 }
+
+
