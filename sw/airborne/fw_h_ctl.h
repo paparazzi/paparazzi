@@ -58,6 +58,7 @@ extern float  h_ctl_roll_slew;
 
 /* inner pitch loop parameters */
 extern float  h_ctl_pitch_setpoint;
+extern float  h_ctl_pitch_loop_setpoint;
 extern float  h_ctl_pitch_pgain;
 extern float  h_ctl_pitch_dgain;
 extern pprz_t h_ctl_elevator_setpoint;
