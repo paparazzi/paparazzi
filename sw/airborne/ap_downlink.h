@@ -76,7 +76,7 @@
 })
 
 #define PERIODIC_SEND_PPRZ_MODE() DOWNLINK_SEND_PPRZ_MODE(&pprz_mode, &v_ctl_mode, &lateral_mode, &horizontal_mode, &rc_settings_mode, &mcu1_status);
-#define PERIODIC_SEND_DESIRED() DOWNLINK_SEND_DESIRED(&h_ctl_roll_setpoint, &h_ctl_pitch_setpoint, &h_ctl_course_setpoint, &desired_x, &desired_y, &v_ctl_altitude_setpoint, &v_ctl_climb_setpoint);
+#define PERIODIC_SEND_DESIRED() DOWNLINK_SEND_DESIRED(&h_ctl_roll_setpoint, &h_ctl_pitch_loop_setpoint, &h_ctl_course_setpoint, &desired_x, &desired_y, &v_ctl_altitude_setpoint, &v_ctl_climb_setpoint);
 
 #define PERIODIC_SEND_NAVIGATION_REF()  DOWNLINK_SEND_NAVIGATION_REF(&nav_utm_east0, &nav_utm_north0, &nav_utm_zone0);
 
@@ -172,6 +172,9 @@
 #else
 #define PERIODIC_SEND_BARO_MS5534A() {}
 #endif
+
+#include "fw_h_ctl_a.h"
+#define PERIODIC_SEND_H_CTL_A() DOWNLINK_SEND_H_CTL_A(&h_ctl_roll_sum_err, &h_ctl_ref_roll_angle, &h_ctl_ref_pitch_angle)
 
 
 #endif /* AP_DOWNLINK_H */
