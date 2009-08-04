@@ -217,6 +217,7 @@ struct FloatRates {
 
 #define FLOAT_RMAT_OF_EULERS(_rm, _e) FLOAT_RMAT_OF_EULERS_321(_rm, _e)
 
+/* C n->b rotation matrix */
 #define FLOAT_RMAT_OF_EULERS_321(_rm, _e) {				\
     									\
     const float sphi   = sinf((_e).phi);				\
@@ -261,7 +262,7 @@ struct FloatRates {
   }
 
 
-
+/* C n->b rotation matrix */
 #define FLOAT_RMAT_OF_QUAT(_rm, _q) {	                                \
     const float qx2  = (_q).qx*(_q).qx;					\
     const float qy2  = (_q).qy*(_q).qy;					\
@@ -313,7 +314,7 @@ struct FloatRates {
 
 #define FLOAT_QUAT_NORM(_q) (sqrtf(SQUARE(_q.qi) + SQUARE(_q.qx)+	\
 				   SQUARE(_q.qy) + SQUARE(_q.qz)))	\
-    
+
 #define FLOAT_QUAT_NORMALISE(q) {		                        \
     float norm = FLOAT_QUAT_NORM(q);					\
     q.qi = q.qi / norm;							\

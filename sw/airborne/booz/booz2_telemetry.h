@@ -313,6 +313,10 @@
     DOWNLINK_SEND_BOOZ_AHRS_LKF_DEBUG(&bafl_X[0],          \
                    &bafl_X[1],          \
                    &bafl_X[2],          \
+                   &bafl_q_a_err.qi,   \
+                   &bafl_q_a_err.qx,   \
+                   &bafl_q_a_err.qy,   \
+                   &bafl_q_a_err.qz,   \
                    &bafl_bias.p,        \
                    &bafl_bias.q,        \
                    &bafl_bias.r,       \

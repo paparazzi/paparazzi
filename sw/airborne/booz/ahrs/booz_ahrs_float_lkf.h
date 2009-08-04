@@ -35,7 +35,8 @@ extern struct FloatRates  bafl_rates;
 extern struct FloatEulers bafl_eulers;
 extern struct FloatRMat   bafl_dcm;
 
-extern struct FloatQuat   bafl_quat_err;
+extern struct FloatQuat   bafl_q_a_err;
+extern struct FloatQuat   bafl_q_m_err;
 extern struct FloatRates  bafl_bias_err;
 extern float bafl_qnorm;
 extern struct FloatVect3  bafl_accel;

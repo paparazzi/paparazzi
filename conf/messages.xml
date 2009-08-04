@@ -704,12 +704,12 @@
  </message>
 
  <message name="BOOZ2_FILTER_ALIGNER" id="137">  
-   <field name="lp_gp"  type="int32"/>
-   <field name="lp_gq"  type="int32"/>
-   <field name="lp_gr"  type="int32"/>
-   <field name="gp"     type="int32"/>
-   <field name="gq"     type="int32"/>
-   <field name="gr"     type="int32"/>
+   <field name="lp_gp"  type="int32" alt_unit="degres/s" alt_unit_coef="0.0139882"/>
+   <field name="lp_gq"  type="int32" alt_unit="degres/s" alt_unit_coef="0.0139882"/>
+   <field name="lp_gr"  type="int32" alt_unit="degres/s" alt_unit_coef="0.0139882"/>
+   <field name="gp"     type="int32" alt_unit="degres/s" alt_unit_coef="0.0139882"/>
+   <field name="gq"     type="int32" alt_unit="degres/s" alt_unit_coef="0.0139882"/>
+   <field name="gr"     type="int32" alt_unit="degres/s" alt_unit_coef="0.0139882"/>
    <field name="noise"  type="int32"/>
    <field name="cnt"    type="int32"/>
  </message>
@@ -1248,6 +1248,10 @@
       <field name="phi_err"   type="float" unit="rad"   alt_unit="degres"   alt_unit_coef="57.29578" />
       <field name="theta_err" type="float" unit="rad"   alt_unit="degres"   alt_unit_coef="57.29578" />
       <field name="psi_err"   type="float" unit="rad"   alt_unit="degres"   alt_unit_coef="57.29578" />
+      <field name="qi_err"    type="float" />
+      <field name="qx_err"    type="float" alt_unit="degres"   alt_unit_coef="-114.59156" />
+      <field name="qy_err"    type="float" alt_unit="degres"   alt_unit_coef="-114.59156" />
+      <field name="qz_err"    type="float" alt_unit="degres"   alt_unit_coef="-114.59156" />
       <field name="bp"        type="float" unit="rad/s" alt_unit="degres/s" alt_unit_coef="57.29578" />
       <field name="bq"        type="float" unit="rad/s" alt_unit="degres/s" alt_unit_coef="57.29578" />
       <field name="br"        type="float" unit="rad/s" alt_unit="degres/s" alt_unit_coef="57.29578" />

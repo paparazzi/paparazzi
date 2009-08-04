@@ -42,15 +42,17 @@ struct FloatRates bafl_bias;
 struct FloatRates bafl_rates;
 /* maintain a euler angles representation     */
 struct FloatEulers bafl_eulers;
-/* maintains a rotation matrix representation */
+/* C n->b rotation matrix representation */
 struct FloatRMat bafl_dcm;
 
-/* our estimated attitude errors              */
-struct FloatQuat bafl_quat_err;
+/* estimated attitude errors from accel update   */
+struct FloatQuat bafl_q_a_err;
+/* estimated attitude errors from mag update   */
+struct FloatQuat bafl_q_m_err;
 /* our estimated gyro bias errors             */
 struct FloatRates bafl_bias_err;
-/* time derivative of our quaternion */
-struct FloatQuat bafl_qdot;
+/* temporary quaternion */
+struct FloatQuat bafl_qtemp;
 /* correction quaternion of strapdown computation */
 struct FloatQuat bafl_qr;
 /* norm of attitude quaternion */
@@ -87,7 +89,8 @@ float bafl_tempK[6][3];
 float bafl_S[3][3];
 float bafl_tempS[3][6];
 float bafl_invS[3][3];
-struct FloatVect3 bafl_y;
+struct FloatVect3 bafl_ya;
+struct FloatVect3 bafl_ym;
 
 /*
  * H represents the Jacobian of the measurements of the attitude
@@ -119,7 +122,8 @@ struct FloatVect3 bafl_h;
  * which is 0.08 rad/sec.  The variance is then 0.08^2 ~= 0.0075.
  */
 /* I measured about 0.009 rad/s noise */
-#define bafl_Q_gyro 8e-03
+#define BAFL_Q_gyro 8e-03
+#define BAFL_Q_att 0
 
 /*
  * R is our measurement noise estimate.  Like Q, it is supposed to be
@@ -138,6 +142,31 @@ float bafl_R_mag;
 #ifndef BAFL_DT
 #define BAFL_DT (1./512.)
 #endif
+
+
+#define FLOAT_MAT33_INVERT(_mo, _mi) {											\
+	float _det = 0.;															\
+	_det =   _mi[0][0] * (_mi[2][2] * _mi[1][1] - _mi[2][1] * _mi[1][2])		\
+	       - _mi[1][0] * (_mi[2][2] * _mi[0][1] - _mi[2][1] * _mi[0][2])		\
+	       + _mi[2][0] * (_mi[1][2] * _mi[0][1] - _mi[1][1]	* _mi[0][2]);		\
+	if (_det > 0.000000001) { 														\
+		_mo[0][0] = (_mi[1][1] * _mi[2][2] - _mi[1][2] * _mi[2][1]) / _det;		\
+		_mo[0][1] = (_mi[0][2] * _mi[2][1] - _mi[0][1] * _mi[2][2]) / _det;		\
+		_mo[0][2] = (_mi[0][1] * _mi[1][2] - _mi[0][2] * _mi[1][1]) / _det;		\
+																				\
+		_mo[1][0] = (_mi[1][2] * _mi[2][0] - _mi[1][0] * _mi[2][2]) / _det;		\
+		_mo[1][1] = (_mi[0][0] * _mi[2][2] - _mi[0][2] * _mi[2][0]) / _det;		\
+		_mo[1][2] = (_mi[0][2] * _mi[1][0] - _mi[0][0] * _mi[1][2]) / _det;		\
+																				\
+		_mo[2][0] = (_mi[1][0] * _mi[2][1] - _mi[1][1] * _mi[2][0]) / _det;		\
+		_mo[2][1] = (_mi[0][1] * _mi[2][0] - _mi[0][0] * _mi[2][1]) / _det;		\
+		_mo[2][2] = (_mi[0][0] * _mi[1][1] - _mi[0][1] * _mi[1][0]) / _det;		\
+	} else {																	\
+		printf("ERROR! Not invertible!\n");										\
+	}																			\
+}
+
+
 
 void booz_ahrs_init(void) {
 	int i, j;
@@ -216,7 +245,8 @@ void booz_ahrs_propagate(void) {
 		bafl_qr.qi = sqrtf(1 - q_sq);
 	}
 	/* propagate correction quaternion */
-	FLOAT_QUAT_COMP(bafl_quat, bafl_quat, bafl_qr);
+	FLOAT_QUAT_COMP(bafl_qtemp, bafl_quat, bafl_qr);
+	FLOAT_QUAT_COPY(bafl_quat, bafl_qtemp);
 
 	bafl_qnorm = FLOAT_QUAT_NORM(bafl_quat);
 	//TODO check if normalization is good, use lagrange normalization
@@ -261,12 +291,21 @@ void booz_ahrs_propagate(void) {
 	 *
 	 * T = e^(dt * F)
 	 *
+	 * T = [ 1   0   0             ]
+	 *     [ 0   1   0   -Cbn*dt   ]
+	 *     [ 0   0   1             ]
+	 *     [ 0   0   0   1   0   0 ]
+	 *     [ 0   0   0   0   1   0 ]
+	 *     [ 0   0   0   0   0   1 ]
+	 *
 	 * P_prio = T * P * T_T + Q
 	 *
 	 */
 
 	/*
 	 *  compute state transition matrix T
+	 *
+	 *  diagonal elements of T are always one
 	 */
 	for (i = 0; i < 3; i++) {
 		for (j = 0; j < 3; j++) {
@@ -286,7 +325,7 @@ void booz_ahrs_propagate(void) {
 	*/
 
 	/*
-	 * estimate the a priori error covariance matrix P_prio = T * P(k-1) * T_T + Q
+	 * estimate the a priori error covariance matrix P_k = T * P_k-1 * T_T + Q
 	 */
 	/* Temporary multiplication temp(6x6) = T(6x6) * P(6x6)      */
 	for (i = 0; i < BAFL_SSIZE; i++) {
@@ -298,24 +337,23 @@ void booz_ahrs_propagate(void) {
 		}
 	}
 
-	// P_prio(6x6) = temp(6x6) * T_T(6x6) + Q
+	// P_k(6x6) = temp(6x6) * T_T(6x6) + Q
 	for (i = 0; i < BAFL_SSIZE; i++) {
 		for (j = 0; j < BAFL_SSIZE; j++) {
-			if (i == j) {
-				if (i >= 3)
-					bafl_P[i][j] = bafl_Q_gyro;
-				else
-					bafl_P[i][j] = 0.;
-			} else {
-				bafl_P[i][j] = 0.;
-			}
+			bafl_P[i][j] = 0.;
 			for (k = 0; k < BAFL_SSIZE; k++) {
 				bafl_P[i][j] += bafl_tempP[i][k] * bafl_T[j][k]; //T[j][k] = T_T[k][j]
 			}
 		}
+		if (i<3) {
+			bafl_P[i][i] += BAFL_Q_att;
+		} else {
+			bafl_P[i][i] += BAFL_Q_gyro;
+		}
 	}
+
 	/* print P matrix */
-	printf("P = ");
+	printf("Pp =");
 	for (i = 0; i < 6; i++) {
 		printf("[");
 		for (j = 0; j < 6; j++) {
@@ -324,8 +362,6 @@ void booz_ahrs_propagate(void) {
 		printf("]\n    ");
 	}
 	printf("\n");
-
-
 }
 
 
@@ -341,7 +377,18 @@ void booz_ahrs_update_accel(void) {
 		}
 	}
 
-	/* set up measurement matrix */
+	/*
+	 * set up measurement matrix
+	 *
+	 * g = 9.81
+	 * gx = [ 0 -g  0
+	 *        g  0  0
+	 *        0  0  0 ]
+	 * H = [          0 0 0 ]
+	 *	   [ -Cnb*gx  0 0 0 ]
+	 *     [          0 0 0 ]
+	 *
+	 * */
 	bafl_H[0][0] = -RMAT_ELMT(bafl_dcm, 0, 1) * BAFL_g;
 	bafl_H[0][1] =  RMAT_ELMT(bafl_dcm, 0, 0) * BAFL_g;
 	bafl_H[1][0] = -RMAT_ELMT(bafl_dcm, 1, 1) * BAFL_g;
@@ -369,70 +416,59 @@ void booz_ahrs_update_accel(void) {
 	 * last 4 columns of H are zero
 	 */
 	for (i = 0; i < 3; i++) {
-		for (j = 0; j < 6; j++) {
-			bafl_tempS[i][j] = bafl_H[i][0] * bafl_Pprio[0][j];
+		for (j = 0; j < BAFL_SSIZE; j++) {
+			bafl_tempS[i][j]  = bafl_H[i][0] * bafl_Pprio[0][j];
 			bafl_tempS[i][j] += bafl_H[i][1] * bafl_Pprio[1][j];
 		}
 	}
 
 	/* S(3x3) = temp_S(3x6) * HT(6x3) + R(3x3)
 	 *
-	 * last 4 rows of HT are zero
+	 * bottom 4 rows of HT are zero
 	 */
 	for (i = 0; i < 3; i++) {
 		for (j = 0; j < 3; j++) {
-			if (i == j) {
-				bafl_S[i][j] = bafl_R_accel;
-			} else {
-				bafl_S[i][j] = 0.;
-			}
-			for (k = 0; k < 2; k++) { /* normally k<6, not computing zero elements */
-				bafl_S[i][j] += bafl_tempS[i][k] * bafl_H[j][k]; /* H[j][k] = HT[k][j] */
-			}
+			bafl_S[i][j]  = bafl_tempS[i][0] * bafl_H[j][0]; /* H[j][0] = HT[0][j] */
+			bafl_S[i][j] += bafl_tempS[i][1] * bafl_H[j][1]; /* H[j][0] = HT[0][j] */
 		}
+		bafl_S[i][i] += bafl_R_accel;
 	}
+
+
+	/*printf("S = ");
+	for (i = 0; i < 3; i++) {
+		printf("[");
+		for (j = 0; j < 3; j++) {
+			printf("%f\t", bafl_S[i][j]);
+		}
+		printf("]\n    ");
+	}
+	printf("\n");*/
 
 	/* invert S
 	 */
-	float detS = 0.;
-	detS =   bafl_S[0][0] * (bafl_S[2][2] * bafl_S[1][1] - bafl_S[2][1] * bafl_S[1][2])
-	       - bafl_S[1][0] * (bafl_S[2][2] * bafl_S[0][1] - bafl_S[2][1] * bafl_S[0][2])
-	       + bafl_S[2][0] * (bafl_S[1][2] * bafl_S[0][1] - bafl_S[1][1]	* bafl_S[0][2]);
+	FLOAT_MAT33_INVERT(bafl_invS, bafl_S);
 
-	if (detS != 0.) { //check needed? always invertible?
-		bafl_invS[0][0] = (bafl_S[2][2] * bafl_S[1][1] - bafl_S[2][1] * bafl_S[1][2]) / detS;
-		bafl_invS[0][1] = (bafl_S[2][1] * bafl_S[0][2] - bafl_S[2][2] * bafl_S[0][1]) / detS;
-		bafl_invS[0][2] = (bafl_S[1][2] * bafl_S[0][1] - bafl_S[1][1] * bafl_S[0][2]) / detS;
-
-		bafl_invS[1][0] = (bafl_S[2][0] * bafl_S[1][2] - bafl_S[2][2] * bafl_S[1][0]) / detS;
-		bafl_invS[1][1] = (bafl_S[2][2] * bafl_S[0][0] - bafl_S[2][0] * bafl_S[0][2]) / detS;
-		bafl_invS[1][2] = (bafl_S[1][0] * bafl_S[0][2] - bafl_S[1][2] * bafl_S[0][0]) / detS;
-
-		bafl_invS[2][0] = (bafl_S[2][1] * bafl_S[1][0] - bafl_S[2][0] * bafl_S[1][1]) / detS;
-		bafl_invS[2][1] = (bafl_S[2][1] * bafl_S[0][0] - bafl_S[2][0] * bafl_S[0][1]) / detS;
-		bafl_invS[2][2] = (bafl_S[1][1] * bafl_S[0][0] - bafl_S[1][0] * bafl_S[0][1]) / detS;
-	}
 
 	/* temp_K(6x3) = P_prio(6x6) * HT(6x3)
 	 *
 	 * bottom 4 rows of HT are zero
 	 */
-	for (i = 0; i < 6; i++) {
-		for (j = 1; j < 3; j++) {
+	for (i = 0; i < BAFL_SSIZE; i++) {
+		for (j = 0; j < 3; j++) {
 			/* not computing zero elements */
-			bafl_tempK[i][j] = bafl_Pprio[i][0] * bafl_H[j][0]; /* H[j][0] = HT[0][j] */
+			bafl_tempK[i][j]  = bafl_Pprio[i][0] * bafl_H[j][0]; /* H[j][0] = HT[0][j] */
 			bafl_tempK[i][j] += bafl_Pprio[i][1] * bafl_H[j][1]; /* H[j][1] = HT[1][j] */
 		}
 	}
 
 	/* K(6x3) = temp_K(6x3) * invS(3x3)
 	 */
-	for (i = 0; i < 6; i++) {
-		for (j = 1; j < 3; j++) {
-			bafl_K[i][j] = bafl_tempK[i][0] * bafl_invS[0][j];
-			for (k = 1; k < 3; k++) {
-				bafl_K[i][j] += bafl_tempK[i][k] * bafl_invS[k][j];
-			}
+	for (i = 0; i < BAFL_SSIZE; i++) {
+		for (j = 0; j < 3; j++) {
+			bafl_K[i][j]  = bafl_tempK[i][0] * bafl_invS[0][j];
+			bafl_K[i][j] += bafl_tempK[i][1] * bafl_invS[1][j];
+			bafl_K[i][j] += bafl_tempK[i][2] * bafl_invS[2][j];
 		}
 	}
 
@@ -445,19 +481,29 @@ void booz_ahrs_update_accel(void) {
 	 *  X = K * y
 	 **********************************************/
 
+	/*printf("R = ");
+	for (i = 0; i < 3; i++) {
+		printf("[");
+		for (j = 0; j < 3; j++) {
+			printf("%f\t", RMAT_ELMT(bafl_dcm, i, j));
+		}
+		printf("]\n    ");
+	}
+	printf("\n");*/
+
 	/* innovation
 	 * y = Cnb * -[0; 0; g] - accel
 	 */
-	bafl_y.x = -RMAT_ELMT(bafl_dcm, 0, 2) * BAFL_g - bafl_accel.x;
-	bafl_y.y = -RMAT_ELMT(bafl_dcm, 1, 2) * BAFL_g - bafl_accel.y;
-	bafl_y.z = -RMAT_ELMT(bafl_dcm, 2, 2) * BAFL_g - bafl_accel.z;
+	bafl_ya.x = -RMAT_ELMT(bafl_dcm, 0, 2) * BAFL_g - bafl_accel.x;
+	bafl_ya.y = -RMAT_ELMT(bafl_dcm, 1, 2) * BAFL_g - bafl_accel.y;
+	bafl_ya.z = -RMAT_ELMT(bafl_dcm, 2, 2) * BAFL_g - bafl_accel.z;
 
 	/* X(6) = K(6x3) * y(3)
 	 */
-	for (i = 0; i < 6; i++) {
-		bafl_X[i] = bafl_K[i][0] * bafl_y.x;
-		bafl_X[i] += bafl_K[i][1] * bafl_y.y;
-		bafl_X[i] += bafl_K[i][2] * bafl_y.z;
+	for (i = 0; i < BAFL_SSIZE; i++) {
+		bafl_X[i]  = bafl_K[i][0] * bafl_ya.x;
+		bafl_X[i] += bafl_K[i][1] * bafl_ya.y;
+		bafl_X[i] += bafl_K[i][2] * bafl_ya.z;
 	}
 
 	/**********************************************
@@ -472,8 +518,8 @@ void booz_ahrs_update_accel(void) {
 	 *
 	 *  last 4 columns of H are zero
 	 */
-	for (i = 0; i < 6; i++) {
-		for (j = 0; j < 6; j++) {
+	for (i = 0; i < BAFL_SSIZE; i++) {
+		for (j = 0; j < BAFL_SSIZE; j++) {
 			if (i == j) {
 				bafl_tempP[i][j] = 1.;
 			} else {
@@ -498,6 +544,16 @@ void booz_ahrs_update_accel(void) {
 		}
 	}
 
+	printf("Pu =");
+	for (i = 0; i < 6; i++) {
+		printf("[");
+		for (j = 0; j < 6; j++) {
+			printf("%f\t", bafl_P[i][j]);
+		}
+		printf("]\n    ");
+	}
+	printf("\n");
+
 	/**********************************************
 	 *  Correct errors.
 	 *
@@ -506,19 +562,23 @@ void booz_ahrs_update_accel(void) {
 
 	/*  Error quaternion.
 	 */
-	QUAT_ASSIGN(bafl_quat_err, 1.0, bafl_X[0]/2, bafl_X[1]/2, bafl_X[2]/2);
+	QUAT_ASSIGN(bafl_q_a_err, 1.0, bafl_X[0]/2, bafl_X[1]/2, bafl_X[2]/2);
+	FLOAT_QUAT_INVERT(bafl_q_a_err, bafl_q_a_err);
 	/* normalize */
 	float q_sq;
-	q_sq = bafl_quat_err.qx * bafl_quat_err.qx + bafl_quat_err.qy * bafl_quat_err.qy + bafl_quat_err.qz * bafl_quat_err.qz;
+	q_sq = bafl_q_a_err.qx * bafl_q_a_err.qx + bafl_q_a_err.qy * bafl_q_a_err.qy + bafl_q_a_err.qz * bafl_q_a_err.qz;
 	if (q_sq > 1) { /* this should actually never happen */
-		FLOAT_QUAT_SMUL(bafl_quat_err, bafl_quat_err, 1 / sqrtf(1 + q_sq));
+		FLOAT_QUAT_SMUL(bafl_q_a_err, bafl_q_a_err, 1 / sqrtf(1 + q_sq));
+		printf("Error quaternion q_sq > 1!!\n");
 	} else {
-		bafl_quat_err.qi = sqrtf(1 - q_sq);
+		bafl_q_a_err.qi = sqrtf(1 - q_sq);
 	}
 
 	/*  correct attitude
 	 */
-	FLOAT_QUAT_COMP(bafl_quat, bafl_quat, bafl_quat_err);
+	FLOAT_QUAT_COMP(bafl_qtemp, bafl_quat, bafl_q_a_err);
+	FLOAT_QUAT_COPY(bafl_quat, bafl_qtemp);
+
 
 	/*  correct gyro bias
 	 */
@@ -570,12 +630,6 @@ void booz_ahrs_update_mag(void) {
 	bafl_H[1][2] = RMAT_ELMT(bafl_dcm, 1, 0) * bafl_h.y - RMAT_ELMT(bafl_dcm, 1, 1) * bafl_h.x;
 	bafl_H[2][2] = RMAT_ELMT(bafl_dcm, 2, 0) * bafl_h.y - RMAT_ELMT(bafl_dcm, 2, 1) * bafl_h.x;
 	//rest is zero
-	bafl_H[0][0] = 0.;
-	bafl_H[0][1] = 0.;
-	bafl_H[1][0] = 0.;
-	bafl_H[1][1] = 0.;
-	bafl_H[2][0] = 0.;
-	bafl_H[2][1] = 0.;
 
 	/**********************************************
 	 * compute Kalman gain K
@@ -594,7 +648,7 @@ void booz_ahrs_update_mag(void) {
 	 * only third column of H is non-zero
 	 */
 	for (i = 0; i < 3; i++) {
-		for (j = 0; j < 6; j++) {
+		for (j = 0; j < BAFL_SSIZE; j++) {
 			bafl_tempS[i][j] = bafl_H[i][2] * bafl_Pprio[2][j];
 		}
 	}
@@ -606,51 +660,21 @@ void booz_ahrs_update_mag(void) {
 	for (i = 0; i < 3; i++) {
 		for (j = 0; j < 3; j++) {
 			bafl_S[i][j] = bafl_tempS[i][2] * bafl_H[j][2]; /* H[j][2] = HT[2][j] */
-			if (i == j) {
-				bafl_S[i][j] += bafl_R_mag;
-			}
 		}
+		bafl_S[i][i] += bafl_R_mag;
 	}
 
 	/* invert S
 	 */
-	float detS = 0.;
-	detS =   bafl_S[0][0] * (bafl_S[2][2] * bafl_S[1][1] - bafl_S[2][1] * bafl_S[1][2])
-		   - bafl_S[1][0] * (bafl_S[2][2] * bafl_S[0][1] - bafl_S[2][1] * bafl_S[0][2])
-		   + bafl_S[2][0] * (bafl_S[1][2] * bafl_S[0][1] - bafl_S[1][1]	* bafl_S[0][2]);
-
-	if (detS != 0.) { //check needed? always invertible?
-		bafl_invS[0][0] = (bafl_S[2][2] * bafl_S[1][1] - bafl_S[2][1] * bafl_S[1][2]) / detS;
-		bafl_invS[0][1] = (bafl_S[2][1] * bafl_S[0][2] - bafl_S[2][2] * bafl_S[0][1]) / detS;
-		bafl_invS[0][2] = (bafl_S[1][2] * bafl_S[0][1] - bafl_S[1][1] * bafl_S[0][2]) / detS;
-
-		bafl_invS[1][0] = (bafl_S[2][0] * bafl_S[1][2] - bafl_S[2][2] * bafl_S[1][0]) / detS;
-		bafl_invS[1][1] = (bafl_S[2][2] * bafl_S[0][0] - bafl_S[2][0] * bafl_S[0][2]) / detS;
-		bafl_invS[1][2] = (bafl_S[1][0] * bafl_S[0][2] - bafl_S[1][2] * bafl_S[0][0]) / detS;
-
-		bafl_invS[2][0] = (bafl_S[2][1] * bafl_S[1][0] - bafl_S[2][0] * bafl_S[1][1]) / detS;
-		bafl_invS[2][1] = (bafl_S[2][1] * bafl_S[0][0] - bafl_S[2][0] * bafl_S[0][1]) / detS;
-		bafl_invS[2][2] = (bafl_S[1][1] * bafl_S[0][0] - bafl_S[1][0] * bafl_S[0][1]) / detS;
-	}
-
-	/* temp_K(6x3) = P_prio(6x6) * HT(6x3)
-	 *
-	 * only third row of HT is non-zero
-	 */
-	for (i = 0; i < 6; i++) {
-		for (j = 1; j < 3; j++) {
-			bafl_tempK[i][j] = bafl_Pprio[i][2] * bafl_H[j][2]; /* H[j][2] = HT[2][j] */
-		}
-	}
+	FLOAT_MAT33_INVERT(bafl_invS, bafl_S);
 
 	/* K(6x3) = temp_K(6x3) * invS(3x3)
 	 */
-	for (i = 0; i < 6; i++) {
-		for (j = 1; j < 3; j++) {
-			bafl_K[i][j] = bafl_tempK[i][0] * bafl_invS[0][j];
-			for (k = 1; k < 3; k++) {
-				bafl_K[i][j] += bafl_tempK[i][k] * bafl_invS[k][j];
-			}
+	for (i = 0; i < BAFL_SSIZE; i++) {
+		for (j = 0; j < 3; j++) {
+			bafl_K[i][j]  = bafl_tempK[i][0] * bafl_invS[0][j];
+			bafl_K[i][j] += bafl_tempK[i][1] * bafl_invS[1][j];
+			bafl_K[i][j] += bafl_tempK[i][2] * bafl_invS[2][j];
 		}
 	}
 
@@ -666,15 +690,15 @@ void booz_ahrs_update_mag(void) {
 	/*  innovation
 	 *  y = Cnb * [hx; hy; hz] - mag
 	 */
-	FLOAT_RMAT_VECT3_MUL(bafl_y, bafl_dcm, bafl_h);
-	FLOAT_VECT3_SUB(bafl_y, bafl_mag);
+	FLOAT_RMAT_VECT3_MUL(bafl_ym, bafl_dcm, bafl_h);
+	FLOAT_VECT3_SUB(bafl_ym, bafl_mag);
 
 	/* X(6) = K(6x3) * y(3)
 	 */
-	for (i = 0; i < 6; i++) {
-		bafl_X[i] = bafl_K[i][0] * bafl_y.x;
-		bafl_X[i] += bafl_K[i][1] * bafl_y.y;
-		bafl_X[i] += bafl_K[i][2] * bafl_y.z;
+	for (i = 0; i < BAFL_SSIZE; i++) {
+		bafl_X[i]  = bafl_K[i][0] * bafl_ym.x;
+		bafl_X[i] += bafl_K[i][1] * bafl_ym.y;
+		bafl_X[i] += bafl_K[i][2] * bafl_ym.z;
 	}
 
 	/**********************************************
@@ -723,19 +747,21 @@ void booz_ahrs_update_mag(void) {
 
 	/*  Error quaternion.
 	 */
-	QUAT_ASSIGN(bafl_quat_err, 1.0, bafl_X[0]/2, bafl_X[1]/2, bafl_X[2]/2);
+	QUAT_ASSIGN(bafl_q_m_err, 1.0, bafl_X[0]/2, bafl_X[1]/2, bafl_X[2]/2);
+	FLOAT_QUAT_INVERT(bafl_q_m_err, bafl_q_m_err);
 	/* normalize */
 	float q_sq;
-	q_sq = bafl_quat_err.qx * bafl_quat_err.qx + bafl_quat_err.qy * bafl_quat_err.qy + bafl_quat_err.qz * bafl_quat_err.qz;
+	q_sq = bafl_q_m_err.qx * bafl_q_m_err.qx + bafl_q_m_err.qy * bafl_q_m_err.qy + bafl_q_m_err.qz * bafl_q_m_err.qz;
 	if (q_sq > 1) { /* this should actually never happen */
-		FLOAT_QUAT_SMUL(bafl_quat_err, bafl_quat_err, 1 / sqrtf(1 + q_sq));
+		FLOAT_QUAT_SMUL(bafl_q_m_err, bafl_q_m_err, 1 / sqrtf(1 + q_sq));
 	} else {
-		bafl_quat_err.qi = sqrtf(1 - q_sq);
+		bafl_q_m_err.qi = sqrtf(1 - q_sq);
 	}
 
 	/*  correct attitude
 	 */
-	FLOAT_QUAT_COMP(bafl_quat, bafl_quat, bafl_quat_err);
+	FLOAT_QUAT_COMP(bafl_qtemp, bafl_quat, bafl_q_a_err);
+	FLOAT_QUAT_COPY(bafl_quat, bafl_qtemp);
 
 	/*  correct gyro bias
 	 */
