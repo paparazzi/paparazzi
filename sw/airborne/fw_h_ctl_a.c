@@ -74,6 +74,7 @@ float  h_ctl_roll_pgain;
 
 /* inner pitch loop parameters */
 float  h_ctl_pitch_setpoint;
+float  h_ctl_pitch_loop_setpoint;
 float  h_ctl_pitch_pgain;
 float  h_ctl_pitch_dgain;
 pprz_t h_ctl_elevator_setpoint;
@@ -119,6 +120,7 @@ void h_ctl_init( void ) {
 #endif
 
   h_ctl_pitch_setpoint = 0.;
+  h_ctl_pitch_loop_setpoint = 0.;
   h_ctl_pitch_pgain = H_CTL_PITCH_PGAIN;
   h_ctl_pitch_dgain = H_CTL_PITCH_DGAIN;
   h_ctl_elevator_setpoint = 0;
@@ -222,7 +224,6 @@ float v_ctl_auto_throttle_loiter_trim = V_CTL_AUTO_THROTTLE_LOITER_TRIM;
 float v_ctl_auto_throttle_dash_trim = V_CTL_AUTO_THROTTLE_DASH_TRIM;
 
 inline static float loiter(void) {
-  static float last_elevator_trim;
   float elevator_trim;
 
   float throttle_dif = v_ctl_auto_throttle_cruise_throttle - v_ctl_auto_throttle_nominal_cruise_throttle;
@@ -234,11 +235,7 @@ inline static float loiter(void) {
     elevator_trim = - throttle_dif / max_dif * v_ctl_auto_throttle_loiter_trim;
   }
 
-  float max_change = (v_ctl_auto_throttle_loiter_trim - v_ctl_auto_throttle_dash_trim) / 80.;
-  Bound(elevator_trim, last_elevator_trim - max_change, last_elevator_trim + max_change);
-
-  last_elevator_trim = elevator_trim;
-  return elevator_trim;
+  return elevator_trim / h_ctl_pitch_pgain; /* Normalisation to keep historical values */
 }
 #endif
 
@@ -248,13 +245,18 @@ inline static void h_ctl_pitch_loop( void ) {
   /* sanity check */
   if (h_ctl_elevator_of_roll <0.)
     h_ctl_elevator_of_roll = 0.;
-  float err = estimator_theta - h_ctl_pitch_setpoint;
+
+  h_ctl_pitch_loop_setpoint =
+    h_ctl_pitch_setpoint 
+    - h_ctl_elevator_of_roll / h_ctl_pitch_pgain * fabs(estimator_phi);
+
+#ifdef LOITER_TRIM
+  h_ctl_pitch_loop_setpoint -= loiter();
+#endif
+
+  float err = estimator_theta - h_ctl_pitch_loop_setpoint;
   float d_err = err - last_err;
   last_err = err;
-  float cmd = h_ctl_pitch_pgain * (err + h_ctl_pitch_dgain * d_err)   
-    + h_ctl_elevator_of_roll * fabs(estimator_phi);
-#ifdef LOITER_TRIM
-  cmd += loiter();
-#endif
+  float cmd = h_ctl_pitch_pgain * (err + h_ctl_pitch_dgain * d_err);
   h_ctl_elevator_setpoint = TRIM_PPRZ(cmd);
 }
