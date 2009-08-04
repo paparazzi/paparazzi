@@ -61,6 +61,7 @@ float  h_ctl_roll_slew;
 
 /* inner pitch loop parameters */
 float  h_ctl_pitch_setpoint;
+float  h_ctl_pitch_loop_setpoint;
 float  h_ctl_pitch_pgain;
 float  h_ctl_pitch_dgain;
 pprz_t h_ctl_elevator_setpoint;
@@ -130,6 +131,7 @@ void h_ctl_init( void ) {
 #endif
 
   h_ctl_pitch_setpoint = 0.;
+  h_ctl_pitch_loop_setpoint = 0.;
   h_ctl_pitch_pgain = H_CTL_PITCH_PGAIN;
   h_ctl_pitch_dgain = H_CTL_PITCH_DGAIN;
   h_ctl_elevator_setpoint = 0;
@@ -410,11 +412,15 @@ inline static void h_ctl_pitch_loop( void ) {
   /* sanity check */
   if (h_ctl_elevator_of_roll <0.)
     h_ctl_elevator_of_roll = 0.;
-  float err = estimator_theta - h_ctl_pitch_setpoint;
+
+  h_ctl_pitch_loop_setpoint =
+    h_ctl_pitch_setpoint 
+    - h_ctl_elevator_of_roll / h_ctl_pitch_pgain * fabs(estimator_phi);
+
+  float err = estimator_theta - h_ctl_pitch_loop_setpoint;
   float d_err = err - last_err;
   last_err = err;
-  float cmd = h_ctl_pitch_pgain * (err + h_ctl_pitch_dgain * d_err)   
-    + h_ctl_elevator_of_roll * fabs(estimator_phi);
+  float cmd = h_ctl_pitch_pgain * (err + h_ctl_pitch_dgain * d_err);
 #ifdef LOITER_TRIM
   cmd += loiter();
 #endif
