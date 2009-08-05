@@ -21,6 +21,7 @@ static void test_6(void);
 static void test_7(void);
 static void test_8(void);
 static void test_9(void);
+static void test_10(void);
 
 void test1234(void);
 
@@ -63,6 +64,7 @@ int main(int argc, char** argv) {
   //  test_quat2();
   test_8();
   //test_9();
+  test_10();
   return 0;
 
 }
@@ -422,6 +424,12 @@ float test_quat_comp(struct FloatQuat qa2b_f, struct FloatQuat qb2c_f, int displ
 
 
 static void test_7(void) {
+ 
+
+  
+
+
+
   printf("\n");
   struct FloatEulers ea2c;
   EULERS_ASSIGN(ea2c, RadOfDeg(29.742755), RadOfDeg(-40.966522), RadOfDeg(69.467265));
@@ -483,6 +491,34 @@ static void test_9(void) {
   float err = test_INT32_QUAT_OF_RMAT(&eul, TRUE);
 }
 
+static void test_10(void) {
+ 
+  struct FloatEulers euler;
+  EULERS_ASSIGN(euler , RadOfDeg(0.), RadOfDeg(10.), RadOfDeg(0.));
+  DISPLAY_FLOAT_EULERS_DEG("euler", euler);
+  struct FloatQuat quat;
+  FLOAT_QUAT_OF_EULERS(quat, euler);
+  DISPLAY_FLOAT_QUAT("####quat", quat);
+  
+  struct Int32Eulers euleri;
+  EULERS_BFP_OF_REAL(euleri, euler);
+  DISPLAY_INT32_EULERS("euleri", euleri);
+  struct Int32Quat quati;
+  INT32_QUAT_OF_EULERS(quati, euleri);
+  DISPLAY_INT32_QUAT("####quat", quati);
+  struct Int32RMat rmati;
+  INT32_RMAT_OF_EULERS(rmati, euleri);
+  DISPLAY_INT32_RMAT("####rmat", rmati);
+ 
+  struct Int32Quat quat_ltp_to_body;
+  struct Int32Quat body_to_imu_quat;
+  INT32_QUAT_ZERO( body_to_imu_quat);
+  
+
+  INT32_QUAT_COMP_INV(quat_ltp_to_body, body_to_imu_quat, quati);
+  DISPLAY_INT32_QUAT("####quat_ltp_to_body", quat_ltp_to_body);
+
+}
 
 float test_rmat_comp_inv(struct FloatRMat ma2c_f, struct FloatRMat mb2c_f, int display) {
 

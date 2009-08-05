@@ -25,6 +25,7 @@ static struct {
   char* fg_host;
   unsigned int fg_port;
   char* js_dev;
+  char* spektrum_dev;
   int rc_script;
 } nps_main;
 
@@ -86,7 +87,21 @@ static void nps_main_init(void) {
   nps_ivy_init();
   nps_fdm_init(SIM_DT);
   nps_sensors_init(nps_main.sim_time);
-  nps_autopilot_init(nps_main.js_dev?JOYSTICK:SCRIPT, nps_main.rc_script, nps_main.js_dev);
+
+  enum NpsRadioControlType rc_type;
+  char* rc_dev = NULL;
+  if (nps_main.js_dev) {
+    rc_type = JOYSTICK;
+    rc_dev = nps_main.js_dev;
+  }
+  else if (nps_main.spektrum_dev) {
+    rc_type = SPEKTRUM;
+    rc_dev = nps_main.spektrum_dev;
+  }
+  else {
+    rc_type = SCRIPT;
+  }
+  nps_autopilot_init(rc_type, nps_main.rc_script, rc_dev);
 
   if (nps_main.fg_host)
     nps_flightgear_init(nps_main.fg_host, nps_main.fg_port);
@@ -133,13 +148,13 @@ static gboolean nps_main_periodic(gpointer data __attribute__ ((unused))) {
 
     printf("Press <enter> to continue (or CTRL-Z to suspend).\nEnter a new time factor if needed (current: %f): ", nps_main.host_time_factor);
 	fflush(stdout);
-	fgets(line,127,stdin);
-	if ((sscanf(line," %le ", &tf) == 1)) {
-		if (tf > 0 && tf < 1000)
-			nps_main.host_time_factor = tf;
-	}
+	if (fgets(line,127,stdin)) {
+	  if ((sscanf(line," %le ", &tf) == 1)) {
+	    if (tf > 0 && tf < 1000)
+	      nps_main.host_time_factor = tf;
+	  }
 	printf("Time factor is %f\n", nps_main.host_time_factor);
-
+	}
 	gettimeofday(&tv_now, NULL);
 	t2 = time_to_double(&tv_now);
 	/* add the pause to initial real time */
@@ -172,14 +187,16 @@ static bool_t nps_main_parse_options(int argc, char** argv) {
   nps_main.fg_host = NULL;
   nps_main.fg_port = 5501;
   nps_main.js_dev = NULL;
+  nps_main.spektrum_dev = NULL;
   nps_main.rc_script = 0;
 
   static const char* usage =
 "Usage: %s [options]\n"
 " Options :\n"
-"   -j --js_dev joystick device\n"
 "   --fg_host flight gear host\n"
 "   --fg_port flight gear port\n"
+"   -j --js_dev joystick device\n"
+"   --spektrum_dev spektrum device\n"
 "   --rc_script no\n";
 
 
@@ -189,6 +206,7 @@ static bool_t nps_main_parse_options(int argc, char** argv) {
       {"fg_host", 1, NULL, 0},
       {"fg_port", 1, NULL, 0},
       {"js_dev", 1, NULL, 0},
+      {"spektrum_dev", 1, NULL, 0},
       {"rc_script", 1, NULL, 0},
       {0, 0, 0, 0}
     };
@@ -208,6 +226,8 @@ static bool_t nps_main_parse_options(int argc, char** argv) {
       case 2:
 	nps_main.js_dev = strdup(optarg); break;
       case 3:
+	nps_main.spektrum_dev = strdup(optarg); break;
+      case 4:
 	nps_main.rc_script = atoi(optarg); break;
       }
       break;

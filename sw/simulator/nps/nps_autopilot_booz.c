@@ -18,9 +18,9 @@ static void sim_overwrite_ahrs(void);
 #endif
 
 
-void nps_autopilot_init(enum NpsRadioControlType type_rc, int num_rc_script, char* js_dev) {
+void nps_autopilot_init(enum NpsRadioControlType type_rc, int num_rc_script, char* rc_dev) {
 
-  nps_radio_control_init(type_rc, num_rc_script, js_dev);
+  nps_radio_control_init(type_rc, num_rc_script, rc_dev);
   
   booz2_main_init();
 
@@ -99,6 +99,9 @@ void nps_autopilot_run_step(double time __attribute__ ((unused))) {
 static void sim_overwrite_ahrs(void) {
 
   //  printf("%f\n", fdm.ltpprz_to_body_eulers.phi);
+
+  //  printf("filter theta %d  sim %f\n", booz_ahrs.ltp_to_body_euler.theta, fdm.ltp_to_body_eulers.theta);
+  //  printf("filter qy %d  sim %f\n", booz_ahrs.ltp_to_body_quat.qy, fdm.ltp_to_body_quat.qy);
 
   booz_ahrs.ltp_to_body_euler.phi   = ANGLE_BFP_OF_REAL(fdm.ltp_to_body_eulers.phi);
   booz_ahrs.ltp_to_body_euler.theta = ANGLE_BFP_OF_REAL(fdm.ltp_to_body_eulers.theta);

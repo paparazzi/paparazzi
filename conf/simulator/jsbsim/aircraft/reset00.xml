@@ -7,13 +7,13 @@
   <theta unit="DEG"> 0.0 </theta>
   <psi   unit="DEG"> 0.0 </psi>
 <!-- SF geocentric ? -->
-  <latitude  unit="DEG">  37.557 </latitude>
+<!--  <latitude  unit="DEG">  37.557 </latitude> -->
 <!-- SF geodetic latitude -->
-<!--  <latitude  unit="DEG">  37.6136 </latitude> -->
+  <latitude  unit="DEG">  37.6136 </latitude>
   <longitude unit="DEG">-122.3569 </longitude>
 <!--  <altitude  unit="M"> 0.11 </altitude> -->
-<!--  <altitude  unit="M"> 2.5 </altitude> -->
-  <altitude  unit="M">95 </altitude>
+ <altitude  unit="M"> 2.5 </altitude>
+<!--  <altitude  unit="M">95 </altitude> -->
   <winddir unit="DEG"> 0.0 </winddir>
   <vwind unit="FT/SEC"> 0.0 </vwind>
 </initialize>

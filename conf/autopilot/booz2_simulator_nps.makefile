@@ -37,6 +37,8 @@ sim.srcs = $(NPSDIR)/nps_main.c                      \
 	   $(NPSDIR)/nps_sensor_baro.c               \
 	   $(NPSDIR)/nps_sensor_gps.c                \
 	   $(NPSDIR)/nps_radio_control.c             \
+	   $(NPSDIR)/nps_radio_control_joystick.c    \
+	   $(NPSDIR)/nps_radio_control_spektrum.c    \
 	   $(NPSDIR)/nps_autopilot_booz.c            \
 	   $(NPSDIR)/nps_ivy.c                       \
 	   $(NPSDIR)/nps_flightgear.c                \
@@ -94,12 +96,20 @@ sim.srcs += $(SRC_BOOZ)/booz2_autopilot.c
 sim.srcs += $(SRC_BOOZ)/booz_stabilization.c
 sim.srcs += $(SRC_BOOZ)/stabilization/booz_stabilization_rate.c
 
+STAB_TYPE=euler_int
+#ifeq($(STAB_TYPE), euler_int)
 #sim.CFLAGS += -DSTABILISATION_ATTITUDE_TYPE_INT
 #sim.CFLAGS += -DSTABILISATION_ATTITUDE_H=\"stabilization/booz_stabilization_attitude_int.h\"
 #sim.CFLAGS += -DSTABILISATION_ATTITUDE_REF_H=\"stabilization/booz_stabilization_attitude_ref_euler_int.h\"
 #sim.srcs += $(SRC_BOOZ)/stabilization/booz_stabilization_attitude_ref_euler_int.c
 #sim.srcs += $(SRC_BOOZ)/stabilization/booz_stabilization_attitude_euler_int.c
-
+#else
+sim.CFLAGS += -DSTABILISATION_ATTITUDE_TYPE_FLOAT
+sim.CFLAGS += -DSTABILISATION_ATTITUDE_H=\"stabilization/booz_stabilization_attitude_float.h\"
+sim.CFLAGS += -DSTABILISATION_ATTITUDE_REF_H=\"stabilization/booz_stabilization_attitude_ref_quat_float.h\"
+sim.srcs += $(SRC_BOOZ)/stabilization/booz_stabilization_attitude_ref_quat_float.c
+sim.srcs += $(SRC_BOOZ)/stabilization/booz_stabilization_attitude_quat_float.c
+#endif
 
 #sim.CFLAGS += -DSTABILISATION_ATTITUDE_TYPE_FLOAT
 #sim.CFLAGS += -DSTABILISATION_ATTITUDE_H=\"stabilization/booz_stabilization_attitude_float.h\"
@@ -107,11 +117,7 @@ sim.srcs += $(SRC_BOOZ)/stabilization/booz_stabilization_rate.c
 #sim.srcs += $(SRC_BOOZ)/stabilization/booz_stabilization_attitude_ref_euler_float.c
 #sim.srcs += $(SRC_BOOZ)/stabilization/booz_stabilization_attitude_euler_float.c
 
-sim.CFLAGS += -DSTABILISATION_ATTITUDE_TYPE_FLOAT
-sim.CFLAGS += -DSTABILISATION_ATTITUDE_H=\"stabilization/booz_stabilization_attitude_float.h\"
-sim.CFLAGS += -DSTABILISATION_ATTITUDE_REF_H=\"stabilization/booz_stabilization_attitude_ref_quat_float.h\"
-sim.srcs += $(SRC_BOOZ)/stabilization/booz_stabilization_attitude_ref_quat_float.c
-sim.srcs += $(SRC_BOOZ)/stabilization/booz_stabilization_attitude_quat_float.c
+
 
 
 
