@@ -188,7 +188,7 @@ void booz_ahrs_propagate(void) {
   INT32_RMAT_OF_EULERS(booz_ahrs.ltp_to_imu_rmat, booz_ahrs.ltp_to_imu_euler);
 
   /* Compute LTP to BODY quaternion */
-  INT32_QUAT_COMP_INV(booz_ahrs.ltp_to_body_quat, booz_imu.body_to_imu_quat, booz_ahrs.ltp_to_imu_quat);
+  INT32_QUAT_COMP_INV(booz_ahrs.ltp_to_body_quat, booz_ahrs.ltp_to_imu_quat, booz_imu.body_to_imu_quat);
   /* Compute LTP to BODY rotation matrix */
   INT32_RMAT_COMP_INV(booz_ahrs.ltp_to_body_rmat, booz_ahrs.ltp_to_imu_rmat, booz_imu.body_to_imu_rmat);
   /* compute LTP to BODY eulers */
