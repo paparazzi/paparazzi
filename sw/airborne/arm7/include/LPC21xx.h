@@ -112,6 +112,8 @@
 #define UART0           ((uartRegs_t *)0xE000C000)
 #define U0_PINSEL       (0x00000005)    /* PINSEL0 Value for UART0 */
 #define U0_PINMASK      (0x0000000F)    /* PINSEL0 Mask for UART0 */
+#define U0_PINSEL_RX    (0x00000004)    /* PINSEL0 Value for UART0 RX only */
+#define U0_PINMASK_RX   (0x0000000C)    /* PINSEL0 Mask for UART0 RX only */
 
 // UART0 Registers
 #define U0RBR           UART0->rbr      /* Receive Buffer Register */
@@ -130,6 +132,8 @@
 #define UART1           ((uartRegs_t *)0xE0010000)
 #define U1_PINSEL       (0x00050000)    /* PINSEL0 Value for UART1 */
 #define U1_PINMASK      (0x000F0000)    /* PINSEL0 Mask for UART1 */
+#define U1_PINSEL_RX    (0x00040000)    /* PINSEL0 Value for UART1 RX only */
+#define U1_PINMASK_RX   (0x000C0000)    /* PINSEL0 Mask for UART1 RX only */
 
 // UART1 Registers
 #define U1RBR           UART1->rbr      /* Receive Buffer Register */

@@ -46,8 +46,13 @@ void uart0_init( void ) {
 }
 
 void uart0_init_param( uint16_t baud, uint8_t mode, uint8_t fmode) {
+#ifdef USE_UART0_RX_ONLY
+  // only use the RX0 P0.1 pin, no TX
+  PINSEL0 = (PINSEL0 & ~U0_PINMASK_RX) | U0_PINSEL_RX;
+#else
   // set port pins for UART0
   PINSEL0 = (PINSEL0 & ~U0_PINMASK) | U0_PINSEL;
+#endif
 
   U0IER = 0x00;                         // disable all interrupts
   U0IIR;                                // clear interrupt ID
@@ -231,8 +236,13 @@ bool_t uart1_check_free_space( uint8_t len) {
 
 
 void uart1_init_param( uint16_t baud, uint8_t mode, uint8_t fmode) {
+#ifdef USE_UART1_RX_ONLY
+  // only use the RX1 P0.9 pin, no TX
+  PINSEL0 = (PINSEL0 & ~U1_PINMASK_RX) | U1_PINSEL_RX;
+#else
   // set port pins for UART1
   PINSEL0 = (PINSEL0 & ~U1_PINMASK) | U1_PINSEL;
+#endif
 
   U1IER = 0x00;                         // disable all interrupts
   U1IIR;                                // clear interrupt ID
