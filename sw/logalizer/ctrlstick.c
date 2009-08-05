@@ -42,18 +42,52 @@
 #define dbgprintf(x ...)
 #endif
 
-#define TIMEOUT_PERIOD 100
+#define Bound(_x, _min, _max) { if (_x > _max) _x = _max; else if (_x < _min) _x = _min; }
+
+#define TIMEOUT_PERIOD 20
 
 #define MB_ID 1
 
 #define INPUT_DEV_MAX   15
 
-#define AXIS_COUNT      3
+#define AXIS_COUNT      4
 
-#define AXIS_RUDDER     ABS_X
-#define AXIS_ELEVATOR   ABS_Y
-#define AXIS_AILERON    ABS_Z
+#if 0
+// rumblepad 2
+#define AXIS_YAW        ABS_X
+#define AXIS_PITCH      ABS_Y
+#define AXIS_ROLL       ABS_Z
 #define AXIS_THROTTLE   ABS_RZ
+#endif
+
+#if 1
+// e-sky 0905A simulator fms
+#define AXIS_YAW        ABS_X
+#define AXIS_PITCH      ABS_Y
+#define AXIS_ROLL       ABS_Z
+#define AXIS_THROTTLE   ABS_RY
+
+#define THROTTLE_MIN        (-90)
+#define THROTTLE_NEUTRAL    (0)
+#define THROTTLE_MAX        (90)
+#define ROLL_MIN            (-122)
+#define ROLL_NEUTRAL        (-2)
+#define ROLL_MAX            (113)
+#define PITCH_MIN           (-109)
+#define PITCH_NEUTRAL       (2)
+#define PITCH_MAX           (109)
+#define YAW_MIN             (125)
+#define YAW_NEUTRAL         (-13
+#define YAW_MAX             (115)
+#endif
+
+#if 0
+// wingman force 3d
+#define AXIS_YAW        ABS_RZ
+#define AXIS_PITCH      ABS_Y
+#define AXIS_ROLL       ABS_X
+#define AXIS_THROTTLE   ABS_THROTTLE
+#endif
 
 /* Helper for testing large bit masks */
 #define TEST_BIT(bit,bits) (((bits[bit>>5]>>(bit&0x1f))&1)!=0)
@@ -69,44 +103,27 @@ int aircraft_id                  = DEFAULT_AC_ID;
 
 /* Global variables about the initialized device */
 int device_handle;
-int axis_code[AXIS_COUNT] = {AXIS_AILERON, AXIS_ELEVATOR, AXIS_THROTTLE};
+int axis_code[AXIS_COUNT] = {AXIS_ROLL, AXIS_PITCH, AXIS_THROTTLE, AXIS_YAW};
 int axis_min[AXIS_COUNT], axis_max[AXIS_COUNT];
 int position[AXIS_COUNT] = {0, 0, 0};
 struct ff_effect effect;
+GMainLoop *ml;
 
 void parse_args(int argc, char * argv[])
 {
-	int i;
-
-	if (argc<2) goto l_help;
-
-	for (i=1; i<argc; i++) {
-		if      (!strcmp(argv[i],"-d") && i<argc-1) device_name_default =argv[++i];
-		else if (!strcmp(argv[i],"-a") && i<argc-1) aircraft_id         =atoi(argv[++i]);
-		else if (!strcmp(argv[i],"-o")) ;
-		else goto l_help;
-	}
-	return;
-
-l_help:
-	printf("Usage:\n");
-	printf("  %s <option> [<option>...]\n",argv[0]);
-	printf("Options:\n");
-//	printf("  -d <string>  device name (default: %s)\n",DEFAULT_DEVICE_NAME);
-	printf("  -a <int>     aircraft id (default: %d)\n",DEFAULT_AC_ID);
-	printf("  -o           dummy option (useful because at least one option is needed)\n");
-	exit(1);
+    /* nothing to do any more */
 }
 
 int init_hid_device(char* device_name)
 {
     int cnt;
 	unsigned long key_bits[32],abs_bits[32];
-	unsigned long ff_bits[32];
-	struct input_event event;
-
 	int valbuf[16];
 	char name[256] = "Unknown";
+#ifdef USE_FORCE_FEEDBACK
+	unsigned long ff_bits[32];
+	struct input_event event;
+#endif
 
 	/* Open event device read only (with write permission for ff) */
 	device_handle = open(device_name,O_RDONLY|O_NONBLOCK);
@@ -121,6 +138,7 @@ int init_hid_device(char* device_name)
 	if (ioctl(device_handle,EVIOCGBIT(EV_KEY,32*sizeof(unsigned long)),key_bits)<0) {
 		dbgprintf(stderr,"ERROR: can not get key bits (%s) [%s:%d]\n",
 		        strerror(errno),__FILE__,__LINE__);
+        close(device_handle);
 		return(1);
 	}
 
@@ -129,28 +147,40 @@ int init_hid_device(char* device_name)
 	if (ioctl(device_handle,EVIOCGBIT(EV_ABS,32*sizeof(unsigned long)),abs_bits)<0) {
 		dbgprintf(stderr,"ERROR: can not get abs bits (%s) [%s:%d]\n",
 		        strerror(errno),__FILE__,__LINE__);
+        close(device_handle);
 		return(1);
 	}
 
+#if 0
+	printf("0x%08lX\n",abs_bits[0]);
+	printf("0x%08lX\n",abs_bits[1]);
+	printf("0x%08lX\n",abs_bits[2]);
+	printf("0x%08lX\n",abs_bits[3]);
+#endif
+
 	/* Which axis? */
-	if  (!TEST_BIT(AXIS_RUDDER ,abs_bits)) {
-		dbgprintf(stderr,"ERROR: no suitable rudder axis found [%s:%d]\n",
+	if  (!TEST_BIT(AXIS_YAW ,abs_bits)) {
+		dbgprintf(stderr,"ERROR: no suitable yaw axis found [%s:%d]\n",
 		        __FILE__,__LINE__);
+        close(device_handle);
 		return(1);
 	}
-	if (!TEST_BIT(AXIS_ELEVATOR ,abs_bits)) {
-		dbgprintf(stderr,"ERROR: no suitable elevator axis found [%s:%d]\n",
+	if (!TEST_BIT(AXIS_PITCH ,abs_bits)) {
+		dbgprintf(stderr,"ERROR: no suitable pitch axis found [%s:%d]\n",
 		        __FILE__,__LINE__);
+        close(device_handle);
 		return(1);
 	}
-	if (!TEST_BIT(AXIS_AILERON ,abs_bits)) {
-		dbgprintf(stderr,"ERROR: no suitable aileron axis found [%s:%d]\n",
+	if (!TEST_BIT(AXIS_ROLL ,abs_bits)) {
+		dbgprintf(stderr,"ERROR: no suitable roll axis found [%s:%d]\n",
 		        __FILE__,__LINE__);
+        close(device_handle);
 		return(1);
 	}
 	if (!TEST_BIT(AXIS_THROTTLE ,abs_bits)) {
 		dbgprintf(stderr,"ERROR: no suitable throttle axis found [%s:%d]\n",
 		        __FILE__,__LINE__);
+        close(device_handle);
 		return(1);
 	}
 	
@@ -160,6 +190,7 @@ int init_hid_device(char* device_name)
     	if (ioctl(device_handle,EVIOCGABS(axis_code[cnt]),valbuf)<0) {
     		dbgprintf(stderr,"ERROR: can not get axis value range (%s) [%s:%d]\n",
     		        strerror(errno),__FILE__,__LINE__);
+            close(device_handle);
     		return(1);
     	}
     	axis_min[cnt]=valbuf[1];
@@ -167,8 +198,12 @@ int init_hid_device(char* device_name)
     	if (axis_min[cnt]>=axis_max[cnt]) {
     		dbgprintf(stderr,"ERROR: bad axis value range (%d,%d) [%s:%d]\n",
     		        axis_min[cnt],axis_max[cnt],__FILE__,__LINE__);
+            close(device_handle);
     		return(1);
     	}
+
+        /* get last data */
+        position[cnt]=(((valbuf[0])-axis_min[cnt]))*254/(axis_max[cnt]-axis_min[cnt])-127;
 	}
 
 #if 0
@@ -177,6 +212,7 @@ int init_hid_device(char* device_name)
 	if (ioctl(device_handle,EVIOCGBIT(EV_FF ,32*sizeof(unsigned long)),ff_bits)<0) {
 		dbgprintf(stderr,"ERROR: can not get ff bits (%s) [%s:%d]\n",
 		        strerror(errno),__FILE__,__LINE__);
+        close(device_handle);
 		return(1);
 	}
 
@@ -184,6 +220,7 @@ int init_hid_device(char* device_name)
 	if (!TEST_BIT(FF_CONSTANT,ff_bits)) {
 		dbgprintf(stderr,"ERROR: device (or driver) has no force feedback support [%s:%d]\n",
 		        __FILE__,__LINE__);
+        close(device_handle);
 		return(1);
 	}
 
@@ -195,11 +232,12 @@ int init_hid_device(char* device_name)
 	if (write(device_handle,&event,sizeof(event))!=sizeof(event)) {
 		dbgprintf(stderr,"ERROR: failed to disable auto centering (%s) [%s:%d]\n",
 		        strerror(errno),__FILE__,__LINE__);
+        close(device_handle);
 		return(1);
 	}
 #endif
 
-#if 0 // turn on for ff effect
+#ifdef USE_FORCE_FEEDBACK // turn on for ff effect
 	/* Initialize constant force effect */
 	memset(&effect,0,sizeof(effect));
 	effect.type=FF_CONSTANT;
@@ -219,6 +257,7 @@ int init_hid_device(char* device_name)
 	if (ioctl(device_handle,EVIOCSFF,&effect)==-1) {
 		dbgprintf(stderr,"ERROR: uploading effect failed (%s) [%s:%d]\n",
 		        strerror(errno),__FILE__,__LINE__);
+        close(device_handle);
 		return(1);
 	}
 
@@ -230,6 +269,7 @@ int init_hid_device(char* device_name)
 	if (write(device_handle,&event,sizeof(event))!=sizeof(event)) {
 		dbgprintf(stderr,"ERROR: starting effect failed (%s) [%s:%d]\n",
 		        strerror(errno),__FILE__,__LINE__);
+        close(device_handle);
 		return(1);
 	}
 #endif	
@@ -242,62 +282,89 @@ int init_hid_device(char* device_name)
 
 static gboolean joystick_periodic(gpointer data __attribute__ ((unused))) {
 
-    int cnt;
-    struct input_event event;
+  int res, cnt, changed = 0, mode=0;
+  int throttle, pitch, roll;
+  int throttle_mode;
 
-	/* Get events */
-	while (read(device_handle,&event,sizeof(event))==sizeof(event)) {
-	    for (cnt=0; cnt<AXIS_COUNT; cnt++) {
-            if (event.type==EV_ABS && event.code==axis_code[cnt]) {
-    			position[cnt]=(((event.value)-axis_min[cnt]))*254/(axis_max[cnt]-axis_min[cnt])-127;
-	        }
-		}
-	}
-    printf("pos  %d %d %d\n", position[0], position[1], position[2]);
-	
-	IvySendMsg("dl JOYSTICK_RAW %d %d %d %d", aircraft_id, position[0], position[1], position[2]);
-//	IvySendMsg("dl DL_SETTING %d %d %f", aircraft_id, PPRZ_JOYSTICK_X, 0.1);
+  struct input_event event;
+  static struct timeval time_now;
 
+  /* Get events */
+  do {
+    res = read(device_handle,&event,sizeof(event));
+
+    if (res == sizeof(event))
+    {
+	  for (cnt=0; cnt<AXIS_COUNT; cnt++) {
+        if (event.type==EV_ABS && event.code==axis_code[cnt]) {
+          position[cnt]=(((event.value)-axis_min[cnt]))*254/(axis_max[cnt]-axis_min[cnt])-127;
+          changed = 1;
+        }
+      }
+    }
+  } while (res == sizeof(event));
+
+  if (errno != EAGAIN) 
+  {
+    printf("device removed\n");
+    g_main_loop_quit(ml);
+    return 0;
+  }
+
+//    if (changed)
+    {
+        dbgprintf(stdout, "pos  %d %d %d %d\n", position[0], position[1], position[2], position[3]);
+
+        if (position[3] > 125) mode = 1;
+        else if (position[3] < -125) mode = 2;
+        else mode = 0;
+
+        throttle = ((position[0] - THROTTLE_NEUTRAL -THROTTLE_MIN) * 63) / (THROTTLE_MAX-THROTTLE_MIN);
+        Bound(throttle, 0, 63)
+        roll = position[2] - ROLL_NEUTRAL;
+        Bound(roll, -128, 127)
+        pitch = position[1] - PITCH_NEUTRAL;
+        Bound(pitch, -128, 127)
+
+        throttle_mode = (throttle << 2) | mode;
+
+        gettimeofday(&time_now, 0);
+
+//        if (mode != 2)
+        {
+            dbgprintf(stdout,"mode: %d, throttle: %d, roll: %d, pitch: %d\n", throttle_mode & 3, throttle_mode >> 2, roll, pitch);
+	        IvySendMsg("dl RC_3CH %d %d %d", throttle_mode, roll, pitch);
+        }
+    }
+     
 	return 1;
 }
 
-void on_DL_SETTING(IvyClientPtr app, void *user_data, int argc, char *argv[]){
-
-  printf("%s\n", argv[0]);
-  printf("%d\n", atoi(argv[1]));
-  printf("%d\n", atoi(argv[2]));
-  printf("%f\n", atof(argv[3]));
-
-//  IvySendMsg("dl DL_SETTING %d %d %f", aircraft_id, PPRZ_JOYSTICK_X, 0.5);
-}
-
-
 int main ( int argc, char** argv) {
 
-  GMainLoop *ml =  g_main_loop_new(NULL, FALSE);
   char devname[256];
   int cnt;
+  ml =  g_main_loop_new(NULL, FALSE);
   
   parse_args(argc, argv);
   
   IvyInit ("IvyCtrlJoystick", "IvyCtrlJoystick READY", NULL, NULL, NULL, NULL);
-  IvyBindMsg(on_DL_SETTING, NULL, "(\\S*) DL_SETTING (\\S*) (\\S*) (\\S*)");
   IvyStart("127.255.255.255");
 
-  for (cnt=0; cnt<INPUT_DEV_MAX; cnt++){
-    sprintf(devname, DEVICE_NAME "%d", cnt);
-    if (init_hid_device(devname) == 0) break;
+  while(1)
+  {
+    for (cnt=0; cnt<INPUT_DEV_MAX; cnt++){
+      sprintf(devname, DEVICE_NAME "%d", cnt);
+      if (init_hid_device(devname) == 0) break;
+    }
+  
+    if (cnt != INPUT_DEV_MAX) 
+    {
+      g_timeout_add(TIMEOUT_PERIOD, joystick_periodic, NULL);  
+      g_main_loop_run(ml);
+     }
+     sleep(1);
   }
-  
-  if (cnt == INPUT_DEV_MAX) {
-    fprintf(stderr,"ERROR: no suitable joystick found [%s:%d]\n",
-              __FILE__,__LINE__);
-    return(1);
-  }  
-  
-  g_timeout_add(TIMEOUT_PERIOD, joystick_periodic, NULL);
-  
-  g_main_loop_run(ml);
 
   return 0;
 }
