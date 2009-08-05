@@ -97,7 +97,10 @@
 #endif
 
 /* BUTTON that stops logging (BUTTON = P0.7, INT1 = P0.14) */
-#define STOP_KEY 14
+#define STOP_KEY 7
+
+/* USB Vbus = P0.23) */
+#define VBUS_PIN 23
 
 /** Constants for the API protocol */
 #define XBEE_START 0x7e
@@ -144,6 +147,7 @@ unsigned int getclock(void);
 void log_payload(int len, unsigned char source, unsigned int timestamp);
 void log_xbee(unsigned char c);
 void log_pprz(unsigned char c);
+int do_log(void);
 
 extern int main_mass_storage(void);
 
@@ -340,7 +344,7 @@ void log_pprz(unsigned char c)
   return;
 }
 
-int main_log(void)
+int do_log(void)
 {
     unsigned int count;
     unsigned char name[13];
@@ -364,38 +368,77 @@ int main_log(void)
     }
 
     /* write to SD until key is pressed */
-    LED_ON(3);
     while ((IO0PIN & _BV(STOP_KEY))>>STOP_KEY)
     {
+#ifdef USE_UART0
+        if (Uart0ChAvailable())
+        {   
+			LED_TOGGLE(2);
+			inc = Uart0Getch();
+            log_xbee(inc);
+//            log_pprz(inc);
+        }
+#endif
+#ifdef USE_UART1
         if (Uart1ChAvailable())
         {   
 			LED_TOGGLE(2);
 			inc = Uart1Getch();
-            log_pprz(inc);
-//            log_xbee(inc);
+            log_xbee(inc);
+//            log_pprz(inc);
 //            file_write(&filew, 1, &inc);
         }
+#endif
     }
     LED_OFF(2);
-    LED_OFF(3);
 
     file_fclose( &filew );
     fs_umount( &efs.myFs ) ;
- 
-main_mass_storage();
-   
-	return(0);
+
+    return 0;
 }
 
-int main( void ) {
+int main(void)
+{
+  int waitloop, ledcount;
   main_init();
 
-  main_log();
+  while(1)
+  {
+    LED_ON(3);
+    do_log();
+    LED_OFF(3);
 
-  while(1) {
-    if (sys_time_periodic())
-      main_periodic_task();
-  }
+    waitloop = 0;
+    ledcount = 0;
+    while (waitloop < 20)
+    {
+      sys_time_usleep(100000);
+      {
+        if (ledcount++ > 9) {
+          ledcount=0;
+          LED_ON(3);
+        } else {
+          LED_OFF(3);
+        }
+        if (((IO0PIN & _BV(STOP_KEY))>>STOP_KEY) == 1) { 
+          waitloop=0;
+        } else { 
+          waitloop++;
+        }
+      }
+
+      if ((IO0PIN & _BV(VBUS_PIN))>>VBUS_PIN)
+      {
+        LED_OFF(3);
+        LED_ON(1);
+        main_mass_storage();
+      }
+    }
+    LED_ON(3);
+    while (((IO0PIN & _BV(STOP_KEY))>>STOP_KEY) == 0); 
+  } 
+
   return 0;
 }
 
@@ -403,6 +446,9 @@ static inline void main_init( void ) {
   hw_init();
   sys_time_init();
   led_init();
+#ifdef USE_UART0
+    Uart0Init();
+#endif
 #ifdef USE_UART1
     Uart1Init();
 #endif
@@ -410,6 +456,5 @@ static inline void main_init( void ) {
 }
 
 static inline void main_periodic_task( void ) {
-  LED_TOGGLE(1);
 }
 

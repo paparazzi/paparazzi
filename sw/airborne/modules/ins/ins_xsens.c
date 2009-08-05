@@ -176,6 +176,7 @@ void parse_ins_msg( void ) {
       }
       if (XSENS_MASK_RAWGPS(xsens_output_mode)) {
 #ifdef USE_GPS_XSENS
+        gps_week = 0; // FIXME
         gps_itow = XSENS_DATA_RAWGPS_itow(xsens_msg_buf,offset);
         gps_lat = XSENS_DATA_RAWGPS_lat(xsens_msg_buf,offset);
         gps_lon = XSENS_DATA_RAWGPS_lon(xsens_msg_buf,offset);

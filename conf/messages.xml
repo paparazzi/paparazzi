@@ -51,6 +51,7 @@
      <field name="alt"    type="int32" unit="cm"></field>
      <field name="speed"  type="uint16" unit="cm/s"></field>
      <field name="climb"  type="int16" unit="cm/s"></field>
+     <field name="week"  type="uint16" unit="weeks"></field>
      <field name="itow"  type="uint32" unit="ms"></field>
      <field name="utm_zone"  type="uint8"></field>
      <field name="gps_nb_err" type="uint8"></field>
@@ -1370,6 +1371,12 @@
    <field name="sync_itow"  type="uint32" unit="ms"/>
    <field name="cycle_time" type="uint32" unit="ms"/>
  </message>
+
+  <message name="RC_3CH" id="15" link="broadcasted">
+    <field name="throttle_mode" type="uint8" unit="byte_mask"/>
+    <field name="roll"  type="int8"/>
+    <field name="pitch" type="int8"/>
+  </message>
 
  <message name="BOOZ2_FMS_COMMAND" id="149" link="forwarded">
    <field name="h_mode" type="uint8" values="RATE|ATTITUDE|SPEED|POS"/>

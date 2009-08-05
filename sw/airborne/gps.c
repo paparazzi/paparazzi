@@ -70,7 +70,7 @@ void gps_downlink( void ) {
 
 void gps_send( void ) {
   
-    DOWNLINK_SEND_GPS(&gps_mode, &gps_utm_east, &gps_utm_north, &gps_course, &gps_alt, &gps_gspeed,&gps_climb, &gps_itow, &gps_utm_zone, &gps_nb_ovrn);
+    DOWNLINK_SEND_GPS(&gps_mode, &gps_utm_east, &gps_utm_north, &gps_course, &gps_alt, &gps_gspeed,&gps_climb, &gps_week, &gps_itow, &gps_utm_zone, &gps_nb_ovrn);
   
   static uint8_t i;
   static uint8_t last_cnos[GPS_NB_CHANNELS];

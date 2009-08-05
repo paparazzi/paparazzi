@@ -9,6 +9,7 @@ uint8_t gps_nb_ovrn;
 
 
 uint8_t gps_mode;
+uint16_t  gps_week;    /* weeks */
 uint32_t  gps_itow;    /* ms */
 int32_t   gps_alt;    /* cm       */
 uint16_t  gps_gspeed;  /* cm/s     */

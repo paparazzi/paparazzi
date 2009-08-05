@@ -38,6 +38,7 @@
 #include "downlink.h"
 
 uint8_t gps_mode;
+uint16_t gps_week;
 uint32_t gps_itow;
 int32_t gps_alt;
 uint16_t gps_gspeed;

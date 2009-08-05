@@ -47,6 +47,7 @@
 
 
 extern uint8_t gps_mode; /* Receiver status */
+extern uint16_t gps_week;    /* weeks */
 extern uint32_t gps_itow;    /* ms */
 extern int32_t  gps_alt;    /* cm       */
 extern uint16_t gps_gspeed;  /* cm/s     */

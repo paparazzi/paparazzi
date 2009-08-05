@@ -16,6 +16,7 @@
 #include <caml/mlvalues.h>
 
 uint8_t gps_mode;
+uint16_t  gps_week;    /* weeks */
 uint32_t  gps_itow;    /* ms */
 int32_t   gps_alt;    /* cm       */
 uint16_t  gps_gspeed;  /* cm/s     */
@@ -38,6 +39,7 @@ value sim_use_gps_pos(value x, value y, value z, value c, value a, value s, valu
   gps_alt = Double_val(a) * 100.;
   gps_gspeed = Double_val(s) * 100.;
   gps_climb = Double_val(cl) * 100.;
+  gps_week = 0; // FIXME
   gps_itow = Double_val(t) * 1000.;
 
 #ifdef GPS_USE_LATLONG

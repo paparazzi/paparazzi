@@ -156,7 +156,7 @@
 
 /* add by Haiyang Chao for debugging msg used by osam_imu*/
 #if defined UGEAR
-#define PERIODIC_SEND_GPS() DOWNLINK_SEND_GPS(&gps_mode, &gps_utm_east, &gps_utm_north, &gps_course, &gps_alt, &gps_gspeed,&gps_climb, &gps_itow, &gps_utm_zone, &gps_nb_ovrn)
+#define PERIODIC_SEND_GPS() DOWNLINK_SEND_GPS(&gps_mode, &gps_utm_east, &gps_utm_north, &gps_course, &gps_alt, &gps_gspeed,&gps_climb, &gps_week, &gps_itow, &gps_utm_zone, &gps_nb_ovrn)
 #define PERIODIC_SEND_GPS_SOL() DOWNLINK_SEND_GPS_SOL(&gps_Pacc, &gps_Sacc, &gps_PDOP, &gps_numSV)
 #define PERIODIC_SEND_DebugChao() DOWNLINK_SEND_DebugChao(&ugear_debug1, &ugear_debug2, &ugear_debug3, &ugear_debug4, &ugear_debug5, &ugear_debug6)
 #else

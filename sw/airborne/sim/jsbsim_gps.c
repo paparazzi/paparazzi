@@ -14,6 +14,7 @@
 #include "common_nav.h"
 
 uint8_t gps_mode;
+uint16_t  gps_week;    /* weeks */
 uint32_t  gps_itow;     /* ms */
 int32_t   gps_alt;      /* cm       */
 uint16_t  gps_gspeed;   /* cm/s     */
@@ -37,6 +38,7 @@ void sim_use_gps_pos(double lat, double lon, double alt, double course, double g
   gps_alt = alt * 100.;
   gps_gspeed = gspeed * 100.;
   gps_climb = climb * 100.;
+  gps_week = 0; // FIXME
   gps_itow = time * 1000.;
 
   gps_lat = DegOfRad(lat)*1e7;

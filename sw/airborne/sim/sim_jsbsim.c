@@ -37,6 +37,7 @@ uint8_t vertical_mode;
 uint8_t inflight_calib_mode;
 bool_t rc_event_1, rc_event_2;
 uint8_t gps_mode;
+uint16_t  gps_week;    /* weeks */
 uint32_t  gps_itow;    /* ms */
 int32_t   gps_alt;    /* cm       */
 uint16_t  gps_gspeed;  /* cm/s     */

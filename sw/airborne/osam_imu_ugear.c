@@ -62,6 +62,7 @@ float fd_alpha = 0;
 float fi_alpha = 0;
 
 /* variable definition copied from gps_ubx.c 20080508*/
+uint16_t gps_week;
 uint32_t gps_itow;
 int32_t gps_alt;
 uint16_t gps_gspeed;
@@ -231,6 +232,7 @@ void parse_ugear_msg( void ){
       			gps_Pacc = UGEAR_NAV_SOL_Pacc(ugear_msg_buf);
       			gps_Sacc = UGEAR_NAV_SOL_Sacc(ugear_msg_buf);
       			gps_numSV = UGEAR_NAV_SOL_numSV(ugear_msg_buf);
+			gps_week = 0; // FIXME
 			gps_itow = UGEAR_NAV_VELNED_ITOW(ugear_msg_buf);
 
 			//ugear_debug2 = gps_climb;

@@ -55,6 +55,7 @@ int32_t  gps_lon;  // longitude in degrees * 1e-7
 uint16_t gps_PDOP; //precision
 bool_t   gps_pos_available = FALSE;
 
+uint16_t gps_week;
 uint32_t gps_itow;
 int32_t  gps_alt;
 uint16_t gps_gspeed; // in cm/s

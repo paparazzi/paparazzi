@@ -62,6 +62,7 @@
 #include "ubx_protocol.h"
 
 
+uint16_t gps_week;
 uint32_t gps_itow;
 int32_t gps_alt;
 uint16_t gps_gspeed;
@@ -228,6 +229,7 @@ void parse_gps_msg( void ) {
       gps_Pacc = UBX_NAV_SOL_Pacc(ubx_msg_buf);
       gps_Sacc = UBX_NAV_SOL_Sacc(ubx_msg_buf);
       gps_numSV = UBX_NAV_SOL_numSV(ubx_msg_buf);
+      gps_week = UBX_NAV_SOL_week(ubx_msg_buf);
     } else if (ubx_id == UBX_NAV_SVINFO_ID) {
       gps_nb_channels = UBX_NAV_SVINFO_NCH(ubx_msg_buf);
       uint8_t i;
