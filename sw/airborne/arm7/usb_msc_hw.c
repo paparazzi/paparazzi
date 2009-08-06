@@ -67,6 +67,7 @@
 #include "lpcusb/usbapi.h"
 #include "msc_bot.h"
 #include "blockdev.h"
+#include "usb_msc_hw.h"
 
 #ifdef USE_USB_SERIAL
 #if PCLK < 18000000

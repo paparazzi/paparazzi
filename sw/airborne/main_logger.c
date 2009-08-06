@@ -85,9 +85,10 @@
 #include "uart_hw.h"
 #include "uart.h"
 
+#include "usb_msc_hw.h"
+
 #include "efs.h"
 #include "ls.h"
-#include "mkfs.h"
 
 #ifndef FALSE
 #define FALSE 0
@@ -99,7 +100,7 @@
 /* BUTTON that stops logging (BUTTON = P0.7, INT1 = P0.14) */
 #define STOP_KEY 7
 
-/* USB Vbus = P0.23) */
+/* USB Vbus (= P0.23) */
 #define VBUS_PIN 23
 
 /** Constants for the API protocol */
@@ -137,6 +138,11 @@
    frequency = T0_CLK / LOG_FREQ (10kHz = 100micro seconds) */
 #define LOG_DIV ((PCLK / T0_PCLK_DIV) / LOG_FREQ)
 
+#define LOG_SOURCE_UART0    0
+#define LOG_SOURCE_UART1    1
+#define LOG_SOURCE_I2C0     2
+#define LOG_SOURCE_I2C1     3
+
 static inline void main_init( void );
 static inline void main_periodic_task( void );
 int main_log(void);
@@ -145,11 +151,9 @@ void set_filename(unsigned int local, char* name);
 unsigned char checksum(unsigned char start, unsigned char* data, int length);
 unsigned int getclock(void);
 void log_payload(int len, unsigned char source, unsigned int timestamp);
-void log_xbee(unsigned char c);
-void log_pprz(unsigned char c);
+void log_xbee(unsigned char c, unsigned char source);
+void log_pprz(unsigned char c, unsigned char source);
 int do_log(void);
-
-extern int main_mass_storage(void);
 
 DirList list;
 EmbeddedFileSystem efs;
@@ -180,7 +184,7 @@ void set_filename(unsigned int local, char* name)
         name[i] = (local % 10) + '0';
         local /= 10;
     }
-    name[8]='.';name[9]='t';name[10]='x';name[11]='t';name[12]=0;
+    name[8]='.';name[9]='t';name[10]='l';name[11]='m';name[12]=0;
 }
 
 unsigned char checksum(unsigned char start, unsigned char* data, int length)
@@ -246,7 +250,7 @@ void log_payload(int len, unsigned char source, unsigned int timestamp)
 }
 
 /** Parsing a XBee API frame */
-void log_xbee(unsigned char c)
+void log_xbee(unsigned char c, unsigned char source)
 {
   static unsigned char xbeel_status = XBEE_UNINIT;
   static unsigned char cs, payload_idx, i;
@@ -286,7 +290,7 @@ void log_xbee(unsigned char c)
     for (i = 0; i < xbeel_payload_len-XBEE_RFDATA_OFFSET; i++) {
       log_buffer[i+LOG_DATA_OFFSET] = xbeel_payload[i+XBEE_RFDATA_OFFSET];
     }
-    log_payload(xbeel_payload_len-XBEE_RFDATA_OFFSET, 0, xbeel_timestamp);
+    log_payload(xbeel_payload_len-XBEE_RFDATA_OFFSET, source, xbeel_timestamp);
     goto restart;
   }
   return;
@@ -297,7 +301,7 @@ void log_xbee(unsigned char c)
   return;
 }
 
-void log_pprz(unsigned char c)
+void log_pprz(unsigned char c, unsigned char source)
 {
   static unsigned char pprzl_status = UNINIT;
   static unsigned char _ck_a, _ck_b, payload_idx, i;
@@ -333,7 +337,7 @@ void log_pprz(unsigned char c)
     for (i = 0; i < pprzl_payload_len; i++) {
       log_buffer[i+LOG_DATA_OFFSET] = pprzl_payload[i];
     }
-    log_payload(pprzl_payload_len, 0, pprzl_timestamp);
+    log_payload(pprzl_payload_len, source, pprzl_timestamp);
     goto restart;
   }
   return;
@@ -375,8 +379,15 @@ int do_log(void)
         {   
 			LED_TOGGLE(2);
 			inc = Uart0Getch();
-            log_xbee(inc);
-//            log_pprz(inc);
+#ifdef LOG_XBEE
+            log_xbee(inc, LOG_SOURCE_UART0);
+#else 
+#ifdef LOG_PPRZ
+            log_pprz(inc, LOG_SOURCE_UART0);
+#else
+#error no log transport protocol selected
+#endif
+#endif
         }
 #endif
 #ifdef USE_UART1
@@ -384,9 +395,15 @@ int do_log(void)
         {   
 			LED_TOGGLE(2);
 			inc = Uart1Getch();
-            log_xbee(inc);
-//            log_pprz(inc);
-//            file_write(&filew, 1, &inc);
+#ifdef LOG_XBEE
+            log_xbee(inc, LOG_SOURCE_UART1);
+#else 
+#ifdef LOG_PPRZ
+            log_pprz(inc, LOG_SOURCE_UART1);
+#else
+#error no log transport protocol selected
+#endif
+#endif
         }
 #endif
     }
@@ -457,4 +474,3 @@ static inline void main_init( void ) {
 
 static inline void main_periodic_task( void ) {
 }
-

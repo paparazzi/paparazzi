@@ -279,7 +279,6 @@ U8 * SCSIHandleData(U8 *pbCDB, U8 iCDBLen, U8 *pbData, U32 dwOffset)
 	
 	// inquiry
 	case SCSI_CMD_INQUIRY:
-        getCID();
 		memcpy(pbData, abInquiry, sizeof(abInquiry));
 		break;
 		
