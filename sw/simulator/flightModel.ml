@@ -218,6 +218,7 @@ module Make(A:Data.MISSION) = struct
       let drag = cruise_thrust +. (v2 -. vn2)*.(1.-. cruise_thrust)/.(maximum_airspeed ** 2. -. vn2) in
       let air_speed_dot = max_power /. state.air_speed *. (state.thrust -. drag) /. weight -. g *. sin gamma in
       state.air_speed <- state.air_speed +. air_speed_dot *. dt;
+      state.air_speed <- max state.air_speed 10.; (* Avoid stall *)
 
       (* FIXME: wind effect should be in the forces *)
       let x_dot = state.air_speed *. cos state.psi +. wx
