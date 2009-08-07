@@ -132,6 +132,10 @@ void h_ctl_init( void ) {
   h_ctl_roll_attitude_gain = H_CTL_ROLL_ATTITUDE_GAIN;
   h_ctl_roll_rate_gain = H_CTL_ROLL_RATE_GAIN;
 
+  h_ctl_roll_igain = H_CTL_ROLL_IGAIN;
+  h_ctl_roll_sum_err = 0;
+  h_ctl_roll_Kff = H_CTL_ROLL_KFF;
+
 #ifdef AGR_CLIMB
 nav_ratio=0;
 #endif
@@ -184,8 +188,20 @@ void h_ctl_course_loop ( void ) {
   BoundAbs(h_ctl_roll_setpoint, h_ctl_roll_max_setpoint);
 }
 
+static float airspeed_ratio2;
+
 void h_ctl_attitude_loop ( void ) {
   if (!h_ctl_disabled) {
+    float throttle_diff =  v_ctl_throttle_setpoint / (float)MAX_PPRZ - v_ctl_auto_throttle_nominal_cruise_throttle;
+    float airspeed = NOMINAL_AIRSPEED; /* Estimated from the throttle */
+    if (throttle_diff > 0)
+      airspeed += throttle_diff / (V_CTL_AUTO_THROTTLE_MAX_CRUISE_THROTTLE - v_ctl_auto_throttle_nominal_cruise_throttle) * (MAXIMUM_AIRSPEED - NOMINAL_AIRSPEED);
+    else
+      airspeed += throttle_diff / (v_ctl_auto_throttle_nominal_cruise_throttle - V_CTL_AUTO_THROTTLE_MIN_CRUISE_THROTTLE) * (NOMINAL_AIRSPEED - MINIMUM_AIRSPEED);
+
+    float airspeed_ratio = airspeed / NOMINAL_AIRSPEED;
+    Bound(airspeed_ratio, 0.5, 2.);
+    airspeed_ratio2 = airspeed_ratio*airspeed_ratio;
     h_ctl_roll_loop();
     h_ctl_pitch_loop();
   }
@@ -212,6 +228,8 @@ inline static void h_ctl_roll_loop( void ) {
     - h_ctl_roll_rate_gain * derr
     - h_ctl_roll_igain * h_ctl_roll_sum_err
     + v_ctl_throttle_setpoint * h_ctl_aileron_of_throttle;
+
+  //  cmd /= airspeed_ratio2;
 
   h_ctl_aileron_setpoint = TRIM_PPRZ(cmd); 
 }
@@ -262,7 +280,8 @@ inline static void h_ctl_pitch_loop( void ) {
   float d_err = (err - last_err)/H_CTL_REF_DT - h_ctl_ref_pitch_rate;
   last_err = err;
   float cmd = h_ctl_pitch_pgain * err + h_ctl_pitch_dgain * d_err;
+
+  cmd /= airspeed_ratio2;
+
   h_ctl_elevator_setpoint = TRIM_PPRZ(cmd);
 }
-
-

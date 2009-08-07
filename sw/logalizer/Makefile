@@ -27,7 +27,7 @@ OCAMLC = ocamlc
 OCAMLOPT = ocamlopt
 INCLUDES= -I +xml-light -I +lablgtk2 -I ../lib/ocaml 
 
-all: play plotter plot
+all: play plotter plot sd2log
 
 play : log_file.ml play_core.ml play.ml
 	@echo OL $@
@@ -44,6 +44,10 @@ plotter : plotter.cmo
 plot : log_file.cmx gtk_export.cmx export.cmx plot.cmx
 	@echo OL $@
 	$(Q)$(OCAMLOPT) $(INCLUDES) -o $@ unix.cmxa str.cmxa xml-light.cmxa glibivy-ocaml.cmxa lablgtk.cmxa lib-pprz.cmxa lablglade.cmxa gtkInit.cmx  $^
+
+sd2log : sd2log.cmo
+	@echo OL $@
+	$(Q)$(OCAMLC) $(INCLUDES) -custom -o $@ unix.cma str.cma xml-light.cma glibivy-ocaml.cma lib-pprz.cma $^
 
 # Target for bytecode executable (if ocamlopt is not available)
 # plot : log_file.cmo gtk_export.cmo export.cmo plot.cmo

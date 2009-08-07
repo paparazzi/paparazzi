@@ -14,7 +14,7 @@
   <servos>
     <servo name="MOTOR_LEFT" no="0" min="1000" neutral="1000" max="2000"/>
     <servo name="AILERON_LEFT" no="1" min="1900" neutral="1500" max="1100"/>
-    <servo name="ELEVATOR" no="2" min="1900" neutral="1360" max="1100"/>
+    <servo name="ELEVATOR" no="2" min="1900" neutral="1500" max="1100"/>
     <servo name="RUDDER" no="3" min="1100" neutral="1500" max="1900"/>
     <servo name="AILERON_RIGHT" no="4" min="1900" neutral="1500" max="1100"/>
     <servo name="HATCH" no="5" min="1860" neutral="1860" max="1022"/>
@@ -63,7 +63,7 @@
     <define name="IR_TOP" value="ADC_0"/>
     <define name="IR_NB_SAMPLES" value="16"/>
     <define name="GYRO_ROLL" value="ADC_3"/>
-    <define name="GYRO_NB_SAMPLES" value="16"/> 
+    <define name="GYRO_NB_SAMPLES" value="32"/> 
   </section>
 
   <section name="INFRARED" prefix="IR_">
@@ -107,7 +107,9 @@
   </section>
  
   <section name="MISC">
+    <define name="MINIMUM_AIRSPEED" value="10." unit="m/s"/>
     <define name="NOMINAL_AIRSPEED" value="12." unit="m/s"/>
+    <define name="MAXIMUM_AIRSPEED" value="18." unit="m/s"/>
     <define name="CARROT" value="5." unit="s"/>
     <define name="KILL_MODE_DISTANCE" value="(1.5*MAX_DIST_FROM_HOME)"/>
     <define name="CONTROL_RATE" value="60" unit="Hz"/>
@@ -150,20 +152,20 @@
   </section>
 
   <section name="HORIZONTAL CONTROL" prefix="H_CTL_">
-    <define name="COURSE_PGAIN" value="-0.929000020027"/>
+    <define name="COURSE_PGAIN" value="-0.739000022411"/>
     <define name="ROLL_MAX_SETPOINT" value="0.60" unit="radians"/>
     <define name="PITCH_MAX_SETPOINT" value="0.5" unit="radians"/>
     <define name="PITCH_MIN_SETPOINT" value="-0.5" unit="radians"/>
 
     <define name="ROLL_PGAIN" value="6000."/>
     <define name="AILERON_OF_THROTTLE" value="0.0"/>
-    <define name="PITCH_PGAIN" value="-7000."/>
-    <define name="PITCH_DGAIN" value="1.5"/>
+    <define name="PITCH_PGAIN" value="-13135.5927734"/>
+    <define name="PITCH_DGAIN" value="-1694.91503906"/>
 
     <define name="ELEVATOR_OF_ROLL" value="1520.73706055"/>
 
-    <define name="ROLL_ATTITUDE_GAIN" value="-7500"/>
-    <define name="ROLL_RATE_GAIN" value="-1500"/>
+    <define name="ROLL_ATTITUDE_GAIN" value="-5847.45800781"/>
+    <define name="ROLL_RATE_GAIN" value="-2923.72900391"/>
 
     <define name="ROLL_KFF" value="-500"/>
     <define name="ROLL_IGAIN" value="-500"/>
@@ -206,11 +208,6 @@
     <define name="DEVICE_TYPE" value="XBEE"/>
     <define name="DEVICE_ADDRESS" value="...."/>
   </section>
- 
- <section name="SIMU">
-    <define name="YAW_RESPONSE_FACTOR" value="0.5"/>
- </section>
-
  <makefile>
 CONFIG = \"tiny_2_1.h\"
 

@@ -161,7 +161,8 @@ val gps_tow_of_utc : ?wday:int -> int -> int -> int -> int
 val get_gps_tow : unit -> int
 (** Returns the current GPS time of week in seconds *)
 
-val unix_time_of_tow : int -> float
+val unix_time_of_tow : ?week:int -> int -> float
+(** If week if not supplied, current one is assumed *)
 
 type coordinates_kind = 
     WGS84_dec

@@ -97,7 +97,9 @@
   </section>
  
   <section name="MISC">
+    <define name="MINIMUM_AIRSPEED" value="10." unit="m/s"/>
     <define name="NOMINAL_AIRSPEED" value="20." unit="m/s"/>
+    <define name="MAXIMUM_AIRSPEED" value="40." unit="m/s"/>
     <define name="CARROT" value="5." unit="s"/>
     <define name="KILL_MODE_DISTANCE" value="(1.5*MAX_DIST_FROM_HOME)"/>
     <define name="CONTROL_RATE" value="60" unit="Hz"/>
@@ -145,16 +147,17 @@
     <define name="PITCH_MAX_SETPOINT" value="0.5" unit="radians"/>
     <define name="PITCH_MIN_SETPOINT" value="-0.5" unit="radians"/>
 
-    <define name="ROLL_PGAIN" value="13000."/>
     <define name="AILERON_OF_THROTTLE" value="0.0"/>
     <define name="PITCH_PGAIN" value="-2500."/>
-    <define name="PITCH_DGAIN" value="0.2"/>
+    <define name="PITCH_DGAIN" value="-1000"/>
 
     <define name="ELEVATOR_OF_ROLL" value="1100"/>
 
-    <!--define name="ROLL_ATTITUDE_GAIN" value="-7500"/>
-    <define name="ROLL_RATE_GAIN" value="-1500"/-->
+    <define name="ROLL_ATTITUDE_GAIN" value="-7500"/>
+    <!--define name="ROLL_RATE_GAIN" value="-1500"/-->
 
+    <define name="ROLL_KFF" value="-500"/>
+    <define name="ROLL_IGAIN" value="-500"/>
   </section>
 
   <section name="NAV">
@@ -194,12 +197,7 @@
     <define name="DEVICE_TYPE" value="XBEE"/>
     <define name="DEVICE_ADDRESS" value="...."/>
   </section>
- 
- <section name="SIMU">
-    <define name="YAW_RESPONSE_FACTOR" value="0.5"/>
- </section>
-
- <makefile>
+  <makefile>
 CONFIG = \"tiny_2_1.h\"
 
 include $(PAPARAZZI_SRC)/conf/autopilot/tiny.makefile
@@ -241,7 +239,7 @@ ap.CFLAGS += -DINFRARED -DALT_KALMAN -DWIND_INFO -DWIND_INFO_RET
 ap.srcs += infrared.c estimator.c
 
 ap.CFLAGS += -DNAV -DAGR_CLIMB -DLOITER_TRIM
-ap.srcs += nav.c fw_h_ctl.c fw_v_ctl.c
+ap.srcs += nav.c fw_h_ctl_a.c fw_v_ctl.c
 
 ap.srcs += nav_line.c
 ap.srcs += nav_survey_rectangle.c
@@ -249,9 +247,14 @@ ap.srcs += nav_survey_rectangle.c
 ap.srcs += snav.c
 
 # Config for SITL simulation
-include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
+sim.ARCHDIR = $(ARCHI)
+sim.ARCH = sitl
+sim.TARGET = autopilot
+sim.TARGETDIR = autopilot
+sim.CFLAGS += -DSITL -DAP -DFBW -DRADIO_CONTROL -DINTER_MCU -DDOWNLINK -DDOWNLINK_TRANSPORT=IvyTransport -DINFRARED -DNAV -DLED -DWIND_INFO
+sim.srcs = latlong.c radio_control.c downlink.c commands.c gps.c inter_mcu.c infrared.c fw_h_ctl_a.c fw_v_ctl.c nav.c estimator.c sys_time.c main_fbw.c main_ap.c datalink.c $(SRC_ARCH)/ppm_hw.c $(SRC_ARCH)/sim_gps.c $(SRC_ARCH)/sim_ir.c $(SRC_ARCH)/sim_ap.c $(SRC_ARCH)/ivy_transport.c $(SRC_ARCH)/sim_adc_generic.c $(SRC_ARCH)/led_hw.c
+
 sim.CFLAGS += -DBOARD_CONFIG=\"tiny.h\" -DAGR_CLIMB -DLOITER_TRIM -DALT_KALMAN
 sim.srcs += nav_line.c nav_survey_rectangle.c
-
   </makefile>
 </airframe>

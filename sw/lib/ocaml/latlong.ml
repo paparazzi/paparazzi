@@ -485,8 +485,9 @@ let bearing = fun geo1 geo2 ->
   ((Rad>>Deg)(atan2 dx dy), sqrt(dx*.dx+.dy*.dy))
 
 
-let leap_seconds = 14 (* http://www.leapsecond.com/java/gpsclock.htm *)
+let leap_seconds = 15 (* http://www.leapsecond.com/java/gpsclock.htm *)
 
+let gps_epoch = 315964800. (* In seconds, in the unix reference *)
   
 let gps_tow_of_utc = fun ?wday hour min sec ->
   let wday =
@@ -499,9 +500,18 @@ let get_gps_tow = fun () ->
   let utc = Unix.gmtime (Unix.gettimeofday ()) in
   gps_tow_of_utc ~wday:utc.Unix.tm_wday utc.Unix.tm_hour utc.Unix.tm_min utc.Unix.tm_sec
 
-let unix_time_of_tow = fun tow ->
-  let host_tow = get_gps_tow () in
-  Unix.gettimeofday () +. float (tow - host_tow)
+
+let unix_time_of_tow = fun ?week tow ->
+  match week with
+    None ->
+      let host_tow = get_gps_tow ()
+      and unix_now = Unix.gettimeofday () in
+      unix_now +. float (tow - host_tow)
+  | Some w -> 
+      gps_epoch
+	+. float w *. 60. *. 60. *. 24. *. 7.
+	+. float (tow - leap_seconds)
+
 
 
 type coordinates_kind = 
