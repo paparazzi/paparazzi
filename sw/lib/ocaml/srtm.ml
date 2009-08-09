@@ -29,10 +29,10 @@ open Latlong
 type error = string
 exception Tile_not_found of string
 
-let srtm_url = "ftp://e0srp01u.ecs.nasa.gov/srtm/version2/SRTM3"
+let srtm_url = "http://dds.cr.usgs.gov/srtm/version2_1/SRTM3"
 
 let error = fun string ->
-  Printf.sprintf "put %s/???/%s.hgt.zip in data/srtm/" srtm_url string
+  Printf.sprintf "download %s/???/%s.hgt.zip in data/srtm/" srtm_url string
 
 let tile_size = 1201
 
