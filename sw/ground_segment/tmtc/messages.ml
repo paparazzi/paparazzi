@@ -57,12 +57,14 @@ let one_page = fun sender class_name (notebook:GPack.notebook) bind m ->
 	try
 	  let unit = try "("^Xml.attrib f "unit"^")" with _ -> "" in
 	  let field_name =  Xml.attrib f "name" in
-	  let name = Printf.sprintf "%s %s %s: " (ExtXml.attrib f "type") field_name unit in
+	  let type_ = ExtXml.attrib f "type" in
+	  let name = Printf.sprintf "%s %s %s: " type_ field_name unit in
 	  let h = GPack.hbox ~packing:v#pack () in
 	  let field_label = GButton.button ~label:name ~packing:h#pack () in
+
 	  let value = ref "XXXX" in
 	  let l = GMisc.label ~text: !value ~packing:h#pack () in
-	  let values = values_of_field f in
+	  let literal_values = values_of_field f in
 	  let alt_value =
 	    try
 	      let coeff = ExtXml.float_attrib f "alt_unit_coef"
@@ -74,7 +76,7 @@ let one_page = fun sender class_name (notebook:GPack.notebook) bind m ->
 	    value := 
 	      try 
 		let i = Pprz.int_of_value x in
-		sprintf "%s (%d)" values.(i) i
+		sprintf "%s (%d)" literal_values.(i) i
 	      with _ -> 
 		alt_value (Pprz.string_of_value x)
 	  and display_value = fun () ->
@@ -85,7 +87,14 @@ let one_page = fun sender class_name (notebook:GPack.notebook) bind m ->
 	  field_label#drag#source_set dnd_targets ~modi:[`BUTTON1] ~actions:[`COPY];
 	  let data_get = fun _ (sel:GObj.selection_context) ~info ~time ->
 	    let scale =  ExtXml.attrib_or_default f "alt_unit_coef" "1" in
-	    sel#return (sprintf "%s:%s:%s:%s:%s" sender class_name id field_name scale) in
+	    let field_descr =
+	      if Pprz.is_array_type type_ then
+		match GToolbox.input_string ~title:"Index of value to drag" ~text:"0" "Index in the array ?" with
+		  None -> field_name
+		| Some i -> sprintf "%s[%s]" field_name i
+	      else
+		field_name in
+	    sel#return (sprintf "%s:%s:%s:%s:%s" sender class_name id field_descr scale) in
 	  ignore (field_label#drag#connect#data_get ~callback:data_get);
 
 	  (update, display_value)::rest

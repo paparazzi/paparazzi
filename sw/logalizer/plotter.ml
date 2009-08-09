@@ -299,7 +299,7 @@ let default_window = {title="Plotter"; geometry=""; curves=[]}
 
 (** [index_of_fields s] Returns i if s matches x[i] else 0. *)
 let base_and_index =
-  let field_regexp = Str.regexp "\\([^\\.]+\\)\\.\\[\\([0-9]+\\)\\]" in
+  let field_regexp = Str.regexp "\\([^\\.]+\\)\\[\\([0-9]+\\)\\]" in
   fun field_descr ->
     if Str.string_match field_regexp field_descr 0 then
       ( Str.matched_group 1 field_descr,

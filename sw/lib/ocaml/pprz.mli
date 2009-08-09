@@ -56,6 +56,8 @@ external int32_of_bytes : string -> int -> int32 = "c_int32_of_indexed_bytes"
 val separator : string
 (** Separator in array values *)
 
+val is_array_type : string -> bool
+
 val size_of_field : field -> int
 val string_of_value : value -> string
 val int_of_value : value -> int (* May raise Invalid_argument *)
