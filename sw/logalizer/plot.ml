@@ -84,7 +84,7 @@ class plot = fun ~width ~height ~packing () ->
   let curves = Hashtbl.create 3 in
   object (self)
     val mutable min_x = max_float
-    val mutable max_x = min_float
+    val mutable max_x = -.max_float
     val mutable min_y = max_float
     val mutable max_y = -.max_float
     val mutable scale_events = []
@@ -108,7 +108,7 @@ class plot = fun ~width ~height ~packing () ->
 	(* Recomputes the min and max *)
 	min_x <- max_float;
 	min_y <- max_float;
-	max_x <- min_float;
+	max_x <- -.max_float;
 	max_y <- -.max_float;
 	Hashtbl.iter (fun _ curve ->
 	  self#update_scale curve.values)
@@ -322,7 +322,7 @@ let write_kml = fun plot log_name values ->
   end
 
 
-
+let bracket_regexp = Str.regexp "\\["
 
 
 let add_ac_submenu = fun ?(export=false) protocol ?(factor=object method text="1" end) plot menubar (curves_menu_fact: GMenu.menu GMenu.factory) ac menu_name l raw_msgs ->
@@ -343,7 +343,10 @@ let add_ac_submenu = fun ?(export=false) protocol ?(factor=object method text="1
       List.iter
 	(fun (f, values) ->
 	  let callback = fun _ ->
-	    let alt_unit_coef =  (List.assoc f msg.Pprz.fields).Pprz.alt_unit_coef in
+	    (* Remove the . for an array field name *)
+	    let f' = List.hd (Str.split bracket_regexp f) in
+
+	    let alt_unit_coef =  (List.assoc f' msg.Pprz.fields).Pprz.alt_unit_coef in
 	    let name = sprintf "%s:%s:%s:%s" menu_name msg_name f factor#text
 	    and (a, b) = Ocaml_tools.affine_transform factor#text
 	    and (a', b') = Ocaml_tools.affine_transform alt_unit_coef in
@@ -430,7 +433,18 @@ let load_log = fun ?export ?factor (plot:plot) (menubar:GMenu.menu_shell GMenu.f
 	    let fields = Hashtbl.find msgs msg_id in
 
 	    (* Elements of [fields] are values indexed by field name *)
-	    List.iter (fun (f, v) -> Hashtbl.add fields f (t, v)) vs;
+	    List.iter
+	      (fun (f, value) -> 
+		match value with
+		  Pprz.Array array ->
+		    Array.iteri
+		      (fun i scalar ->
+			let f = sprintf "%s[%d]" f i in
+			Hashtbl.add fields f (t, scalar))
+		      array
+		| scalar ->
+		    Hashtbl.add fields f (t, scalar))
+	      vs;
 
 	    let msg_name = (P.message_of_id msg_id).Pprz.name in
 	    raw_msgs := (t, msg_name, vs) :: !raw_msgs
