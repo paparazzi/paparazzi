@@ -35,6 +35,12 @@ let set_float_value = fun (a:GData.adjustment) v ->
   a#set_bounds ~lower ~upper ();
   a#set_value v
 
+let pprz_float = function
+    Pprz.Int i -> float i
+  | Pprz.Float f -> f 
+  | Pprz.Int32 i -> Int32.to_float i
+  | Pprz.String s -> float_of_string s
+  | Pprz.Array _ -> 0.
 
 
 let dnd_targets = [ { Gtk.target = "STRING"; flags = []; info = 0} ]
@@ -290,6 +296,17 @@ type window = { title : string; geometry : string; curves : string list }
 
 let default_window = {title="Plotter"; geometry=""; curves=[]}
 
+
+(** [index_of_fields s] Returns i if s matches x[i] else 0. *)
+let base_and_index =
+  let field_regexp = Str.regexp "\\([^\\.]+\\)\\.\\[\\([0-9]+\\)\\]" in
+  fun field_descr ->
+    if Str.string_match field_regexp field_descr 0 then
+      ( Str.matched_group 1 field_descr,
+	int_of_string (Str.matched_group 2 field_descr))
+    else
+      (field_descr, 0)
+
 let rec plot_window = fun window ->
   let plotter = GWindow.window ~allow_shrink:true ~title:window.title () in
   ignore (plotter#parse_geometry window.geometry);
@@ -420,12 +437,19 @@ let rec plot_window = fun window ->
 
   let add_curve = fun ?(factor=(1.,0.)) name ->
     let (a, b) = factor in
-    let (sender, class_name, msg_name, field_name, (a',b')) = parse_dnd name in
+    let (sender, class_name, msg_name, field_descr, (a',b')) = parse_dnd name in
     let a = a *. a' and b = a*.b' +. b in
     let offset = if a <> 0. then sprintf "+%.2f" b else "" in
-    let name = Printf.sprintf "%s:%s:%s:%s:%f%s" sender class_name msg_name field_name a offset in
+    let name = Printf.sprintf "%s:%s:%s:%s:%f%s" sender class_name msg_name field_descr a offset in
     let cb = fun _sender values ->
-      let v = float_of_string (Pprz.string_assoc field_name values) *. a +. b in
+      let (field_name, index) = base_and_index field_descr in
+      let value =
+	match Pprz.assoc field_name values with
+	  Pprz.Array array ->
+	    array.(index)
+	| scalar -> scalar in
+      let float = pprz_float value in
+      let v = float *. a +. b in
       plot#add_value name v in
     
     let module P = Pprz.Messages (struct let name = class_name end) in
