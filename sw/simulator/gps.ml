@@ -38,7 +38,9 @@ type state = {
   }
 
 
-let climb_noise = fun c -> c +. Random.float 1. -. 0.5
+let climb_noise =
+  let ng = Ocaml_tools.make_1st_order_noise_generator 0.9 0.1 in
+  fun c -> c +. ng ()
 
 let state = fun pos0 alt0 ->
   let last_x = ref 0. and last_y = ref 0. 
