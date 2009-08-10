@@ -37,3 +37,12 @@ val find_file : string list -> string -> string
 val affine_transform : string -> float * float
 (* [affine_transform format] Parses [format] as a+b and returns (a,b). Returns
 a if +b is not present. Returns 1. if the parsing fails *)
+
+val normal : float -> float -> float
+(* [normal mean stdev] Normal distribution *)
+
+val make_1st_order_noise_generator :
+  ?init:float -> float -> float -> (unit -> float)
+(* [make_1st_order_noise_generator ?init k sigma] Returns a generator
+   initialized to [init], damped by [k] with a variation of stdev [sigma].
+   0 < [k] < 1 . x_n+1 <- k x_n + normal 0 sigma . *)

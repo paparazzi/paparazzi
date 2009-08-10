@@ -24,7 +24,7 @@
  *
  *)
 
-
+let pi = 3.14159265358979323846;;
 
 let open_compress file = 
   if Filename.check_suffix file "gz" or Filename.check_suffix file "Z" or
@@ -54,3 +54,16 @@ let affine_transform = fun format ->
     [a;b] -> float_of_string a, float_of_string b
   | [a] -> float_of_string a, 0.
   | _ -> 1., 0.
+
+(* Box-Muller transform to generate a normal distribution from a uniform one
+ http://en.wikipedia.org/wiki/Normal_distribution *)
+let normal = fun mu sigma ->
+  let u1 = Random.float 1.
+  and u2 = Random.float 1. in
+  mu +. sigma *. sqrt (-2. *. log u1) *. cos (2. *. pi *. u2)
+
+let make_1st_order_noise_generator = fun ?(init = 0.) k sigma ->
+  let x = ref init in
+  fun () ->
+    x := k *. !x +. normal 0. sigma;
+    !x
