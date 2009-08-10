@@ -55,6 +55,9 @@ float csc_yaw_setpoint_range;
 float csc_vane_weight;
 float csc_vane_filter_constant;
 
+float csc_drag_pitch = 0;
+float csc_drag_yaw = 0;
+
 #define PWM_INPUT_COUNTS_PER_REV 61358.
 static void update_vane_angle( void )
 {

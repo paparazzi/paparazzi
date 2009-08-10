@@ -66,6 +66,9 @@ extern float csc_yaw_deadband;
 extern float csc_yaw_setpoint_rate;
 extern float csc_yaw_setpoint_range;
 extern float csc_vane_filter_constant;
+extern float csc_drag_pitch;
+extern float csc_drag_yaw;
+
 
 void csc_autopilot_set_roll_ki(float ki);
 void csc_autopilot_set_pitch_ki(float ki);
