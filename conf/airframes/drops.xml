@@ -27,6 +27,7 @@
     <axis name="PITCH" failsafe_value="0"/>
     <axis name="YAW" failsafe_value="0"/>
     <axis name="HATCH" failsafe_value="0"/>
+    <axis name="GAIN1" failsafe_value="0"/>
   </commands>
 
   <rc_commands>
@@ -35,6 +36,7 @@
     <set command="PITCH" value="@PITCH"/>
     <set command="YAW" value="@YAW"/>
     <set command="HATCH" value="@CALIB"/>
+    <set command="GAIN1" value="@GAIN1"/>
   </rc_commands>
 
   <section name="MIXER">
@@ -43,7 +45,7 @@
 
   <command_laws>
     <set servo="MOTOR_LEFT" value="@THROTTLE"/>
-    <set servo="MOTOR_RIGHT" value="@THROTTLE"/>
+    <set servo="MOTOR_RIGHT" value="(@GAIN1 > 0 ? @THROTTLE : 0)"/>
     <set servo="ELEVATOR" value="@PITCH"/>
     <set servo="RUDDER" value="@YAW"/>
     <let var="roll" value="@ROLL"/>
@@ -152,14 +154,14 @@
   </section>
 
   <section name="HORIZONTAL CONTROL" prefix="H_CTL_">
-    <define name="COURSE_PGAIN" value="-0.739000022411"/>
+    <define name="COURSE_PGAIN" value="-1.0340000391"/>
     <define name="ROLL_MAX_SETPOINT" value="0.60" unit="radians"/>
     <define name="PITCH_MAX_SETPOINT" value="0.5" unit="radians"/>
     <define name="PITCH_MIN_SETPOINT" value="-0.5" unit="radians"/>
 
     <define name="ROLL_PGAIN" value="6000."/>
     <define name="AILERON_OF_THROTTLE" value="0.0"/>
-    <define name="PITCH_PGAIN" value="-13135.5927734"/>
+    <define name="PITCH_PGAIN" value="-8898.3046875"/>
     <define name="PITCH_DGAIN" value="-1694.91503906"/>
 
     <define name="ELEVATOR_OF_ROLL" value="1520.73706055"/>
@@ -168,7 +170,7 @@
     <define name="ROLL_RATE_GAIN" value="-2923.72900391"/>
 
     <define name="ROLL_KFF" value="-500"/>
-    <define name="ROLL_IGAIN" value="-500"/>
+    <define name="ROLL_IGAIN" value="-5000"/>
   </section>
 
   <section name="NAV">
@@ -223,7 +225,7 @@ ap.srcs += commands.c
 ap.CFLAGS += -DACTUATORS=\"servos_4017_hw.h\" -DSERVOS_4017
 ap.srcs += $(SRC_ARCH)/servos_4017_hw.c actuators.c
 
-ap.CFLAGS += -DRADIO_CONTROL
+ap.CFLAGS += -DRADIO_CONTROL -DRADIO_CONTROL_AUTO1
 ap.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c  
 
 ap.CFLAGS += -DDOWNLINK -DUSE_UART1 -DDOWNLINK_TRANSPORT=XBeeTransport -DXBEE_UART=Uart1 -DDATALINK=XBEE -DUART1_BAUD=B57600
