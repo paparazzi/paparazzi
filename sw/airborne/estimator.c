@@ -96,6 +96,8 @@ void estimator_init( void ) {
   EstimatorSetRate(0., 0.);
 
   estimator_flight_time = 0;
+
+  estimator_airspeed = NOMINAL_AIRSPEED;
 }
 
 
