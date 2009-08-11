@@ -37,13 +37,20 @@
 #include "airframe.h"
 
 extern float h_ctl_roll_sum_err;
+extern float h_ctl_pitch_sum_err;
 extern float h_ctl_roll_igain;
+extern float h_ctl_pitch_igain;
 extern float h_ctl_roll_Kff;
 #define H_CTL_ROLL_SUM_ERR_MAX 100.
 
 #define fw_h_ctl_a_SetRollIGain(_gain) { \
   h_ctl_roll_sum_err = 0; \
   h_ctl_roll_igain = _gain; \
+  }
+
+#define fw_h_ctl_a_SetPitchIGain(_gain) { \
+  h_ctl_pitch_sum_err = 0; \
+  h_ctl_pitch_igain = _gain; \
   }
 
 /* inner roll loop parameters */

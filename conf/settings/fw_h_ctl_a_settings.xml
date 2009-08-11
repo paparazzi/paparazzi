@@ -7,6 +7,7 @@
     <dl_settings NAME="fw_h_ctl_a">
       <dl_setting MAX="0" MIN="-5000" STEP="10" VAR="h_ctl_roll_Kff" module="fw_h_ctl_a"/>
       <dl_setting MAX="0" MIN="-5000" STEP="10" VAR="h_ctl_roll_igain" module="fw_h_ctl_a" handler="SetRollIGain"/>
+      <dl_setting MAX="0" MIN="-5000" STEP="10" VAR="h_ctl_pitch_igain" module="fw_h_ctl_a" handler="SetPitchIGain"/>
     </dl_settings>
   </dl_settings>
 </settings>

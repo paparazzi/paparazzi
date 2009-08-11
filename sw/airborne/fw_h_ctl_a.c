@@ -68,7 +68,9 @@ float  h_ctl_roll_setpoint;
 float h_ctl_roll_attitude_gain;
 float h_ctl_roll_rate_gain;
 float  h_ctl_roll_igain;
+float  h_ctl_pitch_igain;
 float  h_ctl_roll_sum_err;
+float  h_ctl_pitch_sum_err;
 float h_ctl_roll_Kff;
 pprz_t h_ctl_aileron_setpoint;
 float  h_ctl_roll_slew;
@@ -210,6 +212,10 @@ void h_ctl_attitude_loop ( void ) {
 #define H_CTL_REF_DT (1./60.)
 
 inline static void h_ctl_roll_loop( void ) {
+
+  if (pprz_mode == PPRZ_MODE_MANUAL)
+    h_ctl_roll_sum_err = 0;
+
   h_ctl_ref_roll_accel = H_CTL_REF_W*H_CTL_REF_W * (h_ctl_roll_setpoint - h_ctl_ref_roll_angle) - 2*H_CTL_REF_XI*H_CTL_REF_W * h_ctl_ref_roll_rate;
   h_ctl_ref_roll_rate += h_ctl_ref_roll_accel * H_CTL_REF_DT;
   h_ctl_ref_roll_angle += h_ctl_ref_roll_rate * H_CTL_REF_DT;
@@ -277,9 +283,16 @@ inline static void h_ctl_pitch_loop( void ) {
 #endif
 
   float err = estimator_theta - h_ctl_ref_pitch_angle;
+
+  if (pprz_mode == PPRZ_MODE_MANUAL)
+    h_ctl_pitch_sum_err = 0;
+  h_ctl_pitch_sum_err += err * H_CTL_REF_DT;
+  BoundAbs(h_ctl_pitch_sum_err, H_CTL_ROLL_SUM_ERR_MAX);
+
+
   float d_err = (err - last_err)/H_CTL_REF_DT - h_ctl_ref_pitch_rate;
   last_err = err;
-  float cmd = h_ctl_pitch_pgain * err + h_ctl_pitch_dgain * d_err;
+  float cmd = h_ctl_pitch_pgain * err + h_ctl_pitch_dgain * d_err + h_ctl_pitch_igain * h_ctl_pitch_sum_err;
 
   cmd /= airspeed_ratio2;
 
