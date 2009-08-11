@@ -162,6 +162,15 @@ let is_older = fun target_file dep_files ->
   loop dep_files
 
 
+let write_if_different = fun md5sum_file md5sum ->
+  if not (Sys.file_exists md5sum_file
+	    && md5sum = input_line (open_in md5sum_file)) then
+    let f = open_out md5sum_file in
+    Printf.fprintf f "%s\n" md5sum;
+    close_out f
+
+
+
 
 (******************************* MAIN ****************************************)
 let () =
@@ -210,9 +219,7 @@ let () =
   (** Computes and store a signature of the configuration *)
   let md5sum = Digest.to_hex (Digest.file conf_aircraft_file) in
   let md5sum_file = aircraft_conf_dir // "aircraft.md5" in
-  let f = open_out md5sum_file in
-  Printf.fprintf f "%s\n" md5sum;
-  close_out f;
+  write_if_different md5sum_file md5sum;
 
   let airframe_file = value "airframe" in
   
