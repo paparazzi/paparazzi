@@ -174,7 +174,7 @@
 #endif
 
 #include "fw_h_ctl_a.h"
-#define PERIODIC_SEND_H_CTL_A() DOWNLINK_SEND_H_CTL_A(&h_ctl_roll_sum_err, &h_ctl_ref_roll_angle, &h_ctl_ref_pitch_angle)
+#define PERIODIC_SEND_H_CTL_A() DOWNLINK_SEND_H_CTL_A(&h_ctl_roll_sum_err, &h_ctl_ref_roll_angle, &h_ctl_pitch_sum_err, &h_ctl_ref_pitch_angle)
 
 
 #endif /* AP_DOWNLINK_H */
