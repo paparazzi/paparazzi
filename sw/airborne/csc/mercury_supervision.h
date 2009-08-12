@@ -20,15 +20,15 @@ extern pprz_t mercury_supervision_yaw_comp_offset;
 /*     _mot_cmd[PROP_LEFT]  = _dt + _da + _dr + TRIM_LEFT;	\ */
 /*   } */
 /* #else */
-#define TRIM_FRONT ( SUPERVISION_TRIM_E+SUPERVISION_TRIM_R)
-#define TRIM_RIGHT (-SUPERVISION_TRIM_A-SUPERVISION_TRIM_R)
-#define TRIM_BACK  (-SUPERVISION_TRIM_E+SUPERVISION_TRIM_R)
-#define TRIM_LEFT  ( SUPERVISION_TRIM_A-SUPERVISION_TRIM_R)
+#define TRIM_UPPER_LEFT  ( SUPERVISION_TRIM_A-SUPERVISION_TRIM_E+SUPERVISION_TRIM_R)
+#define TRIM_LOWER_RIGHT (-SUPERVISION_TRIM_A+SUPERVISION_TRIM_E+SUPERVISION_TRIM_R)
+#define TRIM_LOWER_LEFT  ( SUPERVISION_TRIM_A+SUPERVISION_TRIM_E-SUPERVISION_TRIM_R)
+#define TRIM_UPPER_RIGHT (-SUPERVISION_TRIM_A-SUPERVISION_TRIM_E-SUPERVISION_TRIM_R)
 #define SUPERVISION_MIX(_mot_cmd, _da, _de, _dr, _dt) {			\
-    _mot_cmd[PROP_UPPER_LEFT]  = _dt + _da - _de  + _dr  + TRIM_FRONT; \
-    _mot_cmd[PROP_LOWER_RIGHT] = _dt - _da + _de  + _dr  + TRIM_RIGHT;	\
-    _mot_cmd[PROP_LOWER_LEFT]  = _dt + _da + _de  - _dr  + TRIM_BACK;	\
-    _mot_cmd[PROP_UPPER_RIGHT] = _dt - _da - _de  - _dr  + TRIM_LEFT;	\
+    _mot_cmd[PROP_UPPER_LEFT]  = _dt + _da - _de  + _dr  + TRIM_UPPER_LEFT; \
+    _mot_cmd[PROP_LOWER_RIGHT] = _dt - _da + _de  + _dr  + TRIM_LOWER_RIGHT;	\
+    _mot_cmd[PROP_LOWER_LEFT]  = _dt + _da + _de  - _dr  + TRIM_LOWER_LEFT;	\
+    _mot_cmd[PROP_UPPER_RIGHT] = _dt - _da - _de  - _dr  + TRIM_UPPER_RIGHT;	\
   }
 //#endif
 
