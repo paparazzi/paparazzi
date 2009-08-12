@@ -98,7 +98,7 @@ static void on_rc_cmd(struct CscRCMsg *msg)
   pprz_mode = PPRZ_MODE_OF_RC(rc_values[RADIO_MODE]);
   if (pprz_mode == PPRZ_MODE_MANUAL) {
     csc_ap_clear_ierrors();
-    SetCommandsFromRC(commands);
+    SetCommandsFromRC(commands, rc_values);
   }
 }
 

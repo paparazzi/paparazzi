@@ -112,6 +112,7 @@ DOWNLINK_SEND_BOOZ2_INS3(&booz_ins_gps_pos_cm_ned.x, \
   &zero, \
   &zero, \
   &zero, \
+  &zero, \
   &zero, &zero) }
 
 extern uint8_t telemetry_mode_Ap;
