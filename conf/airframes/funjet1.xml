@@ -4,15 +4,14 @@
      Tiny 2.1 board (http://paparazzi.enac.fr/wiki/index.php/Tiny_v2)
      Tilted infrared sensor (http://paparazzi.enac.fr/wiki/index.php/Image:Tiny_v2_1_Funjet.jpg)
      Radiotronix modem
+     Digital camera
 -->
 
 <airframe name="Funjet 1 Tiny 2.1">
 
-  <!--
   <modules>
-    <load name="enose.xml"/>
+    <load name="poles.xml"/>
   </modules>
-  -->
 
 <!-- commands section -->
   <servos>
@@ -25,6 +24,7 @@
     <axis name="THROTTLE" failsafe_value="0"/>
     <axis name="ROLL"     failsafe_value="0"/>
     <axis name="PITCH"    failsafe_value="0"/>
+    <axis name="HATCH"    failsafe_value="0"/>
   </commands>
 
   <rc_commands>
@@ -147,7 +147,7 @@
   </section>
 
   <section name="HORIZONTAL CONTROL" prefix="H_CTL_">
-    <define name="COURSE_PGAIN" value="-1.2"/>
+    <define name="COURSE_PGAIN" value="-0.8"/>
 
     <define name="ROLL_MAX_SETPOINT" value="0.7" unit="radians"/>
     <define name="PITCH_MAX_SETPOINT" value="0.5" unit="radians"/>
@@ -284,7 +284,7 @@ ap.CFLAGS += -DDIGITAL_CAM
 ap.srcs += dc.c
 
 #ap.CFLAGS += -DUSE_MODULES
-#sim.CFLAGS += -DUSE_MODULES
+sim.CFLAGS += -DUSE_MODULES
 
 # Config for SITL simulation
 #include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
