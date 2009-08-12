@@ -26,6 +26,7 @@
 
 #include "std.h"
 #include "math/pprz_algebra_int.h"
+#include "math/pprz_algebra_float.h"
 #include "ahrs/booz_ahrs_aligner.h"
 
 #define BOOZ_AHRS_UNINIT  0
@@ -43,7 +44,23 @@ struct BoozAhrs {
   uint8_t status;
 };
 
+struct BoozAhrsFloat {
+  struct FloatQuat   ltp_to_body_quat;
+  struct FloatEulers   ltp_to_body_euler;
+  struct FloatRates  body_rate;  
+  uint8_t status;
+};
+
 extern struct BoozAhrs booz_ahrs;
+extern struct BoozAhrsFloat booz_ahrs_float;
+
+#define BOOZ_AHRS_FLOAT_OF_INT32() { \
+    QUAT_FLOAT_OF_BFP(booz_ahrs_float.ltp_to_body_quat, booz_ahrs.ltp_to_body_quat);	\
+    RATES_FLOAT_OF_BFP(booz_ahrs_float.body_rate, booz_ahrs.body_rate); \
+    booz_ahrs_float.ltp_to_body_euler.phi = ANGLE_FLOAT_OF_BFP(booz_ahrs.ltp_to_body_euler.phi); \
+    booz_ahrs_float.ltp_to_body_euler.theta = ANGLE_FLOAT_OF_BFP(booz_ahrs.ltp_to_body_euler.theta); \
+    booz_ahrs_float.ltp_to_body_euler.psi = ANGLE_FLOAT_OF_BFP(booz_ahrs.ltp_to_body_euler.psi); \
+  }
 
 extern void booz_ahrs_init(void);
 extern void booz_ahrs_align(void);

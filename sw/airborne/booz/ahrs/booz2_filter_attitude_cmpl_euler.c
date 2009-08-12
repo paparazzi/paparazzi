@@ -29,8 +29,6 @@
 #include "airframe.h"
 #include "math/pprz_trig_int.h"
 
-struct BoozAhrs booz_ahrs;
-
 
 struct Int32Rates  booz2_face_gyro_bias;
 struct Int32Eulers booz2_face_measure;

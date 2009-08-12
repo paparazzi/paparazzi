@@ -87,7 +87,11 @@ void booz_stabilization_attitude_enter(void) {
 #define MAX_SUM_ERR RadOfDeg(56000)
 
 void booz_stabilization_attitude_run(bool_t  in_flight) {
+  #ifdef BOOZ_AHRS_FIXED_POINT
+  BOOZ_AHRS_FLOAT_OF_INT32();
+  #endif 
 
+  
   /* 
    * Update reference
    */
@@ -109,10 +113,10 @@ void booz_stabilization_attitude_run(bool_t  in_flight) {
    */
 
   /* attitude error                          */
-  struct FloatQuat att_quat_float;
-  QUAT_FLOAT_OF_BFP(att_quat_float, booz_ahrs.ltp_to_body_quat);
+
+
   struct FloatQuat att_err; 
-  FLOAT_QUAT_INV_COMP(att_err, att_quat_float, booz_stab_att_ref_quat);
+  FLOAT_QUAT_INV_COMP(att_err, booz_ahrs_float.ltp_to_body_quat, booz_stab_att_ref_quat);
   /* wrap it in the shortest direction       */
   FLOAT_QUAT_WRAP_SHORTEST(att_err);  
 
@@ -127,10 +131,9 @@ void booz_stabilization_attitude_run(bool_t  in_flight) {
   }
   
   /*  rate error                */
-  struct FloatRates rate_float;
-  RATES_FLOAT_OF_BFP(rate_float, booz_ahrs.body_rate);
+
   struct FloatRates rate_err;
-  RATES_DIFF(rate_err, rate_float, booz_stab_att_ref_rate);
+  RATES_DIFF(rate_err, booz_ahrs_float.body_rate, booz_stab_att_ref_rate);
 
   /*  PID                  */
 
