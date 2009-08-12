@@ -1022,6 +1022,7 @@
      <field name="yaw"      type="int16" unit="pprz"/>
      <field name="throttle" type="int16" unit="pprz"/>
      <field name="mode"     type="int16" unit="pprz"/>
+     <field name="kill"     type="int16" unit="pprz"/>
      <field name="status"   type="uint8" values="OK|LOST|REALLY_LOST"/>
   </message>
 
@@ -1040,6 +1041,31 @@
       <field name="Pzdzd"          type="float"/>
       <field name="Pbb"            type="float"/>
   </message>
+  <message name="EKF7_XHAT" id="170">
+      <field name="c"   type="float"/>
+      <field name="s1"  type="float"/>
+      <field name="s2"  type="float"/>
+      <field name="s3"  type="float"/>
+      <field name="p"   type="float"/>
+      <field name="q"   type="float"/>
+      <field name="r"   type="float"/>
+      <field name="bp"  type="float"/>
+      <field name="bq"  type="float"/>
+      <field name="br"  type="float"/>
+  </message>
+
+    <message name="EKF7_Y" id="171">
+      <field name="g1"  type="float"/>
+      <field name="g2"  type="float"/>
+      <field name="g3"  type="float"/>
+      <field name="m1"  type="float"/>
+      <field name="m2"  type="float"/>
+      <field name="m3"  type="float"/>
+      <field name="p"   type="float"/>
+      <field name="q"   type="float"/>
+      <field name="r"   type="float"/>
+  </message>
+
     
 
   <message name="AHRS_EULER" id="173">
