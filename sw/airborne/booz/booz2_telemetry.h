@@ -46,6 +46,7 @@
 #ifdef USE_GPS
 #define PERIODIC_SEND_BOOZ_STATUS() {					\
     uint32_t booz_imu_nb_err = 0;					\
+    uint8_t twi_blmc_nb_err = 0;					\
     DOWNLINK_SEND_BOOZ_STATUS(&booz_imu_nb_err,				\
 			      &twi_blmc_nb_err,				\
 			      &radio_control.status,			\
@@ -62,6 +63,7 @@
 #else /* !USE_GPS */
 #define PERIODIC_SEND_BOOZ_STATUS() {					\
     uint32_t booz_imu_nb_err = 0;					\
+    uint8_t twi_blmc_nb_err = 0;					\
     uint8_t  fix = BOOZ2_GPS_FIX_NONE;					\
     DOWNLINK_SEND_BOOZ_STATUS(&booz_imu_nb_err,				\
 			      &twi_blmc_nb_err,				\
@@ -81,11 +83,13 @@
 #ifdef USE_RADIO_CONTROL
 #define PERIODIC_SEND_RC() DOWNLINK_SEND_RC(RADIO_CONTROL_NB_CHANNEL, radio_control.values)
 #define PERIODIC_SEND_BOOZ2_RADIO_CONTROL() {				\
+    int16_t foo = 0;							\
     DOWNLINK_SEND_BOOZ2_RADIO_CONTROL(&radio_control.values[RADIO_CONTROL_ROLL], \
 				      &radio_control.values[RADIO_CONTROL_PITCH], \
 				      &radio_control.values[RADIO_CONTROL_YAW], \
 				      &radio_control.values[RADIO_CONTROL_THROTTLE], \
 				      &radio_control.values[RADIO_CONTROL_MODE], \
+				      &foo,				\
 				      &radio_control.status);}
 
 #else

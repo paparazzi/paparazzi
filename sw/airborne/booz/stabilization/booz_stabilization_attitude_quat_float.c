@@ -24,6 +24,7 @@
 #include "booz_stabilization.h"
 
 #include "math/pprz_algebra_float.h"
+#include "math/pprz_algebra_int.h"
 #include "booz_ahrs.h"
 #include "booz_radio_control.h"
 
@@ -85,11 +86,11 @@ void booz_stabilization_attitude_enter(void) {
 
 
 #define MAX_SUM_ERR RadOfDeg(56000)
-
+#include <stdio.h>
 void booz_stabilization_attitude_run(bool_t  in_flight) {
-  #ifdef BOOZ_AHRS_FIXED_POINT
+#ifdef BOOZ_AHRS_FIXED_POINT
   BOOZ_AHRS_FLOAT_OF_INT32();
-  #endif 
+#endif 
 
   
   /* 
@@ -100,21 +101,19 @@ void booz_stabilization_attitude_run(bool_t  in_flight) {
   /* 
    * Compute feedforward
    */
-  /* FIXME : I don't understand the /32 - should be /256 */
+  /* ref accel bfp is 2^12 and int controller offsets by 5 */
   booz_stabilization_att_ff_cmd[COMMAND_ROLL] = 
-    booz_stabilization_ddgain.x * booz_stab_att_ref_accel.p / 32.;
+    booz_stabilization_ddgain.x * BFP_OF_REAL(booz_stab_att_ref_accel.p, (12-5));
   booz_stabilization_att_ff_cmd[COMMAND_PITCH] = 
-    booz_stabilization_ddgain.y * booz_stab_att_ref_accel.q / 32.;
+    booz_stabilization_ddgain.y * BFP_OF_REAL(booz_stab_att_ref_accel.q, (12-5));
   booz_stabilization_att_ff_cmd[COMMAND_YAW] = 
-    booz_stabilization_ddgain.z * booz_stab_att_ref_accel.r / 32.;
+    booz_stabilization_ddgain.z * BFP_OF_REAL(booz_stab_att_ref_accel.r, (12-5));
 
   /*
    * Compute feedback                        
    */
 
   /* attitude error                          */
-
-
   struct FloatQuat att_err; 
   FLOAT_QUAT_INV_COMP(att_err, booz_ahrs_float.ltp_to_body_quat, booz_stab_att_ref_quat);
   /* wrap it in the shortest direction       */
@@ -131,34 +130,32 @@ void booz_stabilization_attitude_run(bool_t  in_flight) {
   }
   
   /*  rate error                */
-
   struct FloatRates rate_err;
   RATES_DIFF(rate_err, booz_ahrs_float.body_rate, booz_stab_att_ref_rate);
 
   /*  PID                  */
-
   booz_stabilization_att_fb_cmd[COMMAND_ROLL] = 
-    -2. * booz_stabilization_pgain.x  * att_err.qx +
-    booz_stabilization_dgain.x  * rate_err.p +
-    booz_stabilization_igain.x  * booz_stabilization_att_sum_err.phi / 1024.;
+    -2. * booz_stabilization_pgain.x  * QUAT1_BFP_OF_REAL(att_err.qx)+
+    booz_stabilization_dgain.x  * RATE_BFP_OF_REAL(rate_err.p) /*+
+    booz_stabilization_igain.x  * booz_stabilization_att_sum_err.phi / 1024.*/;
 
   booz_stabilization_att_fb_cmd[COMMAND_PITCH] = 
-    -2. * booz_stabilization_pgain.y  * att_err.qy +
-    booz_stabilization_dgain.y  * rate_err.q +
-    booz_stabilization_igain.y  * booz_stabilization_att_sum_err.theta / 1024.;
-
+    -2. * booz_stabilization_pgain.y  * QUAT1_BFP_OF_REAL(att_err.qy)+
+    booz_stabilization_dgain.y  * RATE_BFP_OF_REAL(rate_err.q) /*+
+    booz_stabilization_igain.y  * booz_stabilization_att_sum_err.theta / 1024.*/;
+  
   booz_stabilization_att_fb_cmd[COMMAND_YAW] = 
-    -2. * booz_stabilization_pgain.z  * att_err.qz +
-    booz_stabilization_dgain.z  * rate_err.r +
-    booz_stabilization_igain.z  * booz_stabilization_att_sum_err.psi / 1024.;
+    -2. * booz_stabilization_pgain.z  * QUAT1_BFP_OF_REAL(att_err.qz)+
+    booz_stabilization_dgain.z  * RATE_BFP_OF_REAL(rate_err.r) /*+
+    booz_stabilization_igain.z  * booz_stabilization_att_sum_err.psi / 1024.*/;
 
 
   booz_stabilization_cmd[COMMAND_ROLL] = 
-    (booz_stabilization_att_fb_cmd[COMMAND_ROLL]+booz_stabilization_att_ff_cmd[COMMAND_ROLL])/16.;
+    ((booz_stabilization_att_fb_cmd[COMMAND_ROLL]+booz_stabilization_att_ff_cmd[COMMAND_ROLL]))/(1<<16);
   booz_stabilization_cmd[COMMAND_PITCH] = 
-    (booz_stabilization_att_fb_cmd[COMMAND_PITCH]+booz_stabilization_att_ff_cmd[COMMAND_PITCH])/16.;
+    ((booz_stabilization_att_fb_cmd[COMMAND_PITCH]+booz_stabilization_att_ff_cmd[COMMAND_PITCH]))/(1<<16);
   booz_stabilization_cmd[COMMAND_YAW] = 
-    (booz_stabilization_att_fb_cmd[COMMAND_YAW]+booz_stabilization_att_ff_cmd[COMMAND_YAW])/16.;
+    ((booz_stabilization_att_fb_cmd[COMMAND_YAW]+booz_stabilization_att_ff_cmd[COMMAND_YAW]))/(1<<16);
     
 }
 
