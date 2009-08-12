@@ -79,6 +79,7 @@ extern void nav_eight(uint8_t, uint8_t, float);
 
 extern void nav_oval_init( void );
 extern void nav_oval(uint8_t, uint8_t, float);
+extern uint8_t nav_oval_count;
 #define Oval(a, b, c) nav_oval((b), (a), (c))
 
 extern float nav_radius; /* m */

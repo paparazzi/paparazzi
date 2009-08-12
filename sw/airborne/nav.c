@@ -567,8 +567,11 @@ void nav_eight(uint8_t target, uint8_t c1, float radius) {
 enum oval_status { OR12, OC2, OR21, OC1 };
 
 static enum oval_status oval_status;
+uint8_t nav_oval_count;
+
 void nav_oval_init( void ) {
   oval_status = OC2;
+  nav_oval_count = 0;
 }
 
 void nav_oval(uint8_t p1, uint8_t p2, float radius) {
@@ -621,6 +624,7 @@ void nav_oval(uint8_t p1, uint8_t p2, float radius) {
     nav_route_xy(p1_out.x, p1_out.y, p2_in.x, p2_in.y);
     if (nav_approaching_xy(p2_in.x, p2_in.y, p1_out.x, p1_out.y, CARROT)) { 
       oval_status = OC2;
+      nav_oval_count++;
       InitStage();
     }
     return;
