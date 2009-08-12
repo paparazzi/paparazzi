@@ -19,6 +19,10 @@
       <dl_setting VAR="csc_vane_weight" MIN="0" STEP="0.01" MAX="1" module="csc_autopilot" shortname="vane weight" />
       <dl_setting VAR="csc_vane_filter_constant" MIN="0" STEP="0.01" MAX="1" module="csc_autopilot" shortname="vane filter constant" />
     </dl_settings>
+    <dl_settings NAME="drag devices">
+      <dl_setting VAR="csc_drag_pitch" MIN="-2" STEP="0.05" MAX="2" module="csc_autopilot" shortname="drag pitch mix"/>
+      <dl_setting VAR="csc_drag_yaw" MIN="-2" STEP="0.05" MAX="2" module="csc_autopilot" shortname="drag yaw mix" />
+    </dl_settings>
     <dl_settings NAME="flight params">
       <dl_setting VAR="csc_gains.pitch_kp" MIN="-4000" STEP="10" MAX="4000" module="csc_autopilot" shortname="pitch kp"/>
       <dl_setting VAR="csc_gains.pitch_kd" MIN="-4000" STEP="10" MAX="4000" module="csc_autopilot" shortname="pitch kd"/>
