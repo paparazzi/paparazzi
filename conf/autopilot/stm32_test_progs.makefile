@@ -2,7 +2,7 @@ ARCHI=stm32
 SRC_FYA=fya
 SRC_ARCH=$(ARCHI)
 
-BOARD_CFG=\"fya_board.h\"
+BOARD_CFG=\"boards/olimex_stm32-h103.h\"
 
 
 #
