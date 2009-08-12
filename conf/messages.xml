@@ -486,12 +486,15 @@
   </message>
 
   <message name="BOOZ_SIM_SPEED_POS" id="240">
-    <field name="xd" type="float" unit="m/s"/>
-    <field name="yd" type="float" unit="m/s"/>
-    <field name="zd" type="float" unit="m/s"/>
-    <field name="x"  type="float" unit="m"/>
-    <field name="y"  type="float" unit="m"/>
-    <field name="z"  type="float" unit="m"/>
+    <field name="lptp_xdd" type="float" unit="m/s2"/>
+    <field name="lptp_ydd" type="float" unit="m/s2"/>
+    <field name="lptp_zdd" type="float" unit="m/s2"/>
+    <field name="lptp_xd"  type="float" unit="m/s"/>
+    <field name="lptp_yd"  type="float" unit="m/s"/>
+    <field name="lptp_zd"  type="float" unit="m/s"/>
+    <field name="lptp_x"   type="float" unit="m"/>
+    <field name="ltpp_y"   type="float" unit="m"/>
+    <field name="ltpp_z"   type="float" unit="m"/>
   </message>
 
   <message name="BOOZ_SIM_RATE_ATTITUDE" id="241">
@@ -791,12 +794,12 @@
     <field name="sum_err_phi"   type="float"/>   
     <field name="sum_err_theta" type="float"/>   
     <field name="sum_err_psi"   type="float"/>   
-    <field name="delta_a_fb"    type="float" alt_unit_coef="0.0625"/>
-    <field name="delta_e_fb"    type="float" alt_unit_coef="0.0625"/>
-    <field name="delta_r_fb"    type="float" alt_unit_coef="0.0625"/>
-    <field name="delta_a_ff"    type="float" alt_unit_coef="0.0625"/>
-    <field name="delta_e_ff"    type="float" alt_unit_coef="0.0625"/>
-    <field name="delta_r_ff"    type="float" alt_unit_coef="0.0625"/>
+    <field name="delta_a_fb"    type="float" alt_unit_coef="0.0000153"/>
+    <field name="delta_e_fb"    type="float" alt_unit_coef="0.0000153"/>
+    <field name="delta_r_fb"    type="float" alt_unit_coef="0.0000153"/>
+    <field name="delta_a_ff"    type="float" alt_unit_coef="0.0000153"/>
+    <field name="delta_e_ff"    type="float" alt_unit_coef="0.0000153"/>
+    <field name="delta_r_ff"    type="float" alt_unit_coef="0.0000153"/>
     <field name="delta_a"       type="int32"/>
     <field name="delta_e"       type="int32"/>
     <field name="delta_r"       type="int32"/>
@@ -1067,6 +1070,13 @@
   </message>
 
     
+  <message name="BOOZ2_TUNE_FF" id="163">
+      <field name="fb_rms"         type="float"/>
+      <field name="dg"             type="float"/>
+      <field name="g"              type="float"/>
+  </message>
+
+
 
   <message name="AHRS_EULER" id="173">
     <field name="phi"   type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.29578" />
