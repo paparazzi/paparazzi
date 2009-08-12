@@ -4,7 +4,6 @@
   <header>
 #include "nav_line.h"
 #include "datalink.h"
-#include "radio_control.h"
 </header>
   <waypoints>
     <waypoint name="HOME" x="0" y="0"/>
@@ -35,7 +34,6 @@
     </block>
     <block key="t" name="Takeoff" strip_button="Takeoff (wp CLIMB)" strip_icon="takeoff.png">
       <exception cond="estimator_z > ground_alt+25" deroute="Standby"/>
-      <exception cond="rc_status == RC_OK" deroute="Standby"/>
       <set value="0" var="kill_throttle"/>
       <set value="0" var="estimator_flight_time"/>
       <go from="HOME" throttle="1.0" vmode="throttle" wp="CLIMB" pitch="15"/>
