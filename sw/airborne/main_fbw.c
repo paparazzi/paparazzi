@@ -147,7 +147,7 @@ void event_task_fbw( void) {
       fbw_mode = FBW_MODE_OF_PPRZ(rc_values[RADIO_MODE]);
     }
     if (fbw_mode == FBW_MODE_MANUAL)
-      SetCommandsFromRC(commands);
+      SetCommandsFromRC(commands, rc_values);
   }
 #endif
 

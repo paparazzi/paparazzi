@@ -210,14 +210,13 @@ static inline uint8_t mcu1_status_update( void ) {
 }
 
 
-/** \brief Send back uncontrolled channels (actually only rudder)
+/** \brief Send back uncontrolled channels
  */
 static inline void copy_from_to_fbw ( void ) {
-#if defined RADIO_CONTROL_AUTO1 && defined COMMAND_YAW /* FIXME */
+#ifdef SetAutoCommandsFromRC
+  SetAutoCommandsFromRC(ap_state->commands, fbw_state->channels);
+#elif defined RADIO_YAW && defined COMMAND_YAW
   ap_state->commands[COMMAND_YAW] = fbw_state->channels[RADIO_YAW];
-#endif
-#if defined COMMAND_FLAPS && defined RADIO_FLAPS/* FIXME */
-  ap_state->commands[COMMAND_FLAPS] = fbw_state->channels[RADIO_FLAPS];
 #endif
 }
 

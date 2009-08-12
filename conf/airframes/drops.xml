@@ -39,6 +39,11 @@
     <set command="GAIN1" value="@GAIN1"/>
   </rc_commands>
 
+  <auto_rc_commands>
+    <set command="YAW" value="@YAW"/>
+    <set command="GAIN1" value="@GAIN1"/>
+  </auto_rc_commands>
+
   <section name="MIXER">
     <define name="AILERON_DIFF" value="0.8"/>
   </section>

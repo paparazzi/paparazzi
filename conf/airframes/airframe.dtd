@@ -1,6 +1,6 @@
 <!-- Paparazzi airframe DTD -->
 
-<!ELEMENT airframe (servos|commands|csc_boards|rc_commands|ap_only_commands|command_laws|section|makefile|modules)*>
+<!ELEMENT airframe (servos|commands|csc_boards|rc_commands|auto_rc_commands|ap_only_commands|command_laws|section|makefile|modules)*>
 <!ELEMENT servos (servo)*>
 <!ELEMENT commands (axis)*>
 <!ELEMENT csc_boards (board)*>
@@ -8,6 +8,7 @@
 <!ELEMENT msg (field_map)*>
 <!ELEMENT field_map EMPTY>
 <!ELEMENT rc_commands (set)*>
+<!ELEMENT auto_rc_commands (set)*>
 <!ELEMENT ap_only_commands (copy)*>
 <!ELEMENT command_laws (let|set)*>
 <!ELEMENT section (define|linear)*>

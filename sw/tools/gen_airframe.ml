@@ -169,8 +169,8 @@ let parse_rc_commands = fun rc ->
     "set" ->
       let com = a "command"
       and value = a "value" in
-      let v = preprocess_value value "rc_values" "RADIO" in
-      printf "  commands[COMMAND_%s] = %s;\\\n" com v;
+      let v = preprocess_value value "_rc_array" "RADIO" in
+      printf "  _commands_array[COMMAND_%s] = %s;\\\n" com v;
    | "let" ->
        let var = a "var"
        and value = a "value" in
@@ -179,7 +179,6 @@ let parse_rc_commands = fun rc ->
    | "define" ->
        parse_element "" rc
    | _ -> xml_error "set|let"
-
 
 let parse_ap_only_commands = fun ap_only ->
   let a = fun s -> ExtXml.attrib ap_only s in
@@ -217,7 +216,11 @@ let parse_section = fun s ->
       define "COMMANDS_FAILSAFE" (sprint_float_array (List.map (fun x -> string_of_int x.failsafe_value) (Array.to_list commands_params)));
       nl (); nl ()
   | "rc_commands" ->
-      printf "#define SetCommandsFromRC(commands) { \\\n";
+      printf "#define SetCommandsFromRC(_commands_array, _rc_array) { \\\n";
+      List.iter parse_rc_commands (Xml.children s);
+      printf "}\n\n"
+  | "auto_rc_commands" ->
+      printf "#define SetAutoCommandsFromRC(_commands_array, _rc_array) { \\\n";
       List.iter parse_rc_commands (Xml.children s);
       printf "}\n\n"
   | "ap_only_commands" ->
