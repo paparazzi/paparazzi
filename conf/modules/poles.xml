@@ -1,0 +1,11 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="poles">
+  <header>
+    <file name="nav_poles.h"/>
+  </header>
+  <makefile>
+    <file name="nav_poles.c"/>
+  </makefile>
+</module>
+
