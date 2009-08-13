@@ -297,6 +297,19 @@
     <field name="time" type="uint32" unit="us"></field>
  </message>
 
+ <message name="WINDTURBINE_STATUS_" id="50">
+   <field name="ac_id" type="uint8"/>
+   <field name="tb_id" type="uint8"/>
+   <field name="sync_itow"  type="uint32" unit="ms"/>
+   <field name="cycle_time" type="uint32" unit="ms"/>
+ </message>
+
+  <message name="RC_3CH_" id="51">
+    <field name="throttle_mode" type="uint8" unit="byte_mask"/>
+    <field name="roll"  type="int8"/>
+    <field name="pitch" type="int8"/>
+  </message>
+
   <message name="H_CTL_A" id="60">
     <field name="roll_sum_err" type="float"/>
     <field name="ref_roll_angle" type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.3"/>
@@ -1426,14 +1439,14 @@
    <field name="rtcm" type="uint8[]"/>
  </message>
 
- <message name="WINDTURBINE_STATUS" id="14" link="broadcasted">
+ <message name="WINDTURBINE_STATUS" id="50" link="broadcasted">
    <field name="ac_id" type="uint8"/>
    <field name="tb_id" type="uint8"/>
    <field name="sync_itow"  type="uint32" unit="ms"/>
    <field name="cycle_time" type="uint32" unit="ms"/>
  </message>
 
-  <message name="RC_3CH" id="15" link="broadcasted">
+  <message name="RC_3CH" id="51" link="broadcasted">
     <field name="throttle_mode" type="uint8" unit="byte_mask"/>
     <field name="roll"  type="int8"/>
     <field name="pitch" type="int8"/>
