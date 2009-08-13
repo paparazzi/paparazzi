@@ -32,6 +32,11 @@
 
 #include <stdio.h>
 
+
+#define BAFL_DEBUG
+
+
+
 struct BoozAhrs booz_ahrs;
 
 /* our estimated attitude  (ltp <-> imu)      */
@@ -49,14 +54,20 @@ struct FloatRMat bafl_dcm;
 struct FloatQuat bafl_q_a_err;
 /* estimated attitude errors from mag update   */
 struct FloatQuat bafl_q_m_err;
-/* our estimated gyro bias errors             */
-struct FloatRates bafl_bias_err;
+/* our estimated gyro bias errors from accel update  */
+struct FloatRates bafl_b_a_err;
+/* our estimated gyro bias errors from mag update  */
+struct FloatRates bafl_b_m_err;
 /* temporary quaternion */
 struct FloatQuat bafl_qtemp;
 /* correction quaternion of strapdown computation */
 struct FloatQuat bafl_qr;
 /* norm of attitude quaternion */
 float bafl_qnorm;
+
+/* pseude measured angles for debug */
+float bafl_phi_accel;
+float bafl_theta_accel;
 
 #ifndef BAFL_SSIZE
 #define BAFL_SSIZE 6
@@ -101,7 +112,10 @@ struct FloatVect3 bafl_ym;
  */
 float bafl_H[3][3];
 
-struct FloatVect3 bafl_accel;
+/* low pass of accel measurements */
+struct FloatVect3 bafl_accel_measure;
+struct FloatVect3 bafl_accel_last;
+
 struct FloatVect3 bafl_mag;
 
 /* temporary variables for the strapdown computation */
@@ -109,9 +123,9 @@ float bafl_qom[4][4];
 
 #define BAFL_g 9.81
 
-#define BAFL_hx 236.0
-#define BAFL_hy -2.0
-#define BAFL_hz 396.0
+#define BAFL_hx 1.0
+#define BAFL_hy 0.0
+#define BAFL_hz 1.0
 struct FloatVect3 bafl_h;
 
 /*
@@ -122,8 +136,10 @@ struct FloatVect3 bafl_h;
  * which is 0.08 rad/sec.  The variance is then 0.08^2 ~= 0.0075.
  */
 /* I measured about 0.009 rad/s noise */
-#define BAFL_Q_gyro 8e-03
-#define BAFL_Q_att 0
+#define BAFL_Q_GYRO 1e-04
+#define BAFL_Q_ATT  0
+float bafl_Q_gyro;
+float bafl_Q_att;
 
 /*
  * R is our measurement noise estimate.  Like Q, it is supposed to be
@@ -132,8 +148,8 @@ struct FloatVect3 bafl_h;
  * We only have an expected noise in the pitch and roll accelerometers
  * and in the compass.
  */
-#define BAFL_SIGMA_ACCEL 5.0
-#define BAFL_SIGMA_MAG   300.
+#define BAFL_SIGMA_ACCEL 1000.0
+#define BAFL_SIGMA_MAG   20.
 float bafl_sigma_accel;
 float bafl_sigma_mag;
 float bafl_R_accel;
@@ -149,7 +165,7 @@ float bafl_R_mag;
 	_det =   _mi[0][0] * (_mi[2][2] * _mi[1][1] - _mi[2][1] * _mi[1][2])		\
 	       - _mi[1][0] * (_mi[2][2] * _mi[0][1] - _mi[2][1] * _mi[0][2])		\
 	       + _mi[2][0] * (_mi[1][2] * _mi[0][1] - _mi[1][1]	* _mi[0][2]);		\
-	if (_det > 0.000000001) { 														\
+	if (_det != 0.) { /* ? test for zero? */							\
 		_mo[0][0] = (_mi[1][1] * _mi[2][2] - _mi[1][2] * _mi[2][1]) / _det;		\
 		_mo[0][1] = (_mi[0][2] * _mi[2][1] - _mi[0][1] * _mi[2][2]) / _det;		\
 		_mo[0][2] = (_mi[0][1] * _mi[1][2] - _mi[0][2] * _mi[1][1]) / _det;		\
@@ -163,9 +179,35 @@ float bafl_R_mag;
 		_mo[2][2] = (_mi[0][0] * _mi[1][1] - _mi[0][1] * _mi[1][0]) / _det;		\
 	} else {																	\
 		printf("ERROR! Not invertible!\n");										\
+		for (int _i=0; _i<3; _i++) {											\
+			for (int _j=0; _j<3; _j++) {										\
+				_mo[_i][_j] = 0.0;												\
+			}																	\
+		}																		\
 	}																			\
 }
 
+#define AHRS_TO_BFP() {												\
+	/* IMU rate */													\
+	RATES_BFP_OF_REAL(booz_ahrs.imu_rate, bafl_rates);				\
+	/* LTP to IMU eulers      */									\
+	EULERS_BFP_OF_REAL(booz_ahrs.ltp_to_imu_euler, bafl_eulers);	\
+	/* LTP to IMU quaternion */										\
+	QUAT_BFP_OF_REAL(booz_ahrs.ltp_to_imu_quat, bafl_quat);			\
+	/* LTP to IMU rotation matrix */								\
+	RMAT_BFP_OF_REAL(booz_ahrs.ltp_to_imu_rmat, bafl_dcm);			\
+}
+
+#define AHRS_LTP_TO_BODY() {																				\
+	/* Compute LTP to BODY quaternion */																	\
+	INT32_QUAT_COMP_INV(booz_ahrs.ltp_to_body_quat, booz_ahrs.ltp_to_imu_quat, booz_imu.body_to_imu_quat);	\
+	/* Compute LTP to BODY rotation matrix */																\
+	INT32_RMAT_COMP_INV(booz_ahrs.ltp_to_body_rmat, booz_ahrs.ltp_to_imu_rmat, booz_imu.body_to_imu_rmat);	\
+	/* compute LTP to BODY eulers */																		\
+	INT32_EULERS_OF_RMAT(booz_ahrs.ltp_to_body_euler, booz_ahrs.ltp_to_body_rmat);							\
+	/* compute body rates */																				\
+	INT32_RMAT_TRANSP_RATEMULT(booz_ahrs.body_rate, booz_imu.body_to_imu_rmat, booz_ahrs.imu_rate);			\
+}
 
 
 void booz_ahrs_init(void) {
@@ -174,9 +216,16 @@ void booz_ahrs_init(void) {
 	for (i = 0; i < BAFL_SSIZE; i++) {
 		for (j = 0; j < BAFL_SSIZE; j++) {
 			bafl_T[i][j] = 0.;
+			bafl_P[i][j] = 0.;
 		}
 		/* Insert the diagonal elements of the T-Matrix. These will never change. */
 		bafl_T[i][i] = 1.0;
+		/* initial covariance values */
+		if (i<3) {
+			bafl_P[i][i] = 1.0;
+		} else {
+			bafl_P[i][i] = 0.1;
+		}
 	}
 
 	FLOAT_QUAT_ZERO(bafl_quat);
@@ -192,13 +241,30 @@ void booz_ahrs_init(void) {
 	booz_ahrs_float_lkf_SetRaccel(BAFL_SIGMA_ACCEL);
 	booz_ahrs_float_lkf_SetRmag(BAFL_SIGMA_MAG);
 
+	bafl_Q_att = BAFL_Q_ATT;
+	bafl_Q_gyro = BAFL_Q_GYRO;
+
 	FLOAT_VECT3_ASSIGN(bafl_h, BAFL_hx,BAFL_hy, BAFL_hz);
 
 }
 
 void booz_ahrs_align(void) {
 	RATES_FLOAT_OF_BFP(bafl_bias, booz_ahrs_aligner.lp_gyro);
+	ACCELS_FLOAT_OF_BFP(bafl_accel_measure, booz_ahrs_aligner.lp_accel);
 	booz_ahrs.status = BOOZ_AHRS_RUNNING;
+}
+
+void booz_ahrs_lowpass_accel(void) {
+	// get latest measurement
+	ACCELS_FLOAT_OF_BFP(bafl_accel_last, booz_imu.accel);
+	// low pass it
+	VECT3_ADD(bafl_accel_measure, bafl_accel_last);
+	VECT3_SDIV(bafl_accel_measure, bafl_accel_measure, 2);
+
+#ifdef BAFL_DEBUG
+	bafl_phi_accel = atan2f( -bafl_accel_measure.y, -bafl_accel_measure.z);
+	bafl_theta_accel = atan2f(bafl_accel_measure.x, sqrtf(bafl_accel_measure.y*bafl_accel_measure.y + bafl_accel_measure.z*bafl_accel_measure.z));
+#endif
 }
 
 /*
@@ -221,13 +287,12 @@ void booz_ahrs_align(void) {
 void booz_ahrs_propagate(void) {
 	int i, j, k;
 
+    booz_ahrs_lowpass_accel();
+
 	/* compute unbiased rates */
 	RATES_FLOAT_OF_BFP(bafl_rates, booz_imu.gyro);
 	RATES_SUB(bafl_rates, bafl_bias);
 
-	//for debug:
-	ACCELS_FLOAT_OF_BFP(bafl_accel, booz_imu.accel);
-	MAGS_FLOAT_OF_BFP(bafl_mag, booz_imu.mag);
 
 	/* run strapdown computation
 	 *
@@ -236,7 +301,7 @@ void booz_ahrs_propagate(void) {
 	/* multiplicative quaternion update */
 	/* compute correction quaternion */
 	QUAT_ASSIGN(bafl_qr, 1., bafl_rates.p * BAFL_DT / 2, bafl_rates.q * BAFL_DT / 2, bafl_rates.r * BAFL_DT / 2);
-	/* normalize it */
+	/* normalize it. maybe not necessary?? */
 	float q_sq;
 	q_sq = (bafl_qr.qx * bafl_qr.qx +bafl_qr.qy * bafl_qr.qy + bafl_qr.qz * bafl_qr.qz) / 4;
 	if (q_sq > 1) { /* this should actually never happen */
@@ -249,35 +314,20 @@ void booz_ahrs_propagate(void) {
 	FLOAT_QUAT_COPY(bafl_quat, bafl_qtemp);
 
 	bafl_qnorm = FLOAT_QUAT_NORM(bafl_quat);
-	//TODO check if normalization is good, use lagrange normalization
+	//TODO check if broot force normalization is good, use lagrange normalization?
 	FLOAT_QUAT_NORMALISE(bafl_quat);
 
 
+	/*
+	 *  compute all representations
+	 */
 	/* maintain rotation matrix representation */
 	FLOAT_RMAT_OF_QUAT(bafl_dcm, bafl_quat);
 	/* maintain euler representation */
 	FLOAT_EULERS_OF_RMAT(bafl_eulers, bafl_dcm);
+	AHRS_TO_BFP();
+	AHRS_LTP_TO_BODY();
 
-	/*
-	 *  convert to binary floating point
-	 */
-	/* IMU rate */
-	RATES_BFP_OF_REAL(booz_ahrs.imu_rate, bafl_rates);
-	/* LTP to IMU eulers      */
-	EULERS_BFP_OF_REAL(booz_ahrs.ltp_to_imu_euler, bafl_eulers);
-	/* LTP to IMU quaternion */
-	QUAT_BFP_OF_REAL(booz_ahrs.ltp_to_imu_quat, bafl_quat);
-	/* LTP to IMU rotation matrix */
-	RMAT_BFP_OF_REAL(booz_ahrs.ltp_to_imu_rmat, bafl_dcm);
-
-	/* Compute LTP to BODY quaternion */
-	INT32_QUAT_COMP_INV(booz_ahrs.ltp_to_body_quat, booz_imu.body_to_imu_quat, booz_ahrs.ltp_to_imu_quat);
-	/* Compute LTP to BODY rotation matrix */
-	INT32_RMAT_COMP_INV(booz_ahrs.ltp_to_body_rmat, booz_ahrs.ltp_to_imu_rmat, booz_imu.body_to_imu_rmat);
-	/* compute LTP to BODY eulers */
-	INT32_EULERS_OF_RMAT(booz_ahrs.ltp_to_body_euler, booz_ahrs.ltp_to_body_rmat);
-	/* compute body rates */
-	INT32_RMAT_TRANSP_RATEMULT(booz_ahrs.body_rate, booz_imu.body_to_imu_rmat, booz_ahrs.imu_rate);
 
 	/* error KF-Filter
 	 * propagate only the error covariance matrix since error is corrected after each measurement
@@ -312,17 +362,7 @@ void booz_ahrs_propagate(void) {
 			bafl_T[i][j + 3] = -RMAT_ELMT(bafl_dcm, j, i); /* inverted bafl_dcm */
 		}
 	}
-	/* print T matrix
-	printf("T = ");
-	for (i = 0; i < 6; i++) {
-		printf("[");
-		for (j = 0; j < 6; j++) {
-			printf("%f\t", bafl_T[i][j]);
-		}
-		printf("]\n    ");
-	}
-	printf("\n");
-	*/
+
 
 	/*
 	 * estimate the a priori error covariance matrix P_k = T * P_k-1 * T_T + Q
@@ -337,7 +377,7 @@ void booz_ahrs_propagate(void) {
 		}
 	}
 
-	// P_k(6x6) = temp(6x6) * T_T(6x6) + Q
+	/* P_k(6x6) = temp(6x6) * T_T(6x6) + Q  */
 	for (i = 0; i < BAFL_SSIZE; i++) {
 		for (j = 0; j < BAFL_SSIZE; j++) {
 			bafl_P[i][j] = 0.;
@@ -346,13 +386,13 @@ void booz_ahrs_propagate(void) {
 			}
 		}
 		if (i<3) {
-			bafl_P[i][i] += BAFL_Q_att;
+			bafl_P[i][i] += bafl_Q_att;
 		} else {
-			bafl_P[i][i] += BAFL_Q_gyro;
+			bafl_P[i][i] += bafl_Q_gyro;
 		}
 	}
 
-	/* print P matrix */
+#ifdef LKF_PRINT_P
 	printf("Pp =");
 	for (i = 0; i < 6; i++) {
 		printf("[");
@@ -362,13 +402,16 @@ void booz_ahrs_propagate(void) {
 		printf("]\n    ");
 	}
 	printf("\n");
+#endif
 }
 
 
 void booz_ahrs_update_accel(void) {
 	int i, j, k;
 
-	ACCELS_FLOAT_OF_BFP(bafl_accel, booz_imu.accel);
+#ifdef BAFL_DEBUG2
+	printf("Accel update.\n");
+#endif
 
 	/* P_prio = P */
 	for (i = 0; i < BAFL_SSIZE; i++) {
@@ -395,10 +438,10 @@ void booz_ahrs_update_accel(void) {
 	bafl_H[1][1] =  RMAT_ELMT(bafl_dcm, 1, 0) * BAFL_g;
 	bafl_H[2][0] = -RMAT_ELMT(bafl_dcm, 2, 1) * BAFL_g;
 	bafl_H[2][1] =  RMAT_ELMT(bafl_dcm, 2, 0) * BAFL_g;
-	//rest is zero
+	/* rest is zero
 	bafl_H[0][2] = 0.;
 	bafl_H[1][2] = 0.;
-	bafl_H[2][2] = 0.;
+	bafl_H[2][2] = 0.;*/
 
 	/**********************************************
 	 * compute Kalman gain K
@@ -433,17 +476,6 @@ void booz_ahrs_update_accel(void) {
 		}
 		bafl_S[i][i] += bafl_R_accel;
 	}
-
-
-	/*printf("S = ");
-	for (i = 0; i < 3; i++) {
-		printf("[");
-		for (j = 0; j < 3; j++) {
-			printf("%f\t", bafl_S[i][j]);
-		}
-		printf("]\n    ");
-	}
-	printf("\n");*/
 
 	/* invert S
 	 */
@@ -494,9 +526,9 @@ void booz_ahrs_update_accel(void) {
 	/* innovation
 	 * y = Cnb * -[0; 0; g] - accel
 	 */
-	bafl_ya.x = -RMAT_ELMT(bafl_dcm, 0, 2) * BAFL_g - bafl_accel.x;
-	bafl_ya.y = -RMAT_ELMT(bafl_dcm, 1, 2) * BAFL_g - bafl_accel.y;
-	bafl_ya.z = -RMAT_ELMT(bafl_dcm, 2, 2) * BAFL_g - bafl_accel.z;
+	bafl_ya.x = -RMAT_ELMT(bafl_dcm, 0, 2) * BAFL_g - bafl_accel_measure.x;
+	bafl_ya.y = -RMAT_ELMT(bafl_dcm, 1, 2) * BAFL_g - bafl_accel_measure.y;
+	bafl_ya.z = -RMAT_ELMT(bafl_dcm, 2, 2) * BAFL_g - bafl_accel_measure.z;
 
 	/* X(6) = K(6x3) * y(3)
 	 */
@@ -544,7 +576,8 @@ void booz_ahrs_update_accel(void) {
 		}
 	}
 
-	printf("Pu =");
+#ifdef LKF_PRINT_P
+	printf("Pua=");
 	for (i = 0; i < 6; i++) {
 		printf("[");
 		for (j = 0; j < 6; j++) {
@@ -553,6 +586,7 @@ void booz_ahrs_update_accel(void) {
 		printf("]\n    ");
 	}
 	printf("\n");
+#endif
 
 	/**********************************************
 	 *  Correct errors.
@@ -564,57 +598,47 @@ void booz_ahrs_update_accel(void) {
 	 */
 	QUAT_ASSIGN(bafl_q_a_err, 1.0, bafl_X[0]/2, bafl_X[1]/2, bafl_X[2]/2);
 	FLOAT_QUAT_INVERT(bafl_q_a_err, bafl_q_a_err);
-	/* normalize */
+
+	/* normalize
+	 * Is this needed? Or is the approximation good enough?*/
 	float q_sq;
 	q_sq = bafl_q_a_err.qx * bafl_q_a_err.qx + bafl_q_a_err.qy * bafl_q_a_err.qy + bafl_q_a_err.qz * bafl_q_a_err.qz;
 	if (q_sq > 1) { /* this should actually never happen */
 		FLOAT_QUAT_SMUL(bafl_q_a_err, bafl_q_a_err, 1 / sqrtf(1 + q_sq));
-		printf("Error quaternion q_sq > 1!!\n");
+		printf("Accel error quaternion q_sq > 1!!\n");
 	} else {
 		bafl_q_a_err.qi = sqrtf(1 - q_sq);
 	}
 
 	/*  correct attitude
 	 */
-	FLOAT_QUAT_COMP(bafl_qtemp, bafl_quat, bafl_q_a_err);
+	FLOAT_QUAT_COMP(bafl_qtemp, bafl_q_a_err, bafl_quat);
 	FLOAT_QUAT_COPY(bafl_quat, bafl_qtemp);
 
 
 	/*  correct gyro bias
 	 */
-	RATES_ASSIGN(bafl_bias_err, bafl_X[3], bafl_X[4], bafl_X[5]);
-	RATES_SUB(bafl_bias, bafl_bias_err);
+	RATES_ASSIGN(bafl_b_a_err, bafl_X[3], bafl_X[4], bafl_X[5]);
+	RATES_SUB(bafl_bias, bafl_b_a_err);
 
+	/*
+	 *  compute all representations
+	 */
 	/* maintain rotation matrix representation */
 	FLOAT_RMAT_OF_QUAT(bafl_dcm, bafl_quat);
 	/* maintain euler representation */
 	FLOAT_EULERS_OF_RMAT(bafl_eulers, bafl_dcm);
-
-	/*
-	 *  convert to binary floating point
-	 */
-	/* IMU rate */
-	RATES_BFP_OF_REAL(booz_ahrs.imu_rate, bafl_rates);
-	/* LTP to IMU eulers      */
-	EULERS_BFP_OF_REAL(booz_ahrs.ltp_to_imu_euler, bafl_eulers);
-	/* LTP to IMU quaternion */
-	QUAT_BFP_OF_REAL(booz_ahrs.ltp_to_imu_quat, bafl_quat);
-	/* LTP to IMU rotation matrix */
-	RMAT_BFP_OF_REAL(booz_ahrs.ltp_to_imu_rmat, bafl_dcm);
-
-	/* Compute LTP to BODY quaternion */
-	INT32_QUAT_COMP_INV(booz_ahrs.ltp_to_body_quat, booz_imu.body_to_imu_quat, booz_ahrs.ltp_to_imu_quat);
-	/* Compute LTP to BODY rotation matrix */
-	INT32_RMAT_COMP_INV(booz_ahrs.ltp_to_body_rmat, booz_ahrs.ltp_to_imu_rmat, booz_imu.body_to_imu_rmat);
-	/* compute LTP to BODY eulers */
-	INT32_EULERS_OF_RMAT(booz_ahrs.ltp_to_body_euler, booz_ahrs.ltp_to_body_rmat);
-	/* compute body rates */
-	INT32_RMAT_TRANSP_RATEMULT(booz_ahrs.body_rate, booz_imu.body_to_imu_rmat, booz_ahrs.imu_rate);
+	AHRS_TO_BFP();
+	AHRS_LTP_TO_BODY();
 }
 
 
 void booz_ahrs_update_mag(void) {
 	int i, j, k;
+
+#ifdef BAFL_DEBUG2
+	printf("Mag update.\n");
+#endif
 
 	MAGS_FLOAT_OF_BFP(bafl_mag, booz_imu.mag);
 
@@ -625,10 +649,22 @@ void booz_ahrs_update_mag(void) {
 		}
 	}
 
-	/* set up measurement matrix */
-	bafl_H[0][2] = RMAT_ELMT(bafl_dcm, 0, 0) * bafl_h.y - RMAT_ELMT(bafl_dcm, 0, 1) * bafl_h.x;
+	/*
+	 * set up measurement matrix
+	 *
+	 * h = [236.; -2.; 396.];
+	 * hx = [ h(2); -h(1); 0]; //only psi (phi and theta = 0)
+	 * Hm = Cnb * hx;
+	 * H = [ 0  0        0  0  0
+	 *       0  0 Cnb*hx 0  0  0
+	 *       0  0        0  0  0 ];
+	 * */
+	/*bafl_H[0][2] = RMAT_ELMT(bafl_dcm, 0, 0) * bafl_h.y - RMAT_ELMT(bafl_dcm, 0, 1) * bafl_h.x;
 	bafl_H[1][2] = RMAT_ELMT(bafl_dcm, 1, 0) * bafl_h.y - RMAT_ELMT(bafl_dcm, 1, 1) * bafl_h.x;
-	bafl_H[2][2] = RMAT_ELMT(bafl_dcm, 2, 0) * bafl_h.y - RMAT_ELMT(bafl_dcm, 2, 1) * bafl_h.x;
+	bafl_H[2][2] = RMAT_ELMT(bafl_dcm, 2, 0) * bafl_h.y - RMAT_ELMT(bafl_dcm, 2, 1) * bafl_h.x;*/
+	bafl_H[0][2] = -RMAT_ELMT(bafl_dcm, 0, 1);
+	bafl_H[1][2] = -RMAT_ELMT(bafl_dcm, 1, 1);
+	bafl_H[2][2] = -RMAT_ELMT(bafl_dcm, 2, 1);
 	//rest is zero
 
 	/**********************************************
@@ -668,6 +704,17 @@ void booz_ahrs_update_mag(void) {
 	 */
 	FLOAT_MAT33_INVERT(bafl_invS, bafl_S);
 
+	/* temp_K(6x3) = P_prio(6x6) * HT(6x3)
+	 *
+	 * only third row of HT is non-zero
+	 */
+	for (i = 0; i < BAFL_SSIZE; i++) {
+		for (j = 0; j < 3; j++) {
+			/* not computing zero elements */
+			bafl_tempK[i][j] = bafl_Pprio[i][2] * bafl_H[j][2]; /* H[j][2] = HT[2][j] */
+		}
+	}
+
 	/* K(6x3) = temp_K(6x3) * invS(3x3)
 	 */
 	for (i = 0; i < BAFL_SSIZE; i++) {
@@ -690,7 +737,7 @@ void booz_ahrs_update_mag(void) {
 	/*  innovation
 	 *  y = Cnb * [hx; hy; hz] - mag
 	 */
-	FLOAT_RMAT_VECT3_MUL(bafl_ym, bafl_dcm, bafl_h);
+	FLOAT_RMAT_VECT3_MUL(bafl_ym, bafl_dcm, bafl_h); //can be optimized
 	FLOAT_VECT3_SUB(bafl_ym, bafl_mag);
 
 	/* X(6) = K(6x3) * y(3)
@@ -739,6 +786,18 @@ void booz_ahrs_update_mag(void) {
 		}
 	}
 
+#ifdef LKF_PRINT_P
+	printf("Pum=");
+	for (i = 0; i < 6; i++) {
+		printf("[");
+		for (j = 0; j < 6; j++) {
+			printf("%f\t", bafl_P[i][j]);
+		}
+		printf("]\n    ");
+	}
+	printf("\n");
+#endif
+
 	/**********************************************
 	 *  Correct errors.
 	 *
@@ -754,45 +813,30 @@ void booz_ahrs_update_mag(void) {
 	q_sq = bafl_q_m_err.qx * bafl_q_m_err.qx + bafl_q_m_err.qy * bafl_q_m_err.qy + bafl_q_m_err.qz * bafl_q_m_err.qz;
 	if (q_sq > 1) { /* this should actually never happen */
 		FLOAT_QUAT_SMUL(bafl_q_m_err, bafl_q_m_err, 1 / sqrtf(1 + q_sq));
+		printf("mag error quaternion q_sq > 1!!\n");
 	} else {
 		bafl_q_m_err.qi = sqrtf(1 - q_sq);
 	}
 
 	/*  correct attitude
 	 */
-	FLOAT_QUAT_COMP(bafl_qtemp, bafl_quat, bafl_q_a_err);
+	FLOAT_QUAT_COMP(bafl_qtemp, bafl_q_m_err, bafl_quat);
 	FLOAT_QUAT_COPY(bafl_quat, bafl_qtemp);
 
 	/*  correct gyro bias
 	 */
-	RATES_ASSIGN(bafl_bias_err, bafl_X[3], bafl_X[4], bafl_X[5]);
-	RATES_SUB(bafl_bias, bafl_bias_err);
+	RATES_ASSIGN(bafl_b_m_err, bafl_X[3], bafl_X[4], bafl_X[5]);
+	RATES_SUB(bafl_bias, bafl_b_m_err);
 
+	/*
+	 *  compute all representations
+	 */
 	/* maintain rotation matrix representation */
 	FLOAT_RMAT_OF_QUAT(bafl_dcm, bafl_quat);
 	/* maintain euler representation */
 	FLOAT_EULERS_OF_RMAT(bafl_eulers, bafl_dcm);
-
-	/*
-	 *  convert to binary floating point
-	 */
-	/* IMU rate */
-	RATES_BFP_OF_REAL(booz_ahrs.imu_rate, bafl_rates);
-	/* LTP to IMU eulers      */
-	EULERS_BFP_OF_REAL(booz_ahrs.ltp_to_imu_euler, bafl_eulers);
-	/* LTP to IMU quaternion */
-	QUAT_BFP_OF_REAL(booz_ahrs.ltp_to_imu_quat, bafl_quat);
-	/* LTP to IMU rotation matrix */
-	RMAT_BFP_OF_REAL(booz_ahrs.ltp_to_imu_rmat, bafl_dcm);
-
-	/* Compute LTP to BODY quaternion */
-	INT32_QUAT_COMP_INV(booz_ahrs.ltp_to_body_quat, booz_imu.body_to_imu_quat, booz_ahrs.ltp_to_imu_quat);
-	/* Compute LTP to BODY rotation matrix */
-	INT32_RMAT_COMP_INV(booz_ahrs.ltp_to_body_rmat, booz_ahrs.ltp_to_imu_rmat, booz_imu.body_to_imu_rmat);
-	/* compute LTP to BODY eulers */
-	INT32_EULERS_OF_RMAT(booz_ahrs.ltp_to_body_euler, booz_ahrs.ltp_to_body_rmat);
-	/* compute body rates */
-	INT32_RMAT_TRANSP_RATEMULT(booz_ahrs.body_rate, booz_imu.body_to_imu_rmat, booz_ahrs.imu_rate);
+	AHRS_TO_BFP();
+	AHRS_LTP_TO_BODY();
 }
 
 void booz_ahrs_update(void) {

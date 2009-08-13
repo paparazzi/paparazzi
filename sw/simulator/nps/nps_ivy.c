@@ -9,6 +9,8 @@
 #include "nps_autopilot.h"
 #include "nps_fdm.h"
 
+#include NPS_SENSORS_PARAMS
+
 static void on_DL_SETTING(IvyClientPtr app __attribute__ ((unused)),
 			  void *user_data __attribute__ ((unused)),
 			  int argc __attribute__ ((unused)), char *argv[]);
@@ -68,4 +70,17 @@ void nps_ivy_display(void) {
          DegOfRad(RATE_FLOAT_OF_BFP(sensors.gyro.bias_random_walk_value.x)+sensors.gyro.bias_initial.x),
          DegOfRad(RATE_FLOAT_OF_BFP(sensors.gyro.bias_random_walk_value.y)+sensors.gyro.bias_initial.y),
          DegOfRad(RATE_FLOAT_OF_BFP(sensors.gyro.bias_random_walk_value.z)+sensors.gyro.bias_initial.z));
+
+  /* transform magnetic field to body frame */
+  struct DoubleVect3 h_body;
+  FLOAT_QUAT_VMULT(h_body, fdm.ltp_to_body_quat, fdm.ltp_h);
+
+  IvySendMsg("%d BOOZ_SIM_SENSORS_SCALED %f %f %f %f %f %f",
+         AC_ID,
+         ((sensors.accel.value.x - sensors.accel.neutral.x)/NPS_ACCEL_SENSITIVITY_XX),
+         ((sensors.accel.value.y - sensors.accel.neutral.y)/NPS_ACCEL_SENSITIVITY_YY),
+         ((sensors.accel.value.z - sensors.accel.neutral.z)/NPS_ACCEL_SENSITIVITY_ZZ),
+         h_body.x,
+         h_body.y,
+         h_body.z);
 }

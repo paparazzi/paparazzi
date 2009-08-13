@@ -306,9 +306,9 @@
                    &bafl_rates.p,       \
                    &bafl_rates.q,       \
                    &bafl_rates.r,       \
-                   &bafl_accel.x,       \
-                   &bafl_accel.y,       \
-                   &bafl_accel.z,       \
+                   &bafl_accel_measure.x,       \
+                   &bafl_accel_measure.y,       \
+                   &bafl_accel_measure.z,       \
                    &bafl_mag.x,         \
                    &bafl_mag.y,         \
                    &bafl_mag.z);         \
@@ -317,17 +317,12 @@
     DOWNLINK_SEND_BOOZ_AHRS_LKF_DEBUG(&bafl_X[0],          \
                    &bafl_X[1],          \
                    &bafl_X[2],          \
-                   &bafl_q_a_err.qi,   \
-                   &bafl_q_a_err.qx,   \
-                   &bafl_q_a_err.qy,   \
-                   &bafl_q_a_err.qz,   \
                    &bafl_bias.p,        \
                    &bafl_bias.q,        \
                    &bafl_bias.r,       \
-                   &bafl_bias_err.p,    \
-                   &bafl_bias_err.q,    \
-                   &bafl_bias_err.r,    \
                    &bafl_qnorm,			\
+                   &bafl_phi_accel,		\
+                   &bafl_theta_accel,	\
                    &bafl_P[0][0],       \
                    &bafl_P[1][1],       \
                    &bafl_P[2][2],       \
@@ -335,9 +330,29 @@
                    &bafl_P[4][4],       \
                    &bafl_P[5][5]);      \
   }
+#define PERIODIC_SEND_BOOZ_AHRS_LKF_ACC_DBG() {                 \
+    DOWNLINK_SEND_BOOZ_AHRS_LKF_ACC_DBG(&bafl_q_a_err.qi,   \
+                   &bafl_q_a_err.qx,   \
+                   &bafl_q_a_err.qy,   \
+                   &bafl_q_a_err.qz,   \
+                   &bafl_b_a_err.p,    \
+                   &bafl_b_a_err.q,    \
+                   &bafl_b_a_err.r);   \
+  }
+#define PERIODIC_SEND_BOOZ_AHRS_LKF_MAG_DBG() {                 \
+    DOWNLINK_SEND_BOOZ_AHRS_LKF_MAG_DBG(&bafl_q_m_err.qi,   \
+                   &bafl_q_m_err.qx,   \
+                   &bafl_q_m_err.qy,   \
+                   &bafl_q_m_err.qz,   \
+                   &bafl_b_m_err.p,    \
+                   &bafl_b_m_err.q,    \
+                   &bafl_b_m_err.r);   \
+  }
 #else
 #define PERIODIC_SEND_BOOZ_AHRS_LKF() {}
 #define PERIODIC_SEND_BOOZ_AHRS_LKF_DEBUG() {}
+#define PERIODIC_SEND_BOOZ_AHRS_LKF_MAG_DBG() {}
+#define PERIODIC_SEND_BOOZ_AHRS_LKF_ACC_DBG() {}
 #endif
 
 

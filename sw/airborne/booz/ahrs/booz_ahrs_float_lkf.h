@@ -37,9 +37,12 @@ extern struct FloatRMat   bafl_dcm;
 
 extern struct FloatQuat   bafl_q_a_err;
 extern struct FloatQuat   bafl_q_m_err;
-extern struct FloatRates  bafl_bias_err;
+extern struct FloatRates  bafl_b_a_err;
+extern struct FloatRates  bafl_b_m_err;
 extern float bafl_qnorm;
-extern struct FloatVect3  bafl_accel;
+extern float bafl_phi_accel;
+extern float bafl_theta_accel;
+extern struct FloatVect3  bafl_accel_measure;
 extern struct FloatVect3  bafl_mag;
 
 #define BAFL_SSIZE 6
@@ -50,6 +53,9 @@ extern float bafl_sigma_accel;
 extern float bafl_sigma_mag;
 extern float bafl_R_accel;
 extern float bafl_R_mag;
+
+extern float bafl_Q_att;
+extern float bafl_Q_gyro;
 
 
 #define booz_ahrs_float_lkf_SetRaccel(_v) { \

@@ -1292,23 +1292,47 @@
       <field name="phi_err"   type="float" unit="rad"   alt_unit="degres"   alt_unit_coef="57.29578" />
       <field name="theta_err" type="float" unit="rad"   alt_unit="degres"   alt_unit_coef="57.29578" />
       <field name="psi_err"   type="float" unit="rad"   alt_unit="degres"   alt_unit_coef="57.29578" />
-      <field name="qi_err"    type="float" />
-      <field name="qx_err"    type="float" alt_unit="degres"   alt_unit_coef="-114.59156" />
-      <field name="qy_err"    type="float" alt_unit="degres"   alt_unit_coef="-114.59156" />
-      <field name="qz_err"    type="float" alt_unit="degres"   alt_unit_coef="-114.59156" />
       <field name="bp"        type="float" unit="rad/s" alt_unit="degres/s" alt_unit_coef="57.29578" />
       <field name="bq"        type="float" unit="rad/s" alt_unit="degres/s" alt_unit_coef="57.29578" />
       <field name="br"        type="float" unit="rad/s" alt_unit="degres/s" alt_unit_coef="57.29578" />
-      <field name="bp_err"    type="float" unit="rad/s" alt_unit="degres/s" alt_unit_coef="57.29578" />
-      <field name="bq_err"    type="float" unit="rad/s" alt_unit="degres/s" alt_unit_coef="57.29578" />
-      <field name="br_err"    type="float" unit="rad/s" alt_unit="degres/s" alt_unit_coef="57.29578" />
       <field name="quat_norm" type="float" />
+      <field name="phi_accel" type="float" unit="rad"   alt_unit="degres"   alt_unit_coef="57.29578" />
+      <field name="theta_accel" type="float" unit="rad"   alt_unit="degres"   alt_unit_coef="57.29578" />
       <field name="phi_cov"   type="float" />
       <field name="theta_cov" type="float" />
       <field name="psi_cov"   type="float" />
       <field name="bp_cov"    type="float" />
       <field name="bq_cov"    type="float" />
       <field name="br_cov"    type="float" />
+    </message>
+    
+    <message name="BOOZ_AHRS_LKF_ACC_DBG" id="195">
+      <field name="qi_err"    type="float" />
+      <field name="qx_err"    type="float" />
+      <field name="qy_err"    type="float" />
+      <field name="qz_err"    type="float" />
+      <field name="bp_err"    type="float" unit="rad/s" alt_unit="degres/s" alt_unit_coef="57.29578" />
+      <field name="bq_err"    type="float" unit="rad/s" alt_unit="degres/s" alt_unit_coef="57.29578" />
+      <field name="br_err"    type="float" unit="rad/s" alt_unit="degres/s" alt_unit_coef="57.29578" />
+    </message>
+    
+    <message name="BOOZ_AHRS_LKF_MAG_DBG" id="196">
+      <field name="qi_err"    type="float" />
+      <field name="qx_err"    type="float" />
+      <field name="qy_err"    type="float" />
+      <field name="qz_err"    type="float" />
+      <field name="bp_err"    type="float" unit="rad/s" alt_unit="degres/s" alt_unit_coef="57.29578" />
+      <field name="bq_err"    type="float" unit="rad/s" alt_unit="degres/s" alt_unit_coef="57.29578" />
+      <field name="br_err"    type="float" unit="rad/s" alt_unit="degres/s" alt_unit_coef="57.29578" />
+    </message>
+    
+    <message name="BOOZ_SIM_SENSORS_SCALED" id="197">
+      <field name="acc_x"    type="float" />
+      <field name="acc_y"    type="float" />
+      <field name="acc_z"    type="float" />
+      <field name="mag_x"    type="float" />
+      <field name="mag_y"    type="float" />
+      <field name="mag_z"    type="float" />
     </message>
 
 </class>
