@@ -420,17 +420,21 @@ module MessagesOfXml(Class:CLASS_Xml) = struct
 
   let values_of_payload = fun buffer ->
     let buffer = Serial.string_of_payload buffer in
-    let id = Char.code buffer.[offset_msg_id] in
-    let ac_id = Char.code buffer.[offset_ac_id] in
-    let message = message_of_id id in
-    Debug.call 'T' (fun f -> fprintf f "Pprz.values id=%d\n" id);
-    let rec loop = fun index fields ->
-      match fields with
-	[] -> []
-      | (field_name, field_descr)::fs -> 
-	  let (value, n) = value_field buffer index field_descr in
-	  (field_name, value) :: loop (index+n) fs in
-    (id, ac_id, loop offset_fields message.fields)
+    try
+      let id = Char.code buffer.[offset_msg_id] in
+      let ac_id = Char.code buffer.[offset_ac_id] in
+      let message = message_of_id id in
+      Debug.call 'T' (fun f -> fprintf f "Pprz.values id=%d\n" id);
+      let rec loop = fun index fields ->
+	match fields with
+	  [] -> []
+	| (field_name, field_descr)::fs -> 
+	    let (value, n) = value_field buffer index field_descr in
+	    (field_name, value) :: loop (index+n) fs in
+      (id, ac_id, loop offset_fields message.fields)
+    with
+      Invalid_argument("index out of bounds") ->
+	failwith (sprintf "Pprz.values_of_payload, wrong argument: %s" (Debug.xprint buffer))
 
 
   let payload_of_values = fun id ac_id values ->
