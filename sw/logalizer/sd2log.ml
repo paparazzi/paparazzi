@@ -32,6 +32,7 @@ let conf_xml = Xml.parse_file (Env.paparazzi_home // "conf" // "conf.xml")
 
 
 module Tm_Pprz = Pprz.Messages (struct let name = "telemetry" end)
+module Dl_Pprz = Pprz.Messages (struct let name = "datalink" end)
 
 module Parser = Serial.Transport(Logpprz.Transport)
 
@@ -67,7 +68,13 @@ let expand_ac_xml = fun ac_conf ->
 
 let log_xml = fun ac_id timeofday data_file ->
   let select = fun x -> ExtXml.int_attrib x "ac_id" = ac_id in
-  let conf_ac = ExtXml.child ~select conf_xml "aircraft" in
+  let conf_ac =
+    try
+      ExtXml.child ~select conf_xml "aircraft"
+    with
+      Not_found ->
+	failwith (sprintf "Error: A/C %d not found in conf.xml" ac_id)
+  in
   let expanded_conf_ac = expand_ac_xml conf_ac in
   let expanded_conf =
     make_element (Xml.tag conf_xml) (Xml.attribs conf_xml) [expanded_conf_ac] in
@@ -75,6 +82,26 @@ let log_xml = fun ac_id timeofday data_file ->
     "configuration"
     ["time_of_day", string_of_float timeofday; "data_file", data_file]
     [expanded_conf; Pprz.messages_xml ()]
+
+(* AWFUL : modules should be replaced by objects in pprz.ml
+   ... or/and "datalink" and "telemetry" classes should be merged *)
+let values_of_payload = fun log_msg ->
+  match log_msg.Logpprz.source with
+    0 -> Tm_Pprz.values_of_payload
+  | 1 -> Dl_Pprz.values_of_payload
+  | x -> failwith (sprintf "Unexpected source:%d in log msg" x)
+
+let message_of_id = fun log_msg ->
+  match log_msg.Logpprz.source with
+    0 -> Tm_Pprz.message_of_id
+  | 1 -> Dl_Pprz.message_of_id
+  | x -> failwith (sprintf "Unexpected source:%d in log msg" x)
+
+let string_of_message = fun log_msg ->
+  match log_msg.Logpprz.source with
+    0 -> Tm_Pprz.string_of_message
+  | 1 -> Dl_Pprz.string_of_message
+  | x -> failwith (sprintf "Unexpected source:%d in log msg" x)
 
 
   
@@ -89,21 +116,21 @@ let convert_file = fun file ->
 
   let use_payload = fun payload ->
     let log_msg = Logpprz.parse payload in
-    let (msg_id, ac_id, vs) = 
-      Tm_Pprz.values_of_payload log_msg.Logpprz.pprz_data in
+    let (msg_id, ac_id, vs) = values_of_payload log_msg log_msg.Logpprz.pprz_data in
 
-    if !single_ac_id < 0 then
+    if log_msg.Logpprz.source = 0 && !single_ac_id < 0 then
       single_ac_id := ac_id;
 
-    if ac_id <> !single_ac_id then
-      fprintf stderr "Disarding message with ac_id %d, previous one was %d\n%!" ac_id !single_ac_id
+    if ac_id <> !single_ac_id && log_msg.Logpprz.source = 0 then
+      fprintf stderr "Discarding message with ac_id %d, previous one was %d\n%!" ac_id !single_ac_id
     else
-      let msg_descr = Tm_Pprz.message_of_id msg_id in
+      let msg_descr = message_of_id log_msg msg_id in
       let timestamp = Int32.to_float log_msg.Logpprz.timestamp /. 1e4 in
-      fprintf f_out "%.3f %d %s\n" timestamp ac_id (Tm_Pprz.string_of_message msg_descr vs);
+      fprintf f_out "%.3f %d %s\n" timestamp ac_id (string_of_message log_msg msg_descr vs);
       
       (** Looking for a date from a GPS message *)
       if !start_unix_time = None
+	  && log_msg.Logpprz.source = 0
 	  && msg_descr.Pprz.name = "GPS"
 	  && Pprz.int_assoc "mode" vs = 3 then
 	let itow = Pprz.int_assoc "itow" vs / 1000
@@ -124,6 +151,8 @@ let convert_file = fun file ->
       close_in f_in;
       close_out f_out;
 
+      prerr_endline "Renaming produced file ...";
+
       (* Rename the file according to the GPS time *)
       let start_time =
 	match !start_unix_time with
@@ -141,11 +170,14 @@ let convert_file = fun file ->
       run_command com;
       fprintf stderr "%s file produced\n%!" data_name;
 
-      (** Save the corresponding .log fie *)
-      let f = open_out (logs_path // log_name) in
-      output_string f (Xml.to_string_fmt (log_xml !single_ac_id start_time data_name));
-      close_out f;
-      fprintf stderr "%s file produced\n%!" log_name;
+      (** Save the corresponding .log file *)
+      if !single_ac_id >= 0 then
+	let f = open_out (logs_path // log_name) in
+	output_string f (Xml.to_string_fmt (log_xml !single_ac_id start_time data_name));
+	close_out f;
+	fprintf stderr "%s file produced\n%!" log_name
+      else
+	fprintf stderr "No telemetry message found: no .log produced\n";
 
       (** Save the original binary file *)
       let com = sprintf "cp %s %s" file (logs_path // tlm_name) in
