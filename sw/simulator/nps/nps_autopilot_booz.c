@@ -1,4 +1,4 @@
-#include "nps_autopilot.h"
+#include "nps_autopilot_booz.h"
 
 #include "booz2_main.h"
 #include "nps_sensors.h"
@@ -9,19 +9,18 @@
 
 #include "actuators.h"
 
-#define BYPASS_AHRS
 
 struct NpsAutopilot autopilot;
+bool_t nps_bypass_ahrs;
 
-#ifdef BYPASS_AHRS
 static void sim_overwrite_ahrs(void);
-#endif
 
 
 void nps_autopilot_init(enum NpsRadioControlType type_rc, int num_rc_script, char* rc_dev) {
 
   nps_radio_control_init(type_rc, num_rc_script, rc_dev);
-  
+  nps_bypass_ahrs = TRUE;
+
   booz2_main_init();
 
 }
@@ -30,7 +29,7 @@ void nps_autopilot_init(enum NpsRadioControlType type_rc, int num_rc_script, cha
 #include "booz2_gps.h"
 
 void nps_autopilot_run_step(double time __attribute__ ((unused))) {
-  
+
   if (nps_radio_control_available(time)) {
     booz_radio_control_feed();
     booz2_main_event();
@@ -50,9 +49,11 @@ void nps_autopilot_run_step(double time __attribute__ ((unused))) {
     Booz2BaroISRHandler(sensors.baro.value);
     booz2_main_event();
   }
-#ifdef BYPASS_AHRS
-  sim_overwrite_ahrs();
-#endif /* BYPASS_AHRS */
+
+  if (nps_bypass_ahrs) {
+    sim_overwrite_ahrs();
+  }
+
 
   if (nps_sensors_gps_available()) {
     booz_gps_feed_value();
@@ -88,11 +89,10 @@ void nps_autopilot_run_step(double time __attribute__ ((unused))) {
     autopilot.commands[SERVO_LEFT]  = (double)ut_left  / SUPERVISION_MAX_MOTOR;
   }
   //  printf("%f %f %f %f\n", autopilot.commands[SERVO_FRONT], autopilot.commands[SERVO_BACK],
-  //	 autopilot.commands[SERVO_RIGHT], autopilot.commands[SERVO_LEFT]);	 
+  //	 autopilot.commands[SERVO_RIGHT], autopilot.commands[SERVO_LEFT]);
 
 }
 
-#ifdef BYPASS_AHRS
 #include "nps_fdm.h"
 #include "math/pprz_algebra_int.h"
 #include "booz_ahrs.h"
@@ -117,5 +117,4 @@ static void sim_overwrite_ahrs(void) {
   booz_ahrs.body_rate.r = RATE_BFP_OF_REAL(fdm.body_ecef_rotvel.r);
 
 }
-#endif /* BYPASS_AHRS */
 
