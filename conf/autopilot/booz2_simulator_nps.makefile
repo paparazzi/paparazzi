@@ -93,6 +93,8 @@ sim.srcs += $(SRC_BOOZ)/booz2_autopilot.c
 # include $(CFG_BOOZ)/subsystems/booz2_ahrs_cmpl.makefile 
 #
 
+sim.srcs += $(SRC_BOOZ)/booz_ahrs.c
+
 sim.srcs += $(SRC_BOOZ)/booz_stabilization.c
 sim.srcs += $(SRC_BOOZ)/stabilization/booz_stabilization_rate.c
 

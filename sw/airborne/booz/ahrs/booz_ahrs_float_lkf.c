@@ -37,8 +37,6 @@
 
 
 
-struct BoozAhrs booz_ahrs;
-
 /* our estimated attitude  (ltp <-> imu)      */
 struct FloatQuat bafl_quat;
 /* our estimated gyro biases                  */
