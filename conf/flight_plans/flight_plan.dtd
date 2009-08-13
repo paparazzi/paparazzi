@@ -17,14 +17,14 @@
 <!ELEMENT exceptions (exception*)>
 
 <!ELEMENT blocks (block+)>
-<!ELEMENT block (exception|while|heading|attitude|go|xyz|set|call|circle|deroute|stay|follow|survey_rectangle|for|return|eight|oval|home)*>
+<!ELEMENT block (exception|while|heading|attitude|go|xyz|set|call|circle|deroute|stay|follow|survey_rectangle|for|return|eight|oval|home|path)*>
 
 <!ELEMENT include (arg|with)*>
 <!ELEMENT arg EMPTY>
 <!ELEMENT with EMPTY>
 
-<!ELEMENT while (exception|while|heading|attitude|go|xyz|set|call|circle|deroute|stay|follow|survey_rectangle|for|return|eight|oval)*>
-<!ELEMENT for (exception|while|heading|attitude|go|xyz|set|call|circle|deroute|stay|follow|survey_rectangle|for|return|eight|oval)*>
+<!ELEMENT while (exception|while|heading|attitude|go|xyz|set|call|circle|deroute|stay|follow|survey_rectangle|for|return|eight|oval|path)*>
+<!ELEMENT for (exception|while|heading|attitude|go|xyz|set|call|circle|deroute|stay|follow|survey_rectangle|for|return|eight|oval|path)*>
 <!ELEMENT exception EMPTY>
 <!ELEMENT heading EMPTY>
 <!ELEMENT attitude EMPTY>
@@ -42,6 +42,7 @@
 <!ELEMENT follow EMPTY>
 <!ELEMENT param EMPTY>
 <!ELEMENT return EMPTY>
+<!ELEMENT path EMPTY>
 
 
 <!ATTLIST flight_plan
@@ -123,6 +124,15 @@ from CDATA #IMPLIED
 from_qdr CDATA #IMPLIED
 from_dist CDATA #IMPLIED
 hmode CDATA #IMPLIED
+vmode CDATA #IMPLIED
+pitch CDATA #IMPLIED
+alt CDATA #IMPLIED
+approaching_time CDATA #IMPLIED
+throttle CDATA #IMPLIED
+climb CDATA #IMPLIED>
+
+<!ATTLIST path
+wpts CDATA #REQUIRED
 vmode CDATA #IMPLIED
 pitch CDATA #IMPLIED
 alt CDATA #IMPLIED

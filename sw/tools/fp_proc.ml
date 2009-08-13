@@ -415,68 +415,23 @@ let process_relative_waypoints = fun xml ->
   replace_children xml ["waypoints", new_waypoints; "blocks", blocks]
 
 
-
-(** Path preprocessing: a list of waypoints is translated into an alternance of
-  route and circle stages *)
-let compile_path = fun wpts default_radius last_last last ps rest ->
-  let rec loop = fun p0 last ps ->
-    match ps with
-      [] -> rest
-    | p::ps ->
-	let wp = Xml.attrib p "wp" in
-	let p1 = g2D_of_wp_name last wpts
-	and p2 = g2D_of_wp_name wp wpts in
-	let radius = try ExtXml.float_attrib p "radius" with _ -> default_radius in
-	let (c, f, s) = G2D.arc_segment p0 p1 p2 radius in
-	  
-	(* Angle between P1 and F *)
-	let alpha_cf = (G2D.cart2polar (G2D.vect_make c f)).G2D.theta2D in
-	let alpha_c1 = (G2D.cart2polar (G2D.vect_make c p1)).G2D.theta2D in
-	let alpha_fc1 = norm_2pi (-. s *. (alpha_c1 -. alpha_cf)) in
-
-	let theta = abs_float (alpha_fc1) /. 2. /. pi in
-
-	(* C relative to P1, F relative to P2 *)
-	let alpha_1c = (G2D.cart2polar (G2D.vect_make p1 c)).G2D.theta2D
-	and alpha_2f = (G2D.cart2polar (G2D.vect_make p2 f)).G2D.theta2D
-	and d_f2 = G2D.distance f p2 in
-	let c_last_qdr= norm_2pi (pi /. 2. -. alpha_1c)
-	and f_wp_qdr= norm_2pi (pi /. 2. -. alpha_2f) in
-	let until = Printf.sprintf "(circle_count > %f)" theta in
-	let sradius = string_of_float (-. s *. radius) in
-
-	Xml.Element ("circle", ["wp", last;
-				"wp_qdr", string_of_float ((Rad>>Deg)c_last_qdr);
-				"wp_dist", string_of_float radius;
-		                "radius", sradius;
-				"until", until],[])::
-	Xml.Element ("go", ["from",wp; 
-			    "from_qdr", string_of_float ((Rad>>Deg)f_wp_qdr); 
-			    "from_dist", string_of_float d_f2;
-			    "hmode", "route";
-			    "approaching_time", "2";
-			    "wp", wp], [])::
-	loop f wp ps in
-  loop last_last last ps;;
+let regexp_path = Str.regexp "[ \t,]+"
   
 
 let stage_process_path = fun wpts stage rest ->
   if Xml.tag stage = "path" then
-    let radius = float_of_string (ExtXml.attrib stage "radius") in
-    match Xml.children stage with
-      [] -> nop_stage::rest
-    | [p] -> (* Just go to this single point *)
-	Xml.Element("go", ["wp", Xml.attrib p "wp"], [])::rest
-    | p1::p2::ps -> 
-        (* Start from a route from the first to the second point *)
-	let wp1 = Xml.attrib p1 "wp"
-	and wp2 = Xml.attrib p2 "wp" in
+    let waypoints = Str.split regexp_path (ExtXml.attrib stage "wpts") in
+    let attribs = Xml.attribs stage in
+    let rec loop = function
+      [] -> failwith "Waypoint expected in path stage"
+    | [wp] -> (* Just go to this single point *)
+	Xml.Element("go", ("wp", wp)::attribs, [])::rest
+    | wp1::wp2::ps -> 
 	Xml.Element("go", ["from", wp1;
 			   "hmode","route";
-			   "wp", wp2], [])::
-	(* Here starts the actual translation *)
-	let p1 = g2D_of_wp_name wp1 wpts in
-	compile_path wpts radius p1 wp2 ps rest
+			   "wp", wp2]@attribs, [])::
+	if ps = [] then rest else loop (wp2::ps) in
+    loop waypoints
   else
     stage::rest
 
