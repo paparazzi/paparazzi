@@ -31,6 +31,8 @@ let (//) = Filename.concat
 
 let gcs = Env.paparazzi_src // "sw/ground_segment/cockpit/gcs"
 
+let regexp_space = Str.regexp "[ ]+"
+
 let string_of_gdkcolor = fun c ->
   sprintf "#%2x%2x%2x" (Gdk.Color.red c) (Gdk.Color.green c) (Gdk.Color.blue c)
 
@@ -86,7 +88,7 @@ let editor =
   try Sys.getenv "EDITOR" with _ -> "gedit"
 
 let edit = fun file ->
-  ignore (Sys.command (sprintf "%s '%s'&" editor file))
+  ignore (Sys.command (sprintf "%s %s&" editor file))
 
 
 let gcs_or_edit = fun file ->
@@ -217,7 +219,11 @@ let ac_combo_handler = fun gui (ac_combo:Gtk_tools.combo) target_combo ->
   (* Conf *)
   List.iter (fun (name, label, button_browse, button_edit, editor, multiple) ->
     let callback = fun _ ->
-      editor (Utils.conf_dir // label#text) in
+      let rel_files = Str.split regexp_space label#text in
+      let abs_files = List.map (Filename.concat Utils.conf_dir) rel_files in
+      let quoted_files = List.map (fun s -> "'"^s^"'") abs_files in
+      let arg = String.concat " " quoted_files in
+      editor arg in
     ignore (button_edit#connect#clicked ~callback);
     let callback = fun _ ->
       let subdir = Filename.dirname (first_word label#text) in
