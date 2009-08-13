@@ -132,7 +132,8 @@ let convert_file = fun file ->
       if !start_unix_time = None
 	  && log_msg.Logpprz.source = 0
 	  && msg_descr.Pprz.name = "GPS"
-	  && Pprz.int_assoc "mode" vs = 3 then
+	  && ( Pprz.int_assoc "mode" vs = 3 
+	     || Pprz.int_assoc "week" vs > 0)  then
 	let itow = Pprz.int_assoc "itow" vs / 1000
 	and week = Pprz.int_assoc "week" vs in
 	let unix_time = Latlong.unix_time_of_tow ~week itow in
@@ -154,13 +155,15 @@ let convert_file = fun file ->
       prerr_endline "Renaming produced file ...";
 
       (* Rename the file according to the GPS time *)
-      let start_time =
+      let start_time, mark =
 	match !start_unix_time with
-	  None -> U.gettimeofday () (* Not found, use now *)
-	| Some u -> u in
+	  None -> 
+	    fprintf stderr "Warning: not time found in GPS messages; using current date\n";
+	    U.gettimeofday (), "_no_GPS" (* Not found, use now *)
+	| Some u -> u, "" in
 
       let d = U.localtime start_time in
-      let basename = sprintf "%02d_%02d_%02d__%02d_%02d_%02d_SD" (d.U.tm_year mod 100) (d.U.tm_mon+1) (d.U.tm_mday) (d.U.tm_hour) (d.U.tm_min) (d.U.tm_sec) in
+      let basename = sprintf "%02d_%02d_%02d__%02d_%02d_%02d_SD%s" (d.U.tm_year mod 100) (d.U.tm_mon+1) (d.U.tm_mday) (d.U.tm_hour) (d.U.tm_min) (d.U.tm_sec) mark in
       let data_name = sprintf "%s.data" basename
       and log_name = sprintf "%s.log" basename
       and tlm_name = sprintf "%s.tlm" basename in
