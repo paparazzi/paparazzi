@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  */
 
@@ -34,7 +34,7 @@
 #include "string.h"
 #include "booz_radio_control.h"
 #include "mercury_supervision.h"
-#include "actuators.h" 
+#include "actuators.h"
 #include "props_csc.h"
 #include "csc_booz2_guidance_v.h"
 
@@ -48,7 +48,6 @@ uint8_t booz2_autopilot_mode;
 uint8_t booz2_autopilot_mode_auto2;
 bool_t  booz2_autopilot_motors_on;
 bool_t  booz2_autopilot_in_flight;
-uint8_t booz2_autopilot_tol;
 uint32_t booz2_autopilot_motors_on_counter;
 uint32_t booz2_autopilot_in_flight_counter;
 
@@ -71,7 +70,6 @@ void csc_ap_init(void) {
   booz2_autopilot_motors_on_counter = 0;
   booz2_autopilot_in_flight_counter = 0;
   booz2_autopilot_mode_auto2 = BOOZ2_MODE_AUTO2;
-  booz2_autopilot_tol = 0;
 
   props_throttle_pass = 0;
   for(uint8_t i = 0; i < PROPS_NB; i++){
@@ -153,14 +151,14 @@ void csc_ap_periodic(uint8_t _in_flight, uint8_t kill) {
   booz_stabilization_attitude_read_rc(booz2_autopilot_in_flight);
   booz_stabilization_attitude_run(booz2_autopilot_in_flight);
   booz2_guidance_v_run(booz2_autopilot_in_flight);
-  
+
   booz_stabilization_cmd[COMMAND_THRUST] = (int32_t)radio_control.values[RADIO_CONTROL_THROTTLE] * 105 / 7200 + 95;
- 
-  
+
+
   CscSetCommands(booz_stabilization_cmd,
 		 booz2_autopilot_in_flight,booz2_autopilot_motors_on);
-    
-    
+
+
   BOOZ2_SUPERVISION_RUN(mixed_commands, commands, booz2_autopilot_motors_on);
 
 
@@ -168,7 +166,7 @@ void csc_ap_periodic(uint8_t _in_flight, uint8_t kill) {
     Bound(booz_stabilization_cmd[COMMAND_THRUST],0,255);
     for(uint8_t i = 0; i < PROPS_NB; i++)
       mixed_commands[i] = booz_stabilization_cmd[COMMAND_THRUST];
-    
+
   }
 
   for(uint8_t i = 0; i < PROPS_NB; i++){
@@ -179,13 +177,13 @@ void csc_ap_periodic(uint8_t _in_flight, uint8_t kill) {
   }
 
   props_commit();
-  
-  
+
+
   MERCURY_SURFACES_SUPERVISION_RUN(Actuator,
 				   booz_stabilization_cmd,
 				   mixed_commands,
 				   (!booz2_autopilot_in_flight));
   ActuatorsCommit();
-    
+
   SendCscFromActuators();
 }

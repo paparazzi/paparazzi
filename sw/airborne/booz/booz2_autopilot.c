@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
  *
  * This file is part of paparazzi.
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  */
 
@@ -34,7 +34,6 @@ uint8_t booz2_autopilot_mode;
 uint8_t booz2_autopilot_mode_auto2;
 bool_t  booz2_autopilot_motors_on;
 bool_t  booz2_autopilot_in_flight;
-uint8_t booz2_autopilot_tol;
 uint32_t booz2_autopilot_motors_on_counter;
 uint32_t booz2_autopilot_in_flight_counter;
 bool_t kill_throttle;
@@ -54,7 +53,6 @@ void booz2_autopilot_init(void) {
   booz2_autopilot_motors_on_counter = 0;
   booz2_autopilot_in_flight_counter = 0;
   booz2_autopilot_mode_auto2 = BOOZ2_MODE_AUTO2;
-  booz2_autopilot_tol = 0;
   booz2_autopilot_detect_ground = FALSE;
 }
 
@@ -66,7 +64,7 @@ void booz2_autopilot_init(void) {
 #endif
 
 void booz2_autopilot_periodic(void) {
-  
+
   RunOnceEvery(50, nav_periodic_task_10Hz());
 #ifdef BOOZ_FAILSAFE_GROUND_DETECT
   if (booz2_autopilot_mode == BOOZ2_AP_MODE_FAILSAFE && booz2_autopilot_detect_ground) {
@@ -79,13 +77,13 @@ void booz2_autopilot_periodic(void) {
        booz2_autopilot_mode == BOOZ2_AP_MODE_FAILSAFE ||
 #endif
        booz2_autopilot_mode == BOOZ2_AP_MODE_KILL ) {
-    SetCommands(booz2_commands_failsafe, 
+    SetCommands(booz2_commands_failsafe,
 		booz2_autopilot_in_flight, booz2_autopilot_motors_on);
   }
   else {
     booz2_guidance_v_run( booz2_autopilot_in_flight );
     booz2_guidance_h_run( booz2_autopilot_in_flight );
-    SetCommands(booz_stabilization_cmd, 
+    SetCommands(booz_stabilization_cmd,
         booz2_autopilot_in_flight, booz2_autopilot_motors_on);
   }
 
@@ -160,8 +158,8 @@ void booz2_autopilot_set_mode(uint8_t new_autopilot_mode) {
       break;
     }
     booz2_autopilot_mode = new_autopilot_mode;
-  } 
-  
+  }
+
 }
 
 #define THROTTLE_STICK_DOWN()						\
@@ -234,25 +232,25 @@ void booz2_autopilot_on_rc_frame(void) {
   DOWNLINK_SEND_BOOZ_DEBUG(&rc_values[RADIO_THROTTLE],		\
 			   &rc_values[RADIO_ROLL],		\
 			   &rc_values[RADIO_PITCH],		\
-			   &rc_values[RADIO_YAW]);		
+			   &rc_values[RADIO_YAW]);
 #endif
-  
+
   uint8_t new_autopilot_mode = 0;
   BOOZ_AP_MODE_OF_PPRZ(radio_control.values[RADIO_CONTROL_MODE], new_autopilot_mode);
   booz2_autopilot_set_mode(new_autopilot_mode);
-  
+
 #ifdef RADIO_CONTROL_KILL_SWITCH
   if (radio_control.values[RADIO_CONTROL_KILL_SWITCH] < 0)
     booz2_autopilot_set_mode(BOOZ2_AP_MODE_KILL);
 #endif
-  
+
   BOOZ2_AUTOPILOT_CHECK_MOTORS_ON();
   BOOZ2_AUTOPILOT_CHECK_IN_FLIGHT();
   kill_throttle = !booz2_autopilot_motors_on;
-  
+
   if (booz2_autopilot_mode > BOOZ2_AP_MODE_FAILSAFE) {
     booz2_guidance_v_read_rc();
     booz2_guidance_h_read_rc(booz2_autopilot_in_flight);
   }
-  
+
 }

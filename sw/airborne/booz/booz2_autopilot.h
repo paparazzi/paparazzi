@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
  *
  * This file is part of paparazzi.
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  */
 
@@ -48,7 +48,6 @@ extern uint8_t booz2_autopilot_mode;
 extern uint8_t booz2_autopilot_mode_auto2;
 extern bool_t  booz2_autopilot_motors_on;
 extern bool_t  booz2_autopilot_in_flight;
-extern uint8_t booz2_autopilot_tol;
 extern bool_t kill_throttle;
 
 extern void booz2_autopilot_init(void);
@@ -83,22 +82,6 @@ extern bool_t booz2_autopilot_detect_ground;
   booz2_autopilot_motors_on = !kill_throttle; \
 }
 
-
-#define booz2_autopilot_SetTol(_v) { \
-  booz2_autopilot_tol = _v; \
-  if (_v == 1) { \
-    booz_ins_vff_realign = TRUE; \
-    booz2_guidance_v_z_sp = -POS_BFP_OF_REAL(2); \
-    booz2_autopilot_mode_auto2 = BOOZ2_AP_MODE_ATTITUDE_Z_HOLD; \
-    booz2_autopilot_set_mode(booz2_autopilot_mode_auto2); \
-  } \
-  if (_v == 2) { \
-    booz2_guidance_v_zd_sp = SPEED_BFP_OF_REAL(0.5); \
-    booz2_autopilot_mode_auto2 = BOOZ2_AP_MODE_ATTITUDE_CLIMB; \
-    booz2_autopilot_set_mode(booz2_autopilot_mode_auto2); \
-  } \
-  booz2_autopilot_tol = 0; \
-}
 
 #define TRESHOLD_GROUND_DETECT ACCEL_BFP_OF_REAL(15.)
 
