@@ -81,11 +81,12 @@ float ir_correction_up;
 #if ! (defined SITL || defined HITL)
 static struct adc_buf buf_ir1;
 static struct adc_buf buf_ir2;
-#endif
 
 #ifdef ADC_CHANNEL_IR_TOP
 static struct adc_buf buf_ir_top;
 #endif
+#endif
+
 
 #ifndef ADC_CHANNEL_IR_NB_SAMPLES
 #define ADC_CHANNEL_IR_NB_SAMPLES DEFAULT_AV_NB_SAMPLE
@@ -132,11 +133,12 @@ void ir_init(void) {
 #if ! (defined SITL || defined HITL)
   adc_buf_channel(ADC_CHANNEL_IR1, &buf_ir1, ADC_CHANNEL_IR_NB_SAMPLES);
   adc_buf_channel(ADC_CHANNEL_IR2, &buf_ir2, ADC_CHANNEL_IR_NB_SAMPLES);
-#endif
 
 #ifdef ADC_CHANNEL_IR_TOP
   adc_buf_channel(ADC_CHANNEL_IR_TOP, &buf_ir_top, ADC_CHANNEL_IR_NB_SAMPLES);
 #endif
+#endif
+
  
   ir_roll_neutral  = RadOfDeg(IR_ROLL_NEUTRAL_DEFAULT);
   ir_pitch_neutral = RadOfDeg(IR_PITCH_NEUTRAL_DEFAULT);
