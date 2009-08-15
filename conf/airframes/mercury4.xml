@@ -1,0 +1,20 @@
+<airframe name="mercury4">
+
+
+  <makefile>
+
+USER =
+HOST = mercury4
+TARGET_DIR = ~
+
+SRC_FMS=fms
+
+#
+#
+#
+overo_test_spi.ARCHDIR = omap
+overo_test_spi.srcs=$(SRC_FMS)/overo_test_spi.c
+
+  </makefile>
+
+</airframe>
