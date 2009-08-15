@@ -48,20 +48,7 @@ void b2ins_init(void) {
   INT32_VECT3_ZERO(b2ins_accel_bias);
 }
 
-#ifdef BYPASS_AHRS
-#include "booz_flight_model.h"
-#include "6dof.h"
-#endif /* BYPASS_AHRS */
-
 void b2ins_propagate(void) {
-
-#ifdef BYPASS_AHRS
-  booz2_filter_attitude_quat_aligned.qi = BOOZ_INT_OF_FLOAT(bfm.quat->ve[QUAT_QI], IQUAT_RES);
-  booz2_filter_attitude_quat_aligned.qx = BOOZ_INT_OF_FLOAT(bfm.quat->ve[QUAT_QX], IQUAT_RES);
-  booz2_filter_attitude_quat_aligned.qy = BOOZ_INT_OF_FLOAT(bfm.quat->ve[QUAT_QY], IQUAT_RES);
-  booz2_filter_attitude_quat_aligned.qz = BOOZ_INT_OF_FLOAT(bfm.quat->ve[QUAT_QZ], IQUAT_RES);
-#endif /* BYPASS_AHRS */
-
 
   struct Int32Vect3 scaled_biases;
   VECT3_SDIV(scaled_biases, b2ins_accel_bias, (1<<(B2INS_ACCEL_BIAS_FRAC-B2INS_ACCEL_LTP_FRAC)));
@@ -89,17 +76,15 @@ void b2ins_propagate(void) {
 
 void b2ins_update_gps(void) {
 
-  /* FIXME : with Q_int32_XX_8 we overflow for 256m */
-  INT32_VECT3_SCALE_2(b2ins_meas_gps_pos_ned, booz_ins_gps_pos_cm_ned,
-		      INT32_POS_OF_CM_NUM, INT32_POS_OF_CM_DEN);
-  INT32_VECT3_SCALE_2(b2ins_meas_gps_speed_ned, booz_ins_gps_speed_cm_s_ned,
-		      INT32_SPEED_OF_CM_S_NUM, INT32_SPEED_OF_CM_S_DEN);
-
 #ifdef UPDATE_FROM_POS
   struct Int64Vect2 scaled_pos_meas;
-  VECT2_COPY(scaled_pos_meas, b2ins_meas_gps_pos_ned);
-  VECT2_SMUL(scaled_pos_meas, scaled_pos_meas, (1<<(B2INS_POS_LTP_FRAC-INT32_POS_FRAC)));
-  struct Int64Vect3 pos_residual;
+  /* INT32 pos in cm -> INT64 pos in cm*/
+  VECT2_COPY(scaled_pos_meas, booz_ins_gps_pos_cm_ned);
+  /* to BFP but still in cm */
+  VECT2_SMUL(scaled_pos_meas, scaled_pos_meas, (1<<B2INS_POS_LTP_FRAC));
+  /* INT64 BFP pos in cm -> INT64 BFP pos in m */
+  VECT2_SDIV(scaled_pos_meas, scaled_pos_meas, 100);
+  struct Int64Vect2 pos_residual;
   VECT2_DIFF(pos_residual, scaled_pos_meas, b2ins_pos_ltp);
   struct Int32Vect2 pos_cor_1;
   VECT2_SDIV(pos_cor_1, pos_residual, (1<<K_POS));
@@ -110,6 +95,7 @@ void b2ins_update_gps(void) {
 #endif /* UPDATE_FROM_POS */
 
 #ifdef UPDATE_FROM_SPEED
+  INT32_VECT3_SCALE_2(b2ins_meas_gps_speed_ned, booz_ins_gps_speed_cm_s_ned, INT32_SPEED_OF_CM_S_NUM, INT32_SPEED_OF_CM_S_DEN);
   struct Int32Vect2 scaled_speed_meas;
   VECT2_SMUL(scaled_speed_meas, b2ins_meas_gps_speed_ned, (1<<(B2INS_SPEED_LTP_FRAC-INT32_SPEED_FRAC)));
   struct Int32Vect2 speed_residual;
@@ -125,14 +111,9 @@ void b2ins_update_gps(void) {
   VECT2_SDIV(speed_residual3, speed_residual, (1<<9));
   speed_residual3.z = 0;
   struct Int32Vect3 bias_cor_s;
-  INT32_QUAT_VMULT( bias_cor_s, booz_ahrs.ltp_to_imu_quat, speed_residual3);
-  //  VECT3_ADD(b2ins_accel_bias, bias_cor_s);
-
+  INT32_RMAT_VMULT( bias_cor_s, booz_ahrs.ltp_to_imu_rmat, speed_residual3);
+  VECT3_ADD(b2ins_accel_bias, bias_cor_s);
 #endif /* UPDATE_FROM_SPEED */
-
-
-
-
 
 }
 
