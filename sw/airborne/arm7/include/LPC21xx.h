@@ -216,6 +216,9 @@
 #define S1SPCCR         SPI1->ccr       /* Clock Counter Register */
 #define S1SPINT         SPI1->flag      /* Interrupt Flag Register */
 
+/* S1SPINT bits definition */
+#define SPI1IF 0
+
 #define SSPCR0   (*(REG16*) 0xE0068000) /* Control Register 0               */
 #define SSPCR1   (*(REG_8*) 0xE0068004) /* Control Register 1               */
 #define SSPDR    (*(REG16*) 0xE0068008) /* Data register                    */
