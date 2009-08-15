@@ -117,8 +117,24 @@ let print_dl_settings = fun settings ->
     lprintf "i++;\\\n";
     left ()
   end;
-  lprintf "}\n"
+  lprintf "}\n";
 
+  (** Inline function to get a setting value *)
+  lprintf "static inline float settings_get_value(uint8_t i) {\n";
+  right ();
+  let idx = ref 0 in
+  lprintf "switch (i) { \\\n";
+  right ();
+  List.iter 
+    (fun s ->
+      let v = ExtXml.attrib s "var" in
+      lprintf "case %d: return %s;\n" !idx v; incr idx) 
+    settings;
+  lprintf "default: return 0.;\n";
+  lprintf "}\n";
+  left ();
+  lprintf "}\n"
+  
 
 
 
