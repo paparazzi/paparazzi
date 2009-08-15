@@ -43,6 +43,8 @@
 #include "booz2_gps.h"
 #include "booz2_ins.h"
 
+extern uint8_t telemetry_mode_Main;
+
 #ifdef USE_GPS
 #define PERIODIC_SEND_BOOZ_STATUS() {					\
     uint32_t booz_imu_nb_err = 0;					\
@@ -603,8 +605,6 @@ define PERIODIC_SEND_BOOZ2_VFF() {}
 
 #include "settings.h"
 #define PERIODIC_SEND_DL_VALUE() PeriodicSendDlValue()
-
-extern uint8_t telemetry_mode_Main;
 
 #include "periodic.h"
 #define Booz2TelemetryPeriodic() {		\
