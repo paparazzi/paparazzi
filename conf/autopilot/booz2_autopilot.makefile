@@ -111,8 +111,6 @@ ap.srcs += $(SRC_BOOZ)/booz2_analog.c \
 # include booz2_ahrs_lkf.makefile
 #
 
-ap.srcs += $(SRC_BOOZ)/booz_ahrs.c
-
 ap.srcs += $(SRC_BOOZ)/booz2_autopilot.c
 
 ap.srcs += math/pprz_trig_int.c
