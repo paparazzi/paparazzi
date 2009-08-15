@@ -1,4 +1,6 @@
-
+SENSOR_ACCEL = 0;
+SENSOR_MAG   = 1;
+SENSOR_GYRO  = 2;
 
 
 function [time, gyro_raw, turntable] = read_gyro_log(ac_id, tt_id, filename)
@@ -34,14 +36,17 @@ endfunction
 
 function [time, sensor_raw] = read_log_sensor_raw(ac_id, sensor_type, filename)
 
-//  select sensor_type
-//    case SENSOR_ACCEL
+  select sensor_type
+    case SENSOR_ACCEL
       fmt = sprintf('%%f %d IMU_ACCEL_RAW %%f %%f %%f', ac_id);
-//    case SENSOR_MAG
-//      fmt = sprintf('%%f %d IMU_MAG_RAW %%f %%f %%f', ac_id);
-//    case SENSOR_GYRO
-//      fmt = sprintf('%%f %d IMU_GYRO_RAW %%f %%f %%f', ac_id);
-//  end
+    case SENSOR_MAG
+      fmt = sprintf('%%f %d IMU_MAG_RAW %%f %%f %%f', ac_id);
+    case SENSOR_GYRO
+      fmt = sprintf('%%f %d IMU_GYRO_RAW %%f %%f %%f', ac_id);
+  end
+
+  printf("%s",fmt); 
+  
   time = [];
   sensor_raw = [];
   u=mopen(filename,'r');
