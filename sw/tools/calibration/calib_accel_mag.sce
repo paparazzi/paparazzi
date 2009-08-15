@@ -5,15 +5,15 @@
 
 clear();
 
-ac_id = 151;
+exec("calibrate_utils.sci");
+
+ac_id = 15;
 //log_name = '/home/john.stower/paparazzi3/var/logs/08_11_24__12_53_41.data';
 //log_name = 'log_x1_mag_raw';
-log_name = 'log_accel_booz2_a2';
+log_name = 'log_accel_mercury3';
 //log_name = 'log_accel_booz2_a1_5';
 
-SENSOR_ACCEL = 0;
-SENSOR_MAG   = 1;
-SENSOR_GYRO  = 2;
+
 
 sensor_type = SENSOR_ACCEL;
 
@@ -35,11 +35,20 @@ case SENSOR_MAG then
 
 end
 
-exec("calibrate_utils.sci");
-
 
 // read log
-[time, sensor_raw] = read_log_sensor_raw(ac_id, sensor_name, log_name);
+[time, sensor_raw] = read_log_sensor_raw(ac_id, sensor_type, log_name);
+
+if 0
+pause
+for i=1:3
+  for j=1:length(time)
+    if sensor_raw(i,j) < 0
+      sensor_raw(i,j) = sensor_raw(i,j) + 2^16;
+    end
+  end
+end
+end
 
 // plot raw sensors
 scf();
