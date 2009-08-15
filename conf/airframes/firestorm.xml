@@ -14,9 +14,9 @@
 
 <!-- commands section -->
   <servos>
-    <servo name="MOTOR"         no="0" min="1000" neutral="1000" max="2000"/>
-    <servo name="AILEVON_LEFT"  no="1" min="1000" neutral="1500" max="2000"/>
-    <servo name="AILEVON_RIGHT" no="2" min="1000" neutral="1500" max="2000"/>
+    <servo name="MOTOR"         no="1" min="1000" neutral="1000" max="2000"/>
+    <servo name="AILEVON_LEFT"  no="4" min="1000" neutral="1500" max="2000"/>
+    <servo name="AILEVON_RIGHT" no="5" min="1000" neutral="1500" max="2000"/>
     <servo name="HATCH"         no="3" min="1000" neutral="1500" max="2000"/>
   </servos>
 
@@ -87,7 +87,7 @@
   </section>
 
  <section name="GYRO" prefix="GYRO_">
-    <define name="ADC_ROLL_NEUTRAL" value="512"/>
+    <define name="ADC_ROLL_NEUTRAL" value="492"/>
     <define name="ADC_TEMP_NEUTRAL" value="512"/>   
     <define name="ADC_TEMP_SLOPE" value="0"/>  
     <define name="DYNAMIC_RANGE" value="300" unit="deg/s"/>
@@ -106,7 +106,7 @@
   <section name="MISC">
     <define name="MINIMUM_AIRSPEED" value="13." unit="m/s"/>
     <define name="NOMINAL_AIRSPEED" value="16." unit="m/s"/>
-    <define name="MAXIMUM_AIRSPEED" value="20." unit="m/s"/>
+    <define name="MAXIMUM_AIRSPEED" value="24." unit="m/s"/>
     <define name="CARROT" value="5." unit="s"/>
     <define name="KILL_MODE_DISTANCE" value="(1.5*MAX_DIST_FROM_HOME)"/>
     <define name="CONTROL_RATE" value="60" unit="Hz"/>
@@ -168,6 +168,7 @@
   <section name="NAV">
     <define name="NAV_PITCH" value="0."/>
     <define name="NAV_GLIDE_PITCH_TRIM" value="0"/>
+    <define name="NAV_GROUND_SPEED_PGAIN" value="-0.01"/>
   </section>
 
   <section name="AGGRESSIVE" prefix="AGR_">
@@ -218,7 +219,7 @@ ap.srcs += $(SRC_ARCH)/servos_4015_MAT_hw.c actuators.c
 ap.CFLAGS += -DRADIO_CONTROL
 ap.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c  
 
-ap.CFLAGS += -DDOWNLINK -DUSE_UART1 -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_FBW_DEVICE=Uart1 -DDOWNLINK_AP_DEVICE=Uart1 -DPPRZ_UART=Uart1 -DDATALINK=PPRZ -DUART1_BAUD=B9600
+ap.CFLAGS += -DDOWNLINK -DUSE_UART0 -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_FBW_DEVICE=Uart0 -DDOWNLINK_AP_DEVICE=Uart0 -DPPRZ_UART=Uart0 -DDATALINK=PPRZ -DUART0_BAUD=B9600
 ap.srcs += downlink.c $(SRC_ARCH)/uart_hw.c datalink.c pprz_transport.c
 
 ap.CFLAGS += -DINTER_MCU
@@ -227,7 +228,7 @@ ap.srcs += inter_mcu.c
 ap.CFLAGS += -DADC -DUSE_ADC_0 -DUSE_ADC_1 -DUSE_ADC_2 -DUSE_ADC_3
 ap.srcs += $(SRC_ARCH)/adc_hw.c
 
-ap.CFLAGS += -DGPS -DUBX -DUSE_UART0 -DGPS_LINK=Uart0 -DUART0_BAUD=B38400
+ap.CFLAGS += -DGPS -DUBX -DUSE_UART1 -DGPS_LINK=Uart1 -DUART1_BAUD=B38400
 # -DGPS_LED=2
 ap.srcs += gps_ubx.c gps.c latlong.c
 
