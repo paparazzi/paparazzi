@@ -6,20 +6,12 @@
 
 #ifdef USE_I2C0
 
-#ifdef USE_BUSS_TWI_BLMC
-#include "actuators_buss_twi_blmc_hw.h"
-#define I2c0StopHandler() ActuatorsBussTwiBlmcNext()
-#else
-
-#ifdef USE_BUSS_TWI_BLMC_MOTOR
-#include "buss_twi_blmc_hw.h"
-#define I2c0StopHandler() BussTwiBlmcNext()
-#else
+#ifdef I2C0_STOP_HANDLER
+#include I2C0_STOP_HANDLER_HEADER
+#define I2c0StopHandler() I2C0_STOP_HANDLER()
+#else 
 #define I2c0StopHandler() {}
-#endif
-
-#endif
-
+#endif /* I2C0_STOP_HANDLER */
 
 
 extern void i2c0_hw_init(void);
