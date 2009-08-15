@@ -53,16 +53,17 @@
 #include "gps.h"
 #endif
 
+
 #include "common_nav.h"
 #include "settings.h"
 #include "latlong.h"
+
 
 #ifndef DOWNLINK_DEVICE
 #define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
 #endif
 #include "uart.h"
 #include "downlink.h"
-
 
 #define MOfCm(_x) (((float)(_x))/100.)
 
@@ -146,6 +147,10 @@ void dl_parse_msg(void) {
     uint8_t i = DL_SETTING_index(dl_buffer);
     float val = DL_SETTING_value(dl_buffer);
     DlSetting(i, val);
+    DOWNLINK_SEND_DL_VALUE(&i, &val);
+  } else if (msg_id == DL_GET_SETTING && DL_GET_SETTING_ac_id(dl_buffer) == AC_ID) {
+    uint8_t i = DL_SETTING_index(dl_buffer);
+    float val = settings_get_value(i);
     DOWNLINK_SEND_DL_VALUE(&i, &val);
   } else
 #endif /** Else there is no dl_settings section in the flight plan */
