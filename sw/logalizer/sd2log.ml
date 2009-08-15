@@ -119,6 +119,10 @@ let hex_of_array = function
       failwith (sprintf "Error: expecting array, found %s" (Pprz.string_of_value value))
 
 
+let xml_parse_compressed_file = fun file ->
+    Xml.parse_in (Ocaml_tools.open_compress file)
+
+
 (** Look for a file in var/ with md5 in filename. May raise Not_found.
     Format from gen_aircraft.ml : YY_MM_DD__HH_MM_SS_MD5_ACNAME.conf *)
 let md5_ofs = 3*6+1
@@ -127,7 +131,6 @@ let search_conf = fun md5 ->
   let files = Sys.readdir var_path in
   let rec loop = fun i ->
     if i < Array.length files then begin
-      prerr_endline files.(i);
       if String.length files.(i) > (md5_ofs + md5_len)
 	  && String.sub files.(i) md5_ofs md5_len = md5 then
 	var_path // files.(i)
@@ -213,7 +216,7 @@ let convert_file = fun file ->
       (** Save the corresponding .log file *)
       fprintf stderr "Looking for %s conf...\n%!" !md5;
       let configuration = 
-	try Xml.parse_file (search_conf !md5) with
+	try xml_parse_compressed_file (search_conf !md5) with
 	  Not_found ->
 	    fprintf stderr "Not found...\n%!";
 	    if !single_ac_id >= 0 then begin
