@@ -27,7 +27,8 @@
 open Printf
 module U = Unix
 let (//) = Filename.concat
-let logs_path = Env.paparazzi_home // "var" // "logs"
+let var_path = Env.paparazzi_home // "var" 
+let logs_path = var_path // "logs"
 let conf_xml = Xml.parse_file (Env.paparazzi_home // "conf" // "conf.xml")
 
 
@@ -66,7 +67,7 @@ let expand_ac_xml = fun ac_conf ->
   let children = Xml.children ac_conf@[fp; af; rc] in
   make_element (Xml.tag ac_conf) (Xml.attribs ac_conf) children
 
-let log_xml = fun ac_id timeofday data_file ->
+let log_xml = fun ac_id ->
   let select = fun x -> ExtXml.int_attrib x "ac_id" = ac_id in
   let conf_ac =
     try
@@ -80,7 +81,7 @@ let log_xml = fun ac_id timeofday data_file ->
     make_element (Xml.tag conf_xml) (Xml.attribs conf_xml) [expanded_conf_ac] in
   make_element 
     "configuration"
-    ["time_of_day", string_of_float timeofday; "data_file", data_file]
+    []
     [expanded_conf; Pprz.messages_xml ()]
 
 (* AWFUL : modules should be replaced by objects in pprz.ml
@@ -103,6 +104,38 @@ let string_of_message = fun log_msg ->
   | 1 -> Dl_Pprz.string_of_message
   | x -> failwith (sprintf "Unexpected source:%d in log msg" x)
 
+let hex_of_array = function
+    Pprz.Array array ->
+      let n = Array.length array in
+      (* One integer -> 2 chars *)
+      let s = String.create (2*n) in
+      Array.iteri
+	(fun i dec ->
+	  let hex = sprintf "%02x" (Pprz.int_of_value array.(i)) in
+	  String.blit hex 0 s (2*i) 2)
+	array;
+      s	
+  | value ->
+      failwith (sprintf "Error: expecting array, found %s" (Pprz.string_of_value value))
+
+
+(** Look for a file in var/ with md5 in filename. May raise Not_found.
+    Format from gen_aircraft.ml : YY_MM_DD__HH_MM_SS_MD5_ACNAME.conf *)
+let md5_ofs = 3*6+1
+let md5_len = 32
+let search_conf = fun md5 ->
+  let files = Sys.readdir var_path in
+  let rec loop = fun i ->
+    if i < Array.length files then begin
+      prerr_endline files.(i);
+      if String.length files.(i) > (md5_ofs + md5_len)
+	  && String.sub files.(i) md5_ofs md5_len = md5 then
+	var_path // files.(i)
+      else
+	loop (i+1)
+    end else
+      raise Not_found in
+  loop 0
 
   
 let convert_file = fun file ->
@@ -112,6 +145,7 @@ let convert_file = fun file ->
   and f_out = open_out tmp_file in
 
   let start_unix_time = ref None
+  and md5 = ref ""
   and single_ac_id = ref (-1) in
 
   let use_payload = fun payload ->
@@ -128,16 +162,19 @@ let convert_file = fun file ->
       let timestamp = Int32.to_float log_msg.Logpprz.timestamp /. 1e4 in
       fprintf f_out "%.3f %d %s\n" timestamp ac_id (string_of_message log_msg msg_descr vs);
       
-      (** Looking for a date from a GPS message *)
-      if !start_unix_time = None
-	  && log_msg.Logpprz.source = 0
-	  && msg_descr.Pprz.name = "GPS"
-	  && ( Pprz.int_assoc "mode" vs = 3 
-	     || Pprz.int_assoc "week" vs > 0)  then
-	let itow = Pprz.int_assoc "itow" vs / 1000
-	and week = Pprz.int_assoc "week" vs in
-	let unix_time = Latlong.unix_time_of_tow ~week itow in
-	start_unix_time := Some (unix_time -. timestamp)
+      (** Looking for a date from a GPS message and a md5 from an ALIVE *)
+      if log_msg.Logpprz.source = 0 then
+	match msg_descr.Pprz.name with
+	  "GPS" when !start_unix_time = None
+	      && ( Pprz.int_assoc "mode" vs = 3 
+		 || Pprz.int_assoc "week" vs > 0) ->
+		     let itow = Pprz.int_assoc "itow" vs / 1000
+		     and week = Pprz.int_assoc "week" vs in
+		     let unix_time = Latlong.unix_time_of_tow ~week itow in
+		     start_unix_time := Some (unix_time -. timestamp)
+	| "ALIVE" when !md5 = "" ->
+	    md5 := hex_of_array (Pprz.assoc "md5sum" vs)
+	| _ -> ()
   in
   
   let parser = Parser.parse use_payload in
@@ -174,13 +211,31 @@ let convert_file = fun file ->
       fprintf stderr "%s file produced\n%!" data_name;
 
       (** Save the corresponding .log file *)
-      if !single_ac_id >= 0 then
+      fprintf stderr "Looking for %s conf...\n%!" !md5;
+      let configuration = 
+	try Xml.parse_file (search_conf !md5) with
+	  Not_found ->
+	    fprintf stderr "Not found...\n%!";
+	    if !single_ac_id >= 0 then begin
+	      fprintf stderr "Try to rebuild it for A/C %d ...\n%!" !single_ac_id;
+	      try log_xml !single_ac_id with
+		_ ->
+		  fprintf stderr "Failure: A/C %d not found\n%!" !single_ac_id;
+		  Xml.PCData ""
+	    end else
+	      Xml.PCData "" in
+      
+      if configuration <> Xml.PCData "" then
+	let log = 
+	  ExtXml.subst_attrib "time_of_day" (string_of_float start_time)
+	    (ExtXml.subst_attrib "data_file" data_name configuration) in
+
 	let f = open_out (logs_path // log_name) in
-	output_string f (Xml.to_string_fmt (log_xml !single_ac_id start_time data_name));
+	output_string f (Xml.to_string_fmt log);
 	close_out f;
 	fprintf stderr "%s file produced\n%!" log_name
       else
-	fprintf stderr "No telemetry message found: no .log produced\n";
+	fprintf stderr "No .log produced\n";
 
       (** Save the original binary file *)
       let com = sprintf "cp %s %s" file (logs_path // tlm_name) in
