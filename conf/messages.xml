@@ -1452,6 +1452,11 @@
     <field name="pitch" type="int8"/>
   </message>
 
+ <message name="GET_SETTING" id="16" link="forwarded">
+  <field name="index" type="uint8"/>
+  <field name="ac_id" type="uint8"/>
+ </message>
+
  <message name="BOOZ2_FMS_COMMAND" id="149" link="forwarded">
    <field name="h_mode" type="uint8" values="RATE|ATTITUDE|SPEED|POS"/>
    <field name="v_mode" type="uint8" values="DIRECT|CLIMB|HEIGHT"/>
@@ -1650,6 +1655,11 @@
   <field name="lat"  type="float" unit="deg"></field>
   <field name="long"  type="float" unit="deg"></field>
   <field name="alt"    type="float" unit="m"></field>
+ </message>
+
+ <message name="GET_DL_SETTING" id="25">
+  <field name="ac_id" type="string"/>
+  <field name="index" type="uint8"/>
  </message>
 
  <message name="DL_SETTING" id="26">
