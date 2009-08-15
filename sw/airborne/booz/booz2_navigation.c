@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
  *
  * This file is part of paparazzi.
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  */
 
 #define NAV_C
@@ -97,14 +97,14 @@ void booz2_nav_run(void) {
 
   int32_t dist_to_waypoint;
   INT32_VECT2_NORM(dist_to_waypoint, path_to_waypoint);
-  
+
   if (dist_to_waypoint < CLOSE_TO_WAYPOINT) {
     VECT2_COPY( booz2_navigation_carrot, booz2_navigation_target);
   }
   else {
     struct Int32Vect2 path_to_carrot;
-    VECT2_SMUL(path_to_carrot, CARROT_DIST, path_to_waypoint);
-    VECT2_SDIV(path_to_carrot, dist_to_waypoint, path_to_carrot);
+    VECT2_SMUL(path_to_carrot, path_to_waypoint, CARROT_DIST);
+    VECT2_SDIV(path_to_carrot, path_to_carrot, dist_to_waypoint);
     VECT2_SUM(booz2_navigation_carrot, path_to_carrot, booz_ins_enu_pos);
   }
 
@@ -125,8 +125,8 @@ void nav_route(uint8_t wp_start, uint8_t wp_end) {
   int32_t nav_leg_progress = (pos_diff.x * wp_diff.x + pos_diff.y * wp_diff.y) / leg_length;
   nav_leg_progress += Max((CARROT_DIST >> INT32_POS_FRAC), 0);
   struct Int32Vect2 progress_pos;
-  VECT2_SMUL(progress_pos, nav_leg_progress, wp_diff);
-  VECT2_SDIV(progress_pos, leg_length, progress_pos);
+  VECT2_SMUL(progress_pos, wp_diff, nav_leg_progress);
+  VECT2_SDIV(progress_pos, progress_pos, leg_length);
   INT32_VECT2_LSHIFT(progress_pos,progress_pos,INT32_POS_FRAC);
   VECT2_SUM(booz2_navigation_target,waypoints[wp_start],progress_pos);
   //printf("target %d %d | p %d %d | s %d %d | l %d %d %d\n",
@@ -201,7 +201,7 @@ void nav_init_stage( void ) {
   horizontal_mode = HORIZONTAL_MODE_WAYPOINT;
 }
 
-void nav_init_block(void) { 
+void nav_init_block(void) {
   if (nav_block >= NB_BLOCK)
     nav_block=NB_BLOCK-1;
   nav_stage = 0;

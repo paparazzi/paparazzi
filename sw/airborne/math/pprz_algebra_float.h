@@ -84,8 +84,8 @@ struct FloatRates {
 /* a -= b */
 #define FLOAT_VECT3_SUB(_a, _b) VECT3_SUB(_a, _b)
 
-/* _vo = _s * _vi */
-#define FLOAT_VECT3_SMUL(_vo, _s, _vi) VECT3_SMUL(_vo, _s, _vi)
+/* _vo = _vi * _s */
+#define FLOAT_VECT3_SMUL(_vo, _vi, _s) VECT3_SMUL(_vo, _vi, _s)
 
 #define FLOAT_VECT3_NORM(_v) (sqrtf((_v).x*(_v).x + (_v).y*(_v).y + (_v).z*(_v).z))
 
@@ -97,7 +97,7 @@ struct FloatRates {
 
 #define FLOAT_VECT3_NORMALIZE(_v) {		\
     const float n = FLOAT_VECT3_NORM(_v);	\
-    FLOAT_VECT3_SMUL(_v, 1./n, _v);		\
+    FLOAT_VECT3_SMUL(_v, _v, 1./n);		\
   }
 
 #define FLOAT_RATES_ZERO(_r) {			\

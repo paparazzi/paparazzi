@@ -67,14 +67,14 @@
     (_c).y = (_a).y - (_b).y;			\
   }
 
-/* _vo = _s * _vi */
-#define VECT2_SMUL(_vo, _s, _vi) {		\
-    (_vo).x = (_s) * (_vi).x;			\
-    (_vo).y = (_s) * (_vi).y;			\
+/* _vo = _vi * _s */
+#define VECT2_SMUL(_vo, _vi, _s) {		\
+    (_vo).x =  (_vi).x * (_s);			\
+    (_vo).y =  (_vi).y * (_s);			\
   }
 
 /* _vo =  _vi / _s */
-#define VECT2_SDIV(_vo, _s, _vi) {		\
+#define VECT2_SDIV(_vo, _vi, _s) {		\
     (_vo).x =  (_vi).x / (_s);			\
     (_vo).y =  (_vi).y / (_s);			\
   }
@@ -133,11 +133,11 @@
     (_c).z = (_a).z - (_b).z;			\
   }
 
-/* _vo = _s * _vi */
-#define VECT3_SMUL(_vo, _s, _vi) {		\
-    (_vo).x = (_s) * (_vi).x;			\
-    (_vo).y = (_s) * (_vi).y;			\
-    (_vo).z = (_s) * (_vi).z;			\
+/* _vo = _vi * _s */
+#define VECT3_SMUL(_vo, _vi, _s) {			\
+    (_vo).x =  (_vi).x * (_s);				\
+    (_vo).y =  (_vi).y * (_s);				\
+    (_vo).z =  (_vi).z * (_s);				\
   }
 
 /* _vo =  _vi / _s */
@@ -159,21 +159,21 @@
     (_vo).x =  (_va).x / (_vb).x;				\
     (_vo).y =  (_va).y / (_vb).y;				\
     (_vo).z =  (_va).z / (_vb).z;				\
-  } 
+  }
 
 /*  */
 #define VECT3_EW_MUL(_vo, _va, _vb) {				\
     (_vo).x =  (_va).x * (_vb).x;				\
     (_vo).y =  (_va).y * (_vb).y;				\
     (_vo).z =  (_va).z * (_vb).z;				\
-  } 
+  }
 
 /*  */
 #define VECT3_BOUND_CUBE(_v, _min, _max) {				\
     if ((_v).x > (_max)) (_v).x = (_max); else if ((_v).x < (_min)) (_v).x = (_min); \
     if ((_v).y > (_max)) (_v).y = (_max); else if ((_v).y < (_min)) (_v).y = (_min); \
     if ((_v).z > (_max)) (_v).z = (_max); else if ((_v).z < (_min)) (_v).z = (_min); \
-  } 
+  }
 
 /*  */
 #define VECT3_BOUND_BOX(_v, _v_min, _v_max) {				\
@@ -420,7 +420,7 @@
     (_qo).qy += (_qi).qy;					\
     (_qo).qz += (_qi).qz;					\
   }
-  
+
 #define QUAT_INVERT(_qo, _qi) {					\
     (_qo).qi =  (_qi).qi;						\
     (_qo).qx = -(_qi).qx;						\

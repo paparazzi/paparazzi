@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
  *
  * This file is part of paparazzi.
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  */
 
 #include "booz2_ins.h"
@@ -51,7 +51,7 @@ struct NedCoor_i booz_ins_gps_speed_cm_s_ned;
 int32_t booz_ins_qfe;
 bool_t  booz_ins_baro_initialised;
 int32_t booz_ins_baro_alt;
-bool_t  booz_ins_vff_realign; 
+bool_t  booz_ins_vff_realign;
 #endif
 
 /* output                      */
@@ -139,13 +139,13 @@ void booz_ins_update_gps(void) {
     ned_of_ecef_vect_i(&booz_ins_gps_speed_cm_s_ned, &booz_ins_ltp_def, &booz_gps_state.ecef_vel);
 #ifdef USE_HFF
     b2ins_update_gps();
-    VECT2_SDIV(booz_ins_ltp_pos, (1<<(B2INS_POS_LTP_FRAC-INT32_POS_FRAC)), b2ins_pos_ltp);
-    VECT2_SDIV(booz_ins_ltp_speed, (1<<(B2INS_SPEED_LTP_FRAC-INT32_SPEED_FRAC)), b2ins_speed_ltp);
+    VECT2_SDIV(booz_ins_ltp_pos, b2ins_pos_ltp, (1<<(B2INS_POS_LTP_FRAC-INT32_POS_FRAC)));
+    VECT2_SDIV(booz_ins_ltp_speed, b2ins_speed_ltp, (1<<(B2INS_SPEED_LTP_FRAC-INT32_SPEED_FRAC)));
 #else
-    INT32_VECT3_SCALE_2(b2ins_meas_gps_pos_ned, booz_ins_gps_pos_cm_ned, 
-			INT32_POS_OF_CM_NUM, INT32_POS_OF_CM_DEN); 
+    INT32_VECT3_SCALE_2(b2ins_meas_gps_pos_ned, booz_ins_gps_pos_cm_ned,
+			INT32_POS_OF_CM_NUM, INT32_POS_OF_CM_DEN);
     INT32_VECT3_SCALE_2(b2ins_meas_gps_speed_ned, booz_ins_gps_speed_cm_s_ned,
-			INT32_SPEED_OF_CM_S_NUM, INT32_SPEED_OF_CM_S_DEN); 
+			INT32_SPEED_OF_CM_S_NUM, INT32_SPEED_OF_CM_S_DEN);
     VECT3_COPY(booz_ins_ltp_pos,   b2ins_meas_gps_pos_ned);
     VECT3_COPY(booz_ins_ltp_speed, b2ins_meas_gps_speed_ned);
 #endif

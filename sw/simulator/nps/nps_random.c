@@ -48,19 +48,19 @@ void double_vect3_update_random_walk(struct DoubleVect3* rw, struct DoubleVect3*
   struct DoubleVect3 drw;
   double_vect3_get_gaussian_noise(&drw, std_dev);
   struct DoubleVect3 tmp;
-  VECT3_SMUL(tmp, (-1./thau), *rw);
+  VECT3_SMUL(tmp, *rw, (-1./thau));
   VECT3_ADD(drw, tmp);
-  VECT3_SMUL(drw, dt, drw);
+  VECT3_SMUL(drw, drw, dt);
   VECT3_ADD(*rw, drw);
 }
 
-/* 
-   http://www.taygeta.com/random/gaussian.html 
+/*
+   http://www.taygeta.com/random/gaussian.html
 */
 
 
 double get_gaussian_noise(void) {
- 
+
   double x1;
   static int nb_call = 0;
   static double x2, w;
@@ -72,7 +72,7 @@ double get_gaussian_noise(void) {
       x2 = 2.0 * dr250() - 1.0;
       w = x1 * x1 + x2 * x2;
     } while ( w >= 1.0 );
-    
+
     w = sqrt( (-2.0 * log( w ) ) / w );
     return x1 * w;
   }
@@ -133,18 +133,18 @@ static void r250_init(int sd) {
   int j, k;
   unsigned int mask, msb;
   set_seed( sd );
-  
+
   r250_index = 0;
   for (j = 0; j < 250; j++)      /* fill r250 buffer with BITS-1 bit values */
     r250_buffer[j] = randlcg();
-  
+
   for (j = 0; j < 250; j++)	/* set some MSBs to 1 */
     if ( randlcg() > HALF_RANGE )
       r250_buffer[j] |= MSB;
-  
+
   msb = MSB;	        /* turn on diagonal bit */
   mask = ALL_BITS;	/* turn off the leftmost bits */
-  
+
   for (j = 0; j < BITS; j++)  {
     k = STEP * j + 3;	/* select a word to operate on */
     r250_buffer[k] &= mask; /* turn off bits left of the diagonal */
@@ -152,7 +152,7 @@ static void r250_init(int sd) {
     mask >>= 1;
     msb  >>= 1;
   }
-  
+
 }
 
 #if 0
@@ -160,22 +160,22 @@ static void r250_init(int sd) {
 static unsigned int r250(void) {
   register int	j;
   register unsigned int new_rand;
-  
+
   if ( r250_index >= 147 )
     j = r250_index - 147;	/* wrap pointer around */
   else
     j = r250_index + 103;
-  
+
   new_rand = r250_buffer[ r250_index ] ^ r250_buffer[ j ];
   r250_buffer[ r250_index ] = new_rand;
-  
+
   if ( r250_index >= 249 )	/* increment pointer for next time */
     r250_index = 0;
   else
     r250_index++;
-  
+
   return new_rand;
-  
+
 }
 #endif
 
@@ -183,22 +183,22 @@ static unsigned int r250(void) {
 static double dr250(void) {
   register int	j;
   register unsigned int new_rand;
-  
+
   if ( r250_index >= 147 )
     j = r250_index - 147;	/* wrap pointer around */
   else
     j = r250_index + 103;
-  
+
   new_rand = r250_buffer[ r250_index ] ^ r250_buffer[ j ];
   r250_buffer[ r250_index ] = new_rand;
-  
+
   if ( r250_index >= 249 )	/* increment pointer for next time */
     r250_index = 0;
   else
     r250_index++;
-  
+
   return (double)new_rand / ALL_BITS;
-  
+
 }
 
 /*
@@ -229,16 +229,16 @@ unsigned long int randlcg() {
     {
       long int high_part = seed_val / quotient;
       long int low_part  = seed_val % quotient;
-      
+
       long int test = 16807L * low_part - my_remainder * high_part;
-      
+
       if ( test > 0 )
 	seed_val = test;
       else
 	seed_val = test + LONG_MAX;
-      
+
     }
-  
+
   return seed_val;
 }
 
