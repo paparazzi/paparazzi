@@ -45,8 +45,13 @@ let one_ac = fun (notebook:GPack.notebook) ac_name ->
 
     (* Call to ivy to set a value *)
     let callback = fun idx value ->
-      let vs = ["ac_id", Pprz.String ac_id; "index", Pprz.Int idx;"value", Pprz.Float value] in
-      Ground_Pprz.message_send "dl" "DL_SETTING" vs in
+      
+      let vs = ["ac_id", Pprz.String ac_id; "index", Pprz.Int idx] in
+      if classify_float value = FP_normal then
+	let vs' = ("value", Pprz.Float value) :: vs in
+	Ground_Pprz.message_send "dl" "DL_SETTING" vs'
+      else
+	Ground_Pprz.message_send "dl" "GET_DL_SETTING" vs in
 
     (* Build the buttons and sliders *)
     let xml = Xml.parse_file xml_file in
