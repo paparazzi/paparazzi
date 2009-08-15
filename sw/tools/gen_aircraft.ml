@@ -25,6 +25,7 @@
  *)
 
 open Printf
+module U = Unix
 
 let (//) = Filename.concat
 
@@ -34,7 +35,7 @@ let modules_dir = paparazzi_conf // "modules"
 
 let mkdir = fun d ->
   if not (Sys.file_exists d) then
-    Unix.mkdir d 0o755
+    U.mkdir d 0o755
 
 (** Raises a Failure if an ID or a NAME appears twice in the conf *)
 let check_unique_id_and_name = fun conf ->
@@ -153,23 +154,16 @@ let extract_makefile = fun airframe_file makefile_ac ->
 
 let is_older = fun target_file dep_files ->
   not (Sys.file_exists target_file) ||
-  let target_file_time = (Unix.stat target_file).Unix.st_mtime in
+  let target_file_time = (U.stat target_file).U.st_mtime in
   let rec loop = function
       [] -> false
     | f::fs ->
-	target_file_time < (Unix.stat f).Unix.st_mtime ||
+	target_file_time < (U.stat f).U.st_mtime ||
 	loop fs in
   loop dep_files
 
 
-let write_if_different = fun md5sum_file md5sum ->
-  if not (Sys.file_exists md5sum_file
-	    && md5sum = input_line (open_in md5sum_file)) then
-    let f = open_out md5sum_file in
-    Printf.fprintf f "%s\n" md5sum;
-    close_out f
-
-
+let make_element = fun t a c -> Xml.Element (t,a,c)
 
 
 (******************************* MAIN ****************************************)
@@ -211,15 +205,32 @@ let () =
 
   (** Expands the configuration of the A/C into one single file *)
   let conf_aircraft = Env.expand_ac_xml aircraft_xml in
+  let configuration =
+    make_element
+      "configuration"
+      []
+      [make_element "conf" [] [conf_aircraft]; Pprz.messages_xml ()] in
   let conf_aircraft_file = aircraft_conf_dir // "conf_aircraft.xml" in
   let f = open_out conf_aircraft_file in
-  Printf.fprintf f "%s\n" (ExtXml.to_string_fmt conf_aircraft);
+  Printf.fprintf f "%s\n" (ExtXml.to_string_fmt configuration);
   close_out f;
 
   (** Computes and store a signature of the configuration *)
   let md5sum = Digest.to_hex (Digest.file conf_aircraft_file) in
   let md5sum_file = aircraft_conf_dir // "aircraft.md5" in
-  write_if_different md5sum_file md5sum;
+  (* Store only if different from previous one *)
+  if not (Sys.file_exists md5sum_file
+	    && md5sum = input_line (open_in md5sum_file)) then begin
+    let f = open_out md5sum_file in
+    Printf.fprintf f "%s\n" md5sum;
+    close_out f;
+    
+    (** Save the configuration for future use *)
+    let d = U.localtime (U.gettimeofday ()) in
+    let filename = sprintf "%02d_%02d_%02d__%02d_%02d_%02d_%s_%s.conf" (d.U.tm_year mod 100) (d.U.tm_mon+1) (d.U.tm_mday) (d.U.tm_hour) (d.U.tm_min) (d.U.tm_sec) md5sum aircraft in
+    let f = open_out (Env.paparazzi_home // "var" // filename) in
+    Printf.fprintf f "%s\n" (ExtXml.to_string_fmt configuration);
+    close_out f end;
 
   let airframe_file = value "airframe" in
   
