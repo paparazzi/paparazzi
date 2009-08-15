@@ -38,7 +38,7 @@ void   nps_sensor_accel_run_step(struct NpsSensorAccel* accel, double time, stru
 
   /* substract gravity to acceleration in body frame */
   struct DoubleVect3 accelero_body;
-  FLOAT_VECT3_DIFF(accelero_body, fdm.body_ecef_accel, g_body);
+  VECT3_DIFF(accelero_body, fdm.body_ecef_accel, g_body);
 
   //  printf(" accelero body %f %f %f\n", accelero_body.x, accelero_body.y, accelero_body.z);
 
@@ -49,6 +49,7 @@ void   nps_sensor_accel_run_step(struct NpsSensorAccel* accel, double time, stru
   /* compute accelero readings */
   MAT33_VECT3_MUL(accel->value, accel->sensitivity, accelero_imu);
   VECT3_ADD(accel->value, accel->neutral);
+
   /* Compute sensor error */
   struct DoubleVect3 accelero_error;
   /* constant bias */

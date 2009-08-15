@@ -7,7 +7,7 @@
 #include "booz_imu.h"
 #include "booz2_analog_baro.h"
 
-#include "actuators.h"
+#include "actuators/booz_supervision.h"
 
 
 struct NpsAutopilot autopilot;
@@ -79,7 +79,11 @@ void nps_autopilot_run_step(double time __attribute__ ((unused))) {
     autopilot.commands[SERVO_LEFT]  = hover - yaw + roll;
   }
   else {
-    int32_t ut_front = Actuator(SERVO_FRONT) - TRIM_FRONT;
+    uint8_t i;
+    for (i=0; i<ACTUATORS_MKK_NB; i++)
+      autopilot.commands[i] = (double)supervision_commands[i] / SUPERVISION_MAX_MOTOR;
+#if 0
+    int32_t ut_front = supervision_commands[SERVO_FRONT] - TRIM_FRONT;
     int32_t ut_back  = Actuator(SERVO_BACK)  - TRIM_BACK;
     int32_t ut_right = Actuator(SERVO_RIGHT) - TRIM_RIGHT;
     int32_t ut_left  = Actuator(SERVO_LEFT)  - TRIM_LEFT;
@@ -87,10 +91,10 @@ void nps_autopilot_run_step(double time __attribute__ ((unused))) {
     autopilot.commands[SERVO_BACK]  = (double)ut_back  / SUPERVISION_MAX_MOTOR;
     autopilot.commands[SERVO_RIGHT] = (double)ut_right / SUPERVISION_MAX_MOTOR;
     autopilot.commands[SERVO_LEFT]  = (double)ut_left  / SUPERVISION_MAX_MOTOR;
+#endif
   }
   //  printf("%f %f %f %f\n", autopilot.commands[SERVO_FRONT], autopilot.commands[SERVO_BACK],
-  //	 autopilot.commands[SERVO_RIGHT], autopilot.commands[SERVO_LEFT]);
-
+  //                          autopilot.commands[SERVO_RIGHT], autopilot.commands[SERVO_LEFT]);	 
 }
 
 #include "nps_fdm.h"

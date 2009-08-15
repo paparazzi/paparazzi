@@ -13,7 +13,7 @@
 #include "nps_flightgear.h"
 
 #define SIM_DT     (1./512.)
-#define DISPLAY_DT (1./25.)
+#define DISPLAY_DT (1./30.)
 #define HOST_TIMEOUT_MS 40
 #define HOST_TIME_FACTOR 1.
 
