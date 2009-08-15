@@ -283,7 +283,7 @@ ap.srcs += nav_survey_rectangle.c
 ap.CFLAGS += -DDIGITAL_CAM
 ap.srcs += dc.c
 
-#ap.CFLAGS += -DUSE_MODULES
+ap.CFLAGS += -DUSE_MODULES
 sim.CFLAGS += -DUSE_MODULES
 
 # Config for SITL simulation
