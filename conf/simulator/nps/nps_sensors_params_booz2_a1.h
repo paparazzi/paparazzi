@@ -51,9 +51,9 @@
 #define NPS_ACCEL_NEUTRAL_Y       33738
 #define NPS_ACCEL_NEUTRAL_Z       32441
 /* m2s-4 */
-#define NPS_ACCEL_NOISE_STD_DEV_X 0.e-1
-#define NPS_ACCEL_NOISE_STD_DEV_Y 0.e-1
-#define NPS_ACCEL_NOISE_STD_DEV_Z 0.e-1
+#define NPS_ACCEL_NOISE_STD_DEV_X 5.e-2
+#define NPS_ACCEL_NOISE_STD_DEV_Y 5.e-2
+#define NPS_ACCEL_NOISE_STD_DEV_Z 5.e-2
 /* ms-2 */
 #define NPS_ACCEL_BIAS_X          0
 #define NPS_ACCEL_BIAS_Y          0
@@ -81,13 +81,13 @@
 #define NPS_GYRO_NOISE_STD_DEV_Q  RadOfDeg(0.)
 #define NPS_GYRO_NOISE_STD_DEV_R  RadOfDeg(0.)
 
-#define NPS_GYRO_BIAS_INITIAL_P   RadOfDeg( 1.0)
-#define NPS_GYRO_BIAS_INITIAL_Q   RadOfDeg( 2.0)
-#define NPS_GYRO_BIAS_INITIAL_R   RadOfDeg( -1.0)
+#define NPS_GYRO_BIAS_INITIAL_P   RadOfDeg( 0.0)
+#define NPS_GYRO_BIAS_INITIAL_Q   RadOfDeg( 0.0)
+#define NPS_GYRO_BIAS_INITIAL_R   RadOfDeg( 0.0)
 
-#define NPS_GYRO_BIAS_RANDOM_WALK_STD_DEV_P RadOfDeg(0.5)
-#define NPS_GYRO_BIAS_RANDOM_WALK_STD_DEV_Q RadOfDeg(0.5)
-#define NPS_GYRO_BIAS_RANDOM_WALK_STD_DEV_R RadOfDeg(0.5)
+#define NPS_GYRO_BIAS_RANDOM_WALK_STD_DEV_P RadOfDeg(0.)
+#define NPS_GYRO_BIAS_RANDOM_WALK_STD_DEV_Q RadOfDeg(0.)
+#define NPS_GYRO_BIAS_RANDOM_WALK_STD_DEV_R RadOfDeg(0.)
 /* s */
 #define NPS_GYRO_DT (1./512.)
 
