@@ -205,11 +205,16 @@ static inline void nav_follow(uint8_t _ac_id, float _distance, float _height);
 #ifdef NAV_GROUND_SPEED_PGAIN
 /** \brief Computes cruise throttle from ground speed setpoint
  */
-static bool_t nav_ground_speed_loop( void ) {
-  float err = estimator_hspeed_mod - nav_ground_speed_setpoint;
-  v_ctl_auto_throttle_cruise_throttle += nav_ground_speed_pgain*err;
-  Bound(v_ctl_auto_throttle_cruise_throttle, V_CTL_AUTO_THROTTLE_MIN_CRUISE_THROTTLE, V_CTL_AUTO_THROTTLE_MAX_CRUISE_THROTTLE);
-  return FALSE;
+static void nav_ground_speed_loop( void ) {
+  if (MINIMUM_AIRSPEED < nav_ground_speed_setpoint
+      && nav_ground_speed_setpoint < MAXIMUM_AIRSPEED) {
+    float err = estimator_hspeed_mod - nav_ground_speed_setpoint;
+    v_ctl_auto_throttle_cruise_throttle += nav_ground_speed_pgain*err;
+    Bound(v_ctl_auto_throttle_cruise_throttle, V_CTL_AUTO_THROTTLE_MIN_CRUISE_THROTTLE, V_CTL_AUTO_THROTTLE_MAX_CRUISE_THROTTLE);
+  } else {
+    /* Reset cruise throttle to nominal value */
+    v_ctl_auto_throttle_cruise_throttle = V_CTL_AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE;
+  }
 }
 #endif
 

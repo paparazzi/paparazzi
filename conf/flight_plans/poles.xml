@@ -48,7 +48,7 @@
       <go wp="TARGET" approaching_time="0"/>
       <set value="MAX_PPRZ" var="ap_state->commands[COMMAND_HATCH]"/>
     </block>
-    <block name="Poles 2">
+    <block name="Poles 2" pre_call="nav_ground_speed_loop()">
       <oval p1="C1" p2="C2" radius="nav_radius" until="nav_oval_count>=nav_poles_count"/>
     </block>
     <block name="Land Right AF-TD" strip_button="Land right (wp AF-TD)" strip_icon="land-right.png">
