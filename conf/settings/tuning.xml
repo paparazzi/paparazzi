@@ -18,7 +18,7 @@
       <dl_setting MAX="1" MIN="0" STEP="1" VAR="launch"/>
       <dl_setting MAX="1" MIN="0" STEP="1" VAR="kill_throttle">
       </dl_setting>
-      <dl_setting MAX="1" MIN="0" STEP="1" VAR="telemetry_mode_Ap" shortname="tele_AP"/>
+      <dl_setting MAX="1" MIN="0" STEP="1" VAR="telemetry_mode_Ap" shortname="tele_AP" module="downlink"/>
       <dl_setting MAX="2" MIN="0" STEP="1" VAR="gps_reset" module="gps_ubx" handler="Reset" shortname="GPS reset"/>
 
       <dl_setting MAX="200" MIN="-200" STEP="10" VAR="nav_radius" module="nav" handler="SetNavRadius">
@@ -98,8 +98,8 @@
         <dl_setting MAX="15" MIN="-15" STEP="1" VAR="fp_pitch"/>
         <dl_setting MAX="50" MIN="-50" STEP="5" VAR="nav_shift" module="nav" handler="IncreaseShift" shortname="inc. shift">
 	</dl_setting>
-	<dl_setting MAX="20" MIN="10" STEP="0.5" VAR="nav_ground_speed_setpoint" shortname="ground speed"/>
-	<dl_setting MAX="0." MIN="-0.05" STEP="0.01" VAR="nav_ground_speed_pgain" shortname="ground speed pgain"/>
+	<dl_setting MAX="50" MIN="5" STEP="0.5" VAR="nav_ground_speed_setpoint" shortname="ground speed"/>
+	<dl_setting MAX="0." MIN="-0.2" STEP="0.01" VAR="nav_ground_speed_pgain" shortname="ground speed pgain"/>
         <dl_setting MAX="500" MIN="50" STEP="5" VAR="nav_survey_shift"/>
       </dl_settings>
     </dl_settings>
