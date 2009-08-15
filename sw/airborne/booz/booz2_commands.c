@@ -22,6 +22,6 @@
 
 #include "booz2_commands.h"
 
-pprz_t booz2_commands[COMMANDS_NB];
-const pprz_t booz2_commands_failsafe[COMMANDS_NB] = COMMANDS_FAILSAFE;
+int32_t booz2_commands[COMMANDS_NB];
+const int32_t booz2_commands_failsafe[COMMANDS_NB] = COMMANDS_FAILSAFE;
 

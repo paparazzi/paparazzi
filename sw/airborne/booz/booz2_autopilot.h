@@ -69,27 +69,47 @@ extern bool_t booz2_autopilot_detect_ground;
 
 
 #define TRESHOLD_1_PPRZ (MIN_PPRZ / 2)
-#define TRESHOLD_2_PPRZ (MAX_PPRZ/2)
+#define TRESHOLD_2_PPRZ (MAX_PPRZ / 2)
 
 #define BOOZ_AP_MODE_OF_PPRZ(_rc, _booz_mode) {				\
-    if      (_rc > TRESHOLD_2_PPRZ) _booz_mode = booz2_autopilot_mode_auto2; \
-    else if (_rc > TRESHOLD_1_PPRZ) _booz_mode = BOOZ2_MODE_AUTO1;	\
-    else                            _booz_mode = BOOZ2_MODE_MANUAL;	\
+    if      (_rc > TRESHOLD_2_PPRZ)					\
+      _booz_mode = booz2_autopilot_mode_auto2;				\
+    else if (_rc > TRESHOLD_1_PPRZ)					\
+      _booz_mode = BOOZ2_MODE_AUTO1;					\
+    else								\
+      _booz_mode = BOOZ2_MODE_MANUAL;					\
   }
 
-#define booz2_autopilot_KillThrottle(_v) { \
-  kill_throttle = _v; \
-  booz2_autopilot_motors_on = !kill_throttle; \
-}
+#define booz2_autopilot_KillThrottle(_v) {	                        \
+    kill_throttle = _v;							\
+    booz2_autopilot_motors_on = !kill_throttle;				\
+  }
+
+
+#define booz2_autopilot_SetTol(_v) {					\
+    booz2_autopilot_tol = _v;						\
+    if (_v == 1) {							\
+      booz_ins_vff_realign = TRUE;					\
+      booz2_guidance_v_z_sp = -POS_BFP_OF_REAL(2);			\
+      booz2_autopilot_mode_auto2 = BOOZ2_AP_MODE_ATTITUDE_Z_HOLD;	\
+      booz2_autopilot_set_mode(booz2_autopilot_mode_auto2);		\
+    }									\
+    if (_v == 2) {							\
+      booz2_guidance_v_zd_sp = SPEED_BFP_OF_REAL(0.5);			\
+      booz2_autopilot_mode_auto2 = BOOZ2_AP_MODE_ATTITUDE_CLIMB;	\
+      booz2_autopilot_set_mode(booz2_autopilot_mode_auto2);		\
+    }									\
+    booz2_autopilot_tol = 0;						\
+  }
 
 
 #define TRESHOLD_GROUND_DETECT ACCEL_BFP_OF_REAL(15.)
-
-#define BoozDetectGroundEvent() { \
-  if (booz2_autopilot_mode == BOOZ2_AP_MODE_FAILSAFE) { \
-    if (booz_ins_ltp_accel.z < -TRESHOLD_GROUND_DETECT || booz_ins_ltp_accel.z > TRESHOLD_GROUND_DETECT) \
-      booz2_autopilot_detect_ground = TRUE; \
-  } \
-}
+#define BoozDetectGroundEvent() {					\
+    if (booz2_autopilot_mode == BOOZ2_AP_MODE_FAILSAFE) {		\
+      if (booz_ins_ltp_accel.z < -TRESHOLD_GROUND_DETECT ||		\
+	  booz_ins_ltp_accel.z > TRESHOLD_GROUND_DETECT)		\
+	booz2_autopilot_detect_ground = TRUE;				\
+    }									\
+  }
 
 #endif /* BOOZ2_AUTOPILOT_H */

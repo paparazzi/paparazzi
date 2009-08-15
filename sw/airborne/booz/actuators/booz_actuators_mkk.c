@@ -1,5 +1,5 @@
 /*
- * $Id$
+ * $Id: actuators_buss_twi_blmc_hw.h 3847 2009-08-02 21:47:31Z poine $
  *  
  * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
  *
@@ -21,24 +21,34 @@
  * Boston, MA 02111-1307, USA. 
  */
 
-#include "actuators.h"
+#include "booz_actuators.h"
+#include "actuators/booz_actuators_mkk.h"
 
-#include BOARD_CONFIG
+#include "booz2_commands.h"
+#include "i2c.h"
 
-uint8_t twi_blmc_nb_err;
+struct ActuatorsMkk actuators_mkk; 
 
-uint8_t buss_twi_blmc_motor_power[BUSS_TWI_BLMC_NB];
-volatile bool_t  buss_twi_blmc_status;
-volatile bool_t  buss_twi_blmc_i2c_done;
-volatile uint8_t buss_twi_blmc_idx;
+const uint8_t actuators_addr[ACTUATORS_MKK_NB] = ACTUATORS_MKK_ADDR;
 
-const uint8_t buss_twi_blmc_addr[BUSS_TWI_BLMC_NB] = BUSS_BLMC_ADDR;
+void actuators_init(void) {
 
-void actuators_init ( void ) {
-  uint8_t i;
-  for (i=0; i<BUSS_TWI_BLMC_NB;i++)
-    buss_twi_blmc_motor_power[i] = 0;
-  buss_twi_blmc_status = BUSS_TWI_BLMC_STATUS_IDLE;
-  twi_blmc_nb_err = 0;
-  buss_twi_blmc_i2c_done = TRUE;
+  supervision_init();
+  actuators_mkk.status = IDLE;
+  actuators_mkk.i2c_done = TRUE;
+  actuators_mkk.idx = 0;
+
 }
+
+
+void actuators_set(bool_t motors_on) {
+
+  supervision_run(motors_on, booz2_commands);
+  actuators_mkk.status = BUSY;
+  actuators_mkk.i2c_done = FALSE;
+  actuators_mkk.idx = 0;
+  i2c0_buf[0] = supervision_commands[actuators_mkk.idx];
+  i2c0_transmit(actuators_addr[actuators_mkk.idx], 1, &actuators_mkk.i2c_done);
+  
+}
+

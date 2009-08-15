@@ -21,48 +21,49 @@
  * Boston, MA 02111-1307, USA. 
  */
 
-#include "booz2_fms.h"
+#include "booz_fms.h"
 
 #include "booz2_ins.h"
-#include "booz_geometry_mixed.h"
+#include "math/pprz_algebra_int.h"
 
-#define BOOZ2_FMS_TEST_SIGNAL_DEFAULT_PERIOD    300;
-#define BOOZ2_FMS_TEST_SIGNAL_DEFAULT_AMPLITUDE 20;
-#define BOOZ2_FMS_TEST_SIGNAL_DEFAULT_AXE  0
+#define FMS_TEST_SIGNAL_DEFAULT_MODE       STEP_YAW
+#define FMS_TEST_SIGNAL_DEFAULT_PERIOD     40
+#define FMS_TEST_SIGNAL_DEFAULT_AMPLITUDE  (((int32_t)ANGLE_BFP_OF_REAL(RadOfDeg(5)))<<8)
 
-uint8_t  booz_fms_test_signal_mode;
-
-uint32_t booz_fms_test_signal_period;
-uint32_t booz_fms_test_signal_amplitude;
-uint8_t  booz_fms_test_signal_axe;
-uint32_t booz_fms_test_signal_counter;
-
-uint32_t booz_fms_test_signal_start_z;
+struct BoozFmsTestSignal fms_test_signal;
 
 void booz_fms_impl_init(void) {
-  booz_fms_test_signal_mode = BOOZ_FMS_TEST_SIGNAL_MODE_ATTITUDE;
-  booz_fms_test_signal_period = BOOZ2_FMS_TEST_SIGNAL_DEFAULT_PERIOD;
-  booz_fms_test_signal_amplitude = BOOZ2_FMS_TEST_SIGNAL_DEFAULT_AMPLITUDE;
-  booz_fms_test_signal_axe = BOOZ2_FMS_TEST_SIGNAL_DEFAULT_AXE;
-  booz_fms_test_signal_counter = 0;
-  booz_fms_input.h_mode = BOOZ2_GUIDANCE_H_MODE_ATTITUDE;
-  booz_fms_input.v_mode = BOOZ2_GUIDANCE_V_MODE_HOVER;
+  fms_test_signal.mode      = FMS_TEST_SIGNAL_DEFAULT_MODE;
+  fms_test_signal.period    = FMS_TEST_SIGNAL_DEFAULT_PERIOD;
+  fms_test_signal.amplitude = FMS_TEST_SIGNAL_DEFAULT_AMPLITUDE;
+  fms_test_signal.counter   = 0;
+  fms.input.h_mode = BOOZ2_GUIDANCE_H_MODE_ATTITUDE;
+  fms.input.v_mode = BOOZ2_GUIDANCE_V_MODE_HOVER;
 }
 
 void booz_fms_impl_periodic(void) {
 
-  switch (booz_fms_test_signal_mode) {
+  switch (fms_test_signal.mode) {
     
-  case BOOZ_FMS_TEST_SIGNAL_MODE_ATTITUDE: {
-    if (booz_fms_test_signal_counter < booz_fms_test_signal_period) {
-      PPRZ_INT32_EULER_ASSIGN(booz_fms_input.h_sp.attitude, booz_fms_test_signal_amplitude, 0, 0);
+  case STEP_ROLL: {
+    if (fms_test_signal.counter < fms_test_signal.period) {
+      EULERS_ASSIGN(fms.input.h_sp.attitude, fms_test_signal.amplitude, 0, 0);
     }
     else {
-      PPRZ_INT32_EULER_ASSIGN(booz_fms_input.h_sp.attitude, -booz_fms_test_signal_amplitude, 0, 0);
+      EULERS_ASSIGN(fms.input.h_sp.attitude, -fms_test_signal.amplitude, 0, 0);
     }
   }
     break;
-    
+  case STEP_YAW: {
+    if (fms_test_signal.counter < fms_test_signal.period) {
+      EULERS_ASSIGN(fms.input.h_sp.attitude, 0, 0, fms_test_signal.amplitude);
+    }
+    else {
+      EULERS_ASSIGN(fms.input.h_sp.attitude, 0, 0, -fms_test_signal.amplitude);
+    }
+  }
+    break;
+#if 0    
   case BOOZ_FMS_TEST_SIGNAL_MODE_VERTICAL: {
     if (booz2_guidance_v_mode < BOOZ2_GUIDANCE_V_MODE_HOVER)
       booz_fms_test_signal_start_z = booz_ins_ltp_pos.z;
@@ -74,9 +75,14 @@ void booz_fms_impl_periodic(void) {
     }
   }
   break;
-
+#endif
   }
-  booz_fms_test_signal_counter++;
-  if (booz_fms_test_signal_counter >= 2 * booz_fms_test_signal_period)
-    booz_fms_test_signal_counter = 0;
+  fms_test_signal.counter++;
+  if (fms_test_signal.counter >= (2 * fms_test_signal.period))
+    fms_test_signal.counter = 0;
+}
+
+void booz_fms_impl_set_enabled(bool_t enabled) {
+  if (enabled)
+    fms_test_signal.counter = 0;
 }

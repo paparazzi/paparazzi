@@ -33,11 +33,8 @@
 #include "datalink.h"
 
 #include "booz2_commands.h"
-#include ACTUATORS
-//#include "booz2_servos_direct_hw.h"
-//#include "booz2_control_surfaces.h"
+#include "booz_actuators.h"
 #include "booz_radio_control.h"
-
 
 #include "booz_imu.h"
 #include "booz2_gps.h"
@@ -45,7 +42,7 @@
 #include "booz2_analog_baro.h"
 #include "booz2_battery.h"
 
-#include "booz2_fms.h"
+#include "booz_fms.h"
 #include "booz2_autopilot.h"
 
 #include "booz_stabilization.h"
@@ -82,9 +79,6 @@ STATIC_INLINE void booz2_main_init( void ) {
   hw_init();
   sys_time_init();
   actuators_init();
-#if defined USE_BOOZ2_SERVOS_DIRECT
-  booz2_servos_direct_init();
-#endif
   radio_control_init();
 
   booz2_analog_init();
@@ -119,11 +113,11 @@ STATIC_INLINE void booz2_main_periodic( void ) {
   /* run control loops */
   booz2_autopilot_periodic();
   /* set actuators     */
-  SetActuatorsFromCommands(booz2_autopilot_motors_on);
+  actuators_set(booz2_autopilot_motors_on);
   PeriodicPrescaleBy10(							\
     {						                        \
       radio_control_periodic();						\
-      if (radio_control.status != RADIO_CONTROL_OK && booz2_autopilot_mode != BOOZ2_AP_MODE_KILL)			\
+      if (radio_control.status != RADIO_CONTROL_OK && booz2_autopilot_mode != BOOZ2_AP_MODE_KILL)\
 	booz2_autopilot_set_mode(BOOZ2_AP_MODE_FAILSAFE);		\
     },									\
     {									\

@@ -25,7 +25,7 @@
 
 #include "booz_ahrs.h"
 #include "booz_stabilization.h"
-#include "booz2_fms.h"
+#include "booz_fms.h"
 #include "booz2_ins.h"
 #include "booz2_navigation.h"
 
@@ -111,14 +111,14 @@ void booz2_guidance_h_read_rc(bool_t  in_flight) {
   case BOOZ2_GUIDANCE_H_MODE_ATTITUDE:
     booz_stabilization_attitude_read_rc(in_flight);
 #ifdef USE_FMS
-    if (booz_fms_on)
-      BOOZ_STABILIZATION_ATTITUDE_ADD_SP(booz_fms_input.h_sp.attitude);
+    if (fms.enabled)
+      BOOZ_STABILIZATION_ATTITUDE_ADD_SP(fms.input.h_sp.attitude);
 #endif
     break;
   
   case BOOZ2_GUIDANCE_H_MODE_HOVER:
 #ifdef USE_FMS
-    if (booz_fms_on && booz_fms_input.h_mode >= BOOZ2_GUIDANCE_H_MODE_HOVER)
+    if (fms.enabled && fms.input.h_mode >= BOOZ2_GUIDANCE_H_MODE_HOVER)
       BOOZ2_FMS_SET_POS_SP(booz2_guidance_h_pos_sp,booz_stabilization_att_sp.psi);
 #endif
     BOOZ_STABILIZATION_ATTITUDE_READ_RC(booz2_guidance_h_rc_sp, in_flight);

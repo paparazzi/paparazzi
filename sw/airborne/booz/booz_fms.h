@@ -21,8 +21,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef BOOZ2_FMS_H
-#define BOOZ2_FMS_H
+#ifndef BOOZ_FMS_H
+#define BOOZ_FMS_H
 
 #include "std.h"
 #include "math/pprz_algebra_int.h"
@@ -71,29 +71,37 @@ struct Booz_fms_command {
   uint8_t v_mode;
 };
 
-extern bool_t  booz_fms_on;
-extern bool_t  booz_fms_timeout;
-extern uint8_t booz_fms_last_msg;
+struct BoozFms {
+  bool_t enabled;
+  bool_t timeouted;
+  uint8_t last_msg;
+  struct Booz_fms_info info;
+  struct Booz_fms_command input;
+};
 
-extern struct Booz_fms_info    booz_fms_info;
-extern struct Booz_fms_command booz_fms_input;
+extern struct BoozFms fms;
 
 extern void booz_fms_init(void);
-extern void booz_fms_set_on_off(bool_t state);
+extern void booz_fms_set_enabled(bool_t enabled);
 extern void booz_fms_periodic(void);
 extern void booz_fms_update_info(void);
 
+/* must be implemented by specific module */
+extern void booz_fms_impl_init(void);
+extern void booz_fms_impl_periodic(void);
+extern void booz_fms_impl_set_enabled(bool_t enabled);
 
-#define BOOZ2_FMS_TYPE_DATALINK    0
-#define BOOZ2_FMS_TYPE_TEST_SIGNAL 1
 
-#if defined BOOZ2_FMS_TYPE
-#if BOOZ2_FMS_TYPE == BOOZ2_FMS_TYPE_DATALINK
-#include "booz2_fms_datalink.h"
-#elif BOOZ2_FMS_TYPE == BOOZ2_FMS_TYPE_TEST_SIGNAL
-#include "booz2_fms_test_signal.h"
+#define BOOZ_FMS_TYPE_DATALINK    0
+#define BOOZ_FMS_TYPE_TEST_SIGNAL 1
+
+#if defined BOOZ_FMS_TYPE
+#if BOOZ_FMS_TYPE == BOOZ_FMS_TYPE_DATALINK
+#include "fms/booz_fms_datalink.h"
+#elif BOOZ_FMS_TYPE == BOOZ_FMS_TYPE_TEST_SIGNAL
+#include "fms/booz_fms_test_signal.h"
 #else
-#error "booz2_fms.h: Unknown BOOZ2_FMS_TYPE"
+#error "booz_fms.h: Unknown BOOZ2_FMS_TYPE"
 #endif
 #else /* no FMS */
 #define  booz_fms_init() {}
@@ -101,22 +109,22 @@ extern void booz_fms_update_info(void);
 #endif
 
 #define BOOZ2_FMS_SET_POS_SP(_pos_sp,_psi_sp) { \
-  _pos_sp.x = booz_fms_input.h_sp.pos.x; \
-  _pos_sp.y = booz_fms_input.h_sp.pos.y; \
-  /*_psi_sp = booz_fms_input.h_sp.pos.z;*/ \
+    _pos_sp.x = fms.input.h_sp.pos.x;		\
+    _pos_sp.y = fms.input.h_sp.pos.y;		\
+    /*_psi_sp = fms.input.h_sp.pos.z;*/		\
 }
 
-#define BOOZ2_FMS_POS_INIT(_pos_sp,_psi_sp) { \
-  booz_fms_input.h_sp.pos.x = _pos_sp.x; \
-  booz_fms_input.h_sp.pos.y = _pos_sp.y; \
-  booz_fms_input.h_sp.pos.z = _psi_sp; \
-}
-
-#define booz2_fms_SetOnOff(_val) {			\
-    booz_fms_on = _val;					\
-    booz_fms_set_on_off(booz_fms_on);			\
+#define BOOZ2_FMS_POS_INIT(_pos_sp,_psi_sp) {	\
+    fms.input.h_sp.pos.x = _pos_sp.x;		\
+    fms.input.h_sp.pos.y = _pos_sp.y;		\
+    fms.input.h_sp.pos.z = _psi_sp;		\
   }
 
-#endif /* BOOZ2_FMS_H */
+#define booz_fms_SetEnabled(_val) {		\
+    fms.enabled = _val;				\
+    booz_fms_set_enabled(_val);			\
+  }
+
+#endif /* BOOZ_FMS_H */
 
 

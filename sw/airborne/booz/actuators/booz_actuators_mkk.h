@@ -1,5 +1,5 @@
 /*
- * $Id$
+ * $Id: actuators_buss_twi_blmc_hw.h 3847 2009-08-02 21:47:31Z poine $
  *  
  * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
  *
@@ -21,37 +21,33 @@
  * Boston, MA 02111-1307, USA. 
  */
 
-#ifndef BOOZ_FMS_TEST_SIGNAL_H
-#define BOOZ_FMS_TEST_SIGNAL_H
-
-#include "std.h"
+#ifndef BOOZ_ACTUATORS_MKK_H
+#define BOOZ_ACTUATORS_MKK_H
 
 
-enum fms_ts_mode {
-  STEP_ROLL,
-  STEP_PITCH,
-  STEP_YAW,
-  STEP_VERT
+enum actuators_mkk_status {IDLE, BUSY};
+
+struct ActuatorsMkk {
+  volatile enum actuators_mkk_status status;
+  volatile bool_t  i2c_done;
+  volatile uint8_t idx;
 };
 
-struct BoozFmsTestSignal {
-  enum fms_ts_mode mode;
-  uint32_t period;
-  uint32_t amplitude;
-  uint32_t counter;
-};
+extern struct ActuatorsMkk actuators_mkk; 
 
-extern struct BoozFmsTestSignal fms_test_signal;
 
-#define booz_fms_test_signal_SetPeriod(_val) {	\
-    fms_test_signal.period = _val;		\
-    fms_test_signal.counter = 0;		\
+#include "airframe.h"
+#include "actuators/booz_supervision.h"
+extern const uint8_t actuators_addr[];
+
+#define ActuatorsMkkI2cHandler() {					\
+    actuators_mkk.idx++;						\
+    if (actuators_mkk.idx<ACTUATORS_MKK_NB) {				\
+      i2c0_buf[0] = supervision_commands[actuators_mkk.idx];		\
+      i2c0_transmit(actuators_addr[actuators_mkk.idx], 1, &actuators_mkk.i2c_done); \
+    }									\
+    else								\
+      actuators_mkk.status = IDLE;					\
   }
 
-#define booz_fms_test_signal_SetMode(_val) {	\
-    fms_test_signal.mode = _val;		\
-    fms_test_signal.counter = 0;		\
-  }
-
-#endif /* BOOZ_FMS_TEST_SIGNAL_H */
-
+#endif /* BOOZ_ACTUATORS_MKK_H */

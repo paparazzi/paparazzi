@@ -27,8 +27,8 @@
 #include "paparazzi.h"
 #include "airframe.h"
 
-extern pprz_t booz2_commands[COMMANDS_NB];
-extern const pprz_t booz2_commands_failsafe[COMMANDS_NB];
+extern int32_t booz2_commands[COMMANDS_NB];
+extern const int32_t booz2_commands_failsafe[COMMANDS_NB];
 
 #define SetCommands(_in_cmd, _in_flight, _motors_on) {			\
     booz2_commands[COMMAND_PITCH]  = _in_cmd[COMMAND_PITCH];		\

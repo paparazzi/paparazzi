@@ -54,8 +54,8 @@ struct BoozAhrsFloat {
 extern struct BoozAhrs booz_ahrs;
 extern struct BoozAhrsFloat booz_ahrs_float;
 
-#define BOOZ_AHRS_FLOAT_OF_INT32() { \
-    QUAT_FLOAT_OF_BFP(booz_ahrs_float.ltp_to_body_quat, booz_ahrs.ltp_to_body_quat);	\
+#define BOOZ_AHRS_FLOAT_OF_INT32() {					\
+    QUAT_FLOAT_OF_BFP(booz_ahrs_float.ltp_to_body_quat, booz_ahrs.ltp_to_body_quat); \
     RATES_FLOAT_OF_BFP(booz_ahrs_float.body_rate, booz_ahrs.body_rate); \
     booz_ahrs_float.ltp_to_body_euler.phi = ANGLE_FLOAT_OF_BFP(booz_ahrs.ltp_to_body_euler.phi); \
     booz_ahrs_float.ltp_to_body_euler.theta = ANGLE_FLOAT_OF_BFP(booz_ahrs.ltp_to_body_euler.theta); \

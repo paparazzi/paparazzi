@@ -50,11 +50,18 @@ extern int32_t booz2_guidance_v_delta_t;
 
 extern int32_t booz2_guidance_v_kp;
 extern int32_t booz2_guidance_v_kd;
+extern int32_t booz2_guidance_v_ki;
 
 extern void booz2_guidance_v_init(void);
 extern void booz2_guidance_v_read_rc(void);
 extern void booz2_guidance_v_mode_changed(uint8_t new_mode);
 extern void booz2_guidance_v_notify_in_flight(bool_t in_flight);
 extern void booz2_guidance_v_run(bool_t in_flight);
+
+#define booz2_guidance_v_SetKi(_val) {			\
+    booz2_guidance_v_ki = _val;				\
+    booz2_guidance_v_z_sum_err = 0;			\
+  }
+
 
 #endif /* BOOZ2_GUIDANCE_V */

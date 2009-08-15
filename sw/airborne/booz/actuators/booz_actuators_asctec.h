@@ -21,32 +21,37 @@
  * Boston, MA 02111-1307, USA. 
  */
 
-#ifndef BOOZ_RADIO_CONTROL_SPEKTRUM_DX7SE_H
-#define BOOZ_RADIO_CONTROL_SPEKTRUM_DX7SE_H
+#ifndef BOOZ_ACTUATORS_ASCTEC_H
+#define BOOZ_ACTUATORS_ASCTEC_H
 
-#define RADIO_CONTROL_NB_CHANNEL 7
-#define RADIO_CONTROL_ROLL       0
-#define RADIO_CONTROL_THROTTLE   1
-#define RADIO_CONTROL_PITCH      2
-#define RADIO_CONTROL_YAW        3
-#define RADIO_CONTROL_MODE       5
+enum actuators_astec_cmd { NONE,
+			   TEST,
+			   REVERSE,
+			   SET_ADDR };
 
-#define RC_SPK_SYNC_2 0x12
+enum actuators_astec_addr { FRONT,
+			    BACK,
+			    LEFT,
+			    RIGHT };
 
-#define RC_SPK_THROWS { MAX_PPRZ/MAX_SPK, \
-                        MAX_PPRZ/MAX_SPK, \
-                       -MAX_PPRZ/MAX_SPK, \
-                        MAX_PPRZ/MAX_SPK, \
-                        MAX_PPRZ/MAX_SPK, \
-                       -MAX_PPRZ/MAX_SPK, \
-                        MAX_PPRZ/MAX_SPK }
 
-/*
-  aileron 1
-  elevator 2
-  rudder 3
-  gear 4
-  throttle 5
-*/
+enum actuators_astec_cmds { PITCH,
+			    ROLL,
+			    YAW,
+			    THRUST,
+                            CMD_NB };
 
-#endif /* BOOZ_RADIO_CONTROL_SPEKTRUM_DX7SE_H */
+struct ActuatorsAsctec {
+  enum actuators_astec_cmd cmd;
+  enum actuators_astec_addr cur_addr;
+  enum actuators_astec_addr new_addr;
+  int32_t cmds[CMD_NB];
+  volatile bool_t  i2c_done;
+  volatile uint32_t nb_err;
+};
+
+
+extern struct ActuatorsAsctec actuators_asctec; 
+
+
+#endif /* BOOZ_ACTUATORS_ASCTEC_H */

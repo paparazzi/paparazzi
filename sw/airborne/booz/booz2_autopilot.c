@@ -57,12 +57,6 @@ void booz2_autopilot_init(void) {
 }
 
 
-#if 0
-#include "uart.h"
-#include "downlink.h"
-#include "messages.h"
-#endif
-
 void booz2_autopilot_periodic(void) {
 
   RunOnceEvery(50, nav_periodic_task_10Hz());
@@ -227,13 +221,6 @@ void booz2_autopilot_set_mode(uint8_t new_autopilot_mode) {
 
 
 void booz2_autopilot_on_rc_frame(void) {
-
-#if 0
-  DOWNLINK_SEND_BOOZ_DEBUG(&rc_values[RADIO_THROTTLE],		\
-			   &rc_values[RADIO_ROLL],		\
-			   &rc_values[RADIO_PITCH],		\
-			   &rc_values[RADIO_YAW]);
-#endif
 
   uint8_t new_autopilot_mode = 0;
   BOOZ_AP_MODE_OF_PPRZ(radio_control.values[RADIO_CONTROL_MODE], new_autopilot_mode);

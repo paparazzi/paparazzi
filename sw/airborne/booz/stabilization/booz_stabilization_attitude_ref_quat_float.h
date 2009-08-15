@@ -65,10 +65,9 @@
     booz_stab_att_ref_euler.psi = _sp.psi;				\
     booz_stab_att_ref_rate.r = 0;					\
     struct FloatRMat   sp_rmat;						\
-    /*FLOAT_RMAT_OF_EULERS_312(sp_rmat, _sp);*/				\
-    FLOAT_RMAT_OF_EULERS_321(sp_rmat, _sp);				\
+    FLOAT_RMAT_OF_EULERS_312(sp_rmat, _sp);				\
+    /*    FLOAT_RMAT_OF_EULERS_321(sp_rmat, _sp);*/			\
     FLOAT_QUAT_OF_RMAT(booz_stab_att_sp_quat, sp_rmat);			\
-    /*FLOAT_EULERS_OF_QUAT(sp_euler321, sp_quat);*/			\
   }
 
 
