@@ -78,6 +78,7 @@ let set_color labels name color =
 
 class gauge = fun (gauge_da:GMisc.drawing_area) ->
   object (self)
+    inherit Gtk_tools.pixmap_in_drawin_area ~drawing_area:gauge_da ()
     method layout = fun string ->
       let context = gauge_da#misc#create_pango_context in
       let layout = context#create_layout in
@@ -101,7 +102,7 @@ class vgauge = fun ?(color="green") ?(history_len=50) gauge_da v_min v_max ->
     method set = fun ?arrow ?(background="orange") value strings ->
       let {Gtk.width=width; height=height} = gauge_da#misc#allocation in
       if height > 1 then (* Else the drawing area is not allocated already *)
-	let dr = GDraw.pixmap ~width ~height ~window:gauge_da () in
+	let dr = self#get_pixmap () in
 	dr#set_foreground (`NAME background);
 	dr#rectangle ~x:0 ~y:0 ~width ~height ~filled:true ();
 	
@@ -169,7 +170,7 @@ class hgauge = fun ?(color="green") gauge_da v_min v_max ->
     method set = fun ?(background="orange") value string ->
       let {Gtk.width=width; height=height} = gauge_da#misc#allocation in
       if height > 1 then (* Else the drawing area is not allocated already *)
-	let dr = GDraw.pixmap ~width ~height ~window:gauge_da () in
+	let dr = self#get_pixmap () in
 	dr#set_foreground (`NAME background);
 	dr#rectangle ~x:0 ~y:0 ~width ~height ~filled:true ();
 	

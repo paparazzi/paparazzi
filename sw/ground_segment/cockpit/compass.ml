@@ -1,3 +1,29 @@
+(*
+* $Id$
+*
+* Compass display for a manned vehicle
+*  
+* Copyright (C) 2004-2009 ENAC, Pascal Brisset, Antoine Drouin
+*
+* This file is part of paparazzi.
+*
+* paparazzi is free software; you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation; either version 2, or (at your option)
+* any later version.
+*
+* paparazzi is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with paparazzi; see the file COPYING.  If not, write to
+* the Free Software Foundation, 59 Temple Place - Suite 330,
+* Boston, MA 02111-1307, USA. 
+*
+*)
+
 open Printf
 open Latlong
 
@@ -23,12 +49,13 @@ let circle = fun (dr:GDraw.pixmap) (x,y) r ->
   let points = Array.init n
       (fun i ->
 	let a = float i /. float n *. 2.*.pi in
-	(x + truncate (r*.cos a), x + truncate (r*.sin a))) in
+	(x + truncate (r*.cos a), y + truncate (r*.sin a))) in
   dr#polygon (Array.to_list points)
       
-let draw = fun da desired_course course_opt distance ->
+let draw = fun (da_object:Gtk_tools.pixmap_in_drawin_area) desired_course course_opt distance ->
+  let da = da_object#drawing_area in
   let {Gtk.width=width; height=height} = da#misc#allocation in
-  let dr = GDraw.pixmap ~width ~height ~window:da () in
+  let dr = da_object#get_pixmap () in
   dr#set_foreground background;
   dr#rectangle ~x:0 ~y:0 ~width ~height ~filled:true ();
   let s = (min width height) / 8 in
@@ -103,8 +130,8 @@ let _ =
   let quit = fun () -> GMain.Main.quit (); exit 0 in
   ignore (window#connect#destroy ~callback:quit);
 
-  let da = GMisc.drawing_area ~width ~height ~packing:window#add () in
-  da#misc#realize ();
+  let da = new Gtk_tools.pixmap_in_drawin_area ~width ~height ~packing:window#add () in
+  da#drawing_area#misc#realize ();
 
   (* Listening messages *)
   let course = ref None in (* deg *)

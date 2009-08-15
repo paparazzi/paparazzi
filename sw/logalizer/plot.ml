@@ -80,7 +80,6 @@ let labelled_entry = fun ?width_chars text value (h:GPack.box) ->
   label, GEdit.entry ?width_chars ~text:value ~packing:h#pack ()
 
 class plot = fun ~width ~height ~packing () ->
-  let da = GMisc.drawing_area ~width ~height ~show:true ~packing () in
   let curves = Hashtbl.create 3 in
   object (self)
     val mutable min_x = max_float
@@ -92,6 +91,7 @@ class plot = fun ~width ~height ~packing () ->
     val mutable csts = ([] : float list)
     val mutable auto_scale = true
 
+    inherit Gtk_tools.pixmap_in_drawin_area ~width ~height ~packing ()
 
     method private update_scale = fun values ->
       let n = Array.length values in
@@ -136,8 +136,6 @@ class plot = fun ~width ~height ~packing () ->
 
     method destroy = fun () -> ()
 
-    method drawing_area = da
-
     method add_cst = fun v ->
       csts <- v :: csts;
       self#redraw ()
@@ -164,8 +162,9 @@ class plot = fun ~width ~height ~packing () ->
       self#redraw ()
 
     method redraw = fun () ->
+      let da = self#drawing_area in
       let {Gtk.width=width; height=height} = da#misc#allocation in
-      let dr = GDraw.pixmap ~width ~height ~window:da () in
+      let dr = self#get_pixmap () in
       dr#set_foreground (`NAME "white");
       dr#rectangle ~x:0 ~y:0 ~width ~height ~filled:true ();
 
@@ -252,7 +251,7 @@ class plot = fun ~width ~height ~packing () ->
       (* Actually draw *)
       (new GDraw.drawable da#misc#window)#put_pixmap ~x:0 ~y:0 dr#pixmap
 
-    initializer(ignore (da#event#connect#expose ~callback:(fun _ -> self#redraw (); false)))
+    initializer(ignore (self#drawing_area#event#connect#expose ~callback:(fun _ -> self#redraw (); false)))
   end
 
 

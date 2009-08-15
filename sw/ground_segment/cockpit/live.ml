@@ -835,15 +835,16 @@ let rotate_and_translate = fun l angle dx dy ->
   ) l) dx dy
 let flip = fun l -> List.map (fun (x, y) -> (-x, y)) l
 
-let draw_altgraph = fun (da:GMisc.drawing_area) (geomap:MapCanvas.widget) aircrafts ->
+let draw_altgraph = fun (da_object:Gtk_tools.pixmap_in_drawin_area) (geomap:MapCanvas.widget) aircrafts ->
   (** First estimate the coverage of the window *)
   let width_c, height_c = Gdk.Drawable.get_size geomap#canvas#misc#window in
   let (xc0, yc0) = geomap#canvas#get_scroll_offsets in
   let (east, _y0) = geomap#window_to_world (float xc0) (float (yc0+height_c))
   and (west, _y1) = geomap#window_to_world (float (xc0+width_c)) (float yc0) in
 
+  let da = da_object#drawing_area in
   let width, height = Gdk.Drawable.get_size da#misc#window in
-  let dr = GDraw.pixmap ~width ~height ~window:da () in
+  let dr = da_object#get_pixmap () in
   dr#set_background `BLACK;
   dr#set_foreground `BLACK;
 

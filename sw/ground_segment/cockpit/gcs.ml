@@ -583,7 +583,7 @@ let () =
   let my_alert = new Pages.alert alert_page in
 
   (** Altitude graph frame *)
-  let alt_graph = GMisc.drawing_area () in
+  let alt_graph = new Gtk_tools.pixmap_in_drawin_area () in
 
   (** plugin frame *)
   let plugin_width = 400 and plugin_height = 300 in
@@ -594,7 +594,7 @@ let () =
 		 "aircraft", ac_notebook#coerce;
 		 "editor", editor_frame#coerce;
 		 "alarms", alert_page#coerce;
-		 "altgraph", alt_graph#coerce (*alt_frame#coerce*);
+		 "altgraph", alt_graph#drawing_area#coerce (*alt_frame#coerce*);
 	   "plugin", plugin_frame#coerce] in
 
   let the_layout = ExtXml.child layout "0" in

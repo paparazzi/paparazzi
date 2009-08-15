@@ -27,8 +27,12 @@
 (** GTK utilities
  *)
 
-class pixmap_in_drawin_area = fun ~width ~height ~packing () -> 
-  let da = GMisc.drawing_area ~width ~height ~show:true ~packing () in
+class pixmap_in_drawin_area = fun ?drawing_area ?width ?height ?packing () -> 
+  let da =
+    match drawing_area with
+      None ->
+	GMisc.drawing_area ?width ?height ~show:true ?packing ()
+    | Some d -> d in
   object
     val mutable pixmap = None
 

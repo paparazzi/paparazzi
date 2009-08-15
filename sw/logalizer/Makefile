@@ -43,7 +43,7 @@ plotter : plotter.cmo
 
 plot : log_file.cmx gtk_export.cmx export.cmx plot.cmx
 	@echo OL $@
-	$(Q)$(OCAMLOPT) $(INCLUDES) -o $@ unix.cmxa str.cmxa xml-light.cmxa glibivy-ocaml.cmxa lablgtk.cmxa lib-pprz.cmxa lablglade.cmxa gtkInit.cmx  $^
+	$(Q)$(OCAMLOPT) $(INCLUDES) -o $@ unix.cmxa str.cmxa xml-light.cmxa glibivy-ocaml.cmxa lablgtk.cmxa lib-pprz.cmxa xlib-pprz.cmxa lablglade.cmxa gtkInit.cmx  $^
 
 sd2log : sd2log.cmo
 	@echo OL $@

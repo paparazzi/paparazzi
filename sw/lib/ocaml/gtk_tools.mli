@@ -26,11 +26,13 @@
 (** GTK utilities
  *)
 
-(** Allocate a drawing area and filling pixmap on request *)
+(** Allocate a drawing area and filling pixmap on request.
+    if ~drawing_area is provided, width, heigh and packing are ignored *)
 class pixmap_in_drawin_area : 
-    width:int ->
-    height:int ->
-    packing:(GObj.widget -> unit) ->
+    ?drawing_area:GMisc.drawing_area ->
+    ?width:int ->
+    ?height:int ->
+    ?packing:(GObj.widget -> unit) ->
     unit ->
       object
 	method drawing_area : GMisc.drawing_area
