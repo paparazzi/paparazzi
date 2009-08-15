@@ -210,6 +210,10 @@ let dl_setting = fun ac_id idx value ->
   let vs = ["ac_id", Pprz.String ac_id; "index", Pprz.Int idx;"value", Pprz.Float value] in
   Ground_Pprz.message_send "dl" "DL_SETTING" vs
 
+let get_dl_setting = fun ac_id idx ->
+  let vs = ["ac_id", Pprz.String ac_id; "index", Pprz.Int idx] in
+  Ground_Pprz.message_send "dl" "GET_DL_SETTING" vs
+
 let menu_entry_of_block = fun ac_id (id, name) ->
   let send_msg = fun () -> jump_to_block ac_id id in
   `I (name, send_msg)
@@ -533,7 +537,11 @@ let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id
       Xml.Element("empty", [], [])
   in
   let dl_setting_callback = fun idx value ->
-    dl_setting ac_id idx value in
+    if classify_float value = FP_normal then
+      dl_setting ac_id idx value
+    else
+      get_dl_setting ac_id idx
+  in
   let dl_settings_page =
     try
       let xml_settings = Xml.children (ExtXml.child settings_xml "dl_settings") in

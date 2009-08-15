@@ -66,7 +66,7 @@ let add_key = fun xml do_change keys ->
   
 
 
-let one_setting = fun (i:int) do_change packing dl_setting (tooltips:GData.tooltips) strip keys ->
+let one_setting = fun (i:int) (do_change:int -> float -> unit) packing dl_setting (tooltips:GData.tooltips) strip keys ->
   let f = fun a -> float_of_string (ExtXml.attrib dl_setting a) in
   let lower = f "min"
   and upper = f "max"
@@ -81,7 +81,8 @@ let one_setting = fun (i:int) do_change packing dl_setting (tooltips:GData.toolt
   let varname = ExtXml.attrib dl_setting "var" in
   let text = try ExtXml.attrib dl_setting "shortname" with _ -> varname in
   let _l = GMisc.label ~width:100 ~text ~packing:hbox#pack () in
-  let current_value = GMisc.label ~width:50 ~text:"N/A" ~packing:hbox#pack () in
+  let eb = GBin.event_box ~packing:hbox#pack () in
+  let current_value = GMisc.label ~width:50 ~text:"N/A" ~packing:eb#add () in
 
   let auto_but = GButton.check_button ~label:"Auto" ~active:false () in
 
@@ -141,6 +142,11 @@ let one_setting = fun (i:int) do_change packing dl_setting (tooltips:GData.toolt
   in
   let set_default = fun x ->
     if not !modified then set_default x else () in
+
+  (* Update value *)
+  let callback = fun _ ->
+    do_change i infinity; true in
+  ignore (eb#event#connect#button_press ~callback);
   
   (* Auto check button *)
   if show_auto then begin
