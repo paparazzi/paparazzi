@@ -131,8 +131,10 @@
    <define name="MAX_ERR_Z"    value="POS_BFP_OF_REAL( 10.)"/>
    <define name="MIN_ERR_ZD"   value="SPEED_BFP_OF_REAL(-10.)"/>
    <define name="MAX_ERR_ZD"   value="SPEED_BFP_OF_REAL( 10.)"/>
+   <define name="MAX_SUM_ERR"  value="2000000"/>
    <define name="HOVER_KP"     value="-500"/>
    <define name="HOVER_KD"     value="-250"/>
+   <define name="HOVER_KI"     value="-100"/>
    <!-- SPEED_BFP_OF_REAL(1.5) / (MAX_PPRZ/2) -->
    <define name="RC_CLIMB_COEF" value ="163"/>
    <!-- SPEED_BFP_OF_REAL(1.5) * 20% -->
@@ -181,6 +183,7 @@ include $(CFG_BOOZ)/subsystems/booz2_imu_crista.makefile
 include $(CFG_BOOZ)/subsystems/booz2_gps.makefile
 
 include $(CFG_BOOZ)/subsystems/booz2_ahrs_cmpl.makefile
+include $(CFG_BOOZ)/subsystems/booz2_fms_test_signal.makefile
 
   </makefile>
 

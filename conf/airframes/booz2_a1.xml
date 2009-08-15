@@ -14,17 +14,21 @@
     <axis name="THRUST" failsafe_value="0"/>
   </commands>
 
-  <section name="BUSS_BLMC" prefix="BUSS_BLMC_">
+  <section name="ACTUATORS_MKK" prefix="ACTUATORS_MKK_">
+    <define name="NB" value="4"/>
     <define name="ADDR" value="{ 0x52, 0x54, 0x56, 0x58 }"/>
   </section>
 
   <section name="SUPERVISION" prefix="SUPERVISION_">
-    <define name="FRONT_ROTOR_CW" value="1"/>
     <define name="MIN_MOTOR" value="2"/>
     <define name="MAX_MOTOR" value="210"/>
     <define name="TRIM_A" value="0"/>
     <define name="TRIM_E" value="0"/>
     <define name="TRIM_R" value="0"/>
+    <define name="NB_MOTOR" value="4"/>
+    <define name="ROLL_COEF"  value="{    0,    0, -256,  256}"/>
+    <define name="PITCH_COEF" value="{  256, -256,    0,    0}"/>
+    <define name="YAW_COEF"   value="{ -256, -256,  256,  256}"/>
   </section>
 
   <section name="IMU" prefix="IMU_">
@@ -104,17 +108,17 @@
 
     <!-- reference -->
     <define name="REF_OMEGA_P"  value="RadOfDeg(800)"/>
-    <define name="REF_ZETA_P"   value="0.85"/>
+    <define name="REF_ZETA_P"   value="0.9"/>
     <define name="REF_MAX_P"    value="RadOfDeg(300.)"/>
     <define name="REF_MAX_PDOT" value="RadOfDeg(7000.)"/>
 
     <define name="REF_OMEGA_Q"  value="RadOfDeg(800)"/>
-    <define name="REF_ZETA_Q"   value="0.85"/>
+    <define name="REF_ZETA_Q"   value="0.9"/>
     <define name="REF_MAX_Q"    value="RadOfDeg(300.)"/>
     <define name="REF_MAX_QDOT" value="RadOfDeg(7000.)"/>
 
     <define name="REF_OMEGA_R"  value="RadOfDeg(500)"/>
-    <define name="REF_ZETA_R"   value="0.85"/>
+    <define name="REF_ZETA_R"   value="0.9"/>
     <define name="REF_MAX_R"    value="RadOfDeg(180.)"/>
     <define name="REF_MAX_RDOT" value="RadOfDeg(1800.)"/>
 
@@ -140,19 +144,23 @@
 
   <section name="INS" prefix="BOOZ_INS_">
     <define name="BARO_SENS" value="15." integer="16"/>
+    <define name="UNTILT_ACCEL" value="1"/>
   </section>
 
   <section name="GUIDANCE_V" prefix="BOOZ2_GUIDANCE_V_">
-   <define name="MIN_ERR_Z"    value="POS_BFP_OF_REAL(-10.)"/>
-   <define name="MAX_ERR_Z"    value="POS_BFP_OF_REAL( 10.)"/>
-   <define name="MIN_ERR_ZD"   value="SPEED_BFP_OF_REAL(-10.)"/>
-   <define name="MAX_ERR_ZD"   value="SPEED_BFP_OF_REAL( 10.)"/>
+   <define name="MIN_ERR_Z"   value="POS_BFP_OF_REAL(-10.)"/>
+   <define name="MAX_ERR_Z"   value="POS_BFP_OF_REAL( 10.)"/>
+   <define name="MIN_ERR_ZD"  value="SPEED_BFP_OF_REAL(-10.)"/>
+   <define name="MAX_ERR_ZD"  value="SPEED_BFP_OF_REAL( 10.)"/>
+   <define name="MAX_SUM_ERR" value="2000000"/>
    <define name="HOVER_KP"    value="-500"/>
    <define name="HOVER_KD"    value="-200"/>
+   <define name="HOVER_KI"    value="-100"/>
    <!-- 1.5m/s for full stick : BOOZ_SPEED_I_OF_F(1.5) / (MAX_PPRZ/2) -->
    <define name="RC_CLIMB_COEF" value ="163"/>
    <!-- BOOZ_SPEED_I_OF_F(1.5) * 20% -->
    <define name="RC_CLIMB_DEAD_BAND" value ="160000"/>
+   <define name="INV_M" value ="0.2"/>
   </section>
 
 
@@ -170,7 +178,7 @@
 
  <section name="AUTOPILOT">
    <define name="BOOZ2_MODE_MANUAL" value="BOOZ2_AP_MODE_ATTITUDE_DIRECT"/>
-   <define name="BOOZ2_MODE_AUTO1"  value="BOOZ2_AP_MODE_ATTITUDE_RC_CLIMB"/>
+   <define name="BOOZ2_MODE_AUTO1"  value="BOOZ2_AP_MODE_ATTITUDE_DIRECT"/>
    <define name="BOOZ2_MODE_AUTO2"  value="BOOZ2_AP_MODE_ATTITUDE_Z_HOLD"/>
  </section>
 
@@ -207,11 +215,13 @@ include $(CFG_BOOZ)/booz2_test_progs.makefile
 include $(CFG_BOOZ)/booz2_simulator_nps.makefile
 
 include $(CFG_BOOZ)/subsystems/booz2_radio_control_ppm.makefile
-include $(CFG_BOOZ)/subsystems/booz2_actuators_buss.makefile
+include $(CFG_BOOZ)/subsystems/booz2_actuators_mkk.makefile
 include $(CFG_BOOZ)/subsystems/booz2_imu_b2v1.makefile
 include $(CFG_BOOZ)/subsystems/booz2_gps.makefile
 
 include $(CFG_BOOZ)/subsystems/booz2_ahrs_cmpl.makefile
+
+include $(CFG_BOOZ)/subsystems/booz2_fms_test_signal.makefile
 
   </makefile>
 
