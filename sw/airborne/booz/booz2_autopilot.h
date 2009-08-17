@@ -86,23 +86,6 @@ extern bool_t booz2_autopilot_detect_ground;
   }
 
 
-#define booz2_autopilot_SetTol(_v) {					\
-    booz2_autopilot_tol = _v;						\
-    if (_v == 1) {							\
-      booz_ins_vff_realign = TRUE;					\
-      booz2_guidance_v_z_sp = -POS_BFP_OF_REAL(2);			\
-      booz2_autopilot_mode_auto2 = BOOZ2_AP_MODE_ATTITUDE_Z_HOLD;	\
-      booz2_autopilot_set_mode(booz2_autopilot_mode_auto2);		\
-    }									\
-    if (_v == 2) {							\
-      booz2_guidance_v_zd_sp = SPEED_BFP_OF_REAL(0.5);			\
-      booz2_autopilot_mode_auto2 = BOOZ2_AP_MODE_ATTITUDE_CLIMB;	\
-      booz2_autopilot_set_mode(booz2_autopilot_mode_auto2);		\
-    }									\
-    booz2_autopilot_tol = 0;						\
-  }
-
-
 #define TRESHOLD_GROUND_DETECT ACCEL_BFP_OF_REAL(15.)
 #define BoozDetectGroundEvent() {					\
     if (booz2_autopilot_mode == BOOZ2_AP_MODE_FAILSAFE) {		\
