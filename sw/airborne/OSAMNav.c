@@ -294,7 +294,7 @@ bool_t BungeeTakeoff(void)
 
 enum SurveyStatus { Init, Entry, Sweep, SweepCircle };
 static enum SurveyStatus CSurveyStatus;
-static struct Point2D PolygonCenter;
+static struct Point2D SmallestCorner;
 static struct Line Edges[PolygonSize];
 static float EdgeMaxY[PolygonSize];
 static float EdgeMinY[PolygonSize];
@@ -307,19 +307,16 @@ static struct Point2D SurveyCircle;
 static uint8_t SurveyEntryWP;
 static uint8_t SurveySize;
 static float SurveyCircleQdr;
-static float MinY;
 static float MaxY;
 uint16_t PolySurveySweepNum;
 uint16_t PolySurveySweepBackNum;
 
 bool_t InitializePolygonSurvey(uint8_t EntryWP, uint8_t Size, float sw, float Orientation)
 {
-	PolygonCenter.x = 0;
-	PolygonCenter.y = 0;
+	SmallestCorner.x = 0;
+	SmallestCorner.y = 0;
 	int i = 0;
 	float ys = 0;
-	float Xpmin = MaxFloat;
-	float Xnmin = -MinFloat;
 	static struct Point2D EntryPoint;
 	float LeftYInt;
 	float RightYInt;
@@ -341,16 +338,6 @@ bool_t InitializePolygonSurvey(uint8_t EntryWP, uint8_t Size, float sw, float Or
 	//Don't initialize if Polygon is too big or if the orientation is not between 0 and 90
 	if(Size <= PolygonSize && Orientation >= 0 && Orientation <= 90)
 	{
-		//Find Polygon Center
-		for(i = EntryWP; i < Size+EntryWP; i++)
-		{
-			PolygonCenter.x = PolygonCenter.x + waypoints[i].x;
-			PolygonCenter.y = PolygonCenter.y + waypoints[i].y;
-		}
-
-		PolygonCenter.x = PolygonCenter.x/Size;
-		PolygonCenter.y = PolygonCenter.y/Size;
-
 		//Initialize Corners
 		for(i = 0; i < Size; i++)
 		{
@@ -358,24 +345,36 @@ bool_t InitializePolygonSurvey(uint8_t EntryWP, uint8_t Size, float sw, float Or
 			Corners[i].y = waypoints[i+EntryWP].y;
 		}
 
-		//Rotate and Translate Corners
+		//Rotate Corners so sweeps are parellel with x axis
 		for(i = 0; i < Size; i++)
-			TranslateAndRotateFromWorld(&Corners[i], SurveyTheta, PolygonCenter.x, PolygonCenter.y);
+			TranslateAndRotateFromWorld(&Corners[i], SurveyTheta, 0, 0);
+
+		//Find min x and min y
+		SmallestCorner.y = Corners[0].y;
+		SmallestCorner.x = Corners[0].x;
+		for(i = 1; i < Size; i++)
+		{
+			if(Corners[i].y < SmallestCorner.y)
+				SmallestCorner.y = Corners[i].y;
+
+			if(Corners[i].x < SmallestCorner.x)
+				SmallestCorner.x = Corners[i].x;
+		}
+
+		//Translate Corners all exist in quad #1
+		for(i = 0; i < Size; i++)
+			TranslateAndRotateFromWorld(&Corners[i], 0, SmallestCorner.x, SmallestCorner.y);
 
 		//Rotate and Translate Entry Point
 		EntryPoint.x = Corners[0].x;
 		EntryPoint.y = Corners[0].y;
 
-		//Find min and max y
-		MinY = Corners[0].y;
+		//Find max y
 		MaxY = Corners[0].y;
 		for(i = 1; i < Size; i++)
 		{
 			if(Corners[i].y > MaxY)
 				MaxY = Corners[i].y;
-
-			if(Corners[i].y < MinY)
-				MinY = Corners[i].y;
 		}
 
 		//Find polygon edges
@@ -443,7 +442,7 @@ bool_t InitializePolygonSurvey(uint8_t EntryWP, uint8_t Size, float sw, float Or
 		}
 
 		//Find amount to increment by every sweep
-		if(EntryPoint.y >= 0)
+		if(EntryPoint.y >= MaxY/2)
 			dSweep = -sw;
 		else
 			dSweep = sw;
@@ -453,18 +452,6 @@ bool_t InitializePolygonSurvey(uint8_t EntryWP, uint8_t Size, float sw, float Or
 			SurveyCircleQdr = -DegOfRad(SurveyTheta);
 		else
 			SurveyCircleQdr = 180-DegOfRad(SurveyTheta);
-
-		//If the Sweep distance makes a circle smaller than the nav radius, the sweep distance will be multiplied by two
-		// and the plane will cover the sweeps inbetween on the way back
-		//if(Sweep/2 < nav_radius)
-		//	dSweep = dSweep*2;
-		//**Didin't like it
-
-		//Find out which way to circle
-		if(EntryPoint.x >= 0)
-			SurveyRadius = -dSweep/2;
-		else
-			SurveyRadius = dSweep/2;
 
 		//Find y value of the first sweep
 		ys = EntryPoint.y+(dSweep/2);
@@ -477,18 +464,6 @@ bool_t InitializePolygonSurvey(uint8_t EntryWP, uint8_t Size, float sw, float Or
 				XIntercept2 = XIntercept1;
 				XIntercept1 = EvaluateLineForX(ys, Edges[i]);
 			}
-		}
-
-		//Find out which intercept is smaller than the other
-		if(XIntercept1 > XIntercept2)
-		{
-			Xnmin = XIntercept2;
-			Xpmin = XIntercept1;
-		}
-		else
-		{
-			Xnmin = XIntercept1;
-			Xpmin = XIntercept2;
 		}
 	
 		//Find point to come from and point to go to
@@ -509,6 +484,14 @@ bool_t InitializePolygonSurvey(uint8_t EntryWP, uint8_t Size, float sw, float Or
 			SurveyFromWP.y = ys;
 		}
 
+		//Find the direction to circle
+		if(ys > 0 && SurveyToWP.x > SurveyFromWP.x)
+			SurveyRadius = dSweep/2;
+		else if(ys < 0 && SurveyToWP.x < SurveyFromWP.x)
+			SurveyRadius = dSweep/2;
+		else
+			SurveyRadius = -dSweep/2;
+
 		//Find the entry circle
 		SurveyCircle.x = SurveyFromWP.x;
 		SurveyCircle.y = EntryPoint.y;
@@ -528,11 +511,11 @@ bool_t PolygonSurvey(void)
 	float ys;
 	static struct Point2D LastPoint;
 	int i;
-	float Xpmin = MaxFloat;
-	float Xnmin = -MinFloat;
 	bool_t SweepingBack = FALSE;
 	float XIntercept1 = 0;
 	float XIntercept2 = 0;
+	float DInt1 = 0;
+	float DInt2 = 0;
 	
 	NavVerticalAutoThrottleMode(0); /* No pitch */
   	NavVerticalAltitudeMode(waypoints[SurveyEntryWP].a, 0.);
@@ -543,12 +526,13 @@ bool_t PolygonSurvey(void)
 		//Rotate and translate circle point into real world
 		C.x = SurveyCircle.x;
 		C.y = SurveyCircle.y;
-		RotateAndTranslateToWorld(&C, SurveyTheta, PolygonCenter.x, PolygonCenter.y);
+		RotateAndTranslateToWorld(&C, 0, SmallestCorner.x, SmallestCorner.y);
+		RotateAndTranslateToWorld(&C, SurveyTheta, 0, 0);
 
 		//follow the circle		
 		nav_circle_XY(C.x, C.y, SurveyRadius);
 
-		if(NavQdrCloseTo(SurveyCircleQdr) && NavCircleCount() > 0 && estimator_z > waypoints[SurveyEntryWP].a-10)
+		if(NavQdrCloseTo(SurveyCircleQdr) && NavCircleCount() > .1 && estimator_z > waypoints[SurveyEntryWP].a-10)
 		{
 			CSurveyStatus = Sweep;
 			nav_init_stage();
@@ -560,9 +544,12 @@ bool_t PolygonSurvey(void)
 		ToP.y = SurveyToWP.y;
 		FromP.x = SurveyFromWP.x;
 		FromP.y = SurveyFromWP.y;
-		
-		RotateAndTranslateToWorld(&ToP, SurveyTheta, PolygonCenter.x, PolygonCenter.y);
-		RotateAndTranslateToWorld(&FromP, SurveyTheta, PolygonCenter.x, PolygonCenter.y);
+
+		RotateAndTranslateToWorld(&ToP, 0, SmallestCorner.x, SmallestCorner.y);
+		RotateAndTranslateToWorld(&ToP, SurveyTheta, 0, 0);
+
+		RotateAndTranslateToWorld(&FromP, 0, SmallestCorner.x, SmallestCorner.y);
+		RotateAndTranslateToWorld(&FromP, SurveyTheta, 0, 0);
 
 		//follow the line
 		nav_route_xy(FromP.x,FromP.y,ToP.x,ToP.y);
@@ -571,7 +558,7 @@ bool_t PolygonSurvey(void)
 			LastPoint.x = SurveyToWP.x;
 			LastPoint.y = SurveyToWP.y;
 
-			if(LastPoint.y+dSweep >= MaxY || LastPoint.y+dSweep <= MinY) //Your out of the Polygon so Sweep Back
+			if(LastPoint.y+dSweep >= MaxY || LastPoint.y+dSweep <= 0) //Your out of the Polygon so Sweep Back
 			{
 				dSweep = -dSweep;
 				ys = LastPoint.y+(dSweep/2);
@@ -584,9 +571,7 @@ bool_t PolygonSurvey(void)
 				PolySurveySweepBackNum++;
 			}
 			else
-			{
-				SurveyRadius = -SurveyRadius;
-			
+			{			
 				//Find y value of the first sweep
 				ys = LastPoint.y+dSweep;
 			}
@@ -601,37 +586,60 @@ bool_t PolygonSurvey(void)
 				}
 			}
 
-			//Find out which intercept is small er than the other
-			if(XIntercept1 > XIntercept2)
-			{
-				Xnmin = XIntercept2;
-				Xpmin = XIntercept1;
-			}
-			else
-			{
-				Xnmin = XIntercept1;
-				Xpmin = XIntercept2;
-			}
-
 			//Find point to come from and point to go to
-			if(fabs(LastPoint.x - XIntercept2) <= fabs(LastPoint.x - XIntercept1))
-			{
-				SurveyToWP.x = XIntercept1;
-				SurveyToWP.y = ys;
+			DInt1 = XIntercept1 -  LastPoint.x;
+			DInt2 = XIntercept2 - LastPoint.x;
 
-				SurveyFromWP.x = XIntercept2;
-				SurveyFromWP.y = ys;
+			if(DInt1 * DInt2 >= 0)
+			{
+				if(fabs(DInt2) <= fabs(DInt1))
+				{
+					SurveyToWP.x = XIntercept1;
+					SurveyToWP.y = ys;
+
+					SurveyFromWP.x = XIntercept2;
+					SurveyFromWP.y = ys;
+				}
+				else
+				{
+					SurveyToWP.x = XIntercept2;
+					SurveyToWP.y = ys;
+
+					SurveyFromWP.x = XIntercept1;
+					SurveyFromWP.y = ys;
+				}
 			}
 			else
 			{
-				SurveyToWP.x = XIntercept2;
-				SurveyToWP.y = ys;
+				if((SurveyToWP.x - SurveyFromWP.x) > 0 && DInt2 > 0)
+				{
+					SurveyToWP.x = XIntercept1;
+					SurveyToWP.y = ys;
 
-				SurveyFromWP.x = XIntercept1;
-				SurveyFromWP.y = ys;
+					SurveyFromWP.x = XIntercept2;
+					SurveyFromWP.y = ys;
+				}
+				else if((SurveyToWP.x - SurveyFromWP.x) < 0 && DInt2 < 0)
+				{
+					SurveyToWP.x = XIntercept1;
+					SurveyToWP.y = ys;
+
+					SurveyFromWP.x = XIntercept2;
+					SurveyFromWP.y = ys;
+				}
+				else
+				{
+					SurveyToWP.x = XIntercept2;
+					SurveyToWP.y = ys;
+
+					SurveyFromWP.x = XIntercept1;
+					SurveyFromWP.y = ys;
+				}
 			}
 
-			if(fabs(LastPoint.x) > fabs(SurveyFromWP.x))
+			
+
+			if(fabs(LastPoint.x-SurveyToWP.x) > fabs(SurveyFromWP.x-SurveyToWP.x))
 				SurveyCircle.x = LastPoint.x;
 			else
 				SurveyCircle.x = SurveyFromWP.x;
@@ -640,8 +648,15 @@ bool_t PolygonSurvey(void)
 			if(!SweepingBack)
 				SurveyCircle.y = LastPoint.y+(dSweep/2);
 			else
-				SurveyCircle.y = LastPoint.y;
-			
+				SurveyCircle.y = LastPoint.y;			
+
+			//Find the direction to circle
+			if(ys > 0 && SurveyToWP.x > SurveyFromWP.x)
+				SurveyRadius = dSweep/2;
+			else if(ys < 0 && SurveyToWP.x < SurveyFromWP.x)
+				SurveyRadius = dSweep/2;
+			else
+				SurveyRadius = -dSweep/2;
 
 			//Go into circle state
 			CSurveyStatus = SweepCircle;	
@@ -655,7 +670,8 @@ bool_t PolygonSurvey(void)
 		//Rotate and translate circle point into real world
 		C.x = SurveyCircle.x;
 		C.y = SurveyCircle.y;
-		RotateAndTranslateToWorld(&C, SurveyTheta, PolygonCenter.x, PolygonCenter.y);
+		RotateAndTranslateToWorld(&C, 0, SmallestCorner.x, SmallestCorner.y);
+		RotateAndTranslateToWorld(&C, SurveyTheta, 0, 0);
 
 		//follow the circle		
 		nav_circle_XY(C.x, C.y, SurveyRadius);
@@ -672,6 +688,124 @@ bool_t PolygonSurvey(void)
 		return FALSE;
 	}
 	return TRUE;
+}
+
+
+/************** Vertical Raster **********************************************/
+
+/** Copy of nav line. The only difference is it changes altitude every sweep, but doesn't come out of circle until
+it reaches altitude.
+ */
+enum line_status { LR12, LQC21, LTC2, LQC22, LR21, LQC12, LTC1, LQC11 };
+static enum line_status line_status;
+
+bool_t InitializeVerticalRaster( void ) {
+  line_status = LR12;
+  return FALSE;
+}
+
+bool_t VerticalRaster(uint8_t l1, uint8_t l2, float radius, float AltSweep) {
+  radius = fabs(radius);
+  float alt = waypoints[l1].a;
+  waypoints[l2].a = alt;
+
+  float l2_l1_x = waypoints[l1].x - waypoints[l2].x;
+  float l2_l1_y = waypoints[l1].y - waypoints[l2].y;
+  float d = sqrt(l2_l1_x*l2_l1_x+l2_l1_y*l2_l1_y);
+
+  /* Unit vector from l1 to l2 */
+  float u_x = l2_l1_x / d;
+  float u_y = l2_l1_y / d;
+
+  /* The half circle centers and the other leg */
+  struct point l2_c1 = { waypoints[l1].x + radius * u_y,
+			 waypoints[l1].y + radius * -u_x,
+			 alt  };
+  struct point l2_c2 = { waypoints[l1].x + 1.732*radius * u_x,
+			 waypoints[l1].y + 1.732*radius * u_y,
+			 alt  };
+  struct point l2_c3 = { waypoints[l1].x + radius * -u_y,
+			 waypoints[l1].y + radius * u_x,
+			 alt  };
+  
+  struct point l1_c1 = { waypoints[l2].x + radius * -u_y,
+			 waypoints[l2].y + radius * u_x,
+			 alt  };
+  struct point l1_c2 = { waypoints[l2].x +1.732*radius * -u_x,
+			 waypoints[l2].y + 1.732*radius * -u_y,
+			 alt  };
+  struct point l1_c3 = { waypoints[l2].x + radius * u_y,
+			 waypoints[l2].y + radius * -u_x,
+			 alt  };
+  float qdr_out_2_1 = M_PI/3. - atan2(u_y, u_x);
+ 
+  float qdr_out_2_2 = -M_PI/3. - atan2(u_y, u_x);
+  float qdr_out_2_3 = M_PI - atan2(u_y, u_x);
+
+  /* Vertical target */
+  NavVerticalAutoThrottleMode(0); /* No pitch */
+  NavVerticalAltitudeMode(WaypointAlt(l1), 0.);
+ 
+  switch (line_status) {
+  case LR12: /* From wp l2 to wp l1 */
+    NavSegment(l2, l1);
+    if (NavApproachingFrom(l1, l2, CARROT)) { 
+      line_status = LQC21;
+      waypoints[l1].a = waypoints[l1].a+AltSweep;
+      nav_init_stage();
+    }
+    break;
+  case LQC21:
+    nav_circle_XY(l2_c1.x, l2_c1.y, radius);
+    if (NavQdrCloseTo(DegOfRad(qdr_out_2_1)-10)) {
+      line_status = LTC2;
+      nav_init_stage();
+    }
+    break;
+  case LTC2:
+    nav_circle_XY(l2_c2.x, l2_c2.y, -radius);
+    if (NavQdrCloseTo(DegOfRad(qdr_out_2_2)+10) && estimator_z >= (waypoints[l1].a-5)) {
+      line_status = LQC22;
+      nav_init_stage();
+    }
+    break;
+  case LQC22:
+    nav_circle_XY(l2_c3.x, l2_c3.y, radius);
+    if (NavQdrCloseTo(DegOfRad(qdr_out_2_3)-10)) {
+      line_status = LR21;
+      nav_init_stage();
+    }
+    break;
+  case LR21: /* From wp l1 to wp l2 */
+    NavSegment(l1, l2);
+    if (NavApproachingFrom(l2, l1, CARROT)) { 
+      line_status = LQC12;
+      waypoints[l1].a = waypoints[l1].a+AltSweep;
+      nav_init_stage();
+    }
+    break;
+  case LQC12:
+    nav_circle_XY(l1_c1.x, l1_c1.y, radius);
+    if (NavQdrCloseTo(DegOfRad(qdr_out_2_1 + M_PI)-10)) {
+      line_status = LTC1;
+      nav_init_stage();
+    }
+    break;
+  case LTC1:
+    nav_circle_XY(l1_c2.x, l1_c2.y, -radius);
+    if (NavQdrCloseTo(DegOfRad(qdr_out_2_2 + M_PI)+10) && estimator_z >= (waypoints[l1].a-5)) {
+      line_status = LQC11;
+      nav_init_stage();
+    }
+    break;
+  case LQC11:
+    nav_circle_XY(l1_c3.x, l1_c3.y, radius);
+    if (NavQdrCloseTo(DegOfRad(qdr_out_2_3 + M_PI)-10)) {
+      line_status = LR12;
+      nav_init_stage();
+    }
+  }
+  return TRUE; /* This pattern never ends */
 }
 
 /*
