@@ -50,14 +50,13 @@ void nps_autopilot_run_step(double time __attribute__ ((unused))) {
     booz2_main_event();
   }
 
-  if (nps_bypass_ahrs) {
-    sim_overwrite_ahrs();
-  }
-
-
   if (nps_sensors_gps_available()) {
     booz_gps_feed_value();
     booz2_main_event();
+  }
+
+  if (nps_bypass_ahrs) {
+    sim_overwrite_ahrs();
   }
 
   booz2_main_periodic();
@@ -94,7 +93,7 @@ void nps_autopilot_run_step(double time __attribute__ ((unused))) {
 #endif
   }
   //  printf("%f %f %f %f\n", autopilot.commands[SERVO_FRONT], autopilot.commands[SERVO_BACK],
-  //                          autopilot.commands[SERVO_RIGHT], autopilot.commands[SERVO_LEFT]);	 
+  //                          autopilot.commands[SERVO_RIGHT], autopilot.commands[SERVO_LEFT]);
 }
 
 #include "nps_fdm.h"
@@ -119,6 +118,8 @@ static void sim_overwrite_ahrs(void) {
   booz_ahrs.body_rate.p = RATE_BFP_OF_REAL(fdm.body_ecef_rotvel.p);
   booz_ahrs.body_rate.q = RATE_BFP_OF_REAL(fdm.body_ecef_rotvel.q);
   booz_ahrs.body_rate.r = RATE_BFP_OF_REAL(fdm.body_ecef_rotvel.r);
+
+  INT32_RMAT_OF_QUAT(booz_ahrs.ltp_to_body_rmat, booz_ahrs.ltp_to_body_quat);
 
 }
 

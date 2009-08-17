@@ -499,13 +499,13 @@
   </message>
 
   <message name="BOOZ_SIM_SPEED_POS" id="240">
-    <field name="lptp_xdd" type="float" unit="m/s2"/>
-    <field name="lptp_ydd" type="float" unit="m/s2"/>
-    <field name="lptp_zdd" type="float" unit="m/s2"/>
-    <field name="lptp_xd"  type="float" unit="m/s"/>
-    <field name="lptp_yd"  type="float" unit="m/s"/>
-    <field name="lptp_zd"  type="float" unit="m/s"/>
-    <field name="lptp_x"   type="float" unit="m"/>
+    <field name="ltpp_xdd" type="float" unit="m/s2"/>
+    <field name="ltpp_ydd" type="float" unit="m/s2"/>
+    <field name="ltpp_zdd" type="float" unit="m/s2"/>
+    <field name="ltpp_xd"  type="float" unit="m/s"/>
+    <field name="ltpp_yd"  type="float" unit="m/s"/>
+    <field name="ltpp_zd"  type="float" unit="m/s"/>
+    <field name="ltpp_x"   type="float" unit="m"/>
     <field name="ltpp_y"   type="float" unit="m"/>
     <field name="ltpp_z"   type="float" unit="m"/>
   </message>
