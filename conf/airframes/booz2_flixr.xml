@@ -26,8 +26,8 @@
 		<define name="TRIM_E" value="0" />
 		<define name="TRIM_R" value="0" />
 		<define name="NB_MOTOR" value="4" />
-		<define name="ROLL_COEF" value="{   0,   0,  256, -256}" />
-		<define name="PITCH_COEF" value="{-256, 256,    0,    0}" />
+		<define name="ROLL_COEF" value="{   0,   0, -256,  256}" />
+		<define name="PITCH_COEF" value="{ 256, -256,    0,    0}" />
 		<define name="YAW_COEF" value="{ 256, 256, -256, -256}" />
 	</section>
 
@@ -188,6 +188,7 @@
 
 		# prevents motors from ever starting
 		#ap.CFLAGS += -DKILL_MOTORS
+		#ap.CFLAGS += -DRADIO_CONTROL_KILL_SWITCH=RADIO_CONTROL_SWITCH1
 
 		include	$(PAPARAZZI_SRC)/conf/autopilot/booz2_common.makefile
 		include	$(CFG_BOOZ)/booz2_autopilot.makefile
