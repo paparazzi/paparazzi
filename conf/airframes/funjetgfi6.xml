@@ -79,7 +79,7 @@
   </section>
 
   <section name="BAT">
-    <define name="MILLIAMP_PER_PERCENT" value="0.86"/>
+    <define name="MILLIAMP_AT_FULL_THROTTLE" value="10000."/>
     <define name="CATASTROPHIC_BAT_LEVEL" value="9.3" unit="V"/>
                                         <!-- 0.0247311828 -->
                                         <!-- 0.02432905 -->
@@ -102,7 +102,7 @@
  
   <section name="VERTICAL CONTROL" prefix="V_CTL_">
 
-    <define name="POWER_CTL_BAT_NOMINAL" value="10" unit="volt"/>
+    <define name="POWER_CTL_BAT_NOMINAL" value="11.1" unit="volt"/>
     <!-- outer loop proportional gain -->
     <define name="ALTITUDE_PGAIN" value="-0.06"/> <!-- -0.024 -->
     <!-- outer loop saturation -->
@@ -111,9 +111,9 @@
     <!-- auto throttle inner loop -->
     <define name="AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE" value="0.45"/>
     <define name="AUTO_THROTTLE_MIN_CRUISE_THROTTLE" value="0.35"/>
-    <define name="AUTO_THROTTLE_MAX_CRUISE_THROTTLE" value="0.80"/>
-    <define name="AUTO_THROTTLE_LOITER_TRIM" value="50"/>
-    <define name="AUTO_THROTTLE_DASH_TRIM" value="-60"/>
+    <define name="AUTO_THROTTLE_MAX_CRUISE_THROTTLE" value="0.85"/>
+    <define name="AUTO_THROTTLE_LOITER_TRIM" value="1000"/>
+    <define name="AUTO_THROTTLE_DASH_TRIM" value="-1200"/>
     <define name="AUTO_THROTTLE_CLIMB_THROTTLE_INCREMENT" value="0.2" unit="%/(m/s)"/>
     <define name="AUTO_THROTTLE_PGAIN" value="-0.023"/> <!-- -0.012 -->
     <define name="AUTO_THROTTLE_IGAIN" value="0.01"/>
@@ -130,8 +130,8 @@
   </section>
 
   <section name="HORIZONTAL CONTROL" prefix="H_CTL_">
-    <define name="COURSE_PGAIN" value="-0.8"/>
-    <define name="ROLL_MAX_SETPOINT" value="0.62" unit="radians"/> <!-- 0.5 -->
+    <define name="COURSE_PGAIN" value="-0.9"/>
+    <define name="ROLL_MAX_SETPOINT" value="0.70" unit="radians"/> <!-- 0.5 -->
     <define name="PITCH_MAX_SETPOINT" value="0.5" unit="radians"/>
     <define name="PITCH_MIN_SETPOINT" value="-0.5" unit="radians"/>
 
@@ -140,7 +140,7 @@
     <define name="PITCH_PGAIN" value="-5500."/>
     <define name="PITCH_DGAIN" value="0.4"/>
 
-    <define name="ELEVATOR_OF_ROLL" value="1200"/>
+    <define name="ELEVATOR_OF_ROLL" value="2400"/>
 
     <!--define name="ROLL_ATTITUDE_GAIN" value="-7500"/>
     <define name="ROLL_RATE_GAIN" value="-1500"/-->
@@ -173,13 +173,9 @@
 
  <section name="DATALINK" prefix="DATALINK_">
     <define name="DEVICE_TYPE" value="XBEE"/>
-
-
-
     <define name="DEVICE_ADDRESS" value="...."/>
   </section>
  
-
  <section name="SIMU">
     <define name="YAW_RESPONSE_FACTOR" value="0.5"/>
  </section>
