@@ -47,7 +47,7 @@ let one_ac = fun (notebook:GPack.notebook) ac_name ->
     let callback = fun idx value ->
       
       let vs = ["ac_id", Pprz.String ac_id; "index", Pprz.Int idx] in
-      if classify_float value = FP_normal then
+      if classify_float value = FP_normal || classify_float value =FP_zero then
 	let vs' = ("value", Pprz.Float value) :: vs in
 	Ground_Pprz.message_send "dl" "DL_SETTING" vs'
       else

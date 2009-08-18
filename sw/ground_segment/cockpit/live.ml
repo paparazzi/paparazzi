@@ -537,7 +537,7 @@ let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id
       Xml.Element("empty", [], [])
   in
   let dl_setting_callback = fun idx value ->
-    if classify_float value = FP_normal then
+    if classify_float value = FP_normal ||  classify_float value = FP_zero then
       dl_setting ac_id idx value
     else
       get_dl_setting ac_id idx
