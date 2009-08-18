@@ -53,6 +53,10 @@
 
 #include "booz2_main.h"
 
+#ifdef SITL
+#include "nps_autopilot_booz.h"
+#endif
+
 static inline void on_gyro_accel_event( void );
 static inline void on_baro_event( void );
 static inline void on_gps_event( void );
@@ -180,6 +184,11 @@ static inline void on_gyro_accel_event( void ) {
     RunOnceEvery(50, booz_ahrs_update_accel());
 #endif
     //    booz2_filter_attitude_update();
+#ifdef SITL
+    if (nps_bypass_ahrs) {
+        sim_overwrite_ahrs();
+    }
+#endif
     booz_ins_propagate();
   }
 }

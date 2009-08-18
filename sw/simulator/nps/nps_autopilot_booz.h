@@ -5,5 +5,6 @@
 
 
 extern bool_t nps_bypass_ahrs;
+extern void sim_overwrite_ahrs(void);
 
 #endif /* NPS_AUTOPILOT_BOOZ_H */

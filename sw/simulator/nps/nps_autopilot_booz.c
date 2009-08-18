@@ -13,8 +13,6 @@
 struct NpsAutopilot autopilot;
 bool_t nps_bypass_ahrs;
 
-static void sim_overwrite_ahrs(void);
-
 
 void nps_autopilot_init(enum NpsRadioControlType type_rc, int num_rc_script, char* rc_dev) {
 
@@ -99,7 +97,7 @@ void nps_autopilot_run_step(double time __attribute__ ((unused))) {
 #include "nps_fdm.h"
 #include "math/pprz_algebra_int.h"
 #include "booz_ahrs.h"
-static void sim_overwrite_ahrs(void) {
+void sim_overwrite_ahrs(void) {
 
   //  printf("%f\n", fdm.ltpprz_to_body_eulers.phi);
 
