@@ -41,18 +41,16 @@
       <message name="BOOZ2_ACCEL"       period=".075"/>
       <message name="BOOZ2_MAG"         period=".1"/>
     </mode>
-    
+
     <mode name="ahrs">
-      <message name="BOOZ_STATUS"          period="1.2"/>
-      <message name="DL_VALUE"             period="0.5"/>
-      <message name="ALIVE"                period="2.1"/>
-      <message name="BOOZ2_AHRS_EULER"     period=".1"/>
-<!--  <message name="BOOZ2_ACCEL"     	   period=".05"/> -->
-      <message name="BOOZ2_MAG"     	   period=".05"/>
-      <message name="BOOZ_AHRS_LKF"        period=".05"/>
-      <message name="BOOZ_AHRS_LKF_DEBUG"  period=".01" />
-      <message name="BOOZ_AHRS_LKF_ACC_DBG"  period=".01" />
-      <message name="BOOZ_AHRS_LKF_MAG_DBG"  period=".01" />
+      <message name="BOOZ_STATUS"       period="1.2"/>
+      <message name="DL_VALUE"          period="0.5"/>
+      <message name="ALIVE"             period="2.1"/>
+<!--      <message name="BOOZ2_ALIGNER"     period=".1"/> -->
+      <message name="BOOZ2_FILTER"      period=".5"/>
+<!--      <message name="BOOZ2_AHRS_QUAT"   period=".25"/> -->
+      <message name="BOOZ2_AHRS_EULER"  period=".1"/>
+<!--      <message name="BOOZ2_AHRS_RMAT"   period=".5"/> -->
     </mode>
 
     <mode name="rate_loop">
@@ -66,8 +64,8 @@
       <message name="BOOZ_STATUS"             period="1.2"/>
       <message name="DL_VALUE"                period="0.5"/>
       <message name="ALIVE"                   period="0.9"/>
-      <message name="BOOZ2_STAB_ATTITUDE"     period=".03"/>
-      <message name="BOOZ2_STAB_ATTITUDE_REF" period=".03"/>
+      <message name="BOOZ2_STAB_ATTITUDE"     period=".2"/>
+      <message name="BOOZ2_STAB_ATTITUDE_REF" period=".2"/>
     </mode>
 
     <mode name="vert_loop">
