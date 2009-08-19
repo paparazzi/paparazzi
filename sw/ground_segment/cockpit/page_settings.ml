@@ -111,7 +111,7 @@ let one_setting = fun (i:int) (do_change:int -> float -> unit) packing dl_settin
 	    Not_found -> failwith (sprintf "Internal error: Settings, %s not found" string) in
 	Gtk_tools.combo_connect combo update_string;
 
-	(callback, fun j -> try prerr_endline "ici"; fprintf stderr "j=%f %s%!" j values.(truncate j); Gtk_tools.select_in_combo combo values.(truncate j) with _ -> ())
+	(callback, fun j -> try Gtk_tools.select_in_combo combo values.(truncate j) with _ -> ())
       else (* radio buttons *)
 	let ilower = truncate lower
 	and iupper = truncate upper in
