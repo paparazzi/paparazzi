@@ -228,7 +228,9 @@ let () =
     (** Save the configuration for future use *)
     let d = U.localtime (U.gettimeofday ()) in
     let filename = sprintf "%02d_%02d_%02d__%02d_%02d_%02d_%s_%s.conf" (d.U.tm_year mod 100) (d.U.tm_mon+1) (d.U.tm_mday) (d.U.tm_hour) (d.U.tm_min) (d.U.tm_sec) md5sum aircraft in
-    let f = open_out (Env.paparazzi_home // "var" // filename) in
+    let d = Env.paparazzi_home // "var" // "conf" in
+    mkdir d;
+    let f = open_out (d // filename) in
     Printf.fprintf f "%s\n" (ExtXml.to_string_fmt configuration);
     close_out f end;
 

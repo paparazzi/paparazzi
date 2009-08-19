@@ -128,12 +128,13 @@ let xml_parse_compressed_file = fun file ->
 let md5_ofs = 3*6+1
 let md5_len = 32
 let search_conf = fun md5 ->
-  let files = Sys.readdir var_path in
+  let dir = var_path // "conf" in
+  let files = Sys.readdir dir in
   let rec loop = fun i ->
     if i < Array.length files then begin
       if String.length files.(i) > (md5_ofs + md5_len)
 	  && String.sub files.(i) md5_ofs md5_len = md5 then
-	var_path // files.(i)
+	dir // files.(i)
       else
 	loop (i+1)
     end else
