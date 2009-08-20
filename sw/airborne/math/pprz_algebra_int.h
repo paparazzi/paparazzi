@@ -177,6 +177,11 @@ struct Int64Vect3 {
   (_o).y = ((_i).y << (_l)); \
 }
 
+#define INT32_VECT2_SCALE_2(_a, _b, _num, _den) {   \
+  (_a).x = ((_b).x * (_num)) / (_den);        \
+  (_a).y = ((_b).y * (_num)) / (_den);        \
+}
+
 /*
  * Dimension 3 Vectors
  */
@@ -288,8 +293,8 @@ struct Int64Vect3 {
   }
 
 
-/* 
- * http://www.mathworks.com/access/helpdesk_r13/help/toolbox/aeroblks/quaternionstodirectioncosinematrix.html 
+/*
+ * http://www.mathworks.com/access/helpdesk_r13/help/toolbox/aeroblks/quaternionstodirectioncosinematrix.html
  */
 #define INT32_RMAT_OF_QUAT(_rm, _q) {					    \
     const int32_t qx2  = INT_MULT_RSHIFT((_q).qx,(_q).qx, INT32_QUAT_FRAC); \

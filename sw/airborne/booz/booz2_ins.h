@@ -50,7 +50,6 @@ extern struct EnuCoor_i booz_ins_enu_pos;
 extern struct EnuCoor_i booz_ins_enu_speed;
 extern struct EnuCoor_i booz_ins_enu_accel;
 
-
 extern void booz_ins_init( void );
 extern void booz_ins_propagate( void );
 extern void booz_ins_update_baro( void );

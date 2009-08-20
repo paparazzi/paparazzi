@@ -204,6 +204,9 @@
 
 		include $(CFG_BOOZ)/subsystems/booz2_ahrs_cmpl.makefile
 
+		#enable horizontal filter
+		ap.CFLAGS += -DUSE_HFF
+
   </makefile>
 
 </airframe>

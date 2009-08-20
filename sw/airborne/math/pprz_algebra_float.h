@@ -73,6 +73,9 @@ struct FloatRates {
   }
 
 
+/*
+ * Dimension 3 Vectors
+ */
 
 #define FLOAT_VECT3_ZERO(_v) VECT3_ASSIGN(_v, 0., 0., 0.)	\
 
