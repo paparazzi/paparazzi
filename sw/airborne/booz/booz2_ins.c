@@ -44,6 +44,7 @@
 
 #include "math/pprz_geodetic_int.h"
 
+#include "flight_plan.h"
 
 /* gps transformed to LTP-NED  */
 struct LtpDef_i  booz_ins_ltp_def;
@@ -69,8 +70,13 @@ struct EnuCoor_i booz_ins_enu_accel;
 
 
 void booz_ins_init() {
+#ifdef USE_NAV_INS_INIT
+  booz_ins_ltp_initialised  = TRUE;
+  struct EcefCoor_i nav_init;
+  VECT3_ASSIGN(nav_init,NAV_ECEF_X0,NAV_ECEF_Y0,NAV_ECEF_Z0);
+  ltp_def_from_ecef_i(&booz_ins_ltp_def, &nav_init);
+#endif
 #ifdef USE_VFF
-  booz_ins_ltp_initialised  = FALSE;
   booz_ins_baro_initialised = FALSE;
   booz_ins_vff_realign = FALSE;
   b2_vff_init(0., 0., 0.);
@@ -86,6 +92,15 @@ void booz_ins_init() {
   INT32_VECT3_ZERO(booz_ins_enu_accel);
 }
 
+void booz_ins_periodic( void ) {
+#ifndef USE_HFF
+  struct NedCoor_i d_pos;
+  VECT2_COPY(d_pos, booz_ins_ltp_speed);
+  INT32_VECT2_RSHIFT(d_pos, d_pos, 15);
+  VECT2_ADD(booz_ins_ltp_pos, d_pos);
+#endif
+}
+
 void booz_ins_propagate() {
 #ifdef BOOZ_INS_UNTILT_ACCEL
   struct Int32Vect3 accel_body;
@@ -95,6 +110,9 @@ void booz_ins_propagate() {
 #ifdef USE_HFF
   float x_accel_float = ACCEL_FLOAT_OF_BFP(accel_ltp.x);
   float y_accel_float = ACCEL_FLOAT_OF_BFP(accel_ltp.y);
+#else
+  booz_ins_ltp_accel.x = accel_ltp.x;
+  booz_ins_ltp_accel.y = accel_ltp.y;
 #endif
   float z_accel_float = ACCEL_FLOAT_OF_BFP(accel_ltp.z);
 #else /* BOOZ_INS_UNTILT_ACCELS */
@@ -111,18 +129,26 @@ void booz_ins_propagate() {
     booz_ins_ltp_accel.z = ACCEL_BFP_OF_REAL(b2_vff_zdotdot);
     booz_ins_ltp_speed.z = SPEED_BFP_OF_REAL(b2_vff_zdot);
     booz_ins_ltp_pos.z   = POS_BFP_OF_REAL(b2_vff_z);
+    booz_ins_enu_pos.z = -booz_ins_ltp_pos.z;
+    booz_ins_enu_speed.z = -booz_ins_ltp_speed.z;
+    //booz_ins_enu_accel.z = -booz_ins_ltp_accel.z;
+    INT32_VECT3_ENU_OF_NED(booz_ins_enu_accel, booz_ins_ltp_accel);
+  }
+  else { // feed accel from the sensors
+    booz_ins_ltp_accel.z = ACCEL_BFP_OF_REAL(z_accel_float);
+    booz_ins_enu_accel.z = -booz_ins_ltp_accel.z;
   }
 #endif /* USE_VFF */
 
 #ifdef USE_HFF
   if (booz_ahrs.status == BOOZ_AHRS_RUNNING && booz_gps_state.fix == BOOZ2_GPS_FIX_3D && booz_ins_ltp_initialised ) {
     b2_hff_propagate(x_accel_float, y_accel_float);
-	booz_ins_ltp_accel.x = ACCEL_BFP_OF_REAL(b2_hff_xdotdot);
-	booz_ins_ltp_accel.y = ACCEL_BFP_OF_REAL(b2_hff_ydotdot);
+    booz_ins_ltp_accel.x = ACCEL_BFP_OF_REAL(b2_hff_xdotdot);
+    booz_ins_ltp_accel.y = ACCEL_BFP_OF_REAL(b2_hff_ydotdot);
     booz_ins_ltp_speed.x = SPEED_BFP_OF_REAL(b2_hff_xdot);
-	booz_ins_ltp_speed.y = SPEED_BFP_OF_REAL(b2_hff_ydot);
+    booz_ins_ltp_speed.y = SPEED_BFP_OF_REAL(b2_hff_ydot);
     booz_ins_ltp_pos.x   = POS_BFP_OF_REAL(b2_hff_x);
-	booz_ins_ltp_pos.y   = POS_BFP_OF_REAL(b2_hff_y);
+    booz_ins_ltp_pos.y   = POS_BFP_OF_REAL(b2_hff_y);
   }
 #endif /* USE_HFF */
   INT32_VECT3_ENU_OF_NED(booz_ins_enu_pos, booz_ins_ltp_pos);
@@ -144,12 +170,12 @@ void booz_ins_update_baro() {
       booz_ins_vff_realign = FALSE;
       booz_ins_qfe = booz2_analog_baro_value;
       b2_vff_realign(0.);
-	  booz_ins_ltp_accel.z = ACCEL_BFP_OF_REAL(b2_vff_zdotdot);
-	  booz_ins_ltp_speed.z = SPEED_BFP_OF_REAL(b2_vff_zdot);
-	  booz_ins_ltp_pos.z   = POS_BFP_OF_REAL(b2_vff_z);
-	  booz_ins_enu_pos.z = -booz_ins_ltp_pos.z;
-	  booz_ins_enu_speed.z = -booz_ins_ltp_speed.z;
-	  booz_ins_enu_accel.z = -booz_ins_ltp_accel.z;
+      booz_ins_ltp_accel.z = ACCEL_BFP_OF_REAL(b2_vff_zdotdot);
+      booz_ins_ltp_speed.z = SPEED_BFP_OF_REAL(b2_vff_zdot);
+      booz_ins_ltp_pos.z   = POS_BFP_OF_REAL(b2_vff_z);
+      booz_ins_enu_pos.z = -booz_ins_ltp_pos.z;
+      booz_ins_enu_speed.z = -booz_ins_ltp_speed.z;
+      booz_ins_enu_accel.z = -booz_ins_ltp_accel.z;
     }
     b2_vff_update(alt_float);
   }
@@ -167,36 +193,46 @@ void booz_ins_update_gps(void) {
     ned_of_ecef_point_i(&booz_ins_gps_pos_cm_ned, &booz_ins_ltp_def, &booz_gps_state.ecef_pos);
     ned_of_ecef_vect_i(&booz_ins_gps_speed_cm_s_ned, &booz_ins_ltp_def, &booz_gps_state.ecef_vel);
 #ifdef USE_HFF
-	struct FloatVect2 gps_float;
+    //INT32_VECT3_SCALE_2(b2ins_meas_gps_pos_ned, booz_ins_gps_pos_cm_ned,
+    //    INT32_POS_OF_CM_NUM, INT32_POS_OF_CM_DEN);
+    //INT32_VECT3_SCALE_2(b2ins_meas_gps_speed_ned, booz_ins_gps_speed_cm_s_ned,
+    //    INT32_SPEED_OF_CM_S_NUM, INT32_SPEED_OF_CM_S_DEN);
+    //VECT2_COPY(booz_ins_ltp_pos,   b2ins_meas_gps_pos_ned);
+    //VECT2_COPY(booz_ins_ltp_speed, b2ins_meas_gps_speed_ned);
+    //struct NedCoor_i d_pos;
+    //VECT2_COPY(d_pos, booz_ins_ltp_speed);
+    //INT32_VECT2_RSHIFT(d_pos, d_pos, 11);
+    //VECT2_ADD(booz_ins_ltp_pos, d_pos);
+    struct FloatVect2 gps_float;
 #ifdef B2_HFF_UPDATE_POS
-	VECT2_ASSIGN(gps_float, booz_ins_gps_pos_cm_ned.x, booz_ins_gps_pos_cm_ned.y);
-	VECT2_SDIV(gps_float, gps_float, 100.);
-	b2_hff_update_pos(gps_float.x, gps_float.y);
+    VECT2_ASSIGN(gps_float, booz_ins_gps_pos_cm_ned.x, booz_ins_gps_pos_cm_ned.y);
+    VECT2_SDIV(gps_float, gps_float, 100.);
+    b2_hff_update_pos(gps_float.x, gps_float.y);
 #endif
 #ifdef B2_HFF_UPDATE_SPEED
-	VECT2_ASSIGN(gps_float, booz_ins_gps_speed_cm_s_ned.x, booz_ins_gps_speed_cm_s_ned.y);
-	VECT2_SDIV(gps_float, gps_float, 100.);
-	b2_hff_update_v(gps_float.x, gps_float.y);
+      VECT2_ASSIGN(gps_float, booz_ins_gps_speed_cm_s_ned.x, booz_ins_gps_speed_cm_s_ned.y);
+    VECT2_SDIV(gps_float, gps_float, 100.);
+    b2_hff_update_v(gps_float.x, gps_float.y);
 #endif
-	booz_ins_ltp_accel.x = ACCEL_BFP_OF_REAL(b2_hff_xdotdot);
-	booz_ins_ltp_accel.y = ACCEL_BFP_OF_REAL(b2_hff_ydotdot);
+    booz_ins_ltp_accel.x = ACCEL_BFP_OF_REAL(b2_hff_xdotdot);
+    booz_ins_ltp_accel.y = ACCEL_BFP_OF_REAL(b2_hff_ydotdot);
     booz_ins_ltp_speed.x = SPEED_BFP_OF_REAL(b2_hff_xdot);
-	booz_ins_ltp_speed.y = SPEED_BFP_OF_REAL(b2_hff_ydot);
+    booz_ins_ltp_speed.y = SPEED_BFP_OF_REAL(b2_hff_ydot);
     booz_ins_ltp_pos.x   = POS_BFP_OF_REAL(b2_hff_x);
-	booz_ins_ltp_pos.y   = POS_BFP_OF_REAL(b2_hff_y);
+    booz_ins_ltp_pos.y   = POS_BFP_OF_REAL(b2_hff_y);
 #ifndef USE_VFF /* only hf */
-	booz_ins_ltp_pos.z =  (booz_ins_gps_pos_cm_ned.z * INT32_POS_OF_CM_NUM) / INT32_POS_OF_CM_DEN;
-	booz_ins_ltp_speed.z =  (booz_ins_gps_speed_cm_s_ned.z * INT32_SPEED_OF_CM_S_NUM) INT32_SPEED_OF_CM_S_DEN;
+    booz_ins_ltp_pos.z =  (booz_ins_gps_pos_cm_ned.z * INT32_POS_OF_CM_NUM) / INT32_POS_OF_CM_DEN;
+    booz_ins_ltp_speed.z =  (booz_ins_gps_speed_cm_s_ned.z * INT32_SPEED_OF_CM_S_NUM) INT32_SPEED_OF_CM_S_DEN;
 #endif /* only hf */
 #else /* hf not used */
-	INT32_VECT2_SCALE_2(booz_ins_ltp_pos, booz_ins_gps_pos_cm_ned, INT32_POS_OF_CM_NUM, INT32_POS_OF_CM_DEN);
+    INT32_VECT2_SCALE_2(booz_ins_ltp_pos, booz_ins_gps_pos_cm_ned, INT32_POS_OF_CM_NUM, INT32_POS_OF_CM_DEN);
     INT32_VECT2_SCALE_2(booz_ins_ltp_speed, booz_ins_gps_speed_cm_s_ned, INT32_SPEED_OF_CM_S_NUM, INT32_SPEED_OF_CM_S_DEN);
 #ifndef USE_VFF /* neither hf nor vf used */
     INT32_VECT3_SCALE_2(booz_ins_ltp_pos, booz_ins_gps_pos_cm_ned, INT32_POS_OF_CM_NUM, INT32_POS_OF_CM_DEN);
     INT32_VECT3_SCALE_2(booz_ins_ltp_speed, booz_ins_gps_speed_cm_s_ned, INT32_SPEED_OF_CM_S_NUM, INT32_SPEED_OF_CM_S_DEN);
 #endif /* neither hf nor vf used */
 #endif /* USE_HFF */
-	
+
     INT32_VECT3_ENU_OF_NED(booz_ins_enu_pos, booz_ins_ltp_pos);
     INT32_VECT3_ENU_OF_NED(booz_ins_enu_speed, booz_ins_ltp_speed);
     INT32_VECT3_ENU_OF_NED(booz_ins_enu_accel, booz_ins_ltp_accel);
