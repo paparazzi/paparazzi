@@ -75,6 +75,8 @@ void booz_ins_init() {
   struct EcefCoor_i nav_init;
   VECT3_ASSIGN(nav_init,NAV_ECEF_X0,NAV_ECEF_Y0,NAV_ECEF_Z0);
   ltp_def_from_ecef_i(&booz_ins_ltp_def, &nav_init);
+#else
+  booz_ins_ltp_initialised  = FALSE;
 #endif
 #ifdef USE_VFF
   booz_ins_baro_initialised = FALSE;
@@ -129,10 +131,6 @@ void booz_ins_propagate() {
     booz_ins_ltp_accel.z = ACCEL_BFP_OF_REAL(b2_vff_zdotdot);
     booz_ins_ltp_speed.z = SPEED_BFP_OF_REAL(b2_vff_zdot);
     booz_ins_ltp_pos.z   = POS_BFP_OF_REAL(b2_vff_z);
-    booz_ins_enu_pos.z = -booz_ins_ltp_pos.z;
-    booz_ins_enu_speed.z = -booz_ins_ltp_speed.z;
-    //booz_ins_enu_accel.z = -booz_ins_ltp_accel.z;
-    INT32_VECT3_ENU_OF_NED(booz_ins_enu_accel, booz_ins_ltp_accel);
   }
   else { // feed accel from the sensors
     booz_ins_ltp_accel.z = ACCEL_BFP_OF_REAL(z_accel_float);
