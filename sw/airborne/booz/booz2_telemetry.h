@@ -452,6 +452,32 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 #define PERIODIC_SEND_BOOZ2_VFF(_chan) {}
 #endif
 
+#ifdef USE_HFF
+#include "ins/booz2_hf_float.h"
+#define PERIODIC_SEND_BOOZ2_HFF_X(_chan) {		\
+    DOWNLINK_SEND_BOOZ2_HFF_X(_chan,			\
+			    &b2_hff_x_meas,		\
+			    &b2_hff_x,			\
+			    &b2_hff_xdot,		\
+			    &b2_hff_xbias,		\
+			    & b2_hff_xP[0][0],		\
+			    & b2_hff_xP[1][1],		\
+			    & b2_hff_xP[2][2]);		\
+  }
+#define PERIODIC_SEND_BOOZ2_HFF_Y(_chan) {		\
+    DOWNLINK_SEND_BOOZ2_HFF_Y(_chan,			\
+			    &b2_hff_y_meas,		\
+			    &b2_hff_y,			\
+			    &b2_hff_ydot,		\
+			    &b2_hff_ybias,		\
+			    & b2_hff_yP[0][0],								\
+			    & b2_hff_yP[1][1],		\
+			    & b2_hff_yP[2][2]);		\
+  }
+#else
+#define PERIODIC_SEND_BOOZ2_HFF_X(_chan) {}
+#define PERIODIC_SEND_BOOZ2_HFF_Y(_chan) {}
+#endif
 
 #define PERIODIC_SEND_BOOZ2_GUIDANCE(_chan) {				\
     DOWNLINK_SEND_BOOZ2_GUIDANCE(_chan,					\

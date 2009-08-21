@@ -1057,6 +1057,33 @@
       <field name="Pzdzd"          type="float"/>
       <field name="Pbb"            type="float"/>
   </message>
+
+  <message name="BOOZ2_TUNE_FF" id="163">
+      <field name="fb_rms"         type="float"/>
+      <field name="dg"             type="float"/>
+      <field name="g"              type="float"/>
+  </message>
+
+  <message name="BOOZ2_HFF_X" id="164">
+      <field name="measure"        type="float"/>
+      <field name="x"              type="float"/>
+      <field name="xd"             type="float"/>
+      <field name="xbias"          type="float"/>
+      <field name="Pxx"            type="float"/>
+      <field name="Pxdxd"          type="float"/>
+      <field name="Pbb"            type="float"/>
+  </message>
+
+  <message name="BOOZ2_HFF_Y" id="165">
+      <field name="measure"        type="float"/>
+      <field name="y"              type="float"/>
+      <field name="yd"             type="float"/>
+      <field name="ybias"          type="float"/>
+      <field name="Pyy"            type="float"/>
+      <field name="Pydyd"          type="float"/>
+      <field name="Pbb"            type="float"/>
+  </message>
+
   <message name="EKF7_XHAT" id="170">
       <field name="c"   type="float"/>
       <field name="s1"  type="float"/>
@@ -1081,14 +1108,6 @@
       <field name="q"   type="float"/>
       <field name="r"   type="float"/>
   </message>
-
-    
-  <message name="BOOZ2_TUNE_FF" id="163">
-      <field name="fb_rms"         type="float"/>
-      <field name="dg"             type="float"/>
-      <field name="g"              type="float"/>
-  </message>
-
 
 
   <message name="AHRS_EULER" id="173">

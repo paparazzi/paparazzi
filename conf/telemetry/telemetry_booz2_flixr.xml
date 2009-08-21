@@ -84,9 +84,11 @@
       <message name="BOOZ2_HOVER_LOOP"        period="0.25"/>
       <message name="BOOZ2_STAB_ATTITUDE"     period=".2"/>
       <message name="BOOZ2_STAB_ATTITUDE_REF" period=".2"/>
-      <message name="BOOZ2_FP"          period="0.25"/>
-      <message name="BOOZ_STATUS"       period="1.2"/>
-      <message name="BOOZ2_NAV_REF"     period="5."/>
+      <message name="BOOZ2_FP"                period="0.25"/>
+      <message name="BOOZ_STATUS"             period="1.2"/>
+      <message name="BOOZ2_NAV_REF"           period="5."/>
+	  <message name="BOOZ2_HFF_X"             period=".05"/>
+	  <message name="BOOZ2_HFF_Y"             period=".05"/>
     </mode>
 
     <mode name="aligner">

@@ -45,7 +45,7 @@ X_y = [ y ydot ybias ]
 #define Qbiasbias 1e-7*HFF_PRESCALER
 //TODO: proper measurement noise
 #define Rpos   1.
-#define Rspeed 1.
+#define Rspeed 2.
 
 float b2_hff_x;
 float b2_hff_xbias;

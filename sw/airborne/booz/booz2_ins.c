@@ -91,6 +91,7 @@ void booz_ins_init() {
 #endif
 #ifdef USE_HFF
   b2_hff_init(0., 0., 0., 0., 0., 0.);
+  b2_hff_ps_counter = 1;
 #endif
   INT32_VECT3_ZERO(booz_ins_ltp_pos);
   INT32_VECT3_ZERO(booz_ins_ltp_speed);
