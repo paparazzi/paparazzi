@@ -109,19 +109,12 @@ void booz_ins_periodic( void ) {
 }
 
 void booz_ins_propagate() {
-#ifdef BOOZ_INS_UNTILT_ACCEL
+  /* untilt accels */
   struct Int32Vect3 accel_body;
   INT32_RMAT_TRANSP_VMULT(accel_body, booz_imu.body_to_imu_rmat, booz_imu.accel);
   struct Int32Vect3 accel_ltp;
   INT32_RMAT_TRANSP_VMULT(accel_ltp, booz_ahrs.ltp_to_body_rmat, accel_body);
-#ifndef USE_HFF
-  booz_ins_ltp_accel.x = accel_ltp.x;
-  booz_ins_ltp_accel.y = accel_ltp.y;
-#endif
   float z_accel_float = ACCEL_FLOAT_OF_BFP(accel_ltp.z);
-#else /* BOOZ_INS_UNTILT_ACCELS */
-  float z_accel_float = ACCEL_FLOAT_OF_BFP(booz_imu.accel.z);
-#endif /* BOOZ_INS_UNTILT_ACCELS */
 
 #ifdef USE_VFF
   if (booz2_analog_baro_status == BOOZ2_ANALOG_BARO_RUNNING && booz_ins_baro_initialised) {
@@ -161,7 +154,11 @@ void booz_ins_propagate() {
   } else {
 	b2_hff_ps_counter++;
   }
+#else
+  booz_ins_ltp_accel.x = accel_ltp.x;
+  booz_ins_ltp_accel.y = accel_ltp.y;
 #endif /* USE_HFF */
+  
   INT32_VECT3_ENU_OF_NED(booz_ins_enu_pos, booz_ins_ltp_pos);
   INT32_VECT3_ENU_OF_NED(booz_ins_enu_speed, booz_ins_ltp_speed);
   INT32_VECT3_ENU_OF_NED(booz_ins_enu_accel, booz_ins_ltp_accel);
