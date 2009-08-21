@@ -78,7 +78,7 @@ void nps_autopilot_run_step(double time __attribute__ ((unused))) {
   else {
     uint8_t i;
     for (i=0; i<ACTUATORS_MKK_NB; i++)
-      autopilot.commands[i] = (double)supervision_commands[i] / SUPERVISION_MAX_MOTOR;
+      autopilot.commands[i] = (double)supervision.commands[i] / SUPERVISION_MAX_MOTOR;
 #if 0
     int32_t ut_front = supervision_commands[SERVO_FRONT] - TRIM_FRONT;
     int32_t ut_back  = Actuator(SERVO_BACK)  - TRIM_BACK;
