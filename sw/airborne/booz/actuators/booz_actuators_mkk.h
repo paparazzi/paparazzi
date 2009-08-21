@@ -43,7 +43,7 @@ extern const uint8_t actuators_addr[];
 #define ActuatorsMkkI2cHandler() {					\
     actuators_mkk.idx++;						\
     if (actuators_mkk.idx<ACTUATORS_MKK_NB) {				\
-      i2c0_buf[0] = supervision_commands[actuators_mkk.idx];		\
+      i2c0_buf[0] = supervision.commands[actuators_mkk.idx];		\
       i2c0_transmit(actuators_addr[actuators_mkk.idx], 1, &actuators_mkk.i2c_done); \
     }									\
     else								\

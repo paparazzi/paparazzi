@@ -47,7 +47,7 @@ void actuators_set(bool_t motors_on) {
   actuators_mkk.status = BUSY;
   actuators_mkk.i2c_done = FALSE;
   actuators_mkk.idx = 0;
-  i2c0_buf[0] = supervision_commands[actuators_mkk.idx];
+  i2c0_buf[0] = supervision.commands[actuators_mkk.idx];
   i2c0_transmit(actuators_addr[actuators_mkk.idx], 1, &actuators_mkk.i2c_done);
   
 }
