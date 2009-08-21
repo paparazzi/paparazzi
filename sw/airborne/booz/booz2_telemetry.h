@@ -36,20 +36,21 @@
 
 #include "actuators.h"
 
-#define PERIODIC_SEND_ALIVE() DOWNLINK_SEND_ALIVE(16, MD5SUM)
+#define PERIODIC_SEND_ALIVE(_chan) DOWNLINK_SEND_ALIVE(_chan, 16, MD5SUM)
 
 #include "booz2_battery.h"
 #include "booz_imu.h"
 #include "booz2_gps.h"
 #include "booz2_ins.h"
 
-extern uint8_t telemetry_mode_Main;
+extern uint8_t telemetry_mode_Main_DefaultChannel;
 
 #ifdef USE_GPS
-#define PERIODIC_SEND_BOOZ_STATUS() {					\
+#define PERIODIC_SEND_BOOZ_STATUS(_chan) {				\
     uint32_t booz_imu_nb_err = 0;					\
     uint8_t twi_blmc_nb_err = 0;					\
-    DOWNLINK_SEND_BOOZ_STATUS(&booz_imu_nb_err,				\
+    DOWNLINK_SEND_BOOZ_STATUS(_chan,					\
+			      &booz_imu_nb_err,				\
 			      &twi_blmc_nb_err,				\
 			      &radio_control.status,			\
 			      &booz_gps_state.fix,			\
@@ -63,11 +64,12 @@ extern uint8_t telemetry_mode_Main;
 			      );					\
   }
 #else /* !USE_GPS */
-#define PERIODIC_SEND_BOOZ_STATUS() {					\
+#define PERIODIC_SEND_BOOZ_STATUS(_chan) {				\
     uint32_t booz_imu_nb_err = 0;					\
     uint8_t twi_blmc_nb_err = 0;					\
     uint8_t  fix = BOOZ2_GPS_FIX_NONE;					\
-    DOWNLINK_SEND_BOOZ_STATUS(&booz_imu_nb_err,				\
+    DOWNLINK_SEND_BOOZ_STATUS(_chan,					\
+			      &booz_imu_nb_err,				\
 			      &twi_blmc_nb_err,				\
 			      &radio_control.status,			\
 			      &fix,					\
@@ -83,90 +85,101 @@ extern uint8_t telemetry_mode_Main;
 #endif /* USE_GPS */
 
 #ifdef USE_RADIO_CONTROL
-#define PERIODIC_SEND_RC() DOWNLINK_SEND_RC(RADIO_CONTROL_NB_CHANNEL, radio_control.values)
-#define PERIODIC_SEND_BOOZ2_RADIO_CONTROL() {				\
-    int16_t foo = 0;							\
-    DOWNLINK_SEND_BOOZ2_RADIO_CONTROL(&radio_control.values[RADIO_CONTROL_ROLL], \
-				      &radio_control.values[RADIO_CONTROL_PITCH], \
-				      &radio_control.values[RADIO_CONTROL_YAW], \
+#define PERIODIC_SEND_RC(_chan) DOWNLINK_SEND_RC(_chan, RADIO_CONTROL_NB_CHANNEL, radio_control.values)
+#define PERIODIC_SEND_BOOZ2_RADIO_CONTROL(_chan) {			             \
+    int16_t foo = 0;							             \
+    DOWNLINK_SEND_BOOZ2_RADIO_CONTROL(_chan,				             \
+				      &radio_control.values[RADIO_CONTROL_ROLL],     \
+				      &radio_control.values[RADIO_CONTROL_PITCH],    \
+				      &radio_control.values[RADIO_CONTROL_YAW],      \
 				      &radio_control.values[RADIO_CONTROL_THROTTLE], \
-				      &radio_control.values[RADIO_CONTROL_MODE], \
-				      &foo,				\
+				      &radio_control.values[RADIO_CONTROL_MODE],     \
+				      &foo,				             \
 				      &radio_control.status);}
 
 #else
-#define PERIODIC_SEND_RC() {}
+#define PERIODIC_SEND_RC(_chan) {}
+#define PERIODIC_SEND_BOOZ2_RADIO_CONTROL(_chan) {}
 #endif
 
 #ifdef RADIO_CONTROL_TYPE_PPM
-#define PERIODIC_SEND_PPM() DOWNLINK_SEND_PPM(&radio_control.frame_rate, \
-					      RADIO_CONTROL_NB_CHANNEL,  \
-					      booz_radio_control_ppm_pulses)
+#define PERIODIC_SEND_PPM(_chan)					\
+  DOWNLINK_SEND_PPM(_chan,						\
+		    &radio_control.frame_rate,				\
+		    RADIO_CONTROL_NB_CHANNEL,				\
+		    booz_radio_control_ppm_pulses)
 #else
-#define PERIODIC_SEND_PPM() {}
+#define PERIODIC_SEND_PPM(_chan) {}
 #endif
 
-#define PERIODIC_SEND_BOOZ2_GYRO() {			\
-    DOWNLINK_SEND_BOOZ2_GYRO(&booz_imu.gyro.p,		\
+#define PERIODIC_SEND_BOOZ2_GYRO(_chan) {		\
+    DOWNLINK_SEND_BOOZ2_GYRO(_chan,			\
+			     &booz_imu.gyro.p,		\
 			     &booz_imu.gyro.q,		\
 			     &booz_imu.gyro.r);		\
   }
 
-#define PERIODIC_SEND_BOOZ2_ACCEL() {				\
-    DOWNLINK_SEND_BOOZ2_ACCEL(&booz_imu.accel.x,		\
+#define PERIODIC_SEND_BOOZ2_ACCEL(_chan) {			\
+    DOWNLINK_SEND_BOOZ2_ACCEL(_chan,				\
+			      &booz_imu.accel.x,		\
 			      &booz_imu.accel.y,		\
 			      &booz_imu.accel.z);		\
   }
 
-#define PERIODIC_SEND_BOOZ2_MAG() {				\
-    DOWNLINK_SEND_BOOZ2_MAG(&booz_imu.mag.x,			\
+#define PERIODIC_SEND_BOOZ2_MAG(_chan) {			\
+    DOWNLINK_SEND_BOOZ2_MAG(_chan,				\
+			    &booz_imu.mag.x,			\
 			    &booz_imu.mag.y,			\
 			    &booz_imu.mag.z);			\
   }
 
-
-
-#define PERIODIC_SEND_IMU_GYRO_RAW() {					\
-    DOWNLINK_SEND_IMU_GYRO_RAW(&booz_imu.gyro_unscaled.p,		\
+#define PERIODIC_SEND_IMU_GYRO_RAW(_chan) {				\
+    DOWNLINK_SEND_IMU_GYRO_RAW(_chan,					\
+			       &booz_imu.gyro_unscaled.p,		\
 			       &booz_imu.gyro_unscaled.q,		\
 			       &booz_imu.gyro_unscaled.r);		\
   }
 
-#define PERIODIC_SEND_IMU_ACCEL_RAW() {					\
-    DOWNLINK_SEND_IMU_ACCEL_RAW(&booz_imu.accel_unscaled.x,		\
+#define PERIODIC_SEND_IMU_ACCEL_RAW(_chan) {				\
+    DOWNLINK_SEND_IMU_ACCEL_RAW(_chan,					\
+				&booz_imu.accel_unscaled.x,		\
 				&booz_imu.accel_unscaled.y,		\
 				&booz_imu.accel_unscaled.z);		\
   }
 
-#define PERIODIC_SEND_IMU_MAG_RAW() {					\
-    DOWNLINK_SEND_IMU_MAG_RAW(&booz_imu.mag_unscaled.x,			\
+#define PERIODIC_SEND_IMU_MAG_RAW(_chan) {				\
+    DOWNLINK_SEND_IMU_MAG_RAW(_chan,					\
+			      &booz_imu.mag_unscaled.x,			\
 			      &booz_imu.mag_unscaled.y,			\
 			      &booz_imu.mag_unscaled.z);		\
   }
 
-#define PERIODIC_SEND_BOOZ2_BARO_RAW() {					\
-    DOWNLINK_SEND_BOOZ2_BARO_RAW(&booz2_analog_baro_offset,			\
-			         &booz2_analog_baro_value,			\
-			         &booz2_analog_baro_value_filtered);		\
+#define PERIODIC_SEND_BOOZ2_BARO_RAW(_chan) {				\
+    DOWNLINK_SEND_BOOZ2_BARO_RAW(_chan,					\
+				 &booz2_analog_baro_offset,		\
+			         &booz2_analog_baro_value,		\
+			         &booz2_analog_baro_value_filtered);	\
   }
 
 #include "booz_stabilization.h"
-#define PERIODIC_SEND_BOOZ2_RATE_LOOP() {				\
-    DOWNLINK_SEND_BOOZ2_RATE_LOOP(&booz_stabilization_rate_measure.p,	\
-				  &booz_stabilization_rate_measure.q,	\
-				  &booz_stabilization_rate_measure.r,	\
-				  &booz_stabilization_rate_sp.p,	\
-				  &booz_stabilization_rate_sp.q,	\
-				  &booz_stabilization_rate_sp.r,	\
-				  &booz_stabilization_cmd[COMMAND_ROLL], \
-				  &booz_stabilization_cmd[COMMAND_PITCH], \
-				  &booz_stabilization_cmd[COMMAND_YAW], \
+#define PERIODIC_SEND_BOOZ2_RATE_LOOP(_chan) {				    \
+    DOWNLINK_SEND_BOOZ2_RATE_LOOP(_chan,				    \
+				  &booz_stabilization_rate_measure.p,	    \
+				  &booz_stabilization_rate_measure.q,	    \
+				  &booz_stabilization_rate_measure.r,	    \
+				  &booz_stabilization_rate_sp.p,	    \
+				  &booz_stabilization_rate_sp.q,	    \
+				  &booz_stabilization_rate_sp.r,	    \
+				  &booz_stabilization_cmd[COMMAND_ROLL],    \
+				  &booz_stabilization_cmd[COMMAND_PITCH],   \
+				  &booz_stabilization_cmd[COMMAND_YAW],     \
 				  &booz_stabilization_cmd[COMMAND_THRUST]); \
   }
 
 #ifdef STABILISATION_ATTITUDE_TYPE_INT
-#define PERIODIC_SEND_BOOZ2_STAB_ATTITUDE() {				\
-    DOWNLINK_SEND_BOOZ2_STAB_ATTITUDE_INT(&booz_ahrs.body_rate.p,	\
+#define PERIODIC_SEND_BOOZ2_STAB_ATTITUDE(_chan) {			\
+    DOWNLINK_SEND_BOOZ2_STAB_ATTITUDE_INT(_chan,			\
+					  &booz_ahrs.body_rate.p,	\
 					  &booz_ahrs.body_rate.q,	\
 					  &booz_ahrs.body_rate.r,	\
 					  &booz_ahrs.ltp_to_body_euler.phi, \
@@ -190,8 +203,9 @@ extern uint8_t telemetry_mode_Main;
   }
 
 
-#define PERIODIC_SEND_BOOZ2_STAB_ATTITUDE_REF() {			\
-    DOWNLINK_SEND_BOOZ2_STAB_ATTITUDE_REF_INT(&booz_stab_att_sp_euler.phi, \
+#define PERIODIC_SEND_BOOZ2_STAB_ATTITUDE_REF(_chan) {			\
+    DOWNLINK_SEND_BOOZ2_STAB_ATTITUDE_REF_INT(_chan,			\
+					      &booz_stab_att_sp_euler.phi, \
 					      &booz_stab_att_sp_euler.theta, \
 					      &booz_stab_att_sp_euler.psi, \
 					      &booz_stab_att_ref_euler.phi, \
@@ -207,8 +221,9 @@ extern uint8_t telemetry_mode_Main;
 #endif /* STABILISATION_ATTITUDE_TYPE_INT */
 
 #ifdef STABILISATION_ATTITUDE_TYPE_FLOAT
-#define PERIODIC_SEND_BOOZ2_STAB_ATTITUDE() {				\
-    DOWNLINK_SEND_BOOZ2_STAB_ATTITUDE_FLOAT(&booz_ahrs.body_rate.p,	\
+#define PERIODIC_SEND_BOOZ2_STAB_ATTITUDE(_chan) {			\
+    DOWNLINK_SEND_BOOZ2_STAB_ATTITUDE_FLOAT(_chan,			\
+					    &booz_ahrs.body_rate.p,	\
 					    &booz_ahrs.body_rate.q,	\
 					    &booz_ahrs.body_rate.r,	\
 					    &booz_ahrs.ltp_to_body_euler.phi, \
@@ -231,8 +246,9 @@ extern uint8_t telemetry_mode_Main;
 					    &booz_stabilization_cmd[COMMAND_YAW]); \
   }
 
-#define PERIODIC_SEND_BOOZ2_STAB_ATTITUDE_REF() {			\
-    DOWNLINK_SEND_BOOZ2_STAB_ATTITUDE_REF_FLOAT(&booz_stab_att_sp_euler.phi, \
+#define PERIODIC_SEND_BOOZ2_STAB_ATTITUDE_REF(_chan) {			\
+    DOWNLINK_SEND_BOOZ2_STAB_ATTITUDE_REF_FLOAT(_chan,			\
+						&booz_stab_att_sp_euler.phi, \
 						&booz_stab_att_sp_euler.theta, \
 						&booz_stab_att_sp_euler.psi, \
 						&booz_stab_att_ref_euler.phi, \
@@ -250,8 +266,9 @@ extern uint8_t telemetry_mode_Main;
 
 
 #include "ahrs/booz_ahrs_aligner.h"
-#define PERIODIC_SEND_BOOZ2_FILTER_ALIGNER() {				\
-    DOWNLINK_SEND_BOOZ2_FILTER_ALIGNER(&booz_ahrs_aligner.lp_gyro.p,	\
+#define PERIODIC_SEND_BOOZ2_FILTER_ALIGNER(_chan) {			\
+    DOWNLINK_SEND_BOOZ2_FILTER_ALIGNER(_chan,				\
+				       &booz_ahrs_aligner.lp_gyro.p,	\
 				       &booz_ahrs_aligner.lp_gyro.q,	\
 				       &booz_ahrs_aligner.lp_gyro.r,	\
 				       &booz_imu.gyro.p,		\
@@ -262,8 +279,9 @@ extern uint8_t telemetry_mode_Main;
   }
 
 
-#define PERIODIC_SEND_BOOZ2_CMD() { \
-    DOWNLINK_SEND_BOOZ2_CMD(&booz_stabilization_cmd[COMMAND_ROLL],	\
+#define PERIODIC_SEND_BOOZ2_CMD(_chan) {				\
+    DOWNLINK_SEND_BOOZ2_CMD(_chan,					\
+			    &booz_stabilization_cmd[COMMAND_ROLL],	\
 			    &booz_stabilization_cmd[COMMAND_PITCH],	\
 			    &booz_stabilization_cmd[COMMAND_YAW],	\
 			    &booz_stabilization_cmd[COMMAND_THRUST]);	\
@@ -273,10 +291,11 @@ extern uint8_t telemetry_mode_Main;
 #ifdef USE_AHRS_CMPL
 #include "booz_ahrs.h"
 #include "ahrs/booz2_filter_attitude_cmpl_euler.h"
-#define PERIODIC_SEND_BOOZ2_FILTER() {					\
-    DOWNLINK_SEND_BOOZ2_FILTER(&booz_ahrs.ltp_to_imu_euler.phi,	\
+#define PERIODIC_SEND_BOOZ2_FILTER(_chan) {				\
+    DOWNLINK_SEND_BOOZ2_FILTER(_chan,					\
+			       &booz_ahrs.ltp_to_imu_euler.phi,		\
 			       &booz_ahrs.ltp_to_imu_euler.theta,	\
-			       &booz_ahrs.ltp_to_imu_euler.psi,	\
+			       &booz_ahrs.ltp_to_imu_euler.psi,		\
 			       &booz2_face_measure.phi,			\
 			       &booz2_face_measure.theta,		\
 			       &booz2_face_measure.psi,			\
@@ -291,75 +310,80 @@ extern uint8_t telemetry_mode_Main;
 			       &booz2_face_gyro_bias.r);		\
   }
 #else
-#define PERIODIC_SEND_BOOZ2_FILTER() {}
+#define PERIODIC_SEND_BOOZ2_FILTER(_chan) {}
 #endif
 
 #ifdef USE_AHRS_LKF
 #include "booz_ahrs.h"
 #include "ahrs/booz_ahrs_float_lkf.h"
-#define PERIODIC_SEND_BOOZ_AHRS_LKF() {					\
-    DOWNLINK_SEND_BOOZ_AHRS_LKF(&bafl_eulers.phi,	\
-                   &bafl_eulers.theta,  \
-                   &bafl_eulers.psi,    \
-                   &bafl_quat.qi,       \
-                   &bafl_quat.qx,       \
-                   &bafl_quat.qy,       \
-                   &bafl_quat.qz,       \
-                   &bafl_rates.p,       \
-                   &bafl_rates.q,       \
-                   &bafl_rates.r,       \
-                   &bafl_accel_measure.x,       \
-                   &bafl_accel_measure.y,       \
-                   &bafl_accel_measure.z,       \
-                   &bafl_mag.x,         \
-                   &bafl_mag.y,         \
-                   &bafl_mag.z);         \
+#define PERIODIC_SEND_BOOZ_AHRS_LKF(_chan) {				\
+    DOWNLINK_SEND_BOOZ_AHRS_LKF(&bafl_eulers.phi,			\
+				_chan,					\
+				&bafl_eulers.theta,			\
+				&bafl_eulers.psi,			\
+				&bafl_quat.qi,				\
+				&bafl_quat.qx,				\
+				&bafl_quat.qy,				\
+				&bafl_quat.qz,				\
+				&bafl_rates.p,				\
+				&bafl_rates.q,				\
+				&bafl_rates.r,				\
+				&bafl_accel_measure.x,			\
+				&bafl_accel_measure.y,			\
+				&bafl_accel_measure.z,			\
+				&bafl_mag.x,				\
+				&bafl_mag.y,				\
+				&bafl_mag.z);				\
   }
-#define PERIODIC_SEND_BOOZ_AHRS_LKF_DEBUG() {                 \
-    DOWNLINK_SEND_BOOZ_AHRS_LKF_DEBUG(&bafl_X[0],          \
-                   &bafl_X[1],          \
-                   &bafl_X[2],          \
-                   &bafl_bias.p,        \
-                   &bafl_bias.q,        \
-                   &bafl_bias.r,       \
-                   &bafl_qnorm,			\
-                   &bafl_phi_accel,		\
-                   &bafl_theta_accel,	\
-                   &bafl_P[0][0],       \
-                   &bafl_P[1][1],       \
-                   &bafl_P[2][2],       \
-                   &bafl_P[3][3],       \
-                   &bafl_P[4][4],       \
-                   &bafl_P[5][5]);      \
+#define PERIODIC_SEND_BOOZ_AHRS_LKF_DEBUG(_chan) {		   \
+    DOWNLINK_SEND_BOOZ_AHRS_LKF_DEBUG(_chan,			   \
+				      &bafl_X[0],		   \
+				      &bafl_X[1],		   \
+				      &bafl_X[2],		   \
+				      &bafl_bias.p,		   \
+				      &bafl_bias.q,		   \
+				      &bafl_bias.r,		   \
+				      &bafl_qnorm,		   \
+				      &bafl_phi_accel,		   \
+				      &bafl_theta_accel,	   \
+				      &bafl_P[0][0],		   \
+				      &bafl_P[1][1],		   \
+				      &bafl_P[2][2],		   \
+				      &bafl_P[3][3],		   \
+				      &bafl_P[4][4],		   \
+				      &bafl_P[5][5]);		   \
   }
-#define PERIODIC_SEND_BOOZ_AHRS_LKF_ACC_DBG() {                 \
-    DOWNLINK_SEND_BOOZ_AHRS_LKF_ACC_DBG(&bafl_q_a_err.qi,   \
-                   &bafl_q_a_err.qx,   \
-                   &bafl_q_a_err.qy,   \
-                   &bafl_q_a_err.qz,   \
-                   &bafl_b_a_err.p,    \
-                   &bafl_b_a_err.q,    \
-                   &bafl_b_a_err.r);   \
+#define PERIODIC_SEND_BOOZ_AHRS_LKF_ACC_DBG(_chan) {		    \
+    DOWNLINK_SEND_BOOZ_AHRS_LKF_ACC_DBG(_chan,			    \
+					&bafl_q_a_err.qi,	    \
+					&bafl_q_a_err.qx,	    \
+					&bafl_q_a_err.qy,	    \
+					&bafl_q_a_err.qz,	    \
+					&bafl_b_a_err.p,	    \
+					&bafl_b_a_err.q,	    \
+					&bafl_b_a_err.r);	    \
   }
-#define PERIODIC_SEND_BOOZ_AHRS_LKF_MAG_DBG() {                 \
-    DOWNLINK_SEND_BOOZ_AHRS_LKF_MAG_DBG(&bafl_q_m_err.qi,   \
-                   &bafl_q_m_err.qx,   \
-                   &bafl_q_m_err.qy,   \
-                   &bafl_q_m_err.qz,   \
-                   &bafl_b_m_err.p,    \
-                   &bafl_b_m_err.q,    \
-                   &bafl_b_m_err.r);   \
+#define PERIODIC_SEND_BOOZ_AHRS_LKF_MAG_DBG(_chan) {	    \
+    DOWNLINK_SEND_BOOZ_AHRS_LKF_MAG_DBG(_chan,		    \
+					&bafl_q_m_err.qi,   \
+					&bafl_q_m_err.qx,   \
+					&bafl_q_m_err.qy,   \
+					&bafl_q_m_err.qz,   \
+					&bafl_b_m_err.p,    \
+					&bafl_b_m_err.q,    \
+					&bafl_b_m_err.r);   \
   }
 #else
-#define PERIODIC_SEND_BOOZ_AHRS_LKF() {}
-#define PERIODIC_SEND_BOOZ_AHRS_LKF_DEBUG() {}
-#define PERIODIC_SEND_BOOZ_AHRS_LKF_MAG_DBG() {}
-#define PERIODIC_SEND_BOOZ_AHRS_LKF_ACC_DBG() {}
+#define PERIODIC_SEND_BOOZ_AHRS_LKF(_chan) {}
+#define PERIODIC_SEND_BOOZ_AHRS_LKF_DEBUG(_chan) {}
+#define PERIODIC_SEND_BOOZ_AHRS_LKF_MAG_DBG(_chan) {}
+#define PERIODIC_SEND_BOOZ_AHRS_LKF_ACC_DBG(_chan) {}
 #endif
 
 
-#define PERIODIC_SEND_BOOZ2_AHRS_QUAT() {				\
-    DOWNLINK_SEND_BOOZ2_AHRS_QUAT(&booz_ahrs.ltp_to_imu_quat.qi,	\
+#define PERIODIC_SEND_BOOZ2_AHRS_QUAT(_chan) {				\
+    DOWNLINK_SEND_BOOZ2_AHRS_QUAT(_chan,				\
+				  &booz_ahrs.ltp_to_imu_quat.qi,	\
 				  &booz_ahrs.ltp_to_imu_quat.qx,	\
 				  &booz_ahrs.ltp_to_imu_quat.qy,	\
 				  &booz_ahrs.ltp_to_imu_quat.qz,	\
@@ -369,8 +393,9 @@ extern uint8_t telemetry_mode_Main;
 				  &booz_ahrs.ltp_to_body_quat.qz);	\
   }
 
-#define PERIODIC_SEND_BOOZ2_AHRS_EULER() {				\
-    DOWNLINK_SEND_BOOZ2_AHRS_EULER(&booz_ahrs.ltp_to_imu_euler.phi,	\
+#define PERIODIC_SEND_BOOZ2_AHRS_EULER(_chan) {				\
+    DOWNLINK_SEND_BOOZ2_AHRS_EULER(_chan,				\
+				   &booz_ahrs.ltp_to_imu_euler.phi,	\
 				   &booz_ahrs.ltp_to_imu_euler.theta,	\
 				   &booz_ahrs.ltp_to_imu_euler.psi,	\
 				   &booz_ahrs.ltp_to_body_euler.phi,	\
@@ -378,8 +403,9 @@ extern uint8_t telemetry_mode_Main;
 				   &booz_ahrs.ltp_to_body_euler.psi);	\
   }
 
-#define PERIODIC_SEND_BOOZ2_AHRS_RMAT() {				\
-    DOWNLINK_SEND_BOOZ2_AHRS_RMAT(&booz_ahrs.ltp_to_imu_rmat.m[0],	\
+#define PERIODIC_SEND_BOOZ2_AHRS_RMAT(_chan) {				\
+    DOWNLINK_SEND_BOOZ2_AHRS_RMAT(_chan,				\
+				  &booz_ahrs.ltp_to_imu_rmat.m[0],	\
 				  &booz_ahrs.ltp_to_imu_rmat.m[1],	\
 				  &booz_ahrs.ltp_to_imu_rmat.m[2],	\
 				  &booz_ahrs.ltp_to_imu_rmat.m[3],	\
@@ -402,8 +428,9 @@ extern uint8_t telemetry_mode_Main;
 
 
 
-#define PERIODIC_SEND_BOOZ2_FILTER_Q() {				\
-    DOWNLINK_SEND_BOOZ2_FILTER_Q(&booz2_filter_attitude_quat.qi,	\
+#define PERIODIC_SEND_BOOZ2_FILTER_Q(_chan) {				\
+    DOWNLINK_SEND_BOOZ2_FILTER_Q(_chan,					\
+				 &booz2_filter_attitude_quat.qi,	\
 				 &booz2_filter_attitude_quat.qx,	\
 				 &booz2_filter_attitude_quat.qy,	\
 				 &booz2_filter_attitude_quat.qz);	\
@@ -411,41 +438,45 @@ extern uint8_t telemetry_mode_Main;
 
 #ifdef USE_VFF
 #include "ins/booz2_vf_float.h"
-#define PERIODIC_SEND_BOOZ2_VFF() {		\
-    DOWNLINK_SEND_BOOZ2_VFF(&b2_vff_z_meas,	\
-			    &b2_vff_z,		\
-			    &b2_vff_zdot,	\
-			    &b2_vff_bias,	\
-			    & b2_vff_P[0][0],	\
-			    & b2_vff_P[1][1],	\
-			    & b2_vff_P[2][2]);	\
+#define PERIODIC_SEND_BOOZ2_VFF(_chan) {		\
+    DOWNLINK_SEND_BOOZ2_VFF(_chan,			\
+			    &b2_vff_z_meas,		\
+			    &b2_vff_z,			\
+			    &b2_vff_zdot,		\
+			    &b2_vff_bias,		\
+			    & b2_vff_P[0][0],		\
+			    & b2_vff_P[1][1],		\
+			    & b2_vff_P[2][2]);		\
   }
 #else
-define PERIODIC_SEND_BOOZ2_VFF() {}
+#define PERIODIC_SEND_BOOZ2_VFF(_chan) {}
 #endif
 
 
-#define PERIODIC_SEND_BOOZ2_GUIDANCE() {				\
-    DOWNLINK_SEND_BOOZ2_GUIDANCE(&booz2_guidance_h_cur_pos.x,		\
+#define PERIODIC_SEND_BOOZ2_GUIDANCE(_chan) {				\
+    DOWNLINK_SEND_BOOZ2_GUIDANCE(_chan,					\
+				 &booz2_guidance_h_cur_pos.x,		\
 				 &booz2_guidance_h_cur_pos.y,		\
 				 &booz2_guidance_h_held_pos.x,		\
 				 &booz2_guidance_h_held_pos.y);		\
   }
 
-#define PERIODIC_SEND_BOOZ2_INS() {				\
-    DOWNLINK_SEND_BOOZ2_INS(&booz_ins_baro_alt,			\
-			    &booz_ins_ltp_pos.z,		\
-			    &booz_ins_ltp_speed.z,		\
-			    &booz_ins_ltp_accel.z);		\
+#define PERIODIC_SEND_BOOZ2_INS(_chan) {				\
+    DOWNLINK_SEND_BOOZ2_INS(_chan,					\
+			    &booz_ins_baro_alt,				\
+			    &booz_ins_ltp_pos.z,			\
+			    &booz_ins_ltp_speed.z,			\
+			    &booz_ins_ltp_accel.z);			\
   }
 
 
-#define PERIODIC_SEND_BOOZ2_INS2() {				\
+#define PERIODIC_SEND_BOOZ2_INS2(_chan) {			\
     struct Int32Vect3 pos_low_res;				\
     pos_low_res.x = (int32_t)(b2ins_pos_ltp.x>>20);		\
     pos_low_res.y = (int32_t)(b2ins_pos_ltp.y>>20);		\
     pos_low_res.z = (int32_t)(b2ins_pos_ltp.z>>20);		\
-    DOWNLINK_SEND_BOOZ2_INS2(&b2ins_accel_ltp.x,		\
+    DOWNLINK_SEND_BOOZ2_INS2(_chan,				\
+			     &b2ins_accel_ltp.x,		\
 			     &b2ins_accel_ltp.y,		\
 			     &b2ins_accel_ltp.z,		\
 			     &b2ins_speed_ltp.x,		\
@@ -458,8 +489,9 @@ define PERIODIC_SEND_BOOZ2_VFF() {}
   }
 
 #ifdef USE_GPS
-#define PERIODIC_SEND_BOOZ2_INS3() {					\
-    DOWNLINK_SEND_BOOZ2_INS3(&b2ins_meas_gps_pos_ned.x,			\
+#define PERIODIC_SEND_BOOZ2_INS3(_chan) {				\
+    DOWNLINK_SEND_BOOZ2_INS3(_chan,					\
+			     &b2ins_meas_gps_pos_ned.x,			\
 			     &b2ins_meas_gps_pos_ned.y,			\
 			     &b2ins_meas_gps_pos_ned.z,			\
 			     &b2ins_meas_gps_speed_ned.x,		\
@@ -468,11 +500,12 @@ define PERIODIC_SEND_BOOZ2_VFF() {}
 			     );						\
   }
 #else /* !USE_GPS */
-#define PERIODIC_SEND_BOOZ2_INS3() {}
+#define PERIODIC_SEND_BOOZ2_INS3(_chan) {}
 #endif /* USE_GPS */
 
-#define PERIODIC_SEND_BOOZ2_INS_REF() {					\
-    DOWNLINK_SEND_BOOZ2_INS_REF(&booz_ins_ltp_def.ecef.x,		\
+#define PERIODIC_SEND_BOOZ2_INS_REF(_chan) {				\
+    DOWNLINK_SEND_BOOZ2_INS_REF(_chan,					\
+				&booz_ins_ltp_def.ecef.x,		\
 				&booz_ins_ltp_def.ecef.y,		\
 				&booz_ins_ltp_def.ecef.z,		\
 				&booz_ins_ltp_def.lla.lat,		\
@@ -483,8 +516,9 @@ define PERIODIC_SEND_BOOZ2_VFF() {}
 
 
 
-#define PERIODIC_SEND_BOOZ2_VERT_LOOP() {				\
-    DOWNLINK_SEND_BOOZ2_VERT_LOOP(&booz2_guidance_v_z_sp,		\
+#define PERIODIC_SEND_BOOZ2_VERT_LOOP(_chan) {				\
+    DOWNLINK_SEND_BOOZ2_VERT_LOOP(_chan,				\
+				  &booz2_guidance_v_z_sp,		\
 				  &booz2_guidance_v_zd_sp,		\
 				  &booz_ins_ltp_pos.z,			\
 				  &booz_ins_ltp_speed.z,		\
@@ -501,8 +535,9 @@ define PERIODIC_SEND_BOOZ2_VFF() {}
 				  &booz2_guidance_v_delta_t);		\
   }
 
-#define PERIODIC_SEND_BOOZ2_HOVER_LOOP() {				\
-    DOWNLINK_SEND_BOOZ2_HOVER_LOOP(&booz2_guidance_h_pos_sp.x,		\
+#define PERIODIC_SEND_BOOZ2_HOVER_LOOP(_chan) {				\
+    DOWNLINK_SEND_BOOZ2_HOVER_LOOP(_chan,				\
+				   &booz2_guidance_h_pos_sp.x,		\
 				   &booz2_guidance_h_pos_sp.y,		\
 				   &booz_ins_ltp_pos.x,			\
 				   &booz_ins_ltp_pos.y,			\
@@ -524,9 +559,10 @@ define PERIODIC_SEND_BOOZ2_VFF() {}
 
 #include "booz2_gps.h"
 #include "booz2_navigation.h"
-#define PERIODIC_SEND_BOOZ2_FP() {					\
+#define PERIODIC_SEND_BOOZ2_FP(_chan) {					\
     int32_t carrot_up = -booz2_guidance_v_z_sp;				\
-    DOWNLINK_SEND_BOOZ2_FP( &booz_ins_enu_pos.x,			\
+    DOWNLINK_SEND_BOOZ2_FP( _chan,					\
+			    &booz_ins_enu_pos.x,			\
 			    &booz_ins_enu_pos.y,			\
 			    &booz_ins_enu_pos.z,			\
 			    &booz_ins_enu_speed.x,			\
@@ -543,72 +579,86 @@ define PERIODIC_SEND_BOOZ2_VFF() {}
   }
 
 #ifdef USE_GPS
-#define PERIODIC_SEND_BOOZ2_GPS() {				\
-    DOWNLINK_SEND_BOOZ2_GPS( &booz_gps_state.ecef_pos.x,	\
-			     &booz_gps_state.ecef_pos.y,	\
-			     &booz_gps_state.ecef_pos.z,	\
-			     &booz_gps_state.ecef_vel.x,	\
-			     &booz_gps_state.ecef_vel.y,	\
-			     &booz_gps_state.ecef_vel.z,	\
-			     &booz_gps_state.pacc,		\
-			     &booz_gps_state.sacc,		\
-			     &booz_gps_state.pdop,		\
-			     &booz_gps_state.num_sv,		\
-			     &booz_gps_state.fix);		\
+#define PERIODIC_SEND_BOOZ2_GPS(_chan) {				\
+    DOWNLINK_SEND_BOOZ2_GPS( _chan,					\
+			     &booz_gps_state.ecef_pos.x,		\
+			     &booz_gps_state.ecef_pos.y,		\
+			     &booz_gps_state.ecef_pos.z,		\
+			     &booz_gps_state.ecef_vel.x,		\
+			     &booz_gps_state.ecef_vel.y,		\
+			     &booz_gps_state.ecef_vel.z,		\
+			     &booz_gps_state.pacc,			\
+			     &booz_gps_state.sacc,			\
+			     &booz_gps_state.pdop,			\
+			     &booz_gps_state.num_sv,			\
+			     &booz_gps_state.fix);			\
   }
 #else
-#define PERIODIC_SEND_BOOZ2_GPS() {}
+#define PERIODIC_SEND_BOOZ2_GPS(_chan) {}
 #endif
 
 #include "booz2_navigation.h"
-#define PERIODIC_SEND_BOOZ2_NAV_REF() {					\
-    DOWNLINK_SEND_BOOZ2_NAV_REF(&booz_ins_ltp_def.ecef.x, &booz_ins_ltp_def.ecef.y, &booz_ins_ltp_def.ecef.z); \
+#define PERIODIC_SEND_BOOZ2_NAV_REF(_chan) {				\
+    DOWNLINK_SEND_BOOZ2_NAV_REF(_chan,					\
+				&booz_ins_ltp_def.ecef.x,		\
+				&booz_ins_ltp_def.ecef.y,		\
+				&booz_ins_ltp_def.ecef.z);		\
   }
 
-#define PERIODIC_SEND_BOOZ2_NAV_STATUS() {				\
-    DOWNLINK_SEND_BOOZ2_NAV_STATUS(&block_time,&stage_time,&nav_block,&nav_stage,&horizontal_mode); \
+#define PERIODIC_SEND_BOOZ2_NAV_STATUS(_chan) {				\
+    DOWNLINK_SEND_BOOZ2_NAV_STATUS(_chan,				\
+				   &block_time,				\
+				   &stage_time,				\
+				   &nav_block,				\
+				   &nav_stage,				\
+				   &horizontal_mode);			\
     if (horizontal_mode == HORIZONTAL_MODE_ROUTE) {			\
       float sx = POS_FLOAT_OF_BFP(waypoints[nav_segment_start].x);	\
       float sy = POS_FLOAT_OF_BFP(waypoints[nav_segment_start].y);	\
       float ex = POS_FLOAT_OF_BFP(waypoints[nav_segment_end].x);	\
       float ey = POS_FLOAT_OF_BFP(waypoints[nav_segment_end].y);	\
-      DOWNLINK_SEND_SEGMENT(&sx, &sy, &ex, &ey);			\
+      DOWNLINK_SEND_SEGMENT(_chan, &sx, &sy, &ex, &ey);			\
     }									\
   }
 
-#define PERIODIC_SEND_WP_MOVED() { \
-  static uint8_t i; \
-  i++; if (i >= nb_waypoint) i = 0; \
-  DOWNLINK_SEND_WP_MOVED_LTP(&i, &(waypoints[i].x), &(waypoints[i].y), &(waypoints[i].z)); \
-}
+#define PERIODIC_SEND_WP_MOVED(_chan) {					\
+    static uint8_t i;							\
+    i++; if (i >= nb_waypoint) i = 0;					\
+    DOWNLINK_SEND_WP_MOVED_LTP(_chan,					\
+			       &i,					\
+			       &(waypoints[i].x),			\
+			       &(waypoints[i].y),			\
+			       &(waypoints[i].z));			\
+  }
 
 
-#define PERIODIC_SEND_BOOZ2_TUNE_HOVER() {				\
-    DOWNLINK_SEND_BOOZ2_TUNE_HOVER(&radio_control.values[RADIO_CONTROL_ROLL], \
+#define PERIODIC_SEND_BOOZ2_TUNE_HOVER(_chan) {				       \
+    DOWNLINK_SEND_BOOZ2_TUNE_HOVER(_chan,				       \
+				   &radio_control.values[RADIO_CONTROL_ROLL],  \
 				   &radio_control.values[RADIO_CONTROL_PITCH], \
-				   &radio_control.values[RADIO_CONTROL_YAW], \
-				   &booz_stabilization_cmd[COMMAND_ROLL], \
-				   &booz_stabilization_cmd[COMMAND_PITCH], \
-				   &booz_stabilization_cmd[COMMAND_YAW], \
-				   &booz_stabilization_cmd[COMMAND_THRUST], \
-				   &booz_ahrs.ltp_to_imu_euler.phi,	\
-				   &booz_ahrs.ltp_to_imu_euler.theta,	\
-				   &booz_ahrs.ltp_to_imu_euler.psi,	\
-				   &booz_ahrs.ltp_to_body_euler.phi,	\
-				   &booz_ahrs.ltp_to_body_euler.theta,	\
-				   &booz_ahrs.ltp_to_body_euler.psi	\
-				   );					\
+				   &radio_control.values[RADIO_CONTROL_YAW],   \
+				   &booz_stabilization_cmd[COMMAND_ROLL],      \
+				   &booz_stabilization_cmd[COMMAND_PITCH],     \
+				   &booz_stabilization_cmd[COMMAND_YAW],       \
+				   &booz_stabilization_cmd[COMMAND_THRUST],    \
+				   &booz_ahrs.ltp_to_imu_euler.phi,	       \
+				   &booz_ahrs.ltp_to_imu_euler.theta,	       \
+				   &booz_ahrs.ltp_to_imu_euler.psi,	       \
+				   &booz_ahrs.ltp_to_body_euler.phi,	       \
+				   &booz_ahrs.ltp_to_body_euler.theta,	       \
+				   &booz_ahrs.ltp_to_body_euler.psi	       \
+				   );					       \
   }
 
 
 
 
 #include "settings.h"
-#define PERIODIC_SEND_DL_VALUE() PeriodicSendDlValue()
+#define PERIODIC_SEND_DL_VALUE(_chan) PeriodicSendDlValue(_chan)
 
 #include "periodic.h"
-#define Booz2TelemetryPeriodic() {		\
-    PeriodicSendMain();				\
+#define Booz2TelemetryPeriodic() {			\
+    PeriodicSendMain_DefaultChannel();			\
   }
 
 

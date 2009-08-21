@@ -241,12 +241,12 @@ static inline void reporting_task( void ) {
 
   /** initialisation phase during boot */
   if (boot) {
-    DOWNLINK_SEND_BOOT(&version);
+    DOWNLINK_SEND_BOOT(DefaultChannel, &version);
     boot = FALSE;
   }
   /** then report periodicly */
   else {
-    PeriodicSendAp();
+    PeriodicSendAp_DefaultChannel();
   }
 }
 
@@ -281,7 +281,7 @@ inline void telecommand_task( void ) {
   }
   mode_changed |= mcu1_status_update();
   if ( mode_changed )
-    PERIODIC_SEND_PPRZ_MODE();
+    PERIODIC_SEND_PPRZ_MODE(DefaultChannel);
 
 #if defined RADIO_CONTROL || defined RADIO_CONTROL_AUTO1
   /** In AUTO1 mode, compute roll setpoint and pitch setpoint from 
@@ -333,7 +333,7 @@ static void navigation_task( void ) {
       if (pprz_mode == PPRZ_MODE_AUTO2 || pprz_mode == PPRZ_MODE_HOME) {
 	last_pprz_mode = pprz_mode;
 	pprz_mode = PPRZ_MODE_GPS_OUT_OF_ORDER;
-	PERIODIC_SEND_PPRZ_MODE();
+	PERIODIC_SEND_PPRZ_MODE(DefaultChannel);
 	gps_lost = TRUE;
       }
     } else /* GPS is ok */ if (gps_lost) {
@@ -341,7 +341,7 @@ static void navigation_task( void ) {
       pprz_mode = last_pprz_mode;
       gps_lost = FALSE;
 
-      PERIODIC_SEND_PPRZ_MODE();
+      PERIODIC_SEND_PPRZ_MODE(DefaultChannel);
     }
   }
 #endif /* GPS && FAILSAFE_DELAY_WITHOUT_GPS */
@@ -359,7 +359,7 @@ static void navigation_task( void ) {
 #endif
 
 #ifndef PERIOD_NAVIGATION_0 // If not sent periodically (in default 0 mode)
-  SEND_NAVIGATION();
+  SEND_NAVIGATION(DefaultChannel);
 #endif
 
   SEND_CAM();
@@ -491,7 +491,7 @@ void periodic_task_ap( void ) {
 	estimator_hspeed_mod > MIN_SPEED_FOR_TAKEOFF) {
       estimator_flight_time = 1;
       launch = TRUE; /* Not set in non auto launch */
-      DOWNLINK_SEND_TAKEOFF(&cpu_time_sec);
+      DOWNLINK_SEND_TAKEOFF(DefaultChannel, &cpu_time_sec);
     }
 
 #ifdef DIGITAL_CAM

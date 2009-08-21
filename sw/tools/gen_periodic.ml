@@ -50,12 +50,12 @@ let remove_dup = fun l ->
   loop (List.sort compare l)
 
 
-let output_modes = fun avr_h process_name modes ->       
+let output_modes = fun avr_h process_name channel_name modes ->       
   (** For each mode in this process *)
   List.iter
     (fun mode ->
       let mode_name = ExtXml.attrib mode "name" in
-      lprintf avr_h "if (telemetry_mode_%s == TELEMETRY_MODE_%s_%s) {\\\n" process_name process_name mode_name;
+      lprintf avr_h "if (telemetry_mode_%s_%s == TELEMETRY_MODE_%s_%s_%s) {\\\n" process_name channel_name process_name channel_name mode_name;
       right ();  
 
       (** Computes the required modulos *)
@@ -94,7 +94,7 @@ let output_modes = fun avr_h process_name modes ->
 	  l := (p, !phase) :: !l;
 	  i := !i + !freq/10;
 	  right ();
-	  lprintf avr_h "PERIODIC_SEND_%s();\\\n" message_name;
+	  lprintf avr_h "PERIODIC_SEND_%s(%s);\\\n" message_name channel_name;
 	  left ();
 	  lprintf avr_h "} \\\n"
 	)
@@ -125,9 +125,10 @@ let _ =
   (** For each process *)
   List.iter
     (fun process ->
-      let process_name = ExtXml.attrib process "name" in
+      let process_name = ExtXml.attrib process "name" and
+      channel_name =  ExtXml.attrib process "channel" in
 
-      fprintf avr_h "\n/* Macros for %s process */\n" process_name;
+      fprintf avr_h "\n/* Macros for %s process channel %s */\n" process_name channel_name;
 
       let modes = Xml.children process in
       
@@ -135,20 +136,20 @@ let _ =
       (** For each mode of this process *)
       List.iter (fun mode ->
 	let name = ExtXml.attrib mode "name" in
-	Xml2h.define (sprintf "TELEMETRY_MODE_%s_%s" process_name name) (string_of_int !i);
+	Xml2h.define (sprintf "TELEMETRY_MODE_%s_%s_%s" process_name channel_name name) (string_of_int !i);
 	(* Output the periods of the messages *)
 	List.iter
 	  (fun x -> 
 	    let p = ExtXml.attrib x "period"
 	    and n = ExtXml.attrib x "name" in
-	    Xml2h.define (sprintf "PERIOD_%s_%d" n !i) (sprintf "(%s)" p))
+	    Xml2h.define (sprintf "PERIOD_%s_%s_%d" n channel_name !i) (sprintf "(%s)" p))
 	  (Xml.children mode);
 	incr i)
 	modes;
 
-      lprintf avr_h "#define PeriodicSend%s() {  /* %dHz */ \\\n" process_name !freq;
+      lprintf avr_h "#define PeriodicSend%s_%s() {  /* %dHz */ \\\n" process_name channel_name !freq;
       right ();
-      output_modes avr_h process_name modes;
+      output_modes avr_h process_name channel_name modes;
       left ();
       lprintf avr_h "}\n"
     )

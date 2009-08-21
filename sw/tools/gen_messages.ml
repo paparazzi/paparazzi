@@ -101,10 +101,10 @@ module Gen_onboard = struct
   let print_field = fun h (t, name, (_f: format option)) ->
     match t with 
       Basic _ ->
-	fprintf h "\t  DownlinkPut%sByAddr((%s)); \\\n" (Syntax.nameof t) name
+	fprintf h "\t  DownlinkPut%sByAddr(_chan, (%s)); \\\n" (Syntax.nameof t) name
     | Array (t, varname) ->
 	let _s = Syntax.sizeof (Basic t) in
-	fprintf h "\t  DownlinkPut%sArray(%s, %s); \\\n" (Syntax.nameof (Basic t)) (Syntax.length_name varname) name
+	fprintf h "\t  DownlinkPut%sArray(_chan, %s, %s); \\\n" (Syntax.nameof (Basic t)) (Syntax.length_name varname) name
 
   let print_parameter h = function
       (Array _, s, _) -> fprintf h "%s, %s" (Syntax.length_name s) s
@@ -124,21 +124,27 @@ module Gen_onboard = struct
   let size_of_message = fun m -> size_fields m.fields "0"
       
   let print_downlink_macro = fun h {name=s; fields = fields} ->
-    fprintf h "#define DOWNLINK_SEND_%s(" s;
+    if List.length fields > 0 then begin
+      fprintf h "#define DOWNLINK_SEND_%s(_chan, " s;
+    end else
+       fprintf h "#define DOWNLINK_SEND_%s(_chan " s;
     print_macro_parameters h fields;
     fprintf h "){ \\\n";
     let size = (size_fields fields "0") in
-    fprintf h "\tif (DownlinkCheckFreeSpace(DownlinkSizeOf(%s))) {\\\n" size;
-    fprintf h "\t  DownlinkCountBytes(DownlinkSizeOf(%s)); \\\n" size;
-    fprintf h "\t  DownlinkStartMessage(\"%s\", DL_%s, %s) \\\n" s s size;
+    fprintf h "\tif (DownlinkCheckFreeSpace(_chan, DownlinkSizeOf(_chan, %s))) {\\\n" size;
+    fprintf h "\t  DownlinkCountBytes(_chan, DownlinkSizeOf(_chan, %s)); \\\n" size;
+    fprintf h "\t  DownlinkStartMessage(_chan, \"%s\", DL_%s, %s) \\\n" s s size;
     List.iter (print_field h) fields;
-    fprintf h "\t  DownlinkEndMessage() \\\n";
+    fprintf h "\t  DownlinkEndMessage(_chan ) \\\n";
     fprintf h "\t} else \\\n";
-    fprintf h "\t  DownlinkOverrun(); \\\n";
+    fprintf h "\t  DownlinkOverrun(_chan ); \\\n";
     fprintf h "}\n\n"
 
   let print_null_downlink_macro = fun h {name=s; fields = fields} ->
-    fprintf h "#define DOWNLINK_SEND_%s(" s;
+    if List.length fields > 0 then begin
+      fprintf h "#define DOWNLINK_SEND_%s(_chan, " s;
+    end else
+      fprintf h "#define DOWNLINK_SEND_%s(_chan " s;
     print_macro_parameters h fields;
     fprintf h ") {}\n"
 

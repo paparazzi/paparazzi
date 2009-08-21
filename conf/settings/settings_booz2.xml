@@ -4,7 +4,7 @@
   <dl_settings>
 
     <dl_settings NAME="Misc">
-       <dl_setting var="telemetry_mode_Main" min="0" step="1" max="11" module="booz2_telemetry" shortname="telemetry" values="Default|PPM|Raw sensors|Scaled sensors|AHRS|Rate loop|Att loop|Vert loop|H loop|Aligner|HS_att_roll|Tune_hover"/>
+       <dl_setting var="telemetry_mode_Main_DefaultChannel" min="0" step="1" max="11" module="booz2_telemetry" shortname="telemetry" values="Default|PPM|Raw sensors|Scaled sensors|AHRS|Rate loop|Att loop|Vert loop|H loop|Aligner|HS_att_roll|Tune_hover"/>
        <dl_setting var="booz2_autopilot_mode_auto2" min="0" step="1" max="12" module="booz2_autopilot" shortname="auto2" values="Fail|Kill|Rate|Att|Rate_rcC|Att_rcC|Att_C|Rate_Z|Att_Z|Hover|Hover_C|Hover_Z|Nav"/>
     </dl_settings>
 

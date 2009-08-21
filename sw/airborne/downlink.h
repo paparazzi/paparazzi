@@ -53,14 +53,18 @@
 #include "xbee.h"
 #endif /** !SITL */
 
+#ifndef DefaultChannel
+#define DefaultChannel DOWNLINK_TRANSPORT
+#endif
+
 #ifdef AP
 /** Telemetry mode for AP process: index in the telemetry.xml file */
-extern uint8_t telemetry_mode_Ap;
+extern uint8_t telemetry_mode_Ap_DefaultChannel;
 #endif
 
 #ifdef FBW
 /** Telemetry mode for FBW process: index in the telemetry.xml file */
-extern uint8_t telemetry_mode_Fbw;
+extern uint8_t telemetry_mode_Fbw_DefaultChannel;
 #endif
 
 /** Counter of messages not sent because of unavailibity of the output buffer*/
@@ -71,41 +75,41 @@ extern uint16_t downlink_nb_msgs;
 
 #define __Transport(dev, _x) dev##_x
 #define _Transport(dev, _x) __Transport(dev, _x)
-#define Transport(_x) _Transport(DOWNLINK_TRANSPORT, _x)
+#define Transport(_chan, _fun) _Transport(_chan, _fun)
 
 
 /** Set of macros for generated code (messages.h) from messages.xml */
 /** 2 = ac_id + msg_id */
-#define DownlinkIDsSize(_x) (_x+2)
-#define DownlinkSizeOf(_x) Transport(SizeOf(DownlinkIDsSize(_x)))
+#define DownlinkIDsSize(_chan, _x) (_x+2)
+#define DownlinkSizeOf(_chan, _x) Transport(_chan, SizeOf(DownlinkIDsSize(_chan, _x)))
 
-#define DownlinkCheckFreeSpace(_x) Transport(CheckFreeSpace((uint8_t)(_x)))
+#define DownlinkCheckFreeSpace(_chan, _x) Transport(_chan, CheckFreeSpace((uint8_t)(_x)))
 
-#define DownlinkPutUint8(_x) Transport(PutUint8(_x))
+#define DownlinkPutUint8(_chan, _x) Transport(_chan, PutUint8(_x))
 
-#define DownlinkPutInt8ByAddr(_x) Transport(PutInt8ByAddr(_x))
-#define DownlinkPutUint8ByAddr(_x) Transport(PutUint8ByAddr(_x))
-#define DownlinkPutInt16ByAddr(_x) Transport(PutInt16ByAddr(_x))
-#define DownlinkPutUint16ByAddr(_x) Transport(PutUint16ByAddr(_x))
-#define DownlinkPutInt32ByAddr(_x) Transport(PutInt32ByAddr(_x))
-#define DownlinkPutUint32ByAddr(_x) Transport(PutUint32ByAddr(_x))
-#define DownlinkPutFloatByAddr(_x) Transport(PutFloatByAddr(_x))
+#define DownlinkPutInt8ByAddr(_chan, _x) Transport(_chan, PutInt8ByAddr(_x))
+#define DownlinkPutUint8ByAddr(_chan, _x) Transport(_chan, PutUint8ByAddr(_x))
+#define DownlinkPutInt16ByAddr(_chan, _x) Transport(_chan, PutInt16ByAddr(_x))
+#define DownlinkPutUint16ByAddr(_chan, _x) Transport(_chan, PutUint16ByAddr(_x))
+#define DownlinkPutInt32ByAddr(_chan, _x) Transport(_chan, PutInt32ByAddr(_x))
+#define DownlinkPutUint32ByAddr(_chan, _x) Transport(_chan, PutUint32ByAddr(_x))
+#define DownlinkPutFloatByAddr(_chan, _x) Transport(_chan, PutFloatByAddr(_x))
 
-#define DownlinkPutFloatArray(_n, _x) Transport(PutFloatArray(_n, _x))
-#define DownlinkPutInt16Array(_n, _x) Transport(PutInt16Array(_n, _x))
-#define DownlinkPutUint16Array(_n, _x) Transport(PutUint16Array(_n, _x))
-#define DownlinkPutUint8Array(_n, _x) Transport(PutUint8Array(_n, _x))
+#define DownlinkPutFloatArray(_chan, _n, _x) Transport(_chan, PutFloatArray(_n, _x))
+#define DownlinkPutInt16Array(_chan, _n, _x) Transport(_chan, PutInt16Array(_n, _x))
+#define DownlinkPutUint16Array(_chan, _n, _x) Transport(_chan, PutUint16Array(_n, _x))
+#define DownlinkPutUint8Array(_chan, _n, _x) Transport(_chan, PutUint8Array(_n, _x))
 
-#define DownlinkOverrun() downlink_nb_ovrn++;
-#define DownlinkCountBytes(_n) downlink_nb_bytes += _n;
+#define DownlinkOverrun(_chan) downlink_nb_ovrn++;
+#define DownlinkCountBytes(_chan, _n) downlink_nb_bytes += _n;
 
-#define DownlinkStartMessage(_name, msg_id, payload_len) { \
+#define DownlinkStartMessage(_chan, _name, msg_id, payload_len) { \
   downlink_nb_msgs++; \
-  Transport(Header(DownlinkIDsSize(payload_len))); \
-  Transport(PutUint8(AC_ID)); \
-  Transport(PutNamedUint8(_name, msg_id)); \
+  Transport(_chan, Header(DownlinkIDsSize(_chan, payload_len))); \
+  Transport(_chan, PutUint8(AC_ID)); \
+  Transport(_chan, PutNamedUint8(_name, msg_id)); \
 }
 
-#define DownlinkEndMessage() Transport(Trailer())
+#define DownlinkEndMessage(_chan) Transport(_chan, Trailer())
 
 #endif /* DOWNLINK_H */

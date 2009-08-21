@@ -75,7 +75,7 @@ void dl_parse_msg(void) {
   uint8_t msg_id = IdOfMsg(dl_buffer);
 
   if (msg_id == DL_PING) {
-    DOWNLINK_SEND_PONG();
+    DOWNLINK_SEND_PONG(DefaultChannel);
   } else
 #ifdef TRAFFIC_INFO
   if (msg_id == DL_ACINFO && DL_ACINFO_ac_id(dl_buffer) != AC_ID) {
@@ -105,7 +105,7 @@ void dl_parse_msg(void) {
        coordinates */
     latlong_utm_x = waypoints[wp_id].x + nav_utm_east0;
     latlong_utm_y = waypoints[wp_id].y + nav_utm_north0;
-    DOWNLINK_SEND_WP_MOVED(&wp_id, &latlong_utm_x, &latlong_utm_y, &a, &nav_utm_zone0);
+    DOWNLINK_SEND_WP_MOVED(DefaultChannel, &wp_id, &latlong_utm_x, &latlong_utm_y, &a, &nav_utm_zone0);
   } else if (msg_id == DL_BLOCK && DL_BLOCK_ac_id(dl_buffer) == AC_ID) {
     nav_goto_block(DL_BLOCK_block_id(dl_buffer));
   } else
@@ -116,7 +116,7 @@ void dl_parse_msg(void) {
     wind_north = DL_WIND_INFO_north(dl_buffer);
     estimator_airspeed = DL_WIND_INFO_airspeed(dl_buffer);
 #ifdef WIND_INFO_RET
-    DOWNLINK_SEND_WIND_INFO_RET(&wind_east, &wind_north, &estimator_airspeed);
+    DOWNLINK_SEND_WIND_INFO_RET(DefaultChannel, &wind_east, &wind_north, &estimator_airspeed);
 #endif
   } else
 #endif /** WIND_INFO */
@@ -147,11 +147,11 @@ void dl_parse_msg(void) {
     uint8_t i = DL_SETTING_index(dl_buffer);
     float val = DL_SETTING_value(dl_buffer);
     DlSetting(i, val);
-    DOWNLINK_SEND_DL_VALUE(&i, &val);
+    DOWNLINK_SEND_DL_VALUE(DefaultChannel, &i, &val);
   } else if (msg_id == DL_GET_SETTING && DL_GET_SETTING_ac_id(dl_buffer) == AC_ID) {
     uint8_t i = DL_SETTING_index(dl_buffer);
     float val = settings_get_value(i);
-    DOWNLINK_SEND_DL_VALUE(&i, &val);
+    DOWNLINK_SEND_DL_VALUE(DefaultChannel, &i, &val);
   } else
 #endif /** Else there is no dl_settings section in the flight plan */
 #ifdef USE_JOYSTICK

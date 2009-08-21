@@ -47,7 +47,7 @@ void dl_parse_msg(void) {
   
   case  DL_PING:
     {
-      DOWNLINK_SEND_PONG();
+      DOWNLINK_SEND_PONG(DefaultChannel);
     }
     break;
     
@@ -56,7 +56,7 @@ void dl_parse_msg(void) {
       uint8_t i = DL_SETTING_index(dl_buffer);
       float var = DL_SETTING_value(dl_buffer);
       DlSetting(i, var);
-      DOWNLINK_SEND_DL_VALUE(&i, &var);
+      DOWNLINK_SEND_DL_VALUE(DefaultChannel, &i, &var);
     }
     break;
 
@@ -91,7 +91,7 @@ void dl_parse_msg(void) {
       enu.y = POS_BFP_OF_REAL(enu.y)/100;
       enu.z = POS_BFP_OF_REAL(enu.z)/100;
       VECT3_ASSIGN(waypoints[wp_id], enu.x, enu.y, enu.z);
-      DOWNLINK_SEND_WP_MOVED_LTP(&wp_id, &enu.x, &enu.y, &enu.z);
+      DOWNLINK_SEND_WP_MOVED_LTP(DefaultChannel, &wp_id, &enu.x, &enu.y, &enu.z);
     }
     break;
 #endif /* USE_NAVIGATION */

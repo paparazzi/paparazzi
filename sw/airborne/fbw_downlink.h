@@ -50,37 +50,37 @@
 #define DOWNLINK_DEVICE DOWNLINK_FBW_DEVICE
 #include "downlink.h"
 
-#define PERIODIC_SEND_COMMANDS() DOWNLINK_SEND_COMMANDS(COMMANDS_NB, commands)
+#define PERIODIC_SEND_COMMANDS(_chan) DOWNLINK_SEND_COMMANDS(_chan, COMMANDS_NB, commands)
 
 #ifdef RADIO_CONTROL
-#define PERIODIC_SEND_FBW_STATUS() DOWNLINK_SEND_FBW_STATUS(&rc_status, &fbw_mode, &fbw_vsupply_decivolt, &fbw_current_milliamp)
-#define PERIODIC_SEND_PPM() DOWNLINK_SEND_PPM(&last_ppm_cpt, PPM_NB_PULSES, ppm_pulses)
-#define PERIODIC_SEND_RC() DOWNLINK_SEND_RC(PPM_NB_PULSES, rc_values)
+#define PERIODIC_SEND_FBW_STATUS(_chan) DOWNLINK_SEND_FBW_STATUS(_chan, &rc_status, &fbw_mode, &fbw_vsupply_decivolt, &fbw_current_milliamp)
+#define PERIODIC_SEND_PPM(_chan) DOWNLINK_SEND_PPM(_chan, &last_ppm_cpt, PPM_NB_PULSES, ppm_pulses)
+#define PERIODIC_SEND_RC(_chan) DOWNLINK_SEND_RC(_chan, PPM_NB_PULSES, rc_values)
 #else // RADIO_CONTROL
-#define PERIODIC_SEND_FBW_STATUS() { uint8_t dummy = 0; DOWNLINK_SEND_FBW_STATUS(&dummy, &fbw_mode, &fbw_vsupply_decivolt, &fbw_current_milliamp); }
-#define PERIODIC_SEND_PPM() {}
-#define PERIODIC_SEND_RC() {}
+#define PERIODIC_SEND_FBW_STATUS(_chan) { uint8_t dummy = 0; DOWNLINK_SEND_FBW_STATUS(_chan, &dummy, &fbw_mode, &fbw_vsupply_decivolt, &fbw_current_milliamp); }
+#define PERIODIC_SEND_PPM(_chan) {}
+#define PERIODIC_SEND_RC(_chan) {}
 #endif // RADIO_CONTROL
 
 #ifdef ACTUATORS
-#define PERIODIC_SEND_ACTUATORS() DOWNLINK_SEND_ACTUATORS(SERVOS_NB, actuators)
+#define PERIODIC_SEND_ACTUATORS(_chan) DOWNLINK_SEND_ACTUATORS(_chan, SERVOS_NB, actuators)
 #else
-#define PERIODIC_SEND_ACTUATORS() {}
+#define PERIODIC_SEND_ACTUATORS(_chan) {}
 #endif
 
 #ifdef BRICOLAGE_ADC
 extern uint16_t adc0_val[];
 
-#define PERIODIC_SEND_ADC() {			\
-    static const uint8_t mcu = 0;		\
-    DOWNLINK_SEND_ADC(&mcu, 8, adc0_val);	\
+#define PERIODIC_SEND_ADC(_chan) {			\
+    static const uint8_t mcu = 0;			\
+    DOWNLINK_SEND_ADC(_chan, &mcu, 8, adc0_val);	\
   }
 #else
-#define PERIODIC_SEND_ADC() {}
+#define PERIODIC_SEND_ADC(_chan) {}
 #endif
 
 static inline void fbw_downlink_periodic_task(void) {
-  PeriodicSendFbw()
+  PeriodicSendFbw_DefaultChannel()
 }
 
 
