@@ -99,6 +99,7 @@ STATIC_INLINE void booz2_main_init( void ) {
 
   booz_ahrs_aligner_init();
   booz_ahrs_init();
+  booz_ahrs_init_accel_rb();
 
   booz_ins_init();
 
@@ -172,6 +173,8 @@ static inline void on_gyro_accel_event( void ) {
 
   BoozImuScaleGyro();
   BoozImuScaleAccel();
+
+  booz_ahrs_store_accel();
 
   if (booz_ahrs.status == BOOZ_AHRS_UNINIT) {
     booz_ahrs_aligner_run();
