@@ -23,43 +23,72 @@
 
 #include "actuators/booz_supervision.h"
 
-#include "std.h"
+//#include <stdint.h>
+#ifndef INT32_MIN
+#define INT32_MIN (-2147483647-1)
+#endif
 
-#include "airframe.h"
+#ifndef INT32_MAX
+#define INT32_MAX (2147483647)
+#endif
 
 static const int32_t roll_coef[SUPERVISION_NB_MOTOR]  = SUPERVISION_ROLL_COEF;
 static const int32_t pitch_coef[SUPERVISION_NB_MOTOR] = SUPERVISION_PITCH_COEF;
 static const int32_t yaw_coef[SUPERVISION_NB_MOTOR]   = SUPERVISION_YAW_COEF;
 
-int32_t supervision_commands[SUPERVISION_NB_MOTOR];
-static int32_t supervision_trim[SUPERVISION_NB_MOTOR];
+struct BoozSupervision supervision;
 
 void supervision_init(void) {
   uint8_t i;
   for (i=0; i<SUPERVISION_NB_MOTOR; i++) {
-    supervision_commands[i] = 0;
-    supervision_trim[i] = 
-      roll_coef[i] * SUPERVISION_TRIM_A  +
+    supervision.commands[i] = 0;
+    supervision.trim[i] = 
+      roll_coef[i]  * SUPERVISION_TRIM_A +
       pitch_coef[i] * SUPERVISION_TRIM_E + 
-      yaw_coef[i] * SUPERVISION_TRIM_R;
+      yaw_coef[i]   * SUPERVISION_TRIM_R;
   }
+  supervision.nb_failure = 0;
 }
 
-void supervision_run(bool_t motors_on, int32_t in_cmd[] ) {
+#define OFFSET_COMMANDS(_o) {					\
+    uint8_t j;							\
+    for (j=0; j<SUPERVISION_NB_MOTOR; j++)			\
+      supervision.commands[j] += (_o);		                \
+  }
 
+#define BOUND_COMMANDS() {					\
+    uint8_t j;							\
+    for (j=0; j<SUPERVISION_NB_MOTOR; j++)			\
+      Bound(supervision.commands[j],				\
+	    SUPERVISION_MIN_MOTOR, SUPERVISION_MAX_MOTOR);	\
+  }
+
+void supervision_run(bool_t motors_on, int32_t in_cmd[] ) {
   uint8_t i;
-  for (i=0; i<SUPERVISION_NB_MOTOR; i++) {
-    if (motors_on) {
-      supervision_commands[i] = 
-                         in_cmd[COMMAND_THRUST] +
+  if (motors_on) {
+    int32_t min_cmd = INT32_MAX;
+    int32_t max_cmd = INT32_MIN;
+    for (i=0; i<SUPERVISION_NB_MOTOR; i++) {
+      supervision.commands[i] = 
+	                 in_cmd[COMMAND_THRUST] +
 	(roll_coef[i]  * in_cmd[COMMAND_ROLL]   +
 	 pitch_coef[i] * in_cmd[COMMAND_PITCH]  +
 	 yaw_coef[i]   * in_cmd[COMMAND_YAW]    +
-         supervision_trim[i] )/256;
-      Bound(supervision_commands[i], SUPERVISION_MIN_MOTOR, SUPERVISION_MAX_MOTOR);
+         supervision.trim[i] )/256;
+      if (supervision.commands[i] < min_cmd)
+	min_cmd = supervision.commands[i];
+      if (supervision.commands[i] > max_cmd)
+	max_cmd = supervision.commands[i];
+    }
+    if (min_cmd < SUPERVISION_MIN_MOTOR && max_cmd > SUPERVISION_MAX_MOTOR)
+      supervision.nb_failure++;
+    if (min_cmd < SUPERVISION_MIN_MOTOR)
+      OFFSET_COMMANDS(-(min_cmd - SUPERVISION_MIN_MOTOR));
+    if (max_cmd > SUPERVISION_MAX_MOTOR)
+      OFFSET_COMMANDS(-(max_cmd - SUPERVISION_MAX_MOTOR));
+    BOUND_COMMANDS(); 
   }
-    else
-      supervision_commands[i] = 0;
-  }
-
+  else
+    for (i=0; i<SUPERVISION_NB_MOTOR; i++)
+      supervision.commands[i] = 0;
 }
