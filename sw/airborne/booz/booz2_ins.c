@@ -68,6 +68,11 @@ struct EnuCoor_i booz_ins_enu_pos;
 struct EnuCoor_i booz_ins_enu_speed;
 struct EnuCoor_i booz_ins_enu_accel;
 
+#ifdef USE_HFF
+/* counter for hff propagation*/
+uint8_t b2_hff_ps_counter;
+#endif
+
 
 void booz_ins_init() {
 #ifdef USE_NAV_INS_INIT
@@ -109,19 +114,12 @@ void booz_ins_propagate() {
   INT32_RMAT_TRANSP_VMULT(accel_body, booz_imu.body_to_imu_rmat, booz_imu.accel);
   struct Int32Vect3 accel_ltp;
   INT32_RMAT_TRANSP_VMULT(accel_ltp, booz_ahrs.ltp_to_body_rmat, accel_body);
-#ifdef USE_HFF
-  float x_accel_float = ACCEL_FLOAT_OF_BFP(accel_ltp.x);
-  float y_accel_float = ACCEL_FLOAT_OF_BFP(accel_ltp.y);
-#else
+#ifndef USE_HFF
   booz_ins_ltp_accel.x = accel_ltp.x;
   booz_ins_ltp_accel.y = accel_ltp.y;
 #endif
   float z_accel_float = ACCEL_FLOAT_OF_BFP(accel_ltp.z);
 #else /* BOOZ_INS_UNTILT_ACCELS */
-#ifdef USE_HFF
-  float x_accel_float = ACCEL_FLOAT_OF_BFP(booz_imu.accel.x);
-  float y_accel_float = ACCEL_FLOAT_OF_BFP(booz_imu.accel.y);
-#endif
   float z_accel_float = ACCEL_FLOAT_OF_BFP(booz_imu.accel.z);
 #endif /* BOOZ_INS_UNTILT_ACCELS */
 
@@ -139,14 +137,29 @@ void booz_ins_propagate() {
 #endif /* USE_VFF */
 
 #ifdef USE_HFF
-  if (booz_ahrs.status == BOOZ_AHRS_RUNNING && booz_gps_state.fix == BOOZ2_GPS_FIX_3D && booz_ins_ltp_initialised ) {
-    b2_hff_propagate(x_accel_float, y_accel_float);
-    booz_ins_ltp_accel.x = ACCEL_BFP_OF_REAL(b2_hff_xdotdot);
-    booz_ins_ltp_accel.y = ACCEL_BFP_OF_REAL(b2_hff_ydotdot);
-    booz_ins_ltp_speed.x = SPEED_BFP_OF_REAL(b2_hff_xdot);
-    booz_ins_ltp_speed.y = SPEED_BFP_OF_REAL(b2_hff_ydot);
-    booz_ins_ltp_pos.x   = POS_BFP_OF_REAL(b2_hff_x);
-    booz_ins_ltp_pos.y   = POS_BFP_OF_REAL(b2_hff_y);
+  if (b2_hff_ps_counter == HFF_PRESCALER) {
+	b2_hff_ps_counter = 1;
+	if (booz_ahrs.status == BOOZ_AHRS_RUNNING && booz_ins_ltp_initialised ) {
+	  /* compute float ltp mean acceleration */
+	  booz_ahrs_compute_accel_mean(HFF_PRESCALER);
+	  struct Int32Vect3 mean_accel_body;
+	  INT32_RMAT_TRANSP_VMULT(mean_accel_body, booz_imu.body_to_imu_rmat, booz_ahrs_accel_mean);
+	  struct Int32Vect3 mean_accel_ltp;
+	  float x_accel_mean_f = ACCEL_FLOAT_OF_BFP(mean_accel_ltp.x);
+	  float y_accel_mean_f = ACCEL_FLOAT_OF_BFP(mean_accel_ltp.y);
+	  INT32_RMAT_TRANSP_VMULT(mean_accel_ltp, booz_ahrs.ltp_to_body_rmat, mean_accel_body);
+	  /* propagate horizontal filter */
+	  b2_hff_propagate(x_accel_mean_f, y_accel_mean_f);
+	  /* update ins state from horizontal filter */
+	  booz_ins_ltp_accel.x = ACCEL_BFP_OF_REAL(b2_hff_xdotdot);
+	  booz_ins_ltp_accel.y = ACCEL_BFP_OF_REAL(b2_hff_ydotdot);
+	  booz_ins_ltp_speed.x = SPEED_BFP_OF_REAL(b2_hff_xdot);
+	  booz_ins_ltp_speed.y = SPEED_BFP_OF_REAL(b2_hff_ydot);
+	  booz_ins_ltp_pos.x   = POS_BFP_OF_REAL(b2_hff_x);
+	  booz_ins_ltp_pos.y   = POS_BFP_OF_REAL(b2_hff_y);
+	}
+  } else {
+	b2_hff_ps_counter++;
   }
 #endif /* USE_HFF */
   INT32_VECT3_ENU_OF_NED(booz_ins_enu_pos, booz_ins_ltp_pos);
@@ -155,7 +168,6 @@ void booz_ins_propagate() {
 }
 
 void booz_ins_update_baro() {
-
 #ifdef USE_VFF
   if (booz2_analog_baro_status == BOOZ2_ANALOG_BARO_RUNNING) {
     if (!booz_ins_baro_initialised) {

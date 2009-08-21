@@ -26,6 +26,10 @@
 
 #define B2_HFF_STATE_SIZE 3
 
+#ifndef HFF_PRESCALER
+#define HFF_PRESCALER 16
+#endif
+
 #define B2_HFF_UPDATE_SPEED
 #define B2_HFF_UPDATE_POS
 

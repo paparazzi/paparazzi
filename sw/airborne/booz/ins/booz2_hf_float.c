@@ -31,14 +31,21 @@ X_y = [ y ydot ybias ]
 
 
 */
+
+/* horizontal filter propagation frequency */
+#define HFF_FREQ 512./HFF_PRESCALER
+#define DT_HFILTER 1./HFF_FREQ
+
 /* initial covariance diagonal */
 #define INIT_PXX 1.
 /* process noise (is the same for x and y)*/
 #define ACCEL_NOISE 0.5
-#define Q       ACCEL_NOISE/512./512./2.
-#define Qdotdot ACCEL_NOISE/512.
-#define Qbiasbias 1e-7
-#define R 1.
+#define Q       ACCEL_NOISE*DT_HFILTER*DT_HFILTER/2.
+#define Qdotdot ACCEL_NOISE*DT_HFILTER
+#define Qbiasbias 1e-7*HFF_PRESCALER
+//TODO: proper measurement noise
+#define Rpos   1.
+#define Rspeed 1.
 
 float b2_hff_x;
 float b2_hff_xbias;
@@ -206,7 +213,7 @@ static inline void b2_hff_update_x(float x_meas) {
   b2_hff_x_meas = x_meas;
 
   const float y = x_meas - b2_hff_x;
-  const float S = b2_hff_xP[0][0] + R;
+  const float S = b2_hff_xP[0][0] + Rpos;
   const float K1 = b2_hff_xP[0][0] * 1/S;
   const float K2 = b2_hff_xP[1][0] * 1/S;
   const float K3 = b2_hff_xP[2][0] * 1/S;
@@ -241,7 +248,7 @@ static inline void b2_hff_update_y(float y_meas) {
   b2_hff_y_meas = y_meas;
 
   const float y = y_meas - b2_hff_y;
-  const float S = b2_hff_yP[0][0] + R;
+  const float S = b2_hff_yP[0][0] + Rpos;
   const float K1 = b2_hff_yP[0][0] * 1/S;
   const float K2 = b2_hff_yP[1][0] * 1/S;
   const float K3 = b2_hff_yP[2][0] * 1/S;
@@ -296,7 +303,7 @@ void b2_hff_update_v(float xspeed, float yspeed) {
 
 static inline void b2_hff_update_xdot(float v) {
   const float yd = v - b2_hff_xdot;
-  const float S = b2_hff_xP[1][1] + R;
+  const float S = b2_hff_xP[1][1] + Rspeed;
   const float K1 = b2_hff_xP[0][1] * 1/S;
   const float K2 = b2_hff_xP[1][1] * 1/S;
   const float K3 = b2_hff_xP[2][1] * 1/S;
@@ -329,7 +336,7 @@ static inline void b2_hff_update_xdot(float v) {
 
 static inline void b2_hff_update_ydot(float v) {
   const float yd = v - b2_hff_ydot;
-  const float S = b2_hff_yP[1][1] + R;
+  const float S = b2_hff_yP[1][1] + Rspeed;
   const float K1 = b2_hff_yP[0][1] * 1/S;
   const float K2 = b2_hff_yP[1][1] * 1/S;
   const float K3 = b2_hff_yP[2][1] * 1/S;
