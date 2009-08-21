@@ -2,6 +2,7 @@
  * $Id$
  *
  * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
+ * Copyright (C) 2009 Felix Ruess <felix.ruess@gmail.com>
  *
  * This file is part of paparazzi.
  *
@@ -199,17 +200,8 @@ void booz_ins_update_gps(void) {
     }
     ned_of_ecef_point_i(&booz_ins_gps_pos_cm_ned, &booz_ins_ltp_def, &booz_gps_state.ecef_pos);
     ned_of_ecef_vect_i(&booz_ins_gps_speed_cm_s_ned, &booz_ins_ltp_def, &booz_gps_state.ecef_vel);
+	
 #ifdef USE_HFF
-    //INT32_VECT3_SCALE_2(b2ins_meas_gps_pos_ned, booz_ins_gps_pos_cm_ned,
-    //    INT32_POS_OF_CM_NUM, INT32_POS_OF_CM_DEN);
-    //INT32_VECT3_SCALE_2(b2ins_meas_gps_speed_ned, booz_ins_gps_speed_cm_s_ned,
-    //    INT32_SPEED_OF_CM_S_NUM, INT32_SPEED_OF_CM_S_DEN);
-    //VECT2_COPY(booz_ins_ltp_pos,   b2ins_meas_gps_pos_ned);
-    //VECT2_COPY(booz_ins_ltp_speed, b2ins_meas_gps_speed_ned);
-    //struct NedCoor_i d_pos;
-    //VECT2_COPY(d_pos, booz_ins_ltp_speed);
-    //INT32_VECT2_RSHIFT(d_pos, d_pos, 11);
-    //VECT2_ADD(booz_ins_ltp_pos, d_pos);
     struct FloatVect2 gps_float;
 #ifdef B2_HFF_UPDATE_POS
     VECT2_ASSIGN(gps_float, booz_ins_gps_pos_cm_ned.x, booz_ins_gps_pos_cm_ned.y);
@@ -217,7 +209,7 @@ void booz_ins_update_gps(void) {
     b2_hff_update_pos(gps_float.x, gps_float.y);
 #endif
 #ifdef B2_HFF_UPDATE_SPEED
-      VECT2_ASSIGN(gps_float, booz_ins_gps_speed_cm_s_ned.x, booz_ins_gps_speed_cm_s_ned.y);
+    VECT2_ASSIGN(gps_float, booz_ins_gps_speed_cm_s_ned.x, booz_ins_gps_speed_cm_s_ned.y);
     VECT2_SDIV(gps_float, gps_float, 100.);
     b2_hff_update_v(gps_float.x, gps_float.y);
 #endif
@@ -227,6 +219,7 @@ void booz_ins_update_gps(void) {
     booz_ins_ltp_speed.y = SPEED_BFP_OF_REAL(b2_hff_ydot);
     booz_ins_ltp_pos.x   = POS_BFP_OF_REAL(b2_hff_x);
     booz_ins_ltp_pos.y   = POS_BFP_OF_REAL(b2_hff_y);
+	
 #ifndef USE_VFF /* only hf */
     booz_ins_ltp_pos.z =  (booz_ins_gps_pos_cm_ned.z * INT32_POS_OF_CM_NUM) / INT32_POS_OF_CM_DEN;
     booz_ins_ltp_speed.z =  (booz_ins_gps_speed_cm_s_ned.z * INT32_SPEED_OF_CM_S_NUM) INT32_SPEED_OF_CM_S_DEN;
@@ -234,6 +227,11 @@ void booz_ins_update_gps(void) {
 #else /* hf not used */
     INT32_VECT2_SCALE_2(booz_ins_ltp_pos, booz_ins_gps_pos_cm_ned, INT32_POS_OF_CM_NUM, INT32_POS_OF_CM_DEN);
     INT32_VECT2_SCALE_2(booz_ins_ltp_speed, booz_ins_gps_speed_cm_s_ned, INT32_SPEED_OF_CM_S_NUM, INT32_SPEED_OF_CM_S_DEN);
+#ifdef USE_GPS_LAG_HACK
+	VECT2_COPY(d_pos, booz_ins_ltp_speed);
+    INT32_VECT2_RSHIFT(d_pos, d_pos, 11);
+    VECT2_ADD(booz_ins_ltp_pos, d_pos);
+#endif    
 #ifndef USE_VFF /* neither hf nor vf used */
     INT32_VECT3_SCALE_2(booz_ins_ltp_pos, booz_ins_gps_pos_cm_ned, INT32_POS_OF_CM_NUM, INT32_POS_OF_CM_DEN);
     INT32_VECT3_SCALE_2(booz_ins_ltp_speed, booz_ins_gps_speed_cm_s_ned, INT32_SPEED_OF_CM_S_NUM, INT32_SPEED_OF_CM_S_DEN);
