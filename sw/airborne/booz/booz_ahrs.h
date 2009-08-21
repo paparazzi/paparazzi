@@ -46,7 +46,7 @@ struct BoozAhrs {
 
 struct BoozAhrsFloat {
   struct FloatQuat   ltp_to_body_quat;
-  struct FloatEulers   ltp_to_body_euler;
+  struct FloatEulers ltp_to_body_euler;
   struct FloatRates  body_rate;  
   uint8_t status;
 };
