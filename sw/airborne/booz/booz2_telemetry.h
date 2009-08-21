@@ -457,6 +457,7 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 #define PERIODIC_SEND_BOOZ2_HFF_X(_chan) {		\
     DOWNLINK_SEND_BOOZ2_HFF_X(_chan,			\
 			    &b2_hff_x_meas,		\
+  	            &b2_hff_xdotdot,    \
 			    &b2_hff_x,			\
 			    &b2_hff_xdot,		\
 			    &b2_hff_xbias,		\
@@ -467,6 +468,7 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 #define PERIODIC_SEND_BOOZ2_HFF_Y(_chan) {		\
     DOWNLINK_SEND_BOOZ2_HFF_Y(_chan,			\
 			    &b2_hff_y_meas,		\
+	            &b2_hff_ydotdot,    \
 			    &b2_hff_y,			\
 			    &b2_hff_ydot,		\
 			    &b2_hff_ybias,		\

@@ -1065,7 +1065,8 @@
   </message>
 
   <message name="BOOZ2_HFF_X" id="164">
-      <field name="measure"        type="float"/>
+      <field name="x_measure"      type="float"/>
+	  <field name="xdd"            type="float"/>
       <field name="x"              type="float"/>
       <field name="xd"             type="float"/>
       <field name="xbias"          type="float"/>
@@ -1075,7 +1076,8 @@
   </message>
 
   <message name="BOOZ2_HFF_Y" id="165">
-      <field name="measure"        type="float"/>
+      <field name="y_measure"      type="float"/>
+	  <field name="ydd"            type="float"/>
       <field name="y"              type="float"/>
       <field name="yd"             type="float"/>
       <field name="ybias"          type="float"/>

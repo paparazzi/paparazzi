@@ -44,8 +44,8 @@ X_y = [ y ydot ybias ]
 #define Qdotdot ACCEL_NOISE*DT_HFILTER
 #define Qbiasbias 1e-7*HFF_PRESCALER
 //TODO: proper measurement noise
-#define Rpos   1.
-#define Rspeed 2.
+#define Rpos   5.
+#define Rspeed 1.
 
 float b2_hff_x;
 float b2_hff_xbias;
@@ -135,7 +135,7 @@ void b2_hff_propagate(float xaccel, float yaccel) {
 static inline void b2_hff_propagate_x(float xaccel) {
   /* update state */
   b2_hff_xdotdot = xaccel - b2_hff_xbias;
-  b2_hff_x = b2_hff_x + DT_HFILTER * b2_hff_xdot;
+  b2_hff_x = b2_hff_x + DT_HFILTER * b2_hff_xdot + DT_HFILTER * DT_HFILTER / 2 * b2_hff_xdotdot;
   b2_hff_xdot = b2_hff_xdot + DT_HFILTER * b2_hff_xdotdot;
   /* update covariance */
   const float FPF00 = b2_hff_xP[0][0] + DT_HFILTER * ( b2_hff_xP[1][0] + b2_hff_xP[0][1] + DT_HFILTER * b2_hff_xP[1][1] );
