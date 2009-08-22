@@ -96,7 +96,7 @@ class waypoint = fun ?(show = true) (wpts_group:group) (name :string) ?(alt=0.) 
       wpt_group#move dx dy;
       wpt_group#raise_to_top ()
     method edit =
-      let dialog = GWindow.window ~position:`MOUSE ~border_width:10 ~title:"Waypoint Edit" () in
+      let dialog = GWindow.window ~type_hint:`DIALOG ~modal:true ~position:`MOUSE ~border_width:10 ~title:"Waypoint Edit" () in
       let dvbx = GPack.box `VERTICAL ~packing:dialog#add () in
 
       let ename  = GEdit.entry ~text:name ~editable ~packing:dvbx#add () in
