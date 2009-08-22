@@ -308,7 +308,7 @@ let base_and_index =
       (field_descr, 0)
 
 let rec plot_window = fun window ->
-  let plotter = GWindow.window ~allow_shrink:true ~title:window.title () in
+  let plotter = GWindow.window ~type_hint:`DIALOG ~allow_shrink:true ~title:window.title () in
   ignore (plotter#parse_geometry window.geometry);
   plotter#set_icon (Some (GdkPixbuf.from_file Env.icon_file));
   let vbox = GPack.vbox ~packing:plotter#add () in
