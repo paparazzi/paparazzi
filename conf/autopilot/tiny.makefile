@@ -26,7 +26,7 @@ tunnel.ARCH = arm7tdmi
 tunnel.TARGET = tunnel
 tunnel.TARGETDIR = tunnel
 
-tunnel.CFLAGS += -DFBW -DBOARD_CONFIG=\"tiny_2_1_1_usb.h\"
+tunnel.CFLAGS += -DFBW -DBOARD_CONFIG=\"tiny_2_1_1_usb.h\" -DLED
 tunnel.srcs += $(SRC_ARCH)/uart_tunnel.c
 
 
