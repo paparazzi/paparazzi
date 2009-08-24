@@ -81,7 +81,7 @@ val make_geo : radian -> radian -> geographic
 (** [make_geo lat long] *)
 
 val make_geo_deg : degree -> degree -> geographic
-(** [make_geo lat long] *)
+(** [make_geo_deg lat long] *)
 
 val string_degrees_of_geographic : geographic -> string
 val string_dms_of_geographic : geographic -> string
