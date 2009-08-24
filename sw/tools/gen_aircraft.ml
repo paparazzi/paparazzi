@@ -117,35 +117,35 @@ let extract_makefile = fun airframe_file makefile_ac ->
                 modules_exist := t :: !modules_exist
               end;
               fprintf f "%s.CFLAGS += -I $(%s)\n" t dir_name
-            ) targets;
+		      ) targets;
             List.iter (fun field ->
               match String.lowercase (Xml.tag field) with
                 "flag" -> 
-		              List.iter
-		                (fun target -> 
-		                  let value = try "="^(Xml.attrib field "value") with _ -> ""
-		                  and name = Xml.attrib field "name" in
-		                  fprintf f "%s.CFLAGS += -D%s%s\n" target name value)
-		                targets
+		  List.iter
+		    (fun target -> 
+		      let value = try "="^(Xml.attrib field "value") with _ -> ""
+		      and name = Xml.attrib field "name" in
+		      fprintf f "%s.CFLAGS += -D%s%s\n" target name value)
+		    targets
               | "file" -> 
-		              let name = Xml.attrib field "name" in
-		              List.iter (fun target -> fprintf f "%s.srcs += $(%s)/%s\n" target dir_name name) targets
+		  let name = Xml.attrib field "name" in
+		  List.iter (fun target -> fprintf f "%s.srcs += $(%s)/%s\n" target dir_name name) targets
               | "define" -> 
-		            let value = Xml.attrib field "value"
-		            and name = Xml.attrib field "name" in
-		            fprintf f "%s = %s\n" name value
+		  let value = Xml.attrib field "value"
+		  and name = Xml.attrib field "name" in
+		  fprintf f "%s = %s\n" name value
               | "raw" ->
-                begin match Xml.children field with
-                  [Xml.PCData s] -> fprintf f "%s\n" s
+                  begin match Xml.children field with
+                    [Xml.PCData s] -> fprintf f "%s\n" s
                   | _ -> fprintf stderr "Warning: wrong makefile section in module '%s'\n" name
-                end
+                  end
               | _ -> ()
-            )
-            (Xml.children l)
+		      )
+              (Xml.children l)
           end)
           (Xml.children modul))
 	modules_list)
-  (Xml.children xml);
+    (Xml.children xml);
 
   close_out f;
   !files
@@ -168,104 +168,109 @@ let make_element = fun t a c -> Xml.Element (t,a,c)
 
 (******************************* MAIN ****************************************)
 let () =
-  if Array.length Sys.argv <> 2 then
-    failwith (sprintf "Usage: %s <A/C ident (conf.xml)>" Sys.argv.(0));
-  let aircraft = Sys.argv.(1) in
-  let conf = Xml.parse_file conf_xml in
-  check_unique_id_and_name conf;
-  let aircraft_xml =
-    try
-      ExtXml.child conf ~select:(fun x -> Xml.attrib x "name" = aircraft) "aircraft"
-    with
-      Not_found -> failwith (sprintf "Aircraft '%s' not found in '%s'" aircraft conf_xml)
-  in
+  try
+    if Array.length Sys.argv <> 2 then
+      failwith (sprintf "Usage: %s <A/C ident (conf.xml)>" Sys.argv.(0));
+    let aircraft = Sys.argv.(1) in
+    let conf = Xml.parse_file conf_xml in
+    check_unique_id_and_name conf;
+    let aircraft_xml =
+      try
+	ExtXml.child conf ~select:(fun x -> Xml.attrib x "name" = aircraft) "aircraft"
+      with
+	Not_found -> failwith (sprintf "Aircraft '%s' not found in '%s'" aircraft conf_xml)
+    in
 
-  let value = fun attrib -> ExtXml.attrib aircraft_xml attrib in
+    let value = fun attrib -> ExtXml.attrib aircraft_xml attrib in
 
-  let aircraft_dir = Env.paparazzi_home // "var" // aircraft in
-  let aircraft_conf_dir = aircraft_dir // "conf" in
+    let aircraft_dir = Env.paparazzi_home // "var" // aircraft in
+    let aircraft_conf_dir = aircraft_dir // "conf" in
 
-  mkdir (Env.paparazzi_home // "var");
-  mkdir aircraft_dir;
-  mkdir (aircraft_dir // "fbw");
-  mkdir (aircraft_dir // "autopilot");
-  mkdir (aircraft_dir // "sim");
-  mkdir aircraft_conf_dir;
-  mkdir (aircraft_conf_dir // "airframes");
-  mkdir (aircraft_conf_dir // "flight_plans");
-  mkdir (aircraft_conf_dir // "radios");
-  mkdir (aircraft_conf_dir // "settings");
-  mkdir (aircraft_conf_dir // "telemetry");
+    mkdir (Env.paparazzi_home // "var");
+    mkdir aircraft_dir;
+    mkdir (aircraft_dir // "fbw");
+    mkdir (aircraft_dir // "autopilot");
+    mkdir (aircraft_dir // "sim");
+    mkdir aircraft_conf_dir;
+    mkdir (aircraft_conf_dir // "airframes");
+    mkdir (aircraft_conf_dir // "flight_plans");
+    mkdir (aircraft_conf_dir // "radios");
+    mkdir (aircraft_conf_dir // "settings");
+    mkdir (aircraft_conf_dir // "telemetry");
 
-  let settings = 
-    try value "settings" with 
-      _ -> 
-	fprintf stderr "\nWARNING: No 'settings' attribute specified for A/C '%s', using 'settings/basic.xml'\n\n%!" aircraft;
-	"settings/basic.xml" in
+    let settings = 
+      try value "settings" with 
+	_ -> 
+	  fprintf stderr "\nWARNING: No 'settings' attribute specified for A/C '%s', using 'settings/basic.xml'\n\n%!" aircraft;
+	  "settings/basic.xml" in
 
-  (** Expands the configuration of the A/C into one single file *)
-  let conf_aircraft = Env.expand_ac_xml aircraft_xml in
-  let configuration =
-    make_element
-      "configuration"
-      []
-      [make_element "conf" [] [conf_aircraft]; Pprz.messages_xml ()] in
-  let conf_aircraft_file = aircraft_conf_dir // "conf_aircraft.xml" in
-  let f = open_out conf_aircraft_file in
-  Printf.fprintf f "%s\n" (ExtXml.to_string_fmt configuration);
-  close_out f;
-
-  (** Computes and store a signature of the configuration *)
-  let md5sum = Digest.to_hex (Digest.file conf_aircraft_file) in
-  let md5sum_file = aircraft_conf_dir // "aircraft.md5" in
-  (* Store only if different from previous one *)
-  if not (Sys.file_exists md5sum_file
-	    && md5sum = input_line (open_in md5sum_file)) then begin
-    let f = open_out md5sum_file in
-    Printf.fprintf f "%s\n" md5sum;
-    close_out f;
-    
-    (** Save the configuration for future use *)
-    let d = U.localtime (U.gettimeofday ()) in
-    let filename = sprintf "%02d_%02d_%02d__%02d_%02d_%02d_%s_%s.conf" (d.U.tm_year mod 100) (d.U.tm_mon+1) (d.U.tm_mday) (d.U.tm_hour) (d.U.tm_min) (d.U.tm_sec) md5sum aircraft in
-    let d = Env.paparazzi_home // "var" // "conf" in
-    mkdir d;
-    let f = open_out (d // filename) in
+    (** Expands the configuration of the A/C into one single file *)
+    let conf_aircraft = Env.expand_ac_xml aircraft_xml in
+    let configuration =
+      make_element
+	"configuration"
+	[]
+	[make_element "conf" [] [conf_aircraft]; Pprz.messages_xml ()] in
+    let conf_aircraft_file = aircraft_conf_dir // "conf_aircraft.xml" in
+    let f = open_out conf_aircraft_file in
     Printf.fprintf f "%s\n" (ExtXml.to_string_fmt configuration);
-    close_out f end;
+    close_out f;
 
-  let airframe_file = value "airframe" in
-  
-  (** Calls the Makefile with target and options *)
-  let make = fun target options ->
-    let c = sprintf "make -f Makefile.ac AIRCRAFT=%s AC_ID=%s AIRFRAME_XML=%s TELEMETRY=%s SETTINGS=\"%s\" MD5SUM=\"%s\" %s %s" aircraft (value "ac_id") airframe_file (value "telemetry") settings md5sum options target in
-    begin (** Quiet is speficied in the Makefile *)
-      try if Sys.getenv "Q" <> "@" then raise Not_found with
-	Not_found -> prerr_endline c
+    (** Computes and store a signature of the configuration *)
+    let md5sum = Digest.to_hex (Digest.file conf_aircraft_file) in
+    let md5sum_file = aircraft_conf_dir // "aircraft.md5" in
+    (* Store only if different from previous one *)
+    if not (Sys.file_exists md5sum_file
+	      && md5sum = input_line (open_in md5sum_file)) then begin
+		let f = open_out md5sum_file in
+		Printf.fprintf f "%s\n" md5sum;
+		close_out f;
+		
+		(** Save the configuration for future use *)
+		let d = U.localtime (U.gettimeofday ()) in
+		let filename = sprintf "%02d_%02d_%02d__%02d_%02d_%02d_%s_%s.conf" (d.U.tm_year mod 100) (d.U.tm_mon+1) (d.U.tm_mday) (d.U.tm_hour) (d.U.tm_min) (d.U.tm_sec) md5sum aircraft in
+		let d = Env.paparazzi_home // "var" // "conf" in
+		mkdir d;
+		let f = open_out (d // filename) in
+		Printf.fprintf f "%s\n" (ExtXml.to_string_fmt configuration);
+		close_out f end;
+
+    let airframe_file = value "airframe" in
+    
+    (** Calls the Makefile with target and options *)
+    let make = fun target options ->
+      let c = sprintf "make -f Makefile.ac AIRCRAFT=%s AC_ID=%s AIRFRAME_XML=%s TELEMETRY=%s SETTINGS=\"%s\" MD5SUM=\"%s\" %s %s" aircraft (value "ac_id") airframe_file (value "telemetry") settings md5sum options target in
+      begin (** Quiet is speficied in the Makefile *)
+	try if Sys.getenv "Q" <> "@" then raise Not_found with
+	  Not_found -> prerr_endline c
+      end;
+      let returned_code = Sys.command c in
+      if returned_code <> 0 then
+	exit returned_code in
+
+    (** Calls the makefile if the optional attribute is available *)
+    let make_opt = fun target var attr ->
+      try
+	let value = Xml.attrib aircraft_xml attr in
+	make target (sprintf "%s=%s" var value)
+      with
+	Xml.No_attribute _ -> () in
+
+    let temp_makefile_ac = Filename.temp_file "Makefile.ac" "tmp" in
+    let abs_airframe_file = paparazzi_conf // airframe_file in
+
+    let modules_files = extract_makefile abs_airframe_file temp_makefile_ac in
+
+    (* Create Makefile.ac only if needed *)
+    let makefile_ac = aircraft_dir // "Makefile.ac" in
+    if is_older makefile_ac (abs_airframe_file :: modules_files) then begin
+      assert(Sys.command (sprintf "mv %s %s" temp_makefile_ac makefile_ac) = 0)
     end;
-    let returned_code = Sys.command c in
-    if returned_code <> 0 then
-      exit returned_code in
 
-  (** Calls the makefile if the optional attribute is available *)
-  let make_opt = fun target var attr ->
-    try
-      let value = Xml.attrib aircraft_xml attr in
-      make target (sprintf "%s=%s" var value)
-    with
-      Xml.No_attribute _ -> () in
-
-  let temp_makefile_ac = Filename.temp_file "Makefile.ac" "tmp" in
-  let abs_airframe_file = paparazzi_conf // airframe_file in
-
-  let modules_files = extract_makefile abs_airframe_file temp_makefile_ac in
-
-  (* Create Makefile.ac only if needed *)
-  let makefile_ac = aircraft_dir // "Makefile.ac" in
-  if is_older makefile_ac (abs_airframe_file :: modules_files) then begin
-    assert(Sys.command (sprintf "mv %s %s" temp_makefile_ac makefile_ac) = 0)
-  end;
-
-  make "all_ac_h" "";
-  make_opt "radio_ac_h" "RADIO" "radio";
-  make_opt "flight_plan_ac_h" "FLIGHT_PLAN" "flight_plan"
+    make "all_ac_h" "";
+    make_opt "radio_ac_h" "RADIO" "radio";
+    make_opt "flight_plan_ac_h" "FLIGHT_PLAN" "flight_plan"
+  with
+    Failure f ->
+      prerr_endline f;
+      exit 1
