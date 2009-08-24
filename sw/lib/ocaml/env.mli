@@ -41,6 +41,7 @@ val gconf_file : string
 
 val gcs_icons_path : string
 
-val expand_ac_xml : Xml.xml -> Xml.xml
+val expand_ac_xml : ?raise_exception:bool -> Xml.xml -> Xml.xml
 (** Expands a conf.xml aircraft entry, adding the XML configuration files
-(listed as attributes) as children *)
+(listed as attributes) as children. Returns an element containing the error
+ message if raise_exception is false (default to true) *)

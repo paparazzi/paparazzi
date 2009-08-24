@@ -53,19 +53,19 @@ let gconf_file = paparazzi_home // "conf" // "%gconf.xml"
 
 let gcs_icons_path = paparazzi_home // "data" // "pictures" // "gcs_icons"
 
-let expand_ac_xml = fun ac_conf ->
+let expand_ac_xml = fun ?(raise_exception = true) ac_conf ->
   let prefix = fun s -> sprintf "%s/conf/%s" paparazzi_home s in
   let parse_file = fun a file ->
     try
-      Xml.parse_file file
+      ExtXml.parse_file file
     with
-      Xml.File_not_found _ ->
-	prerr_endline (sprintf "File not found: %s" file);
-	make_element "file_not_found" ["file",a] []
-    | Xml.Error e ->
-	let s = Xml.error e in
-	prerr_endline (sprintf "Parse error in %s: %s" file s);
-	make_element "cannot_parse" ["file",file;"error", s] [] in
+      Failure msg ->
+	if raise_exception then
+	  failwith msg
+	else begin
+	  prerr_endline msg;
+	  make_element "parse error" ["file",a; "msg", msg] []
+	end in
 
   let parse = fun a ->
     List.map
