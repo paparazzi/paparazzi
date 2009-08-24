@@ -672,7 +672,7 @@ let () =
   if !xml_file = "" then
     failwith (sprintf "Usage: %s <xml-flight-plan-file>" Sys.argv.(0));
   try
-    let xml = Xml.parse_file !xml_file in
+    let xml = ExtXml.parse_file !xml_file in
 
     let wgs84 = georef_of_xml xml in
     let xml = check_geo_ref wgs84 xml in
@@ -804,9 +804,6 @@ let () =
       Xml2h.finish h_name
     end
   with
-    Xml.Error e -> fprintf stderr "%s: XML error:%s\n" !xml_file (Xml.error e); exit 1
-  | Dtd.Prove_error e -> fprintf stderr "%s: DTD prove error:%s\n%!" !xml_file (Dtd.prove_error e); exit 1
-  | Dtd.Check_error e -> fprintf stderr "%s: DTD check error:%s\n%!" !xml_file (Dtd.check_error e); exit 1
-  | Dtd.Parse_error e -> fprintf stderr "%s: DTD parse error:%s\n%!" !xml_file (Dtd.parse_error e); exit 1
-  | Failure x -> fprintf stderr "%s: %s\n" !xml_file x; exit 1
+    Failure x -> 
+      fprintf stderr "%s: %s\n" !xml_file x; exit 1
 
