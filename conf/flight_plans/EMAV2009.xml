@@ -1,33 +1,56 @@
 <!DOCTYPE flight_plan SYSTEM "flight_plan.dtd">
 
-<flight_plan alt="25" ground_alt="0" lat0="52.399851" lon0="5.920303" max_dist_from_home="1500" name="Basic" security_height="100">
+<flight_plan alt="54" ground_alt="0" lat0="52.3825204" lon0="5.897420" max_dist_from_home="1500" name="EMAV09" security_height="50">
   <header>
-#include "nav_line.h"
 #include "datalink.h"
 </header>
   <waypoints>
     <waypoint name="HOME" x="0" y="0"/>
-    <waypoint name="STDBY" x="49.5" y="100.1"/>
-    <waypoint name="1" x="10.1" y="189.9"/>
-    <waypoint name="2" x="132.3" y="139.1"/>
-    <waypoint name="MOB" x="137.0" y="-11.6"/>
-    <waypoint name="S1" x="-119.2" y="69.6"/>
-    <waypoint name="S2" x="274.4" y="209.5"/>
-    <waypoint alt="30.0" name="AF" x="177.4" y="45.1"/>
-    <waypoint alt="0.0" name="TD" x="28.8" y="57.0"/>
-    <waypoint name="_BASELEG" x="168.8" y="-13.8"/>
-    <waypoint name="CLIMB" x="-114.5" y="162.3"/>
+    <waypoint name="STDBY" x="96.2" y="-36.2"/>
+    <waypoint lat="52.39223341391188" lon="5.891920215186895" name="G1"/>
+    <waypoint lat="52.38457192890880" lon="5.905759083500732" name="G2"/>
+    <waypoint lat="52.37522867761314" lon="5.891055906501672" name="G3"/>
+    <waypoint lat="52.38389131932532" lon="5.876775757075523" name="G4"/>
+    <waypoint lat="52.39502349675812" lon="5.890603491493776" name="R1"/>
+    <waypoint lat="52.38568420330603" lon="5.907529980510587" name="R2"/>
+    <waypoint lat="52.37341656154337" lon="5.888204759419744" name="R3"/>
+    <waypoint lat="52.38371772691826" lon="5.870010280721401" name="R4"/>
+    <waypoint lat="52.38833565818008" lon="5.888958356099608" name="S1"/>
+    <waypoint lat="52.38741511939426" lon="5.896820110526804" name="S2"/>
+    <waypoint lat="52.38344448233852" lon="5.895558989657886" name="S3"/>
+    <waypoint lat="52.38442017389706" lon="5.887661800773984" name="S4"/>
+    <waypoint lat="52.38117866835545" lon="5.897949813109249" name="E1"/>
+    <waypoint lat="52.38219156830098" lon="5.890795873256735" name="E2"/>
+    <waypoint name="1" x="34.6" y="-31.9"/>
+    <waypoint name="2" x="174.3" y="79.9"/>
+    <waypoint name="MOB" x="418.5" y="208.7"/>
+    <waypoint alt="80.0" name="AF" x="236.8" y="3.1"/>
+    <waypoint alt="52.0" name="TD" x="162.4" y="-66.0"/>
+    <waypoint name="_BASELEG" x="367.5" y="255.8"/>
+    <waypoint alt="104.0" name="CLIMB" x="-0.2" y="-97.2"/>
   </waypoints>
+  <sectors>
+    <sector name="Red">
+      <corner name="R1"/>
+      <corner name="R2"/>
+      <corner name="R3"/>
+      <corner name="R4"/>
+    </sector>
+    <sector name="Green">
+      <corner name="G1"/>
+      <corner name="G2"/>
+      <corner name="G3"/>
+      <corner name="G4"/>
+    </sector>
+    <sector name="Search">
+      <corner name="S1"/>
+      <corner name="S2"/>
+      <corner name="S3"/>
+      <corner name="S4"/>
+    </sector>
+  </sectors>
   <exceptions/>
   <blocks>
-    <block name="Wait GPS">
-      <set value="1" var="kill_throttle"/>
-      <while cond="!GpsFixValid()"/>
-    </block>
-    <block name="Geo init">
-      <while cond="LessThan(NavBlockTime(), 10)"/>
-      <call fun="NavSetGroundReferenceHere()"/>
-    </block>
     <block name="Holding point">
       <set value="1" var="kill_throttle"/>
       <attitude roll="0" throttle="0" vmode="throttle"/>
@@ -36,7 +59,7 @@
       <exception cond="estimator_z > ground_alt+25" deroute="Standby"/>
       <set value="0" var="kill_throttle"/>
       <set value="0" var="estimator_flight_time"/>
-      <go from="HOME" throttle="1.0" vmode="throttle" wp="CLIMB" pitch="15"/>
+      <go from="HOME" pitch="15" throttle="1.0" vmode="throttle" wp="CLIMB"/>
     </block>
     <block name="Standby" strip_button="Standby" strip_icon="home.png">
       <circle radius="nav_radius" wp="STDBY"/>
@@ -44,21 +67,10 @@
     <block name="Figure 8 around wp 1" strip_button="Figure 8 (wp 1-2)" strip_icon="eight.png">
       <eight center="1" radius="nav_radius" turn_around="2"/>
     </block>
-    <block name="Oval 1-2" strip_button="Oval (wp 1-2)" strip_icon="oval.png">
-      <oval p1="1" p2="2" radius="nav_radius"/>
-    </block>
     <block name="MOB" strip_button="Turn around here" strip_icon="mob.png">
       <call fun="NavSetWaypointHere(WP_MOB)"/>
       <set value="DEFAULT_CIRCLE_RADIUS" var="nav_radius"/>
       <circle radius="nav_radius" wp="MOB"/>
-    </block>
-    <block name="Line 1-2" strip_button="Line (wp 1-2)" strip_icon="line.png">
-      <exception cond="datalink_time > 22" deroute="Standby"/>
-      <call fun="nav_line_init()"/>
-      <call fun="nav_line(WP_1, WP_2, nav_radius)"/>
-    </block>
-    <block name="Survey S1-S2" strip_button="Survey (wp S1-S2)" strip_icon="survey.png">
-      <survey_rectangle grid="150" wp1="S1" wp2="S2"/>
     </block>
     <block name="Land Right AF-TD" strip_button="Land right (wp AF-TD)" strip_icon="land-right.png">
       <set value="DEFAULT_CIRCLE_RADIUS" var="nav_radius"/>
