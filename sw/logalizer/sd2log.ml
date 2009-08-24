@@ -46,27 +46,6 @@ let run_command = fun com ->
 let make_element = fun t a c -> Xml.Element (t,a,c)
 
 
-(** Copied from server.ml *)
-let expand_ac_xml = fun ac_conf ->
-  let prefix = fun s -> sprintf "%s/conf/%s" Env.paparazzi_home s in
-  let parse = fun a ->
-    let file = prefix (ExtXml.attrib ac_conf a) in
-    try
-      Xml.parse_file file
-    with
-      Xml.File_not_found _ ->
-	prerr_endline (sprintf "File not found: %s" file);
-	make_element "file_not_found" ["file",a] []
-    | Xml.Error e ->
-	let s = Xml.error e in
-	prerr_endline (sprintf "Parse error in %s: %s" file s);
-	make_element "cannot_parse" ["file",file;"error", s] [] in
-  let fp = parse "flight_plan" in
-  let af = parse "airframe" in
-  let rc = parse "radio" in
-  let children = Xml.children ac_conf@[fp; af; rc] in
-  make_element (Xml.tag ac_conf) (Xml.attribs ac_conf) children
-
 let log_xml = fun ac_id ->
   let select = fun x -> ExtXml.int_attrib x "ac_id" = ac_id in
   let conf_ac =
@@ -76,7 +55,7 @@ let log_xml = fun ac_id ->
       Not_found ->
 	failwith (sprintf "Error: A/C %d not found in conf.xml" ac_id)
   in
-  let expanded_conf_ac = expand_ac_xml conf_ac in
+  let expanded_conf_ac = Env.expand_ac_xml ~raise_exception:false conf_ac in
   let expanded_conf =
     make_element (Xml.tag conf_xml) (Xml.attribs conf_xml) [expanded_conf_ac] in
   make_element 
