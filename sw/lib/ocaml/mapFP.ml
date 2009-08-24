@@ -29,12 +29,30 @@ open Latlong
 let (//) = Filename.concat
 
 let sof = string_of_float
-let sof1 = fun x -> Printf.sprintf "%.1f" x
+let sof1 = fun x -> sprintf "%.1f" x
+let sof6 = fun x -> sprintf "%.6f" x
 let float_attr = fun xml a -> float_of_string (ExtXml.attrib xml a)
 let rec assoc_nocase at = function
     [] -> raise Not_found
   | (a, v)::avs ->
       if String.uppercase at = String.uppercase a then v else assoc_nocase at avs
+
+(** Returns the WGS84 coordinates of a waypoint, either from its relative x and
+    y coordinates or from its lat and long *)
+let geo_of_xml = fun utm_ref get_attrib ->
+  try
+    let x = get_attrib "x"
+    and y = get_attrib "y" in
+    Latlong.of_utm WGS84 (utm_add utm_ref (x, y))
+  with
+    Not_found | Xml.No_attribute _ ->
+      try
+	let lat = get_attrib "lat"
+	and lon = get_attrib "lon" in
+	make_geo_deg lat lon
+      with
+	Not_found -> failwith (sprintf "x and y or lat and lon attributes expected in waypoint")
+
 
 (** Connect a change in the XML editor to the graphical rep *)
 let update_wp utm_ref (wp:MapWaypoints.waypoint) = function
@@ -43,8 +61,9 @@ let update_wp utm_ref (wp:MapWaypoints.waypoint) = function
   | XmlEdit.Modified attribs ->
       try
 	let float_attrib = fun a -> float_of_string (assoc_nocase a attribs) in
-	let x = (float_attrib "x") and y = (float_attrib "y") in
-	let wgs84 = Latlong.of_utm WGS84 (utm_add utm_ref (x, y)) in
+
+	let wgs84 = geo_of_xml utm_ref float_attrib in
+
 	wp#set wgs84;
 	wp#set_name (assoc_nocase "name" attribs)
       with
@@ -83,6 +102,21 @@ let waypoints_node = fun xml_tree ->
   let xml_root = XmlEdit.root xml_tree in
   XmlEdit.child xml_root "waypoints"
 
+let is_relative_waypoint = fun node ->
+  try
+    ignore (XmlEdit.attrib node "x");
+    ignore (XmlEdit.attrib node "y");
+    true
+  with
+    Not_found -> false
+
+
+let absolute_coords = fun wp ->
+  let wgs84 = wp#pos in
+  [ "lat", sof6 ((Rad>>Deg) wgs84.posn_lat); 
+    "lon", sof6 ((Rad>>Deg) wgs84.posn_long) ]
+
+
 (** Connect a change from the graphical rep to the xml tree *)
 let update_xml = fun xml_tree utm0 wp id ->
   let xml_wpts = XmlEdit.children (waypoints_node xml_tree) in
@@ -91,21 +125,31 @@ let update_xml = fun xml_tree utm0 wp id ->
   if wp#deleted then begin
     XmlEdit.delete node
   end else
-    let utm = utm_of WGS84 wp#pos in
-    try
-      let (dx, dy) = utm_sub utm utm0 in
-      let attribs = ["name",wp#name; "x",sof1 dx; "y",sof1 dy] in
-      let attribs = attribs @
-	if abs_float (wp#alt -. default_alt) < 1. then [] else ["alt", sof1 wp#alt] in
-      XmlEdit.set_attribs node attribs
-    with
-      _ ->
-	prerr_endline "MapFP.update_xml: waypoint too far from ref (FIXME)"
+    let coords =
+      if is_relative_waypoint node then
+	let utm = utm_of WGS84 wp#pos in
+	try
+	  let (dx, dy) = utm_sub utm utm0 in
+	  ["x",sof1 dx; "y",sof1 dy]
+	with
+	  _ ->
+	    prerr_endline "MapFP.update_xml: waypoint too far from ref; using absolute geodetic coordinates";
+	    absolute_coords wp
+      else (* Absolute waypoint: use lat and lon attributes *)
+	absolute_coords wp in
+
+    let alt_attrib =
+      if abs_float (wp#alt -. default_alt) < 1. then [] else ["alt", sof1 wp#alt] in
+    XmlEdit.set_attribs node (("name",wp#name) :: alt_attrib @ coords)
+
+
+
       
 let new_wp = fun ?(editable = false) (geomap:MapCanvas.widget) xml_tree waypoints utm_ref ?(alt = 0.) node ->
   let float_attrib = fun a -> float_of_string (XmlEdit.attrib node a) in
-  let x = (float_attrib "x") and y = (float_attrib "y") in
-  let wgs84 = Latlong.of_utm WGS84 (utm_add utm_ref (x, y)) in
+
+  let wgs84 = geo_of_xml utm_ref float_attrib in
+
   let alt = try float_attrib "alt" with _ -> alt in
   let name = XmlEdit.attrib node "name" in
   let show = editable || name.[0] <> '_' in
@@ -224,9 +268,8 @@ class flight_plan = fun ?format_attribs ?editable ~show_moved geomap color fp_dt
 	    let wp_name = Xml.attrib wp_name "name" in
 	    let select = fun wp -> Xml.attrib wp "name" = wp_name in
 	    let wp = ExtXml.child waypoints ~select "waypoint" in
-	    let x = float_attr wp "x"
-	    and y = float_attr wp "y" in
-	    of_utm WGS84 (utm_add utm0 (x, y)) in
+	    let float_attr = fun xml a -> float_of_string (Xml.attrib xml a) in
+	    geo_of_xml utm0 (float_attr wp) in
 	  let points = List.map wgs84 (Xml.children x) in
 	  let points = Array.of_list points in
 	  display_lines ~group:wpts_group#group color geomap points
