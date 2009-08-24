@@ -24,6 +24,8 @@
  *
  *)
 
+open Printf
+
 exception Error of string
 
 let sep = Str.regexp "\\."
@@ -220,10 +222,11 @@ let parse_file = fun ?(noprovedtd = false) file ->
   try
     (if noprovedtd then my_xml_parse_file else Xml.parse_file) file
   with
-    Xml.Error e -> failwith (Printf.sprintf "%s: %s" file (Xml.error e))
-  | Dtd.Prove_error e -> failwith (Printf.sprintf "%s: %s" file (Dtd.prove_error e))
-  | Dtd.Check_error e -> failwith (Printf.sprintf "%s: %s" file (Dtd.check_error e))
-  | Dtd.Parse_error e -> failwith (Printf.sprintf "%s: %s" file (Dtd.parse_error e))
+    Xml.Error e -> failwith (sprintf "%s: %s" file (Xml.error e))
+  | Xml.File_not_found f -> failwith (sprintf "File not found: %s" f)
+  | Dtd.Prove_error e -> failwith (sprintf "%s: %s" file (Dtd.prove_error e))
+  | Dtd.Check_error e -> failwith (sprintf "%s: %s" file (Dtd.check_error e))
+  | Dtd.Parse_error e -> failwith (sprintf "%s: %s" file (Dtd.parse_error e))
 
 
 
