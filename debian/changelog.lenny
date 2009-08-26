@@ -1,3 +1,9 @@
+paparazzi (3.2-10) unstable; urgency=low
+
+  * Dependencie over gpsd, libgps-dev, python-lxml, python-wxgtk2.8 added
+
+ -- Pascal Brisset <pascal.brisset@enac.fr>  Fri, 24 Jul 2009 18:22:12 +0200
+
 paparazzi (3.2-9) unstable; urgency=low
 
   * Dependency over ivy-python added
