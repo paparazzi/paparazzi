@@ -34,7 +34,7 @@ static void on_DL_SETTING(IvyClientPtr app __attribute__ ((unused)),
   uint8_t index = atoi(argv[2]);
   float value = atof(argv[3]);
   DlSetting(index, value);
-  DOWNLINK_SEND_DL_VALUE(&index, &value);
+  DOWNLINK_SEND_DL_VALUE(DOWNLINK_TRANSPORT, &index, &value);
   printf("setting %d %f\n", index, value);
 }
 
