@@ -108,25 +108,45 @@ let ac_files = fun gui ->
 (* Awful but easier *)
 let current_color = ref "white"
 
+let correct_ac_id = fun s ->
+  try
+    let n = int_of_string s in
+    0 < n && n < 256
+  with
+    _ -> false
+
+let correct_ac_name = fun s ->
+  let allowed_char = function
+      'a'..'z' | 'A'..'Z' | '0'..'9' | '_' -> ()
+    | _ -> raise Exit in
+  try
+    String.iter allowed_char s;
+    s <> ""
+  with
+    Exit -> false
+
 let save_callback = fun ?user_save gui ac_combo () ->
-  let ac_name = Gtk_tools.combo_value ac_combo in
-  if ac_name <> "" then begin
-    let color = !current_color in
-    let aircraft =
-      Xml.Element ("aircraft",
-		   ["name", ac_name;
-		    "ac_id", gui#entry_ac_id#text;
-		    "airframe", gui#label_airframe#text;
-		    "radio", gui#label_radio#text;
-		    "telemetry", gui#label_telemetry#text;
-		    "flight_plan", gui#label_flight_plan#text;
-		    "settings", gui#label_settings#text;
-		    "gui_color", color],
-		   []) in
-    if gui#entry_ac_id#text <> "" then begin
+  let ac_name = Gtk_tools.combo_value ac_combo
+  and ac_id = gui#entry_ac_id#text in
+
+  if ac_name <> "" && ac_id <> "" then begin
+    if not (correct_ac_id ac_id) then
+      GToolbox.message_box ~title:"Error on A/C id" "A/C id must be a non null number less than 255"
+    else
+      let color = !current_color in
+      let aircraft =
+	Xml.Element ("aircraft",
+		     ["name", ac_name;
+		      "ac_id", ac_id;
+		      "airframe", gui#label_airframe#text;
+		      "radio", gui#label_radio#text;
+		      "telemetry", gui#label_telemetry#text;
+		      "flight_plan", gui#label_flight_plan#text;
+		      "settings", gui#label_settings#text;
+		      "gui_color", color],
+		     []) in
       begin try Hashtbl.remove Utils.aircrafts ac_name with _ -> () end;
       Hashtbl.add Utils.aircrafts ac_name aircraft
-    end
   end;
   write_conf_xml ?user_save ()
 
@@ -174,10 +194,14 @@ let ac_combo_handler = fun gui (ac_combo:Gtk_tools.combo) target_combo ->
     match GToolbox.input_string ~title:"New A/C" ~text:"MYAC" "New A/C name ?" with
       None -> ()
     | Some s ->
-	Gtk_tools.add_to_combo ac_combo s;
-	let a = aircraft_sample s (string_of_int (new_ac_id ())) in
-	Hashtbl.add Utils.aircrafts s a;
-	update_params s
+	if not (correct_ac_name s) then
+	  GToolbox.message_box ~title:"Error on A/C nae" "A/C name must contain only letters, digits or underscores"
+	else begin
+	  Gtk_tools.add_to_combo ac_combo s;
+	  let a = aircraft_sample s (string_of_int (new_ac_id ())) in
+	  Hashtbl.add Utils.aircrafts s a;
+	  update_params s
+	end
   in
   ignore (gui#menu_item_new_ac#connect#activate ~callback);
 
