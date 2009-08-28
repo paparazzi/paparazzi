@@ -134,24 +134,26 @@ void booz_ins_propagate() {
 #ifdef USE_HFF
   if (b2_hff_ps_counter == HFF_PRESCALER) {
 	b2_hff_ps_counter = 1;
-	if (booz_ahrs.status == BOOZ_AHRS_RUNNING && booz_ins_ltp_initialised ) {
+	if (booz_ahrs.status == BOOZ_AHRS_RUNNING ) {
 	  /* compute float ltp mean acceleration */
 	  booz_ahrs_compute_accel_mean(HFF_PRESCALER);
 	  struct Int32Vect3 mean_accel_body;
 	  INT32_RMAT_TRANSP_VMULT(mean_accel_body, booz_imu.body_to_imu_rmat, booz_ahrs_accel_mean);
 	  struct Int32Vect3 mean_accel_ltp;
+	  INT32_RMAT_TRANSP_VMULT(mean_accel_ltp, booz_ahrs.ltp_to_body_rmat, mean_accel_body);
 	  float x_accel_mean_f = ACCEL_FLOAT_OF_BFP(mean_accel_ltp.x);
 	  float y_accel_mean_f = ACCEL_FLOAT_OF_BFP(mean_accel_ltp.y);
-	  INT32_RMAT_TRANSP_VMULT(mean_accel_ltp, booz_ahrs.ltp_to_body_rmat, mean_accel_body);
-	  /* propagate horizontal filter */
-	  b2_hff_propagate(x_accel_mean_f, y_accel_mean_f);
-	  /* update ins state from horizontal filter */
-	  booz_ins_ltp_accel.x = ACCEL_BFP_OF_REAL(b2_hff_xdotdot);
-	  booz_ins_ltp_accel.y = ACCEL_BFP_OF_REAL(b2_hff_ydotdot);
-	  booz_ins_ltp_speed.x = SPEED_BFP_OF_REAL(b2_hff_xdot);
-	  booz_ins_ltp_speed.y = SPEED_BFP_OF_REAL(b2_hff_ydot);
-	  booz_ins_ltp_pos.x   = POS_BFP_OF_REAL(b2_hff_x);
-	  booz_ins_ltp_pos.y   = POS_BFP_OF_REAL(b2_hff_y);
+	  if ( booz_ins_ltp_initialised ) {
+		/* propagate horizontal filter */
+		b2_hff_propagate(x_accel_mean_f, y_accel_mean_f);
+		/* update ins state from horizontal filter */
+		booz_ins_ltp_accel.x = ACCEL_BFP_OF_REAL(b2_hff_xdotdot);
+		booz_ins_ltp_accel.y = ACCEL_BFP_OF_REAL(b2_hff_ydotdot);
+		booz_ins_ltp_speed.x = SPEED_BFP_OF_REAL(b2_hff_xdot);
+		booz_ins_ltp_speed.y = SPEED_BFP_OF_REAL(b2_hff_ydot);
+		booz_ins_ltp_pos.x   = POS_BFP_OF_REAL(b2_hff_x);
+		booz_ins_ltp_pos.y   = POS_BFP_OF_REAL(b2_hff_y);
+	  }
 	}
   } else {
 	b2_hff_ps_counter++;
