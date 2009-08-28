@@ -142,29 +142,29 @@
 
 #ifdef GPS_PERFECT
 
-#define BSM_GPS_SPEED_NOISE_STD_DEV            0.
-#define BSM_GPS_SPEED_LATENCY                  0.
-#define BSM_GPS_POS_NOISE_STD_DEV              0.001
-#define BSM_GPS_POS_BIAS_INITIAL_X             0.
-#define BSM_GPS_POS_BIAS_INITIAL_Y             0.
-#define BSM_GPS_POS_BIAS_INITIAL_Z             0.
-#define BSM_GPS_POS_BIAS_RANDOM_WALK_STD_DEV_X 0. 
-#define BSM_GPS_POS_BIAS_RANDOM_WALK_STD_DEV_Y 0. 
-#define BSM_GPS_POS_BIAS_RANDOM_WALK_STD_DEV_Z 0. 
-#define BSM_GPS_POS_LATENCY                    0.
+#define NPS_GPS_SPEED_NOISE_STD_DEV            0.
+#define NPS_GPS_SPEED_LATENCY                  0.
+#define NPS_GPS_POS_NOISE_STD_DEV              0.001
+#define NPS_GPS_POS_BIAS_INITIAL_X             0.
+#define NPS_GPS_POS_BIAS_INITIAL_Y             0.
+#define NPS_GPS_POS_BIAS_INITIAL_Z             0.
+#define NPS_GPS_POS_BIAS_RANDOM_WALK_STD_DEV_X 0. 
+#define NPS_GPS_POS_BIAS_RANDOM_WALK_STD_DEV_Y 0. 
+#define NPS_GPS_POS_BIAS_RANDOM_WALK_STD_DEV_Z 0. 
+#define NPS_GPS_POS_LATENCY                    0.
 
 #else
 
-#define BSM_GPS_SPEED_NOISE_STD_DEV            1e-1
-#define BSM_GPS_SPEED_LATENCY                  0.25
-#define BSM_GPS_POS_NOISE_STD_DEV              1e-1
-#define BSM_GPS_POS_BIAS_INITIAL_X             0e-1
-#define BSM_GPS_POS_BIAS_INITIAL_Y            -0e-1
-#define BSM_GPS_POS_BIAS_INITIAL_Z            -0e-1
-#define BSM_GPS_POS_BIAS_RANDOM_WALK_STD_DEV_X 1e-3 
-#define BSM_GPS_POS_BIAS_RANDOM_WALK_STD_DEV_Y 1e-3 
-#define BSM_GPS_POS_BIAS_RANDOM_WALK_STD_DEV_Z 1e-3 
-#define BSM_GPS_POS_LATENCY                    0.25
+#define NPS_GPS_SPEED_NOISE_STD_DEV            1e-1
+#define NPS_GPS_SPEED_LATENCY                  0.25
+#define NPS_GPS_POS_NOISE_STD_DEV              1e-1
+#define NPS_GPS_POS_BIAS_INITIAL_X             0e-1
+#define NPS_GPS_POS_BIAS_INITIAL_Y            -0e-1
+#define NPS_GPS_POS_BIAS_INITIAL_Z            -0e-1
+#define NPS_GPS_POS_BIAS_RANDOM_WALK_STD_DEV_X 1e-3 
+#define NPS_GPS_POS_BIAS_RANDOM_WALK_STD_DEV_Y 1e-3 
+#define NPS_GPS_POS_BIAS_RANDOM_WALK_STD_DEV_Z 1e-3 
+#define NPS_GPS_POS_LATENCY                    0.25
 
 #endif /* GPS_PERFECT */
 

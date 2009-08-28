@@ -31,6 +31,7 @@ sim.srcs = $(NPSDIR)/nps_main.c                      \
 	   $(NPSDIR)/nps_fdm_jsbsim.c                \
 	   $(NPSDIR)/nps_random.c                    \
 	   $(NPSDIR)/nps_sensors.c                   \
+	   $(NPSDIR)/nps_sensors_utils.c             \
 	   $(NPSDIR)/nps_sensor_gyro.c               \
 	   $(NPSDIR)/nps_sensor_accel.c              \
 	   $(NPSDIR)/nps_sensor_mag.c                \
