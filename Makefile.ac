@@ -108,7 +108,8 @@ $(PERIODIC_H) : $(MESSAGES_XML) $(CONF_XML) $(CONF)/$(TELEMETRY) $(MAKEFILE_AC)
 
 $(FLIGHT_PLAN_H) : $(CONF)/$(FLIGHT_PLAN) $(CONF_XML) $(TOOLS)/gen_flight_plan.out
 	@echo BUILD $@
-	$(Q)$(TOOLS)/gen_flight_plan.out $< > $@
+	$(Q)$(TOOLS)/gen_flight_plan.out $< > /tmp/$(AC_ID)_fp.h
+	$(Q)mv /tmp/$(AC_ID)_fp.h $@
 	$(Q)chmod a+r $@
 	$(Q)cp $< $(AIRCRAFT_CONF_DIR)/flight_plans
 
