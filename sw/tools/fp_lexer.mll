@@ -23,6 +23,7 @@ rule token = parse
   | "&&" { AND }
   | "||" { OR }
   | ">" { GT }
+  | "%" { MOD }
   | ">=" { GEQ }
   | "+" { PLUS }
   | "=" { ASSIGN }
