@@ -111,7 +111,7 @@ void booz_sensors_model_gps_run( double time) {
   cur_pos_reading = v_resize(cur_pos_reading, AXIS_NB);
   v_add(bfm.pos_ltp, pos_error, cur_pos_reading);
   /* store that for later and retrieve a previously stored data */
-  UpdateSensorLatency(time, cur_pos_reading, bsm.gps_pos_history, BSM_GPS_POS_LATENCY, bsm.gps_pos);
+  UpdateSensorLatency(time, cur_pos_reading, &bsm.gps_pos_history, BSM_GPS_POS_LATENCY, bsm.gps_pos);
 
   /* UTM conversion */
   bsm.gps_pos_utm_north = bsm.gps_pos->ve[AXIS_X] * 100. + BSM_GPS_POS_INITIAL_UTM_EAST;

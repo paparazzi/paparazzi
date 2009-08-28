@@ -9,7 +9,7 @@ struct BoozDatedSensor {
   double time;
 };
 
-extern void UpdateSensorLatency(double time, VEC* cur_reading, GSList* history, 
+extern void UpdateSensorLatency(double time, VEC* cur_reading, GSList **history,
 			 double latency, VEC* sensor_reading);
 extern VEC* v_update_random_walk(VEC* in, VEC* std_dev, double dt, VEC* out);
 extern VEC* v_add_gaussian_noise(VEC* in, VEC* std_dev, VEC* out);

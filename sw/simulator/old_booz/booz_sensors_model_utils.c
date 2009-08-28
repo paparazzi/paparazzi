@@ -3,23 +3,23 @@
 #include "6dof.h"
 #include <math.h>
 
-void UpdateSensorLatency(double time, VEC* cur_reading, GSList* history, 
+void UpdateSensorLatency(double time, VEC* cur_reading, GSList **history,
 			 double latency, VEC* sensor_reading) {
   /* add new reading */
   struct BoozDatedSensor* cur_read = g_new(struct BoozDatedSensor, 1);
   cur_read->time = time;
   cur_read->value = v_get(AXIS_NB);
   v_copy(cur_reading, cur_read->value);
-  history = g_slist_prepend(history, cur_read);
+  *history = g_slist_prepend(*history, cur_read);
   /* remove old readings */
-  GSList* last =  g_slist_last(history);
-  while (last && 
+  GSList* last =  g_slist_last(*history);
+  while (last &&
 	 ((struct BoozDatedSensor*)last->data)->time < time - latency) {
-    history = g_slist_remove_link(history, last);
+    *history = g_slist_remove_link(*history, last);
     v_free(((struct BoozDatedSensor*)last->data)->value);
     g_free((struct BoozDatedSensor*)last->data);
     g_slist_free(last);
-    last =  g_slist_last(history);
+    last =  g_slist_last(*history);
   }
   /* update sensor        */
   v_copy(((struct BoozDatedSensor*)last->data)->value, sensor_reading);
@@ -61,14 +61,14 @@ VEC* v_get_gaussian_noise(VEC* std_dev, VEC* out) {
 
 }
 
-/* 
-   http://www.taygeta.com/random/gaussian.html 
+/*
+   http://www.taygeta.com/random/gaussian.html
 */
 
 #include "booz_r250.h"
 
 double get_gaussian_noise(void) {
- 
+
   double x1;
   static int nb_call = 0;
   static double x2, w;
@@ -80,7 +80,7 @@ double get_gaussian_noise(void) {
       x2 = 2.0 * dr250() - 1.0;
       w = x1 * x1 + x2 * x2;
     } while ( w >= 1.0 );
-    
+
     w = sqrt( (-2.0 * log( w ) ) / w );
     return x1 * w;
   }
