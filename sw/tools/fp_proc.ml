@@ -24,6 +24,8 @@
  *
  *)
 
+open Printf
+
 module G2D = Geometry_2d
 
 open Fp_syntax
@@ -42,45 +44,16 @@ let parse_expression = fun s ->
     Fp_parser.expression Fp_lexer.token lexbuf
   with
     Failure("lexing: empty token") ->
-      Printf.fprintf stderr "Lexing error in '%s': unexpected char: '%c' \n"
+      fprintf stderr "Lexing error in '%s': unexpected char: '%c' \n"
 	s (Lexing.lexeme_char lexbuf 0);
       exit 1
   | Parsing.Parse_error ->
-      Printf.fprintf stderr "Parsing error in '%s', token '%s' ?\n"
+      fprintf stderr "Parsing error in '%s', token '%s' ?\n"
 	s (Lexing.lexeme lexbuf);
       exit 1
 
 
 open Latlong
-let norm_2pi = fun f -> if f < 0. then f +. 2. *. pi else f
-
-(* Translation and rotation *)
-type affine = { dx : float; dy : float; angle : float (* Deg Clockwise *) }
-
-let dtd_error = fun f e ->
-  Printf.fprintf stderr "DTD error in '%s': %s\n" f e;
-  exit 1
-
-(* Rotation. Would be better with a matrix multiplication ? *)
-let rotate = fun angle (x, y) ->
-  let angle = -. (Deg>>Rad) angle in
-  let a = atan2 y x
-  and r = sqrt (x**2. +. y**2.) in
-  let a' = a +. angle in
-  (r*.cos a', r*.sin a')
-
-let rotate_expression = fun a expression ->
-  let rec rot = fun e ->
-    match e with
-    | Call("Qdr", [Float a']) -> Call("Qdr", [Float (a' +. a)])
-    | Call("Qdr", [Int a']) -> Call("Qdr", [Float (float a' +. a)])
-    | Call(op, [e1; e2]) when op = "And" || op ="Or" ->
-	Call(op, [rot e1; rot e2]) 
-    | CallOperator(op, [e]) -> CallOperator(op, [rot e])
-    | CallOperator(op, [e1; e2]) -> CallOperator(op, [rot e1; rot e2])
-    | CallOperator(_op, _) -> failwith "fp_proc: Operator should be unary or binary"
-    | _ -> e in
-  rot expression
 
 let subst_expression = fun env e ->
   let rec sub = fun e ->
@@ -93,47 +66,22 @@ let subst_expression = fun env e ->
   sub e
 
 
-let transform_expression = fun affine env e ->
-  let e' = rotate_expression affine.angle e in
-  let e'' = subst_expression env e' in
-  Fp_syntax.sprint_expression e''
+let transform_expression = fun env e ->
+  let e' = subst_expression env e in
+  Fp_syntax.sprint_expression e'
   
 
-let transform_values = fun attribs_not_modified affine env attribs ->
+let transform_values = fun attribs_not_modified env attribs ->
   List.map
     (fun (a, v) ->
       let e = parse_expression v in
-      let e' = 
-	if String.lowercase a = "course" 
-	then CallOperator("+", [e; Float affine.angle])
-	else e in
       let v' =
 	if List.mem (String.lowercase a) attribs_not_modified
 	then v
-	else transform_expression affine env e' in
+	else transform_expression env e in
       (a, v'))
     attribs
 
-
-let transform_waypoint = fun prefix affine xml ->
-  let x = ExtXml.float_attrib xml "x"
-  and y = ExtXml.float_attrib xml "y" in
-  let (x, y) = rotate affine.angle (x, y) in
-  let (x, y) = (x+.affine.dx, y+.affine.dy) in
-  let alt = try ["alt", ExtXml.attrib xml "alt"] with ExtXml.Error _ -> [] in
-  Xml.Element (Xml.tag xml,
-	       ["name", prefix (ExtXml.attrib xml "name");
-		"x", string_of_float x;
-		"y", string_of_float y]@alt,
-	       [])
-
-
-let prefix_value = fun prefix name attribs ->
-  List.map
-    (fun (a, v) ->
-      let v' = if String.lowercase a = name then prefix v else v in
-      (a, v'))
-    attribs
 
 let prefix_or_deroute = fun prefix reroutes name attribs ->
   List.map
@@ -146,58 +94,48 @@ let prefix_or_deroute = fun prefix reroutes name attribs ->
       (a, v'))
     attribs
 
-let transform_exception = fun prefix reroutes affine env xml  ->
+let transform_exception = fun prefix reroutes env xml  ->
   match xml with
     Xml.Element (tag, attribs, children) ->
       assert (children=[]);
       let attribs = prefix_or_deroute prefix reroutes "deroute" attribs in
-      let attribs = transform_values [] affine env attribs in
+      let attribs = transform_values [] env attribs in
       Xml.Element (tag, attribs, children)
   | _ -> failwith "transform_exception"
   
 
 
-let transform_attribs = fun affine attribs ->
-  List.map
-    (fun (a, v) ->
-      match String.lowercase a with
-	"wp_qdr" | "from_qdr" ->
-	  (a, string_of_float (float_of_string v +. affine.angle))
-      | _ -> (a, v)
-    )
-    attribs
-
-
-let transform_stage = fun prefix reroutes affine env xml ->
+let transform_stage = fun prefix reroutes env xml ->
   let rec tr = fun xml ->
     match xml with
       Xml.Element (tag, attribs, children) -> begin
-	match tag with
+	match String.lowercase tag with
 	  "exception" ->
-	    transform_exception prefix reroutes affine env xml
+	    transform_exception prefix reroutes env xml
 	| "while" ->
-	    let attribs = transform_values [] affine env attribs in
+	    let attribs = transform_values [] env attribs in
 	  Xml.Element (tag, attribs, List.map tr children)
 	| "heading" ->
 	    assert (children=[]);
-	    let attribs = transform_values ["vmode"] affine env attribs in
+	    let attribs = transform_values ["vmode"] env attribs in
 	    Xml.Element (tag, attribs, children)
+	| "attitude" ->
+	  let attribs = transform_values ["vmode"] env attribs in
+	  Xml.Element (tag, attribs, children)
 	| "go" ->
 	  assert (children=[]);
-	  let attribs = transform_values ["wp";"from";"hmode";"vmode"] affine env attribs in
-	  let attribs = prefix_value prefix "wp" attribs in
-	  let attribs = prefix_value prefix "from" attribs in
-	  let attribs = transform_attribs affine attribs in
+	  let attribs = transform_values ["wp";"from";"hmode";"vmode"] env attribs in
 	  Xml.Element (tag, attribs, children)
       | "xyz" ->
 	  assert (children=[]);
-	  let attribs = transform_values [] affine env attribs in
+	  let attribs = transform_values [] env attribs in
 	  Xml.Element (tag, attribs, children)
       | "circle" ->
 	  assert (children=[]);
-	  let attribs = transform_values ["wp";"hmode";"vmode"] affine env attribs in
-	  let attribs = prefix_value prefix "wp" attribs in
-	  let attribs = transform_attribs affine attribs in
+	  let attribs = transform_values ["wp";"hmode";"vmode"] env attribs in
+	  Xml.Element (tag, attribs, children)
+      | "eight" ->
+	  let attribs = transform_values ["center";"turn_around";"radius"] env attribs in
 	  Xml.Element (tag, attribs, children)
       | "deroute" ->
 	  assert (children=[]);
@@ -205,32 +143,28 @@ let transform_stage = fun prefix reroutes affine env xml ->
 	  Xml.Element (tag, attribs, children)
       | "stay" ->
 	  assert (children=[]);
-	  let attribs = transform_values ["wp"; "vmode"] affine env attribs in
-	  let attribs = prefix_value prefix "wp" attribs in
-	  let attribs = transform_attribs affine attribs in
+	  let attribs = transform_values ["wp"; "vmode"] env attribs in
 	  Xml.Element (tag, attribs, children)
-      | _ -> failwith (Printf.sprintf "Fp_proc: Unexpected tag: '%s'" tag)
+      | "call" | "set" ->
+	  let attribs = transform_values [] env attribs in
+	  Xml.Element (tag, attribs, children)
+      | _ -> failwith (sprintf "Fp_proc: Unexpected tag: '%s'" tag)
     end
   | _ -> failwith "Fp_proc: Xml.Element expected"
   in
   tr xml
 
-let transform_block = fun prefix reroutes affine env xml ->
-  Xml.Element (Xml.tag xml,
-	       ["name", prefix (ExtXml.attrib xml "name")],
-	       List.map (transform_stage prefix reroutes affine env) (Xml.children xml))
+let transform_block = fun prefix reroutes env xml ->
+  let stages = List.map (transform_stage prefix reroutes env) (Xml.children xml) in
+  let block = Xml.Element("block", Xml.attribs xml, stages) in
+  ExtXml.subst_attrib "name" (prefix (ExtXml.attrib xml "name")) block
+	       
   
 
 let parse_include = fun dir include_xml ->
   let f = Filename.concat dir (ExtXml.attrib include_xml "procedure") in
   let proc_name = ExtXml.attrib include_xml "name" in
   let prefix = fun x -> proc_name ^ "." ^ x in
-  let a = fun a b -> float_of_string (ExtXml.attrib_or_default include_xml a b) in
-  let affine = { 
-    dx = a "x" "0";
-    dy = a "y" "0";
-    angle = a "rotate" "0"
-  } in
   let reroutes = 
     List.filter 
       (fun x -> String.lowercase (Xml.tag x) = "with") 
@@ -246,7 +180,7 @@ let parse_include = fun dir include_xml ->
       (fun xml -> (ExtXml.attrib xml "name", ExtXml.attrib xml "value"))
       args in
   try
-    let proc = Xml.parse_file f in
+    let proc = ExtXml.parse_file f in
     let params = List.filter 
 	(fun x -> String.lowercase (Xml.tag x) = "param")
 	(Xml.children proc) in
@@ -259,7 +193,7 @@ let parse_include = fun dir include_xml ->
 	  try
 	    (name, Xml.attrib xml "default_value")
 	  with
-	    _  -> failwith (Printf.sprintf "Value required for param '%s' in %s" name (Xml.to_string include_xml)) in
+	    _  -> failwith (sprintf "Value required for param '%s' in %s" name (Xml.to_string include_xml)) in
     (* Complete the environment with default values *)
     let env =  List.map (fun xml -> value xml env) params in
 
@@ -267,13 +201,12 @@ let parse_include = fun dir include_xml ->
     and exceptions = try Xml.children (ExtXml.child proc "exceptions") with Not_found -> []
     and blocks = Xml.children (ExtXml.child proc "blocks") in
 
-    let waypoints = List.map (transform_waypoint prefix affine) waypoints
-    and exceptions = List.map (transform_exception prefix reroutes affine env) exceptions
-    and blocks = List.map (transform_block prefix reroutes affine env) blocks in
+    let exceptions = List.map (transform_exception prefix reroutes env) exceptions
+    and blocks = List.map (transform_block prefix reroutes env) blocks in
     (waypoints, exceptions, blocks)
   with
-    Dtd.Prove_error e -> dtd_error f (Dtd.prove_error e)
-  | Dtd.Check_error e -> dtd_error f (Dtd.check_error e)
+    Failure msg -> fprintf stderr "Error: %s\n" msg; exit 1
+
       
 
 (** Adds new children to a list of XML elements *)
@@ -344,7 +277,7 @@ let new_waypoint = fun wp qdr dist waypoints ->
   let xy = G2D.vect_add wp2D (G2D.polar2cart { G2D.r2D = dist; theta2D = a }) in
   let x = string_of_float xy.G2D.x2D
   and y = string_of_float xy.G2D.y2D in
-  let name = Printf.sprintf "%s_%.0f_%.0f" wp qdr dist in
+  let name = sprintf "%s_%.0f_%.0f" wp qdr dist in
   let alt = try ["alt", Xml.attrib wp_xml "alt"] with _ -> [] in
   waypoints := Xml.Element("waypoint", ["name", name; "x", x; "y", y]@alt, []) :: !waypoints;
   name
