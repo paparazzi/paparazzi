@@ -58,11 +58,14 @@ val subst_attrib : string -> string -> Xml.xml -> Xml.xml
 
 val subst_child :
     ?select:(Xml.xml -> bool) -> string -> Xml.xml -> Xml.xml -> Xml.xml
-(** [subst_child ?select child_tag new_child xml] *)
+(** [subst_child ?select child_tag new_child xml] May raise Not_found *)
+
+val subst_or_add_child : string -> Xml.xml -> Xml.xml -> Xml.xml
+(** [subst_or_add_child child_tag new_child xml] *)
 
 val remove_child :
     ?select:(Xml.xml -> bool) -> string -> Xml.xml -> Xml.xml
-(** [delete_child ?select child_tag xml] *)
+(** [delete_child ?select child_tag xml] Returns [xml] if not found *)
 
 val parse_file : ?noprovedtd:bool -> string -> Xml.xml
 (** Identical to Xml.parse_file with Failure exceptions. [nodtdprove] default is false. *)

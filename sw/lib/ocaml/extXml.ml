@@ -178,10 +178,24 @@ let subst_attrib = fun attrib value xml ->
 let subst_child = fun ?(select= fun _ -> true) t x xml ->
   match xml with
     Xml.Element (tag, attrs, children) ->
-      Xml.Element (tag,
-		   attrs,
-		   List.map (fun xml -> if tag_is xml t && select xml then x else xml) children)
+      let found = ref false in
+      let new_children = 
+	List.map
+	  (fun xml -> if tag_is xml t && select xml then (found := true; x) else xml)
+	  children in
+      if !found then
+        Xml.Element (tag, attrs, new_children)
+      else
+	raise Not_found
   | Xml.PCData _ -> xml
+
+
+let subst_or_add_child = fun t x xml ->
+  try subst_child t x xml with Not_found ->
+    match xml with
+      Xml.Element (tag, attrs, children) ->
+	Xml.Element (tag, attrs, x::children)
+    |  Xml.PCData _ -> xml
 
 
 let remove_child = fun ?(select= fun _ -> true) t xml ->
