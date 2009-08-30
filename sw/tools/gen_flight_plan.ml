@@ -120,7 +120,6 @@ let print_waypoint = fun default_alt waypoint ->
 let print_waypoint_int32 = fun default_alt waypoint ->
   let (x, y) = (float_attrib waypoint "x", float_attrib waypoint "y")
   and alt = float_of_string (try Xml.attrib waypoint "alt" with _ -> default_alt) in
-  check_altitude alt waypoint;
   let pow8 = 2. ** 8. in
   let x_int = truncate (x *. pow8) and
   y_int = truncate (y *. pow8) and
@@ -147,7 +146,7 @@ let get_index_block = fun x ->
 let print_exception = fun x ->
   let i = get_index_block (ExtXml.attrib x "deroute") in
   let c = parsed_attrib x "cond" in
-  lprintf "if (%s && (nav_block != %s)) { GotoBlock(%s); return; }\n" c i i
+  lprintf "if ((nav_block != %s) && %s) { GotoBlock(%s); return; }\n" c i i
 
 let element = fun a b c -> Xml.Element (a, b, c)
 let goto l = element "goto" ["name",l] []

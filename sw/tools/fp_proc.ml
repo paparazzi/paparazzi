@@ -3,7 +3,7 @@
  *
  * Flight plan preprocessing (procedure including)
  *  
- * Copyright (C) 2004 CENA/ENAC, Pascal Brisset, Antoine Drouin
+ * Copyright (C) 2004-2009 CENA/ENAC, Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
  *
@@ -34,9 +34,6 @@ let rec list_split3 = function
     [] -> ([], [], [])
   | (x,y,z)::l ->
       let (rx, ry, rz) = list_split3 l in (x::rx, y::ry, z::rz)
-
-let nop_stage = Xml.Element ("while", ["cond","FALSE"],[])
-
 
 let parse_expression = fun s ->
   let lexbuf = Lexing.from_string s in
@@ -158,70 +155,90 @@ let transform_block = fun prefix reroutes env xml ->
   let stages = List.map (transform_stage prefix reroutes env) (Xml.children xml) in
   let block = Xml.Element("block", Xml.attribs xml, stages) in
   ExtXml.subst_attrib "name" (prefix (ExtXml.attrib xml "name")) block
-	       
+
+
+let build_assocs = fun tag key_attr val_attr xml ->
+  let xmls = 
+    List.filter 
+      (fun x -> ExtXml.tag_is x tag) 
+      (Xml.children xml) in
+
+  List.map
+    (fun xml -> (ExtXml.attrib xml key_attr, ExtXml.attrib xml val_attr))
+    xmls
+
+
+let get_children = fun tag xml ->
+  try Xml.children (ExtXml.child xml tag) with Not_found -> []
+
+
+let get_pc_data = fun tag xml ->
+  try
+    Xml.pcdata (ExtXml.child (ExtXml.child xml tag) "0")
+  with
+    Not_found -> ""
   
 
-let parse_include = fun dir include_xml ->
+let append_children = fun (tag, new_children) xml ->
+  let children = get_children tag xml @ new_children in
+  let new_elt = Xml.Element (tag, [], children) in
+  ExtXml.subst_or_add_child tag new_elt xml
+
+let append_pc_data = fun tag new_data xml ->
+  let data = get_pc_data tag xml ^ "\n" ^ new_data in
+  let new_elt = Xml.Element (tag, [], [Xml.PCData data]) in
+  ExtXml.subst_or_add_child tag new_elt xml
+
+
+
+let parse_include = fun dir flight_plan include_xml ->
   let f = Filename.concat dir (ExtXml.attrib include_xml "procedure") in
   let proc_name = ExtXml.attrib include_xml "name" in
   let prefix = fun x -> proc_name ^ "." ^ x in
-  let reroutes = 
-    List.filter 
-      (fun x -> String.lowercase (Xml.tag x) = "with") 
-      (Xml.children include_xml) in
-  let reroutes = List.map
-      (fun xml -> (ExtXml.attrib xml "from", ExtXml.attrib xml "to"))
-      reroutes in
-  let args = 
-    List.filter 
-      (fun x -> String.lowercase (Xml.tag x) = "arg") 
-      (Xml.children include_xml) in
-  let env = List.map
-      (fun xml -> (ExtXml.attrib xml "name", ExtXml.attrib xml "value"))
-      args in
+
+  let reroutes = build_assocs "with" "from" "to" include_xml
+  and args_assocs = build_assocs "arg" "name" "value" include_xml in
+ 
   try
     let proc = ExtXml.parse_file f in
     let params = List.filter 
-	(fun x -> String.lowercase (Xml.tag x) = "param")
+	(fun x -> ExtXml.tag_is x "param")
 	(Xml.children proc) in
-    let value = fun xml env ->
+
+    (* Build the environment with arguments and default values *)
+    let make_assoc = fun xml ->
       let name = ExtXml.attrib xml "name" in
       try
-	(name, List.assoc name env)
+	(name, List.assoc name args_assocs)
       with
 	Not_found ->
 	  try
 	    (name, Xml.attrib xml "default_value")
 	  with
 	    _  -> failwith (sprintf "Value required for param '%s' in %s" name (Xml.to_string include_xml)) in
-    (* Complete the environment with default values *)
-    let env =  List.map (fun xml -> value xml env) params in
+    let env =  List.map make_assoc params in
 
-    let waypoints = Xml.children (ExtXml.child proc "waypoints")
-    and exceptions = try Xml.children (ExtXml.child proc "exceptions") with Not_found -> []
-    and blocks = Xml.children (ExtXml.child proc "blocks") in
+    let waypoints = get_children "waypoints" proc
+    and exceptions = get_children "exceptions" proc
+    and blocks = get_children "blocks" proc
+    and sectors = get_children "sectors" proc
+    and header = get_pc_data "header" proc in
 
     let exceptions = List.map (transform_exception prefix reroutes env) exceptions
     and blocks = List.map (transform_block prefix reroutes env) blocks in
-    (waypoints, exceptions, blocks)
+
+    List.fold_right
+      append_children
+      ["waypoints", waypoints;
+       "blocks", blocks;
+       "exceptions", exceptions;
+       "sectors", sectors]
+      (append_pc_data "header" header flight_plan)
   with
     Failure msg -> fprintf stderr "Error: %s\n" msg; exit 1
 
       
 
-(** Adds new children to a list of XML elements *)
-let insert_children = fun xmls new_children_assoc ->
-  List.map
-    (fun x ->
-      try
-	let new_children = List.assoc (Xml.tag x) new_children_assoc
-	and old_children = Xml.children x in
-	Xml.Element (Xml.tag x, Xml.attribs x, old_children @ new_children)
-      with
-	Not_found -> x
-    )
-    xmls
-    
 let replace_children = fun xml new_children_assoc ->
   Xml.Element (Xml.tag xml, Xml.attribs xml,
 	       List.map
@@ -236,26 +253,13 @@ let replace_children = fun xml new_children_assoc ->
     
 
 let process_includes = fun dir xml ->
-  let includes, children =
-   List.partition (fun x -> Xml.tag x = "include") (Xml.children xml) in
+  let includes =
+    try Xml.children (ExtXml.child xml "includes") with Not_found -> []
+  and xml_without_includes = ExtXml.remove_child "includes" xml in
 
-  (* List of triples of lists (waypoints, exceptions, blocks) *)
-  let waypoints_and_blocks = List.map (parse_include dir) includes in
+  List.fold_left (parse_include dir) xml_without_includes includes
 
-  let (inc_waypoints, inc_exceptions, inc_blocks) = list_split3 waypoints_and_blocks in
-  let inc_waypoints = List.flatten inc_waypoints
-  and inc_exceptions = List.flatten inc_exceptions
-  and inc_blocks = List.flatten inc_blocks in
 
-  (* FIXME (exceptions seciton is not mandatory) *)
-  let children = children @ [Xml.Element ("exceptions",[],[])] in
-
-  let new_children = insert_children children
-      ["waypoints", inc_waypoints; 
-       "exceptions", inc_exceptions; 
-       "blocks", inc_blocks] in
-
-  Xml.Element (Xml.tag xml, Xml.attribs xml, new_children)
 
 let remove_attribs = fun xml names ->
   List.filter (fun (x,_) -> not (List.mem (String.lowercase x) names)) (Xml.attribs xml)
@@ -265,10 +269,6 @@ let xml_assoc_attrib = fun a v xmls ->
 
 let g2D_of_waypoint = fun wp ->
   { G2D.x2D = ExtXml.float_attrib wp "x"; y2D =  ExtXml.float_attrib wp "y" }
-
-let g2D_of_wp_name = fun wp waypoints ->
-  let wp = xml_assoc_attrib "name" wp waypoints in
-  g2D_of_waypoint wp
 
 let new_waypoint = fun wp qdr dist waypoints ->
   let wp_xml = xml_assoc_attrib "name" wp !waypoints in
@@ -324,7 +324,7 @@ let process_stage = fun stage waypoints ->
   
   
 let process_relative_waypoints = fun xml ->
-  let waypoints = (ExtXml.child xml "waypoints")
+  let waypoints = ExtXml.child xml "waypoints"
   and blocks = ExtXml.child xml "blocks" in
 
   let blocks_list = Xml.children blocks in
@@ -351,7 +351,7 @@ let process_relative_waypoints = fun xml ->
 let regexp_path = Str.regexp "[ \t,]+"
   
 
-let stage_process_path = fun wpts stage rest ->
+let stage_process_path = fun stage rest ->
   if Xml.tag stage = "path" then
     let waypoints = Str.split regexp_path (ExtXml.attrib stage "wpts") in
     let attribs = Xml.attribs stage in
@@ -368,15 +368,14 @@ let stage_process_path = fun wpts stage rest ->
   else
     stage::rest
 
-let block_process_path = fun wpts block ->
+let block_process_path = fun block ->
   let stages = Xml.children block in
-  let new_stages = List.fold_right (stage_process_path wpts) stages [] in
+  let new_stages = List.fold_right stage_process_path stages [] in
   Xml.Element (Xml.tag block, Xml.attribs block, new_stages)
   
 
 let process_paths = fun xml ->
-  let waypoints = Xml.children (ExtXml.child xml "waypoints")
-  and blocks = ExtXml.child xml "blocks" in
-  let blocks_list = List.map (block_process_path waypoints) (Xml.children blocks) in
+  let blocks = ExtXml.child xml "blocks" in
+  let blocks_list = List.map block_process_path (Xml.children blocks) in
   let new_blocks = Xml.Element ("blocks", Xml.attribs blocks, blocks_list) in
   replace_children xml ["blocks", new_blocks]
