@@ -1,54 +1,23 @@
 <!DOCTYPE flight_plan SYSTEM "flight_plan.dtd">
 
-<flight_plan alt="54" ground_alt="0" lat0="52.3825204" lon0="5.897420" max_dist_from_home="1500" name="EMAV09" security_height="50">
+<flight_plan alt="100" ground_alt="54" lat0="52.3825204" lon0="5.897420" max_dist_from_home="1500" name="EMAV09" security_height="25">
   <header>
 #include "datalink.h"
 </header>
   <waypoints>
     <waypoint name="HOME" x="0" y="0"/>
     <waypoint name="STDBY" x="96.2" y="-36.2"/>
-    <waypoint lat="52.39223341391188" lon="5.891920215186895" name="G1"/>
-    <waypoint lat="52.38457192890880" lon="5.905759083500732" name="G2"/>
-    <waypoint lat="52.37522867761314" lon="5.891055906501672" name="G3"/>
-    <waypoint lat="52.38389131932532" lon="5.876775757075523" name="G4"/>
-    <waypoint lat="52.39502349675812" lon="5.890603491493776" name="R1"/>
-    <waypoint lat="52.38568420330603" lon="5.907529980510587" name="R2"/>
-    <waypoint lat="52.37341656154337" lon="5.888204759419744" name="R3"/>
-    <waypoint lat="52.38371772691826" lon="5.870010280721401" name="R4"/>
-    <waypoint lat="52.38833565818008" lon="5.888958356099608" name="S1"/>
-    <waypoint lat="52.38741511939426" lon="5.896820110526804" name="S2"/>
-    <waypoint lat="52.38344448233852" lon="5.895558989657886" name="S3"/>
-    <waypoint lat="52.38442017389706" lon="5.887661800773984" name="S4"/>
-    <waypoint lat="52.38117866835545" lon="5.897949813109249" name="E1"/>
-    <waypoint lat="52.38219156830098" lon="5.890795873256735" name="E2"/>
     <waypoint name="1" x="34.6" y="-31.9"/>
     <waypoint name="2" x="174.3" y="79.9"/>
     <waypoint name="MOB" x="418.5" y="208.7"/>
-    <waypoint alt="80.0" name="AF" x="236.8" y="3.1"/>
-    <waypoint alt="52.0" name="TD" x="162.4" y="-66.0"/>
-    <waypoint name="_BASELEG" x="367.5" y="255.8"/>
     <waypoint alt="104.0" name="CLIMB" x="-0.2" y="-97.2"/>
   </waypoints>
-  <sectors>
-    <sector name="Red">
-      <corner name="R1"/>
-      <corner name="R2"/>
-      <corner name="R3"/>
-      <corner name="R4"/>
-    </sector>
-    <sector name="Green">
-      <corner name="G1"/>
-      <corner name="G2"/>
-      <corner name="G3"/>
-      <corner name="G4"/>
-    </sector>
-    <sector name="Search">
-      <corner name="S1"/>
-      <corner name="S2"/>
-      <corner name="S3"/>
-      <corner name="S4"/>
-    </sector>
-  </sectors>
+
+  <includes>
+    <include name="Safety" procedure="EMAV2009_safety.xml"/>
+    <include name="L" procedure="landing.xml"/>
+  </includes>
+
   <exceptions/>
   <blocks>
     <block name="Holding point">
@@ -71,27 +40,6 @@
       <call fun="NavSetWaypointHere(WP_MOB)"/>
       <set value="DEFAULT_CIRCLE_RADIUS" var="nav_radius"/>
       <circle radius="nav_radius" wp="MOB"/>
-    </block>
-    <block name="Land Right AF-TD" strip_button="Land right (wp AF-TD)" strip_icon="land-right.png">
-      <set value="DEFAULT_CIRCLE_RADIUS" var="nav_radius"/>
-      <deroute block="land"/>
-    </block>
-    <block name="Land Left AF-TD" strip_button="Land left (wp AF-TD)" strip_icon="land-left.png">
-      <set value="-DEFAULT_CIRCLE_RADIUS" var="nav_radius"/>
-      <deroute block="land"/>
-    </block>
-    <block name="land">
-      <call fun="nav_compute_baseleg(WP_AF, WP_TD, WP__BASELEG, nav_radius)"/>
-      <circle radius="nav_radius" until="NavCircleCount() > 0.5" wp="_BASELEG"/>
-      <circle radius="nav_radius" until="NavQdrCloseTo(DegOfRad(baseleg_out_qdr)-10) && 10 > fabs(estimator_z - WaypointAlt(WP__BASELEG))" wp="_BASELEG"/>
-    </block>
-    <block name="final">
-      <exception cond="ground_alt + 10 > estimator_z" deroute="flare"/>
-      <go from="AF" hmode="route" vmode="glide" wp="TD"/>
-    </block>
-    <block name="flare">
-      <go approaching_time="0" from="AF" hmode="route" throttle="0.0" vmode="throttle" wp="TD"/>
-      <attitude roll="0.0" throttle="0.0" until="FALSE" vmode="throttle"/>
     </block>
   </blocks>
 </flight_plan>
