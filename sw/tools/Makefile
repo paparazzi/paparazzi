@@ -40,7 +40,7 @@ gen_flight_plan.out : $(FP_CMO) ../lib/ocaml/lib-pprz.cma
 	$(Q)$(OCAMLC) $(INCLUDES) -custom -o $@ unix.cma str.cma xml-light.cma ivy-ocaml.cma lib-pprz.cma $^
 
 fp_parser.cmo : fp_parser.cmi fp_syntax.cmi
-fp_proc.cmo : fp_parser.cmi
+fp_proc.cmo : fp_parser.cmi fp_proc.cmi
 fp_parser.cmi : fp_parser.ml fp_syntax.cmi
 fp_lexer.cmi : fp_syntax.cmi
 fp_lexer.cmo : fp_lexer.cmi
