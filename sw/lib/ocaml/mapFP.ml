@@ -272,7 +272,8 @@ class flight_plan = fun ?format_attribs ?editable ~show_moved geomap color fp_dt
 	    geo_of_xml utm0 (float_attr wp) in
 	  let points = List.map wgs84 (Xml.children x) in
 	  let points = Array.of_list points in
-	  display_lines ~group:wpts_group#group color geomap points
+	  let color_sector = ExtXml.attrib_or_default x "color" color in
+	  display_lines ~group:wpts_group#group color_sector geomap points
 	| _ -> failwith "Unknown sectors child")
 	(Xml.children (ExtXml.child xml "sectors"))
     with Not_found -> () in
