@@ -15,17 +15,21 @@
     <axis name="THRUST" failsafe_value="0"/>
   </commands>
 
-  <section name="BUSS_BLMC" prefix="BUSS_BLMC_">
+  <section name="ACTUATORS_MKK" prefix="ACTUATORS_MKK_">
+    <define name="NB" value="4"/>
     <define name="ADDR" value="{ 0x52, 0x54, 0x56, 0x58 }"/>
   </section>
 
   <section name="SUPERVISION" prefix="SUPERVISION_">
-    <define name="FRONT_ROTOR_CW" value="1"/>
     <define name="MIN_MOTOR" value="2"/>
     <define name="MAX_MOTOR" value="210"/>
     <define name="TRIM_A" value="0"/>
     <define name="TRIM_E" value="0"/>
     <define name="TRIM_R" value="0"/>
+    <define name="NB_MOTOR" value="4"/>
+    <define name="ROLL_COEF"  value="{    0,    0, -256,  256}"/>
+    <define name="PITCH_COEF" value="{  256, -256,    0,    0}"/>
+    <define name="YAW_COEF"   value="{ -256, -256,  256,  256}"/>
   </section>
 
   <section name="IMU" prefix="IMU_">
@@ -143,8 +147,10 @@
    <define name="MAX_ERR_Z"    value="POS_BFP_OF_REAL( 10.)"/>
    <define name="MIN_ERR_ZD"   value="SPEED_BFP_OF_REAL(-10.)"/>
    <define name="MAX_ERR_ZD"   value="SPEED_BFP_OF_REAL( 10.)"/>
+   <define name="MAX_SUM_ERR" value="2000000"/>
    <define name="HOVER_KP"    value="-500"/>
    <define name="HOVER_KD"    value="-200"/>
+   <define name="HOVER_KI"    value="-100"/>
    <!-- 1.5m/s for full stick : SPEED_BFP_OF_REAL(1.5) / (MAX_PPRZ/2) -->
    <define name="RC_CLIMB_COEF" value ="163"/>
    <!-- SPEED_BFP_OF_REAL(1.5) * 20% -->
@@ -189,15 +195,15 @@ BOARD_CFG = \"boards/booz2_v1_0.h\"
 
 # prevents motors from ever starting
 #ap.CFLAGS += -DKILL_MOTORS
+ap.CFLAGS += -DMODEM_BAUD=B57600
 
 include $(PAPARAZZI_SRC)/conf/autopilot/booz2_common.makefile
 include $(CFG_BOOZ)/booz2_autopilot.makefile
 include $(CFG_BOOZ)/booz2_test_progs.makefile
 
-ap.CFLAGS += -DMODEM_BAUD=B57600
 
 include $(CFG_BOOZ)/subsystems/booz2_radio_control_ppm.makefile
-include $(CFG_BOOZ)/subsystems/booz2_actuators_buss.makefile
+include $(CFG_BOOZ)/subsystems/booz2_actuators_mkk.makefile
 include $(CFG_BOOZ)/subsystems/booz2_imu_b2v1_1.makefile
 include $(CFG_BOOZ)/subsystems/booz2_gps.makefile
 
