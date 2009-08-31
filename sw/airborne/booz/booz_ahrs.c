@@ -64,10 +64,14 @@ void booz_ahrs_compute_accel_mean(uint8_t n) {
   if (n > rb_n) {
 	n = rb_n;
   }
-  for (i = 0; i < n; i++) {
-	j = (rb_r + i) < RB_MAXN ? rb_r + i : rb_r + i - RB_MAXN;
+  for (i = 1; i <= n; i++) {
+	j = (rb_w - i) > 0 ? rb_w - i : rb_w - i + RB_MAXN;
 	VECT3_ADD(sum, accel_buf[j]);
   }
-  VECT3_SDIV(booz_ahrs_accel_mean, sum, n);
+  if (n > 1) {
+	VECT3_SDIV(booz_ahrs_accel_mean, sum, n);
+  } else {
+	VECT3_COPY(booz_ahrs_accel_mean, sum);
+  }
 }
 

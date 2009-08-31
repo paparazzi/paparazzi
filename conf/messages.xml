@@ -1066,26 +1066,28 @@
 
   <message name="BOOZ2_HFF_X" id="164">
       <field name="x_measure"      type="float"/>
-	  <field name="xdd"            type="float"/>
+	  <field name="xd_measure"     type="float"/>
       <field name="x"              type="float"/>
       <field name="xd"             type="float"/>
+	  <field name="xdd"            type="float"/>
       <field name="Pxx"            type="float"/>
       <field name="Pxdxd"          type="float"/>
   </message>
 
   <message name="BOOZ2_HFF_Y" id="165">
       <field name="y_measure"      type="float"/>
-	  <field name="ydd"            type="float"/>
+	  <field name="yd_measure"     type="float"/>
       <field name="y"              type="float"/>
       <field name="yd"             type="float"/>
+	  <field name="ydd"            type="float"/>
       <field name="Pyy"            type="float"/>
       <field name="Pydyd"          type="float"/>
   </message>
 
   <message name="BOOZ2_HFF_GPS" id="166">
-      <field name="lag_cnt"     type="uint8"/>
-	  <field name="lag_cnt_err" type="int8"/>
-	  <field name="save_cnt"    type="int8"/>
+      <field name="lag_cnt"     type="uint16"/>
+	  <field name="lag_cnt_err" type="int16"/>
+	  <field name="save_cnt"    type="int16"/>
   </message>
 
   <message name="EKF7_XHAT" id="170">
@@ -1304,7 +1306,7 @@
       <field name="yaw_gamma_d"      type="float" />
       <field name="yaw_gamma_i"      type="float" />
     </message>
-    
+
     <message name="BOOZ_AHRS_LKF" id="193">
       <field name="phi"   type="float" unit="rad"   alt_unit="degres"   alt_unit_coef="57.29578" />
       <field name="theta" type="float" unit="rad"   alt_unit="degres"   alt_unit_coef="57.29578" />
@@ -1323,7 +1325,7 @@
       <field name="my"    type="float" />
       <field name="mz"    type="float" />
     </message>
-    
+
     <message name="BOOZ_AHRS_LKF_DEBUG" id="194">
       <field name="phi_err"   type="float" unit="rad"   alt_unit="degres"   alt_unit_coef="57.29578" />
       <field name="theta_err" type="float" unit="rad"   alt_unit="degres"   alt_unit_coef="57.29578" />
@@ -1341,7 +1343,7 @@
       <field name="bq_cov"    type="float" />
       <field name="br_cov"    type="float" />
     </message>
-    
+
     <message name="BOOZ_AHRS_LKF_ACC_DBG" id="195">
       <field name="qi_err"    type="float" />
       <field name="qx_err"    type="float" />
@@ -1351,7 +1353,7 @@
       <field name="bq_err"    type="float" unit="rad/s" alt_unit="degres/s" alt_unit_coef="57.29578" />
       <field name="br_err"    type="float" unit="rad/s" alt_unit="degres/s" alt_unit_coef="57.29578" />
     </message>
-    
+
     <message name="BOOZ_AHRS_LKF_MAG_DBG" id="196">
       <field name="qi_err"    type="float" />
       <field name="qx_err"    type="float" />
@@ -1361,7 +1363,7 @@
       <field name="bq_err"    type="float" unit="rad/s" alt_unit="degres/s" alt_unit_coef="57.29578" />
       <field name="br_err"    type="float" unit="rad/s" alt_unit="degres/s" alt_unit_coef="57.29578" />
     </message>
-    
+
     <message name="BOOZ_SIM_SENSORS_SCALED" id="197">
       <field name="acc_x"    type="float" />
       <field name="acc_y"    type="float" />
@@ -1370,6 +1372,18 @@
       <field name="mag_y"    type="float" />
       <field name="mag_z"    type="float" />
     </message>
+
+	<message name="BOOZ_INS" id="198">
+	  <field name="ins_x"     type="int32" alt_unit="m"    alt_unit_coef="0.0039063"/>
+	  <field name="ins_y"     type="int32" alt_unit="m"    alt_unit_coef="0.0039063"/>
+	  <field name="ins_z"     type="int32" alt_unit="m"    alt_unit_coef="0.0039063"/>
+      <field name="ins_xd"    type="int32" alt_unit="m/s"  alt_unit_coef="0.0000019"/>
+	  <field name="ins_yd"    type="int32" alt_unit="m/s"  alt_unit_coef="0.0000019"/>
+      <field name="ins_zd"    type="int32" alt_unit="m/s"  alt_unit_coef="0.0000019"/>
+      <field name="ins_xdd"   type="int32" alt_unit="m/s2" alt_unit_coef="0.0009766"/>
+      <field name="ins_ydd"   type="int32" alt_unit="m/s2" alt_unit_coef="0.0009766"/>
+      <field name="ins_zdd"   type="int32" alt_unit="m/s2" alt_unit_coef="0.0009766"/>
+	</message>
 
 </class>
 

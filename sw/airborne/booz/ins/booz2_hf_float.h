@@ -24,7 +24,8 @@
 #ifndef BOOZ2_HF_FLOAT_H
 #define BOOZ2_HF_FLOAT_H
 
-#include <inttypes.h>
+#include "std.h"
+#include "math/pprz_algebra_float.h"
 
 #define B2_HFF_STATE_SIZE 3
 
@@ -46,26 +47,31 @@ struct HfilterFloat {
   float xP[B2_HFF_STATE_SIZE][B2_HFF_STATE_SIZE];
   float yP[B2_HFF_STATE_SIZE][B2_HFF_STATE_SIZE];
   uint8_t lag_counter;
-  uint8_t rollback;
+  bool_t rollback;
 };
 
 extern struct HfilterFloat b2_hff_state;
 
 extern float b2_hff_x_meas;
 extern float b2_hff_y_meas;
+extern float b2_hff_xd_meas;
+extern float b2_hff_yd_meas;
+extern float b2_hff_xdd_meas;
+extern float b2_hff_ydd_meas;
 
 extern void b2_hff_init(float init_x, float init_xdot, float init_y, float init_ydot);
 extern void b2_hff_propagate(void);
 extern void b2_hff_update_gps(void);
 extern void b2_hff_update_pos(float xpos, float ypos);
 extern void b2_hff_update_v(float xspeed, float yspeed);
+extern void b2_hff_realign(struct FloatVect2 pos, struct FloatVect2 speed);
 
 #ifdef GPS_LAG
 extern void b2_hff_store_accel(float x, float y);
 #endif
 extern struct HfilterFloat *b2_hff_rb_last;
-extern int8_t lag_counter_err;
-extern int8_t save_counter;
+extern int lag_counter_err;
+extern int save_counter;
 
 #endif /* BOOZ2_HF_FLOAT_H */
 

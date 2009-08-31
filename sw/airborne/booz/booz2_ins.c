@@ -148,7 +148,7 @@ void booz_ins_propagate() {
   booz_ins_ltp_accel.x = accel_ltp.x;
   booz_ins_ltp_accel.y = accel_ltp.y;
 #endif /* USE_HFF */
-  
+
   INT32_VECT3_ENU_OF_NED(booz_ins_enu_pos, booz_ins_ltp_pos);
   INT32_VECT3_ENU_OF_NED(booz_ins_enu_speed, booz_ins_ltp_speed);
   INT32_VECT3_ENU_OF_NED(booz_ins_enu_accel, booz_ins_ltp_accel);
@@ -213,7 +213,7 @@ void booz_ins_update_gps(void) {
 	VECT2_COPY(d_pos, booz_ins_ltp_speed);
     INT32_VECT2_RSHIFT(d_pos, d_pos, 11);
     VECT2_ADD(booz_ins_ltp_pos, d_pos);
-#endif    
+#endif
 #ifndef USE_VFF /* neither hf nor vf used */
     INT32_VECT3_SCALE_2(booz_ins_ltp_pos, booz_ins_gps_pos_cm_ned, INT32_POS_OF_CM_NUM, INT32_POS_OF_CM_DEN);
     INT32_VECT3_SCALE_2(booz_ins_ltp_speed, booz_ins_gps_speed_cm_s_ned, INT32_SPEED_OF_CM_S_NUM, INT32_SPEED_OF_CM_S_DEN);

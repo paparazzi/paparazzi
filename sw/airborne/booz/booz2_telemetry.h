@@ -456,28 +456,34 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 #include "ins/booz2_hf_float.h"
 #define PERIODIC_SEND_BOOZ2_HFF_X(_chan) {	\
     DOWNLINK_SEND_BOOZ2_HFF_X(_chan,		\
-			    &b2_hff_x_meas,		        \
-	            &b2_hff_state.xdotdot,      \
-			    &b2_hff_state.x,			\
-			    &b2_hff_state.xdot,		    \
-			    &b2_hff_state.xP[0][0],		\
-				&b2_hff_state.xP[1][1]);	\
+							  &b2_hff_x_meas,	\
+							  &b2_hff_xd_meas,	\
+							  &b2_hff_state.x,			\
+							  &b2_hff_state.xdot,		\
+							  &b2_hff_state.xdotdot,	\
+							  &b2_hff_state.xP[0][0],	\
+							  &b2_hff_state.xP[1][1]);	\
   }
 #define PERIODIC_SEND_BOOZ2_HFF_Y(_chan) {	\
-    DOWNLINK_SEND_BOOZ2_HFF_Y(_chan,		\
-			    &b2_hff_y_meas,		        \
-	            &b2_hff_state.ydotdot,      \
-			    &b2_hff_state.y,			\
-			    &b2_hff_state.ydot,		    \
-			    &b2_hff_state.yP[0][0],		\
-				&b2_hff_state.yP[1][1]);	\
+	DOWNLINK_SEND_BOOZ2_HFF_Y(_chan,		\
+							  &b2_hff_y_meas,	\
+							  &b2_hff_yd_meas,	\
+							  &b2_hff_state.y,	\
+							  &b2_hff_state.ydot,	\
+							  &b2_hff_state.ydotdot,	\
+							  &b2_hff_state.yP[0][0],	\
+							  &b2_hff_state.yP[1][1]);	\
   }
+#ifdef GPS_LAG
 #define PERIODIC_SEND_BOOZ2_HFF_GPS(_chan) {	\
     DOWNLINK_SEND_BOOZ2_HFF_GPS(_chan,			\
 							  &b2_hff_rb_last->lag_counter,		\
 							  &lag_counter_err,	\
 							  &save_counter);	\
   }
+#else
+#define PERIODIC_SEND_BOOZ2_HFF_GPS(_chan) {}
+#endif
 #else
 #define PERIODIC_SEND_BOOZ2_HFF_X(_chan) {}
 #define PERIODIC_SEND_BOOZ2_HFF_Y(_chan) {}
@@ -533,6 +539,19 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 #else /* !USE_GPS */
 #define PERIODIC_SEND_BOOZ2_INS3(_chan) {}
 #endif /* USE_GPS */
+
+#define PERIODIC_SEND_BOOZ_INS(_chan) {			\
+    DOWNLINK_SEND_BOOZ_INS(_chan,				\
+					   &booz_ins_ltp_pos.x,		\
+					   &booz_ins_ltp_pos.y,	    \
+					   &booz_ins_ltp_pos.z,		\
+					   &booz_ins_ltp_speed.x,	\
+					   &booz_ins_ltp_speed.y,	\
+					   &booz_ins_ltp_speed.z,	\
+					   &booz_ins_ltp_accel.x,	\
+					   &booz_ins_ltp_accel.y,	\
+					   &booz_ins_ltp_accel.z);	\
+  }
 
 #define PERIODIC_SEND_BOOZ2_INS_REF(_chan) {				\
     DOWNLINK_SEND_BOOZ2_INS_REF(_chan,					\
