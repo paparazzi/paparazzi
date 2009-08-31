@@ -27,15 +27,18 @@
 #include "booz_imu.h"
 #include "booz_ahrs.h"
 #include <stdlib.h>
+
+#ifdef SITL
 #include <stdio.h>
+#define DBG_LEVEL 1
+#define PRINT_DBG(_l, _p) {						\
+	if (DBG_LEVEL >= _l)						\
+	  printf _p;								\
+}
+#else
+#define PRINT_DBG(_l, _p) {}
+#endif
 
-
-
-#define PRINT_DBG 0
-
-/* horizontal filter propagation frequency */
-#define HFF_FREQ (512./HFF_PRESCALER)
-#define DT_HFILTER (1./HFF_FREQ)
 
 /* initial covariance diagonal */
 #define INIT_PXX 1.
@@ -225,12 +228,10 @@ void b2_hff_store_accel(float x, float y) {
 static inline void b2_hff_get_past_accel(unsigned int back_n) {
   int i;
   if (back_n > acc_buf_n) {
-	if (PRINT_DBG)
-	  printf("Cannot go back %d steps, going back only %d instead!\n", back_n, acc_buf_n);
+	PRINT_DBG(1, ("Cannot go back %d steps, going back only %d instead!\n", back_n, acc_buf_n));
 	back_n = acc_buf_n;
   } else if (back_n == 0) {
-	if (PRINT_DBG)
-	  printf("Cannot go back zero steps!\n");
+	PRINT_DBG(1, ("Cannot go back zero steps!\n"));
 	return;
   }
   if ((int)(acc_buf_w - back_n) < 0)
@@ -239,6 +240,7 @@ static inline void b2_hff_get_past_accel(unsigned int back_n) {
 	i = acc_buf_w - back_n;
   b2_hff_xdd_meas = past_accel[i].x;
   b2_hff_ydd_meas = past_accel[i].y;
+  PRINT_DBG(3, ("get past accel. buf_n: %2d \tbuf_w: %2d \tback_n: %2d \ti: %2d \txdd: %f \tydd: %f\n", acc_buf_n, acc_buf_w, back_n, i, b2_hff_xdd_meas, b2_hff_ydd_meas));
 }
 
 static inline void b2_hff_rb_put_state(struct HfilterFloat* source) {
@@ -256,8 +258,7 @@ static inline void b2_hff_rb_put_state(struct HfilterFloat* source) {
   } else {
 	INC_RB_POINTER(b2_hff_rb_last);
   }
-  if (PRINT_DBG)
-	printf("put state. fill count now: %d\n", b2_hff_rb_n);
+  PRINT_DBG(2, ("put state. fill count now: %d\n", b2_hff_rb_n));
 }
 
 static inline void b2_hff_rb_drop_last(void) {
@@ -265,13 +266,11 @@ static inline void b2_hff_rb_drop_last(void) {
 	INC_RB_POINTER(b2_hff_rb_last);
 	b2_hff_rb_n--;
   } else {
-	if (PRINT_DBG)
-	  printf("hff ringbuffer empty!\n");
+	PRINT_DBG(2, ("hff ringbuffer empty!\n"));
 	b2_hff_rb_last->lag_counter = 0;
 	b2_hff_rb_last->rollback = FALSE;
   }
-  if (PRINT_DBG)
-	printf("drop last state. fill count now: %d\n", b2_hff_rb_n);
+  PRINT_DBG(2, ("drop last state. fill count now: %d\n", b2_hff_rb_n));
 }
 
 
@@ -292,28 +291,24 @@ static inline void b2_hff_set_state(struct HfilterFloat* dest, struct HfilterFlo
 }
 
 static inline void b2_hff_propagate_past(struct HfilterFloat* hff_past) {
-  if (PRINT_DBG)
-	printf("enter propagate past: %d\n", hff_past->lag_counter);
+  PRINT_DBG(1, ("enter propagate past: %d\n", hff_past->lag_counter));
   /* run max MAX_PP_STEPS propagation steps */
   for (int i=0; i < MAX_PP_STEPS; i++) {
 	if (hff_past->lag_counter > 0) {
 	  b2_hff_get_past_accel(hff_past->lag_counter);
-	  //if (PRINT_DBG)
-	  //printf("propagate past: %d\n", hff_past->lag_counter);
+	  PRINT_DBG(2, ("propagate past: %d\n", hff_past->lag_counter));
 	  b2_hff_propagate_x(hff_past);
 	  b2_hff_propagate_y(hff_past);
 	  hff_past->lag_counter--;
 
 	  if (past_save_counter == 0) {
 		/* next GPS measurement valid at this state -> save */
-		if (PRINT_DBG)
-		  printf("save past state\n");
+		PRINT_DBG(2, ("save past state\n"));
 		b2_hff_rb_put_state(hff_past);
 		past_save_counter = -1;
 	  } else if (past_save_counter > 0) {
 		past_save_counter--;
-		//if (PRINT_DBG)
-		//printf("dec past_save_counter: %d\n", past_save_counter);
+		PRINT_DBG(2, ("dec past_save_counter: %d\n", past_save_counter));
 	  } else {
 		/* increase lag counter on if next state is already saved */
 		if (hff_past == &b2_hff_rb[HFF_RB_MAXN-1])
@@ -366,6 +361,7 @@ void b2_hff_propagate(void) {
 	  b2_hff_propagate_x(&b2_hff_state);
 	  b2_hff_propagate_y(&b2_hff_state);
 	}
+
 #ifdef GPS_LAG
 	/* increase lag counter on last saved state */
 	if (b2_hff_rb_n > 0)
@@ -373,8 +369,7 @@ void b2_hff_propagate(void) {
 
 	/* save filter state if needed */
 	if (save_counter == 0) {
-	  if (PRINT_DBG)
-		printf("save current state\n");
+	  PRINT_DBG(1, ("save current state\n"));
 	  b2_hff_rb_put_state(&b2_hff_state);
 	  save_counter = -1;
 	} else if (save_counter > 0) {
@@ -396,8 +391,7 @@ void b2_hff_update_gps(void) {
   if (b2_hff_rb_n > 0) {
 	/* roll back if state was saved approx when GPS was valid */
 	lag_counter_err = b2_hff_rb_last->lag_counter - GPS_LAG_N;
-	//if (PRINT_DBG)
-	//printf("update. rb_n: %d   lag cnt err: %d\n", b2_hff_rb_n, lag_counter_err);
+	PRINT_DBG(2, ("update. rb_n: %d  lag_counter: %d  lag_cnt_err: %d\n", b2_hff_rb_n, b2_hff_rb_last->lag_counter, lag_counter_err));
 	if (abs(lag_counter_err) < 3) {
 	  b2_hff_rb_last->rollback = TRUE;
 	  b2_hff_update_x(b2_hff_rb_last, booz_ins_gps_pos_m_ned.x);
@@ -407,19 +401,18 @@ void b2_hff_update_gps(void) {
 	  b2_hff_update_ydot(b2_hff_rb_last, booz_ins_gps_speed_m_s_ned.y);
 #endif
 	  past_save_counter = GPS_DT_N-1 + lag_counter_err;
-	  if (PRINT_DBG)
-		printf("gps updated. past_save_counter: %d\n", past_save_counter);
+	  PRINT_DBG(2, ("gps updated. past_save_counter: %d\n", past_save_counter));
 	  b2_hff_propagate_past(b2_hff_rb_last);
 	} else if (lag_counter_err >= GPS_DT_N-2) {
 	  /* apparently missed a GPS update, try next saved state */
+	  PRINT_DBG(2, ("try next saved state\n"));
 	  b2_hff_rb_drop_last();
 	  b2_hff_update_gps();
 	}
   } else if (save_counter < 0) {
 	/* ringbuffer empty -> save output filter state at next GPS validity point in time */
 	save_counter = GPS_DT_N-1 - (GPS_LAG_N % GPS_DT_N);
-	if (PRINT_DBG)
-	  printf("rb empty, save counter set: %d\n", save_counter);
+	PRINT_DBG(2, ("rb empty, save counter set: %d\n", save_counter));
   }
 
 #else /* GPS_LAG */
@@ -434,6 +427,20 @@ void b2_hff_update_gps(void) {
 #endif/* GPS_LAG */
 }
 
+
+void b2_hff_realign(struct FloatVect2 pos, struct FloatVect2 speed) {
+  b2_hff_state.x = pos.x;
+  b2_hff_state.y = pos.y;
+  b2_hff_state.xdot = speed.x;
+  b2_hff_state.ydot = speed.y;
+#ifdef GPS_LAG
+  while (b2_hff_rb_n > 0) {
+	b2_hff_rb_drop_last();
+  }
+  save_counter = -1;
+  past_save_counter = -1;
+#endif
+}
 
 
 /*

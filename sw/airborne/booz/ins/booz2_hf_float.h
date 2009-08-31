@@ -33,6 +33,10 @@
 #define HFF_PRESCALER 16
 #endif
 
+/* horizontal filter propagation frequency */
+#define HFF_FREQ (512./HFF_PRESCALER)
+#define DT_HFILTER (1./HFF_FREQ)
+
 #define B2_HFF_UPDATE_SPEED
 
 struct HfilterFloat {

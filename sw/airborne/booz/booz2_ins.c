@@ -42,6 +42,11 @@
 #include "ins/booz2_hf_float.h"
 #endif
 
+#ifdef SITL
+#include "nps_fdm.h"
+#include <stdio.h>
+#endif
+
 
 #include "math/pprz_geodetic_int.h"
 
@@ -57,6 +62,7 @@ struct NedCoor_i booz_ins_gps_speed_cm_s_ned;
 struct FloatVect2 booz_ins_gps_pos_m_ned;
 struct FloatVect2 booz_ins_gps_speed_m_s_ned;
 #endif
+bool_t booz_ins_hff_realign;
 
 /* barometer                   */
 #ifdef USE_VFF
@@ -91,6 +97,7 @@ void booz_ins_init() {
 #endif
 #ifdef USE_HFF
   b2_hff_init(0., 0., 0., 0.);
+  booz_ins_hff_realign = FALSE;
 #endif
   INT32_VECT3_ZERO(booz_ins_ltp_pos);
   INT32_VECT3_ZERO(booz_ins_ltp_speed);
@@ -195,6 +202,17 @@ void booz_ins_update_gps(void) {
 	VECT2_SDIV(booz_ins_gps_pos_m_ned, booz_ins_gps_pos_m_ned, 100.);
 	VECT2_ASSIGN(booz_ins_gps_speed_m_s_ned, booz_ins_gps_speed_cm_s_ned.x, booz_ins_gps_speed_cm_s_ned.y);
     VECT2_SDIV(booz_ins_gps_speed_m_s_ned, booz_ins_gps_speed_m_s_ned, 100.);
+	if (booz_ins_hff_realign) {
+      booz_ins_hff_realign = FALSE;
+#ifdef SITL
+	  struct FloatVect2 true_pos, true_speed;
+	  VECT2_COPY(true_pos, fdm.ltpprz_pos);
+	  VECT2_COPY(true_speed, fdm.ltpprz_ecef_vel);
+	  b2_hff_realign(true_pos, true_speed);
+#else
+	  b2_hff_realign(booz_ins_gps_pos_m_ned, booz_ins_gps_speed_m_s_ned);
+#endif
+	}
 	b2_hff_update_gps();
     booz_ins_ltp_accel.x = ACCEL_BFP_OF_REAL(b2_hff_state.xdotdot);
     booz_ins_ltp_accel.y = ACCEL_BFP_OF_REAL(b2_hff_state.ydotdot);

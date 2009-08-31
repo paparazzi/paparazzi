@@ -55,6 +55,7 @@ extern struct EnuCoor_i booz_ins_enu_accel;
 extern struct FloatVect2 booz_ins_gps_pos_m_ned;
 extern struct FloatVect2 booz_ins_gps_speed_m_s_ned;
 #endif
+extern bool_t  booz_ins_hff_realign;
 
 extern void booz_ins_init( void );
 extern void booz_ins_periodic( void );
