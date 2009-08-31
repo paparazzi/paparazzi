@@ -1069,10 +1069,8 @@
 	  <field name="xdd"            type="float"/>
       <field name="x"              type="float"/>
       <field name="xd"             type="float"/>
-      <field name="xbias"          type="float"/>
       <field name="Pxx"            type="float"/>
       <field name="Pxdxd"          type="float"/>
-      <field name="Pbb"            type="float"/>
   </message>
 
   <message name="BOOZ2_HFF_Y" id="165">
@@ -1080,10 +1078,8 @@
 	  <field name="ydd"            type="float"/>
       <field name="y"              type="float"/>
       <field name="yd"             type="float"/>
-      <field name="ybias"          type="float"/>
       <field name="Pyy"            type="float"/>
       <field name="Pydyd"          type="float"/>
-      <field name="Pbb"            type="float"/>
   </message>
 
   <message name="BOOZ2_HFF_GPS" id="166">

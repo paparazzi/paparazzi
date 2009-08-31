@@ -33,9 +33,8 @@
 #endif
 
 #define B2_HFF_UPDATE_SPEED
-#define B2_HFF_UPDATE_POS
 
-struct hfilter_f {
+struct HfilterFloat {
   float x;
   float xbias;
   float xdot;
@@ -47,40 +46,26 @@ struct hfilter_f {
   float xP[B2_HFF_STATE_SIZE][B2_HFF_STATE_SIZE];
   float yP[B2_HFF_STATE_SIZE][B2_HFF_STATE_SIZE];
   uint8_t lag_counter;
+  uint8_t rollback;
 };
 
-extern struct hfilter_f b2_hff_state;
-extern struct hfilter_f b2_hff_save;
-extern struct hfilter_f *b2_hff_work;
-
-/* extern float b2_hff_x; */
-/* extern float b2_hff_xbias; */
-/* extern float b2_hff_xdot; */
-/* extern float b2_hff_xdotdot; */
-
-/* extern float b2_hff_y; */
-/* extern float b2_hff_ybias; */
-/* extern float b2_hff_ydot; */
-/* extern float b2_hff_ydotdot; */
-
-/* extern float b2_hff_xP[B2_HFF_STATE_SIZE][B2_HFF_STATE_SIZE]; */
-/* extern float b2_hff_yP[B2_HFF_STATE_SIZE][B2_HFF_STATE_SIZE]; */
+extern struct HfilterFloat b2_hff_state;
 
 extern float b2_hff_x_meas;
 extern float b2_hff_y_meas;
 
-extern void b2_hff_init(float init_x, float init_xdot, float init_xbias, float init_y, float init_ydot, float init_ybias);
-extern void b2_hff_propagate(float xaccel, float yaccel);
+extern void b2_hff_init(float init_x, float init_xdot, float init_y, float init_ydot);
+extern void b2_hff_propagate(void);
 extern void b2_hff_update_gps(void);
 extern void b2_hff_update_pos(float xpos, float ypos);
 extern void b2_hff_update_v(float xspeed, float yspeed);
 
 #ifdef GPS_LAG
 extern void b2_hff_store_accel(float x, float y);
-/* extern uint8_t lag_counter; */
+#endif
+extern struct HfilterFloat *b2_hff_rb_last;
 extern int8_t lag_counter_err;
 extern int8_t save_counter;
-#endif
 
 #endif /* BOOZ2_HF_FLOAT_H */
 

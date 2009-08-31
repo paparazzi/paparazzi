@@ -52,9 +52,11 @@ struct LtpDef_i  booz_ins_ltp_def;
          bool_t  booz_ins_ltp_initialised;
 struct NedCoor_i booz_ins_gps_pos_cm_ned;
 struct NedCoor_i booz_ins_gps_speed_cm_s_ned;
+#ifdef USE_HFF
 /* horizontal gps transformed to NED in meters as float */
 struct FloatVect2 booz_ins_gps_pos_m_ned;
 struct FloatVect2 booz_ins_gps_speed_m_s_ned;
+#endif
 
 /* barometer                   */
 #ifdef USE_VFF
@@ -72,11 +74,6 @@ struct EnuCoor_i booz_ins_enu_pos;
 struct EnuCoor_i booz_ins_enu_speed;
 struct EnuCoor_i booz_ins_enu_accel;
 
-#ifdef USE_HFF
-/* counter for hff propagation*/
-uint8_t b2_hff_ps_counter;
-#endif
-
 
 void booz_ins_init() {
 #ifdef USE_NAV_INS_INIT
@@ -93,8 +90,7 @@ void booz_ins_init() {
   b2_vff_init(0., 0., 0.);
 #endif
 #ifdef USE_HFF
-  b2_hff_init(0., 0., 0., 0., 0., 0.);
-  b2_hff_ps_counter = 1;
+  b2_hff_init(0., 0., 0., 0.);
 #endif
   INT32_VECT3_ZERO(booz_ins_ltp_pos);
   INT32_VECT3_ZERO(booz_ins_ltp_speed);
@@ -135,34 +131,18 @@ void booz_ins_propagate() {
 #endif /* USE_VFF */
 
 #ifdef USE_HFF
-  if (b2_hff_ps_counter == HFF_PRESCALER) {
-	b2_hff_ps_counter = 1;
-	if (booz_ahrs.status == BOOZ_AHRS_RUNNING ) {
-	  /* compute float ltp mean acceleration */
-	  booz_ahrs_compute_accel_mean(HFF_PRESCALER);
-	  struct Int32Vect3 mean_accel_body;
-	  INT32_RMAT_TRANSP_VMULT(mean_accel_body, booz_imu.body_to_imu_rmat, booz_ahrs_accel_mean);
-	  struct Int32Vect3 mean_accel_ltp;
-	  INT32_RMAT_TRANSP_VMULT(mean_accel_ltp, booz_ahrs.ltp_to_body_rmat, mean_accel_body);
-	  float x_accel_mean_f = ACCEL_FLOAT_OF_BFP(mean_accel_ltp.x);
-	  float y_accel_mean_f = ACCEL_FLOAT_OF_BFP(mean_accel_ltp.y);
-#ifdef GPS_LAG
-	  b2_hff_store_accel(x_accel_mean_f, y_accel_mean_f);
-#endif
-	  if ( booz_ins_ltp_initialised ) {
-		/* propagate horizontal filter */
-		b2_hff_propagate(x_accel_mean_f, y_accel_mean_f);
-		/* update ins state from horizontal filter */
-		booz_ins_ltp_accel.x = ACCEL_BFP_OF_REAL(b2_hff_state.xdotdot);
-		booz_ins_ltp_accel.y = ACCEL_BFP_OF_REAL(b2_hff_state.ydotdot);
-		booz_ins_ltp_speed.x = SPEED_BFP_OF_REAL(b2_hff_state.xdot);
-		booz_ins_ltp_speed.y = SPEED_BFP_OF_REAL(b2_hff_state.ydot);
-		booz_ins_ltp_pos.x   = POS_BFP_OF_REAL(b2_hff_state.x);
-		booz_ins_ltp_pos.y   = POS_BFP_OF_REAL(b2_hff_state.y);
-	  }
+  if (booz_ahrs.status == BOOZ_AHRS_RUNNING ) {
+	/* propagate horizontal filter */
+	b2_hff_propagate();
+	if ( booz_ins_ltp_initialised ) {
+	  /* update ins state from horizontal filter */
+	  booz_ins_ltp_accel.x = ACCEL_BFP_OF_REAL(b2_hff_state.xdotdot);
+	  booz_ins_ltp_accel.y = ACCEL_BFP_OF_REAL(b2_hff_state.ydotdot);
+	  booz_ins_ltp_speed.x = SPEED_BFP_OF_REAL(b2_hff_state.xdot);
+	  booz_ins_ltp_speed.y = SPEED_BFP_OF_REAL(b2_hff_state.ydot);
+	  booz_ins_ltp_pos.x   = POS_BFP_OF_REAL(b2_hff_state.x);
+	  booz_ins_ltp_pos.y   = POS_BFP_OF_REAL(b2_hff_state.y);
 	}
-  } else {
-	b2_hff_ps_counter++;
   }
 #else
   booz_ins_ltp_accel.x = accel_ltp.x;
@@ -208,13 +188,13 @@ void booz_ins_update_gps(void) {
       booz_ins_ltp_initialised = TRUE;
     }
     ned_of_ecef_point_i(&booz_ins_gps_pos_cm_ned, &booz_ins_ltp_def, &booz_gps_state.ecef_pos);
+    ned_of_ecef_vect_i(&booz_ins_gps_speed_cm_s_ned, &booz_ins_ltp_def, &booz_gps_state.ecef_vel);
+
+#ifdef USE_HFF
 	VECT2_ASSIGN(booz_ins_gps_pos_m_ned, booz_ins_gps_pos_cm_ned.x, booz_ins_gps_pos_cm_ned.y);
 	VECT2_SDIV(booz_ins_gps_pos_m_ned, booz_ins_gps_pos_m_ned, 100.);
-    ned_of_ecef_vect_i(&booz_ins_gps_speed_cm_s_ned, &booz_ins_ltp_def, &booz_gps_state.ecef_vel);
 	VECT2_ASSIGN(booz_ins_gps_speed_m_s_ned, booz_ins_gps_speed_cm_s_ned.x, booz_ins_gps_speed_cm_s_ned.y);
     VECT2_SDIV(booz_ins_gps_speed_m_s_ned, booz_ins_gps_speed_m_s_ned, 100.);
-	
-#ifdef USE_HFF
 	b2_hff_update_gps();
     booz_ins_ltp_accel.x = ACCEL_BFP_OF_REAL(b2_hff_state.xdotdot);
     booz_ins_ltp_accel.y = ACCEL_BFP_OF_REAL(b2_hff_state.ydotdot);

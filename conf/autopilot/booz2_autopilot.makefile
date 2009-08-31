@@ -130,8 +130,15 @@ ap.srcs += $(SRC_BOOZ)/guidance/booz2_guidance_v.c
 
 ap.srcs += $(SRC_BOOZ)/booz2_ins.c
 ap.srcs += math/pprz_geodetic_int.c math/pprz_geodetic_float.c
-# horizontal filter float version
-ap.srcs += $(SRC_BOOZ)/ins/booz2_hf_float.c
+
+#
+# INS choice
+#
+# include booz2_ins_hff.makefile
+# or
+# nothing
+#
+
 #  vertical filter float version
 ap.srcs += $(SRC_BOOZ)/ins/booz2_vf_float.c
 ap.CFLAGS += -DUSE_VFF -DDT_VFILTER="(1./512.)" -DFLOAT_T=float

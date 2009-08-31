@@ -50,9 +50,11 @@ extern struct NedCoor_i booz_ins_ltp_accel;
 extern struct EnuCoor_i booz_ins_enu_pos;
 extern struct EnuCoor_i booz_ins_enu_speed;
 extern struct EnuCoor_i booz_ins_enu_accel;
+#ifdef USE_HFF
 /* horizontal gps transformed to NED in meters as float */
 extern struct FloatVect2 booz_ins_gps_pos_m_ned;
 extern struct FloatVect2 booz_ins_gps_speed_m_s_ned;
+#endif
 
 extern void booz_ins_init( void );
 extern void booz_ins_periodic( void );
