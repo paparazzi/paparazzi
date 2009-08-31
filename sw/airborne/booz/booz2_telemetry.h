@@ -457,28 +457,28 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 #define PERIODIC_SEND_BOOZ2_HFF_X(_chan) {		\
     DOWNLINK_SEND_BOOZ2_HFF_X(_chan,			\
 			    &b2_hff_x_meas,		\
-  	            &b2_hff_xdotdot,    \
-			    &b2_hff_x,			\
-			    &b2_hff_xdot,		\
-			    &b2_hff_xbias,		\
-			    & b2_hff_xP[0][0],		\
-			    & b2_hff_xP[1][1],		\
-			    & b2_hff_xP[2][2]);		\
+	            &b2_hff_state.xdotdot,    \
+			    &b2_hff_state.x,			\
+			    &b2_hff_state.xdot,		\
+			    &b2_hff_state.xbias,		\
+			    &b2_hff_state.xP[0][0],		\
+			    &b2_hff_state.xP[1][1],		\
+			    &b2_hff_state.xP[2][2]);		\
   }
 #define PERIODIC_SEND_BOOZ2_HFF_Y(_chan) {		\
     DOWNLINK_SEND_BOOZ2_HFF_Y(_chan,			\
 			    &b2_hff_y_meas,		\
-	            &b2_hff_ydotdot,    \
-			    &b2_hff_y,			\
-			    &b2_hff_ydot,		\
-			    &b2_hff_ybias,		\
-			    & b2_hff_yP[0][0],								\
-			    & b2_hff_yP[1][1],		\
-			    & b2_hff_yP[2][2]);		\
+	            &b2_hff_state.ydotdot,    \
+			    &b2_hff_state.y,			\
+			    &b2_hff_state.ydot,		\
+			    &b2_hff_state.ybias,		\
+			    &b2_hff_state.yP[0][0],								\
+			    &b2_hff_state.yP[1][1],		\
+			    &b2_hff_state.yP[2][2]);		\
   }
 #define PERIODIC_SEND_BOOZ2_HFF_GPS(_chan) {	\
     DOWNLINK_SEND_BOOZ2_HFF_GPS(_chan,			\
-							  &lag_counter,		\
+							  &b2_hff_save.lag_counter,		\
 							  &lag_counter_err,	\
 							  &save_counter);	\
   }

@@ -35,18 +35,36 @@
 #define B2_HFF_UPDATE_SPEED
 #define B2_HFF_UPDATE_POS
 
-extern float b2_hff_x;
-extern float b2_hff_xbias;
-extern float b2_hff_xdot;
-extern float b2_hff_xdotdot;
+struct hfilter_f {
+  float x;
+  float xbias;
+  float xdot;
+  float xdotdot;
+  float y;
+  float ybias;
+  float ydot;
+  float ydotdot;
+  float xP[B2_HFF_STATE_SIZE][B2_HFF_STATE_SIZE];
+  float yP[B2_HFF_STATE_SIZE][B2_HFF_STATE_SIZE];
+  uint8_t lag_counter;
+};
 
-extern float b2_hff_y;
-extern float b2_hff_ybias;
-extern float b2_hff_ydot;
-extern float b2_hff_ydotdot;
+extern struct hfilter_f b2_hff_state;
+extern struct hfilter_f b2_hff_save;
+extern struct hfilter_f *b2_hff_work;
 
-extern float b2_hff_xP[B2_HFF_STATE_SIZE][B2_HFF_STATE_SIZE];
-extern float b2_hff_yP[B2_HFF_STATE_SIZE][B2_HFF_STATE_SIZE];
+/* extern float b2_hff_x; */
+/* extern float b2_hff_xbias; */
+/* extern float b2_hff_xdot; */
+/* extern float b2_hff_xdotdot; */
+
+/* extern float b2_hff_y; */
+/* extern float b2_hff_ybias; */
+/* extern float b2_hff_ydot; */
+/* extern float b2_hff_ydotdot; */
+
+/* extern float b2_hff_xP[B2_HFF_STATE_SIZE][B2_HFF_STATE_SIZE]; */
+/* extern float b2_hff_yP[B2_HFF_STATE_SIZE][B2_HFF_STATE_SIZE]; */
 
 extern float b2_hff_x_meas;
 extern float b2_hff_y_meas;
@@ -59,7 +77,7 @@ extern void b2_hff_update_v(float xspeed, float yspeed);
 
 #ifdef GPS_LAG
 extern void b2_hff_store_accel(float x, float y);
-extern uint8_t lag_counter;
+/* extern uint8_t lag_counter; */
 extern int8_t lag_counter_err;
 extern int8_t save_counter;
 #endif

@@ -153,12 +153,12 @@ void booz_ins_propagate() {
 		/* propagate horizontal filter */
 		b2_hff_propagate(x_accel_mean_f, y_accel_mean_f);
 		/* update ins state from horizontal filter */
-		booz_ins_ltp_accel.x = ACCEL_BFP_OF_REAL(b2_hff_xdotdot);
-		booz_ins_ltp_accel.y = ACCEL_BFP_OF_REAL(b2_hff_ydotdot);
-		booz_ins_ltp_speed.x = SPEED_BFP_OF_REAL(b2_hff_xdot);
-		booz_ins_ltp_speed.y = SPEED_BFP_OF_REAL(b2_hff_ydot);
-		booz_ins_ltp_pos.x   = POS_BFP_OF_REAL(b2_hff_x);
-		booz_ins_ltp_pos.y   = POS_BFP_OF_REAL(b2_hff_y);
+		booz_ins_ltp_accel.x = ACCEL_BFP_OF_REAL(b2_hff_state.xdotdot);
+		booz_ins_ltp_accel.y = ACCEL_BFP_OF_REAL(b2_hff_state.ydotdot);
+		booz_ins_ltp_speed.x = SPEED_BFP_OF_REAL(b2_hff_state.xdot);
+		booz_ins_ltp_speed.y = SPEED_BFP_OF_REAL(b2_hff_state.ydot);
+		booz_ins_ltp_pos.x   = POS_BFP_OF_REAL(b2_hff_state.x);
+		booz_ins_ltp_pos.y   = POS_BFP_OF_REAL(b2_hff_state.y);
 	  }
 	}
   } else {
@@ -216,12 +216,12 @@ void booz_ins_update_gps(void) {
 	
 #ifdef USE_HFF
 	b2_hff_update_gps();
-    booz_ins_ltp_accel.x = ACCEL_BFP_OF_REAL(b2_hff_xdotdot);
-    booz_ins_ltp_accel.y = ACCEL_BFP_OF_REAL(b2_hff_ydotdot);
-    booz_ins_ltp_speed.x = SPEED_BFP_OF_REAL(b2_hff_xdot);
-    booz_ins_ltp_speed.y = SPEED_BFP_OF_REAL(b2_hff_ydot);
-    booz_ins_ltp_pos.x   = POS_BFP_OF_REAL(b2_hff_x);
-    booz_ins_ltp_pos.y   = POS_BFP_OF_REAL(b2_hff_y);
+    booz_ins_ltp_accel.x = ACCEL_BFP_OF_REAL(b2_hff_state.xdotdot);
+    booz_ins_ltp_accel.y = ACCEL_BFP_OF_REAL(b2_hff_state.ydotdot);
+    booz_ins_ltp_speed.x = SPEED_BFP_OF_REAL(b2_hff_state.xdot);
+    booz_ins_ltp_speed.y = SPEED_BFP_OF_REAL(b2_hff_state.ydot);
+    booz_ins_ltp_pos.x   = POS_BFP_OF_REAL(b2_hff_state.x);
+    booz_ins_ltp_pos.y   = POS_BFP_OF_REAL(b2_hff_state.y);
 #ifndef USE_VFF /* only hf */
     booz_ins_ltp_pos.z =  (booz_ins_gps_pos_cm_ned.z * INT32_POS_OF_CM_NUM) / INT32_POS_OF_CM_DEN;
     booz_ins_ltp_speed.z =  (booz_ins_gps_speed_cm_s_ned.z * INT32_SPEED_OF_CM_S_NUM) INT32_SPEED_OF_CM_S_DEN;
