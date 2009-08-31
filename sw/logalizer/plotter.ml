@@ -120,7 +120,7 @@ class plot = fun ~size ~width ~height ~packing () ->
     method reset () =
       if auto_scale then begin
 	min <- max_float;
-	max <- min_float
+	max <- -. max_float
       end;
       Hashtbl.iter (fun _ a ->
 	a.index <- 0;

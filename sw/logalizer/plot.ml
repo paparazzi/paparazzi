@@ -273,8 +273,8 @@ let write_kml = fun plot log_name values ->
   let l = ref [] in
   let t_min = plot#min_x ()
   and t_max = plot#max_x () in
-  let t_min = if t_min = max_float then min_float else t_min in
-  let t_max = if t_max = min_float then max_float else t_max in
+  let t_min = if t_min = max_float then -. max_float else t_min in
+  let t_max = if t_max = -. max_float then max_float else t_max in
   for i = 0 to Array.length xs - 1 do
     let t = fst xs.(i) in
     if t_min <= t && t < t_max then
