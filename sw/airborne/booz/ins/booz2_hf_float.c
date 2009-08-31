@@ -38,6 +38,7 @@ X_y = [ y ydot ybias ]
 
 /* initial covariance diagonal */
 #define INIT_PXX 1.
+#define INIT_PXX_BIAS 0.1
 /* process noise (is the same for x and y)*/
 #define ACCEL_NOISE 0.5
 #define Q       ACCEL_NOISE*DT_HFILTER*DT_HFILTER/2.
@@ -47,6 +48,7 @@ X_y = [ y ydot ybias ]
 #define Rpos   5.
 #define Rspeed 1.
 
+/* filter states */
 float b2_hff_x;
 float b2_hff_xbias;
 float b2_hff_xdot;
@@ -57,6 +59,7 @@ float b2_hff_ybias;
 float b2_hff_ydot;
 float b2_hff_ydotdot;
 
+/* filter covariance matrices */
 float b2_hff_xP[B2_HFF_STATE_SIZE][B2_HFF_STATE_SIZE];
 float b2_hff_yP[B2_HFF_STATE_SIZE][B2_HFF_STATE_SIZE];
 
@@ -91,7 +94,10 @@ static inline void b2_hff_init_x(float init_x, float init_xdot, float init_xbias
   for (i=0; i<B2_HFF_STATE_SIZE; i++) {
     for (j=0; j<B2_HFF_STATE_SIZE; j++)
       b2_hff_xP[i][j] = 0.;
-    b2_hff_xP[i][i] = INIT_PXX;
+	if (i < 2)
+	  b2_hff_xP[i][i] = INIT_PXX;
+	else
+	  b2_hff_xP[i][i] = INIT_PXX_BIAS;
   }
 
 }
@@ -104,7 +110,10 @@ static inline void b2_hff_init_y(float init_y, float init_ydot, float init_ybias
   for (i=0; i<B2_HFF_STATE_SIZE; i++) {
     for (j=0; j<B2_HFF_STATE_SIZE; j++)
       b2_hff_yP[i][j] = 0.;
-    b2_hff_yP[i][i] = INIT_PXX;
+	if (i < 2)
+	  b2_hff_yP[i][i] = INIT_PXX;
+	else
+	  b2_hff_yP[i][i] = INIT_PXX_BIAS;
   }
 
 }
