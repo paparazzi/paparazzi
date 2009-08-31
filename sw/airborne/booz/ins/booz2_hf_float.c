@@ -23,6 +23,8 @@
  */
 
 #include "booz2_hf_float.h"
+#include "booz2_ins.h"
+#include <stdlib.h>
 
 /*
 
@@ -63,6 +65,52 @@ float b2_hff_ydotdot;
 float b2_hff_xP[B2_HFF_STATE_SIZE][B2_HFF_STATE_SIZE];
 float b2_hff_yP[B2_HFF_STATE_SIZE][B2_HFF_STATE_SIZE];
 
+#ifdef GPS_LAG
+/* GPS_LAG is defined in seconds
+ * GPS_LAG_PS in multiple of prescaler
+ */
+/* number of propagaton steps to redo according to GPS_LAG */
+#define GPS_LAG_N (int) (GPS_LAG * 512. / HFF_PRESCALER + 0.5)
+
+/* state and covariance when GPS was valid */
+float b2_hff_x_sav;
+float b2_hff_xbias_sav;
+float b2_hff_xdot_sav;
+float b2_hff_xdotdot_sav;
+float b2_hff_y_sav;
+float b2_hff_ybias_sav;
+float b2_hff_ydot_sav;
+float b2_hff_ydotdot_sav;
+float b2_hff_xP_sav[B2_HFF_STATE_SIZE][B2_HFF_STATE_SIZE];
+float b2_hff_yP_sav[B2_HFF_STATE_SIZE][B2_HFF_STATE_SIZE];
+
+#define BUF_MAXN GPS_LAG_N+2
+/* buffer with past mean accel values for redoing the propagation */
+struct FloatVect2 past_accel[BUF_MAXN];
+
+/* variables for accel buffer */
+uint8_t buf_r; /* pos to read from, oldest measurement */
+uint8_t buf_w; /* pos to write to */
+uint8_t buf_n; /* number of elements in buffer */
+
+/* number of propagation steps since state was saved */
+uint8_t lag_counter;
+/* by how many steps the estimated GPS validity point in time differed from GPS_LAG_N */
+int8_t lag_counter_err;
+
+/* counts down the propagation steps until the filter state is saved again */
+int8_t save_counter;
+
+static inline void b2_hff_get_past_accel(int back_n);
+static inline void b2_hff_rollback_filter(void);
+static inline void b2_hff_save_filter(void);
+#endif /* GPS_LAG */
+
+/* acceleration used in propagation step */
+float b2_hff_xaccel;
+float b2_hff_yaccel;
+
+/* last position measurement */
 float b2_hff_x_meas;
 float b2_hff_y_meas;
 
@@ -70,8 +118,8 @@ float b2_hff_y_meas;
 static inline void b2_hff_init_x(float init_x, float init_xdot, float init_xbias);
 static inline void b2_hff_init_y(float init_y, float init_ydot, float init_ybias);
 
-static inline void b2_hff_propagate_x(float xaccel);
-static inline void b2_hff_propagate_y(float yaccel);
+static inline void b2_hff_propagate_x(void);
+static inline void b2_hff_propagate_y(void);
 
 static inline void b2_hff_update_x(float x_meas);
 static inline void b2_hff_update_y(float y_meas);
@@ -82,8 +130,15 @@ static inline void b2_hff_update_ydot(float v);
 
 
 void b2_hff_init(float init_x, float init_xdot, float init_xbias, float init_y, float init_ydot, float init_ybias) {
-    b2_hff_init_x(init_x, init_xdot, init_xbias);
-    b2_hff_init_y(init_y, init_ydot, init_ybias);
+  b2_hff_init_x(init_x, init_xdot, init_xbias);
+  b2_hff_init_y(init_y, init_ydot, init_ybias);
+#ifdef GPS_LAG
+  buf_r = 0;
+  buf_w = 0;
+  buf_n = 0;
+  lag_counter = 0;
+  lag_counter_err = 0;
+#endif
 }
 
 static inline void b2_hff_init_x(float init_x, float init_xdot, float init_xbias) {
@@ -115,9 +170,71 @@ static inline void b2_hff_init_y(float init_y, float init_ydot, float init_ybias
 	else
 	  b2_hff_yP[i][i] = INIT_PXX_BIAS;
   }
-
 }
 
+#ifdef GPS_LAG
+void b2_hff_store_accel(float x, float y) {
+  past_accel[buf_w].x = x;
+  past_accel[buf_w].y = y;
+  buf_w = (buf_w + 1) < BUF_MAXN ? (buf_w + 1) : 0;
+
+  if (buf_n < BUF_MAXN) {
+	buf_n++;
+  } else {
+	buf_r = (buf_r + 1) < BUF_MAXN ? (buf_r + 1) : 0;
+  }
+}
+
+/* get the accel values from back_n steps ago */
+static inline void b2_hff_get_past_accel(int back_n) {
+  int i;
+  if (back_n > buf_n) {
+	//printf("Cannot go back %d steps, going back only %d instead!\n", back_n, buf_n);
+	back_n = buf_n;
+  }
+  //i = (buf_r + n) < BUF_MAXN ? (buf_r + n) : (buf_r + n - BUF_MAXN);
+  i = (buf_w-1 - back_n) > 0 ? (buf_w-1 - back_n) : (buf_w-1 + BUF_MAXN - back_n);
+  b2_hff_xaccel = past_accel[i].x;
+  b2_hff_yaccel = past_accel[i].y;
+}
+
+/* rollback the state and covariance matrix to time when last saved */
+static inline void b2_hff_rollback_filter(void) {
+  b2_hff_x = b2_hff_x_sav;
+  b2_hff_xbias = b2_hff_xbias_sav;
+  b2_hff_xdot = b2_hff_xdot_sav;
+  b2_hff_xdotdot = b2_hff_xdotdot_sav;
+  b2_hff_y = b2_hff_y_sav;
+  b2_hff_ybias = b2_hff_ybias_sav;
+  b2_hff_ydot = b2_hff_ydot_sav;
+  b2_hff_ydotdot = b2_hff_ydotdot_sav;
+  for (int i=0; i < B2_HFF_STATE_SIZE; i++) {
+	for (int j=0; j < B2_HFF_STATE_SIZE; j++) {
+	  b2_hff_xP[i][j] = b2_hff_xP_sav[i][j];
+	  b2_hff_yP[i][j] = b2_hff_yP_sav[i][j];
+	}
+  }
+}
+
+/* save current state for later rollback */
+static inline void b2_hff_save_filter(void) {
+  b2_hff_x_sav = b2_hff_x;
+  b2_hff_xbias_sav = b2_hff_xbias;
+  b2_hff_xdot_sav = b2_hff_xdot;
+  b2_hff_xdotdot_sav = b2_hff_xdotdot;
+  b2_hff_y_sav = b2_hff_y;
+  b2_hff_ybias_sav = b2_hff_ybias;
+  b2_hff_ydot_sav = b2_hff_ydot;
+  b2_hff_ydotdot_sav = b2_hff_ydotdot;
+  for (int i=0; i < B2_HFF_STATE_SIZE; i++) {
+	for (int j=0; j < B2_HFF_STATE_SIZE; j++) {
+	  b2_hff_xP_sav[i][j] = b2_hff_xP[i][j];
+	  b2_hff_yP_sav[i][j] = b2_hff_yP[i][j];
+	}
+  }
+  lag_counter = 0;
+}
+#endif
 
 /*
 
@@ -137,13 +254,30 @@ static inline void b2_hff_init_y(float init_y, float init_ydot, float init_ybias
 
 */
 void b2_hff_propagate(float xaccel, float yaccel) {
-    b2_hff_propagate_x(xaccel);
-    b2_hff_propagate_y(yaccel);
+#ifdef GPS_LAG
+  /* save filter if now is the estimated GPS validity point in time */
+  if (save_counter == 0) {
+	b2_hff_save_filter();
+	save_counter = -1;
+  } else if (save_counter > 0) {
+	save_counter--;
+  }
+#endif
+
+  b2_hff_xaccel = xaccel;
+  b2_hff_yaccel = yaccel;
+  b2_hff_propagate_x();
+  b2_hff_propagate_y();
+
+#ifdef GPS_LAG
+  if (lag_counter < 2*GPS_LAG_N) // prevent from overflowing if no gps available
+	lag_counter++;
+#endif
 }
 
-static inline void b2_hff_propagate_x(float xaccel) {
+static inline void b2_hff_propagate_x(void) {
   /* update state */
-  b2_hff_xdotdot = xaccel - b2_hff_xbias;
+  b2_hff_xdotdot = b2_hff_xaccel - b2_hff_xbias;
   b2_hff_x = b2_hff_x + DT_HFILTER * b2_hff_xdot + DT_HFILTER * DT_HFILTER / 2 * b2_hff_xdotdot;
   b2_hff_xdot = b2_hff_xdot + DT_HFILTER * b2_hff_xdotdot;
   /* update covariance */
@@ -169,9 +303,9 @@ static inline void b2_hff_propagate_x(float xaccel) {
 
 }
 
-static inline void b2_hff_propagate_y(float yaccel) {
+static inline void b2_hff_propagate_y(void) {
   /* update state */
-  b2_hff_ydotdot = yaccel - b2_hff_ybias;
+  b2_hff_ydotdot = b2_hff_yaccel - b2_hff_ybias;
   b2_hff_y = b2_hff_y + DT_HFILTER * b2_hff_ydot;
   b2_hff_ydot = b2_hff_ydot + DT_HFILTER * b2_hff_ydotdot;
   /* update covariance */
@@ -197,6 +331,40 @@ static inline void b2_hff_propagate_y(float yaccel) {
 
 }
 
+
+void b2_hff_update_gps(void) {
+#ifdef GPS_LAG
+  lag_counter_err = lag_counter - GPS_LAG_N;
+  /* roll back if state was saved approx when GPS was valid */
+  if (abs(lag_counter_err) < 3) {
+	b2_hff_rollback_filter();
+  }
+#endif
+
+#ifdef B2_HFF_UPDATE_POS
+  b2_hff_update_x(booz_ins_gps_pos_m_ned.x);
+  b2_hff_update_y(booz_ins_gps_pos_m_ned.y);
+#endif
+#ifdef B2_HFF_UPDATE_SPEED
+  b2_hff_update_xdot(booz_ins_gps_speed_m_s_ned.x);
+  b2_hff_update_ydot(booz_ins_gps_speed_m_s_ned.y);
+#endif
+
+#ifdef GPS_LAG
+  /* roll back if state was saved approx when GPS was valid */
+  if (abs(lag_counter_err) < 3) {
+	/* redo all propagation steps since GPS update */
+	for (int i=lag_counter-1; i >= 0; i--) {
+	  b2_hff_get_past_accel(i);
+	  b2_hff_propagate_x();
+	  b2_hff_propagate_y();
+	}
+  }
+
+  /* reset save counter */
+  save_counter = (int)(HFF_FREQ / 4) % GPS_LAG_N;
+#endif
+}
 
 
 /*

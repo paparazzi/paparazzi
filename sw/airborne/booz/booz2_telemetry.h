@@ -476,9 +476,16 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 			    & b2_hff_yP[1][1],		\
 			    & b2_hff_yP[2][2]);		\
   }
+#define PERIODIC_SEND_BOOZ2_HFF_GPS(_chan) {	\
+    DOWNLINK_SEND_BOOZ2_HFF_GPS(_chan,			\
+							  &lag_counter,		\
+							  &lag_counter_err,	\
+							  &save_counter);	\
+  }
 #else
 #define PERIODIC_SEND_BOOZ2_HFF_X(_chan) {}
 #define PERIODIC_SEND_BOOZ2_HFF_Y(_chan) {}
+#define PERIODIC_SEND_BOOZ2_HFF_GPS(_chan) {}
 #endif
 
 #define PERIODIC_SEND_BOOZ2_GUIDANCE(_chan) {				\

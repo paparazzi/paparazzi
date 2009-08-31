@@ -1086,6 +1086,12 @@
       <field name="Pbb"            type="float"/>
   </message>
 
+  <message name="BOOZ2_HFF_GPS" id="166">
+      <field name="lag_cnt"     type="uint8"/>
+	  <field name="lag_cnt_err" type="int8"/>
+	  <field name="save_cnt"    type="int8"/>
+  </message>
+
   <message name="EKF7_XHAT" id="170">
       <field name="c"   type="float"/>
       <field name="s1"  type="float"/>

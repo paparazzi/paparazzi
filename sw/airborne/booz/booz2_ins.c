@@ -52,6 +52,9 @@ struct LtpDef_i  booz_ins_ltp_def;
          bool_t  booz_ins_ltp_initialised;
 struct NedCoor_i booz_ins_gps_pos_cm_ned;
 struct NedCoor_i booz_ins_gps_speed_cm_s_ned;
+/* horizontal gps transformed to NED in meters as float */
+struct FloatVect2 booz_ins_gps_pos_m_ned;
+struct FloatVect2 booz_ins_gps_speed_m_s_ned;
 
 /* barometer                   */
 #ifdef USE_VFF
@@ -143,6 +146,9 @@ void booz_ins_propagate() {
 	  INT32_RMAT_TRANSP_VMULT(mean_accel_ltp, booz_ahrs.ltp_to_body_rmat, mean_accel_body);
 	  float x_accel_mean_f = ACCEL_FLOAT_OF_BFP(mean_accel_ltp.x);
 	  float y_accel_mean_f = ACCEL_FLOAT_OF_BFP(mean_accel_ltp.y);
+#ifdef GPS_LAG
+	  b2_hff_store_accel(x_accel_mean_f, y_accel_mean_f);
+#endif
 	  if ( booz_ins_ltp_initialised ) {
 		/* propagate horizontal filter */
 		b2_hff_propagate(x_accel_mean_f, y_accel_mean_f);
@@ -202,27 +208,20 @@ void booz_ins_update_gps(void) {
       booz_ins_ltp_initialised = TRUE;
     }
     ned_of_ecef_point_i(&booz_ins_gps_pos_cm_ned, &booz_ins_ltp_def, &booz_gps_state.ecef_pos);
+	VECT2_ASSIGN(booz_ins_gps_pos_m_ned, booz_ins_gps_pos_cm_ned.x, booz_ins_gps_pos_cm_ned.y);
+	VECT2_SDIV(booz_ins_gps_pos_m_ned, booz_ins_gps_pos_m_ned, 100.);
     ned_of_ecef_vect_i(&booz_ins_gps_speed_cm_s_ned, &booz_ins_ltp_def, &booz_gps_state.ecef_vel);
+	VECT2_ASSIGN(booz_ins_gps_speed_m_s_ned, booz_ins_gps_speed_cm_s_ned.x, booz_ins_gps_speed_cm_s_ned.y);
+    VECT2_SDIV(booz_ins_gps_speed_m_s_ned, booz_ins_gps_speed_m_s_ned, 100.);
 	
 #ifdef USE_HFF
-    struct FloatVect2 gps_float;
-#ifdef B2_HFF_UPDATE_POS
-    VECT2_ASSIGN(gps_float, booz_ins_gps_pos_cm_ned.x, booz_ins_gps_pos_cm_ned.y);
-    VECT2_SDIV(gps_float, gps_float, 100.);
-    b2_hff_update_pos(gps_float.x, gps_float.y);
-#endif
-#ifdef B2_HFF_UPDATE_SPEED
-    VECT2_ASSIGN(gps_float, booz_ins_gps_speed_cm_s_ned.x, booz_ins_gps_speed_cm_s_ned.y);
-    VECT2_SDIV(gps_float, gps_float, 100.);
-    b2_hff_update_v(gps_float.x, gps_float.y);
-#endif
+	b2_hff_update_gps();
     booz_ins_ltp_accel.x = ACCEL_BFP_OF_REAL(b2_hff_xdotdot);
     booz_ins_ltp_accel.y = ACCEL_BFP_OF_REAL(b2_hff_ydotdot);
     booz_ins_ltp_speed.x = SPEED_BFP_OF_REAL(b2_hff_xdot);
     booz_ins_ltp_speed.y = SPEED_BFP_OF_REAL(b2_hff_ydot);
     booz_ins_ltp_pos.x   = POS_BFP_OF_REAL(b2_hff_x);
     booz_ins_ltp_pos.y   = POS_BFP_OF_REAL(b2_hff_y);
-	
 #ifndef USE_VFF /* only hf */
     booz_ins_ltp_pos.z =  (booz_ins_gps_pos_cm_ned.z * INT32_POS_OF_CM_NUM) / INT32_POS_OF_CM_DEN;
     booz_ins_ltp_speed.z =  (booz_ins_gps_speed_cm_s_ned.z * INT32_SPEED_OF_CM_S_NUM) INT32_SPEED_OF_CM_S_DEN;

@@ -204,7 +204,7 @@
 		include $(CFG_BOOZ)/subsystems/booz2_ahrs_cmpl.makefile
 
 		#enable horizontal filter
-		ap.CFLAGS += -DUSE_HFF -DHFF_PRESCALER=16
+		ap.CFLAGS += -DUSE_HFF -DHFF_PRESCALER=16 -DGPS_LAG=0.2
 
   </makefile>
 

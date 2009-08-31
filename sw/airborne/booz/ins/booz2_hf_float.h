@@ -24,6 +24,8 @@
 #ifndef BOOZ2_HF_FLOAT_H
 #define BOOZ2_HF_FLOAT_H
 
+#include <inttypes.h>
+
 #define B2_HFF_STATE_SIZE 3
 
 #ifndef HFF_PRESCALER
@@ -51,8 +53,16 @@ extern float b2_hff_y_meas;
 
 extern void b2_hff_init(float init_x, float init_xdot, float init_xbias, float init_y, float init_ydot, float init_ybias);
 extern void b2_hff_propagate(float xaccel, float yaccel);
+extern void b2_hff_update_gps(void);
 extern void b2_hff_update_pos(float xpos, float ypos);
 extern void b2_hff_update_v(float xspeed, float yspeed);
+
+#ifdef GPS_LAG
+extern void b2_hff_store_accel(float x, float y);
+extern uint8_t lag_counter;
+extern int8_t lag_counter_err;
+extern int8_t save_counter;
+#endif
 
 #endif /* BOOZ2_HF_FLOAT_H */
 
