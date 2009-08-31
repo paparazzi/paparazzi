@@ -16,7 +16,7 @@ void UpdateSensorLatency(double time, gpointer cur_reading, GSList **history, do
     *history = g_slist_remove_link(*history, last);
 	g_free(((struct BoozDatedSensor*)last->data)->value);
 	g_free((struct BoozDatedSensor*)last->data);
-    g_slist_free(last);
+    g_slist_free_1(last);
     last = g_slist_last(*history);
   }
   /* update sensor        */

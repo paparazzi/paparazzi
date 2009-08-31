@@ -10,7 +10,7 @@ struct BoozDatedSensor {
 };
 
 /* cur_reading and sensor_reading must be of a type that can be cast to DoubleVect3* */
-extern void UpdateSensorLatency(double time, gpointer cur_reading, GSList **history, 
+extern void UpdateSensorLatency(double time, gpointer cur_reading, GSList **history,
 								double latency, gpointer sensor_reading);
 
 #endif /* NPS_SENSORS_UTILS_H */
