@@ -92,6 +92,9 @@ int b2_hff_ps_counter;
 #define GPS_LAG_N ((int) (GPS_LAG * HFF_FREQ + 0.5))
 /* number of propagation steps between two GPS updates */
 #define GPS_DT_N ((int) (HFF_FREQ / 4))
+/* tolerance of the GPS lag accuracy is +- GPS_LAG_TOLERANCE seconds */
+#define GPS_LAG_TOLERANCE 0.08
+#define GPS_LAG_TOL_N ((int) (GPS_LAG_TOLERANCE * HFF_FREQ + 0.5))
 
 /* maximum number of past propagation steps to rerun per ap cycle
  * make sure GPS_LAG_N/MAX_PP_STEPS < 128
@@ -175,6 +178,7 @@ void b2_hff_init(float init_x, float init_xdot, float init_y, float init_ydot) {
   printf("GPS_LAG_N: %d\n", GPS_LAG_N);
   printf("GPS_DT_N: %d\n", GPS_DT_N);
   printf("DT_HFILTER: %f\n", DT_HFILTER);
+  printf("GPS_LAG_TOL_N: %f\n", GPS_LAG_TOL_N);
 #endif
 #else
   b2_hff_rb_last = &b2_hff_state;
@@ -402,7 +406,7 @@ void b2_hff_update_gps(void) {
 	/* roll back if state was saved approx when GPS was valid */
 	lag_counter_err = b2_hff_rb_last->lag_counter - GPS_LAG_N;
 	PRINT_DBG(2, ("update. rb_n: %d  lag_counter: %d  lag_cnt_err: %d\n", b2_hff_rb_n, b2_hff_rb_last->lag_counter, lag_counter_err));
-	if (abs(lag_counter_err) < 3) {
+	if (abs(lag_counter_err) <= GPS_LAG_TOL_N) {
 	  b2_hff_rb_last->rollback = TRUE;
 	  b2_hff_update_x(b2_hff_rb_last, booz_ins_gps_pos_m_ned.x);
 	  b2_hff_update_y(b2_hff_rb_last, booz_ins_gps_pos_m_ned.y);
@@ -413,7 +417,7 @@ void b2_hff_update_gps(void) {
 	  past_save_counter = GPS_DT_N-1 + lag_counter_err;
 	  PRINT_DBG(2, ("gps updated. past_save_counter: %d\n", past_save_counter));
 	  b2_hff_propagate_past(b2_hff_rb_last);
-	} else if (lag_counter_err >= GPS_DT_N) {
+	} else if (lag_counter_err >= GPS_DT_N - 2*GPS_LAG_TOL_N) {
 	  /* apparently missed a GPS update, try next saved state */
 	  PRINT_DBG(2, ("try next saved state\n"));
 	  b2_hff_rb_drop_last();
