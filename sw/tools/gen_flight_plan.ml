@@ -139,14 +139,14 @@ let index_of_blocks = ref []
 
 let get_index_block = fun x ->
   try
-    string_of_int (List.assoc x !index_of_blocks)
+    List.assoc x !index_of_blocks
   with
     Not_found -> failwith (sprintf "Unknown block: '%s'" x)
 
 let print_exception = fun x ->
   let i = get_index_block (ExtXml.attrib x "deroute") in
   let c = parsed_attrib x "cond" in
-  lprintf "if ((nav_block != %s) && %s) { GotoBlock(%s); return; }\n" c i i
+  lprintf "if ((nav_block != %d) && %s) { GotoBlock(%d); return; }\n" i c i
 
 let element = fun a b c -> Xml.Element (a, b, c)
 let goto l = element "goto" ["name",l] []
@@ -281,7 +281,7 @@ let rec print_stage = fun index_of_waypoints x ->
 	lprintf "Goto(%s)\n" (name_of x)
     | "deroute" ->
 	stage ();
-	lprintf "GotoBlock(%s);\n" (get_index_block (ExtXml.attrib x "block"));
+	lprintf "GotoBlock(%d);\n" (get_index_block (ExtXml.attrib x "block"));
 	lprintf "break;\n"
     | "exit_block" ->
 	stage ();
