@@ -32,7 +32,7 @@ ap.CFLAGS += -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH)
 ap.CFLAGS += -DSPEKTRUM_LINK=Uart1 -DUSE_UART1 -DUART1_BAUD=B115200 -DUART1_VIC_SLOT=6
 ap.srcs += $(SRC_CSC)/csc_rc_spektrum.c
 
-ap.CFLAGS += -DCAN1_BTR=CANBitrate125k_3MHz
+ap.CFLAGS += -DCAN1_BTR=CANBitrate125k_2MHz
 
 ap.CFLAGS += -DMOTORS=\"buss_twi_blmc_hw.h\" -DUSE_BUSS_TWI_BLMC_MOTOR
 ap.srcs += $(SRC_CSC_ARCH)/buss_twi_blmc_hw.c
