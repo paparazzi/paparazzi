@@ -223,12 +223,12 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 #ifdef STABILISATION_ATTITUDE_TYPE_FLOAT
 #define PERIODIC_SEND_BOOZ2_STAB_ATTITUDE(_chan) {			\
     DOWNLINK_SEND_BOOZ2_STAB_ATTITUDE_FLOAT(_chan,			\
-					    &booz_ahrs.body_rate.p,	\
-					    &booz_ahrs.body_rate.q,	\
-					    &booz_ahrs.body_rate.r,	\
-					    &booz_ahrs.ltp_to_body_euler.phi, \
-					    &booz_ahrs.ltp_to_body_euler.theta, \
-					    &booz_ahrs.ltp_to_body_euler.psi, \
+					    &booz_ahrs_float.body_rate.p,	\
+					    &booz_ahrs_float.body_rate.q,	\
+					    &booz_ahrs_float.body_rate.r,	\
+					    &booz_ahrs_float.ltp_to_body_euler.phi, \
+					    &booz_ahrs_float.ltp_to_body_euler.theta, \
+					    &booz_ahrs_float.ltp_to_body_euler.psi, \
 					    &booz_stab_att_ref_euler.phi, \
 					    &booz_stab_att_ref_euler.theta, \
 					    &booz_stab_att_ref_euler.psi, \
