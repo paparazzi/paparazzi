@@ -4,6 +4,7 @@
 #include "airframe.h"
 
 extern pprz_t mercury_supervision_yaw_servo_gain;
+extern pprz_t mercury_supervision_pitch_servo_gain;
 extern pprz_t mercury_supervision_yaw_motor_gain;
 extern pprz_t mercury_supervision_yaw_comp_slope;
 extern pprz_t mercury_supervision_yaw_comp_offset;
