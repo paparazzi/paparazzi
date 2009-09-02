@@ -205,7 +205,7 @@
 
 		include $(CFG_BOOZ)/subsystems/booz2_ins_hff.makefile
 		#set GPS lag for horizontal filter
-		ap.CFLAGS += -DGPS_LAG=0.8
+		ap.CFLAGS += -DGPS_LAG=0.8 -DUSE_GPS_ACC4R
 
   </makefile>
 

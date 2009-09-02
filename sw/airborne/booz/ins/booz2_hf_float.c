@@ -26,6 +26,7 @@
 #include "booz2_ins.h"
 #include "booz_imu.h"
 #include "booz_ahrs.h"
+#include "booz2_gps.h"
 #include <stdlib.h>
 
 #ifdef SITL
@@ -47,8 +48,14 @@
 #define Q       ACCEL_NOISE*DT_HFILTER*DT_HFILTER/2.
 #define Qdotdot ACCEL_NOISE*DT_HFILTER
 //TODO: proper measurement noise
-#define Rpos   5.
-#define Rspeed 1.
+#define R_POS   7.
+#define R_POS_MAX 20.
+#define R_POS_MIN 2.
+#define R_SPEED 2.
+#define R_SPEED_MAX 10.
+#define R_SPEED_MIN 0.2
+
+float Rpos, Rspeed;
 
 /*
 
@@ -162,6 +169,8 @@ static inline void b2_hff_update_ydot(struct HfilterFloat* hff_work, float v);
 
 
 void b2_hff_init(float init_x, float init_xdot, float init_y, float init_ydot) {
+  Rpos = R_POS;
+  Rspeed = R_SPEED;
   b2_hff_init_x(init_x, init_xdot);
   b2_hff_init_y(init_y, init_ydot);
 #ifdef GPS_LAG
@@ -390,6 +399,19 @@ void b2_hff_propagate(void) {
 
 
 void b2_hff_update_gps(void) {
+#ifdef USE_GPS_ACC4R
+  Rpos = (float) booz_gps_state.pacc / 100.;
+  if (Rpos > R_POS_MAX)
+    Rpos = R_POS_MAX;
+  else if (Rpos < R_POS_MIN)
+    Rpos = R_POS_MIN;
+  Rspeed = (float) booz_gps_state.sacc / 100.;
+  if (Rspeed > R_SPEED_MAX)
+    Rspeed = R_SPEED_MAX;
+  else if (Rspeed < R_SPEED_MIN)
+    Rspeed = R_SPEED_MIN;
+#endif
+
 #ifdef GPS_LAG
   if (GPS_LAG_N == 0) {
 #endif
