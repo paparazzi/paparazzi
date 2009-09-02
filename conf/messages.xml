@@ -959,12 +959,12 @@
   </message>
 
   <message name="BOOZ2_INS_REF" id="154">
-    <field name="lpt_ecef_x0" type="int32" alt_unit="m"    alt_unit_coef="0.01"/>
-    <field name="lpt_ecef_y0" type="int32" alt_unit="m"    alt_unit_coef="0.01"/>
-    <field name="lpt_ecef_z0" type="int32" alt_unit="m"    alt_unit_coef="0.01"/>
-    <field name="lpt_lat0"    type="int32" alt_unit="deg"  alt_unit_coef="0.0000001"/>
-    <field name="lpt_lon0"    type="int32" alt_unit="deg"  alt_unit_coef="0.0000001"/>
-    <field name="lpt_alt0"    type="int32" alt_unit="m"    alt_unit_coef="0.01"/>
+    <field name="ecef_x0" type="int32" alt_unit="m"    alt_unit_coef="0.01"/>
+    <field name="ecef_y0" type="int32" alt_unit="m"    alt_unit_coef="0.01"/>
+    <field name="ecef_z0" type="int32" alt_unit="m"    alt_unit_coef="0.01"/>
+    <field name="lat0"    type="int32" alt_unit="deg"  alt_unit_coef="0.0000001"/>
+    <field name="lon0"    type="int32" alt_unit="deg"  alt_unit_coef="0.0000001"/>
+    <field name="alt0"    type="int32" alt_unit="m"    alt_unit_coef="0.01"/>
     <field name="baro_qfe"    type="int32"/>
   </message>
 
