@@ -795,24 +795,24 @@
  </message>
 
  <message name="BOOZ2_STAB_ATTITUDE_FLOAT" id="130">
-    <field name="est_p"         type="int32" alt_unit="degres/s" alt_unit_coef="0.0139882"/>   
-    <field name="est_q"         type="int32" alt_unit="degres/s" alt_unit_coef="0.0139882"/>   
-    <field name="est_r"         type="int32" alt_unit="degres/s" alt_unit_coef="0.0139882"/>   
-    <field name="est_phi"       type="int32" alt_unit="degres" alt_unit_coef="0.0139882"/>   
-    <field name="est_theta"     type="int32" alt_unit="degres" alt_unit_coef="0.0139882"/>   
-    <field name="est_psi"       type="int32" alt_unit="degres" alt_unit_coef="0.0139882"/>   
+    <field name="est_p"         type="float" alt_unit="degres/s" alt_unit_coef="57.29578"/>   
+    <field name="est_q"         type="float" alt_unit="degres/s" alt_unit_coef="57.29578"/>   
+    <field name="est_r"         type="float" alt_unit="degres/s" alt_unit_coef="57.29578"/>   
+    <field name="est_phi"       type="float" alt_unit="degres" alt_unit_coef="57.29578"/>   
+    <field name="est_theta"     type="float" alt_unit="degres" alt_unit_coef="57.29578"/>   
+    <field name="est_psi"       type="float" alt_unit="degres" alt_unit_coef="57.29578"/>   
     <field name="ref_phi"       type="float" alt_unit="degres" alt_unit_coef="57.29578"/>   
     <field name="ref_theta"     type="float" alt_unit="degres" alt_unit_coef="57.29578"/>   
     <field name="ref_psi"       type="float" alt_unit="degres" alt_unit_coef="57.29578"/>   
     <field name="sum_err_phi"   type="float"/>   
     <field name="sum_err_theta" type="float"/>   
     <field name="sum_err_psi"   type="float"/>   
-    <field name="delta_a_fb"    type="float" alt_unit_coef="0.0000153"/>
-    <field name="delta_e_fb"    type="float" alt_unit_coef="0.0000153"/>
-    <field name="delta_r_fb"    type="float" alt_unit_coef="0.0000153"/>
-    <field name="delta_a_ff"    type="float" alt_unit_coef="0.0000153"/>
-    <field name="delta_e_ff"    type="float" alt_unit_coef="0.0000153"/>
-    <field name="delta_r_ff"    type="float" alt_unit_coef="0.0000153"/>
+    <field name="delta_a_fb"    type="float" alt_unit="motor" alt_unit_coef="0.0000153"/>
+    <field name="delta_e_fb"    type="float" alt_unit="motor" alt_unit_coef="0.0000153"/>
+    <field name="delta_r_fb"    type="float" alt_unit="motor" alt_unit_coef="0.0000153"/>
+    <field name="delta_a_ff"    type="float" alt_unit="motor" alt_unit_coef="0.0000153"/>
+    <field name="delta_e_ff"    type="float" alt_unit="motor" alt_unit_coef="0.0000153"/>
+    <field name="delta_r_ff"    type="float" alt_unit="motor" alt_unit_coef="0.0000153"/>
     <field name="delta_a"       type="int32"/>
     <field name="delta_e"       type="int32"/>
     <field name="delta_r"       type="int32"/>
@@ -1095,12 +1095,25 @@
       <field name="s1"  type="float"/>
       <field name="s2"  type="float"/>
       <field name="s3"  type="float"/>
-      <field name="p"   type="float"/>
-      <field name="q"   type="float"/>
-      <field name="r"   type="float"/>
+      <field name="p"   type="float" alt_unit="deg/s" alt_unit_coef="57.29578"/>
+      <field name="q"   type="float" alt_unit="deg/s" alt_unit_coef="57.29578"/>
+      <field name="r"   type="float" alt_unit="deg/s" alt_unit_coef="57.29578"/>
       <field name="bp"  type="float"/>
       <field name="bq"  type="float"/>
       <field name="br"  type="float"/>
+  </message>
+
+    <message name="EKF7_P_DIAG" id="172">
+      <field name="c"   type="float"/>
+      <field name="s1"  type="float"/>
+      <field name="s2"  type="float"/>
+      <field name="s3"  type="float"/>
+      <field name="p"   type="float" alt_unit="deg^2/s^2" alt_unit_coef="3283"/>
+      <field name="q"   type="float" alt_unit="deg^2/s^2" alt_unit_coef="3283"/>
+      <field name="r"   type="float" alt_unit="deg^2/s^2" alt_unit_coef="3283"/>
+      <field name="bp"  type="float" alt_unit="deg^2/s^2" alt_unit_coef="3283"/>
+      <field name="bq"  type="float" alt_unit="deg^2/s^2" alt_unit_coef="3283"/>
+      <field name="br"  type="float" alt_unit="deg^2/s^2" alt_unit_coef="3283"/>
   </message>
 
     <message name="EKF7_Y" id="171">
@@ -1110,9 +1123,9 @@
       <field name="m1"  type="float"/>
       <field name="m2"  type="float"/>
       <field name="m3"  type="float"/>
-      <field name="p"   type="float"/>
-      <field name="q"   type="float"/>
-      <field name="r"   type="float"/>
+      <field name="p"   type="float" alt_unit="deg/s" alt_unit_coef="57.29578"/>
+      <field name="q"   type="float" alt_unit="deg/s" alt_unit_coef="57.29578"/>
+      <field name="r"   type="float" alt_unit="deg/s" alt_unit_coef="57.29578"/>
   </message>
 
 
