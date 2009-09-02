@@ -30,6 +30,7 @@
 
   <section name="MERCURY_SUPERVISION" PREFIX="MERCURY_SUPERVISION_">
     <define name="YAW_SERVO_GAIN" value="20" />
+    <define name="PITCH_SERVO_GAIN" value="0" />
     <define name="YAW_MOTOR_GAIN" value="10" />
     <define name="YAW_COMP_SLOPE" value="0" />
     <define name="YAW_COMP_OFFSET" value="3000" />
