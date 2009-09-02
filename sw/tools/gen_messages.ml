@@ -215,7 +215,7 @@ module Gen_onboard = struct
 	  incr offset;
 
 	  (** The macro to access to the array itself *)
-	  fprintf h "#define DL_%s_%s(_payload) ((%s*)_payload+%d)\n" msg_name field_name (Syntax.assoc_types t).Pprz.inttype !offset;
+	  fprintf h "#define DL_%s_%s(_payload) ((%s*)(_payload+%d))\n" msg_name field_name (Syntax.assoc_types t).Pprz.inttype !offset;
 	  offset := -1 (** Mark for no more fields *)
     in
     
