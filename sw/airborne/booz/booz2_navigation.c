@@ -25,14 +25,17 @@
 
 #include "booz2_navigation.h"
 
+#include "booz2_gps.h"
 #include "booz2_ins.h"
 
+#include "booz2_autopilot.h"
 #include "flight_plan.h"
 
 #include "math/pprz_algebra_int.h"
 
 const uint8_t nb_waypoint = NB_WAYPOINT;
-struct EnuCoor_i waypoints[NB_WAYPOINT] = WAYPOINTS_INT32;
+struct EnuCoor_f waypoints_float[NB_WAYPOINT] = WAYPOINTS;
+struct EnuCoor_i waypoints[NB_WAYPOINT];
 
 struct EnuCoor_i booz2_navigation_target;
 struct EnuCoor_i booz2_navigation_carrot;
@@ -62,15 +65,22 @@ static inline void nav_set_altitude( void );
 
 #define CLOSE_TO_WAYPOINT (15 << 8)
 #define ARRIVED_AT_WAYPOINT (10 << 8)
-#define CARROT_DIST (10 << 8)
+#define CARROT_DIST (12 << 8)
 
 void booz2_nav_init(void) {
+  // init int32 waypoints
+  uint8_t i = 0;
+  for (i = 0; i < nb_waypoint; i++) {
+    waypoints[i].x = POS_BFP_OF_REAL(waypoints_float[i].x);
+    waypoints[i].y = POS_BFP_OF_REAL(waypoints_float[i].y);
+    waypoints[i].z = POS_BFP_OF_REAL((waypoints_float[i].z - GROUND_ALT));
+  }
   nav_block = 0;
   nav_stage = 0;
-  ground_alt = (int32_t)(GROUND_ALT * 100); // cm
+  ground_alt = POS_BFP_OF_REAL(GROUND_ALT);
   nav_altitude = POS_BFP_OF_REAL(SECURITY_HEIGHT);
   nav_flight_altitude = nav_altitude;
-  flight_altitude = SECURITY_HEIGHT;
+  flight_altitude = SECURITY_ALT;
   INT32_VECT3_COPY( booz2_navigation_target, waypoints[WP_HOME]);
   INT32_VECT3_COPY( booz2_navigation_carrot, waypoints[WP_HOME]);
 
@@ -147,12 +157,16 @@ void nav_route(uint8_t wp_start, uint8_t wp_end) {
 bool_t nav_approaching_from(uint8_t wp_idx, uint8_t from_idx) {
   int32_t dist_to_point;
   struct Int32Vect2 diff;
+  static uint8_t time_at_wp = 0;
   VECT2_DIFF(diff, waypoints[wp_idx], booz_ins_enu_pos);
   INT32_VECT2_RSHIFT(diff,diff,INT32_POS_FRAC);
   INT32_VECT2_NORM(dist_to_point, diff);
   //printf("dist %d | %d %d\n", dist_to_point,diff.x,diff.y);
   //fflush(stdout);
-  if (dist_to_point < (ARRIVED_AT_WAYPOINT >> INT32_POS_FRAC)) return TRUE;
+  //if (dist_to_point < (ARRIVED_AT_WAYPOINT >> INT32_POS_FRAC)) return TRUE;
+  if (dist_to_point < (ARRIVED_AT_WAYPOINT >> INT32_POS_FRAC)) time_at_wp++;
+  else time_at_wp = 0;
+  if (time_at_wp > 20) return TRUE;
   if (from_idx > 0 && from_idx < NB_WAYPOINT) {
     struct Int32Vect2 from_diff;
     VECT2_DIFF(from_diff, waypoints[wp_idx],waypoints[from_idx]);
@@ -161,8 +175,6 @@ bool_t nav_approaching_from(uint8_t wp_idx, uint8_t from_idx) {
   }
   else return FALSE;
 }
-
-static int32_t previous_ground_alt;
 
 static inline void nav_set_altitude( void ) {
   static int32_t last_nav_alt = 0;
@@ -176,22 +188,11 @@ static inline void nav_set_altitude( void ) {
 unit_t nav_reset_reference( void ) {
   booz_ins_ltp_initialised = FALSE;
   booz_ins_vff_realign = TRUE;
-  previous_ground_alt = ground_alt;
   return 0;
 }
 
 unit_t nav_reset_alt( void ) {
   booz_ins_vff_realign = TRUE;
-  previous_ground_alt = ground_alt;
-  return 0;
-}
-
-/** Shift altitude of the waypoint according to a new ground altitude */
-unit_t nav_update_waypoints_alt( void ) {
-//  uint8_t i;
-//  for(i = 0; i < NB_WAYPOINT; i++) {
-//    waypoints[i].z -= ground_alt - previous_ground_alt;
-//  }
   return 0;
 }
 
@@ -218,8 +219,8 @@ void nav_goto_block(uint8_t b) {
 }
 
 #include <stdio.h>
-void nav_periodic_task_10Hz() {
-  RunOnceEvery(10, { stage_time++;  block_time++; });
+void nav_periodic_task() {
+  RunOnceEvery(16, { stage_time++;  block_time++; });
 
   /* from flight_plan.h */
   auto_nav();
@@ -227,7 +228,7 @@ void nav_periodic_task_10Hz() {
   /* run carrot loop */
   booz2_nav_run();
 
-  ground_alt = booz_ins_ltp_def.lla.alt;
+  ground_alt = POS_BFP_OF_REAL((float)booz_ins_ltp_def.hmsl / 100.);
 
 }
 

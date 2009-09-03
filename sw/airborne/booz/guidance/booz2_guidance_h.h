@@ -44,6 +44,7 @@ extern int32_t           booz2_guidance_h_psi_sp;
 extern struct Int32Vect2 booz2_guidance_h_pos_err;
 extern struct Int32Vect2 booz2_guidance_h_speed_err;
 extern struct Int32Vect2 booz2_guidance_h_pos_err_sum;
+extern struct Int32Vect2 booz2_guidance_h_nav_err;
 
 extern struct Int32Eulers booz2_guidance_h_rc_sp;
 extern struct Int32Vect2 booz2_guidance_h_command_earth;
@@ -52,6 +53,8 @@ extern struct Int32Eulers booz2_guidance_h_command_body;
 extern int32_t booz2_guidance_h_pgain;
 extern int32_t booz2_guidance_h_dgain;
 extern int32_t booz2_guidance_h_igain;
+extern int32_t booz2_guidance_h_ngain;
+extern int32_t booz2_guidance_h_again;
 
 
 extern void booz2_guidance_h_init(void);

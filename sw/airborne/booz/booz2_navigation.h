@@ -26,10 +26,12 @@
 
 #include "std.h"
 #include "math/pprz_geodetic_int.h"
+#include "math/pprz_geodetic_float.h"
 
 extern struct EnuCoor_i booz2_navigation_target;
 extern struct EnuCoor_i booz2_navigation_carrot;
 
+extern struct EnuCoor_f waypoints_float[];
 extern struct EnuCoor_i waypoints[];
 extern const uint8_t nb_waypoint;
 
@@ -67,11 +69,13 @@ void nav_goto_block(uint8_t block_id);
 void compute_dist2_to_home(void);
 unit_t nav_reset_reference( void ) __attribute__ ((unused));
 unit_t nav_reset_alt( void ) __attribute__ ((unused));
-unit_t nav_update_waypoints_alt( void ) __attribute__ ((unused));
-void nav_periodic_task_10Hz(void);
+void nav_periodic_task(void);
 void nav_move_waypoint(uint8_t wp_id, struct EnuCoor_i * new_pos);
 
 void nav_home(void);
+
+#define NavKillThrottle() { kill_throttle = 1; booz2_autopilot_motors_on = 0; }
+#define NavResurrect() { kill_throttle = 0; booz2_autopilot_motors_on = 1; }
 
 #define InitStage() nav_init_stage();
 
@@ -97,8 +101,8 @@ void nav_home(void);
 /** Time in s since the entrance in the current block */
 #define NavBlockTime() (block_time)
 
-#define NavSetGroundReferenceHere() ({ nav_reset_reference(); nav_update_waypoints_alt(); FALSE; })
-#define NavSetAltitudeReferenceHere() ({ nav_reset_alt(); nav_update_waypoints_alt(); FALSE; })
+#define NavSetGroundReferenceHere() ({ nav_reset_reference(); FALSE; })
+#define NavSetAltitudeReferenceHere() ({ nav_reset_alt(); FALSE; })
 
 #define NavSetWaypointHere(_wp) { FALSE; }
 
@@ -117,9 +121,10 @@ void nav_home(void);
 #define NavQdrCloseTo(x) {}
 #define NavCourseCloseTo(x) {}
 
-#define WaypointX(_wp) (waypoints[_wp].x)
-#define WaypointY(_wp) (waypoints[_wp].y)
-#define WaypointAlt(_wp) (waypoints[_wp].z)
+#define WaypointX(_wp)    POS_FLOAT_OF_BFP(waypoints[_wp].x)
+#define WaypointY(_wp)    POS_FLOAT_OF_BFP(waypoints[_wp].y)
+#define WaypointAlt(_wp)  POS_FLOAT_OF_BFP(waypoints[_wp].z)
+#define Height(_h) (_h)
 
 /*********** Navigation to  waypoint *************************************/
 #define NavGotoWaypoint(_wp) { \
@@ -155,7 +160,7 @@ bool_t nav_approaching_from(uint8_t wp_idx, uint8_t from_idx);
  setpoint and climb pre-command. */
 #define NavVerticalAltitudeMode(_alt, _pre_climb) { \
   vertical_mode = VERTICAL_MODE_ALT; \
-  nav_altitude = _alt; \
+  nav_altitude = POS_BFP_OF_REAL(_alt); \
 }
 
 /** Set the vertical mode to climb control with the specified climb setpoint */
@@ -177,6 +182,9 @@ bool_t nav_approaching_from(uint8_t wp_idx, uint8_t from_idx);
   nav_roll = ANGLE_BFP_OF_REAL(_roll); \
 }
 
+#define NAV_GROUND_DETECT ACCEL_BFP_OF_REAL(15.)
+#define NavDetectGround() ( booz_ins_enu_accel.z < -NAV_GROUND_DETECT || booz_ins_enu_accel.z > NAV_GROUND_DETECT )
+
 #define nav_IncreaseShift(x) {}
 
 #define nav_SetNavRadius(x) {}
@@ -187,7 +195,7 @@ bool_t nav_approaching_from(uint8_t wp_idx, uint8_t from_idx);
 
 #define booz2_navigation_SetFlightAltitude(x) { \
   flight_altitude = x; \
-  nav_flight_altitude = POS_BFP_OF_REAL(flight_altitude); \
+  nav_flight_altitude = POS_BFP_OF_REAL(flight_altitude) - ground_alt; \
 }
 
 #endif /* BOOZ2_NAVIGATION_H */

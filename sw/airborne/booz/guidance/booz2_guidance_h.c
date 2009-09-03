@@ -39,6 +39,7 @@ int32_t            booz2_guidance_h_psi_sp;
 struct Int32Vect2 booz2_guidance_h_pos_err;
 struct Int32Vect2 booz2_guidance_h_speed_err;
 struct Int32Vect2 booz2_guidance_h_pos_err_sum;
+struct Int32Vect2 booz2_guidance_h_nav_err;
 
 struct Int32Eulers booz2_guidance_h_rc_sp;
 struct Int32Vect2  booz2_guidance_h_command_earth;
@@ -48,9 +49,19 @@ struct Int32Eulers booz2_guidance_h_command_body;
 int32_t booz2_guidance_h_pgain;
 int32_t booz2_guidance_h_dgain;
 int32_t booz2_guidance_h_igain;
+int32_t booz2_guidance_h_ngain;
+int32_t booz2_guidance_h_again;
 
+#ifndef BOOZ2_GUIDANCE_H_NGAIN
+#define BOOZ2_GUIDANCE_H_NGAIN 0
+#endif
+
+#ifndef BOOZ2_GUIDANCE_H_AGAIN
+#define BOOZ2_GUIDANCE_H_AGAIN 0
+#endif
 
 static inline void booz2_guidance_h_hover_run(void);
+static inline void booz2_guidance_h_nav_run(bool_t in_flight);
 static inline void booz2_guidance_h_hover_enter(void);
 static inline void booz2_guidance_h_nav_enter(void);
 
@@ -66,6 +77,8 @@ void booz2_guidance_h_init(void) {
   booz2_guidance_h_pgain = BOOZ2_GUIDANCE_H_PGAIN;
   booz2_guidance_h_igain = BOOZ2_GUIDANCE_H_IGAIN;
   booz2_guidance_h_dgain = BOOZ2_GUIDANCE_H_DGAIN;
+  booz2_guidance_h_ngain = BOOZ2_GUIDANCE_H_NGAIN;
+  booz2_guidance_h_again = BOOZ2_GUIDANCE_H_AGAIN;
 
 }
 
@@ -111,7 +124,7 @@ void booz2_guidance_h_read_rc(bool_t  in_flight) {
   case BOOZ2_GUIDANCE_H_MODE_ATTITUDE:
     booz_stabilization_attitude_read_rc(in_flight);
 #ifdef USE_FMS
-    if (fms.enabled)
+    if (fms.enabled && fms.input.h_mode == BOOZ2_GUIDANCE_H_MODE_ATTITUDE)
       BOOZ_STABILIZATION_ATTITUDE_ADD_SP(fms.input.h_sp.attitude);
 #endif
     break;
@@ -152,15 +165,18 @@ void booz2_guidance_h_run(bool_t  in_flight) {
   case BOOZ2_GUIDANCE_H_MODE_NAV:
     {
       if (horizontal_mode == HORIZONTAL_MODE_ATTITUDE) {
-        booz_stab_att_sp_euler.phi = 0;
-        booz_stab_att_sp_euler.theta = 0;
+#ifndef STABILISATION_ATTITUDE_TYPE_FLOAT
+        booz_stab_att_sp_euler.phi = nav_roll << (REF_ANGLE_FRAC - INT32_ANGLE_FRAC);
+        booz_stab_att_sp_euler.theta = nav_pitch << (REF_ANGLE_FRAC - INT32_ANGLE_FRAC);
+#endif
       }
       else {
         INT32_VECT2_NED_OF_ENU(booz2_guidance_h_pos_sp, booz2_navigation_carrot);
 #ifndef STABILISATION_ATTITUDE_TYPE_FLOAT
         booz2_guidance_h_psi_sp = (nav_heading << (REF_ANGLE_FRAC - INT32_ANGLE_FRAC));
 #endif
-        booz2_guidance_h_hover_run();
+        //booz2_guidance_h_hover_run();
+        booz2_guidance_h_nav_run(in_flight);
       }
       booz_stabilization_attitude_run(in_flight);
       break;
@@ -229,6 +245,85 @@ static inline void  booz2_guidance_h_hover_run(void) {
 #ifndef STABILISATION_ATTITUDE_TYPE_FLOAT
   ANGLE_REF_NORMALIZE(booz2_guidance_h_command_body.psi);
 #endif /* STABILISATION_ATTITUDE_TYPE_FLOAT */
+
+  EULERS_COPY(booz_stab_att_sp_euler, booz2_guidance_h_command_body);
+
+}
+
+// 20 degres -> 367002 (0.35 << 20)
+#define NAV_MAX_BANK BFP_OF_REAL(0.35,REF_ANGLE_FRAC)
+#define HOLD_DISTANCE POS_BFP_OF_REAL(10.)
+
+static inline void  booz2_guidance_h_nav_run(bool_t in_flight) {
+
+  /* compute position error    */
+  VECT2_DIFF(booz2_guidance_h_pos_err, booz_ins_ltp_pos, booz2_guidance_h_pos_sp);
+  /* saturate it               */
+  VECT2_STRIM(booz2_guidance_h_pos_err, -MAX_POS_ERR, MAX_POS_ERR);
+
+  /* compute speed error    */
+  VECT2_COPY(booz2_guidance_h_speed_err, booz_ins_ltp_speed);
+  /* saturate it               */
+  VECT2_STRIM(booz2_guidance_h_speed_err, -MAX_SPEED_ERR, MAX_SPEED_ERR);
+  
+  int32_t dist;
+  INT32_VECT2_NORM(dist, booz2_guidance_h_pos_err);
+  if ( dist < HOLD_DISTANCE ) { // Hold position
+    /* update pos error integral */
+    VECT2_ADD(booz2_guidance_h_pos_err_sum, booz2_guidance_h_pos_err);
+    /* saturate it               */
+    VECT2_STRIM(booz2_guidance_h_pos_err_sum, -MAX_POS_ERR_SUM, MAX_POS_ERR_SUM);
+  }
+  else { // Tracking algorithm, no integral
+    int32_t vect_prod = 0;
+    int32_t scal_prod = booz_ins_ltp_speed.x * booz2_guidance_h_pos_err.x + booz_ins_ltp_speed.y * booz2_guidance_h_pos_err.y;
+    // compute vectorial product only if angle < pi/2 (scalar product > 0)
+    if (scal_prod >= 0) {
+      vect_prod = ((booz_ins_ltp_speed.x * booz2_guidance_h_pos_err.y) >> (INT32_POS_FRAC + INT32_SPEED_FRAC - 10))
+                - ((booz_ins_ltp_speed.y * booz2_guidance_h_pos_err.x) >> (INT32_POS_FRAC + INT32_SPEED_FRAC - 10));
+    }
+    // multiply by vector orthogonal to speed
+    VECT2_ASSIGN(booz2_guidance_h_nav_err,
+        vect_prod * (-booz_ins_ltp_speed.y),
+        vect_prod * booz_ins_ltp_speed.x);
+    // divide by 2 times dist ( >> 16 )
+    VECT2_SDIV(booz2_guidance_h_nav_err, booz2_guidance_h_nav_err, dist*dist);
+    // *2 ??
+  }
+  if (!in_flight) { INT_VECT2_ZERO(booz2_guidance_h_pos_err_sum); }
+
+  /* run PID */
+  booz2_guidance_h_command_earth.x =
+    booz2_guidance_h_pgain * (booz2_guidance_h_pos_err.x << (10 - INT32_POS_FRAC)) +
+    booz2_guidance_h_dgain * (booz2_guidance_h_speed_err.x >> (INT32_SPEED_FRAC - 10)) +
+    booz2_guidance_h_igain * (booz2_guidance_h_pos_err_sum.x >> (12 + INT32_POS_FRAC - 10)) +
+    booz2_guidance_h_ngain * booz2_guidance_h_nav_err.x +
+    booz2_guidance_h_again * booz_ins_ltp_accel.x;
+  booz2_guidance_h_command_earth.y =
+    booz2_guidance_h_pgain * (booz2_guidance_h_pos_err.y << (10 - INT32_POS_FRAC)) +
+    booz2_guidance_h_dgain * (booz2_guidance_h_speed_err.y >> (INT32_SPEED_FRAC - 10)) +
+    booz2_guidance_h_igain * (booz2_guidance_h_pos_err_sum.y >> (12 + INT32_POS_FRAC - 10)) +
+    booz2_guidance_h_ngain * booz2_guidance_h_nav_err.y +
+    booz2_guidance_h_again * booz_ins_ltp_accel.y;
+
+  VECT2_STRIM(booz2_guidance_h_command_earth, -NAV_MAX_BANK, NAV_MAX_BANK);
+  INT32_VECT2_RSHIFT(booz2_guidance_h_command_earth, booz2_guidance_h_command_earth, REF_ANGLE_FRAC - 16); // Reduice to 16 for trigo operation
+
+  /* Rotate to body frame */
+  int32_t s_psi, c_psi;
+  PPRZ_ITRIG_SIN(s_psi, booz_ahrs.ltp_to_body_euler.psi);	
+  PPRZ_ITRIG_COS(c_psi, booz_ahrs.ltp_to_body_euler.psi);	
+
+  // Restore angle ref resolution after rotation
+  booz2_guidance_h_command_body.phi = 
+      ( - s_psi * booz2_guidance_h_command_earth.x + c_psi * booz2_guidance_h_command_earth.y) >> (INT32_TRIG_FRAC - (REF_ANGLE_FRAC - 16));
+  booz2_guidance_h_command_body.theta = 
+    - ( c_psi * booz2_guidance_h_command_earth.x + s_psi * booz2_guidance_h_command_earth.y) >> (INT32_TRIG_FRAC - (REF_ANGLE_FRAC - 16));
+
+  booz2_guidance_h_command_body.phi   += booz2_guidance_h_rc_sp.phi;
+  booz2_guidance_h_command_body.theta += booz2_guidance_h_rc_sp.theta;
+  booz2_guidance_h_command_body.psi    = booz2_guidance_h_psi_sp + booz2_guidance_h_rc_sp.psi;
+  ANGLE_REF_NORMALIZE(booz2_guidance_h_command_body.psi);
 
   EULERS_COPY(booz_stab_att_sp_euler, booz2_guidance_h_command_body);
 
