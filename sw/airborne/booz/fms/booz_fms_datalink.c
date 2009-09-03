@@ -21,12 +21,13 @@
  * Boston, MA 02111-1307, USA. 
  */
 
-#include "booz2_fms.h"
+#include "booz_fms.h"
 
 void booz_fms_impl_init(void) {
-
 }
 
 void booz_fms_impl_periodic(void) {
+}
 
+void booz_fms_impl_set_enabled(bool_t enabled) {
 }

@@ -22,9 +22,6 @@
 #ifndef BOOZ2_FMS_DATALINK_H
 #define BOOZ2_FMS_DATALINK_H
 
-extern void booz_fms_impl_init(void);
-extern void booz_fms_impl_periodic(void);
-
 
 #ifdef BOOZ_FMS_PHI_THETA_MAX
 #define BOOZ_FMS_LIMIT_ATTITUDE(_fms_att) { \
@@ -48,6 +45,7 @@ extern void booz_fms_impl_periodic(void);
 	  booz_fms_input.h_sp.attitude.phi   = DL_BOOZ2_FMS_COMMAND_h_sp_1(_dl_buffer);			\
 	  booz_fms_input.h_sp.attitude.theta = DL_BOOZ2_FMS_COMMAND_h_sp_2(_dl_buffer);			\
 	  booz_fms_input.h_sp.attitude.psi   = DL_BOOZ2_FMS_COMMAND_h_sp_3(_dl_buffer);			\
+        ANGLE_REF_NORMALIZE(booz_fms_input.h_sp.attitude.psi); \
         BOOZ_FMS_LIMIT_ATTITUDE(booz_fms_input.h_sp.attitude); \
       }									\
       break;  \
