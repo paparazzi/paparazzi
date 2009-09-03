@@ -416,39 +416,39 @@ void b2_hff_update_gps(void) {
   if (GPS_LAG_N == 0) {
 #endif
 
-	b2_hff_update_x(&b2_hff_state, booz_ins_gps_pos_m_ned.x);
-	b2_hff_update_y(&b2_hff_state, booz_ins_gps_pos_m_ned.y);
+    b2_hff_update_x(&b2_hff_state, booz_ins_gps_pos_m_ned.x);
+    b2_hff_update_y(&b2_hff_state, booz_ins_gps_pos_m_ned.y);
 #ifdef B2_HFF_UPDATE_SPEED
-	b2_hff_update_xdot(&b2_hff_state, booz_ins_gps_speed_m_s_ned.x);
-	b2_hff_update_ydot(&b2_hff_state, booz_ins_gps_speed_m_s_ned.y);
+    b2_hff_update_xdot(&b2_hff_state, booz_ins_gps_speed_m_s_ned.x);
+    b2_hff_update_ydot(&b2_hff_state, booz_ins_gps_speed_m_s_ned.y);
 #endif
 
 #ifdef GPS_LAG
   } else if (b2_hff_rb_n > 0) {
-	/* roll back if state was saved approx when GPS was valid */
-	lag_counter_err = b2_hff_rb_last->lag_counter - GPS_LAG_N;
-	PRINT_DBG(2, ("update. rb_n: %d  lag_counter: %d  lag_cnt_err: %d\n", b2_hff_rb_n, b2_hff_rb_last->lag_counter, lag_counter_err));
-	if (abs(lag_counter_err) <= GPS_LAG_TOL_N) {
-	  b2_hff_rb_last->rollback = TRUE;
-	  b2_hff_update_x(b2_hff_rb_last, booz_ins_gps_pos_m_ned.x);
-	  b2_hff_update_y(b2_hff_rb_last, booz_ins_gps_pos_m_ned.y);
+    /* roll back if state was saved approx when GPS was valid */
+    lag_counter_err = b2_hff_rb_last->lag_counter - GPS_LAG_N;
+    PRINT_DBG(2, ("update. rb_n: %d  lag_counter: %d  lag_cnt_err: %d\n", b2_hff_rb_n, b2_hff_rb_last->lag_counter, lag_counter_err));
+    if (abs(lag_counter_err) <= GPS_LAG_TOL_N) {
+      b2_hff_rb_last->rollback = TRUE;
+      b2_hff_update_x(b2_hff_rb_last, booz_ins_gps_pos_m_ned.x);
+      b2_hff_update_y(b2_hff_rb_last, booz_ins_gps_pos_m_ned.y);
 #ifdef B2_HFF_UPDATE_SPEED
-	  b2_hff_update_xdot(b2_hff_rb_last, booz_ins_gps_speed_m_s_ned.x);
-	  b2_hff_update_ydot(b2_hff_rb_last, booz_ins_gps_speed_m_s_ned.y);
+      b2_hff_update_xdot(b2_hff_rb_last, booz_ins_gps_speed_m_s_ned.x);
+      b2_hff_update_ydot(b2_hff_rb_last, booz_ins_gps_speed_m_s_ned.y);
 #endif
-	  past_save_counter = GPS_DT_N-1 + lag_counter_err;
-	  PRINT_DBG(2, ("gps updated. past_save_counter: %d\n", past_save_counter));
-	  b2_hff_propagate_past(b2_hff_rb_last);
-	} else if (lag_counter_err >= GPS_DT_N - 2*GPS_LAG_TOL_N) {
-	  /* apparently missed a GPS update, try next saved state */
-	  PRINT_DBG(2, ("try next saved state\n"));
-	  b2_hff_rb_drop_last();
-	  b2_hff_update_gps();
-	}
+      past_save_counter = GPS_DT_N-1 + lag_counter_err;
+      PRINT_DBG(2, ("gps updated. past_save_counter: %d\n", past_save_counter));
+      b2_hff_propagate_past(b2_hff_rb_last);
+    } else if (lag_counter_err >= GPS_DT_N - 2*GPS_LAG_TOL_N) {
+      /* apparently missed a GPS update, try next saved state */
+      PRINT_DBG(2, ("try next saved state\n"));
+      b2_hff_rb_drop_last();
+      b2_hff_update_gps();
+    }
   } else if (save_counter < 0) {
-	/* ringbuffer empty -> save output filter state at next GPS validity point in time */
-	save_counter = GPS_DT_N-1 - (GPS_LAG_N % GPS_DT_N);
-	PRINT_DBG(2, ("rb empty, save counter set: %d\n", save_counter));
+    /* ringbuffer empty -> save output filter state at next GPS validity point in time */
+    save_counter = GPS_DT_N-1 - (GPS_LAG_N % GPS_DT_N);
+    PRINT_DBG(2, ("rb empty, save counter set: %d\n", save_counter));
   }
 
 #endif /* GPS_LAG */
