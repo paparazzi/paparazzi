@@ -41,6 +41,7 @@ struct point {
 #define WaypointX(_wp) (waypoints[_wp].x)
 #define WaypointY(_wp) (waypoints[_wp].y)
 #define WaypointAlt(_wp) (waypoints[_wp].a)
+#define Height(_h) (_h + ground_alt)
 
 extern void nav_move_waypoint(uint8_t wp_id, float utm_east, float utm_north, float alt);
 

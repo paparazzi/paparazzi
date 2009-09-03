@@ -113,10 +113,12 @@ let localize_waypoint = fun rel_utm_of_wgs84 waypoint ->
 
 let print_waypoint = fun default_alt waypoint ->
   let (x, y) = (float_attrib waypoint "x", float_attrib waypoint "y")
-  and alt = try Xml.attrib waypoint "alt" with _ -> default_alt in
+  and alt = try sof (float_attrib waypoint "height" +. !ground_alt) with _ -> default_alt in
+  let alt = try Xml.attrib waypoint "alt" with _ -> alt in
   check_altitude (float_of_string alt) waypoint;
   printf " {%.1f, %.1f, %s},\\\n" x y alt
 
+(*
 let print_waypoint_int32 = fun default_alt waypoint ->
   let (x, y) = (float_attrib waypoint "x", float_attrib waypoint "y")
   and alt = float_of_string (try Xml.attrib waypoint "alt" with _ -> default_alt) in
@@ -125,6 +127,7 @@ let print_waypoint_int32 = fun default_alt waypoint ->
   y_int = truncate (y *. pow8) and
   alt_int = truncate (alt *. pow8) in
   printf " {%d, %d, %d},\\\n" x_int y_int alt_int
+*)
 
 let convert_angle = fun rad -> truncate (1e7 *. (Rad>>Deg)rad)
 (*
@@ -202,9 +205,20 @@ let output_vmode = fun stage_xml wp last_wp ->
 	    end;
 	    a
 	  with _ ->
-	    if wp = "" 
-	    then failwith "alt or waypoint required in alt vmode" 
-	    else sprintf "WaypointAlt(%s)" wp in
+      try
+        let h = parsed_attrib stage_xml "height" in
+        begin
+          try
+            check_altitude ((float_of_string h) +. !ground_alt) stage_xml
+          with
+          (* Impossible to check the altitude on an expression: *)
+          Failure "float_of_string" -> ()
+          end;
+	      sprintf "Height(%s)" h
+      with _ ->
+    	  if wp = "" 
+	      then failwith "alt or waypoint required in alt vmode" 
+	      else sprintf "WaypointAlt(%s)" wp in
 	lprintf "NavVerticalAltitudeMode(%s, 0.);\n" alt;
     | "xyz" -> () (** Handled in Goto3D() *)
     | "glide" ->
@@ -759,9 +773,9 @@ let () =
       Xml2h.define "WAYPOINTS" "{ \\";
       List.iter (print_waypoint alt) waypoints;
       lprintf "};\n";
-      Xml2h.define "WAYPOINTS_INT32" "{ \\";
+      (*Xml2h.define "WAYPOINTS_INT32" "{ \\";
       List.iter (print_waypoint_int32 alt) waypoints;
-      lprintf "};\n";
+      lprintf "};\n";*)
       Xml2h.define "NB_WAYPOINT" (string_of_int (List.length waypoints));
 
       Xml2h.define "NB_BLOCK" (string_of_int (List.length blocks));
