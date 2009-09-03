@@ -42,16 +42,17 @@
 #include "booz_imu.h"
 #include "booz2_gps.h"
 #include "booz2_ins.h"
+#include "booz_ahrs.h"
 
 extern uint8_t telemetry_mode_Main_DefaultChannel;
 
 #ifdef USE_GPS
 #define PERIODIC_SEND_BOOZ_STATUS(_chan) {				\
     uint32_t booz_imu_nb_err = 0;					\
-    uint8_t twi_blmc_nb_err = 0;					\
+    uint8_t _twi_blmc_nb_err = 0;					\
     DOWNLINK_SEND_BOOZ_STATUS(_chan,					\
 			      &booz_imu_nb_err,				\
-			      &twi_blmc_nb_err,				\
+			      &_twi_blmc_nb_err,				\
 			      &radio_control.status,			\
 			      &booz_gps_state.fix,			\
 			      &booz2_autopilot_mode,			\
@@ -289,7 +290,6 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 
 
 #ifdef USE_AHRS_CMPL
-#include "booz_ahrs.h"
 #include "ahrs/booz2_filter_attitude_cmpl_euler.h"
 #define PERIODIC_SEND_BOOZ2_FILTER(_chan) {				\
     DOWNLINK_SEND_BOOZ2_FILTER(_chan,					\
@@ -526,6 +526,7 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
   }
 
 #ifdef USE_GPS
+#include "ins/booz2_hf_float.h"
 #define PERIODIC_SEND_BOOZ2_INS3(_chan) {				\
     DOWNLINK_SEND_BOOZ2_INS3(_chan,					\
 			     &b2ins_meas_gps_pos_ned.x,			\
@@ -561,6 +562,7 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 				&booz_ins_ltp_def.lla.lat,		\
 				&booz_ins_ltp_def.lla.lon,		\
 				&booz_ins_ltp_def.lla.alt,		\
+				&booz_ins_ltp_def.hmsl,		\
 				&booz_ins_qfe);				\
   }
 
@@ -593,12 +595,16 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 				   &booz_ins_ltp_pos.y,			\
 				   &booz_ins_ltp_speed.x,		\
 				   &booz_ins_ltp_speed.y,		\
+				   &booz_ins_ltp_accel.x,		\
+				   &booz_ins_ltp_accel.y,		\
 				   &booz2_guidance_h_pos_err.x,		\
 				   &booz2_guidance_h_pos_err.y,		\
 				   &booz2_guidance_h_speed_err.x,	\
 				   &booz2_guidance_h_speed_err.y,	\
 				   &booz2_guidance_h_pos_err_sum.x,	\
 				   &booz2_guidance_h_pos_err_sum.y,	\
+				   &booz2_guidance_h_nav_err.x,	\
+				   &booz2_guidance_h_nav_err.y,	\
 				   &booz2_guidance_h_command_earth.x,	\
 				   &booz2_guidance_h_command_earth.y,	\
 				   &booz2_guidance_h_command_body.phi,	\
@@ -634,6 +640,9 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 			     &booz_gps_state.ecef_pos.x,		\
 			     &booz_gps_state.ecef_pos.y,		\
 			     &booz_gps_state.ecef_pos.z,		\
+			     &booz_gps_state.lla_pos.lat,		\
+			     &booz_gps_state.lla_pos.lon,		\
+			     &booz_gps_state.lla_pos.alt,		\
 			     &booz_gps_state.ecef_vel.x,		\
 			     &booz_gps_state.ecef_vel.y,		\
 			     &booz_gps_state.ecef_vel.z,		\
@@ -648,13 +657,6 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 #endif
 
 #include "booz2_navigation.h"
-#define PERIODIC_SEND_BOOZ2_NAV_REF(_chan) {				\
-    DOWNLINK_SEND_BOOZ2_NAV_REF(_chan,					\
-				&booz_ins_ltp_def.ecef.x,		\
-				&booz_ins_ltp_def.ecef.y,		\
-				&booz_ins_ltp_def.ecef.z);		\
-  }
-
 #define PERIODIC_SEND_BOOZ2_NAV_STATUS(_chan) {				\
     DOWNLINK_SEND_BOOZ2_NAV_STATUS(_chan,				\
 				   &block_time,				\
@@ -674,13 +676,19 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 #define PERIODIC_SEND_WP_MOVED(_chan) {					\
     static uint8_t i;							\
     i++; if (i >= nb_waypoint) i = 0;					\
-    DOWNLINK_SEND_WP_MOVED_LTP(_chan,					\
+    DOWNLINK_SEND_WP_MOVED_ENU(_chan,					\
 			       &i,					\
 			       &(waypoints[i].x),			\
 			       &(waypoints[i].y),			\
 			       &(waypoints[i].z));			\
   }
 
+#ifdef USE_CAM
+#include "booz2_cam.h"
+#define PERIODIC_SEND_BOOZ2_CAM(_chan) DOWNLINK_SEND_BOOZ2_CAM(_chan,&booz2_cam_tilt,&booz2_cam_pan);
+#else
+#define PERIODIC_SEND_BOOZ2_CAM(_chan) {}
+#endif
 
 #define PERIODIC_SEND_BOOZ2_TUNE_HOVER(_chan) {				       \
     DOWNLINK_SEND_BOOZ2_TUNE_HOVER(_chan,				       \
@@ -700,7 +708,12 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 				   );					       \
   }
 
-
+#ifdef BOOZ2_SONAR
+#include "booz2_sonar.h"
+#define PERIODIC_SEND_BOOZ2_SONAR(_chan) DOWNLINK_SEND_BOOZ2_SONAR(_chan,&booz2_sonar_front,&booz2_sonar_back,&booz2_sonar_right,&booz2_sonar_left);
+#else
+#define PERIODIC_SEND_BOOZ2_SONAR(_chan) {}
+#endif
 
 
 #include "settings.h"
