@@ -10,10 +10,12 @@
       <message name="BOOZ_STATUS"       period="1.2"/>
       <message name="BOOZ2_FP"          period="0.25"/>
       <message name="ALIVE"             period="2.1"/>
-      <message name="BOOZ2_NAV_REF"     period="5."/>
+      <message name="BOOZ2_INS_REF"     period="5.1"/>
       <message name="BOOZ2_NAV_STATUS"  period="1.6"/>
       <message name="WP_MOVED"          period="1.3"/>
+      <message name="BOOZ2_CAM"         period="1."/>
       <message name="BOOZ2_GPS"         period=".25"/>
+      <message name="BOOZ_INS"          period=".25"/>
     </mode>
 
     <mode name="ppm">
@@ -81,15 +83,16 @@
 
     <mode name="h_loop">
       <message name="ALIVE"                   period="0.9"/>
-      <message name="BOOZ2_HOVER_LOOP"        period="0.25"/>
-      <message name="BOOZ2_STAB_ATTITUDE"     period=".2"/>
-      <message name="BOOZ2_STAB_ATTITUDE_REF" period=".2"/>
-      <message name="BOOZ2_FP"                period="0.25"/>
-      <message name="BOOZ_STATUS"             period="1.2"/>
-      <message name="BOOZ2_NAV_REF"           period="5."/>
-	  <message name="BOOZ2_HFF_X"             period=".05"/>
-	  <message name="BOOZ2_HFF_Y"             period=".05"/>
-	  <message name="BOOZ2_HFF_GPS"           period=".03"/>
+      <message name="BOOZ2_HOVER_LOOP"        period="0.062"/>
+      <message name="BOOZ2_STAB_ATTITUDE"     period=".4"/>
+      <!--<message name="BOOZ2_HFF_X"             period=".1"/>
+      <message name="BOOZ2_HFF_Y"             period=".1"/>-->
+      <!--<message name="BOOZ2_STAB_ATTITUDE_REF" period=".4"/>-->
+      <message name="BOOZ2_FP"          period="0.8"/>
+      <message name="BOOZ_STATUS"       period="1.2"/>
+      <message name="BOOZ2_NAV_STATUS"  period="1.6"/>
+	    <message name="BOOZ2_HFF_GPS"           period=".03"/>
+      <message name="BOOZ2_INS_REF"     period="5.1"/>
     </mode>
 
     <mode name="aligner">
@@ -105,12 +108,15 @@
     </mode>
 
     <mode name="tune_hover">
-      <message name="BOOZ2_TUNE_HOVER"               period=".05"/>
-      <message name="BOOZ2_GPS"               period=".25"/>
-<!-- 
-         <message name="BOOZ2_INS2"              period=".05"/>
-          <message name="BOOZ2_INS3"              period=".20"/>
-          <message name="BOOZ2_INS_REF"           period="5.1"/> -->
+      <message name="DL_VALUE"          period="1.1"/>
+      <message name="BOOZ_STATUS"       period="1.2"/>
+      <message name="ALIVE"             period="2.1"/>
+      <!--<message name="BOOZ2_SONAR"       period="0.1"/>-->
+      <!--<message name="BOOZ2_TUNE_HOVER"               period=".1"/>-->
+      <!-- <message name="BOOZ2_GPS"               period=".20"/> -->
+      <!--<message name="BOOZ2_INS2"              period=".05"/>
+      <message name="BOOZ2_INS3"              period=".20"/>-->
+      <message name="BOOZ2_INS_REF"           period="5.1"/>
     </mode>
 
 
