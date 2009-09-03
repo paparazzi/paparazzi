@@ -4,8 +4,13 @@
   <dl_settings>
 
     <dl_settings NAME="Misc">
-       <dl_setting var="telemetry_mode_Main_DefaultChannel" min="0" step="1" max="11" module="booz2_telemetry" shortname="telemetry" values="Default|PPM|Raw sensors|Scaled sensors|AHRS|Rate loop|Att loop|Vert loop|H loop|Aligner|HS_att_roll|Tune_hover"/>
+       <dl_setting var="telemetry_mode_Main_DefaultChannel" min="0" step="1" max="11" module="booz2_telemetry" shortname="telemetry" values="Default|PPM|Raw|Scaled|AHRS|Rate|Attitude|Vertical|Horizontal|Aligner|HS_att_roll|Tune_hover">
+         <key_press key="d" value="0"/>
+         <key_press key="v" value="7"/>
+         <key_press key="h" value="8"/>
+       </dl_setting>
        <dl_setting var="booz2_autopilot_mode_auto2" min="0" step="1" max="12" module="booz2_autopilot" shortname="auto2" values="Fail|Kill|Rate|Att|Rate_rcC|Att_rcC|Att_C|Rate_Z|Att_Z|Hover|Hover_C|Hover_Z|Nav"/>
+      <dl_setting var="kill_throttle" min="0" step="1" max="1" module="booz2_autopilot" values="Resurrect|Kill" handler="KillThrottle"/>
     </dl_settings>
 
     <dl_settings NAME="Rate Loop">
@@ -45,7 +50,14 @@
       <dl_setting var="booz2_guidance_h_pgain" min="-400" step="1" max="0" module="guidance/booz2_guidance_h" shortname="kp"/>
       <dl_setting var="booz2_guidance_h_dgain" min="-400" step="1" max="0" module="guidance/booz2_guidance_h" shortname="kd"/>
       <dl_setting var="booz2_guidance_h_igain" min="-400" step="1" max="0" module="guidance/booz2_guidance_h" shortname="ki" handler="SetKi"/>
-	  <dl_setting var="booz_ins_hff_realign" min="0" step="1" max="1" module="booz2_ins" shortname="hff_realign" values="OFF|ON"/>
+      <dl_setting var="booz2_guidance_h_ngain" min="-400" step="1" max="0" module="guidance/booz2_guidance_h" shortname="kn"/>
+      <dl_setting var="booz2_guidance_h_again" min="-400" step="1" max="0" module="guidance/booz2_guidance_h" shortname="ka"/>
+      <dl_setting var="booz_ins_hff_realign" min="0" step="1" max="1" module="booz2_ins" shortname="hff_realign" values="OFF|ON"/>
+   </dl_settings>
+
+   <dl_settings NAME="NAV">
+     <dl_setting var="flight_altitude" MIN="0" STEP="0.1" MAX="400" module="booz2_navigation" unit="m" handler="SetFlightAltitude"/>
+     <dl_setting var="nav_heading" MIN="0" STEP="1" MAX="360" module="booz2_navigation" unit="1/2^12r" alt_unit="deg" alt_unit_coef="0.0139882"/>
    </dl_settings>
 
     <dl_settings NAME="Analog Baro">
