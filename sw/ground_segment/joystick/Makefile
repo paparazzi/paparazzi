@@ -31,6 +31,15 @@ main_stick: main_stick.c usb_stick.c
 main_stick_debug: main_stick.c usb_stick.c
 	gcc -g -O2 -Wall `pkg-config glib-2.0 --cflags` -o $@ $^ `pkg-config glib-2.0 --libs`  `pcre-config --libs` -lglibivy -DSTICK_DBG
 
+apm_stick: apm_stick.c usb_stick.c
+	gcc -g -O2 -Wall `pkg-config glib-2.0 --cflags` -o $@ $^ `pkg-config glib-2.0 --libs`  `pcre-config --libs` -lglibivy
+
+xbox_stick: xbox_stick.c usb_stick.c
+	gcc -g -O2 -Wall `pkg-config glib-2.0 --cflags` -o $@ $^ `pkg-config glib-2.0 --libs`  `pcre-config --libs` -lglibivy
+
+attack3_stick: attack3_stick.c usb_stick.c
+	gcc -g -O2 -Wall `pkg-config glib-2.0 --cflags` -o $@ $^ `pkg-config glib-2.0 --libs`  `pcre-config --libs` -lglibivy
+
 clean:
-	rm -f *~ core *.o *.bak .depend main_stick main_stick_debug
+	rm -f *~ core *.o *.bak .depend main_stick main_stick_debug apm_stick xbox_stick attack3_stick
 
