@@ -33,6 +33,8 @@ module U = Unix
 module Dl_Pprz = Pprz.Messages (struct let name = "datalink" end)
 
 let nav_ref_ecef = ref (LL.make_ecef [|0.;0.;0.|])
+let nav_ref_alt = ref 0.
+let nav_ref_hmsl = ref 0.
 
 (* FIXME: bound the loop *)
 let rec norm_course =
@@ -115,6 +117,10 @@ let speed_frac = 2. ** 19.
 let angle_frac = 2. ** 12.
 let gps_frac = 1e7
 
+let utm_hmsl_of_ltp = fun ned ->
+  let (geo, alt) = LL.geo_of_ecef LL.WGS84 (LL.ecef_of_ned !nav_ref_ecef ned) in
+  (LL.utm_of LL.WGS84 geo, alt +. !nav_ref_hmsl -. !nav_ref_alt)
+
 let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
   let value = fun x -> try Pprz.assoc x values with Not_found -> failwith (sprintf "Error: field '%s' not found\n" x) in
 
@@ -136,21 +142,15 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
       begin match a.nav_ref with
         None -> (); (* No nav_ref yet *)
         | Some nav_ref ->
-          let x = foi32value "north" /. pos_frac
-          and y = foi32value "east" /. pos_frac
-          and z = foi32value "up" /. pos_frac in
-          let (geo, _) = LL.geo_of_ecef LL.WGS84 (LL.ecef_of_ned !nav_ref_ecef (LL.make_ned [| x; y; -. z |])) in
-          (*let (_, ref_alt) = LL.geo_of_ecef LL.WGS84 !nav_ref_ecef in*)
-          a.pos <- LL.utm_of LL.WGS84 geo;
-          (* find ground alt using srtm if available (geoid), or computation instead (ellipsoid) *)
-          let (ref_geo, ref_alt) = LL.geo_of_ecef LL.WGS84 !nav_ref_ecef in
-          let ref_alt = try float (Srtm.of_utm (LL.utm_of LL.WGS84 ref_geo)) with _ -> ref_alt in
-          (*let (_, ref_alt) = try (LL.make_geo 0. 0., float (Srtm.of_utm (LL.utm_of LL.WGS84 ref_geo)))
-            with _ -> LL.geo_of_ecef LL.WGS84 !nav_ref_ecef in*)
-          a.alt <- z +. ref_alt;
+          let north = foi32value "north" /. pos_frac
+          and east  = foi32value "east" /. pos_frac
+          and up    = foi32value "up" /. pos_frac in
+          let (utm, h) = utm_hmsl_of_ltp (LL.make_ned [| north; east; -. up |]) in
+          a.pos <- utm;
+          a.alt <- h;
           a.desired_east     <- foi32value "carrot_east" /. pos_frac;
           a.desired_north    <- foi32value "carrot_north" /. pos_frac;
-          a.desired_altitude <- (foi32value "carrot_up" /. pos_frac) +. ref_alt;
+          a.desired_altitude <- (foi32value "carrot_up" /. pos_frac) +. !nav_ref_hmsl;
           a.desired_course   <- foi32value "carrot_psi" /. angle_frac
           (* a.desired_climb <-  ?? *)
       end;
@@ -175,13 +175,17 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
       a.ap_mode       <- check_index (get_pprz_mode (ivalue "ap_mode")) ap_modes "BOOZ_AP_MODE";
       a.kill_mode     <- ivalue "ap_motors_on" == 0;
       a.bat           <- fvalue "vsupply" /. 10.;
-  | "BOOZ2_NAV_REF" ->
-      let x = (foi32value "x" /. 100.)
-      and y = (foi32value "y" /. 100.)
-      and z = (foi32value "z" /. 100.) in
+  | "BOOZ2_INS_REF" ->
+      let x = foi32value "ecef_x0" /. 100.
+      and y = foi32value "ecef_y0" /. 100.
+      and z = foi32value "ecef_z0" /. 100.
+      and alt = foi32value "alt0" /. 100.
+      and hmsl = foi32value "hmsl0" /. 100. in
       nav_ref_ecef := LL.make_ecef [| x; y; z |];
       let (geo, _) = LL.geo_of_ecef LL.WGS84 !nav_ref_ecef in
       a.nav_ref <- Some (LL.utm_of LL.WGS84 geo);
+      nav_ref_alt := alt;
+      nav_ref_hmsl := hmsl;
   | "BOOZ2_NAV_STATUS" ->
       a.block_time <- ivalue "block_time";
       a.stage_time <- ivalue "stage_time";
@@ -189,27 +193,16 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
       a.cur_stage <- ivalue "cur_stage";
       a.horizontal_mode <- check_index (ivalue "horizontal_mode") horiz_modes "AP_HORIZ";
       (*a.dist_to_wp <- sqrt (fvalue "dist2_wp")*)
-  | "WP_MOVED_LTP" ->
+  | "WP_MOVED_ENU" ->
       begin
         match a.nav_ref with
         Some nav_ref ->
-          let x = foi32value "x" /. pos_frac
-          and y = foi32value "y" /. pos_frac
-          and z = foi32value "z" /. pos_frac in
-          let (geo, _) = LL.geo_of_ecef LL.WGS84 (LL.ecef_of_ned !nav_ref_ecef (LL.make_ned [| y; x;-.z |])) in
-          let p = LL.utm_of LL.WGS84 geo in
-          update_waypoint a (ivalue "wp_id") p z;
+          let east  = foi32value "east"   /. pos_frac
+          and north = foi32value "north"  /. pos_frac
+          and up    = foi32value "up"     /. pos_frac in
+          let (utm, h) = utm_hmsl_of_ltp (LL.make_ned [| north; east; -. up |]) in
+          update_waypoint a (ivalue "wp_id") utm h;
         | None -> (); (** Can't use this message  *)
-      end;
-  | "WP_MOVED_LLA" ->
-      begin
-        match a.nav_ref with
-        Some nav_ref ->
-          let lat = foi32value "lat" /. gps_frac
-          and lon = foi32value "lon" /. gps_frac in
-          let p = LL.utm_of LL.WGS84 (LL.make_geo_deg lat lon) in
-          update_waypoint a (ivalue "wp_id") p (foi32value "alt" /. 100.)
-        | None -> () (** Can't use this message  *)
       end
   | _ -> ()
 
