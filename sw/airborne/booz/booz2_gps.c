@@ -64,15 +64,19 @@ void booz2_gps_read_ubx_message(void) {
       booz_gps_state.num_sv     = UBX_NAV_SOL_numSV(ubx_msg_buf);
 #ifdef GPS_LED
       if (booz_gps_state.fix == BOOZ2_GPS_FIX_3D) {
-      	LED_OFF(GPS_LED);
+        LED_OFF(GPS_LED);
       }
       else {
-	LED_TOGGLE(GPS_LED);
+        LED_TOGGLE(GPS_LED);
       }
 #endif
+    } else if (ubx_id == UBX_NAV_POSLLH_ID) {
+      booz_gps_state.lla_pos.lat = UBX_NAV_POSLLH_LAT(ubx_msg_buf);
+      booz_gps_state.lla_pos.lon = UBX_NAV_POSLLH_LON(ubx_msg_buf);
+      booz_gps_state.lla_pos.alt = UBX_NAV_POSLLH_HEIGHT(ubx_msg_buf) / 10;
+      booz_gps_state.hmsl        = UBX_NAV_POSLLH_HMSL(ubx_msg_buf) / 10;
     }
   }
-
 }
 
 /* UBX parsing */

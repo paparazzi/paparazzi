@@ -30,6 +30,8 @@
 struct Booz_gps_state {
   struct EcefCoor_i ecef_pos;    /* pos ECEF in cm        */
   struct EcefCoor_i ecef_vel;    /* speed ECEF in cm/s    */
+  struct LlaCoor_i lla_pos;      /* pos LLA               */
+  int32_t hmsl;                  /* above mean sea level  */
   uint32_t pacc;                 /* position accuracy     */
   uint32_t sacc;                 /* speed accuracy        */
   uint16_t pdop;                 /* dilution of precision */
@@ -46,6 +48,8 @@ extern struct Booz_gps_state booz_gps_state;
 
 
 #include "ubx_protocol.h"
+
+#define GpsFixValid() (booz_gps_state.fix == BOOZ2_GPS_FIX_3D)
 
 #ifdef SITL
 extern bool_t booz_gps_available;

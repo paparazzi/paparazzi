@@ -82,7 +82,7 @@ struct EnuCoor_i booz_ins_enu_accel;
 
 
 void booz_ins_init() {
-#ifdef USE_NAV_INS_INIT
+#ifdef USE_INS_NAV_INIT
   booz_ins_ltp_initialised  = TRUE;
   struct EcefCoor_i nav_init;
   VECT3_ASSIGN(nav_init,NAV_ECEF_X0,NAV_ECEF_Y0,NAV_ECEF_Z0);
@@ -192,28 +192,30 @@ void booz_ins_update_gps(void) {
   if (booz_gps_state.fix == BOOZ2_GPS_FIX_3D) {
     if (!booz_ins_ltp_initialised) {
       ltp_def_from_ecef_i(&booz_ins_ltp_def, &booz_gps_state.ecef_pos);
+      booz_ins_ltp_def.lla.alt = booz_gps_state.lla_pos.alt;
+      booz_ins_ltp_def.hmsl = booz_gps_state.hmsl;
       booz_ins_ltp_initialised = TRUE;
     }
     ned_of_ecef_point_i(&booz_ins_gps_pos_cm_ned, &booz_ins_ltp_def, &booz_gps_state.ecef_pos);
     ned_of_ecef_vect_i(&booz_ins_gps_speed_cm_s_ned, &booz_ins_ltp_def, &booz_gps_state.ecef_vel);
 
 #ifdef USE_HFF
-	VECT2_ASSIGN(booz_ins_gps_pos_m_ned, booz_ins_gps_pos_cm_ned.x, booz_ins_gps_pos_cm_ned.y);
-	VECT2_SDIV(booz_ins_gps_pos_m_ned, booz_ins_gps_pos_m_ned, 100.);
-	VECT2_ASSIGN(booz_ins_gps_speed_m_s_ned, booz_ins_gps_speed_cm_s_ned.x, booz_ins_gps_speed_cm_s_ned.y);
+    VECT2_ASSIGN(booz_ins_gps_pos_m_ned, booz_ins_gps_pos_cm_ned.x, booz_ins_gps_pos_cm_ned.y);
+    VECT2_SDIV(booz_ins_gps_pos_m_ned, booz_ins_gps_pos_m_ned, 100.);
+    VECT2_ASSIGN(booz_ins_gps_speed_m_s_ned, booz_ins_gps_speed_cm_s_ned.x, booz_ins_gps_speed_cm_s_ned.y);
     VECT2_SDIV(booz_ins_gps_speed_m_s_ned, booz_ins_gps_speed_m_s_ned, 100.);
-	if (booz_ins_hff_realign) {
+    if (booz_ins_hff_realign) {
       booz_ins_hff_realign = FALSE;
 #ifdef SITL
-	  struct FloatVect2 true_pos, true_speed;
-	  VECT2_COPY(true_pos, fdm.ltpprz_pos);
-	  VECT2_COPY(true_speed, fdm.ltpprz_ecef_vel);
-	  b2_hff_realign(true_pos, true_speed);
+      struct FloatVect2 true_pos, true_speed;
+      VECT2_COPY(true_pos, fdm.ltpprz_pos);
+      VECT2_COPY(true_speed, fdm.ltpprz_ecef_vel);
+      b2_hff_realign(true_pos, true_speed);
 #else
-	  b2_hff_realign(booz_ins_gps_pos_m_ned, booz_ins_gps_speed_m_s_ned);
+      b2_hff_realign(booz_ins_gps_pos_m_ned, booz_ins_gps_speed_m_s_ned);
 #endif
-	}
-	b2_hff_update_gps();
+    }
+    b2_hff_update_gps();
     booz_ins_ltp_accel.x = ACCEL_BFP_OF_REAL(b2_hff_state.xdotdot);
     booz_ins_ltp_accel.y = ACCEL_BFP_OF_REAL(b2_hff_state.ydotdot);
     booz_ins_ltp_speed.x = SPEED_BFP_OF_REAL(b2_hff_state.xdot);
@@ -228,7 +230,7 @@ void booz_ins_update_gps(void) {
     INT32_VECT2_SCALE_2(booz_ins_ltp_pos, booz_ins_gps_pos_cm_ned, INT32_POS_OF_CM_NUM, INT32_POS_OF_CM_DEN);
     INT32_VECT2_SCALE_2(booz_ins_ltp_speed, booz_ins_gps_speed_cm_s_ned, INT32_SPEED_OF_CM_S_NUM, INT32_SPEED_OF_CM_S_DEN);
 #ifdef USE_GPS_LAG_HACK
-	VECT2_COPY(d_pos, booz_ins_ltp_speed);
+    VECT2_COPY(d_pos, booz_ins_ltp_speed);
     INT32_VECT2_RSHIFT(d_pos, d_pos, 11);
     VECT2_ADD(booz_ins_ltp_pos, d_pos);
 #endif

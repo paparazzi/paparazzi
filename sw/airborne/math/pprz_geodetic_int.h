@@ -42,6 +42,7 @@ struct LtpDef_i {
   struct EcefCoor_i ecef;        /* Reference point in ecef */
   struct LlaCoor_i  lla;         /* Reference point in lla  */
   struct Int32Mat33 ltp_of_ecef; /* Rotation matrix         */
+  int32_t hmsl;                  /* Height above mean sea level */
 };
 
 extern void ltp_def_from_ecef_i(struct LtpDef_i* def, struct EcefCoor_i* ecef);
