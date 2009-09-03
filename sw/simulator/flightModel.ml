@@ -73,7 +73,6 @@ let get_attitude state = (state.phi, state.theta, state.psi)
 let get_air_speed state = state.air_speed
 let set_air_speed state = fun s -> state.air_speed <- s
 
-let cruise_thrust = 0.45
 let g = 9.81
 
 module Make(A:Data.MISSION) = struct
@@ -144,6 +143,10 @@ module Make(A:Data.MISSION) = struct
 
   let roll_neutral_default = try rad_of_deg (float_value infrared_section "ROLL_NEUTRAL_DEFAULT") with _ -> 0.
   let pitch_neutral_default = try rad_of_deg (float_value infrared_section "PITCH_NEUTRAL_DEFAULT") with _ -> 0.
+
+
+  let vert_ctrl_section = try section "VERTICAL CONTROL" with _ -> Xml.Element("",[],[])
+  let cruise_thrust = try float_value vert_ctrl_section "AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE" with _ -> 0.45
 
   let min_thrust =  0
   let max_thrust =  max_pprz
