@@ -39,6 +39,21 @@
   (radio_control.values[RADIO_CONTROL_YAW] >  BOOZ_STABILIZATION_ATTITUDE_DEADBAND_R || \
    radio_control.values[RADIO_CONTROL_YAW] < -BOOZ_STABILIZATION_ATTITUDE_DEADBAND_R)
 
+
+#define BOOZ_STABILIZATION_ATTITUDE_RESET_PSI_REF(_sp) {		\
+    _sp.psi = booz_ahrs_float.ltp_to_body_euler.psi;	\
+    booz_stab_att_ref_euler.psi = _sp.psi;				\
+    booz_stab_att_ref_rate.r = 0;					\
+    booz_stab_att_ref_accel.r = 0;					\
+    struct FloatRMat   sp_rmat;						\
+    FLOAT_RMAT_OF_EULERS_312(sp_rmat, _sp);				\
+    /*    FLOAT_RMAT_OF_EULERS_321(sp_rmat, _sp);*/			\
+    FLOAT_QUAT_OF_RMAT(booz_stab_att_sp_quat, sp_rmat);			\
+    FLOAT_RMAT_OF_EULERS_312(sp_rmat, booz_stab_att_ref_euler);				\
+    FLOAT_QUAT_OF_RMAT(booz_stab_att_ref_quat, sp_rmat);		\
+  }
+
+
 #define BOOZ_STABILIZATION_ATTITUDE_READ_RC(_sp, _inflight) {		\
     									\
     _sp.phi   = radio_control.values[RADIO_CONTROL_ROLL]  * ROLL_COEF;	\
@@ -48,26 +63,19 @@
 	_sp.psi += radio_control.values[RADIO_CONTROL_YAW] * YAW_COEF;	\
 	FLOAT_ANGLE_NORMALIZE(_sp.psi);					\
       }									\
+      struct FloatRMat   sp_rmat;					\
+      FLOAT_RMAT_OF_EULERS_312(sp_rmat, _sp);				\
+      /*FLOAT_RMAT_OF_EULERS_321(sp_rmat, _sp);*/			\
+      FLOAT_QUAT_OF_RMAT(booz_stab_att_sp_quat, sp_rmat);		\
+      /*FLOAT_EULERS_OF_QUAT(sp_euler321, sp_quat);*/			\
     }									\
     else { /* if not flying, use current yaw as setpoint */		\
-      _sp.psi = booz_ahrs_float.ltp_to_body_euler.psi;			\
+      BOOZ_STABILIZATION_ATTITUDE_RESET_PSI_REF(_sp);			\
+      if (YAW_DEADBAND_EXCEEDED()) {					\
+	booz_stab_att_ref_rate.r = RC_UPDATE_FREQ*radio_control.values[RADIO_CONTROL_YAW]*YAW_COEF; \
+      }									\
     }									\
 									\
-    struct FloatRMat   sp_rmat;						\
-    FLOAT_RMAT_OF_EULERS_312(sp_rmat, _sp);				\
-    /* FLOAT_RMAT_OF_EULERS_321(sp_rmat, _sp);*/			\
-    FLOAT_QUAT_OF_RMAT(booz_stab_att_sp_quat, sp_rmat);			\
-    /*FLOAT_EULERS_OF_QUAT(sp_euler321, sp_quat);*/			\
-  }
-
-#define BOOZ_STABILIZATION_ATTITUDE_RESET_PSI_REF(_sp) {		\
-    _sp.psi = ANGLE_FLOAT_OF_BFP(booz_ahrs.ltp_to_body_euler.psi);	\
-    booz_stab_att_ref_euler.psi = _sp.psi;				\
-    booz_stab_att_ref_rate.r = 0;					\
-    struct FloatRMat   sp_rmat;						\
-    FLOAT_RMAT_OF_EULERS_312(sp_rmat, _sp);				\
-    /*    FLOAT_RMAT_OF_EULERS_321(sp_rmat, _sp);*/			\
-    FLOAT_QUAT_OF_RMAT(booz_stab_att_sp_quat, sp_rmat);			\
   }
 
 
