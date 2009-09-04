@@ -22,7 +22,7 @@ int  serial_port_open(struct FmsSerialPort* me, const char* device,
 		      void(*term_conf_callback)(struct termios*, speed_t*)) {
   
   speed_t speed;
-  if ((me->fd = open(device, O_RDWR)) < 0) {
+  if ((me->fd = open(device, O_RDWR | O_NONBLOCK)) < 0) {
     TRACE(TRACE_ERROR,"opening %s (%s)\n", device, strerror(errno));
     return -1;
   }
