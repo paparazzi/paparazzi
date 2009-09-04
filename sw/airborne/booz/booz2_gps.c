@@ -40,7 +40,7 @@ void booz2_gps_init(void) {
 #endif
   booz_gps_state.fix = BOOZ2_GPS_FIX_NONE;
 #ifdef GPS_LED
-  LED_ON(GPS_LED);
+  LED_OFF(GPS_LED);
 #endif
   ubx_init();
 
@@ -64,7 +64,7 @@ void booz2_gps_read_ubx_message(void) {
       booz_gps_state.num_sv     = UBX_NAV_SOL_numSV(ubx_msg_buf);
 #ifdef GPS_LED
       if (booz_gps_state.fix == BOOZ2_GPS_FIX_3D) {
-        LED_OFF(GPS_LED);
+        LED_ON(GPS_LED);
       }
       else {
         LED_TOGGLE(GPS_LED);
