@@ -83,7 +83,9 @@
   </section>
 
   <section name="BAT">
-    <define name="MILLIAMP_AT_FULL_THROTTLE" value="10000."/>
+    <!--define name="MILLIAMP_AT_FULL_THROTTLE" value="10000."/-->
+    <define name="ADC_CHANNEL_CURRENT" value="ADC_4"/>
+    <define name="MilliAmpereOfAdc(adc)" value="(88*adc)"/>
     <define name="CATASTROPHIC_BAT_LEVEL" value="9.3" unit="V"/>
                                         <!-- 0.0247311828 -->
                                         <!-- 0.02432905 -->
@@ -233,7 +235,7 @@ ap.srcs += downlink.c $(SRC_ARCH)/uart_hw.c datalink.c xbee.c
 ap.CFLAGS += -DINTER_MCU
 ap.srcs += inter_mcu.c 
 
-ap.CFLAGS += -DADC -DUSE_ADC_0 -DUSE_ADC_1 -DUSE_ADC_2
+ap.CFLAGS += -DADC -DUSE_ADC_0 -DUSE_ADC_1 -DUSE_ADC_2 -DUSE_ADC_4
 ap.srcs += $(SRC_ARCH)/adc_hw.c
 
 ap.CFLAGS += -DGPS -DUBX -DUSE_UART0 -DGPS_LINK=Uart0 -DUART0_BAUD=B38400 -DGPS_USE_LATLONG

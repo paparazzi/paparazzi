@@ -16,7 +16,7 @@
     <servo name="MOTOR"         no="0" min="1000" neutral="1000" max="2000"/>
     <servo name="AILERON_LEFT"  no="1" min="1900" neutral="1480" max="1050"/>
     <servo name="ELEVATOR"      no="2" min="1750" neutral="1530" max="1250"/>
-    <servo name="RUDDER"        no="3" min="1150" neutral="1430" max="1710"/>
+    <servo name="RUDDER"        no="3" min="1100" neutral="1500" max="1900"/>
     <servo name="AILERON_RIGHT" no="4" min="2000" neutral="1610" max="1200"/>
     <servo name="FWHEEL"        no="5" min="1900" neutral="1470" max="1100"/>
     <servo name="HATCH"         no="6" min="1000" neutral="1500" max="2000"/>

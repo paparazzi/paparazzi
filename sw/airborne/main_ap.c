@@ -509,7 +509,7 @@ void periodic_task_ap( void ) {
   case 4:
     enose_periodic();
     chemo_periodic();
-    DOWNLINK_SEND_ENOSE_STATUS(&enose_val[0], &enose_val[1], &enose_val[2], &enose_PID_val, 3, enose_heat);
+    DOWNLINK_SEND_ENOSE_STATUS(DefaultChannel, &enose_val[0], &enose_val[1], &enose_val[2], &enose_PID_val, 3, enose_heat);
     break;
 #endif
 
@@ -518,14 +518,14 @@ void periodic_task_ap( void ) {
     dpicco_periodic();
     dpicco_humid = (dpicco_val[0] * DPICCO_HUMID_RANGE) / DPICCO_HUMID_MAX;
     dpicco_temp = ((dpicco_val[1] * DPICCO_TEMP_RANGE) / DPICCO_TEMP_MAX) + DPICCO_TEMP_OFFS;    
-    DOWNLINK_SEND_DPICCO_STATUS(&dpicco_val[0], &dpicco_val[1], &dpicco_humid, &dpicco_temp);
+    DOWNLINK_SEND_DPICCO_STATUS(DefaultChannel, &dpicco_val[0], &dpicco_val[1], &dpicco_humid, &dpicco_temp);
     break;
 #endif
 
 #ifdef USE_ADC_GENERIC
   case 6:
     adc_generic_periodic();
-    DOWNLINK_SEND_ADC_GENERIC(&adc_generic_val1, &adc_generic_val2);
+    DOWNLINK_SEND_ADC_GENERIC(DefaultChannel, &adc_generic_val1, &adc_generic_val2);
     break;
 #endif
 
@@ -533,7 +533,7 @@ void periodic_task_ap( void ) {
   case 8:
     humid_sht_periodic();
     if (humid_sht_available == TRUE) {
-      DOWNLINK_SEND_SHT_STATUS(&humidsht, &tempsht, &fhumidsht, &ftempsht);
+      DOWNLINK_SEND_SHT_STATUS(DefaultChannel, &humidsht, &tempsht, &fhumidsht, &ftempsht);
       humid_sht_available = FALSE;
     }
     break;
@@ -543,7 +543,7 @@ void periodic_task_ap( void ) {
   case 9:
     baro_scp_periodic();
     if (baro_scp_available == TRUE) {
-      DOWNLINK_SEND_SCP_STATUS(&baro_scp_pressure, &baro_scp_temperature);
+      DOWNLINK_SEND_SCP_STATUS(DefaultChannel, &baro_scp_pressure, &baro_scp_temperature);
       baro_scp_available = FALSE;
     }
     break;
@@ -848,7 +848,7 @@ void event_task_ap( void ) {
   if (srf08_got) {
     srf08_got = FALSE;
     srf08_copy();
-    DOWNLINK_SEND_RANGEFINDER(&srf08_range);
+    DOWNLINK_SEND_RANGEFINDER(DefaultChannel, &srf08_range);
   }
 #endif
 
