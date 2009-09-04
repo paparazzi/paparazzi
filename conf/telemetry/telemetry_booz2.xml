@@ -24,15 +24,15 @@
       <message name="BOOZ2_RADIO_CONTROL" period="0.5"/>
       <message name="BOOZ_STATUS"       period="1"/>
     </mode>
-    
+
     <mode name="raw_sensors">
       <message name="BOOZ_STATUS"       period="1.2"/>
       <message name="DL_VALUE"          period="0.5"/>
       <message name="ALIVE"             period="2.1"/>
       <message name="IMU_ACCEL_RAW"     period=".05"/>
       <message name="IMU_GYRO_RAW"      period=".05"/>
-      <message name="IMU_MAG_RAW"       period=".05"/>      
-      <message name="BOOZ2_BARO_RAW"    period=".1"/>      
+      <message name="IMU_MAG_RAW"       period=".05"/>
+      <message name="BOOZ2_BARO_RAW"    period=".1"/>
     </mode>
 
     <mode name="scaled_sensors">
@@ -85,14 +85,13 @@
       <message name="ALIVE"                   period="0.9"/>
       <message name="BOOZ2_HOVER_LOOP"        period="0.062"/>
       <message name="BOOZ2_STAB_ATTITUDE"     period=".4"/>
-      <!--<message name="BOOZ2_HFF_X"             period=".1"/>
-      <message name="BOOZ2_HFF_Y"             period=".1"/>-->
+      <message name="BOOZ2_HFF_DBG"           period=".2"/>
       <!--<message name="BOOZ2_STAB_ATTITUDE_REF" period=".4"/>-->
-      <message name="BOOZ2_FP"          period="0.8"/>
-      <message name="BOOZ_STATUS"       period="1.2"/>
-      <message name="BOOZ2_NAV_STATUS"  period="1.6"/>
-	    <message name="BOOZ2_HFF_GPS"           period=".03"/>
-      <message name="BOOZ2_INS_REF"     period="5.1"/>
+      <message name="BOOZ2_FP"                period="0.8"/>
+      <message name="BOOZ_STATUS"             period="1.2"/>
+      <message name="BOOZ2_NAV_STATUS"        period="1.6"/>
+	  <message name="BOOZ2_HFF_GPS"           period=".03"/>
+      <message name="BOOZ2_INS_REF"           period="5.1"/>
     </mode>
 
     <mode name="aligner">
