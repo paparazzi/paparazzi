@@ -144,6 +144,9 @@ int lag_counter_err;
 /* counts down the propagation steps until the filter state is saved again */
 int save_counter;
 int past_save_counter;
+#define SAVE_NOW 0
+#define SAVING -1
+#define SAVE_DONE -2
 
 #ifdef GPS_LAG
 static inline void b2_hff_get_past_accel(unsigned int back_n);
@@ -197,7 +200,7 @@ void b2_hff_init(float init_x, float init_xdot, float init_y, float init_ydot) {
   b2_hff_state.rollback = FALSE;
   lag_counter_err = 0;
   save_counter = -1;
-  past_save_counter = -1;
+  past_save_counter = SAVE_DONE;
   b2_hff_ps_counter = 1;
 }
 
@@ -314,15 +317,15 @@ static inline void b2_hff_propagate_past(struct HfilterFloat* hff_past) {
 	  b2_hff_propagate_y(hff_past);
 	  hff_past->lag_counter--;
 
-	  if (past_save_counter == 0) {
+	  if (past_save_counter > 0) {
+		past_save_counter--;
+		PRINT_DBG(2, ("dec past_save_counter: %d\n", past_save_counter));
+	  } else if (past_save_counter == SAVE_NOW) {
 		/* next GPS measurement valid at this state -> save */
 		PRINT_DBG(2, ("save past state\n"));
 		b2_hff_rb_put_state(hff_past);
-		past_save_counter = -1;
-	  } else if (past_save_counter > 0) {
-		past_save_counter--;
-		PRINT_DBG(2, ("dec past_save_counter: %d\n", past_save_counter));
-	  } else {
+		past_save_counter = SAVING;
+	  } else if (past_save_counter == SAVING) {
 		/* increase lag counter on if next state is already saved */
 		if (hff_past == &b2_hff_rb[HFF_RB_MAXN-1])
 		  b2_hff_rb[0].lag_counter++;
@@ -335,6 +338,7 @@ static inline void b2_hff_propagate_past(struct HfilterFloat* hff_past) {
 	if (hff_past->lag_counter == 0) {
 	  b2_hff_set_state(&b2_hff_state, hff_past);
 	  b2_hff_rb_drop_last();
+      past_save_counter = SAVE_DONE;
 	  break;
 	}
   }
@@ -436,10 +440,10 @@ void b2_hff_update_gps(void) {
       b2_hff_update_xdot(b2_hff_rb_last, booz_ins_gps_speed_m_s_ned.x);
       b2_hff_update_ydot(b2_hff_rb_last, booz_ins_gps_speed_m_s_ned.y);
 #endif
-      past_save_counter = GPS_DT_N-1 + lag_counter_err;
+      past_save_counter = GPS_DT_N-1;// + lag_counter_err;
       PRINT_DBG(2, ("gps updated. past_save_counter: %d\n", past_save_counter));
       b2_hff_propagate_past(b2_hff_rb_last);
-    } else if (lag_counter_err >= GPS_DT_N - 2*GPS_LAG_TOL_N) {
+    } else if (lag_counter_err >= GPS_DT_N - (GPS_LAG_TOL_N+1)) {
       /* apparently missed a GPS update, try next saved state */
       PRINT_DBG(2, ("try next saved state\n"));
       b2_hff_rb_drop_last();
@@ -465,7 +469,7 @@ void b2_hff_realign(struct FloatVect2 pos, struct FloatVect2 speed) {
 	b2_hff_rb_drop_last();
   }
   save_counter = -1;
-  past_save_counter = -1;
+  past_save_counter = SAVE_DONE;
 #endif
 }
 
