@@ -454,25 +454,25 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 
 #ifdef USE_HFF
 #include "ins/booz2_hf_float.h"
-#define PERIODIC_SEND_BOOZ2_HFF_X(_chan) {	\
-    DOWNLINK_SEND_BOOZ2_HFF_X(_chan,		\
-							  &b2_hff_x_meas,	\
-							  &b2_hff_xd_meas,	\
-							  &b2_hff_state.x,			\
-							  &b2_hff_state.xdot,		\
-							  &b2_hff_state.xdotdot,	\
-							  &b2_hff_state.xP[0][0],	\
-							  &b2_hff_state.xP[1][1]);	\
+#define PERIODIC_SEND_BOOZ2_HFF(_chan) {	\
+    DOWNLINK_SEND_BOOZ2_HFF(_chan,		\
+                            &b2_hff_state.x,			\
+                            &b2_hff_state.y,			\
+                            &b2_hff_state.xdot,         \
+                            &b2_hff_state.ydot,			\
+                            &b2_hff_state.xdotdot,      \
+                            &b2_hff_state.ydotdot);     \
   }
-#define PERIODIC_SEND_BOOZ2_HFF_Y(_chan) {	\
-	DOWNLINK_SEND_BOOZ2_HFF_Y(_chan,		\
-							  &b2_hff_y_meas,	\
-							  &b2_hff_yd_meas,	\
-							  &b2_hff_state.y,	\
-							  &b2_hff_state.ydot,	\
-							  &b2_hff_state.ydotdot,	\
-							  &b2_hff_state.yP[0][0],	\
-							  &b2_hff_state.yP[1][1]);	\
+#define PERIODIC_SEND_BOOZ2_HFF_DBG(_chan) {                \
+	DOWNLINK_SEND_BOOZ2_HFF_DBG(_chan,                      \
+                                &b2_hff_x_meas,             \
+                                &b2_hff_y_meas,             \
+                                &b2_hff_xd_meas,            \
+                                &b2_hff_yd_meas,            \
+                                &b2_hff_state.xP[0][0],     \
+                                &b2_hff_state.yP[0][0],     \
+                                &b2_hff_state.xP[1][1],     \
+                                &b2_hff_state.yP[1][1]);    \
   }
 #ifdef GPS_LAG
 #define PERIODIC_SEND_BOOZ2_HFF_GPS(_chan) {	\
@@ -485,8 +485,8 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 #define PERIODIC_SEND_BOOZ2_HFF_GPS(_chan) {}
 #endif
 #else
-#define PERIODIC_SEND_BOOZ2_HFF_X(_chan) {}
-#define PERIODIC_SEND_BOOZ2_HFF_Y(_chan) {}
+#define PERIODIC_SEND_BOOZ2_HFF(_chan) {}
+#define PERIODIC_SEND_BOOZ2_HFF_DBG(_chan) {}
 #define PERIODIC_SEND_BOOZ2_HFF_GPS(_chan) {}
 #endif
 

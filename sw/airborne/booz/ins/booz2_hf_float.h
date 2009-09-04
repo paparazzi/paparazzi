@@ -27,7 +27,7 @@
 #include "std.h"
 #include "math/pprz_algebra_float.h"
 
-#define B2_HFF_STATE_SIZE 3
+#define B2_HFF_STATE_SIZE 2
 
 #ifndef HFF_PRESCALER
 #define HFF_PRESCALER 16
@@ -41,11 +41,11 @@
 
 struct HfilterFloat {
   float x;
-  float xbias;
+  /* float xbias; */
   float xdot;
   float xdotdot;
   float y;
-  float ybias;
+  /* float ybias; */
   float ydot;
   float ydotdot;
   float xP[B2_HFF_STATE_SIZE][B2_HFF_STATE_SIZE];

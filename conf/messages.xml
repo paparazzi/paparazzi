@@ -1069,30 +1069,30 @@
       <field name="g"              type="float"/>
   </message>
 
-  <message name="BOOZ2_HFF_X" id="164">
-      <field name="x_measure"      type="float"/>
-	  <field name="xd_measure"     type="float"/>
+  <message name="BOOZ2_HFF" id="164">
       <field name="x"              type="float"/>
+      <field name="y"              type="float"/>
       <field name="xd"             type="float"/>
-	  <field name="xdd"            type="float"/>
-      <field name="Pxx"            type="float"/>
-      <field name="Pxdxd"          type="float"/>
+      <field name="yd"             type="float"/>
+      <field name="xdd"            type="float"/>
+      <field name="ydd"            type="float"/>
   </message>
 
-  <message name="BOOZ2_HFF_Y" id="165">
+  <message name="BOOZ2_HFF_DBG" id="165">
+      <field name="x_measure"      type="float"/>
       <field name="y_measure"      type="float"/>
-	  <field name="yd_measure"     type="float"/>
-      <field name="y"              type="float"/>
-      <field name="yd"             type="float"/>
-	  <field name="ydd"            type="float"/>
+      <field name="yd_measure"     type="float"/>
+      <field name="xd_measure"     type="float"/>
+      <field name="Pxx"            type="float"/>
       <field name="Pyy"            type="float"/>
+      <field name="Pxdxd"          type="float"/>
       <field name="Pydyd"          type="float"/>
   </message>
 
   <message name="BOOZ2_HFF_GPS" id="166">
       <field name="lag_cnt"     type="uint16"/>
-	  <field name="lag_cnt_err" type="int16"/>
-	  <field name="save_cnt"    type="int16"/>
+      <field name="lag_cnt_err" type="int16"/>
+      <field name="save_cnt"    type="int16"/>
   </message>
 
   <message name="EKF7_XHAT" id="170">
