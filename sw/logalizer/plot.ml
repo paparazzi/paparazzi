@@ -80,7 +80,11 @@ let labelled_entry = fun ?width_chars text value (h:GPack.box) ->
   label, GEdit.entry ?width_chars ~text:value ~packing:h#pack ()
 
 class plot = fun ~width ~height ~packing () ->
-  let curves = Hashtbl.create 3 in
+  let curves = Hashtbl.create 3
+  and left_margin = 50
+  and bottom_margin = 25
+  and top_margin = 20 in
+
   object (self)
     val mutable min_x = max_float
     val mutable max_x = -.max_float
@@ -90,28 +94,43 @@ class plot = fun ~width ~height ~packing () ->
     val mutable color_index = 0
     val mutable csts = ([] : float list)
     val mutable auto_scale = true
+    val mutable press_x = 0.
+    val mutable press_y = 0.
 
     inherit Gtk_tools.pixmap_in_drawin_area ~width ~height ~packing ()
 
-    method private update_scale = fun values ->
+    method unscale_x = fun width x ->
+      min_x +. (x -. float left_margin) *. (max_x -. min_x) /.  float (width-left_margin)
+
+    method unscale_y = fun height y ->
+      let graph_height = height - bottom_margin - top_margin in
+      min_y -. (y -. float  (top_margin+graph_height)) *. (max_y -. min_y) /. float graph_height
+
+    method private update_scale = fun ?(update_x=true) values ->
       let n = Array.length values in
-      min_x <- min min_x (fst values.(0));
-      max_x <- max max_x (fst values.(n-1));
+      if update_x then begin
+	min_x <- min min_x (fst values.(0));
+	max_x <- max max_x (fst values.(n-1))
+      end;
       for i = 0 to n - 1 do
-	let _, y = values.(i) in
-	min_y <- min min_y y;
-	max_y <- max max_y y
+	let x, y = values.(i) in
+	if min_x <= x && x <= max_x then begin
+	  min_y <- min min_y y;
+	  max_y <- max max_y y
+	end
       done
 
-    method reset_scale = fun () ->
-      if auto_scale then begin
+    method reset_scale = fun ?(update_x = true) () ->
+      if auto_scale || not update_x then begin
 	(* Recomputes the min and max *)
-	min_x <- max_float;
+	if update_x then begin
+	  min_x <- max_float;
+	  max_x <- -.max_float
+	end;
 	min_y <- max_float;
-	max_x <- -.max_float;
 	max_y <- -.max_float;
-	Hashtbl.iter (fun _ curve ->
-	  self#update_scale curve.values)
+	Hashtbl.iter
+	  (fun _ curve -> self#update_scale ~update_x curve.values)
 	  curves;
 	self#wake ()
       end
@@ -168,10 +187,7 @@ class plot = fun ~width ~height ~packing () ->
       dr#set_foreground (`NAME "white");
       dr#rectangle ~x:0 ~y:0 ~width ~height ~filled:true ();
 
-      let left_margin = 50
-      and bottom_margin = 25
-      and top_margin = 20
-      and tick_len = 5
+      let tick_len = 5
       and margin = 3 in
       let graph_height = height - bottom_margin - top_margin in
       
@@ -251,7 +267,83 @@ class plot = fun ~width ~height ~packing () ->
       (* Actually draw *)
       (new GDraw.drawable da#misc#window)#put_pixmap ~x:0 ~y:0 dr#pixmap
 
-    initializer(ignore (self#drawing_area#event#connect#expose ~callback:(fun _ -> self#redraw (); false)))
+    method button_press = fun ev ->
+      match GdkEvent.Button.button ev with
+	1 -> (* left button, store position *)
+	  press_x <- GdkEvent.Button.x ev;
+	  press_y <- GdkEvent.Button.y ev;
+	  true
+      | 3 when not auto_scale -> (* right button, reset scale *)
+	  self#reset_scale ~update_x:false ();
+	  self#redraw ();
+	  true
+      | _ -> false
+
+    method button_release = fun ev ->
+      match GdkEvent.Button.button ev with
+	1 -> (* left button, change scale *)
+	  let release_x = GdkEvent.Button.x ev
+	  and release_y = GdkEvent.Button.y ev in
+	  if abs_float (release_x -. press_x) > 25.
+	      && abs_float (release_y -. press_y) > 25. then begin
+		let {Gtk.width=width;height=height}= self#drawing_area#misc#allocation in
+		min_x <- self#unscale_x width (min press_x release_x);
+		max_x <- self#unscale_x width (max press_x release_x);
+		min_y <- self#unscale_y height (max press_y release_y);
+		max_y <- self#unscale_y height (min press_y release_y);
+		auto_scale <- false;
+		self#redraw ()
+	      end;
+	  true
+      | _ -> false
+
+    method scroll = fun ev ->
+      let {Gtk.width=width;height=height}= self#drawing_area#misc#allocation
+      and dx = (max_x -. min_x) and dy = (max_y -. min_y) in
+      let alpha_x = 
+	(GdkEvent.Scroll.x ev -. float left_margin)
+	  /. float (width-left_margin)
+      and alpha_y =
+	(float height-.GdkEvent.Scroll.y ev-. float (top_margin+bottom_margin))
+	  /. float (height-top_margin-bottom_margin)
+      and ev_state = GdkEvent.Scroll.state ev in
+      let ctrl_mod = Gdk.Convert.test_modifier `CONTROL ev_state
+      and shift_mod = Gdk.Convert.test_modifier `SHIFT ev_state in
+      match GdkEvent.Scroll.direction ev with
+	`UP -> (* Zoom factor 2 *)
+	  if not shift_mod then begin
+	    min_x <- min_x +. dx *. alpha_x /. 2.;
+	    max_x <- min_x +. dx /. 2.
+	  end;
+	  if not ctrl_mod then begin
+	    min_y <- min_y +. dy *. alpha_y /. 2.;
+	    max_y <- min_y +. dy /. 2.
+	  end;
+	  auto_scale <- false;
+	  self#redraw ();
+	  true
+      | `DOWN -> (* Unzoom factor 2 *)
+	  if not shift_mod then begin
+	    min_x <- min_x -. dx *. alpha_x;
+	    max_x <- min_x +. dx *. 2.
+	  end;
+	  if not ctrl_mod then begin
+	    min_y <- min_y -. dy *. alpha_y;
+	    max_y <- min_y +. dy *. 2.
+	  end;
+	  auto_scale <- false;
+	  self#redraw ();
+	  true
+      | _ -> false
+      
+
+    initializer ignore (self#drawing_area#event#connect#expose ~callback:(fun _ -> self#redraw (); false))
+
+    initializer ignore (self#drawing_area#event#add [`BUTTON_PRESS; `BUTTON_MOTION; `BUTTON_RELEASE; `SCROLL])
+
+    initializer ignore (self#drawing_area#event#connect#button_press ~callback:self#button_press);
+    initializer ignore (self#drawing_area#event#connect#button_release ~callback:self#button_release);
+    initializer ignore (self#drawing_area#event#connect#scroll ~callback:self#scroll);
   end
 
 
