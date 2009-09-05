@@ -159,6 +159,20 @@ class plot = fun ~size ~width ~height ~packing () ->
 	  max <- Pervasives.max max v
 	end
 
+    method reset_scale = fun () ->
+      min <- max_float;
+      max <- -. max_float;
+      Hashtbl.iter (* for all curves *)
+	(fun name a ->
+	  Array.iter (* for all values *)
+	    (function
+		None -> ()
+	      | Some v ->
+		  min <- Pervasives.min min v;
+		  max <- Pervasives.max max v)
+	    a.array)
+	curves
+	
     method shift = fun () ->
       Hashtbl.iter
 	(fun _ a ->
@@ -287,6 +301,14 @@ class plot = fun ~size ~width ~height ~packing () ->
       self#stop_timer ();
       dt <- delay;
       timer <- Some (GMain.Timeout.add (truncate (dt*.1000.)) (fun () ->self#update_curves (); true))
+
+    method button_press = fun ev ->
+      match GdkEvent.Button.button ev with
+	3 -> self#reset_scale (); true
+      | _ -> false
+
+    initializer ignore (self#drawing_area#event#add [`BUTTON_PRESS])
+    initializer ignore (self#drawing_area#event#connect#button_press ~callback:self#button_press);
   end
 
 let update_time = ref 0.5
