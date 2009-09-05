@@ -133,18 +133,24 @@ class waypoint = fun ?(show = true) (wpts_group:group) (name :string) ?(alt=0.) 
 
       let ha = GPack.hbox ~packing:dvbx#add () in
       let minus10= GButton.button ~label:"-10" ~packing:ha#add () in
-      let ea  = GEdit.entry ~text:(string_of_float alt) ~packing:ha#add () in
+(*      let ea  = GEdit.entry ~text:(string_of_float alt) ~packing:ha#add () in *)
+      let ea = GEdit.spin_button  ~rate:0. ~digits:2 ~width:50 ~packing:ha#add ()
+      and adj = GData.adjustment 
+	  ~value:alt ~lower:(-100.) ~upper:10000.
+	  ~step_incr:1. ~page_incr:10.0 ~page_size:0. () in
+      ea#set_adjustment adj;
+
       let agl = alt -. float (try Srtm.of_wgs84 wgs84 with _ -> 0) in
       let agl_lab  = GMisc.label ~text:(sprintf " AGL: %4.0fm" agl) ~packing:ha#add () in
       let plus10= GButton.button ~label:"+10" ~packing:ha#add () in
       let change_alt = fun x ->
-	ea#set_text (string_of_float (float_of_string ea#text +. x)) in
+	ea#set_value (ea#value +. x) in
       ignore(minus10#connect#pressed (fun _ -> change_alt (-10.)));
       ignore(plus10#connect#pressed (fun _ -> change_alt (10.)));
 
       let callback = fun _ ->
 	self#set_name ename#text;
-	alt <- float_of_string ea#text;
+	alt <- ea#value;
 	label#set [`TEXT name];
 	set_coordinates ();
 	updated ();
@@ -181,7 +187,7 @@ class waypoint = fun ?(show = true) (wpts_group:group) (name :string) ?(alt=0.) 
       let ok = GButton.button ~stock:`OK ~packing: dhbx#add () in
       List.iter
 	(fun e -> ignore (e#connect#activate ~callback))
-	[ename; e_pos; ea];
+	[ename; e_pos];
       ok#grab_default ();
 
       ignore(ok#connect#clicked ~callback:(fun _ -> callback (); dialog#destroy ()));
@@ -191,7 +197,7 @@ class waypoint = fun ?(show = true) (wpts_group:group) (name :string) ?(alt=0.) 
 	try
 	  set_coordinates ();
 	  let wgs84 = self#pos in
-	  let agl  = float_of_string ea#text -. float (try Srtm.of_wgs84 wgs84 with _ -> 0) in
+	  let agl  = ea#value -. float (try Srtm.of_wgs84 wgs84 with _ -> 0) in
 	  agl_lab#set_text (sprintf " AGL: %4.0fm" agl)
 	with _ -> ()
       in
