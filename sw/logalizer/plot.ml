@@ -96,6 +96,7 @@ class plot = fun ~width ~height ~packing () ->
     val mutable auto_scale = true
     val mutable press_x = 0.
     val mutable press_y = 0.
+    val mutable pressed_button = None
 
     inherit Gtk_tools.pixmap_in_drawin_area ~width ~height ~packing ()
 
@@ -267,9 +268,21 @@ class plot = fun ~width ~height ~packing () ->
       (* Actually draw *)
       (new GDraw.drawable da#misc#window)#put_pixmap ~x:0 ~y:0 dr#pixmap
 
+    method scroll = fun dpx dpy ->
+      let scale_x = (max_x -. min_x) /. float (width-left_margin)
+      and scale_y = (max_y -. min_y) /. float (height - bottom_margin - top_margin) in
+      let dx = scale_x *. float dpx
+      and dy = scale_y *. float dpy in
+      min_x <- min_x +. dx;
+      max_x <- max_x +. dx;
+      min_y <- min_y +. dy;
+      max_y <- max_y +. dy;
+      self#redraw ()
+
     method button_press = fun ev ->
+      pressed_button <- Some (GdkEvent.Button.button ev);
       match GdkEvent.Button.button ev with
-	1 -> (* left button, store position *)
+	1 | 2 -> (* left button, store position *)
 	  press_x <- GdkEvent.Button.x ev;
 	  press_y <- GdkEvent.Button.y ev;
 	  true
@@ -279,7 +292,20 @@ class plot = fun ~width ~height ~packing () ->
 	  true
       | _ -> false
 
+    method motion_notify = fun ev ->
+       match pressed_button with
+	 Some 2 -> (* middle button, scroll *)
+	   let x = GdkEvent.Motion.x ev
+	   and y = GdkEvent.Motion.y ev in
+	   self#scroll (truncate (press_x-.x)) (truncate (y-.press_y));
+	   press_x <- x;
+	   press_y <- y;
+	   true
+       | _ -> false
+
+
     method button_release = fun ev ->
+      pressed_button <- None;
       match GdkEvent.Button.button ev with
 	1 -> (* left button, change scale *)
 	  let release_x = GdkEvent.Button.x ev
@@ -287,17 +313,19 @@ class plot = fun ~width ~height ~packing () ->
 	  if abs_float (release_x -. press_x) > 25.
 	      && abs_float (release_y -. press_y) > 25. then begin
 		let {Gtk.width=width;height=height}= self#drawing_area#misc#allocation in
+		let new_max_x = self#unscale_x width (max press_x release_x) in
 		min_x <- self#unscale_x width (min press_x release_x);
-		max_x <- self#unscale_x width (max press_x release_x);
+		max_x <- new_max_x;
+		let new_max_y = self#unscale_y height (min press_y release_y)in
 		min_y <- self#unscale_y height (max press_y release_y);
-		max_y <- self#unscale_y height (min press_y release_y);
+		max_y <- new_max_y;
 		auto_scale <- false;
 		self#redraw ()
 	      end;
 	  true
       | _ -> false
 
-    method scroll = fun ev ->
+    method zoom = fun ev ->
       let {Gtk.width=width;height=height}= self#drawing_area#misc#allocation
       and dx = (max_x -. min_x) and dy = (max_y -. min_y) in
       let alpha_x = 
@@ -342,8 +370,9 @@ class plot = fun ~width ~height ~packing () ->
     initializer ignore (self#drawing_area#event#add [`BUTTON_PRESS; `BUTTON_MOTION; `BUTTON_RELEASE; `SCROLL])
 
     initializer ignore (self#drawing_area#event#connect#button_press ~callback:self#button_press);
+    initializer ignore (self#drawing_area#event#connect#motion_notify ~callback:self#motion_notify);
     initializer ignore (self#drawing_area#event#connect#button_release ~callback:self#button_release);
-    initializer ignore (self#drawing_area#event#connect#scroll ~callback:self#scroll);
+    initializer ignore (self#drawing_area#event#connect#scroll ~callback:self#zoom);
   end
 
 
@@ -657,7 +686,6 @@ let rec plot_window = fun ?export init ->
   let curves_menu = factory#add_submenu "Curves" in
   let curves_menu_fact = new GMenu.factory curves_menu in
 
-  tooltips#set_tip plot#drawing_area#coerce ~text:"Drop a messages field here to draw it";
   ignore (plotter#connect#destroy ~callback:(fun () -> plot#destroy (); quit ()));
 
   (* Auto Scale *)
