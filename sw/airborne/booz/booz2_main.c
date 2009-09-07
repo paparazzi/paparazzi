@@ -119,28 +119,29 @@ STATIC_INLINE void booz2_main_periodic( void ) {
   booz2_autopilot_periodic();
   /* set actuators     */
   actuators_set(booz2_autopilot_motors_on);
-  PeriodicPrescaleBy10(							\
-    {						                        \
+  PeriodicPrescaleBy10(                             \
+    {                                               \
       radio_control_periodic();						\
-      if (radio_control.status != RADIO_CONTROL_OK && booz2_autopilot_mode != BOOZ2_AP_MODE_KILL)\
-	booz2_autopilot_set_mode(BOOZ2_AP_MODE_FAILSAFE);		\
-    },									\
-    {									\
-      Booz2TelemetryPeriodic();						\
-    },									\
-    {									\
-      booz_fms_periodic();						\
-    },									\
-    {									\
-      /*BoozControlSurfacesSetFromCommands();*/				\
-    },									\
-    {},									\
-    {},									\
-    {},									\
-    {},									\
-    {},									\
-    {}									\
-    );									\
+      if (radio_control.status != RADIO_CONTROL_OK && booz2_autopilot_mode != BOOZ2_AP_MODE_KILL) \
+        booz2_autopilot_set_mode(BOOZ2_AP_MODE_FAILSAFE);\
+    },                \
+    {                                                                   \
+      if (cpu_time_sec > TELEMETRY_STARTUP_DELAY)                       \
+        Booz2TelemetryPeriodic();                                       \
+    },                                                                  \
+    {                                                                   \
+      booz_fms_periodic();                                              \
+    },                                                                  \
+    {                                                                   \
+      /*BoozControlSurfacesSetFromCommands();*/                         \
+    },                                                                  \
+    {},                                                                 \
+    {},                                                                 \
+    {},                                                                 \
+    {},                                                                 \
+    {},                                                                 \
+    {}                                                                  \
+                                                    );                  \
 
   //  t1 = T0TC;
   //  diff = t1 - t0;

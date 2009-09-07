@@ -36,6 +36,10 @@
 
 #include "actuators.h"
 
+#ifndef TELEMETRY_STARTUP_DELAY
+#define TELEMETRY_STARTUP_DELAY 0
+#endif
+
 #define PERIODIC_SEND_ALIVE(_chan) DOWNLINK_SEND_ALIVE(_chan, 16, MD5SUM)
 
 #include "booz2_battery.h"
