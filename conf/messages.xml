@@ -222,6 +222,11 @@
    <field name="long" type="float" unit="deg"/>
  </message>
 
+ <message name="MOTOR" id="34">
+   <field name="rpm" type="uint16" unit="Hz"/>
+   <field name="current" type="uint16" unit="mA"/>
+ </message>
+
  <message name="WP_MOVED" id="35">
     <field name="wp_id" type="uint8"/>
     <field name="utm_east" type="float" unit="m"></field>
@@ -300,6 +305,12 @@
     <field name="tag" type="uint8"/>
     <field name="time" type="uint32" unit="us"></field>
  </message>
+
+  <message name="ENERGY" id="37">
+    <field name="bat"      type="float" unit="V"/>
+    <field name="amp"      type="float" unit="A"/>
+    <field name="energy"   type="uint16" unit="Wh"/>
+  </message>
 
  <message name="WINDTURBINE_STATUS_" id="50">
    <field name="ac_id" type="uint8"/>

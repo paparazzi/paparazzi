@@ -114,7 +114,9 @@ void dl_parse_msg(void) {
     if (msg_id == DL_WIND_INFO && DL_WIND_INFO_ac_id(dl_buffer) == AC_ID) {
     wind_east = DL_WIND_INFO_east(dl_buffer);
     wind_north = DL_WIND_INFO_north(dl_buffer);
+#ifndef USE_AIRSPEED
     estimator_airspeed = DL_WIND_INFO_airspeed(dl_buffer);
+#endif
 #ifdef WIND_INFO_RET
     DOWNLINK_SEND_WIND_INFO_RET(DefaultChannel, &wind_east, &wind_north, &estimator_airspeed);
 #endif

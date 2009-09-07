@@ -3,7 +3,10 @@
 <settings>
     <dl_settings NAME="lights control">
        <dl_settings NAME="lights">
-          <dl_setting module="light" var="light_duration_1" min="0" max="61" step="1"/>
+          <dl_setting module="light" var="light_duration_1" min="0" max="61" step="1">
+            <strip_button name="CamOn" icon="on.png" value="15"/>
+            <strip_button name="CamOff" icon="off.png" value="0"/>
+	  </dl_setting>
           <dl_setting module="light" var="light_duration_2" min="0" max="61" step="1"/>
        </dl_settings>
     </dl_settings>

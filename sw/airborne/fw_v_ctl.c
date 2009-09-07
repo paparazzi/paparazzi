@@ -78,6 +78,19 @@ inline static void v_ctl_climb_auto_throttle_loop( void );
 inline static void v_ctl_climb_auto_pitch_loop( void );
 #endif
 
+#ifdef USE_AIRSPEED
+float v_ctl_auto_airspeed_setpoint;
+float v_ctl_auto_airspeed_pitch_pgain;
+float v_ctl_auto_airspeed_throttle_pgain;
+float v_ctl_auto_airspeed_throttle_igain;
+
+float v_ctl_auto_airspeed_throttle_sum_err;
+#define V_CTL_AUTO_AIRSPEED_THROTTLE_MAX_SUM_ERR 100
+
+inline void v_ctl_airspeed_loop( void );
+#endif
+
+
 void v_ctl_init( void ) {
   /* mode */
   v_ctl_mode = V_CTL_MODE_MANUAL;
@@ -112,6 +125,15 @@ void v_ctl_init( void ) {
   v_ctl_auto_pitch_pgain = V_CTL_AUTO_PITCH_PGAIN;
   v_ctl_auto_pitch_igain = V_CTL_AUTO_PITCH_IGAIN;
   v_ctl_auto_pitch_sum_err = 0.;
+#endif
+
+#ifdef USE_AIRSPEED
+  v_ctl_auto_airspeed_setpoint = V_CTL_AUTO_AIRSPEED_SETPOINT;
+  v_ctl_auto_airspeed_pitch_pgain = V_CTL_AUTO_AIRSPEED_PITCH_PGAIN;
+  v_ctl_auto_airspeed_throttle_pgain = V_CTL_AUTO_AIRSPEED_THROTTLE_PGAIN;
+  v_ctl_auto_airspeed_throttle_igain = V_CTL_AUTO_AIRSPEED_THROTTLE_IGAIN;
+
+  v_ctl_auto_airspeed_throttle_sum_err = 0.;
 #endif
 
   v_ctl_throttle_setpoint = 0;
@@ -176,6 +198,18 @@ inline static void v_ctl_climb_auto_throttle_loop(void) {
   /* pitch pre-command */
   float v_ctl_pitch_of_vz = (v_ctl_climb_setpoint + d_err * v_ctl_auto_throttle_pitch_of_vz_dgain) * v_ctl_auto_throttle_pitch_of_vz_pgain;
 
+#ifdef USE_AIRSPEED
+  float err_airspeed = (v_ctl_auto_airspeed_setpoint - estimator_airspeed);
+
+  v_ctl_auto_airspeed_throttle_sum_err += err_airspeed;
+  BoundAbs(v_ctl_auto_airspeed_throttle_sum_err, V_CTL_AUTO_AIRSPEED_THROTTLE_MAX_SUM_ERR);
+
+  float v_ctl_auto_airspeed_pitch_of_airspeed = (err_airspeed) * v_ctl_auto_airspeed_pitch_pgain;
+  float v_ctl_auto_airspeed_throttle_of_airspeed = (err_airspeed + v_ctl_auto_airspeed_throttle_sum_err * v_ctl_auto_airspeed_throttle_igain) * v_ctl_auto_airspeed_throttle_pgain;
+
+  controlled_throttle += v_ctl_auto_airspeed_throttle_of_airspeed;
+#endif
+
 #if defined AGR_CLIMB
   switch (v_ctl_auto_throttle_submode) {
   case V_CTL_AUTO_THROTTLE_AGRESSIVE:
@@ -216,6 +250,11 @@ inline static void v_ctl_climb_auto_throttle_loop(void) {
     break;
   } /* switch submode */
 #endif
+
+#ifdef USE_AIRSPEED
+  nav_pitch += v_ctl_auto_airspeed_pitch_of_airspeed;
+#endif
+
   v_ctl_throttle_setpoint = TRIM_UPPRZ(f_throttle * MAX_PPRZ);
 }
 

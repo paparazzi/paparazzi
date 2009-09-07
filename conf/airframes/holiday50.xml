@@ -25,7 +25,7 @@
   </rc_commands>
 
   <ap_only_commands>
-    <copy command="CAM_TILT" />
+    <copy command="CAM_TILT"/>
   </ap_only_commands>
 
   <command_laws>
@@ -148,7 +148,7 @@
 		float v_ctl_pitch_of_vz = (v_ctl_climb_setpoint + d_err * v_ctl_auto_throttle_pitch_of_vz_dgain) 
 		* v_ctl_auto_throttle_pitch_of_vz_pgain;
 	-->
-    <define name="AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE" value="0.368"/>
+    <define name="AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE" value="0.319999992847"/>
     <define name="AUTO_THROTTLE_MIN_CRUISE_THROTTLE" value="0.20"/>
     <define name="AUTO_THROTTLE_MAX_CRUISE_THROTTLE" value="0.45"/>
     <define name="AUTO_THROTTLE_LOITER_TRIM" value="1500"/>
@@ -173,7 +173,7 @@
     <define name="PITCH_MAX_SETPOINT" value="0.4" unit="radians"/>
     <define name="PITCH_MIN_SETPOINT" value="-0.4" unit="radians"/>
 
-    <define name="PITCH_PGAIN" value="-8000."/>	<!-- Pitch Angle PD control -->
+    <define name="PITCH_PGAIN" value="-4925.65087891"/>	<!-- Pitch Angle PD control -->
     <define name="PITCH_DGAIN" value="2.0"/>
 
     <define name="ELEVATOR_OF_ROLL" value="2050"/> <!-- Feed forward ABS(roll) to elevator -->
@@ -298,8 +298,8 @@ include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
 sim.CFLAGS += -DBOARD_CONFIG=\"tiny_1_1.h\" -DAGR_CLIMB -DLOITER_TRIM -DALT_KALMAN -DWIND_INFO -DSTRONG_WIND
 sim.srcs += nav_survey_rectangle.c nav_line.c 
 # traffic_info.c
-#sim.CFLAGS += -DUSE_AIRSPEED
-#sim.srcs += airspeed.c
+sim.CFLAGS += -DUSE_AIRSPEED
+sim.srcs += airspeed.c
 
 sim.CFLAGS += -DCAM -DMOBILE_CAM -DPOINT_CAM -DPOINT_CAM_PITCH_ROLL
 # -DTEST_CAM

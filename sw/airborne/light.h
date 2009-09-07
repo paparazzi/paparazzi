@@ -36,10 +36,13 @@ extern uint8_t light_duration_2;
 #define LightPeriodicTask2(_1Hz) {}
 #endif /* LIGHT_LED_1 */
 
+#ifndef LIGHT_DURATION_INITIAL
+#define LIGHT_DURATION_INITIAL 0
+#endif
 
 #define LightInit() { \
-  light_duration_1 = 0; \
-  light_duration_2 = 0; \
+  light_duration_1 = LIGHT_DURATION_INITIAL; \
+  light_duration_2 = LIGHT_DURATION_INITIAL; \
 }
 
 

@@ -173,6 +173,15 @@
 #define PERIODIC_SEND_BARO_MS5534A(_chan) {}
 #endif
 
+#ifdef USE_AIRSPEED
+#define PERIODIC_SEND_AIRSPEED(_chan) DOWNLINK_SEND_AIRSPEED (_chan, &adc_airspeed_val,&estimator_airspeed)
+#else
+#define PERIODIC_SEND_AIRSPEED(_chan) {}
+#endif
+
+#define PERIODIC_SEND_ENERGY(_chan) Downlink({ int16_t e = energy; DOWNLINK_SEND_ENERGY( &vsup, &curs, &e); })
+
+
 #include "fw_h_ctl_a.h"
 #define PERIODIC_SEND_H_CTL_A(_chan) DOWNLINK_SEND_H_CTL_A(_chan, &h_ctl_roll_sum_err, &h_ctl_ref_roll_angle, &h_ctl_pitch_sum_err, &h_ctl_ref_pitch_angle)
 

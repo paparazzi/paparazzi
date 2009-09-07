@@ -7,6 +7,11 @@ ap.ARCH = arm7tdmi
 ap.TARGET = autopilot
 ap.TARGETDIR = autopilot
 
+fbw.ARCHDIR = $(ARCHI)
+fbw.ARCH = arm7tdmi
+fbw.TARGET = autopilot
+fbw.TARGETDIR = autopilot
+
 LPC21ISP_BAUD = 38400
 LPC21ISP_XTAL = 12000
 

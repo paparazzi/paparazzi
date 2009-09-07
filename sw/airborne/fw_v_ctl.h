@@ -87,6 +87,14 @@ extern void v_ctl_init( void );
 extern void v_ctl_altitude_loop( void );
 extern void v_ctl_climb_loop ( void );
 
+#ifdef USE_AIRSPEED
+/* "airspeed" inner loop parameters */
+extern float v_ctl_auto_airspeed_setpoint;
+extern float v_ctl_auto_airspeed_pitch_pgain;
+extern float v_ctl_auto_airspeed_throttle_pgain;
+extern float v_ctl_auto_airspeed_throttle_igain;
+#endif
+
 /** Computes throttle_slewed from throttle_setpoint */
 extern void v_ctl_throttle_slew( void );
 

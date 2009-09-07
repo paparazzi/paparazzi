@@ -69,6 +69,10 @@
 #include "adc_generic.h"
 #endif
 
+#ifdef USE_AIRSPEED
+#include "airspeed.h"
+#endif
+
 #ifdef TELEMETER
 #include "srf08.h"
 #endif
@@ -362,7 +366,7 @@ static void navigation_task( void ) {
   SEND_NAVIGATION(DefaultChannel);
 #endif
 
-  SEND_CAM();
+  SEND_CAM(DefaultChannel);
   
   /* The nav task computes only nav_altitude. However, we are interested
      by desired_altitude (= nav_alt+alt_shift) in any case.
@@ -580,6 +584,9 @@ void periodic_task_ap( void ) {
 #if defined GYRO
       gyro_update();
 #endif
+#if defined USE_AIRSPEED
+      airspeed_update();
+#endif
 #ifdef INFRARED
       ir_update();
       estimator_update_state_infrared();
@@ -628,6 +635,9 @@ void init_ap( void ) {
 #endif
 #ifdef GYRO
   gyro_init();
+#endif
+#ifdef USE_AIRSPEED
+  airspeed_init();
 #endif
 #ifdef GPS
   gps_init();
