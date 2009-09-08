@@ -85,11 +85,13 @@ int main( void ) {
 }
 #endif /* SITL */
 
+uint32_t init_done_time;
 
 STATIC_INLINE void booz2_main_init( void ) {
 
   hw_init();
   sys_time_init();
+
   actuators_init();
   radio_control_init();
 
@@ -125,9 +127,7 @@ STATIC_INLINE void booz2_main_init( void ) {
 
   int_enable();
 
-#ifdef BOOZ_START_DELAY
-  sys_time_usleep((int)(BOOZ_START_DELAY*1e6));
-#endif
+  init_done_time = T0TC;
 
 }
 
@@ -136,6 +136,10 @@ STATIC_INLINE void booz2_main_periodic( void ) {
   //  t0 = T0TC;
 
   booz_imu_periodic();
+#ifdef BOOZ_START_DELAY
+  if ((uint32_t)(T0TC-init_done_time) < SYS_TICS_OF_USEC((uint32_t)(BOOZ_START_DELAY*1e6))) return;
+#endif
+
   /* run control loops */
   booz2_autopilot_periodic();
   /* set actuators     */
