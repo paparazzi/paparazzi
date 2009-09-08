@@ -77,7 +77,7 @@ static inline uint8_t dc_shutter( void ) {
 
   int16_t phi = DegOfRad(estimator_phi);
   int16_t theta = DegOfRad(estimator_theta);
-  DOWNLINK_SEND_DC_SHOT( &gps_utm_east, &gps_utm_north, &gps_utm_zone, &gps_course, &estimator_z, &phi, &theta);
+  DOWNLINK_SEND_DC_SHOT(DefaultChannel, &gps_utm_east, &gps_utm_north, &gps_utm_zone, &gps_course, &estimator_z, &phi, &theta);
 
   return 0;
 }
