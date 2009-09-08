@@ -82,7 +82,7 @@
 #include "enose.h"
 #endif
 
-#ifdef USE_I2C
+#if defined USE_I2C0 || USE_I2C1
 #include "i2c.h"
 #endif
 
@@ -174,7 +174,7 @@ float slider_1_val, slider_2_val;
 bool_t launch = FALSE;
 
 uint8_t vsupply;	// deciVolt
-uint16_t current;	// milliAmpere
+static int16_t current;	// milliAmpere
 
 float energy; 		// Fuel consumption (mAh)
 
@@ -660,8 +660,12 @@ void init_ap( void ) {
   GpioInit();
 #endif
 
-#ifdef USE_I2C
-  i2c_init();
+#ifdef USE_I2C0
+  i2c0_init();
+#endif
+
+#ifdef USE_I2C1
+  i2c1_init();
 #endif
 
 #ifdef USE_ADC_GENERIC
@@ -682,7 +686,7 @@ void init_ap( void ) {
 #endif
 
 #ifdef DPICCO
-  i2c_init();
+  i2c0_init();
   dpicco_init();
 #endif
 
