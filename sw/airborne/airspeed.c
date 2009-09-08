@@ -2,6 +2,7 @@
 #include "adc.h"
 #include "airframe.h"
 #include "estimator.h"
+#include BOARD_CONFIG
 
 #ifdef USE_AIRSPEED
 uint16_t adc_airspeed_val;

@@ -278,8 +278,8 @@ ap.srcs += nav.c fw_h_ctl.c fw_v_ctl.c
 ap.CFLAGS += -DGYRO -DADXRS150
 ap.srcs += gyro.c
 
-#ap.CFLAGS += -DUSE_AIRSPEED
-#ap.srcs += airspeed.c
+ap.CFLAGS += -DUSE_AIRSPEED
+ap.srcs += airspeed.c
 
 ap.srcs += nav_line.c nav_survey_rectangle.c
 ap.srcs += traffic_info.c
