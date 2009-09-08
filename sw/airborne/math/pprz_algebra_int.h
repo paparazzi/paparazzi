@@ -29,6 +29,7 @@
 #include "std.h"
 #include "math/pprz_algebra.h"
 #include "math/pprz_trig_int.h"
+#include <stdlib.h>
 
 struct Uint16Vect3 {
   uint16_t x;
