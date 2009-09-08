@@ -25,6 +25,13 @@
 
 #include "led.h"
 
+#include "airframe.h"
+
+/* threshold >0 && <1023 */
+#ifndef BOOZ_ANALOG_BARO_THRESHOLD
+#define BOOZ_ANALOG_BARO_THRESHOLD 850
+#endif
+
 // pressure on AD0.1 on P0.28
 // offset on DAC on P0.25
 
