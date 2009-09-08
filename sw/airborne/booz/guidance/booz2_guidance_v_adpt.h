@@ -64,9 +64,26 @@ int32_t b2_gv_adapt_Xmeas;
 /* System and Measuremement noises */
 #define B2_GV_ADAPT_SYS_NOISE_F 0.00005
 #define B2_GV_ADAPT_SYS_NOISE  BFP_OF_REAL(B2_GV_ADAPT_SYS_NOISE_F, B2_GV_ADAPT_P_FRAC)
-#define B2_GV_ADAPT_MEAS_NOISE_F 2.0
+
+#ifndef USE_ADAPT_HOVER
+
+#define B2_GV_ADAPT_MEAS_NOISE_F 2.0                                                   
+#define B2_GV_ADAPT_MEAS_NOISE_HOVER BFP_OF_REAL(B2_GV_ADAPT_MEAS_NOISE_HOVER_F, B2_GV_ADAPT_P_FRAC)
+
+#else /* USE_ADAPT_HOVER */
+
+#define B2_GV_ADAPT_MEAS_NOISE_HOVER_F 10.0
+#define B2_GV_ADAPT_MEAS_NOISE_HOVER BFP_OF_REAL(B2_GV_ADAPT_MEAS_NOISE_HOVER_F, B2_GV_ADAPT_P_FRAC)
+#define B2_GV_ADAPT_MEAS_NOISE_F 50.0
 #define B2_GV_ADAPT_MEAS_NOISE BFP_OF_REAL(B2_GV_ADAPT_MEAS_NOISE_F, B2_GV_ADAPT_P_FRAC)
 
+#define B2_GV_ADAPT_MAX_ACCEL ACCEL_BFP_OF_REAL(4.0)
+#define B2_GV_ADAPT_HOVER_ACCEL ACCEL_BFP_OF_REAL(1.0)
+#define B2_GV_ADAPT_MAX_CMD 180
+#define B2_GV_ADAPT_MIN_CMD 20
+#define B2_GV_ADAPT_HOVER_MAX_CMD 120
+#define B2_GV_ADAPT_HOVER_MIN_CMD 60
+#endif
 
 static inline void b2_gv_adapt_init(void) {
   b2_gv_adapt_X = B2_GV_ADAPT_X0;
@@ -87,6 +104,12 @@ static inline void b2_gv_adapt_run(int32_t zdd_meas, int32_t thrust_applied) {
   b2_gv_adapt_P =  b2_gv_adapt_P + B2_GV_ADAPT_SYS_NOISE;
   /* Compute our measurement. If zdd_meas is in the range +/-5g, meas is less than 24 bits */
   const int32_t g_m_zdd = ((int32_t)BFP_OF_REAL(9.81, INT32_ACCEL_FRAC) - zdd_meas)<<(B2_GV_ADAPT_X_FRAC - INT32_ACCEL_FRAC);
+#ifdef USE_ADAPT_HOVER
+  /* Update only if accel and commands are in a valid range */
+  if (thrust_applied < B2_GV_ADAPT_MIN_CMD || thrust_applied > B2_GV_ADAPT_MAX_CMD
+      || zdd_meas < -B2_GV_ADAPT_MAX_ACCEL || zdd_meas > B2_GV_ADAPT_MAX_ACCEL)
+    return;
+#endif
   if ( g_m_zdd > 0)
     b2_gv_adapt_Xmeas = (g_m_zdd + (thrust_applied>>1)) / thrust_applied;
   else
@@ -94,7 +117,14 @@ static inline void b2_gv_adapt_run(int32_t zdd_meas, int32_t thrust_applied) {
   /* Compute a residual */
   int32_t residual = b2_gv_adapt_Xmeas - b2_gv_adapt_X;
   /* Covariance Error   */
-  int32_t E = b2_gv_adapt_P + B2_GV_ADAPT_MEAS_NOISE;
+  int32_t E = 0;
+#ifdef USE_ADAPT_HOVER
+  if ((thrust_applied > B2_GV_ADAPT_HOVER_MIN_CMD && thrust_applied < B2_GV_ADAPT_HOVER_MAX_CMD) ||
+      (zdd_meas > -B2_GV_ADAPT_HOVER_ACCEL && zdd_meas < B2_GV_ADAPT_HOVER_ACCEL))
+    E = b2_gv_adapt_P + B2_GV_ADAPT_MEAS_NOISE_HOVER;
+  else
+#endif
+    E = b2_gv_adapt_P + B2_GV_ADAPT_MEAS_NOISE;
   /* Kalman gain        */
   int32_t K = (b2_gv_adapt_P<<K_FRAC) / E;
   /* Update Covariance */
