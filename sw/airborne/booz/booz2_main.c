@@ -126,7 +126,7 @@ STATIC_INLINE void booz2_main_init( void ) {
   int_enable();
 
 #ifdef BOOZ_START_DELAY
-  sys_time_usleep(BOOZ_START_DELAY);
+  sys_time_usleep((int)(BOOZ_START_DELAY*1e6));
 #endif
 
 }

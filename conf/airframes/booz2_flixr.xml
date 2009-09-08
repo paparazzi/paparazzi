@@ -207,7 +207,7 @@
 		#set GPS lag for horizontal filter
 		ap.CFLAGS += -DGPS_LAG=0.8 -DUSE_GPS_ACC4R
 
-        ap.CFLAGS += -DTELEMETRY_STARTUP_DELAY=3
+        ap.CFLAGS += -DBOOZ_START_DELAY=2
   </makefile>
 
 </airframe>
