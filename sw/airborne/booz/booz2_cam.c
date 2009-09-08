@@ -48,6 +48,7 @@ void booz2_cam_init(void) {
 #ifdef BOOZ2_CAM_PAN_NEUTRAL
   booz2_cam_pan = BOOZ2_CAM_PAN_NEUTRAL;
 #endif
+  LED_ON(CAM_SWITCH_LED);
 }
 
 void booz2_cam_periodic(void) {
@@ -65,7 +66,7 @@ void booz2_cam_periodic(void) {
     case BOOZ2_CAM_MODE_HEADING:
 #if defined BOOZ2_CAM_TILT_MIN && defined BOOZ2_CAM_TILT_MAX
       Bound(booz2_cam_tilt,BOOZ2_CAM_TILT_MIN,BOOZ2_CAM_TILT_MAX);
-      Booz2SetPwmValue(booz2_cam_tilt);
+      //Booz2SetPwmValue(booz2_cam_tilt);
 #endif
 #if defined BOOZ2_CAM_PAN_MIN && defined BOOZ2_CAM_PAN_MAX
       //Bound(booz2_cam_pan,BOOZ2_CAM_PAN_MIN,BOOZ2_CAM_PAN_MAX);

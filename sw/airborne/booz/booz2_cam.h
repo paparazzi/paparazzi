@@ -27,6 +27,7 @@
 
 #include "airframe.h"
 #include "std.h"
+#include "led.h"
 
 #define BOOZ2_CAM_MODE_NONE     0
 #define BOOZ2_CAM_MODE_MANUAL   1
@@ -44,6 +45,12 @@ extern int16_t booz2_cam_pan;
 
 extern void booz2_cam_init(void);
 extern void booz2_cam_periodic(void);
+
+#define booz2_cam_SetCamMode(_v) { \
+  booz2_cam_mode = _v; \
+  if (booz2_cam_mode == BOOZ2_CAM_MODE_NONE) { LED_ON(CAM_SWITCH_LED); } \
+  else { LED_OFF(CAM_SWITCH_LED); } \
+}
 
 #endif /* BOOZ2_CAM_H */
 
