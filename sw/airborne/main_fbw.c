@@ -61,9 +61,6 @@
 #ifdef MILLIAMP_PER_PERCENT
 #  warning "deprecated MILLIAMP_PER_PERCENT --> Please use MILLIAMP_AT_FULL_THROTTLE"
 #endif
-#ifndef MILLIAMP_AT_FULL_THROTTLE
-#define MILLIAMP_AT_FULL_THROTTLE 0
-#endif
 
 #ifdef ADC
 struct adc_buf vsupply_adc_buf;
@@ -79,7 +76,7 @@ struct adc_buf current_adc_buf;
 #endif
 
 uint8_t fbw_vsupply_decivolt;
-uint16_t fbw_current_milliamp;
+int16_t fbw_current_milliamp;
 
 uint8_t fbw_mode;
 
@@ -229,7 +226,7 @@ void periodic_task_fbw( void ) {
 #   endif
 #endif
 
-#ifndef ADC_CHANNEL_CURRENT
+#if ((! defined ADC_CHANNEL_CURRENT) && defined MILLIAMP_AT_FULL_THROTTLE)
 #ifdef COMMAND_THROTTLE
     fbw_current_milliamp = Min(((float)commands[COMMAND_THROTTLE]) * ((float)MILLIAMP_AT_FULL_THROTTLE) / ((float)MAX_PPRZ), 65000);
 #endif
