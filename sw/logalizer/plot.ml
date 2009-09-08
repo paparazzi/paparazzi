@@ -96,6 +96,8 @@ class plot = fun ~width ~height ~packing () ->
     val mutable auto_scale = true
     val mutable press_x = 0.
     val mutable press_y = 0.
+    val mutable motion_x = 0.
+    val mutable motion_y = 0.
     val mutable pressed_button = None
 
     inherit Gtk_tools.pixmap_in_drawin_area ~width ~height ~packing ()
@@ -263,7 +265,20 @@ class plot = fun ~width ~height ~packing () ->
 	  dr#lines [(x,y);(x,y-tick_len)]
 	done
       end;
-	
+
+      (* Draw a rectangle of the current selection *)
+      begin
+	match pressed_button with
+	 Some 1 ->
+	   let width = abs (truncate (motion_x -. press_x))
+	   and height = abs (truncate (motion_y -. press_y)) in
+	   if width > 5 && height > 5 then
+	     let x = truncate (min press_x motion_x)
+	     and y = truncate (min press_y motion_y) in
+	     dr#set_foreground (`NAME "black");
+	     dr#rectangle ~x ~y ~width ~height ();
+	| _ -> ()
+      end;
       
       (* Actually draw *)
       (new GDraw.drawable da#misc#window)#put_pixmap ~x:0 ~y:0 dr#pixmap
@@ -293,15 +308,20 @@ class plot = fun ~width ~height ~packing () ->
       | _ -> false
 
     method motion_notify = fun ev ->
-       match pressed_button with
-	 Some 2 -> (* middle button, scroll *)
-	   let x = GdkEvent.Motion.x ev
-	   and y = GdkEvent.Motion.y ev in
-	   self#scroll (truncate (press_x-.x)) (truncate (y-.press_y));
-	   press_x <- x;
-	   press_y <- y;
-	   true
-       | _ -> false
+      let x = GdkEvent.Motion.x ev
+      and y = GdkEvent.Motion.y ev in
+      match pressed_button with
+	Some 1 ->
+	  motion_x <- x;
+	  motion_y <- y;
+	  self#redraw ();
+	  true
+      |	Some 2 -> (* middle button, scroll *)
+	  self#scroll (truncate (press_x-.x)) (truncate (y-.press_y));
+	  press_x <- x;
+	  press_y <- y;
+	  true
+      | _ -> false
 
 
     method button_release = fun ev ->
