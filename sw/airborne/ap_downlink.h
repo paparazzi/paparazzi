@@ -129,7 +129,7 @@
 
 #define PERIODIC_SEND_ESTIMATOR(_chan) DOWNLINK_SEND_ESTIMATOR(_chan, &estimator_z, &estimator_z_dot)
 
-#define SEND_NAVIGATION(_chan) Downlink({ DOWNLINK_SEND_NAVIGATION(_chan, &nav_block, &nav_stage, &estimator_x, &estimator_y, &dist2_to_wp, &dist2_to_home);})
+#define SEND_NAVIGATION(_chan) Downlink({ uint8_t _circle_count = NavCircleCount(); DOWNLINK_SEND_NAVIGATION(_chan, &nav_block, &nav_stage, &estimator_x, &estimator_y, &dist2_to_wp, &dist2_to_home, &_circle_count, &nav_oval_count);})
 
 #define PERIODIC_SEND_NAVIGATION(_chan) SEND_NAVIGATION(_chan)
 
