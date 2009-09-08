@@ -3,7 +3,7 @@
 <settings>
   <dl_settings>
     <dl_settings NAME="Poles">
-      <dl_setting MAX="25" MIN="1" STEP="1" VAR="nav_poles_count" module="nav_poles"/>
+      <dl_setting MAX="40" MIN="1" STEP="1" VAR="nav_poles_count" module="nav_poles"/>
     </dl_settings>
   </dl_settings>
 </settings>
