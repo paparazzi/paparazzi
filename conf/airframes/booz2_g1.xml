@@ -131,8 +131,12 @@
    <define name="MIN_ERR_ZD"   value="SPEED_BFP_OF_REAL(-10.)"/>
    <define name="MAX_ERR_ZD"   value="SPEED_BFP_OF_REAL( 10.)"/>
    <define name="MAX_SUM_ERR"  value="2000000"/>
-   <define name="HOVER_KP"    value="-150"/>
-   <define name="HOVER_KD"    value="-80"/>
+   <define name="REF_MIN_ZDD"  value="-1.5*9.81"/>
+   <define name="REF_MAX_ZDD"  value=" 0.5*9.81"/>
+   <define name="REF_MIN_ZD"   value="-1.5"/>
+   <define name="REF_MAX_ZD"   value=" 1.5"/>
+   <define name="HOVER_KP"     value="-150"/>
+   <define name="HOVER_KD"     value="-80"/>
    <define name="HOVER_KI"     value="0"/>
    <!-- 1.5m/s for full stick : SPEED_BFP_OF_REAL(1.5) / (MAX_PPRZ/2) -->
    <define name="RC_CLIMB_COEF" value ="163"/>
@@ -170,13 +174,17 @@
     <define name="TILT_NEUTRAL" value="1500"/>
     <define name="TILT_MIN" value="1000"/>
     <define name="TILT_MAX" value="2000"/>
+    <define name="TILT_ANGLE_MIN" value="RadOfDeg(-70.)" unit="rad"/>
+    <define name="TILT_ANGLE_MAX" value="RadOfDeg( 70.)" unit="rad"/>
     <define name="PAN_NEUTRAL" value="0"/>
     <define name="PAN_MIN" value="0"/>
     <define name="PAN_MAX" value="25736"/> <!-- 360 deg (2^12) -->
  </section>
 
  <section name="MISC">
+   <define name="BOOZ_ANALOG_BARO_THRESHOLD" value="512"/>
    <define name="BOOZ2_FACE_REINJ_1"  value="1024"/>
+   <define name="DEFAULT_CIRCLE_RADIUS" value="10."/>
  </section>
 
  <section name="SIMULATOR" prefix="NPS_">
@@ -212,9 +220,10 @@ include $(CFG_BOOZ)/subsystems/booz2_ahrs_cmpl.makefile
 
 include $(CFG_BOOZ)/subsystems/booz2_ins_hff.makefile
 #set GPS lag for horizontal filter
-ap.CFLAGS += -DGPS_LAG=0.8
+#ap.CFLAGS += -DGPS_LAG=0.8
+ap.CFLAGS += -DUSE_GPS_ACC4R
 
-ap.CFLAGS += -DUSE_INS_NAV_INIT
+ap.CFLAGS += -DUSE_INS_NAV_INIT -DBOOZ_START_DELAY=4000
 
 ap.CFLAGS += -DUSE_CAM
 ap.srcs += $(SRC_BOOZ_ARCH)/booz2_pwm_hw.c $(SRC_BOOZ)/booz2_cam.c
