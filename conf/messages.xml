@@ -70,6 +70,8 @@
      <field name="pos_y" type="float" unit="m" format="%.1f"></field>
      <field name="dist2_wp" type="float" format="%.1f" unit="m^2"></field>
      <field name="dist2_home" type="float" format="%.1f" unit="m^2"></field>
+     <field name="circle_count" type="uint8"></field>
+     <field name="oval_count" type="uint8"></field>
    </message>
 
    <message name="PPRZ_MODE" id="11">
@@ -88,7 +90,7 @@
      <field name="kill_auto_throttle" type="uint8" unit="bool"></field>
      <field name="block_time" type="uint16" unit="s"></field>
      <field name="stage_time" type="uint16" unit="s"></field>
-     <field name="energy" type="uint16" unit="mAh"/>
+     <field name="energy" type="int16" unit="mAh"/>
    </message>
 
    <message name="DEBUG_MCU_LINK" id="13">
@@ -294,16 +296,16 @@
     <field name="alt" type="int32" unit="cm"></field>
  </message>
 
+ <message name="CHRONO" id="48">
+    <field name="tag" type="uint8"/>
+    <field name="time" type="uint32" unit="us"></field>
+ </message>
+
  <message name="WP_MOVED_ENU" id="49">
     <field name="wp_id" type="uint8"/>
     <field name="east"  type="int32" unit="2^8m" alt_unit="m" alt_unit_coef="0.0039063"/>
     <field name="north" type="int32" unit="2^8m" alt_unit="m" alt_unit_coef="0.0039063"/>
     <field name="up"    type="int32" unit="2^8m" alt_unit="m" alt_unit_coef="0.0039063"/>
- </message>
-
- <message name="CHRONO" id="48">
-    <field name="tag" type="uint8"/>
-    <field name="time" type="uint32" unit="us"></field>
  </message>
 
   <message name="ENERGY" id="37">
@@ -324,6 +326,10 @@
     <field name="roll"  type="int8"/>
     <field name="pitch" type="int8"/>
   </message>
+
+ <message name="MPPT" id="52">
+    <field name="values" type="int16[]" alt_unit_coef="1e-3"/>
+ </message>
 
   <message name="H_CTL_A" id="60">
     <field name="roll_sum_err" type="float"/>
@@ -350,7 +356,7 @@
     <field name="rc_status" type="uint8" values="OK|LOST|REALLY_LOST"/>
     <field name="mode" type="uint8" values="MANUAL|AUTO|FAILSAFE"/>
     <field name="vsupply" type="uint8" unit="decivolt"/>
-    <field name="current" type="uint16" unit="mA"/>
+    <field name="current" type="int16" unit="mA"/>
   </message>
 
   <message name="ADC" id="104">
