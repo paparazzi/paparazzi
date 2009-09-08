@@ -48,12 +48,15 @@ extern int32_t ground_alt;
 
 extern uint8_t horizontal_mode;
 extern uint8_t nav_segment_start, nav_segment_end;
+extern uint8_t nav_circle_centre;
+extern int32_t nav_circle_radius, nav_circle_qdr, nav_circle_radians;
 #define HORIZONTAL_MODE_WAYPOINT  0
 #define HORIZONTAL_MODE_ROUTE     1
 #define HORIZONTAL_MODE_CIRCLE    2
 #define HORIZONTAL_MODE_ATTITUDE  3
 extern int32_t nav_roll, nav_pitch;
 extern int32_t nav_heading, nav_course;
+extern float nav_radius;
 
 extern uint8_t vertical_mode;
 extern uint32_t nav_throttle;
@@ -74,8 +77,8 @@ void nav_move_waypoint(uint8_t wp_id, struct EnuCoor_i * new_pos);
 
 void nav_home(void);
 
-#define NavKillThrottle() { kill_throttle = 1; booz2_autopilot_motors_on = 0; }
-#define NavResurrect() { kill_throttle = 0; booz2_autopilot_motors_on = 1; }
+#define NavKillThrottle() ({ kill_throttle = 1; booz2_autopilot_motors_on = 0; FALSE; })
+#define NavResurrect() ({ kill_throttle = 0; booz2_autopilot_motors_on = 1; FALSE; })
 
 #define InitStage() nav_init_stage();
 
@@ -106,7 +109,10 @@ void nav_home(void);
 
 #define NavSetWaypointHere(_wp) { FALSE; }
 
-#define NavCircleWaypoint(wp, radius) {}
+#define WaypointX(_wp)    POS_FLOAT_OF_BFP(waypoints[_wp].x)
+#define WaypointY(_wp)    POS_FLOAT_OF_BFP(waypoints[_wp].y)
+#define WaypointAlt(_wp)  POS_FLOAT_OF_BFP(waypoints[_wp].z)
+#define Height(_h) (_h)
 
 /** Normalize a degree angle between 0 and 359 */
 #define NormCourse(x) { \
@@ -114,25 +120,25 @@ void nav_home(void);
   while (x >= 360) x -= 360; \
 }
 
-#define NavCircleCount() {}
-#define NavCircleQdr() {}
-
-/** True if x (in degrees) is close to the current QDR (less than 10 degrees)*/
-#define NavQdrCloseTo(x) {}
-#define NavCourseCloseTo(x) {}
-
-#define WaypointX(_wp)    POS_FLOAT_OF_BFP(waypoints[_wp].x)
-#define WaypointY(_wp)    POS_FLOAT_OF_BFP(waypoints[_wp].y)
-#define WaypointAlt(_wp)  POS_FLOAT_OF_BFP(waypoints[_wp].z)
-#define Height(_h) (_h)
-
 /*********** Navigation to  waypoint *************************************/
 #define NavGotoWaypoint(_wp) { \
   horizontal_mode = HORIZONTAL_MODE_WAYPOINT; \
   INT32_VECT3_COPY( booz2_navigation_target, waypoints[_wp]); \
 }
 
-#define NavGlide(_last_wp, _wp) {}
+/*********** Navigation on a circle **************************************/
+extern void nav_circle(uint8_t wp_center, int32_t radius);
+#define NavCircleWaypoint(_center, _radius) { \
+  horizontal_mode = HORIZONTAL_MODE_CIRCLE; \
+  nav_circle(_center, POS_BFP_OF_REAL(_radius)); \
+}
+
+#define NavCircleCount() (abs(nav_circle_radians) / INT32_ANGLE_2_PI)
+#define NavCircleQdr() ({ int32_t qdr = INT32_DEG_OF_RAD(INT32_ANGLE_2_PI_2 - nav_circle_qdr) >> INT32_ANGLE_FRAC; NormCourse(qdr); qdr; })
+
+/** True if x (in degrees) is close to the current QDR (less than 10 degrees)*/
+#define NavQdrCloseTo(x) {}
+#define NavCourseCloseTo(x) {}
 
 /*********** Navigation along a line *************************************/
 extern void nav_route(uint8_t wp_start, uint8_t wp_end);
@@ -141,10 +147,11 @@ extern void nav_route(uint8_t wp_start, uint8_t wp_end);
   nav_route(_start, _end); \
 }
 
-
 bool_t nav_approaching_from(uint8_t wp_idx, uint8_t from_idx);
 #define NavApproaching(wp, time) nav_approaching_from(wp, 0)
 #define NavApproachingFrom(wp, from, time) nav_approaching_from(wp, from)
+
+#define NavGlide(_last_wp, _wp) {}
 
 /** Set the climb control to auto-throttle with the specified pitch
     pre-command */

@@ -52,9 +52,16 @@ int32_t ground_alt;
 
 uint8_t horizontal_mode;
 uint8_t nav_segment_start, nav_segment_end;
+uint8_t nav_circle_centre;
+int32_t nav_circle_radius, nav_circle_qdr, nav_circle_radians;
 
 int32_t nav_roll, nav_pitch;
 int32_t nav_heading, nav_course;
+float nav_radius;
+
+#ifndef DEFAULT_CIRCLE_RADIUS
+#define DEFAULT_CIRCLE_RADIUS 0.
+#endif
 
 uint8_t vertical_mode;
 uint32_t nav_throttle;
@@ -64,7 +71,7 @@ float flight_altitude;
 static inline void nav_set_altitude( void );
 
 #define CLOSE_TO_WAYPOINT (15 << 8)
-#define ARRIVED_AT_WAYPOINT (10 << 8)
+#define ARRIVED_AT_WAYPOINT (3 << 8)
 #define CARROT_DIST (12 << 8)
 
 void booz2_nav_init(void) {
@@ -91,6 +98,7 @@ void booz2_nav_init(void) {
   nav_pitch = 0;
   nav_heading = 0;
   nav_course = 0;
+  nav_radius = DEFAULT_CIRCLE_RADIUS;
   nav_throttle = 0;
   nav_climb = 0;
 
@@ -120,6 +128,46 @@ void booz2_nav_run(void) {
 
   nav_set_altitude();
 }
+
+void nav_circle(uint8_t wp_center, int32_t radius) {
+  if (radius == 0) {
+    VECT2_COPY(booz2_navigation_target, waypoints[wp_center]);
+  }
+  else {
+    struct Int32Vect2 pos_diff;
+    VECT2_DIFF(pos_diff, booz_ins_enu_pos,waypoints[wp_center]);
+    // go back to half metric precision or values are too large
+    INT32_VECT2_RSHIFT(pos_diff,pos_diff,INT32_POS_FRAC-1);
+    // store last qdr
+    int32_t last_qdr = nav_circle_qdr;
+    // compute qdr
+    INT32_ATAN2(nav_circle_qdr, pos_diff.y, pos_diff.x);
+    // increment circle radians
+    int32_t angle_diff = (nav_circle_qdr - last_qdr) >> (INT32_TRIG_FRAC - INT32_ANGLE_FRAC);
+    INT32_ANGLE_NORMALIZE(angle_diff);
+    nav_circle_radians += angle_diff;
+
+    // direction of rotation
+    int8_t sign_radius = radius > 0 ? 1 : -1;
+    // absolute radius
+    int32_t abs_radius = abs(radius);
+    // carrot_angle
+    int32_t carrot_angle = (CARROT_DIST / abs_radius) << (INT32_TRIG_FRAC - INT32_POS_FRAC);
+    Bound(carrot_angle, (INT32_ANGLE_PI / 16), INT32_ANGLE_PI_4);
+    carrot_angle = nav_circle_qdr - sign_radius * carrot_angle;
+    int32_t s_carrot, c_carrot;
+    PPRZ_ITRIG_SIN(s_carrot, carrot_angle);	
+    PPRZ_ITRIG_COS(c_carrot, carrot_angle);	
+    // compute setpoint
+    VECT2_ASSIGN(pos_diff, abs_radius * c_carrot, abs_radius * s_carrot);
+    INT32_VECT2_RSHIFT(pos_diff, pos_diff, INT32_TRIG_FRAC);
+    VECT2_SUM(booz2_navigation_target, waypoints[wp_center], pos_diff);
+  }
+  nav_circle_centre = wp_center;
+  nav_circle_radius = radius;
+  horizontal_mode = HORIZONTAL_MODE_CIRCLE;
+}
+
 
 //#include "stdio.h"
 void nav_route(uint8_t wp_start, uint8_t wp_end) {
@@ -199,6 +247,7 @@ unit_t nav_reset_alt( void ) {
 void nav_init_stage( void ) {
   INT32_VECT3_COPY(nav_last_point, booz_ins_enu_pos);
   stage_time = 0;
+  nav_circle_radians = 0;
   horizontal_mode = HORIZONTAL_MODE_WAYPOINT;
 }
 

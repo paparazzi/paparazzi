@@ -675,6 +675,12 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
       float ey = POS_FLOAT_OF_BFP(waypoints[nav_segment_end].y);	\
       DOWNLINK_SEND_SEGMENT(_chan, &sx, &sy, &ex, &ey);			\
     }									\
+    else if (horizontal_mode == HORIZONTAL_MODE_CIRCLE) {			\
+      float cx = POS_FLOAT_OF_BFP(waypoints[nav_circle_centre].x);	\
+      float cy = POS_FLOAT_OF_BFP(waypoints[nav_circle_centre].y);	\
+      float r = POS_FLOAT_OF_BFP(nav_circle_radius); \
+      DOWNLINK_SEND_CIRCLE(_chan, &cx, &cy, &r);			\
+    }									\
   }
 
 #define PERIODIC_SEND_WP_MOVED(_chan) {					\
