@@ -32,46 +32,46 @@
 	</section>
 
 	<section name="IMU" prefix="IMU_">
-		<define name="GYRO_P_CHAN" value="1" />
-		<define name="GYRO_Q_CHAN" value="0" />
-		<define name="GYRO_R_CHAN" value="2" />
+	  <define name="GYRO_P_CHAN" value="1" />
+	  <define name="GYRO_Q_CHAN" value="0" />
+	  <define name="GYRO_R_CHAN" value="2" />
 
-		<define name="GYRO_P_NEUTRAL" value="32372" />
-		<define name="GYRO_Q_NEUTRAL" value="32080" />
-		<define name="GYRO_R_NEUTRAL" value="31978" />
+	  <define name="GYRO_P_NEUTRAL" value="32362" />
+	  <define name="GYRO_Q_NEUTRAL" value="32080" />
+	  <define name="GYRO_R_NEUTRAL" value="32096" />
 
-		<define name="GYRO_P_SENS" value=" 1.1032765" integer="16" />
-		<define name="GYRO_Q_SENS" value="-1.1360802599" integer="16" />
-		<define name="GYRO_R_SENS" value="-1.1249874614" integer="16" />
+	  <define name="GYRO_P_SENS" value=" 1.1032765" integer="16" />
+	  <define name="GYRO_Q_SENS" value="-1.1360802599" integer="16" />
+	  <define name="GYRO_R_SENS" value="-1.1249874614" integer="16" />
 
-		<define name="ACCEL_X_CHAN" value="3" />
-		<define name="ACCEL_Y_CHAN" value="5" />
-		<define name="ACCEL_Z_CHAN" value="6" />
+	  <define name="ACCEL_X_CHAN" value="3" />
+	  <define name="ACCEL_Y_CHAN" value="5" />
+	  <define name="ACCEL_Z_CHAN" value="6" />
 
-		<define name="ACCEL_X_SENS" value="-2.46029007" integer="16" />
-		<define name="ACCEL_Y_SENS" value="-2.45046527" integer="16" />
-		<define name="ACCEL_Z_SENS" value="-2.48071774" integer="16" />
+      <define name="ACCEL_X_SENS" value="-2.45932966" integer="16"/>
+      <define name="ACCEL_Y_SENS" value="-2.45106376" integer="16"/>
+      <define name="ACCEL_Z_SENS" value="-2.47825717" integer="16"/>
 
-		<define name="ACCEL_X_NEUTRAL" value="31893" />
-		<define name="ACCEL_Y_NEUTRAL" value="32204" />
-		<define name="ACCEL_Z_NEUTRAL" value="33009" />
+      <define name="ACCEL_X_NEUTRAL" value="31886"/>
+      <define name="ACCEL_Y_NEUTRAL" value="32162"/>
+      <define name="ACCEL_Z_NEUTRAL" value="32941"/>
 
-		<define name="MAG_X_CHAN" value="4" />
-		<define name="MAG_Y_CHAN" value="0" />
-		<define name="MAG_Z_CHAN" value="2" />
+	  <define name="MAG_X_CHAN" value="4" />
+	  <define name="MAG_Y_CHAN" value="0" />
+	  <define name="MAG_Z_CHAN" value="2" />
 
-		<define name="MAG_X_SENS" value="-3.3915023" integer="16" />
-		<define name="MAG_Y_SENS" value="3.3855561" integer="16" />
-		<define name="MAG_Z_SENS" value="-4.50143271" integer="16" />
-		<define name="MAG_45_HACK" value="1" />
+	  <define name="MAG_X_SENS" value="-3.3915023" integer="16" />
+	  <define name="MAG_Y_SENS" value="3.3855561" integer="16" />
+	  <define name="MAG_Z_SENS" value="-4.50143271" integer="16" />
+	  <define name="MAG_45_HACK" value="1" />
 
-		<define name="MAG_X_NEUTRAL" value="2054" />
-		<define name="MAG_Y_NEUTRAL" value="1963" />
-		<define name="MAG_Z_NEUTRAL" value="2078" />
+	  <define name="MAG_X_NEUTRAL" value="2054" />
+	  <define name="MAG_Y_NEUTRAL" value="1963" />
+	  <define name="MAG_Z_NEUTRAL" value="2078" />
 
-		<define name="BODY_TO_IMU_PHI" value="ANGLE_BFP_OF_REAL(RadOfDeg(0.))" />
-		<define name="BODY_TO_IMU_THETA" value="ANGLE_BFP_OF_REAL(RadOfDeg(0.))" />
-		<define name="BODY_TO_IMU_PSI" value="ANGLE_BFP_OF_REAL(RadOfDeg(0.))" />
+	  <define name="BODY_TO_IMU_PHI" value="ANGLE_BFP_OF_REAL(RadOfDeg(0.))" />
+	  <define name="BODY_TO_IMU_THETA" value="ANGLE_BFP_OF_REAL(RadOfDeg(0.))" />
+	  <define name="BODY_TO_IMU_PSI" value="ANGLE_BFP_OF_REAL(RadOfDeg(0.))" />
 	</section>
 
 
@@ -113,15 +113,15 @@
 		<define name="REF_MAX_RDOT" value="RadOfDeg(1800.)" />
 
 		<!-- feedback -->
-		<define name="PHI_PGAIN" value="-400" />
+		<define name="PHI_PGAIN" value="-1000" />
 		<define name="PHI_DGAIN" value="-300" />
 		<define name="PHI_IGAIN" value="-100" />
 
-		<define name="THETA_PGAIN" value="-400" />
+		<define name="THETA_PGAIN" value="-1000" />
 		<define name="THETA_DGAIN" value="-300" />
 		<define name="THETA_IGAIN" value="-100" />
 
-		<define name="PSI_PGAIN" value="-380" />
+		<define name="PSI_PGAIN" value="-500" />
 		<define name="PSI_DGAIN" value="-320" />
 		<define name="PSI_IGAIN" value="-75" />
 
