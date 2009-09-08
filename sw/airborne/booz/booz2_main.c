@@ -51,6 +51,14 @@
 #include "booz_ahrs.h"
 #include "booz2_ins.h"
 
+#ifdef USE_CAM
+#include "booz2_cam.h"
+#endif
+
+#ifdef BOOZ2_SONAR
+#include "booz2_sonar.h"
+#endif
+
 #include "booz2_main.h"
 
 #ifdef SITL
@@ -107,7 +115,20 @@ STATIC_INLINE void booz2_main_init( void ) {
   booz2_gps_init();
 #endif
 
+#ifdef USE_CAM
+  booz2_cam_init();
+#endif
+
+#ifdef BOOZ2_SONAR
+  booz2_sonar_init();
+#endif
+
   int_enable();
+
+#ifdef BOOZ_START_DELAY
+  sys_time_usleep(BOOZ_START_DELAY);
+#endif
+
 }
 
 
@@ -119,29 +140,37 @@ STATIC_INLINE void booz2_main_periodic( void ) {
   booz2_autopilot_periodic();
   /* set actuators     */
   actuators_set(booz2_autopilot_motors_on);
+
   PeriodicPrescaleBy10(                             \
     {                                               \
       radio_control_periodic();						\
-      if (radio_control.status != RADIO_CONTROL_OK && booz2_autopilot_mode != BOOZ2_AP_MODE_KILL) \
-        booz2_autopilot_set_mode(BOOZ2_AP_MODE_FAILSAFE);\
-    },                \
-    {                                                                   \
-      if (cpu_time_sec > TELEMETRY_STARTUP_DELAY)                       \
-        Booz2TelemetryPeriodic();                                       \
-    },                                                                  \
-    {                                                                   \
-      booz_fms_periodic();                                              \
-    },                                                                  \
-    {                                                                   \
-      /*BoozControlSurfacesSetFromCommands();*/                         \
-    },                                                                  \
-    {},                                                                 \
-    {},                                                                 \
-    {},                                                                 \
-    {},                                                                 \
-    {},                                                                 \
-    {}                                                                  \
-                                                    );                  \
+      if (radio_control.status != RADIO_CONTROL_OK && booz2_autopilot_mode != BOOZ2_AP_MODE_KILL && booz2_autopilot_mode != BOOZ2_AP_MODE_NAV)\
+	booz2_autopilot_set_mode(BOOZ2_AP_MODE_FAILSAFE);		\
+    },									\
+    {									\
+      Booz2TelemetryPeriodic();						\
+    },									\
+    {									\
+      booz_fms_periodic();						\
+    },									\
+    {									\
+      /*BoozControlSurfacesSetFromCommands();*/				\
+    },									\
+    {},									\
+    {},									\
+    {},									\
+    {},									\
+    {},									\
+    {}									\
+    );									\
+
+#ifdef USE_CAM
+  RunOnceEvery(50,booz2_cam_periodic());
+#endif
+
+#ifdef BOOZ2_SONAR
+  booz2_analog_periodic();
+#endif
 
   //  t1 = T0TC;
   //  diff = t1 - t0;
