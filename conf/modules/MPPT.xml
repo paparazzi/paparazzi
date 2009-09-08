@@ -1,0 +1,16 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="MPPT">
+  <header>
+    <file name="MPPT.h"/>
+  </header>
+  <init fun="MPPT_init()"/>
+  <periodic fun="MPPT_periodic()" freq="4." delay="4" autorun="TRUE"/>
+  <makefile target="ap">
+    <file name="MPPT.c"/>
+  </makefile>
+  <makefile target="sim">
+    <file name="sim_MPPT.c"/>
+  </makefile>
+</module>
+
