@@ -15,22 +15,22 @@
 
 <!-- commands section -->
   <servos>
-    <servo name="MOTOR"         no="0" min="1000" neutral="1000" max="2000"/>
-    <servo name="AILEVON_LEFT"  no="2" min="1130" neutral="1575" max="1880"/>
+    <servo name="MOTOR" no="0" min="1000" neutral="1000" max="2000"/>
+    <servo name="AILEVON_LEFT" no="2" min="1130" neutral="1575" max="1880"/>
     <servo name="AILEVON_RIGHT" no="6" min="1980" neutral="1465" max="1170"/>
   </servos>
 
   <commands>
     <axis name="THROTTLE" failsafe_value="0"/>
-    <axis name="ROLL"     failsafe_value="0"/>
-    <axis name="PITCH"    failsafe_value="0"/>
-    <axis name="HATCH"    failsafe_value="0"/>
+    <axis name="ROLL" failsafe_value="0"/>
+    <axis name="PITCH" failsafe_value="0"/>
+    <axis name="HATCH" failsafe_value="0"/>
   </commands>
 
   <rc_commands>
     <set command="THROTTLE" value="@THROTTLE"/>
-    <set command="ROLL"     value="@ROLL"/>
-    <set command="PITCH"    value="@PITCH"/>
+    <set command="ROLL" value="@ROLL"/>
+    <set command="PITCH" value="@PITCH"/>
   </rc_commands>
 
   <section name="MIXER">
@@ -39,10 +39,10 @@
   </section>
 
   <command_laws>
-    <let var="aileron"  value="@ROLL  * AILEVON_AILERON_RATE"/>
+    <let var="aileron" value="@ROLL  * AILEVON_AILERON_RATE"/>
     <let var="elevator" value="@PITCH * AILEVON_ELEVATOR_RATE"/>  
-    <set servo="MOTOR"           value="@THROTTLE"/>
-    <set servo="AILEVON_LEFT"  value="$elevator + $aileron"/>
+    <set servo="MOTOR" value="@THROTTLE"/>
+    <set servo="AILEVON_LEFT" value="$elevator + $aileron"/>
     <set servo="AILEVON_RIGHT" value="$elevator - $aileron"/>
   </command_laws>
 
@@ -75,7 +75,7 @@
     <define name="IR2_SIGN" value="-1"/>
     <define name="TOP_SIGN" value="-1"/>
 
-    <define name="ROLL_NEUTRAL_DEFAULT" value="-3.6" unit="deg"/>
+    <define name="ROLL_NEUTRAL_DEFAULT" value="-1.43239450455" unit="deg"/>
     <define name="PITCH_NEUTRAL_DEFAULT" value="17" unit="deg"/>
 
     <define name="CORRECTION_UP" value="1."/>
@@ -108,8 +108,8 @@
     <define name="CARROT" value="5." unit="s"/>
     <define name="KILL_MODE_DISTANCE" value="(1.5*MAX_DIST_FROM_HOME)"/>
     <define name="CONTROL_RATE" value="60" unit="Hz"/>
-    <define name="XBEE_INIT" value="\"ATPL2\rATRN1\rATTT80\r\""/>
-<!--    <define name="NO_XBEE_API_INIT" value="TRUE"/>-->
+    <!-- define name="XBEE_INIT" value="\"ATPL2\rATRN1\rATTT80\r\""/ -->
+    <!-- define name="NO_XBEE_API_INIT" value="TRUE"/ -->
     <define name="ALT_KALMAN_ENABLED" value="TRUE"/>
 
     <define name="TRIGGER_DELAY" value="1."/>
@@ -147,19 +147,19 @@
   </section>
 
   <section name="HORIZONTAL CONTROL" prefix="H_CTL_">
-    <define name="COURSE_PGAIN" value="-0.8"/>
+    <define name="COURSE_PGAIN" value="-1.20599997044"/>
 
-    <define name="ROLL_MAX_SETPOINT" value="0.7" unit="radians"/>
+    <define name="ROLL_MAX_SETPOINT" value="0.805000007153" unit="radians"/>
     <define name="PITCH_MAX_SETPOINT" value="0.5" unit="radians"/>
     <define name="PITCH_MIN_SETPOINT" value="-0.5" unit="radians"/>
 
-    <define name="PITCH_PGAIN" value="-10000."/>
+    <define name="PITCH_PGAIN" value="-7627.11914062"/>
     <define name="PITCH_DGAIN" value="1.5"/>
 
     <define name="ELEVATOR_OF_ROLL" value="2500"/>
 
-    <define name="ROLL_ATTITUDE_GAIN" value="-7500"/>
-    <define name="ROLL_RATE_GAIN" value="-1500"/>
+    <define name="ROLL_ATTITUDE_GAIN" value="-12584.7460938"/>
+    <define name="ROLL_RATE_GAIN" value="-1779.66101074"/>
 
     <define name="ROLL_KFF" value="-500"/>
     <define name="ROLL_IGAIN" value="-500"/>
@@ -200,12 +200,12 @@
 	<define name="HOME_RADIUS" value="100" unit="m"/>
 </section>
  
-<!-- -->
+<!--
  <section name="DATALINK" prefix="DATALINK_">
     <define name="DEVICE_TYPE" value="XBEE"/>
     <define name="DEVICE_ADDRESS" value="...."/>
   </section>
-<!-- -->
+-->
 
   <section name="Digital camera telecommand">
     <!-- IOs are seen as LEDs -->
@@ -239,12 +239,12 @@ ap.srcs += $(SRC_ARCH)/servos_4017_hw.c actuators.c
 ap.CFLAGS += -DRADIO_CONTROL
 ap.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c  
 
-ap.CFLAGS += -DDOWNLINK -DUSE_UART1 -DDOWNLINK_TRANSPORT=XBeeTransport -DXBEE_UART=Uart1 -DDATALINK=XBEE -DUART1_BAUD=B9600
-ap.srcs += downlink.c $(SRC_ARCH)/uart_hw.c datalink.c xbee.c
+#ap.CFLAGS += -DDOWNLINK -DUSE_UART1 -DDOWNLINK_TRANSPORT=XBeeTransport -DXBEE_UART=Uart1 -DDATALINK=XBEE -DUART1_BAUD=B9600
+#ap.srcs += downlink.c $(SRC_ARCH)/uart_hw.c datalink.c xbee.c
 
 #TRANSPARENT
-#ap.CFLAGS += -DDOWNLINK -DUSE_UART1 -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_FBW_DEVICE=Uart1 -DDOWNLINK_AP_DEVICE=Uart1 -DPPRZ_UART=Uart1 -DDATALINK=PPRZ -DUART1_BAUD=B9600
-#ap.srcs += downlink.c $(SRC_ARCH)/uart_hw.c datalink.c pprz_transport.c
+ap.CFLAGS += -DDOWNLINK -DUSE_UART1 -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_FBW_DEVICE=Uart1 -DDOWNLINK_AP_DEVICE=Uart1 -DPPRZ_UART=Uart1 -DDATALINK=PPRZ -DUART1_BAUD=B9600
+ap.srcs += downlink.c $(SRC_ARCH)/uart_hw.c datalink.c pprz_transport.c
 
 
 ap.CFLAGS += -DINTER_MCU

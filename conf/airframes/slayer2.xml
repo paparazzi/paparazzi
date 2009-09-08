@@ -10,22 +10,22 @@
 <!-- commands section -->
   <servos>
     <servo name="AILEVON_RIGHT" no="1" min="1000" neutral="1500" max="2000"/>
-    <servo name="AILEVON_LEFT"  no="0" min="2000" neutral="1480" max="900"/>
-    <servo name="THROTTLE"      no="4" min="1250" neutral="1250" max="1850"/>
-    <servo name="HATCH"         no="3" min="2000" neutral="2000" max="1000"/>
+    <servo name="AILEVON_LEFT" no="0" min="2000" neutral="1480" max="900"/>
+    <servo name="THROTTLE" no="4" min="1250" neutral="1250" max="1850"/>
+    <servo name="HATCH" no="3" min="2000" neutral="2000" max="1000"/>
   </servos>
 
   <commands>
     <axis name="THROTTLE" failsafe_value="0"/>
-    <axis name="ROLL"     failsafe_value="0"/>
-    <axis name="PITCH"    failsafe_value="0"/>
-    <axis name="HATCH"    failsafe_value="0"/>
+    <axis name="ROLL" failsafe_value="0"/>
+    <axis name="PITCH" failsafe_value="0"/>
+    <axis name="HATCH" failsafe_value="0"/>
   </commands>
 
   <rc_commands>
     <set command="THROTTLE" value="@THROTTLE"/>
-    <set command="ROLL"     value="@ROLL"/>
-    <set command="PITCH"    value="@PITCH"/>
+    <set command="ROLL" value="@ROLL"/>
+    <set command="PITCH" value="@PITCH"/>
   </rc_commands>
 
   <section name="MIXER">
@@ -34,12 +34,12 @@
   </section>
 
   <command_laws>
-    <let var="aileron"  value="@ROLL  * AILEVON_AILERON_RATE"/>
+    <let var="aileron" value="@ROLL  * AILEVON_AILERON_RATE"/>
     <let var="elevator" value="@PITCH * AILEVON_ELEVATOR_RATE"/>  
     <set servo="THROTTLE" value="@THROTTLE"/>
-    <set servo="AILEVON_LEFT"  value="$elevator + $aileron"/>
+    <set servo="AILEVON_LEFT" value="$elevator + $aileron"/>
     <set servo="AILEVON_RIGHT" value="$elevator - $aileron"/>
-     <set servo="HATCH"           value="@HATCH"/>
+     <set servo="HATCH" value="@HATCH"/>
   </command_laws>
 
   <section name="AUTO1" prefix="AUTO1_">
@@ -52,8 +52,8 @@
     <define name="IR2" value="ADC_0"/>
     <define name="IR_TOP" value="ADC_4"/>
     <define name="IR_NB_SAMPLES" value="16"/>
-    <define name="GYRO_ROLL" value="ADC_6"/>
-    <define name="GYRO_TEMP" value="ADC_5"/>
+    <define name="GYRO_ROLL" value="ADC_5"/>
+<!--    <define name="GYRO_TEMP" value="ADC_6"/> -->
     <define name="GYRO_NB_SAMPLES" value="16"/>
   </section>
 
@@ -66,8 +66,8 @@
     <define name="IR2_SIGN" value="1"/>
     <define name="TOP_SIGN" value="-1"/>
 
-    <define name="LATERAL_CORRECTION" value=".5"/>
-    <define name="LONGITUDINAL_CORRECTION" value=".5"/>
+    <define name="LATERAL_CORRECTION" value="0.356000006199"/>
+    <define name="LONGITUDINAL_CORRECTION" value="0.381000012159"/>
     <define name="VERTICAL_CORRECTION" value="1.5"/>
 
     <define name="ROLL_NEUTRAL_DEFAULT" value="-9" unit="deg"/>
@@ -81,8 +81,9 @@
 
  <section name="GYRO" prefix="GYRO_">
     <define name="ADC_ROLL_NEUTRAL" value="443"/>
-    <define name="ADC_TEMP_NEUTRAL" value="476"/>   
+<!--    <define name="ADC_TEMP_NEUTRAL" value="476"/>   
     <define name="ADC_TEMP_SLOPE" value="0"/>  
+-->
     <define name="ROLL_SCALE" value="1.3846"/>
     <define name="ROLL_DIRECTION" value="-1."/> 
   </section>
@@ -94,6 +95,8 @@
  
  <section name="MISC">
     <define name="NOMINAL_AIRSPEED" value="20." unit="m/s"/>
+    <define name="MAXIMUM_AIRSPEED" value="25." unit="m/s"/>
+    <define name="MINIMUM_AIRSPEED" value="15." unit="m/s"/>
     <define name="CARROT" value="3." unit="s"/>
     <define name="KILL_MODE_DISTANCE" value="(1.5*MAX_DIST_FROM_HOME)"/>
     <define name="CONTROL_RATE" value="60" unit="Hz"/>
@@ -262,9 +265,22 @@ ap.CFLAGS += -D BARO_MS5534A_W1=0xAC20 -D BARO_MS5534A_W2=0x87D9 -D BARO_MS5534A
 
 
 # Config for SITL simulation
-include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
-sim.CFLAGS += -DBOARD_CONFIG=\"tiny.h\" -DAGR_CLIMB -DLOITER_TRIM -DALT_KALMAN -DUSE_BARO_MS5534A
-sim.srcs += nav_survey_rectangle.c $(SRC_ARCH)/sim_baro.c nav_line.c
+# Config for SITL simulation
+#include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
+sim.ARCHDIR = $(ARCHI)
+sim.ARCH = sitl
+sim.TARGET = autopilot
+sim.TARGETDIR = autopilot
+sim.CFLAGS += -DSITL -DAP -DFBW -DRADIO_CONTROL -DINTER_MCU -DDOWNLINK -DDOWNLINK_TRANSPORT=IvyTransport -DINFRARED -DNAV -DLED -DWIND_INFO
+sim.srcs = latlong.c radio_control.c downlink.c commands.c gps.c inter_mcu.c infrared.c fw_v_ctl.c nav.c estimator.c sys_time.c main_fbw.c main_ap.c datalink.c $(SRC_ARCH)/ppm_hw.c $(SRC_ARCH)/sim_gps.c $(SRC_ARCH)/sim_ir.c $(SRC_ARCH)/sim_ap.c $(SRC_ARCH)/ivy_transport.c $(SRC_ARCH)/sim_adc_generic.c $(SRC_ARCH)/led_hw.c
+
+sim.CFLAGS += -DBOARD_CONFIG=\"tiny.h\" -DAGR_CLIMB -DLOITER_TRIM -DALT_KALMAN  -DUSE_BARO_MS5534A 
+
+sim.srcs += nav_survey_rectangle.c nav_line.c $(SRC_ARCH)/sim_baro.c 
+
+sim.srcs += fw_h_ctl.c
+# sim.srcs += fw_h_ctl_a.c
+# sim.CFLAGS += -DH_CTL_ROLL_IGAIN=-500 -DH_CTL_ROLL_KFF=-500
 
   </makefile>
 </airframe>
