@@ -56,7 +56,7 @@ struct fbw_state {
   uint8_t status;
   uint8_t nb_err;
   uint8_t vsupply; 	/* 1e-1 V */
-  uint16_t current;	/* milliAmps */
+  int16_t current;	/* milliAmps */
 };
 
 struct ap_state {
