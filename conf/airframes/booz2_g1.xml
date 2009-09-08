@@ -223,7 +223,7 @@ include $(CFG_BOOZ)/subsystems/booz2_ins_hff.makefile
 #ap.CFLAGS += -DGPS_LAG=0.8
 ap.CFLAGS += -DUSE_GPS_ACC4R
 
-ap.CFLAGS += -DUSE_INS_NAV_INIT -DBOOZ_START_DELAY=4000
+ap.CFLAGS += -DUSE_ADAPT_HOVER -DUSE_INS_NAV_INIT -DBOOZ_START_DELAY=3
 
 ap.CFLAGS += -DUSE_CAM
 ap.srcs += $(SRC_BOOZ_ARCH)/booz2_pwm_hw.c $(SRC_BOOZ)/booz2_cam.c
