@@ -85,7 +85,10 @@ int main( void ) {
 }
 #endif /* SITL */
 
+#ifdef BOOZ_START_DELAY
+bool_t delay_done;
 uint32_t init_done_time;
+#endif
 
 STATIC_INLINE void booz2_main_init( void ) {
 
@@ -127,7 +130,10 @@ STATIC_INLINE void booz2_main_init( void ) {
 
   int_enable();
 
+#ifdef BOOZ_START_DELAY
+  delay_done = FALSE;
   init_done_time = T0TC;
+#endif
 
 }
 
@@ -137,7 +143,10 @@ STATIC_INLINE void booz2_main_periodic( void ) {
 
   booz_imu_periodic();
 #ifdef BOOZ_START_DELAY
-  if ((uint32_t)(T0TC-init_done_time) < SYS_TICS_OF_USEC((uint32_t)(BOOZ_START_DELAY*1e6))) return;
+  if (!delay_done) {
+    if ((uint32_t)(T0TC-init_done_time) < SYS_TICS_OF_USEC((uint32_t)(BOOZ_START_DELAY*1e6))) return;
+    else delay_done = TRUE;
+  }
 #endif
 
   /* run control loops */
